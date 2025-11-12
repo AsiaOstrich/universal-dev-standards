@@ -1,0 +1,628 @@
+# Commit Message Guide
+# Commit 訊息規範指南
+
+**Version**: 1.0.0
+**Last Updated**: 2025-11-12
+**Applicability**: All projects using Git version control
+**適用範圍**: 所有使用 Git 版本控制的專案
+
+---
+
+## Purpose | 目的
+
+Standardized commit messages improve code review efficiency, facilitate automated changelog generation, and make project history searchable and understandable.
+
+標準化的 commit 訊息提升程式碼審查效率、促進自動化變更日誌生成，並使專案歷史可搜尋、可理解。
+
+---
+
+## Basic Format | 基本格式
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+### Components | 組成元素
+
+| Component | Required | Description |
+|-----------|----------|-------------|
+| `type` | ✅ Yes | Type of change |
+| `scope` | Optional | Module/component affected |
+| `subject` | ✅ Yes | Brief description (≤72 chars) |
+| `body` | Recommended | Detailed explanation |
+| `footer` | Optional | Issue references, breaking changes |
+
+---
+
+## Type Classification | 類型分類
+
+**PROJECT MUST CHOOSE ONE LANGUAGE** for types and use it consistently.
+
+**專案必須選擇一種語言**用於類型並保持一致使用。
+
+### Option A: English (International Standard)
+
+| Type | When to Use | 使用時機 |
+|------|-------------|---------|
+| `feat` | New feature | 新功能 |
+| `fix` | Bug fix | Bug 修復 |
+| `refactor` | Code refactoring (no functional change) | 重構（無功能變更）|
+| `docs` | Documentation only | 僅文件更新 |
+| `style` | Formatting, whitespace (no code logic change) | 格式化、空白（無邏輯變更）|
+| `test` | Adding or updating tests | 新增或更新測試 |
+| `perf` | Performance improvement | 效能改進 |
+| `build` | Build system or dependencies | 建置系統或依賴 |
+| `ci` | CI/CD pipeline changes | CI/CD 管道變更 |
+| `chore` | Maintenance tasks | 維護任務 |
+| `revert` | Revert previous commit | 回退先前提交 |
+
+### Option B: Traditional Chinese (For Taiwanese Teams)
+
+| 類型 | 使用時機 | English Equivalent |
+|------|---------|-------------------|
+| `新增` | 新功能 | feat |
+| `修正` | Bug 修復 | fix |
+| `重構` | 重構（無功能變更）| refactor |
+| `文件` | 僅文件更新 | docs |
+| `樣式` | 格式化（無邏輯變更）| style |
+| `測試` | 新增或更新測試 | test |
+| `效能` | 效能改進 | perf |
+| `建置` | 建置系統或依賴 | build |
+| `整合` | CI/CD 管道變更 | ci |
+| `升級` | 依賴升級 | chore |
+| `回退` | 回退先前提交 | revert |
+
+**Project Decision Point**: Document your choice in `CONTRIBUTING.md`:
+```markdown
+## Commit Message Language
+This project uses **English** commit types (feat, fix, refactor, etc.)
+本專案使用**英文** commit 類型（feat, fix, refactor 等）
+
+## Commit Message Language
+This project uses **Traditional Chinese** commit types (新增, 修正, 重構, etc.)
+本專案使用**繁體中文** commit 類型（新增、修正、重構等）
+```
+
+---
+
+## Scope Guidelines | 範圍指引
+
+Scope indicates which part of the codebase is affected. Use short, recognizable names.
+
+範圍指出程式碼庫的哪個部分受影響。使用簡短、可識別的名稱。
+
+### Common Scopes | 常見範圍
+
+**By Layer/Module | 依層級/模組**:
+- `api`: API layer
+- `ui`: User interface
+- `auth`: Authentication/authorization
+- `database`: Database layer
+- `config`: Configuration
+- `middleware`: Middleware layer
+
+**By Feature | 依功能**:
+- `login`: Login feature
+- `payment`: Payment processing
+- `notification`: Notifications
+- `search`: Search functionality
+
+**By File Type | 依檔案類型**:
+- `tests`: Test files
+- `docs`: Documentation files
+- `build`: Build scripts
+- `deps`: Dependencies
+
+**Special Scopes | 特殊範圍**:
+- `*`: Multiple scopes affected
+- (no scope): Global changes
+
+**Example Scopes for a Web API Project**:
+```
+auth, user, product, order, payment, notification,
+database, config, middleware, api, tests, docs
+```
+
+---
+
+## Subject Line | 主旨行
+
+### Rules | 規則
+
+1. **Length**: ≤72 characters (50 ideal)
+   **長度**: ≤72 字元（50 為理想）
+
+2. **Tense**: Use imperative mood ("Add feature" not "Added feature")
+   **時態**: 使用祈使語氣（「Add feature」而非「Added feature」）
+
+3. **Capitalization**: First letter capitalized
+   **大寫**: 首字母大寫
+
+4. **No period**: Don't end with a period
+   **無句點**: 結尾不加句點
+
+5. **Language**: Follow project policy (English or native language)
+   **語言**: 遵循專案政策（英文或母語）
+
+### Good Examples | 良好範例
+
+```
+feat(auth): Add OAuth2 Google login support
+fix(api): Resolve memory leak in user session cache
+refactor(database): Extract query builder to separate class
+docs(readme): Update installation instructions for Node 20
+test(payment): Add unit tests for refund flow
+perf(search): Implement index for full-text search
+build(deps): Upgrade Express to 4.18.2
+```
+
+### Traditional Chinese Examples | 繁體中文範例
+
+```
+新增(認證): 實作 OAuth2 Google 登入支援
+修正(API): 解決使用者 session 快取記憶體洩漏
+重構(資料庫): 提取查詢建構器為獨立類別
+文件(README): 更新 Node 20 安裝說明
+測試(付款): 新增退款流程單元測試
+效能(搜尋): 實作全文檢索索引
+建置(依賴): 升級 Express 至 4.18.2
+```
+
+### Bad Examples | 不良範例
+
+```
+❌ "fixed bug" - Too vague, no scope
+❌ "feat(auth): added google login and fixed a bug and refactored code" - Too long, multiple concerns
+❌ "Update stuff." - Has period, too vague
+❌ "Added OAuth2 login feature" - Past tense instead of imperative
+❌ "WIP" - Not descriptive
+```
+
+---
+
+## Body | 主體內容
+
+Use the body to explain **WHY** the change was made, not **WHAT** was changed (the code shows what).
+
+使用主體解釋**為何**做此變更，而非**變更了什麼**（程式碼已顯示變更內容）。
+
+### Structure | 結構
+
+- Use bullet points for multiple changes
+- Wrap lines at 72 characters
+- Separate from subject with a blank line
+- Provide context and rationale
+
+### Body Template | 主體範本
+
+```
+<Subject line>
+
+<Blank line>
+
+Why this change is needed:
+- Reason 1
+- Reason 2
+
+What this change does:
+- Change 1
+- Change 2
+
+Additional context:
+- Context or considerations
+```
+
+### Examples | 範例
+
+#### Example 1: Feature with Context
+
+```
+feat(payment): Add support for PayPal payment method
+
+Why this change is needed:
+- Customer survey shows 40% prefer PayPal
+- Competitor analysis indicates missing payment option
+- Q4 goal to increase payment method diversity
+
+What this change does:
+- Integrate PayPal SDK v2.0
+- Add PayPal button to checkout page
+- Implement webhook for payment confirmation
+- Update payment history to show PayPal transactions
+
+Technical notes:
+- Used sandbox environment for testing
+- Webhook signature validation implemented for security
+```
+
+#### Example 2: Bug Fix with Root Cause
+
+```
+fix(api): Resolve race condition in concurrent user updates
+
+Why this occurred:
+- Two simultaneous PUT requests to /users/:id could overwrite each other
+- No optimistic locking or transaction isolation implemented
+- Last write wins, causing data loss
+
+What this fix does:
+- Add version field to User model
+- Implement optimistic locking check
+- Return 409 Conflict if version mismatch
+- Update API documentation with retry guidance
+
+Testing:
+- Added concurrent update test scenarios
+- Verified with load test (100 concurrent updates)
+```
+
+#### Example 3: Traditional Chinese Body
+
+```
+新增(通知): 實作電子郵件通知功能
+
+為何需要此變更:
+- 使用者反饋希望收到訂單狀態更新通知
+- 減少客服查詢訂單狀態的工作量
+- 提升使用者體驗與滿意度
+
+此變更做了什麼:
+- 整合 SendGrid API 發送電子郵件
+- 新增 EmailTemplate 模組管理郵件範本
+- 實作訂單狀態變更時觸發通知
+- 新增使用者偏好設定以控制通知開關
+
+技術備註:
+- 使用佇列機制避免阻塞主流程
+- 郵件發送失敗會重試 3 次
+- 範本支援多語言（繁中、英文）
+```
+
+---
+
+## Footer | 頁尾
+
+### Issue References | Issue 引用
+
+Link commits to issue tracker:
+
+```
+Closes #123
+Fixes #456
+Resolves #789
+Refs #101, #102
+See also #999
+```
+
+**Supported Keywords** (GitHub, GitLab, Bitbucket):
+- `Closes`, `Fixes`, `Resolves`: Automatically closes the issue
+- `Refs`, `References`, `See also`: Links without closing
+
+---
+
+### Breaking Changes | 破壞性變更
+
+**CRITICAL**: Always document breaking changes in footer.
+
+**重要**: 永遠在頁尾記錄破壞性變更。
+
+**Format**:
+```
+BREAKING CHANGE: <description>
+
+Migration guide:
+- Step 1
+- Step 2
+```
+
+**Example**:
+```
+feat(api): Change user endpoint response format
+
+- Flatten nested user object structure
+- Remove deprecated `legacy_id` field
+- Add `created_at` and `updated_at` timestamps
+
+BREAKING CHANGE: User API response format changed
+
+Old format:
+```json
+{
+  "data": {
+    "user": {
+      "id": 123,
+      "name": "John",
+      "legacy_id": 456
+    }
+  }
+}
+```
+
+New format:
+```json
+{
+  "id": 123,
+  "name": "John",
+  "created_at": "2025-11-12T10:00:00Z",
+  "updated_at": "2025-11-12T10:00:00Z"
+}
+```
+
+Migration guide:
+- Update API clients to remove `.data` wrapper
+- Remove references to `legacy_id` field
+- Use `created_at` instead of `createdAt` (snake_case)
+
+Closes #234
+```
+
+---
+
+## Complete Examples | 完整範例
+
+### Example 1: Simple Fix
+
+```
+fix(auth): Correct JWT expiration time calculation
+
+The token was expiring 1 hour early due to timezone offset not being accounted for. Now using UTC time consistently.
+
+Fixes #445
+```
+
+---
+
+### Example 2: Feature with Multiple Parts
+
+```
+feat(export): Add CSV export functionality for user data
+
+Why this feature is needed:
+- Admins need to export user lists for compliance audits
+- Manual copy-paste from UI is error-prone
+- Requested by legal and compliance teams
+
+What this implements:
+- New `/api/users/export` endpoint
+- CSV generation using csv-writer library
+- Streaming response to handle large datasets
+- Date range filtering options
+- Column selection (PII vs non-PII fields)
+
+Technical notes:
+- Streaming prevents memory issues with 100k+ users
+- Export limited to admin role only
+- PII fields require additional permission flag
+- Rate limited to prevent abuse
+
+Closes #567
+Refs #234 (related compliance requirement)
+```
+
+---
+
+### Example 3: Refactoring with Breaking Change
+
+```
+refactor(database): Migrate from MySQL to PostgreSQL
+
+Why this refactoring:
+- PostgreSQL offers better JSON support for our use case
+- Need advanced indexing features for full-text search
+- Licensing considerations for cloud deployment
+
+What this changes:
+- Update database driver from mysql2 to pg
+- Convert MySQL-specific queries to PostgreSQL syntax
+- Update connection pooling configuration
+- Migrate schema using migration scripts
+- Update ORM configurations
+
+Migration:
+- Run `npm run db:backup` before upgrading
+- Run `npm run db:migrate` to apply schema changes
+- Update environment variables (see .env.example)
+
+BREAKING CHANGE: Database engine changed from MySQL to PostgreSQL
+
+Migration guide:
+1. Backup existing MySQL database
+2. Install PostgreSQL 15+
+3. Update .env:
+   - DATABASE_URL=postgresql://... (was mysql://...)
+   - Remove MYSQL_* variables
+4. Run migration: npm run db:migrate
+5. Verify data integrity: npm run db:verify
+
+Estimated downtime: 2-4 hours for production migration
+
+Closes #890
+```
+
+---
+
+## Anti-Patterns | 反模式
+
+### ❌ Anti-Pattern 1: Vague Messages
+
+```
+fix: bug fix
+refactor: code improvements
+update: changes
+```
+
+**Problem**: No context, impossible to understand without reading code.
+
+**✅ Fix**:
+```
+fix(login): Prevent duplicate session creation on rapid clicks
+refactor(utils): Extract email validation regex to constants
+feat(profile): Add avatar upload with image compression
+```
+
+---
+
+### ❌ Anti-Pattern 2: Mixing Multiple Concerns
+
+```
+feat: add login, fix bugs, refactor database, update docs
+```
+
+**Problem**: Should be separate commits for reviewability and revertability.
+
+**✅ Fix**: Split into separate commits:
+```
+feat(auth): Add OAuth2 login support
+fix(api): Resolve null pointer in user lookup
+refactor(database): Extract connection pool to separate module
+docs(api): Update authentication endpoint documentation
+```
+
+---
+
+### ❌ Anti-Pattern 3: Commit Message as Code Comments
+
+```
+fix: change line 45 from getUserById to getUserByEmail because the function was renamed
+```
+
+**Problem**: Too focused on implementation details instead of purpose.
+
+**✅ Fix**:
+```
+fix(api): Use correct user lookup method in password reset
+
+The password reset flow was calling getUserById with an email parameter,
+causing lookups to fail. Now correctly calls getUserByEmail.
+
+Fixes #789
+```
+
+---
+
+### ❌ Anti-Pattern 4: No Body for Complex Changes
+
+```
+refactor(database): migrate to PostgreSQL
+```
+
+**Problem**: Breaking change with no migration guide or context.
+
+**✅ Fix**: Add body with context and migration guide (see Example 3 above).
+
+---
+
+## Automation and Tooling | 自動化與工具
+
+### Commit Message Linters | Commit 訊息檢查工具
+
+**commitlint** (Node.js):
+```bash
+npm install --save-dev @commitlint/{cli,config-conventional}
+
+# .commitlintrc.js
+module.exports = {
+  extends: ['@commitlint/config-conventional']
+};
+```
+
+**Git Hook** (enforce on commit):
+```bash
+# .git/hooks/commit-msg
+#!/bin/sh
+npx commitlint --edit $1
+```
+
+---
+
+### Changelog Generation | 變更日誌生成
+
+**standard-version** (Node.js):
+```bash
+npm install --save-dev standard-version
+
+# package.json
+{
+  "scripts": {
+    "release": "standard-version"
+  }
+}
+
+# Generates CHANGELOG.md from commits
+npm run release
+```
+
+**git-chglog** (Go):
+```bash
+git-chglog --output CHANGELOG.md
+```
+
+---
+
+## Project Configuration Template | 專案設定範本
+
+Add to `CONTRIBUTING.md`:
+
+```markdown
+## Commit Message Format
+
+### Type Language
+This project uses **[English/Traditional Chinese]** commit types.
+
+### Allowed Types
+- feat / 新增: New features
+- fix / 修正: Bug fixes
+- refactor / 重構: Code refactoring
+- docs / 文件: Documentation
+- test / 測試: Tests
+- perf / 效能: Performance improvements
+- build / 建置: Build system
+- ci / 整合: CI/CD changes
+- chore / 維護: Maintenance
+
+### Allowed Scopes
+- auth: Authentication module
+- api: API layer
+- ui: User interface
+- database: Database layer
+- [add your project-specific scopes]
+
+### Subject Language
+Commit subject lines should be in **[English/繁體中文]**.
+
+### Examples
+```
+feat(auth): Add OAuth2 support
+fix(api): Resolve memory leak
+新增(認證): 實作 OAuth2 支援
+修正(API): 解決記憶體洩漏
+```
+```
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-11-12 | Initial guide published |
+
+---
+
+## References | 參考資料
+
+- [Conventional Commits](https://www.conventionalcommits.org/)
+- [Angular Commit Guidelines](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#commit)
+- [Semantic Versioning](https://semver.org/)
+
+---
+
+## License | 授權
+
+This guide is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本指南以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

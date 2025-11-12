@@ -1,0 +1,397 @@
+# AI Collaboration Anti-Hallucination Standards
+# AI 協作防幻覺標準
+
+**Version**: 1.0.0
+**Last Updated**: 2025-11-12
+**Applicability**: All software projects using AI assistants
+**適用範圍**: 所有使用 AI 助理協作的軟體專案
+
+---
+
+## Purpose | 目的
+
+This standard defines strict guidelines for AI assistants to prevent hallucination (generating false or unverified information) when analyzing code, making recommendations, or documenting systems.
+
+本標準定義 AI 助理的嚴格準則，以防止在分析程式碼、提出建議或撰寫系統文件時產生幻覺（生成錯誤或未經驗證的資訊）。
+
+---
+
+## Core Principles | 核心原則
+
+### 1. Evidence-Based Analysis Only | 僅基於證據的分析
+
+**Rule**: Only analyze and reference content that has been explicitly provided or read.
+
+**規則**: 僅分析和引用已明確提供或讀取的內容。
+
+**Guidelines | 指引**:
+- ✅ Analyze code files that have been read using file reading tools
+- ✅ Reference documentation that has been fetched
+- ✅ Cite configuration files that have been inspected
+- ❌ Do NOT speculate about APIs, functions, or configurations not seen
+- ❌ Do NOT assume framework behavior without verification
+- ❌ Do NOT fabricate requirement details
+
+**Examples | 範例**:
+
+✅ **Correct**:
+```
+[Evidence] In src/auth/service.ts:45, JWT validation logic uses the 'jsonwebtoken' library
+[Evidence] The package.json file (lines 12-18) lists Express 4.18.2 as a dependency
+```
+
+❌ **Incorrect**:
+```
+This system uses Redis for caching (code not reviewed)
+The UserService should have an authenticate() method (API not verified)
+Requirements state we need SSO login support (requirement not confirmed)
+```
+
+---
+
+### 2. Explicit Source Attribution | 明確來源標註
+
+**Rule**: All code references must include file path and line number.
+
+**規則**: 所有程式碼引用必須包含檔案路徑與行號。
+
+**Format | 格式**:
+```
+[file_path:line_number] - Description
+```
+
+**Examples | 範例**:
+
+✅ **Correct**:
+```
+UserService.cs:142 - Password hashing uses BCrypt
+app.config:23-28 - Database connection string configured for SQL Server
+README.md:15 - Project requires .NET 8.0 SDK
+```
+
+❌ **Incorrect**:
+```
+The authentication service uses BCrypt (no file/line reference)
+Somewhere in the config files there's a database connection (vague reference)
+I think the README mentions .NET 8 (uncertain language)
+```
+
+---
+
+### 3. Classify Certainty Levels | 分類確定性等級
+
+**Rule**: Clearly distinguish between confirmed facts, inferences, and unknowns.
+
+**規則**: 明確區分已確認事實、推測與未知事項。
+
+**Classification Tags | 分類標籤**:
+
+| Tag | Use When | 使用時機 |
+|-----|----------|---------|
+| `[Confirmed]` | Direct evidence from code/docs | 直接來自程式碼/文件的證據 |
+| `[Inferred]` | Logical deduction from available evidence | 基於現有證據的邏輯推論 |
+| `[Assumption]` | Based on common patterns (needs verification) | 基於常見模式（需驗證）|
+| `[Unknown]` | Information not available | 資訊不可得 |
+| `[Need Confirmation]` | Requires user clarification | 需要使用者澄清 |
+
+**Examples | 範例**:
+
+✅ **Correct**:
+```
+[Confirmed] src/database/connection.ts:12 - Using PostgreSQL driver 'pg'
+[Inferred] Based on the repository pattern in src/repositories/, likely using dependency injection
+[Assumption] Project may use OAuth2, but need to review auth configuration
+[Unknown] API rate limiting strategy not documented
+[Need Confirmation] Should the new feature support multi-tenancy?
+```
+
+❌ **Incorrect**:
+```
+The system uses Redis (no classification, no evidence)
+We should implement caching (presented as fact, not suggestion)
+Users want SSO support (assumption presented as confirmed requirement)
+```
+
+---
+
+### 4. Prohibited Behaviors | 禁止行為
+
+**AI assistants MUST NOT**:
+
+1. **Fabricate APIs or Function Signatures**
+   - ❌ Do NOT invent method names, parameters, or return types
+   - ✅ DO read the actual source code or ask the user
+
+2. **Assume Requirements**
+   - ❌ Do NOT guess user needs or business rules
+   - ✅ DO ask clarifying questions when requirements are ambiguous
+
+3. **Speculate About Unread Code**
+   - ❌ Do NOT describe functionality of files not reviewed
+   - ✅ DO explicitly state "Need to read [file] to confirm"
+
+4. **Invent Configuration**
+   - ❌ Do NOT assume environment variables, config keys, or database schemas
+   - ✅ DO review actual configuration files
+
+5. **Hallucinate Errors or Bugs**
+   - ❌ Do NOT claim code has issues without evidence
+   - ✅ DO analyze actual code and cite specific lines
+
+**Examples of Violations | 違規範例**:
+
+❌ **Fabricating APIs**:
+```
+Assistant: "You can call UserService.GetUserById(int id) to retrieve users"
+Reality: Method doesn't exist or has different signature
+```
+
+❌ **Assuming Requirements**:
+```
+Assistant: "The system needs to support OAuth and SAML"
+Reality: User only asked about general authentication, didn't specify protocols
+```
+
+❌ **Speculating About Code**:
+```
+Assistant: "The PaymentService handles credit card processing"
+Reality: File wasn't read, name is just an assumption
+```
+
+---
+
+## Implementation Checklist | 實施檢查清單
+
+Before making any statement about code, requirements, or architecture, verify:
+
+在對程式碼、需求或架構做出任何陳述前，請驗證:
+
+- [ ] **Source Verified** | 來源已驗證
+  - Have I read the actual file/document?
+  - 我是否已讀取實際的檔案/文件？
+
+- [ ] **Reference Cited** | 引用已標註
+  - Did I include file path and line number?
+  - 我是否已包含檔案路徑與行號？
+
+- [ ] **Certainty Classified** | 確定性已分類
+  - Did I tag as [Confirmed], [Inferred], [Assumption], [Unknown], or [Need Confirmation]?
+  - 我是否已標註為 [已確認]、[推測]、[假設]、[未知] 或 [需確認]？
+
+- [ ] **No Fabrication** | 無捏造
+  - Did I avoid inventing APIs, configs, or requirements?
+  - 我是否避免了捏造 API、設定或需求？
+
+- [ ] **User Clarification** | 使用者澄清
+  - Did I ask for clarification on ambiguous points?
+  - 我是否對模糊點請求澄清？
+
+---
+
+## Review Scenarios | 審查情境
+
+### Scenario 1: Code Analysis | 情境 1: 程式碼分析
+
+**User Request**: "Review the authentication logic"
+
+**❌ Bad Response**:
+```
+Your authentication system uses JWT with RS256 signing.
+The tokens expire after 1 hour.
+You should add refresh token support.
+```
+**Problem**: Makes claims without reading code, assumes implementation details.
+
+**✅ Good Response**:
+```
+[Need Confirmation] Which file contains the authentication logic?
+Possible locations might be:
+- src/auth/
+- src/services/auth
+- src/middleware/
+
+Please direct me to the correct file so I can provide accurate analysis.
+
+Alternatively, I can search the codebase for authentication-related files.
+```
+
+---
+
+### Scenario 2: Architecture Recommendations | 情境 2: 架構建議
+
+**User Request**: "How should I structure the new payment module?"
+
+**❌ Bad Response**:
+```
+Based on your existing architecture, you should:
+1. Create PaymentService in src/services/
+2. Use the Stripe API
+3. Store transactions in the payments table
+```
+**Problem**: Assumes architecture, payment provider, and database schema without evidence.
+
+**✅ Good Response**:
+```
+To provide an accurate recommendation, I need to understand your current architecture:
+
+[Need Confirmation]
+1. What payment provider do you plan to use? (Stripe, PayPal, custom, etc.)
+2. What is your existing service layer structure?
+3. What database are you using?
+
+Could you share:
+- Project structure (ls -R src/ or similar)
+- Existing service examples
+- Database schema or ORM models
+
+Once I review these, I can suggest a structure that aligns with your patterns.
+```
+
+---
+
+### Scenario 3: Bug Investigation | 情境 3: Bug 調查
+
+**User Request**: "The login is failing"
+
+**❌ Bad Response**:
+```
+The issue is likely in your validateCredentials() function.
+You probably need to hash the password before comparison.
+```
+**Problem**: Guesses at cause without seeing code.
+
+**✅ Good Response**:
+```
+To investigate the login failure, I need more information:
+
+[Need Confirmation]
+1. What error message are you seeing? (console logs, error responses)
+2. Which file contains the login logic?
+3. Can you share relevant code snippets or logs?
+
+Suggested debugging steps:
+- Share the login controller/service code
+- Provide error logs from console/server
+- Describe expected vs actual behavior
+
+Once I review the actual code and errors, I can identify the root cause.
+```
+
+---
+
+## AI Assistant Workflow | AI 助理工作流程
+
+```
+┌─────────────────────────────────┐
+│  User Request Received          │
+└─────────────┬───────────────────┘
+              │
+              ▼
+┌─────────────────────────────────┐
+│  Identify Information Needed    │
+│  - Code files?                  │
+│  - Configuration?               │
+│  - Requirements?                │
+└─────────────┬───────────────────┘
+              │
+              ▼
+         ┌────┴────┐
+         │  Available?  │
+         └────┬────┘
+              │
+      ┌───────┴───────┐
+      │               │
+     YES              NO
+      │               │
+      ▼               ▼
+┌──────────┐   ┌─────────────┐
+│  Read/   │   │  Ask User   │
+│  Analyze │   │  for Info   │
+└────┬─────┘   └──────┬──────┘
+     │                │
+     ▼                ▼
+┌─────────────────────────────────┐
+│  Tag Response with:             │
+│  - [Confirmed] for facts        │
+│  - [Inferred] for deductions    │
+│  - [Need Confirmation] for gaps │
+└─────────────┬───────────────────┘
+              │
+              ▼
+┌─────────────────────────────────┐
+│  Cite Sources (file:line)       │
+└─────────────┬───────────────────┘
+              │
+              ▼
+┌─────────────────────────────────┐
+│  Deliver Response               │
+└─────────────────────────────────┘
+```
+
+---
+
+## Language-Agnostic Application | 語言無關應用
+
+This standard applies regardless of programming language, framework, or domain:
+
+- **Web Development**: Don't assume Express/Django/Spring Boot without evidence
+- **Mobile**: Don't assume React Native/Flutter without evidence
+- **Data Science**: Don't assume TensorFlow/PyTorch without evidence
+- **DevOps**: Don't assume Docker/Kubernetes without evidence
+
+**Universal Rule**: Read first, analyze second, report with evidence always.
+
+**通用規則**: 先讀取，再分析，永遠以證據報告。
+
+---
+
+## Integration with Code Review | 與程式碼審查整合
+
+When performing code reviews, apply these principles:
+
+1. **Cite Line Numbers**: All review comments must reference specific lines
+2. **Classify Severity with Evidence**:
+   - `[Confirmed Bug]` - Code demonstrably broken
+   - `[Potential Issue]` - Code may cause problems
+   - `[Suggestion]` - Improvement idea (not a defect)
+3. **Avoid Assumptions**: If unsure about design intent, ask the author
+
+**Review Comment Template | 審查評論範本**:
+```
+[file:line] - [Severity]
+[Description of issue with code excerpt]
+[Evidence or reasoning]
+[Suggested fix or question for clarification]
+```
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-11-12 | Initial standard published |
+
+---
+
+## License | 授權
+
+This standard is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+You are free to adapt it for your projects with attribution.
+
+本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+您可以自由調整用於您的專案，但需註明出處。
+
+---
+
+**Project-Specific Customization | 專案特定化**
+
+Projects may extend this standard by adding:
+- Domain-specific verification requirements (e.g., HIPAA compliance checks in healthcare)
+- Tool-specific guidelines (e.g., how to verify Terraform configurations)
+- Team-specific evidence formats (e.g., JIRA ticket references)
+
+專案可透過以下方式擴充本標準:
+- 領域特定驗證需求（如醫療領域的 HIPAA 合規檢查）
+- 工具特定指引（如如何驗證 Terraform 設定）
+- 團隊特定證據格式（如 JIRA ticket 引用）
