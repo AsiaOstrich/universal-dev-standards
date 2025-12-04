@@ -139,7 +139,7 @@ public class 使用者認證服務  // ❌ Class name in Chinese
 **Use Traditional Chinese** for README.md in Taiwan-based projects:
 
 ```markdown
-# 訊息審核中心 (MsgReviewCenter)
+# 專案名稱 (YourProject)
 
 ## 專案簡介
 
@@ -399,7 +399,7 @@ _logger.LogWarning("Invalid username format for input: {Input}", username);
     "DefaultConnection": "Server=localhost;Database=MyDb;..."
   },
   "JwtSettings": {
-    "Issuer": "MsgReviewCenter",
+    "Issuer": "YourProject",
     "ExpirationMinutes": 60
   },
   "AppSettings": {
@@ -425,7 +425,7 @@ _logger.LogWarning("Invalid username format for input: {Input}", username);
   // JWT 相關設定
   "JwtSettings": {
     // JWT 發行者名稱
-    "Issuer": "MsgReviewCenter",
+    "Issuer": "YourProject",
     // Token 有效期限（分鐘）
     "ExpirationMinutes": 60,
     // 簽署金鑰路徑
@@ -443,7 +443,7 @@ Or use separate documentation:
 
 | 設定鍵 | 類型 | 說明 | 預設值 |
 |--------|------|------|--------|
-| `Issuer` | string | JWT 發行者名稱 | MsgReviewCenter |
+| `Issuer` | string | JWT 發行者名稱 | YourProject |
 | `ExpirationMinutes` | int | Token 有效期限（分鐘）| 60 |
 | `PrivateKeyPath` | string | ECDSA 私鑰檔案路徑 | keys/es256key.pem |
 ```
