@@ -1,7 +1,7 @@
 # Testing Standards
 # 測試標準
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Last Updated**: 2025-12-05
 **Applicability**: All software projects
 **適用範圍**: 所有軟體專案
@@ -595,6 +595,200 @@ var inactiveUser = new UserBuilder()
 
 ---
 
+## Test Environment Isolation | 測試環境隔離
+
+### Purpose | 目的
+
+Ensure consistent, reproducible test results across development machines and CI/CD pipelines.
+
+確保在開發機器與 CI/CD 管線之間獲得一致、可重現的測試結果。
+
+### Why It Matters | 為什麼重要
+
+- **Reproducibility**: Same tests produce same results everywhere
+- **Isolation**: Project dependencies don't conflict with system or other projects
+- **CI/CD Parity**: Local environment matches CI environment
+- **可重現性**: 相同測試在任何地方產生相同結果
+- **隔離性**: 專案相依性不與系統或其他專案衝突
+- **CI/CD 一致性**: 本地環境與 CI 環境相符
+
+### Language-Specific Virtual Environments | 語言專屬虛擬環境
+
+| Language | Tools | Lock File |
+|----------|-------|-----------|
+| Python | venv, virtualenv, conda, poetry | requirements.txt, poetry.lock |
+| Node.js | nvm, fnm + npm/yarn/pnpm | package-lock.json, yarn.lock |
+| Ruby | rbenv, rvm, bundler | Gemfile.lock |
+| Java | SDKMAN, jenv, Maven/Gradle | pom.xml, build.gradle.lock |
+| .NET | dotnet SDK | packages.lock.json |
+| Go | go mod | go.sum |
+| Rust | rustup, cargo | Cargo.lock |
+
+#### Best Practices | 最佳實踐
+
+1. **Always use virtual environments** for development and testing
+2. **Commit lock files** to version control
+3. **Pin versions** in CI/CD pipelines
+4. **Document required runtime versions** in README or .tool-versions
+
+1. **開發和測試時始終使用虛擬環境**
+2. **將 lock 檔提交到版本控制**
+3. **在 CI/CD 管線中鎖定版本**
+4. **在 README 或 .tool-versions 記錄所需的執行環境版本**
+
+#### Example: Python with venv | 範例：Python 使用 venv
+
+```bash
+# Create virtual environment | 建立虛擬環境
+python -m venv .venv
+
+# Activate | 啟用
+source .venv/bin/activate  # Linux/macOS
+.venv\Scripts\activate     # Windows
+
+# Install dependencies | 安裝相依套件
+pip install -r requirements.txt
+
+# Run tests | 執行測試
+pytest tests/
+```
+
+#### Example: Node.js with nvm | 範例：Node.js 使用 nvm
+
+```bash
+# Use project's Node version | 使用專案的 Node 版本
+nvm use
+
+# Install dependencies | 安裝相依套件
+npm ci
+
+# Run tests | 執行測試
+npm test
+```
+
+### Containerized Testing | 容器化測試
+
+Use containers to provide consistent external dependencies (databases, message queues, etc.) for integration and system tests.
+
+使用容器為整合測試和系統測試提供一致的外部相依性（資料庫、訊息佇列等）。
+
+#### When to Use | 何時使用
+
+| Test Level | Container Usage |
+|------------|-----------------|
+| UT (單元測試) | ❌ Not needed - use mocks |
+| IT (整合測試) | ✅ Testcontainers for databases, caches |
+| ST (系統測試) | ✅ Docker Compose for full environment |
+| E2E (端對端) | ✅ Full containerized stack |
+
+#### Testcontainers | 測試容器
+
+Testcontainers provides lightweight, disposable containers for testing.
+
+Testcontainers 提供輕量級、可拋棄式的測試容器。
+
+```csharp
+// C# Example with Testcontainers
+public class DatabaseIntegrationTests : IAsyncLifetime
+{
+    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
+        .WithImage("postgres:15")
+        .Build();
+
+    public async Task InitializeAsync()
+    {
+        await _postgres.StartAsync();
+    }
+
+    public async Task DisposeAsync()
+    {
+        await _postgres.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Should_Connect_To_Database()
+    {
+        var connectionString = _postgres.GetConnectionString();
+        // Use connectionString for tests
+    }
+}
+```
+
+```python
+# Python Example with Testcontainers
+import pytest
+from testcontainers.postgres import PostgresContainer
+
+@pytest.fixture(scope="module")
+def postgres_container():
+    with PostgresContainer("postgres:15") as postgres:
+        yield postgres
+
+def test_database_connection(postgres_container):
+    connection_url = postgres_container.get_connection_url()
+    # Use connection_url for tests
+```
+
+#### Docker Compose for System Tests | Docker Compose 用於系統測試
+
+```yaml
+# docker-compose.test.yml
+version: '3.8'
+services:
+  app:
+    build: .
+    depends_on:
+      - db
+      - redis
+      - rabbitmq
+    environment:
+      - DATABASE_URL=postgres://test:test@db:5432/testdb
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: testdb
+
+  redis:
+    image: redis:7-alpine
+
+  rabbitmq:
+    image: rabbitmq:3-management
+```
+
+```bash
+# Run system tests with Docker Compose
+docker-compose -f docker-compose.test.yml up -d
+npm run test:system
+docker-compose -f docker-compose.test.yml down -v
+```
+
+### Environment Parity Checklist | 環境一致性檢查清單
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              Environment Parity Checklist                    │
+├─────────────────────────────────────────────────────────────┤
+│  ✅ Same runtime version (Node, Python, etc.) locally & CI  │
+│  ✅ Same database version in containers & production        │
+│  ✅ Lock files committed and used in CI (npm ci, pip -r)    │
+│  ✅ Environment variables documented and consistent         │
+│  ✅ Container images tagged with specific versions          │
+│  ✅ .tool-versions or similar for runtime version mgmt      │
+├─────────────────────────────────────────────────────────────┤
+│  ❌ Using "latest" tags in production/CI                    │
+│  ❌ Different DB versions between dev and CI                │
+│  ❌ Missing lock files in repository                        │
+│  ❌ Hardcoded paths or machine-specific configurations      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## CI/CD Integration | CI/CD 整合
 
 ### Test Execution Strategy | 測試執行策略
@@ -759,6 +953,7 @@ public void MethodName_Scenario_ExpectedBehavior()
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2025-12-05 | Add test environment isolation section (venv, containers) |
 | 1.0.0 | 2025-12-05 | Initial testing standards with UT/IT/ST/E2E coverage |
 
 ---
