@@ -1,8 +1,8 @@
 # Commit Message Guide
 # Commit 訊息規範指南
 
-**Version**: 1.0.0
-**Last Updated**: 2025-11-12
+**Version**: 1.1.0
+**Last Updated**: 2025-12-05
 **Applicability**: All projects using Git version control
 **適用範圍**: 所有使用 Git 版本控制的專案
 
@@ -44,7 +44,7 @@ Standardized commit messages improve code review efficiency, facilitate automate
 
 **專案必須選擇一種語言**用於類型並保持一致使用。
 
-### Option A: English (International Standard)
+### Option A: English (International Standard) | 英文（國際標準）
 
 | Type | When to Use | 使用時機 |
 |------|-------------|---------|
@@ -60,7 +60,7 @@ Standardized commit messages improve code review efficiency, facilitate automate
 | `chore` | Maintenance tasks | 維護任務 |
 | `revert` | Revert previous commit | 回退先前提交 |
 
-### Option B: Traditional Chinese (For Taiwanese Teams)
+### Option B: Traditional Chinese (For Taiwanese Teams) | 繁體中文（台灣團隊適用）
 
 | 類型 | 使用時機 | English Equivalent |
 |------|---------|-------------------|
@@ -76,6 +76,42 @@ Standardized commit messages improve code review efficiency, facilitate automate
 | `升級` | 依賴升級 | chore |
 | `回退` | 回退先前提交 | revert |
 
+### Option C: Bilingual Mode (Recommended) | 雙語對照模式（推薦）
+
+Use English `type` and `scope` for tool compatibility, with bilingual subject/body/footer.
+
+使用英文 `type` 和 `scope` 以確保工具相容性，subject/body/footer 採用雙語對照。
+
+**Format | 格式**:
+```
+<type>(<scope>): <English subject>. <中文主旨>。
+
+<English body>
+
+<中文主體>
+
+<footer>
+```
+
+**Example | 範例**:
+```
+feat(auth): Add OAuth2 Google login support. 新增 OAuth2 Google 登入支援。
+
+Implement Google OAuth2 authentication flow for user login.
+
+- Add Google OAuth2 SDK integration
+- Create callback endpoint for OAuth flow
+- Store refresh tokens securely
+
+實作 Google OAuth2 認證流程供使用者登入。
+
+- 整合 Google OAuth2 SDK
+- 建立 OAuth 流程回呼端點
+- 安全儲存更新權杖
+
+Closes #123
+```
+
 **Project Decision Point**: Document your choice in `CONTRIBUTING.md`:
 ```markdown
 ## Commit Message Language
@@ -85,6 +121,10 @@ This project uses **English** commit types (feat, fix, refactor, etc.)
 ## Commit Message Language
 This project uses **Traditional Chinese** commit types (新增, 修正, 重構, etc.)
 本專案使用**繁體中文** commit 類型（新增、修正、重構等）
+
+## Commit Message Language
+This project uses **Bilingual Mode** with English types/scopes and bilingual subject/body.
+本專案使用**雙語對照模式**，type/scope 使用英文，subject/body 採用雙語對照。
 ```
 
 ---
@@ -364,7 +404,7 @@ Closes #234
 
 ## Complete Examples | 完整範例
 
-### Example 1: Simple Fix
+### Example 1: Simple Fix (English)
 
 ```
 fix(auth): Correct JWT expiration time calculation
@@ -376,7 +416,7 @@ Fixes #445
 
 ---
 
-### Example 2: Feature with Multiple Parts
+### Example 2: Feature with Multiple Parts (English)
 
 ```
 feat(export): Add CSV export functionality for user data
@@ -405,7 +445,98 @@ Refs #234 (related compliance requirement)
 
 ---
 
-### Example 3: Refactoring with Breaking Change
+### Example 3: Bilingual Mode - Simple Fix | 雙語對照模式 - 簡單修正
+
+```
+fix(auth): Correct JWT expiration time calculation. 修正 JWT 過期時間計算。
+
+The token was expiring 1 hour early due to timezone offset not being accounted for. Now using UTC time consistently.
+
+權杖因未考慮時區偏移而提早 1 小時過期。現已統一使用 UTC 時間。
+
+Fixes #445
+```
+
+---
+
+### Example 4: Bilingual Mode - Feature | 雙語對照模式 - 新功能
+
+```
+feat(export): Add CSV export functionality for user data. 新增使用者資料 CSV 匯出功能。
+
+Why this feature is needed:
+- Admins need to export user lists for compliance audits
+- Manual copy-paste from UI is error-prone
+- Requested by legal and compliance teams
+
+What this implements:
+- New `/api/users/export` endpoint
+- CSV generation using csv-writer library
+- Streaming response to handle large datasets
+- Date range filtering options
+
+Technical notes:
+- Streaming prevents memory issues with 100k+ users
+- Export limited to admin role only
+
+為何需要此功能:
+- 管理員需匯出使用者清單以進行合規稽核
+- 從 UI 手動複製貼上容易出錯
+- 法務與合規團隊要求此功能
+
+此變更實作內容:
+- 新增 `/api/users/export` 端點
+- 使用 csv-writer 函式庫生成 CSV
+- 串流回應以處理大型資料集
+- 日期範圍篩選選項
+
+技術備註:
+- 串流處理可避免 10 萬筆以上使用者的記憶體問題
+- 匯出功能僅限管理員角色使用
+
+Closes #567
+Refs #234
+```
+
+---
+
+### Example 5: Bilingual Mode - Bug Fix with Root Cause | 雙語對照模式 - 含根因分析的 Bug 修正
+
+```
+fix(api): Resolve race condition in concurrent user updates. 解決並發使用者更新的競爭條件。
+
+Why this occurred:
+- Two simultaneous PUT requests to /users/:id could overwrite each other
+- No optimistic locking implemented
+
+What this fix does:
+- Add version field to User model
+- Implement optimistic locking check
+- Return 409 Conflict if version mismatch
+
+Testing:
+- Added concurrent update test scenarios
+- Verified with load test (100 concurrent updates)
+
+問題發生原因:
+- 兩個同時發送至 /users/:id 的 PUT 請求可能互相覆蓋
+- 未實作樂觀鎖定機制
+
+修正內容:
+- 新增版本欄位至 User 模型
+- 實作樂觀鎖定檢查
+- 版本不符時回傳 409 Conflict
+
+測試:
+- 新增並發更新測試情境
+- 以負載測試驗證（100 個並發更新）
+
+Fixes #789
+```
+
+---
+
+### Example 6: Refactoring with Breaking Change (English)
 
 ```
 refactor(database): Migrate from MySQL to PostgreSQL
@@ -439,6 +570,56 @@ Migration guide:
 5. Verify data integrity: npm run db:verify
 
 Estimated downtime: 2-4 hours for production migration
+
+Closes #890
+```
+
+---
+
+### Example 7: Bilingual Mode - Breaking Change | 雙語對照模式 - 破壞性變更
+
+```
+refactor(database): Migrate from MySQL to PostgreSQL. 從 MySQL 遷移至 PostgreSQL。
+
+Why this refactoring:
+- PostgreSQL offers better JSON support for our use case
+- Need advanced indexing features for full-text search
+
+What this changes:
+- Update database driver from mysql2 to pg
+- Convert MySQL-specific queries to PostgreSQL syntax
+- Update connection pooling configuration
+
+BREAKING CHANGE: Database engine changed from MySQL to PostgreSQL
+
+Migration guide:
+1. Backup existing MySQL database
+2. Install PostgreSQL 15+
+3. Update .env: DATABASE_URL=postgresql://...
+4. Run migration: npm run db:migrate
+5. Verify data integrity: npm run db:verify
+
+Estimated downtime: 2-4 hours
+
+重構原因:
+- PostgreSQL 提供更佳的 JSON 支援以符合我們的使用情境
+- 需要進階索引功能支援全文檢索
+
+變更內容:
+- 更新資料庫驅動從 mysql2 至 pg
+- 將 MySQL 專用查詢轉換為 PostgreSQL 語法
+- 更新連線池設定
+
+破壞性變更: 資料庫引擎從 MySQL 變更為 PostgreSQL
+
+遷移指南:
+1. 備份現有 MySQL 資料庫
+2. 安裝 PostgreSQL 15+
+3. 更新 .env 設定: DATABASE_URL=postgresql://...
+4. 執行遷移腳本: npm run db:migrate
+5. 驗證資料完整性: npm run db:verify
+
+預估停機時間: 2-4 小時
 
 Closes #890
 ```
@@ -592,14 +773,32 @@ This project uses **[English/Traditional Chinese]** commit types.
 - [add your project-specific scopes]
 
 ### Subject Language
-Commit subject lines should be in **[English/繁體中文]**.
+Commit subject lines should be in **[English/繁體中文/Bilingual 雙語]**.
 
 ### Examples
+
+**English**:
 ```
 feat(auth): Add OAuth2 support
 fix(api): Resolve memory leak
+```
+
+**Traditional Chinese**:
+```
 新增(認證): 實作 OAuth2 支援
 修正(API): 解決記憶體洩漏
+```
+
+**Bilingual Mode** (English first, Chinese follows):
+**雙語模式**（英文在前，中文對照）:
+```
+feat(auth): Add OAuth2 support. 新增 OAuth2 支援。
+
+Implement OAuth2 authentication flow.
+
+實作 OAuth2 認證流程。
+
+Closes #123
 ```
 ```
 
@@ -609,6 +808,7 @@ fix(api): Resolve memory leak
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2025-12-05 | Add Bilingual Mode (Option C) with examples 新增雙語對照模式（選項 C）與範例 |
 | 1.0.0 | 2025-11-12 | Initial guide published |
 
 ---
