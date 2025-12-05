@@ -596,9 +596,18 @@ Comment Prefixes:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.0.3 | 2025-12-05 | Added: Reference to testing-standards.md |
 | 1.0.2 | 2025-12-04 | Updated: GitHub Actions checkout to v4 |
 | 1.0.1 | 2025-12-04 | Added: Cross-reference to versioning.md CHANGELOG exclusion rules |
 | 1.0.0 | 2025-11-12 | Initial code review checklist |
+
+---
+
+## Related Standards | 相關標準
+
+- [Testing Standards](testing-standards.md) - 測試標準 (UT/IT/ST/E2E)
+- [Code Check-in Standards](checkin-standards.md) - 程式碼簽入標準
+- [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範
 
 ---
 

@@ -895,10 +895,19 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.3 | 2025-12-05 | Added: Reference to testing-standards.md |
 | 1.2.2 | 2025-12-04 | Updated: GitHub Actions checkout to v4 |
 | 1.2.1 | 2025-12-04 | Added: Cross-reference to versioning.md CHANGELOG exclusion rules |
 | 1.2.0 | 2025-11-28 | Added: Commit granularity guidelines, collaboration scenarios, check-in trigger points, special scenarios (emergency leave, experimental dev, hotfix) |
 | 1.0.0 | 2025-11-12 | Initial standard published |
+
+---
+
+## Related Standards | 相關標準
+
+- [Testing Standards](testing-standards.md) - 測試標準 (UT/IT/ST/E2E)
+- [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範
+- [Code Review Checklist](code-review-checklist.md) - 程式碼審查清單
 
 ---
 

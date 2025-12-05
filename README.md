@@ -45,7 +45,8 @@ universal-doc-standards/
 │   ├── git-workflow.md            # Git branching strategies
 │   ├── code-review-checklist.md   # Code review guidelines
 │   ├── documentation-structure.md # Documentation organization
-│   └── versioning.md              # Semantic versioning guide
+│   ├── versioning.md              # Semantic versioning guide
+│   └── testing-standards.md       # Testing standards (UT/IT/ST/E2E)
 │
 ├── extensions/                     # Optional extensions
 │   ├── languages/                 # Language-specific standards
@@ -186,6 +187,7 @@ cp templates/CHANGELOG.md.template your-project/CHANGELOG.md
 - ✅ `git-workflow.md` - Branching strategy
 - ✅ `code-review-checklist.md` - Review guidelines
 - ✅ `versioning.md` - Version management
+- ✅ `testing-standards.md` - Testing pyramid (UT/IT/ST/E2E)
 - ✅ Language-specific style guide (e.g., `csharp-style.md`)
 
 **Estimated Setup Time**: 2 hours
@@ -498,6 +500,7 @@ All contributions must:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2025-12-05 | Added: testing-standards.md (UT/IT/ST/E2E) |
 | 1.0.0 | 2025-11-12 | Initial release with core standards |
 
 ---
