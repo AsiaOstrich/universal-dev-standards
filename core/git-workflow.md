@@ -1,8 +1,8 @@
 # Git Workflow Standards
 # Git 工作流程標準
 
-**Version**: 1.0.0
-**Last Updated**: 2025-11-12
+**Version**: 1.1.0
+**Last Updated**: 2025-12-08
 **Applicability**: All projects using Git for version control
 **適用範圍**: 所有使用 Git 版本控制的專案
 
@@ -270,6 +270,89 @@ git push origin --delete feature/add-validation
 2. **Keep branches short-lived** (≤2 days) | 保持分支短命（≤2 天）
 3. **Use feature flags** for incomplete features | 使用功能開關控制未完成功能
 4. **Automate everything** (tests, builds, deployments) | 自動化一切（測試、建置、部署）
+
+---
+
+## Pre-branch Checklist | 開新分支前檢查清單
+
+Before creating a new branch, complete these checks to prevent common issues.
+
+開始新功能開發前，完成以下檢查以避免常見問題。
+
+### For GitFlow and GitHub Flow | 適用於 GitFlow 和 GitHub Flow
+
+#### 1. Check for Unmerged Branches | 確認無未合併分支
+
+```bash
+git branch --no-merged main
+# For GitFlow, also check:
+git branch --no-merged develop
+```
+
+- **If unmerged branches exist, handle them first** (merge or close)
+- **Do NOT create new feature branches with unmerged work pending**
+
+**如有未合併分支，必須先處理**（合併或關閉），**禁止在有未合併分支的情況下開新功能分支**
+
+#### 2. Sync Latest Code | 同步最新程式碼
+
+```bash
+git checkout main  # or develop for GitFlow
+git pull origin main
+```
+
+#### 3. Verify Tests Pass | 確認測試通過
+
+```bash
+# Run your project's test suite
+npm test        # Node.js
+pytest          # Python
+./gradlew test  # Java/Kotlin
+```
+
+#### 4. Create Branch | 建立分支
+
+```bash
+git checkout -b feature/description
+```
+
+### Why This Matters | 為什麼重要
+
+| Consequence of Skipping | Impact |
+|------------------------|--------|
+| Fixes scattered across branches | `main` still has bugs |
+| Features depend on each other | New branch missing previous feature's code |
+| Merge order confusion | More conflicts, harder to track history |
+| Incomplete testing | Each branch only tests its own part |
+
+| 跳過檢查的後果 | 影響 |
+|--------------|------|
+| 修復散落各處 | `main` 仍有 bug |
+| 功能互相依賴 | 新分支缺少前一個功能的程式碼 |
+| 合併順序混亂 | 衝突變多、歷史難追蹤 |
+| 測試不完整 | 每個分支只測自己的部分 |
+
+### For Trunk-Based Development | 適用於 Trunk-Based Development
+
+Trunk-Based Development has **different requirements** due to its short-lived branch nature (≤2 days):
+
+Trunk-Based Development 因其短命分支特性（≤2 天）有**不同的要求**：
+
+| Check | Applicability | Notes |
+|-------|--------------|-------|
+| Check unmerged branches | ⚠️ **Less relevant** | Branches should not exist >2 days by design |
+| Sync latest code | ✅ **Critical** | Even more important due to frequent integration |
+| Verify tests pass | ✅ **Critical** | Automation is core to this workflow |
+
+| 檢查項目 | 適用性 | 說明 |
+|---------|-------|------|
+| 確認無未合併分支 | ⚠️ **較不適用** | 設計上分支不應存在超過 2 天 |
+| 同步最新程式碼 | ✅ **關鍵** | 因頻繁整合，更為重要 |
+| 確認測試通過 | ✅ **關鍵** | 自動化是此工作流程的核心 |
+
+**Key difference**: If you have unmerged branches older than 2 days in Trunk-Based Development, this itself violates the workflow principles. Focus on **frequent integration** rather than checking for unmerged branches.
+
+**關鍵差異**：若在 Trunk-Based Development 中有超過 2 天的未合併分支，這本身就違反了工作流程原則。重點應放在**頻繁整合**而非檢查未合併分支。
 
 ---
 
@@ -723,6 +806,7 @@ git reset --hard <previous-commit-hash>
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2025-12-08 | Add pre-branch checklist section with workflow-specific guidance |
 | 1.0.0 | 2025-11-12 | Initial Git workflow standard |
 
 ---
