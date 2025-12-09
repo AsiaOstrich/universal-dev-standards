@@ -1,8 +1,9 @@
-# Commit Message Guide
+Commit Message Guide
+
 # Commit 訊息規範指南
 
-**Version**: 1.2.0
-**Last Updated**: 2025-12-05
+**Version**: 1.2.1
+**Last Updated**: 2025-12-09
 **Applicability**: All projects using Git version control
 **適用範圍**: 所有使用 Git 版本控制的專案
 
@@ -28,13 +29,13 @@ Standardized commit messages improve code review efficiency, facilitate automate
 
 ### Components | 組成元素
 
-| Component | Required | Description |
-|-----------|----------|-------------|
-| `type` | ✅ Yes | Type of change |
-| `scope` | Optional | Module/component affected |
-| `subject` | ✅ Yes | Brief description (≤72 chars) |
-| `body` | Recommended | Detailed explanation |
-| `footer` | Optional | Issue references, breaking changes |
+| Component   | Required    | Description                        |
+| ----------- | ----------- | ---------------------------------- |
+| `type`    | ✅ Yes      | Type of change                     |
+| `scope`   | Optional    | Module/component affected          |
+| `subject` | ✅ Yes      | Brief description (≤72 chars)     |
+| `body`    | Recommended | Detailed explanation               |
+| `footer`  | Optional    | Issue references, breaking changes |
 
 ---
 
@@ -44,39 +45,47 @@ Standardized commit messages improve code review efficiency, facilitate automate
 
 **專案必須選擇一種語言**用於類型並保持一致使用。
 
-### Option A: English (International Standard) | 英文（國際標準）
+### Option A: English (International) | 英文（國際標準）
 
-| Type | When to Use | 使用時機 |
-|------|-------------|---------|
-| `feat` | New feature | 新功能 |
-| `fix` | Bug fix | Bug 修復 |
-| `refactor` | Code refactoring (no functional change) | 重構（無功能變更）|
-| `docs` | Documentation only | 僅文件更新 |
-| `style` | Formatting, whitespace (no code logic change) | 格式化、空白（無邏輯變更）|
-| `test` | Adding or updating tests | 新增或更新測試 |
-| `perf` | Performance improvement | 效能改進 |
-| `build` | Build system or dependencies | 建置系統或依賴 |
-| `ci` | CI/CD pipeline changes | CI/CD 管道變更 |
-| `chore` | Maintenance tasks | 維護任務 |
-| `revert` | Revert previous commit | 回退先前提交 |
-| `security` | Security vulnerability fix | 安全漏洞修復 |
+Use English types for international teams and maximum tool compatibility.
 
-### Option B: Traditional Chinese (For Taiwanese Teams) | 繁體中文（台灣團隊適用）
+使用英文類型，適合國際團隊及最佳工具相容性。
 
-| 類型 | 使用時機 | English Equivalent |
-|------|---------|-------------------|
-| `新增` | 新功能 | feat |
-| `修正` | Bug 修復 | fix |
-| `重構` | 重構（無功能變更）| refactor |
-| `文件` | 僅文件更新 | docs |
-| `樣式` | 格式化（無邏輯變更）| style |
-| `測試` | 新增或更新測試 | test |
-| `效能` | 效能改進 | perf |
-| `建置` | 建置系統或依賴 | build |
-| `整合` | CI/CD 管道變更 | ci |
-| `維護` | 維護任務 | chore |
-| `回退` | 回退先前提交 | revert |
-| `安全` | 安全漏洞修復 | security |
+| Type         | When to Use                                   | 使用時機                   |
+| ------------ | --------------------------------------------- | -------------------------- |
+| `feat`     | New feature                                   | 新功能                     |
+| `fix`      | Bug fix                                       | Bug 修復                   |
+| `refactor` | Code refactoring (no functional change)       | 重構（無功能變更）         |
+| `docs`     | Documentation only                            | 僅文件更新                 |
+| `style`    | Formatting, whitespace (no code logic change) | 格式化、空白（無邏輯變更） |
+| `test`     | Adding or updating tests                      | 新增或更新測試             |
+| `perf`     | Performance improvement                       | 效能改進                   |
+| `build`    | Build system or dependencies                  | 建置系統或依賴             |
+| `ci`       | CI/CD pipeline changes                        | CI/CD 管道變更             |
+| `chore`    | Maintenance tasks                             | 維護任務                   |
+| `revert`   | Revert previous commit                        | 回退先前提交               |
+| `security` | Security vulnerability fix                    | 安全漏洞修復               |
+
+### Option B: Traditional Chinese (Taiwanese Teams) | 繁體中文（台灣團隊適用）
+
+Use Traditional Chinese types for local teams preferring native language commits.
+
+使用繁體中文類型，適合偏好母語提交的本地團隊。
+
+| 類型     | 使用時機             | English Equivalent |
+| -------- | -------------------- | ------------------ |
+| `新增` | 新功能               | feat               |
+| `修正` | Bug 修復             | fix                |
+| `重構` | 重構（無功能變更）   | refactor           |
+| `文件` | 僅文件更新           | docs               |
+| `樣式` | 格式化（無邏輯變更） | style              |
+| `測試` | 新增或更新測試       | test               |
+| `效能` | 效能改進             | perf               |
+| `建置` | 建置系統或依賴       | build              |
+| `整合` | CI/CD 管道變更       | ci                 |
+| `維護` | 維護任務             | chore              |
+| `回退` | 回退先前提交         | revert             |
+| `安全` | 安全漏洞修復         | security           |
 
 ### Option C: Bilingual Mode (Recommended) | 雙語對照模式（推薦）
 
@@ -85,6 +94,7 @@ Use English `type` and `scope` for tool compatibility, with bilingual subject/bo
 使用英文 `type` 和 `scope` 以確保工具相容性，subject/body/footer 採用雙語對照。
 
 **Format | 格式**:
+
 ```
 <type>(<scope>): <English subject>. <中文主旨>。
 
@@ -96,6 +106,7 @@ Use English `type` and `scope` for tool compatibility, with bilingual subject/bo
 ```
 
 **Example | 範例**:
+
 ```
 feat(auth): Add OAuth2 Google login support. 新增 OAuth2 Google 登入支援。
 
@@ -149,16 +160,15 @@ Scope indicates which part of the codebase is affected. Use short, recognizable 
 
 1. **Use lowercase**: All scopes should be lowercase (`auth`, not `Auth`)
    **使用小寫**: 所有範圍應使用小寫（`auth`，而非 `Auth`）
-
 2. **Use hyphen for multi-word**: Separate words with hyphens (`user-profile`, not `userProfile`)
    **多字詞用連字號**: 使用連字號分隔多字詞（`user-profile`，而非 `userProfile`）
-
 3. **Keep it short**: 1-2 words maximum
    **保持簡短**: 最多 1-2 個單詞
 
 ### Common Scopes | 常見範圍
 
 **By Layer/Module | 依層級/模組**:
+
 - `api`: API layer
 - `ui`: User interface
 - `auth`: Authentication/authorization
@@ -167,22 +177,26 @@ Scope indicates which part of the codebase is affected. Use short, recognizable 
 - `middleware`: Middleware layer
 
 **By Feature | 依功能**:
+
 - `login`: Login feature
 - `payment`: Payment processing
 - `notification`: Notifications
 - `search`: Search functionality
 
 **By File Type | 依檔案類型**:
+
 - `tests`: Test files
 - `docs`: Documentation files
 - `build`: Build scripts
 - `deps`: Dependencies
 
 **Special Scopes | 特殊範圍**:
+
 - `*`: Multiple scopes affected
 - (no scope): Global changes
 
 **Example Scopes for a Web API Project**:
+
 ```
 auth, user, product, order, payment, notification,
 database, config, middleware, api, tests, docs
@@ -196,16 +210,12 @@ database, config, middleware, api, tests, docs
 
 1. **Length**: ≤72 characters (50 ideal)
    **長度**: ≤72 字元（50 為理想）
-
 2. **Tense**: Use imperative mood ("Add feature" not "Added feature")
    **時態**: 使用祈使語氣（「Add feature」而非「Added feature」）
-
 3. **Capitalization**: First letter capitalized
    **大寫**: 首字母大寫
-
 4. **No period**: Don't end with a period (Exception: Bilingual Mode uses period as separator)
    **無句點**: 結尾不加句點（例外：雙語模式使用句點作為分隔符）
-
 5. **Language**: Follow project policy (English or native language)
    **語言**: 遵循專案政策（英文或母語）
 
@@ -265,6 +275,7 @@ Use contextual headers based on the change type. Common patterns:
 根據變更類型使用適當的標題。常見模式：
 
 **For features | 新功能**:
+
 ```
 Why this feature is needed:
 What this implements:
@@ -272,6 +283,7 @@ Technical notes:
 ```
 
 **For bug fixes | 修復**:
+
 ```
 Why this occurred:
 What this fix does:
@@ -279,6 +291,7 @@ Testing:
 ```
 
 **For refactoring | 重構**:
+
 ```
 Why this refactoring:
 What this changes:
@@ -286,6 +299,7 @@ Migration:
 ```
 
 **Generic template | 通用範本**:
+
 ```
 <Subject line>
 
@@ -386,6 +400,7 @@ See also #999
 ```
 
 **Supported Keywords** (GitHub, GitLab, Bitbucket):
+
 - `Closes`, `Fixes`, `Resolves`: Automatically closes the issue
 - `Refs`, `References`, `See also`: Links without closing
 
@@ -398,6 +413,7 @@ See also #999
 **重要**: 永遠在頁尾記錄破壞性變更。
 
 **Format**:
+
 ```
 BREAKING CHANGE: <description>
 
@@ -407,6 +423,7 @@ Migration guide:
 ```
 
 **Example**:
+
 ```
 feat(api): Change user endpoint response format
 
@@ -430,6 +447,7 @@ Old format:
 ```
 
 New format:
+
 ```json
 {
   "id": 123,
@@ -440,11 +458,13 @@ New format:
 ```
 
 Migration guide:
+
 - Update API clients to remove `.data` wrapper
 - Remove references to `legacy_id` field
 - Use `created_at` instead of `createdAt` (snake_case)
 
 Closes #234
+
 ```
 
 ---
@@ -454,11 +474,13 @@ Closes #234
 ### Example 1: Simple Fix (English)
 
 ```
+
 fix(auth): Correct JWT expiration time calculation
 
 The token was expiring 1 hour early due to timezone offset not being accounted for. Now using UTC time consistently.
 
 Fixes #445
+
 ```
 
 ---
@@ -466,14 +488,17 @@ Fixes #445
 ### Example 2: Feature with Multiple Parts (English)
 
 ```
+
 feat(export): Add CSV export functionality for user data
 
 Why this feature is needed:
+
 - Admins need to export user lists for compliance audits
 - Manual copy-paste from UI is error-prone
 - Requested by legal and compliance teams
 
 What this implements:
+
 - New `/api/users/export` endpoint
 - CSV generation using csv-writer library
 - Streaming response to handle large datasets
@@ -481,6 +506,7 @@ What this implements:
 - Column selection (PII vs non-PII fields)
 
 Technical notes:
+
 - Streaming prevents memory issues with 100k+ users
 - Export limited to admin role only
 - PII fields require additional permission flag
@@ -488,6 +514,7 @@ Technical notes:
 
 Closes #567
 Refs #234 (related compliance requirement)
+
 ```
 
 ---
@@ -495,6 +522,7 @@ Refs #234 (related compliance requirement)
 ### Example 3: Bilingual Mode - Simple Fix | 雙語對照模式 - 簡單修正
 
 ```
+
 fix(auth): Correct JWT expiration time calculation. 修正 JWT 過期時間計算。
 
 The token was expiring 1 hour early due to timezone offset not being accounted for. Now using UTC time consistently.
@@ -502,6 +530,7 @@ The token was expiring 1 hour early due to timezone offset not being accounted f
 權杖因未考慮時區偏移而提早 1 小時過期。現已統一使用 UTC 時間。
 
 Fixes #445
+
 ```
 
 ---
@@ -509,40 +538,48 @@ Fixes #445
 ### Example 4: Bilingual Mode - Feature | 雙語對照模式 - 新功能
 
 ```
+
 feat(export): Add CSV export functionality for user data. 新增使用者資料 CSV 匯出功能。
 
 Why this feature is needed:
+
 - Admins need to export user lists for compliance audits
 - Manual copy-paste from UI is error-prone
 - Requested by legal and compliance teams
 
 What this implements:
+
 - New `/api/users/export` endpoint
 - CSV generation using csv-writer library
 - Streaming response to handle large datasets
 - Date range filtering options
 
 Technical notes:
+
 - Streaming prevents memory issues with 100k+ users
 - Export limited to admin role only
 
 為何需要此功能:
+
 - 管理員需匯出使用者清單以進行合規稽核
 - 從 UI 手動複製貼上容易出錯
 - 法務與合規團隊要求此功能
 
 此變更實作內容:
+
 - 新增 `/api/users/export` 端點
 - 使用 csv-writer 函式庫生成 CSV
 - 串流回應以處理大型資料集
 - 日期範圍篩選選項
 
 技術備註:
+
 - 串流處理可避免 10 萬筆以上使用者的記憶體問題
 - 匯出功能僅限管理員角色使用
 
 Closes #567
 Refs #234
+
 ```
 
 ---
@@ -550,35 +587,43 @@ Refs #234
 ### Example 5: Bilingual Mode - Bug Fix with Root Cause | 雙語對照模式 - 含根因分析的 Bug 修正
 
 ```
+
 fix(api): Resolve race condition in concurrent user updates. 解決並發使用者更新的競爭條件。
 
 Why this occurred:
+
 - Two simultaneous PUT requests to /users/:id could overwrite each other
 - No optimistic locking implemented
 
 What this fix does:
+
 - Add version field to User model
 - Implement optimistic locking check
 - Return 409 Conflict if version mismatch
 
 Testing:
+
 - Added concurrent update test scenarios
 - Verified with load test (100 concurrent updates)
 
 問題發生原因:
+
 - 兩個同時發送至 /users/:id 的 PUT 請求可能互相覆蓋
 - 未實作樂觀鎖定機制
 
 修正內容:
+
 - 新增版本欄位至 User 模型
 - 實作樂觀鎖定檢查
 - 版本不符時回傳 409 Conflict
 
 測試:
+
 - 新增並發更新測試情境
 - 以負載測試驗證（100 個並發更新）
 
 Fixes #789
+
 ```
 
 ---
@@ -586,14 +631,17 @@ Fixes #789
 ### Example 6: Refactoring with Breaking Change (English)
 
 ```
+
 refactor(database): Migrate from MySQL to PostgreSQL
 
 Why this refactoring:
+
 - PostgreSQL offers better JSON support for our use case
 - Need advanced indexing features for full-text search
 - Licensing considerations for cloud deployment
 
 What this changes:
+
 - Update database driver from mysql2 to pg
 - Convert MySQL-specific queries to PostgreSQL syntax
 - Update connection pooling configuration
@@ -601,6 +649,7 @@ What this changes:
 - Update ORM configurations
 
 Migration:
+
 - Run `npm run db:backup` before upgrading
 - Run `npm run db:migrate` to apply schema changes
 - Update environment variables (see .env.example)
@@ -608,6 +657,7 @@ Migration:
 BREAKING CHANGE: Database engine changed from MySQL to PostgreSQL
 
 Migration guide:
+
 1. Backup existing MySQL database
 2. Install PostgreSQL 15+
 3. Update .env:
@@ -619,6 +669,7 @@ Migration guide:
 Estimated downtime: 2-4 hours for production migration
 
 Closes #890
+
 ```
 
 ---
@@ -626,13 +677,16 @@ Closes #890
 ### Example 7: Bilingual Mode - Breaking Change | 雙語對照模式 - 破壞性變更
 
 ```
+
 refactor(database): Migrate from MySQL to PostgreSQL. 從 MySQL 遷移至 PostgreSQL。
 
 Why this refactoring:
+
 - PostgreSQL offers better JSON support for our use case
 - Need advanced indexing features for full-text search
 
 What this changes:
+
 - Update database driver from mysql2 to pg
 - Convert MySQL-specific queries to PostgreSQL syntax
 - Update connection pooling configuration
@@ -640,6 +694,7 @@ What this changes:
 BREAKING CHANGE: Database engine changed from MySQL to PostgreSQL
 
 Migration guide:
+
 1. Backup existing MySQL database
 2. Install PostgreSQL 15+
 3. Update .env: DATABASE_URL=postgresql://...
@@ -649,10 +704,12 @@ Migration guide:
 Estimated downtime: 2-4 hours
 
 重構原因:
+
 - PostgreSQL 提供更佳的 JSON 支援以符合我們的使用情境
 - 需要進階索引功能支援全文檢索
 
 變更內容:
+
 - 更新資料庫驅動從 mysql2 至 pg
 - 將 MySQL 專用查詢轉換為 PostgreSQL 語法
 - 更新連線池設定
@@ -660,6 +717,7 @@ Estimated downtime: 2-4 hours
 破壞性變更: 資料庫引擎從 MySQL 變更為 PostgreSQL
 
 遷移指南:
+
 1. 備份現有 MySQL 資料庫
 2. 安裝 PostgreSQL 15+
 3. 更新 .env 設定: DATABASE_URL=postgresql://...
@@ -669,6 +727,7 @@ Estimated downtime: 2-4 hours
 預估停機時間: 2-4 小時
 
 Closes #890
+
 ```
 
 ---
@@ -678,18 +737,22 @@ Closes #890
 ### ❌ Anti-Pattern 1: Vague Messages
 
 ```
+
 fix: bug fix
 refactor: code improvements
 update: changes
+
 ```
 
 **Problem**: No context, impossible to understand without reading code.
 
 **✅ Fix**:
 ```
+
 fix(login): Prevent duplicate session creation on rapid clicks
 refactor(utils): Extract email validation regex to constants
 feat(profile): Add avatar upload with image compression
+
 ```
 
 ---
@@ -697,17 +760,21 @@ feat(profile): Add avatar upload with image compression
 ### ❌ Anti-Pattern 2: Mixing Multiple Concerns
 
 ```
+
 feat: add login, fix bugs, refactor database, update docs
+
 ```
 
 **Problem**: Should be separate commits for reviewability and revertability.
 
 **✅ Fix**: Split into separate commits:
 ```
+
 feat(auth): Add OAuth2 login support
 fix(api): Resolve null pointer in user lookup
 refactor(database): Extract connection pool to separate module
 docs(api): Update authentication endpoint documentation
+
 ```
 
 ---
@@ -715,19 +782,23 @@ docs(api): Update authentication endpoint documentation
 ### ❌ Anti-Pattern 3: Commit Message as Code Comments
 
 ```
+
 fix: change line 45 from getUserById to getUserByEmail because the function was renamed
+
 ```
 
 **Problem**: Too focused on implementation details instead of purpose.
 
 **✅ Fix**:
 ```
+
 fix(api): Use correct user lookup method in password reset
 
 The password reset flow was calling getUserById with an email parameter,
 causing lookups to fail. Now correctly calls getUserByEmail.
 
 Fixes #789
+
 ```
 
 ---
@@ -735,7 +806,9 @@ Fixes #789
 ### ❌ Anti-Pattern 4: No Body for Complex Changes
 
 ```
+
 refactor(database): migrate to PostgreSQL
+
 ```
 
 **Problem**: Breaking change with no migration guide or context.
@@ -759,6 +832,7 @@ module.exports = {
 ```
 
 **Git Hook** (enforce on commit):
+
 ```bash
 # .git/hooks/commit-msg
 #!/bin/sh
@@ -770,6 +844,7 @@ npx commitlint --edit $1
 ### Changelog Generation | 變更日誌生成
 
 **standard-version** (Node.js):
+
 ```bash
 npm install --save-dev standard-version
 
@@ -785,6 +860,7 @@ npm run release
 ```
 
 **git-chglog** (Go):
+
 ```bash
 git-chglog --output CHANGELOG.md
 ```
@@ -827,19 +903,24 @@ Commit subject lines should be in **[English/繁體中文/Bilingual 雙語]**.
 
 **English**:
 ```
+
 feat(auth): Add OAuth2 support
 fix(api): Resolve memory leak
+
 ```
 
 **Traditional Chinese**:
 ```
+
 新增(認證): 實作 OAuth2 支援
 修正(API): 解決記憶體洩漏
+
 ```
 
 **Bilingual Mode** (English first, Chinese follows):
 **雙語模式**（英文在前，中文對照）:
 ```
+
 feat(auth): Add OAuth2 support. 新增 OAuth2 支援。
 
 Implement OAuth2 authentication flow.
@@ -847,18 +928,21 @@ Implement OAuth2 authentication flow.
 實作 OAuth2 認證流程。
 
 Closes #123
+
 ```
+
 ```
 
 ---
 
 ## Version History | 版本歷史
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.2.0 | 2025-12-05 | Fix Option B type mapping (chore→維護); Add security type; Add scope naming rules; Clarify bilingual period exception; Improve templates 修正 Option B 類型對照（chore→維護）；新增 security 類型；新增 scope 命名規則；釐清雙語句點例外；改善範本 |
-| 1.1.0 | 2025-12-05 | Add Bilingual Mode (Option C) with examples 新增雙語對照模式（選項 C）與範例 |
-| 1.0.0 | 2025-11-12 | Initial guide published |
+| Version | Date       | Changes                                                                                                                                                                                                                                              |
+| ------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.2.1   | 2025-12-09 | Improve Option A/B/C format consistency: unify title style, add description text 改善 Option A/B/C 格式一致性：統一標題風格、新增描述文字 |
+| 1.2.0   | 2025-12-05 | Fix Option B type mapping (chore→維護); Add security type; Add scope naming rules; Clarify bilingual period exception; Improve templates 修正 Option B 類型對照（chore→維護）；新增 security 類型；新增 scope 命名規則；釐清雙語句點例外；改善範本 |
+| 1.1.0   | 2025-12-05 | Add Bilingual Mode (Option C) with examples 新增雙語對照模式（選項 C）與範例                                                                                                                                                                         |
+| 1.0.0   | 2025-11-12 | Initial guide published                                                                                                                                                                                                                              |
 
 ---
 
