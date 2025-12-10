@@ -1,8 +1,8 @@
 # AI Collaboration Anti-Hallucination Standards
 # AI 協作防幻覺標準
 
-**Version**: 1.0.0
-**Last Updated**: 2025-11-12
+**Version**: 1.1.0
+**Last Updated**: 2025-12-10
 **Applicability**: All software projects using AI assistants
 **適用範圍**: 所有使用 AI 助理協作的軟體專案
 
@@ -51,29 +51,75 @@ Requirements state we need SSO login support (requirement not confirmed)
 
 ### 2. Explicit Source Attribution | 明確來源標註
 
-**Rule**: All code references must include file path and line number.
+**Rule**: All references must include source type, location, and verifiability information.
 
-**規則**: 所有程式碼引用必須包含檔案路徑與行號。
+**規則**: 所有引用必須包含來源類型、位置與可驗證性資訊。
 
-**Format | 格式**:
+#### 2.1 Source Types | 來源類型
+
+| Source Type | Tag | Description | 可靠度 |
+|-------------|-----|-------------|--------|
+| Project Code | `[Source: Code]` | Directly read from codebase | ⭐⭐⭐⭐⭐ Highest |
+| Project Docs | `[Source: Docs]` | README, Wiki, inline comments | ⭐⭐⭐⭐ High |
+| External Docs | `[Source: External]` | Official documentation with URL | ⭐⭐⭐⭐ High |
+| Web Search | `[Source: Search]` | Search results (include date) | ⭐⭐⭐ Medium |
+| AI Knowledge | `[Source: Knowledge]` | AI training data (needs verification) | ⭐⭐ Low |
+| User Provided | `[Source: User]` | Information from user conversation | ⭐⭐⭐ Medium |
+
+#### 2.2 Attribution Format | 標註格式
+
+**For Code References | 程式碼引用**:
 ```
-[file_path:line_number] - Description
+[Source: Code] file_path:line_number - Description
 ```
 
-**Examples | 範例**:
+**For External Documentation | 外部文件**:
+```
+[Source: External] URL - Description (Version: x.x.x, Accessed: YYYY-MM-DD)
+```
+
+**For AI Knowledge | AI 知識**:
+```
+[Source: Knowledge] Topic - Description (⚠️ Requires verification)
+```
+
+#### 2.3 Examples | 範例
 
 ✅ **Correct**:
 ```
-UserService.cs:142 - Password hashing uses BCrypt
-app.config:23-28 - Database connection string configured for SQL Server
-README.md:15 - Project requires .NET 8.0 SDK
+[Source: Code] UserService.cs:142 - Password hashing uses BCrypt
+[Source: Code] app.config:23-28 - Database connection string configured for SQL Server
+[Source: Docs] README.md:15 - Project requires .NET 8.0 SDK
+[Source: External] https://react.dev/reference/react/useState - useState hook API (Version: React 18, Accessed: 2025-12-10)
+[Source: Search] "Express.js middleware order" - Middleware executes in registration order (Searched: 2025-12-10)
+[Source: Knowledge] HTTP status codes - 404 indicates resource not found (⚠️ General knowledge, verify for your API)
+[Source: User] User stated in conversation - Authentication must support OAuth2
 ```
 
 ❌ **Incorrect**:
 ```
-The authentication service uses BCrypt (no file/line reference)
+The authentication service uses BCrypt (no source type, no file reference)
 Somewhere in the config files there's a database connection (vague reference)
-I think the README mentions .NET 8 (uncertain language)
+I think the README mentions .NET 8 (uncertain language, no source)
+React useState works this way... (no version, no reference)
+```
+
+#### 2.4 Version Sensitivity | 版本敏感性
+
+**Rule**: When referencing libraries, frameworks, or APIs, always include version information when available.
+
+**規則**: 引用函式庫、框架或 API 時，必須包含版本資訊（如有）。
+
+**Why This Matters | 為何重要**:
+- APIs change between versions
+- Deprecated features may still appear in AI training data
+- Security vulnerabilities are version-specific
+
+**Examples | 範例**:
+```
+✅ [Source: External] Next.js App Router (v14.x) - Server Components are the default
+✅ [Source: Code] package.json:12 - Using "express": "^4.18.2"
+❌ "Next.js uses Server Components" (which version? behavior differs in v12 vs v14)
 ```
 
 ---
@@ -170,13 +216,27 @@ Before making any statement about code, requirements, or architecture, verify:
   - Have I read the actual file/document?
   - 我是否已讀取實際的檔案/文件？
 
+- [ ] **Source Type Tagged** | 來源類型已標註
+  - Did I specify the source type? (`[Source: Code]`, `[Source: External]`, `[Source: Knowledge]`, etc.)
+  - 我是否已指定來源類型？
+
 - [ ] **Reference Cited** | 引用已標註
-  - Did I include file path and line number?
-  - 我是否已包含檔案路徑與行號？
+  - Did I include file path and line number (for code)?
+  - Did I include URL and access date (for external docs)?
+  - 我是否已包含檔案路徑與行號（程式碼）？
+  - 我是否已包含 URL 與存取日期（外部文件）？
+
+- [ ] **Version Specified** | 版本已標註
+  - Did I include library/framework version when applicable?
+  - 我是否已包含適用的函式庫/框架版本？
 
 - [ ] **Certainty Classified** | 確定性已分類
   - Did I tag as [Confirmed], [Inferred], [Assumption], [Unknown], or [Need Confirmation]?
   - 我是否已標註為 [已確認]、[推測]、[假設]、[未知] 或 [需確認]？
+
+- [ ] **AI Knowledge Flagged** | AI 知識已標記
+  - Did I mark `[Source: Knowledge]` with ⚠️ verification warning?
+  - 我是否已對 `[Source: Knowledge]` 標記 ⚠️ 驗證警告？
 
 - [ ] **No Fabrication** | 無捏造
   - Did I avoid inventing APIs, configs, or requirements?
@@ -370,6 +430,7 @@ When performing code reviews, apply these principles:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2025-12-10 | Enhanced source attribution with source types, version sensitivity, and reliability ratings |
 | 1.0.0 | 2025-11-12 | Initial standard published |
 
 ---
