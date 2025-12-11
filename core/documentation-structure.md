@@ -1,7 +1,7 @@
 # Documentation Structure Standard
 # 文件結構標準
 
-**Version**: 1.1.0
+**Version**: 1.2.0
 **Last Updated**: 2025-12-11
 **Applicability**: All software projects requiring documentation
 **適用範圍**: 所有需要文件的軟體專案
@@ -36,6 +36,15 @@ project-root/
 │   ├── api-reference.md         # API documentation
 │   ├── deployment.md            # Deployment guide
 │   ├── troubleshooting.md       # Common issues
+│   ├── flows/                   # Flow documentation (NEW)
+│   │   ├── README.md            # Flow index (REQUIRED when >5 flows)
+│   │   ├── templates/
+│   │   │   └── flow-template.md
+│   │   └── {module}/
+│   │       └── {module}-flow.md
+│   ├── ADR/                     # Architecture Decision Records
+│   │   ├── README.md
+│   │   └── NNN-title.md
 │   └── diagrams/                # Architecture diagrams
 │       ├── system-overview.mmd
 │       ├── data-flow.mmd
@@ -93,6 +102,240 @@ docs/
 - Lowercase avoids case-sensitivity issues across OS (Windows vs Linux)
 - Kebab-case produces clean URLs: `docs/getting-started` vs `docs/GettingStarted`
 - Consistent naming improves discoverability and automation
+
+---
+
+## Document Requirements Matrix | 文件需求矩陣
+
+Different project types require different documentation:
+
+不同專案類型需要不同的文件：
+
+| Document | New Project | Refactor | Migration | Maintenance | Description |
+|----------|:-----------:|:--------:|:---------:|:-----------:|-------------|
+| **README.md** | ✅ | ✅ | ✅ | ✅ | Project entry point |
+| **ARCHITECTURE.md** | ✅ | ✅ | ✅ | ⚪ | System architecture |
+| **API.md** | ⚪ | ✅ | ✅ | ⚪ | External API specs |
+| **DATABASE.md** | ⚪ | ✅ | ✅ | ⚪ | Database structure |
+| **DEPLOYMENT.md** | ✅ | ✅ | ✅ | ⚪ | Deployment guide |
+| **MIGRATION.md** | ❌ | ✅ | ✅ | ❌ | Migration plan |
+| **ADR/** | ⚪ | ✅ | ✅ | ⚪ | Decision records |
+| **CHANGELOG.md** | ✅ | ✅ | ✅ | ✅ | Change history |
+| **flows/README.md** | ⚪ | ✅ | ✅ | ⚪ | Flow index (when >5 flows) |
+
+**Legend**: ✅ Required | ⚪ Recommended | ❌ Not needed
+
+---
+
+## Cross-Reference Standards | 文件交叉連結規範 (NEW)
+
+### Why Cross-References Matter | 為何需要交叉連結
+
+Isolated documents create navigation problems. Cross-references enable:
+- Contextual discovery
+- Reduced duplication
+- Consistent information
+
+孤立的文件會造成導覽問題。交叉連結可以：
+- 提供上下文發現
+- 減少重複內容
+- 確保資訊一致性
+
+### Required Cross-Reference Matrix | 必要連結矩陣
+
+When adding new documents, update related documents' reference sections:
+
+新增文件時，必須更新相關文件的參考資料區段：
+
+| When Adding... | Must Update |
+|----------------|-------------|
+| `flows/*.md` | ARCHITECTURE.md, index.md, related API.md / DATABASE.md |
+| `ADR/*.md` | index.md, ARCHITECTURE.md, MIGRATION.md |
+| Any new document | docs/index.md |
+
+### Link Direction Principles | 連結方向原則
+
+1. **Upward Links**: Flow docs should link to ARCHITECTURE.md (overall view)
+2. **Horizontal Links**: Related flows should link to each other (e.g., sms-flow → credit-flow)
+3. **Downward Links**: Architecture docs should link to flow index
+
+### References Section Format | 參考資料區段格式
+
+Every document should end with a References section:
+
+每份文件結尾應有參考資料區段：
+
+```markdown
+## References | 參考資料
+
+- [ARCHITECTURE.md](../ARCHITECTURE.md) - System architecture
+- [Related Flow](flows/xxx-flow.md) - Related flow documentation
+- [API Reference](api-reference.md) - API specifications
+```
+
+---
+
+## Flow Documentation | 流程文件 (NEW)
+
+### Purpose | 目的
+
+Flow documentation describes dynamic system behavior—how data flows between components during specific operations.
+
+流程文件描述系統的動態行為—特定操作中資料如何在元件間流動。
+
+### When to Create Flow Documentation | 何時建立流程文件
+
+| Priority | Flow Type | Criteria | Examples |
+|:--------:|-----------|----------|----------|
+| **P0** | Financial | Involves billing, credits, refunds | Credit deduction, fee calculation |
+| **P0** | Integration | External system API interaction | SSO login, gateway integration |
+| **P1** | Core Business | Main functional flows | Message sending, report queries |
+| **P2** | Batch Processing | Background services, scheduled jobs | Daemon services, cleanup jobs |
+| **P3** | Management | Admin and maintenance functions | Account management, system config |
+
+### Flow Documentation Structure | 流程文件結構
+
+```
+docs/flows/
+├── README.md               # Flow index (REQUIRED when >5 flows)
+├── templates/
+│   └── flow-template.md    # Standard template
+└── {module}/
+    └── {module}-flow.md
+```
+
+### flows/README.md Requirements | 流程索引必要內容
+
+When you have more than 5 flow documents, `flows/README.md` is **required** and must include:
+
+當流程文件超過 5 份時，`flows/README.md` 為**必要**，且必須包含：
+
+| Section | Description | Required |
+|---------|-------------|:--------:|
+| System Architecture Overview | ASCII or Mermaid diagram | ✅ |
+| Flow Document List | With status (✅ Complete / 🚧 In Progress / ⏳ Planned) | ✅ |
+| Module Relationship Diagram | Mermaid flowchart showing module interactions | ✅ |
+| Status Code Reference | Centralized definitions to avoid duplication | ⚪ |
+| Directory Structure | File organization | ✅ |
+
+### Flow Document Required Sections | 流程文件必要章節
+
+| Section | Description | Required |
+|---------|-------------|:--------:|
+| Overview | Purpose, scope, pre/post conditions | ✅ |
+| Triggers | What initiates this flow | ✅ |
+| Components | Component list, relationships, code links | ✅ |
+| Flow Diagram | Sequence diagram for main flow | ✅ |
+| Step Details | Input/output/code location per step | ✅ |
+| Error Handling | Error codes, retry mechanisms | ✅ |
+| Data Changes | Affected tables + DFD diagram | ✅ |
+| Performance | TPS, response time, bottlenecks | ⚪ |
+| Monitoring | Log points, metrics | ⚪ |
+| References | Links to API.md, DATABASE.md | ✅ |
+
+### Centralized Status Code Management | 狀態碼集中管理
+
+**Problem**: Status codes scattered across flow documents become inconsistent.
+
+**問題**：狀態碼散落在各流程文件中容易不一致。
+
+**Solution**:
+
+1. **Define centrally** in `flows/README.md` or `DATABASE.md`
+2. **Reference in flow docs**: List only relevant codes, with note:
+   > Complete definitions at [flows/README.md](../README.md#status-codes)
+3. **Version control**: Status code changes must be recorded in CHANGELOG.md
+
+**Status Code Definition Format | 狀態碼定義格式**:
+
+```markdown
+### Status Codes | 狀態碼
+
+| Code | Name | Description | Used By |
+|------|------|-------------|---------|
+| 0000 | Success | Operation successful | All modules |
+| 9997 | AuthFailed | Authentication failed | API, WebService |
+| 9998 | NotFound | Resource not found | All modules |
+```
+
+---
+
+## Index Document Standards | 索引文件規範 (NEW)
+
+### docs/index.md Required Sections | 必要章節
+
+| Section | Description | Required |
+|---------|-------------|:--------:|
+| Directory Structure | Document tree (ASCII or table) | ✅ |
+| By Role | Developer/Reviewer/Admin/QA perspectives | ⚪ |
+| By Topic | Architecture/API/Database/Flows/Migration/ADR | ✅ |
+| Flow Documentation | flows/ directory index | ✅ (when flows exist) |
+| External Resources | Related tech doc links | ⚪ |
+| Maintenance Guide | Update principles, contribution guidelines | ⚪ |
+| Last Updated | Index maintenance date | ✅ |
+
+### Index Template | 索引範本
+
+```markdown
+# Documentation Index | 文件導覽
+
+## Directory Structure | 目錄結構
+[Document tree diagram]
+
+## By Topic | 依主題分類
+
+### Architecture | 架構文件
+- [architecture.md](architecture.md) - System architecture
+- [ADR/](ADR/) - Architecture Decision Records
+
+### Flow Documentation | 系統流程文件
+Located in `flows/`, full index at [flows/README.md](flows/README.md):
+
+| Module | Document | Description |
+|--------|----------|-------------|
+| SMS | [sms-flow.md](flows/sms/sms-flow.md) | Message sending flow |
+| Auth | [auth-flow.md](flows/auth/auth-flow.md) | Authentication flow |
+
+---
+*Last Updated: YYYY-MM-DD*
+```
+
+---
+
+## CHANGELOG Documentation Integration | CHANGELOG 文件變更整合 (NEW)
+
+### When to Record Document Changes | 何時記錄文件變更
+
+| Change Type | Record In | Example |
+|-------------|-----------|---------|
+| New document | Added | New flow documentation `docs/flows/xxx.md` |
+| Major update | Changed | Updated `docs/API.md` with v2 API specs |
+| Restructure | Changed | Reorganized `docs/` directory structure |
+| Deprecated | Deprecated | `docs/old-api.md` marked as deprecated |
+| Removed | Removed | Removed outdated `docs/legacy.md` |
+
+### When NOT to Record | 不需記錄
+
+- Typo fixes
+- Formatting adjustments (indentation, spacing)
+- Link repairs
+- Date stamp updates
+
+### Recording Format | 記錄格式
+
+```markdown
+## [Unreleased]
+
+### Added | 新增
+- New flow documentation (Mermaid sequence/flowchart/DFD)
+  - `docs/flows/README.md` - Flow index with module relationship diagram
+  - `docs/flows/sms/sms-flow.md` - SMS sending flow
+
+### Changed | 變更
+- Updated existing documents with flow references
+  - `docs/ARCHITECTURE.md` - Added flow index link in references
+  - `docs/index.md` - Added flow documentation section
+```
 
 ---
 
@@ -358,6 +601,9 @@ This means: "Use this guide when upgrading to v1.2.0"
 - [Schema](architecture.md#database-schema)
 - [Migrations](development-guide.md#database-migrations)
 
+### Flow Documentation
+See [flows/README.md](flows/README.md) for complete index.
+
 ## Quick Links
 
 - [GitHub Repository](https://github.com/org/repo)
@@ -400,6 +646,9 @@ This means: "Use this guide when upgrading to v1.2.0"
 - Component diagram
 - Data flow diagram
 - Deployment diagram
+
+**Must Include in References**:
+- Link to `flows/README.md` for detailed flow documentation
 
 ---
 
@@ -464,6 +713,9 @@ curl -X POST https://api.example.com/api/users/authenticate \
 ```
 ```
 
+**Must Include in References**:
+- Link to relevant flow documentation (e.g., `flows/auth/auth-flow.md`)
+
 ---
 
 ### docs/deployment.md
@@ -479,6 +731,9 @@ curl -X POST https://api.example.com/api/users/authenticate \
 5. Verification
 6. Rollback Procedure
 7. Monitoring
+
+**Must Include in References**:
+- Link to relevant daemon/service flow documentation
 
 ---
 
@@ -558,6 +813,35 @@ sequenceDiagram
     Auth-->>-API: Token
     API-->>-User: 200 OK + Token
 ```
+
+### DFD (Data Flow Diagram) Standards | DFD 規範
+
+Flow documents should include DFD diagrams:
+
+| DFD Level | Description | Required |
+|-----------|-------------|:--------:|
+| Context Diagram | System and external entity relationships | ✅ |
+| Level 0 DFD | Main processes and data stores | ✅ |
+| Level 1 DFD | Expanded sub-processes | ⚪ (based on complexity) |
+
+**DFD Symbol Standards (Mermaid)**:
+
+| Symbol | Represents | Mermaid Syntax |
+|--------|------------|----------------|
+| Rectangle | External Entity | `[Name]` |
+| Double Circle | Process | `((ID<br/>Name))` |
+| Cylinder | Data Store | `[(D# Name)]` |
+| Solid Arrow | Data Flow | `-->｜label｜` |
+| Dashed Arrow | Error/Exception | `-.->｜label｜` |
+
+**DFD Color Standards**:
+
+| Color | Usage | Mermaid Style |
+|-------|-------|---------------|
+| 🟦 Blue | External Entity | `fill:#e3f2fd,stroke:#1976d2` |
+| 🟩 Green | Primary Data Table | `fill:#c8e6c9,stroke:#388e3c` |
+| 🟨 Yellow | Cache/Tracking Data | `fill:#fff9c4,stroke:#f9a825` |
+| 🟧 Orange | Updated Data | `fill:#ffccbc,stroke:#e64a19` |
 
 ---
 
@@ -654,10 +938,20 @@ When making code changes, update documentation:
   - New components added
   - Technology stack changed
 
+- [ ] **Flow Documentation** if:
+  - Business logic changed
+  - New integration added
+  - Data flow modified
+
 - [ ] **CHANGELOG.md** (always):
   - Add entry for every release
   - Document breaking changes
   - List new features and fixes
+  - **Record documentation additions/changes**
+
+- [ ] **Cross-References**:
+  - Update related documents' reference sections
+  - Update index.md if new documents added
 
 ---
 
@@ -683,6 +977,12 @@ When making code changes, update documentation:
 - [ ] All steps documented
 - [ ] Expected outcomes described
 - [ ] Troubleshooting included
+
+### Cross-Referencing | 交叉連結
+
+- [ ] Related documents linked
+- [ ] Index updated
+- [ ] References section complete
 
 ---
 
@@ -803,6 +1103,7 @@ git push origin gh-pages
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2025-12-11 | Added: Flow documentation standards, Cross-reference standards, Index document standards, CHANGELOG documentation integration, Document requirements matrix, DFD standards |
 | 1.1.0 | 2025-12-11 | Added: File naming conventions, Document version alignment standard |
 | 1.0.0 | 2025-11-12 | Initial documentation structure standard |
 
