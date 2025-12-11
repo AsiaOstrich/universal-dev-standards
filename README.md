@@ -1,8 +1,8 @@
 # Universal Documentation Standards
 # 通用文件規範
 
-**Version**: 1.0.0
-**Last Updated**: 2025-11-12
+**Version**: 1.2.0
+**Last Updated**: 2025-12-11
 **License**: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ---
@@ -45,6 +45,7 @@ universal-doc-standards/
 │   ├── git-workflow.md            # Git branching strategies
 │   ├── code-review-checklist.md   # Code review guidelines
 │   ├── documentation-structure.md # Documentation organization
+│   ├── project-structure.md       # Project directory conventions
 │   ├── versioning.md              # Semantic versioning guide
 │   └── testing-standards.md       # Testing standards (UT/IT/ST/E2E)
 │
@@ -500,6 +501,7 @@ All contributions must:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2025-12-11 | Added: project-structure.md; Updated: documentation-structure.md (file naming, version alignment), checkin-standards.md (directory hygiene) |
 | 1.1.0 | 2025-12-05 | Added: testing-standards.md (UT/IT/ST/E2E) |
 | 1.0.0 | 2025-11-12 | Initial release with core standards |
 

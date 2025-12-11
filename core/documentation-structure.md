@@ -1,8 +1,8 @@
 # Documentation Structure Standard
 # 文件結構標準
 
-**Version**: 1.0.0
-**Last Updated**: 2025-11-12
+**Version**: 1.1.0
+**Last Updated**: 2025-12-11
 **Applicability**: All software projects requiring documentation
 **適用範圍**: 所有需要文件的軟體專案
 
@@ -24,13 +24,13 @@ project-root/
 ├── CONTRIBUTING.md              # Contribution guidelines
 ├── CHANGELOG.md                 # Version history
 ├── LICENSE                      # License file
-├──.claude/ or .standards/       # Development standards
+├── .claude/ or .standards/      # Development standards
 │   ├── anti-hallucination.md
 │   ├── checkin-standards.md
 │   ├── commit-guide.md
 │   └── ...
 ├── docs/                        # Detailed documentation
-│   ├── INDEX.md                 # Documentation index
+│   ├── index.md                 # Documentation index
 │   ├── getting-started.md       # Quick start guide
 │   ├── architecture.md          # System architecture
 │   ├── api-reference.md         # API documentation
@@ -45,6 +45,54 @@ project-root/
     ├── advanced-usage/
     └── README.md
 ```
+
+---
+
+## File Naming Conventions | 檔案命名規範
+
+### Root Directory Files | 根目錄檔案
+
+Root-level documentation files should use **UPPERCASE** naming for GitHub/GitLab auto-recognition:
+
+根目錄的文件檔案應使用**大寫**命名，以便 GitHub/GitLab 自動識別：
+
+| File | Naming | Reason |
+|------|--------|--------|
+| `README.md` | UPPERCASE | GitHub/GitLab auto-displays on repo page |
+| `CONTRIBUTING.md` | UPPERCASE | GitHub auto-links in PR creation |
+| `CHANGELOG.md` | UPPERCASE | Keep a Changelog convention |
+| `LICENSE` | UPPERCASE (no extension) | GitHub auto-detects license type |
+| `CODE_OF_CONDUCT.md` | UPPERCASE | GitHub community standard |
+| `SECURITY.md` | UPPERCASE | GitHub security advisory standard |
+
+### docs/ Directory Files | docs/ 目錄檔案
+
+All files within `docs/` should use **lowercase-kebab-case** for URL friendliness:
+
+`docs/` 目錄內的所有檔案應使用 **lowercase-kebab-case** 以確保 URL 友善：
+
+✅ **Correct | 正確**:
+```
+docs/
+├── index.md
+├── getting-started.md
+├── api-reference.md
+└── user-guide.md
+```
+
+❌ **Incorrect | 錯誤**:
+```
+docs/
+├── INDEX.md           # Inconsistent casing
+├── GettingStarted.md  # PascalCase not URL-friendly
+├── API_Reference.md   # snake_case inconsistent
+└── User Guide.md      # Spaces cause URL issues
+```
+
+**Rationale | 理由**:
+- Lowercase avoids case-sensitivity issues across OS (Windows vs Linux)
+- Kebab-case produces clean URLs: `docs/getting-started` vs `docs/GettingStarted`
+- Consistent naming improves discoverability and automation
 
 ---
 
@@ -198,9 +246,83 @@ See [.claude/code-review-checklist.md](.claude/code-review-checklist.md)
 
 ---
 
+## Document Version Alignment | 文件版本對齊
+
+### Principle | 原則
+
+**Document version MUST align with software version.**
+
+**文件版本必須與軟體版本對齊。**
+
+The version number in a document represents "applicable to software version X.Y.Z", not an independent document revision number.
+
+文件中的版本號代表「適用於軟體版本 X.Y.Z」，而非獨立的文件修訂號。
+
+### Rationale | 理由
+
+| Approach | Problems |
+|----------|----------|
+| Independent doc version | Requires tracking "which doc version maps to which software version"; confusing |
+| **Aligned version** ✓ | Clear: doc v1.2.0 = applies to software v1.2.0 |
+
+### Document Header Template | 文件標頭範本
+
+```markdown
+# Document Title | 文件標題
+
+**Applicable Version**: 1.2.0    ← Aligned with software version
+**適用版本**: 1.2.0
+**Document Type**: [Guide/Reference/Specification]
+**文件類型**: [指南/參考/規格]
+**Target Audience**: [Developers/Operators/Users]
+**目標讀者**: [開發者/維運/使用者]
+**Last Updated**: 2025-12-11     ← Date of last edit
+**文件更新日期**: 2025-12-11
+
+---
+```
+
+### Field Definitions | 欄位定義
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| Applicable Version / 適用版本 | ✅ Yes | The software version this document applies to |
+| Document Type / 文件類型 | Recommended | Category: Guide, Reference, Specification, Tutorial |
+| Target Audience / 目標讀者 | Recommended | Intended readers |
+| Last Updated / 文件更新日期 | ✅ Yes | Date of last edit |
+
+### When to Update Version | 何時更新版本
+
+| Scenario | Action |
+|----------|--------|
+| Software releases new version with feature changes | Update doc version to match |
+| Minor doc typo fix (no software change) | Keep version, update Last Updated date only |
+| Doc updated for upcoming release | Use new version number |
+
+### Examples | 範例
+
+✅ **Correct**:
+```markdown
+# Upgrade Guide
+
+**Applicable Version**: 1.2.0
+**Last Updated**: 2025-12-11
+```
+This means: "Use this guide when upgrading to v1.2.0"
+
+❌ **Incorrect**:
+```markdown
+# Upgrade Guide
+
+**Version**: 1.1        ← Ambiguous: document revision or software version?
+**Updated**: 2025-12-11
+```
+
+---
+
 ## Detailed Documentation (`docs/`) | 詳細文件
 
-### docs/INDEX.md
+### docs/index.md
 
 **Purpose**: Navigation hub for all documentation
 **目的**: 所有文件的導覽中心
@@ -681,6 +803,7 @@ git push origin gh-pages
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2025-12-11 | Added: File naming conventions, Document version alignment standard |
 | 1.0.0 | 2025-11-12 | Initial documentation structure standard |
 
 ---

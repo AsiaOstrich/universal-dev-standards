@@ -1,8 +1,8 @@
 # Code Check-in Standards
 # 程式碼簽入檢查點標準
 
-**Version**: 1.2.2
-**Last Updated**: 2025-12-04
+**Version**: 1.2.4
+**Last Updated**: 2025-12-11
 **Applicability**: All software projects using version control
 **適用範圍**: 所有使用版本控制的軟體專案
 
@@ -817,6 +817,69 @@ jobs:
 
 ---
 
+## Pre-commit Directory Hygiene | 提交前目錄衛生
+
+### IDE and Tool Artifacts | IDE 與工具產生檔案
+
+Before committing, verify no unwanted files are staged:
+
+提交前，驗證沒有不需要的檔案被加入暫存區：
+
+**Common Artifacts to Check | 常見需檢查的檔案**:
+
+| Pattern | Source | Action |
+|---------|--------|--------|
+| `.idea/` | JetBrains IDEs | Should be gitignored |
+| `.vs/` | Visual Studio | Should be gitignored |
+| `*.user`, `*.suo` | Visual Studio | Should be gitignored |
+| `.vscode/` | VS Code | Usually gitignored (except shared settings) |
+| `${workspaceFolder}/` | VS Code variable expansion error | Delete immediately |
+| `.DS_Store` | macOS | Should be gitignored |
+| `Thumbs.db` | Windows | Should be gitignored |
+
+### Verification Commands | 驗證指令
+
+```bash
+# Check for common unwanted files in staging area
+git diff --cached --name-only | grep -E '\.idea|\.vs/|\.user$|\.suo$|\.DS_Store|Thumbs\.db'
+
+# Check for abnormal directories (e.g., ${workspaceFolder})
+git ls-files | grep -E '^\$'
+
+# If abnormal files found, unstage them
+git reset HEAD <file>
+
+# If abnormal directories exist but not tracked, remove them
+rm -rf '${workspaceFolder}'
+```
+
+### Prevention | 預防
+
+Ensure your `.gitignore` includes:
+
+```gitignore
+# IDE
+.idea/
+.vs/
+*.user
+*.suo
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build outputs
+dist/
+build/
+bin/
+obj/
+node_modules/
+```
+
+---
+
 ## Common Violations and Solutions | 常見違規與解決方案
 
 ### Violation 1: "WIP" Commits | 違規 1: "WIP" 提交
@@ -895,6 +958,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.4 | 2025-12-11 | Added: Pre-commit directory hygiene section (IDE artifacts, verification commands) |
 | 1.2.3 | 2025-12-05 | Added: Reference to testing-standards.md |
 | 1.2.2 | 2025-12-04 | Updated: GitHub Actions checkout to v4 |
 | 1.2.1 | 2025-12-04 | Added: Cross-reference to versioning.md CHANGELOG exclusion rules |
@@ -905,6 +969,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 ## Related Standards | 相關標準
 
+- [Project Structure Standard](project-structure.md) - 專案結構標準
 - [Testing Standards](testing-standards.md) - 測試標準 (UT/IT/ST/E2E)
 - [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範
 - [Code Review Checklist](code-review-checklist.md) - 程式碼審查清單
