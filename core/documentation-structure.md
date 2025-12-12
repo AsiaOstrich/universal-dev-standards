@@ -785,6 +785,25 @@ npm install
 
 ## Diagram Documentation | 圖表文件
 
+### Flows vs Diagrams Separation | 流程與圖表分離
+
+Understanding the distinction between `flows/` and `diagrams/` directories:
+
+理解 `flows/` 與 `diagrams/` 目錄的區別：
+
+- **`docs/diagrams/`**: Static architecture diagrams (DFD, ER, C4 Model, Deployment, Class diagrams)
+- **`docs/flows/`**: Dynamic flow documentation (Sequence Diagrams, API call flows, Job scheduling flows)
+
+| Type | Description | Directory | Examples |
+|------|-------------|-----------|----------|
+| **Flow** | Dynamic behavior: how data flows, step sequences | `docs/flows/` | Sequence diagrams, API call flows, job scheduling |
+| **Diagram** | Static structure: system composition, relationships, data models | `docs/diagrams/` | DFD, ER diagrams, C4 architecture, deployment diagrams |
+
+**Rationale | 理由**:
+- Clear separation reduces confusion about where to place new documentation
+- Static diagrams rarely change; dynamic flows may update with feature changes
+- Different audiences: diagrams for architects, flows for developers and operators
+
 ### Recommended Tools | 建議工具
 
 - **Mermaid**: Text-based diagrams (GitHub/GitLab native support)
@@ -823,6 +842,14 @@ Flow documents should include DFD diagrams:
 | Context Diagram | System and external entity relationships | ✅ |
 | Level 0 DFD | Main processes and data stores | ✅ |
 | Level 1 DFD | Expanded sub-processes | ⚪ (based on complexity) |
+| Physical DFD | Implementation mapping (technology stack, DB tables, API endpoints) | ⚪ (advanced) |
+
+**Logical vs Physical DFD | 邏輯與實體 DFD**:
+
+| Type | Describes | Audience | Example Content |
+|------|-----------|----------|-----------------|
+| **Logical DFD** (Level 0/1) | WHAT the system does (business processes) | Business analysts, PMs, new developers | Process names, data flows, business rules |
+| **Physical DFD** | HOW it's implemented (technology details) | Operations engineers, DBAs, system integrators | Database tables, API endpoints, file paths, config parameters |
 
 **DFD Symbol Standards (Mermaid)**:
 
@@ -1103,6 +1130,7 @@ git push origin gh-pages
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.1 | 2025-12-12 | Added: Physical DFD layer, Flows vs Diagrams separation clarification |
 | 1.2.0 | 2025-12-11 | Added: Flow documentation standards, Cross-reference standards, Index document standards, CHANGELOG documentation integration, Document requirements matrix, DFD standards |
 | 1.1.0 | 2025-12-11 | Added: File naming conventions, Document version alignment standard |
 | 1.0.0 | 2025-11-12 | Initial documentation structure standard |
