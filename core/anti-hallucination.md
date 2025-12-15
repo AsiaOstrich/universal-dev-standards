@@ -1,8 +1,8 @@
 # AI Collaboration Anti-Hallucination Standards
 # AI 協作防幻覺標準
 
-**Version**: 1.1.0
-**Last Updated**: 2025-12-10
+**Version**: 1.2.0
+**Last Updated**: 2025-12-15
 **Applicability**: All software projects using AI assistants
 **適用範圍**: 所有使用 AI 助理協作的軟體專案
 
@@ -13,6 +13,77 @@
 This standard defines strict guidelines for AI assistants to prevent hallucination (generating false or unverified information) when analyzing code, making recommendations, or documenting systems.
 
 本標準定義 AI 助理的嚴格準則，以防止在分析程式碼、提出建議或撰寫系統文件時產生幻覺（生成錯誤或未經驗證的資訊）。
+
+---
+
+## AI Assistant Interaction Standards | AI 助手互動規範
+
+### Conversation Language | 對話語言
+
+AI assistants should adapt to the user's preferred language. When the project specifies a conversation language, follow these guidelines:
+
+AI 助手應適應使用者的偏好語言。當專案指定對話語言時，請遵循以下準則：
+
+| Context | Guideline | Example |
+|---------|-----------|---------|
+| Conversation | Use project's specified language | Traditional Chinese, English, etc. |
+| Certainty Tags | Use project's specified language | `[Confirmed]` or `[已確認]` |
+| Error Explanation | Use project's specified language | Explain compile/runtime errors in user's language |
+| Technical Terms | Preserve original | JWT, BCrypt, API, Token |
+| Code Comments | Follow project convention | Usually English |
+| Commit Messages | Follow project convention | e.g., `feat(auth): add login feature` |
+
+| 情境 | 準則 | 範例 |
+|------|------|------|
+| 對話互動 | 使用專案指定語言 | 繁體中文、英文等 |
+| 確定性標籤 | 使用專案指定語言 | `[已確認]` 或 `[Confirmed]` |
+| 錯誤訊息解釋 | 使用專案指定語言 | 以使用者語言解釋編譯/執行錯誤 |
+| 技術術語 | 保留原文 | JWT、BCrypt、API、Token |
+| 程式碼註解 | 遵循專案慣例 | 通常為英文 |
+| Commit 訊息 | 遵循專案慣例 | 如 `feat(auth): 新增登入功能` |
+
+### Recommendation Principles | 選項建議原則
+
+**Rule**: When providing multiple options, always include a recommended choice with reasoning.
+
+**規則**: 當提供多個選項時，必須同時提出最推薦的選項並說明理由。
+
+| Scenario | Requirement | Example |
+|----------|-------------|---------|
+| 2+ options presented | Must indicate recommended option with reasoning | "Recommend Option A because..." |
+| Clear winner exists | Directly recommend best option with reasoning | "Recommend BCrypt for higher security" |
+| Trade-offs exist | Recommend based on current context, explain trade-offs | "Given project requirements, recommend Option B" |
+| Cannot determine | Explain what information is needed to make a recommendation | "Need to confirm performance requirements to recommend" |
+
+| 情境 | 要求 | 範例 |
+|------|------|------|
+| 提供 2+ 選項 | 必須明確標示推薦選項並說明理由 | 「推薦選項 A，因為...」 |
+| 選項優劣明顯 | 直接推薦最佳選項，說明理由 | 「建議使用 BCrypt，因為安全性較高」 |
+| 選項各有優劣 | 推薦最適合當前情境的選項，說明權衡考量 | 「考量專案需求，推薦選項 B」 |
+| 無法判斷優劣 | 說明需要哪些資訊才能給出推薦 | 「需要確認效能需求才能推薦」 |
+
+**Examples | 範例**:
+
+❌ **Incorrect | 錯誤**:
+```
+There are three options:
+1. Use Redis caching
+2. Use in-memory caching
+3. Use file-based caching
+
+Please choose one.
+```
+
+✅ **Correct | 正確**:
+```
+There are three options:
+1. Use Redis caching
+2. Use in-memory caching
+3. Use file-based caching
+
+**Recommended: Option 1 (Redis)**: Given the project already has Redis infrastructure
+and needs cross-instance cache sharing, Redis is the most suitable choice.
+```
 
 ---
 
@@ -184,6 +255,10 @@ Users want SSO support (assumption presented as confirmed requirement)
    - ❌ Do NOT claim code has issues without evidence
    - ✅ DO analyze actual code and cite specific lines
 
+6. **Present Options Without Recommendation**
+   - ❌ Do NOT list options and ask user to choose without guidance
+   - ✅ DO always include a recommended choice with reasoning
+
 **Examples of Violations | 違規範例**:
 
 ❌ **Fabricating APIs**:
@@ -202,6 +277,12 @@ Reality: User only asked about general authentication, didn't specify protocols
 ```
 Assistant: "The PaymentService handles credit card processing"
 Reality: File wasn't read, name is just an assumption
+```
+
+❌ **Options Without Recommendation**:
+```
+Assistant: "You can use: 1) JWT 2) Session 3) OAuth. Which do you prefer?"
+Reality: Should recommend based on project context and explain why
 ```
 
 ---
@@ -245,6 +326,10 @@ Before making any statement about code, requirements, or architecture, verify:
 - [ ] **User Clarification** | 使用者澄清
   - Did I ask for clarification on ambiguous points?
   - 我是否對模糊點請求澄清？
+
+- [ ] **Recommendation Included** | 包含推薦
+  - When presenting options, did I include a recommended choice?
+  - 當提出選項時，我是否包含了推薦選項？
 
 ---
 
@@ -339,6 +424,42 @@ Once I review the actual code and errors, I can identify the root cause.
 
 ---
 
+### Scenario 4: Technology Selection | 情境 4: 技術選型
+
+**User Request**: "What caching solution should I use?"
+
+**❌ Bad Response**:
+```
+You have several options:
+1. Redis
+2. Memcached
+3. In-memory cache
+
+Let me know which one you'd like to use.
+```
+**Problem**: Lists options without recommendation or context consideration.
+
+**✅ Good Response**:
+```
+Based on the options available:
+1. Redis - Distributed, persistent, rich data structures
+2. Memcached - Simple, fast, distributed
+3. In-memory cache - Local only, no setup required
+
+**Recommended: Redis**
+
+[Need Confirmation] Before finalizing, I'd like to understand:
+- Do you need cache sharing across multiple instances?
+- Is data persistence required?
+- What's your existing infrastructure?
+
+If you already have Redis infrastructure or need cross-instance sharing, 
+Redis is the best choice. If this is a single-instance application with 
+simple caching needs, in-memory cache would suffice.
+```
+
+---
+
 ## AI Assistant Workflow | AI 助理工作流程
 
 ```
@@ -380,6 +501,12 @@ Once I review the actual code and errors, I can identify the root cause.
               ▼
 ┌─────────────────────────────────┐
 │  Cite Sources (file:line)       │
+└─────────────┬───────────────────┘
+              │
+              ▼
+┌─────────────────────────────────┐
+│  Include Recommendation         │
+│  (if presenting options)        │
 └─────────────┬───────────────────┘
               │
               ▼
@@ -430,6 +557,7 @@ When performing code reviews, apply these principles:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2025-12-15 | Added AI Assistant Interaction Standards section (conversation language, recommendation principles) |
 | 1.1.0 | 2025-12-10 | Enhanced source attribution with source types, version sensitivity, and reliability ratings |
 | 1.0.0 | 2025-11-12 | Initial standard published |
 
@@ -451,8 +579,10 @@ Projects may extend this standard by adding:
 - Domain-specific verification requirements (e.g., HIPAA compliance checks in healthcare)
 - Tool-specific guidelines (e.g., how to verify Terraform configurations)
 - Team-specific evidence formats (e.g., JIRA ticket references)
+- Language preferences for AI assistant conversations
 
 專案可透過以下方式擴充本標準:
 - 領域特定驗證需求（如醫療領域的 HIPAA 合規檢查）
 - 工具特定指引（如如何驗證 Terraform 設定）
 - 團隊特定證據格式（如 JIRA ticket 引用）
+- AI 助手對話的語言偏好
