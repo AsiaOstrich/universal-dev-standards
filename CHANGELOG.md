@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] | 未發布
 
+## [1.3.0] - 2025-12-16
+
 ### Added | 新增
 - Add `changelog-standards.md` - Comprehensive changelog writing guide
   新增 `changelog-standards.md` - 完整的變更日誌撰寫指南
@@ -82,7 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Integrations: OpenSpec framework
   整合：OpenSpec 框架
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-doc-standards/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/AsiaOstrich/universal-doc-standards/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/AsiaOstrich/universal-doc-standards/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/AsiaOstrich/universal-doc-standards/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/AsiaOstrich/universal-doc-standards/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/AsiaOstrich/universal-doc-standards/releases/tag/v1.0.0
