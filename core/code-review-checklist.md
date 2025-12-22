@@ -1,8 +1,8 @@
 # Code Review Checklist
 # 程式碼審查檢查清單
 
-**Version**: 1.0.3
-**Last Updated**: 2025-12-16
+**Version**: 1.1.0
+**Last Updated**: 2025-12-22
 **Applicability**: All software projects with code review processes
 **適用範圍**: 所有進行程式碼審查的軟體專案
 
@@ -278,6 +278,39 @@ Not critical, but could improve performance if list grows large.
 Is there a specific reason for this approach?
 
 📝 NOTE: This is a clever solution! Nice use of reduce here.
+```
+
+### Alternative: Text Labels | 替代方案：文字標籤
+
+For teams preferring plain text labels without emojis:
+
+對於偏好純文字標籤（無 emoji）的團隊：
+
+| Label | 標籤 | Meaning | 意義 | Action |
+|-------|------|---------|------|--------|
+| `[REQUIRED]` | `[必要]` | Must fix before merge | 必須修正才能合併 | 🔴 Required |
+| `[SUGGESTION]` | `[建議]` | Recommended but not blocking | 建議修正但非阻擋 | 🟡 Recommended |
+| `[QUESTION]` | `[問題]` | Need clarification | 需要澄清 | 🔵 Discuss |
+| `[NIT]` | `[NIT]` | Minor suggestion, can ignore | 小建議，可忽略 | 🟢 Optional |
+| `[PRAISE]` | `[讚]` | Positive feedback | 正面回饋 | ⚪ Informational |
+
+**Example Comments | 評論範例**
+
+```markdown
+[REQUIRED] Potential SQL injection vulnerability here.
+[必要] 此處有 SQL 注入風險。
+
+[SUGGESTION] Consider using StringBuilder for better performance.
+[建議] 可考慮使用 StringBuilder 提升效能。
+
+[QUESTION] What's the intended behavior when input is null?
+[問題] 當輸入為 null 時，預期行為是什麼？
+
+[NIT] Variable name could be more descriptive.
+[NIT] 變數名稱可以更明確。
+
+[PRAISE] Elegant solution! Nice refactoring.
+[讚] 優雅的解法！重構得很好。
 ```
 
 ---
@@ -596,6 +629,7 @@ Comment Prefixes:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2025-12-22 | Added: Alternative text labels section for review comments (中文標籤支援) |
 | 1.0.3 | 2025-12-16 | Clarified: CHANGELOG section aligned with changelog-standards.md, use markdown links for cross-references |
 | 1.0.2 | 2025-12-05 | Added: Reference to testing-standards.md |
 | 1.0.1 | 2025-12-04 | Updated: GitHub Actions checkout to v4, cross-reference to versioning.md |
