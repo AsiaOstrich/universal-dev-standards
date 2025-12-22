@@ -1,8 +1,8 @@
 # AI Collaboration Anti-Hallucination Standards
 # AI 協作防幻覺標準
 
-**Version**: 1.2.0
-**Last Updated**: 2025-12-15
+**Version**: 1.3.0
+**Last Updated**: 2025-12-22
 **Applicability**: All software projects using AI assistants
 **適用範圍**: 所有使用 AI 助理協作的軟體專案
 
@@ -259,30 +259,160 @@ Users want SSO support (assumption presented as confirmed requirement)
    - ❌ Do NOT list options and ask user to choose without guidance
    - ✅ DO always include a recommended choice with reasoning
 
-**Examples of Violations | 違規範例**:
+#### Detailed Examples | 詳細範例
 
-❌ **Fabricating APIs**:
+##### 1. Fabricating APIs or Function Signatures | 捏造 API 或函式名稱
+
+❌ **Incorrect | 錯誤**:
 ```
 Assistant: "You can call UserService.GetUserById(int id) to retrieve users"
-Reality: Method doesn't exist or has different signature
+```
+**Problem**: Method doesn't exist or has different signature.
+
+**問題**: 方法不存在或簽名不同。
+
+✅ **Correct | 正確**:
+```
+Assistant: "Let me read the UserService file to find the correct method signature."
+
+[After reading src/services/UserService.cs]
+
+[Source: Code] UserService.cs:45 - Found method: FindUser(Guid userId)
+The actual method uses Guid instead of int for the user ID parameter.
 ```
 
-❌ **Assuming Requirements**:
+---
+
+##### 2. Assuming Requirements | 假設使用者需求
+
+❌ **Incorrect | 錯誤**:
 ```
-Assistant: "The system needs to support OAuth and SAML"
-Reality: User only asked about general authentication, didn't specify protocols
+Assistant: "The system needs to support OAuth and SAML for enterprise SSO."
+```
+**Problem**: User only asked about authentication, didn't specify protocols.
+
+**問題**: 使用者只詢問認證，未指定協議。
+
+✅ **Correct | 正確**:
+```
+Assistant: "[Need Confirmation] You mentioned needing authentication.
+Could you clarify:
+1. Is this for internal users, external customers, or both?
+2. Do you need enterprise SSO (OAuth/SAML) or simple username/password?
+3. Any existing identity providers to integrate with?
+
+This will help me recommend the most appropriate approach."
 ```
 
-❌ **Speculating About Code**:
+---
+
+##### 3. Speculating About Unread Code | 描述未讀取的程式碼功能
+
+❌ **Incorrect | 錯誤**:
 ```
-Assistant: "The PaymentService handles credit card processing"
-Reality: File wasn't read, name is just an assumption
+Assistant: "The PaymentService handles credit card processing and integrates with Stripe."
+```
+**Problem**: File wasn't read, functionality is assumed from the name.
+
+**問題**: 檔案未讀取，功能僅從名稱假設。
+
+✅ **Correct | 正確**:
+```
+Assistant: "I see a file named PaymentService.cs in your project structure.
+
+[Unknown] I haven't read this file yet, so I cannot confirm its functionality.
+
+Would you like me to read src/services/PaymentService.cs to understand:
+- Which payment provider it uses?
+- What payment methods are supported?
+- How transactions are processed?"
 ```
 
-❌ **Options Without Recommendation**:
+---
+
+##### 4. Inventing Configuration | 編造設定細節
+
+❌ **Incorrect | 錯誤**:
+```
+Assistant: "Set the DATABASE_URL environment variable to connect to PostgreSQL.
+Your connection string should be in appsettings.json under 'ConnectionStrings:DefaultConnection'."
+```
+**Problem**: Configuration structure and variable names assumed without verification.
+
+**問題**: 設定結構和變數名稱未經驗證即假設。
+
+✅ **Correct | 正確**:
+```
+Assistant: "Let me check your actual configuration files."
+
+[After reading appsettings.json]
+
+[Source: Code] appsettings.json:8-12 - Found database configuration:
+- Connection string key: "ConnectionStrings:MainDb" (not "DefaultConnection")
+- Using SQL Server, not PostgreSQL
+- Additional setting "CommandTimeout": 30
+
+Your project uses a different key name than the .NET default.
+```
+
+---
+
+##### 5. Hallucinating Errors or Bugs | 斷言程式碼有 Bug（無證據）
+
+❌ **Incorrect | 錯誤**:
+```
+Assistant: "Your authentication code has a security vulnerability -
+you're not hashing passwords properly."
+```
+**Problem**: Claiming a bug without reading the actual code.
+
+**問題**: 未讀取實際程式碼即聲稱有 Bug。
+
+✅ **Correct | 正確**:
+```
+Assistant: "Let me review your authentication implementation."
+
+[After reading src/auth/AuthService.cs]
+
+[Confirmed] AuthService.cs:67 - Password hashing implementation found:
+- Using BCrypt with work factor 12 ✅
+- Salt is auto-generated ✅
+- No timing attack vulnerabilities detected ✅
+
+Your password hashing implementation follows security best practices.
+No issues found in the reviewed code.
+```
+
+---
+
+##### 6. Options Without Recommendation | 選項未附推薦
+
+❌ **Incorrect | 錯誤**:
 ```
 Assistant: "You can use: 1) JWT 2) Session 3) OAuth. Which do you prefer?"
-Reality: Should recommend based on project context and explain why
+```
+**Problem**: Lists options without guidance or context consideration.
+
+**問題**: 列出選項但未提供指引或考慮情境。
+
+✅ **Correct | 正確**:
+```
+Assistant: "Based on your requirements:
+
+**Options**:
+1. JWT - Stateless, scalable, good for APIs
+2. Session - Server-side state, traditional web apps
+3. OAuth - Third-party identity providers
+
+**Recommended: JWT**
+
+[Inferred] Based on your microservices architecture (seen in docker-compose.yml),
+JWT is the best fit because:
+- Stateless: No session store needed across services
+- Scalable: Each service can validate tokens independently
+- Standard: Well-supported across your tech stack (.NET, React)
+
+If you need social login later, you can add OAuth on top of JWT."
 ```
 
 ---
@@ -557,6 +687,7 @@ When performing code reviews, apply these principles:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2025-12-22 | Enhanced: Prohibited Behaviors section with detailed comparison examples (正確/錯誤對比範例) |
 | 1.2.0 | 2025-12-15 | Added AI Assistant Interaction Standards section (conversation language, recommendation principles) |
 | 1.1.0 | 2025-12-10 | Enhanced source attribution with source types, version sensitivity, and reliability ratings |
 | 1.0.0 | 2025-11-12 | Initial standard published |
