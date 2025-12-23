@@ -1,0 +1,319 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "lastUpdated": "2025-12-23",
+  "description": "Standards registry mapping universal-doc-standards to universal-dev-skills",
+  "repositories": {
+    "standards": {
+      "name": "universal-doc-standards",
+      "url": "https://github.com/AsiaOstrich/universal-doc-standards",
+      "version": "1.3.1"
+    },
+    "skills": {
+      "name": "universal-dev-skills",
+      "url": "https://github.com/AsiaOstrich/universal-dev-skills",
+      "version": "1.1.0"
+    }
+  },
+  "categories": {
+    "skill": {
+      "name": "Skill",
+      "description": "Standards implemented as Claude Code Skills. Install the skill for interactive AI assistance.",
+      "adoptionMethod": "Install via universal-dev-skills"
+    },
+    "reference": {
+      "name": "Reference Document",
+      "description": "Static reference documents not suitable for Skills conversion. Copy to project's .standards/ directory.",
+      "adoptionMethod": "Copy to project"
+    },
+    "extension": {
+      "name": "Extension",
+      "description": "Language, framework, or locale-specific standards. Apply based on project requirements.",
+      "adoptionMethod": "Copy if applicable"
+    },
+    "integration": {
+      "name": "Integration",
+      "description": "AI tool configuration files. Copy to tool's expected location.",
+      "adoptionMethod": "Copy to tool location"
+    },
+    "template": {
+      "name": "Template",
+      "description": "Document templates for specific purposes. Use as starting point for project documents.",
+      "adoptionMethod": "Copy and customize"
+    }
+  },
+  "adoptionLevels": {
+    "1": {
+      "name": "Essential",
+      "nameZh": "基本",
+      "description": "Minimum viable standards for any project",
+      "setupTime": "30 minutes"
+    },
+    "2": {
+      "name": "Recommended",
+      "nameZh": "推薦",
+      "description": "Professional quality standards for team projects",
+      "setupTime": "2 hours"
+    },
+    "3": {
+      "name": "Enterprise",
+      "nameZh": "企業",
+      "description": "Comprehensive standards for enterprise or regulated projects",
+      "setupTime": "1-2 days"
+    }
+  },
+  "standards": [
+    {
+      "id": "anti-hallucination",
+      "name": "Anti-Hallucination Guidelines",
+      "nameZh": "反幻覺指南",
+      "source": "core/anti-hallucination.md",
+      "category": "skill",
+      "skillName": "ai-collaboration-standards",
+      "level": 1,
+      "description": "Guidelines for AI collaboration to prevent hallucination and ensure evidence-based responses"
+    },
+    {
+      "id": "commit-message",
+      "name": "Commit Message Guide",
+      "nameZh": "提交訊息指南",
+      "source": "core/commit-message-guide.md",
+      "category": "skill",
+      "skillName": "commit-standards",
+      "level": 1,
+      "description": "Conventional Commits format for standardized git commit messages"
+    },
+    {
+      "id": "checkin-standards",
+      "name": "Code Check-in Standards",
+      "nameZh": "程式碼簽入標準",
+      "source": "core/checkin-standards.md",
+      "category": "reference",
+      "skillName": null,
+      "level": 1,
+      "description": "Quality gates and verification steps before committing code",
+      "note": "Partially incorporated into code-review-assistant skill"
+    },
+    {
+      "id": "spec-driven-development",
+      "name": "Spec-Driven Development",
+      "nameZh": "規格驅動開發",
+      "source": "core/spec-driven-development.md",
+      "category": "reference",
+      "skillName": null,
+      "level": 1,
+      "description": "Methodology for specification-first development approach"
+    },
+    {
+      "id": "code-review",
+      "name": "Code Review Checklist",
+      "nameZh": "程式碼審查清單",
+      "source": "core/code-review-checklist.md",
+      "category": "skill",
+      "skillName": "code-review-assistant",
+      "level": 2,
+      "description": "Systematic checklist for reviewing code quality, security, and maintainability"
+    },
+    {
+      "id": "git-workflow",
+      "name": "Git Workflow Guide",
+      "nameZh": "Git 工作流程指南",
+      "source": "core/git-workflow.md",
+      "category": "skill",
+      "skillName": "git-workflow-guide",
+      "level": 2,
+      "description": "Branching strategies including Trunk-Based, GitHub Flow, and GitFlow"
+    },
+    {
+      "id": "versioning",
+      "name": "Semantic Versioning",
+      "nameZh": "語意化版本",
+      "source": "core/versioning.md",
+      "category": "skill",
+      "skillName": "release-standards",
+      "level": 2,
+      "description": "SemVer standard for version numbering (MAJOR.MINOR.PATCH)"
+    },
+    {
+      "id": "changelog",
+      "name": "Changelog Standards",
+      "nameZh": "變更日誌標準",
+      "source": "core/changelog-standards.md",
+      "category": "skill",
+      "skillName": "release-standards",
+      "level": 2,
+      "description": "Keep a Changelog format for documenting notable changes"
+    },
+    {
+      "id": "testing",
+      "name": "Testing Standards",
+      "nameZh": "測試標準",
+      "source": "core/testing-standards.md",
+      "category": "skill",
+      "skillName": "testing-guide",
+      "level": 2,
+      "description": "Testing pyramid and recommended coverage ratios (70/20/7/3)"
+    },
+    {
+      "id": "documentation-structure",
+      "name": "Documentation Structure",
+      "nameZh": "文件結構",
+      "source": "core/documentation-structure.md",
+      "category": "skill",
+      "skillName": "documentation-guide",
+      "level": 3,
+      "description": "Standard directory structure for project documentation"
+    },
+    {
+      "id": "documentation-writing",
+      "name": "Documentation Writing Standards",
+      "nameZh": "文件撰寫標準",
+      "source": "core/documentation-writing-standards.md",
+      "category": "reference",
+      "skillName": null,
+      "level": 3,
+      "description": "Content requirements and writing guidelines for different project types"
+    },
+    {
+      "id": "project-structure",
+      "name": "Project Structure",
+      "nameZh": "專案結構",
+      "source": "core/project-structure.md",
+      "category": "reference",
+      "skillName": null,
+      "level": 3,
+      "description": "Standard directory conventions for source code organization"
+    },
+    {
+      "id": "csharp-style",
+      "name": "C# Style Guide",
+      "nameZh": "C# 風格指南",
+      "source": "extensions/languages/csharp-style.md",
+      "category": "extension",
+      "skillName": null,
+      "level": 2,
+      "description": "C# naming conventions and code style rules",
+      "applicability": "C# projects"
+    },
+    {
+      "id": "php-style",
+      "name": "PHP Style Guide",
+      "nameZh": "PHP 風格指南",
+      "source": "extensions/languages/php-style.md",
+      "category": "extension",
+      "skillName": null,
+      "level": 2,
+      "description": "PHP 8.1+ PSR-12 style guide",
+      "applicability": "PHP 8.1+ projects"
+    },
+    {
+      "id": "fat-free-patterns",
+      "name": "Fat-Free Framework Patterns",
+      "nameZh": "Fat-Free 框架模式",
+      "source": "extensions/frameworks/fat-free-patterns.md",
+      "category": "extension",
+      "skillName": null,
+      "level": 2,
+      "description": "Development patterns for Fat-Free Framework v3.8+",
+      "applicability": "Fat-Free Framework projects"
+    },
+    {
+      "id": "zh-tw-locale",
+      "name": "Traditional Chinese Locale",
+      "nameZh": "繁體中文本地化",
+      "source": "extensions/locales/zh-tw.md",
+      "category": "extension",
+      "skillName": null,
+      "level": 2,
+      "description": "Traditional Chinese (Taiwan) localization for all standards",
+      "applicability": "Traditional Chinese speaking teams"
+    },
+    {
+      "id": "copilot-integration",
+      "name": "GitHub Copilot Instructions",
+      "nameZh": "GitHub Copilot 指令",
+      "source": "integrations/github-copilot/copilot-instructions.md",
+      "category": "integration",
+      "skillName": null,
+      "level": 2,
+      "description": "Custom instructions for GitHub Copilot Chat",
+      "targetPath": ".github/copilot-instructions.md"
+    },
+    {
+      "id": "cursor-integration",
+      "name": "Cursor Rules",
+      "nameZh": "Cursor 規則",
+      "source": "integrations/cursor/.cursorrules",
+      "category": "integration",
+      "skillName": null,
+      "level": 2,
+      "description": "AI assistant rules for Cursor IDE",
+      "targetPath": ".cursorrules"
+    },
+    {
+      "id": "windsurf-integration",
+      "name": "Windsurf Rules",
+      "nameZh": "Windsurf 規則",
+      "source": "integrations/windsurf/.windsurfrules",
+      "category": "integration",
+      "skillName": null,
+      "level": 2,
+      "description": "AI assistant rules for Windsurf IDE",
+      "targetPath": ".windsurfrules"
+    },
+    {
+      "id": "cline-integration",
+      "name": "Cline Rules",
+      "nameZh": "Cline 規則",
+      "source": "integrations/cline/.clinerules",
+      "category": "integration",
+      "skillName": null,
+      "level": 2,
+      "description": "AI assistant rules for Cline",
+      "targetPath": ".clinerules"
+    },
+    {
+      "id": "antigravity-integration",
+      "name": "Google Antigravity Instructions",
+      "nameZh": "Google Antigravity 指令",
+      "source": "integrations/google-antigravity/INSTRUCTIONS.md",
+      "category": "integration",
+      "skillName": null,
+      "level": 2,
+      "description": "System prompt snippets for Google Antigravity agent",
+      "targetPath": "See integration README"
+    },
+    {
+      "id": "openspec-integration",
+      "name": "OpenSpec Framework",
+      "nameZh": "OpenSpec 框架",
+      "source": "integrations/openspec/",
+      "category": "integration",
+      "skillName": null,
+      "level": 2,
+      "description": "Spec-Driven Development tooling for AI assistants",
+      "targetPath": "See integration README"
+    },
+    {
+      "id": "requirement-templates",
+      "name": "Requirement Document Templates",
+      "nameZh": "需求文件模板",
+      "source": "templates/requirement-*.md",
+      "category": "skill",
+      "skillName": "requirement-assistant",
+      "level": 2,
+      "description": "Templates for writing requirement documents and user stories"
+    },
+    {
+      "id": "migration-template",
+      "name": "Migration Plan Template",
+      "nameZh": "遷移計畫模板",
+      "source": "templates/migration-template.md",
+      "category": "template",
+      "skillName": null,
+      "level": 3,
+      "description": "Template for planning technology migrations",
+      "applicability": "Migration projects"
+    }
+  ]
+}

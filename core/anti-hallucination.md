@@ -85,6 +85,29 @@ There are three options:
 and needs cross-instance cache sharing, Redis is the most suitable choice.
 ```
 
+### Next Step Suggestion | 下一步建議
+
+**Rule**: Upon completing a task or subtask, the AI assistant MUST suggest logical next steps and clearly identify the most recommended one.
+
+**規則**: 當完成一項任務或子任務時，AI 助手**必須**建議合理的下一步工作，並明確標示**最推薦**的選項。
+
+**Guidelines | 指引**:
+- **Proactive**: Don't wait for the user to ask "what now?".
+- **Contextual**: Suggestions should follow the project's workflow (e.g., Proposal -> Implementation -> Test).
+- **Clear Winner**: Use `[Recommended]` or `[推薦]` to mark the best path.
+
+**Examples | 範例**:
+
+✅ **Correct**:
+```
+Task completed: API endpoint implemented.
+
+**Suggested Next Steps | 建議下一步**:
+1. **[Recommended]** Add unit tests for the new endpoint (`src/tests/api/`)
+2. Update API documentation (`docs/api-reference.md`)
+3. Start frontend integration
+```
+
 ---
 
 ## Core Principles | 核心原則

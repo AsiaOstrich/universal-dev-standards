@@ -42,6 +42,7 @@ universal-doc-standards/
 │   ├── anti-hallucination.md      # AI collaboration guidelines
 │   ├── checkin-standards.md       # Code check-in quality gates
 │   ├── commit-message-guide.md    # Commit message conventions
+│   ├── spec-driven-development.md # ✅ SDD methodology & standards
 │   ├── git-workflow.md            # Git branching strategies
 │   ├── code-review-checklist.md   # Code review guidelines
 │   ├── documentation-structure.md # Documentation organization
@@ -68,6 +69,11 @@ universal-doc-standards/
 │       └── (coming soon)
 │
 ├── integrations/                   # Tool integrations
+│   ├── cline/                     # Cline integration
+│   ├── cursor/                    # Cursor integration
+│   ├── github-copilot/            # GitHub Copilot integration
+│   ├── google-antigravity/        # Google Antigravity integration
+│   ├── windsurf/                  # Windsurf integration
 │   └── openspec/                  # OpenSpec framework
 │       ├── AGENTS.md
 │       ├── commands/
@@ -78,6 +84,63 @@ universal-doc-standards/
     ├── react-spa/
     └── README.md
 ```
+
+---
+
+## 🔗 Standards Adoption | 規範採用
+
+### Using with Claude Code (Recommended) | 搭配 Claude Code 使用（推薦）
+
+If you use Claude Code, install **[universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills)** for interactive AI assistance:
+
+如果您使用 Claude Code，安裝 **[universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills)** 獲得互動式 AI 輔助：
+
+```bash
+git clone https://github.com/AsiaOstrich/universal-dev-skills.git
+cd universal-dev-skills
+./install.sh
+```
+
+### Standards Coverage | 規範涵蓋範圍
+
+| Standard | Skill Available | Adoption |
+|----------|----------------|----------|
+| anti-hallucination.md | ✅ ai-collaboration-standards | Install Skill |
+| commit-message-guide.md | ✅ commit-standards | Install Skill |
+| code-review-checklist.md | ✅ code-review-assistant | Install Skill |
+| git-workflow.md | ✅ git-workflow-guide | Install Skill |
+| versioning.md + changelog-standards.md | ✅ release-standards | Install Skill |
+| testing-standards.md | ✅ testing-guide | Install Skill |
+| documentation-structure.md | ✅ documentation-guide | Install Skill |
+| requirement templates | ✅ requirement-assistant | Install Skill |
+| **checkin-standards.md** | ❌ | Copy to project |
+| **spec-driven-development.md** | ❌ | Copy to project |
+| **documentation-writing-standards.md** | ❌ | Copy to project |
+| **project-structure.md** | ❌ | Copy to project |
+| Language/Framework extensions | ❌ | Copy if applicable |
+| AI tool integrations | ❌ | Copy to tool location |
+
+> **Important**: For standards with Skills available, use the Skill OR copy the source document — **never both**.
+>
+> **重要**：對於有 Skill 的規範，使用 Skill 或複製原始文件 — **擇一即可，不要兩者都做**。
+
+📖 See [Adoption Guide](adoption/ADOPTION-GUIDE.md) for complete guidance and checklists.
+
+### Using CLI Tool | 使用 CLI 工具
+
+```bash
+# Clone and setup CLI (one-time)
+git clone https://github.com/AsiaOstrich/universal-doc-standards.git
+cd universal-doc-standards/cli && npm install && npm link
+
+# In your project directory
+cd your-project
+uds init    # Interactive initialization
+uds check   # Check adoption status
+uds update  # Update to latest version
+```
+
+📖 See [CLI README](cli/README.md) for detailed CLI usage.
 
 ---
 
@@ -177,6 +240,7 @@ cp templates/CHANGELOG.md.template your-project/CHANGELOG.md
 - ✅ `anti-hallucination.md` - AI collaboration guidelines
 - ✅ `checkin-standards.md` - Quality gates before commit
 - ✅ `commit-message-guide.md` - Standardized commit format
+- ✅ `spec-driven-development.md` - Spec-Driven Development standards
 
 **Estimated Setup Time**: 30 minutes
 **Recommended For**: All projects, especially AI-assisted development

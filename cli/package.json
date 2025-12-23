@@ -1,0 +1,51 @@
+{
+  "name": "universal-doc-standards",
+  "version": "1.0.3",
+  "description": "CLI tool for adopting Universal Documentation Standards",
+  "keywords": [
+    "documentation",
+    "standards",
+    "cli",
+    "developer-tools",
+    "best-practices"
+  ],
+  "author": "AsiaOstrich",
+  "license": "(MIT AND CC-BY-4.0)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AsiaOstrich/universal-doc-standards.git",
+    "directory": "cli"
+  },
+  "homepage": "https://github.com/AsiaOstrich/universal-doc-standards#readme",
+  "bugs": {
+    "url": "https://github.com/AsiaOstrich/universal-doc-standards/issues"
+  },
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "uds": "bin/uds.js",
+    "universal-doc-standards": "bin/uds.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "standards-registry.json",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "inquirer": "^9.2.12",
+    "ora": "^8.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0"
+  }
+}

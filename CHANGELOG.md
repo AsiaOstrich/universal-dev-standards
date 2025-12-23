@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] | 未發布
 
+### Added | 新增
+- Add `extensions/languages/php-style.md` - PHP 8.1+ coding style guide based on PSR-12
+  新增 `extensions/languages/php-style.md` - 基於 PSR-12 的 PHP 8.1+ 編碼風格指南
+- Add `extensions/frameworks/fat-free-patterns.md` - Fat-Free Framework v3.8+ development patterns
+  新增 `extensions/frameworks/fat-free-patterns.md` - Fat-Free Framework v3.8+ 開發模式
+
 ## [1.3.1] - 2025-12-19
 
 ### Added | 新增
