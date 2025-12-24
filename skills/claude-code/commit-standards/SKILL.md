@@ -7,8 +7,20 @@ description: |
 ---
 
 # Commit Message Standards
+# Commit 訊息規範
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+**適用範圍**: Claude Code Skills
+
+---
+
+## Purpose | 目的
 
 This skill ensures consistent, meaningful commit messages following conventional commits.
+
+本 Skill 確保遵循 Conventional Commits 規範的一致且有意義的 commit 訊息。
 
 ## Quick Reference
 
@@ -173,4 +185,26 @@ feat, fix, refactor, docs, style, test, perf, build, ci, chore, revert, security
 
 ---
 
-**License**: CC BY 4.0 | **Source**: [universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards)
+## Related Standards | 相關標準
+
+- [Commit Message Guide](../../core/commit-message-guide.md) - Commit 訊息指南
+- [Git Workflow](../../core/git-workflow.md) - Git 工作流程
+- [Changelog Standards](../../core/changelog-standards.md) - 變更日誌標準
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License | 授權
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

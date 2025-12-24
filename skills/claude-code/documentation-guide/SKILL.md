@@ -7,8 +7,20 @@ description: |
 ---
 
 # Documentation Guide
+# 文件指南
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+**適用範圍**: Claude Code Skills
+
+---
+
+## Purpose | 目的
 
 This skill provides guidance on project documentation structure, README content, and documentation best practices.
+
+本 Skill 提供專案文件結構、README 內容和文件最佳實踐的指導。
 
 ## Quick Reference
 
@@ -240,4 +252,26 @@ This project uses **English** for documentation.
 
 ---
 
-**License**: CC BY 4.0 | **Source**: [universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards)
+## Related Standards | 相關標準
+
+- [Documentation Writing Standards](../../core/documentation-writing-standards.md) - 文件撰寫規範
+- [Documentation Structure](../../core/documentation-structure.md) - 文件結構標準
+- [Changelog Standards](../../core/changelog-standards.md) - 變更日誌標準
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License | 授權
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

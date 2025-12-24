@@ -1,6 +1,21 @@
 # Requirement Completeness Checklist
 # 需求完整性檢查清單
 
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+**適用範圍**: Claude Code Skills
+
+---
+
+## Purpose | 目的
+
+This document provides checklists for verifying requirement completeness and quality.
+
+本文件提供驗證需求完整性和品質的檢查清單。
+
+---
+
 ## Quick Checklist | 快速檢查
 
 Before submitting any requirement, verify these essentials:
@@ -282,4 +297,25 @@ Before submitting for development:
 
 ---
 
-**License**: CC BY 4.0 | **Source**: [universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards)
+## Related Standards | 相關標準
+
+- [Requirement Writing Guide](./requirement-writing.md) - 需求撰寫指南
+- [Spec-Driven Development](../../../core/spec-driven-development.md) - 規格驅動開發
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License | 授權
+
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

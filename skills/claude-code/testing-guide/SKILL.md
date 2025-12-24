@@ -7,8 +7,20 @@ description: |
 ---
 
 # Testing Guide
+# 測試指南
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+**適用範圍**: Claude Code Skills
+
+---
+
+## Purpose | 目的
 
 This skill provides testing pyramid standards and best practices for systematic testing.
+
+本 Skill 提供測試金字塔標準和系統化測試的最佳實踐。
 
 ## Quick Reference
 
@@ -172,4 +184,25 @@ In project's `CONTRIBUTING.md`:
 
 ---
 
-**License**: CC BY 4.0 | **Source**: [universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards)
+## Related Standards | 相關標準
+
+- [Testing Standards](../../core/testing-standards.md) - 測試標準
+- [Code Review Checklist](../../core/code-review-checklist.md) - 程式碼審查檢查清單
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License | 授權
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

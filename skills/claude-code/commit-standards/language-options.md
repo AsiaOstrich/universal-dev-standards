@@ -1,4 +1,20 @@
 # Commit Message Language Options
+# Commit 訊息語言選項
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+**適用範圍**: Claude Code Skills
+
+---
+
+## Purpose | 目的
+
+This document provides language options for commit message types (English, Traditional Chinese, or Bilingual).
+
+本文件提供 commit 訊息類型的語言選項（英文、繁體中文或雙語）。
+
+---
 
 ## Option A: English (International)
 
@@ -128,4 +144,25 @@ This project uses **[English / Traditional Chinese / Bilingual]** commit types.
 
 ---
 
-**License**: CC BY 4.0 | **Source**: [universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards)
+## Related Standards | 相關標準
+
+- [Commit Message Guide](../../../core/commit-message-guide.md) - Commit 訊息指南
+- [Conventional Commits Guide](./conventional-commits.md) - 傳統提交指南
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License | 授權
+
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

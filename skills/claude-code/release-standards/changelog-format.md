@@ -1,4 +1,18 @@
 # Changelog Format Guide
+# 變更日誌格式指南
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+**適用範圍**: Claude Code Skills
+
+---
+
+## Purpose | 目的
+
+This document provides guidelines for writing and formatting changelog files.
+
+本文件提供撰寫和格式化變更日誌檔案的指南。
 
 This standard follows [Keep a Changelog](https://keepachangelog.com/) format.
 
@@ -205,4 +219,25 @@ conventional-changelog -p angular -i CHANGELOG.md -s
 
 ---
 
-**License**: CC BY 4.0 | **Source**: [universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards)
+## Related Standards | 相關標準
+
+- [Changelog Standards](../../../core/changelog-standards.md) - 變更日誌標準
+- [Semantic Versioning Guide](./semantic-versioning.md) - 語意版本指南
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License | 授權
+
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

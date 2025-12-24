@@ -1,4 +1,20 @@
 # Code Review Checklist
+# 程式碼審查清單
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+**適用範圍**: Claude Code Skills
+
+---
+
+## Purpose | 目的
+
+This document provides a comprehensive checklist for code review to ensure code quality and standards compliance.
+
+本文件提供程式碼審查的完整檢查清單，以確保程式碼品質和標準合規。
+
+---
 
 ## 1. Functionality | 功能性
 
@@ -201,4 +217,26 @@
 
 ---
 
-**License**: CC BY 4.0 | **Source**: [universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards)
+## Related Standards | 相關標準
+
+- [Code Review Checklist](../../../core/code-review-checklist.md) - 程式碼審查檢查清單
+- [Checkin Standards](../../../core/checkin-standards.md) - 簽入標準
+- [Pre-Commit Checklist](./checkin-checklist.md) - 簽入前檢查清單
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License | 授權
+
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

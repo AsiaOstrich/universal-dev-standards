@@ -1,4 +1,20 @@
 # Anti-Hallucination Guidelines
+# 防幻覺指南
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+**適用範圍**: Claude Code Skills
+
+---
+
+## Purpose | 目的
+
+This document provides guidelines to prevent AI hallucination and ensure evidence-based responses.
+
+本文件提供防止 AI 幻覺並確保基於證據回應的指南。
+
+---
 
 ## Core Principles
 
@@ -179,4 +195,25 @@ AI assistants MUST NOT:
 
 ---
 
-**License**: CC BY 4.0 | **Source**: [universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards)
+## Related Standards | 相關標準
+
+- [Anti-Hallucination Standards](../../../core/anti-hallucination.md) - 防幻覺標準
+- [Certainty Labels Reference](./certainty-labels.md) - 確定性標籤參考
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License | 授權
+
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

@@ -1,6 +1,21 @@
 # README Template & Best Practices
 # README 範本與最佳實踐
 
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+**適用範圍**: Claude Code Skills
+
+---
+
+## Purpose | 目的
+
+This document provides templates and best practices for writing README files.
+
+本文件提供撰寫 README 檔案的範本和最佳實踐。
+
+---
+
 ## README Sections Reference | README 章節參考
 
 ### Essential Sections (Minimum) | 必要章節（最低要求）
@@ -369,4 +384,25 @@ See [documentation](docs/old-path.md) for more info.  ← Link doesn't exist
 
 ---
 
-**License**: CC BY 4.0 | **Source**: [universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards)
+## Related Standards | 相關標準
+
+- [Documentation Structure Reference](./documentation-structure.md) - 文件結構參考
+- [Documentation Writing Standards](../../../core/documentation-writing-standards.md) - 文件撰寫標準
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License | 授權
+
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

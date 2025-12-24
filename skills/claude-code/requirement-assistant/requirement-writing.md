@@ -1,6 +1,21 @@
 # Requirement Writing Guide
 # 需求撰寫指南
 
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+**適用範圍**: Claude Code Skills
+
+---
+
+## Purpose | 目的
+
+This document provides comprehensive guidelines for writing clear and effective requirements.
+
+本文件提供撰寫清晰有效需求的完整指南。
+
+---
+
 ## User Story Format | 使用者故事格式
 
 ### Standard Template | 標準範本
@@ -356,4 +371,25 @@ Before submitting a requirement:
 
 ---
 
-**License**: CC BY 4.0 | **Source**: [universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards)
+## Related Standards | 相關標準
+
+- [Requirement Completeness Checklist](./requirement-checklist.md) - 需求完整性檢查清單
+- [Spec-Driven Development](../../../core/spec-driven-development.md) - 規格驅動開發
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License | 授權
+
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

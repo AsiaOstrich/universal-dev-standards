@@ -7,8 +7,20 @@ description: |
 ---
 
 # AI Collaboration Standards
+# AI 協作標準
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+**適用範圍**: Claude Code Skills
+
+---
+
+## Purpose | 目的
 
 This skill ensures AI assistants provide accurate, evidence-based responses without hallucination.
+
+本 Skill 確保 AI 助手提供準確、基於證據的回應，避免幻覺現象。
 
 ## Quick Reference
 
@@ -142,4 +154,26 @@ This project uses **English** certainty tags.
 
 ---
 
-**License**: CC BY 4.0 | **Source**: [universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards)
+## Related Standards | 相關標準
+
+- [Anti-Hallucination Standards](../../core/anti-hallucination.md) - 防幻覺標準
+- [Code Review Checklist](../../core/code-review-checklist.md) - 程式碼審查檢查清單
+- [Testing Standards](../../core/testing-standards.md) - 測試標準
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License | 授權
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
