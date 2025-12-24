@@ -6,7 +6,7 @@ import { downloadStandard, downloadIntegration } from './github.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Root of the universal-doc-standards repository (for local development)
+// Root of the universal-dev-standards repository (for local development)
 const REPO_ROOT = join(__dirname, '../../..');
 
 /**

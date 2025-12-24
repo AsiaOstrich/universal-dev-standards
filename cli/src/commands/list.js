@@ -16,7 +16,7 @@ export function listCommand(options) {
   const { level, category } = options;
 
   console.log();
-  console.log(chalk.bold('Universal Documentation Standards'));
+  console.log(chalk.bold('Universal Development Standards'));
   console.log(chalk.gray('─'.repeat(50)));
 
   const repoInfo = getRepositoryInfo();
@@ -92,5 +92,5 @@ export function listCommand(options) {
   console.log(chalk.gray(`Total: ${standards.length} standards (${skillCount} with Skills, ${refCount} reference-only)`));
   console.log();
   console.log(chalk.gray('Run `uds init` to adopt standards in your project.'));
-  console.log(chalk.gray('See: https://github.com/AsiaOstrich/universal-doc-standards/blob/main/adoption/ADOPTION-GUIDE.md'));
+  console.log(chalk.gray('See: https://github.com/AsiaOstrich/universal-dev-standards/blob/main/adoption/ADOPTION-GUIDE.md'));
 }

@@ -23,12 +23,12 @@ This guide helps software projects adopt Universal Documentation Standards witho
 
 | Project | Purpose | Usage |
 |---------|---------|-------|
-| **[universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards)** | Source of truth for all standards | Reference documents, copy to project |
+| **[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)** | Source of truth for all standards | Reference documents, copy to project |
 | **[universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills)** | Claude Code Skills implementation | Interactive AI workflow assistance |
 
 | 專案 | 用途 | 使用方式 |
 |------|------|----------|
-| **universal-doc-standards** | 所有規範的權威來源 | 參考文件，複製到專案 |
+| **universal-dev-standards** | 所有規範的權威來源 | 參考文件，複製到專案 |
 | **universal-dev-skills** | Claude Code Skills 實作 | 互動式 AI 工作流程輔助 |
 
 ### Key Principle | 關鍵原則
@@ -218,31 +218,31 @@ mkdir -p .standards
 
 # Copy reference documents based on your level
 # Level 1
-cp path/to/universal-doc-standards/core/checkin-standards.md .standards/
-cp path/to/universal-doc-standards/core/spec-driven-development.md .standards/
+cp path/to/universal-dev-standards/core/checkin-standards.md .standards/
+cp path/to/universal-dev-standards/core/spec-driven-development.md .standards/
 
 # Level 3 (additional)
-cp path/to/universal-doc-standards/core/documentation-writing-standards.md .standards/
-cp path/to/universal-doc-standards/core/project-structure.md .standards/
+cp path/to/universal-dev-standards/core/documentation-writing-standards.md .standards/
+cp path/to/universal-dev-standards/core/project-structure.md .standards/
 ```
 
 ### Step 4: Copy Applicable Extensions | 步驟四：複製適用的延伸
 
 ```bash
 # Example: For a PHP project with Traditional Chinese team
-cp path/to/universal-doc-standards/extensions/languages/php-style.md .standards/
-cp path/to/universal-doc-standards/extensions/locales/zh-tw.md .standards/
+cp path/to/universal-dev-standards/extensions/languages/php-style.md .standards/
+cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
 ```
 
 ### Step 5: Setup AI Tool Integrations | 步驟五：設置 AI 工具整合
 
 ```bash
 # Example: For Cursor IDE
-cp path/to/universal-doc-standards/integrations/cursor/.cursorrules .
+cp path/to/universal-dev-standards/integrations/cursor/.cursorrules .
 
 # Example: For GitHub Copilot
 mkdir -p .github
-cp path/to/universal-doc-standards/integrations/github-copilot/copilot-instructions.md .github/
+cp path/to/universal-dev-standards/integrations/github-copilot/copilot-instructions.md .github/
 ```
 
 ---
@@ -303,7 +303,7 @@ This JSON file contains the complete mapping of all standards, categories, and a
 
 ## Related Links | 相關連結
 
-- [universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards) - Source repository
+- [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) - Source repository
 - [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) - Skills repository
 - [Minimal Checklist](checklists/minimal.md) - Level 1 adoption checklist
 - [Recommended Checklist](checklists/recommended.md) - Level 2 adoption checklist

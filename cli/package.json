@@ -1,7 +1,7 @@
 {
-  "name": "universal-doc-standards",
-  "version": "1.0.3",
-  "description": "CLI tool for adopting Universal Documentation Standards",
+  "name": "universal-dev-standards",
+  "version": "2.0.0",
+  "description": "CLI tool for adopting Universal Development Standards",
   "keywords": [
     "documentation",
     "standards",
@@ -13,18 +13,18 @@
   "license": "(MIT AND CC-BY-4.0)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AsiaOstrich/universal-doc-standards.git",
+    "url": "git+https://github.com/AsiaOstrich/universal-dev-standards.git",
     "directory": "cli"
   },
-  "homepage": "https://github.com/AsiaOstrich/universal-doc-standards#readme",
+  "homepage": "https://github.com/AsiaOstrich/universal-dev-standards#readme",
   "bugs": {
-    "url": "https://github.com/AsiaOstrich/universal-doc-standards/issues"
+    "url": "https://github.com/AsiaOstrich/universal-dev-standards/issues"
   },
   "type": "module",
   "main": "src/index.js",
   "bin": {
     "uds": "bin/uds.js",
-    "universal-doc-standards": "bin/uds.js"
+    "universal-dev-standards": "bin/uds.js"
   },
   "files": [
     "bin",

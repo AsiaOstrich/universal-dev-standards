@@ -59,7 +59,7 @@ export async function initCommand(options) {
   const projectPath = process.cwd();
 
   console.log();
-  console.log(chalk.bold('Universal Documentation Standards - Initialize'));
+  console.log(chalk.bold('Universal Development Standards - Initialize'));
   console.log(chalk.gray('─'.repeat(50)));
 
   // Check if already initialized
@@ -246,7 +246,7 @@ export async function initCommand(options) {
   const manifest = {
     version: '1.0.0',
     upstream: {
-      repo: 'AsiaOstrich/universal-doc-standards',
+      repo: 'AsiaOstrich/universal-dev-standards',
       version: repoInfo.standards.version,
       installed: new Date().toISOString().split('T')[0]
     },

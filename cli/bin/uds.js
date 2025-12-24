@@ -8,8 +8,8 @@ import { updateCommand } from '../src/commands/update.js';
 
 program
   .name('uds')
-  .description('CLI tool for adopting Universal Documentation Standards')
-  .version('1.0.3');
+  .description('CLI tool for adopting Universal Development Standards')
+  .version('2.0.0');
 
 program
   .command('list')

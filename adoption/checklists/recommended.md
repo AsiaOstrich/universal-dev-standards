@@ -58,13 +58,13 @@ Level 2 has no additional reference documents beyond Level 1.
 
 **For C# Projects | 用於 C# 專案**:
 ```bash
-cp path/to/universal-doc-standards/extensions/languages/csharp-style.md .standards/
+cp path/to/universal-dev-standards/extensions/languages/csharp-style.md .standards/
 ```
 - [ ] `csharp-style.md` copied (if applicable)
 
 **For PHP Projects | 用於 PHP 專案**:
 ```bash
-cp path/to/universal-doc-standards/extensions/languages/php-style.md .standards/
+cp path/to/universal-dev-standards/extensions/languages/php-style.md .standards/
 ```
 - [ ] `php-style.md` copied (if applicable)
 
@@ -72,7 +72,7 @@ cp path/to/universal-doc-standards/extensions/languages/php-style.md .standards/
 
 **For Fat-Free Framework | 用於 Fat-Free 框架**:
 ```bash
-cp path/to/universal-doc-standards/extensions/frameworks/fat-free-patterns.md .standards/
+cp path/to/universal-dev-standards/extensions/frameworks/fat-free-patterns.md .standards/
 ```
 - [ ] `fat-free-patterns.md` copied (if applicable)
 
@@ -80,7 +80,7 @@ cp path/to/universal-doc-standards/extensions/frameworks/fat-free-patterns.md .s
 
 **For Traditional Chinese Teams | 用於繁體中文團隊**:
 ```bash
-cp path/to/universal-doc-standards/extensions/locales/zh-tw.md .standards/
+cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
 ```
 - [ ] `zh-tw.md` copied (if applicable)
 
@@ -93,31 +93,31 @@ Select and install based on your tools:
 ### GitHub Copilot
 ```bash
 mkdir -p .github
-cp path/to/universal-doc-standards/integrations/github-copilot/copilot-instructions.md .github/
+cp path/to/universal-dev-standards/integrations/github-copilot/copilot-instructions.md .github/
 ```
 - [ ] `.github/copilot-instructions.md` installed
 
 ### Cursor IDE
 ```bash
-cp path/to/universal-doc-standards/integrations/cursor/.cursorrules .
+cp path/to/universal-dev-standards/integrations/cursor/.cursorrules .
 ```
 - [ ] `.cursorrules` installed
 
 ### Windsurf IDE
 ```bash
-cp path/to/universal-doc-standards/integrations/windsurf/.windsurfrules .
+cp path/to/universal-dev-standards/integrations/windsurf/.windsurfrules .
 ```
 - [ ] `.windsurfrules` installed
 
 ### Cline
 ```bash
-cp path/to/universal-doc-standards/integrations/cline/.clinerules .
+cp path/to/universal-dev-standards/integrations/cline/.clinerules .
 ```
 - [ ] `.clinerules` installed
 
 ### OpenSpec (for SDD workflow)
 ```bash
-cp -r path/to/universal-doc-standards/integrations/openspec/ .openspec/
+cp -r path/to/universal-dev-standards/integrations/openspec/ .openspec/
 ```
 - [ ] `.openspec/` directory installed
 

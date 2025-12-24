@@ -47,8 +47,8 @@ Copy these documents to your project:
 mkdir -p .standards
 
 # Copy Level 1 reference documents
-cp path/to/universal-doc-standards/core/checkin-standards.md .standards/
-cp path/to/universal-doc-standards/core/spec-driven-development.md .standards/
+cp path/to/universal-dev-standards/core/checkin-standards.md .standards/
+cp path/to/universal-dev-standards/core/spec-driven-development.md .standards/
 ```
 
 **Checklist | 檢查清單**:

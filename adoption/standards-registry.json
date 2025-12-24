@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "version": "1.0.0",
   "lastUpdated": "2025-12-23",
-  "description": "Standards registry mapping universal-doc-standards to universal-dev-skills",
+  "description": "Standards registry mapping universal-dev-standards to universal-dev-skills",
   "repositories": {
     "standards": {
-      "name": "universal-doc-standards",
-      "url": "https://github.com/AsiaOstrich/universal-doc-standards",
-      "version": "1.3.1"
+      "name": "universal-dev-standards",
+      "url": "https://github.com/AsiaOstrich/universal-dev-standards",
+      "version": "2.0.0"
     },
     "skills": {
       "name": "universal-dev-skills",

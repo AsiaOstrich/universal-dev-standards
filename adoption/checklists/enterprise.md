@@ -52,12 +52,12 @@ Copy all reference documents to your project:
 mkdir -p .standards
 
 # Level 1 reference documents
-cp path/to/universal-doc-standards/core/checkin-standards.md .standards/
-cp path/to/universal-doc-standards/core/spec-driven-development.md .standards/
+cp path/to/universal-dev-standards/core/checkin-standards.md .standards/
+cp path/to/universal-dev-standards/core/spec-driven-development.md .standards/
 
 # Level 3 reference documents
-cp path/to/universal-doc-standards/core/documentation-writing-standards.md .standards/
-cp path/to/universal-doc-standards/core/project-structure.md .standards/
+cp path/to/universal-dev-standards/core/documentation-writing-standards.md .standards/
+cp path/to/universal-dev-standards/core/project-structure.md .standards/
 ```
 
 **Checklist | 檢查清單**:
@@ -75,7 +75,7 @@ cp path/to/universal-doc-standards/core/project-structure.md .standards/
 For projects involving technology migrations:
 
 ```bash
-cp path/to/universal-doc-standards/templates/migration-template.md docs/
+cp path/to/universal-dev-standards/templates/migration-template.md docs/
 ```
 - [ ] `migration-template.md` copied (if applicable)
 
@@ -255,7 +255,7 @@ Test each skill with relevant scenarios:
 ### Updates | 更新
 
 Monitor for updates:
-- [ ] Subscribe to universal-doc-standards releases
+- [ ] Subscribe to universal-dev-standards releases
 - [ ] Subscribe to universal-dev-skills releases
 - [ ] Plan upgrade process for new versions
 

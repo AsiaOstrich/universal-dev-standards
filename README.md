@@ -1,7 +1,7 @@
-# Universal Documentation Standards
-# 通用文件規範
+# Universal Development Standards
+# 通用開發規範
 
-**Version**: 1.3.1
+**Version**: 2.0.0
 **Last Updated**: 2025-12-19
 **License**: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
@@ -37,7 +37,7 @@ This repository provides **language-agnostic, framework-agnostic, domain-agnosti
 ## 📦 What's Inside | 內容概覽
 
 ```
-universal-doc-standards/
+universal-dev-standards/
 ├── core/                           # Core universal standards
 │   ├── anti-hallucination.md      # AI collaboration guidelines
 │   ├── checkin-standards.md       # Code check-in quality gates
@@ -130,8 +130,8 @@ cd universal-dev-skills
 
 ```bash
 # Clone and setup CLI (one-time)
-git clone https://github.com/AsiaOstrich/universal-doc-standards.git
-cd universal-doc-standards/cli && npm install && npm link
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards/cli && npm install && npm link
 
 # In your project directory
 cd your-project

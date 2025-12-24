@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync, existsSync } from 'fs';
 import { dirname, join, basename } from 'path';
 import https from 'https';
 
-const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/AsiaOstrich/universal-doc-standards/main';
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main';
 
 /**
  * Download a file from GitHub raw content

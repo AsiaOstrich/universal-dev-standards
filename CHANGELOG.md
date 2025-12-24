@@ -10,6 +10,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] | 未發布
 
+## [2.0.0] - 2025-12-24
+
+### Changed | 變更
+
+**BREAKING CHANGE**: Project renamed from `universal-doc-standards` to `universal-dev-standards`
+
+專案從 `universal-doc-standards` 更名為 `universal-dev-standards`
+
+This reflects the project's expanded scope covering all development standards, not just documentation.
+
+這反映了專案擴展的範圍，涵蓋所有開發標準，而不僅僅是文件。
+
+#### Migration Guide | 遷移指南
+
+- Re-clone from the new repository: `git clone https://github.com/AsiaOstrich/universal-dev-standards.git`
+  從新的儲存庫重新 clone：`git clone https://github.com/AsiaOstrich/universal-dev-standards.git`
+- Re-run `npm link` in the CLI directory if using global installation
+  如果使用全域安裝，請在 CLI 目錄重新執行 `npm link`
+- Use `npx universal-dev-standards` instead of `npx universal-doc-standards`
+  使用 `npx universal-dev-standards` 取代 `npx universal-doc-standards`
+- The `uds` command remains unchanged
+  `uds` 命令保持不變
+
 ### Added | 新增
 - Add `extensions/languages/php-style.md` - PHP 8.1+ coding style guide based on PSR-12
   新增 `extensions/languages/php-style.md` - 基於 PSR-12 的 PHP 8.1+ 編碼風格指南
@@ -100,9 +123,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Integrations: OpenSpec framework
   整合：OpenSpec 框架
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-doc-standards/compare/v1.3.1...HEAD
-[1.3.1]: https://github.com/AsiaOstrich/universal-doc-standards/compare/v1.3.0...v1.3.1
-[1.3.0]: https://github.com/AsiaOstrich/universal-doc-standards/compare/v1.2.0...v1.3.0
-[1.2.0]: https://github.com/AsiaOstrich/universal-doc-standards/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/AsiaOstrich/universal-doc-standards/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/AsiaOstrich/universal-doc-standards/releases/tag/v1.0.0
+[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v1.3.1...v2.0.0
+[1.3.1]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/AsiaOstrich/universal-dev-standards/releases/tag/v1.0.0

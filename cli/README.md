@@ -1,6 +1,6 @@
-# Universal Documentation Standards CLI
+# Universal Development Standards CLI
 
-CLI tool for adopting Universal Documentation Standards in your projects.
+CLI tool for adopting Universal Development Standards in your projects.
 
 ## Installation
 
@@ -8,10 +8,10 @@ CLI tool for adopting Universal Documentation Standards in your projects.
 
 ```bash
 # Clone the repository
-git clone https://github.com/AsiaOstrich/universal-doc-standards.git
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
 
 # Navigate to CLI directory
-cd universal-doc-standards/cli
+cd universal-dev-standards/cli
 
 # Install dependencies
 npm install
@@ -25,7 +25,7 @@ node bin/uds.js init
 
 ```bash
 # In the cli directory
-cd universal-doc-standards/cli
+cd universal-dev-standards/cli
 npm link
 
 # Now available globally
@@ -37,7 +37,7 @@ uds init
 
 ```bash
 # Not yet published - use Option 1 or 2 for now
-npx universal-doc-standards init
+npx universal-dev-standards init
 ```
 
 ## Commands
@@ -143,8 +143,8 @@ uds update --yes
 
 ```bash
 # 1. Clone and setup CLI (one-time)
-git clone https://github.com/AsiaOstrich/universal-doc-standards.git
-cd universal-doc-standards/cli && npm install && npm link
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards/cli && npm install && npm link
 cd ~
 
 # 2. Navigate to your project
@@ -195,8 +195,8 @@ The `.standards/manifest.json` tracks your adoption:
 {
   "version": "1.0.0",
   "upstream": {
-    "repo": "AsiaOstrich/universal-doc-standards",
-    "version": "1.3.1",
+    "repo": "AsiaOstrich/universal-dev-standards",
+    "version": "2.0.0",
     "installed": "2025-12-23"
   },
   "level": 2,
@@ -221,9 +221,9 @@ This CLI works alongside [universal-dev-skills](https://github.com/AsiaOstrich/u
 
 ## Related
 
-- [universal-doc-standards](https://github.com/AsiaOstrich/universal-doc-standards) - Source repository
+- [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) - Source repository
 - [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) - Claude Code Skills
-- [Adoption Guide](https://github.com/AsiaOstrich/universal-doc-standards/blob/main/adoption/ADOPTION-GUIDE.md) - Complete guidance
+- [Adoption Guide](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/adoption/ADOPTION-GUIDE.md) - Complete guidance
 
 ## License
 
