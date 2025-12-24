@@ -2,18 +2,47 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "version": "1.0.0",
   "lastUpdated": "2025-12-23",
-  "description": "Standards registry mapping universal-dev-standards to universal-dev-skills",
+  "description": "Standards registry for universal-dev-standards with integrated skills",
   "repositories": {
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "2.0.0"
+      "version": "2.1.0"
     },
     "skills": {
-      "name": "universal-dev-skills",
-      "url": "https://github.com/AsiaOstrich/universal-dev-skills",
-      "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-skills/main",
-      "version": "1.1.0"
+      "name": "universal-dev-standards",
+      "url": "https://github.com/AsiaOstrich/universal-dev-standards",
+      "localPath": "skills/claude-code",
+      "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code",
+      "version": "1.2.0",
+      "note": "Skills are now included in the main repository under skills/"
+    }
+  },
+  "supportedAITools": {
+    "claude-code": {
+      "name": "Claude Code",
+      "skillsPath": "skills/claude-code",
+      "status": "complete"
+    },
+    "cursor": {
+      "name": "Cursor",
+      "skillsPath": "skills/cursor",
+      "status": "planned"
+    },
+    "windsurf": {
+      "name": "Windsurf",
+      "skillsPath": "skills/windsurf",
+      "status": "planned"
+    },
+    "cline": {
+      "name": "Cline",
+      "skillsPath": "skills/cline",
+      "status": "planned"
+    },
+    "copilot": {
+      "name": "GitHub Copilot",
+      "skillsPath": "skills/copilot",
+      "status": "planned"
     }
   },
   "skillFiles": {

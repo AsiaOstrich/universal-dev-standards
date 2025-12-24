@@ -10,6 +10,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] | 未發布
 
+## [2.1.0] - 2025-12-24
+
+### Added | 新增
+- **Integrated Skills**: Merge `universal-dev-skills` into `skills/` directory
+  **整合 Skills**：將 `universal-dev-skills` 合併至 `skills/` 目錄
+- Add `skills/claude-code/` - All Claude Code Skills now included in main repo
+  新增 `skills/claude-code/` - 所有 Claude Code Skills 現已包含在主儲存庫中
+- Add `skills/_shared/` - Shared templates for multi-AI tool support
+  新增 `skills/_shared/` - 用於多 AI 工具支援的共享模板
+- Add placeholder directories for future AI tools: `skills/cursor/`, `skills/windsurf/`, `skills/cline/`, `skills/copilot/`
+  為未來 AI 工具新增佔位目錄：`skills/cursor/`、`skills/windsurf/`、`skills/cline/`、`skills/copilot/`
+
+### Changed | 變更
+- CLI now installs skills from local `skills/claude-code/` instead of fetching from remote repository
+  CLI 現在從本地 `skills/claude-code/` 安裝技能，而非從遠端儲存庫獲取
+- Update `standards-registry.json` to reflect integrated skills architecture
+  更新 `standards-registry.json` 以反映整合的 skills 架構
+
+### Migration Guide | 遷移指南
+- If you previously used `universal-dev-skills` separately, you can now use the skills included in this repo
+  如果您之前單獨使用 `universal-dev-skills`，現在可以使用本儲存庫中包含的 skills
+- Run `cd skills/claude-code && ./install.sh` to reinstall skills from the integrated location
+  執行 `cd skills/claude-code && ./install.sh` 從整合位置重新安裝 skills
+
 ## [2.0.0] - 2025-12-24
 
 ### Changed | 變更
@@ -123,7 +147,8 @@ This reflects the project's expanded scope covering all development standards, n
 - Integrations: OpenSpec framework
   整合：OpenSpec 框架
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v1.3.1...v2.0.0
 [1.3.1]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v1.2.0...v1.3.0

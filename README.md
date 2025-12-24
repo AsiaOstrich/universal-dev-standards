@@ -1,8 +1,8 @@
 # Universal Development Standards
 # 通用開發規範
 
-**Version**: 2.0.0
-**Last Updated**: 2025-12-19
+**Version**: 2.1.0
+**Last Updated**: 2025-12-24
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 ---
@@ -42,7 +42,7 @@ universal-dev-standards/
 │   ├── anti-hallucination.md      # AI collaboration guidelines
 │   ├── checkin-standards.md       # Code check-in quality gates
 │   ├── commit-message-guide.md    # Commit message conventions
-│   ├── spec-driven-development.md # ✅ SDD methodology & standards
+│   ├── spec-driven-development.md # SDD methodology & standards
 │   ├── git-workflow.md            # Git branching strategies
 │   ├── code-review-checklist.md   # Code review guidelines
 │   ├── documentation-structure.md # Documentation organization
@@ -51,38 +51,42 @@ universal-dev-standards/
 │   ├── changelog-standards.md     # Changelog writing guide
 │   └── testing-standards.md       # Testing standards (UT/IT/ST/E2E)
 │
+├── skills/                         # ✅ NEW: AI tool skills (v2.1.0)
+│   ├── claude-code/               # Claude Code Skills
+│   ├── cursor/                    # Cursor Rules (planned)
+│   ├── windsurf/                  # Windsurf Rules (planned)
+│   ├── cline/                     # Cline Rules (planned)
+│   ├── copilot/                   # GitHub Copilot (planned)
+│   └── _shared/                   # Shared templates
+│
 ├── extensions/                     # Optional extensions
 │   ├── languages/                 # Language-specific standards
-│   │   └── csharp-style.md        # ✅ C# coding conventions
+│   │   ├── csharp-style.md        # C# coding conventions
+│   │   └── php-style.md           # PHP 8.1+ style guide
 │   ├── frameworks/                # Framework-specific standards
-│   │   └── (coming soon)
+│   │   └── fat-free-patterns.md   # Fat-Free Framework patterns
 │   ├── locales/                   # Locale-specific standards
-│   │   └── zh-tw.md               # ✅ Traditional Chinese
+│   │   └── zh-tw.md               # Traditional Chinese
 │   └── domains/                   # Domain-specific standards
 │       └── (coming soon)
 │
 ├── templates/                      # Project document templates
-│   ├── requirement-document-template.md  # ✅ Requirement doc format
-│   ├── requirement-checklist.md          # ✅ Requirement checklist
-│   ├── requirement-template.md           # ✅ Blank requirement template
-│   └── docs/
-│       └── (coming soon)
+│   ├── requirement-*.md           # Requirement templates
+│   └── migration-template.md      # Migration plan template
 │
-├── integrations/                   # Tool integrations
-│   ├── cline/                     # Cline integration
-│   ├── cursor/                    # Cursor integration
-│   ├── github-copilot/            # GitHub Copilot integration
-│   ├── google-antigravity/        # Google Antigravity integration
-│   ├── windsurf/                  # Windsurf integration
+├── integrations/                   # Tool configuration files
+│   ├── cline/                     # Cline .clinerules
+│   ├── cursor/                    # Cursor .cursorrules
+│   ├── github-copilot/            # Copilot instructions
+│   ├── google-antigravity/        # Antigravity integration
+│   ├── windsurf/                  # Windsurf .windsurfrules
 │   └── openspec/                  # OpenSpec framework
-│       ├── AGENTS.md
-│       ├── commands/
-│       └── project.md.template
 │
-└── examples/                       # Real-world examples
-    ├── dotnet-web-api/
-    ├── react-spa/
-    └── README.md
+├── cli/                           # CLI tool
+│   └── (uds command)
+│
+└── adoption/                       # Adoption guides
+    └── ADOPTION-GUIDE.md
 ```
 
 ---
@@ -91,15 +95,28 @@ universal-dev-standards/
 
 ### Using with Claude Code (Recommended) | 搭配 Claude Code 使用（推薦）
 
-If you use Claude Code, install **[universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills)** for interactive AI assistance:
+Skills are now included in this repository. Install Claude Code Skills for interactive AI assistance:
 
-如果您使用 Claude Code，安裝 **[universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills)** 獲得互動式 AI 輔助：
+Skills 現已整合在本儲存庫中。安裝 Claude Code Skills 獲得互動式 AI 輔助：
 
 ```bash
-git clone https://github.com/AsiaOstrich/universal-dev-skills.git
-cd universal-dev-skills
+# Clone and install skills
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards/skills/claude-code
 ./install.sh
 ```
+
+### Multi-AI Tool Support (Coming Soon) | 多 AI 工具支援（即將推出）
+
+We're expanding support for more AI coding assistants:
+
+| AI Tool | Status | Path |
+|---------|--------|------|
+| Claude Code | ✅ Complete | `skills/claude-code/` |
+| Cursor | 🚧 Planned | `skills/cursor/` |
+| Windsurf | 🚧 Planned | `skills/windsurf/` |
+| Cline | 🚧 Planned | `skills/cline/` |
+| GitHub Copilot | 🚧 Planned | `skills/copilot/` |
 
 ### Standards Coverage | 規範涵蓋範圍
 

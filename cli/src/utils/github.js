@@ -1,10 +1,17 @@
-import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'fs';
+import { mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, copyFileSync } from 'fs';
 import { dirname, join, basename } from 'path';
 import { homedir } from 'os';
+import { fileURLToPath } from 'url';
 import https from 'https';
 
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main';
 const SKILLS_RAW_BASE = 'https://raw.githubusercontent.com/AsiaOstrich/universal-dev-skills/main';
+
+// Get the CLI package root directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const CLI_ROOT = join(__dirname, '..', '..');
+const SKILLS_LOCAL_DIR = join(CLI_ROOT, '..', 'skills', 'claude-code');
 
 /**
  * Download a file from GitHub raw content
@@ -158,12 +165,92 @@ export function getSkillsDir() {
 }
 
 /**
- * Download and install a single Skill
+ * Check if local skills directory exists
+ * @returns {boolean} True if local skills are available
+ */
+export function hasLocalSkills() {
+  return existsSync(SKILLS_LOCAL_DIR);
+}
+
+/**
+ * Get local skills directory path
+ * @returns {string} Path to local skills directory
+ */
+export function getLocalSkillsDir() {
+  return SKILLS_LOCAL_DIR;
+}
+
+/**
+ * Install a single Skill from local directory
+ * @param {string} skillName - Skill name (e.g., 'ai-collaboration-standards')
+ * @returns {Object} Result with success status
+ */
+export function installSkillFromLocal(skillName) {
+  const sourceDir = join(SKILLS_LOCAL_DIR, skillName);
+  const skillsDir = getSkillsDir();
+  const targetDir = join(skillsDir, skillName);
+
+  if (!existsSync(sourceDir)) {
+    return {
+      success: false,
+      skillName,
+      files: [],
+      error: `Skill directory not found: ${sourceDir}`,
+      path: null
+    };
+  }
+
+  // Ensure target directory exists
+  if (!existsSync(targetDir)) {
+    mkdirSync(targetDir, { recursive: true });
+  }
+
+  const results = [];
+  try {
+    const files = readdirSync(sourceDir);
+    for (const fileName of files) {
+      const sourceFile = join(sourceDir, fileName);
+      const targetFile = join(targetDir, fileName);
+
+      try {
+        copyFileSync(sourceFile, targetFile);
+        results.push({ file: fileName, success: true });
+      } catch (error) {
+        results.push({ file: fileName, success: false, error: error.message });
+      }
+    }
+  } catch (error) {
+    return {
+      success: false,
+      skillName,
+      files: results,
+      error: error.message,
+      path: null
+    };
+  }
+
+  const allSuccess = results.every(r => r.success);
+  return {
+    success: allSuccess,
+    skillName,
+    files: results,
+    path: targetDir
+  };
+}
+
+/**
+ * Download and install a single Skill from remote repository
  * @param {string} skillName - Skill name (e.g., 'ai-collaboration-standards')
  * @param {string[]} skillFiles - Array of file paths relative to skills repo
  * @returns {Promise<Object>} Result with success status
  */
 export async function downloadSkill(skillName, skillFiles) {
+  // Prefer local installation if available
+  if (hasLocalSkills()) {
+    return installSkillFromLocal(skillName);
+  }
+
+  // Fall back to remote download
   const skillsDir = getSkillsDir();
   const targetDir = join(skillsDir, skillName);
 
