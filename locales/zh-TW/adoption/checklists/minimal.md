@@ -8,7 +8,7 @@ status: current
 
 # 等級 1：基本採用檢查清單
 
-> **語言**: [English](../../../../adoption/checklists/minimal.md) | 繁體中文
+> **語言**: [English](../../../adoption/checklists/minimal.md) | 繁體中文
 
 > 任何專案的最低可行標準
 >

@@ -10,7 +10,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] | 未發布
 
+_No unreleased changes._
+_目前無未發布的變更。_
+
+## [2.3.0] - 2025-12-25
+
 ### Added | 新增
+- **Multilingual Support**: Add `locales/` directory structure for internationalization
+  **多語言支援**：新增 `locales/` 目錄結構用於國際化
+- Add Traditional Chinese (zh-TW) translations for all documentation (44 files)
+  新增所有文件的繁體中文 (zh-TW) 翻譯（44 個檔案）
+  - `locales/zh-TW/core/` - 13 core standard translations
+    `locales/zh-TW/core/` - 13 個核心規範翻譯
+  - `locales/zh-TW/skills/claude-code/` - 25 skill file translations
+    `locales/zh-TW/skills/claude-code/` - 25 個 skill 檔案翻譯
+  - `locales/zh-TW/adoption/` - 5 adoption guide translations
+    `locales/zh-TW/adoption/` - 5 個採用指南翻譯
+  - `locales/zh-TW/README.md` - Complete Chinese README
+    `locales/zh-TW/README.md` - 完整的中文 README
+- Add language switcher to all English documentation files
+  為所有英文文件新增語言切換器
+- Add `scripts/check-translation-sync.sh` - Translation synchronization checker
+  新增 `scripts/check-translation-sync.sh` - 翻譯同步檢查腳本
 - Add Static vs Dynamic standards classification to Skills documentation
   為 Skills 文件新增靜態與動態規範分類說明
 - Add `templates/CLAUDE.md.template` - Ready-to-use template for static standards
@@ -19,6 +40,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   新增 `adoption/STATIC-DYNAMIC-GUIDE.md` - 詳細分類指南
 
 ### Changed | 變更
+- Separate bilingual content into dedicated language files (~50% token reduction for AI tools)
+  將雙語內容分離到專用語言檔案（AI 工具減少約 50% token 消耗）
+- English versions now contain English-only content with language switcher
+  英文版本現在僅包含英文內容並帶有語言切換器
 - Update `skills/claude-code/README.md` - Add Static vs Dynamic section with trigger keywords
   更新 `skills/claude-code/README.md` - 新增靜態與動態區塊及觸發關鍵字
 
