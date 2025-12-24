@@ -1,0 +1,131 @@
+# CLAUDE.md Template
+# CLAUDE.md 範本
+
+> Copy this file to your project root as `CLAUDE.md` or `.cursorrules`.
+>
+> 將此檔案複製到專案根目錄，命名為 `CLAUDE.md` 或 `.cursorrules`。
+
+---
+
+# Project AI Collaboration Guidelines
+# 專案 AI 協作規範
+
+## 1. Certainty Labels | 確定性標籤
+
+When analyzing code or making statements, use these tags:
+
+分析程式碼或陳述事實時，使用以下標籤：
+
+| Tag | Use When | 使用時機 |
+|-----|----------|---------|
+| `[Confirmed]` / `[已確認]` | Direct evidence from code/docs | 直接來自程式碼/文件的證據 |
+| `[Inferred]` / `[推測]` | Logical deduction from evidence | 基於證據的邏輯推論 |
+| `[Assumption]` / `[假設]` | Based on common patterns | 基於常見模式（需驗證） |
+| `[Unknown]` / `[未知]` | Information not available | 資訊不可得 |
+
+**Rules | 規則**:
+- Always cite sources: `[Source: Code] file.ts:42`
+- Never fabricate APIs, configs, or requirements
+- Ask for clarification when unsure
+
+---
+
+## 2. Recommendations | 建議原則
+
+When presenting multiple options, **always include a recommendation**:
+
+提供多個選項時，**必須包含推薦選項**：
+
+```
+Options:
+1. Option A - description
+2. Option B - description
+3. Option C - description
+
+**Recommended: Option A** because [reasoning]
+```
+
+---
+
+## 3. Quality Gates | 質量關卡
+
+Before suggesting a commit, verify:
+
+建議 commit 前，驗證：
+
+- [ ] Build passes (zero errors, zero warnings)
+- [ ] All tests pass
+- [ ] Code follows project standards
+- [ ] New code has tests
+
+**Never auto-execute git commands.** Show commands and wait for user confirmation.
+
+**不要自動執行 git 指令。** 顯示指令並等待使用者確認。
+
+---
+
+## 4. Project Structure | 專案結構
+
+<!-- Customize this section for your project -->
+<!-- 依專案需求自訂此區塊 -->
+
+### Directories | 目錄
+
+| Directory | Purpose | gitignore? |
+|-----------|---------|------------|
+| `src/` | Source code | No |
+| `tests/` | Test files | No |
+| `dist/` | Build output | **Yes** |
+| `node_modules/` | Dependencies | **Yes** |
+
+### Conventions | 慣例
+
+- Source files: `src/`
+- Test files: `tests/` or colocated with source
+- Build output: `dist/` (gitignored)
+
+---
+
+## 5. Project-Specific Rules | 專案特定規則
+
+<!-- Add your project-specific rules here -->
+<!-- 在此新增專案特定規則 -->
+
+### Build Commands | 建置指令
+
+```bash
+# Development build
+npm run build
+
+# Run tests
+npm test
+
+# Lint check
+npm run lint
+```
+
+### Commit Message Language | Commit 訊息語言
+
+This project uses **English** commit messages.
+<!-- Options: English | Traditional Chinese | Bilingual -->
+
+### Conversation Language | 對話語言
+
+AI should respond in **Traditional Chinese**.
+<!-- Options: English | Traditional Chinese -->
+
+---
+
+## Reference | 參考
+
+This template is based on [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards):
+
+- [Anti-Hallucination Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/anti-hallucination.md)
+- [Check-in Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/checkin-standards.md)
+- [Project Structure](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/project-structure.md)
+
+---
+
+## License | 授權
+
+This template is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).

@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] | 未發布
 
+### Added | 新增
+- Add Static vs Dynamic standards classification to Skills documentation
+  為 Skills 文件新增靜態與動態規範分類說明
+- Add `templates/CLAUDE.md.template` - Ready-to-use template for static standards
+  新增 `templates/CLAUDE.md.template` - 靜態規範整合範本
+- Add `adoption/STATIC-DYNAMIC-GUIDE.md` - Detailed classification guide
+  新增 `adoption/STATIC-DYNAMIC-GUIDE.md` - 詳細分類指南
+
+### Changed | 變更
+- Update `skills/claude-code/README.md` - Add Static vs Dynamic section with trigger keywords
+  更新 `skills/claude-code/README.md` - 新增靜態與動態區塊及觸發關鍵字
+
 ## [2.2.0] - 2025-12-24
 
 ### Added | 新增

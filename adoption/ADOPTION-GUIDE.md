@@ -11,6 +11,7 @@ This guide helps software projects adopt Universal Documentation Standards witho
 ## Table of Contents | 目錄
 
 - [Understanding the Two Projects | 了解兩個專案](#understanding-the-two-projects--了解兩個專案)
+- [Static vs Dynamic Standards | 靜態與動態規範](#static-vs-dynamic-standards--靜態與動態規範)
 - [Standard Categories | 規範分類](#standard-categories--規範分類)
 - [Complete Standards Matrix | 完整規範對照表](#complete-standards-matrix--完整規範對照表)
 - [Adoption Levels | 採用等級](#adoption-levels--採用等級)
@@ -36,6 +37,51 @@ This guide helps software projects adopt Universal Documentation Standards witho
 **For standards with Skills**: Install the Skill OR copy the source document — **never both**.
 
 **對於有 Skills 的規範**：安裝 Skill 或複製原始文件 — **擇一即可，不要兩者都做**。
+
+---
+
+## Static vs Dynamic Standards | 靜態與動態規範
+
+Standards are classified by **when they should be applied**:
+
+規範依據**應用時機**分類：
+
+| Type | Description | Deployment | 說明 |
+|------|-------------|------------|------|
+| **Static** | Always active | Project files (`CLAUDE.md`) | 隨時生效，放在專案文件 |
+| **Dynamic** | Triggered by keywords | Skills (on-demand) | 關鍵字觸發，按需載入 |
+
+### Static Standards | 靜態規範
+
+These 3 standards should **always be active** in your project:
+
+這 3 個規範應該在專案中**隨時生效**：
+
+- `anti-hallucination.md` - Certainty labels, recommendation principles
+- `checkin-standards.md` - Build, test, coverage gates
+- `project-structure.md` - Directory conventions
+
+**Deployment**: Add to `CLAUDE.md` or `.cursorrules`. See [CLAUDE.md.template](../templates/CLAUDE.md.template).
+
+### Dynamic Standards | 動態規範
+
+These 10 standards are **triggered by keywords** and loaded on demand:
+
+這 10 個規範由**關鍵字觸發**，按需載入：
+
+| Skill | Triggers |
+|-------|----------|
+| commit-standards | commit, git, 提交 |
+| code-review-assistant | review, PR, 審查 |
+| git-workflow-guide | branch, merge |
+| testing-guide | test, coverage |
+| release-standards | version, release |
+| documentation-guide | docs, README |
+| requirement-assistant | spec, SDD, 新功能 |
+
+**Deployment**: Install as Skills via `skills/claude-code/install.sh`.
+
+> 📖 See [STATIC-DYNAMIC-GUIDE.md](STATIC-DYNAMIC-GUIDE.md) for detailed classification.
 
 ---
 
