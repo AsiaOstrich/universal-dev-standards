@@ -10,6 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] | 未發布
 
+## [2.2.0] - 2025-12-24
+
+### Added | 新增
+- Add standard sections to all Skills documentation (23 files)
+  為所有 Skills 文件新增標準區段（23 個檔案）
+  - 8 SKILL.md files: Added Purpose, Related Standards, Version History, License sections
+    8 個 SKILL.md 檔案：新增目的、相關標準、版本歷史、授權區段
+  - 15 supporting docs: Added bilingual titles, metadata, and standard sections
+    15 個支援文件：新增雙語標題、metadata 及標準區段
+
+### Changed | 變更
+- Align Skills documentation format with Core standards
+  統一 Skills 文件格式與 Core 標準
+- Add cross-references between Skills and Core documents
+  新增 Skills 與 Core 文件之間的交叉引用
+
 ## [2.1.0] - 2025-12-24
 
 ### Added | 新增
@@ -147,7 +163,8 @@ This reflects the project's expanded scope covering all development standards, n
 - Integrations: OpenSpec framework
   整合：OpenSpec 框架
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v1.3.1...v2.0.0
 [1.3.1]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v1.3.0...v1.3.1
