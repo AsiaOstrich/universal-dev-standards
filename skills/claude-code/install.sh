@@ -1,6 +1,6 @@
 #!/bin/bash
 # Universal Dev Skills - Installation Script
-# https://github.com/AsiaOstrich/universal-dev-skills
+# https://github.com/AsiaOstrich/universal-dev-standards/tree/main/skills/claude-code
 
 set -e
 
@@ -59,7 +59,7 @@ echo "Installing skills to: $SKILLS_DIR"
 echo ""
 
 for skill in "${selected_skills[@]}"; do
-    skill_path="$SCRIPT_DIR/skills/$skill"
+    skill_path="$SCRIPT_DIR/$skill"
     if [[ -d "$skill_path" ]]; then
         echo "  Installing: $skill"
         cp -r "$skill_path" "$SKILLS_DIR/"
