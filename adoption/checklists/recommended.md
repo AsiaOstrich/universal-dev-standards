@@ -185,3 +185,31 @@ When ready to upgrade to Level 3 (Enterprise):
 
 準備升級到等級三（企業）時：
 - 參見 [enterprise.md](enterprise.md)
+
+---
+
+## Related Standards | 相關標準
+
+- [Essential Adoption Checklist](minimal.md) - Level 1 基本採用
+- [Enterprise Adoption Checklist](enterprise.md) - Level 3 升級指南
+- [Checkin Standards](../../core/checkin-standards.md) - 簽入標準
+- [Git Workflow](../../core/git-workflow.md) - Git 工作流程
+- [Testing Standards](../../core/testing-standards.md) - 測試標準
+- [Code Review Checklist](../../core/code-review-checklist.md) - 程式碼審查
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.1 | 2025-12-24 | Added: Related Standards, License sections |
+| 1.0.0 | 2025-12-23 | Initial checklist |
+
+---
+
+## License | 授權
+
+This checklist is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本檢查清單以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

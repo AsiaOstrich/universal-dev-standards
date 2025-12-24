@@ -276,3 +276,31 @@ Upon completion, your project has:
 Your project now follows enterprise-grade documentation standards.
 
 您的專案現在遵循企業級文件標準。
+
+---
+
+## Related Standards | 相關標準
+
+- [Essential Adoption Checklist](minimal.md) - Level 1 基本採用
+- [Recommended Adoption Checklist](recommended.md) - Level 2 推薦採用
+- [Documentation Writing Standards](../../core/documentation-writing-standards.md) - 文件撰寫規範
+- [Project Structure](../../core/project-structure.md) - 專案結構標準
+- [Checkin Standards](../../core/checkin-standards.md) - 簽入標準
+- [Spec-Driven Development](../../core/spec-driven-development.md) - 規格驅動開發
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.1 | 2025-12-24 | Added: Related Standards, License sections |
+| 1.0.0 | 2025-12-23 | Initial checklist |
+
+---
+
+## License | 授權
+
+This checklist is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本檢查清單以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

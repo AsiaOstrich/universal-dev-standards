@@ -91,3 +91,29 @@ When ready to upgrade to Level 2 (Recommended):
 
 準備升級到等級二（推薦）時：
 - 參見 [recommended.md](recommended.md)
+
+---
+
+## Related Standards | 相關標準
+
+- [Recommended Adoption Checklist](recommended.md) - Level 2 升級指南
+- [Enterprise Adoption Checklist](enterprise.md) - Level 3 升級指南
+- [Checkin Standards](../../core/checkin-standards.md) - 簽入標準
+- [Spec-Driven Development](../../core/spec-driven-development.md) - 規格驅動開發
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.1 | 2025-12-24 | Added: Related Standards, License sections |
+| 1.0.0 | 2025-12-23 | Initial checklist |
+
+---
+
+## License | 授權
+
+This checklist is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本檢查清單以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

@@ -41,3 +41,28 @@ Reference: `.standards/anti-hallucination.md` (or `core/anti-hallucination.md`)
 
 2. **Code Quality**:
    - Follow project style guides located in `.standards/`.
+
+---
+
+## Related Standards | 相關標準
+
+- [Anti-Hallucination Standards](../../core/anti-hallucination.md) - 防幻覺標準
+- [Commit Message Guide](../../core/commit-message-guide.md) - Commit 訊息指南
+- [Code Review Checklist](../../core/code-review-checklist.md) - 程式碼審查檢查清單
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.1 | 2025-12-24 | Added: Related Standards, Version History, License sections |
+| 1.0.0 | 2025-12-23 | Initial GitHub Copilot integration |
+
+---
+
+## License | 授權
+
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

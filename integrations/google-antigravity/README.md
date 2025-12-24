@@ -29,3 +29,28 @@ Google Antigravity 是一個先進的代理程式碼開發助理。此整合協�
 3. **Verify Compliance**:
    Ask the agent to "Review this code following anti-hallucination standards".
    要求代理「遵循防幻覺標準審查此程式碼」。
+
+---
+
+## Related Standards | 相關標準
+
+- [Anti-Hallucination Standards](../../core/anti-hallucination.md) - 防幻覺標準
+- [Commit Message Guide](../../core/commit-message-guide.md) - Commit 訊息指南
+- [INSTRUCTIONS.md](./INSTRUCTIONS.md) - 詳細整合指令
+
+---
+
+## Version History | 版本歷史
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.1 | 2025-12-24 | Added: Related Standards, Version History, License sections |
+| 1.0.0 | 2025-12-23 | Initial Google Antigravity integration |
+
+---
+
+## License | 授權
+
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
