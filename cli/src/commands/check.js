@@ -135,7 +135,7 @@ export function checkCommand() {
   const coveredByDocs = manifest.standards.length;
   const totalCovered = coveredBySkills + coveredByDocs;
 
-  console.log(chalk.gray(`  Your coverage:`));
+  console.log(chalk.gray('  Your coverage:'));
   console.log(chalk.gray(`    ${coveredBySkills} via Skills`));
   console.log(chalk.gray(`    ${coveredByDocs} via copied documents`));
   console.log();

@@ -350,7 +350,7 @@ export async function initCommand(options) {
   if (skillsInstalled.length > 0) {
     console.log(chalk.gray(`  ${skillsInstalled.length} Skills installed to ~/.claude/skills/`));
   }
-  console.log(chalk.gray(`  Manifest created at .standards/manifest.json`));
+  console.log(chalk.gray('  Manifest created at .standards/manifest.json'));
 
   if (results.errors.length > 0) {
     console.log();
