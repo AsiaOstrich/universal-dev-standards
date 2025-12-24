@@ -1,19 +1,21 @@
-# Level 2: Recommended Adoption Checklist | 等級二：推薦採用檢查清單
+# Level 2: Recommended Adoption Checklist
 
-> Professional quality standards for team projects | 團隊專案的專業品質標準
+> **Language**: English | [繁體中文](../../locales/zh-TW/adoption/checklists/recommended.md)
+
+> Professional quality standards for team projects
 >
-> Setup time: ~2 hours | 設置時間：約 2 小時
+> Setup time: ~2 hours
 
 ---
 
-## Prerequisites | 前置條件
+## Prerequisites
 
-- [ ] Level 1 (Essential) completed | 等級一（基本）已完成
-- [ ] Team agreement on adoption | 團隊已同意採用
+- [ ] Level 1 (Essential) completed
+- [ ] Team agreement on adoption
 
 ---
 
-## Skills Installation | Skills 安裝
+## Skills Installation
 
 Install additional Level 2 skills:
 
@@ -25,60 +27,58 @@ cd universal-dev-skills
 # Select: Global installation
 ```
 
-**Checklist | 檢查清單**:
+**Checklist**:
 
-### From Level 1 | 來自等級一
-- [ ] ai-collaboration-standards | ai-collaboration-standards
-- [ ] commit-standards | commit-standards
+### From Level 1
+- [ ] ai-collaboration-standards
+- [ ] commit-standards
 
-### Level 2 Skills | 等級二 Skills
-- [ ] code-review-assistant | code-review-assistant
-- [ ] git-workflow-guide | git-workflow-guide
-- [ ] release-standards | release-standards
-- [ ] testing-guide | testing-guide
-- [ ] requirement-assistant | requirement-assistant
+### Level 2 Skills
+- [ ] code-review-assistant
+- [ ] git-workflow-guide
+- [ ] release-standards
+- [ ] testing-guide
+- [ ] requirement-assistant
 
 ---
 
-## Reference Documents | 參考文件
+## Reference Documents
 
 Level 2 has no additional reference documents beyond Level 1.
 
-等級二沒有超出等級一的額外參考文件。
-
-**Verify Level 1 Documents | 驗證等級一文件**:
+**Verify Level 1 Documents**:
 - [ ] `.standards/checkin-standards.md` exists
 - [ ] `.standards/spec-driven-development.md` exists
 
 ---
 
-## Extensions (Select Applicable) | 延伸規範（選擇適用的）
+## Extensions (Select Applicable)
 
-### Language Extensions | 語言延伸
+### Language Extensions
 
-**For C# Projects | 用於 C# 專案**:
+**For C# Projects**:
 ```bash
 cp path/to/universal-dev-standards/extensions/languages/csharp-style.md .standards/
 ```
 - [ ] `csharp-style.md` copied (if applicable)
 
-**For PHP Projects | 用於 PHP 專案**:
+**For PHP Projects**:
 ```bash
 cp path/to/universal-dev-standards/extensions/languages/php-style.md .standards/
 ```
 - [ ] `php-style.md` copied (if applicable)
 
-### Framework Extensions | 框架延伸
+### Framework Extensions
 
-**For Fat-Free Framework | 用於 Fat-Free 框架**:
+**For Fat-Free Framework**:
 ```bash
 cp path/to/universal-dev-standards/extensions/frameworks/fat-free-patterns.md .standards/
 ```
 - [ ] `fat-free-patterns.md` copied (if applicable)
 
-### Locale Extensions | 地區延伸
+### Locale Extensions
 
-**For Traditional Chinese Teams | 用於繁體中文團隊**:
+**For Traditional Chinese Teams**:
 ```bash
 cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
 ```
@@ -86,7 +86,7 @@ cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
 
 ---
 
-## AI Tool Integrations | AI 工具整合
+## AI Tool Integrations
 
 Select and install based on your tools:
 
@@ -123,9 +123,9 @@ cp -r path/to/universal-dev-standards/integrations/openspec/ .openspec/
 
 ---
 
-## Team Configuration | 團隊配置
+## Team Configuration
 
-### Git Workflow Selection | Git 工作流程選擇
+### Git Workflow Selection
 
 Review `git-workflow.md` and select:
 - [ ] Trunk-Based Development
@@ -134,13 +134,13 @@ Review `git-workflow.md` and select:
 
 Document decision in project README or CONTRIBUTING.md.
 
-### Code Review Process | 程式碼審查流程
+### Code Review Process
 
 - [ ] Define required reviewers
 - [ ] Set up branch protection rules
 - [ ] Configure code-review-assistant skill settings
 
-### Testing Standards | 測試標準
+### Testing Standards
 
 - [ ] Define coverage targets (recommended: 70/20/7/3)
 - [ ] Set up CI/CD pipeline
@@ -148,9 +148,9 @@ Document decision in project README or CONTRIBUTING.md.
 
 ---
 
-## Verification | 驗證
+## Verification
 
-### Test All Skills | 測試所有 Skills
+### Test All Skills
 
 1. **commit-standards**: Write a commit → Should follow Conventional Commits
 2. **code-review-assistant**: Review code → Should use systematic checklist
@@ -158,14 +158,14 @@ Document decision in project README or CONTRIBUTING.md.
 4. **release-standards**: Ask about versioning → Should explain SemVer
 5. **testing-guide**: Ask about tests → Should explain testing pyramid
 
-### Verify Integrations | 驗證整合
+### Verify Integrations
 
 - [ ] AI tool follows project standards
 - [ ] AI tool provides evidence-based responses
 
 ---
 
-## Final Checklist | 最終檢查清單
+## Final Checklist
 
 | Category | Items | Status |
 |----------|-------|--------|
@@ -178,28 +178,25 @@ Document decision in project README or CONTRIBUTING.md.
 
 ---
 
-## Next Steps | 下一步
+## Next Steps
 
 When ready to upgrade to Level 3 (Enterprise):
 - See [enterprise.md](enterprise.md)
 
-準備升級到等級三（企業）時：
-- 參見 [enterprise.md](enterprise.md)
+---
+
+## Related Standards
+
+- [Essential Adoption Checklist](minimal.md) - Level 1 basics
+- [Enterprise Adoption Checklist](enterprise.md) - Level 3 upgrade guide
+- [Checkin Standards](../../core/checkin-standards.md) - Quality gate standards
+- [Git Workflow](../../core/git-workflow.md) - Workflow patterns
+- [Testing Standards](../../core/testing-standards.md) - Testing guidelines
+- [Code Review Checklist](../../core/code-review-checklist.md) - Review process
 
 ---
 
-## Related Standards | 相關標準
-
-- [Essential Adoption Checklist](minimal.md) - Level 1 基本採用
-- [Enterprise Adoption Checklist](enterprise.md) - Level 3 升級指南
-- [Checkin Standards](../../core/checkin-standards.md) - 簽入標準
-- [Git Workflow](../../core/git-workflow.md) - Git 工作流程
-- [Testing Standards](../../core/testing-standards.md) - 測試標準
-- [Code Review Checklist](../../core/code-review-checklist.md) - 程式碼審查
-
----
-
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -208,8 +205,6 @@ When ready to upgrade to Level 3 (Enterprise):
 
 ---
 
-## License | 授權
+## License
 
 This checklist is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本檢查清單以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

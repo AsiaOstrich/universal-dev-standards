@@ -1,24 +1,22 @@
 # Pre-Commit Checklist
-# 簽入前檢查清單
+
+> **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/code-review-assistant/checkin-checklist.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document provides a checklist for developers to verify before committing code changes.
 
-本文件提供開發人員在提交程式碼變更前的檢查清單。
-
 ---
 
-## Mandatory Checks | 必檢清單
+## Mandatory Checks
 
-### 1. Build Verification | 建置驗證
+### 1. Build Verification
 
 - [ ] **Code compiles successfully**
   - Zero build errors
@@ -31,7 +29,7 @@ This document provides a checklist for developers to verify before committing co
 
 ---
 
-### 2. Test Verification | 測試驗證
+### 2. Test Verification
 
 - [ ] **All existing tests pass**
   - Unit tests: 100% pass rate
@@ -47,7 +45,7 @@ This document provides a checklist for developers to verify before committing co
 
 ---
 
-### 3. Code Quality | 程式碼品質
+### 3. Code Quality
 
 - [ ] **Follows coding standards**
   - Naming conventions adhered to
@@ -68,7 +66,7 @@ This document provides a checklist for developers to verify before committing co
 
 ---
 
-### 4. Documentation | 文件
+### 4. Documentation
 
 - [ ] **API documentation updated**
   - Public APIs have doc comments
@@ -85,7 +83,7 @@ This document provides a checklist for developers to verify before committing co
 
 ---
 
-### 5. Workflow Compliance | 工作流程合規
+### 5. Workflow Compliance
 
 - [ ] **Branch naming correct**
   - Follows project convention (`feature/`, `fix/`)
@@ -99,7 +97,7 @@ This document provides a checklist for developers to verify before committing co
 
 ---
 
-## Commit Timing Guidelines | 簽入時機指引
+## Commit Timing Guidelines
 
 ### ✅ Appropriate Times to Commit
 
@@ -143,7 +141,7 @@ This document provides a checklist for developers to verify before committing co
 
 ---
 
-## Commit Granularity | Commit 粒度
+## Commit Granularity
 
 ### Ideal Commit Size
 
@@ -166,7 +164,7 @@ This document provides a checklist for developers to verify before committing co
 
 ---
 
-## Special Scenarios | 特殊情境
+## Special Scenarios
 
 ### Emergency Leave (WIP)
 
@@ -195,7 +193,7 @@ git commit -m "WIP: progress save (do not merge)"
 
 ---
 
-## Common Violations | 常見違規
+## Common Violations
 
 ### ❌ "WIP" Commits
 
@@ -228,15 +226,15 @@ git commit -m "feat(module-c): add export feature"
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Checkin Standards](../../../core/checkin-standards.md) - 簽入標準
-- [Code Review Checklist](./review-checklist.md) - 程式碼審查清單
-- [Commit Message Guide](../../../core/commit-message-guide.md) - Commit 訊息指南
+- [Checkin Standards](../../../core/checkin-standards.md)
+- [Code Review Checklist](./review-checklist.md)
+- [Commit Message Guide](../../../core/commit-message-guide.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -244,10 +242,8 @@ git commit -m "feat(module-c): add export feature"
 
 ---
 
-## License | 授權
+## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

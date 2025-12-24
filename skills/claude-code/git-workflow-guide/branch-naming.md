@@ -1,22 +1,20 @@
 # Branch Naming Reference
-# 分支命名參考
+
+> **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/git-workflow-guide/branch-naming.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document provides reference for Git branch naming conventions and rules.
 
-本文件提供 Git 分支命名規範和規則的參考。
-
 ---
 
-## Standard Format | 標準格式
+## Standard Format
 
 ```
 <type>/<short-description>
@@ -24,16 +22,16 @@ This document provides reference for Git branch naming conventions and rules.
 
 ---
 
-## Branch Types | 分支類型
+## Branch Types
 
-### Feature Branches | 功能分支
+### Feature Branches
 
 | Type | Usage | Example |
 |------|-------|---------|
 | `feature/` | New functionality | `feature/oauth-login` |
 | `feat/` | Short form | `feat/user-dashboard` |
 
-### Fix Branches | 修復分支
+### Fix Branches
 
 | Type | Usage | Example |
 |------|-------|---------|
@@ -41,7 +39,7 @@ This document provides reference for Git branch naming conventions and rules.
 | `bugfix/` | Alternative form | `bugfix/login-error` |
 | `hotfix/` | Urgent production fixes | `hotfix/security-patch` |
 
-### Other Types | 其他類型
+### Other Types
 
 | Type | Usage | Example |
 |------|-------|---------|
@@ -56,61 +54,61 @@ This document provides reference for Git branch naming conventions and rules.
 
 ---
 
-## Naming Rules | 命名規則
+## Naming Rules
 
-### Do | 應該
+### Do
 
-1. **Use lowercase** | 使用小寫
+1. **Use lowercase**
    ```bash
    feature/user-auth    # ✅ Good
    Feature/User-Auth    # ❌ Bad
    ```
 
-2. **Use hyphens for spaces** | 使用連字號分隔單詞
+2. **Use hyphens for spaces**
    ```bash
    feature/oauth-login  # ✅ Good
    feature/oauth_login  # ❌ Bad (underscores)
    feature/oauthlogin   # ❌ Bad (no separator)
    ```
 
-3. **Be descriptive but concise** | 具描述性但簡潔
+3. **Be descriptive but concise**
    ```bash
    feature/add-user-authentication  # ✅ Good
    feature/auth                     # ⚠️ Too vague
    feature/add-new-user-authentication-with-oauth2-and-jwt  # ❌ Too long
    ```
 
-4. **Include issue number (optional)** | 包含 issue 編號（可選）
+4. **Include issue number (optional)**
    ```bash
    feature/123-oauth-login   # ✅ Good
    feature/GH-123-oauth      # ✅ Good (GitHub issue)
    feature/JIRA-456-payment  # ✅ Good (Jira ticket)
    ```
 
-### Don't | 不應該
+### Don't
 
-1. **Don't use only issue numbers** | 不要只用 issue 編號
+1. **Don't use only issue numbers**
    ```bash
    feature/123       # ❌ Not descriptive
    fix/456           # ❌ What does it fix?
    ```
 
-2. **Don't use special characters** | 不要使用特殊字元
+2. **Don't use special characters**
    ```bash
    feature/oauth@login  # ❌ @ not allowed
    feature/auth#123     # ❌ # not allowed
    ```
 
-3. **Don't use spaces** | 不要使用空格
+3. **Don't use spaces**
    ```bash
    feature/oauth login  # ❌ Spaces not allowed
    ```
 
 ---
 
-## Examples | 範例
+## Examples
 
-### Good Examples | 良好範例
+### Good Examples
 
 ```bash
 # Feature branches
@@ -134,7 +132,7 @@ perf/optimize-database-queries
 release/v1.2.0
 ```
 
-### Bad Examples | 不良範例
+### Bad Examples
 
 ```bash
 # ❌ Not descriptive
@@ -168,7 +166,7 @@ feature/add-new-user-authentication-system-with-oauth2-jwt-and-session-managemen
 
 ---
 
-## Quick Validation | 快速驗證
+## Quick Validation
 
 Before pushing, check your branch name:
 
@@ -182,7 +180,7 @@ git branch --show-current
 # - description: lowercase, hyphen-separated, descriptive
 ```
 
-### Validation Checklist | 驗證清單
+### Validation Checklist
 
 - [ ] Starts with valid type prefix (`feature/`, `fix/`, etc.)
 - [ ] All lowercase
@@ -192,14 +190,14 @@ git branch --show-current
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Git Workflow Strategies](./git-workflow.md) - Git 工作流程策略
-- [Git Workflow](../../../core/git-workflow.md) - Git 工作流程標準
+- [Git Workflow Strategies](./git-workflow.md)
+- [Git Workflow](../../../core/git-workflow.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -207,10 +205,8 @@ git branch --show-current
 
 ---
 
-## License | 授權
+## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

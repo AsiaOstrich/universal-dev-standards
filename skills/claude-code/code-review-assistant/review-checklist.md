@@ -1,22 +1,20 @@
 # Code Review Checklist
-# 程式碼審查清單
+
+> **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/code-review-assistant/review-checklist.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document provides a comprehensive checklist for code review to ensure code quality and standards compliance.
 
-本文件提供程式碼審查的完整檢查清單，以確保程式碼品質和標準合規。
-
 ---
 
-## 1. Functionality | 功能性
+## 1. Functionality
 
 - [ ] **Code does what it's supposed to do**
   - Requirement/spec alignment verified
@@ -35,7 +33,7 @@ This document provides a comprehensive checklist for code review to ensure code 
 
 ---
 
-## 2. Design & Architecture | 設計與架構
+## 2. Design & Architecture
 
 - [ ] **Follows project architecture**
   - Layering respected
@@ -53,7 +51,7 @@ This document provides a comprehensive checklist for code review to ensure code 
 
 ---
 
-## 3. Code Quality | 程式碼品質
+## 3. Code Quality
 
 - [ ] **Follows coding standards**
   - Naming conventions adhered to
@@ -72,7 +70,7 @@ This document provides a comprehensive checklist for code review to ensure code 
 
 ---
 
-## 4. Readability | 可讀性
+## 4. Readability
 
 - [ ] **Code is easy to understand**
   - Variable names are descriptive
@@ -86,7 +84,7 @@ This document provides a comprehensive checklist for code review to ensure code 
 
 ---
 
-## 5. Testing | 測試
+## 5. Testing
 
 - [ ] **Tests are present**
   - New code has tests
@@ -106,7 +104,7 @@ This document provides a comprehensive checklist for code review to ensure code 
 
 ---
 
-## 6. Security | 安全性
+## 6. Security
 
 - [ ] **No security vulnerabilities**
   - No SQL injection risks
@@ -126,7 +124,7 @@ This document provides a comprehensive checklist for code review to ensure code 
 
 ---
 
-## 7. Performance | 效能
+## 7. Performance
 
 - [ ] **No obvious performance issues**
   - No N+1 queries
@@ -145,7 +143,7 @@ This document provides a comprehensive checklist for code review to ensure code 
 
 ---
 
-## 8. Error Handling | 錯誤處理
+## 8. Error Handling
 
 - [ ] **Errors handled appropriately**
   - Try-catch blocks present
@@ -164,7 +162,7 @@ This document provides a comprehensive checklist for code review to ensure code 
 
 ---
 
-## 9. Documentation | 文件
+## 9. Documentation
 
 - [ ] **API documentation present**
   - Public methods documented
@@ -182,7 +180,7 @@ This document provides a comprehensive checklist for code review to ensure code 
 
 ---
 
-## 10. Dependencies | 依賴
+## 10. Dependencies
 
 - [ ] **Dependencies justified**
   - New dependencies necessary
@@ -217,15 +215,15 @@ This document provides a comprehensive checklist for code review to ensure code 
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Code Review Checklist](../../../core/code-review-checklist.md) - 程式碼審查檢查清單
-- [Checkin Standards](../../../core/checkin-standards.md) - 簽入標準
-- [Pre-Commit Checklist](./checkin-checklist.md) - 簽入前檢查清單
+- [Code Review Checklist](../../../core/code-review-checklist.md)
+- [Checkin Standards](../../../core/checkin-standards.md)
+- [Pre-Commit Checklist](./checkin-checklist.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -233,10 +231,8 @@ This document provides a comprehensive checklist for code review to ensure code 
 
 ---
 
-## License | 授權
+## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

@@ -3,24 +3,22 @@ name: commit-standards
 description: |
   Format commit messages following conventional commits standard.
   Use when: writing commit messages, git commit, reviewing commit history.
-  Keywords: commit, git, message, conventional, 提交, 訊息, feat, fix, refactor.
+  Keywords: commit, git, message, conventional, feat, fix, refactor.
 ---
 
 # Commit Message Standards
-# Commit 訊息規範
+
+> **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/commit-standards/SKILL.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This skill ensures consistent, meaningful commit messages following conventional commits.
-
-本 Skill 確保遵循 Conventional Commits 規範的一致且有意義的 commit 訊息。
 
 ## Quick Reference
 
@@ -36,20 +34,20 @@ This skill ensures consistent, meaningful commit messages following conventional
 
 ### Commit Types
 
-| English | 中文 | When to Use |
-|---------|------|-------------|
-| `feat` | `新增` | New feature |
-| `fix` | `修正` | Bug fix |
-| `refactor` | `重構` | Code refactoring (no functional change) |
-| `docs` | `文件` | Documentation only |
-| `style` | `樣式` | Formatting (no code logic change) |
-| `test` | `測試` | Adding or updating tests |
-| `perf` | `效能` | Performance improvement |
-| `build` | `建置` | Build system or dependencies |
-| `ci` | `整合` | CI/CD pipeline changes |
-| `chore` | `維護` | Maintenance tasks |
-| `revert` | `回退` | Revert previous commit |
-| `security` | `安全` | Security vulnerability fix |
+| English | When to Use |
+|---------|-------------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `refactor` | Code refactoring (no functional change) |
+| `docs` | Documentation only |
+| `style` | Formatting (no code logic change) |
+| `test` | Adding or updating tests |
+| `perf` | Performance improvement |
+| `build` | Build system or dependencies |
+| `ci` | CI/CD pipeline changes |
+| `chore` | Maintenance tasks |
+| `revert` | Revert previous commit |
+| `security` | Security vulnerability fix |
 
 ### Subject Line Rules
 
@@ -66,33 +64,13 @@ For complete standards, see:
 
 ## Examples
 
-### ✅ Good Examples (English)
+### ✅ Good Examples
 
 ```
 feat(auth): Add OAuth2 Google login support
 fix(api): Resolve memory leak in user session cache
 refactor(database): Extract query builder to separate class
 docs(readme): Update installation instructions for Node 20
-```
-
-### ✅ Good Examples (中文)
-
-```
-新增(認證): 實作 OAuth2 Google 登入支援
-修正(API): 解決使用者 session 快取記憶體洩漏
-重構(資料庫): 提取查詢建構器為獨立類別
-```
-
-### ✅ Good Example (Bilingual)
-
-```
-feat(auth): Add OAuth2 Google login support. 新增 OAuth2 Google 登入支援。
-
-Implement Google OAuth2 authentication flow for user login.
-
-實作 Google OAuth2 認證流程供使用者登入。
-
-Closes #123
 ```
 
 ### ❌ Bad Examples
@@ -185,15 +163,15 @@ feat, fix, refactor, docs, style, test, perf, build, ci, chore, revert, security
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Commit Message Guide](../../core/commit-message-guide.md) - Commit 訊息指南
-- [Git Workflow](../../core/git-workflow.md) - Git 工作流程
-- [Changelog Standards](../../core/changelog-standards.md) - 變更日誌標準
+- [Commit Message Guide](../../../core/commit-message-guide.md)
+- [Git Workflow](../../../core/git-workflow.md)
+- [Changelog Standards](../../../core/changelog-standards.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -201,10 +179,8 @@ feat, fix, refactor, docs, style, test, perf, build, ci, chore, revert, security
 
 ---
 
-## License | 授權
+## License
 
 This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

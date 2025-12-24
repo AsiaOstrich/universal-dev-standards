@@ -1,24 +1,22 @@
 # Project Structure Standard
-# 專案結構標準
 
 **Version**: 1.0.1
 **Last Updated**: 2025-12-24
 **Applicability**: All software projects
-**適用範圍**: 所有軟體專案
+
+**English** | [繁體中文](../locales/zh-TW/core/project-structure.md)
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This standard defines conventions for project directory structure beyond documentation files. It covers common directories for tools, build outputs, and language-specific conventions.
 
-本標準定義專案目錄結構的規範（不僅限於文件檔案），涵蓋常見的工具目錄、建置輸出以及各程式語言的慣例。
-
 ---
 
-## Common Project Directories | 常見專案目錄
+## Common Project Directories
 
-### Recommended Directory Structure | 建議目錄結構
+### Recommended Directory Structure
 
 ```
 project-root/
@@ -54,9 +52,9 @@ project-root/
 
 ---
 
-## Directory Definitions | 目錄定義
+## Directory Definitions
 
-### Source and Build Directories | 原始碼與建置目錄
+### Source and Build Directories
 
 | Directory | Purpose | gitignore? | Notes |
 |-----------|---------|------------|-------|
@@ -68,7 +66,7 @@ project-root/
 | `bin/` | Binary executables | **Yes** | Compiled binaries |
 | `obj/` | Object files | **Yes** | .NET intermediate files |
 
-### Tool and Script Directories | 工具與腳本目錄
+### Tool and Script Directories
 
 | Directory | Purpose | gitignore? | Notes |
 |-----------|---------|------------|-------|
@@ -77,7 +75,7 @@ project-root/
 | `.github/` | GitHub-specific configs | No | Actions, templates, workflows |
 | `.gitlab/` | GitLab-specific configs | No | CI templates |
 
-### Data and Configuration Directories | 資料與設定目錄
+### Data and Configuration Directories
 
 | Directory | Purpose | gitignore? | Notes |
 |-----------|---------|------------|-------|
@@ -86,7 +84,7 @@ project-root/
 | `assets/` | Static assets | No | Images, templates, etc. |
 | `resources/` | Resource files | No | Alternative to assets/ |
 
-### Release and Publish Directories | 發佈目錄
+### Release and Publish Directories
 
 | Directory | Purpose | gitignore? | Notes |
 |-----------|---------|------------|-------|
@@ -96,7 +94,7 @@ project-root/
 
 ---
 
-## Language-Specific Conventions | 各程式語言慣例
+## Language-Specific Conventions
 
 ### .NET / C#
 
@@ -116,8 +114,6 @@ project-root/
 ```
 
 **Convention**: Projects are subdirectories of root, not under `src/`. Solution file (`.sln`) stays at root.
-
-**慣例**: 專案為根目錄的子目錄，不放在 `src/` 下。Solution 檔案 (`.sln`) 放在根目錄。
 
 ---
 
@@ -204,7 +200,7 @@ project-root/
 
 ---
 
-## Monorepo Structure | Monorepo 結構
+## Monorepo Structure
 
 For projects with multiple packages/applications:
 
@@ -226,9 +222,9 @@ project-root/
 
 ---
 
-## IDE and Editor Artifacts | IDE 與編輯器產生檔案
+## IDE and Editor Artifacts
 
-### Common Artifacts to Gitignore | 應加入 .gitignore 的常見檔案
+### Common Artifacts to Gitignore
 
 ```gitignore
 # IDE - JetBrains (IntelliJ, Rider, WebStorm)
@@ -258,7 +254,7 @@ Thumbs.db
 desktop.ini
 ```
 
-### Detecting Uncommitted Artifacts | 偵測異常檔案
+### Detecting Uncommitted Artifacts
 
 Before committing, verify no IDE artifacts are tracked:
 
@@ -276,9 +272,9 @@ rm -rf '${workspaceFolder}'
 
 ---
 
-## Anti-Patterns | 反模式
+## Anti-Patterns
 
-### ❌ Avoid These Patterns | 避免以下模式
+### ❌ Avoid These Patterns
 
 1. **Nested src directories without purpose**
    ```
@@ -314,7 +310,7 @@ rm -rf '${workspaceFolder}'
 
 ---
 
-## Verification Checklist | 驗證檢查清單
+## Verification Checklist
 
 Before committing, verify:
 
@@ -327,14 +323,14 @@ Before committing, verify:
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Documentation Structure Standard](documentation-structure.md) - 文件結構標準
-- [Code Check-in Standards](checkin-standards.md) - 程式碼簽入標準
+- [Documentation Structure Standard](documentation-structure.md)
+- [Code Check-in Standards](checkin-standards.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -343,7 +339,7 @@ Before committing, verify:
 
 ---
 
-## References | 參考資料
+## References
 
 - [.NET Project Structure](https://docs.microsoft.com/en-us/dotnet/core/porting/project-structure)
 - [Node.js Project Structure Best Practices](https://github.com/goldbergyoni/nodebestpractices)
@@ -353,8 +349,6 @@ Before committing, verify:
 
 ---
 
-## License | 授權
+## License
 
 This standard is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

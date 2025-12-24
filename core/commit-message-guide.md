@@ -1,22 +1,20 @@
 # Commit Message Guide
-# Commit 訊息規範指南
+
+> **Language**: English | [繁體中文](../locales/zh-TW/core/commit-message-guide.md)
 
 **Version**: 1.2.3
 **Last Updated**: 2025-12-24
 **Applicability**: All projects using Git version control
-**適用範圍**: 所有使用 Git 版本控制的專案
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 Standardized commit messages improve code review efficiency, facilitate automated changelog generation, and make project history searchable and understandable.
 
-標準化的 commit 訊息提升程式碼審查效率、促進自動化變更日誌生成，並使專案歷史可搜尋、可理解。
-
 ---
 
-## Basic Format | 基本格式
+## Basic Format
 
 ```
 <type>(<scope>): <subject>
@@ -26,7 +24,7 @@ Standardized commit messages improve code review efficiency, facilitate automate
 <footer>
 ```
 
-### Components | 組成元素
+### Components
 
 | Component   | Required    | Description                        |
 | ----------- | ----------- | ---------------------------------- |
@@ -38,73 +36,65 @@ Standardized commit messages improve code review efficiency, facilitate automate
 
 ---
 
-## Type Classification | 類型分類
+## Type Classification
 
 **PROJECT MUST CHOOSE ONE LANGUAGE** for types and use it consistently.
 
-**專案必須選擇一種語言**用於類型並保持一致使用。
-
-### Option A: English (International) | 英文（國際標準）
+### Option A: English (International)
 
 Use English types for international teams and maximum tool compatibility.
 
-使用英文類型，適合國際團隊及最佳工具相容性。
+| Type         | When to Use                                   |
+| ------------ | --------------------------------------------- |
+| `feat`     | New feature                                   |
+| `fix`      | Bug fix                                       |
+| `refactor` | Code refactoring (no functional change)       |
+| `docs`     | Documentation only                            |
+| `style`    | Formatting, whitespace (no code logic change) |
+| `test`     | Adding or updating tests                      |
+| `perf`     | Performance improvement                       |
+| `build`    | Build system or dependencies                  |
+| `ci`       | CI/CD pipeline changes                        |
+| `chore`    | Maintenance tasks                             |
+| `revert`   | Revert previous commit                        |
+| `security` | Security vulnerability fix                    |
 
-| Type         | When to Use                                   | 使用時機                   |
-| ------------ | --------------------------------------------- | -------------------------- |
-| `feat`     | New feature                                   | 新功能                     |
-| `fix`      | Bug fix                                       | Bug 修復                   |
-| `refactor` | Code refactoring (no functional change)       | 重構（無功能變更）         |
-| `docs`     | Documentation only                            | 僅文件更新                 |
-| `style`    | Formatting, whitespace (no code logic change) | 格式化、空白（無邏輯變更） |
-| `test`     | Adding or updating tests                      | 新增或更新測試             |
-| `perf`     | Performance improvement                       | 效能改進                   |
-| `build`    | Build system or dependencies                  | 建置系統或依賴             |
-| `ci`       | CI/CD pipeline changes                        | CI/CD 管道變更             |
-| `chore`    | Maintenance tasks                             | 維護任務                   |
-| `revert`   | Revert previous commit                        | 回退先前提交               |
-| `security` | Security vulnerability fix                    | 安全漏洞修復               |
-
-### Option B: Traditional Chinese (Taiwanese Teams) | 繁體中文（台灣團隊適用）
+### Option B: Traditional Chinese (Taiwanese Teams)
 
 Use Traditional Chinese types for local teams preferring native language commits.
 
-使用繁體中文類型，適合偏好母語提交的本地團隊。
+| Type   | When to Use          | English Equivalent |
+| ------ | -------------------- | ------------------ |
+| `新增` | New feature          | feat               |
+| `修正` | Bug fix              | fix                |
+| `重構` | Refactoring          | refactor           |
+| `文件` | Documentation only   | docs               |
+| `樣式` | Formatting only      | style              |
+| `測試` | Adding/updating tests | test              |
+| `效能` | Performance          | perf               |
+| `建置` | Build system         | build              |
+| `整合` | CI/CD changes        | ci                 |
+| `維護` | Maintenance          | chore              |
+| `回退` | Revert commit        | revert             |
+| `安全` | Security fix         | security           |
 
-| 類型     | 使用時機             | English Equivalent |
-| -------- | -------------------- | ------------------ |
-| `新增` | 新功能               | feat               |
-| `修正` | Bug 修復             | fix                |
-| `重構` | 重構（無功能變更）   | refactor           |
-| `文件` | 僅文件更新           | docs               |
-| `樣式` | 格式化（無邏輯變更） | style              |
-| `測試` | 新增或更新測試       | test               |
-| `效能` | 效能改進             | perf               |
-| `建置` | 建置系統或依賴       | build              |
-| `整合` | CI/CD 管道變更       | ci                 |
-| `維護` | 維護任務             | chore              |
-| `回退` | 回退先前提交         | revert             |
-| `安全` | 安全漏洞修復         | security           |
-
-### Option C: Bilingual Mode (Recommended) | 雙語對照模式（推薦）
+### Option C: Bilingual Mode (Recommended)
 
 Use English `type` and `scope` for tool compatibility, with bilingual subject/body/footer.
 
-使用英文 `type` 和 `scope` 以確保工具相容性，subject/body/footer 採用雙語對照。
-
-**Format | 格式**:
+**Format**:
 
 ```
-<type>(<scope>): <English subject>. <中文主旨>。
+<type>(<scope>): <English subject>. <Chinese subject>.
 
 <English body>
 
-<中文主體>
+<Chinese body>
 
 <footer>
 ```
 
-**Example | 範例**:
+**Example**:
 
 ```
 feat(auth): Add OAuth2 Google login support. 新增 OAuth2 Google 登入支援。
@@ -124,85 +114,59 @@ Implement Google OAuth2 authentication flow for user login.
 Closes #123
 ```
 
-### Language Selection Guide | 語言選擇指南
+### Language Selection Guide
 
 Use this guide to choose the appropriate commit message language for your project:
 
-使用此指南為您的專案選擇適當的 commit 訊息語言：
-
-| Factor | English | 繁體中文 | Bilingual 雙語 |
-|--------|---------|---------|----------------|
+| Factor | English | Traditional Chinese | Bilingual |
+|--------|---------|---------------------|-----------|
 | **Team composition** | International/mixed | Local (Taiwan) | Mixed with local focus |
 | **Tool compatibility** | ✅ Best | ⚠️ Limited | ✅ Good |
 | **Changelog automation** | ✅ Full support | ⚠️ Custom config | ✅ Supported |
 | **Onboarding** | Neutral | Easier for locals | Both benefit |
 | **Open source** | ✅ Recommended | ❌ Not recommended | ✅ Good choice |
 
-| 因素 | English | 繁體中文 | 雙語對照 |
-|------|---------|---------|----------|
-| **團隊組成** | 國際/混合 | 本地（台灣） | 混合但以本地為主 |
-| **工具相容性** | ✅ 最佳 | ⚠️ 有限 | ✅ 良好 |
-| **Changelog 自動化** | ✅ 完整支援 | ⚠️ 需自訂設定 | ✅ 支援 |
-| **新人上手** | 中立 | 本地成員較易上手 | 兩者皆受益 |
-| **開源專案** | ✅ 建議 | ❌ 不建議 | ✅ 好選擇 |
-
-**Quick Selection | 快速選擇**:
+**Quick Selection**:
 - **Open source project** → English (Option A)
-- **開源專案** → 英文（選項 A）
 - **Local team, internal project** → Traditional Chinese (Option B)
-- **本地團隊、內部專案** → 繁體中文（選項 B）
 - **Local team with international collaboration** → Bilingual (Option C)
-- **本地團隊但有國際協作** → 雙語對照（選項 C）
 
-**Important | 重要**: Once chosen, **use consistently** across the entire project. Do not mix languages.
-
-**重要**：一旦選定，請在整個專案中**一致使用**。勿混用語言。
+**Important**: Once chosen, **use consistently** across the entire project. Do not mix languages.
 
 ---
 
 **Project Decision Point**: Document your choice in `CONTRIBUTING.md` (choose ONE):
 
-**專案決策點**: 在 `CONTRIBUTING.md` 中記錄你的選擇（選擇其一）：
-
 ```markdown
 ## Commit Message Language
 
 <!-- Choose ONE of the following options: -->
-<!-- 選擇以下其中一個選項： -->
 
 <!-- Option A: English -->
 This project uses **English** commit types (feat, fix, refactor, etc.)
-本專案使用**英文** commit 類型（feat, fix, refactor 等）
 
 <!-- Option B: Traditional Chinese -->
 This project uses **Traditional Chinese** commit types (新增, 修正, 重構, etc.)
-本專案使用**繁體中文** commit 類型（新增、修正、重構等）
 
 <!-- Option C: Bilingual Mode -->
 This project uses **Bilingual Mode** with English types/scopes and bilingual subject/body.
-本專案使用**雙語對照模式**，type/scope 使用英文，subject/body 採用雙語對照。
 ```
 
 ---
 
-## Scope Guidelines | 範圍指引
+## Scope Guidelines
 
 Scope indicates which part of the codebase is affected. Use short, recognizable names.
 
-範圍指出程式碼庫的哪個部分受影響。使用簡短、可識別的名稱。
-
-### Naming Rules | 命名規則
+### Naming Rules
 
 1. **Use lowercase**: All scopes should be lowercase (`auth`, not `Auth`)
-   **使用小寫**: 所有範圍應使用小寫（`auth`，而非 `Auth`）
 2. **Use hyphen for multi-word**: Separate words with hyphens (`user-profile`, not `userProfile`)
-   **多字詞用連字號**: 使用連字號分隔多字詞（`user-profile`，而非 `userProfile`）
 3. **Keep it short**: 1-2 words maximum
-   **保持簡短**: 最多 1-2 個單詞
 
-### Common Scopes | 常見範圍
+### Common Scopes
 
-**By Layer/Module | 依層級/模組**:
+**By Layer/Module**:
 
 - `api`: API layer
 - `ui`: User interface
@@ -211,21 +175,21 @@ Scope indicates which part of the codebase is affected. Use short, recognizable 
 - `config`: Configuration
 - `middleware`: Middleware layer
 
-**By Feature | 依功能**:
+**By Feature**:
 
 - `login`: Login feature
 - `payment`: Payment processing
 - `notification`: Notifications
 - `search`: Search functionality
 
-**By File Type | 依檔案類型**:
+**By File Type**:
 
 - `tests`: Test files
 - `docs`: Documentation files
 - `build`: Build scripts
 - `deps`: Dependencies
 
-**Special Scopes | 特殊範圍**:
+**Special Scopes**:
 
 - `*`: Multiple scopes affected
 - (no scope): Global changes
@@ -239,22 +203,17 @@ database, config, middleware, api, tests, docs
 
 ---
 
-## Subject Line | 主旨行
+## Subject Line
 
-### Rules | 規則
+### Rules
 
 1. **Length**: ≤72 characters (50 ideal)
-   **長度**: ≤72 字元（50 為理想）
 2. **Tense**: Use imperative mood ("Add feature" not "Added feature")
-   **時態**: 使用祈使語氣（「Add feature」而非「Added feature」）
 3. **Capitalization**: First letter capitalized
-   **大寫**: 首字母大寫
 4. **No period**: Don't end with a period (Exception: Bilingual Mode uses period as separator)
-   **無句點**: 結尾不加句點（例外：雙語模式使用句點作為分隔符）
 5. **Language**: Follow project policy (English or native language)
-   **語言**: 遵循專案政策（英文或母語）
 
-### Good Examples | 良好範例
+### Good Examples
 
 ```
 feat(auth): Add OAuth2 Google login support
@@ -266,19 +225,7 @@ perf(search): Implement index for full-text search
 build(deps): Upgrade Express to 4.18.2
 ```
 
-### Traditional Chinese Examples | 繁體中文範例
-
-```
-新增(認證): 實作 OAuth2 Google 登入支援
-修正(API): 解決使用者 session 快取記憶體洩漏
-重構(資料庫): 提取查詢建構器為獨立類別
-文件(README): 更新 Node 20 安裝說明
-測試(付款): 新增退款流程單元測試
-效能(搜尋): 實作全文檢索索引
-建置(依賴): 升級 Express 至 4.18.2
-```
-
-### Bad Examples | 不良範例
+### Bad Examples
 
 ```
 ❌ "fixed bug" - Too vague, no scope
@@ -290,26 +237,22 @@ build(deps): Upgrade Express to 4.18.2
 
 ---
 
-## Body | 主體內容
+## Body
 
 Use the body to explain **WHY** the change was made, not **WHAT** was changed (the code shows what).
 
-使用主體解釋**為何**做此變更，而非**變更了什麼**（程式碼已顯示變更內容）。
-
-### Structure | 結構
+### Structure
 
 - Use bullet points for multiple changes
 - Wrap lines at 72 characters
 - Separate from subject with a blank line
 - Provide context and rationale
 
-### Body Template | 主體範本
+### Body Template
 
 Use contextual headers based on the change type. Common patterns:
 
-根據變更類型使用適當的標題。常見模式：
-
-**For features | 新功能**:
+**For features**:
 
 ```
 Why this feature is needed:
@@ -317,7 +260,7 @@ What this implements:
 Technical notes:
 ```
 
-**For bug fixes | 修復**:
+**For bug fixes**:
 
 ```
 Why this occurred:
@@ -325,7 +268,7 @@ What this fix does:
 Testing:
 ```
 
-**For refactoring | 重構**:
+**For refactoring**:
 
 ```
 Why this refactoring:
@@ -333,7 +276,7 @@ What this changes:
 Migration:
 ```
 
-**Generic template | 通用範本**:
+**Generic template**:
 
 ```
 <Subject line>
@@ -352,7 +295,7 @@ Notes:
 - Context or considerations
 ```
 
-### Examples | 範例
+### Examples
 
 #### Example 1: Feature with Context
 
@@ -396,33 +339,11 @@ Testing:
 - Verified with load test (100 concurrent updates)
 ```
 
-#### Example 3: Traditional Chinese Body
-
-```
-新增(通知): 實作電子郵件通知功能
-
-為何需要此變更:
-- 使用者反饋希望收到訂單狀態更新通知
-- 減少客服查詢訂單狀態的工作量
-- 提升使用者體驗與滿意度
-
-此變更做了什麼:
-- 整合 SendGrid API 發送電子郵件
-- 新增 EmailTemplate 模組管理郵件範本
-- 實作訂單狀態變更時觸發通知
-- 新增使用者偏好設定以控制通知開關
-
-技術備註:
-- 使用佇列機制避免阻塞主流程
-- 郵件發送失敗會重試 3 次
-- 範本支援多語言（繁中、英文）
-```
-
 ---
 
-## Footer | 頁尾
+## Footer
 
-### Issue References | Issue 引用
+### Issue References
 
 Link commits to issue tracker:
 
@@ -441,11 +362,9 @@ See also #999
 
 ---
 
-### Breaking Changes | 破壞性變更
+### Breaking Changes
 
 **CRITICAL**: Always document breaking changes in footer.
-
-**重要**: 永遠在頁尾記錄破壞性變更。
 
 **Format**:
 
@@ -504,7 +423,7 @@ Closes #234
 
 ---
 
-## Complete Examples | 完整範例
+## Complete Examples
 
 ### Example 1: Simple Fix (English)
 
@@ -554,7 +473,7 @@ Refs #234 (related compliance requirement)
 
 ---
 
-### Example 3: Bilingual Mode - Simple Fix | 雙語對照模式 - 簡單修正
+### Example 3: Bilingual Mode - Simple Fix
 
 ```
 
@@ -570,7 +489,7 @@ Fixes #445
 
 ---
 
-### Example 4: Bilingual Mode - Feature | 雙語對照模式 - 新功能
+### Example 4: Bilingual Mode - Feature
 
 ```
 
@@ -619,7 +538,7 @@ Refs #234
 
 ---
 
-### Example 5: Bilingual Mode - Bug Fix with Root Cause | 雙語對照模式 - 含根因分析的 Bug 修正
+### Example 5: Bilingual Mode - Bug Fix with Root Cause
 
 ```
 
@@ -709,7 +628,7 @@ Closes #890
 
 ---
 
-### Example 7: Bilingual Mode - Breaking Change | 雙語對照模式 - 破壞性變更
+### Example 7: Bilingual Mode - Breaking Change
 
 ```
 
@@ -767,7 +686,7 @@ Closes #890
 
 ---
 
-## Anti-Patterns | 反模式
+## Anti-Patterns
 
 ### ❌ Anti-Pattern 1: Vague Messages
 
@@ -848,13 +767,13 @@ refactor(database): migrate to PostgreSQL
 
 **Problem**: Breaking change with no migration guide or context.
 
-**✅ Fix**: Add body with context and migration guide (see Example 3 above).
+**✅ Fix**: Add body with context and migration guide (see Example 6 above).
 
 ---
 
-## Automation and Tooling | 自動化與工具
+## Automation and Tooling
 
-### Commit Message Linters | Commit 訊息檢查工具
+### Commit Message Linters
 
 **commitlint** (Node.js):
 ```bash
@@ -876,7 +795,7 @@ npx commitlint --edit $1
 
 ---
 
-### Changelog Generation | 變更日誌生成
+### Changelog Generation
 
 **standard-version** (Node.js):
 
@@ -902,7 +821,7 @@ git-chglog --output CHANGELOG.md
 
 ---
 
-## Project Configuration Template | 專案設定範本
+## Project Configuration Template
 
 Add to `CONTRIBUTING.md`:
 
@@ -910,19 +829,19 @@ Add to `CONTRIBUTING.md`:
 ## Commit Message Format
 
 ### Type Language
-This project uses **[English / Traditional Chinese / Bilingual 雙語對照]** commit types.
+This project uses **[English / Traditional Chinese / Bilingual]** commit types.
 
 ### Allowed Types
-- feat / 新增: New features
-- fix / 修正: Bug fixes
-- refactor / 重構: Code refactoring
-- docs / 文件: Documentation
-- test / 測試: Tests
-- perf / 效能: Performance improvements
-- build / 建置: Build system
-- ci / 整合: CI/CD changes
-- chore / 維護: Maintenance
-- security / 安全: Security fixes
+- feat: New features
+- fix: Bug fixes
+- refactor: Code refactoring
+- docs: Documentation
+- test: Tests
+- perf: Performance improvements
+- build: Build system
+- ci: CI/CD changes
+- chore: Maintenance
+- security: Security fixes
 
 ### Allowed Scopes
 - auth: Authentication module
@@ -932,7 +851,7 @@ This project uses **[English / Traditional Chinese / Bilingual 雙語對照]** c
 - [add your project-specific scopes]
 
 ### Subject Language
-Commit subject lines should be in **[English/繁體中文/Bilingual 雙語]**.
+Commit subject lines should be in **[English/繁體中文/Bilingual]**.
 
 ### Examples
 
@@ -944,16 +863,7 @@ fix(api): Resolve memory leak
 
 ```
 
-**Traditional Chinese**:
-```
-
-新增(認證): 實作 OAuth2 支援
-修正(API): 解決記憶體洩漏
-
-```
-
 **Bilingual Mode** (English first, Chinese follows):
-**雙語模式**（英文在前，中文對照）:
 ```
 
 feat(auth): Add OAuth2 support. 新增 OAuth2 支援。
@@ -970,29 +880,29 @@ Closes #123
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Git Workflow Standards](git-workflow.md) - Git 工作流程標準
-- [Code Check-in Standards](checkin-standards.md) - 程式碼簽入標準
-- [Changelog Standards](changelog-standards.md) - 變更日誌標準
-- [Versioning Standard](versioning.md) - 語義化版本標準
+- [Git Workflow Standards](git-workflow.md)
+- [Code Check-in Standards](checkin-standards.md)
+- [Changelog Standards](changelog-standards.md)
+- [Versioning Standard](versioning.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date       | Changes                                                                                                                                                                                                                                              |
 | ------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1.2.3   | 2025-12-24 | Added: Related Standards section |
-| 1.2.2   | 2025-12-16 | Added: Language selection guide with decision matrix and quick selection tips 新增語言選擇指南，含決策矩陣和快速選擇提示 |
-| 1.2.1   | 2025-12-09 | Improve Option A/B/C format consistency: unify title style, add description text 改善 Option A/B/C 格式一致性：統一標題風格、新增描述文字 |
-| 1.2.0   | 2025-12-05 | Fix Option B type mapping (chore→維護); Add security type; Add scope naming rules; Clarify bilingual period exception; Improve templates 修正 Option B 類型對照（chore→維護）；新增 security 類型；新增 scope 命名規則；釐清雙語句點例外；改善範本 |
-| 1.1.0   | 2025-12-05 | Add Bilingual Mode (Option C) with examples 新增雙語對照模式（選項 C）與範例                                                                                                                                                                         |
+| 1.2.2   | 2025-12-16 | Added: Language selection guide with decision matrix and quick selection tips |
+| 1.2.1   | 2025-12-09 | Improve Option A/B/C format consistency: unify title style, add description text |
+| 1.2.0   | 2025-12-05 | Fix Option B type mapping (chore→維護); Add security type; Add scope naming rules; Clarify bilingual period exception; Improve templates |
+| 1.1.0   | 2025-12-05 | Add Bilingual Mode (Option C) with examples |
 | 1.0.0   | 2025-11-12 | Initial guide published                                                                                                                                                                                                                              |
 
 ---
 
-## References | 參考資料
+## References
 
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [Angular Commit Guidelines](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#commit)
@@ -1000,8 +910,6 @@ Closes #123
 
 ---
 
-## License | 授權
+## License
 
 This guide is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本指南以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

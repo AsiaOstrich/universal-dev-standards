@@ -1,22 +1,20 @@
 # Git Workflow Strategies
-# Git 工作流程策略
+
+> **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/git-workflow-guide/git-workflow.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document provides detailed guidelines for Git workflow strategies (GitFlow, GitHub Flow, Trunk-Based).
 
-本文件提供 Git 工作流程策略（GitFlow、GitHub Flow、Trunk-Based）的詳細指南。
-
 ---
 
-## Strategy Selection Matrix | 策略選擇矩陣
+## Strategy Selection Matrix
 
 | Factor | GitFlow | GitHub Flow | Trunk-Based |
 |--------|---------|-------------|-------------|
@@ -237,7 +235,7 @@ git branch -d feature/add-validation
 
 ---
 
-## Merge Strategies Comparison | 合併策略比較
+## Merge Strategies Comparison
 
 ### Merge Commit (`--no-ff`)
 
@@ -292,15 +290,15 @@ git merge --ff-only feature/user-auth
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Git Workflow](../../../core/git-workflow.md) - Git 工作流程標準
-- [Branch Naming Reference](./branch-naming.md) - 分支命名參考
-- [Commit Message Guide](../../../core/commit-message-guide.md) - Commit 訊息指南
+- [Git Workflow](../../../core/git-workflow.md)
+- [Branch Naming Reference](./branch-naming.md)
+- [Commit Message Guide](../../../core/commit-message-guide.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -308,10 +306,8 @@ git merge --ff-only feature/user-auth
 
 ---
 
-## License | 授權
+## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

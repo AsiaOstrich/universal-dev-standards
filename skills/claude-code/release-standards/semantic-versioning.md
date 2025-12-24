@@ -1,18 +1,16 @@
 # Semantic Versioning Guide
-# 語意版本指南
+
+> **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/release-standards/semantic-versioning.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document provides guidelines for semantic versioning (SemVer) in software releases.
-
-本文件提供軟體發布的語意版本控制 (SemVer) 指南。
 
 ---
 
@@ -222,14 +220,14 @@ version-1.0.0   ❌ Avoid (too verbose)
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Versioning Standards](../../../core/versioning.md) - 版本控制標準
-- [Changelog Format Guide](./changelog-format.md) - 變更日誌格式指南
+- [Versioning Standards](../../../core/versioning.md)
+- [Changelog Format Guide](./changelog-format.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -237,10 +235,8 @@ version-1.0.0   ❌ Avoid (too verbose)
 
 ---
 
-## License | 授權
+## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

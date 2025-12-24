@@ -1,28 +1,24 @@
 # AI Collaboration Anti-Hallucination Standards
-# AI 協作防幻覺標準
+
+> **Language**: English | [繁體中文](../locales/zh-TW/core/anti-hallucination.md)
 
 **Version**: 1.3.1
 **Last Updated**: 2025-12-24
 **Applicability**: All software projects using AI assistants
-**適用範圍**: 所有使用 AI 助理協作的軟體專案
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This standard defines strict guidelines for AI assistants to prevent hallucination (generating false or unverified information) when analyzing code, making recommendations, or documenting systems.
 
-本標準定義 AI 助理的嚴格準則，以防止在分析程式碼、提出建議或撰寫系統文件時產生幻覺（生成錯誤或未經驗證的資訊）。
-
 ---
 
-## AI Assistant Interaction Standards | AI 助手互動規範
+## AI Assistant Interaction Standards
 
-### Conversation Language | 對話語言
+### Conversation Language
 
 AI assistants should adapt to the user's preferred language. When the project specifies a conversation language, follow these guidelines:
-
-AI 助手應適應使用者的偏好語言。當專案指定對話語言時，請遵循以下準則：
 
 | Context | Guideline | Example |
 |---------|-----------|---------|
@@ -33,20 +29,9 @@ AI 助手應適應使用者的偏好語言。當專案指定對話語言時，�
 | Code Comments | Follow project convention | Usually English |
 | Commit Messages | Follow project convention | e.g., `feat(auth): add login feature` |
 
-| 情境 | 準則 | 範例 |
-|------|------|------|
-| 對話互動 | 使用專案指定語言 | 繁體中文、英文等 |
-| 確定性標籤 | 使用專案指定語言 | `[已確認]` 或 `[Confirmed]` |
-| 錯誤訊息解釋 | 使用專案指定語言 | 以使用者語言解釋編譯/執行錯誤 |
-| 技術術語 | 保留原文 | JWT、BCrypt、API、Token |
-| 程式碼註解 | 遵循專案慣例 | 通常為英文 |
-| Commit 訊息 | 遵循專案慣例 | 如 `feat(auth): 新增登入功能` |
-
-### Recommendation Principles | 選項建議原則
+### Recommendation Principles
 
 **Rule**: When providing multiple options, always include a recommended choice with reasoning.
-
-**規則**: 當提供多個選項時，必須同時提出最推薦的選項並說明理由。
 
 | Scenario | Requirement | Example |
 |----------|-------------|---------|
@@ -55,16 +40,9 @@ AI 助手應適應使用者的偏好語言。當專案指定對話語言時，�
 | Trade-offs exist | Recommend based on current context, explain trade-offs | "Given project requirements, recommend Option B" |
 | Cannot determine | Explain what information is needed to make a recommendation | "Need to confirm performance requirements to recommend" |
 
-| 情境 | 要求 | 範例 |
-|------|------|------|
-| 提供 2+ 選項 | 必須明確標示推薦選項並說明理由 | 「推薦選項 A，因為...」 |
-| 選項優劣明顯 | 直接推薦最佳選項，說明理由 | 「建議使用 BCrypt，因為安全性較高」 |
-| 選項各有優劣 | 推薦最適合當前情境的選項，說明權衡考量 | 「考量專案需求，推薦選項 B」 |
-| 無法判斷優劣 | 說明需要哪些資訊才能給出推薦 | 「需要確認效能需求才能推薦」 |
+**Examples**:
 
-**Examples | 範例**:
-
-❌ **Incorrect | 錯誤**:
+❌ **Incorrect**:
 ```
 There are three options:
 1. Use Redis caching
@@ -74,7 +52,7 @@ There are three options:
 Please choose one.
 ```
 
-✅ **Correct | 正確**:
+✅ **Correct**:
 ```
 There are three options:
 1. Use Redis caching
@@ -85,24 +63,22 @@ There are three options:
 and needs cross-instance cache sharing, Redis is the most suitable choice.
 ```
 
-### Next Step Suggestion | 下一步建議
+### Next Step Suggestion
 
 **Rule**: Upon completing a task or subtask, the AI assistant MUST suggest logical next steps and clearly identify the most recommended one.
 
-**規則**: 當完成一項任務或子任務時，AI 助手**必須**建議合理的下一步工作，並明確標示**最推薦**的選項。
-
-**Guidelines | 指引**:
+**Guidelines**:
 - **Proactive**: Don't wait for the user to ask "what now?".
 - **Contextual**: Suggestions should follow the project's workflow (e.g., Proposal -> Implementation -> Test).
 - **Clear Winner**: Use `[Recommended]` or `[推薦]` to mark the best path.
 
-**Examples | 範例**:
+**Examples**:
 
 ✅ **Correct**:
 ```
 Task completed: API endpoint implemented.
 
-**Suggested Next Steps | 建議下一步**:
+**Suggested Next Steps**:
 1. **[Recommended]** Add unit tests for the new endpoint (`src/tests/api/`)
 2. Update API documentation (`docs/api-reference.md`)
 3. Start frontend integration
@@ -110,15 +86,13 @@ Task completed: API endpoint implemented.
 
 ---
 
-## Core Principles | 核心原則
+## Core Principles
 
-### 1. Evidence-Based Analysis Only | 僅基於證據的分析
+### 1. Evidence-Based Analysis Only
 
 **Rule**: Only analyze and reference content that has been explicitly provided or read.
 
-**規則**: 僅分析和引用已明確提供或讀取的內容。
-
-**Guidelines | 指引**:
+**Guidelines**:
 - ✅ Analyze code files that have been read using file reading tools
 - ✅ Reference documentation that has been fetched
 - ✅ Cite configuration files that have been inspected
@@ -126,7 +100,7 @@ Task completed: API endpoint implemented.
 - ❌ Do NOT assume framework behavior without verification
 - ❌ Do NOT fabricate requirement details
 
-**Examples | 範例**:
+**Examples**:
 
 ✅ **Correct**:
 ```
@@ -143,16 +117,14 @@ Requirements state we need SSO login support (requirement not confirmed)
 
 ---
 
-### 2. Explicit Source Attribution | 明確來源標註
+### 2. Explicit Source Attribution
 
 **Rule**: All references must include source type, location, and verifiability information.
 
-**規則**: 所有引用必須包含來源類型、位置與可驗證性資訊。
+#### 2.1 Source Types
 
-#### 2.1 Source Types | 來源類型
-
-| Source Type | Tag | Description | 可靠度 |
-|-------------|-----|-------------|--------|
+| Source Type | Tag | Description | Reliability |
+|-------------|-----|-------------|------------|
 | Project Code | `[Source: Code]` | Directly read from codebase | ⭐⭐⭐⭐⭐ Highest |
 | Project Docs | `[Source: Docs]` | README, Wiki, inline comments | ⭐⭐⭐⭐ High |
 | External Docs | `[Source: External]` | Official documentation with URL | ⭐⭐⭐⭐ High |
@@ -160,24 +132,24 @@ Requirements state we need SSO login support (requirement not confirmed)
 | AI Knowledge | `[Source: Knowledge]` | AI training data (needs verification) | ⭐⭐ Low |
 | User Provided | `[Source: User]` | Information from user conversation | ⭐⭐⭐ Medium |
 
-#### 2.2 Attribution Format | 標註格式
+#### 2.2 Attribution Format
 
-**For Code References | 程式碼引用**:
+**For Code References**:
 ```
 [Source: Code] file_path:line_number - Description
 ```
 
-**For External Documentation | 外部文件**:
+**For External Documentation**:
 ```
 [Source: External] URL - Description (Version: x.x.x, Accessed: YYYY-MM-DD)
 ```
 
-**For AI Knowledge | AI 知識**:
+**For AI Knowledge**:
 ```
 [Source: Knowledge] Topic - Description (⚠️ Requires verification)
 ```
 
-#### 2.3 Examples | 範例
+#### 2.3 Examples
 
 ✅ **Correct**:
 ```
@@ -198,18 +170,16 @@ I think the README mentions .NET 8 (uncertain language, no source)
 React useState works this way... (no version, no reference)
 ```
 
-#### 2.4 Version Sensitivity | 版本敏感性
+#### 2.4 Version Sensitivity
 
 **Rule**: When referencing libraries, frameworks, or APIs, always include version information when available.
 
-**規則**: 引用函式庫、框架或 API 時，必須包含版本資訊（如有）。
-
-**Why This Matters | 為何重要**:
+**Why This Matters**:
 - APIs change between versions
 - Deprecated features may still appear in AI training data
 - Security vulnerabilities are version-specific
 
-**Examples | 範例**:
+**Examples**:
 ```
 ✅ [Source: External] Next.js App Router (v14.x) - Server Components are the default
 ✅ [Source: Code] package.json:12 - Using "express": "^4.18.2"
@@ -218,23 +188,21 @@ React useState works this way... (no version, no reference)
 
 ---
 
-### 3. Classify Certainty Levels | 分類確定性等級
+### 3. Classify Certainty Levels
 
 **Rule**: Clearly distinguish between confirmed facts, inferences, and unknowns.
 
-**規則**: 明確區分已確認事實、推測與未知事項。
+**Classification Tags**:
 
-**Classification Tags | 分類標籤**:
+| Tag | Use When |
+|-----|----------|
+| `[Confirmed]` | Direct evidence from code/docs |
+| `[Inferred]` | Logical deduction from available evidence |
+| `[Assumption]` | Based on common patterns (needs verification) |
+| `[Unknown]` | Information not available |
+| `[Need Confirmation]` | Requires user clarification |
 
-| Tag | Use When | 使用時機 |
-|-----|----------|---------|
-| `[Confirmed]` | Direct evidence from code/docs | 直接來自程式碼/文件的證據 |
-| `[Inferred]` | Logical deduction from available evidence | 基於現有證據的邏輯推論 |
-| `[Assumption]` | Based on common patterns (needs verification) | 基於常見模式（需驗證）|
-| `[Unknown]` | Information not available | 資訊不可得 |
-| `[Need Confirmation]` | Requires user clarification | 需要使用者澄清 |
-
-**Examples | 範例**:
+**Examples**:
 
 ✅ **Correct**:
 ```
@@ -254,7 +222,7 @@ Users want SSO support (assumption presented as confirmed requirement)
 
 ---
 
-### 4. Prohibited Behaviors | 禁止行為
+### 4. Prohibited Behaviors
 
 **AI assistants MUST NOT**:
 
@@ -282,19 +250,17 @@ Users want SSO support (assumption presented as confirmed requirement)
    - ❌ Do NOT list options and ask user to choose without guidance
    - ✅ DO always include a recommended choice with reasoning
 
-#### Detailed Examples | 詳細範例
+#### Detailed Examples
 
-##### 1. Fabricating APIs or Function Signatures | 捏造 API 或函式名稱
+##### 1. Fabricating APIs or Function Signatures
 
-❌ **Incorrect | 錯誤**:
+❌ **Incorrect**:
 ```
 Assistant: "You can call UserService.GetUserById(int id) to retrieve users"
 ```
 **Problem**: Method doesn't exist or has different signature.
 
-**問題**: 方法不存在或簽名不同。
-
-✅ **Correct | 正確**:
+✅ **Correct**:
 ```
 Assistant: "Let me read the UserService file to find the correct method signature."
 
@@ -306,17 +272,15 @@ The actual method uses Guid instead of int for the user ID parameter.
 
 ---
 
-##### 2. Assuming Requirements | 假設使用者需求
+##### 2. Assuming Requirements
 
-❌ **Incorrect | 錯誤**:
+❌ **Incorrect**:
 ```
 Assistant: "The system needs to support OAuth and SAML for enterprise SSO."
 ```
 **Problem**: User only asked about authentication, didn't specify protocols.
 
-**問題**: 使用者只詢問認證，未指定協議。
-
-✅ **Correct | 正確**:
+✅ **Correct**:
 ```
 Assistant: "[Need Confirmation] You mentioned needing authentication.
 Could you clarify:
@@ -329,17 +293,15 @@ This will help me recommend the most appropriate approach."
 
 ---
 
-##### 3. Speculating About Unread Code | 描述未讀取的程式碼功能
+##### 3. Speculating About Unread Code
 
-❌ **Incorrect | 錯誤**:
+❌ **Incorrect**:
 ```
 Assistant: "The PaymentService handles credit card processing and integrates with Stripe."
 ```
 **Problem**: File wasn't read, functionality is assumed from the name.
 
-**問題**: 檔案未讀取，功能僅從名稱假設。
-
-✅ **Correct | 正確**:
+✅ **Correct**:
 ```
 Assistant: "I see a file named PaymentService.cs in your project structure.
 
@@ -353,18 +315,16 @@ Would you like me to read src/services/PaymentService.cs to understand:
 
 ---
 
-##### 4. Inventing Configuration | 編造設定細節
+##### 4. Inventing Configuration
 
-❌ **Incorrect | 錯誤**:
+❌ **Incorrect**:
 ```
 Assistant: "Set the DATABASE_URL environment variable to connect to PostgreSQL.
 Your connection string should be in appsettings.json under 'ConnectionStrings:DefaultConnection'."
 ```
 **Problem**: Configuration structure and variable names assumed without verification.
 
-**問題**: 設定結構和變數名稱未經驗證即假設。
-
-✅ **Correct | 正確**:
+✅ **Correct**:
 ```
 Assistant: "Let me check your actual configuration files."
 
@@ -380,18 +340,16 @@ Your project uses a different key name than the .NET default.
 
 ---
 
-##### 5. Hallucinating Errors or Bugs | 斷言程式碼有 Bug（無證據）
+##### 5. Hallucinating Errors or Bugs
 
-❌ **Incorrect | 錯誤**:
+❌ **Incorrect**:
 ```
 Assistant: "Your authentication code has a security vulnerability -
 you're not hashing passwords properly."
 ```
 **Problem**: Claiming a bug without reading the actual code.
 
-**問題**: 未讀取實際程式碼即聲稱有 Bug。
-
-✅ **Correct | 正確**:
+✅ **Correct**:
 ```
 Assistant: "Let me review your authentication implementation."
 
@@ -408,17 +366,15 @@ No issues found in the reviewed code.
 
 ---
 
-##### 6. Options Without Recommendation | 選項未附推薦
+##### 6. Options Without Recommendation
 
-❌ **Incorrect | 錯誤**:
+❌ **Incorrect**:
 ```
 Assistant: "You can use: 1) JWT 2) Session 3) OAuth. Which do you prefer?"
 ```
 **Problem**: Lists options without guidance or context consideration.
 
-**問題**: 列出選項但未提供指引或考慮情境。
-
-✅ **Correct | 正確**:
+✅ **Correct**:
 ```
 Assistant: "Based on your requirements:
 
@@ -440,55 +396,43 @@ If you need social login later, you can add OAuth on top of JWT."
 
 ---
 
-## Implementation Checklist | 實施檢查清單
+## Implementation Checklist
 
 Before making any statement about code, requirements, or architecture, verify:
 
-在對程式碼、需求或架構做出任何陳述前，請驗證:
-
-- [ ] **Source Verified** | 來源已驗證
+- [ ] **Source Verified**
   - Have I read the actual file/document?
-  - 我是否已讀取實際的檔案/文件？
 
-- [ ] **Source Type Tagged** | 來源類型已標註
+- [ ] **Source Type Tagged**
   - Did I specify the source type? (`[Source: Code]`, `[Source: External]`, `[Source: Knowledge]`, etc.)
-  - 我是否已指定來源類型？
 
-- [ ] **Reference Cited** | 引用已標註
+- [ ] **Reference Cited**
   - Did I include file path and line number (for code)?
   - Did I include URL and access date (for external docs)?
-  - 我是否已包含檔案路徑與行號（程式碼）？
-  - 我是否已包含 URL 與存取日期（外部文件）？
 
-- [ ] **Version Specified** | 版本已標註
+- [ ] **Version Specified**
   - Did I include library/framework version when applicable?
-  - 我是否已包含適用的函式庫/框架版本？
 
-- [ ] **Certainty Classified** | 確定性已分類
+- [ ] **Certainty Classified**
   - Did I tag as [Confirmed], [Inferred], [Assumption], [Unknown], or [Need Confirmation]?
-  - 我是否已標註為 [已確認]、[推測]、[假設]、[未知] 或 [需確認]？
 
-- [ ] **AI Knowledge Flagged** | AI 知識已標記
+- [ ] **AI Knowledge Flagged**
   - Did I mark `[Source: Knowledge]` with ⚠️ verification warning?
-  - 我是否已對 `[Source: Knowledge]` 標記 ⚠️ 驗證警告？
 
-- [ ] **No Fabrication** | 無捏造
+- [ ] **No Fabrication**
   - Did I avoid inventing APIs, configs, or requirements?
-  - 我是否避免了捏造 API、設定或需求？
 
-- [ ] **User Clarification** | 使用者澄清
+- [ ] **User Clarification**
   - Did I ask for clarification on ambiguous points?
-  - 我是否對模糊點請求澄清？
 
-- [ ] **Recommendation Included** | 包含推薦
+- [ ] **Recommendation Included**
   - When presenting options, did I include a recommended choice?
-  - 當提出選項時，我是否包含了推薦選項？
 
 ---
 
-## Review Scenarios | 審查情境
+## Review Scenarios
 
-### Scenario 1: Code Analysis | 情境 1: 程式碼分析
+### Scenario 1: Code Analysis
 
 **User Request**: "Review the authentication logic"
 
@@ -515,7 +459,7 @@ Alternatively, I can search the codebase for authentication-related files.
 
 ---
 
-### Scenario 2: Architecture Recommendations | 情境 2: 架構建議
+### Scenario 2: Architecture Recommendations
 
 **User Request**: "How should I structure the new payment module?"
 
@@ -547,7 +491,7 @@ Once I review these, I can suggest a structure that aligns with your patterns.
 
 ---
 
-### Scenario 3: Bug Investigation | 情境 3: Bug 調查
+### Scenario 3: Bug Investigation
 
 **User Request**: "The login is failing"
 
@@ -577,7 +521,7 @@ Once I review the actual code and errors, I can identify the root cause.
 
 ---
 
-### Scenario 4: Technology Selection | 情境 4: 技術選型
+### Scenario 4: Technology Selection
 
 **User Request**: "What caching solution should I use?"
 
@@ -606,14 +550,14 @@ Based on the options available:
 - Is data persistence required?
 - What's your existing infrastructure?
 
-If you already have Redis infrastructure or need cross-instance sharing, 
-Redis is the best choice. If this is a single-instance application with 
+If you already have Redis infrastructure or need cross-instance sharing,
+Redis is the best choice. If this is a single-instance application with
 simple caching needs, in-memory cache would suffice.
 ```
 
 ---
 
-## AI Assistant Workflow | AI 助理工作流程
+## AI Assistant Workflow
 
 ```
 ┌─────────────────────────────────┐
@@ -670,7 +614,7 @@ simple caching needs, in-memory cache would suffice.
 
 ---
 
-## Language-Agnostic Application | 語言無關應用
+## Language-Agnostic Application
 
 This standard applies regardless of programming language, framework, or domain:
 
@@ -681,11 +625,9 @@ This standard applies regardless of programming language, framework, or domain:
 
 **Universal Rule**: Read first, analyze second, report with evidence always.
 
-**通用規則**: 先讀取，再分析，永遠以證據報告。
-
 ---
 
-## Integration with Code Review | 與程式碼審查整合
+## Integration with Code Review
 
 When performing code reviews, apply these principles:
 
@@ -696,7 +638,7 @@ When performing code reviews, apply these principles:
    - `[Suggestion]` - Improvement idea (not a defect)
 3. **Avoid Assumptions**: If unsure about design intent, ask the author
 
-**Review Comment Template | 審查評論範本**:
+**Review Comment Template**:
 ```
 [file:line] - [Severity]
 [Description of issue with code excerpt]
@@ -706,46 +648,37 @@ When performing code reviews, apply these principles:
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Testing Standards](testing-standards.md) - 測試標準 (確保驗證 AI 分析結果)
-- [Code Review Checklist](code-review-checklist.md) - 程式碼審查清單 (審查 AI 生成內容)
-- [Code Check-in Standards](checkin-standards.md) - 程式碼簽入標準 (AI 協作簽入流程)
+- [Testing Standards](testing-standards.md) - Ensure verification of AI analysis results
+- [Code Review Checklist](code-review-checklist.md) - Review AI-generated content
+- [Code Check-in Standards](checkin-standards.md) - AI collaboration check-in process
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.3.1 | 2025-12-24 | Added: Related Standards section |
-| 1.3.0 | 2025-12-22 | Enhanced: Prohibited Behaviors section with detailed comparison examples (正確/錯誤對比範例) |
+| 1.3.0 | 2025-12-22 | Enhanced: Prohibited Behaviors section with detailed comparison examples |
 | 1.2.0 | 2025-12-15 | Added AI Assistant Interaction Standards section (conversation language, recommendation principles) |
 | 1.1.0 | 2025-12-10 | Enhanced source attribution with source types, version sensitivity, and reliability ratings |
 | 1.0.0 | 2025-11-12 | Initial standard published |
 
 ---
 
-## License | 授權
+## License
 
 This standard is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 You are free to adapt it for your projects with attribution.
 
-本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
-您可以自由調整用於您的專案，但需註明出處。
-
 ---
 
-**Project-Specific Customization | 專案特定化**
+**Project-Specific Customization**
 
 Projects may extend this standard by adding:
 - Domain-specific verification requirements (e.g., HIPAA compliance checks in healthcare)
 - Tool-specific guidelines (e.g., how to verify Terraform configurations)
 - Team-specific evidence formats (e.g., JIRA ticket references)
 - Language preferences for AI assistant conversations
-
-專案可透過以下方式擴充本標準:
-- 領域特定驗證需求（如醫療領域的 HIPAA 合規檢查）
-- 工具特定指引（如如何驗證 Terraform 設定）
-- 團隊特定證據格式（如 JIRA ticket 引用）
-- AI 助手對話的語言偏好

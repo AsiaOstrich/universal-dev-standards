@@ -1,71 +1,60 @@
 # Testing Standards
-# 測試標準
+
+> **Language**: English | [繁體中文](../locales/zh-TW/core/testing-standards.md)
 
 **Version**: 1.2.0
 **Last Updated**: 2025-12-19
 **Applicability**: All software projects
-**適用範圍**: 所有軟體專案
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This standard defines testing conventions and best practices to ensure software quality through systematic testing at multiple levels.
 
-本標準定義測試慣例與最佳實踐，透過多層級的系統化測試確保軟體品質。
-
 ---
 
-## Testing Pyramid | 測試金字塔
+## Testing Pyramid
 
 ```
                     ┌─────────┐
                     │   E2E   │  ← Fewer, slower, expensive
-                    │  端對端  │    較少、較慢、成本高
                    ─┴─────────┴─
                   ┌─────────────┐
                   │     ST      │  ← System Testing
-                  │   系統測試   │    整體系統驗證
                  ─┴─────────────┴─
                 ┌─────────────────┐
                 │       IT        │  ← Integration Testing
-                │     整合測試     │    模組間互動
                ─┴─────────────────┴─
               ┌─────────────────────┐
               │         UT          │  ← Unit Testing (Foundation)
-              │       單元測試       │    最多、最快、成本低
               └─────────────────────┘
 ```
 
-### Recommended Ratio | 建議比例
+### Recommended Ratio
 
 | Level | Percentage | Execution Time |
 |-------|------------|----------------|
-| UT (單元測試) | 70% | < 10 min |
-| IT (整合測試) | 20% | < 30 min |
-| ST (系統測試) | 7% | < 2 hours |
-| E2E (端對端) | 3% | < 4 hours |
+| UT (Unit Testing) | 70% | < 10 min |
+| IT (Integration Testing) | 20% | < 30 min |
+| ST (System Testing) | 7% | < 2 hours |
+| E2E (End-to-End) | 3% | < 4 hours |
 
 ---
 
-## Unit Testing (UT) | 單元測試
+## Unit Testing (UT)
 
-### Definition | 定義
+### Definition
 
 Tests individual functions, methods, or classes in isolation from external dependencies.
 
-測試個別函式、方法或類別，與外部相依性隔離。
-
-### Characteristics | 特性
+### Characteristics
 
 - **Isolated**: No database, network, or file system access
 - **Fast**: Each test < 100ms
 - **Deterministic**: Same input always produces same output
-- **獨立**: 不存取資料庫、網路或檔案系統
-- **快速**: 每個測試 < 100ms
-- **確定性**: 相同輸入永遠產生相同輸出
 
-### Scope | 範圍
+### Scope
 
 ```
 ┌─────────────────────────────────────────┐
@@ -84,9 +73,9 @@ Tests individual functions, methods, or classes in isolation from external depen
 └─────────────────────────────────────────┘
 ```
 
-### Naming Convention | 命名慣例
+### Naming Convention
 
-**File Naming | 檔案命名**:
+**File Naming**:
 ```
 [ClassName]Tests.[ext]
 [ClassName].test.[ext]
@@ -99,7 +88,7 @@ Examples:
   user_service_test.go
 ```
 
-**Method Naming | 方法命名**:
+**Method Naming**:
 ```
 [MethodName]_[Scenario]_[ExpectedResult]
 should_[ExpectedBehavior]_when_[Condition]
@@ -111,7 +100,7 @@ Examples:
   test_validate_email_invalid_format_returns_false()
 ```
 
-### Coverage Guidelines | 覆蓋率指引
+### Coverage Guidelines
 
 | Metric | Minimum | Recommended |
 |--------|---------|-------------|
@@ -119,7 +108,7 @@ Examples:
 | Branch Coverage | 60% | 80% |
 | Function Coverage | 80% | 90% |
 
-### Example | 範例
+### Example
 
 ```csharp
 // C# Example
@@ -187,41 +176,34 @@ describe('UserValidator', () => {
 
 ---
 
-## Integration Testing (IT) | 整合測試
+## Integration Testing (IT)
 
-### Definition | 定義
+### Definition
 
 Tests interactions between multiple components, modules, or external systems.
 
-測試多個元件、模組或外部系統之間的互動。
+### When Integration Tests Are Required
 
-### When Integration Tests Are Required | 何時必須有整合測試
+| Scenario | Reason |
+|----------|--------|
+| Query predicates | Mocks cannot verify filter expressions |
+| Entity relationships | Verify foreign key correctness |
+| Composite keys | In-memory DB may differ from real DB |
+| Field mapping | DTO ↔ Entity transformations |
+| Pagination | Row ordering and counting |
+| Transactions | Rollback behavior |
 
-| Scenario | 情境 | Reason | 原因 |
-|----------|------|--------|------|
-| Query predicates | 查詢條件 | Mocks cannot verify filter expressions | Mock 無法驗證過濾表達式 |
-| Entity relationships | 實體關聯 | Verify foreign key correctness | 驗證外鍵正確性 |
-| Composite keys | 複合主鍵 | In-memory DB may differ from real DB | 記憶體資料庫行為可能與真實資料庫不同 |
-| Field mapping | 欄位映射 | DTO ↔ Entity transformations | DTO 與 Entity 轉換 |
-| Pagination | 分頁 | Row ordering and counting | 資料排序與計數 |
-| Transactions | 交易 | Rollback behavior | 回滾行為 |
-
-**Decision Rule | 判斷規則**:
+**Decision Rule**:
 If your unit test uses a wildcard matcher (`any()`, `It.IsAny<>`, `Arg.Any<>`)
 for a query/filter parameter, that functionality MUST have an integration test.
 
-如果你的單元測試對查詢/過濾參數使用萬用匹配器，該功能必須有整合測試。
-
-### Characteristics | 特性
+### Characteristics
 
 - **Component Integration**: Tests module boundaries
 - **Real Dependencies**: Uses actual databases, APIs (often containerized)
 - **Slower**: Each test typically 1-10 seconds
-- **元件整合**: 測試模組邊界
-- **真實相依性**: 使用實際資料庫、API（通常容器化）
-- **較慢**: 每個測試通常 1-10 秒
 
-### Scope | 範圍
+### Scope
 
 ```
 ┌─────────────────────────────────────────┐
@@ -240,9 +222,9 @@ for a query/filter parameter, that functionality MUST have an integration test.
 └─────────────────────────────────────────┘
 ```
 
-### Naming Convention | 命名慣例
+### Naming Convention
 
-**File Naming | 檔案命名**:
+**File Naming**:
 ```
 [ComponentName]IntegrationTests.[ext]
 [ComponentName].integration.test.[ext]
@@ -254,7 +236,7 @@ Examples:
   user_repository_itest.py
 ```
 
-**Method Naming | 方法命名**:
+**Method Naming**:
 ```
 [Operation]_[Context]_[ExpectedOutcome]
 
@@ -264,7 +246,7 @@ Examples:
   SendMessage_ToQueue_ConsumerReceivesMessage()
 ```
 
-### Test Fixtures | 測試夾具
+### Test Fixtures
 
 ```csharp
 // C# Integration Test Example with Test Database
@@ -277,7 +259,7 @@ public class UserRepositoryIntegrationTests
     [TestInitialize]
     public async Task Setup()
     {
-        // 使用測試資料庫（如 SQLite in-memory 或 Testcontainers）
+        // Use test database (e.g., SQLite in-memory or Testcontainers)
         _dbContext = TestDbContextFactory.Create();
         _repository = new UserRepository(_dbContext);
         await _dbContext.Database.EnsureCreatedAsync();
@@ -308,24 +290,19 @@ public class UserRepositoryIntegrationTests
 
 ---
 
-## System Testing (ST) | 系統測試
+## System Testing (ST)
 
-### Definition | 定義
+### Definition
 
 Tests the complete integrated system to verify it meets specified requirements.
 
-測試完整整合的系統，驗證是否符合指定需求。
-
-### Characteristics | 特性
+### Characteristics
 
 - **Complete System**: All components deployed and integrated
 - **Requirement-Based**: Tests against functional specifications
 - **Production-Like**: Uses environment similar to production
-- **完整系統**: 所有元件部署並整合
-- **基於需求**: 依據功能規格測試
-- **類生產環境**: 使用類似生產的環境
 
-### Scope | 範圍
+### Scope
 
 ```
 ┌─────────────────────────────────────────┐
@@ -345,19 +322,19 @@ Tests the complete integrated system to verify it meets specified requirements.
 └─────────────────────────────────────────┘
 ```
 
-### Types of System Tests | 系統測試類型
+### Types of System Tests
 
-| Type | Chinese | Description |
-|------|---------|-------------|
-| Functional | 功能測試 | Verify features work as specified |
-| Performance | 效能測試 | Load, stress, scalability testing |
-| Security | 安全測試 | Penetration, vulnerability scanning |
-| Reliability | 可靠性測試 | Failover, recovery, stability |
-| Compatibility | 相容性測試 | Cross-platform, browser compatibility |
+| Type | Description |
+|------|-------------|
+| Functional | Verify features work as specified |
+| Performance | Load, stress, scalability testing |
+| Security | Penetration, vulnerability scanning |
+| Reliability | Failover, recovery, stability |
+| Compatibility | Cross-platform, browser compatibility |
 
-### Naming Convention | 命名慣例
+### Naming Convention
 
-**File Naming | 檔案命名**:
+**File Naming**:
 ```
 [Feature]SystemTests.[ext]
 [Feature].system.test.[ext]
@@ -369,13 +346,11 @@ Examples:
   payment_processing_st.py
 ```
 
-### Example | 範例
+### Example
 
 ```csharp
 // System Test Example: Complete Resource Processing Flow
-// 系統測試範例：完整資源處理流程
 // Note: Replace {Resource}, {Item}, {Action} with your domain concepts
-// 注意：將 {Resource}, {Item}, {Action} 替換為您的領域概念
 [TestClass]
 public class ResourceProcessingSystemTests
 {
@@ -392,28 +367,28 @@ public class ResourceProcessingSystemTests
     [TestMethod]
     public async Task ProcessResource_CompleteFlow_CompletedSuccessfully()
     {
-        // Arrange: 建立測試資料
+        // Arrange: Create test data
         var item = await _env.CreateTestItem(value: 100);
         var user = await _env.CreateTestUser();
 
-        // Act: 執行完整處理流程
-        // Step 1: 建立請求
+        // Act: Execute complete processing flow
+        // Step 1: Create request
         var requestResponse = await _client.PostAsync("/api/requests",
             new { itemId = item.Id, quantity = 2 });
         Assert.AreEqual(HttpStatusCode.OK, requestResponse.StatusCode);
 
-        // Step 2: 提交處理
+        // Step 2: Submit processing
         var processResponse = await _client.PostAsync("/api/processes",
             new { requestId = requestResponse.RequestId, userId = user.Id });
         var process = await processResponse.Content.ReadAsAsync<Process>();
         Assert.AreEqual(HttpStatusCode.Created, processResponse.StatusCode);
 
-        // Step 3: 確認完成
+        // Step 3: Confirm completion
         var confirmResponse = await _client.PostAsync($"/api/processes/{process.Id}/confirm",
             new { confirmationType = "standard", amount = 200 });
         Assert.AreEqual(HttpStatusCode.OK, confirmResponse.StatusCode);
 
-        // Assert: 驗證最終狀態
+        // Assert: Verify final state
         var finalProcess = await _client.GetAsync($"/api/processes/{process.Id}");
         var result = await finalProcess.Content.ReadAsAsync<Process>();
 
@@ -426,24 +401,19 @@ public class ResourceProcessingSystemTests
 
 ---
 
-## End-to-End Testing (E2E) | 端對端測試
+## End-to-End Testing (E2E)
 
-### Definition | 定義
+### Definition
 
 Tests complete user workflows from the user interface through all system layers.
 
-從使用者介面測試完整的使用者工作流程，貫穿所有系統層。
-
-### Characteristics | 特性
+### Characteristics
 
 - **User Perspective**: Simulates real user interactions
 - **Full Stack**: UI → API → Database → External Services
 - **Slowest**: Each test typically 30 seconds to several minutes
-- **使用者視角**: 模擬真實使用者互動
-- **全棧**: UI → API → 資料庫 → 外部服務
-- **最慢**: 每個測試通常 30 秒到數分鐘
 
-### Scope | 範圍
+### Scope
 
 ```
 ┌─────────────────────────────────────────┐
@@ -461,9 +431,9 @@ Tests complete user workflows from the user interface through all system layers.
 └─────────────────────────────────────────┘
 ```
 
-### Naming Convention | 命名慣例
+### Naming Convention
 
-**File Naming | 檔案命名**:
+**File Naming**:
 ```
 [UserJourney].e2e.[ext]
 [Feature].e2e.spec.[ext]
@@ -475,7 +445,7 @@ Examples:
   e2e/authentication/login.spec.ts
 ```
 
-### Example | 範例
+### Example
 
 ```typescript
 // Playwright E2E Test Example
@@ -483,26 +453,26 @@ import { test, expect } from '@playwright/test';
 
 test.describe('User Registration Journey', () => {
     test('should complete registration and login successfully', async ({ page }) => {
-        // Step 1: 導航到註冊頁面
+        // Step 1: Navigate to registration page
         await page.goto('/register');
 
-        // Step 2: 填寫註冊表單
+        // Step 2: Fill registration form
         await page.fill('[data-testid="email"]', 'newuser@example.com');
         await page.fill('[data-testid="password"]', 'SecurePass123!');
         await page.fill('[data-testid="confirm-password"]', 'SecurePass123!');
         await page.click('[data-testid="register-button"]');
 
-        // Step 3: 驗證註冊成功
+        // Step 3: Verify registration success
         await expect(page.locator('[data-testid="success-message"]'))
             .toContainText('Registration successful');
 
-        // Step 4: 使用新帳號登入
+        // Step 4: Login with new account
         await page.goto('/login');
         await page.fill('[data-testid="email"]', 'newuser@example.com');
         await page.fill('[data-testid="password"]', 'SecurePass123!');
         await page.click('[data-testid="login-button"]');
 
-        // Step 5: 驗證登入成功並導向儀表板
+        // Step 5: Verify login success and dashboard redirect
         await expect(page).toHaveURL('/dashboard');
         await expect(page.locator('[data-testid="welcome-message"]'))
             .toContainText('Welcome, newuser@example.com');
@@ -512,19 +482,19 @@ test.describe('User Registration Journey', () => {
 
 ---
 
-## Test Doubles | 測試替身
+## Test Doubles
 
-### Types | 類型
+### Types
 
-| Type | Chinese | Purpose | Example Use |
-|------|---------|---------|-------------|
-| **Stub** | 樁 | Returns predefined values | Fixed API responses |
-| **Mock** | 模擬物件 | Verifies interactions | Verify method called |
-| **Fake** | 假物件 | Simplified implementation | In-memory database |
-| **Spy** | 間諜 | Records calls, delegates to real | Partial mocking |
-| **Dummy** | 虛設物件 | Placeholder, never used | Fill required parameters |
+| Type | Purpose | Example Use |
+|------|---------|-------------|
+| **Stub** | Returns predefined values | Fixed API responses |
+| **Mock** | Verifies interactions | Verify method called |
+| **Fake** | Simplified implementation | In-memory database |
+| **Spy** | Records calls, delegates to real | Partial mocking |
+| **Dummy** | Placeholder, never used | Fill required parameters |
 
-### Usage Guidelines | 使用指引
+### Usage Guidelines
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -552,77 +522,59 @@ test.describe('User Registration Journey', () => {
 
 ---
 
-## Mock Limitations | Mock 限制
+## Mock Limitations
 
-### Query Predicate Verification | 查詢條件驗證
+### Query Predicate Verification
 
-**Problem | 問題**:
+**Problem**:
 When mocking repository methods that accept query predicates (e.g., lambda expressions,
 filter functions), using wildcard matchers like `any()` ignores the actual query logic,
 allowing incorrect queries to pass unit tests.
 
-當 Mock 接受查詢條件的 Repository 方法時（如 lambda 表達式、過濾函式），
-使用萬用匹配器如 `any()` 會忽略實際的查詢邏輯，讓錯誤的查詢通過單元測試。
-
-**Example | 範例**:
+**Example**:
 
 ```python
 # Python Example
 # ❌ This test cannot verify query correctness
-# ❌ 這個測試無法驗證查詢正確性
 mock_repo.find.return_value = users
 # Query could be wrong, test still passes
-# 查詢可能寫錯，測試仍會通過
 
 # ✓ Add integration test to verify actual query
-# ✓ 新增整合測試驗證實際查詢
 ```
 
 ```typescript
 // TypeScript Example
 // ❌ Jest mock ignores actual filter
-// ❌ Jest mock 忽略實際的過濾條件
 jest.spyOn(repo, 'findBy').mockResolvedValue(users);
 
 // ✓ Verify with integration test
-// ✓ 用整合測試驗證
 ```
 
 ```csharp
 // C# Example
 // ❌ Moq ignores the actual expression
-// ❌ Moq 忽略實際的表達式
 _repo.Setup(r => r.FindAsync(It.IsAny<Expression<Func<User, bool>>>()))
      .ReturnsAsync(users);
 
 // ✓ Verify with integration test or use It.Is<> to validate
-// ✓ 用整合測試驗證，或使用 It.Is<> 來驗證
 ```
 
-**Rule of Thumb | 經驗法則**:
+**Rule of Thumb**:
 If your unit test mocks a method that accepts a query/filter/predicate parameter,
 you MUST have a corresponding integration test to verify the query logic.
 
-如果你的單元測試 Mock 了一個接受查詢/過濾/條件參數的方法，
-你必須有對應的整合測試來驗證查詢邏輯。
-
 ---
 
-## Test Data Management | 測試資料管理
+## Test Data Management
 
-### Principles | 原則
+### Principles
 
 1. **Isolation**: Each test manages its own data
 2. **Cleanup**: Tests clean up after themselves
 3. **Determinism**: Tests don't depend on shared state
 4. **Readability**: Test data clearly shows intent
 
-1. **隔離**: 每個測試管理自己的資料
-2. **清理**: 測試結束後自行清理
-3. **確定性**: 測試不依賴共享狀態
-4. **可讀性**: 測試資料清楚顯示意圖
-
-### Patterns | 模式
+### Patterns
 
 ```csharp
 // Builder Pattern for Test Data
@@ -669,91 +621,55 @@ var inactiveUser = new UserBuilder()
     .Build();
 ```
 
-### Distinct Identifiers | 區分識別欄位
+### Distinct Identifiers
 
 When entities have both a surrogate key (auto-generated ID) and a business identifier
 (e.g., employee number, department code), test data MUST use different values for each.
 
-當實體同時有代理鍵（自動產生的 ID）和業務識別碼（如員工編號、部門代碼）時，
-測試資料必須使用不同的值。
-
-**Problem | 問題**:
+**Problem**:
 If test data uses identical values for both fields, field mapping errors go undetected.
-
-如果測試資料在兩個欄位使用相同的值，欄位映射錯誤將無法被發現。
 
 ```python
 # Python Example
 # ❌ Wrong: id equals business_code
-# ❌ 錯誤：id 與 business_code 相同
 dept = Department(id=1, business_code=1)
 
 # ✓ Correct: distinct values catch mapping errors
-# ✓ 正確：不同的值能抓到映射錯誤
 dept = Department(id=1, business_code=1001)
 ```
 
 ```csharp
 // C# Example
 // ❌ Wrong: Id equals DeptId - mapping errors go undetected
-// ❌ 錯誤：Id 與 DeptId 相同 - 映射錯誤不會被發現
 var dept = new Department { Id = 1, DeptId = 1 };
 
 // ✓ Correct: distinct values catch field mapping bugs
-// ✓ 正確：不同的值能抓到欄位映射錯誤
 var dept = new Department { Id = 1, DeptId = 1001 };
 ```
 
-**Validation | 驗證**:
-```python
-# Python
-assert entity.id != entity.business_code, \
-    "Test precondition: ID must differ from business code"
-```
-
+**Validation**:
 ```csharp
 // C#
 testData.Dept.Id.Should().NotBe(testData.Dept.DeptId,
     "Test precondition: Id must differ from business identifier");
 ```
 
-### Composite Keys | 複合主鍵
+### Composite Keys
 
 For entities with composite primary keys, ensure each record has a unique key combination.
-
-對於使用複合主鍵的實體，確保每筆記錄有唯一的主鍵組合。
-
-```python
-# Python Example
-from datetime import timedelta
-
-# ❌ Key collision
-# ❌ 主鍵衝突
-record1 = Record(id=0, timestamp=now)
-record2 = Record(id=0, timestamp=now)  # Conflict!
-
-# ✓ Unique combinations
-# ✓ 唯一組合
-record1 = Record(id=0, timestamp=now + timedelta(seconds=1))
-record2 = Record(id=0, timestamp=now + timedelta(seconds=2))
-```
 
 ```csharp
 // C# Example
 // ❌ Key collision - same (Id, SendTime) combination
-// ❌ 主鍵衝突 - 相同的 (Id, SendTime) 組合
 var batch1 = new BatchRecord { Id = 0, SendTime = now };
 var batch2 = new BatchRecord { Id = 0, SendTime = now };  // Conflict!
 
 // ✓ Unique combinations
-// ✓ 唯一組合
 var batch1 = new BatchRecord { Id = 0, SendTime = now.AddSeconds(1) };
 var batch2 = new BatchRecord { Id = 0, SendTime = now.AddSeconds(2) };
 ```
 
-**Tip | 提示**: Create helper functions that auto-generate unique composite keys.
-
-**提示**：建立自動產生唯一複合主鍵的輔助函式。
+**Tip**: Create helper functions that auto-generate unique composite keys.
 
 ```csharp
 // C# Helper Example
@@ -769,24 +685,19 @@ public static BatchRecord CreateWithUniqueKey(DateTime baseTime)
 
 ---
 
-## Test Environment Isolation | 測試環境隔離
+## Test Environment Isolation
 
-### Purpose | 目的
+### Purpose
 
 Ensure consistent, reproducible test results across development machines and CI/CD pipelines.
 
-確保在開發機器與 CI/CD 管線之間獲得一致、可重現的測試結果。
-
-### Why It Matters | 為什麼重要
+### Why It Matters
 
 - **Reproducibility**: Same tests produce same results everywhere
 - **Isolation**: Project dependencies don't conflict with system or other projects
 - **CI/CD Parity**: Local environment matches CI environment
-- **可重現性**: 相同測試在任何地方產生相同結果
-- **隔離性**: 專案相依性不與系統或其他專案衝突
-- **CI/CD 一致性**: 本地環境與 CI 環境相符
 
-### Language-Specific Virtual Environments | 語言專屬虛擬環境
+### Language-Specific Virtual Environments
 
 | Language | Tools | Lock File |
 |----------|-------|-----------|
@@ -798,68 +709,59 @@ Ensure consistent, reproducible test results across development machines and CI/
 | Go | go mod | go.sum |
 | Rust | rustup, cargo | Cargo.lock |
 
-#### Best Practices | 最佳實踐
+#### Best Practices
 
 1. **Always use virtual environments** for development and testing
 2. **Commit lock files** to version control
 3. **Pin versions** in CI/CD pipelines
 4. **Document required runtime versions** in README or .tool-versions
 
-1. **開發和測試時始終使用虛擬環境**
-2. **將 lock 檔提交到版本控制**
-3. **在 CI/CD 管線中鎖定版本**
-4. **在 README 或 .tool-versions 記錄所需的執行環境版本**
-
-#### Example: Python with venv | 範例：Python 使用 venv
+#### Example: Python with venv
 
 ```bash
-# Create virtual environment | 建立虛擬環境
+# Create virtual environment
 python -m venv .venv
 
-# Activate | 啟用
+# Activate
 source .venv/bin/activate  # Linux/macOS
 .venv\Scripts\activate     # Windows
 
-# Install dependencies | 安裝相依套件
+# Install dependencies
 pip install -r requirements.txt
 
-# Run tests | 執行測試
+# Run tests
 pytest tests/
 ```
 
-#### Example: Node.js with nvm | 範例：Node.js 使用 nvm
+#### Example: Node.js with nvm
 
 ```bash
-# Use project's Node version | 使用專案的 Node 版本
+# Use project's Node version
 nvm use
 
-# Install dependencies | 安裝相依套件
+# Install dependencies
 npm ci
 
-# Run tests | 執行測試
+# Run tests
 npm test
 ```
 
-### Containerized Testing | 容器化測試
+### Containerized Testing
 
 Use containers to provide consistent external dependencies (databases, message queues, etc.) for integration and system tests.
 
-使用容器為整合測試和系統測試提供一致的外部相依性（資料庫、訊息佇列等）。
-
-#### When to Use | 何時使用
+#### When to Use
 
 | Test Level | Container Usage |
 |------------|-----------------|
-| UT (單元測試) | ❌ Not needed - use mocks |
-| IT (整合測試) | ✅ Testcontainers for databases, caches |
-| ST (系統測試) | ✅ Docker Compose for full environment |
-| E2E (端對端) | ✅ Full containerized stack |
+| UT (Unit Testing) | ❌ Not needed - use mocks |
+| IT (Integration Testing) | ✅ Testcontainers for databases, caches |
+| ST (System Testing) | ✅ Docker Compose for full environment |
+| E2E (End-to-End) | ✅ Full containerized stack |
 
-#### Testcontainers | 測試容器
+#### Testcontainers
 
 Testcontainers provides lightweight, disposable containers for testing.
-
-Testcontainers 提供輕量級、可拋棄式的測試容器。
 
 ```csharp
 // C# Example with Testcontainers
@@ -903,7 +805,7 @@ def test_database_connection(postgres_container):
     # Use connection_url for tests
 ```
 
-#### Docker Compose for System Tests | Docker Compose 用於系統測試
+#### Docker Compose for System Tests
 
 ```yaml
 # docker-compose.test.yml
@@ -941,31 +843,31 @@ npm run test:system
 docker-compose -f docker-compose.test.yml down -v
 ```
 
-### Environment Parity Checklist | 環境一致性檢查清單
+### Environment Parity Checklist
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│              Environment Parity Checklist                    │
+│              Environment Parity Checklist                   │
 ├─────────────────────────────────────────────────────────────┤
-│  ✅ Same runtime version (Node, Python, etc.) locally & CI  │
-│  ✅ Same database version in containers & production        │
-│  ✅ Lock files committed and used in CI (npm ci, pip -r)    │
-│  ✅ Environment variables documented and consistent         │
-│  ✅ Container images tagged with specific versions          │
-│  ✅ .tool-versions or similar for runtime version mgmt      │
+│  ✅ Same runtime version (Node, Python, etc.) locally & CI │
+│  ✅ Same database version in containers & production       │
+│  ✅ Lock files committed and used in CI (npm ci, pip -r)   │
+│  ✅ Environment variables documented and consistent        │
+│  ✅ Container images tagged with specific versions         │
+│  ✅ .tool-versions or similar for runtime version mgmt     │
 ├─────────────────────────────────────────────────────────────┤
-│  ❌ Using "latest" tags in production/CI                    │
-│  ❌ Different DB versions between dev and CI                │
-│  ❌ Missing lock files in repository                        │
-│  ❌ Hardcoded paths or machine-specific configurations      │
+│  ❌ Using "latest" tags in production/CI                   │
+│  ❌ Different DB versions between dev and CI               │
+│  ❌ Missing lock files in repository                       │
+│  ❌ Hardcoded paths or machine-specific configurations     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## CI/CD Integration | CI/CD 整合
+## CI/CD Integration
 
-### Test Execution Strategy | 測試執行策略
+### Test Execution Strategy
 
 ```yaml
 # Example CI Pipeline
@@ -1013,7 +915,7 @@ e2e-test:
     - if: $CI_COMMIT_TAG
 ```
 
-### Test Reports | 測試報告
+### Test Reports
 
 Required metrics for each test level:
 
@@ -1027,111 +929,106 @@ Required metrics for each test level:
 
 ---
 
-## Best Practices | 最佳實踐
+## Best Practices
 
-### AAA Pattern | AAA 模式
+### AAA Pattern
 
 ```csharp
 [TestMethod]
 public void MethodName_Scenario_ExpectedBehavior()
 {
-    // Arrange - 準備測試資料與環境
+    // Arrange - Set up test data and environment
     var input = CreateTestInput();
     var sut = new SystemUnderTest();
 
-    // Act - 執行被測試的行為
+    // Act - Execute the behavior under test
     var result = sut.Execute(input);
 
-    // Assert - 驗證結果
+    // Assert - Verify the result
     Assert.AreEqual(expected, result);
 }
 ```
 
-### FIRST Principles | FIRST 原則
+### FIRST Principles
 
-| Principle | Chinese | Description |
-|-----------|---------|-------------|
-| **F**ast | 快速 | Tests run quickly |
-| **I**ndependent | 獨立 | Tests don't affect each other |
-| **R**epeatable | 可重複 | Same result every time |
-| **S**elf-validating | 自我驗證 | Clear pass/fail |
-| **T**imely | 及時 | Written with production code |
+| Principle | Description |
+|-----------|-------------|
+| **F**ast | Tests run quickly |
+| **I**ndependent | Tests don't affect each other |
+| **R**epeatable | Same result every time |
+| **S**elf-validating | Clear pass/fail |
+| **T**imely | Written with production code |
 
-### Anti-Patterns to Avoid | 應避免的反模式
+### Anti-Patterns to Avoid
 
 ```
-❌ Test Interdependence (測試相依)
+❌ Test Interdependence
    Tests that must run in specific order
 
-❌ Flaky Tests (不穩定測試)
+❌ Flaky Tests
    Tests that sometimes pass, sometimes fail
 
-❌ Testing Implementation Details (測試實作細節)
+❌ Testing Implementation Details
    Tests that break when refactoring
 
-❌ Over-Mocking (過度模擬)
+❌ Over-Mocking
    Mocking so much that nothing real is tested
 
-❌ Missing Assertions (缺少斷言)
+❌ Missing Assertions
    Tests that verify nothing meaningful
 
-❌ Magic Numbers/Strings (魔術數字/字串)
+❌ Magic Numbers/Strings
    Unexplained values in test code
 
-❌ Identical Test IDs (相同測試識別碼)
+❌ Identical Test IDs
    Using same values for surrogate and business keys
 ```
 
 ---
 
-## Quick Reference Card | 快速參考卡
+## Quick Reference Card
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Testing Levels Summary                    │
+│                    Testing Levels Summary                   │
 ├──────────┬──────────────────────────────────────────────────┤
 │   UT     │ Single unit, isolated, mocked deps, < 100ms     │
-│  單元測試 │ 單一單元、隔離、模擬相依、< 100ms               │
 ├──────────┼──────────────────────────────────────────────────┤
 │   IT     │ Component integration, real DB, 1-10 sec        │
-│  整合測試 │ 元件整合、真實資料庫、1-10 秒                   │
 ├──────────┼──────────────────────────────────────────────────┤
 │   ST     │ Full system, requirement-based, production-like │
-│  系統測試 │ 完整系統、基於需求、類生產環境                  │
 ├──────────┼──────────────────────────────────────────────────┤
 │  E2E     │ User journeys, UI to DB, critical paths only    │
-│ 端對端   │ 使用者流程、UI 到 DB、僅關鍵路徑                │
 ├──────────┴──────────────────────────────────────────────────┤
-│                    Naming Conventions                        │
+│                    Naming Conventions                       │
 ├─────────────────────────────────────────────────────────────┤
 │  Files:  [Name]Tests.cs, [name].test.ts, [name]_test.py    │
 │  Methods: Method_Scenario_Expected, should_X_when_Y        │
 ├─────────────────────────────────────────────────────────────┤
-│                    Coverage Targets                          │
+│                    Coverage Targets                         │
 ├─────────────────────────────────────────────────────────────┤
-│  Line: 70% min / 85% recommended                            │
-│  Branch: 60% min / 80% recommended                          │
-│  Function: 80% min / 90% recommended                        │
+│  Line: 70% min / 85% recommended                           │
+│  Branch: 60% min / 80% recommended                         │
+│  Function: 80% min / 90% recommended                       │
 ├─────────────────────────────────────────────────────────────┤
-│               Mock Limitation Rule                           │
+│               Mock Limitation Rule                          │
 ├─────────────────────────────────────────────────────────────┤
-│  If UT mocks query/filter params → IT is REQUIRED           │
-│  若單元測試 Mock 查詢參數 → 必須有整合測試                  │
+│  If UT mocks query/filter params → IT is REQUIRED          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Anti-Hallucination Standard](anti-hallucination.md) - AI 協作防幻覺標準
-- [Code Check-in Standards](checkin-standards.md) - 程式碼簽入檢查點標準
-- [Code Review Checklist](code-review-checklist.md) - 程式碼審查清單
-- [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範
+- [Anti-Hallucination Standard](anti-hallucination.md)
+- [Code Check-in Standards](checkin-standards.md)
+- [Code Review Checklist](code-review-checklist.md)
+- [Commit Message Guide](commit-message-guide.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -1142,13 +1039,10 @@ public void MethodName_Scenario_ExpectedBehavior()
 
 ---
 
-## License | 授權
+## License
 
 This standard is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 ---
 
 **Maintainer**: Development Team
-**維護者**: 開發團隊

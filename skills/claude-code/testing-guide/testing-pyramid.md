@@ -1,22 +1,20 @@
 # Testing Pyramid Guide
-# 測試金字塔指南
+
+> **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/testing-guide/testing-pyramid.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document provides detailed guidelines for the testing pyramid (UT/IT/ST/E2E) and test writing best practices.
 
-本文件提供測試金字塔（UT/IT/ST/E2E）和測試撰寫最佳實踐的詳細指南。
-
 ---
 
-## Unit Testing (UT) | 單元測試
+## Unit Testing (UT)
 
 ### Definition
 
@@ -67,13 +65,13 @@ describe('UserValidator', () => {
 
 ---
 
-## Integration Testing (IT) | 整合測試
+## Integration Testing (IT)
 
 ### Definition
 
 Tests interactions between multiple components, modules, or external systems.
 
-### When Integration Tests Are Required | 何時必須有整合測試
+### When Integration Tests Are Required
 
 | Scenario | Reason |
 |----------|--------|
@@ -137,7 +135,7 @@ describe('UserRepository Integration', () => {
 
 ---
 
-## System Testing (ST) | 系統測試
+## System Testing (ST)
 
 ### Definition
 
@@ -175,7 +173,7 @@ Tests the complete integrated system to verify it meets specified requirements.
 
 ---
 
-## End-to-End Testing (E2E) | 端對端測試
+## End-to-End Testing (E2E)
 
 ### Definition
 
@@ -279,7 +277,7 @@ describe('Database Integration', () => {
 
 ---
 
-## Mock Limitations | Mock 限制
+## Mock Limitations
 
 ### Query Predicate Verification
 
@@ -305,7 +303,7 @@ jest.spyOn(repo, 'findBy').mockResolvedValue(users);
 3. **Determinism**: Tests don't depend on shared state
 4. **Readability**: Test data clearly shows intent
 
-### Distinct Identifiers | 區分識別欄位
+### Distinct Identifiers
 
 When entities have both a surrogate key (auto-generated ID) and a business identifier (e.g., employee number, department code), test data MUST use different values for each.
 
@@ -317,7 +315,7 @@ const dept = { id: 1, businessCode: 1 };
 const dept = { id: 1, businessCode: 1001 };
 ```
 
-### Composite Keys | 複合主鍵
+### Composite Keys
 
 For entities with composite primary keys, ensure each record has a unique key combination.
 
@@ -386,14 +384,14 @@ Mock Rule: If UT mocks query params → IT is REQUIRED
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Testing Standards](../../../core/testing-standards.md) - 測試標準
-- [Code Review Checklist](../../../core/code-review-checklist.md) - 程式碼審查檢查清單
+- [Testing Standards](../../../core/testing-standards.md)
+- [Code Review Checklist](../../../core/code-review-checklist.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -401,10 +399,8 @@ Mock Rule: If UT mocks query params → IT is REQUIRED
 
 ---
 
-## License | 授權
+## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

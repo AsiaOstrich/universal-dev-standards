@@ -1,22 +1,20 @@
 # Documentation Structure Reference
-# 文件結構參考
+
+> **Language**: English | [繁體中文](../../../../locales/zh-TW/skills/claude-code/documentation-guide/documentation-structure.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document provides reference for project documentation structure and file organization.
 
-本文件提供專案文件結構和檔案組織的參考。
-
 ---
 
-## Standard Project Structure | 標準專案結構
+## Standard Project Structure
 
 ```
 project-root/
@@ -38,7 +36,7 @@ project-root/
 
 ---
 
-## Document Requirements by Project Type | 按專案類型的文件需求
+## Document Requirements by Project Type
 
 | Document | New Project | Refactor | Migration | Maintenance |
 |----------|:-----------:|:--------:|:---------:|:-----------:|
@@ -54,9 +52,9 @@ project-root/
 
 ---
 
-## File Naming Conventions | 檔案命名規範
+## File Naming Conventions
 
-### Root Directory Files | 根目錄檔案
+### Root Directory Files
 
 Use **UPPERCASE** for GitHub/GitLab auto-recognition:
 
@@ -69,7 +67,7 @@ Use **UPPERCASE** for GitHub/GitLab auto-recognition:
 | `CODE_OF_CONDUCT.md` | GitHub community standard |
 | `SECURITY.md` | GitHub security advisory |
 
-### docs/ Directory Files | docs/ 目錄檔案
+### docs/ Directory Files
 
 Use **lowercase-kebab-case** for URL friendliness:
 
@@ -93,7 +91,7 @@ docs/
 
 ---
 
-## Document Templates | 文件範本
+## Document Templates
 
 ### README.md Template
 
@@ -191,7 +189,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ---
 
-## docs/ Structure | docs/ 結構
+## docs/ Structure
 
 ### index.md - Documentation Hub
 
@@ -271,30 +269,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ---
 
-## Documentation Quality Checklist | 文件品質檢查清單
+## Documentation Quality Checklist
 
-### Completeness | 完整性
+### Completeness
 
 - [ ] Prerequisites listed
 - [ ] All steps documented
 - [ ] Expected outcomes described
 - [ ] Error scenarios covered
 
-### Readability | 可讀性
+### Readability
 
 - [ ] Clear, concise language
 - [ ] Short paragraphs (≤5 sentences)
 - [ ] Code examples included
 - [ ] Screenshots/diagrams where helpful
 
-### Accuracy | 準確性
+### Accuracy
 
 - [ ] Code examples tested
 - [ ] Screenshots up-to-date
 - [ ] Version numbers correct
 - [ ] Links working
 
-### Maintainability | 可維護性
+### Maintainability
 
 - [ ] Clear section headings
 - [ ] Logical organization
@@ -303,9 +301,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ---
 
-## Cross-Reference Guidelines | 交叉連結指南
+## Cross-Reference Guidelines
 
-### When to Link | 何時建立連結
+### When to Link
 
 | Situation | Action |
 |-----------|--------|
@@ -314,7 +312,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 | Discussing architecture | Link to architecture.md |
 | New document added | Update index.md |
 
-### References Section | 參考資料區段
+### References Section
 
 Every document should end with:
 
@@ -328,15 +326,15 @@ Every document should end with:
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Documentation Structure](../../../core/documentation-structure.md) - 文件結構標準
-- [Documentation Writing Standards](../../../core/documentation-writing-standards.md) - 文件撰寫標準
-- [README Template](./readme-template.md) - README 範本
+- [Documentation Structure](../../../core/documentation-structure.md)
+- [Documentation Writing Standards](../../../core/documentation-writing-standards.md)
+- [README Template](./readme-template.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -344,10 +342,8 @@ Every document should end with:
 
 ---
 
-## License | 授權
+## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

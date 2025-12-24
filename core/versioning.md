@@ -1,33 +1,31 @@
 # Semantic Versioning Standard
-# 語義化版本標準
+
+> **Language**: English | [繁體中文](../locales/zh-TW/core/versioning.md)
 
 **Version**: 1.1.3
 **Last Updated**: 2025-12-24
 **Applicability**: All software projects with versioned releases
-**適用範圍**: 所有有版本發布的軟體專案
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This standard defines how to version software releases using Semantic Versioning (SemVer) to communicate changes clearly to users and maintainers.
 
-本標準定義如何使用語義化版本 (SemVer) 為軟體發布編號，以清楚地向使用者和維護者傳達變更。
-
 ---
 
-## Semantic Versioning Format | 語義化版本格式
+## Semantic Versioning Format
 
 ```
 MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
 
-例如:
+Examples:
 2.3.1
 1.0.0-alpha.1
 3.2.0-beta.2+20250112
 ```
 
-### Components | 組成元素
+### Components
 
 | Component | Purpose | When to Increment |
 |-----------|---------|-------------------|
@@ -39,23 +37,23 @@ MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
 
 ---
 
-## Incrementing Rules | 遞增規則
+## Incrementing Rules
 
 ### MAJOR Version (X.0.0)
 
-**Increment when** | 遞增時機:
+**Increment when**:
 - Breaking API changes
 - Removing deprecated features
 - Major architecture changes
 - Incompatible behavior changes
 
-**Examples | 範例**:
+**Examples**:
 ```
 1.9.5 → 2.0.0  # Remove deprecated API
 3.2.1 → 4.0.0  # Change return type of public method
 ```
 
-**Guidelines | 指引**:
+**Guidelines**:
 - Reset MINOR and PATCH to 0
 - Document migration guide
 - Provide deprecation warnings in previous MINOR versions
@@ -64,19 +62,19 @@ MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
 
 ### MINOR Version (x.Y.0)
 
-**Increment when** | 遞增時機:
+**Increment when**:
 - Adding new features (backward-compatible)
 - Deprecating features (not removing)
 - Substantial internal improvements
 - New public APIs
 
-**Examples | 範例**:
+**Examples**:
 ```
 2.3.5 → 2.4.0  # Add new API endpoint
 1.12.0 → 1.13.0  # Add optional parameter to existing function
 ```
 
-**Guidelines | 指引**:
+**Guidelines**:
 - Reset PATCH to 0
 - Existing functionality unchanged
 - New features are opt-in
@@ -85,30 +83,30 @@ MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
 
 ### PATCH Version (x.y.Z)
 
-**Increment when** | 遞增時機:
+**Increment when**:
 - Bug fixes (no new features)
 - Security patches
 - Documentation corrections
 - Internal refactoring (no API changes)
 
-**Examples | 範例**:
+**Examples**:
 ```
 3.1.2 → 3.1.3  # Fix null pointer exception
 2.0.0 → 2.0.1  # Security vulnerability patch
 ```
 
-**Guidelines | 指引**:
+**Guidelines**:
 - No new functionality
 - No API changes
 - Safe to update immediately
 
 ---
 
-## Pre-release Versions | 預發布版本
+## Pre-release Versions
 
 Format: `MAJOR.MINOR.PATCH-PRERELEASE`
 
-### Pre-release Identifiers | 預發布識別碼
+### Pre-release Identifiers
 
 | Identifier | Purpose | Stability | Audience |
 |------------|---------|-----------|----------|
@@ -116,7 +114,7 @@ Format: `MAJOR.MINOR.PATCH-PRERELEASE`
 | `beta` | Feature complete | Mostly stable | Early adopters |
 | `rc` (release candidate) | Final testing | Stable | Beta testers |
 
-### Examples | 範例
+### Examples
 
 ```
 1.0.0-alpha.1       # First alpha release
@@ -127,7 +125,7 @@ Format: `MAJOR.MINOR.PATCH-PRERELEASE`
 1.0.0               # Stable release
 ```
 
-### Ordering | 排序
+### Ordering
 
 Pre-releases are ordered lexicographically:
 ```
@@ -136,11 +134,11 @@ Pre-releases are ordered lexicographically:
 
 ---
 
-## Build Metadata | 建置元資料
+## Build Metadata
 
 Format: `MAJOR.MINOR.PATCH+BUILD`
 
-### Examples | 範例
+### Examples
 
 ```
 1.0.0+20250112            # Date-based build
@@ -149,7 +147,7 @@ Format: `MAJOR.MINOR.PATCH+BUILD`
 1.2.0-beta.1+exp.sha.5114f85  # Combined pre-release and build
 ```
 
-### Guidelines | 指引
+### Guidelines
 
 - Build metadata SHOULD NOT affect version precedence
 - Use for CI/CD tracking
@@ -157,7 +155,7 @@ Format: `MAJOR.MINOR.PATCH+BUILD`
 
 ---
 
-## Initial Development | 初始開發
+## Initial Development
 
 ### Version 0.x.x
 
@@ -169,7 +167,7 @@ Format: `MAJOR.MINOR.PATCH+BUILD`
 1.0.0  # First stable release
 ```
 
-**Guidelines | 指引**:
+**Guidelines**:
 - Major version 0 indicates development phase
 - API may change frequently
 - Breaking changes allowed in MINOR versions
@@ -177,9 +175,9 @@ Format: `MAJOR.MINOR.PATCH+BUILD`
 
 ---
 
-## Version Lifecycle | 版本生命週期
+## Version Lifecycle
 
-### Example Release Cycle | 發布週期範例
+### Example Release Cycle
 
 ```
 Development Phase:
@@ -200,11 +198,9 @@ Next Major Release:
 
 ---
 
-## Changelog Integration | 變更日誌整合
+## Changelog Integration
 
-> **See Also | 另見**: For comprehensive CHANGELOG writing guidelines, see [changelog-standards.md](changelog-standards.md).
->
-> **另見**：完整的 CHANGELOG 撰寫指南，請參閱 [changelog-standards.md](changelog-standards.md)。
+> **See Also**: For comprehensive CHANGELOG writing guidelines, see [changelog-standards.md](changelog-standards.md).
 
 ### CHANGELOG.md Format
 
@@ -265,151 +261,151 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 [1.5.2]: https://github.com/user/repo/releases/tag/v1.5.2
 ```
 
-### Exclusion Rules | 排除規則
+### Exclusion Rules
 
-CHANGELOG **不應**記錄以下類型的變更：
+CHANGELOG should NOT record the following types of changes:
 
-#### 1. 被 `.gitignore` 排除的目錄
+#### 1. Directories Excluded by `.gitignore`
 
-被版本控制排除的目錄不會被簽入，因此不應記錄在 CHANGELOG 中。
+Directories excluded from version control will not be committed, so they should not be recorded in CHANGELOG.
 
-**原則**: 任何在專案 `.gitignore` 中列出的目錄或檔案，都不應記錄在 CHANGELOG 中。
+**Principle**: Any directories or files listed in the project's `.gitignore` should not be recorded in CHANGELOG.
 
-**常見排除類別 (範例)**:
+**Common Exclusion Categories (Examples)**:
 
-| 類別 | 常見目錄/檔案 | 原因 |
-|------|--------------|------|
-| AI 協作輔助 | `.claude/`, `.cursor/`, `.ai/` | 本地開發輔助，不納入版控 |
-| 開發規範 | `.standards/`, `docs/internal/` | 本地規範文件，不納入版控 |
-| 建置輸出 | `dist/`, `build/`, `out/` | 建置產物，不納入版控 |
-| 大型資料 | `data/`, `datasets/` | 資料檔案，不納入版控 |
+| Category | Common Directories/Files | Reason |
+|----------|-------------------------|--------|
+| AI Collaboration Tools | `.claude/`, `.cursor/`, `.ai/` | Local development aids, not in version control |
+| Development Standards | `.standards/`, `docs/internal/` | Local standard docs, not in version control |
+| Build Outputs | `dist/`, `build/`, `out/` | Build artifacts, not in version control |
+| Large Data | `data/`, `datasets/` | Data files, not in version control |
 
-**檢查方式**:
+**Verification Method**:
 ```bash
-# 產生 CHANGELOG 前，檢查專案的 .gitignore 排除項目
+# Before generating CHANGELOG, check project's .gitignore exclusions
 cat .gitignore | grep -E "^[^#*]" | head -20
 ```
 
-**Note**: 每個專案應根據自己的 `.gitignore` 設定來決定排除項目。上表僅為常見範例。
+**Note**: Each project should determine exclusions based on its own `.gitignore` settings. The table above is just a common example.
 
-#### 2. 建置產物與暫存檔案
+#### 2. Build Artifacts and Temporary Files
 
-以下類型的變更也不應記錄：
+The following types of changes should also not be recorded:
 
-- `bin/`, `obj/`, `Release/`, `Debug/` 等建置輸出
-- `*.log`, `*.tmp` 等暫存檔案
-- `node_modules/`, `packages/` 等依賴目錄
+- `bin/`, `obj/`, `Release/`, `Debug/` and other build outputs
+- `*.log`, `*.tmp` and other temporary files
+- `node_modules/`, `packages/` and other dependency directories
 
-#### 3. 環境與設定檔案（敏感資料）
+#### 3. Environment and Configuration Files (Sensitive Data)
 
-包含敏感資料的檔案不應記錄：
+Files containing sensitive data should not be recorded:
 
-- `*.env`, `.env.*` 環境變數檔案
-- `*.local.json`, `*.local.yaml` 本地設定檔案 (如 .NET 的 `appsettings.*.local.json`)
-- `*.pem`, `*.key`, `*.p12` 金鑰與憑證檔案
-- `credentials.*`, `secrets.*` 憑證檔案
+- `*.env`, `.env.*` environment variable files
+- `*.local.json`, `*.local.yaml` local configuration files (e.g., .NET's `appsettings.*.local.json`)
+- `*.pem`, `*.key`, `*.p12` key and certificate files
+- `credentials.*`, `secrets.*` credential files
 
-### Best Practice | 最佳實踐
+### Best Practice
 
-產生 CHANGELOG 時應遵循以下流程：
+When generating CHANGELOG, follow this process:
 
-1. **列出變更 commits**
+1. **List changed commits**
    ```bash
    git log main..HEAD --oneline
    ```
 
-2. **排除不需記錄的 commits**
-   - 含「gitignore」、「版控」、「雜項(版控)」類型的 commits
-   - 僅修改被排除目錄的 commits
+2. **Exclude commits that don't need recording**
+   - Commits containing "gitignore", "version control", or "misc(version control)" types
+   - Commits that only modify excluded directories
 
-3. **分類記錄**
-   - 只記錄會被簽入版本庫的實際程式碼或文件變更
-   - 確保所有記錄的檔案路徑在版本庫中存在
+3. **Categorize records**
+   - Only record actual code or documentation changes that will be committed to the repository
+   - Ensure all recorded file paths exist in the repository
 
-4. **驗證記錄**
+4. **Verify records**
    ```bash
-   # 確認記錄的路徑存在於版本庫
+   # Verify that recorded paths exist in the repository
    git ls-files | grep -E "path/to/file"
    ```
 
 ---
 
-## Release Process | 發布流程
+## Release Process
 
-### Overview | 流程概覽
+### Overview
 
-完整的 Release 流程包含 5 個階段：
+The complete Release process includes 5 phases:
 
-1. **Pre-release Diagnosis** (診斷階段) - 強制性
-2. **Environment Preparation** (環境準備)
-3. **Package Generation** (打包生成)
-4. **Deployment Execution** (部署執行)
-5. **Post-release Verification** (驗證階段)
+1. **Pre-release Diagnosis** - Mandatory
+2. **Environment Preparation**
+3. **Package Generation**
+4. **Deployment Execution**
+5. **Post-release Verification**
 
-### Phase 1: Pre-release Diagnosis | 診斷階段 ⚠️ 強制性
+### Phase 1: Pre-release Diagnosis - Mandatory
 
-**目的**: 在生成升級包前，評估目標伺服器的環境狀態
+**Purpose**: Assess the target server's environment status before generating the upgrade package
 
-**檢查項目**:
-- 系統工具版本
-- 必要驅動程式
-- 磁碟空間
-- 資料庫連線
-- 應用程式版本
-- 配置項完整性
+**Check Items**:
+- System tool versions
+- Required drivers
+- Disk space
+- Database connectivity
+- Application version
+- Configuration completeness
 
-**通過條件** (Quality Gate):
-- ✅ 所有必要工具已安裝
-- ✅ 磁碟空間充足 (至少 500MB)
-- ✅ 資料庫連線正常
-- ✅ 無系統級錯誤
+**Pass Conditions** (Quality Gate):
+- All required tools installed
+- Sufficient disk space (at least 500MB)
+- Database connection normal
+- No system-level errors
 
-**失敗處理**:
-- 若診斷失敗，執行環境準備 (Phase 2)
-- 修復後重新執行診斷
-- 不得跳過診斷直接打包
-
----
-
-### Phase 2: Environment Preparation | 環境準備
-
-**目的**: 依照診斷報告結果，安裝缺失的工具和驅動
-
-**驗證標準**:
-- ✅ 所有診斷項目通過
-- ✅ 資料庫連線測試成功
-- ✅ 驗證工具無報錯
+**Failure Handling**:
+- If diagnosis fails, execute Environment Preparation (Phase 2)
+- Re-execute diagnosis after fixes
+- Must not skip diagnosis and proceed directly to packaging
 
 ---
 
-### Phase 3: Package Generation | 打包生成
+### Phase 2: Environment Preparation
 
-**目的**: 生成包含最新版本的升級包
+**Purpose**: Install missing tools and drivers according to diagnosis report results
 
-**執行步驟**:
+**Verification Standards**:
+- All diagnosis items passed
+- Database connection test successful
+- Verification tools show no errors
+
+---
+
+### Phase 3: Package Generation
+
+**Purpose**: Generate upgrade package containing the latest version
+
+**Execution Steps**:
 ```bash
-# 1. 確認當前分支和版本
+# 1. Confirm current branch and version
 git branch
 git describe --tags
 
-# 2. 生成升級包 (使用專案提供的打包腳本)
+# 2. Generate upgrade package (using project-provided packaging script)
 ./tools/generate-upgrade-package.sh -v v1.2.1 -o ./dist
 
-# 3. 驗證升級包內容
+# 3. Verify upgrade package contents
 tar -tzf dist/upgrade-package-*.tar.gz | head -20
 ```
 
-#### Upgrade Package Naming | 升級包命名規範
+#### Upgrade Package Naming
 
-**格式**: `{PROJECT}-upgrade-v{VERSION}-{DATE}.tar.gz`
+**Format**: `{PROJECT}-upgrade-v{VERSION}-{DATE}.tar.gz`
 
-| 元素 | 說明 | 範例 |
-|------|------|------|
-| `{PROJECT}` | 專案名稱（替換為實際專案名） | `my-app`, `api-server` |
-| `{VERSION}` | 版本號（與 Git tag 一致） | `1.2.1`, `2.0.0-beta.1` |
-| `{DATE}` | 打包日期 (YYYYMMDD) | `20251128` |
+| Element | Description | Examples |
+|---------|-------------|----------|
+| `{PROJECT}` | Project name (replace with actual project name) | `my-app`, `api-server` |
+| `{VERSION}` | Version number (consistent with Git tag) | `1.2.1`, `2.0.0-beta.1` |
+| `{DATE}` | Packaging date (YYYYMMDD) | `20251128` |
 
-**範例**（將 `{PROJECT}` 替換為您的專案名稱）:
+**Examples** (replace `{PROJECT}` with your project name):
 ```
 {PROJECT}-upgrade-v1.2.1-20251127.tar.gz
 {PROJECT}-upgrade-v2.0.0-beta.1-20251201.tar.gz
@@ -417,137 +413,137 @@ tar -tzf dist/upgrade-package-*.tar.gz | head -20
 
 ---
 
-### Phase 4: Deployment Execution | 部署執行
+### Phase 4: Deployment Execution
 
-**目的**: 在目標伺服器執行升級
+**Purpose**: Execute upgrade on target server
 
-**執行步驟**:
+**Execution Steps**:
 ```bash
-# 1. 上傳升級包到目標伺服器
+# 1. Upload upgrade package to target server
 scp upgrade-package-*.tar.gz user@target:/tmp/
 
-# 2. 解壓升級包
+# 2. Extract upgrade package
 cd /tmp
 tar -xzf upgrade-package-*.tar.gz
 cd upgrade-package-*/
 
-# 3. Dry-run 測試 (強烈建議)
+# 3. Dry-run test (strongly recommended)
 sudo ./upgrade.sh --dry-run
 
-# 4. 正式升級
+# 4. Actual upgrade
 sudo ./upgrade.sh
 ```
 
-**部署驗證**:
-- ✅ 備份已建立
-- ✅ 服務停止成功
-- ✅ 檔案部署成功
-- ✅ Schema 遷移成功 (若適用)
-- ✅ 服務啟動成功
+**Deployment Verification**:
+- Backup created
+- Service stopped successfully
+- Files deployed successfully
+- Schema migration successful (if applicable)
+- Service started successfully
 
 ---
 
-### Phase 5: Post-release Verification | 驗證階段
+### Phase 5: Post-release Verification
 
-**目的**: 確認升級成功，應用程式正常運行
+**Purpose**: Confirm upgrade success and application running normally
 
-**檢查項目**:
+**Check Items**:
 ```bash
-# 1. 檢查服務狀態
+# 1. Check service status
 systemctl status your-service
 
-# 2. 檢查應用程式版本
+# 2. Check application version
 curl http://localhost:PORT/api/version
 
-# 3. 檢查日誌無錯誤
+# 3. Check logs for no errors
 tail -100 /path/to/app.log | grep -i error
 ```
 
-**成功標準**:
-- ✅ 服務正常運行
-- ✅ API 回應正確版本號
-- ✅ 日誌無致命錯誤
-- ✅ 功能驗證通過
+**Success Criteria**:
+- Service running normally
+- API returns correct version number
+- No fatal errors in logs
+- Functionality verification passed
 
 ---
 
-### Release Checklist | 發布檢查清單
+### Release Checklist
 
-**Pre-release (診斷與準備)**:
-- [ ] 執行伺服器診斷
-- [ ] 診斷報告通過所有檢查項目
-- [ ] 環境準備完成 (若有缺失)
-- [ ] 環境驗證工具通過
+**Pre-release (Diagnosis and Preparation)**:
+- [ ] Execute server diagnosis
+- [ ] Diagnosis report passes all check items
+- [ ] Environment preparation completed (if missing)
+- [ ] Environment verification tools passed
 
-**Release (打包與部署)**:
-- [ ] 升級包生成成功
-- [ ] 升級包內容驗證通過
-- [ ] Dry-run 測試無異常
-- [ ] 備份計劃已準備
-- [ ] 回滾計劃已準備
+**Release (Packaging and Deployment)**:
+- [ ] Upgrade package generated successfully
+- [ ] Upgrade package contents verified
+- [ ] Dry-run test no anomalies
+- [ ] Backup plan prepared
+- [ ] Rollback plan prepared
 
-**Post-release (驗證與監控)**:
-- [ ] 服務啟動成功
-- [ ] 版本號正確
-- [ ] 功能驗證通過
-- [ ] 日誌無異常
-
----
-
-### Quality Gates | 品質門檻
-
-以下檢查點**必須通過**，否則不得進入下一階段：
-
-| 階段 | 門檻 | 失敗處理 |
-|------|------|---------|
-| **Diagnosis** | 診斷報告無錯誤 | 環境準備 |
-| **Preparation** | 驗證工具通過 | 修復並重新驗證 |
-| **Packaging** | 升級包結構完整 | 重新打包 |
-| **Deployment** | Dry-run 無異常 | 分析日誌並修正 |
-| **Verification** | 服務正常運行 | 回滾 |
+**Post-release (Verification and Monitoring)**:
+- [ ] Service started successfully
+- [ ] Version number correct
+- [ ] Functionality verification passed
+- [ ] No anomalies in logs
 
 ---
 
-### Rollback Plan | 回滾計劃
+### Quality Gates
 
-若升級失敗，執行以下回滾步驟：
+The following checkpoints **must pass**, otherwise cannot proceed to next phase:
+
+| Phase | Gate | Failure Handling |
+|-------|------|------------------|
+| **Diagnosis** | Diagnosis report no errors | Environment preparation |
+| **Preparation** | Verification tools passed | Fix and re-verify |
+| **Packaging** | Upgrade package structure complete | Re-package |
+| **Deployment** | Dry-run no anomalies | Analyze logs and fix |
+| **Verification** | Service running normally | Rollback |
+
+---
+
+### Rollback Plan
+
+If upgrade fails, execute the following rollback steps:
 
 ```bash
-# 1. 停止服務
+# 1. Stop service
 sudo systemctl stop your-service
 
-# 2. 還原備份
+# 2. Restore backup
 BACKUP_PATH="/path/to/backup-$(date +%Y%m%d)"
 sudo rm -rf /path/to/app
 sudo mv "$BACKUP_PATH" /path/to/app
 
-# 3. 重啟服務
+# 3. Restart service
 sudo systemctl start your-service
 
-# 4. 驗證回滾成功
+# 4. Verify rollback success
 sudo systemctl status your-service
 ```
 
 ---
 
-### Compliance | 合規性
+### Compliance
 
-**強制性要求**:
-- ⚠️ **不得跳過診斷階段**
-- ⚠️ **不得跳過 dry-run 測試**
-- ⚠️ **必須留存診斷報告**
-- ⚠️ **必須準備回滾計劃**
+**Mandatory Requirements**:
+- Must not skip diagnosis phase
+- Must not skip dry-run test
+- Must retain diagnosis report
+- Must prepare rollback plan
 
-**審計追蹤**:
-- 所有 Release 文檔留存至少 12 個月
-- 診斷報告與 Git Tag 關聯
-- 升級日誌保存完整
+**Audit Trail**:
+- All Release documentation retained for at least 12 months
+- Diagnosis report associated with Git Tag
+- Upgrade logs preserved completely
 
 ---
 
-## Version Tagging in Git | Git 版本標籤
+## Version Tagging in Git
 
-### Creating Tags | 建立標籤
+### Creating Tags
 
 ```bash
 # Annotated tag (recommended)
@@ -568,7 +564,7 @@ git push origin v1.2.0
 git push origin --tags
 ```
 
-### Tag Naming Convention | 標籤命名慣例
+### Tag Naming Convention
 
 ```
 v1.0.0          ✅ Recommended (with 'v' prefix)
@@ -579,7 +575,7 @@ version-1.0.0   ❌ Avoid (too verbose)
 
 ---
 
-## Automation Tools | 自動化工具
+## Automation Tools
 
 ### standard-version (Node.js)
 
@@ -622,7 +618,7 @@ npm install --save-dev semantic-release
 
 ---
 
-## Dependency Version Ranges | 依賴版本範圍
+## Dependency Version Ranges
 
 ### npm (package.json)
 
@@ -638,7 +634,7 @@ npm install --save-dev semantic-release
 }
 ```
 
-**Recommendations | 建議**:
+**Recommendations**:
 - Use `^` for most dependencies (minor updates)
 - Use `~` for conservative updates (patch only)
 - Use exact versions for critical dependencies
@@ -663,7 +659,7 @@ npm install --save-dev semantic-release
 
 ---
 
-## Breaking Change Communication | 破壞性變更溝通
+## Breaking Change Communication
 
 ### 1. Deprecation Warnings (N-1 Version)
 
@@ -721,7 +717,7 @@ const user = response.user;
 
 ---
 
-## Project Configuration | 專案設定
+## Project Configuration
 
 ### Document in README.md
 
@@ -749,9 +745,9 @@ See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ---
 
-## Version Comparison | 版本比較
+## Version Comparison
 
-### Precedence Rules | 優先級規則
+### Precedence Rules
 
 ```
 1.0.0 < 2.0.0 < 2.1.0 < 2.1.1
@@ -761,7 +757,7 @@ See [CHANGELOG.md](CHANGELOG.md) for release history.
 1.0.0 < 1.0.0+001 (build metadata ignored in precedence)
 ```
 
-### Comparison in Code | 程式碼中比較
+### Comparison in Code
 
 ```javascript
 // JavaScript (using semver package)
@@ -774,7 +770,7 @@ semver.major('2.3.1');  // 2
 
 ---
 
-## Common Questions | 常見問題
+## Common Questions
 
 ### Q: When should I release 1.0.0?
 
@@ -802,15 +798,15 @@ semver.major('2.3.1');  // 2
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Changelog Standards](changelog-standards.md) - 變更日誌標準
-- [Git Workflow Standards](git-workflow.md) - Git 工作流程標準
-- [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範
+- [Changelog Standards](changelog-standards.md)
+- [Git Workflow Standards](git-workflow.md)
+- [Commit Message Guide](commit-message-guide.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -822,7 +818,7 @@ semver.major('2.3.1');  // 2
 
 ---
 
-## References | 參考資料
+## References
 
 - [Semantic Versioning 2.0.0](https://semver.org/)
 - [Keep a Changelog](https://keepachangelog.com/)
@@ -830,8 +826,6 @@ semver.major('2.3.1');  // 2
 
 ---
 
-## License | 授權
+## License
 
 This standard is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

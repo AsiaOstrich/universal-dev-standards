@@ -1,24 +1,22 @@
 # README Template & Best Practices
-# README 範本與最佳實踐
+
+> **Language**: English | [繁體中文](../../../../locales/zh-TW/skills/claude-code/documentation-guide/readme-template.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document provides templates and best practices for writing README files.
 
-本文件提供撰寫 README 檔案的範本和最佳實踐。
-
 ---
 
-## README Sections Reference | README 章節參考
+## README Sections Reference
 
-### Essential Sections (Minimum) | 必要章節（最低要求）
+### Essential Sections (Minimum)
 
 | Section | Purpose | Required |
 |---------|---------|:--------:|
@@ -28,7 +26,7 @@ This document provides templates and best practices for writing README files.
 | Usage | How to use | ✅ |
 | License | Legal terms | ✅ |
 
-### Recommended Sections | 建議章節
+### Recommended Sections
 
 | Section | Purpose | When to Include |
 |---------|---------|-----------------|
@@ -44,9 +42,9 @@ This document provides templates and best practices for writing README files.
 
 ---
 
-## README Templates | README 範本
+## README Templates
 
-### Minimal README | 最小 README
+### Minimal README
 
 ```markdown
 # Project Name
@@ -71,7 +69,7 @@ lib.doSomething();
 MIT
 ```
 
-### Standard README | 標準 README
+### Standard README
 
 ```markdown
 # Project Name
@@ -115,7 +113,7 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
 MIT - see [LICENSE](LICENSE)
 ```
 
-### Full README | 完整 README
+### Full README
 
 ```markdown
 # Project Name
@@ -232,9 +230,9 @@ MIT - see [LICENSE](LICENSE) for details.
 
 ---
 
-## Section Details | 章節詳解
+## Section Details
 
-### Project Name & Description | 專案名稱與描述
+### Project Name & Description
 
 **Good**:
 ```markdown
@@ -250,7 +248,7 @@ A blazing-fast JSON parser for Node.js with streaming support.
 This is a project.
 ```
 
-### Badges | 徽章
+### Badges
 
 Common badges:
 ```markdown
@@ -260,7 +258,7 @@ Common badges:
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ```
 
-### Installation | 安裝
+### Installation
 
 Include multiple package managers if applicable:
 
@@ -278,7 +276,7 @@ yarn add package-name
 ```
 ```
 
-### Usage Examples | 使用範例
+### Usage Examples
 
 **Good** - Shows real use case:
 ```markdown
@@ -306,7 +304,7 @@ lib.func();
 ```
 ```
 
-### Configuration Table | 配置表格
+### Configuration Table
 
 ```markdown
 ## Configuration
@@ -320,7 +318,7 @@ lib.func();
 
 ---
 
-## Common Mistakes | 常見錯誤
+## Common Mistakes
 
 ### ❌ Too Vague
 
@@ -371,7 +369,7 @@ See [documentation](docs/old-path.md) for more info.  ← Link doesn't exist
 
 ---
 
-## README Quality Checklist | README 品質檢查清單
+## README Quality Checklist
 
 - [ ] Project name clearly stated
 - [ ] Purpose explained in 1-2 sentences
@@ -384,14 +382,14 @@ See [documentation](docs/old-path.md) for more info.  ← Link doesn't exist
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Documentation Structure Reference](./documentation-structure.md) - 文件結構參考
-- [Documentation Writing Standards](../../../core/documentation-writing-standards.md) - 文件撰寫標準
+- [Documentation Structure Reference](./documentation-structure.md)
+- [Documentation Writing Standards](../../../core/documentation-writing-standards.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -399,10 +397,8 @@ See [documentation](docs/old-path.md) for more info.  ← Link doesn't exist
 
 ---
 
-## License | 授權
+## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

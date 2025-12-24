@@ -1,40 +1,34 @@
 # Universal Development Standards
-# 通用開發規範
 
-**Version**: 2.1.0
-**Last Updated**: 2025-12-24
+> **Language**: English | [繁體中文](locales/zh-TW/README.md)
+
+**Version**: 2.2.0
+**Last Updated**: 2025-12-25
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 ---
 
-## 📋 Purpose | 目的
+## 📋 Purpose
 
 This repository provides **language-agnostic, framework-agnostic, domain-agnostic** documentation standards for software projects. These standards ensure consistency, quality, and maintainability across diverse technology stacks.
 
-本儲存庫提供**語言無關、框架無關、領域無關**的軟體專案文件規範。這些標準確保跨不同技術棧的一致性、品質與可維護性。
+---
+
+## 🎯 Core Principles
+
+1. **Universal Applicability** - Standards work for any programming language, framework, or domain
+
+2. **Modular Design** - Pick and choose standards relevant to your project
+
+3. **Extensible Architecture** - Extend with language-specific, framework-specific, or domain-specific rules
+
+4. **Evidence-Based** - Standards derived from industry best practices and real-world validation
+
+5. **Self-Contained** - Each standard is independently usable without dependencies
 
 ---
 
-## 🎯 Core Principles | 核心原則
-
-1. **Universal Applicability** | 通用適用性
-   Standards work for any programming language, framework, or domain
-
-2. **Modular Design** | 模組化設計
-   Pick and choose standards relevant to your project
-
-3. **Extensible Architecture** | 可擴充架構
-   Extend with language-specific, framework-specific, or domain-specific rules
-
-4. **Evidence-Based** | 基於證據
-   Standards derived from industry best practices and real-world validation
-
-5. **Self-Contained** | 自成一體
-   Each standard is independently usable without dependencies
-
----
-
-## 📦 What's Inside | 內容概覽
+## 📦 What's Inside
 
 ```
 universal-dev-standards/
@@ -91,13 +85,11 @@ universal-dev-standards/
 
 ---
 
-## 🔗 Standards Adoption | 規範採用
+## 🔗 Standards Adoption
 
-### Using with Claude Code (Recommended) | 搭配 Claude Code 使用（推薦）
+### Using with Claude Code (Recommended)
 
 Skills are now included in this repository. Install Claude Code Skills for interactive AI assistance:
-
-Skills 現已整合在本儲存庫中。安裝 Claude Code Skills 獲得互動式 AI 輔助：
 
 ```bash
 # Clone and install skills
@@ -106,7 +98,7 @@ cd universal-dev-standards/skills/claude-code
 ./install.sh
 ```
 
-### Multi-AI Tool Support (Coming Soon) | 多 AI 工具支援（即將推出）
+### Multi-AI Tool Support (Coming Soon)
 
 We're expanding support for more AI coding assistants:
 
@@ -118,7 +110,7 @@ We're expanding support for more AI coding assistants:
 | Cline | 🚧 Planned | `skills/cline/` |
 | GitHub Copilot | 🚧 Planned | `skills/copilot/` |
 
-### Standards Coverage | 規範涵蓋範圍
+### Standards Coverage
 
 | Standard | Skill Available | Adoption |
 |----------|----------------|----------|
@@ -138,12 +130,10 @@ We're expanding support for more AI coding assistants:
 | AI tool integrations | ❌ | Copy to tool location |
 
 > **Important**: For standards with Skills available, use the Skill OR copy the source document — **never both**.
->
-> **重要**：對於有 Skill 的規範，使用 Skill 或複製原始文件 — **擇一即可，不要兩者都做**。
 
 📖 See [Adoption Guide](adoption/ADOPTION-GUIDE.md) for complete guidance and checklists.
 
-### Using CLI Tool | 使用 CLI 工具
+### Using CLI Tool
 
 ```bash
 # Clone and setup CLI (one-time)
@@ -161,9 +151,9 @@ uds update  # Update to latest version
 
 ---
 
-## 🚀 Quick Start | 快速開始
+## 🚀 Quick Start
 
-### Step 1: Choose Core Standards | 選擇核心規範
+### Step 1: Choose Core Standards
 
 **Minimal Setup (Required)**:
 ```bash
@@ -181,7 +171,7 @@ cp core/*.md your-project/.standards/
 
 ---
 
-### Step 2: Add Language/Framework Extensions | 新增語言/框架擴充
+### Step 2: Add Language/Framework Extensions
 
 **For .NET Projects**:
 ```bash
@@ -201,7 +191,7 @@ cp extensions/languages/python-style.md your-project/.standards/
 
 ---
 
-### Step 3: Configure Project-Specific Settings | 設定專案特定設定
+### Step 3: Configure Project-Specific Settings
 
 Edit `your-project/CONTRIBUTING.md` or `your-project/.standards/PROJECT-CONFIG.md`:
 
@@ -233,7 +223,7 @@ Edit `your-project/CONTRIBUTING.md` or `your-project/.standards/PROJECT-CONFIG.m
 
 ---
 
-### Step 4 (Optional): Use Templates | 使用範本
+### Step 4 (Optional): Use Templates
 
 ```bash
 # Initialize project documentation
@@ -249,7 +239,7 @@ cp templates/CHANGELOG.md.template your-project/CHANGELOG.md
 
 ---
 
-## 📊 Standard Levels | 規範等級
+## 📊 Standard Levels
 
 ### 🟢 Level 1: Essential (Minimum Viable Standards)
 
@@ -293,13 +283,13 @@ cp templates/CHANGELOG.md.template your-project/CHANGELOG.md
 
 ---
 
-## 🔧 Customization Guide | 自訂指南
+## 🔧 Customization Guide
 
-### Adapting Standards to Your Project | 調整規範以符合專案需求
+### Adapting Standards to Your Project
 
 All core standards include **"Project-Specific Customization"** sections. Customize by:
 
-1. **Language Choice** | 語言選擇
+1. **Language Choice**
    ```markdown
    ## Commit Message Language Choice
    - English: feat, fix, refactor
@@ -307,7 +297,7 @@ All core standards include **"Project-Specific Customization"** sections. Custom
    - Spanish: característica, corrección, refactorización
    ```
 
-2. **Tool Configuration** | 工具設定
+2. **Tool Configuration**
    ```markdown
    ## Build Command
    ```bash
@@ -317,7 +307,7 @@ All core standards include **"Project-Specific Customization"** sections. Custom
    ```
    ```
 
-3. **Threshold Adjustment** | 閾值調整
+3. **Threshold Adjustment**
    ```markdown
    ## Quality Thresholds
    - Test Coverage: 80% (adjust based on project maturity)
@@ -325,7 +315,7 @@ All core standards include **"Project-Specific Customization"** sections. Custom
    - Max Cyclomatic Complexity: 10 (standard)
    ```
 
-4. **Scope Definition** | 範圍定義
+4. **Scope Definition**
    ```markdown
    ## Allowed Commit Scopes
    - auth: Authentication module
@@ -335,9 +325,9 @@ All core standards include **"Project-Specific Customization"** sections. Custom
 
 ---
 
-## 🌍 Multi-Language Support | 多語言支援
+## 🌍 Multi-Language Support
 
-### Commit Message Language Examples | Commit 訊息語言範例
+### Commit Message Language Examples
 
 **English**:
 ```
@@ -369,9 +359,9 @@ documentación(readme): Actualizar guía de instalación
 
 ---
 
-## 🛠️ Tool Integration | 工具整合
+## 🛠️ Tool Integration
 
-### Git Hooks | Git 掛鉤
+### Git Hooks
 
 **Install commitlint** (Node.js projects):
 ```bash
@@ -400,7 +390,7 @@ module.exports = {
 
 ---
 
-### CI/CD Integration | CI/CD 整合
+### CI/CD Integration
 
 **GitHub Actions Example**:
 ```yaml
@@ -438,7 +428,7 @@ jobs:
 
 ---
 
-### OpenSpec Integration | OpenSpec 整合
+### OpenSpec Integration
 
 For spec-driven development, integrate OpenSpec:
 
@@ -465,7 +455,7 @@ cp integrations/openspec/commands/* your-project/.claude/commands/
 
 ---
 
-## 📚 Examples | 範例
+## 📚 Examples
 
 ### Example 1: .NET Web API Project
 
@@ -540,18 +530,18 @@ See `examples/python-ml/` for full implementation.
 
 ---
 
-## 🤝 Contributing | 貢獻
+## 🤝 Contributing
 
 We welcome contributions to improve these standards!
 
-### How to Contribute | 如何貢獻
+### How to Contribute
 
 1. **Suggest Improvements**: Open an issue describing the problem and proposed solution
 2. **Add Examples**: Submit examples of how you've applied these standards
 3. **Extend Standards**: Contribute new language/framework/domain extensions
 4. **Translate**: Help translate standards to other languages
 
-### Contribution Guidelines | 貢獻指南
+### Contribution Guidelines
 
 All contributions must:
 - ✅ Maintain language/framework/domain agnosticism (for core standards)
@@ -561,7 +551,7 @@ All contributions must:
 
 ---
 
-## 📖 Further Reading | 延伸閱讀
+## 📖 Further Reading
 
 ### Related Standards and Frameworks
 
@@ -580,7 +570,7 @@ All contributions must:
 
 ---
 
-## 🔄 Version History | 版本歷史
+## 🔄 Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -591,26 +581,22 @@ All contributions must:
 
 ---
 
-## 📄 License | 授權
+## 📄 License
 
 This project uses **dual licensing**:
 
-本專案採用**雙重授權**：
-
-| Component | License | 說明 |
-|-----------|---------|------|
-| Documentation (`core/`, `extensions/`, `templates/`, etc.) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | 文件與規範 |
-| CLI Tool (`cli/`) | [MIT](cli/LICENSE) | CLI 工具程式碼 |
+| Component | License |
+|-----------|---------|
+| Documentation (`core/`, `extensions/`, `templates/`, etc.) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| CLI Tool (`cli/`) | [MIT](cli/LICENSE) |
 
 Both licenses are permissive and allow commercial use, modification, and redistribution.
-
-兩種授權都是寬鬆型授權，允許商業使用、修改與再發布。
 
 See [LICENSE](LICENSE) for full details.
 
 ---
 
-## 💬 Community | 社群
+## 💬 Community
 
 - **Issues**: Report bugs or suggest improvements
 - **Discussions**: Share how you're using these standards
@@ -618,7 +604,7 @@ See [LICENSE](LICENSE) for full details.
 
 ---
 
-## ✅ Checklist for Adopting Standards | 採用標準檢查清單
+## ✅ Checklist for Adopting Standards
 
 - [ ] Copied core standards to project
 - [ ] Chose language/framework extensions
@@ -632,10 +618,8 @@ See [LICENSE](LICENSE) for full details.
 ---
 
 **Ready to improve your project's documentation quality?**
-**準備好提升專案的文件品質了嗎？**
 
 Start with Level 1 (Essential Standards) today!
-從今天開始使用 Level 1（必要規範）！
 
 ---
 

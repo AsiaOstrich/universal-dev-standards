@@ -1,18 +1,16 @@
 # Certainty Labels Reference
-# 確定性標籤參考
+
+> **Language**: English | [繁體中文](../../../../locales/zh-TW/skills/claude-code/ai-collaboration-standards/certainty-labels.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document provides reference for certainty labels and source types used in AI responses.
-
-本文件提供 AI 回應中使用的確定性標籤和來源類型的參考。
 
 ---
 
@@ -55,18 +53,6 @@ This document provides reference for certainty labels and source types used in A
 `[Need Confirmation]` Should multi-tenancy be supported?
 ```
 
-### 技術文件中（中文）
-
-```markdown
-## 系統架構分析
-
-`[已確認]` 系統使用 ASP.NET Core 8.0 框架 [Source: Code] Program.cs:1
-`[已確認]` 資料庫採用 SQL Server [Source: Code] appsettings.json:12
-`[推論]` 基於 Repository Pattern 的使用，系統可能採用 DDD 架構
-`[假設]` 快取機制可能使用 Redis（需確認設定檔）
-`[待確認]` 是否需要支援多租戶架構？
-```
-
 ### In Code Review
 
 ```markdown
@@ -75,16 +61,6 @@ This document provides reference for certainty labels and source types used in A
 `[Confirmed]` src/Services/AuthService.cs:45 - Password validation lacks brute force protection
 `[Inferred]` Rate limiting may be needed here
 `[Need Confirmation]` Are there other layers of protection already in place?
-```
-
-### 程式碼審查中（中文）
-
-```markdown
-## 審查意見
-
-`[已確認]` src/Services/AuthService.cs:45 - 密碼驗證缺少防暴力破解機制
-`[推論]` 此處可能需要加入 Rate Limiting
-`[待確認]` 是否已有其他層級的防護措施？
 ```
 
 ---
@@ -126,14 +102,14 @@ Did you read the actual code/doc?
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Anti-Hallucination Guidelines](./anti-hallucination.md) - 防幻覺指南
-- [Anti-Hallucination Standards](../../../core/anti-hallucination.md) - 防幻覺標準
+- [Anti-Hallucination Guidelines](./anti-hallucination.md)
+- [Anti-Hallucination Standards](../../../core/anti-hallucination.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -141,10 +117,8 @@ Did you read the actual code/doc?
 
 ---
 
-## License | 授權
+## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

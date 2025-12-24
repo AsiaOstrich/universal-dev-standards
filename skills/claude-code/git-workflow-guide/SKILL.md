@@ -7,20 +7,18 @@ description: |
 ---
 
 # Git Workflow Guide
-# Git 工作流程指南
+
+> **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/git-workflow-guide/SKILL.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This skill provides guidance on Git branching strategies, branch naming conventions, and merge operations.
-
-本 Skill 提供 Git 分支策略、分支命名規範和合併操作的指導。
 
 ## Quick Reference
 
@@ -51,9 +49,9 @@ This skill provides guidance on Git branching strategies, branch naming conventi
 
 ### Naming Rules
 
-1. **Use lowercase** | 使用小寫
-2. **Use hyphens for spaces** | 使用連字號分隔單詞
-3. **Be descriptive but concise** | 具描述性但簡潔
+1. **Use lowercase**
+2. **Use hyphens for spaces**
+3. **Be descriptive but concise**
 
 ## Detailed Guidelines
 
@@ -192,15 +190,15 @@ Example: `feature/oauth-login`, `fix/memory-leak`
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Git Workflow](../../core/git-workflow.md) - Git 工作流程
-- [Commit Message Guide](../../core/commit-message-guide.md) - Commit 訊息指南
-- [Checkin Standards](../../core/checkin-standards.md) - 簽入標準
+- [Git Workflow](../../core/git-workflow.md)
+- [Commit Message Guide](../../core/commit-message-guide.md)
+- [Checkin Standards](../../core/checkin-standards.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -208,10 +206,8 @@ Example: `feature/oauth-login`, `fix/memory-leak`
 
 ---
 
-## License | 授權
+## License
 
 This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

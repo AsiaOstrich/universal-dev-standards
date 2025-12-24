@@ -1,22 +1,20 @@
 # Requirement Completeness Checklist
-# 需求完整性檢查清單
+
+> **Language**: English | [繁體中文](../../../../locales/zh-TW/skills/claude-code/requirement-assistant/requirement-checklist.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document provides checklists for verifying requirement completeness and quality.
 
-本文件提供驗證需求完整性和品質的檢查清單。
-
 ---
 
-## Quick Checklist | 快速檢查
+## Quick Checklist
 
 Before submitting any requirement, verify these essentials:
 
@@ -31,32 +29,32 @@ Before submitting any requirement, verify these essentials:
 
 ---
 
-## Detailed Checklist by Requirement Type | 依需求類型的詳細檢查清單
+## Detailed Checklist by Requirement Type
 
-### Feature Request Checklist | 功能需求檢查清單
+### Feature Request Checklist
 
-#### 1. Problem Definition | 問題定義
+#### 1. Problem Definition
 
 - [ ] Problem is clearly stated
 - [ ] Current pain points identified
 - [ ] Impact quantified (if possible)
 - [ ] Root cause understood
 
-#### 2. User Context | 使用者情境
+#### 2. User Context
 
 - [ ] Target users/personas identified
 - [ ] User goals described
 - [ ] Current workarounds documented
 - [ ] User journey mapped (if complex)
 
-#### 3. Solution Description | 解決方案描述
+#### 3. Solution Description
 
 - [ ] Feature described (not implementation)
 - [ ] User interactions outlined
 - [ ] Expected outcomes stated
 - [ ] Success metrics defined
 
-#### 4. Acceptance Criteria | 驗收標準
+#### 4. Acceptance Criteria
 
 - [ ] All criteria are testable
 - [ ] Happy path covered
@@ -64,14 +62,14 @@ Before submitting any requirement, verify these essentials:
 - [ ] Edge cases considered
 - [ ] Performance criteria (if applicable)
 
-#### 5. Scope Definition | 範圍定義
+#### 5. Scope Definition
 
 - [ ] In-scope items listed
 - [ ] Out-of-scope items listed
 - [ ] Future considerations noted
 - [ ] Dependencies identified
 
-#### 6. Priority & Timeline | 優先級與時程
+#### 6. Priority & Timeline
 
 - [ ] Priority assigned (P0-P3 or MoSCoW)
 - [ ] Business justification provided
@@ -80,41 +78,41 @@ Before submitting any requirement, verify these essentials:
 
 ---
 
-### Bug Report Checklist | 錯誤回報檢查清單
+### Bug Report Checklist
 
-#### 1. Description | 描述
+#### 1. Description
 
 - [ ] Title is clear and specific
 - [ ] Description is concise
 - [ ] Impact/severity stated
 
-#### 2. Reproduction | 重現步驟
+#### 2. Reproduction
 
 - [ ] Steps are numbered
 - [ ] Steps are reproducible
 - [ ] Prerequisites listed
 - [ ] Test data provided (if needed)
 
-#### 3. Behavior | 行為
+#### 3. Behavior
 
 - [ ] Expected behavior described
 - [ ] Actual behavior described
 - [ ] Difference is clear
 
-#### 4. Evidence | 證據
+#### 4. Evidence
 
 - [ ] Screenshots attached (if UI)
 - [ ] Error logs included (if available)
 - [ ] Stack trace provided (if crash)
 
-#### 5. Environment | 環境
+#### 5. Environment
 
 - [ ] OS and version
 - [ ] Browser and version (if web)
 - [ ] App version
 - [ ] Relevant configuration
 
-#### 6. Classification | 分類
+#### 6. Classification
 
 - [ ] Severity assigned
 - [ ] Priority assigned
@@ -123,34 +121,34 @@ Before submitting any requirement, verify these essentials:
 
 ---
 
-### Technical Task Checklist | 技術任務檢查清單
+### Technical Task Checklist
 
-#### 1. Context | 背景
+#### 1. Context
 
 - [ ] Why is this needed?
 - [ ] What problem does it solve?
 - [ ] What triggered this task?
 
-#### 2. Technical Details | 技術細節
+#### 2. Technical Details
 
 - [ ] Approach described
 - [ ] Affected components listed
 - [ ] Database changes noted
 - [ ] API changes noted
 
-#### 3. Scope | 範圍
+#### 3. Scope
 
 - [ ] What will be changed?
 - [ ] What will NOT be changed?
 - [ ] Backward compatibility addressed
 
-#### 4. Criteria | 標準
+#### 4. Criteria
 
 - [ ] Definition of done clear
 - [ ] Testing requirements defined
 - [ ] Documentation needs identified
 
-#### 5. Risks | 風險
+#### 5. Risks
 
 - [ ] Technical risks identified
 - [ ] Mitigation strategies noted
@@ -158,11 +156,11 @@ Before submitting any requirement, verify these essentials:
 
 ---
 
-## INVEST Validation | INVEST 驗證
+## INVEST Validation
 
 Use this to validate user stories:
 
-### Independent | 獨立性
+### Independent
 
 - [ ] Can be delivered without other stories
 - [ ] No blocking dependencies
@@ -170,7 +168,7 @@ Use this to validate user stories:
 
 **If NO**: Consider combining with dependent story or redefining scope.
 
-### Negotiable | 可協商性
+### Negotiable
 
 - [ ] Implementation details not locked in
 - [ ] Room for technical discussion
@@ -178,7 +176,7 @@ Use this to validate user stories:
 
 **If NO**: Remove implementation specifics, focus on outcome.
 
-### Valuable | 有價值性
+### Valuable
 
 - [ ] Delivers value to user/stakeholder
 - [ ] Solves a real problem
@@ -186,7 +184,7 @@ Use this to validate user stories:
 
 **If NO**: Reconsider if this should be done at all.
 
-### Estimable | 可估算性
+### Estimable
 
 - [ ] Team can estimate effort
 - [ ] Scope is understood
@@ -194,7 +192,7 @@ Use this to validate user stories:
 
 **If NO**: Spike/research task needed first.
 
-### Small | 小型化
+### Small
 
 - [ ] Can complete in one sprint
 - [ ] Typically 1-5 days effort
@@ -202,7 +200,7 @@ Use this to validate user stories:
 
 **If NO**: Break into smaller stories.
 
-### Testable | 可測試性
+### Testable
 
 - [ ] Clear acceptance criteria
 - [ ] Can write automated tests
@@ -212,7 +210,7 @@ Use this to validate user stories:
 
 ---
 
-## Acceptance Criteria Quality Check | 驗收標準品質檢查
+## Acceptance Criteria Quality Check
 
 For each acceptance criterion:
 
@@ -224,7 +222,7 @@ For each acceptance criterion:
 | Relevant | [ ] | Related to the requirement |
 | Testable | [ ] | Can write a test case |
 
-### Common Issues | 常見問題
+### Common Issues
 
 | Issue | Bad Example | Good Example |
 |-------|-------------|--------------|
@@ -235,11 +233,11 @@ For each acceptance criterion:
 
 ---
 
-## Final Review Checklist | 最終審查檢查清單
+## Final Review Checklist
 
 Before submitting for development:
 
-### Content Quality | 內容品質
+### Content Quality
 
 - [ ] Title is clear and descriptive
 - [ ] Description is complete
@@ -247,7 +245,7 @@ Before submitting for development:
 - [ ] No assumptions unstated
 - [ ] Technical jargon explained
 
-### Completeness | 完整性
+### Completeness
 
 - [ ] All required fields filled
 - [ ] Acceptance criteria defined
@@ -255,14 +253,14 @@ Before submitting for development:
 - [ ] Dependencies listed
 - [ ] Priority assigned
 
-### Consistency | 一致性
+### Consistency
 
 - [ ] Follows team templates
 - [ ] Consistent terminology
 - [ ] Linked to related items
 - [ ] Labels applied correctly
 
-### Ready for Development | 準備開發
+### Ready for Development
 
 - [ ] Team can estimate effort
 - [ ] No blocking questions
@@ -271,7 +269,7 @@ Before submitting for development:
 
 ---
 
-## Checklist Results | 檢查結果
+## Checklist Results
 
 **Requirement Title**: ___________________________
 
@@ -297,14 +295,14 @@ Before submitting for development:
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Requirement Writing Guide](./requirement-writing.md) - 需求撰寫指南
-- [Spec-Driven Development](../../../core/spec-driven-development.md) - 規格驅動開發
+- [Requirement Writing Guide](./requirement-writing.md)
+- [Spec-Driven Development](../../../core/spec-driven-development.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -312,10 +310,8 @@ Before submitting for development:
 
 ---
 
-## License | 授權
+## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

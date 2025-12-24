@@ -1,59 +1,52 @@
 # Test Completeness Dimensions
-# 測試完整性維度
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: All software projects with testing requirements
-**適用範圍**: 所有需要測試的軟體專案
+
+[English](.) | [繁體中文](../locales/zh-TW/core/test-completeness-dimensions.md)
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document defines a systematic framework for evaluating test completeness. It provides developers with a checklist to ensure comprehensive test coverage across multiple dimensions.
 
-本文件定義評估測試完整性的系統性框架。為開發者提供檢核清單，確保測試覆蓋多個維度。
-
 ---
 
-## The Seven Dimensions | 七個維度
+## The Seven Dimensions
 
 A complete test suite should cover these 7 dimensions for each feature:
-
-完整的測試套件應為每個功能涵蓋以下 7 個維度：
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │              Test Completeness = 7 Dimensions                │
-│                    測試完整性 = 7 個維度                      │
 ├─────────────────────────────────────────────────────────────┤
-│  1. Happy Path        正向路徑    Normal expected behavior   │
-│  2. Boundary          邊界條件    Min/max values, limits     │
-│  3. Error Handling    錯誤處理    Invalid input, exceptions  │
-│  4. Authorization     權限驗證    Role-based access control  │
-│  5. State Changes     狀態轉換    Before/after verification  │
-│  6. Validation        驗證邏輯    Format, business rules     │
-│  7. Integration       整合驗證    Real query verification    │
+│  1. Happy Path        Normal expected behavior              │
+│  2. Boundary          Min/max values, limits                │
+│  3. Error Handling    Invalid input, exceptions             │
+│  4. Authorization     Role-based access control             │
+│  5. State Changes     Before/after verification             │
+│  6. Validation        Format, business rules                │
+│  7. Integration       Real query verification               │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Dimension Details | 維度詳解
+## Dimension Details
 
-### 1. Happy Path | 正向路徑
+### 1. Happy Path
 
 Test the normal, expected flow with valid inputs.
 
-測試使用有效輸入的正常預期流程。
-
-**What to test | 測試內容**:
+**What to test**:
 - Valid input produces expected output
 - Success status codes/responses
 - Data is correctly created/modified
 - Side effects occur as expected
 
-**Example | 範例**:
+**Example**:
 ```csharp
 [Fact]
 public async Task CreateUser_WithValidData_ReturnsSuccess()
@@ -77,20 +70,18 @@ public async Task CreateUser_WithValidData_ReturnsSuccess()
 
 ---
 
-### 2. Boundary Conditions | 邊界條件
+### 2. Boundary Conditions
 
 Test values at the edges of valid ranges.
 
-測試有效範圍邊緣的值。
-
-**What to test | 測試內容**:
+**What to test**:
 - Minimum valid values
 - Maximum valid values
 - Just below minimum (invalid)
 - Just above maximum (invalid)
 - Empty collections vs. single item vs. many items
 
-**Example | 範例**:
+**Example**:
 ```csharp
 [Theory]
 [InlineData(0, false)]      // Below minimum
@@ -123,20 +114,18 @@ public async Task BatchProcess_ExceedingLimit_ReturnsError()
 
 ---
 
-### 3. Error Handling | 錯誤處理
+### 3. Error Handling
 
 Test how the system handles invalid inputs and exceptional conditions.
 
-測試系統如何處理無效輸入和異常狀況。
-
-**What to test | 測試內容**:
+**What to test**:
 - Invalid input formats
 - Missing required fields
 - Duplicate data conflicts
 - Resource not found
 - External service failures
 
-**Example | 範例**:
+**Example**:
 ```csharp
 [Fact]
 public async Task CreateUser_DuplicateEmail_ReturnsConflict()
@@ -189,22 +178,19 @@ public async Task CreateUser_MissingRequiredFields_ReturnsValidationError()
 
 ---
 
-### 4. Authorization | 權限驗證
+### 4. Authorization
 
 Test role-based access control for each operation.
 
-測試每個操作的角色存取控制。
-
-**What to test | 測試內容**:
+**What to test**:
 - Each role's permitted operations
 - Each role's denied operations
 - Unauthenticated access
 - Cross-tenant/cross-user data access
 
-**Authorization Test Matrix | 權限測試矩陣**:
+**Authorization Test Matrix**:
 
 Create a matrix for each feature:
-為每個功能建立矩陣：
 
 | Operation | Admin | Manager | Member | Guest |
 |-----------|-------|---------|--------|-------|
@@ -214,9 +200,8 @@ Create a matrix for each feature:
 | Delete | ✅ | ❌ | ❌ | ❌ |
 
 Each cell should have a corresponding test case.
-每個儲存格應有對應的測試案例。
 
-**Example | 範例**:
+**Example**:
 ```csharp
 [Fact]
 public async Task DeleteUser_AsAdmin_Succeeds()
@@ -261,19 +246,17 @@ public async Task GetUsers_AsManager_ReturnsOnlyDepartmentMembers()
 
 ---
 
-### 5. State Changes | 狀態轉換
+### 5. State Changes
 
 Verify that operations correctly modify system state.
 
-驗證操作正確修改系統狀態。
-
-**What to test | 測試內容**:
+**What to test**:
 - State before operation
 - State after operation
 - State transitions (enabled → disabled, pending → approved)
 - Idempotency (repeating operation has same result)
 
-**Example | 範例**:
+**Example**:
 ```csharp
 [Fact]
 public async Task DisableUser_UpdatesStateCorrectly()
@@ -309,19 +292,17 @@ public async Task EnableUser_FromDisabledState_UpdatesStateCorrectly()
 
 ---
 
-### 6. Validation Logic | 驗證邏輯
+### 6. Validation Logic
 
 Test business rules and format validation.
 
-測試業務規則和格式驗證。
-
-**What to test | 測試內容**:
+**What to test**:
 - Format validation (email, phone, etc.)
 - Business rule validation
 - Cross-field validation
 - Domain-specific constraints
 
-**Example | 範例**:
+**Example**:
 ```csharp
 [Theory]
 [InlineData("user@example.com", true)]
@@ -375,25 +356,21 @@ public async Task CreateOrder_QuantityExceedsStock_ReturnsBusinessRuleError()
 
 ---
 
-### 7. Integration Verification | 整合驗證
+### 7. Integration Verification
 
 Verify actual database queries and external integrations work correctly.
 
-驗證實際資料庫查詢和外部整合正確運作。
-
-**When Required | 何時需要**:
+**When Required**:
 
 As per [Testing Standards](testing-standards.md), if your unit test uses wildcard matchers (`It.IsAny<>`, `any()`, `Arg.Any<>`) for query parameters, you MUST have integration tests.
 
-根據[測試標準](testing-standards.md)，如果單元測試對查詢參數使用萬用匹配器，必須有整合測試。
-
-**What to test | 測試內容**:
+**What to test**:
 - Query predicates return correct data
 - Entity relationships are correctly loaded
 - Pagination works correctly
 - Sorting and filtering work correctly
 
-**Example | 範例**:
+**Example**:
 ```csharp
 // Unit test - cannot verify query logic
 [Fact]
@@ -430,11 +407,9 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
 
 ---
 
-## Test Case Design Checklist | 測試案例設計清單
+## Test Case Design Checklist
 
 Use this checklist for each feature to ensure completeness:
-
-使用此清單檢核每個功能的完整性：
 
 ```
 Feature: ___________________
@@ -483,11 +458,9 @@ Feature: ___________________
 
 ---
 
-## Error Code Coverage Matrix | 錯誤碼覆蓋矩陣
+## Error Code Coverage Matrix
 
 For APIs with defined error codes, ensure each code has a test:
-
-對於有定義錯誤碼的 API，確保每個錯誤碼都有測試：
 
 | Code | Meaning | Test Scenario |
 |------|---------|---------------|
@@ -502,11 +475,9 @@ For APIs with defined error codes, ensure each code has a test:
 
 ---
 
-## When to Apply Each Dimension | 何時應用各維度
+## When to Apply Each Dimension
 
 Not all dimensions apply to every feature. Use this guide:
-
-並非所有維度都適用於每個功能。使用此指南：
 
 | Feature Type | Required Dimensions |
 |--------------|---------------------|
@@ -519,35 +490,27 @@ Not all dimensions apply to every feature. Use this guide:
 
 ---
 
-## Anti-Patterns | 反模式
+## Anti-Patterns
 
 Avoid these common mistakes:
 
-避免這些常見錯誤：
-
 ```
 ❌ Testing only happy path
-   只測試正向路徑
 
 ❌ Missing authorization tests for multi-role systems
-   多角色系統缺少權限測試
 
 ❌ Not verifying state changes
-   未驗證狀態變更
 
 ❌ Using wildcards in UT without corresponding IT
-   單元測試使用萬用匹配器但無對應整合測試
 
 ❌ Same values for ID and business identifier in test data
-   測試資料的 ID 與業務識別碼使用相同值
 
 ❌ Testing implementation details instead of behavior
-   測試實作細節而非行為
 ```
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
 - [Testing Standards](testing-standards.md) - Core testing standards
 - [Code Review Checklist](code-review-checklist.md) - Review test completeness
@@ -555,7 +518,7 @@ Avoid these common mistakes:
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -563,13 +526,10 @@ Avoid these common mistakes:
 
 ---
 
-## License | 授權
+## License
 
 This standard is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 ---
 
 **Maintainer**: Development Team
-**維護者**: 開發團隊

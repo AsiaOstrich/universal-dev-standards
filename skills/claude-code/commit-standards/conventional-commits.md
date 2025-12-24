@@ -1,18 +1,16 @@
 # Conventional Commits Guide
-# 傳統提交指南
+
+> **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/commit-standards/conventional-commits.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document provides detailed guidelines for writing conventional commit messages.
-
-本文件提供撰寫傳統提交訊息的詳細指南。
 
 ---
 
@@ -93,7 +91,7 @@ This document provides detailed guidelines for writing conventional commit messa
 
 1. **Length**: ≤72 characters (50 ideal)
 2. **Tense**: Imperative mood
-   - ✅ "Add feature" 
+   - ✅ "Add feature"
    - ❌ "Added feature"
 3. **Capitalization**: First letter capitalized
 4. **No period**: Don't end with period
@@ -235,15 +233,15 @@ fix: change line 45 from getUserById to getUserByEmail
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Commit Message Guide](../../../core/commit-message-guide.md) - Commit 訊息指南
-- [Language Options](./language-options.md) - 語言選項
-- [Git Workflow](../../../core/git-workflow.md) - Git 工作流程
+- [Commit Message Guide](../../../core/commit-message-guide.md)
+- [Language Options](./language-options.md)
+- [Git Workflow](../../../core/git-workflow.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -251,10 +249,8 @@ fix: change line 45 from getUserById to getUserByEmail
 
 ---
 
-## License | 授權
+## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

@@ -1,22 +1,20 @@
 # Documentation Structure Standard
-# 文件結構標準
+
+> **Language**: English | [繁體中文](../locales/zh-TW/core/documentation-structure.md)
 
 **Version**: 1.2.2
 **Last Updated**: 2025-12-24
 **Applicability**: All software projects requiring documentation
-**適用範圍**: 所有需要文件的軟體專案
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This standard defines a consistent documentation structure for software projects, ensuring information is organized, discoverable, and maintainable.
 
-本標準定義軟體專案的一致文件結構，確保資訊的組織性、可發現性與可維護性。
-
 ---
 
-## Standard Documentation Structure | 標準文件結構
+## Standard Documentation Structure
 
 ```
 project-root/
@@ -57,13 +55,11 @@ project-root/
 
 ---
 
-## File Naming Conventions | 檔案命名規範
+## File Naming Conventions
 
-### Root Directory Files | 根目錄檔案
+### Root Directory Files
 
 Root-level documentation files should use **UPPERCASE** naming for GitHub/GitLab auto-recognition:
-
-根目錄的文件檔案應使用**大寫**命名，以便 GitHub/GitLab 自動識別：
 
 | File | Naming | Reason |
 |------|--------|--------|
@@ -74,13 +70,11 @@ Root-level documentation files should use **UPPERCASE** naming for GitHub/GitLab
 | `CODE_OF_CONDUCT.md` | UPPERCASE | GitHub community standard |
 | `SECURITY.md` | UPPERCASE | GitHub security advisory standard |
 
-### docs/ Directory Files | docs/ 目錄檔案
+### docs/ Directory Files
 
 All files within `docs/` should use **lowercase-kebab-case** for URL friendliness:
 
-`docs/` 目錄內的所有檔案應使用 **lowercase-kebab-case** 以確保 URL 友善：
-
-✅ **Correct | 正確**:
+✅ **Correct**:
 ```
 docs/
 ├── index.md
@@ -89,7 +83,7 @@ docs/
 └── user-guide.md
 ```
 
-❌ **Incorrect | 錯誤**:
+❌ **Incorrect**:
 ```
 docs/
 ├── INDEX.md           # Inconsistent casing
@@ -98,18 +92,16 @@ docs/
 └── User Guide.md      # Spaces cause URL issues
 ```
 
-**Rationale | 理由**:
+**Rationale**:
 - Lowercase avoids case-sensitivity issues across OS (Windows vs Linux)
 - Kebab-case produces clean URLs: `docs/getting-started` vs `docs/GettingStarted`
 - Consistent naming improves discoverability and automation
 
 ---
 
-## Document Requirements Matrix | 文件需求矩陣
+## Document Requirements Matrix
 
 Different project types require different documentation:
-
-不同專案類型需要不同的文件：
 
 | Document | New Project | Refactor | Migration | Maintenance | Description |
 |----------|:-----------:|:--------:|:---------:|:-----------:|-------------|
@@ -127,25 +119,18 @@ Different project types require different documentation:
 
 ---
 
-## Cross-Reference Standards | 文件交叉連結規範 (NEW)
+## Cross-Reference Standards (NEW)
 
-### Why Cross-References Matter | 為何需要交叉連結
+### Why Cross-References Matter
 
 Isolated documents create navigation problems. Cross-references enable:
 - Contextual discovery
 - Reduced duplication
 - Consistent information
 
-孤立的文件會造成導覽問題。交叉連結可以：
-- 提供上下文發現
-- 減少重複內容
-- 確保資訊一致性
-
-### Required Cross-Reference Matrix | 必要連結矩陣
+### Required Cross-Reference Matrix
 
 When adding new documents, update related documents' reference sections:
-
-新增文件時，必須更新相關文件的參考資料區段：
 
 | When Adding... | Must Update |
 |----------------|-------------|
@@ -153,20 +138,18 @@ When adding new documents, update related documents' reference sections:
 | `ADR/*.md` | index.md, ARCHITECTURE.md, MIGRATION.md |
 | Any new document | docs/index.md |
 
-### Link Direction Principles | 連結方向原則
+### Link Direction Principles
 
 1. **Upward Links**: Flow docs should link to ARCHITECTURE.md (overall view)
 2. **Horizontal Links**: Related flows should link to each other (e.g., sms-flow → credit-flow)
 3. **Downward Links**: Architecture docs should link to flow index
 
-### References Section Format | 參考資料區段格式
+### References Section Format
 
 Every document should end with a References section:
 
-每份文件結尾應有參考資料區段：
-
 ```markdown
-## References | 參考資料
+## References
 
 - [ARCHITECTURE.md](../ARCHITECTURE.md) - System architecture
 - [Related Flow](flows/xxx-flow.md) - Related flow documentation
@@ -175,15 +158,13 @@ Every document should end with a References section:
 
 ---
 
-## Flow Documentation | 流程文件 (NEW)
+## Flow Documentation (NEW)
 
-### Purpose | 目的
+### Purpose
 
 Flow documentation describes dynamic system behavior—how data flows between components during specific operations.
 
-流程文件描述系統的動態行為—特定操作中資料如何在元件間流動。
-
-### When to Create Flow Documentation | 何時建立流程文件
+### When to Create Flow Documentation
 
 | Priority | Flow Type | Criteria | Examples |
 |:--------:|-----------|----------|----------|
@@ -193,7 +174,7 @@ Flow documentation describes dynamic system behavior—how data flows between co
 | **P2** | Batch Processing | Background services, scheduled jobs | Daemon services, cleanup jobs |
 | **P3** | Management | Admin and maintenance functions | Account management, system config |
 
-### Flow Documentation Structure | 流程文件結構
+### Flow Documentation Structure
 
 ```
 docs/flows/
@@ -204,11 +185,9 @@ docs/flows/
     └── {module}-flow.md
 ```
 
-### flows/README.md Requirements | 流程索引必要內容
+### flows/README.md Requirements
 
 When you have more than 5 flow documents, `flows/README.md` is **required** and must include:
-
-當流程文件超過 5 份時，`flows/README.md` 為**必要**，且必須包含：
 
 | Section | Description | Required |
 |---------|-------------|:--------:|
@@ -218,7 +197,7 @@ When you have more than 5 flow documents, `flows/README.md` is **required** and 
 | Status Code Reference | Centralized definitions to avoid duplication | ⚪ |
 | Directory Structure | File organization | ✅ |
 
-### Flow Document Required Sections | 流程文件必要章節
+### Flow Document Required Sections
 
 | Section | Description | Required |
 |---------|-------------|:--------:|
@@ -233,11 +212,9 @@ When you have more than 5 flow documents, `flows/README.md` is **required** and 
 | Monitoring | Log points, metrics | ⚪ |
 | References | Links to API.md, DATABASE.md | ✅ |
 
-### Centralized Status Code Management | 狀態碼集中管理
+### Centralized Status Code Management
 
 **Problem**: Status codes scattered across flow documents become inconsistent.
-
-**問題**：狀態碼散落在各流程文件中容易不一致。
 
 **Solution**:
 
@@ -246,10 +223,10 @@ When you have more than 5 flow documents, `flows/README.md` is **required** and 
    > Complete definitions at [flows/README.md](../README.md#status-codes)
 3. **Version control**: Status code changes must be recorded in CHANGELOG.md
 
-**Status Code Definition Format | 狀態碼定義格式**:
+**Status Code Definition Format**:
 
 ```markdown
-### Status Codes | 狀態碼
+### Status Codes
 
 | Code | Name | Description | Used By |
 |------|------|-------------|---------|
@@ -260,9 +237,9 @@ When you have more than 5 flow documents, `flows/README.md` is **required** and 
 
 ---
 
-## Index Document Standards | 索引文件規範 (NEW)
+## Index Document Standards (NEW)
 
-### docs/index.md Required Sections | 必要章節
+### docs/index.md Required Sections
 
 | Section | Description | Required |
 |---------|-------------|:--------:|
@@ -274,21 +251,21 @@ When you have more than 5 flow documents, `flows/README.md` is **required** and 
 | Maintenance Guide | Update principles, contribution guidelines | ⚪ |
 | Last Updated | Index maintenance date | ✅ |
 
-### Index Template | 索引範本
+### Index Template
 
 ```markdown
-# Documentation Index | 文件導覽
+# Documentation Index
 
-## Directory Structure | 目錄結構
+## Directory Structure
 [Document tree diagram]
 
-## By Topic | 依主題分類
+## By Topic
 
-### Architecture | 架構文件
+### Architecture
 - [architecture.md](architecture.md) - System architecture
 - [ADR/](ADR/) - Architecture Decision Records
 
-### Flow Documentation | 系統流程文件
+### Flow Documentation
 Located in `flows/`, full index at [flows/README.md](flows/README.md):
 
 | Module | Document | Description |
@@ -302,9 +279,9 @@ Located in `flows/`, full index at [flows/README.md](flows/README.md):
 
 ---
 
-## CHANGELOG Documentation Integration | CHANGELOG 文件變更整合 (NEW)
+## CHANGELOG Documentation Integration (NEW)
 
-### When to Record Document Changes | 何時記錄文件變更
+### When to Record Document Changes
 
 | Change Type | Record In | Example |
 |-------------|-----------|---------|
@@ -314,24 +291,24 @@ Located in `flows/`, full index at [flows/README.md](flows/README.md):
 | Deprecated | Deprecated | `docs/old-api.md` marked as deprecated |
 | Removed | Removed | Removed outdated `docs/legacy.md` |
 
-### When NOT to Record | 不需記錄
+### When NOT to Record
 
 - Typo fixes
 - Formatting adjustments (indentation, spacing)
 - Link repairs
 - Date stamp updates
 
-### Recording Format | 記錄格式
+### Recording Format
 
 ```markdown
 ## [Unreleased]
 
-### Added | 新增
+### Added
 - New flow documentation (Mermaid sequence/flowchart/DFD)
   - `docs/flows/README.md` - Flow index with module relationship diagram
   - `docs/flows/sms/sms-flow.md` - SMS sending flow
 
-### Changed | 變更
+### Changed
 - Updated existing documents with flow references
   - `docs/ARCHITECTURE.md` - Added flow index link in references
   - `docs/index.md` - Added flow documentation section
@@ -339,12 +316,11 @@ Located in `flows/`, full index at [flows/README.md](flows/README.md):
 
 ---
 
-## Core Documentation Files | 核心文件檔案
+## Core Documentation Files
 
-### 1. README.md (REQUIRED) | 專案自述（必要）
+### 1. README.md (REQUIRED)
 
 **Purpose**: First impression, quick overview
-**目的**: 第一印象、快速概覽
 
 **Template**:
 ```markdown
@@ -381,7 +357,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 [License Name](LICENSE)
 ```
 
-**Must Include | 必須包含**:
+**Must Include**:
 - [ ] Project name and description
 - [ ] Quick start / installation
 - [ ] Link to full docs
@@ -389,10 +365,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-### 2. CONTRIBUTING.md (Recommended) | 貢獻指南（建議）
+### 2. CONTRIBUTING.md (Recommended)
 
 **Purpose**: How to contribute to the project
-**目的**: 如何貢獻專案
 
 **Template**:
 ```markdown
@@ -429,7 +404,7 @@ See [.claude/commit-guide.md](.claude/commit-guide.md)
 See [.claude/code-review-checklist.md](.claude/code-review-checklist.md)
 ```
 
-**Must Include | 必須包含**:
+**Must Include**:
 - [ ] Development setup instructions
 - [ ] Contribution workflow
 - [ ] Coding standards reference
@@ -437,10 +412,9 @@ See [.claude/code-review-checklist.md](.claude/code-review-checklist.md)
 
 ---
 
-### 3. CHANGELOG.md (Recommended) | 變更日誌（建議）
+### 3. CHANGELOG.md (Recommended)
 
 **Purpose**: Track changes between versions
-**目的**: 追蹤版本間變更
 
 **Format**: Follow [Keep a Changelog](https://keepachangelog.com/)
 
@@ -478,7 +452,7 @@ See [.claude/code-review-checklist.md](.claude/code-review-checklist.md)
 
 ---
 
-### 4. LICENSE (REQUIRED for open source) | 授權（開源必要）
+### 4. LICENSE (REQUIRED for open source)
 
 **Common Licenses**:
 - MIT: Permissive
@@ -489,52 +463,44 @@ See [.claude/code-review-checklist.md](.claude/code-review-checklist.md)
 
 ---
 
-## Document Version Alignment | 文件版本對齊
+## Document Version Alignment
 
-### Principle | 原則
+### Principle
 
 **Document version MUST align with software version.**
 
-**文件版本必須與軟體版本對齊。**
-
 The version number in a document represents "applicable to software version X.Y.Z", not an independent document revision number.
 
-文件中的版本號代表「適用於軟體版本 X.Y.Z」，而非獨立的文件修訂號。
-
-### Rationale | 理由
+### Rationale
 
 | Approach | Problems |
 |----------|----------|
 | Independent doc version | Requires tracking "which doc version maps to which software version"; confusing |
 | **Aligned version** ✓ | Clear: doc v1.2.0 = applies to software v1.2.0 |
 
-### Document Header Template | 文件標頭範本
+### Document Header Template
 
 ```markdown
-# Document Title | 文件標題
+# Document Title
 
 **Applicable Version**: 1.2.0    ← Aligned with software version
-**適用版本**: 1.2.0
 **Document Type**: [Guide/Reference/Specification]
-**文件類型**: [指南/參考/規格]
 **Target Audience**: [Developers/Operators/Users]
-**目標讀者**: [開發者/維運/使用者]
 **Last Updated**: 2025-12-11     ← Date of last edit
-**文件更新日期**: 2025-12-11
 
 ---
 ```
 
-### Field Definitions | 欄位定義
+### Field Definitions
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| Applicable Version / 適用版本 | ✅ Yes | The software version this document applies to |
-| Document Type / 文件類型 | Recommended | Category: Guide, Reference, Specification, Tutorial |
-| Target Audience / 目標讀者 | Recommended | Intended readers |
-| Last Updated / 文件更新日期 | ✅ Yes | Date of last edit |
+| Applicable Version | ✅ Yes | The software version this document applies to |
+| Document Type | Recommended | Category: Guide, Reference, Specification, Tutorial |
+| Target Audience | Recommended | Intended readers |
+| Last Updated | ✅ Yes | Date of last edit |
 
-### When to Update Version | 何時更新版本
+### When to Update Version
 
 | Scenario | Action |
 |----------|--------|
@@ -542,7 +508,7 @@ The version number in a document represents "applicable to software version X.Y.
 | Minor doc typo fix (no software change) | Keep version, update Last Updated date only |
 | Doc updated for upcoming release | Use new version number |
 
-### Examples | 範例
+### Examples
 
 ✅ **Correct**:
 ```markdown
@@ -563,12 +529,11 @@ This means: "Use this guide when upgrading to v1.2.0"
 
 ---
 
-## Detailed Documentation (`docs/`) | 詳細文件
+## Detailed Documentation (`docs/`)
 
 ### docs/index.md
 
 **Purpose**: Navigation hub for all documentation
-**目的**: 所有文件的導覽中心
 
 **Template**:
 ```markdown
@@ -616,7 +581,6 @@ See [flows/README.md](flows/README.md) for complete index.
 ### docs/getting-started.md
 
 **Purpose**: Quick start for new users
-**目的**: 新使用者快速入門
 
 **Structure**:
 1. Prerequisites
@@ -630,7 +594,6 @@ See [flows/README.md](flows/README.md) for complete index.
 ### docs/architecture.md
 
 **Purpose**: System design and technical architecture
-**目的**: 系統設計與技術架構
 
 **Structure**:
 1. Overview
@@ -655,7 +618,6 @@ See [flows/README.md](flows/README.md) for complete index.
 ### docs/api-reference.md
 
 **Purpose**: Complete API documentation
-**目的**: 完整 API 文件
 
 **Structure**:
 1. API Overview
@@ -721,7 +683,6 @@ curl -X POST https://api.example.com/api/users/authenticate \
 ### docs/deployment.md
 
 **Purpose**: How to deploy the application
-**目的**: 如何部署應用程式
 
 **Structure**:
 1. Prerequisites
@@ -740,7 +701,6 @@ curl -X POST https://api.example.com/api/users/authenticate \
 ### docs/troubleshooting.md
 
 **Purpose**: Common problems and solutions
-**目的**: 常見問題與解決方案
 
 **Structure**:
 ```markdown
@@ -783,13 +743,11 @@ npm install
 
 ---
 
-## Diagram Documentation | 圖表文件
+## Diagram Documentation
 
-### Flows vs Diagrams Separation | 流程與圖表分離
+### Flows vs Diagrams Separation
 
 Understanding the distinction between `flows/` and `diagrams/` directories:
-
-理解 `flows/` 與 `diagrams/` 目錄的區別：
 
 - **`docs/diagrams/`**: Static architecture diagrams (DFD, ER, C4 Model, Deployment, Class diagrams)
 - **`docs/flows/`**: Dynamic flow documentation (Sequence Diagrams, API call flows, Job scheduling flows)
@@ -799,19 +757,19 @@ Understanding the distinction between `flows/` and `diagrams/` directories:
 | **Flow** | Dynamic behavior: how data flows, step sequences | `docs/flows/` | Sequence diagrams, API call flows, job scheduling |
 | **Diagram** | Static structure: system composition, relationships, data models | `docs/diagrams/` | DFD, ER diagrams, C4 architecture, deployment diagrams |
 
-**Rationale | 理由**:
+**Rationale**:
 - Clear separation reduces confusion about where to place new documentation
 - Static diagrams rarely change; dynamic flows may update with feature changes
 - Different audiences: diagrams for architects, flows for developers and operators
 
-### Recommended Tools | 建議工具
+### Recommended Tools
 
 - **Mermaid**: Text-based diagrams (GitHub/GitLab native support)
 - **PlantUML**: UML diagrams from text
 - **Draw.io / Excalidraw**: Visual diagram editors
 - **ASCII Art**: Simple text diagrams
 
-### Mermaid Examples | Mermaid 範例
+### Mermaid Examples
 
 **System Flow**:
 ```mermaid
@@ -833,7 +791,7 @@ sequenceDiagram
     API-->>-User: 200 OK + Token
 ```
 
-### DFD (Data Flow Diagram) Standards | DFD 規範
+### DFD (Data Flow Diagram) Standards
 
 Flow documents should include DFD diagrams:
 
@@ -844,7 +802,7 @@ Flow documents should include DFD diagrams:
 | Level 1 DFD | Expanded sub-processes | ⚪ (based on complexity) |
 | Physical DFD | Implementation mapping (technology stack, DB tables, API endpoints) | ⚪ (advanced) |
 
-**Logical vs Physical DFD | 邏輯與實體 DFD**:
+**Logical vs Physical DFD**:
 
 | Type | Describes | Audience | Example Content |
 |------|-----------|----------|-----------------|
@@ -872,9 +830,9 @@ Flow documents should include DFD diagrams:
 
 ---
 
-## Code Examples (`examples/`) | 程式碼範例
+## Code Examples (`examples/`)
 
-### Structure | 結構
+### Structure
 
 ```
 examples/
@@ -891,7 +849,7 @@ examples/
     └── ...
 ```
 
-### Example README Template | 範例 README 範本
+### Example README Template
 
 ```markdown
 # Basic Usage Examples
@@ -944,9 +902,9 @@ console.log('Token:', token);
 
 ---
 
-## Documentation Maintenance | 文件維護
+## Documentation Maintenance
 
-### Documentation Updates Checklist | 文件更新檢查清單
+### Documentation Updates Checklist
 
 When making code changes, update documentation:
 
@@ -982,30 +940,30 @@ When making code changes, update documentation:
 
 ---
 
-## Documentation Quality Standards | 文件品質標準
+## Documentation Quality Standards
 
-### Readability | 可讀性
+### Readability
 
 - [ ] Clear, concise language
 - [ ] Short paragraphs (≤5 sentences)
 - [ ] Active voice preferred
 - [ ] Technical jargon explained
 
-### Accuracy | 準確性
+### Accuracy
 
 - [ ] Code examples tested and working
 - [ ] Screenshots/diagrams up-to-date
 - [ ] Version numbers correct
 - [ ] Links not broken
 
-### Completeness | 完整性
+### Completeness
 
 - [ ] Prerequisites listed
 - [ ] All steps documented
 - [ ] Expected outcomes described
 - [ ] Troubleshooting included
 
-### Cross-Referencing | 交叉連結
+### Cross-Referencing
 
 - [ ] Related documents linked
 - [ ] Index updated
@@ -1013,9 +971,9 @@ When making code changes, update documentation:
 
 ---
 
-## Localization | 本地化
+## Localization
 
-### Bilingual Documentation | 雙語文件
+### Bilingual Documentation
 
 For international projects:
 
@@ -1044,9 +1002,9 @@ Select your language:
 
 ---
 
-## Documentation Automation | 文件自動化
+## Documentation Automation
 
-### API Documentation Generation | API 文件自動生成
+### API Documentation Generation
 
 **Tools**:
 - **Swagger/OpenAPI**: REST API documentation
@@ -1094,9 +1052,9 @@ paths:
 
 ---
 
-## Documentation Hosting | 文件托管
+## Documentation Hosting
 
-### Options | 選項
+### Options
 
 | Platform | Best For | Cost |
 |----------|----------|------|
@@ -1126,15 +1084,15 @@ git push origin gh-pages
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Documentation Writing Standards](documentation-writing-standards.md) - 文件撰寫規範
-- [Changelog Standards](changelog-standards.md) - 變更日誌標準
-- [Project Structure Standard](project-structure.md) - 專案結構標準
+- [Documentation Writing Standards](documentation-writing-standards.md)
+- [Changelog Standards](changelog-standards.md)
+- [Project Structure Standard](project-structure.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -1146,7 +1104,7 @@ git push origin gh-pages
 
 ---
 
-## References | 參考資料
+## References
 
 - [Write the Docs](https://www.writethedocs.org/)
 - [Google Developer Documentation Style Guide](https://developers.google.com/style)
@@ -1154,8 +1112,6 @@ git push origin gh-pages
 
 ---
 
-## License | 授權
+## License
 
 This standard is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

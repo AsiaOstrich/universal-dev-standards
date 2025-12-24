@@ -1,18 +1,16 @@
 # Changelog Format Guide
-# 變更日誌格式指南
+
+> **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/release-standards/changelog-format.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document provides guidelines for writing and formatting changelog files.
-
-本文件提供撰寫和格式化變更日誌檔案的指南。
 
 This standard follows [Keep a Changelog](https://keepachangelog.com/) format.
 
@@ -162,8 +160,8 @@ The following should **NOT** be recorded in CHANGELOG:
 
 ### Write for Users, Not Developers
 
-| ✅ Good | ❌ Bad |
-|---------|--------|
+| Good | Bad |
+|------|-----|
 | Add dark mode theme option | Implement ThemeProvider with context |
 | Fix login timeout on slow networks | Fix race condition in AuthService |
 | Improve page load speed by 40% | Optimize SQL queries with indexes |
@@ -219,14 +217,14 @@ conventional-changelog -p angular -i CHANGELOG.md -s
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Changelog Standards](../../../core/changelog-standards.md) - 變更日誌標準
-- [Semantic Versioning Guide](./semantic-versioning.md) - 語意版本指南
+- [Changelog Standards](../../../core/changelog-standards.md)
+- [Semantic Versioning Guide](./semantic-versioning.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -234,10 +232,8 @@ conventional-changelog -p angular -i CHANGELOG.md -s
 
 ---
 
-## License | 授權
+## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

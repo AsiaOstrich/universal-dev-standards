@@ -1,104 +1,102 @@
 # Code Review Checklist
-# 程式碼審查檢查清單
+
+> **Language**: English | [繁體中文](../locales/zh-TW/core/code-review-checklist.md)
 
 **Version**: 1.1.0
 **Last Updated**: 2025-12-22
 **Applicability**: All software projects with code review processes
-**適用範圍**: 所有進行程式碼審查的軟體專案
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This standard provides a comprehensive checklist for reviewing code changes, ensuring quality, maintainability, and consistency before merging.
 
-本標準提供全面的程式碼審查檢查清單，確保合併前的品質、可維護性與一致性。
-
 ---
 
-## Core Principles | 核心原則
+## Core Principles
 
-1. **Be Respectful** | 尊重他人
+1. **Be Respectful**
    - Review code, not the person
    - Assume good intentions
    - Be constructive, not critical
 
-2. **Be Thorough** | 徹底審查
+2. **Be Thorough**
    - Check functionality, not just syntax
    - Consider edge cases
    - Think about future maintenance
 
-3. **Be Timely** | 及時回應
+3. **Be Timely**
    - Review within 24 hours (or team SLA)
    - Don't block progress unnecessarily
    - Prioritize unblocking others
 
-4. **Be Clear** | 清楚表達
+4. **Be Clear**
    - Explain WHY, not just WHAT
    - Provide examples when suggesting changes
    - Distinguish blocking vs. non-blocking comments
 
 ---
 
-## Review Checklist | 審查檢查清單
+## Review Checklist
 
-### 1. Functionality | 功能性
+### 1. Functionality
 
-- [ ] **Code does what it's supposed to do** | 程式碼實現預期功能
+- [ ] **Code does what it's supposed to do**
   - Requirement/spec alignment verified
   - Acceptance criteria met
   - Edge cases handled
 
-- [ ] **No obvious bugs** | 無明顯錯誤
+- [ ] **No obvious bugs**
   - Null/undefined checks present
   - Array bounds checked
   - Error conditions handled
 
-- [ ] **Logic is correct** | 邏輯正確
+- [ ] **Logic is correct**
   - Conditions make sense
   - Loops terminate properly
   - Calculations are accurate
 
 ---
 
-### 2. Design & Architecture | 設計與架構
+### 2. Design & Architecture
 
-- [ ] **Follows project architecture** | 遵循專案架構
+- [ ] **Follows project architecture**
   - Layering respected (API, service, data layers)
   - Separation of concerns maintained
   - Dependency direction correct
 
-- [ ] **Appropriate design patterns used** | 使用合適的設計模式
+- [ ] **Appropriate design patterns used**
   - Not over-engineered
   - Not under-engineered
   - Patterns applied correctly
 
-- [ ] **Code is in the right place** | 程式碼位於正確位置
+- [ ] **Code is in the right place**
   - Files organized logically
   - Related code grouped together
   - Clear module boundaries
 
 ---
 
-### 3. Code Quality | 程式碼品質
+### 3. Code Quality
 
-- [ ] **Follows coding standards** | 遵循編碼標準
+- [ ] **Follows coding standards**
   - Naming conventions adhered to
   - Formatting consistent
   - Style guide followed
 
-- [ ] **No code smells** | 無程式碼異味
+- [ ] **No code smells**
   - Methods ≤50 lines (or project standard)
   - Classes have single responsibility
   - Cyclomatic complexity ≤10
   - No deeply nested conditionals (≤3 levels)
 
-- [ ] **DRY principle applied** | 遵循 DRY 原則
+- [ ] **DRY principle applied**
   - No duplicated code blocks
   - Common logic extracted
   - Reusable utilities used
 
-- [ ] **SOLID principles respected** | 遵循 SOLID 原則
+- [ ] **SOLID principles respected**
   - Single Responsibility
   - Open/Closed
   - Liskov Substitution
@@ -107,152 +105,150 @@ This standard provides a comprehensive checklist for reviewing code changes, ens
 
 ---
 
-### 4. Readability & Maintainability | 可讀性與可維護性
+### 4. Readability & Maintainability
 
-- [ ] **Code is easy to understand** | 程式碼易於理解
+- [ ] **Code is easy to understand**
   - Variable names are descriptive
   - Function names reveal intent
   - Logic flows naturally
 
-- [ ] **Comments are helpful** | 註解有幫助
+- [ ] **Comments are helpful**
   - Complex logic explained
   - WHY documented, not WHAT
   - No commented-out code
   - No misleading comments
 
-- [ ] **Consistent style** | 風格一致
+- [ ] **Consistent style**
   - Indentation correct
   - Spacing consistent
   - Naming patterns uniform
 
 ---
 
-### 5. Testing | 測試
+### 5. Testing
 
-- [ ] **Tests are present** | 存在測試
+- [ ] **Tests are present**
   - New code has tests
   - Tests cover happy path
   - Tests cover error cases
   - Edge cases tested
 
-- [ ] **Tests are good quality** | 測試品質良好
+- [ ] **Tests are good quality**
   - Tests are readable
   - Test names describe scenarios
   - Assertions are clear
   - No flaky tests
 
-- [ ] **Test coverage maintained** | 測試覆蓋率維持
+- [ ] **Test coverage maintained**
   - Coverage not decreased
   - Critical paths covered
   - Integration tests for key flows
 
 ---
 
-### 6. Security | 安全性
+### 6. Security
 
-- [ ] **No security vulnerabilities** | 無安全漏洞
+- [ ] **No security vulnerabilities**
   - No SQL injection risks
   - No XSS vulnerabilities
   - No hardcoded secrets
   - No insecure dependencies
 
-- [ ] **Input validation present** | 存在輸入驗證
+- [ ] **Input validation present**
   - User input sanitized
   - Type checking performed
   - Size limits enforced
 
-- [ ] **Authentication/Authorization correct** | 認證/授權正確
+- [ ] **Authentication/Authorization correct**
   - Proper auth checks
   - Role-based access enforced
   - Sensitive data protected
 
-- [ ] **Data handling secure** | 資料處理安全
+- [ ] **Data handling secure**
   - Sensitive data encrypted
   - Passwords hashed
   - PII handled appropriately
 
 ---
 
-### 7. Performance | 效能
+### 7. Performance
 
-- [ ] **No obvious performance issues** | 無明顯效能問題
+- [ ] **No obvious performance issues**
   - No N+1 queries
   - No unnecessary loops
   - No blocking operations in hot paths
 
-- [ ] **Efficient algorithms used** | 使用高效演算法
+- [ ] **Efficient algorithms used**
   - Complexity considered (O(n) vs O(n²))
   - Appropriate data structures
   - Caching where beneficial
 
-- [ ] **Resource management proper** | 資源管理適當
+- [ ] **Resource management proper**
   - Connections closed
   - Memory leaks prevented
   - File handles released
 
 ---
 
-### 8. Error Handling | 錯誤處理
+### 8. Error Handling
 
-- [ ] **Errors handled appropriately** | 錯誤處理適當
+- [ ] **Errors handled appropriately**
   - Try-catch blocks present
   - Specific exceptions caught
   - Generic catch avoided
 
-- [ ] **Error messages helpful** | 錯誤訊息有幫助
+- [ ] **Error messages helpful**
   - Messages are descriptive
   - Actionable information included
   - No sensitive data exposed
 
-- [ ] **Logging is adequate** | 日誌記錄充足
+- [ ] **Logging is adequate**
   - Errors logged with context
   - Log levels appropriate
   - No excessive logging
 
 ---
 
-### 9. Documentation | 文件
+### 9. Documentation
 
-- [ ] **API documentation present** | API 文件存在
+- [ ] **API documentation present**
   - Public methods documented
   - Parameters explained
   - Return values described
   - Exceptions documented
 
-- [ ] **README updated if needed** | README 已更新（如需要）
+- [ ] **README updated if needed**
   - New features documented
   - Setup instructions current
   - Examples provided
 
-- [ ] **CHANGELOG updated (if applicable)** | CHANGELOG 已更新（如適用）
+- [ ] **CHANGELOG updated (if applicable)**
   - For user-facing changes: entry added to `[Unreleased]` section
-  - 對於使用者可感知的變更：已新增條目至 `[Unreleased]` 區段
   - Breaking changes highlighted with **BREAKING** prefix
   - Follow exclusion rules in [versioning.md](versioning.md) and [changelog-standards.md](changelog-standards.md)
-  - 遵循 [versioning.md](versioning.md) 和 [changelog-standards.md](changelog-standards.md) 排除規則
 
 ---
 
-### 10. Dependencies | 依賴
+### 10. Dependencies
 
-- [ ] **Dependencies justified** | 依賴合理
+- [ ] **Dependencies justified**
   - New dependencies necessary
   - License compatible
   - No security vulnerabilities
   - Actively maintained
 
-- [ ] **Dependency versions locked** | 依賴版本鎖定
+- [ ] **Dependency versions locked**
   - Exact versions specified
   - No wildcard versions
   - Lock file updated
 
 ---
 
-## Review Comment Types | 審查評論類型
+## Review Comment Types
 
 Use these prefixes to clarify comment intent:
 
-### Comment Prefixes | 評論前綴
+### Comment Prefixes
 
 | Prefix | Meaning | Action Required |
 |--------|---------|------------------|
@@ -262,7 +258,7 @@ Use these prefixes to clarify comment intent:
 | **❓ QUESTION** | Need clarification | 🔵 Discuss |
 | **📝 NOTE** | Informational, no action | ⚪ Informational |
 
-### Example Comments | 評論範例
+### Example Comments
 
 ```markdown
 ❗ BLOCKING: Potential SQL injection vulnerability here.
@@ -280,72 +276,65 @@ Is there a specific reason for this approach?
 📝 NOTE: This is a clever solution! Nice use of reduce here.
 ```
 
-### Alternative: Text Labels | 替代方案：文字標籤
+### Alternative: Text Labels
 
 For teams preferring plain text labels without emojis:
 
-對於偏好純文字標籤（無 emoji）的團隊：
+| Label | Meaning | Action |
+|-------|---------|--------|
+| `[REQUIRED]` | Must fix before merge | 🔴 Required |
+| `[SUGGESTION]` | Recommended but not blocking | 🟡 Recommended |
+| `[QUESTION]` | Need clarification | 🔵 Discuss |
+| `[NIT]` | Minor suggestion, can ignore | 🟢 Optional |
+| `[PRAISE]` | Positive feedback | ⚪ Informational |
 
-| Label | 標籤 | Meaning | 意義 | Action |
-|-------|------|---------|------|--------|
-| `[REQUIRED]` | `[必要]` | Must fix before merge | 必須修正才能合併 | 🔴 Required |
-| `[SUGGESTION]` | `[建議]` | Recommended but not blocking | 建議修正但非阻擋 | 🟡 Recommended |
-| `[QUESTION]` | `[問題]` | Need clarification | 需要澄清 | 🔵 Discuss |
-| `[NIT]` | `[NIT]` | Minor suggestion, can ignore | 小建議，可忽略 | 🟢 Optional |
-| `[PRAISE]` | `[讚]` | Positive feedback | 正面回饋 | ⚪ Informational |
-
-**Example Comments | 評論範例**
+**Example Comments**
 
 ```markdown
 [REQUIRED] Potential SQL injection vulnerability here.
-[必要] 此處有 SQL 注入風險。
 
 [SUGGESTION] Consider using StringBuilder for better performance.
-[建議] 可考慮使用 StringBuilder 提升效能。
 
 [QUESTION] What's the intended behavior when input is null?
-[問題] 當輸入為 null 時，預期行為是什麼？
 
 [NIT] Variable name could be more descriptive.
-[NIT] 變數名稱可以更明確。
 
 [PRAISE] Elegant solution! Nice refactoring.
-[讚] 優雅的解法！重構得很好。
 ```
 
 ---
 
-## Review Process | 審查流程
+## Review Process
 
-### For Reviewers | 審查者
+### For Reviewers
 
-#### Step 1: Understand Context | 理解背景
+#### Step 1: Understand Context
 
 1. Read PR description and linked issues
 2. Understand WHY the change is needed
 3. Review design/spec documents if linked
 
-#### Step 2: High-Level Review | 高層級審查
+#### Step 2: High-Level Review
 
 1. Check overall approach
 2. Verify architecture alignment
 3. Assess scope appropriateness
 
-#### Step 3: Detailed Review | 詳細審查
+#### Step 3: Detailed Review
 
 1. Review each file change
 2. Check functionality and logic
 3. Look for bugs and edge cases
 4. Verify tests
 
-#### Step 4: Provide Feedback | 提供回饋
+#### Step 4: Provide Feedback
 
 1. Use comment prefixes (BLOCKING, SUGGESTION, etc.)
 2. Be specific and provide examples
 3. Acknowledge good code
 4. Suggest alternatives when criticizing
 
-#### Step 5: Approve or Request Changes | 核准或要求變更
+#### Step 5: Approve or Request Changes
 
 - **Approve**: If no blocking issues
 - **Request Changes**: If blocking issues present
@@ -353,33 +342,33 @@ For teams preferring plain text labels without emojis:
 
 ---
 
-### For Authors | 作者
+### For Authors
 
-#### Before Requesting Review | 請求審查前
+#### Before Requesting Review
 
-1. **Self-review your code** | 自我審查程式碼
-2. **Run tests locally** | 本地執行測試
-3. **Check CI status** | 檢查 CI 狀態
-4. **Write clear PR description** | 撰寫清楚的 PR 描述
+1. **Self-review your code**
+2. **Run tests locally**
+3. **Check CI status**
+4. **Write clear PR description**
 
-#### During Review | 審查期間
+#### During Review
 
-1. **Respond promptly** | 及時回應
-2. **Address all comments** | 處理所有評論
-3. **Ask questions if unclear** | 不清楚時提問
-4. **Push fixes quickly** | 快速推送修正
+1. **Respond promptly**
+2. **Address all comments**
+3. **Ask questions if unclear**
+4. **Push fixes quickly**
 
-#### After Review | 審查後
+#### After Review
 
-1. **Mark conversations resolved** | 標記對話已解決
-2. **Re-request review if needed** | 需要時重新請求審查
-3. **Thank reviewers** | 感謝審查者
+1. **Mark conversations resolved**
+2. **Re-request review if needed**
+3. **Thank reviewers**
 
 ---
 
-## Review Automation | 審查自動化
+## Review Automation
 
-### Automated Checks (CI/CD) | 自動化檢查
+### Automated Checks (CI/CD)
 
 Configure these checks to run automatically:
 
@@ -427,7 +416,7 @@ jobs:
 
 ---
 
-## Code Review Anti-Patterns | 程式碼審查反模式
+## Code Review Anti-Patterns
 
 ### ❌ Nitpicking Style Without Auto-Formatting
 
@@ -471,9 +460,9 @@ jobs:
 
 ---
 
-## Review Time Guidelines | 審查時間指引
+## Review Time Guidelines
 
-### Target Response Times | 目標回應時間
+### Target Response Times
 
 | PR Size | Initial Response | Complete Review |
 |---------|------------------|-----------------|
@@ -482,7 +471,7 @@ jobs:
 | 200-500 lines | 1 day | 2 days |
 | > 500 lines | 🚨 Consider splitting | 3+ days |
 
-### Reviewer Availability | 審查者可用性
+### Reviewer Availability
 
 - Set "review hours" in team calendar
 - Use GitHub/GitLab "away" status when unavailable
@@ -490,18 +479,18 @@ jobs:
 
 ---
 
-## Special Cases | 特殊情況
+## Special Cases
 
-### Hotfix Reviews | 緊急修復審查
+### Hotfix Reviews
 
-- **Expedited process** | 加速流程
+- **Expedited process**
 - Focus on: correctness, security, rollback plan
 - Skip: minor style issues, nice-to-have optimizations
 - **Post-merge review** allowed for critical issues
 
 ---
 
-### Dependency Updates | 依賴更新
+### Dependency Updates
 
 - Check CHANGELOG for breaking changes
 - Verify test pass
@@ -510,7 +499,7 @@ jobs:
 
 ---
 
-### Documentation-Only Changes | 僅文件變更
+### Documentation-Only Changes
 
 - Check for accuracy
 - Verify formatting (Markdown, etc.)
@@ -519,7 +508,7 @@ jobs:
 
 ---
 
-### Refactoring PRs | 重構 PR
+### Refactoring PRs
 
 - Verify no functional changes
 - Check test coverage unchanged
@@ -528,7 +517,7 @@ jobs:
 
 ---
 
-## Project-Specific Customization | 專案特定化
+## Project-Specific Customization
 
 Add to `CONTRIBUTING.md`:
 
@@ -567,9 +556,9 @@ All PRs must pass:
 
 ---
 
-## Tools and Integrations | 工具與整合
+## Tools and Integrations
 
-### Code Review Platforms | 程式碼審查平台
+### Code Review Platforms
 
 - **GitHub Pull Requests**
 - **GitLab Merge Requests**
@@ -577,7 +566,7 @@ All PRs must pass:
 - **Gerrit** (for git-native workflows)
 - **Review Board**
 
-### Linters and Formatters | 檢查與格式化工具
+### Linters and Formatters
 
 | Language | Linter | Formatter |
 |----------|--------|-----------|
@@ -588,7 +577,7 @@ All PRs must pass:
 | Go | golangci-lint | gofmt |
 | Ruby | RuboCop | RuboCop |
 
-### Static Analysis | 靜態分析
+### Static Analysis
 
 - **SonarQube** - Code quality and security
 - **CodeClimate** - Maintainability analysis
@@ -597,7 +586,7 @@ All PRs must pass:
 
 ---
 
-## Quick Reference Card | 快速參考卡
+## Quick Reference Card
 
 ```
 ┌─────────────────────────────────────────┐
@@ -625,11 +614,11 @@ Comment Prefixes:
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.1.0 | 2025-12-22 | Added: Alternative text labels section for review comments (中文標籤支援) |
+| 1.1.0 | 2025-12-22 | Added: Alternative text labels section for review comments (Chinese label support) |
 | 1.0.3 | 2025-12-16 | Clarified: CHANGELOG section aligned with changelog-standards.md, use markdown links for cross-references |
 | 1.0.2 | 2025-12-05 | Added: Reference to testing-standards.md |
 | 1.0.1 | 2025-12-04 | Updated: GitHub Actions checkout to v4, cross-reference to versioning.md |
@@ -637,15 +626,15 @@ Comment Prefixes:
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Testing Standards](testing-standards.md) - 測試標準 (UT/IT/ST/E2E)
-- [Code Check-in Standards](checkin-standards.md) - 程式碼簽入標準
-- [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範
+- [Testing Standards](testing-standards.md) - Testing standards (UT/IT/ST/E2E)
+- [Code Check-in Standards](checkin-standards.md) - Code check-in standards
+- [Commit Message Guide](commit-message-guide.md) - Commit message standards
 
 ---
 
-## References | 參考資料
+## References
 
 - [Google Engineering Practices - Code Review](https://google.github.io/eng-practices/review/)
 - [Microsoft Code Review Guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/pull-requests)
@@ -653,8 +642,6 @@ Comment Prefixes:
 
 ---
 
-## License | 授權
+## License
 
 This standard is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

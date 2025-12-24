@@ -7,20 +7,18 @@ description: |
 ---
 
 # AI Collaboration Standards
-# AI 協作標準
+
+> **Language**: English | [繁體中文](../../../../locales/zh-TW/skills/claude-code/ai-collaboration-standards/SKILL.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This skill ensures AI assistants provide accurate, evidence-based responses without hallucination.
-
-本 Skill 確保 AI 助手提供準確、基於證據的回應，避免幻覺現象。
 
 ## Quick Reference
 
@@ -28,11 +26,11 @@ This skill ensures AI assistants provide accurate, evidence-based responses with
 
 | Tag | Use When |
 |-----|----------|
-| `[Confirmed]` / `[已確認]` | Direct evidence from code/docs |
-| `[Inferred]` / `[推論]` | Logical deduction from evidence |
-| `[Assumption]` / `[假設]` | Based on common patterns (needs verification) |
-| `[Unknown]` / `[未知]` | Information not available |
-| `[Need Confirmation]` / `[待確認]` | Requires user clarification |
+| `[Confirmed]` | Direct evidence from code/docs |
+| `[Inferred]` | Logical deduction from evidence |
+| `[Assumption]` | Based on common patterns (needs verification) |
+| `[Unknown]` | Information not available |
+| `[Need Confirmation]` | Requires user clarification |
 
 ### Source Types
 
@@ -154,15 +152,15 @@ This project uses **English** certainty tags.
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Anti-Hallucination Standards](../../core/anti-hallucination.md) - 防幻覺標準
-- [Code Review Checklist](../../core/code-review-checklist.md) - 程式碼審查檢查清單
-- [Testing Standards](../../core/testing-standards.md) - 測試標準
+- [Anti-Hallucination Standards](../../core/anti-hallucination.md)
+- [Code Review Checklist](../../core/code-review-checklist.md)
+- [Testing Standards](../../core/testing-standards.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -170,10 +168,8 @@ This project uses **English** certainty tags.
 
 ---
 
-## License | 授權
+## License
 
 This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

@@ -1,22 +1,20 @@
 # Code Check-in Standards
-# 程式碼簽入檢查點標準
+
+> **Language**: English | [繁體中文](../locales/zh-TW/core/checkin-standards.md)
 
 **Version**: 1.2.5
 **Last Updated**: 2025-12-16
 **Applicability**: All software projects using version control
-**適用範圍**: 所有使用版本控制的軟體專案
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This standard defines quality gates that MUST be passed before committing code to version control. It ensures every commit maintains codebase stability and quality.
 
-本標準定義提交程式碼到版本控制前必須通過的品質關卡。確保每次提交都維持程式碼庫的穩定性與品質。
-
 ---
 
-## Core Philosophy | 核心哲學
+## Core Philosophy
 
 **Every commit should**:
 - ✅ Be a complete logical unit of work
@@ -25,29 +23,22 @@ This standard defines quality gates that MUST be passed before committing code t
 - ✅ Contain its own tests (for new features)
 - ✅ Be understandable to future developers
 
-**每次提交應該**:
-- ✅ 是完整的邏輯工作單元
-- ✅ 讓程式碼庫處於可運作狀態
-- ✅ 可回退而不破壞功能
-- ✅ 包含自己的測試（新功能）
-- ✅ 讓未來開發者能理解
-
 ---
 
-## Mandatory Checklist | 必檢清單
+## Mandatory Checklist
 
-### 1. Build Verification | 建置驗證
+### 1. Build Verification
 
-- [ ] **Code compiles successfully** | 程式碼成功編譯
+- [ ] **Code compiles successfully**
   - Zero build errors
   - Zero build warnings (or documented exceptions)
 
-- [ ] **Dependencies are satisfied** | 依賴已滿足
+- [ ] **Dependencies are satisfied**
   - All package dependencies installed
   - Dependency versions locked/documented
   - No missing imports or modules
 
-**Project-Specific Build Commands | 專案特定建置指令**:
+**Project-Specific Build Commands**:
 ```bash
 # Example: .NET project
 dotnet build --configuration Release --warnaserror
@@ -59,30 +50,30 @@ npm install && npm run build
 pip install -r requirements.txt && python -m py_compile src/**/*.py
 ```
 
-**Verification | 驗證**:
+**Verification**:
 - Run the build command locally before committing
 - Ensure exit code is 0 (success)
 - Check build output for warnings
 
 ---
 
-### 2. Test Verification | 測試驗證
+### 2. Test Verification
 
-- [ ] **All existing tests pass** | 所有現有測試通過
+- [ ] **All existing tests pass**
   - Unit tests: 100% pass rate
   - Integration tests: 100% pass rate
   - End-to-end tests (if applicable): 100% pass rate
 
-- [ ] **New code is tested** | 新程式碼已測試
+- [ ] **New code is tested**
   - New features have corresponding tests
   - Bug fixes include regression tests
   - Edge cases are covered
 
-- [ ] **Test coverage maintained or improved** | 測試覆蓋率維持或提升
+- [ ] **Test coverage maintained or improved**
   - Coverage percentage not decreased
   - Critical paths are tested
 
-**Project-Specific Test Commands | 專案特定測試指令**:
+**Project-Specific Test Commands**:
 ```bash
 # Example: .NET project
 dotnet test --no-build --verbosity normal
@@ -94,33 +85,33 @@ npm test -- --coverage
 pytest --cov=src tests/
 ```
 
-**Verification | 驗證**:
+**Verification**:
 - Run all test suites locally
 - Review test coverage report
 - Ensure new code paths are tested
 
 ---
 
-### 3. Code Quality | 程式碼品質
+### 3. Code Quality
 
-- [ ] **Follows coding standards** | 遵循編碼標準
+- [ ] **Follows coding standards**
   - Naming conventions adhered to
   - Code formatting consistent
   - Comments/documentation present
 
-- [ ] **No code smells** | 無程式碼異味
+- [ ] **No code smells**
   - Methods ≤50 lines (or project standard)
   - Nesting depth ≤3 levels
   - Cyclomatic complexity ≤10
   - No duplicated code blocks
 
-- [ ] **Security checked** | 安全性已檢查
+- [ ] **Security checked**
   - No hardcoded secrets (passwords, API keys)
   - No SQL injection vulnerabilities
   - No XSS vulnerabilities
   - No insecure dependencies
 
-**Project-Specific Quality Tools | 專案特定品質工具**:
+**Project-Specific Quality Tools**:
 ```bash
 # Example: ESLint for JavaScript
 npx eslint src/
@@ -137,36 +128,33 @@ pip-audit
 dotnet list package --vulnerable
 ```
 
-**Verification | 驗證**:
+**Verification**:
 - Run linter/formatter tools
 - Review static analysis reports
 - Check for security warnings
 
 ---
 
-### 4. Documentation | 文件
+### 4. Documentation
 
-- [ ] **API documentation updated** | API 文件已更新
+- [ ] **API documentation updated**
   - Public APIs have doc comments
   - Parameter descriptions complete
   - Return value documented
   - Exceptions documented
 
-- [ ] **README updated (if needed)** | README 已更新（如需要）
+- [ ] **README updated (if needed)**
   - New features documented
   - Breaking changes noted
   - Setup instructions current
 
-- [ ] **CHANGELOG updated (if applicable)** | CHANGELOG 已更新（如適用）
+- [ ] **CHANGELOG updated (if applicable)**
   - For user-facing changes: entry added to `[Unreleased]` section
-  - 對於使用者可感知的變更：已新增條目至 `[Unreleased]` 區段
   - Breaking changes marked with **BREAKING** prefix
   - Follow exclusion rules in [versioning.md](versioning.md) and [changelog-standards.md](changelog-standards.md)
-  - 遵循 [versioning.md](versioning.md) 和 [changelog-standards.md](changelog-standards.md) 排除規則
   - Note: Internal refactoring, test-only, docs-only changes typically don't need CHANGELOG entries
-  - 注意：內部重構、僅測試、僅文件的變更通常不需要 CHANGELOG 條目
 
-**Documentation Formats | 文件格式**:
+**Documentation Formats**:
 ```
 // Example: C# XML documentation
 /// <summary>
@@ -197,22 +185,22 @@ def authenticate(username: str, password: str) -> Optional[str]:
 
 ---
 
-### 5. Workflow Compliance | 工作流程合規
+### 5. Workflow Compliance
 
-- [ ] **Branch naming correct** | 分支命名正確
+- [ ] **Branch naming correct**
   - Follows project convention (e.g., `feature/`, `fix/`)
   - Descriptive name used
 
-- [ ] **Commit message formatted** | Commit 訊息已格式化
+- [ ] **Commit message formatted**
   - Follows conventional commits or project standard
   - Clear and descriptive
 
-- [ ] **Synchronized with target branch** | 已與目標分支同步
+- [ ] **Synchronized with target branch**
   - Merged latest changes from target branch
   - No merge conflicts
   - Rebase completed (if rebasing workflow)
 
-**Verification | 驗證**:
+**Verification**:
 ```bash
 # Check branch name
 git branch --show-current
@@ -229,31 +217,31 @@ git status
 
 ---
 
-## Check-in Timing Guidelines | 簽入時機指引
+## Check-in Timing Guidelines
 
-### ✅ Appropriate Times to Commit | 適合提交的時機
+### ✅ Appropriate Times to Commit
 
-1. **Completed Functional Unit** | 完成功能單元
+1. **Completed Functional Unit**
    - Feature fully implemented
    - Tests written and passing
    - Documentation updated
 
-2. **Specific Bug Fixed** | 修復特定 Bug
+2. **Specific Bug Fixed**
    - Bug reproduced and fixed
    - Regression test added
    - Verified fix works
 
-3. **Independent Refactor** | 獨立重構
+3. **Independent Refactor**
    - Refactoring complete
    - No functional changes
    - All tests still pass
 
-4. **Runnable State** | 可執行狀態
+4. **Runnable State**
    - Code compiles without errors
    - Application can run/start
    - Core functionality not broken
 
-**Example Scenarios | 範例情境**:
+**Example Scenarios**:
 ```
 ✅ GOOD: "feat(auth): add OAuth2 Google login support"
    - OAuth flow implemented
@@ -274,9 +262,9 @@ git status
 
 ---
 
-## Commit Granularity Guidelines | Commit 粒度指引
+## Commit Granularity Guidelines
 
-### Ideal Commit Size | 理想的 Commit 大小
+### Ideal Commit Size
 
 | Metric | Recommended | Description |
 |--------|-------------|-------------|
@@ -284,24 +272,18 @@ git status
 | Lines Changed | 50-300 lines | Too large is hard to review, too small lacks meaning |
 | Scope | Single concern | One commit does one thing |
 
-| 指標 | 建議值 | 說明 |
-|------|--------|------|
-| 檔案數量 | 1-10 個 | 超過 10 個檔案應考慮拆分 |
-| 變更行數 | 50-300 行 | 過大難以 review，過小缺乏意義 |
-| 功能範圍 | 單一關注點 | 一個 commit 只做一件事 |
+### Splitting Principles
 
-### Splitting Principles | 拆分原則
-
-**Should be combined into one commit | 應該合併為一個 commit**:
+**Should be combined into one commit**:
 - Feature implementation + corresponding tests
 - Tightly related multi-file changes
 
-**Should be separate commits | 應該分開 commit**:
+**Should be separate commits**:
 - Feature A + Feature B → separate
 - Refactoring + new feature → separate
 - Bug fix + incidental refactoring → separate
 
-### Frequency Recommendations | 頻率建議
+### Frequency Recommendations
 
 | Scenario | Recommended Frequency |
 |----------|----------------------|
@@ -309,63 +291,53 @@ git status
 | Bug Fix | Commit after each independent bug is fixed |
 | Refactoring | Commit after each safe refactoring step (keep tests passing) |
 
-| 情境 | 建議頻率 |
-|------|---------|
-| 功能開發 | 每完成一個可測試的子功能即 commit |
-| Bug 修復 | 每修復一個獨立的 bug 即 commit |
-| 重構 | 每完成一個安全的重構步驟即 commit（保持測試通過） |
-
 ---
 
-## Collaboration Scenarios | 協作情境
+## Collaboration Scenarios
 
-### Multiple Developers on Same Feature | 多人開發同一功能
+### Multiple Developers on Same Feature
 
 When multiple developers work on the same feature (e.g., frontend/backend split):
 
-當多人同時開發同一功能（例如前後端分工）:
-
-1. **Branch Strategy | 分支策略**: Create sub-branches from feature branch
+1. **Branch Strategy**: Create sub-branches from feature branch
    ```
    feature/order-book
    ├── feature/order-book-api      (Developer A)
    └── feature/order-book-ui       (Developer B)
    ```
 
-2. **Check-in Rhythm | 簽入節奏**:
+2. **Check-in Rhythm**:
    - Commit and push after each integrable unit
    - Frequently sync with main feature branch to reduce conflicts
 
-3. **Integration Points | 整合點**:
+3. **Integration Points**:
    - Define clear interfaces/contracts
    - Commit interface definitions first, then implement separately
 
-### Before and After Code Review | Code Review 前後
+### Before and After Code Review
 
-**Before Review | Review 前**:
+**Before Review**:
 - Ensure all commits are complete logical units
 - Clean up commit history (squash WIP commits)
 - Write clear PR description
 
-**After Review | Review 後**:
+**After Review**:
 - After making changes based on review feedback, add new commit (don't amend already pushed commits)
 - Commit message can note: `fix(auth): adjust error handling per review feedback`
 
-### Conflict Avoidance Strategies | 避免衝突的簽入策略
+### Conflict Avoidance Strategies
 
-1. **Small batches, high frequency | 小批量、高頻率**: Small commits are easier to merge than large ones
-2. **Frequent sync | 頻繁同步**: At least once daily `git pull origin main`
-3. **Avoid long-lived branches | 避免長時間分支**: Feature branch lifecycle should not exceed 1-2 weeks
+1. **Small batches, high frequency**: Small commits are easier to merge than large ones
+2. **Frequent sync**: At least once daily `git pull origin main`
+3. **Avoid long-lived branches**: Feature branch lifecycle should not exceed 1-2 weeks
 
 ---
 
-## Check-in Trigger Points | 簽入檢查觸發點
+## Check-in Trigger Points
 
-### Automatic Trigger Timing | 自動觸發時機
+### Automatic Trigger Timing
 
 During development workflow execution, the following events should trigger check-in reminders:
-
-在開發工作流程執行過程中，以下時機應觸發簽入提醒：
 
 | Trigger | Condition | Reminder Intensity |
 |---------|-----------|-------------------|
@@ -375,29 +347,21 @@ During development workflow execution, the following events should trigger check
 | Consecutive Skips | Skipped check-in 3 times | Warning |
 | Work Complete | Uncommitted changes before finishing | Strongly Recommend |
 
-| 觸發點 | 條件 | 提醒強度 |
-|--------|------|---------|
-| Phase 完成 | 完成一個開發階段 | 建議 |
-| Checkpoint | 到達定義的檢查點 | 建議 |
-| 變更累積 | 檔案 ≥5 個 或 行數 ≥200 行 | 建議 |
-| 連續跳過 | 連續跳過簽入 3 次 | 警告 |
-| 工作完成 | 結束前有未 commit 變更 | 強烈建議 |
+### Reminder Behavior
 
-### Reminder Behavior | 提醒行為
+- **Advisory nature**: User can choose to skip and continue working
+- **Non-blocking**: After choosing "later", automatically continue to next stage
+- **Manual execution**: AI only displays git commands, **must not auto-execute** git add/commit
 
-- **Advisory nature | 建議性質**: User can choose to skip and continue working
-- **Non-blocking | 不中斷流程**: After choosing "later", automatically continue to next stage
-- **Manual execution | 手動執行**: AI only displays git commands, **must not auto-execute** git add/commit
-
-### Reminder Format | 提醒格式
+### Reminder Format
 
 ```
 ┌────────────────────────────────────────────────┐
-│ 🔔 Check-in Checkpoint | 簽入檢查點             │
+│ 🔔 Check-in Checkpoint                         │
 ├────────────────────────────────────────────────┤
-│ Phase 1 completed | Phase 1 已完成             │
+│ Phase 1 completed                              │
 │                                                │
-│ Change Statistics | 變更統計:                  │
+│ Change Statistics:                             │
 │   - Files: 5                                   │
 │   - Added: 180 lines                           │
 │   - Deleted: 12 lines                          │
@@ -414,32 +378,28 @@ During development workflow execution, the following events should trigger check
 └────────────────────────────────────────────────┘
 ```
 
-### Skip Tracking | 跳過後的追蹤
+### Skip Tracking
 
 When user chooses "commit later":
 
-當用戶選擇「稍後再 commit」時：
-
-1. **Record skip count | 記錄跳過次數**
-2. **After 3 consecutive skips | 連續跳過 3 次** → Display warning:
+1. **Record skip count**
+2. **After 3 consecutive skips** → Display warning:
    ```
    ⚠️ Warning: You have skipped check-in 3 times consecutively
    Current accumulated changes: 15 files, +520 lines
    Recommend committing soon to avoid changes becoming too large to review
    ```
-3. **Before work completion | 工作結束前** → If uncommitted changes exist, strongly recommend check-in
+3. **Before work completion** → If uncommitted changes exist, strongly recommend check-in
 
 ---
 
-## Special Scenarios | 特殊情境處理
+## Special Scenarios
 
-### Emergency Leave (End of Day) | 緊急離開
+### Emergency Leave (End of Day)
 
 When you need to leave temporarily with work incomplete:
 
-當需要暫時離開但工作未完成時:
-
-**Option 1: Git Stash (Recommended) | 選項 1: Git Stash（推薦）**
+**Option 1: Git Stash (Recommended)**
 ```bash
 # Stash incomplete work
 git stash save "WIP: matching engine - pending price validation"
@@ -448,7 +408,7 @@ git stash save "WIP: matching engine - pending price validation"
 git stash pop
 ```
 
-**Option 2: WIP Branch | 選項 2: WIP 分支**
+**Option 2: WIP Branch**
 ```bash
 # Create temporary branch
 git checkout -b wip/order-matching-temp
@@ -460,47 +420,43 @@ git checkout feature/order-matching
 git cherry-pick <wip-commit>
 ```
 
-⚠️ **Prohibited | 禁止**: Committing WIP code directly on feature branch
+⚠️ **Prohibited**: Committing WIP code directly on feature branch
 
-### Experimental Development | 實驗性開發
+### Experimental Development
 
 When doing technical exploration or POC:
 
-進行技術探索或 POC 時:
-
-1. **Create experiment branch | 建立實驗分支**
+1. **Create experiment branch**
    ```bash
    git checkout -b experiment/redis-stream-poc
    ```
 
-2. **Free commits during experiment | 實驗中可自由 commit** (no strict format required)
+2. **Free commits during experiment** (no strict format required)
 
-3. **After experiment succeeds | 實驗成功後**:
+3. **After experiment succeeds**:
    - Clean up commit history
    - Squash into meaningful commits
    - Merge to feature branch
 
-4. **After experiment fails | 實驗失敗後**:
+4. **After experiment fails**:
    - Document lessons learned (optional)
    - Delete experiment branch
 
-### Hotfix | 緊急修復
+### Hotfix
 
 For production emergency issues:
 
-生產環境緊急問題:
-
-1. **Create hotfix branch from main | 從 main 建立 hotfix 分支**
+1. **Create hotfix branch from main**
    ```bash
    git checkout main
    git checkout -b hotfix/critical-null-pointer
    ```
 
-2. **Minimize changes | 最小化變更**: Only fix the problem, no additional refactoring
+2. **Minimize changes**: Only fix the problem, no additional refactoring
 
-3. **Quick verification | 快速驗證**: Ensure tests pass
+3. **Quick verification**: Ensure tests pass
 
-4. **Mark urgency in commit message | Commit 訊息標註緊急性**:
+4. **Mark urgency in commit message**:
    ```
    fix(matching): [URGENT] fix null pointer causing match failures
 
@@ -513,27 +469,27 @@ For production emergency issues:
 
 ---
 
-### ❌ Inappropriate Times to Commit | 不適合提交的時機
+### ❌ Inappropriate Times to Commit
 
-1. **Build Failures** | 建置失敗
+1. **Build Failures**
    - Compilation errors present
    - Unresolved dependencies
 
-2. **Test Failures** | 測試失敗
+2. **Test Failures**
    - One or more tests failing
    - Tests not yet written for new code
 
-3. **Incomplete Features** | 未完成功能
+3. **Incomplete Features**
    - Feature partially implemented
    - Would break existing functionality
    - Missing critical components
 
-4. **Experimental Code** | 實驗性程式碼
+4. **Experimental Code**
    - TODO comments scattered
    - Debugging code left in
    - Commented-out code blocks
 
-**Example Scenarios | 範例情境**:
+**Example Scenarios**:
 ```
 ❌ BAD: "WIP: trying to fix login"
    - Build has errors
@@ -553,20 +509,18 @@ For production emergency issues:
 
 ---
 
-## AI Assistant Integration | AI 助理整合
+## AI Assistant Integration
 
 When AI assistants complete code changes, they MUST follow this workflow:
 
-當 AI 助理完成程式碼變更時，必須遵循此工作流程:
-
-### Step 1: Evaluate Check-in Timing | 評估簽入時機
+### Step 1: Evaluate Check-in Timing
 
 **AI must assess**:
 - Is this a complete logical unit?
 - Is the codebase in a working state?
 - Are there incomplete TODOs?
 
-**Example Assessment | 評估範例**:
+**Example Assessment**:
 ```
 ✅ Complete: "Implemented user registration with validation, tests, and docs"
 ⚠️ Incomplete: "Added registration form but backend validation pending"
@@ -575,7 +529,7 @@ When AI assistants complete code changes, they MUST follow this workflow:
 
 ---
 
-### Step 2: Run Checklist | 執行檢查清單
+### Step 2: Run Checklist
 
 **AI must verify**:
 - [ ] Build command succeeds
@@ -584,9 +538,9 @@ When AI assistants complete code changes, they MUST follow this workflow:
 - [ ] Documentation updated
 - [ ] Commit message prepared
 
-**Checklist Output Format | 檢查清單輸出格式**:
+**Checklist Output Format**:
 ```
-### 檢查結果 | Checklist Results
+### Checklist Results
 
 ✅ Build: dotnet build --no-warnings succeeded
 ✅ Code Quality: Follows project C# standards
@@ -597,23 +551,22 @@ When AI assistants complete code changes, they MUST follow this workflow:
 
 ---
 
-### Step 3: Prompt User for Confirmation | 提示使用者確認
+### Step 3: Prompt User for Confirmation
 
 **AI MUST use this mandatory prompt format**:
 
 ```
-## 請確認是否簽入 | Please Confirm Check-in
+## Please Confirm Check-in
 
-已完成: [Brief description of work completed]
-Completed: [Brief description in English if bilingual project]
+Completed: [Brief description of work completed]
 
-### 檢查結果 | Checklist Results
+### Checklist Results
 ✅ Item 1
 ✅ Item 2
 ⚠️ Item 3 (needs user verification)
 ✅ Item 4
 
-建議 commit message | Suggested commit message:
+Suggested commit message:
 ```
 <type>(<scope>): <description>
 
@@ -622,12 +575,12 @@ Completed: [Brief description in English if bilingual project]
 <footer>
 ```
 
-是否立即建立 commit? | Proceed with commit now?
+Proceed with commit now?
 ```
 
 ---
 
-### Step 4: Wait for Confirmation | 等待確認
+### Step 4: Wait for Confirmation
 
 **AI must NOT**:
 - ❌ Automatically execute `git add`
@@ -641,13 +594,11 @@ Completed: [Brief description in English if bilingual project]
 
 ---
 
-## Project-Specific Customization | 專案特定化
+## Project-Specific Customization
 
 Each project should customize this standard by:
 
-每個專案應透過以下方式自訂此標準:
-
-### 1. Define Build Commands | 定義建置指令
+### 1. Define Build Commands
 
 Create a `BUILD.md` or add to `CONTRIBUTING.md`:
 ```markdown
@@ -671,7 +622,7 @@ npm run build:strict
 
 ---
 
-### 2. Define Test Commands | 定義測試指令
+### 2. Define Test Commands
 
 ```markdown
 ## Test Commands
@@ -698,7 +649,7 @@ npm run test:coverage
 
 ---
 
-### 3. Define Quality Tools | 定義品質工具
+### 3. Define Quality Tools
 
 ```markdown
 ## Code Quality Tools
@@ -725,7 +676,7 @@ npm audit
 
 ---
 
-### 4. Define "Definition of Done" | 定義「完成定義」
+### 4. Define "Definition of Done"
 
 ```markdown
 ## Definition of Done
@@ -737,21 +688,13 @@ A feature is considered "done" when:
 4. ✅ Documentation updated
 5. ✅ Deployed to staging environment
 6. ✅ Product owner approved
-
-功能完成定義：
-1. ✅ 所有驗收標準達成
-2. ✅ 2 位團隊成員已審查程式碼
-3. ✅ 已撰寫測試（最低 80% 覆蓋率）
-4. ✅ 文件已更新
-5. ✅ 已部署至測試環境
-6. ✅ 產品負責人已核准
 ```
 
 ---
 
-## Enforcement Mechanisms | 執行機制
+## Enforcement Mechanisms
 
-### Pre-commit Hooks | 提交前掛鉤
+### Pre-commit Hooks
 
 Use Git hooks to automate checks:
 
@@ -788,7 +731,7 @@ exit 0
 
 ---
 
-### CI/CD Integration | CI/CD 整合
+### CI/CD Integration
 
 Configure CI to reject commits that fail checks:
 
@@ -819,15 +762,13 @@ jobs:
 
 ---
 
-## Pre-commit Directory Hygiene | 提交前目錄衛生
+## Pre-commit Directory Hygiene
 
-### IDE and Tool Artifacts | IDE 與工具產生檔案
+### IDE and Tool Artifacts
 
 Before committing, verify no unwanted files are staged:
 
-提交前，驗證沒有不需要的檔案被加入暫存區：
-
-**Common Artifacts to Check | 常見需檢查的檔案**:
+**Common Artifacts to Check**:
 
 | Pattern | Source | Action |
 |---------|--------|--------|
@@ -839,7 +780,7 @@ Before committing, verify no unwanted files are staged:
 | `.DS_Store` | macOS | Should be gitignored |
 | `Thumbs.db` | Windows | Should be gitignored |
 
-### Verification Commands | 驗證指令
+### Verification Commands
 
 ```bash
 # Check for common unwanted files in staging area
@@ -855,7 +796,7 @@ git reset HEAD <file>
 rm -rf '${workspaceFolder}'
 ```
 
-### Prevention | 預防
+### Prevention
 
 Ensure your `.gitignore` includes:
 
@@ -882,32 +823,32 @@ node_modules/
 
 ---
 
-## Common Violations and Solutions | 常見違規與解決方案
+## Common Violations and Solutions
 
-### Violation 1: "WIP" Commits | 違規 1: "WIP" 提交
+### Violation 1: "WIP" Commits
 
-**Problem | 問題**:
+**Problem**:
 ```bash
 git commit -m "WIP"
 git commit -m "save work"
 git commit -m "trying stuff"
 ```
 
-**Why it's bad | 為何不好**:
+**Why it's bad**:
 - No clear purpose
 - Likely contains broken code
 - Pollutes git history
 
-**Solution | 解決方案**:
+**Solution**:
 - Use `git stash` for temporary saves
 - Only commit when work is complete
 - Squash WIP commits before merging
 
 ---
 
-### Violation 2: Committing Commented Code | 違規 2: 提交註解程式碼
+### Violation 2: Committing Commented Code
 
-**Problem | 問題**:
+**Problem**:
 ```javascript
 function calculateTotal(items) {
   // Old implementation
@@ -918,21 +859,21 @@ function calculateTotal(items) {
 }
 ```
 
-**Why it's bad | 為何不好**:
+**Why it's bad**:
 - Clutters codebase
 - Git history already preserves old code
 - Confuses future developers
 
-**Solution | 解決方案**:
+**Solution**:
 - Delete commented code
 - Rely on git history for old versions
 - Add commit message explaining what changed
 
 ---
 
-### Violation 3: Mixing Concerns | 違規 3: 混合關注點
+### Violation 3: Mixing Concerns
 
-**Problem | 問題**:
+**Problem**:
 ```bash
 git commit -m "fix bug and refactor and add feature"
 ```
@@ -941,12 +882,12 @@ One commit contains:
 - Refactoring in module B
 - New feature in module C
 
-**Why it's bad | 為何不好**:
+**Why it's bad**:
 - Hard to review
 - Can't cherry-pick specific changes
 - Difficult to revert
 
-**Solution | 解決方案**:
+**Solution**:
 Separate into multiple commits:
 ```bash
 git commit -m "fix(module-a): resolve null pointer error"
@@ -956,7 +897,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -970,16 +911,16 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Project Structure Standard](project-structure.md) - 專案結構標準
-- [Testing Standards](testing-standards.md) - 測試標準 (UT/IT/ST/E2E)
-- [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範
-- [Code Review Checklist](code-review-checklist.md) - 程式碼審查清單
+- [Project Structure Standard](project-structure.md)
+- [Testing Standards](testing-standards.md)
+- [Commit Message Guide](commit-message-guide.md)
+- [Code Review Checklist](code-review-checklist.md)
 
 ---
 
-## References | 參考資料
+## References
 
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [The Art of the Commit](https://alistapart.com/article/the-art-of-the-commit/)
@@ -987,8 +928,6 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 ---
 
-## License | 授權
+## License
 
 This standard is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

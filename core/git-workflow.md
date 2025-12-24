@@ -1,38 +1,31 @@
 # Git Workflow Standards
-# Git 工作流程標準
+
+> **Language**: English | [繁體中文](../locales/zh-TW/core/git-workflow.md)
 
 **Version**: 1.2.1
 **Last Updated**: 2025-12-24
 **Applicability**: All projects using Git for version control
-**適用範圍**: 所有使用 Git 版本控制的專案
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This standard defines Git branching strategies and workflows to ensure consistent, predictable collaboration patterns across teams and projects.
 
-本標準定義 Git 分支策略與工作流程，確保團隊與專案間的一致、可預測的協作模式。
-
 ---
 
-## Workflow Strategy Selection | 工作流程策略選擇
+## Workflow Strategy Selection
 
 **PROJECT MUST CHOOSE ONE** workflow strategy and document it clearly.
 
-**專案必須選擇一種**工作流程策略並明確記錄。
-
-### Decision Tree | 決策樹
+### Decision Tree
 
 Use this flowchart to select the appropriate workflow:
-
-使用此流程圖來選擇適當的工作流程：
 
 ```
                     ┌─────────────────────────────────────┐
                     │ How often do you deploy to         │
                     │ production?                        │
-                    │ 您多常部署到正式環境？                │
                     └───────────────┬─────────────────────┘
                                     │
             ┌───────────────────────┼───────────────────────┐
@@ -40,7 +33,6 @@ Use this flowchart to select the appropriate workflow:
    ┌────────────────┐    ┌────────────────┐    ┌────────────────┐
    │ Multiple times │    │ Weekly to      │    │ Monthly or     │
    │ per day        │    │ bi-weekly      │    │ longer         │
-   │ 每天多次        │    │ 每週或雙週      │    │ 每月或更久      │
    └───────┬────────┘    └───────┬────────┘    └───────┬────────┘
            │                     │                     │
            ▼                     ▼                     ▼
@@ -50,7 +42,7 @@ Use this flowchart to select the appropriate workflow:
    └────────────────┘    └────────────────┘    └────────────────┘
 ```
 
-### Selection Matrix | 選擇矩陣
+### Selection Matrix
 
 | Factor | GitFlow | GitHub Flow | Trunk-Based |
 |--------|---------|-------------|-------------|
@@ -61,54 +53,34 @@ Use this flowchart to select the appropriate workflow:
 | **Hotfix process** | Dedicated branch | Same as feature | Same as feature |
 | **Complexity** | High | Low | Medium |
 
-| 因素 | GitFlow | GitHub Flow | Trunk-Based |
-|------|---------|-------------|-------------|
-| **發布頻率** | 每月以上 | 每週 | 每天多次 |
-| **團隊規模** | 大型 (10+) | 中型 (5-15) | 小到中型 (3-10) |
-| **CI/CD 成熟度** | 基礎 | 中等 | 進階 |
-| **功能開關** | 選用 | 選用 | 必需 |
-| **緊急修復流程** | 專用分支 | 與功能相同 | 與功能相同 |
-| **複雜度** | 高 | 低 | 中 |
+### Quick Selection Guide
 
-### Quick Selection Guide | 快速選擇指南
-
-**Choose GitFlow if | 選擇 GitFlow 當**:
+**Choose GitFlow if**:
 - You have scheduled release cycles (monthly, quarterly)
-- 您有固定的發布週期（每月、每季）
 - You maintain multiple production versions simultaneously
-- 您同時維護多個正式版本
 - You have separate teams for development and release management
-- 您有獨立的開發團隊和發布管理團隊
 
-**Choose GitHub Flow if | 選擇 GitHub Flow 當**:
+**Choose GitHub Flow if**:
 - You deploy to production weekly or on-demand
-- 您每週或按需部署到正式環境
 - You have a single production version
-- 您只有單一正式版本
 - You want simplicity with good traceability
-- 您想要簡單且有良好追溯性的流程
 
-**Choose Trunk-Based if | 選擇 Trunk-Based 當**:
+**Choose Trunk-Based if**:
 - You have mature CI/CD with automated testing
-- 您有成熟的 CI/CD 和自動化測試
 - Your team practices continuous integration
-- 您的團隊實踐持續整合
 - You're comfortable with feature flags for incomplete features
-- 您習慣使用功能開關控制未完成的功能
 
 ---
 
 ## Strategy A: GitFlow
 
-**Best For | 最適合**:
+**Best For**:
 - Scheduled releases (monthly, quarterly)
 - Multiple production versions maintained simultaneously
 - Clear distinction between development and production
 - Large teams with formal release processes
 
-**定期發布（每月、每季）、同時維護多個正式版本、開發與正式環境明確分離、大型團隊與正式發布流程**
-
-### Branch Structure | 分支結構
+### Branch Structure
 
 ```
 main          ─●────────●─────────●── (Production releases: v1.0, v2.0)
@@ -122,7 +94,7 @@ release/*                      ●───● (Release preparation)
 hotfix/*                      ────● (Emergency fixes)
 ```
 
-### Branch Types | 分支類型
+### Branch Types
 
 | Branch Type | Purpose | Base Branch | Merge Target | Lifetime |
 |-------------|---------|-------------|--------------|----------|
@@ -132,9 +104,9 @@ hotfix/*                      ────● (Emergency fixes)
 | `release/*` | Release prep | `develop` | `main` + `develop` | Temporary |
 | `hotfix/*` | Urgent fixes | `main` | `main` + `develop` | Temporary |
 
-### Workflow Steps | 工作流程步驟
+### Workflow Steps
 
-#### 1. Feature Development | 功能開發
+#### 1. Feature Development
 
 ```bash
 # Create feature branch from develop
@@ -160,11 +132,9 @@ git branch -d feature/oauth-login
 git push origin --delete feature/oauth-login
 ```
 
-#### 2. Release Preparation | 發布準備
+#### 2. Release Preparation
 
-> **CHANGELOG Update | 變更日誌更新**: Move entries from `[Unreleased]` to the new version section and add the release date. See [changelog-standards.md](changelog-standards.md) for detailed guidelines.
->
-> **變更日誌更新**：將 `[Unreleased]` 的條目移至新版本區段並加上發布日期。詳細指南請參閱 [changelog-standards.md](changelog-standards.md)。
+> **CHANGELOG Update**: Move entries from `[Unreleased]` to the new version section and add the release date. See [changelog-standards.md](changelog-standards.md) for detailed guidelines.
 
 ```bash
 # Create release branch from develop
@@ -195,7 +165,7 @@ git branch -d release/v1.2.0
 git push origin --delete release/v1.2.0
 ```
 
-#### 3. Hotfix | 緊急修復
+#### 3. Hotfix
 
 ```bash
 # Create hotfix branch from main
@@ -227,15 +197,13 @@ git push origin --delete hotfix/critical-security-fix
 
 ## Strategy B: GitHub Flow
 
-**Best For | 最適合**:
+**Best For**:
 - Continuous deployment
 - Web applications
 - Small to medium teams
 - Fast iteration cycles
 
-**持續部署、Web 應用程式、中小型團隊、快速迭代週期**
-
-### Branch Structure | 分支結構
+### Branch Structure
 
 ```
 main      ────●─────────●──────●── (Always deployable)
@@ -245,7 +213,7 @@ feature/*       ●───●───●      ╱  (Feature + PR)
 bugfix/*                 ────●  (Bug fixes)
 ```
 
-### Branch Types | 分支類型
+### Branch Types
 
 | Branch Type | Purpose | Base Branch | Merge Target | Lifetime |
 |-------------|---------|-------------|--------------|----------|
@@ -254,7 +222,7 @@ bugfix/*                 ────●  (Bug fixes)
 | `bugfix/*` | Bug fixes | `main` | `main` | Temporary |
 | `hotfix/*` | Urgent fixes | `main` | `main` | Temporary |
 
-### Workflow Steps | 工作流程步驟
+### Workflow Steps
 
 ```bash
 # 1. Create feature branch from main
@@ -281,26 +249,24 @@ git pull origin main
 # 6. Delete feature branch (auto-deleted by GitHub/GitLab)
 ```
 
-### Key Principles | 關鍵原則
+### Key Principles
 
-1. **`main` is always deployable** | `main` 永遠可部署
-2. **Branch from `main`** | 從 `main` 分支
-3. **Merge to `main` via PR** | 透過 PR 合併到 `main`
-4. **Deploy immediately after merge** | 合併後立即部署
+1. **`main` is always deployable**
+2. **Branch from `main`**
+3. **Merge to `main` via PR**
+4. **Deploy immediately after merge**
 
 ---
 
 ## Strategy C: Trunk-Based Development
 
-**Best For | 最適合**:
+**Best For**:
 - Mature CI/CD pipelines
 - High-trust, experienced teams
 - Frequent integration (multiple times per day)
 - Feature flags for incomplete features
 
-**成熟的 CI/CD 管道、高信任度且經驗豐富的團隊、頻繁整合（每天多次）、使用功能開關控制未完成功能**
-
-### Branch Structure | 分支結構
+### Branch Structure
 
 ```
 main  ────●─●─●─●─●─●─●──► (Single long-lived branch)
@@ -308,14 +274,14 @@ main  ────●─●─●─●─●─●─●──► (Single long-
 feature/*   ●   ●   ●  (Very short-lived, ≤2 days)
 ```
 
-### Branch Types | 分支類型
+### Branch Types
 
 | Branch Type | Purpose | Base Branch | Merge Target | Lifetime |
 |-------------|---------|-------------|--------------|----------|
 | `main` | Trunk | - | - | Permanent |
 | `feature/*` | Small changes | `main` | `main` | ≤2 days |
 
-### Workflow Steps | 工作流程步驟
+### Workflow Steps
 
 ```bash
 # 1. Create short-lived branch
@@ -344,24 +310,22 @@ git branch -d feature/add-validation
 git push origin --delete feature/add-validation
 ```
 
-### Key Principles | 關鍵原則
+### Key Principles
 
-1. **Integrate frequently** (multiple times per day) | 頻繁整合（每天多次）
-2. **Keep branches short-lived** (≤2 days) | 保持分支短命（≤2 天）
-3. **Use feature flags** for incomplete features | 使用功能開關控制未完成功能
-4. **Automate everything** (tests, builds, deployments) | 自動化一切（測試、建置、部署）
+1. **Integrate frequently** (multiple times per day)
+2. **Keep branches short-lived** (≤2 days)
+3. **Use feature flags** for incomplete features
+4. **Automate everything** (tests, builds, deployments)
 
 ---
 
-## Pre-branch Checklist | 開新分支前檢查清單
+## Pre-branch Checklist
 
 Before creating a new branch, complete these checks to prevent common issues.
 
-開始新功能開發前，完成以下檢查以避免常見問題。
+### For GitFlow and GitHub Flow
 
-### For GitFlow and GitHub Flow | 適用於 GitFlow 和 GitHub Flow
-
-#### 1. Check for Unmerged Branches | 確認無未合併分支
+#### 1. Check for Unmerged Branches
 
 ```bash
 git branch --no-merged main
@@ -372,16 +336,14 @@ git branch --no-merged develop
 - **If unmerged branches exist, handle them first** (merge or close)
 - **Do NOT create new feature branches with unmerged work pending**
 
-**如有未合併分支，必須先處理**（合併或關閉），**禁止在有未合併分支的情況下開新功能分支**
-
-#### 2. Sync Latest Code | 同步最新程式碼
+#### 2. Sync Latest Code
 
 ```bash
 git checkout main  # or develop for GitFlow
 git pull origin main
 ```
 
-#### 3. Verify Tests Pass | 確認測試通過
+#### 3. Verify Tests Pass
 
 ```bash
 # Run your project's test suite
@@ -390,13 +352,13 @@ pytest          # Python
 ./gradlew test  # Java/Kotlin
 ```
 
-#### 4. Create Branch | 建立分支
+#### 4. Create Branch
 
 ```bash
 git checkout -b feature/description
 ```
 
-### Why This Matters | 為什麼重要
+### Why This Matters
 
 | Consequence of Skipping | Impact |
 |------------------------|--------|
@@ -405,18 +367,9 @@ git checkout -b feature/description
 | Merge order confusion | More conflicts, harder to track history |
 | Incomplete testing | Each branch only tests its own part |
 
-| 跳過檢查的後果 | 影響 |
-|--------------|------|
-| 修復散落各處 | `main` 仍有 bug |
-| 功能互相依賴 | 新分支缺少前一個功能的程式碼 |
-| 合併順序混亂 | 衝突變多、歷史難追蹤 |
-| 測試不完整 | 每個分支只測自己的部分 |
-
-### For Trunk-Based Development | 適用於 Trunk-Based Development
+### For Trunk-Based Development
 
 Trunk-Based Development has **different requirements** due to its short-lived branch nature (≤2 days):
-
-Trunk-Based Development 因其短命分支特性（≤2 天）有**不同的要求**：
 
 | Check | Applicability | Notes |
 |-------|--------------|-------|
@@ -424,27 +377,19 @@ Trunk-Based Development 因其短命分支特性（≤2 天）有**不同的要�
 | Sync latest code | ✅ **Critical** | Even more important due to frequent integration |
 | Verify tests pass | ✅ **Critical** | Automation is core to this workflow |
 
-| 檢查項目 | 適用性 | 說明 |
-|---------|-------|------|
-| 確認無未合併分支 | ⚠️ **較不適用** | 設計上分支不應存在超過 2 天 |
-| 同步最新程式碼 | ✅ **關鍵** | 因頻繁整合，更為重要 |
-| 確認測試通過 | ✅ **關鍵** | 自動化是此工作流程的核心 |
-
 **Key difference**: If you have unmerged branches older than 2 days in Trunk-Based Development, this itself violates the workflow principles. Focus on **frequent integration** rather than checking for unmerged branches.
-
-**關鍵差異**：若在 Trunk-Based Development 中有超過 2 天的未合併分支，這本身就違反了工作流程原則。重點應放在**頻繁整合**而非檢查未合併分支。
 
 ---
 
-## Branch Naming Conventions | 分支命名慣例
+## Branch Naming Conventions
 
-### Standard Format | 標準格式
+### Standard Format
 
 ```
 <type>/<short-description>
 ```
 
-### Types | 類型
+### Types
 
 | Type | Usage | Example |
 |------|-------|---------|
@@ -457,14 +402,14 @@ Trunk-Based Development 因其短命分支特性（≤2 天）有**不同的要�
 | `chore/` | Maintenance tasks | `chore/update-dependencies` |
 | `release/` | Release preparation (GitFlow only) | `release/v1.2.0` |
 
-### Naming Rules | 命名規則
+### Naming Rules
 
-1. **Use lowercase** | 使用小寫
-2. **Use hyphens for spaces** | 使用連字號分隔單詞
-3. **Be descriptive but concise** | 具描述性但簡潔
-4. **Avoid issue numbers as only identifier** | 避免僅用 issue 編號
+1. **Use lowercase**
+2. **Use hyphens for spaces**
+3. **Be descriptive but concise**
+4. **Avoid issue numbers as only identifier**
 
-**Good Examples | 良好範例**:
+**Good Examples**:
 ```
 feature/user-authentication
 fix/null-pointer-in-payment
@@ -473,7 +418,7 @@ refactor/database-connection-pool
 docs/update-installation-guide
 ```
 
-**Bad Examples | 不良範例**:
+**Bad Examples**:
 ```
 feature/123                    # ❌ Not descriptive
 Fix-Bug                        # ❌ Not lowercase, vague
@@ -483,26 +428,24 @@ myFeature                      # ❌ camelCase, no type prefix
 
 ---
 
-## Merge Strategies | 合併策略
+## Merge Strategies
 
 **PROJECT MUST CHOOSE ONE** for each branch type.
 
-**專案必須為每種分支類型選擇一種**。
-
 ### Option 1: Merge Commit (--no-ff)
 
-**Preserves branch history** | 保留分支歷史
+**Preserves branch history**
 
 ```bash
 git merge --no-ff feature/user-auth
 ```
 
-**Pros | 優點**:
+**Pros**:
 - ✅ Complete history preserved
 - ✅ Easy to revert entire feature
 - ✅ Clear feature boundaries
 
-**Cons | 缺點**:
+**Cons**:
 - ❌ Cluttered git log
 - ❌ Complex graph visualization
 
@@ -512,19 +455,19 @@ git merge --no-ff feature/user-auth
 
 ### Option 2: Squash Merge
 
-**Combines all commits into one** | 將所有提交合併為一個
+**Combines all commits into one**
 
 ```bash
 git merge --squash feature/user-auth
 git commit -m "feat(auth): add user authentication"
 ```
 
-**Pros | 優點**:
+**Pros**:
 - ✅ Clean, linear history
 - ✅ One commit per feature
 - ✅ Easy to read git log
 
-**Cons | 缺點**:
+**Cons**:
 - ❌ Loses detailed history
 - ❌ Can't cherry-pick individual commits
 
@@ -534,7 +477,7 @@ git commit -m "feat(auth): add user authentication"
 
 ### Option 3: Rebase and Fast-Forward
 
-**Replays commits on top of target** | 在目標分支上重播提交
+**Replays commits on top of target**
 
 ```bash
 git rebase main feature/user-auth
@@ -542,12 +485,12 @@ git checkout main
 git merge --ff-only feature/user-auth
 ```
 
-**Pros | 優點**:
+**Pros**:
 - ✅ Linear, clean history
 - ✅ Preserves individual commits
 - ✅ No merge commits
 
-**Cons | 缺點**:
+**Cons**:
 - ❌ Rewrites history (don't use on shared branches)
 - ❌ Resolving conflicts can be tedious
 
@@ -555,11 +498,11 @@ git merge --ff-only feature/user-auth
 
 ---
 
-## Conflict Resolution | 衝突解決
+## Conflict Resolution
 
-### Prevention | 預防
+### Prevention
 
-1. **Sync frequently** | 頻繁同步
+1. **Sync frequently**
    ```bash
    git checkout main
    git pull origin main
@@ -567,15 +510,15 @@ git merge --ff-only feature/user-auth
    git merge main  # or git rebase main
    ```
 
-2. **Keep branches small** | 保持分支小型化
+2. **Keep branches small**
    - Avoid long-lived feature branches
    - Break large features into smaller PRs
 
-3. **Communicate** | 溝通
+3. **Communicate**
    - Announce major refactoring
    - Coordinate on shared files
 
-### Resolution Steps | 解決步驟
+### Resolution Steps
 
 ```bash
 # 1. Attempt merge
@@ -607,23 +550,23 @@ git push origin feature/my-feature
 
 ---
 
-## Tagging and Releases | 標籤與發布
+## Tagging and Releases
 
-### Semantic Versioning | 語義化版本
+### Semantic Versioning
 
 Follow [Semantic Versioning 2.0.0](https://semver.org/):
 
 ```
 MAJOR.MINOR.PATCH
 
-例如: v2.3.1
+Example: v2.3.1
 ```
 
 - **MAJOR**: Breaking changes (incompatible API changes)
 - **MINOR**: New features (backward-compatible)
 - **PATCH**: Bug fixes (backward-compatible)
 
-### Creating Tags | 建立標籤
+### Creating Tags
 
 ```bash
 # Annotated tag (recommended)
@@ -639,7 +582,7 @@ git push origin --tags
 git tag -l
 ```
 
-### Pre-release Versions | 預發布版本
+### Pre-release Versions
 
 ```
 v1.2.0-alpha.1      # Alpha release
@@ -649,7 +592,7 @@ v1.2.0-rc.1         # Release candidate
 
 ---
 
-## Protected Branches | 保護分支
+## Protected Branches
 
 Configure branch protection rules:
 
@@ -679,9 +622,9 @@ Rule: main
 
 ---
 
-## Pull Request Workflow | Pull Request 工作流程
+## Pull Request Workflow
 
-### PR Creation Checklist | PR 建立檢查清單
+### PR Creation Checklist
 
 - [ ] **Title follows commit convention** (e.g., `feat(auth): add OAuth2`)
 - [ ] **Description explains why** (not just what)
@@ -691,7 +634,7 @@ Rule: main
 - [ ] **Breaking changes highlighted** in description
 - [ ] **Screenshots/GIFs** for UI changes
 
-### PR Description Template | PR 描述範本
+### PR Description Template
 
 ```markdown
 ## What
@@ -725,9 +668,9 @@ Refs #456
 
 ---
 
-## Git Commands Reference | Git 指令參考
+## Git Commands Reference
 
-### Daily Operations | 日常操作
+### Daily Operations
 
 ```bash
 # Check status
@@ -754,7 +697,7 @@ git pull origin main
 git log --oneline --graph --all
 ```
 
-### Branch Operations | 分支操作
+### Branch Operations
 
 ```bash
 # List branches
@@ -776,7 +719,7 @@ git push origin --delete feature/old-feature
 git branch -m old-name new-name
 ```
 
-### Advanced Operations | 進階操作
+### Advanced Operations
 
 ```bash
 # Stash changes
@@ -801,7 +744,7 @@ git rebase -i HEAD~3
 
 ---
 
-## Project Configuration Template | 專案設定範本
+## Project Configuration Template
 
 Document your workflow in `CONTRIBUTING.md`:
 
@@ -842,7 +785,7 @@ Example: `feature/oauth-login`, `fix/memory-leak`
 
 ---
 
-## Troubleshooting | 疑難排解
+## Troubleshooting
 
 ### Accidentally Committed to Wrong Branch
 
@@ -882,16 +825,16 @@ git reset --hard <previous-commit-hash>
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範
-- [Code Check-in Standards](checkin-standards.md) - 程式碼簽入標準
-- [Versioning Standard](versioning.md) - 語義化版本標準
-- [Changelog Standards](changelog-standards.md) - 變更日誌標準
+- [Commit Message Guide](commit-message-guide.md)
+- [Code Check-in Standards](checkin-standards.md)
+- [Versioning Standard](versioning.md)
+- [Changelog Standards](changelog-standards.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -902,7 +845,7 @@ git reset --hard <previous-commit-hash>
 
 ---
 
-## References | 參考資料
+## References
 
 - [GitFlow Original Article](https://nvie.com/posts/a-successful-git-branching-model/)
 - [GitHub Flow Guide](https://guides.github.com/introduction/flow/)
@@ -911,8 +854,6 @@ git reset --hard <previous-commit-hash>
 
 ---
 
-## License | 授權
+## License
 
 This standard is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

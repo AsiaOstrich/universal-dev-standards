@@ -1,24 +1,22 @@
 # Requirement Writing Guide
-# 需求撰寫指南
+
+> **Language**: English | [繁體中文](../../../../locales/zh-TW/skills/claude-code/requirement-assistant/requirement-writing.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2025-12-24
 **Applicability**: Claude Code Skills
-**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose | 目的
+## Purpose
 
 This document provides comprehensive guidelines for writing clear and effective requirements.
 
-本文件提供撰寫清晰有效需求的完整指南。
-
 ---
 
-## User Story Format | 使用者故事格式
+## User Story Format
 
-### Standard Template | 標準範本
+### Standard Template
 
 ```
 As a [user role],
@@ -26,7 +24,7 @@ I want [goal/feature],
 So that [benefit/value].
 ```
 
-### Examples | 範例
+### Examples
 
 **Good**:
 ```
@@ -43,9 +41,9 @@ Users should be able to reset passwords.
 
 ---
 
-## INVEST Criteria | INVEST 原則
+## INVEST Criteria
 
-### I - Independent | 獨立性
+### I - Independent
 
 - Story can be developed and delivered independently
 - Minimal dependencies on other stories
@@ -53,7 +51,7 @@ Users should be able to reset passwords.
 
 **Test**: "Can we deliver this without finishing another story first?"
 
-### N - Negotiable | 可協商性
+### N - Negotiable
 
 - Details are not locked in stone
 - Conversation starter, not a contract
@@ -61,7 +59,7 @@ Users should be able to reset passwords.
 
 **Test**: "Is there room for technical discussion?"
 
-### V - Valuable | 有價值性
+### V - Valuable
 
 - Delivers value to users or stakeholders
 - Solves a real problem
@@ -69,7 +67,7 @@ Users should be able to reset passwords.
 
 **Test**: "What problem does this solve? Who benefits?"
 
-### E - Estimable | 可估算性
+### E - Estimable
 
 - Team can estimate the effort
 - Scope is understood well enough
@@ -77,7 +75,7 @@ Users should be able to reset passwords.
 
 **Test**: "Can we give a rough estimate?"
 
-### S - Small | 小型化
+### S - Small
 
 - Can be completed in one sprint
 - Typically 1-5 days of work
@@ -85,7 +83,7 @@ Users should be able to reset passwords.
 
 **Test**: "Can we finish this in one sprint?"
 
-### T - Testable | 可測試性
+### T - Testable
 
 - Clear acceptance criteria
 - Can write automated tests
@@ -95,9 +93,9 @@ Users should be able to reset passwords.
 
 ---
 
-## Acceptance Criteria | 驗收標準
+## Acceptance Criteria
 
-### Format Options | 格式選項
+### Format Options
 
 #### Given-When-Then (BDD Style)
 
@@ -123,7 +121,7 @@ Then I should be redirected to the dashboard
 - [ ] Error message shown if upload fails
 ```
 
-### Writing Good Acceptance Criteria | 撰寫好的驗收標準
+### Writing Good Acceptance Criteria
 
 | Quality | Good | Bad |
 |---------|------|-----|
@@ -132,7 +130,7 @@ Then I should be redirected to the dashboard
 | **Testable** | "User sees confirmation modal" | "User experience is good" |
 | **Complete** | Lists all scenarios | Missing edge cases |
 
-### Checklist | 檢查清單
+### Checklist
 
 - [ ] All happy path scenarios covered
 - [ ] Error scenarios defined
@@ -143,9 +141,9 @@ Then I should be redirected to the dashboard
 
 ---
 
-## Requirement Types | 需求類型
+## Requirement Types
 
-### Functional Requirements (FR) | 功能需求
+### Functional Requirements (FR)
 
 **What the system should DO**
 
@@ -161,7 +159,7 @@ Then I should be redirected to the dashboard
 - [ ] Duplicate email prevention
 ```
 
-### Non-Functional Requirements (NFR) | 非功能需求
+### Non-Functional Requirements (NFR)
 
 **How the system should BEHAVE**
 
@@ -175,7 +173,7 @@ Then I should be redirected to the dashboard
 
 ---
 
-## Priority Frameworks | 優先級框架
+## Priority Frameworks
 
 ### MoSCoW Method
 
@@ -197,9 +195,9 @@ Then I should be redirected to the dashboard
 
 ---
 
-## Issue Templates | Issue 範本
+## Issue Templates
 
-### Feature Request | 功能需求
+### Feature Request
 
 ```markdown
 ## Summary
@@ -233,7 +231,7 @@ Then I should be redirected to the dashboard
 - [ ] P3 - Low
 ```
 
-### Bug Report | 錯誤回報
+### Bug Report
 
 ```markdown
 ## Description
@@ -265,7 +263,7 @@ Then I should be redirected to the dashboard
 - [ ] Low - Cosmetic issue
 ```
 
-### Technical Task | 技術任務
+### Technical Task
 
 ```markdown
 ## Summary
@@ -290,9 +288,9 @@ Then I should be redirected to the dashboard
 
 ---
 
-## Common Mistakes | 常見錯誤
+## Common Mistakes
 
-### Too Vague | 過於模糊
+### Too Vague
 
 ❌ **Bad**:
 ```
@@ -304,7 +302,7 @@ Make the system faster.
 Reduce API response time to under 200ms for the /users endpoint.
 ```
 
-### Solution Instead of Problem | 寫解決方案而非問題
+### Solution Instead of Problem
 
 ❌ **Bad**:
 ```
@@ -317,7 +315,7 @@ Improve dashboard load time from 5s to under 1s.
 (Redis cache may be one solution, but let team decide)
 ```
 
-### Missing Acceptance Criteria | 缺少驗收標準
+### Missing Acceptance Criteria
 
 ❌ **Bad**:
 ```
@@ -336,7 +334,7 @@ Acceptance Criteria:
 - [ ] Failed login attempts limited to 5 per hour
 ```
 
-### Too Large | 範圍過大
+### Too Large
 
 ❌ **Bad**:
 ```
@@ -355,7 +353,7 @@ Story 4: Admin can manage inventory
 
 ---
 
-## Requirement Review Checklist | 需求審查檢查清單
+## Requirement Review Checklist
 
 Before submitting a requirement:
 
@@ -371,14 +369,14 @@ Before submitting a requirement:
 
 ---
 
-## Related Standards | 相關標準
+## Related Standards
 
-- [Requirement Completeness Checklist](./requirement-checklist.md) - 需求完整性檢查清單
-- [Spec-Driven Development](../../../core/spec-driven-development.md) - 規格驅動開發
+- [Requirement Completeness Checklist](./requirement-checklist.md)
+- [Spec-Driven Development](../../../core/spec-driven-development.md)
 
 ---
 
-## Version History | 版本歷史
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -386,10 +384,8 @@ Before submitting a requirement:
 
 ---
 
-## License | 授權
+## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
