@@ -3,7 +3,7 @@
 
 **Version**: 2.0.0
 **Last Updated**: 2025-12-19
-**License**: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+**License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 ---
 
@@ -576,14 +576,20 @@ All contributions must:
 
 ## 📄 License | 授權
 
-This work is licensed under [Creative Commons Attribution 4.0 International License (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
+This project uses **dual licensing**:
 
-You are free to:
-- **Share** — copy and redistribute the material
-- **Adapt** — remix, transform, and build upon the material
+本專案採用**雙重授權**：
 
-Under the following terms:
-- **Attribution** — You must give appropriate credit
+| Component | License | 說明 |
+|-----------|---------|------|
+| Documentation (`core/`, `extensions/`, `templates/`, etc.) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | 文件與規範 |
+| CLI Tool (`cli/`) | [MIT](cli/LICENSE) | CLI 工具程式碼 |
+
+Both licenses are permissive and allow commercial use, modification, and redistribution.
+
+兩種授權都是寬鬆型授權，允許商業使用、修改與再發布。
+
+See [LICENSE](LICENSE) for full details.
 
 ---
 

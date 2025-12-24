@@ -10,7 +10,7 @@
     "best-practices"
   ],
   "author": "AsiaOstrich",
-  "license": "(MIT AND CC-BY-4.0)",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AsiaOstrich/universal-dev-standards.git",

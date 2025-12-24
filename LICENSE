@@ -1,34 +1,66 @@
-Creative Commons Attribution 4.0 International License
+# Dual License | 雙重授權
 
-Copyright (c) 2025 Universal Documentation Standards Contributors
+This project uses a dual licensing structure:
 
-This work is licensed under the Creative Commons Attribution 4.0 International License.
+本專案採用雙重授權結構：
 
-To view a copy of this license, visit:
-https://creativecommons.org/licenses/by/4.0/
+---
 
-Or send a letter to:
-Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+## Documentation and Standards | 文件與規範
+
+**License**: Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+**Applies to**: All files except the `cli/` directory
+- `core/` - Core standards
+- `extensions/` - Language/framework/locale extensions
+- `templates/` - Document templates
+- `integrations/` - AI tool integrations
+- `adoption/` - Adoption guides and checklists
+- `examples/` - Example implementations
+- `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`
+
+**適用於**：除 `cli/` 目錄外的所有檔案
 
 You are free to:
-- Share — copy and redistribute the material in any medium or format
-- Adapt — remix, transform, and build upon the material for any purpose, even commercially
+- **Share** — copy and redistribute the material in any medium or format
+- **Adapt** — remix, transform, and build upon the material for any purpose, even commercially
 
 Under the following terms:
-- Attribution — You must give appropriate credit, provide a link to the license,
-  and indicate if changes were made. You may do so in any reasonable manner,
-  but not in any way that suggests the licensor endorses you or your use.
+- **Attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made.
 
-- No additional restrictions — You may not apply legal terms or technological
-  measures that legally restrict others from doing anything the license permits.
+Full license text: https://creativecommons.org/licenses/by/4.0/legalcode
 
-Notices:
-- You do not have to comply with the license for elements of the material in
-  the public domain or where your use is permitted by an applicable exception
-  or limitation.
-- No warranties are given. The license may not give you all of the permissions
-  necessary for your intended use. For example, other rights such as publicity,
-  privacy, or moral rights may limit how you use the material.
+---
 
-For the full legal text, please visit:
-https://creativecommons.org/licenses/by/4.0/legalcode
+## CLI Tool Source Code | CLI 工具原始碼
+
+**License**: MIT License
+
+**Applies to**: All files in the `cli/` directory
+- `cli/bin/` - Executable scripts
+- `cli/src/` - Source code
+- `cli/package.json`, `cli/package-lock.json`
+- `cli/standards-registry.json`
+
+**適用於**：`cli/` 目錄中的所有檔案
+
+See [cli/LICENSE](cli/LICENSE) for the full MIT license text.
+
+---
+
+## Copyright
+
+Copyright (c) 2025 Universal Development Standards Contributors
+
+---
+
+## Summary | 摘要
+
+| Component | License | Commercial Use | Modification | Distribution | Patent Use |
+|-----------|---------|----------------|--------------|--------------|------------|
+| Documentation | CC BY 4.0 | ✅ Yes | ✅ Yes | ✅ Yes | N/A |
+| CLI Tool | MIT | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
+
+Both licenses are permissive and allow commercial use. The main difference is that MIT is specifically designed for software and includes explicit patent grants, while CC BY 4.0 is optimized for creative works and documentation.
+
+兩種授權都是寬鬆型授權，允許商業使用。主要差異是 MIT 專為軟體設計並包含明確的專利授權，而 CC BY 4.0 則針對創意作品和文件優化。
