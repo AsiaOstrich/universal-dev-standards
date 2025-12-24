@@ -1,8 +1,8 @@
 # Commit Message Guide
 # Commit 訊息規範指南
 
-**Version**: 1.2.2
-**Last Updated**: 2025-12-16
+**Version**: 1.2.3
+**Last Updated**: 2025-12-24
 **Applicability**: All projects using Git version control
 **適用範圍**: 所有使用 Git 版本控制的專案
 
@@ -970,10 +970,20 @@ Closes #123
 
 ---
 
+## Related Standards | 相關標準
+
+- [Git Workflow Standards](git-workflow.md) - Git 工作流程標準
+- [Code Check-in Standards](checkin-standards.md) - 程式碼簽入標準
+- [Changelog Standards](changelog-standards.md) - 變更日誌標準
+- [Versioning Standard](versioning.md) - 語義化版本標準
+
+---
+
 ## Version History | 版本歷史
 
 | Version | Date       | Changes                                                                                                                                                                                                                                              |
 | ------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.2.3   | 2025-12-24 | Added: Related Standards section |
 | 1.2.2   | 2025-12-16 | Added: Language selection guide with decision matrix and quick selection tips 新增語言選擇指南，含決策矩陣和快速選擇提示 |
 | 1.2.1   | 2025-12-09 | Improve Option A/B/C format consistency: unify title style, add description text 改善 Option A/B/C 格式一致性：統一標題風格、新增描述文字 |
 | 1.2.0   | 2025-12-05 | Fix Option B type mapping (chore→維護); Add security type; Add scope naming rules; Clarify bilingual period exception; Improve templates 修正 Option B 類型對照（chore→維護）；新增 security 類型；新增 scope 命名規則；釐清雙語句點例外；改善範本 |

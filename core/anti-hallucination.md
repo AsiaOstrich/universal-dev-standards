@@ -1,8 +1,8 @@
 # AI Collaboration Anti-Hallucination Standards
 # AI 協作防幻覺標準
 
-**Version**: 1.3.0
-**Last Updated**: 2025-12-22
+**Version**: 1.3.1
+**Last Updated**: 2025-12-24
 **Applicability**: All software projects using AI assistants
 **適用範圍**: 所有使用 AI 助理協作的軟體專案
 
@@ -706,10 +706,19 @@ When performing code reviews, apply these principles:
 
 ---
 
+## Related Standards | 相關標準
+
+- [Testing Standards](testing-standards.md) - 測試標準 (確保驗證 AI 分析結果)
+- [Code Review Checklist](code-review-checklist.md) - 程式碼審查清單 (審查 AI 生成內容)
+- [Code Check-in Standards](checkin-standards.md) - 程式碼簽入標準 (AI 協作簽入流程)
+
+---
+
 ## Version History | 版本歷史
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.1 | 2025-12-24 | Added: Related Standards section |
 | 1.3.0 | 2025-12-22 | Enhanced: Prohibited Behaviors section with detailed comparison examples (正確/錯誤對比範例) |
 | 1.2.0 | 2025-12-15 | Added AI Assistant Interaction Standards section (conversation language, recommendation principles) |
 | 1.1.0 | 2025-12-10 | Enhanced source attribution with source types, version sensitivity, and reliability ratings |

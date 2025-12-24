@@ -1,8 +1,8 @@
 # Semantic Versioning Standard
 # 語義化版本標準
 
-**Version**: 1.1.2
-**Last Updated**: 2025-12-11
+**Version**: 1.1.3
+**Last Updated**: 2025-12-24
 **Applicability**: All software projects with versioned releases
 **適用範圍**: 所有有版本發布的軟體專案
 
@@ -802,10 +802,19 @@ semver.major('2.3.1');  // 2
 
 ---
 
+## Related Standards | 相關標準
+
+- [Changelog Standards](changelog-standards.md) - 變更日誌標準
+- [Git Workflow Standards](git-workflow.md) - Git 工作流程標準
+- [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範
+
+---
+
 ## Version History | 版本歷史
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.3 | 2025-12-24 | Added: Related Standards section |
 | 1.1.2 | 2025-12-11 | Improved: Upgrade package naming example to use generic placeholders instead of hardcoded project names |
 | 1.1.1 | 2025-12-04 | Refactored: CHANGELOG exclusion rules to be more generic (removed project-specific directories) |
 | 1.1.0 | 2025-12-04 | Added: CHANGELOG exclusion rules, Release Process section |

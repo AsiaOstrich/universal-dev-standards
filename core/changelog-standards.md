@@ -1,8 +1,8 @@
 # Changelog Standards
 # 變更日誌標準
 
-**Version**: 1.0.1
-**Last Updated**: 2025-12-16
+**Version**: 1.0.2
+**Last Updated**: 2025-12-24
 **Applicability**: All software projects with versioned releases
 **適用範圍**: 所有有版本發布的軟體專案
 
@@ -586,10 +586,19 @@ Document your CHANGELOG practices in `CONTRIBUTING.md`:
 
 ---
 
+## Related Standards | 相關標準
+
+- [Versioning Standard](versioning.md) - 語義化版本標準
+- [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範
+- [Git Workflow Standards](git-workflow.md) - Git 工作流程標準
+
+---
+
 ## Version History | 版本歷史
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.0.2 | 2025-12-24 | Added: Related Standards section |
 | 1.0.1 | 2025-12-16 | Align exclusion rules with versioning.md, add cross-reference |
 | 1.0.0 | 2025-12-15 | Initial changelog standard |
 

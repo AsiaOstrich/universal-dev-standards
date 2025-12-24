@@ -1,8 +1,8 @@
 # Project Structure Standard
 # 專案結構標準
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-11
+**Version**: 1.0.1
+**Last Updated**: 2025-12-24
 **Applicability**: All software projects
 **適用範圍**: 所有軟體專案
 
@@ -327,10 +327,18 @@ Before committing, verify:
 
 ---
 
+## Related Standards | 相關標準
+
+- [Documentation Structure Standard](documentation-structure.md) - 文件結構標準
+- [Code Check-in Standards](checkin-standards.md) - 程式碼簽入標準
+
+---
+
 ## Version History | 版本歷史
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.0.1 | 2025-12-24 | Added: Related Standards section |
 | 1.0.0 | 2025-12-11 | Initial project structure standard |
 
 ---

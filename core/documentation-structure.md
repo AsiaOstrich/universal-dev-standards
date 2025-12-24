@@ -1,8 +1,8 @@
 # Documentation Structure Standard
 # 文件結構標準
 
-**Version**: 1.2.0
-**Last Updated**: 2025-12-11
+**Version**: 1.2.2
+**Last Updated**: 2025-12-24
 **Applicability**: All software projects requiring documentation
 **適用範圍**: 所有需要文件的軟體專案
 
@@ -1126,10 +1126,19 @@ git push origin gh-pages
 
 ---
 
+## Related Standards | 相關標準
+
+- [Documentation Writing Standards](documentation-writing-standards.md) - 文件撰寫規範
+- [Changelog Standards](changelog-standards.md) - 變更日誌標準
+- [Project Structure Standard](project-structure.md) - 專案結構標準
+
+---
+
 ## Version History | 版本歷史
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.2 | 2025-12-24 | Added: Related Standards section |
 | 1.2.1 | 2025-12-12 | Added: Physical DFD layer, Flows vs Diagrams separation clarification |
 | 1.2.0 | 2025-12-11 | Added: Flow documentation standards, Cross-reference standards, Index document standards, CHANGELOG documentation integration, Document requirements matrix, DFD standards |
 | 1.1.0 | 2025-12-11 | Added: File naming conventions, Document version alignment standard |

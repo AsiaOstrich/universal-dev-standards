@@ -1,8 +1,8 @@
 # Git Workflow Standards
 # Git 工作流程標準
 
-**Version**: 1.2.0
-**Last Updated**: 2025-12-16
+**Version**: 1.2.1
+**Last Updated**: 2025-12-24
 **Applicability**: All projects using Git for version control
 **適用範圍**: 所有使用 Git 版本控制的專案
 
@@ -882,10 +882,20 @@ git reset --hard <previous-commit-hash>
 
 ---
 
+## Related Standards | 相關標準
+
+- [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範
+- [Code Check-in Standards](checkin-standards.md) - 程式碼簽入標準
+- [Versioning Standard](versioning.md) - 語義化版本標準
+- [Changelog Standards](changelog-standards.md) - 變更日誌標準
+
+---
+
 ## Version History | 版本歷史
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.1 | 2025-12-24 | Added: Related Standards section |
 | 1.2.0 | 2025-12-16 | Added: Decision tree, selection matrix, and quick selection guide for workflow strategy |
 | 1.1.0 | 2025-12-08 | Add pre-branch checklist section with workflow-specific guidance |
 | 1.0.0 | 2025-11-12 | Initial Git workflow standard |

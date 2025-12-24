@@ -1,8 +1,8 @@
 # Documentation Writing Standards
 # 文件撰寫規範
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-10
+**Version**: 1.0.1
+**Last Updated**: 2025-12-24
 **Applicability**: All software projects (new, refactoring, migration, maintenance)
 **適用範圍**: 所有軟體專案（新建、重構、遷移、維護）
 
@@ -485,10 +485,18 @@ project-root/
 
 ---
 
+## Related Standards | 相關標準
+
+- [Documentation Structure Standard](documentation-structure.md) - 文件結構標準
+- [Changelog Standards](changelog-standards.md) - 變更日誌標準
+
+---
+
 ## Version History | 版本歷史
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.0.1 | 2025-12-24 | Added: Related Standards section |
 | 1.0.0 | 2025-12-10 | Initial documentation writing standards |
 
 ---
