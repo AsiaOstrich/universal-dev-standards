@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Universal Development Standards - Pre-commit Hook
+# This hook runs before each commit to ensure code quality
+
+# Navigate to cli directory for npm commands
+cd cli
+
+# Run lint-staged for JavaScript files
+npx lint-staged
+
+# Run tests
+npm test

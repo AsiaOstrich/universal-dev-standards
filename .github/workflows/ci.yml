@@ -61,3 +61,19 @@ jobs:
 
       - name: Verify list command
         run: node bin/uds.js list
+
+      - name: Run tests
+        run: npm test
+
+  translation-sync:
+    name: Translation Sync Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check translation sync
+        run: |
+          chmod +x ./scripts/check-translation-sync.sh
+          ./scripts/check-translation-sync.sh
