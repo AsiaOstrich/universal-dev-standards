@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Test coverage
+coverage/
+
+# Test temp files
+tests/temp/
+
+# OS files
+.DS_Store

@@ -36,7 +36,9 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "eslint src/"
   },
   "dependencies": {
@@ -46,6 +48,8 @@
     "ora": "^8.0.1"
   },
   "devDependencies": {
-    "eslint": "^8.56.0"
+    "@vitest/coverage-v8": "^4.0.16",
+    "eslint": "^8.56.0",
+    "vitest": "^4.0.16"
   }
 }
