@@ -1,0 +1,108 @@
+# ISTQB 測試框架 - AI 優化選項
+# 父標準: testing
+# 參考來源: ISTQB Glossary v4.0
+
+id: istqb-framework
+meta:
+  parent: testing
+  version: "1.0.0"
+  language: zh-TW
+  description: ISTQB 標準測試框架，包含 4 個測試層級
+  source: "ISTQB Glossary v4.0 (https://glossary.istqb.org)"
+
+best_for:
+  - 需要正式 QA 流程的企業專案
+  - 需要認證或合規的專案
+  - 擁有專門 QA 團隊的組織
+  - 瀑布式或混合開發方法論
+  - 需要嚴格稽核紀錄的專案
+
+levels:
+  - name: 單元測試 (Unit Testing)
+    abbreviation: UT
+    istqb_term: "元件測試 (Component Testing)"
+    definition: 隔離測試個別軟體元件
+    purpose: 驗證程式碼單元運作正確
+    performed_by: 開發人員
+
+  - name: 整合測試 (Integration Testing)
+    abbreviation: IT 或 SIT
+    istqb_term: "整合測試 (Integration Testing)"
+    definition: 測試整合元件之間的介面和互動
+    purpose: 驗證元件互動
+    performed_by: 開發人員或 QA
+    note: |
+      - IT (Integration Testing): 敏捷/DevOps 常用
+      - SIT (System Integration Testing): 企業/ISTQB 環境常用
+      兩個術語指的是同一個測試層級
+
+  - name: 系統測試 (System Testing)
+    abbreviation: ST
+    istqb_term: "系統測試 (System Testing)"
+    definition: 測試完整整合的系統以驗證是否符合需求
+    purpose: 驗證系統符合功能和非功能需求
+    performed_by: QA 團隊
+
+  - name: 驗收測試 (Acceptance Testing)
+    abbreviation: AT 或 UAT
+    istqb_term: "驗收測試 (Acceptance Testing)"
+    definition: 測試以判斷系統是否滿足業務需求
+    purpose: 驗證系統符合業務需求
+    performed_by: 終端使用者或業務利益相關者
+    subtypes:
+      - name: 使用者驗收測試 (UAT)
+        description: 由實際使用者進行驗證
+      - name: 合約驗收測試
+        description: 根據合約標準進行驗證
+      - name: 法規驗收測試
+        description: 合規性驗證
+
+test_types:
+  functional:
+    - 功能測試
+    - 使用者介面測試
+    - 回歸測試
+  non_functional:
+    - 效能測試
+    - 安全測試
+    - 可用性測試
+    - 可靠性測試
+
+rules:
+  - id: four-level-structure
+    trigger: 使用 ISTQB 規劃測試策略
+    instruction: |
+      使用 4 個層級: UT → IT/SIT → ST → AT/UAT
+      每個層級都有特定的進入/退出條件
+    priority: required
+
+  - id: requirement-traceability
+    trigger: 建立測試案例
+    instruction: 每個測試案例應該追溯到一個需求
+    priority: required
+
+  - id: defect-classification
+    trigger: 回報缺陷
+    instruction: 根據 ISTQB 指南按嚴重程度和優先順序分類缺陷
+    priority: recommended
+
+comparison_with_industry:
+  columns: [ISTQB 層級, 業界對應, 主要差異]
+  rows:
+    - [單元測試, 單元測試 (UT), 相同概念]
+    - [整合測試, 整合測試 (IT/SIT), 相同概念，不同縮寫慣例]
+    - [系統測試, 通常與 E2E 合併, ISTQB 將系統驗證與使用者驗收分開]
+    - [驗收測試, E2E 的一部分, ISTQB 有專門層級用於業務驗證]
+
+when_to_choose:
+  choose_istqb_when:
+    - 需要正式測試文件
+    - 與 QA 認證機構合作
+    - 有合規需求的企業環境
+    - 團隊包含 ISTQB 認證專業人員
+    - 稽核軌跡很重要
+  avoid_istqb_when:
+    - 快速迭代是優先事項
+    - 沒有專門 QA 的小團隊
+    - 純 DevOps/持續交付重點
+    - 擔心文件負擔

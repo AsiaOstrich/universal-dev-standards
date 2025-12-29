@@ -1,0 +1,89 @@
+# Markdown 文件 - AI 優化選項
+# 父項: documentation
+
+id: markdown-docs
+meta:
+  parent: documentation-structure
+  version: "1.0.0"
+  description: 純 Markdown 文件方法
+  language: zh-TW
+
+best_for:
+  - 開源專案
+  - GitHub/GitLab 託管的專案
+  - 開發者導向的文件
+  - 需要簡單、可攜式文件的專案
+
+structure:
+  root_files:
+    - name: README.md
+      required: true
+      purpose: 專案概覽、快速開始
+    - name: CONTRIBUTING.md
+      required: false
+      purpose: 貢獻指南
+    - name: CHANGELOG.md
+      required: false
+      purpose: 版本歷史
+    - name: LICENSE
+      required: true
+      purpose: 授權檔案
+
+  docs_folder:
+    location: docs/
+    naming: lowercase-kebab-case（小寫連字號）
+    common_files:
+      - getting-started.md（快速開始）
+      - installation.md（安裝）
+      - configuration.md（設定）
+      - api-reference.md（API 參考）
+      - troubleshooting.md（疑難排解）
+      - faq.md（常見問題）
+
+    subdirectories:
+      - name: guides/
+        purpose: 操作指南
+      - name: tutorials/
+        purpose: 逐步教學
+      - name: reference/
+        purpose: API 和設定參考
+      - name: ADR/
+        purpose: 架構決策記錄
+
+rules:
+  - id: root-uppercase
+    trigger: 建立根目錄檔案時
+    instruction: 根目錄文件使用大寫（README、CONTRIBUTING）
+    priority: required
+
+  - id: docs-lowercase-kebab
+    trigger: 建立 docs/ 檔案時
+    instruction: 使用小寫連字號命名（例如 getting-started.md）
+    priority: required
+
+  - id: link-relative
+    trigger: 在文件間連結時
+    instruction: 使用相對路徑進行內部連結
+    priority: required
+
+  - id: include-examples
+    trigger: 記錄功能時
+    instruction: 為所有功能包含程式碼範例
+    priority: recommended
+
+markdown_best_practices:
+  - 使用 ATX 風格標題（#、##、###）
+  - 標題前後空一行
+  - 使用帶語言標示的圍欄式程式碼區塊
+  - 保持每行在 120 字元以內
+  - 對重複的 URL 使用參考式連結
+
+tools:
+  - name: markdownlint
+    purpose: 檢查 markdown 檔案
+  - name: markdown-link-check
+    purpose: 檢查壞掉的連結
+  - name: docsify
+    purpose: 產生文件網站
+  - name: mkdocs
+    purpose: 靜態網站產生器

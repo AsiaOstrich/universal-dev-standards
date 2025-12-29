@@ -4,34 +4,47 @@ Cursor-specific rules derived from universal-dev-standards.
 
 ## Status
 
-🚧 **Planned** - Coming soon
+✅ **Complete** - Ready to use
 
-## Planned Features
+## Installation
 
-- `.cursorrules` file with comprehensive development standards
-- Notepads for specific topics (commit messages, code review, etc.)
-- Integration with Cursor's AI features
+Copy the `.cursorrules` file to your project root:
 
-## Structure (Planned)
+```bash
+cp skills/cursor/.cursorrules .cursorrules
+```
+
+Or copy from this repository directly:
+
+```bash
+curl -o .cursorrules https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/cursor/.cursorrules
+```
+
+## What's Included
+
+The `.cursorrules` file includes guidance for:
+
+- **Commit Messages** - Conventional Commits format
+- **Code Review** - Quality and security checklists
+- **Testing** - Testing pyramid and best practices
+- **Git Workflow** - Branch naming and commit rules
+- **Documentation** - File naming and structure
+- **AI Collaboration** - Best practices for AI assistance
+
+## Structure
 
 ```
 cursor/
-├── .cursorrules              # Main rules file
-├── notepads/
-│   ├── commit-standards.md   # Commit message notepad
-│   ├── code-review.md        # Code review notepad
-│   └── testing.md            # Testing notepad
-└── README.md
+├── .cursorrules    # Main rules file
+└── README.md       # This file
 ```
 
-## Contributing
+## Version
 
-Want to help implement Cursor rules? See [CONTRIBUTING.md](../../CONTRIBUTING.md).
+- **Version**: 1.0.0
+- **Last Updated**: 2025-12-29
+- **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
 
-## Current Alternative
+## License
 
-Until Cursor-specific rules are ready, you can use the integration file:
-
-```bash
-cp integrations/cursor/.cursorrules .cursorrules
-```
+CC BY 4.0

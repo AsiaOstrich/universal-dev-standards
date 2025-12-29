@@ -1,8 +1,21 @@
-# Integration Testing
+# Integration Testing (IT/SIT)
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/options/testing/integration-testing.md)
 
 **Parent Standard**: [Testing Guide](../../core/testing.md)
+
+---
+
+## Abbreviation Note
+
+The integration testing level has two common abbreviations in the industry:
+
+| Abbreviation | Full Name | Common Usage |
+|--------------|-----------|--------------|
+| **IT** | Integration Testing | Agile/DevOps communities (Martin Fowler, Google Testing Blog) |
+| **SIT** | System Integration Testing | Enterprise/ISTQB contexts, traditional QA environments |
+
+Both terms refer to the same testing concept. This document uses IT/SIT interchangeably.
 
 ---
 

@@ -1,0 +1,99 @@
+# Keep a Changelog 格式 - AI 優化選項
+# 父項: changelog
+# 參考: https://keepachangelog.com/
+
+id: keep-a-changelog
+meta:
+  parent: changelog
+  version: "1.0.0"
+  description: 標準 Keep a Changelog 格式
+  source: "https://keepachangelog.com/zh-TW/1.0.0/"
+  language: zh-TW
+
+best_for:
+  - 開源專案
+  - 需要人類可讀的變更日誌的專案
+  - 遵循語意化版本的專案
+  - 手動發布管理
+
+format:
+  filename: CHANGELOG.md
+  structure: |
+    # 變更日誌
+
+    此專案的所有重要變更都將記錄在此檔案中。
+
+    格式基於 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.0.0/)，
+    且此專案遵循 [語意化版本](https://semver.org/lang/zh-TW/)。
+
+    ## [未發布]
+
+    ## [X.Y.Z] - YYYY-MM-DD
+
+change_types:
+  - name: 新增
+    english: Added
+    order: 1
+    description: 新功能
+  - name: 變更
+    english: Changed
+    order: 2
+    description: 現有功能的變更
+  - name: 棄用
+    english: Deprecated
+    order: 3
+    description: 即將移除的功能
+  - name: 移除
+    english: Removed
+    order: 4
+    description: 已移除的功能
+  - name: 修復
+    english: Fixed
+    order: 5
+    description: 錯誤修復
+  - name: 安全性
+    english: Security
+    order: 6
+    description: 安全漏洞修復
+
+rules:
+  - id: use-unreleased
+    trigger: 開發期間進行變更時
+    instruction: 將條目新增到 [未發布] 區段
+    priority: required
+
+  - id: move-on-release
+    trigger: 發布新版本時
+    instruction: 將 [未發布] 條目移至帶有日期的版本區段
+    priority: required
+
+  - id: reverse-chronological
+    trigger: 排序條目時
+    instruction: 最新版本在最上方
+    priority: required
+
+  - id: link-versions
+    trigger: 新增版本時
+    instruction: 在檔案底部新增差異比較連結
+    priority: recommended
+
+  - id: iso-date
+    trigger: 標註發布日期時
+    instruction: 使用 YYYY-MM-DD 格式
+    priority: required
+
+example: |
+  ## [1.2.0] - 2025-01-15
+
+  ### 新增
+  - 支援 OAuth2 的使用者驗證 (#123)
+  - 深色模式主題選項 (#145)
+
+  ### 變更
+  - 更新 API 回應格式以保持一致性
+
+  ### 修復
+  - 修復網路緩慢時的登入逾時問題 (#156)
+
+  [未發布]: https://github.com/user/repo/compare/v1.2.0...HEAD
+  [1.2.0]: https://github.com/user/repo/compare/v1.1.0...v1.2.0

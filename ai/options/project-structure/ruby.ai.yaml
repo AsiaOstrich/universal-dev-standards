@@ -1,0 +1,140 @@
+# Ruby Project Structure - AI Optimized Option
+# Parent: project-structure
+
+id: ruby
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Ruby project conventions
+
+structure:
+  gem: |
+    project-root/
+    ├── lib/
+    │   ├── gem_name.rb       # Main entry point
+    │   └── gem_name/
+    │       ├── version.rb
+    │       ├── client.rb
+    │       └── errors.rb
+    ├── spec/                 # RSpec tests
+    │   ├── spec_helper.rb
+    │   └── gem_name/
+    │       └── client_spec.rb
+    ├── bin/                  # Executables
+    │   └── gem_name
+    ├── sig/                  # RBS type signatures
+    ├── Gemfile
+    ├── Gemfile.lock
+    ├── gem_name.gemspec
+    ├── Rakefile
+    └── README.md
+
+  rails: |
+    project-root/
+    ├── app/
+    │   ├── controllers/
+    │   ├── models/
+    │   ├── views/
+    │   ├── helpers/
+    │   ├── mailers/
+    │   ├── jobs/
+    │   └── services/         # Custom addition
+    ├── config/
+    │   ├── routes.rb
+    │   ├── database.yml
+    │   └── environments/
+    ├── db/
+    │   ├── migrate/
+    │   ├── schema.rb
+    │   └── seeds.rb
+    ├── lib/
+    │   └── tasks/
+    ├── public/
+    ├── spec/                 # or test/
+    │   ├── models/
+    │   ├── controllers/
+    │   ├── requests/
+    │   └── factories/
+    ├── Gemfile
+    └── config.ru
+
+  sinatra: |
+    project-root/
+    ├── app.rb                # Main application
+    ├── config.ru
+    ├── lib/
+    │   └── helpers/
+    ├── views/
+    ├── public/
+    ├── spec/
+    ├── Gemfile
+    └── Gemfile.lock
+
+config_files:
+  - file: Gemfile
+    purpose: Dependency declaration
+    required: true
+
+  - file: Gemfile.lock
+    purpose: Dependency lock file
+    required: true
+
+  - file: "*.gemspec"
+    purpose: Gem specification
+    required: for gems only
+
+  - file: Rakefile
+    purpose: Rake tasks
+    required: false
+
+  - file: ".rubocop.yml"
+    purpose: RuboCop configuration
+    required: false
+
+  - file: ".rspec"
+    purpose: RSpec configuration
+    required: false
+
+gitignore:
+  - ".bundle/"
+  - log/
+  - tmp/
+  - "*.gem"
+  - ".env"
+  - coverage/
+  - node_modules/
+  - ".byebug_history"
+
+rules:
+  - id: lib-structure
+    trigger: organizing gem code
+    instruction: "Place main code in lib/<gem_name>/"
+    priority: required
+
+  - id: spec-location
+    trigger: placing tests
+    instruction: Mirror lib/ structure in spec/ directory
+    priority: recommended
+
+  - id: service-objects
+    trigger: organizing Rails business logic
+    instruction: Use service objects in app/services/ for complex operations
+    priority: recommended
+
+  - id: factory-bot
+    trigger: setting up test data
+    instruction: Use FactoryBot with factories in spec/factories/
+    priority: recommended
+
+  - id: rubocop-config
+    trigger: setting up linting
+    instruction: Configure RuboCop with project-specific rules
+    priority: recommended
+
+tools:
+  build: [Rake, Bundler]
+  test_runner: [RSpec, Minitest]
+  linter: [RuboCop, Standard]
+  formatter: [RuboCop --auto-correct, Standard]
+  package_manager: [Bundler, RubyGems]
+  documentation: [YARD, RDoc]

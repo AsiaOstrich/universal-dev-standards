@@ -1,0 +1,143 @@
+# Industry Testing Pyramid - AI Optimized Option
+# Parent: testing
+# Reference: Martin Fowler's Testing Pyramid, Google Testing Blog
+
+id: industry-pyramid
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: Industry standard 3-level testing pyramid for agile teams
+  sources:
+    - "Martin Fowler's Testing Pyramid (https://martinfowler.com/bliki/TestPyramid.html)"
+    - "Google Testing Blog (https://testing.googleblog.com)"
+
+best_for:
+  - Agile/Scrum development teams
+  - CI/CD focused environments
+  - Small to medium projects
+  - DevOps practices
+  - Rapid iteration cycles
+
+pyramid:
+  visual: |
+    ┌─────────┐
+    │   E2E   │  ← 10% (Slow, expensive)
+    ├─────────┤
+    │   IT    │  ← 20% (Medium speed)
+    ├─────────┤
+    │   UT    │  ← 70% (Fast, many)
+    └─────────┘
+  ratio: "70/20/10"
+  rationale: |
+    - More unit tests = faster feedback
+    - Fewer E2E tests = lower maintenance cost
+    - Integration tests catch interface issues
+
+levels:
+  - name: Unit Testing
+    abbreviation: UT
+    percentage: 70
+    definition: Isolated tests for individual functions, methods, or classes
+    scope: Single function/method/class
+    speed: "< 100ms per test"
+    dependencies: All mocked
+    characteristics:
+      - Fast execution
+      - Deterministic results
+      - No I/O operations
+      - Tests single unit of behavior
+
+  - name: Integration Testing
+    abbreviation: IT
+    alternative_abbreviation: SIT
+    percentage: 20
+    definition: Tests for component interactions and data flow
+    scope: Multiple components working together
+    speed: "1-10 seconds per test"
+    dependencies: Mix of real and mocked
+    note: |
+      Abbreviation conventions vary:
+      - IT: Common in Agile/DevOps communities (Martin Fowler, Google)
+      - SIT: Common in Enterprise/traditional QA environments
+      Both refer to the same testing concept
+    characteristics:
+      - Tests real integrations
+      - May use containers (Testcontainers)
+      - Validates data flow
+
+  - name: End-to-End Testing
+    abbreviation: E2E
+    percentage: 10
+    definition: Tests complete user workflows from UI to database
+    scope: Full system from user perspective
+    speed: "30 seconds to minutes per test"
+    dependencies: All real
+    characteristics:
+      - Simulates real user behavior
+      - Tests critical paths only
+      - Highest maintenance cost
+
+coverage_targets:
+  columns: [Metric, Minimum, Recommended]
+  rows:
+    - [Line Coverage, 70%, 85%]
+    - [Branch Coverage, 60%, 80%]
+    - [Function Coverage, 80%, 90%]
+
+rules:
+  - id: follow-pyramid-ratio
+    trigger: planning test strategy with industry pyramid
+    instruction: Target 70/20/10 ratio for UT/IT/E2E
+    priority: required
+
+  - id: test-at-lowest-level
+    trigger: deciding where to add test
+    instruction: Write tests at the lowest level that provides confidence
+    priority: recommended
+
+  - id: avoid-e2e-for-edge-cases
+    trigger: testing edge cases
+    instruction: Use unit tests for edge cases, not E2E
+    priority: recommended
+
+  - id: integration-for-boundaries
+    trigger: testing component boundaries
+    instruction: Use integration tests to verify interface contracts
+    priority: recommended
+
+comparison_with_istqb:
+  columns: [Industry Level, ISTQB Equivalent, Note]
+  rows:
+    - [Unit Testing (UT), Component Testing, Same concept]
+    - [Integration Testing (IT), Integration Testing, Same concept, IT vs SIT abbreviation]
+    - [E2E Testing, System Testing + Acceptance Testing, Industry combines these levels]
+
+when_to_choose:
+  choose_industry_when:
+    - Practicing Agile/Scrum methodology
+    - CI/CD pipeline is critical
+    - Fast feedback is priority
+    - Team is small and cross-functional
+    - Minimal documentation overhead desired
+  avoid_industry_when:
+    - Need formal QA certification
+    - Enterprise compliance requirements
+    - Dedicated QA team prefers ISTQB
+    - Audit documentation is required
+
+tools_by_level:
+  unit_testing:
+    javascript: [Jest, Vitest, Mocha]
+    python: [pytest, unittest]
+    java: [JUnit, TestNG]
+    csharp: [xUnit, NUnit, MSTest]
+    go: [testing package, testify]
+  integration_testing:
+    javascript: [Supertest, Testcontainers]
+    python: [pytest, Testcontainers]
+    java: [Spring Boot Test, Testcontainers]
+    csharp: [WebApplicationFactory, Testcontainers]
+  e2e_testing:
+    javascript: [Playwright, Cypress, Puppeteer]
+    python: [Playwright, Selenium]
+    java: [Selenium, Playwright]

@@ -1,8 +1,21 @@
-# 整合測試
+# 整合測試 (IT/SIT)
 
 > **語言**: [English](../../../../options/testing/integration-testing.md) | 繁體中文
 
 **上層標準**: [測試指南](../../core/testing.md)
+
+---
+
+## 縮寫說明
+
+整合測試層級在業界有兩種常見的縮寫：
+
+| 縮寫 | 全名 | 常見用法 |
+|------|------|----------|
+| **IT** | Integration Testing | 敏捷/DevOps 社群（Martin Fowler、Google Testing Blog） |
+| **SIT** | System Integration Testing | 企業/ISTQB 環境、傳統 QA 環境 |
+
+兩者指的是相同的測試概念。本文件交替使用 IT/SIT。
 
 ---
 

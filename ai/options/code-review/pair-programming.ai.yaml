@@ -1,0 +1,111 @@
+# Pair Programming Review - AI Optimized Option
+# Parent: code-review
+
+id: pair-programming
+meta:
+  parent: code-review
+  version: "1.0.0"
+  description: Real-time collaborative code review
+
+best_for:
+  - Complex features
+  - Knowledge transfer
+  - Onboarding new team members
+  - Critical code paths
+  - Co-located teams
+
+roles:
+  driver:
+    description: Writes the code
+    responsibilities:
+      - Implement the solution
+      - Explain thought process
+      - Accept navigator's suggestions
+
+  navigator:
+    description: Reviews and guides
+    responsibilities:
+      - Review code in real-time
+      - Think about bigger picture
+      - Suggest improvements
+      - Catch errors early
+
+patterns:
+  - name: Ping Pong
+    description: Alternate roles after each test
+    best_for: TDD workflows
+    workflow:
+      - Driver writes failing test
+      - Switch roles
+      - New driver makes test pass
+      - Switch and repeat
+
+  - name: Strong-Style
+    description: Navigator must verbalize all ideas
+    rule: "For an idea to go from your head to the computer, it must go through someone else's hands"
+    best_for: Knowledge transfer
+
+  - name: Driver-Navigator
+    description: Traditional pairing
+    workflow:
+      - Driver focuses on tactical coding
+      - Navigator thinks strategically
+      - Switch every 25-30 minutes
+
+session_guidelines:
+  preparation:
+    - Define goal for session
+    - Set up shared environment
+    - Agree on pairing pattern
+
+  during_session:
+    - Take breaks every 45-60 minutes
+    - Switch roles regularly
+    - Communicate constantly
+
+  after_session:
+    - Brief retrospective
+    - Document decisions made
+    - Commit code
+
+tools:
+  remote_pairing:
+    - VS Code Live Share
+    - JetBrains Code With Me
+    - Tuple
+    - Screen sharing (fallback)
+
+  local_pairing:
+    - Single computer, two keyboards
+    - Projector/large monitor
+
+rules:
+  - id: regular-switching
+    trigger: pairing session
+    instruction: Switch roles every 25-30 minutes
+    priority: required
+
+  - id: verbal-communication
+    trigger: navigating
+    instruction: Explain reasoning before suggesting changes
+    priority: required
+
+  - id: respect-driver
+    trigger: navigating
+    instruction: Don't grab keyboard; guide verbally
+    priority: required
+
+  - id: take-breaks
+    trigger: long session
+    instruction: Break every 45-60 minutes
+    priority: recommended
+
+comparison_with_pr:
+  columns: [Aspect, Pair Programming, PR Review]
+  rows:
+    - [Timing, Real-time, Asynchronous]
+    - [Feedback, Immediate, Delayed]
+    - [Knowledge sharing, High, Medium]
+    - [Documentation, Lower, Higher (PR comments)]
+    - [Scalability, Limited, High]
+    - [Remote-friendly, Challenging, Easy]

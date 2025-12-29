@@ -1,7 +1,7 @@
 ---
-source_version: 1.1.3
-translation_version: 1.1.3
-last_synced: 2025-12-25
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2025-12-30
 status: current
 ---
 
@@ -9,8 +9,8 @@ status: current
 
 # 語義化版本標準
 
-**版本**: 1.1.3
-**最後更新**: 2025-12-24
+**版本**: 1.2.0
+**最後更新**: 2025-12-30
 **適用範圍**: 所有有版本發布的軟體專案
 
 ---
@@ -681,14 +681,66 @@ function authenticate(username, password) {
 }
 ```
 
-### 2. Migration Guide (N Version)
+### 2. API 版本化策略
+
+根據需求選擇 API 版本化策略：
+
+| 策略 | 格式 | 優點 | 缺點 |
+|------|------|------|------|
+| URL 路徑 | `/api/v1/users` | 清晰、易於路由 | URL 污染 |
+| 查詢參數 | `/api/users?version=1` | 可選版本 | 快取問題 |
+| 標頭 | `Accept: application/vnd.api.v1+json` | URL 乾淨 | 較不可見 |
+| 內容協商 | `Accept: application/vnd.api+json;version=1` | RESTful | 複雜 |
+
+**建議**：大多數 API 使用 URL 路徑版本化（對開發者最清晰）。
+
+### 3. 棄用時間線
+
+棄用 API 功能時遵循此時間線：
+
+```
+v1.0.0 - 功能引入
+v1.5.0 - 新增棄用警告（最少 N-1 版本）
+v2.0.0 - 移除功能（記錄在遷移指南中）
+```
+
+**棄用期間指南**：
+
+| API 類型 | 最短棄用期間 |
+|----------|-------------|
+| 內部 API | 1 個次要版本 |
+| 合作夥伴 API | 2 個次要版本 + 3 個月 |
+| 公開 API | 2 個次要版本 + 6 個月 |
+| 關鍵基礎設施 | 最少 1 年 |
+
+### 4. 向後相容性檢查清單
+
+發布前驗證這些向後相容性規則：
+
+**不要破壞（不升級主版本號）**：
+- [ ] 移除公開 API 端點
+- [ ] 移除必填請求欄位
+- [ ] 新增必填請求欄位
+- [ ] 變更回應欄位類型
+- [ ] 變更錯誤碼含義
+- [ ] 移除消費者依賴的回應欄位
+
+**安全變更（次要/修補版本）**：
+- [ ] 新增可選請求欄位
+- [ ] 新增回應欄位
+- [ ] 新增端點
+- [ ] 新增錯誤碼
+- [ ] 改善錯誤訊息
+- [ ] 效能改進
+
+### 5. 遷移指南（N 版本）
 
 ```markdown
-# Migration Guide: v1.x to v2.0
+# 遷移指南：v1.x 到 v2.0
 
-## Breaking Changes
+## 破壞性變更
 
-### 1. authenticate() removed
+### 1. authenticate() 已移除
 
 **Before (v1.x)**:
 ```javascript

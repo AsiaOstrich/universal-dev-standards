@@ -1,0 +1,254 @@
+# 契約測試 - AI 優化選項
+# 父層: testing
+
+id: contract-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: API 與服務整合的契約測試標準
+  references:
+    - "Pact Foundation"
+    - "Consumer-Driven Contracts"
+    - "Martin Fowler - Contract Test"
+
+best_for:
+  - 微服務架構
+  - API 優先開發
+  - 第三方整合
+  - 獨立工作的團隊
+  - 分散式系統
+
+concepts:
+  consumer_driven_contracts:
+    abbreviation: CDC
+    name: 消費者驅動契約
+    description: 由 API 消費者定義的契約
+    flow:
+      1: 消費者定義預期的互動
+      2: 產生契約（pact 檔案）
+      3: 提供者驗證契約
+      4: 雙方都必須通過才能部署
+    benefits:
+      - 消費者需求驅動 API 設計
+      - 解耦部署
+      - 及早發現整合問題
+
+  provider_contracts:
+    name: 提供者契約
+    description: 由 API 提供者定義的契約
+    use_case: 公開 API、OpenAPI 優先設計
+    flow:
+      1: 提供者定義 API 規格
+      2: 消費者針對規格測試
+      3: 提供者確保向後相容
+
+contract_types:
+  http_api:
+    description: REST/HTTP API 契約
+    tools:
+      - name: Pact
+        languages: 多語言
+        type: 消費者驅動
+      - name: Spring Cloud Contract
+        languages: Java/JVM
+        type: 兩者皆可
+      - name: Dredd
+        languages: 多語言
+        type: 提供者（OpenAPI）
+
+  message_queue:
+    description: 非同步訊息契約
+    tools:
+      - name: Pact（非同步）
+        support: 基於訊息的互動
+      - name: Spring Cloud Contract
+        support: 訊息通道
+
+  graphql:
+    description: GraphQL API 契約
+    tools:
+      - name: Pact
+        support: GraphQL 查詢
+      - name: Apollo Contract Testing
+        support: Schema 驗證
+
+pact_workflow:
+  consumer_side:
+    name: 消費者端
+    step_1:
+      name: 定義互動
+      code: |
+        // JavaScript 範例
+        const interaction = {
+          state: 'user exists',
+          uponReceiving: 'a request for user by id',
+          withRequest: {
+            method: 'GET',
+            path: '/users/1',
+            headers: { Accept: 'application/json' }
+          },
+          willRespondWith: {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+            body: {
+              id: like(1),
+              name: like('John'),
+              email: like('john@example.com')
+            }
+          }
+        };
+
+    step_2:
+      name: 執行消費者測試
+      description: 測試對模擬提供者執行
+
+    step_3:
+      name: 發布契約
+      description: 上傳 pact 檔案到 broker
+
+  provider_side:
+    name: 提供者端
+    step_1:
+      name: 取得契約
+      description: 從 broker 下載契約
+
+    step_2:
+      name: 驗證契約
+      code: |
+        // 提供者驗證
+        verifier.verifyProvider({
+          provider: 'UserService',
+          pactBrokerUrl: 'https://broker.example.com',
+          publishVerificationResult: true
+        });
+
+    step_3:
+      name: 狀態設定
+      description: 為每個互動設定提供者狀態
+
+pact_broker:
+  description: 契約的中央儲存庫
+  features:
+    - 契約儲存
+    - 驗證狀態
+    - 相依性圖表
+    - Can-I-Deploy 檢查
+    - CI/CD 的 Webhooks
+
+  can_i_deploy:
+    description: 檢查部署是否安全
+    command: |
+      pact-broker can-i-deploy \
+        --pacticipant UserService \
+        --version $(git rev-parse HEAD) \
+        --to production
+
+rules:
+  - id: consumer-first
+    trigger: 設計 API 契約
+    instruction: 從消費者需求開始，而非提供者實作
+    priority: recommended
+
+  - id: use-matchers
+    trigger: 定義契約主體
+    instruction: 使用類型匹配器（like、eachLike），而非精確值
+    priority: required
+
+  - id: provider-states
+    trigger: 設定測試情境
+    instruction: 為每個互動定義清晰的提供者狀態
+    priority: required
+
+  - id: version-contracts
+    trigger: 發布契約
+    instruction: 以消費者版本和分支標記契約
+    priority: required
+
+  - id: can-i-deploy
+    trigger: 部署前
+    instruction: 在 CI/CD 中始終執行 can-i-deploy 檢查
+    priority: required
+
+  - id: breaking-changes
+    trigger: 修改 API
+    instruction: |
+      破壞性變更需要：
+      1. 驗證沒有消費者依賴變更的行為
+      2. 與消費者團隊協調
+      3. 如需要使用棄用期間
+    priority: required
+
+  - id: async-contracts
+    trigger: 測試基於訊息的系統
+    instruction: 為非同步通訊包含訊息契約
+    priority: recommended
+
+ci_integration:
+  consumer_pipeline: |
+    # 消費者 CI
+    stages:
+      - test:
+          - 執行單元測試
+          - 執行契約測試（產生 pact）
+      - publish:
+          - 發布 pact 到 broker
+      - can-i-deploy:
+          - 檢查部署安全性
+      - deploy:
+          - 部署消費者
+
+  provider_pipeline: |
+    # 提供者 CI
+    stages:
+      - test:
+          - 執行單元測試
+          - 驗證消費者契約
+      - publish:
+          - 發布驗證結果
+      - can-i-deploy:
+          - 檢查部署安全性
+      - deploy:
+          - 部署提供者
+
+  github_actions_consumer: |
+    name: Consumer Contract Tests
+    on: [push, pull_request]
+    jobs:
+      contract-test:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - name: Run contract tests
+            run: npm run test:contract
+          - name: Publish pact
+            run: npm run pact:publish
+          - name: Can I deploy?
+            run: |
+              pact-broker can-i-deploy \
+                --pacticipant MyConsumer \
+                --version ${{ github.sha }}
+
+quick_reference:
+  workflow:
+    columns: [步驟, 消費者, 提供者]
+    rows:
+      - ["1. 定義", "撰寫預期", "實作 API"]
+      - ["2. 測試", "對模擬執行", "驗證契約"]
+      - ["3. 發布", "上傳 pact", "上傳結果"]
+      - ["4. 部署", "Can-I-Deploy", "Can-I-Deploy"]
+
+  tools:
+    columns: [工具, 類型, 語言]
+    rows:
+      - [Pact, CDC, 多語言]
+      - [Spring Cloud Contract, 兩者, JVM]
+      - [Dredd, OpenAPI, 多語言]
+      - [Prism, Mock, 多語言]
+
+  benefits:
+    columns: [效益, 描述]
+    rows:
+      - [快速回饋, 不需要完整整合環境]
+      - [解耦, 團隊可獨立工作]
+      - [安全部署, Can-I-Deploy 防止破壞性變更]
+      - [活文件, 契約記錄 API 行為]

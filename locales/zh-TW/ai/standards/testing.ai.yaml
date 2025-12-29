@@ -3,34 +3,54 @@
 
 id: testing
 meta:
-  version: "1.0.0"
-  updated: "2025-12-26"
+  version: "1.2.0"
+  updated: "2025-12-29"
   source: core/testing-standards.md
-  description: 測試金字塔與建議的覆蓋率比例
+  description: 測試金字塔與建議的覆蓋率比例，支援框架選項
   language: zh-TW
 
+# 框架選擇 - 根據專案需求選擇
+# 參考來源: ISTQB Glossary v4.0, Martin Fowler's Testing Pyramid
+framework_options:
+  decision_point: 根據專案類型選擇測試框架
+  choices:
+    - id: istqb-framework
+      file: options/testing/istqb-framework.ai.yaml
+      best_for: 企業專案、認證需求、正式 QA 流程
+    - id: industry-pyramid
+      file: options/testing/industry-pyramid.ai.yaml
+      best_for: 敏捷開發、CI/CD 優化、快速迭代
+
+# 預設金字塔 (業界標準 - 可由框架選擇覆蓋)
 pyramid:
-  ratio: "70/20/7/3"
+  ratio: "70/20/10"
+  note: "業界標準比例。ISTQB 框架使用 4 層但無固定比例。"
   levels:
     - name: 單元測試 (UT)
       percentage: 70
       scope: 單一函式/方法
       speed: 非常快 (<100ms)
-    - name: 整合測試 (IT)
+    - name: 整合測試 (IT/SIT)
       percentage: 20
       scope: 多個元件
       speed: 快速 (<1s)
-    - name: 系統測試 (ST)
-      percentage: 7
-      scope: 完整系統
-      speed: 中等 (<10s)
+      note: "IT (敏捷/DevOps) 或 SIT (企業/ISTQB) - 兩者都指整合測試"
     - name: 端對端測試 (E2E)
-      percentage: 3
-      scope: 使用者流程
+      percentage: 10
+      scope: 使用者流程/系統測試
       speed: 較慢 (>10s)
 
 options:
+  testing_framework:
+    description: 選擇測試框架方法
+    multiSelect: false
+    choices:
+      - id: istqb-framework
+        file: options/testing/istqb-framework.ai.yaml
+      - id: industry-pyramid
+        file: options/testing/industry-pyramid.ai.yaml
   test_level:
+    description: 選擇要實施的測試層級
     multiSelect: true
     choices:
       - id: unit-testing
@@ -41,11 +61,14 @@ options:
         file: options/testing/system-testing.ai.yaml
       - id: e2e-testing
         file: options/testing/e2e-testing.ai.yaml
+      - id: security-testing
+        file: options/testing/security-testing.ai.yaml
+        best_for: 處理敏感資料的應用程式、安全關鍵系統
 
 rules:
   - id: follow-pyramid
     trigger: 規劃測試策略時
-    instruction: 遵循 70/20/7/3 的單元/整合/系統/端對端比例
+    instruction: 遵循 70/20/10 的單元/整合/端對端比例（業界標準），或使用 ISTQB 4 層結構
     priority: required
 
   - id: first-principles
@@ -76,13 +99,20 @@ rules:
     priority: recommended
 
 quick_reference:
+  framework_options:
+    columns: [框架, 層級, 適用場景]
+    rows:
+      - [ISTQB, "UT → IT/SIT → ST → AT/UAT", 企業/合規]
+      - [業界金字塔, "UT (70%) → IT (20%) → E2E (10%)", 敏捷/DevOps]
+  abbreviation_note:
+    IT: "Integration Testing - 敏捷/DevOps 常用"
+    SIT: "System Integration Testing - 企業/ISTQB 常用"
   test_pyramid:
     columns: [層級, 百分比, 範圍, 速度]
     rows:
-      - [單元, 70%, 單一函式, <100ms]
-      - [整合, 20%, 多個元件, <1s]
-      - [系統, 7%, 完整系統, <10s]
-      - [端對端, 3%, 使用者流程, ">10s"]
+      - [單元 (UT), 70%, 單一函式, <100ms]
+      - [整合 (IT/SIT), 20%, 多個元件, <1s]
+      - [端對端 (E2E), 10%, 使用者流程, ">10s"]
 
   first_principles:
     columns: [原則, 說明]

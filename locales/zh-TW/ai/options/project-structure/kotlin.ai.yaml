@@ -1,0 +1,123 @@
+# Kotlin 專案結構 - AI 優化選項
+# 父層: project-structure
+
+id: kotlin
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Kotlin 專案慣例
+
+structure:
+  gradle: |
+    project-root/
+    ├── src/
+    │   ├── main/
+    │   │   ├── kotlin/
+    │   │   │   └── com/example/app/
+    │   │   │       ├── Application.kt
+    │   │   │       ├── config/
+    │   │   │       ├── controller/
+    │   │   │       ├── service/
+    │   │   │       ├── repository/
+    │   │   │       └── model/
+    │   │   └── resources/
+    │   │       └── application.yml
+    │   └── test/
+    │       ├── kotlin/
+    │       │   └── com/example/app/
+    │       └── resources/
+    ├── build.gradle.kts      # Gradle Kotlin DSL
+    ├── settings.gradle.kts
+    ├── gradle.properties
+    └── gradlew
+
+  android: |
+    project-root/
+    ├── app/
+    │   ├── src/
+    │   │   ├── main/
+    │   │   │   ├── kotlin/
+    │   │   │   ├── res/
+    │   │   │   └── AndroidManifest.xml
+    │   │   ├── test/
+    │   │   └── androidTest/
+    │   └── build.gradle.kts
+    ├── build.gradle.kts
+    ├── settings.gradle.kts
+    └── gradle.properties
+
+  multiplatform: |
+    project-root/
+    ├── shared/
+    │   ├── src/
+    │   │   ├── commonMain/kotlin/
+    │   │   ├── commonTest/kotlin/
+    │   │   ├── androidMain/kotlin/
+    │   │   ├── iosMain/kotlin/
+    │   │   └── jvmMain/kotlin/
+    │   └── build.gradle.kts
+    ├── androidApp/
+    ├── iosApp/
+    └── build.gradle.kts
+
+config_files:
+  - file: build.gradle.kts
+    purpose: 建置設定（Kotlin DSL）
+    required: true
+    alternative: build.gradle (Groovy)
+
+  - file: settings.gradle.kts
+    purpose: 專案設定
+    required: true
+
+  - file: gradle.properties
+    purpose: Gradle 屬性
+    required: false
+
+  - file: gradle/libs.versions.toml
+    purpose: 版本目錄
+    required: false
+    note: 建議用於相依性管理
+
+gitignore:
+  - build/
+  - .gradle/
+  - "*.iml"
+  - .idea/
+  - local.properties
+  - "*.apk"
+  - "*.aab"
+
+rules:
+  - id: kotlin-dsl
+    trigger: 建立建置檔案
+    instruction: 優先使用 build.gradle.kts（Kotlin DSL）而非 Groovy
+    priority: recommended
+
+  - id: package-structure
+    trigger: 組織程式碼
+    instruction: 遵循反向網域套件命名（com.example.app）
+    priority: required
+
+  - id: test-location
+    trigger: 放置測試
+    instruction: 在 test 目錄中映射主原始碼結構
+    priority: required
+
+  - id: version-catalog
+    trigger: 管理相依性
+    instruction: 使用版本目錄（libs.versions.toml）管理相依性
+    priority: recommended
+
+  - id: coroutines-testing
+    trigger: 測試協程
+    instruction: 使用 kotlinx-coroutines-test 測試 suspend 函數
+    priority: recommended
+
+tools:
+  build: [Gradle, Gradle Kotlin DSL]
+  test_runner: [JUnit5, Kotest, MockK]
+  linter: [Detekt, ktlint]
+  formatter: [ktlint, IntelliJ IDEA]
+  package_manager: [Gradle, Maven]
+  documentation: [Dokka]

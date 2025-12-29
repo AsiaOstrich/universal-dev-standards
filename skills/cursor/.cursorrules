@@ -1,0 +1,101 @@
+# Cursor Rules - Universal Development Standards
+# Source: https://github.com/AsiaOstrich/universal-dev-standards
+# Version: 1.0.0
+
+You are an expert software developer. Follow these development standards in all interactions.
+
+## Commit Message Standards
+
+Use Conventional Commits format:
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+Types: feat, fix, refactor, docs, style, test, perf, build, ci, chore, revert, security
+
+Examples:
+- feat(auth): add OAuth2 login support
+- fix(api): resolve null pointer in user endpoint
+- docs(readme): update installation instructions
+
+## Code Review Checklist
+
+When reviewing or writing code, verify:
+
+### Functionality
+- [ ] Code works correctly
+- [ ] Edge cases handled
+- [ ] Error handling appropriate
+
+### Code Quality
+- [ ] Readable and self-documenting
+- [ ] Single responsibility principle
+- [ ] No code duplication (DRY)
+- [ ] Descriptive names
+- [ ] No magic numbers
+
+### Security
+- [ ] No SQL injection
+- [ ] No XSS vulnerabilities
+- [ ] Input validation present
+- [ ] No exposed credentials
+
+### Testing
+- [ ] Unit tests included
+- [ ] Edge cases covered
+
+## Testing Standards
+
+Follow the testing pyramid:
+- Unit Tests (UT): 70% - Single function/class, <100ms, all mocked
+- Integration Tests (IT/SIT): 20% - Component interaction, real DB
+- E2E Tests: 10% - User journeys, critical paths only
+
+Use AAA pattern: Arrange → Act → Assert
+Follow FIRST principles: Fast, Independent, Repeatable, Self-validating, Timely
+
+## Git Workflow
+
+Branch naming:
+- feature/* - New features
+- fix/* - Bug fixes
+- hotfix/* - Urgent production fixes
+- release/* - Release preparation
+
+Always:
+- Write meaningful commit messages
+- Keep commits atomic
+- Never commit secrets or credentials
+
+## Documentation
+
+Root files (UPPERCASE): README.md, CONTRIBUTING.md, CHANGELOG.md, LICENSE
+Docs folder (lowercase-kebab): getting-started.md, api-reference.md
+
+README must include:
+- Project description
+- Installation instructions
+- Usage examples
+- License
+
+## AI Collaboration Best Practices
+
+When uncertain:
+1. Ask clarifying questions first
+2. State assumptions explicitly
+3. Provide confidence levels for recommendations
+
+Never:
+- Guess at project-specific configurations
+- Assume technology choices without checking
+- Provide outdated version information without verification
+
+Always:
+- Check existing code patterns before suggesting new ones
+- Respect project conventions over personal preferences
+- Explain the reasoning behind suggestions

@@ -1,0 +1,107 @@
+# ISTQB Testing Framework - AI Optimized Option
+# Parent: testing
+# Reference: ISTQB Glossary v4.0
+
+id: istqb-framework
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: ISTQB standard testing framework with 4 levels
+  source: "ISTQB Glossary v4.0 (https://glossary.istqb.org)"
+
+best_for:
+  - Enterprise projects requiring formal QA processes
+  - Projects needing certification or compliance
+  - Organizations with dedicated QA teams
+  - Waterfall or hybrid development methodologies
+  - Projects with strict audit requirements
+
+levels:
+  - name: Unit Testing (UT)
+    abbreviation: UT
+    istqb_term: "Component Testing"
+    definition: Testing individual software components in isolation
+    purpose: Verify code units work correctly
+    performed_by: Developers
+
+  - name: Integration Testing (IT/SIT)
+    abbreviation: IT or SIT
+    istqb_term: "Integration Testing"
+    definition: Testing interfaces and interactions between integrated components
+    purpose: Verify component interactions
+    performed_by: Developers or QA
+    note: |
+      - IT (Integration Testing): Common in Agile/DevOps
+      - SIT (System Integration Testing): Common in Enterprise/ISTQB contexts
+      Both terms refer to the same testing level
+
+  - name: System Testing (ST)
+    abbreviation: ST
+    istqb_term: "System Testing"
+    definition: Testing the complete integrated system to verify it meets requirements
+    purpose: Verify system meets functional and non-functional requirements
+    performed_by: QA Team
+
+  - name: Acceptance Testing (AT/UAT)
+    abbreviation: AT or UAT
+    istqb_term: "Acceptance Testing"
+    definition: Testing to determine if the system satisfies business needs
+    purpose: Verify system meets business requirements
+    performed_by: End users or business stakeholders
+    subtypes:
+      - name: User Acceptance Testing (UAT)
+        description: Validation by actual users
+      - name: Contract Acceptance Testing
+        description: Verification against contract criteria
+      - name: Regulatory Acceptance Testing
+        description: Compliance verification
+
+test_types:
+  functional:
+    - Functional testing
+    - User interface testing
+    - Regression testing
+  non_functional:
+    - Performance testing
+    - Security testing
+    - Usability testing
+    - Reliability testing
+
+rules:
+  - id: four-level-structure
+    trigger: planning test strategy with ISTQB
+    instruction: |
+      Use 4 levels: UT → IT/SIT → ST → AT/UAT
+      Each level has specific entry/exit criteria
+    priority: required
+
+  - id: requirement-traceability
+    trigger: creating test cases
+    instruction: Each test case should trace to a requirement
+    priority: required
+
+  - id: defect-classification
+    trigger: reporting defects
+    instruction: Classify defects by severity and priority per ISTQB guidelines
+    priority: recommended
+
+comparison_with_industry:
+  columns: [ISTQB Level, Industry Equivalent, Key Difference]
+  rows:
+    - [Unit Testing, Unit Testing (UT), Same concept]
+    - [Integration Testing, Integration Testing (IT/SIT), Same concept, different abbreviation conventions]
+    - [System Testing, Often merged with E2E, ISTQB separates system validation from user acceptance]
+    - [Acceptance Testing, Part of E2E, ISTQB has dedicated level for business validation]
+
+when_to_choose:
+  choose_istqb_when:
+    - Need formal test documentation
+    - Working with QA certification bodies
+    - Enterprise environment with compliance requirements
+    - Team includes certified ISTQB professionals
+    - Audit trail is important
+  avoid_istqb_when:
+    - Rapid iteration is priority
+    - Small team without dedicated QA
+    - Pure DevOps/Continuous Delivery focus
+    - Documentation overhead is concern

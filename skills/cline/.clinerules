@@ -1,0 +1,79 @@
+# Cline Rules - Universal Development Standards
+# Source: https://github.com/AsiaOstrich/universal-dev-standards
+# Version: 1.0.0
+
+You are an expert software developer following universal development standards.
+
+## Commit Standards
+
+Use Conventional Commits:
+<type>(<scope>): <subject>
+
+Types: feat | fix | refactor | docs | test | style | perf | build | ci | chore
+
+Examples:
+- feat(api): add user authentication endpoint
+- fix(ui): resolve button alignment issue
+- docs(readme): add installation guide
+
+## Code Review Checklist
+
+Functionality:
+- Code works correctly
+- Edge cases handled
+- Proper error handling
+
+Quality:
+- Readable code
+- No duplication
+- Descriptive names
+
+Security:
+- Input validation
+- No injection vulnerabilities
+- No exposed secrets
+
+Testing:
+- Unit tests present
+- Edge cases covered
+
+## Testing Standards
+
+Pyramid: UT 70% → IT 20% → E2E 10%
+
+- UT: Single function, <100ms, mocked deps
+- IT: Component interaction, real DB
+- E2E: Critical user journeys
+
+Pattern: Arrange → Act → Assert
+Principles: FIRST (Fast, Independent, Repeatable, Self-validating, Timely)
+
+## Git Workflow
+
+Branches:
+- feature/* for new features
+- fix/* for bug fixes
+- hotfix/* for urgent fixes
+
+Rules:
+- Atomic commits
+- Meaningful messages
+- No secrets in commits
+
+## Documentation
+
+Root files: README.md, CONTRIBUTING.md, CHANGELOG.md (UPPERCASE)
+Docs folder: lowercase-kebab-case (getting-started.md)
+
+## AI Best Practices
+
+Do:
+- Ask clarifying questions when uncertain
+- State assumptions explicitly
+- Check existing patterns first
+- Explain reasoning
+
+Don't:
+- Guess configurations
+- Assume without checking
+- Override project conventions

@@ -1,0 +1,92 @@
+# Keep a Changelog Format - AI Optimized Option
+# Parent: changelog
+# Reference: https://keepachangelog.com/
+
+id: keep-a-changelog
+meta:
+  parent: changelog
+  version: "1.0.0"
+  description: Standard Keep a Changelog format
+  source: "https://keepachangelog.com/en/1.1.0/"
+
+best_for:
+  - Open source projects
+  - Projects requiring human-readable changelogs
+  - Projects following SemVer
+  - Manual release management
+
+format:
+  filename: CHANGELOG.md
+  structure: |
+    # Changelog
+
+    All notable changes to this project will be documented in this file.
+
+    The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+    and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+    ## [Unreleased]
+
+    ## [X.Y.Z] - YYYY-MM-DD
+
+change_types:
+  - name: Added
+    order: 1
+    description: New features
+  - name: Changed
+    order: 2
+    description: Changes in existing functionality
+  - name: Deprecated
+    order: 3
+    description: Soon-to-be removed features
+  - name: Removed
+    order: 4
+    description: Removed features
+  - name: Fixed
+    order: 5
+    description: Bug fixes
+  - name: Security
+    order: 6
+    description: Security vulnerability fixes
+
+rules:
+  - id: use-unreleased
+    trigger: making changes during development
+    instruction: Add entries to [Unreleased] section
+    priority: required
+
+  - id: move-on-release
+    trigger: releasing a new version
+    instruction: Move [Unreleased] entries to versioned section with date
+    priority: required
+
+  - id: reverse-chronological
+    trigger: ordering entries
+    instruction: Newest version at top
+    priority: required
+
+  - id: link-versions
+    trigger: adding version
+    instruction: Add diff links at bottom of file
+    priority: recommended
+
+  - id: iso-date
+    trigger: dating release
+    instruction: Use YYYY-MM-DD format
+    priority: required
+
+example: |
+  ## [1.2.0] - 2025-01-15
+
+  ### Added
+  - User authentication with OAuth2 support (#123)
+  - Dark mode theme option (#145)
+
+  ### Changed
+  - Updated API response format for consistency
+
+  ### Fixed
+  - Login timeout issue on slow networks (#156)
+
+  [Unreleased]: https://github.com/user/repo/compare/v1.2.0...HEAD
+  [1.2.0]: https://github.com/user/repo/compare/v1.1.0...v1.2.0

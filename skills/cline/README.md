@@ -4,32 +4,47 @@ Cline-specific rules derived from universal-dev-standards.
 
 ## Status
 
-🚧 **Planned** - Coming soon
+✅ **Complete** - Ready to use
 
-## Planned Features
+## Installation
 
-- `.clinerules` file with comprehensive development standards
-- MCP integration patterns
-- Autonomous mode guidelines
+Copy the `.clinerules` file to your project root:
 
-## Structure (Planned)
+```bash
+cp skills/cline/.clinerules .clinerules
+```
+
+Or copy from this repository directly:
+
+```bash
+curl -o .clinerules https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/cline/.clinerules
+```
+
+## What's Included
+
+The `.clinerules` file includes guidance for:
+
+- **Commit Standards** - Conventional Commits format
+- **Code Review** - Quality checklist
+- **Testing** - Testing pyramid and FIRST principles
+- **Git Workflow** - Branch naming
+- **Documentation** - File conventions
+- **AI Best Practices** - Guidelines for AI collaboration
+
+## Structure
 
 ```
 cline/
-├── .clinerules              # Main rules file
-├── custom-instructions/
-│   └── dev-standards.md     # Custom instructions template
-└── README.md
+├── .clinerules     # Main rules file
+└── README.md       # This file
 ```
 
-## Contributing
+## Version
 
-Want to help implement Cline rules? See [CONTRIBUTING.md](../../CONTRIBUTING.md).
+- **Version**: 1.0.0
+- **Last Updated**: 2025-12-29
+- **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
 
-## Current Alternative
+## License
 
-Until Cline-specific rules are ready, you can use the integration file:
-
-```bash
-cp integrations/cline/.clinerules .clinerules
-```
+CC BY 4.0

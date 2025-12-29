@@ -1,0 +1,134 @@
+# Pull Request Review - AI Optimized Option
+# Parent: code-review
+
+id: pr-review
+meta:
+  parent: code-review
+  version: "1.0.0"
+  description: Traditional pull request code review process
+
+best_for:
+  - Distributed teams
+  - Asynchronous workflows
+  - Audit trail requirements
+  - Open source projects
+
+workflow:
+  steps:
+    - name: Create PR
+      actor: Author
+      actions:
+        - Write clear description
+        - Link related issues
+        - Request reviewers
+
+    - name: Review
+      actor: Reviewer
+      actions:
+        - Check functionality
+        - Review code quality
+        - Verify security
+        - Run tests locally if needed
+
+    - name: Respond
+      actor: Author
+      actions:
+        - Address feedback
+        - Push fixes
+        - Request re-review
+
+    - name: Approve & Merge
+      actor: Reviewer
+      actions:
+        - Final approval
+        - Merge or wait for CI
+
+review_checklist:
+  functionality:
+    - Does the code work correctly?
+    - Are edge cases handled?
+    - Is error handling appropriate?
+
+  code_quality:
+    - Is the code readable?
+    - Are functions focused (single responsibility)?
+    - Is there code duplication?
+
+  security:
+    - Any injection vulnerabilities?
+    - Is input validated?
+    - Are credentials exposed?
+
+  testing:
+    - Are there adequate tests?
+    - Do tests cover edge cases?
+
+comment_conventions:
+  prefixes:
+    - prefix: "[REQUIRED]"
+      meaning: Must fix before merge
+      blocking: true
+    - prefix: "[SUGGESTION]"
+      meaning: Consider changing
+      blocking: false
+    - prefix: "[QUESTION]"
+      meaning: Need clarification
+      blocking: false
+    - prefix: "[NIT]"
+      meaning: Minor style issue
+      blocking: false
+    - prefix: "[PRAISE]"
+      meaning: Good work
+      blocking: false
+
+  emoji_style:
+    - emoji: "❗"
+      meaning: Blocking issue
+    - emoji: "⚠️"
+      meaning: Suggestion
+    - emoji: "💡"
+      meaning: Idea
+    - emoji: "❓"
+      meaning: Question
+    - emoji: "👍"
+      meaning: Praise
+
+rules:
+  - id: timely-review
+    trigger: PR assigned
+    instruction: Review within 24 hours
+    priority: recommended
+
+  - id: constructive-feedback
+    trigger: writing comments
+    instruction: Explain why, not just what
+    priority: required
+
+  - id: test-before-approve
+    trigger: approving PR
+    instruction: Ensure all tests pass
+    priority: required
+
+  - id: minimum-reviewers
+    trigger: merging PR
+    instruction: At least one approval required
+    priority: required
+
+pr_template: |
+  ## Summary
+  Brief description of changes
+
+  ## Type of Change
+  - [ ] Bug fix
+  - [ ] New feature
+  - [ ] Breaking change
+  - [ ] Documentation update
+
+  ## Testing
+  - [ ] Unit tests added/updated
+  - [ ] Manual testing performed
+
+  ## Checklist
+  - [ ] Code follows project style guidelines
+  - [ ] Self-review completed
+  - [ ] Documentation updated if needed

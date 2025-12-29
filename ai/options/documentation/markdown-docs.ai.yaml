@@ -1,0 +1,122 @@
+# Markdown Documentation - AI Optimized Option
+# Parent: documentation
+
+id: markdown-docs
+meta:
+  parent: documentation-structure
+  version: "1.0.0"
+  description: Plain Markdown documentation approach
+
+best_for:
+  - Open source projects
+  - GitHub/GitLab hosted projects
+  - Developer-focused documentation
+  - Projects wanting simple, portable docs
+
+structure:
+  root_files:
+    - name: README.md
+      required: true
+      purpose: Project overview, quick start
+    - name: CONTRIBUTING.md
+      required: false
+      purpose: Contribution guidelines
+    - name: CHANGELOG.md
+      required: false
+      purpose: Version history
+    - name: LICENSE
+      required: true
+      purpose: License file
+
+  docs_folder:
+    location: docs/
+    naming: lowercase-kebab-case
+    common_files:
+      - getting-started.md
+      - installation.md
+      - configuration.md
+      - api-reference.md
+      - troubleshooting.md
+      - faq.md
+
+    subdirectories:
+      - name: guides/
+        purpose: How-to guides
+      - name: tutorials/
+        purpose: Step-by-step tutorials
+      - name: reference/
+        purpose: API and config reference
+      - name: ADR/
+        purpose: Architecture Decision Records
+
+readme_template: |
+  # Project Name
+
+  Brief description of the project.
+
+  ## Features
+
+  - Feature 1
+  - Feature 2
+
+  ## Installation
+
+  ```bash
+  npm install project-name
+  ```
+
+  ## Quick Start
+
+  ```javascript
+  import { something } from 'project-name';
+  ```
+
+  ## Documentation
+
+  See [docs/](./docs/) for full documentation.
+
+  ## Contributing
+
+  See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+  ## License
+
+  [MIT](./LICENSE)
+
+rules:
+  - id: root-uppercase
+    trigger: creating root files
+    instruction: Use UPPERCASE for root documentation (README, CONTRIBUTING)
+    priority: required
+
+  - id: docs-lowercase-kebab
+    trigger: creating docs/ files
+    instruction: Use lowercase-kebab-case (e.g., getting-started.md)
+    priority: required
+
+  - id: link-relative
+    trigger: linking between docs
+    instruction: Use relative paths for internal links
+    priority: required
+
+  - id: include-examples
+    trigger: documenting features
+    instruction: Include code examples for all features
+    priority: recommended
+
+markdown_best_practices:
+  - Use ATX-style headers (#, ##, ###)
+  - Blank line before and after headers
+  - Use fenced code blocks with language
+  - Keep lines under 120 characters
+  - Use reference-style links for repeated URLs
+
+tools:
+  - name: markdownlint
+    purpose: Lint markdown files
+  - name: markdown-link-check
+    purpose: Check for broken links
+  - name: docsify
+    purpose: Generate documentation site
+  - name: mkdocs
+    purpose: Static site generator

@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/versioning.md)
 
-**Version**: 1.1.3
-**Last Updated**: 2025-12-24
+**Version**: 1.2.0
+**Last Updated**: 2025-12-30
 **Applicability**: All software projects with versioned releases
 
 ---
@@ -674,7 +674,59 @@ function authenticate(username, password) {
 }
 ```
 
-### 2. Migration Guide (N Version)
+### 2. API Versioning Strategies
+
+Choose an API versioning strategy based on your needs:
+
+| Strategy | Format | Pros | Cons |
+|----------|--------|------|------|
+| URL Path | `/api/v1/users` | Clear, easy routing | URL pollution |
+| Query Parameter | `/api/users?version=1` | Optional versioning | Cache issues |
+| Header | `Accept: application/vnd.api.v1+json` | Clean URLs | Less visible |
+| Content Negotiation | `Accept: application/vnd.api+json;version=1` | RESTful | Complex |
+
+**Recommended**: URL Path versioning for most APIs (clearest for developers).
+
+### 3. Deprecation Timeline
+
+Follow this timeline when deprecating API features:
+
+```
+v1.0.0 - Feature introduced
+v1.5.0 - Deprecation warning added (minimum N-1 version)
+v2.0.0 - Feature removed (document in migration guide)
+```
+
+**Deprecation Period Guidelines**:
+
+| API Type | Minimum Deprecation Period |
+|----------|---------------------------|
+| Internal API | 1 minor version |
+| Partner API | 2 minor versions + 3 months |
+| Public API | 2 minor versions + 6 months |
+| Critical Infrastructure | 1 year minimum |
+
+### 4. Backward Compatibility Checklist
+
+Before releasing, verify these backward compatibility rules:
+
+**DO NOT break (without major version bump)**:
+- [ ] Remove public API endpoints
+- [ ] Remove required request fields
+- [ ] Add required request fields
+- [ ] Change response field types
+- [ ] Change error code meanings
+- [ ] Remove response fields consumers depend on
+
+**Safe changes (minor/patch version)**:
+- [ ] Add optional request fields
+- [ ] Add new response fields
+- [ ] Add new endpoints
+- [ ] Add new error codes
+- [ ] Improve error messages
+- [ ] Performance improvements
+
+### 5. Migration Guide (N Version)
 
 ```markdown
 # Migration Guide: v1.x to v2.0
@@ -810,6 +862,7 @@ semver.major('2.3.1');  // 2
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2025-12-30 | Added: API Versioning Strategies, Deprecation Timeline, Backward Compatibility Checklist |
 | 1.1.3 | 2025-12-24 | Added: Related Standards section |
 | 1.1.2 | 2025-12-11 | Improved: Upgrade package naming example to use generic placeholders instead of hardcoded project names |
 | 1.1.1 | 2025-12-04 | Refactored: CHANGELOG exclusion rules to be more generic (removed project-specific directories) |

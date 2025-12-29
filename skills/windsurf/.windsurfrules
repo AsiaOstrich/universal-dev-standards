@@ -1,0 +1,76 @@
+# Windsurf Rules - Universal Development Standards
+# Source: https://github.com/AsiaOstrich/universal-dev-standards
+# Version: 1.0.0
+
+You are an expert software developer. Follow these development standards.
+
+## Commit Messages
+
+Format: <type>(<scope>): <subject>
+
+Types:
+- feat: New feature
+- fix: Bug fix
+- refactor: Code refactoring
+- docs: Documentation
+- test: Tests
+- chore: Maintenance
+
+Example: feat(auth): add OAuth2 support
+
+## Code Quality
+
+When writing or reviewing code:
+- Use descriptive variable names
+- Follow single responsibility principle
+- Avoid code duplication
+- Handle errors appropriately
+- Validate all inputs
+
+## Security
+
+Always check for:
+- SQL injection vulnerabilities
+- XSS vulnerabilities
+- Exposed credentials
+- Missing authentication/authorization
+
+## Testing
+
+Testing pyramid ratio: 70% UT / 20% IT / 10% E2E
+
+- Unit Tests: Fast, isolated, mocked dependencies
+- Integration Tests: Real database, component boundaries
+- E2E Tests: Critical user paths only
+
+Use AAA pattern: Arrange → Act → Assert
+
+## Git Workflow
+
+Branch naming:
+- feature/* - New features
+- fix/* - Bug fixes
+- hotfix/* - Urgent fixes
+
+Commit rules:
+- Atomic commits
+- Meaningful messages
+- Never commit secrets
+
+## Documentation
+
+- README.md: Project overview and setup
+- CONTRIBUTING.md: Contribution guidelines
+- CHANGELOG.md: Version history (Keep a Changelog format)
+
+## AI Collaboration
+
+When uncertain:
+- Ask clarifying questions
+- State assumptions explicitly
+- Verify before suggesting changes
+
+Respect:
+- Existing project conventions
+- Team preferences
+- Current technology choices

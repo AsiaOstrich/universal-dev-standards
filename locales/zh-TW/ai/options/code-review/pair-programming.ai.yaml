@@ -1,0 +1,109 @@
+# 結對程式設計審查 - AI 優化選項
+# 父項: code-review
+
+id: pair-programming
+meta:
+  parent: code-review
+  version: "1.0.0"
+  description: 即時協作程式碼審查
+  language: zh-TW
+
+best_for:
+  - 複雜功能
+  - 知識傳承
+  - 新成員入職
+  - 關鍵程式碼路徑
+  - 同地辦公團隊
+
+roles:
+  driver:
+    name: 駕駛者
+    description: 撰寫程式碼
+    responsibilities:
+      - 實作解決方案
+      - 解釋思考過程
+      - 接受導航者的建議
+
+  navigator:
+    name: 導航者
+    description: 審查和引導
+    responsibilities:
+      - 即時審查程式碼
+      - 思考整體架構
+      - 建議改進
+      - 及早發現錯誤
+
+patterns:
+  - name: 乒乓模式
+    description: 每個測試後交換角色
+    best_for: TDD 工作流程
+    workflow:
+      - 駕駛者撰寫失敗的測試
+      - 交換角色
+      - 新駕駛者讓測試通過
+      - 交換並重複
+
+  - name: 強風格模式
+    description: 導航者必須口頭表達所有想法
+    rule: "想法要從你的腦中到電腦，必須經過別人的手"
+    best_for: 知識傳承
+
+  - name: 駕駛-導航模式
+    description: 傳統結對
+    workflow:
+      - 駕駛者專注於戰術性編碼
+      - 導航者進行策略性思考
+      - 每 25-30 分鐘交換
+
+session_guidelines:
+  preparation:
+    - 定義會議目標
+    - 設定共享環境
+    - 同意結對模式
+
+  during_session:
+    - 每 45-60 分鐘休息
+    - 定期交換角色
+    - 持續溝通
+
+  after_session:
+    - 簡短回顧
+    - 記錄做出的決定
+    - 提交程式碼
+
+tools:
+  remote_pairing:
+    - VS Code Live Share
+    - JetBrains Code With Me
+    - Tuple
+    - 螢幕分享（備用）
+
+  local_pairing:
+    - 單台電腦，兩個鍵盤
+    - 投影機/大螢幕
+
+rules:
+  - id: regular-switching
+    trigger: 結對會議時
+    instruction: 每 25-30 分鐘交換角色
+    priority: required
+
+  - id: verbal-communication
+    trigger: 導航時
+    instruction: 在建議變更前解釋理由
+    priority: required
+
+  - id: respect-driver
+    trigger: 導航時
+    instruction: 不要搶鍵盤；用口頭引導
+    priority: required
+
+comparison_with_pr:
+  columns: [面向, 結對程式設計, PR 審查]
+  rows:
+    - [時機, 即時, 非同步]
+    - [回饋, 立即, 延遲]
+    - [知識分享, 高, 中]
+    - [文件記錄, 較低, 較高（PR 評論）]
+    - [擴展性, 有限, 高]
+    - [遠端友善, 挑戰性, 容易]

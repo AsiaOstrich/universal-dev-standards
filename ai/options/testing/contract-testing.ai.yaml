@@ -1,0 +1,250 @@
+# Contract Testing - AI Optimized Option
+# Parent: testing
+
+id: contract-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: Contract testing standards for API and service integration
+  references:
+    - "Pact Foundation"
+    - "Consumer-Driven Contracts"
+    - "Martin Fowler - Contract Test"
+
+best_for:
+  - Microservices architecture
+  - API-first development
+  - Third-party integrations
+  - Teams working independently
+  - Distributed systems
+
+concepts:
+  consumer_driven_contracts:
+    abbreviation: CDC
+    description: Contracts defined by API consumers
+    flow:
+      1: Consumer defines expected interactions
+      2: Generates contract (pact file)
+      3: Provider verifies against contract
+      4: Both sides must pass before deployment
+    benefits:
+      - Consumer needs drive API design
+      - Decoupled deployments
+      - Early integration problem detection
+
+  provider_contracts:
+    description: Contracts defined by API providers
+    use_case: Public APIs, OpenAPI-first design
+    flow:
+      1: Provider defines API specification
+      2: Consumers test against specification
+      3: Provider ensures backward compatibility
+
+contract_types:
+  http_api:
+    description: REST/HTTP API contracts
+    tools:
+      - name: Pact
+        languages: Multi-language
+        type: Consumer-driven
+      - name: Spring Cloud Contract
+        languages: Java/JVM
+        type: Both
+      - name: Dredd
+        languages: Multi-language
+        type: Provider (OpenAPI)
+
+  message_queue:
+    description: Async message contracts
+    tools:
+      - name: Pact (async)
+        support: Message-based interactions
+      - name: Spring Cloud Contract
+        support: Message channels
+
+  graphql:
+    description: GraphQL API contracts
+    tools:
+      - name: Pact
+        support: GraphQL queries
+      - name: Apollo Contract Testing
+        support: Schema validation
+
+pact_workflow:
+  consumer_side:
+    step_1:
+      name: Define interactions
+      code: |
+        // JavaScript example
+        const interaction = {
+          state: 'user exists',
+          uponReceiving: 'a request for user by id',
+          withRequest: {
+            method: 'GET',
+            path: '/users/1',
+            headers: { Accept: 'application/json' }
+          },
+          willRespondWith: {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+            body: {
+              id: like(1),
+              name: like('John'),
+              email: like('john@example.com')
+            }
+          }
+        };
+
+    step_2:
+      name: Run consumer tests
+      description: Tests run against mock provider
+
+    step_3:
+      name: Publish contract
+      description: Upload pact file to broker
+
+  provider_side:
+    step_1:
+      name: Fetch contracts
+      description: Download contracts from broker
+
+    step_2:
+      name: Verify contracts
+      code: |
+        // Provider verification
+        verifier.verifyProvider({
+          provider: 'UserService',
+          pactBrokerUrl: 'https://broker.example.com',
+          publishVerificationResult: true
+        });
+
+    step_3:
+      name: State setup
+      description: Configure provider states for each interaction
+
+pact_broker:
+  description: Central repository for contracts
+  features:
+    - Contract storage
+    - Verification status
+    - Dependency graphs
+    - Can-I-Deploy check
+    - Webhooks for CI/CD
+
+  can_i_deploy:
+    description: Check if deployment is safe
+    command: |
+      pact-broker can-i-deploy \
+        --pacticipant UserService \
+        --version $(git rev-parse HEAD) \
+        --to production
+
+rules:
+  - id: consumer-first
+    trigger: designing API contracts
+    instruction: Start with consumer needs, not provider implementation
+    priority: recommended
+
+  - id: use-matchers
+    trigger: defining contract body
+    instruction: Use type matchers (like, eachLike) not exact values
+    priority: required
+
+  - id: provider-states
+    trigger: setting up test scenarios
+    instruction: Define clear provider states for each interaction
+    priority: required
+
+  - id: version-contracts
+    trigger: publishing contracts
+    instruction: Tag contracts with consumer version and branch
+    priority: required
+
+  - id: can-i-deploy
+    trigger: before deployment
+    instruction: Always run can-i-deploy check in CI/CD
+    priority: required
+
+  - id: breaking-changes
+    trigger: modifying API
+    instruction: |
+      Breaking changes require:
+      1. Verify no consumers depend on changed behavior
+      2. Coordinate with consumer teams
+      3. Use deprecation period if needed
+    priority: required
+
+  - id: async-contracts
+    trigger: testing message-based systems
+    instruction: Include message contracts for async communication
+    priority: recommended
+
+ci_integration:
+  consumer_pipeline: |
+    # Consumer CI
+    stages:
+      - test:
+          - Run unit tests
+          - Run contract tests (generates pact)
+      - publish:
+          - Publish pact to broker
+      - can-i-deploy:
+          - Check deployment safety
+      - deploy:
+          - Deploy consumer
+
+  provider_pipeline: |
+    # Provider CI
+    stages:
+      - test:
+          - Run unit tests
+          - Verify consumer contracts
+      - publish:
+          - Publish verification results
+      - can-i-deploy:
+          - Check deployment safety
+      - deploy:
+          - Deploy provider
+
+  github_actions_consumer: |
+    name: Consumer Contract Tests
+    on: [push, pull_request]
+    jobs:
+      contract-test:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - name: Run contract tests
+            run: npm run test:contract
+          - name: Publish pact
+            run: npm run pact:publish
+          - name: Can I deploy?
+            run: |
+              pact-broker can-i-deploy \
+                --pacticipant MyConsumer \
+                --version ${{ github.sha }}
+
+quick_reference:
+  workflow:
+    columns: [Step, Consumer, Provider]
+    rows:
+      - ["1. Define", "Write expectations", "Implement API"]
+      - ["2. Test", "Run against mock", "Verify contracts"]
+      - ["3. Publish", "Upload pact", "Upload results"]
+      - ["4. Deploy", "Can-I-Deploy", "Can-I-Deploy"]
+
+  tools:
+    columns: [Tool, Type, Languages]
+    rows:
+      - [Pact, CDC, Multi-language]
+      - [Spring Cloud Contract, Both, JVM]
+      - [Dredd, OpenAPI, Multi-language]
+      - [Prism, Mock, Multi-language]
+
+  benefits:
+    columns: [Benefit, Description]
+    rows:
+      - [Fast feedback, No need for full integration environment]
+      - [Decoupled, Teams can work independently]
+      - [Safe deployment, Can-I-Deploy prevents breaking changes]
+      - [Living documentation, Contracts document API behavior]

@@ -1,0 +1,258 @@
+# Performance Testing - AI Optimized Option
+# Parent: testing
+
+id: performance-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: Performance testing standards and practices
+  references:
+    - "ISTQB Performance Testing"
+    - "Google SRE Book"
+
+best_for:
+  - High-traffic applications
+  - Real-time systems
+  - E-commerce platforms
+  - APIs and microservices
+  - Database-intensive applications
+
+testing_types:
+  load_testing:
+    description: Test system behavior under expected load
+    purpose: Verify system handles normal traffic
+    metrics:
+      - Response time (P50, P95, P99)
+      - Throughput (TPS/RPS)
+      - Error rate
+    tools:
+      - name: k6
+        type: Open source
+        language: JavaScript
+      - name: JMeter
+        type: Open source
+        language: Java/XML
+      - name: Gatling
+        type: Open source
+        language: Scala
+      - name: Locust
+        type: Open source
+        language: Python
+
+  stress_testing:
+    description: Test system behavior beyond normal load
+    purpose: Find breaking point and failure modes
+    metrics:
+      - Maximum capacity
+      - Degradation curve
+      - Recovery time
+    approach:
+      - Gradually increase load
+      - Monitor for errors and slowdowns
+      - Identify bottlenecks
+      - Document failure thresholds
+
+  spike_testing:
+    description: Test sudden traffic increases
+    purpose: Verify handling of traffic spikes
+    scenarios:
+      - Flash sales
+      - Viral content
+      - Marketing campaigns
+      - Time-based events
+
+  soak_testing:
+    abbreviation: Endurance testing
+    description: Test system stability over extended period
+    purpose: Find memory leaks and degradation
+    duration: Hours to days
+    watch_for:
+      - Memory leaks
+      - Connection pool exhaustion
+      - Log file growth
+      - Gradual performance degradation
+
+  capacity_testing:
+    description: Determine maximum system capacity
+    purpose: Plan for scaling and infrastructure
+    output:
+      - User capacity limits
+      - Resource requirements
+      - Scaling thresholds
+
+key_metrics:
+  latency:
+    description: Time to respond to a request
+    percentiles:
+      - name: P50
+        description: Median response time
+        target: baseline
+      - name: P95
+        description: 95th percentile
+        target: 2-3x baseline
+      - name: P99
+        description: 99th percentile
+        target: 5x baseline max
+    note: "P99 often more important than average for user experience"
+
+  throughput:
+    description: Requests handled per time unit
+    measurements:
+      - TPS (Transactions Per Second)
+      - RPS (Requests Per Second)
+      - QPS (Queries Per Second)
+    considerations:
+      - Peak vs sustained load
+      - Concurrent users vs requests
+
+  error_rate:
+    description: Percentage of failed requests
+    targets:
+      acceptable: "<0.1%"
+      degraded: "<1%"
+      critical: ">1%"
+
+  resource_utilization:
+    description: System resource consumption
+    measurements:
+      - CPU usage
+      - Memory usage
+      - Network I/O
+      - Disk I/O
+      - Connection pool usage
+
+service_level_objectives:
+  description: Define measurable performance targets
+  template:
+    latency_slo: "P99 latency < 200ms"
+    availability_slo: "99.9% uptime"
+    throughput_slo: "1000 RPS sustained"
+    error_slo: "Error rate < 0.1%"
+  note: "SLOs should be based on user needs, not system capabilities"
+
+rules:
+  - id: baseline-first
+    trigger: starting performance testing
+    instruction: Establish baseline metrics before optimization
+    priority: required
+
+  - id: realistic-data
+    trigger: setting up test environment
+    instruction: Use production-like data volume and patterns
+    priority: required
+
+  - id: isolate-environment
+    trigger: running performance tests
+    instruction: Use isolated environment to avoid interference
+    priority: required
+
+  - id: gradual-load
+    trigger: running load tests
+    instruction: Increase load gradually to identify thresholds
+    priority: recommended
+
+  - id: monitor-resources
+    trigger: during test execution
+    instruction: Monitor all system resources (CPU, memory, I/O)
+    priority: required
+
+  - id: percentile-focus
+    trigger: analyzing results
+    instruction: Focus on P95/P99 latency, not averages
+    priority: required
+
+  - id: regression-testing
+    trigger: after code changes
+    instruction: Include performance regression tests in CI/CD
+    priority: recommended
+
+test_phases:
+  phase_1_baseline:
+    description: Establish current performance
+    activities:
+      - Run tests with minimal load
+      - Document current metrics
+      - Identify existing issues
+    duration: 1-2 days
+
+  phase_2_load:
+    description: Normal load testing
+    activities:
+      - Simulate expected traffic
+      - Verify SLO compliance
+      - Monitor resource usage
+    duration: 2-3 days
+
+  phase_3_stress:
+    description: Beyond normal capacity
+    activities:
+      - Increase load until failure
+      - Document breaking points
+      - Test recovery procedures
+    duration: 1-2 days
+
+  phase_4_soak:
+    description: Extended duration testing
+    activities:
+      - Run for 24-72 hours
+      - Monitor for degradation
+      - Check for memory leaks
+    duration: 1-3 days
+
+ci_integration:
+  approach: Run lightweight performance tests in CI
+  example_k6: |
+    import http from 'k6/http';
+    import { check, sleep } from 'k6';
+
+    export const options = {
+      stages: [
+        { duration: '30s', target: 10 },
+        { duration: '1m', target: 10 },
+        { duration: '30s', target: 0 },
+      ],
+      thresholds: {
+        http_req_duration: ['p(95)<500'],
+        http_req_failed: ['rate<0.01'],
+      },
+    };
+
+    export default function () {
+      const res = http.get('https://api.example.com/health');
+      check(res, { 'status 200': (r) => r.status === 200 });
+      sleep(1);
+    }
+
+  github_actions: |
+    name: Performance Test
+    on:
+      pull_request:
+        branches: [main]
+    jobs:
+      k6:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - name: Run k6 test
+            uses: grafana/k6-action@v0.3.1
+            with:
+              filename: tests/performance/load-test.js
+
+quick_reference:
+  test_types:
+    columns: [Type, Purpose, Duration, When]
+    rows:
+      - [Load, Normal traffic, Minutes, Every release]
+      - [Stress, Breaking point, Hours, Major releases]
+      - [Spike, Sudden increase, Minutes, If relevant]
+      - [Soak, Long-term stability, Days, Quarterly]
+      - [Capacity, Max capacity, Hours, Planning]
+
+  key_metrics:
+    columns: [Metric, What it measures, Target]
+    rows:
+      - [P50 Latency, Median response, Baseline]
+      - [P95 Latency, Typical worst case, "2-3x baseline"]
+      - [P99 Latency, Extreme cases, "5x baseline max"]
+      - [Throughput, Requests/sec, SLO defined]
+      - [Error Rate, Failed requests, "<0.1%"]

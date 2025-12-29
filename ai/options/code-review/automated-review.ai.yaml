@@ -1,0 +1,155 @@
+# Automated Code Review - AI Optimized Option
+# Parent: code-review
+
+id: automated-review
+meta:
+  parent: code-review
+  version: "1.0.0"
+  description: Automated code analysis and review tools
+
+best_for:
+  - Catching common issues early
+  - Enforcing code standards
+  - Reducing reviewer burden
+  - CI/CD integration
+  - Large codebases
+
+tool_categories:
+  static_analysis:
+    description: Analyze code without executing
+    tools:
+      - name: ESLint
+        languages: [JavaScript, TypeScript]
+        focus: Code quality, style
+      - name: Pylint
+        languages: [Python]
+        focus: Code quality, errors
+      - name: SonarQube
+        languages: [Multi-language]
+        focus: Code quality, security
+      - name: Checkstyle
+        languages: [Java]
+        focus: Style, conventions
+
+  security_scanning:
+    description: Find security vulnerabilities
+    tools:
+      - name: Snyk
+        focus: Dependency vulnerabilities
+      - name: CodeQL
+        focus: Semantic code analysis
+      - name: Bandit
+        languages: [Python]
+        focus: Security issues
+      - name: Semgrep
+        focus: Custom security rules
+
+  formatting:
+    description: Code style enforcement
+    tools:
+      - name: Prettier
+        languages: [JavaScript, TypeScript, CSS, HTML]
+      - name: Black
+        languages: [Python]
+      - name: gofmt
+        languages: [Go]
+      - name: rustfmt
+        languages: [Rust]
+
+  type_checking:
+    description: Type safety validation
+    tools:
+      - name: TypeScript
+        languages: [TypeScript, JavaScript]
+      - name: mypy
+        languages: [Python]
+      - name: Flow
+        languages: [JavaScript]
+
+  ai_review:
+    description: AI-powered code review
+    tools:
+      - name: GitHub Copilot
+        description: AI suggestions and review
+      - name: CodeRabbit
+        description: AI PR review comments
+      - name: Sourcery
+        description: Python code improvements
+
+ci_integration:
+  github_actions: |
+    name: Code Review
+    on: [pull_request]
+    jobs:
+      lint:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - run: npm ci
+          - run: npm run lint
+
+      security:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - uses: snyk/actions/node@master
+
+  gitlab_ci: |
+    lint:
+      stage: test
+      script:
+        - npm run lint
+
+    security:
+      stage: test
+      script:
+        - snyk test
+
+rules:
+  - id: fail-on-errors
+    trigger: automated check fails
+    instruction: Block merge until critical issues are fixed
+    priority: required
+
+  - id: warnings-as-suggestions
+    trigger: automated check warns
+    instruction: Treat warnings as non-blocking suggestions
+    priority: recommended
+
+  - id: config-in-repo
+    trigger: setting up automation
+    instruction: Store tool config in repository
+    priority: required
+
+  - id: pre-commit-hooks
+    trigger: committing code
+    instruction: Run formatters and linters before commit
+    priority: recommended
+
+recommended_setup:
+  minimum:
+    - Linter for main language
+    - Formatter (auto-fix enabled)
+    - Dependency vulnerability scanner
+
+  recommended:
+    - All minimum tools
+    - Type checker (if applicable)
+    - Security scanner
+    - Code coverage check
+
+  comprehensive:
+    - All recommended tools
+    - AI code review
+    - Custom rules for project
+    - Metrics tracking
+
+comparison_with_manual:
+  columns: [Aspect, Automated, Manual Review]
+  rows:
+    - [Speed, Instant, Hours/Days]
+    - [Consistency, 100%, Varies]
+    - [Context Understanding, Limited, High]
+    - [Business Logic, Cannot check, Can verify]
+    - [Style Enforcement, Excellent, Inconsistent]
+    - [Security Basics, Good, May miss]

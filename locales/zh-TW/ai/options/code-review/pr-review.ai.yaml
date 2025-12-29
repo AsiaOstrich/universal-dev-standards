@@ -1,0 +1,104 @@
+# Pull Request 審查 - AI 優化選項
+# 父項: code-review
+
+id: pr-review
+meta:
+  parent: code-review
+  version: "1.0.0"
+  description: 傳統的 Pull Request 程式碼審查流程
+  language: zh-TW
+
+best_for:
+  - 分散式團隊
+  - 非同步工作流程
+  - 需要審計紀錄
+  - 開源專案
+
+workflow:
+  steps:
+    - name: 建立 PR
+      actor: 作者
+      actions:
+        - 撰寫清楚的描述
+        - 連結相關 issue
+        - 請求審查者
+
+    - name: 審查
+      actor: 審查者
+      actions:
+        - 檢查功能性
+        - 審查程式碼品質
+        - 驗證安全性
+        - 如有需要在本地執行測試
+
+    - name: 回應
+      actor: 作者
+      actions:
+        - 處理回饋
+        - 推送修復
+        - 請求重新審查
+
+    - name: 核准與合併
+      actor: 審查者
+      actions:
+        - 最終核准
+        - 合併或等待 CI
+
+review_checklist:
+  functionality:
+    - 程式碼是否正確運作？
+    - 是否處理邊界情況？
+    - 錯誤處理是否適當？
+
+  code_quality:
+    - 程式碼是否可讀？
+    - 函式是否專注（單一職責）？
+    - 是否有重複的程式碼？
+
+  security:
+    - 是否有注入漏洞？
+    - 是否驗證輸入？
+    - 是否暴露憑證？
+
+  testing:
+    - 是否有足夠的測試？
+    - 測試是否涵蓋邊界情況？
+
+comment_conventions:
+  prefixes:
+    - prefix: "[必要]"
+      meaning: 合併前必須修復
+      blocking: true
+    - prefix: "[建議]"
+      meaning: 考慮修改
+      blocking: false
+    - prefix: "[問題]"
+      meaning: 需要釐清
+      blocking: false
+    - prefix: "[小問題]"
+      meaning: 次要風格問題
+      blocking: false
+    - prefix: "[讚]"
+      meaning: 做得好
+      blocking: false
+
+rules:
+  - id: timely-review
+    trigger: PR 被指派時
+    instruction: 在 24 小時內完成審查
+    priority: recommended
+
+  - id: constructive-feedback
+    trigger: 撰寫評論時
+    instruction: 解釋為什麼，而不只是什麼
+    priority: required
+
+  - id: test-before-approve
+    trigger: 核准 PR 時
+    instruction: 確保所有測試通過
+    priority: required
+
+  - id: minimum-reviewers
+    trigger: 合併 PR 時
+    instruction: 至少需要一個核准
+    priority: required

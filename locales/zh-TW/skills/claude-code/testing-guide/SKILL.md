@@ -1,47 +1,57 @@
 ---
 source: skills/claude-code/testing-guide/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2025-12-29
 status: current
 name: testing-guide
 description: |
   Testing pyramid and test writing standards for UT/IT/ST/E2E.
+  Supports ISTQB and Industry Pyramid frameworks.
   Use when: writing tests, discussing test coverage, test strategy, or test naming.
-  Keywords: test, unit, integration, e2e, coverage, mock, 測試, 單元, 整合, 端對端.
+  Keywords: test, unit, integration, e2e, coverage, mock, ISTQB, SIT, 測試, 單元, 整合, 端對端.
 ---
 
 # 測試指南
 
 > **語言**: [English](../../../../../skills/claude-code/testing-guide/SKILL.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2025-12-24
+**版本**: 1.1.0
+**最後更新**: 2025-12-29
 **適用範圍**: Claude Code Skills
 
 ---
 
 ## 目的
 
-本 Skill 提供測試金字塔標準和系統化測試的最佳實踐。
+本 Skill 提供測試金字塔標準和系統化測試的最佳實踐，支援 ISTQB 和業界通行金字塔框架。
+
+## 框架選擇
+
+| 框架 | 層級 | 適用場景 |
+|-----------|--------|----------|
+| **ISTQB** | UT → IT/SIT → ST → AT/UAT | 企業級、合規性、正式 QA |
+| **業界通行金字塔** | UT (70%) → IT (20%) → E2E (10%) | 敏捷、DevOps、CI/CD |
+
+**整合測試縮寫說明：**
+- **IT** (Integration Testing)：敏捷/DevOps 社群常用
+- **SIT** (System Integration Testing)：企業/ISTQB 環境常用
+- 兩者指的是相同的測試層級
 
 ## 快速參考
 
-### 測試金字塔
+### 測試金字塔（業界標準）
 
 ```
-                    ┌─────────┐
-                    │   E2E   │  ← 更少、更慢 (3%)
-                   ─┴─────────┴─
-                  ┌─────────────┐
-                  │     ST      │  ← 系統測試 (7%)
-                 ─┴─────────────┴─
-                ┌─────────────────┐
-                │       IT        │  ← 整合測試 (20%)
-               ─┴─────────────────┴─
-              ┌─────────────────────┐
-              │         UT          │  ← 單元測試 (70%)
-              └─────────────────────┘
+              ┌─────────┐
+              │   E2E   │  ← 10%（較少、較慢）
+             ─┴─────────┴─
+            ┌─────────────┐
+            │   IT/SIT    │  ← 20%（整合測試）
+           ─┴─────────────┴─
+          ┌─────────────────┐
+          │       UT        │  ← 70%（單元測試）
+          └─────────────────┘
 ```
 
 ### 測試層級概覽
@@ -49,9 +59,10 @@ description: |
 | 層級 | 範圍 | 速度 | 相依性 |
 |-------|-------|-------|-------------|
 | **UT** | 單一函式/類別 | < 100ms | Mock |
-| **IT** | 元件互動 | 1-10秒 | 真實資料庫（容器化） |
-| **ST** | 完整系統 | 分鐘級 | 類生產環境 |
+| **IT/SIT** | 元件互動 | 1-10秒 | 真實資料庫（容器化） |
+| **ST** | 完整系統（ISTQB） | 分鐘級 | 類生產環境 |
 | **E2E** | 使用者旅程 | 30秒+ | 所有真實環境 |
+| **AT/UAT** | 業務驗證（ISTQB） | 視情況 | 所有真實環境 |
 
 ### 覆蓋率目標
 
@@ -65,6 +76,19 @@ description: |
 
 完整標準請參考：
 - [測試金字塔](./testing-pyramid.md)
+
+### AI 優化格式（Token 高效）
+
+供 AI 助理使用，請採用 YAML 格式檔案以減少 Token 使用量：
+- 基礎標準：`ai/standards/testing.ai.yaml`
+- 框架選項：
+  - ISTQB 框架：`ai/options/testing/istqb-framework.ai.yaml`
+  - 業界通行金字塔：`ai/options/testing/industry-pyramid.ai.yaml`
+- 測試層級選項：
+  - 單元測試：`ai/options/testing/unit-testing.ai.yaml`
+  - 整合測試：`ai/options/testing/integration-testing.ai.yaml`
+  - 系統測試：`ai/options/testing/system-testing.ai.yaml`
+  - E2E 測試：`ai/options/testing/e2e-testing.ai.yaml`
 
 ## 命名慣例
 
@@ -198,6 +222,7 @@ test('method_scenario_expected', () => {
 
 | 版本 | 日期 | 變更內容 |
 |---------|------|---------|
+| 1.1.0 | 2025-12-29 | 新增：框架選擇（ISTQB/業界通行金字塔）、IT/SIT 縮寫說明 |
 | 1.0.0 | 2025-12-24 | 新增：標準區段（目的、相關標準、版本歷史、授權） |
 
 ---

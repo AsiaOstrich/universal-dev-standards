@@ -1,0 +1,76 @@
+# 自動產生變更日誌 - AI 優化選項
+# 父項: changelog
+
+id: auto-generated
+meta:
+  parent: changelog
+  version: "1.0.0"
+  description: 從提交歷史產生變更日誌
+  language: zh-TW
+
+best_for:
+  - 使用約定式提交的專案
+  - CI/CD 自動化發布
+  - 頻繁發布週期
+  - 偏好自動化而非手動編輯的團隊
+
+tools:
+  - name: conventional-changelog
+    platform: Node.js
+    command: npx conventional-changelog -p angular -i CHANGELOG.md -s
+    config: .changelogrc
+
+  - name: semantic-release
+    platform: Node.js
+    command: npx semantic-release
+    config: .releaserc
+
+  - name: git-cliff
+    platform: Rust
+    command: git cliff -o CHANGELOG.md
+    config: cliff.toml
+
+  - name: release-please
+    platform: GitHub Action
+    description: Google 的發布自動化工具
+
+prerequisites:
+  - 約定式提交格式
+  - 一致的提交訊息結構
+  - CI/CD 管線整合
+
+commit_to_changelog_mapping:
+  columns: [提交類型, 變更日誌區段]
+  rows:
+    - [feat, 新增]
+    - [fix, 修復]
+    - [perf, 變更]
+    - [refactor, 變更]
+    - [docs, 文件]
+    - [chore, 維護]
+    - ["BREAKING CHANGE", 重大變更]
+
+rules:
+  - id: conventional-commits
+    trigger: 撰寫提交訊息時
+    instruction: 使用約定式提交格式以正確產生變更日誌
+    priority: required
+
+  - id: scope-for-grouping
+    trigger: 撰寫提交訊息時
+    instruction: 使用範圍來分組相關變更
+    priority: recommended
+
+  - id: breaking-change-footer
+    trigger: 引入重大變更時
+    instruction: 在提交主體中新增 "BREAKING CHANGE:" 頁腳
+    priority: required
+
+comparison_with_manual:
+  columns: [面向, 自動產生, 手動 (Keep a Changelog)]
+  rows:
+    - [工作量, 低（自動化）, 高（手動撰寫）]
+    - [一致性, 高（範本式）, 視情況（人工撰寫）]
+    - [詳細程度, 提交級別, 功能級別（策劃過的）]
+    - [前提條件, 約定式提交, 無]
+    - [適用場景, 頻繁發布, 里程碑發布]

@@ -1,0 +1,165 @@
+# API Documentation - AI Optimized Option
+# Parent: documentation
+
+id: api-docs
+meta:
+  parent: documentation-structure
+  version: "1.0.0"
+  description: API reference documentation standards
+
+best_for:
+  - REST APIs
+  - GraphQL APIs
+  - SDK/Library documentation
+  - Public APIs
+
+formats:
+  openapi:
+    name: OpenAPI (Swagger)
+    versions: ["3.0", "3.1"]
+    file_extension: [".yaml", ".json"]
+    best_for: REST APIs
+    tools:
+      - Swagger UI
+      - Redoc
+      - Stoplight
+
+  graphql:
+    name: GraphQL Schema
+    file_extension: [".graphql", ".gql"]
+    best_for: GraphQL APIs
+    tools:
+      - GraphQL Playground
+      - Apollo Studio
+
+  asyncapi:
+    name: AsyncAPI
+    versions: ["2.x", "3.x"]
+    best_for: Event-driven APIs
+    tools:
+      - AsyncAPI Studio
+
+openapi_structure: |
+  openapi: "3.1.0"
+  info:
+    title: API Name
+    version: "1.0.0"
+    description: API description
+
+  servers:
+    - url: https://api.example.com/v1
+
+  paths:
+    /users:
+      get:
+        summary: List users
+        responses:
+          "200":
+            description: Success
+
+  components:
+    schemas:
+      User:
+        type: object
+        properties:
+          id:
+            type: string
+
+documentation_elements:
+  required:
+    - Endpoint URL
+    - HTTP method
+    - Request parameters
+    - Response format
+    - Error codes
+    - Authentication
+
+  recommended:
+    - Code examples (multiple languages)
+    - Rate limits
+    - Pagination details
+    - Changelog/versioning
+
+  optional:
+    - Try-it-out console
+    - SDKs
+    - Postman collections
+
+rules:
+  - id: describe-all-endpoints
+    trigger: creating API docs
+    instruction: Document every public endpoint
+    priority: required
+
+  - id: include-examples
+    trigger: documenting endpoint
+    instruction: Include request and response examples
+    priority: required
+
+  - id: document-errors
+    trigger: documenting endpoint
+    instruction: List all possible error responses
+    priority: required
+
+  - id: version-api-docs
+    trigger: API changes
+    instruction: Keep docs in sync with API version
+    priority: required
+
+  - id: authentication-first
+    trigger: creating API docs
+    instruction: Document authentication before endpoints
+    priority: recommended
+
+example_endpoint_doc: |
+  ## Create User
+
+  Creates a new user account.
+
+  **Endpoint:** `POST /users`
+
+  **Authentication:** Bearer token required
+
+  ### Request Body
+
+  | Field | Type | Required | Description |
+  |-------|------|----------|-------------|
+  | name | string | Yes | User's full name |
+  | email | string | Yes | Email address |
+
+  ### Response
+
+  ```json
+  {
+    "id": "usr_123",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "createdAt": "2025-01-15T10:30:00Z"
+  }
+  ```
+
+  ### Errors
+
+  | Code | Description |
+  |------|-------------|
+  | 400 | Invalid request body |
+  | 409 | Email already exists |
+
+tools:
+  generators:
+    - name: swagger-codegen
+      generates: Client SDKs
+    - name: openapi-generator
+      generates: Client/Server code
+    - name: typedoc
+      generates: TypeScript docs
+
+  hosting:
+    - name: Swagger UI
+      type: Self-hosted
+    - name: Redoc
+      type: Self-hosted
+    - name: ReadMe
+      type: SaaS
+    - name: Stoplight
+      type: SaaS

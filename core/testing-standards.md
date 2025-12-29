@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/testing-standards.md)
 
-**Version**: 1.2.0
-**Last Updated**: 2025-12-19
+**Version**: 1.3.0
+**Last Updated**: 2025-12-29
 **Applicability**: All software projects
 
 ---
@@ -14,31 +14,84 @@ This standard defines testing conventions and best practices to ensure software 
 
 ---
 
-## Testing Pyramid
+## Testing Framework Selection
+
+Choose a testing framework based on your project needs. This standard supports two approaches:
+
+### Option A: ISTQB Standard Framework
+
+Best for enterprise projects, certification needs, and formal QA processes.
+
+**Reference**: [ISTQB Glossary v4.0](https://glossary.istqb.org)
+
+| Level | Abbreviation | Purpose |
+|-------|--------------|---------|
+| Unit Testing | UT | Verify individual code units |
+| Integration Testing | IT/SIT | Verify component interactions |
+| System Testing | ST | Verify system meets requirements |
+| Acceptance Testing | AT/UAT | Verify system meets business needs |
+
+**When to choose ISTQB**:
+- Enterprise projects with formal QA processes
+- Projects requiring certification or compliance
+- Organizations with dedicated QA teams
+- Projects with strict audit requirements
+
+### Option B: Industry Testing Pyramid
+
+Best for agile development, CI/CD optimization, and rapid iteration.
+
+**Reference**: [Martin Fowler's Testing Pyramid](https://martinfowler.com/bliki/TestPyramid.html), [Google Testing Blog](https://testing.googleblog.com)
+
+| Level | Abbreviation | Ratio | Purpose |
+|-------|--------------|-------|---------|
+| Unit Testing | UT | 70% | Isolated component tests |
+| Integration Testing | IT/SIT* | 20% | Component interaction tests |
+| E2E Testing | E2E | 10% | User workflow tests |
+
+*Note on Integration Testing abbreviation:
+- **IT** (Integration Testing): Common in Agile/DevOps communities
+- **SIT** (System Integration Testing): Common in Enterprise/ISTQB contexts
+- Both terms refer to the same testing level
+
+**When to choose Industry Pyramid**:
+- Agile/Scrum development teams
+- CI/CD focused environments
+- Small to medium projects with rapid iteration
+- DevOps practices
+
+---
+
+## Testing Pyramid (Default: Industry Standard)
 
 ```
-                    ┌─────────┐
-                    │   E2E   │  ← Fewer, slower, expensive
-                   ─┴─────────┴─
-                  ┌─────────────┐
-                  │     ST      │  ← System Testing
-                 ─┴─────────────┴─
-                ┌─────────────────┐
-                │       IT        │  ← Integration Testing
-               ─┴─────────────────┴─
-              ┌─────────────────────┐
-              │         UT          │  ← Unit Testing (Foundation)
-              └─────────────────────┘
+              ┌─────────┐
+              │   E2E   │  ← 10% (Fewer, slower, expensive)
+             ─┴─────────┴─
+            ┌─────────────┐
+            │    IT/SIT   │  ← 20% (Integration Testing)
+           ─┴─────────────┴─
+          ┌─────────────────┐
+          │       UT        │  ← 70% (Unit Testing - Foundation)
+          └─────────────────┘
 ```
 
-### Recommended Ratio
+### Recommended Ratio (Industry Pyramid)
 
-| Level | Percentage | Execution Time |
-|-------|------------|----------------|
-| UT (Unit Testing) | 70% | < 10 min |
-| IT (Integration Testing) | 20% | < 30 min |
-| ST (System Testing) | 7% | < 2 hours |
-| E2E (End-to-End) | 3% | < 4 hours |
+| Level | Abbreviation | Percentage | Execution Time |
+|-------|--------------|------------|----------------|
+| Unit Testing | UT | 70% | < 10 min total |
+| Integration Testing | IT/SIT | 20% | < 30 min total |
+| E2E Testing | E2E | 10% | < 2 hours total |
+
+### ISTQB 4-Level Structure (Alternative)
+
+| Level | Abbreviation | Performed By | Focus |
+|-------|--------------|--------------|-------|
+| Unit Testing | UT | Developers | Code correctness |
+| Integration Testing | IT/SIT | Developers/QA | Interface contracts |
+| System Testing | ST | QA Team | Requirements verification |
+| Acceptance Testing | AT/UAT | End Users | Business validation |
 
 ---
 
@@ -990,15 +1043,25 @@ public void MethodName_Scenario_ExpectedBehavior()
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
+│              Testing Framework Options                       │
+├─────────────────────────────────────────────────────────────┤
+│  ISTQB: UT → IT/SIT → ST → AT/UAT (Enterprise/Compliance)  │
+│  Industry: UT (70%) → IT (20%) → E2E (10%) (Agile/DevOps)  │
+├─────────────────────────────────────────────────────────────┤
+│  IT = Integration Testing (Agile/DevOps term)              │
+│  SIT = System Integration Testing (Enterprise/ISTQB term)  │
+├─────────────────────────────────────────────────────────────┤
 │                    Testing Levels Summary                   │
 ├──────────┬──────────────────────────────────────────────────┤
 │   UT     │ Single unit, isolated, mocked deps, < 100ms     │
 ├──────────┼──────────────────────────────────────────────────┤
-│   IT     │ Component integration, real DB, 1-10 sec        │
+│  IT/SIT  │ Component integration, real DB, 1-10 sec        │
 ├──────────┼──────────────────────────────────────────────────┤
-│   ST     │ Full system, requirement-based, production-like │
+│   ST     │ Full system, requirement-based (ISTQB only)     │
 ├──────────┼──────────────────────────────────────────────────┤
 │  E2E     │ User journeys, UI to DB, critical paths only    │
+├──────────┼──────────────────────────────────────────────────┤
+│  AT/UAT  │ Business validation by end users (ISTQB only)   │
 ├──────────┴──────────────────────────────────────────────────┤
 │                    Naming Conventions                       │
 ├─────────────────────────────────────────────────────────────┤
@@ -1032,6 +1095,7 @@ public void MethodName_Scenario_ExpectedBehavior()
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2025-12-29 | Add: Testing Framework Selection (ISTQB vs Industry Pyramid), IT/SIT abbreviation clarification, source references |
 | 1.2.0 | 2025-12-19 | Add: Mock Limitations section, When Integration Tests Are Required, Distinct Identifiers, Composite Keys test data patterns |
 | 1.1.1 | 2025-12-11 | Improved: System test example to use generic domain concepts instead of specific business terminology |
 | 1.1.0 | 2025-12-05 | Add test environment isolation section (venv, containers) |

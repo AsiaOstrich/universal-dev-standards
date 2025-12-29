@@ -1,0 +1,272 @@
+# 效能測試 - AI 優化選項
+# 父層: testing
+
+id: performance-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: 效能測試標準與實踐
+  references:
+    - "ISTQB Performance Testing"
+    - "Google SRE Book"
+
+best_for:
+  - 高流量應用程式
+  - 即時系統
+  - 電子商務平台
+  - API 與微服務
+  - 資料庫密集型應用
+
+testing_types:
+  load_testing:
+    name: 負載測試
+    description: 測試系統在預期負載下的行為
+    purpose: 驗證系統能處理正常流量
+    metrics:
+      - 回應時間 (P50, P95, P99)
+      - 吞吐量 (TPS/RPS)
+      - 錯誤率
+    tools:
+      - name: k6
+        type: 開源
+        language: JavaScript
+      - name: JMeter
+        type: 開源
+        language: Java/XML
+      - name: Gatling
+        type: 開源
+        language: Scala
+      - name: Locust
+        type: 開源
+        language: Python
+
+  stress_testing:
+    name: 壓力測試
+    description: 測試系統超出正常負載的行為
+    purpose: 找出系統極限與故障模式
+    metrics:
+      - 最大容量
+      - 效能衰退曲線
+      - 恢復時間
+    approach:
+      - 逐步增加負載
+      - 監控錯誤與延遲
+      - 識別瓶頸
+      - 記錄故障閾值
+
+  spike_testing:
+    name: 尖峰測試
+    description: 測試流量突然增加的情況
+    purpose: 驗證系統處理流量尖峰的能力
+    scenarios:
+      - 限時搶購
+      - 病毒式傳播內容
+      - 行銷活動
+      - 定時事件
+
+  soak_testing:
+    name: 耐久測試
+    abbreviation: 穩定性測試
+    description: 測試系統長時間運行的穩定性
+    purpose: 發現記憶體洩漏和效能衰退
+    duration: 數小時至數天
+    watch_for:
+      - 記憶體洩漏
+      - 連線池耗盡
+      - 日誌檔案增長
+      - 漸進式效能衰退
+
+  capacity_testing:
+    name: 容量測試
+    description: 確定系統最大容量
+    purpose: 規劃擴展和基礎設施
+    output:
+      - 使用者容量上限
+      - 資源需求
+      - 擴展閾值
+
+key_metrics:
+  latency:
+    name: 延遲
+    description: 回應請求所需時間
+    percentiles:
+      - name: P50
+        description: 中位數回應時間
+        target: 基準值
+      - name: P95
+        description: 第 95 百分位
+        target: 基準值的 2-3 倍
+      - name: P99
+        description: 第 99 百分位
+        target: 最大不超過基準值 5 倍
+    note: "P99 對使用者體驗的影響通常比平均值更重要"
+
+  throughput:
+    name: 吞吐量
+    description: 單位時間處理的請求數
+    measurements:
+      - TPS (每秒交易數)
+      - RPS (每秒請求數)
+      - QPS (每秒查詢數)
+    considerations:
+      - 尖峰 vs 持續負載
+      - 併發使用者 vs 請求數
+
+  error_rate:
+    name: 錯誤率
+    description: 失敗請求的百分比
+    targets:
+      acceptable: "<0.1%"
+      degraded: "<1%"
+      critical: ">1%"
+
+  resource_utilization:
+    name: 資源使用率
+    description: 系統資源消耗
+    measurements:
+      - CPU 使用率
+      - 記憶體使用率
+      - 網路 I/O
+      - 磁碟 I/O
+      - 連線池使用率
+
+service_level_objectives:
+  name: 服務等級目標
+  description: 定義可量測的效能目標
+  template:
+    latency_slo: "P99 延遲 < 200ms"
+    availability_slo: "99.9% 可用性"
+    throughput_slo: "持續 1000 RPS"
+    error_slo: "錯誤率 < 0.1%"
+  note: "SLO 應基於使用者需求，而非系統能力"
+
+rules:
+  - id: baseline-first
+    trigger: 開始效能測試
+    instruction: 在優化前先建立基準指標
+    priority: required
+
+  - id: realistic-data
+    trigger: 設置測試環境
+    instruction: 使用接近生產環境的資料量和模式
+    priority: required
+
+  - id: isolate-environment
+    trigger: 執行效能測試
+    instruction: 使用隔離環境避免干擾
+    priority: required
+
+  - id: gradual-load
+    trigger: 執行負載測試
+    instruction: 逐步增加負載以識別閾值
+    priority: recommended
+
+  - id: monitor-resources
+    trigger: 測試執行期間
+    instruction: 監控所有系統資源 (CPU、記憶體、I/O)
+    priority: required
+
+  - id: percentile-focus
+    trigger: 分析結果
+    instruction: 關注 P95/P99 延遲，而非平均值
+    priority: required
+
+  - id: regression-testing
+    trigger: 程式碼變更後
+    instruction: 在 CI/CD 中包含效能回歸測試
+    priority: recommended
+
+test_phases:
+  phase_1_baseline:
+    name: 第一階段：基準測試
+    description: 建立當前效能基準
+    activities:
+      - 以最小負載執行測試
+      - 記錄當前指標
+      - 識別現有問題
+    duration: 1-2 天
+
+  phase_2_load:
+    name: 第二階段：負載測試
+    description: 正常負載測試
+    activities:
+      - 模擬預期流量
+      - 驗證 SLO 合規性
+      - 監控資源使用
+    duration: 2-3 天
+
+  phase_3_stress:
+    name: 第三階段：壓力測試
+    description: 超出正常容量測試
+    activities:
+      - 增加負載直到故障
+      - 記錄故障點
+      - 測試恢復程序
+    duration: 1-2 天
+
+  phase_4_soak:
+    name: 第四階段：耐久測試
+    description: 長時間測試
+    activities:
+      - 運行 24-72 小時
+      - 監控效能衰退
+      - 檢查記憶體洩漏
+    duration: 1-3 天
+
+ci_integration:
+  approach: 在 CI 中執行輕量級效能測試
+  example_k6: |
+    import http from 'k6/http';
+    import { check, sleep } from 'k6';
+
+    export const options = {
+      stages: [
+        { duration: '30s', target: 10 },
+        { duration: '1m', target: 10 },
+        { duration: '30s', target: 0 },
+      ],
+      thresholds: {
+        http_req_duration: ['p(95)<500'],
+        http_req_failed: ['rate<0.01'],
+      },
+    };
+
+    export default function () {
+      const res = http.get('https://api.example.com/health');
+      check(res, { 'status 200': (r) => r.status === 200 });
+      sleep(1);
+    }
+
+  github_actions: |
+    name: Performance Test
+    on:
+      pull_request:
+        branches: [main]
+    jobs:
+      k6:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - name: Run k6 test
+            uses: grafana/k6-action@v0.3.1
+            with:
+              filename: tests/performance/load-test.js
+
+quick_reference:
+  test_types:
+    columns: [類型, 目的, 時長, 時機]
+    rows:
+      - [負載測試, 正常流量, 分鐘, 每次發布]
+      - [壓力測試, 找出極限, 小時, 主要發布]
+      - [尖峰測試, 突發流量, 分鐘, 視需求]
+      - [耐久測試, 長期穩定性, 天, 每季]
+      - [容量測試, 最大容量, 小時, 規劃時]
+
+  key_metrics:
+    columns: [指標, 測量內容, 目標]
+    rows:
+      - [P50 延遲, 中位數回應, 基準值]
+      - [P95 延遲, 典型最差情況, "基準值 2-3 倍"]
+      - [P99 延遲, 極端情況, "最大基準值 5 倍"]
+      - [吞吐量, 每秒請求數, SLO 定義]
+      - [錯誤率, 失敗請求, "<0.1%"]

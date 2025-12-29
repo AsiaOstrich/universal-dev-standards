@@ -2,41 +2,51 @@
 name: testing-guide
 description: |
   Testing pyramid and test writing standards for UT/IT/ST/E2E.
+  Supports ISTQB and Industry Pyramid frameworks.
   Use when: writing tests, discussing test coverage, test strategy, or test naming.
-  Keywords: test, unit, integration, e2e, coverage, mock, 測試, 單元, 整合, 端對端.
+  Keywords: test, unit, integration, e2e, coverage, mock, ISTQB, SIT, 測試, 單元, 整合, 端對端.
 ---
 
 # Testing Guide
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/testing-guide/SKILL.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
+**Version**: 1.1.0
+**Last Updated**: 2025-12-29
 **Applicability**: Claude Code Skills
 
 ---
 
 ## Purpose
 
-This skill provides testing pyramid standards and best practices for systematic testing.
+This skill provides testing pyramid standards and best practices for systematic testing, supporting both ISTQB and Industry Pyramid frameworks.
+
+## Framework Selection
+
+| Framework | Levels | Best For |
+|-----------|--------|----------|
+| **ISTQB** | UT → IT/SIT → ST → AT/UAT | Enterprise, compliance, formal QA |
+| **Industry Pyramid** | UT (70%) → IT (20%) → E2E (10%) | Agile, DevOps, CI/CD |
+
+**Note on Integration Testing abbreviation:**
+- **IT** (Integration Testing): Agile/DevOps communities
+- **SIT** (System Integration Testing): Enterprise/ISTQB contexts
+- Both refer to the same testing level
 
 ## Quick Reference
 
-### Testing Pyramid
+### Testing Pyramid (Industry Standard)
 
 ```
-                    ┌─────────┐
-                    │   E2E   │  ← Fewer, slower (3%)
-                   ─┴─────────┴─
-                  ┌─────────────┐
-                  │     ST      │  ← System (7%)
-                 ─┴─────────────┴─
-                ┌─────────────────┐
-                │       IT        │  ← Integration (20%)
-               ─┴─────────────────┴─
-              ┌─────────────────────┐
-              │         UT          │  ← Unit (70%)
-              └─────────────────────┘
+              ┌─────────┐
+              │   E2E   │  ← 10% (Fewer, slower)
+             ─┴─────────┴─
+            ┌─────────────┐
+            │   IT/SIT    │  ← 20% (Integration)
+           ─┴─────────────┴─
+          ┌─────────────────┐
+          │       UT        │  ← 70% (Unit)
+          └─────────────────┘
 ```
 
 ### Test Levels Overview
@@ -44,9 +54,10 @@ This skill provides testing pyramid standards and best practices for systematic 
 | Level | Scope | Speed | Dependencies |
 |-------|-------|-------|-------------|
 | **UT** | Single function/class | < 100ms | Mocked |
-| **IT** | Component interaction | 1-10s | Real DB (containerized) |
-| **ST** | Full system | Minutes | Production-like |
+| **IT/SIT** | Component interaction | 1-10s | Real DB (containerized) |
+| **ST** | Full system (ISTQB) | Minutes | Production-like |
 | **E2E** | User journeys | 30s+ | Everything real |
+| **AT/UAT** | Business validation (ISTQB) | Varies | Everything real |
 
 ### Coverage Targets
 
@@ -65,6 +76,9 @@ For complete standards, see:
 
 For AI assistants, use the YAML format files for reduced token usage:
 - Base standard: `ai/standards/testing.ai.yaml`
+- Framework options:
+  - ISTQB Framework: `ai/options/testing/istqb-framework.ai.yaml`
+  - Industry Pyramid: `ai/options/testing/industry-pyramid.ai.yaml`
 - Test level options:
   - Unit Testing: `ai/options/testing/unit-testing.ai.yaml`
   - Integration Testing: `ai/options/testing/integration-testing.ai.yaml`

@@ -1,38 +1,53 @@
 # GitHub Copilot Instructions
 
-GitHub Copilot-specific instructions derived from universal-dev-standards.
+GitHub Copilot instructions derived from universal-dev-standards.
 
 ## Status
 
-🚧 **Planned** - Coming soon
+✅ **Complete** - Ready to use
 
-## Planned Features
+## Installation
 
-- `copilot-instructions.md` with comprehensive development standards
-- Copilot Chat custom instructions
-- VS Code / JetBrains integration patterns
+Copy the `copilot-instructions.md` file to your project's `.github` folder:
 
-## Structure (Planned)
+```bash
+mkdir -p .github
+cp skills/copilot/copilot-instructions.md .github/copilot-instructions.md
+```
+
+Or copy from this repository directly:
+
+```bash
+mkdir -p .github
+curl -o .github/copilot-instructions.md https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/copilot/copilot-instructions.md
+```
+
+## What's Included
+
+The `copilot-instructions.md` file includes guidance for:
+
+- **Commit Messages** - Conventional Commits format
+- **Code Quality** - Naming and structure guidelines
+- **Security** - Input validation and injection prevention
+- **Testing** - AAA pattern and FIRST principles
+- **Documentation** - API documentation standards
+- **Git** - Branch naming conventions
+- **AI Collaboration** - Best practices
+
+## Structure
 
 ```
 copilot/
 ├── copilot-instructions.md  # Main instructions file
-├── chat-prompts/
-│   ├── commit.md            # Commit message prompt
-│   ├── review.md            # Code review prompt
-│   └── test.md              # Test writing prompt
-└── README.md
+└── README.md                # This file
 ```
 
-## Contributing
+## Version
 
-Want to help implement Copilot instructions? See [CONTRIBUTING.md](../../CONTRIBUTING.md).
+- **Version**: 1.0.0
+- **Last Updated**: 2025-12-29
+- **Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
 
-## Current Alternative
+## License
 
-Until Copilot-specific instructions are ready, you can use the integration file:
-
-```bash
-mkdir -p .github
-cp integrations/github-copilot/.github/copilot-instructions.md .github/
-```
+CC BY 4.0

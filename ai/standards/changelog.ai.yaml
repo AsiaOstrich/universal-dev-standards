@@ -3,10 +3,22 @@
 
 id: changelog
 meta:
-  version: "1.0.0"
-  updated: "2025-12-26"
+  version: "1.1.0"
+  updated: "2025-12-29"
   source: core/changelog-standards.md
   description: Keep a Changelog format for documenting notable changes
+
+options:
+  changelog_format:
+    description: Select changelog format approach
+    multiSelect: false
+    choices:
+      - id: keep-a-changelog
+        file: options/changelog/keep-a-changelog.ai.yaml
+        best_for: Manual, human-readable changelogs
+      - id: auto-generated
+        file: options/changelog/auto-generated.ai.yaml
+        best_for: Automated generation from commits
 
 format:
   filename: CHANGELOG.md

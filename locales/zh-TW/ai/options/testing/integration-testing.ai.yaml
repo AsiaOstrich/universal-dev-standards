@@ -1,12 +1,18 @@
-# 整合測試 - AI 優化選項
+# 整合測試 (IT/SIT) - AI 優化選項
 # 父項: testing
 
 id: integration-testing
 meta:
   parent: testing
-  version: "1.0.0"
+  version: "1.1.0"
   description: 測試元件之間的互動
   language: zh-TW
+
+abbreviation_note: |
+  整合測試層級有兩種常見的縮寫：
+  - IT (Integration Testing)：敏捷/DevOps 社群常用（Martin Fowler、Google）
+  - SIT (System Integration Testing)：企業/ISTQB 環境常用
+  兩者指的是相同的測試概念。
 
 characteristics:
   scope: 多個元件一起運作

@@ -2,15 +2,29 @@
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/testing-guide/testing-pyramid.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
+**Version**: 1.1.0
+**Last Updated**: 2025-12-29
 **Applicability**: Claude Code Skills
 
 ---
 
 ## Purpose
 
-This document provides detailed guidelines for the testing pyramid (UT/IT/ST/E2E) and test writing best practices.
+This document provides detailed guidelines for the testing pyramid and test writing best practices. It supports both ISTQB and Industry Pyramid frameworks.
+
+---
+
+## Framework Selection
+
+| Framework | Levels | Best For |
+|-----------|--------|----------|
+| **ISTQB** | UT → IT/SIT → ST → AT/UAT | Enterprise, compliance, formal QA |
+| **Industry Pyramid** | UT (70%) → IT (20%) → E2E (10%) | Agile, DevOps, CI/CD |
+
+**Note on Integration Testing abbreviation:**
+- **IT** (Integration Testing): Agile/DevOps communities
+- **SIT** (System Integration Testing): Enterprise/ISTQB contexts
+- Both refer to the same testing level
 
 ---
 
@@ -65,11 +79,16 @@ describe('UserValidator', () => {
 
 ---
 
-## Integration Testing (IT)
+## Integration Testing (IT/SIT)
 
 ### Definition
 
 Tests interactions between multiple components, modules, or external systems.
+
+**Abbreviation Note:**
+- **IT** (Integration Testing): Common in Agile/DevOps communities (Martin Fowler, Google)
+- **SIT** (System Integration Testing): Common in Enterprise/ISTQB contexts
+- Both terms refer to the same testing concept
 
 ### When Integration Tests Are Required
 
@@ -366,21 +385,35 @@ const inactiveUser = new UserBuilder().inactive().build();
 
 ## Quick Reference Card
 
+### Industry Pyramid (Recommended for Agile/DevOps)
+
 ```
 ┌──────────┬──────────────────────────────────────────┐
 │   UT     │ Single unit, isolated, mocked deps, < 100ms     │
 ├──────────┼──────────────────────────────────────────┤
-│   IT     │ Component integration, real DB, 1-10 sec        │
-├──────────┼──────────────────────────────────────────┤
-│   ST     │ Full system, requirement-based, production-like │
+│ IT/SIT   │ Component integration, real DB, 1-10 sec        │
 ├──────────┼──────────────────────────────────────────┤
 │  E2E     │ User journeys, UI to DB, critical paths only    │
 └──────────┴──────────────────────────────────────────┘
 
-Ratio: UT 70% | IT 20% | ST 7% | E2E 3%
-
-Mock Rule: If UT mocks query params → IT is REQUIRED
+Ratio: UT 70% | IT 20% | E2E 10%
 ```
+
+### ISTQB Framework (For Enterprise/Compliance)
+
+```
+┌──────────┬──────────────────────────────────────────┐
+│   UT     │ Component testing, isolated units              │
+├──────────┼──────────────────────────────────────────┤
+│ IT/SIT   │ Integration testing, component interactions    │
+├──────────┼──────────────────────────────────────────┤
+│   ST     │ System testing, requirement validation         │
+├──────────┼──────────────────────────────────────────┤
+│ AT/UAT   │ Acceptance testing, business validation        │
+└──────────┴──────────────────────────────────────────┘
+```
+
+**Mock Rule**: If UT mocks query params → IT is REQUIRED
 
 ---
 
@@ -395,6 +428,7 @@ Mock Rule: If UT mocks query params → IT is REQUIRED
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2025-12-29 | Added: Framework Selection (ISTQB/Industry Pyramid), IT/SIT abbreviation note |
 | 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
 
 ---

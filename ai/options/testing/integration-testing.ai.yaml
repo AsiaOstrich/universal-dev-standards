@@ -1,11 +1,17 @@
-# Integration Testing - AI Optimized Option
+# Integration Testing (IT/SIT) - AI Optimized Option
 # Parent: testing
 
 id: integration-testing
 meta:
   parent: testing
-  version: "1.0.0"
+  version: "1.1.0"
   description: Testing interactions between components
+
+abbreviation_note: |
+  The integration testing level has two common abbreviations:
+  - IT (Integration Testing): Agile/DevOps communities (Martin Fowler, Google)
+  - SIT (System Integration Testing): Enterprise/ISTQB contexts
+  Both refer to the same testing concept.
 
 characteristics:
   scope: Multiple components working together

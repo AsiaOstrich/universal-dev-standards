@@ -1,0 +1,139 @@
+# Error Code Standards - AI Optimized
+# Source: core/error-code-standards.md
+
+id: error-codes
+meta:
+  version: "1.0.0"
+  updated: "2025-12-30"
+  source: core/error-code-standards.md
+  description: Error code format, categories, and management
+
+format:
+  pattern: "<PREFIX>_<CATEGORY>_<NUMBER>"
+  example: "AUTH_VAL_001"
+  components:
+    prefix: "Application/service identifier (AUTH, PAY, USR)"
+    category: "Error category (VAL, SYS, BIZ)"
+    number: "Unique numeric identifier (001, 100, 404)"
+
+categories:
+  VAL:
+    name: Validation
+    description: Client input validation failures
+    http_status: 400
+    ranges:
+      001-099: Field validation
+      100-199: Format validation
+      200-299: Constraint validation
+
+  BIZ:
+    name: Business Logic
+    description: Business rule violations
+    http_status: 422
+    ranges:
+      001-099: State violations
+      100-199: Rule violations
+      200-299: Limit violations
+
+  SYS:
+    name: System
+    description: Internal system failures
+    http_status: 500
+    ranges:
+      001-099: Internal errors
+      100-199: Resource errors
+      500-599: HTTP-aligned errors
+
+  NET:
+    name: Network
+    description: Communication and connectivity issues
+    http_status: 502-504
+    ranges:
+      001-099: Connection errors
+      100-199: Protocol errors
+      400-599: HTTP-aligned errors
+
+  AUTH:
+    name: Authentication/Authorization
+    description: Security-related errors
+    http_status: 401/403
+    ranges:
+      001-099: Authentication (401)
+      100-199: Authorization (403)
+      200-299: Token/session (401)
+
+error_structure:
+  required_fields:
+    - code
+    - message
+  recommended_fields:
+    - userMessage
+    - userMessageKey
+    - field
+    - requestId
+    - timestamp
+
+rules:
+  - id: use-format
+    trigger: creating error code
+    instruction: "Use PREFIX_CATEGORY_NUMBER format: AUTH_VAL_001"
+    priority: required
+
+  - id: category-match
+    trigger: categorizing error
+    instruction: |
+      Match error to category:
+      - VAL: Input validation failures
+      - BIZ: Business rule violations
+      - SYS: System/internal errors
+      - NET: Network/connectivity issues
+      - AUTH: Security-related errors
+    priority: required
+
+  - id: http-mapping
+    trigger: returning error response
+    instruction: |
+      Map to HTTP status:
+      - VAL → 400
+      - BIZ → 422
+      - AUTH → 401/403
+      - SYS → 500
+      - NET → 502/503/504
+    priority: required
+
+  - id: unique-codes
+    trigger: defining new error
+    instruction: Ensure error code is unique across application
+    priority: required
+
+  - id: localize-messages
+    trigger: defining error messages
+    instruction: Use i18n keys for user-facing messages
+    priority: recommended
+
+  - id: document-errors
+    trigger: adding new error code
+    instruction: Document cause, resolution, and example
+    priority: required
+
+  - id: centralize-registry
+    trigger: managing error codes
+    instruction: Maintain centralized error code registry
+    priority: recommended
+
+quick_reference:
+  categories:
+    columns: [Code, Category, HTTP, Use For]
+    rows:
+      - [VAL, Validation, 400, Input validation]
+      - [BIZ, Business, 422, Business rules]
+      - [AUTH, Auth, 401/403, Security]
+      - [SYS, System, 500, Internal errors]
+      - [NET, Network, 502/503, Connectivity]
+
+  format:
+    columns: [Component, Description, Example]
+    rows:
+      - [PREFIX, Service identifier, AUTH/PAY/USR]
+      - [CATEGORY, Error type, VAL/BIZ/SYS]
+      - [NUMBER, Unique ID, 001/100/404]

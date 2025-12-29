@@ -1,0 +1,143 @@
+# Wiki-Style Documentation - AI Optimized Option
+# Parent: documentation
+
+id: wiki-style
+meta:
+  parent: documentation-structure
+  version: "1.0.0"
+  description: Wiki-style collaborative documentation
+
+best_for:
+  - Large teams
+  - Internal documentation
+  - Knowledge bases
+  - Frequently updated content
+  - Cross-functional teams
+
+platforms:
+  - name: Confluence
+    vendor: Atlassian
+    best_for: Enterprise teams using Jira
+    features:
+      - Rich editor
+      - Templates
+      - Spaces/hierarchy
+      - Permissions
+
+  - name: Notion
+    vendor: Notion Labs
+    best_for: Startups, flexible needs
+    features:
+      - Databases
+      - Templates
+      - Nested pages
+      - Comments
+
+  - name: GitHub Wiki
+    vendor: GitHub
+    best_for: Open source, developers
+    features:
+      - Git-backed
+      - Markdown
+      - Free with repo
+
+  - name: GitBook
+    vendor: GitBook
+    best_for: Public documentation
+    features:
+      - Git sync
+      - Beautiful UI
+      - API docs support
+
+structure:
+  top_level_spaces:
+    - name: Engineering
+      content:
+        - Architecture decisions
+        - Technical standards
+        - Runbooks
+    - name: Product
+      content:
+        - Feature specs
+        - Roadmaps
+        - User research
+    - name: Team
+      content:
+        - Onboarding
+        - Processes
+        - Meeting notes
+
+  page_hierarchy:
+    - Overview/Index page
+    - Category pages
+    - Detail pages
+    - Related links
+
+page_template: |
+  # Page Title
+
+  **Last Updated:** YYYY-MM-DD
+  **Owner:** @username
+
+  ## Overview
+
+  Brief description of what this page covers.
+
+  ## Content
+
+  Main content here...
+
+  ## Related Pages
+
+  - [Related Page 1](link)
+  - [Related Page 2](link)
+
+  ## Changelog
+
+  | Date | Author | Change |
+  |------|--------|--------|
+  | YYYY-MM-DD | @user | Initial creation |
+
+rules:
+  - id: page-ownership
+    trigger: creating wiki page
+    instruction: Assign an owner responsible for keeping content current
+    priority: required
+
+  - id: date-pages
+    trigger: creating/updating page
+    instruction: Include last updated date
+    priority: required
+
+  - id: link-related
+    trigger: creating page
+    instruction: Link to related pages for discoverability
+    priority: recommended
+
+  - id: review-quarterly
+    trigger: quarterly review
+    instruction: Review and update stale content
+    priority: recommended
+
+  - id: archive-obsolete
+    trigger: content becomes obsolete
+    instruction: Archive rather than delete
+    priority: recommended
+
+comparison:
+  columns: [Aspect, Wiki, Markdown in Repo, External Docs Site]
+  rows:
+    - [Editing, WYSIWYG/Easy, Requires Git knowledge, Varies]
+    - [Versioning, Built-in, Git-based, Platform-dependent]
+    - [Collaboration, Excellent, Good, Good]
+    - [Search, Built-in, GitHub search, Varies]
+    - [Access Control, Granular, Repo-level, Varies]
+    - [Offline Access, Limited, Full, Limited]
+
+best_practices:
+  - Create templates for common page types
+  - Use consistent naming conventions
+  - Set up redirects when moving pages
+  - Regular content audits
+  - Encourage comments and questions
+  - Link generously between pages

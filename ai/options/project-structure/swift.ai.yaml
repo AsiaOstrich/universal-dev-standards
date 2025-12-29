@@ -1,0 +1,143 @@
+# Swift Project Structure - AI Optimized Option
+# Parent: project-structure
+
+id: swift
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Swift project conventions
+
+structure:
+  spm_library: |
+    project-root/
+    ├── Sources/
+    │   └── PackageName/
+    │       ├── PackageName.swift
+    │       ├── Models/
+    │       ├── Services/
+    │       └── Utilities/
+    ├── Tests/
+    │   └── PackageNameTests/
+    │       └── PackageNameTests.swift
+    ├── Package.swift
+    └── README.md
+
+  spm_executable: |
+    project-root/
+    ├── Sources/
+    │   ├── AppName/
+    │   │   └── main.swift
+    │   └── AppNameCore/
+    │       └── Core.swift
+    ├── Tests/
+    │   └── AppNameTests/
+    ├── Package.swift
+    └── README.md
+
+  ios_app: |
+    project-root/
+    ├── AppName/
+    │   ├── App/
+    │   │   ├── AppNameApp.swift
+    │   │   └── ContentView.swift
+    │   ├── Features/
+    │   │   ├── Home/
+    │   │   │   ├── HomeView.swift
+    │   │   │   └── HomeViewModel.swift
+    │   │   └── Settings/
+    │   ├── Core/
+    │   │   ├── Models/
+    │   │   ├── Services/
+    │   │   └── Utilities/
+    │   ├── Resources/
+    │   │   ├── Assets.xcassets
+    │   │   └── Localizable.strings
+    │   └── Info.plist
+    ├── AppNameTests/
+    ├── AppNameUITests/
+    ├── AppName.xcodeproj
+    └── README.md
+
+  vapor: |
+    project-root/
+    ├── Sources/
+    │   ├── App/
+    │   │   ├── configure.swift
+    │   │   ├── routes.swift
+    │   │   ├── Controllers/
+    │   │   ├── Models/
+    │   │   └── Migrations/
+    │   └── Run/
+    │       └── main.swift
+    ├── Tests/
+    │   └── AppTests/
+    ├── Resources/
+    │   └── Views/
+    ├── Public/
+    ├── Package.swift
+    └── docker-compose.yml
+
+config_files:
+  - file: Package.swift
+    purpose: Swift Package Manager manifest
+    required: true (SPM projects)
+
+  - file: "*.xcodeproj"
+    purpose: Xcode project
+    required: true (Xcode projects)
+
+  - file: "*.xcworkspace"
+    purpose: Xcode workspace
+    required: false
+
+  - file: ".swiftlint.yml"
+    purpose: SwiftLint configuration
+    required: false
+
+  - file: ".swift-version"
+    purpose: Swift version
+    required: false
+
+gitignore:
+  - ".build/"
+  - ".swiftpm/"
+  - "*.xcodeproj/xcuserdata/"
+  - "*.xcworkspace/xcuserdata/"
+  - DerivedData/
+  - ".DS_Store"
+  - Pods/
+  - Carthage/
+
+rules:
+  - id: feature-folders
+    trigger: organizing iOS features
+    instruction: Group by feature, each with View, ViewModel, and Models
+    priority: recommended
+
+  - id: spm-targets
+    trigger: organizing SPM package
+    instruction: Separate library and executable into different targets
+    priority: recommended
+
+  - id: protocol-oriented
+    trigger: designing APIs
+    instruction: Use protocols for abstraction and dependency injection
+    priority: recommended
+
+  - id: test-naming
+    trigger: naming tests
+    instruction: "Use test_methodName_condition_expectedResult format"
+    priority: recommended
+
+  - id: access-control
+    trigger: defining visibility
+    instruction: Use minimal access level (internal by default, public for API)
+    priority: required
+
+tools:
+  build: [Swift Package Manager, Xcode, xcodebuild]
+  test_runner: [XCTest, Quick/Nimble]
+  linter: [SwiftLint, SwiftFormat]
+  formatter: [SwiftFormat, swift-format]
+  package_manager: [Swift Package Manager, CocoaPods, Carthage]
+  documentation: [DocC, Jazzy]

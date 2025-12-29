@@ -1,0 +1,189 @@
+# Security Testing - AI Optimized Option
+# Parent: testing
+
+id: security-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: Security testing standards and practices
+  references:
+    - "OWASP Testing Guide"
+    - "NIST SP 800-115"
+
+best_for:
+  - Applications handling sensitive data
+  - Financial services
+  - Healthcare applications
+  - E-commerce platforms
+  - Any public-facing application
+
+testing_types:
+  static_analysis:
+    abbreviation: SAST
+    full_name: Static Application Security Testing
+    description: Analyze source code without execution
+    when_to_use: Early in development, CI/CD pipeline
+    tools:
+      - name: SonarQube
+        languages: Multi-language
+      - name: Semgrep
+        languages: Multi-language
+      - name: CodeQL
+        languages: Multi-language
+      - name: Bandit
+        languages: Python
+      - name: Brakeman
+        languages: Ruby
+      - name: ESLint security plugins
+        languages: JavaScript/TypeScript
+
+  dynamic_analysis:
+    abbreviation: DAST
+    full_name: Dynamic Application Security Testing
+    description: Test running application for vulnerabilities
+    when_to_use: Staging environment, pre-production
+    tools:
+      - name: OWASP ZAP
+        type: Open source
+      - name: Burp Suite
+        type: Commercial
+      - name: Nuclei
+        type: Open source
+      - name: Nikto
+        type: Open source
+
+  dependency_scanning:
+    abbreviation: SCA
+    full_name: Software Composition Analysis
+    description: Check dependencies for known vulnerabilities
+    when_to_use: Every build, continuous monitoring
+    tools:
+      - name: Snyk
+        type: SaaS/CLI
+      - name: Dependabot
+        type: GitHub integrated
+      - name: npm audit
+        type: CLI
+      - name: OWASP Dependency-Check
+        type: Open source
+
+  penetration_testing:
+    abbreviation: Pentest
+    description: Simulated attacks by security professionals
+    when_to_use: Before major releases, annually
+    types:
+      - Black box (no prior knowledge)
+      - White box (full access)
+      - Grey box (partial knowledge)
+
+  secret_scanning:
+    description: Detect exposed credentials and secrets
+    tools:
+      - name: GitLeaks
+        type: Open source
+      - name: TruffleHog
+        type: Open source
+      - name: GitHub Secret Scanning
+        type: GitHub integrated
+
+owasp_top_10:
+  description: OWASP Top 10 Web Application Security Risks
+  version: "2021"
+  risks:
+    - id: A01
+      name: Broken Access Control
+      test_focus: Authorization checks, privilege escalation
+    - id: A02
+      name: Cryptographic Failures
+      test_focus: Encryption, key management, data exposure
+    - id: A03
+      name: Injection
+      test_focus: SQL, NoSQL, OS, LDAP injection
+    - id: A04
+      name: Insecure Design
+      test_focus: Security requirements, threat modeling
+    - id: A05
+      name: Security Misconfiguration
+      test_focus: Default configs, unnecessary features
+    - id: A06
+      name: Vulnerable Components
+      test_focus: Outdated dependencies, known CVEs
+    - id: A07
+      name: Authentication Failures
+      test_focus: Session management, credential stuffing
+    - id: A08
+      name: Software and Data Integrity Failures
+      test_focus: CI/CD pipeline security, serialization
+    - id: A09
+      name: Security Logging and Monitoring Failures
+      test_focus: Audit logs, alerting
+    - id: A10
+      name: Server-Side Request Forgery
+      test_focus: URL validation, network segmentation
+
+rules:
+  - id: sast-in-ci
+    trigger: setting up CI/CD
+    instruction: Include SAST in every build pipeline
+    priority: required
+
+  - id: dependency-scanning
+    trigger: adding dependencies
+    instruction: Scan all dependencies for vulnerabilities
+    priority: required
+
+  - id: secret-scanning
+    trigger: committing code
+    instruction: Scan for exposed secrets before push
+    priority: required
+
+  - id: dast-staging
+    trigger: deploying to staging
+    instruction: Run DAST against staging environment
+    priority: recommended
+
+  - id: pentest-annually
+    trigger: annual security review
+    instruction: Conduct penetration testing at least annually
+    priority: recommended
+
+  - id: owasp-checklist
+    trigger: security testing planning
+    instruction: Cover all OWASP Top 10 risks in test plan
+    priority: required
+
+ci_integration:
+  github_actions: |
+    name: Security Scan
+    on: [push, pull_request]
+    jobs:
+      sast:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - name: Run Semgrep
+            uses: semgrep/semgrep-action@v1
+
+      dependency-scan:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - name: Run Snyk
+            uses: snyk/actions/node@master
+
+      secret-scan:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - name: Run Gitleaks
+            uses: gitleaks/gitleaks-action@v2
+
+quick_reference:
+  testing_types:
+    columns: [Type, Abbreviation, When, Tools]
+    rows:
+      - [Static Analysis, SAST, CI/CD, SonarQube/Semgrep]
+      - [Dynamic Analysis, DAST, Staging, OWASP ZAP/Burp]
+      - [Dependency Scan, SCA, Every build, Snyk/Dependabot]
+      - [Penetration Test, Pentest, Annually, Manual/Professional]
+      - [Secret Scanning, -, Pre-commit, GitLeaks/TruffleHog]

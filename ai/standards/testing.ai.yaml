@@ -3,33 +3,53 @@
 
 id: testing
 meta:
-  version: "1.0.0"
-  updated: "2025-12-26"
+  version: "1.3.0"
+  updated: "2025-12-30"
   source: core/testing-standards.md
-  description: Testing pyramid and recommended coverage ratios
+  description: Testing pyramid and recommended coverage ratios with framework options
 
+# Framework Selection - Choose based on project needs
+# Reference: ISTQB Glossary v4.0, Martin Fowler's Testing Pyramid
+framework_options:
+  decision_point: Select testing framework based on project type
+  choices:
+    - id: istqb-framework
+      file: options/testing/istqb-framework.ai.yaml
+      best_for: Enterprise projects, certification needs, formal QA processes
+    - id: industry-pyramid
+      file: options/testing/industry-pyramid.ai.yaml
+      best_for: Agile development, CI/CD optimization, rapid iteration
+
+# Default pyramid (Industry standard - can be overridden by framework choice)
 pyramid:
-  ratio: "70/20/7/3"
+  ratio: "70/20/10"
+  note: "Industry standard ratio. ISTQB framework uses 4 levels without fixed ratios."
   levels:
     - name: Unit Tests (UT)
       percentage: 70
       scope: Single function/method
       speed: Very fast (<100ms)
-    - name: Integration Tests (IT)
+    - name: Integration Tests (IT/SIT)
       percentage: 20
       scope: Multiple components
       speed: Fast (<1s)
-    - name: System Tests (ST)
-      percentage: 7
-      scope: Full system
-      speed: Medium (<10s)
+      note: "IT (Agile/DevOps) or SIT (Enterprise/ISTQB) - both refer to integration testing"
     - name: E2E Tests
-      percentage: 3
-      scope: User flows
+      percentage: 10
+      scope: User flows / System testing
       speed: Slow (>10s)
 
 options:
+  testing_framework:
+    description: Choose testing framework approach
+    multiSelect: false
+    choices:
+      - id: istqb-framework
+        file: options/testing/istqb-framework.ai.yaml
+      - id: industry-pyramid
+        file: options/testing/industry-pyramid.ai.yaml
   test_level:
+    description: Choose test levels to implement
     multiSelect: true
     choices:
       - id: unit-testing
@@ -40,6 +60,15 @@ options:
         file: options/testing/system-testing.ai.yaml
       - id: e2e-testing
         file: options/testing/e2e-testing.ai.yaml
+      - id: security-testing
+        file: options/testing/security-testing.ai.yaml
+        best_for: Applications handling sensitive data, security-critical systems
+      - id: performance-testing
+        file: options/testing/performance-testing.ai.yaml
+        best_for: High-traffic applications, real-time systems, APIs
+      - id: contract-testing
+        file: options/testing/contract-testing.ai.yaml
+        best_for: Microservices, API integrations, distributed systems
 
 rules:
   - id: follow-pyramid

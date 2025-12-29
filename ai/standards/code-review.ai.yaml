@@ -3,10 +3,25 @@
 
 id: code-review
 meta:
-  version: "1.0.0"
-  updated: "2025-12-26"
+  version: "1.1.0"
+  updated: "2025-12-29"
   source: core/code-review-checklist.md
   description: Systematic checklist for reviewing code quality and security
+
+options:
+  review_approach:
+    description: Select code review approach
+    multiSelect: true
+    choices:
+      - id: pr-review
+        file: options/code-review/pr-review.ai.yaml
+        best_for: Distributed teams, async workflows
+      - id: pair-programming
+        file: options/code-review/pair-programming.ai.yaml
+        best_for: Complex features, knowledge transfer
+      - id: automated-review
+        file: options/code-review/automated-review.ai.yaml
+        best_for: CI/CD integration, catching common issues
 
 checklist:
   functionality:
