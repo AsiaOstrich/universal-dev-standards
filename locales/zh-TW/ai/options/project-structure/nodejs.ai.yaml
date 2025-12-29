@@ -1,0 +1,101 @@
+# Node.js 專案結構 - AI 優化選項
+# 父項: project-structure
+
+id: nodejs
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Node.js/TypeScript 專案的標準目錄結構
+  language: zh-TW
+
+structure:
+  template: |
+    project-root/
+    ├── src/
+    │   ├── index.ts              # 應用程式進入點
+    │   ├── app.ts                # Express/Fastify 應用程式設定
+    │   ├── config/               # 設定檔
+    │   │   ├── index.ts
+    │   │   └── database.ts
+    │   ├── modules/              # 功能模組（按功能組織）
+    │   │   ├── users/
+    │   │   │   ├── user.model.ts
+    │   │   │   ├── user.service.ts
+    │   │   │   ├── user.controller.ts
+    │   │   │   ├── user.routes.ts
+    │   │   │   └── user.test.ts
+    │   │   └── products/
+    │   ├── shared/               # 共用工具和類型
+    │   │   ├── middleware/
+    │   │   ├── utils/
+    │   │   └── types/
+    │   └── infrastructure/       # 外部服務整合
+    │       ├── database/
+    │       └── cache/
+    ├── tests/                    # 整合/E2E 測試
+    │   ├── integration/
+    │   └── e2e/
+    ├── scripts/                  # 建置/部署腳本
+    ├── docs/                     # 文件
+    ├── package.json
+    ├── tsconfig.json
+    ├── .env.example
+    └── README.md
+
+conventions:
+  naming:
+    files: kebab-case.ts
+    directories: kebab-case
+    classes: PascalCase
+    functions: camelCase
+    constants: UPPER_SNAKE_CASE
+
+  file_suffixes:
+    - ".model.ts"
+    - ".service.ts"
+    - ".controller.ts"
+    - ".routes.ts"
+    - ".test.ts"
+    - ".dto.ts"
+    - ".middleware.ts"
+
+rules:
+  - id: feature-folders
+    trigger: 組織原始碼時
+    instruction: 使用功能資料夾而非技術資料夾
+    priority: required
+    examples:
+      good: |
+        src/modules/users/
+          user.model.ts
+          user.service.ts
+      bad: |
+        src/models/user.ts
+        src/services/user.ts
+
+  - id: index-exports
+    trigger: 建立模組時
+    instruction: 使用 index.ts 匯出公開 API
+    priority: recommended
+
+  - id: colocation
+    trigger: 放置測試時
+    instruction: 單元測試與原始碼放一起
+    priority: recommended
+
+package_json:
+  required_scripts:
+    - "start": 執行應用程式
+    - "dev": 開發模式（熱重載）
+    - "build": 編譯 TypeScript
+    - "test": 執行測試
+    - "lint": 執行 linter
+
+example_module: |
+  // src/modules/users/index.ts
+  export { User } from './user.model';
+  export { UserService } from './user.service';
+  export { userRoutes } from './user.routes';
+
+  // 使用方式
+  import { User, UserService } from '@/modules/users';

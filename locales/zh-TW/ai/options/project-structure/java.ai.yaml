@@ -1,0 +1,113 @@
+# Java 專案結構 - AI 優化選項
+# 父項: project-structure
+
+id: java
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Java/Spring Boot 專案的標準目錄結構
+  language: zh-TW
+
+structure:
+  template: |
+    project-root/
+    ├── src/
+    │   ├── main/
+    │   │   ├── java/
+    │   │   │   └── com/company/project/
+    │   │   │       ├── Application.java          # 進入點
+    │   │   │       ├── config/                   # 設定類別
+    │   │   │       │   ├── SecurityConfig.java
+    │   │   │       │   └── WebConfig.java
+    │   │   │       ├── modules/                  # 功能模組
+    │   │   │       │   ├── users/
+    │   │   │       │   │   ├── User.java         # 實體
+    │   │   │       │   │   ├── UserController.java
+    │   │   │       │   │   ├── UserService.java
+    │   │   │       │   │   ├── UserRepository.java
+    │   │   │       │   │   └── dto/
+    │   │   │       │   └── products/
+    │   │   │       ├── shared/                   # 共用程式碼
+    │   │   │       │   ├── exception/
+    │   │   │       │   └── util/
+    │   │   │       └── infrastructure/           # 外部整合
+    │   │   └── resources/
+    │   │       ├── application.yml
+    │   │       ├── application-dev.yml
+    │   │       └── application-prod.yml
+    │   └── test/
+    │       └── java/
+    │           └── com/company/project/
+    ├── docs/
+    ├── scripts/
+    ├── pom.xml                    # Maven
+    ├── build.gradle               # 或 Gradle
+    └── README.md
+
+layers:
+  spring_boot:
+    - name: Controller
+      annotation: "@RestController"
+      responsibility: HTTP 端點
+    - name: Service
+      annotation: "@Service"
+      responsibility: 業務邏輯
+    - name: Repository
+      annotation: "@Repository"
+      responsibility: 資料存取
+    - name: Entity
+      annotation: "@Entity"
+      responsibility: 資料庫模型
+
+conventions:
+  naming:
+    files: PascalCase.java
+    packages: lowercase
+    classes: PascalCase
+    interfaces: PascalCase（不用 I 前綴）
+    methods: camelCase
+    constants: UPPER_SNAKE_CASE
+
+  package_naming:
+    pattern: com.company.project.module.layer
+    example: com.example.shop.users.service
+
+rules:
+  - id: package-by-feature
+    trigger: 組織套件時
+    instruction: 使用功能套件而非層級套件
+    priority: recommended
+    examples:
+      good: com.example.shop.users
+      bad: com.example.shop.services
+
+  - id: dto-separation
+    trigger: 定義 API 模型時
+    instruction: 使用 DTO 類別，不要直接暴露實體
+    priority: required
+
+  - id: constructor-injection
+    trigger: 注入相依性時
+    instruction: 優先使用建構子注入而非欄位注入
+    priority: required
+
+spring_annotations:
+  - "@SpringBootApplication": 主要應用程式類別
+  - "@RestController": REST API 控制器
+  - "@Service": 業務邏輯服務
+  - "@Repository": 資料存取層
+  - "@Configuration": 設定類別
+  - "@Autowired": 相依性注入
+
+tools:
+  build:
+    - Maven
+    - Gradle（推薦）
+  testing:
+    - JUnit 5
+    - Mockito
+    - Spring Boot Test
+  quality:
+    - Checkstyle
+    - SpotBugs
+    - SonarQube

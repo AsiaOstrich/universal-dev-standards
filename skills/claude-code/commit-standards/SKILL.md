@@ -62,6 +62,15 @@ For complete standards, see:
 - [Conventional Commits Guide](./conventional-commits.md)
 - [Language Options](./language-options.md)
 
+### AI-Optimized Format (Token-Efficient)
+
+For AI assistants, use the YAML format files for reduced token usage:
+- Base standard: `ai/standards/commit-message.ai.yaml`
+- Language options:
+  - English: `ai/options/commit-message/english.ai.yaml`
+  - Traditional Chinese: `ai/options/commit-message/traditional-chinese.ai.yaml`
+  - Bilingual: `ai/options/commit-message/bilingual.ai.yaml`
+
 ## Examples
 
 ### ✅ Good Examples

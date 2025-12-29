@@ -2,6 +2,198 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 
 /**
+ * Prompt for output format (AI or Human-readable)
+ * @returns {Promise<string>} 'ai', 'human', or 'both'
+ */
+export async function promptFormat() {
+  const { format } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'format',
+      message: 'Select standards format:',
+      choices: [
+        {
+          name: `${chalk.green('AI-Optimized')} ${chalk.gray('(推薦)')} - Token-efficient YAML for AI assistants`,
+          value: 'ai'
+        },
+        {
+          name: `${chalk.blue('Human-Readable')} - Full Markdown documentation`,
+          value: 'human'
+        },
+        {
+          name: `${chalk.yellow('Both')} - Include both formats`,
+          value: 'both'
+        }
+      ],
+      default: 'ai'
+    }
+  ]);
+
+  return format;
+}
+
+/**
+ * Prompt for Git workflow strategy
+ * @returns {Promise<string>} Selected workflow ID
+ */
+export async function promptGitWorkflow() {
+  const { workflow } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'workflow',
+      message: 'Select Git branching strategy:',
+      choices: [
+        {
+          name: `${chalk.green('GitHub Flow')} ${chalk.gray('(推薦)')} - Simple, continuous deployment`,
+          value: 'github-flow'
+        },
+        {
+          name: `${chalk.blue('GitFlow')} - Structured releases with develop/release branches`,
+          value: 'gitflow'
+        },
+        {
+          name: `${chalk.yellow('Trunk-Based')} - Direct commits to main, feature flags`,
+          value: 'trunk-based'
+        }
+      ],
+      default: 'github-flow'
+    }
+  ]);
+
+  return workflow;
+}
+
+/**
+ * Prompt for merge strategy
+ * @returns {Promise<string>} Selected merge strategy ID
+ */
+export async function promptMergeStrategy() {
+  const { strategy } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'strategy',
+      message: 'Select merge strategy:',
+      choices: [
+        {
+          name: `${chalk.green('Squash Merge')} ${chalk.gray('(推薦)')} - Clean history, one commit per PR`,
+          value: 'squash'
+        },
+        {
+          name: `${chalk.blue('Merge Commit')} - Preserve full branch history`,
+          value: 'merge-commit'
+        },
+        {
+          name: `${chalk.yellow('Rebase + Fast-Forward')} - Linear history, advanced`,
+          value: 'rebase-ff'
+        }
+      ],
+      default: 'squash'
+    }
+  ]);
+
+  return strategy;
+}
+
+/**
+ * Prompt for commit message language
+ * @returns {Promise<string>} Selected language ID
+ */
+export async function promptCommitLanguage() {
+  const { language } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'language',
+      message: 'Select commit message language:',
+      choices: [
+        {
+          name: `${chalk.green('English')} ${chalk.gray('(推薦)')} - Standard international format`,
+          value: 'english'
+        },
+        {
+          name: `${chalk.blue('Traditional Chinese')} ${chalk.gray('(繁體中文)')} - For Chinese-speaking teams`,
+          value: 'traditional-chinese'
+        },
+        {
+          name: `${chalk.yellow('Bilingual')} ${chalk.gray('(雙語)')} - Both English and Chinese`,
+          value: 'bilingual'
+        }
+      ],
+      default: 'english'
+    }
+  ]);
+
+  return language;
+}
+
+/**
+ * Prompt for test levels to include
+ * @returns {Promise<string[]>} Selected test level IDs
+ */
+export async function promptTestLevels() {
+  const { levels } = await inquirer.prompt([
+    {
+      type: 'checkbox',
+      name: 'levels',
+      message: 'Select test levels to include:',
+      choices: [
+        {
+          name: `Unit Testing ${chalk.gray('(70% pyramid base)')}`,
+          value: 'unit-testing',
+          checked: true
+        },
+        {
+          name: `Integration Testing ${chalk.gray('(20%)')}`,
+          value: 'integration-testing',
+          checked: true
+        },
+        {
+          name: `System Testing ${chalk.gray('(7%)')}`,
+          value: 'system-testing',
+          checked: false
+        },
+        {
+          name: `E2E Testing ${chalk.gray('(3% pyramid top)')}`,
+          value: 'e2e-testing',
+          checked: false
+        }
+      ]
+    }
+  ]);
+
+  return levels;
+}
+
+/**
+ * Prompt for all standard options
+ * @param {number} level - Adoption level
+ * @returns {Promise<Object>} Selected options
+ */
+export async function promptStandardOptions(level) {
+  const options = {};
+
+  console.log();
+  console.log(chalk.cyan('Standard Options:'));
+  console.log(chalk.gray('  Configure your preferred options for each standard'));
+  console.log();
+
+  // Git workflow options (level 2+)
+  if (level >= 2) {
+    options.workflow = await promptGitWorkflow();
+    options.merge_strategy = await promptMergeStrategy();
+  }
+
+  // Commit message options (level 1+)
+  options.commit_language = await promptCommitLanguage();
+
+  // Testing options (level 2+)
+  if (level >= 2) {
+    options.test_levels = await promptTestLevels();
+  }
+
+  return options;
+}
+
+/**
  * Prompt for installation mode
  * @returns {Promise<string>} 'skills' or 'full'
  */

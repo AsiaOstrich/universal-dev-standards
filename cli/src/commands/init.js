@@ -3,7 +3,10 @@ import ora from 'ora';
 import {
   getStandardsByLevel,
   getRepositoryInfo,
-  getSkillFiles
+  getSkillFiles,
+  getStandardSource,
+  getOptionSource,
+  findOption
 } from '../utils/registry.js';
 import { detectAll } from '../utils/detector.js';
 import {
@@ -26,7 +29,9 @@ import {
   promptFramework,
   promptLocale,
   promptIntegrations,
-  promptConfirm
+  promptConfirm,
+  promptFormat,
+  promptStandardOptions
 } from '../prompts/init.js';
 
 // Integration file mappings
@@ -110,6 +115,8 @@ export async function initCommand(options) {
   let integrations = [];
   let installMode = options.mode || null; // 'skills' or 'full'
   let skillsAction = null; // 'upgrade', 'keep', 'reinstall', or null (fresh install)
+  let format = options.format || null; // 'ai', 'human', or 'both'
+  let standardOptions = {}; // Selected options for configurable standards
 
   if (!options.yes) {
     // Interactive mode
@@ -139,30 +146,47 @@ export async function initCommand(options) {
       level = await promptLevel();
     }
 
-    // Step 4: Language extensions
+    // Step 4: Standards format (AI or Human)
+    if (!format) {
+      format = await promptFormat();
+    }
+
+    // Step 5: Standard options (workflow, commit language, etc.)
+    standardOptions = await promptStandardOptions(level);
+
+    // Step 6: Language extensions
     if (!languages) {
       languages = await promptLanguage(detected.languages) || [];
     }
 
-    // Step 5: Framework extensions
+    // Step 7: Framework extensions
     if (!frameworks) {
       frameworks = await promptFramework(detected.frameworks) || [];
     }
 
-    // Step 6: Locale
+    // Step 8: Locale
     if (!locale) {
       locale = await promptLocale();
     }
 
-    // Step 7: AI tool integrations
+    // Step 9: AI tool integrations
     integrations = await promptIntegrations(detected.aiTools);
   } else {
     // Non-interactive mode with defaults
     installMode = installMode || 'skills';
     level = level || 2;
+    format = format || 'ai';
     languages = languages || Object.keys(detected.languages).filter(k => detected.languages[k]);
     frameworks = frameworks || Object.keys(detected.frameworks).filter(k => detected.frameworks[k]);
     integrations = Object.keys(detected.aiTools).filter(k => detected.aiTools[k]);
+
+    // Default standard options
+    standardOptions = {
+      workflow: options.workflow || 'github-flow',
+      merge_strategy: options.mergeStrategy || 'squash',
+      commit_language: options.commitLang || 'english',
+      test_levels: options.testLevels ? options.testLevels.split(',') : ['unit-testing', 'integration-testing']
+    };
 
     // Auto-determine skills action
     if (installMode === 'skills') {
@@ -175,6 +199,7 @@ export async function initCommand(options) {
   console.log(chalk.cyan('Configuration Summary:'));
   console.log(chalk.gray(`  Mode: ${installMode === 'skills' ? 'Skills Mode' : 'Full Mode'}`));
   console.log(chalk.gray(`  Level: ${level}`));
+  console.log(chalk.gray(`  Format: ${format === 'ai' ? 'AI-Optimized' : format === 'human' ? 'Human-Readable' : 'Both'}`));
   console.log(chalk.gray(`  Languages: ${languages.length > 0 ? languages.join(', ') : 'none'}`));
   console.log(chalk.gray(`  Frameworks: ${frameworks.length > 0 ? frameworks.join(', ') : 'none'}`));
   console.log(chalk.gray(`  Locale: ${locale || 'default (English)'}`));
@@ -184,6 +209,19 @@ export async function initCommand(options) {
                          skillsAction === 'upgrade' ? 'upgrade' :
                          skillsAction === 'reinstall' ? 'reinstall' : 'install';
     console.log(chalk.gray(`  Skills: ${skillsStatus}`));
+  }
+  // Show selected standard options
+  if (standardOptions.workflow) {
+    console.log(chalk.gray(`  Git Workflow: ${standardOptions.workflow}`));
+  }
+  if (standardOptions.merge_strategy) {
+    console.log(chalk.gray(`  Merge Strategy: ${standardOptions.merge_strategy}`));
+  }
+  if (standardOptions.commit_language) {
+    console.log(chalk.gray(`  Commit Language: ${standardOptions.commit_language}`));
+  }
+  if (standardOptions.test_levels && standardOptions.test_levels.length > 0) {
+    console.log(chalk.gray(`  Test Levels: ${standardOptions.test_levels.join(', ')}`));
   }
   console.log();
 
@@ -216,12 +254,72 @@ export async function initCommand(options) {
     ? standards.filter(s => s.category === 'reference')
     : standards.filter(s => s.category === 'reference' || s.category === 'skill');
 
+  // Helper to copy standard with format awareness
+  const copyStandardWithFormat = async (std, targetFormat) => {
+    const sourcePath = getStandardSource(std, targetFormat);
+    const result = await copyStandard(sourcePath, '.standards', projectPath);
+    return { ...result, sourcePath };
+  };
+
+  // Helper to copy option files
+  const copyOptionFiles = async (std, optionCategory, selectedOptionIds, targetFormat) => {
+    const copiedOptions = [];
+    if (!std.options || !std.options[optionCategory]) return copiedOptions;
+
+    const optionIds = Array.isArray(selectedOptionIds) ? selectedOptionIds : [selectedOptionIds];
+    for (const optionId of optionIds) {
+      const option = findOption(std, optionCategory, optionId);
+      if (option) {
+        const sourcePath = getOptionSource(option, targetFormat);
+        const result = await copyStandard(sourcePath, '.standards/options', projectPath);
+        if (result.success) {
+          copiedOptions.push(sourcePath);
+        } else {
+          results.errors.push(`${sourcePath}: ${result.error}`);
+        }
+      }
+    }
+    return copiedOptions;
+  };
+
+  // Copy standards based on format
+  const formatsToUse = format === 'both' ? ['ai', 'human'] : [format];
+
   for (const std of standardsToCopy) {
-    const result = await copyStandard(std.source, '.standards', projectPath);
-    if (result.success) {
-      results.standards.push(std.source);
-    } else {
-      results.errors.push(`${std.source}: ${result.error}`);
+    for (const targetFormat of formatsToUse) {
+      const { success, sourcePath, error } = await copyStandardWithFormat(std, targetFormat);
+      if (success) {
+        results.standards.push(sourcePath);
+      } else {
+        results.errors.push(`${sourcePath}: ${error}`);
+      }
+    }
+
+    // Copy selected options for this standard
+    if (std.options) {
+      for (const targetFormat of formatsToUse) {
+        // Git workflow options
+        if (std.id === 'git-workflow') {
+          if (standardOptions.workflow) {
+            const copied = await copyOptionFiles(std, 'workflow', standardOptions.workflow, targetFormat);
+            results.standards.push(...copied);
+          }
+          if (standardOptions.merge_strategy) {
+            const copied = await copyOptionFiles(std, 'merge_strategy', standardOptions.merge_strategy, targetFormat);
+            results.standards.push(...copied);
+          }
+        }
+        // Commit message options
+        if (std.id === 'commit-message' && standardOptions.commit_language) {
+          const copied = await copyOptionFiles(std, 'commit_language', standardOptions.commit_language, targetFormat);
+          results.standards.push(...copied);
+        }
+        // Testing options
+        if (std.id === 'testing' && standardOptions.test_levels) {
+          const copied = await copyOptionFiles(std, 'test_level', standardOptions.test_levels, targetFormat);
+          results.standards.push(...copied);
+        }
+      }
     }
   }
 
@@ -319,7 +417,7 @@ export async function initCommand(options) {
   // Create manifest
   const repoInfo = getRepositoryInfo();
   const manifest = {
-    version: '1.0.0',
+    version: '2.0.0',
     upstream: {
       repo: 'AsiaOstrich/universal-dev-standards',
       version: repoInfo.standards.version,
@@ -327,9 +425,16 @@ export async function initCommand(options) {
     },
     level,
     installMode,
+    format,
     standards: results.standards,
     extensions: results.extensions,
     integrations: results.integrations,
+    options: {
+      workflow: standardOptions.workflow || null,
+      merge_strategy: standardOptions.merge_strategy || null,
+      commit_language: standardOptions.commit_language || null,
+      test_levels: standardOptions.test_levels || []
+    },
     skills: {
       installed: installMode === 'skills',
       action: skillsAction,

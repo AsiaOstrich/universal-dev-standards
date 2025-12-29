@@ -1,0 +1,85 @@
+# 壓縮合併 - AI 優化選項
+# 父項: git-workflow
+
+id: squash-merge
+meta:
+  parent: git-workflow
+  version: "1.0.0"
+  description: 將所有分支提交壓縮為單一提交
+  language: zh-TW
+
+best_for:
+  - 乾淨線性歷史
+  - 功能分支工作流程
+  - 每 PR 一個提交的偏好
+
+characteristics:
+  history: 線性
+  commit_count: 每 PR 一個提交
+  reversibility: 簡單還原
+  bisect_friendly: 中等
+
+rules:
+  - id: meaningful-squash-message
+    trigger: 壓縮合併時
+    instruction: 撰寫完整的提交訊息總結所有變更
+    priority: required
+
+  - id: pr-title-as-commit
+    trigger: 合併 PR 時
+    instruction: 使用 PR 標題作為壓縮提交的主旨
+    priority: recommended
+
+  - id: include-pr-reference
+    trigger: 撰寫壓縮訊息時
+    instruction: 在提交訊息中包含 PR 編號
+    priority: recommended
+
+workflow:
+  - step: 建立功能分支
+    commands:
+      - git checkout main
+      - git checkout -b feature/{功能名稱}
+
+  - step: 進行多次提交
+    commands:
+      - git commit -m "wip: initial implementation"
+      - git commit -m "wip: add tests"
+      - git commit -m "wip: fix lint errors"
+
+  - step: 壓縮合併（通過 GitHub/GitLab）
+    commands:
+      - "# 在 GitHub/GitLab 中合併時選擇 'Squash and merge'"
+      - "# 結果：所有提交壓縮為一個"
+
+  - step: 或使用命令列
+    commands:
+      - git checkout main
+      - git merge --squash feature/{功能名稱}
+      - git commit -m "feat(scope): 總結訊息 (#PR號)"
+
+example:
+  before: |
+    * abc1234 wip: fix lint
+    * def5678 wip: add tests
+    * ghi9012 wip: initial
+  after: |
+    * xyz7890 feat(auth): implement OAuth login (#123)
+
+pros:
+  - 乾淨、可讀的歷史
+  - 簡單還原功能
+  - 每個功能一個提交
+
+cons:
+  - 失去詳細提交歷史
+  - 較難追蹤個別變更
+  - 在 bisect 偵錯時可能較困難
+
+quick_reference:
+  commands:
+    columns: [操作, 指令]
+    rows:
+      - [壓縮合併, "git merge --squash branch"]
+      - [還原壓縮提交, "git revert <commit>"]
+      - [查看線性歷史, "git log --oneline"]

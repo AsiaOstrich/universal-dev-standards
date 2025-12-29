@@ -1,0 +1,84 @@
+# 整合測試 - AI 優化選項
+# 父項: testing
+
+id: integration-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: 測試元件之間的互動
+  language: zh-TW
+
+characteristics:
+  scope: 多個元件一起運作
+  speed: "<1 秒每個測試"
+  isolation: 部分隔離（可能使用真實相依性）
+  pyramid_percentage: 20%
+
+rules:
+  - id: test-integration-points
+    trigger: 撰寫整合測試時
+    instruction: 專注於元件之間的邊界
+    priority: required
+
+  - id: use-real-dependencies
+    trigger: 設定整合測試時
+    instruction: 盡可能使用真實實作，外部服務使用測試替身
+    priority: recommended
+
+  - id: test-data-management
+    trigger: 設定測試資料時
+    instruction: 使用 fixtures 或 factories，測試後清理
+    priority: required
+
+  - id: database-isolation
+    trigger: 測試資料庫時
+    instruction: 使用測試資料庫，測試之間回滾或清空
+    priority: required
+
+when_to_write:
+  - 測試 API 端點
+  - 測試資料庫操作
+  - 測試服務互動
+  - 測試訊息佇列
+  - 測試快取行為
+
+integration_points:
+  - name: 資料庫
+    approach: 使用 Testcontainers 或記憶體資料庫的測試資料庫
+    example: |
+      const db = await TestcontainersDb.start();
+      const repo = new UserRepository(db);
+      await repo.save(user);
+      const found = await repo.findById(user.id);
+      expect(found).toEqual(user);
+
+  - name: HTTP API
+    approach: 使用真實 HTTP 客戶端，模擬外部服務
+    example: |
+      const response = await request(app)
+        .post('/api/users')
+        .send({ name: 'Test User' });
+      expect(response.status).toBe(201);
+
+  - name: 訊息佇列
+    approach: 使用嵌入式佇列或 Testcontainers
+    example: |
+      await publisher.send('user.created', event);
+      const received = await consumer.receive();
+      expect(received.payload).toEqual(event);
+
+tools:
+  database:
+    - Testcontainers
+    - Docker Compose
+    - 記憶體資料庫 (H2, SQLite)
+  http:
+    - Supertest (Node.js)
+    - RestAssured (Java)
+    - requests (Python)
+  mocking:
+    - WireMock
+    - MockServer
+    - nock (Node.js)
+
+coverage_target: "關鍵路徑和整合點"

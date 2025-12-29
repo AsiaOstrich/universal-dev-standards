@@ -1,0 +1,107 @@
+# Testing Standards - AI Optimized
+# Source: core/testing-standards.md
+
+id: testing
+meta:
+  version: "1.0.0"
+  updated: "2025-12-26"
+  source: core/testing-standards.md
+  description: Testing pyramid and recommended coverage ratios
+
+pyramid:
+  ratio: "70/20/7/3"
+  levels:
+    - name: Unit Tests (UT)
+      percentage: 70
+      scope: Single function/method
+      speed: Very fast (<100ms)
+    - name: Integration Tests (IT)
+      percentage: 20
+      scope: Multiple components
+      speed: Fast (<1s)
+    - name: System Tests (ST)
+      percentage: 7
+      scope: Full system
+      speed: Medium (<10s)
+    - name: E2E Tests
+      percentage: 3
+      scope: User flows
+      speed: Slow (>10s)
+
+options:
+  test_level:
+    multiSelect: true
+    choices:
+      - id: unit-testing
+        file: options/testing/unit-testing.ai.yaml
+      - id: integration-testing
+        file: options/testing/integration-testing.ai.yaml
+      - id: system-testing
+        file: options/testing/system-testing.ai.yaml
+      - id: e2e-testing
+        file: options/testing/e2e-testing.ai.yaml
+
+rules:
+  - id: follow-pyramid
+    trigger: planning test strategy
+    instruction: Follow 70/20/7/3 ratio for UT/IT/ST/E2E
+    priority: required
+
+  - id: first-principles
+    trigger: writing tests
+    instruction: Follow FIRST principles (Fast, Independent, Repeatable, Self-validating, Timely)
+    priority: required
+
+  - id: arrange-act-assert
+    trigger: structuring test
+    instruction: Use Arrange-Act-Assert pattern
+    priority: required
+
+  - id: meaningful-names
+    trigger: naming tests
+    instruction: Use descriptive test names that explain what is being tested
+    priority: required
+    examples:
+      good:
+        - "should_return_user_when_valid_id_provided"
+        - "test_login_fails_with_invalid_credentials"
+      bad:
+        - "test1"
+        - "testLogin"
+
+  - id: test-boundaries
+    trigger: choosing what to test
+    instruction: Focus on boundary conditions and edge cases
+    priority: recommended
+
+  - id: avoid-test-doubles-overuse
+    trigger: using mocks/stubs
+    instruction: Use test doubles sparingly; prefer real implementations when fast enough
+    priority: recommended
+
+quick_reference:
+  test_pyramid:
+    columns: [Level, Percentage, Scope, Speed]
+    rows:
+      - [Unit, 70%, Single function, <100ms]
+      - [Integration, 20%, Multiple components, <1s]
+      - [System, 7%, Full system, <10s]
+      - [E2E, 3%, User flows, ">10s"]
+
+  first_principles:
+    columns: [Principle, Description]
+    rows:
+      - [Fast, Tests run quickly]
+      - [Independent, No dependencies between tests]
+      - [Repeatable, Same result every time]
+      - [Self-validating, Pass/fail without manual inspection]
+      - [Timely, Written before or with code]
+
+  test_doubles:
+    columns: [Type, Purpose, When to Use]
+    rows:
+      - [Stub, Return canned responses, Simple dependencies]
+      - [Mock, Verify interactions, Complex dependencies]
+      - [Fake, Working implementation, Database/external service]
+      - [Spy, Record calls, Verify behavior]
+      - [Dummy, Fill parameters, Unused parameters]

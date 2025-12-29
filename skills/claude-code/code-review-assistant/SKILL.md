@@ -60,6 +60,11 @@ For complete standards, see:
 - [Review Checklist](./review-checklist.md)
 - [Pre-Commit Checklist](./checkin-checklist.md)
 
+### AI-Optimized Format (Token-Efficient)
+
+For AI assistants, use the YAML format file for reduced token usage:
+- Base standard: `ai/standards/code-review.ai.yaml`
+
 ## Example Review Comments
 
 ```markdown

@@ -1,0 +1,105 @@
+# 雙語提交格式 - AI 優化選項
+# 父項: commit-message
+
+id: bilingual
+meta:
+  parent: commit-message
+  version: "1.0.0"
+  description: 混合團隊的雙語格式
+  language: zh-TW
+
+best_for:
+  - 有本地重點的混合團隊
+  - 國際協作專案
+  - 維持工具相容性同時支援中文讀者
+
+format:
+  template: |
+    <type>(<scope>): <English subject>. <Chinese subject>.
+
+    <English body>
+
+    <Chinese body>
+
+    <footer>
+  note: 類型和範圍使用英文以確保工具相容性
+
+types:
+  - type: feat
+    description_en: New feature
+    description_zh: 新功能
+
+  - type: fix
+    description_en: Bug fix
+    description_zh: 錯誤修正
+
+  - type: refactor
+    description_en: Code refactoring
+    description_zh: 程式碼重構
+
+  - type: docs
+    description_en: Documentation
+    description_zh: 文件更新
+
+  - type: style
+    description_en: Formatting
+    description_zh: 格式調整
+
+  - type: test
+    description_en: Tests
+    description_zh: 測試
+
+  - type: perf
+    description_en: Performance
+    description_zh: 效能改善
+
+  - type: build
+    description_en: Build system
+    description_zh: 建置系統
+
+  - type: ci
+    description_en: CI/CD
+    description_zh: 持續整合
+
+  - type: chore
+    description_en: Maintenance
+    description_zh: 維護任務
+
+  - type: security
+    description_en: Security fix
+    description_zh: 安全修正
+
+rules:
+  - id: english-type-scope
+    trigger: 撰寫提交標頭時
+    instruction: 類型和範圍使用英文（工具相容性）
+    priority: required
+
+  - id: bilingual-subject
+    trigger: 撰寫主旨時
+    instruction: 包含英文和中文主旨，以句號分隔
+    priority: required
+
+  - id: bilingual-body
+    trigger: 撰寫內文時
+    instruction: 以雙語撰寫內文，英文優先
+    priority: recommended
+
+examples:
+  simple: "feat(auth): Add login form. 新增登入表單."
+  with_body: |
+    feat(auth): Add OAuth2 Google login support. 新增 OAuth2 Google 登入支援.
+
+    Implement Google OAuth2 authentication flow for user login.
+
+    - Add Google OAuth2 SDK integration
+    - Create callback endpoint for OAuth flow
+    - Store refresh tokens securely
+
+    實作 Google OAuth2 認證流程供使用者登入。
+
+    - 整合 Google OAuth2 SDK
+    - 建立 OAuth 流程回呼端點
+    - 安全儲存更新權杖
+
+    Closes #123

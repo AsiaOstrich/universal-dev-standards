@@ -1,0 +1,113 @@
+# End-to-End Testing - AI Optimized Option
+# Parent: testing
+
+id: e2e-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: Testing complete user flows through the application
+
+characteristics:
+  scope: Complete user journey
+  speed: ">10 seconds per test"
+  isolation: None (real browser/client)
+  pyramid_percentage: 3%
+
+rules:
+  - id: test-user-journeys
+    trigger: writing E2E test
+    instruction: Focus on complete user workflows, not individual features
+    priority: required
+
+  - id: minimize-e2e-tests
+    trigger: planning E2E tests
+    instruction: Keep E2E tests minimal; prefer lower-level tests
+    priority: required
+
+  - id: stable-selectors
+    trigger: selecting UI elements
+    instruction: Use data-testid attributes instead of CSS selectors
+    priority: required
+    examples:
+      good:
+        - "[data-testid='login-button']"
+        - "[data-testid='user-name']"
+      bad:
+        - ".btn.btn-primary"
+        - "#main > div > button"
+
+  - id: handle-flakiness
+    trigger: dealing with flaky tests
+    instruction: Use proper waits, retry on failure, isolate problematic tests
+    priority: required
+
+when_to_write:
+  - Critical user journeys (login, checkout, signup)
+  - Smoke tests for deployments
+  - Cross-browser compatibility
+  - Accessibility testing
+
+user_journeys:
+  - name: User Registration
+    steps:
+      - Navigate to registration page
+      - Fill in form fields
+      - Submit form
+      - Verify confirmation email
+      - Complete email verification
+
+  - name: Purchase Flow
+    steps:
+      - Browse products
+      - Add to cart
+      - Proceed to checkout
+      - Enter payment details
+      - Complete purchase
+      - Verify order confirmation
+
+best_practices:
+  - id: page-object-pattern
+    description: Encapsulate page interactions in page objects
+    example: |
+      class LoginPage {
+        async login(email, password) {
+          await this.page.fill('[data-testid="email"]', email);
+          await this.page.fill('[data-testid="password"]', password);
+          await this.page.click('[data-testid="login-button"]');
+        }
+      }
+
+  - id: test-data-isolation
+    description: Each test should create its own test data
+    example: |
+      test('user can checkout', async () => {
+        const user = await createTestUser();
+        const product = await createTestProduct();
+        // ... test steps
+      });
+
+  - id: parallel-execution
+    description: Run E2E tests in parallel to reduce execution time
+
+tools:
+  browser_automation:
+    - name: Playwright
+      recommended: true
+      strengths: [Fast, reliable, cross-browser, auto-wait]
+    - name: Cypress
+      strengths: [Developer experience, debugging]
+    - name: Selenium
+      strengths: [Language support, legacy systems]
+
+  visual_testing:
+    - Percy
+    - Chromatic
+    - Applitools
+
+coverage_target: "3-5 critical user journeys"
+
+anti_patterns:
+  - Testing every feature with E2E (use unit/integration instead)
+  - Using arbitrary sleeps instead of proper waits
+  - Relying on CSS selectors that change frequently
+  - Running E2E tests synchronously

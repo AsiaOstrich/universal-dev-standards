@@ -45,6 +45,13 @@ For complete standards, see:
 - [Documentation Structure](./documentation-structure.md)
 - [README Template](./readme-template.md)
 
+### AI-Optimized Format (Token-Efficient)
+
+For AI assistants, use the YAML format files for reduced token usage:
+- Documentation Structure: `ai/standards/documentation-structure.ai.yaml`
+- Changelog: `ai/standards/changelog.ai.yaml`
+- Project Structure: `ai/standards/project-structure.ai.yaml`
+
 ## README.md Required Sections
 
 ### Minimum Viable README

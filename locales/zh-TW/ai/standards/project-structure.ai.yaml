@@ -1,0 +1,105 @@
+# 專案結構標準 - AI 優化版
+# 來源: core/project-structure.md
+
+id: project-structure
+meta:
+  version: "1.0.0"
+  updated: "2025-12-26"
+  source: core/project-structure.md
+  description: 原始碼組織的標準目錄結構
+  language: zh-TW
+
+options:
+  project_language:
+    default: null
+    choices:
+      - id: dotnet
+        file: options/project-structure/dotnet.ai.yaml
+      - id: nodejs
+        file: options/project-structure/nodejs.ai.yaml
+      - id: python
+        file: options/project-structure/python.ai.yaml
+      - id: java
+        file: options/project-structure/java.ai.yaml
+      - id: go
+        file: options/project-structure/go.ai.yaml
+
+common_directories:
+  - name: src/
+    purpose: 主要原始碼
+    alternatives: [lib/, app/]
+
+  - name: tests/
+    purpose: 測試檔案
+    alternatives: [test/, __tests__/]
+
+  - name: docs/
+    purpose: 文件
+    alternatives: [documentation/]
+
+  - name: scripts/
+    purpose: 建置和維護腳本
+    alternatives: [tools/, bin/]
+
+  - name: config/
+    purpose: 設定檔
+    alternatives: [conf/, settings/]
+
+rules:
+  - id: separation-of-concerns
+    trigger: 組織專案結構時
+    instruction: 按功能而非類型分離程式碼
+    priority: required
+    examples:
+      good: |
+        src/
+          users/
+            user.model.js
+            user.service.js
+            user.controller.js
+      bad: |
+        src/
+          models/
+            user.model.js
+          services/
+            user.service.js
+
+  - id: consistent-naming
+    trigger: 命名目錄時
+    instruction: 整個專案使用一致的命名慣例
+    priority: required
+
+  - id: flat-over-nested
+    trigger: 建立目錄結構時
+    instruction: 優先使用扁平結構，避免過深巢狀（最多 3-4 層）
+    priority: recommended
+
+  - id: index-files
+    trigger: 建立模組時
+    instruction: 使用 index 檔案匯出公開 API
+    priority: recommended
+
+general_structure:
+  template: |
+    project-root/
+    ├── src/                 # 主要原始碼
+    │   ├── index.js         # 進入點
+    │   └── modules/         # 功能模組
+    ├── tests/               # 測試檔案
+    ├── docs/                # 文件
+    ├── scripts/             # 建置腳本
+    ├── config/              # 設定檔
+    ├── README.md            # 專案說明
+    ├── CHANGELOG.md         # 變更日誌
+    ├── LICENSE              # 授權
+    └── .gitignore           # Git 忽略
+
+quick_reference:
+  common_directories:
+    columns: [目錄, 用途, 替代名稱]
+    rows:
+      - [src/, 主要原始碼, "lib/, app/"]
+      - [tests/, 測試檔案, "test/, __tests__/"]
+      - [docs/, 文件, documentation/]
+      - [scripts/, 建置腳本, "tools/, bin/"]
+      - [config/, 設定檔, "conf/, settings/"]

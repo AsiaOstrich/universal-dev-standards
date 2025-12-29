@@ -1,0 +1,115 @@
+# Go 專案結構 - AI 優化選項
+# 父項: project-structure
+
+id: go
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Go 專案的標準目錄結構
+  language: zh-TW
+
+structure:
+  template: |
+    project-root/
+    ├── cmd/                        # 主要應用程式
+    │   ├── api/
+    │   │   └── main.go             # API 伺服器進入點
+    │   └── worker/
+    │       └── main.go             # 背景 worker 進入點
+    ├── internal/                   # 私有應用程式程式碼
+    │   ├── config/                 # 設定
+    │   │   └── config.go
+    │   ├── handlers/               # HTTP 處理器
+    │   │   └── user_handler.go
+    │   ├── services/               # 業務邏輯
+    │   │   └── user_service.go
+    │   ├── repositories/           # 資料存取
+    │   │   └── user_repository.go
+    │   ├── models/                 # 資料模型
+    │   │   └── user.go
+    │   └── middleware/             # HTTP 中介軟體
+    ├── pkg/                        # 公開函式庫程式碼
+    │   └── utils/
+    ├── api/                        # API 定義
+    │   └── openapi.yaml
+    ├── scripts/                    # 建置/部署腳本
+    ├── docs/                       # 文件
+    ├── go.mod
+    ├── go.sum
+    ├── Makefile
+    └── README.md
+
+directories:
+  - name: cmd/
+    purpose: 應用程式進入點
+    note: 每個子目錄是一個可執行檔
+
+  - name: internal/
+    purpose: 私有程式碼（Go 強制）
+    note: 無法被外部套件導入
+
+  - name: pkg/
+    purpose: 可被外部使用的函式庫程式碼
+    note: 小心使用，僅用於真正可重用的程式碼
+
+conventions:
+  naming:
+    files: snake_case.go
+    packages: 簡短、小寫、單一單字
+    interfaces: 動詞 + "er"（Reader, Writer）
+    structs: 名詞（User, Config）
+    functions: camelCase（exported 用 PascalCase）
+
+  file_organization:
+    - 一個檔案一個主要類型
+    - 測試檔案命名為 *_test.go
+    - 測試與原始碼放一起
+
+rules:
+  - id: flat-structure
+    trigger: 組織套件時
+    instruction: 優先扁平結構，避免過深巢狀
+    priority: recommended
+
+  - id: internal-private
+    trigger: 放置私有程式碼時
+    instruction: 使用 internal/ 保護應用程式程式碼
+    priority: required
+
+  - id: interface-consumers
+    trigger: 定義介面時
+    instruction: 在消費者套件定義介面，而非提供者
+    priority: recommended
+
+  - id: small-interfaces
+    trigger: 設計介面時
+    instruction: 優先使用小介面（1-3 個方法）
+    priority: recommended
+
+makefile:
+  example: |
+    .PHONY: build test run lint
+
+    build:
+    	go build -o bin/api ./cmd/api
+
+    test:
+    	go test ./...
+
+    run:
+    	go run ./cmd/api
+
+    lint:
+    	golangci-lint run
+
+tools:
+  build: go build, Makefile
+  testing:
+    - go test
+    - testify
+  linting:
+    - golangci-lint
+    - staticcheck
+  mocking:
+    - mockgen
+    - mockery

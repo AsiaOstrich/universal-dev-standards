@@ -1,0 +1,83 @@
+# Integration Testing - AI Optimized Option
+# Parent: testing
+
+id: integration-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: Testing interactions between components
+
+characteristics:
+  scope: Multiple components working together
+  speed: "<1 second per test"
+  isolation: Partial (may use real dependencies)
+  pyramid_percentage: 20%
+
+rules:
+  - id: test-integration-points
+    trigger: writing integration test
+    instruction: Focus on boundaries between components
+    priority: required
+
+  - id: use-real-dependencies
+    trigger: setting up integration test
+    instruction: Use real implementations when possible, test doubles for external services
+    priority: recommended
+
+  - id: test-data-management
+    trigger: setting up test data
+    instruction: Use fixtures or factories, clean up after tests
+    priority: required
+
+  - id: database-isolation
+    trigger: testing with database
+    instruction: Use test database, rollback or truncate between tests
+    priority: required
+
+when_to_write:
+  - Testing API endpoints
+  - Testing database operations
+  - Testing service interactions
+  - Testing message queues
+  - Testing cache behavior
+
+integration_points:
+  - name: Database
+    approach: Use test database with Testcontainers or in-memory DB
+    example: |
+      const db = await TestcontainersDb.start();
+      const repo = new UserRepository(db);
+      await repo.save(user);
+      const found = await repo.findById(user.id);
+      expect(found).toEqual(user);
+
+  - name: HTTP API
+    approach: Use real HTTP client, mock external services
+    example: |
+      const response = await request(app)
+        .post('/api/users')
+        .send({ name: 'Test User' });
+      expect(response.status).toBe(201);
+
+  - name: Message Queue
+    approach: Use embedded queue or Testcontainers
+    example: |
+      await publisher.send('user.created', event);
+      const received = await consumer.receive();
+      expect(received.payload).toEqual(event);
+
+tools:
+  database:
+    - Testcontainers
+    - Docker Compose
+    - In-memory databases (H2, SQLite)
+  http:
+    - Supertest (Node.js)
+    - RestAssured (Java)
+    - requests (Python)
+  mocking:
+    - WireMock
+    - MockServer
+    - nock (Node.js)
+
+coverage_target: "Critical paths and integration points"

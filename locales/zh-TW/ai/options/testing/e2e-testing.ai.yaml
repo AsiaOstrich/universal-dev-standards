@@ -1,0 +1,116 @@
+# 端對端測試 - AI 優化選項
+# 父項: testing
+
+id: e2e-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: 從使用者角度測試完整使用者旅程
+  language: zh-TW
+
+characteristics:
+  scope: 完整使用者旅程
+  speed: ">10 秒每個測試（可能更長）"
+  isolation: 無（真實環境）
+  pyramid_percentage: 3%
+
+rules:
+  - id: user-perspective
+    trigger: 設計 E2E 測試時
+    instruction: 從使用者角度撰寫測試，而非技術角度
+    priority: required
+
+  - id: critical-paths-only
+    trigger: 選擇測試案例時
+    instruction: 只測試關鍵使用者旅程
+    priority: required
+
+  - id: stable-selectors
+    trigger: 選擇元素時
+    instruction: 使用穩定的選擇器（data-testid、ARIA 角色）
+    priority: required
+
+  - id: handle-flakiness
+    trigger: 處理測試不穩定時
+    instruction: 實作重試和等待策略
+    priority: required
+
+when_to_write:
+  - 關鍵使用者旅程
+  - 付款流程
+  - 認證流程
+  - 核心業務工作流程
+  - 冒煙測試
+
+critical_user_journeys:
+  - name: 認證
+    steps: [註冊, 登入, 登出]
+  - name: 購買
+    steps: [瀏覽, 加入購物車, 結帳, 付款]
+  - name: 內容管理
+    steps: [建立, 編輯, 刪除, 發布]
+
+best_practices:
+  - name: 使用 Page Object 模式
+    example: |
+      class LoginPage {
+        async login(email, password) {
+          await this.emailInput.fill(email);
+          await this.passwordInput.fill(password);
+          await this.submitButton.click();
+        }
+      }
+
+  - name: 等待策略
+    example: |
+      // 不好：固定等待
+      await page.waitForTimeout(5000);
+
+      // 好：等待條件
+      await page.waitForSelector('[data-testid="success"]');
+
+  - name: 穩定選擇器
+    example: |
+      // 不好：脆弱的選擇器
+      await page.click('.btn.primary.large');
+
+      // 好：穩定的選擇器
+      await page.click('[data-testid="submit-button"]');
+
+tools:
+  browsers:
+    - Playwright（推薦）
+    - Cypress
+    - Selenium
+    - Puppeteer
+  mobile:
+    - Appium
+    - Detox
+    - XCUITest
+  visual:
+    - Percy
+    - Chromatic
+    - BackstopJS
+
+example_test: |
+  test('使用者可以完成購買', async ({ page }) => {
+    // 登入
+    await page.goto('/login');
+    await page.fill('[data-testid="email"]', 'user@example.com');
+    await page.fill('[data-testid="password"]', 'password');
+    await page.click('[data-testid="login-button"]');
+
+    // 加入購物車
+    await page.goto('/products/1');
+    await page.click('[data-testid="add-to-cart"]');
+
+    // 結帳
+    await page.goto('/cart');
+    await page.click('[data-testid="checkout"]');
+
+    // 驗證成功
+    await expect(page.locator('[data-testid="order-confirmation"]'))
+      .toBeVisible();
+  });
+
+coverage_target: "關鍵使用者旅程（前 3-5 個）"

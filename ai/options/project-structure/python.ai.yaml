@@ -1,0 +1,95 @@
+# Python Project Structure - AI Optimized Option
+# Parent: project-structure
+
+id: python
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Python project conventions
+
+structure:
+  standard: |
+    project-root/
+    ├── src/
+    │   └── package_name/
+    │       ├── __init__.py
+    │       ├── main.py
+    │       ├── models/
+    │       ├── services/
+    │       └── utils/
+    ├── tests/
+    │   ├── __init__.py
+    │   ├── conftest.py
+    │   ├── unit/
+    │   └── integration/
+    ├── docs/
+    ├── requirements.txt
+    ├── requirements-dev.txt
+    ├── pyproject.toml
+    ├── setup.py (optional)
+    └── .env
+
+config_files:
+  - file: pyproject.toml
+    purpose: Project configuration (PEP 518)
+    required: true
+
+  - file: requirements.txt
+    purpose: Production dependencies
+    required: true
+
+  - file: requirements-dev.txt
+    purpose: Development dependencies
+    required: false
+
+  - file: setup.py
+    purpose: Legacy packaging
+    required: false
+
+  - file: pytest.ini
+    purpose: Test configuration
+    required: false
+
+gitignore:
+  - __pycache__/
+  - "*.pyc"
+  - "*.pyo"
+  - ".venv/"
+  - venv/
+  - ".env"
+  - "*.egg-info/"
+  - dist/
+  - build/
+  - ".pytest_cache/"
+  - ".coverage"
+  - htmlcov/
+  - ".mypy_cache/"
+
+rules:
+  - id: src-layout
+    trigger: creating Python project
+    instruction: Use src/ layout with package inside
+    priority: recommended
+
+  - id: init-files
+    trigger: creating packages
+    instruction: Include __init__.py in every package directory
+    priority: required
+
+  - id: virtualenv
+    trigger: setting up project
+    instruction: Use virtual environment (.venv or venv)
+    priority: required
+
+  - id: pyproject-toml
+    trigger: configuring project
+    instruction: Use pyproject.toml for modern Python projects
+    priority: recommended
+
+tools:
+  package_manager: [pip, poetry, pipenv, uv]
+  virtualenv: [venv, virtualenv, conda]
+  test_runner: [pytest, unittest]
+  linter: [ruff, flake8, pylint]
+  formatter: [black, autopep8]
+  type_checker: [mypy, pyright]

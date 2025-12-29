@@ -1,0 +1,82 @@
+# 單元測試 - AI 優化選項
+# 父項: testing
+
+id: unit-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: 隔離測試個別函式和方法
+  language: zh-TW
+
+characteristics:
+  scope: 單一函式或方法
+  speed: "<100ms 每個測試"
+  isolation: 完全隔離（無外部相依性）
+  pyramid_percentage: 70%
+
+rules:
+  - id: test-one-thing
+    trigger: 撰寫單元測試時
+    instruction: 每個測試應只驗證一個行為
+    priority: required
+
+  - id: isolate-dependencies
+    trigger: 測試有相依性時
+    instruction: 對外部相依性使用 stub/mock
+    priority: required
+
+  - id: fast-execution
+    trigger: 撰寫單元測試時
+    instruction: 單元測試必須在 100ms 內執行完成
+    priority: required
+
+  - id: naming-convention
+    trigger: 命名單元測試時
+    instruction: 使用模式 methodName_scenario_expectedResult
+    priority: recommended
+    examples:
+      good:
+        - "calculateTotal_withEmptyCart_returnsZero"
+        - "validateEmail_withInvalidFormat_returnsFalse"
+      bad:
+        - "test1"
+        - "testCalculate"
+
+  - id: arrange-act-assert
+    trigger: 組織測試結構時
+    instruction: 在測試內文中遵循 AAA 模式
+    priority: required
+
+structure:
+  pattern: "Arrange-Act-Assert"
+  example: |
+    // Arrange - 準備
+    const calculator = new Calculator();
+    const input = 5;
+
+    // Act - 執行
+    const result = calculator.square(input);
+
+    // Assert - 驗證
+    expect(result).toBe(25);
+
+when_to_write:
+  - 測試純函式
+  - 測試商業邏輯
+  - 測試資料轉換
+  - 測試驗證規則
+  - 測試邊緣案例和邊界
+
+when_not_to_write:
+  - 測試框架程式碼
+  - 測試簡單的 getter/setter
+  - 測試第三方函式庫
+
+coverage_target: "商業邏輯的 80%"
+
+tools:
+  javascript: [Jest, Vitest, Mocha]
+  python: [pytest, unittest]
+  java: [JUnit, TestNG]
+  csharp: [xUnit, NUnit, MSTest]
+  go: [testing package, testify]

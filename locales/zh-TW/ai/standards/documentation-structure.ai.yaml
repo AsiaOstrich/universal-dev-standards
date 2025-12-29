@@ -1,0 +1,113 @@
+# 文件結構標準 - AI 優化版
+# 來源: core/documentation-structure.md
+
+id: documentation-structure
+meta:
+  version: "1.0.0"
+  updated: "2025-12-26"
+  source: core/documentation-structure.md
+  description: 專案文件的標準目錄結構
+  language: zh-TW
+
+essential_files:
+  - file: README.md
+    required: true
+    purpose: 專案概覽、快速開始
+    location: 根目錄
+
+  - file: LICENSE
+    required: true
+    purpose: 授權資訊
+    location: 根目錄
+    note: 開源專案必備
+
+  - file: CONTRIBUTING.md
+    required: false
+    purpose: 貢獻指南
+    location: 根目錄
+    note: 團隊專案建議
+
+  - file: CHANGELOG.md
+    required: false
+    purpose: 版本歷史
+    location: 根目錄
+    note: 有版本的專案建議
+
+docs_structure:
+  root: docs/
+  files:
+    - path: index.md
+      purpose: 文件索引
+    - path: getting-started.md
+      purpose: 快速開始指南
+    - path: architecture.md
+      purpose: 系統架構
+    - path: api-reference.md
+      purpose: API 文件
+    - path: deployment.md
+      purpose: 部署指南
+    - path: troubleshooting.md
+      purpose: 常見問題
+
+rules:
+  - id: root-uppercase
+    trigger: 建立根目錄文件時
+    instruction: 根目錄文件使用大寫（README.md、CONTRIBUTING.md）
+    priority: required
+
+  - id: docs-lowercase
+    trigger: 建立 docs/ 文件時
+    instruction: docs/ 內文件使用小寫短橫線（getting-started.md）
+    priority: required
+
+  - id: readme-sections
+    trigger: 撰寫 README.md 時
+    instruction: 包含專案名稱、描述、安裝、使用、授權
+    priority: required
+
+  - id: link-validation
+    trigger: 加入內部連結時
+    instruction: 確保所有內部連結正確解析
+    priority: recommended
+
+readme_template:
+  minimum:
+    - 專案名稱
+    - 簡短描述
+    - 安裝步驟
+    - 使用範例
+    - 授權
+  recommended:
+    - 徽章（CI、覆蓋率、版本）
+    - 功能列表
+    - 文件連結
+    - 貢獻指南連結
+
+naming_conventions:
+  root_files:
+    pattern: UPPERCASE.md
+    examples:
+      good: [README.md, CONTRIBUTING.md, CHANGELOG.md]
+      bad: [readme.md, contributing.MD]
+  docs_files:
+    pattern: lowercase-kebab-case.md
+    examples:
+      good: [getting-started.md, api-reference.md]
+      bad: [GettingStarted.md, API_Reference.md]
+
+quick_reference:
+  essential_files:
+    columns: [檔案, 必要, 用途]
+    rows:
+      - [README.md, 是, 專案概覽]
+      - [LICENSE, 是（開源）, 授權資訊]
+      - [CONTRIBUTING.md, 建議, 貢獻指南]
+      - [CHANGELOG.md, 建議, 版本歷史]
+
+  docs_structure:
+    columns: [檔案, 用途]
+    rows:
+      - [index.md, 文件索引]
+      - [getting-started.md, 快速開始]
+      - [architecture.md, 系統架構]
+      - [api-reference.md, API 文件]

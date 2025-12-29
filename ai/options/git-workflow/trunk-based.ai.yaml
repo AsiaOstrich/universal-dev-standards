@@ -1,0 +1,100 @@
+# Trunk-Based Development - AI Optimized Option
+# Parent: git-workflow
+
+id: trunk-based
+meta:
+  parent: git-workflow
+  version: "1.0.0"
+  description: Continuous integration with short-lived branches
+
+best_for:
+  - mature CI/CD with automated testing
+  - continuous integration practices
+  - teams comfortable with feature flags
+  - high-frequency deployments
+
+branches:
+  - name: main
+    purpose: trunk - always deployable
+    lifetime: permanent
+    protection:
+      - require status checks
+      - automated tests must pass
+
+  - name: "feature/*"
+    purpose: small changes
+    base: main
+    merge_to: main
+    lifetime: "<=2 days"
+    note: keep branches very short-lived
+
+rules:
+  - id: integrate-frequently
+    trigger: working on feature
+    instruction: Integrate to main multiple times per day
+    priority: required
+
+  - id: short-lived-branches
+    trigger: creating branch
+    instruction: Branch lifetime must be <= 2 days
+    priority: required
+
+  - id: use-feature-flags
+    trigger: implementing incomplete feature
+    instruction: Hide incomplete features behind feature flags
+    priority: required
+
+  - id: automate-everything
+    trigger: setting up CI/CD
+    instruction: All tests and deployments must be automated
+    priority: required
+
+  - id: small-commits
+    trigger: committing code
+    instruction: Make small, focused commits that can be easily reviewed
+    priority: recommended
+
+workflow:
+  - step: create short-lived branch
+    commands:
+      - git checkout main
+      - git pull origin main
+      - git checkout -b feature/{name}
+    note: branch should be merged within 2 days
+
+  - step: develop with small commits
+    commands:
+      - git add .
+      - "git commit -m \"{type}({scope}): {message}\""
+    note: commit frequently, at least once per hour
+
+  - step: integrate frequently
+    commands:
+      - git fetch origin main
+      - git rebase origin/main
+      - git push origin feature/{name}
+    note: rebase and push multiple times per day
+
+  - step: merge to main
+    commands:
+      - git checkout main
+      - git merge --ff-only feature/{name}
+      - git push origin main
+    note: use fast-forward merge for linear history
+
+  - step: deploy
+    note: automated deployment triggered on main push
+
+feature_flags:
+  purpose: Hide incomplete features in production
+  tools:
+    - LaunchDarkly
+    - Unleash
+    - ConfigCat
+    - Custom environment variables
+  pattern: |
+    if (featureFlags.isEnabled('new-feature')) {
+      // new implementation
+    } else {
+      // existing implementation
+    }

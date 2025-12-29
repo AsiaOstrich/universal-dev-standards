@@ -59,6 +59,19 @@ For complete standards, see:
 - [Git Workflow Strategies](./git-workflow.md)
 - [Branch Naming Reference](./branch-naming.md)
 
+### AI-Optimized Format (Token-Efficient)
+
+For AI assistants, use the YAML format files for reduced token usage:
+- Base standard: `ai/standards/git-workflow.ai.yaml`
+- Workflow options:
+  - GitHub Flow: `ai/options/git-workflow/github-flow.ai.yaml`
+  - GitFlow: `ai/options/git-workflow/gitflow.ai.yaml`
+  - Trunk-Based: `ai/options/git-workflow/trunk-based.ai.yaml`
+- Merge strategy options:
+  - Squash Merge: `ai/options/git-workflow/squash-merge.ai.yaml`
+  - Merge Commit: `ai/options/git-workflow/merge-commit.ai.yaml`
+  - Rebase + FF: `ai/options/git-workflow/rebase-ff.ai.yaml`
+
 ## Pre-branch Checklist
 
 Before creating a new branch:

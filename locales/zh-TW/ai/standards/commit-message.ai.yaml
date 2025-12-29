@@ -1,0 +1,112 @@
+# 提交訊息標準 - AI 優化版
+# 來源: core/commit-message-guide.md
+
+id: commit-message
+meta:
+  version: "1.0.0"
+  updated: "2025-12-26"
+  source: core/commit-message-guide.md
+  description: Conventional Commits 格式規範
+  language: zh-TW
+
+format:
+  template: "<type>(<scope>): <subject>"
+  max_subject_length: 72
+  ideal_subject_length: 50
+
+options:
+  commit_language:
+    default: english
+    choices:
+      - id: english
+        file: options/commit-message/english.ai.yaml
+      - id: traditional-chinese
+        file: options/commit-message/traditional-chinese.ai.yaml
+      - id: bilingual
+        file: options/commit-message/bilingual.ai.yaml
+
+types:
+  - type: feat
+    description: 新功能
+    bump: minor
+  - type: fix
+    description: 錯誤修正
+    bump: patch
+  - type: refactor
+    description: 程式碼重構
+    bump: none
+  - type: docs
+    description: 文件更新
+    bump: none
+  - type: style
+    description: 格式調整（不影響邏輯）
+    bump: none
+  - type: test
+    description: 測試相關
+    bump: none
+  - type: perf
+    description: 效能改善
+    bump: patch
+  - type: build
+    description: 建置系統
+    bump: none
+  - type: ci
+    description: CI/CD 變更
+    bump: none
+  - type: chore
+    description: 維護任務
+    bump: none
+  - type: revert
+    description: 還原提交
+    bump: patch
+  - type: security
+    description: 安全修正
+    bump: patch
+
+rules:
+  - id: imperative-mood
+    trigger: 撰寫提交主旨時
+    instruction: 使用祈使語氣（例如：Add 而非 Added 或 Adding）
+    priority: required
+    examples:
+      good: ["Add user login", "Fix memory leak"]
+      bad: ["Added feature", "Fixing bug", "This adds..."]
+
+  - id: no-period
+    trigger: 撰寫提交主旨時
+    instruction: 不要以句號結尾
+    priority: required
+
+  - id: explain-why
+    trigger: 撰寫提交內文時
+    instruction: 解釋為什麼做這個改變，而不只是描述什麼改變
+    priority: recommended
+
+  - id: breaking-change
+    trigger: 引入破壞性變更時
+    instruction: 在頁尾加入 BREAKING CHANGE 說明
+    priority: required
+
+examples:
+  simple: "feat(auth): Add OAuth2 login support"
+  with_scope: "fix(api): Resolve null pointer in user service"
+  breaking: |
+    feat(api)!: Change response format to JSON
+
+    BREAKING CHANGE: API 回應格式從 XML 改為 JSON
+
+    遷移指南：
+    1. 更新 API 客戶端移除 .data 包裝
+    2. 使用 created_at 取代 createdAt
+
+quick_reference:
+  commit_types:
+    columns: [類型, 用途, 版本影響]
+    rows:
+      - [feat, 新功能, minor]
+      - [fix, 錯誤修正, patch]
+      - [refactor, 重構, 無]
+      - [docs, 文件, 無]
+      - [test, 測試, 無]
+      - [perf, 效能, patch]
+      - [security, 安全, patch]

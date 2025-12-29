@@ -1,0 +1,133 @@
+# Code Review Checklist - AI Optimized
+# Source: core/code-review-checklist.md
+
+id: code-review
+meta:
+  version: "1.0.0"
+  updated: "2025-12-26"
+  source: core/code-review-checklist.md
+  description: Systematic checklist for reviewing code quality and security
+
+checklist:
+  functionality:
+    - item: Code does what it's supposed to do
+    - item: Edge cases are handled
+    - item: Error handling is appropriate
+    - item: No obvious bugs or logic errors
+
+  code_quality:
+    - item: Code is readable and self-documenting
+    - item: Functions/methods have single responsibility
+    - item: No code duplication (DRY)
+    - item: Variable/function names are descriptive
+    - item: No magic numbers or hardcoded values
+
+  security:
+    - item: No SQL injection vulnerabilities
+    - item: No XSS vulnerabilities
+    - item: Input validation is present
+    - item: Sensitive data is not logged
+    - item: Authentication/authorization is correct
+
+  performance:
+    - item: No unnecessary database queries
+    - item: No memory leaks
+    - item: Efficient algorithms used
+    - item: Caching considered where appropriate
+
+  testing:
+    - item: Unit tests are included
+    - item: Tests cover edge cases
+    - item: Tests are meaningful (not just for coverage)
+
+  documentation:
+    - item: Public APIs are documented
+    - item: Complex logic has comments
+    - item: README updated if needed
+
+comment_prefixes:
+  emoji:
+    - prefix: "❗"
+      meaning: Required change (blocking)
+    - prefix: "⚠️"
+      meaning: Suggestion (non-blocking)
+    - prefix: "💡"
+      meaning: Nice to have
+    - prefix: "❓"
+      meaning: Question/clarification
+    - prefix: "📝"
+      meaning: Nitpick
+    - prefix: "👍"
+      meaning: Praise
+
+  text:
+    - prefix: "[REQUIRED]"
+      meaning: Must be fixed before merge
+    - prefix: "[SUGGESTION]"
+      meaning: Consider changing
+    - prefix: "[QUESTION]"
+      meaning: Need clarification
+    - prefix: "[NIT]"
+      meaning: Minor issue
+    - prefix: "[PRAISE]"
+      meaning: Good work
+
+rules:
+  - id: review-checklist
+    trigger: reviewing code
+    instruction: Go through all checklist items systematically
+    priority: required
+
+  - id: constructive-feedback
+    trigger: writing review comment
+    instruction: Be constructive; suggest improvements, don't just criticize
+    priority: required
+
+  - id: explain-why
+    trigger: requesting change
+    instruction: Explain why the change is needed, not just what to change
+    priority: required
+
+  - id: praise-good-code
+    trigger: finding good code
+    instruction: Acknowledge and praise good implementations
+    priority: recommended
+
+  - id: timely-review
+    trigger: assigned for review
+    instruction: Complete review within 24 hours
+    priority: recommended
+
+examples:
+  good_comment: |
+    ❗ This SQL query is vulnerable to injection. Use parameterized queries:
+    ```sql
+    -- Instead of:
+    $"SELECT * FROM users WHERE id = {userId}"
+
+    -- Use:
+    "SELECT * FROM users WHERE id = @userId"
+    ```
+
+  suggestion: |
+    💡 Consider extracting this into a separate function for reusability:
+    ```javascript
+    function validateEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+    ```
+
+  praise: |
+    👍 Great job handling the edge case here! The null check prevents
+    potential runtime errors.
+
+quick_reference:
+  review_areas:
+    columns: [Area, Focus]
+    rows:
+      - [Functionality, Correctness and edge cases]
+      - [Code Quality, Readability and maintainability]
+      - [Security, Vulnerabilities and auth]
+      - [Performance, Efficiency and resource usage]
+      - [Testing, Coverage and quality]
+      - [Documentation, Comments and docs]

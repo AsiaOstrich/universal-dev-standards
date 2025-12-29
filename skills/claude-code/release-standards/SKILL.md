@@ -66,6 +66,11 @@ For complete standards, see:
 - [Semantic Versioning Guide](./semantic-versioning.md)
 - [Changelog Format](./changelog-format.md)
 
+### AI-Optimized Format (Token-Efficient)
+
+For AI assistants, use the YAML format file for reduced token usage:
+- Changelog: `ai/standards/changelog.ai.yaml`
+
 ## CHANGELOG Entry Format
 
 ```markdown

@@ -1,0 +1,81 @@
+# Unit Testing - AI Optimized Option
+# Parent: testing
+
+id: unit-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: Testing individual functions and methods in isolation
+
+characteristics:
+  scope: Single function or method
+  speed: "<100ms per test"
+  isolation: Complete (no external dependencies)
+  pyramid_percentage: 70%
+
+rules:
+  - id: test-one-thing
+    trigger: writing unit test
+    instruction: Each test should verify one behavior
+    priority: required
+
+  - id: isolate-dependencies
+    trigger: testing with dependencies
+    instruction: Use stubs/mocks for external dependencies
+    priority: required
+
+  - id: fast-execution
+    trigger: writing unit test
+    instruction: Unit tests must run in under 100ms
+    priority: required
+
+  - id: naming-convention
+    trigger: naming unit test
+    instruction: Use pattern methodName_scenario_expectedResult
+    priority: recommended
+    examples:
+      good:
+        - "calculateTotal_withEmptyCart_returnsZero"
+        - "validateEmail_withInvalidFormat_returnsFalse"
+      bad:
+        - "test1"
+        - "testCalculate"
+
+  - id: arrange-act-assert
+    trigger: structuring test
+    instruction: Follow AAA pattern in test body
+    priority: required
+
+structure:
+  pattern: "Arrange-Act-Assert"
+  example: |
+    // Arrange
+    const calculator = new Calculator();
+    const input = 5;
+
+    // Act
+    const result = calculator.square(input);
+
+    // Assert
+    expect(result).toBe(25);
+
+when_to_write:
+  - Testing pure functions
+  - Testing business logic
+  - Testing data transformations
+  - Testing validation rules
+  - Testing edge cases and boundaries
+
+when_not_to_write:
+  - Testing framework code
+  - Testing trivial getters/setters
+  - Testing third-party libraries
+
+coverage_target: "80% of business logic"
+
+tools:
+  javascript: [Jest, Vitest, Mocha]
+  python: [pytest, unittest]
+  java: [JUnit, TestNG]
+  csharp: [xUnit, NUnit, MSTest]
+  go: [testing package, testify]

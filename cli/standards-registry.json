@@ -1,8 +1,49 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "1.0.0",
-  "lastUpdated": "2025-12-23",
-  "description": "Standards registry for universal-dev-standards with integrated skills",
+  "version": "2.0.0",
+  "lastUpdated": "2025-12-26",
+  "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
+  "formats": {
+    "ai": {
+      "name": "AI-Optimized",
+      "description": "Token-optimized YAML format for AI assistants",
+      "extension": ".ai.yaml",
+      "basePath": "ai/"
+    },
+    "human": {
+      "name": "Human-Readable",
+      "description": "Full Markdown format for human readers",
+      "extension": ".md",
+      "basePath": "core/"
+    }
+  },
+  "optionCategories": {
+    "workflow": {
+      "name": "Branching Strategy",
+      "nameZh": "分支策略",
+      "appliesTo": ["git-workflow"]
+    },
+    "merge_strategy": {
+      "name": "Merge Strategy",
+      "nameZh": "合併策略",
+      "appliesTo": ["git-workflow"]
+    },
+    "commit_language": {
+      "name": "Commit Message Language",
+      "nameZh": "提交訊息語言",
+      "appliesTo": ["commit-message"]
+    },
+    "test_level": {
+      "name": "Test Level",
+      "nameZh": "測試層級",
+      "appliesTo": ["testing"]
+    },
+    "project_language": {
+      "name": "Project Language",
+      "nameZh": "專案語言",
+      "appliesTo": ["project-structure"]
+    }
+  },
   "repositories": {
     "standards": {
       "name": "universal-dev-standards",
@@ -148,11 +189,48 @@
       "id": "commit-message",
       "name": "Commit Message Guide",
       "nameZh": "提交訊息指南",
-      "source": "core/commit-message-guide.md",
+      "source": {
+        "human": "core/commit-message-guide.md",
+        "ai": "ai/standards/commit-message.ai.yaml"
+      },
       "category": "skill",
       "skillName": "commit-standards",
       "level": 1,
-      "description": "Conventional Commits format for standardized git commit messages"
+      "description": "Conventional Commits format for standardized git commit messages",
+      "options": {
+        "commit_language": {
+          "default": "english",
+          "choices": [
+            {
+              "id": "english",
+              "name": "English",
+              "nameZh": "英文",
+              "source": {
+                "human": "options/commit-message/english.md",
+                "ai": "ai/options/commit-message/english.ai.yaml"
+              }
+            },
+            {
+              "id": "traditional-chinese",
+              "name": "Traditional Chinese",
+              "nameZh": "繁體中文",
+              "source": {
+                "human": "options/commit-message/traditional-chinese.md",
+                "ai": "ai/options/commit-message/traditional-chinese.ai.yaml"
+              }
+            },
+            {
+              "id": "bilingual",
+              "name": "Bilingual",
+              "nameZh": "雙語",
+              "source": {
+                "human": "options/commit-message/bilingual.md",
+                "ai": "ai/options/commit-message/bilingual.ai.yaml"
+              }
+            }
+          ]
+        }
+      }
     },
     {
       "id": "checkin-standards",
@@ -189,11 +267,92 @@
       "id": "git-workflow",
       "name": "Git Workflow Guide",
       "nameZh": "Git 工作流程指南",
-      "source": "core/git-workflow.md",
+      "source": {
+        "human": "core/git-workflow.md",
+        "ai": "ai/standards/git-workflow.ai.yaml"
+      },
       "category": "skill",
       "skillName": "git-workflow-guide",
       "level": 2,
-      "description": "Branching strategies including Trunk-Based, GitHub Flow, and GitFlow"
+      "description": "Branching strategies including Trunk-Based, GitHub Flow, and GitFlow",
+      "options": {
+        "workflow": {
+          "default": "github-flow",
+          "choices": [
+            {
+              "id": "gitflow",
+              "name": "GitFlow",
+              "nameZh": "GitFlow 工作流",
+              "source": {
+                "human": "options/git-workflow/gitflow.md",
+                "ai": "ai/options/git-workflow/gitflow.ai.yaml"
+              },
+              "conditions": {
+                "release_frequency": "monthly+",
+                "team_size": "10+"
+              }
+            },
+            {
+              "id": "github-flow",
+              "name": "GitHub Flow",
+              "nameZh": "GitHub Flow 工作流",
+              "source": {
+                "human": "options/git-workflow/github-flow.md",
+                "ai": "ai/options/git-workflow/github-flow.ai.yaml"
+              },
+              "conditions": {
+                "release_frequency": "weekly",
+                "team_size": "5-15"
+              }
+            },
+            {
+              "id": "trunk-based",
+              "name": "Trunk-Based Development",
+              "nameZh": "主幹開發",
+              "source": {
+                "human": "options/git-workflow/trunk-based.md",
+                "ai": "ai/options/git-workflow/trunk-based.ai.yaml"
+              },
+              "conditions": {
+                "release_frequency": "daily+",
+                "ci_cd_maturity": "advanced"
+              }
+            }
+          ]
+        },
+        "merge_strategy": {
+          "default": "squash",
+          "choices": [
+            {
+              "id": "merge-commit",
+              "name": "Merge Commit",
+              "nameZh": "合併提交",
+              "source": {
+                "human": "options/git-workflow/merge-commit.md",
+                "ai": "ai/options/git-workflow/merge-commit.ai.yaml"
+              }
+            },
+            {
+              "id": "squash",
+              "name": "Squash Merge",
+              "nameZh": "壓縮合併",
+              "source": {
+                "human": "options/git-workflow/squash-merge.md",
+                "ai": "ai/options/git-workflow/squash-merge.ai.yaml"
+              }
+            },
+            {
+              "id": "rebase-ff",
+              "name": "Rebase + Fast-Forward",
+              "nameZh": "變基快進",
+              "source": {
+                "human": "options/git-workflow/rebase-ff.md",
+                "ai": "ai/options/git-workflow/rebase-ff.ai.yaml"
+              }
+            }
+          ]
+        }
+      }
     },
     {
       "id": "versioning",
@@ -219,11 +378,58 @@
       "id": "testing",
       "name": "Testing Standards",
       "nameZh": "測試標準",
-      "source": "core/testing-standards.md",
+      "source": {
+        "human": "core/testing-standards.md",
+        "ai": "ai/standards/testing.ai.yaml"
+      },
       "category": "skill",
       "skillName": "testing-guide",
       "level": 2,
-      "description": "Testing pyramid and recommended coverage ratios (70/20/7/3)"
+      "description": "Testing pyramid and recommended coverage ratios (70/20/7/3)",
+      "options": {
+        "test_level": {
+          "default": null,
+          "multiSelect": true,
+          "choices": [
+            {
+              "id": "unit-testing",
+              "name": "Unit Testing",
+              "nameZh": "單元測試",
+              "source": {
+                "human": "options/testing/unit-testing.md",
+                "ai": "ai/options/testing/unit-testing.ai.yaml"
+              }
+            },
+            {
+              "id": "integration-testing",
+              "name": "Integration Testing",
+              "nameZh": "整合測試",
+              "source": {
+                "human": "options/testing/integration-testing.md",
+                "ai": "ai/options/testing/integration-testing.ai.yaml"
+              }
+            },
+            {
+              "id": "system-testing",
+              "name": "System Testing",
+              "nameZh": "系統測試",
+              "source": {
+                "human": "options/testing/system-testing.md",
+                "ai": "ai/options/testing/system-testing.ai.yaml"
+              }
+            },
+            {
+              "id": "e2e-testing",
+              "name": "End-to-End Testing",
+              "nameZh": "端對端測試",
+              "source": {
+                "human": "options/testing/e2e-testing.md",
+                "ai": "ai/options/testing/e2e-testing.ai.yaml"
+              }
+            }
+          ]
+        }
+      }
     },
     {
       "id": "documentation-structure",

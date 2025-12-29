@@ -1,0 +1,133 @@
+# GitFlow - AI 優化選項
+# 父項: git-workflow
+
+id: gitflow
+meta:
+  parent: git-workflow
+  version: "1.0.0"
+  description: 結構化的發布管理工作流程
+  language: zh-TW
+
+best_for:
+  - 排程發布（每月或更長）
+  - 多版本維護
+  - 大型團隊 (10+ 人)
+  - 企業環境
+
+branches:
+  - name: main
+    purpose: 正式發布的程式碼
+    lifetime: 永久
+    protected: true
+
+  - name: develop
+    purpose: 整合分支，下一版開發
+    lifetime: 永久
+    base: main
+
+  - name: feature/*
+    purpose: 新功能開發
+    lifetime: 短期
+    base: develop
+    merge_to: develop
+
+  - name: release/*
+    purpose: 發布準備和穩定化
+    lifetime: 中期（1-2 週）
+    base: develop
+    merge_to: [main, develop]
+
+  - name: hotfix/*
+    purpose: 緊急正式環境修正
+    lifetime: 非常短期（小時到天）
+    base: main
+    merge_to: [main, develop]
+
+rules:
+  - id: no-direct-main-commits
+    trigger: 提交程式碼時
+    instruction: 永不直接提交到 main；使用 release 或 hotfix 分支
+    priority: required
+
+  - id: feature-from-develop
+    trigger: 開始新功能時
+    instruction: 從 develop 建立功能分支
+    priority: required
+
+  - id: release-freeze
+    trigger: 建立發布分支時
+    instruction: 發布分支只允許錯誤修正，不加新功能
+    priority: required
+
+  - id: hotfix-dual-merge
+    trigger: 完成 hotfix 時
+    instruction: 合併 hotfix 到 main 和 develop
+    priority: required
+
+workflow:
+  feature:
+    - step: 建立功能分支
+      commands:
+        - git checkout develop
+        - git pull origin develop
+        - git checkout -b feature/{功能名稱}
+
+    - step: 開發功能
+      commands:
+        - "# 進行變更..."
+        - git add .
+        - git commit -m "feat: {描述}"
+
+    - step: 合併到 develop
+      commands:
+        - git checkout develop
+        - git merge --no-ff feature/{功能名稱}
+        - git branch -d feature/{功能名稱}
+
+  release:
+    - step: 建立發布分支
+      commands:
+        - git checkout develop
+        - git checkout -b release/v{版本}
+
+    - step: 準備發布
+      commands:
+        - "# 更新版本號"
+        - "# 更新 CHANGELOG"
+        - "# 最終測試和錯誤修正"
+
+    - step: 完成發布
+      commands:
+        - git checkout main
+        - git merge --no-ff release/v{版本}
+        - git tag -a v{版本} -m "Release v{版本}"
+        - git checkout develop
+        - git merge --no-ff release/v{版本}
+        - git branch -d release/v{版本}
+
+  hotfix:
+    - step: 建立 hotfix 分支
+      commands:
+        - git checkout main
+        - git checkout -b hotfix/{問題}
+
+    - step: 修正並完成
+      commands:
+        - "# 修正問題"
+        - git commit -m "fix: {描述}"
+        - git checkout main
+        - git merge --no-ff hotfix/{問題}
+        - git tag -a v{版本}
+        - git checkout develop
+        - git merge --no-ff hotfix/{問題}
+        - git branch -d hotfix/{問題}
+
+quick_reference:
+  branches:
+    columns: [分支, 用途, 來源, 合併到]
+    rows:
+      - [main, 正式發布, -, -]
+      - [develop, 整合, main, -]
+      - [feature/*, 新功能, develop, develop]
+      - [release/*, 發布準備, develop, "main, develop"]
+      - [hotfix/*, 緊急修正, main, "main, develop"]

@@ -1,0 +1,86 @@
+# English Commit Types - AI Optimized Option
+# Parent: commit-message
+
+id: english
+meta:
+  parent: commit-message
+  version: "1.0.0"
+  description: English commit types for international teams
+
+best_for:
+  - international or mixed teams
+  - open source projects
+  - maximum tool compatibility
+  - automated changelog generation
+
+types:
+  - type: feat
+    description: New feature
+    example: "feat(auth): add OAuth2 login"
+
+  - type: fix
+    description: Bug fix
+    example: "fix(api): handle null response"
+
+  - type: refactor
+    description: Code refactoring (no functional change)
+    example: "refactor(core): simplify validation logic"
+
+  - type: docs
+    description: Documentation only
+    example: "docs(readme): update installation guide"
+
+  - type: style
+    description: Formatting, whitespace (no code logic change)
+    example: "style(lint): fix indentation"
+
+  - type: test
+    description: Adding or updating tests
+    example: "test(auth): add login unit tests"
+
+  - type: perf
+    description: Performance improvement
+    example: "perf(query): optimize database queries"
+
+  - type: build
+    description: Build system or dependencies
+    example: "build(deps): upgrade lodash to 4.17.21"
+
+  - type: ci
+    description: CI/CD pipeline changes
+    example: "ci(github): add code coverage workflow"
+
+  - type: chore
+    description: Maintenance tasks
+    example: "chore(deps): update dev dependencies"
+
+  - type: revert
+    description: Revert previous commit
+    example: "revert: feat(auth): add OAuth2 login"
+
+  - type: security
+    description: Security vulnerability fix
+    example: "security(auth): fix XSS vulnerability"
+
+rules:
+  - id: type-lowercase
+    trigger: writing commit type
+    instruction: Type must be lowercase
+    validator: "^[a-z]+$"
+
+  - id: colon-after-scope
+    trigger: writing commit header
+    instruction: Use colon and space after type/scope
+    validator: "^[a-z]+\\([a-z-]+\\): .+"
+
+examples:
+  simple: "feat(auth): add login form"
+  with_body: |
+    feat(auth): add OAuth2 login support
+
+    Implement Google OAuth2 authentication flow.
+    - Add Google OAuth2 SDK
+    - Create callback endpoint
+    - Store refresh tokens securely
+
+    Closes #123

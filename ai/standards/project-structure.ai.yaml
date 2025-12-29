@@ -1,0 +1,122 @@
+# Project Structure Standard - AI Optimized
+# Source: core/project-structure.md
+
+id: project-structure
+meta:
+  version: "1.0.1"
+  updated: "2025-12-24"
+  source: core/project-structure.md
+  description: Conventions for project directory structure
+
+options:
+  project_language:
+    choices:
+      - id: dotnet
+        file: options/project-structure/dotnet.ai.yaml
+      - id: nodejs
+        file: options/project-structure/nodejs.ai.yaml
+      - id: python
+        file: options/project-structure/python.ai.yaml
+      - id: java
+        file: options/project-structure/java.ai.yaml
+      - id: go
+        file: options/project-structure/go.ai.yaml
+
+structure:
+  common:
+    - dir: src/
+      purpose: Source code
+      gitignore: false
+
+    - dir: tests/
+      purpose: Test files
+      gitignore: false
+
+    - dir: docs/
+      purpose: Documentation
+      gitignore: false
+
+    - dir: tools/
+      purpose: Development/deployment scripts
+      gitignore: false
+      subdirs: [deployment/, migration/, scripts/]
+
+    - dir: examples/
+      purpose: Usage examples
+      gitignore: false
+
+  build_output:
+    - dir: dist/
+      purpose: Distribution output
+      gitignore: true
+
+    - dir: build/
+      purpose: Compiled artifacts
+      gitignore: true
+
+    - dir: out/
+      purpose: Output directory
+      gitignore: true
+
+    - dir: bin/
+      purpose: Binary executables
+      gitignore: true
+
+  config:
+    - dir: .github/
+      purpose: GitHub configs
+      gitignore: false
+
+    - dir: .standards/
+      purpose: Development standards
+      gitignore: false
+
+    - dir: config/
+      purpose: Configuration files
+      gitignore: false
+
+rules:
+  - id: gitignore-build
+    trigger: creating project
+    instruction: Always gitignore build output directories (dist/, build/, out/, bin/)
+    priority: required
+
+  - id: src-structure
+    trigger: organizing source code
+    instruction: Follow language-specific conventions for src/ structure
+    priority: required
+
+  - id: tests-location
+    trigger: organizing tests
+    instruction: Place tests in tests/ or alongside source (language-dependent)
+    priority: recommended
+
+  - id: tools-organization
+    trigger: adding scripts
+    instruction: Group scripts in tools/ with subdirectories by purpose
+    priority: recommended
+
+quick_reference:
+  directories:
+    columns: [Directory, Purpose, gitignore]
+    rows:
+      - [src/, Source code, No]
+      - [tests/, Test files, No]
+      - [docs/, Documentation, No]
+      - [tools/, Scripts, No]
+      - [dist/, Build output, Yes]
+      - [build/, Compiled artifacts, Yes]
+      - [node_modules/, Dependencies, Yes]
+      - [.env, Environment vars, Yes]
+
+  gitignore_patterns:
+    columns: [Pattern, Purpose]
+    rows:
+      - ["dist/", Build output]
+      - ["build/", Compiled artifacts]
+      - ["*.log", Log files]
+      - [".env*", Environment files]
+      - ["node_modules/", Node dependencies]
+      - ["__pycache__/", Python cache]
+      - ["*.pyc", Python bytecode]
+      - [".venv/", Python virtualenv]

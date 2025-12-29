@@ -1,0 +1,97 @@
+# Traditional Chinese Commit Types - AI Optimized Option
+# Parent: commit-message
+
+id: traditional-chinese
+meta:
+  parent: commit-message
+  version: "1.0.0"
+  description: Traditional Chinese commit types for local teams
+
+best_for:
+  - local teams in Taiwan
+  - internal projects
+  - teams preferring native language
+
+types:
+  - type: 新增
+    english: feat
+    description: 新功能
+    example: "新增(認證): 加入 OAuth2 登入"
+
+  - type: 修正
+    english: fix
+    description: 錯誤修正
+    example: "修正(API): 處理空值回應"
+
+  - type: 重構
+    english: refactor
+    description: 程式碼重構（無功能變更）
+    example: "重構(核心): 簡化驗證邏輯"
+
+  - type: 文件
+    english: docs
+    description: 僅文件更新
+    example: "文件(說明): 更新安裝指南"
+
+  - type: 樣式
+    english: style
+    description: 格式調整（無邏輯變更）
+    example: "樣式(排版): 修正縮排"
+
+  - type: 測試
+    english: test
+    description: 新增或更新測試
+    example: "測試(認證): 新增登入單元測試"
+
+  - type: 效能
+    english: perf
+    description: 效能改善
+    example: "效能(查詢): 最佳化資料庫查詢"
+
+  - type: 建置
+    english: build
+    description: 建置系統或相依套件
+    example: "建置(套件): 升級 lodash 至 4.17.21"
+
+  - type: 整合
+    english: ci
+    description: CI/CD 流程變更
+    example: "整合(GitHub): 新增程式碼覆蓋率工作流程"
+
+  - type: 維護
+    english: chore
+    description: 維護任務
+    example: "維護(套件): 更新開發相依套件"
+
+  - type: 回退
+    english: revert
+    description: 還原先前提交
+    example: "回退: 新增(認證): 加入 OAuth2 登入"
+
+  - type: 安全
+    english: security
+    description: 安全漏洞修正
+    example: "安全(認證): 修正 XSS 漏洞"
+
+rules:
+  - id: chinese-type
+    trigger: writing commit type
+    instruction: Use Chinese type from the types list
+    priority: required
+
+  - id: chinese-scope
+    trigger: writing commit scope
+    instruction: Scope can be Chinese or English, but be consistent
+    priority: recommended
+
+examples:
+  simple: "新增(認證): 加入登入表單"
+  with_body: |
+    新增(認證): 加入 OAuth2 登入支援
+
+    實作 Google OAuth2 認證流程。
+    - 整合 Google OAuth2 SDK
+    - 建立回呼端點
+    - 安全儲存更新權杖
+
+    關閉 #123

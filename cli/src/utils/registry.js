@@ -121,3 +121,87 @@ export function getAllSkillNames() {
   const registry = loadRegistry();
   return Object.keys(registry.skillFiles || {});
 }
+
+/**
+ * Get standards that have options
+ * @returns {Array} Standards with options defined
+ */
+export function getStandardsWithOptions() {
+  const registry = loadRegistry();
+  return registry.standards.filter(s => s.options);
+}
+
+/**
+ * Get option categories
+ * @returns {Object} Option categories
+ */
+export function getOptionCategories() {
+  const registry = loadRegistry();
+  return registry.optionCategories || {};
+}
+
+/**
+ * Get source path for a standard based on format
+ * @param {Object} standard - Standard object from registry
+ * @param {string} format - 'ai' or 'human'
+ * @returns {string} Source path
+ */
+export function getStandardSource(standard, format = 'human') {
+  if (typeof standard.source === 'string') {
+    return standard.source;
+  }
+  return standard.source[format] || standard.source.human;
+}
+
+/**
+ * Get source path for an option based on format
+ * @param {Object} option - Option object from registry
+ * @param {string} format - 'ai' or 'human'
+ * @returns {string} Source path
+ */
+export function getOptionSource(option, format = 'human') {
+  if (typeof option.source === 'string') {
+    return option.source;
+  }
+  return option.source[format] || option.source.human;
+}
+
+/**
+ * Find option by ID within a standard
+ * @param {Object} standard - Standard object
+ * @param {string} categoryKey - Option category key (e.g., 'workflow')
+ * @param {string} optionId - Option ID to find
+ * @returns {Object|null} Option object or null
+ */
+export function findOption(standard, categoryKey, optionId) {
+  if (!standard.options || !standard.options[categoryKey]) {
+    return null;
+  }
+  return standard.options[categoryKey].choices.find(c => c.id === optionId) || null;
+}
+
+/**
+ * Get default option for a category
+ * @param {Object} standard - Standard object
+ * @param {string} categoryKey - Option category key
+ * @returns {string|null} Default option ID or null
+ */
+export function getDefaultOption(standard, categoryKey) {
+  if (!standard.options || !standard.options[categoryKey]) {
+    return null;
+  }
+  return standard.options[categoryKey].default;
+}
+
+/**
+ * Check if option category supports multi-select
+ * @param {Object} standard - Standard object
+ * @param {string} categoryKey - Option category key
+ * @returns {boolean} True if multi-select
+ */
+export function isMultiSelectOption(standard, categoryKey) {
+  if (!standard.options || !standard.options[categoryKey]) {
+    return false;
+  }
+  return standard.options[categoryKey].multiSelect === true;
+}

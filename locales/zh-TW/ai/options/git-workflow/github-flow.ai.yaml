@@ -1,0 +1,73 @@
+# GitHub Flow - AI 優化選項
+# 父項: git-workflow
+
+id: github-flow
+meta:
+  parent: git-workflow
+  version: "1.0.0"
+  description: 簡單的持續部署工作流程
+  language: zh-TW
+
+best_for:
+  - 持續部署
+  - 網頁應用程式
+  - 小到中型團隊 (5-15 人)
+
+branches:
+  - name: main
+    purpose: 永遠可部署的正式程式碼
+    lifetime: 永久
+
+  - name: feature/*
+    purpose: 新功能或修正
+    lifetime: 短期（通常 1-3 天）
+    base: main
+    merge_to: main
+
+rules:
+  - id: main-always-deployable
+    trigger: 合併到 main 時
+    instruction: 確保所有測試在合併前通過
+    priority: required
+
+  - id: short-lived-branches
+    trigger: 建立功能分支時
+    instruction: 保持分支短期（理想狀況少於 3 天）
+    priority: recommended
+
+  - id: pr-required
+    trigger: 合併變更時
+    instruction: 透過 Pull Request 合併所有變更
+    priority: required
+
+workflow:
+  - step: 建立分支
+    description: 從 main 建立功能分支
+    commands:
+      - git checkout main
+      - git pull origin main
+      - git checkout -b feature/{功能名稱}
+
+  - step: 進行變更
+    description: 開發並在本地測試
+    commands:
+      - "# 進行變更..."
+      - git add .
+      - git commit -m "feat: {描述}"
+
+  - step: 推送並建立 PR
+    description: 推送到遠端並開啟 Pull Request
+    commands:
+      - git push -u origin feature/{功能名稱}
+      - "# 在 GitHub/GitLab 上建立 Pull Request"
+
+  - step: 審查與合併
+    description: 取得審查並合併
+    commands:
+      - "# 取得程式碼審查"
+      - "# 通過 CI 後合併"
+
+  - step: 部署
+    description: 自動或手動部署到正式環境
+    commands:
+      - "# 從 main 自動部署"

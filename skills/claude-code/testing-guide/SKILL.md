@@ -61,6 +61,16 @@ This skill provides testing pyramid standards and best practices for systematic 
 For complete standards, see:
 - [Testing Pyramid](./testing-pyramid.md)
 
+### AI-Optimized Format (Token-Efficient)
+
+For AI assistants, use the YAML format files for reduced token usage:
+- Base standard: `ai/standards/testing.ai.yaml`
+- Test level options:
+  - Unit Testing: `ai/options/testing/unit-testing.ai.yaml`
+  - Integration Testing: `ai/options/testing/integration-testing.ai.yaml`
+  - System Testing: `ai/options/testing/system-testing.ai.yaml`
+  - E2E Testing: `ai/options/testing/e2e-testing.ai.yaml`
+
 ## Naming Conventions
 
 ### File Naming
