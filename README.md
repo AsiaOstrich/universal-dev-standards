@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md)
 
-**Version**: 2.2.0
-**Last Updated**: 2025-12-25
+**Version**: 2.3.0
+**Last Updated**: 2025-12-29
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 ---
@@ -32,7 +32,7 @@ This repository provides **language-agnostic, framework-agnostic, domain-agnosti
 
 ```
 universal-dev-standards/
-├── core/                           # Core universal standards
+├── core/                           # Core universal standards (Markdown)
 │   ├── anti-hallucination.md      # AI collaboration guidelines
 │   ├── checkin-standards.md       # Code check-in quality gates
 │   ├── commit-message-guide.md    # Commit message conventions
@@ -45,7 +45,25 @@ universal-dev-standards/
 │   ├── changelog-standards.md     # Changelog writing guide
 │   └── testing-standards.md       # Testing standards (UT/IT/ST/E2E)
 │
-├── skills/                         # ✅ NEW: AI tool skills (v2.1.0)
+├── ai/                             # ✅ NEW: AI-optimized standards (v2.3.0)
+│   ├── standards/                 # Token-efficient YAML format (~80% reduction)
+│   │   ├── git-workflow.ai.yaml
+│   │   ├── commit-message.ai.yaml
+│   │   ├── testing.ai.yaml
+│   │   └── ...
+│   └── options/                   # Configurable options
+│       ├── git-workflow/          # github-flow, gitflow, trunk-based, etc.
+│       ├── commit-message/        # english, traditional-chinese, bilingual
+│       ├── testing/               # unit, integration, system, e2e
+│       └── project-structure/     # nodejs, python, dotnet, java, go
+│
+├── options/                        # Human-readable option guides (Markdown)
+│   ├── git-workflow/              # Detailed workflow documentation
+│   ├── commit-message/            # Commit language guides
+│   ├── testing/                   # Testing level guides
+│   └── project-structure/         # Language-specific project structures
+│
+├── skills/                         # AI tool skills (v2.1.0)
 │   ├── claude-code/               # Claude Code Skills
 │   ├── cursor/                    # Cursor Rules (planned)
 │   ├── windsurf/                  # Windsurf Rules (planned)
@@ -82,6 +100,61 @@ universal-dev-standards/
 └── adoption/                       # Adoption guides
     └── ADOPTION-GUIDE.md
 ```
+
+---
+
+## 🤖 AI-Optimized Standards (NEW in v2.3.0)
+
+### Dual-Format Architecture
+
+This project now provides standards in two formats for different use cases:
+
+| Format | Location | Use Case | Token Usage |
+|--------|----------|----------|-------------|
+| **Human-Readable** | `core/`, `options/` | Documentation, onboarding, reference | Standard |
+| **AI-Optimized** | `ai/` | AI assistants, automation, CLAUDE.md | ~80% reduction |
+
+### Using AI-Optimized Standards
+
+**For AI Assistants (Claude, Cursor, etc.)**:
+```yaml
+# Reference in CLAUDE.md or system prompts
+standards:
+  source: ai/standards/
+  options:
+    workflow: ai/options/git-workflow/github-flow.ai.yaml
+    commit_language: ai/options/commit-message/english.ai.yaml
+    test_levels:
+      - ai/options/testing/unit-testing.ai.yaml
+      - ai/options/testing/integration-testing.ai.yaml
+```
+
+**Using CLI for Format Selection**:
+```bash
+# Initialize with AI format (recommended for AI-assisted projects)
+uds init --format ai
+
+# Initialize with both formats
+uds init --format both
+
+# Configure specific options
+uds init --workflow github-flow --commit-lang english --test-levels unit,integration
+```
+
+### Available Options
+
+| Category | Options |
+|----------|---------|
+| **Git Workflow** | `github-flow`, `gitflow`, `trunk-based`, `squash-merge`, `merge-commit`, `rebase-ff` |
+| **Commit Language** | `english`, `traditional-chinese`, `bilingual` |
+| **Testing Levels** | `unit`, `integration`, `system`, `e2e` |
+| **Project Structure** | `nodejs`, `python`, `dotnet`, `java`, `go` |
+
+### Translations
+
+AI-optimized standards are available in:
+- English: `ai/`
+- Traditional Chinese: `locales/zh-TW/ai/`
 
 ---
 
@@ -574,6 +647,9 @@ All contributions must:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.3.0 | 2025-12-29 | Added: AI-optimized standards (`ai/`), configurable options (`options/`), CLI format/options support, zh-TW translations |
+| 2.2.0 | 2025-12-25 | Added: CLI tool improvements, Skills updates |
+| 2.1.0 | 2025-12-20 | Added: Claude Code Skills (`skills/claude-code/`) |
 | 1.3.0 | 2025-12-15 | Added: changelog-standards.md; Updated: versioning.md, git-workflow.md (cross-references), zh-tw.md (terminology) |
 | 1.2.0 | 2025-12-11 | Added: project-structure.md; Updated: documentation-structure.md (file naming, version alignment), checkin-standards.md (directory hygiene) |
 | 1.1.0 | 2025-12-05 | Added: testing-standards.md (UT/IT/ST/E2E) |
