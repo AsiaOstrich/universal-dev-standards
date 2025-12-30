@@ -1,4 +1,5 @@
 ---
+source: ../../../core/versioning.md
 source_version: 1.2.0
 translation_version: 1.2.0
 last_synced: 2025-12-30

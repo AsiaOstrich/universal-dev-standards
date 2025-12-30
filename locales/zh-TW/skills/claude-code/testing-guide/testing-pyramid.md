@@ -1,14 +1,14 @@
 ---
-source: ../../../../skills/claude-code/testing-guide/testing-pyramid.md
+source: ../../../../../skills/claude-code/testing-guide/testing-pyramid.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2025-12-29
+last_synced: 2025-12-30
 status: current
 ---
 
 # 測試金字塔指南
 
-> **語言**: [English](../../../../skills/claude-code/testing-guide/testing-pyramid.md) | 繁體中文
+> **語言**: [English](../../../../../skills/claude-code/testing-guide/testing-pyramid.md) | 繁體中文
 
 **版本**: 1.1.0
 **最後更新**: 2025-12-29

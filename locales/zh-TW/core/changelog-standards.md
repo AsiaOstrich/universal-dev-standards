@@ -1,7 +1,8 @@
 ---
+source: ../../../core/changelog-standards.md
 source_version: 1.0.2
 translation_version: 1.0.2
-last_synced: 2025-12-25
+last_synced: 2025-12-30
 status: current
 ---
 

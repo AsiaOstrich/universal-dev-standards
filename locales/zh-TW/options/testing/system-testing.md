@@ -1,3 +1,11 @@
+---
+source: ../../../../options/testing/system-testing.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-30
+status: current
+---
+
 # 系統測試
 
 > **語言**: [English](../../../../options/testing/system-testing.md) | 繁體中文

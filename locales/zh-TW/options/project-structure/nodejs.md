@@ -1,3 +1,11 @@
+---
+source: ../../../../options/project-structure/nodejs.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-30
+status: current
+---
+
 # Node.js 專案結構
 
 > **語言**: [English](../../../../options/project-structure/nodejs.md) | 繁體中文

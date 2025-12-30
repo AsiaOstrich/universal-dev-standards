@@ -1,3 +1,11 @@
+---
+source: ../../../../options/commit-message/english.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-30
+status: current
+---
+
 # 英文 Commit 訊息
 
 > **語言**: [English](../../../../options/commit-message/english.md) | 繁體中文

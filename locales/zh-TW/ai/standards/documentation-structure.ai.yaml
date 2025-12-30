@@ -3,111 +3,122 @@
 
 id: documentation-structure
 meta:
-  version: "1.0.0"
-  updated: "2025-12-26"
+  version: "1.3.0"
+  updated: "2025-12-30"
   source: core/documentation-structure.md
-  description: 專案文件的標準目錄結構
+  description: 軟體專案的一致文件結構規範
   language: zh-TW
 
-essential_files:
-  - file: README.md
-    required: true
-    purpose: 專案概覽、快速開始
-    location: 根目錄
+options:
+  documentation_style:
+    description: 選擇文件編寫方式
+    multiSelect: true
+    choices:
+      - id: markdown-docs
+        file: options/documentation/markdown-docs.ai.yaml
+        best_for: 開源專案、開發者導向文件
+      - id: api-docs
+        file: options/documentation/api-docs.ai.yaml
+        best_for: REST/GraphQL API 文件
+      - id: wiki-style
+        file: options/documentation/wiki-style.ai.yaml
+        best_for: 大型團隊、內部知識庫
 
-  - file: LICENSE
-    required: true
-    purpose: 授權資訊
-    location: 根目錄
-    note: 開源專案必備
+structure:
+  root:
+    - file: README.md
+      required: true
+      naming: 大寫
+      purpose: 專案概覽
 
-  - file: CONTRIBUTING.md
-    required: false
-    purpose: 貢獻指南
-    location: 根目錄
-    note: 團隊專案建議
+    - file: CONTRIBUTING.md
+      required: false
+      naming: 大寫
+      purpose: 貢獻指南
 
-  - file: CHANGELOG.md
-    required: false
-    purpose: 版本歷史
-    location: 根目錄
-    note: 有版本的專案建議
+    - file: CHANGELOG.md
+      required: false
+      naming: 大寫
+      purpose: 版本歷史
 
-docs_structure:
-  root: docs/
-  files:
-    - path: index.md
-      purpose: 文件索引
-    - path: getting-started.md
-      purpose: 快速開始指南
-    - path: architecture.md
-      purpose: 系統架構
-    - path: api-reference.md
-      purpose: API 文件
-    - path: deployment.md
-      purpose: 部署指南
-    - path: troubleshooting.md
-      purpose: 常見問題
+    - file: LICENSE
+      required: true
+      naming: 大寫（無副檔名）
+      purpose: 授權檔案
+
+  docs:
+    naming: 小寫短橫線
+    files:
+      - index.md（文件索引）
+      - getting-started.md（快速開始）
+      - architecture.md（系統架構）
+      - api-reference.md（API 文件）
+      - deployment.md（部署指南）
+      - troubleshooting.md（常見問題）
+
+    subdirectories:
+      - name: flows/
+        purpose: 流程文件
+        index_required: "當 >5 個流程時"
+
+      - name: ADR/
+        purpose: 架構決策記錄
+        naming: "NNN-title.md"
+
+      - name: diagrams/
+        purpose: 架構圖表
+        formats: [".mmd", ".puml", ".drawio"]
 
 rules:
   - id: root-uppercase
     trigger: 建立根目錄文件時
-    instruction: 根目錄文件使用大寫（README.md、CONTRIBUTING.md）
+    instruction: 根目錄文件使用大寫（README、CONTRIBUTING、CHANGELOG）
     priority: required
 
-  - id: docs-lowercase
+  - id: docs-lowercase-kebab
     trigger: 建立 docs/ 文件時
-    instruction: docs/ 內文件使用小寫短橫線（getting-started.md）
+    instruction: docs/ 內所有文件使用小寫短橫線
+    validator: "^[a-z][a-z0-9-]*\\.md$"
+    priority: required
+    examples:
+      good:
+        - getting-started.md
+        - api-reference.md
+      bad:
+        - GettingStarted.md
+        - API_Reference.md
+        - "User Guide.md"
+
+  - id: readme-required
+    trigger: 建立新專案時
+    instruction: 每個專案都必須有 README.md
     priority: required
 
-  - id: readme-sections
-    trigger: 撰寫 README.md 時
-    instruction: 包含專案名稱、描述、安裝、使用、授權
+  - id: flow-index
+    trigger: 建立流程文件時
+    instruction: 當流程超過 5 個時，建立 flows/README.md
     priority: required
 
-  - id: link-validation
-    trigger: 加入內部連結時
-    instruction: 確保所有內部連結正確解析
-    priority: recommended
-
-readme_template:
-  minimum:
-    - 專案名稱
-    - 簡短描述
-    - 安裝步驟
-    - 使用範例
-    - 授權
-  recommended:
-    - 徽章（CI、覆蓋率、版本）
-    - 功能列表
-    - 文件連結
-    - 貢獻指南連結
-
-naming_conventions:
-  root_files:
-    pattern: UPPERCASE.md
-    examples:
-      good: [README.md, CONTRIBUTING.md, CHANGELOG.md]
-      bad: [readme.md, contributing.MD]
-  docs_files:
-    pattern: lowercase-kebab-case.md
-    examples:
-      good: [getting-started.md, api-reference.md]
-      bad: [GettingStarted.md, API_Reference.md]
+  - id: adr-numbering
+    trigger: 建立 ADR 時
+    instruction: 使用格式 NNN-title.md（例如：001-use-postgres.md）
+    validator: "^\\d{3}-[a-z][a-z0-9-]+\\.md$"
+    priority: required
 
 quick_reference:
-  essential_files:
-    columns: [檔案, 必要, 用途]
+  root_files:
+    columns: [檔案, 命名, 用途]
     rows:
-      - [README.md, 是, 專案概覽]
-      - [LICENSE, 是（開源）, 授權資訊]
-      - [CONTRIBUTING.md, 建議, 貢獻指南]
-      - [CHANGELOG.md, 建議, 版本歷史]
+      - [README.md, 大寫, 專案概覽]
+      - [CONTRIBUTING.md, 大寫, 貢獻指南]
+      - [CHANGELOG.md, 大寫, 版本歷史]
+      - [LICENSE, 大寫（無副檔名）, 授權檔案]
+      - [SECURITY.md, 大寫, 安全公告]
 
   docs_structure:
-    columns: [檔案, 用途]
+    columns: [目錄, 用途, 命名]
     rows:
-      - [index.md, 文件索引]
-      - [getting-started.md, 快速開始]
-      - [architecture.md, 系統架構]
-      - [api-reference.md, API 文件]
+      - [docs/, 主要文件, 小寫短橫線]
+      - [docs/flows/, 流程文件, "{module}-flow.md"]
+      - [docs/ADR/, 架構決策, "NNN-title.md"]
+      - [docs/diagrams/, 架構圖表, 描述性名稱]

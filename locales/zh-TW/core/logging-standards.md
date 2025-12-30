@@ -1,3 +1,11 @@
+---
+source: ../../../core/logging-standards.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-30
+status: current
+---
+
 # 日誌標準
 
 > 版本: 1.0.0 | 最後更新: 2025-12-30

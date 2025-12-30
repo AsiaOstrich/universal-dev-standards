@@ -1,9 +1,17 @@
+---
+source: ../../README.md
+source_version: 2.3.0
+translation_version: 2.3.0
+last_synced: 2025-12-30
+status: current
+---
+
 # 通用開發規範
 
 > **Language**: [English](../../README.md) | 繁體中文
 
-**版本**: 2.2.0
-**最後更新**: 2025-12-25
+**版本**: 2.3.0
+**最後更新**: 2025-12-30
 **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 
 ---

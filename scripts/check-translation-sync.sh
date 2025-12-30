@@ -56,6 +56,7 @@ get_yaml_value() {
 }
 
 # Function to get source file version from its own YAML front matter or Version line
+# Only searches the first 20 lines to avoid matching code blocks
 get_source_version() {
     local source_file="$1"
 
@@ -64,17 +65,20 @@ get_source_version() {
         return
     fi
 
-    # Try YAML front matter first
-    local version=$(grep "^version:" "$source_file" 2>/dev/null | head -1 | sed 's/^version:[[:space:]]*//' | tr -d '\r')
+    # Get first 20 lines for version detection (avoids code blocks)
+    local header=$(head -20 "$source_file")
 
-    # If not found, try **Version**: pattern
+    # Try YAML front matter first (only in header)
+    local version=$(echo "$header" | grep "^version:" 2>/dev/null | head -1 | sed 's/^version:[[:space:]]*//' | tr -d '\r')
+
+    # If not found, try **Version**: pattern (only in header)
     if [ -z "$version" ]; then
-        version=$(grep -E "^\*\*Version\*\*:" "$source_file" 2>/dev/null | head -1 | sed 's/.*:[[:space:]]*//' | tr -d '\r')
+        version=$(echo "$header" | grep -E "^\*\*Version\*\*:" 2>/dev/null | head -1 | sed 's/.*:[[:space:]]*//' | tr -d '\r')
     fi
 
-    # If still not found, try | Version | pattern in tables
+    # If still not found, try > Version: pattern (inline version)
     if [ -z "$version" ]; then
-        version=$(grep -E "^\| Version \|" "$source_file" 2>/dev/null | head -1 | sed 's/.*|[[:space:]]*//' | cut -d'|' -f1 | tr -d ' \r')
+        version=$(echo "$header" | grep -E "^> Version:" 2>/dev/null | head -1 | sed 's/.*Version:[[:space:]]*//' | cut -d'|' -f1 | tr -d ' \r')
     fi
 
     echo "$version"

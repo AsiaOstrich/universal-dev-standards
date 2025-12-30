@@ -1,3 +1,11 @@
+---
+source: ../../../../options/git-workflow/merge-commit.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-30
+status: current
+---
+
 # Merge Commit 合併策略
 
 > **語言**: [English](../../../../options/git-workflow/merge-commit.md) | 繁體中文

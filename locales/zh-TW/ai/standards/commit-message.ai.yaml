@@ -3,16 +3,45 @@
 
 id: commit-message
 meta:
-  version: "1.0.0"
-  updated: "2025-12-26"
+  version: "1.2.3"
+  updated: "2025-12-30"
   source: core/commit-message-guide.md
   description: Conventional Commits 格式規範
   language: zh-TW
 
 format:
-  template: "<type>(<scope>): <subject>"
-  max_subject_length: 72
-  ideal_subject_length: 50
+  template: |
+    <type>(<scope>): <subject>
+
+    <body>
+
+    <footer>
+  components:
+    - name: type
+      required: true
+      description: 變更類型
+    - name: scope
+      required: false
+      description: 影響的模組/元件
+    - name: subject
+      required: true
+      description: 簡短描述（最多 72 字元）
+    - name: body
+      required: false
+      description: 詳細說明
+    - name: footer
+      required: false
+      description: Issue 參考、破壞性變更
+
+decision:
+  question: "你的團隊組成是什麼？"
+  matrix:
+    - answer: "國際或混合團隊"
+      select: english
+    - answer: "本地團隊（台灣）"
+      select: traditional-chinese
+    - answer: "混合但以本地為主"
+      select: bilingual
 
 options:
   commit_language:
@@ -64,28 +93,54 @@ types:
     bump: patch
 
 rules:
+  - id: choose-language
+    trigger: 開始專案時
+    instruction: 選擇一種 commit 訊息語言並記錄在 CONTRIBUTING.md
+    priority: required
+
+  - id: consistent-language
+    trigger: 撰寫 commit 訊息時
+    instruction: 在所有 commit 中使用一致的語言
+    priority: required
+
+  - id: subject-max-length
+    trigger: 撰寫 commit 主旨時
+    instruction: 主旨行保持在 72 字元以內
+    validator: "^.{1,72}$"
+    priority: required
+
+  - id: scope-lowercase
+    trigger: 指定 scope 時
+    instruction: scope 使用小寫（auth，而非 Auth）
+    validator: "^[a-z][a-z0-9-]*$"
+    priority: required
+
   - id: imperative-mood
-    trigger: 撰寫提交主旨時
-    instruction: 使用祈使語氣（例如：Add 而非 Added 或 Adding）
+    trigger: 撰寫 commit 主旨時
+    instruction: 使用祈使語氣（add、fix，而非 added、fixed）
     priority: required
     examples:
-      good: ["Add user login", "Fix memory leak"]
-      bad: ["Added feature", "Fixing bug", "This adds..."]
+      good:
+        - "feat(auth): add OAuth2 login"
+        - "fix(api): handle null response"
+      bad:
+        - "feat(auth): added OAuth2 login"
+        - "fix(api): handles null response"
 
-  - id: no-period
-    trigger: 撰寫提交主旨時
-    instruction: 不要以句號結尾
+  - id: no-mixed-changes
+    trigger: 提交程式碼時
+    instruction: 每個 commit 只包含一個邏輯變更；避免混合不相關的變更
     priority: required
 
-  - id: explain-why
-    trigger: 撰寫提交內文時
-    instruction: 解釋為什麼做這個改變，而不只是描述什麼改變
+  - id: reference-issues
+    trigger: 修復 bug 或實作功能時
+    instruction: 在 footer 中參考 issue 編號
     priority: recommended
-
-  - id: breaking-change
-    trigger: 引入破壞性變更時
-    instruction: 在頁尾加入 BREAKING CHANGE 說明
-    priority: required
+    examples:
+      good:
+        - "Closes #123"
+        - "Fixes #456"
+        - "Refs #789"
 
 examples:
   simple: "feat(auth): Add OAuth2 login support"
@@ -100,6 +155,14 @@ examples:
     2. 使用 created_at 取代 createdAt
 
 quick_reference:
+  language_selection:
+    columns: [因素, 英文, 繁體中文, 雙語]
+    rows:
+      - [團隊組成, 國際/混合, 本地（台灣）, 混合但以本地為主]
+      - [工具相容性, 最佳, 有限, 良好]
+      - [Changelog 自動化, 完整支援, 需自訂設定, 支援]
+      - [開源專案, 推薦, 不推薦, 不錯的選擇]
+
   commit_types:
     columns: [類型, 用途, 版本影響]
     rows:

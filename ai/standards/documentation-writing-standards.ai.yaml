@@ -1,0 +1,189 @@
+# Documentation Writing Standards - AI Optimized
+# Source: core/documentation-writing-standards.md
+
+id: documentation-writing-standards
+meta:
+  version: "1.0.1"
+  updated: "2025-12-30"
+  source: core/documentation-writing-standards.md
+  description: Documentation requirements based on project types
+
+project_types:
+  new_project:
+    description: Building software from scratch
+    required:
+      - README.md
+      - ARCHITECTURE.md
+      - DEPLOYMENT.md
+      - CHANGELOG.md
+    recommended:
+      - API.md (if exposing external APIs)
+      - DATABASE.md (if using databases)
+      - ADR/ (record important decisions)
+
+  refactoring:
+    description: Improving existing system without changing external behavior
+    required:
+      - README.md
+      - ARCHITECTURE.md
+      - API.md (if applicable)
+      - DATABASE.md (if applicable)
+      - DEPLOYMENT.md
+      - MIGRATION.md
+      - ADR/
+      - CHANGELOG.md
+    key_points:
+      - MIGRATION.md must include rollback plan
+      - ADR must document why refactor and why this approach
+
+  migration:
+    description: Moving system to another environment/platform
+    required:
+      - README.md
+      - ARCHITECTURE.md
+      - API.md
+      - DATABASE.md
+      - DEPLOYMENT.md
+      - MIGRATION.md
+      - ADR/
+      - CHANGELOG.md
+    key_points:
+      - MIGRATION.md is the core document
+      - Must include data migration verification
+      - Must include rollback plan
+      - Must include integration partner notification
+
+  maintenance:
+    description: Day-to-day maintenance, bug fixes, minor enhancements
+    required:
+      - README.md
+      - CHANGELOG.md
+    recommended:
+      - Update other documents based on change scope
+
+document_categories:
+  architecture:
+    file: ARCHITECTURE.md
+    required_sections:
+      - System Overview (purpose, scope, main functions)
+      - Architecture Diagram (Mermaid or ASCII)
+      - Module Description (responsibilities, dependencies)
+      - Technology Stack (frameworks, languages, versions)
+      - Data Flow (main business process)
+    recommended_sections:
+      - Deployment Architecture
+      - Design Decisions (or link to ADR)
+
+  api:
+    file: API.md
+    required_sections:
+      - API Overview (version, base URL, authentication)
+      - Authentication (token acquisition, expiration)
+      - Endpoint List
+      - Endpoint Specifications (request/response format)
+      - Error Code Reference
+    recommended_sections:
+      - Code Examples
+      - Rate Limiting
+
+  database:
+    file: DATABASE.md
+    required_sections:
+      - Database Overview (type, version, connection)
+      - ER Diagram
+      - Table List
+      - Table Specifications (column definitions)
+      - Index Documentation
+      - Migration Scripts
+    recommended_sections:
+      - Backup Strategy
+
+  deployment:
+    file: DEPLOYMENT.md
+    required_sections:
+      - Environment Requirements
+      - Installation Steps
+      - Configuration
+      - Verification
+      - Troubleshooting
+    recommended_sections:
+      - Monitoring
+      - Scaling Guide
+
+  migration:
+    file: MIGRATION.md
+    required_sections:
+      - Migration Overview (goals, scope, timeline)
+      - Prerequisites
+      - Migration Steps
+      - Verification Checklist
+      - Rollback Plan
+      - Backward Compatibility
+    recommended_sections:
+      - Integration Partner Notification
+
+  adr:
+    directory: docs/ADR/
+    naming: "NNN-kebab-case-title.md"
+    required_sections:
+      - Title
+      - Status (proposed/accepted/deprecated/superseded)
+      - Context
+      - Decision
+      - Consequences
+    recommended_sections:
+      - Alternatives Considered
+
+rules:
+  - id: project-type-docs
+    trigger: starting a project
+    instruction: Identify project type and create required documents
+    priority: required
+
+  - id: sync-updates
+    trigger: changing code
+    instruction: Update documentation when code changes
+    priority: required
+
+  - id: version-marking
+    trigger: creating documentation
+    instruction: Mark version and update date at top
+    priority: required
+
+  - id: review-inclusion
+    trigger: submitting code review
+    instruction: Include doc changes in code review
+    priority: required
+
+  - id: periodic-review
+    trigger: quarterly
+    instruction: Review docs for staleness
+    priority: recommended
+
+quality_standards:
+  format:
+    language: English
+    encoding: UTF-8
+    line_length: "≤120 characters"
+    diagrams: Prefer Mermaid, then ASCII Art
+    links: Use relative paths for internal links
+
+  review_checklist:
+    - Required sections complete
+    - No outdated or incorrect information
+    - All links working
+    - Examples are executable/accurate
+    - Format follows standards
+
+quick_reference:
+  requirements_matrix:
+    columns: [Document, New, Refactor, Migration, Maintenance]
+    rows:
+      - [README.md, Required, Required, Required, Required]
+      - [ARCHITECTURE.md, Required, Required, Required, Recommended]
+      - [API.md, If applicable, Required, Required, Recommended]
+      - [DATABASE.md, If applicable, Required, Required, Recommended]
+      - [DEPLOYMENT.md, Required, Required, Required, Recommended]
+      - [MIGRATION.md, Not needed, Required, Required, Not needed]
+      - [ADR/, Recommended, Required, Required, If applicable]
+      - [CHANGELOG.md, Required, Required, Required, Required]

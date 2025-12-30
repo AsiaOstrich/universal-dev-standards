@@ -1,3 +1,11 @@
+---
+source: ../../../../options/testing/e2e-testing.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-30
+status: current
+---
+
 # 端對端 (E2E) 測試
 
 > **語言**: [English](../../../../options/testing/e2e-testing.md) | 繁體中文

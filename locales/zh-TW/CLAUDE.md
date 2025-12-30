@@ -1,3 +1,11 @@
+---
+source: ../../CLAUDE.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-30
+status: current
+---
+
 # 通用開發標準 - 專案規範
 
 本文件定義 Universal Development Standards 專案本身的開發規範。作為一個提供開發標準給其他專案的框架，我們實踐自己所倡導的理念（「吃自己的狗糧」）。

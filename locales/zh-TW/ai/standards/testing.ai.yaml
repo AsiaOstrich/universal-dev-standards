@@ -3,8 +3,8 @@
 
 id: testing
 meta:
-  version: "1.2.0"
-  updated: "2025-12-29"
+  version: "1.3.0"
+  updated: "2025-12-30"
   source: core/testing-standards.md
   description: 測試金字塔與建議的覆蓋率比例，支援框架選項
   language: zh-TW
@@ -64,11 +64,17 @@ options:
       - id: security-testing
         file: options/testing/security-testing.ai.yaml
         best_for: 處理敏感資料的應用程式、安全關鍵系統
+      - id: performance-testing
+        file: options/testing/performance-testing.ai.yaml
+        best_for: 高流量應用程式、即時系統、API
+      - id: contract-testing
+        file: options/testing/contract-testing.ai.yaml
+        best_for: 微服務、API 整合、分散式系統
 
 rules:
   - id: follow-pyramid
     trigger: 規劃測試策略時
-    instruction: 遵循 70/20/10 的單元/整合/端對端比例（業界標準），或使用 ISTQB 4 層結構
+    instruction: 遵循 70/20/7/3 的單元/整合/系統/端對端比例
     priority: required
 
   - id: first-principles
@@ -98,21 +104,19 @@ rules:
     instruction: 專注於邊界條件和邊緣案例
     priority: recommended
 
+  - id: avoid-test-doubles-overuse
+    trigger: 使用 mocks/stubs 時
+    instruction: 謹慎使用測試替身；當速度足夠快時，優先使用真實實作
+    priority: recommended
+
 quick_reference:
-  framework_options:
-    columns: [框架, 層級, 適用場景]
-    rows:
-      - [ISTQB, "UT → IT/SIT → ST → AT/UAT", 企業/合規]
-      - [業界金字塔, "UT (70%) → IT (20%) → E2E (10%)", 敏捷/DevOps]
-  abbreviation_note:
-    IT: "Integration Testing - 敏捷/DevOps 常用"
-    SIT: "System Integration Testing - 企業/ISTQB 常用"
   test_pyramid:
     columns: [層級, 百分比, 範圍, 速度]
     rows:
-      - [單元 (UT), 70%, 單一函式, <100ms]
-      - [整合 (IT/SIT), 20%, 多個元件, <1s]
-      - [端對端 (E2E), 10%, 使用者流程, ">10s"]
+      - [單元, 70%, 單一函式, <100ms]
+      - [整合, 20%, 多個元件, <1s]
+      - [系統, 7%, 完整系統, <10s]
+      - [端對端, 3%, 使用者流程, ">10s"]
 
   first_principles:
     columns: [原則, 說明]

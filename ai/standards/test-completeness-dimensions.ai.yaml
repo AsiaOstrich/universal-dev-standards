@@ -1,0 +1,219 @@
+# Test Completeness Dimensions - AI Optimized
+# Source: core/test-completeness-dimensions.md
+
+id: test-completeness-dimensions
+meta:
+  version: "1.0.0"
+  updated: "2025-12-30"
+  source: core/test-completeness-dimensions.md
+  description: Framework for evaluating test completeness across 7 dimensions
+
+dimensions:
+  - id: 1
+    name: Happy Path
+    description: Normal expected behavior with valid inputs
+    test_items:
+      - Valid input produces expected output
+      - Success status codes/responses
+      - Data is correctly created/modified
+      - Side effects occur as expected
+
+  - id: 2
+    name: Boundary Conditions
+    description: Values at the edges of valid ranges
+    test_items:
+      - Minimum valid values
+      - Maximum valid values
+      - Just below minimum (invalid)
+      - Just above maximum (invalid)
+      - Empty collections vs single item vs many items
+
+  - id: 3
+    name: Error Handling
+    description: Invalid inputs and exceptional conditions
+    test_items:
+      - Invalid input formats
+      - Missing required fields
+      - Duplicate data conflicts
+      - Resource not found
+      - External service failures
+
+  - id: 4
+    name: Authorization
+    description: Role-based access control for each operation
+    test_items:
+      - Each role's permitted operations
+      - Each role's denied operations
+      - Unauthenticated access
+      - Cross-tenant/cross-user data access
+    note: Create authorization matrix for each feature
+
+  - id: 5
+    name: State Changes
+    description: System state before and after operations
+    test_items:
+      - State before operation
+      - State after operation
+      - State transitions (enabled → disabled)
+      - Idempotency (repeating operation has same result)
+
+  - id: 6
+    name: Validation Logic
+    description: Business rules and format validation
+    test_items:
+      - Format validation (email, phone, etc.)
+      - Business rule validation
+      - Cross-field validation
+      - Domain-specific constraints
+
+  - id: 7
+    name: Integration Verification
+    description: Actual database queries and external integrations
+    test_items:
+      - Query predicates return correct data
+      - Entity relationships correctly loaded
+      - Pagination works correctly
+      - Sorting and filtering work correctly
+    when_required: If unit test uses wildcard matchers (It.IsAny<>, any(), Arg.Any<>)
+
+feature_type_mapping:
+  - type: CRUD API
+    dimensions: [1, 2, 3, 4, 6, 7]
+
+  - type: Query/Search
+    dimensions: [1, 2, 3, 4, 7]
+
+  - type: State Machine
+    dimensions: [1, 3, 4, 5, 6]
+
+  - type: Validation
+    dimensions: [1, 2, 3, 6]
+
+  - type: Background Job
+    dimensions: [1, 3, 5]
+
+  - type: External Integration
+    dimensions: [1, 3, 7]
+
+error_code_coverage:
+  - code: 200
+    meaning: Success
+    scenario: Happy path test
+
+  - code: 400
+    meaning: Bad Request
+    scenario: Invalid format, missing fields
+
+  - code: 401
+    meaning: Unauthorized
+    scenario: Invalid/missing token
+
+  - code: 403
+    meaning: Forbidden
+    scenario: Valid token, insufficient permissions
+
+  - code: 404
+    meaning: Not Found
+    scenario: Non-existent resource
+
+  - code: 409
+    meaning: Conflict
+    scenario: Duplicate data
+
+  - code: 422
+    meaning: Unprocessable
+    scenario: Business rule violation
+
+  - code: 500
+    meaning: Server Error
+    scenario: Exception handling
+
+anti_patterns:
+  - Testing only happy path
+  - Missing authorization tests for multi-role systems
+  - Not verifying state changes
+  - Using wildcards in UT without corresponding IT
+  - Same values for ID and business identifier in test data
+  - Testing implementation details instead of behavior
+
+rules:
+  - id: use-checklist
+    trigger: designing tests for a feature
+    instruction: Use the 7 dimensions checklist to ensure completeness
+    priority: required
+
+  - id: authorization-matrix
+    trigger: feature has role-based access
+    instruction: Create authorization matrix with test for each cell
+    priority: required
+
+  - id: integration-for-wildcards
+    trigger: unit test uses wildcard matchers
+    instruction: Must have corresponding integration tests
+    priority: required
+
+  - id: cover-error-codes
+    trigger: API returns error codes
+    instruction: Each error code should have a test scenario
+    priority: required
+
+checklist_template: |
+  Feature: ___________________
+
+  □ Happy Path
+    □ Valid input produces expected success
+    □ Correct data is returned/created
+    □ Side effects occur as expected
+
+  □ Boundary Conditions
+    □ Minimum valid value
+    □ Maximum valid value
+    □ Empty/single/large collection
+
+  □ Error Handling
+    □ Invalid input format
+    □ Missing required fields
+    □ Duplicate/conflict scenarios
+    □ Not found scenarios
+
+  □ Authorization
+    □ Each permitted role tested
+    □ Each denied role tested
+    □ Unauthenticated access tested
+
+  □ State Changes
+    □ Initial state verified
+    □ Final state verified
+    □ All valid transitions tested
+
+  □ Validation
+    □ Format validation
+    □ Business rule validation
+    □ Cross-field validation
+
+  □ Integration (if UT uses wildcards)
+    □ Query predicates verified
+    □ Entity relationships verified
+    □ Pagination/sorting verified
+
+quick_reference:
+  dimensions:
+    columns: [ID, Dimension, Key Focus]
+    rows:
+      - [1, Happy Path, Normal expected behavior]
+      - [2, Boundary, Min/max values and limits]
+      - [3, Error Handling, Invalid input and exceptions]
+      - [4, Authorization, Role-based access control]
+      - [5, State Changes, Before/after verification]
+      - [6, Validation, Format and business rules]
+      - [7, Integration, Real query verification]
+
+  feature_dimensions:
+    columns: [Feature Type, Required Dimensions]
+    rows:
+      - [CRUD API, "1,2,3,4,6,7"]
+      - [Query/Search, "1,2,3,4,7"]
+      - [State Machine, "1,3,4,5,6"]
+      - [Validation, "1,2,3,6"]
+      - [Background Job, "1,3,5"]
+      - [External Integration, "1,3,7"]

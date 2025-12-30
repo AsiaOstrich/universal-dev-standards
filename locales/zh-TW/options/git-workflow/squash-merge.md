@@ -1,3 +1,11 @@
+---
+source: ../../../../options/git-workflow/squash-merge.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-30
+status: current
+---
+
 # Squash Merge 合併策略
 
 > **語言**: [English](../../../../options/git-workflow/squash-merge.md) | 繁體中文

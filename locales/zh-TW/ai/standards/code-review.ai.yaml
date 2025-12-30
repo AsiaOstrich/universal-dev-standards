@@ -3,11 +3,26 @@
 
 id: code-review
 meta:
-  version: "1.0.0"
-  updated: "2025-12-26"
+  version: "1.1.0"
+  updated: "2025-12-30"
   source: core/code-review-checklist.md
   description: 系統化的程式碼品質與安全性審查清單
   language: zh-TW
+
+options:
+  review_approach:
+    description: 選擇程式碼審查方法
+    multiSelect: true
+    choices:
+      - id: pr-review
+        file: options/code-review/pr-review.ai.yaml
+        best_for: 分散式團隊、非同步工作流程
+      - id: pair-programming
+        file: options/code-review/pair-programming.ai.yaml
+        best_for: 複雜功能、知識傳承
+      - id: automated-review
+        file: options/code-review/automated-review.ai.yaml
+        best_for: CI/CD 整合、捕捉常見問題
 
 checklist:
   functionality:
@@ -62,15 +77,15 @@ comment_prefixes:
       meaning: 讚賞
 
   text:
-    - prefix: "[必要]"
+    - prefix: "[REQUIRED]"
       meaning: 合併前必須修正
-    - prefix: "[建議]"
+    - prefix: "[SUGGESTION]"
       meaning: 考慮變更
-    - prefix: "[問題]"
+    - prefix: "[QUESTION]"
       meaning: 需要釐清
-    - prefix: "[小問題]"
+    - prefix: "[NIT]"
       meaning: 次要問題
-    - prefix: "[讚賞]"
+    - prefix: "[PRAISE]"
       meaning: 做得好
 
 rules:

@@ -1,0 +1,190 @@
+# 文件撰寫標準 - AI 優化版
+# 來源: core/documentation-writing-standards.md
+
+id: documentation-writing-standards
+meta:
+  version: "1.0.1"
+  updated: "2025-12-30"
+  source: core/documentation-writing-standards.md
+  description: 基於專案類型的文件需求
+  language: zh-TW
+
+project_types:
+  new_project:
+    description: 從零開始建立軟體
+    required:
+      - README.md
+      - ARCHITECTURE.md
+      - DEPLOYMENT.md
+      - CHANGELOG.md
+    recommended:
+      - API.md（如有對外 API）
+      - DATABASE.md（如使用資料庫）
+      - ADR/（記錄重要決策）
+
+  refactoring:
+    description: 改善既有系統而不改變外部行為
+    required:
+      - README.md
+      - ARCHITECTURE.md
+      - API.md（如適用）
+      - DATABASE.md（如適用）
+      - DEPLOYMENT.md
+      - MIGRATION.md
+      - ADR/
+      - CHANGELOG.md
+    key_points:
+      - MIGRATION.md 必須包含回滾計畫
+      - ADR 必須記錄為何重構及為何選擇此方法
+
+  migration:
+    description: 將系統遷移到另一個環境/平台
+    required:
+      - README.md
+      - ARCHITECTURE.md
+      - API.md
+      - DATABASE.md
+      - DEPLOYMENT.md
+      - MIGRATION.md
+      - ADR/
+      - CHANGELOG.md
+    key_points:
+      - MIGRATION.md 是核心文件
+      - 必須包含資料遷移驗證
+      - 必須包含回滾計畫
+      - 必須包含整合夥伴通知
+
+  maintenance:
+    description: 日常維護、bug 修正、小幅功能增強
+    required:
+      - README.md
+      - CHANGELOG.md
+    recommended:
+      - 根據變更範圍更新其他文件
+
+document_categories:
+  architecture:
+    file: ARCHITECTURE.md
+    required_sections:
+      - 系統概覽（目的、範圍、主要功能）
+      - 架構圖（Mermaid 或 ASCII）
+      - 模組說明（職責、相依性）
+      - 技術棧（框架、語言、版本）
+      - 資料流（主要業務流程）
+    recommended_sections:
+      - 部署架構
+      - 設計決策（或連結到 ADR）
+
+  api:
+    file: API.md
+    required_sections:
+      - API 概覽（版本、基礎 URL、認證）
+      - 認證（Token 取得、過期）
+      - 端點列表
+      - 端點規格（請求/回應格式）
+      - 錯誤碼參考
+    recommended_sections:
+      - 程式碼範例
+      - 速率限制
+
+  database:
+    file: DATABASE.md
+    required_sections:
+      - 資料庫概覽（類型、版本、連線）
+      - ER 圖
+      - 資料表列表
+      - 資料表規格（欄位定義）
+      - 索引文件
+      - 遷移腳本
+    recommended_sections:
+      - 備份策略
+
+  deployment:
+    file: DEPLOYMENT.md
+    required_sections:
+      - 環境需求
+      - 安裝步驟
+      - 設定
+      - 驗證
+      - 故障排除
+    recommended_sections:
+      - 監控
+      - 擴展指南
+
+  migration:
+    file: MIGRATION.md
+    required_sections:
+      - 遷移概覽（目標、範圍、時程）
+      - 先決條件
+      - 遷移步驟
+      - 驗證清單
+      - 回滾計畫
+      - 向後相容性
+    recommended_sections:
+      - 整合夥伴通知
+
+  adr:
+    directory: docs/ADR/
+    naming: "NNN-kebab-case-title.md"
+    required_sections:
+      - 標題
+      - 狀態（proposed/accepted/deprecated/superseded）
+      - 背景
+      - 決策
+      - 影響
+    recommended_sections:
+      - 考慮的替代方案
+
+rules:
+  - id: project-type-docs
+    trigger: 開始專案時
+    instruction: 識別專案類型並建立必要文件
+    priority: required
+
+  - id: sync-updates
+    trigger: 變更程式碼時
+    instruction: 程式碼變更時更新文件
+    priority: required
+
+  - id: version-marking
+    trigger: 建立文件時
+    instruction: 在頂部標記版本和更新日期
+    priority: required
+
+  - id: review-inclusion
+    trigger: 提交程式碼審查時
+    instruction: 在程式碼審查中包含文件變更
+    priority: required
+
+  - id: periodic-review
+    trigger: 每季
+    instruction: 審查文件是否過時
+    priority: recommended
+
+quality_standards:
+  format:
+    language: 英文
+    encoding: UTF-8
+    line_length: "≤120 字元"
+    diagrams: 優先使用 Mermaid，其次 ASCII Art
+    links: 內部連結使用相對路徑
+
+  review_checklist:
+    - 必要區段完整
+    - 無過時或不正確的資訊
+    - 所有連結有效
+    - 範例可執行/正確
+    - 格式遵循標準
+
+quick_reference:
+  requirements_matrix:
+    columns: [文件, 新專案, 重構, 遷移, 維護]
+    rows:
+      - [README.md, 必要, 必要, 必要, 必要]
+      - [ARCHITECTURE.md, 必要, 必要, 必要, 建議]
+      - [API.md, 如適用, 必要, 必要, 建議]
+      - [DATABASE.md, 如適用, 必要, 必要, 建議]
+      - [DEPLOYMENT.md, 必要, 必要, 必要, 建議]
+      - [MIGRATION.md, 不需要, 必要, 必要, 不需要]
+      - [ADR/, 建議, 必要, 必要, 如適用]
+      - [CHANGELOG.md, 必要, 必要, 必要, 必要]

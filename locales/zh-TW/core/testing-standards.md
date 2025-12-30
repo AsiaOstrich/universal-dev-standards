@@ -1,14 +1,14 @@
-# 測試標準
-
-> **語言**: [English](../../../core/testing-standards.md) | 繁體中文
-
 ---
 source: ../../../core/testing-standards.md
 source_version: 1.3.0
 translation_version: 1.3.0
-last_synced: 2025-12-29
+last_synced: 2025-12-30
 status: current
 ---
+
+# 測試標準
+
+> **語言**: [English](../../../core/testing-standards.md) | 繁體中文
 
 **版本**: 1.3.0
 **最後更新**: 2025-12-29

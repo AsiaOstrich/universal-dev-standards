@@ -1,3 +1,11 @@
+---
+source: ../../../../options/git-workflow/gitflow.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-30
+status: current
+---
+
 # GitFlow 工作流程
 
 > **語言**: [English](../../../../options/git-workflow/gitflow.md) | 繁體中文

@@ -1,0 +1,170 @@
+# 程式碼簽入標準 - AI 優化版
+# 來源: core/checkin-standards.md
+
+id: checkin-standards
+meta:
+  version: "1.2.5"
+  updated: "2025-12-30"
+  source: core/checkin-standards.md
+  description: 提交程式碼前必須通過的品質關卡
+  language: zh-TW
+
+philosophy:
+  every_commit_should:
+    - 是一個完整的邏輯工作單元
+    - 讓程式碼庫保持在可運作狀態
+    - 可以回復而不破壞功能
+    - 包含自己的測試（針對新功能）
+    - 讓未來的開發者能理解
+
+checklist:
+  build_verification:
+    items:
+      - 程式碼編譯成功（零錯誤）
+      - 零建置警告（或有記錄的例外）
+      - 所有套件相依性已安裝
+      - 相依性版本已鎖定/記錄
+      - 無遺漏的 import 或模組
+
+  test_verification:
+    items:
+      - 所有既有測試通過（100% 通過率）
+      - 新程式碼有對應的測試
+      - Bug 修正包含回歸測試
+      - 邊緣案例已涵蓋
+      - 測試覆蓋率維持或提升
+
+  code_quality:
+    items:
+      - 遵循程式碼標準
+      - 方法 ≤50 行（或專案標準）
+      - 巢狀深度 ≤3 層
+      - 循環複雜度 ≤10
+      - 無重複的程式碼區塊
+      - 無硬編碼的機密
+      - 無 SQL/XSS 注入漏洞
+
+  documentation:
+    items:
+      - API 文件已更新
+      - README 已更新（如需要）
+      - CHANGELOG 已更新（使用者可見的變更加入 [Unreleased] 區段）
+
+  workflow_compliance:
+    items:
+      - 分支命名正確
+      - Commit 訊息格式正確
+      - 已與目標分支同步
+      - 無合併衝突
+
+timing:
+  appropriate:
+    - 完成功能單元（功能 + 測試 + 文件）
+    - 特定 bug 已修復（含回歸測試）
+    - 獨立重構（所有測試通過）
+    - 可運行狀態（程式碼編譯、應用程式可執行）
+
+  inappropriate:
+    - 建置失敗
+    - 測試失敗
+    - 不完整的功能
+    - 實驗性程式碼（TODO、除錯碼、註解掉的程式碼）
+
+granularity:
+  ideal_commit_size:
+    file_count: 1-10
+    lines_changed: 50-300
+    scope: 單一關注點
+
+  splitting_principles:
+    combine:
+      - 功能實作 + 對應測試
+      - 緊密相關的多檔案變更
+    separate:
+      - 功能 A + 功能 B
+      - 重構 + 新功能
+      - Bug 修正 + 順便重構
+
+trigger_points:
+  - trigger: 階段完成
+    condition: 完成一個開發階段
+    intensity: 建議
+  - trigger: 變更累積
+    condition: 檔案 ≥5 或行數 ≥200
+    intensity: 建議
+  - trigger: 連續跳過
+    condition: 連續跳過簽入 3 次
+    intensity: 警告
+  - trigger: 工作完成
+    condition: 結束前有未提交的變更
+    intensity: 強烈建議
+
+special_scenarios:
+  emergency_leave:
+    option_1:
+      name: Git Stash（推薦）
+      command: 'git stash save "WIP: 描述"'
+    option_2:
+      name: WIP 分支
+      command: 'git checkout -b wip/feature-temp'
+    prohibited: 直接在功能分支提交 WIP 程式碼
+
+  experimental:
+    - 建立實驗分支
+    - 實驗期間自由提交
+    - 成功時 - 清理歷史、squash、合併
+    - 失敗時 - 記錄教訓、刪除分支
+
+  hotfix:
+    - 從 main 建立 hotfix 分支
+    - 最小化變更（只修復問題）
+    - 快速驗證
+    - 在 commit 訊息標記緊急性
+
+rules:
+  - id: build-before-commit
+    trigger: 提交之前
+    instruction: 本地執行建置命令，確保退出碼為 0
+    priority: required
+
+  - id: test-before-commit
+    trigger: 提交之前
+    instruction: 本地執行所有測試套件，檢查覆蓋率
+    priority: required
+
+  - id: no-wip-commits
+    trigger: 撰寫 commit 訊息時
+    instruction: 避免 WIP、save work、trying stuff - 改用 git stash
+    priority: required
+
+  - id: no-commented-code
+    trigger: 檢查變更時
+    instruction: 刪除註解掉的程式碼，依賴 git 歷史
+    priority: required
+
+  - id: single-concern
+    trigger: 暫存變更時
+    instruction: 一個 commit 做一件事 - 分開不相關的變更
+    priority: required
+
+  - id: ai-wait-confirmation
+    trigger: AI 完成程式碼變更時
+    instruction: AI 不得自動執行 git add/commit/push，等待使用者明確同意
+    priority: required
+
+quick_reference:
+  checklist:
+    columns: [類別, 關鍵項目]
+    rows:
+      - [建置, "零錯誤、零警告、相依性滿足"]
+      - [測試, "全部通過、新程式碼已測試、覆蓋率維持"]
+      - [品質, "遵循標準、無機密、無漏洞"]
+      - [文件, "API 文件、README、CHANGELOG 已更新"]
+      - [工作流程, "分支命名、commit 訊息、已同步"]
+
+  commit_size:
+    columns: [指標, 建議]
+    rows:
+      - [檔案數, 1-10 個檔案]
+      - [變更行數, 50-300 行]
+      - [範圍, 單一關注點]

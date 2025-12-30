@@ -1,7 +1,8 @@
 ---
+source: ../../../core/spec-driven-development.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2025-12-25
+last_synced: 2025-12-30
 status: current
 ---
 

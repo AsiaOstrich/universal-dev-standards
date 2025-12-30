@@ -1,0 +1,169 @@
+# 規格驅動開發標準 - AI 優化版
+# 來源: core/spec-driven-development.md
+
+id: spec-driven-development
+meta:
+  version: "1.1.0"
+  updated: "2025-12-30"
+  source: core/spec-driven-development.md
+  description: 規格驅動開發 (SDD) 的原則和工作流程
+  language: zh-TW
+
+workflow:
+  stages:
+    - stage: 提案
+      description: 定義要變更什麼及為什麼
+      artifacts: proposal.md
+
+    - stage: 審查
+      description: 利害關係人核准
+      artifacts: 審查意見、核准記錄
+
+    - stage: 實作
+      description: 執行已核准的規格
+      artifacts: 程式碼、測試、文件
+
+    - stage: 驗證
+      description: 確認實作符合規格
+      artifacts: 測試結果、審查
+
+    - stage: 歸檔
+      description: 關閉並歸檔規格
+      artifacts: 已歸檔規格附 commits/PRs 連結
+
+principles:
+  tool_priority:
+    rule: 當 SDD 工具提供命令時，優先使用這些命令而非手動編輯檔案
+    rationale:
+      - 一致性（嚴格的 schema）
+      - 可追溯性（自動記錄、ID、連結）
+      - 安全性（內建驗證）
+    example: '使用 /openspec proposal "新增登入" 而非手動建立檔案'
+
+  methodology_over_tooling:
+    rule: SDD 是一種方法論，不綁定單一工具
+    universal_flow: 提案 -> 審查 -> 實作 -> 驗證 -> 歸檔
+
+  spec_first:
+    rule: 沒有核准的規格不得進行功能性程式碼變更
+    exceptions:
+      - 緊急修復（立即恢復服務，之後補文件）
+      - 瑣碎變更（錯字、註解、格式）
+
+spec_template:
+  sections:
+    - name: 摘要
+      description: 提議變更的簡短描述
+      required: true
+
+    - name: 動機
+      description: 為什麼需要這個變更？解決什麼問題？
+      required: true
+
+    - name: 詳細設計
+      description: 技術方法、影響的元件、資料流
+      required: true
+
+    - name: 驗收標準
+      description: 可檢查的完成標準
+      required: true
+
+    - name: 相依性
+      description: 對其他規格或外部系統的相依
+      required: false
+
+    - name: 風險
+      description: 潛在風險和緩解策略
+      required: false
+
+integration:
+  commit_messages:
+    instruction: 在 commit 訊息中引用規格 ID
+    example: |
+      feat(auth): 實作登入功能
+
+      實作 SPEC-001 登入功能，支援 OAuth2。
+
+      Refs: SPEC-001
+
+  checkin_standards:
+    checklist:
+      - 規格已核准
+      - 實作符合規格
+      - 測試涵蓋驗收標準
+      - PR 中引用規格 ID
+
+  code_review:
+    checklist:
+      - 變更符合核准的規格
+      - 沒有超出規格的範圍蔓延
+      - 規格驗收標準已滿足
+
+common_tools:
+  - tool: OpenSpec
+    description: 規格管理
+    commands: ["/openspec proposal", "/openspec approve"]
+
+  - tool: Spec Kit
+    description: 輕量級規格追蹤
+    commands: ["/spec create", "/spec close"]
+
+  - tool: 手動
+    description: 無工具，基於檔案
+    commands: ["手動建立 specs/SPEC-XXX.md"]
+
+rules:
+  - id: use-sdd-commands
+    trigger: SDD 工具可用時
+    instruction: 使用工具命令而非手動編輯檔案
+    priority: required
+
+  - id: spec-before-code
+    trigger: 開始新功能時
+    instruction: 在編碼之前建立並取得規格核准
+    priority: required
+
+  - id: reference-spec-id
+    trigger: 提交實作時
+    instruction: 在 commit 訊息和 PR 中包含規格 ID
+    priority: required
+
+  - id: verify-against-spec
+    trigger: 完成實作時
+    instruction: 驗證所有驗收標準已滿足
+    priority: required
+
+  - id: archive-completed-specs
+    trigger: 規格實作已驗證
+    instruction: 歸檔規格並附上 commits/PRs 連結
+    priority: required
+
+best_practices:
+  do:
+    - 保持規格聚焦和原子性（一個變更一個規格）
+    - 包含清晰的驗收標準
+    - 將規格連結到實作 PRs
+    - 完成後歸檔規格
+
+  do_not:
+    - 在規格核准前開始編碼
+    - 實作期間修改範圍而不更新規格
+    - 讓規格處於懸置狀態（務必關閉或歸檔）
+    - 跳過驗證步驟
+
+quick_reference:
+  workflow:
+    columns: [階段, 產出物]
+    rows:
+      - [提案, proposal.md]
+      - [審查, 意見/核准]
+      - [實作, 程式碼/測試/文件]
+      - [驗證, 測試結果]
+      - [歸檔, 已歸檔規格]
+
+  tools:
+    columns: [工具, 命令]
+    rows:
+      - [OpenSpec, "/openspec proposal, /openspec approve"]
+      - [Spec Kit, "/spec create, /spec close"]
+      - [手動, "specs/SPEC-XXX.md"]
