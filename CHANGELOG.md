@@ -13,6 +13,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 _No unreleased changes._
 _目前無未發布的變更。_
 
+## [3.0.0] - 2025-12-30
+
+### Added | 新增
+- **AI-Optimized Standards Architecture**: Add dual-format support with `.ai.yaml` files
+  **AI 優化標準架構**：新增 `.ai.yaml` 雙格式支援
+- Add `ai/standards/` directory with 15 AI-optimized standard files
+  新增 `ai/standards/` 目錄，包含 15 個 AI 優化標準檔案
+- Add `ai/options/` directory with language-specific and workflow options
+  新增 `ai/options/` 目錄，包含語言特定和工作流程選項
+- Add `MAINTENANCE.md` - Project maintenance guide with file structure overview
+  新增 `MAINTENANCE.md` - 專案維護指南與檔案結構概覽
+- Add `ai/MAINTENANCE.md` - AI standards maintenance workflow guide
+  新增 `ai/MAINTENANCE.md` - AI 標準維護工作流程指南
+- Add `STANDARDS-MAPPING.md` - Standards to skills mapping matrix
+  新增 `STANDARDS-MAPPING.md` - 標準與技能對應矩陣
+- Add 6 new AI-optimized standards:
+  新增 6 個 AI 優化標準：
+  - `anti-hallucination.ai.yaml` - AI collaboration standards
+    `anti-hallucination.ai.yaml` - AI 協作標準
+  - `checkin-standards.ai.yaml` - Code check-in standards
+    `checkin-standards.ai.yaml` - 程式碼簽入標準
+  - `documentation-writing-standards.ai.yaml` - Documentation writing guide
+    `documentation-writing-standards.ai.yaml` - 文件撰寫指南
+  - `spec-driven-development.ai.yaml` - SDD workflow
+    `spec-driven-development.ai.yaml` - SDD 工作流程
+  - `test-completeness-dimensions.ai.yaml` - 7-dimension test framework
+    `test-completeness-dimensions.ai.yaml` - 7 維度測試框架
+  - `versioning.ai.yaml` - Semantic versioning standards
+    `versioning.ai.yaml` - 語義化版本標準
+- Add complete zh-TW translations for all new standards and skills (78 files total)
+  新增所有新標準和技能的完整繁體中文翻譯（共 78 個檔案）
+
+### Changed | 變更
+- Standardize version format in core standards to `**Version**: x.x.x`
+  統一核心標準的版本格式為 `**Version**: x.x.x`
+- Add `source` field to all zh-TW translation YAML front matter for sync tracking
+  為所有 zh-TW 翻譯的 YAML front matter 新增 `source` 欄位以追蹤同步
+- Update translation sync script with improved validation
+  更新翻譯同步腳本，改進驗證功能
+
+### Fixed | 修正
+- Fix version format inconsistency in `core/error-code-standards.md` and `core/logging-standards.md`
+  修正 `core/error-code-standards.md` 和 `core/logging-standards.md` 的版本格式不一致
+- Fix source paths in zh-TW skills translations
+  修正 zh-TW 技能翻譯中的來源路徑
+
 ## [2.3.0] - 2025-12-25
 
 ### Added | 新增
@@ -200,7 +246,9 @@ This reflects the project's expanded scope covering all development standards, n
 - Integrations: OpenSpec framework
   整合：OpenSpec 框架
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.3.0...v3.0.0
+[2.3.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v1.3.1...v2.0.0
