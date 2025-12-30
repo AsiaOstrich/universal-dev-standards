@@ -8,7 +8,7 @@ status: current
 
 # 通用開發規範
 
-> **Language**: [English](../../README.md) | 繁體中文
+> **Language**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
 
 **版本**: 3.0.0
 **最後更新**: 2025-12-30
