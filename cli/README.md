@@ -7,7 +7,17 @@ CLI tool for adopting Universal Development Standards in your projects.
 
 ## Installation | 安裝
 
-### Option 1: Clone and Run Locally (Recommended) | 選項一：本地克隆執行（推薦）
+### Option 1: npm (Recommended) | 選項一：npm（推薦）
+
+```bash
+# Install globally
+npm install -g universal-dev-standards
+
+# Or use npx directly
+npx universal-dev-standards init
+```
+
+### Option 2: Clone and Run Locally | 選項二：本地克隆執行
 
 ```bash
 # Clone the repository
@@ -22,25 +32,10 @@ npm install
 # Run directly
 node bin/uds.js list
 node bin/uds.js init
-```
 
-### Option 2: Global Link (for frequent use) | 選項二：全域連結（適合頻繁使用）
-
-```bash
-# In the cli directory
-cd universal-dev-standards/cli
+# Or link globally
 npm link
-
-# Now available globally
 uds list
-uds init
-```
-
-### Option 3: npx (when published to npm) | 選項三：npx（發布到 npm 後）
-
-```bash
-# Not yet published - use Option 1 or 2 for now
-npx universal-dev-standards init
 ```
 
 ## Commands | 命令
@@ -145,10 +140,8 @@ uds update --yes
 ## Example Workflow | 範例工作流程
 
 ```bash
-# 1. Clone and setup CLI (one-time)
-git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards/cli && npm install && npm link
-cd ~
+# 1. Install CLI (one-time)
+npm install -g universal-dev-standards
 
 # 2. Navigate to your project
 cd my-project
@@ -238,6 +231,7 @@ This CLI works alongside [universal-dev-skills](https://github.com/AsiaOstrich/u
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.0.0 | 2025-12-30 | Published to npm, enhanced init with AI tools selection |
 | 1.0.1 | 2025-12-24 | Added: Bilingual support (English + Chinese) |
 | 1.0.0 | 2025-12-23 | Initial CLI documentation |
 
