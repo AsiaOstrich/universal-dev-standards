@@ -122,8 +122,9 @@ export function detectAITools(projectPath) {
     windsurf: existsSync(join(projectPath, '.windsurfrules')),
     cline: existsSync(join(projectPath, '.clinerules')),
     copilot: existsSync(join(projectPath, '.github', 'copilot-instructions.md')),
-    claude: existsSync(join(projectPath, '.claude')) ||
-            existsSync(join(projectPath, 'CLAUDE.md'))
+    claudeCode: existsSync(join(projectPath, '.claude')) ||
+                existsSync(join(projectPath, 'CLAUDE.md')),
+    antigravity: existsSync(join(projectPath, 'INSTRUCTIONS.md'))
   };
 
   return detected;

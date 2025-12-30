@@ -2,6 +2,272 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 
 /**
+ * Prompt for AI tools being used
+ * @param {Object} detected - Detected AI tools from project
+ * @returns {Promise<string[]>} Selected AI tools
+ */
+export async function promptAITools(detected = {}) {
+  console.log();
+  console.log(chalk.cyan('AI Development Tools:'));
+  console.log(chalk.gray('  Select the AI coding assistants you use with this project'));
+  console.log();
+
+  const { tools } = await inquirer.prompt([
+    {
+      type: 'checkbox',
+      name: 'tools',
+      message: 'Which AI tools are you using?',
+      choices: [
+        new inquirer.Separator(chalk.gray('── Dynamic Skills ──')),
+        {
+          name: `${chalk.green('Claude Code')} ${chalk.gray('(推薦)')} - Anthropic CLI with dynamic Skills`,
+          value: 'claude-code',
+          checked: detected.claudeCode || false
+        },
+        new inquirer.Separator(chalk.gray('── Static Rule Files ──')),
+        {
+          name: `Cursor ${chalk.gray('(.cursorrules)')}`,
+          value: 'cursor',
+          checked: detected.cursor || false
+        },
+        {
+          name: `Windsurf ${chalk.gray('(.windsurfrules)')}`,
+          value: 'windsurf',
+          checked: detected.windsurf || false
+        },
+        {
+          name: `Cline ${chalk.gray('(.clinerules)')}`,
+          value: 'cline',
+          checked: detected.cline || false
+        },
+        {
+          name: `GitHub Copilot ${chalk.gray('(.github/copilot-instructions.md)')}`,
+          value: 'copilot',
+          checked: detected.copilot || false
+        },
+        {
+          name: `Google Antigravity ${chalk.gray('(INSTRUCTIONS.md)')} - Gemini Agent`,
+          value: 'antigravity',
+          checked: detected.antigravity || false
+        },
+        new inquirer.Separator(),
+        {
+          name: chalk.gray('None / Skip'),
+          value: 'none'
+        }
+      ]
+    }
+  ]);
+
+  // Filter out 'none' and separators
+  const filtered = tools.filter(t => t !== 'none' && typeof t === 'string');
+  return filtered;
+}
+
+/**
+ * Prompt for Skills installation location
+ * @returns {Promise<string>} 'user', 'project', or 'none'
+ */
+export async function promptSkillsInstallLocation() {
+  console.log();
+  console.log(chalk.cyan('Skills Installation:'));
+  console.log(chalk.gray('  Choose where to install Claude Code Skills'));
+  console.log();
+
+  const { location } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'location',
+      message: 'Where should Skills be installed?',
+      choices: [
+        {
+          name: `${chalk.green('User Level')} ${chalk.gray('(推薦)')} - ~/.claude/skills/ (shared across projects)`,
+          value: 'user'
+        },
+        {
+          name: `${chalk.blue('Project Level')} - .claude/skills/ (project-specific)`,
+          value: 'project'
+        },
+        {
+          name: `${chalk.gray('Skip')} - Do not install Skills`,
+          value: 'none'
+        }
+      ],
+      default: 'user'
+    }
+  ]);
+
+  // Show explanation
+  console.log();
+  if (location === 'user') {
+    console.log(chalk.gray('  → Skills will be installed to ~/.claude/skills/'));
+    console.log(chalk.gray('  → Available across all your projects'));
+  } else if (location === 'project') {
+    console.log(chalk.gray('  → Skills will be installed to .claude/skills/'));
+    console.log(chalk.gray('  → Only available in this project'));
+    console.log(chalk.gray('  → Consider adding .claude/skills/ to .gitignore'));
+  } else {
+    console.log(chalk.gray('  → No Skills will be installed'));
+    console.log(chalk.gray('  → Full standards will be copied to .standards/'));
+  }
+  console.log();
+
+  return location;
+}
+
+/**
+ * Prompt for Skills update (dual-level check)
+ * @param {Object|null} projectInfo - Project-level Skills info
+ * @param {Object|null} userInfo - User-level Skills info
+ * @param {string} latestVersion - Latest available version
+ * @returns {Promise<Object>} Update decision { action: 'both'|'project'|'user'|'none', targets: string[] }
+ */
+export async function promptSkillsUpdate(projectInfo, userInfo, latestVersion) {
+  const choices = [];
+  const needsUpdate = [];
+
+  // Check project-level
+  if (projectInfo?.installed) {
+    const projectVersion = projectInfo.version || 'unknown';
+    const projectNeedsUpdate = projectVersion !== latestVersion;
+    if (projectNeedsUpdate) {
+      needsUpdate.push('project');
+    }
+  }
+
+  // Check user-level
+  if (userInfo?.installed) {
+    const userVersion = userInfo.version || 'unknown';
+    const userNeedsUpdate = userVersion !== latestVersion;
+    if (userNeedsUpdate) {
+      needsUpdate.push('user');
+    }
+  }
+
+  // If nothing needs update
+  if (needsUpdate.length === 0) {
+    console.log(chalk.green('✓ All Skills installations are up to date'));
+    return { action: 'none', targets: [] };
+  }
+
+  // Build choices based on what needs updating
+  console.log();
+  console.log(chalk.cyan('Skills Update Available:'));
+
+  if (projectInfo?.installed) {
+    const pVer = projectInfo.version || 'unknown';
+    const pStatus = pVer === latestVersion
+      ? chalk.green('✓ up to date')
+      : chalk.yellow(`v${pVer} → v${latestVersion}`);
+    console.log(chalk.gray(`  Project level (.claude/skills/): ${pStatus}`));
+  }
+
+  if (userInfo?.installed) {
+    const uVer = userInfo.version || 'unknown';
+    const uStatus = uVer === latestVersion
+      ? chalk.green('✓ up to date')
+      : chalk.yellow(`v${uVer} → v${latestVersion}`);
+    console.log(chalk.gray(`  User level (~/.claude/skills/): ${uStatus}`));
+  }
+  console.log();
+
+  // Build update choices
+  if (needsUpdate.includes('project') && needsUpdate.includes('user')) {
+    choices.push({
+      name: `${chalk.green('Update Both')} - Update all Skills installations`,
+      value: 'both'
+    });
+  }
+
+  if (needsUpdate.includes('project')) {
+    choices.push({
+      name: `${chalk.blue('Update Project Level')} - Only update .claude/skills/`,
+      value: 'project'
+    });
+  }
+
+  if (needsUpdate.includes('user')) {
+    choices.push({
+      name: `${chalk.blue('Update User Level')} - Only update ~/.claude/skills/`,
+      value: 'user'
+    });
+  }
+
+  choices.push({
+    name: `${chalk.gray('Skip')} - Keep current versions`,
+    value: 'none'
+  });
+
+  const { action } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'action',
+      message: 'What would you like to do?',
+      choices,
+      default: needsUpdate.length === 2 ? 'both' : needsUpdate[0]
+    }
+  ]);
+
+  // Determine targets
+  let targets = [];
+  if (action === 'both') {
+    targets = ['project', 'user'];
+  } else if (action === 'project' || action === 'user') {
+    targets = [action];
+  }
+
+  return { action, targets };
+}
+
+/**
+ * Prompt for standards scope when Skills are installed
+ * @param {boolean} hasSkills - Whether Skills are installed
+ * @returns {Promise<string>} 'full' or 'minimal'
+ */
+export async function promptStandardsScope(hasSkills) {
+  if (!hasSkills) {
+    return 'full';
+  }
+
+  console.log();
+  console.log(chalk.cyan('Standards Scope:'));
+  console.log(chalk.gray('  Skills cover some standards dynamically. Choose what to install:'));
+  console.log();
+
+  const { scope } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'scope',
+      message: 'Select standards installation scope:',
+      choices: [
+        {
+          name: `${chalk.green('Minimal')} ${chalk.gray('(推薦)')} - Only static standards (Skills cover the rest)`,
+          value: 'minimal'
+        },
+        {
+          name: `${chalk.blue('Full')} - Install all standards (includes Skills-covered)`,
+          value: 'full'
+        }
+      ],
+      default: 'minimal'
+    }
+  ]);
+
+  // Show explanation
+  console.log();
+  if (scope === 'minimal') {
+    console.log(chalk.gray('  → Only reference standards will be copied'));
+    console.log(chalk.gray('  → Skills provide dynamic guidance for covered standards'));
+  } else {
+    console.log(chalk.gray('  → All standards will be copied to .standards/'));
+    console.log(chalk.gray('  → Includes both static files and Skills-covered content'));
+  }
+  console.log();
+
+  return scope;
+}
+
+/**
  * Prompt for output format (AI or Human-readable)
  * @returns {Promise<string>} 'ai', 'human', or 'both'
  */

@@ -25,6 +25,12 @@ SKILLS=(
     "git-workflow-guide"
     "documentation-guide"
     "requirement-assistant"
+    "project-structure-guide"
+    "spec-driven-dev"
+    "test-coverage-assistant"
+    "changelog-guide"
+    "error-code-guide"
+    "logging-guide"
 )
 
 echo "Available skills:"

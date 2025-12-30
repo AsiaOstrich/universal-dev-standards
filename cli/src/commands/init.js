@@ -16,25 +16,35 @@ import {
   isInitialized
 } from '../utils/copier.js';
 import {
-  downloadSkill,
+  downloadSkillToLocation,
   getInstalledSkillsInfo,
+  getProjectInstalledSkillsInfo,
   writeSkillsManifest,
-  getSkillsDir
+  getSkillsDir,
+  getProjectSkillsDir
 } from '../utils/github.js';
 import {
-  promptInstallMode,
-  promptSkillsUpgrade,
+  promptAITools,
+  promptSkillsInstallLocation,
+  promptSkillsUpdate,
+  promptStandardsScope,
   promptLevel,
   promptLanguage,
   promptFramework,
   promptLocale,
-  promptIntegrations,
   promptConfirm,
   promptFormat,
   promptStandardOptions
 } from '../prompts/init.js';
+import {
+  promptIntegrationConfig
+} from '../prompts/integrations.js';
+import {
+  writeIntegrationFile,
+  integrationFileExists
+} from '../utils/integration-generator.js';
 
-// Integration file mappings
+// Integration file mappings (legacy - for fallback)
 const INTEGRATION_MAPPINGS = {
   cursor: {
     source: 'integrations/cursor/.cursorrules',
@@ -51,6 +61,10 @@ const INTEGRATION_MAPPINGS = {
   copilot: {
     source: 'integrations/github-copilot/copilot-instructions.md',
     target: '.github/copilot-instructions.md'
+  },
+  antigravity: {
+    source: 'integrations/google-antigravity/INSTRUCTIONS.md',
+    target: 'INSTRUCTIONS.md'
   }
 };
 
@@ -73,14 +87,14 @@ export async function initCommand(options) {
   console.log(chalk.bold('Universal Development Standards - Initialize'));
   console.log(chalk.gray('─'.repeat(50)));
 
-  // Check if already initialized
+  // STEP 1: Check if already initialized
   if (isInitialized(projectPath)) {
     console.log(chalk.yellow('⚠ Standards already initialized in this project.'));
     console.log(chalk.gray('  Use `uds update` to update, or delete .standards/ to reinitialize.'));
     return;
   }
 
-  // Detect project characteristics
+  // STEP 2: Detect project characteristics
   const spinner = ora('Detecting project characteristics...').start();
   const detected = detectAll(projectPath);
   spinner.succeed('Project analysis complete');
@@ -107,78 +121,194 @@ export async function initCommand(options) {
   }
   console.log();
 
-  // Gather options (interactive or from flags)
+  // Initialize configuration variables
   let level = options.level ? parseInt(options.level, 10) : null;
   let languages = options.lang ? [options.lang] : null;
   let frameworks = options.framework ? [options.framework] : null;
   let locale = options.locale || null;
+  let format = options.format || null;
+  let standardOptions = {};
+
+  // Skills configuration
+  let skillsConfig = {
+    installed: false,
+    location: null,
+    needsInstall: false,
+    updateTargets: []
+  };
+
+  // AI tools configuration
+  let aiTools = [];
   let integrations = [];
-  let installMode = options.mode || null; // 'skills' or 'full'
-  let skillsAction = null; // 'upgrade', 'keep', 'reinstall', or null (fresh install)
-  let format = options.format || null; // 'ai', 'human', or 'both'
-  let standardOptions = {}; // Selected options for configurable standards
 
   if (!options.yes) {
-    // Interactive mode
+    // ===== Interactive mode =====
 
-    // Step 1: Ask for installation mode
-    if (!installMode) {
-      installMode = await promptInstallMode();
-    }
+    // STEP 3: Ask for AI tools
+    aiTools = await promptAITools({
+      claudeCode: detected.aiTools.claudeCode || false,
+      cursor: detected.aiTools.cursor || false,
+      windsurf: detected.aiTools.windsurf || false,
+      cline: detected.aiTools.cline || false,
+      copilot: detected.aiTools.copilot || false
+    });
 
-    // Step 2: If skills mode, check for existing Skills installation
-    if (installMode === 'skills') {
-      const installedInfo = getInstalledSkillsInfo();
+    const useClaudeCode = aiTools.includes('claude-code');
+
+    // STEP 4: Skills handling (only if Claude Code is selected)
+    if (useClaudeCode) {
+      const projectSkillsInfo = getProjectInstalledSkillsInfo(projectPath);
+      const userSkillsInfo = getInstalledSkillsInfo();
       const repoInfo = getRepositoryInfo();
       const latestVersion = repoInfo.skills.version;
 
-      if (installedInfo && installedInfo.installed) {
-        // Skills already exist - ask what to do
-        skillsAction = await promptSkillsUpgrade(installedInfo.version, latestVersion);
+      const hasProjectSkills = projectSkillsInfo?.installed;
+      const hasUserSkills = userSkillsInfo?.installed;
+
+      if (hasProjectSkills && hasUserSkills) {
+        // Case D: Both levels installed
+        console.log();
+        console.log(chalk.cyan('Skills Status:'));
+        console.log(chalk.gray(`  Project level: v${projectSkillsInfo.version || 'unknown'}`));
+        console.log(chalk.gray(`  User level: v${userSkillsInfo.version || 'unknown'}`));
+
+        const updateResult = await promptSkillsUpdate(projectSkillsInfo, userSkillsInfo, latestVersion);
+        skillsConfig = {
+          installed: true,
+          location: 'both',
+          needsInstall: updateResult.action !== 'none',
+          updateTargets: updateResult.targets
+        };
+      } else if (hasProjectSkills) {
+        // Case C: Only project level installed
+        console.log();
+        console.log(chalk.cyan('Skills Status:'));
+        console.log(chalk.gray(`  Project level: v${projectSkillsInfo.version || 'unknown'}`));
+        console.log(chalk.gray('  User level: not installed'));
+
+        const updateResult = await promptSkillsUpdate(projectSkillsInfo, null, latestVersion);
+        skillsConfig = {
+          installed: true,
+          location: 'project',
+          needsInstall: updateResult.action !== 'none',
+          updateTargets: updateResult.targets
+        };
+      } else if (hasUserSkills) {
+        // Case B: Only user level installed
+        console.log();
+        console.log(chalk.cyan('Skills Status:'));
+        console.log(chalk.gray('  Project level: not installed'));
+        console.log(chalk.gray(`  User level: v${userSkillsInfo.version || 'unknown'}`));
+
+        const updateResult = await promptSkillsUpdate(null, userSkillsInfo, latestVersion);
+        skillsConfig = {
+          installed: true,
+          location: 'user',
+          needsInstall: updateResult.action !== 'none',
+          updateTargets: updateResult.targets
+        };
       } else {
-        // Fresh install
-        skillsAction = 'install';
+        // Case A: Neither installed
+        console.log();
+        console.log(chalk.cyan('Skills Status:'));
+        console.log(chalk.gray('  No Skills installation detected'));
+
+        const location = await promptSkillsInstallLocation();
+        if (location !== 'none') {
+          skillsConfig = {
+            installed: true,
+            location,
+            needsInstall: true,
+            updateTargets: [location]
+          };
+        }
       }
     }
 
-    // Step 3: Adoption level
+    // STEP 5: Standards scope (if Skills are installed)
+    const standardsScope = await promptStandardsScope(skillsConfig.installed);
+
+    // STEP 6: Adoption level
     if (!level) {
       level = await promptLevel();
     }
 
-    // Step 4: Standards format (AI or Human)
+    // STEP 7: Standards format
     if (!format) {
       format = await promptFormat();
     }
 
-    // Step 5: Standard options (workflow, commit language, etc.)
+    // STEP 8: Standard options
     standardOptions = await promptStandardOptions(level);
 
-    // Step 6: Language extensions
+    // STEP 9: Language extensions
     if (!languages) {
       languages = await promptLanguage(detected.languages) || [];
     }
 
-    // Step 7: Framework extensions
+    // STEP 10: Framework extensions
     if (!frameworks) {
       frameworks = await promptFramework(detected.frameworks) || [];
     }
 
-    // Step 8: Locale
+    // STEP 11: Locale
     if (!locale) {
       locale = await promptLocale();
     }
 
-    // Step 9: AI tool integrations
-    integrations = await promptIntegrations(detected.aiTools);
+    // Determine integrations from AI tools (excluding claude-code)
+    integrations = aiTools.filter(t => t !== 'claude-code');
+
+    // STEP 12: Integration configuration for non-Claude tools
+    // All tools share the same configuration since they have identical functionality
+    const integrationConfigs = {};
+    if (integrations.length > 0) {
+      console.log();
+      console.log(chalk.cyan('Integration Configuration:'));
+
+      if (integrations.length > 1) {
+        console.log(chalk.gray('  All selected tools will share the same rule configuration.'));
+        console.log();
+      }
+
+      // Check if any existing files
+      const existingFiles = {};
+      for (const tool of integrations) {
+        existingFiles[tool] = integrationFileExists(tool, projectPath);
+      }
+
+      const hasAnyExisting = Object.values(existingFiles).some(v => v);
+
+      // Prompt configuration once for all tools
+      // Use first tool as representative, but mention all tools
+      const toolNames = integrations.length === 1
+        ? integrations[0]
+        : `${integrations.slice(0, -1).join(', ')} & ${integrations[integrations.length - 1]}`;
+
+      const sharedConfig = await promptIntegrationConfig(toolNames, detected, hasAnyExisting);
+
+      // Apply shared config to all tools (unless user chose to keep existing)
+      if (sharedConfig.mergeStrategy !== 'keep') {
+        for (const tool of integrations) {
+          // Each tool gets the same config but with its specific tool name
+          integrationConfigs[tool] = { ...sharedConfig, tool };
+        }
+      }
+    }
+
+    // Store integration configs for later use
+    skillsConfig.integrationConfigs = integrationConfigs;
+
+    // Store standards scope for later use
+    skillsConfig.standardsScope = standardsScope;
+
   } else {
-    // Non-interactive mode with defaults
-    installMode = installMode || 'skills';
+    // ===== Non-interactive mode =====
     level = level || 2;
     format = format || 'ai';
     languages = languages || Object.keys(detected.languages).filter(k => detected.languages[k]);
     frameworks = frameworks || Object.keys(detected.frameworks).filter(k => detected.frameworks[k]);
-    integrations = Object.keys(detected.aiTools).filter(k => detected.aiTools[k]);
+    integrations = Object.keys(detected.aiTools).filter(k => detected.aiTools[k] && k !== 'claudeCode');
 
     // Default standard options
     standardOptions = {
@@ -188,28 +318,47 @@ export async function initCommand(options) {
       test_levels: options.testLevels ? options.testLevels.split(',') : ['unit-testing', 'integration-testing']
     };
 
-    // Auto-determine skills action
-    if (installMode === 'skills') {
-      const installedInfo = getInstalledSkillsInfo();
-      skillsAction = installedInfo?.installed ? 'upgrade' : 'install';
+    // Auto-detect Skills status
+    const userSkillsInfo = getInstalledSkillsInfo();
+    if (userSkillsInfo?.installed) {
+      skillsConfig = {
+        installed: true,
+        location: 'user',
+        needsInstall: false,
+        updateTargets: [],
+        standardsScope: 'minimal'
+      };
+    } else {
+      // Default to installing Skills in non-interactive mode
+      skillsConfig = {
+        installed: true,
+        location: 'user',
+        needsInstall: true,
+        updateTargets: ['user'],
+        standardsScope: 'minimal'
+      };
     }
   }
 
+  // Configuration summary
   console.log();
   console.log(chalk.cyan('Configuration Summary:'));
-  console.log(chalk.gray(`  Mode: ${installMode === 'skills' ? 'Skills Mode' : 'Full Mode'}`));
   console.log(chalk.gray(`  Level: ${level}`));
   console.log(chalk.gray(`  Format: ${format === 'ai' ? 'AI-Optimized' : format === 'human' ? 'Human-Readable' : 'Both'}`));
+  console.log(chalk.gray(`  Standards Scope: ${skillsConfig.standardsScope === 'minimal' ? 'Minimal (Skills cover the rest)' : 'Full'}`));
   console.log(chalk.gray(`  Languages: ${languages.length > 0 ? languages.join(', ') : 'none'}`));
   console.log(chalk.gray(`  Frameworks: ${frameworks.length > 0 ? frameworks.join(', ') : 'none'}`));
   console.log(chalk.gray(`  Locale: ${locale || 'default (English)'}`));
+  console.log(chalk.gray(`  AI Tools: ${aiTools.length > 0 ? aiTools.join(', ') : 'none'}`));
   console.log(chalk.gray(`  Integrations: ${integrations.length > 0 ? integrations.join(', ') : 'none'}`));
-  if (installMode === 'skills') {
-    const skillsStatus = skillsAction === 'keep' ? 'keep existing' :
-                         skillsAction === 'upgrade' ? 'upgrade' :
-                         skillsAction === 'reinstall' ? 'reinstall' : 'install';
+
+  if (skillsConfig.installed) {
+    const skillsStatus = skillsConfig.needsInstall
+      ? `install/update to ${skillsConfig.location}`
+      : `using existing (${skillsConfig.location})`;
     console.log(chalk.gray(`  Skills: ${skillsStatus}`));
   }
+
   // Show selected standard options
   if (standardOptions.workflow) {
     console.log(chalk.gray(`  Git Workflow: ${standardOptions.workflow}`));
@@ -233,7 +382,7 @@ export async function initCommand(options) {
     }
   }
 
-  // Start installation
+  // ===== Start installation =====
   console.log();
   const copySpinner = ora('Copying standards...').start();
 
@@ -241,16 +390,15 @@ export async function initCommand(options) {
     standards: [],
     extensions: [],
     integrations: [],
+    skills: [],
     errors: []
   };
 
   // Get standards for the selected level
   const standards = getStandardsByLevel(level);
 
-  // Determine which standards to copy based on installation mode
-  // Skills Mode: only copy reference standards (those without skill equivalents)
-  // Full Mode: copy all standards
-  const standardsToCopy = installMode === 'skills'
+  // Determine which standards to copy based on scope
+  const standardsToCopy = skillsConfig.standardsScope === 'minimal'
     ? standards.filter(s => s.category === 'reference')
     : standards.filter(s => s.category === 'reference' || s.category === 'skill');
 
@@ -363,28 +511,40 @@ export async function initCommand(options) {
     extSpinner.succeed(`Copied ${results.extensions.length} extension files`);
   }
 
-  // Copy integrations
+  // Generate and write integrations
   if (integrations.length > 0) {
-    const intSpinner = ora('Copying integrations...').start();
+    const intSpinner = ora('Generating integration files...').start();
+    const integrationConfigs = skillsConfig.integrationConfigs || {};
 
-    for (const int of integrations) {
-      const mapping = INTEGRATION_MAPPINGS[int];
-      if (mapping) {
-        const result = await copyIntegration(mapping.source, mapping.target, projectPath);
+    for (const tool of integrations) {
+      // Check if we have a custom config for this tool
+      if (integrationConfigs[tool]) {
+        // Use dynamic generator with custom config
+        const result = writeIntegrationFile(tool, integrationConfigs[tool], projectPath);
         if (result.success) {
-          results.integrations.push(mapping.target);
+          results.integrations.push(result.path);
         } else {
-          results.errors.push(`${mapping.source}: ${result.error}`);
+          results.errors.push(`${tool}: ${result.error}`);
+        }
+      } else {
+        // Fall back to legacy static file copy
+        const mapping = INTEGRATION_MAPPINGS[tool];
+        if (mapping) {
+          const result = await copyIntegration(mapping.source, mapping.target, projectPath);
+          if (result.success) {
+            results.integrations.push(mapping.target);
+          } else {
+            results.errors.push(`${mapping.source}: ${result.error}`);
+          }
         }
       }
     }
 
-    intSpinner.succeed(`Copied ${results.integrations.length} integration files`);
+    intSpinner.succeed(`Generated ${results.integrations.length} integration files`);
   }
 
-  // Install Skills if in skills mode and action is not 'keep'
-  const skillsInstalled = [];
-  if (installMode === 'skills' && skillsAction !== 'keep') {
+  // Install Skills if needed
+  if (skillsConfig.needsInstall && skillsConfig.updateTargets.length > 0) {
     const skillSpinner = ora('Installing Claude Code Skills...').start();
 
     const skillFiles = getSkillFiles();
@@ -392,40 +552,57 @@ export async function initCommand(options) {
     let successCount = 0;
     let errorCount = 0;
 
-    for (const [skillName, files] of Object.entries(skillFiles)) {
-      const result = await downloadSkill(skillName, files);
-      if (result.success) {
-        successCount++;
-        skillsInstalled.push(skillName);
-      } else {
-        errorCount++;
-        const failedFiles = result.files.filter(f => !f.success).map(f => f.file).join(', ');
-        results.errors.push(`Skill ${skillName}: failed to download ${failedFiles}`);
+    for (const target of skillsConfig.updateTargets) {
+      for (const [skillName, files] of Object.entries(skillFiles)) {
+        const result = await downloadSkillToLocation(
+          skillName,
+          files,
+          target,
+          target === 'project' ? projectPath : null
+        );
+
+        if (result.success) {
+          successCount++;
+          if (!results.skills.includes(skillName)) {
+            results.skills.push(skillName);
+          }
+        } else {
+          errorCount++;
+          const failedFiles = result.files.filter(f => !f.success).map(f => f.file).join(', ');
+          results.errors.push(`Skill ${skillName} (${target}): failed to install ${failedFiles}`);
+        }
       }
+
+      // Write manifest for each target location
+      const targetDir = target === 'project'
+        ? getProjectSkillsDir(projectPath)
+        : getSkillsDir();
+      writeSkillsManifest(repoInfo.skills.version, targetDir);
     }
 
-    // Write skills manifest
-    writeSkillsManifest(repoInfo.skills.version);
+    const targetLocations = skillsConfig.updateTargets.map(t =>
+      t === 'project' ? getProjectSkillsDir(projectPath) : getSkillsDir()
+    ).join(', ');
 
     if (errorCount === 0) {
-      skillSpinner.succeed(`Installed ${successCount} Skills to ${getSkillsDir()}`);
+      skillSpinner.succeed(`Installed ${successCount} Skills to ${targetLocations}`);
     } else {
-      skillSpinner.warn(`Installed ${successCount} Skills (${errorCount} failed)`);
+      skillSpinner.warn(`Installed ${successCount} Skills with ${errorCount} errors`);
     }
   }
 
   // Create manifest
   const repoInfo = getRepositoryInfo();
   const manifest = {
-    version: '2.0.0',
+    version: '3.0.0',
     upstream: {
       repo: 'AsiaOstrich/universal-dev-standards',
       version: repoInfo.standards.version,
       installed: new Date().toISOString().split('T')[0]
     },
     level,
-    installMode,
     format,
+    standardsScope: skillsConfig.standardsScope || 'full',
     standards: results.standards,
     extensions: results.extensions,
     integrations: results.integrations,
@@ -435,11 +612,12 @@ export async function initCommand(options) {
       commit_language: standardOptions.commit_language || null,
       test_levels: standardOptions.test_levels || []
     },
+    aiTools,
     skills: {
-      installed: installMode === 'skills',
-      action: skillsAction,
-      names: skillsInstalled,
-      version: installMode === 'skills' ? repoInfo.skills.version : null
+      installed: skillsConfig.installed,
+      location: skillsConfig.location,
+      names: results.skills,
+      version: skillsConfig.installed ? repoInfo.skills.version : null
     }
   };
 
@@ -452,8 +630,16 @@ export async function initCommand(options) {
 
   const totalFiles = results.standards.length + results.extensions.length + results.integrations.length;
   console.log(chalk.gray(`  ${totalFiles} files copied to project`));
-  if (skillsInstalled.length > 0) {
-    console.log(chalk.gray(`  ${skillsInstalled.length} Skills installed to ~/.claude/skills/`));
+
+  if (results.skills.length > 0) {
+    const skillLocations = [];
+    if (skillsConfig.updateTargets.includes('user')) {
+      skillLocations.push('~/.claude/skills/');
+    }
+    if (skillsConfig.updateTargets.includes('project')) {
+      skillLocations.push('.claude/skills/');
+    }
+    console.log(chalk.gray(`  ${results.skills.length} Skills installed to ${skillLocations.join(' and ')}`));
   }
   console.log(chalk.gray('  Manifest created at .standards/manifest.json'));
 
@@ -469,7 +655,7 @@ export async function initCommand(options) {
   console.log(chalk.gray('Next steps:'));
   console.log(chalk.gray('  1. Review .standards/ directory'));
   console.log(chalk.gray('  2. Add .standards/ to version control'));
-  if (installMode === 'skills') {
+  if (skillsConfig.installed) {
     console.log(chalk.gray('  3. Restart Claude Code to load new Skills'));
     console.log(chalk.gray('  4. Run `uds check` to verify adoption status'));
   } else {

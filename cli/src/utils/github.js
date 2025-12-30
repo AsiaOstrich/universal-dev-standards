@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import https from 'https';
 
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main';
-const SKILLS_RAW_BASE = 'https://raw.githubusercontent.com/AsiaOstrich/universal-dev-skills/main';
+const SKILLS_RAW_BASE = 'https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code';
 
 // Get the CLI package root directory
 const __filename = fileURLToPath(import.meta.url);
@@ -324,9 +324,10 @@ export function getInstalledSkillsInfo() {
 /**
  * Write Skills manifest file
  * @param {string} version - Version of skills installed
+ * @param {string} targetDir - Optional target directory (defaults to user-level)
  */
-export function writeSkillsManifest(version) {
-  const skillsDir = getSkillsDir();
+export function writeSkillsManifest(version, targetDir = null) {
+  const skillsDir = targetDir || getSkillsDir();
   const manifestPath = join(skillsDir, '.manifest.json');
 
   if (!existsSync(skillsDir)) {
@@ -340,4 +341,168 @@ export function writeSkillsManifest(version) {
   };
 
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+}
+
+/**
+ * Get the project-level Skills installation directory
+ * @param {string} projectPath - Project root path
+ * @returns {string} Path to project/.claude/skills/
+ */
+export function getProjectSkillsDir(projectPath) {
+  return join(projectPath, '.claude', 'skills');
+}
+
+/**
+ * Check if project-level Skills are installed and get version info
+ * @param {string} projectPath - Project root path
+ * @returns {Object|null} Installed skills info or null
+ */
+export function getProjectInstalledSkillsInfo(projectPath) {
+  const skillsDir = getProjectSkillsDir(projectPath);
+  const manifestPath = join(skillsDir, '.manifest.json');
+
+  if (!existsSync(manifestPath)) {
+    // Check if any skill directories exist
+    if (!existsSync(skillsDir)) {
+      return null;
+    }
+
+    // Skills exist but no manifest - likely manually installed
+    return {
+      installed: true,
+      version: null,
+      source: 'unknown',
+      location: 'project'
+    };
+  }
+
+  try {
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+    return {
+      installed: true,
+      version: manifest.version || null,
+      source: manifest.source || 'universal-dev-standards',
+      installedDate: manifest.installedDate || null,
+      location: 'project'
+    };
+  } catch {
+    return {
+      installed: true,
+      version: null,
+      source: 'unknown',
+      location: 'project'
+    };
+  }
+}
+
+/**
+ * Install a single Skill to a specific target directory
+ * @param {string} skillName - Skill name (e.g., 'ai-collaboration-standards')
+ * @param {string} targetBaseDir - Target base directory for skills
+ * @returns {Object} Result with success status
+ */
+export function installSkillToDir(skillName, targetBaseDir) {
+  const sourceDir = join(SKILLS_LOCAL_DIR, skillName);
+  const targetDir = join(targetBaseDir, skillName);
+
+  if (!existsSync(sourceDir)) {
+    return {
+      success: false,
+      skillName,
+      files: [],
+      error: `Skill directory not found: ${sourceDir}`,
+      path: null
+    };
+  }
+
+  // Ensure target directory exists
+  if (!existsSync(targetDir)) {
+    mkdirSync(targetDir, { recursive: true });
+  }
+
+  const results = [];
+  try {
+    const files = readdirSync(sourceDir);
+    for (const fileName of files) {
+      const sourceFile = join(sourceDir, fileName);
+      const targetFile = join(targetDir, fileName);
+
+      try {
+        copyFileSync(sourceFile, targetFile);
+        results.push({ file: fileName, success: true });
+      } catch (error) {
+        results.push({ file: fileName, success: false, error: error.message });
+      }
+    }
+  } catch (error) {
+    return {
+      success: false,
+      skillName,
+      files: results,
+      error: error.message,
+      path: null
+    };
+  }
+
+  const allSuccess = results.every(r => r.success);
+  return {
+    success: allSuccess,
+    skillName,
+    files: results,
+    path: targetDir
+  };
+}
+
+/**
+ * Download and install a single Skill to a specific target directory
+ * @param {string} skillName - Skill name
+ * @param {string[]} skillFiles - Array of file paths relative to skills repo
+ * @param {string} targetLocation - 'user' or 'project'
+ * @param {string} projectPath - Project path (required if targetLocation is 'project')
+ * @returns {Promise<Object>} Result with success status
+ */
+export async function downloadSkillToLocation(skillName, skillFiles, targetLocation = 'user', projectPath = null) {
+  // Determine target directory
+  const targetBaseDir = targetLocation === 'project' && projectPath
+    ? getProjectSkillsDir(projectPath)
+    : getSkillsDir();
+
+  // Prefer local installation if available
+  if (hasLocalSkills()) {
+    return installSkillToDir(skillName, targetBaseDir);
+  }
+
+  // Fall back to remote download
+  const targetDir = join(targetBaseDir, skillName);
+
+  // Ensure target directory exists
+  if (!existsSync(targetDir)) {
+    mkdirSync(targetDir, { recursive: true });
+  }
+
+  const results = [];
+  for (const filePath of skillFiles) {
+    const fileName = basename(filePath);
+    const targetFile = join(targetDir, fileName);
+
+    try {
+      // For remote download, we need to extract just the skill-relative path
+      // skillFiles paths are like: skills/claude-code/ai-collaboration-standards/SKILL.md
+      // We need just: ai-collaboration-standards/SKILL.md
+      const relativePath = filePath.replace(/^skills\/claude-code\//, '');
+      const content = await downloadFromSkillsRepo(relativePath);
+      writeFileSync(targetFile, content);
+      results.push({ file: fileName, success: true });
+    } catch (error) {
+      results.push({ file: fileName, success: false, error: error.message });
+    }
+  }
+
+  const allSuccess = results.every(r => r.success);
+  return {
+    success: allSuccess,
+    skillName,
+    files: results,
+    path: targetDir
+  };
 }

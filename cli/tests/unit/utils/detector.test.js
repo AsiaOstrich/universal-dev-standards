@@ -151,16 +151,22 @@ describe('Detector Utils', () => {
       expect(result.copilot).toBe(true);
     });
 
-    it('should detect Claude with .claude directory', () => {
+    it('should detect Claude Code with .claude directory', () => {
       mkdirSync(join(TEST_DIR, '.claude'), { recursive: true });
       const result = detectAITools(TEST_DIR);
-      expect(result.claude).toBe(true);
+      expect(result.claudeCode).toBe(true);
     });
 
-    it('should detect Claude with CLAUDE.md', () => {
+    it('should detect Claude Code with CLAUDE.md', () => {
       writeFileSync(join(TEST_DIR, 'CLAUDE.md'), '');
       const result = detectAITools(TEST_DIR);
-      expect(result.claude).toBe(true);
+      expect(result.claudeCode).toBe(true);
+    });
+
+    it('should detect Antigravity with INSTRUCTIONS.md', () => {
+      writeFileSync(join(TEST_DIR, 'INSTRUCTIONS.md'), '');
+      const result = detectAITools(TEST_DIR);
+      expect(result.antigravity).toBe(true);
     });
   });
 
