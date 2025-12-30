@@ -1,7 +1,7 @@
 ---
 source: ../../CLAUDE.md
-source_version: 1.0.0
-translation_version: 1.0.0
+source_version: 1.1.0
+translation_version: 1.1.0
 last_synced: 2025-12-30
 status: current
 ---
@@ -103,6 +103,8 @@ chore(i18n): 同步翻譯與原始檔案
 
 ## 快速指令
 
+### macOS / Linux
+
 ```bash
 # CLI 開發（在 cli/ 目錄執行）
 cd cli
@@ -118,6 +120,32 @@ npm run test:coverage # 產生覆蓋率報告
 # 本地 CLI 測試
 node cli/bin/uds.js list
 node cli/bin/uds.js init --help
+```
+
+### Windows (PowerShell)
+
+```powershell
+# CLI 開發（在 cli\ 目錄執行）
+cd cli
+npm install          # 安裝依賴
+npm test             # 執行測試
+npm run test:watch   # 以 watch 模式執行測試
+npm run lint         # 檢查程式碼風格
+npm run test:coverage # 產生覆蓋率報告
+
+# 翻譯同步檢查（從根目錄執行）
+.\scripts\check-translation-sync.ps1
+
+# 本地 CLI 測試
+node cli\bin\uds.js list
+node cli\bin\uds.js init --help
+```
+
+### Windows (Git Bash)
+
+```bash
+# 與 macOS / Linux 相同的指令在 Git Bash 中可用
+./scripts/check-translation-sync.sh
 ```
 
 ## AI 協作指南
@@ -148,7 +176,7 @@ node cli/bin/uds.js init --help
 universal-dev-standards/
 ├── core/                  # 核心規範（13 個檔案）
 ├── skills/                # AI 工具技能
-│   └── claude-code/       # Claude Code 技能（8 個技能）
+│   └── claude-code/       # Claude Code 技能（14 個技能）
 ├── cli/                   # Node.js CLI 工具
 │   ├── src/               # 原始碼
 │   ├── tests/             # 測試檔案

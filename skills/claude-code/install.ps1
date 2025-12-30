@@ -1,0 +1,97 @@
+#!/usr/bin/env pwsh
+#
+# Universal Dev Skills - Installation Script (PowerShell Version)
+# https://github.com/AsiaOstrich/universal-dev-standards/tree/main/skills/claude-code
+#
+# Usage: .\install.ps1
+#
+
+$ErrorActionPreference = "Stop"
+
+$SkillsDir = Join-Path $env:USERPROFILE ".claude" "skills"
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+Write-Host "=================================="
+Write-Host "Universal Dev Skills Installer"
+Write-Host "=================================="
+Write-Host ""
+
+# Create skills directory if it doesn't exist
+if (-not (Test-Path $SkillsDir)) {
+    New-Item -ItemType Directory -Path $SkillsDir -Force | Out-Null
+}
+
+# List of available skills
+$Skills = @(
+    "ai-collaboration-standards"
+    "commit-standards"
+    "code-review-assistant"
+    "testing-guide"
+    "release-standards"
+    "git-workflow-guide"
+    "documentation-guide"
+    "requirement-assistant"
+    "project-structure-guide"
+    "spec-driven-dev"
+    "test-coverage-assistant"
+    "changelog-guide"
+    "error-code-guide"
+    "logging-guide"
+)
+
+Write-Host "Available skills:"
+for ($i = 0; $i -lt $Skills.Count; $i++) {
+    Write-Host "  [$($i + 1)] $($Skills[$i])"
+}
+Write-Host "  [A] All skills"
+Write-Host ""
+
+$selection = Read-Host "Select skills to install (e.g., 1,2,3 or A for all)"
+
+$selectedSkills = @()
+
+if ($selection -eq "A" -or $selection -eq "a") {
+    $selectedSkills = $Skills
+}
+else {
+    $indices = $selection -split "," | ForEach-Object { $_.Trim() }
+    foreach ($index in $indices) {
+        if ($index -match '^\d+$') {
+            $idx = [int]$index - 1
+            if ($idx -ge 0 -and $idx -lt $Skills.Count) {
+                $selectedSkills += $Skills[$idx]
+            }
+        }
+    }
+}
+
+if ($selectedSkills.Count -eq 0) {
+    Write-Host "No valid skills selected. Exiting." -ForegroundColor Yellow
+    exit 1
+}
+
+Write-Host ""
+Write-Host "Installing skills to: " -NoNewline
+Write-Host $SkillsDir -ForegroundColor Cyan
+Write-Host ""
+
+foreach ($skill in $selectedSkills) {
+    $skillPath = Join-Path $ScriptDir $skill
+    if (Test-Path $skillPath -PathType Container) {
+        Write-Host "  Installing: " -NoNewline
+        Write-Host $skill -ForegroundColor Green
+        Copy-Item -Path $skillPath -Destination $SkillsDir -Recurse -Force
+    }
+    else {
+        Write-Host "  Warning: $skill not found, skipping" -ForegroundColor Yellow
+    }
+}
+
+Write-Host ""
+Write-Host "Installation complete!" -ForegroundColor Green
+Write-Host ""
+Write-Host "Skills installed to: $SkillsDir"
+Write-Host ""
+Write-Host "To verify installation, run:"
+Write-Host "  Get-ChildItem $SkillsDir" -ForegroundColor Cyan
+Write-Host ""

@@ -164,8 +164,22 @@ AI-optimized standards are available in:
 
 Skills are now included in this repository. Install Claude Code Skills for interactive AI assistance:
 
+**macOS / Linux:**
 ```bash
-# Clone and install skills
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards/skills/claude-code
+./install.sh
+```
+
+**Windows (PowerShell):**
+```powershell
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards\skills\claude-code
+.\install.ps1
+```
+
+**Windows (Git Bash):**
+```bash
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git
 cd universal-dev-standards/skills/claude-code
 ./install.sh

@@ -40,7 +40,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src/",
-    "prepare": "cd .. && husky cli/.husky"
+    "prepare": "node ../scripts/setup-husky.js"
   },
   "dependencies": {
     "chalk": "^5.3.0",

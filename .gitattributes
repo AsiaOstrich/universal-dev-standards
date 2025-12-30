@@ -1,0 +1,48 @@
+# Universal Development Standards - Git Attributes
+# Ensures consistent line endings across all platforms
+
+# Default behavior - auto-detect text files and normalize line endings
+* text=auto
+
+# Explicitly declare text files with LF line endings (Unix style)
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.ts text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+
+# Shell scripts must use LF (required for bash execution)
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
+
+# PowerShell scripts use CRLF (Windows native)
+*.ps1 text eol=crlf
+
+# Batch files must use CRLF (Windows native)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Git configuration files
+.gitattributes text eol=lf
+.gitignore text eol=lf
+.editorconfig text eol=lf
+
+# Husky hooks (shell scripts)
+cli/.husky/* text eol=lf
+
+# Binary files - no conversion
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

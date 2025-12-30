@@ -219,11 +219,53 @@ This CLI works alongside [universal-dev-skills](https://github.com/AsiaOstrich/u
 **Important | 重要**: For standards with Skills available, use the Skill OR copy the source document — never both.
 對於有可用 Skills 的規範，請使用 Skill 或複製來源文件 — 切勿兩者同時使用。
 
+## Windows Support | Windows 支援
+
+The CLI tool works seamlessly on Windows. Here are some platform-specific notes:
+
+CLI 工具在 Windows 上無縫運作。以下是一些平台特定的注意事項：
+
+### Running the CLI | 執行 CLI
+
+```powershell
+# PowerShell
+npm install -g universal-dev-standards
+uds init
+
+# Or using npx
+npx universal-dev-standards init
+```
+
+### Development Setup | 開發設定
+
+**PowerShell:**
+```powershell
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards\cli
+npm install
+npm link
+```
+
+**Git Bash:**
+```bash
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards/cli
+npm install
+npm link
+```
+
+### Git Hooks | Git 鉤子
+
+Git hooks work through Git Bash, which is included with Git for Windows. No additional configuration needed.
+
+Git 鉤子透過 Git Bash 運作，它包含在 Git for Windows 中。不需要額外設定。
+
 ## Related | 相關資源
 
 - [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) - Source repository | 原始碼庫
 - [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) - Claude Code Skills
 - [Adoption Guide](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/adoption/ADOPTION-GUIDE.md) - Complete guidance | 完整指南
+- [Windows Guide](../docs/WINDOWS-GUIDE.md) - Windows-specific guide | Windows 專用指南
 
 ---
 

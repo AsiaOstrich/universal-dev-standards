@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased] | 未發布
 
 ### Added | 新增
+- **Full Windows Support**: Complete cross-platform compatibility for Windows users
+  **完整 Windows 支援**：為 Windows 使用者提供完整的跨平台相容性
+  - Add `.gitattributes` for consistent line endings across platforms
+    新增 `.gitattributes` 確保跨平台換行符一致性
+  - Add `scripts/check-translation-sync.ps1` - PowerShell version of translation checker
+    新增 `scripts/check-translation-sync.ps1` - 翻譯檢查器 PowerShell 版本
+  - Add `skills/claude-code/install.ps1` - PowerShell version of skills installer
+    新增 `skills/claude-code/install.ps1` - Skills 安裝器 PowerShell 版本
+  - Add `scripts/setup-husky.js` - Cross-platform Husky setup script
+    新增 `scripts/setup-husky.js` - 跨平台 Husky 設定腳本
+  - Add `docs/WINDOWS-GUIDE.md` - Comprehensive Windows development guide
+    新增 `docs/WINDOWS-GUIDE.md` - 完整的 Windows 開發指南
 - **5 New Claude Code Skills**: Expand skill library from 9 to 14 skills
   **5 個新 Claude Code 技能**：技能庫從 9 個擴充至 14 個
   - `spec-driven-dev` - SDD workflow guidance (triggers: spec, proposal, 提案)
@@ -33,6 +45,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   新增 5 個新技能的完整繁體中文翻譯（共 10 個檔案）
 
 ### Changed | 變更
+- Update `cli/package.json` prepare script to use cross-platform `setup-husky.js`
+  更新 `cli/package.json` 的 prepare 腳本使用跨平台 `setup-husky.js`
+- Update `README.md`, `cli/README.md`, `CLAUDE.md` with Windows installation instructions
+  更新 `README.md`、`cli/README.md`、`CLAUDE.md` 添加 Windows 安裝說明
 - Update `STATIC-DYNAMIC-GUIDE.md` to v1.1.0 - Introduce Hybrid Standards concept, update to 14 skills
   更新 `STATIC-DYNAMIC-GUIDE.md` 至 v1.1.0 - 引入雙重性質標準概念，更新至 14 個技能
 - Update `MAINTENANCE.md` - Add cross-reference to `STATIC-DYNAMIC-GUIDE.md`, expand Workflow 4 with classification checklist

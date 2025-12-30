@@ -95,6 +95,8 @@ When modifying core standards:
 
 ## Quick Commands
 
+### macOS / Linux
+
 ```bash
 # CLI development (run from cli/ directory)
 cd cli
@@ -110,6 +112,32 @@ npm run test:coverage # Generate coverage report
 # Local CLI testing
 node cli/bin/uds.js list
 node cli/bin/uds.js init --help
+```
+
+### Windows (PowerShell)
+
+```powershell
+# CLI development (run from cli\ directory)
+cd cli
+npm install          # Install dependencies
+npm test             # Run tests
+npm run test:watch   # Run tests in watch mode
+npm run lint         # Check code style
+npm run test:coverage # Generate coverage report
+
+# Translation sync check (run from root)
+.\scripts\check-translation-sync.ps1
+
+# Local CLI testing
+node cli\bin\uds.js list
+node cli\bin\uds.js init --help
+```
+
+### Windows (Git Bash)
+
+```bash
+# Same commands as macOS / Linux work in Git Bash
+./scripts/check-translation-sync.sh
 ```
 
 ## Code Check-in Standards (Mandatory)
