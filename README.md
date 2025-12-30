@@ -103,7 +103,7 @@ universal-dev-standards/
 
 ---
 
-## 🤖 AI-Optimized Standards (NEW in v2.3.0)
+## 🤖 AI-Optimized Standards
 
 ### Dual-Format Architecture
 
