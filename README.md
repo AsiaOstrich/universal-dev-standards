@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md)
 
-**Version**: 2.3.0
-**Last Updated**: 2025-12-29
+**Version**: 3.0.0
+**Last Updated**: 2025-12-30
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 ---
@@ -222,19 +222,39 @@ We're expanding support for more AI coding assistants:
 
 ### Using CLI Tool
 
+**Option 1: npm (Recommended)**
 ```bash
-# Clone and setup CLI (one-time)
-git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards/cli && npm install && npm link
+# Install globally
+npm install -g universal-dev-standards
 
 # In your project directory
-cd your-project
 uds init    # Interactive initialization
 uds check   # Check adoption status
 uds update  # Update to latest version
 ```
 
-📖 See [CLI README](cli/README.md) for detailed CLI usage.
+**Option 2: npx (No installation)**
+```bash
+npx universal-dev-standards init
+npx universal-dev-standards check
+```
+
+**Option 3: Clone and Link (Development)**
+
+macOS / Linux:
+```bash
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards/cli && npm install && npm link
+```
+
+Windows (PowerShell):
+```powershell
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards\cli; npm install; npm link
+```
+
+📖 See [CLI README](cli/README.md) for detailed CLI usage and all available commands.
+📖 See [Windows Guide](docs/WINDOWS-GUIDE.md) for Windows-specific instructions.
 
 ---
 
@@ -661,6 +681,7 @@ All contributions must:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.0.0 | 2025-12-30 | Added: Full Windows support, npm publish, CLI enhancements, 5 new Skills (14 total) |
 | 2.3.0 | 2025-12-29 | Added: AI-optimized standards (`ai/`), configurable options (`options/`), CLI format/options support, zh-TW translations |
 | 2.2.0 | 2025-12-25 | Added: CLI tool improvements, Skills updates |
 | 2.1.0 | 2025-12-20 | Added: Claude Code Skills (`skills/claude-code/`) |

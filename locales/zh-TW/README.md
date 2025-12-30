@@ -1,7 +1,7 @@
 ---
 source: ../../README.md
-source_version: 2.3.0
-translation_version: 2.3.0
+source_version: 3.0.0
+translation_version: 3.0.0
 last_synced: 2025-12-30
 status: current
 ---
@@ -10,7 +10,7 @@ status: current
 
 > **Language**: [English](../../README.md) | 繁體中文
 
-**版本**: 2.3.0
+**版本**: 3.0.0
 **最後更新**: 2025-12-30
 **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 
@@ -121,19 +121,39 @@ cd universal-dev-standards/skills/claude-code
 
 ### 使用 CLI 工具
 
+**選項一：npm（推薦）**
 ```bash
-# 複製並設定 CLI（一次性）
-git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards/cli && npm install && npm link
+# 全域安裝
+npm install -g universal-dev-standards
 
 # 在您的專案目錄中
-cd your-project
 uds init    # 互動式初始化
 uds check   # 檢查採用狀態
 uds update  # 更新至最新版本
 ```
 
-📖 請參閱 [CLI README](../../cli/README.md) 了解詳細的 CLI 使用方法。
+**選項二：npx（免安裝）**
+```bash
+npx universal-dev-standards init
+npx universal-dev-standards check
+```
+
+**選項三：克隆並連結（開發用）**
+
+macOS / Linux：
+```bash
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards/cli && npm install && npm link
+```
+
+Windows (PowerShell)：
+```powershell
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards\cli; npm install; npm link
+```
+
+📖 請參閱 [CLI README](../../cli/README.md) 了解詳細的 CLI 使用方法和所有可用命令。
+📖 請參閱 [Windows 指南](docs/WINDOWS-GUIDE.md) 獲得 Windows 特定說明。
 
 ---
 
@@ -560,6 +580,8 @@ cp integrations/openspec/commands/* your-project/.claude/commands/
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 3.0.0 | 2025-12-30 | 新增：完整 Windows 支援、npm 發布、CLI 增強、5 個新 Skills（共 14 個）|
+| 2.3.0 | 2025-12-29 | 新增：AI 優化標準 (`ai/`)、可配置選項 (`options/`)、CLI 格式/選項支援 |
 | 2.2.0 | 2025-12-25 | 新增：多語言支援架構、繁體中文翻譯 |
 | 1.3.0 | 2025-12-15 | 新增：changelog-standards.md；更新：versioning.md, git-workflow.md（交叉引用）|
 | 1.2.0 | 2025-12-11 | 新增：project-structure.md；更新：documentation-structure.md（檔案命名、版本對齊）|
