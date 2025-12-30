@@ -33,14 +33,14 @@
     "README.md"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src/",
-    "prepare": "node ../scripts/setup-husky.js"
+    "prepare": "node ../scripts/setup-husky.mjs"
   },
   "dependencies": {
     "chalk": "^5.3.0",
