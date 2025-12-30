@@ -1,17 +1,17 @@
 ---
 source: ../../../adoption/STATIC-DYNAMIC-GUIDE.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2025-12-30
 status: current
 ---
 
 # 靜態與動態規範指南
 
-> **語言**: [English](../../adoption/STATIC-DYNAMIC-GUIDE.md) | 繁體中文
+> **語言**: [English](../../../adoption/STATIC-DYNAMIC-GUIDE.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2025-12-24
+**版本**: 1.1.0
+**最後更新**: 2025-12-30
 **適用範圍**: 使用本規範框架與 AI 助理協作的專案
 
 ---
@@ -26,37 +26,52 @@ status: current
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│           靜態規範                                           │
-│           隨時生效，嵌入專案文件中                             │
+│           純靜態規範                                         │
+│           隨時生效，嵌入專案 context 檔案中                   │
 ├─────────────────────────────────────────────────────────────┤
-│  • anti-hallucination   → 確定性標籤、基於證據              │
 │  • checkin-standards    → 編譯、測試、覆蓋率檢查點            │
-│  • project-structure    → 目錄慣例                          │
 └─────────────────────────────────────────────────────────────┘
-                              ↑
-                        隨時在 context 中
-                              ↓
+
 ┌─────────────────────────────────────────────────────────────┐
-│           動態規範                                           │
+│           雙重性質規範（靜態 + 動態）                         │
+│           核心規則在 context 中 + 完整指引按需觸發            │
+├─────────────────────────────────────────────────────────────┤
+│  • anti-hallucination   → 基礎規則隨時生效，詳細指引         │
+│                           透過 ai-collaboration-standards    │
+│                           技能按需觸發                       │
+│  • project-structure    → 基礎慣例隨時生效，詳細指引         │
+│                           透過 project-structure-guide       │
+│                           技能按需觸發                       │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│           純動態規範（14 個技能）                             │
 │           關鍵字觸發，按需載入                                │
 ├─────────────────────────────────────────────────────────────┤
-│  • commit-standards     ← "commit", "git"                   │
-│  • code-review-assistant← "review", "PR"                    │
-│  • git-workflow-guide   ← "branch", "merge"                 │
-│  • testing-guide        ← "test", "coverage"                │
-│  • release-standards    ← "version", "release"              │
-│  • documentation-guide  ← "docs", "README"                  │
-│  • requirement-assistant← "spec", "SDD", "新功能"            │
+│  • ai-collaboration-standards ← "certainty", "確定性"        │
+│  • changelog-guide      ← "changelog", "變更日誌"            │
+│  • code-review-assistant← "review", "PR", "審查"             │
+│  • commit-standards     ← "commit", "git", "提交"            │
+│  • documentation-guide  ← "docs", "README", "文件"           │
+│  • error-code-guide     ← "error code", "錯誤碼"             │
+│  • git-workflow-guide   ← "branch", "merge", "分支"          │
+│  • logging-guide        ← "logging", "日誌"                  │
+│  • project-structure-guide ← "structure", "結構"             │
+│  • release-standards    ← "version", "release", "版本"       │
+│  • requirement-assistant← "spec", "SDD", "規格"              │
+│  • spec-driven-dev      ← "spec", "proposal", "提案"         │
+│  • test-coverage-assistant ← "test coverage", "測試覆蓋"     │
+│  • testing-guide        ← "test", "測試"                     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 靜態規範
+## 純靜態規範
 
 ### 定義
 
-無論執行何種任務，AI 互動時都應該**隨時生效**的規範。
+無論執行何種任務，AI 互動時都應該**隨時生效**的規範。這些是強制性規則，無需選擇。
 
 ### 特徵
 
@@ -64,14 +79,13 @@ status: current
 - 內容精簡（適合放在專案 context 文件）
 - 低 token 開銷
 - 基礎行為準則
+- 強制性規則，無需決策支援
 
-### 靜態規範清單
+### 純靜態規範清單
 
 | 規範 | 核心規則 | 核心目的 |
 |------|---------|---------|
-| [anti-hallucination](../../core/anti-hallucination.md) | 確定性標籤、來源引用、建議原則 | 防止 AI 提出未經驗證的聲明 |
 | [checkin-standards](../../core/checkin-standards.md) | 編譯通過、測試通過、覆蓋率維持 | 確保 commit 前的程式碼品質 |
-| [project-structure](../../core/project-structure.md) | 目錄慣例、gitignore 規則 | 維持一致的專案組織 |
 
 ### 部署方式
 
@@ -86,7 +100,35 @@ status: current
 
 ---
 
-## 動態規範
+## 雙重性質規範（靜態 + 動態）
+
+### 定義
+
+同時具有**靜態和動態元件**的規範：
+- **靜態元件**：核心規則嵌入專案 context（隨時生效）
+- **動態元件**：完整技能提供詳細指引（按需觸發）
+
+### 特徵
+
+- 核心規則足夠精簡，可放入 context 檔案
+- 詳細指引若隨時載入會使 context 膨脹
+- 兩種使用模式都有效且互補
+
+### 雙重性質規範清單
+
+| 規範 | 靜態元件 | 動態技能 | 觸發關鍵字 |
+|------|----------|----------|------------|
+| [anti-hallucination](../../core/anti-hallucination.md) | 確定性標籤、建議原則 | ai-collaboration-standards | certainty, assumption, 確定性 |
+| [project-structure](../../core/project-structure.md) | 目錄慣例 | project-structure-guide | structure, organization, 結構 |
+
+### 部署方式
+
+1. **靜態**：將核心規則摘要加入 `CLAUDE.md`
+2. **動態**：安裝對應的技能以獲得詳細指引
+
+---
+
+## 純動態規範
 
 ### 定義
 
@@ -98,21 +140,27 @@ status: current
 - 內容詳細（若隨時載入會使 context 膨脹）
 - 僅在相關時載入
 - 任務特定的工作流程
+- 需要決策支援（選擇、建議）
 
-### 動態規範清單
+### 動態規範清單（14 個技能）
 
-| 規範 | Skill | 觸發關鍵字 |
-|------|-------|-----------|
-| [commit-message-guide](../../../core/commit-message-guide.md) | commit-standards | commit, git, 提交, feat, fix |
-| [code-review-checklist](../../../core/code-review-checklist.md) | code-review-assistant | review, PR, 審查 |
-| [git-workflow](../../../core/git-workflow.md) | git-workflow-guide | branch, merge, 分支 |
-| [testing-standards](../../../core/testing-standards.md) | testing-guide | test, 測試, coverage |
-| [test-completeness-dimensions](../../../core/test-completeness-dimensions.md) | testing-guide | test completeness |
-| [versioning](../../../core/versioning.md) | release-standards | version, release, 版本 |
-| [changelog-standards](../../../core/changelog-standards.md) | release-standards | changelog, 變更日誌 |
-| [documentation-structure](../../../core/documentation-structure.md) | documentation-guide | README, docs |
-| [documentation-writing-standards](../../../core/documentation-writing-standards.md) | documentation-guide | documentation |
-| [spec-driven-development](../../../core/spec-driven-development.md) | requirement-assistant | spec, SDD, 規格, 新功能 |
+| 規範 | 技能 | 觸發關鍵字 |
+|------|------|-----------|
+| [anti-hallucination](../../core/anti-hallucination.md) | ai-collaboration-standards | certainty, assumption, 確定性 |
+| [changelog-standards](../../core/changelog-standards.md) | changelog-guide | changelog, release notes, 變更日誌 |
+| [code-review-checklist](../../core/code-review-checklist.md) | code-review-assistant | review, PR, 審查 |
+| [commit-message-guide](../../core/commit-message-guide.md) | commit-standards | commit, git, 提交, feat, fix |
+| [documentation-structure](../../core/documentation-structure.md) | documentation-guide | README, docs, 文件 |
+| [documentation-writing-standards](../../core/documentation-writing-standards.md) | documentation-guide | documentation |
+| [error-code-standards](../../core/error-code-standards.md) | error-code-guide | error code, error handling, 錯誤碼 |
+| [git-workflow](../../core/git-workflow.md) | git-workflow-guide | branch, merge, 分支 |
+| [logging-standards](../../core/logging-standards.md) | logging-guide | logging, log level, 日誌 |
+| [project-structure](../../core/project-structure.md) | project-structure-guide | structure, organization, 結構 |
+| [spec-driven-development](../../core/spec-driven-development.md) | requirement-assistant | spec, SDD, 規格, 新功能 |
+| [spec-driven-development](../../core/spec-driven-development.md) | spec-driven-dev | spec, proposal, 提案 |
+| [test-completeness-dimensions](../../core/test-completeness-dimensions.md) | test-coverage-assistant | test coverage, 7 dimensions, 測試覆蓋 |
+| [testing-standards](../../core/testing-standards.md) | testing-guide | test, 測試, coverage |
+| [versioning](../../core/versioning.md) | release-standards | version, release, 版本 |
 
 ### 部署方式
 
@@ -221,8 +269,9 @@ description: |
 ## 相關資源
 
 - [CLAUDE.md 範本](../../../templates/CLAUDE.md.template) - 可立即使用的靜態規則範本
-- [Claude Code Skills](../../../skills/claude-code/README.md) - Skill 安裝指南
-- [採用指南](../ADOPTION-GUIDE.md) - 整體採用策略
+- [Claude Code Skills](../../../skills/claude-code/README.md) - 技能安裝指南
+- [採用指南](ADOPTION-GUIDE.md) - 整體採用策略
+- [MAINTENANCE.md](../MAINTENANCE.md) - 如何新增/更新技能（維護者專用）
 
 ---
 
@@ -230,6 +279,7 @@ description: |
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.1.0 | 2025-12-30 | 新增雙重性質規範分類，更新至 14 個技能 |
 | 1.0.0 | 2025-12-24 | 初始指南 |
 
 ---

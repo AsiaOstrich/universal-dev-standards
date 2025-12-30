@@ -141,16 +141,21 @@ Skill packages for Claude Code AI assistant.
 | Skill | Files | Related Core Standards |
 |-------|-------|------------------------|
 | ai-collaboration-standards/ | 3 | anti-hallucination.md |
+| changelog-guide/ | 2 | changelog-standards.md |
 | code-review-assistant/ | 3 | code-review-checklist.md, checkin-standards.md |
-| commit-standards/ | 3 | commit-message-guide.md, checkin-standards.md |
+| commit-standards/ | 3 | commit-message-guide.md |
 | documentation-guide/ | 3 | documentation-structure.md, documentation-writing-standards.md |
+| error-code-guide/ | 2 | error-code-standards.md |
 | git-workflow-guide/ | 3 | git-workflow.md |
+| logging-guide/ | 2 | logging-standards.md |
 | project-structure-guide/ | 2 | project-structure.md |
 | release-standards/ | 3 | changelog-standards.md, versioning.md |
 | requirement-assistant/ | 3 | spec-driven-development.md |
-| testing-guide/ | 2 | testing-standards.md, test-completeness-dimensions.md |
+| spec-driven-dev/ | 2 | spec-driven-development.md |
+| test-coverage-assistant/ | 2 | test-completeness-dimensions.md |
+| testing-guide/ | 2 | testing-standards.md |
 
-**Total**: 25 skill files + 10 shared/README files = 35 files
+**Total**: 35 skill files + 10 shared/README files = 45 files
 
 ---
 
@@ -323,6 +328,50 @@ Each core standard has a dependency tree. When updating a core file, all downstr
 
 ---
 
+## Standards Classification: Dynamic vs Static
+
+When deciding whether a core standard should become a Skill or be added to CLAUDE.md, use this classification guide.
+
+> **For adoption decisions**: See [STATIC-DYNAMIC-GUIDE.md](adoption/STATIC-DYNAMIC-GUIDE.md) for detailed decision flowcharts and deployment guidance.
+
+### Dynamic Standards (Suitable for Skills)
+
+Standards with these characteristics should become Skills:
+- ✅ Clear trigger timing (events, keywords)
+- ✅ Decision support needed (choices, recommendations)
+- ✅ Step-by-step workflow
+- ✅ Produces concrete output (messages, files)
+
+| Core Standard | Skill | Trigger Keywords |
+|---------------|-------|------------------|
+| anti-hallucination.md | ai-collaboration-standards | certainty, assumption, inference |
+| changelog-standards.md | changelog-guide | changelog, release notes |
+| code-review-checklist.md | code-review-assistant | review, PR, checklist |
+| commit-message-guide.md | commit-standards | commit, git, message |
+| documentation-*.md | documentation-guide | README, docs, CONTRIBUTING |
+| error-code-standards.md | error-code-guide | error code, error handling |
+| git-workflow.md | git-workflow-guide | branch, merge, PR |
+| logging-standards.md | logging-guide | logging, log level |
+| project-structure.md | project-structure-guide | structure, organization |
+| spec-driven-development.md | spec-driven-dev | spec, SDD, proposal |
+| test-completeness-dimensions.md | test-coverage-assistant | test coverage, 7 dimensions |
+| testing-standards.md | testing-guide | test, unit, integration |
+| versioning.md | release-standards | version, release, semver |
+
+### Static Standards (Suitable for CLAUDE.md)
+
+Standards with these characteristics should be added to CLAUDE.md instead of becoming Skills:
+- ❌ Globally applicable, no specific trigger
+- ❌ Mandatory rules, no choices needed
+- ❌ One-time setup
+- ❌ Background knowledge
+
+| Core Standard | Location | Reason |
+|---------------|----------|--------|
+| checkin-standards.md | CLAUDE.md | Mandatory pre-commit checklist, always applicable |
+
+---
+
 ## Update Workflows
 
 ### Workflow 1: Update a Core Standard
@@ -381,12 +430,56 @@ Each core standard has a dependency tree. When updating a core file, all downstr
 ### Workflow 4: Add a New Skill
 
 ```
+0. Determine if Skill is Appropriate
+   Before creating a skill, verify the standard is "dynamic":
+   - [ ] Has clear trigger timing (events, keywords)?
+   - [ ] Needs decision support (choices, recommendations)?
+   - [ ] Has step-by-step workflow?
+   - [ ] Produces concrete output (messages, files)?
+
+   If YES to most → Create Skill (continue to step 1)
+   If NO to most  → Add to CLAUDE.md instead (see Static Standards)
+
 1. Create skills/claude-code/{skill-name}/
-   - SKILL.md (main skill definition)
-   - {topic}.md (supporting documents)
+   - SKILL.md (main skill definition with YAML frontmatter)
+   - {topic}.md (supporting documents, optional)
 2. Create locales/zh-TW/skills/claude-code/{skill-name}/
-3. Update skills/README.md
+   - SKILL.md (translated version)
+3. Update MAINTENANCE.md
+   - Add to skills table in section 4
+   - Add to Dynamic Standards table
 4. Update CHANGELOG.md
+```
+
+**SKILL.md Standard Structure**:
+```markdown
+---
+name: skill-name
+description: |
+  Short description.
+  Use when: trigger scenarios.
+  Keywords: english, keywords, 中文, 關鍵字.
+---
+
+# Skill Title
+
+> **Language**: English | [繁體中文](path/to/zh-TW)
+
+**Version**: 1.0.0
+**Last Updated**: YYYY-MM-DD
+**Applicability**: Claude Code Skills
+
+---
+
+## Purpose
+## Quick Reference
+## Detailed Guidelines
+## AI-Optimized Format
+## Examples
+## Configuration Detection
+## Related Standards
+## Version History
+## License
 ```
 
 ### Workflow 5: Update Integrations

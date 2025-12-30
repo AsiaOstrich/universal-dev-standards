@@ -10,8 +10,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] | 未發布
 
-_No unreleased changes._
-_目前無未發布的變更。_
+### Added | 新增
+- **5 New Claude Code Skills**: Expand skill library from 9 to 14 skills
+  **5 個新 Claude Code 技能**：技能庫從 9 個擴充至 14 個
+  - `spec-driven-dev` - SDD workflow guidance (triggers: spec, proposal, 提案)
+    `spec-driven-dev` - SDD 工作流程指引（觸發詞：spec, proposal, 提案）
+  - `test-coverage-assistant` - 7-dimension test completeness framework (triggers: test coverage, dimensions, 測試覆蓋)
+    `test-coverage-assistant` - 7 維度測試完整性框架（觸發詞：test coverage, dimensions, 測試覆蓋）
+  - `changelog-guide` - Changelog writing standards (triggers: changelog, release notes, 變更日誌)
+    `changelog-guide` - 變更日誌撰寫標準（觸發詞：changelog, release notes, 變更日誌）
+  - `error-code-guide` - Error code design patterns (triggers: error code, 錯誤碼)
+    `error-code-guide` - 錯誤碼設計模式（觸發詞：error code, 錯誤碼）
+  - `logging-guide` - Structured logging standards (triggers: logging, log level, 日誌)
+    `logging-guide` - 結構化日誌標準（觸發詞：logging, log level, 日誌）
+- Add **Hybrid Standards** category to `STATIC-DYNAMIC-GUIDE.md` - Standards with both static and dynamic components
+  新增**雙重性質標準**分類至 `STATIC-DYNAMIC-GUIDE.md` - 同時具有靜態和動態元件的標準
+- Add **Dynamic vs Static Classification** section to `MAINTENANCE.md` - Guidelines for categorizing standards
+  新增**動態 vs 靜態分類**章節至 `MAINTENANCE.md` - 標準分類指南
+- Add `checkin-standards` core rules to `CLAUDE.md` as static standard
+  將 `checkin-standards` 核心規則加入 `CLAUDE.md` 作為靜態標準
+- Add complete zh-TW translations for all 5 new skills (10 files total)
+  新增 5 個新技能的完整繁體中文翻譯（共 10 個檔案）
+
+### Changed | 變更
+- Update `STATIC-DYNAMIC-GUIDE.md` to v1.1.0 - Introduce Hybrid Standards concept, update to 14 skills
+  更新 `STATIC-DYNAMIC-GUIDE.md` 至 v1.1.0 - 引入雙重性質標準概念，更新至 14 個技能
+- Update `MAINTENANCE.md` - Add cross-reference to `STATIC-DYNAMIC-GUIDE.md`, expand Workflow 4 with classification checklist
+  更新 `MAINTENANCE.md` - 新增 `STATIC-DYNAMIC-GUIDE.md` 交叉引用，擴展 Workflow 4 分類檢查清單
+- Update skills table in `MAINTENANCE.md` from 9 to 14 skills (35 skill files + 10 shared/README = 45 files)
+  更新 `MAINTENANCE.md` 技能表格從 9 個擴充至 14 個（35 個技能檔案 + 10 個共用/README = 45 個檔案）
+- Sync zh-TW translations for `MAINTENANCE.md` and `STATIC-DYNAMIC-GUIDE.md`
+  同步 `MAINTENANCE.md` 和 `STATIC-DYNAMIC-GUIDE.md` 的繁體中文翻譯
 
 ## [3.0.0] - 2025-12-30
 

@@ -27,8 +27,8 @@ universal-dev-standards/
 │   ├── languages/           ← 語言特定標準
 │   ├── frameworks/          ← 框架特定模式
 │   └── locales/             ← 地區特定規範
-├── skills/                  ← Claude Code 技能（35 個檔案）
-│   └── claude-code/         ← 9 個技能套件
+├── skills/                  ← Claude Code 技能（45 個檔案）
+│   └── claude-code/         ← 14 個技能套件
 ├── adoption/                ← 採用指南（5 個檔案）
 ├── templates/               ← 文件模板（4 個檔案）
 ├── integrations/            ← AI 工具配置（7 個檔案）
@@ -141,16 +141,21 @@ Claude Code AI 助手的技能套件。
 | 技能 | 檔案數 | 相關核心標準 |
 |------|--------|--------------|
 | ai-collaboration-standards/ | 3 | anti-hallucination.md |
+| changelog-guide/ | 2 | changelog-standards.md |
 | code-review-assistant/ | 3 | code-review-checklist.md、checkin-standards.md |
-| commit-standards/ | 3 | commit-message-guide.md、checkin-standards.md |
+| commit-standards/ | 3 | commit-message-guide.md |
 | documentation-guide/ | 3 | documentation-structure.md、documentation-writing-standards.md |
+| error-code-guide/ | 2 | error-code-standards.md |
 | git-workflow-guide/ | 3 | git-workflow.md |
+| logging-guide/ | 2 | logging-standards.md |
 | project-structure-guide/ | 2 | project-structure.md |
 | release-standards/ | 3 | changelog-standards.md、versioning.md |
 | requirement-assistant/ | 3 | spec-driven-development.md |
-| testing-guide/ | 2 | testing-standards.md、test-completeness-dimensions.md |
+| spec-driven-dev/ | 2 | spec-driven-development.md |
+| test-coverage-assistant/ | 2 | test-completeness-dimensions.md |
+| testing-guide/ | 2 | testing-standards.md |
 
-**總計**: 25 個技能檔案 + 10 個共用/README 檔案 = 35 個檔案
+**總計**: 35 個技能檔案 + 10 個共用/README 檔案 = 45 個檔案
 
 ---
 
@@ -323,6 +328,50 @@ locales/zh-TW/
 
 ---
 
+## 標準分類：動態 vs 靜態
+
+在決定核心標準應該轉換為技能還是加入 CLAUDE.md 時，請使用以下分類指南。
+
+> **採用決策**：詳細的決策流程圖和部署指南請參見 [STATIC-DYNAMIC-GUIDE.md](adoption/STATIC-DYNAMIC-GUIDE.md)。
+
+### 動態標準（適合作為技能）
+
+具有以下特徵的標準應該成為技能：
+- ✅ 有明確的觸發時機（事件、關鍵字）
+- ✅ 需要決策支援（選擇、建議）
+- ✅ 有步驟化的工作流程
+- ✅ 能產出具體結果（訊息、檔案）
+
+| 核心標準 | 技能 | 觸發關鍵字 |
+|----------|------|------------|
+| anti-hallucination.md | ai-collaboration-standards | certainty, assumption, 確定性, 推論 |
+| changelog-standards.md | changelog-guide | changelog, release notes, 變更日誌 |
+| code-review-checklist.md | code-review-assistant | review, PR, checklist, 審查 |
+| commit-message-guide.md | commit-standards | commit, git, message, 提交訊息 |
+| documentation-*.md | documentation-guide | README, docs, CONTRIBUTING, 文件 |
+| error-code-standards.md | error-code-guide | error code, error handling, 錯誤碼 |
+| git-workflow.md | git-workflow-guide | branch, merge, PR, 分支 |
+| logging-standards.md | logging-guide | logging, log level, 日誌 |
+| project-structure.md | project-structure-guide | structure, organization, 結構 |
+| spec-driven-development.md | spec-driven-dev | spec, SDD, proposal, 規格, 提案 |
+| test-completeness-dimensions.md | test-coverage-assistant | test coverage, 7 dimensions, 測試覆蓋 |
+| testing-standards.md | testing-guide | test, unit, integration, 測試 |
+| versioning.md | release-standards | version, release, semver, 版本 |
+
+### 靜態標準（適合加入 CLAUDE.md）
+
+具有以下特徵的標準應該加入 CLAUDE.md，而非成為技能：
+- ❌ 全域適用，無特定觸發時機
+- ❌ 強制性規則，無需選擇
+- ❌ 一次性設定
+- ❌ 背景知識性質
+
+| 核心標準 | 位置 | 原因 |
+|----------|------|------|
+| checkin-standards.md | CLAUDE.md | 強制性的提交前檢查表，全時適用 |
+
+---
+
 ## 更新工作流程
 
 ### 工作流程 1：更新核心標準
@@ -381,12 +430,56 @@ locales/zh-TW/
 ### 工作流程 4：新增技能
 
 ```
+0. 判斷是否適合作為技能
+   在建立技能前，先確認該標準是「動態」的：
+   - [ ] 有明確的觸發時機（事件、關鍵字）？
+   - [ ] 需要決策支援（選擇、建議）？
+   - [ ] 有步驟化的工作流程？
+   - [ ] 能產出具體結果（訊息、檔案）？
+
+   若大部分為是 → 建立技能（繼續步驟 1）
+   若大部分為否 → 改加入 CLAUDE.md（參見靜態標準）
+
 1. 建立 skills/claude-code/{skill-name}/
-   - SKILL.md（主要技能定義）
-   - {topic}.md（支援文件）
+   - SKILL.md（含 YAML frontmatter 的主要技能定義）
+   - {topic}.md（選用的支援文件）
 2. 建立 locales/zh-TW/skills/claude-code/{skill-name}/
-3. 更新 skills/README.md
+   - SKILL.md（翻譯版本）
+3. 更新 MAINTENANCE.md
+   - 在第 4 節新增至技能表格
+   - 新增至動態標準表格
 4. 更新 CHANGELOG.md
+```
+
+**SKILL.md 標準結構**：
+```markdown
+---
+name: skill-name
+description: |
+  簡短描述。
+  Use when: 觸發情境。
+  Keywords: english, keywords, 中文, 關鍵字.
+---
+
+# 技能標題
+
+> **Language**: English | [繁體中文](path/to/zh-TW)
+
+**Version**: 1.0.0
+**Last Updated**: YYYY-MM-DD
+**Applicability**: Claude Code Skills
+
+---
+
+## Purpose
+## Quick Reference
+## Detailed Guidelines
+## AI-Optimized Format
+## Examples
+## Configuration Detection
+## Related Standards
+## Version History
+## License
 ```
 
 ### 工作流程 5：更新整合

@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/adoption/STATIC-DYNAMIC-GUIDE.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
+**Version**: 1.1.0
+**Last Updated**: 2025-12-30
 **Applicability**: Projects using AI assistants with this standards framework
 
 ---
@@ -18,37 +18,52 @@ This guide explains how to classify and deploy development standards based on wh
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│           Static Standards                                   │
-│           Always active, embedded in project files           │
+│           Pure Static Standards                              │
+│           Always active, embedded in project context files   │
 ├─────────────────────────────────────────────────────────────┤
-│  • anti-hallucination   → Certainty labels, evidence-based  │
 │  • checkin-standards    → Build, test, coverage gates       │
-│  • project-structure    → Directory conventions             │
 └─────────────────────────────────────────────────────────────┘
-                              ↑
-                     Always in context
-                              ↓
+
 ┌─────────────────────────────────────────────────────────────┐
-│           Dynamic Standards                                  │
+│           Hybrid Standards (Static + Dynamic)                │
+│           Core rules in context + full guidance on demand    │
+├─────────────────────────────────────────────────────────────┤
+│  • anti-hallucination   → Basic rules always, details on    │
+│                           demand via ai-collaboration-       │
+│                           standards skill                    │
+│  • project-structure    → Basic conventions always, details │
+│                           on demand via project-structure-   │
+│                           guide skill                        │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│           Pure Dynamic Standards (14 Skills)                 │
 │           Triggered by keywords, loaded on demand            │
 ├─────────────────────────────────────────────────────────────┤
-│  • commit-standards     ← "commit", "git"                   │
+│  • ai-collaboration-standards ← "certainty", "assumption"   │
+│  • changelog-guide      ← "changelog", "release notes"      │
 │  • code-review-assistant← "review", "PR"                    │
-│  • git-workflow-guide   ← "branch", "merge"                 │
-│  • testing-guide        ← "test", "coverage"                │
-│  • release-standards    ← "version", "release"              │
+│  • commit-standards     ← "commit", "git"                   │
 │  • documentation-guide  ← "docs", "README"                  │
-│  • requirement-assistant← "spec", "SDD", "新功能"            │
+│  • error-code-guide     ← "error code", "error handling"    │
+│  • git-workflow-guide   ← "branch", "merge"                 │
+│  • logging-guide        ← "logging", "log level"            │
+│  • project-structure-guide ← "structure", "organization"    │
+│  • release-standards    ← "version", "release"              │
+│  • requirement-assistant← "spec", "SDD"                     │
+│  • spec-driven-dev      ← "spec", "proposal"                │
+│  • test-coverage-assistant ← "test coverage", "dimensions"  │
+│  • testing-guide        ← "test", "coverage"                │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Static Standards
+## Pure Static Standards
 
 ### Definition
 
-Standards that should **always be active** during AI interactions, regardless of the specific task.
+Standards that should **always be active** during AI interactions, regardless of the specific task. These are mandatory rules with no choices needed.
 
 ### Characteristics
 
@@ -56,14 +71,13 @@ Standards that should **always be active** during AI interactions, regardless of
 - Content is concise (fits in project context file)
 - Low token overhead
 - Foundational behavioral guidelines
+- Mandatory rules, no decision support needed
 
-### Static Standards List
+### Pure Static Standards List
 
 | Standard | Key Rules | Core Purpose |
 |----------|-----------|--------------|
-| [anti-hallucination](../core/anti-hallucination.md) | Certainty labels, source citation, recommendations | Prevent AI from making unverified claims |
 | [checkin-standards](../core/checkin-standards.md) | Build passes, tests pass, coverage maintained | Ensure code quality before commits |
-| [project-structure](../core/project-structure.md) | Directory conventions, gitignore rules | Maintain consistent project organization |
 
 ### Deployment
 
@@ -78,7 +92,35 @@ Add to your project root as one of:
 
 ---
 
-## Dynamic Standards
+## Hybrid Standards (Static + Dynamic)
+
+### Definition
+
+Standards that have **both static and dynamic components**:
+- **Static component**: Core rules embedded in project context (always active)
+- **Dynamic component**: Full Skill with detailed guidance (triggered on demand)
+
+### Characteristics
+
+- Core rules are concise enough for context file
+- Detailed guidance would bloat context if always loaded
+- Both usage patterns are valid and complementary
+
+### Hybrid Standards List
+
+| Standard | Static Component | Dynamic Skill | Trigger Keywords |
+|----------|------------------|---------------|------------------|
+| [anti-hallucination](../core/anti-hallucination.md) | Certainty labels, recommendations | ai-collaboration-standards | certainty, assumption, inference |
+| [project-structure](../core/project-structure.md) | Directory conventions | project-structure-guide | structure, organization |
+
+### Deployment
+
+1. **Static**: Add core rules summary to `CLAUDE.md`
+2. **Dynamic**: Install the corresponding Skill for detailed guidance
+
+---
+
+## Pure Dynamic Standards
 
 ### Definition
 
@@ -90,21 +132,27 @@ Standards that are **triggered by specific keywords** or tasks, loaded on demand
 - Content is detailed (would bloat context if always loaded)
 - Loaded only when relevant
 - Task-specific workflows
+- Decision support needed (choices, recommendations)
 
-### Dynamic Standards List
+### Dynamic Standards List (14 Skills)
 
 | Standard | Skill | Trigger Keywords |
 |----------|-------|-----------------|
-| [commit-message-guide](../core/commit-message-guide.md) | commit-standards | commit, git, 提交, feat, fix |
+| [anti-hallucination](../core/anti-hallucination.md) | ai-collaboration-standards | certainty, assumption, 確定性 |
+| [changelog-standards](../core/changelog-standards.md) | changelog-guide | changelog, release notes, 變更日誌 |
 | [code-review-checklist](../core/code-review-checklist.md) | code-review-assistant | review, PR, 審查 |
-| [git-workflow](../core/git-workflow.md) | git-workflow-guide | branch, merge, 分支 |
-| [testing-standards](../core/testing-standards.md) | testing-guide | test, 測試, coverage |
-| [test-completeness-dimensions](../core/test-completeness-dimensions.md) | testing-guide | test completeness |
-| [versioning](../core/versioning.md) | release-standards | version, release, 版本 |
-| [changelog-standards](../core/changelog-standards.md) | release-standards | changelog, 變更日誌 |
+| [commit-message-guide](../core/commit-message-guide.md) | commit-standards | commit, git, 提交, feat, fix |
 | [documentation-structure](../core/documentation-structure.md) | documentation-guide | README, docs |
 | [documentation-writing-standards](../core/documentation-writing-standards.md) | documentation-guide | documentation |
+| [error-code-standards](../core/error-code-standards.md) | error-code-guide | error code, error handling, 錯誤碼 |
+| [git-workflow](../core/git-workflow.md) | git-workflow-guide | branch, merge, 分支 |
+| [logging-standards](../core/logging-standards.md) | logging-guide | logging, log level, 日誌 |
+| [project-structure](../core/project-structure.md) | project-structure-guide | structure, organization, 結構 |
 | [spec-driven-development](../core/spec-driven-development.md) | requirement-assistant | spec, SDD, 規格, 新功能 |
+| [spec-driven-development](../core/spec-driven-development.md) | spec-driven-dev | spec, proposal, 提案 |
+| [test-completeness-dimensions](../core/test-completeness-dimensions.md) | test-coverage-assistant | test coverage, 7 dimensions, 測試覆蓋 |
+| [testing-standards](../core/testing-standards.md) | testing-guide | test, 測試, coverage |
+| [versioning](../core/versioning.md) | release-standards | version, release, 版本 |
 
 ### Deployment
 
@@ -215,6 +263,7 @@ If you currently have all rules in one file:
 - [CLAUDE.md Template](../templates/CLAUDE.md.template) - Ready-to-use static rules template
 - [Claude Code Skills](../skills/claude-code/README.md) - Skill installation guide
 - [Adoption Guide](./ADOPTION-GUIDE.md) - Overall adoption strategy
+- [MAINTENANCE.md](../MAINTENANCE.md) - How to add/update Skills (for maintainers)
 
 ---
 
@@ -222,6 +271,7 @@ If you currently have all rules in one file:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2025-12-30 | Added Hybrid Standards category, updated to 14 Skills |
 | 1.0.0 | 2025-12-24 | Initial guide |
 
 ---
