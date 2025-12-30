@@ -71,17 +71,81 @@ universal-dev-standards/
 
 ---
 
+## 🤖 AI 優化標準（v2.3.0 新增）
+
+### 雙格式架構
+
+本專案現在提供兩種格式的標準，適用於不同使用場景：
+
+| 格式 | 位置 | 使用場景 | Token 使用量 |
+|------|------|----------|--------------|
+| **人類可讀** | `core/`、`options/` | 文件、入職、參考 | 標準 |
+| **AI 優化** | `ai/` | AI 助手、自動化、CLAUDE.md | 減少約 80% |
+
+### 使用 AI 優化標準
+
+**用於 AI 助手（Claude、Cursor 等）**：
+```yaml
+# 在 CLAUDE.md 或系統提示中引用
+standards:
+  source: ai/standards/
+  options:
+    workflow: ai/options/git-workflow/github-flow.ai.yaml
+    commit_language: ai/options/commit-message/english.ai.yaml
+    test_levels:
+      - ai/options/testing/unit-testing.ai.yaml
+      - ai/options/testing/integration-testing.ai.yaml
+```
+
+**使用 CLI 選擇格式**：
+```bash
+# 使用 AI 格式初始化（推薦用於 AI 輔助專案）
+uds init --format ai
+
+# 使用兩種格式初始化
+uds init --format both
+
+# 設定特定選項
+uds init --workflow github-flow --commit-lang english --test-levels unit,integration
+```
+
+### 可用選項
+
+| 類別 | 選項 |
+|------|------|
+| **Git 工作流** | `github-flow`、`gitflow`、`trunk-based`、`squash-merge`、`merge-commit`、`rebase-ff` |
+| **Commit 語言** | `english`、`traditional-chinese`、`bilingual` |
+| **測試層級** | `unit`、`integration`、`system`、`e2e` |
+| **專案結構** | `nodejs`、`python`、`dotnet`、`java`、`go` |
+
+### 翻譯
+
+AI 優化標準提供以下語言版本：
+- 英文：`ai/`
+- 繁體中文：`locales/zh-TW/ai/`
+
+---
+
 ## 🔗 規範採用
 
 ### 搭配 Claude Code 使用（推薦）
 
 Skills 現已整合在本儲存庫中。安裝 Claude Code Skills 獲得互動式 AI 輔助：
 
+**macOS / Linux / Git Bash：**
 ```bash
 # 複製並安裝 skills
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git
 cd universal-dev-standards/skills/claude-code
 ./install.sh
+```
+
+**Windows (PowerShell)：**
+```powershell
+# 複製並安裝 skills
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards\skills\claude-code
+.\install.ps1
 ```
 
 ### 多 AI 工具支援（即將推出）
@@ -291,6 +355,14 @@ cp templates/CHANGELOG.md.template your-project/CHANGELOG.md
 
 ## 🔧 自訂指南
 
+### 自訂內容要寫在哪裡
+
+| 自訂類型 | 檔案 | 位置 |
+|---------|------|------|
+| AI 工具規則與排除 | `CLAUDE.md`、`.cursorrules`、`.windsurfrules`、`.clinerules` | 專案根目錄 |
+| 專案標準覆寫 | `PROJECT-STANDARDS.md` | 專案根目錄 |
+| 複製的核心規範 | `docs/standards/` 或自訂位置 | 您的專案 |
+
 ### 調整規範以符合專案需求
 
 所有核心規範都包含 **「專案特定自訂」** 區段。可透過以下方式自訂：
@@ -328,6 +400,65 @@ cp templates/CHANGELOG.md.template your-project/CHANGELOG.md
    - payment：支付處理
    - [在此新增您的模組]
    ```
+
+### 排除標準
+
+不是每個標準都適合每個專案。使用以下方法排除標準：
+
+1. **在 `uds init` 時**：只選擇您需要的標準
+   ```bash
+   uds init
+   # 互動式提示讓您選擇：
+   # - 要採用哪些核心標準
+   # - 要設定哪些 AI 工具
+   # - 要安裝哪些 Skills（或完全跳過）
+   ```
+
+2. **選擇性採用**：只複製需要的檔案
+   ```bash
+   # 不使用完整 init，只複製特定標準
+   cp core/commit-message-guide.md your-project/docs/
+   cp core/code-review-checklist.md your-project/docs/
+   ```
+
+3. **AI 工具整合排除**：在 AI 工具設定檔中指定排除模式
+
+   | AI 工具 | 設定檔 | 位置 |
+   |---------|--------|------|
+   | Claude Code | `CLAUDE.md` | 專案根目錄 |
+   | Cursor | `.cursorrules` | 專案根目錄 |
+   | Windsurf | `.windsurfrules` | 專案根目錄 |
+   | Cline | `.clinerules` | 專案根目錄 |
+
+   ```markdown
+   # 範例：新增至 CLAUDE.md 或 .cursorrules
+   ## 排除的標準
+   SDD 命令可在以下情況跳過：
+   - 微小的 bug 修復（< 5 行）
+   - 僅文件變更
+   - 設定檔更新
+   ```
+
+4. **專案層級覆寫**：在專案根目錄建立 `PROJECT-STANDARDS.md` 記錄偏差
+   ```markdown
+   # PROJECT-STANDARDS.md（在專案根目錄）
+
+   ## 排除的標準
+   - `testing-completeness.md` - 使用舊版測試框架
+   - `api-spec.md` - 內部工具，無外部 API
+
+   ## 修改的閾值
+   - 測試覆蓋率：60%（舊有程式碼遷移中）
+   ```
+
+### 可排除項目
+
+| 類別 | 可排除項目 |
+|------|-----------|
+| **核心標準** | 13 個標準中的任何一個，根據專案需求 |
+| **AI Skills** | 個別 skill 或整個 skill 安裝 |
+| **整合** | 特定 AI 工具設定 |
+| **範本** | README、CHANGELOG、CONTRIBUTING 範本 |
 
 ---
 

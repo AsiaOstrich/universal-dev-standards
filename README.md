@@ -392,6 +392,14 @@ cp templates/CHANGELOG.md.template your-project/CHANGELOG.md
 
 ## 🔧 Customization Guide
 
+### Where to Write Customizations
+
+| Customization Type | File | Location |
+|--------------------|------|----------|
+| AI tool rules & exclusions | `CLAUDE.md`, `.cursorrules`, `.windsurfrules`, `.clinerules` | Project root |
+| Project standard overrides | `PROJECT-STANDARDS.md` | Project root |
+| Copied core standards | `docs/standards/` or customize location | Your project |
+
 ### Adapting Standards to Your Project
 
 All core standards include **"Project-Specific Customization"** sections. Customize by:
@@ -429,6 +437,65 @@ All core standards include **"Project-Specific Customization"** sections. Custom
    - payment: Payment processing
    - [add your modules here]
    ```
+
+### Excluding Standards
+
+Not every standard fits every project. Use these approaches to exclude standards:
+
+1. **During `uds init`**: Select only the standards you need
+   ```bash
+   uds init
+   # Interactive prompts let you choose:
+   # - Which core standards to adopt
+   # - Which AI tools to configure
+   # - Which Skills to install (or skip entirely)
+   ```
+
+2. **Selective Adoption**: Copy only needed files
+   ```bash
+   # Instead of full init, copy specific standards
+   cp core/commit-message-guide.md your-project/docs/
+   cp core/code-review-checklist.md your-project/docs/
+   ```
+
+3. **AI Tool Integration Exclusions**: Specify exclusion patterns in your AI tool config files
+
+   | AI Tool | Config File | Location |
+   |---------|-------------|----------|
+   | Claude Code | `CLAUDE.md` | Project root |
+   | Cursor | `.cursorrules` | Project root |
+   | Windsurf | `.windsurfrules` | Project root |
+   | Cline | `.clinerules` | Project root |
+
+   ```markdown
+   # Example: Add to CLAUDE.md or .cursorrules
+   ## Excluded Standards
+   SDD commands may be skipped for:
+   - Trivial bug fixes (< 5 lines)
+   - Documentation-only changes
+   - Configuration file updates
+   ```
+
+4. **Project-Level Overrides**: Create `PROJECT-STANDARDS.md` in your project root to document deviations
+   ```markdown
+   # PROJECT-STANDARDS.md (in project root)
+
+   ## Excluded Standards
+   - `testing-completeness.md` - Using legacy testing framework
+   - `api-spec.md` - Internal tool, no external API
+
+   ## Modified Thresholds
+   - Test coverage: 60% (legacy codebase migration)
+   ```
+
+### What Can Be Excluded
+
+| Category | Excludable Items |
+|----------|------------------|
+| **Core Standards** | Any of the 13 standards based on project needs |
+| **AI Skills** | Individual skills or entire skill installation |
+| **Integrations** | Specific AI tool configurations |
+| **Templates** | README, CHANGELOG, CONTRIBUTING templates |
 
 ---
 
