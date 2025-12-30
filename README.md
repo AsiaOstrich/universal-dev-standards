@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 3.0.0
+**Version**: 3.1.0
 **Last Updated**: 2025-12-30
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
@@ -748,6 +748,7 @@ All contributions must:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.1.0 | 2025-12-30 | Added: Simplified Chinese (zh-CN) translation, language switcher links |
 | 3.0.0 | 2025-12-30 | Added: Full Windows support, npm publish, CLI enhancements, 5 new Skills (14 total) |
 | 2.3.0 | 2025-12-29 | Added: AI-optimized standards (`ai/`), configurable options (`options/`), CLI format/options support, zh-TW translations |
 | 2.2.0 | 2025-12-25 | Added: CLI tool improvements, Skills updates |

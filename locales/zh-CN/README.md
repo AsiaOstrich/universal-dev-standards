@@ -1,7 +1,7 @@
 ---
 source: ../../README.md
-source_version: 3.0.0
-translation_version: 3.0.0
+source_version: 3.1.0
+translation_version: 3.1.0
 last_synced: 2025-12-30
 status: current
 ---
@@ -10,7 +10,7 @@ status: current
 
 > **Language**: [English](../../README.md) | [繁體中文](../zh-TW/README.md) | 简体中文
 
-**版本**: 3.0.0
+**版本**: 3.1.0
 **最后更新**: 2025-12-30
 **授权**: [双重授权](../../LICENSE) (CC BY 4.0 + MIT)
 
@@ -711,7 +711,8 @@ cp integrations/openspec/commands/* your-project/.claude/commands/
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| 3.0.0 | 2025-12-30 | 新增：完整 Windows 支援、npm 发布、CLI 增强、5 个新 Skills（共 14 个）|
+| 3.1.0 | 2025-12-30 | 新增：简体中文（zh-CN）翻译、语言切换链接 |
+| 3.0.0 | 2025-12-30 | 新增：完整 Windows 支持、npm 发布、CLI 增强、5 个新 Skills（共 14 个）|
 | 2.3.0 | 2025-12-29 | 新增：AI 优化标准 (`ai/`)、可配置选项 (`options/`)、CLI 格式/选项支援 |
 | 2.2.0 | 2025-12-25 | 新增：多语言支援架构、繁体中文翻译 |
 | 1.3.0 | 2025-12-15 | 新增：changelog-standards.md；更新：versioning.md, git-workflow.md（交叉引用）|

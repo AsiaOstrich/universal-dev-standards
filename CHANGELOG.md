@@ -10,7 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] | 未發布
 
+## [3.1.0] - 2025-12-30
+
 ### Added | 新增
+- **Simplified Chinese (zh-CN) Translation**: Complete localization for Simplified Chinese users
+  **簡體中文 (zh-CN) 翻譯**：為簡體中文使用者提供完整本地化
+  - Add `locales/zh-CN/README.md` - Full README translation
+    新增 `locales/zh-CN/README.md` - 完整 README 翻譯
+  - Add `locales/zh-CN/CLAUDE.md` - Project guidelines translation
+    新增 `locales/zh-CN/CLAUDE.md` - 專案指南翻譯
+  - Add `locales/zh-CN/docs/WINDOWS-GUIDE.md` - Windows guide translation
+    新增 `locales/zh-CN/docs/WINDOWS-GUIDE.md` - Windows 指南翻譯
+- Add language switcher links across all README versions (EN, zh-TW, zh-CN)
+  在所有 README 版本中新增語言切換連結（EN, zh-TW, zh-CN）
+
 - **Full Windows Support**: Complete cross-platform compatibility for Windows users
   **完整 Windows 支援**：為 Windows 使用者提供完整的跨平台相容性
   - Add `.gitattributes` for consistent line endings across platforms

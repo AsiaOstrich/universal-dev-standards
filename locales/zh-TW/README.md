@@ -1,7 +1,7 @@
 ---
 source: ../../README.md
-source_version: 3.0.0
-translation_version: 3.0.0
+source_version: 3.1.0
+translation_version: 3.1.0
 last_synced: 2025-12-30
 status: current
 ---
@@ -10,7 +10,7 @@ status: current
 
 > **Language**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
 
-**版本**: 3.0.0
+**版本**: 3.1.0
 **最後更新**: 2025-12-30
 **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 
@@ -711,6 +711,7 @@ cp integrations/openspec/commands/* your-project/.claude/commands/
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 3.1.0 | 2025-12-30 | 新增：簡體中文（zh-CN）翻譯、語言切換連結 |
 | 3.0.0 | 2025-12-30 | 新增：完整 Windows 支援、npm 發布、CLI 增強、5 個新 Skills（共 14 個）|
 | 2.3.0 | 2025-12-29 | 新增：AI 優化標準 (`ai/`)、可配置選項 (`options/`)、CLI 格式/選項支援 |
 | 2.2.0 | 2025-12-25 | 新增：多語言支援架構、繁體中文翻譯 |
