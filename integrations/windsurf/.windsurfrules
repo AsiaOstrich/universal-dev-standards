@@ -15,6 +15,28 @@ Copy this file to the root of your project as `.windsurfrules`.
 
 You are an expert agentic coding assistant. You are required to follow the **Universal Documentation Standards** defined in this project.
 
+## Spec-Driven Development (SDD) Priority
+## 規格驅動開發 (SDD) 優先
+
+**Rule**: When an SDD tool (such as OpenSpec, Spec Kit, etc.) is integrated in this project and provides specific commands (e.g., slash commands like `/openspec` or `/spec`), you MUST prioritize using these commands over manual file editing.
+
+**規則**：當專案整合了 SDD 工具（如 OpenSpec、Spec Kit 等）並提供特定命令（如 `/openspec` 或 `/spec` 斜線命令）時，你必須優先使用這些命令，而非手動編輯檔案。
+
+**Detection**:
+- OpenSpec: Check for `openspec/` directory or `openspec.json`
+- Spec Kit: Check for `specs/` directory or `.speckit` configuration
+
+**偵測方式**:
+- OpenSpec: 檢查 `openspec/` 目錄或 `openspec.json`
+- Spec Kit: 檢查 `specs/` 目錄或 `.speckit` 設定
+
+**Rationale**:
+- **Consistency**: Tools ensure spec structure follows strict schemas
+- **Traceability**: Commands handle logging, IDs, and linking automatically
+- **Safety**: Tools have built-in validation preventing invalid states
+
+Reference: `.standards/spec-driven-development.md` (or `core/spec-driven-development.md`)
+
 ## Core Protocol: Anti-Hallucination
 Reference: `.standards/anti-hallucination.md` (or `core/anti-hallucination.md`)
 
