@@ -10,7 +10,7 @@ import { configureCommand } from '../src/commands/configure.js';
 program
   .name('uds')
   .description('CLI tool for adopting Universal Development Standards')
-  .version('2.1.0');
+  .version('3.0.0');
 
 program
   .command('list')

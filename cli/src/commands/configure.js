@@ -1,7 +1,6 @@
 import chalk from 'chalk';
 import ora from 'ora';
 import {
-  getStandardSource,
   getOptionSource,
   findOption,
   getAllStandards

@@ -76,7 +76,11 @@ export function listCommand(options) {
         : chalk.white(std.name);
 
       console.log(`  ${levelBadge} ${name}`);
-      console.log(chalk.gray(`       ${std.source}`));
+      // Handle source being an object with human/ai paths
+      const sourceDisplay = typeof std.source === 'object'
+        ? std.source.human || std.source.ai
+        : std.source;
+      console.log(chalk.gray(`       ${sourceDisplay}`));
 
       if (std.applicability) {
         console.log(chalk.gray(`       Applies to: ${std.applicability}`));

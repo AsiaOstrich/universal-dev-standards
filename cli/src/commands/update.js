@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import inquirer from 'inquirer';
 import { readManifest, writeManifest, copyStandard, copyIntegration, isInitialized } from '../utils/copier.js';
-import { getRepositoryInfo, getStandardsByLevel } from '../utils/registry.js';
+import { getRepositoryInfo } from '../utils/registry.js';
 
 // Integration file mappings (same as init.js)
 const INTEGRATION_MAPPINGS = {
