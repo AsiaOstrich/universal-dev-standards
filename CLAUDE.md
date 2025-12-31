@@ -207,6 +207,11 @@ For complete check-in standards, see [core/checkin-standards.md](core/checkin-st
 
 When using AI assistants (Claude Code, Cursor, etc.) with this project:
 
+### Conversation Language / 對話語言
+
+- **All conversations with AI assistants should be conducted in Traditional Chinese (繁體中文)**
+- AI 助手應以繁體中文回覆使用者的問題與請求
+
 ### DO:
 - Reference existing standards in `core/` for consistency
 - Follow the bilingual format (English + Traditional Chinese) for documentation
