@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { createRequire } from 'node:module';
 import { program } from 'commander';
 import { listCommand } from '../src/commands/list.js';
 import { initCommand } from '../src/commands/init.js';
@@ -7,10 +8,13 @@ import { checkCommand } from '../src/commands/check.js';
 import { updateCommand } from '../src/commands/update.js';
 import { configureCommand } from '../src/commands/configure.js';
 
+const require = createRequire(import.meta.url);
+const pkg = require('../package.json');
+
 program
   .name('uds')
   .description('CLI tool for adopting Universal Development Standards')
-  .version('3.0.0');
+  .version(pkg.version);
 
 program
   .command('list')
