@@ -1,8 +1,8 @@
 ---
 source: skills/claude-code/release-standards/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-02
 status: current
 name: release-standards
 description: |
@@ -15,8 +15,8 @@ description: |
 
 > **語言**: [English](../../../../../skills/claude-code/release-standards/SKILL.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2025-12-24
+**版本**: 1.1.0
+**最後更新**: 2026-01-02
 **適用範圍**: Claude Code Skills
 
 ---
@@ -70,6 +70,7 @@ Examples:
 完整標準請參閱：
 - [語意化版本控制指南](./semantic-versioning.md)
 - [變更日誌格式](./changelog-format.md)
+- [發布流程指南](./release-workflow.md) - 本專案完整發布流程
 
 ## CHANGELOG 條目格式
 
@@ -178,6 +179,7 @@ This project follows **Keep a Changelog** format.
 
 | 版本 | 日期 | 變更內容 |
 |---------|------|---------|
+| 1.1.0 | 2026-01-02 | 新增：發布流程指南，包含完整發布流程 |
 | 1.0.0 | 2025-12-24 | 新增：標準段落（目的、相關標準、版本歷史、授權條款） |
 
 ---

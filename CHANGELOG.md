@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] | 未發布
 
+### Added | 新增
+- **Skills**: Add Release Workflow Guide for comprehensive release process
+  **Skills**：新增發布流程指南，提供完整的發布流程
+  - New `skills/claude-code/release-standards/release-workflow.md` with step-by-step release instructions
+    新增 `skills/claude-code/release-standards/release-workflow.md` 包含逐步發布指示
+  - Covers beta, alpha, rc, and stable release workflows
+    涵蓋 beta、alpha、rc 和穩定版發布工作流程
+  - Includes npm dist-tag strategy, troubleshooting, and AI assistant guidelines
+    包含 npm dist-tag 策略、疑難排解和 AI 助理指南
+  - Add Release Process section in CLAUDE.md for AI assistants
+    在 CLAUDE.md 中新增發布流程章節供 AI 助理參考
+
 ### Fixed | 修復
 - **CI/CD**: Fix npm publish workflow to correctly tag beta/alpha/rc versions
   **CI/CD**：修復 npm 發布工作流程，正確標記 beta/alpha/rc 版本

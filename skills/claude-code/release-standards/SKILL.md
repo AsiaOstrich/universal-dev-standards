@@ -10,8 +10,8 @@ description: |
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/release-standards/SKILL.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
+**Version**: 1.1.0
+**Last Updated**: 2026-01-02
 **Applicability**: Claude Code Skills
 
 ---
@@ -65,6 +65,7 @@ Examples:
 For complete standards, see:
 - [Semantic Versioning Guide](./semantic-versioning.md)
 - [Changelog Format](./changelog-format.md)
+- [Release Workflow Guide](./release-workflow.md) - Complete release process for this project
 
 ### AI-Optimized Format (Token-Efficient)
 
@@ -178,6 +179,7 @@ This project follows **Keep a Changelog** format.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-02 | Added: Release Workflow Guide with complete release process |
 | 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
 
 ---

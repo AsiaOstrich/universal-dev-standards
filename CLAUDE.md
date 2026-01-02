@@ -230,6 +230,78 @@ When using AI assistants (Claude Code, Cursor, etc.) with this project:
 - Bilingual documentation is required (English primary, zh-TW translation)
 - CLI tool is the primary code component; most content is Markdown
 
+---
+
+## Release Process
+
+When preparing releases or helping with version management:
+
+### Reference Documentation
+
+- **Complete Release Workflow**: [skills/claude-code/release-standards/release-workflow.md](skills/claude-code/release-standards/release-workflow.md)
+- **Semantic Versioning**: [skills/claude-code/release-standards/semantic-versioning.md](skills/claude-code/release-standards/semantic-versioning.md)
+- **CHANGELOG Format**: [skills/claude-code/release-standards/changelog-format.md](skills/claude-code/release-standards/changelog-format.md)
+
+### Key Points for AI Assistants
+
+1. **Never manually run `npm publish`**: GitHub Actions handles this automatically
+2. **Version Detection is Automatic**: `.github/workflows/publish.yml` detects version type and uses correct npm tag
+3. **Always follow the checklist**: Pre-release checks in release-workflow.md
+4. **CHANGELOG first**: Update CHANGELOG.md before creating releases
+
+### Release Types
+
+| Type | Version Pattern | npm Tag | Auto-detected |
+|------|----------------|---------|---------------|
+| Stable | `X.Y.Z` | `@latest` | ✅ Yes |
+| Beta | `X.Y.Z-beta.N` | `@beta` | ✅ Yes |
+| Alpha | `X.Y.Z-alpha.N` | `@alpha` | ✅ Yes |
+| RC | `X.Y.Z-rc.N` | `@rc` | ✅ Yes |
+
+### AI Assistant Workflow
+
+When user asks to prepare a release:
+
+1. **Ask for release type**: beta, alpha, rc, or stable
+2. **Run pre-release checks**: Tests, linting, git status
+3. **Update version**: Use `npm version X.Y.Z-beta.N` or `npm version X.Y.Z`
+4. **Update CHANGELOG.md**: Follow the format in release-workflow.md
+5. **Create git tag**: Format `vX.Y.Z` or `vX.Y.Z-beta.N`
+6. **Commit and push**: Git commit and push tags
+7. **Remind to create GitHub Release**: User must create manually, GitHub Actions will handle npm publish
+
+### Example Interaction
+
+```
+User: "我想發布 beta 版本"
+
+AI:
+我會協助你準備 beta 版本發布。
+
+首先，讓我執行預發布檢查：
+1. ✅ 執行測試
+2. ✅ 執行 linting
+3. ✅ 檢查 git 狀態
+
+請提供以下資訊：
+1. 版本號是多少？（例如：3.2.2-beta.1）
+2. 主要包含哪些變更？
+
+確認後，我會：
+1. 更新 cli/package.json 版本號
+2. 更新 CHANGELOG.md
+3. 建立 git tag (vX.Y.Z-beta.N)
+4. 提交並推送變更
+5. 提供建立 GitHub Release 的步驟
+
+**重要**：建立 GitHub Release 後，GitHub Actions 會自動：
+- 偵測版本類型（beta）
+- 發布到 npm 並標記為 @beta
+- 無需手動執行 npm publish
+```
+
+---
+
 ## File Structure Reference
 
 ```

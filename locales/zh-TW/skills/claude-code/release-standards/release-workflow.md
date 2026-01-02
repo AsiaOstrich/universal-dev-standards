@@ -1,0 +1,428 @@
+# 發布流程指南
+
+> **Language**: [English](../../../../skills/claude-code/release-standards/release-workflow.md) | 繁體中文
+
+**版本**: 1.0.0
+**最後更新**: 2026-01-02
+**適用範圍**: Universal Development Standards 專案
+
+---
+
+## 目的
+
+本文件提供 Universal Development Standards 專案的完整逐步發布流程，包含版本管理、npm 發布、GitHub 發布和 dist-tag 處理。
+
+---
+
+## 發布類型
+
+### 1. Beta 發布（測試版本）
+
+**使用時機：**
+- 在穩定版發布前測試新功能
+- 向早期採用者收集回饋
+- 在生產環境前驗證錯誤修正
+
+**版本模式：** `X.Y.Z-beta.N`（例如：`3.2.1-beta.1`）
+
+**npm 標籤：** `@beta`
+
+**安裝方式：** `npm install -g universal-dev-standards@beta`
+
+---
+
+### 2. 穩定發布（正式版本）
+
+**使用時機：**
+- 所有功能已測試並驗證
+- 準備好用於生產環境
+- 所有測試通過
+
+**版本模式：** `X.Y.Z`（例如：`3.2.1`）
+
+**npm 標籤：** `@latest`
+
+**安裝方式：** `npm install -g universal-dev-standards`
+
+---
+
+### 3. Alpha 發布（早期測試）
+
+**使用時機：**
+- 非常早期的測試，功能不穩定
+- 僅限內部團隊測試
+
+**版本模式：** `X.Y.Z-alpha.N`（例如：`3.3.0-alpha.1`）
+
+**npm 標籤：** `@alpha`
+
+**安裝方式：** `npm install -g universal-dev-standards@alpha`
+
+---
+
+### 4. 候選發布（預發布）
+
+**使用時機：**
+- 穩定版發布前的最終測試
+- 不包含新功能，僅錯誤修正
+
+**版本模式：** `X.Y.Z-rc.N`（例如：`3.2.1-rc.1`）
+
+**npm 標籤：** `@rc`
+
+**安裝方式：** `npm install -g universal-dev-standards@rc`
+
+---
+
+## 完整發布流程
+
+### 流程 A：Beta 發布
+
+```bash
+# 1. 確保在 main 分支並已更新
+git checkout main
+git pull origin main
+
+# 2. 確保所有測試通過
+cd cli
+npm test
+npm run lint
+
+# 3. 更新版本號為 beta
+npm version 3.2.1-beta.1
+
+# 4. 更新 CHANGELOG.md
+# - 在 [Unreleased] 區段下新增條目
+# - 建立新區段：## [3.2.1-beta.1] - YYYY-MM-DD
+# - 將 [Unreleased] 的變更移到新區段
+
+# 5. 提交變更（如果手動更新了 CHANGELOG）
+git add CHANGELOG.md cli/package.json cli/package-lock.json
+git commit -m "chore(release): bump version to 3.2.1-beta.1"
+
+# 6. 建立並推送 git tag
+git tag v3.2.1-beta.1
+git push origin main --tags
+
+# 7. 建立 GitHub Release
+# - 前往：https://github.com/AsiaOstrich/universal-dev-standards/releases/new
+# - Tag：v3.2.1-beta.1
+# - 標題：v3.2.1-beta.1 - [功能名稱] (Beta)
+# - 標記為「Pre-release」
+# - 描述：使用 .github/RELEASE_v3.2.1-beta.1.md 的範本
+# - 點擊「Publish release」
+
+# 8. GitHub Actions 自動發布到 npm 並標記為 @beta
+# - 工作流程：.github/workflows/publish.yml
+# - 自動標籤偵測：版本包含 "-beta." → @beta 標籤
+# - 無需手動執行 npm publish
+
+# 9. 驗證 npm 發布
+npm view universal-dev-standards dist-tags
+# 預期：{ latest: '3.2.0', beta: '3.2.1-beta.1' }
+
+# 10. 測試安裝
+npm install -g universal-dev-standards@beta
+uds --version  # 應顯示 3.2.1-beta.1
+```
+
+---
+
+### 流程 B：穩定發布（從 Beta）
+
+```bash
+# 1. 確保 beta 測試完成並所有問題已解決
+# 2. 確保在 main 分支並已更新
+git checkout main
+git pull origin main
+
+# 3. 確保所有測試通過
+cd cli
+npm test
+npm run lint
+
+# 4. 更新版本號為穩定版
+npm version 3.2.1
+
+# 5. 更新 CHANGELOG.md
+# - 將 [3.2.1-beta.1] 的變更移到 [3.2.1]
+# - 更新日期為發布日期
+# - 移除 beta 專屬的註記
+
+# 6. 提交變更
+git add CHANGELOG.md cli/package.json cli/package-lock.json
+git commit -m "chore(release): bump version to 3.2.1"
+
+# 7. 建立並推送 git tag
+git tag v3.2.1
+git push origin main --tags
+
+# 8. 建立 GitHub Release
+# - 前往：https://github.com/AsiaOstrich/universal-dev-standards/releases/new
+# - Tag：v3.2.1
+# - 標題：v3.2.1 - [功能名稱]
+# - 標記為「Latest release」
+# - 描述：最終發布說明
+# - 點擊「Publish release」
+
+# 9. GitHub Actions 自動發布到 npm 並標記為 @latest
+# - 工作流程：.github/workflows/publish.yml
+# - 自動標籤偵測：無預發布識別符 → @latest 標籤
+# - 無需手動執行 npm publish
+
+# 10. 驗證 npm 發布
+npm view universal-dev-standards dist-tags
+# 預期：{ latest: '3.2.1', beta: '3.2.1-beta.1' }
+
+# 11. 測試安裝
+npm install -g universal-dev-standards
+uds --version  # 應顯示 3.2.1
+```
+
+---
+
+### 流程 C：直接穩定發布（跳過 Beta）
+
+```bash
+# 僅在小幅修正或不需要 beta 測試時使用
+
+# 1. 遵循流程 B 的步驟 1-11
+# 2. 不需要 beta 版本，直接發布穩定版
+```
+
+---
+
+## npm dist-tag 策略
+
+專案在 `.github/workflows/publish.yml` 中使用自動標籤偵測：
+
+| 版本模式 | npm Tag | 安裝指令 | 自動化？ |
+|---------|---------|---------|---------|
+| `X.Y.Z` | `latest` | `npm install -g universal-dev-standards` | ✅ 是 |
+| `X.Y.Z-beta.N` | `beta` | `npm install -g universal-dev-standards@beta` | ✅ 是 |
+| `X.Y.Z-alpha.N` | `alpha` | `npm install -g universal-dev-standards@alpha` | ✅ 是 |
+| `X.Y.Z-rc.N` | `rc` | `npm install -g universal-dev-standards@rc` | ✅ 是 |
+
+### 運作方式
+
+GitHub Actions 工作流程會自動：
+
+1. 從 `cli/package.json` 讀取版本號
+2. 使用正則表達式模式偵測版本類型
+3. 使用正確的標籤發布到 npm
+
+**實作位置：** `.github/workflows/publish.yml` 第 39-60 行
+
+---
+
+## 疑難排解：手動修正 dist-tag
+
+### 問題：手動 npm 發布後標籤錯誤
+
+如果不小心使用錯誤的標籤發布（例如 beta 版本標記為 `@latest`）：
+
+```bash
+# 1. 登入 npm（如果尚未登入）
+npm login
+
+# 2. 修正標籤
+npm dist-tag add universal-dev-standards@3.2.0 latest      # 將先前的穩定版恢復為 @latest
+npm dist-tag add universal-dev-standards@3.2.1-beta.1 beta # 將 beta 版本標記為 @beta
+
+# 3. 驗證修正
+npm view universal-dev-standards dist-tags
+# 預期：{ latest: '3.2.0', beta: '3.2.1-beta.1' }
+```
+
+### 問題：需要撤回發布
+
+```bash
+# 選項 1：棄用該版本
+npm deprecate universal-dev-standards@3.2.1-beta.1 "Please use 3.2.1-beta.2 instead"
+
+# 選項 2：取消發布（僅限 72 小時內，請謹慎使用）
+npm unpublish universal-dev-standards@3.2.1-beta.1
+
+# 選項 3：發布新的修補版本
+npm version 3.2.2
+# 然後遵循正常的發布流程
+```
+
+---
+
+## CHANGELOG 更新指南
+
+### Beta 發布格式
+
+```markdown
+## [Unreleased]
+
+## [3.2.1-beta.1] - 2026-01-02
+
+> ⚠️ **Beta 發布**：這是測試版本。請在穩定版發布前回報任何問題。
+
+### Added
+- **CLI**：在 Skills 安裝流程中新增 Plugin Marketplace 支援
+
+### Fixed
+- **CLI**：修復 standards registry 中通配符路徑處理導致 404 錯誤
+- **CLI**：修復 init/configure/update 指令執行後程式未退出的問題
+
+### Testing
+- ✅ 所有 68 個單元測試通過
+- ✅ ESLint 檢查通過
+```
+
+### 穩定發布格式
+
+```markdown
+## [Unreleased]
+
+## [3.2.1] - 2026-01-02
+
+### Added
+- **CLI**：在 Skills 安裝流程中新增 Plugin Marketplace 支援
+  - 在 Skills 安裝提示中新增「Plugin Marketplace (推薦)」選項
+  - CLI 在不嘗試本地安裝的情況下追蹤透過 marketplace 安裝的 Skills
+  - `uds check` 指令顯示 marketplace 安裝狀態
+
+### Fixed
+- **CLI**：修復下載範本時通配符路徑處理導致 404 錯誤
+- **CLI**：修復 init/configure/update 指令執行後程式未退出的問題
+```
+
+---
+
+## 預發布檢查清單
+
+### 建立任何發布之前
+
+- [ ] 所有測試通過（`npm test`）
+- [ ] Linting 通過（`npm run lint`）
+- [ ] CHANGELOG.md 已更新所有變更
+- [ ] `cli/package.json` 中的版本號已更新
+- [ ] 所有相關檔案已同步（如果核心標準有變更）
+- [ ] Git 工作目錄乾淨（`git status`）
+
+### Beta 發布之前
+
+- [ ] 預發布檢查清單完成
+- [ ] Beta 測試計畫已記錄
+- [ ] 已知問題已記錄在發布說明中
+- [ ] 已識別並通知 beta 測試者
+
+### 穩定發布之前
+
+- [ ] 預發布檢查清單完成
+- [ ] Beta 測試完成（如適用）
+- [ ] 所有 beta 回饋已處理
+- [ ] 無嚴重或高優先級錯誤
+- [ ] 文件已更新
+- [ ] 已建立遷移指南（如有破壞性變更）
+
+---
+
+## 版本編號策略
+
+遵循語義化版本：
+
+| 變更類型 | 版本遞增 | 範例 |
+|---------|---------|------|
+| 破壞性變更 | MAJOR | 2.9.5 → 3.0.0 |
+| 新功能（向後相容） | MINOR | 3.1.5 → 3.2.0 |
+| 錯誤修正（向後相容） | PATCH | 3.2.0 → 3.2.1 |
+| Beta 發布 | 新增 `-beta.N` | 3.2.1 → 3.2.1-beta.1 |
+| Alpha 發布 | 新增 `-alpha.N` | 3.3.0 → 3.3.0-alpha.1 |
+| 候選發布 | 新增 `-rc.N` | 3.2.1 → 3.2.1-rc.1 |
+
+---
+
+## CI/CD 自動化
+
+### GitHub Actions 工作流程
+
+專案使用 `.github/workflows/publish.yml` 進行自動化發布：
+
+**觸發條件：** 建立 GitHub Release（任何 tag）
+
+**步驟：**
+1. Checkout 程式碼
+2. 設定 Node.js
+3. 安裝相依套件（`npm ci`）
+4. 驗證 CLI（`node bin/uds.js --version`）
+5. **判斷 npm tag**（自動版本偵測）
+6. 使用正確的 tag 發布到 npm
+
+**版本偵測邏輯：**
+```bash
+VERSION=$(node -p "require('./package.json').version")
+
+if [[ $VERSION =~ -beta\. ]]; then
+  TAG=beta
+elif [[ $VERSION =~ -alpha\. ]]; then
+  TAG=alpha
+elif [[ $VERSION =~ -rc\. ]]; then
+  TAG=rc
+else
+  TAG=latest
+fi
+
+npm publish --tag $TAG
+```
+
+---
+
+## 相關文件
+
+- [語義化版本指南](./semantic-versioning.md)
+- [Changelog 格式](./changelog-format.md)
+- [MAINTENANCE.md](../../../MAINTENANCE.md) - 工作流程 6：發布新版本
+- [.github/workflows/publish.yml](../../../.github/workflows/publish.yml)
+
+---
+
+## AI 助理指南
+
+當被要求協助發布時，AI 助理應該：
+
+1. **識別發布類型：** 詢問這是 beta、alpha、rc 或穩定版
+2. **執行預發布檢查：** 測試、linting、git 狀態
+3. **更新版本：** 使用 `npm version` 搭配正確格式
+4. **更新 CHANGELOG：** 遵循該發布類型的格式
+5. **建立 git tag：** 格式 `v{VERSION}`
+6. **提醒關於 GitHub Release：** 使用者必須手動建立
+7. **發布後驗證：** 檢查 npm dist-tags
+8. **絕不手動執行 `npm publish`：** GitHub Actions 會處理
+
+### 互動範例
+
+```
+使用者：「我想發布 beta 版本」
+
+AI：
+我會協助你準備 beta 版本發布。請確認：
+
+1. 版本號是多少？（例如：3.2.1-beta.1）
+2. 主要包含哪些變更？
+
+確認後，我會：
+1. 執行測試和檢查
+2. 更新版本號和 CHANGELOG
+3. 建立 git tag
+4. 提供 GitHub Release 建立指示
+5. GitHub Actions 會自動發布到 npm 並標記為 @beta
+```
+
+---
+
+## 版本歷史
+
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-01-02 | 初始發布流程指南 |
+
+---
+
+## 授權
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
