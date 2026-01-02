@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "3.0.0",
-  "lastUpdated": "2025-12-30",
+  "version": "3.2.0",
+  "lastUpdated": "2026-01-02",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
     "ai": {
@@ -48,14 +48,14 @@
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "3.0.0"
+      "version": "3.2.0"
     },
     "skills": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
       "localPath": "skills/claude-code",
       "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code",
-      "version": "3.0.0",
+      "version": "3.2.0",
       "note": "Skills are now included in the main repository under skills/"
     }
   },
@@ -634,14 +634,34 @@
       "note": "SDD tool, not AI coding assistant. Manual integration only."
     },
     {
-      "id": "requirement-templates",
-      "name": "Requirement Document Templates",
-      "nameZh": "需求文件模板",
-      "source": "templates/requirement-*.md",
+      "id": "requirement-checklist",
+      "name": "Requirement Checklist Template",
+      "nameZh": "需求檢核清單模板",
+      "source": "templates/requirement-checklist.md",
       "category": "skill",
       "skillName": "requirement-assistant",
       "level": 2,
-      "description": "Templates for writing requirement documents and user stories"
+      "description": "Checklist for reviewing requirement documents"
+    },
+    {
+      "id": "requirement-template",
+      "name": "Requirement Template",
+      "nameZh": "需求模板",
+      "source": "templates/requirement-template.md",
+      "category": "skill",
+      "skillName": "requirement-assistant",
+      "level": 2,
+      "description": "Template for writing user stories"
+    },
+    {
+      "id": "requirement-document-template",
+      "name": "Requirement Document Template",
+      "nameZh": "需求文件模板",
+      "source": "templates/requirement-document-template.md",
+      "category": "skill",
+      "skillName": "requirement-assistant",
+      "level": 2,
+      "description": "Template for writing comprehensive requirement documents"
     },
     {
       "id": "migration-template",

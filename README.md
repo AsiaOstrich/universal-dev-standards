@@ -773,6 +773,7 @@ All contributions must:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.2.0 | 2026-01-02 | Added: Plugin Marketplace distribution support, CLI Marketplace option; Fixed: CLI wildcard path handling, process hanging issues |
 | 3.1.0 | 2025-12-30 | Added: Simplified Chinese (zh-CN) translation, language switcher links |
 | 3.0.0 | 2025-12-30 | Added: Full Windows support, npm publish, CLI enhancements, 5 new Skills (14 total) |
 | 2.3.0 | 2025-12-29 | Added: AI-optimized standards (`ai/`), configurable options (`options/`), CLI format/options support, zh-TW translations |

@@ -734,6 +734,7 @@ cp integrations/openspec/commands/* your-project/.claude/commands/
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 3.2.0 | 2026-01-02 | 新增：Plugin Marketplace 分发支持、CLI Marketplace 选项；修复：CLI 通配符路径处理、程序挂起问题 |
 | 3.1.0 | 2025-12-30 | 新增：简体中文（zh-CN）翻译、语言切换链接 |
 | 3.0.0 | 2025-12-30 | 新增：完整 Windows 支持、npm 发布、CLI 增强、5 个新 Skills（共 14 个）|
 | 2.3.0 | 2025-12-29 | 新增：AI 优化标准 (`ai/`)、可配置选项 (`options/`)、CLI 格式/选项支援 |

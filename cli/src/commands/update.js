@@ -183,4 +183,7 @@ export async function updateCommand(options) {
   }
 
   console.log();
+
+  // Exit explicitly to prevent hanging due to inquirer's readline interface
+  process.exit(0);
 }

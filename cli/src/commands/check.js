@@ -103,18 +103,24 @@ export function checkCommand() {
   // Skills status
   console.log(chalk.cyan('Skills Status:'));
   if (manifest.skills.installed) {
-    const skillsDir = join(process.env.HOME || '', '.claude', 'skills');
-    const hasGlobalSkills = existsSync(skillsDir);
-    const hasProjectSkills = existsSync(join(projectPath, '.claude', 'skills'));
-
-    if (hasGlobalSkills || hasProjectSkills) {
-      console.log(chalk.green('  ✓ Claude Code Skills installed'));
-      if (hasGlobalSkills) console.log(chalk.gray('    Global: ~/.claude/skills/'));
-      if (hasProjectSkills) console.log(chalk.gray('    Project: .claude/skills/'));
+    if (manifest.skills.location === 'marketplace') {
+      console.log(chalk.green('  ✓ Skills installed via Plugin Marketplace'));
+      console.log(chalk.gray('    Managed by Claude Code plugin system'));
+      console.log(chalk.gray('    To verify: /plugin list'));
     } else {
-      console.log(chalk.yellow('  ⚠ Skills marked as installed but not found'));
-      console.log(chalk.gray('    Run: git clone https://github.com/AsiaOstrich/universal-dev-skills.git'));
-      console.log(chalk.gray('          cd universal-dev-skills && ./install.sh'));
+      const skillsDir = join(process.env.HOME || '', '.claude', 'skills');
+      const hasGlobalSkills = existsSync(skillsDir);
+      const hasProjectSkills = existsSync(join(projectPath, '.claude', 'skills'));
+
+      if (hasGlobalSkills || hasProjectSkills) {
+        console.log(chalk.green('  ✓ Claude Code Skills installed'));
+        if (hasGlobalSkills) console.log(chalk.gray('    Global: ~/.claude/skills/'));
+        if (hasProjectSkills) console.log(chalk.gray('    Project: .claude/skills/'));
+      } else {
+        console.log(chalk.yellow('  ⚠ Skills marked as installed but not found'));
+        console.log(chalk.gray('    Run: git clone https://github.com/AsiaOstrich/universal-dev-skills.git'));
+        console.log(chalk.gray('          cd universal-dev-skills && ./install.sh'));
+      }
     }
   } else {
     console.log(chalk.gray('  Skills not installed (using reference documents only)'));

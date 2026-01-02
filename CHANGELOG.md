@@ -10,6 +10,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] | 未發布
 
+## [3.2.1-beta.1] - 2026-01-02
+
+### Added | 新增
+- **CLI**: Add Plugin Marketplace support to Skills installation flow
+  **CLI**：在 Skills 安裝流程中新增 Plugin Marketplace 支援
+  - New "Plugin Marketplace (推薦)" option in Skills installation prompt
+    在 Skills 安裝提示中新增「Plugin Marketplace (推薦)」選項
+  - CLI tracks marketplace-installed Skills in manifest without attempting local installation
+    CLI 在 manifest 中追蹤透過 marketplace 安裝的 Skills,不嘗試本地安裝
+  - `uds check` command now displays marketplace installation status
+    `uds check` 指令現在會顯示 marketplace 安裝狀態
+
+### Fixed | 修復
+- **CLI**: Fix wildcard path handling in standards registry causing 404 errors
+  **CLI**：修復 standards registry 中通配符路徑處理導致 404 錯誤
+  - Replace `templates/requirement-*.md` wildcard with explicit file paths
+    將 `templates/requirement-*.md` 通配符替換為明確檔案路徑
+  - Add explicit entries for requirement-checklist.md, requirement-template.md, requirement-document-template.md
+    為 requirement-checklist.md、requirement-template.md、requirement-document-template.md 新增明確條目
+- **CLI**: Fix process hanging after `uds init`, `uds configure`, and `uds update` commands
+  **CLI**：修復 `uds init`、`uds configure` 和 `uds update` 指令執行後程式未退出的問題
+  - Add explicit `process.exit(0)` to prevent inquirer readline interface from blocking termination
+    新增明確的 `process.exit(0)` 以防止 inquirer readline interface 阻擋程式終止
+
 ## [3.2.0] - 2026-01-02
 
 ### Added | 新增

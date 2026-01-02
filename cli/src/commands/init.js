@@ -218,8 +218,8 @@ export async function initCommand(options) {
           skillsConfig = {
             installed: true,
             location,
-            needsInstall: true,
-            updateTargets: [location]
+            needsInstall: location !== 'marketplace', // marketplace doesn't need install via CLI
+            updateTargets: location === 'marketplace' ? [] : [location]
           };
         }
       }
@@ -353,9 +353,14 @@ export async function initCommand(options) {
   console.log(chalk.gray(`  Integrations: ${integrations.length > 0 ? integrations.join(', ') : 'none'}`));
 
   if (skillsConfig.installed) {
-    const skillsStatus = skillsConfig.needsInstall
-      ? `install/update to ${skillsConfig.location}`
-      : `using existing (${skillsConfig.location})`;
+    let skillsStatus;
+    if (skillsConfig.location === 'marketplace') {
+      skillsStatus = 'Plugin Marketplace (managed by Claude Code)';
+    } else {
+      skillsStatus = skillsConfig.needsInstall
+        ? `install/update to ${skillsConfig.location}`
+        : `using existing (${skillsConfig.location})`;
+    }
     console.log(chalk.gray(`  Skills: ${skillsStatus}`));
   }
 
@@ -616,7 +621,7 @@ export async function initCommand(options) {
     skills: {
       installed: skillsConfig.installed,
       location: skillsConfig.location,
-      names: results.skills,
+      names: skillsConfig.location === 'marketplace' ? ['all-via-plugin'] : results.skills,
       version: skillsConfig.installed ? repoInfo.skills.version : null
     }
   };
@@ -631,15 +636,19 @@ export async function initCommand(options) {
   const totalFiles = results.standards.length + results.extensions.length + results.integrations.length;
   console.log(chalk.gray(`  ${totalFiles} files copied to project`));
 
-  if (results.skills.length > 0) {
-    const skillLocations = [];
-    if (skillsConfig.updateTargets.includes('user')) {
-      skillLocations.push('~/.claude/skills/');
+  if (skillsConfig.installed) {
+    if (skillsConfig.location === 'marketplace') {
+      console.log(chalk.gray('  Skills: Using Plugin Marketplace installation'));
+    } else if (results.skills.length > 0) {
+      const skillLocations = [];
+      if (skillsConfig.updateTargets.includes('user')) {
+        skillLocations.push('~/.claude/skills/');
+      }
+      if (skillsConfig.updateTargets.includes('project')) {
+        skillLocations.push('.claude/skills/');
+      }
+      console.log(chalk.gray(`  ${results.skills.length} Skills installed to ${skillLocations.join(' and ')}`));
     }
-    if (skillsConfig.updateTargets.includes('project')) {
-      skillLocations.push('.claude/skills/');
-    }
-    console.log(chalk.gray(`  ${results.skills.length} Skills installed to ${skillLocations.join(' and ')}`));
   }
   console.log(chalk.gray('  Manifest created at .standards/manifest.json'));
 
@@ -662,4 +671,7 @@ export async function initCommand(options) {
     console.log(chalk.gray('  3. Run `uds check` to verify adoption status'));
   }
   console.log();
+
+  // Exit explicitly to prevent hanging due to inquirer's readline interface
+  process.exit(0);
 }

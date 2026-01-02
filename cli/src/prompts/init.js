@@ -81,7 +81,11 @@ export async function promptSkillsInstallLocation() {
       message: 'Where should Skills be installed?',
       choices: [
         {
-          name: `${chalk.green('User Level')} ${chalk.gray('(推薦)')} - ~/.claude/skills/ (shared across projects)`,
+          name: `${chalk.green('Plugin Marketplace')} ${chalk.gray('(推薦)')} - Already installed via /plugin install`,
+          value: 'marketplace'
+        },
+        {
+          name: `${chalk.blue('User Level')} - ~/.claude/skills/ (shared across projects)`,
           value: 'user'
         },
         {
@@ -93,13 +97,19 @@ export async function promptSkillsInstallLocation() {
           value: 'none'
         }
       ],
-      default: 'user'
+      default: 'marketplace'
     }
   ]);
 
   // Show explanation
   console.log();
-  if (location === 'user') {
+  if (location === 'marketplace') {
+    console.log(chalk.gray('  → Skills managed by Claude Code Plugin system'));
+    console.log(chalk.gray('  → Automatic updates when new versions are released'));
+    console.log(chalk.gray('  → If not installed yet, run:'));
+    console.log(chalk.gray('      /plugin marketplace add AsiaOstrich/universal-dev-standards'));
+    console.log(chalk.gray('      /plugin install universal-dev-standards@universal-dev-standards'));
+  } else if (location === 'user') {
     console.log(chalk.gray('  → Skills will be installed to ~/.claude/skills/'));
     console.log(chalk.gray('  → Available across all your projects'));
   } else if (location === 'project') {
