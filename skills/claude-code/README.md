@@ -71,13 +71,31 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 
 ## Installation
 
-### Quick Install (All Skills)
+### Method 1: Marketplace Installation (Recommended)
+
+Install via Claude Code Plugin Marketplace for automatic updates:
+
+```bash
+# Add the marketplace (one-time setup)
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+
+# Install the plugin with all 14 skills
+/plugin install universal-dev-standards@universal-dev-standards
+```
+
+All skills will be automatically loaded and ready to use.
+
+### Method 2: Script Installation (Alternative)
+
+For users who prefer local installation:
+
+#### Quick Install (All Skills)
 
 ```bash
 ./install.sh
 ```
 
-### Manual Install (Select Skills)
+#### Manual Install (Select Skills)
 
 ```bash
 mkdir -p ~/.claude/skills
@@ -85,12 +103,16 @@ cp -r ai-collaboration-standards ~/.claude/skills/
 cp -r commit-standards ~/.claude/skills/
 ```
 
-### Project-Level Installation
+### Method 3: Project-Level Installation
+
+For project-specific skill customization:
 
 ```bash
 mkdir -p .claude/skills
 cp -r /path/to/skills/claude-code/* .claude/skills/
 ```
+
+> **Note**: Project-level skills (`.claude/skills/`) take precedence over global skills (`~/.claude/skills/`).
 
 ## Configuration
 

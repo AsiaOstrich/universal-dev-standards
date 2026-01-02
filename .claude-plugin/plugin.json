@@ -1,0 +1,28 @@
+{
+  "name": "universal-dev-standards",
+  "description": "Skills for development standards: commit messages, code review, testing, documentation, and more. Supports 14 comprehensive skills for the full development lifecycle.",
+  "version": "3.1.0",
+  "author": {
+    "name": "AsiaOstrich",
+    "url": "https://github.com/AsiaOstrich"
+  },
+  "homepage": "https://github.com/AsiaOstrich/universal-dev-standards#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AsiaOstrich/universal-dev-standards.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AsiaOstrich/universal-dev-standards/issues"
+  },
+  "license": "CC BY 4.0",
+  "keywords": [
+    "skills",
+    "development-standards",
+    "code-review",
+    "testing",
+    "commit-messages",
+    "documentation",
+    "git-workflow",
+    "best-practices"
+  ]
+}
