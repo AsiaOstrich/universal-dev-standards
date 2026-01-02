@@ -10,6 +10,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] | 未發布
 
+## [3.2.0] - 2026-01-02
+
+### Added | 新增
+- **Claude Code Plugin Marketplace Support**: Enable distribution via Plugin Marketplace
+  **Claude Code Plugin Marketplace 支援**：啟用透過 Plugin Marketplace 分發
+  - Add `.claude-plugin/plugin.json` - Plugin manifest with metadata
+    新增 `.claude-plugin/plugin.json` - Plugin manifest 配置
+  - Add `.claude-plugin/marketplace.json` - Marketplace configuration for plugin distribution
+    新增 `.claude-plugin/marketplace.json` - Marketplace 分發配置
+  - Add `.claude-plugin/README.md` - Plugin documentation and maintenance guide
+    新增 `.claude-plugin/README.md` - Plugin 文檔和維護指南
+  - Update `skills/claude-code/README.md` with Method 1: Marketplace Installation (Recommended)
+    更新 `skills/claude-code/README.md` 新增方法 1：Marketplace 安裝（推薦）
+
+### Benefits | 優點
+- Users can install all 14 skills with a single command: `/plugin install universal-dev-standards@universal-dev-standards`
+  使用者可以用單一指令安裝所有 14 個技能：`/plugin install universal-dev-standards@universal-dev-standards`
+- Automatic updates when new versions are released
+  新版本發布時自動更新
+- Better discoverability through Claude Code marketplace
+  透過 Claude Code marketplace 提升可發現性
+- Maintains backward compatibility with script installation (Method 2 and 3)
+  保持與腳本安裝的向後相容性（方法 2 和 3）
+
+### Changed | 變更
+- Add conversation language requirement (Traditional Chinese) to `CLAUDE.md` for AI assistants
+  在 `CLAUDE.md` 新增 AI 助手對話語言要求（繁體中文）
+
+### Fixed | 修復
+- Fix CLI version reading to use `package.json` instead of hardcoded value
+  修復 CLI 版本讀取，改用 `package.json` 而非硬編碼值
+
 ## [3.1.0] - 2025-12-30
 
 ### Added | 新增

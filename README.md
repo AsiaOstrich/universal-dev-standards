@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 3.1.0
-**Last Updated**: 2025-12-30
+**Version**: 3.2.0
+**Last Updated**: 2026-01-02
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 ---
