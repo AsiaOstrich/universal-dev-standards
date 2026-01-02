@@ -10,6 +10,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] | 未發布
 
+### Fixed | 修復
+- **CI/CD**: Fix npm publish workflow to correctly tag beta/alpha/rc versions
+  **CI/CD**：修復 npm 發布工作流程，正確標記 beta/alpha/rc 版本
+  - Add automatic version detection in `.github/workflows/publish.yml`
+    在 `.github/workflows/publish.yml` 中新增自動版本偵測
+  - Beta versions now publish with `@beta` tag instead of `@latest`
+    Beta 版本現在使用 `@beta` 標籤而非 `@latest`
+  - Users can now install beta versions with `npm install -g universal-dev-standards@beta`
+    使用者現在可以使用 `npm install -g universal-dev-standards@beta` 安裝 beta 版本
+
+### Changed | 變更
+- **Documentation**: Update MAINTENANCE.md with npm dist-tag strategy
+  **文件**：更新 MAINTENANCE.md 加入 npm dist-tag 策略
+  - Add dist-tag table for different version patterns
+    新增不同版本模式的 dist-tag 表格
+  - Add manual tag correction commands
+    新增手動修正標籤的指令說明
+
 ## [3.2.1-beta.1] - 2026-01-02
 
 ### Added | 新增

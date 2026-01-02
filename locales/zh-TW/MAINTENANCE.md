@@ -503,6 +503,25 @@ description: |
 4. 如有版本徽章，更新 README.md
 5. 建立 git tag
 6. 發布到 npm（如有 cli 變更）
+   - Beta 版本：GitHub Actions 自動標記為 @beta
+   - 穩定版本：GitHub Actions 自動標記為 @latest
+   - 詳見 .github/workflows/publish.yml 自動化流程
+```
+
+**npm dist-tag 策略**：
+
+| 版本模式 | npm Tag | 安裝指令 | 使用情境 |
+|---------|---------|---------|---------|
+| `X.Y.Z` | `latest` | `npm install -g universal-dev-standards` | 穩定版本 |
+| `X.Y.Z-beta.N` | `beta` | `npm install -g universal-dev-standards@beta` | Beta 測試 |
+| `X.Y.Z-alpha.N` | `alpha` | `npm install -g universal-dev-standards@alpha` | Alpha 測試 |
+| `X.Y.Z-rc.N` | `rc` | `npm install -g universal-dev-standards@rc` | 候選版本 |
+
+**手動修正標籤**（如需要）：
+```bash
+# 修正錯誤的標籤
+npm dist-tag add universal-dev-standards@X.Y.Z latest
+npm dist-tag add universal-dev-standards@X.Y.Z-beta.N beta
 ```
 
 ### 工作流程 7：更新擴充

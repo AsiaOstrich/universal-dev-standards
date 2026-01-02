@@ -36,7 +36,27 @@ jobs:
       - name: Verify CLI
         run: node bin/uds.js --version
 
+      - name: Determine npm tag
+        id: npm-tag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          if echo "$VERSION" | grep -qE '\-beta\.'; then
+            echo "tag=beta" >> $GITHUB_OUTPUT
+            echo "Publishing version $VERSION with tag: beta"
+          elif echo "$VERSION" | grep -qE '\-alpha\.'; then
+            echo "tag=alpha" >> $GITHUB_OUTPUT
+            echo "Publishing version $VERSION with tag: alpha"
+          elif echo "$VERSION" | grep -qE '\-rc\.'; then
+            echo "tag=rc" >> $GITHUB_OUTPUT
+            echo "Publishing version $VERSION with tag: rc"
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+            echo "Publishing version $VERSION with tag: latest"
+          fi
+
       - name: Publish to npm
-        run: npm publish --provenance --access public
+        run: npm publish --provenance --access public --tag ${{ steps.npm-tag.outputs.tag }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

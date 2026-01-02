@@ -503,6 +503,25 @@ description: |
 4. Update README.md version badge if exists
 5. Create git tag
 6. Publish to npm (if cli changes)
+   - For beta versions: GitHub Actions automatically tags as @beta
+   - For stable versions: GitHub Actions automatically tags as @latest
+   - See .github/workflows/publish.yml for automation details
+```
+
+**npm dist-tag Strategy**:
+
+| Version Pattern | npm Tag | Install Command | Use Case |
+|----------------|---------|-----------------|----------|
+| `X.Y.Z` | `latest` | `npm install -g universal-dev-standards` | Stable releases |
+| `X.Y.Z-beta.N` | `beta` | `npm install -g universal-dev-standards@beta` | Beta testing |
+| `X.Y.Z-alpha.N` | `alpha` | `npm install -g universal-dev-standards@alpha` | Alpha testing |
+| `X.Y.Z-rc.N` | `rc` | `npm install -g universal-dev-standards@rc` | Release candidates |
+
+**Manual Tag Correction** (if needed):
+```bash
+# Correct mistaken tags
+npm dist-tag add universal-dev-standards@X.Y.Z latest
+npm dist-tag add universal-dev-standards@X.Y.Z-beta.N beta
 ```
 
 ### Workflow 7: Update Extensions
