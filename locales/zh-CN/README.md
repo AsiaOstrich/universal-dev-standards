@@ -1,8 +1,8 @@
 ---
 source: ../../README.md
-source_version: 3.1.0
-translation_version: 3.1.0
-last_synced: 2025-12-30
+source_version: 3.2.0
+translation_version: 3.2.0
+last_synced: 2026-01-02
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **Language**: [English](../../README.md) | [繁體中文](../zh-TW/README.md) | 简体中文
 
-**版本**: 3.1.0
-**最后更新**: 2025-12-30
+**版本**: 3.2.0
+**最后更新**: 2026-01-02
 **授权**: [双重授权](../../LICENSE) (CC BY 4.0 + MIT)
 
 ---
@@ -130,11 +130,35 @@ AI 优化标准提供以下语言版本：
 
 ### 搭配 Claude Code 使用（推荐）
 
-Skills 现已整合在本储存库中。安装 Claude Code Skills 获得互动式 AI 辅助：
+一次安装所有 14 个完整开发技能：
+
+#### 方法 1：Plugin Marketplace（推荐）
+
+**一次性设置：**
+```bash
+# 添加 marketplace
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+
+# 安装包含所有 14 个技能的 plugin
+/plugin install universal-dev-standards@universal-dev-standards
+```
+
+**优点：**
+- ✅ 单一指令安装
+- ✅ 新版本发布时自动更新
+- ✅ 所有 14 个技能立即加载
+- ✅ 无需手动 git clone
+
+**包含的技能：** ai-collaboration-standards、changelog-guide、code-review-assistant、commit-standards、documentation-guide、error-code-guide、git-workflow-guide、logging-guide、project-structure-guide、release-standards、requirement-assistant、spec-driven-dev、test-coverage-assistant、testing-guide
+
+---
+
+#### 方法 2：脚本安装（替代方案）
+
+适合偏好本地安装或需要自定义的用户：
 
 **macOS / Linux / Git Bash：**
 ```bash
-# 复制并安装 skills
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git
 cd universal-dev-standards/skills/claude-code
 ./install.sh
@@ -142,7 +166,6 @@ cd universal-dev-standards/skills/claude-code
 
 **Windows (PowerShell)：**
 ```powershell
-# 复制并安装 skills
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git
 cd universal-dev-standards\skills\claude-code
 .\install.ps1
