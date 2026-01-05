@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [3.2.2-beta.2] - 2026-01-05
 
+### Added | 新增
+- **CLI**: Improve Skills update instructions based on installation location
+  **CLI**：根據安裝位置改善 Skills 更新指示
+  - Marketplace: Guide to update via Plugin Marketplace UI
+    Marketplace：透過 Plugin Marketplace UI 更新的指引
+  - User-level: `cd ~/.claude/skills/... && git pull`
+    使用者層級：`cd ~/.claude/skills/... && git pull`
+  - Project-level: `cd .claude/skills/... && git pull`
+    專案層級：`cd .claude/skills/... && git pull`
+
 ### Fixed | 修復
 - **CLI**: Update standards-registry version to 3.2.2
   **CLI**：更新標準註冊表版本至 3.2.2

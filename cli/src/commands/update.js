@@ -177,8 +177,28 @@ export async function updateCommand(options) {
       console.log(chalk.cyan('Skills update available:'));
       console.log(chalk.gray(`  Current: ${manifest.skills.version || 'unknown'}`));
       console.log(chalk.gray(`  Latest:  ${skillsVersion}`));
-      console.log(chalk.gray('  Run the following to update:'));
-      console.log(chalk.gray('    cd path/to/universal-dev-skills && git pull && ./install.sh'));
+      console.log();
+
+      // Check installation location to provide appropriate update instructions
+      const location = manifest.skills.location || 'unknown';
+
+      if (location === 'marketplace') {
+        console.log(chalk.gray('  Update via Plugin Marketplace:'));
+        console.log(chalk.gray('    1. Open Claude Code settings'));
+        console.log(chalk.gray('    2. Go to Plugin Marketplace'));
+        console.log(chalk.gray('    3. Find "Universal Dev Standards" and click Update'));
+      } else if (location === 'user') {
+        console.log(chalk.gray('  Update user-level Skills:'));
+        console.log(chalk.gray('    cd ~/.claude/skills/universal-dev-standards && git pull'));
+      } else if (location === 'project') {
+        console.log(chalk.gray('  Update project-level Skills:'));
+        console.log(chalk.gray('    cd .claude/skills/universal-dev-standards && git pull'));
+      } else {
+        // Legacy or unknown installation
+        console.log(chalk.gray('  Update options:'));
+        console.log(chalk.gray('    • Plugin Marketplace: Update via Claude Code settings'));
+        console.log(chalk.gray('    • Manual: cd path/to/skills && git pull'));
+      }
     }
   }
 
