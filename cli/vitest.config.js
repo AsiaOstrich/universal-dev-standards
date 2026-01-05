@@ -12,6 +12,13 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.js'],
       exclude: ['src/index.js'],
+      thresholds: {
+        // Start with achievable thresholds, increase as coverage improves
+        lines: 25,
+        branches: 15,
+        functions: 25,
+        statements: 25
+      }
     },
     testTimeout: 30000,
     hookTimeout: 30000,

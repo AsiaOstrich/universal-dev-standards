@@ -1,0 +1,201 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+// Mock dependencies before importing the module
+vi.mock('chalk', () => ({
+  default: {
+    bold: vi.fn((s) => s),
+    gray: vi.fn((s) => s),
+    green: vi.fn((s) => s),
+    yellow: vi.fn((s) => s),
+    red: vi.fn((s) => s),
+    cyan: vi.fn((s) => s)
+  }
+}));
+
+vi.mock('ora', () => ({
+  default: vi.fn(() => ({
+    start: vi.fn().mockReturnThis(),
+    succeed: vi.fn().mockReturnThis(),
+    warn: vi.fn().mockReturnThis(),
+    fail: vi.fn().mockReturnThis()
+  }))
+}));
+
+vi.mock('../../src/utils/registry.js', () => ({
+  getStandardsByLevel: vi.fn(() => [
+    { id: 'test-standard', category: 'reference', name: 'Test Standard' }
+  ]),
+  getRepositoryInfo: vi.fn(() => ({
+    standards: { version: '3.0.0' },
+    skills: { version: '1.0.0' }
+  })),
+  getSkillFiles: vi.fn(() => ({})),
+  getStandardSource: vi.fn((std) => `core/${std.id}.md`),
+  getOptionSource: vi.fn((opt) => `options/${opt.id}.md`),
+  findOption: vi.fn(() => null)
+}));
+
+vi.mock('../../src/utils/detector.js', () => ({
+  detectAll: vi.fn(() => ({
+    languages: { javascript: true, typescript: false },
+    frameworks: { react: false },
+    aiTools: { claudeCode: false, cursor: false }
+  }))
+}));
+
+vi.mock('../../src/utils/copier.js', () => ({
+  copyStandard: vi.fn(() => ({ success: true, error: null, path: '/test/path' })),
+  copyIntegration: vi.fn(() => ({ success: true, error: null, path: '/test/path' })),
+  writeManifest: vi.fn(),
+  isInitialized: vi.fn(() => false)
+}));
+
+vi.mock('../../src/utils/github.js', () => ({
+  downloadSkillToLocation: vi.fn(() => ({ success: true, files: [] })),
+  getInstalledSkillsInfo: vi.fn(() => null),
+  getProjectInstalledSkillsInfo: vi.fn(() => null),
+  writeSkillsManifest: vi.fn(),
+  getSkillsDir: vi.fn(() => '/home/user/.claude/skills'),
+  getProjectSkillsDir: vi.fn(() => '/project/.claude/skills')
+}));
+
+vi.mock('../../src/prompts/init.js', () => ({
+  promptAITools: vi.fn(() => []),
+  promptSkillsInstallLocation: vi.fn(() => 'none'),
+  promptSkillsUpdate: vi.fn(() => ({ action: 'none', targets: [] })),
+  promptStandardsScope: vi.fn(() => 'full'),
+  promptLevel: vi.fn(() => 2),
+  promptLanguage: vi.fn(() => []),
+  promptFramework: vi.fn(() => []),
+  promptLocale: vi.fn(() => null),
+  promptConfirm: vi.fn(() => true),
+  promptFormat: vi.fn(() => 'ai'),
+  promptStandardOptions: vi.fn(() => ({}))
+}));
+
+vi.mock('../../src/prompts/integrations.js', () => ({
+  promptIntegrationConfig: vi.fn(() => ({
+    mergeStrategy: 'replace',
+    config: {}
+  }))
+}));
+
+vi.mock('../../src/utils/integration-generator.js', () => ({
+  writeIntegrationFile: vi.fn(() => ({ success: true, path: '/test/.cursorrules' })),
+  integrationFileExists: vi.fn(() => false)
+}));
+
+import { initCommand } from '../../src/commands/init.js';
+import { isInitialized } from '../../src/utils/copier.js';
+import { detectAll } from '../../src/utils/detector.js';
+import { promptConfirm } from '../../src/prompts/init.js';
+
+describe('Init Command', () => {
+  let consoleLogs = [];
+  let exitSpy;
+
+  beforeEach(() => {
+    consoleLogs = [];
+    vi.spyOn(console, 'log').mockImplementation((...args) => {
+      consoleLogs.push(args.join(' '));
+    });
+    exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
+      throw new Error('process.exit called');
+    });
+    vi.spyOn(process, 'cwd').mockReturnValue('/test/project');
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.clearAllMocks();
+  });
+
+  describe('initCommand', () => {
+    it('should show warning if already initialized', async () => {
+      isInitialized.mockReturnValue(true);
+
+      await initCommand({});
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Standards already initialized');
+    });
+
+    it('should detect project characteristics', async () => {
+      isInitialized.mockReturnValue(false);
+      promptConfirm.mockResolvedValue(false);
+
+      await initCommand({});
+
+      expect(detectAll).toHaveBeenCalledWith('/test/project');
+    });
+
+    it('should show detected languages', async () => {
+      isInitialized.mockReturnValue(false);
+      promptConfirm.mockResolvedValue(false);
+
+      await initCommand({});
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('javascript');
+    });
+
+    it('should proceed with installation when confirmed', async () => {
+      isInitialized.mockReturnValue(false);
+      promptConfirm.mockResolvedValue(true);
+
+      await expect(initCommand({})).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Standards initialized successfully');
+    });
+
+    it('should cancel installation when not confirmed', async () => {
+      isInitialized.mockReturnValue(false);
+      promptConfirm.mockResolvedValue(false);
+
+      await initCommand({});
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Installation cancelled');
+    });
+
+    it('should use default options in non-interactive mode', async () => {
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Level: 2');
+    });
+
+    it('should respect level option', async () => {
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({ yes: true, level: '3' })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Level: 3');
+    });
+
+    it('should show configuration summary', async () => {
+      isInitialized.mockReturnValue(false);
+      promptConfirm.mockResolvedValue(true);
+
+      await expect(initCommand({})).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Configuration Summary');
+    });
+
+    it('should show next steps after installation', async () => {
+      isInitialized.mockReturnValue(false);
+      promptConfirm.mockResolvedValue(true);
+
+      await expect(initCommand({})).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Next steps');
+      expect(output).toContain('.standards');
+    });
+  });
+});
