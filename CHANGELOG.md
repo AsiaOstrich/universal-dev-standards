@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 格式基於 [Keep a Changelog](https://keepachangelog.com/)，
 並遵循[語義化版本](https://semver.org/)。
 
-## [Unreleased] | 未發布
+## [3.2.2-beta.1] - 2026-01-05
 
 ### Added | 新增
 - **Skills**: Add Release Workflow Guide for comprehensive release process
@@ -21,8 +21,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     包含 npm dist-tag 策略、疑難排解和 AI 助理指南
   - Add Release Process section in CLAUDE.md for AI assistants
     在 CLAUDE.md 中新增發布流程章節供 AI 助理參考
+- **CLI**: Add conversation language setting to AI tool integrations
+  **CLI**：為 AI 工具整合新增對話語言設定
+  - All AI tool integration files now include conversation language directive
+    所有 AI 工具整合檔案現在都包含對話語言指示
+  - Supports English, Traditional Chinese, and Bilingual modes
+    支援英文、繁體中文和雙語模式
+  - Generates CLAUDE.md for Claude Code users with language setting
+    為 Claude Code 使用者生成包含語言設定的 CLAUDE.md
+- **CLI**: Add comprehensive tests for prompts and utils modules
+  **CLI**：為 prompts 和 utils 模組新增完整測試
+  - Test coverage improved from 42.78% to 72.7%
+    測試覆蓋率從 42.78% 提升至 72.7%
+  - Total tests increased from 94 to 210
+    總測試數從 94 增加至 210
 
 ### Fixed | 修復
+- **CLI**: Only prompt Skills when Claude Code is the only selected AI tool
+  **CLI**：僅在 Claude Code 是唯一選擇的 AI 工具時才詢問 Skills
+  - Fixes bug where selecting multiple AI tools with Skills could cause other tools to miss full standards
+    修復選擇多個 AI 工具與 Skills 時可能導致其他工具遺漏完整標準的問題
 - **CI/CD**: Fix npm publish workflow to correctly tag beta/alpha/rc versions
   **CI/CD**：修復 npm 發布工作流程，正確標記 beta/alpha/rc 版本
   - Add automatic version detection in `.github/workflows/publish.yml`
