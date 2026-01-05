@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 格式基於 [Keep a Changelog](https://keepachangelog.com/)，
 並遵循[語義化版本](https://semver.org/)。
 
+## [3.2.2-beta.2] - 2026-01-05
+
+### Fixed | 修復
+- **CLI**: Update standards-registry version to 3.2.2
+  **CLI**：更新標準註冊表版本至 3.2.2
+  - Enables `uds update` to detect new versions for existing projects
+    讓 `uds update` 能偵測現有專案的新版本
+
 ## [3.2.2-beta.1] - 2026-01-05
 
 ### Added | 新增
