@@ -33,6 +33,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     使用者現在可以使用 `npm install -g universal-dev-standards@beta` 安裝 beta 版本
 
 ### Changed | 變更
+- **Core Standards**: Add industry reference standards to 5 core documents
+  **核心規範**：為 5 個核心標準新增業界參考標準
+  - `error-code-standards.md` v1.0.0 → v1.1.0: RFC 7807, RFC 9457, HTTP Status Codes
+  - `logging-standards.md` v1.0.0 → v1.1.0: OWASP Logging, RFC 5424, OpenTelemetry, 12 Factor App
+  - `code-review-checklist.md` v1.1.0 → v1.2.0: SWEBOK v4.0 Ch.10 (Software Quality)
+  - `checkin-standards.md` v1.2.5 → v1.3.0: SWEBOK v4.0 Ch.6 (Configuration Management)
+  - `spec-driven-development.md` v1.1.0 → v1.2.0: IEEE 830-1998, SWEBOK v4.0 Ch.1 (Requirements)
+- **Testing Standards**: Add SWEBOK v4.0 reference and new sections
+  **測試標準**：新增 SWEBOK v4.0 參考和新章節
+  - `testing-standards.md` v2.0.0 → v2.1.0: Testing Fundamentals, Test-Related Measures, Pairwise/Data Flow Testing
 - **Documentation**: Update MAINTENANCE.md with npm dist-tag strategy
   **文件**：更新 MAINTENANCE.md 加入 npm dist-tag 策略
   - Add dist-tag table for different version patterns

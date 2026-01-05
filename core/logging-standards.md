@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/logging-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-30
+**Version**: 1.1.0
+**Last Updated**: 2026-01-05
 **Applicability**: All software projects
 
 ---
@@ -296,4 +296,28 @@ App cannot continue?         → FATAL
 
 **Related Standards:**
 - [Testing Standards](testing-standards.md) - Testing logging output
-- [Code Review Guide](code-review-guide.md) - Reviewing logging practices
+- [Code Review Checklist](code-review-checklist.md) - Reviewing logging practices
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.1.0 | 2026-01-05 | Added: References section with OWASP, RFC 5424, OpenTelemetry, and 12 Factor App |
+| 1.0.0 | 2025-12-30 | Initial logging standards |
+
+---
+
+## References
+
+- [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html) - Security logging best practices
+- [RFC 5424 - The Syslog Protocol](https://datatracker.ietf.org/doc/html/rfc5424) - Standard log message format
+- [OpenTelemetry Logging](https://opentelemetry.io/docs/specs/otel/logs/) - Modern observability standard
+- [12 Factor App - Logs](https://12factor.net/logs) - Cloud-native logging principles
+
+---
+
+## License
+
+This standard is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).

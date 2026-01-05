@@ -1,14 +1,14 @@
 ---
 source: ../../../core/logging-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-30
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-05
 status: current
 ---
 
 # 日誌標準
 
-> 版本: 1.0.0 | 最後更新: 2025-12-30
+> 版本: 1.1.0 | 最後更新: 2026-01-05
 
 ## 概述
 
@@ -298,4 +298,28 @@ logger.info('處理請求', { request_id: req.requestId });
 
 **相關標準：**
 - [測試標準](testing-standards.md) - 測試日誌輸出
-- [程式碼審查指南](code-review-guide.md) - 審查日誌實踐
+- [程式碼審查清單](code-review-checklist.md) - 審查日誌實踐
+
+---
+
+## 版本歷史
+
+| 版本 | 日期 | 變更 |
+|-----|------|------|
+| 1.1.0 | 2026-01-05 | 新增：參考標準章節，包含 OWASP、RFC 5424、OpenTelemetry 和 12 Factor App |
+| 1.0.0 | 2025-12-30 | 初始日誌標準 |
+
+---
+
+## 參考標準
+
+- [OWASP 日誌備忘單](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html) - 安全日誌最佳實踐
+- [RFC 5424 - Syslog 協定](https://datatracker.ietf.org/doc/html/rfc5424) - 標準日誌訊息格式
+- [OpenTelemetry 日誌](https://opentelemetry.io/docs/specs/otel/logs/) - 現代可觀測性標準
+- [12 Factor App - 日誌](https://12factor.net/logs) - 雲原生日誌原則
+
+---
+
+## 授權
+
+本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權釋出。

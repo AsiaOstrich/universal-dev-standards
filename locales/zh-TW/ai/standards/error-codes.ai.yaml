@@ -3,8 +3,8 @@
 
 id: error-codes
 meta:
-  version: "1.0.0"
-  updated: "2025-12-30"
+  version: "1.1.0"
+  updated: "2026-01-05"
   source: core/error-code-standards.md
   description: 錯誤碼格式、類別與管理
 

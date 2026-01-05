@@ -1,15 +1,15 @@
 ---
 source: ../../../core/spec-driven-development.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2025-12-30
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-01-05
 status: current
 ---
 
 # 規格驅動開發 (SDD) 標準
 
-**版本**: 1.1.0
-**最後更新**: 2025-12-24
+**版本**: 1.2.0
+**最後更新**: 2026-01-05
 **適用範圍**: 所有採用規格驅動開發的專案
 
 > **語言**: [English](../../../core/spec-driven-development.md) | [繁體中文](../locales/zh-TW/core/spec-driven-development.md)
@@ -191,6 +191,7 @@ Refs: SPEC-001
 
 | 版本 | 日期 | 變更內容 |
 |------|------|----------|
+| 1.2.0 | 2026-01-05 | 新增：IEEE 830-1998 和 SWEBOK v4.0 第 1 章（軟體需求）至參考資料 |
 | 1.1.0 | 2025-12-24 | 新增：工作流程圖、規格範本、整合指南、最佳實踐、相關標準、授權 |
 | 1.0.0 | 2025-12-23 | 初始 SDD 標準定義 |
 
@@ -201,6 +202,8 @@ Refs: SPEC-001
 - [OpenSpec Documentation](https://github.com/openspec)
 - [Design Documents Best Practices](https://www.industrialempathy.com/posts/design-docs-at-google/)
 - [ADR (Architecture Decision Records)](https://adr.github.io/)
+- [IEEE 830-1998 - 軟體需求規格](https://standards.ieee.org/ieee/830/1222/) - 需求文件標準
+- [SWEBOK v4.0 - 第 1 章：軟體需求](https://www.computer.org/education/bodies-of-knowledge/software-engineering) - IEEE Computer Society
 
 ---
 

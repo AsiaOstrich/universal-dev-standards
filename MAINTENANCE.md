@@ -82,18 +82,18 @@ universal-dev-standards/
 |------|---------|-------------|
 | anti-hallucination.md | 1.3.1 | AI behavior guidelines |
 | changelog-standards.md | 1.1.0 | Changelog format rules |
-| checkin-standards.md | 1.2.5 | Code check-in checklist |
-| code-review-checklist.md | 1.0.0 | Code review guidelines |
+| checkin-standards.md | 1.3.0 | Code check-in checklist |
+| code-review-checklist.md | 1.2.0 | Code review guidelines |
 | commit-message-guide.md | 1.2.0 | Commit message format |
 | documentation-structure.md | 1.0.0 | Doc organization |
 | documentation-writing-standards.md | 1.0.1 | Writing guidelines |
-| error-code-standards.md | 1.0.0 | Error code format |
+| error-code-standards.md | 1.1.0 | Error code format |
 | git-workflow.md | 1.1.0 | Git workflow patterns |
-| logging-standards.md | 1.0.0 | Logging guidelines |
+| logging-standards.md | 1.1.0 | Logging guidelines |
 | project-structure.md | 1.1.0 | Project organization |
-| spec-driven-development.md | 1.1.0 | SDD workflow |
+| spec-driven-development.md | 1.2.0 | SDD workflow |
 | test-completeness-dimensions.md | 1.0.0 | Testing dimensions |
-| testing-standards.md | 1.3.0 | Testing guidelines |
+| testing-standards.md | 2.1.0 | Testing guidelines |
 | versioning.md | 1.2.0 | Semantic versioning |
 
 **Total**: 15 files

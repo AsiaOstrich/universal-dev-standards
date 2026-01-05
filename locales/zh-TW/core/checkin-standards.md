@@ -1,8 +1,8 @@
 ---
 source: core/checkin-standards.md
-source_version: 1.2.5
-translation_version: 1.2.5
-last_synced: 2025-12-25
+source_version: 1.3.0
+translation_version: 1.3.0
+last_synced: 2026-01-05
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../core/checkin-standards.md) | 繁體中文
 
-**版本**: 1.2.5
-**最後更新**: 2025-12-16
+**版本**: 1.3.0
+**最後更新**: 2026-01-05
 **適用範圍**: 所有使用版本控制的軟體專案
 
 ---
@@ -909,6 +909,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 | 版本 | 日期 | 變更 |
 |---------|------|---------|
+| 1.3.0 | 2026-01-05 | 新增：SWEBOK v4.0 第 6 章（軟體配置管理）至參考資料 |
 | 1.2.5 | 2025-12-16 | Clarified: CHANGELOG update is for user-facing changes only, added to [Unreleased] section |
 | 1.2.4 | 2025-12-11 | Added: Pre-commit directory hygiene section (IDE artifacts, verification commands) |
 | 1.2.3 | 2025-12-05 | Added: Reference to testing-standards.md |
@@ -933,6 +934,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [The Art of the Commit](https://alistapart.com/article/the-art-of-the-commit/)
 - [Git Best Practices](https://sethrobertson.github.io/GitBestPractices/)
+- [SWEBOK v4.0 - 第 6 章：軟體配置管理](https://www.computer.org/education/bodies-of-knowledge/software-engineering) - IEEE Computer Society
 
 ---
 

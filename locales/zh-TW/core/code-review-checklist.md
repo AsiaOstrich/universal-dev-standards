@@ -1,8 +1,8 @@
 ---
 source: core/code-review-checklist.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2025-12-25
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-01-05
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../core/code-review-checklist.md) | 繁體中文
 
-**版本**: 1.1.0
-**最後更新**: 2025-12-22
+**版本**: 1.2.0
+**最後更新**: 2026-01-05
 **適用範圍**: 所有進行程式碼審查的軟體專案
 
 ---
@@ -626,6 +626,7 @@ Comment Prefixes:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-01-05 | 新增：SWEBOK v4.0 第 10 章（軟體品質）至參考資料 |
 | 1.1.0 | 2025-12-22 | Added: Alternative text labels section for review comments (中文標籤支援) |
 | 1.0.3 | 2025-12-16 | Clarified: CHANGELOG section aligned with changelog-standards.md, use markdown links for cross-references |
 | 1.0.2 | 2025-12-05 | Added: Reference to testing-standards.md |
@@ -647,6 +648,7 @@ Comment Prefixes:
 - [Google Engineering Practices - Code Review](https://google.github.io/eng-practices/review/)
 - [Microsoft Code Review Guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/pull-requests)
 - [Effective Code Reviews](https://www.oreilly.com/library/view/making-software/9780596808310/)
+- [SWEBOK v4.0 - 第 10 章：軟體品質](https://www.computer.org/education/bodies-of-knowledge/software-engineering) - IEEE Computer Society
 
 ---
 

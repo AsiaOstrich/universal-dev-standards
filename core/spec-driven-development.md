@@ -1,7 +1,7 @@
 # Spec-Driven Development (SDD) Standards
 
-**Version**: 1.1.0
-**Last Updated**: 2025-12-24
+**Version**: 1.2.0
+**Last Updated**: 2026-01-05
 **Applicability**: All projects adopting Spec-Driven Development
 
 > **Language**: [English](../core/spec-driven-development.md) | [繁體中文](../locales/zh-TW/core/spec-driven-development.md)
@@ -183,6 +183,7 @@ Reviewers should verify:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-01-05 | Added: IEEE 830-1998 and SWEBOK v4.0 Chapter 1 (Software Requirements) to References |
 | 1.1.0 | 2025-12-24 | Added: Workflow diagram, Spec template, Integration guide, Best practices, Related standards, License |
 | 1.0.0 | 2025-12-23 | Initial SDD standard definition |
 
@@ -193,6 +194,8 @@ Reviewers should verify:
 - [OpenSpec Documentation](https://github.com/openspec)
 - [Design Documents Best Practices](https://www.industrialempathy.com/posts/design-docs-at-google/)
 - [ADR (Architecture Decision Records)](https://adr.github.io/)
+- [IEEE 830-1998 - Software Requirements Specifications](https://standards.ieee.org/ieee/830/1222/) - Requirements documentation standard
+- [SWEBOK v4.0 - Chapter 1: Software Requirements](https://www.computer.org/education/bodies-of-knowledge/software-engineering) - IEEE Computer Society
 
 ---
 

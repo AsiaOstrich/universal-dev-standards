@@ -82,18 +82,18 @@ universal-dev-standards/
 |------|------|------|
 | anti-hallucination.md | 1.3.1 | AI 行為準則 |
 | changelog-standards.md | 1.1.0 | 變更日誌格式 |
-| checkin-standards.md | 1.2.5 | 程式碼簽入檢查表 |
-| code-review-checklist.md | 1.0.0 | 程式碼審查指南 |
+| checkin-standards.md | 1.3.0 | 程式碼簽入檢查表 |
+| code-review-checklist.md | 1.2.0 | 程式碼審查指南 |
 | commit-message-guide.md | 1.2.0 | 提交訊息格式 |
 | documentation-structure.md | 1.0.0 | 文件組織 |
 | documentation-writing-standards.md | 1.0.1 | 撰寫指南 |
-| error-code-standards.md | 1.0.0 | 錯誤碼格式 |
+| error-code-standards.md | 1.1.0 | 錯誤碼格式 |
 | git-workflow.md | 1.1.0 | Git 工作流程 |
-| logging-standards.md | 1.0.0 | 日誌指南 |
+| logging-standards.md | 1.1.0 | 日誌指南 |
 | project-structure.md | 1.1.0 | 專案組織 |
-| spec-driven-development.md | 1.1.0 | SDD 工作流程 |
+| spec-driven-development.md | 1.2.0 | SDD 工作流程 |
 | test-completeness-dimensions.md | 1.0.0 | 測試維度 |
-| testing-standards.md | 1.3.0 | 測試指南 |
+| testing-standards.md | 2.1.0 | 測試指南 |
 | versioning.md | 1.2.0 | 語意化版本 |
 
 **總計**: 15 個檔案

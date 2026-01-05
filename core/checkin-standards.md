@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/checkin-standards.md)
 
-**Version**: 1.2.5
-**Last Updated**: 2025-12-16
+**Version**: 1.3.0
+**Last Updated**: 2026-01-05
 **Applicability**: All software projects using version control
 
 ---
@@ -901,6 +901,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-01-05 | Added: SWEBOK v4.0 Chapter 6 (Software Configuration Management) to References |
 | 1.2.5 | 2025-12-16 | Clarified: CHANGELOG update is for user-facing changes only, added to [Unreleased] section |
 | 1.2.4 | 2025-12-11 | Added: Pre-commit directory hygiene section (IDE artifacts, verification commands) |
 | 1.2.3 | 2025-12-05 | Added: Reference to testing-standards.md |
@@ -925,6 +926,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [The Art of the Commit](https://alistapart.com/article/the-art-of-the-commit/)
 - [Git Best Practices](https://sethrobertson.github.io/GitBestPractices/)
+- [SWEBOK v4.0 - Chapter 6: Software Configuration Management](https://www.computer.org/education/bodies-of-knowledge/software-engineering) - IEEE Computer Society
 
 ---
 

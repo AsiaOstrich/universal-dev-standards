@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/code-review-checklist.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2025-12-22
+**Version**: 1.2.0
+**Last Updated**: 2026-01-05
 **Applicability**: All software projects with code review processes
 
 ---
@@ -618,6 +618,7 @@ Comment Prefixes:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-01-05 | Added: SWEBOK v4.0 Chapter 10 (Software Quality) to References |
 | 1.1.0 | 2025-12-22 | Added: Alternative text labels section for review comments (Chinese label support) |
 | 1.0.3 | 2025-12-16 | Clarified: CHANGELOG section aligned with changelog-standards.md, use markdown links for cross-references |
 | 1.0.2 | 2025-12-05 | Added: Reference to testing-standards.md |
@@ -639,6 +640,7 @@ Comment Prefixes:
 - [Google Engineering Practices - Code Review](https://google.github.io/eng-practices/review/)
 - [Microsoft Code Review Guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/pull-requests)
 - [Effective Code Reviews](https://www.oreilly.com/library/view/making-software/9780596808310/)
+- [SWEBOK v4.0 - Chapter 10: Software Quality](https://www.computer.org/education/bodies-of-knowledge/software-engineering) - IEEE Computer Society
 
 ---
 

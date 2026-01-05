@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/error-code-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-30
+**Version**: 1.1.0
+**Last Updated**: 2026-01-05
 **Applicability**: All software projects
 
 ---
@@ -356,3 +356,27 @@ AUTH_VAL_001
 **Related Standards:**
 - [Logging Standards](logging-standards.md) - Error logging practices
 - [API Documentation Standards](api-documentation-standards.md) - Error response documentation
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.1.0 | 2026-01-05 | Added: References section with RFC 7807, RFC 9457, HTTP status codes, and Microsoft REST API Guidelines |
+| 1.0.0 | 2025-12-30 | Initial error code standards |
+
+---
+
+## References
+
+- [RFC 7807 - Problem Details for HTTP APIs](https://datatracker.ietf.org/doc/html/rfc7807) - IETF standard for error response format
+- [RFC 9457 - Problem Details for HTTP APIs](https://datatracker.ietf.org/doc/html/rfc9457) - Updated RFC 7807 (2023)
+- [HTTP Status Codes (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) - HTTP status code reference
+- [Microsoft REST API Guidelines - Errors](https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md#handling-errors) - Industry best practices
+
+---
+
+## License
+
+This standard is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).

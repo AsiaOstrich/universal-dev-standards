@@ -1,14 +1,14 @@
 ---
 source: ../../../core/error-code-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-30
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-05
 status: current
 ---
 
 # 錯誤碼標準
 
-> 版本: 1.0.0 | 最後更新: 2025-12-30
+> 版本: 1.1.0 | 最後更新: 2026-01-05
 
 ## 概述
 
@@ -358,3 +358,27 @@ AUTH_VAL_001
 **相關標準：**
 - [日誌標準](logging-standards.md) - 錯誤日誌實踐
 - [API 文件標準](api-documentation-standards.md) - 錯誤回應文件
+
+---
+
+## 版本歷史
+
+| 版本 | 日期 | 變更 |
+|-----|------|------|
+| 1.1.0 | 2026-01-05 | 新增：參考標準章節，包含 RFC 7807、RFC 9457、HTTP 狀態碼和 Microsoft REST API 指南 |
+| 1.0.0 | 2025-12-30 | 初始錯誤碼標準 |
+
+---
+
+## 參考標準
+
+- [RFC 7807 - HTTP API 問題詳情](https://datatracker.ietf.org/doc/html/rfc7807) - IETF 錯誤回應格式標準
+- [RFC 9457 - HTTP API 問題詳情](https://datatracker.ietf.org/doc/html/rfc9457) - RFC 7807 更新版 (2023)
+- [HTTP 狀態碼 (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) - HTTP 狀態碼參考
+- [Microsoft REST API 指南 - 錯誤處理](https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md#handling-errors) - 業界最佳實踐
+
+---
+
+## 授權
+
+本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權釋出。
