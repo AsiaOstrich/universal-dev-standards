@@ -154,9 +154,12 @@ export async function initCommand(options) {
     });
 
     const useClaudeCode = aiTools.includes('claude-code');
+    const onlyClaudeCode = aiTools.length === 1 && useClaudeCode;
 
-    // STEP 4: Skills handling (only if Claude Code is selected)
-    if (useClaudeCode) {
+    // STEP 4: Skills handling (only if Claude Code is the ONLY selected tool)
+    // When other AI tools are also selected, they need full standards,
+    // so we skip the Skills prompt to avoid minimal installation affecting them
+    if (onlyClaudeCode) {
       const projectSkillsInfo = getProjectInstalledSkillsInfo(projectPath);
       const userSkillsInfo = getInstalledSkillsInfo();
       const repoInfo = getRepositoryInfo();
@@ -549,8 +552,8 @@ export async function initCommand(options) {
   }
 
   // Generate CLAUDE.md for Claude Code if selected
-  const useClaudeCode = skillsConfig.installed || skillsConfig.needsInstall;
-  if (useClaudeCode && !integrationFileExists('claude-code', projectPath)) {
+  const claudeCodeSelected = aiTools.includes('claude-code');
+  if (claudeCodeSelected && !integrationFileExists('claude-code', projectPath)) {
     const claudeSpinner = ora('Generating CLAUDE.md...').start();
 
     // Determine language setting from locale or format
