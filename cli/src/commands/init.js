@@ -548,6 +548,41 @@ export async function initCommand(options) {
     intSpinner.succeed(`Generated ${results.integrations.length} integration files`);
   }
 
+  // Generate CLAUDE.md for Claude Code if selected
+  const useClaudeCode = skillsConfig.installed || skillsConfig.needsInstall;
+  if (useClaudeCode && !integrationFileExists('claude-code', projectPath)) {
+    const claudeSpinner = ora('Generating CLAUDE.md...').start();
+
+    // Determine language setting from locale or format
+    let claudeLanguage = 'en';
+    if (locale === 'zh-tw') {
+      claudeLanguage = 'zh-tw';
+    } else if (standardOptions?.commit_language === 'bilingual') {
+      claudeLanguage = 'bilingual';
+    } else if (standardOptions?.commit_language === 'traditional-chinese') {
+      claudeLanguage = 'zh-tw';
+    }
+
+    const claudeConfig = {
+      tool: 'claude-code',
+      categories: ['anti-hallucination', 'commit-standards', 'code-review'],
+      languages: [],
+      exclusions: [],
+      customRules: [],
+      detailLevel: 'standard',
+      language: claudeLanguage
+    };
+
+    const result = writeIntegrationFile('claude-code', claudeConfig, projectPath);
+    if (result.success) {
+      results.integrations.push(result.path);
+      claudeSpinner.succeed('Generated CLAUDE.md');
+    } else {
+      claudeSpinner.warn('Could not generate CLAUDE.md');
+      results.errors.push(`CLAUDE.md: ${result.error}`);
+    }
+  }
+
   // Install Skills if needed
   if (skillsConfig.needsInstall && skillsConfig.updateTargets.length > 0) {
     const skillSpinner = ora('Installing Claude Code Skills...').start();
