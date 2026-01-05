@@ -184,9 +184,8 @@ export async function updateCommand(options) {
 
       if (location === 'marketplace') {
         console.log(chalk.gray('  Update via Plugin Marketplace:'));
-        console.log(chalk.gray('    1. Open Claude Code settings'));
-        console.log(chalk.gray('    2. Go to Plugin Marketplace'));
-        console.log(chalk.gray('    3. Find "Universal Dev Standards" and click Update'));
+        console.log(chalk.gray('    • Auto-update: Restart Claude Code (updates on startup)'));
+        console.log(chalk.gray('    • Manual: Run /plugin marketplace update anthropic-agent-skills'));
       } else if (location === 'user') {
         console.log(chalk.gray('  Update user-level Skills:'));
         console.log(chalk.gray('    cd ~/.claude/skills/universal-dev-standards && git pull'));
