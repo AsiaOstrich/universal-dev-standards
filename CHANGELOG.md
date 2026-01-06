@@ -8,6 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 格式基於 [Keep a Changelog](https://keepachangelog.com/)，
 並遵循[語義化版本](https://semver.org/)。
 
+## [Unreleased]
+
+### Deprecated | 棄用
+- **Skills**: Manual installation via `install.sh` / `install.ps1` is now deprecated
+  **Skills**：透過 `install.sh` / `install.ps1` 手動安裝現已棄用
+  - Recommended: Use Plugin Marketplace for automatic updates
+    建議：使用 Plugin Marketplace 以獲得自動更新
+  - Scripts will show deprecation warning and prompt for confirmation
+    腳本將顯示棄用警告並要求確認
+  - Will be removed in a future major version
+    將在未來的主要版本中移除
+
+### Changed | 變更
+- **CLI**: `uds update` now shows deprecation warning for manual Skills installations
+  **CLI**：`uds update` 現在對手動安裝的 Skills 顯示棄用警告
+  - Recommends migration to Plugin Marketplace
+    建議遷移至 Plugin Marketplace
+- **Skills**: Update README.md to mark manual installation as deprecated
+  **Skills**：更新 README.md 將手動安裝標記為棄用
+
 ## [3.2.2-beta.2] - 2026-01-05
 
 ### Added | 新增

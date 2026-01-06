@@ -187,16 +187,22 @@ export async function updateCommand(options) {
         console.log(chalk.gray('    • Auto-update: Restart Claude Code (updates on startup)'));
         console.log(chalk.gray('    • Manual: Run /plugin marketplace update anthropic-agent-skills'));
       } else if (location === 'user') {
-        console.log(chalk.gray('  Update user-level Skills:'));
+        console.log(chalk.yellow('  ⚠️  Manual installation is deprecated'));
+        console.log(chalk.gray('  Recommended: Migrate to Plugin Marketplace'));
+        console.log(chalk.gray('    /plugin add https://github.com/anthropics/claude-code-plugins/blob/main/skills/universal-dev-standards.md'));
+        console.log(chalk.gray('  Or update manually:'));
         console.log(chalk.gray('    cd ~/.claude/skills/universal-dev-standards && git pull'));
       } else if (location === 'project') {
-        console.log(chalk.gray('  Update project-level Skills:'));
+        console.log(chalk.yellow('  ⚠️  Manual installation is deprecated'));
+        console.log(chalk.gray('  Recommended: Migrate to Plugin Marketplace'));
+        console.log(chalk.gray('    /plugin add https://github.com/anthropics/claude-code-plugins/blob/main/skills/universal-dev-standards.md'));
+        console.log(chalk.gray('  Or update manually:'));
         console.log(chalk.gray('    cd .claude/skills/universal-dev-standards && git pull'));
       } else {
         // Legacy or unknown installation
-        console.log(chalk.gray('  Update options:'));
-        console.log(chalk.gray('    • Plugin Marketplace: Update via Claude Code settings'));
-        console.log(chalk.gray('    • Manual: cd path/to/skills && git pull'));
+        console.log(chalk.yellow('  ⚠️  Manual installation is deprecated'));
+        console.log(chalk.gray('  Recommended: Migrate to Plugin Marketplace'));
+        console.log(chalk.gray('    /plugin add https://github.com/anthropics/claude-code-plugins/blob/main/skills/universal-dev-standards.md'));
       }
     }
   }

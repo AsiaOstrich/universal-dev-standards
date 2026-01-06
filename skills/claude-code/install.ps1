@@ -5,6 +5,16 @@
 #
 # Usage: .\install.ps1
 #
+# ⚠️  DEPRECATED: This script is deprecated and will be removed in a future version.
+#     Please use the Plugin Marketplace instead:
+#
+#     /plugin add https://github.com/anthropics/claude-code-plugins/blob/main/skills/universal-dev-standards.md
+#
+#     Benefits of Plugin Marketplace:
+#     - Automatic updates on Claude Code restart
+#     - Better integration with Claude Code
+#     - No manual git pull required
+#
 
 $ErrorActionPreference = "Stop"
 
@@ -14,6 +24,23 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 Write-Host "=================================="
 Write-Host "Universal Dev Skills Installer"
 Write-Host "=================================="
+Write-Host ""
+Write-Host "⚠️  DEPRECATED: This installation method is deprecated." -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Recommended: Use Plugin Marketplace instead:"
+Write-Host "  /plugin add https://github.com/anthropics/claude-code-plugins/blob/main/skills/universal-dev-standards.md" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Benefits:"
+Write-Host "  • Automatic updates on Claude Code restart"
+Write-Host "  • Better integration with Claude Code"
+Write-Host "  • No manual git pull required"
+Write-Host ""
+$confirm = Read-Host "Continue with manual installation anyway? (y/N)"
+if ($confirm -ne "y" -and $confirm -ne "Y") {
+    Write-Host ""
+    Write-Host "Installation cancelled. Use Plugin Marketplace for the best experience." -ForegroundColor Green
+    exit 0
+}
 Write-Host ""
 
 # Create skills directory if it doesn't exist

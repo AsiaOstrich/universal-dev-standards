@@ -71,7 +71,7 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 
 ## Installation
 
-### Method 1: Marketplace Installation (Recommended)
+### Recommended: Plugin Marketplace
 
 Install via Claude Code Plugin Marketplace for automatic updates:
 
@@ -83,11 +83,18 @@ Install via Claude Code Plugin Marketplace for automatic updates:
 /plugin install universal-dev-standards@universal-dev-standards
 ```
 
+**Benefits:**
+- ✅ Automatic updates on Claude Code restart
+- ✅ Better integration with Claude Code
+- ✅ No manual maintenance required
+
 All skills will be automatically loaded and ready to use.
 
-### Method 2: Script Installation (Alternative)
+### Alternative: Script Installation (Deprecated)
 
-For users who prefer local installation:
+> ⚠️ **Deprecated**: Manual installation via scripts is deprecated and will be removed in a future version. Please use Plugin Marketplace instead.
+
+For users in environments without Marketplace access (e.g., enterprise networks):
 
 #### Quick Install (All Skills)
 
@@ -103,7 +110,9 @@ cp -r ai-collaboration-standards ~/.claude/skills/
 cp -r commit-standards ~/.claude/skills/
 ```
 
-### Method 3: Project-Level Installation
+### Alternative: Project-Level Installation (Deprecated)
+
+> ⚠️ **Deprecated**: Project-level manual installation is deprecated. Use Plugin Marketplace for the best experience.
 
 For project-specific skill customization:
 

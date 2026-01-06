@@ -1,6 +1,17 @@
 #!/bin/bash
 # Universal Dev Skills - Installation Script
 # https://github.com/AsiaOstrich/universal-dev-standards/tree/main/skills/claude-code
+#
+# ⚠️  DEPRECATED: This script is deprecated and will be removed in a future version.
+#     Please use the Plugin Marketplace instead:
+#
+#     /plugin add https://github.com/anthropics/claude-code-plugins/blob/main/skills/universal-dev-standards.md
+#
+#     Benefits of Plugin Marketplace:
+#     - Automatic updates on Claude Code restart
+#     - Better integration with Claude Code
+#     - No manual git pull required
+#
 
 set -e
 
@@ -10,6 +21,23 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "=================================="
 echo "Universal Dev Skills Installer"
 echo "=================================="
+echo ""
+echo "⚠️  DEPRECATED: This installation method is deprecated."
+echo ""
+echo "Recommended: Use Plugin Marketplace instead:"
+echo "  /plugin add https://github.com/anthropics/claude-code-plugins/blob/main/skills/universal-dev-standards.md"
+echo ""
+echo "Benefits:"
+echo "  • Automatic updates on Claude Code restart"
+echo "  • Better integration with Claude Code"
+echo "  • No manual git pull required"
+echo ""
+read -p "Continue with manual installation anyway? (y/N): " confirm
+if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+    echo ""
+    echo "Installation cancelled. Use Plugin Marketplace for the best experience."
+    exit 0
+fi
 echo ""
 
 # Create skills directory if it doesn't exist
