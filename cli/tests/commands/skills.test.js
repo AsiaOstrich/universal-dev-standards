@@ -91,10 +91,23 @@ describe('Skills Command', () => {
     });
 
     it('should show skill count summary', () => {
+      // Create project-level skills to trigger the summary display
+      const projectSkillsDir = join(TEST_DIR, '.claude', 'skills');
+      mkdirSync(join(projectSkillsDir, 'commit-standards'), { recursive: true });
+      mkdirSync(join(projectSkillsDir, 'testing-guide'), { recursive: true });
+      writeFileSync(
+        join(projectSkillsDir, 'commit-standards', 'SKILL.md'),
+        '# Commit Standards'
+      );
+      writeFileSync(
+        join(projectSkillsDir, 'testing-guide', 'SKILL.md'),
+        '# Testing Guide'
+      );
+
       skillsCommand();
 
       const output = consoleLogs.join('\n');
-      // Should show total count
+      // Should show total count when skills are installed
       expect(output).toMatch(/Total unique skills: \d+ \/ \d+/);
     });
 
