@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added | 新增
+- **CLI**: Add `uds skills` command to list installed Claude Code skills
+  **CLI**：新增 `uds skills` 指令列出已安裝的 Claude Code skills
+  - Shows installations from Plugin Marketplace, user-level, and project-level
+    顯示來自 Plugin Marketplace、使用者層級和專案層級的安裝
+  - Displays version, path, and skill count for each installation
+    顯示每個安裝的版本、路徑和 skill 數量
+  - Warns about deprecated manual installations
+    對已棄用的手動安裝顯示警告
+
 ### Deprecated | 棄用
 - **Skills**: Manual installation via `install.sh` / `install.ps1` is now deprecated
   **Skills**：透過 `install.sh` / `install.ps1` 手動安裝現已棄用

@@ -7,6 +7,7 @@ import { initCommand } from '../src/commands/init.js';
 import { checkCommand } from '../src/commands/check.js';
 import { updateCommand } from '../src/commands/update.js';
 import { configureCommand } from '../src/commands/configure.js';
+import { skillsCommand } from '../src/commands/skills.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -56,5 +57,10 @@ program
   .description('Update standards to latest version')
   .option('-y, --yes', 'Skip confirmation prompts')
   .action(updateCommand);
+
+program
+  .command('skills')
+  .description('List installed Claude Code skills')
+  .action(skillsCommand);
 
 program.parse();
