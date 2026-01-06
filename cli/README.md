@@ -241,13 +241,19 @@ The `.standards/manifest.json` tracks your adoption: | `.standards/manifest.json
 
 ## Integration with Claude Code Skills | 與 Claude Code Skills 整合
 
-This CLI works alongside [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills):
-此 CLI 與 [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) 配合使用：
+This CLI works alongside [Claude Code Skills](../skills/claude-code/):
+此 CLI 與 [Claude Code Skills](../skills/claude-code/) 配合使用：
 
 - **Skills** provide interactive AI assistance (commit messages, code review, etc.)
 - **Skills** 提供互動式 AI 協助（commit 訊息、程式碼審查等）
 - **Reference documents** provide guidelines for manual reference
 - **參考文件**提供手動參考的指南
+
+**Install Skills via Plugin Marketplace | 透過 Plugin Marketplace 安裝 Skills：**
+```bash
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@universal-dev-standards
+```
 
 **Important | 重要**: For standards with Skills available, use the Skill OR copy the source document — never both.
 對於有可用 Skills 的規範，請使用 Skill 或複製來源文件 — 切勿兩者同時使用。
@@ -296,7 +302,7 @@ Git 鉤子透過 Git Bash 運作，它包含在 Git for Windows 中。不需要�
 ## Related | 相關資源
 
 - [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) - Source repository | 原始碼庫
-- [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) - Claude Code Skills
+- [Claude Code Skills](../skills/claude-code/) - 14 AI-assisted development skills | 14 個 AI 輔助開發 Skills
 - [Adoption Guide](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/adoption/ADOPTION-GUIDE.md) - Complete guidance | 完整指南
 - [Windows Guide](../docs/WINDOWS-GUIDE.md) - Windows-specific guide | Windows 專用指南
 
