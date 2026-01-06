@@ -119,6 +119,39 @@ uds update --yes
 **Options | 選項:**
 - `-y, --yes` - Skip confirmation prompts | 跳過確認提示
 
+### `uds skills`
+
+List installed Claude Code skills. | 列出已安裝的 Claude Code Skills。
+
+```bash
+uds skills
+```
+
+**Output includes | 輸出內容:**
+- Installation location (Plugin Marketplace, User Level, Project Level) | 安裝位置
+- Installed version | 已安裝版本
+- List of installed skills | 已安裝的 Skills 清單
+- Migration recommendations for deprecated installations | 棄用安裝的遷移建議
+
+**Example Output | 範例輸出:**
+```
+Universal Dev Standards - Installed Skills
+──────────────────────────────────────────────────
+
+✓ Plugin Marketplace (recommended)
+  Version: 3.2.2
+  Path: /Users/.../.claude/plugins/universal-dev-standards@...
+
+  Skills (14):
+    ✓ ai-collaboration-standards
+    ✓ changelog-guide
+    ✓ code-review-assistant
+    ...
+
+──────────────────────────────────────────────────
+Total unique skills: 14 / 14
+```
+
 ## Adoption Levels | 採用等級
 
 | Level | Name | Description | 說明 |
@@ -273,6 +306,7 @@ Git 鉤子透過 Git Bash 運作，它包含在 Git for Windows 中。不需要�
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.2.2 | 2026-01-06 | Added: `uds skills` command to list installed Claude Code skills; Deprecated: manual installation scripts |
 | 3.2.0 | 2026-01-02 | Added: Marketplace installation support; Fixed: wildcard paths, process hanging |
 | 3.0.0 | 2025-12-30 | Published to npm, enhanced init with AI tools selection |
 | 1.0.1 | 2025-12-24 | Added: Bilingual support (English + Chinese) |

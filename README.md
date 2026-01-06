@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 3.2.0
-**Last Updated**: 2026-01-02
+**Version**: 3.2.2
+**Last Updated**: 2026-01-06
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 ---
@@ -256,6 +256,7 @@ npm install -g universal-dev-standards
 uds init    # Interactive initialization
 uds check   # Check adoption status
 uds update  # Update to latest version
+uds skills  # List installed Claude Code skills
 ```
 
 **Option 2: npx (No installation)**
@@ -773,6 +774,7 @@ All contributions must:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.2.2 | 2026-01-06 | Added: `uds skills` command to list installed Claude Code skills; Deprecated: manual installation scripts (install.sh/install.ps1) |
 | 3.2.0 | 2026-01-02 | Added: Plugin Marketplace distribution support, CLI Marketplace option; Fixed: CLI wildcard path handling, process hanging issues |
 | 3.1.0 | 2025-12-30 | Added: Simplified Chinese (zh-CN) translation, language switcher links |
 | 3.0.0 | 2025-12-30 | Added: Full Windows support, npm publish, CLI enhancements, 5 new Skills (14 total) |

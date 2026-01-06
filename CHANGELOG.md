@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 格式基於 [Keep a Changelog](https://keepachangelog.com/)，
 並遵循[語義化版本](https://semver.org/)。
 
-## [Unreleased]
+## [3.2.2] - 2026-01-06
 
 ### Added | 新增
 - **CLI**: Add `uds skills` command to list installed Claude Code skills
@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     顯示每個安裝的版本、路徑和 skill 數量
   - Warns about deprecated manual installations
     對已棄用的手動安裝顯示警告
+- **CLI**: Improve Skills update instructions based on installation location
+  **CLI**：根據安裝位置改善 Skills 更新指示
 
 ### Deprecated | 棄用
 - **Skills**: Manual installation via `install.sh` / `install.ps1` is now deprecated
@@ -37,6 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     建議遷移至 Plugin Marketplace
 - **Skills**: Update README.md to mark manual installation as deprecated
   **Skills**：更新 README.md 將手動安裝標記為棄用
+
+### Fixed | 修復
+- **CLI**: Update standards-registry version to 3.2.2
+  **CLI**：更新標準註冊表版本至 3.2.2
 
 ## [3.2.2-beta.2] - 2026-01-05
 

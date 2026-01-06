@@ -1,8 +1,8 @@
 ---
 source: ../../README.md
-source_version: 3.2.0
-translation_version: 3.2.0
-last_synced: 2026-01-02
+source_version: 3.2.2
+translation_version: 3.2.2
+last_synced: 2026-01-06
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **Language**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
 
-**版本**: 3.2.0
-**最後更新**: 2026-01-02
+**版本**: 3.2.2
+**最後更新**: 2026-01-06
 **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 
 ---
@@ -217,6 +217,7 @@ npm install -g universal-dev-standards
 uds init    # 互動式初始化
 uds check   # 檢查採用狀態
 uds update  # 更新至最新版本
+uds skills  # 列出已安裝的 Claude Code Skills
 ```
 
 **選項二：npx（免安裝）**
@@ -734,6 +735,7 @@ cp integrations/openspec/commands/* your-project/.claude/commands/
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 3.2.2 | 2026-01-06 | 新增：`uds skills` 指令列出已安裝的 Claude Code Skills；棄用：手動安裝腳本 (install.sh/install.ps1) |
 | 3.2.0 | 2026-01-02 | 新增：Plugin Marketplace 分發支援、CLI Marketplace 選項；修復：CLI 通配符路徑處理、程式掛起問題 |
 | 3.1.0 | 2025-12-30 | 新增：簡體中文（zh-CN）翻譯、語言切換連結 |
 | 3.0.0 | 2025-12-30 | 新增：完整 Windows 支援、npm 發布、CLI 增強、5 個新 Skills（共 14 個）|
