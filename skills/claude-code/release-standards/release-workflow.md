@@ -315,8 +315,7 @@ Update version numbers in these files:
 - [ ] `README.md` - Version in header
 - [ ] `cli/README.md` - Version in header and changelog table
 - [ ] `cli/standards-registry.json` - Registry version
-- [ ] `locales/zh-TW/README.md` - Version in header
-- [ ] `locales/zh-CN/README.md` - Version in header (if maintained)
+- [ ] `locales/*/README.md` - Version in header (all maintained locales)
 
 ### Documentation Sync Checklist
 
@@ -334,13 +333,16 @@ When Skills or core standards are added/modified, verify these files are updated
 - [ ] `MAINTENANCE.md` - File counts and skills table
 - [ ] `STANDARDS-MAPPING.md` - Skills matrix and statistics
 
-**Localization (zh-TW):**
-- [ ] `locales/zh-TW/README.md` - Skills count
-- [ ] `locales/zh-TW/CLAUDE.md` - Core standards and skills count
-- [ ] `locales/zh-TW/MAINTENANCE.md` - File counts and skills table
-- [ ] `locales/zh-TW/STANDARDS-MAPPING.md` - Skills matrix
-- [ ] `locales/zh-TW/skills/claude-code/README.md` - Skills list
-- [ ] `locales/zh-TW/adoption/STATIC-DYNAMIC-GUIDE.md` - Skills count
+**Localization (all locales):**
+
+For each supported locale (`locales/zh-TW/`, `locales/zh-CN/`, etc.), update the corresponding translations of the above files:
+
+- [ ] `locales/*/README.md` - Skills count
+- [ ] `locales/*/CLAUDE.md` - Core standards and skills count
+- [ ] `locales/*/MAINTENANCE.md` - File counts and skills table
+- [ ] `locales/*/STANDARDS-MAPPING.md` - Skills matrix
+- [ ] `locales/*/skills/claude-code/README.md` - Skills list
+- [ ] `locales/*/adoption/STATIC-DYNAMIC-GUIDE.md` - Skills count
 
 **Validation:**
 - [ ] Run translation sync check: `./scripts/check-translation-sync.sh`

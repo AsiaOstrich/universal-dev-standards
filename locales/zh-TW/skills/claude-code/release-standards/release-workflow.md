@@ -315,8 +315,7 @@ npm version 3.2.2
 - [ ] `README.md` - 標題中的版本號
 - [ ] `cli/README.md` - 標題和變更日誌表格中的版本號
 - [ ] `cli/standards-registry.json` - 註冊表版本
-- [ ] `locales/zh-TW/README.md` - 標題中的版本號
-- [ ] `locales/zh-CN/README.md` - 標題中的版本號（如有維護）
+- [ ] `locales/*/README.md` - 標題中的版本號（所有維護中的語言版本）
 
 ### 文件同步檢查清單
 
@@ -334,13 +333,16 @@ npm version 3.2.2
 - [ ] `MAINTENANCE.md` - 檔案數量和技能表格
 - [ ] `STANDARDS-MAPPING.md` - 技能矩陣和統計
 
-**本地化 (zh-TW)：**
-- [ ] `locales/zh-TW/README.md` - 技能數量
-- [ ] `locales/zh-TW/CLAUDE.md` - 核心標準和技能數量
-- [ ] `locales/zh-TW/MAINTENANCE.md` - 檔案數量和技能表格
-- [ ] `locales/zh-TW/STANDARDS-MAPPING.md` - 技能矩陣
-- [ ] `locales/zh-TW/skills/claude-code/README.md` - 技能清單
-- [ ] `locales/zh-TW/adoption/STATIC-DYNAMIC-GUIDE.md` - 技能數量
+**本地化（所有語言版本）：**
+
+對於每個支援的語言版本（`locales/zh-TW/`、`locales/zh-CN/` 等），更新上述檔案的對應翻譯：
+
+- [ ] `locales/*/README.md` - 技能數量
+- [ ] `locales/*/CLAUDE.md` - 核心標準和技能數量
+- [ ] `locales/*/MAINTENANCE.md` - 檔案數量和技能表格
+- [ ] `locales/*/STANDARDS-MAPPING.md` - 技能矩陣
+- [ ] `locales/*/skills/claude-code/README.md` - 技能清單
+- [ ] `locales/*/adoption/STATIC-DYNAMIC-GUIDE.md` - 技能數量
 
 **驗證：**
 - [ ] 執行翻譯同步檢查：`./scripts/check-translation-sync.sh`
