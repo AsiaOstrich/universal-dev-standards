@@ -151,6 +151,18 @@ AI 優化標準提供以下語言版本：
 
 **包含的技能：** ai-collaboration-standards、changelog-guide、code-review-assistant、commit-standards、documentation-guide、error-code-guide、git-workflow-guide、logging-guide、project-structure-guide、release-standards、requirement-assistant、spec-driven-dev、tdd-assistant、test-coverage-assistant、testing-guide
 
+**從 v3.2.x 或更早版本遷移？**
+
+如果你使用舊的 marketplace 名稱（`universal-dev-standards@universal-dev-standards`）安裝，請進行遷移：
+
+```bash
+# 卸載舊版本
+/plugin uninstall universal-dev-standards@universal-dev-standards
+
+# 安裝新版本
+/plugin install universal-dev-standards@asia-ostrich
+```
+
 ---
 
 #### 方法 2：腳本安裝（替代方案）

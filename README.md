@@ -183,6 +183,19 @@ Install all 15 comprehensive development skills with a single command:
 
 **Skills included:** ai-collaboration-standards, changelog-guide, code-review-assistant, commit-standards, documentation-guide, error-code-guide, git-workflow-guide, logging-guide, project-structure-guide, release-standards, requirement-assistant, spec-driven-dev, tdd-assistant, test-coverage-assistant, testing-guide
 
+**Migrating from v3.2.x or earlier? | 從 v3.2.x 或更早版本遷移？**
+
+If you installed using the old marketplace name (`universal-dev-standards@universal-dev-standards`), please migrate:
+如果你使用舊的 marketplace 名稱安裝，請進行遷移：
+
+```bash
+# Uninstall old version | 卸載舊版本
+/plugin uninstall universal-dev-standards@universal-dev-standards
+
+# Install new version | 安裝新版本
+/plugin install universal-dev-standards@asia-ostrich
+```
+
 ---
 
 #### Method 2: Script Installation (Alternative)
