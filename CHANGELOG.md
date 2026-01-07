@@ -10,6 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.3.0-beta.5] - 2026-01-07
+
+### Added | 新增
+- **Skills**: Add 9 UDS slash commands for manual workflow triggers
+  **Skills**：新增 9 個 UDS 斜線命令，用於手動觸發工作流程
+  - `/uds:commit` - Generate conventional commit messages | 產生 commit message
+  - `/uds:review` - Perform systematic code review | 執行程式碼審查
+  - `/uds:release` - Guide through release process | 引導發布流程
+  - `/uds:changelog` - Update CHANGELOG.md | 更新變更日誌
+  - `/uds:requirement` - Write user stories and requirements | 撰寫用戶故事
+  - `/uds:spec` - Create specification documents | 建立規格文件
+  - `/uds:tdd` - Test-Driven Development workflow | TDD 工作流程
+  - `/uds:docs` - Create/update documentation | 文件撰寫
+  - `/uds:coverage` - Analyze test coverage | 測試覆蓋率
+  - Commands vs Skills: Commands are manually triggered (`/command`), Skills are automatic (context-based)
+    命令與技能的差異：命令為手動觸發，技能為自動觸發
+
 ### Fixed | 修復
 - **CLI**: `uds skills` now prioritizes new `@asia-ostrich` marketplace
   **CLI**：`uds skills` 現在優先偵測新的 `@asia-ostrich` marketplace
@@ -17,8 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     當偵測到舊版 `@universal-dev-standards` marketplace 時顯示遷移提示
   - Ensures compatibility during migration period
     確保遷移期間的相容性
-- **CLI**: Sync `standards-registry.json` version to 3.3.0-beta.4
-  **CLI**：同步 `standards-registry.json` 版本至 3.3.0-beta.4
 
 ## [3.3.0-beta.4] - 2026-01-07
 
