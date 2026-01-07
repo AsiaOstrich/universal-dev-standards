@@ -71,6 +71,36 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 >
 > 📖 參見[靜態與動態指南](../../adoption/STATIC-DYNAMIC-GUIDE.md)了解詳細分類說明。
 
+## Slash Commands | 斜線命令
+
+In addition to automatic Skills, this plugin provides **manual slash commands** for explicit actions:
+
+除了自動觸發的 Skills，此插件還提供**手動斜線命令**用於明確的操作：
+
+| Command | Description | 說明 |
+|---------|-------------|------|
+| `/uds:commit` | Generate commit messages | 產生 commit message |
+| `/uds:review` | Perform code review | 執行程式碼審查 |
+| `/uds:release` | Guide release process | 引導發布流程 |
+| `/uds:changelog` | Update CHANGELOG | 更新變更日誌 |
+| `/uds:requirement` | Write user stories | 撰寫用戶故事 |
+| `/uds:spec` | Create specifications | 建立規格文件 |
+| `/uds:tdd` | TDD workflow | TDD 工作流程 |
+| `/uds:docs` | Documentation | 文件撰寫 |
+| `/uds:coverage` | Test coverage analysis | 測試覆蓋率分析 |
+
+### Skills vs Commands | Skills 與命令的差異
+
+| Aspect | Skills | Commands |
+|--------|--------|----------|
+| **Trigger** | Automatic (context-based) | Manual (`/command`) |
+| **Use Case** | Background assistance | Explicit action |
+| **Example** | Claude suggests commit format | `/uds:commit` to generate message |
+
+> 📖 See [commands/](./commands/) for detailed command documentation.
+>
+> 📖 參見 [commands/](./commands/) 了解詳細的命令文件。
+
 ## Installation
 
 ### Recommended: Plugin Marketplace
