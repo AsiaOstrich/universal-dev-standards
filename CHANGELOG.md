@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.3.0-beta.1] - 2026-01-07
+
 ### Added | 新增
 - **Core**: Add Test-Driven Development (TDD) standard
   **Core**：新增測試驅動開發 (TDD) 標準
