@@ -108,7 +108,7 @@ export async function promptSkillsInstallLocation() {
     console.log(chalk.gray('  → Automatic updates when new versions are released'));
     console.log(chalk.gray('  → If not installed yet, run:'));
     console.log(chalk.gray('      /plugin marketplace add AsiaOstrich/universal-dev-standards'));
-    console.log(chalk.gray('      /plugin install universal-dev-standards@universal-dev-standards'));
+    console.log(chalk.gray('      /plugin install universal-dev-standards@asia-ostrich'));
   } else if (location === 'user') {
     console.log(chalk.gray('  → Skills will be installed to ~/.claude/skills/'));
     console.log(chalk.gray('  → Available across all your projects'));

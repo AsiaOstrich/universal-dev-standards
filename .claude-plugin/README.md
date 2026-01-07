@@ -23,7 +23,7 @@ This directory contains the configuration files for distributing Universal Devel
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 
 # Install the plugin
-/plugin install universal-dev-standards@universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
 ```
 
 ### Local Testing (Developers)

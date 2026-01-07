@@ -92,7 +92,7 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 
 # 安裝包含所有 15 個技能的插件
-/plugin install universal-dev-standards@universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
 ```
 
 **優點：**

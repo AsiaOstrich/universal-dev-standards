@@ -8,7 +8,7 @@ Users can now install all 14 skills with a single command through the Claude Cod
 **Installation:**
 ```bash
 /plugin marketplace add AsiaOstrich/universal-dev-standards
-/plugin install universal-dev-standards@universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
 ```
 
 **Benefits:**
@@ -103,7 +103,7 @@ All three language versions now document:
 Use the Plugin Marketplace (recommended):
 ```bash
 /plugin marketplace add AsiaOstrich/universal-dev-standards
-/plugin install universal-dev-standards@universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
 ```
 
 ### For Existing Users

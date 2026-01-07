@@ -172,7 +172,7 @@ Install all 15 comprehensive development skills with a single command:
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 
 # Install the plugin with all 15 skills
-/plugin install universal-dev-standards@universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
 ```
 
 **Benefits:**

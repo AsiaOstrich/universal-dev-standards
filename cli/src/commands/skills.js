@@ -178,7 +178,7 @@ export function skillsCommand() {
     console.log();
     console.log(chalk.gray('Install via Plugin Marketplace:'));
     console.log(chalk.cyan('  /plugin marketplace add AsiaOstrich/universal-dev-standards'));
-    console.log(chalk.cyan('  /plugin install universal-dev-standards@universal-dev-standards'));
+    console.log(chalk.cyan('  /plugin install universal-dev-standards@asia-ostrich'));
     console.log();
     return;
   }
@@ -211,7 +211,7 @@ export function skillsCommand() {
       console.log(chalk.yellow('  ⚠ Manual installation is deprecated.'));
       console.log(chalk.gray('  Migrate to Plugin Marketplace for automatic updates:'));
       console.log(chalk.cyan('    /plugin marketplace add AsiaOstrich/universal-dev-standards'));
-      console.log(chalk.cyan('    /plugin install universal-dev-standards@universal-dev-standards'));
+      console.log(chalk.cyan('    /plugin install universal-dev-standards@asia-ostrich'));
       console.log();
     }
   }

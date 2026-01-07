@@ -140,7 +140,7 @@ AI 優化標準提供以下語言版本：
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 
 # 安裝包含所有 15 個技能的 plugin
-/plugin install universal-dev-standards@universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
 ```
 
 **優點：**

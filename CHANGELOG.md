@@ -10,6 +10,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed | 變更
+- **Plugin Marketplace**: Rename marketplace from `universal-dev-standards` to `asia-ostrich`
+  **Plugin Marketplace**：將 marketplace 名稱從 `universal-dev-standards` 改為 `asia-ostrich`
+  - New install command: `/plugin install universal-dev-standards@asia-ostrich`
+    新安裝命令：`/plugin install universal-dev-standards@asia-ostrich`
+  - This provides better brand consistency with the AsiaOstrich organization
+    這提供與 AsiaOstrich 組織更好的品牌一致性
+
+### Migration | 遷移指南
+If you installed via the old marketplace name, please migrate:
+如果你使用舊的 marketplace 名稱安裝，請進行遷移：
+
+```bash
+# 1. Uninstall old version | 卸載舊版本
+/plugin uninstall universal-dev-standards@universal-dev-standards
+
+# 2. Install new version | 安裝新版本
+/plugin install universal-dev-standards@asia-ostrich
+```
+
 ## [3.3.0-beta.3] - 2026-01-07
 
 ### Fixed | 修復

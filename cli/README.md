@@ -252,7 +252,7 @@ This CLI works alongside [Claude Code Skills](../skills/claude-code/):
 **Install Skills via Plugin Marketplace | 透過 Plugin Marketplace 安裝 Skills：**
 ```bash
 /plugin marketplace add AsiaOstrich/universal-dev-standards
-/plugin install universal-dev-standards@universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
 ```
 
 **Important | 重要**: For standards with Skills available, use the Skill OR copy the source document — never both.
