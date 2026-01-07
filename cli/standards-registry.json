@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "3.2.2",
-  "lastUpdated": "2026-01-06",
+  "version": "3.3.0-beta.3",
+  "lastUpdated": "2026-01-07",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
     "ai": {
@@ -48,14 +48,14 @@
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "3.2.2"
+      "version": "3.3.0-beta.2"
     },
     "skills": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
       "localPath": "skills/claude-code",
       "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code",
-      "version": "3.2.2",
+      "version": "3.3.0-beta.3",
       "note": "Skills are now included in the main repository under skills/"
     }
   },
@@ -144,6 +144,11 @@
     ],
     "logging-guide": [
       "skills/claude-code/logging-guide/SKILL.md"
+    ],
+    "tdd-assistant": [
+      "skills/claude-code/tdd-assistant/SKILL.md",
+      "skills/claude-code/tdd-assistant/tdd-workflow.md",
+      "skills/claude-code/tdd-assistant/language-examples.md"
     ]
   },
   "categories": {
@@ -509,6 +514,16 @@
       "skillName": "test-coverage-assistant",
       "level": 2,
       "description": "Framework for evaluating test coverage completeness"
+    },
+    {
+      "id": "test-driven-development",
+      "name": "Test-Driven Development",
+      "nameZh": "測試驅動開發",
+      "source": "core/test-driven-development.md",
+      "category": "skill",
+      "skillName": "tdd-assistant",
+      "level": 2,
+      "description": "Red-Green-Refactor methodology for TDD workflow"
     },
     {
       "id": "csharp-style",

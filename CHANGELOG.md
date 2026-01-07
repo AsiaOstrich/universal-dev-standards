@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.3.0-beta.3] - 2026-01-07
+
+### Fixed | 修復
+- **CLI**: Add `tdd-assistant` to standards-registry.json
+  **CLI**：將 `tdd-assistant` 新增至 standards-registry.json
+  - Add skill files list and standard entry for TDD
+    新增 TDD 的技能檔案列表和標準項目
+  - `uds skills` now correctly shows 15/15 skills
+    `uds skills` 現在正確顯示 15/15 個技能
+
 ## [3.3.0-beta.2] - 2026-01-07
 
 ### Added | 新增
