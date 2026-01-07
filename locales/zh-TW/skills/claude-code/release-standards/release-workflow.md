@@ -300,24 +300,66 @@ npm version 3.2.2
 - [ ] 所有測試通過（`npm test`）
 - [ ] Linting 通過（`npm run lint`）
 - [ ] CHANGELOG.md 已更新所有變更
-- [ ] `cli/package.json` 中的版本號已更新
-- [ ] 所有相關檔案已同步（如果核心標準有變更）
 - [ ] Git 工作目錄乾淨（`git status`）
+
+### 版本檔案檢查清單
+
+更新以下檔案中的版本號：
+
+- [ ] `cli/package.json` - 主要版本來源
+- [ ] `.claude-plugin/plugin.json` - 插件版本和技能數量
+- [ ] `.claude-plugin/marketplace.json` - Marketplace 版本和技能數量
+
+**僅限穩定版本**（不適用於 beta/alpha/rc）：
+
+- [ ] `README.md` - 標題中的版本號
+- [ ] `cli/README.md` - 標題和變更日誌表格中的版本號
+- [ ] `cli/standards-registry.json` - 註冊表版本
+- [ ] `locales/zh-TW/README.md` - 標題中的版本號
+- [ ] `locales/zh-CN/README.md` - 標題中的版本號（如有維護）
+
+### 文件同步檢查清單
+
+當新增或修改 Skills 或核心標準時，驗證以下檔案已更新：
+
+**Skills 文件：**
+- [ ] `skills/README.md` - 技能數量和清單
+- [ ] `skills/INTEGRATION-GUIDE.md` - 技能數量
+- [ ] `skills/claude-code/README.md` - 技能清單和安裝說明
+- [ ] `.claude-plugin/README.md` - 技能數量和清單
+
+**專案文件：**
+- [ ] `README.md` - 技能數量（見「Standards Coverage」區塊）
+- [ ] `CLAUDE.md` - 核心標準數量和技能數量
+- [ ] `MAINTENANCE.md` - 檔案數量和技能表格
+- [ ] `STANDARDS-MAPPING.md` - 技能矩陣和統計
+
+**本地化 (zh-TW)：**
+- [ ] `locales/zh-TW/README.md` - 技能數量
+- [ ] `locales/zh-TW/CLAUDE.md` - 核心標準和技能數量
+- [ ] `locales/zh-TW/MAINTENANCE.md` - 檔案數量和技能表格
+- [ ] `locales/zh-TW/STANDARDS-MAPPING.md` - 技能矩陣
+- [ ] `locales/zh-TW/skills/claude-code/README.md` - 技能清單
+- [ ] `locales/zh-TW/adoption/STATIC-DYNAMIC-GUIDE.md` - 技能數量
+
+**驗證：**
+- [ ] 執行翻譯同步檢查：`./scripts/check-translation-sync.sh`
 
 ### Beta 發布之前
 
 - [ ] 預發布檢查清單完成
-- [ ] Beta 測試計畫已記錄
+- [ ] 版本檔案檢查清單完成（僅 beta 版本檔案）
+- [ ] 文件同步檢查清單完成
 - [ ] 已知問題已記錄在發布說明中
-- [ ] 已識別並通知 beta 測試者
 
 ### 穩定發布之前
 
 - [ ] 預發布檢查清單完成
+- [ ] 版本檔案檢查清單完成（所有檔案）
+- [ ] 文件同步檢查清單完成
 - [ ] Beta 測試完成（如適用）
 - [ ] 所有 beta 回饋已處理
 - [ ] 無嚴重或高優先級錯誤
-- [ ] 文件已更新
 - [ ] 已建立遷移指南（如有破壞性變更）
 
 ---

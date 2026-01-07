@@ -300,38 +300,66 @@ npm version 3.2.2
 - [ ] All tests passing (`npm test`)
 - [ ] Linting passing (`npm run lint`)
 - [ ] CHANGELOG.md updated with all changes
-- [ ] Version number updated in `cli/package.json`
-- [ ] All related files synchronized (if core standards changed)
 - [ ] Git working directory clean (`git status`)
+
+### Version Files Checklist
+
+Update version numbers in these files:
+
+- [ ] `cli/package.json` - Main version source
+- [ ] `.claude-plugin/plugin.json` - Plugin version and skills count
+- [ ] `.claude-plugin/marketplace.json` - Marketplace version and skills count
+
+**For stable releases only** (not beta/alpha/rc):
+
+- [ ] `README.md` - Version in header
+- [ ] `cli/README.md` - Version in header and changelog table
+- [ ] `cli/standards-registry.json` - Registry version
+- [ ] `locales/zh-TW/README.md` - Version in header
+- [ ] `locales/zh-CN/README.md` - Version in header (if maintained)
 
 ### Documentation Sync Checklist
 
 When Skills or core standards are added/modified, verify these files are updated:
 
-- [ ] `skills/README.md` - Skills count and list accurate
-- [ ] `skills/INTEGRATION-GUIDE.md` - Skills count accurate
-- [ ] `skills/claude-code/README.md` - Installation instructions and Skills list accurate
-- [ ] `README.md` - Skills count and list accurate (see "Standards Coverage" section)
+**Skills Documentation:**
+- [ ] `skills/README.md` - Skills count and list
+- [ ] `skills/INTEGRATION-GUIDE.md` - Skills count
+- [ ] `skills/claude-code/README.md` - Skills list and installation instructions
+- [ ] `.claude-plugin/README.md` - Skills count and list
+
+**Project Documentation:**
+- [ ] `README.md` - Skills count (see "Standards Coverage" section)
+- [ ] `CLAUDE.md` - Core standards count and skills count
+- [ ] `MAINTENANCE.md` - File counts and skills table
+- [ ] `STANDARDS-MAPPING.md` - Skills matrix and statistics
+
+**Localization (zh-TW):**
+- [ ] `locales/zh-TW/README.md` - Skills count
+- [ ] `locales/zh-TW/CLAUDE.md` - Core standards and skills count
+- [ ] `locales/zh-TW/MAINTENANCE.md` - File counts and skills table
+- [ ] `locales/zh-TW/STANDARDS-MAPPING.md` - Skills matrix
+- [ ] `locales/zh-TW/skills/claude-code/README.md` - Skills list
+- [ ] `locales/zh-TW/adoption/STATIC-DYNAMIC-GUIDE.md` - Skills count
+
+**Validation:**
 - [ ] Run translation sync check: `./scripts/check-translation-sync.sh`
-- [ ] `locales/zh-TW/` corresponding files updated:
-  - [ ] `locales/zh-TW/skills/README.md`
-  - [ ] `locales/zh-TW/skills/INTEGRATION-GUIDE.md`
-  - [ ] `locales/zh-TW/skills/claude-code/README.md`
 
 ### Before Beta Release
 
 - [ ] Pre-release checklist completed
-- [ ] Beta testing plan documented
+- [ ] Version files checklist completed (beta versions only)
+- [ ] Documentation sync checklist completed
 - [ ] Known issues documented in release notes
-- [ ] Beta testers identified and notified
 
 ### Before Stable Release
 
 - [ ] Pre-release checklist completed
+- [ ] Version files checklist completed (all files)
+- [ ] Documentation sync checklist completed
 - [ ] Beta testing completed (if applicable)
 - [ ] All beta feedback addressed
 - [ ] No critical or high-priority bugs
-- [ ] Documentation updated
 - [ ] Migration guide created (if breaking changes)
 
 ---
