@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.3.0-beta.4] - 2026-01-07
+
 ### Changed | 變更
 - **Plugin Marketplace**: Rename marketplace from `universal-dev-standards` to `asia-ostrich`
   **Plugin Marketplace**：將 marketplace 名稱從 `universal-dev-standards` 改為 `asia-ostrich`
