@@ -304,7 +304,7 @@ npm version 3.2.2
 
 ### 版本檔案檢查清單
 
-更新以下檔案中的版本號：
+更新並驗證以下檔案中的版本號：
 
 - [ ] `cli/package.json` - 主要版本來源
 - [ ] `.claude-plugin/plugin.json` - 插件版本和技能數量
@@ -317,48 +317,54 @@ npm version 3.2.2
 - [ ] `cli/standards-registry.json` - 註冊表版本
 - [ ] `locales/*/README.md` - 標題中的版本號（所有維護中的語言版本）
 
-### 文件同步檢查清單
+### 文件驗證檢查清單
 
-當新增或修改 Skills 或核心標準時，驗證以下檔案已更新：
+驗證**新變更已加入**且**既有內容正確無誤**：
 
 **Skills 文件：**
-- [ ] `skills/README.md` - 技能數量和清單
-- [ ] `skills/INTEGRATION-GUIDE.md` - 技能數量
-- [ ] `skills/claude-code/README.md` - 技能清單和安裝說明
-- [ ] `.claude-plugin/README.md` - 技能數量和清單
+- [ ] `skills/README.md` - 技能數量和清單正確
+- [ ] `skills/INTEGRATION-GUIDE.md` - 技能數量正確
+- [ ] `skills/claude-code/README.md` - 技能清單和安裝說明正確
+- [ ] `.claude-plugin/README.md` - 技能數量和清單正確
 
 **專案文件：**
-- [ ] `README.md` - 技能數量（見「Standards Coverage」區塊）
-- [ ] `CLAUDE.md` - 核心標準數量和技能數量
-- [ ] `MAINTENANCE.md` - 檔案數量和技能表格
-- [ ] `STANDARDS-MAPPING.md` - 技能矩陣和統計
+- [ ] `README.md` - 技能數量正確（見「Standards Coverage」區塊）
+- [ ] `CLAUDE.md` - 核心標準數量和技能數量正確
+- [ ] `MAINTENANCE.md` - 檔案數量和技能表格正確
+- [ ] `STANDARDS-MAPPING.md` - 技能矩陣和統計正確
 
 **本地化（所有語言版本）：**
 
-對於每個支援的語言版本（`locales/zh-TW/`、`locales/zh-CN/` 等），更新上述檔案的對應翻譯：
+對於每個支援的語言版本（`locales/zh-TW/`、`locales/zh-CN/` 等），驗證對應翻譯正確且已同步：
 
-- [ ] `locales/*/README.md` - 技能數量
-- [ ] `locales/*/CLAUDE.md` - 核心標準和技能數量
-- [ ] `locales/*/MAINTENANCE.md` - 檔案數量和技能表格
-- [ ] `locales/*/STANDARDS-MAPPING.md` - 技能矩陣
-- [ ] `locales/*/skills/claude-code/README.md` - 技能清單
-- [ ] `locales/*/adoption/STATIC-DYNAMIC-GUIDE.md` - 技能數量
+- [ ] `locales/*/README.md` - 技能數量正確
+- [ ] `locales/*/CLAUDE.md` - 核心標準和技能數量正確
+- [ ] `locales/*/MAINTENANCE.md` - 檔案數量和技能表格正確
+- [ ] `locales/*/STANDARDS-MAPPING.md` - 技能矩陣正確
+- [ ] `locales/*/skills/claude-code/README.md` - 技能清單正確
+- [ ] `locales/*/adoption/STATIC-DYNAMIC-GUIDE.md` - 技能數量正確
 
-**驗證：**
+**內容正確性驗證：**
+- [ ] 搜尋過時的版本號：`grep -r "X.Y.Z" --include="*.md"`（將 X.Y.Z 替換為前一版本）
+- [ ] 搜尋過時的技能數量：`grep -r "N skills" --include="*.md"`（將 N 替換為前一數量）
+- [ ] 驗證所有內部連結有效
+- [ ] 驗證統計數字和計數在所有檔案中一致
+
+**自動化驗證：**
 - [ ] 執行翻譯同步檢查：`./scripts/check-translation-sync.sh`
 
 ### Beta 發布之前
 
 - [ ] 預發布檢查清單完成
 - [ ] 版本檔案檢查清單完成（僅 beta 版本檔案）
-- [ ] 文件同步檢查清單完成
+- [ ] 文件驗證檢查清單完成
 - [ ] 已知問題已記錄在發布說明中
 
 ### 穩定發布之前
 
 - [ ] 預發布檢查清單完成
 - [ ] 版本檔案檢查清單完成（所有檔案）
-- [ ] 文件同步檢查清單完成
+- [ ] 文件驗證檢查清單完成
 - [ ] Beta 測試完成（如適用）
 - [ ] 所有 beta 回饋已處理
 - [ ] 無嚴重或高優先級錯誤

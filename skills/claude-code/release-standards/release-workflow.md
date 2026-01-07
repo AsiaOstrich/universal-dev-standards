@@ -304,7 +304,7 @@ npm version 3.2.2
 
 ### Version Files Checklist
 
-Update version numbers in these files:
+Update and verify version numbers in these files:
 
 - [ ] `cli/package.json` - Main version source
 - [ ] `.claude-plugin/plugin.json` - Plugin version and skills count
@@ -317,48 +317,54 @@ Update version numbers in these files:
 - [ ] `cli/standards-registry.json` - Registry version
 - [ ] `locales/*/README.md` - Version in header (all maintained locales)
 
-### Documentation Sync Checklist
+### Documentation Verification Checklist
 
-When Skills or core standards are added/modified, verify these files are updated:
+Verify both **new changes are added** AND **existing content is accurate**:
 
 **Skills Documentation:**
-- [ ] `skills/README.md` - Skills count and list
-- [ ] `skills/INTEGRATION-GUIDE.md` - Skills count
-- [ ] `skills/claude-code/README.md` - Skills list and installation instructions
-- [ ] `.claude-plugin/README.md` - Skills count and list
+- [ ] `skills/README.md` - Skills count and list accurate
+- [ ] `skills/INTEGRATION-GUIDE.md` - Skills count accurate
+- [ ] `skills/claude-code/README.md` - Skills list and installation instructions accurate
+- [ ] `.claude-plugin/README.md` - Skills count and list accurate
 
 **Project Documentation:**
-- [ ] `README.md` - Skills count (see "Standards Coverage" section)
-- [ ] `CLAUDE.md` - Core standards count and skills count
-- [ ] `MAINTENANCE.md` - File counts and skills table
-- [ ] `STANDARDS-MAPPING.md` - Skills matrix and statistics
+- [ ] `README.md` - Skills count accurate (see "Standards Coverage" section)
+- [ ] `CLAUDE.md` - Core standards count and skills count accurate
+- [ ] `MAINTENANCE.md` - File counts and skills table accurate
+- [ ] `STANDARDS-MAPPING.md` - Skills matrix and statistics accurate
 
 **Localization (all locales):**
 
-For each supported locale (`locales/zh-TW/`, `locales/zh-CN/`, etc.), update the corresponding translations of the above files:
+For each supported locale (`locales/zh-TW/`, `locales/zh-CN/`, etc.), verify the corresponding translations are accurate and synchronized:
 
-- [ ] `locales/*/README.md` - Skills count
-- [ ] `locales/*/CLAUDE.md` - Core standards and skills count
-- [ ] `locales/*/MAINTENANCE.md` - File counts and skills table
-- [ ] `locales/*/STANDARDS-MAPPING.md` - Skills matrix
-- [ ] `locales/*/skills/claude-code/README.md` - Skills list
-- [ ] `locales/*/adoption/STATIC-DYNAMIC-GUIDE.md` - Skills count
+- [ ] `locales/*/README.md` - Skills count accurate
+- [ ] `locales/*/CLAUDE.md` - Core standards and skills count accurate
+- [ ] `locales/*/MAINTENANCE.md` - File counts and skills table accurate
+- [ ] `locales/*/STANDARDS-MAPPING.md` - Skills matrix accurate
+- [ ] `locales/*/skills/claude-code/README.md` - Skills list accurate
+- [ ] `locales/*/adoption/STATIC-DYNAMIC-GUIDE.md` - Skills count accurate
 
-**Validation:**
+**Content Accuracy Verification:**
+- [ ] Search for outdated version numbers: `grep -r "X.Y.Z" --include="*.md"` (replace X.Y.Z with previous version)
+- [ ] Search for outdated skills count: `grep -r "N skills" --include="*.md"` (replace N with previous count)
+- [ ] Verify all internal links are valid
+- [ ] Verify statistics and counts are consistent across all files
+
+**Automated Validation:**
 - [ ] Run translation sync check: `./scripts/check-translation-sync.sh`
 
 ### Before Beta Release
 
 - [ ] Pre-release checklist completed
 - [ ] Version files checklist completed (beta versions only)
-- [ ] Documentation sync checklist completed
+- [ ] Documentation verification checklist completed
 - [ ] Known issues documented in release notes
 
 ### Before Stable Release
 
 - [ ] Pre-release checklist completed
 - [ ] Version files checklist completed (all files)
-- [ ] Documentation sync checklist completed
+- [ ] Documentation verification checklist completed
 - [ ] Beta testing completed (if applicable)
 - [ ] All beta feedback addressed
 - [ ] No critical or high-priority bugs
