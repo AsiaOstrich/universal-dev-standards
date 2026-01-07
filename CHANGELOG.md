@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [3.3.0-beta.1] - 2026-01-07
+## [3.3.0-beta.2] - 2026-01-07
 
 ### Added | 新增
 - **Core**: Add Test-Driven Development (TDD) standard
@@ -43,6 +43,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     `testing-standards.md` - 新增 TDD 交叉引用
   - `test-completeness-dimensions.md` - Add TDD cross-reference
     `test-completeness-dimensions.md` - 新增 TDD 交叉引用
+- **Release Workflow**: Expand pre-release checklist with comprehensive file verification
+  **發布流程**：擴展預發布檢查清單，加入完整的檔案驗證
+  - Add Version Files Checklist with all version-related files
+    新增版本檔案檢查清單，涵蓋所有版本相關檔案
+  - Rename to Documentation Verification Checklist with accuracy verification
+    重新命名為文件驗證檢查清單，加入正確性驗證
+  - Add Content Accuracy Verification section with grep commands
+    新增內容正確性驗證區塊，包含 grep 指令
+  - Use `locales/*` pattern for all locale files
+    使用 `locales/*` 萬用字元涵蓋所有語言版本
 
 ## [3.2.2] - 2026-01-06
 
