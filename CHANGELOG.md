@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed | 修復
+- **CLI**: `uds skills` now prioritizes new `@asia-ostrich` marketplace
+  **CLI**：`uds skills` 現在優先偵測新的 `@asia-ostrich` marketplace
+  - Adds migration notice when legacy `@universal-dev-standards` marketplace is detected
+    當偵測到舊版 `@universal-dev-standards` marketplace 時顯示遷移提示
+  - Ensures compatibility during migration period
+    確保遷移期間的相容性
+- **CLI**: Sync `standards-registry.json` version to 3.3.0-beta.4
+  **CLI**：同步 `standards-registry.json` 版本至 3.3.0-beta.4
+
 ## [3.3.0-beta.4] - 2026-01-07
 
 ### Changed | 變更

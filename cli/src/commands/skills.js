@@ -33,8 +33,13 @@ function getInstalledPlugins() {
   }
 }
 
+// Plugin keys for different marketplace versions
+const PLUGIN_KEY_NEW = 'universal-dev-standards@asia-ostrich';
+const PLUGIN_KEY_OLD = 'universal-dev-standards@universal-dev-standards';
+
 /**
  * Find universal-dev-standards plugin in installed plugins
+ * Prioritizes new @asia-ostrich marketplace, falls back to legacy @universal-dev-standards
  * @param {Object} pluginsInfo - Installed plugins info
  * @returns {Object|null} Plugin info or null
  */
@@ -43,16 +48,17 @@ function findUdsPlugin(pluginsInfo) {
     return null;
   }
 
-  // Look for universal-dev-standards plugin
-  for (const [key, installations] of Object.entries(pluginsInfo.plugins)) {
-    if (key.includes('universal-dev-standards')) {
-      // Return the first (usually only) installation
-      if (installations.length > 0) {
-        return {
-          key,
-          ...installations[0]
-        };
-      }
+  // Priority order: new marketplace first, then legacy
+  const keysToCheck = [PLUGIN_KEY_NEW, PLUGIN_KEY_OLD];
+
+  for (const key of keysToCheck) {
+    const installations = pluginsInfo.plugins[key];
+    if (installations && installations.length > 0) {
+      return {
+        key,
+        isLegacyMarketplace: key === PLUGIN_KEY_OLD,
+        ...installations[0]
+      };
     }
   }
 
@@ -105,11 +111,14 @@ export function skillsCommand() {
     const skills = listSkillsInDir(udsPlugin.installPath);
     if (skills.length > 0) {
       installations.push({
-        location: 'Plugin Marketplace',
+        location: udsPlugin.isLegacyMarketplace
+          ? 'Plugin Marketplace (legacy)'
+          : 'Plugin Marketplace',
         path: udsPlugin.installPath,
         version: udsPlugin.version || 'unknown',
         skills,
-        recommended: true
+        recommended: !udsPlugin.isLegacyMarketplace,
+        legacyMarketplace: udsPlugin.isLegacyMarketplace
       });
     }
   }
@@ -188,6 +197,8 @@ export function skillsCommand() {
     // Header
     if (install.recommended) {
       console.log(chalk.green(`✓ ${install.location}`) + chalk.gray(' (recommended)'));
+    } else if (install.legacyMarketplace) {
+      console.log(chalk.yellow(`⚠ ${install.location}`));
     } else if (install.deprecated) {
       console.log(chalk.yellow(`⚠ ${install.location}`));
     } else {
@@ -201,10 +212,21 @@ export function skillsCommand() {
     // Skills list
     console.log(chalk.gray(`  Skills (${install.skills.length}):`));
     for (const skill of install.skills) {
-      const icon = install.deprecated ? chalk.yellow('○') : chalk.green('✓');
+      const icon = (install.deprecated || install.legacyMarketplace)
+        ? chalk.yellow('○')
+        : chalk.green('✓');
       console.log(`    ${icon} ${skill}`);
     }
     console.log();
+
+    // Legacy marketplace migration notice
+    if (install.legacyMarketplace) {
+      console.log(chalk.yellow('  ⚠ Legacy marketplace detected.'));
+      console.log(chalk.gray('  Migrate to new marketplace for continued updates:'));
+      console.log(chalk.cyan('    /plugin uninstall universal-dev-standards@universal-dev-standards'));
+      console.log(chalk.cyan('    /plugin install universal-dev-standards@asia-ostrich'));
+      console.log();
+    }
 
     // Deprecation warning
     if (install.deprecated) {
@@ -231,3 +253,10 @@ export function skillsCommand() {
 
   console.log();
 }
+
+// Export for testing
+export const _testing = {
+  findUdsPlugin,
+  PLUGIN_KEY_NEW,
+  PLUGIN_KEY_OLD
+};

@@ -4,7 +4,9 @@ import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { homedir } from 'os';
-import { skillsCommand } from '../../src/commands/skills.js';
+import { skillsCommand, _testing } from '../../src/commands/skills.js';
+
+const { findUdsPlugin, PLUGIN_KEY_NEW, PLUGIN_KEY_OLD } = _testing;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -162,6 +164,113 @@ describe('Skills Command', () => {
       const output = consoleLogs.join('\n');
       expect(output).toContain('commit-standards');
       expect(output).not.toContain('custom-skill');
+    });
+  });
+
+  describe('findUdsPlugin', () => {
+    it('should return null when pluginsInfo is null', () => {
+      expect(findUdsPlugin(null)).toBeNull();
+    });
+
+    it('should return null when plugins object is missing', () => {
+      expect(findUdsPlugin({})).toBeNull();
+      expect(findUdsPlugin({ version: 2 })).toBeNull();
+    });
+
+    it('should prioritize new asia-ostrich marketplace over legacy', () => {
+      const pluginsInfo = {
+        version: 2,
+        plugins: {
+          [PLUGIN_KEY_OLD]: [
+            {
+              scope: 'user',
+              installPath: '/mock/old/path',
+              version: '3.2.0'
+            }
+          ],
+          [PLUGIN_KEY_NEW]: [
+            {
+              scope: 'user',
+              installPath: '/mock/new/path',
+              version: '3.3.0'
+            }
+          ]
+        }
+      };
+
+      const result = findUdsPlugin(pluginsInfo);
+
+      expect(result).not.toBeNull();
+      expect(result.key).toBe(PLUGIN_KEY_NEW);
+      expect(result.version).toBe('3.3.0');
+      expect(result.isLegacyMarketplace).toBe(false);
+    });
+
+    it('should fallback to legacy marketplace when new is not available', () => {
+      const pluginsInfo = {
+        version: 2,
+        plugins: {
+          [PLUGIN_KEY_OLD]: [
+            {
+              scope: 'user',
+              installPath: '/mock/old/path',
+              version: '3.2.0'
+            }
+          ]
+        }
+      };
+
+      const result = findUdsPlugin(pluginsInfo);
+
+      expect(result).not.toBeNull();
+      expect(result.key).toBe(PLUGIN_KEY_OLD);
+      expect(result.version).toBe('3.2.0');
+      expect(result.isLegacyMarketplace).toBe(true);
+    });
+
+    it('should return new marketplace info with isLegacyMarketplace=false', () => {
+      const pluginsInfo = {
+        version: 2,
+        plugins: {
+          [PLUGIN_KEY_NEW]: [
+            {
+              scope: 'user',
+              installPath: '/mock/new/path',
+              version: '3.3.0'
+            }
+          ]
+        }
+      };
+
+      const result = findUdsPlugin(pluginsInfo);
+
+      expect(result).not.toBeNull();
+      expect(result.isLegacyMarketplace).toBe(false);
+      expect(result.installPath).toBe('/mock/new/path');
+    });
+
+    it('should return null when no UDS plugin is installed', () => {
+      const pluginsInfo = {
+        version: 2,
+        plugins: {
+          'other-plugin@some-marketplace': [
+            { scope: 'user', installPath: '/other', version: '1.0.0' }
+          ]
+        }
+      };
+
+      expect(findUdsPlugin(pluginsInfo)).toBeNull();
+    });
+
+    it('should return null when plugin array is empty', () => {
+      const pluginsInfo = {
+        version: 2,
+        plugins: {
+          [PLUGIN_KEY_NEW]: []
+        }
+      };
+
+      expect(findUdsPlugin(pluginsInfo)).toBeNull();
     });
   });
 });
