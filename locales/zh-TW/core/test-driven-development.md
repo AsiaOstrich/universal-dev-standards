@@ -875,7 +875,7 @@ test('should send confirmation email after successful payment', async () => {
 
 ## 相關標準
 
-- [測試標準](testing-standards.md) - 核心測試標準（UT/IT/ST/E2E）
+- [測試標準](testing-standards.md) - 核心測試標準（UT/IT/ST/E2E）（或使用 `/testing-guide` 技能）
 - [測試完整性維度](test-completeness-dimensions.md) - 7 維度框架
 - [規格驅動開發](spec-driven-development.md) - SDD 工作流程
 - [程式碼入庫標準](checkin-standards.md) - 入庫要求

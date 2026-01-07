@@ -295,7 +295,7 @@ App cannot continue?         → FATAL
 ---
 
 **Related Standards:**
-- [Testing Standards](testing-standards.md) - Testing logging output
+- [Testing Standards](testing-standards.md) - Testing logging output (or use `/testing-guide` skill)
 - [Code Review Checklist](code-review-checklist.md) - Reviewing logging practices
 
 ---

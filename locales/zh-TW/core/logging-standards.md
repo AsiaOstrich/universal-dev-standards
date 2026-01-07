@@ -297,7 +297,7 @@ logger.info('處理請求', { request_id: req.requestId });
 ---
 
 **相關標準：**
-- [測試標準](testing-standards.md) - 測試日誌輸出
+- [測試標準](testing-standards.md) - 測試日誌輸出（或使用 `/testing-guide` 技能）
 - [程式碼審查清單](code-review-checklist.md) - 審查日誌實踐
 
 ---

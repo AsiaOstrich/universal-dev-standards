@@ -370,7 +370,7 @@ public async Task CreateOrder_QuantityExceedsStock_ReturnsBusinessRuleError()
 
 **何時需要**:
 
-根據[測試標準](testing-standards.md)，如果單元測試對查詢參數使用萬用匹配器（`It.IsAny<>`, `any()`, `Arg.Any<>`），必須有整合測試。
+根據[測試標準](testing-standards.md)（或 `/testing-guide` 技能），如果單元測試對查詢參數使用萬用匹配器（`It.IsAny<>`, `any()`, `Arg.Any<>`），必須有整合測試。
 
 **測試內容**:
 - 查詢述詞回傳正確資料
@@ -521,7 +521,7 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
 ## 相關標準
 
 - [測試驅動開發](test-driven-development.md) - TDD/BDD/ATDD 方法論
-- [測試標準](testing-standards.md) - 核心測試標準
+- [測試標準](testing-standards.md) - 核心測試標準（或使用 `/testing-guide` 技能）
 - [程式碼審查清單](code-review-checklist.md) - 審查測試完整性
 - [簽入標準](checkin-standards.md) - 提交前測試需求
 

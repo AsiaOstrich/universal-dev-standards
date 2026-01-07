@@ -163,7 +163,7 @@ logger.info('卡片处理', { last_four: '4242' });
 
 ## 相关标准
 
-- [测试标准](testing-standards.md) - 测试日志输出
+- [测试标准](testing-standards.md) - 测试日志输出（或使用 `/testing-guide` 技能）
 - [代码审查指南](code-review-guide.md) - 审查日志实践
 
 ---

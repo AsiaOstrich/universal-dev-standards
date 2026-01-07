@@ -362,7 +362,7 @@ Verify actual database queries and external integrations work correctly.
 
 **When Required**:
 
-As per [Testing Standards](testing-standards.md), if your unit test uses wildcard matchers (`It.IsAny<>`, `any()`, `Arg.Any<>`) for query parameters, you MUST have integration tests.
+As per [Testing Standards](testing-standards.md) (or `/testing-guide` skill), if your unit test uses wildcard matchers (`It.IsAny<>`, `any()`, `Arg.Any<>`) for query parameters, you MUST have integration tests.
 
 **What to test**:
 - Query predicates return correct data
@@ -513,7 +513,7 @@ Avoid these common mistakes:
 ## Related Standards
 
 - [Test-Driven Development](test-driven-development.md) - TDD/BDD/ATDD methodology
-- [Testing Standards](testing-standards.md) - Core testing standards
+- [Testing Standards](testing-standards.md) - Core testing standards (or use `/testing-guide` skill)
 - [Code Review Checklist](code-review-checklist.md) - Review test completeness
 - [Check-in Standards](checkin-standards.md) - Pre-commit test requirements
 

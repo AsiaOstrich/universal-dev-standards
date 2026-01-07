@@ -657,7 +657,7 @@ Redis 是最佳選擇。如果這是單實例應用程式且有
 
 ## 相關標準
 
-- [測試標準](testing-standards.md) - 確保驗證 AI 分析結果
+- [測試標準](testing-standards.md) - 確保驗證 AI 分析結果（或使用 `/testing-guide` 技能）
 - [程式碼審查清單](code-review-checklist.md) - 審查 AI 生成內容
 - [程式碼簽入標準](checkin-standards.md) - AI 協作簽入流程
 

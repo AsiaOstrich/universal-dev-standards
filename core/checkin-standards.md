@@ -915,7 +915,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 ## Related Standards
 
 - [Project Structure Standard](project-structure.md)
-- [Testing Standards](testing-standards.md)
+- [Testing Standards](testing-standards.md) (or use `/testing-guide` skill)
 - [Commit Message Guide](commit-message-guide.md)
 - [Code Review Checklist](code-review-checklist.md)
 

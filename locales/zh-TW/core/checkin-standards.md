@@ -923,7 +923,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 ## 相關標準
 
 - [專案結構標準](project-structure.md)
-- [測試標準](testing-standards.md)
+- [測試標準](testing-standards.md)（或使用 `/testing-guide` 技能）
 - [Commit 訊息規範](commit-message-guide.md)
 - [程式碼審查清單](code-review-checklist.md)
 

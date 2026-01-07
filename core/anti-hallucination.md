@@ -650,7 +650,7 @@ When performing code reviews, apply these principles:
 
 ## Related Standards
 
-- [Testing Standards](testing-standards.md) - Ensure verification of AI analysis results
+- [Testing Standards](testing-standards.md) - Ensure verification of AI analysis results (or use `/testing-guide` skill)
 - [Code Review Checklist](code-review-checklist.md) - Review AI-generated content
 - [Code Check-in Standards](checkin-standards.md) - AI collaboration check-in process
 

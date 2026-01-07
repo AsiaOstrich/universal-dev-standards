@@ -629,7 +629,7 @@ Comment Prefixes:
 
 ## Related Standards
 
-- [Testing Standards](testing-standards.md) - Testing standards (UT/IT/ST/E2E)
+- [Testing Standards](testing-standards.md) - Testing standards (UT/IT/ST/E2E) (or use `/testing-guide` skill)
 - [Code Check-in Standards](checkin-standards.md) - Code check-in standards
 - [Commit Message Guide](commit-message-guide.md) - Commit message standards
 

@@ -868,7 +868,7 @@ Team TDD Assessment:
 
 ## Related Standards
 
-- [Testing Standards](testing-standards.md) - Core testing standards (UT/IT/ST/E2E)
+- [Testing Standards](testing-standards.md) - Core testing standards (UT/IT/ST/E2E) (or use `/testing-guide` skill)
 - [Test Completeness Dimensions](test-completeness-dimensions.md) - 7 dimensions framework
 - [Spec-Driven Development](spec-driven-development.md) - SDD workflow
 - [Code Check-in Standards](checkin-standards.md) - Check-in requirements

@@ -637,7 +637,7 @@ Comment Prefixes:
 
 ## 相關標準
 
-- [Testing Standards](testing-standards.md) - 測試標準 (UT/IT/ST/E2E)
+- [Testing Standards](testing-standards.md) - 測試標準 (UT/IT/ST/E2E)（或使用 `/testing-guide` 技能）
 - [Code Check-in Standards](checkin-standards.md) - 程式碼簽入標準
 - [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範
 
