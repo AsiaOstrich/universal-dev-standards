@@ -1,8 +1,8 @@
 ---
 source: ../../../adoption/STATIC-DYNAMIC-GUIDE.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2025-12-30
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-01-07
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../adoption/STATIC-DYNAMIC-GUIDE.md) | 繁體中文
 
-**版本**: 1.1.0
-**最後更新**: 2025-12-30
+**版本**: 1.2.0
+**最後更新**: 2026-01-07
 **適用範圍**: 使用本規範框架與 AI 助理協作的專案
 
 ---
@@ -45,7 +45,7 @@ status: current
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
-│           純動態規範（14 個技能）                             │
+│           純動態規範（15 個技能）                             │
 │           關鍵字觸發，按需載入                                │
 ├─────────────────────────────────────────────────────────────┤
 │  • ai-collaboration-standards ← "certainty", "確定性"        │
@@ -60,6 +60,7 @@ status: current
 │  • release-standards    ← "version", "release", "版本"       │
 │  • requirement-assistant← "spec", "SDD", "規格"              │
 │  • spec-driven-dev      ← "spec", "proposal", "提案"         │
+│  • tdd-assistant        ← "TDD", "test first", "紅綠重構"    │
 │  • test-coverage-assistant ← "test coverage", "測試覆蓋"     │
 │  • testing-guide        ← "test", "測試"                     │
 └─────────────────────────────────────────────────────────────┘
@@ -142,7 +143,7 @@ status: current
 - 任務特定的工作流程
 - 需要決策支援（選擇、建議）
 
-### 動態規範清單（14 個技能）
+### 動態規範清單（15 個技能）
 
 | 規範 | 技能 | 觸發關鍵字 |
 |------|------|-----------|
@@ -158,6 +159,7 @@ status: current
 | [project-structure](../../core/project-structure.md) | project-structure-guide | structure, organization, 結構 |
 | [spec-driven-development](../../core/spec-driven-development.md) | requirement-assistant | spec, SDD, 規格, 新功能 |
 | [spec-driven-development](../../core/spec-driven-development.md) | spec-driven-dev | spec, proposal, 提案 |
+| [test-driven-development](../../core/test-driven-development.md) | tdd-assistant | TDD, test first, 紅綠重構 |
 | [test-completeness-dimensions](../../core/test-completeness-dimensions.md) | test-coverage-assistant | test coverage, 7 dimensions, 測試覆蓋 |
 | [testing-standards](../../core/testing-standards.md) | testing-guide | test, 測試, coverage |
 | [versioning](../../core/versioning.md) | release-standards | version, release, 版本 |
@@ -279,6 +281,7 @@ description: |
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.2.0 | 2026-01-07 | 新增 tdd-assistant 技能，更新至 15 個技能 |
 | 1.1.0 | 2025-12-30 | 新增雙重性質規範分類，更新至 14 個技能 |
 | 1.0.0 | 2025-12-24 | 初始指南 |
 

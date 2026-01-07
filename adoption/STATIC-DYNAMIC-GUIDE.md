@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/adoption/STATIC-DYNAMIC-GUIDE.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2025-12-30
+**Version**: 1.2.0
+**Last Updated**: 2026-01-07
 **Applicability**: Projects using AI assistants with this standards framework
 
 ---
@@ -37,7 +37,7 @@ This guide explains how to classify and deploy development standards based on wh
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
-│           Pure Dynamic Standards (14 Skills)                 │
+│           Pure Dynamic Standards (15 Skills)                 │
 │           Triggered by keywords, loaded on demand            │
 ├─────────────────────────────────────────────────────────────┤
 │  • ai-collaboration-standards ← "certainty", "assumption"   │
@@ -52,6 +52,7 @@ This guide explains how to classify and deploy development standards based on wh
 │  • release-standards    ← "version", "release"              │
 │  • requirement-assistant← "spec", "SDD"                     │
 │  • spec-driven-dev      ← "spec", "proposal"                │
+│  • tdd-assistant        ← "TDD", "test first"               │
 │  • test-coverage-assistant ← "test coverage", "dimensions"  │
 │  • testing-guide        ← "test", "coverage"                │
 └─────────────────────────────────────────────────────────────┘
@@ -134,7 +135,7 @@ Standards that are **triggered by specific keywords** or tasks, loaded on demand
 - Task-specific workflows
 - Decision support needed (choices, recommendations)
 
-### Dynamic Standards List (14 Skills)
+### Dynamic Standards List (15 Skills)
 
 | Standard | Skill | Trigger Keywords |
 |----------|-------|-----------------|
@@ -150,6 +151,7 @@ Standards that are **triggered by specific keywords** or tasks, loaded on demand
 | [project-structure](../core/project-structure.md) | project-structure-guide | structure, organization, 結構 |
 | [spec-driven-development](../core/spec-driven-development.md) | requirement-assistant | spec, SDD, 規格, 新功能 |
 | [spec-driven-development](../core/spec-driven-development.md) | spec-driven-dev | spec, proposal, 提案 |
+| [test-driven-development](../core/test-driven-development.md) | tdd-assistant | TDD, test first, 紅綠重構 |
 | [test-completeness-dimensions](../core/test-completeness-dimensions.md) | test-coverage-assistant | test coverage, 7 dimensions, 測試覆蓋 |
 | [testing-standards](../core/testing-standards.md) | testing-guide | test, 測試, coverage |
 | [versioning](../core/versioning.md) | release-standards | version, release, 版本 |
@@ -271,6 +273,7 @@ If you currently have all rules in one file:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-01-07 | Added tdd-assistant skill, updated to 15 Skills |
 | 1.1.0 | 2025-12-30 | Added Hybrid Standards category, updated to 14 Skills |
 | 1.0.0 | 2025-12-24 | Initial guide |
 

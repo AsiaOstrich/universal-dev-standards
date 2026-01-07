@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/claude-code/README.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-07
 status: current
 ---
 
@@ -32,6 +32,7 @@ status: current
 | `commit-standards` | Conventional Commits 格式 | "commit"、git 操作 |
 | `code-review-assistant` | 系統化程式碼審查 | "review"、"PR" |
 | `testing-guide` | 測試金字塔 | 撰寫測試 |
+| `tdd-assistant` | 測試驅動開發 | "TDD"、"test first"、"紅綠重構" |
 | `release-standards` | 語意化版本控制 | 準備發布 |
 | `git-workflow-guide` | 分支策略 | "branch"、"merge" |
 | `documentation-guide` | 文件結構 | "README"、"docs" |
@@ -71,6 +72,7 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 | code-review-assistant | 審查、檢查 | review, PR, checklist |
 | git-workflow-guide | 分支、合併 | branch, merge, workflow |
 | testing-guide | 測試、覆蓋率 | test, coverage, pyramid |
+| tdd-assistant | TDD、測試優先、紅綠重構 | TDD, test first, red green refactor |
 | release-standards | 版本、發布 | version, release, semver |
 | documentation-guide | 文件、文檔 | README, docs, documentation |
 | requirement-assistant | 規格、需求、新功能 | spec, SDD, requirement |
@@ -81,13 +83,38 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 
 ## 安裝
 
-### 快速安裝（所有 Skills）
+### 推薦：Plugin Marketplace
+
+透過 Claude Code Plugin Marketplace 安裝以獲得自動更新：
+
+```bash
+# 新增 marketplace（一次性設定）
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+
+# 安裝包含所有 15 個技能的插件
+/plugin install universal-dev-standards@universal-dev-standards
+```
+
+**優點：**
+- ✅ Claude Code 重啟時自動更新
+- ✅ 與 Claude Code 更好的整合
+- ✅ 無需手動維護
+
+所有技能將自動載入並可使用。
+
+### 替代方案：腳本安裝（已棄用）
+
+> ⚠️ **已棄用**：透過腳本手動安裝已棄用，將在未來版本中移除。請改用 Plugin Marketplace。
+
+適用於無法存取 Marketplace 的環境（例如企業網路）：
+
+#### 快速安裝（所有 Skills）
 
 ```bash
 ./install.sh
 ```
 
-### 手動安裝（選擇性 Skills）
+#### 手動安裝（選擇性 Skills）
 
 ```bash
 mkdir -p ~/.claude/skills
@@ -95,12 +122,18 @@ cp -r ai-collaboration-standards ~/.claude/skills/
 cp -r commit-standards ~/.claude/skills/
 ```
 
-### 專案層級安裝
+### 替代方案：專案層級安裝（已棄用）
+
+> ⚠️ **已棄用**：專案層級手動安裝已棄用。建議使用 Plugin Marketplace 以獲得最佳體驗。
+
+適用於專案特定技能自訂：
 
 ```bash
 mkdir -p .claude/skills
 cp -r /path/to/skills/claude-code/* .claude/skills/
 ```
+
+> **注意**：專案層級技能（`.claude/skills/`）優先於全域技能（`~/.claude/skills/`）。
 
 ## 設定
 

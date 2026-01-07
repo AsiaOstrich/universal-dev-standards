@@ -6,12 +6,12 @@ This document provides a comprehensive mapping between core standards and their 
 
 | Category | Core Standards | AI Standards | Claude Code Skills | Other AI Tools |
 |----------|---------------|--------------|-------------------|----------------|
-| Development | 13 | 15 | 9 | 4 |
-| Testing | 2 | 7 | 1 | 4 |
+| Development | 14 | 16 | 10 | 4 |
+| Testing | 2 | 7 | 2 | 4 |
 | Documentation | 2 | 4 | 1 | 4 |
 | Process | 4 | 4 | 4 | 4 |
 
-**Total**: 15 core standards → 15 AI standards → 9 Claude Code skills → 4 AI tool integrations
+**Total**: 16 core standards → 16 AI standards → 15 Claude Code skills → 4 AI tool integrations
 
 ## Core Standards Matrix
 
@@ -29,8 +29,10 @@ This document provides a comprehensive mapping between core standards and their 
 | project-structure.md | ✅ project-structure.ai.yaml | project-structure-guide | ✅ | ✅ | ✅ | ✅ |
 | test-completeness-dimensions.md | ✅ | testing-guide | ✅ | ✅ | ✅ | ✅ |
 | api-documentation-standards.md | ✅ | documentation-guide | ✅ | ✅ | ✅ | ✅ |
-| logging-standards.md | ✅ logging.ai.yaml | - | ✅ | ✅ | ✅ | ✅ |
-| error-code-standards.md | ✅ error-codes.ai.yaml | - | ✅ | ✅ | ✅ | ✅ |
+| logging-standards.md | ✅ logging.ai.yaml | logging-guide | ✅ | ✅ | ✅ | ✅ |
+| error-code-standards.md | ✅ error-codes.ai.yaml | error-code-guide | ✅ | ✅ | ✅ | ✅ |
+| test-driven-development.md | ✅ | tdd-assistant | ✅ | ✅ | ✅ | ✅ |
+| spec-driven-development.md | ✅ | spec-driven-dev | ✅ | ✅ | ✅ | ✅ |
 
 Legend: ✅ = Implemented | - = Not applicable as standalone skill
 
@@ -101,23 +103,29 @@ Legend: ✅ = Implemented | - = Not applicable as standalone skill
 
 | Skill | Directory | Files | User Invocable |
 |-------|-----------|-------|----------------|
-| AI Collaboration Standards | ai-collaboration-standards/ | SKILL.md | ✅ |
-| Commit Standards | commit-standards/ | SKILL.md, examples.md | ✅ |
-| Code Review Assistant | code-review-assistant/ | SKILL.md, checklist.md | ✅ |
-| Git Workflow Guide | git-workflow-guide/ | SKILL.md, decision-matrix.md | ✅ |
-| Testing Guide | testing-guide/ | SKILL.md, testing-pyramid.md | ✅ |
-| Release Standards | release-standards/ | SKILL.md | ✅ |
-| Documentation Guide | documentation-guide/ | SKILL.md | ✅ |
-| Requirement Assistant | requirement-assistant/ | SKILL.md | ✅ |
+| AI Collaboration Standards | ai-collaboration-standards/ | SKILL.md, anti-hallucination.md, certainty-labels.md | ✅ |
+| Changelog Guide | changelog-guide/ | SKILL.md | ✅ |
+| Code Review Assistant | code-review-assistant/ | SKILL.md, checkin-checklist.md, review-checklist.md | ✅ |
+| Commit Standards | commit-standards/ | SKILL.md, conventional-commits.md, language-options.md | ✅ |
+| Documentation Guide | documentation-guide/ | SKILL.md, documentation-structure.md, readme-template.md | ✅ |
+| Error Code Guide | error-code-guide/ | SKILL.md | ✅ |
+| Git Workflow Guide | git-workflow-guide/ | SKILL.md, branch-naming.md, git-workflow.md | ✅ |
+| Logging Guide | logging-guide/ | SKILL.md | ✅ |
 | Project Structure Guide | project-structure-guide/ | SKILL.md, language-patterns.md | ✅ |
+| Release Standards | release-standards/ | SKILL.md, changelog-format.md, semantic-versioning.md, release-workflow.md | ✅ |
+| Requirement Assistant | requirement-assistant/ | SKILL.md, requirement-checklist.md, requirement-writing.md | ✅ |
+| Spec-Driven Dev | spec-driven-dev/ | SKILL.md | ✅ |
+| TDD Assistant | tdd-assistant/ | SKILL.md, tdd-workflow.md, language-examples.md | ✅ |
+| Test Coverage Assistant | test-coverage-assistant/ | SKILL.md | ✅ |
+| Testing Guide | testing-guide/ | SKILL.md, testing-pyramid.md | ✅ |
 
 ## Localization Coverage
 
-| Language | Core | AI Standards | AI Options | Skills README |
-|----------|------|--------------|------------|---------------|
-| English | 15/15 | 15/15 | 35/35 | 9/9 |
-| 繁體中文 (zh-TW) | 13/15 | 15/15 | 35/35 | 0/9 |
-| 简体中文 (zh-CN) | 5/15 | 0/15 | 0/35 | 0/9 |
+| Language | Core | AI Standards | AI Options | Skills |
+|----------|------|--------------|------------|--------|
+| English | 16/16 | 16/16 | 35/35 | 15/15 |
+| 繁體中文 (zh-TW) | 16/16 | 16/16 | 35/35 | 15/15 |
+| 简体中文 (zh-CN) | 5/16 | 0/16 | 0/35 | 0/15 |
 
 ## AI Tool Integrations
 
@@ -135,10 +143,10 @@ Legend: ✅ = Implemented | - = Not applicable as standalone skill
 
 | Category | Count |
 |----------|-------|
-| Core Standards (Markdown) | 15 |
-| AI Standards (YAML) | 15 |
+| Core Standards (Markdown) | 16 |
+| AI Standards (YAML) | 16 |
 | AI Options (YAML) | 35 |
-| Claude Code Skills | 9 |
+| Claude Code Skills | 15 |
 | AI Tool Integrations | 4 |
 | Supported Languages | 10 |
 | Localizations | 3 |
@@ -157,4 +165,5 @@ Legend: ✅ = Implemented | - = Not applicable as standalone skill
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-07 | Add TDD standard and tdd-assistant skill, update to 15 skills |
 | 1.0.0 | 2025-12-30 | Initial mapping matrix |

@@ -130,7 +130,7 @@ AI 優化標準提供以下語言版本：
 
 ### 搭配 Claude Code 使用（推薦）
 
-一次安裝所有 14 個完整開發技能：
+一次安裝所有 15 個完整開發技能：
 
 #### 方法 1：Plugin Marketplace（推薦）
 
@@ -139,17 +139,17 @@ AI 優化標準提供以下語言版本：
 # 添加 marketplace
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 
-# 安裝包含所有 14 個技能的 plugin
+# 安裝包含所有 15 個技能的 plugin
 /plugin install universal-dev-standards@universal-dev-standards
 ```
 
 **優點：**
 - ✅ 單一指令安裝
 - ✅ 新版本發布時自動更新
-- ✅ 所有 14 個技能立即載入
+- ✅ 所有 15 個技能立即載入
 - ✅ 無需手動 git clone
 
-**包含的技能：** ai-collaboration-standards、changelog-guide、code-review-assistant、commit-standards、documentation-guide、error-code-guide、git-workflow-guide、logging-guide、project-structure-guide、release-standards、requirement-assistant、spec-driven-dev、test-coverage-assistant、testing-guide
+**包含的技能：** ai-collaboration-standards、changelog-guide、code-review-assistant、commit-standards、documentation-guide、error-code-guide、git-workflow-guide、logging-guide、project-structure-guide、release-standards、requirement-assistant、spec-driven-dev、tdd-assistant、test-coverage-assistant、testing-guide
 
 ---
 

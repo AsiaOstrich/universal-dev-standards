@@ -8,6 +8,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 格式基於 [Keep a Changelog](https://keepachangelog.com/)，
 並遵循[語義化版本](https://semver.org/)。
 
+## [Unreleased]
+
+### Added | 新增
+- **Core**: Add Test-Driven Development (TDD) standard
+  **Core**：新增測試驅動開發 (TDD) 標準
+  - New `core/test-driven-development.md` covering Red-Green-Refactor cycle, FIRST principles, TDD vs BDD vs ATDD
+    新增 `core/test-driven-development.md` 涵蓋 Red-Green-Refactor 循環、FIRST 原則、TDD vs BDD vs ATDD
+  - SDD + TDD integration workflow guidance
+    SDD + TDD 整合工作流程指引
+  - ML testing boundaries (model accuracy vs data engineering)
+    ML 測試邊界（模型準確度 vs 資料工程）
+  - Golden Master Testing for legacy systems
+    遺留系統的 Golden Master 測試
+- **Skills**: Add `tdd-assistant` skill for Claude Code (skill #15)
+  **Skills**：為 Claude Code 新增 `tdd-assistant` 技能（第 15 個技能）
+  - `skills/claude-code/tdd-assistant/SKILL.md` - TDD workflow guidance
+    `skills/claude-code/tdd-assistant/SKILL.md` - TDD 工作流程指引
+  - `skills/claude-code/tdd-assistant/tdd-workflow.md` - Step-by-step TDD process
+    `skills/claude-code/tdd-assistant/tdd-workflow.md` - 逐步 TDD 流程
+  - `skills/claude-code/tdd-assistant/language-examples.md` - 6 language examples (JS/TS, Python, C#, Go, Java, Ruby)
+    `skills/claude-code/tdd-assistant/language-examples.md` - 6 種語言範例
+  - Complete zh-TW translations for all TDD files
+    所有 TDD 檔案的完整繁體中文翻譯
+
+### Changed | 變更
+- **Core Standards**: Update cross-references in related standards
+  **核心標準**：更新相關標準中的交叉引用
+  - `spec-driven-development.md` - Add TDD integration reference
+    `spec-driven-development.md` - 新增 TDD 整合引用
+  - `testing-standards.md` - Add TDD cross-reference
+    `testing-standards.md` - 新增 TDD 交叉引用
+  - `test-completeness-dimensions.md` - Add TDD cross-reference
+    `test-completeness-dimensions.md` - 新增 TDD 交叉引用
+
 ## [3.2.2] - 2026-01-06
 
 ### Added | 新增

@@ -162,7 +162,7 @@ AI-optimized standards are available in:
 
 ### Using with Claude Code (Recommended)
 
-Install all 14 comprehensive development skills with a single command:
+Install all 15 comprehensive development skills with a single command:
 
 #### Method 1: Plugin Marketplace (Recommended)
 
@@ -171,17 +171,17 @@ Install all 14 comprehensive development skills with a single command:
 # Add the marketplace
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 
-# Install the plugin with all 14 skills
+# Install the plugin with all 15 skills
 /plugin install universal-dev-standards@universal-dev-standards
 ```
 
 **Benefits:**
 - ✅ Single command installation
 - ✅ Automatic updates when new versions are released
-- ✅ All 14 skills loaded instantly
+- ✅ All 15 skills loaded instantly
 - ✅ No manual git clone required
 
-**Skills included:** ai-collaboration-standards, changelog-guide, code-review-assistant, commit-standards, documentation-guide, error-code-guide, git-workflow-guide, logging-guide, project-structure-guide, release-standards, requirement-assistant, spec-driven-dev, test-coverage-assistant, testing-guide
+**Skills included:** ai-collaboration-standards, changelog-guide, code-review-assistant, commit-standards, documentation-guide, error-code-guide, git-workflow-guide, logging-guide, project-structure-guide, release-standards, requirement-assistant, spec-driven-dev, tdd-assistant, test-coverage-assistant, testing-guide
 
 ---
 

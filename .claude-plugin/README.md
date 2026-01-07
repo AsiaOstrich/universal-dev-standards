@@ -11,7 +11,7 @@ This directory contains the configuration files for distributing Universal Devel
 
 - **Name**: `universal-dev-standards`
 - **Version**: `3.2.0` (synced with CLI version)
-- **Skills Included**: 14 comprehensive development skills
+- **Skills Included**: 15 comprehensive development skills
 - **Source**: `./skills/claude-code`
 
 ## Installation for Users
@@ -36,7 +36,7 @@ claude --plugin-dir ./skills/claude-code
 
 ## Plugin Contents
 
-The plugin includes 14 skills covering the full development lifecycle:
+The plugin includes 15 skills covering the full development lifecycle:
 
 | Skill | Description |
 |-------|-------------|
@@ -52,6 +52,7 @@ The plugin includes 14 skills covering the full development lifecycle:
 | `release-standards` | Semantic versioning |
 | `requirement-assistant` | Requirement writing |
 | `spec-driven-dev` | Specification-driven development |
+| `tdd-assistant` | Test-driven development workflow |
 | `test-coverage-assistant` | Test coverage analysis |
 | `testing-guide` | Testing pyramid and strategies |
 

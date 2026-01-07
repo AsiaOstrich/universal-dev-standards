@@ -81,7 +81,7 @@ Install via Claude Code Plugin Marketplace for automatic updates:
 # Add the marketplace (one-time setup)
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 
-# Install the plugin with all 14 skills
+# Install the plugin with all 15 skills
 /plugin install universal-dev-standards@universal-dev-standards
 ```
 

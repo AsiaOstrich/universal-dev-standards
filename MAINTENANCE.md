@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/MAINTENANCE.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-30
+**Version**: 1.1.0
+**Last Updated**: 2026-01-07
 
 ---
 
@@ -17,18 +17,18 @@ This document defines the complete maintenance workflow for the Universal Develo
 
 ```
 universal-dev-standards/
-├── core/                    ← PRIMARY SOURCE (15 standards)
+├── core/                    ← PRIMARY SOURCE (16 standards)
 ├── options/                 ← MD options (18 files)
-├── ai/                      ← AI-optimized versions (51 YAML files)
-│   ├── standards/           ← 15 AI standards
+├── ai/                      ← AI-optimized versions (52 YAML files)
+│   ├── standards/           ← 16 AI standards
 │   ├── options/             ← 36 AI options
 │   └── MAINTENANCE.md       ← AI-specific maintenance guide
 ├── extensions/              ← Language/framework/locale extensions (4 files)
 │   ├── languages/           ← Language-specific standards
 │   ├── frameworks/          ← Framework-specific patterns
 │   └── locales/             ← Locale-specific guidelines
-├── skills/                  ← Claude Code skills (35 files)
-│   └── claude-code/         ← 9 skill packages
+├── skills/                  ← Claude Code skills (38 files)
+│   └── claude-code/         ← 15 skill packages
 ├── adoption/                ← Adoption guides (5 files)
 ├── templates/               ← Document templates (4 files)
 ├── integrations/            ← AI tool configs (7 files)
@@ -93,10 +93,11 @@ universal-dev-standards/
 | project-structure.md | 1.1.0 | Project organization |
 | spec-driven-development.md | 1.2.0 | SDD workflow |
 | test-completeness-dimensions.md | 1.0.0 | Testing dimensions |
+| test-driven-development.md | 1.0.0 | TDD workflow |
 | testing-standards.md | 2.1.0 | Testing guidelines |
 | versioning.md | 1.2.0 | Semantic versioning |
 
-**Total**: 15 files
+**Total**: 16 files
 
 ---
 
@@ -121,7 +122,7 @@ Machine-readable YAML format for AI assistants. See [ai/MAINTENANCE.md](ai/MAINT
 
 | Subdirectory | Files | Description |
 |--------------|-------|-------------|
-| standards/ | 15 | AI-optimized core standards |
+| standards/ | 16 | AI-optimized core standards |
 | options/changelog/ | 2 | Changelog options |
 | options/code-review/ | 3 | Code review options |
 | options/commit-message/ | 3 | Commit message options |
@@ -130,7 +131,7 @@ Machine-readable YAML format for AI assistants. See [ai/MAINTENANCE.md](ai/MAINT
 | options/project-structure/ | 10 | Project structure options (5 extra YAML-only) |
 | options/testing/ | 9 | Testing options (5 extra YAML-only) |
 
-**Total**: 51 YAML files
+**Total**: 52 YAML files
 
 ---
 
@@ -149,13 +150,14 @@ Skill packages for Claude Code AI assistant.
 | git-workflow-guide/ | 3 | git-workflow.md |
 | logging-guide/ | 2 | logging-standards.md |
 | project-structure-guide/ | 2 | project-structure.md |
-| release-standards/ | 3 | changelog-standards.md, versioning.md |
+| release-standards/ | 4 | changelog-standards.md, versioning.md |
 | requirement-assistant/ | 3 | spec-driven-development.md |
 | spec-driven-dev/ | 2 | spec-driven-development.md |
+| tdd-assistant/ | 3 | test-driven-development.md |
 | test-coverage-assistant/ | 2 | test-completeness-dimensions.md |
 | testing-guide/ | 2 | testing-standards.md |
 
-**Total**: 35 skill files + 10 shared/README files = 45 files
+**Total**: 38 skill files + 10 shared/README files = 48 files
 
 ---
 
@@ -255,10 +257,10 @@ Node.js command-line tool for adopting standards.
 **zh-TW Structure** (mirrors English):
 ```
 locales/zh-TW/
-├── core/                    ← 15 translated standards
+├── core/                    ← 16 translated standards
 ├── options/                 ← 18 translated MD options
 ├── ai/
-│   ├── standards/           ← 15 translated AI standards
+│   ├── standards/           ← 16 translated AI standards
 │   └── options/             ← 36 translated AI options
 ├── skills/claude-code/      ← Translated skills
 ├── adoption/                ← Translated adoption guides
@@ -355,6 +357,7 @@ Standards with these characteristics should become Skills:
 | project-structure.md | project-structure-guide | structure, organization |
 | spec-driven-development.md | spec-driven-dev | spec, SDD, proposal |
 | test-completeness-dimensions.md | test-coverage-assistant | test coverage, 7 dimensions |
+| test-driven-development.md | tdd-assistant | TDD, red-green-refactor, test first |
 | testing-standards.md | testing-guide | test, unit, integration |
 | versioning.md | release-standards | version, release, semver |
 
@@ -613,17 +616,17 @@ cd cli && npm test
 
 | Directory | English | zh-TW | Total |
 |-----------|---------|-------|-------|
-| core/ | 15 | 15 | 30 |
+| core/ | 16 | 16 | 32 |
 | options/ | 18 | 18 | 36 |
-| ai/standards/ | 15 | 15 | 30 |
+| ai/standards/ | 16 | 16 | 32 |
 | ai/options/ | 36 | 36 | 72 |
 | extensions/ | 4 | 0 | 4 |
-| skills/ | 35 | 25 | 60 |
+| skills/ | 38 | 38 | 76 |
 | adoption/ | 5 | 5 | 10 |
 | templates/ | 4 | 4 | 8 |
 | integrations/ | 7 | 0 | 7 |
 | Root files | 6 | 3 | 9 |
-| **Total** | **145** | **121** | **266** |
+| **Total** | **150** | **136** | **286** |
 
 *Note: cli/ and scripts/ not included (not translated)*
 
@@ -642,6 +645,7 @@ cd cli && npm test
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-07 | Add TDD standard and tdd-assistant skill, update to 15 skills |
 | 1.0.0 | 2025-12-30 | Initial project-level maintenance guide |
 
 ---

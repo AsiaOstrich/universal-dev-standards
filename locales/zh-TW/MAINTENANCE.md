@@ -2,8 +2,8 @@
 
 > **Language**: [English](../../MAINTENANCE.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2025-12-30
+**版本**: 1.1.0
+**最後更新**: 2026-01-07
 
 ---
 
@@ -17,18 +17,18 @@
 
 ```
 universal-dev-standards/
-├── core/                    ← 一級來源（15 個標準）
+├── core/                    ← 一級來源（16 個標準）
 ├── options/                 ← MD 選項（18 個檔案）
-├── ai/                      ← AI 優化版（51 個 YAML 檔案）
-│   ├── standards/           ← 15 個 AI 標準
+├── ai/                      ← AI 優化版（52 個 YAML 檔案）
+│   ├── standards/           ← 16 個 AI 標準
 │   ├── options/             ← 36 個 AI 選項
 │   └── MAINTENANCE.md       ← AI 專用維護指南
 ├── extensions/              ← 語言/框架/地區擴充（4 個檔案）
 │   ├── languages/           ← 語言特定標準
 │   ├── frameworks/          ← 框架特定模式
 │   └── locales/             ← 地區特定規範
-├── skills/                  ← Claude Code 技能（45 個檔案）
-│   └── claude-code/         ← 14 個技能套件
+├── skills/                  ← Claude Code 技能（48 個檔案）
+│   └── claude-code/         ← 15 個技能套件
 ├── adoption/                ← 採用指南（5 個檔案）
 ├── templates/               ← 文件模板（4 個檔案）
 ├── integrations/            ← AI 工具配置（7 個檔案）
@@ -93,10 +93,11 @@ universal-dev-standards/
 | project-structure.md | 1.1.0 | 專案組織 |
 | spec-driven-development.md | 1.2.0 | SDD 工作流程 |
 | test-completeness-dimensions.md | 1.0.0 | 測試維度 |
+| test-driven-development.md | 1.0.0 | TDD 工作流程 |
 | testing-standards.md | 2.1.0 | 測試指南 |
 | versioning.md | 1.2.0 | 語意化版本 |
 
-**總計**: 15 個檔案
+**總計**: 16 個檔案
 
 ---
 
@@ -121,7 +122,7 @@ universal-dev-standards/
 
 | 子目錄 | 檔案數 | 說明 |
 |--------|--------|------|
-| standards/ | 15 | AI 優化的核心標準 |
+| standards/ | 16 | AI 優化的核心標準 |
 | options/changelog/ | 2 | 變更日誌選項 |
 | options/code-review/ | 3 | 程式碼審查選項 |
 | options/commit-message/ | 3 | 提交訊息選項 |
@@ -130,7 +131,7 @@ universal-dev-standards/
 | options/project-structure/ | 10 | 專案結構選項（5 個僅 YAML） |
 | options/testing/ | 9 | 測試選項（5 個僅 YAML） |
 
-**總計**: 51 個 YAML 檔案
+**總計**: 52 個 YAML 檔案
 
 ---
 
@@ -149,13 +150,14 @@ Claude Code AI 助手的技能套件。
 | git-workflow-guide/ | 3 | git-workflow.md |
 | logging-guide/ | 2 | logging-standards.md |
 | project-structure-guide/ | 2 | project-structure.md |
-| release-standards/ | 3 | changelog-standards.md、versioning.md |
+| release-standards/ | 4 | changelog-standards.md、versioning.md |
 | requirement-assistant/ | 3 | spec-driven-development.md |
 | spec-driven-dev/ | 2 | spec-driven-development.md |
+| tdd-assistant/ | 3 | test-driven-development.md |
 | test-coverage-assistant/ | 2 | test-completeness-dimensions.md |
 | testing-guide/ | 2 | testing-standards.md |
 
-**總計**: 35 個技能檔案 + 10 個共用/README 檔案 = 45 個檔案
+**總計**: 38 個技能檔案 + 10 個共用/README 檔案 = 48 個檔案
 
 ---
 
@@ -255,10 +257,10 @@ Claude Code AI 助手的技能套件。
 **zh-TW 結構**（鏡像英文版）：
 ```
 locales/zh-TW/
-├── core/                    ← 15 個翻譯標準
+├── core/                    ← 16 個翻譯標準
 ├── options/                 ← 18 個翻譯 MD 選項
 ├── ai/
-│   ├── standards/           ← 15 個翻譯 AI 標準
+│   ├── standards/           ← 16 個翻譯 AI 標準
 │   └── options/             ← 36 個翻譯 AI 選項
 ├── skills/claude-code/      ← 翻譯技能
 ├── adoption/                ← 翻譯採用指南
@@ -355,6 +357,7 @@ locales/zh-TW/
 | project-structure.md | project-structure-guide | structure, organization, 結構 |
 | spec-driven-development.md | spec-driven-dev | spec, SDD, proposal, 規格, 提案 |
 | test-completeness-dimensions.md | test-coverage-assistant | test coverage, 7 dimensions, 測試覆蓋 |
+| test-driven-development.md | tdd-assistant | TDD, red-green-refactor, test first, 紅綠重構 |
 | testing-standards.md | testing-guide | test, unit, integration, 測試 |
 | versioning.md | release-standards | version, release, semver, 版本 |
 
@@ -613,17 +616,17 @@ cd cli && npm test
 
 | 目錄 | 英文 | zh-TW | 總計 |
 |------|------|-------|------|
-| core/ | 15 | 15 | 30 |
+| core/ | 16 | 16 | 32 |
 | options/ | 18 | 18 | 36 |
-| ai/standards/ | 15 | 15 | 30 |
+| ai/standards/ | 16 | 16 | 32 |
 | ai/options/ | 36 | 36 | 72 |
 | extensions/ | 4 | 0 | 4 |
-| skills/ | 35 | 25 | 60 |
+| skills/ | 38 | 38 | 76 |
 | adoption/ | 5 | 5 | 10 |
 | templates/ | 4 | 4 | 8 |
 | integrations/ | 7 | 0 | 7 |
 | 根目錄檔案 | 6 | 3 | 9 |
-| **總計** | **145** | **121** | **266** |
+| **總計** | **150** | **136** | **286** |
 
 *備註：cli/ 和 scripts/ 不包含在內（不需翻譯）*
 
@@ -642,6 +645,7 @@ cd cli && npm test
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.1.0 | 2026-01-07 | 新增 TDD 標準和 tdd-assistant 技能，更新至 15 個技能 |
 | 1.0.0 | 2025-12-30 | 初始專案層級維護指南 |
 
 ---

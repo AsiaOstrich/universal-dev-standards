@@ -1,8 +1,8 @@
 ---
 source: ../../STANDARDS-MAPPING.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-30
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-07
 status: current
 ---
 
@@ -14,12 +14,12 @@ status: current
 
 | 類別 | 核心標準 | AI 標準 | Claude Code 技能 | 其他 AI 工具 |
 |------|---------|--------|-----------------|-------------|
-| 開發 | 13 | 15 | 9 | 4 |
-| 測試 | 2 | 7 | 1 | 4 |
+| 開發 | 14 | 16 | 10 | 4 |
+| 測試 | 2 | 7 | 2 | 4 |
 | 文件 | 2 | 4 | 1 | 4 |
 | 流程 | 4 | 4 | 4 | 4 |
 
-**總計**：15 個核心標準 → 15 個 AI 標準 → 9 個 Claude Code 技能 → 4 個 AI 工具整合
+**總計**：16 個核心標準 → 16 個 AI 標準 → 15 個 Claude Code 技能 → 4 個 AI 工具整合
 
 ## 核心標準矩陣
 
@@ -37,8 +37,10 @@ status: current
 | project-structure.md | ✅ project-structure.ai.yaml | project-structure-guide | ✅ | ✅ | ✅ | ✅ |
 | test-completeness-dimensions.md | ✅ | testing-guide | ✅ | ✅ | ✅ | ✅ |
 | api-documentation-standards.md | ✅ | documentation-guide | ✅ | ✅ | ✅ | ✅ |
-| logging-standards.md | ✅ logging.ai.yaml | - | ✅ | ✅ | ✅ | ✅ |
-| error-code-standards.md | ✅ error-codes.ai.yaml | - | ✅ | ✅ | ✅ | ✅ |
+| logging-standards.md | ✅ logging.ai.yaml | logging-guide | ✅ | ✅ | ✅ | ✅ |
+| error-code-standards.md | ✅ error-codes.ai.yaml | error-code-guide | ✅ | ✅ | ✅ | ✅ |
+| test-driven-development.md | ✅ | tdd-assistant | ✅ | ✅ | ✅ | ✅ |
+| spec-driven-development.md | ✅ | spec-driven-dev | ✅ | ✅ | ✅ | ✅ |
 
 圖例：✅ = 已實作 | - = 不適用作為獨立技能
 
@@ -109,23 +111,29 @@ status: current
 
 | 技能 | 目錄 | 檔案 | 使用者可呼叫 |
 |-----|-----|-----|------------|
-| AI 協作標準 | ai-collaboration-standards/ | SKILL.md | ✅ |
-| 提交標準 | commit-standards/ | SKILL.md, examples.md | ✅ |
-| 程式碼審查助手 | code-review-assistant/ | SKILL.md, checklist.md | ✅ |
-| Git 工作流程指南 | git-workflow-guide/ | SKILL.md, decision-matrix.md | ✅ |
-| 測試指南 | testing-guide/ | SKILL.md, testing-pyramid.md | ✅ |
-| 發布標準 | release-standards/ | SKILL.md | ✅ |
-| 文件指南 | documentation-guide/ | SKILL.md | ✅ |
-| 需求助手 | requirement-assistant/ | SKILL.md | ✅ |
+| AI 協作標準 | ai-collaboration-standards/ | SKILL.md, anti-hallucination.md, certainty-labels.md | ✅ |
+| 變更日誌指南 | changelog-guide/ | SKILL.md | ✅ |
+| 程式碼審查助手 | code-review-assistant/ | SKILL.md, checkin-checklist.md, review-checklist.md | ✅ |
+| 提交標準 | commit-standards/ | SKILL.md, conventional-commits.md, language-options.md | ✅ |
+| 文件指南 | documentation-guide/ | SKILL.md, documentation-structure.md, readme-template.md | ✅ |
+| 錯誤碼指南 | error-code-guide/ | SKILL.md | ✅ |
+| Git 工作流程指南 | git-workflow-guide/ | SKILL.md, branch-naming.md, git-workflow.md | ✅ |
+| 日誌指南 | logging-guide/ | SKILL.md | ✅ |
 | 專案結構指南 | project-structure-guide/ | SKILL.md, language-patterns.md | ✅ |
+| 發布標準 | release-standards/ | SKILL.md, changelog-format.md, semantic-versioning.md, release-workflow.md | ✅ |
+| 需求助手 | requirement-assistant/ | SKILL.md, requirement-checklist.md, requirement-writing.md | ✅ |
+| 規格驅動開發 | spec-driven-dev/ | SKILL.md | ✅ |
+| TDD 助手 | tdd-assistant/ | SKILL.md, tdd-workflow.md, language-examples.md | ✅ |
+| 測試覆蓋助手 | test-coverage-assistant/ | SKILL.md | ✅ |
+| 測試指南 | testing-guide/ | SKILL.md, testing-pyramid.md | ✅ |
 
 ## 本地化覆蓋
 
-| 語言 | 核心 | AI 標準 | AI 選項 | 技能 README |
-|-----|-----|--------|--------|------------|
-| English | 15/15 | 15/15 | 35/35 | 9/9 |
-| 繁體中文 (zh-TW) | 13/15 | 15/15 | 35/35 | 0/9 |
-| 简体中文 (zh-CN) | 5/15 | 0/15 | 0/35 | 0/9 |
+| 語言 | 核心 | AI 標準 | AI 選項 | 技能 |
+|-----|-----|--------|--------|-----|
+| English | 16/16 | 16/16 | 35/35 | 15/15 |
+| 繁體中文 (zh-TW) | 16/16 | 16/16 | 35/35 | 15/15 |
+| 简体中文 (zh-CN) | 5/16 | 0/16 | 0/35 | 0/15 |
 
 ## AI 工具整合
 
@@ -143,10 +151,10 @@ status: current
 
 | 類別 | 數量 |
 |-----|-----|
-| 核心標準 (Markdown) | 15 |
-| AI 標準 (YAML) | 15 |
+| 核心標準 (Markdown) | 16 |
+| AI 標準 (YAML) | 16 |
 | AI 選項 (YAML) | 35 |
-| Claude Code 技能 | 9 |
+| Claude Code 技能 | 15 |
 | AI 工具整合 | 4 |
 | 支援語言 | 10 |
 | 本地化 | 3 |
@@ -165,4 +173,5 @@ status: current
 
 | 版本 | 日期 | 變更 |
 |-----|-----|-----|
+| 1.1.0 | 2026-01-07 | 新增 TDD 標準和 tdd-assistant 技能，更新至 15 個技能 |
 | 1.0.0 | 2025-12-30 | 初始對應矩陣 |
