@@ -172,6 +172,9 @@ Reviewers should verify:
 
 ## Related Standards
 
+- [Test-Driven Development](test-driven-development.md) - TDD workflow and SDD integration
+- [Testing Standards](testing-standards.md) - Testing framework and best practices
+- [Test Completeness Dimensions](test-completeness-dimensions.md) - 7-dimension test coverage
 - [Commit Message Guide](commit-message-guide.md) - Commit message conventions
 - [Code Check-in Standards](checkin-standards.md) - Code check-in requirements
 - [Code Review Checklist](code-review-checklist.md) - Code review guidelines

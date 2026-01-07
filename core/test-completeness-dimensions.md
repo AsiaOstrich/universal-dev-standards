@@ -512,6 +512,7 @@ Avoid these common mistakes:
 
 ## Related Standards
 
+- [Test-Driven Development](test-driven-development.md) - TDD/BDD/ATDD methodology
 - [Testing Standards](testing-standards.md) - Core testing standards
 - [Code Review Checklist](code-review-checklist.md) - Review test completeness
 - [Check-in Standards](checkin-standards.md) - Pre-commit test requirements

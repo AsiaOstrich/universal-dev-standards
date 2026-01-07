@@ -22,6 +22,7 @@ These skills are automatically triggered based on context when using Claude Code
 | `commit-standards` | Conventional Commits format | "commit", git operations |
 | `code-review-assistant` | Systematic code review | "review", "PR" |
 | `testing-guide` | Testing pyramid | Writing tests |
+| `tdd-assistant` | Test-Driven Development | "TDD", "test first", "red green refactor" |
 | `release-standards` | Semantic versioning | Release preparation |
 | `git-workflow-guide` | Branching strategies | "branch", "merge" |
 | `documentation-guide` | Documentation structure | "README", "docs" |
@@ -61,6 +62,7 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 | code-review-assistant | review, PR, checklist | 審查, 檢查 |
 | git-workflow-guide | branch, merge, workflow | 分支, 合併 |
 | testing-guide | test, coverage, pyramid | 測試, 覆蓋率 |
+| tdd-assistant | TDD, test first, red green refactor | TDD, 測試優先, 紅綠重構 |
 | release-standards | version, release, semver | 版本, 發布 |
 | documentation-guide | README, docs, documentation | 文件, 文檔 |
 | requirement-assistant | spec, SDD, requirement | 規格, 需求, 新功能 |

@@ -180,6 +180,9 @@ Refs: SPEC-001
 
 ## 相關標準
 
+- [測試驅動開發](test-driven-development.md) - TDD 工作流程與 SDD 整合
+- [測試標準](testing-standards.md) - 測試框架與最佳實踐
+- [測試完整性維度](test-completeness-dimensions.md) - 7 維度測試覆蓋
 - [Commit 訊息指南](../../../core/commit-message-guide.md) - Commit 訊息規範
 - [程式碼簽入標準](../../../core/checkin-standards.md) - 程式碼簽入標準
 - [程式碼審查清單](../../../core/code-review-checklist.md) - 程式碼審查清單
