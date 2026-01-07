@@ -4,7 +4,7 @@ This guide explains how to use multiple skills together in development workflows
 
 ## Overview
 
-Universal Development Standards provides 9 Claude Code skills that work together to support the full development lifecycle:
+Universal Development Standards provides 14 Claude Code skills that work together to support the full development lifecycle:
 
 ```
 Planning → Coding → Testing → Review → Commit → Release

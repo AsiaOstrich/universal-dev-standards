@@ -304,6 +304,20 @@ npm version 3.2.2
 - [ ] All related files synchronized (if core standards changed)
 - [ ] Git working directory clean (`git status`)
 
+### Documentation Sync Checklist
+
+When Skills or core standards are added/modified, verify these files are updated:
+
+- [ ] `skills/README.md` - Skills count and list accurate
+- [ ] `skills/INTEGRATION-GUIDE.md` - Skills count accurate
+- [ ] `skills/claude-code/README.md` - Installation instructions and Skills list accurate
+- [ ] `README.md` - Skills count and list accurate (see "Standards Coverage" section)
+- [ ] Run translation sync check: `./scripts/check-translation-sync.sh`
+- [ ] `locales/zh-TW/` corresponding files updated:
+  - [ ] `locales/zh-TW/skills/README.md`
+  - [ ] `locales/zh-TW/skills/INTEGRATION-GUIDE.md`
+  - [ ] `locales/zh-TW/skills/claude-code/README.md`
+
 ### Before Beta Release
 
 - [ ] Pre-release checklist completed

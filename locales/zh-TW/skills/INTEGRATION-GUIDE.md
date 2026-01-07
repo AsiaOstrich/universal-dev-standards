@@ -1,8 +1,8 @@
 ---
 source: ../../../skills/INTEGRATION-GUIDE.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-30
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-07
 status: current
 ---
 
@@ -12,7 +12,7 @@ status: current
 
 ## 概覽
 
-通用開發標準提供 9 個 Claude Code 技能，共同支援完整的開發生命週期：
+通用開發標準提供 14 個 Claude Code 技能，共同支援完整的開發生命週期：
 
 ```
 規劃 → 編碼 → 測試 → 審查 → 提交 → 發布

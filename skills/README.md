@@ -58,13 +58,19 @@ cp skills/copilot/copilot-instructions.md .github/copilot-instructions.md
 | Skill | Description | Claude Code | Cursor | Windsurf | Cline | Copilot |
 |-------|-------------|:-----------:|:------:|:--------:|:-----:|:-------:|
 | AI Collaboration | Prevent hallucination | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Commit Standards | Conventional Commits | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Changelog Guide | Changelog writing | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
 | Code Review | Review checklists | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Git Workflow | Branching strategies | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Testing Guide | Testing best practices | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Release Standards | Semantic versioning | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Commit Standards | Conventional Commits | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Documentation | README templates | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Error Code Guide | Error code standards | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
+| Git Workflow | Branching strategies | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Logging Guide | Logging best practices | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
+| Project Structure | Directory conventions | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
+| Release Standards | Semantic versioning | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Requirements | User story guidance | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Spec-Driven Dev | SDD methodology | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
+| Test Coverage | Coverage analysis | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
+| Testing Guide | Testing best practices | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 Legend: ✅ Complete | 🚧 Planned | ❌ Not Applicable
 
