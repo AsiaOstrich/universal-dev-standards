@@ -33,7 +33,7 @@ universal-dev-standards/
 ├── templates/               ← Document templates (4 files)
 ├── integrations/            ← AI tool configs (7 files)
 ├── cli/                     ← Node.js CLI tool
-├── scripts/                 ← Maintenance scripts
+├── scripts/                 ← Maintenance scripts (sync checks)
 ├── locales/                 ← Translations (129 files)
 │   ├── zh-TW/               ← Traditional Chinese
 │   └── zh-CN/               ← Simplified Chinese (partial)
@@ -394,7 +394,8 @@ Standards with these characteristics should be added to CLAUDE.md instead of bec
    a. Update skills/claude-code/{skill}/
    b. Update locales/zh-TW/skills/claude-code/{skill}/
 8. Run ./scripts/check-translation-sync.sh zh-TW
-9. Update CHANGELOG.md if significant
+9. Run ./scripts/check-install-scripts-sync.sh (if skills changed)
+10. Update CHANGELOG.md if significant
 ```
 
 ### Workflow 2: Add a New Core Standard
@@ -586,6 +587,9 @@ npm dist-tag add universal-dev-standards@X.Y.Z-beta.N beta
 ```bash
 # Check translation sync status
 ./scripts/check-translation-sync.sh zh-TW
+
+# Check install scripts sync (skills)
+./scripts/check-install-scripts-sync.sh
 
 # List all AI standards
 ls ai/standards/*.yaml

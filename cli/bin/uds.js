@@ -37,6 +37,7 @@ program
   .option('--lang <language>', 'Language extension (csharp, php)')
   .option('--framework <framework>', 'Framework extension (fat-free)')
   .option('--locale <locale>', 'Locale extension (zh-tw)')
+  .option('--skills-location <location>', 'Skills location (marketplace, user, project, none) [default: marketplace]')
   .option('-y, --yes', 'Use defaults, skip interactive prompts')
   .action(initCommand);
 

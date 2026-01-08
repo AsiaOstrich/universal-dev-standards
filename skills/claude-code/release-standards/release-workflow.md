@@ -325,6 +325,7 @@ Verify both **new changes are added** AND **existing content is accurate**:
 - [ ] `skills/README.md` - Skills count and list accurate
 - [ ] `skills/INTEGRATION-GUIDE.md` - Skills count accurate
 - [ ] `skills/claude-code/README.md` - Skills list and installation instructions accurate
+- [ ] `skills/claude-code/install.sh` and `install.ps1` - All skill directories included
 - [ ] `.claude-plugin/README.md` - Skills count and list accurate
 
 **Project Documentation:**
@@ -352,6 +353,7 @@ For each supported locale (`locales/zh-TW/`, `locales/zh-CN/`, etc.), verify the
 
 **Automated Validation:**
 - [ ] Run translation sync check: `./scripts/check-translation-sync.sh`
+- [ ] Run install scripts sync check: `./scripts/check-install-scripts-sync.sh`
 
 ### Before Beta Release
 

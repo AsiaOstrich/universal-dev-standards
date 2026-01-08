@@ -321,18 +321,34 @@ export async function initCommand(options) {
       test_levels: options.testLevels ? options.testLevels.split(',') : ['unit-testing', 'integration-testing']
     };
 
-    // Auto-detect Skills status
-    const userSkillsInfo = getInstalledSkillsInfo();
-    if (userSkillsInfo?.installed) {
+    // Handle Skills configuration based on CLI flag (default: marketplace)
+    const skillsLocationFlag = options.skillsLocation || 'marketplace';
+
+    if (skillsLocationFlag === 'marketplace') {
       skillsConfig = {
         installed: true,
-        location: 'user',
+        location: 'marketplace',
         needsInstall: false,
         updateTargets: [],
         standardsScope: 'minimal'
       };
-    } else {
-      // Default to installing Skills in non-interactive mode
+    } else if (skillsLocationFlag === 'none') {
+      skillsConfig = {
+        installed: false,
+        location: null,
+        needsInstall: false,
+        updateTargets: [],
+        standardsScope: 'full'
+      };
+    } else if (skillsLocationFlag === 'project') {
+      skillsConfig = {
+        installed: true,
+        location: 'project',
+        needsInstall: true,
+        updateTargets: ['project'],
+        standardsScope: 'minimal'
+      };
+    } else if (skillsLocationFlag === 'user') {
       skillsConfig = {
         installed: true,
         location: 'user',
@@ -340,6 +356,30 @@ export async function initCommand(options) {
         updateTargets: ['user'],
         standardsScope: 'minimal'
       };
+    } else {
+      // Fallback: auto-detect user/project installation
+      const userSkillsInfo = getInstalledSkillsInfo();
+      const projectSkillsInfo = getProjectInstalledSkillsInfo(projectPath);
+
+      if (userSkillsInfo?.installed || projectSkillsInfo?.installed) {
+        const location = projectSkillsInfo?.installed ? 'project' : 'user';
+        skillsConfig = {
+          installed: true,
+          location,
+          needsInstall: false,
+          updateTargets: [],
+          standardsScope: 'minimal'
+        };
+      } else {
+        // Fallback to marketplace if nothing detected
+        skillsConfig = {
+          installed: true,
+          location: 'marketplace',
+          needsInstall: false,
+          updateTargets: [],
+          standardsScope: 'minimal'
+        };
+      }
     }
   }
 
@@ -636,6 +676,16 @@ export async function initCommand(options) {
 
   // Create manifest
   const repoInfo = getRepositoryInfo();
+
+  // Only record options for standards that were actually copied
+  const standardsToCopyIds = new Set(standardsToCopy.map(s => s.id));
+  const manifestOptions = {
+    workflow: standardsToCopyIds.has('git-workflow') ? (standardOptions.workflow || null) : null,
+    merge_strategy: standardsToCopyIds.has('git-workflow') ? (standardOptions.merge_strategy || null) : null,
+    commit_language: standardsToCopyIds.has('commit-message') ? (standardOptions.commit_language || null) : null,
+    test_levels: standardsToCopyIds.has('testing') ? (standardOptions.test_levels || []) : []
+  };
+
   const manifest = {
     version: '3.0.0',
     upstream: {
@@ -649,12 +699,7 @@ export async function initCommand(options) {
     standards: results.standards,
     extensions: results.extensions,
     integrations: results.integrations,
-    options: {
-      workflow: standardOptions.workflow || null,
-      merge_strategy: standardOptions.merge_strategy || null,
-      commit_language: standardOptions.commit_language || null,
-      test_levels: standardOptions.test_levels || []
-    },
+    options: manifestOptions,
     aiTools,
     skills: {
       installed: skillsConfig.installed,

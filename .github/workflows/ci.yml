@@ -78,3 +78,16 @@ jobs:
         run: |
           chmod +x ./scripts/check-translation-sync.sh
           ./scripts/check-translation-sync.sh
+
+  install-scripts-sync:
+    name: Install Scripts Sync Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check install scripts sync
+        run: |
+          chmod +x ./scripts/check-install-scripts-sync.sh
+          ./scripts/check-install-scripts-sync.sh

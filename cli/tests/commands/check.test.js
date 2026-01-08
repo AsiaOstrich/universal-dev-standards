@@ -194,5 +194,71 @@ describe('Check Command', () => {
       const output = consoleLogs.join('\n');
       expect(output).toContain('Coverage Summary');
     });
+
+    it('should show Plugin Marketplace message for marketplace location', () => {
+      const manifest = {
+        version: '1.0.0',
+        upstream: {
+          repo: 'AsiaOstrich/universal-dev-standards',
+          version: '3.0.0',
+          installed: '2024-01-01'
+        },
+        level: 2,
+        standards: [],
+        extensions: [],
+        integrations: [],
+        skills: {
+          installed: true,
+          location: 'marketplace',
+          names: ['all-via-plugin']
+        }
+      };
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+
+      checkCommand();
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Plugin Marketplace');
+      expect(output).toContain('Marketplace skills are not file-based');
+      expect(output).not.toContain('Skills marked as installed but not found');
+    });
+
+    it('should not show file-not-found warning for marketplace skills', () => {
+      const manifest = {
+        version: '1.0.0',
+        upstream: {
+          repo: 'AsiaOstrich/universal-dev-standards',
+          version: '3.0.0',
+          installed: '2024-01-01'
+        },
+        level: 2,
+        standards: [],
+        extensions: [],
+        integrations: [],
+        skills: {
+          installed: true,
+          location: 'marketplace',
+          names: ['all-via-plugin']
+        }
+      };
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+
+      checkCommand();
+
+      const output = consoleLogs.join('\n');
+      // Should NOT show the warning about skills not found
+      expect(output).not.toContain('Skills marked as installed but not found');
+      expect(output).not.toContain('git clone');
+    });
   });
 });

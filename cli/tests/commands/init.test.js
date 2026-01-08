@@ -166,6 +166,8 @@ describe('Init Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Level: 2');
+      // Default skills location should be marketplace
+      expect(output).toContain('Plugin Marketplace');
     });
 
     it('should respect level option', async () => {
@@ -196,6 +198,54 @@ describe('Init Command', () => {
       const output = consoleLogs.join('\n');
       expect(output).toContain('Next steps');
       expect(output).toContain('.standards');
+    });
+
+    it('should use marketplace location when --skills-location=marketplace', async () => {
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({
+        yes: true,
+        skillsLocation: 'marketplace'
+      })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Plugin Marketplace');
+    });
+
+    it('should use full scope when --skills-location=none', async () => {
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({
+        yes: true,
+        skillsLocation: 'none'
+      })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Standards Scope: Full');
+    });
+
+    it('should use minimal scope when --skills-location=marketplace', async () => {
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({
+        yes: true,
+        skillsLocation: 'marketplace'
+      })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Standards Scope: Minimal');
+    });
+
+    it('should use project location when --skills-location=project', async () => {
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({
+        yes: true,
+        skillsLocation: 'project'
+      })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('install/update to project');
     });
   });
 });

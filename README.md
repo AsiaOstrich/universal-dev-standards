@@ -198,9 +198,12 @@ If you installed using the old marketplace name (`universal-dev-standards@univer
 
 ---
 
-#### Method 2: Script Installation (Alternative)
+#### Method 2: Script Installation (Deprecated)
 
-For users who prefer local installation or need customization:
+> ⚠️ **Deprecation Notice**: Script installation is being phased out in favor of Plugin Marketplace.
+> Existing users should migrate to Method 1 for automatic updates and easier management.
+
+For users who need local installation or offline environments:
 
 **macOS / Linux:**
 ```bash
@@ -221,6 +224,18 @@ cd universal-dev-standards\skills\claude-code
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git
 cd universal-dev-standards/skills/claude-code
 ./install.sh
+```
+
+**Migration to Plugin Marketplace:**
+```bash
+# 1. Install via Marketplace
+/plugin install universal-dev-standards@asia-ostrich
+
+# 2. Remove local skills
+rm -rf ~/.claude/skills/
+
+# 3. Reinitialize your project
+uds init --yes
 ```
 
 ### Multi-AI Tool Support (Coming Soon)

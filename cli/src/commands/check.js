@@ -107,6 +107,7 @@ export function checkCommand() {
       console.log(chalk.green('  ✓ Skills installed via Plugin Marketplace'));
       console.log(chalk.gray('    Managed by Claude Code plugin system'));
       console.log(chalk.gray('    To verify: /plugin list'));
+      console.log(chalk.gray('    Note: Marketplace skills are not file-based'));
     } else {
       const skillsDir = join(process.env.HOME || '', '.claude', 'skills');
       const hasGlobalSkills = existsSync(skillsDir);
@@ -116,10 +117,18 @@ export function checkCommand() {
         console.log(chalk.green('  ✓ Claude Code Skills installed'));
         if (hasGlobalSkills) console.log(chalk.gray('    Global: ~/.claude/skills/'));
         if (hasProjectSkills) console.log(chalk.gray('    Project: .claude/skills/'));
+        // Migration suggestion
+        console.log(chalk.yellow('  ⚠ Consider migrating to Plugin Marketplace'));
+        console.log(chalk.gray('    Marketplace provides automatic updates and easier management.'));
+        console.log(chalk.gray('    To migrate:'));
+        console.log(chalk.gray('      1. Install via Marketplace: /install-skills AsiaOstrich/universal-dev-skills'));
+        console.log(chalk.gray('      2. Remove local skills: rm -rf ~/.claude/skills/'));
+        console.log(chalk.gray('      3. Reinitialize: uds init --yes'));
       } else {
         console.log(chalk.yellow('  ⚠ Skills marked as installed but not found'));
-        console.log(chalk.gray('    Run: git clone https://github.com/AsiaOstrich/universal-dev-skills.git'));
-        console.log(chalk.gray('          cd universal-dev-skills && ./install.sh'));
+        console.log(chalk.gray('    Recommended: Install via Plugin Marketplace'));
+        console.log(chalk.gray('      /install-skills AsiaOstrich/universal-dev-skills'));
+        console.log(chalk.gray('    Then reinitialize: uds init --yes'));
       }
     }
   } else {
