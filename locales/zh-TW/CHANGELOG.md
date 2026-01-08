@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.4.0
-translation_version: 3.4.0
+source_version: 3.4.1
+translation_version: 3.4.1
 last_synced: 2026-01-08
 status: current
 ---
@@ -16,6 +16,15 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [3.4.1] - 2026-01-08
+
+### 修復
+- **CLI**：修復 `uds update` 建議從較新版本降級的問題
+  - 新增正確的語義版本比較，支援預發布版本（alpha/beta/rc）
+  - 現在能正確識別當前版本比 registry 版本更新的情況
+  - 當使用者版本比 registry 更新時顯示提示訊息
+- **CLI**：更新 `standards-registry.json` 版本與 package.json 一致
 
 ## [3.4.0] - 2026-01-08
 

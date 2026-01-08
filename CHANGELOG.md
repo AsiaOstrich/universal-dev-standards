@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.4.1] - 2026-01-08
+
+### Fixed
+- **CLI**: Fix `uds update` suggesting downgrade from newer versions
+  - Added proper semantic version comparison with prerelease support (alpha/beta/rc)
+  - Now correctly identifies when current version is newer than registry version
+  - Shows informative message when user has a newer version than the registry
+- **CLI**: Update `standards-registry.json` versions to match package.json
+
 ## [3.4.0] - 2026-01-08
 
 ### Added

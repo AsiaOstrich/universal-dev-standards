@@ -247,5 +247,92 @@ describe('Update Command', () => {
       expect(output).toContain('Files to update');
       expect(output).toContain('test.md');
     });
+
+    it('should not suggest downgrade when current version is newer (beta > stable)', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '3.4.0-beta.3' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: [],
+        skills: { installed: false }
+      });
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.3.0' },
+        skills: { version: '1.0.0' }
+      });
+
+      await updateCommand({});
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Standards are up to date');
+      expect(output).toContain('newer version than the registry');
+      expect(output).not.toContain('Update available');
+    });
+
+    it('should not suggest downgrade when current version is newer major/minor', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '4.0.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: [],
+        skills: { installed: false }
+      });
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.3.0' },
+        skills: { version: '1.0.0' }
+      });
+
+      await updateCommand({});
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Standards are up to date');
+      expect(output).toContain('newer version than the registry');
+    });
+
+    it('should suggest update from stable to newer stable', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '3.3.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: [],
+        skills: { installed: false }
+      });
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.4.0' },
+        skills: { version: '1.0.0' }
+      });
+      mockPrompt.mockResolvedValue({ confirmed: false });
+
+      await updateCommand({});
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Update available');
+      expect(output).toContain('3.3.0');
+      expect(output).toContain('3.4.0');
+    });
+
+    it('should suggest update from beta to newer stable of same version', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '3.4.0-beta.1' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: [],
+        skills: { installed: false }
+      });
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.4.0' },
+        skills: { version: '1.0.0' }
+      });
+      mockPrompt.mockResolvedValue({ confirmed: false });
+
+      await updateCommand({});
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Update available');
+    });
   });
 });

@@ -6,6 +6,57 @@ import { readManifest, writeManifest, copyStandard, copyIntegration, isInitializ
 import { getRepositoryInfo } from '../utils/registry.js';
 import { computeFileHash } from '../utils/hasher.js';
 
+/**
+ * Compare two semantic versions
+ * @param {string} v1 - First version (e.g., "3.4.0-beta.3")
+ * @param {string} v2 - Second version (e.g., "3.3.0")
+ * @returns {number} -1 if v1 < v2, 0 if equal, 1 if v1 > v2
+ */
+function compareVersions(v1, v2) {
+  // Parse version into parts: major.minor.patch-prerelease
+  const parseVersion = (v) => {
+    const [main, prerelease] = v.split('-');
+    const [major, minor, patch] = main.split('.').map(Number);
+    return { major, minor, patch, prerelease: prerelease || null };
+  };
+
+  const p1 = parseVersion(v1);
+  const p2 = parseVersion(v2);
+
+  // Compare major.minor.patch
+  if (p1.major !== p2.major) return p1.major > p2.major ? 1 : -1;
+  if (p1.minor !== p2.minor) return p1.minor > p2.minor ? 1 : -1;
+  if (p1.patch !== p2.patch) return p1.patch > p2.patch ? 1 : -1;
+
+  // Same major.minor.patch - compare prerelease
+  // No prerelease > prerelease (e.g., 3.4.0 > 3.4.0-beta.1)
+  if (!p1.prerelease && p2.prerelease) return 1;
+  if (p1.prerelease && !p2.prerelease) return -1;
+  if (!p1.prerelease && !p2.prerelease) return 0;
+
+  // Both have prerelease - compare them
+  // Order: alpha < beta < rc
+  const prereleaseOrder = { alpha: 1, beta: 2, rc: 3 };
+  const parsePrerelease = (pr) => {
+    const match = pr.match(/^(alpha|beta|rc)\.?(\d+)?$/);
+    if (match) {
+      return { type: match[1], num: parseInt(match[2] || '0', 10) };
+    }
+    return { type: pr, num: 0 };
+  };
+
+  const pr1 = parsePrerelease(p1.prerelease);
+  const pr2 = parsePrerelease(p2.prerelease);
+
+  const order1 = prereleaseOrder[pr1.type] || 0;
+  const order2 = prereleaseOrder[pr2.type] || 0;
+
+  if (order1 !== order2) return order1 > order2 ? 1 : -1;
+  if (pr1.num !== pr2.num) return pr1.num > pr2.num ? 1 : -1;
+
+  return 0;
+}
+
 // Integration file mappings (same as init.js)
 const INTEGRATION_MAPPINGS = {
   cursor: {
@@ -62,8 +113,15 @@ export async function updateCommand(options) {
   console.log(chalk.gray(`Latest version:  ${latestVersion}`));
   console.log();
 
-  if (currentVersion === latestVersion) {
+  // Compare versions properly using semver
+  const versionComparison = compareVersions(currentVersion, latestVersion);
+
+  if (versionComparison >= 0) {
+    // Current version is same or newer than registry
     console.log(chalk.green('✓ Standards are up to date.'));
+    if (versionComparison > 0) {
+      console.log(chalk.gray(`  (You have a newer version than the registry: ${currentVersion})`));
+    }
     console.log();
     return;
   }
