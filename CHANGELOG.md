@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.4.0-beta.3] - 2026-01-08
+
+### Fixed
+- **CLI**: Fix `uds check` incorrectly showing "Skills marked as installed but not found" warning
+  - Now correctly recognizes Plugin Marketplace installation paths (`~/.claude/plugins/cache/`)
+  - Previously only checked for `location === 'marketplace'` exact match
+
 ## [3.4.0-beta.2] - 2026-01-08
 
 ### Fixed
