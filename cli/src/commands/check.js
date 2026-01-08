@@ -599,7 +599,14 @@ async function migrateToHashBasedTracking(projectPath, manifest) {
 function displaySkillsStatus(manifest, projectPath) {
   console.log(chalk.cyan('Skills Status:'));
   if (manifest.skills.installed) {
-    if (manifest.skills.location === 'marketplace') {
+    const location = manifest.skills.location || '';
+    // Check if skills are installed via Plugin Marketplace
+    // Recognized patterns: 'marketplace', or paths containing 'plugins/cache'
+    const isMarketplace = location === 'marketplace' ||
+      location.includes('plugins/cache') ||
+      location.includes('plugins\\cache');
+
+    if (isMarketplace) {
       console.log(chalk.green('  ✓ Skills installed via Plugin Marketplace'));
       console.log(chalk.gray('    Managed by Claude Code plugin system'));
       console.log(chalk.gray('    To verify: /plugin list'));
