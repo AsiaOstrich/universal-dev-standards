@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.4.2] - 2026-01-08
+
+### Fixed
+- **Plugin**: Sync version numbers across all configuration files
+  - `.claude-plugin/plugin.json`: 3.3.0 → 3.4.2
+  - `.claude-plugin/marketplace.json`: 3.3.0 → 3.4.2
+  - `.claude-plugin/README.md`: 3.2.0 → 3.4.2
+  - `adoption/standards-registry.json`: 3.2.0 → 3.4.2
+- **Plugin**: Fix `adoption/standards-registry.json` still referencing deprecated `universal-dev-skills` repo
+  - Now correctly points to `skills/claude-code` in main repository
+
 ## [3.4.1] - 2026-01-08
 
 ### Fixed

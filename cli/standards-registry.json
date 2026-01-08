@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "3.4.1",
+  "version": "3.4.2",
   "lastUpdated": "2026-01-07",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
@@ -55,7 +55,7 @@
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
       "localPath": "skills/claude-code",
       "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code",
-      "version": "3.4.1",
+      "version": "3.4.2",
       "note": "Skills are now included in the main repository under skills/"
     }
   },

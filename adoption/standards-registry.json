@@ -1,18 +1,20 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "3.2.0",
-  "lastUpdated": "2026-01-02",
-  "description": "Standards registry mapping universal-dev-standards to universal-dev-skills",
+  "version": "3.4.2",
+  "lastUpdated": "2026-01-08",
+  "description": "Standards registry mapping universal-dev-standards to skills",
   "repositories": {
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "3.2.0"
+      "version": "3.4.1"
     },
     "skills": {
-      "name": "universal-dev-skills",
-      "url": "https://github.com/AsiaOstrich/universal-dev-skills",
-      "version": "1.1.0"
+      "name": "universal-dev-standards",
+      "url": "https://github.com/AsiaOstrich/universal-dev-standards",
+      "localPath": "skills/claude-code",
+      "version": "3.4.2",
+      "note": "Skills are now included in the main repository under skills/"
     }
   },
   "categories": {

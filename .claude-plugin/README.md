@@ -10,7 +10,7 @@ This directory contains the configuration files for distributing Universal Devel
 ## Plugin Information
 
 - **Name**: `universal-dev-standards`
-- **Version**: `3.2.0` (synced with CLI version)
+- **Version**: `3.4.2` (synced with CLI version)
 - **Skills Included**: 15 comprehensive development skills
 - **Source**: `./skills/claude-code`
 
@@ -62,7 +62,7 @@ Plugin version is synchronized with [cli/package.json](../cli/package.json):
 
 ```json
 {
-  "version": "3.2.0"
+  "version": "3.4.2"
 }
 ```
 
