@@ -152,16 +152,15 @@
     ],
     "commands": [
       "skills/claude-code/commands/README.md",
-      "skills/claude-code/commands/uds/README.md",
-      "skills/claude-code/commands/uds/changelog.md",
-      "skills/claude-code/commands/uds/commit.md",
-      "skills/claude-code/commands/uds/coverage.md",
-      "skills/claude-code/commands/uds/docs.md",
-      "skills/claude-code/commands/uds/release.md",
-      "skills/claude-code/commands/uds/requirement.md",
-      "skills/claude-code/commands/uds/review.md",
-      "skills/claude-code/commands/uds/spec.md",
-      "skills/claude-code/commands/uds/tdd.md"
+      "skills/claude-code/commands/changelog.md",
+      "skills/claude-code/commands/commit.md",
+      "skills/claude-code/commands/coverage.md",
+      "skills/claude-code/commands/docs.md",
+      "skills/claude-code/commands/release.md",
+      "skills/claude-code/commands/requirement.md",
+      "skills/claude-code/commands/review.md",
+      "skills/claude-code/commands/spec.md",
+      "skills/claude-code/commands/tdd.md"
     ]
   },
   "categories": {

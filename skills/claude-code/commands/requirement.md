@@ -44,9 +44,9 @@ So that [benefit].
 
 ## Usage | 使用方式
 
-- `/uds:requirement` - Interactive requirement writing wizard
-- `/uds:requirement user login` - Write requirement for specific feature
-- `/uds:requirement "users can export data"` - Based on description
+- `/requirement` - Interactive requirement writing wizard
+- `/requirement user login` - Write requirement for specific feature
+- `/requirement "users can export data"` - Based on description
 
 ## Reference | 參考
 

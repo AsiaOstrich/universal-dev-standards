@@ -40,9 +40,9 @@ Perform systematic code review using standardized checklists and comment prefixe
 
 ## Usage | 使用方式
 
-- `/uds:review` - Review all changes in current branch
-- `/uds:review src/auth.js` - Review specific file
-- `/uds:review feature/login` - Review specific branch
+- `/review` - Review all changes in current branch
+- `/review src/auth.js` - Review specific file
+- `/review feature/login` - Review specific branch
 
 ## Reference | 參考
 

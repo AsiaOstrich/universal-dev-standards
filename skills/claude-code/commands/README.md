@@ -2,29 +2,21 @@
 
 Custom slash commands for Universal Development Standards.
 
-## Command Namespaces | 命令命名空間
-
-| Namespace | Description | Commands |
-|-----------|-------------|----------|
-| `uds/` | Universal Dev Standards | 9 commands |
-
 ## Available Commands | 可用命令
-
-### UDS Commands (`/uds:*`)
 
 Development workflow automation commands.
 
-| Command | Description |
-|---------|-------------|
-| [`/uds:commit`](./uds/commit.md) | Generate conventional commit messages |
-| [`/uds:review`](./uds/review.md) | Perform systematic code review |
-| [`/uds:release`](./uds/release.md) | Guide through release process |
-| [`/uds:changelog`](./uds/changelog.md) | Update CHANGELOG.md |
-| [`/uds:requirement`](./uds/requirement.md) | Write user stories and requirements |
-| [`/uds:spec`](./uds/spec.md) | Create specification documents |
-| [`/uds:tdd`](./uds/tdd.md) | Test-Driven Development workflow |
-| [`/uds:docs`](./uds/docs.md) | Create/update documentation |
-| [`/uds:coverage`](./uds/coverage.md) | Analyze test coverage |
+| Command | Description | 說明 |
+|---------|-------------|------|
+| [`/commit`](./commit.md) | Generate conventional commit messages | 產生 commit message |
+| [`/review`](./review.md) | Perform systematic code review | 執行程式碼審查 |
+| [`/release`](./release.md) | Guide through release process | 引導發布流程 |
+| [`/changelog`](./changelog.md) | Update CHANGELOG.md | 更新 CHANGELOG |
+| [`/requirement`](./requirement.md) | Write user stories and requirements | 撰寫需求文件 |
+| [`/spec`](./spec.md) | Create specification documents | 建立規格文件 |
+| [`/tdd`](./tdd.md) | Test-Driven Development workflow | TDD 開發流程 |
+| [`/docs`](./docs.md) | Create/update documentation | 建立/更新文件 |
+| [`/coverage`](./coverage.md) | Analyze test coverage | 分析測試覆蓋率 |
 
 ## Commands vs Skills | 命令與技能
 
@@ -36,7 +28,7 @@ Development workflow automation commands.
 
 ## Adding Custom Commands | 新增自訂命令
 
-Create a `.md` file in the appropriate namespace directory:
+Create a `.md` file in the `commands/` directory:
 
 ```markdown
 ---

@@ -10,20 +10,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed | 變更
+- **Skills**: Simplify slash command format from `/uds:xxx` to `/xxx`
+  **Skills**：簡化斜線命令格式，從 `/uds:xxx` 改為 `/xxx`
+  - Remove `uds:` namespace prefix for cleaner command invocation
+    移除 `uds:` 命名空間前綴，使命令調用更簡潔
+
 ## [3.3.0-beta.5] - 2026-01-07
 
 ### Added | 新增
-- **Skills**: Add 9 UDS slash commands for manual workflow triggers
-  **Skills**：新增 9 個 UDS 斜線命令，用於手動觸發工作流程
-  - `/uds:commit` - Generate conventional commit messages | 產生 commit message
-  - `/uds:review` - Perform systematic code review | 執行程式碼審查
-  - `/uds:release` - Guide through release process | 引導發布流程
-  - `/uds:changelog` - Update CHANGELOG.md | 更新變更日誌
-  - `/uds:requirement` - Write user stories and requirements | 撰寫用戶故事
-  - `/uds:spec` - Create specification documents | 建立規格文件
-  - `/uds:tdd` - Test-Driven Development workflow | TDD 工作流程
-  - `/uds:docs` - Create/update documentation | 文件撰寫
-  - `/uds:coverage` - Analyze test coverage | 測試覆蓋率
+- **Skills**: Add 9 slash commands for manual workflow triggers
+  **Skills**：新增 9 個斜線命令，用於手動觸發工作流程
+  - `/commit` - Generate conventional commit messages | 產生 commit message
+  - `/review` - Perform systematic code review | 執行程式碼審查
+  - `/release` - Guide through release process | 引導發布流程
+  - `/changelog` - Update CHANGELOG.md | 更新變更日誌
+  - `/requirement` - Write user stories and requirements | 撰寫用戶故事
+  - `/spec` - Create specification documents | 建立規格文件
+  - `/tdd` - Test-Driven Development workflow | TDD 工作流程
+  - `/docs` - Create/update documentation | 文件撰寫
+  - `/coverage` - Analyze test coverage | 測試覆蓋率
   - Commands vs Skills: Commands are manually triggered (`/command`), Skills are automatic (context-based)
     命令與技能的差異：命令為手動觸發，技能為自動觸發
 

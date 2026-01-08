@@ -79,15 +79,15 @@ In addition to automatic Skills, this plugin provides **manual slash commands** 
 
 | Command | Description | 說明 |
 |---------|-------------|------|
-| `/uds:commit` | Generate commit messages | 產生 commit message |
-| `/uds:review` | Perform code review | 執行程式碼審查 |
-| `/uds:release` | Guide release process | 引導發布流程 |
-| `/uds:changelog` | Update CHANGELOG | 更新變更日誌 |
-| `/uds:requirement` | Write user stories | 撰寫用戶故事 |
-| `/uds:spec` | Create specifications | 建立規格文件 |
-| `/uds:tdd` | TDD workflow | TDD 工作流程 |
-| `/uds:docs` | Documentation | 文件撰寫 |
-| `/uds:coverage` | Test coverage analysis | 測試覆蓋率分析 |
+| `/commit` | Generate commit messages | 產生 commit message |
+| `/review` | Perform code review | 執行程式碼審查 |
+| `/release` | Guide release process | 引導發布流程 |
+| `/changelog` | Update CHANGELOG | 更新變更日誌 |
+| `/requirement` | Write user stories | 撰寫用戶故事 |
+| `/spec` | Create specifications | 建立規格文件 |
+| `/tdd` | TDD workflow | TDD 工作流程 |
+| `/docs` | Documentation | 文件撰寫 |
+| `/coverage` | Test coverage analysis | 測試覆蓋率分析 |
 
 ### Skills vs Commands | Skills 與命令的差異
 
@@ -95,7 +95,7 @@ In addition to automatic Skills, this plugin provides **manual slash commands** 
 |--------|--------|----------|
 | **Trigger** | Automatic (context-based) | Manual (`/command`) |
 | **Use Case** | Background assistance | Explicit action |
-| **Example** | Claude suggests commit format | `/uds:commit` to generate message |
+| **Example** | Claude suggests commit format | `/commit` to generate message |
 
 > 📖 See [commands/](./commands/) for detailed command documentation.
 >

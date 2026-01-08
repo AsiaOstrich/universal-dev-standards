@@ -39,8 +39,8 @@ Generate well-formatted commit messages following the Conventional Commits stand
 
 ## Usage | 使用方式
 
-- `/uds:commit` - Auto-analyze changes and suggest commit message
-- `/uds:commit fix login bug` - Generate message based on provided description
+- `/commit` - Auto-analyze changes and suggest commit message
+- `/commit fix login bug` - Generate message based on provided description
 
 ## Reference | 參考
 

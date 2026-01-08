@@ -40,9 +40,9 @@ Guide through the complete release process following semantic versioning standar
 
 ## Usage | 使用方式
 
-- `/uds:release` - Interactive release wizard
-- `/uds:release patch` - Create patch release
-- `/uds:release beta` - Create beta pre-release
+- `/release` - Interactive release wizard
+- `/release patch` - Create patch release
+- `/release beta` - Create beta pre-release
 
 ## Reference | 參考
 

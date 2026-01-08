@@ -48,9 +48,9 @@ Analyze test coverage across multiple dimensions and provide actionable recommen
 
 ## Usage | 使用方式
 
-- `/uds:coverage` - Run full coverage analysis
-- `/uds:coverage src/auth` - Analyze specific module
-- `/uds:coverage --recommend` - Get test recommendations
+- `/coverage` - Run full coverage analysis
+- `/coverage src/auth` - Analyze specific module
+- `/coverage --recommend` - Get test recommendations
 
 ## Reference | 參考
 

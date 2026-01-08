@@ -48,8 +48,8 @@ Generate or update CHANGELOG.md following the Keep a Changelog format.
 
 ## Usage | 使用方式
 
-- `/uds:changelog` - Update Unreleased section with recent commits
-- `/uds:changelog 1.2.0` - Prepare changelog for specific version
+- `/changelog` - Update Unreleased section with recent commits
+- `/changelog 1.2.0` - Prepare changelog for specific version
 
 ## Reference | 參考
 

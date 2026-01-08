@@ -60,9 +60,9 @@ Brief description of the feature.
 
 ## Usage | 使用方式
 
-- `/uds:spec` - Interactive spec creation wizard
-- `/uds:spec auth-flow` - Create spec for specific feature
-- `/uds:spec review` - Review existing specs
+- `/spec` - Interactive spec creation wizard
+- `/spec auth-flow` - Create spec for specific feature
+- `/spec review` - Review existing specs
 
 ## Reference | 參考
 

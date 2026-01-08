@@ -65,9 +65,9 @@ MIT
 
 ## Usage | 使用方式
 
-- `/uds:docs` - Audit current documentation
-- `/uds:docs readme` - Generate/update README
-- `/uds:docs api` - Generate API documentation
+- `/docs` - Audit current documentation
+- `/docs readme` - Generate/update README
+- `/docs api` - Generate API documentation
 
 ## Reference | 參考
 

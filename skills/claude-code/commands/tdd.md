@@ -53,9 +53,9 @@ Guide through the Test-Driven Development (TDD) workflow: Red-Green-Refactor.
 
 ## Usage | 使用方式
 
-- `/uds:tdd` - Start interactive TDD session
-- `/uds:tdd calculateTotal` - TDD for specific function
-- `/uds:tdd "user can login"` - TDD for user story
+- `/tdd` - Start interactive TDD session
+- `/tdd calculateTotal` - TDD for specific function
+- `/tdd "user can login"` - TDD for user story
 
 ## Reference | 參考
 
