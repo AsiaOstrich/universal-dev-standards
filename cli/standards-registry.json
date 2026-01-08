@@ -149,6 +149,19 @@
       "skills/claude-code/tdd-assistant/SKILL.md",
       "skills/claude-code/tdd-assistant/tdd-workflow.md",
       "skills/claude-code/tdd-assistant/language-examples.md"
+    ],
+    "commands": [
+      "skills/claude-code/commands/README.md",
+      "skills/claude-code/commands/uds/README.md",
+      "skills/claude-code/commands/uds/changelog.md",
+      "skills/claude-code/commands/uds/commit.md",
+      "skills/claude-code/commands/uds/coverage.md",
+      "skills/claude-code/commands/uds/docs.md",
+      "skills/claude-code/commands/uds/release.md",
+      "skills/claude-code/commands/uds/requirement.md",
+      "skills/claude-code/commands/uds/review.md",
+      "skills/claude-code/commands/uds/spec.md",
+      "skills/claude-code/commands/uds/tdd.md"
     ]
   },
   "categories": {
