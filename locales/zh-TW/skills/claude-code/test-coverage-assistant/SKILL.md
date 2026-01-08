@@ -4,6 +4,11 @@ description: |
   使用 7 維度框架評估測試完整性。
   使用時機：撰寫測試、審查測試覆蓋率、確保測試品質。
   關鍵字：test coverage, completeness, dimensions, 7 dimensions, test quality, 測試覆蓋, 測試完整性, 七維度。
+source: ../../../../../skills/claude-code/test-coverage-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-08
+status: current
 ---
 
 # 測試覆蓋助手

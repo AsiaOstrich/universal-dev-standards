@@ -1,7 +1,8 @@
 ---
-source_version: 1.2.0
-translation_version: 1.0.0
-last_synced: 2025-12-30
+source: ../../../core/commit-message-guide.md
+source_version: 1.2.3
+translation_version: 1.2.3
+last_synced: 2026-01-08
 status: current
 ---
 

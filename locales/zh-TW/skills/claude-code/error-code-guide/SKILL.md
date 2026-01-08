@@ -4,6 +4,11 @@ description: |
   設計一致的錯誤碼，遵循 PREFIX_CATEGORY_NUMBER 格式。
   使用時機：定義錯誤碼、建立錯誤處理、設計 API。
   關鍵字：error code, error handling, error format, API errors, 錯誤碼, 錯誤處理。
+source: ../../../../../skills/claude-code/error-code-guide/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-08
+status: current
 ---
 
 # 錯誤碼指南

@@ -4,6 +4,11 @@ description: |
   依照 Keep a Changelog 格式撰寫與維護 CHANGELOG.md。
   使用時機：建立變更日誌條目、準備發布、記錄變更。
   關鍵字：changelog, release notes, CHANGELOG.md, keep a changelog, 變更日誌, 發布說明。
+source: ../../../../../skills/claude-code/changelog-guide/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-08
+status: current
 ---
 
 # 變更日誌指南

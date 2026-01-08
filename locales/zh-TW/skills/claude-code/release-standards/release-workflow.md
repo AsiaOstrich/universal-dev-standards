@@ -1,3 +1,11 @@
+---
+source: ../../../../../skills/claude-code/release-standards/release-workflow.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-08
+status: current
+---
+
 # 發布流程指南
 
 > **Language**: [English](../../../../skills/claude-code/release-standards/release-workflow.md) | 繁體中文
@@ -289,6 +297,126 @@ npm version 3.2.2
 ### Fixed
 - **CLI**：修復下載範本時通配符路徑處理導致 404 錯誤
 - **CLI**：修復 init/configure/update 指令執行後程式未退出的問題
+```
+
+---
+
+## 發布前準備
+
+在開始發布流程之前，完成以下準備步驟。這些可以使用 `scripts/pre-release.sh` 自動化執行。
+
+### 步驟 1：更新版本號
+
+更新以下**所有**檔案中的版本（共 6 個檔案）：
+
+| 檔案 | 欄位 | 範例 |
+|------|------|------|
+| `cli/package.json` | `"version"` | `"3.3.0"` |
+| `.claude-plugin/plugin.json` | `"version"` | `"3.3.0"` |
+| `.claude-plugin/marketplace.json` | `"version"` | `"3.3.0"` |
+| `cli/standards-registry.json` | `"version"`（3 處） | `"3.3.0"` |
+| `README.md` | `**Version**:` 和 `**Last Updated**:` | `3.3.0`, `2026-01-08` |
+
+**自動化命令：**
+```bash
+./scripts/pre-release.sh --version 3.3.0
+```
+
+### 步驟 2：更新 CHANGELOG.md
+
+1. 在 `[Unreleased]` 下建立新版本區段
+2. 整合所有 beta 變更（如果從 beta 發布穩定版）
+3. 加入發布日期
+
+**格式：**
+```markdown
+## [Unreleased]
+
+## [3.3.0] - 2026-01-08
+
+### 新增
+- 功能描述...
+
+### 變更
+- 變更描述...
+
+### 修復
+- 修復描述...
+```
+
+### 步驟 3：翻譯同步 (zh-TW)
+
+確保所有 zh-TW 翻譯已同步：
+
+```bash
+# 檢查同步狀態
+./scripts/check-translation-sync.sh
+
+# 需要更新的檔案：
+# - locales/zh-TW/README.md（版本 + 日期）
+# - locales/zh-TW/CHANGELOG.md（新版本區段）
+# - locales/zh-TW/CLAUDE.md（last_synced 日期）
+# - 任何顯示 [NO META] 或 [OUTDATED] 的檔案
+```
+
+### 步驟 4：翻譯同步 (zh-CN)
+
+確保所有 zh-CN 翻譯已同步：
+
+```bash
+# 檢查同步狀態
+./scripts/check-translation-sync.sh zh-CN
+
+# 如果 zh-TW 新增了檔案，同步到 zh-CN：
+# 使用 opencc 進行繁體到簡體轉換
+uv run --with opencc-python-reimplemented python3 -c "
+import opencc
+converter = opencc.OpenCC('t2s')
+# 轉換檔案...
+"
+
+# 需要更新的檔案：
+# - locales/zh-CN/README.md（版本 + 日期）
+# - locales/zh-CN/CHANGELOG.md（新版本區段）
+# - locales/zh-CN/CLAUDE.md（last_synced 日期）
+```
+
+### 步驟 5：執行驗證
+
+```bash
+# 執行所有測試
+cd cli && npm test
+
+# 執行 linting
+npm run lint
+
+# 驗證版本一致性
+grep -r "3.3.0" cli/package.json .claude-plugin/ cli/standards-registry.json README.md
+
+# 驗證無殘留 beta 版本（用於穩定版發布）
+grep -r "beta" cli/package.json .claude-plugin/ cli/standards-registry.json | grep -v node_modules
+
+# 驗證翻譯同步
+./scripts/check-translation-sync.sh
+./scripts/check-translation-sync.sh zh-CN
+```
+
+### 發布前準備腳本
+
+使用自動化腳本進行一致的發布前準備：
+
+```bash
+# 完整準備（互動模式）
+./scripts/pre-release.sh
+
+# 指定版本
+./scripts/pre-release.sh --version 3.3.0
+
+# 跳過翻譯同步（用於 beta 發布）
+./scripts/pre-release.sh --version 3.3.0-beta.1 --skip-translations
+
+# 預覽模式（顯示將會變更的內容）
+./scripts/pre-release.sh --version 3.3.0 --dry-run
 ```
 
 ---

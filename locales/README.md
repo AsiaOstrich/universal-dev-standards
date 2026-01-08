@@ -12,6 +12,7 @@ This directory contains translations of the Universal Development Standards docu
 |----------|-----------|--------|
 | English | `../core/`, `../skills/`, etc. | Primary (canonical source) |
 | 繁體中文 (Traditional Chinese) | `zh-TW/` | Complete |
+| 简体中文 (Simplified Chinese) | `zh-CN/` | Partial |
 
 ---
 
@@ -21,12 +22,17 @@ Each language directory mirrors the main repository structure:
 
 ```
 locales/
-└── zh-TW/                    # Traditional Chinese
+├── zh-TW/                    # Traditional Chinese
+│   ├── README.md             # Chinese entry point
+│   ├── CHANGELOG.md          # Changelog translation
+│   ├── core/                 # Core standards translations
+│   ├── skills/claude-code/   # Skills translations
+│   ├── templates/            # Templates translations
+│   └── adoption/             # Adoption guide translations
+└── zh-CN/                    # Simplified Chinese
     ├── README.md             # Chinese entry point
-    ├── core/                 # Core standards translations
-    ├── skills/claude-code/   # Skills translations
-    ├── templates/            # Templates translations
-    └── adoption/             # Adoption guide translations
+    ├── CHANGELOG.md          # Changelog translation
+    └── docs/                 # Documentation translations
 ```
 
 ---

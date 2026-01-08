@@ -293,6 +293,126 @@ npm version 3.2.2
 
 ---
 
+## Pre-Release Preparation
+
+Before starting the release workflow, complete the following preparation steps. These can be automated using `scripts/pre-release.sh`.
+
+### Step 1: Update Version Numbers
+
+Update version in **all** of the following files (6 files total):
+
+| File | Field | Example |
+|------|-------|---------|
+| `cli/package.json` | `"version"` | `"3.3.0"` |
+| `.claude-plugin/plugin.json` | `"version"` | `"3.3.0"` |
+| `.claude-plugin/marketplace.json` | `"version"` | `"3.3.0"` |
+| `cli/standards-registry.json` | `"version"` (3 occurrences) | `"3.3.0"` |
+| `README.md` | `**Version**:` and `**Last Updated**:` | `3.3.0`, `2026-01-08` |
+
+**Automated command:**
+```bash
+./scripts/pre-release.sh --version 3.3.0
+```
+
+### Step 2: Update CHANGELOG.md
+
+1. Create new version section under `[Unreleased]`
+2. Consolidate all beta changes (if releasing stable from beta)
+3. Add release date
+
+**Format:**
+```markdown
+## [Unreleased]
+
+## [3.3.0] - 2026-01-08
+
+### Added
+- Feature descriptions...
+
+### Changed
+- Change descriptions...
+
+### Fixed
+- Fix descriptions...
+```
+
+### Step 3: Translation Sync (zh-TW)
+
+Ensure all zh-TW translations are synchronized:
+
+```bash
+# Check sync status
+./scripts/check-translation-sync.sh
+
+# Files to update:
+# - locales/zh-TW/README.md (version + date)
+# - locales/zh-TW/CHANGELOG.md (new version section)
+# - locales/zh-TW/CLAUDE.md (last_synced date)
+# - Any files showing [NO META] or [OUTDATED]
+```
+
+### Step 4: Translation Sync (zh-CN)
+
+Ensure all zh-CN translations are synchronized:
+
+```bash
+# Check sync status
+./scripts/check-translation-sync.sh zh-CN
+
+# If new files were added to zh-TW, sync them to zh-CN:
+# Use opencc for Traditional to Simplified Chinese conversion
+uv run --with opencc-python-reimplemented python3 -c "
+import opencc
+converter = opencc.OpenCC('t2s')
+# Convert files...
+"
+
+# Files to update:
+# - locales/zh-CN/README.md (version + date)
+# - locales/zh-CN/CHANGELOG.md (new version section)
+# - locales/zh-CN/CLAUDE.md (last_synced date)
+```
+
+### Step 5: Run Verification
+
+```bash
+# Run all tests
+cd cli && npm test
+
+# Run linting
+npm run lint
+
+# Verify version consistency
+grep -r "3.3.0" cli/package.json .claude-plugin/ cli/standards-registry.json README.md
+
+# Verify no residual beta versions (for stable releases)
+grep -r "beta" cli/package.json .claude-plugin/ cli/standards-registry.json | grep -v node_modules
+
+# Verify translation sync
+./scripts/check-translation-sync.sh
+./scripts/check-translation-sync.sh zh-CN
+```
+
+### Pre-Release Preparation Script
+
+Use the automated script for consistent pre-release preparation:
+
+```bash
+# Full preparation (interactive)
+./scripts/pre-release.sh
+
+# With specific version
+./scripts/pre-release.sh --version 3.3.0
+
+# Skip translation sync (for beta releases)
+./scripts/pre-release.sh --version 3.3.0-beta.1 --skip-translations
+
+# Dry run (show what would be changed)
+./scripts/pre-release.sh --version 3.3.0 --dry-run
+```
+
+---
+
 ## Pre-release Checklist
 
 ### Before Creating Any Release

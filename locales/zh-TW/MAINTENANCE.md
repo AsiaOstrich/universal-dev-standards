@@ -1,3 +1,11 @@
+---
+source: ../../MAINTENANCE.md
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-08
+status: current
+---
+
 # 通用開發標準 - 維護指南
 
 > **Language**: [English](../../MAINTENANCE.md) | 繁體中文
