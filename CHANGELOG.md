@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.4.0-beta.2] - 2026-01-08
+
+### Fixed
+- **CLI**: Fix `uds update` command failing with "undefined" errors
+  - Added missing `await` for async `copyStandard()` and `copyIntegration()` calls
+  - Files now update correctly instead of showing "undefined" error messages
+
 ## [3.4.0-beta.1] - 2026-01-08
 
 ### Added

@@ -112,7 +112,7 @@ export async function updateCommand(options) {
 
   // Update standards
   for (const std of manifest.standards) {
-    const result = copyStandard(std, '.standards', projectPath);
+    const result = await copyStandard(std, '.standards', projectPath);
     if (result.success) {
       results.updated.push(std);
     } else {
@@ -122,7 +122,7 @@ export async function updateCommand(options) {
 
   // Update extensions
   for (const ext of manifest.extensions) {
-    const result = copyStandard(ext, '.standards', projectPath);
+    const result = await copyStandard(ext, '.standards', projectPath);
     if (result.success) {
       results.updated.push(ext);
     } else {
@@ -142,7 +142,7 @@ export async function updateCommand(options) {
     }
 
     if (mapping) {
-      const result = copyIntegration(mapping.source, mapping.target, projectPath);
+      const result = await copyIntegration(mapping.source, mapping.target, projectPath);
       if (result.success) {
         results.updated.push(int);
       } else {
