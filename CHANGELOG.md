@@ -9,21 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [3.4.0-beta.3] - 2026-01-08
-
-### Fixed
-- **CLI**: Fix `uds check` incorrectly showing "Skills marked as installed but not found" warning
-  - Now correctly recognizes Plugin Marketplace installation paths (`~/.claude/plugins/cache/`)
-  - Previously only checked for `location === 'marketplace'` exact match
-
-## [3.4.0-beta.2] - 2026-01-08
-
-### Fixed
-- **CLI**: Fix `uds update` command failing with "undefined" errors
-  - Added missing `await` for async `copyStandard()` and `copyIntegration()` calls
-  - Files now update correctly instead of showing "undefined" error messages
-
-## [3.4.0-beta.1] - 2026-01-08
+## [3.4.0] - 2026-01-08
 
 ### Added
 - **CLI**: Hash-based file integrity checking for `uds check`
@@ -40,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **CLI**: Manifest version upgraded from 3.0.0 to 3.1.0
   - New `fileHashes` field tracks file integrity
   - Backward compatible with legacy manifests
+
+### Fixed
+- **CLI**: Fix `uds check` incorrectly showing "Skills marked as installed but not found" warning
+  - Now correctly recognizes Plugin Marketplace installation paths (`~/.claude/plugins/cache/`)
+- **CLI**: Fix `uds update` command failing with "undefined" errors
+  - Added missing `await` for async `copyStandard()` and `copyIntegration()` calls
 
 ## [3.3.0] - 2026-01-08
 
@@ -438,7 +430,8 @@ This reflects the project's expanded scope covering all development standards, n
 - Templates: Requirement document templates
 - Integrations: OpenSpec framework
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.4.0...HEAD
+[3.4.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.3.0...v3.4.0
 [3.0.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.3.0...v3.0.0
 [2.3.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.1.0...v2.2.0

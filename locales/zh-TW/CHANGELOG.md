@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.3.0
-translation_version: 3.3.0
+source_version: 3.4.0
+translation_version: 3.4.0
 last_synced: 2026-01-08
 status: current
 ---
@@ -16,6 +16,30 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [3.4.0] - 2026-01-08
+
+### 新增
+- **CLI**：`uds check` 新增基於雜湊值的檔案完整性檢查
+  - 透過比較 SHA-256 雜湊值偵測修改的檔案
+  - 新增選項：`--diff`、`--restore`、`--restore-missing`、`--no-interactive`、`--migrate`
+  - 互動模式：偵測到問題時提示操作（檢視差異、還原、保留、跳過）
+  - 舊版 manifest 遷移：`uds check --migrate` 升級至基於雜湊值的追蹤
+- **CLI**：manifest 中儲存檔案雜湊值（版本 3.1.0）
+  - `uds init` 在安裝時計算並儲存檔案雜湊值
+  - `uds update` 在更新檔案後重新計算雜湊值
+- **Utils**：新增 `hasher.js` 工具模組用於 SHA-256 檔案雜湊
+
+### 變更
+- **CLI**：manifest 版本從 3.0.0 升級至 3.1.0
+  - 新增 `fileHashes` 欄位追蹤檔案完整性
+  - 向後相容舊版 manifest
+
+### 修復
+- **CLI**：修復 `uds check` 錯誤顯示「Skills 已標記為已安裝但找不到」警告
+  - 現在正確識別 Plugin Marketplace 安裝路徑（`~/.claude/plugins/cache/`）
+- **CLI**：修復 `uds update` 指令失敗並顯示「undefined」錯誤
+  - 為非同步 `copyStandard()` 和 `copyIntegration()` 呼叫新增遺漏的 `await`
 
 ## [3.3.0] - 2026-01-08
 
@@ -414,7 +438,9 @@ status: current
 - 範本：需求文件範本
 - 整合：OpenSpec 框架
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.4.0...HEAD
+[3.4.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.3.0...v3.4.0
+[3.3.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.0.0...v3.3.0
 [3.0.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.3.0...v3.0.0
 [2.3.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.1.0...v2.2.0
