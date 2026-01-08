@@ -4,7 +4,19 @@ Custom slash commands for Universal Development Standards.
 
 ## Available Commands | 可用命令
 
-Development workflow automation commands.
+### Standards Management | 標準管理
+
+Commands for managing Universal Development Standards in your project.
+
+| Command | Description | 說明 |
+|---------|-------------|------|
+| [`/init`](./init.md) | Initialize standards in project | 初始化專案標準 |
+| [`/update`](./update.md) | Update standards to latest version | 更新標準至最新版本 |
+| [`/check`](./check.md) | Verify adoption status | 檢查採用狀態 |
+
+### Development Workflow | 開發工作流程
+
+Commands for development workflow automation.
 
 | Command | Description | 說明 |
 |---------|-------------|------|

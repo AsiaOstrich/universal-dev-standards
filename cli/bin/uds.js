@@ -51,6 +51,11 @@ program
 program
   .command('check')
   .description('Check adoption status of current project')
+  .option('--diff', 'Show diff for modified files')
+  .option('--restore', 'Restore all modified and missing files')
+  .option('--restore-missing', 'Restore only missing files')
+  .option('--no-interactive', 'Disable interactive mode')
+  .option('--migrate', 'Migrate legacy manifest to hash-based tracking')
   .action(checkCommand);
 
 program

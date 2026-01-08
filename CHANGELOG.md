@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.4.0-beta.1] - 2026-01-08
+
+### Added
+- **CLI**: Hash-based file integrity checking for `uds check`
+  - Detects modified files by comparing SHA-256 hashes
+  - New options: `--diff`, `--restore`, `--restore-missing`, `--no-interactive`, `--migrate`
+  - Interactive mode: prompts for action when issues detected (view diff, restore, keep, skip)
+  - Legacy manifest migration: `uds check --migrate` upgrades to hash-based tracking
+- **CLI**: File hashes stored in manifest (version 3.1.0)
+  - `uds init` computes and stores file hashes at installation
+  - `uds update` recomputes hashes after updating files
+- **Utils**: New `hasher.js` utility module for SHA-256 file hashing
+
+### Changed
+- **CLI**: Manifest version upgraded from 3.0.0 to 3.1.0
+  - New `fileHashes` field tracks file integrity
+  - Backward compatible with legacy manifests
+
 ## [3.3.0] - 2026-01-08
 
 ### Added

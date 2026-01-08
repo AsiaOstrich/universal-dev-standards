@@ -1,8 +1,10 @@
 import chalk from 'chalk';
 import ora from 'ora';
 import inquirer from 'inquirer';
+import { join, basename } from 'path';
 import { readManifest, writeManifest, copyStandard, copyIntegration, isInitialized } from '../utils/copier.js';
 import { getRepositoryInfo } from '../utils/registry.js';
+import { computeFileHash } from '../utils/hasher.js';
 
 // Integration file mappings (same as init.js)
 const INTEGRATION_MAPPINGS = {
@@ -151,7 +153,47 @@ export async function updateCommand(options) {
 
   spinner.succeed(`Updated ${results.updated.length} files`);
 
+  // Recompute file hashes for updated files
+  const now = new Date().toISOString();
+  if (!manifest.fileHashes) {
+    manifest.fileHashes = {};
+  }
+
+  // Update hashes for standards
+  for (const std of manifest.standards) {
+    const fileName = basename(std);
+    const relativePath = std.includes('options/')
+      ? join('.standards', 'options', fileName)
+      : join('.standards', fileName);
+    const fullPath = join(projectPath, relativePath);
+    const hashInfo = computeFileHash(fullPath);
+    if (hashInfo) {
+      manifest.fileHashes[relativePath] = { ...hashInfo, installedAt: now };
+    }
+  }
+
+  // Update hashes for extensions
+  for (const ext of manifest.extensions) {
+    const fileName = basename(ext);
+    const relativePath = join('.standards', fileName);
+    const fullPath = join(projectPath, relativePath);
+    const hashInfo = computeFileHash(fullPath);
+    if (hashInfo) {
+      manifest.fileHashes[relativePath] = { ...hashInfo, installedAt: now };
+    }
+  }
+
+  // Update hashes for integrations
+  for (const int of manifest.integrations) {
+    const fullPath = join(projectPath, int);
+    const hashInfo = computeFileHash(fullPath);
+    if (hashInfo) {
+      manifest.fileHashes[int] = { ...hashInfo, installedAt: now };
+    }
+  }
+
   // Update manifest
+  manifest.version = '3.1.0';
   manifest.upstream.version = latestVersion;
   manifest.upstream.installed = new Date().toISOString().split('T')[0];
   writeManifest(manifest, projectPath);

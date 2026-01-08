@@ -43,6 +43,7 @@ import {
   writeIntegrationFile,
   integrationFileExists
 } from '../utils/integration-generator.js';
+import { computeFileHash } from '../utils/hasher.js';
 
 // Integration file mappings (legacy - for fallback)
 const INTEGRATION_MAPPINGS = {
@@ -674,6 +675,45 @@ export async function initCommand(options) {
     }
   }
 
+  // Compute file hashes for integrity checking
+  const { join, basename } = await import('path');
+  const fileHashes = {};
+  const now = new Date().toISOString();
+
+  // Helper to compute and store hash
+  const addFileHash = (relativePath) => {
+    const fullPath = join(projectPath, relativePath);
+    const hashInfo = computeFileHash(fullPath);
+    if (hashInfo) {
+      fileHashes[relativePath] = {
+        ...hashInfo,
+        installedAt: now
+      };
+    }
+  };
+
+  // Hash standards (stored as source paths, need to convert to target paths)
+  for (const sourcePath of results.standards) {
+    const fileName = basename(sourcePath);
+    // Check if it's an option file (path contains 'options/')
+    const relativePath = sourcePath.includes('options/')
+      ? join('.standards', 'options', fileName)
+      : join('.standards', fileName);
+    addFileHash(relativePath);
+  }
+
+  // Hash extensions
+  for (const sourcePath of results.extensions) {
+    const fileName = basename(sourcePath);
+    const relativePath = join('.standards', fileName);
+    addFileHash(relativePath);
+  }
+
+  // Hash integrations (already stored as target paths)
+  for (const targetPath of results.integrations) {
+    addFileHash(targetPath);
+  }
+
   // Create manifest
   const repoInfo = getRepositoryInfo();
 
@@ -687,7 +727,7 @@ export async function initCommand(options) {
   };
 
   const manifest = {
-    version: '3.0.0',
+    version: '3.1.0',
     upstream: {
       repo: 'AsiaOstrich/universal-dev-standards',
       version: repoInfo.standards.version,
@@ -706,7 +746,8 @@ export async function initCommand(options) {
       location: skillsConfig.location,
       names: skillsConfig.location === 'marketplace' ? ['all-via-plugin'] : results.skills,
       version: skillsConfig.installed ? repoInfo.skills.version : null
-    }
+    },
+    fileHashes
   };
 
   writeManifest(manifest, projectPath);

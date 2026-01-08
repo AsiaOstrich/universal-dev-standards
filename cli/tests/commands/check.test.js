@@ -37,14 +37,14 @@ describe('Check Command', () => {
   });
 
   describe('checkCommand', () => {
-    it('should report not initialized for empty project', () => {
-      checkCommand();
+    it('should report not initialized for empty project', async () => {
+      await checkCommand({ noInteractive: true });
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('not initialized');
     });
 
-    it('should report initialized status', () => {
+    it('should report initialized status', async () => {
       // Create minimal manifest
       const manifest = {
         version: '1.0.0',
@@ -66,14 +66,14 @@ describe('Check Command', () => {
         JSON.stringify(manifest)
       );
 
-      checkCommand();
+      await checkCommand({ noInteractive: true });
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Standards initialized');
       expect(output).toContain('Level: 2');
     });
 
-    it('should report missing files', () => {
+    it('should report missing files', async () => {
       const manifest = {
         version: '1.0.0',
         upstream: {
@@ -94,13 +94,13 @@ describe('Check Command', () => {
         JSON.stringify(manifest)
       );
 
-      checkCommand();
+      await checkCommand({ noInteractive: true });
 
       const output = consoleLogs.join('\n');
-      expect(output).toContain('Missing');
+      expect(output).toContain('missing');
     });
 
-    it('should report all files present when complete', () => {
+    it('should report all files present when complete (legacy manifest)', async () => {
       const manifest = {
         version: '1.0.0',
         upstream: {
@@ -122,26 +122,111 @@ describe('Check Command', () => {
       );
       writeFileSync(join(TEST_DIR, '.standards', 'anti-hallucination.md'), '# Content');
 
-      checkCommand();
+      await checkCommand({ noInteractive: true });
 
       const output = consoleLogs.join('\n');
-      expect(output).toContain('All 1 files present');
+      // Legacy manifest shows "no hash" status
+      expect(output).toContain('exists, no hash');
+      expect(output).toContain('0 missing');
     });
 
-    it('should handle corrupted manifest', () => {
+    it('should report unchanged files with hash-based manifest', async () => {
+      const fileContent = '# Anti-Hallucination Standard';
+      const filePath = join(TEST_DIR, '.standards', 'anti-hallucination.md');
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(filePath, fileContent);
+
+      // Compute actual hash
+      const { computeFileHash } = await import('../../src/utils/hasher.js');
+      const hashInfo = computeFileHash(filePath);
+
+      const manifest = {
+        version: '3.1.0',
+        upstream: {
+          repo: 'AsiaOstrich/universal-dev-standards',
+          version: '3.3.0',
+          installed: '2024-01-01'
+        },
+        level: 1,
+        standards: ['core/anti-hallucination.md'],
+        extensions: [],
+        integrations: [],
+        skills: { installed: false },
+        fileHashes: {
+          '.standards/anti-hallucination.md': hashInfo
+        }
+      };
+
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+
+      await checkCommand({ noInteractive: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('unchanged');
+      expect(output).toContain('1 unchanged');
+    });
+
+    it('should detect modified files with hash-based manifest', async () => {
+      const originalContent = '# Original Content';
+      const filePath = join(TEST_DIR, '.standards', 'anti-hallucination.md');
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(filePath, originalContent);
+
+      // Compute hash for original content
+      const { computeFileHash } = await import('../../src/utils/hasher.js');
+      const originalHash = computeFileHash(filePath);
+
+      // Modify the file
+      writeFileSync(filePath, '# Modified Content');
+
+      const manifest = {
+        version: '3.1.0',
+        upstream: {
+          repo: 'AsiaOstrich/universal-dev-standards',
+          version: '3.3.0',
+          installed: '2024-01-01'
+        },
+        level: 1,
+        standards: ['core/anti-hallucination.md'],
+        extensions: [],
+        integrations: [],
+        skills: { installed: false },
+        fileHashes: {
+          '.standards/anti-hallucination.md': originalHash
+        }
+      };
+
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+
+      await checkCommand({ noInteractive: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('modified');
+      expect(output).toContain('1 modified');
+    });
+
+    it('should handle corrupted manifest', async () => {
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
         join(TEST_DIR, '.standards', 'manifest.json'),
         'not valid json'
       );
 
-      checkCommand();
+      await checkCommand({ noInteractive: true });
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Could not read manifest');
     });
 
-    it('should show skills status when installed', () => {
+    it('should show skills status when installed', async () => {
       const manifest = {
         version: '1.0.0',
         upstream: {
@@ -162,13 +247,13 @@ describe('Check Command', () => {
         JSON.stringify(manifest)
       );
 
-      checkCommand();
+      await checkCommand({ noInteractive: true });
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Skills Status');
     });
 
-    it('should show coverage summary', () => {
+    it('should show coverage summary', async () => {
       const manifest = {
         version: '1.0.0',
         upstream: {
@@ -189,13 +274,14 @@ describe('Check Command', () => {
         JSON.stringify(manifest)
       );
 
-      checkCommand();
+      // Pass noInteractive to skip interactive mode for missing files
+      await checkCommand({ noInteractive: true });
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Coverage Summary');
     });
 
-    it('should show Plugin Marketplace message for marketplace location', () => {
+    it('should show Plugin Marketplace message for marketplace location', async () => {
       const manifest = {
         version: '1.0.0',
         upstream: {
@@ -220,7 +306,7 @@ describe('Check Command', () => {
         JSON.stringify(manifest)
       );
 
-      checkCommand();
+      await checkCommand({ noInteractive: true });
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Plugin Marketplace');
@@ -228,7 +314,7 @@ describe('Check Command', () => {
       expect(output).not.toContain('Skills marked as installed but not found');
     });
 
-    it('should not show file-not-found warning for marketplace skills', () => {
+    it('should not show file-not-found warning for marketplace skills', async () => {
       const manifest = {
         version: '1.0.0',
         upstream: {
@@ -253,12 +339,41 @@ describe('Check Command', () => {
         JSON.stringify(manifest)
       );
 
-      checkCommand();
+      await checkCommand({ noInteractive: true });
 
       const output = consoleLogs.join('\n');
       // Should NOT show the warning about skills not found
       expect(output).not.toContain('Skills marked as installed but not found');
       expect(output).not.toContain('git clone');
+    });
+
+    it('should suggest migration for legacy manifests', async () => {
+      const manifest = {
+        version: '1.0.0',
+        upstream: {
+          repo: 'AsiaOstrich/universal-dev-standards',
+          version: '2.1.0',
+          installed: '2024-01-01'
+        },
+        level: 1,
+        standards: ['core/anti-hallucination.md'],
+        extensions: [],
+        integrations: [],
+        skills: { installed: false }
+      };
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+      writeFileSync(join(TEST_DIR, '.standards', 'anti-hallucination.md'), '# Content');
+
+      await checkCommand({ noInteractive: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('--migrate');
+      expect(output).toContain('hash-based integrity checking');
     });
   });
 });
