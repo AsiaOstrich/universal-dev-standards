@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.5] - 2026-01-09
+
+### Added
+- **CLI**: Enhanced AI tool integration with automatic standards compliance
+  - Support 9 AI tools: Claude Code, Cursor, Windsurf, Cline, GitHub Copilot, Google Antigravity, OpenAI Codex, Gemini CLI, OpenCode
+  - New content mode selection: `full`, `index` (recommended), `minimal`
+  - Generate Standards Compliance Instructions with MUST/SHOULD priorities
+  - Generate Standards Index listing all installed standards
+  - Handle `AGENTS.md` sharing between Codex and OpenCode
+- **CLI**: Enhanced `uds configure` command
+  - New option: AI Tools - Add/Remove AI tool integrations
+  - New option: Adoption Level - Change Level 1/2/3
+  - New option: Content Mode - Change full/index/minimal
+  - Auto-regenerate integration files when settings change
+- **CLI**: Enhanced `uds update` command
+  - New flag: `--integrations-only` - Only update integration files
+  - New flag: `--standards-only` - Only update standard files
+  - Auto-sync integration files during standard updates
+- **CLI**: Enhanced `uds check` command
+  - New section: AI Tool Integration Status
+  - Verify integration files exist and reference standards correctly
+  - Report missing standards references with fix suggestions
+- **Skills**: New `/config` slash command for standards configuration
+
+### Changed
+- **CLI**: Integration files now include compliance instructions and standards index by default (index mode)
+
 ## [3.5.0-beta.4] - 2026-01-09
 
 ### Added
