@@ -76,11 +76,19 @@ uds init --level 2 --lang php --locale zh-tw
 
 **Options | 選項:**
 - `-l, --level <1|2|3>` - Adoption level | 採用等級 (1=基本, 2=推薦, 3=企業)
+- `-f, --format <format>` - Standards format | 標準格式 (ai, human, both)
+- `--skills-location <loc>` - Skills installation location | Skills 安裝位置 (marketplace, user, project, none)
+- `--content-mode <mode>` - Integration file content mode | 整合檔案內容模式 (minimal, index, full)
+- `--workflow <strategy>` - Git workflow strategy | Git 工作流程 (github-flow, gitflow, trunk-based)
+- `--merge-strategy <strategy>` - Merge strategy | 合併策略 (squash, merge-commit, rebase-ff)
+- `--commit-lang <lang>` - Commit message language | 提交訊息語言 (english, traditional-chinese, bilingual)
+- `--test-levels <levels>` - Test levels (comma-separated) | 測試層級 (unit,integration,system,e2e)
 - `--lang <language>` - Language extension | 語言延伸 (csharp, php)
 - `--framework <name>` - Framework extension | 框架延伸 (fat-free)
 - `--locale <locale>` - Locale extension | 地區延伸 (zh-tw)
-- `--no-skills` - Skip Claude Code Skills installation prompt | 跳過 Skills 安裝提示
 - `-y, --yes` - Use defaults, skip interactive prompts | 使用預設值，跳過互動提示
+
+> **Detailed Options**: See [CLI Init Options Guide](../docs/CLI-INIT-OPTIONS.md) | **詳細選項說明**：[繁體中文](../locales/zh-TW/docs/CLI-INIT-OPTIONS.md) | [简体中文](../locales/zh-CN/docs/CLI-INIT-OPTIONS.md)
 
 **What it does | 功能說明:**
 1. Detects your project's language and framework
