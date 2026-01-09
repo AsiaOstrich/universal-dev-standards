@@ -726,8 +726,62 @@ export async function initCommand(options) {
     test_levels: standardsToCopyIds.has('testing') ? (standardOptions.test_levels || []) : []
   };
 
+  // Build integrationConfigs for manifest
+  // This allows uds update to regenerate integration files with the same settings
+  const manifestIntegrationConfigs = {};
+  const integrationConfigs = skillsConfig.integrationConfigs || {};
+
+  for (const targetPath of results.integrations) {
+    // Find the tool name for this integration
+    let toolName = null;
+    let config = null;
+
+    // Check if this is from the integrationConfigs (dynamic generation)
+    for (const [tool, toolConfig] of Object.entries(integrationConfigs)) {
+      const mapping = INTEGRATION_MAPPINGS[tool];
+      if (mapping && mapping.target === targetPath) {
+        toolName = tool;
+        config = toolConfig;
+        break;
+      }
+    }
+
+    // Check if this is CLAUDE.md
+    if (targetPath === 'CLAUDE.md' || targetPath === '.standards/CLAUDE.md') {
+      toolName = 'claude-code';
+      // Determine language setting from locale or format
+      let claudeLanguage = 'en';
+      if (locale === 'zh-tw') {
+        claudeLanguage = 'zh-tw';
+      } else if (standardOptions?.commit_language === 'bilingual') {
+        claudeLanguage = 'bilingual';
+      } else if (standardOptions?.commit_language === 'traditional-chinese') {
+        claudeLanguage = 'zh-tw';
+      }
+      config = {
+        tool: 'claude-code',
+        categories: ['anti-hallucination', 'commit-standards', 'code-review'],
+        languages: [],
+        exclusions: [],
+        customRules: [],
+        detailLevel: 'standard',
+        language: claudeLanguage
+      };
+    }
+
+    if (toolName && config) {
+      manifestIntegrationConfigs[targetPath] = {
+        tool: toolName,
+        categories: config.categories || [],
+        detailLevel: config.detailLevel || 'standard',
+        language: config.language || 'en',
+        generatedAt: now
+      };
+    }
+  }
+
   const manifest = {
-    version: '3.1.0',
+    version: '3.2.0',
     upstream: {
       repo: 'AsiaOstrich/universal-dev-standards',
       version: repoInfo.standards.version,
@@ -739,6 +793,7 @@ export async function initCommand(options) {
     standards: results.standards,
     extensions: results.extensions,
     integrations: results.integrations,
+    integrationConfigs: manifestIntegrationConfigs,
     options: manifestOptions,
     aiTools,
     skills: {

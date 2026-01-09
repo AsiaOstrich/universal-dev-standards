@@ -62,6 +62,7 @@ program
   .command('update')
   .description('Update standards to latest version')
   .option('-y, --yes', 'Skip confirmation prompts')
+  .option('--sync-refs', 'Sync integration file references with manifest standards')
   .action(updateCommand);
 
 program

@@ -1,10 +1,17 @@
 import chalk from 'chalk';
 import ora from 'ora';
 import inquirer from 'inquirer';
+import { existsSync } from 'fs';
 import { join, basename } from 'path';
 import { readManifest, writeManifest, copyStandard, copyIntegration, isInitialized } from '../utils/copier.js';
 import { getRepositoryInfo } from '../utils/registry.js';
 import { computeFileHash } from '../utils/hasher.js';
+import { writeIntegrationFile } from '../utils/integration-generator.js';
+import {
+  calculateCategoriesFromStandards,
+  arraysEqual,
+  getToolFromPath
+} from '../utils/reference-sync.js';
 
 /**
  * Compare two semantic versions
@@ -101,6 +108,12 @@ export async function updateCommand(options) {
   if (!manifest) {
     console.log(chalk.red('✗ Could not read manifest file.'));
     console.log();
+    return;
+  }
+
+  // Handle --sync-refs option
+  if (options.syncRefs) {
+    await syncIntegrationReferences(projectPath, manifest);
     return;
   }
 
@@ -310,5 +323,120 @@ export async function updateCommand(options) {
   console.log();
 
   // Exit explicitly to prevent hanging due to inquirer's readline interface
+  process.exit(0);
+}
+
+/**
+ * Sync integration file references based on manifest standards
+ * @param {string} projectPath - Project path
+ * @param {Object} manifest - Manifest object
+ */
+async function syncIntegrationReferences(projectPath, manifest) {
+  console.log(chalk.cyan('Syncing integration references...'));
+  console.log();
+
+  // Check if integrationConfigs exists
+  if (!manifest.integrationConfigs || Object.keys(manifest.integrationConfigs).length === 0) {
+    console.log(chalk.yellow('⚠ No integration configurations found in manifest.'));
+    console.log(chalk.gray('  Integration configs are required for reference sync.'));
+    console.log(chalk.gray('  This happens when:'));
+    console.log(chalk.gray('    - The project was initialized with an older version of UDS'));
+    console.log(chalk.gray('    - Integration files were manually copied, not generated'));
+    console.log();
+    console.log(chalk.gray('  To fix this, you can either:'));
+    console.log(chalk.gray('    1. Re-initialize the project: uds init (delete .standards/ first)'));
+    console.log(chalk.gray('    2. Manually update the integration files'));
+    console.log();
+    return;
+  }
+
+  // Calculate expected categories from current standards
+  const expectedCategories = calculateCategoriesFromStandards(manifest.standards);
+  console.log(chalk.gray('Expected categories from manifest.standards:'));
+  console.log(chalk.gray(`  ${expectedCategories.join(', ') || '(none)'}`));
+  console.log();
+
+  let updatedCount = 0;
+  let skippedCount = 0;
+  const now = new Date().toISOString();
+
+  for (const [integrationPath, config] of Object.entries(manifest.integrationConfigs)) {
+    const fullPath = join(projectPath, integrationPath);
+
+    // Skip if file doesn't exist
+    if (!existsSync(fullPath)) {
+      console.log(chalk.gray(`  Skipping ${integrationPath}: file not found`));
+      skippedCount++;
+      continue;
+    }
+
+    const currentCategories = config.categories || [];
+
+    // Check if categories need to be updated
+    if (arraysEqual(currentCategories.sort(), expectedCategories.sort())) {
+      console.log(chalk.gray(`  ${integrationPath}: already in sync`));
+      skippedCount++;
+      continue;
+    }
+
+    // Get tool name for regeneration
+    const toolName = config.tool || getToolFromPath(integrationPath);
+    if (!toolName) {
+      console.log(chalk.yellow(`  ⚠ ${integrationPath}: unknown tool, skipping`));
+      skippedCount++;
+      continue;
+    }
+
+    // Regenerate the integration file with updated categories
+    const newConfig = {
+      ...config,
+      tool: toolName,
+      categories: expectedCategories
+    };
+
+    const result = writeIntegrationFile(toolName, newConfig, projectPath);
+
+    if (result.success) {
+      console.log(chalk.green(`  ✓ Updated ${integrationPath}`));
+      console.log(chalk.gray(`    Categories: ${currentCategories.join(', ') || '(none)'} → ${expectedCategories.join(', ') || '(none)'}`));
+
+      // Update manifest config
+      manifest.integrationConfigs[integrationPath] = {
+        ...newConfig,
+        generatedAt: now
+      };
+
+      // Update file hash
+      const hashInfo = computeFileHash(fullPath);
+      if (hashInfo) {
+        if (!manifest.fileHashes) {
+          manifest.fileHashes = {};
+        }
+        manifest.fileHashes[integrationPath] = { ...hashInfo, installedAt: now };
+      }
+
+      updatedCount++;
+    } else {
+      console.log(chalk.red(`  ✗ Failed to update ${integrationPath}: ${result.error}`));
+    }
+  }
+
+  // Update manifest version and save
+  if (updatedCount > 0) {
+    manifest.version = '3.2.0';
+    writeManifest(manifest, projectPath);
+  }
+
+  // Summary
+  console.log();
+  if (updatedCount > 0) {
+    console.log(chalk.green(`✓ Updated ${updatedCount} integration file(s)`));
+  }
+  if (skippedCount > 0) {
+    console.log(chalk.gray(`  Skipped ${skippedCount} file(s) (already in sync or not found)`));
+  }
+  console.log();
+
+  // Exit explicitly
   process.exit(0);
 }

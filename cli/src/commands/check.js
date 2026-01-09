@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join, basename } from 'path';
 import { readManifest, writeManifest, isInitialized, copyStandard, copyIntegration } from '../utils/copier.js';
 import {
@@ -14,6 +14,10 @@ import {
   hasFileHashes
 } from '../utils/hasher.js';
 import { downloadFromGitHub } from '../utils/github.js';
+import {
+  parseReferences,
+  compareStandardsWithReferences
+} from '../utils/reference-sync.js';
 
 /**
  * Check command - verify adoption status
@@ -203,6 +207,9 @@ export async function checkCommand(options = {}) {
     console.log(chalk.gray('  This will compute hashes for all existing files.'));
     console.log();
   }
+
+  // Reference sync check
+  checkReferenceSync(manifest, projectPath);
 
   // Skills status
   displaySkillsStatus(manifest, projectPath);
@@ -665,5 +672,89 @@ function displayCoverageReport(manifest) {
   console.log(chalk.gray('  Your coverage:'));
   console.log(chalk.gray(`    ${coveredBySkills} via Skills`));
   console.log(chalk.gray(`    ${coveredByDocs} via copied documents`));
+  console.log();
+}
+
+/**
+ * Check reference sync status between manifest standards and integration files
+ */
+function checkReferenceSync(manifest, projectPath) {
+  // Skip if no integrations
+  if (!manifest.integrations || manifest.integrations.length === 0) {
+    return;
+  }
+
+  console.log(chalk.cyan('Reference Sync Status:'));
+
+  let hasIssues = false;
+  let checkedCount = 0;
+
+  for (const integrationPath of manifest.integrations) {
+    const fullPath = join(projectPath, integrationPath);
+
+    // Skip if file doesn't exist
+    if (!existsSync(fullPath)) {
+      continue;
+    }
+
+    // Read integration file content
+    let content;
+    try {
+      content = readFileSync(fullPath, 'utf-8');
+    } catch {
+      console.log(chalk.yellow(`  ⚠ ${integrationPath}: Could not read file`));
+      continue;
+    }
+
+    // Parse references from integration file
+    const references = parseReferences(content);
+
+    // Skip if no references found (might be a static file or custom content)
+    if (references.length === 0) {
+      console.log(chalk.gray(`  ℹ ${integrationPath}: No standard references found`));
+      continue;
+    }
+
+    checkedCount++;
+
+    // Compare with manifest standards
+    const { orphanedRefs, missingRefs, syncedRefs } = compareStandardsWithReferences(
+      manifest.standards,
+      references
+    );
+
+    // Report results
+    if (orphanedRefs.length > 0) {
+      hasIssues = true;
+      console.log(chalk.yellow(`  ⚠ ${integrationPath}:`));
+      console.log(chalk.yellow('    References not in manifest:'));
+      for (const ref of orphanedRefs) {
+        console.log(chalk.yellow(`      - ${ref}`));
+      }
+    }
+
+    if (missingRefs.length > 0) {
+      // This is informational, not an error
+      console.log(chalk.gray(`  ℹ ${integrationPath}:`));
+      console.log(chalk.gray('    Standards not referenced (optional):'));
+      for (const ref of missingRefs) {
+        console.log(chalk.gray(`      - ${ref}`));
+      }
+    }
+
+    if (orphanedRefs.length === 0 && missingRefs.length === 0) {
+      console.log(chalk.green(`  ✓ ${integrationPath}: references in sync (${syncedRefs.length} refs)`));
+    }
+  }
+
+  if (checkedCount === 0) {
+    console.log(chalk.gray('  No integration files with standard references found.'));
+  }
+
+  if (hasIssues) {
+    console.log();
+    console.log(chalk.yellow('  Run `uds update --sync-refs` to fix reference issues.'));
+  }
+
   console.log();
 }

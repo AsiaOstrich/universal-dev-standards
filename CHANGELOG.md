@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.4] - 2026-01-09
+
+### Added
+- **CLI**: Reference sync feature for AI integration files
+  - `uds check` now shows "Reference Sync Status" section
+    - Detects orphaned references (references in integration file but not in manifest)
+    - Reports missing references (standards in manifest but not referenced)
+  - `uds update --sync-refs` regenerates integration files based on manifest standards
+  - New `integrationConfigs` field in manifest to persist generation settings
+- **Utils**: New `reference-sync.js` module with category-to-standard mappings
+
+### Changed
+- **CLI**: Manifest version upgraded from 3.1.0 to 3.2.0
+  - New `integrationConfigs` field stores integration file generation settings
+  - Allows `uds update --sync-refs` to regenerate with same options (categories, detailLevel, language)
+
 ## [3.5.0-beta.3] - 2026-01-09
 
 ### Fixed
