@@ -1,0 +1,19 @@
+# OpenAI Codex Configuration Example
+# OpenAI Codex 配置範例
+#
+# Copy this file to ~/.codex/config.toml to apply globally
+# 將此檔案複製到 ~/.codex/config.toml 以全域套用
+
+# Maximum bytes to read from each AGENTS.md file
+# Default: 32768 (32 KiB)
+# Increase if your instructions are being truncated
+# 每個 AGENTS.md 檔案的最大讀取位元組數
+# 預設：32768 (32 KiB)
+# 如果指令被截斷，請增加此值
+project_doc_max_bytes = 65536
+
+# Fallback filenames when AGENTS.md is missing at a directory level
+# Codex checks in this order: AGENTS.override.md, AGENTS.md, then these fallbacks
+# 當目錄層級缺少 AGENTS.md 時的備用檔案名稱
+# Codex 依此順序檢查：AGENTS.override.md、AGENTS.md，然後是這些備用檔案
+project_doc_fallback_filenames = ["TEAM_GUIDE.md", ".agents.md"]
