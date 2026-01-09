@@ -477,6 +477,11 @@ grep -r "beta" cli/package.json .claude-plugin/ cli/standards-registry.json | gr
 - [ ] `locales/*/adoption/STATIC-DYNAMIC-GUIDE.md` - 技能數量正確
 - [ ] `locales/*/docs/CLI-INIT-OPTIONS.md` - 翻譯已同步
 
+**標準一致性：**
+- [ ] `core/` ↔ `ai/standards/` - AI 優化版本與核心標準一致
+- [ ] `options/` ↔ `ai/options/` - 每個選項都有人類可讀（.md）和 AI 優化（.ai.yaml）版本
+- [ ] 驗證選項類別一致：git-workflow, commit-message, testing, project-structure, changelog, code-review, documentation
+
 **內容正確性驗證：**
 - [ ] 搜尋過時的版本號：`grep -r "X.Y.Z" --include="*.md"`（將 X.Y.Z 替換為前一版本）
 - [ ] 搜尋過時的技能數量：`grep -r "N skills" --include="*.md"`（將 N 替換為前一數量）

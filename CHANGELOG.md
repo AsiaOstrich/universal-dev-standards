@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - Trilingual: English, Traditional Chinese (`locales/zh-TW/`), Simplified Chinese (`locales/zh-CN/`)
 - **Release**: Add CLI documentation to pre-release checklist
   - `release-workflow.md` now includes CLI-INIT-OPTIONS.md verification
+- **Release**: Add standards consistency check to pre-release checklist
+  - Verify `core/` ↔ `ai/standards/` content alignment
+  - Verify `options/` ↔ `ai/options/` dual-format completeness
 
 ## [3.5.0-beta.5] - 2026-01-09
 

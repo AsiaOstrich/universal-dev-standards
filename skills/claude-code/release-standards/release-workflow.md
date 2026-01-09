@@ -474,6 +474,11 @@ For each supported locale (`locales/zh-TW/`, `locales/zh-CN/`, etc.), verify the
 - [ ] `locales/*/adoption/STATIC-DYNAMIC-GUIDE.md` - Skills count accurate
 - [ ] `locales/*/docs/CLI-INIT-OPTIONS.md` - Translations synchronized
 
+**Standards Consistency:**
+- [ ] `core/` ↔ `ai/standards/` - AI-optimized versions match core standards
+- [ ] `options/` ↔ `ai/options/` - Each option has both human-readable (.md) and AI-optimized (.ai.yaml) versions
+- [ ] Verify option categories match: git-workflow, commit-message, testing, project-structure, changelog, code-review, documentation
+
 **Content Accuracy Verification:**
 - [ ] Search for outdated version numbers: `grep -r "X.Y.Z" --include="*.md"` (replace X.Y.Z with previous version)
 - [ ] Search for outdated skills count: `grep -r "N skills" --include="*.md"` (replace N with previous count)
