@@ -23,7 +23,8 @@ vi.mock('ora', () => ({
 
 vi.mock('inquirer', () => ({
   default: {
-    prompt: vi.fn(() => Promise.resolve({ type: 'format' }))
+    prompt: vi.fn(() => Promise.resolve({ type: 'format' })),
+    Separator: class Separator {}
   }
 }));
 
@@ -34,13 +35,18 @@ vi.mock('../../src/utils/registry.js', () => ({
     { id: 'git-workflow', options: { workflow: [], merge_strategy: [] } },
     { id: 'commit-message', options: { commit_language: [] } },
     { id: 'testing', options: { test_level: [] } }
-  ])
+  ]),
+  getStandardsByLevel: vi.fn(() => []),
+  getStandardSource: vi.fn((std) => `core/${std.id}.md`)
 }));
 
 vi.mock('../../src/utils/copier.js', () => ({
   copyStandard: vi.fn(() => ({ success: true, error: null, path: '/test/path' })),
   readManifest: vi.fn(() => ({
     format: 'human',
+    level: 2,
+    contentMode: 'minimal',
+    aiTools: ['claude-code'],
     options: {
       workflow: 'github-flow',
       merge_strategy: 'squash',
@@ -58,7 +64,29 @@ vi.mock('../../src/prompts/init.js', () => ({
   promptMergeStrategy: vi.fn(() => 'rebase'),
   promptCommitLanguage: vi.fn(() => 'bilingual'),
   promptTestLevels: vi.fn(() => ['unit-testing', 'integration-testing']),
-  promptConfirm: vi.fn(() => true)
+  promptConfirm: vi.fn(() => true),
+  promptManageAITools: vi.fn(() => ({ action: 'cancel', tools: [] })),
+  promptAdoptionLevel: vi.fn((current) => current),
+  promptContentModeChange: vi.fn((current) => current),
+  handleAgentsMdSharing: vi.fn((tools) => tools)
+}));
+
+vi.mock('../../src/utils/integration-generator.js', () => ({
+  writeIntegrationFile: vi.fn(() => ({ success: true, path: '/test/.cursorrules' })),
+  getToolFilePath: vi.fn((tool) => {
+    const files = {
+      cursor: '.cursorrules',
+      windsurf: '.windsurfrules',
+      cline: '.clinerules',
+      copilot: '.github/copilot-instructions.md',
+      antigravity: 'INSTRUCTIONS.md',
+      'claude-code': 'CLAUDE.md',
+      codex: 'AGENTS.md',
+      'gemini-cli': 'GEMINI.md',
+      opencode: 'AGENTS.md'
+    };
+    return files[tool] || '';
+  })
 }));
 
 import { configureCommand } from '../../src/commands/configure.js';
@@ -110,6 +138,9 @@ describe('Configure Command', () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue({
         format: 'human',
+        level: 2,
+        contentMode: 'minimal',
+        aiTools: ['claude-code'],
         options: {
           workflow: 'github-flow',
           merge_strategy: 'squash',
@@ -118,7 +149,7 @@ describe('Configure Command', () => {
       });
       promptConfirm.mockResolvedValue(false);
 
-      await configureCommand({ type: 'format' });
+      await expect(configureCommand({ type: 'format' })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Current Configuration');
@@ -129,11 +160,14 @@ describe('Configure Command', () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue({
         format: 'human',
+        level: 2,
+        contentMode: 'minimal',
+        aiTools: [],
         options: {}
       });
       promptConfirm.mockResolvedValue(false);
 
-      await configureCommand({ type: 'format' });
+      await expect(configureCommand({ type: 'format' })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Configuration cancelled');
@@ -143,6 +177,9 @@ describe('Configure Command', () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue({
         format: 'human',
+        level: 2,
+        contentMode: 'minimal',
+        aiTools: [],
         options: {}
       });
       promptConfirm.mockResolvedValue(true);
@@ -158,6 +195,9 @@ describe('Configure Command', () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue({
         format: 'human',
+        level: 2,
+        contentMode: 'minimal',
+        aiTools: [],
         options: {}
       });
       promptConfirm.mockResolvedValue(true);
@@ -172,6 +212,9 @@ describe('Configure Command', () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue({
         format: 'human',
+        level: 2,
+        contentMode: 'minimal',
+        aiTools: [],
         options: { workflow: 'github-flow' }
       });
       promptConfirm.mockResolvedValue(true);

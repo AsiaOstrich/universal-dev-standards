@@ -70,7 +70,9 @@ vi.mock('../../src/prompts/init.js', () => ({
   promptLocale: vi.fn(() => null),
   promptConfirm: vi.fn(() => true),
   promptFormat: vi.fn(() => 'ai'),
-  promptStandardOptions: vi.fn(() => ({}))
+  promptStandardOptions: vi.fn(() => ({})),
+  promptContentMode: vi.fn(() => 'index'),
+  handleAgentsMdSharing: vi.fn((tools) => tools)
 }));
 
 vi.mock('../../src/prompts/integrations.js', () => ({
@@ -82,7 +84,25 @@ vi.mock('../../src/prompts/integrations.js', () => ({
 
 vi.mock('../../src/utils/integration-generator.js', () => ({
   writeIntegrationFile: vi.fn(() => ({ success: true, path: '/test/.cursorrules' })),
-  integrationFileExists: vi.fn(() => false)
+  integrationFileExists: vi.fn(() => false),
+  getToolFilePath: vi.fn((tool) => {
+    const files = {
+      cursor: '.cursorrules',
+      windsurf: '.windsurfrules',
+      cline: '.clinerules',
+      copilot: '.github/copilot-instructions.md',
+      antigravity: 'INSTRUCTIONS.md',
+      'claude-code': 'CLAUDE.md',
+      codex: 'AGENTS.md',
+      'gemini-cli': 'GEMINI.md',
+      opencode: 'AGENTS.md'
+    };
+    return files[tool] || '';
+  }),
+  getSupportedTools: vi.fn(() => ['cursor', 'windsurf', 'cline', 'copilot', 'antigravity', 'claude-code', 'codex', 'gemini-cli', 'opencode']),
+  toolsShareFile: vi.fn((t1, t2) => (t1 === 'codex' && t2 === 'opencode') || (t1 === 'opencode' && t2 === 'codex')),
+  generateComplianceInstructions: vi.fn(() => '## Standards Compliance'),
+  generateStandardsIndex: vi.fn(() => '## Standards Index')
 }));
 
 import { initCommand } from '../../src/commands/init.js';

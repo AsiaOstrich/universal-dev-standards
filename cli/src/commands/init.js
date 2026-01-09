@@ -34,14 +34,17 @@ import {
   promptLocale,
   promptConfirm,
   promptFormat,
-  promptStandardOptions
+  promptStandardOptions,
+  promptContentMode,
+  handleAgentsMdSharing
 } from '../prompts/init.js';
 import {
   promptIntegrationConfig
 } from '../prompts/integrations.js';
 import {
   writeIntegrationFile,
-  integrationFileExists
+  integrationFileExists,
+  getToolFilePath
 } from '../utils/integration-generator.js';
 import { computeFileHash } from '../utils/hasher.js';
 
@@ -66,6 +69,18 @@ const INTEGRATION_MAPPINGS = {
   antigravity: {
     source: 'integrations/google-antigravity/INSTRUCTIONS.md',
     target: 'INSTRUCTIONS.md'
+  },
+  codex: {
+    source: 'integrations/openai-codex/AGENTS.md',
+    target: 'AGENTS.md'
+  },
+  'gemini-cli': {
+    source: 'integrations/gemini-cli/GEMINI.md',
+    target: 'GEMINI.md'
+  },
+  opencode: {
+    source: 'integrations/opencode/AGENTS.md',
+    target: 'AGENTS.md'
   }
 };
 
@@ -145,14 +160,21 @@ export async function initCommand(options) {
   if (!options.yes) {
     // ===== Interactive mode =====
 
-    // STEP 3: Ask for AI tools
+    // STEP 3: Ask for AI tools (all 9 supported tools)
     aiTools = await promptAITools({
       claudeCode: detected.aiTools.claudeCode || false,
       cursor: detected.aiTools.cursor || false,
       windsurf: detected.aiTools.windsurf || false,
       cline: detected.aiTools.cline || false,
-      copilot: detected.aiTools.copilot || false
+      copilot: detected.aiTools.copilot || false,
+      antigravity: detected.aiTools.antigravity || false,
+      codex: detected.aiTools.codex || false,
+      opencode: detected.aiTools.opencode || false,
+      geminiCli: detected.aiTools.geminiCli || false
     });
+
+    // Handle AGENTS.md sharing notification (Codex + OpenCode)
+    aiTools = handleAgentsMdSharing(aiTools);
 
     const useClaudeCode = aiTools.includes('claude-code');
     const onlyClaudeCode = aiTools.length === 1 && useClaudeCode;
@@ -306,6 +328,13 @@ export async function initCommand(options) {
     // Store standards scope for later use
     skillsConfig.standardsScope = standardsScope;
 
+    // STEP 13: Content mode for integration files (if any AI tools selected)
+    let contentMode = 'minimal'; // default for backward compatibility
+    if (aiTools.length > 0) {
+      contentMode = await promptContentMode();
+    }
+    skillsConfig.contentMode = contentMode;
+
   } else {
     // ===== Non-interactive mode =====
     level = level || 2;
@@ -325,13 +354,17 @@ export async function initCommand(options) {
     // Handle Skills configuration based on CLI flag (default: marketplace)
     const skillsLocationFlag = options.skillsLocation || 'marketplace';
 
+    // Content mode from CLI flag (default: index for best balance)
+    const contentModeFlag = options.contentMode || 'index';
+
     if (skillsLocationFlag === 'marketplace') {
       skillsConfig = {
         installed: true,
         location: 'marketplace',
         needsInstall: false,
         updateTargets: [],
-        standardsScope: 'minimal'
+        standardsScope: 'minimal',
+        contentMode: contentModeFlag
       };
     } else if (skillsLocationFlag === 'none') {
       skillsConfig = {
@@ -339,7 +372,8 @@ export async function initCommand(options) {
         location: null,
         needsInstall: false,
         updateTargets: [],
-        standardsScope: 'full'
+        standardsScope: 'full',
+        contentMode: contentModeFlag
       };
     } else if (skillsLocationFlag === 'project') {
       skillsConfig = {
@@ -347,7 +381,8 @@ export async function initCommand(options) {
         location: 'project',
         needsInstall: true,
         updateTargets: ['project'],
-        standardsScope: 'minimal'
+        standardsScope: 'minimal',
+        contentMode: contentModeFlag
       };
     } else if (skillsLocationFlag === 'user') {
       skillsConfig = {
@@ -355,7 +390,8 @@ export async function initCommand(options) {
         location: 'user',
         needsInstall: true,
         updateTargets: ['user'],
-        standardsScope: 'minimal'
+        standardsScope: 'minimal',
+        contentMode: contentModeFlag
       };
     } else {
       // Fallback: auto-detect user/project installation
@@ -369,7 +405,8 @@ export async function initCommand(options) {
           location,
           needsInstall: false,
           updateTargets: [],
-          standardsScope: 'minimal'
+          standardsScope: 'minimal',
+          contentMode: contentModeFlag
         };
       } else {
         // Fallback to marketplace if nothing detected
@@ -378,7 +415,8 @@ export async function initCommand(options) {
           location: 'marketplace',
           needsInstall: false,
           updateTargets: [],
-          standardsScope: 'minimal'
+          standardsScope: 'minimal',
+          contentMode: contentModeFlag
         };
       }
     }
@@ -390,6 +428,7 @@ export async function initCommand(options) {
   console.log(chalk.gray(`  Level: ${level}`));
   console.log(chalk.gray(`  Format: ${format === 'ai' ? 'AI-Optimized' : format === 'human' ? 'Human-Readable' : 'Both'}`));
   console.log(chalk.gray(`  Standards Scope: ${skillsConfig.standardsScope === 'minimal' ? 'Minimal (Skills cover the rest)' : 'Full'}`));
+  console.log(chalk.gray(`  Content Mode: ${skillsConfig.contentMode === 'full' ? 'Full (embed all)' : skillsConfig.contentMode === 'index' ? 'Index (recommended)' : 'Minimal (core only)'}`));
   console.log(chalk.gray(`  Languages: ${languages.length > 0 ? languages.join(', ') : 'none'}`));
   console.log(chalk.gray(`  Frameworks: ${frameworks.length > 0 ? frameworks.join(', ') : 'none'}`));
   console.log(chalk.gray(`  Locale: ${locale || 'default (English)'}`));
@@ -560,31 +599,67 @@ export async function initCommand(options) {
     extSpinner.succeed(`Copied ${results.extensions.length} extension files`);
   }
 
+  // Build installed standards list for compliance instructions (used by all AI tools)
+  const installedStandardsList = results.standards.map(s => {
+    const { basename } = require('path');
+    return basename(s);
+  });
+
+  // Determine common language setting
+  let commonLanguage = 'en';
+  if (locale === 'zh-tw') {
+    commonLanguage = 'zh-tw';
+  } else if (standardOptions?.commit_language === 'bilingual') {
+    commonLanguage = 'bilingual';
+  } else if (standardOptions?.commit_language === 'traditional-chinese') {
+    commonLanguage = 'zh-tw';
+  }
+
   // Generate and write integrations
   if (integrations.length > 0) {
     const intSpinner = ora('Generating integration files...').start();
     const integrationConfigs = skillsConfig.integrationConfigs || {};
 
+    // Track generated files to handle AGENTS.md sharing (codex + opencode)
+    const generatedFiles = new Set();
+
     for (const tool of integrations) {
-      // Check if we have a custom config for this tool
-      if (integrationConfigs[tool]) {
-        // Use dynamic generator with custom config
-        const result = writeIntegrationFile(tool, integrationConfigs[tool], projectPath);
-        if (result.success) {
-          results.integrations.push(result.path);
-        } else {
-          results.errors.push(`${tool}: ${result.error}`);
-        }
+      // Check if this file was already generated (for AGENTS.md sharing)
+      const targetFile = getToolFilePath(tool);
+      if (generatedFiles.has(targetFile)) {
+        // Skip - file already generated by another tool (e.g., codex generated AGENTS.md, skip opencode)
+        continue;
+      }
+
+      // Build enhanced config with installed standards
+      const enhancedConfig = {
+        ...integrationConfigs[tool],
+        tool,
+        categories: integrationConfigs[tool]?.categories || ['anti-hallucination', 'commit-standards', 'code-review'],
+        language: integrationConfigs[tool]?.language || commonLanguage,
+        installedStandards: installedStandardsList,
+        contentMode: skillsConfig.contentMode || 'minimal',
+        level: level
+      };
+
+      // Use dynamic generator
+      const result = writeIntegrationFile(tool, enhancedConfig, projectPath);
+      if (result.success) {
+        results.integrations.push(result.path);
+        generatedFiles.add(targetFile);
       } else {
         // Fall back to legacy static file copy
         const mapping = INTEGRATION_MAPPINGS[tool];
         if (mapping) {
-          const result = await copyIntegration(mapping.source, mapping.target, projectPath);
-          if (result.success) {
+          const copyResult = await copyIntegration(mapping.source, mapping.target, projectPath);
+          if (copyResult.success) {
             results.integrations.push(mapping.target);
+            generatedFiles.add(targetFile);
           } else {
-            results.errors.push(`${mapping.source}: ${result.error}`);
+            results.errors.push(`${tool}: ${result.error || copyResult.error}`);
           }
+        } else {
+          results.errors.push(`${tool}: ${result.error}`);
         }
       }
     }
@@ -597,16 +672,6 @@ export async function initCommand(options) {
   if (claudeCodeSelected && !integrationFileExists('claude-code', projectPath)) {
     const claudeSpinner = ora('Generating CLAUDE.md...').start();
 
-    // Determine language setting from locale or format
-    let claudeLanguage = 'en';
-    if (locale === 'zh-tw') {
-      claudeLanguage = 'zh-tw';
-    } else if (standardOptions?.commit_language === 'bilingual') {
-      claudeLanguage = 'bilingual';
-    } else if (standardOptions?.commit_language === 'traditional-chinese') {
-      claudeLanguage = 'zh-tw';
-    }
-
     const claudeConfig = {
       tool: 'claude-code',
       categories: ['anti-hallucination', 'commit-standards', 'code-review'],
@@ -614,7 +679,11 @@ export async function initCommand(options) {
       exclusions: [],
       customRules: [],
       detailLevel: 'standard',
-      language: claudeLanguage
+      language: commonLanguage,
+      // Enhanced standards compliance fields
+      installedStandards: installedStandardsList,
+      contentMode: skillsConfig.contentMode || 'minimal',
+      level: level
     };
 
     const result = writeIntegrationFile('claude-code', claudeConfig, projectPath);
@@ -749,15 +818,6 @@ export async function initCommand(options) {
     // Check if this is CLAUDE.md
     if (targetPath === 'CLAUDE.md' || targetPath === '.standards/CLAUDE.md') {
       toolName = 'claude-code';
-      // Determine language setting from locale or format
-      let claudeLanguage = 'en';
-      if (locale === 'zh-tw') {
-        claudeLanguage = 'zh-tw';
-      } else if (standardOptions?.commit_language === 'bilingual') {
-        claudeLanguage = 'bilingual';
-      } else if (standardOptions?.commit_language === 'traditional-chinese') {
-        claudeLanguage = 'zh-tw';
-      }
       config = {
         tool: 'claude-code',
         categories: ['anti-hallucination', 'commit-standards', 'code-review'],
@@ -765,7 +825,7 @@ export async function initCommand(options) {
         exclusions: [],
         customRules: [],
         detailLevel: 'standard',
-        language: claudeLanguage
+        language: commonLanguage
       };
     }
 
@@ -774,7 +834,9 @@ export async function initCommand(options) {
         tool: toolName,
         categories: config.categories || [],
         detailLevel: config.detailLevel || 'standard',
-        language: config.language || 'en',
+        language: config.language || commonLanguage,
+        contentMode: skillsConfig.contentMode || 'minimal',
+        installedStandards: installedStandardsList,
         generatedAt: now
       };
     }
@@ -790,6 +852,7 @@ export async function initCommand(options) {
     level,
     format,
     standardsScope: skillsConfig.standardsScope || 'full',
+    contentMode: skillsConfig.contentMode || 'minimal',
     standards: results.standards,
     extensions: results.extensions,
     integrations: results.integrations,

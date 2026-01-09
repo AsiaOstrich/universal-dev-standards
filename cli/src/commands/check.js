@@ -18,6 +18,11 @@ import {
   parseReferences,
   compareStandardsWithReferences
 } from '../utils/reference-sync.js';
+import {
+  getToolFilePath,
+  getToolFormat,
+  extractMarkedContent
+} from '../utils/integration-generator.js';
 
 /**
  * Check command - verify adoption status
@@ -210,6 +215,9 @@ export async function checkCommand(options = {}) {
 
   // Reference sync check
   checkReferenceSync(manifest, projectPath);
+
+  // Integration files check
+  checkIntegrationFiles(manifest, projectPath);
 
   // Skills status
   displaySkillsStatus(manifest, projectPath);
@@ -672,6 +680,132 @@ function displayCoverageReport(manifest) {
   console.log(chalk.gray('  Your coverage:'));
   console.log(chalk.gray(`    ${coveredBySkills} via Skills`));
   console.log(chalk.gray(`    ${coveredByDocs} via copied documents`));
+  console.log();
+}
+
+/**
+ * Check AI tool integration files for standards coverage
+ */
+function checkIntegrationFiles(manifest, projectPath) {
+  // Skip if no AI tools configured
+  if (!manifest.aiTools || manifest.aiTools.length === 0) {
+    return;
+  }
+
+  console.log(chalk.cyan('AI Tool Integration Status:'));
+
+  const standardsFiles = manifest.standards?.map(s => basename(s)) || [];
+  let hasIssues = false;
+  let checkedCount = 0;
+
+  // Standard filename to task mapping for coverage check
+  const STANDARD_TASK_MAPPING = {
+    'anti-hallucination.md': 'AI collaboration',
+    'commit-message.ai.yaml': 'Writing commits',
+    'checkin-standards.md': 'Committing code',
+    'logging-standards.md': 'Adding logging',
+    'error-code-standards.md': 'Error handling',
+    'testing.ai.yaml': 'Writing tests',
+    'versioning.md': 'Version bumping',
+    'changelog-standards.md': 'Updating changelog',
+    'code-review-checklist.md': 'Code review',
+    'spec-driven-development.md': 'Feature development',
+    'test-completeness-dimensions.md': 'Test coverage',
+    'git-workflow.ai.yaml': 'Git workflow'
+  };
+
+  for (const tool of manifest.aiTools) {
+    const toolFile = getToolFilePath(tool);
+    if (!toolFile) continue;
+
+    const fullPath = join(projectPath, toolFile);
+
+    // Check if file exists
+    if (!existsSync(fullPath)) {
+      console.log(chalk.red(`  ✗ ${toolFile}: File not found`));
+      hasIssues = true;
+      continue;
+    }
+
+    checkedCount++;
+
+    // Read file content
+    let content;
+    try {
+      content = readFileSync(fullPath, 'utf-8');
+    } catch {
+      console.log(chalk.yellow(`  ⚠ ${toolFile}: Could not read file`));
+      continue;
+    }
+
+    // Check for standards index marker
+    const format = getToolFormat(tool);
+    const { content: markedContent } = extractMarkedContent(content, format);
+    const hasStandardsIndex = markedContent.length > 0 ||
+      content.includes('Standards Index') ||
+      content.includes('Standards Compliance');
+
+    // Count referenced standards
+    const referencedStandards = [];
+    const missingStandards = [];
+
+    for (const stdFile of standardsFiles) {
+      // Check if standard is referenced in the file
+      const isReferenced = content.includes(stdFile) ||
+        content.includes(`.standards/${stdFile}`) ||
+        content.includes(`standards/${stdFile}`);
+
+      if (isReferenced) {
+        referencedStandards.push(stdFile);
+      } else if (STANDARD_TASK_MAPPING[stdFile]) {
+        // Only report as missing if it's a known trackable standard
+        missingStandards.push(stdFile);
+      }
+    }
+
+    // Report status
+    const totalTrackable = Object.keys(STANDARD_TASK_MAPPING).filter(s =>
+      standardsFiles.includes(s)
+    ).length;
+
+    if (hasStandardsIndex && missingStandards.length === 0) {
+      console.log(chalk.green(`  ✓ ${toolFile}:`));
+      console.log(chalk.gray('    Standards index present'));
+      console.log(chalk.gray(`    ${referencedStandards.length}/${totalTrackable || standardsFiles.length} standards referenced`));
+    } else if (hasStandardsIndex) {
+      console.log(chalk.yellow(`  ⚠ ${toolFile}:`));
+      console.log(chalk.gray('    Standards index present'));
+      console.log(chalk.yellow(`    ${referencedStandards.length}/${totalTrackable} standards referenced`));
+      if (missingStandards.length > 0 && missingStandards.length <= 5) {
+        console.log(chalk.yellow(`    Missing: ${missingStandards.join(', ')}`));
+      } else if (missingStandards.length > 5) {
+        console.log(chalk.yellow(`    Missing: ${missingStandards.slice(0, 5).join(', ')}...`));
+      }
+      hasIssues = true;
+    } else {
+      // No standards index - using minimal mode
+      console.log(chalk.gray(`  ℹ ${toolFile}:`));
+      console.log(chalk.gray('    Using minimal mode (no standards index)'));
+      const coreRules = content.includes('Anti-Hallucination') ||
+        content.includes('Commit') ||
+        content.includes('Code Review');
+      if (coreRules) {
+        console.log(chalk.gray('    Core rules embedded'));
+      }
+    }
+  }
+
+  if (checkedCount === 0) {
+    console.log(chalk.gray('  No AI tool integration files configured.'));
+  }
+
+  if (hasIssues) {
+    console.log();
+    console.log(chalk.yellow('  To fix integration issues:'));
+    console.log(chalk.gray('    • Run `uds update` to sync all integration files'));
+    console.log(chalk.gray('    • Run `uds configure --type ai_tools` to manage AI tools'));
+  }
+
   console.log();
 }
 

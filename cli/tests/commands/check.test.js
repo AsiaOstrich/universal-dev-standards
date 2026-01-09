@@ -376,5 +376,97 @@ describe('Check Command', () => {
       expect(output).toContain('hash-based integrity checking');
     });
 
+    it('should show AI Tool Integration Status when aiTools configured', async () => {
+      const manifest = {
+        version: '3.2.0',
+        upstream: {
+          repo: 'AsiaOstrich/universal-dev-standards',
+          version: '3.5.0',
+          installed: '2024-01-01'
+        },
+        level: 2,
+        standards: ['core/anti-hallucination.md'],
+        extensions: [],
+        integrations: ['CLAUDE.md'],
+        aiTools: ['claude-code'],
+        skills: { installed: false }
+      };
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+      writeFileSync(
+        join(TEST_DIR, 'CLAUDE.md'),
+        '# Project Guidelines\n## Anti-Hallucination Protocol\nContent'
+      );
+
+      await checkCommand({ noInteractive: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('AI Tool Integration Status');
+      expect(output).toContain('CLAUDE.md');
+    });
+
+    it('should report missing integration file', async () => {
+      const manifest = {
+        version: '3.2.0',
+        upstream: {
+          repo: 'AsiaOstrich/universal-dev-standards',
+          version: '3.5.0',
+          installed: '2024-01-01'
+        },
+        level: 2,
+        standards: [],
+        extensions: [],
+        integrations: ['CLAUDE.md'],
+        aiTools: ['claude-code'],
+        skills: { installed: false }
+      };
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+      // Note: CLAUDE.md file is NOT created
+
+      await checkCommand({ noInteractive: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('AI Tool Integration Status');
+      expect(output).toContain('File not found');
+    });
+
+    it('should skip AI Tool Integration Status when no aiTools configured', async () => {
+      const manifest = {
+        version: '3.2.0',
+        upstream: {
+          repo: 'AsiaOstrich/universal-dev-standards',
+          version: '3.5.0',
+          installed: '2024-01-01'
+        },
+        level: 2,
+        standards: [],
+        extensions: [],
+        integrations: [],
+        skills: { installed: false }
+        // Note: no aiTools field
+      };
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+
+      await checkCommand({ noInteractive: true });
+
+      const output = consoleLogs.join('\n');
+      // Should not show AI Tool Integration Status section
+      expect(output).not.toContain('AI Tool Integration Status');
+    });
+
   });
 });

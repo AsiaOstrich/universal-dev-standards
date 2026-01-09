@@ -50,6 +50,23 @@ export async function promptAITools(detected = {}) {
           value: 'antigravity',
           checked: detected.antigravity || false
         },
+        new inquirer.Separator(chalk.gray('── AGENTS.md Tools ──')),
+        {
+          name: `OpenAI Codex ${chalk.gray('(AGENTS.md)')} - OpenAI Codex CLI`,
+          value: 'codex',
+          checked: detected.codex || false
+        },
+        {
+          name: `OpenCode ${chalk.gray('(AGENTS.md)')} - Open-source AI coding agent`,
+          value: 'opencode',
+          checked: detected.opencode || false
+        },
+        new inquirer.Separator(chalk.gray('── Gemini Tools ──')),
+        {
+          name: `Gemini CLI ${chalk.gray('(GEMINI.md)')} - Google Gemini CLI`,
+          value: 'gemini-cli',
+          checked: detected.geminiCli || false
+        },
         new inquirer.Separator(),
         {
           name: chalk.gray('None / Skip'),
@@ -709,4 +726,281 @@ export async function promptConfirm(message) {
   ]);
 
   return confirmed;
+}
+
+/**
+ * Prompt for integration file content mode
+ * @returns {Promise<string>} 'full', 'index', or 'minimal'
+ */
+export async function promptContentMode() {
+  console.log();
+  console.log(chalk.cyan('Integration File Content Mode:'));
+  console.log(chalk.gray('  Choose how much standards content to embed in AI tool integration files'));
+  console.log();
+
+  const { mode } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'mode',
+      message: 'Select content mode for integration files:',
+      choices: [
+        {
+          name: `${chalk.green('Index')} ${chalk.gray('(推薦)')} - Standards index + compliance instructions`,
+          value: 'index'
+        },
+        {
+          name: `${chalk.blue('Full')} - Embed all standards content (largest files, guaranteed visibility)`,
+          value: 'full'
+        },
+        {
+          name: `${chalk.gray('Minimal')} - Only core rules (current behavior, smallest files)`,
+          value: 'minimal'
+        }
+      ],
+      default: 'index'
+    }
+  ]);
+
+  // Show explanation
+  console.log();
+  if (mode === 'index') {
+    console.log(chalk.gray('  → Includes standards index with links and compliance instructions'));
+    console.log(chalk.gray('  → AI will read relevant .standards/ files when needed'));
+    console.log(chalk.gray('  → Best balance of file size and standards visibility'));
+  } else if (mode === 'full') {
+    console.log(chalk.gray('  → All standards content embedded in integration files'));
+    console.log(chalk.gray('  → AI guaranteed to see all standards without reading files'));
+    console.log(chalk.gray('  → Results in larger integration files'));
+  } else {
+    console.log(chalk.gray('  → Only anti-hallucination, commit-standards, code-review embedded'));
+    console.log(chalk.gray('  → Smallest files, but AI may miss other standards'));
+    console.log(chalk.gray('  → Legacy mode for backward compatibility'));
+  }
+  console.log();
+
+  return mode;
+}
+
+/**
+ * Handle AGENTS.md sharing notification
+ * When both Codex and OpenCode are selected, inform user they share the same file
+ * @param {string[]} selectedTools - List of selected AI tools
+ * @returns {string[]} Deduplicated tools (keeps both, but will only generate one AGENTS.md)
+ */
+export function handleAgentsMdSharing(selectedTools) {
+  const hasCodex = selectedTools.includes('codex');
+  const hasOpencode = selectedTools.includes('opencode');
+
+  if (hasCodex && hasOpencode) {
+    console.log();
+    console.log(chalk.yellow('Note: OpenAI Codex and OpenCode both use AGENTS.md'));
+    console.log(chalk.gray('  → A single AGENTS.md file will be generated'));
+    console.log(chalk.gray('  → Both tools are compatible with the same file format'));
+    console.log();
+  }
+
+  return selectedTools;
+}
+
+/**
+ * AI tool definitions for configure command
+ */
+const AI_TOOL_DEFINITIONS = {
+  'claude-code': { name: 'Claude Code', file: 'CLAUDE.md' },
+  cursor: { name: 'Cursor', file: '.cursorrules' },
+  windsurf: { name: 'Windsurf', file: '.windsurfrules' },
+  cline: { name: 'Cline', file: '.clinerules' },
+  copilot: { name: 'GitHub Copilot', file: '.github/copilot-instructions.md' },
+  antigravity: { name: 'Google Antigravity', file: 'INSTRUCTIONS.md' },
+  codex: { name: 'OpenAI Codex', file: 'AGENTS.md' },
+  'gemini-cli': { name: 'Gemini CLI', file: 'GEMINI.md' },
+  opencode: { name: 'OpenCode', file: 'AGENTS.md' }
+};
+
+/**
+ * Prompt for AI tools management action
+ * @param {string[]} currentTools - Currently installed AI tools
+ * @returns {Promise<Object>} Action and tools to modify
+ */
+export async function promptManageAITools(currentTools = []) {
+  console.log();
+  console.log(chalk.cyan('AI Tools Management:'));
+  console.log(chalk.gray(`  Currently installed: ${currentTools.length > 0 ? currentTools.join(', ') : 'none'}`));
+  console.log();
+
+  const { action } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'action',
+      message: 'What would you like to do?',
+      choices: [
+        { name: 'Add new AI tools', value: 'add' },
+        { name: 'Remove existing AI tools', value: 'remove' },
+        { name: 'View current AI tools', value: 'view' },
+        { name: chalk.gray('Cancel'), value: 'cancel' }
+      ]
+    }
+  ]);
+
+  if (action === 'view') {
+    console.log();
+    console.log(chalk.cyan('Installed AI Tools:'));
+    if (currentTools.length === 0) {
+      console.log(chalk.gray('  No AI tools installed'));
+    } else {
+      for (const tool of currentTools) {
+        const def = AI_TOOL_DEFINITIONS[tool];
+        console.log(chalk.gray(`  • ${def?.name || tool} (${def?.file || 'unknown'})`));
+      }
+    }
+    console.log();
+    return { action: 'view', tools: [] };
+  }
+
+  if (action === 'cancel') {
+    return { action: 'cancel', tools: [] };
+  }
+
+  if (action === 'add') {
+    // Show tools not yet installed
+    const availableTools = Object.entries(AI_TOOL_DEFINITIONS)
+      .filter(([id]) => !currentTools.includes(id))
+      .map(([id, def]) => ({
+        name: `${def.name} ${chalk.gray(`(${def.file})`)}`,
+        value: id
+      }));
+
+    if (availableTools.length === 0) {
+      console.log(chalk.yellow('  All AI tools are already installed!'));
+      return { action: 'cancel', tools: [] };
+    }
+
+    const { toolsToAdd } = await inquirer.prompt([
+      {
+        type: 'checkbox',
+        name: 'toolsToAdd',
+        message: 'Select AI tools to add:',
+        choices: availableTools
+      }
+    ]);
+
+    return { action: 'add', tools: toolsToAdd };
+  }
+
+  if (action === 'remove') {
+    if (currentTools.length === 0) {
+      console.log(chalk.yellow('  No AI tools to remove!'));
+      return { action: 'cancel', tools: [] };
+    }
+
+    const installedChoices = currentTools.map(id => {
+      const def = AI_TOOL_DEFINITIONS[id];
+      return {
+        name: `${def?.name || id} ${chalk.gray(`(${def?.file || 'unknown'})`)}`,
+        value: id
+      };
+    });
+
+    const { toolsToRemove } = await inquirer.prompt([
+      {
+        type: 'checkbox',
+        name: 'toolsToRemove',
+        message: 'Select AI tools to remove:',
+        choices: installedChoices
+      }
+    ]);
+
+    return { action: 'remove', tools: toolsToRemove };
+  }
+
+  return { action: 'cancel', tools: [] };
+}
+
+/**
+ * Prompt for adoption level change
+ * @param {number} currentLevel - Current adoption level
+ * @returns {Promise<number>} New level
+ */
+export async function promptAdoptionLevel(currentLevel) {
+  console.log();
+  console.log(chalk.cyan('Adoption Level:'));
+  console.log(chalk.gray(`  Current level: ${currentLevel}`));
+  console.log();
+
+  const { level } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'level',
+      message: 'Select new adoption level:',
+      choices: [
+        {
+          name: `${chalk.green('Level 1: Essential')} ${chalk.gray('(基本)')} - Minimum viable standards`,
+          value: 1
+        },
+        {
+          name: `${chalk.yellow('Level 2: Recommended')} ${chalk.gray('(推薦)')} - Professional quality`,
+          value: 2
+        },
+        {
+          name: `${chalk.blue('Level 3: Enterprise')} ${chalk.gray('(企業)')} - Comprehensive standards`,
+          value: 3
+        }
+      ],
+      default: currentLevel - 1  // 0-indexed
+    }
+  ]);
+
+  if (level !== currentLevel) {
+    console.log();
+    if (level > currentLevel) {
+      console.log(chalk.yellow('⚠ Upgrading level will add new standard files'));
+    } else {
+      console.log(chalk.yellow('⚠ Downgrading level will NOT remove existing files'));
+      console.log(chalk.gray('  You may manually remove files from .standards/ if needed'));
+    }
+  }
+
+  return level;
+}
+
+/**
+ * Prompt for content mode change
+ * @param {string} currentMode - Current content mode
+ * @returns {Promise<string>} New content mode
+ */
+export async function promptContentModeChange(currentMode) {
+  console.log();
+  console.log(chalk.cyan('Content Mode:'));
+  console.log(chalk.gray(`  Current mode: ${currentMode || 'minimal'}`));
+  console.log();
+
+  const { mode } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'mode',
+      message: 'Select content mode for integration files:',
+      choices: [
+        {
+          name: `${chalk.green('Index')} ${chalk.gray('(推薦)')} - Standards index + compliance instructions`,
+          value: 'index'
+        },
+        {
+          name: `${chalk.blue('Full')} - Embed all standards content (largest files)`,
+          value: 'full'
+        },
+        {
+          name: `${chalk.gray('Minimal')} - Only core rules (smallest files)`,
+          value: 'minimal'
+        }
+      ],
+      default: currentMode === 'full' ? 1 : currentMode === 'minimal' ? 2 : 0
+    }
+  ]);
+
+  if (mode !== currentMode) {
+    console.log();
+    console.log(chalk.yellow('⚠ Changing content mode will regenerate all integration files'));
+  }
+
+  return mode;
 }

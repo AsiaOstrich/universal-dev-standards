@@ -3,10 +3,13 @@ import ora from 'ora';
 import inquirer from 'inquirer';
 import { existsSync } from 'fs';
 import { join, basename } from 'path';
-import { readManifest, writeManifest, copyStandard, copyIntegration, isInitialized } from '../utils/copier.js';
+import { readManifest, writeManifest, copyStandard, isInitialized } from '../utils/copier.js';
 import { getRepositoryInfo } from '../utils/registry.js';
 import { computeFileHash } from '../utils/hasher.js';
-import { writeIntegrationFile } from '../utils/integration-generator.js';
+import {
+  writeIntegrationFile,
+  getToolFilePath
+} from '../utils/integration-generator.js';
 import {
   calculateCategoriesFromStandards,
   arraysEqual,
@@ -64,26 +67,6 @@ function compareVersions(v1, v2) {
   return 0;
 }
 
-// Integration file mappings (same as init.js)
-const INTEGRATION_MAPPINGS = {
-  cursor: {
-    source: 'integrations/cursor/.cursorrules',
-    target: '.cursorrules'
-  },
-  windsurf: {
-    source: 'integrations/windsurf/.windsurfrules',
-    target: '.windsurfrules'
-  },
-  cline: {
-    source: 'integrations/cline/.clinerules',
-    target: '.clinerules'
-  },
-  copilot: {
-    source: 'integrations/github-copilot/copilot-instructions.md',
-    target: '.github/copilot-instructions.md'
-  }
-};
-
 /**
  * Update command - update standards to latest version
  * @param {Object} options - Command options
@@ -114,6 +97,12 @@ export async function updateCommand(options) {
   // Handle --sync-refs option
   if (options.syncRefs) {
     await syncIntegrationReferences(projectPath, manifest);
+    return;
+  }
+
+  // Handle --integrations-only option
+  if (options.integrationsOnly) {
+    await updateIntegrationsOnly(projectPath, manifest);
     return;
   }
 
@@ -150,8 +139,10 @@ export async function updateCommand(options) {
   for (const ext of manifest.extensions) {
     console.log(chalk.gray(`  .standards/${ext.split('/').pop()}`));
   }
-  for (const int of manifest.integrations) {
-    console.log(chalk.gray(`  ${int}`));
+  if (!options.standardsOnly) {
+    for (const int of manifest.integrations) {
+      console.log(chalk.gray(`  ${int}`));
+    }
   }
   console.log();
 
@@ -178,6 +169,7 @@ export async function updateCommand(options) {
 
   const results = {
     updated: [],
+    integrations: [],
     errors: []
   };
 
@@ -201,28 +193,53 @@ export async function updateCommand(options) {
     }
   }
 
-  // Update integrations
-  for (const int of manifest.integrations) {
-    // Find the mapping for this integration
-    let mapping = null;
-    for (const [, m] of Object.entries(INTEGRATION_MAPPINGS)) {
-      if (m.target === int) {
-        mapping = m;
-        break;
-      }
+  spinner.succeed(`Updated ${results.updated.length} standard files`);
+
+  // Update integrations (unless --standards-only)
+  if (!options.standardsOnly && manifest.integrations && manifest.integrations.length > 0) {
+    const intSpinner = ora('Syncing integration files...').start();
+
+    // Build installed standards list
+    const installedStandardsList = manifest.standards?.map(s => basename(s)) || [];
+
+    // Determine language setting
+    let commonLanguage = 'en';
+    if (manifest.options?.commit_language === 'bilingual') {
+      commonLanguage = 'bilingual';
+    } else if (manifest.options?.commit_language === 'traditional-chinese') {
+      commonLanguage = 'zh-tw';
     }
 
-    if (mapping) {
-      const result = await copyIntegration(mapping.source, mapping.target, projectPath);
+    // Track generated files to handle AGENTS.md sharing
+    const generatedFiles = new Set();
+    const aiTools = manifest.aiTools || [];
+
+    for (const tool of aiTools) {
+      const targetFile = getToolFilePath(tool);
+      if (generatedFiles.has(targetFile)) {
+        continue; // Skip if already generated (AGENTS.md sharing)
+      }
+
+      const toolConfig = {
+        tool,
+        categories: ['anti-hallucination', 'commit-standards', 'code-review'],
+        language: commonLanguage,
+        installedStandards: installedStandardsList,
+        contentMode: manifest.contentMode || 'minimal',
+        level: manifest.level || 2
+      };
+
+      const result = writeIntegrationFile(tool, toolConfig, projectPath);
       if (result.success) {
-        results.updated.push(int);
+        results.integrations.push(result.path);
+        generatedFiles.add(targetFile);
       } else {
-        results.errors.push(`${int}: ${result.error}`);
+        results.errors.push(`${tool}: ${result.error}`);
       }
     }
-  }
 
-  spinner.succeed(`Updated ${results.updated.length} files`);
+    intSpinner.succeed(`Synced ${results.integrations.length} integration files`);
+  }
 
   // Recompute file hashes for updated files
   const now = new Date().toISOString();
@@ -255,7 +272,7 @@ export async function updateCommand(options) {
   }
 
   // Update hashes for integrations
-  for (const int of manifest.integrations) {
+  for (const int of results.integrations) {
     const fullPath = join(projectPath, int);
     const hashInfo = computeFileHash(fullPath);
     if (hashInfo) {
@@ -264,7 +281,7 @@ export async function updateCommand(options) {
   }
 
   // Update manifest
-  manifest.version = '3.1.0';
+  manifest.version = '3.2.0';
   manifest.upstream.version = latestVersion;
   manifest.upstream.installed = new Date().toISOString().split('T')[0];
   writeManifest(manifest, projectPath);
@@ -273,6 +290,9 @@ export async function updateCommand(options) {
   console.log();
   console.log(chalk.green('✓ Standards updated successfully!'));
   console.log(chalk.gray(`  Version: ${currentVersion} → ${latestVersion}`));
+  if (results.integrations.length > 0) {
+    console.log(chalk.gray(`  Integration files synced: ${results.integrations.length}`));
+  }
 
   if (results.errors.length > 0) {
     console.log();
@@ -283,7 +303,7 @@ export async function updateCommand(options) {
   }
 
   // Skills update reminder
-  if (manifest.skills.installed) {
+  if (manifest.skills?.installed) {
     const skillsVersion = repoInfo.skills.version;
     if (manifest.skills.version !== skillsVersion) {
       console.log();
@@ -323,6 +343,102 @@ export async function updateCommand(options) {
   console.log();
 
   // Exit explicitly to prevent hanging due to inquirer's readline interface
+  process.exit(0);
+}
+
+/**
+ * Update integration files only (without updating standards)
+ * @param {string} projectPath - Project path
+ * @param {Object} manifest - Manifest object
+ */
+async function updateIntegrationsOnly(projectPath, manifest) {
+  console.log(chalk.cyan('Updating integration files only...'));
+  console.log();
+
+  const aiTools = manifest.aiTools || [];
+  if (aiTools.length === 0) {
+    console.log(chalk.yellow('⚠ No AI tools configured in manifest.'));
+    console.log(chalk.gray('  Run `uds configure` to add AI tools.'));
+    console.log();
+    return;
+  }
+
+  const spinner = ora('Regenerating integration files...').start();
+
+  // Build installed standards list
+  const installedStandardsList = manifest.standards?.map(s => basename(s)) || [];
+
+  // Determine language setting
+  let commonLanguage = 'en';
+  if (manifest.options?.commit_language === 'bilingual') {
+    commonLanguage = 'bilingual';
+  } else if (manifest.options?.commit_language === 'traditional-chinese') {
+    commonLanguage = 'zh-tw';
+  }
+
+  const results = {
+    updated: [],
+    errors: []
+  };
+
+  // Track generated files to handle AGENTS.md sharing
+  const generatedFiles = new Set();
+  const now = new Date().toISOString();
+
+  for (const tool of aiTools) {
+    const targetFile = getToolFilePath(tool);
+    if (generatedFiles.has(targetFile)) {
+      continue; // Skip if already generated (AGENTS.md sharing)
+    }
+
+    const toolConfig = {
+      tool,
+      categories: ['anti-hallucination', 'commit-standards', 'code-review'],
+      language: commonLanguage,
+      installedStandards: installedStandardsList,
+      contentMode: manifest.contentMode || 'minimal',
+      level: manifest.level || 2
+    };
+
+    const result = writeIntegrationFile(tool, toolConfig, projectPath);
+    if (result.success) {
+      results.updated.push(result.path);
+      generatedFiles.add(targetFile);
+
+      // Update file hash
+      const fullPath = join(projectPath, result.path);
+      const hashInfo = computeFileHash(fullPath);
+      if (hashInfo) {
+        if (!manifest.fileHashes) {
+          manifest.fileHashes = {};
+        }
+        manifest.fileHashes[result.path] = { ...hashInfo, installedAt: now };
+      }
+    } else {
+      results.errors.push(`${tool}: ${result.error}`);
+    }
+  }
+
+  spinner.succeed(`Regenerated ${results.updated.length} integration files`);
+
+  // Update manifest
+  manifest.version = '3.2.0';
+  writeManifest(manifest, projectPath);
+
+  // Summary
+  console.log();
+  console.log(chalk.green('✓ Integration files updated successfully!'));
+  console.log(chalk.gray(`  Files updated: ${results.updated.join(', ') || 'none'}`));
+
+  if (results.errors.length > 0) {
+    console.log();
+    console.log(chalk.yellow(`⚠ ${results.errors.length} error(s):`));
+    for (const err of results.errors) {
+      console.log(chalk.gray(`    ${err}`));
+    }
+  }
+
+  console.log();
   process.exit(0);
 }
 
