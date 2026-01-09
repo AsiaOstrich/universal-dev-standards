@@ -1,0 +1,22 @@
+{
+  "$schema": "https://geminicli.com/schema/settings.json",
+  "context": {
+    "fileName": ["GEMINI.md", "AGENTS.md"],
+    "loadFromIncludeDirectories": true,
+    "respectGitignore": true,
+    "respectGeminiignore": true
+  },
+  "tools": {
+    "autoAccept": false,
+    "shell": {
+      "colorOutput": true
+    }
+  },
+  "model": {
+    "sessionTurnLimit": 50
+  },
+  "security": {
+    "yolo": false,
+    "redactEnvVars": true
+  }
+}
