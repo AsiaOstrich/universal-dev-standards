@@ -458,6 +458,10 @@ Verify both **new changes are added** AND **existing content is accurate**:
 - [ ] `MAINTENANCE.md` - File counts and skills table accurate
 - [ ] `STANDARDS-MAPPING.md` - Skills matrix and statistics accurate
 
+**CLI Documentation:**
+- [ ] `cli/README.md` - Options list and links accurate
+- [ ] `docs/CLI-INIT-OPTIONS.md` - All init options documented with use cases
+
 **Localization (all locales):**
 
 For each supported locale (`locales/zh-TW/`, `locales/zh-CN/`, etc.), verify the corresponding translations are accurate and synchronized:
@@ -468,6 +472,7 @@ For each supported locale (`locales/zh-TW/`, `locales/zh-CN/`, etc.), verify the
 - [ ] `locales/*/STANDARDS-MAPPING.md` - Skills matrix accurate
 - [ ] `locales/*/skills/claude-code/README.md` - Skills list accurate
 - [ ] `locales/*/adoption/STATIC-DYNAMIC-GUIDE.md` - Skills count accurate
+- [ ] `locales/*/docs/CLI-INIT-OPTIONS.md` - Translations synchronized
 
 **Content Accuracy Verification:**
 - [ ] Search for outdated version numbers: `grep -r "X.Y.Z" --include="*.md"` (replace X.Y.Z with previous version)

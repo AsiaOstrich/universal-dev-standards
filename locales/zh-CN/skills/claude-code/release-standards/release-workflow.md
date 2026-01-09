@@ -461,6 +461,10 @@ grep -r "beta" cli/package.json .claude-plugin/ cli/standards-registry.json | gr
 - [ ] `MAINTENANCE.md` - 档案数量和技能表格正确
 - [ ] `STANDARDS-MAPPING.md` - 技能矩阵和统计正确
 
+**CLI 文件：**
+- [ ] `cli/README.md` - 选项列表和连结正确
+- [ ] `docs/CLI-INIT-OPTIONS.md` - 所有 init 选项已记录使用情境
+
 **本地化（所有语言版本）：**
 
 对于每个支援的语言版本（`locales/zh-TW/`、`locales/zh-CN/` 等），验证对应翻译正确且已同步：
@@ -471,6 +475,7 @@ grep -r "beta" cli/package.json .claude-plugin/ cli/standards-registry.json | gr
 - [ ] `locales/*/STANDARDS-MAPPING.md` - 技能矩阵正确
 - [ ] `locales/*/skills/claude-code/README.md` - 技能清单正确
 - [ ] `locales/*/adoption/STATIC-DYNAMIC-GUIDE.md` - 技能数量正确
+- [ ] `locales/*/docs/CLI-INIT-OPTIONS.md` - 翻译已同步
 
 **内容正确性验证：**
 - [ ] 搜寻过时的版本号：`grep -r "X.Y.Z" --include="*.md"`（将 X.Y.Z 替换为前一版本）

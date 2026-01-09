@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **Docs**: Add comprehensive CLI init options guide with trilingual support
+  - `docs/CLI-INIT-OPTIONS.md` - Complete documentation for all `uds init` options
+  - Covers: AI Tools, Skills Location, Standards Scope, Adoption Level, Format, Standard Options, Extensions, Integration Configuration, Content Mode
+  - Includes use cases, decision flows, and CLI parameter reference
+  - Trilingual: English, Traditional Chinese (`locales/zh-TW/`), Simplified Chinese (`locales/zh-CN/`)
+- **Release**: Add CLI documentation to pre-release checklist
+  - `release-workflow.md` now includes CLI-INIT-OPTIONS.md verification
+
 ## [3.5.0-beta.5] - 2026-01-09
 
 ### Added
