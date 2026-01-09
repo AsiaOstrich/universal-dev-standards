@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    "CONTRIBUTING.md"
+  ],
+  "permission": {
+    "edit": "ask",
+    "bash": "ask"
+  },
+  "agent": {
+    "code-reviewer": {
+      "description": "Reviews code following Universal Dev Standards",
+      "mode": "subagent",
+      "tools": {
+        "write": false,
+        "edit": false
+      }
+    }
+  }
+}
