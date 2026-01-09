@@ -13,6 +13,7 @@ Commands for managing Universal Development Standards in your project.
 | [`/init`](./init.md) | Initialize standards in project | 初始化專案標準 |
 | [`/update`](./update.md) | Update standards to latest version | 更新標準至最新版本 |
 | [`/check`](./check.md) | Verify adoption status | 檢查採用狀態 |
+| [`/config`](./config.md) | Configure standards settings | 配置標準設定 |
 
 ### Development Workflow | 開發工作流程
 
