@@ -9,17 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.2] - 2026-01-09
+
+### Added
+- **Integrations**: OpenAI Codex CLI integration with `AGENTS.md`
+- **Integrations**: Gemini CLI integration with `GEMINI.md`
+- **Integrations**: OpenCode integration with `AGENTS.md`
+- **Integrations**: Google Antigravity project-level rules file (`.antigravity/rules.md`)
+
+### Removed
+- **CLI**: Remove untracked file scanning from `uds check`
+  - `uds check` now only verifies files recorded in manifest
+  - No longer prompts to track unknown files in `.standards/` directory
+
 ## [3.5.0-beta.1] - 2026-01-09
 
 ### Added
-- **CLI**: Untracked file detection in `uds check`
-  - Scans `.standards/` directory for files not in manifest
-  - Scans known integration files (`.cursorrules`, `CLAUDE.md`, etc.)
-  - Interactive mode: `track` (add to manifest) or `delete` (remove file)
-  - Summary shows untracked count in output
+- **CLI**: Untracked file detection in `uds check` (removed in 3.5.0-beta.2)
 
 ### Changed
-- **CLI**: `uds check` now reports "Some issues detected" when untracked files exist
+- **CLI**: `uds check` now reports "Some issues detected" when untracked files exist (removed in 3.5.0-beta.2)
 
 ## [3.4.2] - 2026-01-08
 
