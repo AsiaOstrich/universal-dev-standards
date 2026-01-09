@@ -117,6 +117,12 @@ npm run test:coverage # 產生覆蓋率報告
 # 翻譯同步檢查（從根目錄執行）
 ./scripts/check-translation-sync.sh
 
+# 版本同步檢查（從根目錄執行）
+./scripts/check-version-sync.sh
+
+# 標準一致性檢查（從根目錄執行）
+./scripts/check-standards-sync.sh
+
 # 本地 CLI 測試
 node cli/bin/uds.js list
 node cli/bin/uds.js init --help
@@ -136,6 +142,12 @@ npm run test:coverage # 產生覆蓋率報告
 # 翻譯同步檢查（從根目錄執行）
 .\scripts\check-translation-sync.ps1
 
+# 版本同步檢查（從根目錄執行）
+.\scripts\check-version-sync.ps1
+
+# 標準一致性檢查（從根目錄執行）
+.\scripts\check-standards-sync.ps1
+
 # 本地 CLI 測試
 node cli\bin\uds.js list
 node cli\bin\uds.js init --help
@@ -146,6 +158,8 @@ node cli\bin\uds.js init --help
 ```bash
 # 與 macOS / Linux 相同的指令在 Git Bash 中可用
 ./scripts/check-translation-sync.sh
+./scripts/check-version-sync.sh
+./scripts/check-standards-sync.sh
 ```
 
 ## AI 協作指南

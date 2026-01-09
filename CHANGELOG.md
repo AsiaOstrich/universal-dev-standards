@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **Release**: Add standards consistency check to pre-release checklist
   - Verify `core/` ↔ `ai/standards/` content alignment
   - Verify `options/` ↔ `ai/options/` dual-format completeness
+- **Scripts**: Add automated standards consistency check scripts
+  - `scripts/check-standards-sync.sh` for Unix/macOS
+  - `scripts/check-standards-sync.ps1` for Windows PowerShell
+  - Checks `core/` ↔ `ai/standards/` and `options/` ↔ `ai/options/` consistency
 
 ## [3.5.0-beta.5] - 2026-01-09
 
