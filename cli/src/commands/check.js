@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-import { existsSync } from 'fs';
+import { existsSync, unlinkSync } from 'fs';
 import { join, basename } from 'path';
 import { readManifest, writeManifest, isInitialized, copyStandard, copyIntegration } from '../utils/copier.js';
 import {
@@ -11,7 +11,8 @@ import {
 import {
   computeFileHash,
   compareFileHash,
-  hasFileHashes
+  hasFileHashes,
+  scanForUntrackedFiles
 } from '../utils/hasher.js';
 import { downloadFromGitHub } from '../utils/github.js';
 
@@ -75,7 +76,8 @@ export async function checkCommand(options = {}) {
     unchanged: [],
     modified: [],
     missing: [],
-    noHash: []
+    noHash: [],
+    untracked: []
   };
 
   if (hasFileHashes(manifest)) {
@@ -133,6 +135,12 @@ export async function checkCommand(options = {}) {
     }
   }
 
+  // Scan for untracked files (only for hash-based manifests)
+  if (hasFileHashes(manifest)) {
+    const untrackedFiles = scanForUntrackedFiles(projectPath, manifest);
+    fileStatus.untracked.push(...untrackedFiles);
+  }
+
   // Display file status
   if (fileStatus.unchanged.length > 0) {
     for (const file of fileStatus.unchanged) {
@@ -158,9 +166,16 @@ export async function checkCommand(options = {}) {
     }
   }
 
+  if (fileStatus.untracked.length > 0) {
+    for (const file of fileStatus.untracked) {
+      console.log(chalk.yellow(`  ⚠ ${file} (untracked)`));
+    }
+  }
+
   console.log();
   console.log(chalk.gray(`  Summary: ${fileStatus.unchanged.length} unchanged, ` +
     `${fileStatus.modified.length} modified, ${fileStatus.missing.length} missing` +
+    (fileStatus.untracked.length > 0 ? `, ${fileStatus.untracked.length} untracked` : '') +
     (fileStatus.noHash.length > 0 ? `, ${fileStatus.noHash.length} no hash` : '')));
   console.log();
 
@@ -183,7 +198,9 @@ export async function checkCommand(options = {}) {
   }
 
   // Interactive mode (default when issues detected)
-  const hasIssues = fileStatus.modified.length > 0 || fileStatus.missing.length > 0;
+  const hasIssues = fileStatus.modified.length > 0 ||
+                    fileStatus.missing.length > 0 ||
+                    fileStatus.untracked.length > 0;
   if (hasIssues && !options.noInteractive) {
     await interactiveMode(projectPath, manifest, fileStatus);
   } else if (hasIssues) {
@@ -210,7 +227,9 @@ export async function checkCommand(options = {}) {
   displayCoverageReport(manifest);
 
   // Final status
-  const allGood = fileStatus.missing.length === 0 && fileStatus.modified.length === 0;
+  const allGood = fileStatus.missing.length === 0 &&
+                  fileStatus.modified.length === 0 &&
+                  fileStatus.untracked.length === 0;
   if (allGood) {
     console.log(chalk.green('✓ Project is compliant with standards'));
   } else {
@@ -225,7 +244,8 @@ export async function checkCommand(options = {}) {
 async function interactiveMode(projectPath, manifest, fileStatus) {
   const allIssues = [
     ...fileStatus.modified.map(f => ({ file: f, status: 'modified' })),
-    ...fileStatus.missing.map(f => ({ file: f, status: 'missing' }))
+    ...fileStatus.missing.map(f => ({ file: f, status: 'missing' })),
+    ...fileStatus.untracked.map(f => ({ file: f, status: 'untracked' }))
   ];
 
   console.log(chalk.cyan('Interactive Mode:'));
@@ -238,22 +258,34 @@ async function interactiveMode(projectPath, manifest, fileStatus) {
     console.log(chalk.gray('─'.repeat(50)));
     if (issue.status === 'modified') {
       console.log(chalk.yellow(`⚠ Modified: ${issue.file}`));
-    } else {
+    } else if (issue.status === 'missing') {
       console.log(chalk.red(`✗ Missing: ${issue.file}`));
+    } else if (issue.status === 'untracked') {
+      console.log(chalk.yellow(`⚠ Untracked: ${issue.file}`));
     }
 
-    const choices = issue.status === 'modified'
-      ? [
-          { name: 'view    - View diff between current and original', value: 'view' },
-          { name: 'restore - Restore to original version', value: 'restore' },
-          { name: 'keep    - Keep current version (update hash in manifest)', value: 'keep' },
-          { name: 'skip    - Skip this file for now', value: 'skip' }
-        ]
-      : [
-          { name: 'restore - Download and restore file', value: 'restore' },
-          { name: 'remove  - Remove from manifest (no longer track)', value: 'remove' },
-          { name: 'skip    - Skip this file for now', value: 'skip' }
-        ];
+    let choices;
+    if (issue.status === 'modified') {
+      choices = [
+        { name: 'view    - View diff between current and original', value: 'view' },
+        { name: 'restore - Restore to original version', value: 'restore' },
+        { name: 'keep    - Keep current version (update hash in manifest)', value: 'keep' },
+        { name: 'skip    - Skip this file for now', value: 'skip' }
+      ];
+    } else if (issue.status === 'missing') {
+      choices = [
+        { name: 'restore - Download and restore file', value: 'restore' },
+        { name: 'remove  - Remove from manifest (no longer track)', value: 'remove' },
+        { name: 'skip    - Skip this file for now', value: 'skip' }
+      ];
+    } else {
+      // untracked
+      choices = [
+        { name: 'track   - Add to manifest (start tracking)', value: 'track' },
+        { name: 'delete  - Delete file from filesystem', value: 'delete' },
+        { name: 'skip    - Skip this file for now', value: 'skip' }
+      ];
+    }
 
     const { action } = await inquirer.prompt([
       {
@@ -306,6 +338,17 @@ async function interactiveMode(projectPath, manifest, fileStatus) {
         removeFromManifest(manifest, issue.file);
         manifestUpdated = true;
         console.log(chalk.green('✓ Removed from manifest.'));
+        break;
+
+      case 'track':
+        addUntrackedToManifest(projectPath, manifest, issue.file);
+        manifestUpdated = true;
+        console.log(chalk.green('✓ Added to manifest. Now tracking.'));
+        break;
+
+      case 'delete':
+        deleteUntrackedFile(projectPath, issue.file);
+        console.log(chalk.green('✓ File deleted.'));
         break;
 
       case 'skip':
@@ -495,6 +538,56 @@ function removeFromManifest(manifest, relativePath) {
   manifest.standards = manifest.standards.filter(s => !s.endsWith(fileName));
   manifest.extensions = manifest.extensions.filter(e => !e.endsWith(fileName));
   manifest.integrations = manifest.integrations.filter(i => i !== relativePath);
+}
+
+/**
+ * Add an untracked file to manifest
+ * @param {string} projectPath - Project root path
+ * @param {Object} manifest - Manifest object
+ * @param {string} relativePath - Relative path to untracked file
+ */
+function addUntrackedToManifest(projectPath, manifest, relativePath) {
+  const fullPath = join(projectPath, relativePath);
+  const hashInfo = computeFileHash(fullPath);
+
+  if (!manifest.fileHashes) {
+    manifest.fileHashes = {};
+  }
+
+  manifest.fileHashes[relativePath] = {
+    ...hashInfo,
+    installedAt: new Date().toISOString()
+  };
+
+  // Determine which array to add to based on path
+  if (relativePath.startsWith('.standards/') || relativePath.startsWith('.standards\\')) {
+    // It's a standard file - add to standards array with local/ prefix
+    const fileName = basename(relativePath);
+    const sourcePath = relativePath.includes('options/') || relativePath.includes('options\\')
+      ? `options/${fileName}`
+      : `local/${fileName}`;
+
+    if (!manifest.standards.some(s => s.endsWith(fileName))) {
+      manifest.standards.push(sourcePath);
+    }
+  } else {
+    // It's an integration file - add to integrations array
+    if (!manifest.integrations.includes(relativePath)) {
+      manifest.integrations.push(relativePath);
+    }
+  }
+}
+
+/**
+ * Delete an untracked file from filesystem
+ * @param {string} projectPath - Project root path
+ * @param {string} relativePath - Relative path to untracked file
+ */
+function deleteUntrackedFile(projectPath, relativePath) {
+  const fullPath = join(projectPath, relativePath);
+  if (existsSync(fullPath)) {
+    unlinkSync(fullPath);
+  }
 }
 
 /**

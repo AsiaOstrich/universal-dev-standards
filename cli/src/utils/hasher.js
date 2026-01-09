@@ -1,5 +1,5 @@
 import { createHash } from 'crypto';
-import { readFileSync, statSync, existsSync } from 'fs';
+import { readFileSync, statSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 
 /**
@@ -145,4 +145,75 @@ export function getFileStatusSummary(projectPath, manifest) {
   }
 
   return summary;
+}
+
+/**
+ * Recursively scan directory for all files
+ * @param {string} dirPath - Directory to scan
+ * @param {string} basePath - Base path for relative path calculation
+ * @returns {string[]} Array of relative paths
+ */
+function scanDirectory(dirPath, basePath) {
+  const files = [];
+  const items = readdirSync(dirPath, { withFileTypes: true });
+
+  for (const item of items) {
+    const fullPath = join(dirPath, item.name);
+    // Calculate relative path by removing basePath prefix
+    const relativePath = fullPath.slice(basePath.length + 1);
+
+    if (item.isDirectory()) {
+      files.push(...scanDirectory(fullPath, basePath));
+    } else if (item.isFile()) {
+      files.push(relativePath);
+    }
+  }
+
+  return files;
+}
+
+/**
+ * Scan for untracked files in .standards/ and integration locations
+ * @param {string} projectPath - Project root path
+ * @param {Object} manifest - Manifest object
+ * @returns {string[]} Array of relative paths to untracked files
+ */
+export function scanForUntrackedFiles(projectPath, manifest) {
+  const untracked = [];
+  const trackedPaths = new Set(Object.keys(manifest.fileHashes || {}));
+
+  // 1. Scan .standards/ directory (excluding manifest.json)
+  const standardsDir = join(projectPath, '.standards');
+  if (existsSync(standardsDir)) {
+    const standardsFiles = scanDirectory(standardsDir, projectPath);
+    for (const relPath of standardsFiles) {
+      // Skip manifest.json itself
+      if (relPath === '.standards/manifest.json' ||
+          relPath === '.standards\\manifest.json') {
+        continue;
+      }
+      if (!trackedPaths.has(relPath)) {
+        untracked.push(relPath);
+      }
+    }
+  }
+
+  // 2. Scan for known integration files in project root
+  const knownIntegrations = [
+    '.cursorrules',
+    '.windsurfrules',
+    '.clinerules',
+    '.github/copilot-instructions.md',
+    'CLAUDE.md',
+    'INSTRUCTIONS.md'
+  ];
+
+  for (const intFile of knownIntegrations) {
+    const fullPath = join(projectPath, intFile);
+    if (existsSync(fullPath) && !trackedPaths.has(intFile)) {
+      untracked.push(intFile);
+    }
+  }
+
+  return untracked;
 }

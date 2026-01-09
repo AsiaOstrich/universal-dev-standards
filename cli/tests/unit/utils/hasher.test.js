@@ -8,7 +8,8 @@ import {
   compareFileHash,
   computeFileHashes,
   hasFileHashes,
-  getFileStatusSummary
+  getFileStatusSummary,
+  scanForUntrackedFiles
 } from '../../../src/utils/hasher.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -243,6 +244,116 @@ describe('Hasher Utils', () => {
 
       expect(summary.noHash).toContain(join('.standards', 'exists.md'));
       expect(summary.missing).toContain(join('.standards', 'missing.md'));
+    });
+  });
+
+  describe('scanForUntrackedFiles', () => {
+    it('should find untracked files in .standards/', () => {
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.standards', 'tracked.md'), 'tracked');
+      writeFileSync(join(TEST_DIR, '.standards', 'untracked.md'), 'untracked');
+      writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), '{}');
+
+      const manifest = {
+        fileHashes: {
+          '.standards/tracked.md': { hash: 'sha256:abc', size: 7 }
+        }
+      };
+
+      const untracked = scanForUntrackedFiles(TEST_DIR, manifest);
+
+      expect(untracked).toContain('.standards/untracked.md');
+      expect(untracked).not.toContain('.standards/tracked.md');
+      expect(untracked).not.toContain('.standards/manifest.json');
+    });
+
+    it('should find untracked files in .standards/options/', () => {
+      mkdirSync(join(TEST_DIR, '.standards', 'options'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.standards', 'options', 'custom.md'), 'custom');
+      writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), '{}');
+
+      const manifest = { fileHashes: {} };
+
+      const untracked = scanForUntrackedFiles(TEST_DIR, manifest);
+
+      // Path format depends on OS
+      const hasOptionsFile = untracked.some(f =>
+        f.includes('options') && f.includes('custom.md')
+      );
+      expect(hasOptionsFile).toBe(true);
+    });
+
+    it('should find untracked integration files', () => {
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), '{}');
+      writeFileSync(join(TEST_DIR, '.cursorrules'), 'rules');
+      writeFileSync(join(TEST_DIR, 'CLAUDE.md'), '# Claude');
+
+      const manifest = {
+        fileHashes: {},
+        integrations: []
+      };
+
+      const untracked = scanForUntrackedFiles(TEST_DIR, manifest);
+
+      expect(untracked).toContain('.cursorrules');
+      expect(untracked).toContain('CLAUDE.md');
+    });
+
+    it('should not report manifest.json as untracked', () => {
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), '{}');
+
+      const manifest = { fileHashes: {} };
+
+      const untracked = scanForUntrackedFiles(TEST_DIR, manifest);
+
+      const hasManifest = untracked.some(f => f.includes('manifest.json'));
+      expect(hasManifest).toBe(false);
+    });
+
+    it('should not report already tracked files', () => {
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.standards', 'tracked.md'), 'content');
+      writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), '{}');
+      writeFileSync(join(TEST_DIR, '.cursorrules'), 'rules');
+
+      const manifest = {
+        fileHashes: {
+          '.standards/tracked.md': { hash: 'sha256:abc', size: 7 },
+          '.cursorrules': { hash: 'sha256:def', size: 5 }
+        }
+      };
+
+      const untracked = scanForUntrackedFiles(TEST_DIR, manifest);
+
+      expect(untracked).not.toContain('.standards/tracked.md');
+      expect(untracked).not.toContain('.cursorrules');
+    });
+
+    it('should return empty array when no untracked files', () => {
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.standards', 'tracked.md'), 'content');
+      writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), '{}');
+
+      const manifest = {
+        fileHashes: {
+          '.standards/tracked.md': { hash: 'sha256:abc', size: 7 }
+        }
+      };
+
+      const untracked = scanForUntrackedFiles(TEST_DIR, manifest);
+
+      expect(untracked).toHaveLength(0);
+    });
+
+    it('should handle missing .standards directory', () => {
+      // Don't create .standards directory
+      const manifest = { fileHashes: {} };
+
+      const untracked = scanForUntrackedFiles(TEST_DIR, manifest);
+
+      expect(untracked).toHaveLength(0);
     });
   });
 });

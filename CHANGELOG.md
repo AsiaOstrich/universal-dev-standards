@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.1] - 2026-01-09
+
+### Added
+- **CLI**: Untracked file detection in `uds check`
+  - Scans `.standards/` directory for files not in manifest
+  - Scans known integration files (`.cursorrules`, `CLAUDE.md`, etc.)
+  - Interactive mode: `track` (add to manifest) or `delete` (remove file)
+  - Summary shows untracked count in output
+
+### Changed
+- **CLI**: `uds check` now reports "Some issues detected" when untracked files exist
+
 ## [3.4.2] - 2026-01-08
 
 ### Fixed
