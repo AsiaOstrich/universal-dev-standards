@@ -382,6 +382,9 @@ cd cli && npm test
 # Run linting
 npm run lint
 
+# Verify version sync (package.json ↔ standards-registry.json)
+./scripts/check-version-sync.sh
+
 # Verify version consistency
 grep -r "3.3.0" cli/package.json .claude-plugin/ cli/standards-registry.json README.md
 
@@ -419,6 +422,7 @@ Use the automated script for consistent pre-release preparation:
 
 - [ ] All tests passing (`npm test`)
 - [ ] Linting passing (`npm run lint`)
+- [ ] Version sync check passing (`./scripts/check-version-sync.sh`)
 - [ ] CHANGELOG.md updated with all changes
 - [ ] Git working directory clean (`git status`)
 

@@ -109,6 +109,9 @@ npm run test:coverage # Generate coverage report
 # Translation sync check (run from root)
 ./scripts/check-translation-sync.sh
 
+# Version sync check (run from root)
+./scripts/check-version-sync.sh
+
 # Local CLI testing
 node cli/bin/uds.js list
 node cli/bin/uds.js init --help
@@ -128,6 +131,9 @@ npm run test:coverage # Generate coverage report
 # Translation sync check (run from root)
 .\scripts\check-translation-sync.ps1
 
+# Version sync check (run from root)
+.\scripts\check-version-sync.ps1
+
 # Local CLI testing
 node cli\bin\uds.js list
 node cli\bin\uds.js init --help
@@ -138,6 +144,7 @@ node cli\bin\uds.js init --help
 ```bash
 # Same commands as macOS / Linux work in Git Bash
 ./scripts/check-translation-sync.sh
+./scripts/check-version-sync.sh
 ```
 
 ## Code Check-in Standards (Mandatory)

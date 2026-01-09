@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.3] - 2026-01-09
+
+### Fixed
+- **CLI**: Fix `uds update` showing incorrect version numbers
+  - `standards-registry.json` versions were not synchronized with `package.json`
+  - Now displays correct current and latest version information
+
+### Added
+- **Scripts**: Add version sync check scripts
+  - `scripts/check-version-sync.sh` for Unix/macOS
+  - `scripts/check-version-sync.ps1` for Windows PowerShell
+  - Verifies `standards-registry.json` versions match `package.json`
+- **Docs**: Add version sync check to pre-release checklist in `release-workflow.md`
+
 ## [3.5.0-beta.2] - 2026-01-09
 
 ### Added
