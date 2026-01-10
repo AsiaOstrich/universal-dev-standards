@@ -63,6 +63,8 @@ program
   .description('Update standards to latest version')
   .option('-y, --yes', 'Skip confirmation prompts')
   .option('--sync-refs', 'Sync integration file references with manifest standards')
+  .option('--integrations-only', 'Only regenerate integration files (CLAUDE.md, etc.)')
+  .option('--standards-only', 'Only update standards, skip integration files')
   .action(updateCommand);
 
 program

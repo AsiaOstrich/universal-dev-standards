@@ -1768,6 +1768,88 @@ All responses should be in **Traditional Chinese (繁體中文)**, with technica
 };
 
 /**
+ * Generate minimal standards reference for minimal content mode
+ * @param {string[]} installedStandards - List of installed standard file paths
+ * @param {string} format - Output format: 'markdown' or 'plaintext'
+ * @param {string} language - Language: 'en', 'zh-tw', or 'bilingual'
+ * @returns {string} Generated minimal reference
+ */
+export function generateMinimalStandardsReference(installedStandards, format, language = 'zh-tw') {
+  if (!installedStandards || installedStandards.length === 0) {
+    return '';
+  }
+
+  const coreStandards = [];
+  const optionStandards = [];
+
+  // Separate core standards from options
+  for (const standardPath of installedStandards) {
+    const filename = basename(standardPath);
+    const isOption = standardPath.includes('/options/') || standardPath.includes('\\options\\');
+
+    if (isOption) {
+      optionStandards.push({ filename, path: standardPath });
+    } else {
+      coreStandards.push({ filename, path: standardPath });
+    }
+  }
+
+  const sections = [];
+
+  if (format === 'markdown') {
+    sections.push(language === 'en'
+      ? '## Standards Reference'
+      : '## 規範文件參考');
+    sections.push('');
+    sections.push(language === 'en'
+      ? '**IMPORTANT**: When performing related tasks, you MUST read and follow the standards in `.standards/`:'
+      : '**重要**：執行相關任務時，務必讀取並遵循 `.standards/` 目錄下的對應規範：');
+    sections.push('');
+
+    if (coreStandards.length > 0) {
+      sections.push(language === 'en' ? '**Core Standards:**' : '**核心規範：**');
+      for (const std of coreStandards) {
+        sections.push(`- \`.standards/${std.filename}\``);
+      }
+      sections.push('');
+    }
+
+    if (optionStandards.length > 0) {
+      sections.push(language === 'en' ? '**Options:**' : '**選項：**');
+      for (const std of optionStandards) {
+        sections.push(`- \`.standards/options/${std.filename}\``);
+      }
+      sections.push('');
+    }
+  } else {
+    // Plaintext format
+    sections.push(language === 'en'
+      ? '## Standards Reference'
+      : '## 規範文件參考');
+    sections.push('');
+    sections.push(language === 'en'
+      ? 'IMPORTANT: When performing related tasks, read and follow the standards in .standards/:'
+      : '重要：執行相關任務時，務必讀取並遵循 .standards/ 目錄下的對應規範：');
+    sections.push('');
+
+    for (const std of coreStandards) {
+      sections.push(`- .standards/${std.filename}`);
+    }
+
+    if (optionStandards.length > 0) {
+      sections.push('');
+      sections.push(language === 'en' ? 'Options:' : '選項：');
+      for (const std of optionStandards) {
+        sections.push(`- .standards/options/${std.filename}`);
+      }
+    }
+    sections.push('');
+  }
+
+  return sections.join('\n');
+}
+
+/**
  * Generate integration file content
  * @param {Object} config - Integration configuration
  * @returns {string} Generated content
@@ -1810,30 +1892,39 @@ export function generateIntegrationContent(config) {
     }
   }
 
-  // Add standards compliance instructions and index (based on contentMode)
-  if (contentMode !== 'minimal' && installedStandards.length > 0) {
-    // Generate compliance instructions
-    const complianceInstructions = generateComplianceInstructions(
-      installedStandards,
-      contentMode,
-      format,
-      language
-    );
+  // Add standards reference/compliance instructions (based on contentMode)
+  // ALL modes should reference installed standards, just with different detail levels
+  if (installedStandards.length > 0) {
+    let standardsContent = '';
 
-    // Generate standards index
-    const standardsIndex = generateStandardsIndex(
-      installedStandards,
-      format,
-      language,
-      level
-    );
+    if (contentMode === 'minimal') {
+      // Minimal mode: simple reference list
+      standardsContent = generateMinimalStandardsReference(
+        installedStandards,
+        format,
+        language
+      );
+    } else {
+      // Index/Full mode: detailed compliance instructions + index
+      const complianceInstructions = generateComplianceInstructions(
+        installedStandards,
+        contentMode,
+        format,
+        language
+      );
+
+      const standardsIndex = generateStandardsIndex(
+        installedStandards,
+        format,
+        language,
+        level
+      );
+
+      standardsContent = complianceInstructions + '\n\n' + standardsIndex;
+    }
 
     // Wrap with markers for future updates
-    const markedContent = wrapWithMarkers(
-      complianceInstructions + '\n\n' + standardsIndex,
-      format
-    );
-
+    const markedContent = wrapWithMarkers(standardsContent, format);
     sections.push(markedContent);
     sections.push('\n---\n');
   }
