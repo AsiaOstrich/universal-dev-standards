@@ -138,7 +138,7 @@ git clone https://github.com/AsiaOstrich/universal-dev-standards.git
 cd universal-dev-standards\cli; npm install; npm link
 ```
 
-详细用法请参阅 [CLI README](../../cli/README.md)，Windows 相关说明请参阅 [Windows 指南](../../docs/WINDOWS-GUIDE.md)。
+详细用法请参阅 [CLI README](../../cli/README.md)，Windows 相关说明请参阅 [Windows 指南](../../docs/WINDOWS-GUIDE.md)，项目维护与开发流程请参阅[作业流程](docs/OPERATION-WORKFLOW.md)。
 
 ---
 

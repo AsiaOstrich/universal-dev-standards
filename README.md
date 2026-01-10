@@ -130,7 +130,7 @@ git clone https://github.com/AsiaOstrich/universal-dev-standards.git
 cd universal-dev-standards\cli; npm install; npm link
 ```
 
-See [CLI README](cli/README.md) for detailed usage and [Windows Guide](docs/WINDOWS-GUIDE.md) for Windows-specific instructions.
+See [CLI README](cli/README.md) for detailed usage, [Windows Guide](docs/WINDOWS-GUIDE.md) for Windows-specific instructions, and [Operation Workflow](docs/OPERATION-WORKFLOW.md) for project maintenance and development workflow.
 
 ---
 
