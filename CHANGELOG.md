@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- **Docs**: Add 18 human-readable markdown files for `options/` directory
+  - `options/changelog/`: keep-a-changelog.md, auto-generated.md
+  - `options/code-review/`: pr-review.md, pair-programming.md, automated-review.md
+  - `options/documentation/`: api-docs.md, markdown-docs.md, wiki-style.md
+  - `options/project-structure/`: kotlin.md, php.md, ruby.md, rust.md, swift.md
+  - `options/testing/`: contract-testing.md, industry-pyramid.md, istqb-framework.md, performance-testing.md, security-testing.md
+  - Completes dual-format architecture: `ai/options/*.ai.yaml` for AI tools, `options/*.md` for human developers
+- **AI Standards**: Add `ai/standards/test-driven-development.ai.yaml`
+  - AI-optimized TDD standards with Red-Green-Refactor cycle
+  - FIRST principles and applicability guide
 - **Docs**: Add comprehensive CLI init options guide with trilingual support
   - `docs/CLI-INIT-OPTIONS.md` - Complete documentation for all `uds init` options
   - Covers: AI Tools, Skills Location, Standards Scope, Adoption Level, Format, Standard Options, Extensions, Integration Configuration, Content Mode
@@ -24,6 +34,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `scripts/check-standards-sync.sh` for Unix/macOS
   - `scripts/check-standards-sync.ps1` for Windows PowerShell
   - Checks `core/` ↔ `ai/standards/` and `options/` ↔ `ai/options/` consistency
+
+### Changed
+- **CLI**: Improve minimal content mode in integration generator
+  - Minimal mode now includes simplified standards reference list
+  - Ensures AI tools know which standards are available even in minimal mode
+  - New `generateMinimalStandardsReference()` function
 
 ## [3.5.0-beta.5] - 2026-01-09
 
