@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.4.1
-translation_version: 3.4.1
-last_synced: 2026-01-08
+source_version: 3.5.0-beta.5
+translation_version: 3.5.0-beta.5
+last_synced: 2026-01-10
 status: current
 ---
 
@@ -16,6 +16,125 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+### 新增
+- **文件**：新增 18 個 `options/` 目錄的人類可讀 Markdown 檔案
+  - `options/changelog/`：keep-a-changelog.md、auto-generated.md
+  - `options/code-review/`：pr-review.md、pair-programming.md、automated-review.md
+  - `options/documentation/`：api-docs.md、markdown-docs.md、wiki-style.md
+  - `options/project-structure/`：kotlin.md、php.md、ruby.md、rust.md、swift.md
+  - `options/testing/`：contract-testing.md、industry-pyramid.md、istqb-framework.md、performance-testing.md、security-testing.md
+  - 完成雙格式架構：`ai/options/*.ai.yaml` 供 AI 工具使用，`options/*.md` 供人類開發者使用
+- **AI 標準**：新增 `ai/standards/test-driven-development.ai.yaml`
+  - AI 優化的 TDD 標準，含 Red-Green-Refactor 循環
+  - FIRST 原則與適用性指南
+- **文件**：新增完整的 CLI init 選項指南（三語支援）
+  - `docs/CLI-INIT-OPTIONS.md` - 完整的 `uds init` 選項文件
+  - 涵蓋：AI 工具、技能位置、標準範圍、採用等級、格式、標準選項、擴充、整合配置、內容模式
+  - 包含使用案例、決策流程和 CLI 參數參考
+  - 三語版本：英文、繁體中文 (`locales/zh-TW/`)、簡體中文 (`locales/zh-CN/`)
+- **發布**：將 CLI 文件新增至預發布檢查清單
+  - `release-workflow.md` 現在包含 CLI-INIT-OPTIONS.md 驗證
+- **發布**：將標準一致性檢查新增至預發布檢查清單
+  - 驗證 `core/` ↔ `ai/standards/` 內容對齊
+  - 驗證 `options/` ↔ `ai/options/` 雙格式完整性
+- **腳本**：新增自動化標準一致性檢查腳本
+  - `scripts/check-standards-sync.sh` 用於 Unix/macOS
+  - `scripts/check-standards-sync.ps1` 用於 Windows PowerShell
+  - 檢查 `core/` ↔ `ai/standards/` 和 `options/` ↔ `ai/options/` 一致性
+
+### 變更
+- **CLI**：改進整合產生器的 minimal 內容模式
+  - Minimal 模式現在包含簡化的標準參考清單
+  - 確保 AI 工具即使在 minimal 模式下也知道有哪些標準可用
+  - 新增 `generateMinimalStandardsReference()` 函數
+
+## [3.5.0-beta.5] - 2026-01-09
+
+### 新增
+- **CLI**：增強 AI 工具整合，自動符合標準
+  - 支援 9 個 AI 工具：Claude Code、Cursor、Windsurf、Cline、GitHub Copilot、Google Antigravity、OpenAI Codex、Gemini CLI、OpenCode
+  - 新增內容模式選擇：`full`、`index`（推薦）、`minimal`
+  - 產生標準合規指示，含 MUST/SHOULD 優先順序
+  - 產生標準索引，列出所有已安裝標準
+  - 處理 Codex 和 OpenCode 之間的 `AGENTS.md` 共享
+- **CLI**：增強 `uds configure` 命令
+  - 新選項：AI 工具 - 新增/移除 AI 工具整合
+  - 新選項：採用等級 - 變更 Level 1/2/3
+  - 新選項：內容模式 - 變更 full/index/minimal
+  - 設定變更時自動重新產生整合檔案
+- **CLI**：增強 `uds update` 命令
+  - 新旗標：`--integrations-only` - 只更新整合檔案
+  - 新旗標：`--standards-only` - 只更新標準檔案
+  - 標準更新時自動同步整合檔案
+- **CLI**：增強 `uds check` 命令
+  - 新區段：AI 工具整合狀態
+  - 驗證整合檔案存在且正確參考標準
+  - 回報缺少的標準參考並提供修復建議
+- **Skills**：新增 `/config` 斜線命令用於標準配置
+
+### 變更
+- **CLI**：整合檔案現在預設包含合規指示和標準索引（index 模式）
+
+## [3.5.0-beta.4] - 2026-01-09
+
+### 新增
+- **CLI**：AI 整合檔案的參考同步功能
+  - `uds check` 現在顯示「參考同步狀態」區段
+    - 偵測孤立參考（整合檔案中的參考不在 manifest 中）
+    - 回報缺少參考（manifest 中的標準未被參考）
+  - `uds update --sync-refs` 根據 manifest 標準重新產生整合檔案
+  - manifest 中新增 `integrationConfigs` 欄位以保存產生設定
+- **Utils**：新增 `reference-sync.js` 模組，含類別對標準的對應
+
+### 變更
+- **CLI**：Manifest 版本從 3.1.0 升級至 3.2.0
+  - 新增 `integrationConfigs` 欄位儲存整合檔案產生設定
+  - 允許 `uds update --sync-refs` 使用相同選項重新產生（類別、詳細等級、語言）
+
+## [3.5.0-beta.3] - 2026-01-09
+
+### 修復
+- **CLI**：修復 `uds update` 顯示錯誤版本號
+  - `standards-registry.json` 版本與 `package.json` 未同步
+  - 現在顯示正確的當前和最新版本資訊
+
+### 新增
+- **腳本**：新增版本同步檢查腳本
+  - `scripts/check-version-sync.sh` 用於 Unix/macOS
+  - `scripts/check-version-sync.ps1` 用於 Windows PowerShell
+  - 驗證 `standards-registry.json` 版本與 `package.json` 一致
+- **文件**：將版本同步檢查新增至 `release-workflow.md` 預發布檢查清單
+
+## [3.5.0-beta.2] - 2026-01-09
+
+### 新增
+- **整合**：OpenAI Codex CLI 整合，使用 `AGENTS.md`
+- **整合**：Gemini CLI 整合，使用 `GEMINI.md`
+- **整合**：OpenCode 整合，使用 `AGENTS.md`
+- **整合**：Google Antigravity 專案級規則檔案 (`.antigravity/rules.md`)
+
+### 移除
+- **CLI**：從 `uds check` 移除未追蹤檔案掃描
+  - `uds check` 現在只驗證 manifest 中記錄的檔案
+  - 不再提示追蹤 `.standards/` 目錄中的未知檔案
+
+## [3.5.0-beta.1] - 2026-01-09
+
+### 新增
+- **CLI**：新增 `uds configure` 命令用於後安裝配置
+  - 子命令：`add-tool`、`remove-tool`、`set-level`
+  - 互動模式支援
+- **CLI**：改進 `uds init` 流程
+  - 新增 AI 工具選擇提示
+  - 新增整合檔案配置選項
+- **CLI**：manifest 版本升級至 3.2.0
+  - 新增 `aiTools` 欄位追蹤選擇的 AI 工具
+  - 新增 `integrations` 欄位列出產生的整合檔案
+
+### 變更
+- **CLI**：重構整合產生器以支援多 AI 工具
+- **CLI**：改進錯誤處理和使用者回饋
 
 ## [3.4.1] - 2026-01-08
 
