@@ -246,6 +246,30 @@ When using AI assistants (Claude Code, Cursor, etc.) with this project:
 
 ---
 
+## Post-Modification Verification / 修改後驗證
+
+**IMPORTANT**: After completing any of the following modifications, AI assistants MUST read and follow the verification steps in [docs/OPERATION-WORKFLOW.md](docs/OPERATION-WORKFLOW.md):
+
+| Modification Type | Reference Section |
+|-------------------|-------------------|
+| Add/modify core standard | §8.1 Adding a New Core Standard |
+| Add/modify skill | §8.2 Adding a New Skill |
+| Add/modify AI tool integration | §8.3 Adding a New AI Tool Integration |
+| Prepare release | §9 Release Process |
+| Any multi-file change | §7 Maintenance Workflow |
+
+### Quick Verification (All Changes)
+
+After ANY modification, run:
+```bash
+./scripts/check-standards-sync.sh
+./scripts/check-translation-sync.sh
+./scripts/check-version-sync.sh
+cd cli && npm test && npm run lint
+```
+
+---
+
 ## Release Process
 
 When preparing releases or helping with version management:
