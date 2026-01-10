@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.3.0
-translation_version: 3.3.0
-last_synced: 2026-01-08
+source_version: 3.5.0-beta.5
+translation_version: 3.5.0-beta.5
+last_synced: 2026-01-10
 status: current
 ---
 
@@ -16,6 +16,158 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+### 新增
+- **文档**：新增 18 个 `options/` 目录的人类可读 Markdown 文件
+  - `options/changelog/`：keep-a-changelog.md、auto-generated.md
+  - `options/code-review/`：pr-review.md、pair-programming.md、automated-review.md
+  - `options/documentation/`：api-docs.md、markdown-docs.md、wiki-style.md
+  - `options/project-structure/`：kotlin.md、php.md、ruby.md、rust.md、swift.md
+  - `options/testing/`：contract-testing.md、industry-pyramid.md、istqb-framework.md、performance-testing.md、security-testing.md
+  - 完成双格式架构：`ai/options/*.ai.yaml` 供 AI 工具使用，`options/*.md` 供人类开发者使用
+- **AI 标准**：新增 `ai/standards/test-driven-development.ai.yaml`
+  - AI 优化的 TDD 标准，含 Red-Green-Refactor 循环
+  - FIRST 原则与适用性指南
+- **文档**：新增完整的 CLI init 选项指南（三语支持）
+  - `docs/CLI-INIT-OPTIONS.md` - 完整的 `uds init` 选项文档
+  - 涵盖：AI 工具、技能位置、标准范围、采用等级、格式、标准选项、扩展、集成配置、内容模式
+  - 包含使用案例、决策流程和 CLI 参数参考
+  - 三语版本：英文、繁体中文 (`locales/zh-TW/`)、简体中文 (`locales/zh-CN/`)
+- **发布**：将 CLI 文档新增至预发布检查清单
+  - `release-workflow.md` 现在包含 CLI-INIT-OPTIONS.md 验证
+- **发布**：将标准一致性检查新增至预发布检查清单
+  - 验证 `core/` ↔ `ai/standards/` 内容对齐
+  - 验证 `options/` ↔ `ai/options/` 双格式完整性
+- **脚本**：新增自动化标准一致性检查脚本
+  - `scripts/check-standards-sync.sh` 用于 Unix/macOS
+  - `scripts/check-standards-sync.ps1` 用于 Windows PowerShell
+  - 检查 `core/` ↔ `ai/standards/` 和 `options/` ↔ `ai/options/` 一致性
+
+### 变更
+- **CLI**：改进集成生成器的 minimal 内容模式
+  - Minimal 模式现在包含简化的标准参考清单
+  - 确保 AI 工具即使在 minimal 模式下也知道有哪些标准可用
+  - 新增 `generateMinimalStandardsReference()` 函数
+
+## [3.5.0-beta.5] - 2026-01-09
+
+### 新增
+- **CLI**：增强 AI 工具集成，自动符合标准
+  - 支持 9 个 AI 工具：Claude Code、Cursor、Windsurf、Cline、GitHub Copilot、Google Antigravity、OpenAI Codex、Gemini CLI、OpenCode
+  - 新增内容模式选择：`full`、`index`（推荐）、`minimal`
+  - 生成标准合规指示，含 MUST/SHOULD 优先级
+  - 生成标准索引，列出所有已安装标准
+  - 处理 Codex 和 OpenCode 之间的 `AGENTS.md` 共享
+- **CLI**：增强 `uds configure` 命令
+  - 新选项：AI 工具 - 新增/移除 AI 工具集成
+  - 新选项：采用等级 - 变更 Level 1/2/3
+  - 新选项：内容模式 - 变更 full/index/minimal
+  - 设置变更时自动重新生成集成文件
+- **CLI**：增强 `uds update` 命令
+  - 新标志：`--integrations-only` - 只更新集成文件
+  - 新标志：`--standards-only` - 只更新标准文件
+  - 标准更新时自动同步集成文件
+- **CLI**：增强 `uds check` 命令
+  - 新区段：AI 工具集成状态
+  - 验证集成文件存在且正确参考标准
+  - 报告缺少的标准参考并提供修复建议
+- **Skills**：新增 `/config` 斜线命令用于标准配置
+
+### 变更
+- **CLI**：集成文件现在默认包含合规指示和标准索引（index 模式）
+
+## [3.5.0-beta.4] - 2026-01-09
+
+### 新增
+- **CLI**：AI 集成文件的参考同步功能
+  - `uds check` 现在显示「参考同步状态」区段
+    - 检测孤立参考（集成文件中的参考不在 manifest 中）
+    - 报告缺少参考（manifest 中的标准未被参考）
+  - `uds update --sync-refs` 根据 manifest 标准重新生成集成文件
+  - manifest 中新增 `integrationConfigs` 字段以保存生成设置
+- **Utils**：新增 `reference-sync.js` 模块，含类别对标准的映射
+
+### 变更
+- **CLI**：Manifest 版本从 3.1.0 升级至 3.2.0
+  - 新增 `integrationConfigs` 字段存储集成文件生成设置
+  - 允许 `uds update --sync-refs` 使用相同选项重新生成（类别、详细等级、语言）
+
+## [3.5.0-beta.3] - 2026-01-09
+
+### 修复
+- **CLI**：修复 `uds update` 显示错误版本号
+  - `standards-registry.json` 版本与 `package.json` 未同步
+  - 现在显示正确的当前和最新版本信息
+
+### 新增
+- **脚本**：新增版本同步检查脚本
+  - `scripts/check-version-sync.sh` 用于 Unix/macOS
+  - `scripts/check-version-sync.ps1` 用于 Windows PowerShell
+  - 验证 `standards-registry.json` 版本与 `package.json` 一致
+- **文档**：将版本同步检查新增至 `release-workflow.md` 预发布检查清单
+
+## [3.5.0-beta.2] - 2026-01-09
+
+### 新增
+- **集成**：OpenAI Codex CLI 集成，使用 `AGENTS.md`
+- **集成**：Gemini CLI 集成，使用 `GEMINI.md`
+- **集成**：OpenCode 集成，使用 `AGENTS.md`
+- **集成**：Google Antigravity 项目级规则文件 (`.antigravity/rules.md`)
+
+### 移除
+- **CLI**：从 `uds check` 移除未追踪文件扫描
+  - `uds check` 现在只验证 manifest 中记录的文件
+  - 不再提示追踪 `.standards/` 目录中的未知文件
+
+## [3.5.0-beta.1] - 2026-01-09
+
+### 新增
+- **CLI**：新增 `uds configure` 命令用于后安装配置
+  - 子命令：`add-tool`、`remove-tool`、`set-level`
+  - 交互模式支持
+- **CLI**：改进 `uds init` 流程
+  - 新增 AI 工具选择提示
+  - 新增集成文件配置选项
+- **CLI**：manifest 版本升级至 3.2.0
+  - 新增 `aiTools` 字段追踪选择的 AI 工具
+  - 新增 `integrations` 字段列出生成的集成文件
+
+### 变更
+- **CLI**：重构集成生成器以支持多 AI 工具
+- **CLI**：改进错误处理和用户反馈
+
+## [3.4.1] - 2026-01-08
+
+### 修复
+- **CLI**：修复 `uds update` 建议从较新版本降级的问题
+  - 新增正确的语义版本比较，支持预发布版本（alpha/beta/rc）
+  - 现在能正确识别当前版本比 registry 版本更新的情况
+  - 当用户版本比 registry 更新时显示提示信息
+- **CLI**：更新 `standards-registry.json` 版本与 package.json 一致
+
+## [3.4.0] - 2026-01-08
+
+### 新增
+- **CLI**：`uds check` 新增基于哈希值的文件完整性检查
+  - 通过比较 SHA-256 哈希值检测修改的文件
+  - 新增选项：`--diff`、`--restore`、`--restore-missing`、`--no-interactive`、`--migrate`
+  - 交互模式：检测到问题时提示操作（查看差异、还原、保留、跳过）
+  - 旧版 manifest 迁移：`uds check --migrate` 升级至基于哈希值的追踪
+- **CLI**：manifest 中存储文件哈希值（版本 3.1.0）
+  - `uds init` 在安装时计算并存储文件哈希值
+  - `uds update` 在更新文件后重新计算哈希值
+- **Utils**：新增 `hasher.js` 工具模块用于 SHA-256 文件哈希
+
+### 变更
+- **CLI**：manifest 版本从 3.0.0 升级至 3.1.0
+  - 新增 `fileHashes` 字段追踪文件完整性
+  - 向后兼容旧版 manifest
+
+### 修复
+- **CLI**：修复 `uds check` 错误显示「Skills 已标记为已安装但找不到」警告
+  - 现在正确识别 Plugin Marketplace 安装路径（`~/.claude/plugins/cache/`）
+- **CLI**：修复 `uds update` 命令失败并显示「undefined」错误
+  - 为异步 `copyStandard()` 和 `copyIntegration()` 调用新增遗漏的 `await`
 
 ## [3.3.0] - 2026-01-08
 
