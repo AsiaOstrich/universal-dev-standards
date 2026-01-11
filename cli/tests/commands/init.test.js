@@ -241,7 +241,7 @@ describe('Init Command', () => {
       })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
-      expect(output).toContain('Standards Scope: Full');
+      expect(output).toContain('Standards Scope: Complete');
     });
 
     it('should use minimal scope when --skills-location=marketplace', async () => {
@@ -253,7 +253,7 @@ describe('Init Command', () => {
       })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
-      expect(output).toContain('Standards Scope: Minimal');
+      expect(output).toContain('Standards Scope: Lean');
     });
 
     it('should use project location when --skills-location=project', async () => {

@@ -239,11 +239,11 @@ Determines the quantity and depth of adopted standards. Higher levels include mo
 
 | Level | Name | Standard Count | Setup Time | Use Case |
 |-------|------|----------------|------------|----------|
-| **Level 1** | Essential | 4 core standards | ~30 minutes | Personal projects, quick start |
-| **Level 2** | Recommended | 10+ standards | ~2 hours | Team projects, professional development |
-| **Level 3** | Enterprise | All standards | 1-2 days | Enterprise projects, regulatory compliance |
+| **Level 1** | Starter | 6 core standards | ~30 minutes | Personal projects, quick start |
+| **Level 2** | Professional | 12 standards | ~2 hours | Team projects, professional development |
+| **Level 3** | Complete | All 16 standards | 1-2 days | Enterprise projects, regulatory compliance |
 
-### Level 1: Essential
+### Level 1: Starter
 
 **Included Standards**:
 - `anti-hallucination.md` - AI collaboration anti-hallucination
@@ -259,7 +259,7 @@ Determines the quantity and depth of adopted standards. Higher levels include mo
 **Standard Options**:
 - ✅ Commit Language
 
-### Level 2: Recommended
+### Level 2: Professional
 
 **Includes Level 1 + Additional Standards**:
 - `code-review-checklist.md` - Code review
@@ -280,7 +280,7 @@ Determines the quantity and depth of adopted standards. Higher levels include mo
 - ✅ Commit Language
 - ✅ Test Levels
 
-### Level 3: Enterprise
+### Level 3: Complete
 
 **Includes Level 2 + Additional Standards**:
 - `documentation-structure.md` - Documentation structure
@@ -305,13 +305,13 @@ Determines the format of copied standard files.
 
 | Format | File Type | Token Usage | Use Case |
 |--------|-----------|-------------|----------|
-| **AI-Optimized** (Recommended) | `.ai.yaml` | ~80% reduction | AI assistants, automation |
-| **Human-Readable** | `.md` | Standard | Human reading, team training |
+| **Compact** (Recommended) | `.ai.yaml` | ~80% reduction | AI assistants, automation |
+| **Detailed** | `.md` | Standard | Human reading, team training |
 | **Both** | Both formats | Higher | Need both purposes |
 
 ### Detailed Explanation
 
-#### AI-Optimized (Recommended)
+#### Compact (Recommended)
 
 ```yaml
 # commit-message.ai.yaml
@@ -330,7 +330,7 @@ rules:
 - Structured YAML format
 - Suitable for AI parsing
 
-#### Human-Readable
+#### Detailed
 
 ```markdown
 # Commit Message Guide
@@ -555,8 +555,8 @@ Determines how much standards content to embed in AI tool integration files. Thi
 
 | Mode | File Size | AI Visibility | Use Case |
 |------|-----------|---------------|----------|
-| **Index** (Recommended) | Medium | High | Most projects |
-| **Full** | Largest | Highest | Enterprise compliance |
+| **Standard** (Recommended) | Medium | High | Most projects |
+| **Full Embed** | Largest | Highest | Enterprise compliance |
 | **Minimal** | Smallest | Low | Legacy project migration |
 
 ### Detailed Explanation
@@ -590,7 +590,7 @@ Determines how much standards content to embed in AI tool integration files. Thi
 - ✅ File size sensitive
 - ⚠️ Risk: AI may not proactively read files
 
-#### Index Mode (Recommended)
+#### Standard Mode (Recommended)
 
 **Generated Content**: Compliance instructions + standards index
 
@@ -631,7 +631,7 @@ This project has adopted **Level 2** standards. All standards are in `.standards
 - ✅ Want AI to follow standards but don't want large files
 - ✅ AI tools will read project files
 
-#### Full Mode
+#### Full Embed Mode
 
 **Generated Content**: Complete embedded rules
 

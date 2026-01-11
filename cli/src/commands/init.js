@@ -426,9 +426,9 @@ export async function initCommand(options) {
   console.log();
   console.log(chalk.cyan('Configuration Summary:'));
   console.log(chalk.gray(`  Level: ${level}`));
-  console.log(chalk.gray(`  Format: ${format === 'ai' ? 'AI-Optimized' : format === 'human' ? 'Human-Readable' : 'Both'}`));
-  console.log(chalk.gray(`  Standards Scope: ${skillsConfig.standardsScope === 'minimal' ? 'Minimal (Skills cover the rest)' : 'Full'}`));
-  console.log(chalk.gray(`  Content Mode: ${skillsConfig.contentMode === 'full' ? 'Full (embed all)' : skillsConfig.contentMode === 'index' ? 'Index (recommended)' : 'Minimal (core only)'}`));
+  console.log(chalk.gray(`  Format: ${format === 'ai' ? 'Compact' : format === 'human' ? 'Detailed' : 'Both'}`));
+  console.log(chalk.gray(`  Standards Scope: ${skillsConfig.standardsScope === 'minimal' ? 'Lean (Skills handle the rest)' : 'Complete'}`));
+  console.log(chalk.gray(`  Content Mode: ${skillsConfig.contentMode === 'full' ? 'Full Embed' : skillsConfig.contentMode === 'index' ? 'Standard (recommended)' : 'Minimal (core only)'}`));
   console.log(chalk.gray(`  Languages: ${languages.length > 0 ? languages.join(', ') : 'none'}`));
   console.log(chalk.gray(`  Frameworks: ${frameworks.length > 0 ? frameworks.join(', ') : 'none'}`));
   console.log(chalk.gray(`  Locale: ${locale || 'default (English)'}`));

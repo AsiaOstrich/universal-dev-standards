@@ -239,11 +239,11 @@ your-project/
 
 | 等级 | 名称 | 标准数量 | 设定时间 | 适用情境 |
 |------|------|----------|----------|----------|
-| **Level 1** | Essential (基本) | 4 个核心标准 | ~30 分钟 | 个人项目、快速启动 |
-| **Level 2** | Recommended (推荐) | 10+ 标准 | ~2 小时 | 团队项目、专业开发 |
-| **Level 3** | Enterprise (企业) | 全部标准 | 1-2 天 | 企业项目、法规遵循 |
+| **Level 1** | Starter (基本) | 6 个核心标准 | ~30 分钟 | 个人项目、快速启动 |
+| **Level 2** | Professional (推荐) | 12 标准 | ~2 小时 | 团队项目、专业开发 |
+| **Level 3** | Complete (完整) | 全部 16 标准 | 1-2 天 | 企业项目、法规遵循 |
 
-### Level 1: Essential (基本)
+### Level 1: Starter (基本)
 
 **包含标准**：
 - `anti-hallucination.md` - AI 协作防幻觉
@@ -259,7 +259,7 @@ your-project/
 **Standard Options**：
 - ✅ Commit Language
 
-### Level 2: Recommended (推荐)
+### Level 2: Professional (推荐)
 
 **包含 Level 1 + 额外标准**：
 - `code-review-checklist.md` - 代码审查
@@ -280,7 +280,7 @@ your-project/
 - ✅ Commit Language
 - ✅ Test Levels
 
-### Level 3: Enterprise (企业)
+### Level 3: Complete (完整)
 
 **包含 Level 2 + 额外标准**：
 - `documentation-structure.md` - 文档结构
@@ -305,13 +305,13 @@ your-project/
 
 | 格式 | 文件类型 | Token 使用量 | 适用情境 |
 |------|----------|--------------|----------|
-| **AI-Optimized** (推荐) | `.ai.yaml` | ~80% 减少 | AI 助手使用、自动化 |
-| **Human-Readable** | `.md` | 标准 | 人工阅读、团队培训 |
+| **Compact** (推荐) | `.ai.yaml` | ~80% 减少 | AI 助手使用、自动化 |
+| **Detailed** | `.md` | 标准 | 人工阅读、团队培训 |
 | **Both** | 两种都有 | 较高 | 需要两种用途 |
 
 ### 详细说明
 
-#### AI-Optimized (推荐)
+#### Compact (推荐)
 
 ```yaml
 # commit-message.ai.yaml
@@ -330,7 +330,7 @@ rules:
 - 结构化 YAML 格式
 - 适合 AI 解析
 
-#### Human-Readable
+#### Detailed
 
 ```markdown
 # Commit Message Guide
@@ -555,8 +555,8 @@ uds init
 
 | 模式 | 文件大小 | AI 可见性 | 适用情境 |
 |------|----------|-----------|----------|
-| **Index** (推荐) | 中等 | 高 | 大多数项目 |
-| **Full** | 最大 | 最高 | 企业级合规 |
+| **Standard** (推荐) | 中等 | 高 | 大多数项目 |
+| **Full Embed** | 最大 | 最高 | 企业级合规 |
 | **Minimal** | 最小 | 低 | 旧项目迁移 |
 
 ### 详细说明
@@ -590,7 +590,7 @@ uds init
 - ✅ 文件大小敏感
 - ⚠️ 风险：AI 可能不会主动读取
 
-#### Index 模式 (推荐)
+#### Standard 模式 (推荐)
 
 **生成内容**：合规指示 + 标准索引
 
@@ -631,7 +631,7 @@ uds init
 - ✅ 希望 AI 遵守规范但不想文件太大
 - ✅ AI 工具会读取项目文件
 
-#### Full 模式
+#### Full Embed 模式
 
 **生成内容**：完整嵌入所有规则
 
