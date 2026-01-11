@@ -421,6 +421,36 @@ grep -r "beta" cli/package.json .claude-plugin/ cli/standards-registry.json | gr
 
 ---
 
+## 自動化預發布檢查
+
+使用單一指令執行所有預發布檢查：
+
+```bash
+# macOS / Linux
+./scripts/pre-release-check.sh
+
+# Windows PowerShell
+.\scripts\pre-release-check.ps1
+```
+
+**選項：**
+
+| 選項 | 說明 |
+|------|------|
+| `--fail-fast` / `-FailFast` | 遇到第一個錯誤即停止 |
+| `--skip-tests` / `-SkipTests` | 跳過測試以加快驗證速度 |
+
+**執行的檢查：**
+1. Git 工作目錄狀態
+2. 版本同步（`check-version-sync.sh`）
+3. 標準同步（`check-standards-sync.sh`）
+4. 翻譯同步（`check-translation-sync.sh`）
+5. 安裝腳本同步（`check-install-scripts-sync.sh`）
+6. Linting（`npm run lint`）
+7. 測試（`npm test`）
+
+---
+
 ## 預發布檢查清單
 
 ### 建立任何發布之前

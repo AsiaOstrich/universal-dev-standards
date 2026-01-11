@@ -416,6 +416,36 @@ Use the automated script for consistent pre-release preparation:
 
 ---
 
+## Automated Pre-release Check
+
+Run all pre-release checks with a single command:
+
+```bash
+# macOS / Linux
+./scripts/pre-release-check.sh
+
+# Windows PowerShell
+.\scripts\pre-release-check.ps1
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--fail-fast` / `-FailFast` | Stop on first failure |
+| `--skip-tests` / `-SkipTests` | Skip tests for faster validation |
+
+**Checks performed:**
+1. Git working directory status
+2. Version sync (`check-version-sync.sh`)
+3. Standards sync (`check-standards-sync.sh`)
+4. Translation sync (`check-translation-sync.sh`)
+5. Install scripts sync (`check-install-scripts-sync.sh`)
+6. Linting (`npm run lint`)
+7. Tests (`npm test`)
+
+---
+
 ## Pre-release Checklist
 
 ### Before Creating Any Release

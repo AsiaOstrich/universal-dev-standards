@@ -115,6 +115,9 @@ npm run test:coverage # Generate coverage report
 # Standards consistency check (run from root)
 ./scripts/check-standards-sync.sh
 
+# Pre-release check (run all checks at once)
+./scripts/pre-release-check.sh
+
 # Local CLI testing
 node cli/bin/uds.js list
 node cli/bin/uds.js init --help
@@ -140,6 +143,9 @@ npm run test:coverage # Generate coverage report
 # Standards consistency check (run from root)
 .\scripts\check-standards-sync.ps1
 
+# Pre-release check (run all checks at once)
+.\scripts\pre-release-check.ps1
+
 # Local CLI testing
 node cli\bin\uds.js list
 node cli\bin\uds.js init --help
@@ -152,6 +158,7 @@ node cli\bin\uds.js init --help
 ./scripts/check-translation-sync.sh
 ./scripts/check-version-sync.sh
 ./scripts/check-standards-sync.sh
+./scripts/pre-release-check.sh
 ```
 
 ## Code Check-in Standards (Mandatory)
@@ -262,6 +269,10 @@ When using AI assistants (Claude Code, Cursor, etc.) with this project:
 
 After ANY modification, run:
 ```bash
+# Run all checks at once (recommended)
+./scripts/pre-release-check.sh
+
+# Or run individual checks:
 ./scripts/check-standards-sync.sh
 ./scripts/check-translation-sync.sh
 ./scripts/check-version-sync.sh
