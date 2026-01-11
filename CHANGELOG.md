@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+_No unreleased changes_
+
+## [3.5.0-beta.6] - 2026-01-11
+
 ### Added
 - **Docs**: Add 18 human-readable markdown files for `options/` directory
   - `options/changelog/`: keep-a-changelog.md, auto-generated.md
@@ -40,6 +44,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - Minimal mode now includes simplified standards reference list
   - Ensures AI tools know which standards are available even in minimal mode
   - New `generateMinimalStandardsReference()` function
+- **CLI**: Optimize `uds init` prompt messages
+  - Unified header format across all prompts
+  - Improved terminology: Starter/Professional/Complete (levels), Compact/Detailed (format), Standard (content mode), Lean (standards scope)
+  - Enhanced color coding: green for recommended options
+  - Simplified post-selection explanations
 
 ## [3.5.0-beta.5] - 2026-01-09
 

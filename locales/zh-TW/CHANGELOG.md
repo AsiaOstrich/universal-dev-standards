@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.5.0-beta.5
-translation_version: 3.5.0-beta.5
-last_synced: 2026-01-10
+source_version: 3.5.0-beta.6
+translation_version: 3.5.0-beta.6
+last_synced: 2026-01-11
 status: current
 ---
 
@@ -16,6 +16,10 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+_無未發布的變更_
+
+## [3.5.0-beta.6] - 2026-01-11
 
 ### 新增
 - **文件**：新增 18 個 `options/` 目錄的人類可讀 Markdown 檔案
@@ -48,6 +52,11 @@ status: current
   - Minimal 模式現在包含簡化的標準參考清單
   - 確保 AI 工具即使在 minimal 模式下也知道有哪些標準可用
   - 新增 `generateMinimalStandardsReference()` 函數
+- **CLI**：優化 `uds init` 提示訊息
+  - 統一所有提示的標題格式
+  - 改善術語：Starter/Professional/Complete（等級）、Compact/Detailed（格式）、Standard（內容模式）、Lean（標準範圍）
+  - 增強顏色標示：推薦選項使用綠色
+  - 簡化選擇後的說明文字
 
 ## [3.5.0-beta.5] - 2026-01-09
 
