@@ -98,19 +98,19 @@ export async function promptSkillsInstallLocation() {
       message: 'Where should Skills be installed?',
       choices: [
         {
-          name: `${chalk.green('Plugin Marketplace')} ${chalk.gray('(推薦)')} - Already installed via /plugin install`,
+          name: `${chalk.green('Plugin Marketplace')} ${chalk.gray('(推薦)')} - Auto-managed by Claude Code`,
           value: 'marketplace'
         },
         {
-          name: `${chalk.blue('User Level')} - ~/.claude/skills/ (shared across projects)`,
+          name: `${chalk.blue('User Level')} ${chalk.gray('(~/.claude/skills/)')} - Shared across all projects`,
           value: 'user'
         },
         {
-          name: `${chalk.blue('Project Level')} - .claude/skills/ (project-specific)`,
+          name: `${chalk.blue('Project Level')} ${chalk.gray('(.claude/skills/)')} - This project only`,
           value: 'project'
         },
         {
-          name: `${chalk.gray('Skip')} - Do not install Skills`,
+          name: `${chalk.gray('Skip')} - No Skills installation`,
           value: 'none'
         }
       ],
@@ -118,25 +118,15 @@ export async function promptSkillsInstallLocation() {
     }
   ]);
 
-  // Show explanation
+  // Simplified single-line explanations
   console.log();
-  if (location === 'marketplace') {
-    console.log(chalk.gray('  → Skills managed by Claude Code Plugin system'));
-    console.log(chalk.gray('  → Automatic updates when new versions are released'));
-    console.log(chalk.gray('  → If not installed yet, run:'));
-    console.log(chalk.gray('      /plugin marketplace add AsiaOstrich/universal-dev-standards'));
-    console.log(chalk.gray('      /plugin install universal-dev-standards@asia-ostrich'));
-  } else if (location === 'user') {
-    console.log(chalk.gray('  → Skills will be installed to ~/.claude/skills/'));
-    console.log(chalk.gray('  → Available across all your projects'));
-  } else if (location === 'project') {
-    console.log(chalk.gray('  → Skills will be installed to .claude/skills/'));
-    console.log(chalk.gray('  → Only available in this project'));
-    console.log(chalk.gray('  → Consider adding .claude/skills/ to .gitignore'));
-  } else {
-    console.log(chalk.gray('  → No Skills will be installed'));
-    console.log(chalk.gray('  → Full standards will be copied to .standards/'));
-  }
+  const explanations = {
+    marketplace: '  → Run: /plugin install universal-dev-standards@asia-ostrich',
+    user: '  → Skills available in all your projects',
+    project: '  → Consider adding .claude/skills/ to .gitignore',
+    none: '  → Full standards will be copied to .standards/'
+  };
+  console.log(chalk.gray(explanations[location]));
   console.log();
 
   return location;
@@ -257,22 +247,22 @@ export async function promptStandardsScope(hasSkills) {
   }
 
   console.log();
-  console.log(chalk.cyan('Standards Scope:'));
-  console.log(chalk.gray('  Skills cover some standards dynamically. Choose what to install:'));
+  console.log(chalk.cyan('Standards Installation:'));
+  console.log(chalk.gray('  Choose how many standards files to copy'));
   console.log();
 
   const { scope } = await inquirer.prompt([
     {
       type: 'list',
       name: 'scope',
-      message: 'Select standards installation scope:',
+      message: 'How should standards be installed?',
       choices: [
         {
-          name: `${chalk.green('Minimal')} ${chalk.gray('(推薦)')} - Only static standards (Skills cover the rest)`,
+          name: `${chalk.green('Lean')} ${chalk.gray('(推薦)')} - Reference docs only, Skills handle the rest`,
           value: 'minimal'
         },
         {
-          name: `${chalk.blue('Full')} - Install all standards (includes Skills-covered)`,
+          name: `${chalk.blue('Complete')} - All standards as local files`,
           value: 'full'
         }
       ],
@@ -280,15 +270,11 @@ export async function promptStandardsScope(hasSkills) {
     }
   ]);
 
-  // Show explanation
+  // Simplified post-selection (only 1 line each)
   console.log();
-  if (scope === 'minimal') {
-    console.log(chalk.gray('  → Only reference standards will be copied'));
-    console.log(chalk.gray('  → Skills provide dynamic guidance for covered standards'));
-  } else {
-    console.log(chalk.gray('  → All standards will be copied to .standards/'));
-    console.log(chalk.gray('  → Includes both static files and Skills-covered content'));
-  }
+  console.log(chalk.gray(scope === 'minimal'
+    ? '  → Skills will provide real-time guidance'
+    : '  → All 16 standards will be copied to .standards/'));
   console.log();
 
   return scope;
@@ -299,6 +285,11 @@ export async function promptStandardsScope(hasSkills) {
  * @returns {Promise<string>} 'ai', 'human', or 'both'
  */
 export async function promptFormat() {
+  console.log();
+  console.log(chalk.cyan('Standards Format:'));
+  console.log(chalk.gray('  Choose the file format for your standards'));
+  console.log();
+
   const { format } = await inquirer.prompt([
     {
       type: 'list',
@@ -306,15 +297,15 @@ export async function promptFormat() {
       message: 'Select standards format:',
       choices: [
         {
-          name: `${chalk.green('AI-Optimized')} ${chalk.gray('(推薦)')} - Token-efficient YAML for AI assistants`,
+          name: `${chalk.green('Compact')} ${chalk.gray('(推薦)')} - YAML format, optimized for AI reading`,
           value: 'ai'
         },
         {
-          name: `${chalk.blue('Human-Readable')} - Full Markdown documentation`,
+          name: `${chalk.blue('Detailed')} - Full Markdown, best for human reading`,
           value: 'human'
         },
         {
-          name: `${chalk.yellow('Both')} - Include both formats`,
+          name: `${chalk.yellow('Both')} ${chalk.gray('(進階)')} - Include both formats`,
           value: 'both'
         }
       ],
@@ -330,6 +321,11 @@ export async function promptFormat() {
  * @returns {Promise<string>} Selected workflow ID
  */
 export async function promptGitWorkflow() {
+  console.log();
+  console.log(chalk.cyan('Git Workflow:'));
+  console.log(chalk.gray('  Choose your branching strategy'));
+  console.log();
+
   const { workflow } = await inquirer.prompt([
     {
       type: 'list',
@@ -361,6 +357,11 @@ export async function promptGitWorkflow() {
  * @returns {Promise<string>} Selected merge strategy ID
  */
 export async function promptMergeStrategy() {
+  console.log();
+  console.log(chalk.cyan('Merge Strategy:'));
+  console.log(chalk.gray('  How should branches be merged?'));
+  console.log();
+
   const { strategy } = await inquirer.prompt([
     {
       type: 'list',
@@ -392,6 +393,11 @@ export async function promptMergeStrategy() {
  * @returns {Promise<string>} Selected language ID
  */
 export async function promptCommitLanguage() {
+  console.log();
+  console.log(chalk.cyan('Commit Message Language:'));
+  console.log(chalk.gray('  What language for commit messages?'));
+  console.log();
+
   const { language } = await inquirer.prompt([
     {
       type: 'list',
@@ -423,6 +429,11 @@ export async function promptCommitLanguage() {
  * @returns {Promise<string[]>} Selected test level IDs
  */
 export async function promptTestLevels() {
+  console.log();
+  console.log(chalk.cyan('Test Coverage:'));
+  console.log(chalk.gray('  Select the test levels to include'));
+  console.log();
+
   const { levels } = await inquirer.prompt([
     {
       type: 'checkbox',
@@ -566,6 +577,11 @@ export async function promptSkillsUpgrade(installedVersion, latestVersion) {
  * @returns {Promise<number>} Selected level
  */
 export async function promptLevel() {
+  console.log();
+  console.log(chalk.cyan('Adoption Level:'));
+  console.log(chalk.gray('  How many standards do you want to adopt?'));
+  console.log();
+
   const { level } = await inquirer.prompt([
     {
       type: 'list',
@@ -573,19 +589,19 @@ export async function promptLevel() {
       message: 'Select adoption level:',
       choices: [
         {
-          name: `${chalk.green('Level 1: Essential')} ${chalk.gray('(基本)')} - Minimum viable standards`,
+          name: `${chalk.blue('Level 1: Starter')} ${chalk.gray('(基本)')} - 6 core standards`,
           value: 1
         },
         {
-          name: `${chalk.yellow('Level 2: Recommended')} ${chalk.gray('(推薦)')} - Professional quality`,
+          name: `${chalk.green('Level 2: Professional')} ${chalk.gray('(推薦)')} - 12 standards`,
           value: 2
         },
         {
-          name: `${chalk.blue('Level 3: Enterprise')} ${chalk.gray('(企業)')} - Comprehensive standards`,
+          name: `${chalk.yellow('Level 3: Complete')} ${chalk.gray('(完整)')} - All 16 standards`,
           value: 3
         }
       ],
-      default: 1
+      default: 2
     }
   ]);
 
@@ -734,26 +750,26 @@ export async function promptConfirm(message) {
  */
 export async function promptContentMode() {
   console.log();
-  console.log(chalk.cyan('Integration File Content Mode:'));
-  console.log(chalk.gray('  Choose how much standards content to embed in AI tool integration files'));
+  console.log(chalk.cyan('Integration File Size:'));
+  console.log(chalk.gray('  How much content to embed in AI tool config files?'));
   console.log();
 
   const { mode } = await inquirer.prompt([
     {
       type: 'list',
       name: 'mode',
-      message: 'Select content mode for integration files:',
+      message: 'Select content level:',
       choices: [
         {
-          name: `${chalk.green('Index')} ${chalk.gray('(推薦)')} - Standards index + compliance instructions`,
+          name: `${chalk.green('Standard')} ${chalk.gray('(推薦)')} - Summary + links to full docs`,
           value: 'index'
         },
         {
-          name: `${chalk.blue('Full')} - Embed all standards content (largest files, guaranteed visibility)`,
+          name: `${chalk.blue('Full Embed')} - All rules in one file (larger)`,
           value: 'full'
         },
         {
-          name: `${chalk.gray('Minimal')} - Only core rules (current behavior, smallest files)`,
+          name: `${chalk.gray('Minimal')} - Core rules only (smallest)`,
           value: 'minimal'
         }
       ],
@@ -761,21 +777,14 @@ export async function promptContentMode() {
     }
   ]);
 
-  // Show explanation
+  // Simplified single-line explanations
   console.log();
-  if (mode === 'index') {
-    console.log(chalk.gray('  → Includes standards index with links and compliance instructions'));
-    console.log(chalk.gray('  → AI will read relevant .standards/ files when needed'));
-    console.log(chalk.gray('  → Best balance of file size and standards visibility'));
-  } else if (mode === 'full') {
-    console.log(chalk.gray('  → All standards content embedded in integration files'));
-    console.log(chalk.gray('  → AI guaranteed to see all standards without reading files'));
-    console.log(chalk.gray('  → Results in larger integration files'));
-  } else {
-    console.log(chalk.gray('  → Only anti-hallucination, commit-standards, code-review embedded'));
-    console.log(chalk.gray('  → Smallest files, but AI may miss other standards'));
-    console.log(chalk.gray('  → Legacy mode for backward compatibility'));
-  }
+  const explanations = {
+    index: '  → AI reads .standards/ files when needed',
+    full: '  → All standards embedded, file may be large',
+    minimal: '  → Only essential rules, may miss some standards'
+  };
+  console.log(chalk.gray(explanations[mode]));
   console.log();
 
   return mode;
@@ -934,15 +943,15 @@ export async function promptAdoptionLevel(currentLevel) {
       message: 'Select new adoption level:',
       choices: [
         {
-          name: `${chalk.green('Level 1: Essential')} ${chalk.gray('(基本)')} - Minimum viable standards`,
+          name: `${chalk.blue('Level 1: Starter')} ${chalk.gray('(基本)')} - 6 core standards`,
           value: 1
         },
         {
-          name: `${chalk.yellow('Level 2: Recommended')} ${chalk.gray('(推薦)')} - Professional quality`,
+          name: `${chalk.green('Level 2: Professional')} ${chalk.gray('(推薦)')} - 12 standards`,
           value: 2
         },
         {
-          name: `${chalk.blue('Level 3: Enterprise')} ${chalk.gray('(企業)')} - Comprehensive standards`,
+          name: `${chalk.yellow('Level 3: Complete')} ${chalk.gray('(完整)')} - All 16 standards`,
           value: 3
         }
       ],
@@ -970,7 +979,7 @@ export async function promptAdoptionLevel(currentLevel) {
  */
 export async function promptContentModeChange(currentMode) {
   console.log();
-  console.log(chalk.cyan('Content Mode:'));
+  console.log(chalk.cyan('Integration File Size:'));
   console.log(chalk.gray(`  Current mode: ${currentMode || 'minimal'}`));
   console.log();
 
@@ -978,18 +987,18 @@ export async function promptContentModeChange(currentMode) {
     {
       type: 'list',
       name: 'mode',
-      message: 'Select content mode for integration files:',
+      message: 'Select content level:',
       choices: [
         {
-          name: `${chalk.green('Index')} ${chalk.gray('(推薦)')} - Standards index + compliance instructions`,
+          name: `${chalk.green('Standard')} ${chalk.gray('(推薦)')} - Summary + links to full docs`,
           value: 'index'
         },
         {
-          name: `${chalk.blue('Full')} - Embed all standards content (largest files)`,
+          name: `${chalk.blue('Full Embed')} - All rules in one file (larger)`,
           value: 'full'
         },
         {
-          name: `${chalk.gray('Minimal')} - Only core rules (smallest files)`,
+          name: `${chalk.gray('Minimal')} - Core rules only (smallest)`,
           value: 'minimal'
         }
       ],

@@ -338,15 +338,15 @@ export async function promptDetailLevel() {
       message: 'Select rule detail level:',
       choices: [
         {
-          name: `${chalk.green('Minimal')} - Essential rules only (~50 lines)`,
+          name: `${chalk.gray('Minimal')} - Essential rules only (~50 lines)`,
           value: 'minimal'
         },
         {
-          name: `${chalk.blue('Standard')} ${chalk.gray('(推薦)')} - Balanced coverage (~150 lines)`,
+          name: `${chalk.green('Standard')} ${chalk.gray('(推薦)')} - Balanced coverage (~150 lines)`,
           value: 'standard'
         },
         {
-          name: `${chalk.yellow('Comprehensive')} - Full documentation (~300+ lines)`,
+          name: `${chalk.yellow('Comprehensive')} ${chalk.gray('(完整)')} - Full documentation (~300+ lines)`,
           value: 'comprehensive'
         }
       ],
