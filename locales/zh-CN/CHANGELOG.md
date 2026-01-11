@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.5.0-beta.8
-translation_version: 3.5.0-beta.8
+source_version: 3.5.0-beta.9
+translation_version: 3.5.0-beta.9
 last_synced: 2026-01-11
 status: current
 ---
@@ -18,6 +18,22 @@ status: current
 ## [Unreleased]
 
 _无未发布的变更_
+
+## [3.5.0-beta.9] - 2026-01-11
+
+### 新增
+- **脚本**：新增统一预发布检查脚本
+  - `scripts/pre-release-check.sh` 适用于 Unix/macOS
+  - `scripts/pre-release-check.ps1` 适用于 Windows PowerShell
+  - 单一指令执行所有 7 项验证检查
+  - 选项：`--fail-fast`、`--skip-tests`
+- **CI**：在 GitHub Actions 发布工作流程中新增预发布验证
+  - 在 npm publish 前执行版本同步、标准同步、linting 和测试
+  - 任何检查失败则阻止发布
+
+### 变更
+- **文档**：在 release-workflow.md 新增「自动化预发布检查」区块
+- **文档**：在 CLAUDE.md 的快速指令中加入 pre-release-check.sh
 
 ## [3.5.0-beta.8] - 2026-01-11
 

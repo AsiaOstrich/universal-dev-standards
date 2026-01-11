@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes_
 
+## [3.5.0-beta.9] - 2026-01-11
+
+### Added
+- **Scripts**: Add unified pre-release check script
+  - `scripts/pre-release-check.sh` for Unix/macOS
+  - `scripts/pre-release-check.ps1` for Windows PowerShell
+  - Runs all 7 validation checks in a single command
+  - Options: `--fail-fast`, `--skip-tests`
+- **CI**: Add pre-release validation to GitHub Actions publish workflow
+  - Runs version sync, standards sync, linting, and tests before npm publish
+  - Prevents publishing if any check fails
+
+### Changed
+- **Docs**: Add "Automated Pre-release Check" section to release-workflow.md
+- **Docs**: Update CLAUDE.md with pre-release-check.sh in Quick Commands
+
 ## [3.5.0-beta.8] - 2026-01-11
 
 ### Fixed
