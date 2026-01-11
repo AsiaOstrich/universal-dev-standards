@@ -151,7 +151,7 @@ export function getFileStatusSummary(projectPath, manifest) {
  * Recursively scan directory for all files
  * @param {string} dirPath - Directory to scan
  * @param {string} basePath - Base path for relative path calculation
- * @returns {string[]} Array of relative paths
+ * @returns {string[]} Array of relative paths (always uses forward slashes)
  */
 function scanDirectory(dirPath, basePath) {
   const files = [];
@@ -160,7 +160,8 @@ function scanDirectory(dirPath, basePath) {
   for (const item of items) {
     const fullPath = join(dirPath, item.name);
     // Calculate relative path by removing basePath prefix
-    const relativePath = fullPath.slice(basePath.length + 1);
+    // Normalize to forward slashes for cross-platform consistency
+    const relativePath = fullPath.slice(basePath.length + 1).replace(/\\/g, '/');
 
     if (item.isDirectory()) {
       files.push(...scanDirectory(fullPath, basePath));
