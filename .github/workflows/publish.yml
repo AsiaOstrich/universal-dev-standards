@@ -33,6 +33,21 @@ jobs:
         env:
           HUSKY: '0'
 
+      # Pre-release validation checks
+      - name: Run version sync check
+        working-directory: .
+        run: ./scripts/check-version-sync.sh
+
+      - name: Run standards sync check
+        working-directory: .
+        run: ./scripts/check-standards-sync.sh
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
       - name: Verify CLI
         run: node bin/uds.js --version
 
