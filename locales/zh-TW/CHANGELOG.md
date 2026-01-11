@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.5.0-beta.7
-translation_version: 3.5.0-beta.7
+source_version: 3.5.0-beta.8
+translation_version: 3.5.0-beta.8
 last_synced: 2026-01-11
 status: current
 ---
@@ -18,6 +18,18 @@ status: current
 ## [Unreleased]
 
 _無未發布的變更_
+
+## [3.5.0-beta.8] - 2026-01-11
+
+### 修復
+- **CLI**：修復 `standards-registry.json` 版本不一致問題
+  - 同步 `standards-registry.json` 版本與 `package.json`（之前停留在 3.5.0-beta.5）
+  - 這導致 `uds update` 顯示過時的「最新版本」資訊
+
+### 變更
+- **發布**：將版本同步檢查加入預發布檢查清單
+  - 在自動化驗證區塊新增 `./scripts/check-version-sync.sh` 驗證步驟
+  - 防止未來版本不一致問題
 
 ## [3.5.0-beta.7] - 2026-01-11
 

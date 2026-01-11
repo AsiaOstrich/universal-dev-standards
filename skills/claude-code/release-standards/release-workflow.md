@@ -486,6 +486,8 @@ For each supported locale (`locales/zh-TW/`, `locales/zh-CN/`, etc.), verify the
 - [ ] Verify statistics and counts are consistent across all files
 
 **Automated Validation:**
+- [ ] Run version sync check: `./scripts/check-version-sync.sh`
+- [ ] Run standards sync check: `./scripts/check-standards-sync.sh`
 - [ ] Run translation sync check: `./scripts/check-translation-sync.sh`
 - [ ] Run install scripts sync check: `./scripts/check-install-scripts-sync.sh`
 

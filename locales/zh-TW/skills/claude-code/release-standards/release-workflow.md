@@ -489,7 +489,10 @@ grep -r "beta" cli/package.json .claude-plugin/ cli/standards-registry.json | gr
 - [ ] 驗證統計數字和計數在所有檔案中一致
 
 **自動化驗證：**
+- [ ] 執行版本同步檢查：`./scripts/check-version-sync.sh`
+- [ ] 執行標準同步檢查：`./scripts/check-standards-sync.sh`
 - [ ] 執行翻譯同步檢查：`./scripts/check-translation-sync.sh`
+- [ ] 執行安裝腳本同步檢查：`./scripts/check-install-scripts-sync.sh`
 
 ### Beta 發布之前
 

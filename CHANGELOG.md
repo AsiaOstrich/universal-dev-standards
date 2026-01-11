@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes_
 
+## [3.5.0-beta.8] - 2026-01-11
+
+### Fixed
+- **CLI**: Fix version mismatch in `standards-registry.json`
+  - Sync `standards-registry.json` version with `package.json` (was stuck at 3.5.0-beta.5)
+  - This caused `uds update` to show outdated "latest version" info
+
+### Changed
+- **Release**: Add version sync check to pre-release checklist
+  - Added `./scripts/check-version-sync.sh` verification step
+  - Prevents future version mismatch issues
+
 ## [3.5.0-beta.7] - 2026-01-11
 
 ### Fixed
