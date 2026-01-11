@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.5.0-beta.6
-translation_version: 3.5.0-beta.6
+source_version: 3.5.0-beta.7
+translation_version: 3.5.0-beta.7
 last_synced: 2026-01-11
 status: current
 ---
@@ -18,6 +18,13 @@ status: current
 ## [Unreleased]
 
 _无未发布的变更_
+
+## [3.5.0-beta.7] - 2026-01-11
+
+### 修复
+- **CLI**：修复 Windows 未追踪文件检测的路径分隔符问题
+  - 在 `scanDirectory` 函数中标准化路径分隔符为正斜线
+  - 确保比对 manifest 路径时的跨平台一致性
 
 ## [3.5.0-beta.6] - 2026-01-11
 

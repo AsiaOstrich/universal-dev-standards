@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes_
 
+## [3.5.0-beta.7] - 2026-01-11
+
+### Fixed
+- **CLI**: Fix Windows path separator issue in untracked file detection
+  - Normalize path separators to forward slashes in `scanDirectory` function
+  - Ensures cross-platform consistency when comparing manifest paths
+
 ## [3.5.0-beta.6] - 2026-01-11
 
 ### Added

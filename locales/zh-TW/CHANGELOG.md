@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.5.0-beta.6
-translation_version: 3.5.0-beta.6
+source_version: 3.5.0-beta.7
+translation_version: 3.5.0-beta.7
 last_synced: 2026-01-11
 status: current
 ---
@@ -18,6 +18,13 @@ status: current
 ## [Unreleased]
 
 _無未發布的變更_
+
+## [3.5.0-beta.7] - 2026-01-11
+
+### 修復
+- **CLI**：修復 Windows 未追蹤檔案偵測的路徑分隔符問題
+  - 在 `scanDirectory` 函數中標準化路徑分隔符為正斜線
+  - 確保比對 manifest 路徑時的跨平台一致性
 
 ## [3.5.0-beta.6] - 2026-01-11
 
