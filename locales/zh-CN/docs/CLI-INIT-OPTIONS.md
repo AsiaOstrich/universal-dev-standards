@@ -1,3 +1,11 @@
+---
+source: ../../../docs/CLI-INIT-OPTIONS.md
+source_version: 3.5.0
+translation_version: 3.5.0
+last_synced: 2026-01-12
+status: current
+---
+
 # UDS CLI Init 选项完整指南
 
 > **语言**: [English](../../../docs/CLI-INIT-OPTIONS.md) | [繁體中文](../../zh-TW/docs/CLI-INIT-OPTIONS.md) | 简体中文

@@ -1,4 +1,9 @@
 ---
+source: skills/claude-code/refactoring-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-12
+status: current
 name: refactoring-assistant
 description: |
   引導重構決策和大規模程式碼改進。
