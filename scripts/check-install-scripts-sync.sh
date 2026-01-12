@@ -46,8 +46,8 @@ fi
 # Skills are directories that contain SKILL.md or similar skill files
 actual_skills=$(find "$SKILLS_DIR" -maxdepth 1 -type d | while read dir; do
     name=$(basename "$dir")
-    # Skip the root directory, commands, and hidden directories
-    if [ "$name" != "claude-code" ] && [ "$name" != "commands" ] && [[ ! "$name" =~ ^\. ]]; then
+    # Skip the root directory, commands, ai (helper dir), and hidden directories
+    if [ "$name" != "claude-code" ] && [ "$name" != "commands" ] && [ "$name" != "ai" ] && [[ ! "$name" =~ ^\. ]]; then
         echo "$name"
     fi
 done | sort)

@@ -1,0 +1,34 @@
+# Refactoring Standards - Ultra Compressed
+# Token-optimized for AI assistants
+v: 1.0.0
+decision:
+  tree: [in_prod?→n:rewrite|y:next, understand?→n:char_tests|y:next, "cov>60%?"→n:add_tests|y:next, arch_ok?→n:strangler|y:incr_refactor]
+  refactor: [large_code,good_tests,critical_biz,team_knows,sound_arch,tight_deadline,low_risk]
+  rewrite: [small,no_tests,downtime_ok,no_knowledge,flawed_arch,flex_time,high_risk]
+warn: "Second-System Effect: Don't add features, over-abstract, ignore lessons"
+scales:
+  S: {t:"5-15m",s:method,tech:[extract,rename,inline,const]}
+  M: {t:"hrs-days",s:module,req:"cov>80%"}
+  L: {t:"wks-mos",s:system,patterns:[strangler,branch_abstract,expand_contract]}
+patterns:
+  strangler: {1:intercept,2:migrate_partial,3:complete_decommission}
+  branch_abstract: {1:"client→iface→old",2:"→[old,new_toggled]",3:"→new_only"}
+  expand_contract: {expand:"add_both",migrate:"switch_clients",contract:"remove_old"}
+legacy:
+  def: "code without tests"
+  char_test: [call,expect_fail,run,update_assert,repeat]
+  seams: {obj:polymorphism,preproc:macros,link:DI}
+  sprout: {method:"new_fn→call_from_old",class:"new_class→ref_from_old"}
+  wrap: {method:"rename→wrapper",class:decorator}
+db:
+  expand_contract: {1:"add_new,write_both",2:"copy,verify,read_new",3:"drop_old"}
+workflow:
+  before: [success_criteria,"cov>80%",clean_dir,branch,communicate]
+  during: [one_change,test_every,revert_if_fail,commit_often,no_new_func]
+  after: [tests_pass,measurably_better,docs,reviewed]
+metrics:
+  code: {complexity:"<10",dup:"<3%"}
+  test: {cov:"≥80%",speed:faster,flaky:decrease}
+debt:
+  quadrant: {prudent_delib:"know_debt",reckless_delib:"no_time",prudent_inadv:"learned_now",reckless_inadv:"what_layering?"}
+  priority: {H:"blocks→immediate",M:"slows→next_sprint",L:"minor→opportunistic"}

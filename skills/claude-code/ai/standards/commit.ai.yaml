@@ -1,0 +1,20 @@
+# Commit Standards - Ultra Compressed
+v: 1.0.0
+format: "<type>(<scope>): <subject>\n\n<body>\n\n<footer>"
+types: [feat,fix,refactor,docs,style,test,perf,build,ci,chore,revert,security]
+types_zh: [功能,修復,重構,文件,樣式,測試,效能,建置,CI,雜項,回退,安全]
+subject: {len:"≤72(50ideal)",tense:imperative,cap:first,period:no}
+lang_decision:
+  tree: [open_source?→EN, intl_team?→EN, single_lang_team?→team_pref|EN, mixed→bilingual]
+  matrix:
+    open_source: {l:EN,r:"intl contributors"}
+    intl_team: {l:EN,r:"common lang"}
+    local_EN: {l:EN,r:"tools,mobility"}
+    local_ZH: {l:ZH,r:"clarity,preference"}
+    mixed: {l:bilingual,r:"best of both"}
+bilingual_format: "type(scope): EN subject\n\n中文 body"
+refs: {closes:"#N→auto_close",fixes:"#N→auto_close",refs:"#N→link_only"}
+breaking: "BREAKING CHANGE: description\n\nMigration guide:\n1. step"
+examples:
+  good: ["feat(auth): Add OAuth2 Google login","fix(api): Resolve memory leak"]
+  bad: ["fixed bug","WIP","Update stuff."]

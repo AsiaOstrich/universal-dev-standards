@@ -298,14 +298,74 @@ For related testing standards:
 
 ---
 
+## Refactor Phase Deep Dive (YAML Compressed)
+
+```yaml
+# === TDD REFACTOR = SAFE SMALL REFACTORING ===
+refactor_phase:
+  scope: "Single method/class improvements"
+  duration: "5-15 minutes max"
+  prerequisite: "All tests GREEN"
+  rule: "No new functionality"
+
+techniques:
+  safe_refactorings:
+    - extract_method: "Long method → smaller methods"
+    - rename: "Improve naming clarity"
+    - inline_variable: "Remove unnecessary temp"
+    - replace_magic_number: "Constant with meaning"
+    - extract_class: "SRP violation fix"
+    - move_method: "Better cohesion"
+
+workflow:
+  steps:
+    1: "Confirm all tests GREEN"
+    2: "Make ONE small change"
+    3: "Run tests immediately"
+    4: "If RED → revert, try smaller step"
+    5: "If GREEN → commit, repeat"
+
+# === WHEN TO USE /refactor INSTEAD ===
+escalation:
+  use_tdd_refactor:
+    - "Improving code just written"
+    - "Single method/class cleanup"
+    - "Takes <15 minutes"
+  use_refactoring_assistant:
+    - "Legacy code modernization"
+    - "Refactor vs Rewrite decision"
+    - "Large-scale architectural change"
+    - "Technical debt management"
+    - "Strangler Fig pattern needed"
+
+# === REFACTOR ANTIPATTERNS ===
+antipatterns:
+  - name: "Refactoring without tests"
+    symptom: "No safety net"
+    fix: "Add characterization tests first"
+  - name: "Too large refactoring"
+    symptom: "Tests RED for hours"
+    fix: "Smaller steps, commit frequently"
+  - name: "Adding features while refactoring"
+    symptom: "Scope creep"
+    fix: "Separate commits: refactor then feature"
+  - name: "Refactoring everything"
+    symptom: "Perfectionism paralysis"
+    fix: "Only refactor code you're changing"
+```
+
+---
+
 ## Related Standards
 
 - [Test-Driven Development](../../../core/test-driven-development.md) - Core TDD standard
+- [Refactoring Standards](../../../core/refactoring-standards.md) - Large-scale refactoring
 - [Testing Standards](../../../core/testing-standards.md) - Testing framework
 - [Test Completeness Dimensions](../../../core/test-completeness-dimensions.md) - 7 dimensions
 - [Spec-Driven Development](../../../core/spec-driven-development.md) - SDD integration
 - [Testing Guide Skill](../testing-guide/SKILL.md) - Testing guide
 - [Test Coverage Assistant](../test-coverage-assistant/SKILL.md) - Coverage assistance
+- [Refactoring Assistant](../refactoring-assistant/SKILL.md) - Large-scale refactoring
 
 ---
 

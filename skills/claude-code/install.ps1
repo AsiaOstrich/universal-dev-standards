@@ -48,7 +48,7 @@ if (-not (Test-Path $SkillsDir)) {
     New-Item -ItemType Directory -Path $SkillsDir -Force | Out-Null
 }
 
-# List of available skills (16 total)
+# List of available skills (17 total)
 $Skills = @(
     "ai-collaboration-standards"
     "changelog-guide"
@@ -60,6 +60,7 @@ $Skills = @(
     "logging-guide"
     "methodology-system"
     "project-structure-guide"
+    "refactoring-assistant"
     "release-standards"
     "requirement-assistant"
     "spec-driven-dev"

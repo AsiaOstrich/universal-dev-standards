@@ -155,6 +155,95 @@ test('method_scenario_expected', () => {
 
 ---
 
+## Testing Theory Essentials (YAML Compressed)
+
+```yaml
+# === ISTQB FUNDAMENTALS ===
+terminology:
+  error: "Human mistake in thinking"
+  defect: "Bug in code (caused by error)"
+  failure: "System behaves incorrectly (caused by defect)"
+  chain: "Error → Defect → Failure"
+
+oracle_problem:
+  definition: "How do we know the expected result is correct?"
+  approaches:
+    - specification_oracle: "Compare against spec"
+    - reference_oracle: "Compare against reference impl"
+    - consistency_oracle: "Same input → same output"
+    - heuristic_oracle: "Reasonable approximation"
+
+# === STATIC vs DYNAMIC ===
+static_testing:
+  definition: "Examine without executing"
+  techniques: [reviews, walkthroughs, inspections, static_analysis]
+  finds: "Defects before runtime"
+  examples: [ESLint, SonarQube, code_review]
+
+dynamic_testing:
+  definition: "Execute and observe behavior"
+  techniques: [unit, integration, system, acceptance]
+  finds: "Failures during execution"
+
+# === TEST DESIGN TECHNIQUES ===
+black_box:
+  equivalence_partitioning:
+    principle: "Divide inputs into equivalent classes"
+    example: "Age: [<0 invalid], [0-17 minor], [18-64 adult], [65+ senior]"
+  boundary_value:
+    principle: "Test at boundaries of partitions"
+    example: "Age: test -1, 0, 17, 18, 64, 65"
+  decision_table:
+    principle: "Combinations of conditions → actions"
+    use: "Complex business rules"
+  state_transition:
+    principle: "Valid sequences of states"
+    use: "Workflow, state machines"
+
+white_box:
+  statement_coverage: "Every statement executed once"
+  branch_coverage: "Every decision branch taken"
+  condition_coverage: "Every condition T/F"
+  path_coverage: "Every possible path (often impractical)"
+
+# === RISK-BASED TESTING ===
+risk_assessment:
+  likelihood: "How likely to fail?"
+  impact: "How bad if fails?"
+  priority: "likelihood × impact"
+
+risk_matrix:
+  high_high: "Test extensively, first priority"
+  high_low: "Good coverage"
+  low_high: "Good coverage"
+  low_low: "Basic coverage"
+
+# === DEFECT MANAGEMENT ===
+defect_lifecycle:
+  states: [new, assigned, in_progress, fixed, verified, closed]
+  reopen_trigger: "Verification fails"
+
+severity_vs_priority:
+  severity: "Technical impact (critical/major/minor/trivial)"
+  priority: "Business urgency (high/medium/low)"
+  example: "Typo on login page: low severity, high priority (brand)"
+
+# === TEST ENVIRONMENT ===
+isolation_levels:
+  unit: "In-memory, mocked deps"
+  integration: "Containerized DB (Docker)"
+  staging: "Production-like, isolated"
+  production: "Real, feature flags for testing"
+
+test_data_strategies:
+  fixtures: "Static predefined data"
+  factories: "Dynamic generation (faker)"
+  snapshots: "Sanitized production copy"
+  synthetic: "Algorithm-generated edge cases"
+```
+
+---
+
 ## Configuration Detection
 
 This skill supports project-specific configuration.

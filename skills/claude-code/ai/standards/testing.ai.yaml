@@ -1,0 +1,41 @@
+# Testing Standards - Ultra Compressed
+v: 1.1.0
+pyramid: {UT:70%,IT:20%,E2E:10%}
+levels:
+  UT: {scope:fn/class,speed:"<100ms",deps:mocked}
+  IT: {scope:components,speed:"1-10s",deps:"real_db(container)"}
+  ST: {scope:full_system,speed:min,deps:prod_like}
+  E2E: {scope:user_journey,speed:"30s+",deps:all_real}
+coverage: {line:"70→85%",branch:"60→80%",fn:"80→90%"}
+theory:
+  chain: "error(human)→defect(code)→failure(runtime)"
+  oracle: [spec,reference,consistency,heuristic]
+  static: {def:"no_exec",tech:[review,analysis],tools:[ESLint,SonarQube]}
+  dynamic: {def:"execute",tech:[unit,integration,system]}
+design:
+  black_box:
+    equiv_partition: "divide inputs→classes"
+    boundary: "test at edges"
+    decision_table: "conditions→actions"
+    state_trans: "valid state sequences"
+  white_box: {stmt:"every_stmt",branch:"every_decision",cond:"T/F",path:"all_paths"}
+risk: {formula:"likelihood×impact",HH:extensive,HL:good,LH:good,LL:basic}
+doubles:
+  stub: "predefined returns"
+  mock: "verify interactions"
+  fake: "simplified impl"
+  spy: "record+delegate"
+use: {UT:mock_all,IT:"fake_db,stub_api",ST:"real,fake_external",E2E:all_real}
+FIRST: [Fast,Independent,Repeatable,Self_validating,Timely]
+AAA: [Arrange,Act,Assert]
+antipatterns: [interdependence,flaky,impl_details,over_mock,no_assert,magic_values]
+defect:
+  lifecycle: [new,assigned,in_progress,fixed,verified,closed]
+  severity: [critical,major,minor,trivial]
+  priority: [high,medium,low]
+env:
+  unit: in_memory
+  integration: containerized
+  staging: prod_like
+  production: feature_flags
+data: [fixtures,factories,snapshots,synthetic]

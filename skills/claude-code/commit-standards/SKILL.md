@@ -133,6 +133,60 @@ Refs #789      # Links without closing
 
 ---
 
+## Language Selection Decision (YAML Compressed)
+
+```yaml
+# === LANGUAGE DECISION MATRIX ===
+decision_tree:
+  - q: "Open source project?"
+    y: "→ English (international contributors)"
+    n: next
+  - q: "International/distributed team?"
+    y: "→ English (common language)"
+    n: next
+  - q: "Single-language team?"
+    y: "→ Team's primary language OR English"
+    n: "→ Bilingual (subject:EN, body:local)"
+
+recommendation_matrix:
+  open_source: {lang: English, reason: "international contributors"}
+  international_team: {lang: English, reason: "common language"}
+  local_team_EN: {lang: English, reason: "tool compatibility, career mobility"}
+  local_team_ZH: {lang: "繁體中文", reason: "clarity, team preference"}
+  mixed: {lang: Bilingual, reason: "best of both worlds"}
+
+# === TOOL COMPATIBILITY ===
+tool_support:
+  full_unicode:
+    - GitHub/GitLab/Bitbucket
+    - VS Code/JetBrains
+    - SourceTree/GitKraken
+  potential_issues:
+    - "Some CI/CD log viewers"
+    - "Legacy terminal encodings"
+    - "Email notifications (rare)"
+
+# === FORMAT BY LANGUAGE ===
+english:
+  types: [feat, fix, refactor, docs, style, test, perf, build, ci, chore, revert, security]
+  example: "feat(auth): add OAuth2 Google login support"
+
+traditional_chinese:
+  types: [功能, 修復, 重構, 文件, 樣式, 測試, 效能, 建置, CI, 雜項, 回退, 安全]
+  example: "功能(認證): 新增 OAuth2 Google 登入支援"
+
+bilingual:
+  format: "type(scope): English subject\n\n中文詳細說明"
+  example: |
+    feat(auth): add OAuth2 Google login
+
+    新增 Google OAuth2 登入功能
+    - 實作授權流程
+    - 處理 token 交換
+```
+
+---
+
 ## Configuration Detection
 
 This skill supports project-specific language configuration.

@@ -1,0 +1,21 @@
+# Checkin Standards - Ultra Compressed
+v: 1.3.0
+philosophy: [complete_unit,working_state,reversible,has_tests,understandable]
+checklist:
+  build: {compile:"0 errors/warnings",deps:"installed,locked"}
+  test: {pass:"100%",new_tested:true,"cov":"not_decreased"}
+  quality: {standards:true,smells:"methods≤50,nest≤3,complex≤10,no_dup",security:"no_secrets,no_sqli,no_xss"}
+  docs: {api:true,readme:"if_needed",changelog:"user_facing→[Unreleased]"}
+  workflow: {branch:"feature/|fix/|docs/|chore/",commit:conventional,synced:true}
+never_commit: [build_error,test_fail,incomplete_feature,WIP_critical,debug_code,commented_code]
+timing:
+  good: [completed_unit,bug_fixed_with_test,independent_refactor,runnable]
+  bad: [build_fail,test_fail,incomplete,experimental_TODO]
+granularity:
+  size: {files:"1-10",lines:"50-300",scope:single_concern}
+  combine: [feature+tests,tightly_related]
+  separate: [A+B,refactor+feature,fix+incidental]
+special:
+  emergency: {stash:"git stash save WIP:desc",wip_branch:"git checkout -b wip/name"}
+  experimental: {branch:"experiment/name",free_commits:true,success:"squash→merge",fail:"doc_lessons→delete"}
+  hotfix: {from:main,minimal:true,mark:"[URGENT]"}
