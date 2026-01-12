@@ -294,6 +294,26 @@ See [Adoption Guide](adoption/ADOPTION-GUIDE.md) for complete guidance.
 
 ---
 
+## Usage Modes Comparison
+
+When using UDS, you can choose between three usage modes:
+
+| Mode | Best For | Key Advantage |
+|------|----------|---------------|
+| **Skills Only** | Individual developers + Claude Code | Lowest token usage, best interactive experience |
+| **Standards Only** | Multi-tool teams / Enterprise | Full customization, version control |
+| **Skills + Standards** | Complete experience / Learning | 100% feature coverage |
+
+### Quick Decision Guide
+
+- **Personal projects with Claude Code?** → Skills Only (`standardsScope: minimal`)
+- **Team with multiple AI tools?** → Skills + Standards (`standardsScope: full`)
+- **Enterprise compliance needs?** → Standards Only (no Skills dependency)
+
+See [Usage Modes Comparison](docs/USAGE-MODES-COMPARISON.md) for detailed analysis including feature coverage, token efficiency, and recommendations.
+
+---
+
 ## Customization Guide
 
 ### Where to Write Customizations

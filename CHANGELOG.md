@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-_No unreleased changes_
+### Added
+- **Docs**: Add usage modes comparison documentation
+  - Compares Skills Only vs Standards Only vs Both modes
+  - Includes feature coverage, token efficiency, and recommendations
+  - Bilingual support (English and Traditional Chinese)
+  - See `docs/USAGE-MODES-COMPARISON.md`
 
 ## [3.5.0-beta.11] - 2026-01-12
 

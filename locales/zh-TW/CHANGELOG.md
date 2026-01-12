@@ -17,7 +17,12 @@ status: current
 
 ## [Unreleased]
 
-_無未發布的變更_
+### 新增
+- **文件**：新增使用模式比較文件
+  - 比較僅 Skills vs 僅規範文件 vs 兩者並用
+  - 包含功能覆蓋率、Token 效率、和建議
+  - 雙語支援（英文和繁體中文）
+  - 參見 `docs/USAGE-MODES-COMPARISON.md`
 
 ## [3.5.0-beta.11] - 2026-01-12
 
