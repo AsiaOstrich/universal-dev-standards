@@ -15,7 +15,23 @@ status: current
 **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 
 > **🧪 Beta 注意事項**: 此版本包含實驗性功能，API 在正式版發布前可能會有變動。
-> 如需穩定版本：`npm install universal-dev-standards@3.3.0`
+> 如需穩定版本：`npm install universal-dev-standards@3.4.2`
+
+### 功能可用性
+
+| 功能 | 穩定版 (3.4.2) | Beta 版 (3.5.x) |
+|------|:--------------:|:---------------:|
+| **核心規範** (16 個檔案) | ✅ | ✅ |
+| **Claude Code Skills** (15 個技能) | ✅ | ✅ |
+| **CLI 工具** (`uds init`, `check`, `update`) | ✅ | ✅ |
+| Hash-based 完整性檢查 | ✅ | ✅ |
+| Plugin Marketplace 支援 | ✅ | ✅ |
+| **方法論系統** | ❌ | ✅ 🧪 |
+| `/methodology` 命令 | ❌ | ✅ 🧪 |
+| `/bdd` 命令 | ❌ | ✅ 🧪 |
+| TDD/BDD/SDD/ATDD 工作流程 | ❌ | ✅ 🧪 |
+
+> 🧪 = 實驗性功能，API 可能會變動
 
 ---
 

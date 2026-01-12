@@ -7,7 +7,23 @@
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 > **🧪 Beta Notice**: This version contains experimental features. APIs may change before stable release.
-> For stable version: `npm install universal-dev-standards@3.3.0`
+> For stable version: `npm install universal-dev-standards@3.4.2`
+
+### Feature Availability
+
+| Feature | Stable (3.4.2) | Beta (3.5.x) |
+|---------|:--------------:|:------------:|
+| **Core Standards** (16 files) | ✅ | ✅ |
+| **Claude Code Skills** (15 skills) | ✅ | ✅ |
+| **CLI Tool** (`uds init`, `check`, `update`) | ✅ | ✅ |
+| Hash-based integrity checking | ✅ | ✅ |
+| Plugin Marketplace support | ✅ | ✅ |
+| **Methodology System** | ❌ | ✅ 🧪 |
+| `/methodology` command | ❌ | ✅ 🧪 |
+| `/bdd` command | ❌ | ✅ 🧪 |
+| TDD/BDD/SDD/ATDD workflows | ❌ | ✅ 🧪 |
+
+> 🧪 = Experimental feature, API may change
 
 ---
 
