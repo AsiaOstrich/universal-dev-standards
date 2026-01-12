@@ -19,13 +19,14 @@ These skills are automatically triggered based on context when using Claude Code
 | Skill | Description | Triggers |
 |-------|-------------|----------|
 | `ai-collaboration-standards` | Prevent AI hallucination | Code analysis, "certainty" |
+| `checkin-assistant` | Pre-commit quality gates | "commit", "checkin", "quality gate" |
 | `commit-standards` | Conventional Commits format | "commit", git operations |
 | `code-review-assistant` | Systematic code review | "review", "PR" |
 | `testing-guide` | Testing pyramid | Writing tests |
 | `tdd-assistant` | Test-Driven Development | "TDD", "test first", "red green refactor" |
 | `release-standards` | Semantic versioning | Release preparation |
 | `git-workflow-guide` | Branching strategies | "branch", "merge" |
-| `documentation-guide` | Documentation structure | "README", "docs" |
+| `documentation-guide` | Documentation structure & writing | "README", "docs", "ARCHITECTURE" |
 | `requirement-assistant` | Requirement writing | "requirement", "user story" |
 
 ## Static vs Dynamic Standards | 靜態與動態規範
@@ -58,13 +59,14 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 
 | Skill | Trigger Keywords | 觸發關鍵字 |
 |-------|-----------------|-----------|
+| checkin-assistant | checkin, pre-commit, quality gate | 簽入, 品質關卡 |
 | commit-standards | commit, git, message | 提交, 訊息 |
 | code-review-assistant | review, PR, checklist | 審查, 檢查 |
 | git-workflow-guide | branch, merge, workflow | 分支, 合併 |
 | testing-guide | test, coverage, pyramid | 測試, 覆蓋率 |
 | tdd-assistant | TDD, test first, red green refactor | TDD, 測試優先, 紅綠重構 |
 | release-standards | version, release, semver | 版本, 發布 |
-| documentation-guide | README, docs, documentation | 文件, 文檔 |
+| documentation-guide | README, docs, ARCHITECTURE, API docs | 文件, 架構, API 文件 |
 | requirement-assistant | spec, SDD, requirement | 規格, 需求, 新功能 |
 
 > 📖 See [Static vs Dynamic Guide](../../adoption/STATIC-DYNAMIC-GUIDE.md) for detailed classification.
@@ -111,7 +113,7 @@ Install via Claude Code Plugin Marketplace for automatic updates:
 # Add the marketplace (one-time setup)
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 
-# Install the plugin with all 15 skills
+# Install the plugin with all 16 skills
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
