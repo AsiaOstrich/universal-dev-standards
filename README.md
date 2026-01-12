@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 3.5.0-beta.10 🧪
+**Version**: 3.5.0-beta.10
 **Last Updated**: 2026-01-12
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 

@@ -1,3 +1,11 @@
+---
+source: ../../../../../skills/claude-code/methodology-system/create-methodology.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-12
+status: current
+---
+
 # 建立自訂方法論指南
 
 > **Language**: [English](../../../../../skills/claude-code/methodology-system/create-methodology.md) | 繁體中文

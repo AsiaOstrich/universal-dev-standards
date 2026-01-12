@@ -1,3 +1,11 @@
+---
+source: ../../../../../skills/claude-code/methodology-system/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-12
+status: current
+---
+
 # 方法論系統 Skill
 
 > **Language**: [English](../../../../../skills/claude-code/methodology-system/SKILL.md) | 繁體中文

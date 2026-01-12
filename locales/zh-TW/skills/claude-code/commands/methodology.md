@@ -1,4 +1,12 @@
 ---
+source: ../../../../../skills/claude-code/commands/methodology.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-12
+status: current
+---
+
+---
 description: 管理開發方法論工作流 | Manage development methodology workflow
 allowed-tools: Read, Write, Glob, Grep, Bash(git:*)
 argument-hint: [action] [argument]

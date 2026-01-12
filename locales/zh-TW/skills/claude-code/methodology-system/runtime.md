@@ -1,3 +1,11 @@
+---
+source: ../../../../../skills/claude-code/methodology-system/runtime.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-12
+status: current
+---
+
 # 方法論執行時引導
 
 > **Language**: [English](../../../../../skills/claude-code/methodology-system/runtime.md) | 繁體中文
