@@ -1,8 +1,8 @@
 ---
 source: ../../README.md
-source_version: 3.3.0
-translation_version: 3.3.0
-last_synced: 2026-01-08
+source_version: 3.5.0-beta.10
+translation_version: 3.5.0-beta.10
+last_synced: 2026-01-12
 status: current
 ---
 
@@ -10,9 +10,12 @@ status: current
 
 > **Language**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
 
-**版本**: 3.3.0
-**最後更新**: 2026-01-08
+**版本**: 3.5.0-beta.10 🧪
+**最後更新**: 2026-01-12
 **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
+
+> **🧪 Beta 注意事項**: 此版本包含實驗性功能，API 在正式版發布前可能會有變動。
+> 如需穩定版本：`npm install universal-dev-standards@3.3.0`
 
 ---
 

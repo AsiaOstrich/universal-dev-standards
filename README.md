@@ -2,9 +2,12 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 3.3.0
-**Last Updated**: 2026-01-08
+**Version**: 3.5.0-beta.10 🧪
+**Last Updated**: 2026-01-12
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
+
+> **🧪 Beta Notice**: This version contains experimental features. APIs may change before stable release.
+> For stable version: `npm install universal-dev-standards@3.3.0`
 
 ---
 

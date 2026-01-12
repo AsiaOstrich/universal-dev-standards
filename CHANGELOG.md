@@ -11,6 +11,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes_
 
+## [3.5.0-beta.10] - 2026-01-12
+
+### Added
+- **Methodology System**: Add comprehensive development methodology support
+  - Built-in methodologies: TDD, BDD, SDD, ATDD
+  - YAML-based methodology definitions with JSON Schema validation
+  - Phase tracking with checklists and checkpoints
+  - Custom methodology template for team-specific workflows
+  - `/methodology` command for status, switching, phase management
+  - CLI integration: methodology selection in `uds init` and `uds configure`
+- **Commands**: Add `/bdd` command for Behavior-Driven Development
+  - Full BDD workflow: Discovery → Formulation → Automation → Living Documentation
+  - Gherkin format examples and Three Amigos guidance
+  - Phase checklists and indicators
+- **Commands**: Integrate `/tdd` with methodology system
+  - Auto-activates TDD methodology when invoked
+  - Shows phase indicators (🔴 RED, 🟢 GREEN, 🔵 REFACTOR)
+- **Docs**: Add bilingual documentation for methodology system
+  - English and Traditional Chinese translations
+  - SKILL.md, runtime.md, create-methodology.md
+
+### Changed
+- **Skills**: Update install scripts to include methodology-system (16 skills total)
+- **Registry**: Add methodologies section to standards-registry.json
+
 ## [3.5.0-beta.9] - 2026-01-11
 
 ### Added
