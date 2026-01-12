@@ -1,0 +1,209 @@
+# Custom Methodology Template
+# 自訂方法論模板
+#
+# Use this template to create your own development methodology.
+# Save to: .standards/methodologies/<your-id>.methodology.yaml
+#
+# 使用此模板建立您自己的開發方法論。
+# 儲存到: .standards/methodologies/<your-id>.methodology.yaml
+
+$schema: "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/methodologies/methodology-schema.json"
+
+# === BASIC INFORMATION | 基本資訊 ===
+id: my-workflow                    # Unique ID (lowercase, hyphens) | 唯一識別碼
+name: My Custom Workflow           # Display name | 顯示名稱
+nameZh: 我的自訂工作流               # Chinese name (optional) | 中文名稱（選填）
+version: 1.0.0                     # Semantic version | 語意化版本
+description: A custom development workflow for our team
+descriptionZh: 我們團隊的自訂開發工作流
+
+# === PHASES | 階段 ===
+# Define your development phases. Each phase represents a distinct stage.
+# 定義您的開發階段。每個階段代表一個明確的開發狀態。
+phases:
+  # --- Phase 1: Planning ---
+  - id: plan
+    name: Planning
+    nameZh: 規劃
+    description: Plan the implementation approach
+    descriptionZh: 規劃實作方法
+    duration: "15-30 minutes"
+    emoji: "📋"
+
+    # Checklist items for this phase
+    # 此階段的檢查清單項目
+    checklist:
+      - id: requirements-clear
+        text: Requirements are clearly understood
+        textZh: 需求已清楚理解
+        required: true              # Must complete to proceed | 必須完成才能繼續
+      - id: design-reviewed
+        text: Design approach reviewed with team
+        textZh: 設計方法已與團隊審查
+        required: false             # Optional item | 選填項目
+
+    # Phase transition triggers
+    # 階段轉換觸發條件
+    triggers:
+      entry:
+        - condition: feature_start  # When to enter this phase | 何時進入此階段
+      exit:
+        - condition: user_confirms_plan_complete
+          nextPhase: implement      # Where to go next | 下一個階段
+
+    # AI guidance for this phase
+    # 此階段的 AI 引導提示
+    guidance:
+      prompt: |
+        ## Planning Phase
+
+        Before implementation, ensure:
+        {{ checklist | format_checklist }}
+
+        Consider:
+        - What is the expected outcome?
+        - Are there any dependencies?
+        - What could go wrong?
+      promptZh: |
+        ## 規劃階段
+
+        在實作前，確保：
+        {{ checklist | format_checklist }}
+
+        考慮：
+        - 預期結果是什麼？
+        - 有任何相依性嗎？
+        - 可能出什麼問題？
+
+  # --- Phase 2: Implementation ---
+  - id: implement
+    name: Implementation
+    nameZh: 實作
+    description: Write the code
+    descriptionZh: 撰寫程式碼
+    duration: "Variable"
+    emoji: "💻"
+
+    checklist:
+      - id: follows-patterns
+        text: Code follows team patterns
+        textZh: 程式碼遵循團隊慣例
+        required: true
+      - id: tests-written
+        text: Tests written alongside code
+        textZh: 測試與程式碼同步撰寫
+        required: true
+      - id: no-debug-code
+        text: No debugging code left behind
+        textZh: 無除錯程式碼殘留
+        required: true
+
+    triggers:
+      entry:
+        - condition: plan_complete
+      exit:
+        - condition: implementation_complete
+          nextPhase: review
+
+    guidance:
+      prompt: |
+        ## Implementation Phase
+
+        Writing code for: {{feature_description}}
+
+        {{ checklist | format_checklist }}
+
+        Remember:
+        - Keep commits small and focused
+        - Write tests as you go
+
+  # --- Phase 3: Review ---
+  - id: review
+    name: Review
+    nameZh: 審查
+    description: Self-review and prepare for PR
+    descriptionZh: 自我審查並準備 PR
+    duration: "15-30 minutes"
+    emoji: "👀"
+
+    checklist:
+      - id: self-reviewed
+        text: Code self-reviewed
+        textZh: 程式碼已自我審查
+        required: true
+      - id: tests-pass
+        text: All tests pass
+        textZh: 所有測試通過
+        required: true
+      - id: docs-updated
+        text: Documentation updated
+        textZh: 文件已更新
+        required: false
+
+    triggers:
+      entry:
+        - condition: implementation_complete
+      exit:
+        - condition: ready_for_pr
+          nextPhase: done
+
+    guidance:
+      prompt: |
+        ## Review Phase
+
+        Before marking as ready:
+        {{ checklist | format_checklist }}
+
+        Self-review questions:
+        - Would I approve this if reviewing someone else's code?
+        - Are edge cases handled?
+        - Is the code easy to understand?
+
+  # --- Phase 4: Done ---
+  - id: done
+    name: Done
+    nameZh: 完成
+    description: Ready for PR
+    descriptionZh: 準備提交 PR
+    emoji: "✅"
+    checklist: []
+    triggers:
+      entry:
+        - condition: ready_for_pr
+      exit: []
+
+# === CHECKPOINTS | 檢查點 ===
+# Define automatic reminders and validation points
+# 定義自動提醒和驗證點
+checkpoints:
+  - id: phase-transition
+    trigger: phase_transition       # When a phase is completed
+    intensity: suggest              # suggest | warn | block
+    action: "Phase complete. Consider committing your changes."
+    actionZh: "階段完成。考慮提交您的變更。"
+
+  - id: large-changes
+    trigger: lines_changed
+    threshold: 200                  # Trigger after 200+ lines changed
+    intensity: warn
+    action: "You have 200+ uncommitted lines. Consider breaking into smaller commits."
+    actionZh: "您有超過 200 行未提交的變更。考慮拆分為較小的提交。"
+
+# === COMMANDS | 命令 ===
+# Define custom slash commands for this methodology (optional)
+# 為此方法論定義自訂斜線命令（選填）
+commands:
+  - name: workflow
+    description: Start custom workflow
+    descriptionZh: 啟動自訂工作流
+    usage: "/workflow [feature]"
+    action: start_workflow
+
+# === AI GUIDANCE SETTINGS | AI 引導設定 ===
+aiGuidance:
+  autoDetect: true                  # Detect methodology from context
+  proactiveReminders: true          # Show phase reminders proactively
+  contextKeywords:                  # Keywords that trigger this methodology
+    - "team workflow"
+    - "our process"
+    - "custom workflow"

@@ -1013,3 +1013,48 @@ export async function promptContentModeChange(currentMode) {
 
   return mode;
 }
+
+/**
+ * Prompt for development methodology selection
+ * @returns {Promise<string|null>} Selected methodology ID or null
+ */
+export async function promptMethodology() {
+  console.log();
+  console.log(chalk.cyan('Development Methodology:'));
+  console.log(chalk.gray('  Select a methodology to guide your development workflow.'));
+  console.log();
+
+  const { methodology } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'methodology',
+      message: 'Which development methodology do you want to use?',
+      choices: [
+        {
+          name: `${chalk.red('TDD')} ${chalk.gray('- Test-Driven Development (Red → Green → Refactor)')}`,
+          value: 'tdd'
+        },
+        {
+          name: `${chalk.green('BDD')} ${chalk.gray('- Behavior-Driven Development (Given-When-Then)')}`,
+          value: 'bdd'
+        },
+        {
+          name: `${chalk.blue('SDD')} ${chalk.gray('- Spec-Driven Development (Spec First, Code Second)')}`,
+          value: 'sdd'
+        },
+        {
+          name: `${chalk.yellow('ATDD')} ${chalk.gray('- Acceptance Test-Driven Development')}`,
+          value: 'atdd'
+        },
+        new inquirer.Separator(),
+        {
+          name: `${chalk.gray('None')} - No specific methodology`,
+          value: null
+        }
+      ],
+      default: null
+    }
+  ]);
+
+  return methodology;
+}

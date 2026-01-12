@@ -1,0 +1,474 @@
+# BDD - Behavior-Driven Development Methodology
+# Version: 1.0.0
+# Based on: Gherkin syntax and Discovery-Formulation-Automation workflow
+
+$schema: "./methodology-schema.json"
+id: bdd
+name: Behavior-Driven Development
+nameZh: 行為驅動開發
+version: 1.0.0
+description: Collaborative approach using Given-When-Then scenarios to define and verify system behavior from user perspective.
+descriptionZh: 使用 Given-When-Then 情境從使用者角度定義和驗證系統行為的協作方法。
+
+phases:
+  - id: discovery
+    name: Discovery
+    nameZh: 探索
+    description: Collaborative session to understand requirements and identify scenarios
+    descriptionZh: 協作會議以理解需求並識別情境
+    duration: "30-60 minutes"
+    emoji: "\U0001F50D"
+    checklist:
+      - id: stakeholders-present
+        text: Key stakeholders are present (Dev, QA, BA/PO)
+        textZh: 關鍵利害關係人在場（開發、QA、BA/PO）
+        required: true
+      - id: user-story-discussed
+        text: User story is discussed and understood
+        textZh: 使用者故事已討論並理解
+        required: true
+      - id: examples-identified
+        text: Concrete examples are identified
+        textZh: 已識別具體範例
+        required: true
+      - id: edge-cases-considered
+        text: Edge cases and error scenarios considered
+        textZh: 已考慮邊界情況和錯誤情境
+        required: false
+      - id: questions-answered
+        text: All clarifying questions answered
+        textZh: 所有澄清問題已回答
+        required: true
+    triggers:
+      entry:
+        - condition: new_user_story
+        - condition: user_invokes_bdd_command
+      exit:
+        - condition: examples_identified
+          nextPhase: formulation
+    guidance:
+      prompt: |
+        ## BDD Discovery Phase
+
+        Collaborative discovery session for: {{feature_description}}
+
+        **Goal**: Understand the feature through concrete examples.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Three Amigos Questions
+        1. **Business**: What problem are we solving? What's the value?
+        2. **Development**: How might we implement this? What's the impact?
+        3. **Testing**: How do we verify this works? What could go wrong?
+
+        ### Example Mapping
+        ```
+        [User Story]
+              │
+         [Rules] ──── [Examples] ──── [Questions]
+        ```
+
+        Let's identify the first concrete example. What's the happy path?
+      promptZh: |
+        ## BDD 探索階段
+
+        協作探索會議：{{feature_description}}
+
+        **目標**：透過具體範例理解功能。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 三劍客問題
+        1. **業務**：我們要解決什麼問題？價值是什麼？
+        2. **開發**：我們可能如何實作？影響是什麼？
+        3. **測試**：我們如何驗證這能運作？什麼可能出錯？
+
+        ### 範例對應
+        ```
+        [使用者故事]
+              │
+         [規則] ──── [範例] ──── [問題]
+        ```
+
+        讓我們識別第一個具體範例。快樂路徑是什麼？
+    reminders:
+      - trigger: "time_elapsed > 60min"
+        message: "Discovery session is running long. Consider time-boxing remaining items."
+        messageZh: "探索會議時間過長。考慮對剩餘項目限時。"
+
+  - id: formulation
+    name: Formulation
+    nameZh: 制定
+    description: Write scenarios in Gherkin format
+    descriptionZh: 以 Gherkin 格式撰寫情境
+    duration: "15-30 minutes"
+    emoji: "\U0001F4DD"
+    checklist:
+      - id: gherkin-syntax
+        text: Scenarios use correct Gherkin syntax
+        textZh: 情境使用正確的 Gherkin 語法
+        required: true
+      - id: declarative-style
+        text: Scenarios are declarative (WHAT, not HOW)
+        textZh: 情境是宣告式的（什麼，而非如何）
+        required: true
+      - id: business-language
+        text: Uses business language, not technical jargon
+        textZh: 使用業務語言，非技術術語
+        required: true
+      - id: scenarios-independent
+        text: Each scenario is independent and self-contained
+        textZh: 每個情境獨立且自包含
+        required: true
+      - id: minimal-steps
+        text: Scenarios have 5-10 steps maximum
+        textZh: 情境最多 5-10 個步驟
+        required: false
+      - id: reviewed-by-team
+        text: Scenarios reviewed by team
+        textZh: 情境已由團隊審查
+        required: true
+    triggers:
+      entry:
+        - condition: examples_identified
+          fromPhase: discovery
+      exit:
+        - condition: scenarios_written
+          nextPhase: automation
+    guidance:
+      prompt: |
+        ## BDD Formulation Phase
+
+        Writing Gherkin scenarios for: {{feature_description}}
+
+        **Goal**: Convert examples into executable scenarios.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Gherkin Template
+        ```gherkin
+        Feature: [Feature name]
+          As a [role]
+          I want [goal]
+          So that [benefit]
+
+          Scenario: [Scenario name]
+            Given [initial context]
+            When [action]
+            Then [expected outcome]
+        ```
+
+        ### Style Guide
+        ```gherkin
+        # BAD - Imperative (too detailed)
+        Given I navigate to "http://example.com/login"
+        And I click on the username field
+        And I type "john@example.com"
+
+        # GOOD - Declarative (behavior focused)
+        Given I am on the login page
+        When I login with valid credentials
+        Then I should see my dashboard
+        ```
+
+        Let's write the first scenario.
+      promptZh: |
+        ## BDD 制定階段
+
+        為 {{feature_description}} 撰寫 Gherkin 情境
+
+        **目標**：將範例轉換為可執行情境。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### Gherkin 模板
+        ```gherkin
+        Feature: [功能名稱]
+          As a [角色]
+          I want [目標]
+          So that [好處]
+
+          Scenario: [情境名稱]
+            Given [初始情境]
+            When [動作]
+            Then [預期結果]
+        ```
+
+        ### 風格指南
+        ```gherkin
+        # 不好 - 命令式（太詳細）
+        Given 我導航到 "http://example.com/login"
+        And 我點擊使用者名稱欄位
+        And 我輸入 "john@example.com"
+
+        # 好 - 宣告式（專注行為）
+        Given 我在登入頁面
+        When 我使用有效憑證登入
+        Then 我應該看到我的儀表板
+        ```
+
+        讓我們撰寫第一個情境。
+    reminders:
+      - trigger: "time_elapsed > 30min"
+        message: "Consider simplifying scenarios if taking too long."
+        messageZh: "如果耗時太長，考慮簡化情境。"
+
+  - id: automation
+    name: Automation
+    nameZh: 自動化
+    description: Create step definitions and implement feature
+    descriptionZh: 建立步驟定義並實作功能
+    duration: "Variable"
+    emoji: "\u2699\uFE0F"
+    checklist:
+      - id: step-definitions-created
+        text: Step definitions created for all steps
+        textZh: 已為所有步驟建立步驟定義
+        required: true
+      - id: steps-reusable
+        text: Step definitions are reusable
+        textZh: 步驟定義可重複使用
+        required: false
+      - id: scenarios-fail-first
+        text: Scenarios fail initially (RED)
+        textZh: 情境最初失敗（紅燈）
+        required: true
+      - id: tdd-for-units
+        text: Use TDD for unit-level implementations
+        textZh: 對單元級實作使用 TDD
+        required: false
+      - id: scenarios-pass
+        text: All scenarios pass (GREEN)
+        textZh: 所有情境通過（綠燈）
+        required: true
+      - id: code-refactored
+        text: Code refactored and clean
+        textZh: 程式碼已重構並乾淨
+        required: true
+    triggers:
+      entry:
+        - condition: scenarios_written
+          fromPhase: formulation
+      exit:
+        - condition: all_scenarios_pass
+          nextPhase: living-documentation
+    guidance:
+      prompt: |
+        ## BDD Automation Phase
+
+        Implementing step definitions and feature code.
+
+        **Goal**: Make all scenarios pass through implementation.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Step Definition Example (JavaScript/Cucumber)
+        ```javascript
+        const { Given, When, Then } = require('@cucumber/cucumber');
+
+        Given('I am on the login page', async function () {
+          await this.page.goto('/login');
+        });
+
+        When('I login with valid credentials', async function () {
+          await this.page.fill('#email', 'user@example.com');
+          await this.page.fill('#password', 'password');
+          await this.page.click('button[type="submit"]');
+        });
+
+        Then('I should see my dashboard', async function () {
+          await expect(this.page).toHaveURL('/dashboard');
+        });
+        ```
+
+        ### Process
+        1. Create step definitions (they will fail)
+        2. Implement feature code using TDD
+        3. Run scenarios until all pass
+        4. Refactor
+
+        Let's start with the step definitions.
+      promptZh: |
+        ## BDD 自動化階段
+
+        實作步驟定義和功能程式碼。
+
+        **目標**：透過實作使所有情境通過。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 步驟定義範例（JavaScript/Cucumber）
+        ```javascript
+        const { Given, When, Then } = require('@cucumber/cucumber');
+
+        Given('我在登入頁面', async function () {
+          await this.page.goto('/login');
+        });
+
+        When('我使用有效憑證登入', async function () {
+          await this.page.fill('#email', 'user@example.com');
+          await this.page.fill('#password', 'password');
+          await this.page.click('button[type="submit"]');
+        });
+
+        Then('我應該看到我的儀表板', async function () {
+          await expect(this.page).toHaveURL('/dashboard');
+        });
+        ```
+
+        ### 流程
+        1. 建立步驟定義（會失敗）
+        2. 使用 TDD 實作功能程式碼
+        3. 執行情境直到全部通過
+        4. 重構
+
+        讓我們從步驟定義開始。
+    reminders:
+      - trigger: "scenario_failing > 30min"
+        message: "Scenario failing for too long. Consider breaking into smaller steps."
+        messageZh: "情境失敗太久。考慮拆分成更小的步驟。"
+
+  - id: living-documentation
+    name: Living Documentation
+    nameZh: 活文檔
+    description: Scenarios serve as always-up-to-date documentation
+    descriptionZh: 情境作為始終最新的文檔
+    duration: ""
+    emoji: "\U0001F4DA"
+    checklist:
+      - id: all-scenarios-pass
+        text: All scenarios pass
+        textZh: 所有情境通過
+        required: true
+      - id: documentation-generated
+        text: Documentation generated from scenarios
+        textZh: 從情境產生文檔
+        required: false
+      - id: feature-accepted
+        text: Feature accepted by stakeholders
+        textZh: 功能已被利害關係人接受
+        required: true
+    triggers:
+      entry:
+        - condition: all_scenarios_pass
+          fromPhase: automation
+      exit: []
+    guidance:
+      prompt: |
+        ## BDD Complete - Living Documentation
+
+        Feature implementation complete with executable specifications.
+
+        ### Summary
+        - All scenarios passing
+        - Feature behavior documented in Gherkin
+        - Specifications can be re-run at any time
+
+        ### Benefits
+        - Documentation never goes stale
+        - New team members can read scenarios to understand behavior
+        - Changes to behavior require updating scenarios first
+
+        ### Next Steps
+        1. Demo to stakeholders
+        2. Get formal acceptance
+        3. Commit and deploy
+
+        Ready for stakeholder review?
+      promptZh: |
+        ## BDD 完成 - 活文檔
+
+        功能實作完成，具備可執行規格。
+
+        ### 摘要
+        - 所有情境通過
+        - 功能行為以 Gherkin 記錄
+        - 規格可隨時重新執行
+
+        ### 好處
+        - 文檔永不過時
+        - 新團隊成員可閱讀情境理解行為
+        - 行為變更需先更新情境
+
+        ### 下一步
+        1. 向利害關係人展示
+        2. 取得正式接受
+        3. 提交並部署
+
+        準備好進行利害關係人審查了嗎？
+    reminders: []
+
+checkpoints:
+  - id: phase-complete
+    trigger: phase_transition
+    intensity: suggest
+    action: |
+      Phase {{current_phase}} completed.
+
+      BDD Progress: {{current_phase_index}}/4 phases complete
+
+      [1] Continue to next phase  [2] Review current phase  [3] Commit changes
+    actionZh: |
+      階段 {{current_phase}} 完成。
+
+      BDD 進度：{{current_phase_index}}/4 個階段完成
+
+      [1] 繼續下一階段  [2] 審查當前階段  [3] 提交變更
+
+  - id: scenario-added
+    trigger: scenario_file_modified
+    intensity: suggest
+    action: "New scenario added. Remember to create step definitions."
+    actionZh: "已新增情境。記得建立步驟定義。"
+
+commands:
+  - name: bdd
+    description: Start BDD workflow for a feature
+    descriptionZh: 為功能啟動 BDD 工作流
+    usage: "/bdd [user story or feature]"
+    action: start_workflow
+  - name: bdd-status
+    description: Show current BDD phase and progress
+    descriptionZh: 顯示當前 BDD 階段和進度
+    usage: "/bdd-status"
+    action: show_status
+  - name: bdd-scenario
+    description: Generate scenario template
+    descriptionZh: 產生情境模板
+    usage: "/bdd-scenario [scenario name]"
+    action: start_workflow
+
+integrations:
+  tdd:
+    enabled: true
+    mapping:
+      automation_phase: use_tdd_for_implementation
+  checkin-standards:
+    enabled: true
+    mapping:
+      phase_complete: suggest_commit
+  code-review:
+    enabled: true
+    additionalChecks:
+      - "Scenarios use declarative style"
+      - "Step definitions are reusable"
+      - "Business language used throughout"
+
+aiGuidance:
+  autoDetect: true
+  proactiveReminders: true
+  contextKeywords:
+    - "BDD"
+    - "behavior-driven"
+    - "Given When Then"
+    - "Gherkin"
+    - "Cucumber"
+    - "scenario"
+    - "feature file"
+    - "step definition"

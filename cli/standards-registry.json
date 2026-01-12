@@ -163,8 +163,55 @@
       "skills/claude-code/commands/review.md",
       "skills/claude-code/commands/spec.md",
       "skills/claude-code/commands/tdd.md",
-      "skills/claude-code/commands/update.md"
+      "skills/claude-code/commands/update.md",
+      "skills/claude-code/commands/methodology.md"
+    ],
+    "methodology-system": [
+      "skills/claude-code/methodology-system/SKILL.md",
+      "skills/claude-code/methodology-system/runtime.md",
+      "skills/claude-code/methodology-system/create-methodology.md"
     ]
+  },
+  "methodologies": {
+    "description": "Development methodologies that can be adopted to guide the development workflow",
+    "descriptionZh": "可採用的開發方法論，用於引導開發工作流程",
+    "basePath": "methodologies/",
+    "schemaFile": "methodology-schema.json",
+    "builtIn": [
+      {
+        "id": "tdd",
+        "name": "Test-Driven Development",
+        "nameZh": "測試驅動開發",
+        "source": "methodologies/tdd.methodology.yaml",
+        "phases": ["red", "green", "refactor", "done"],
+        "description": "Red → Green → Refactor cycle for test-first development"
+      },
+      {
+        "id": "bdd",
+        "name": "Behavior-Driven Development",
+        "nameZh": "行為驅動開發",
+        "source": "methodologies/bdd.methodology.yaml",
+        "phases": ["discovery", "formulation", "automation", "living-documentation"],
+        "description": "Given-When-Then format for behavior specification"
+      },
+      {
+        "id": "sdd",
+        "name": "Spec-Driven Development",
+        "nameZh": "規格驅動開發",
+        "source": "methodologies/sdd.methodology.yaml",
+        "phases": ["proposal", "review", "implementation", "verification", "archive"],
+        "description": "Specification-first approach with formal review process"
+      },
+      {
+        "id": "atdd",
+        "name": "Acceptance Test-Driven Development",
+        "nameZh": "驗收測試驅動開發",
+        "source": "methodologies/atdd.methodology.yaml",
+        "phases": ["specification-workshop", "distillation", "development", "demo", "done"],
+        "description": "Acceptance criteria defined upfront through collaboration"
+      }
+    ],
+    "customPath": ".standards/methodologies/"
   },
   "categories": {
     "skill": {

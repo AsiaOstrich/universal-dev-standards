@@ -1,0 +1,428 @@
+# TDD - Test-Driven Development Methodology
+# Version: 1.0.0
+# Source: skills/claude-code/tdd-assistant/
+
+$schema: "./methodology-schema.json"
+id: tdd
+name: Test-Driven Development
+nameZh: 測試驅動開發
+version: 1.0.0
+description: Red-Green-Refactor cycle for test-first development. Write failing tests before implementation code.
+descriptionZh: 紅-綠-重構循環的測試先行開發。在撰寫實作程式碼之前先寫失敗的測試。
+
+phases:
+  - id: red
+    name: RED Phase
+    nameZh: 紅燈階段
+    description: Write a failing test that describes the expected behavior
+    descriptionZh: 撰寫描述預期行為的失敗測試
+    duration: "1-5 minutes"
+    emoji: "\U0001F534"
+    checklist:
+      - id: test-describes-behavior
+        text: Test describes expected behavior, not implementation
+        textZh: 測試描述預期行為，而非實作細節
+        required: true
+      - id: test-name-clear
+        text: Test name clearly states what is being tested
+        textZh: 測試名稱清楚說明測試內容
+        required: true
+      - id: test-aaa-pattern
+        text: Test follows AAA pattern (Arrange-Act-Assert)
+        textZh: 測試遵循 AAA 模式（準備-執行-斷言）
+        required: true
+      - id: test-one-assertion
+        text: Test has exactly ONE assertion (or related group)
+        textZh: 測試只有一個斷言（或相關群組）
+        required: false
+      - id: test-fails
+        text: Test FAILS when run
+        textZh: 執行時測試失敗
+        required: true
+      - id: test-fails-right-reason
+        text: Failure is for the RIGHT reason (not syntax error)
+        textZh: 失敗原因正確（非語法錯誤）
+        required: true
+    triggers:
+      entry:
+        - condition: user_starts_feature
+        - condition: user_invokes_tdd_command
+        - condition: previous_cycle_complete
+          fromPhase: refactor
+      exit:
+        - condition: test_fails_correctly
+          nextPhase: green
+    guidance:
+      prompt: |
+        ## TDD RED Phase
+
+        Starting RED Phase for: {{feature_description}}
+
+        **Goal**: Write a failing test that describes the expected behavior.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Tips
+        - Start with the simplest scenario
+        - Focus on ONE behavior
+        - Use clear, descriptive test name: `should [expected behavior] when [condition]`
+
+        What behavior should we test first?
+      promptZh: |
+        ## TDD 紅燈階段
+
+        開始紅燈階段：{{feature_description}}
+
+        **目標**：撰寫描述預期行為的失敗測試。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 提示
+        - 從最簡單的情境開始
+        - 專注於一個行為
+        - 使用清晰的測試名稱：`should [預期行為] when [條件]`
+
+        我們要先測試什麼行為？
+    reminders:
+      - trigger: "time_elapsed > 5min"
+        message: "RED phase is taking longer than expected. Consider simplifying the test scope."
+        messageZh: "紅燈階段超時。考慮簡化測試範圍。"
+
+  - id: green
+    name: GREEN Phase
+    nameZh: 綠燈階段
+    description: Write the minimum code to make the test pass
+    descriptionZh: 撰寫最少程式碼使測試通過
+    duration: "1-10 minutes"
+    emoji: "\U0001F7E2"
+    checklist:
+      - id: minimum-code
+        text: Wrote MINIMUM code to pass the test
+        textZh: 撰寫最少程式碼使測試通過
+        required: true
+      - id: fake-ok
+        text: '"Fake it" is acceptable (hardcode if needed)'
+        textZh: 可以「假裝」（需要時可寫死）
+        required: false
+      - id: no-extra-features
+        text: Didn't add features not required by test
+        textZh: 沒有添加測試不需要的功能
+        required: true
+      - id: no-optimize
+        text: No premature optimization
+        textZh: 沒有過早優化
+        required: true
+      - id: test-passes
+        text: Current test passes
+        textZh: 當前測試通過
+        required: true
+      - id: other-tests-pass
+        text: All other tests still pass
+        textZh: 所有其他測試仍然通過
+        required: true
+    triggers:
+      entry:
+        - condition: test_fails_correctly
+          fromPhase: red
+      exit:
+        - condition: all_tests_pass
+          nextPhase: refactor
+    guidance:
+      prompt: |
+        ## TDD GREEN Phase
+
+        Making the test pass with minimum code.
+
+        **Goal**: Write the MINIMUM code to make the test pass.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### The "Fake It" Strategy
+        For the first test, it's OK to hardcode the expected value:
+        ```typescript
+        // Just return the expected value first
+        function add(a, b) { return 5; }
+        ```
+        Then add more tests to force generalization.
+
+        ### Remember
+        - Don't anticipate future requirements
+        - Don't add error handling for untested cases
+        - Make it work, then make it right
+      promptZh: |
+        ## TDD 綠燈階段
+
+        以最少程式碼使測試通過。
+
+        **目標**：撰寫最少程式碼使測試通過。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 「假裝」策略
+        第一個測試可以先寫死預期值：
+        ```typescript
+        // 先直接回傳預期值
+        function add(a, b) { return 5; }
+        ```
+        然後新增更多測試來強制一般化。
+
+        ### 記住
+        - 不要預測未來需求
+        - 不要為未測試的情況加錯誤處理
+        - 先讓它能動，再讓它正確
+    reminders:
+      - trigger: "time_elapsed > 10min"
+        message: "GREEN phase is taking longer than expected. Are you over-engineering?"
+        messageZh: "綠燈階段超時。是否過度工程化？"
+
+  - id: refactor
+    name: REFACTOR Phase
+    nameZh: 重構階段
+    description: Improve code quality while keeping all tests green
+    descriptionZh: 改善程式碼品質，同時保持所有測試通過
+    duration: "5-15 minutes"
+    emoji: "\U0001F535"
+    checklist:
+      - id: all-tests-green
+        text: All tests are GREEN before starting
+        textZh: 開始前所有測試都是綠燈
+        required: true
+      - id: one-change
+        text: Make ONE change at a time
+        textZh: 一次只做一個變更
+        required: true
+      - id: run-tests-after
+        text: Run tests after EVERY change
+        textZh: 每次變更後都執行測試
+        required: true
+      - id: tests-still-green
+        text: Tests still GREEN after changes
+        textZh: 變更後測試仍是綠燈
+        required: true
+      - id: no-new-functionality
+        text: No new functionality added
+        textZh: 沒有添加新功能
+        required: true
+      - id: code-cleaner
+        text: Code is cleaner/simpler than before
+        textZh: 程式碼比之前更乾淨/簡單
+        required: false
+    triggers:
+      entry:
+        - condition: all_tests_pass
+          fromPhase: green
+      exit:
+        - condition: user_confirms_refactor_complete
+          nextPhase: red
+        - condition: feature_complete
+          nextPhase: done
+    guidance:
+      prompt: |
+        ## TDD REFACTOR Phase
+
+        Improving code quality while keeping tests green.
+
+        **Goal**: Clean up the code without breaking any tests.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Common Refactorings
+        | Technique | When |
+        |-----------|------|
+        | Extract Method | Long method, repeated code |
+        | Rename | Unclear names |
+        | Extract Variable | Complex expression |
+        | Replace Magic Number | Hardcoded values |
+
+        ### Safety Rules
+        1. Tests are GREEN before starting
+        2. Make ONE change at a time
+        3. Run tests after EVERY change
+        4. If tests FAIL -> REVERT immediately
+
+        What improvements do you see?
+      promptZh: |
+        ## TDD 重構階段
+
+        改善程式碼品質，同時保持測試通過。
+
+        **目標**：整理程式碼但不破壞任何測試。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 常見重構
+        | 技巧 | 時機 |
+        |------|------|
+        | 提取方法 | 長方法、重複程式碼 |
+        | 重新命名 | 名稱不清楚 |
+        | 提取變數 | 複雜表達式 |
+        | 替換魔法數字 | 寫死的值 |
+
+        ### 安全規則
+        1. 開始前測試是綠燈
+        2. 一次只做一個變更
+        3. 每次變更後執行測試
+        4. 如果測試失敗 → 立即還原
+
+        你看到哪些可以改善的地方？
+    reminders:
+      - trigger: "time_elapsed > 15min"
+        message: "REFACTOR phase is taking longer than expected. Consider committing current state."
+        messageZh: "重構階段超時。考慮提交目前狀態。"
+
+  - id: done
+    name: DONE
+    nameZh: 完成
+    description: All acceptance criteria met, feature complete
+    descriptionZh: 所有驗收條件滿足，功能完成
+    duration: ""
+    emoji: "\u2705"
+    checklist:
+      - id: all-tests-pass
+        text: All tests pass
+        textZh: 所有測試通過
+        required: true
+      - id: acceptance-met
+        text: Acceptance criteria met
+        textZh: 驗收條件滿足
+        required: true
+      - id: code-reviewed
+        text: Code is clean and well-refactored
+        textZh: 程式碼乾淨且重構完成
+        required: false
+    triggers:
+      entry:
+        - condition: feature_complete
+          fromPhase: refactor
+      exit: []
+    guidance:
+      prompt: |
+        ## TDD Complete
+
+        Feature implementation complete.
+
+        ### Summary
+        - All tests passing
+        - Acceptance criteria met
+        - Code refactored
+
+        ### Next Steps
+        1. Consider committing changes
+        2. Review for any edge cases missed
+        3. Update documentation if needed
+
+        Ready to commit?
+      promptZh: |
+        ## TDD 完成
+
+        功能實作完成。
+
+        ### 摘要
+        - 所有測試通過
+        - 驗收條件滿足
+        - 程式碼已重構
+
+        ### 下一步
+        1. 考慮提交變更
+        2. 檢查是否遺漏邊界情況
+        3. 如需要更新文件
+
+        準備好提交了嗎？
+    reminders: []
+
+checkpoints:
+  - id: phase-complete
+    trigger: phase_transition
+    intensity: suggest
+    action: |
+      Phase {{current_phase}} completed. Consider committing your changes.
+
+      Changes:
+      - Files: {{git_changed_files}}
+      - Lines: +{{git_added_lines}} / -{{git_deleted_lines}}
+
+      Suggested commit: {{suggested_commit_message}}
+
+      [1] Commit now  [2] Continue working  [3] View changes
+    actionZh: |
+      階段 {{current_phase}} 完成。考慮提交變更。
+
+      變更：
+      - 檔案：{{git_changed_files}}
+      - 行數：+{{git_added_lines}} / -{{git_deleted_lines}}
+
+      建議提交：{{suggested_commit_message}}
+
+      [1] 立即提交  [2] 繼續工作  [3] 檢視變更
+
+  - id: accumulation-warning
+    trigger: "files_changed >= 5 OR lines_changed >= 200"
+    intensity: suggest
+    action: "Consider committing before changes get too large"
+    actionZh: "考慮在變更變得太大之前提交"
+
+  - id: skip-warning
+    trigger: "consecutive_skips >= 3"
+    intensity: warning
+    action: |
+      Warning: You have skipped check-in 3 times consecutively.
+      Current accumulated changes: {{git_changed_files}} files, +{{git_added_lines}} lines
+    actionZh: |
+      警告：你已經連續跳過 3 次提交檢查。
+      目前累積變更：{{git_changed_files}} 個檔案，+{{git_added_lines}} 行
+
+commands:
+  - name: tdd
+    description: Start TDD workflow for a feature
+    descriptionZh: 為功能啟動 TDD 工作流
+    usage: "/tdd [feature description]"
+    action: start_workflow
+  - name: tdd-status
+    description: Show current TDD phase and checklist
+    descriptionZh: 顯示當前 TDD 階段和檢查清單
+    usage: "/tdd-status"
+    action: show_status
+  - name: tdd-skip
+    description: Skip current phase (with warning)
+    descriptionZh: 跳過當前階段（會有警告）
+    usage: "/tdd-skip"
+    action: skip_phase
+  - name: tdd-phase
+    description: Switch to specific phase
+    descriptionZh: 切換到特定階段
+    usage: "/tdd-phase [red|green|refactor]"
+    action: switch_phase
+
+integrations:
+  checkin-standards:
+    enabled: true
+    mapping:
+      phase_complete: suggest_commit
+  code-review:
+    enabled: true
+    additionalChecks:
+      - "Tests follow TDD naming conventions"
+      - "Each test covers single behavior"
+      - "No test-after-code patterns detected"
+  spec-driven-development:
+    enabled: true
+    mapping:
+      spec_acceptance_criteria: test_cases
+
+aiGuidance:
+  autoDetect: true
+  proactiveReminders: true
+  contextKeywords:
+    - "test first"
+    - "red green refactor"
+    - "write failing test"
+    - "TDD"
+    - "test-driven"
+    - "write test"
+    - "failing test"

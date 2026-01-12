@@ -1,0 +1,627 @@
+# ATDD - Acceptance Test-Driven Development Methodology
+# Version: 1.0.0
+# Based on: skills/claude-code/tdd-assistant/tdd-workflow.md (ATDD section)
+
+$schema: "./methodology-schema.json"
+id: atdd
+name: Acceptance Test-Driven Development
+nameZh: 驗收測試驅動開發
+version: 1.0.0
+description: Collaborative approach where acceptance criteria are defined before development, and acceptance tests drive the implementation.
+descriptionZh: 在開發前定義驗收條件的協作方法，由驗收測試驅動實作。
+
+phases:
+  - id: specification-workshop
+    name: Specification Workshop
+    nameZh: 規格工作坊
+    description: Collaborative session to define acceptance criteria with concrete examples
+    descriptionZh: 協作會議以具體範例定義驗收條件
+    duration: "30-60 minutes"
+    emoji: "\U0001F91D"
+    checklist:
+      - id: po-presents
+        text: Product Owner presents user story
+        textZh: 產品負責人展示使用者故事
+        required: true
+      - id: team-questions
+        text: Team asks clarifying questions
+        textZh: 團隊提出澄清問題
+        required: true
+      - id: ac-defined-together
+        text: Acceptance criteria defined together
+        textZh: 共同定義驗收條件
+        required: true
+      - id: examples-for-each-ac
+        text: Concrete examples written for each AC
+        textZh: 為每個驗收條件撰寫具體範例
+        required: true
+      - id: edge-cases-discussed
+        text: Edge cases and error scenarios discussed
+        textZh: 已討論邊界情況和錯誤情境
+        required: false
+    triggers:
+      entry:
+        - condition: new_user_story
+        - condition: user_invokes_atdd_command
+      exit:
+        - condition: acceptance_criteria_defined
+          nextPhase: distillation
+    guidance:
+      prompt: |
+        ## ATDD Specification Workshop
+
+        Defining acceptance criteria for: {{feature_description}}
+
+        **Goal**: Collaboratively define what "done" means with concrete examples.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### User Story Template
+        ```markdown
+        ## User Story
+
+        **As a** [role]
+        **I want** [feature]
+        **So that** [benefit]
+
+        ## Acceptance Criteria
+
+        ### AC-1: [Criterion name]
+        **Given** [precondition]
+        **When** [action]
+        **Then** [expected result]
+
+        ### AC-2: [Criterion name]
+        **Given** [precondition]
+        **When** [action]
+        **Then** [expected result]
+
+        ## Out of Scope
+        - [Things explicitly not included]
+
+        ## Technical Notes
+        - [Implementation hints, constraints]
+        ```
+
+        ### Workshop Questions
+        1. What is the happy path?
+        2. What could go wrong?
+        3. What are the boundary conditions?
+        4. What happens in error cases?
+
+        Let's start with the happy path acceptance criteria.
+      promptZh: |
+        ## ATDD 規格工作坊
+
+        為 {{feature_description}} 定義驗收條件
+
+        **目標**：協作定義「完成」的含義，並提供具體範例。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 使用者故事模板
+        ```markdown
+        ## 使用者故事
+
+        **作為** [角色]
+        **我想要** [功能]
+        **以便** [好處]
+
+        ## 驗收條件
+
+        ### AC-1: [條件名稱]
+        **Given** [前置條件]
+        **When** [動作]
+        **Then** [預期結果]
+
+        ### AC-2: [條件名稱]
+        **Given** [前置條件]
+        **When** [動作]
+        **Then** [預期結果]
+
+        ## 範圍外
+        - [明確排除的事項]
+
+        ## 技術備註
+        - [實作提示、限制]
+        ```
+
+        ### 工作坊問題
+        1. 快樂路徑是什麼？
+        2. 什麼可能出錯？
+        3. 邊界條件是什麼？
+        4. 錯誤情況會發生什麼？
+
+        讓我們從快樂路徑的驗收條件開始。
+    reminders:
+      - trigger: "time_elapsed > 60min"
+        message: "Workshop running long. Consider deferring some ACs to later stories."
+        messageZh: "工作坊時間過長。考慮將部分驗收條件推遲到後續故事。"
+
+  - id: distillation
+    name: Distillation
+    nameZh: 提煉
+    description: Convert examples to executable acceptance tests
+    descriptionZh: 將範例轉換為可執行的驗收測試
+    duration: "30-60 minutes"
+    emoji: "\U0001F9EA"
+    checklist:
+      - id: examples-to-tests
+        text: Examples converted to executable tests
+        textZh: 範例已轉換為可執行測試
+        required: true
+      - id: ambiguity-removed
+        text: Ambiguity removed from tests
+        textZh: 測試中的歧義已消除
+        required: true
+      - id: testable-format
+        text: Tests in executable format (Gherkin, FitNesse, etc.)
+        textZh: 測試為可執行格式（Gherkin、FitNesse 等）
+        required: true
+      - id: po-signoff
+        text: Product Owner signs off on tests
+        textZh: 產品負責人簽核測試
+        required: true
+    triggers:
+      entry:
+        - condition: acceptance_criteria_defined
+          fromPhase: specification-workshop
+      exit:
+        - condition: acceptance_tests_ready
+          nextPhase: development
+    guidance:
+      prompt: |
+        ## ATDD Distillation Phase
+
+        Converting acceptance criteria to executable tests.
+
+        **Goal**: Create unambiguous, executable acceptance tests.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Test Format Options
+        | Tool | Format | Best For |
+        |------|--------|----------|
+        | Cucumber | Gherkin | BDD-style scenarios |
+        | FitNesse | Wiki tables | Business-readable tests |
+        | Robot Framework | Keyword-driven | Complex workflows |
+        | Custom | Code | Full control |
+
+        ### Example: Gherkin Format
+        ```gherkin
+        Feature: User Login
+
+          Scenario: Successful login with valid credentials
+            Given I am on the login page
+            And I have a valid user account
+            When I enter my email and password
+            And I click the login button
+            Then I should be redirected to the dashboard
+            And I should see a welcome message
+        ```
+
+        ### Distillation Questions
+        - Is each test unambiguous?
+        - Can this test be automated?
+        - Does the PO agree this represents the requirement?
+
+        Let's convert the first acceptance criterion to an executable test.
+      promptZh: |
+        ## ATDD 提煉階段
+
+        將驗收條件轉換為可執行測試。
+
+        **目標**：建立無歧義、可執行的驗收測試。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 測試格式選項
+        | 工具 | 格式 | 最適合 |
+        |------|------|--------|
+        | Cucumber | Gherkin | BDD 風格情境 |
+        | FitNesse | Wiki 表格 | 業務可讀測試 |
+        | Robot Framework | 關鍵字驅動 | 複雜工作流 |
+        | 自訂 | 程式碼 | 完全控制 |
+
+        ### 範例：Gherkin 格式
+        ```gherkin
+        Feature: 使用者登入
+
+          Scenario: 使用有效憑證成功登入
+            Given 我在登入頁面
+            And 我有有效的使用者帳號
+            When 我輸入電子郵件和密碼
+            And 我點擊登入按鈕
+            Then 我應該被重新導向到儀表板
+            And 我應該看到歡迎訊息
+        ```
+
+        ### 提煉問題
+        - 每個測試是否無歧義？
+        - 這個測試可以自動化嗎？
+        - 產品負責人同意這代表需求嗎？
+
+        讓我們將第一個驗收條件轉換為可執行測試。
+    reminders:
+      - trigger: "time_elapsed > 60min"
+        message: "Distillation taking long. Consider simplifying test format."
+        messageZh: "提煉耗時過長。考慮簡化測試格式。"
+
+  - id: development
+    name: Development
+    nameZh: 開發
+    description: Implement feature driven by acceptance tests
+    descriptionZh: 由驗收測試驅動實作功能
+    duration: "Variable"
+    emoji: "\U0001F4BB"
+    checklist:
+      - id: acceptance-tests-red
+        text: Acceptance tests initially fail (RED)
+        textZh: 驗收測試最初失敗（紅燈）
+        required: true
+      - id: use-bdd-tdd
+        text: Use BDD for feature tests, TDD for unit tests
+        textZh: 功能測試用 BDD，單元測試用 TDD
+        required: false
+      - id: incremental-progress
+        text: Make incremental progress toward passing ATs
+        textZh: 逐步朝通過驗收測試前進
+        required: true
+      - id: all-ats-pass
+        text: All acceptance tests pass (GREEN)
+        textZh: 所有驗收測試通過（綠燈）
+        required: true
+      - id: code-refactored
+        text: Code refactored and clean
+        textZh: 程式碼已重構並乾淨
+        required: true
+    triggers:
+      entry:
+        - condition: acceptance_tests_ready
+          fromPhase: distillation
+      exit:
+        - condition: all_acceptance_tests_pass
+          nextPhase: demo
+    guidance:
+      prompt: |
+        ## ATDD Development Phase
+
+        Implementing feature to pass acceptance tests.
+
+        **Goal**: Make all acceptance tests pass through implementation.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Test Pyramid Mapping
+        | Acceptance Criteria | Test Level | Tool |
+        |---------------------|------------|------|
+        | User-facing behavior | Acceptance | FitNesse, Cucumber |
+        | Feature behavior | BDD | Cucumber, SpecFlow |
+        | Unit logic | TDD | Jest, xUnit |
+        | API contract | Integration | Supertest, REST Assured |
+
+        ### Development Flow
+        ```
+        Acceptance Test (RED)
+              │
+              ▼
+        ┌─────────────────┐
+        │ TDD Cycle       │
+        │ (Unit Tests)    │◄──────┐
+        └────────┬────────┘       │
+                 │                │
+                 ▼                │
+        ┌─────────────────┐       │
+        │ Run Acceptance  │       │
+        │ Test            │───────┘
+        └────────┬────────┘  Still RED
+                 │
+                 ▼ GREEN
+        Acceptance Test (GREEN)
+        ```
+
+        Run the acceptance tests first to see them fail.
+      promptZh: |
+        ## ATDD 開發階段
+
+        實作功能以通過驗收測試。
+
+        **目標**：透過實作使所有驗收測試通過。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 測試金字塔對應
+        | 驗收條件 | 測試層級 | 工具 |
+        |----------|----------|------|
+        | 使用者面向行為 | 驗收 | FitNesse、Cucumber |
+        | 功能行為 | BDD | Cucumber、SpecFlow |
+        | 單元邏輯 | TDD | Jest、xUnit |
+        | API 契約 | 整合 | Supertest、REST Assured |
+
+        ### 開發流程
+        ```
+        驗收測試（紅燈）
+              │
+              ▼
+        ┌─────────────────┐
+        │ TDD 循環        │
+        │（單元測試）     │◄──────┐
+        └────────┬────────┘       │
+                 │                │
+                 ▼                │
+        ┌─────────────────┐       │
+        │ 執行驗收測試    │       │
+        │                 │───────┘
+        └────────┬────────┘  仍是紅燈
+                 │
+                 ▼ 綠燈
+        驗收測試（綠燈）
+        ```
+
+        先執行驗收測試看它們失敗。
+    reminders:
+      - trigger: "acceptance_test_failing > 2hours"
+        message: "Acceptance test failing for 2+ hours. Consider breaking into smaller steps."
+        messageZh: "驗收測試失敗超過 2 小時。考慮拆分成更小的步驟。"
+
+  - id: demo
+    name: Demo
+    nameZh: 展示
+    description: Demonstrate working feature to stakeholders
+    descriptionZh: 向利害關係人展示可運作的功能
+    duration: "15-30 minutes"
+    emoji: "\U0001F3AC"
+    checklist:
+      - id: all-ats-passing
+        text: All acceptance tests are passing
+        textZh: 所有驗收測試都通過
+        required: true
+      - id: demo-prepared
+        text: Demo environment prepared
+        textZh: 展示環境已準備
+        required: true
+      - id: stakeholders-present
+        text: Key stakeholders present
+        textZh: 關鍵利害關係人在場
+        required: true
+      - id: po-validates
+        text: Product Owner validates functionality
+        textZh: 產品負責人驗證功能
+        required: true
+      - id: accepted-or-refined
+        text: Story accepted or criteria refined
+        textZh: 故事被接受或條件被精煉
+        required: true
+    triggers:
+      entry:
+        - condition: all_acceptance_tests_pass
+          fromPhase: development
+      exit:
+        - condition: story_accepted
+          nextPhase: done
+        - condition: criteria_refined
+          nextPhase: specification-workshop
+    guidance:
+      prompt: |
+        ## ATDD Demo Phase
+
+        Demonstrating completed feature to stakeholders.
+
+        **Goal**: Get formal acceptance from Product Owner.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Demo Structure
+        1. **Context** (1 min)
+           - Remind stakeholders of the user story
+           - Show acceptance criteria
+
+        2. **Show Tests** (2 min)
+           - Run acceptance tests live
+           - Show all passing
+
+        3. **Feature Demo** (5-10 min)
+           - Walk through each acceptance criterion
+           - Show working functionality
+           - Demonstrate edge cases if tested
+
+        4. **Feedback** (5 min)
+           - Gather feedback
+           - Clarify any questions
+           - Get formal acceptance
+
+        ### Possible Outcomes
+        - ✅ **Accepted**: Story complete, move to done
+        - 🔄 **Refinement needed**: Return to workshop with new learnings
+        - ❌ **Not accepted**: Identify gaps, iterate
+
+        Ready to demo?
+      promptZh: |
+        ## ATDD 展示階段
+
+        向利害關係人展示已完成的功能。
+
+        **目標**：從產品負責人取得正式接受。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 展示結構
+        1. **背景** (1 分鐘)
+           - 提醒利害關係人使用者故事
+           - 展示驗收條件
+
+        2. **展示測試** (2 分鐘)
+           - 現場執行驗收測試
+           - 展示全部通過
+
+        3. **功能展示** (5-10 分鐘)
+           - 走過每個驗收條件
+           - 展示可運作的功能
+           - 如有測試展示邊界情況
+
+        4. **回饋** (5 分鐘)
+           - 收集回饋
+           - 澄清任何問題
+           - 取得正式接受
+
+        ### 可能結果
+        - ✅ **接受**：故事完成，移至完成
+        - 🔄 **需要精煉**：帶著新學習返回工作坊
+        - ❌ **不接受**：識別差距，迭代
+
+        準備好展示了嗎？
+    reminders: []
+
+  - id: done
+    name: Done
+    nameZh: 完成
+    description: Story accepted and complete
+    descriptionZh: 故事已接受並完成
+    duration: ""
+    emoji: "\u2705"
+    checklist:
+      - id: all-ats-pass
+        text: All acceptance tests pass
+        textZh: 所有驗收測試通過
+        required: true
+      - id: po-accepted
+        text: Product Owner accepted
+        textZh: 產品負責人已接受
+        required: true
+      - id: code-merged
+        text: Code merged to main branch
+        textZh: 程式碼已合併到主分支
+        required: true
+    triggers:
+      entry:
+        - condition: story_accepted
+          fromPhase: demo
+      exit: []
+    guidance:
+      prompt: |
+        ## ATDD Complete
+
+        User story accepted and complete.
+
+        ### Summary
+        - All acceptance tests passing
+        - Product Owner validated functionality
+        - Feature ready for release
+
+        ### Next Steps
+        1. Merge code to main branch
+        2. Update documentation if needed
+        3. Plan next story
+
+        Congratulations! Story complete.
+      promptZh: |
+        ## ATDD 完成
+
+        使用者故事已接受並完成。
+
+        ### 摘要
+        - 所有驗收測試通過
+        - 產品負責人已驗證功能
+        - 功能準備發布
+
+        ### 下一步
+        1. 合併程式碼到主分支
+        2. 如需要更新文件
+        3. 規劃下一個故事
+
+        恭喜！故事完成。
+    reminders: []
+
+checkpoints:
+  - id: phase-complete
+    trigger: phase_transition
+    intensity: suggest
+    action: |
+      Phase {{current_phase}} completed.
+
+      ATDD Progress: {{current_phase_index}}/5 phases complete
+      User Story: {{story_title}}
+
+      [1] Continue to next phase  [2] View story status  [3] Commit changes
+    actionZh: |
+      階段 {{current_phase}} 完成。
+
+      ATDD 進度：{{current_phase_index}}/5 個階段完成
+      使用者故事：{{story_title}}
+
+      [1] 繼續下一階段  [2] 檢視故事狀態  [3] 提交變更
+
+  - id: at-failing-long
+    trigger: "acceptance_test_failing > 4hours"
+    intensity: warning
+    action: |
+      Warning: Acceptance test failing for 4+ hours.
+
+      Consider:
+      - Breaking into smaller acceptance criteria
+      - Discussing with Product Owner
+      - Simplifying the test
+    actionZh: |
+      警告：驗收測試失敗超過 4 小時。
+
+      考慮：
+      - 拆分成更小的驗收條件
+      - 與產品負責人討論
+      - 簡化測試
+
+commands:
+  - name: atdd
+    description: Start ATDD workflow for a user story
+    descriptionZh: 為使用者故事啟動 ATDD 工作流
+    usage: "/atdd [user story]"
+    action: start_workflow
+  - name: atdd-status
+    description: Show current ATDD phase and progress
+    descriptionZh: 顯示當前 ATDD 階段和進度
+    usage: "/atdd-status"
+    action: show_status
+  - name: atdd-ac
+    description: Define acceptance criteria interactively
+    descriptionZh: 互動式定義驗收條件
+    usage: "/atdd-ac"
+    action: start_workflow
+
+integrations:
+  tdd:
+    enabled: true
+    mapping:
+      development_phase: use_tdd_for_units
+  bdd:
+    enabled: true
+    mapping:
+      distillation_phase: use_gherkin_format
+  checkin-standards:
+    enabled: true
+    mapping:
+      phase_complete: suggest_commit
+  code-review:
+    enabled: true
+    additionalChecks:
+      - "All acceptance criteria have tests"
+      - "PO sign-off documented"
+      - "No missing edge cases"
+
+aiGuidance:
+  autoDetect: true
+  proactiveReminders: true
+  contextKeywords:
+    - "ATDD"
+    - "acceptance test"
+    - "acceptance criteria"
+    - "user story"
+    - "product owner"
+    - "acceptance driven"
+    - "given when then"

@@ -43,7 +43,7 @@ echo ""
 # Create skills directory if it doesn't exist
 mkdir -p "$SKILLS_DIR"
 
-# List of available skills (15 total)
+# List of available skills (16 total)
 SKILLS=(
     "ai-collaboration-standards"
     "changelog-guide"
@@ -53,6 +53,7 @@ SKILLS=(
     "error-code-guide"
     "git-workflow-guide"
     "logging-guide"
+    "methodology-system"
     "project-structure-guide"
     "release-standards"
     "requirement-assistant"

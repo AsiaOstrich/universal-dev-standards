@@ -72,6 +72,7 @@ vi.mock('../../src/prompts/init.js', () => ({
   promptFormat: vi.fn(() => 'ai'),
   promptStandardOptions: vi.fn(() => ({})),
   promptContentMode: vi.fn(() => 'index'),
+  promptMethodology: vi.fn(() => null),
   handleAgentsMdSharing: vi.fn((tools) => tools)
 }));
 

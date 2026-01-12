@@ -68,6 +68,7 @@ vi.mock('../../src/prompts/init.js', () => ({
   promptManageAITools: vi.fn(() => ({ action: 'cancel', tools: [] })),
   promptAdoptionLevel: vi.fn((current) => current),
   promptContentModeChange: vi.fn((current) => current),
+  promptMethodology: vi.fn(() => null),
   handleAgentsMdSharing: vi.fn((tools) => tools)
 }));
 

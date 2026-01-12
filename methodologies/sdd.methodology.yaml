@@ -1,0 +1,578 @@
+# SDD - Spec-Driven Development Methodology
+# Version: 1.0.0
+# Source: core/spec-driven-development.md
+
+$schema: "./methodology-schema.json"
+id: sdd
+name: Spec-Driven Development
+nameZh: 規格驅動開發
+version: 1.0.0
+description: Changes are planned, documented, and approved via specifications before implementation. Spec first, code second.
+descriptionZh: 變更在實作前透過規格進行規劃、記錄和核准。規格優先，程式碼其次。
+
+phases:
+  - id: proposal
+    name: Proposal
+    nameZh: 提案
+    description: Define what to change and why in a specification document
+    descriptionZh: 在規格文件中定義要變更什麼以及為什麼
+    duration: "30-60 minutes"
+    emoji: "\U0001F4DD"
+    checklist:
+      - id: spec-id-assigned
+        text: Unique spec ID assigned (e.g., SPEC-001)
+        textZh: 已分配唯一規格 ID（例如 SPEC-001）
+        required: true
+      - id: summary-clear
+        text: Summary clearly describes the change
+        textZh: 摘要清楚描述變更
+        required: true
+      - id: motivation-explained
+        text: Motivation explains why this change is needed
+        textZh: 動機說明為何需要此變更
+        required: true
+      - id: design-documented
+        text: Technical design approach documented
+        textZh: 技術設計方法已記錄
+        required: true
+      - id: acceptance-criteria
+        text: Acceptance criteria are defined and measurable
+        textZh: 驗收條件已定義且可測量
+        required: true
+      - id: dependencies-listed
+        text: Dependencies on other specs or systems listed
+        textZh: 已列出對其他規格或系統的依賴
+        required: false
+      - id: risks-identified
+        text: Risks and mitigation strategies identified
+        textZh: 已識別風險和緩解策略
+        required: false
+    triggers:
+      entry:
+        - condition: new_feature_request
+        - condition: user_invokes_spec_command
+        - condition: change_proposal_needed
+      exit:
+        - condition: proposal_complete
+          nextPhase: review
+    guidance:
+      prompt: |
+        ## SDD Proposal Phase
+
+        Creating specification for: {{feature_description}}
+
+        **Goal**: Document the change thoroughly before any implementation.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Spec Template
+        ```markdown
+        # [SPEC-XXX] Feature Title
+
+        ## Summary
+        Brief description of the proposed change.
+
+        ## Motivation
+        Why is this change needed? What problem does it solve?
+
+        ## Detailed Design
+        Technical approach, affected components, data flow.
+
+        ## Acceptance Criteria
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+
+        ## Dependencies
+        List any dependencies on other specs or external systems.
+
+        ## Risks
+        Potential risks and mitigation strategies.
+        ```
+
+        ### Remember
+        - Spec first, code second
+        - Keep specs focused and atomic (one change per spec)
+        - Include clear acceptance criteria
+
+        What is the core change you want to specify?
+      promptZh: |
+        ## SDD 提案階段
+
+        為 {{feature_description}} 建立規格
+
+        **目標**：在任何實作之前徹底記錄變更。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 規格模板
+        ```markdown
+        # [SPEC-XXX] 功能標題
+
+        ## 摘要
+        變更提案的簡要描述。
+
+        ## 動機
+        為何需要此變更？解決什麼問題？
+
+        ## 詳細設計
+        技術方法、受影響元件、資料流。
+
+        ## 驗收條件
+        - [ ] 條件 1
+        - [ ] 條件 2
+
+        ## 依賴
+        列出對其他規格或外部系統的依賴。
+
+        ## 風險
+        潛在風險和緩解策略。
+        ```
+
+        ### 記住
+        - 規格優先，程式碼其次
+        - 保持規格專注且原子化（一個規格一個變更）
+        - 包含清晰的驗收條件
+
+        你想指定的核心變更是什麼？
+    reminders:
+      - trigger: "time_elapsed > 60min"
+        message: "Consider splitting into smaller specs if proposal is taking too long."
+        messageZh: "如果提案耗時太久，考慮拆分成更小的規格。"
+
+  - id: review
+    name: Review
+    nameZh: 審查
+    description: Stakeholder review and approval of the specification
+    descriptionZh: 利害關係人審查和核准規格
+    duration: "Variable (async)"
+    emoji: "\U0001F440"
+    checklist:
+      - id: reviewers-assigned
+        text: Reviewers assigned (technical and business)
+        textZh: 已分配審查者（技術和業務）
+        required: true
+      - id: feedback-collected
+        text: All feedback collected and addressed
+        textZh: 已收集並處理所有回饋
+        required: true
+      - id: no-blocking-concerns
+        text: No blocking concerns remain
+        textZh: 沒有剩餘的阻礙性問題
+        required: true
+      - id: approved
+        text: Spec formally approved
+        textZh: 規格已正式核准
+        required: true
+    triggers:
+      entry:
+        - condition: proposal_complete
+          fromPhase: proposal
+      exit:
+        - condition: spec_approved
+          nextPhase: implementation
+        - condition: spec_rejected
+          nextPhase: proposal
+    guidance:
+      prompt: |
+        ## SDD Review Phase
+
+        Reviewing specification: {{spec_id}}
+
+        **Goal**: Get stakeholder approval before implementation.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Review Focus Areas
+        1. **Feasibility**: Is this technically achievable?
+        2. **Clarity**: Is the spec clear and unambiguous?
+        3. **Completeness**: Are acceptance criteria comprehensive?
+        4. **Impact**: What's the impact on existing systems?
+        5. **Risk**: Are risks adequately addressed?
+
+        ### Actions
+        - `/spec approve` - Approve the specification
+        - `/spec request-changes` - Request changes
+        - `/spec reject` - Reject the proposal
+
+        Who should review this spec?
+      promptZh: |
+        ## SDD 審查階段
+
+        審查規格：{{spec_id}}
+
+        **目標**：在實作前取得利害關係人核准。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 審查重點領域
+        1. **可行性**：技術上可達成嗎？
+        2. **清晰度**：規格清楚且無歧義嗎？
+        3. **完整性**：驗收條件全面嗎？
+        4. **影響**：對現有系統的影響是什麼？
+        5. **風險**：風險是否已充分處理？
+
+        ### 動作
+        - `/spec approve` - 核准規格
+        - `/spec request-changes` - 請求變更
+        - `/spec reject` - 拒絕提案
+
+        誰應該審查這個規格？
+    reminders:
+      - trigger: "review_pending > 3days"
+        message: "Spec review pending for 3+ days. Consider following up with reviewers."
+        messageZh: "規格審查已等待 3 天以上。考慮跟進審查者。"
+
+  - id: implementation
+    name: Implementation
+    nameZh: 實作
+    description: Execute the approved specification
+    descriptionZh: 執行已核准的規格
+    duration: "Variable"
+    emoji: "\U0001F528"
+    checklist:
+      - id: spec-approved
+        text: Spec is approved before starting
+        textZh: 開始前規格已核准
+        required: true
+      - id: follows-design
+        text: Implementation follows spec design
+        textZh: 實作遵循規格設計
+        required: true
+      - id: no-scope-creep
+        text: No scope creep beyond spec
+        textZh: 沒有超出規格的範圍蔓延
+        required: true
+      - id: tests-cover-ac
+        text: Tests cover all acceptance criteria
+        textZh: 測試涵蓋所有驗收條件
+        required: true
+      - id: spec-referenced
+        text: Spec ID referenced in commits/PR
+        textZh: 提交/PR 中引用規格 ID
+        required: true
+    triggers:
+      entry:
+        - condition: spec_approved
+          fromPhase: review
+      exit:
+        - condition: implementation_complete
+          nextPhase: verification
+    guidance:
+      prompt: |
+        ## SDD Implementation Phase
+
+        Implementing specification: {{spec_id}}
+
+        **Goal**: Build exactly what the spec describes, nothing more.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Commit Message Format
+        ```
+        feat(scope): implement feature
+
+        Implements SPEC-XXX functionality.
+
+        Refs: SPEC-XXX
+        ```
+
+        ### Rules
+        - ✅ Implement only what's in the spec
+        - ✅ Use TDD for unit-level code
+        - ✅ Reference spec ID in all related commits
+        - ❌ Don't modify scope without updating spec
+        - ❌ Don't add features not in the spec
+
+        Ready to start implementing?
+      promptZh: |
+        ## SDD 實作階段
+
+        實作規格：{{spec_id}}
+
+        **目標**：完全按照規格描述建構，不多不少。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 提交訊息格式
+        ```
+        feat(scope): 實作功能
+
+        實作 SPEC-XXX 功能。
+
+        Refs: SPEC-XXX
+        ```
+
+        ### 規則
+        - ✅ 只實作規格中的內容
+        - ✅ 對單元級程式碼使用 TDD
+        - ✅ 在所有相關提交中引用規格 ID
+        - ❌ 不要在沒有更新規格的情況下修改範圍
+        - ❌ 不要添加規格中沒有的功能
+
+        準備好開始實作了嗎？
+    reminders:
+      - trigger: "uncommitted_changes > 200_lines"
+        message: "Large uncommitted changes. Consider committing with spec reference."
+        messageZh: "未提交的變更較大。考慮帶規格引用提交。"
+
+  - id: verification
+    name: Verification
+    nameZh: 驗證
+    description: Confirm implementation matches the specification
+    descriptionZh: 確認實作符合規格
+    duration: "30-60 minutes"
+    emoji: "\u2705"
+    checklist:
+      - id: all-ac-met
+        text: All acceptance criteria are met
+        textZh: 所有驗收條件都滿足
+        required: true
+      - id: tests-pass
+        text: All tests pass
+        textZh: 所有測試通過
+        required: true
+      - id: pr-reviewed
+        text: PR reviewed and approved
+        textZh: PR 已審查並核准
+        required: true
+      - id: no-deviations
+        text: No deviations from spec without documentation
+        textZh: 沒有未記錄的規格偏差
+        required: true
+      - id: documentation-updated
+        text: Documentation updated if needed
+        textZh: 如需要已更新文件
+        required: false
+    triggers:
+      entry:
+        - condition: implementation_complete
+          fromPhase: implementation
+      exit:
+        - condition: verification_passed
+          nextPhase: archive
+        - condition: verification_failed
+          nextPhase: implementation
+    guidance:
+      prompt: |
+        ## SDD Verification Phase
+
+        Verifying implementation of: {{spec_id}}
+
+        **Goal**: Ensure implementation matches spec exactly.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Verification Steps
+        1. Review each acceptance criterion
+        2. Run all tests
+        3. Compare implementation to spec design
+        4. Check for any scope creep
+        5. Verify documentation updates
+
+        ### Code Review Verification
+        Reviewers should verify:
+        - [ ] Change matches approved spec
+        - [ ] No scope creep beyond spec
+        - [ ] Spec acceptance criteria met
+
+        Have all acceptance criteria been met?
+      promptZh: |
+        ## SDD 驗證階段
+
+        驗證實作：{{spec_id}}
+
+        **目標**：確保實作完全符合規格。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 驗證步驟
+        1. 審查每個驗收條件
+        2. 執行所有測試
+        3. 比較實作與規格設計
+        4. 檢查是否有範圍蔓延
+        5. 確認文件更新
+
+        ### 程式碼審查驗證
+        審查者應驗證：
+        - [ ] 變更符合已核准的規格
+        - [ ] 沒有超出規格的範圍蔓延
+        - [ ] 規格驗收條件滿足
+
+        所有驗收條件都滿足了嗎？
+    reminders:
+      - trigger: "verification_blocked > 1day"
+        message: "Verification blocked. Check if implementation needs revision."
+        messageZh: "驗證被阻擋。檢查實作是否需要修訂。"
+
+  - id: archive
+    name: Archive
+    nameZh: 歸檔
+    description: Close and archive the completed specification
+    descriptionZh: 關閉並歸檔已完成的規格
+    duration: "5-10 minutes"
+    emoji: "\U0001F4E6"
+    checklist:
+      - id: spec-marked-complete
+        text: Spec marked as completed
+        textZh: 規格標記為已完成
+        required: true
+      - id: linked-to-pr
+        text: Spec linked to implementation PR(s)
+        textZh: 規格連結到實作 PR
+        required: true
+      - id: moved-to-archive
+        text: Spec moved to archive folder
+        textZh: 規格移到歸檔資料夾
+        required: true
+      - id: lessons-documented
+        text: Any lessons learned documented
+        textZh: 任何學到的教訓已記錄
+        required: false
+    triggers:
+      entry:
+        - condition: verification_passed
+          fromPhase: verification
+      exit: []
+    guidance:
+      prompt: |
+        ## SDD Archive Phase
+
+        Archiving completed specification: {{spec_id}}
+
+        **Goal**: Close the spec and preserve for future reference.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Archive Steps
+        1. Mark spec as completed
+        2. Add link to implementation PR(s)
+        3. Move to `specs/archive/` folder
+        4. Document any lessons learned
+
+        ### Archive Location
+        ```
+        specs/
+        ├── active/
+        │   └── (in-progress specs)
+        └── archive/
+            └── SPEC-XXX-feature-name.md
+        ```
+
+        Spec implementation complete. Ready to archive?
+      promptZh: |
+        ## SDD 歸檔階段
+
+        歸檔已完成的規格：{{spec_id}}
+
+        **目標**：關閉規格並保留供未來參考。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 歸檔步驟
+        1. 標記規格為已完成
+        2. 添加實作 PR 連結
+        3. 移到 `specs/archive/` 資料夾
+        4. 記錄任何學到的教訓
+
+        ### 歸檔位置
+        ```
+        specs/
+        ├── active/
+        │   └── （進行中的規格）
+        └── archive/
+            └── SPEC-XXX-feature-name.md
+        ```
+
+        規格實作完成。準備好歸檔了嗎？
+    reminders: []
+
+checkpoints:
+  - id: phase-complete
+    trigger: phase_transition
+    intensity: suggest
+    action: |
+      Phase {{current_phase}} completed.
+
+      SDD Progress: {{current_phase_index}}/5 phases complete
+      Spec: {{spec_id}}
+
+      [1] Continue to next phase  [2] View spec status  [3] Commit changes
+    actionZh: |
+      階段 {{current_phase}} 完成。
+
+      SDD 進度：{{current_phase_index}}/5 個階段完成
+      規格：{{spec_id}}
+
+      [1] 繼續下一階段  [2] 檢視規格狀態  [3] 提交變更
+
+  - id: no-spec-warning
+    trigger: "code_changes_without_spec"
+    intensity: warning
+    action: |
+      Warning: Code changes detected without an approved spec.
+
+      SDD Rule: Spec first, code second.
+
+      Options:
+      [1] Create a spec for this change
+      [2] Mark as trivial change (typo, formatting)
+      [3] Mark as hotfix (document later)
+    actionZh: |
+      警告：偵測到沒有已核准規格的程式碼變更。
+
+      SDD 規則：規格優先，程式碼其次。
+
+      選項：
+      [1] 為此變更建立規格
+      [2] 標記為瑣碎變更（錯字、格式）
+      [3] 標記為緊急修復（之後記錄）
+
+commands:
+  - name: spec
+    description: Start SDD workflow / manage specifications
+    descriptionZh: 啟動 SDD 工作流 / 管理規格
+    usage: "/spec [create|approve|close|status]"
+    action: start_workflow
+  - name: spec-status
+    description: Show current spec status
+    descriptionZh: 顯示當前規格狀態
+    usage: "/spec-status"
+    action: show_status
+
+integrations:
+  tdd:
+    enabled: true
+    mapping:
+      acceptance_criteria: test_cases
+  checkin-standards:
+    enabled: true
+    mapping:
+      spec_reference: commit_footer
+  code-review:
+    enabled: true
+    additionalChecks:
+      - "Change matches approved spec"
+      - "No scope creep beyond spec"
+      - "Spec acceptance criteria met"
+
+aiGuidance:
+  autoDetect: true
+  proactiveReminders: true
+  contextKeywords:
+    - "SDD"
+    - "spec-driven"
+    - "specification"
+    - "spec first"
+    - "proposal"
+    - "acceptance criteria"
+    - "SPEC-"

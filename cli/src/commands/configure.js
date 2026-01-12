@@ -25,7 +25,8 @@ import {
   promptManageAITools,
   promptAdoptionLevel,
   promptContentModeChange,
-  handleAgentsMdSharing
+  handleAgentsMdSharing,
+  promptMethodology
 } from '../prompts/init.js';
 import {
   writeIntegrationFile,
@@ -63,6 +64,9 @@ export async function configureCommand(options) {
   console.log(chalk.gray(`  Format: ${manifest.format || 'human'}`));
   console.log(chalk.gray(`  Content Mode: ${manifest.contentMode || 'minimal'}`));
   console.log(chalk.gray(`  AI Tools: ${manifest.aiTools?.length > 0 ? manifest.aiTools.join(', ') : 'none'}`));
+  if (manifest.methodology?.active) {
+    console.log(chalk.gray(`  Methodology: ${manifest.methodology.active.toUpperCase()}`));
+  }
   if (manifest.options) {
     if (manifest.options.workflow) {
       console.log(chalk.gray(`  Git Workflow: ${manifest.options.workflow}`));
@@ -99,6 +103,7 @@ export async function configureCommand(options) {
           { name: `${chalk.cyan('AI Tools')} - Add/Remove AI integrations`, value: 'ai_tools' },
           { name: `${chalk.cyan('Adoption Level')} - Change Level 1/2/3`, value: 'level' },
           { name: `${chalk.cyan('Content Mode')} - Change full/index/minimal`, value: 'content_mode' },
+          { name: `${chalk.cyan('Methodology')} - Change development methodology`, value: 'methodology' },
           new inquirer.default.Separator(),
           { name: 'All Options', value: 'all' }
         ]
@@ -163,6 +168,12 @@ export async function configureCommand(options) {
     }
   }
 
+  // Handle Methodology configuration
+  let newMethodology = manifest.methodology?.active || null;
+  if (configType === 'methodology') {
+    newMethodology = await promptMethodology();
+  }
+
   // Handle traditional options
   if (configType === 'all' || configType === 'format') {
     newFormat = await promptFormat();
@@ -191,6 +202,9 @@ export async function configureCommand(options) {
   console.log(chalk.gray(`  Format: ${newFormat}`));
   console.log(chalk.gray(`  Content Mode: ${newContentMode}`));
   console.log(chalk.gray(`  AI Tools: ${newAITools.length > 0 ? newAITools.join(', ') : 'none'}`));
+  if (newMethodology) {
+    console.log(chalk.gray(`  Methodology: ${newMethodology.toUpperCase()}`));
+  }
   if (newOptions.workflow) {
     console.log(chalk.gray(`  Git Workflow: ${newOptions.workflow}`));
   }
@@ -343,6 +357,23 @@ export async function configureCommand(options) {
   manifest.contentMode = newContentMode;
   manifest.aiTools = newAITools;
   manifest.version = '3.2.0';
+
+  // Update methodology
+  if (newMethodology) {
+    manifest.methodology = {
+      active: newMethodology,
+      available: ['tdd', 'bdd', 'sdd', 'atdd'],
+      config: {
+        checkpointsEnabled: true,
+        reminderIntensity: 'suggest',
+        skipLimit: 3
+      }
+    };
+  } else if (configType === 'methodology' && !newMethodology) {
+    // User explicitly chose "None"
+    manifest.methodology = null;
+  }
+
   writeManifest(manifest, projectPath);
 
   spinner.succeed('Configuration updated');

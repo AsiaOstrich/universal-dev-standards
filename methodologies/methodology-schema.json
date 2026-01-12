@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/anthropics/universal-dev-standards/methodologies/methodology-schema.json",
+  "title": "Development Methodology Schema",
+  "description": "Schema for defining development methodologies (TDD, BDD, SDD, ATDD, custom)",
+  "type": "object",
+  "required": ["id", "name", "version", "phases"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this schema"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Unique identifier for the methodology (lowercase, hyphens allowed)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name of the methodology"
+    },
+    "nameZh": {
+      "type": "string",
+      "description": "Traditional Chinese name"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of this methodology definition"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of the methodology"
+    },
+    "descriptionZh": {
+      "type": "string",
+      "description": "Traditional Chinese description"
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/phase" },
+      "description": "Ordered list of phases in this methodology"
+    },
+    "checkpoints": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/checkpoint" },
+      "description": "Checkpoint reminders triggered during workflow"
+    },
+    "commands": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/command" },
+      "description": "Slash commands provided by this methodology"
+    },
+    "integrations": {
+      "type": "object",
+      "description": "Integration with other UDS standards",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "mapping": { "type": "object" },
+          "additionalChecks": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "aiGuidance": {
+      "$ref": "#/$defs/aiGuidance",
+      "description": "AI behavior configuration for this methodology"
+    }
+  },
+  "$defs": {
+    "phase": {
+      "type": "object",
+      "required": ["id", "name", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "Phase identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name"
+        },
+        "nameZh": {
+          "type": "string",
+          "description": "Traditional Chinese name"
+        },
+        "description": {
+          "type": "string",
+          "description": "What happens in this phase"
+        },
+        "descriptionZh": {
+          "type": "string",
+          "description": "Traditional Chinese description"
+        },
+        "duration": {
+          "type": "string",
+          "description": "Estimated duration (e.g., '1-5 minutes')"
+        },
+        "emoji": {
+          "type": "string",
+          "description": "Emoji indicator for this phase"
+        },
+        "checklist": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/checklistItem" },
+          "description": "Items to verify before completing this phase"
+        },
+        "triggers": {
+          "type": "object",
+          "properties": {
+            "entry": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/trigger" },
+              "description": "Conditions to enter this phase"
+            },
+            "exit": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/trigger" },
+              "description": "Conditions to exit this phase"
+            }
+          }
+        },
+        "guidance": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "type": "string",
+              "description": "AI prompt template for this phase"
+            },
+            "promptZh": {
+              "type": "string",
+              "description": "Traditional Chinese prompt"
+            }
+          }
+        },
+        "reminders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "trigger": { "type": "string" },
+              "message": { "type": "string" },
+              "messageZh": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "checklistItem": {
+      "type": "object",
+      "required": ["id", "text"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the checklist item"
+        },
+        "text": {
+          "type": "string",
+          "description": "Checklist item text"
+        },
+        "textZh": {
+          "type": "string",
+          "description": "Traditional Chinese text"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this item must be checked to proceed"
+        }
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "required": ["condition"],
+      "properties": {
+        "condition": {
+          "type": "string",
+          "description": "Condition expression (e.g., 'test_fails', 'user_confirms')"
+        },
+        "fromPhase": {
+          "type": "string",
+          "description": "Required previous phase (for entry triggers)"
+        },
+        "nextPhase": {
+          "type": "string",
+          "description": "Target phase after this trigger (for exit triggers)"
+        }
+      }
+    },
+    "checkpoint": {
+      "type": "object",
+      "required": ["id", "trigger"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Checkpoint identifier"
+        },
+        "trigger": {
+          "type": "string",
+          "description": "Condition that activates this checkpoint"
+        },
+        "intensity": {
+          "type": "string",
+          "enum": ["suggest", "warning", "strict"],
+          "default": "suggest",
+          "description": "How strongly to enforce this checkpoint"
+        },
+        "action": {
+          "type": "string",
+          "description": "Message or action template"
+        },
+        "actionZh": {
+          "type": "string",
+          "description": "Traditional Chinese action"
+        }
+      }
+    },
+    "command": {
+      "type": "object",
+      "required": ["name", "description"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Command name (without slash)"
+        },
+        "description": {
+          "type": "string",
+          "description": "What the command does"
+        },
+        "descriptionZh": {
+          "type": "string",
+          "description": "Traditional Chinese description"
+        },
+        "usage": {
+          "type": "string",
+          "description": "Usage example"
+        },
+        "action": {
+          "type": "string",
+          "enum": ["start_workflow", "show_status", "skip_phase", "switch_phase"],
+          "description": "Action type"
+        }
+      }
+    },
+    "aiGuidance": {
+      "type": "object",
+      "properties": {
+        "autoDetect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-detect when this methodology context is relevant"
+        },
+        "proactiveReminders": {
+          "type": "boolean",
+          "default": true,
+          "description": "Proactively remind developer of current phase"
+        },
+        "contextKeywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Keywords that suggest this methodology is in use"
+        }
+      }
+    }
+  }
+}

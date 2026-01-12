@@ -36,6 +36,7 @@ import {
   promptFormat,
   promptStandardOptions,
   promptContentMode,
+  promptMethodology,
   handleAgentsMdSharing
 } from '../prompts/init.js';
 import {
@@ -335,6 +336,10 @@ export async function initCommand(options) {
     }
     skillsConfig.contentMode = contentMode;
 
+    // STEP 14: Development methodology
+    const methodology = await promptMethodology();
+    skillsConfig.methodology = methodology;
+
   } else {
     // ===== Non-interactive mode =====
     level = level || 2;
@@ -434,6 +439,7 @@ export async function initCommand(options) {
   console.log(chalk.gray(`  Locale: ${locale || 'default (English)'}`));
   console.log(chalk.gray(`  AI Tools: ${aiTools.length > 0 ? aiTools.join(', ') : 'none'}`));
   console.log(chalk.gray(`  Integrations: ${integrations.length > 0 ? integrations.join(', ') : 'none'}`));
+  console.log(chalk.gray(`  Methodology: ${skillsConfig.methodology || 'none'}`));
 
   if (skillsConfig.installed) {
     let skillsStatus;
@@ -865,6 +871,15 @@ export async function initCommand(options) {
       names: skillsConfig.location === 'marketplace' ? ['all-via-plugin'] : results.skills,
       version: skillsConfig.installed ? repoInfo.skills.version : null
     },
+    methodology: skillsConfig.methodology ? {
+      active: skillsConfig.methodology,
+      available: ['tdd', 'bdd', 'sdd', 'atdd'],
+      config: {
+        checkpointsEnabled: true,
+        reminderIntensity: 'suggest',
+        skipLimit: 3
+      }
+    } : null,
     fileHashes
   };
 
