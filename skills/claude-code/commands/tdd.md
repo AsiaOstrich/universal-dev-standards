@@ -10,6 +10,22 @@ Guide through the Test-Driven Development (TDD) workflow: Red-Green-Refactor.
 
 引導測試驅動開發（TDD）流程：紅-綠-重構。
 
+## Methodology Integration | 方法論整合
+
+When `/tdd` is invoked:
+1. **Automatically activate TDD methodology** if not already active
+2. **Set current phase to RED** (writing failing test)
+3. **Track phase transitions** as work progresses
+4. **Show phase indicators** in responses (🔴 RED, 🟢 GREEN, 🔵 REFACTOR)
+
+當調用 `/tdd` 時：
+1. **自動啟用 TDD 方法論**（如果尚未啟用）
+2. **將當前階段設為紅燈**（撰寫失敗的測試）
+3. **追蹤階段轉換**隨著工作進展
+4. **在回應中顯示階段指示器**（🔴 紅燈、🟢 綠燈、🔵 重構）
+
+See [methodology-system](../methodology-system/SKILL.md) for full methodology tracking.
+
 ## TDD Cycle | TDD 循環
 
 ```

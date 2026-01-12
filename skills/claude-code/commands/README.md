@@ -27,9 +27,18 @@ Commands for development workflow automation.
 | [`/changelog`](./changelog.md) | Update CHANGELOG.md | 更新 CHANGELOG |
 | [`/requirement`](./requirement.md) | Write user stories and requirements | 撰寫需求文件 |
 | [`/spec`](./spec.md) | Create specification documents | 建立規格文件 |
-| [`/tdd`](./tdd.md) | Test-Driven Development workflow | TDD 開發流程 |
 | [`/docs`](./docs.md) | Create/update documentation | 建立/更新文件 |
 | [`/coverage`](./coverage.md) | Analyze test coverage | 分析測試覆蓋率 |
+
+### Methodology | 方法論
+
+Commands for development methodology workflows.
+
+| Command | Description | 說明 |
+|---------|-------------|------|
+| [`/methodology`](./methodology.md) | Manage active methodology | 管理開發方法論 |
+| [`/tdd`](./tdd.md) | Test-Driven Development workflow | TDD 開發流程 |
+| [`/bdd`](./bdd.md) | Behavior-Driven Development workflow | BDD 開發流程 |
 
 ## Commands vs Skills | 命令與技能
 
