@@ -1,7 +1,7 @@
 ---
 source: ../../README.md
-source_version: 3.5.0-beta.10
-translation_version: 3.5.0-beta.10
+source_version: 3.5.0-beta.11
+translation_version: 3.5.0-beta.11
 last_synced: 2026-01-12
 status: current
 ---
@@ -10,7 +10,7 @@ status: current
 
 > **Language**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
 
-**版本**: 3.5.0-beta.10
+**版本**: 3.5.0-beta.11
 **最後更新**: 2026-01-12
 **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 

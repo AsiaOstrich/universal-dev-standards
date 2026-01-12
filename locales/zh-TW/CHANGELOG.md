@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.5.0-beta.10
-translation_version: 3.5.0-beta.10
+source_version: 3.5.0-beta.11
+translation_version: 3.5.0-beta.11
 last_synced: 2026-01-12
 status: current
 ---
@@ -18,6 +18,24 @@ status: current
 ## [Unreleased]
 
 _無未發布的變更_
+
+## [3.5.0-beta.11] - 2026-01-12
+
+### 新增
+- **文件**：在 README 新增功能可用性表格
+  - 清楚比較穩定版 (3.4.2) 與 beta 版 (3.5.x) 功能
+  - 以 🧪 標記實驗性功能
+  - 雙語支援（英文和繁體中文）
+
+### 修復
+- **i18n**：為 6 個翻譯檔案新增缺失的 YAML front matter
+  - `docs/CLI-INIT-OPTIONS.md`
+  - `skills/claude-code/commands/bdd.md`
+  - `skills/claude-code/commands/methodology.md`
+  - `skills/claude-code/methodology-system/SKILL.md`
+  - `skills/claude-code/methodology-system/create-methodology.md`
+  - `skills/claude-code/methodology-system/runtime.md`
+- **文件**：更新穩定版本參考從 3.3.0 至 3.4.2
 
 ## [3.5.0-beta.10] - 2026-01-12
 

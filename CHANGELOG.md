@@ -11,6 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes_
 
+## [3.5.0-beta.11] - 2026-01-12
+
+### Added
+- **Docs**: Add Feature Availability table to README
+  - Clear comparison of stable (3.4.2) vs beta (3.5.x) features
+  - Mark experimental features with 🧪 indicator
+  - Bilingual support (English and Traditional Chinese)
+
+### Fixed
+- **i18n**: Add missing YAML front matter to 6 translation files
+  - `docs/CLI-INIT-OPTIONS.md`
+  - `skills/claude-code/commands/bdd.md`
+  - `skills/claude-code/commands/methodology.md`
+  - `skills/claude-code/methodology-system/SKILL.md`
+  - `skills/claude-code/methodology-system/create-methodology.md`
+  - `skills/claude-code/methodology-system/runtime.md`
+- **Docs**: Update stable version reference from 3.3.0 to 3.4.2
+
 ## [3.5.0-beta.10] - 2026-01-12
 
 ### Added
