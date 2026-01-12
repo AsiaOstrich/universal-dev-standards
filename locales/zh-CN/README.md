@@ -1,8 +1,8 @@
 ---
 source: ../../README.md
-source_version: 3.3.0
-translation_version: 3.3.0
-last_synced: 2026-01-08
+source_version: 3.5.0-beta.11
+translation_version: 3.5.0-beta.11
+last_synced: 2026-01-12
 status: current
 ---
 
@@ -10,9 +10,28 @@ status: current
 
 > **Language**: [English](../../README.md) | [繁體中文](../zh-TW/README.md) | 简体中文
 
-**版本**: 3.3.0
-**最后更新**: 2026-01-08
+**版本**: 3.5.0-beta.11
+**最后更新**: 2026-01-12
 **授权**: [双重授权](../../LICENSE) (CC BY 4.0 + MIT)
+
+> **🧪 Beta 通知**: 此版本包含实验性功能。API 可能在稳定版本发布前有所变动。
+> 如需稳定版本: `npm install universal-dev-standards@3.4.2`
+
+### 功能可用性
+
+| 功能 | 稳定版 (3.4.2) | Beta 版 (3.5.x) |
+|------|:--------------:|:---------------:|
+| **核心标准** (16 个文件) | ✅ | ✅ |
+| **Claude Code 技能** (15 个技能) | ✅ | ✅ |
+| **CLI 工具** (`uds init`, `check`, `update`) | ✅ | ✅ |
+| 基于哈希的完整性检查 | ✅ | ✅ |
+| Plugin Marketplace 支持 | ✅ | ✅ |
+| **方法论系统** | ❌ | ✅ 🧪 |
+| `/methodology` 命令 | ❌ | ✅ 🧪 |
+| `/bdd` 命令 | ❌ | ✅ 🧪 |
+| TDD/BDD/SDD/ATDD 工作流 | ❌ | ✅ 🧪 |
+
+> 🧪 = 实验性功能，API 可能变动
 
 ---
 
@@ -280,6 +299,26 @@ standards:
 > **重要**：对于有技能的标准，使用技能或复制源文档 - **择一即可，不要两者都做**。
 
 详细指导请参阅[采用指南](../../adoption/ADOPTION-GUIDE.md)。
+
+---
+
+## 使用模式比较
+
+使用 UDS 时，您可以选择三种使用模式：
+
+| 模式 | 适合对象 | 主要优势 |
+|------|---------|---------|
+| **仅使用技能** | 个人开发者 + Claude Code | 最低 token 使用量，最佳交互体验 |
+| **仅使用标准** | 多工具团队 / 企业 | 完全自定义，版本控制 |
+| **技能 + 标准** | 完整体验 / 学习 | 100% 功能覆盖 |
+
+### 快速决策指南
+
+- **使用 Claude Code 的个人项目？** → 仅使用技能 (`standardsScope: minimal`)
+- **使用多个 AI 工具的团队？** → 技能 + 标准 (`standardsScope: full`)
+- **企业合规需求？** → 仅使用标准（无技能依赖）
+
+详细分析请参阅 [使用模式比较](../../docs/USAGE-MODES-COMPARISON.md)，包括功能覆盖、token 效率和建议。
 
 ---
 

@@ -1,15 +1,15 @@
 ---
 source: ../../../core/test-driven-development.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-07
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-12
 status: current
 ---
 
 # 测试驱动开发 (TDD) 标准
 
-**版本**: 1.0.0
-**最后更新**: 2026-01-07
+**版本**: 1.1.0
+**最后更新**: 2026-01-12
 **适用范围**: 所有采用测试驱动开发的专案
 
 > **语言**: [English](../../../core/test-driven-development.md) | 繁体中文
@@ -629,14 +629,93 @@ test('should reject password exceeding max length', () => {
 
 ### 何时重构
 
-当你看到以下情况时进行重构：
+当你看到代码异味时进行重构。使用下方的完整目录来识别问题及其解决方案。
 
-- **重复**：相同的程式码出现在多个地方
-- **过长方法**：函式做太多事
-- **命名不佳**：不清楚的变数/函式名称
-- **复杂条件**：巢状的 if/else 链
-- **功能嫉妒**：方法过度使用另一个类别的资料
-- **资料团块**：相同的资料群组一起出现
+### 代码异味目录
+
+根据 Martin Fowler 的《Refactoring》（第二版），代码异味分为五大类别：
+
+#### 1. 膨胀型（Bloaters）
+
+代码变得过大且难以处理。
+
+| 异味 | 说明 | 重构方式 |
+|------|------|---------|
+| **Long Method（过长方法）** | 方法超过 20 行，做太多事 | Extract Method、Replace Temp with Query、Introduce Parameter Object |
+| **Large Class（过大类）** | 类有太多职责 | Extract Class、Extract Subclass、Extract Interface |
+| **Primitive Obsession（基本类型偏执）** | 过度使用基本类型而非小对象 | Replace Primitive with Object、Replace Type Code with Class、Introduce Parameter Object |
+| **Long Parameter List（过长参数列表）** | 方法有太多参数（>3 个） | Introduce Parameter Object、Preserve Whole Object、Replace Parameter with Method Call |
+| **Data Clumps（数据泥团）** | 相同的数据群组一起出现 | Extract Class、Introduce Parameter Object、Preserve Whole Object |
+
+#### 2. 面向对象滥用者（OO Abusers）
+
+不完整或不正确的面向对象应用。
+
+| 异味 | 说明 | 重构方式 |
+|------|------|---------|
+| **Switch Statements（Switch 语句）** | 复杂的 switch/if-else 链基于类型 | Replace Conditional with Polymorphism、Replace Type Code with Strategy、Replace Type Code with State |
+| **Temporary Field（临时字段）** | 只在某些情况下有值的字段 | Extract Class、Introduce Null Object、Introduce Special Case |
+| **Refused Bequest（被拒绝的遗产）** | 子类不使用继承的方法 | Push Down Method、Push Down Field、Replace Inheritance with Delegation |
+| **Alternative Classes with Different Interfaces（接口不同的替代类）** | 做相同事情但有不同方法签名的类 | Rename Method、Move Method、Extract Superclass |
+| **Parallel Inheritance Hierarchies（平行继承层次）** | 创建子类需要在另一个层次中创建另一个 | Move Method、Move Field |
+
+#### 3. 变更阻碍者（Change Preventers）
+
+使变更比必要更困难的代码。
+
+| 异味 | 说明 | 重构方式 |
+|------|------|---------|
+| **Divergent Change（发散式变更）** | 一个类因多种不同原因被修改 | Extract Class、Split Phase |
+| **Shotgun Surgery（散弹枪手术）** | 一个变更需要修改多个类 | Move Method、Move Field、Inline Function、Inline Class |
+| **Parallel Inheritance Hierarchies（平行继承层次）** | （见上方） | Move Method、Move Field |
+
+#### 4. 可有可无者（Dispensables）
+
+可以移除的不必要代码。
+
+| 异味 | 说明 | 重构方式 |
+|------|------|---------|
+| **Comments（注释）** | 隐藏糟糕代码的过多注释 | Extract Method、Rename Method、Introduce Assertion |
+| **Duplicate Code（重复代码）** | 多处相同或相似的代码 | Extract Method、Pull Up Method、Extract Class、Slide Statements |
+| **Dead Code（死代码）** | 未使用的代码（变量、方法、类） | Remove Dead Code |
+| **Lazy Class（懒惰类）** | 做太少事而不值得存在的类 | Inline Class、Collapse Hierarchy |
+| **Speculative Generality（推测式通用性）** | 「为将来使用」的未使用抽象 | Collapse Hierarchy、Inline Function、Inline Class、Remove Dead Code |
+| **Data Class（数据类）** | 只有字段和 getter/setter 的类 | Move Method、Encapsulate Field、Encapsulate Collection |
+
+#### 5. 耦合者（Couplers）
+
+类之间过度耦合的代码。
+
+| 异味 | 说明 | 重构方式 |
+|------|------|---------|
+| **Feature Envy（功能嫉妒）** | 方法使用另一个类的数据多于自己的 | Move Method、Extract Method |
+| **Inappropriate Intimacy（不当亲密）** | 类过于紧密耦合，访问彼此的私有部分 | Move Method、Move Field、Hide Delegate、Replace Delegation with Inheritance |
+| **Message Chains（消息链）** | `a.getB().getC().getD().getValue()` | Hide Delegate、Extract Method、Move Method |
+| **Middle Man（中间人）** | 类只是委托给另一个类 | Remove Middle Man、Inline Function、Replace Superclass with Delegate |
+
+### 代码异味检测检查清单
+
+快速检查清单以识别常见异味：
+
+```
+方法/函数层级：
+□ 方法 > 20 行？ → Extract Method
+□ > 3 个参数？ → Introduce Parameter Object
+□ 深度嵌套（> 3 层）？ → Extract Method、Replace Nested Conditional with Guard Clauses
+□ 多个 return 语句？ → 考虑重构
+
+类层级：
+□ 类 > 200 行？ → Extract Class
+□ > 10 个方法？ → 考虑拆分职责
+□ 上帝类（什么都做）？ → Extract Class
+□ 数据类（只有字段）？ → 把行为移进来
+
+代码模式：
+□ 基于类型的 Switch？ → Replace with Polymorphism
+□ 复制粘贴代码？ → Extract Method/Class
+□ 未使用的代码？ → 删除它
+□ 魔法数字？ → Replace with Named Constant
+```
 
 ### 安全重构检查清单
 
@@ -644,30 +723,30 @@ test('should reject password exceeding max length', () => {
 重构前：
 □ 所有测试都通过（绿色）
 □ 有足够的测试覆盖
-□ 你理解程式码在做什么
+□ 你理解代码在做什么
 
 重构中：
 □ 一次只做「一个」小变更
 □ 「每次」变更后执行测试
-□ 如果测试失败，立即复原
+□ 如果测试失败，立即恢复
 □ 重构时不要新增功能
 
 重构后：
 □ 所有测试仍然通过
-□ 程式码更干净/简单
+□ 代码更干净/简单
 □ 没有新增功能
 ```
 
 ### 常见重构技术
 
-| 技术 | 使用时机 | 范例 |
+| 技术 | 使用时机 | 示例 |
 |------|---------|------|
-| **提取方法** | 过长方法、重复程式码 | 提取 10 行到 `calculateDiscount()` |
-| **重新命名** | 不清楚的名称 | `calc()` → `calculateOrderTotal()` |
-| **内联** | 过度抽象 | 移除不必要的包装函式 |
-| **提取变数** | 复杂表达式 | `const isEligible = age >= 18 && hasLicense` |
-| **用多型取代条件** | 复杂的 switch/if 链 | 使用策略模式 |
-| **引入参数物件** | 太多参数 | `(x, y, width, height)` → `Rectangle rect` |
+| **Extract Method** | 过长方法、重复代码 | 提取 10 行到 `calculateDiscount()` |
+| **Rename** | 不清楚的名称 | `calc()` → `calculateOrderTotal()` |
+| **Inline** | 过度抽象 | 移除不必要的包装函数 |
+| **Extract Variable** | 复杂表达式 | `const isEligible = age >= 18 && hasLicense` |
+| **Replace Conditional with Polymorphism** | 复杂的 switch/if 链 | 使用策略模式 |
+| **Introduce Parameter Object** | 太多参数 | `(x, y, width, height)` → `Rectangle rect` |
 
 ---
 
@@ -911,6 +990,7 @@ test('should send confirmation email after successful payment', async () => {
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.1.0 | 2026-01-12 | 新增：完整代码异味目录（22+ 种异味分 5 类，基于 Martin Fowler《Refactoring》第二版）、代码异味检测检查清单 |
 | 1.0.0 | 2026-01-07 | 初始 TDD 标准定义 |
 
 ---
