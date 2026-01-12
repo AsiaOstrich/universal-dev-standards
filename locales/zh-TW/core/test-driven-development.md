@@ -1,15 +1,15 @@
 ---
 source: ../../../core/test-driven-development.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-07
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-12
 status: current
 ---
 
 # 測試驅動開發 (TDD) 標準
 
-**版本**: 1.0.0
-**最後更新**: 2026-01-07
+**版本**: 1.1.0
+**最後更新**: 2026-01-12
 **適用範圍**: 所有採用測試驅動開發的專案
 
 > **語言**: [English](../../../core/test-driven-development.md) | 繁體中文
@@ -669,6 +669,86 @@ test('should reject password exceeding max length', () => {
 | **用多型取代條件** | 複雜的 switch/if 鏈 | 使用策略模式 |
 | **引入參數物件** | 太多參數 | `(x, y, width, height)` → `Rectangle rect` |
 
+### 程式碼異味目錄
+
+根據 Martin Fowler 的《Refactoring》（第二版），程式碼異味分為五大類別：
+
+#### 1. 膨脹型（Bloaters）
+
+| 異味 | 說明 | 重構方式 |
+|------|------|---------|
+| **Long Method（過長方法）** | 方法超過 20 行，做太多事 | Extract Method、Replace Temp with Query、Introduce Parameter Object、Preserve Whole Object、Replace Method with Method Object |
+| **Large Class（過大類別）** | 類別有太多職責 | Extract Class、Extract Subclass、Extract Interface、Duplicate Observed Data |
+| **Primitive Obsession（基本型別偏執）** | 過度使用基本型別而非小物件 | Replace Data Value with Object、Replace Type Code with Class/Subclass/Strategy、Extract Class、Introduce Parameter Object |
+| **Long Parameter List（過長參數列表）** | 方法有太多參數（>3-4 個） | Replace Parameter with Method Call、Preserve Whole Object、Introduce Parameter Object |
+| **Data Clumps（資料泥團）** | 相同的資料群組一起出現 | Extract Class、Introduce Parameter Object、Preserve Whole Object |
+
+#### 2. 物件導向濫用者（OO Abusers）
+
+| 異味 | 說明 | 重構方式 |
+|------|------|---------|
+| **Switch Statements（Switch 語句）** | 複雜的 switch/case 或 if/else 鏈 | Replace Type Code with Subclasses、Replace Conditional with Polymorphism、Replace Parameter with Explicit Methods、Introduce Null Object |
+| **Temporary Field（暫時欄位）** | 只在某些情況下有值的欄位 | Extract Class、Introduce Null Object |
+| **Refused Bequest（被拒絕的遺產）** | 子類別不使用繼承的方法/資料 | Replace Inheritance with Delegation、Push Down Method/Field |
+| **Alternative Classes with Different Interfaces（介面不同的替代類別）** | 做相同事情但有不同介面的類別 | Rename Method、Move Method、Extract Superclass |
+| **Parallel Inheritance Hierarchies（平行繼承階層）** | 每次建立一個類別的子類別就需要建立另一個類別的子類別 | Move Method、Move Field 合併階層 |
+
+#### 3. 變更阻礙者（Change Preventers）
+
+| 異味 | 說明 | 重構方式 |
+|------|------|---------|
+| **Divergent Change（發散式變更）** | 一個類別因不同原因經常被修改 | Extract Class 分離不同的關注點 |
+| **Shotgun Surgery（散彈槍手術）** | 一個變更需要修改多個類別 | Move Method、Move Field、Inline Class 合併相關行為 |
+| **Parallel Inheritance Hierarchies（平行繼承階層）** | 每次建立一個類別的子類別就需要建立另一個 | Move Method、Move Field |
+
+#### 4. 可有可無者（Dispensables）
+
+| 異味 | 說明 | 重構方式 |
+|------|------|---------|
+| **Lazy Class（懶惰類別）** | 做太少事的類別 | Inline Class、Collapse Hierarchy |
+| **Data Class（資料類別）** | 只有欄位和 getter/setter 的類別 | Move Method、Encapsulate Field、Encapsulate Collection |
+| **Duplicate Code（重複程式碼）** | 相同程式碼在多處出現 | Extract Method、Extract Class、Pull Up Method、Form Template Method |
+| **Dead Code（死碼）** | 未使用的程式碼 | 刪除未使用的程式碼 |
+| **Speculative Generality（推測式通用性）** | 為「未來可能需要」建立的未使用抽象 | Collapse Hierarchy、Inline Class、Remove Parameter、Rename Method |
+| **Comments（註解）** | 用於解釋難懂程式碼的過多註解 | Extract Method、Rename Method、Introduce Assertion（讓程式碼自我說明） |
+
+#### 5. 耦合者（Couplers）
+
+| 異味 | 說明 | 重構方式 |
+|------|------|---------|
+| **Feature Envy（功能嫉妒）** | 方法過度使用另一個類別的資料 | Move Method、Extract Method |
+| **Inappropriate Intimacy（不當親密）** | 類別過度存取彼此的內部 | Move Method、Move Field、Change Bidirectional to Unidirectional、Extract Class、Hide Delegate |
+| **Message Chains（訊息鏈）** | 一連串的 getThis().getThat().getOther() | Hide Delegate、Extract Method、Move Method |
+| **Middle Man（中間人）** | 類別的大部分方法只是委派給另一個類別 | Remove Middle Man、Inline Method、Replace Delegation with Inheritance |
+| **Incomplete Library Class（不完整的函式庫類別）** | 函式庫類別缺少你需要的功能 | Introduce Foreign Method、Introduce Local Extension |
+
+#### 快速診斷表
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              程式碼異味快速診斷                                    │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  症狀                          可能的異味                        │
+│  ─────────────────────────────────────────────                  │
+│  方法太長（>20 行）             Long Method                      │
+│  類別太大（>200 行）            Large Class                      │
+│  太多參數（>4 個）              Long Parameter List              │
+│  重複程式碼                     Duplicate Code                   │
+│  複雜的 if/else 或 switch       Switch Statements                │
+│  過度使用基本型別               Primitive Obsession              │
+│  一個變更影響多處               Shotgun Surgery                  │
+│  一個類別因多種原因變更         Divergent Change                 │
+│  方法使用別的類別資料           Feature Envy                     │
+│  長串的方法呼叫                 Message Chains                   │
+│  類別只委派給另一個類別         Middle Man                       │
+│  只有 getter/setter 的類別     Data Class                       │
+│  未使用的程式碼或類別           Dead Code / Lazy Class           │
+│  解釋程式碼的大量註解           Comments                         │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ## TDD 中的測試替身
@@ -875,6 +955,7 @@ test('should send confirmation email after successful payment', async () => {
 
 ## 相關標準
 
+- [重構標準](refactoring-standards.md) - 完整重構指南（遺留程式碼策略、大規模模式、度量指標）
 - [測試標準](testing-standards.md) - 核心測試標準（UT/IT/ST/E2E）（或使用 `/testing-guide` 技能）
 - [測試完整性維度](test-completeness-dimensions.md) - 7 維度框架
 - [規格驅動開發](spec-driven-development.md) - SDD 工作流程
@@ -911,6 +992,7 @@ test('should send confirmation email after successful payment', async () => {
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.1.0 | 2026-01-12 | 新增：完整程式碼異味目錄（22+ 種異味，分為 5 大類別），基於 Martin Fowler《Refactoring》第二版 |
 | 1.0.0 | 2026-01-07 | 初始 TDD 標準定義 |
 
 ---

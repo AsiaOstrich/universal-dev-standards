@@ -1,8 +1,8 @@
 ---
 source: core/code-review-checklist.md
-source_version: 1.2.0
-translation_version: 1.2.0
-last_synced: 2026-01-05
+source_version: 1.3.0
+translation_version: 1.3.0
+last_synced: 2026-01-12
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../core/code-review-checklist.md) | 繁體中文
 
-**版本**: 1.2.0
-**最後更新**: 2026-01-05
+**版本**: 1.3.0
+**最後更新**: 2026-01-12
 **適用範圍**: 所有進行程式碼審查的軟體專案
 
 ---
@@ -518,10 +518,44 @@ jobs:
 
 ### 重構 PR
 
-- Verify no functional changes
-- Check test coverage unchanged
-- Ensure readability improved
-- Consider "before/after" comparison
+重構變更需要特別注意，以確保行為保持不變的同時改善程式碼品質。
+
+#### 審查前檢查清單
+
+- [ ] **範圍已記錄**：PR 描述中清楚說明重構範圍
+- [ ] **純重構**：沒有功能變更混入重構
+- [ ] **測試通過**：重構前後所有測試皆通過
+- [ ] **覆蓋率維持**：測試覆蓋率未下降
+
+#### 審查重點
+
+- [ ] **程式碼異味已處理**：修復了哪些異味？（Long Method、Duplicate Code 等）
+- [ ] **重構模式正確**：是否套用了正確的技術？
+- [ ] **命名改善**：新名稱是否有意義且一致？
+- [ ] **複雜度降低**：程式碼是否可量化地更簡單？（考慮 cyclomatic complexity）
+- [ ] **耦合降低**：依賴關係是否更清晰？
+
+#### 大型重構（>500 行變更）
+
+- [ ] **計畫已記錄**：連結到重構計畫或設計文件
+- [ ] **增量提交**：每個 commit 可獨立審查
+- [ ] **回滾策略**：如何在問題發生時復原？
+- [ ] **效能評估**：是否影響執行時期效能？
+- [ ] **特徵測試**：遺留程式碼已受行為捕捉測試保護
+
+#### 警示信號
+
+- ❗ **隱藏新功能**：功能變更偽裝成重構
+- ❗ **測試行為變更**：斷言被修改而非保留
+- ❗ **缺少文件**：沒有說明改了什麼或為什麼改
+- ❗ **無關變更**：格式修正混入邏輯重構
+
+#### 最佳實踐
+
+- 偏好**多個小 PR** 而非一個大型重構 PR
+- PR 標題使用 **[Refactor]** 前綴以便篩選
+- 包含**重構前後**的程式碼片段或複雜度指標
+- 參考所處理的**程式碼異味**（例如：「修復 UserService.process() 中的 Long Method」）
 
 ---
 
@@ -626,6 +660,7 @@ Comment Prefixes:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-01-12 | 新增：完整重構 PR 段落，包含審查前檢查清單、審查重點、大型重構指南、警示信號及最佳實踐 |
 | 1.2.0 | 2026-01-05 | 新增：SWEBOK v4.0 第 10 章（軟體品質）至參考資料 |
 | 1.1.0 | 2025-12-22 | Added: Alternative text labels section for review comments (中文標籤支援) |
 | 1.0.3 | 2025-12-16 | Clarified: CHANGELOG section aligned with changelog-standards.md, use markdown links for cross-references |
@@ -637,6 +672,7 @@ Comment Prefixes:
 
 ## 相關標準
 
+- [Refactoring Standards](refactoring-standards.md) - 重構標準（遺留程式碼策略、大規模模式、度量指標）
 - [Testing Standards](testing-standards.md) - 測試標準 (UT/IT/ST/E2E)（或使用 `/testing-guide` 技能）
 - [Code Check-in Standards](checkin-standards.md) - 程式碼簽入標準
 - [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範

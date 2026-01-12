@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/code-review-checklist.md)
 
-**Version**: 1.2.0
-**Last Updated**: 2026-01-05
+**Version**: 1.3.0
+**Last Updated**: 2026-01-12
 **Applicability**: All software projects with code review processes
 
 ---
@@ -510,10 +510,44 @@ jobs:
 
 ### Refactoring PRs
 
-- Verify no functional changes
-- Check test coverage unchanged
-- Ensure readability improved
-- Consider "before/after" comparison
+Refactoring changes require special attention to ensure behavior is preserved while code quality improves.
+
+#### Pre-Review Checklist
+
+- [ ] **Scope documented**: Refactoring scope clearly stated in PR description
+- [ ] **Pure refactoring**: No functional changes mixed with refactoring
+- [ ] **Tests pass**: All tests pass before AND after refactoring
+- [ ] **Coverage maintained**: Test coverage not decreased
+
+#### Review Focus Areas
+
+- [ ] **Code smells addressed**: Which smells were fixed? (Long Method, Duplicate Code, etc.)
+- [ ] **Refactoring pattern correct**: Was the appropriate technique applied?
+- [ ] **Naming improved**: Are new names meaningful and consistent?
+- [ ] **Complexity reduced**: Is the code measurably simpler? (Consider cyclomatic complexity)
+- [ ] **Coupling reduced**: Are dependencies cleaner?
+
+#### Large Refactoring (>500 lines changed)
+
+- [ ] **Plan documented**: Link to refactoring plan or design doc
+- [ ] **Incremental commits**: Each commit is reviewable independently
+- [ ] **Rollback strategy**: How to revert if issues arise?
+- [ ] **Performance assessed**: Any impact on runtime performance?
+- [ ] **Characterization tests**: Legacy code protected by behavior-capturing tests
+
+#### Red Flags
+
+- ❗ **New features hidden**: Functional changes disguised as refactoring
+- ❗ **Test behavior changed**: Assertions modified rather than preserved
+- ❗ **Missing documentation**: No explanation of what changed or why
+- ❗ **Unrelated changes**: Formatting fixes mixed with logic refactoring
+
+#### Best Practices
+
+- Prefer **multiple small PRs** over one large refactoring PR
+- Use **[Refactor]** prefix in PR title for easy filtering
+- Include **before/after** code snippets or complexity metrics
+- Reference the **code smell** being addressed (e.g., "Fixes Long Method in UserService.process()")
 
 ---
 
@@ -618,6 +652,7 @@ Comment Prefixes:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-01-12 | Added: Comprehensive Refactoring PRs section with pre-review checklist, review focus areas, large refactoring guidelines, red flags, and best practices |
 | 1.2.0 | 2026-01-05 | Added: SWEBOK v4.0 Chapter 10 (Software Quality) to References |
 | 1.1.0 | 2025-12-22 | Added: Alternative text labels section for review comments (Chinese label support) |
 | 1.0.3 | 2025-12-16 | Clarified: CHANGELOG section aligned with changelog-standards.md, use markdown links for cross-references |

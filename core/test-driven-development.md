@@ -1,7 +1,7 @@
 # Test-Driven Development (TDD) Standards
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-07
+**Version**: 1.1.0
+**Last Updated**: 2026-01-12
 **Applicability**: All projects adopting Test-Driven Development
 
 > **Language**: [English](../core/test-driven-development.md) | [繁體中文](../locales/zh-TW/core/test-driven-development.md)
@@ -622,14 +622,93 @@ Ensure tests cover all seven dimensions from [Test Completeness Dimensions](test
 
 ### When to Refactor
 
-Refactor when you see:
+Refactor when you see code smells. Use the comprehensive catalog below to identify issues and their solutions.
 
-- **Duplication**: Same code in multiple places
-- **Long Methods**: Functions doing too much
-- **Poor Names**: Unclear variable/function names
-- **Complex Conditionals**: Nested if/else chains
-- **Feature Envy**: Method using another class's data extensively
-- **Data Clumps**: Same group of data appearing together
+### Code Smell Catalog
+
+Based on Martin Fowler's "Refactoring" (2nd Edition), code smells are grouped into five categories:
+
+#### 1. Bloaters
+
+Code that has grown too large and becomes difficult to work with.
+
+| Smell | Description | Refactoring |
+|-------|-------------|-------------|
+| **Long Method** | Method >20 lines, doing too much | Extract Method, Replace Temp with Query, Introduce Parameter Object |
+| **Large Class** | Class with too many responsibilities | Extract Class, Extract Subclass, Extract Interface |
+| **Primitive Obsession** | Using primitives instead of small objects for simple tasks | Replace Primitive with Object, Replace Type Code with Class, Introduce Parameter Object |
+| **Long Parameter List** | More than 3 parameters | Introduce Parameter Object, Preserve Whole Object, Replace Parameter with Method Call |
+| **Data Clumps** | Same group of data appearing together in multiple places | Extract Class, Introduce Parameter Object, Preserve Whole Object |
+
+#### 2. Object-Orientation Abusers
+
+Incomplete or incorrect application of OO principles.
+
+| Smell | Description | Refactoring |
+|-------|-------------|-------------|
+| **Switch Statements** | Complex switch/if-else chains based on type | Replace Conditional with Polymorphism, Replace Type Code with Strategy, Replace Type Code with State |
+| **Temporary Field** | Fields only set in certain circumstances | Extract Class, Introduce Null Object, Introduce Special Case |
+| **Refused Bequest** | Subclass doesn't use inherited methods | Push Down Method, Push Down Field, Replace Inheritance with Delegation |
+| **Alternative Classes with Different Interfaces** | Classes doing the same thing with different method signatures | Rename Method, Move Method, Extract Superclass |
+| **Parallel Inheritance Hierarchies** | Creating subclass requires creating another in a different hierarchy | Move Method, Move Field |
+
+#### 3. Change Preventers
+
+Code that makes changes harder than necessary.
+
+| Smell | Description | Refactoring |
+|-------|-------------|-------------|
+| **Divergent Change** | One class changed for many different reasons | Extract Class, Split Phase |
+| **Shotgun Surgery** | One change requires modifying many classes | Move Method, Move Field, Inline Function, Inline Class |
+| **Parallel Inheritance Hierarchies** | (See above) | Move Method, Move Field |
+
+#### 4. Dispensables
+
+Unnecessary code that could be removed.
+
+| Smell | Description | Refactoring |
+|-------|-------------|-------------|
+| **Comments** | Excessive comments hiding bad code | Extract Method, Rename Method, Introduce Assertion |
+| **Duplicate Code** | Same or similar code in multiple places | Extract Method, Pull Up Method, Extract Class, Slide Statements |
+| **Dead Code** | Unused code (variables, methods, classes) | Remove Dead Code |
+| **Lazy Class** | Class doing too little to justify its existence | Inline Class, Collapse Hierarchy |
+| **Speculative Generality** | Unused abstraction "for future use" | Collapse Hierarchy, Inline Function, Inline Class, Remove Dead Code |
+| **Data Class** | Class with only fields and getters/setters | Move Method, Encapsulate Field, Encapsulate Collection |
+
+#### 5. Couplers
+
+Code with excessive coupling between classes.
+
+| Smell | Description | Refactoring |
+|-------|-------------|-------------|
+| **Feature Envy** | Method uses another class's data more than its own | Move Method, Extract Method |
+| **Inappropriate Intimacy** | Classes too tightly coupled, accessing each other's private parts | Move Method, Move Field, Hide Delegate, Replace Delegation with Inheritance |
+| **Message Chains** | `a.getB().getC().getD().getValue()` | Hide Delegate, Extract Method, Move Method |
+| **Middle Man** | Class just delegates to another | Remove Middle Man, Inline Function, Replace Superclass with Delegate |
+
+### Code Smell Detection Checklist
+
+Quick checklist to identify common smells:
+
+```
+Method/Function Level:
+□ Method > 20 lines? → Extract Method
+□ > 3 parameters? → Introduce Parameter Object
+□ Deeply nested (> 3 levels)? → Extract Method, Replace Nested Conditional with Guard Clauses
+□ Multiple return statements? → Consider refactoring
+
+Class Level:
+□ Class > 200 lines? → Extract Class
+□ > 10 methods? → Consider splitting responsibilities
+□ God class (does everything)? → Extract Class
+□ Data class (only fields)? → Move behavior in
+
+Code Patterns:
+□ Switch on type? → Replace with Polymorphism
+□ Copy-paste code? → Extract Method/Class
+□ Unused code? → Delete it
+□ Magic numbers? → Replace with Named Constant
+```
 
 ### Safe Refactoring Checklist
 
@@ -904,6 +983,7 @@ Team TDD Assessment:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-12 | Added: Comprehensive Code Smell Catalog (22+ smells in 5 categories based on Martin Fowler's Refactoring 2nd Ed.), Code Smell Detection Checklist |
 | 1.0.0 | 2026-01-07 | Initial TDD standard definition |
 
 ---
