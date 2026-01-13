@@ -244,12 +244,78 @@ When using AI assistants (Claude Code, Cursor, etc.) with this project:
 - Modify translated files without updating source files
 - Skip the code review checklist for PRs
 - Introduce language-specific or framework-specific content in core standards
+- Make claims about code without reading it first (see Anti-Hallucination Standards)
+- Commit code without running tests first
 
 ### Project-Specific Context:
 - This project uses ES Modules (not CommonJS)
 - All core standards should remain language/framework agnostic
 - Bilingual documentation is required (English primary, zh-TW translation)
 - CLI tool is the primary code component; most content is Markdown
+
+### Anti-Hallucination Standards / 反幻覺規範
+
+When working on this project, AI assistants MUST follow [core/anti-hallucination.md](core/anti-hallucination.md):
+
+| Requirement | Description |
+|-------------|-------------|
+| **Evidence-Based** | Only analyze content that has been explicitly read |
+| **Source Attribution** | Use `[Source: Code]`, `[Source: Docs]` tags with file:line references |
+| **Certainty Classification** | Use `[Confirmed]`, `[Inferred]`, `[Assumption]`, `[Unknown]` tags |
+| **Recommendations** | Always include recommended option with reasoning when presenting choices |
+| **No Fabrication** | Never invent APIs, configs, or requirements without verification |
+
+### Code Review Standards / 程式碼審查規範
+
+When reviewing code or PRs, follow [core/code-review-checklist.md](core/code-review-checklist.md):
+
+**Review Checklist Categories:**
+1. Functionality - Does it work correctly?
+2. Design & Architecture - Follows project patterns?
+3. Code Quality - Clean, DRY, SOLID?
+4. Readability - Easy to understand?
+5. Testing - Adequate coverage?
+6. Security - No vulnerabilities?
+7. Performance - Efficient?
+8. Error Handling - Properly handled?
+9. Documentation - Updated?
+10. Dependencies - Justified?
+
+**Comment Prefixes:**
+
+| Prefix | Meaning |
+|--------|---------|
+| ❗ BLOCKING | Must fix before merge |
+| ⚠️ IMPORTANT | Should fix |
+| 💡 SUGGESTION | Nice-to-have |
+| ❓ QUESTION | Need clarification |
+
+### Testing Standards / 測試規範
+
+For testing requirements, follow [core/testing-standards.md](core/testing-standards.md):
+
+**Testing Pyramid (Default Ratios):**
+
+| Level | Ratio | Purpose |
+|-------|-------|---------|
+| Unit Tests (UT) | 70% | Test individual functions/methods |
+| Integration Tests (IT) | 20% | Test component interactions |
+| E2E Tests | 10% | Test user workflows |
+
+**Key Requirements:**
+- All new features must have corresponding tests
+- Run `npm test` before committing
+- Maintain or improve test coverage
+- Use descriptive test names following `should_[expected]_when_[condition]` pattern
+
+### Standards Compliance Reference / 規範合規參考
+
+| Task | MUST Follow | Reference |
+|------|-------------|-----------|
+| Code analysis | Anti-hallucination | [core/anti-hallucination.md](core/anti-hallucination.md) |
+| PR review | Code Review Checklist | [core/code-review-checklist.md](core/code-review-checklist.md) |
+| Adding features | Testing Standards | [core/testing-standards.md](core/testing-standards.md) |
+| Any commit | Check-in Standards | [core/checkin-standards.md](core/checkin-standards.md) |
 
 ---
 
