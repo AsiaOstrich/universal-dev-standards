@@ -1,9 +1,9 @@
 ---
 source: ../../../docs/OPERATION-WORKFLOW.md
-source_version: 1.0.0
-translation_version: 1.0.0
+source_version: 1.1.0
+translation_version: 1.1.0
 status: current
-last_updated: 2026-01-10
+last_updated: 2026-01-13
 translator: Claude
 ---
 
@@ -11,8 +11,8 @@ translator: Claude
 
 > **Language**: [English](../../../docs/OPERATION-WORKFLOW.md) | [繁體中文](../../zh-TW/docs/OPERATION-WORKFLOW.md) | 简体中文
 
-**版本**: 1.0.0
-**最后更新**: 2026-01-10
+**版本**: 1.1.0
+**最后更新**: 2026-01-13
 
 本文档提供 Universal Development Standards (UDS) 项目的完整作业流程，涵盖从核心规范到文件生成的所有流程。
 
@@ -690,21 +690,148 @@ options/commit-message/english.md ↔ ai/options/commit-message/english.ai.yaml
 
 ### 8.3 新增 AI 工具集成
 
-**完整流程（6 步骤）：**
+**完整流程（14 步骤）：**
 
 ```
-步骤 1：创建 integrations/[tool-name]/ 目录
+阶段 1：研究与规划（3 步骤）
+步骤 1：研究目标工具的指令格式与功能
+步骤 2：识别相较于 Claude Code 的限制
+步骤 3：创建 Skills 对照计划（哪些 Claude Code 功能要迁移）
         ↓
-步骤 2：创建含安装指南的 README.md
+阶段 2：核心文件 - 4 文件模式（4 步骤）
+步骤 4：创建 integrations/[tool-name]/ 目录
+步骤 5：创建 README.md（安装指南、限制说明、功能比较）
+步骤 6：创建 [tool]-instructions.md（主要 AI 指令）
+步骤 7：创建 CHAT-REFERENCE.md（适用于无斜线命令的工具）
+步骤 8：创建 skills-mapping.md（Claude Code → 工具功能对照）
         ↓
-步骤 3：创建工具特定配置文件
+阶段 3：翻译（2 步骤）
+步骤 9：创建 locales/zh-TW/integrations/[tool-name]/（4 个文件）
+步骤 10：创建 locales/zh-CN/integrations/[tool-name]/（4 个文件）
         ↓
-步骤 4：更新 integration-generator.js（如需动态生成）
+阶段 4：集成更新（3 步骤）
+步骤 11：更新 integration-generator.js（如需 CLI 动态生成）
+步骤 12：更新 skills/[tool]/ 精简版（如存在）
+步骤 13：更新相关文档（README.md 等）
         ↓
-步骤 5：创建翻译（可选）
-        ↓
-步骤 6：更新文档
+阶段 5：验证（1 步骤）
+步骤 14：执行所有验证脚本
 ```
+
+#### 4 文件模式（必要结构）
+
+完整的 AI 工具集成需创建这 4 个文件：
+
+| 文件 | 用途 | 必要 |
+|------|------|------|
+| `README.md` | 安装指南、快速开始、限制说明、功能比较 | ✅ 必要 |
+| `[tool]-instructions.md` | 工具的主要 AI 指令 | ✅ 必要 |
+| `CHAT-REFERENCE.md` | Chat 提示模板（适用于无斜线命令的工具） | ⚠️ 视情况 |
+| `skills-mapping.md` | Claude Code → 工具功能对照 | ✅ 必要 |
+
+**示例：**
+```
+integrations/github-copilot/
+├── README.md                    # 集成概述
+├── copilot-instructions.md      # 主要指令
+├── COPILOT-CHAT-REFERENCE.md    # Chat 提示模板
+└── skills-mapping.md            # Skills 迁移指南
+```
+
+#### README.md 模板
+
+```markdown
+# [工具名称] 集成
+
+## 概述
+[简要说明]
+
+## 快速开始
+
+### 方式 1：从仓库复制
+### 方式 2：使用 curl 下载
+### 方式 3：使用 UDS CLI
+
+## 配置方式
+[IDE 特定设置：VS Code、JetBrains 等]
+
+## 限制说明
+[与 Claude Code 和其他工具的功能比较表]
+
+## 包含的规范
+[集成中包含的规范表格]
+
+## 验证集成
+[如何验证集成是否正常工作]
+
+## 相关规范
+## 版本历史
+## 许可
+```
+
+#### Skills 对照方法论
+
+将 Claude Code 功能迁移到其他工具时：
+
+| Claude Code 功能 | 迁移策略 |
+|------------------|----------|
+| Skills（18 个） | → 指令文件中的专用章节 |
+| 斜线命令（16 个） | → CHAT-REFERENCE.md 中的 Chat 提示模板 |
+| MCP 支持 | → 记录为限制，建议替代方案 |
+| 全局配置 | → 记录为限制 |
+| 自动触发关键字 | → 建议使用 IDE 代码片段/快捷键作为替代 |
+| 方法论跟踪 | → 记录为限制，建议手动跟踪 |
+
+#### 翻译要求
+
+每个集成需要 8 个翻译文件（每种语言 4 个）：
+
+**目录：**
+- `locales/zh-TW/integrations/[tool-name]/`（繁体中文）
+- `locales/zh-CN/integrations/[tool-name]/`（简体中文）
+
+**YAML 前置模板：**
+```yaml
+---
+source: ../../../../integrations/[tool-name]/[file].md
+source_version: X.Y.Z
+translation_version: X.Y.Z
+last_synced: YYYY-MM-DD
+status: current
+---
+```
+
+#### 验证检查清单
+
+完成集成后，验证：
+
+```bash
+# 翻译同步检查
+./scripts/check-translation-sync.sh
+./scripts/check-translation-sync.sh zh-CN
+
+# 标准一致性检查
+./scripts/check-standards-sync.sh
+
+# CLI 测试（如修改了 integration-generator.js）
+cd cli && npm test && npm run lint
+
+# 完整预发布检查
+./scripts/pre-release-check.sh
+```
+
+#### 功能比较表模板
+
+在 README.md 中包含此表格：
+
+| 功能 | [新工具] | Claude Code | 其他工具 |
+|------|----------|-------------|----------|
+| 项目指令 | ✅/❌ | ✅ | ... |
+| 全局配置 | ✅/❌ | ✅ | ... |
+| 斜线命令 | ✅/❌ | ✅（18 个 skills） | ... |
+| MCP 支持 | ✅/❌ | ✅ | ... |
+| 自定义 skills | ✅/❌ | ✅ | ... |
+| 多文件上下文 | ✅/❌ | ✅ | ... |
 
 ---
 

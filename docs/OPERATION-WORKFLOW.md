@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/docs/OPERATION-WORKFLOW.md) | [简体中文](../locales/zh-CN/docs/OPERATION-WORKFLOW.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-10
+**Version**: 1.1.0
+**Last Updated**: 2026-01-13
 
 This document provides a complete operation workflow for the Universal Development Standards (UDS) project, covering the entire process from core standards to file generation.
 
@@ -681,21 +681,148 @@ Step 7: Run verification scripts
 
 ### 8.3 Adding a New AI Tool Integration
 
-**Complete Flow (6 steps):**
+**Complete Flow (14 steps):**
 
 ```
-Step 1: Create integrations/[tool-name]/ directory
+Phase 1: Research & Planning (3 steps)
+Step 1: Research target tool's instruction format and capabilities
+Step 2: Identify tool limitations compared to Claude Code
+Step 3: Create skills mapping plan (which Claude Code features to migrate)
         ↓
-Step 2: Create README.md with installation guide
+Phase 2: Core Files - 4-File Pattern (4 steps)
+Step 4: Create integrations/[tool-name]/ directory
+Step 5: Create README.md (installation guide, limitations, comparison)
+Step 6: Create [tool]-instructions.md (main AI instructions)
+Step 7: Create CHAT-REFERENCE.md (for tools without slash commands)
+Step 8: Create skills-mapping.md (Claude Code → tool feature mapping)
         ↓
-Step 3: Create tool-specific config file
+Phase 3: Translations (2 steps)
+Step 9: Create locales/zh-TW/integrations/[tool-name]/ (4 files)
+Step 10: Create locales/zh-CN/integrations/[tool-name]/ (4 files)
         ↓
-Step 4: Update integration-generator.js (if dynamic generation needed)
+Phase 4: Integration Updates (3 steps)
+Step 11: Update integration-generator.js (if CLI dynamic generation needed)
+Step 12: Update skills/[tool]/ quick version (if exists)
+Step 13: Update related documentation (README.md, etc.)
         ↓
-Step 5: Create translations (optional)
-        ↓
-Step 6: Update documentation
+Phase 5: Verification (1 step)
+Step 14: Run all verification scripts
 ```
+
+#### 4-File Pattern (Required Structure)
+
+For a complete AI tool integration, create these 4 files:
+
+| File | Purpose | Required |
+|------|---------|----------|
+| `README.md` | Installation, quick start, limitations, comparison | ✅ Yes |
+| `[tool]-instructions.md` | Main AI instructions for the tool | ✅ Yes |
+| `CHAT-REFERENCE.md` | Chat prompts (for tools without slash commands) | ⚠️ If applicable |
+| `skills-mapping.md` | Claude Code → tool feature mapping | ✅ Yes |
+
+**Example:**
+```
+integrations/github-copilot/
+├── README.md                    # Integration overview
+├── copilot-instructions.md      # Main instructions
+├── COPILOT-CHAT-REFERENCE.md    # Chat prompt templates
+└── skills-mapping.md            # Skills migration guide
+```
+
+#### README.md Template
+
+```markdown
+# [Tool Name] Integration
+
+## Overview
+[Brief description]
+
+## Quick Start
+
+### Option 1: Copy from repository
+### Option 2: Download via curl
+### Option 3: Use UDS CLI
+
+## Configuration
+[IDE-specific setup: VS Code, JetBrains, etc.]
+
+## Limitations
+[Feature comparison table with Claude Code and other tools]
+
+## Included Standards
+[Table of standards included in the integration]
+
+## Verification
+[How to verify the integration is working]
+
+## Related Standards
+## Version History
+## License
+```
+
+#### Skills Mapping Methodology
+
+When migrating Claude Code features to other tools:
+
+| Claude Code Feature | Migration Strategy |
+|---------------------|-------------------|
+| Skills (18) | → Dedicated sections in instructions file |
+| Slash commands (16) | → Chat prompt templates in CHAT-REFERENCE.md |
+| MCP support | → Document as limitation, suggest alternatives |
+| Global config | → Document as limitation |
+| Auto-trigger keywords | → Suggest IDE snippets/shortcuts as workaround |
+| Methodology tracking | → Document as limitation, suggest manual tracking |
+
+#### Translation Requirements
+
+Each integration requires 8 translation files (4 per language):
+
+**Directories:**
+- `locales/zh-TW/integrations/[tool-name]/` (Traditional Chinese)
+- `locales/zh-CN/integrations/[tool-name]/` (Simplified Chinese)
+
+**YAML Frontmatter Template:**
+```yaml
+---
+source: ../../../../integrations/[tool-name]/[file].md
+source_version: X.Y.Z
+translation_version: X.Y.Z
+last_synced: YYYY-MM-DD
+status: current
+---
+```
+
+#### Verification Checklist
+
+After completing the integration, verify:
+
+```bash
+# Translation sync check
+./scripts/check-translation-sync.sh
+./scripts/check-translation-sync.sh zh-CN
+
+# Standards consistency check
+./scripts/check-standards-sync.sh
+
+# CLI tests (if integration-generator.js was modified)
+cd cli && npm test && npm run lint
+
+# Full pre-release check
+./scripts/pre-release-check.sh
+```
+
+#### Feature Comparison Table Template
+
+Include this table in README.md:
+
+| Feature | [New Tool] | Claude Code | Other Tools |
+|---------|------------|-------------|-------------|
+| Project instructions | ✅/❌ | ✅ | ... |
+| Global config | ✅/❌ | ✅ | ... |
+| Slash commands | ✅/❌ | ✅ (18 skills) | ... |
+| MCP support | ✅/❌ | ✅ | ... |
+| Custom skills | ✅/❌ | ✅ | ... |
+| Multi-file context | ✅/❌ | ✅ | ... |
 
 ---
 

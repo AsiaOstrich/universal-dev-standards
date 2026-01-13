@@ -1,13 +1,15 @@
 # Antigravity System Instructions
-# Antigravity 系統指令
+
+> **Language**: English | [繁體中文](../../locales/zh-TW/integrations/google-antigravity/INSTRUCTIONS.md) | [简体中文](../../locales/zh-CN/integrations/google-antigravity/INSTRUCTIONS.md)
+
+**Version**: 1.0.0
+**Last Updated**: 2026-01-09
 
 This document contains the recommended system instructions for Google Antigravity (Gemini Advanced Agent) to ensure compliance with Universal Doc Standards.
-本文件包含 Google Antigravity (Gemini Advanced Agent) 的推薦系統指令，以確保符合通用文件規範。
 
-## System Prompt Snippet | 系統提示詞片段
+## System Prompt Snippet
 
 Add the following to your agent's system instructions or global context:
-請將以下內容新增至您的代理系統指令或全域上下文中：
 
 ```markdown
 <universal_doc_standards_compliance>
@@ -31,7 +33,7 @@ Reference: `core/spec-driven-development.md`
 ### Core Protocol: Anti-Hallucination
 Reference: `core/anti-hallucination.md`
 
-1. **Evidence-Based Analysis**: 
+1. **Evidence-Based Analysis**:
    - You must read files before analyzing them.
    - Do not guess APIs, class names, or library versions.
    - If you haven't seen the code, state "I need to read [file] to confirm".

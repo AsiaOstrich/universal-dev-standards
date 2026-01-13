@@ -1,13 +1,15 @@
 # Spec Kit Instructions
-# Spec Kit 指令
+
+> **Language**: English | [繁體中文](../../locales/zh-TW/integrations/spec-kit/AGENTS.md) | [简体中文](../../locales/zh-CN/integrations/spec-kit/AGENTS.md)
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-30
 
 Instructions for AI coding assistants using Spec Kit for spec-driven development.
-使用 Spec Kit 進行規格驅動開發的 AI 編程助手指令。
 
-## Usage | 使用方式
+## Usage
 
 Copy this file to your project or include in your AI assistant's system instructions.
-將此檔案複製到您的專案，或納入 AI 助手的系統指令中。
 
 ---
 
