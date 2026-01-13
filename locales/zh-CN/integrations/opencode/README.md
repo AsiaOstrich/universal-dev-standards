@@ -1,7 +1,7 @@
 ---
 source: ../../../../integrations/opencode/README.md
-source_version: 1.0.0
-translation_version: 1.0.0
+source_version: 1.2.0
+translation_version: 1.2.0
 last_synced: 2026-01-13
 status: current
 ---
@@ -18,6 +18,9 @@ OpenCode 是开源 AI 编码代理，可作为终端界面、桌面应用或 IDE
 
 - **[AGENTS.md](./AGENTS.md)**（必要）：
   项目级规则文件，OpenCode 会自动加载。
+
+- **[skills-mapping.md](./skills-mapping.md)**（参考）：
+  将所有 18 个 Claude Code 技能对应到 OpenCode 等效方式。
 
 - **[opencode.json](../../../../integrations/opencode/opencode.json)**（可选）：
   配置示例，包含权限设置和自定义 agent。
@@ -72,6 +75,64 @@ OpenCode 的规则合并机制：
 | 全局 + 项目规则同时存在 | **合并**两者，项目规则优先 |
 | 配置文件（opencode.json） | **合并**，只有冲突的键才覆盖 |
 
+## 配置选项
+
+### opencode.json
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md", "CONTRIBUTING.md"],
+  "permission": {
+    "edit": "ask",
+    "bash": "ask"
+  },
+  "agent": {
+    "code-reviewer": {
+      "description": "Reviews code following standards",
+      "mode": "subagent",
+      "tools": {"write": false, "edit": false}
+    }
+  }
+}
+```
+
+**关键选项**：
+- `instructions`：引用额外规则文件（适用于 monorepo）
+- `permission`：编辑和 bash 命令需用户确认
+- `agent`：定义具有特定能力的自定义 agent
+
+---
+
+## Skills 兼容性
+
+OpenCode **完全兼容** Claude Code 技能。所有 18 个 UDS 技能无需修改即可使用。
+
+### 配置对照
+
+| Claude Code | OpenCode |
+|-------------|----------|
+| `CLAUDE.md` | `AGENTS.md` |
+| `.claude/skills/` | `.opencode/skill/`（也读取 `.claude/skills/`） |
+| `settings.json` | `opencode.json` |
+
+### 技能搜索顺序
+
+OpenCode 按以下顺序搜索技能：
+1. `.opencode/skill/<name>/SKILL.md`（项目）
+2. `~/.config/opencode/skill/<name>/SKILL.md`（全局）
+3. **`.claude/skills/<name>/SKILL.md`**（Claude 兼容 ✅）
+
+### 快速验证
+
+```bash
+# 在 OpenCode 中测试技能加载
+opencode
+/commit  # 应加载 commit-standards 技能
+```
+
+完整技能对照和安装方法，请参阅 **[skills-mapping.md](./skills-mapping.md)**
+
 ---
 
 ## 相关规范
@@ -86,6 +147,8 @@ OpenCode 的规则合并机制：
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.2.0 | 2026-01-13 | 新增 skills-mapping.md；简化 README |
+| 1.1.0 | 2026-01-13 | 新增 Claude Code 迁移指南 |
 | 1.0.0 | 2026-01-09 | 初始 OpenCode 集成 |
 
 ---

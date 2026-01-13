@@ -1,7 +1,7 @@
 ---
 source: ../../../../integrations/opencode/README.md
-source_version: 1.0.0
-translation_version: 1.0.0
+source_version: 1.2.0
+translation_version: 1.2.0
 last_synced: 2026-01-13
 status: current
 ---
@@ -18,6 +18,9 @@ OpenCode 是開源 AI 編碼代理，可作為終端介面、桌面應用或 IDE
 
 - **[AGENTS.md](./AGENTS.md)**（必要）：
   專案級規則檔，OpenCode 會自動載入。
+
+- **[skills-mapping.md](./skills-mapping.md)**（參考）：
+  將所有 18 個 Claude Code 技能對應到 OpenCode 等效方式。
 
 - **[opencode.json](../../../../integrations/opencode/opencode.json)**（可選）：
   配置範例，包含權限設定和自訂 agent。
@@ -72,6 +75,64 @@ OpenCode 的規則合併機制：
 | 全域 + 專案規則同時存在 | **合併**兩者，專案規則優先 |
 | 配置檔（opencode.json） | **合併**，只有衝突的鍵才覆蓋 |
 
+## 配置選項
+
+### opencode.json
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md", "CONTRIBUTING.md"],
+  "permission": {
+    "edit": "ask",
+    "bash": "ask"
+  },
+  "agent": {
+    "code-reviewer": {
+      "description": "Reviews code following standards",
+      "mode": "subagent",
+      "tools": {"write": false, "edit": false}
+    }
+  }
+}
+```
+
+**關鍵選項**：
+- `instructions`：引用額外規則檔（適用於 monorepo）
+- `permission`：編輯和 bash 指令需使用者確認
+- `agent`：定義具有特定能力的自訂 agent
+
+---
+
+## Skills 相容性
+
+OpenCode **完全相容** Claude Code 技能。所有 18 個 UDS 技能無需修改即可使用。
+
+### 配置對照
+
+| Claude Code | OpenCode |
+|-------------|----------|
+| `CLAUDE.md` | `AGENTS.md` |
+| `.claude/skills/` | `.opencode/skill/`（也讀取 `.claude/skills/`） |
+| `settings.json` | `opencode.json` |
+
+### 技能搜索順序
+
+OpenCode 按以下順序搜索技能：
+1. `.opencode/skill/<name>/SKILL.md`（專案）
+2. `~/.config/opencode/skill/<name>/SKILL.md`（全域）
+3. **`.claude/skills/<name>/SKILL.md`**（Claude 相容 ✅）
+
+### 快速驗證
+
+```bash
+# 在 OpenCode 中測試技能載入
+opencode
+/commit  # 應載入 commit-standards 技能
+```
+
+完整技能對照和安裝方法，請參閱 **[skills-mapping.md](./skills-mapping.md)**
+
 ---
 
 ## 相關標準
@@ -86,6 +147,8 @@ OpenCode 的規則合併機制：
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.2.0 | 2026-01-13 | 新增 skills-mapping.md；簡化 README |
+| 1.1.0 | 2026-01-13 | 新增 Claude Code 遷移指南 |
 | 1.0.0 | 2026-01-09 | 初始 OpenCode 整合 |
 
 ---

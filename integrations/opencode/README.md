@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/opencode/README.md) | [简体中文](../../locales/zh-CN/integrations/opencode/README.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-09
+**Version**: 1.2.0
+**Last Updated**: 2026-01-13
 
 This directory provides resources for integrating Universal Dev Standards with OpenCode.
 
@@ -15,6 +15,9 @@ OpenCode is an open-source AI coding agent that can run as a terminal interface,
 
 - **[AGENTS.md](./AGENTS.md)** (Required):
   Project-level rules file, automatically loaded by OpenCode.
+
+- **[skills-mapping.md](./skills-mapping.md)** (Reference):
+  Maps all 18 Claude Code skills to OpenCode equivalents.
 
 - **[opencode.json](./opencode.json)** (Optional):
   Configuration example with permission settings and custom agents.
@@ -98,6 +101,37 @@ OpenCode's rule merging mechanism:
 
 ---
 
+## Skills Compatibility
+
+OpenCode is **fully compatible** with Claude Code skills. All 18 UDS skills work without modification.
+
+### Configuration Mapping
+
+| Claude Code | OpenCode |
+|-------------|----------|
+| `CLAUDE.md` | `AGENTS.md` |
+| `.claude/skills/` | `.opencode/skill/` (also reads `.claude/skills/`) |
+| `settings.json` | `opencode.json` |
+
+### Skills Search Order
+
+OpenCode searches for skills in this order:
+1. `.opencode/skill/<name>/SKILL.md` (project)
+2. `~/.config/opencode/skill/<name>/SKILL.md` (global)
+3. **`.claude/skills/<name>/SKILL.md`** (Claude-compatible ✅)
+
+### Quick Verification
+
+```bash
+# Test skill loading in OpenCode
+opencode
+/commit  # Should load commit-standards skill
+```
+
+For complete skills mapping and installation methods, see **[skills-mapping.md](./skills-mapping.md)**
+
+---
+
 ## Related Standards
 
 - [Anti-Hallucination Standards](../../core/anti-hallucination.md)
@@ -110,6 +144,8 @@ OpenCode's rule merging mechanism:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-01-13 | Added skills-mapping.md; simplified README |
+| 1.1.0 | 2026-01-13 | Added Claude Code migration guide |
 | 1.0.0 | 2026-01-09 | Initial OpenCode integration |
 
 ---
