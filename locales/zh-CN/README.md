@@ -1,7 +1,7 @@
 ---
 source: ../../README.md
-source_version: 3.5.0-beta.12
-translation_version: 3.5.0-beta.12
+source_version: 3.5.0-beta.13
+translation_version: 3.5.0-beta.13
 last_synced: 2026-01-13
 status: current
 ---
@@ -10,7 +10,7 @@ status: current
 
 > **Language**: [English](../../README.md) | [繁體中文](../zh-TW/README.md) | 简体中文
 
-**版本**: 3.5.0-beta.12
+**版本**: 3.5.0-beta.13
 **最后更新**: 2026-01-13
 **授权**: [双重授权](../../LICENSE) (CC BY 4.0 + MIT)
 
@@ -117,7 +117,7 @@ npx universal-dev-standards init
 npm install -g universal-dev-standards@beta
 
 # 或安装特定版本
-npm install -g universal-dev-standards@3.5.0-beta.12
+npm install -g universal-dev-standards@3.5.0-beta.13
 
 # 或通过 npx
 npx universal-dev-standards@beta init

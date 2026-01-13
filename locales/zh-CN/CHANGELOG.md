@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.5.0-beta.12
-translation_version: 3.5.0-beta.12
+source_version: 3.5.0-beta.13
+translation_version: 3.5.0-beta.13
 last_synced: 2026-01-13
 status: current
 ---
@@ -16,6 +16,29 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [3.5.0-beta.13] - 2026-01-13
+
+### 新增
+- **CLI**：将 OpenCode 加入 skills 兼容工具
+  - `uds init` 现在将 OpenCode 视为 Claude Code 处理，提供精简安装
+  - `uds check` 显示 OpenCode skills 兼容性状态
+  - Skills 自动安装到 `.claude/skills/`（OpenCode 自动检测此路径）
+- **文档**：在 skills-mapping.md 新增跨工具兼容性章节
+  - 7 个 AI Agent 的路径对照表（Claude Code、OpenCode、Cursor、OpenAI Codex、GitHub Copilot、Windsurf、Cline）
+  - 说明 UDS 为何使用 `.claude/skills/` 作为默认路径
+  - 不兼容工具的跨工具安装说明
+- **文档**：重构 README 建立独立的 Agent Skills 安装章节
+  - 将 skills 安装方法整合在一处
+  - 新增社区 marketplace（n-skills、claude-plugins.dev、agentskills.io）
+- **文档**：新增 beta 版本安装说明
+  - `npm install -g universal-dev-standards@beta`
+  - `npx universal-dev-standards@beta init`
+
+### 变更
+- **文档**：更新 integrations/opencode/ 文档
+  - 版本 1.4.0 包含跨工具兼容性信息
+  - 双语翻译同步（zh-TW、zh-CN）
 
 ## [3.5.0-beta.12] - 2026-01-13
 

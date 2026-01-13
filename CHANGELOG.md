@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.13] - 2026-01-13
+
+### Added
+- **CLI**: Add OpenCode as skills-compatible tool
+  - `uds init` now treats OpenCode like Claude Code for minimal installation
+  - `uds check` shows OpenCode skills compatibility status
+  - Skills auto-installed to `.claude/skills/` (OpenCode auto-detects this path)
+- **Docs**: Add Cross-Tool Compatibility section to skills-mapping.md
+  - Path comparison table for 7 AI agents (Claude Code, OpenCode, Cursor, OpenAI Codex, GitHub Copilot, Windsurf, Cline)
+  - Explains why UDS uses `.claude/skills/` as default path
+  - Cross-tool installation instructions for incompatible tools
+- **Docs**: Restructure README with independent Agent Skills Installation section
+  - Consolidated skills installation methods in one place
+  - Added community marketplaces (n-skills, claude-plugins.dev, agentskills.io)
+- **Docs**: Add beta version installation instructions
+  - `npm install -g universal-dev-standards@beta`
+  - `npx universal-dev-standards@beta init`
+
+### Changed
+- **Docs**: Update integrations/opencode/ documentation
+  - Version 1.4.0 with cross-tool compatibility info
+  - Bilingual translations synced (zh-TW, zh-CN)
+
 ## [3.5.0-beta.12] - 2026-01-13
 
 ### Added

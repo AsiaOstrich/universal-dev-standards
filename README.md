@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 3.5.0-beta.12
+**Version**: 3.5.0-beta.13
 **Last Updated**: 2026-01-13
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
@@ -109,7 +109,7 @@ npx universal-dev-standards init
 npm install -g universal-dev-standards@beta
 
 # Or use specific version
-npm install -g universal-dev-standards@3.5.0-beta.12
+npm install -g universal-dev-standards@3.5.0-beta.13
 
 # Or via npx
 npx universal-dev-standards@beta init
