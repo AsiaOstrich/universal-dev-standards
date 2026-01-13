@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.5.0-beta.9
-translation_version: 3.5.0-beta.9
-last_synced: 2026-01-11
+source_version: 3.5.0-beta.12
+translation_version: 3.5.0-beta.12
+last_synced: 2026-01-13
 status: current
 ---
 
@@ -17,7 +17,66 @@ status: current
 
 ## [Unreleased]
 
-_无未发布的变更_
+## [3.5.0-beta.12] - 2026-01-13
+
+### 新增
+- **文档**：新增使用模式比较文档
+  - 比较仅 Skills vs 仅规范文件 vs 两者并用
+  - 包含功能覆盖率、Token 效率、和建议
+  - 双语支持（英文和繁体中文）
+  - 参见 `docs/USAGE-MODES-COMPARISON.md`
+- **文档**：重构 README 安装文档
+  - npm CLI 作为主要安装方式
+  - AI 工具扩充作为可选功能
+  - 完整列出 9 个支持的 AI 工具及正确状态
+
+### 修复
+- **CLI**：修复 detector.js 缺失的 AI 工具检测
+  - 现在可检测全部 9 个 AI 工具：Claude Code、Cursor、Windsurf、Cline、GitHub Copilot、Antigravity、Codex、OpenCode、Gemini CLI
+  - 修复 `uds init` 时的自动检测功能
+
+## [3.5.0-beta.11] - 2026-01-12
+
+### 新增
+- **文档**：在 README 新增功能可用性表格
+  - 清楚比较稳定版 (3.4.2) 与 beta 版 (3.5.x) 功能
+  - 以 🧪 标记实验性功能
+  - 双语支持（英文和繁体中文）
+
+### 修复
+- **i18n**：为 6 个翻译文件新增缺失的 YAML front matter
+  - `docs/CLI-INIT-OPTIONS.md`
+  - `skills/claude-code/commands/bdd.md`
+  - `skills/claude-code/commands/methodology.md`
+  - `skills/claude-code/methodology-system/SKILL.md`
+  - `skills/claude-code/methodology-system/create-methodology.md`
+  - `skills/claude-code/methodology-system/runtime.md`
+- **文档**：更新稳定版本参考从 3.3.0 至 3.4.2
+
+## [3.5.0-beta.10] - 2026-01-12
+
+### 新增
+- **方法论系统**：新增完整开发方法论支持
+  - 内置方法论：TDD、BDD、SDD、ATDD
+  - YAML 格式方法论定义，含 JSON Schema 验证
+  - 阶段追踪、检查清单和检查点
+  - 自定义方法论模板，支持团队特定工作流
+  - `/methodology` 命令：状态、切换、阶段管理
+  - CLI 整合：`uds init` 和 `uds configure` 方法论选择
+- **命令**：新增 `/bdd` 行为驱动开发命令
+  - 完整 BDD 工作流：探索 → 制定 → 自动化 → 活文档
+  - Gherkin 格式范例和三剑客会议引导
+  - 阶段检查清单和指示器
+- **命令**：整合 `/tdd` 与方法论系统
+  - 调用时自动启用 TDD 方法论
+  - 显示阶段指示器（🔴 红灯、🟢 绿灯、🔵 重构）
+- **文档**：新增方法论系统双语文档
+  - 英文和繁体中文翻译
+  - SKILL.md、runtime.md、create-methodology.md
+
+### 变更
+- **Skills**：更新安装脚本以包含 methodology-system（共 16 个 skills）
+- **Registry**：在 standards-registry.json 新增 methodologies 区块
 
 ## [3.5.0-beta.9] - 2026-01-11
 

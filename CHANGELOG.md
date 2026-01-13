@@ -9,12 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.12] - 2026-01-13
+
 ### Added
 - **Docs**: Add usage modes comparison documentation
   - Compares Skills Only vs Standards Only vs Both modes
   - Includes feature coverage, token efficiency, and recommendations
   - Bilingual support (English and Traditional Chinese)
   - See `docs/USAGE-MODES-COMPARISON.md`
+- **Docs**: Restructure README installation documentation
+  - npm CLI as primary installation method
+  - AI tool extensions as optional features
+  - Complete list of 9 supported AI tools with correct status
+
+### Fixed
+- **CLI**: Add missing AI tool detection in detector.js
+  - Now detects all 9 AI tools: Claude Code, Cursor, Windsurf, Cline, GitHub Copilot, Antigravity, Codex, OpenCode, Gemini CLI
+  - Fixes auto-detection during `uds init`
 
 ## [3.5.0-beta.11] - 2026-01-12
 

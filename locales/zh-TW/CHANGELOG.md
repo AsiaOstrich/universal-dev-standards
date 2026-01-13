@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.5.0-beta.11
-translation_version: 3.5.0-beta.11
-last_synced: 2026-01-12
+source_version: 3.5.0-beta.12
+translation_version: 3.5.0-beta.12
+last_synced: 2026-01-13
 status: current
 ---
 
@@ -17,12 +17,23 @@ status: current
 
 ## [Unreleased]
 
+## [3.5.0-beta.12] - 2026-01-13
+
 ### 新增
 - **文件**：新增使用模式比較文件
   - 比較僅 Skills vs 僅規範文件 vs 兩者並用
   - 包含功能覆蓋率、Token 效率、和建議
   - 雙語支援（英文和繁體中文）
   - 參見 `docs/USAGE-MODES-COMPARISON.md`
+- **文件**：重構 README 安裝文件
+  - npm CLI 作為主要安裝方式
+  - AI 工具擴充作為可選功能
+  - 完整列出 9 個支援的 AI 工具及正確狀態
+
+### 修復
+- **CLI**：修復 detector.js 缺失的 AI 工具偵測
+  - 現在可偵測全部 9 個 AI 工具：Claude Code、Cursor、Windsurf、Cline、GitHub Copilot、Antigravity、Codex、OpenCode、Gemini CLI
+  - 修復 `uds init` 時的自動偵測功能
 
 ## [3.5.0-beta.11] - 2026-01-12
 
