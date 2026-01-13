@@ -1,7 +1,7 @@
 ---
 source: ../../../../integrations/opencode/skills-mapping.md
-source_version: 1.0.0
-translation_version: 1.0.0
+source_version: 1.1.0
+translation_version: 1.1.0
 last_synced: 2026-01-13
 status: current
 ---
@@ -86,40 +86,64 @@ OpenCode 支援與 Claude Code 相同的技能調用語法：
 
 ## 安裝方法
 
-### 方法一：使用 UDS Skills 目錄（推薦）
+### 方法一：使用 UDS CLI（推薦）
 
-配置 OpenCode 從 UDS 安裝載入技能：
-
-```json
-// opencode.json
-{
-  "instructions": [
-    "AGENTS.md",
-    "node_modules/@anthropic/universal-dev-standards/skills/claude-code/*/SKILL.md"
-  ]
-}
-```
-
-### 方法二：複製技能到專案
+為 Claude Code 和 OpenCode 取得技能的最簡單方式：
 
 ```bash
-# 複製所有 UDS 技能到專案
-cp -r node_modules/@anthropic/universal-dev-standards/skills/claude-code/* .opencode/skill/
+# 全域安裝 UDS CLI
+npm install -g universal-dev-standards
+
+# 初始化專案（會提示選擇技能）
+uds init
+
+# 技能會安裝到 .claude/skills/
+# OpenCode 會自動偵測此路徑 ✅
+```
+
+### 方法二：從 GitHub 複製
+
+```bash
+# 複製儲存庫
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git /tmp/uds
+
+# 複製技能到 OpenCode 目錄
+cp -r /tmp/uds/skills/claude-code/* ~/.config/opencode/skill/
+
+# 或複製到專案層級
+cp -r /tmp/uds/skills/claude-code/* .opencode/skill/
+
+# 清理
+rm -rf /tmp/uds
+```
+
+### 方法三：透過 Claude Code Plugin（若已安裝）
+
+如果您已透過 Claude Code Plugin Marketplace 安裝 UDS：
+
+```bash
+# 檢查技能安裝位置
+uds skills
+
+# 從 Claude 技能路徑複製到 OpenCode
+cp -r .claude/skills/* ~/.config/opencode/skill/
 
 # 或複製特定技能
-cp -r node_modules/@anthropic/universal-dev-standards/skills/claude-code/commit-standards .opencode/skill/
+cp -r .claude/skills/commit-standards ~/.config/opencode/skill/
 ```
 
-### 方法三：全域安裝
+### 方法四：直接下載
 
 ```bash
-# 複製到全域 OpenCode 配置
-cp -r node_modules/@anthropic/universal-dev-standards/skills/claude-code/* ~/.config/opencode/skill/
+# 直接下載特定技能
+mkdir -p .opencode/skill/commit-standards
+curl -o .opencode/skill/commit-standards/SKILL.md \
+  https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code/commit-standards/SKILL.md
 ```
 
-### 方法四：使用 Claude 路徑（零配置）
+### 方法五：使用 Claude 路徑（零配置）
 
-如果您已有 Claude Code 技能：
+如果您已透過 `uds init` 安裝 Claude Code 技能：
 
 ```bash
 # OpenCode 會自動偵測 .claude/skills/
@@ -291,6 +315,7 @@ temperature: 0.5
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.1.0 | 2026-01-13 | 修正安裝方法；移除錯誤的 npm 路徑 |
 | 1.0.0 | 2026-01-13 | 初始版本 |
 
 ---

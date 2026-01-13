@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/opencode/skills-mapping.md) | [简体中文](../../locales/zh-CN/integrations/opencode/skills-mapping.md)
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Last Updated**: 2026-01-13
 
 This document maps Claude Code skills to their OpenCode equivalents and implementation methods.
@@ -83,40 +83,64 @@ OpenCode supports the same skill invocation syntax as Claude Code:
 
 ## Installation Methods
 
-### Method 1: Use UDS Skills Directory (Recommended)
+### Method 1: Use UDS CLI (Recommended)
 
-Configure OpenCode to load skills from the UDS installation:
-
-```json
-// opencode.json
-{
-  "instructions": [
-    "AGENTS.md",
-    "node_modules/@anthropic/universal-dev-standards/skills/claude-code/*/SKILL.md"
-  ]
-}
-```
-
-### Method 2: Copy Skills to Project
+The easiest way to get skills for both Claude Code and OpenCode:
 
 ```bash
-# Copy all UDS skills to project
-cp -r node_modules/@anthropic/universal-dev-standards/skills/claude-code/* .opencode/skill/
+# Install UDS CLI globally
+npm install -g universal-dev-standards
+
+# Initialize project (will prompt for skills selection)
+uds init
+
+# Skills will be installed to .claude/skills/
+# OpenCode auto-detects this path ✅
+```
+
+### Method 2: Clone from GitHub
+
+```bash
+# Clone the repository
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git /tmp/uds
+
+# Copy skills to OpenCode directory
+cp -r /tmp/uds/skills/claude-code/* ~/.config/opencode/skill/
+
+# Or copy to project level
+cp -r /tmp/uds/skills/claude-code/* .opencode/skill/
+
+# Clean up
+rm -rf /tmp/uds
+```
+
+### Method 3: Via Claude Code Plugin (if already installed)
+
+If you've installed UDS via Claude Code Plugin Marketplace:
+
+```bash
+# Check where skills are installed
+uds skills
+
+# Copy from Claude skills path to OpenCode
+cp -r .claude/skills/* ~/.config/opencode/skill/
 
 # Or copy specific skills
-cp -r node_modules/@anthropic/universal-dev-standards/skills/claude-code/commit-standards .opencode/skill/
+cp -r .claude/skills/commit-standards ~/.config/opencode/skill/
 ```
 
-### Method 3: Global Installation
+### Method 4: Direct Download
 
 ```bash
-# Copy to global OpenCode config
-cp -r node_modules/@anthropic/universal-dev-standards/skills/claude-code/* ~/.config/opencode/skill/
+# Download specific skills directly
+mkdir -p .opencode/skill/commit-standards
+curl -o .opencode/skill/commit-standards/SKILL.md \
+  https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code/commit-standards/SKILL.md
 ```
 
-### Method 4: Use Claude Path (Zero Config)
+### Method 5: Use Claude Path (Zero Config)
 
-If you already have Claude Code skills:
+If you already have Claude Code skills installed via `uds init`:
 
 ```bash
 # OpenCode auto-detects .claude/skills/
@@ -288,6 +312,7 @@ After setting up skills:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-13 | Fixed installation methods; removed incorrect npm paths |
 | 1.0.0 | 2026-01-13 | Initial release |
 
 ---
