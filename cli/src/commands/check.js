@@ -619,6 +619,11 @@ async function migrateToHashBasedTracking(projectPath, manifest) {
  */
 function displaySkillsStatus(manifest, projectPath) {
   console.log(chalk.cyan('Skills Status:'));
+
+  // Check which skills-compatible tools are configured
+  const hasClaudeCode = manifest.aiTools?.includes('claude-code');
+  const hasOpenCode = manifest.aiTools?.includes('opencode');
+
   if (manifest.skills.installed) {
     const location = manifest.skills.location || '';
     // Check if skills are installed via Plugin Marketplace
@@ -638,9 +643,23 @@ function displaySkillsStatus(manifest, projectPath) {
       const hasProjectSkills = existsSync(join(projectPath, '.claude', 'skills'));
 
       if (hasGlobalSkills || hasProjectSkills) {
-        console.log(chalk.green('  ✓ Claude Code Skills installed'));
+        console.log(chalk.green('  ✓ Skills installed'));
         if (hasGlobalSkills) console.log(chalk.gray('    Global: ~/.claude/skills/'));
         if (hasProjectSkills) console.log(chalk.gray('    Project: .claude/skills/'));
+
+        // Show compatible tools
+        const compatibleTools = [];
+        if (hasClaudeCode) compatibleTools.push('Claude Code');
+        if (hasOpenCode) compatibleTools.push('OpenCode');
+        if (compatibleTools.length > 0) {
+          console.log(chalk.gray(`    Compatible: ${compatibleTools.join(', ')}`));
+        }
+
+        // OpenCode auto-detection note (only if OpenCode is configured without Claude Code)
+        if (hasOpenCode && !hasClaudeCode) {
+          console.log(chalk.gray('    Note: OpenCode auto-detects .claude/skills/'));
+        }
+
         // Migration suggestion
         console.log(chalk.yellow('  ⚠ Consider migrating to Plugin Marketplace'));
         console.log(chalk.gray('    Marketplace provides automatic updates and easier management.'));
@@ -654,6 +673,14 @@ function displaySkillsStatus(manifest, projectPath) {
         console.log(chalk.gray('      /install-skills AsiaOstrich/universal-dev-skills'));
         console.log(chalk.gray('    Then reinitialize: uds init --yes'));
       }
+    }
+
+    // Show compatible tools for marketplace installation too
+    if (isMarketplace && (hasClaudeCode || hasOpenCode)) {
+      const compatibleTools = [];
+      if (hasClaudeCode) compatibleTools.push('Claude Code');
+      if (hasOpenCode) compatibleTools.push('OpenCode');
+      console.log(chalk.gray(`    Compatible: ${compatibleTools.join(', ')}`));
     }
   } else {
     console.log(chalk.gray('  Skills not installed (using reference documents only)'));

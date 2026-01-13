@@ -178,12 +178,17 @@ export async function initCommand(options) {
     aiTools = handleAgentsMdSharing(aiTools);
 
     const useClaudeCode = aiTools.includes('claude-code');
-    const onlyClaudeCode = aiTools.length === 1 && useClaudeCode;
+    const useOpenCode = aiTools.includes('opencode');
+    const supportsSkills = useClaudeCode || useOpenCode;
+    // Skills-compatible tools: Claude Code and OpenCode (both auto-detect .claude/skills/)
+    const onlySkillsTools = aiTools.every(tool =>
+      tool === 'claude-code' || tool === 'opencode'
+    );
 
-    // STEP 4: Skills handling (only if Claude Code is the ONLY selected tool)
-    // When other AI tools are also selected, they need full standards,
+    // STEP 4: Skills handling (only if ALL selected tools support Skills)
+    // When other AI tools (Cursor, Cline, etc.) are also selected, they need full standards,
     // so we skip the Skills prompt to avoid minimal installation affecting them
-    if (onlyClaudeCode) {
+    if (supportsSkills && onlySkillsTools) {
       const projectSkillsInfo = getProjectInstalledSkillsInfo(projectPath);
       const userSkillsInfo = getInstalledSkillsInfo();
       const repoInfo = getRepositoryInfo();
@@ -240,7 +245,7 @@ export async function initCommand(options) {
         console.log(chalk.cyan('Skills Status:'));
         console.log(chalk.gray('  No Skills installation detected'));
 
-        const location = await promptSkillsInstallLocation();
+        const location = await promptSkillsInstallLocation(aiTools);
         if (location !== 'none') {
           skillsConfig = {
             installed: true,
@@ -356,8 +361,26 @@ export async function initCommand(options) {
       test_levels: options.testLevels ? options.testLevels.split(',') : ['unit-testing', 'integration-testing']
     };
 
-    // Handle Skills configuration based on CLI flag (default: marketplace)
-    const skillsLocationFlag = options.skillsLocation || 'marketplace';
+    // Determine AI tools from detection for skills compatibility check
+    const detectedAiTools = Object.keys(detected.aiTools).filter(k => detected.aiTools[k]);
+    // Map detected keys to standard tool names
+    const aiToolsNormalized = detectedAiTools.map(k => {
+      if (k === 'claudeCode') return 'claude-code';
+      if (k === 'geminiCli') return 'gemini-cli';
+      return k;
+    });
+
+    // Check if only skills-compatible tools are detected
+    const hasSkillsCompatibleTool = aiToolsNormalized.some(t => t === 'claude-code' || t === 'opencode');
+    const onlySkillsCompatibleTools = aiToolsNormalized.every(t => t === 'claude-code' || t === 'opencode');
+
+    // Handle Skills configuration based on CLI flag
+    // Default: marketplace only if all detected tools support skills
+    // If non-skills tools are detected, default to 'none' (full standards)
+    let skillsLocationFlag = options.skillsLocation;
+    if (!skillsLocationFlag) {
+      skillsLocationFlag = (hasSkillsCompatibleTool && onlySkillsCompatibleTools) ? 'marketplace' : 'none';
+    }
 
     // Content mode from CLI flag (default: index for best balance)
     const contentModeFlag = options.contentMode || 'index';

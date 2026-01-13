@@ -1,7 +1,7 @@
 ---
 source: ../../../../integrations/opencode/skills-mapping.md
-source_version: 1.1.0
-translation_version: 1.1.0
+source_version: 1.4.0
+translation_version: 1.4.0
 last_synced: 2026-01-13
 status: current
 ---
@@ -94,11 +94,19 @@ OpenCode 支援與 Claude Code 相同的技能調用語法：
 # 全域安裝 UDS CLI
 npm install -g universal-dev-standards
 
-# 初始化專案（會提示選擇技能）
+# 初始化專案 - 選擇 OpenCode 作為 AI 工具
 uds init
 
 # 技能會安裝到 .claude/skills/
 # OpenCode 會自動偵測此路徑 ✅
+```
+
+**v3.5.0 新功能**：OpenCode 現在在 CLI 中被視為 skills 相容工具。
+當只選擇 OpenCode（或 Claude Code）時，將自動提供帶有 skills 的精簡安裝。
+
+```bash
+# 驗證安裝狀態和 skills 相容性
+uds check
 ```
 
 ### 方法二：從 GitHub 複製
@@ -150,6 +158,22 @@ curl -o .opencode/skill/commit-standards/SKILL.md \
 # 無需任何動作！
 ```
 
+### 方法六：社群 Marketplace
+
+OpenCode 沒有像 Claude Code 那樣的官方 marketplace，但有幾個社群驅動的選項：
+
+**[n-skills](https://github.com/numman-ali/n-skills)** - 精選 marketplace：
+- 支援 Claude Code、Cursor、Windsurf、Cline、OpenCode 和 Codex
+- 只收錄高品質、有實際價值的技能
+
+**[claude-plugins.dev](https://claude-plugins.dev/skills)** - 自動索引發現：
+- 自動索引 GitHub 上所有公開的 Agent Skills
+- 支援 Claude、Cursor、OpenCode、Codex 等 AI 編碼助手
+
+**[agentskills.io](https://agentskills.io)** - 開放標準：
+- Anthropic 於 2024 年 12 月發布的 Agent Skills 規範
+- 已被 OpenCode、Codex、Cursor 等多種工具採用
+
 ---
 
 ## 功能比較
@@ -181,6 +205,50 @@ curl -o .opencode/skill/commit-standards/SKILL.md \
 | MCP 整合 | ✅ 完整 | ⚠️ 有限 |
 | 子目錄規則 | ✅ 每資料夾 CLAUDE.md | ❌ 單一 AGENTS.md |
 | 工具生態系 | ✅ Anthropic 工具 | ⚠️ 社群工具 |
+
+---
+
+## 跨工具相容性
+
+### Skills 路徑參考
+
+[Agent Skills 規範](https://agentskills.io/specification) **未指定標準安裝路徑**，各工具自行實作探索機制。
+
+#### 路徑對照表
+
+| AI Agent | 專案路徑 | 使用者路徑 | Claude 相容 |
+|----------|---------|-----------|-------------|
+| Claude Code | `.claude/skills/` | `~/.claude/skills/` | ✅ 原生 |
+| OpenCode | `.opencode/skill/`<br>`.claude/skills/` | `~/.config/opencode/skill/` | ✅ 支援 |
+| Cursor | `.cursor/skills/`<br>`.claude/skills/` | `~/.cursor/skills/`<br>`~/.claude/skills/` | ✅ 支援 |
+| OpenAI Codex | `.codex/skills/` | `~/.codex/skills/` | ❌ 獨立 |
+| GitHub Copilot | `.github/skills/`<br>`.claude/skills/` (legacy) | `~/.copilot/skills/`<br>`~/.claude/skills/` (legacy) | ✅ 支援 |
+| Windsurf | `.windsurf/skills/` | `~/.codeium/windsurf/skills/` | ❌ 獨立 |
+| Cline | `.cline/skills/` | `~/.cline/skills/` | ❌ 獨立 |
+
+#### 為何選擇 `.claude/skills/`？
+
+UDS 將技能安裝到 `.claude/skills/` 的原因：
+
+1. **最廣泛相容**：多數工具支援此路徑（Cursor、Copilot、OpenCode）
+2. **事實標準**：Claude Code 是 Agent Skills 概念的發起者
+3. **單次安裝**：一次安裝即可跨多個工具使用
+
+#### 未來考量
+
+- GitHub Copilot 建議使用 `.github/skills/`（將 `.claude/` 標記為 legacy）
+- 中立路徑如 `.agent-skills/` 可能成為未來標準
+- UDS 將在社群達成共識時進行調整
+
+#### 跨工具安裝
+
+對於不讀取 `.claude/skills/` 的工具：
+
+| 工具 | 解決方案 |
+|------|----------|
+| OpenAI Codex | `cp -r .claude/skills/* ~/.codex/skills/` |
+| Windsurf | `cp -r .claude/skills/* .windsurf/skills/` |
+| Cline | `cp -r .claude/skills/* .cline/skills/` |
 
 ---
 
@@ -315,6 +383,9 @@ temperature: 0.5
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.4.0 | 2026-01-13 | 新增跨工具相容性章節與路徑對照表 |
+| 1.3.0 | 2026-01-13 | 新增社群 marketplace 章節（n-skills、claude-plugins.dev、agentskills.io） |
+| 1.2.0 | 2026-01-13 | 更新 CLI 方法；OpenCode 現在在 UDS CLI 中支援 skills |
 | 1.1.0 | 2026-01-13 | 修正安裝方法；移除錯誤的 npm 路徑 |
 | 1.0.0 | 2026-01-13 | 初始版本 |
 

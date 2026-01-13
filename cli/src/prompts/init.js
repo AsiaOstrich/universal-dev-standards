@@ -83,12 +83,27 @@ export async function promptAITools(detected = {}) {
 
 /**
  * Prompt for Skills installation location
+ * @param {string[]} selectedTools - Selected AI tools (for displaying compatibility info)
  * @returns {Promise<string>} 'user', 'project', or 'none'
  */
-export async function promptSkillsInstallLocation() {
+export async function promptSkillsInstallLocation(selectedTools = []) {
+  const hasClaudeCode = selectedTools.includes('claude-code');
+  const hasOpenCode = selectedTools.includes('opencode');
+
+  // Build compatible tools list
+  const compatibleTools = [];
+  if (hasClaudeCode) compatibleTools.push('Claude Code');
+  if (hasOpenCode) compatibleTools.push('OpenCode');
+
   console.log();
   console.log(chalk.cyan('Skills Installation:'));
-  console.log(chalk.gray('  Choose where to install Claude Code Skills'));
+  if (compatibleTools.length > 1) {
+    console.log(chalk.gray(`  Skills will work with: ${compatibleTools.join(' and ')}`));
+  } else if (compatibleTools.length === 1) {
+    console.log(chalk.gray(`  Choose where to install ${compatibleTools[0]} Skills`));
+  } else {
+    console.log(chalk.gray('  Choose where to install Skills'));
+  }
   console.log();
 
   const { location } = await inquirer.prompt([

@@ -468,5 +468,75 @@ describe('Check Command', () => {
       expect(output).not.toContain('AI Tool Integration Status');
     });
 
+    it('should show OpenCode compatibility when skills installed with OpenCode configured', async () => {
+      const manifest = {
+        version: '3.2.0',
+        upstream: {
+          repo: 'AsiaOstrich/universal-dev-standards',
+          version: '3.5.0',
+          installed: '2024-01-01'
+        },
+        level: 2,
+        standards: [],
+        extensions: [],
+        integrations: ['AGENTS.md'],
+        aiTools: ['opencode'],
+        skills: {
+          installed: true,
+          location: 'marketplace'
+        }
+      };
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+      writeFileSync(
+        join(TEST_DIR, 'AGENTS.md'),
+        '# Project Guidelines\nContent'
+      );
+
+      await checkCommand({ noInteractive: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Skills Status');
+      expect(output).toContain('Compatible');
+      expect(output).toContain('OpenCode');
+    });
+
+    it('should show both Claude Code and OpenCode in compatible tools list', async () => {
+      const manifest = {
+        version: '3.2.0',
+        upstream: {
+          repo: 'AsiaOstrich/universal-dev-standards',
+          version: '3.5.0',
+          installed: '2024-01-01'
+        },
+        level: 2,
+        standards: [],
+        extensions: [],
+        integrations: ['CLAUDE.md', 'AGENTS.md'],
+        aiTools: ['claude-code', 'opencode'],
+        skills: {
+          installed: true,
+          location: 'marketplace'
+        }
+      };
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+
+      await checkCommand({ noInteractive: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Compatible');
+      expect(output).toContain('Claude Code');
+      expect(output).toContain('OpenCode');
+    });
+
   });
 });

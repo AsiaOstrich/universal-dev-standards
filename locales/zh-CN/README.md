@@ -1,8 +1,8 @@
 ---
 source: ../../README.md
-source_version: 3.5.0-beta.11
-translation_version: 3.5.0-beta.11
-last_synced: 2026-01-12
+source_version: 3.5.0-beta.12
+translation_version: 3.5.0-beta.12
+last_synced: 2026-01-13
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **Language**: [English](../../README.md) | [繁體中文](../zh-TW/README.md) | 简体中文
 
-**版本**: 3.5.0-beta.11
-**最后更新**: 2026-01-12
+**版本**: 3.5.0-beta.12
+**最后更新**: 2026-01-13
 **授权**: [双重授权](../../LICENSE) (CC BY 4.0 + MIT)
 
 > **🧪 Beta 通知**: 此版本包含实验性功能。API 可能在稳定版本发布前有所变动。
@@ -75,19 +75,19 @@ cp core/commit-message-guide.md your-project/.standards/
 
 安装 UDS 后，可选择为您偏好的工具启用 AI 辅助功能：
 
-| AI 工具 | 启用方式 |
-|---------|----------|
-| Claude Code | `uds init` 生成 `CLAUDE.md` + `/plugin install universal-dev-standards@asia-ostrich` 安装 Skills |
-| Cursor | `uds init` 生成 `.cursorrules` |
-| Windsurf | `uds init` 生成 `.windsurfrules` |
-| Cline | `uds init` 生成 `.clinerules` |
-| GitHub Copilot | `uds init` 生成 `.github/copilot-instructions.md` |
-| Google Antigravity | `uds init` 生成 `INSTRUCTIONS.md` |
-| OpenAI Codex | `uds init` 生成 `AGENTS.md` |
-| OpenCode | `uds init` 生成 `AGENTS.md` |
-| Gemini CLI | `uds init` 生成 `GEMINI.md` |
+| AI 工具 | 配置文件 | Skills 安装 |
+|---------|----------|-------------|
+| Claude Code | `uds init` → `CLAUDE.md` | `/plugin install universal-dev-standards@asia-ostrich` |
+| OpenCode | `uds init` → `AGENTS.md` | `uds init`（自动安装到 `.claude/skills/`） |
+| OpenAI Codex | `uds init` → `AGENTS.md` | - |
+| Cursor | `uds init` → `.cursorrules` | 即将支持 |
+| Windsurf | `uds init` → `.windsurfrules` | 即将支持 |
+| Cline | `uds init` → `.clinerules` | 即将支持 |
+| GitHub Copilot | `uds init` → `.github/copilot-instructions.md` | - |
+| Google Antigravity | `uds init` → `INSTRUCTIONS.md` | - |
+| Gemini CLI | `uds init` → `GEMINI.md` | - |
 
-> **注意**：`uds init` 可在交互式设置中配置多个 AI 工具。
+> **注意**：`uds init` 可在交互式设置中配置多个 AI 工具。详细的技能安装说明请参阅 [Agent Skills 安装](#agent-skills-安装)。
 
 ---
 
@@ -111,6 +111,20 @@ uds skills  # 列出已安装的技能
 npx universal-dev-standards init
 ```
 
+**Beta 版本（最新功能）**
+```bash
+# 全局安装 beta 版
+npm install -g universal-dev-standards@beta
+
+# 或安装特定版本
+npm install -g universal-dev-standards@3.5.0-beta.12
+
+# 或通过 npx
+npx universal-dev-standards@beta init
+```
+
+> **注意**：Beta 版本包含实验性功能，例如方法论系统（`/methodology`、`/bdd`）。详见[功能可用性](#功能可用性)。
+
 **克隆并链接（开发用）**
 
 macOS / Linux：
@@ -129,17 +143,43 @@ cd universal-dev-standards\cli; npm install; npm link
 
 ---
 
-### AI 工具扩展（可选）
+### AI 工具配置
 
-为您偏好的工具启用 AI 辅助功能。每个工具都有自己的集成方式。
+每个 AI 工具使用配置文件来定义项目特定规则。`uds init` 会自动生成这些文件：
 
-#### Claude Code
+| 工具 | 配置文件 | 位置 |
+|------|----------|------|
+| Claude Code | `CLAUDE.md` | 项目根目录 |
+| OpenCode | `AGENTS.md` | 项目根目录 |
+| OpenAI Codex | `AGENTS.md` | 项目根目录 |
+| Cursor | `.cursorrules` | 项目根目录 |
+| Windsurf | `.windsurfrules` | 项目根目录 |
+| Cline | `.clinerules` | 项目根目录 |
+| GitHub Copilot | `copilot-instructions.md` | `.github/` |
+| Google Antigravity | `INSTRUCTIONS.md` | 项目根目录 |
+| Gemini CLI | `GEMINI.md` | 项目根目录 |
 
-Claude Code 有两个组件：
-1. **配置文件**：`uds init` 生成包含项目特定规则的 `CLAUDE.md`
-2. **Skills（可选）**：交互式命令如 `/commit`、`/tdd`、`/review`
+或从 `integrations/` 目录手动复制。
 
-**通过 Plugin Marketplace 安装 Skills（推荐）**
+---
+
+### Agent Skills 安装
+
+Agent Skills 是增强 AI 辅助开发的交互式命令（`/commit`、`/tdd`、`/review` 等）。Skills 遵循 [Agent Skills 标准](https://agentskills.io)，可跨多个 AI 工具使用。
+
+**包含的技能（15 个）：** ai-collaboration-standards、changelog-guide、code-review-assistant、commit-standards、documentation-guide、error-code-guide、git-workflow-guide、logging-guide、project-structure-guide、release-standards、requirement-assistant、spec-driven-dev、tdd-assistant、test-coverage-assistant、testing-guide
+
+#### 支持的工具
+
+| 工具 | Skills 支持 | 推荐方式 |
+|------|------------|----------|
+| Claude Code | ✅ 完整 | Plugin Marketplace |
+| OpenCode | ✅ 完整 | UDS CLI |
+| （更多工具即将支持） | - | - |
+
+#### 方法一：Claude Code Plugin Marketplace
+
+Claude Code 用户可通过 Plugin Marketplace 最简单地安装：
 
 ```bash
 /plugin install universal-dev-standards@asia-ostrich
@@ -150,52 +190,72 @@ Claude Code 有两个组件：
 - 新版本发布时自动更新
 - 所有 15 个技能即时加载
 
-**包含的技能：** ai-collaboration-standards、changelog-guide、code-review-assistant、commit-standards、documentation-guide、error-code-guide、git-workflow-guide、logging-guide、project-structure-guide、release-standards、requirement-assistant、spec-driven-dev、tdd-assistant、test-coverage-assistant、testing-guide
-
 **从 v3.2.x 迁移？** 如果您使用旧的 marketplace 名称：
 
 ```bash
-# 卸载旧版本
 /plugin uninstall universal-dev-standards@universal-dev-standards
-
-# 安装新版本
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**脚本安装（已弃用）**
+#### 方法二：UDS CLI（推荐用于 OpenCode）
 
-> 脚本安装正在逐步淘汰。请迁移到 Plugin Marketplace 以获得自动更新。
+OpenCode 和其他工具，请使用 UDS CLI：
+
+```bash
+# 全局安装 UDS CLI
+npm install -g universal-dev-standards
+
+# 初始化项目 - 选择您的 AI 工具
+uds init
+
+# Skills 会安装到 .claude/skills/
+# OpenCode 会自动检测此路径 ✅
+```
+
+使用 `uds check` 验证安装状态和 skills 兼容性。
+
+#### 方法三：手动安装
+
+克隆并直接复制 skills：
+
+macOS / Linux：
+```bash
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git /tmp/uds
+cp -r /tmp/uds/skills/claude-code/* ~/.claude/skills/    # 全局
+# 或：cp -r /tmp/uds/skills/claude-code/* .claude/skills/  # 项目
+rm -rf /tmp/uds
+```
+
+Windows (PowerShell)：
+```powershell
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git $env:TEMP\uds
+Copy-Item -Recurse $env:TEMP\uds\skills\claude-code\* $env:USERPROFILE\.claude\skills\
+Remove-Item -Recurse $env:TEMP\uds
+```
+
+#### 社区 Marketplace
+
+从社区平台发现和安装 skills：
+
+- **[n-skills](https://github.com/numman-ali/n-skills)** - 精选 marketplace，支持 Claude Code、OpenCode、Cursor 等
+- **[claude-plugins.dev](https://claude-plugins.dev/skills)** - 从 GitHub 自动索引的技能发现
+- **[agentskills.io](https://agentskills.io)** - 官方 Agent Skills 规范
+
+#### 脚本安装（已弃用）
+
+> ⚠️ 脚本安装正在逐步淘汰。请改用 Plugin Marketplace 或 UDS CLI。
 
 macOS / Linux：
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards/skills/claude-code
-./install.sh
+cd universal-dev-standards/skills/claude-code && ./install.sh
 ```
 
 Windows (PowerShell)：
 ```powershell
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards\skills\claude-code
-.\install.ps1
+cd universal-dev-standards\skills\claude-code; .\install.ps1
 ```
-
-#### 其他 AI 工具
-
-这些工具在 `uds init` 过程中自动配置：
-
-| 工具 | 配置文件 | 位置 |
-|------|----------|------|
-| Cursor | `.cursorrules` | 项目根目录 |
-| Windsurf | `.windsurfrules` | 项目根目录 |
-| Cline | `.clinerules` | 项目根目录 |
-| GitHub Copilot | `copilot-instructions.md` | `.github/` |
-| Google Antigravity | `INSTRUCTIONS.md` | 项目根目录 |
-| OpenAI Codex | `AGENTS.md` | 项目根目录 |
-| OpenCode | `AGENTS.md` | 项目根目录 |
-| Gemini CLI | `GEMINI.md` | 项目根目录 |
-
-或从 `integrations/` 目录手动复制。
 
 ---
 

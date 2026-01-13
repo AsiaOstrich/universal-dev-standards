@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/opencode/README.md) | [简体中文](../../locales/zh-CN/integrations/opencode/README.md)
 
-**Version**: 1.2.0
+**Version**: 1.3.0
 **Last Updated**: 2026-01-13
 
 This directory provides resources for integrating Universal Dev Standards with OpenCode.
@@ -61,6 +61,23 @@ opencode
 ```
 
 Note: `/init` will **append** to existing AGENTS.md, not overwrite.
+
+### Option 4: Use UDS CLI (Recommended for Skills)
+
+```bash
+# Install UDS CLI globally
+npm install -g universal-dev-standards
+
+# Initialize project - select OpenCode as your AI tool
+uds init
+
+# Skills will be installed to .claude/skills/ (auto-detected by OpenCode)
+```
+
+**New in v3.5.0**: OpenCode is now treated as a skills-compatible tool in the CLI.
+When only OpenCode (or Claude Code) is selected, minimal installation with skills is automatically offered.
+
+Use `uds check` to verify your installation status and skills compatibility.
 
 ## Rules Merging Behavior
 
@@ -144,6 +161,7 @@ For complete skills mapping and installation methods, see **[skills-mapping.md](
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-01-13 | Added UDS CLI installation option; OpenCode now skills-compatible in CLI |
 | 1.2.0 | 2026-01-13 | Added skills-mapping.md; simplified README |
 | 1.1.0 | 2026-01-13 | Added Claude Code migration guide |
 | 1.0.0 | 2026-01-09 | Initial OpenCode integration |

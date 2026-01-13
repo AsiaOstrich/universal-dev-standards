@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/opencode/skills-mapping.md) | [简体中文](../../locales/zh-CN/integrations/opencode/skills-mapping.md)
 
-**Version**: 1.1.0
+**Version**: 1.4.0
 **Last Updated**: 2026-01-13
 
 This document maps Claude Code skills to their OpenCode equivalents and implementation methods.
@@ -91,11 +91,19 @@ The easiest way to get skills for both Claude Code and OpenCode:
 # Install UDS CLI globally
 npm install -g universal-dev-standards
 
-# Initialize project (will prompt for skills selection)
+# Initialize project - select OpenCode as your AI tool
 uds init
 
 # Skills will be installed to .claude/skills/
 # OpenCode auto-detects this path ✅
+```
+
+**New in v3.5.0**: OpenCode is now treated as a skills-compatible tool in the CLI.
+When only OpenCode (or Claude Code) is selected, minimal installation with skills is automatically offered.
+
+```bash
+# Verify installation status and skills compatibility
+uds check
 ```
 
 ### Method 2: Clone from GitHub
@@ -147,6 +155,22 @@ If you already have Claude Code skills installed via `uds init`:
 # No action needed!
 ```
 
+### Method 6: Community Marketplaces
+
+OpenCode doesn't have an official marketplace like Claude Code, but several community-driven options exist:
+
+**[n-skills](https://github.com/numman-ali/n-skills)** - Curated marketplace:
+- Works with Claude Code, Cursor, Windsurf, Cline, OpenCode, and Codex
+- Only high-quality, value-add skills are accepted
+
+**[claude-plugins.dev](https://claude-plugins.dev/skills)** - Auto-indexed discovery:
+- Automatically indexes all public Agent Skills on GitHub
+- Supports Claude, Cursor, OpenCode, Codex, and other AI coding assistants
+
+**[agentskills.io](https://agentskills.io)** - Open standard:
+- The Agent Skills specification by Anthropic (December 2024)
+- Adopted by OpenCode, Codex, Cursor, and many others
+
 ---
 
 ## Feature Comparison
@@ -178,6 +202,50 @@ If you already have Claude Code skills installed via `uds init`:
 | MCP integration | ✅ Full | ⚠️ Limited |
 | Subdirectory rules | ✅ Per-folder CLAUDE.md | ❌ Single AGENTS.md |
 | Tool ecosystem | ✅ Anthropic tools | ⚠️ Community tools |
+
+---
+
+## Cross-Tool Compatibility
+
+### Skills Path Reference
+
+The [Agent Skills specification](https://agentskills.io/specification) does NOT prescribe a standard installation path. Each tool implements its own discovery mechanism.
+
+#### Path Comparison Table
+
+| AI Agent | Project Path | User Path | Claude Compatible |
+|----------|-------------|-----------|-------------------|
+| Claude Code | `.claude/skills/` | `~/.claude/skills/` | ✅ Native |
+| OpenCode | `.opencode/skill/`<br>`.claude/skills/` | `~/.config/opencode/skill/` | ✅ Supported |
+| Cursor | `.cursor/skills/`<br>`.claude/skills/` | `~/.cursor/skills/`<br>`~/.claude/skills/` | ✅ Supported |
+| OpenAI Codex | `.codex/skills/` | `~/.codex/skills/` | ❌ Independent |
+| GitHub Copilot | `.github/skills/`<br>`.claude/skills/` (legacy) | `~/.copilot/skills/`<br>`~/.claude/skills/` (legacy) | ✅ Supported |
+| Windsurf | `.windsurf/skills/` | `~/.codeium/windsurf/skills/` | ❌ Independent |
+| Cline | `.cline/skills/` | `~/.cline/skills/` | ❌ Independent |
+
+#### Why `.claude/skills/`?
+
+UDS installs skills to `.claude/skills/` because:
+
+1. **Widest Compatibility**: Most tools support this path (Cursor, Copilot, OpenCode)
+2. **De Facto Standard**: Claude Code originated the Agent Skills concept
+3. **Single Installation**: One install works across multiple tools
+
+#### Future Considerations
+
+- GitHub Copilot recommends `.github/skills/` (marking `.claude/` as legacy)
+- A neutral path like `.agent-skills/` may emerge as the standard
+- UDS will adapt when community consensus is reached
+
+#### Cross-Tool Installation
+
+For tools that don't read `.claude/skills/`:
+
+| Tool | Solution |
+|------|----------|
+| OpenAI Codex | `cp -r .claude/skills/* ~/.codex/skills/` |
+| Windsurf | `cp -r .claude/skills/* .windsurf/skills/` |
+| Cline | `cp -r .claude/skills/* .cline/skills/` |
 
 ---
 
@@ -312,6 +380,9 @@ After setting up skills:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.4.0 | 2026-01-13 | Added Cross-Tool Compatibility section with path comparison table |
+| 1.3.0 | 2026-01-13 | Added community marketplaces section (n-skills, claude-plugins.dev, agentskills.io) |
+| 1.2.0 | 2026-01-13 | Updated CLI method; OpenCode now skills-compatible in UDS CLI |
 | 1.1.0 | 2026-01-13 | Fixed installation methods; removed incorrect npm paths |
 | 1.0.0 | 2026-01-13 | Initial release |
 

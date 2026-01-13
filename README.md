@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 3.5.0-beta.11
-**Last Updated**: 2026-01-12
+**Version**: 3.5.0-beta.12
+**Last Updated**: 2026-01-13
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 > **🧪 Beta Notice**: This version contains experimental features. APIs may change before stable release.
@@ -67,19 +67,19 @@ cp core/commit-message-guide.md your-project/.standards/
 
 After installing UDS, optionally enable AI-assisted features for your preferred tools:
 
-| AI Tool | How to Enable |
-|---------|---------------|
-| Claude Code | `uds init` generates `CLAUDE.md` + `/plugin install universal-dev-standards@asia-ostrich` for Skills |
-| Cursor | `uds init` generates `.cursorrules` |
-| Windsurf | `uds init` generates `.windsurfrules` |
-| Cline | `uds init` generates `.clinerules` |
-| GitHub Copilot | `uds init` generates `.github/copilot-instructions.md` |
-| Google Antigravity | `uds init` generates `INSTRUCTIONS.md` |
-| OpenAI Codex | `uds init` generates `AGENTS.md` |
-| OpenCode | `uds init` generates `AGENTS.md` |
-| Gemini CLI | `uds init` generates `GEMINI.md` |
+| AI Tool | Configuration | Skills Installation |
+|---------|--------------|---------------------|
+| Claude Code | `uds init` → `CLAUDE.md` | `/plugin install universal-dev-standards@asia-ostrich` |
+| OpenCode | `uds init` → `AGENTS.md` | `uds init` (auto-installed to `.claude/skills/`) |
+| OpenAI Codex | `uds init` → `AGENTS.md` | - |
+| Cursor | `uds init` → `.cursorrules` | Coming soon |
+| Windsurf | `uds init` → `.windsurfrules` | Coming soon |
+| Cline | `uds init` → `.clinerules` | Coming soon |
+| GitHub Copilot | `uds init` → `.github/copilot-instructions.md` | - |
+| Google Antigravity | `uds init` → `INSTRUCTIONS.md` | - |
+| Gemini CLI | `uds init` → `GEMINI.md` | - |
 
-> **Note**: `uds init` can configure multiple AI tools during interactive setup.
+> **Note**: `uds init` can configure multiple AI tools during interactive setup. See [Agent Skills Installation](#agent-skills-installation) for detailed skill setup.
 
 ---
 
@@ -103,6 +103,20 @@ uds skills  # List installed skills
 npx universal-dev-standards init
 ```
 
+**Beta Version (Latest Features)**
+```bash
+# Install beta globally
+npm install -g universal-dev-standards@beta
+
+# Or use specific version
+npm install -g universal-dev-standards@3.5.0-beta.12
+
+# Or via npx
+npx universal-dev-standards@beta init
+```
+
+> **Note**: Beta versions include experimental features like the Methodology System (`/methodology`, `/bdd`). See [Feature Availability](#feature-availability) for details.
+
 **Clone and Link (Development)**
 
 macOS / Linux:
@@ -121,17 +135,43 @@ See [CLI README](cli/README.md) for detailed usage, [Windows Guide](docs/WINDOWS
 
 ---
 
-### AI Tool Extensions (Optional)
+### AI Tool Configuration
 
-Enable AI-assisted features for your preferred tools. Each tool has its own integration method.
+Each AI tool uses a configuration file for project-specific rules. `uds init` generates these automatically:
 
-#### Claude Code
+| Tool | Configuration File | Location |
+|------|-------------------|----------|
+| Claude Code | `CLAUDE.md` | Project root |
+| OpenCode | `AGENTS.md` | Project root |
+| OpenAI Codex | `AGENTS.md` | Project root |
+| Cursor | `.cursorrules` | Project root |
+| Windsurf | `.windsurfrules` | Project root |
+| Cline | `.clinerules` | Project root |
+| GitHub Copilot | `copilot-instructions.md` | `.github/` |
+| Google Antigravity | `INSTRUCTIONS.md` | Project root |
+| Gemini CLI | `GEMINI.md` | Project root |
 
-Claude Code has two components:
-1. **Configuration file**: `uds init` generates `CLAUDE.md` with project-specific rules
-2. **Skills (Optional)**: Interactive commands like `/commit`, `/tdd`, `/review`
+Or manually copy from `integrations/` directory.
 
-**Install Skills via Plugin Marketplace (Recommended)**
+---
+
+### Agent Skills Installation
+
+Agent Skills are interactive commands (`/commit`, `/tdd`, `/review`, etc.) that enhance AI-assisted development. Skills follow the [Agent Skills Standard](https://agentskills.io) and work across multiple AI tools.
+
+**Skills included (15 skills):** ai-collaboration-standards, changelog-guide, code-review-assistant, commit-standards, documentation-guide, error-code-guide, git-workflow-guide, logging-guide, project-structure-guide, release-standards, requirement-assistant, spec-driven-dev, tdd-assistant, test-coverage-assistant, testing-guide
+
+#### Supported Tools
+
+| Tool | Skills Support | Recommended Method |
+|------|---------------|-------------------|
+| Claude Code | ✅ Full | Plugin Marketplace |
+| OpenCode | ✅ Full | UDS CLI |
+| (More tools coming) | - | - |
+
+#### Method 1: Claude Code Plugin Marketplace
+
+For Claude Code users, the Plugin Marketplace offers the easiest installation:
 
 ```bash
 /plugin install universal-dev-standards@asia-ostrich
@@ -142,52 +182,72 @@ Claude Code has two components:
 - Automatic updates when new versions are released
 - All 15 skills loaded instantly
 
-**Skills included:** ai-collaboration-standards, changelog-guide, code-review-assistant, commit-standards, documentation-guide, error-code-guide, git-workflow-guide, logging-guide, project-structure-guide, release-standards, requirement-assistant, spec-driven-dev, tdd-assistant, test-coverage-assistant, testing-guide
-
 **Migrating from v3.2.x?** If you used the old marketplace name:
 
 ```bash
-# Uninstall old version
 /plugin uninstall universal-dev-standards@universal-dev-standards
-
-# Install new version
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**Script Installation (Deprecated)**
+#### Method 2: UDS CLI (Recommended for OpenCode)
 
-> Script installation is being phased out. Migrate to Plugin Marketplace for automatic updates.
+For OpenCode and other tools, use the UDS CLI:
+
+```bash
+# Install UDS CLI globally
+npm install -g universal-dev-standards
+
+# Initialize project - select your AI tool
+uds init
+
+# Skills will be installed to .claude/skills/
+# OpenCode auto-detects this path ✅
+```
+
+Use `uds check` to verify installation status and skills compatibility.
+
+#### Method 3: Manual Installation
+
+Clone and copy skills directly:
+
+macOS / Linux:
+```bash
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git /tmp/uds
+cp -r /tmp/uds/skills/claude-code/* ~/.claude/skills/    # Global
+# Or: cp -r /tmp/uds/skills/claude-code/* .claude/skills/  # Project
+rm -rf /tmp/uds
+```
+
+Windows (PowerShell):
+```powershell
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git $env:TEMP\uds
+Copy-Item -Recurse $env:TEMP\uds\skills\claude-code\* $env:USERPROFILE\.claude\skills\
+Remove-Item -Recurse $env:TEMP\uds
+```
+
+#### Community Marketplaces
+
+Discover and install skills from community platforms:
+
+- **[n-skills](https://github.com/numman-ali/n-skills)** - Curated marketplace for Claude Code, OpenCode, Cursor, and more
+- **[claude-plugins.dev](https://claude-plugins.dev/skills)** - Auto-indexed skill discovery from GitHub
+- **[agentskills.io](https://agentskills.io)** - Official Agent Skills specification
+
+#### Script Installation (Deprecated)
+
+> ⚠️ Script installation is being phased out. Use Plugin Marketplace or UDS CLI instead.
 
 macOS / Linux:
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards/skills/claude-code
-./install.sh
+cd universal-dev-standards/skills/claude-code && ./install.sh
 ```
 
 Windows (PowerShell):
 ```powershell
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards\skills\claude-code
-.\install.ps1
+cd universal-dev-standards\skills\claude-code; .\install.ps1
 ```
-
-#### Other AI Tools
-
-These tools are configured automatically during `uds init`:
-
-| Tool | Configuration File | Location |
-|------|-------------------|----------|
-| Cursor | `.cursorrules` | Project root |
-| Windsurf | `.windsurfrules` | Project root |
-| Cline | `.clinerules` | Project root |
-| GitHub Copilot | `copilot-instructions.md` | `.github/` |
-| Google Antigravity | `INSTRUCTIONS.md` | Project root |
-| OpenAI Codex | `AGENTS.md` | Project root |
-| OpenCode | `AGENTS.md` | Project root |
-| Gemini CLI | `GEMINI.md` | Project root |
-
-Or manually copy from `integrations/` directory.
 
 ---
 

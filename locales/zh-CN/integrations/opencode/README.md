@@ -1,7 +1,7 @@
 ---
 source: ../../../../integrations/opencode/README.md
-source_version: 1.2.0
-translation_version: 1.2.0
+source_version: 1.3.0
+translation_version: 1.3.0
 last_synced: 2026-01-13
 status: current
 ---
@@ -64,6 +64,23 @@ opencode
 ```
 
 注意：`/init` 会**追加**到现有 AGENTS.md，而非覆盖。
+
+### 方式四：使用 UDS CLI（推荐用于 Skills）
+
+```bash
+# 全局安装 UDS CLI
+npm install -g universal-dev-standards
+
+# 初始化项目 - 选择 OpenCode 作为 AI 工具
+uds init
+
+# Skills 将安装到 .claude/skills/（OpenCode 会自动检测）
+```
+
+**v3.5.0 新功能**：OpenCode 现在在 CLI 中被视为 skills 兼容工具。
+当只选择 OpenCode（或 Claude Code）时，将自动提供带有 skills 的精简安装。
+
+使用 `uds check` 验证安装状态和 skills 兼容性。
 
 ## 规则合并行为
 
@@ -147,6 +164,7 @@ opencode
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.3.0 | 2026-01-13 | 新增 UDS CLI 安装选项；OpenCode 现在在 CLI 中支持 skills |
 | 1.2.0 | 2026-01-13 | 新增 skills-mapping.md；简化 README |
 | 1.1.0 | 2026-01-13 | 新增 Claude Code 迁移指南 |
 | 1.0.0 | 2026-01-09 | 初始 OpenCode 集成 |

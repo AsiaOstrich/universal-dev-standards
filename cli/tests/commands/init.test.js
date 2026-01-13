@@ -187,8 +187,8 @@ describe('Init Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Level: 2');
-      // Default skills location should be marketplace
-      expect(output).toContain('Plugin Marketplace');
+      // When no skills-compatible tools are detected, skills default to 'none' (Complete standards)
+      expect(output).toContain('Standards Scope: Complete');
     });
 
     it('should respect level option', async () => {
@@ -267,6 +267,63 @@ describe('Init Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('install/update to project');
+    });
+  });
+
+  describe('OpenCode Skills Support', () => {
+    it('should treat OpenCode as a skills-compatible tool', async () => {
+      // In --yes mode, AI tools come from detectAll
+      // Mock detectAll to return only opencode detected
+      detectAll.mockReturnValue({
+        languages: { javascript: true },
+        frameworks: {},
+        aiTools: { opencode: true, claudeCode: false, cursor: false }
+      });
+
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      // When only OpenCode is detected with --yes, skills should be offered
+      // Default is marketplace for skills-compatible tools
+      expect(output).toContain('Plugin Marketplace');
+    });
+
+    it('should offer skills when both Claude Code and OpenCode are selected', async () => {
+      // Mock detectAll to return both claude-code and opencode detected
+      detectAll.mockReturnValue({
+        languages: { javascript: true },
+        frameworks: {},
+        aiTools: { claudeCode: true, opencode: true, cursor: false }
+      });
+
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      // Both tools support skills, so skills should be offered
+      expect(output).toContain('Plugin Marketplace');
+    });
+
+    it('should NOT offer skills when OpenCode is selected with non-skills tools', async () => {
+      // In --yes mode, AI tools come from detectAll, not promptAITools
+      // Mock detectAll to return opencode + cursor detected
+      detectAll.mockReturnValue({
+        languages: { javascript: true },
+        frameworks: {},
+        aiTools: { opencode: true, cursor: true, claudeCode: false }
+      });
+
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // When non-skills tools (cursor) are included, skills should not be offered
+      // and Standards Scope should be Complete (full standards)
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Standards Scope: Complete');
     });
   });
 });
