@@ -35,19 +35,7 @@ This repository provides **language-agnostic, framework-agnostic, domain-agnosti
 
 ## Quick Start
 
-### Option 1: Plugin Marketplace (Recommended)
-
-Install all 15 Claude Code skills with a single command:
-
-```bash
-# Add the marketplace (one-time)
-/plugin marketplace add AsiaOstrich/universal-dev-standards
-
-# Install all skills
-/plugin install universal-dev-standards@asia-ostrich
-```
-
-### Option 2: npm CLI
+### Install via npm (Recommended)
 
 ```bash
 # Install globally
@@ -57,13 +45,13 @@ npm install -g universal-dev-standards
 uds init
 ```
 
-### Option 3: npx (No installation)
+### Or use npx (No installation required)
 
 ```bash
 npx universal-dev-standards init
 ```
 
-### Option 4: Manual Setup
+### Manual Setup
 
 Copy essential standards to your project:
 
@@ -73,13 +61,77 @@ cp core/checkin-standards.md your-project/.standards/
 cp core/commit-message-guide.md your-project/.standards/
 ```
 
+> **Important**: Copying standards alone won't enable AI assistance. You must also reference them in your AI tool's configuration file (e.g., `CLAUDE.md`, `.cursorrules`). Use `uds init` for automatic configuration.
+
+### AI Tool Extensions (Optional)
+
+After installing UDS, optionally enable AI-assisted features for your preferred tools:
+
+| AI Tool | How to Enable |
+|---------|---------------|
+| Claude Code | `uds init` generates `CLAUDE.md` + `/plugin install universal-dev-standards@asia-ostrich` for Skills |
+| Cursor | `uds init` generates `.cursorrules` |
+| Windsurf | `uds init` generates `.windsurfrules` |
+| Cline | `uds init` generates `.clinerules` |
+| GitHub Copilot | `uds init` generates `.github/copilot-instructions.md` |
+| Google Antigravity | `uds init` generates `INSTRUCTIONS.md` |
+| OpenAI Codex | `uds init` generates `AGENTS.md` |
+| OpenCode | `uds init` generates `AGENTS.md` |
+| Gemini CLI | `uds init` generates `GEMINI.md` |
+
+> **Note**: `uds init` can configure multiple AI tools during interactive setup.
+
 ---
 
 ## Installation Methods
 
-### Claude Code Skills (Recommended)
+### CLI Tool (Primary Installation)
 
-**Method 1: Plugin Marketplace**
+The CLI tool is the primary way to adopt UDS in your projects.
+
+**npm (Recommended)**
+```bash
+npm install -g universal-dev-standards
+uds init    # Interactive initialization
+uds check   # Check adoption status
+uds update  # Update to latest version
+uds skills  # List installed skills
+```
+
+**npx (No installation)**
+```bash
+npx universal-dev-standards init
+```
+
+**Clone and Link (Development)**
+
+macOS / Linux:
+```bash
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards/cli && npm install && npm link
+```
+
+Windows (PowerShell):
+```powershell
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards\cli; npm install; npm link
+```
+
+See [CLI README](cli/README.md) for detailed usage, [Windows Guide](docs/WINDOWS-GUIDE.md) for Windows-specific instructions, and [Operation Workflow](docs/OPERATION-WORKFLOW.md) for project maintenance and development workflow.
+
+---
+
+### AI Tool Extensions (Optional)
+
+Enable AI-assisted features for your preferred tools. Each tool has its own integration method.
+
+#### Claude Code
+
+Claude Code has two components:
+1. **Configuration file**: `uds init` generates `CLAUDE.md` with project-specific rules
+2. **Skills (Optional)**: Interactive commands like `/commit`, `/tdd`, `/review`
+
+**Install Skills via Plugin Marketplace (Recommended)**
 
 ```bash
 /plugin install universal-dev-standards@asia-ostrich
@@ -102,9 +154,7 @@ cp core/commit-message-guide.md your-project/.standards/
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
----
-
-**Method 2: Script Installation (Deprecated)**
+**Script Installation (Deprecated)**
 
 > Script installation is being phased out. Migrate to Plugin Marketplace for automatic updates.
 
@@ -122,34 +172,22 @@ cd universal-dev-standards\skills\claude-code
 .\install.ps1
 ```
 
----
+#### Other AI Tools
 
-### CLI Tool
+These tools are configured automatically during `uds init`:
 
-**npm (Recommended)**
-```bash
-npm install -g universal-dev-standards
-uds init    # Interactive initialization
-uds check   # Check adoption status
-uds update  # Update to latest version
-uds skills  # List installed skills
-```
+| Tool | Configuration File | Location |
+|------|-------------------|----------|
+| Cursor | `.cursorrules` | Project root |
+| Windsurf | `.windsurfrules` | Project root |
+| Cline | `.clinerules` | Project root |
+| GitHub Copilot | `copilot-instructions.md` | `.github/` |
+| Google Antigravity | `INSTRUCTIONS.md` | Project root |
+| OpenAI Codex | `AGENTS.md` | Project root |
+| OpenCode | `AGENTS.md` | Project root |
+| Gemini CLI | `GEMINI.md` | Project root |
 
-**Clone and Link (Development)**
-
-macOS / Linux:
-```bash
-git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards/cli && npm install && npm link
-```
-
-Windows (PowerShell):
-```powershell
-git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards\cli; npm install; npm link
-```
-
-See [CLI README](cli/README.md) for detailed usage, [Windows Guide](docs/WINDOWS-GUIDE.md) for Windows-specific instructions, and [Operation Workflow](docs/OPERATION-WORKFLOW.md) for project maintenance and development workflow.
+Or manually copy from `integrations/` directory.
 
 ---
 
@@ -157,11 +195,15 @@ See [CLI README](cli/README.md) for detailed usage, [Windows Guide](docs/WINDOWS
 
 | AI Tool | Status | Path |
 |---------|--------|------|
-| Claude Code | Complete | `skills/claude-code/` |
-| Cursor | Planned | `skills/cursor/` |
-| Windsurf | Planned | `skills/windsurf/` |
-| Cline | Planned | `skills/cline/` |
-| GitHub Copilot | Planned | `skills/copilot/` |
+| Claude Code | ✅ Complete | `skills/claude-code/` |
+| OpenCode | 🧪 Testing | `integrations/opencode/` |
+| GitHub Copilot | 🧪 Testing | `integrations/github-copilot/` |
+| Cursor | ⏳ Planned | `integrations/cursor/` |
+| Windsurf | ⏳ Planned | `integrations/windsurf/` |
+| Cline | ⏳ Planned | `integrations/cline/` |
+| Google Antigravity | ⏳ Planned | `integrations/google-antigravity/` |
+| OpenAI Codex | ⏳ Planned | `integrations/codex/` |
+| Gemini CLI | ⏳ Planned | `integrations/gemini-cli/` |
 
 ---
 

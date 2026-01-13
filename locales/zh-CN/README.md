@@ -43,19 +43,7 @@ status: current
 
 ## 快速开始
 
-### 选项 1：Plugin Marketplace（推荐）
-
-使用单一命令安装所有 15 个 Claude Code 技能：
-
-```bash
-# 添加 marketplace（一次性）
-/plugin marketplace add AsiaOstrich/universal-dev-standards
-
-# 安装所有技能
-/plugin install universal-dev-standards@asia-ostrich
-```
-
-### 选项 2：npm CLI
+### 通过 npm 安装（推荐）
 
 ```bash
 # 全局安装
@@ -65,13 +53,13 @@ npm install -g universal-dev-standards
 uds init
 ```
 
-### 选项 3：npx（无需安装）
+### 或使用 npx（无需安装）
 
 ```bash
 npx universal-dev-standards init
 ```
 
-### 选项 4：手动设置
+### 手动设置
 
 复制必要的标准到您的项目：
 
@@ -81,13 +69,77 @@ cp core/checkin-standards.md your-project/.standards/
 cp core/commit-message-guide.md your-project/.standards/
 ```
 
+> **重要**：仅复制规范文件并不会启用 AI 辅助功能。您还必须在 AI 工具的配置文件中引用这些规范（如 `CLAUDE.md`、`.cursorrules`）。建议使用 `uds init` 进行自动配置。
+
+### AI 工具扩展（可选）
+
+安装 UDS 后，可选择为您偏好的工具启用 AI 辅助功能：
+
+| AI 工具 | 启用方式 |
+|---------|----------|
+| Claude Code | `uds init` 生成 `CLAUDE.md` + `/plugin install universal-dev-standards@asia-ostrich` 安装 Skills |
+| Cursor | `uds init` 生成 `.cursorrules` |
+| Windsurf | `uds init` 生成 `.windsurfrules` |
+| Cline | `uds init` 生成 `.clinerules` |
+| GitHub Copilot | `uds init` 生成 `.github/copilot-instructions.md` |
+| Google Antigravity | `uds init` 生成 `INSTRUCTIONS.md` |
+| OpenAI Codex | `uds init` 生成 `AGENTS.md` |
+| OpenCode | `uds init` 生成 `AGENTS.md` |
+| Gemini CLI | `uds init` 生成 `GEMINI.md` |
+
+> **注意**：`uds init` 可在交互式设置中配置多个 AI 工具。
+
 ---
 
 ## 安装方式
 
-### Claude Code 技能（推荐）
+### CLI 工具（主要安装）
 
-**方式 1：Plugin Marketplace**
+CLI 工具是在项目中采用 UDS 的主要方式。
+
+**npm（推荐）**
+```bash
+npm install -g universal-dev-standards
+uds init    # 交互式初始化
+uds check   # 检查采用状态
+uds update  # 更新到最新版本
+uds skills  # 列出已安装的技能
+```
+
+**npx（无需安装）**
+```bash
+npx universal-dev-standards init
+```
+
+**克隆并链接（开发用）**
+
+macOS / Linux：
+```bash
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards/cli && npm install && npm link
+```
+
+Windows (PowerShell)：
+```powershell
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+cd universal-dev-standards\cli; npm install; npm link
+```
+
+详细用法请参阅 [CLI README](../../cli/README.md)，Windows 相关说明请参阅 [Windows 指南](../../docs/WINDOWS-GUIDE.md)，项目维护与开发流程请参阅[作业流程](docs/OPERATION-WORKFLOW.md)。
+
+---
+
+### AI 工具扩展（可选）
+
+为您偏好的工具启用 AI 辅助功能。每个工具都有自己的集成方式。
+
+#### Claude Code
+
+Claude Code 有两个组件：
+1. **配置文件**：`uds init` 生成包含项目特定规则的 `CLAUDE.md`
+2. **Skills（可选）**：交互式命令如 `/commit`、`/tdd`、`/review`
+
+**通过 Plugin Marketplace 安装 Skills（推荐）**
 
 ```bash
 /plugin install universal-dev-standards@asia-ostrich
@@ -110,9 +162,7 @@ cp core/commit-message-guide.md your-project/.standards/
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
----
-
-**方式 2：脚本安装（已弃用）**
+**脚本安装（已弃用）**
 
 > 脚本安装正在逐步淘汰。请迁移到 Plugin Marketplace 以获得自动更新。
 
@@ -130,34 +180,22 @@ cd universal-dev-standards\skills\claude-code
 .\install.ps1
 ```
 
----
+#### 其他 AI 工具
 
-### CLI 工具
+这些工具在 `uds init` 过程中自动配置：
 
-**npm（推荐）**
-```bash
-npm install -g universal-dev-standards
-uds init    # 交互式初始化
-uds check   # 检查采用状态
-uds update  # 更新到最新版本
-uds skills  # 列出已安装的技能
-```
+| 工具 | 配置文件 | 位置 |
+|------|----------|------|
+| Cursor | `.cursorrules` | 项目根目录 |
+| Windsurf | `.windsurfrules` | 项目根目录 |
+| Cline | `.clinerules` | 项目根目录 |
+| GitHub Copilot | `copilot-instructions.md` | `.github/` |
+| Google Antigravity | `INSTRUCTIONS.md` | 项目根目录 |
+| OpenAI Codex | `AGENTS.md` | 项目根目录 |
+| OpenCode | `AGENTS.md` | 项目根目录 |
+| Gemini CLI | `GEMINI.md` | 项目根目录 |
 
-**克隆并链接（开发用）**
-
-macOS / Linux：
-```bash
-git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards/cli && npm install && npm link
-```
-
-Windows (PowerShell)：
-```powershell
-git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards\cli; npm install; npm link
-```
-
-详细用法请参阅 [CLI README](../../cli/README.md)，Windows 相关说明请参阅 [Windows 指南](../../docs/WINDOWS-GUIDE.md)，项目维护与开发流程请参阅[作业流程](docs/OPERATION-WORKFLOW.md)。
+或从 `integrations/` 目录手动复制。
 
 ---
 
@@ -165,11 +203,15 @@ cd universal-dev-standards\cli; npm install; npm link
 
 | AI 工具 | 状态 | 路径 |
 |---------|------|------|
-| Claude Code | 完成 | `skills/claude-code/` |
-| Cursor | 规划中 | `skills/cursor/` |
-| Windsurf | 规划中 | `skills/windsurf/` |
-| Cline | 规划中 | `skills/cline/` |
-| GitHub Copilot | 规划中 | `skills/copilot/` |
+| Claude Code | ✅ 完成 | `skills/claude-code/` |
+| OpenCode | 🧪 测试中 | `integrations/opencode/` |
+| GitHub Copilot | 🧪 测试中 | `integrations/github-copilot/` |
+| Cursor | ⏳ 规划中 | `integrations/cursor/` |
+| Windsurf | ⏳ 规划中 | `integrations/windsurf/` |
+| Cline | ⏳ 规划中 | `integrations/cline/` |
+| Google Antigravity | ⏳ 规划中 | `integrations/google-antigravity/` |
+| OpenAI Codex | ⏳ 规划中 | `integrations/codex/` |
+| Gemini CLI | ⏳ 规划中 | `integrations/gemini-cli/` |
 
 ---
 

@@ -117,6 +117,8 @@ export function detectFramework(projectPath) {
  * @returns {Object} Detected AI tools
  */
 export function detectAITools(projectPath) {
+  const hasAgentsMd = existsSync(join(projectPath, 'AGENTS.md'));
+
   const detected = {
     cursor: existsSync(join(projectPath, '.cursorrules')),
     windsurf: existsSync(join(projectPath, '.windsurfrules')),
@@ -124,7 +126,10 @@ export function detectAITools(projectPath) {
     copilot: existsSync(join(projectPath, '.github', 'copilot-instructions.md')),
     claudeCode: existsSync(join(projectPath, '.claude')) ||
                 existsSync(join(projectPath, 'CLAUDE.md')),
-    antigravity: existsSync(join(projectPath, 'INSTRUCTIONS.md'))
+    antigravity: existsSync(join(projectPath, 'INSTRUCTIONS.md')),
+    codex: hasAgentsMd,
+    opencode: hasAgentsMd,
+    geminiCli: existsSync(join(projectPath, 'GEMINI.md'))
   };
 
   return detected;
