@@ -7,5 +7,12 @@ coverage/
 # Test temp files
 tests/temp/
 
+# E2E test generated reports (regenerated on each run)
+tests/reports/*.json
+tests/reports/*.md
+
+# Local test artifacts
+.standards/
+
 # OS files
 .DS_Store

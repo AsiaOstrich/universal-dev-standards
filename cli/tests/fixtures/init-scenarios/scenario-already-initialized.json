@@ -1,0 +1,39 @@
+{
+  "name": "Already Initialized Project",
+  "description": "Test behavior when project already has .standards/ directory",
+  "setup": {
+    "preInitialized": true
+  },
+  "cases": [
+    {
+      "id": "already-initialized",
+      "name": "Project already initialized",
+      "options": {},
+      "expectedOutputs": [
+        "Universal Development Standards - Initialize",
+        "Standards already initialized in this project",
+        "Use `uds update` to update, or delete .standards/ to reinitialize"
+      ],
+      "notExpectedOutputs": [
+        "Detecting project characteristics",
+        "Configuration Summary",
+        "Standards initialized successfully"
+      ],
+      "expectedExitBehavior": "early-return"
+    },
+    {
+      "id": "already-initialized-yes",
+      "name": "Already initialized with --yes",
+      "options": {
+        "yes": true
+      },
+      "expectedOutputs": [
+        "Standards already initialized in this project"
+      ],
+      "notExpectedOutputs": [
+        "Standards initialized successfully"
+      ],
+      "expectedExitBehavior": "early-return"
+    }
+  ]
+}

@@ -39,6 +39,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "vitest run tests/e2e/",
+    "test:all": "vitest run && vitest run tests/e2e/",
     "lint": "eslint src/",
     "prepare": "node ../scripts/setup-husky.mjs"
   },

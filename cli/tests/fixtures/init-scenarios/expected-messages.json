@@ -1,0 +1,175 @@
+{
+  "description": "Expected output messages for each step of uds init",
+  "messages": {
+    "header": {
+      "title": "Universal Development Standards - Initialize",
+      "separator": "─"
+    },
+    "step1_initialization_check": {
+      "already_initialized": "Standards already initialized in this project.",
+      "already_initialized_hint": "Use `uds update` to update, or delete .standards/ to reinitialize."
+    },
+    "step2_project_detection": {
+      "detecting": "Detecting project characteristics...",
+      "complete": "Project analysis complete",
+      "languages_prefix": "Languages:",
+      "frameworks_prefix": "Frameworks:",
+      "ai_tools_prefix": "AI Tools:"
+    },
+    "step3_ai_tools": {
+      "prompt": "Select AI tools to configure",
+      "options": [
+        "Claude Code",
+        "Cursor",
+        "Windsurf",
+        "Cline (VS Code)",
+        "GitHub Copilot",
+        "Google Antigravity",
+        "OpenAI Codex CLI",
+        "OpenCode",
+        "Gemini CLI",
+        "None"
+      ]
+    },
+    "step4_skills_status": {
+      "title": "Skills Status:",
+      "no_installation": "No Skills installation detected",
+      "project_level": "Project level:",
+      "user_level": "User level:",
+      "not_installed": "not installed"
+    },
+    "step5_skills_location": {
+      "prompt": "Where would you like to install Skills?",
+      "options": [
+        "Plugin Marketplace (Recommended)",
+        "User level (~/.claude/skills/)",
+        "Project level (.claude/skills/)",
+        "Skip Skills installation"
+      ]
+    },
+    "step6_standards_scope": {
+      "prompt": "Standards scope",
+      "minimal_desc": "Lean - Skills handle most standards",
+      "full_desc": "Complete - Include all standards"
+    },
+    "step7_level": {
+      "prompt": "Select adoption level",
+      "level1": "Level 1: Essential",
+      "level2": "Level 2: Professional",
+      "level3": "Level 3: Comprehensive"
+    },
+    "step8_format": {
+      "prompt": "Select documentation format",
+      "options": [
+        "Compact (AI-optimized)",
+        "Detailed (Human-readable)",
+        "Both formats"
+      ]
+    },
+    "step9_standard_options": {
+      "git_workflow": "Select Git workflow",
+      "merge_strategy": "Select merge strategy",
+      "commit_language": "Select commit message language",
+      "test_levels": "Select test levels to include"
+    },
+    "step10_language": {
+      "prompt": "Select language extensions",
+      "options_dynamic": true
+    },
+    "step11_framework": {
+      "prompt": "Select framework extensions",
+      "options_dynamic": true
+    },
+    "step12_locale": {
+      "prompt": "Use Traditional Chinese documentation",
+      "confirm_pattern": "(Y/n)"
+    },
+    "step13_integration_config": {
+      "title": "Integration Configuration:",
+      "shared_config_notice": "All selected tools will share the same rule configuration.",
+      "merge_strategy_prompt": "Existing file detected. How to handle?",
+      "merge_options": [
+        "Replace existing file",
+        "Merge (append UDS rules)",
+        "Keep existing file"
+      ]
+    },
+    "step14_content_mode": {
+      "prompt": "Select content mode for integration files",
+      "options": [
+        "Minimal (core compliance only)",
+        "Standard (recommended - with index)",
+        "Full Embed (include all standard text)"
+      ]
+    },
+    "step15_methodology": {
+      "prompt": "Select development methodology",
+      "options": [
+        "TDD (Test-Driven Development)",
+        "BDD (Behavior-Driven Development)",
+        "SDD (Spec-Driven Development)",
+        "ATDD (Acceptance Test-Driven Development)",
+        "None"
+      ],
+      "experimental_flag_required": true
+    },
+    "summary": {
+      "title": "Configuration Summary:",
+      "level": "Level:",
+      "format": "Format:",
+      "format_compact": "Compact",
+      "format_detailed": "Detailed",
+      "format_both": "Both",
+      "standards_scope": "Standards Scope:",
+      "scope_lean": "Lean (Skills handle the rest)",
+      "scope_complete": "Complete",
+      "content_mode": "Content Mode:",
+      "mode_full": "Full Embed",
+      "mode_index": "Standard (recommended)",
+      "mode_minimal": "Minimal (core only)",
+      "languages": "Languages:",
+      "frameworks": "Frameworks:",
+      "locale": "Locale:",
+      "ai_tools": "AI Tools:",
+      "integrations": "Integrations:",
+      "methodology": "Methodology:",
+      "skills": "Skills:",
+      "skills_marketplace": "Plugin Marketplace (managed by Claude Code)",
+      "git_workflow": "Git Workflow:",
+      "merge_strategy": "Merge Strategy:",
+      "commit_language": "Commit Language:",
+      "test_levels": "Test Levels:"
+    },
+    "confirmation": {
+      "prompt": "Proceed with installation?",
+      "cancelled": "Installation cancelled."
+    },
+    "installation": {
+      "copying_standards": "Copying standards...",
+      "copied_standards": "Copied",
+      "standard_files": "standard files",
+      "copying_extensions": "Copying extensions...",
+      "copied_extensions": "extension files",
+      "generating_integrations": "Generating integration files...",
+      "generated_integrations": "integration files",
+      "generating_claude_md": "Generating CLAUDE.md...",
+      "installing_skills": "Installing Claude Code Skills..."
+    },
+    "success": {
+      "message": "Standards initialized successfully!",
+      "files_copied": "files copied to project",
+      "manifest_created": "Manifest created at .standards/manifest.json"
+    },
+    "next_steps": {
+      "title": "Next steps:",
+      "step1": "Review .standards/ directory",
+      "step2": "Add .standards/ to version control",
+      "step3_with_skills": "Restart Claude Code to load new Skills",
+      "step3_without_skills": "Run `uds check` to verify adoption status",
+      "step4": "Run `uds check` to verify adoption status"
+    },
+    "errors": {
+      "prefix": "error(s) occurred:"
+    }
+  }
+}

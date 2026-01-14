@@ -1,0 +1,112 @@
+{
+  "name": "Non-Interactive Mode (--yes)",
+  "description": "Test non-interactive mode with various CLI flags",
+  "cases": [
+    {
+      "id": "basic-yes",
+      "name": "Basic --yes mode",
+      "options": {},
+      "expectedOutputs": [
+        "Universal Development Standards - Initialize",
+        "Detecting project characteristics...",
+        "Project analysis complete",
+        "Configuration Summary:",
+        "Level: 2",
+        "Format: Compact",
+        "Standards initialized successfully"
+      ],
+      "expectedFiles": [
+        ".standards/manifest.json"
+      ],
+      "notExpectedOutputs": [
+        "Select AI tools",
+        "Proceed with installation?"
+      ]
+    },
+    {
+      "id": "level-3",
+      "name": "--yes with --level=3",
+      "options": {
+        "level": "3"
+      },
+      "expectedOutputs": [
+        "Level: 3",
+        "Standards initialized successfully"
+      ],
+      "expectedFiles": [
+        ".standards/manifest.json"
+      ]
+    },
+    {
+      "id": "skills-marketplace",
+      "name": "--yes with --skills-location=marketplace",
+      "options": {
+        "skillsLocation": "marketplace"
+      },
+      "expectedOutputs": [
+        "Plugin Marketplace",
+        "Standards Scope: Lean"
+      ],
+      "expectedFiles": [
+        ".standards/manifest.json"
+      ]
+    },
+    {
+      "id": "skills-project",
+      "name": "--yes with --skills-location=project",
+      "options": {
+        "skillsLocation": "project"
+      },
+      "expectedOutputs": [
+        "install/update to project",
+        "Standards Scope: Lean"
+      ],
+      "expectedFiles": [
+        ".standards/manifest.json"
+      ]
+    },
+    {
+      "id": "skills-none",
+      "name": "--yes with --skills-location=none",
+      "options": {
+        "skillsLocation": "none"
+      },
+      "expectedOutputs": [
+        "Standards Scope: Complete"
+      ],
+      "notExpectedOutputs": [
+        "Plugin Marketplace",
+        "install/update to"
+      ],
+      "expectedFiles": [
+        ".standards/manifest.json"
+      ]
+    },
+    {
+      "id": "content-mode-full",
+      "name": "--yes with --content-mode=full",
+      "options": {
+        "contentMode": "full"
+      },
+      "expectedOutputs": [
+        "Content Mode: Full Embed"
+      ],
+      "expectedFiles": [
+        ".standards/manifest.json"
+      ]
+    },
+    {
+      "id": "content-mode-minimal",
+      "name": "--yes with --content-mode=minimal",
+      "options": {
+        "contentMode": "minimal"
+      },
+      "expectedOutputs": [
+        "Content Mode: Minimal"
+      ],
+      "expectedFiles": [
+        ".standards/manifest.json"
+      ]
+    }
+  ]
+}
