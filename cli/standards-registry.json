@@ -539,6 +539,16 @@
       "description": "Content requirements and writing guidelines for different project types"
     },
     {
+      "id": "ai-instruction-standards",
+      "name": "AI Instruction File Standards",
+      "nameZh": "AI 指令檔案規範",
+      "source": "core/ai-instruction-standards.md",
+      "category": "reference",
+      "skillName": null,
+      "level": 2,
+      "description": "Best practices for creating AI instruction files with universal vs project-specific separation"
+    },
+    {
       "id": "project-structure",
       "name": "Project Structure",
       "nameZh": "專案結構",

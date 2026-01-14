@@ -304,7 +304,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 
 **Key Requirements:**
 - All new features must have corresponding tests
-- Run `npm test` before committing
+- Run tests before committing
 - Maintain or improve test coverage
 - Use descriptive test names following `should_[expected]_when_[condition]` pattern
 
