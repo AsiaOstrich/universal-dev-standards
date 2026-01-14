@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/docs/OPERATION-WORKFLOW.md) | [简体中文](../locales/zh-CN/docs/OPERATION-WORKFLOW.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-13
+**Version**: 1.2.0
+**Last Updated**: 2026-01-14
 
 This document provides a complete operation workflow for the Universal Development Standards (UDS) project, covering the entire process from core standards to file generation.
 
@@ -332,6 +332,8 @@ CC BY 4.0
 | Gemini CLI | `GEMINI.md` | Markdown |
 | OpenSpec | `AGENTS.md` | Markdown |
 
+> **Related**: For complete AI Agent support status, Skills compatibility matrix, and future roadmap, see [AI-AGENT-ROADMAP.md](./AI-AGENT-ROADMAP.md).
+
 ### 5.2 Integration Directory Structure
 
 ```
@@ -561,6 +563,76 @@ options/commit-message/english.md ↔ ai/options/commit-message/english.ai.yaml
 ```bash
 ./scripts/check-version-sync.sh
 ```
+
+### 7.5 CLI and Slash Command Sync
+
+#### Relationship Overview
+
+UDS has two related but independent components:
+
+| Component | Type | Location | Purpose |
+|-----------|------|----------|---------|
+| UDS CLI | Node.js program | `cli/src/` | Execute actual operations (`uds init`, `uds check`, etc.) |
+| Slash commands | Markdown docs | `skills/claude-code/commands/` | Guide AI on how to use CLI |
+
+**Execution Flow:**
+```
+User inputs /update in Claude Code
+    ↓
+AI reads skills/claude-code/commands/update.md
+    ↓
+AI executes CLI commands (uds check, uds update)
+    ↓
+AI reports results to user based on CLI output
+```
+
+#### Sync Requirements
+
+When modifying CLI functionality, corresponding slash command documentation MUST be updated:
+
+| CLI File | Slash Command |
+|----------|---------------|
+| `cli/src/commands/init.js` | `skills/claude-code/commands/init.md` |
+| `cli/src/commands/check.js` | `skills/claude-code/commands/check.md` |
+| `cli/src/commands/update.js` | `skills/claude-code/commands/update.md` |
+| `cli/src/commands/configure.js` | `skills/claude-code/commands/configure.md` |
+| `cli/src/commands/list.js` | `skills/claude-code/commands/list.md` |
+| `cli/src/commands/skills.js` | `skills/claude-code/commands/skills.md` |
+
+#### Sync Checklist
+
+When adding new CLI features:
+
+1. [ ] Implement feature in CLI (`cli/src/commands/*.js` or `cli/src/utils/*.js`)
+2. [ ] Add unit tests (`cli/tests/`)
+3. [ ] Update slash command documentation (`skills/claude-code/commands/*.md`)
+4. [ ] Update translations if needed (`locales/zh-TW/skills/`, `locales/zh-CN/skills/`)
+5. [ ] Run verification: `cd cli && npm test && npm run lint`
+
+#### Example: Adding Marketplace Skills Version Detection
+
+When CLI `check.js` was updated to detect Plugin Marketplace Skills version:
+
+```
+Step 1: Add getMarketplaceSkillsInfo() in cli/src/utils/github.js
+        - Reads ~/.claude/plugins/installed_plugins.json
+        - Returns version info for universal-dev-standards plugin
+        ↓
+Step 2: Update displaySkillsStatus() in cli/src/commands/check.js
+        - Call getMarketplaceSkillsInfo() for Marketplace installations
+        - Display version and last updated date
+        ↓
+Step 3: Add unit tests in cli/tests/utils/github.test.js
+        - Test various scenarios (file exists, not found, parse error)
+        ↓
+Step 4: Update skills/claude-code/commands/check.md
+        - Document new version output in Skills Status section
+        ↓
+Step 5: Update skills/claude-code/commands/update.md
+        - Add section explaining how to check Skills version
+```
+
+**Key Insight**: Without updating the slash command documentation, AI will not know about the new CLI capability and may provide inaccurate information to users.
 
 ---
 

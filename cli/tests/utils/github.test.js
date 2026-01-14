@@ -33,6 +33,7 @@ import {
   getProjectSkillsDir,
   getInstalledSkillsInfo,
   getProjectInstalledSkillsInfo,
+  getMarketplaceSkillsInfo,
   writeSkillsManifest,
   hasLocalSkills,
   getLocalSkillsDir,
@@ -290,6 +291,81 @@ describe('GitHub Utils', () => {
 
       expect(result.success).toBe(true);
       expect(result.path).toBe(join('/custom/skills', 'test-skill'));
+    });
+  });
+
+  describe('getMarketplaceSkillsInfo', () => {
+    it('should return null when plugins file does not exist', () => {
+      existsSync.mockReturnValue(false);
+
+      const result = getMarketplaceSkillsInfo();
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when no universal-dev-standards plugin found', () => {
+      existsSync.mockReturnValue(true);
+      readFileSync.mockReturnValue(JSON.stringify({
+        version: 2,
+        plugins: {
+          'other-plugin@marketplace': [{ version: '1.0.0' }]
+        }
+      }));
+
+      const result = getMarketplaceSkillsInfo();
+
+      expect(result).toBeNull();
+    });
+
+    it('should return plugin info when universal-dev-standards is found', () => {
+      existsSync.mockReturnValue(true);
+      readFileSync.mockReturnValue(JSON.stringify({
+        version: 2,
+        plugins: {
+          'universal-dev-standards@asia-ostrich': [{
+            scope: 'user',
+            installPath: '/Users/test/.claude/plugins/cache/asia-ostrich/universal-dev-standards/3.5.0-beta.3',
+            version: '3.5.0-beta.3',
+            installedAt: '2026-01-13T01:53:03.151Z',
+            lastUpdated: '2026-01-13T01:53:03.151Z'
+          }]
+        }
+      }));
+
+      const result = getMarketplaceSkillsInfo();
+
+      expect(result).toEqual({
+        installed: true,
+        version: '3.5.0-beta.3',
+        installPath: '/Users/test/.claude/plugins/cache/asia-ostrich/universal-dev-standards/3.5.0-beta.3',
+        installedAt: '2026-01-13T01:53:03.151Z',
+        lastUpdated: '2026-01-13T01:53:03.151Z',
+        source: 'marketplace',
+        pluginKey: 'universal-dev-standards@asia-ostrich'
+      });
+    });
+
+    it('should handle JSON parse errors', () => {
+      existsSync.mockReturnValue(true);
+      readFileSync.mockReturnValue('invalid json');
+
+      const result = getMarketplaceSkillsInfo();
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle empty plugin array', () => {
+      existsSync.mockReturnValue(true);
+      readFileSync.mockReturnValue(JSON.stringify({
+        version: 2,
+        plugins: {
+          'universal-dev-standards@asia-ostrich': []
+        }
+      }));
+
+      const result = getMarketplaceSkillsInfo();
+
+      expect(result).toBeNull();
     });
   });
 });

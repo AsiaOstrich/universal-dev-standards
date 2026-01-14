@@ -36,7 +36,8 @@ uds check
 
 ### Skills Status | Skills 狀態
 - Installation location (Marketplace, User, Project)
-- Version information
+- Version information (auto-detected from `~/.claude/plugins/installed_plugins.json` for Marketplace installations)
+- Last updated date
 - Migration suggestions if applicable
 
 ### Coverage Summary | 覆蓋率摘要

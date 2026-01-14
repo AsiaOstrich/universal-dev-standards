@@ -1,9 +1,9 @@
 ---
 source: ../../../docs/OPERATION-WORKFLOW.md
-source_version: 1.1.0
-translation_version: 1.1.0
+source_version: 1.2.0
+translation_version: 1.2.0
 status: current
-last_updated: 2026-01-13
+last_updated: 2026-01-14
 translator: Claude
 ---
 
@@ -11,8 +11,8 @@ translator: Claude
 
 > **Language**: [English](../../../docs/OPERATION-WORKFLOW.md) | 繁體中文 | [简体中文](../../zh-CN/docs/OPERATION-WORKFLOW.md)
 
-**版本**: 1.1.0
-**最後更新**: 2026-01-13
+**版本**: 1.2.0
+**最後更新**: 2026-01-14
 
 本文件提供 Universal Development Standards (UDS) 專案的完整作業流程，涵蓋從核心規範到檔案生成的所有流程。
 
@@ -341,6 +341,8 @@ CC BY 4.0
 | Gemini CLI | `GEMINI.md` | Markdown |
 | OpenSpec | `AGENTS.md` | Markdown |
 
+> **相關文件**：完整的 AI Agent 支援狀態、Skills 相容性矩陣及未來規劃，請參閱 [AI-AGENT-ROADMAP.md](./AI-AGENT-ROADMAP.md)。
+
 ### 5.2 整合目錄結構
 
 ```
@@ -570,6 +572,76 @@ options/commit-message/english.md ↔ ai/options/commit-message/english.ai.yaml
 ```bash
 ./scripts/check-version-sync.sh
 ```
+
+### 7.5 CLI 與斜線命令同步
+
+#### 關係概述
+
+UDS 有兩個相關但獨立的元件：
+
+| 元件 | 類型 | 位置 | 用途 |
+|------|------|------|------|
+| UDS CLI | Node.js 程式 | `cli/src/` | 執行實際操作（`uds init`、`uds check` 等）|
+| 斜線命令 | Markdown 文檔 | `skills/claude-code/commands/` | 指導 AI 如何使用 CLI |
+
+**執行流程：**
+```
+使用者在 Claude Code 輸入 /update
+    ↓
+AI 讀取 skills/claude-code/commands/update.md
+    ↓
+AI 執行 CLI 命令（uds check、uds update）
+    ↓
+AI 根據 CLI 輸出向使用者報告結果
+```
+
+#### 同步要求
+
+修改 CLI 功能時，對應的斜線命令文檔**必須**同步更新：
+
+| CLI 檔案 | 斜線命令 |
+|----------|----------|
+| `cli/src/commands/init.js` | `skills/claude-code/commands/init.md` |
+| `cli/src/commands/check.js` | `skills/claude-code/commands/check.md` |
+| `cli/src/commands/update.js` | `skills/claude-code/commands/update.md` |
+| `cli/src/commands/configure.js` | `skills/claude-code/commands/configure.md` |
+| `cli/src/commands/list.js` | `skills/claude-code/commands/list.md` |
+| `cli/src/commands/skills.js` | `skills/claude-code/commands/skills.md` |
+
+#### 同步檢查清單
+
+新增 CLI 功能時：
+
+1. [ ] 在 CLI 實作功能（`cli/src/commands/*.js` 或 `cli/src/utils/*.js`）
+2. [ ] 新增單元測試（`cli/tests/`）
+3. [ ] 更新斜線命令文檔（`skills/claude-code/commands/*.md`）
+4. [ ] 如需要，更新翻譯（`locales/zh-TW/skills/`、`locales/zh-CN/skills/`）
+5. [ ] 執行驗證：`cd cli && npm test && npm run lint`
+
+#### 範例：新增 Marketplace Skills 版本檢測
+
+當 CLI `check.js` 更新以檢測 Plugin Marketplace Skills 版本時：
+
+```
+步驟 1：在 cli/src/utils/github.js 新增 getMarketplaceSkillsInfo()
+        - 讀取 ~/.claude/plugins/installed_plugins.json
+        - 返回 universal-dev-standards plugin 的版本資訊
+        ↓
+步驟 2：更新 cli/src/commands/check.js 的 displaySkillsStatus()
+        - 對 Marketplace 安裝呼叫 getMarketplaceSkillsInfo()
+        - 顯示版本和最後更新日期
+        ↓
+步驟 3：在 cli/tests/utils/github.test.js 新增單元測試
+        - 測試各種情境（檔案存在、找不到、解析錯誤）
+        ↓
+步驟 4：更新 skills/claude-code/commands/check.md
+        - 在 Skills Status 區段記錄新的版本輸出
+        ↓
+步驟 5：更新 skills/claude-code/commands/update.md
+        - 新增說明如何檢查 Skills 版本的章節
+```
+
+**關鍵洞察**：如果不更新斜線命令文檔，AI 將不知道新的 CLI 功能，可能向使用者提供不準確的資訊。
 
 ---
 

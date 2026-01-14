@@ -53,6 +53,18 @@ Skills are managed separately based on installation method:
 | User-level | `cd ~/.claude/skills && git pull` | 手動更新 |
 | Project-level | `cd .claude/skills && git pull` | 手動更新 |
 
+### Checking Skills Version | 檢查 Skills 版本
+
+**Plugin Marketplace Installation:**
+- Version info stored in: `~/.claude/plugins/installed_plugins.json`
+- Look for key containing `universal-dev-standards`
+- CLI `uds check` will automatically display the version
+
+**Manual Installation:**
+- Version info stored in: `~/.claude/skills/.manifest.json` or `.claude/skills/.manifest.json`
+
+**Important:** Skills version and standards version are managed independently. They may differ, and this is expected behavior.
+
 ## Usage | 使用方式
 
 - `/update` - Check and update standards

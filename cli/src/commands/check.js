@@ -13,7 +13,7 @@ import {
   compareFileHash,
   hasFileHashes
 } from '../utils/hasher.js';
-import { downloadFromGitHub } from '../utils/github.js';
+import { downloadFromGitHub, getMarketplaceSkillsInfo } from '../utils/github.js';
 import {
   parseReferences,
   compareStandardsWithReferences
@@ -634,8 +634,20 @@ function displaySkillsStatus(manifest, projectPath) {
 
     if (isMarketplace) {
       console.log(chalk.green('  ✓ Skills installed via Plugin Marketplace'));
+
+      // Try to get actual version from marketplace
+      const marketplaceInfo = getMarketplaceSkillsInfo();
+      if (marketplaceInfo && marketplaceInfo.version && marketplaceInfo.version !== 'unknown') {
+        console.log(chalk.gray(`    Version: ${marketplaceInfo.version}`));
+        if (marketplaceInfo.lastUpdated) {
+          const updateDate = marketplaceInfo.lastUpdated.split('T')[0];
+          console.log(chalk.gray(`    Last updated: ${updateDate}`));
+        }
+      } else {
+        console.log(chalk.gray('    Version: (run /plugin list to check)'));
+      }
+
       console.log(chalk.gray('    Managed by Claude Code plugin system'));
-      console.log(chalk.gray('    To verify: /plugin list'));
       console.log(chalk.gray('    Note: Marketplace skills are not file-based'));
     } else {
       const skillsDir = join(process.env.HOME || '', '.claude', 'skills');

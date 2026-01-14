@@ -454,6 +454,54 @@ export function installSkillToDir(skillName, targetBaseDir) {
 }
 
 /**
+ * Get Plugin Marketplace installed skills info
+ * Reads from ~/.claude/plugins/installed_plugins.json
+ * @returns {Object|null} Marketplace skills info or null
+ */
+export function getMarketplaceSkillsInfo() {
+  const pluginsFile = join(homedir(), '.claude', 'plugins', 'installed_plugins.json');
+
+  if (!existsSync(pluginsFile)) {
+    return null;
+  }
+
+  try {
+    const data = JSON.parse(readFileSync(pluginsFile, 'utf-8'));
+    const plugins = data.plugins || {};
+
+    // Look for universal-dev-standards plugin (various marketplace keys)
+    const udsKeys = Object.keys(plugins).filter(key =>
+      key.includes('universal-dev-standards')
+    );
+
+    if (udsKeys.length === 0) {
+      return null;
+    }
+
+    // Get the first matching plugin info
+    const pluginKey = udsKeys[0];
+    const pluginInfo = plugins[pluginKey];
+
+    if (!pluginInfo || pluginInfo.length === 0) {
+      return null;
+    }
+
+    const info = pluginInfo[0];
+    return {
+      installed: true,
+      version: info.version || 'unknown',
+      installPath: info.installPath || null,
+      installedAt: info.installedAt || null,
+      lastUpdated: info.lastUpdated || null,
+      source: 'marketplace',
+      pluginKey
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Download and install a single Skill to a specific target directory
  * @param {string} skillName - Skill name
  * @param {string[]} skillFiles - Array of file paths relative to skills repo
