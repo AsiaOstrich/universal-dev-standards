@@ -218,6 +218,94 @@ describe('E2E: uds init', () => {
         options
       });
     });
+
+    it('should generate .md files when --format=human', async () => {
+      await setupTestDir(testDir, {});
+
+      const options = { format: 'human' };
+      const result = await runNonInteractive(options, testDir);
+
+      expect(result.stdout).toContain('Format: Detailed');
+      expect(result.stdout).toContain('Standards initialized successfully');
+
+      // Verify .md files were generated (not .ai.yaml)
+      const hasMdFiles = result.files.some(f => f.path.endsWith('.md') && f.path.includes('.standards/'));
+      const hasYamlFiles = result.files.some(f => f.path.endsWith('.ai.yaml'));
+
+      expect(hasMdFiles).toBe(true);
+      expect(hasYamlFiles).toBe(false);
+
+      recordScenarioResult('Non-Interactive Format Human', {
+        steps: [
+          { step: 1, name: 'Format Detailed', matched: result.stdout.includes('Format: Detailed') },
+          { step: 2, name: 'Has .md files', matched: hasMdFiles },
+          { step: 3, name: 'No .ai.yaml files', matched: !hasYamlFiles }
+        ],
+        output: result.stdout,
+        files: result.files,
+        options
+      });
+    });
+
+    it('should generate both formats when --format=both', async () => {
+      await setupTestDir(testDir, {});
+
+      const options = { format: 'both' };
+      const result = await runNonInteractive(options, testDir);
+
+      expect(result.stdout).toContain('Format: Both');
+      expect(result.stdout).toContain('Standards initialized successfully');
+
+      // Verify both .md and .ai.yaml files were generated
+      const hasMdFiles = result.files.some(f => f.path.endsWith('.md') && f.path.includes('.standards/'));
+      const hasYamlFiles = result.files.some(f => f.path.endsWith('.ai.yaml'));
+
+      expect(hasMdFiles).toBe(true);
+      expect(hasYamlFiles).toBe(true);
+
+      recordScenarioResult('Non-Interactive Format Both', {
+        steps: [
+          { step: 1, name: 'Format Both', matched: result.stdout.includes('Format: Both') },
+          { step: 2, name: 'Has .md files', matched: hasMdFiles },
+          { step: 3, name: 'Has .ai.yaml files', matched: hasYamlFiles }
+        ],
+        output: result.stdout,
+        files: result.files,
+        options
+      });
+    });
+
+    it('should generate .ai.yaml files when --format=ai (default)', async () => {
+      await setupTestDir(testDir, {});
+
+      const options = { format: 'ai' };
+      const result = await runNonInteractive(options, testDir);
+
+      expect(result.stdout).toContain('Format: Compact');
+
+      // Verify .ai.yaml files were generated (not .md standard files)
+      const hasYamlFiles = result.files.some(f => f.path.endsWith('.ai.yaml'));
+      // Note: some .md files like requirement-template.md are always generated
+      const hasStandardMdFiles = result.files.some(f =>
+        f.path.endsWith('.md') &&
+        f.path.includes('.standards/') &&
+        !f.path.includes('requirement') // exclude requirement templates
+      );
+
+      expect(hasYamlFiles).toBe(true);
+      expect(hasStandardMdFiles).toBe(false);
+
+      recordScenarioResult('Non-Interactive Format AI', {
+        steps: [
+          { step: 1, name: 'Format Compact', matched: result.stdout.includes('Format: Compact') },
+          { step: 2, name: 'Has .ai.yaml files', matched: hasYamlFiles },
+          { step: 3, name: 'No standard .md files', matched: !hasStandardMdFiles }
+        ],
+        output: result.stdout,
+        files: result.files,
+        options
+      });
+    });
   });
 
   // ===== Output Message Coverage Tests =====
