@@ -342,8 +342,11 @@ export async function initCommand(options) {
     }
     skillsConfig.contentMode = contentMode;
 
-    // STEP 14: Development methodology
-    const methodology = await promptMethodology();
+    // STEP 14: Development methodology (experimental - requires -E flag)
+    let methodology = null;
+    if (options.experimental) {
+      methodology = await promptMethodology();
+    }
     skillsConfig.methodology = methodology;
 
   } else {

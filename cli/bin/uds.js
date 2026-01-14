@@ -39,6 +39,7 @@ program
   .option('--locale <locale>', 'Locale extension (zh-tw)')
   .option('--skills-location <location>', 'Skills location (marketplace, user, project, none) [default: marketplace]')
   .option('-y, --yes', 'Use defaults, skip interactive prompts')
+  .option('-E, --experimental', 'Enable experimental features (methodology)')
   .action(initCommand);
 
 program
@@ -46,6 +47,7 @@ program
   .alias('config')
   .description('Modify options for initialized project')
   .option('-t, --type <type>', 'Option type to configure (format, workflow, merge_strategy, commit_language, test_levels, all)')
+  .option('-E, --experimental', 'Enable experimental features (methodology)')
   .action(configureCommand);
 
 program

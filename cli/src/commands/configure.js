@@ -64,7 +64,8 @@ export async function configureCommand(options) {
   console.log(chalk.gray(`  Format: ${manifest.format || 'human'}`));
   console.log(chalk.gray(`  Content Mode: ${manifest.contentMode || 'minimal'}`));
   console.log(chalk.gray(`  AI Tools: ${manifest.aiTools?.length > 0 ? manifest.aiTools.join(', ') : 'none'}`));
-  if (manifest.methodology?.active) {
+  // Only show methodology with -E flag (completely hidden otherwise)
+  if (options.experimental && manifest.methodology?.active) {
     console.log(chalk.gray(`  Methodology: ${manifest.methodology.active.toUpperCase()}`) + chalk.yellow(' [Experimental]'));
   }
   if (manifest.options) {
@@ -88,25 +89,38 @@ export async function configureCommand(options) {
 
   if (!configType) {
     const inquirer = await import('inquirer');
+
+    // Build choices array - methodology only shown with -E flag
+    const baseChoices = [
+      { name: 'Format (AI/Human)', value: 'format' },
+      { name: 'Git Workflow Strategy', value: 'workflow' },
+      { name: 'Merge Strategy', value: 'merge_strategy' },
+      { name: 'Commit Message Language', value: 'commit_language' },
+      { name: 'Test Levels', value: 'test_levels' },
+      new inquirer.default.Separator(),
+      { name: `${chalk.cyan('AI Tools')} - Add/Remove AI integrations`, value: 'ai_tools' },
+      { name: `${chalk.cyan('Adoption Level')} - Change Level 1/2/3`, value: 'level' },
+      { name: `${chalk.cyan('Content Mode')} - Change full/index/minimal`, value: 'content_mode' }
+    ];
+
+    // Only add methodology option when -E flag is used
+    if (options.experimental) {
+      baseChoices.push(
+        { name: `${chalk.cyan('Methodology')} ${chalk.yellow('[Experimental]')} - Change development methodology`, value: 'methodology' }
+      );
+    }
+
+    baseChoices.push(
+      new inquirer.default.Separator(),
+      { name: 'All Options', value: 'all' }
+    );
+
     const { type } = await inquirer.default.prompt([
       {
         type: 'list',
         name: 'type',
         message: 'What would you like to configure?',
-        choices: [
-          { name: 'Format (AI/Human)', value: 'format' },
-          { name: 'Git Workflow Strategy', value: 'workflow' },
-          { name: 'Merge Strategy', value: 'merge_strategy' },
-          { name: 'Commit Message Language', value: 'commit_language' },
-          { name: 'Test Levels', value: 'test_levels' },
-          new inquirer.default.Separator(),
-          { name: `${chalk.cyan('AI Tools')} - Add/Remove AI integrations`, value: 'ai_tools' },
-          { name: `${chalk.cyan('Adoption Level')} - Change Level 1/2/3`, value: 'level' },
-          { name: `${chalk.cyan('Content Mode')} - Change full/index/minimal`, value: 'content_mode' },
-          { name: `${chalk.cyan('Methodology')} ${chalk.yellow('[Experimental]')} - Change development methodology`, value: 'methodology' },
-          new inquirer.default.Separator(),
-          { name: 'All Options', value: 'all' }
-        ]
+        choices: baseChoices
       }
     ]);
     configType = type;
