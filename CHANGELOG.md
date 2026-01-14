@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.17] - 2026-01-14
+
+### Added
+- **Docs**: Add Windows PowerShell equivalents to all adoption guides (33 files)
+  - English source files (11): adoption guides, skills READMEs, maintenance docs
+  - zh-TW translations (11): full sync with English sources
+  - zh-CN translations (11): full sync with English sources
+- **Docs**: Add cross-platform command sync documentation to CLAUDE.md
+  - Standard Bash → PowerShell command equivalents table
+  - Labeling convention: `**macOS / Linux:**` + `**Windows PowerShell:**`
+  - List of 33 files requiring cross-platform maintenance
+- **Scripts**: Add `scripts/pre-release.ps1` for Windows pre-release checks
+
 ## [3.5.0-beta.16] - 2026-01-14
 
 ### Fixed
