@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.18] - 2026-01-14
+
+### Added
+- **Core**: Add new `ai-instruction-standards.md` (18th core standard)
+  - Define universal vs project-specific separation principle
+  - Cover all AI tools: Claude Code, Cursor, Windsurf, Cline, GitHub Copilot, OpenCode
+  - Include maintenance checklist and labeling conventions
+  - Add zh-TW and zh-CN translations
+
+### Fixed
+- **Docs**: Fix CLAUDE.md universal section leakage
+  - Remove `npm test` from universal testing standards section
+  - Replace with generic "Run tests before committing"
+
 ## [3.5.0-beta.17] - 2026-01-14
 
 ### Added
