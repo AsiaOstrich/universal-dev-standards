@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.22] - 2026-01-14
+
 ### Added
 - **Scripts**: Add registry reference check to `check-standards-sync.sh`
   - New Check 3 verifies all `ai/standards/*.ai.yaml` files are referenced in `standards-registry.json`
