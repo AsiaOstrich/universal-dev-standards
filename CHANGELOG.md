@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.16] - 2026-01-14
+
+### Fixed
+- **Skills**: Add standard format to project-structure-guide SKILL.md
+- **Docs**: Fix multi-language support documentation
+  - Remove unsupported language examples (Spanish, Japanese) from README
+  - Replace with Simplified Chinese examples (actual supported language)
+  - Add platform testing column to AI tool support tables
+  - Add platform support section (macOS tested, Linux/Windows untested)
+- **Docs**: Strengthen locale sync requirements
+  - Change zh-CN status from "partial" to "⚠️ 需與 EN 同步" across all docs
+  - Merge locale creation steps in OPERATION-WORKFLOW.md to emphasize sync
+
+### Added
+- **Docs**: Add LOCALIZATION-ROADMAP.md for future 10-language expansion plan
+  - Priority languages: ja, ko, pt-BR, es, de, fr, id
+  - AI-assisted translation workflow
+  - 833 total files to translate (119 × 7 languages)
+
 ## [3.5.0-beta.15] - 2026-01-14
 
 ### Fixed
