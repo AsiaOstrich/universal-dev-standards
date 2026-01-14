@@ -44,7 +44,9 @@ Describe how you tested these changes:
 ### Documentation | 文件
 - [ ] I have updated documentation if needed | 如有需要，我已更新文件
 - [ ] For core standard changes: I have updated both English and zh-TW versions | 核心規範變更：我已更新英文和繁體中文版本
-- [ ] I have run `./scripts/check-translation-sync.sh` if applicable | 如適用，我已執行翻譯同步檢查
+- [ ] I have run translation sync check if applicable | 如適用，我已執行翻譯同步檢查
+  - macOS / Linux: `./scripts/check-translation-sync.sh`
+  - Windows PowerShell: `.\scripts\check-translation-sync.ps1`
 
 ### Testing | 測試
 - [ ] I have added tests for new features | 我已為新功能添加測試

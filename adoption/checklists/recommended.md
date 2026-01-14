@@ -19,8 +19,14 @@
 
 Install additional Level 2 skills:
 
+**Recommended: Plugin Marketplace**
 ```bash
-# If not already installed globally
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
+```
+
+**Alternative: Script Installation (macOS / Linux)**
+```bash
 git clone https://github.com/AsiaOstrich/universal-dev-skills.git
 cd universal-dev-skills
 ./install.sh
@@ -56,31 +62,51 @@ Level 2 has no additional reference documents beyond Level 1.
 
 ### Language Extensions
 
-**For C# Projects**:
+**For C# Projects (macOS / Linux)**:
 ```bash
 cp path/to/universal-dev-standards/extensions/languages/csharp-style.md .standards/
 ```
+
+**For C# Projects (Windows PowerShell)**:
+```powershell
+Copy-Item path\to\universal-dev-standards\extensions\languages\csharp-style.md .standards\
+```
 - [ ] `csharp-style.md` copied (if applicable)
 
-**For PHP Projects**:
+**For PHP Projects (macOS / Linux)**:
 ```bash
 cp path/to/universal-dev-standards/extensions/languages/php-style.md .standards/
+```
+
+**For PHP Projects (Windows PowerShell)**:
+```powershell
+Copy-Item path\to\universal-dev-standards\extensions\languages\php-style.md .standards\
 ```
 - [ ] `php-style.md` copied (if applicable)
 
 ### Framework Extensions
 
-**For Fat-Free Framework**:
+**For Fat-Free Framework (macOS / Linux)**:
 ```bash
 cp path/to/universal-dev-standards/extensions/frameworks/fat-free-patterns.md .standards/
+```
+
+**For Fat-Free Framework (Windows PowerShell)**:
+```powershell
+Copy-Item path\to\universal-dev-standards\extensions\frameworks\fat-free-patterns.md .standards\
 ```
 - [ ] `fat-free-patterns.md` copied (if applicable)
 
 ### Locale Extensions
 
-**For Traditional Chinese Teams**:
+**For Traditional Chinese Teams (macOS / Linux)**:
 ```bash
 cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
+```
+
+**For Traditional Chinese Teams (Windows PowerShell)**:
+```powershell
+Copy-Item path\to\universal-dev-standards\extensions\locales\zh-tw.md .standards\
 ```
 - [ ] `zh-tw.md` copied (if applicable)
 
@@ -91,33 +117,69 @@ cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
 Select and install based on your tools:
 
 ### GitHub Copilot
+
+**macOS / Linux:**
 ```bash
 mkdir -p .github
 cp path/to/universal-dev-standards/integrations/github-copilot/copilot-instructions.md .github/
 ```
+
+**Windows PowerShell:**
+```powershell
+New-Item -ItemType Directory -Force -Path .github
+Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-instructions.md .github\
+```
 - [ ] `.github/copilot-instructions.md` installed
 
 ### Cursor IDE
+
+**macOS / Linux:**
 ```bash
 cp path/to/universal-dev-standards/integrations/cursor/.cursorrules .
+```
+
+**Windows PowerShell:**
+```powershell
+Copy-Item path\to\universal-dev-standards\integrations\cursor\.cursorrules .
 ```
 - [ ] `.cursorrules` installed
 
 ### Windsurf IDE
+
+**macOS / Linux:**
 ```bash
 cp path/to/universal-dev-standards/integrations/windsurf/.windsurfrules .
+```
+
+**Windows PowerShell:**
+```powershell
+Copy-Item path\to\universal-dev-standards\integrations\windsurf\.windsurfrules .
 ```
 - [ ] `.windsurfrules` installed
 
 ### Cline
+
+**macOS / Linux:**
 ```bash
 cp path/to/universal-dev-standards/integrations/cline/.clinerules .
+```
+
+**Windows PowerShell:**
+```powershell
+Copy-Item path\to\universal-dev-standards\integrations\cline\.clinerules .
 ```
 - [ ] `.clinerules` installed
 
 ### OpenSpec (for SDD workflow)
+
+**macOS / Linux:**
 ```bash
 cp -r path/to/universal-dev-standards/integrations/openspec/ .openspec/
+```
+
+**Windows PowerShell:**
+```powershell
+Copy-Item -Recurse path\to\universal-dev-standards\integrations\openspec\ .openspec\
 ```
 - [ ] `.openspec/` directory installed
 

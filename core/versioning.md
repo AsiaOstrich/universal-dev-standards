@@ -281,9 +281,17 @@ Directories excluded from version control will not be committed, so they should 
 | Large Data | `data/`, `datasets/` | Data files, not in version control |
 
 **Verification Method**:
+
+**macOS / Linux:**
 ```bash
 # Before generating CHANGELOG, check project's .gitignore exclusions
 cat .gitignore | grep -E "^[^#*]" | head -20
+```
+
+**Windows PowerShell:**
+```powershell
+# Before generating CHANGELOG, check project's .gitignore exclusions
+Get-Content .gitignore | Where-Object { $_ -match "^[^#*]" } | Select-Object -First 20
 ```
 
 **Note**: Each project should determine exclusions based on its own `.gitignore` settings. The table above is just a common example.
@@ -310,6 +318,8 @@ Files containing sensitive data should not be recorded:
 When generating CHANGELOG, follow this process:
 
 1. **List changed commits**
+
+   **macOS / Linux / Windows (Git):**
    ```bash
    git log main..HEAD --oneline
    ```
@@ -323,9 +333,17 @@ When generating CHANGELOG, follow this process:
    - Ensure all recorded file paths exist in the repository
 
 4. **Verify records**
+
+   **macOS / Linux:**
    ```bash
    # Verify that recorded paths exist in the repository
    git ls-files | grep -E "path/to/file"
+   ```
+
+   **Windows PowerShell:**
+   ```powershell
+   # Verify that recorded paths exist in the repository
+   git ls-files | Select-String -Pattern "path/to/file"
    ```
 
 ---

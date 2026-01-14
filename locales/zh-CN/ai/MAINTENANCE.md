@@ -273,6 +273,8 @@ quick_reference:
 
 ## 常用命令
 
+### macOS / Linux
+
 ```bash
 # 检查同步状态
 ./scripts/check-translation-sync.sh zh-TW
@@ -293,6 +295,25 @@ echo "ZH options: $(find locales/zh-TW/ai/options -name '*.yaml' | wc -l)"
 grep -rh "file:.*options/" ai/standards/*.yaml | \
   sed 's/.*file: //' | sort -u | \
   while read f; do [ ! -f "ai/$f" ] && echo "Missing: $f"; done
+```
+
+### Windows PowerShell
+
+```powershell
+# 检查同步状态
+.\scripts\check-translation-sync.ps1 zh-TW
+
+# 列出所有 AI 标准
+Get-ChildItem ai\standards\*.yaml
+
+# 列出所有选项
+Get-ChildItem -Recurse ai\options -Filter "*.yaml" | Sort-Object FullName
+
+# 比较档案数量
+Write-Host "EN standards: $((Get-ChildItem ai\standards\*.yaml).Count)"
+Write-Host "ZH standards: $((Get-ChildItem locales\zh-TW\ai\standards\*.yaml).Count)"
+Write-Host "EN options: $((Get-ChildItem -Recurse ai\options -Filter '*.yaml').Count)"
+Write-Host "ZH options: $((Get-ChildItem -Recurse locales\zh-TW\ai\options -Filter '*.yaml').Count)"
 ```
 
 ---

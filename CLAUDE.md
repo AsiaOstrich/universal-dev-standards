@@ -330,6 +330,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 | Add/modify AI tool integration | §8.3 Adding a New AI Tool Integration |
 | Prepare release | §9 Release Process |
 | Any multi-file change | §7 Maintenance Workflow |
+| Add/modify installation commands | Cross-Platform Command Sync (below) |
 
 ### Quick Verification (All Changes)
 
@@ -344,6 +345,41 @@ After ANY modification, run:
 ./scripts/check-version-sync.sh
 cd cli && npm test && npm run lint
 ```
+
+### Cross-Platform Command Sync (UDS-specific) / 跨平台指令同步
+
+> ⚠️ This section is UDS project-specific. Not all projects require maintaining bilingual translations with cross-platform commands.
+
+#### When to Check / 何時檢查
+
+After modifying these UDS project files, verify cross-platform command sync:
+- Adoption guides (`adoption/`)
+- Skills installation instructions (`skills/*/README.md`)
+- Maintenance guides (`MAINTENANCE.md`, `ai/MAINTENANCE.md`)
+- Checklists (`adoption/checklists/`)
+
+#### Files Requiring Sync / 需要同步的檔案
+
+33 files require cross-platform command maintenance:
+- English sources: 11 files
+- zh-TW translations: 11 files
+- zh-CN translations: 11 files
+
+#### Standard Command Equivalents / 標準指令對照
+
+| Bash | PowerShell | Purpose / 用途 |
+|------|-----------|----------------|
+| `cp file dest/` | `Copy-Item file dest\` | Copy file / 複製檔案 |
+| `cp -r dir/ dest/` | `Copy-Item -Recurse dir\ dest\` | Recursive copy / 遞迴複製 |
+| `mkdir -p dir` | `New-Item -ItemType Directory -Force -Path dir` | Create directory / 建立目錄 |
+| `~/` | `$env:USERPROFILE\` | User home / 使用者目錄 |
+| `./script.sh` | `.\script.ps1` | Run script / 執行腳本 |
+
+#### Labeling Convention / 標籤慣例
+
+Use these labels for platform-specific code blocks:
+- `**macOS / Linux:**` followed by bash code block
+- `**Windows PowerShell:**` followed by powershell code block
 
 ---
 
@@ -379,11 +415,54 @@ When user asks to prepare a release:
 
 1. **Ask for release type**: beta, alpha, rc, or stable
 2. **Run pre-release checks**: Tests, linting, git status
-3. **Update version**: Use `npm version X.Y.Z-beta.N` or `npm version X.Y.Z`
+3. **Update ALL version files** (see UDS-specific section below)
 4. **Update CHANGELOG.md**: Follow the format in release-workflow.md
 5. **Create git tag**: Format `vX.Y.Z` or `vX.Y.Z-beta.N`
 6. **Commit and push**: Git commit and push tags
-7. **Remind to create GitHub Release**: User must create manually, GitHub Actions will handle npm publish
+7. **Create GitHub Release**: Use `gh release create` command
+
+### UDS Project-Specific Release Steps
+
+> ⚠️ **IMPORTANT**: This section contains UDS-specific requirements that MUST be followed in addition to the standard release workflow.
+
+#### Version Files to Update (6 files)
+
+When updating version, **ALL** of the following files must be synchronized:
+
+| File | Field | Required For |
+|------|-------|--------------|
+| `cli/package.json` | `"version"` | All releases |
+| `cli/standards-registry.json` | `"version"` (3 places) | All releases |
+| `.claude-plugin/plugin.json` | `"version"` | All releases |
+| `.claude-plugin/marketplace.json` | `"version"` | All releases |
+| `README.md` | `**Version**:` | Stable releases only |
+
+#### Pre-release Verification Scripts
+
+```bash
+# macOS / Linux
+./scripts/pre-release-check.sh
+
+# Windows PowerShell
+.\scripts\pre-release-check.ps1
+```
+
+This runs 7 checks:
+1. Git working directory status
+2. Version sync (`check-version-sync.sh`)
+3. Standards sync (`check-standards-sync.sh`)
+4. Translation sync (`check-translation-sync.sh`)
+5. Install scripts sync (`check-install-scripts-sync.sh`)
+6. Linting
+7. Tests
+
+#### Translation Sync (Stable Releases)
+
+For stable releases, ensure translations are synchronized:
+```bash
+./scripts/check-translation-sync.sh      # zh-TW
+./scripts/check-translation-sync.sh zh-CN # zh-CN
+```
 
 ### Example Interaction
 

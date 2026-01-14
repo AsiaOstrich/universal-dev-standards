@@ -85,9 +85,20 @@ locales/{lang}/
 ## 技術實施
 
 ### 1. 目錄結構模板
+
+**macOS / Linux:**
 ```bash
 # 為新語言建立目錄結構
 mkdir -p locales/{lang}/{core,docs,options,adoption,skills}
+```
+
+**Windows PowerShell:**
+```powershell
+# 為新語言建立目錄結構
+$lang = "{lang}"  # 替換為實際語言代碼
+@("core", "docs", "options", "adoption", "skills") | ForEach-Object {
+    New-Item -ItemType Directory -Force -Path "locales\$lang\$_"
+}
 ```
 
 ### 2. 翻譯文件模板（YAML front matter）
@@ -147,7 +158,9 @@ translator: AI-assisted / Human
 
 ## 驗證步驟
 
-1. 每個語言完成後執行 `./scripts/check-translation-sync.sh {lang}`
+1. 每個語言完成後執行翻譯同步檢查：
+   - **macOS / Linux:** `./scripts/check-translation-sync.sh {lang}`
+   - **Windows PowerShell:** `.\scripts\check-translation-sync.ps1 -Locale {lang}`
 2. 驗證 README.md 語言切換連結正確
 3. 測試 CLI `uds init` 對新語言的支援
 4. 更新 locales/README.md 的語言狀態表

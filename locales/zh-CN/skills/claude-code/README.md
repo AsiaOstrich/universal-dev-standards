@@ -116,10 +116,18 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 
 #### 手动安装（选择性 Skills）
 
+**macOS / Linux:**
 ```bash
 mkdir -p ~/.claude/skills
 cp -r ai-collaboration-standards ~/.claude/skills/
 cp -r commit-standards ~/.claude/skills/
+```
+
+**Windows PowerShell:**
+```powershell
+New-Item -ItemType Directory -Force -Path $env:USERPROFILE\.claude\skills
+Copy-Item -Recurse ai-collaboration-standards $env:USERPROFILE\.claude\skills\
+Copy-Item -Recurse commit-standards $env:USERPROFILE\.claude\skills\
 ```
 
 ### 替代方案：专案层级安装（已弃用）
@@ -128,9 +136,16 @@ cp -r commit-standards ~/.claude/skills/
 
 适用于专案特定技能自订：
 
+**macOS / Linux:**
 ```bash
 mkdir -p .claude/skills
 cp -r /path/to/skills/claude-code/* .claude/skills/
+```
+
+**Windows PowerShell:**
+```powershell
+New-Item -ItemType Directory -Force -Path .claude\skills
+Copy-Item -Recurse path\to\skills\claude-code\* .claude\skills\
 ```
 
 > **注意**：专案层级技能（`.claude/skills/`）优先于全域技能（`~/.claude/skills/`）。

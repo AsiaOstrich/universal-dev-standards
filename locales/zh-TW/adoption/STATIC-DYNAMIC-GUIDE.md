@@ -166,14 +166,25 @@ status: current
 
 ### 部署方式
 
-安裝為 Claude Code Skills：
-
+**推薦：Plugin Marketplace**
 ```bash
-# 安裝所有 skills
-cd skills/claude-code && ./install.sh
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
+```
 
-# 或選擇性安裝
+**替代方案：腳本安裝（macOS / Linux）**
+```bash
+cd skills/claude-code && ./install.sh
+```
+
+**替代方案：手動安裝（macOS / Linux）**
+```bash
 cp -r skills/claude-code/commit-standards ~/.claude/skills/
+```
+
+**替代方案：手動安裝（Windows PowerShell）**
+```powershell
+Copy-Item -Recurse skills\claude-code\commit-standards $env:USERPROFILE\.claude\skills\
 ```
 
 詳見 [Claude Code Skills README](../../../skills/claude-code/README.md)。

@@ -27,8 +27,14 @@ status: current
 
 安裝額外的等級二 skills:
 
+**推薦：Plugin Marketplace**
 ```bash
-# If not already installed globally
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
+```
+
+**替代方案：腳本安裝（macOS / Linux）**
+```bash
 git clone https://github.com/AsiaOstrich/universal-dev-skills.git
 cd universal-dev-skills
 ./install.sh
@@ -64,31 +70,51 @@ cd universal-dev-skills
 
 ### 語言延伸
 
-**用於 C# 專案**:
+**用於 C# 專案（macOS / Linux）**:
 ```bash
 cp path/to/universal-dev-standards/extensions/languages/csharp-style.md .standards/
 ```
+
+**用於 C# 專案（Windows PowerShell）**:
+```powershell
+Copy-Item path\to\universal-dev-standards\extensions\languages\csharp-style.md .standards\
+```
 - [ ] `csharp-style.md` copied (if applicable)
 
-**用於 PHP 專案**:
+**用於 PHP 專案（macOS / Linux）**:
 ```bash
 cp path/to/universal-dev-standards/extensions/languages/php-style.md .standards/
+```
+
+**用於 PHP 專案（Windows PowerShell）**:
+```powershell
+Copy-Item path\to\universal-dev-standards\extensions\languages\php-style.md .standards\
 ```
 - [ ] `php-style.md` copied (if applicable)
 
 ### 框架延伸
 
-**用於 Fat-Free 框架**:
+**用於 Fat-Free 框架（macOS / Linux）**:
 ```bash
 cp path/to/universal-dev-standards/extensions/frameworks/fat-free-patterns.md .standards/
+```
+
+**用於 Fat-Free 框架（Windows PowerShell）**:
+```powershell
+Copy-Item path\to\universal-dev-standards\extensions\frameworks\fat-free-patterns.md .standards\
 ```
 - [ ] `fat-free-patterns.md` copied (if applicable)
 
 ### 地區延伸
 
-**用於繁體中文團隊**:
+**用於繁體中文團隊（macOS / Linux）**:
 ```bash
 cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
+```
+
+**用於繁體中文團隊（Windows PowerShell）**:
+```powershell
+Copy-Item path\to\universal-dev-standards\extensions\locales\zh-tw.md .standards\
 ```
 - [ ] `zh-tw.md` copied (if applicable)
 
@@ -99,33 +125,69 @@ cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
 根據您的工具選擇並安裝：
 
 ### GitHub Copilot
+
+**macOS / Linux:**
 ```bash
 mkdir -p .github
 cp path/to/universal-dev-standards/integrations/github-copilot/copilot-instructions.md .github/
 ```
+
+**Windows PowerShell:**
+```powershell
+New-Item -ItemType Directory -Force -Path .github
+Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-instructions.md .github\
+```
 - [ ] `.github/copilot-instructions.md` installed
 
 ### Cursor IDE
+
+**macOS / Linux:**
 ```bash
 cp path/to/universal-dev-standards/integrations/cursor/.cursorrules .
+```
+
+**Windows PowerShell:**
+```powershell
+Copy-Item path\to\universal-dev-standards\integrations\cursor\.cursorrules .
 ```
 - [ ] `.cursorrules` installed
 
 ### Windsurf IDE
+
+**macOS / Linux:**
 ```bash
 cp path/to/universal-dev-standards/integrations/windsurf/.windsurfrules .
+```
+
+**Windows PowerShell:**
+```powershell
+Copy-Item path\to\universal-dev-standards\integrations\windsurf\.windsurfrules .
 ```
 - [ ] `.windsurfrules` installed
 
 ### Cline
+
+**macOS / Linux:**
 ```bash
 cp path/to/universal-dev-standards/integrations/cline/.clinerules .
+```
+
+**Windows PowerShell:**
+```powershell
+Copy-Item path\to\universal-dev-standards\integrations\cline\.clinerules .
 ```
 - [ ] `.clinerules` installed
 
 ### OpenSpec (for SDD workflow)
+
+**macOS / Linux:**
 ```bash
 cp -r path/to/universal-dev-standards/integrations/openspec/ .openspec/
+```
+
+**Windows PowerShell:**
+```powershell
+Copy-Item -Recurse path\to\universal-dev-standards\integrations\openspec\ .openspec\
 ```
 - [ ] `.openspec/` directory installed
 

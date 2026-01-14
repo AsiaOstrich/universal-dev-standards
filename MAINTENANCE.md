@@ -584,6 +584,8 @@ npm dist-tag add universal-dev-standards@X.Y.Z-beta.N beta
 
 ## Validation Commands
 
+### macOS / Linux
+
 ```bash
 # Check translation sync status
 ./scripts/check-translation-sync.sh zh-TW
@@ -612,6 +614,33 @@ find . -name "*.yaml" -not -path "./node_modules/*" | wc -l
 
 # CLI tests
 cd cli && npm test
+```
+
+### Windows PowerShell
+
+```powershell
+# Check translation sync status
+.\scripts\check-translation-sync.ps1 -Locale zh-TW
+
+# Check install scripts sync (skills)
+.\scripts\check-install-scripts-sync.ps1
+
+# List all AI standards
+Get-ChildItem ai\standards\*.yaml
+
+# List all AI options
+Get-ChildItem ai\options -Recurse -Filter "*.yaml" | Sort-Object FullName
+
+# Compare file counts
+Write-Host "EN standards: $((Get-ChildItem ai\standards\*.yaml).Count)"
+Write-Host "ZH standards: $((Get-ChildItem locales\zh-TW\ai\standards\*.yaml).Count)"
+
+# Count all project files
+(Get-ChildItem -Recurse -Filter "*.md" | Where-Object { $_.FullName -notlike "*node_modules*" }).Count
+(Get-ChildItem -Recurse -Filter "*.yaml" | Where-Object { $_.FullName -notlike "*node_modules*" }).Count
+
+# CLI tests
+Set-Location cli; npm test
 ```
 
 ---

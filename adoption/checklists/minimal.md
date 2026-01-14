@@ -17,7 +17,15 @@
 
 ## Skills Installation
 
-### Option A: Install All Skills (Recommended)
+### Option A: Plugin Marketplace (Recommended)
+
+```bash
+# In Claude Code
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
+```
+
+### Option B: Script Installation (macOS / Linux)
 
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-skills.git
@@ -26,12 +34,20 @@ cd universal-dev-skills
 # Select: Global installation
 ```
 
-### Option B: Install Specific Skills Only
+### Option C: Manual Copy (macOS / Linux)
 
 ```bash
 # Copy only Level 1 skills
 cp -r universal-dev-skills/skills/ai-collaboration-standards ~/.claude/skills/
 cp -r universal-dev-skills/skills/commit-standards ~/.claude/skills/
+```
+
+### Option C: Manual Copy (Windows PowerShell)
+
+```powershell
+# Copy only Level 1 skills
+Copy-Item -Recurse universal-dev-skills\skills\ai-collaboration-standards $env:USERPROFILE\.claude\skills\
+Copy-Item -Recurse universal-dev-skills\skills\commit-standards $env:USERPROFILE\.claude\skills\
 ```
 
 **Checklist**:
@@ -44,6 +60,7 @@ cp -r universal-dev-skills/skills/commit-standards ~/.claude/skills/
 
 Copy these documents to your project:
 
+**macOS / Linux:**
 ```bash
 # In your project root
 mkdir -p .standards
@@ -51,6 +68,16 @@ mkdir -p .standards
 # Copy Level 1 reference documents
 cp path/to/universal-dev-standards/core/checkin-standards.md .standards/
 cp path/to/universal-dev-standards/core/spec-driven-development.md .standards/
+```
+
+**Windows PowerShell:**
+```powershell
+# In your project root
+New-Item -ItemType Directory -Force -Path .standards
+
+# Copy Level 1 reference documents
+Copy-Item path\to\universal-dev-standards\core\checkin-standards.md .standards\
+Copy-Item path\to\universal-dev-standards\core\spec-driven-development.md .standards\
 ```
 
 **Checklist**:

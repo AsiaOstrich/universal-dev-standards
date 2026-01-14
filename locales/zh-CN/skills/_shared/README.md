@@ -41,12 +41,22 @@ status: current
 
 ## 使用方式
 
+**macOS / Linux:**
 ```bash
 # 为特定工具生成规则
 ./generate.sh cursor
 
 # 为所有工具生成规则
 ./generate.sh all
+```
+
+**Windows PowerShell:**
+```powershell
+# 为特定工具生成规则
+.\generate.ps1 cursor
+
+# 为所有工具生成规则
+.\generate.ps1 all
 ```
 
 ## 贡献

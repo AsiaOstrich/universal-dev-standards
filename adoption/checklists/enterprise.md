@@ -20,6 +20,13 @@
 
 Ensure ALL skills are installed:
 
+**Recommended: Plugin Marketplace**
+```bash
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
+```
+
+**Alternative: Script Installation (macOS / Linux)**
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-skills.git
 cd universal-dev-skills
@@ -49,6 +56,7 @@ cd universal-dev-skills
 
 Copy all reference documents to your project:
 
+**macOS / Linux:**
 ```bash
 # In your project root
 mkdir -p .standards
@@ -60,6 +68,20 @@ cp path/to/universal-dev-standards/core/spec-driven-development.md .standards/
 # Level 3 reference documents
 cp path/to/universal-dev-standards/core/documentation-writing-standards.md .standards/
 cp path/to/universal-dev-standards/core/project-structure.md .standards/
+```
+
+**Windows PowerShell:**
+```powershell
+# In your project root
+New-Item -ItemType Directory -Force -Path .standards
+
+# Level 1 reference documents
+Copy-Item path\to\universal-dev-standards\core\checkin-standards.md .standards\
+Copy-Item path\to\universal-dev-standards\core\spec-driven-development.md .standards\
+
+# Level 3 reference documents
+Copy-Item path\to\universal-dev-standards\core\documentation-writing-standards.md .standards\
+Copy-Item path\to\universal-dev-standards\core\project-structure.md .standards\
 ```
 
 **Checklist**:
@@ -76,8 +98,14 @@ cp path/to/universal-dev-standards/core/project-structure.md .standards/
 
 For projects involving technology migrations:
 
+**macOS / Linux:**
 ```bash
 cp path/to/universal-dev-standards/templates/migration-template.md docs/
+```
+
+**Windows PowerShell:**
+```powershell
+Copy-Item path\to\universal-dev-standards\templates\migration-template.md docs\
 ```
 - [ ] `migration-template.md` copied (if applicable)
 

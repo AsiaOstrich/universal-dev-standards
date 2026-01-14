@@ -28,6 +28,13 @@ status: current
 
 確保安裝所有 skills:
 
+**推薦：Plugin Marketplace**
+```bash
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
+```
+
+**替代方案：腳本安裝（macOS / Linux）**
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-skills.git
 cd universal-dev-skills
@@ -57,6 +64,7 @@ cd universal-dev-skills
 
 複製所有參考文件到您的專案：
 
+**macOS / Linux:**
 ```bash
 # In your project root
 mkdir -p .standards
@@ -68,6 +76,20 @@ cp path/to/universal-dev-standards/core/spec-driven-development.md .standards/
 # Level 3 reference documents
 cp path/to/universal-dev-standards/core/documentation-writing-standards.md .standards/
 cp path/to/universal-dev-standards/core/project-structure.md .standards/
+```
+
+**Windows PowerShell:**
+```powershell
+# In your project root
+New-Item -ItemType Directory -Force -Path .standards
+
+# Level 1 reference documents
+Copy-Item path\to\universal-dev-standards\core\checkin-standards.md .standards\
+Copy-Item path\to\universal-dev-standards\core\spec-driven-development.md .standards\
+
+# Level 3 reference documents
+Copy-Item path\to\universal-dev-standards\core\documentation-writing-standards.md .standards\
+Copy-Item path\to\universal-dev-standards\core\project-structure.md .standards\
 ```
 
 **檢查清單**:
@@ -84,8 +106,14 @@ cp path/to/universal-dev-standards/core/project-structure.md .standards/
 
 用於涉及技術遷移的專案：
 
+**macOS / Linux:**
 ```bash
 cp path/to/universal-dev-standards/templates/migration-template.md docs/
+```
+
+**Windows PowerShell:**
+```powershell
+Copy-Item path\to\universal-dev-standards\templates\migration-template.md docs\
 ```
 - [ ] `migration-template.md` copied (if applicable)
 

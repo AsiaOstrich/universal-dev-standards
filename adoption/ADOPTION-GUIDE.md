@@ -81,9 +81,17 @@ Standards implemented as Claude Code Skills for interactive AI assistance.
 **Adoption Method**: Install via [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills)
 
 ```bash
+# macOS / Linux
 git clone https://github.com/AsiaOstrich/universal-dev-skills.git
 cd universal-dev-skills
 ./install.sh
+```
+
+```powershell
+# Windows PowerShell
+git clone https://github.com/AsiaOstrich/universal-dev-skills.git
+Set-Location universal-dev-skills
+# Use Plugin Marketplace instead (see Installation section)
 ```
 
 ### Category 2: Reference Documents
@@ -93,8 +101,15 @@ Static reference documents that provide guidelines but don't have workflow equiv
 **Adoption Method**: Copy to project's `.standards/` directory
 
 ```bash
+# macOS / Linux
 mkdir -p .standards
 cp <source-file> .standards/
+```
+
+```powershell
+# Windows PowerShell
+New-Item -ItemType Directory -Force -Path .standards
+Copy-Item <source-file> .standards\
 ```
 
 ### Category 3: Extensions
@@ -218,6 +233,7 @@ Consider your project's needs:
 
 ### Step 2: Install Skills
 
+**macOS / Linux:**
 ```bash
 # Clone and install universal-dev-skills
 git clone https://github.com/AsiaOstrich/universal-dev-skills.git
@@ -227,8 +243,16 @@ cd universal-dev-skills
 # Choose installation type based on your needs
 ```
 
+**Windows PowerShell:**
+```powershell
+# Recommended: Use Plugin Marketplace in Claude Code
+# /plugin marketplace add AsiaOstrich/universal-dev-standards
+# /plugin install universal-dev-standards@asia-ostrich
+```
+
 ### Step 3: Copy Reference Documents
 
+**macOS / Linux:**
 ```bash
 # In your project directory
 mkdir -p .standards
@@ -243,16 +267,40 @@ cp path/to/universal-dev-standards/core/documentation-writing-standards.md .stan
 cp path/to/universal-dev-standards/core/project-structure.md .standards/
 ```
 
+**Windows PowerShell:**
+```powershell
+# In your project directory
+New-Item -ItemType Directory -Force -Path .standards
+
+# Copy reference documents based on your level
+# Level 1
+Copy-Item path\to\universal-dev-standards\core\checkin-standards.md .standards\
+Copy-Item path\to\universal-dev-standards\core\spec-driven-development.md .standards\
+
+# Level 3 (additional)
+Copy-Item path\to\universal-dev-standards\core\documentation-writing-standards.md .standards\
+Copy-Item path\to\universal-dev-standards\core\project-structure.md .standards\
+```
+
 ### Step 4: Copy Applicable Extensions
 
+**macOS / Linux:**
 ```bash
 # Example: For a PHP project with Traditional Chinese team
 cp path/to/universal-dev-standards/extensions/languages/php-style.md .standards/
 cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
 ```
 
+**Windows PowerShell:**
+```powershell
+# Example: For a PHP project with Traditional Chinese team
+Copy-Item path\to\universal-dev-standards\extensions\languages\php-style.md .standards\
+Copy-Item path\to\universal-dev-standards\extensions\locales\zh-tw.md .standards\
+```
+
 ### Step 5: Setup AI Tool Integrations
 
+**macOS / Linux:**
 ```bash
 # Example: For Cursor IDE
 cp path/to/universal-dev-standards/integrations/cursor/.cursorrules .
@@ -260,6 +308,16 @@ cp path/to/universal-dev-standards/integrations/cursor/.cursorrules .
 # Example: For GitHub Copilot
 mkdir -p .github
 cp path/to/universal-dev-standards/integrations/github-copilot/copilot-instructions.md .github/
+```
+
+**Windows PowerShell:**
+```powershell
+# Example: For Cursor IDE
+Copy-Item path\to\universal-dev-standards\integrations\cursor\.cursorrules .
+
+# Example: For GitHub Copilot
+New-Item -ItemType Directory -Force -Path .github
+Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-instructions.md .github\
 ```
 
 ---

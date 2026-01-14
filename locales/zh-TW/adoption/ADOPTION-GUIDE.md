@@ -88,6 +88,13 @@ status: current
 
 **採用方式**：透過 [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) 安裝
 
+**推薦：Plugin Marketplace**
+```bash
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
+```
+
+**替代方案：腳本安裝（macOS / Linux）**
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-skills.git
 cd universal-dev-skills
@@ -100,9 +107,16 @@ cd universal-dev-skills
 
 **採用方式**：複製到專案的 `.standards/` 目錄
 
+**macOS / Linux:**
 ```bash
 mkdir -p .standards
 cp <source-file> .standards/
+```
+
+**Windows PowerShell:**
+```powershell
+New-Item -ItemType Directory -Force -Path .standards
+Copy-Item <source-file> .standards\
 ```
 
 ### 類別三：延伸
@@ -226,17 +240,22 @@ cp <source-file> .standards/
 
 ### 步驟二：安裝 Skills
 
+**推薦：Plugin Marketplace**
 ```bash
-# 複製並安裝 universal-dev-skills
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
+```
+
+**替代方案：腳本安裝（macOS / Linux）**
+```bash
 git clone https://github.com/AsiaOstrich/universal-dev-skills.git
 cd universal-dev-skills
 ./install.sh
-
-# 根據需求選擇安裝類型
 ```
 
 ### 步驟三：複製參考文件
 
+**macOS / Linux:**
 ```bash
 # 在專案目錄中
 mkdir -p .standards
@@ -251,16 +270,40 @@ cp path/to/universal-dev-standards/core/documentation-writing-standards.md .stan
 cp path/to/universal-dev-standards/core/project-structure.md .standards/
 ```
 
+**Windows PowerShell:**
+```powershell
+# 在專案目錄中
+New-Item -ItemType Directory -Force -Path .standards
+
+# 根據等級複製參考文件
+# 等級一
+Copy-Item path\to\universal-dev-standards\core\checkin-standards.md .standards\
+Copy-Item path\to\universal-dev-standards\core\spec-driven-development.md .standards\
+
+# 等級三（額外）
+Copy-Item path\to\universal-dev-standards\core\documentation-writing-standards.md .standards\
+Copy-Item path\to\universal-dev-standards\core\project-structure.md .standards\
+```
+
 ### 步驟四：複製適用的延伸
 
+**macOS / Linux:**
 ```bash
 # 範例：PHP 專案，繁體中文團隊
 cp path/to/universal-dev-standards/extensions/languages/php-style.md .standards/
 cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
 ```
 
+**Windows PowerShell:**
+```powershell
+# 範例：PHP 專案，繁體中文團隊
+Copy-Item path\to\universal-dev-standards\extensions\languages\php-style.md .standards\
+Copy-Item path\to\universal-dev-standards\extensions\locales\zh-tw.md .standards\
+```
+
 ### 步驟五：設置 AI 工具整合
 
+**macOS / Linux:**
 ```bash
 # 範例：Cursor IDE
 cp path/to/universal-dev-standards/integrations/cursor/.cursorrules .
@@ -268,6 +311,16 @@ cp path/to/universal-dev-standards/integrations/cursor/.cursorrules .
 # 範例：GitHub Copilot
 mkdir -p .github
 cp path/to/universal-dev-standards/integrations/github-copilot/copilot-instructions.md .github/
+```
+
+**Windows PowerShell:**
+```powershell
+# 範例：Cursor IDE
+Copy-Item path\to\universal-dev-standards\integrations\cursor\.cursorrules .
+
+# 範例：GitHub Copilot
+New-Item -ItemType Directory -Force -Path .github
+Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-instructions.md .github\
 ```
 
 ---

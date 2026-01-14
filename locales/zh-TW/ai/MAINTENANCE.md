@@ -88,13 +88,21 @@ locales/zh-TW/ai/options/
 
 ### 步驟 1：檢查目前同步狀態
 
+**macOS / Linux:**
 ```bash
 # 執行翻譯同步檢查
 ./scripts/check-translation-sync.sh zh-TW
 ```
 
+**Windows PowerShell:**
+```powershell
+# 執行翻譯同步檢查
+.\scripts\check-translation-sync.ps1 -Locale zh-TW
+```
+
 ### 步驟 2：識別 core/ 的變更
 
+**macOS / Linux / Windows (Git):**
 ```bash
 # 檢查最近變更
 git log --oneline core/ -10
@@ -140,9 +148,18 @@ options:
 
 ### 步驟 6：驗證同步
 
+**macOS / Linux:**
 ```bash
 # 再次執行同步檢查
 ./scripts/check-translation-sync.sh zh-TW
+
+# 預期：所有檔案 [CURRENT]
+```
+
+**Windows PowerShell:**
+```powershell
+# 再次執行同步檢查
+.\scripts\check-translation-sync.ps1 -Locale zh-TW
 
 # 預期：所有檔案 [CURRENT]
 ```
@@ -273,6 +290,7 @@ quick_reference:
 
 ## 常用命令
 
+**macOS / Linux:**
 ```bash
 # 檢查同步狀態
 ./scripts/check-translation-sync.sh zh-TW
@@ -293,6 +311,24 @@ echo "ZH options: $(find locales/zh-TW/ai/options -name '*.yaml' | wc -l)"
 grep -rh "file:.*options/" ai/standards/*.yaml | \
   sed 's/.*file: //' | sort -u | \
   while read f; do [ ! -f "ai/$f" ] && echo "Missing: $f"; done
+```
+
+**Windows PowerShell:**
+```powershell
+# 檢查同步狀態
+.\scripts\check-translation-sync.ps1 -Locale zh-TW
+
+# 列出所有 AI 標準
+Get-ChildItem ai\standards\*.yaml
+
+# 列出所有選項
+Get-ChildItem -Recurse ai\options -Filter "*.yaml" | Sort-Object FullName
+
+# 比較檔案數量
+Write-Host "EN standards: $((Get-ChildItem ai\standards\*.yaml).Count)"
+Write-Host "ZH standards: $((Get-ChildItem locales\zh-TW\ai\standards\*.yaml).Count)"
+Write-Host "EN options: $((Get-ChildItem -Recurse ai\options -Filter '*.yaml').Count)"
+Write-Host "ZH options: $((Get-ChildItem -Recurse locales\zh-TW\ai\options -Filter '*.yaml').Count)"
 ```
 
 ---

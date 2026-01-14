@@ -33,12 +33,22 @@ This directory contains:
 
 ## Usage
 
+**macOS / Linux:**
 ```bash
 # Generate rules for a specific tool
 ./generate.sh cursor
 
 # Generate rules for all tools
 ./generate.sh all
+```
+
+**Windows PowerShell:**
+```powershell
+# Generate rules for a specific tool
+.\generate.ps1 cursor
+
+# Generate rules for all tools
+.\generate.ps1 all
 ```
 
 ## Contributing

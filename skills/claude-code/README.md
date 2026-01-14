@@ -132,16 +132,25 @@ For users in environments without Marketplace access (e.g., enterprise networks)
 
 #### Quick Install (All Skills)
 
+**macOS / Linux:**
 ```bash
 ./install.sh
 ```
 
 #### Manual Install (Select Skills)
 
+**macOS / Linux:**
 ```bash
 mkdir -p ~/.claude/skills
 cp -r ai-collaboration-standards ~/.claude/skills/
 cp -r commit-standards ~/.claude/skills/
+```
+
+**Windows PowerShell:**
+```powershell
+New-Item -ItemType Directory -Force -Path $env:USERPROFILE\.claude\skills
+Copy-Item -Recurse ai-collaboration-standards $env:USERPROFILE\.claude\skills\
+Copy-Item -Recurse commit-standards $env:USERPROFILE\.claude\skills\
 ```
 
 ### Alternative: Project-Level Installation (Deprecated)
@@ -150,9 +159,16 @@ cp -r commit-standards ~/.claude/skills/
 
 For project-specific skill customization:
 
+**macOS / Linux:**
 ```bash
 mkdir -p .claude/skills
 cp -r /path/to/skills/claude-code/* .claude/skills/
+```
+
+**Windows PowerShell:**
+```powershell
+New-Item -ItemType Directory -Force -Path .claude\skills
+Copy-Item -Recurse path\to\skills\claude-code\* .claude\skills\
 ```
 
 > **Note**: Project-level skills (`.claude/skills/`) take precedence over global skills (`~/.claude/skills/`).

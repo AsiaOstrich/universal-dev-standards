@@ -80,19 +80,34 @@ locales/zh-TW/ai/options/
 
 ### Step 1: Check Current Sync Status
 
+**macOS / Linux:**
 ```bash
-# Run translation sync check
 ./scripts/check-translation-sync.sh zh-TW
+```
+
+**Windows PowerShell:**
+```powershell
+.\scripts\check-translation-sync.ps1 -Locale zh-TW
 ```
 
 ### Step 2: Identify Changes in core/
 
+**macOS / Linux:**
 ```bash
 # Check recent changes
 git log --oneline core/ -10
 
 # Compare versions
 grep -E "^\*\*Version\*\*:|^version:" core/*.md | head -20
+```
+
+**Windows PowerShell:**
+```powershell
+# Check recent changes
+git log --oneline core/ -10
+
+# Compare versions
+Select-String -Path core\*.md -Pattern "^\*\*Version\*\*:|^version:" | Select-Object -First 20
 ```
 
 ### Step 3: Update ai/standards/
@@ -132,10 +147,15 @@ For each updated English file:
 
 ### Step 6: Verify Sync
 
+**macOS / Linux:**
 ```bash
-# Run sync check again
 ./scripts/check-translation-sync.sh zh-TW
+# Expected: All files [CURRENT]
+```
 
+**Windows PowerShell:**
+```powershell
+.\scripts\check-translation-sync.ps1 -Locale zh-TW
 # Expected: All files [CURRENT]
 ```
 
@@ -279,6 +299,8 @@ These standards are universal rules and do not need configurable options:
 
 ## Common Commands
 
+### macOS / Linux
+
 ```bash
 # Check sync status
 ./scripts/check-translation-sync.sh zh-TW
@@ -299,6 +321,25 @@ echo "ZH options: $(find locales/zh-TW/ai/options -name '*.yaml' | wc -l)"
 grep -rh "file:.*options/" ai/standards/*.yaml | \
   sed 's/.*file: //' | sort -u | \
   while read f; do [ ! -f "ai/$f" ] && echo "Missing: $f"; done
+```
+
+### Windows PowerShell
+
+```powershell
+# Check sync status
+.\scripts\check-translation-sync.ps1 -Locale zh-TW
+
+# List all AI standards
+Get-ChildItem ai\standards\*.yaml
+
+# List all options
+Get-ChildItem ai\options -Recurse -Filter "*.yaml" | Sort-Object FullName
+
+# Compare file counts
+Write-Host "EN standards: $((Get-ChildItem ai\standards\*.yaml).Count)"
+Write-Host "ZH standards: $((Get-ChildItem locales\zh-TW\ai\standards\*.yaml).Count)"
+Write-Host "EN options: $((Get-ChildItem ai\options -Recurse -Filter '*.yaml').Count)"
+Write-Host "ZH options: $((Get-ChildItem locales\zh-TW\ai\options -Recurse -Filter '*.yaml').Count)"
 ```
 
 ---

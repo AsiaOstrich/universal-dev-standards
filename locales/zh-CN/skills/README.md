@@ -26,6 +26,13 @@ skills/
 
 ### Claude Code
 
+**推荐：Plugin Marketplace**
+```bash
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
+```
+
+**替代方案：脚本安装（macOS / Linux）**
 ```bash
 # 全域安装所有技能
 cd skills/claude-code
@@ -35,30 +42,61 @@ cd skills/claude-code
 cp -r skills/claude-code/commit-standards ~/.claude/skills/
 ```
 
+**替代方案：手动安装（Windows PowerShell）**
+```powershell
+# 复制特定技能
+Copy-Item -Recurse skills\claude-code\commit-standards $env:USERPROFILE\.claude\skills\
+```
+
 ### Cursor
 
+**macOS / Linux:**
 ```bash
 # 复制规则到您的专案
 cp skills/cursor/.cursorrules .cursorrules
 ```
 
+**Windows PowerShell:**
+```powershell
+Copy-Item skills\cursor\.cursorrules .cursorrules
+```
+
 ### Windsurf
 
+**macOS / Linux:**
 ```bash
 cp skills/windsurf/.windsurfrules .windsurfrules
 ```
 
+**Windows PowerShell:**
+```powershell
+Copy-Item skills\windsurf\.windsurfrules .windsurfrules
+```
+
 ### Cline
 
+**macOS / Linux:**
 ```bash
 cp skills/cline/.clinerules .clinerules
 ```
 
+**Windows PowerShell:**
+```powershell
+Copy-Item skills\cline\.clinerules .clinerules
+```
+
 ### GitHub Copilot
 
+**macOS / Linux:**
 ```bash
 mkdir -p .github
 cp skills/copilot/copilot-instructions.md .github/copilot-instructions.md
+```
+
+**Windows PowerShell:**
+```powershell
+New-Item -ItemType Directory -Force -Path .github
+Copy-Item skills\copilot\copilot-instructions.md .github\copilot-instructions.md
 ```
 
 ## 可用技能

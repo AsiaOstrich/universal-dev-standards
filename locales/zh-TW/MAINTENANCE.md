@@ -591,6 +591,7 @@ npm dist-tag add universal-dev-standards@X.Y.Z-beta.N beta
 
 ## 驗證命令
 
+**macOS / Linux:**
 ```bash
 # 檢查翻譯同步狀態
 ./scripts/check-translation-sync.sh zh-TW
@@ -616,6 +617,25 @@ find . -name "*.yaml" -not -path "./node_modules/*" | wc -l
 
 # CLI 測試
 cd cli && npm test
+```
+
+**Windows PowerShell:**
+```powershell
+# 檢查翻譯同步狀態
+.\scripts\check-translation-sync.ps1 -Locale zh-TW
+
+# 列出所有 AI 標準
+Get-ChildItem ai\standards\*.yaml
+
+# 列出所有 AI 選項
+Get-ChildItem -Recurse ai\options -Filter "*.yaml" | Sort-Object FullName
+
+# 比較檔案數量
+Write-Host "EN standards: $((Get-ChildItem ai\standards\*.yaml).Count)"
+Write-Host "ZH standards: $((Get-ChildItem locales\zh-TW\ai\standards\*.yaml).Count)"
+
+# CLI 測試
+Set-Location cli; npm test
 ```
 
 ---

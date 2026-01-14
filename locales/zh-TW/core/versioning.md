@@ -289,9 +289,17 @@ CHANGELOG **不應**記錄以下類型的變更：
 | 大型資料 | `data/`, `datasets/` | 資料檔案，不納入版控 |
 
 **檢查方式**:
+
+**macOS / Linux:**
 ```bash
 # 產生 CHANGELOG 前，檢查專案的 .gitignore 排除項目
 cat .gitignore | grep -E "^[^#*]" | head -20
+```
+
+**Windows PowerShell:**
+```powershell
+# 產生 CHANGELOG 前，檢查專案的 .gitignore 排除項目
+Get-Content .gitignore | Where-Object { $_ -match "^[^#*]" } | Select-Object -First 20
 ```
 
 **Note**: 每個專案應根據自己的 `.gitignore` 設定來決定排除項目。上表僅為常見範例。
@@ -318,6 +326,8 @@ cat .gitignore | grep -E "^[^#*]" | head -20
 產生 CHANGELOG 時應遵循以下流程：
 
 1. **列出變更 commits**
+
+   **macOS / Linux / Windows (Git):**
    ```bash
    git log main..HEAD --oneline
    ```
@@ -331,9 +341,17 @@ cat .gitignore | grep -E "^[^#*]" | head -20
    - 確保所有記錄的檔案路徑在版本庫中存在
 
 4. **驗證記錄**
+
+   **macOS / Linux:**
    ```bash
    # 確認記錄的路徑存在於版本庫
    git ls-files | grep -E "path/to/file"
+   ```
+
+   **Windows PowerShell:**
+   ```powershell
+   # 確認記錄的路徑存在於版本庫
+   git ls-files | Select-String -Pattern "path/to/file"
    ```
 
 ---

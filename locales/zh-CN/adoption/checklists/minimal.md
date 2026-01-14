@@ -25,7 +25,14 @@ status: current
 
 ## Skills 安装
 
-### 选项 A：安装所有 Skills（推荐）
+### 选项 A：Plugin Marketplace（推荐）
+
+```bash
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
+```
+
+### 选项 B：脚本安装（macOS / Linux）
 
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-skills.git
@@ -34,12 +41,20 @@ cd universal-dev-skills
 # Select: Global installation
 ```
 
-### 选项 B：仅安装特定 Skills
+### 选项 C：手动复制（macOS / Linux）
 
 ```bash
 # Copy only Level 1 skills
 cp -r universal-dev-skills/skills/ai-collaboration-standards ~/.claude/skills/
 cp -r universal-dev-skills/skills/commit-standards ~/.claude/skills/
+```
+
+### 选项 C：手动复制（Windows PowerShell）
+
+```powershell
+# Copy only Level 1 skills
+Copy-Item -Recurse universal-dev-skills\skills\ai-collaboration-standards $env:USERPROFILE\.claude\skills\
+Copy-Item -Recurse universal-dev-skills\skills\commit-standards $env:USERPROFILE\.claude\skills\
 ```
 
 **检查清单**：
@@ -52,6 +67,7 @@ cp -r universal-dev-skills/skills/commit-standards ~/.claude/skills/
 
 将这些文件复制到您的专案：
 
+**macOS / Linux:**
 ```bash
 # In your project root
 mkdir -p .standards
@@ -59,6 +75,16 @@ mkdir -p .standards
 # Copy Level 1 reference documents
 cp path/to/universal-dev-standards/core/checkin-standards.md .standards/
 cp path/to/universal-dev-standards/core/spec-driven-development.md .standards/
+```
+
+**Windows PowerShell:**
+```powershell
+# In your project root
+New-Item -ItemType Directory -Force -Path .standards
+
+# Copy Level 1 reference documents
+Copy-Item path\to\universal-dev-standards\core\checkin-standards.md .standards\
+Copy-Item path\to\universal-dev-standards\core\spec-driven-development.md .standards\
 ```
 
 **检查清单**:

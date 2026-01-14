@@ -158,14 +158,24 @@ Standards that are **triggered by specific keywords** or tasks, loaded on demand
 
 ### Deployment
 
-Install as Claude Code Skills:
-
+**Recommended: Plugin Marketplace**
 ```bash
-# Install all skills
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
+```
+
+**Alternative: Script Installation (macOS / Linux)**
+```bash
 cd skills/claude-code && ./install.sh
 
 # Or install selectively
 cp -r skills/claude-code/commit-standards ~/.claude/skills/
+```
+
+**Alternative: Manual Copy (Windows PowerShell)**
+```powershell
+# Install selectively
+Copy-Item -Recurse skills\claude-code\commit-standards $env:USERPROFILE\.claude\skills\
 ```
 
 See [Claude Code Skills README](../skills/claude-code/README.md) for details.
