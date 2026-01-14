@@ -36,7 +36,7 @@ universal-dev-standards/
 ├── scripts/                 ← Maintenance scripts (sync checks)
 ├── locales/                 ← Translations (129 files)
 │   ├── zh-TW/               ← Traditional Chinese
-│   └── zh-CN/               ← Simplified Chinese (partial)
+│   └── zh-CN/               ← Simplified Chinese (⚠️ 需與 EN 同步)
 └── [Root files]             ← README, CHANGELOG, CLAUDE.md, etc.
 ```
 
@@ -252,7 +252,7 @@ Node.js command-line tool for adopting standards.
 | Locale | Status | Coverage |
 |--------|--------|----------|
 | zh-TW (Traditional Chinese) | Active | ~100% |
-| zh-CN (Simplified Chinese) | Partial | ~10% |
+| zh-CN (Simplified Chinese) | ⚠️ 需與 EN 同步 | ~10% |
 
 **zh-TW Structure** (mirrors English):
 ```

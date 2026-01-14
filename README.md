@@ -253,17 +253,27 @@ cd universal-dev-standards\skills\claude-code; .\install.ps1
 
 ### Multi-AI Tool Support
 
-| AI Tool | Status | Path |
-|---------|--------|------|
-| Claude Code | ✅ Complete | `skills/claude-code/` |
-| OpenCode | 🧪 Testing | `integrations/opencode/` |
-| GitHub Copilot | 🧪 Testing | `integrations/github-copilot/` |
-| Cursor | ⏳ Planned | `integrations/cursor/` |
-| Windsurf | ⏳ Planned | `integrations/windsurf/` |
-| Cline | ⏳ Planned | `integrations/cline/` |
-| Google Antigravity | ⏳ Planned | `integrations/google-antigravity/` |
-| OpenAI Codex | ⏳ Planned | `integrations/codex/` |
-| Gemini CLI | ⏳ Planned | `integrations/gemini-cli/` |
+| AI Tool | Status | Path | Platform Tested |
+|---------|--------|------|-----------------|
+| Claude Code | ✅ Complete | `skills/claude-code/` | macOS ✅ |
+| OpenCode | 🧪 Testing | `integrations/opencode/` | macOS 🧪 |
+| GitHub Copilot | 🧪 Testing | `integrations/github-copilot/` | macOS 🧪 |
+| Cursor | ⏳ Planned | `integrations/cursor/` | - |
+| Windsurf | ⏳ Planned | `integrations/windsurf/` | - |
+| Cline | ⏳ Planned | `integrations/cline/` | - |
+| Google Antigravity | ⏳ Planned | `integrations/google-antigravity/` | - |
+| OpenAI Codex | ⏳ Planned | `integrations/codex/` | - |
+| Gemini CLI | ⏳ Planned | `integrations/gemini-cli/` | - |
+
+### Platform Support
+
+| Platform | CLI Tool | Skills | Notes |
+|----------|----------|--------|-------|
+| **macOS** | ✅ Tested | ✅ Tested | Primary development platform |
+| **Linux** | ⚠️ Untested | ⚠️ Untested | Expected to work (Node.js based) |
+| **Windows** | ⚠️ Untested | ⚠️ Untested | PowerShell scripts provided |
+
+> **Note**: UDS CLI is Node.js-based and should work on all platforms. Platform testing refers to verified functionality with AI tools on that OS. See [AI Agent Roadmap](docs/AI-AGENT-ROADMAP.md) for detailed status.
 
 ---
 
@@ -428,7 +438,7 @@ See [Usage Modes Comparison](docs/USAGE-MODES-COMPARISON.md) for detailed analys
 
 ### Adapting Standards
 
-1. **Language Choice**: English, Traditional Chinese, Spanish, Japanese commit types
+1. **Language Choice**: English, Traditional Chinese, Simplified Chinese commit types
 2. **Tool Configuration**: `npm run build`, `dotnet build`, `mvn package`
 3. **Threshold Adjustment**: Test coverage 80%, max method length 50 lines
 4. **Scope Definition**: Define allowed commit scopes for your modules
@@ -458,16 +468,10 @@ fix(api): Resolve memory leak
 修正(API): 解決記憶體洩漏
 ```
 
-**Spanish**:
+**Simplified Chinese**:
 ```
-característica(auth): Agregar soporte OAuth2
-corrección(api): Resolver fuga de memoria
-```
-
-**Japanese**:
-```
-機能(認証): OAuth2サポートを追加
-修正(API): メモリリークを解決
+新增(认证): 实现 OAuth2 支持
+修正(API): 解决内存泄漏
 ```
 
 ---

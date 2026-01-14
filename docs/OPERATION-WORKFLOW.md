@@ -68,8 +68,8 @@ This document provides a complete operation workflow for the Universal Developme
 | `ai/options/*/*.ai.yaml` | AI-optimized options | 36 |
 | `skills/claude-code/*/` | Claude Code skills | 15 |
 | `integrations/*/` | AI tool templates | 10 |
-| `locales/zh-TW/` | Traditional Chinese | ~129 |
-| `locales/zh-CN/` | Simplified Chinese | partial |
+| `locales/zh-TW/` | Traditional Chinese | ~119 |
+| `locales/zh-CN/` | Simplified Chinese | ⚠️ 需與 EN 同步 |
 
 ---
 
@@ -653,11 +653,11 @@ Step 4: Create ai/options/new-standard/*.ai.yaml (if applicable)
         ↓
 Step 5: Create skills/claude-code/new-skill/ (if applicable)
         ↓
-Step 6: Create locales/zh-TW/core/new-standard.md
+Step 6: Create ALL locale translations (⚠️ MUST sync all locales)
+        - locales/zh-TW/core/new-standard.md
+        - locales/zh-CN/core/new-standard.md
         ↓
-Step 7: Create locales/zh-CN/core/new-standard.md
-        ↓
-Step 8: Update cli/standards-registry.json
+Step 7: Update cli/standards-registry.json
         ↓
 Step 9: Update CHANGELOG.md
         ↓
@@ -978,8 +978,8 @@ Step 7: Verify Release
 | `options/` | Human-readable options | 36 files |
 | `skills/claude-code/` | Claude Code skills | 15 directories |
 | `integrations/` | AI tool integration templates | 10 directories |
-| `locales/zh-TW/` | Traditional Chinese translations | ~129 files |
-| `locales/zh-CN/` | Simplified Chinese translations | partial |
+| `locales/zh-TW/` | Traditional Chinese translations | ~119 files |
+| `locales/zh-CN/` | Simplified Chinese translations | ⚠️ 需與 EN 同步 |
 
 ### 10.2 Maintenance Scripts
 

@@ -25,19 +25,29 @@ This document records the current AI Agent support status and future development
 
 UDS currently supports **11 AI Agents/Tools**, categorized by integration depth:
 
-| Level | AI Agent | Integration Type | Directory | Status |
-|-------|----------|-----------------|-----------|--------|
-| **Level 1** | Claude Code | 18 Native Skills | `skills/claude-code/` | ✅ Complete |
-| **Level 1** | OpenCode | Skills + AGENTS.md | `integrations/opencode/` | ✅ Complete |
-| **Level 2** | Cursor | Can read `.claude/skills/` | `skills/cursor/`, `integrations/cursor/` | ✅ Complete |
-| **Level 2** | GitHub Copilot | Partial Skills support | `skills/copilot/`, `integrations/github-copilot/` | ✅ Complete |
-| **Level 3** | Windsurf | .windsurfrules | `skills/windsurf/`, `integrations/windsurf/` | ✅ Complete |
-| **Level 3** | Cline | .clinerules | `skills/cline/`, `integrations/cline/` | ✅ Complete |
-| **Level 4** | OpenAI Codex | AGENTS.md | `integrations/codex/` | ✅ Complete |
-| **Level 4** | OpenSpec | AGENTS.md | `integrations/openspec/` | ✅ Complete |
-| **Level 4** | Spec Kit | AGENTS.md | `integrations/spec-kit/` | ✅ Complete |
-| **Level 5** | Google Gemini CLI | GEMINI.md | `integrations/gemini-cli/` | ✅ Complete |
-| **Level 5** | Google Antigravity | rules.md | `integrations/google-antigravity/` | ✅ Complete |
+| Level | AI Agent | Integration Type | Directory | Status | Platform Tested |
+|-------|----------|-----------------|-----------|--------|-----------------|
+| **Level 1** | Claude Code | 18 Native Skills | `skills/claude-code/` | ✅ Complete | macOS ✅ |
+| **Level 1** | OpenCode | Skills + AGENTS.md | `integrations/opencode/` | ✅ Complete | macOS 🧪 |
+| **Level 2** | Cursor | Can read `.claude/skills/` | `skills/cursor/`, `integrations/cursor/` | ✅ Complete | - |
+| **Level 2** | GitHub Copilot | Partial Skills support | `skills/copilot/`, `integrations/github-copilot/` | ✅ Complete | macOS 🧪 |
+| **Level 3** | Windsurf | .windsurfrules | `skills/windsurf/`, `integrations/windsurf/` | ✅ Complete | - |
+| **Level 3** | Cline | .clinerules | `skills/cline/`, `integrations/cline/` | ✅ Complete | - |
+| **Level 4** | OpenAI Codex | AGENTS.md | `integrations/codex/` | ✅ Complete | - |
+| **Level 4** | OpenSpec | AGENTS.md | `integrations/openspec/` | ✅ Complete | - |
+| **Level 4** | Spec Kit | AGENTS.md | `integrations/spec-kit/` | ✅ Complete | - |
+| **Level 5** | Google Gemini CLI | GEMINI.md | `integrations/gemini-cli/` | ✅ Complete | - |
+| **Level 5** | Google Antigravity | rules.md | `integrations/google-antigravity/` | ✅ Complete | - |
+
+### Platform Support Status
+
+| Platform | CLI Tool | Skills | Notes |
+|----------|----------|--------|-------|
+| **macOS** | ✅ Tested | ✅ Tested | Primary development platform |
+| **Linux** | ⚠️ Untested | ⚠️ Untested | Expected to work (Node.js based) |
+| **Windows** | ⚠️ Untested | ⚠️ Untested | PowerShell scripts provided |
+
+**Legend**: ✅ Tested | 🧪 Testing | ⚠️ Untested | - Not applicable
 
 ---
 

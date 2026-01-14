@@ -33,19 +33,29 @@ last_updated: 2026-01-14
 
 UDS 目前支援 **11 個 AI Agent/工具**，依整合深度分類：
 
-| 等級 | AI Agent | 整合類型 | 目錄位置 | 狀態 |
-|------|----------|---------|---------|------|
-| **Level 1** | Claude Code | 18 個原生 Skills | `skills/claude-code/` | ✅ 完整 |
-| **Level 1** | OpenCode | Skills + AGENTS.md | `integrations/opencode/` | ✅ 完整 |
-| **Level 2** | Cursor | 可讀取 `.claude/skills/` | `skills/cursor/`, `integrations/cursor/` | ✅ 完整 |
-| **Level 2** | GitHub Copilot | 部分 Skills 支援 | `skills/copilot/`, `integrations/github-copilot/` | ✅ 完整 |
-| **Level 3** | Windsurf | .windsurfrules | `skills/windsurf/`, `integrations/windsurf/` | ✅ 完整 |
-| **Level 3** | Cline | .clinerules | `skills/cline/`, `integrations/cline/` | ✅ 完整 |
-| **Level 4** | OpenAI Codex | AGENTS.md | `integrations/codex/` | ✅ 完整 |
-| **Level 4** | OpenSpec | AGENTS.md | `integrations/openspec/` | ✅ 完整 |
-| **Level 4** | Spec Kit | AGENTS.md | `integrations/spec-kit/` | ✅ 完整 |
-| **Level 5** | Google Gemini CLI | GEMINI.md | `integrations/gemini-cli/` | ✅ 完整 |
-| **Level 5** | Google Antigravity | rules.md | `integrations/google-antigravity/` | ✅ 完整 |
+| 等級 | AI Agent | 整合類型 | 目錄位置 | 狀態 | 平台測試 |
+|------|----------|---------|---------|------|----------|
+| **Level 1** | Claude Code | 18 個原生 Skills | `skills/claude-code/` | ✅ 完整 | macOS ✅ |
+| **Level 1** | OpenCode | Skills + AGENTS.md | `integrations/opencode/` | ✅ 完整 | macOS 🧪 |
+| **Level 2** | Cursor | 可讀取 `.claude/skills/` | `skills/cursor/`, `integrations/cursor/` | ✅ 完整 | - |
+| **Level 2** | GitHub Copilot | 部分 Skills 支援 | `skills/copilot/`, `integrations/github-copilot/` | ✅ 完整 | macOS 🧪 |
+| **Level 3** | Windsurf | .windsurfrules | `skills/windsurf/`, `integrations/windsurf/` | ✅ 完整 | - |
+| **Level 3** | Cline | .clinerules | `skills/cline/`, `integrations/cline/` | ✅ 完整 | - |
+| **Level 4** | OpenAI Codex | AGENTS.md | `integrations/codex/` | ✅ 完整 | - |
+| **Level 4** | OpenSpec | AGENTS.md | `integrations/openspec/` | ✅ 完整 | - |
+| **Level 4** | Spec Kit | AGENTS.md | `integrations/spec-kit/` | ✅ 完整 | - |
+| **Level 5** | Google Gemini CLI | GEMINI.md | `integrations/gemini-cli/` | ✅ 完整 | - |
+| **Level 5** | Google Antigravity | rules.md | `integrations/google-antigravity/` | ✅ 完整 | - |
+
+### 平台支援狀態
+
+| 平台 | CLI 工具 | Skills | 備註 |
+|------|----------|--------|------|
+| **macOS** | ✅ 已測試 | ✅ 已測試 | 主要開發平台 |
+| **Linux** | ⚠️ 未測試 | ⚠️ 未測試 | 預期可運作（基於 Node.js） |
+| **Windows** | ⚠️ 未測試 | ⚠️ 未測試 | 提供 PowerShell 腳本 |
+
+**圖例**: ✅ 已測試 | 🧪 測試中 | ⚠️ 未測試 | - 不適用
 
 ---
 

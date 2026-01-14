@@ -261,17 +261,27 @@ cd universal-dev-standards\skills\claude-code; .\install.ps1
 
 ### 多 AI 工具支援
 
-| AI 工具 | 狀態 | 路徑 |
-|---------|------|------|
-| Claude Code | ✅ 完成 | `skills/claude-code/` |
-| OpenCode | 🧪 測試中 | `integrations/opencode/` |
-| GitHub Copilot | 🧪 測試中 | `integrations/github-copilot/` |
-| Cursor | ⏳ 規劃中 | `integrations/cursor/` |
-| Windsurf | ⏳ 規劃中 | `integrations/windsurf/` |
-| Cline | ⏳ 規劃中 | `integrations/cline/` |
-| Google Antigravity | ⏳ 規劃中 | `integrations/google-antigravity/` |
-| OpenAI Codex | ⏳ 規劃中 | `integrations/codex/` |
-| Gemini CLI | ⏳ 規劃中 | `integrations/gemini-cli/` |
+| AI 工具 | 狀態 | 路徑 | 平台測試 |
+|---------|------|------|----------|
+| Claude Code | ✅ 完成 | `skills/claude-code/` | macOS ✅ |
+| OpenCode | 🧪 測試中 | `integrations/opencode/` | macOS 🧪 |
+| GitHub Copilot | 🧪 測試中 | `integrations/github-copilot/` | macOS 🧪 |
+| Cursor | ⏳ 規劃中 | `integrations/cursor/` | - |
+| Windsurf | ⏳ 規劃中 | `integrations/windsurf/` | - |
+| Cline | ⏳ 規劃中 | `integrations/cline/` | - |
+| Google Antigravity | ⏳ 規劃中 | `integrations/google-antigravity/` | - |
+| OpenAI Codex | ⏳ 規劃中 | `integrations/codex/` | - |
+| Gemini CLI | ⏳ 規劃中 | `integrations/gemini-cli/` | - |
+
+### 平台支援
+
+| 平台 | CLI 工具 | Skills | 備註 |
+|------|----------|--------|------|
+| **macOS** | ✅ 已測試 | ✅ 已測試 | 主要開發平台 |
+| **Linux** | ⚠️ 未測試 | ⚠️ 未測試 | 預期可運作（基於 Node.js） |
+| **Windows** | ⚠️ 未測試 | ⚠️ 未測試 | 提供 PowerShell 腳本 |
+
+> **注意**：UDS CLI 基於 Node.js，應可在所有平台運作。平台測試指的是在該作業系統上與 AI 工具搭配使用的功能驗證。詳細狀態請參閱 [AI Agent 規劃](docs/AI-AGENT-ROADMAP.md)。
 
 ---
 
@@ -416,7 +426,7 @@ standards:
 
 ### 調整規範
 
-1. **語言選擇**：英文、繁體中文、西班牙文、日文 commit 類型
+1. **語言選擇**：英文、繁體中文、簡體中文 commit 類型
 2. **工具設定**：`npm run build`、`dotnet build`、`mvn package`
 3. **閾值調整**：測試覆蓋率 80%、最大方法長度 50 行
 4. **範圍定義**：為您的模組定義允許的 commit 範圍
@@ -446,16 +456,10 @@ fix(api): Resolve memory leak
 修正(API): 解決記憶體洩漏
 ```
 
-**西班牙文**：
+**簡體中文**：
 ```
-característica(auth): Agregar soporte OAuth2
-corrección(api): Resolver fuga de memoria
-```
-
-**日文**：
-```
-機能(認証): OAuth2サポートを追加
-修正(API): メモリリークを解決
+新增(认证): 实现 OAuth2 支持
+修正(API): 解决内存泄漏
 ```
 
 ---

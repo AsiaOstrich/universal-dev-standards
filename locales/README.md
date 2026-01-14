@@ -12,7 +12,7 @@ This directory contains translations of the Universal Development Standards docu
 |----------|-----------|--------|
 | English | `../core/`, `../skills/`, etc. | Primary (canonical source) |
 | 繁體中文 (Traditional Chinese) | `zh-TW/` | Complete |
-| 简体中文 (Simplified Chinese) | `zh-CN/` | Partial |
+| 简体中文 (Simplified Chinese) | `zh-CN/` | ⚠️ 需與 EN 同步 |
 
 ---
 
