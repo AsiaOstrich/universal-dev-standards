@@ -9,6 +9,7 @@
 # Checks:
 # 1. core/ ↔ ai/standards/ - Core standards consistency
 # 2. options/ ↔ ai/options/ - Option standards consistency
+# 3. ai/standards/ → registry - Registry source.ai references
 #
 # Usage: ./scripts/check-standards-sync.sh
 #
@@ -108,7 +109,7 @@ map_ai_to_core() {
 # Check 1: core/ ↔ ai/standards/
 # =============================================================================
 
-echo -e "${BLUE}[1/2] Checking core/ ↔ ai/standards/${NC}"
+echo -e "${BLUE}[1/3] Checking core/ ↔ ai/standards/${NC}"
 echo "----------------------------------------"
 echo ""
 
@@ -164,7 +165,7 @@ echo ""
 # Check 2: options/ ↔ ai/options/
 # =============================================================================
 
-echo -e "${BLUE}[2/2] Checking options/ ↔ ai/options/${NC}"
+echo -e "${BLUE}[2/3] Checking options/ ↔ ai/options/${NC}"
 echo "----------------------------------------"
 echo ""
 
@@ -242,6 +243,37 @@ for category in $ALL_CATEGORIES; do
 done
 
 # =============================================================================
+# Check 3: ai/standards/ → standards-registry.json references
+# =============================================================================
+
+echo -e "${BLUE}[3/3] Checking registry source.ai references${NC}"
+echo "----------------------------------------"
+echo ""
+
+REGISTRY_FILE="$ROOT_DIR/cli/standards-registry.json"
+
+echo -e "${CYAN}Checking ai/standards/*.ai.yaml → registry:${NC}"
+if [ -f "$REGISTRY_FILE" ]; then
+    for yaml_file in "$AI_STANDARDS_DIR"/*.ai.yaml; do
+        if [ -f "$yaml_file" ]; then
+            base_name=$(basename "$yaml_file")
+
+            if grep -q "\"ai/standards/$base_name\"" "$REGISTRY_FILE"; then
+                echo -e "  ${GREEN}[OK]${NC}      $base_name → referenced in registry"
+            else
+                echo -e "  ${RED}[MISSING]${NC} $base_name → NOT in registry source.ai!"
+                inc_errors
+            fi
+        fi
+    done
+else
+    echo -e "  ${RED}[ERROR]${NC} Registry file not found: $REGISTRY_FILE"
+    inc_errors
+fi
+
+echo ""
+
+# =============================================================================
 # Summary
 # =============================================================================
 
@@ -255,7 +287,7 @@ echo ""
 
 if [ "$ERRORS" -gt 0 ] || [ "$WARNINGS" -gt 0 ]; then
     if [ "$ERRORS" -gt 0 ]; then
-        echo -e "${RED}Errors: $ERRORS${NC} (Missing AI-optimized versions)"
+        echo -e "${RED}Errors: $ERRORS${NC} (Missing AI files or registry references)"
     fi
     if [ "$WARNINGS" -gt 0 ]; then
         echo -e "${YELLOW}Warnings: $WARNINGS${NC} (Missing human-readable versions or categories)"
@@ -265,6 +297,8 @@ if [ "$ERRORS" -gt 0 ] || [ "$WARNINGS" -gt 0 ]; then
     echo "  - Create missing .ai.yaml files in ai/standards/ or ai/options/"
     echo "  - Ensure each core/*.md has a corresponding ai/standards/*.ai.yaml"
     echo "  - Ensure each options/<cat>/*.md has a corresponding ai/options/<cat>/*.ai.yaml"
+    echo "  - Update cli/standards-registry.json with source.ai reference for each .ai.yaml file:"
+    echo '      "source": { "human": "core/example.md", "ai": "ai/standards/example.ai.yaml" }'
     echo ""
 
     if [ "$ERRORS" -gt 0 ]; then

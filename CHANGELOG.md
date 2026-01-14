@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **Scripts**: Add registry reference check to `check-standards-sync.sh`
+  - New Check 3 verifies all `ai/standards/*.ai.yaml` files are referenced in `standards-registry.json`
+  - Prevents the issue where AI files exist but registry isn't updated
+  - Automatically runs in pre-commit hook and pre-release check
+  - Updated pre-commit hook error message with registry update reminder
+
+### Fixed
+- **CLI**: Registry now properly references all existing `.ai.yaml` files for Compact format
+  - Updated `standards-registry.json` to add `source.ai` paths for 15 standards
+  - When selecting "Compact (YAML format)" during `uds init`, all 18 core standards now correctly use `.ai.yaml` format
+  - Previously only 3 standards (commit-message, git-workflow, testing) had AI format references
+  - Templates without AI versions (requirement-*) continue to use `.md` format as expected
+
 ## [3.5.0-beta.21] - 2026-01-14
 
 ### Fixed

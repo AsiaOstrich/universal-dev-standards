@@ -16,10 +16,11 @@ if [ -n "$STAGED_CORE" ] || [ -n "$STAGED_AI" ]; then
         "$REPO_ROOT/scripts/check-standards-sync.sh"
         if [ $? -ne 0 ]; then
             echo ""
-            echo "When adding/modifying core/*.md, you MUST also:"
-            echo "  1. Create/update ai/standards/*.ai.yaml"
-            echo "  2. Create/update locales/zh-TW/core/*.md"
-            echo "  3. Create/update locales/zh-CN/core/*.md"
+            echo "When adding/modifying core/*.md or ai/standards/*.ai.yaml, you MUST also:"
+            echo "  1. Create/update ai/standards/*.ai.yaml for each core/*.md"
+            echo "  2. Update cli/standards-registry.json with source.ai reference"
+            echo "  3. Create/update locales/zh-TW/core/*.md"
+            echo "  4. Create/update locales/zh-CN/core/*.md"
             echo ""
             exit 1
         fi

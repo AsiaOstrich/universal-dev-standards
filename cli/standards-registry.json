@@ -266,7 +266,10 @@
       "id": "anti-hallucination",
       "name": "Anti-Hallucination Guidelines",
       "nameZh": "反幻覺指南",
-      "source": "core/anti-hallucination.md",
+      "source": {
+        "human": "core/anti-hallucination.md",
+        "ai": "ai/standards/anti-hallucination.ai.yaml"
+      },
       "category": "skill",
       "skillName": "ai-collaboration-standards",
       "level": 1,
@@ -323,7 +326,10 @@
       "id": "checkin-standards",
       "name": "Code Check-in Standards",
       "nameZh": "程式碼簽入標準",
-      "source": "core/checkin-standards.md",
+      "source": {
+        "human": "core/checkin-standards.md",
+        "ai": "ai/standards/checkin-standards.ai.yaml"
+      },
       "category": "reference",
       "skillName": null,
       "level": 1,
@@ -334,7 +340,10 @@
       "id": "spec-driven-development",
       "name": "Spec-Driven Development",
       "nameZh": "規格驅動開發",
-      "source": "core/spec-driven-development.md",
+      "source": {
+        "human": "core/spec-driven-development.md",
+        "ai": "ai/standards/spec-driven-development.ai.yaml"
+      },
       "category": "skill",
       "skillName": "spec-driven-dev",
       "level": 1,
@@ -344,7 +353,10 @@
       "id": "code-review",
       "name": "Code Review Checklist",
       "nameZh": "程式碼審查清單",
-      "source": "core/code-review-checklist.md",
+      "source": {
+        "human": "core/code-review-checklist.md",
+        "ai": "ai/standards/code-review.ai.yaml"
+      },
       "category": "skill",
       "skillName": "code-review-assistant",
       "level": 2,
@@ -445,7 +457,10 @@
       "id": "versioning",
       "name": "Semantic Versioning",
       "nameZh": "語意化版本",
-      "source": "core/versioning.md",
+      "source": {
+        "human": "core/versioning.md",
+        "ai": "ai/standards/versioning.ai.yaml"
+      },
       "category": "skill",
       "skillName": "release-standards",
       "level": 2,
@@ -455,7 +470,10 @@
       "id": "changelog",
       "name": "Changelog Standards",
       "nameZh": "變更日誌標準",
-      "source": "core/changelog-standards.md",
+      "source": {
+        "human": "core/changelog-standards.md",
+        "ai": "ai/standards/changelog.ai.yaml"
+      },
       "category": "skill",
       "skillName": "release-standards",
       "level": 2,
@@ -522,7 +540,10 @@
       "id": "documentation-structure",
       "name": "Documentation Structure",
       "nameZh": "文件結構",
-      "source": "core/documentation-structure.md",
+      "source": {
+        "human": "core/documentation-structure.md",
+        "ai": "ai/standards/documentation-structure.ai.yaml"
+      },
       "category": "skill",
       "skillName": "documentation-guide",
       "level": 3,
@@ -532,7 +553,10 @@
       "id": "documentation-writing",
       "name": "Documentation Writing Standards",
       "nameZh": "文件撰寫標準",
-      "source": "core/documentation-writing-standards.md",
+      "source": {
+        "human": "core/documentation-writing-standards.md",
+        "ai": "ai/standards/documentation-writing-standards.ai.yaml"
+      },
       "category": "reference",
       "skillName": null,
       "level": 3,
@@ -542,7 +566,10 @@
       "id": "ai-instruction-standards",
       "name": "AI Instruction File Standards",
       "nameZh": "AI 指令檔案規範",
-      "source": "core/ai-instruction-standards.md",
+      "source": {
+        "human": "core/ai-instruction-standards.md",
+        "ai": "ai/standards/ai-instruction-standards.ai.yaml"
+      },
       "category": "reference",
       "skillName": null,
       "level": 2,
@@ -552,7 +579,10 @@
       "id": "project-structure",
       "name": "Project Structure",
       "nameZh": "專案結構",
-      "source": "core/project-structure.md",
+      "source": {
+        "human": "core/project-structure.md",
+        "ai": "ai/standards/project-structure.ai.yaml"
+      },
       "category": "skill",
       "skillName": "project-structure-guide",
       "level": 3,
@@ -562,7 +592,10 @@
       "id": "error-code-standards",
       "name": "Error Code Standards",
       "nameZh": "錯誤碼標準",
-      "source": "core/error-code-standards.md",
+      "source": {
+        "human": "core/error-code-standards.md",
+        "ai": "ai/standards/error-codes.ai.yaml"
+      },
       "category": "skill",
       "skillName": "error-code-guide",
       "level": 2,
@@ -572,7 +605,10 @@
       "id": "logging-standards",
       "name": "Logging Standards",
       "nameZh": "日誌標準",
-      "source": "core/logging-standards.md",
+      "source": {
+        "human": "core/logging-standards.md",
+        "ai": "ai/standards/logging.ai.yaml"
+      },
       "category": "skill",
       "skillName": "logging-guide",
       "level": 2,
@@ -582,7 +618,10 @@
       "id": "test-completeness-dimensions",
       "name": "Test Completeness Dimensions",
       "nameZh": "測試完整性維度",
-      "source": "core/test-completeness-dimensions.md",
+      "source": {
+        "human": "core/test-completeness-dimensions.md",
+        "ai": "ai/standards/test-completeness-dimensions.ai.yaml"
+      },
       "category": "skill",
       "skillName": "test-coverage-assistant",
       "level": 2,
@@ -592,7 +631,10 @@
       "id": "test-driven-development",
       "name": "Test-Driven Development",
       "nameZh": "測試驅動開發",
-      "source": "core/test-driven-development.md",
+      "source": {
+        "human": "core/test-driven-development.md",
+        "ai": "ai/standards/test-driven-development.ai.yaml"
+      },
       "category": "skill",
       "skillName": "tdd-assistant",
       "level": 2,
@@ -602,7 +644,10 @@
       "id": "refactoring-standards",
       "name": "Refactoring Standards",
       "nameZh": "重構標準",
-      "source": "core/refactoring-standards.md",
+      "source": {
+        "human": "core/refactoring-standards.md",
+        "ai": "ai/standards/refactoring-standards.ai.yaml"
+      },
       "category": "reference",
       "skillName": null,
       "level": 2,
