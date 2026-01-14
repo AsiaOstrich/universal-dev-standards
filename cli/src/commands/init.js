@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import ora from 'ora';
+import { basename, join } from 'path';
 import {
   getStandardsByLevel,
   getRepositoryInfo,
@@ -629,10 +630,7 @@ export async function initCommand(options) {
   }
 
   // Build installed standards list for compliance instructions (used by all AI tools)
-  const installedStandardsList = results.standards.map(s => {
-    const { basename } = require('path');
-    return basename(s);
-  });
+  const installedStandardsList = results.standards.map(s => basename(s));
 
   // Determine common language setting
   let commonLanguage = 'en';
@@ -774,7 +772,6 @@ export async function initCommand(options) {
   }
 
   // Compute file hashes for integrity checking
-  const { join, basename } = await import('path');
   const fileHashes = {};
   const now = new Date().toISOString();
 

@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.15] - 2026-01-14
+
+### Fixed
+- **CLI**: Fix `require()` error in ES Module (init.js)
+  - Replaced dynamic `require('path')` with static ES Module import
+  - Resolved JavaScript Temporal Dead Zone (TDZ) error caused by variable shadowing
+  - `uds init` now works correctly in all environments
+
 ## [3.5.0-beta.14] - 2026-01-14
 
 ### Added
