@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.23] - 2026-01-14
+
+### Added
+- **CLI**: Add `-E, --experimental` flag to `uds init` and `uds configure`
+  - Experimental features (methodology) now hidden by default
+  - Use `-E` flag to enable experimental features
+  - Makes experimental features opt-in rather than always visible
+
+### Changed
+- **CLI**: Methodology option completely hidden without `-E` flag
+  - Not shown in current configuration display
+  - Not shown in configure menu options
+  - Even projects with existing methodology settings won't show it
+
 ## [3.5.0-beta.22] - 2026-01-14
 
 ### Added
