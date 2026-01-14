@@ -8,9 +8,15 @@ status: current
 
 # 專案結構指南
 
-遵循語言特定最佳實踐組織專案目錄的技能。
+> **Language**: [English](../../../../../skills/claude-code/project-structure-guide/SKILL.md) | 繁體中文
 
-## 說明
+**版本**：1.0.0
+**最後更新**：2025-12-30
+**適用性**：Claude Code Skills
+
+---
+
+## 目的
 
 此技能提供根據語言和框架慣例建構專案的指引，協助建立一致、可維護的目錄佈局。
 
@@ -135,8 +141,3 @@ project/
 
 - [核心：專案結構](../../../core/project-structure.md)
 - [AI：專案結構選項](../../../ai/options/project-structure/)
-
-## 版本
-
-- **版本**：1.0.0
-- **最後更新**：2025-12-30

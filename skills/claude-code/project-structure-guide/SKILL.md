@@ -1,8 +1,22 @@
+---
+name: project-structure-guide
+description: |
+  Guide for organizing project directories following language-specific best practices.
+  Use when: creating projects, reorganizing structure, adding modules, setting up builds.
+  Keywords: project, structure, directory, layout, gitignore, scaffold, 專案結構, 目錄.
+---
+
 # Project Structure Guide
 
-A skill for organizing project directories following language-specific best practices.
+> **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/project-structure-guide/SKILL.md)
 
-## Description
+**Version**: 1.0.0
+**Last Updated**: 2025-12-30
+**Applicability**: Claude Code Skills
+
+---
+
+## Purpose
 
 This skill provides guidance on structuring projects according to language and framework conventions. It helps create consistent, maintainable directory layouts.
 
@@ -127,8 +141,3 @@ When reviewing existing structure:
 
 - [Core: Project Structure](../../../core/project-structure.md)
 - [AI: Project Structure Options](../../../ai/options/project-structure/)
-
-## Version
-
-- **Version**: 1.0.0
-- **Last Updated**: 2025-12-30
