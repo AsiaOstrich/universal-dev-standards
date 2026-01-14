@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.21] - 2026-01-14
+
+### Fixed
+- **CLI**: Fix Skills version detection showing stale version
+  - `installed_plugins.json` may contain outdated version information
+  - Now scans actual cache directory to find the latest installed version
+  - Fixes discrepancy between `uds check` and `/plugin` UI
+
 ## [3.5.0-beta.20] - 2026-01-14
 
 ### Added

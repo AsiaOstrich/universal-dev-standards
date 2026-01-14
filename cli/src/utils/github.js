@@ -454,8 +454,50 @@ export function installSkillToDir(skillName, targetBaseDir) {
 }
 
 /**
+ * Compare two semantic versions for sorting
+ * @param {string} a - First version
+ * @param {string} b - Second version
+ * @returns {number} -1, 0, or 1
+ */
+function compareVersionsForSort(a, b) {
+  const parseVersion = (v) => {
+    const [main, prerelease] = v.split('-');
+    const [major, minor, patch] = main.split('.').map(Number);
+    return { major, minor, patch, prerelease: prerelease || null };
+  };
+
+  const pa = parseVersion(a);
+  const pb = parseVersion(b);
+
+  if (pa.major !== pb.major) return pa.major - pb.major;
+  if (pa.minor !== pb.minor) return pa.minor - pb.minor;
+  if (pa.patch !== pb.patch) return pa.patch - pb.patch;
+
+  // No prerelease > prerelease
+  if (!pa.prerelease && pb.prerelease) return 1;
+  if (pa.prerelease && !pb.prerelease) return -1;
+  if (!pa.prerelease && !pb.prerelease) return 0;
+
+  // Compare prerelease (beta.1 < beta.2)
+  const parsePrerelease = (pr) => {
+    const match = pr.match(/^(alpha|beta|rc)\.?(\d+)?$/);
+    if (match) {
+      const order = { alpha: 1, beta: 2, rc: 3 };
+      return { type: order[match[1]] || 0, num: parseInt(match[2] || '0', 10) };
+    }
+    return { type: 0, num: 0 };
+  };
+
+  const pra = parsePrerelease(pa.prerelease);
+  const prb = parsePrerelease(pb.prerelease);
+
+  if (pra.type !== prb.type) return pra.type - prb.type;
+  return pra.num - prb.num;
+}
+
+/**
  * Get Plugin Marketplace installed skills info
- * Reads from ~/.claude/plugins/installed_plugins.json
+ * Reads from ~/.claude/plugins/installed_plugins.json and cache directory
  * @returns {Object|null} Marketplace skills info or null
  */
 export function getMarketplaceSkillsInfo() {
@@ -487,9 +529,38 @@ export function getMarketplaceSkillsInfo() {
     }
 
     const info = pluginInfo[0];
+    let version = info.version || 'unknown';
+
+    // installed_plugins.json may have stale version info
+    // Check the actual cache directory for the latest installed version
+    // pluginKey format: "universal-dev-standards@asia-ostrich"
+    const parts = pluginKey.split('@');
+    if (parts.length === 2) {
+      const [pluginName, marketplace] = parts;
+      const cacheDir = join(homedir(), '.claude', 'plugins', 'cache', marketplace, pluginName);
+
+      if (existsSync(cacheDir)) {
+        try {
+          const versions = readdirSync(cacheDir)
+            .filter(name => name.match(/^\d+\.\d+\.\d+/));
+
+          if (versions.length > 0) {
+            // Sort versions and get the latest
+            versions.sort(compareVersionsForSort);
+            const latestVersion = versions[versions.length - 1];
+            if (latestVersion && latestVersion !== version) {
+              version = latestVersion;
+            }
+          }
+        } catch {
+          // Ignore errors reading cache directory
+        }
+      }
+    }
+
     return {
       installed: true,
-      version: info.version || 'unknown',
+      version,
       installPath: info.installPath || null,
       installedAt: info.installedAt || null,
       lastUpdated: info.lastUpdated || null,
