@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.19] - 2026-01-14
+
+### Added
+- **Hooks**: Add standards sync check to pre-commit hook
+  - Automatically checks `core/*.md` ↔ `ai/standards/*.ai.yaml` sync before commit
+  - Prevents commits with missing `.ai.yaml` files
+  - Displays helpful error message with required steps
+
 ## [3.5.0-beta.18] - 2026-01-14
 
 ### Added
