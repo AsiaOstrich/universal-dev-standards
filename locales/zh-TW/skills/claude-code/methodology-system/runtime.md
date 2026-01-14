@@ -3,12 +3,18 @@ source: ../../../../../skills/claude-code/methodology-system/runtime.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-12
-status: current
+status: experimental
 ---
 
 # 方法論執行時引導
 
 > **Language**: [English](../../../../../skills/claude-code/methodology-system/runtime.md) | 繁體中文
+
+> [!WARNING]
+> **實驗性功能 / Experimental Feature**
+>
+> 此功能正在積極開發中，可能在 v4.0 中有重大變更。
+> This feature is under active development and may change significantly in v4.0.
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-12

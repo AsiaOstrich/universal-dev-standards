@@ -16,6 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - Automatically runs in pre-commit hook and pre-release check
   - Updated pre-commit hook error message with registry update reminder
 
+### Changed
+- **Methodology System**: Mark entire methodology system as `[Experimental]`
+  - All methodology features (`/methodology`, `/tdd`, `/bdd` commands) now display experimental warning
+  - CLI commands (`uds init`, `uds configure`) show `[Experimental]` tag for methodology options
+  - Methodology YAML files include `status: experimental` field
+  - Updated README.md to clarify experimental features will be redesigned in v4.0
+  - This system will be redesigned in v4.0 with native multi-methodology support
+
 ### Fixed
 - **CLI**: Registry now properly references all existing `.ai.yaml` files for Compact format
   - Updated `standards-registry.json` to add `source.ai` paths for 15 standards

@@ -65,7 +65,7 @@ export async function configureCommand(options) {
   console.log(chalk.gray(`  Content Mode: ${manifest.contentMode || 'minimal'}`));
   console.log(chalk.gray(`  AI Tools: ${manifest.aiTools?.length > 0 ? manifest.aiTools.join(', ') : 'none'}`));
   if (manifest.methodology?.active) {
-    console.log(chalk.gray(`  Methodology: ${manifest.methodology.active.toUpperCase()}`));
+    console.log(chalk.gray(`  Methodology: ${manifest.methodology.active.toUpperCase()}`) + chalk.yellow(' [Experimental]'));
   }
   if (manifest.options) {
     if (manifest.options.workflow) {
@@ -103,7 +103,7 @@ export async function configureCommand(options) {
           { name: `${chalk.cyan('AI Tools')} - Add/Remove AI integrations`, value: 'ai_tools' },
           { name: `${chalk.cyan('Adoption Level')} - Change Level 1/2/3`, value: 'level' },
           { name: `${chalk.cyan('Content Mode')} - Change full/index/minimal`, value: 'content_mode' },
-          { name: `${chalk.cyan('Methodology')} - Change development methodology`, value: 'methodology' },
+          { name: `${chalk.cyan('Methodology')} ${chalk.yellow('[Experimental]')} - Change development methodology`, value: 'methodology' },
           new inquirer.default.Separator(),
           { name: 'All Options', value: 'all' }
         ]

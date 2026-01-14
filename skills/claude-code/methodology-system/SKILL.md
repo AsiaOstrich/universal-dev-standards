@@ -4,7 +4,14 @@ description: |
   Manage and guide developers through active development methodology workflows.
   Use when: TDD, BDD, SDD, ATDD, or custom methodology workflows are needed.
   Keywords: methodology, workflow, TDD, BDD, SDD, ATDD, phase, checkpoint, development process.
+status: experimental
 ---
+
+> [!WARNING]
+> **Experimental Feature / 實驗性功能**
+>
+> This feature is under active development and may change significantly in v4.0.
+> 此功能正在積極開發中，可能在 v4.0 中有重大變更。
 
 # Methodology System Skill
 

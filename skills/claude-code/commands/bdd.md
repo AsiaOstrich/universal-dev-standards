@@ -2,9 +2,16 @@
 description: Guide through Behavior-Driven Development workflow | 引導行為驅動開發流程
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
 argument-hint: [behavior or scenario to implement | 要實作的行為或場景]
+status: experimental
 ---
 
 # BDD Assistant | BDD 助手
+
+> [!WARNING]
+> **Experimental Feature / 實驗性功能**
+>
+> This feature is under active development and may change significantly in v4.0.
+> 此功能正在積極開發中，可能在 v4.0 中有重大變更。
 
 Guide through the Behavior-Driven Development (BDD) workflow using Given-When-Then format.
 

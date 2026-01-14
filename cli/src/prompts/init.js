@@ -1036,6 +1036,7 @@ export async function promptContentModeChange(currentMode) {
 export async function promptMethodology() {
   console.log();
   console.log(chalk.cyan('Development Methodology:'));
+  console.log(chalk.yellow('  ⚠️  [Experimental] This feature will be redesigned in v4.0'));
   console.log(chalk.gray('  Select a methodology to guide your development workflow.'));
   console.log();
 

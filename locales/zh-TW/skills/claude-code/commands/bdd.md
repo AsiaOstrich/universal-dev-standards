@@ -3,16 +3,23 @@ source: ../../../../../skills/claude-code/commands/bdd.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-12
-status: current
+status: experimental
 ---
 
 ---
 description: 引導行為驅動開發流程 | Guide through Behavior-Driven Development workflow
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
 argument-hint: [要實作的行為或場景 | behavior or scenario to implement]
+status: experimental
 ---
 
 # BDD 助手
+
+> [!WARNING]
+> **實驗性功能 / Experimental Feature**
+>
+> 此功能正在積極開發中，可能在 v4.0 中有重大變更。
+> This feature is under active development and may change significantly in v4.0.
 
 引導行為驅動開發（BDD）流程，使用 Given-When-Then 格式。
 

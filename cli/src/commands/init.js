@@ -463,7 +463,7 @@ export async function initCommand(options) {
   console.log(chalk.gray(`  Locale: ${locale || 'default (English)'}`));
   console.log(chalk.gray(`  AI Tools: ${aiTools.length > 0 ? aiTools.join(', ') : 'none'}`));
   console.log(chalk.gray(`  Integrations: ${integrations.length > 0 ? integrations.join(', ') : 'none'}`));
-  console.log(chalk.gray(`  Methodology: ${skillsConfig.methodology || 'none'}`));
+  console.log(chalk.gray(`  Methodology: ${skillsConfig.methodology || 'none'}${skillsConfig.methodology ? chalk.yellow(' [Experimental]') : ''}`));
 
   if (skillsConfig.installed) {
     let skillsStatus;

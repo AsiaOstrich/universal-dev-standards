@@ -3,18 +3,25 @@ source: ../../../../../skills/claude-code/commands/methodology.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-12
-status: current
+status: experimental
 ---
 
 ---
 description: 管理開發方法論工作流 | Manage development methodology workflow
 allowed-tools: Read, Write, Glob, Grep, Bash(git:*)
 argument-hint: [action] [argument]
+status: experimental
 ---
 
 # /methodology 命令
 
 > **Language**: [English](../../../../../skills/claude-code/commands/methodology.md) | 繁體中文
+
+> [!WARNING]
+> **實驗性功能 / Experimental Feature**
+>
+> 此功能正在積極開發中，可能在 v4.0 中有重大變更。
+> This feature is under active development and may change significantly in v4.0.
 
 管理當前專案的開發方法論。支援 TDD、BDD、SDD、ATDD 和自訂方法論。
 

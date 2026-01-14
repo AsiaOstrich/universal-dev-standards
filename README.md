@@ -23,7 +23,7 @@
 | `/bdd` command | ❌ | ✅ 🧪 |
 | TDD/BDD/SDD/ATDD workflows | ❌ | ✅ 🧪 |
 
-> 🧪 = Experimental feature, API may change
+> 🧪 = Experimental feature - will be redesigned in v4.0
 
 ---
 
@@ -115,7 +115,7 @@ npm install -g universal-dev-standards@3.5.0-beta.13
 npx universal-dev-standards@beta init
 ```
 
-> **Note**: Beta versions include experimental features like the Methodology System (`/methodology`, `/bdd`). See [Feature Availability](#feature-availability) for details.
+> **Note**: Beta versions include experimental features like the Methodology System (`/methodology`, `/bdd`, `/tdd`). These features will be redesigned in v4.0. See [Feature Availability](#feature-availability) for details.
 
 **Clone and Link (Development)**
 

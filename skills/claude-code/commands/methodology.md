@@ -2,11 +2,18 @@
 description: Manage development methodology workflow | 管理開發方法論工作流
 allowed-tools: Read, Write, Glob, Grep, Bash(git:*)
 argument-hint: [action] [argument]
+status: experimental
 ---
 
 # Methodology Command | 方法論命令
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/commands/methodology.md)
+
+> [!WARNING]
+> **Experimental Feature / 實驗性功能**
+>
+> This feature is under active development and may change significantly in v4.0.
+> 此功能正在積極開發中，可能在 v4.0 中有重大變更。
 
 Manage the active development methodology for the current project. Supports TDD, BDD, SDD, ATDD, and custom methodologies.
 

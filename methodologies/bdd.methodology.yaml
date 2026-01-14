@@ -9,6 +9,9 @@ nameZh: 行為驅動開發
 version: 1.0.0
 description: Collaborative approach using Given-When-Then scenarios to define and verify system behavior from user perspective.
 descriptionZh: 使用 Given-When-Then 情境從使用者角度定義和驗證系統行為的協作方法。
+status: experimental
+statusNote: "This methodology system will be redesigned in v4.0"
+statusNoteZh: "此方法論系統將在 v4.0 中重新設計"
 
 phases:
   - id: discovery

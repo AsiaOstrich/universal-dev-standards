@@ -2,6 +2,12 @@
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/methodology-system/runtime.md)
 
+> [!WARNING]
+> **Experimental Feature / 實驗性功能**
+>
+> This feature is under active development and may change significantly in v4.0.
+> 此功能正在積極開發中，可能在 v4.0 中有重大變更。
+
 **Version**: 1.0.0
 **Last Updated**: 2026-01-12
 
