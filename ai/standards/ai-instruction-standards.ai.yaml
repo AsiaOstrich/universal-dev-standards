@@ -1,0 +1,142 @@
+# AI Instruction File Standards - AI Optimized
+# Source: core/ai-instruction-standards.md
+
+id: ai-instruction-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-01-14"
+  source: core/ai-instruction-standards.md
+  description: Best practices for creating AI instruction files with universal vs project-specific separation
+
+supported_tools:
+  - tool: Claude Code
+    file: CLAUDE.md
+    format: Markdown
+  - tool: Cursor
+    file: .cursorrules
+    format: Markdown
+  - tool: Windsurf
+    file: .windsurfrules
+    format: Markdown
+  - tool: Cline
+    file: .clinerules
+    format: Markdown
+  - tool: GitHub Copilot
+    file: .github/copilot-instructions.md
+    format: Markdown
+  - tool: OpenCode
+    file: .opencode/instructions.md
+    format: Markdown
+
+content_types:
+  universal:
+    description: Rules applicable to ANY project
+    characteristics:
+      - No project-specific paths
+      - No hardcoded commands
+      - No version numbers
+      - No project names or URLs
+    examples:
+      - Commit message format
+      - Code review checklist
+      - Testing standards
+      - Anti-hallucination rules
+      - Documentation style guidelines
+
+  project_specific:
+    description: Configuration unique to THIS project
+    characteristics:
+      - Clearly marked with labels
+      - Contains concrete implementation details
+    examples:
+      - Tech stack (languages, frameworks, versions)
+      - Build/test/deploy commands
+      - Directory structure
+      - Release workflow
+      - Team conventions
+
+labeling_conventions:
+  option_a:
+    name: Section Headers
+    example: |
+      ## Universal Standards
+      [universal content]
+
+      ## Project-Specific Configuration
+      [project-specific content]
+
+  option_b:
+    name: Inline Markers
+    example: |
+      > Warning: **Project-Specific**: This section contains configuration unique to this project.
+
+  option_c:
+    name: Comment Annotations
+    example: |
+      <!-- UNIVERSAL: The following applies to all projects -->
+      <!-- PROJECT-SPECIFIC: Customize for your project -->
+
+rules:
+  - id: separate-universal-specific
+    trigger: creating AI instruction file
+    instruction: Clearly separate universal rules from project-specific configuration
+    priority: required
+
+  - id: no-hardcoded-commands-in-universal
+    trigger: writing universal section
+    instruction: Never include specific commands (npm, yarn, pip) in universal sections
+    priority: required
+    examples:
+      good:
+        - "Run tests before committing"
+        - "Execute linting checks"
+      bad:
+        - "Run `npm test` before committing"
+        - "Execute `pip install -r requirements.txt`"
+
+  - id: no-paths-in-universal
+    trigger: writing universal section
+    instruction: Never include hardcoded paths in universal sections
+    priority: required
+    examples:
+      good:
+        - "Store configuration in the config directory"
+      bad:
+        - "Store configuration in `/var/www/config`"
+        - "Store configuration in `cli/src/config`"
+
+  - id: label-project-specific
+    trigger: writing project-specific content
+    instruction: Always clearly label project-specific sections
+    priority: required
+
+  - id: leakage-detection
+    trigger: before committing AI instruction file
+    instruction: |
+      Run leakage detection to find project-specific content in universal sections:
+      grep -n "npm\|yarn\|pip\|cargo" CLAUDE.md | head -20
+    priority: required
+
+maintenance_checklist:
+  - item: Universal sections contain no project-specific paths, commands, or versions
+    required: true
+  - item: Project-specific sections are clearly marked with labels
+    required: true
+  - item: Cross-references to standards documents are correct
+    required: true
+  - item: Format matches existing sections
+    required: true
+
+quick_reference:
+  content_types:
+    columns: [Type, Contains, Example]
+    rows:
+      - [Universal, Generic rules, "Run tests before committing"]
+      - [Project-Specific, Concrete commands, "Run `npm test` before committing"]
+
+  section_markers:
+    columns: [Marker, Meaning]
+    rows:
+      - ["## Universal", Applicable to any project]
+      - ["## Project-Specific", Unique to this project]
+      - ["> Warning: Project-Specific", Inline warning for specific section]
