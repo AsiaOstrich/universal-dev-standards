@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.14] - 2026-01-14
+
+### Added
+- **CLI**: Add Marketplace Skills version detection
+  - New `getMarketplaceSkillsInfo()` reads `~/.claude/plugins/installed_plugins.json`
+  - `uds check` now displays Skills version and last updated date for Marketplace installations
+- **Docs**: Add Section 7.5 "CLI and Slash Command Sync" to OPERATION-WORKFLOW.md
+  - Documents the relationship between CLI code and slash command documentation
+  - Provides sync checklist for adding new CLI features
+  - Includes example workflow for version detection feature
+
+### Changed
+- **Skills**: Update `/check` and `/update` slash commands
+  - Document Skills version detection capability
+  - Explain where version info is stored for different installation methods
+
 ## [3.5.0-beta.13] - 2026-01-13
 
 ### Added
