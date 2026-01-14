@@ -53,6 +53,16 @@ vi.mock('../../src/utils/registry.js', () => ({
   }))
 }));
 
+vi.mock('../../src/utils/npm-registry.js', () => ({
+  checkForUpdates: vi.fn(() => Promise.resolve({
+    available: false,
+    offline: false,
+    currentVersion: '3.0.0',
+    latestVersion: '3.0.0'
+  })),
+  clearCache: vi.fn()
+}));
+
 import { updateCommand } from '../../src/commands/update.js';
 import { isInitialized, readManifest, writeManifest, copyStandard } from '../../src/utils/copier.js';
 import { getRepositoryInfo } from '../../src/utils/registry.js';

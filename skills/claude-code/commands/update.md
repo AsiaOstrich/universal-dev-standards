@@ -1,7 +1,7 @@
 ---
 description: Update development standards to latest version | 更新開發標準至最新版本
 allowed-tools: Read, Bash(uds update:*), Bash(uds check:*), Bash(npx:*)
-argument-hint: [--yes]
+argument-hint: [--yes] [--offline] [--beta]
 ---
 
 # Update Standards | 更新標準
@@ -35,6 +35,34 @@ uds update --yes
 | Option | Description | 說明 |
 |--------|-------------|------|
 | `--yes`, `-y` | Skip confirmation prompt | 跳過確認提示 |
+| `--offline` | Skip npm registry check | 跳過 npm registry 檢查 |
+| `--beta` | Check for beta version updates | 檢查 beta 版本更新 |
+
+## CLI Version Check | CLI 版本檢查
+
+Before updating standards, the CLI automatically checks npm registry for newer CLI versions. If a newer version is available, you'll be prompted with options:
+
+在更新標準之前，CLI 會自動檢查 npm registry 是否有更新版本的 CLI。如果有更新版本，會提供選項：
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡ New CLI version available!
+  Your bundled version: 3.4.0
+  Latest on npm: 3.5.0
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+? What would you like to do?
+❯ Update CLI first (recommended)
+  Continue with current CLI
+  Cancel
+```
+
+**Options explained | 選項說明：**
+- **Update CLI first (recommended)**: Updates CLI via npm and prompts you to re-run `uds update`. This ensures you get the latest standards.
+- **Continue with current CLI**: Proceed with the bundled standards (may not be the latest).
+- **Cancel**: Abort the operation.
+
+**為什麼要先更新 CLI？** CLI 綑綁了標準註冊表。更新 CLI 可確保你能存取最新的標準。
 
 ## What Gets Updated | 更新內容
 
@@ -69,6 +97,8 @@ Skills are managed separately based on installation method:
 
 - `/update` - Check and update standards
 - `/update --yes` - Update without confirmation
+- `/update --offline` - Update without npm registry check
+- `/update --beta` - Check for beta version updates (for beta users)
 
 ## Troubleshooting | 疑難排解
 

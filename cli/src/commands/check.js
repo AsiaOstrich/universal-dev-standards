@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
+import ora from 'ora';
 import { existsSync, readFileSync } from 'fs';
 import { join, basename } from 'path';
 import { readManifest, writeManifest, isInitialized, copyStandard, copyIntegration } from '../utils/copier.js';
@@ -23,6 +24,7 @@ import {
   getToolFormat,
   extractMarkedContent
 } from '../utils/integration-generator.js';
+import { checkForUpdates } from '../utils/npm-registry.js';
 
 /**
  * Check command - verify adoption status
@@ -64,11 +66,16 @@ export async function checkCommand(options = {}) {
   console.log(chalk.gray(`  Version: ${manifest.upstream.version}`));
   console.log();
 
-  // Check for updates
+  // Check for updates (bundled registry)
   if (manifest.upstream.version !== repoInfo.standards.version) {
     console.log(chalk.yellow(`⚠ Update available: ${manifest.upstream.version} → ${repoInfo.standards.version}`));
     console.log(chalk.gray('  Run `uds update` to update.'));
     console.log();
+  }
+
+  // Check for CLI updates from npm registry (unless --offline)
+  if (!options.offline) {
+    await checkCliVersion(repoInfo.standards.version);
   }
 
   // Handle --migrate option
@@ -930,4 +937,39 @@ function checkReferenceSync(manifest, projectPath) {
   }
 
   console.log();
+}
+
+/**
+ * Check CLI version against npm registry and display update info
+ * @param {string} bundledVersion - Version bundled with current CLI
+ */
+async function checkCliVersion(bundledVersion) {
+  const spinner = ora({ text: 'Checking for CLI updates...', spinner: 'dots' }).start();
+
+  try {
+    const result = await checkForUpdates(bundledVersion, {
+      includeBeta: bundledVersion.includes('-')
+    });
+    spinner.stop();
+
+    if (result.offline) {
+      console.log(chalk.gray('  ℹ Could not check for CLI updates (offline mode)'));
+      console.log();
+      return;
+    }
+
+    if (result.available) {
+      console.log(chalk.cyan('CLI Update Available:'));
+      console.log(chalk.gray(`  Current CLI: ${result.currentVersion}`));
+      console.log(chalk.gray(`  Latest on npm: ${result.latestVersion}`));
+      if (result.isCurrentBeta && result.latestStable) {
+        console.log(chalk.gray(`  Latest stable: ${result.latestStable}`));
+      }
+      console.log(chalk.yellow('  Run: npm update -g universal-dev-standards'));
+      console.log();
+    }
+  } catch {
+    spinner.stop();
+    // Silent failure - don't disrupt main functionality
+  }
 }

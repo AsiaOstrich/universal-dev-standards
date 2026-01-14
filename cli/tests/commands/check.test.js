@@ -3,6 +3,17 @@ import { mkdirSync, writeFileSync, rmSync, existsSync } from 'fs';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+
+// Mock npm-registry to avoid network requests during tests
+vi.mock('../../src/utils/npm-registry.js', () => ({
+  checkForUpdates: vi.fn(() => Promise.resolve({
+    available: false,
+    offline: true,
+    message: 'Mocked for testing'
+  })),
+  clearCache: vi.fn()
+}));
+
 import { checkCommand } from '../../src/commands/check.js';
 
 const __filename = fileURLToPath(import.meta.url);

@@ -56,6 +56,7 @@ program
   .option('--restore-missing', 'Restore only missing files')
   .option('--no-interactive', 'Disable interactive mode')
   .option('--migrate', 'Migrate legacy manifest to hash-based tracking')
+  .option('--offline', 'Skip npm registry check for CLI updates')
   .action(checkCommand);
 
 program
@@ -65,6 +66,8 @@ program
   .option('--sync-refs', 'Sync integration file references with manifest standards')
   .option('--integrations-only', 'Only regenerate integration files (CLAUDE.md, etc.)')
   .option('--standards-only', 'Only update standards, skip integration files')
+  .option('--offline', 'Skip npm registry check for CLI updates')
+  .option('--beta', 'Check for beta version updates')
   .action(updateCommand);
 
 program

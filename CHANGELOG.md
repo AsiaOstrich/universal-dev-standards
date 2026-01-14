@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.20] - 2026-01-14
+
+### Added
+- **CLI**: Interactive CLI update prompt during `uds update`
+  - When a newer CLI version is available on npm, users are presented with options
+  - Options: "Update CLI first (recommended)", "Continue with current CLI", "Cancel"
+  - Selecting "Update CLI" runs `npm install -g` and prompts to re-run
+- **CLI**: Add `--beta` flag to `uds update` command
+  - Explicitly check for beta version updates
+  - Default behavior: only check @latest (stable releases)
+  - With `--beta`: compare against @beta tag on npm
+
+### Changed
+- **CLI**: Refactor beta version checking logic
+  - Changed `includeBeta` parameter to `checkBeta` for explicit control
+  - Beta checking is now opt-in via `--beta` flag, not automatic
+
 ## [3.5.0-beta.19] - 2026-01-14
 
 ### Added

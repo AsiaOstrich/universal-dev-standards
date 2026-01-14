@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import ora from 'ora';
 import inquirer from 'inquirer';
+import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 import { join, basename } from 'path';
 import { readManifest, writeManifest, copyStandard, isInitialized } from '../utils/copier.js';
@@ -15,6 +16,7 @@ import {
   arraysEqual,
   getToolFromPath
 } from '../utils/reference-sync.js';
+import { checkForUpdates } from '../utils/npm-registry.js';
 
 /**
  * Compare two semantic versions
@@ -68,6 +70,35 @@ function compareVersions(v1, v2) {
 }
 
 /**
+ * Update CLI to latest version and prompt user to re-run
+ * @param {boolean} useBeta - Whether to install beta version
+ */
+async function updateCliAndExit(useBeta = false) {
+  const spinner = ora('Updating CLI...').start();
+
+  try {
+    // Command is hardcoded - no user input, safe from injection
+    const tag = useBeta ? '@beta' : '@latest';
+    execSync(`npm install -g universal-dev-standards${tag}`, {
+      stdio: 'pipe'
+    });
+
+    spinner.succeed('CLI updated successfully!');
+    console.log();
+    console.log(chalk.green('✓ Please run `uds update` again to update standards.'));
+    console.log();
+    process.exit(0);
+  } catch (error) {
+    spinner.fail('Failed to update CLI');
+    console.log(chalk.yellow('  This may be due to permission issues.'));
+    console.log(chalk.gray('  Try manually with sudo:'));
+    console.log(chalk.white(`    sudo npm install -g universal-dev-standards${useBeta ? '@beta' : ''}`));
+    console.log();
+    process.exit(1);
+  }
+}
+
+/**
  * Update command - update standards to latest version
  * @param {Object} options - Command options
  */
@@ -110,6 +141,50 @@ export async function updateCommand(options) {
   const repoInfo = getRepositoryInfo();
   const currentVersion = manifest.upstream.version;
   const latestVersion = repoInfo.standards.version;
+
+  // Check npm registry for newer CLI version (unless --offline)
+  if (!options.offline) {
+    const npmVersionInfo = await checkForUpdates(latestVersion, {
+      checkBeta: options.beta || false
+    });
+
+    // If npm has a newer version, ask user what to do
+    if (npmVersionInfo.available && !npmVersionInfo.offline) {
+      console.log(chalk.cyan('━'.repeat(50)));
+      console.log(chalk.cyan.bold('⚡ New CLI version available!'));
+      console.log(chalk.gray(`  Your bundled version: ${latestVersion}`));
+      console.log(chalk.gray(`  Latest on npm: ${npmVersionInfo.latestVersion}`));
+      console.log(chalk.cyan('━'.repeat(50)));
+      console.log();
+
+      // Ask user what action to take
+      if (!options.yes) {
+        const { action } = await inquirer.prompt([
+          {
+            type: 'list',
+            name: 'action',
+            message: 'What would you like to do?',
+            choices: [
+              { name: 'Update CLI first (recommended)', value: 'update-cli' },
+              { name: 'Continue with current CLI', value: 'continue' },
+              { name: 'Cancel', value: 'cancel' }
+            ]
+          }
+        ]);
+
+        if (action === 'update-cli') {
+          await updateCliAndExit(options.beta || false);
+          return; // Won't reach here due to process.exit
+        } else if (action === 'cancel') {
+          console.log(chalk.gray('Operation cancelled.'));
+          console.log();
+          return;
+        }
+        // action === 'continue' → proceed with bundled version
+        console.log();
+      }
+    }
+  }
 
   console.log(chalk.gray(`Current version: ${currentVersion}`));
   console.log(chalk.gray(`Latest version:  ${latestVersion}`));
