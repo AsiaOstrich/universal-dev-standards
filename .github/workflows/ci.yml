@@ -91,3 +91,16 @@ jobs:
         run: |
           chmod +x ./scripts/check-install-scripts-sync.sh
           ./scripts/check-install-scripts-sync.sh
+
+  cli-docs-sync:
+    name: CLI-Docs Sync Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check CLI-docs sync
+        run: |
+          chmod +x ./scripts/check-cli-docs-sync.sh
+          ./scripts/check-cli-docs-sync.sh

@@ -44,10 +44,10 @@ $CliDir = Join-Path $RootDir "cli"
 $Passed = 0
 $Failed = 0
 $Skipped = 0
-$Total = 7
+$Total = 8
 
 if ($SkipTests) {
-    $Total = 6
+    $Total = 7
 }
 
 # Function to run a check
@@ -181,15 +181,18 @@ try {
     # Step 5: Install scripts sync
     Run-Check -Step 5 -Name "Running install scripts sync check" -Command "$ScriptDir\check-install-scripts-sync.ps1"
 
-    # Step 6: Linting
-    Run-Check -Step 6 -Name "Running linting" -Command "npm run lint --prefix `"$CliDir`""
+    # Step 6: CLI-docs sync
+    Run-Check -Step 6 -Name "Running CLI-docs sync check" -Command "$ScriptDir\check-cli-docs-sync.ps1"
 
-    # Step 7: Tests (unless skipped)
+    # Step 7: Linting
+    Run-Check -Step 7 -Name "Running linting" -Command "npm run lint --prefix `"$CliDir`""
+
+    # Step 8: Tests (unless skipped)
     if ($SkipTests) {
         $Skipped++
     }
     else {
-        Run-Check -Step 7 -Name "Running tests" -Command "npm test --prefix `"$CliDir`""
+        Run-Check -Step 8 -Name "Running tests" -Command "npm test --prefix `"$CliDir`""
     }
 
     # Show summary

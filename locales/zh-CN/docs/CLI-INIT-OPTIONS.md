@@ -28,11 +28,33 @@ status: current
 7. [Extensions（扩展）](#7-extensions扩展)
 8. [Integration Configuration（集成配置）](#8-integration-configuration集成配置)
 9. [Content Mode（内容模式）](#9-content-mode内容模式)
-10. [CLI 参数对照表](#10-cli-参数对照表)
+10. [Methodology（开发方法论）](#10-methodology开发方法论)
+11. [CLI 参数对照表](#11-cli-参数对照表)
 
 ---
 
 ## 1. AI 工具选择
+
+### 交互式提示
+
+```
+? Which AI tools are you using?
+  ── Dynamic Skills ──
+❯ ◉ Claude Code (推荐) - Anthropic CLI with dynamic Skills
+  ── Static Rule Files ──
+  ◯ Cursor (.cursorrules)
+  ◯ Windsurf (.windsurfrules)
+  ◯ Cline (.clinerules)
+  ◯ GitHub Copilot (.github/copilot-instructions.md)
+  ◯ Google Antigravity (INSTRUCTIONS.md) - Gemini Agent
+  ── AGENTS.md Tools ──
+  ◯ OpenAI Codex (AGENTS.md) - OpenAI Codex CLI
+  ◯ OpenCode (AGENTS.md) - Open-source AI coding agent
+  ── Gemini Tools ──
+  ◯ Gemini CLI (GEMINI.md) - Google Gemini CLI
+  ──────────────
+  ◯ None / Skip
+```
 
 ### 说明
 
@@ -85,6 +107,16 @@ status: current
 ---
 
 ## 2. Skills 安装位置
+
+### 交互式提示
+
+```
+? Where should Skills be installed?
+❯ Plugin Marketplace (推荐) - Auto-managed by Claude Code
+  User Level (~/.claude/skills/) - Shared across all projects
+  Project Level (.claude/skills/) - This project only
+  Skip - No Skills installation
+```
 
 ### 说明
 
@@ -180,6 +212,14 @@ your-project/
 
 ## 3. Standards Scope（标准范围）
 
+### 交互式提示
+
+```
+? How should standards be installed?
+❯ Lean (推荐) - Reference docs only, Skills handle the rest
+  Complete - All standards as local files
+```
+
 ### 说明
 
 决定复制到 `.standards/` 目录的标准范围。**仅当 Skills 已安装时才会显示此选项**。
@@ -238,6 +278,15 @@ your-project/
 ---
 
 ## 4. Adoption Level（采用等级）
+
+### 交互式提示
+
+```
+? Select adoption level:
+  Level 1: Starter (基本) - 6 core standards
+❯ Level 2: Professional (推荐) - 12 standards
+  Level 3: Complete (完整) - All 16 standards
+```
 
 ### 说明
 
@@ -304,6 +353,15 @@ your-project/
 ---
 
 ## 5. Format（标准格式）
+
+### 交互式提示
+
+```
+? Select standards format:
+❯ Compact (推荐) - YAML format, optimized for AI reading
+  Detailed - Full Markdown, best for human reading
+  Both (进阶) - Include both formats
+```
 
 ### 说明
 
@@ -377,6 +435,15 @@ rules:
 
 ### 6.1 Git Workflow（Level 2+）
 
+#### 交互式提示
+
+```
+? Select Git branching strategy:
+❯ GitHub Flow (推荐) - Simple, continuous deployment
+  GitFlow - Structured releases with develop/release branches
+  Trunk-Based - Direct commits to main, feature flags
+```
+
 决定团队的 Git 分支策略。
 
 | 策略 | 说明 | 适用情境 |
@@ -426,6 +493,15 @@ main ─────────────────────────
 
 ### 6.2 Merge Strategy（Level 2+）
 
+#### 交互式提示
+
+```
+? Select merge strategy:
+❯ Squash Merge (推荐) - Clean history, one commit per PR
+  Merge Commit - Preserve full branch history
+  Rebase + Fast-Forward - Linear history, advanced
+```
+
 决定 PR 合并方式。
 
 | 策略 | 说明 | 适用情境 |
@@ -436,6 +512,15 @@ main ─────────────────────────
 
 ### 6.3 Commit Language（Level 1+）
 
+#### 交互式提示
+
+```
+? Select commit message language:
+❯ English (推荐) - Standard international format
+  Traditional Chinese (繁體中文) - For Chinese-speaking teams
+  Bilingual (双语) - Both English and Chinese
+```
+
 决定提交信息的语言。
 
 | 语言 | 示例 | 适用情境 |
@@ -445,6 +530,16 @@ main ─────────────────────────
 | **Bilingual** | `feat(auth): add OAuth2 / 新增 OAuth2` | 双语环境 |
 
 ### 6.4 Test Levels（Level 2+）
+
+#### 交互式提示
+
+```
+? Select test levels to include:
+❯ ◉ Unit Testing (70% pyramid base)
+  ◉ Integration Testing (20%)
+  ◯ System Testing (7%)
+  ◯ E2E Testing (3% pyramid top)
+```
 
 选择要包含的测试层级。
 
@@ -465,6 +560,16 @@ main ─────────────────────────
 
 ### 7.1 Language Extensions（语言扩展）
 
+#### 交互式提示
+
+```
+? Detected language(s). Select style guides to include:
+❯ ◉ C# Style Guide
+  ◉ PHP Style Guide (PSR-12)
+```
+
+> 注意：此提示仅在项目中检测到相关语言时才会显示。
+
 | 扩展 | 文件 | 检测方式 |
 |------|------|----------|
 | **C#** | `csharp-style.md` | `.cs` 文件、`.csproj` |
@@ -472,11 +577,26 @@ main ─────────────────────────
 
 ### 7.2 Framework Extensions（框架扩展）
 
+#### 交互式提示
+
+```
+? Detected framework(s). Select patterns to include:
+❯ ◉ Fat-Free Framework Patterns
+```
+
+> 注意：此提示仅在项目中检测到相关框架时才会显示。
+
 | 扩展 | 文件 | 检测方式 |
 |------|------|----------|
 | **Fat-Free** | `fat-free-patterns.md` | Fat-Free Framework 相关文件 |
 
 ### 7.3 Locale Extensions（地区扩展）
+
+#### 交互式提示
+
+```
+? Use Traditional Chinese (繁體中文) locale? (y/N)
+```
 
 | 扩展 | 文件 | 说明 |
 |------|------|------|
@@ -554,6 +674,15 @@ uds init
 ---
 
 ## 9. Content Mode（内容模式）
+
+### 交互式提示
+
+```
+? Select content level:
+❯ Standard (推荐) - Summary + links to full docs
+  Full Embed - All rules in one file (larger)
+  Minimal - Core rules only (smallest)
+```
 
 ### 说明
 
@@ -727,7 +856,49 @@ Index    Full
 
 ---
 
-## 10. CLI 参数对照表
+## 10. Methodology（开发方法论）
+
+### 交互式提示
+
+```
+? Which development methodology do you want to use?
+❯ TDD - Test-Driven Development (Red → Green → Refactor)
+  BDD - Behavior-Driven Development (Given-When-Then)
+  SDD - Spec-Driven Development (Spec First, Code Second)
+  ATDD - Acceptance Test-Driven Development
+  ──────────────
+  None - No specific methodology
+```
+
+> **⚠️ 实验性功能**：此功能需要使用 `-E` 或 `--experimental` 标志才能启用。将在 v4.0 重新设计。
+
+### 说明
+
+选择开发方法论来指导项目的工作流程。此选项仅在使用 `--experimental` 标志时才会出现。
+
+### 选项
+
+| 方法论 | 全名 | 说明 |
+|--------|------|------|
+| **TDD** | Test-Driven Development | Red → Green → Refactor 循环 |
+| **BDD** | Behavior-Driven Development | Given-When-Then 情境 |
+| **SDD** | Spec-Driven Development | Spec First, Code Second |
+| **ATDD** | Acceptance Test-Driven Development | 以验收标准为焦点 |
+| **None** | - | 不使用特定方法论 |
+
+### 启用实验性功能
+
+```bash
+# 启用实验性功能
+uds init -E
+
+# 或使用完整形式
+uds init --experimental
+```
+
+---
+
+## 11. CLI 参数对照表
 
 ### 交互模式 vs 非交互模式
 
@@ -746,6 +917,15 @@ Index    Full
 | Framework | `promptFramework()` | `--framework` | 自动检测 |
 | Locale | `promptLocale()` | `--locale` | - |
 | Content Mode | `promptContentMode()` | `--content-mode` | `index` |
+| Methodology | `promptMethodology()` | - | `null` (需 `-E`) |
+
+### 控制标志
+
+| 标志 | CLI 参数 | 说明 |
+|------|----------|------|
+| 非交互模式 | `-y, --yes` | 跳过交互提示，使用默认值 |
+| 实验性功能 | `-E, --experimental` | 启用实验性功能（开发方法论选择） |
+| 模式（已弃用） | `-m, --mode` | 安装模式（skills, full）- 请改用 `--skills-location` |
 
 ### 完整 CLI 示例
 

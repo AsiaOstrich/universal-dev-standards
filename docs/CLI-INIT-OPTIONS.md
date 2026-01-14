@@ -20,11 +20,33 @@ This document provides detailed explanations for every option in the `uds init` 
 7. [Extensions](#7-extensions)
 8. [Integration Configuration](#8-integration-configuration)
 9. [Content Mode](#9-content-mode)
-10. [CLI Parameter Reference](#10-cli-parameter-reference)
+10. [Methodology (Experimental)](#10-methodology-experimental)
+11. [CLI Parameter Reference](#11-cli-parameter-reference)
 
 ---
 
 ## 1. AI Tools Selection
+
+### Interactive Prompt
+
+```
+? Which AI tools are you using?
+  ── Dynamic Skills ──
+❯ ◉ Claude Code (推薦) - Anthropic CLI with dynamic Skills
+  ── Static Rule Files ──
+  ◯ Cursor (.cursorrules)
+  ◯ Windsurf (.windsurfrules)
+  ◯ Cline (.clinerules)
+  ◯ GitHub Copilot (.github/copilot-instructions.md)
+  ◯ Google Antigravity (INSTRUCTIONS.md) - Gemini Agent
+  ── AGENTS.md Tools ──
+  ◯ OpenAI Codex (AGENTS.md) - OpenAI Codex CLI
+  ◯ OpenCode (AGENTS.md) - Open-source AI coding agent
+  ── Gemini Tools ──
+  ◯ Gemini CLI (GEMINI.md) - Google Gemini CLI
+  ──────────────
+  ◯ None / Skip
+```
 
 ### Description
 
@@ -77,6 +99,16 @@ Select the AI coding assistants you use in your project. The CLI will generate c
 ---
 
 ## 2. Skills Installation Location
+
+### Interactive Prompt
+
+```
+? Where should Skills be installed?
+❯ Plugin Marketplace (推薦) - Auto-managed by Claude Code
+  User Level (~/.claude/skills/) - Shared across all projects
+  Project Level (.claude/skills/) - This project only
+  Skip - No Skills installation
+```
 
 ### Description
 
@@ -172,6 +204,14 @@ Using Claude Code?
 
 ## 3. Standards Scope
 
+### Interactive Prompt
+
+```
+? How should standards be installed?
+❯ Lean (推薦) - Reference docs only, Skills handle the rest
+  Complete - All standards as local files
+```
+
 ### Description
 
 Determines the scope of standards copied to the `.standards/` directory. **This option only appears when Skills are installed**.
@@ -230,6 +270,15 @@ Copies **Reference + Skill** category standards:
 ---
 
 ## 4. Adoption Level
+
+### Interactive Prompt
+
+```
+? Select adoption level:
+  Level 1: Starter (基本) - 6 core standards
+❯ Level 2: Professional (推薦) - 12 standards
+  Level 3: Complete (完整) - All 16 standards
+```
 
 ### Description
 
@@ -296,6 +345,15 @@ Determines the quantity and depth of adopted standards. Higher levels include mo
 ---
 
 ## 5. Format
+
+### Interactive Prompt
+
+```
+? Select standards format:
+❯ Compact (推薦) - YAML format, optimized for AI reading
+  Detailed - Full Markdown, best for human reading
+  Both (進階) - Include both formats
+```
 
 ### Description
 
@@ -369,6 +427,15 @@ Configuration options for specific standards. Options are displayed based on Ado
 
 ### 6.1 Git Workflow (Level 2+)
 
+#### Interactive Prompt
+
+```
+? Select Git branching strategy:
+❯ GitHub Flow (推薦) - Simple, continuous deployment
+  GitFlow - Structured releases with develop/release branches
+  Trunk-Based - Direct commits to main, feature flags
+```
+
 Determines the team's Git branching strategy.
 
 | Strategy | Description | Use Case |
@@ -418,6 +485,15 @@ main ─────────────────────────
 
 ### 6.2 Merge Strategy (Level 2+)
 
+#### Interactive Prompt
+
+```
+? Select merge strategy:
+❯ Squash Merge (推薦) - Clean history, one commit per PR
+  Merge Commit - Preserve full branch history
+  Rebase + Fast-Forward - Linear history, advanced
+```
+
 Determines PR merge method.
 
 | Strategy | Description | Use Case |
@@ -428,6 +504,15 @@ Determines PR merge method.
 
 ### 6.3 Commit Language (Level 1+)
 
+#### Interactive Prompt
+
+```
+? Select commit message language:
+❯ English (推薦) - Standard international format
+  Traditional Chinese (繁體中文) - For Chinese-speaking teams
+  Bilingual (雙語) - Both English and Chinese
+```
+
 Determines commit message language.
 
 | Language | Example | Use Case |
@@ -437,6 +522,16 @@ Determines commit message language.
 | **Bilingual** | `feat(auth): add OAuth2 / 新增 OAuth2` | Bilingual environments |
 
 ### 6.4 Test Levels (Level 2+)
+
+#### Interactive Prompt
+
+```
+? Select test levels to include:
+❯ ◉ Unit Testing (70% pyramid base)
+  ◉ Integration Testing (20%)
+  ◯ System Testing (7%)
+  ◯ E2E Testing (3% pyramid top)
+```
 
 Select test levels to include.
 
@@ -457,6 +552,16 @@ Based on project language, framework, and locale settings, copy corresponding ex
 
 ### 7.1 Language Extensions
 
+#### Interactive Prompt
+
+```
+? Detected language(s). Select style guides to include:
+❯ ◉ C# Style Guide
+  ◉ PHP Style Guide (PSR-12)
+```
+
+> Note: This prompt only appears when languages are detected in the project.
+
 | Extension | File | Detection Method |
 |-----------|------|-----------------|
 | **C#** | `csharp-style.md` | `.cs` files, `.csproj` |
@@ -464,11 +569,26 @@ Based on project language, framework, and locale settings, copy corresponding ex
 
 ### 7.2 Framework Extensions
 
+#### Interactive Prompt
+
+```
+? Detected framework(s). Select patterns to include:
+❯ ◉ Fat-Free Framework Patterns
+```
+
+> Note: This prompt only appears when frameworks are detected in the project.
+
 | Extension | File | Detection Method |
 |-----------|------|-----------------|
 | **Fat-Free** | `fat-free-patterns.md` | Fat-Free Framework related files |
 
 ### 7.3 Locale Extensions
+
+#### Interactive Prompt
+
+```
+? Use Traditional Chinese (繁體中文) locale? (y/N)
+```
 
 | Extension | File | Description |
 |-----------|------|-------------|
@@ -546,6 +666,15 @@ Generate three files with same rules
 ---
 
 ## 9. Content Mode
+
+### Interactive Prompt
+
+```
+? Select content level:
+❯ Standard (推薦) - Summary + links to full docs
+  Full Embed - All rules in one file (larger)
+  Minimal - Core rules only (smallest)
+```
 
 ### Description
 
@@ -721,7 +850,49 @@ Legacy migration / Want minimal changes? → Minimal
 
 ---
 
-## 10. CLI Parameter Reference
+## 10. Methodology (Experimental)
+
+### Interactive Prompt
+
+```
+? Which development methodology do you want to use?
+❯ TDD - Test-Driven Development (Red → Green → Refactor)
+  BDD - Behavior-Driven Development (Given-When-Then)
+  SDD - Spec-Driven Development (Spec First, Code Second)
+  ATDD - Acceptance Test-Driven Development
+  ──────────────
+  None - No specific methodology
+```
+
+> **⚠️ Experimental**: This feature requires the `-E` or `--experimental` flag to enable. It will be redesigned in v4.0.
+
+### Description
+
+Select a development methodology to guide your project's workflow. This option only appears when the `--experimental` flag is used.
+
+### Options
+
+| Methodology | Full Name | Description |
+|-------------|-----------|-------------|
+| **TDD** | Test-Driven Development | Red → Green → Refactor cycle |
+| **BDD** | Behavior-Driven Development | Given-When-Then scenarios |
+| **SDD** | Spec-Driven Development | Spec First, Code Second |
+| **ATDD** | Acceptance Test-Driven Development | Acceptance criteria focus |
+| **None** | - | No specific methodology |
+
+### Enabling Experimental Features
+
+```bash
+# Enable experimental features
+uds init -E
+
+# Or use the long form
+uds init --experimental
+```
+
+---
+
+## 11. CLI Parameter Reference
 
 ### Interactive Mode vs Non-Interactive Mode
 
@@ -740,6 +911,15 @@ Legacy migration / Want minimal changes? → Minimal
 | Framework | `promptFramework()` | `--framework` | Auto-detect |
 | Locale | `promptLocale()` | `--locale` | - |
 | Content Mode | `promptContentMode()` | `--content-mode` | `index` |
+| Methodology | `promptMethodology()` | - | `null` (requires `-E`) |
+
+### Control Flags
+
+| Flag | CLI Parameter | Description |
+|------|---------------|-------------|
+| Non-interactive | `-y, --yes` | Skip interactive prompts, use default values |
+| Experimental | `-E, --experimental` | Enable experimental features (methodology selection) |
+| Mode (deprecated) | `-m, --mode` | Installation mode (skills, full) - use `--skills-location` instead |
 
 ### Complete CLI Examples
 

@@ -38,6 +38,7 @@ program
   .option('--framework <framework>', 'Framework extension (fat-free)')
   .option('--locale <locale>', 'Locale extension (zh-tw)')
   .option('--skills-location <location>', 'Skills location (marketplace, user, project, none) [default: marketplace]')
+  .option('--content-mode <mode>', 'Content mode for integration files (minimal, index, full) [default: index]')
   .option('-y, --yes', 'Use defaults, skip interactive prompts')
   .option('-E, --experimental', 'Enable experimental features (methodology)')
   .action(initCommand);

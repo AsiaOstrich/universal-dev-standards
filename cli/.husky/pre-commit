@@ -27,6 +27,26 @@ if [ -n "$STAGED_CORE" ] || [ -n "$STAGED_AI" ]; then
     fi
 fi
 
+# Check if any CLI or docs files are staged
+STAGED_CLI=$(git diff --cached --name-only | grep -E "^cli/bin/.*\.js$" || true)
+STAGED_DOCS=$(git diff --cached --name-only | grep -E "^docs/CLI-INIT-OPTIONS\.md$" || true)
+
+if [ -n "$STAGED_CLI" ] || [ -n "$STAGED_DOCS" ]; then
+    echo "[Pre-commit] Checking CLI-docs sync..."
+    if [ -f "$REPO_ROOT/scripts/check-cli-docs-sync.sh" ]; then
+        "$REPO_ROOT/scripts/check-cli-docs-sync.sh"
+        if [ $? -ne 0 ]; then
+            echo ""
+            echo "When adding/modifying CLI options in cli/bin/*.js, you MUST also:"
+            echo "  1. Update docs/CLI-INIT-OPTIONS.md"
+            echo "  2. Update locales/zh-TW/docs/CLI-INIT-OPTIONS.md"
+            echo "  3. Update locales/zh-CN/docs/CLI-INIT-OPTIONS.md"
+            echo ""
+            exit 1
+        fi
+    fi
+fi
+
 # Navigate to cli directory for npm commands
 cd "$REPO_ROOT/cli"
 
