@@ -16,7 +16,7 @@ import {
   writeManifest,
   isInitialized
 } from '../utils/copier.js';
-import { setLanguage, detectLanguage } from '../i18n/messages.js';
+import { t } from '../i18n/messages.js';
 import {
   downloadSkillToLocation,
   getInstalledSkillsInfo,
@@ -101,30 +101,26 @@ const EXTENSION_MAPPINGS = {
  */
 export async function initCommand(options) {
   const projectPath = process.cwd();
+  const msg = t().commands.init;
+  const common = t().commands.common;
 
-  // Initialize UI language based on --ui-lang flag or auto-detect
-  const uiLang = options.uiLang || 'auto';
-  if (uiLang === 'auto') {
-    setLanguage(detectLanguage(options.locale));
-  } else {
-    setLanguage(uiLang);
-  }
+  // Note: UI language is now set globally in uds.js preAction hook
 
   console.log();
-  console.log(chalk.bold('Universal Development Standards - Initialize'));
+  console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
 
   // STEP 1: Check if already initialized
   if (isInitialized(projectPath)) {
-    console.log(chalk.yellow('⚠ Standards already initialized in this project.'));
-    console.log(chalk.gray('  Use `uds update` to update, or delete .standards/ to reinitialize.'));
+    console.log(chalk.yellow(msg.alreadyInitialized));
+    console.log(chalk.gray(`  ${msg.useUpdateOrDelete}`));
     return;
   }
 
   // STEP 2: Detect project characteristics
-  const spinner = ora('Detecting project characteristics...').start();
+  const spinner = ora(msg.detectingProject).start();
   const detected = detectAll(projectPath);
-  spinner.succeed('Project analysis complete');
+  spinner.succeed(msg.analysisComplete);
 
   // Show detected info
   const detectedLangs = Object.entries(detected.languages)
@@ -138,13 +134,13 @@ export async function initCommand(options) {
     .map(([k]) => k);
 
   if (detectedLangs.length > 0) {
-    console.log(chalk.gray(`  Languages: ${detectedLangs.join(', ')}`));
+    console.log(chalk.gray(`  ${msg.languages}: ${detectedLangs.join(', ')}`));
   }
   if (detectedFrameworks.length > 0) {
-    console.log(chalk.gray(`  Frameworks: ${detectedFrameworks.join(', ')}`));
+    console.log(chalk.gray(`  ${msg.frameworks}: ${detectedFrameworks.join(', ')}`));
   }
   if (detectedTools.length > 0) {
-    console.log(chalk.gray(`  AI Tools: ${detectedTools.join(', ')}`));
+    console.log(chalk.gray(`  ${msg.aiTools}: ${detectedTools.join(', ')}`));
   }
   console.log();
 
@@ -210,9 +206,9 @@ export async function initCommand(options) {
       if (hasProjectSkills && hasUserSkills) {
         // Case D: Both levels installed
         console.log();
-        console.log(chalk.cyan('Skills Status:'));
-        console.log(chalk.gray(`  Project level: v${projectSkillsInfo.version || 'unknown'}`));
-        console.log(chalk.gray(`  User level: v${userSkillsInfo.version || 'unknown'}`));
+        console.log(chalk.cyan(msg.skillsStatus));
+        console.log(chalk.gray(`  ${msg.projectLevel}: v${projectSkillsInfo.version || 'unknown'}`));
+        console.log(chalk.gray(`  ${msg.userLevel}: v${userSkillsInfo.version || 'unknown'}`));
 
         const updateResult = await promptSkillsUpdate(projectSkillsInfo, userSkillsInfo, latestVersion);
         skillsConfig = {
@@ -224,9 +220,9 @@ export async function initCommand(options) {
       } else if (hasProjectSkills) {
         // Case C: Only project level installed
         console.log();
-        console.log(chalk.cyan('Skills Status:'));
-        console.log(chalk.gray(`  Project level: v${projectSkillsInfo.version || 'unknown'}`));
-        console.log(chalk.gray('  User level: not installed'));
+        console.log(chalk.cyan(msg.skillsStatus));
+        console.log(chalk.gray(`  ${msg.projectLevel}: v${projectSkillsInfo.version || 'unknown'}`));
+        console.log(chalk.gray(`  ${msg.userLevel}: ${msg.notInstalled}`));
 
         const updateResult = await promptSkillsUpdate(projectSkillsInfo, null, latestVersion);
         skillsConfig = {
@@ -238,9 +234,9 @@ export async function initCommand(options) {
       } else if (hasUserSkills) {
         // Case B: Only user level installed
         console.log();
-        console.log(chalk.cyan('Skills Status:'));
-        console.log(chalk.gray('  Project level: not installed'));
-        console.log(chalk.gray(`  User level: v${userSkillsInfo.version || 'unknown'}`));
+        console.log(chalk.cyan(msg.skillsStatus));
+        console.log(chalk.gray(`  ${msg.projectLevel}: ${msg.notInstalled}`));
+        console.log(chalk.gray(`  ${msg.userLevel}: v${userSkillsInfo.version || 'unknown'}`));
 
         const updateResult = await promptSkillsUpdate(null, userSkillsInfo, latestVersion);
         skillsConfig = {
@@ -252,8 +248,8 @@ export async function initCommand(options) {
       } else {
         // Case A: Neither installed
         console.log();
-        console.log(chalk.cyan('Skills Status:'));
-        console.log(chalk.gray('  No Skills installation detected'));
+        console.log(chalk.cyan(msg.skillsStatus));
+        console.log(chalk.gray(`  ${msg.noSkillsDetected}`));
 
         const location = await promptSkillsInstallLocation(aiTools);
         if (location !== 'none') {
@@ -306,10 +302,10 @@ export async function initCommand(options) {
     const integrationConfigs = {};
     if (integrations.length > 0) {
       console.log();
-      console.log(chalk.cyan('Integration Configuration:'));
+      console.log(chalk.cyan(msg.integrationConfig));
 
       if (integrations.length > 1) {
-        console.log(chalk.gray('  All selected tools will share the same rule configuration.'));
+        console.log(chalk.gray(`  ${msg.sharedRuleConfig}`));
         console.log();
       }
 
@@ -465,56 +461,56 @@ export async function initCommand(options) {
 
   // Configuration summary
   console.log();
-  console.log(chalk.cyan('Configuration Summary:'));
-  console.log(chalk.gray(`  Level: ${level}`));
-  console.log(chalk.gray(`  Format: ${format === 'ai' ? 'Compact' : format === 'human' ? 'Detailed' : 'Both'}`));
-  console.log(chalk.gray(`  Standards Scope: ${skillsConfig.standardsScope === 'minimal' ? 'Lean (Skills handle the rest)' : 'Complete'}`));
-  console.log(chalk.gray(`  Content Mode: ${skillsConfig.contentMode === 'full' ? 'Full Embed' : skillsConfig.contentMode === 'index' ? 'Standard (recommended)' : 'Minimal (core only)'}`));
-  console.log(chalk.gray(`  Languages: ${languages.length > 0 ? languages.join(', ') : 'none'}`));
-  console.log(chalk.gray(`  Frameworks: ${frameworks.length > 0 ? frameworks.join(', ') : 'none'}`));
-  console.log(chalk.gray(`  Locale: ${locale || 'default (English)'}`));
-  console.log(chalk.gray(`  AI Tools: ${aiTools.length > 0 ? aiTools.join(', ') : 'none'}`));
-  console.log(chalk.gray(`  Integrations: ${integrations.length > 0 ? integrations.join(', ') : 'none'}`));
-  console.log(chalk.gray(`  Methodology: ${skillsConfig.methodology || 'none'}${skillsConfig.methodology ? chalk.yellow(' [Experimental]') : ''}`));
+  console.log(chalk.cyan(msg.configSummary));
+  console.log(chalk.gray(`  ${common.level}: ${level}`));
+  console.log(chalk.gray(`  ${common.format}: ${format === 'ai' ? 'Compact' : format === 'human' ? 'Detailed' : 'Both'}`));
+  console.log(chalk.gray(`  ${msg.standardsScope}: ${skillsConfig.standardsScope === 'minimal' ? msg.standardsScopeLean : msg.standardsScopeComplete}`));
+  console.log(chalk.gray(`  ${msg.contentModeLabel}: ${skillsConfig.contentMode === 'full' ? msg.contentModeFull : skillsConfig.contentMode === 'index' ? msg.contentModeIndex : msg.contentModeMinimal}`));
+  console.log(chalk.gray(`  ${msg.languages}: ${languages.length > 0 ? languages.join(', ') : common.none}`));
+  console.log(chalk.gray(`  ${msg.frameworks}: ${frameworks.length > 0 ? frameworks.join(', ') : common.none}`));
+  console.log(chalk.gray(`  ${msg.locale}: ${locale || msg.localeDefault}`));
+  console.log(chalk.gray(`  ${common.aiTools}: ${aiTools.length > 0 ? aiTools.join(', ') : common.none}`));
+  console.log(chalk.gray(`  ${msg.integrations}: ${integrations.length > 0 ? integrations.join(', ') : common.none}`));
+  console.log(chalk.gray(`  ${common.methodology}: ${skillsConfig.methodology || common.none}${skillsConfig.methodology ? chalk.yellow(' [Experimental]') : ''}`));
 
   if (skillsConfig.installed) {
-    let skillsStatus;
+    let skillsStatusText;
     if (skillsConfig.location === 'marketplace') {
-      skillsStatus = 'Plugin Marketplace (managed by Claude Code)';
+      skillsStatusText = msg.skillsMarketplace;
     } else {
-      skillsStatus = skillsConfig.needsInstall
-        ? `install/update to ${skillsConfig.location}`
-        : `using existing (${skillsConfig.location})`;
+      skillsStatusText = skillsConfig.needsInstall
+        ? msg.skillsInstallTo.replace('{location}', skillsConfig.location)
+        : msg.skillsUsingExisting.replace('{location}', skillsConfig.location);
     }
-    console.log(chalk.gray(`  Skills: ${skillsStatus}`));
+    console.log(chalk.gray(`  ${msg.skillsLabel}: ${skillsStatusText}`));
   }
 
   // Show selected standard options
   if (standardOptions.workflow) {
-    console.log(chalk.gray(`  Git Workflow: ${standardOptions.workflow}`));
+    console.log(chalk.gray(`  ${msg.gitWorkflow}: ${standardOptions.workflow}`));
   }
   if (standardOptions.merge_strategy) {
-    console.log(chalk.gray(`  Merge Strategy: ${standardOptions.merge_strategy}`));
+    console.log(chalk.gray(`  ${msg.mergeStrategy}: ${standardOptions.merge_strategy}`));
   }
   if (standardOptions.commit_language) {
-    console.log(chalk.gray(`  Commit Language: ${standardOptions.commit_language}`));
+    console.log(chalk.gray(`  ${msg.commitLanguage}: ${standardOptions.commit_language}`));
   }
   if (standardOptions.test_levels && standardOptions.test_levels.length > 0) {
-    console.log(chalk.gray(`  Test Levels: ${standardOptions.test_levels.join(', ')}`));
+    console.log(chalk.gray(`  ${msg.testLevels}: ${standardOptions.test_levels.join(', ')}`));
   }
   console.log();
 
   if (!options.yes) {
-    const confirmed = await promptConfirm('Proceed with installation?');
+    const confirmed = await promptConfirm(msg.proceedInstall);
     if (!confirmed) {
-      console.log(chalk.yellow('Installation cancelled.'));
+      console.log(chalk.yellow(msg.installCancelled));
       return;
     }
   }
 
   // ===== Start installation =====
   console.log();
-  const copySpinner = ora('Copying standards...').start();
+  const copySpinner = ora(msg.copyingStandards).start();
 
   const results = {
     standards: [],
@@ -601,11 +597,11 @@ export async function initCommand(options) {
     }
   }
 
-  copySpinner.succeed(`Copied ${results.standards.length} standard files`);
+  copySpinner.succeed(msg.copiedStandards.replace('{count}', results.standards.length));
 
   // Copy extensions
   if (languages.length > 0 || frameworks.length > 0 || locale) {
-    const extSpinner = ora('Copying extensions...').start();
+    const extSpinner = ora(msg.copyingExtensions).start();
 
     for (const lang of languages) {
       if (EXTENSION_MAPPINGS[lang]) {
@@ -638,7 +634,7 @@ export async function initCommand(options) {
       }
     }
 
-    extSpinner.succeed(`Copied ${results.extensions.length} extension files`);
+    extSpinner.succeed(msg.copiedExtensions.replace('{count}', results.extensions.length));
   }
 
   // Build installed standards list for compliance instructions (used by all AI tools)
@@ -656,7 +652,7 @@ export async function initCommand(options) {
 
   // Generate and write integrations
   if (integrations.length > 0) {
-    const intSpinner = ora('Generating integration files...').start();
+    const intSpinner = ora(msg.generatingIntegrations).start();
     const integrationConfigs = skillsConfig.integrationConfigs || {};
 
     // Track generated files to handle AGENTS.md sharing (codex + opencode)
@@ -703,13 +699,13 @@ export async function initCommand(options) {
       }
     }
 
-    intSpinner.succeed(`Generated ${results.integrations.length} integration files`);
+    intSpinner.succeed(msg.generatedIntegrations.replace('{count}', results.integrations.length));
   }
 
   // Generate CLAUDE.md for Claude Code if selected
   const claudeCodeSelected = aiTools.includes('claude-code');
   if (claudeCodeSelected && !integrationFileExists('claude-code', projectPath)) {
-    const claudeSpinner = ora('Generating CLAUDE.md...').start();
+    const claudeSpinner = ora(msg.generatingClaudeMd).start();
 
     const claudeConfig = {
       tool: 'claude-code',
@@ -728,16 +724,16 @@ export async function initCommand(options) {
     const result = writeIntegrationFile('claude-code', claudeConfig, projectPath);
     if (result.success) {
       results.integrations.push(result.path);
-      claudeSpinner.succeed('Generated CLAUDE.md');
+      claudeSpinner.succeed(msg.generatedClaudeMd);
     } else {
-      claudeSpinner.warn('Could not generate CLAUDE.md');
+      claudeSpinner.warn(msg.couldNotGenerateClaudeMd);
       results.errors.push(`CLAUDE.md: ${result.error}`);
     }
   }
 
   // Install Skills if needed
   if (skillsConfig.needsInstall && skillsConfig.updateTargets.length > 0) {
-    const skillSpinner = ora('Installing Claude Code Skills...').start();
+    const skillSpinner = ora(msg.installingSkills).start();
 
     const skillFiles = getSkillFiles();
     const repoInfo = getRepositoryInfo();
@@ -777,9 +773,9 @@ export async function initCommand(options) {
     ).join(', ');
 
     if (errorCount === 0) {
-      skillSpinner.succeed(`Installed ${successCount} Skills to ${targetLocations}`);
+      skillSpinner.succeed(msg.installedSkills.replace('{count}', successCount).replace('{locations}', targetLocations));
     } else {
-      skillSpinner.warn(`Installed ${successCount} Skills with ${errorCount} errors`);
+      skillSpinner.warn(msg.installedSkillsWithErrors.replace('{count}', successCount).replace('{errors}', errorCount));
     }
   }
 
@@ -919,15 +915,15 @@ export async function initCommand(options) {
 
   // Summary
   console.log();
-  console.log(chalk.green('✓ Standards initialized successfully!'));
+  console.log(chalk.green(msg.initializedSuccess));
   console.log();
 
   const totalFiles = results.standards.length + results.extensions.length + results.integrations.length;
-  console.log(chalk.gray(`  ${totalFiles} files copied to project`));
+  console.log(chalk.gray(`  ${msg.filesCopied.replace('{count}', totalFiles)}`));
 
   if (skillsConfig.installed) {
     if (skillsConfig.location === 'marketplace') {
-      console.log(chalk.gray('  Skills: Using Plugin Marketplace installation'));
+      console.log(chalk.gray(`  ${msg.skillsUsingMarketplace}`));
     } else if (results.skills.length > 0) {
       const skillLocations = [];
       if (skillsConfig.updateTargets.includes('user')) {
@@ -936,28 +932,28 @@ export async function initCommand(options) {
       if (skillsConfig.updateTargets.includes('project')) {
         skillLocations.push('.claude/skills/');
       }
-      console.log(chalk.gray(`  ${results.skills.length} Skills installed to ${skillLocations.join(' and ')}`));
+      console.log(chalk.gray(`  ${msg.skillsInstalledTo.replace('{count}', results.skills.length).replace('{locations}', skillLocations.join(' and '))}`));
     }
   }
-  console.log(chalk.gray('  Manifest created at .standards/manifest.json'));
+  console.log(chalk.gray(`  ${msg.manifestCreated}`));
 
   if (results.errors.length > 0) {
     console.log();
-    console.log(chalk.yellow(`⚠ ${results.errors.length} error(s) occurred:`));
+    console.log(chalk.yellow(msg.errorsOccurred.replace('{count}', results.errors.length)));
     for (const err of results.errors) {
       console.log(chalk.gray(`    ${err}`));
     }
   }
 
   console.log();
-  console.log(chalk.gray('Next steps:'));
-  console.log(chalk.gray('  1. Review .standards/ directory'));
-  console.log(chalk.gray('  2. Add .standards/ to version control'));
+  console.log(chalk.gray(msg.nextSteps));
+  console.log(chalk.gray(`  ${msg.reviewDirectory}`));
+  console.log(chalk.gray(`  ${msg.addToVcs}`));
   if (skillsConfig.installed) {
-    console.log(chalk.gray('  3. Restart Claude Code to load new Skills'));
-    console.log(chalk.gray('  4. Run `uds check` to verify adoption status'));
+    console.log(chalk.gray(`  ${msg.restartClaude}`));
+    console.log(chalk.gray(`  4. ${msg.runCheck}`));
   } else {
-    console.log(chalk.gray('  3. Run `uds check` to verify adoption status'));
+    console.log(chalk.gray(`  3. ${msg.runCheck}`));
   }
   console.log();
 

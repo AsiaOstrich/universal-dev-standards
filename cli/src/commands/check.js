@@ -25,6 +25,7 @@ import {
   extractMarkedContent
 } from '../utils/integration-generator.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
+import { t } from '../i18n/messages.js';
 
 /**
  * Check command - verify adoption status
@@ -32,15 +33,17 @@ import { checkForUpdates } from '../utils/npm-registry.js';
  */
 export async function checkCommand(options = {}) {
   const projectPath = process.cwd();
+  const msg = t().commands.check;
+  const common = t().commands.common;
 
   console.log();
-  console.log(chalk.bold('Universal Documentation Standards - Check'));
+  console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
 
   // Check if initialized
   if (!isInitialized(projectPath)) {
-    console.log(chalk.red('✗ Standards not initialized in this project.'));
-    console.log(chalk.gray('  Run `uds init` to initialize.'));
+    console.log(chalk.red(common.notInitialized));
+    console.log(chalk.gray(`  ${common.runInit}`));
     console.log();
     return;
   }
@@ -48,7 +51,7 @@ export async function checkCommand(options = {}) {
   // Read manifest
   const manifest = readManifest(projectPath);
   if (!manifest) {
-    console.log(chalk.red('✗ Could not read manifest file.'));
+    console.log(chalk.red(common.couldNotReadManifest));
     console.log(chalk.gray('  The .standards/manifest.json may be corrupted.'));
     console.log();
     return;
@@ -58,18 +61,18 @@ export async function checkCommand(options = {}) {
   const levelInfo = getLevelInfo(manifest.level);
   const repoInfo = getRepositoryInfo();
 
-  console.log(chalk.green('✓ Standards initialized'));
+  console.log(chalk.green(msg.standardsInitialized));
   console.log();
-  console.log(chalk.cyan('Adoption Status:'));
-  console.log(chalk.gray(`  Level: ${manifest.level} - ${levelInfo.name} (${levelInfo.nameZh})`));
-  console.log(chalk.gray(`  Installed: ${manifest.upstream.installed}`));
-  console.log(chalk.gray(`  Version: ${manifest.upstream.version}`));
+  console.log(chalk.cyan(msg.adoptionStatus));
+  console.log(chalk.gray(`  ${common.level}: ${manifest.level} - ${levelInfo.name} (${levelInfo.nameZh})`));
+  console.log(chalk.gray(`  ${msg.installed}: ${manifest.upstream.installed}`));
+  console.log(chalk.gray(`  ${common.version}: ${manifest.upstream.version}`));
   console.log();
 
   // Check for updates (bundled registry)
   if (manifest.upstream.version !== repoInfo.standards.version) {
-    console.log(chalk.yellow(`⚠ Update available: ${manifest.upstream.version} → ${repoInfo.standards.version}`));
-    console.log(chalk.gray('  Run `uds update` to update.'));
+    console.log(chalk.yellow(msg.updateAvailable.replace('{current}', manifest.upstream.version).replace('{latest}', repoInfo.standards.version)));
+    console.log(chalk.gray(`  ${msg.runUpdate}`));
     console.log();
   }
 
@@ -85,7 +88,7 @@ export async function checkCommand(options = {}) {
   }
 
   // Check file integrity
-  console.log(chalk.cyan('File Integrity:'));
+  console.log(chalk.cyan(msg.fileIntegrity));
 
   const fileStatus = {
     unchanged: [],
@@ -114,8 +117,8 @@ export async function checkCommand(options = {}) {
     }
   } else {
     // Legacy manifest - existence check only
-    console.log(chalk.gray('  ℹ Hash information not available (legacy manifest).'));
-    console.log(chalk.gray('    Checking file existence only...'));
+    console.log(chalk.gray(`  ${msg.hashNotAvailable}`));
+    console.log(chalk.gray(`    ${msg.checkingExistence}`));
     console.log();
 
     // Check standards
@@ -152,31 +155,33 @@ export async function checkCommand(options = {}) {
   // Display file status
   if (fileStatus.unchanged.length > 0) {
     for (const file of fileStatus.unchanged) {
-      console.log(chalk.green(`  ✓ ${file} (unchanged)`));
+      console.log(chalk.green(`  ✓ ${file} (${msg.unchanged})`));
     }
   }
 
   if (fileStatus.modified.length > 0) {
     for (const file of fileStatus.modified) {
-      console.log(chalk.yellow(`  ⚠ ${file} (modified)`));
+      console.log(chalk.yellow(`  ⚠ ${file} (${msg.modified})`));
     }
   }
 
   if (fileStatus.missing.length > 0) {
     for (const file of fileStatus.missing) {
-      console.log(chalk.red(`  ✗ ${file} (missing)`));
+      console.log(chalk.red(`  ✗ ${file} (${msg.missing})`));
     }
   }
 
   if (fileStatus.noHash.length > 0) {
     for (const file of fileStatus.noHash) {
-      console.log(chalk.gray(`  ? ${file} (exists, no hash)`));
+      console.log(chalk.gray(`  ? ${file} (${msg.existsNoHash})`));
     }
   }
 
   console.log();
-  console.log(chalk.gray(`  Summary: ${fileStatus.unchanged.length} unchanged, ` +
-    `${fileStatus.modified.length} modified, ${fileStatus.missing.length} missing` +
+  console.log(chalk.gray(`  ${msg.summary
+    .replace('{unchanged}', fileStatus.unchanged.length)
+    .replace('{modified}', fileStatus.modified.length)
+    .replace('{missing}', fileStatus.missing.length)}` +
     (fileStatus.noHash.length > 0 ? `, ${fileStatus.noHash.length} no hash` : '')));
   console.log();
 
@@ -202,43 +207,43 @@ export async function checkCommand(options = {}) {
   const hasIssues = fileStatus.modified.length > 0 ||
                     fileStatus.missing.length > 0;
   if (hasIssues && !options.noInteractive) {
-    await interactiveMode(projectPath, manifest, fileStatus);
+    await interactiveMode(projectPath, manifest, fileStatus, msg);
   } else if (hasIssues) {
     // Non-interactive mode - just show suggestions
-    console.log(chalk.yellow('Actions available:'));
-    console.log(chalk.gray('  • Run `uds check --restore` to restore all modified/missing files'));
-    console.log(chalk.gray('  • Run `uds check --diff` to view changes'));
-    console.log(chalk.gray('  • Run `uds check --interactive` for file-by-file decisions'));
+    console.log(chalk.yellow(msg.actionsAvailable));
+    console.log(chalk.gray(`  ${msg.restoreOption}`));
+    console.log(chalk.gray(`  ${msg.diffOption}`));
+    console.log(chalk.gray(`  ${msg.interactiveOption}`));
     console.log();
   }
 
   // Suggest migration for legacy manifests
   if (fileStatus.noHash.length > 0 && !hasFileHashes(manifest)) {
-    console.log(chalk.cyan('Tip:'));
-    console.log(chalk.gray('  Run `uds check --migrate` to enable hash-based integrity checking.'));
-    console.log(chalk.gray('  This will compute hashes for all existing files.'));
+    console.log(chalk.cyan(msg.tip));
+    console.log(chalk.gray(`  ${msg.migrateTip}`));
+    console.log(chalk.gray(`  ${msg.migrateTip2}`));
     console.log();
   }
 
   // Reference sync check
-  checkReferenceSync(manifest, projectPath);
+  checkReferenceSync(manifest, projectPath, msg);
 
   // Integration files check
-  checkIntegrationFiles(manifest, projectPath);
+  checkIntegrationFiles(manifest, projectPath, msg);
 
   // Skills status
-  displaySkillsStatus(manifest, projectPath);
+  displaySkillsStatus(manifest, projectPath, msg);
 
   // Coverage report
-  displayCoverageReport(manifest);
+  displayCoverageReport(manifest, msg, common);
 
   // Final status
   const allGood = fileStatus.missing.length === 0 &&
                   fileStatus.modified.length === 0;
   if (allGood) {
-    console.log(chalk.green('✓ Project is compliant with standards'));
+    console.log(chalk.green(msg.projectCompliant));
   } else {
-    console.log(chalk.yellow('⚠ Some issues detected. Review above for details.'));
+    console.log(chalk.yellow(msg.issuesDetected));
   }
   console.log();
 }
@@ -246,14 +251,14 @@ export async function checkCommand(options = {}) {
 /**
  * Interactive mode for handling modified/missing files
  */
-async function interactiveMode(projectPath, manifest, fileStatus) {
+async function interactiveMode(projectPath, manifest, fileStatus, msg) {
   const allIssues = [
     ...fileStatus.modified.map(f => ({ file: f, status: 'modified' })),
     ...fileStatus.missing.map(f => ({ file: f, status: 'missing' }))
   ];
 
-  console.log(chalk.cyan('Interactive Mode:'));
-  console.log(chalk.gray(`  ${allIssues.length} file(s) need attention.`));
+  console.log(chalk.cyan(msg.interactiveMode));
+  console.log(chalk.gray(`  ${msg.filesNeedAttention.replace('{count}', allIssues.length)}`));
   console.log();
 
   let manifestUpdated = false;
@@ -261,25 +266,25 @@ async function interactiveMode(projectPath, manifest, fileStatus) {
   for (const issue of allIssues) {
     console.log(chalk.gray('─'.repeat(50)));
     if (issue.status === 'modified') {
-      console.log(chalk.yellow(`⚠ Modified: ${issue.file}`));
+      console.log(chalk.yellow(`⚠ ${msg.modifiedLabel}: ${issue.file}`));
     } else if (issue.status === 'missing') {
-      console.log(chalk.red(`✗ Missing: ${issue.file}`));
+      console.log(chalk.red(`✗ ${msg.missingLabel}: ${issue.file}`));
     }
 
     let choices;
     if (issue.status === 'modified') {
       choices = [
-        { name: 'view    - View diff between current and original', value: 'view' },
-        { name: 'restore - Restore to original version', value: 'restore' },
-        { name: 'keep    - Keep current version (update hash in manifest)', value: 'keep' },
-        { name: 'skip    - Skip this file for now', value: 'skip' }
+        { name: msg.actionView, value: 'view' },
+        { name: msg.actionRestore, value: 'restore' },
+        { name: msg.actionKeep, value: 'keep' },
+        { name: msg.actionSkip, value: 'skip' }
       ];
     } else {
       // missing
       choices = [
-        { name: 'restore - Download and restore file', value: 'restore' },
-        { name: 'remove  - Remove from manifest (no longer track)', value: 'remove' },
-        { name: 'skip    - Skip this file for now', value: 'skip' }
+        { name: msg.actionRestoreMissing, value: 'restore' },
+        { name: msg.actionRemove, value: 'remove' },
+        { name: msg.actionSkip, value: 'skip' }
       ];
     }
 
@@ -287,57 +292,57 @@ async function interactiveMode(projectPath, manifest, fileStatus) {
       {
         type: 'list',
         name: 'action',
-        message: 'What would you like to do?',
+        message: msg.actionPrompt,
         choices
       }
     ]);
 
     switch (action) {
       case 'view': {
-        await showSingleFileDiff(projectPath, manifest, issue.file);
+        await showSingleFileDiff(projectPath, manifest, issue.file, msg);
         // After viewing, ask again
         const { followUp } = await inquirer.prompt([
           {
             type: 'list',
             name: 'followUp',
-            message: 'What would you like to do now?',
+            message: msg.followUpPrompt,
             choices: [
-              { name: 'restore - Restore to original version', value: 'restore' },
-              { name: 'keep    - Keep current version (update hash)', value: 'keep' },
-              { name: 'skip    - Skip this file for now', value: 'skip' }
+              { name: msg.actionRestore, value: 'restore' },
+              { name: msg.actionKeep, value: 'keep' },
+              { name: msg.actionSkip, value: 'skip' }
             ]
           }
         ]);
         if (followUp === 'restore') {
-          await restoreSingleFile(projectPath, manifest, issue.file);
+          await restoreSingleFile(projectPath, manifest, issue.file, msg);
           manifestUpdated = true;
         } else if (followUp === 'keep') {
           updateFileHash(projectPath, manifest, issue.file);
           manifestUpdated = true;
-          console.log(chalk.green('✓ Keeping current version. Hash updated.'));
+          console.log(chalk.green(msg.keepingCurrent));
         }
         break;
       }
 
       case 'restore':
-        await restoreSingleFile(projectPath, manifest, issue.file);
+        await restoreSingleFile(projectPath, manifest, issue.file, msg);
         manifestUpdated = true;
         break;
 
       case 'keep':
         updateFileHash(projectPath, manifest, issue.file);
         manifestUpdated = true;
-        console.log(chalk.green('✓ Keeping current version. Hash updated.'));
+        console.log(chalk.green(msg.keepingCurrent));
         break;
 
       case 'remove':
         removeFromManifest(manifest, issue.file);
         manifestUpdated = true;
-        console.log(chalk.green('✓ Removed from manifest.'));
+        console.log(chalk.green(msg.removedFromManifest));
         break;
 
       case 'skip':
-        console.log(chalk.gray('Skipped.'));
+        console.log(chalk.gray(msg.skipped));
         break;
     }
     console.log();
@@ -345,7 +350,7 @@ async function interactiveMode(projectPath, manifest, fileStatus) {
 
   if (manifestUpdated) {
     writeManifest(manifest, projectPath);
-    console.log(chalk.green('✓ Manifest updated.'));
+    console.log(chalk.green(msg.manifestUpdated));
     console.log();
   }
 }
@@ -353,7 +358,7 @@ async function interactiveMode(projectPath, manifest, fileStatus) {
 /**
  * Show diff for a single file
  */
-async function showSingleFileDiff(projectPath, manifest, relativePath) {
+async function showSingleFileDiff(projectPath, manifest, relativePath, msg) {
   const { readFileSync } = await import('fs');
   const fullPath = join(projectPath, relativePath);
 
@@ -362,28 +367,28 @@ async function showSingleFileDiff(projectPath, manifest, relativePath) {
   try {
     currentContent = readFileSync(fullPath, 'utf-8');
   } catch {
-    console.log(chalk.red('Could not read current file.'));
+    console.log(chalk.red(msg.couldNotReadFile));
     return;
   }
 
   // Get original content from GitHub
   const sourcePath = getSourcePathFromRelative(manifest, relativePath);
   if (!sourcePath) {
-    console.log(chalk.red('Could not determine original source path.'));
+    console.log(chalk.red(msg.couldNotDetermineSource2));
     return;
   }
 
-  console.log(chalk.gray('Fetching original from GitHub...'));
+  console.log(chalk.gray(msg.fetchingOriginal));
   const originalContent = await downloadFromGitHub(sourcePath);
   if (!originalContent) {
-    console.log(chalk.red('Could not fetch original content.'));
+    console.log(chalk.red(msg.couldNotFetchOriginal));
     return;
   }
 
   // Simple diff display
   console.log();
-  console.log(chalk.cyan('--- Original'));
-  console.log(chalk.yellow('+++ Current'));
+  console.log(chalk.cyan(msg.diffOriginal));
+  console.log(chalk.yellow(msg.diffCurrent));
   console.log();
 
   const originalLines = originalContent.split('\n');
@@ -406,7 +411,7 @@ async function showSingleFileDiff(projectPath, manifest, relativePath) {
       }
       diffCount++;
       if (diffCount > 20) {
-        console.log(chalk.gray('... (diff truncated, showing first 20 changes)'));
+        console.log(chalk.gray(msg.diffTruncated));
         break;
       }
     }
@@ -418,10 +423,11 @@ async function showSingleFileDiff(projectPath, manifest, relativePath) {
  * Show diff for multiple files
  */
 async function showDiff(projectPath, manifest, modifiedFiles) {
+  const msg = t().commands.check;
   for (const file of modifiedFiles) {
-    console.log(chalk.cyan(`\nDiff for: ${file}`));
+    console.log(chalk.cyan(`\n${msg.diffFor.replace('{file}', file)}`));
     console.log(chalk.gray('─'.repeat(50)));
-    await showSingleFileDiff(projectPath, manifest, file);
+    await showSingleFileDiff(projectPath, manifest, file, msg);
   }
 }
 
@@ -429,12 +435,13 @@ async function showDiff(projectPath, manifest, modifiedFiles) {
  * Restore files from upstream
  */
 async function restoreFiles(projectPath, manifest, files) {
-  console.log(chalk.cyan('Restoring files...'));
+  const msg = t().commands.check;
+  console.log(chalk.cyan(msg.restoringFiles));
   let successCount = 0;
   let errorCount = 0;
 
   for (const file of files) {
-    const success = await restoreSingleFile(projectPath, manifest, file);
+    const success = await restoreSingleFile(projectPath, manifest, file, msg);
     if (success) {
       successCount++;
     } else {
@@ -443,24 +450,29 @@ async function restoreFiles(projectPath, manifest, files) {
   }
 
   console.log();
-  console.log(chalk.green(`✓ Restored ${successCount} file(s)`));
+  console.log(chalk.green(msg.restoredCount.replace('{count}', successCount)));
   if (errorCount > 0) {
-    console.log(chalk.red(`✗ Failed to restore ${errorCount} file(s)`));
+    console.log(chalk.red(msg.restoreFailedCount.replace('{count}', errorCount)));
   }
 
   // Update manifest
   writeManifest(manifest, projectPath);
-  console.log(chalk.gray('  Manifest updated.'));
+  console.log(chalk.gray(`  ${msg.manifestUpdatedShort}`));
   console.log();
 }
 
 /**
  * Restore a single file
  */
-async function restoreSingleFile(projectPath, manifest, relativePath) {
+async function restoreSingleFile(projectPath, manifest, relativePath, msg) {
+  // Get msg if not passed (for backward compatibility)
+  if (!msg) {
+    msg = t().commands.check;
+  }
+
   const sourcePath = getSourcePathFromRelative(manifest, relativePath);
   if (!sourcePath) {
-    console.log(chalk.red(`  ✗ ${relativePath}: Could not determine source`));
+    console.log(chalk.red(`  ✗ ${relativePath}: ${msg.couldNotDetermineSource}`));
     return false;
   }
 
@@ -473,7 +485,7 @@ async function restoreSingleFile(projectPath, manifest, relativePath) {
     const result = await copyIntegration(sourcePath, relativePath, projectPath);
     if (result.success) {
       updateFileHash(projectPath, manifest, relativePath);
-      console.log(chalk.green(`  ✓ ${relativePath}: Restored`));
+      console.log(chalk.green(`  ✓ ${relativePath}: ${msg.restored}`));
       return true;
     } else {
       console.log(chalk.red(`  ✗ ${relativePath}: ${result.error}`));
@@ -484,7 +496,7 @@ async function restoreSingleFile(projectPath, manifest, relativePath) {
   const result = await copyStandard(sourcePath, targetDir, projectPath);
   if (result.success) {
     updateFileHash(projectPath, manifest, relativePath);
-    console.log(chalk.green(`  ✓ ${relativePath}: Restored`));
+    console.log(chalk.green(`  ✓ ${relativePath}: ${msg.restored}`));
     return true;
   } else {
     console.log(chalk.red(`  ✗ ${relativePath}: ${result.error}`));
@@ -565,7 +577,8 @@ function getSourcePathFromRelative(manifest, relativePath) {
  * Migrate legacy manifest to hash-based tracking
  */
 async function migrateToHashBasedTracking(projectPath, manifest) {
-  console.log(chalk.cyan('Migrating to hash-based integrity checking...'));
+  const msg = t().commands.check;
+  console.log(chalk.cyan(msg.migratingToHash));
   console.log();
 
   const fileHashes = {};
@@ -616,16 +629,16 @@ async function migrateToHashBasedTracking(projectPath, manifest) {
   manifest.version = '3.1.0';
   writeManifest(manifest, projectPath);
 
-  console.log(chalk.green(`✓ Migrated ${count} files to hash-based tracking`));
-  console.log(chalk.gray('  Manifest version upgraded to 3.1.0'));
+  console.log(chalk.green(msg.migratedCount.replace('{count}', count)));
+  console.log(chalk.gray(`  ${msg.manifestUpgraded}`));
   console.log();
 }
 
 /**
  * Display skills status
  */
-function displaySkillsStatus(manifest, projectPath) {
-  console.log(chalk.cyan('Skills Status:'));
+function displaySkillsStatus(manifest, projectPath, msg) {
+  console.log(chalk.cyan(msg.skillsStatus));
 
   // Check which skills-compatible tools are configured
   const hasClaudeCode = manifest.aiTools?.includes('claude-code');
@@ -640,55 +653,55 @@ function displaySkillsStatus(manifest, projectPath) {
       location.includes('plugins\\cache');
 
     if (isMarketplace) {
-      console.log(chalk.green('  ✓ Skills installed via Plugin Marketplace'));
+      console.log(chalk.green(`  ${msg.skillsViaMarketplace}`));
 
       // Try to get actual version from marketplace
       const marketplaceInfo = getMarketplaceSkillsInfo();
       if (marketplaceInfo && marketplaceInfo.version && marketplaceInfo.version !== 'unknown') {
-        console.log(chalk.gray(`    Version: ${marketplaceInfo.version}`));
+        console.log(chalk.gray(`    ${t().commands.common.version}: ${marketplaceInfo.version}`));
         if (marketplaceInfo.lastUpdated) {
           const updateDate = marketplaceInfo.lastUpdated.split('T')[0];
-          console.log(chalk.gray(`    Last updated: ${updateDate}`));
+          console.log(chalk.gray(`    ${msg.lastUpdated}: ${updateDate}`));
         }
       } else {
-        console.log(chalk.gray('    Version: (run /plugin list to check)'));
+        console.log(chalk.gray(`    ${t().commands.common.version}: (run /plugin list to check)`));
       }
 
-      console.log(chalk.gray('    Managed by Claude Code plugin system'));
-      console.log(chalk.gray('    Note: Marketplace skills are not file-based'));
+      console.log(chalk.gray(`    ${msg.skillsManaged}`));
+      console.log(chalk.gray(`    ${msg.skillsNotFileBased}`));
     } else {
       const skillsDir = join(process.env.HOME || '', '.claude', 'skills');
       const hasGlobalSkills = existsSync(skillsDir);
       const hasProjectSkills = existsSync(join(projectPath, '.claude', 'skills'));
 
       if (hasGlobalSkills || hasProjectSkills) {
-        console.log(chalk.green('  ✓ Skills installed'));
-        if (hasGlobalSkills) console.log(chalk.gray('    Global: ~/.claude/skills/'));
-        if (hasProjectSkills) console.log(chalk.gray('    Project: .claude/skills/'));
+        console.log(chalk.green(`  ${msg.skillsInstalled}`));
+        if (hasGlobalSkills) console.log(chalk.gray(`    ${msg.skillsGlobal}`));
+        if (hasProjectSkills) console.log(chalk.gray(`    ${msg.skillsProject}`));
 
         // Show compatible tools
         const compatibleTools = [];
         if (hasClaudeCode) compatibleTools.push('Claude Code');
         if (hasOpenCode) compatibleTools.push('OpenCode');
         if (compatibleTools.length > 0) {
-          console.log(chalk.gray(`    Compatible: ${compatibleTools.join(', ')}`));
+          console.log(chalk.gray(`    ${msg.compatible}: ${compatibleTools.join(', ')}`));
         }
 
         // OpenCode auto-detection note (only if OpenCode is configured without Claude Code)
         if (hasOpenCode && !hasClaudeCode) {
-          console.log(chalk.gray('    Note: OpenCode auto-detects .claude/skills/'));
+          console.log(chalk.gray(`    ${msg.openCodeNote}`));
         }
 
         // Migration suggestion
-        console.log(chalk.yellow('  ⚠ Consider migrating to Plugin Marketplace'));
-        console.log(chalk.gray('    Marketplace provides automatic updates and easier management.'));
-        console.log(chalk.gray('    To migrate:'));
+        console.log(chalk.yellow(`  ${msg.considerMigrating}`));
+        console.log(chalk.gray(`    ${msg.marketplaceAutoUpdates}`));
+        console.log(chalk.gray(`    ${msg.toMigrate}`));
         console.log(chalk.gray('      1. Install via Marketplace: /install-skills AsiaOstrich/universal-dev-skills'));
         console.log(chalk.gray('      2. Remove local skills: rm -rf ~/.claude/skills/'));
         console.log(chalk.gray('      3. Reinitialize: uds init --yes'));
       } else {
-        console.log(chalk.yellow('  ⚠ Skills marked as installed but not found'));
-        console.log(chalk.gray('    Recommended: Install via Plugin Marketplace'));
+        console.log(chalk.yellow(`  ${msg.skillsMarkedNotFound}`));
+        console.log(chalk.gray(`    ${msg.recommendedInstall}`));
         console.log(chalk.gray('      /install-skills AsiaOstrich/universal-dev-skills'));
         console.log(chalk.gray('    Then reinitialize: uds init --yes'));
       }
@@ -699,10 +712,10 @@ function displaySkillsStatus(manifest, projectPath) {
       const compatibleTools = [];
       if (hasClaudeCode) compatibleTools.push('Claude Code');
       if (hasOpenCode) compatibleTools.push('OpenCode');
-      console.log(chalk.gray(`    Compatible: ${compatibleTools.join(', ')}`));
+      console.log(chalk.gray(`    ${msg.compatible}: ${compatibleTools.join(', ')}`));
     }
   } else {
-    console.log(chalk.gray('  Skills not installed (using reference documents only)'));
+    console.log(chalk.gray(`  ${msg.skillsNotInstalled}`));
   }
   console.log();
 }
@@ -710,35 +723,35 @@ function displaySkillsStatus(manifest, projectPath) {
 /**
  * Display coverage report
  */
-function displayCoverageReport(manifest) {
-  console.log(chalk.cyan('Coverage Summary:'));
+function displayCoverageReport(manifest, msg, _common) {
+  console.log(chalk.cyan(msg.coverageSummary));
   const expectedStandards = getStandardsByLevel(manifest.level);
   const skillStandards = expectedStandards.filter(s => s.skillName);
   const refStandards = expectedStandards.filter(s => !s.skillName);
 
-  console.log(chalk.gray(`  Level ${manifest.level} requires ${expectedStandards.length} standards:`));
-  console.log(chalk.gray(`    ${skillStandards.length} with Skills (interactive AI assistance)`));
-  console.log(chalk.gray(`    ${refStandards.length} reference documents`));
+  console.log(chalk.gray(`  ${msg.levelRequires.replace('{level}', manifest.level).replace('{count}', expectedStandards.length)}`));
+  console.log(chalk.gray(`    ${msg.withSkills.replace('{count}', skillStandards.length)}`));
+  console.log(chalk.gray(`    ${msg.referenceDocs.replace('{count}', refStandards.length)}`));
 
   const coveredBySkills = manifest.skills.installed ? skillStandards.length : 0;
   const coveredByDocs = manifest.standards.length;
 
-  console.log(chalk.gray('  Your coverage:'));
-  console.log(chalk.gray(`    ${coveredBySkills} via Skills`));
-  console.log(chalk.gray(`    ${coveredByDocs} via copied documents`));
+  console.log(chalk.gray(`  ${msg.yourCoverage}`));
+  console.log(chalk.gray(`    ${msg.viaSkills.replace('{count}', coveredBySkills)}`));
+  console.log(chalk.gray(`    ${msg.viaDocs.replace('{count}', coveredByDocs)}`));
   console.log();
 }
 
 /**
  * Check AI tool integration files for standards coverage
  */
-function checkIntegrationFiles(manifest, projectPath) {
+function checkIntegrationFiles(manifest, projectPath, msg) {
   // Skip if no AI tools configured
   if (!manifest.aiTools || manifest.aiTools.length === 0) {
     return;
   }
 
-  console.log(chalk.cyan('AI Tool Integration Status:'));
+  console.log(chalk.cyan(msg.aiToolIntegration));
 
   const standardsFiles = manifest.standards?.map(s => basename(s)) || [];
   let hasIssues = false;
@@ -768,7 +781,7 @@ function checkIntegrationFiles(manifest, projectPath) {
 
     // Check if file exists
     if (!existsSync(fullPath)) {
-      console.log(chalk.red(`  ✗ ${toolFile}: File not found`));
+      console.log(chalk.red(`  ✗ ${toolFile}: ${msg.fileNotFound}`));
       hasIssues = true;
       continue;
     }
@@ -780,7 +793,7 @@ function checkIntegrationFiles(manifest, projectPath) {
     try {
       content = readFileSync(fullPath, 'utf-8');
     } catch {
-      console.log(chalk.yellow(`  ⚠ ${toolFile}: Could not read file`));
+      console.log(chalk.yellow(`  ⚠ ${toolFile}: ${msg.couldNotRead}`));
       continue;
     }
 
@@ -816,40 +829,40 @@ function checkIntegrationFiles(manifest, projectPath) {
 
     if (hasStandardsIndex && missingStandards.length === 0) {
       console.log(chalk.green(`  ✓ ${toolFile}:`));
-      console.log(chalk.gray('    Standards index present'));
-      console.log(chalk.gray(`    ${referencedStandards.length}/${totalTrackable || standardsFiles.length} standards referenced`));
+      console.log(chalk.gray(`    ${msg.standardsIndexPresent}`));
+      console.log(chalk.gray(`    ${msg.standardsReferenced.replace('{count}', referencedStandards.length).replace('{total}', totalTrackable || standardsFiles.length)}`));
     } else if (hasStandardsIndex) {
       console.log(chalk.yellow(`  ⚠ ${toolFile}:`));
-      console.log(chalk.gray('    Standards index present'));
-      console.log(chalk.yellow(`    ${referencedStandards.length}/${totalTrackable} standards referenced`));
+      console.log(chalk.gray(`    ${msg.standardsIndexPresent}`));
+      console.log(chalk.yellow(`    ${msg.standardsReferenced.replace('{count}', referencedStandards.length).replace('{total}', totalTrackable)}`));
       if (missingStandards.length > 0 && missingStandards.length <= 5) {
-        console.log(chalk.yellow(`    Missing: ${missingStandards.join(', ')}`));
+        console.log(chalk.yellow(`    ${msg.missingStandardsList.replace('{list}', missingStandards.join(', '))}`));
       } else if (missingStandards.length > 5) {
-        console.log(chalk.yellow(`    Missing: ${missingStandards.slice(0, 5).join(', ')}...`));
+        console.log(chalk.yellow(`    ${msg.missingStandardsList.replace('{list}', missingStandards.slice(0, 5).join(', ') + '...')}`));
       }
       hasIssues = true;
     } else {
       // No standards index - using minimal mode
       console.log(chalk.gray(`  ℹ ${toolFile}:`));
-      console.log(chalk.gray('    Using minimal mode (no standards index)'));
+      console.log(chalk.gray(`    ${msg.usingMinimalMode}`));
       const coreRules = content.includes('Anti-Hallucination') ||
         content.includes('Commit') ||
         content.includes('Code Review');
       if (coreRules) {
-        console.log(chalk.gray('    Core rules embedded'));
+        console.log(chalk.gray(`    ${msg.coreRulesEmbedded}`));
       }
     }
   }
 
   if (checkedCount === 0) {
-    console.log(chalk.gray('  No AI tool integration files configured.'));
+    console.log(chalk.gray(`  ${msg.noAiToolFiles}`));
   }
 
   if (hasIssues) {
     console.log();
-    console.log(chalk.yellow('  To fix integration issues:'));
-    console.log(chalk.gray('    • Run `uds update` to sync all integration files'));
-    console.log(chalk.gray('    • Run `uds configure --type ai_tools` to manage AI tools'));
+    console.log(chalk.yellow(`  ${msg.toFixIntegration}`));
+    console.log(chalk.gray(`    ${msg.runUpdateToSync}`));
+    console.log(chalk.gray(`    ${msg.runConfigureTools}`));
   }
 
   console.log();
@@ -858,13 +871,13 @@ function checkIntegrationFiles(manifest, projectPath) {
 /**
  * Check reference sync status between manifest standards and integration files
  */
-function checkReferenceSync(manifest, projectPath) {
+function checkReferenceSync(manifest, projectPath, msg) {
   // Skip if no integrations
   if (!manifest.integrations || manifest.integrations.length === 0) {
     return;
   }
 
-  console.log(chalk.cyan('Reference Sync Status:'));
+  console.log(chalk.cyan(msg.refSyncStatus));
 
   let hasIssues = false;
   let checkedCount = 0;
@@ -882,7 +895,7 @@ function checkReferenceSync(manifest, projectPath) {
     try {
       content = readFileSync(fullPath, 'utf-8');
     } catch {
-      console.log(chalk.yellow(`  ⚠ ${integrationPath}: Could not read file`));
+      console.log(chalk.yellow(`  ⚠ ${integrationPath}: ${msg.couldNotRead}`));
       continue;
     }
 
@@ -891,7 +904,7 @@ function checkReferenceSync(manifest, projectPath) {
 
     // Skip if no references found (might be a static file or custom content)
     if (references.length === 0) {
-      console.log(chalk.gray(`  ℹ ${integrationPath}: No standard references found`));
+      console.log(chalk.gray(`  ℹ ${integrationPath}: ${msg.noRefsFound}`));
       continue;
     }
 
@@ -907,7 +920,7 @@ function checkReferenceSync(manifest, projectPath) {
     if (orphanedRefs.length > 0) {
       hasIssues = true;
       console.log(chalk.yellow(`  ⚠ ${integrationPath}:`));
-      console.log(chalk.yellow('    References not in manifest:'));
+      console.log(chalk.yellow(`    ${msg.refsNotInManifest}`));
       for (const ref of orphanedRefs) {
         console.log(chalk.yellow(`      - ${ref}`));
       }
@@ -916,24 +929,24 @@ function checkReferenceSync(manifest, projectPath) {
     if (missingRefs.length > 0) {
       // This is informational, not an error
       console.log(chalk.gray(`  ℹ ${integrationPath}:`));
-      console.log(chalk.gray('    Standards not referenced (optional):'));
+      console.log(chalk.gray(`    ${msg.standardsNotReferenced}`));
       for (const ref of missingRefs) {
         console.log(chalk.gray(`      - ${ref}`));
       }
     }
 
     if (orphanedRefs.length === 0 && missingRefs.length === 0) {
-      console.log(chalk.green(`  ✓ ${integrationPath}: references in sync (${syncedRefs.length} refs)`));
+      console.log(chalk.green(`  ✓ ${msg.refsInSync.replace('{path}', integrationPath).replace('{count}', syncedRefs.length)}`));
     }
   }
 
   if (checkedCount === 0) {
-    console.log(chalk.gray('  No integration files with standard references found.'));
+    console.log(chalk.gray(`  ${msg.noIntegrationRefs}`));
   }
 
   if (hasIssues) {
     console.log();
-    console.log(chalk.yellow('  Run `uds update --sync-refs` to fix reference issues.'));
+    console.log(chalk.yellow(`  ${msg.runSyncRefs}`));
   }
 
   console.log();
@@ -944,7 +957,8 @@ function checkReferenceSync(manifest, projectPath) {
  * @param {string} bundledVersion - Version bundled with current CLI
  */
 async function checkCliVersion(bundledVersion) {
-  const spinner = ora({ text: 'Checking for CLI updates...', spinner: 'dots' }).start();
+  const msg = t().commands.check;
+  const spinner = ora({ text: msg.checkingCliUpdates, spinner: 'dots' }).start();
 
   try {
     const result = await checkForUpdates(bundledVersion, {
@@ -953,19 +967,19 @@ async function checkCliVersion(bundledVersion) {
     spinner.stop();
 
     if (result.offline) {
-      console.log(chalk.gray('  ℹ Could not check for CLI updates (offline mode)'));
+      console.log(chalk.gray(`  ${msg.couldNotCheckUpdates}`));
       console.log();
       return;
     }
 
     if (result.available) {
-      console.log(chalk.cyan('CLI Update Available:'));
-      console.log(chalk.gray(`  Current CLI: ${result.currentVersion}`));
-      console.log(chalk.gray(`  Latest on npm: ${result.latestVersion}`));
+      console.log(chalk.cyan(msg.cliUpdateAvailable));
+      console.log(chalk.gray(`  ${msg.currentCli}: ${result.currentVersion}`));
+      console.log(chalk.gray(`  ${msg.latestOnNpm}: ${result.latestVersion}`));
       if (result.isCurrentBeta && result.latestStable) {
-        console.log(chalk.gray(`  Latest stable: ${result.latestStable}`));
+        console.log(chalk.gray(`  ${msg.latestStable}: ${result.latestStable}`));
       }
-      console.log(chalk.yellow('  Run: npm update -g universal-dev-standards'));
+      console.log(chalk.yellow(`  ${msg.runNpmUpdate}`));
       console.log();
     }
   } catch {

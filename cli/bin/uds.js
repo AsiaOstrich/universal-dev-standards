@@ -8,6 +8,7 @@ import { checkCommand } from '../src/commands/check.js';
 import { updateCommand } from '../src/commands/update.js';
 import { configureCommand } from '../src/commands/configure.js';
 import { skillsCommand } from '../src/commands/skills.js';
+import { setLanguage, detectLanguage } from '../src/i18n/messages.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -15,7 +16,14 @@ const pkg = require('../package.json');
 program
   .name('uds')
   .description('CLI tool for adopting Universal Development Standards')
-  .version(pkg.version);
+  .version(pkg.version)
+  .option('--ui-lang <lang>', 'UI language (en, zh-tw, auto) [default: auto]')
+  .hook('preAction', (thisCommand) => {
+    const opts = thisCommand.opts();
+    const uiLang = opts.uiLang || 'auto';
+    const detectedLang = uiLang === 'auto' ? detectLanguage(null) : uiLang;
+    setLanguage(detectedLang);
+  });
 
 program
   .command('list')
@@ -39,7 +47,6 @@ program
   .option('--locale <locale>', 'Locale extension (zh-tw)')
   .option('--skills-location <location>', 'Skills location (marketplace, user, project, none) [default: marketplace]')
   .option('--content-mode <mode>', 'Content mode for integration files (minimal, index, full) [default: index]')
-  .option('--ui-lang <lang>', 'UI language for prompts (en, zh-tw, auto) [default: auto]')
   .option('-y, --yes', 'Use defaults, skip interactive prompts')
   .option('-E, --experimental', 'Enable experimental features (methodology)')
   .action(initCommand);

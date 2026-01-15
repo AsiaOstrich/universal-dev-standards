@@ -32,6 +32,7 @@ import {
   writeIntegrationFile,
   getToolFilePath
 } from '../utils/integration-generator.js';
+import { t } from '../i18n/messages.js';
 
 /**
  * Configure command - modify options for initialized project
@@ -39,47 +40,49 @@ import {
  */
 export async function configureCommand(options) {
   const projectPath = process.cwd();
+  const msg = t().commands.configure;
+  const common = t().commands.common;
 
   console.log();
-  console.log(chalk.bold('Universal Development Standards - Configure'));
+  console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
 
   // Check if initialized
   if (!isInitialized(projectPath)) {
-    console.log(chalk.red('✗ Standards not initialized in this project.'));
-    console.log(chalk.gray('  Run `uds init` first to initialize standards.'));
+    console.log(chalk.red(common.notInitialized));
+    console.log(chalk.gray(`  ${common.runInit}`));
     return;
   }
 
   // Read current manifest
   const manifest = readManifest(projectPath);
   if (!manifest) {
-    console.log(chalk.red('✗ Could not read manifest file.'));
+    console.log(chalk.red(common.couldNotReadManifest));
     return;
   }
 
   console.log();
-  console.log(chalk.cyan('Current Configuration:'));
-  console.log(chalk.gray(`  Level: ${manifest.level || 2}`));
-  console.log(chalk.gray(`  Format: ${manifest.format || 'human'}`));
-  console.log(chalk.gray(`  Content Mode: ${manifest.contentMode || 'minimal'}`));
-  console.log(chalk.gray(`  AI Tools: ${manifest.aiTools?.length > 0 ? manifest.aiTools.join(', ') : 'none'}`));
+  console.log(chalk.cyan(msg.currentConfig));
+  console.log(chalk.gray(`  ${common.level}: ${manifest.level || 2}`));
+  console.log(chalk.gray(`  ${common.format}: ${manifest.format || 'human'}`));
+  console.log(chalk.gray(`  ${common.contentMode}: ${manifest.contentMode || 'minimal'}`));
+  console.log(chalk.gray(`  ${common.aiTools}: ${manifest.aiTools?.length > 0 ? manifest.aiTools.join(', ') : common.none}`));
   // Only show methodology with -E flag (completely hidden otherwise)
   if (options.experimental && manifest.methodology?.active) {
-    console.log(chalk.gray(`  Methodology: ${manifest.methodology.active.toUpperCase()}`) + chalk.yellow(' [Experimental]'));
+    console.log(chalk.gray(`  ${common.methodology}: ${manifest.methodology.active.toUpperCase()}`) + chalk.yellow(` ${msg.experimental}`));
   }
   if (manifest.options) {
     if (manifest.options.workflow) {
-      console.log(chalk.gray(`  Git Workflow: ${manifest.options.workflow}`));
+      console.log(chalk.gray(`  ${msg.gitWorkflow}: ${manifest.options.workflow}`));
     }
     if (manifest.options.merge_strategy) {
-      console.log(chalk.gray(`  Merge Strategy: ${manifest.options.merge_strategy}`));
+      console.log(chalk.gray(`  ${msg.mergeStrategy}: ${manifest.options.merge_strategy}`));
     }
     if (manifest.options.commit_language) {
-      console.log(chalk.gray(`  Commit Language: ${manifest.options.commit_language}`));
+      console.log(chalk.gray(`  ${msg.commitLanguage}: ${manifest.options.commit_language}`));
     }
     if (manifest.options.test_levels && manifest.options.test_levels.length > 0) {
-      console.log(chalk.gray(`  Test Levels: ${manifest.options.test_levels.join(', ')}`));
+      console.log(chalk.gray(`  ${msg.testLevels}: ${manifest.options.test_levels.join(', ')}`));
     }
   }
   console.log();
@@ -92,34 +95,34 @@ export async function configureCommand(options) {
 
     // Build choices array - methodology only shown with -E flag
     const baseChoices = [
-      { name: 'Format (AI/Human)', value: 'format' },
-      { name: 'Git Workflow Strategy', value: 'workflow' },
-      { name: 'Merge Strategy', value: 'merge_strategy' },
-      { name: 'Commit Message Language', value: 'commit_language' },
-      { name: 'Test Levels', value: 'test_levels' },
+      { name: msg.optionFormat, value: 'format' },
+      { name: msg.optionWorkflow, value: 'workflow' },
+      { name: msg.optionMergeStrategy, value: 'merge_strategy' },
+      { name: msg.optionCommitLanguage, value: 'commit_language' },
+      { name: msg.optionTestLevels, value: 'test_levels' },
       new inquirer.default.Separator(),
-      { name: `${chalk.cyan('AI Tools')} - Add/Remove AI integrations`, value: 'ai_tools' },
-      { name: `${chalk.cyan('Adoption Level')} - Change Level 1/2/3`, value: 'level' },
-      { name: `${chalk.cyan('Content Mode')} - Change full/index/minimal`, value: 'content_mode' }
+      { name: chalk.cyan(msg.optionAITools), value: 'ai_tools' },
+      { name: chalk.cyan(msg.optionLevel), value: 'level' },
+      { name: chalk.cyan(msg.optionContentMode), value: 'content_mode' }
     ];
 
     // Only add methodology option when -E flag is used
     if (options.experimental) {
       baseChoices.push(
-        { name: `${chalk.cyan('Methodology')} ${chalk.yellow('[Experimental]')} - Change development methodology`, value: 'methodology' }
+        { name: `${chalk.cyan(msg.optionMethodology)} ${chalk.yellow(msg.experimental)}`, value: 'methodology' }
       );
     }
 
     baseChoices.push(
       new inquirer.default.Separator(),
-      { name: 'All Options', value: 'all' }
+      { name: msg.optionAll, value: 'all' }
     );
 
     const { type } = await inquirer.default.prompt([
       {
         type: 'list',
         name: 'type',
-        message: 'What would you like to configure?',
+        message: msg.selectOption,
         choices: baseChoices
       }
     ]);
@@ -144,24 +147,24 @@ export async function configureCommand(options) {
       newAITools = [...new Set([...newAITools, ...toolsWithSharing])];
       needsIntegrationRegeneration = true;
     } else if (result.action === 'remove' && result.tools.length > 0) {
-      newAITools = newAITools.filter(t => !result.tools.includes(t));
+      newAITools = newAITools.filter(tool => !result.tools.includes(tool));
 
       // Remove integration files for removed tools
-      const spinner = ora('Removing integration files...').start();
+      const spinner = ora(msg.removingIntegrations).start();
       for (const tool of result.tools) {
         const filePath = join(projectPath, getToolFilePath(tool));
         if (existsSync(filePath)) {
           try {
             unlinkSync(filePath);
-            console.log(chalk.gray(`  Removed: ${getToolFilePath(tool)}`));
+            console.log(chalk.gray(`  ${msg.removed}: ${getToolFilePath(tool)}`));
           } catch (err) {
-            console.log(chalk.yellow(`  Could not remove: ${getToolFilePath(tool)}`));
+            console.log(chalk.yellow(`  ${msg.couldNotRemove}: ${getToolFilePath(tool)}`));
           }
         }
       }
-      spinner.succeed('Integration files removed');
+      spinner.succeed(msg.integrationsRemoved);
     } else if (result.action === 'view' || result.action === 'cancel') {
-      console.log(chalk.gray('No changes made.'));
+      console.log(chalk.gray(msg.noChanges));
       process.exit(0);
     }
   }
@@ -211,37 +214,37 @@ export async function configureCommand(options) {
 
   // Show changes
   console.log();
-  console.log(chalk.cyan('New Configuration:'));
-  console.log(chalk.gray(`  Level: ${newLevel}`));
-  console.log(chalk.gray(`  Format: ${newFormat}`));
-  console.log(chalk.gray(`  Content Mode: ${newContentMode}`));
-  console.log(chalk.gray(`  AI Tools: ${newAITools.length > 0 ? newAITools.join(', ') : 'none'}`));
+  console.log(chalk.cyan(msg.newConfig));
+  console.log(chalk.gray(`  ${common.level}: ${newLevel}`));
+  console.log(chalk.gray(`  ${common.format}: ${newFormat}`));
+  console.log(chalk.gray(`  ${common.contentMode}: ${newContentMode}`));
+  console.log(chalk.gray(`  ${common.aiTools}: ${newAITools.length > 0 ? newAITools.join(', ') : common.none}`));
   if (newMethodology) {
-    console.log(chalk.gray(`  Methodology: ${newMethodology.toUpperCase()}`));
+    console.log(chalk.gray(`  ${common.methodology}: ${newMethodology.toUpperCase()}`));
   }
   if (newOptions.workflow) {
-    console.log(chalk.gray(`  Git Workflow: ${newOptions.workflow}`));
+    console.log(chalk.gray(`  ${msg.gitWorkflow}: ${newOptions.workflow}`));
   }
   if (newOptions.merge_strategy) {
-    console.log(chalk.gray(`  Merge Strategy: ${newOptions.merge_strategy}`));
+    console.log(chalk.gray(`  ${msg.mergeStrategy}: ${newOptions.merge_strategy}`));
   }
   if (newOptions.commit_language) {
-    console.log(chalk.gray(`  Commit Language: ${newOptions.commit_language}`));
+    console.log(chalk.gray(`  ${msg.commitLanguage}: ${newOptions.commit_language}`));
   }
   if (newOptions.test_levels && newOptions.test_levels.length > 0) {
-    console.log(chalk.gray(`  Test Levels: ${newOptions.test_levels.join(', ')}`));
+    console.log(chalk.gray(`  ${msg.testLevels}: ${newOptions.test_levels.join(', ')}`));
   }
   console.log();
 
   // Confirm
-  const confirmed = await promptConfirm('Apply these changes?');
+  const confirmed = await promptConfirm(msg.applyChanges);
   if (!confirmed) {
-    console.log(chalk.yellow('Configuration cancelled.'));
+    console.log(chalk.yellow(msg.configCancelled));
     process.exit(0);
   }
 
   // Apply changes
-  const spinner = ora('Updating configuration...').start();
+  const spinner = ora(msg.updatingConfig).start();
 
   const results = {
     copied: [],
@@ -301,7 +304,7 @@ export async function configureCommand(options) {
 
   // Handle level change - copy new standards if upgrading
   if (newLevel > (manifest.level || 2)) {
-    const levelSpinner = ora('Adding new standards for higher level...').start();
+    const levelSpinner = ora(msg.addingStandards).start();
     const newStandards = getStandardsByLevel(newLevel);
     const existingStandards = new Set(manifest.standards?.map(s => basename(s)) || []);
 
@@ -317,12 +320,12 @@ export async function configureCommand(options) {
         }
       }
     }
-    levelSpinner.succeed('New standards added');
+    levelSpinner.succeed(msg.standardsAdded);
   }
 
   // Regenerate integration files if needed
   if (needsIntegrationRegeneration && newAITools.length > 0) {
-    const intSpinner = ora('Regenerating integration files...').start();
+    const intSpinner = ora(msg.regeneratingIntegrations).start();
 
     // Build installed standards list
     const installedStandardsList = manifest.standards?.map(s => basename(s)) || [];
@@ -361,7 +364,7 @@ export async function configureCommand(options) {
         results.errors.push(`${tool}: ${result.error}`);
       }
     }
-    intSpinner.succeed(`Regenerated ${results.generated.length} integration files`);
+    intSpinner.succeed(msg.regeneratedIntegrations.replace('{count}', results.generated.length));
   }
 
   // Update manifest
@@ -390,21 +393,21 @@ export async function configureCommand(options) {
 
   writeManifest(manifest, projectPath);
 
-  spinner.succeed('Configuration updated');
+  spinner.succeed(msg.configUpdated);
 
   // Summary
   console.log();
-  console.log(chalk.green('✓ Configuration updated successfully!'));
+  console.log(chalk.green(msg.configSuccess));
   if (results.copied.length > 0) {
-    console.log(chalk.gray(`  ${results.copied.length} new option/standard files copied`));
+    console.log(chalk.gray(`  ${msg.newOptionsCopied.replace('{count}', results.copied.length)}`));
   }
   if (results.generated.length > 0) {
-    console.log(chalk.gray(`  ${results.generated.length} integration files regenerated`));
+    console.log(chalk.gray(`  ${msg.integrationsRegenerated.replace('{count}', results.generated.length)}`));
   }
 
   if (results.errors.length > 0) {
     console.log();
-    console.log(chalk.yellow(`⚠ ${results.errors.length} error(s) occurred:`));
+    console.log(chalk.yellow(msg.errorsOccurred.replace('{count}', results.errors.length)));
     for (const err of results.errors) {
       console.log(chalk.gray(`    ${err}`));
     }

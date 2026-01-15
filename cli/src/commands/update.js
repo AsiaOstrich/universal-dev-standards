@@ -17,6 +17,7 @@ import {
   getToolFromPath
 } from '../utils/reference-sync.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
+import { t } from '../i18n/messages.js';
 
 /**
  * Compare two semantic versions
@@ -74,7 +75,8 @@ function compareVersions(v1, v2) {
  * @param {boolean} useBeta - Whether to install beta version
  */
 async function updateCliAndExit(useBeta = false) {
-  const spinner = ora('Updating CLI...').start();
+  const msg = t().commands.update;
+  const spinner = ora(msg.updatingCli).start();
 
   try {
     // Command is hardcoded - no user input, safe from injection
@@ -83,15 +85,15 @@ async function updateCliAndExit(useBeta = false) {
       stdio: 'pipe'
     });
 
-    spinner.succeed('CLI updated successfully!');
+    spinner.succeed(msg.cliUpdated);
     console.log();
-    console.log(chalk.green('✓ Please run `uds update` again to update standards.'));
+    console.log(chalk.green(msg.rerunUpdate));
     console.log();
     process.exit(0);
   } catch (error) {
-    spinner.fail('Failed to update CLI');
-    console.log(chalk.yellow('  This may be due to permission issues.'));
-    console.log(chalk.gray('  Try manually with sudo:'));
+    spinner.fail(msg.cliUpdateFailed);
+    console.log(chalk.yellow(`  ${msg.permissionIssue}`));
+    console.log(chalk.gray(`  ${msg.tryManually}`));
     console.log(chalk.white(`    sudo npm install -g universal-dev-standards${useBeta ? '@beta' : ''}`));
     console.log();
     process.exit(1);
@@ -104,15 +106,17 @@ async function updateCliAndExit(useBeta = false) {
  */
 export async function updateCommand(options) {
   const projectPath = process.cwd();
+  const msg = t().commands.update;
+  const common = t().commands.common;
 
   console.log();
-  console.log(chalk.bold('Universal Documentation Standards - Update'));
+  console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
 
   // Check if initialized
   if (!isInitialized(projectPath)) {
-    console.log(chalk.red('✗ Standards not initialized in this project.'));
-    console.log(chalk.gray('  Run `uds init` to initialize first.'));
+    console.log(chalk.red(common.notInitialized));
+    console.log(chalk.gray(`  ${common.runInit}`));
     console.log();
     return;
   }
@@ -120,7 +124,7 @@ export async function updateCommand(options) {
   // Read manifest
   const manifest = readManifest(projectPath);
   if (!manifest) {
-    console.log(chalk.red('✗ Could not read manifest file.'));
+    console.log(chalk.red(common.couldNotReadManifest));
     console.log();
     return;
   }
@@ -151,9 +155,9 @@ export async function updateCommand(options) {
     // If npm has a newer version, ask user what to do
     if (npmVersionInfo.available && !npmVersionInfo.offline) {
       console.log(chalk.cyan('━'.repeat(50)));
-      console.log(chalk.cyan.bold('⚡ New CLI version available!'));
-      console.log(chalk.gray(`  Your bundled version: ${latestVersion}`));
-      console.log(chalk.gray(`  Latest on npm: ${npmVersionInfo.latestVersion}`));
+      console.log(chalk.cyan.bold(msg.cliUpdateAvailable));
+      console.log(chalk.gray(`  ${msg.bundledVersion}: ${latestVersion}`));
+      console.log(chalk.gray(`  ${msg.latestOnNpm}: ${npmVersionInfo.latestVersion}`));
       console.log(chalk.cyan('━'.repeat(50)));
       console.log();
 
@@ -163,11 +167,11 @@ export async function updateCommand(options) {
           {
             type: 'list',
             name: 'action',
-            message: 'What would you like to do?',
+            message: msg.whatToDo,
             choices: [
-              { name: 'Update CLI first (recommended)', value: 'update-cli' },
-              { name: 'Continue with current CLI', value: 'continue' },
-              { name: 'Cancel', value: 'cancel' }
+              { name: msg.updateCliFirst, value: 'update-cli' },
+              { name: msg.continueWithCurrent, value: 'continue' },
+              { name: msg.cancel, value: 'cancel' }
             ]
           }
         ]);
@@ -176,7 +180,7 @@ export async function updateCommand(options) {
           await updateCliAndExit(options.beta || false);
           return; // Won't reach here due to process.exit
         } else if (action === 'cancel') {
-          console.log(chalk.gray('Operation cancelled.'));
+          console.log(chalk.gray(msg.operationCancelled));
           console.log();
           return;
         }
@@ -186,8 +190,8 @@ export async function updateCommand(options) {
     }
   }
 
-  console.log(chalk.gray(`Current version: ${currentVersion}`));
-  console.log(chalk.gray(`Latest version:  ${latestVersion}`));
+  console.log(chalk.gray(`${msg.currentVersion}: ${currentVersion}`));
+  console.log(chalk.gray(`${msg.latestVersion}:  ${latestVersion}`));
   console.log();
 
   // Compare versions properly using semver
@@ -195,19 +199,19 @@ export async function updateCommand(options) {
 
   if (versionComparison >= 0) {
     // Current version is same or newer than registry
-    console.log(chalk.green('✓ Standards are up to date.'));
+    console.log(chalk.green(msg.upToDate));
     if (versionComparison > 0) {
-      console.log(chalk.gray(`  (You have a newer version than the registry: ${currentVersion})`));
+      console.log(chalk.gray(`  ${msg.newerVersion.replace('{version}', currentVersion)}`));
     }
     console.log();
     return;
   }
 
-  console.log(chalk.cyan(`Update available: ${currentVersion} → ${latestVersion}`));
+  console.log(chalk.cyan(msg.updateAvailable.replace('{current}', currentVersion).replace('{latest}', latestVersion)));
   console.log();
 
   // List files to update
-  console.log(chalk.gray('Files to update:'));
+  console.log(chalk.gray(msg.filesToUpdate));
   for (const std of manifest.standards) {
     console.log(chalk.gray(`  .standards/${std.split('/').pop()}`));
   }
@@ -227,20 +231,20 @@ export async function updateCommand(options) {
       {
         type: 'confirm',
         name: 'confirmed',
-        message: 'Proceed with update? This will overwrite existing files.',
+        message: msg.confirmUpdate,
         default: true
       }
     ]);
 
     if (!confirmed) {
-      console.log(chalk.yellow('Update cancelled.'));
+      console.log(chalk.yellow(msg.updateCancelled));
       return;
     }
   }
 
   // Perform update
   console.log();
-  const spinner = ora('Updating standards...').start();
+  const spinner = ora(msg.updatingStandards).start();
 
   const results = {
     updated: [],
@@ -268,11 +272,11 @@ export async function updateCommand(options) {
     }
   }
 
-  spinner.succeed(`Updated ${results.updated.length} standard files`);
+  spinner.succeed(msg.updatedStandards.replace('{count}', results.updated.length));
 
   // Update integrations (unless --standards-only)
   if (!options.standardsOnly && manifest.integrations && manifest.integrations.length > 0) {
-    const intSpinner = ora('Syncing integration files...').start();
+    const intSpinner = ora(msg.syncingIntegrations).start();
 
     // Build installed standards list
     const installedStandardsList = manifest.standards?.map(s => basename(s)) || [];
@@ -313,7 +317,7 @@ export async function updateCommand(options) {
       }
     }
 
-    intSpinner.succeed(`Synced ${results.integrations.length} integration files`);
+    intSpinner.succeed(msg.syncedIntegrations.replace('{count}', results.integrations.length));
   }
 
   // Recompute file hashes for updated files
@@ -363,15 +367,15 @@ export async function updateCommand(options) {
 
   // Summary
   console.log();
-  console.log(chalk.green('✓ Standards updated successfully!'));
-  console.log(chalk.gray(`  Version: ${currentVersion} → ${latestVersion}`));
+  console.log(chalk.green(msg.updateSuccess));
+  console.log(chalk.gray(`  ${msg.versionUpdated.replace('{current}', currentVersion).replace('{latest}', latestVersion)}`));
   if (results.integrations.length > 0) {
-    console.log(chalk.gray(`  Integration files synced: ${results.integrations.length}`));
+    console.log(chalk.gray(`  ${msg.integrationsSynced.replace('{count}', results.integrations.length)}`));
   }
 
   if (results.errors.length > 0) {
     console.log();
-    console.log(chalk.yellow(`⚠ ${results.errors.length} file(s) could not be updated:`));
+    console.log(chalk.yellow(msg.errorsOccurred.replace('{count}', results.errors.length)));
     for (const err of results.errors) {
       console.log(chalk.gray(`    ${err}`));
     }
@@ -382,34 +386,34 @@ export async function updateCommand(options) {
     const skillsVersion = repoInfo.skills.version;
     if (manifest.skills.version !== skillsVersion) {
       console.log();
-      console.log(chalk.cyan('Skills update available:'));
-      console.log(chalk.gray(`  Current: ${manifest.skills.version || 'unknown'}`));
-      console.log(chalk.gray(`  Latest:  ${skillsVersion}`));
+      console.log(chalk.cyan(msg.skillsUpdateAvailable));
+      console.log(chalk.gray(`  ${msg.skillsCurrent}: ${manifest.skills.version || 'unknown'}`));
+      console.log(chalk.gray(`  ${msg.skillsLatest}: ${skillsVersion}`));
       console.log();
 
       // Check installation location to provide appropriate update instructions
       const location = manifest.skills.location || 'unknown';
 
       if (location === 'marketplace') {
-        console.log(chalk.gray('  Update via Plugin Marketplace:'));
-        console.log(chalk.gray('    • Auto-update: Restart Claude Code (updates on startup)'));
-        console.log(chalk.gray('    • Manual: Run /plugin marketplace update anthropic-agent-skills'));
+        console.log(chalk.gray(`  ${msg.updateViaMarketplace}`));
+        console.log(chalk.gray(`    • ${msg.autoUpdate}`));
+        console.log(chalk.gray(`    • ${msg.manualUpdate}`));
       } else if (location === 'user') {
-        console.log(chalk.yellow('  ⚠️  Manual installation is deprecated'));
-        console.log(chalk.gray('  Recommended: Migrate to Plugin Marketplace'));
+        console.log(chalk.yellow(`  ${msg.manualInstallDeprecated}`));
+        console.log(chalk.gray(`  ${msg.recommendedMigrate}`));
         console.log(chalk.gray('    /plugin add https://github.com/anthropics/claude-code-plugins/blob/main/skills/universal-dev-standards.md'));
-        console.log(chalk.gray('  Or update manually:'));
+        console.log(chalk.gray(`  ${msg.orUpdateManually}`));
         console.log(chalk.gray('    cd ~/.claude/skills/universal-dev-standards && git pull'));
       } else if (location === 'project') {
-        console.log(chalk.yellow('  ⚠️  Manual installation is deprecated'));
-        console.log(chalk.gray('  Recommended: Migrate to Plugin Marketplace'));
+        console.log(chalk.yellow(`  ${msg.manualInstallDeprecated}`));
+        console.log(chalk.gray(`  ${msg.recommendedMigrate}`));
         console.log(chalk.gray('    /plugin add https://github.com/anthropics/claude-code-plugins/blob/main/skills/universal-dev-standards.md'));
-        console.log(chalk.gray('  Or update manually:'));
+        console.log(chalk.gray(`  ${msg.orUpdateManually}`));
         console.log(chalk.gray('    cd .claude/skills/universal-dev-standards && git pull'));
       } else {
         // Legacy or unknown installation
-        console.log(chalk.yellow('  ⚠️  Manual installation is deprecated'));
-        console.log(chalk.gray('  Recommended: Migrate to Plugin Marketplace'));
+        console.log(chalk.yellow(`  ${msg.manualInstallDeprecated}`));
+        console.log(chalk.gray(`  ${msg.recommendedMigrate}`));
         console.log(chalk.gray('    /plugin add https://github.com/anthropics/claude-code-plugins/blob/main/skills/universal-dev-standards.md'));
       }
     }
@@ -427,18 +431,20 @@ export async function updateCommand(options) {
  * @param {Object} manifest - Manifest object
  */
 async function updateIntegrationsOnly(projectPath, manifest) {
-  console.log(chalk.cyan('Updating integration files only...'));
+  const msg = t().commands.update;
+
+  console.log(chalk.cyan(msg.updatingIntegrationsOnly));
   console.log();
 
   const aiTools = manifest.aiTools || [];
   if (aiTools.length === 0) {
-    console.log(chalk.yellow('⚠ No AI tools configured in manifest.'));
-    console.log(chalk.gray('  Run `uds configure` to add AI tools.'));
+    console.log(chalk.yellow(msg.noAiToolsConfigured));
+    console.log(chalk.gray(`  ${msg.runConfigure}`));
     console.log();
     return;
   }
 
-  const spinner = ora('Regenerating integration files...').start();
+  const spinner = ora(msg.regeneratingIntegrations).start();
 
   // Build installed standards list
   const installedStandardsList = manifest.standards?.map(s => basename(s)) || [];
@@ -494,7 +500,7 @@ async function updateIntegrationsOnly(projectPath, manifest) {
     }
   }
 
-  spinner.succeed(`Regenerated ${results.updated.length} integration files`);
+  spinner.succeed(msg.regeneratedIntegrations.replace('{count}', results.updated.length));
 
   // Update manifest
   manifest.version = '3.2.0';
@@ -502,12 +508,12 @@ async function updateIntegrationsOnly(projectPath, manifest) {
 
   // Summary
   console.log();
-  console.log(chalk.green('✓ Integration files updated successfully!'));
-  console.log(chalk.gray(`  Files updated: ${results.updated.join(', ') || 'none'}`));
+  console.log(chalk.green(msg.integrationsSuccess));
+  console.log(chalk.gray(`  ${msg.filesUpdatedList.replace('{files}', results.updated.join(', ') || 'none')}`));
 
   if (results.errors.length > 0) {
     console.log();
-    console.log(chalk.yellow(`⚠ ${results.errors.length} error(s):`));
+    console.log(chalk.yellow(msg.integrationsErrors.replace('{count}', results.errors.length)));
     for (const err of results.errors) {
       console.log(chalk.gray(`    ${err}`));
     }
@@ -523,27 +529,29 @@ async function updateIntegrationsOnly(projectPath, manifest) {
  * @param {Object} manifest - Manifest object
  */
 async function syncIntegrationReferences(projectPath, manifest) {
-  console.log(chalk.cyan('Syncing integration references...'));
+  const msg = t().commands.update;
+
+  console.log(chalk.cyan(msg.syncingRefs));
   console.log();
 
   // Check if integrationConfigs exists
   if (!manifest.integrationConfigs || Object.keys(manifest.integrationConfigs).length === 0) {
-    console.log(chalk.yellow('⚠ No integration configurations found in manifest.'));
-    console.log(chalk.gray('  Integration configs are required for reference sync.'));
-    console.log(chalk.gray('  This happens when:'));
-    console.log(chalk.gray('    - The project was initialized with an older version of UDS'));
-    console.log(chalk.gray('    - Integration files were manually copied, not generated'));
+    console.log(chalk.yellow(msg.noIntegrationConfigs));
+    console.log(chalk.gray(`  ${msg.integrationConfigsRequired}`));
+    console.log(chalk.gray(`  ${msg.thisHappensWhen}`));
+    console.log(chalk.gray(`    ${msg.oldVersion}`));
+    console.log(chalk.gray(`    ${msg.manuallyCopied}`));
     console.log();
-    console.log(chalk.gray('  To fix this, you can either:'));
-    console.log(chalk.gray('    1. Re-initialize the project: uds init (delete .standards/ first)'));
-    console.log(chalk.gray('    2. Manually update the integration files'));
+    console.log(chalk.gray(`  ${msg.toFixThis}`));
+    console.log(chalk.gray(`    ${msg.reinitialize}`));
+    console.log(chalk.gray(`    ${msg.manuallyUpdateFiles}`));
     console.log();
     return;
   }
 
   // Calculate expected categories from current standards
   const expectedCategories = calculateCategoriesFromStandards(manifest.standards);
-  console.log(chalk.gray('Expected categories from manifest.standards:'));
+  console.log(chalk.gray(msg.expectedCategories));
   console.log(chalk.gray(`  ${expectedCategories.join(', ') || '(none)'}`));
   console.log();
 
@@ -556,7 +564,7 @@ async function syncIntegrationReferences(projectPath, manifest) {
 
     // Skip if file doesn't exist
     if (!existsSync(fullPath)) {
-      console.log(chalk.gray(`  Skipping ${integrationPath}: file not found`));
+      console.log(chalk.gray(`  ${msg.skipping.replace('{path}', integrationPath)}`));
       skippedCount++;
       continue;
     }
@@ -565,7 +573,7 @@ async function syncIntegrationReferences(projectPath, manifest) {
 
     // Check if categories need to be updated
     if (arraysEqual(currentCategories.sort(), expectedCategories.sort())) {
-      console.log(chalk.gray(`  ${integrationPath}: already in sync`));
+      console.log(chalk.gray(`  ${msg.alreadyInSync.replace('{path}', integrationPath)}`));
       skippedCount++;
       continue;
     }
@@ -573,7 +581,7 @@ async function syncIntegrationReferences(projectPath, manifest) {
     // Get tool name for regeneration
     const toolName = config.tool || getToolFromPath(integrationPath);
     if (!toolName) {
-      console.log(chalk.yellow(`  ⚠ ${integrationPath}: unknown tool, skipping`));
+      console.log(chalk.yellow(`  ${msg.unknownTool.replace('{path}', integrationPath)}`));
       skippedCount++;
       continue;
     }
@@ -588,8 +596,8 @@ async function syncIntegrationReferences(projectPath, manifest) {
     const result = writeIntegrationFile(toolName, newConfig, projectPath);
 
     if (result.success) {
-      console.log(chalk.green(`  ✓ Updated ${integrationPath}`));
-      console.log(chalk.gray(`    Categories: ${currentCategories.join(', ') || '(none)'} → ${expectedCategories.join(', ') || '(none)'}`));
+      console.log(chalk.green(`  ${msg.updated.replace('{path}', integrationPath)}`));
+      console.log(chalk.gray(`    ${msg.categoriesChanged.replace('{old}', currentCategories.join(', ') || '(none)').replace('{new}', expectedCategories.join(', ') || '(none)')}`));
 
       // Update manifest config
       manifest.integrationConfigs[integrationPath] = {
@@ -608,7 +616,7 @@ async function syncIntegrationReferences(projectPath, manifest) {
 
       updatedCount++;
     } else {
-      console.log(chalk.red(`  ✗ Failed to update ${integrationPath}: ${result.error}`));
+      console.log(chalk.red(`  ${msg.failedToUpdate.replace('{path}', integrationPath).replace('{error}', result.error)}`));
     }
   }
 
@@ -621,10 +629,10 @@ async function syncIntegrationReferences(projectPath, manifest) {
   // Summary
   console.log();
   if (updatedCount > 0) {
-    console.log(chalk.green(`✓ Updated ${updatedCount} integration file(s)`));
+    console.log(chalk.green(msg.updatedCount.replace('{count}', updatedCount)));
   }
   if (skippedCount > 0) {
-    console.log(chalk.gray(`  Skipped ${skippedCount} file(s) (already in sync or not found)`));
+    console.log(chalk.gray(`  ${msg.skippedCount.replace('{count}', skippedCount)}`));
   }
   console.log();
 

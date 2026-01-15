@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 import { getAllSkillNames } from '../utils/registry.js';
+import { t } from '../i18n/messages.js';
 
 // Known skill directories (non-skill items to exclude)
 const NON_SKILL_ITEMS = [
@@ -91,9 +92,11 @@ function listSkillsInDir(dirPath) {
  */
 export function skillsCommand() {
   const projectPath = process.cwd();
+  const msg = t().commands.skills;
+  const common = t().commands.common;
 
   console.log();
-  console.log(chalk.bold('Universal Dev Standards - Installed Skills'));
+  console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
   console.log();
 
@@ -183,9 +186,9 @@ export function skillsCommand() {
 
   // Display results
   if (installations.length === 0) {
-    console.log(chalk.yellow('No Universal Dev Standards skills installed.'));
+    console.log(chalk.yellow(msg.noSkillsInstalled));
     console.log();
-    console.log(chalk.gray('Install via Plugin Marketplace:'));
+    console.log(chalk.gray(msg.installViaMarketplace));
     console.log(chalk.cyan('  /plugin marketplace add AsiaOstrich/universal-dev-standards'));
     console.log(chalk.cyan('  /plugin install universal-dev-standards@asia-ostrich'));
     console.log();
@@ -196,7 +199,7 @@ export function skillsCommand() {
   for (const install of installations) {
     // Header
     if (install.recommended) {
-      console.log(chalk.green(`✓ ${install.location}`) + chalk.gray(' (recommended)'));
+      console.log(chalk.green(`✓ ${install.location}`) + chalk.gray(` ${msg.recommended}`));
     } else if (install.legacyMarketplace) {
       console.log(chalk.yellow(`⚠ ${install.location}`));
     } else if (install.deprecated) {
@@ -205,7 +208,7 @@ export function skillsCommand() {
       console.log(chalk.blue(`● ${install.location}`));
     }
 
-    console.log(chalk.gray(`  Version: ${install.version}`));
+    console.log(chalk.gray(`  ${common.version}: ${install.version}`));
     console.log(chalk.gray(`  Path: ${install.path}`));
     console.log();
 
@@ -221,8 +224,8 @@ export function skillsCommand() {
 
     // Legacy marketplace migration notice
     if (install.legacyMarketplace) {
-      console.log(chalk.yellow('  ⚠ Legacy marketplace detected.'));
-      console.log(chalk.gray('  Migrate to new marketplace for continued updates:'));
+      console.log(chalk.yellow(`  ${msg.legacyMarketplaceWarning}`));
+      console.log(chalk.gray(`  ${msg.legacyMarketplaceHint}`));
       console.log(chalk.cyan('    /plugin uninstall universal-dev-standards@universal-dev-standards'));
       console.log(chalk.cyan('    /plugin install universal-dev-standards@asia-ostrich'));
       console.log();
@@ -230,8 +233,8 @@ export function skillsCommand() {
 
     // Deprecation warning
     if (install.deprecated) {
-      console.log(chalk.yellow('  ⚠ Manual installation is deprecated.'));
-      console.log(chalk.gray('  Migrate to Plugin Marketplace for automatic updates:'));
+      console.log(chalk.yellow(`  ${msg.manualInstallDeprecated}`));
+      console.log(chalk.gray(`  ${msg.manualInstallHint}`));
       console.log(chalk.cyan('    /plugin marketplace add AsiaOstrich/universal-dev-standards'));
       console.log(chalk.cyan('    /plugin install universal-dev-standards@asia-ostrich'));
       console.log();
@@ -243,12 +246,12 @@ export function skillsCommand() {
   const hasMarketplace = installations.some(i => i.recommended);
 
   console.log(chalk.gray('─'.repeat(50)));
-  console.log(chalk.gray(`Total unique skills: ${totalSkills} / ${knownSkills.length}`));
+  console.log(chalk.gray(`${msg.totalUniqueSkills}: ${totalSkills} / ${knownSkills.length}`));
 
   if (!hasMarketplace && installations.length > 0) {
     console.log();
-    console.log(chalk.yellow('Recommendation: Migrate to Plugin Marketplace'));
-    console.log(chalk.gray('  Benefits: Automatic updates, better integration'));
+    console.log(chalk.yellow(msg.recommendation));
+    console.log(chalk.gray(`  ${msg.benefits}`));
   }
 
   console.log();

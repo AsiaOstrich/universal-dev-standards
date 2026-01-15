@@ -7,6 +7,7 @@ import {
   getCategoryInfo,
   getRepositoryInfo
 } from '../utils/registry.js';
+import { t } from '../i18n/messages.js';
 
 /**
  * List command - displays available standards
@@ -14,13 +15,15 @@ import {
  */
 export function listCommand(options) {
   const { level, category } = options;
+  const msg = t().commands.list;
+  const common = t().commands.common;
 
   console.log();
-  console.log(chalk.bold('Universal Development Standards'));
+  console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
 
   const repoInfo = getRepositoryInfo();
-  console.log(chalk.gray(`Version: ${repoInfo.standards.version}`));
+  console.log(chalk.gray(`${common.version}: ${repoInfo.standards.version}`));
   console.log();
 
   let standards;
@@ -28,23 +31,23 @@ export function listCommand(options) {
   if (level) {
     const levelNum = parseInt(level, 10);
     if (![1, 2, 3].includes(levelNum)) {
-      console.log(chalk.red('Error: Level must be 1, 2, or 3'));
+      console.log(chalk.red(msg.errorLevelRange));
       process.exit(1);
     }
     standards = getStandardsByLevel(levelNum);
     const levelInfo = getLevelInfo(levelNum);
-    console.log(chalk.cyan(`Showing Level ${levelNum}: ${levelInfo.name} (${levelInfo.nameZh})`));
+    console.log(chalk.cyan(`${msg.showingLevel} ${levelNum}: ${levelInfo.name} (${levelInfo.nameZh})`));
     console.log(chalk.gray(levelInfo.description));
     console.log();
   } else if (category) {
     const categoryInfo = getCategoryInfo(category);
     if (!categoryInfo) {
-      console.log(chalk.red(`Error: Unknown category '${category}'`));
-      console.log(chalk.gray('Valid categories: skill, reference, extension, integration, template'));
+      console.log(chalk.red(`${msg.errorUnknownCategory} '${category}'`));
+      console.log(chalk.gray(msg.validCategories));
       process.exit(1);
     }
     standards = getStandardsByCategory(category);
-    console.log(chalk.cyan(`Category: ${categoryInfo.name}`));
+    console.log(chalk.cyan(`${msg.category}: ${categoryInfo.name}`));
     console.log(chalk.gray(categoryInfo.description));
     console.log();
   } else {
@@ -83,7 +86,7 @@ export function listCommand(options) {
       console.log(chalk.gray(`       ${sourceDisplay}`));
 
       if (std.applicability) {
-        console.log(chalk.gray(`       Applies to: ${std.applicability}`));
+        console.log(chalk.gray(`       ${msg.appliesTo}: ${std.applicability}`));
       }
     }
     console.log();
@@ -93,8 +96,8 @@ export function listCommand(options) {
   console.log(chalk.gray('─'.repeat(50)));
   const skillCount = standards.filter(s => s.skillName).length;
   const refCount = standards.filter(s => !s.skillName).length;
-  console.log(chalk.gray(`Total: ${standards.length} standards (${skillCount} with Skills, ${refCount} reference-only)`));
+  console.log(chalk.gray(`${common.total}: ${standards.length} ${msg.totalSummary} (${skillCount} ${msg.withSkills}, ${refCount} ${msg.referenceOnly})`));
   console.log();
-  console.log(chalk.gray('Run `uds init` to adopt standards in your project.'));
-  console.log(chalk.gray('See: https://github.com/AsiaOstrich/universal-dev-standards/blob/main/adoption/ADOPTION-GUIDE.md'));
+  console.log(chalk.gray(msg.runInitHint));
+  console.log(chalk.gray(msg.seeGuide));
 }
