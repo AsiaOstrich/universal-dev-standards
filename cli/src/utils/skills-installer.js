@@ -1,0 +1,548 @@
+/**
+ * Unified Skills and Commands Installer
+ *
+ * Provides a unified interface for installing skills and slash commands
+ * across all supported AI coding assistants.
+ *
+ * @version 1.0.0
+ */
+
+import { mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, copyFileSync, statSync } from 'fs';
+import { dirname, join, basename } from 'path';
+import { fileURLToPath } from 'url';
+import {
+  getAgentConfig,
+  getSkillsDirForAgent,
+  getCommandsDirForAgent
+} from '../config/ai-agent-paths.js';
+
+// Get the CLI package root directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const CLI_ROOT = join(__dirname, '..', '..');
+const SKILLS_LOCAL_DIR = join(CLI_ROOT, '..', 'skills', 'claude-code');
+const COMMANDS_LOCAL_DIR = join(SKILLS_LOCAL_DIR, 'commands');
+
+/**
+ * Get list of available skill names from local directory
+ * @returns {string[]} Array of skill names
+ */
+export function getAvailableSkillNames() {
+  if (!existsSync(SKILLS_LOCAL_DIR)) {
+    return [];
+  }
+
+  const NON_SKILL_ITEMS = [
+    'README.md', 'CONTRIBUTING.template.md',
+    'install.sh', 'install.ps1',
+    'commands', '.manifest.json', '.DS_Store'
+  ];
+
+  try {
+    return readdirSync(SKILLS_LOCAL_DIR)
+      .filter(item => {
+        if (NON_SKILL_ITEMS.includes(item)) return false;
+        const itemPath = join(SKILLS_LOCAL_DIR, item);
+        return statSync(itemPath).isDirectory();
+      });
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Get list of available command names from local directory
+ * @returns {string[]} Array of command names (without .md extension)
+ */
+export function getAvailableCommandNames() {
+  if (!existsSync(COMMANDS_LOCAL_DIR)) {
+    return [];
+  }
+
+  try {
+    return readdirSync(COMMANDS_LOCAL_DIR)
+      .filter(file => file.endsWith('.md') && file !== 'README.md')
+      .map(file => basename(file, '.md'));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Install skills for a specific AI agent
+ * @param {string} agent - Agent identifier (e.g., 'opencode', 'cursor')
+ * @param {string} level - 'user' or 'project'
+ * @param {string[]} skillNames - Array of skill names to install (null = all)
+ * @param {string} projectPath - Project root path (required for project level)
+ * @returns {Object} Installation result
+ */
+export async function installSkillsForAgent(agent, level, skillNames = null, projectPath = null) {
+  const config = getAgentConfig(agent);
+  if (!config || !config.skills) {
+    return {
+      success: false,
+      agent,
+      level,
+      error: `Agent '${agent}' does not support skills installation`,
+      installed: [],
+      errors: []
+    };
+  }
+
+  // Get target directory
+  const targetDir = getSkillsDirForAgent(agent, level, projectPath);
+  if (!targetDir) {
+    return {
+      success: false,
+      agent,
+      level,
+      error: `Could not determine target directory for ${agent} at ${level} level`,
+      installed: [],
+      errors: []
+    };
+  }
+
+  // Ensure target directory exists
+  if (!existsSync(targetDir)) {
+    mkdirSync(targetDir, { recursive: true });
+  }
+
+  // Get skills to install
+  const availableSkills = getAvailableSkillNames();
+  const toInstall = skillNames || availableSkills;
+
+  const results = {
+    success: true,
+    agent,
+    level,
+    targetDir,
+    installed: [],
+    errors: []
+  };
+
+  for (const skillName of toInstall) {
+    const result = installSingleSkill(skillName, targetDir);
+    if (result.success) {
+      results.installed.push(skillName);
+    } else {
+      results.errors.push({ skill: skillName, error: result.error });
+      results.success = false;
+    }
+  }
+
+  // Write manifest
+  if (results.installed.length > 0) {
+    writeSkillsManifestForAgent(agent, level, targetDir);
+  }
+
+  return results;
+}
+
+/**
+ * Install a single skill to a target directory
+ * @param {string} skillName - Skill name
+ * @param {string} targetBaseDir - Target base directory
+ * @returns {Object} Result
+ */
+function installSingleSkill(skillName, targetBaseDir) {
+  const sourceDir = join(SKILLS_LOCAL_DIR, skillName);
+  const targetDir = join(targetBaseDir, skillName);
+
+  if (!existsSync(sourceDir)) {
+    return {
+      success: false,
+      skillName,
+      error: `Skill not found: ${skillName}`
+    };
+  }
+
+  // Ensure target directory exists
+  if (!existsSync(targetDir)) {
+    mkdirSync(targetDir, { recursive: true });
+  }
+
+  try {
+    const files = readdirSync(sourceDir);
+    for (const fileName of files) {
+      const sourcePath = join(sourceDir, fileName);
+      const targetPath = join(targetDir, fileName);
+
+      // Skip directories for now (could be extended to handle subdirs)
+      if (statSync(sourcePath).isDirectory()) continue;
+
+      copyFileSync(sourcePath, targetPath);
+    }
+
+    return { success: true, skillName, path: targetDir };
+  } catch (error) {
+    return {
+      success: false,
+      skillName,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Write skills manifest for an agent
+ * @param {string} agent - Agent identifier
+ * @param {string} level - 'user' or 'project'
+ * @param {string} targetDir - Target directory
+ */
+function writeSkillsManifestForAgent(agent, level, targetDir) {
+  const manifestPath = join(targetDir, '.manifest.json');
+  const { version } = JSON.parse(
+    readFileSync(join(CLI_ROOT, 'package.json'), 'utf-8')
+  );
+
+  const manifest = {
+    version,
+    source: 'universal-dev-standards',
+    agent,
+    level,
+    installedDate: new Date().toISOString().split('T')[0]
+  };
+
+  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+}
+
+/**
+ * Install slash commands for a specific AI agent
+ * @param {string} agent - Agent identifier (e.g., 'opencode', 'copilot')
+ * @param {string[]} commandNames - Array of command names to install (null = all)
+ * @param {string} projectPath - Project root path
+ * @returns {Object} Installation result
+ */
+export async function installCommandsForAgent(agent, commandNames = null, projectPath) {
+  const config = getAgentConfig(agent);
+  if (!config || !config.commands) {
+    return {
+      success: false,
+      agent,
+      error: `Agent '${agent}' does not support slash commands`,
+      installed: [],
+      errors: []
+    };
+  }
+
+  // Get target directory
+  const targetDir = getCommandsDirForAgent(agent, projectPath);
+  if (!targetDir) {
+    return {
+      success: false,
+      agent,
+      error: `Could not determine commands directory for ${agent}`,
+      installed: [],
+      errors: []
+    };
+  }
+
+  // Ensure target directory exists
+  if (!existsSync(targetDir)) {
+    mkdirSync(targetDir, { recursive: true });
+  }
+
+  // Get commands to install
+  const availableCommands = getAvailableCommandNames();
+  const toInstall = commandNames || availableCommands;
+
+  const results = {
+    success: true,
+    agent,
+    targetDir,
+    installed: [],
+    errors: []
+  };
+
+  for (const cmdName of toInstall) {
+    const result = installSingleCommand(cmdName, targetDir, agent);
+    if (result.success) {
+      results.installed.push(cmdName);
+    } else {
+      results.errors.push({ command: cmdName, error: result.error });
+      results.success = false;
+    }
+  }
+
+  // Write manifest
+  if (results.installed.length > 0) {
+    writeCommandsManifest(agent, targetDir, results.installed);
+  }
+
+  return results;
+}
+
+/**
+ * Install a single command to target directory
+ * @param {string} cmdName - Command name (without .md)
+ * @param {string} targetDir - Target directory
+ * @param {string} agent - Agent identifier (for potential format transformation)
+ * @returns {Object} Result
+ */
+function installSingleCommand(cmdName, targetDir, agent) {
+  const sourcePath = join(COMMANDS_LOCAL_DIR, `${cmdName}.md`);
+  const targetPath = join(targetDir, `${cmdName}.md`);
+
+  if (!existsSync(sourcePath)) {
+    return {
+      success: false,
+      command: cmdName,
+      error: `Command not found: ${cmdName}`
+    };
+  }
+
+  try {
+    let content = readFileSync(sourcePath, 'utf-8');
+
+    // Transform content if needed for specific agents
+    content = transformCommandForAgent(content, cmdName, agent);
+
+    writeFileSync(targetPath, content);
+    return { success: true, command: cmdName, path: targetPath };
+  } catch (error) {
+    return {
+      success: false,
+      command: cmdName,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Transform command content for a specific agent if needed
+ * @param {string} content - Original command content
+ * @param {string} cmdName - Command name
+ * @param {string} agent - Agent identifier
+ * @returns {string} Transformed content
+ */
+function transformCommandForAgent(content, cmdName, agent) {
+  // Currently, most agents use the same format as Claude Code
+  // This function can be extended for agent-specific transformations
+
+  // Example: OpenCode might need different frontmatter fields
+  if (agent === 'opencode') {
+    // OpenCode uses the same YAML frontmatter format
+    // No transformation needed currently
+    return content;
+  }
+
+  if (agent === 'copilot') {
+    // GitHub Copilot prompts might need different format
+    // For now, keep the same format
+    return content;
+  }
+
+  if (agent === 'gemini-cli') {
+    // Gemini CLI uses TOML for commands
+    // This would need conversion, but for now keep markdown
+    return content;
+  }
+
+  return content;
+}
+
+/**
+ * Write commands manifest
+ * @param {string} agent - Agent identifier
+ * @param {string} targetDir - Target directory
+ * @param {string[]} commands - List of installed commands
+ */
+function writeCommandsManifest(agent, targetDir, commands) {
+  const manifestPath = join(targetDir, '.manifest.json');
+  const { version } = JSON.parse(
+    readFileSync(join(CLI_ROOT, 'package.json'), 'utf-8')
+  );
+
+  const manifest = {
+    version,
+    source: 'universal-dev-standards',
+    agent,
+    commands,
+    installedDate: new Date().toISOString().split('T')[0]
+  };
+
+  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+}
+
+/**
+ * Get installed skills info for an agent
+ * @param {string} agent - Agent identifier
+ * @param {string} level - 'user' or 'project'
+ * @param {string} projectPath - Project root path (required for project level)
+ * @returns {Object|null} Installed skills info or null
+ */
+export function getInstalledSkillsInfoForAgent(agent, level, projectPath = null) {
+  const targetDir = getSkillsDirForAgent(agent, level, projectPath);
+  if (!targetDir || !existsSync(targetDir)) {
+    return null;
+  }
+
+  const manifestPath = join(targetDir, '.manifest.json');
+
+  if (!existsSync(manifestPath)) {
+    // Skills exist but no manifest
+    return {
+      installed: true,
+      version: null,
+      source: 'unknown',
+      agent,
+      level,
+      path: targetDir
+    };
+  }
+
+  try {
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+    return {
+      installed: true,
+      version: manifest.version || null,
+      source: manifest.source || 'universal-dev-standards',
+      agent,
+      level,
+      path: targetDir,
+      installedDate: manifest.installedDate || null
+    };
+  } catch {
+    return {
+      installed: true,
+      version: null,
+      source: 'unknown',
+      agent,
+      level,
+      path: targetDir
+    };
+  }
+}
+
+/**
+ * Get installed commands info for an agent
+ * @param {string} agent - Agent identifier
+ * @param {string} projectPath - Project root path
+ * @returns {Object|null} Installed commands info or null
+ */
+export function getInstalledCommandsForAgent(agent, projectPath) {
+  const targetDir = getCommandsDirForAgent(agent, projectPath);
+  if (!targetDir || !existsSync(targetDir)) {
+    return null;
+  }
+
+  const manifestPath = join(targetDir, '.manifest.json');
+
+  // Count command files
+  let commandFiles = [];
+  try {
+    commandFiles = readdirSync(targetDir)
+      .filter(f => f.endsWith('.md') && f !== 'README.md');
+  } catch {
+    return null;
+  }
+
+  if (commandFiles.length === 0) {
+    return null;
+  }
+
+  if (!existsSync(manifestPath)) {
+    return {
+      installed: true,
+      count: commandFiles.length,
+      commands: commandFiles.map(f => basename(f, '.md')),
+      version: null,
+      agent,
+      path: targetDir
+    };
+  }
+
+  try {
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+    return {
+      installed: true,
+      count: commandFiles.length,
+      commands: manifest.commands || commandFiles.map(f => basename(f, '.md')),
+      version: manifest.version || null,
+      agent,
+      path: targetDir,
+      installedDate: manifest.installedDate || null
+    };
+  } catch {
+    return {
+      installed: true,
+      count: commandFiles.length,
+      commands: commandFiles.map(f => basename(f, '.md')),
+      version: null,
+      agent,
+      path: targetDir
+    };
+  }
+}
+
+/**
+ * Install skills to multiple agents at once
+ * @param {Array<{agent: string, level: string}>} installations - Array of installation targets
+ * @param {string[]} skillNames - Skills to install (null = all)
+ * @param {string} projectPath - Project root path
+ * @returns {Object} Combined results
+ */
+export async function installSkillsToMultipleAgents(installations, skillNames = null, projectPath = null) {
+  const results = {
+    success: true,
+    installations: [],
+    totalInstalled: 0,
+    totalErrors: 0
+  };
+
+  for (const { agent, level } of installations) {
+    const result = await installSkillsForAgent(agent, level, skillNames, projectPath);
+    results.installations.push(result);
+
+    if (!result.success) {
+      results.success = false;
+    }
+    results.totalInstalled += result.installed.length;
+    results.totalErrors += result.errors.length;
+  }
+
+  return results;
+}
+
+/**
+ * Install commands to multiple agents at once
+ * @param {string[]} agents - Array of agent identifiers
+ * @param {string[]} commandNames - Commands to install (null = all)
+ * @param {string} projectPath - Project root path
+ * @returns {Object} Combined results
+ */
+export async function installCommandsToMultipleAgents(agents, commandNames = null, projectPath) {
+  const results = {
+    success: true,
+    installations: [],
+    totalInstalled: 0,
+    totalErrors: 0
+  };
+
+  for (const agent of agents) {
+    const config = getAgentConfig(agent);
+    if (!config?.commands) continue; // Skip agents that don't support commands
+
+    const result = await installCommandsForAgent(agent, commandNames, projectPath);
+    results.installations.push(result);
+
+    if (!result.success) {
+      results.success = false;
+    }
+    results.totalInstalled += result.installed.length;
+    results.totalErrors += result.errors.length;
+  }
+
+  return results;
+}
+
+export default {
+  installSkillsForAgent,
+  installCommandsForAgent,
+  getInstalledSkillsInfoForAgent,
+  getInstalledCommandsForAgent,
+  installSkillsToMultipleAgents,
+  installCommandsToMultipleAgents,
+  getAvailableSkillNames,
+  getAvailableCommandNames
+};

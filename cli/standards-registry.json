@@ -63,26 +63,103 @@
     "claude-code": {
       "name": "Claude Code",
       "skillsPath": "skills/claude-code",
+      "nativePaths": {
+        "skills": { "project": ".claude/skills/", "user": "~/.claude/skills/" }
+      },
+      "supportsMarketplace": true,
+      "supportsSkills": true,
+      "supportsCommands": false,
+      "status": "complete"
+    },
+    "opencode": {
+      "name": "OpenCode",
+      "skillsPath": "skills/claude-code",
+      "nativePaths": {
+        "skills": { "project": ".opencode/skill/", "user": "~/.config/opencode/skill/" },
+        "commands": { "project": ".opencode/command/" }
+      },
+      "fallbackSkillsPath": ".claude/skills/",
+      "supportsSkills": true,
+      "supportsCommands": true,
       "status": "complete"
     },
     "cursor": {
       "name": "Cursor",
       "skillsPath": "skills/cursor",
-      "status": "planned"
-    },
-    "windsurf": {
-      "name": "Windsurf",
-      "skillsPath": "skills/windsurf",
+      "nativePaths": {
+        "skills": { "project": ".cursor/skills/", "user": "~/.cursor/skills/" }
+      },
+      "fallbackSkillsPath": ".claude/skills/",
+      "supportsSkills": false,
+      "supportsCommands": false,
       "status": "planned"
     },
     "cline": {
       "name": "Cline",
       "skillsPath": "skills/cline",
+      "nativePaths": {
+        "skills": { "project": ".cline/skills/", "user": "~/.cline/skills/" }
+      },
+      "fallbackSkillsPath": ".claude/skills/",
+      "supportsSkills": true,
+      "supportsCommands": false,
+      "status": "planned"
+    },
+    "roo-code": {
+      "name": "Roo Code",
+      "skillsPath": "skills/claude-code",
+      "nativePaths": {
+        "skills": { "project": ".roo/skills/", "user": "~/.roo/skills/" },
+        "commands": { "project": ".roo/commands/" }
+      },
+      "fallbackSkillsPath": ".claude/skills/",
+      "supportsSkills": true,
+      "supportsCommands": true,
+      "status": "planned"
+    },
+    "codex": {
+      "name": "OpenAI Codex",
+      "skillsPath": "skills/claude-code",
+      "nativePaths": {
+        "skills": { "project": ".codex/skills/", "user": "~/.codex/skills/" }
+      },
+      "fallbackSkillsPath": ".claude/skills/",
+      "supportsSkills": true,
+      "supportsCommands": false,
       "status": "planned"
     },
     "copilot": {
       "name": "GitHub Copilot",
       "skillsPath": "skills/copilot",
+      "nativePaths": {
+        "skills": { "project": ".github/skills/", "user": "~/.copilot/skills/" },
+        "commands": { "project": ".github/prompts/" }
+      },
+      "fallbackSkillsPath": ".claude/skills/",
+      "supportsSkills": true,
+      "supportsCommands": true,
+      "status": "planned"
+    },
+    "windsurf": {
+      "name": "Windsurf",
+      "skillsPath": "skills/windsurf",
+      "nativePaths": {
+        "skills": { "project": ".windsurf/skills/", "user": "~/.codeium/windsurf/skills/" }
+      },
+      "supportsSkills": true,
+      "supportsCommands": false,
+      "status": "planned"
+    },
+    "gemini-cli": {
+      "name": "Gemini CLI",
+      "skillsPath": "skills/claude-code",
+      "nativePaths": {
+        "skills": { "project": ".gemini/skills/", "user": "~/.gemini/skills/" },
+        "commands": { "project": ".gemini/commands/" }
+      },
+      "fallbackSkillsPath": ".claude/skills/",
+      "supportsSkills": true,
+      "supportsCommands": true,
       "status": "planned"
     }
   },

@@ -304,6 +304,7 @@ describe('Check Command', () => {
         standards: [],
         extensions: [],
         integrations: [],
+        aiTools: ['claude-code'],  // Need aiTools for Skills Status to show agents
         skills: {
           installed: true,
           location: 'marketplace',
@@ -479,7 +480,7 @@ describe('Check Command', () => {
       expect(output).not.toContain('AI Tool Integration Status');
     });
 
-    it('should show OpenCode compatibility when skills installed with OpenCode configured', async () => {
+    it('should show OpenCode status when OpenCode configured', async () => {
       const manifest = {
         version: '3.2.0',
         upstream: {
@@ -512,11 +513,13 @@ describe('Check Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Skills Status');
-      expect(output).toContain('Compatible');
+      // New format shows each agent's status separately
       expect(output).toContain('OpenCode');
+      expect(output).toContain('Skills');
+      expect(output).toContain('Commands');
     });
 
-    it('should show both Claude Code and OpenCode in compatible tools list', async () => {
+    it('should show both Claude Code and OpenCode status when both configured', async () => {
       const manifest = {
         version: '3.2.0',
         upstream: {
@@ -544,9 +547,10 @@ describe('Check Command', () => {
       await checkCommand({ noInteractive: true });
 
       const output = consoleLogs.join('\n');
-      expect(output).toContain('Compatible');
+      // New format shows each agent's status separately
       expect(output).toContain('Claude Code');
       expect(output).toContain('OpenCode');
+      expect(output).toContain('Skills Status');
     });
 
   });

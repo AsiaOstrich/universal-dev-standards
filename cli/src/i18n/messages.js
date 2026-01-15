@@ -788,7 +788,31 @@ export const messages = {
         configSuccess: '✓ Configuration updated successfully!',
         newOptionsCopied: '{count} new option/standard files copied',
         integrationsRegenerated: '{count} integration files regenerated',
-        errorsOccurred: '⚠ {count} error(s) occurred:'
+        errorsOccurred: '⚠ {count} error(s) occurred:',
+        // Skills and Commands configuration
+        optionSkills: 'Skills - Manage Skills installations',
+        optionCommands: 'Commands - Manage slash commands',
+        noAiToolsConfigured: 'No AI tools configured',
+        addAiToolsFirst: 'Add AI tools first with: uds configure --type ai_tools',
+        currentSkillsStatus: 'Current Skills status:',
+        currentCommandsStatus: 'Current Commands status:',
+        notInstalled: 'Not installed',
+        skillsAction: 'What would you like to do with Skills?',
+        commandsAction: 'What would you like to do with Commands?',
+        installSkills: 'Install/Update Skills',
+        installCommands: 'Install/Update Commands',
+        viewStatus: 'View status only',
+        installingSkills: 'Installing Skills...',
+        installingCommands: 'Installing Commands...',
+        skillsInstallSuccess: 'Skills installed successfully',
+        skillsInstallPartial: 'Skills installed with some issues',
+        commandsInstallSuccess: 'Commands installed successfully',
+        commandsInstallPartial: 'Commands installed with some issues',
+        totalInstalled: 'Total installed',
+        errors: 'Errors',
+        noCommandSupportedTools: 'No AI tools with command support configured',
+        commandSupportedList: 'Tools that support commands: OpenCode, Copilot, Roo Code, Gemini CLI',
+        commandsInstalled: 'commands'
       }
     }
   },
@@ -1573,7 +1597,31 @@ export const messages = {
         configSuccess: '✓ 設定更新成功！',
         newOptionsCopied: '已複製 {count} 個選項/標準檔案',
         integrationsRegenerated: '已重新產生 {count} 個整合檔案',
-        errorsOccurred: '⚠ 發生 {count} 個錯誤：'
+        errorsOccurred: '⚠ 發生 {count} 個錯誤：',
+        // Skills and Commands configuration
+        optionSkills: 'Skills - 管理 Skills 安裝',
+        optionCommands: '命令 - 管理斜線命令',
+        noAiToolsConfigured: '未設定 AI 工具',
+        addAiToolsFirst: '請先新增 AI 工具：uds configure --type ai_tools',
+        currentSkillsStatus: '目前 Skills 狀態：',
+        currentCommandsStatus: '目前命令狀態：',
+        notInstalled: '未安裝',
+        skillsAction: '你想對 Skills 做什麼？',
+        commandsAction: '你想對命令做什麼？',
+        installSkills: '安裝/更新 Skills',
+        installCommands: '安裝/更新命令',
+        viewStatus: '僅檢視狀態',
+        installingSkills: '安裝 Skills 中...',
+        installingCommands: '安裝命令中...',
+        skillsInstallSuccess: 'Skills 安裝成功',
+        skillsInstallPartial: 'Skills 安裝但有部分問題',
+        commandsInstallSuccess: '命令安裝成功',
+        commandsInstallPartial: '命令安裝但有部分問題',
+        totalInstalled: '總共安裝',
+        errors: '錯誤',
+        noCommandSupportedTools: '未設定支援命令的 AI 工具',
+        commandSupportedList: '支援命令的工具：OpenCode、Copilot、Roo Code、Gemini CLI',
+        commandsInstalled: '個命令'
       }
     }
   },
@@ -2133,7 +2181,31 @@ export const messages = {
         configSuccess: '✓ 配置更新成功！',
         newOptionsCopied: '已复制 {count} 个新选项/标准文件',
         integrationsRegenerated: '已重新生成 {count} 个集成文件',
-        errorsOccurred: '⚠ 发生 {count} 个错误：'
+        errorsOccurred: '⚠ 发生 {count} 个错误：',
+        // Skills and Commands configuration
+        optionSkills: 'Skills - 管理 Skills 安装',
+        optionCommands: '命令 - 管理斜杠命令',
+        noAiToolsConfigured: '未配置 AI 工具',
+        addAiToolsFirst: '请先添加 AI 工具：uds configure --type ai_tools',
+        currentSkillsStatus: '当前 Skills 状态：',
+        currentCommandsStatus: '当前命令状态：',
+        notInstalled: '未安装',
+        skillsAction: '您想对 Skills 做什么？',
+        commandsAction: '您想对命令做什么？',
+        installSkills: '安装/更新 Skills',
+        installCommands: '安装/更新命令',
+        viewStatus: '仅查看状态',
+        installingSkills: '正在安装 Skills...',
+        installingCommands: '正在安装命令...',
+        skillsInstallSuccess: 'Skills 安装成功',
+        skillsInstallPartial: 'Skills 安装但有部分问题',
+        commandsInstallSuccess: '命令安装成功',
+        commandsInstallPartial: '命令安装但有部分问题',
+        totalInstalled: '总共安装',
+        errors: '错误',
+        noCommandSupportedTools: '未配置支持命令的 AI 工具',
+        commandSupportedList: '支持命令的工具：OpenCode、Copilot、Roo Code、Gemini CLI',
+        commandsInstalled: '个命令'
       }
     }
   }

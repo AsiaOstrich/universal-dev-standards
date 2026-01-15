@@ -26,9 +26,19 @@ import {
   getProjectSkillsDir
 } from '../utils/github.js';
 import {
+  installSkillsToMultipleAgents,
+  installCommandsToMultipleAgents,
+  getInstalledSkillsInfoForAgent
+} from '../utils/skills-installer.js';
+import {
+  getAgentConfig,
+  getAgentDisplayName,
+  getSkillsDirForAgent,
+  getCommandsDirForAgent
+} from '../config/ai-agent-paths.js';
+import {
   promptAITools,
   promptSkillsInstallLocation,
-  promptSkillsUpdate,
   promptStandardsScope,
   promptLevel,
   promptLanguage,
@@ -39,6 +49,7 @@ import {
   promptStandardOptions,
   promptContentMode,
   promptMethodology,
+  promptCommandsInstallation,
   handleAgentsMdSharing
 } from '../prompts/init.js';
 import {
@@ -152,12 +163,15 @@ export async function initCommand(options) {
   let format = options.format || null;
   let standardOptions = {};
 
-  // Skills configuration
+  // Skills configuration (unified for all AI agents)
   let skillsConfig = {
     installed: false,
-    location: null,
+    location: null,       // Legacy: single location for backward compatibility
     needsInstall: false,
-    updateTargets: []
+    updateTargets: [],    // Legacy: array of 'user' or 'project'
+    // New: multi-agent installations
+    skillsInstallations: [],  // Array of {agent, level}
+    commandsInstallations: [] // Array of agent identifiers
   };
 
   // AI tools configuration
@@ -183,83 +197,74 @@ export async function initCommand(options) {
     // Handle AGENTS.md sharing notification (Codex + OpenCode)
     aiTools = handleAgentsMdSharing(aiTools);
 
-    const useClaudeCode = aiTools.includes('claude-code');
-    const useOpenCode = aiTools.includes('opencode');
-    const supportsSkills = useClaudeCode || useOpenCode;
-    // Skills-compatible tools: Claude Code and OpenCode (both auto-detect .claude/skills/)
-    const onlySkillsTools = aiTools.every(tool =>
-      tool === 'claude-code' || tool === 'opencode'
-    );
+    // Check which tools support skills
+    const skillsSupportedTools = aiTools.filter(tool => {
+      const config = getAgentConfig(tool);
+      return config?.supportsSkills && config?.skills;
+    });
+    const hasSkillsTools = skillsSupportedTools.length > 0;
 
-    // STEP 4: Skills handling (only if ALL selected tools support Skills)
-    // When other AI tools (Cursor, Cline, etc.) are also selected, they need full standards,
-    // so we skip the Skills prompt to avoid minimal installation affecting them
-    if (supportsSkills && onlySkillsTools) {
-      const projectSkillsInfo = getProjectInstalledSkillsInfo(projectPath);
-      const userSkillsInfo = getInstalledSkillsInfo();
-      const repoInfo = getRepositoryInfo();
-      const latestVersion = repoInfo.skills.version;
+    // STEP 4: Skills handling (unified for all AI agents)
+    // Now supports multiple agents with individual user/project level choices
+    if (hasSkillsTools) {
+      // Check existing installations for each skills-supported agent
+      console.log();
+      console.log(chalk.cyan(msg.skillsStatus));
 
-      const hasProjectSkills = projectSkillsInfo?.installed;
-      const hasUserSkills = userSkillsInfo?.installed;
+      let hasAnyExisting = false;
+      for (const tool of skillsSupportedTools) {
+        const displayName = getAgentDisplayName(tool);
+        const projectInfo = getInstalledSkillsInfoForAgent(tool, 'project', projectPath);
+        const userInfo = getInstalledSkillsInfoForAgent(tool, 'user');
 
-      if (hasProjectSkills && hasUserSkills) {
-        // Case D: Both levels installed
-        console.log();
-        console.log(chalk.cyan(msg.skillsStatus));
-        console.log(chalk.gray(`  ${msg.projectLevel}: v${projectSkillsInfo.version || 'unknown'}`));
-        console.log(chalk.gray(`  ${msg.userLevel}: v${userSkillsInfo.version || 'unknown'}`));
+        if (projectInfo || userInfo) {
+          hasAnyExisting = true;
+          if (projectInfo) {
+            console.log(chalk.gray(`  ${displayName} ${msg.projectLevel}: v${projectInfo.version || 'unknown'}`));
+          }
+          if (userInfo) {
+            console.log(chalk.gray(`  ${displayName} ${msg.userLevel}: v${userInfo.version || 'unknown'}`));
+          }
+        }
+      }
 
-        const updateResult = await promptSkillsUpdate(projectSkillsInfo, userSkillsInfo, latestVersion);
-        skillsConfig = {
-          installed: true,
-          location: 'both',
-          needsInstall: updateResult.action !== 'none',
-          updateTargets: updateResult.targets
-        };
-      } else if (hasProjectSkills) {
-        // Case C: Only project level installed
-        console.log();
-        console.log(chalk.cyan(msg.skillsStatus));
-        console.log(chalk.gray(`  ${msg.projectLevel}: v${projectSkillsInfo.version || 'unknown'}`));
-        console.log(chalk.gray(`  ${msg.userLevel}: ${msg.notInstalled}`));
-
-        const updateResult = await promptSkillsUpdate(projectSkillsInfo, null, latestVersion);
-        skillsConfig = {
-          installed: true,
-          location: 'project',
-          needsInstall: updateResult.action !== 'none',
-          updateTargets: updateResult.targets
-        };
-      } else if (hasUserSkills) {
-        // Case B: Only user level installed
-        console.log();
-        console.log(chalk.cyan(msg.skillsStatus));
-        console.log(chalk.gray(`  ${msg.projectLevel}: ${msg.notInstalled}`));
-        console.log(chalk.gray(`  ${msg.userLevel}: v${userSkillsInfo.version || 'unknown'}`));
-
-        const updateResult = await promptSkillsUpdate(null, userSkillsInfo, latestVersion);
-        skillsConfig = {
-          installed: true,
-          location: 'user',
-          needsInstall: updateResult.action !== 'none',
-          updateTargets: updateResult.targets
-        };
-      } else {
-        // Case A: Neither installed
-        console.log();
-        console.log(chalk.cyan(msg.skillsStatus));
+      if (!hasAnyExisting) {
         console.log(chalk.gray(`  ${msg.noSkillsDetected}`));
+      }
 
-        const location = await promptSkillsInstallLocation(aiTools);
-        if (location !== 'none') {
+      // Prompt for installation locations (multi-agent, multi-select)
+      const installations = await promptSkillsInstallLocation(aiTools);
+
+      if (installations.length > 0) {
+        // Check if marketplace was selected
+        const isMarketplace = installations.some(i => i.level === 'marketplace');
+
+        if (isMarketplace) {
           skillsConfig = {
+            ...skillsConfig,
             installed: true,
-            location,
-            needsInstall: location !== 'marketplace', // marketplace doesn't need install via CLI
-            updateTargets: location === 'marketplace' ? [] : [location]
+            location: 'marketplace',
+            needsInstall: false,
+            updateTargets: [],
+            skillsInstallations: installations
+          };
+        } else {
+          // File-based installations
+          skillsConfig = {
+            ...skillsConfig,
+            installed: true,
+            location: installations.length === 1 ? installations[0].level : 'multiple',
+            needsInstall: true,
+            updateTargets: installations.map(i => i.level),
+            skillsInstallations: installations
           };
         }
+      }
+
+      // STEP 4.5: Slash commands installation (for supported agents)
+      const commandsAgents = await promptCommandsInstallation(aiTools);
+      if (commandsAgents.length > 0) {
+        skillsConfig.commandsInstallations = commandsAgents;
       }
     }
 
@@ -517,6 +522,7 @@ export async function initCommand(options) {
     extensions: [],
     integrations: [],
     skills: [],
+    commands: [],
     errors: []
   };
 
@@ -731,8 +737,49 @@ export async function initCommand(options) {
     }
   }
 
-  // Install Skills if needed
-  if (skillsConfig.needsInstall && skillsConfig.updateTargets.length > 0) {
+  // Install Skills if needed (unified multi-agent installation)
+  if (skillsConfig.needsInstall && skillsConfig.skillsInstallations?.length > 0) {
+    const skillSpinner = ora(msg.installingSkills).start();
+
+    // Use new unified installer for multi-agent support
+    const installResult = await installSkillsToMultipleAgents(
+      skillsConfig.skillsInstallations,
+      null, // Install all skills
+      projectPath
+    );
+
+    // Collect results
+    for (const agentResult of installResult.installations) {
+      if (agentResult.installed.length > 0) {
+        for (const skillName of agentResult.installed) {
+          if (!results.skills.includes(skillName)) {
+            results.skills.push(skillName);
+          }
+        }
+      }
+      for (const err of agentResult.errors) {
+        results.errors.push(`${agentResult.agent} - ${err.skill}: ${err.error}`);
+      }
+    }
+
+    // Build location summary for display
+    const targetLocations = skillsConfig.skillsInstallations.map(inst => {
+      const displayName = getAgentDisplayName(inst.agent);
+      const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath);
+      return `${displayName} (${dir})`;
+    }).join(', ');
+
+    if (installResult.totalErrors === 0) {
+      skillSpinner.succeed(msg.installedSkills
+        .replace('{count}', installResult.totalInstalled)
+        .replace('{locations}', targetLocations));
+    } else {
+      skillSpinner.warn(msg.installedSkillsWithErrors
+        .replace('{count}', installResult.totalInstalled)
+        .replace('{errors}', installResult.totalErrors));
+    }
+  } else if (skillsConfig.needsInstall && skillsConfig.updateTargets.length > 0) {
+    // Legacy fallback for backward compatibility
     const skillSpinner = ora(msg.installingSkills).start();
 
     const skillFiles = getSkillFiles();
@@ -776,6 +823,51 @@ export async function initCommand(options) {
       skillSpinner.succeed(msg.installedSkills.replace('{count}', successCount).replace('{locations}', targetLocations));
     } else {
       skillSpinner.warn(msg.installedSkillsWithErrors.replace('{count}', successCount).replace('{errors}', errorCount));
+    }
+  }
+
+  // Install slash commands if requested
+  if (skillsConfig.commandsInstallations?.length > 0) {
+    const cmdSpinner = ora(msg.installingCommands || 'Installing slash commands...').start();
+
+    const cmdResult = await installCommandsToMultipleAgents(
+      skillsConfig.commandsInstallations,
+      null, // Install all commands
+      projectPath
+    );
+
+    // Initialize commands results array if not exists
+    results.commands = results.commands || [];
+
+    // Collect results
+    for (const agentResult of cmdResult.installations) {
+      if (agentResult.installed.length > 0) {
+        for (const cmdName of agentResult.installed) {
+          if (!results.commands.includes(cmdName)) {
+            results.commands.push(cmdName);
+          }
+        }
+      }
+      for (const err of agentResult.errors) {
+        results.errors.push(`${agentResult.agent} command - ${err.command}: ${err.error}`);
+      }
+    }
+
+    // Build location summary
+    const cmdLocations = skillsConfig.commandsInstallations.map(agent => {
+      const displayName = getAgentDisplayName(agent);
+      const dir = getCommandsDirForAgent(agent, projectPath);
+      return `${displayName} (${dir})`;
+    }).join(', ');
+
+    if (cmdResult.totalErrors === 0) {
+      cmdSpinner.succeed((msg.installedCommands || 'Installed {count} commands to: {locations}')
+        .replace('{count}', cmdResult.totalInstalled)
+        .replace('{locations}', cmdLocations));
+    } else {
+      cmdSpinner.warn((msg.installedCommandsWithErrors || 'Installed {count} commands with {errors} errors')
+        .replace('{count}', cmdResult.totalInstalled)
+        .replace('{errors}', cmdResult.totalErrors));
     }
   }
 
@@ -897,7 +989,14 @@ export async function initCommand(options) {
       installed: skillsConfig.installed,
       location: skillsConfig.location,
       names: skillsConfig.location === 'marketplace' ? ['all-via-plugin'] : results.skills,
-      version: skillsConfig.installed ? repoInfo.skills.version : null
+      version: skillsConfig.installed ? repoInfo.skills.version : null,
+      // New: multi-agent installations tracking
+      installations: skillsConfig.skillsInstallations || []
+    },
+    commands: {
+      installed: skillsConfig.commandsInstallations?.length > 0,
+      names: results.commands || [],
+      installations: skillsConfig.commandsInstallations || []
     },
     methodology: skillsConfig.methodology ? {
       active: skillsConfig.methodology,
@@ -925,15 +1024,36 @@ export async function initCommand(options) {
     if (skillsConfig.location === 'marketplace') {
       console.log(chalk.gray(`  ${msg.skillsUsingMarketplace}`));
     } else if (results.skills.length > 0) {
+      // Build location summary from skillsInstallations or legacy updateTargets
       const skillLocations = [];
-      if (skillsConfig.updateTargets.includes('user')) {
-        skillLocations.push('~/.claude/skills/');
-      }
-      if (skillsConfig.updateTargets.includes('project')) {
-        skillLocations.push('.claude/skills/');
+      if (skillsConfig.skillsInstallations?.length > 0) {
+        for (const inst of skillsConfig.skillsInstallations) {
+          const displayName = getAgentDisplayName(inst.agent);
+          const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath);
+          skillLocations.push(`${displayName}: ${dir}`);
+        }
+      } else {
+        // Legacy fallback
+        if (skillsConfig.updateTargets.includes('user')) {
+          skillLocations.push('~/.claude/skills/');
+        }
+        if (skillsConfig.updateTargets.includes('project')) {
+          skillLocations.push('.claude/skills/');
+        }
       }
       console.log(chalk.gray(`  ${msg.skillsInstalledTo.replace('{count}', results.skills.length).replace('{locations}', skillLocations.join(' and '))}`));
     }
+  }
+
+  // Show commands installation summary
+  if (results.commands?.length > 0) {
+    const cmdLocations = skillsConfig.commandsInstallations?.map(agent => {
+      const displayName = getAgentDisplayName(agent);
+      const dir = getCommandsDirForAgent(agent, projectPath);
+      return `${displayName}: ${dir}`;
+    }).join(' and ') || '';
+
+    console.log(chalk.gray(`  ${(msg.commandsInstalledTo || 'Commands ({count}): {locations}').replace('{count}', results.commands.length).replace('{locations}', cmdLocations)}`));
   }
   console.log(chalk.gray(`  ${msg.manifestCreated}`));
 

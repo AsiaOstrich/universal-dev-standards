@@ -4,6 +4,20 @@ import { homedir } from 'os';
 import { fileURLToPath } from 'url';
 import https from 'https';
 
+// Re-export agent-specific functions from ai-agent-paths for unified API
+export {
+  AI_AGENT_PATHS,
+  getAgentConfig,
+  getSkillsDirForAgent,
+  getCommandsDirForAgent,
+  getSkillsSupportedAgents,
+  getCommandsSupportedAgents,
+  supportsMarketplace,
+  getFallbackSkillsPath,
+  getAgentDisplayName,
+  AVAILABLE_COMMANDS
+} from '../config/ai-agent-paths.js';
+
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main';
 const SKILLS_RAW_BASE = 'https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code';
 

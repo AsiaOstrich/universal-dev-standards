@@ -96,35 +96,52 @@ describe('Init Prompts', () => {
 
   describe('promptSkillsInstallLocation', () => {
     it('should return marketplace location', async () => {
-      mockPrompt.mockResolvedValue({ location: 'marketplace' });
+      mockPrompt.mockResolvedValue({ locations: ['marketplace'] });
 
-      const result = await promptSkillsInstallLocation();
+      const result = await promptSkillsInstallLocation(['claude-code']);
 
-      expect(result).toBe('marketplace');
+      expect(result).toEqual([{ agent: 'claude-code', level: 'marketplace' }]);
     });
 
     it('should return user location', async () => {
-      mockPrompt.mockResolvedValue({ location: 'user' });
+      mockPrompt.mockResolvedValue({ locations: ['claude-code:user'] });
 
-      const result = await promptSkillsInstallLocation();
+      const result = await promptSkillsInstallLocation(['claude-code']);
 
-      expect(result).toBe('user');
+      expect(result).toEqual([{ agent: 'claude-code', level: 'user' }]);
     });
 
     it('should return project location', async () => {
-      mockPrompt.mockResolvedValue({ location: 'project' });
+      mockPrompt.mockResolvedValue({ locations: ['claude-code:project'] });
 
-      const result = await promptSkillsInstallLocation();
+      const result = await promptSkillsInstallLocation(['claude-code']);
 
-      expect(result).toBe('project');
+      expect(result).toEqual([{ agent: 'claude-code', level: 'project' }]);
     });
 
-    it('should return none location', async () => {
-      mockPrompt.mockResolvedValue({ location: 'none' });
+    it('should return empty array when none selected', async () => {
+      mockPrompt.mockResolvedValue({ locations: ['none'] });
 
-      const result = await promptSkillsInstallLocation();
+      const result = await promptSkillsInstallLocation(['claude-code']);
 
-      expect(result).toBe('none');
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array when no skills-supported tools', async () => {
+      const result = await promptSkillsInstallLocation(['cursor']);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should support multi-agent selection', async () => {
+      mockPrompt.mockResolvedValue({ locations: ['claude-code:user', 'opencode:project'] });
+
+      const result = await promptSkillsInstallLocation(['claude-code', 'opencode']);
+
+      expect(result).toEqual([
+        { agent: 'claude-code', level: 'user' },
+        { agent: 'opencode', level: 'project' }
+      ]);
     });
   });
 

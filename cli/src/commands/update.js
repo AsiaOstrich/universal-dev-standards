@@ -18,6 +18,17 @@ import {
 } from '../utils/reference-sync.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
 import { t } from '../i18n/messages.js';
+import {
+  installSkillsToMultipleAgents,
+  installCommandsToMultipleAgents,
+  getInstalledSkillsInfoForAgent,
+  getInstalledCommandsForAgent
+} from '../utils/skills-installer.js';
+import {
+  getAgentDisplayName,
+  getSkillsDirForAgent,
+  getCommandsDirForAgent
+} from '../config/ai-agent-paths.js';
 
 /**
  * Compare two semantic versions
@@ -138,6 +149,18 @@ export async function updateCommand(options) {
   // Handle --integrations-only option
   if (options.integrationsOnly) {
     await updateIntegrationsOnly(projectPath, manifest);
+    return;
+  }
+
+  // Handle --skills option
+  if (options.skills) {
+    await updateSkillsOnly(projectPath, manifest);
+    return;
+  }
+
+  // Handle --commands option
+  if (options.commands) {
+    await updateCommandsOnly(projectPath, manifest);
     return;
   }
 
@@ -637,5 +660,178 @@ async function syncIntegrationReferences(projectPath, manifest) {
   console.log();
 
   // Exit explicitly
+  process.exit(0);
+}
+
+/**
+ * Update Skills for all AI agents (--skills option)
+ * @param {string} projectPath - Project path
+ * @param {Object} manifest - Manifest object
+ */
+async function updateSkillsOnly(projectPath, manifest) {
+  const msg = t().commands.update;
+  const repoInfo = getRepositoryInfo();
+  const latestVersion = repoInfo.skills.version;
+
+  console.log(chalk.cyan(msg.updatingSkillsOnly || 'Updating Skills for all AI Agents...'));
+  console.log();
+
+  // Check if any skills are installed
+  const skillsInstallations = manifest.skills?.installations || [];
+
+  if (skillsInstallations.length === 0) {
+    // Check for legacy installation
+    if (manifest.skills?.installed && manifest.skills?.location) {
+      // Convert legacy format to new format
+      const legacyLocation = manifest.skills.location;
+      if (legacyLocation === 'user' || legacyLocation === 'project') {
+        skillsInstallations.push({ agent: 'claude-code', level: legacyLocation });
+      } else if (legacyLocation === 'marketplace') {
+        console.log(chalk.yellow(msg.skillsViaMarketplace || 'Skills installed via Marketplace'));
+        console.log(chalk.gray(`  ${msg.updateViaMarketplace || 'Update through Plugin Marketplace'}`));
+        console.log();
+        process.exit(0);
+        return;
+      }
+    }
+  }
+
+  if (skillsInstallations.length === 0) {
+    console.log(chalk.yellow(msg.noSkillsInstalled || 'No Skills installations found'));
+    console.log(chalk.gray(`  ${msg.runInitToInstall || 'Run uds init to install Skills'}`));
+    console.log();
+    process.exit(0);
+    return;
+  }
+
+  // Show current status
+  console.log(chalk.gray(msg.currentSkillsStatus || 'Current Skills status:'));
+  for (const inst of skillsInstallations) {
+    if (inst.level === 'marketplace') {
+      console.log(chalk.gray(`  ${getAgentDisplayName(inst.agent)}: Marketplace`));
+      continue;
+    }
+
+    const info = getInstalledSkillsInfoForAgent(inst.agent, inst.level, projectPath);
+    const displayName = getAgentDisplayName(inst.agent);
+    const version = info?.version || 'unknown';
+    const needsUpdate = version !== latestVersion;
+
+    if (needsUpdate) {
+      console.log(chalk.yellow(`  ${displayName} (${inst.level}): v${version} → v${latestVersion}`));
+    } else {
+      console.log(chalk.green(`  ${displayName} (${inst.level}): v${version} ✓`));
+    }
+  }
+  console.log();
+
+  // Filter out marketplace installations
+  const fileBasedInstallations = skillsInstallations.filter(i => i.level !== 'marketplace');
+
+  if (fileBasedInstallations.length === 0) {
+    console.log(chalk.green(msg.allSkillsUpToDate || 'All Skills are up to date'));
+    console.log();
+    process.exit(0);
+    return;
+  }
+
+  const spinner = ora(msg.installingSkills || 'Installing Skills...').start();
+
+  const result = await installSkillsToMultipleAgents(
+    fileBasedInstallations,
+    null, // Install all skills
+    projectPath
+  );
+
+  // Build location summary
+  const locations = fileBasedInstallations.map(inst => {
+    const displayName = getAgentDisplayName(inst.agent);
+    const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath);
+    return `${displayName}: ${dir}`;
+  }).join(', ');
+
+  if (result.totalErrors === 0) {
+    spinner.succeed((msg.skillsUpdated || 'Updated Skills in {count} locations: {locations}')
+      .replace('{count}', result.totalInstalled)
+      .replace('{locations}', locations));
+  } else {
+    spinner.warn((msg.skillsUpdatedWithErrors || 'Updated Skills with {errors} errors')
+      .replace('{errors}', result.totalErrors));
+  }
+
+  // Update manifest
+  manifest.skills.version = latestVersion;
+  manifest.skills.installations = skillsInstallations;
+  writeManifest(manifest, projectPath);
+
+  console.log();
+  process.exit(0);
+}
+
+/**
+ * Update slash commands for all AI agents (--commands option)
+ * @param {string} projectPath - Project path
+ * @param {Object} manifest - Manifest object
+ */
+async function updateCommandsOnly(projectPath, manifest) {
+  const msg = t().commands.update;
+
+  console.log(chalk.cyan(msg.updatingCommandsOnly || 'Updating slash commands for all AI Agents...'));
+  console.log();
+
+  // Check if any commands are installed
+  const commandsInstallations = manifest.commands?.installations || [];
+
+  if (commandsInstallations.length === 0) {
+    console.log(chalk.yellow(msg.noCommandsInstalled || 'No slash commands installations found'));
+    console.log(chalk.gray(`  ${msg.runInitToInstall || 'Run uds init to install commands'}`));
+    console.log();
+    process.exit(0);
+    return;
+  }
+
+  // Show current status
+  console.log(chalk.gray(msg.currentCommandsStatus || 'Current commands status:'));
+  for (const agent of commandsInstallations) {
+    const info = getInstalledCommandsForAgent(agent, projectPath);
+    const displayName = getAgentDisplayName(agent);
+    const count = info?.count || 0;
+    const dir = getCommandsDirForAgent(agent, projectPath);
+
+    console.log(chalk.gray(`  ${displayName}: ${count} commands in ${dir}`));
+  }
+  console.log();
+
+  const spinner = ora(msg.installingCommands || 'Installing commands...').start();
+
+  const result = await installCommandsToMultipleAgents(
+    commandsInstallations,
+    null, // Install all commands
+    projectPath
+  );
+
+  // Build location summary
+  const locations = commandsInstallations.map(agent => {
+    const displayName = getAgentDisplayName(agent);
+    const dir = getCommandsDirForAgent(agent, projectPath);
+    return `${displayName}: ${dir}`;
+  }).join(', ');
+
+  if (result.totalErrors === 0) {
+    spinner.succeed((msg.commandsUpdated || 'Updated {count} commands: {locations}')
+      .replace('{count}', result.totalInstalled)
+      .replace('{locations}', locations));
+  } else {
+    spinner.warn((msg.commandsUpdatedWithErrors || 'Updated commands with {errors} errors')
+      .replace('{errors}', result.totalErrors));
+  }
+
+  // Update manifest
+  manifest.commands = manifest.commands || {};
+  manifest.commands.installed = true;
+  manifest.commands.installations = commandsInstallations;
+  writeManifest(manifest, projectPath);
+
+  console.log();
   process.exit(0);
 }

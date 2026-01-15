@@ -16,6 +16,14 @@ import {
 } from '../utils/hasher.js';
 import { downloadFromGitHub, getMarketplaceSkillsInfo } from '../utils/github.js';
 import {
+  getInstalledSkillsInfoForAgent,
+  getInstalledCommandsForAgent
+} from '../utils/skills-installer.js';
+import {
+  getAgentConfig,
+  getAgentDisplayName
+} from '../config/ai-agent-paths.js';
+import {
   parseReferences,
   compareStandardsWithReferences
 } from '../utils/reference-sync.js';
@@ -640,83 +648,110 @@ async function migrateToHashBasedTracking(projectPath, manifest) {
 function displaySkillsStatus(manifest, projectPath, msg) {
   console.log(chalk.cyan(msg.skillsStatus));
 
-  // Check which skills-compatible tools are configured
-  const hasClaudeCode = manifest.aiTools?.includes('claude-code');
-  const hasOpenCode = manifest.aiTools?.includes('opencode');
+  const aiTools = manifest.aiTools || [];
 
-  if (manifest.skills.installed) {
-    const location = manifest.skills.location || '';
-    // Check if skills are installed via Plugin Marketplace
-    // Recognized patterns: 'marketplace', or paths containing 'plugins/cache'
-    const isMarketplace = location === 'marketplace' ||
-      location.includes('plugins/cache') ||
-      location.includes('plugins\\cache');
-
-    if (isMarketplace) {
-      console.log(chalk.green(`  ${msg.skillsViaMarketplace}`));
-
-      // Try to get actual version from marketplace
-      const marketplaceInfo = getMarketplaceSkillsInfo();
-      if (marketplaceInfo && marketplaceInfo.version && marketplaceInfo.version !== 'unknown') {
-        console.log(chalk.gray(`    ${t().commands.common.version}: ${marketplaceInfo.version}`));
-        if (marketplaceInfo.lastUpdated) {
-          const updateDate = marketplaceInfo.lastUpdated.split('T')[0];
-          console.log(chalk.gray(`    ${msg.lastUpdated}: ${updateDate}`));
-        }
-      } else {
-        console.log(chalk.gray(`    ${t().commands.common.version}: (run /plugin list to check)`));
-      }
-
-      console.log(chalk.gray(`    ${msg.skillsManaged}`));
-      console.log(chalk.gray(`    ${msg.skillsNotFileBased}`));
-    } else {
-      const skillsDir = join(process.env.HOME || '', '.claude', 'skills');
-      const hasGlobalSkills = existsSync(skillsDir);
-      const hasProjectSkills = existsSync(join(projectPath, '.claude', 'skills'));
-
-      if (hasGlobalSkills || hasProjectSkills) {
-        console.log(chalk.green(`  ${msg.skillsInstalled}`));
-        if (hasGlobalSkills) console.log(chalk.gray(`    ${msg.skillsGlobal}`));
-        if (hasProjectSkills) console.log(chalk.gray(`    ${msg.skillsProject}`));
-
-        // Show compatible tools
-        const compatibleTools = [];
-        if (hasClaudeCode) compatibleTools.push('Claude Code');
-        if (hasOpenCode) compatibleTools.push('OpenCode');
-        if (compatibleTools.length > 0) {
-          console.log(chalk.gray(`    ${msg.compatible}: ${compatibleTools.join(', ')}`));
-        }
-
-        // OpenCode auto-detection note (only if OpenCode is configured without Claude Code)
-        if (hasOpenCode && !hasClaudeCode) {
-          console.log(chalk.gray(`    ${msg.openCodeNote}`));
-        }
-
-        // Migration suggestion
-        console.log(chalk.yellow(`  ${msg.considerMigrating}`));
-        console.log(chalk.gray(`    ${msg.marketplaceAutoUpdates}`));
-        console.log(chalk.gray(`    ${msg.toMigrate}`));
-        console.log(chalk.gray('      1. Install via Marketplace: /install-skills AsiaOstrich/universal-dev-skills'));
-        console.log(chalk.gray('      2. Remove local skills: rm -rf ~/.claude/skills/'));
-        console.log(chalk.gray('      3. Reinitialize: uds init --yes'));
-      } else {
-        console.log(chalk.yellow(`  ${msg.skillsMarkedNotFound}`));
-        console.log(chalk.gray(`    ${msg.recommendedInstall}`));
-        console.log(chalk.gray('      /install-skills AsiaOstrich/universal-dev-skills'));
-        console.log(chalk.gray('    Then reinitialize: uds init --yes'));
-      }
-    }
-
-    // Show compatible tools for marketplace installation too
-    if (isMarketplace && (hasClaudeCode || hasOpenCode)) {
-      const compatibleTools = [];
-      if (hasClaudeCode) compatibleTools.push('Claude Code');
-      if (hasOpenCode) compatibleTools.push('OpenCode');
-      console.log(chalk.gray(`    ${msg.compatible}: ${compatibleTools.join(', ')}`));
-    }
-  } else {
-    console.log(chalk.gray(`  ${msg.skillsNotInstalled}`));
+  // If no AI tools configured, show basic info
+  if (aiTools.length === 0) {
+    console.log(chalk.gray(`  ${msg.noAiToolsConfigured || 'No AI tools configured'}`));
+    console.log();
+    return;
   }
+
+  // Check for Marketplace installation (Claude Code specific)
+  const hasClaudeCode = aiTools.includes('claude-code');
+  const location = manifest.skills?.location || '';
+  const isMarketplace = location === 'marketplace' ||
+    location.includes('plugins/cache') ||
+    location.includes('plugins\\cache');
+
+  if (isMarketplace && hasClaudeCode) {
+    console.log(chalk.green(`  ${msg.skillsViaMarketplace}`));
+
+    // Try to get actual version from marketplace
+    const marketplaceInfo = getMarketplaceSkillsInfo();
+    if (marketplaceInfo && marketplaceInfo.version && marketplaceInfo.version !== 'unknown') {
+      console.log(chalk.gray(`    ${t().commands.common.version}: ${marketplaceInfo.version}`));
+      if (marketplaceInfo.lastUpdated) {
+        const updateDate = marketplaceInfo.lastUpdated.split('T')[0];
+        console.log(chalk.gray(`    ${msg.lastUpdated}: ${updateDate}`));
+      }
+    } else {
+      console.log(chalk.gray(`    ${t().commands.common.version}: (run /plugin list to check)`));
+    }
+
+    console.log(chalk.gray(`    ${msg.skillsManaged}`));
+    console.log(chalk.gray(`    ${msg.skillsNotFileBased}`));
+    console.log();
+  }
+
+  // Check each AI agent's Skills and Commands status
+  for (const tool of aiTools) {
+    const config = getAgentConfig(tool);
+    if (!config) continue;
+
+    const displayName = getAgentDisplayName(tool);
+    console.log(chalk.cyan(`  ${displayName}:`));
+
+    // Check Skills installation for this agent (both user and project level)
+    const projectSkillsInfo = getInstalledSkillsInfoForAgent(tool, 'project', projectPath);
+    const userSkillsInfo = getInstalledSkillsInfoForAgent(tool, 'user', projectPath);
+
+    if (projectSkillsInfo?.installed || userSkillsInfo?.installed) {
+      console.log(chalk.green(`    ✓ Skills ${msg.installed || 'installed'}:`));
+      if (userSkillsInfo?.installed) {
+        console.log(chalk.gray(`      - ${msg.skillsGlobal || 'User level'}: ${userSkillsInfo.path}`));
+        if (userSkillsInfo.version) {
+          console.log(chalk.gray(`        ${t().commands.common.version}: ${userSkillsInfo.version}`));
+        }
+      }
+      if (projectSkillsInfo?.installed) {
+        console.log(chalk.gray(`      - ${msg.skillsProject || 'Project level'}: ${projectSkillsInfo.path}`));
+        if (projectSkillsInfo.version) {
+          console.log(chalk.gray(`        ${t().commands.common.version}: ${projectSkillsInfo.version}`));
+        }
+      }
+    } else if (config.supportsSkills) {
+      console.log(chalk.gray(`    ○ Skills: ${msg.notInstalled || 'Not installed'}`));
+      if (config.fallbackSkillsPath) {
+        // Check if can use fallback (Claude skills path)
+        const fallbackPath = join(projectPath, config.fallbackSkillsPath);
+        if (existsSync(fallbackPath)) {
+          console.log(chalk.gray(`      ${msg.canUseFallback || 'Can use fallback'}: ${config.fallbackSkillsPath}`));
+        }
+      }
+    }
+
+    // Check Commands installation for this agent
+    if (config.commands) {
+      const commandsInfo = getInstalledCommandsForAgent(tool, projectPath);
+      if (commandsInfo?.installed) {
+        console.log(chalk.green(`    ✓ Commands: ${commandsInfo.count} ${msg.commandsInstalled || 'installed'}`));
+        console.log(chalk.gray(`      ${msg.path || 'Path'}: ${commandsInfo.path}`));
+        if (commandsInfo.version) {
+          console.log(chalk.gray(`      ${t().commands.common.version}: ${commandsInfo.version}`));
+        }
+      } else {
+        console.log(chalk.gray(`    ○ Commands: ${msg.notInstalled || 'Not installed'}`));
+      }
+    }
+  }
+
+  // Show installations tracking from manifest (if using new format)
+  if (manifest.skills?.installations?.length > 0) {
+    console.log();
+    console.log(chalk.gray(`  ${msg.trackedInstallations || 'Tracked installations'}:`));
+    for (const inst of manifest.skills.installations) {
+      console.log(chalk.gray(`    - ${inst.agent}: ${inst.level}`));
+    }
+  }
+
+  if (manifest.commands?.installations?.length > 0) {
+    console.log(chalk.gray(`  ${msg.trackedCommandInstallations || 'Tracked command installations'}:`));
+    for (const agent of manifest.commands.installations) {
+      console.log(chalk.gray(`    - ${agent}`));
+    }
+  }
+
   console.log();
 }
 

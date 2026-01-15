@@ -1,6 +1,11 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import { t } from '../i18n/messages.js';
+import {
+  getAgentConfig,
+  getAgentDisplayName
+} from '../config/ai-agent-paths.js';
+import { getMarketplaceSkillsInfo } from '../utils/github.js';
 
 /**
  * Prompt for AI tools being used
@@ -85,64 +90,183 @@ export async function promptAITools(detected = {}) {
 }
 
 /**
- * Prompt for Skills installation location
- * @param {string[]} selectedTools - Selected AI tools (for displaying compatibility info)
- * @returns {Promise<string>} 'user', 'project', or 'none'
+ * Prompt for Skills installation location (unified for all AI agents)
+ * @param {string[]} selectedTools - Selected AI tools
+ * @returns {Promise<Array<{agent: string, level: string}>>} Array of installation targets
  */
 export async function promptSkillsInstallLocation(selectedTools = []) {
   const msg = t().skillsLocation;
-  const hasClaudeCode = selectedTools.includes('claude-code');
-  const hasOpenCode = selectedTools.includes('opencode');
 
-  // Build compatible tools list
-  const compatibleTools = [];
-  if (hasClaudeCode) compatibleTools.push('Claude Code');
-  if (hasOpenCode) compatibleTools.push('OpenCode');
+  // Filter to only skills-supported tools
+  const skillsTools = selectedTools.filter(tool => {
+    const config = getAgentConfig(tool);
+    return config?.supportsSkills && config?.skills;
+  });
+
+  if (skillsTools.length === 0) {
+    return [];
+  }
 
   console.log();
   console.log(chalk.cyan(msg.title));
-  if (compatibleTools.length > 1) {
-    console.log(chalk.gray(`  ${msg.descriptionWithTools} ${compatibleTools.join(' and ')}`));
-  } else if (compatibleTools.length === 1) {
-    console.log(chalk.gray(`  ${msg.description} ${compatibleTools[0]} Skills`));
-  } else {
-    console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${msg.description}`));
+
+  // Check Claude Code Marketplace status
+  const hasClaudeCode = skillsTools.includes('claude-code');
+  if (hasClaudeCode) {
+    const marketplaceInfo = getMarketplaceSkillsInfo();
+    if (marketplaceInfo && marketplaceInfo.version) {
+      console.log();
+      console.log(chalk.yellow(`  ⚠ ${msg.marketplaceWarning || 'Claude Code Skills 已透過 Marketplace 安裝'}`));
+      console.log(chalk.gray(`    ${msg.coexistNote || '檔案安裝將與 Marketplace 版本並存'}`));
+    }
   }
   console.log();
 
-  const { location } = await inquirer.prompt([
+  // Build choices dynamically based on selected tools
+  const choices = [];
+
+  // Add Marketplace option for Claude Code (recommended)
+  if (hasClaudeCode) {
+    choices.push({
+      name: `${chalk.green('Plugin Marketplace')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.marketplace}`,
+      value: 'marketplace'
+    });
+    choices.push(new inquirer.Separator(chalk.gray('── 或選擇檔案安裝位置 ──')));
+  }
+
+  // Add options for each agent
+  for (const tool of skillsTools) {
+    const config = getAgentConfig(tool);
+    const displayName = getAgentDisplayName(tool);
+
+    // User level option
+    choices.push({
+      name: `${chalk.blue(displayName)} - ${msg.choices?.userLevel || '使用者層級'} ${chalk.gray(`(${config.skills.user.replace(require('os').homedir(), '~')})`)}`,
+      value: `${tool}:user`
+    });
+
+    // Project level option
+    choices.push({
+      name: `${chalk.blue(displayName)} - ${msg.choices?.projectLevel || '專案層級'} ${chalk.gray(`(${config.skills.project})`)}`,
+      value: `${tool}:project`
+    });
+  }
+
+  // Add skip option
+  choices.push(new inquirer.Separator());
+  choices.push({
+    name: `${chalk.gray('Skip')} - ${msg.choices.none}`,
+    value: 'none'
+  });
+
+  const { locations } = await inquirer.prompt([
     {
-      type: 'list',
-      name: 'location',
-      message: msg.question,
-      choices: [
-        {
-          name: `${chalk.green('Plugin Marketplace')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.marketplace}`,
-          value: 'marketplace'
-        },
-        {
-          name: `${chalk.blue('User Level')} ${chalk.gray('(~/.claude/skills/)')} - ${msg.choices.user}`,
-          value: 'user'
-        },
-        {
-          name: `${chalk.blue('Project Level')} ${chalk.gray('(.claude/skills/)')} - ${msg.choices.project}`,
-          value: 'project'
-        },
-        {
-          name: `${chalk.gray('Skip')} - ${msg.choices.none}`,
-          value: 'none'
+      type: 'checkbox',
+      name: 'locations',
+      message: msg.questionMulti || '選擇要安裝 Skills 的位置（可多選）',
+      choices,
+      validate: (answer) => {
+        // If 'none' is selected, ensure it's the only selection
+        if (answer.includes('none') && answer.length > 1) {
+          return '選擇「跳過」時不能同時選擇其他選項';
         }
-      ],
-      default: 'marketplace'
+        return true;
+      }
     }
   ]);
 
-  // Simplified single-line explanations
+  // Handle 'none' selection
+  if (locations.includes('none') || locations.length === 0) {
+    return [];
+  }
+
+  // Handle marketplace selection
+  if (locations.includes('marketplace')) {
+    console.log();
+    console.log(chalk.gray(msg.explanations?.marketplace || '透過 Claude Code Marketplace 安裝，自動更新'));
+    console.log();
+    return [{ agent: 'claude-code', level: 'marketplace' }];
+  }
+
+  // Parse selections into agent:level pairs
+  const installations = locations
+    .filter(loc => loc !== 'none' && loc !== 'marketplace')
+    .map(loc => {
+      const [agent, level] = loc.split(':');
+      return { agent, level };
+    });
+
+  if (installations.length > 0) {
+    console.log();
+    console.log(chalk.gray(`  將安裝 Skills 到 ${installations.length} 個位置`));
+    console.log();
+  }
+
+  return installations;
+}
+
+/**
+ * Prompt for slash commands installation
+ * @param {string[]} selectedTools - Selected AI tools
+ * @returns {Promise<string[]>} Array of agent identifiers to install commands for
+ */
+export async function promptCommandsInstallation(selectedTools = []) {
+  const msg = t().commandsInstallation || {};
+
+  // Filter to only commands-supported tools
+  const commandsSupportedTools = selectedTools.filter(tool => {
+    const config = getAgentConfig(tool);
+    return config?.commands !== null;
+  });
+
+  if (commandsSupportedTools.length === 0) {
+    return [];
+  }
+
   console.log();
-  console.log(chalk.gray(msg.explanations[location]));
+  console.log(chalk.cyan(msg.title || '斜線命令安裝'));
+  console.log(chalk.gray(`  ${msg.description || '以下 AI Agent 支援斜線命令：'}`));
+
+  // Show supported tools
+  for (const tool of commandsSupportedTools) {
+    const config = getAgentConfig(tool);
+    const displayName = getAgentDisplayName(tool);
+    console.log(chalk.gray(`    • ${displayName} → ${config.commands.project}`));
+  }
   console.log();
 
-  return location;
+  const choices = commandsSupportedTools.map(tool => ({
+    name: getAgentDisplayName(tool),
+    value: tool,
+    checked: true // Default to installing commands
+  }));
+
+  choices.push(new inquirer.Separator());
+  choices.push({
+    name: chalk.gray(msg.choices?.skip || '跳過（使用 Skills 替代）'),
+    value: 'none'
+  });
+
+  const { agents } = await inquirer.prompt([
+    {
+      type: 'checkbox',
+      name: 'agents',
+      message: msg.question || '選擇要安裝斜線命令的 AI Agent',
+      choices
+    }
+  ]);
+
+  // Filter out 'none'
+  const selected = agents.filter(a => a !== 'none');
+
+  if (selected.length > 0) {
+    console.log();
+    console.log(chalk.gray(`  將為 ${selected.length} 個 AI Agent 安裝 15 個斜線命令`));
+    console.log();
+  }
+
+  return selected;
 }
 
 /**

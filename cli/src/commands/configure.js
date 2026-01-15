@@ -26,8 +26,20 @@ import {
   promptAdoptionLevel,
   promptContentModeChange,
   handleAgentsMdSharing,
-  promptMethodology
+  promptMethodology,
+  promptSkillsInstallLocation,
+  promptCommandsInstallation
 } from '../prompts/init.js';
+import {
+  installSkillsToMultipleAgents,
+  installCommandsToMultipleAgents,
+  getInstalledSkillsInfoForAgent,
+  getInstalledCommandsForAgent
+} from '../utils/skills-installer.js';
+import {
+  getAgentConfig,
+  getAgentDisplayName
+} from '../config/ai-agent-paths.js';
 import {
   writeIntegrationFile,
   getToolFilePath
@@ -102,6 +114,9 @@ export async function configureCommand(options) {
       { name: msg.optionTestLevels, value: 'test_levels' },
       new inquirer.default.Separator(),
       { name: chalk.cyan(msg.optionAITools), value: 'ai_tools' },
+      { name: chalk.cyan(msg.optionSkills || 'Manage Skills installations'), value: 'skills' },
+      { name: chalk.cyan(msg.optionCommands || 'Manage Commands installations'), value: 'commands' },
+      new inquirer.default.Separator(),
       { name: chalk.cyan(msg.optionLevel), value: 'level' },
       { name: chalk.cyan(msg.optionContentMode), value: 'content_mode' }
     ];
@@ -167,6 +182,18 @@ export async function configureCommand(options) {
       console.log(chalk.gray(msg.noChanges));
       process.exit(0);
     }
+  }
+
+  // Handle Skills configuration
+  if (configType === 'skills') {
+    await handleSkillsConfiguration(manifest, projectPath, msg, common);
+    process.exit(0);
+  }
+
+  // Handle Commands configuration
+  if (configType === 'commands') {
+    await handleCommandsConfiguration(manifest, projectPath, msg, common);
+    process.exit(0);
   }
 
   // Handle Level configuration
@@ -417,4 +444,168 @@ export async function configureCommand(options) {
 
   // Exit explicitly to prevent hanging due to inquirer's readline interface
   process.exit(0);
+}
+
+/**
+ * Handle Skills configuration
+ */
+async function handleSkillsConfiguration(manifest, projectPath, msg, common) {
+  const inquirer = await import('inquirer');
+  const aiTools = manifest.aiTools || [];
+
+  if (aiTools.length === 0) {
+    console.log(chalk.yellow(msg.noAiToolsConfigured || 'No AI tools configured'));
+    console.log(chalk.gray(`  ${msg.addAiToolsFirst || 'Add AI tools first with: uds configure --type ai_tools'}`));
+    return;
+  }
+
+  // Show current Skills status
+  console.log(chalk.cyan(msg.currentSkillsStatus || 'Current Skills status:'));
+  for (const tool of aiTools) {
+    const config = getAgentConfig(tool);
+    if (!config?.supportsSkills) continue;
+
+    const displayName = getAgentDisplayName(tool);
+    const projectInfo = getInstalledSkillsInfoForAgent(tool, 'project', projectPath);
+    const userInfo = getInstalledSkillsInfoForAgent(tool, 'user', projectPath);
+
+    if (projectInfo?.installed || userInfo?.installed) {
+      console.log(chalk.green(`  ✓ ${displayName}:`));
+      if (userInfo?.installed) {
+        console.log(chalk.gray(`    - User: ${userInfo.version || 'installed'}`));
+      }
+      if (projectInfo?.installed) {
+        console.log(chalk.gray(`    - Project: ${projectInfo.version || 'installed'}`));
+      }
+    } else {
+      console.log(chalk.gray(`  ○ ${displayName}: ${msg.notInstalled || 'Not installed'}`));
+    }
+  }
+  console.log();
+
+  // Ask what action to take
+  const { action } = await inquirer.default.prompt([
+    {
+      type: 'list',
+      name: 'action',
+      message: msg.skillsAction || 'What would you like to do?',
+      choices: [
+        { name: msg.installSkills || 'Install/Update Skills', value: 'install' },
+        { name: msg.viewStatus || 'View status only', value: 'view' },
+        { name: common.cancel || 'Cancel', value: 'cancel' }
+      ]
+    }
+  ]);
+
+  if (action === 'cancel' || action === 'view') {
+    console.log(chalk.gray(msg.noChanges || 'No changes made'));
+    return;
+  }
+
+  // Use unified installation prompt
+  const installations = await promptSkillsInstallLocation(aiTools);
+  if (installations.length === 0) {
+    console.log(chalk.gray(msg.noChanges || 'No changes made'));
+    return;
+  }
+
+  // Install Skills
+  const spinner = ora(msg.installingSkills || 'Installing Skills...').start();
+  const result = await installSkillsToMultipleAgents(installations, null, projectPath);
+  spinner.stop();
+
+  if (result.success) {
+    console.log(chalk.green(msg.skillsInstallSuccess || 'Skills installed successfully'));
+    console.log(chalk.gray(`  ${msg.totalInstalled || 'Total installed'}: ${result.totalInstalled}`));
+  } else {
+    console.log(chalk.yellow(msg.skillsInstallPartial || 'Skills installed with some issues'));
+    if (result.totalErrors > 0) {
+      console.log(chalk.red(`  ${msg.errors || 'Errors'}: ${result.totalErrors}`));
+    }
+  }
+
+  // Update manifest
+  manifest.skills = manifest.skills || {};
+  manifest.skills.installations = installations;
+  writeManifest(manifest, projectPath);
+}
+
+/**
+ * Handle Commands configuration
+ */
+async function handleCommandsConfiguration(manifest, projectPath, msg, common) {
+  const inquirer = await import('inquirer');
+  const aiTools = manifest.aiTools || [];
+
+  // Filter tools that support commands
+  const commandSupportedTools = aiTools.filter(tool => {
+    const config = getAgentConfig(tool);
+    return config?.commands !== null;
+  });
+
+  if (commandSupportedTools.length === 0) {
+    console.log(chalk.yellow(msg.noCommandSupportedTools || 'No AI tools with command support configured'));
+    console.log(chalk.gray(`  ${msg.commandSupportedList || 'Tools that support commands: OpenCode, Copilot, Roo Code, Gemini CLI'}`));
+    return;
+  }
+
+  // Show current Commands status
+  console.log(chalk.cyan(msg.currentCommandsStatus || 'Current Commands status:'));
+  for (const tool of commandSupportedTools) {
+    const displayName = getAgentDisplayName(tool);
+    const commandsInfo = getInstalledCommandsForAgent(tool, projectPath);
+
+    if (commandsInfo?.installed) {
+      console.log(chalk.green(`  ✓ ${displayName}: ${commandsInfo.count} ${msg.commandsInstalled || 'commands'}`));
+    } else {
+      console.log(chalk.gray(`  ○ ${displayName}: ${msg.notInstalled || 'Not installed'}`));
+    }
+  }
+  console.log();
+
+  // Ask what action to take
+  const { action } = await inquirer.default.prompt([
+    {
+      type: 'list',
+      name: 'action',
+      message: msg.commandsAction || 'What would you like to do?',
+      choices: [
+        { name: msg.installCommands || 'Install/Update Commands', value: 'install' },
+        { name: msg.viewStatus || 'View status only', value: 'view' },
+        { name: common.cancel || 'Cancel', value: 'cancel' }
+      ]
+    }
+  ]);
+
+  if (action === 'cancel' || action === 'view') {
+    console.log(chalk.gray(msg.noChanges || 'No changes made'));
+    return;
+  }
+
+  // Use unified installation prompt
+  const selectedAgents = await promptCommandsInstallation(commandSupportedTools);
+  if (selectedAgents.length === 0) {
+    console.log(chalk.gray(msg.noChanges || 'No changes made'));
+    return;
+  }
+
+  // Install Commands
+  const spinner = ora(msg.installingCommands || 'Installing Commands...').start();
+  const result = await installCommandsToMultipleAgents(selectedAgents, null, projectPath);
+  spinner.stop();
+
+  if (result.success) {
+    console.log(chalk.green(msg.commandsInstallSuccess || 'Commands installed successfully'));
+    console.log(chalk.gray(`  ${msg.totalInstalled || 'Total installed'}: ${result.totalInstalled}`));
+  } else {
+    console.log(chalk.yellow(msg.commandsInstallPartial || 'Commands installed with some issues'));
+    if (result.totalErrors > 0) {
+      console.log(chalk.red(`  ${msg.errors || 'Errors'}: ${result.totalErrors}`));
+    }
+  }
+
+  // Update manifest
+  manifest.commands = manifest.commands || {};
+  manifest.commands.installations = selectedAgents;
+  writeManifest(manifest, projectPath);
 }
