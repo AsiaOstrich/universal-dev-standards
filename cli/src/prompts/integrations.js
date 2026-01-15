@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
+import { t } from '../i18n/messages.js';
 
 /**
  * All available rule categories for integration files
@@ -90,27 +91,29 @@ const LANGUAGE_RULES = {
  * @returns {Promise<string>} 'default', 'custom', or 'merge'
  */
 export async function promptIntegrationMode() {
+  const msg = t().integration.mode;
+
   console.log();
-  console.log(chalk.cyan('Integration Configuration:'));
-  console.log(chalk.gray('  Configure how AI tool rules are generated'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const { mode } = await inquirer.prompt([
     {
       type: 'list',
       name: 'mode',
-      message: 'How would you like to configure integration files?',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.green('Default')} ${chalk.gray('(推薦)')} - Use standard rule set`,
+          name: `${chalk.green('Default')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.default}`,
           value: 'default'
         },
         {
-          name: `${chalk.blue('Custom')} - Select specific rules to include`,
+          name: `${chalk.blue('Custom')} - ${msg.choices.custom}`,
           value: 'custom'
         },
         {
-          name: `${chalk.yellow('Merge')} - Merge with existing rules file`,
+          name: `${chalk.yellow('Merge')} - ${msg.choices.merge}`,
           value: 'merge'
         }
       ],
@@ -128,9 +131,11 @@ export async function promptIntegrationMode() {
  */
 // eslint-disable-next-line no-unused-vars
 export async function promptRuleCategories(_detected = {}) {
+  const msg = t().integration.categories;
+
   console.log();
-  console.log(chalk.cyan('Rule Categories:'));
-  console.log(chalk.gray('  Select which standards to include in integration files'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const choices = Object.entries(RULE_CATEGORIES).map(([id, cat]) => ({
@@ -143,11 +148,11 @@ export async function promptRuleCategories(_detected = {}) {
     {
       type: 'checkbox',
       name: 'categories',
-      message: 'Select rule categories:',
+      message: msg.question,
       choices,
       validate: (answer) => {
         if (answer.length === 0) {
-          return 'Please select at least one category';
+          return msg.validation;
         }
         return true;
       }
@@ -163,6 +168,7 @@ export async function promptRuleCategories(_detected = {}) {
  * @returns {Promise<string[]>} Selected language IDs
  */
 export async function promptLanguageRules(detected = {}) {
+  const msg = t().integration.languageRules;
   const detectedLanguages = Object.entries(detected)
     .filter(([, v]) => v)
     .map(([k]) => k);
@@ -172,8 +178,8 @@ export async function promptLanguageRules(detected = {}) {
   }
 
   console.log();
-  console.log(chalk.cyan('Language-Specific Rules:'));
-  console.log(chalk.gray('  Include language-specific coding standards'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const choices = detectedLanguages
@@ -192,7 +198,7 @@ export async function promptLanguageRules(detected = {}) {
     {
       type: 'checkbox',
       name: 'languages',
-      message: 'Include language-specific rules:',
+      message: msg.question,
       choices
     }
   ]);
@@ -205,16 +211,18 @@ export async function promptLanguageRules(detected = {}) {
  * @returns {Promise<string[]>} List of patterns/rules to exclude
  */
 export async function promptExclusions() {
+  const msg = t().integration.exclusions;
+
   console.log();
-  console.log(chalk.cyan('Custom Exclusions:'));
-  console.log(chalk.gray('  Specify patterns or rules to exclude from enforcement'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const { hasExclusions } = await inquirer.prompt([
     {
       type: 'confirm',
       name: 'hasExclusions',
-      message: 'Do you want to add custom exclusions?',
+      message: msg.question,
       default: false
     }
   ]);
@@ -227,7 +235,7 @@ export async function promptExclusions() {
     {
       type: 'input',
       name: 'exclusions',
-      message: 'Enter exclusion patterns (comma-separated):',
+      message: msg.inputPrompt,
       filter: (input) => input.split(',').map(s => s.trim()).filter(s => s.length > 0)
     }
   ]);
@@ -240,16 +248,18 @@ export async function promptExclusions() {
  * @returns {Promise<string[]>} List of custom rules to add
  */
 export async function promptCustomRules() {
+  const msg = t().integration.customRules;
+
   console.log();
-  console.log(chalk.cyan('Project-Specific Rules:'));
-  console.log(chalk.gray('  Add custom rules specific to your project'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const { hasCustomRules } = await inquirer.prompt([
     {
       type: 'confirm',
       name: 'hasCustomRules',
-      message: 'Do you want to add project-specific custom rules?',
+      message: msg.question,
       default: false
     }
   ]);
@@ -266,7 +276,7 @@ export async function promptCustomRules() {
       {
         type: 'input',
         name: 'rule',
-        message: 'Enter custom rule (or empty to finish):',
+        message: msg.inputPrompt,
       }
     ]);
 
@@ -286,31 +296,33 @@ export async function promptCustomRules() {
  * @returns {Promise<string>} 'keep', 'overwrite', or 'append'
  */
 export async function promptMergeStrategy(toolName) {
+  const msg = t().integration.mergeStrategy;
+
   console.log();
-  console.log(chalk.cyan(`Existing ${toolName} Rules Detected:`));
-  console.log(chalk.gray('  Choose how to handle existing rules'));
+  console.log(chalk.cyan(`${msg.title.replace(':', '')} (${toolName}):`));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const { strategy } = await inquirer.prompt([
     {
       type: 'list',
       name: 'strategy',
-      message: `How should we handle the existing ${toolName} rules?`,
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.green('Append')} ${chalk.gray('(推薦)')} - Add new rules after existing ones`,
+          name: `${chalk.green('Append')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.append}`,
           value: 'append'
         },
         {
-          name: `${chalk.blue('Merge')} - Intelligently merge (avoid duplicates)`,
+          name: `${chalk.blue('Merge')} - ${msg.choices.merge}`,
           value: 'merge'
         },
         {
-          name: `${chalk.yellow('Overwrite')} - Replace with new rules`,
+          name: `${chalk.yellow('Overwrite')} - ${msg.choices.overwrite}`,
           value: 'overwrite'
         },
         {
-          name: `${chalk.gray('Keep')} - Keep existing, skip installation`,
+          name: `${chalk.gray('Keep')} - ${msg.choices.keep}`,
           value: 'keep'
         }
       ],
@@ -326,27 +338,29 @@ export async function promptMergeStrategy(toolName) {
  * @returns {Promise<string>} 'minimal', 'standard', or 'comprehensive'
  */
 export async function promptDetailLevel() {
+  const msg = t().integration.detailLevel;
+
   console.log();
-  console.log(chalk.cyan('Rule Detail Level:'));
-  console.log(chalk.gray('  Choose how detailed the generated rules should be'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const { level } = await inquirer.prompt([
     {
       type: 'list',
       name: 'level',
-      message: 'Select rule detail level:',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.gray('Minimal')} - Essential rules only (~50 lines)`,
+          name: `${chalk.gray(msg.labels.minimal)} - ${msg.choices.minimal}`,
           value: 'minimal'
         },
         {
-          name: `${chalk.green('Standard')} ${chalk.gray('(推薦)')} - Balanced coverage (~150 lines)`,
+          name: `${chalk.green(msg.labels.standard)} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.standard}`,
           value: 'standard'
         },
         {
-          name: `${chalk.yellow('Comprehensive')} ${chalk.gray('(完整)')} - Full documentation (~300+ lines)`,
+          name: `${chalk.yellow(msg.labels.comprehensive)} ${chalk.gray(`(${msg.labels.complete})`)} - ${msg.choices.comprehensive}`,
           value: 'comprehensive'
         }
       ],
@@ -362,22 +376,24 @@ export async function promptDetailLevel() {
  * @returns {Promise<string>} 'en', 'zh-tw', or 'bilingual'
  */
 export async function promptRuleLanguage() {
+  const msg = t().integration.ruleLanguage;
+
   const { language } = await inquirer.prompt([
     {
       type: 'list',
       name: 'language',
-      message: 'Select rule documentation language:',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.green('English')} ${chalk.gray('(推薦)')}`,
+          name: `${chalk.green(msg.choices.en)} ${chalk.gray(`(${t().recommended})`)}`,
           value: 'en'
         },
         {
-          name: `${chalk.blue('繁體中文')} (Traditional Chinese)`,
+          name: `${chalk.blue(msg.choices.zhTw)} (Traditional Chinese)`,
           value: 'zh-tw'
         },
         {
-          name: `${chalk.yellow('Bilingual')} (雙語)`,
+          name: `${chalk.yellow(msg.choices.bilingual)} (雙語)`,
           value: 'bilingual'
         }
       ],
@@ -445,7 +461,7 @@ export async function promptIntegrationConfig(tool, detected, existingRulesFound
     config.customRules = await promptCustomRules();
   } else if (config.mode === 'merge' && !existingRulesFound) {
     // Merge mode selected but no existing file
-    console.log(chalk.yellow('  No existing rules file found. Using default mode.'));
+    console.log(chalk.yellow(`  ${t().integration.noExistingFile}`));
     config.mode = 'default';
   }
 

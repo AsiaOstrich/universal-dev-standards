@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **CLI**: Add i18n support for integration prompts (`integrations.js`)
+  - `promptIntegrationMode`: Title, description, question, choices
+  - `promptRuleCategories`: Title, description, question, validation message
+  - `promptLanguageRules`: Title, description, question
+  - `promptExclusions`: Title, description, questions
+  - `promptCustomRules`: Title, description, questions
+  - `promptMergeStrategy`: Title, description, question, choices (for integration file merge)
+  - `promptDetailLevel`: Title, description, question, choices, labels
+  - `promptRuleLanguage`: Question, choices
+  - All integration prompts now support `--ui-lang en` and `--ui-lang zh-tw`
+
 ## [3.5.0-beta.26] - 2026-01-15
 
 ### Changed

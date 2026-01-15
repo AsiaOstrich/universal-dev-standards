@@ -329,6 +329,88 @@ export const messages = {
         user: 'Only update ~/.claude/skills/',
         skip: 'Keep current versions'
       }
+    },
+
+    // Integration Configuration
+    integration: {
+      // promptIntegrationMode
+      mode: {
+        title: 'Integration Configuration:',
+        description: 'Configure how AI tool rules are generated',
+        question: 'How would you like to configure integration files?',
+        choices: {
+          default: 'Use standard rule set',
+          custom: 'Select specific rules to include',
+          merge: 'Merge with existing rules file'
+        }
+      },
+      // promptRuleCategories
+      categories: {
+        title: 'Rule Categories:',
+        description: 'Select which standards to include in integration files',
+        question: 'Select rule categories:',
+        validation: 'Please select at least one category'
+      },
+      // promptLanguageRules
+      languageRules: {
+        title: 'Language-Specific Rules:',
+        description: 'Include language-specific coding standards',
+        question: 'Include language-specific rules:'
+      },
+      // promptExclusions
+      exclusions: {
+        title: 'Custom Exclusions:',
+        description: 'Specify patterns or rules to exclude from enforcement',
+        question: 'Do you want to add custom exclusions?',
+        inputPrompt: 'Enter exclusion patterns (comma-separated):'
+      },
+      // promptCustomRules
+      customRules: {
+        title: 'Project-Specific Rules:',
+        description: 'Add custom rules specific to your project',
+        question: 'Do you want to add project-specific custom rules?',
+        inputPrompt: 'Enter custom rule (or empty to finish):'
+      },
+      // promptMergeStrategy (for integration files)
+      mergeStrategy: {
+        title: 'Existing Rules Detected:',
+        description: 'Choose how to handle existing rules',
+        question: 'How should we handle the existing rules?',
+        choices: {
+          append: 'Add new rules after existing ones',
+          merge: 'Intelligently merge (avoid duplicates)',
+          overwrite: 'Replace with new rules',
+          keep: 'Keep existing, skip installation'
+        }
+      },
+      // promptDetailLevel
+      detailLevel: {
+        title: 'Rule Detail Level:',
+        description: 'Choose how detailed the generated rules should be',
+        question: 'Select rule detail level:',
+        choices: {
+          minimal: 'Essential rules only (~50 lines)',
+          standard: 'Balanced coverage (~150 lines)',
+          comprehensive: 'Full documentation (~300+ lines)'
+        },
+        labels: {
+          minimal: 'Minimal',
+          standard: 'Standard',
+          comprehensive: 'Comprehensive',
+          complete: 'Complete'
+        }
+      },
+      // promptRuleLanguage
+      ruleLanguage: {
+        question: 'Select rule documentation language:',
+        choices: {
+          en: 'English',
+          zhTw: 'Traditional Chinese',
+          bilingual: 'Bilingual'
+        }
+      },
+      // Other messages
+      noExistingFile: 'No existing rules file found. Using default mode.'
     }
   },
 
@@ -654,6 +736,88 @@ export const messages = {
         user: '僅更新 ~/.claude/skills/',
         skip: '保持目前版本'
       }
+    },
+
+    // Integration Configuration
+    integration: {
+      // promptIntegrationMode
+      mode: {
+        title: '整合設定:',
+        description: '設定 AI 工具規則的產生方式',
+        question: '你想如何設定整合檔案？/ How would you like to configure integration files?',
+        choices: {
+          default: '使用標準規則集',
+          custom: '選擇要包含的特定規則',
+          merge: '與現有規則檔案合併'
+        }
+      },
+      // promptRuleCategories
+      categories: {
+        title: '規則類別:',
+        description: '選擇要包含在整合檔案中的標準',
+        question: '選擇規則類別 / Select rule categories:',
+        validation: '請至少選擇一個類別'
+      },
+      // promptLanguageRules
+      languageRules: {
+        title: '語言特定規則:',
+        description: '包含程式語言特定的編碼標準',
+        question: '包含語言特定規則 / Include language-specific rules:'
+      },
+      // promptExclusions
+      exclusions: {
+        title: '自訂排除:',
+        description: '指定要排除執行的規則或模式',
+        question: '是否要新增自訂排除？/ Do you want to add custom exclusions?',
+        inputPrompt: '輸入排除模式（用逗號分隔）/ Enter exclusion patterns (comma-separated):'
+      },
+      // promptCustomRules
+      customRules: {
+        title: '專案特定規則:',
+        description: '新增專案特定的自訂規則',
+        question: '是否要新增專案特定的自訂規則？/ Do you want to add project-specific custom rules?',
+        inputPrompt: '輸入自訂規則（留空結束）/ Enter custom rule (or empty to finish):'
+      },
+      // promptMergeStrategy (for integration files)
+      mergeStrategy: {
+        title: '偵測到現有規則:',
+        description: '選擇如何處理現有規則',
+        question: '如何處理現有規則？/ How should we handle the existing rules?',
+        choices: {
+          append: '在現有規則後新增',
+          merge: '智慧合併（避免重複）',
+          overwrite: '以新規則取代',
+          keep: '保留現有，跳過安裝'
+        }
+      },
+      // promptDetailLevel
+      detailLevel: {
+        title: '規則詳細程度:',
+        description: '選擇產生規則的詳細程度',
+        question: '選擇規則詳細程度 / Select rule detail level:',
+        choices: {
+          minimal: '僅基本規則（約 50 行）',
+          standard: '平衡覆蓋（約 150 行）',
+          comprehensive: '完整文件（約 300+ 行）'
+        },
+        labels: {
+          minimal: '精簡',
+          standard: '標準',
+          comprehensive: '詳盡',
+          complete: '完整'
+        }
+      },
+      // promptRuleLanguage
+      ruleLanguage: {
+        question: '選擇規則文件語言 / Select rule documentation language:',
+        choices: {
+          en: 'English',
+          zhTw: '繁體中文',
+          bilingual: '雙語'
+        }
+      },
+      // Other messages
+      noExistingFile: '找不到現有規則檔案，使用預設模式。'
     }
   }
 };
