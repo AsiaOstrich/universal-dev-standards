@@ -1,5 +1,5 @@
 ---
-description: Create or review specification documents for Spec-Driven Development | 建立或審查規格文件
+description: Create or review specification documents for Spec-Driven Development
 allowed-tools: Read, Write, Grep, Glob, Bash(git:*)
 argument-hint: [spec name or feature | 規格名稱或功能]
 ---

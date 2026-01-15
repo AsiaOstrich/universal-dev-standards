@@ -1,26 +1,37 @@
 ---
-description: Verify standards adoption status | 檢查標準採用狀態
+description: Verify standards adoption status
 allowed-tools: Read, Bash(uds check:*), Bash(npx:*)
-argument-hint: [--offline]
+argument-hint: [--offline | --restore]
 ---
 
 # Check Standards | 檢查標準
 
-Verify the adoption status of Universal Development Standards in the current project. This command checks file integrity, version status, and coverage summary.
+Verify the adoption status of Universal Development Standards in the current project.
 
-驗證當前專案的 Universal Development Standards 採用狀態。此命令會檢查檔案完整性、版本狀態和覆蓋率摘要。
-
-## Workflow | 工作流程
-
-1. **Run check** - Execute `uds check` to verify installation
-2. **Review status** - Examine adoption level, file integrity, and Skills status
-3. **Take action** - Follow recommendations if issues are found
+驗證當前專案的 Universal Development Standards 採用狀態。
 
 ## Quick Start | 快速開始
 
 ```bash
+# Basic check
 uds check
+
+# Check without network access
+uds check --offline
+
+# Restore missing or modified files
+uds check --restore
 ```
+
+## Options | 選項
+
+| Option | Description | 說明 |
+|--------|-------------|------|
+| `--offline` | Skip npm registry check | 跳過 npm registry 檢查 |
+| `--diff` | Show diff for modified files | 顯示修改檔案的差異 |
+| `--restore` | Restore all modified and missing files | 還原所有修改和遺失的檔案 |
+| `--restore-missing` | Restore only missing files | 僅還原遺失的檔案 |
+| `--migrate` | Migrate legacy manifest to hash-based tracking | 遷移舊版 manifest |
 
 ## Output Sections | 輸出區段
 
@@ -31,19 +42,17 @@ uds check
 
 ### File Integrity | 檔案完整性
 - Checks all expected files exist
-- Reports missing files
+- Reports missing or modified files
 - Shows count of present vs missing
 
 ### Skills Status | Skills 狀態
 - Installation location (Marketplace, User, Project)
-- Version information (auto-detected from `~/.claude/plugins/installed_plugins.json` for Marketplace installations)
-- Last updated date
+- Version information
 - Migration suggestions if applicable
 
 ### Coverage Summary | 覆蓋率摘要
 - Required standards count for current level
 - Skills vs reference document coverage
-- Your actual coverage status
 
 ## Status Indicators | 狀態指示
 
@@ -62,14 +71,18 @@ uds check
 - Run `/update` to get latest version
 
 **"Missing files"**
-- Run `/update` or `/init --yes` to restore
+- Run `/check --restore` or `/update` to restore
 
-**"Skills marked as installed but not found"**
-- Reinstall via Plugin Marketplace or local installation
+**"Modified files detected"**
+- Run `/check --diff` to see changes
+- Run `/check --restore` to reset to original
 
 ## Usage | 使用方式
 
 - `/check` - Check current adoption status
+- `/check --offline` - Check without network access
+- `/check --restore` - Restore modified/missing files
+- `/check --diff` - Show file differences
 
 ## Reference | 參考
 

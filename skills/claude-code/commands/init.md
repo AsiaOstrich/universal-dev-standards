@@ -1,48 +1,71 @@
 ---
-description: Initialize development standards in current project | 在當前專案初始化開發標準
+description: Initialize development standards in current project
 allowed-tools: Read, Bash(uds init:*), Bash(npx:*)
 argument-hint: [--level N | --yes]
 ---
 
 # Initialize Standards | 初始化標準
 
-Initialize Universal Development Standards in the current project. This command sets up the `.standards/` directory with core standards, integrations, and optionally installs Claude Code Skills.
+Initialize Universal Development Standards in the current project.
 
-在當前專案初始化 Universal Development Standards。此命令會設置 `.standards/` 目錄，包含核心標準、整合配置，並可選擇安裝 Claude Code Skills。
+在當前專案初始化 Universal Development Standards。
 
-## Workflow | 工作流程
+## Interactive Mode (Default) | 互動模式（預設）
 
-1. **Check prerequisites** - Verify `uds` CLI is available (install via `npm install -g universal-dev-standards` if needed)
-2. **Run initialization** - Execute `uds init` with user-specified options
-3. **Report results** - Summarize what was installed and next steps
+When invoked without `--yes`, use AskUserQuestion to gather user preferences before executing.
 
-## Quick Start | 快速開始
+當不帶 `--yes` 執行時，使用 AskUserQuestion 詢問用戶偏好後再執行。
+
+### Step 1: Ask Adoption Level | 步驟 1：詢問採用層級
+
+Use AskUserQuestion with these options:
+
+| Option | Description |
+|--------|-------------|
+| **Recommended (Level 2)** | Professional quality for teams (Recommended) |
+| **Essential (Level 1)** | Minimum viable standards for small projects |
+| **Enterprise (Level 3)** | Comprehensive for regulated/enterprise projects |
+
+### Step 2: Ask Skills Location | 步驟 2：詢問 Skills 安裝位置
+
+Use AskUserQuestion with these options:
+
+| Option | Description |
+|--------|-------------|
+| **Plugin Marketplace** | Auto-updates, recommended for most users |
+| **User Level** | Install at ~/.claude/skills/ |
+| **Project Level** | Install at .claude/skills/ |
+| **Skip** | Don't install Skills |
+
+### Step 3: Execute | 步驟 3：執行
+
+After collecting answers, execute:
 
 ```bash
-# Interactive mode (recommended for first-time setup)
-uds init
-
-# Non-interactive with defaults
-uds init --yes
-
-# Specific adoption level
-uds init --level 2
-
-# Skip Skills installation
-uds init --skills-location none
+uds init --level <level> --skills-location <location> --yes
 ```
 
-## Options | 選項
+Explain the results and next steps to the user.
+
+## Quick Mode | 快速模式
+
+When invoked with `--yes` or specific options, skip interactive questions:
+
+```bash
+/init --yes              # Use defaults
+/init --level 2 --yes    # Specific level with defaults
+```
+
+## Options Reference | 選項參考
 
 | Option | Description | 說明 |
 |--------|-------------|------|
-| `--yes`, `-y` | Non-interactive mode with defaults | 非互動模式，使用預設值 |
-| `--level N` | Adoption level (1=Essential, 2=Recommended, 3=Enterprise) | 採用層級 |
-| `--format` | Format: `ai`, `human`, or `both` | 格式選擇 |
-| `--skills-location` | Skills location: `marketplace`, `user`, `project`, `none` | Skills 安裝位置 |
-| `--lang` | Language extension (e.g., `csharp`, `php`) | 語言擴展 |
-| `--framework` | Framework extension (e.g., `fat-free`) | 框架擴展 |
-| `--locale` | Locale extension (e.g., `zh-tw`) | 語系擴展 |
+| `--yes`, `-y` | Non-interactive mode | 非互動模式 |
+| `--level N` | Adoption level (1, 2, or 3) | 採用層級 |
+| `--skills-location` | marketplace, user, project, or none | Skills 位置 |
+| `--format` | ai, human, or both | 格式 |
+
+See `uds init --help` for all options.
 
 ## Adoption Levels | 採用層級
 
@@ -58,12 +81,6 @@ uds init --skills-location none
 - Integration files (`.cursorrules`, `CLAUDE.md`, etc.)
 - Skills (via Plugin Marketplace or local installation)
 - `manifest.json` for tracking installation
-
-## Usage | 使用方式
-
-- `/init` - Run interactive initialization
-- `/init --yes` - Quick setup with defaults
-- `/init --level 3` - Enterprise-level setup
 
 ## Reference | 參考
 

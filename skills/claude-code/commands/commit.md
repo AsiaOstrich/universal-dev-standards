@@ -1,5 +1,5 @@
 ---
-description: Generate commit messages following Conventional Commits standard | 依據 Conventional Commits 格式產生 commit message
+description: Generate commit messages following Conventional Commits standard
 allowed-tools: Read, Grep, Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*)
 argument-hint: [description of changes | 變更描述]
 ---

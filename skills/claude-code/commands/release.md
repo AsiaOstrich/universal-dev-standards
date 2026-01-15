@@ -1,5 +1,5 @@
 ---
-description: Guide through release process with semantic versioning | 引導發布流程，使用語義化版本
+description: Guide through release process with semantic versioning
 allowed-tools: Read, Grep, Glob, Bash(git:*), Bash(npm version:*), Bash(gh release:*)
 argument-hint: [version type: major|minor|patch|beta | 版本類型]
 ---

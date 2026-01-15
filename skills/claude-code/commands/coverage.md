@@ -1,5 +1,5 @@
 ---
-description: Analyze test coverage and provide recommendations | 分析測試覆蓋率並提供建議
+description: Analyze test coverage and provide recommendations
 allowed-tools: Read, Grep, Glob, Bash(npm run test:coverage:*), Bash(npx:*)
 argument-hint: [file or module to analyze | 要分析的檔案或模組]
 ---

@@ -1,5 +1,5 @@
 ---
-description: Manage development methodology workflow | 管理開發方法論工作流
+description: Manage development methodology workflow
 allowed-tools: Read, Write, Glob, Grep, Bash(git:*)
 argument-hint: [action] [argument]
 status: experimental

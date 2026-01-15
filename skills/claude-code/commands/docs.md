@@ -1,5 +1,5 @@
 ---
-description: Create or update project documentation structure | 建立或更新專案文件結構
+description: Create or update project documentation structure
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: [document type: readme|api|contributing | 文件類型]
 ---

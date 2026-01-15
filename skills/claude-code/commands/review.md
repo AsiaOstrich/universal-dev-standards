@@ -1,5 +1,5 @@
 ---
-description: Perform systematic code review with checklist | 執行系統性程式碼審查
+description: Perform systematic code review with checklist
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
 argument-hint: [file path or branch | 檔案路徑或分支名稱]
 ---

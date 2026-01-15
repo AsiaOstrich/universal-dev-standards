@@ -1,5 +1,5 @@
 ---
-description: Guide through Behavior-Driven Development workflow | 引導行為驅動開發流程
+description: Guide through Behavior-Driven Development workflow
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
 argument-hint: [behavior or scenario to implement | 要實作的行為或場景]
 status: experimental

@@ -1,5 +1,5 @@
 ---
-description: Write user stories and requirements following INVEST criteria | 撰寫用戶故事和需求文件
+description: Write user stories and requirements following INVEST criteria
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: [feature name or description | 功能名稱或描述]
 ---
