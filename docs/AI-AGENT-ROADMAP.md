@@ -1,218 +1,292 @@
-# AI Agent Integration Roadmap
+# AI Agent Integration Guide
 
 > **Language**: English | [繁體中文](../locales/zh-TW/docs/AI-AGENT-ROADMAP.md) | [简体中文](../locales/zh-CN/docs/AI-AGENT-ROADMAP.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-14
+**Version**: 2.0.0
+**Last Updated**: 2026-01-15
 
-This document records the current AI Agent support status and future development plans for Universal Development Standards (UDS).
+This document provides a comprehensive reference for AI Agent support in Universal Development Standards (UDS).
 
 ---
 
 ## Table of Contents
 
-1. [Current Support Status](#1-current-support-status)
-2. [Integration Depth Classification](#2-integration-depth-classification)
-3. [Skills Compatibility Matrix](#3-skills-compatibility-matrix)
-4. [Skills Storage Locations](#4-skills-storage-locations)
-5. [Future Development](#5-future-development)
-6. [Community Resources](#6-community-resources)
-7. [Contributing](#7-contributing)
+1. [Quick Reference](#1-quick-reference)
+2. [Integration Levels](#2-integration-levels)
+3. [Skills System](#3-skills-system)
+4. [Configuration Reference](#4-configuration-reference)
+5. [Resources](#5-resources)
+6. [Appendix: Future Development](#appendix-future-development)
 
 ---
 
-## 1. Current Support Status
+## 1. Quick Reference
 
-UDS currently supports **11 AI Agents/Tools**, categorized by integration depth:
+### Configuration Files
 
-| Level | AI Agent | Integration Type | Directory | Status | Platform Tested |
-|-------|----------|-----------------|-----------|--------|-----------------|
-| **Level 1** | Claude Code | 18 Native Skills | `skills/claude-code/` | ✅ Complete | macOS ✅ |
-| **Level 1** | OpenCode | Skills + AGENTS.md | `integrations/opencode/` | ✅ Complete | macOS 🧪 |
-| **Level 2** | Cursor | Can read `.claude/skills/` | `skills/cursor/`, `integrations/cursor/` | ✅ Complete | - |
-| **Level 2** | GitHub Copilot | Partial Skills support | `skills/copilot/`, `integrations/github-copilot/` | ✅ Complete | macOS 🧪 |
-| **Level 3** | Windsurf | .windsurfrules | `skills/windsurf/`, `integrations/windsurf/` | ✅ Complete | - |
-| **Level 3** | Cline | .clinerules | `skills/cline/`, `integrations/cline/` | ✅ Complete | - |
-| **Level 4** | OpenAI Codex | AGENTS.md | `integrations/codex/` | ✅ Complete | - |
-| **Level 4** | OpenSpec | AGENTS.md | `integrations/openspec/` | ✅ Complete | - |
-| **Level 4** | Spec Kit | AGENTS.md | `integrations/spec-kit/` | ✅ Complete | - |
-| **Level 5** | Google Gemini CLI | GEMINI.md | `integrations/gemini-cli/` | ✅ Complete | - |
-| **Level 5** | Google Antigravity | rules.md | `integrations/google-antigravity/` | ✅ Complete | - |
+| AI Agent | Project Config | Global Config | Notes |
+|----------|----------------|---------------|-------|
+| Claude Code | `.claude/CLAUDE.md` | `~/.claude/CLAUDE.md` | ~100KB limit |
+| OpenCode | `.opencode/AGENTS.md` | `~/.config/opencode/AGENTS.md` | No limit |
+| GitHub Copilot | `.github/copilot-instructions.md` | Personal settings | ~8KB limit |
+| Cline | `.clinerules/` | `~/.cline-rules/` | Folder or single file |
+| Roo Code | `.roo/rules/*.md` | `~/.roo/rules/` | Mode-specific: `.roo/rules-{mode}/` |
+| OpenAI Codex | `.codex/AGENTS.md` | `~/.codex/AGENTS.md` | 32KB limit |
+| Windsurf | `.windsurfrules` | Settings UI | 6K/file, 12K total |
+| Gemini CLI | `.gemini/GEMINI.md` | `~/.gemini/GEMINI.md` | Supports `@import` |
+| Cursor | `.cursor/rules/*.mdc` | `~/.cursor/rules/` | YAML frontmatter required |
 
-### Platform Support Status
+### Skills Paths
 
-| Platform | CLI Tool | Skills | Notes |
-|----------|----------|--------|-------|
-| **macOS** | ✅ Tested | ✅ Tested | Primary development platform |
-| **Linux** | ⚠️ Untested | ⚠️ Untested | Expected to work (Node.js based) |
-| **Windows** | ⚠️ Untested | ⚠️ Untested | PowerShell scripts provided |
+| AI Agent | Skills | Project Path | Global Path | Notes |
+|----------|:------:|--------------|-------------|-------|
+| Claude Code | ✅ Native | `.claude/skills/` | `~/.claude/skills/` | Reference implementation |
+| OpenCode | ✅ Full | `.opencode/skill/` | `~/.config/opencode/skill/` | Also reads `.claude/skills/` |
+| GitHub Copilot | ✅ Full | `.github/skills/` | `~/.copilot/skills/` | Legacy: `.claude/skills/` |
+| Cline | ✅ Full | `.claude/skills/` | `~/.claude/skills/` | Uses Claude paths directly |
+| Roo Code | ✅ Full | `.roo/skills/` | `~/.roo/skills/` | Mode-specific: `.roo/skills-{mode}/` |
+| OpenAI Codex | ✅ Full | `.codex/skills/` | `~/.codex/skills/` | Also reads `.claude/skills/` |
+| Windsurf | ✅ Full | `.windsurf/rules/` | Settings UI | Skills since 2026/01 |
+| Gemini CLI | ✅ Preview | `.gemini/skills/` | `~/.gemini/skills/` | v0.23+ preview |
+| Cursor | ❌ No | `.cursor/rules/` | `~/.cursor/rules/` | Rules only, no SKILL.md |
 
-**Legend**: ✅ Tested | 🧪 Testing | ⚠️ Untested | - Not applicable
+### Slash Commands
 
----
+| AI Agent | Support | Type | Examples | Custom Path |
+|----------|:-------:|------|----------|-------------|
+| Claude Code | ✅ | Skill triggers | `/commit`, `/review`, `/tdd` | Built-in only |
+| OpenCode | ✅ | User-defined | Configurable | `.opencode/command/*.md` |
+| GitHub Copilot | ✅ | Built-in | `/fix`, `/tests`, `/explain` | `.github/prompts/*.prompt.md` |
+| Cline | ✅ | Built-in + Workflows | `/smol`, `/plan`, `/newtask` | Workflow files |
+| Roo Code | ✅ | Mode commands | `/code`, `/architect`, `/init` | `.roo/commands/*.md` |
+| OpenAI Codex | ✅ | System commands | `/model`, `/diff`, `/skills` | Custom prompts |
+| Windsurf | ✅ | Rulebook | Auto-generated | From `.windsurfrules` |
+| Gemini CLI | ✅ | System + Custom | `/clear`, `/memory`, `/mcp` | `.gemini/commands/*.toml` |
+| Cursor | ✅ | Built-in + Custom | `/summarize`, `/models` | `.cursor/commands/*.md` |
 
-## 2. Integration Depth Classification
+### Platform Support
 
-### Level 1: Native Skills Support
-- **Full Skills compatibility**: Can directly use all 18 Claude Code Skills
-- **Slash command support**: Supports `/commit`, `/review`, `/tdd` etc.
-- **Auto-trigger**: Keywords automatically invoke relevant Skills
-- **Tools**: Claude Code, OpenCode
-
-### Level 2: Skills Compatible
-- **Readable Skills**: Can read `.claude/skills/` directory
-- **Limited slash commands**: Some tools don't support all commands
-- **Manual invocation required**: Some features need explicit calls
-- **Tools**: Cursor, GitHub Copilot
-
-### Level 3: Rules File Format
-- **Dedicated rule files**: Use tool-specific formats
-- **Static rules**: Rules loaded at startup, no dynamic Skills
-- **Cross-tool generation**: UDS CLI can generate rule files for these tools
-- **Tools**: Windsurf (.windsurfrules), Cline (.clinerules)
-
-### Level 4: Agent Rules
-- **AGENTS.md format**: Follow OpenAI Codex agent specification
-- **SDD tool support**: Includes Spec-Driven Development tools
-- **Static configuration**: Rules defined in markdown files
-- **Tools**: OpenAI Codex, OpenSpec, Spec Kit
-
-### Level 5: Instruction Files
-- **Custom formats**: Each tool has its own instruction format
-- **Basic integration**: Provide core development standards
-- **Limited functionality**: No Skills or slash command support
-- **Tools**: Google Gemini CLI (GEMINI.md), Google Antigravity (rules.md)
+| Platform | CLI Tool | Skills |
+|----------|:--------:|:------:|
+| macOS | Tested | Tested |
+| Linux | Expected | Expected |
+| Windows | PowerShell provided | Expected |
 
 ---
 
-## 3. Skills Compatibility Matrix
+## 2. Integration Levels
 
-### 18 Claude Code Skills
+> **Note**: As of January 2026, Agent Skills (SKILL.md) has become an industry standard. Most major AI coding tools now support the same Skills format.
+
+### Native Skills (Reference Implementation)
+
+**Tools**: Claude Code
+
+- Reference implementation of Agent Skills standard
+- 18 built-in UDS Skills + Marketplace
+- Full slash command support (`/commit`, `/review`, `/tdd`, etc.)
+- Auto-trigger on keywords
+
+### Full Skills Support
+
+**Tools**: OpenCode, GitHub Copilot, Cline, Roo Code, OpenAI Codex, Windsurf, Gemini CLI
+
+- Can read and execute SKILL.md files
+- Cross-compatible with `.claude/skills/` directory
+- Most also have their own native paths (see Skills Path column)
+
+### Rules Only (No Skills)
+
+**Tools**: Cursor
+
+- Has own rules format (`.cursor/rules/*.mdc`)
+- Does NOT support SKILL.md format yet
+- Feature requested by community
+
+---
+
+## 3. Skills System
+
+### 3.1 UDS Skills Compatibility
 
 | # | Skill | Slash Command | Claude | OpenCode | Cursor | Copilot |
-|---|-------|---------------|--------|----------|--------|---------|
-| 1 | ai-collaboration-standards | - | ✅ | ✅ | ✅ | ✅ |
-| 2 | checkin-assistant | `/check` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 3 | commit-standards | `/commit` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 4 | code-review-assistant | `/review` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 5 | testing-guide | - | ✅ | ✅ | ✅ | ✅ |
-| 6 | tdd-assistant | `/tdd` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 7 | release-standards | `/release` | ✅ | ✅ | ⚠️ | ❌ |
-| 8 | git-workflow-guide | - | ✅ | ✅ | ✅ | ✅ |
-| 9 | documentation-guide | `/docs` | ✅ | ✅ | ⚠️ | ❌ |
-| 10 | requirement-assistant | `/requirement` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 11 | changelog-guide | `/changelog` | ✅ | ✅ | ⚠️ | ❌ |
-| 12 | spec-driven-dev | `/spec` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 13 | test-coverage-assistant | `/coverage` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 14 | refactoring-assistant | - | ✅ | ✅ | ✅ | ✅ |
-| 15 | error-code-guide | - | ✅ | ✅ | ✅ | ✅ |
-| 16 | methodology-system | `/methodology` | ✅ | ✅ | ⚠️ | ❌ |
-| 17 | project-structure-guide | `/config` | ✅ | ✅ | ⚠️ | ❌ |
-| 18 | logging-guide | - | ✅ | ✅ | ✅ | ✅ |
+|---|-------|---------------|:------:|:--------:|:------:|:-------:|
+| 1 | ai-collaboration-standards | - | Full | Full | Full | Full |
+| 2 | checkin-assistant | `/check` | Full | Full | Partial | Partial |
+| 3 | commit-standards | `/commit` | Full | Full | Partial | Partial |
+| 4 | code-review-assistant | `/review` | Full | Full | Partial | Partial |
+| 5 | testing-guide | - | Full | Full | Full | Full |
+| 6 | tdd-assistant | `/tdd` | Full | Full | Partial | Partial |
+| 7 | release-standards | `/release` | Full | Full | Partial | No |
+| 8 | git-workflow-guide | - | Full | Full | Full | Full |
+| 9 | documentation-guide | `/docs` | Full | Full | Partial | No |
+| 10 | requirement-assistant | `/requirement` | Full | Full | Partial | Partial |
+| 11 | changelog-guide | `/changelog` | Full | Full | Partial | No |
+| 12 | spec-driven-dev | `/spec` | Full | Full | Partial | Partial |
+| 13 | test-coverage-assistant | `/coverage` | Full | Full | Partial | Partial |
+| 14 | refactoring-assistant | - | Full | Full | Full | Full |
+| 15 | error-code-guide | - | Full | Full | Full | Full |
+| 16 | methodology-system | `/methodology` | Full | Full | Partial | No |
+| 17 | project-structure-guide | `/config` | Full | Full | Partial | No |
+| 18 | logging-guide | - | Full | Full | Full | Full |
 
-**Legend**: ✅ Full support | ⚠️ Partial/Manual | ❌ Not supported
+### 3.2 Skills Paths & Activation
 
----
+#### Skills Discovery Paths
 
-## 4. Skills Storage Locations
+| AI Agent | Project Path | Global Path | Reads `.claude/skills/` |
+|----------|--------------|-------------|:-----------------------:|
+| Claude Code | `.claude/skills/` | `~/.claude/skills/` | Native |
+| OpenCode | `.opencode/skill/` | `~/.config/opencode/skill/` | ✅ Yes |
+| GitHub Copilot | `.github/skills/` | `~/.copilot/skills/` | ✅ Yes (legacy) |
+| Cline | `.claude/skills/` | `~/.claude/skills/` | ✅ Yes |
+| Roo Code | `.roo/skills/` | `~/.roo/skills/` | ✅ Yes |
+| OpenAI Codex | `.codex/skills/` | `~/.codex/skills/` | ✅ Yes |
+| Windsurf | `.windsurf/rules/` | Settings UI | ✅ Yes |
+| Gemini CLI | `.gemini/skills/` | `~/.gemini/skills/` | ✅ Yes |
+| Cursor | `.cursor/rules/` | `~/.cursor/rules/` | ❌ No |
 
-### Project-Level Paths
+#### Activation Methods
 
-| AI Agent | Primary Path | Alternative Path | Claude Compatible |
-|----------|-------------|------------------|-------------------|
-| Claude Code | `.claude/skills/` | - | ✅ Native |
-| OpenCode | `.opencode/skill/` | `.claude/skills/` | ✅ Yes |
-| Cursor | `.cursor/skills/` | `.claude/skills/` | ✅ Yes |
-| GitHub Copilot | `.github/skills/` | `.claude/skills/` (Legacy) | ✅ Yes |
-| OpenAI Codex | `.codex/skills/` | - | ❌ Independent |
-| Windsurf | `.windsurf/skills/` | - | ❌ Independent |
-| Cline | `.cline/skills/` | - | ❌ Independent |
+| AI Agent | Activation |
+|----------|------------|
+| Claude Code | Slash command, Auto-trigger, Mention |
+| OpenCode | Slash command, Tab switch |
+| GitHub Copilot | Auto-load, `applyTo` pattern |
+| Cline | Auto-load from directory |
+| Roo Code | Auto-load, Mode-specific (`.roo/skills-{mode}/`) |
+| OpenAI Codex | `/skills` command, Auto-trigger |
+| Windsurf | Manual (@mention), Always On, Model Decision |
+| Gemini CLI | Auto-trigger, Enable/Disable via settings |
+| Cursor | Glob pattern, `alwaysApply` flag (rules only) |
 
-### User-Level Paths
+**Recommendation**: Use `.claude/skills/` as the default installation path — most tools can read it for cross-tool compatibility.
 
-| AI Agent | User Path |
-|----------|-----------|
-| Claude Code | `~/.claude/skills/` |
-| OpenCode | `~/.config/opencode/skill/` |
-| Cursor | `~/.cursor/skills/` |
-| GitHub Copilot | `~/.copilot/skills/` |
-| OpenAI Codex | `~/.codex/skills/` |
-| Windsurf | `~/.codeium/windsurf/skills/` |
-| Cline | `~/.cline/skills/` |
+### 3.3 Cross-Platform Portability
 
-### Recommendation
+> **Industry Standard**: As of December 2025, SKILL.md has been adopted by OpenAI, GitHub, Google, and the broader AI coding ecosystem.
 
-**Use `.claude/skills/` as default installation path** for maximum cross-tool compatibility. Most Skills-compatible tools support reading from this location.
+| Platform | SKILL.md Support | Adoption Date |
+|----------|:----------------:|---------------|
+| Claude Code | ✅ Native | Oct 2025 |
+| OpenCode | ✅ Full | Nov 2025 |
+| GitHub Copilot | ✅ Full | Dec 18, 2025 |
+| OpenAI Codex | ✅ Full | Dec 2025 |
+| Cline | ✅ Full | v3.48.0 |
+| Roo Code | ✅ Full | Dec 27, 2025 |
+| Windsurf | ✅ Full | Jan 9, 2026 |
+| Gemini CLI | ✅ Preview | Jan 7, 2026 |
+| Cursor | ❌ Not yet | Requested |
 
----
-
-## 5. Future Development
-
-### 5.1 Potential New Tools
-
-| Tool | Type | Priority | Notes |
-|------|------|----------|-------|
-| Amazon Q Developer | IDE Plugin | Medium | AWS ecosystem integration |
-| JetBrains AI Assistant | IDE Plugin | Medium | JetBrains ecosystem |
-| Tabnine | Code Completion | Low | Privacy-focused option |
-| Sourcegraph Cody | Code Search + AI | Medium | Enterprise features |
-| Continue.dev | Open Source | High | Community-driven, open |
-
-### 5.2 Feature Enhancement Roadmap
-
-| Feature | Description | Target Tools |
-|---------|-------------|--------------|
-| Skills v2 Format | Enhanced metadata, dependencies | All Level 1-2 |
-| Cross-tool sync | Automatic rule file generation | Level 3-5 |
-| CLI auto-detect | Detect installed AI tools | All |
-| Skills marketplace | Publish and discover Skills | Level 1-2 |
-
-### 5.3 Integration Improvements
-
-- **Windsurf/Cline**: Explore Skills format adoption
-- **Copilot**: Deeper Chat integration
-- **Codex**: Monitor for Skills support
-- **OpenCode**: Continue as reference implementation
+**Cross-platform installers**:
+- [skilz](https://github.com/skilz-ai/skilz) - Universal Skills installer (14+ platforms)
+- [openskills](https://github.com/numman-ali/openskills) - Universal skills loader
+- UDS CLI (`uds init`) - Generates configs for multiple AI tools
 
 ---
 
-## 6. Community Resources
+## 4. Configuration Reference
 
-### Skills Marketplaces
+### 4.1 Configuration Files
 
-| Platform | URL | Supported Tools |
-|----------|-----|-----------------|
-| n-skills | https://github.com/numman-ali/n-skills | Claude, Cursor, Windsurf, Cline, OpenCode, Codex |
-| claude-plugins.dev | https://claude-plugins.dev/skills | Claude, Cursor, OpenCode, Codex |
-| agentskills.io | https://agentskills.io | All Skills-compatible tools |
+| AI Agent | Project Config | Global Config | Character Limit |
+|----------|----------------|---------------|-----------------|
+| Claude Code | `CLAUDE.md` | `~/.claude/CLAUDE.md` | ~100KB |
+| OpenCode | `AGENTS.md` | `~/.config/opencode/AGENTS.md` | No limit |
+| Cursor | `.cursor/rules/*.mdc` | `~/.cursor/rules/` | Per file |
+| Windsurf | `.windsurfrules` | Settings UI | 6K/file, 12K total |
+| Cline | `.clinerules` | `~/.cline-rules/` | No limit |
+| Roo Code | `.roorules` | `~/.roo/rules/` | No limit |
+| GitHub Copilot | `.github/copilot-instructions.md` | Personal settings | ~8KB |
+| OpenAI Codex | `AGENTS.md` | `~/.codex/AGENTS.md` | 32KB |
+| Gemini CLI | `GEMINI.md` | `~/.gemini/GEMINI.md` | 1M tokens |
+
+### 4.2 Configuration Merge Behavior
+
+| AI Agent | Merge Strategy | Priority (High to Low) |
+|----------|----------------|------------------------|
+| Claude Code | Concatenate | Directory-scoped > Project > Personal |
+| OpenCode | Concatenate | Project > Global |
+| Cursor | Replace/Selective | `.mdc` by glob, alwaysApply flag |
+| Windsurf | Truncate at limit | Global > Workspace > Mode-specific |
+| Cline | Append | Project directory > Root file |
+| GitHub Copilot | Combine | Personal > Repository > Organization |
+| OpenAI Codex | Concatenate | Override files > Base, closer wins |
+| Gemini CLI | Concatenate | All files with `@import` support |
+
+### 4.3 Skills File Format
+
+> **Standard Format**: SKILL.md with YAML frontmatter is the universal format supported by most tools.
+
+| AI Agent | Skills Format | Config Format | Frontmatter |
+|----------|:-------------:|---------------|-------------|
+| Claude Code | ✅ SKILL.md | `CLAUDE.md` | YAML (`---`) |
+| OpenCode | ✅ SKILL.md | `AGENTS.md` | YAML |
+| GitHub Copilot | ✅ SKILL.md | `copilot-instructions.md` | YAML |
+| Cline | ✅ SKILL.md | `.clinerules/` | YAML |
+| Roo Code | ✅ SKILL.md | `.roo/rules/` | YAML |
+| OpenAI Codex | ✅ SKILL.md | `AGENTS.md` | YAML |
+| Windsurf | ✅ SKILL.md | `.windsurfrules` | YAML |
+| Gemini CLI | ✅ SKILL.md | `GEMINI.md` | YAML |
+| Cursor | ❌ `.mdc` | `.cursor/rules/` | YAML (globs, alwaysApply) |
+
+---
+
+## 5. Resources
 
 ### Official Documentation
 
 | Tool | Documentation |
 |------|---------------|
-| Claude Code | https://docs.anthropic.com/claude-code |
-| OpenCode | https://opencode.ai/docs |
-| Cursor | https://docs.cursor.com |
-| GitHub Copilot | https://docs.github.com/copilot |
+| Claude Code | [docs.anthropic.com/claude-code](https://docs.anthropic.com/claude-code) |
+| OpenCode | [opencode.ai/docs](https://opencode.ai/docs) |
+| Cursor | [docs.cursor.com](https://docs.cursor.com) |
+| GitHub Copilot | [docs.github.com/copilot](https://docs.github.com/copilot) |
+| Windsurf | [docs.windsurf.com](https://docs.windsurf.com/) |
+| OpenAI Codex | [developers.openai.com/codex](https://developers.openai.com/codex/guides/agents-md/) |
+| Gemini CLI | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
 
----
+### Skills Marketplaces
 
-## 7. Contributing
+| Platform | URL |
+|----------|-----|
+| n-skills | [github.com/numman-ali/n-skills](https://github.com/numman-ali/n-skills) |
+| claude-plugins.dev | [claude-plugins.dev/skills](https://claude-plugins.dev/skills) |
+| agentskills.io | [agentskills.io](https://agentskills.io) |
 
-### Adding Support for New AI Tools
+### Contributing
 
 1. Research the tool's configuration format
 2. Create integration directory under `integrations/<tool-name>/`
 3. Add README.md with setup instructions
-4. If Skills-compatible, add skills-mapping.md
-5. Update this roadmap document
-6. Submit PR following [CONTRIBUTING.md](../CONTRIBUTING.md)
+4. Update this document
+5. Submit PR following [CONTRIBUTING.md](../CONTRIBUTING.md)
 
-### Reporting Issues
+**Issues**: [GitHub Issues](https://github.com/anthropics-tw/universal-dev-standards/issues)
 
-- Integration issues: [GitHub Issues](https://github.com/anthropics-tw/universal-dev-standards/issues)
-- Feature requests: Use `enhancement` label
-- Documentation: Use `documentation` label
+---
+
+## Appendix: Future Development
+
+### Potential New Tools
+
+| Tool | Priority | Notes |
+|------|----------|-------|
+| Aider | High | Git-aware, auto-commit, local model support |
+| Continue.dev | High | Community-driven, open source |
+| Amazon Q Developer | Medium | AWS ecosystem |
+| JetBrains AI Assistant | Medium | JetBrains ecosystem |
+| Sourcegraph Cody | Medium | Enterprise features |
+
+### Feature Enhancement Roadmap
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| SKILL.md Standard | Universal Skills format | ✅ Achieved (Dec 2025) |
+| Cross-tool compatibility | Most tools read `.claude/skills/` | ✅ Achieved |
+| Skills marketplace | Publish and discover Skills | ✅ Multiple platforms |
+| Cursor Skills Support | Native SKILL.md support | ⏳ Community requested |
+| CLI auto-detect | Detect installed AI tools | Planned |
 
 ---
 
@@ -220,4 +294,7 @@ UDS currently supports **11 AI Agents/Tools**, categorized by integration depth:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.1.0 | 2026-01-15 | Updated Skills support status for all tools (industry-wide adoption) |
+| 2.0.0 | 2026-01-15 | Major restructure: consolidated content, reduced tables |
+| 1.1.0 | 2026-01-15 | Added Configuration File Matrix, Skills System Configuration |
 | 1.0.0 | 2026-01-14 | Initial release |

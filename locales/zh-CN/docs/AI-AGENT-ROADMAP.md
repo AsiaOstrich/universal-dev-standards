@@ -1,226 +1,292 @@
----
-source: ../../../docs/AI-AGENT-ROADMAP.md
-source_version: 1.0.0
-translation_version: 1.0.0
-status: current
-last_updated: 2026-01-14
----
+# AI Agent 集成指南
 
-# AI Agent 集成规划
+> **语言**: [English](../../../docs/AI-AGENT-ROADMAP.md) | [繁體中文](../../zh-TW/docs/AI-AGENT-ROADMAP.md) | 简体中文
 
-> **Language**: [English](../../../docs/AI-AGENT-ROADMAP.md) | [简体中文](../../zh-TW/docs/AI-AGENT-ROADMAP.md) | 简体中文
+**版本**: 2.0.0
+**最后更新**: 2026-01-15
 
-**版本**: 1.0.0
-**最后更新**: 2026-01-14
-
-本文档记录 Universal Development Standards (UDS) 目前支持的 AI Agent 状态及未来发展规划。
+本文档提供 Universal Development Standards (UDS) 对 AI Agent 支持的完整参考。
 
 ---
 
 ## 目录
 
-1. [目前支持状态](#1-目前支持状态)
-2. [集成深度分类](#2-集成深度分类)
-3. [Skills 兼容性矩阵](#3-skills-兼容性矩阵)
-4. [Skills 存放位置](#4-skills-存放位置)
-5. [未来发展方向](#5-未来发展方向)
-6. [社区资源](#6-社区资源)
-7. [贡献指南](#7-贡献指南)
+1. [快速参考](#1-快速参考)
+2. [集成深度](#2-集成深度)
+3. [Skills 系统](#3-skills-系统)
+4. [配置参考](#4-配置参考)
+5. [资源](#5-资源)
+6. [附录：未来发展](#附录未来发展)
 
 ---
 
-## 1. 目前支持状态
+## 1. 快速参考
 
-UDS 目前支持 **11 个 AI Agent/工具**，按集成深度分类：
+### 配置文件
 
-| 等级 | AI Agent | 集成类型 | 目录位置 | 状态 | 平台测试 |
-|------|----------|---------|---------|------|----------|
-| **Level 1** | Claude Code | 18 个原生 Skills | `skills/claude-code/` | ✅ 完整 | macOS ✅ |
-| **Level 1** | OpenCode | Skills + AGENTS.md | `integrations/opencode/` | ✅ 完整 | macOS 🧪 |
-| **Level 2** | Cursor | 可读取 `.claude/skills/` | `skills/cursor/`, `integrations/cursor/` | ✅ 完整 | - |
-| **Level 2** | GitHub Copilot | 部分 Skills 支持 | `skills/copilot/`, `integrations/github-copilot/` | ✅ 完整 | macOS 🧪 |
-| **Level 3** | Windsurf | .windsurfrules | `skills/windsurf/`, `integrations/windsurf/` | ✅ 完整 | - |
-| **Level 3** | Cline | .clinerules | `skills/cline/`, `integrations/cline/` | ✅ 完整 | - |
-| **Level 4** | OpenAI Codex | AGENTS.md | `integrations/codex/` | ✅ 完整 | - |
-| **Level 4** | OpenSpec | AGENTS.md | `integrations/openspec/` | ✅ 完整 | - |
-| **Level 4** | Spec Kit | AGENTS.md | `integrations/spec-kit/` | ✅ 完整 | - |
-| **Level 5** | Google Gemini CLI | GEMINI.md | `integrations/gemini-cli/` | ✅ 完整 | - |
-| **Level 5** | Google Antigravity | rules.md | `integrations/google-antigravity/` | ✅ 完整 | - |
+| AI Agent | 项目配置 | 全局配置 | 备注 |
+|----------|----------|----------|------|
+| Claude Code | `.claude/CLAUDE.md` | `~/.claude/CLAUDE.md` | ~100KB 限制 |
+| OpenCode | `.opencode/AGENTS.md` | `~/.config/opencode/AGENTS.md` | 无限制 |
+| GitHub Copilot | `.github/copilot-instructions.md` | 个人设置 | ~8KB 限制 |
+| Cline | `.clinerules/` | `~/.cline-rules/` | 文件夹或单一文件 |
+| Roo Code | `.roo/rules/*.md` | `~/.roo/rules/` | 模式特定：`.roo/rules-{mode}/` |
+| OpenAI Codex | `.codex/AGENTS.md` | `~/.codex/AGENTS.md` | 32KB 限制 |
+| Windsurf | `.windsurfrules` | 设置 UI | 6K/文件，总计 12K |
+| Gemini CLI | `.gemini/GEMINI.md` | `~/.gemini/GEMINI.md` | 支持 `@import` |
+| Cursor | `.cursor/rules/*.mdc` | `~/.cursor/rules/` | 需要 YAML frontmatter |
 
-### 平台支持状态
+### Skills 路径
 
-| 平台 | CLI 工具 | Skills | 备注 |
-|------|----------|--------|------|
-| **macOS** | ✅ 已测试 | ✅ 已测试 | 主要开发平台 |
-| **Linux** | ⚠️ 未测试 | ⚠️ 未测试 | 预期可运行（基于 Node.js） |
-| **Windows** | ⚠️ 未测试 | ⚠️ 未测试 | 提供 PowerShell 脚本 |
+| AI Agent | Skills | 项目路径 | 全局路径 | 备注 |
+|----------|:------:|----------|----------|------|
+| Claude Code | ✅ 原生 | `.claude/skills/` | `~/.claude/skills/` | 参考实现 |
+| OpenCode | ✅ 完整 | `.opencode/skill/` | `~/.config/opencode/skill/` | 也读取 `.claude/skills/` |
+| GitHub Copilot | ✅ 完整 | `.github/skills/` | `~/.copilot/skills/` | 旧版：`.claude/skills/` |
+| Cline | ✅ 完整 | `.claude/skills/` | `~/.claude/skills/` | 直接使用 Claude 路径 |
+| Roo Code | ✅ 完整 | `.roo/skills/` | `~/.roo/skills/` | 模式特定：`.roo/skills-{mode}/` |
+| OpenAI Codex | ✅ 完整 | `.codex/skills/` | `~/.codex/skills/` | 也读取 `.claude/skills/` |
+| Windsurf | ✅ 完整 | `.windsurf/rules/` | 设置 UI | 2026/01 起支持 Skills |
+| Gemini CLI | ✅ 预览 | `.gemini/skills/` | `~/.gemini/skills/` | v0.23+ 预览版 |
+| Cursor | ❌ 否 | `.cursor/rules/` | `~/.cursor/rules/` | 仅 Rules，不支持 SKILL.md |
 
-**图例**: ✅ 已测试 | 🧪 测试中 | ⚠️ 未测试 | - 不适用
+### 斜杠命令
 
----
+| AI Agent | 支持 | 类型 | 示例 | 自定义路径 |
+|----------|:----:|------|------|------------|
+| Claude Code | ✅ | Skill 触发 | `/commit`, `/review`, `/tdd` | 仅内建 |
+| OpenCode | ✅ | 用户定义 | 可配置 | `.opencode/command/*.md` |
+| GitHub Copilot | ✅ | 内建 | `/fix`, `/tests`, `/explain` | `.github/prompts/*.prompt.md` |
+| Cline | ✅ | 内建 + Workflows | `/smol`, `/plan`, `/newtask` | Workflow 文件 |
+| Roo Code | ✅ | 模式命令 | `/code`, `/architect`, `/init` | `.roo/commands/*.md` |
+| OpenAI Codex | ✅ | 系统命令 | `/model`, `/diff`, `/skills` | 自定义 prompts |
+| Windsurf | ✅ | Rulebook | 自动生成 | 从 `.windsurfrules` |
+| Gemini CLI | ✅ | 系统 + 自定义 | `/clear`, `/memory`, `/mcp` | `.gemini/commands/*.toml` |
+| Cursor | ✅ | 内建 + 自定义 | `/summarize`, `/models` | `.cursor/commands/*.md` |
 
-## 2. 集成深度分类
+### 平台支持
 
-### Level 1: 原生 Skills 支持
-- **完整 Skills 兼容性**：可直接使用全部 18 个 Claude Code Skills
-- **斜杠命令支持**：支持 `/commit`、`/review`、`/tdd` 等命令
-- **自动触发**：关键字自动调用相关 Skills
-- **工具**：Claude Code、OpenCode
-
-### Level 2: Skills 兼容
-- **可读取 Skills**：能读取 `.claude/skills/` 目录
-- **有限斜杠命令**：部分工具不支持所有命令
-- **需手动调用**：某些功能需要明确调用
-- **工具**：Cursor、GitHub Copilot
-
-### Level 3: 规则文件格式
-- **专用规则文件**：使用工具特定的格式
-- **静态规则**：规则在启动时加载，无动态 Skills
-- **跨工具生成**：UDS CLI 可为这些工具生成规则文件
-- **工具**：Windsurf (.windsurfrules)、Cline (.clinerules)
-
-### Level 4: 代理规则
-- **AGENTS.md 格式**：遵循 OpenAI Codex 代理规范
-- **SDD 工具支持**：包含 Spec-Driven Development 工具
-- **静态配置**：规则定义在 markdown 文件中
-- **工具**：OpenAI Codex、OpenSpec、Spec Kit
-
-### Level 5: 指令文件
-- **自定义格式**：每个工具有自己的指令格式
-- **基础集成**：提供核心开发标准
-- **功能有限**：无 Skills 或斜杠命令支持
-- **工具**：Google Gemini CLI (GEMINI.md)、Google Antigravity (rules.md)
+| 平台 | CLI 工具 | Skills |
+|------|:--------:|:------:|
+| macOS | 已测试 | 已测试 |
+| Linux | 预期可用 | 预期可用 |
+| Windows | 提供 PowerShell | 预期可用 |
 
 ---
 
-## 3. Skills 兼容性矩阵
+## 2. 集成深度
 
-### 18 个 Claude Code Skills
+> **说明**: 截至 2026 年 1 月，Agent Skills (SKILL.md) 已成为业界标准。大多数主流 AI 代码工具现在都支持相同的 Skills 格式。
+
+### 原生 Skills（参考实现）
+
+**工具**: Claude Code
+
+- Agent Skills 标准的参考实现
+- 18 个内建 UDS Skills + Marketplace
+- 完整斜杠命令支持（`/commit`、`/review`、`/tdd` 等）
+- 关键字自动触发
+
+### 完整 Skills 支持
+
+**工具**: OpenCode, GitHub Copilot, Cline, Roo Code, OpenAI Codex, Windsurf, Gemini CLI
+
+- 可读取并执行 SKILL.md 文件
+- 跨平台兼容 `.claude/skills/` 目录
+- 大多数工具也有自己的原生路径（见 Skills 路径栏）
+
+### 仅 Rules（无 Skills）
+
+**工具**: Cursor
+
+- 有自己的规则格式（`.cursor/rules/*.mdc`）
+- 尚未支持 SKILL.md 格式
+- 社区已提出功能请求
+
+---
+
+## 3. Skills 系统
+
+### 3.1 UDS Skills 兼容性
 
 | # | Skill | 斜杠命令 | Claude | OpenCode | Cursor | Copilot |
-|---|-------|---------|--------|----------|--------|---------|
-| 1 | ai-collaboration-standards | - | ✅ | ✅ | ✅ | ✅ |
-| 2 | checkin-assistant | `/check` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 3 | commit-standards | `/commit` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 4 | code-review-assistant | `/review` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 5 | testing-guide | - | ✅ | ✅ | ✅ | ✅ |
-| 6 | tdd-assistant | `/tdd` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 7 | release-standards | `/release` | ✅ | ✅ | ⚠️ | ❌ |
-| 8 | git-workflow-guide | - | ✅ | ✅ | ✅ | ✅ |
-| 9 | documentation-guide | `/docs` | ✅ | ✅ | ⚠️ | ❌ |
-| 10 | requirement-assistant | `/requirement` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 11 | changelog-guide | `/changelog` | ✅ | ✅ | ⚠️ | ❌ |
-| 12 | spec-driven-dev | `/spec` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 13 | test-coverage-assistant | `/coverage` | ✅ | ✅ | ⚠️ | ⚠️ |
-| 14 | refactoring-assistant | - | ✅ | ✅ | ✅ | ✅ |
-| 15 | error-code-guide | - | ✅ | ✅ | ✅ | ✅ |
-| 16 | methodology-system | `/methodology` | ✅ | ✅ | ⚠️ | ❌ |
-| 17 | project-structure-guide | `/config` | ✅ | ✅ | ⚠️ | ❌ |
-| 18 | logging-guide | - | ✅ | ✅ | ✅ | ✅ |
+|---|-------|----------|:------:|:--------:|:------:|:-------:|
+| 1 | ai-collaboration-standards | - | 完整 | 完整 | 完整 | 完整 |
+| 2 | checkin-assistant | `/check` | 完整 | 完整 | 部分 | 部分 |
+| 3 | commit-standards | `/commit` | 完整 | 完整 | 部分 | 部分 |
+| 4 | code-review-assistant | `/review` | 完整 | 完整 | 部分 | 部分 |
+| 5 | testing-guide | - | 完整 | 完整 | 完整 | 完整 |
+| 6 | tdd-assistant | `/tdd` | 完整 | 完整 | 部分 | 部分 |
+| 7 | release-standards | `/release` | 完整 | 完整 | 部分 | 无 |
+| 8 | git-workflow-guide | - | 完整 | 完整 | 完整 | 完整 |
+| 9 | documentation-guide | `/docs` | 完整 | 完整 | 部分 | 无 |
+| 10 | requirement-assistant | `/requirement` | 完整 | 完整 | 部分 | 部分 |
+| 11 | changelog-guide | `/changelog` | 完整 | 完整 | 部分 | 无 |
+| 12 | spec-driven-dev | `/spec` | 完整 | 完整 | 部分 | 部分 |
+| 13 | test-coverage-assistant | `/coverage` | 完整 | 完整 | 部分 | 部分 |
+| 14 | refactoring-assistant | - | 完整 | 完整 | 完整 | 完整 |
+| 15 | error-code-guide | - | 完整 | 完整 | 完整 | 完整 |
+| 16 | methodology-system | `/methodology` | 完整 | 完整 | 部分 | 无 |
+| 17 | project-structure-guide | `/config` | 完整 | 完整 | 部分 | 无 |
+| 18 | logging-guide | - | 完整 | 完整 | 完整 | 完整 |
 
-**图例**：✅ 完整支持 | ⚠️ 部分/手动 | ❌ 不支持
+### 3.2 Skills 路径与启用
 
----
+#### Skills 发现路径
 
-## 4. Skills 存放位置
+| AI Agent | 项目路径 | 全局路径 | 读取 `.claude/skills/` |
+|----------|----------|----------|:----------------------:|
+| Claude Code | `.claude/skills/` | `~/.claude/skills/` | 原生 |
+| OpenCode | `.opencode/skill/` | `~/.config/opencode/skill/` | ✅ 是 |
+| GitHub Copilot | `.github/skills/` | `~/.copilot/skills/` | ✅ 是（旧版） |
+| Cline | `.claude/skills/` | `~/.claude/skills/` | ✅ 是 |
+| Roo Code | `.roo/skills/` | `~/.roo/skills/` | ✅ 是 |
+| OpenAI Codex | `.codex/skills/` | `~/.codex/skills/` | ✅ 是 |
+| Windsurf | `.windsurf/rules/` | 设置 UI | ✅ 是 |
+| Gemini CLI | `.gemini/skills/` | `~/.gemini/skills/` | ✅ 是 |
+| Cursor | `.cursor/rules/` | `~/.cursor/rules/` | ❌ 否 |
 
-### 项目级路径
+#### 启用方式
 
-| AI Agent | 主要路径 | 备用路径 | Claude 兼容 |
-|----------|---------|---------|------------|
-| Claude Code | `.claude/skills/` | - | ✅ 原生 |
-| OpenCode | `.opencode/skill/` | `.claude/skills/` | ✅ 支持 |
-| Cursor | `.cursor/skills/` | `.claude/skills/` | ✅ 支持 |
-| GitHub Copilot | `.github/skills/` | `.claude/skills/` (Legacy) | ✅ 支持 |
-| OpenAI Codex | `.codex/skills/` | - | ❌ 独立 |
-| Windsurf | `.windsurf/skills/` | - | ❌ 独立 |
-| Cline | `.cline/skills/` | - | ❌ 独立 |
+| AI Agent | 启用方式 |
+|----------|----------|
+| Claude Code | 斜杠命令、自动触发、提及 |
+| OpenCode | 斜杠命令、Tab 切换 |
+| GitHub Copilot | 自动加载、`applyTo` 模式 |
+| Cline | 自动从目录加载 |
+| Roo Code | 自动加载、模式特定（`.roo/skills-{mode}/`） |
+| OpenAI Codex | `/skills` 命令、自动触发 |
+| Windsurf | 手动（@提及）、始终开启、模型决定 |
+| Gemini CLI | 自动触发、通过设置启用/禁用 |
+| Cursor | Glob 模式、`alwaysApply` 标志（仅 rules） |
 
-### 用户级路径
+**建议**：使用 `.claude/skills/` 作为默认安装路径 — 大多数工具都可读取以获得跨工具兼容性。
 
-| AI Agent | 用户路径 |
-|----------|-----------|
-| Claude Code | `~/.claude/skills/` |
-| OpenCode | `~/.config/opencode/skill/` |
-| Cursor | `~/.cursor/skills/` |
-| GitHub Copilot | `~/.copilot/skills/` |
-| OpenAI Codex | `~/.codex/skills/` |
-| Windsurf | `~/.codeium/windsurf/skills/` |
-| Cline | `~/.cline/skills/` |
+### 3.3 跨平台可移植性
 
-### 建议
+> **业界标准**: 截至 2025 年 12 月，SKILL.md 已被 OpenAI、GitHub、Google 及更广泛的 AI 代码生态系统采用。
 
-**使用 `.claude/skills/` 作为默认安装路径**，以获得最大的跨工具兼容性。大多数 Skills 兼容工具都支持从此位置读取。
+| 平台 | SKILL.md 支持 | 采用日期 |
+|------|:-------------:|----------|
+| Claude Code | ✅ 原生 | 2025/10 |
+| OpenCode | ✅ 完整 | 2025/11 |
+| GitHub Copilot | ✅ 完整 | 2025/12/18 |
+| OpenAI Codex | ✅ 完整 | 2025/12 |
+| Cline | ✅ 完整 | v3.48.0 |
+| Roo Code | ✅ 完整 | 2025/12/27 |
+| Windsurf | ✅ 完整 | 2026/01/09 |
+| Gemini CLI | ✅ 预览版 | 2026/01/07 |
+| Cursor | ❌ 尚未 | 已请求 |
 
----
-
-## 5. 未来发展方向
-
-### 5.1 潜在新增工具
-
-| 工具 | 类型 | 优先级 | 备注 |
-|------|------|--------|------|
-| Amazon Q Developer | IDE 插件 | 中 | AWS 生态系统集成 |
-| JetBrains AI Assistant | IDE 插件 | 中 | JetBrains 生态系统 |
-| Tabnine | 代码补全 | 低 | 隐私优先选项 |
-| Sourcegraph Cody | 代码搜索 + AI | 中 | 企业功能 |
-| Continue.dev | 开源 | 高 | 社区驱动，开放 |
-
-### 5.2 功能增强规划
-
-| 功能 | 描述 | 目标工具 |
-|------|------|---------|
-| Skills v2 格式 | 增强的 metadata、依赖性 | 所有 Level 1-2 |
-| 跨工具同步 | 自动生成规则文件 | Level 3-5 |
-| CLI 自动检测 | 检测已安装的 AI 工具 | 全部 |
-| Skills 市场 | 发布和发现 Skills | Level 1-2 |
-
-### 5.3 集成改进
-
-- **Windsurf/Cline**：探索采用 Skills 格式
-- **Copilot**：更深入的 Chat 集成
-- **Codex**：监控 Skills 支持
-- **OpenCode**：持续作为参考实现
+**跨平台安装器**:
+- [skilz](https://github.com/skilz-ai/skilz) - 通用 Skills 安装器（14+ 平台）
+- [openskills](https://github.com/numman-ali/openskills) - 通用 skills 加载器
+- UDS CLI (`uds init`) - 为多个 AI 工具生成配置
 
 ---
 
-## 6. 社区资源
+## 4. 配置参考
 
-### Skills 市场
+### 4.1 配置文件
 
-| 平台 | 网址 | 支持工具 |
-|------|------|---------|
-| n-skills | https://github.com/numman-ali/n-skills | Claude、Cursor、Windsurf、Cline、OpenCode、Codex |
-| claude-plugins.dev | https://claude-plugins.dev/skills | Claude、Cursor、OpenCode、Codex |
-| agentskills.io | https://agentskills.io | 所有 Skills 兼容工具 |
+| AI Agent | 项目配置 | 全局配置 | 字符限制 |
+|----------|----------|----------|----------|
+| Claude Code | `CLAUDE.md` | `~/.claude/CLAUDE.md` | ~100KB |
+| OpenCode | `AGENTS.md` | `~/.config/opencode/AGENTS.md` | 无限制 |
+| Cursor | `.cursor/rules/*.mdc` | `~/.cursor/rules/` | 每文件不同 |
+| Windsurf | `.windsurfrules` | 设置 UI | 6K/文件，总计 12K |
+| Cline | `.clinerules` | `~/.cline-rules/` | 无限制 |
+| Roo Code | `.roorules` | `~/.roo/rules/` | 无限制 |
+| GitHub Copilot | `.github/copilot-instructions.md` | 个人设置 | ~8KB |
+| OpenAI Codex | `AGENTS.md` | `~/.codex/AGENTS.md` | 32KB |
+| Gemini CLI | `GEMINI.md` | `~/.gemini/GEMINI.md` | 1M tokens |
+
+### 4.2 配置合并行为
+
+| AI Agent | 合并策略 | 优先顺序（高到低） |
+|----------|----------|-------------------|
+| Claude Code | 串接 | 目录范围 > 项目 > 个人 |
+| OpenCode | 串接 | 项目 > 全局 |
+| Cursor | 替换/选择性 | `.mdc` 按 glob，alwaysApply 标志 |
+| Windsurf | 达限制时截断 | 全局 > 工作区 > 模式特定 |
+| Cline | 附加 | 项目目录 > 根文件 |
+| GitHub Copilot | 组合 | 个人 > 仓库 > 组织 |
+| OpenAI Codex | 串接 | 覆盖文件 > 基础，较近者优先 |
+| Gemini CLI | 串接 | 所有文件支持 `@import` |
+
+### 4.3 Skills 文件格式
+
+> **标准格式**: 带有 YAML frontmatter 的 SKILL.md 是大多数工具支持的通用格式。
+
+| AI Agent | Skills 格式 | 配置格式 | Frontmatter |
+|----------|:-----------:|----------|-------------|
+| Claude Code | ✅ SKILL.md | `CLAUDE.md` | YAML (`---`) |
+| OpenCode | ✅ SKILL.md | `AGENTS.md` | YAML |
+| GitHub Copilot | ✅ SKILL.md | `copilot-instructions.md` | YAML |
+| Cline | ✅ SKILL.md | `.clinerules/` | YAML |
+| Roo Code | ✅ SKILL.md | `.roo/rules/` | YAML |
+| OpenAI Codex | ✅ SKILL.md | `AGENTS.md` | YAML |
+| Windsurf | ✅ SKILL.md | `.windsurfrules` | YAML |
+| Gemini CLI | ✅ SKILL.md | `GEMINI.md` | YAML |
+| Cursor | ❌ `.mdc` | `.cursor/rules/` | YAML (globs, alwaysApply) |
+
+---
+
+## 5. 资源
 
 ### 官方文档
 
 | 工具 | 文档 |
 |------|------|
-| Claude Code | https://docs.anthropic.com/claude-code |
-| OpenCode | https://opencode.ai/docs |
-| Cursor | https://docs.cursor.com |
-| GitHub Copilot | https://docs.github.com/copilot |
+| Claude Code | [docs.anthropic.com/claude-code](https://docs.anthropic.com/claude-code) |
+| OpenCode | [opencode.ai/docs](https://opencode.ai/docs) |
+| Cursor | [docs.cursor.com](https://docs.cursor.com) |
+| GitHub Copilot | [docs.github.com/copilot](https://docs.github.com/copilot) |
+| Windsurf | [docs.windsurf.com](https://docs.windsurf.com/) |
+| OpenAI Codex | [developers.openai.com/codex](https://developers.openai.com/codex/guides/agents-md/) |
+| Gemini CLI | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
+
+### Skills 市场
+
+| 平台 | URL |
+|------|-----|
+| n-skills | [github.com/numman-ali/n-skills](https://github.com/numman-ali/n-skills) |
+| claude-plugins.dev | [claude-plugins.dev/skills](https://claude-plugins.dev/skills) |
+| agentskills.io | [agentskills.io](https://agentskills.io) |
+
+### 贡献指南
+
+1. 研究工具的配置格式
+2. 在 `integrations/<tool-name>/` 下创建集成目录
+3. 添加包含设置说明的 README.md
+4. 更新本文档
+5. 按照 [CONTRIBUTING.md](../../../CONTRIBUTING.md) 提交 PR
+
+**问题反馈**: [GitHub Issues](https://github.com/anthropics-tw/universal-dev-standards/issues)
 
 ---
 
-## 7. 贡献指南
+## 附录：未来发展
 
-### 新增 AI 工具支持
+### 潜在新工具
 
-1. 研究该工具的配置格式
-2. 在 `integrations/<tool-name>/` 下创建集成目录
-3. 新增 README.md 说明设置步骤
-4. 若为 Skills 兼容，新增 skills-mapping.md
-5. 更新本规划文档
-6. 按照 [CONTRIBUTING.md](../../../CONTRIBUTING.md) 提交 PR
+| 工具 | 优先度 | 备注 |
+|------|--------|------|
+| Aider | 高 | Git 感知、自动提交、本地模型支持 |
+| Continue.dev | 高 | 社区驱动、开源 |
+| Amazon Q Developer | 中 | AWS 生态系统 |
+| JetBrains AI Assistant | 中 | JetBrains 生态系统 |
+| Sourcegraph Cody | 中 | 企业功能 |
 
-### 报告问题
+### 功能增强路线图
 
-- 集成问题：[GitHub Issues](https://github.com/anthropics-tw/universal-dev-standards/issues)
-- 功能请求：使用 `enhancement` 标签
-- 文档问题：使用 `documentation` 标签
+| 功能 | 描述 | 状态 |
+|------|------|------|
+| SKILL.md 标准 | 通用 Skills 格式 | ✅ 已达成 (2025/12) |
+| 跨工具兼容性 | 大多数工具可读取 `.claude/skills/` | ✅ 已达成 |
+| Skills 市场 | 发布和发现 Skills | ✅ 多个平台 |
+| Cursor Skills 支持 | 原生 SKILL.md 支持 | ⏳ 社区已请求 |
+| CLI 自动检测 | 检测已安装的 AI 工具 | 计划中 |
 
 ---
 
@@ -228,4 +294,7 @@ UDS 目前支持 **11 个 AI Agent/工具**，按集成深度分类：
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| 1.0.0 | 2026-01-14 | 初始版本 |
+| 2.1.0 | 2026-01-15 | 更新所有工具的 Skills 支持状态（业界广泛采用） |
+| 2.0.0 | 2026-01-15 | 重大重构：整合内容、减少表格 |
+| 1.1.0 | 2026-01-15 | 新增配置文件矩阵、Skills 系统配置 |
+| 1.0.0 | 2026-01-14 | 初始发布 |
