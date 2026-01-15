@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.24] - 2026-01-15
+
 ### Changed
 - **CLI**: Improve all interactive prompt descriptions for better UX
   - `promptContentMode`: Explain how each mode affects AI Agent execution behavior
