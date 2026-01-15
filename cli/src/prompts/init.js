@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
+import { t } from '../i18n/messages.js';
 
 /**
  * Prompt for AI tools being used
@@ -266,24 +267,26 @@ export async function promptStandardsScope(hasSkills) {
     return 'full';
   }
 
+  const msg = t().scope;
+
   console.log();
-  console.log(chalk.cyan('Standards Installation:'));
-  console.log(chalk.gray('  選擇要安裝多少標準檔案到專案中'));
-  console.log(chalk.gray('  （已安裝 Skills，可選擇精簡安裝）'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${msg.description2}`));
   console.log();
 
   const { scope } = await inquirer.prompt([
     {
       type: 'list',
       name: 'scope',
-      message: '選擇安裝範圍 / Select installation scope:',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.green('Lean')} ${chalk.gray('(推薦)')} - 只裝參考文件，Skills 即時提供任務導向指引`,
+          name: `${chalk.green('Lean')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.minimal}`,
           value: 'minimal'
         },
         {
-          name: `${chalk.blue('Complete')} - 安裝全部標準檔案，不依賴 Skills`,
+          name: `${chalk.blue('Complete')} - ${msg.choices.full}`,
           value: 'full'
         }
       ],
@@ -293,12 +296,8 @@ export async function promptStandardsScope(hasSkills) {
 
   // Show scope implications
   console.log();
-  if (scope === 'minimal') {
-    console.log(chalk.gray('  → .standards/ 只包含參考文件（約 6 個檔案）'));
-    console.log(chalk.gray('  → Skills 會在你執行任務時提供即時指引'));
-  } else {
-    console.log(chalk.gray('  → .standards/ 包含全部標準（約 16 個檔案）'));
-    console.log(chalk.gray('  → 即使 Skills 不可用也能查閱完整規範'));
+  for (const line of msg.explanations[scope]) {
+    console.log(chalk.gray(line));
   }
   console.log();
 
@@ -316,27 +315,29 @@ export async function promptStandardsScope(hasSkills) {
  * @returns {Promise<string>} 'ai', 'human', or 'both'
  */
 export async function promptFormat() {
+  const msg = t().format;
+
   console.log();
-  console.log(chalk.cyan('Standards Format:'));
-  console.log(chalk.gray('  選擇標準檔案的格式，影響 AI 讀取效率和人類可讀性'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const { format } = await inquirer.prompt([
     {
       type: 'list',
       name: 'format',
-      message: '選擇標準格式 / Select standards format:',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.green('Compact')} ${chalk.gray('(推薦)')} - YAML 格式，token 少，AI 解析快`,
+          name: `${chalk.green('Compact')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.ai}`,
           value: 'ai'
         },
         {
-          name: `${chalk.blue('Detailed')} - 完整 Markdown，含範例說明，適合團隊學習`,
+          name: `${chalk.blue('Detailed')} - ${msg.choices.human}`,
           value: 'human'
         },
         {
-          name: `${chalk.yellow('Both')} ${chalk.gray('(進階)')} - 兩種都裝，AI 用 YAML，人用 Markdown`,
+          name: `${chalk.yellow('Both')} ${chalk.gray(`(${t().advanced})`)} - ${msg.choices.both}`,
           value: 'both'
         }
       ],
@@ -346,12 +347,7 @@ export async function promptFormat() {
 
   // Show format implications
   console.log();
-  const formatDetails = {
-    ai: '  → 檔案較小（約 50% token），AI 處理效率高',
-    human: '  → 包含完整範例和說明，適合新成員學習規範',
-    both: '  → 檔案數量加倍，但兼顧 AI 效率和人類可讀性'
-  };
-  console.log(chalk.gray(formatDetails[format]));
+  console.log(chalk.gray(msg.explanations[format]));
   console.log();
 
   return format;
@@ -368,27 +364,29 @@ export async function promptFormat() {
  * @returns {Promise<string>} Selected workflow ID
  */
 export async function promptGitWorkflow() {
+  const msg = t().gitWorkflow;
+
   console.log();
-  console.log(chalk.cyan('Git Workflow:'));
-  console.log(chalk.gray('  選擇分支策略，影響團隊協作和發布流程'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const { workflow } = await inquirer.prompt([
     {
       type: 'list',
       name: 'workflow',
-      message: '選擇 Git 分支策略 / Select Git branching strategy:',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.green('GitHub Flow')} ${chalk.gray('(推薦)')} - 簡單 PR 流程，適合持續部署`,
+          name: `${chalk.green('GitHub Flow')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices['github-flow']}`,
           value: 'github-flow'
         },
         {
-          name: `${chalk.blue('GitFlow')} - develop/release 分支，適合定期發布`,
+          name: `${chalk.blue('GitFlow')} - ${msg.choices.gitflow}`,
           value: 'gitflow'
         },
         {
-          name: `${chalk.yellow('Trunk-Based')} - 直接提交 main + feature flags，適合成熟 CI/CD`,
+          name: `${chalk.yellow('Trunk-Based')} - ${msg.choices['trunk-based']}`,
           value: 'trunk-based'
         }
       ],
@@ -398,21 +396,7 @@ export async function promptGitWorkflow() {
 
   // Show workflow details
   console.log();
-  const workflowDetails = {
-    'github-flow': [
-      '  → main + feature branches，透過 PR 合併',
-      '  → 適合：小團隊、持續部署、Web 應用'
-    ],
-    gitflow: [
-      '  → main + develop + feature/release/hotfix branches',
-      '  → 適合：大型專案、排程發布、需要多版本維護'
-    ],
-    'trunk-based': [
-      '  → 主要在 main 開發，用 feature flags 控制功能',
-      '  → 適合：成熟 CI/CD、高頻部署、資深團隊'
-    ]
-  };
-  for (const line of workflowDetails[workflow]) {
+  for (const line of msg.details[workflow]) {
     console.log(chalk.gray(line));
   }
   console.log();
@@ -431,27 +415,29 @@ export async function promptGitWorkflow() {
  * @returns {Promise<string>} Selected merge strategy ID
  */
 export async function promptMergeStrategy() {
+  const msg = t().mergeStrategy;
+
   console.log();
-  console.log(chalk.cyan('Merge Strategy:'));
-  console.log(chalk.gray('  選擇合併策略，影響 Git 歷史紀錄的呈現方式'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const { strategy } = await inquirer.prompt([
     {
       type: 'list',
       name: 'strategy',
-      message: '選擇合併策略 / Select merge strategy:',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.green('Squash Merge')} ${chalk.gray('(推薦)')} - 每個 PR 一個 commit，歷史乾淨`,
+          name: `${chalk.green('Squash Merge')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.squash}`,
           value: 'squash'
         },
         {
-          name: `${chalk.blue('Merge Commit')} - 保留完整分支歷史，建立合併 commit`,
+          name: `${chalk.blue('Merge Commit')} - ${msg.choices['merge-commit']}`,
           value: 'merge-commit'
         },
         {
-          name: `${chalk.yellow('Rebase + Fast-Forward')} - 線性歷史，需要 rebase，進階`,
+          name: `${chalk.yellow('Rebase + Fast-Forward')} ${chalk.gray(`(${t().advanced})`)} - ${msg.choices['rebase-ff']}`,
           value: 'rebase-ff'
         }
       ],
@@ -461,21 +447,7 @@ export async function promptMergeStrategy() {
 
   // Show strategy implications
   console.log();
-  const strategyDetails = {
-    squash: [
-      '  ✓ 歷史乾淨，容易回滾',
-      '  ✗ 遺失分支中的個別 commit 細節'
-    ],
-    'merge-commit': [
-      '  ✓ 保留完整開發歷史，可追溯',
-      '  ✗ 歷史較複雜，有合併分岔'
-    ],
-    'rebase-ff': [
-      '  ✓ 完全線性歷史，最乾淨',
-      '  ✗ 需要團隊熟悉 rebase 操作'
-    ]
-  };
-  for (const line of strategyDetails[strategy]) {
+  for (const line of msg.details[strategy]) {
     console.log(chalk.gray(line));
   }
   console.log();
@@ -531,35 +503,37 @@ export async function promptCommitLanguage() {
  * @returns {Promise<string[]>} Selected test level IDs
  */
 export async function promptTestLevels() {
+  const msg = t().testLevels;
+
   console.log();
-  console.log(chalk.cyan('Test Coverage:'));
-  console.log(chalk.gray('  選擇要包含的測試層級（測試金字塔）'));
-  console.log(chalk.gray('  百分比為建議的覆蓋率比例'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${msg.description2}`));
   console.log();
 
   const { levels } = await inquirer.prompt([
     {
       type: 'checkbox',
       name: 'levels',
-      message: '選擇測試層級 / Select test levels:',
+      message: msg.question,
       choices: [
         {
-          name: `Unit Testing ${chalk.gray('(70%)')} - 測試個別函式，快速回饋`,
+          name: `Unit Testing ${chalk.gray('(70%)')} - ${msg.choices.unit}`,
           value: 'unit-testing',
           checked: true
         },
         {
-          name: `Integration Testing ${chalk.gray('(20%)')} - 測試元件互動、API 呼叫`,
+          name: `Integration Testing ${chalk.gray('(20%)')} - ${msg.choices.integration}`,
           value: 'integration-testing',
           checked: true
         },
         {
-          name: `System Testing ${chalk.gray('(7%)')} - 測試完整系統行為`,
+          name: `System Testing ${chalk.gray('(7%)')} - ${msg.choices.system}`,
           value: 'system-testing',
           checked: false
         },
         {
-          name: `E2E Testing ${chalk.gray('(3%)')} - 測試使用者流程（透過 UI）`,
+          name: `E2E Testing ${chalk.gray('(3%)')} - ${msg.choices.e2e}`,
           value: 'e2e-testing',
           checked: false
         }
@@ -570,11 +544,9 @@ export async function promptTestLevels() {
   // Show test pyramid visualization
   if (levels.length > 0) {
     console.log();
-    console.log(chalk.gray('  測試金字塔 (Test Pyramid):'));
-    console.log(chalk.gray('        /\\         ← E2E (少量，慢)'));
-    console.log(chalk.gray('       /  \\        ← System'));
-    console.log(chalk.gray('      /────\\       ← Integration'));
-    console.log(chalk.gray('     /──────\\      ← Unit (大量，快)'));
+    for (const line of msg.pyramid) {
+      console.log(chalk.gray(line));
+    }
     console.log();
   }
 
@@ -697,27 +669,29 @@ export async function promptSkillsUpgrade(installedVersion, latestVersion) {
  * @returns {Promise<number>} Selected level
  */
 export async function promptLevel() {
+  const msg = t().level;
+
   console.log();
-  console.log(chalk.cyan('Adoption Level:'));
-  console.log(chalk.gray('  選擇要採用的標準數量，等級越高涵蓋越完整'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const { level } = await inquirer.prompt([
     {
       type: 'list',
       name: 'level',
-      message: '選擇採用等級 / Select adoption level:',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.blue('Level 1: Starter')} ${chalk.gray('(基本)')} - 提交規範、反幻覺、簽入檢查等 6 項核心`,
+          name: `${chalk.blue('Level 1: Starter')} - ${msg.choices[1]}`,
           value: 1
         },
         {
-          name: `${chalk.green('Level 2: Professional')} ${chalk.gray('(推薦)')} - 加入測試、Git 流程、錯誤處理共 12 項`,
+          name: `${chalk.green('Level 2: Professional')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices[2]}`,
           value: 2
         },
         {
-          name: `${chalk.yellow('Level 3: Complete')} ${chalk.gray('(完整)')} - 含版本控制、日誌、SDD 全部 16 項`,
+          name: `${chalk.yellow('Level 3: Complete')} - ${msg.choices[3]}`,
           value: 3
         }
       ],
@@ -727,21 +701,7 @@ export async function promptLevel() {
 
   // Show what's included in selected level
   console.log();
-  const levelDetails = {
-    1: [
-      '  包含：commit-message, anti-hallucination, checkin-standards,',
-      '        code-review-checklist, changelog, versioning'
-    ],
-    2: [
-      '  包含 Level 1 全部，加上：',
-      '        testing, git-workflow, error-code, logging, documentation, naming'
-    ],
-    3: [
-      '  包含 Level 1+2 全部，加上：',
-      '        spec-driven-development, test-completeness, api-design, security'
-    ]
-  };
-  for (const line of levelDetails[level]) {
+  for (const line of msg.details[level]) {
     console.log(chalk.gray(line));
   }
   console.log();
@@ -905,28 +865,30 @@ export async function promptConfirm(message) {
  * @returns {Promise<string>} 'full', 'index', or 'minimal'
  */
 export async function promptContentMode() {
+  const msg = t().contentMode;
+
   console.log();
-  console.log(chalk.cyan('Content Mode:'));
-  console.log(chalk.gray('  控制 AI 工具設定檔中嵌入多少規範內容'));
-  console.log(chalk.gray('  這會影響 AI Agent 的執行行為和合規程度'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${msg.description2}`));
   console.log();
 
   const { mode } = await inquirer.prompt([
     {
       type: 'list',
       name: 'mode',
-      message: '選擇內容模式 / Select content mode:',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.green('Standard')} ${chalk.gray('(推薦)')} - 摘要 + 任務對照表，AI 知道何時讀哪個規範`,
+          name: `${chalk.green('Standard')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.index}`,
           value: 'index'
         },
         {
-          name: `${chalk.blue('Full Embed')} - 完整嵌入所有規則，AI 立即可用但檔案較大`,
+          name: `${chalk.blue('Full Embed')} - ${msg.choices.full}`,
           value: 'full'
         },
         {
-          name: `${chalk.gray('Minimal')} - 僅檔案參考，適合搭配 Skills 使用`,
+          name: `${chalk.gray('Minimal')} - ${msg.choices.minimal}`,
           value: 'minimal'
         }
       ],
@@ -936,25 +898,7 @@ export async function promptContentMode() {
 
   // Detailed explanations based on selection
   console.log();
-  const explanations = {
-    index: [
-      '  → 包含規則摘要 + MUST/SHOULD 任務對照表',
-      '  → AI 能判斷「做什麼任務時要讀哪個規範」',
-      '  → 平衡 Context 使用量和合規程度'
-    ],
-    full: [
-      '  → 所有規則直接嵌入設定檔（檔案約 10-15 KB）',
-      '  → AI 無需額外讀檔，合規率最高',
-      '  → 適合短期任務或需要嚴格遵循的專案'
-    ],
-    minimal: [
-      '  → 僅包含 .standards/ 檔案清單',
-      '  → AI 需要主動讀取規範檔案',
-      '  → 適合搭配 Skills（Skills 會提供即時指引）'
-    ]
-  };
-
-  for (const line of explanations[mode]) {
+  for (const line of msg.explanations[mode]) {
     console.log(chalk.gray(line));
   }
   console.log();
@@ -1150,34 +1094,37 @@ export async function promptAdoptionLevel(currentLevel) {
  * @returns {Promise<string>} New content mode
  */
 export async function promptContentModeChange(currentMode) {
+  const msg = t().contentMode;
+  const changeMsg = t().contentModeChange;
+
   const modeLabels = {
-    index: 'Standard（摘要 + 任務對照表）',
-    full: 'Full Embed（完整嵌入）',
-    minimal: 'Minimal（僅檔案參考）'
+    index: 'Standard',
+    full: 'Full Embed',
+    minimal: 'Minimal'
   };
 
   console.log();
-  console.log(chalk.cyan('Content Mode:'));
-  console.log(chalk.gray(`  目前模式: ${modeLabels[currentMode] || currentMode || 'minimal'}`));
-  console.log(chalk.gray('  這會影響 AI Agent 的執行行為和合規程度'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${changeMsg.currentMode} ${modeLabels[currentMode] || currentMode || 'minimal'}`));
+  console.log(chalk.gray(`  ${msg.description2}`));
   console.log();
 
   const { mode } = await inquirer.prompt([
     {
       type: 'list',
       name: 'mode',
-      message: '選擇內容模式 / Select content mode:',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.green('Standard')} ${chalk.gray('(推薦)')} - 摘要 + 任務對照表，AI 知道何時讀哪個規範`,
+          name: `${chalk.green('Standard')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.index}`,
           value: 'index'
         },
         {
-          name: `${chalk.blue('Full Embed')} - 完整嵌入所有規則，AI 立即可用但檔案較大`,
+          name: `${chalk.blue('Full Embed')} - ${msg.choices.full}`,
           value: 'full'
         },
         {
-          name: `${chalk.gray('Minimal')} - 僅檔案參考，適合搭配 Skills 使用`,
+          name: `${chalk.gray('Minimal')} - ${msg.choices.minimal}`,
           value: 'minimal'
         }
       ],
@@ -1187,15 +1134,8 @@ export async function promptContentModeChange(currentMode) {
 
   if (mode !== currentMode) {
     console.log();
-    console.log(chalk.yellow('⚠ 變更 Content Mode 將重新生成所有 AI 工具設定檔'));
-
-    // Show what the new mode does
-    const explanations = {
-      index: '  → AI 會根據任務對照表判斷何時讀取規範',
-      full: '  → 所有規則直接嵌入，AI 合規率最高',
-      minimal: '  → AI 需主動讀取規範，建議搭配 Skills'
-    };
-    console.log(chalk.gray(explanations[mode]));
+    console.log(chalk.yellow(`⚠ ${changeMsg.warning}`));
+    console.log(chalk.gray(changeMsg.explanations[mode]));
   }
 
   return mode;

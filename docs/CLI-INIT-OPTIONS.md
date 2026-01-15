@@ -919,6 +919,7 @@ uds init --experimental
 |------|---------------|-------------|
 | Non-interactive | `-y, --yes` | Skip interactive prompts, use default values |
 | Experimental | `-E, --experimental` | Enable experimental features (methodology selection) |
+| UI Language | `--ui-lang` | UI language for prompts (`en`, `zh-tw`, `auto`) - default: `auto` |
 | Mode (deprecated) | `-m, --mode` | Installation mode (skills, full) - use `--skills-location` instead |
 
 ### Complete CLI Examples
@@ -949,6 +950,12 @@ uds init -y --level 3 --content-mode full
 
 # Traditional Chinese team
 uds init -y --level 2 --commit-lang traditional-chinese --locale zh-tw
+
+# Force English prompts
+uds init --ui-lang en
+
+# Force Traditional Chinese prompts
+uds init --ui-lang zh-tw
 
 # PHP project
 uds init -y --level 2 --lang php --framework fat-free

@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **CLI**: Add i18n support for interactive prompts
+  - New `--ui-lang` option: `en`, `zh-tw`, or `auto` (default)
+  - Auto-detection from system locale (`LANG`, `LC_ALL` environment variables)
+  - All 8 interactive prompts now use i18n messages
+  - Prompts display in user's preferred language
+
 ## [3.5.0-beta.24] - 2026-01-15
 
 ### Changed

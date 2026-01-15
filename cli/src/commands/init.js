@@ -16,6 +16,7 @@ import {
   writeManifest,
   isInitialized
 } from '../utils/copier.js';
+import { setLanguage, detectLanguage } from '../i18n/messages.js';
 import {
   downloadSkillToLocation,
   getInstalledSkillsInfo,
@@ -100,6 +101,14 @@ const EXTENSION_MAPPINGS = {
  */
 export async function initCommand(options) {
   const projectPath = process.cwd();
+
+  // Initialize UI language based on --ui-lang flag or auto-detect
+  const uiLang = options.uiLang || 'auto';
+  if (uiLang === 'auto') {
+    setLanguage(detectLanguage(options.locale));
+  } else {
+    setLanguage(uiLang);
+  }
 
   console.log();
   console.log(chalk.bold('Universal Development Standards - Initialize'));
