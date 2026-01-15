@@ -763,28 +763,44 @@ export async function promptConfirm(message) {
  * Prompt for integration file content mode
  * @returns {Promise<string>} 'full', 'index', or 'minimal'
  */
+/**
+ * Prompt for integration file content mode
+ *
+ * Content Mode determines how much standards content is embedded in AI tool config files
+ * (CLAUDE.md, .cursorrules, etc.) and affects AI Agent execution behavior:
+ *
+ * - minimal: Only file references. AI must read .standards/ files each time.
+ *            Best with Skills (which provide real-time guidance).
+ * - index:   Summary + MUST/SHOULD task mapping. AI knows when to read which file.
+ *            Best balance of context usage and compliance.
+ * - full:    All rules embedded. AI has everything in context immediately.
+ *            Highest compliance but uses more context space.
+ *
+ * @returns {Promise<string>} 'full', 'index', or 'minimal'
+ */
 export async function promptContentMode() {
   console.log();
-  console.log(chalk.cyan('Integration File Size:'));
-  console.log(chalk.gray('  How much content to embed in AI tool config files?'));
+  console.log(chalk.cyan('Content Mode:'));
+  console.log(chalk.gray('  控制 AI 工具設定檔中嵌入多少規範內容'));
+  console.log(chalk.gray('  這會影響 AI Agent 的執行行為和合規程度'));
   console.log();
 
   const { mode } = await inquirer.prompt([
     {
       type: 'list',
       name: 'mode',
-      message: 'Select content level:',
+      message: '選擇內容模式 / Select content mode:',
       choices: [
         {
-          name: `${chalk.green('Standard')} ${chalk.gray('(推薦)')} - Summary + links to full docs`,
+          name: `${chalk.green('Standard')} ${chalk.gray('(推薦)')} - 摘要 + 任務對照表，AI 知道何時讀哪個規範`,
           value: 'index'
         },
         {
-          name: `${chalk.blue('Full Embed')} - All rules in one file (larger)`,
+          name: `${chalk.blue('Full Embed')} - 完整嵌入所有規則，AI 立即可用但檔案較大`,
           value: 'full'
         },
         {
-          name: `${chalk.gray('Minimal')} - Core rules only (smallest)`,
+          name: `${chalk.gray('Minimal')} - 僅檔案參考，適合搭配 Skills 使用`,
           value: 'minimal'
         }
       ],
@@ -792,14 +808,29 @@ export async function promptContentMode() {
     }
   ]);
 
-  // Simplified single-line explanations
+  // Detailed explanations based on selection
   console.log();
   const explanations = {
-    index: '  → AI reads .standards/ files when needed',
-    full: '  → All standards embedded, file may be large',
-    minimal: '  → Only essential rules, may miss some standards'
+    index: [
+      '  → 包含規則摘要 + MUST/SHOULD 任務對照表',
+      '  → AI 能判斷「做什麼任務時要讀哪個規範」',
+      '  → 平衡 Context 使用量和合規程度'
+    ],
+    full: [
+      '  → 所有規則直接嵌入設定檔（檔案約 10-15 KB）',
+      '  → AI 無需額外讀檔，合規率最高',
+      '  → 適合短期任務或需要嚴格遵循的專案'
+    ],
+    minimal: [
+      '  → 僅包含 .standards/ 檔案清單',
+      '  → AI 需要主動讀取規範檔案',
+      '  → 適合搭配 Skills（Skills 會提供即時指引）'
+    ]
   };
-  console.log(chalk.gray(explanations[mode]));
+
+  for (const line of explanations[mode]) {
+    console.log(chalk.gray(line));
+  }
   console.log();
 
   return mode;
@@ -988,32 +1019,39 @@ export async function promptAdoptionLevel(currentLevel) {
 }
 
 /**
- * Prompt for content mode change
+ * Prompt for content mode change (used in uds configure)
  * @param {string} currentMode - Current content mode
  * @returns {Promise<string>} New content mode
  */
 export async function promptContentModeChange(currentMode) {
+  const modeLabels = {
+    index: 'Standard（摘要 + 任務對照表）',
+    full: 'Full Embed（完整嵌入）',
+    minimal: 'Minimal（僅檔案參考）'
+  };
+
   console.log();
-  console.log(chalk.cyan('Integration File Size:'));
-  console.log(chalk.gray(`  Current mode: ${currentMode || 'minimal'}`));
+  console.log(chalk.cyan('Content Mode:'));
+  console.log(chalk.gray(`  目前模式: ${modeLabels[currentMode] || currentMode || 'minimal'}`));
+  console.log(chalk.gray('  這會影響 AI Agent 的執行行為和合規程度'));
   console.log();
 
   const { mode } = await inquirer.prompt([
     {
       type: 'list',
       name: 'mode',
-      message: 'Select content level:',
+      message: '選擇內容模式 / Select content mode:',
       choices: [
         {
-          name: `${chalk.green('Standard')} ${chalk.gray('(推薦)')} - Summary + links to full docs`,
+          name: `${chalk.green('Standard')} ${chalk.gray('(推薦)')} - 摘要 + 任務對照表，AI 知道何時讀哪個規範`,
           value: 'index'
         },
         {
-          name: `${chalk.blue('Full Embed')} - All rules in one file (larger)`,
+          name: `${chalk.blue('Full Embed')} - 完整嵌入所有規則，AI 立即可用但檔案較大`,
           value: 'full'
         },
         {
-          name: `${chalk.gray('Minimal')} - Core rules only (smallest)`,
+          name: `${chalk.gray('Minimal')} - 僅檔案參考，適合搭配 Skills 使用`,
           value: 'minimal'
         }
       ],
@@ -1023,7 +1061,15 @@ export async function promptContentModeChange(currentMode) {
 
   if (mode !== currentMode) {
     console.log();
-    console.log(chalk.yellow('⚠ Changing content mode will regenerate all integration files'));
+    console.log(chalk.yellow('⚠ 變更 Content Mode 將重新生成所有 AI 工具設定檔'));
+
+    // Show what the new mode does
+    const explanations = {
+      index: '  → AI 會根據任務對照表判斷何時讀取規範',
+      full: '  → 所有規則直接嵌入，AI 合規率最高',
+      minimal: '  → AI 需主動讀取規範，建議搭配 Skills'
+    };
+    console.log(chalk.gray(explanations[mode]));
   }
 
   return mode;
