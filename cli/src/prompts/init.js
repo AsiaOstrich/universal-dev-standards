@@ -253,6 +253,11 @@ export async function promptSkillsUpdate(projectInfo, userInfo, latestVersion) {
 
 /**
  * Prompt for standards scope when Skills are installed
+ *
+ * When Skills are installed, users can choose:
+ * - minimal (Lean): Only reference docs, Skills provide real-time task-oriented guidance
+ * - full (Complete): All standards as local files, doesn't rely on Skills
+ *
  * @param {boolean} hasSkills - Whether Skills are installed
  * @returns {Promise<string>} 'full' or 'minimal'
  */
@@ -263,21 +268,22 @@ export async function promptStandardsScope(hasSkills) {
 
   console.log();
   console.log(chalk.cyan('Standards Installation:'));
-  console.log(chalk.gray('  Choose how many standards files to copy'));
+  console.log(chalk.gray('  選擇要安裝多少標準檔案到專案中'));
+  console.log(chalk.gray('  （已安裝 Skills，可選擇精簡安裝）'));
   console.log();
 
   const { scope } = await inquirer.prompt([
     {
       type: 'list',
       name: 'scope',
-      message: 'How should standards be installed?',
+      message: '選擇安裝範圍 / Select installation scope:',
       choices: [
         {
-          name: `${chalk.green('Lean')} ${chalk.gray('(推薦)')} - Reference docs only, Skills handle the rest`,
+          name: `${chalk.green('Lean')} ${chalk.gray('(推薦)')} - 只裝參考文件，Skills 即時提供任務導向指引`,
           value: 'minimal'
         },
         {
-          name: `${chalk.blue('Complete')} - All standards as local files`,
+          name: `${chalk.blue('Complete')} - 安裝全部標準檔案，不依賴 Skills`,
           value: 'full'
         }
       ],
@@ -285,11 +291,15 @@ export async function promptStandardsScope(hasSkills) {
     }
   ]);
 
-  // Simplified post-selection (only 1 line each)
+  // Show scope implications
   console.log();
-  console.log(chalk.gray(scope === 'minimal'
-    ? '  → Skills will provide real-time guidance'
-    : '  → All 16 standards will be copied to .standards/'));
+  if (scope === 'minimal') {
+    console.log(chalk.gray('  → .standards/ 只包含參考文件（約 6 個檔案）'));
+    console.log(chalk.gray('  → Skills 會在你執行任務時提供即時指引'));
+  } else {
+    console.log(chalk.gray('  → .standards/ 包含全部標準（約 16 個檔案）'));
+    console.log(chalk.gray('  → 即使 Skills 不可用也能查閱完整規範'));
+  }
   console.log();
 
   return scope;
@@ -297,30 +307,36 @@ export async function promptStandardsScope(hasSkills) {
 
 /**
  * Prompt for output format (AI or Human-readable)
+ *
+ * Format affects how standards files are structured:
+ * - ai (Compact): YAML format, fewer tokens, faster AI parsing
+ * - human (Detailed): Full Markdown with examples, better for team learning
+ * - both: Install both formats, AI uses YAML, humans use Markdown
+ *
  * @returns {Promise<string>} 'ai', 'human', or 'both'
  */
 export async function promptFormat() {
   console.log();
   console.log(chalk.cyan('Standards Format:'));
-  console.log(chalk.gray('  Choose the file format for your standards'));
+  console.log(chalk.gray('  選擇標準檔案的格式，影響 AI 讀取效率和人類可讀性'));
   console.log();
 
   const { format } = await inquirer.prompt([
     {
       type: 'list',
       name: 'format',
-      message: 'Select standards format:',
+      message: '選擇標準格式 / Select standards format:',
       choices: [
         {
-          name: `${chalk.green('Compact')} ${chalk.gray('(推薦)')} - YAML format, optimized for AI reading`,
+          name: `${chalk.green('Compact')} ${chalk.gray('(推薦)')} - YAML 格式，token 少，AI 解析快`,
           value: 'ai'
         },
         {
-          name: `${chalk.blue('Detailed')} - Full Markdown, best for human reading`,
+          name: `${chalk.blue('Detailed')} - 完整 Markdown，含範例說明，適合團隊學習`,
           value: 'human'
         },
         {
-          name: `${chalk.yellow('Both')} ${chalk.gray('(進階)')} - Include both formats`,
+          name: `${chalk.yellow('Both')} ${chalk.gray('(進階)')} - 兩種都裝，AI 用 YAML，人用 Markdown`,
           value: 'both'
         }
       ],
@@ -328,35 +344,51 @@ export async function promptFormat() {
     }
   ]);
 
+  // Show format implications
+  console.log();
+  const formatDetails = {
+    ai: '  → 檔案較小（約 50% token），AI 處理效率高',
+    human: '  → 包含完整範例和說明，適合新成員學習規範',
+    both: '  → 檔案數量加倍，但兼顧 AI 效率和人類可讀性'
+  };
+  console.log(chalk.gray(formatDetails[format]));
+  console.log();
+
   return format;
 }
 
 /**
  * Prompt for Git workflow strategy
+ *
+ * Git workflows determine branching and release strategies:
+ * - GitHub Flow: Simple, PR-based, good for continuous deployment
+ * - GitFlow: Structured with develop/release branches, for scheduled releases
+ * - Trunk-Based: Direct commits to main with feature flags, for mature CI/CD
+ *
  * @returns {Promise<string>} Selected workflow ID
  */
 export async function promptGitWorkflow() {
   console.log();
   console.log(chalk.cyan('Git Workflow:'));
-  console.log(chalk.gray('  Choose your branching strategy'));
+  console.log(chalk.gray('  選擇分支策略，影響團隊協作和發布流程'));
   console.log();
 
   const { workflow } = await inquirer.prompt([
     {
       type: 'list',
       name: 'workflow',
-      message: 'Select Git branching strategy:',
+      message: '選擇 Git 分支策略 / Select Git branching strategy:',
       choices: [
         {
-          name: `${chalk.green('GitHub Flow')} ${chalk.gray('(推薦)')} - Simple, continuous deployment`,
+          name: `${chalk.green('GitHub Flow')} ${chalk.gray('(推薦)')} - 簡單 PR 流程，適合持續部署`,
           value: 'github-flow'
         },
         {
-          name: `${chalk.blue('GitFlow')} - Structured releases with develop/release branches`,
+          name: `${chalk.blue('GitFlow')} - develop/release 分支，適合定期發布`,
           value: 'gitflow'
         },
         {
-          name: `${chalk.yellow('Trunk-Based')} - Direct commits to main, feature flags`,
+          name: `${chalk.yellow('Trunk-Based')} - 直接提交 main + feature flags，適合成熟 CI/CD`,
           value: 'trunk-based'
         }
       ],
@@ -364,41 +396,89 @@ export async function promptGitWorkflow() {
     }
   ]);
 
+  // Show workflow details
+  console.log();
+  const workflowDetails = {
+    'github-flow': [
+      '  → main + feature branches，透過 PR 合併',
+      '  → 適合：小團隊、持續部署、Web 應用'
+    ],
+    gitflow: [
+      '  → main + develop + feature/release/hotfix branches',
+      '  → 適合：大型專案、排程發布、需要多版本維護'
+    ],
+    'trunk-based': [
+      '  → 主要在 main 開發，用 feature flags 控制功能',
+      '  → 適合：成熟 CI/CD、高頻部署、資深團隊'
+    ]
+  };
+  for (const line of workflowDetails[workflow]) {
+    console.log(chalk.gray(line));
+  }
+  console.log();
+
   return workflow;
 }
 
 /**
  * Prompt for merge strategy
+ *
+ * Merge strategies affect git history:
+ * - Squash: One commit per PR, clean history, loses individual commits
+ * - Merge Commit: Preserves full history, creates merge commit
+ * - Rebase + FF: Linear history, requires rebasing, advanced
+ *
  * @returns {Promise<string>} Selected merge strategy ID
  */
 export async function promptMergeStrategy() {
   console.log();
   console.log(chalk.cyan('Merge Strategy:'));
-  console.log(chalk.gray('  How should branches be merged?'));
+  console.log(chalk.gray('  選擇合併策略，影響 Git 歷史紀錄的呈現方式'));
   console.log();
 
   const { strategy } = await inquirer.prompt([
     {
       type: 'list',
       name: 'strategy',
-      message: 'Select merge strategy:',
+      message: '選擇合併策略 / Select merge strategy:',
       choices: [
         {
-          name: `${chalk.green('Squash Merge')} ${chalk.gray('(推薦)')} - Clean history, one commit per PR`,
+          name: `${chalk.green('Squash Merge')} ${chalk.gray('(推薦)')} - 每個 PR 一個 commit，歷史乾淨`,
           value: 'squash'
         },
         {
-          name: `${chalk.blue('Merge Commit')} - Preserve full branch history`,
+          name: `${chalk.blue('Merge Commit')} - 保留完整分支歷史，建立合併 commit`,
           value: 'merge-commit'
         },
         {
-          name: `${chalk.yellow('Rebase + Fast-Forward')} - Linear history, advanced`,
+          name: `${chalk.yellow('Rebase + Fast-Forward')} - 線性歷史，需要 rebase，進階`,
           value: 'rebase-ff'
         }
       ],
       default: 'squash'
     }
   ]);
+
+  // Show strategy implications
+  console.log();
+  const strategyDetails = {
+    squash: [
+      '  ✓ 歷史乾淨，容易回滾',
+      '  ✗ 遺失分支中的個別 commit 細節'
+    ],
+    'merge-commit': [
+      '  ✓ 保留完整開發歷史，可追溯',
+      '  ✗ 歷史較複雜，有合併分岔'
+    ],
+    'rebase-ff': [
+      '  ✓ 完全線性歷史，最乾淨',
+      '  ✗ 需要團隊熟悉 rebase 操作'
+    ]
+  };
+  for (const line of strategyDetails[strategy]) {
+    console.log(chalk.gray(line));
+  }
+  console.log();
 
   return strategy;
 }
@@ -441,43 +521,62 @@ export async function promptCommitLanguage() {
 
 /**
  * Prompt for test levels to include
+ *
+ * Test pyramid levels with recommended coverage ratios:
+ * - Unit (70%): Test individual functions, fast feedback
+ * - Integration (20%): Test component interactions, API calls
+ * - System (7%): Test full system behavior
+ * - E2E (3%): Test user workflows through UI
+ *
  * @returns {Promise<string[]>} Selected test level IDs
  */
 export async function promptTestLevels() {
   console.log();
   console.log(chalk.cyan('Test Coverage:'));
-  console.log(chalk.gray('  Select the test levels to include'));
+  console.log(chalk.gray('  選擇要包含的測試層級（測試金字塔）'));
+  console.log(chalk.gray('  百分比為建議的覆蓋率比例'));
   console.log();
 
   const { levels } = await inquirer.prompt([
     {
       type: 'checkbox',
       name: 'levels',
-      message: 'Select test levels to include:',
+      message: '選擇測試層級 / Select test levels:',
       choices: [
         {
-          name: `Unit Testing ${chalk.gray('(70% pyramid base)')}`,
+          name: `Unit Testing ${chalk.gray('(70%)')} - 測試個別函式，快速回饋`,
           value: 'unit-testing',
           checked: true
         },
         {
-          name: `Integration Testing ${chalk.gray('(20%)')}`,
+          name: `Integration Testing ${chalk.gray('(20%)')} - 測試元件互動、API 呼叫`,
           value: 'integration-testing',
           checked: true
         },
         {
-          name: `System Testing ${chalk.gray('(7%)')}`,
+          name: `System Testing ${chalk.gray('(7%)')} - 測試完整系統行為`,
           value: 'system-testing',
           checked: false
         },
         {
-          name: `E2E Testing ${chalk.gray('(3% pyramid top)')}`,
+          name: `E2E Testing ${chalk.gray('(3%)')} - 測試使用者流程（透過 UI）`,
           value: 'e2e-testing',
           checked: false
         }
       ]
     }
   ]);
+
+  // Show test pyramid visualization
+  if (levels.length > 0) {
+    console.log();
+    console.log(chalk.gray('  測試金字塔 (Test Pyramid):'));
+    console.log(chalk.gray('        /\\         ← E2E (少量，慢)'));
+    console.log(chalk.gray('       /  \\        ← System'));
+    console.log(chalk.gray('      /────\\       ← Integration'));
+    console.log(chalk.gray('     /──────\\      ← Unit (大量，快)'));
+    console.log();
+  }
 
   return levels;
 }
@@ -589,36 +688,63 @@ export async function promptSkillsUpgrade(installedVersion, latestVersion) {
 
 /**
  * Prompt for adoption level
+ *
+ * Adoption levels determine how many standards are installed:
+ * - Level 1 (Starter): 6 core standards - commit, anti-hallucination, checkin, etc.
+ * - Level 2 (Professional): 12 standards - adds testing, git workflow, error handling
+ * - Level 3 (Complete): All 16 standards - includes versioning, logging, SDD
+ *
  * @returns {Promise<number>} Selected level
  */
 export async function promptLevel() {
   console.log();
   console.log(chalk.cyan('Adoption Level:'));
-  console.log(chalk.gray('  How many standards do you want to adopt?'));
+  console.log(chalk.gray('  選擇要採用的標準數量，等級越高涵蓋越完整'));
   console.log();
 
   const { level } = await inquirer.prompt([
     {
       type: 'list',
       name: 'level',
-      message: 'Select adoption level:',
+      message: '選擇採用等級 / Select adoption level:',
       choices: [
         {
-          name: `${chalk.blue('Level 1: Starter')} ${chalk.gray('(基本)')} - 6 core standards`,
+          name: `${chalk.blue('Level 1: Starter')} ${chalk.gray('(基本)')} - 提交規範、反幻覺、簽入檢查等 6 項核心`,
           value: 1
         },
         {
-          name: `${chalk.green('Level 2: Professional')} ${chalk.gray('(推薦)')} - 12 standards`,
+          name: `${chalk.green('Level 2: Professional')} ${chalk.gray('(推薦)')} - 加入測試、Git 流程、錯誤處理共 12 項`,
           value: 2
         },
         {
-          name: `${chalk.yellow('Level 3: Complete')} ${chalk.gray('(完整)')} - All 16 standards`,
+          name: `${chalk.yellow('Level 3: Complete')} ${chalk.gray('(完整)')} - 含版本控制、日誌、SDD 全部 16 項`,
           value: 3
         }
       ],
       default: 2
     }
   ]);
+
+  // Show what's included in selected level
+  console.log();
+  const levelDetails = {
+    1: [
+      '  包含：commit-message, anti-hallucination, checkin-standards,',
+      '        code-review-checklist, changelog, versioning'
+    ],
+    2: [
+      '  包含 Level 1 全部，加上：',
+      '        testing, git-workflow, error-code, logging, documentation, naming'
+    ],
+    3: [
+      '  包含 Level 1+2 全部，加上：',
+      '        spec-driven-development, test-completeness, api-design, security'
+    ]
+  };
+  for (const line of levelDetails[level]) {
+    console.log(chalk.gray(line));
+  }
+  console.log();
 
   return level;
 }
