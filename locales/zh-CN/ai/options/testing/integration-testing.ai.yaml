@@ -1,0 +1,90 @@
+# 集成测试 (IT/SIT) - AI 优化选项
+# 父项: testing
+
+id: integration-testing
+meta:
+  parent: testing
+  version: "1.1.0"
+  description: 测试元件之间的互动
+  language: zh-CN
+
+abbreviation_note: |
+  集成测试层级有兩种常見的縮写：
+  - IT (Integration Testing)：敏捷/DevOps 社群常用（Martin Fowler、Google）
+  - SIT (System Integration Testing)：企业/ISTQB 環境常用
+  兩者指的是相同的测试概念。
+
+characteristics:
+  scope: 多个元件一起运作
+  speed: "<1 秒每个测试"
+  isolation: 部分隔離（可能使用真实相依性）
+  pyramid_percentage: 20%
+
+rules:
+  - id: test-integration-points
+    trigger: 撰写集成测试时
+    instruction: 專注於元件之间的邊界
+    priority: required
+
+  - id: use-real-dependencies
+    trigger: 设置集成测试时
+    instruction: 盡可能使用真实实作，外部服务使用测试替身
+    priority: recommended
+
+  - id: test-data-management
+    trigger: 设置测试数据时
+    instruction: 使用 fixtures 或 factories，测试後清理
+    priority: required
+
+  - id: database-isolation
+    trigger: 测试数据庫时
+    instruction: 使用测试数据庫，测试之间回滾或清空
+    priority: required
+
+when_to_write:
+  - 测试 API 端点
+  - 测试数据庫操作
+  - 测试服务互动
+  - 测试消息佇列
+  - 测试快取行为
+
+integration_points:
+  - name: 数据庫
+    approach: 使用 Testcontainers 或记忆体数据庫的测试数据庫
+    example: |
+      const db = await TestcontainersDb.start();
+      const repo = new UserRepository(db);
+      await repo.save(user);
+      const found = await repo.findById(user.id);
+      expect(found).toEqual(user);
+
+  - name: HTTP API
+    approach: 使用真实 HTTP 客户端，模擬外部服务
+    example: |
+      const response = await request(app)
+        .post('/api/users')
+        .send({ name: 'Test User' });
+      expect(response.status).toBe(201);
+
+  - name: 消息佇列
+    approach: 使用嵌入式佇列或 Testcontainers
+    example: |
+      await publisher.send('user.created', event);
+      const received = await consumer.receive();
+      expect(received.payload).toEqual(event);
+
+tools:
+  database:
+    - Testcontainers
+    - Docker Compose
+    - 记忆体数据庫 (H2, SQLite)
+  http:
+    - Supertest (Node.js)
+    - RestAssured (Java)
+    - requests (Python)
+  mocking:
+    - WireMock
+    - MockServer
+    - nock (Node.js)
+
+coverage_target: "关鍵路徑和集成点"

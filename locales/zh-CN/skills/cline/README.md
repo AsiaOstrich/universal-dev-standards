@@ -33,7 +33,7 @@ curl -o .clinerules https://raw.githubusercontent.com/AsiaOstrich/universal-dev-
 `.clinerules` 档案包含以下指引：
 
 - **提交标准** - Conventional Commits 格式
-- **程式码审查** - 品质检查表
+- **程序码审查** - 品质检查表
 - **测试** - 测试金字塔和 FIRST 原则
 - **Git 工作流程** - 分支命名
 - **文件** - 档案惯例

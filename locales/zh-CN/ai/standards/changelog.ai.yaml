@@ -1,0 +1,146 @@
+# 变更日誌标准 - AI 优化版
+# 来源: core/changelog-standards.md
+
+id: changelog
+meta:
+  version: "1.1.0"
+  updated: "2025-12-30"
+  source: core/changelog-standards.md
+  description: Keep a Changelog 格式规范
+  language: zh-CN
+
+options:
+  changelog_format:
+    description: 选择变更日誌格式方法
+    multiSelect: false
+    choices:
+      - id: keep-a-changelog
+        file: options/changelog/keep-a-changelog.ai.yaml
+        best_for: 手动維護、人类可读的变更日誌
+      - id: auto-generated
+        file: options/changelog/auto-generated.ai.yaml
+        best_for: 從 commit 自动生成
+
+format:
+  filename: CHANGELOG.md
+  structure: |
+    # 变更日誌
+
+    本项目所有重要变更都会记录在此文件中。
+
+    格式基于 [Keep a Changelog](https://keepachangelog.com/)。
+
+    ## [Unreleased]
+
+    ### Added
+    - 新功能
+
+    ### Changed
+    - 現有功能的变更
+
+    ### Deprecated
+    - 即將移除的功能
+
+    ### Removed
+    - 已移除的功能
+
+    ### Fixed
+    - 错误修正
+
+    ### Security
+    - 安全漏洞修正
+
+    ## [1.0.0] - 2025-01-01
+
+    ### Added
+    - 初始發布
+
+change_types:
+  - type: Added
+    type_zh: 新增
+    description: 新功能
+    order: 1
+
+  - type: Changed
+    type_zh: 变更
+    description: 現有功能的变更
+    order: 2
+
+  - type: Deprecated
+    type_zh: 棄用
+    description: 即將移除的功能
+    order: 3
+
+  - type: Removed
+    type_zh: 移除
+    description: 已移除的功能
+    order: 4
+
+  - type: Fixed
+    type_zh: 修正
+    description: 错误修正
+    order: 5
+
+  - type: Security
+    type_zh: 安全性
+    description: 安全漏洞修正
+    order: 6
+
+rules:
+  - id: unreleased-section
+    trigger: 进行变更时
+    instruction: 將项目加入 [Unreleased] 區段
+    priority: required
+
+  - id: version-on-release
+    trigger: 發布新版本时
+    instruction: 將 [Unreleased] 项目移至新版本區段并加上日期
+    priority: required
+
+  - id: semantic-versioning
+    trigger: 选择版本号时
+    instruction: 遵循語意化版本 (MAJOR.MINOR.PATCH)
+    priority: required
+
+  - id: date-format
+    trigger: 加入發布日期时
+    instruction: 使用 ISO 格式 YYYY-MM-DD
+    validator: "^\\d{4}-\\d{2}-\\d{2}$"
+    priority: required
+
+  - id: reverse-chronological
+    trigger: 排序版本时
+    instruction: 最新版本放在最前面
+    priority: required
+
+  - id: link-versions
+    trigger: 新增版本區段时
+    instruction: 在文件底部加入版本比較連結
+    priority: recommended
+
+examples:
+  entry: |
+    ## [1.2.0] - 2025-01-15
+
+    ### Added
+    - 使用者 OAuth2 认证 (#123)
+    - 深色模式支援 (#145)
+
+    ### Fixed
+    - 登入逾时問題 (#156)
+
+  links: |
+    [Unreleased]: https://github.com/user/repo/compare/v1.2.0...HEAD
+    [1.2.0]: https://github.com/user/repo/compare/v1.1.0...v1.2.0
+    [1.1.0]: https://github.com/user/repo/releases/tag/v1.1.0
+
+quick_reference:
+  change_types:
+    columns: [类型, 说明, 範例]
+    rows:
+      - [Added (新增), 新功能, "新增登入页面"]
+      - [Changed (变更), 功能修改, "更新 API 响应格式"]
+      - [Deprecated (棄用), 即將移除, "舊版认证端点"]
+      - [Removed (移除), 已刪除功能, "移除 v1 API"]
+      - [Fixed (修正), 错误修正, "修正空指標错误"]
+      - [Security (安全性), 漏洞修正, "修補 XSS 漏洞"]

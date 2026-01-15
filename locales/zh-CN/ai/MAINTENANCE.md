@@ -187,7 +187,7 @@ meta:
   updated: "{YYYY-MM-DD}"      # 最后更新日期
   source: core/{source}.md     # 来源档案路径
   description: {简短描述}
-  language: zh-TW              # 翻译档案需要此栏位
+  language: zh-CN              # 翻译档案需要此栏位
 
 # 选用：如标准有可配置选项
 options:

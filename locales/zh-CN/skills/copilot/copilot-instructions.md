@@ -12,7 +12,7 @@ status: current
 
 ## 开发标准
 
-生成程式码建议时遵循这些标准。
+生成程序码建议时遵循这些标准。
 
 ### 提交讯息
 
@@ -24,7 +24,7 @@ status: current
 **类型：**
 - `feat` - 新功能
 - `fix` - 错误修正
-- `refactor` - 程式码重构
+- `refactor` - 程序码重构
 - `docs` - 文件
 - `test` - 测试
 - `chore` - 维护
@@ -33,12 +33,12 @@ status: current
 - `feat(auth): add OAuth2 login`
 - `fix(api): handle null user`
 
-### 程式码品质
+### 程序码品质
 
-生成程式码时：
+生成程序码时：
 - 使用描述性的变数/函式名称
 - 遵循单一职责原则
-- 避免程式码重复
+- 避免程序码重复
 - 适当处理错误
 - 验证输入
 

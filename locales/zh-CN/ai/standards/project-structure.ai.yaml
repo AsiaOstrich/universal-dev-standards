@@ -1,0 +1,134 @@
+# 项目结构标准 - AI 优化版
+# 来源: core/project-structure.md
+
+id: project-structure
+meta:
+  version: "1.1.0"
+  updated: "2025-12-30"
+  source: core/project-structure.md
+  description: 项目目录结构慣例
+  language: zh-CN
+
+options:
+  project_language:
+    description: 选择项目语言/平台
+    choices:
+      - id: dotnet
+        file: options/project-structure/dotnet.ai.yaml
+      - id: nodejs
+        file: options/project-structure/nodejs.ai.yaml
+      - id: python
+        file: options/project-structure/python.ai.yaml
+      - id: java
+        file: options/project-structure/java.ai.yaml
+      - id: go
+        file: options/project-structure/go.ai.yaml
+      - id: rust
+        file: options/project-structure/rust.ai.yaml
+      - id: kotlin
+        file: options/project-structure/kotlin.ai.yaml
+      - id: php
+        file: options/project-structure/php.ai.yaml
+      - id: ruby
+        file: options/project-structure/ruby.ai.yaml
+      - id: swift
+        file: options/project-structure/swift.ai.yaml
+
+structure:
+  common:
+    - dir: src/
+      purpose: 原始码
+      gitignore: false
+
+    - dir: tests/
+      purpose: 测试文件
+      gitignore: false
+
+    - dir: docs/
+      purpose: 文件
+      gitignore: false
+
+    - dir: tools/
+      purpose: 开发/部署脚本
+      gitignore: false
+      subdirs: [deployment/, migration/, scripts/]
+
+    - dir: examples/
+      purpose: 使用範例
+      gitignore: false
+
+  build_output:
+    - dir: dist/
+      purpose: 發布输出
+      gitignore: true
+
+    - dir: build/
+      purpose: 编譯产物
+      gitignore: true
+
+    - dir: out/
+      purpose: 输出目录
+      gitignore: true
+
+    - dir: bin/
+      purpose: 二进位执行檔
+      gitignore: true
+
+  config:
+    - dir: .github/
+      purpose: GitHub 设置
+      gitignore: false
+
+    - dir: .standards/
+      purpose: 开发标准
+      gitignore: false
+
+    - dir: config/
+      purpose: 设置檔
+      gitignore: false
+
+rules:
+  - id: gitignore-build
+    trigger: 建立项目时
+    instruction: 永遠將建置输出目录加入 gitignore (dist/, build/, out/, bin/)
+    priority: required
+
+  - id: src-structure
+    trigger: 組織原始码时
+    instruction: 遵循特定语言的 src/ 结构慣例
+    priority: required
+
+  - id: tests-location
+    trigger: 組織测试时
+    instruction: 將测试放在 tests/ 或原始码旁邊（依语言而定）
+    priority: recommended
+
+  - id: tools-organization
+    trigger: 新增脚本时
+    instruction: 將脚本依用途分組放在 tools/ 的子目录中
+    priority: recommended
+
+quick_reference:
+  directories:
+    columns: [目录, 用途, gitignore]
+    rows:
+      - [src/, 原始码, 否]
+      - [tests/, 测试文件, 否]
+      - [docs/, 文件, 否]
+      - [tools/, 脚本, 否]
+      - [dist/, 建置输出, 是]
+      - [build/, 编譯产物, 是]
+      - [node_modules/, 相依套件, 是]
+      - [.env, 環境变數, 是]
+
+  gitignore_patterns:
+    columns: [模式, 用途]
+    rows:
+      - ["dist/", 建置输出]
+      - ["build/", 编譯产物]
+      - ["*.log", 日誌文件]
+      - [".env*", 環境变數檔]
+      - ["node_modules/", Node 相依套件]
+      - ["__pycache__/", Python 快取]
+      - ["*.pyc", Python 位元码]
+      - [".venv/", Python 虛擬環境]

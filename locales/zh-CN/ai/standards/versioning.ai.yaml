@@ -1,0 +1,211 @@
+# 語意化版本标准 - AI 优化版
+# 来源: core/versioning.md
+
+id: versioning
+meta:
+  version: "1.2.0"
+  updated: "2025-12-30"
+  source: core/versioning.md
+  description: 软体發布的語意化版本 (SemVer)
+  language: zh-CN
+
+format:
+  template: "MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]"
+  examples:
+    - "2.3.1"
+    - "1.0.0-alpha.1"
+    - "3.2.0-beta.2+20250112"
+
+components:
+  major:
+    purpose: 破壞性变更
+    when_to_increment:
+      - 不相容的 API 变更
+      - 移除已棄用功能
+      - 重大架構变更
+    guidelines:
+      - 重设 MINOR 和 PATCH 为 0
+      - 记录迁移指南
+      - 在前一个 MINOR 版本提供棄用警告
+
+  minor:
+    purpose: 新功能
+    when_to_increment:
+      - 新增向後相容的功能
+      - 棄用功能（非移除）
+      - 重大內部改进
+    guidelines:
+      - 重设 PATCH 为 0
+      - 既有功能不变
+      - 新功能是选择性的
+
+  patch:
+    purpose: Bug 修正
+    when_to_increment:
+      - Bug 修正（無新功能）
+      - 安全修補
+      - 文件更正
+      - 內部重構（無 API 变更）
+    guidelines:
+      - 無新功能
+      - 無 API 变更
+      - 可以安全立即更新
+
+prerelease:
+  identifiers:
+    - id: alpha
+      purpose: 早期测试
+      stability: 不穩定
+      audience: 內部团队
+
+    - id: beta
+      purpose: 功能完整
+      stability: 大致穩定
+      audience: 早期採用者
+
+    - id: rc
+      purpose: 最終测试（發布候選）
+      stability: 穩定
+      audience: Beta 测试者
+
+  ordering: "alpha < beta < rc < stable"
+
+initial_development:
+  version_0:
+    description: 主版本 0 表示开发阶段
+    guidelines:
+      - API 可能頻繁变更
+      - MINOR 版本允許破壞性变更
+      - API 穩定时升至 1.0.0
+
+deprecation:
+  timeline:
+    internal_api: 1 个 minor 版本
+    partner_api: 2 个 minor 版本 + 3 个月
+    public_api: 2 个 minor 版本 + 6 个月
+    critical_infrastructure: 至少 1 年
+
+  backward_compatibility:
+    breaking_changes:
+      - 移除公開 API 端点
+      - 移除必要请求欄位
+      - 新增必要请求欄位
+      - 变更响应欄位类型
+      - 变更错误码含義
+      - 移除使用者依賴的响应欄位
+
+    safe_changes:
+      - 新增選用请求欄位
+      - 新增响应欄位
+      - 新增端点
+      - 新增错误码
+      - 改善错误消息
+      - 效能改进
+
+api_versioning_strategies:
+  - strategy: URL 路徑
+    format: "/api/v1/users"
+    pros: 清楚、易於路由
+    cons: URL 污染
+    recommended: true
+
+  - strategy: 查詢參數
+    format: "/api/users?version=1"
+    pros: 選用版本控制
+    cons: 快取問題
+
+  - strategy: Header
+    format: "Accept: application/vnd.api.v1+json"
+    pros: 乾淨的 URL
+    cons: 較不可見
+
+release_process:
+  phases:
+    - phase: 1
+      name: 發布前診斷
+      mandatory: true
+      check_items:
+        - 系统工具版本
+        - 必要驅动程序
+        - 磁碟空间
+        - 数据庫連线
+        - 应用程序版本
+        - 设置完整性
+
+    - phase: 2
+      name: 環境准备
+      purpose: 安裝缺少的工具和驅动程序
+
+    - phase: 3
+      name: 套件产生
+      naming: "{PROJECT}-upgrade-v{VERSION}-{DATE}.tar.gz"
+
+    - phase: 4
+      name: 部署执行
+      steps:
+        - 上传升级套件
+        - 解壓套件
+        - 試运行测试（強烈建议）
+        - 实际升级
+
+    - phase: 5
+      name: 發布後验证
+      check_items:
+        - 服务正常运作
+        - API 回传正确版本
+        - 日誌無致命错误
+        - 功能验证通過
+
+rules:
+  - id: semver-compliance
+    trigger: 發布新版本时
+    instruction: 严格遵循語意化版本格式
+    priority: required
+
+  - id: deprecation-warning
+    trigger: 規划破壞性变更时
+    instruction: 在移除前 N-1 版本加入棄用警告
+    priority: required
+
+  - id: migration-guide
+    trigger: 發布 MAJOR 版本时
+    instruction: 记录迁移指南，附前後对照範例
+    priority: required
+
+  - id: changelog-update
+    trigger: 發布任何版本时
+    instruction: 更新 CHANGELOG.md 记录所有重要变更
+    priority: required
+
+  - id: pre-release-diagnosis
+    trigger: 開始發布流程时
+    instruction: 不得跳過診斷阶段
+    priority: required
+
+  - id: dry-run-test
+    trigger: 部署升级时
+    instruction: 不得跳過試运行测试
+    priority: required
+
+quick_reference:
+  version_components:
+    columns: [組成, 用途, 重设]
+    rows:
+      - [MAJOR, 破壞性变更, "MINOR=0, PATCH=0"]
+      - [MINOR, 新功能, "PATCH=0"]
+      - [PATCH, Bug 修正, 無]
+
+  prerelease_order:
+    columns: [識别码, 穩定度, 受眾]
+    rows:
+      - [alpha, 不穩定, 內部团队]
+      - [beta, 大致穩定, 早期採用者]
+      - [rc, 穩定, Beta 测试者]
+
+  deprecation_periods:
+    columns: [API 类型, 最短期间]
+    rows:
+      - [內部 API, 1 个 minor 版本]
+      - [合作夥伴 API, 2 个 minor + 3 个月]
+      - [公開 API, 2 个 minor + 6 个月]
+      - [关鍵基礎设施, 1 年]

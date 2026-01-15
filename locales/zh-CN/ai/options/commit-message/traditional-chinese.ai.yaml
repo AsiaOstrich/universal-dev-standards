@@ -1,0 +1,100 @@
+# 繁体中文提交格式 - AI 优化选项
+# 父项: commit-message
+
+id: traditional-chinese
+meta:
+  parent: commit-message
+  version: "1.0.0"
+  description: 使用繁体中文的提交消息格式
+  language: zh-CN
+
+best_for:
+  - 台灣或香港团队
+  - 使用繁体中文的项目
+  - 文件以繁体中文为主的项目
+
+format:
+  template: "<类型>(<範圍>): <主旨>"
+  note: 类型使用中文，範圍使用英文或中文
+
+types:
+  - type: 功能
+    english: feat
+    description: 新功能
+
+  - type: 修正
+    english: fix
+    description: 错误修正
+
+  - type: 重構
+    english: refactor
+    description: 程序码重構
+
+  - type: 文件
+    english: docs
+    description: 文件更新
+
+  - type: 样式
+    english: style
+    description: 格式調整
+
+  - type: 测试
+    english: test
+    description: 测试相关
+
+  - type: 效能
+    english: perf
+    description: 效能改善
+
+  - type: 建置
+    english: build
+    description: 建置系统
+
+  - type: 集成
+    english: ci
+    description: 持續集成
+
+  - type: 雜项
+    english: chore
+    description: 維護任务
+
+  - type: 安全
+    english: security
+    description: 安全修正
+
+rules:
+  - id: chinese-type
+    trigger: 撰写提交標頭时
+    instruction: 使用中文类型（功能、修正、重構等）
+    priority: required
+
+  - id: chinese-subject
+    trigger: 撰写主旨时
+    instruction: 以繁体中文撰写主旨
+    priority: required
+
+  - id: chinese-body
+    trigger: 撰写內文时
+    instruction: 以繁体中文撰写內文
+    priority: required
+
+examples:
+  simple: "功能(认证): 新增 OAuth2 登入支援"
+  with_body: |
+    功能(认证): 新增 OAuth2 Google 登入支援
+
+    实作 Google OAuth2 认证流程供使用者登入。
+
+    - 集成 Google OAuth2 SDK
+    - 建立 OAuth 流程回呼端点
+    - 安全储存更新权杖
+
+    关閉 #123
+  breaking: |
+    功能(api)!: 变更使用者端点响应格式
+
+    破壞性变更: 使用者 API 响应格式已变更
+
+    迁移指南：
+    1. 更新 API 客户端移除 .data 包裝
+    2. 使用 created_at 取代 createdAt

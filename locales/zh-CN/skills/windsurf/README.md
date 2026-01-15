@@ -33,7 +33,7 @@ curl -o .windsurfrules https://raw.githubusercontent.com/AsiaOstrich/universal-d
 `.windsurfrules` 档案包含以下指引：
 
 - **提交讯息** - Conventional Commits 格式
-- **程式码品质** - 最佳实践和原则
+- **程序码品质** - 最佳实践和原则
 - **安全** - 需避免的常见漏洞
 - **测试** - 测试金字塔和模式
 - **Git 工作流程** - 分支命名惯例

@@ -1,0 +1,113 @@
+# 变基快进 - AI 优化选项
+# 父项: git-workflow
+
+id: rebase-ff
+meta:
+  parent: git-workflow
+  version: "1.0.0"
+  description: 变基然後快进合併以獲得线性历史
+  language: zh-CN
+
+best_for:
+  - 完美线性历史
+  - 主幹开发
+  - 短期功能分支
+  - 資深 Git 使用者
+
+characteristics:
+  history: 完全线性
+  commit_count: 保留所有提交（重写）
+  reversibility: 需要还原每个提交
+  bisect_friendly: 優秀
+
+rules:
+  - id: never-rebase-shared
+    trigger: 变基时
+    instruction: 永不变基已推送/共享的分支
+    priority: required
+
+  - id: rebase-before-merge
+    trigger: 合併前
+    instruction: 總是在合併前变基到最新 main
+    priority: required
+
+  - id: clean-commits
+    trigger: 变基前
+    instruction: 确保提交是原子性且有意義的
+    priority: recommended
+
+  - id: interactive-rebase
+    trigger: 清理历史时
+    instruction: 使用互动式变基壓縮 WIP 提交
+    priority: recommended
+
+workflow:
+  - step: 建立功能分支
+    commands:
+      - git checkout main
+      - git checkout -b feature/{功能名称}
+
+  - step: 进行提交
+    commands:
+      - git commit -m "feat: implement feature part 1"
+      - git commit -m "feat: implement feature part 2"
+
+  - step: 变基到最新 main
+    commands:
+      - git fetch origin
+      - git rebase origin/main
+
+  - step: 快进合併
+    commands:
+      - git checkout main
+      - git merge --ff-only feature/{功能名称}
+
+  - step: 推送并刪除分支
+    commands:
+      - git push origin main
+      - git branch -d feature/{功能名称}
+
+interactive_rebase:
+  description: 清理提交历史
+  commands:
+    - git rebase -i HEAD~3
+  actions:
+    - pick: 保留提交原样
+    - reword: 变更提交消息
+    - squash: 与前一个合併
+    - fixup: 与前一个合併（丟棄消息）
+    - drop: 移除提交
+
+example:
+  before: |
+    main: A---B---C
+                   \
+    feature:        D---E---F
+  after_rebase: |
+    main: A---B---C
+                   \
+    feature:        D'---E'---F'
+  after_ff: |
+    main: A---B---C---D'---E'---F'
+
+pros:
+  - 完美线性历史
+  - 每个提交都有意義
+  - 優秀的 bisect 支援
+  - 乾淨的 git log
+
+cons:
+  - 重写历史風險
+  - 需要更多 Git 知識
+  - 不適合共享分支
+  - 合併衝突需解决多次
+
+quick_reference:
+  commands:
+    columns: [操作, 指令]
+    rows:
+      - [变基到 main, "git rebase origin/main"]
+      - [互动式变基, "git rebase -i HEAD~n"]
+      - [快进合併, "git merge --ff-only branch"]
+      - [中止变基, "git rebase --abort"]
+      - [繼續变基, "git rebase --continue"]

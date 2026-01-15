@@ -6,7 +6,7 @@ last_synced: 2026-01-05
 status: current
 ---
 
-# 程式码签入检查点标准
+# 程序码签入检查点标准
 
 > **语言**: [English](../../../core/checkin-standards.md) | 繁体中文
 
@@ -18,7 +18,7 @@ status: current
 
 ## 目的
 
-本标准定义提交程式码到版本控制前必须通过的品质关卡。确保每次提交都维持程式码库的稳定性与品质。
+本标准定义提交程序码到版本控制前必须通过的品质关卡。确保每次提交都维持程序码库的稳定性与品质。
 
 ---
 
@@ -26,7 +26,7 @@ status: current
 
 **每次提交应该**:
 - ✅ 是完整的逻辑工作单元
-- ✅ 让程式码库处于可运作状态
+- ✅ 让程序码库处于可运作状态
 - ✅ 可回退而不破坏功能
 - ✅ 包含自己的测试（新功能）
 - ✅ 让未来开发者能理解
@@ -37,7 +37,7 @@ status: current
 
 ### 1. 建置验证
 
-- [ ] **程式码成功编译**
+- [ ] **程序码成功编译**
   - Zero build errors
   - Zero build warnings (or documented exceptions)
 
@@ -72,7 +72,7 @@ pip install -r requirements.txt && python -m py_compile src/**/*.py
   - Integration tests: 100% pass rate
   - End-to-end tests (if applicable): 100% pass rate
 
-- [ ] **新程式码已测试**
+- [ ] **新程序码已测试**
   - New features have corresponding tests
   - Bug fixes include regression tests
   - Edge cases are covered
@@ -100,14 +100,14 @@ pytest --cov=src tests/
 
 ---
 
-### 3. 程式码品质
+### 3. 程序码品质
 
 - [ ] **遵循编码标准**
   - Naming conventions adhered to
   - Code formatting consistent
   - Comments/documentation present
 
-- [ ] **无程式码异味**
+- [ ] **无程序码异味**
   - Methods ≤50 lines (or project standard)
   - Nesting depth ≤3 levels
   - Cyclomatic complexity ≤10
@@ -318,7 +318,7 @@ git status
    - Commit and push after each integrable unit
    - Frequently sync with main feature branch to reduce conflicts
 
-3. **整合点**:
+3. **集成点**:
    - Define clear interfaces/contracts
    - Commit interface definitions first, then implement separately
 
@@ -492,7 +492,7 @@ git cherry-pick <wip-commit>
    - Would break existing functionality
    - Missing critical components
 
-4. **实验性程式码**
+4. **实验性程序码**
    - TODO comments scattered
    - Debugging code left in
    - Commented-out code blocks
@@ -517,9 +517,9 @@ git cherry-pick <wip-commit>
 
 ---
 
-## AI 助理整合
+## AI 助理集成
 
-当 AI 助理完成程式码变更时，必须遵循此工作流程:
+当 AI 助理完成程序码变更时，必须遵循此工作流程:
 
 ### Step 1: 评估签入时机
 
@@ -691,7 +691,7 @@ npm audit
 
 功能完成定义：
 1. ✅ 所有验收标准达成
-2. ✅ 2 位团队成员已审查程式码
+2. ✅ 2 位团队成员已审查程序码
 3. ✅ 已撰写测试（最低 80% 覆盖率）
 4. ✅ 文件已更新
 5. ✅ 已部署至测试环境
@@ -739,7 +739,7 @@ exit 0
 
 ---
 
-### CI/CD 整合
+### CI/CD 集成
 
 Configure CI to reject commits that fail checks:
 
@@ -854,7 +854,7 @@ git commit -m "trying stuff"
 
 ---
 
-### 违规 2: 提交注解程式码
+### 违规 2: 提交注解程序码
 
 **问题**:
 ```javascript
@@ -925,7 +925,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 - [专案结构标准](project-structure.md)
 - [测试标准](testing-standards.md)（或使用 `/testing-guide` 技能）
 - [Commit 讯息规范](commit-message-guide.md)
-- [程式码审查清单](code-review-checklist.md)
+- [程序码审查清单](code-review-checklist.md)
 
 ---
 

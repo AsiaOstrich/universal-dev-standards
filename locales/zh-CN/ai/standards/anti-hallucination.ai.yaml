@@ -1,0 +1,145 @@
+# AI 协作防幻觉标准 - AI 优化版
+# 来源: core/anti-hallucination.md
+
+id: anti-hallucination
+meta:
+  version: "1.3.1"
+  updated: "2025-12-30"
+  source: core/anti-hallucination.md
+  description: AI 助手防止幻觉的严格指南
+  language: zh-CN
+
+principles:
+  evidence_based:
+    rule: 只分析和引用已明确提供或读取的内容
+    do:
+      - 分析使用文件读取工具已读取的程序码文件
+      - 引用已取得的文件
+      - 引用已检查的设置檔
+    do_not:
+      - 推测未見過的 API、函式或设置
+      - 假设框架行为而不验证
+      - 捏造需求細节
+
+  source_attribution:
+    rule: 所有引用必須包含来源类型、位置和可验证性
+    source_types:
+      - type: "[来源: 程序码]"
+        description: 直接從程序码庫读取
+        reliability: 5
+      - type: "[来源: 文件]"
+        description: README、Wiki、內嵌註解
+        reliability: 4
+      - type: "[来源: 外部]"
+        description: 官方文件附 URL
+        reliability: 4
+      - type: "[来源: 搜尋]"
+        description: 搜尋結果（含日期）
+        reliability: 3
+      - type: "[来源: 知識庫]"
+        description: AI 訓练数据（需验证）
+        reliability: 2
+      - type: "[来源: 使用者]"
+        description: 使用者对话中的信息
+        reliability: 3
+
+  certainty_classification:
+    rule: 明确區分已确认的事实、推論和未知项目
+    tags:
+      - tag: "[已确认]"
+        use_when: 來自程序码/文件的直接证据
+      - tag: "[推論]"
+        use_when: 從可用证据邏辑推導
+      - tag: "[假设]"
+        use_when: 基于常見模式（需验证）
+      - tag: "[未知]"
+        use_when: 信息不可用
+      - tag: "[待确认]"
+        use_when: 需要使用者澄清
+
+prohibited_behaviors:
+  - id: fabricate-apis
+    description: 不要發明方法名称、參數或回传类型
+    correct_action: 读取实际原始码或詢問使用者
+
+  - id: assume-requirements
+    description: 不要猜测使用者需求或商业規則
+    correct_action: 需求不明确时詢問澄清問題
+
+  - id: speculate-unread-code
+    description: 不要描述未审阅文件的功能
+    correct_action: 明确说明「需要读取 [文件] 以确认」
+
+  - id: invent-configuration
+    description: 不要假设環境变數、设置鍵或数据庫 schema
+    correct_action: 审阅实际设置檔
+
+  - id: hallucinate-errors
+    description: 不要在没有证据的情况下宣称程序码有問題
+    correct_action: 分析实际程序码并引用具体行數
+
+  - id: options-without-recommendation
+    description: 不要列出选项讓使用者选择而不提供指引
+    correct_action: 始終包含建议选项及理由
+
+rules:
+  - id: conversation-language
+    trigger: 响应使用者时
+    instruction: 適应使用者偏好的语言；保留技術術語
+    priority: required
+
+  - id: include-recommendation
+    trigger: 提供多个选项时
+    instruction: 始終標示建议选项及理由
+    priority: required
+
+  - id: suggest-next-steps
+    trigger: 完成任务或子任务时
+    instruction: 建议邏辑性的下一步并標示最推荐的选项
+    priority: required
+
+  - id: cite-sources
+    trigger: 对程序码做任何陳述时
+    instruction: 包含来源类型标签和 file:line 引用
+    priority: required
+
+  - id: version-sensitivity
+    trigger: 引用函式庫或 API 时
+    instruction: 可用时始終包含版本信息
+    priority: required
+
+  - id: ask-for-clarification
+    trigger: 需求不明确时
+    instruction: 繼續之前詢問澄清問題
+    priority: required
+
+checklist:
+  - 来源已验证（读取实际文件/文件）
+  - 来源类型已標记
+  - 引用已標註（file:line 或 URL）
+  - 版本已指定（如適用）
+  - 确定性已分类
+  - AI 知識已標记验证警告
+  - 無捏造内容
+  - 已对模糊点要求使用者澄清
+  - 提供选项时已包含建议
+
+quick_reference:
+  source_types:
+    columns: [标签, 可靠度, 说明]
+    rows:
+      - ["[来源: 程序码]", "⭐⭐⭐⭐⭐", 直接從程序码庫]
+      - ["[来源: 文件]", "⭐⭐⭐⭐", README/Wiki/註解]
+      - ["[来源: 外部]", "⭐⭐⭐⭐", 官方文件附 URL]
+      - ["[来源: 搜尋]", "⭐⭐⭐", 网络搜尋結果]
+      - ["[来源: 知識庫]", "⭐⭐", AI 知識（需验证）]
+      - ["[来源: 使用者]", "⭐⭐⭐", 使用者对话]
+
+  certainty_tags:
+    columns: [标签, 使用时机]
+    rows:
+      - ["[已确认]", 來自程序码/文件的直接证据]
+      - ["[推論]", 邏辑推導]
+      - ["[假设]", 常見模式（需验证）]
+      - ["[未知]", 信息不可用]
+      - ["[待确认]", 需要澄清]

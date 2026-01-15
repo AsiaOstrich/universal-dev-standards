@@ -1,0 +1,160 @@
+# 安全测试 - AI 优化选项
+# 父项: testing
+
+id: security-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: 安全测试标准和实踐
+  language: zh-CN
+  references:
+    - "OWASP 测试指南"
+    - "NIST SP 800-115"
+
+best_for:
+  - 处理敏感数据的应用程序
+  - 金融服务
+  - 醫療应用程序
+  - 電子商务平台
+  - 任何面向公眾的应用程序
+
+testing_types:
+  static_analysis:
+    abbreviation: SAST
+    full_name: 静态应用程序安全测试
+    description: 不执行程序码分析原始码
+    when_to_use: 开发早期、CI/CD 管线
+    tools:
+      - name: SonarQube
+        languages: 多语言
+      - name: Semgrep
+        languages: 多语言
+      - name: CodeQL
+        languages: 多语言
+      - name: Bandit
+        languages: Python
+
+  dynamic_analysis:
+    abbreviation: DAST
+    full_name: 动态应用程序安全测试
+    description: 测试执行中的应用程序以找出漏洞
+    when_to_use: 预备環境、正式上线前
+    tools:
+      - name: OWASP ZAP
+        type: 開源
+      - name: Burp Suite
+        type: 商业
+      - name: Nuclei
+        type: 開源
+
+  dependency_scanning:
+    abbreviation: SCA
+    full_name: 软体組成分析
+    description: 检查相依套件的已知漏洞
+    when_to_use: 每次建置、持續監控
+    tools:
+      - name: Snyk
+        type: SaaS/CLI
+      - name: Dependabot
+        type: GitHub 集成
+      - name: npm audit
+        type: CLI
+      - name: OWASP Dependency-Check
+        type: 開源
+
+  penetration_testing:
+    abbreviation: Pentest
+    full_name: 滲透测试
+    description: 由安全專业人員进行的模擬攻擊
+    when_to_use: 重大版本發布前、每年
+    types:
+      - 黑箱（無事先知識）
+      - 白箱（完整存取）
+      - 灰箱（部分知識）
+
+  secret_scanning:
+    full_name: 机密掃描
+    description: 偵测暴露的憑证和机密
+    tools:
+      - name: GitLeaks
+        type: 開源
+      - name: TruffleHog
+        type: 開源
+      - name: GitHub Secret Scanning
+        type: GitHub 集成
+
+owasp_top_10:
+  description: OWASP 十大网络应用程序安全風險
+  version: "2021"
+  risks:
+    - id: A01
+      name: 存取控制失效
+      test_focus: 授权检查、权限提升
+    - id: A02
+      name: 加密失效
+      test_focus: 加密、金鑰管理、数据暴露
+    - id: A03
+      name: 注入攻擊
+      test_focus: SQL、NoSQL、OS、LDAP 注入
+    - id: A04
+      name: 不安全的设计
+      test_focus: 安全需求、威脅建模
+    - id: A05
+      name: 安全设置错误
+      test_focus: 预设设置、不必要的功能
+    - id: A06
+      name: 易受攻擊的元件
+      test_focus: 過时的相依套件、已知 CVE
+    - id: A07
+      name: 身分验证失效
+      test_focus: 会話管理、憑证填充
+    - id: A08
+      name: 软体和数据完整性失效
+      test_focus: CI/CD 管线安全、序列化
+    - id: A09
+      name: 安全日誌和監控失效
+      test_focus: 稽核日誌、警报
+    - id: A10
+      name: 服务器端请求偽造
+      test_focus: URL 验证、网络隔離
+
+rules:
+  - id: sast-in-ci
+    trigger: 设置 CI/CD 时
+    instruction: 在每个建置管线中包含 SAST
+    priority: required
+
+  - id: dependency-scanning
+    trigger: 新增相依套件时
+    instruction: 掃描所有相依套件的漏洞
+    priority: required
+
+  - id: secret-scanning
+    trigger: 提交程序码时
+    instruction: 推送前掃描暴露的机密
+    priority: required
+
+  - id: dast-staging
+    trigger: 部署到预备環境时
+    instruction: 对预备環境执行 DAST
+    priority: recommended
+
+  - id: pentest-annually
+    trigger: 年度安全审查时
+    instruction: 每年至少进行一次滲透测试
+    priority: recommended
+
+  - id: owasp-checklist
+    trigger: 安全测试規划时
+    instruction: 测试计画涵蓋所有 OWASP 十大風險
+    priority: required
+
+quick_reference:
+  testing_types:
+    columns: [类型, 縮写, 时机, 工具]
+    rows:
+      - [静态分析, SAST, CI/CD, SonarQube/Semgrep]
+      - [动态分析, DAST, 预备環境, OWASP ZAP/Burp]
+      - [相依套件掃描, SCA, 每次建置, Snyk/Dependabot]
+      - [滲透测试, Pentest, 每年, 人工/專业]
+      - [机密掃描, -, 提交前, GitLeaks/TruffleHog]

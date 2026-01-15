@@ -165,7 +165,7 @@ Copy-Item <source-file> .standards\
 | csharp-style.md | 延伸 | C# 专案 | 2 |
 | php-style.md | 延伸 | PHP 8.1+ 专案 | 2 |
 | fat-free-patterns.md | 延伸 | Fat-Free Framework | 2 |
-| zh-tw.md | 延伸 | 繁体中文团队 | 2 |
+| zh-cn.md | 延伸 | 繁体中文团队 | 2 |
 
 ### 整合配置
 
@@ -294,14 +294,14 @@ Copy-Item path\to\universal-dev-standards\core\project-structure.md .standards\
 ```bash
 # 范例：PHP 专案，繁体中文团队
 cp path/to/universal-dev-standards/extensions/languages/php-style.md .standards/
-cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
+cp path/to/universal-dev-standards/extensions/locales/zh-cn.md .standards/
 ```
 
 **Windows PowerShell:**
 ```powershell
 # 范例：PHP 专案，繁体中文团队
 Copy-Item path\to\universal-dev-standards\extensions\languages\php-style.md .standards\
-Copy-Item path\to\universal-dev-standards\extensions\locales\zh-tw.md .standards\
+Copy-Item path\to\universal-dev-standards\extensions\locales\zh-cn.md .standards\
 ```
 
 ### 步骤五：设置 AI 工具整合

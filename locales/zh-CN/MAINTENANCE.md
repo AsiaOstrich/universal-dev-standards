@@ -235,7 +235,7 @@ Claude Code AI 助手的技能套件。
 | languages/csharp-style.md | 1.0.1 | C# 编码风格指南 |
 | languages/php-style.md | 1.0.0 | PHP 8.1+ 编码风格指南 |
 | frameworks/fat-free-patterns.md | 1.0.0 | Fat-Free Framework 开发模式 |
-| locales/zh-tw.md | 1.2.0 | 繁体中文地区规范 |
+| locales/zh-cn.md | 1.2.0 | 繁体中文地区规范 |
 
 ---
 

@@ -33,7 +33,7 @@ curl -o .cursorrules https://raw.githubusercontent.com/AsiaOstrich/universal-dev
 `.cursorrules` 档案包含以下指引：
 
 - **提交讯息** - Conventional Commits 格式
-- **程式码审查** - 品质和安全检查表
+- **程序码审查** - 品质和安全检查表
 - **测试** - 测试金字塔和最佳实践
 - **Git 工作流程** - 分支命名和提交规则
 - **文件** - 档案命名和结构

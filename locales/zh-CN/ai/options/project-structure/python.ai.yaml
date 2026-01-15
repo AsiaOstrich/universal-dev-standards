@@ -1,0 +1,116 @@
+# Python 项目结构 - AI 优化选项
+# 父项: project-structure
+
+id: python
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Python 项目的标准目录结构
+  language: zh-CN
+
+structure:
+  template: |
+    project-root/
+    ├── src/
+    │   └── myproject/            # 主要套件（套件名称）
+    │       ├── __init__.py
+    │       ├── main.py           # 进入点
+    │       ├── config/           # 设置
+    │       │   ├── __init__.py
+    │       │   └── settings.py
+    │       ├── modules/          # 功能模組
+    │       │   ├── __init__.py
+    │       │   ├── users/
+    │       │   │   ├── __init__.py
+    │       │   │   ├── models.py
+    │       │   │   ├── services.py
+    │       │   │   └── routes.py
+    │       │   └── products/
+    │       ├── shared/           # 共用工具
+    │       │   ├── __init__.py
+    │       │   └── utils.py
+    │       └── infrastructure/   # 外部服务
+    │           ├── __init__.py
+    │           └── database.py
+    ├── tests/                    # 测试
+    │   ├── __init__.py
+    │   ├── conftest.py           # pytest fixtures
+    │   ├── unit/
+    │   └── integration/
+    ├── scripts/                  # 工具脚本
+    ├── docs/                     # 文件
+    ├── pyproject.toml            # 项目设置（推荐）
+    ├── requirements.txt          # 相依性（或用 poetry）
+    ├── .env.example
+    └── README.md
+
+conventions:
+  naming:
+    files: snake_case.py
+    directories: snake_case
+    classes: PascalCase
+    functions: snake_case
+    constants: UPPER_SNAKE_CASE
+    private: _leading_underscore
+
+  imports:
+    order:
+      - 标准函式庫
+      - 第三方套件
+      - 本地模組
+    example: |
+      import os
+      from typing import Optional
+
+      import requests
+      from fastapi import FastAPI
+
+      from myproject.modules.users import UserService
+
+rules:
+  - id: src-layout
+    trigger: 組織项目时
+    instruction: 使用 src 布局以避免導入問題
+    priority: recommended
+
+  - id: init-files
+    trigger: 建立目录时
+    instruction: 每个 Python 套件目录都需要 __init__.py
+    priority: required
+
+  - id: type-hints
+    trigger: 撰写函式时
+    instruction: 使用类型提示提升可读性
+    priority: recommended
+
+pyproject_toml:
+  example: |
+    [project]
+    name = "myproject"
+    version = "1.0.0"
+    requires-python = ">=3.10"
+
+    [tool.pytest.ini_options]
+    testpaths = ["tests"]
+
+    [tool.black]
+    line-length = 88
+
+    [tool.ruff]
+    line-length = 88
+
+tools:
+  package_manager:
+    - Poetry（推荐）
+    - pip + requirements.txt
+    - pipenv
+  testing:
+    - pytest
+    - pytest-cov
+  linting:
+    - ruff（推荐）
+    - flake8
+    - black
+  type_checking:
+    - mypy
+    - pyright

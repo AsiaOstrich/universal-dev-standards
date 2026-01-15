@@ -180,7 +180,7 @@ npm install
 # 3. 执行测试
 npm test
 
-# 4. 执行程式码检查
+# 4. 执行程序码检查
 npm run lint
 
 # 5. 连结以进行本地测试
@@ -200,7 +200,7 @@ uds init --help
 | **Windows Terminal** | 日常使用 | 现代化，可自订 |
 | **Git Bash** | 执行 shell 脚本 | 类 Unix 环境 |
 | **PowerShell 7** | Windows 脚本 | 跨平台 |
-| **VS Code Terminal** | 开发 | 整合体验 |
+| **VS Code Terminal** | 开发 | 集成体验 |
 
 ---
 

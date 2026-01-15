@@ -36,7 +36,7 @@ status: current
 │  4. 权限验证          角色存取控制                            │
 │  5. 状态转换          前后验证                                │
 │  6. 验证逻辑          格式、业务规则                          │
-│  7. 整合验证          实际查询验证                            │
+│  7. 集成验证          实际查询验证                            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -364,13 +364,13 @@ public async Task CreateOrder_QuantityExceedsStock_ReturnsBusinessRuleError()
 
 ---
 
-### 7. 整合验证
+### 7. 集成验证
 
-验证实际资料库查询和外部整合正确运作。
+验证实际资料库查询和外部集成正确运作。
 
 **何时需要**:
 
-根据[测试标准](testing-standards.md)（或 `/testing-guide` 技能），如果单元测试对查询参数使用万用匹配器（`It.IsAny<>`, `any()`, `Arg.Any<>`），必须有整合测试。
+根据[测试标准](testing-standards.md)（或 `/testing-guide` 技能），如果单元测试对查询参数使用万用匹配器（`It.IsAny<>`, `any()`, `Arg.Any<>`），必须有集成测试。
 
 **测试内容**:
 - 查询述词回传正确资料
@@ -457,7 +457,7 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
   □ 业务规则验证
   □ 跨栏位验证
 
-□ 整合（如果单元测试使用万用匹配器）
+□ 集成（如果单元测试使用万用匹配器）
   □ 查询述词已验证
   □ 实体关联已验证
   □ 分页已验证
@@ -479,7 +479,7 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
 | 404 | 未找到 | 不存在的资源 |
 | 409 | 冲突 | 重复资料 |
 | 422 | 无法处理 | 违反业务规则 |
-| 500 | 伺服器错误 | 例外处理 |
+| 500 | 服务器错误 | 例外处理 |
 
 ---
 
@@ -494,7 +494,7 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
 | 状态机 | 1, 3, 4, 5, 6 |
 | 验证 | 1, 2, 3, 6 |
 | 背景工作 | 1, 3, 5 |
-| 外部整合 | 1, 3, 7 |
+| 外部集成 | 1, 3, 7 |
 
 ---
 
@@ -509,7 +509,7 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
 
 ❌ 未验证状态变更
 
-❌ 单元测试使用万用匹配器但无对应整合测试
+❌ 单元测试使用万用匹配器但无对应集成测试
 
 ❌ 测试资料的 ID 与业务识别码使用相同值
 
@@ -522,7 +522,7 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
 
 - [测试驱动开发](test-driven-development.md) - TDD/BDD/ATDD 方法论
 - [测试标准](testing-standards.md) - 核心测试标准（或使用 `/testing-guide` 技能）
-- [程式码审查清单](code-review-checklist.md) - 审查测试完整性
+- [程序码审查清单](code-review-checklist.md) - 审查测试完整性
 - [签入标准](checkin-standards.md) - 提交前测试需求
 
 ---

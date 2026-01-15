@@ -9,7 +9,7 @@ translator: Claude
 
 # UDS 作业流程
 
-> **Language**: [English](../../../docs/OPERATION-WORKFLOW.md) | [繁體中文](../../zh-TW/docs/OPERATION-WORKFLOW.md) | 简体中文
+> **Language**: [English](../../../docs/OPERATION-WORKFLOW.md) | [简体中文](../../zh-TW/docs/OPERATION-WORKFLOW.md) | 简体中文
 
 **版本**: 1.2.0
 **最后更新**: 2026-01-14
@@ -122,7 +122,7 @@ translator: Claude
 ```markdown
 # [规范名称]
 
-> **Language**: English | [繁體中文](../locales/zh-TW/core/[file].md)
+> **Language**: English | [简体中文](../locales/zh-TW/core/[file].md)
 
 **版本**: X.Y.Z
 **最后更新**: YYYY-MM-DD
@@ -290,7 +290,7 @@ description: |
 
 # 技能标题
 
-> **Language**: English | [繁體中文](翻译路径)
+> **Language**: English | [简体中文](翻译路径)
 
 **版本**: 1.0.0
 **最后更新**: YYYY-MM-DD
@@ -401,7 +401,7 @@ integrations/[tool-name]/
 │ 阶段 6：集成文件生成（integration-generator.js）                │
 │ - 根据选择的 AI 工具动态生成                                    │
 │ - 依据 contentMode 调整内容量                                   │
-│ - 支持多语言（en/zh-tw）                                        │
+│ - 支持多语言（en/zh-cn）                                        │
 │ 生成文件：                                                      │
 │ - CLAUDE.md（Claude Code）                                      │
 │ - .cursorrules（Cursor）                                        │

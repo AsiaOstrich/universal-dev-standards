@@ -8,17 +8,17 @@ status: current
 
 # Conventional Commits 指南
 
-> **语言**: [English](../../../../../skills/claude-code/commit-standards/conventional-commits.md) | 繁体中文
+> **语言**: [English](../../../../../skills/claude-code/commit-standards/conventional-commits.md) | 简体中文
 
 **版本**: 1.0.0
-**最后更新**: 2025-12-24
-**适用范围**: Claude Code Skills
+**最後更新**: 2025-12-24
+**適用範圍**: Claude Code Skills
 
 ---
 
 ## 目的
 
-本文件提供撰写 conventional commit 讯息的详细指南。
+本文件提供撰写 conventional commit 消息的详细指南。
 
 ---
 
@@ -32,15 +32,15 @@ status: current
 <footer>
 ```
 
-### 组成元素
+### 組成元素
 
 | 元素 | 必填 | 说明 |
 |-----------|----------|-------------|
 | `type` | ✅ 是 | 变更类型 |
-| `scope` | 选填 | 受影响的模组/元件 |
-| `subject` | ✅ 是 | 简短描述（≤72 字元） |
+| `scope` | 選填 | 受影響的模組/元件 |
+| `subject` | ✅ 是 | 簡短描述（≤72 字元） |
 | `body` | 建议填写 | 详细说明 |
-| `footer` | 选填 | 议题引用、破坏性变更 |
+| `footer` | 選填 | 議題引用、破壞性变更 |
 
 ---
 
@@ -48,37 +48,37 @@ status: current
 
 ### 主要类型
 
-| 类型 | 使用时机 | 范例 |
+| 类型 | 使用时机 | 範例 |
 |------|-------------|----------|
 | `feat` | 为使用者新增功能 | `feat(cart): Add quantity selector` |
-| `fix` | 为使用者修复错误 | `fix(login): Resolve password reset loop` |
-| `docs` | 仅文件变更 | `docs(api): Add authentication examples` |
-| `refactor` | 程式码变更但不涉及功能/修复 | `refactor(utils): Simplify date formatting` |
+| `fix` | 为使用者修復错误 | `fix(login): Resolve password reset loop` |
+| `docs` | 僅文件变更 | `docs(api): Add authentication examples` |
+| `refactor` | 程序码变更但不涉及功能/修復 | `refactor(utils): Simplify date formatting` |
 
 ### 次要类型
 
-| 类型 | 使用时机 | 范例 |
+| 类型 | 使用时机 | 範例 |
 |------|-------------|----------|
 | `style` | 格式化、空白字元 | `style: Apply prettier formatting` |
 | `test` | 新增/更新测试 | `test(auth): Add login integration tests` |
 | `perf` | 效能改进 | `perf(query): Add database index` |
-| `build` | 建置系统、依赖套件 | `build(deps): Upgrade React to v18` |
+| `build` | 建置系统、依賴套件 | `build(deps): Upgrade React to v18` |
 | `ci` | CI/CD 流程 | `ci: Add deploy workflow` |
-| `chore` | 维护任务 | `chore: Update .gitignore` |
-| `revert` | 回复提交 | `revert: Revert "feat(auth): Add SSO"` |
-| `security` | 安全性修复 | `security(auth): Fix XSS vulnerability` |
+| `chore` | 維護任务 | `chore: Update .gitignore` |
+| `revert` | 回復提交 | `revert: Revert "feat(auth): Add SSO"` |
+| `security` | 安全性修復 | `security(auth): Fix XSS vulnerability` |
 
 ---
 
 ## Scope 指南
 
-### 命名规则
+### 命名規則
 
 1. **使用小写**: `auth`，而非 `Auth`
-2. **多个单字使用连字号**: `user-profile`，而非 `userProfile`
-3. **保持简短**: 最多 1-2 个单字
+2. **多个单字使用連字号**: `user-profile`，而非 `userProfile`
+3. **保持簡短**: 最多 1-2 个单字
 
-### 常见 Scopes
+### 常見 Scopes
 
 **依层级**:
 - `api`, `ui`, `database`, `config`, `middleware`
@@ -86,34 +86,34 @@ status: current
 **依功能**:
 - `auth`, `login`, `payment`, `notification`, `search`
 
-**依档案类型**:
+**依文件类型**:
 - `tests`, `docs`, `build`, `deps`
 
 **特殊**:
-- `*`: 影响多个范围
-- (无 scope): 全域变更
+- `*`: 影響多个範圍
+- (無 scope): 全域变更
 
 ---
 
-## Subject 行规则
+## Subject 行規則
 
-1. **长度**: ≤72 字元（理想为 50）
-2. **时态**: 祈使语气
+1. **長度**: ≤72 字元（理想为 50）
+2. **时態**: 祈使語氣
    - ✅ "Add feature"
    - ❌ "Added feature"
 3. **大小写**: 首字母大写
-4. **无句号**: 结尾不加句号
+4. **無句号**: 結尾不加句号
 5. **具体明确**: 描述变更内容
 
-### 范例
+### 範例
 
 ```
 ✅ feat(auth): Add OAuth2 Google login support
 ✅ fix(api): Resolve memory leak in session cache
 ✅ refactor(database): Extract query builder class
 
-❌ fixed bug                    # 模糊、过去式
-❌ feat(auth): added login.     # 过去式、有句号
+❌ fixed bug                    # 模糊、過去式
+❌ feat(auth): added login.     # 過去式、有句号
 ❌ Update stuff                 # 太模糊
 ```
 
@@ -121,9 +121,9 @@ status: current
 
 ## Body 指南
 
-说明**为什么**，而非**做什么**（程式码已经展示做什么）。
+说明**为什麼**，而非**做什麼**（程序码已經展示做什麼）。
 
-### 范本
+### 範本
 
 **功能类**:
 ```
@@ -136,7 +136,7 @@ What this implements:
 - Implementation detail 2
 ```
 
-**错误修复类**:
+**错误修復类**:
 ```
 Why this occurred:
 - Root cause explanation
@@ -148,7 +148,7 @@ Testing:
 - How it was tested
 ```
 
-**重构类**:
+**重構类**:
 ```
 Why this refactoring:
 - Motivation
@@ -164,17 +164,17 @@ Migration:
 
 ## Footer 指南
 
-### 议题引用
+### 議題引用
 
 ```
-Closes #123     # 自动关闭议题
-Fixes #456      # 自动关闭议题
-Resolves #789   # 自动关闭议题
-Refs #101       # 连结但不关闭
+Closes #123     # 自动关閉議題
+Fixes #456      # 自动关閉議題
+Resolves #789   # 自动关閉議題
+Refs #101       # 連結但不关閉
 See also #999   # 相关引用
 ```
 
-### 破坏性变更
+### 破壞性变更
 
 ```
 BREAKING CHANGE: <description>
@@ -186,7 +186,7 @@ Migration guide:
 
 ---
 
-## 完整范例
+## 完整範例
 
 ```
 feat(export): Add CSV export functionality for user data
@@ -215,7 +215,7 @@ Refs #234 (related compliance requirement)
 
 ## 反模式
 
-### ❌ 模糊讯息
+### ❌ 模糊消息
 
 ```
 fix: bug fix
@@ -231,13 +231,13 @@ feat: add login, fix bugs, refactor database
 
 **修正**: 拆分成个别提交。
 
-### ❌ Subject 中包含实作细节
+### ❌ Subject 中包含实作細节
 
 ```
 fix: change line 45 from getUserById to getUserByEmail
 ```
 
-**修正**: 著重于目的，而非实作。
+**修正**: 著重於目的，而非实作。
 
 ---
 
@@ -259,6 +259,6 @@ fix: change line 45 from getUserById to getUserByEmail
 
 ## 授权
 
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权发布。
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权發布。
 
-**来源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

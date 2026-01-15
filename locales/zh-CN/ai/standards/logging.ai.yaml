@@ -1,0 +1,128 @@
+# 日誌标准 - AI 优化版
+# 来源: core/logging-standards.md
+
+id: logging
+meta:
+  version: "1.1.0"
+  updated: "2026-01-05"
+  source: core/logging-standards.md
+  description: 日誌等级、结构化日誌与最佳实踐
+
+log_levels:
+  ordered:
+    - name: TRACE
+      code: 10
+      use_for: 非常详细的除錯
+      production: false
+    - name: DEBUG
+      code: 20
+      use_for: 診斷信息
+      production: false
+    - name: INFO
+      code: 30
+      use_for: 正常操作
+      production: true
+    - name: WARN
+      code: 40
+      use_for: 潛在問題
+      production: true
+    - name: ERROR
+      code: 50
+      use_for: 需要关注的错误
+      production: true
+    - name: FATAL
+      code: 60
+      use_for: 关鍵故障
+      production: true
+
+structured_logging:
+  required_fields:
+    - timestamp
+    - level
+    - message
+    - service
+    - environment
+  recommended_fields:
+    - trace_id
+    - span_id
+    - request_id
+    - user_id
+    - duration_ms
+  field_naming: snake_case
+  format: 生产環境使用 JSON
+
+sensitive_data:
+  never_log:
+    - 密码
+    - api_keys
+    - 完整令牌
+    - 信用卡
+    - 身分证字号
+  mask_patterns:
+    - "password: '***REDACTED***'"
+    - "token: 'tok_...abc'"
+    - "card: '****4242'"
+
+rules:
+  - id: select-level
+    trigger: 新增日誌語句
+    instruction: |
+      选择適當等级：
+      - DEBUG: 僅診斷用，生产環境关閉
+      - INFO: 正常操作完成
+      - WARN: 意外但可恢復
+      - ERROR: 操作失败
+      - FATAL: 無法繼續
+    priority: required
+
+  - id: structured-format
+    trigger: 写入日誌
+    instruction: 使用包含必要欄位的结构化 JSON 日誌
+    priority: required
+
+  - id: include-context
+    trigger: 记录操作
+    instruction: 包含 request_id 或 trace_id 以便关联
+    priority: required
+
+  - id: no-sensitive-data
+    trigger: 记录数据
+    instruction: 永不记录密码、机密、令牌或 PII
+    priority: required
+
+  - id: error-context
+    trigger: 记录错误
+    instruction: 包含 error_type、error_message、stack 和相关 ID
+    priority: required
+
+  - id: async-logging
+    trigger: 部署到生产環境
+    instruction: 使用非同步/緩衝日誌以提升效能
+    priority: recommended
+
+quick_reference:
+  level_selection:
+    columns: [問題, 等级]
+    rows:
+      - [只是除錯?, DEBUG]
+      - [正常操作?, INFO]
+      - [意外但可接受?, WARN]
+      - [操作失败?, ERROR]
+      - [無法繼續?, FATAL]
+
+  required_fields:
+    columns: [欄位, 格式, 必要]
+    rows:
+      - [timestamp, "ISO 8601", 是]
+      - [level, "INFO/ERROR/等", 是]
+      - [message, 字串, 是]
+      - [service, 字串, 是]
+      - [request_id, UUID, 建议]
+
+  retention:
+    columns: [等级, 保留期间]
+    rows:
+      - [DEBUG, 7 天]
+      - [INFO, 30 天]
+      - [WARN, 90 天]
+      - [ERROR/FATAL, 1 年]

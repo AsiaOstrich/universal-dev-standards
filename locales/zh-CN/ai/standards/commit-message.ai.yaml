@@ -1,0 +1,175 @@
+# 提交消息标准 - AI 优化版
+# 来源: core/commit-message-guide.md
+
+id: commit-message
+meta:
+  version: "1.2.3"
+  updated: "2025-12-30"
+  source: core/commit-message-guide.md
+  description: Conventional Commits 格式规范
+  language: zh-CN
+
+format:
+  template: |
+    <type>(<scope>): <subject>
+
+    <body>
+
+    <footer>
+  components:
+    - name: type
+      required: true
+      description: 变更类型
+    - name: scope
+      required: false
+      description: 影響的模組/元件
+    - name: subject
+      required: true
+      description: 簡短描述（最多 72 字元）
+    - name: body
+      required: false
+      description: 详细说明
+    - name: footer
+      required: false
+      description: Issue 參考、破壞性变更
+
+decision:
+  question: "你的团队組成是什麼？"
+  matrix:
+    - answer: "國际或混合团队"
+      select: english
+    - answer: "本地团队（台灣）"
+      select: traditional-chinese
+    - answer: "混合但以本地为主"
+      select: bilingual
+
+options:
+  commit_language:
+    default: english
+    choices:
+      - id: english
+        file: options/commit-message/english.ai.yaml
+      - id: traditional-chinese
+        file: options/commit-message/traditional-chinese.ai.yaml
+      - id: bilingual
+        file: options/commit-message/bilingual.ai.yaml
+
+types:
+  - type: feat
+    description: 新功能
+    bump: minor
+  - type: fix
+    description: 错误修正
+    bump: patch
+  - type: refactor
+    description: 程序码重構
+    bump: none
+  - type: docs
+    description: 文件更新
+    bump: none
+  - type: style
+    description: 格式調整（不影響邏辑）
+    bump: none
+  - type: test
+    description: 测试相关
+    bump: none
+  - type: perf
+    description: 效能改善
+    bump: patch
+  - type: build
+    description: 建置系统
+    bump: none
+  - type: ci
+    description: CI/CD 变更
+    bump: none
+  - type: chore
+    description: 維護任务
+    bump: none
+  - type: revert
+    description: 还原提交
+    bump: patch
+  - type: security
+    description: 安全修正
+    bump: patch
+
+rules:
+  - id: choose-language
+    trigger: 開始项目时
+    instruction: 选择一种 commit 消息语言并记录在 CONTRIBUTING.md
+    priority: required
+
+  - id: consistent-language
+    trigger: 撰写 commit 消息时
+    instruction: 在所有 commit 中使用一致的语言
+    priority: required
+
+  - id: subject-max-length
+    trigger: 撰写 commit 主旨时
+    instruction: 主旨行保持在 72 字元以內
+    validator: "^.{1,72}$"
+    priority: required
+
+  - id: scope-lowercase
+    trigger: 指定 scope 时
+    instruction: scope 使用小写（auth，而非 Auth）
+    validator: "^[a-z][a-z0-9-]*$"
+    priority: required
+
+  - id: imperative-mood
+    trigger: 撰写 commit 主旨时
+    instruction: 使用祈使語氣（add、fix，而非 added、fixed）
+    priority: required
+    examples:
+      good:
+        - "feat(auth): add OAuth2 login"
+        - "fix(api): handle null response"
+      bad:
+        - "feat(auth): added OAuth2 login"
+        - "fix(api): handles null response"
+
+  - id: no-mixed-changes
+    trigger: 提交程序码时
+    instruction: 每个 commit 只包含一个邏辑变更；避免混合不相关的变更
+    priority: required
+
+  - id: reference-issues
+    trigger: 修復 bug 或实作功能时
+    instruction: 在 footer 中參考 issue 编号
+    priority: recommended
+    examples:
+      good:
+        - "Closes #123"
+        - "Fixes #456"
+        - "Refs #789"
+
+examples:
+  simple: "feat(auth): Add OAuth2 login support"
+  with_scope: "fix(api): Resolve null pointer in user service"
+  breaking: |
+    feat(api)!: Change response format to JSON
+
+    BREAKING CHANGE: API 响应格式從 XML 改为 JSON
+
+    迁移指南：
+    1. 更新 API 客户端移除 .data 包裝
+    2. 使用 created_at 取代 createdAt
+
+quick_reference:
+  language_selection:
+    columns: [因素, 英文, 繁体中文, 雙語]
+    rows:
+      - [团队組成, 國际/混合, 本地（台灣）, 混合但以本地为主]
+      - [工具相容性, 最佳, 有限, 良好]
+      - [Changelog 自动化, 完整支援, 需自订设置, 支援]
+      - [開源项目, 推荐, 不推荐, 不錯的选择]
+
+  commit_types:
+    columns: [类型, 用途, 版本影響]
+    rows:
+      - [feat, 新功能, minor]
+      - [fix, 错误修正, patch]
+      - [refactor, 重構, 無]
+      - [docs, 文件, 無]
+      - [test, 测试, 無]
+      - [perf, 效能, patch]
+      - [security, 安全, patch]

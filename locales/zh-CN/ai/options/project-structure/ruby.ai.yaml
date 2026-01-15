@@ -1,0 +1,140 @@
+# Ruby 项目结构 - AI 优化选项
+# 父层: project-structure
+
+id: ruby
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Ruby 项目慣例
+
+structure:
+  gem: |
+    project-root/
+    ├── lib/
+    │   ├── gem_name.rb       # 主要进入点
+    │   └── gem_name/
+    │       ├── version.rb
+    │       ├── client.rb
+    │       └── errors.rb
+    ├── spec/                 # RSpec 测试
+    │   ├── spec_helper.rb
+    │   └── gem_name/
+    │       └── client_spec.rb
+    ├── bin/                  # 可执行檔
+    │   └── gem_name
+    ├── sig/                  # RBS 类型簽名
+    ├── Gemfile
+    ├── Gemfile.lock
+    ├── gem_name.gemspec
+    ├── Rakefile
+    └── README.md
+
+  rails: |
+    project-root/
+    ├── app/
+    │   ├── controllers/
+    │   ├── models/
+    │   ├── views/
+    │   ├── helpers/
+    │   ├── mailers/
+    │   ├── jobs/
+    │   └── services/         # 自订新增
+    ├── config/
+    │   ├── routes.rb
+    │   ├── database.yml
+    │   └── environments/
+    ├── db/
+    │   ├── migrate/
+    │   ├── schema.rb
+    │   └── seeds.rb
+    ├── lib/
+    │   └── tasks/
+    ├── public/
+    ├── spec/                 # 或 test/
+    │   ├── models/
+    │   ├── controllers/
+    │   ├── requests/
+    │   └── factories/
+    ├── Gemfile
+    └── config.ru
+
+  sinatra: |
+    project-root/
+    ├── app.rb                # 主应用程序
+    ├── config.ru
+    ├── lib/
+    │   └── helpers/
+    ├── views/
+    ├── public/
+    ├── spec/
+    ├── Gemfile
+    └── Gemfile.lock
+
+config_files:
+  - file: Gemfile
+    purpose: 相依性宣告
+    required: true
+
+  - file: Gemfile.lock
+    purpose: 相依性鎖定檔
+    required: true
+
+  - file: "*.gemspec"
+    purpose: Gem 規格
+    required: 僅限 gem
+
+  - file: Rakefile
+    purpose: Rake 任务
+    required: false
+
+  - file: ".rubocop.yml"
+    purpose: RuboCop 设置
+    required: false
+
+  - file: ".rspec"
+    purpose: RSpec 设置
+    required: false
+
+gitignore:
+  - ".bundle/"
+  - log/
+  - tmp/
+  - "*.gem"
+  - ".env"
+  - coverage/
+  - node_modules/
+  - ".byebug_history"
+
+rules:
+  - id: lib-structure
+    trigger: 組織 gem 程序码
+    instruction: "將主要程序码放在 lib/<gem_name>/"
+    priority: required
+
+  - id: spec-location
+    trigger: 放置测试
+    instruction: 在 spec/ 目录中映射 lib/ 结构
+    priority: recommended
+
+  - id: service-objects
+    trigger: 組織 Rails 业务邏辑
+    instruction: 在 app/services/ 使用服务物件处理複雜操作
+    priority: recommended
+
+  - id: factory-bot
+    trigger: 设置测试数据
+    instruction: 使用 FactoryBot，工廠放在 spec/factories/
+    priority: recommended
+
+  - id: rubocop-config
+    trigger: 设置检查工具
+    instruction: 使用项目特定規則设置 RuboCop
+    priority: recommended
+
+tools:
+  build: [Rake, Bundler]
+  test_runner: [RSpec, Minitest]
+  linter: [RuboCop, Standard]
+  formatter: [RuboCop --auto-correct, Standard]
+  package_manager: [Bundler, RubyGems]
+  documentation: [YARD, RDoc]

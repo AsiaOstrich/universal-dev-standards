@@ -131,7 +131,7 @@ Copy-Item path\to\universal-dev-standards\templates\migration-template.md docs\
 - [ ] `fat-free-patterns.md` (if Fat-Free project)
 
 ### 地区延伸
-- [ ] `zh-tw.md` (if Traditional Chinese team)
+- [ ] `zh-cn.md` (if 简体中文 team)
 
 ---
 

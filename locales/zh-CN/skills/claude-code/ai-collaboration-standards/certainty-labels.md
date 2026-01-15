@@ -6,19 +6,19 @@ last_synced: 2025-12-25
 status: current
 ---
 
-# 确定性标签参考
+# 确定性标签參考
 
-> **语言**: [English](../../../../../skills/claude-code/ai-collaboration-standards/certainty-labels.md) | 繁体中文
+> **语言**: [English](../../../../../skills/claude-code/ai-collaboration-standards/certainty-labels.md) | 简体中文
 
 **版本**: 1.0.0
-**最后更新**: 2025-12-24
-**适用范围**: Claude Code Skills
+**最後更新**: 2025-12-24
+**適用範圍**: Claude Code Skills
 
 ---
 
 ## 目的
 
-本文件提供 AI 回应中使用的确定性标签和来源类型的参考。
+本文件提供 AI 响应中使用的确定性标签和來源类型的參考。
 
 ---
 
@@ -26,68 +26,68 @@ status: current
 
 | English Tag | 中文标签 | 使用时机 |
 |-------------|---------|----------|
-| `[Confirmed]` | `[已确认]` | 来自程式码/文件的直接证据 |
-| `[Inferred]` | `[推论]` | 基于证据的逻辑推论 |
-| `[Assumption]` | `[假设]` | 基于常见模式（需要验证） |
-| `[Unknown]` | `[未知]` | 资讯不可用 |
+| `[Confirmed]` | `[已确认]` | 來自程序码/文件的直接证据 |
+| `[Inferred]` | `[推論]` | 基於证据的邏辑推論 |
+| `[Assumption]` | `[假设]` | 基於常見模式（需要验证） |
+| `[Unknown]` | `[未知]` | 信息不可用 |
 | `[Need Confirmation]` | `[待确认]` | 需要使用者澄清 |
 
 ---
 
-## 来源类型
+## 來源类型
 
-| 来源类型 | 标签 | 说明 | 可靠性 |
+| 來源类型 | 标签 | 说明 | 可靠性 |
 |-------------|-----|-------------|-------------|
-| 专案程式码 | `[Source: Code]` | 直接从程式码库读取 | ⭐⭐⭐⭐⭐ 最高 |
-| 专案文件 | `[Source: Docs]` | README、Wiki、行内注解 | ⭐⭐⭐⭐ 高 |
-| 外部文件 | `[Source: External]` | 附带 URL 的官方文件 | ⭐⭐⭐⭐ 高 |
-| 网路搜寻 | `[Source: Search]` | 搜寻结果（包含日期） | ⭐⭐⭐ 中等 |
-| AI 知识 | `[Source: Knowledge]` | AI 训练资料（需要验证） | ⭐⭐ 低 |
-| 使用者提供 | `[Source: User]` | 来自使用者对话的资讯 | ⭐⭐⭐ 中等 |
+| 项目程序码 | `[Source: Code]` | 直接從程序码庫读取 | ⭐⭐⭐⭐⭐ 最高 |
+| 项目文件 | `[Source: Docs]` | README、Wiki、行內註解 | ⭐⭐⭐⭐ 高 |
+| 外部文件 | `[Source: External]` | 附帶 URL 的官方文件 | ⭐⭐⭐⭐ 高 |
+| 网络搜尋 | `[Source: Search]` | 搜尋結果（包含日期） | ⭐⭐⭐ 中等 |
+| AI 知識 | `[Source: Knowledge]` | AI 訓练数据（需要验证） | ⭐⭐ 低 |
+| 使用者提供 | `[Source: User]` | 來自使用者对话的信息 | ⭐⭐⭐ 中等 |
 
 ---
 
-## 使用范例
+## 使用範例
 
-### 在技术文件中
+### 在技術文件中
 
 ```markdown
-## 系统架构分析
+## 系统架構分析
 
 `[Confirmed]` 系统使用 ASP.NET Core 8.0 框架 [Source: Code] Program.cs:1
-`[Confirmed]` 资料库使用 SQL Server [Source: Code] appsettings.json:12
-`[Inferred]` 基于 Repository Pattern 的使用，系统可能采用 DDD 架构
-`[Assumption]` 快取机制可能使用 Redis（需要确认设定）
-`[Need Confirmation]` 是否应该支援多租户？
+`[Confirmed]` 数据庫使用 SQL Server [Source: Code] appsettings.json:12
+`[Inferred]` 基於 Repository Pattern 的使用，系统可能採用 DDD 架構
+`[Assumption]` 快取机制可能使用 Redis（需要确认设置）
+`[Need Confirmation]` 是否应該支援多租戶？
 ```
 
-### 在程式码审查中
+### 在程序码审查中
 
 ```markdown
-## 审查意见
+## 审查意見
 
-`[Confirmed]` src/Services/AuthService.cs:45 - 密码验证缺乏暴力破解防护
+`[Confirmed]` src/Services/AuthService.cs:45 - 密码验证缺乏暴力破解防護
 `[Inferred]` 这里可能需要速率限制
-`[Need Confirmation]` 是否已有其他层级的防护机制？
+`[Need Confirmation]` 是否已有其他层级的防護机制？
 ```
 
 ---
 
-## 最佳实践
+## 最佳实踐
 
 ### 1. 一致性
 
 - 在整个文件中使用相同语言的标签（全中文或全英文）
 - 团队应在 `CONTRIBUTING.md` 中指定偏好语言
 
-### 2. 来源引用
+### 2. 來源引用
 
-- 中文标签仍需要来源引用
-- 格式：`[已确认]` 陈述 [Source: Code] file_path:line_number
+- 中文标签仍需要來源引用
+- 格式：`[已确认]` 陳述 [Source: Code] file_path:line_number
 
-### 3. 团队协议
+### 3. 团队協議
 
-- 在专案开始时决定使用中文或英文标签
+- 在项目開始时决定使用中文或英文标签
 - 记录在 `CONTRIBUTING.md` 或 `.standards/` 目录中
 
 ---
@@ -95,16 +95,16 @@ status: current
 ## 快速决策指南
 
 ```
-你是否读取了实际的程式码/文件？
+你是否读取了实际的程序码/文件？
 ├── 是 → [Confirmed] / [已确认]
 └── 否
-    ├── 你能从现有证据推论吗？
-    │   ├── 是 → [Inferred] / [推论]
+    ├── 你能從現有证据推論嗎？
+    │   ├── 是 → [Inferred] / [推論]
     │   └── 否
-    │       ├── 这是常见模式吗？
+    │       ├── 这是常見模式嗎？
     │       │   ├── 是 → [Assumption] / [假设]
     │       │   └── 否 → [Unknown] / [未知]
-    └── 使用者需要澄清吗？
+    └── 使用者需要澄清嗎？
         └── 是 → [Need Confirmation] / [待确认]
 ```
 
@@ -112,8 +112,8 @@ status: current
 
 ## 相关标准
 
-- [防幻觉指南](./anti-hallucination.md)
-- [防幻觉标准](../../../core/anti-hallucination.md)
+- [防幻覺指南](./anti-hallucination.md)
+- [防幻覺标准](../../../core/anti-hallucination.md)
 
 ---
 
@@ -127,6 +127,6 @@ status: current
 
 ## 授权条款
 
-本文件依据 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 释出。
+本文件依据 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 釋出。
 
-**来源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

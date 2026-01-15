@@ -1,0 +1,137 @@
+# 测试标准 - AI 优化版
+# 来源: core/testing-standards.md
+
+id: testing
+meta:
+  version: "1.3.0"
+  updated: "2025-12-30"
+  source: core/testing-standards.md
+  description: 测试金字塔与建议的覆蓋率比例，支援框架选项
+  language: zh-CN
+
+# 框架选择 - 根据项目需求选择
+# 參考来源: ISTQB Glossary v4.0, Martin Fowler's Testing Pyramid
+framework_options:
+  decision_point: 根据项目类型选择测试框架
+  choices:
+    - id: istqb-framework
+      file: options/testing/istqb-framework.ai.yaml
+      best_for: 企业项目、认证需求、正式 QA 流程
+    - id: industry-pyramid
+      file: options/testing/industry-pyramid.ai.yaml
+      best_for: 敏捷开发、CI/CD 优化、快速迭代
+
+# 预设金字塔 (业界标准 - 可由框架选择覆蓋)
+pyramid:
+  ratio: "70/20/10"
+  note: "业界标准比例。ISTQB 框架使用 4 层但無固定比例。"
+  levels:
+    - name: 单元测试 (UT)
+      percentage: 70
+      scope: 单一函式/方法
+      speed: 非常快 (<100ms)
+    - name: 集成测试 (IT/SIT)
+      percentage: 20
+      scope: 多个元件
+      speed: 快速 (<1s)
+      note: "IT (敏捷/DevOps) 或 SIT (企业/ISTQB) - 兩者都指集成测试"
+    - name: 端对端测试 (E2E)
+      percentage: 10
+      scope: 使用者流程/系统测试
+      speed: 較慢 (>10s)
+
+options:
+  testing_framework:
+    description: 选择测试框架方法
+    multiSelect: false
+    choices:
+      - id: istqb-framework
+        file: options/testing/istqb-framework.ai.yaml
+      - id: industry-pyramid
+        file: options/testing/industry-pyramid.ai.yaml
+  test_level:
+    description: 选择要实施的测试层级
+    multiSelect: true
+    choices:
+      - id: unit-testing
+        file: options/testing/unit-testing.ai.yaml
+      - id: integration-testing
+        file: options/testing/integration-testing.ai.yaml
+      - id: system-testing
+        file: options/testing/system-testing.ai.yaml
+      - id: e2e-testing
+        file: options/testing/e2e-testing.ai.yaml
+      - id: security-testing
+        file: options/testing/security-testing.ai.yaml
+        best_for: 处理敏感数据的应用程序、安全关鍵系统
+      - id: performance-testing
+        file: options/testing/performance-testing.ai.yaml
+        best_for: 高流量应用程序、即时系统、API
+      - id: contract-testing
+        file: options/testing/contract-testing.ai.yaml
+        best_for: 微服务、API 集成、分散式系统
+
+rules:
+  - id: follow-pyramid
+    trigger: 規划测试策略时
+    instruction: 遵循 70/20/7/3 的单元/集成/系统/端对端比例
+    priority: required
+
+  - id: first-principles
+    trigger: 撰写测试时
+    instruction: 遵循 FIRST 原則（快速、獨立、可重複、自我验证、及时）
+    priority: required
+
+  - id: arrange-act-assert
+    trigger: 組織测试结构时
+    instruction: 使用 Arrange-Act-Assert 模式
+    priority: required
+
+  - id: meaningful-names
+    trigger: 命名测试时
+    instruction: 使用描述性的测试名称，说明测试内容
+    priority: required
+    examples:
+      good:
+        - "should_return_user_when_valid_id_provided"
+        - "test_login_fails_with_invalid_credentials"
+      bad:
+        - "test1"
+        - "testLogin"
+
+  - id: test-boundaries
+    trigger: 选择测试内容时
+    instruction: 專注於邊界条件和邊緣案例
+    priority: recommended
+
+  - id: avoid-test-doubles-overuse
+    trigger: 使用 mocks/stubs 时
+    instruction: 謹慎使用测试替身；當速度足夠快时，優先使用真实实作
+    priority: recommended
+
+quick_reference:
+  test_pyramid:
+    columns: [层级, 百分比, 範圍, 速度]
+    rows:
+      - [单元, 70%, 单一函式, <100ms]
+      - [集成, 20%, 多个元件, <1s]
+      - [系统, 7%, 完整系统, <10s]
+      - [端对端, 3%, 使用者流程, ">10s"]
+
+  first_principles:
+    columns: [原則, 说明]
+    rows:
+      - [快速 (Fast), 测试执行迅速]
+      - [獨立 (Independent), 测试之间無相依性]
+      - [可重複 (Repeatable), 每次执行結果相同]
+      - [自我验证 (Self-validating), 通過/失败無需人工检查]
+      - [及时 (Timely), 与程序码同步撰写]
+
+  test_doubles:
+    columns: [类型, 用途, 使用时机]
+    rows:
+      - [Stub, 回传预设值, 簡单相依性]
+      - [Mock, 验证互动, 複雜相依性]
+      - [Fake, 簡化实作, 数据庫/外部服务]
+      - [Spy, 记录呼叫, 验证行为]
+      - [Dummy, 填充參數, 未使用的參數]

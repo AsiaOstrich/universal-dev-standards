@@ -6,18 +6,18 @@ last_synced: 2026-01-07
 status: current
 ---
 
-# TDD 语言范例
+# TDD 语言範例
 
-> **语言**: [English](../../../../../skills/claude-code/tdd-assistant/language-examples.md) | 繁体中文
+> **语言**: [English](../../../../../skills/claude-code/tdd-assistant/language-examples.md) | 简体中文
 
 **版本**: 1.0.0
-**最后更新**: 2026-01-07
+**最後更新**: 2026-01-07
 
 ---
 
-## 概览
+## 概覽
 
-本文件提供六种主流程式语言的完整 TDD 范例：
+本文件提供六种主流程序语言的完整 TDD 範例：
 
 1. [JavaScript/TypeScript](#javascripttypescript)
 2. [Python](#python)
@@ -26,11 +26,11 @@ status: current
 5. [Java](#java)
 6. [Ruby](#ruby)
 
-每个区段包含：
-- 完整的红-绿-重构范例
+每个區段包含：
+- 完整的紅-綠-重構範例
 - 测试框架设置
 - Mock/Stub 使用
-- BDD 范例（如适用）
+- BDD 範例（如適用）
 
 ---
 
@@ -48,9 +48,9 @@ npm install --save-dev jest @types/jest ts-jest
 npm install --save-dev vitest
 ```
 
-#### 完整 TDD 范例：购物车
+#### 完整 TDD 範例：購物車
 
-**步骤 1：红色 - 撰写失败测试**
+**步骤 1：紅色 - 撰写失败测试**
 
 ```typescript
 // cart.test.ts
@@ -65,7 +65,7 @@ describe('ShoppingCart', () => {
       // Act（执行）
       const total = cart.calculateTotal();
 
-      // Assert（断言）
+      // Assert（斷言）
       expect(total).toBe(0);
     });
   });
@@ -74,20 +74,20 @@ describe('ShoppingCart', () => {
 
 执行测试 - 它失败因为 `ShoppingCart` 不存在。
 
-**步骤 2：绿色 - 最少实现**
+**步骤 2：綠色 - 最少实現**
 
 ```typescript
 // cart.ts
 export class ShoppingCart {
   calculateTotal(): number {
-    return 0; // 假装！
+    return 0; // 假裝！
   }
 }
 ```
 
-测试通过。
+测试通過。
 
-**步骤 3：红色 - 新增下一个测试**
+**步骤 3：紅色 - 新增下一个测试**
 
 ```typescript
 test('should return sum of item prices', () => {
@@ -101,7 +101,7 @@ test('should return sum of item prices', () => {
 });
 ```
 
-**步骤 4：绿色 - 实现**
+**步骤 4：綠色 - 实現**
 
 ```typescript
 export class ShoppingCart {
@@ -117,7 +117,7 @@ export class ShoppingCart {
 }
 ```
 
-#### Mock 范例
+#### Mock 範例
 
 ```typescript
 // orderService.test.ts
@@ -162,9 +162,9 @@ describe('OrderService', () => {
 pip install pytest pytest-cov pytest-mock
 ```
 
-#### 完整 TDD 范例：计算机
+#### 完整 TDD 範例：计算机
 
-**步骤 1：红色**
+**步骤 1：紅色**
 
 ```python
 # tests/test_calculator.py
@@ -179,20 +179,20 @@ class TestCalculator:
         # Act（执行）
         result = calc.add(2, 3)
 
-        # Assert（断言）
+        # Assert（斷言）
         assert result == 5
 ```
 
-**步骤 2：绿色**
+**步骤 2：綠色**
 
 ```python
 # calculator.py
 class Calculator:
     def add(self, a: float, b: float) -> float:
-        return 5  # 假装！
+        return 5  # 假裝！
 ```
 
-**步骤 3：红色 - 强制泛化**
+**步骤 3：紅色 - 強制泛化**
 
 ```python
 def test_add_different_numbers(self):
@@ -201,7 +201,7 @@ def test_add_different_numbers(self):
     assert result == 30
 ```
 
-**步骤 4：绿色 - 实现**
+**步骤 4：綠色 - 实現**
 
 ```python
 class Calculator:
@@ -209,7 +209,7 @@ class Calculator:
         return a + b
 ```
 
-#### Mock 范例
+#### Mock 範例
 
 ```python
 # tests/test_user_service.py
@@ -250,9 +250,9 @@ dotnet add package Moq
 dotnet add package FluentAssertions
 ```
 
-#### 完整 TDD 范例：订单处理器
+#### 完整 TDD 範例：订单处理器
 
-**步骤 1：红色**
+**步骤 1：紅色**
 
 ```csharp
 // OrderProcessorTests.cs
@@ -271,13 +271,13 @@ public class OrderProcessorTests
         // Act（执行）
         var result = processor.Process(order);
 
-        // Assert（断言）
+        // Assert（斷言）
         result.IsSuccess.Should().BeTrue();
     }
 }
 ```
 
-**步骤 2：绿色**
+**步骤 2：綠色**
 
 ```csharp
 // OrderProcessor.cs
@@ -285,12 +285,12 @@ public class OrderProcessor
 {
     public ProcessResult Process(Order order)
     {
-        return new ProcessResult { IsSuccess = true }; // 假装！
+        return new ProcessResult { IsSuccess = true }; // 假裝！
     }
 }
 ```
 
-#### Moq 范例
+#### Moq 範例
 
 ```csharp
 using Moq;
@@ -330,9 +330,9 @@ public class PaymentServiceTests
 go get github.com/stretchr/testify
 ```
 
-#### 完整 TDD 范例：使用者储存库
+#### 完整 TDD 範例：使用者储存庫
 
-**步骤 1：红色**
+**步骤 1：紅色**
 
 ```go
 // user_repository_test.go
@@ -351,13 +351,13 @@ func TestUserRepository_FindById_ReturnsUser(t *testing.T) {
     // Act（执行）
     user, err := repo.FindById(1)
 
-    // Assert（断言）
+    // Assert（斷言）
     assert.NoError(t, err)
     assert.Equal(t, "John", user.Name)
 }
 ```
 
-**步骤 2：绿色**
+**步骤 2：綠色**
 
 ```go
 // user_repository.go
@@ -384,7 +384,7 @@ func (r *UserRepository) FindById(id int) (*User, error) {
 }
 ```
 
-#### 表格驱动测试（Go 惯例）
+#### 表格驅动测试（Go 慣例）
 
 ```go
 func TestUserRepository_Save(t *testing.T) {
@@ -444,9 +444,9 @@ func TestUserRepository_Save(t *testing.T) {
 </dependencies>
 ```
 
-#### 完整 TDD 范例：帐户服务
+#### 完整 TDD 範例：帳戶服务
 
-**步骤 1：红色**
+**步骤 1：紅色**
 
 ```java
 // AccountServiceTest.java
@@ -464,13 +464,13 @@ class AccountServiceTest {
         // Act（执行）
         service.deposit(account, 50.0);
 
-        // Assert（断言）
+        // Assert（斷言）
         assertThat(account.getBalance()).isEqualTo(150.0);
     }
 }
 ```
 
-**步骤 2：绿色**
+**步骤 2：綠色**
 
 ```java
 // AccountService.java
@@ -481,7 +481,7 @@ public class AccountService {
 }
 ```
 
-#### Mockito 范例
+#### Mockito 範例
 
 ```java
 @ExtendWith(MockitoExtension.class)
@@ -526,9 +526,9 @@ group :test do
 end
 ```
 
-#### 完整 TDD 范例：购物车
+#### 完整 TDD 範例：購物車
 
-**步骤 1：红色**
+**步骤 1：紅色**
 
 ```ruby
 # spec/shopping_cart_spec.rb
@@ -545,18 +545,18 @@ RSpec.describe ShoppingCart do
 end
 ```
 
-**步骤 2：绿色**
+**步骤 2：綠色**
 
 ```ruby
 # lib/shopping_cart.rb
 class ShoppingCart
   def total
-    0 # 假装！
+    0 # 假裝！
   end
 end
 ```
 
-**步骤 3：红色 - 新增商品**
+**步骤 3：紅色 - 新增商品**
 
 ```ruby
 it 'returns sum of item prices' do
@@ -568,7 +568,7 @@ it 'returns sum of item prices' do
 end
 ```
 
-**步骤 4：绿色与重构**
+**步骤 4：綠色与重構**
 
 ```ruby
 class ShoppingCart
@@ -586,7 +586,7 @@ class ShoppingCart
 end
 ```
 
-#### RSpec Mock 范例
+#### RSpec Mock 範例
 
 ```ruby
 RSpec.describe OrderService do
@@ -619,7 +619,7 @@ end
 
 ---
 
-## 框架比较摘要
+## 框架比較摘要
 
 | 语言 | 单元测试 | Mock | BDD | Watch 模式 |
 |------|---------|------|-----|-----------|
@@ -634,6 +634,6 @@ end
 
 ## 相关文件
 
-- [SKILL.md](./SKILL.md) - TDD 助手概览
+- [SKILL.md](./SKILL.md) - TDD 助手概覽
 - [TDD 工作流程](./tdd-workflow.md) - 详细工作流程指南
 - [TDD 核心标准](../../../../../core/test-driven-development.md) - 完整 TDD 标准

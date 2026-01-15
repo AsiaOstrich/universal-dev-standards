@@ -6,7 +6,7 @@ last_synced: 2026-01-08
 status: current
 ---
 
-> **语言**: [English](../../../core/testing-standards.md) | [繁體中文](../../zh-TW/core/testing-standards.md) | 简体中文
+> **语言**: [English](../../../core/testing-standards.md) | [简体中文](../../zh-TW/core/testing-standards.md) | 简体中文
 
 # 测试标准
 

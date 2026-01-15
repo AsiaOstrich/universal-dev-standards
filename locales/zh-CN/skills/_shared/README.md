@@ -23,7 +23,7 @@ status: current
 |----------|----------|------|
 | `anti-hallucination.md` | AI 协作 | 证据导向回应、确定性标签 |
 | `commit-message-guide.md` | 提交标准 | Conventional Commits 格式 |
-| `code-review-checklist.md` | 程式码审查 | 审查检查表和模式 |
+| `code-review-checklist.md` | 程序码审查 | 审查检查表和模式 |
 | `git-workflow.md` | Git 工作流程 | 分支策略 |
 | `testing-standards.md` | 测试指南 | 测试金字塔、覆盖率 |
 | `versioning.md` | 发布标准 | 语意化版本 |

@@ -1,0 +1,147 @@
+# PHP 项目结构 - AI 优化选项
+# 父层: project-structure
+
+id: php
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: PHP 项目慣例
+
+structure:
+  standard: |
+    project-root/
+    ├── src/
+    │   ├── Controller/
+    │   ├── Service/
+    │   ├── Repository/
+    │   ├── Entity/
+    │   ├── Exception/
+    │   └── Helper/
+    ├── config/
+    │   └── config.php
+    ├── public/               # 网站根目录
+    │   ├── index.php
+    │   ├── css/
+    │   ├── js/
+    │   └── images/
+    ├── resources/
+    │   └── views/
+    ├── tests/
+    │   ├── Unit/
+    │   └── Feature/
+    ├── vendor/               # 相依性（git忽略）
+    ├── storage/              # 日誌、快取（git忽略）
+    ├── composer.json
+    ├── composer.lock
+    └── phpunit.xml
+
+  laravel: |
+    project-root/
+    ├── app/
+    │   ├── Http/
+    │   │   ├── Controllers/
+    │   │   └── Middleware/
+    │   ├── Models/
+    │   ├── Services/
+    │   └── Providers/
+    ├── config/
+    ├── database/
+    │   ├── migrations/
+    │   ├── seeders/
+    │   └── factories/
+    ├── public/
+    ├── resources/
+    │   ├── views/
+    │   ├── css/
+    │   └── js/
+    ├── routes/
+    ├── storage/
+    ├── tests/
+    ├── composer.json
+    └── artisan
+
+  symfony: |
+    project-root/
+    ├── bin/
+    │   └── console
+    ├── config/
+    │   ├── packages/
+    │   ├── routes/
+    │   └── services.yaml
+    ├── public/
+    │   └── index.php
+    ├── src/
+    │   ├── Controller/
+    │   ├── Entity/
+    │   ├── Repository/
+    │   └── Service/
+    ├── templates/
+    ├── tests/
+    ├── var/                  # 快取、日誌
+    ├── vendor/
+    └── composer.json
+
+config_files:
+  - file: composer.json
+    purpose: 套件设置檔
+    required: true
+
+  - file: composer.lock
+    purpose: 相依性鎖定檔
+    required: true
+
+  - file: phpunit.xml
+    purpose: PHPUnit 设置
+    required: false
+
+  - file: .php-cs-fixer.php
+    purpose: 程序码風格设置
+    required: false
+
+  - file: phpstan.neon
+    purpose: 静态分析设置
+    required: false
+
+gitignore:
+  - vendor/
+  - storage/
+  - var/
+  - ".env"
+  - ".env.local"
+  - "*.cache"
+  - "*.log"
+  - node_modules/
+
+rules:
+  - id: psr-autoloading
+    trigger: 組織命名空间
+    instruction: 遵循 PSR-4 自动载入标准
+    priority: required
+
+  - id: public-web-root
+    trigger: 设置网站服务器
+    instruction: 僅將网站根目录指向 public/ 目录
+    priority: required
+
+  - id: env-config
+    trigger: 管理设置
+    instruction: 使用 .env 文件处理環境特定设置
+    priority: recommended
+
+  - id: tests-mirror
+    trigger: 放置测试
+    instruction: 在 tests/ 目录中映射 src/ 结构
+    priority: recommended
+
+  - id: dependency-injection
+    trigger: 組織服务
+    instruction: 使用相依性注入容器
+    priority: recommended
+
+tools:
+  build: [Composer]
+  test_runner: [PHPUnit, Pest, Codeception]
+  linter: [PHP_CodeSniffer, PHP-CS-Fixer]
+  static_analysis: [PHPStan, Psalm]
+  package_manager: [Composer, Packagist]
+  documentation: [phpDocumentor]

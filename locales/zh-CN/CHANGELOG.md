@@ -8,7 +8,7 @@ status: current
 
 # 变更日志
 
-> **语言**: [English](../../CHANGELOG.md) | [繁體中文](../zh-TW/CHANGELOG.md) | 简体中文
+> **语言**: [English](../../CHANGELOG.md) | [简体中文](../zh-TW/CHANGELOG.md) | 简体中文
 
 本项目的所有重要变更都将记录在此文件中。
 
@@ -653,7 +653,7 @@ status: current
 ### 变更
 - 更新 `versioning.md` - 新增交叉引用至 changelog-standards.md
 - 更新 `git-workflow.md` - 在发布准备中新增 CHANGELOG 更新指南
-- 更新 `zh-tw.md` - 新增术语：变更日志、发布说明、破坏性变更、弃用、语义化版本
+- 更新 `zh-cn.md` - 新增术语：变更日志、发布说明、破坏性变更、弃用、语义化版本
 - 更新 `changelog-standards.md` - 与 versioning.md 统一排除规则，新增交叉引用
 - 更新 `checkin-standards.md` - 阐明 CHANGELOG 更新仅适用于用户可感知的变更
 - 更新 `code-review-checklist.md` - 与 changelog-standards.md 统一 CHANGELOG 区段
@@ -681,7 +681,7 @@ status: current
 
 ### 变更
 - 更新 `anti-hallucination.md` - 强化出处标示指南
-- 更新 `zh-tw.md` - 与 commit-message-guide.md v1.2.0 同步
+- 更新 `zh-cn.md` - 与 commit-message-guide.md v1.2.0 同步
 
 ## [1.0.0] - 2025-11-12
 

@@ -1,0 +1,117 @@
+# 主幹开发 - AI 优化选项
+# 父项: git-workflow
+
+id: trunk-based
+meta:
+  parent: git-workflow
+  version: "1.0.0"
+  description: 直接提交到主幹的持續集成工作流程
+  language: zh-CN
+
+best_for:
+  - 持續部署（每天多次）
+  - 成熟的 CI/CD 管线
+  - 資深开发团队
+  - 微服务架構
+
+branches:
+  - name: main (trunk)
+    purpose: 永遠可部署的单一真相来源
+    lifetime: 永久
+
+  - name: feature/*
+    purpose: 非常短期的功能分支（選用）
+    lifetime: 最多 1-2 天
+    note: 許多团队直接提交到 trunk
+
+rules:
+  - id: small-frequent-commits
+    trigger: 提交程序码时
+    instruction: 小而頻繁的提交（每天多次）
+    priority: required
+
+  - id: feature-flags
+    trigger: 开发新功能时
+    instruction: 使用功能旗標隱藏未完成功能
+    priority: required
+
+  - id: trunk-always-green
+    trigger: 合併到 trunk 时
+    instruction: 所有测试必須通過；trunk 永遠可部署
+    priority: required
+
+  - id: no-long-lived-branches
+    trigger: 建立分支时
+    instruction: 分支存活不超過 2 天
+    priority: required
+
+  - id: ci-required
+    trigger: 推送变更时
+    instruction: 每次推送都必須觸發 CI 管线
+    priority: required
+
+workflow:
+  direct_commit:
+    - step: 從最新 trunk 開始
+      commands:
+        - git checkout main
+        - git pull origin main
+
+    - step: 进行小变更
+      commands:
+        - "# 进行小而聚焦的变更"
+        - git add .
+        - git commit -m "feat: {描述}"
+
+    - step: 推送到 trunk
+      commands:
+        - git pull --rebase origin main
+        - git push origin main
+
+  short_branch:
+    - step: 建立短期分支
+      commands:
+        - git checkout main
+        - git pull origin main
+        - git checkout -b feature/{小功能}
+
+    - step: 快速开发（最多 2 天）
+      commands:
+        - "# 进行变更..."
+        - git add .
+        - git commit -m "feat: {描述}"
+
+    - step: 快速合併
+      commands:
+        - git checkout main
+        - git pull origin main
+        - git merge --ff-only feature/{小功能}
+        - git push origin main
+
+feature_flags:
+  description: 使用功能旗標允許不完整程序码进入 trunk
+  example: |
+    if (featureFlags.isEnabled('new-checkout')) {
+      return <NewCheckout />;
+    }
+    return <OldCheckout />;
+
+practices:
+  - name: 結对程序设计
+    benefit: 即时程序码审查
+  - name: 测试驅动开发
+    benefit: 高信心的頻繁合併
+  - name: 功能旗標
+    benefit: 不完整功能的安全部署
+  - name: 監控
+    benefit: 快速偵测問題
+
+quick_reference:
+  principles:
+    columns: [原則, 说明]
+    rows:
+      - [小提交, 每次变更少於 200 行]
+      - [頻繁集成, 每天多次合併到 trunk]
+      - [功能旗標, 隱藏进行中功能]
+      - [永遠綠燈, Trunk 永遠可部署]
+      - [快速回饋, CI 在數分鐘內完成]

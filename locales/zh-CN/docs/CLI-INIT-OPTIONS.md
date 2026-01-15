@@ -8,7 +8,7 @@ status: current
 
 # UDS CLI Init 选项完整指南
 
-> **语言**: [English](../../../docs/CLI-INIT-OPTIONS.md) | [繁體中文](../../zh-TW/docs/CLI-INIT-OPTIONS.md) | 简体中文
+> **语言**: [English](../../../docs/CLI-INIT-OPTIONS.md) | [简体中文](../../zh-TW/docs/CLI-INIT-OPTIONS.md) | 简体中文
 >
 > **版本**: 3.5.0
 > **最后更新**: 2026-01-09
@@ -517,7 +517,7 @@ main ─────────────────────────
 ```
 ? Select commit message language:
 ❯ English (推荐) - Standard international format
-  Traditional Chinese (繁體中文) - For Chinese-speaking teams
+  简体中文 (简体中文) - For Chinese-speaking teams
   Bilingual (双语) - Both English and Chinese
 ```
 
@@ -526,7 +526,7 @@ main ─────────────────────────
 | 语言 | 示例 | 适用情境 |
 |------|------|----------|
 | **English** (推荐) | `feat(auth): add OAuth2 support` | 国际团队、开源项目 |
-| **Traditional Chinese** | `新增(認證): 實作 OAuth2 支援` | 繁体中文团队 |
+| **简体中文** | `新增(认证): 实作 OAuth2 支援` | 繁体中文团队 |
 | **Bilingual** | `feat(auth): add OAuth2 / 新增 OAuth2` | 双语环境 |
 
 ### 6.4 Test Levels（Level 2+）
@@ -595,12 +595,12 @@ main ─────────────────────────
 #### 交互式提示
 
 ```
-? Use Traditional Chinese (繁體中文) locale? (y/N)
+? Use 简体中文 (简体中文) locale? (y/N)
 ```
 
 | 扩展 | 文件 | 说明 |
 |------|------|------|
-| **zh-TW** | `zh-tw.md` | 繁体中文本地化指引 |
+| **zh-TW** | `zh-cn.md` | 繁体中文本地化指引 |
 
 ### 自动检测
 
@@ -954,7 +954,7 @@ uds init -y --level 1
 uds init -y --level 3 --content-mode full
 
 # 繁体中文团队
-uds init -y --level 2 --commit-lang traditional-chinese --locale zh-tw
+uds init -y --level 2 --commit-lang traditional-chinese --locale zh-cn
 
 # PHP 项目
 uds init -y --level 2 --lang php --framework fat-free

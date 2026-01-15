@@ -1,0 +1,95 @@
+# Git 工作流程标准 - AI 优化版
+# 来源: core/git-workflow.md
+
+id: git-workflow
+meta:
+  version: "1.2.1"
+  updated: "2025-12-26"
+  source: core/git-workflow.md
+  description: Git 分支策略与工作流程
+  language: zh-CN
+
+decision:
+  question: "您多久部署一次到正式環境？"
+  matrix:
+    - answer: "每天多次"
+      select: trunk-based
+    - answer: "每周或雙周"
+      select: github-flow
+    - answer: "每月或更長"
+      select: gitflow
+
+options:
+  workflow:
+    default: github-flow
+    choices:
+      - id: gitflow
+        file: options/git-workflow/gitflow.ai.yaml
+      - id: github-flow
+        file: options/git-workflow/github-flow.ai.yaml
+      - id: trunk-based
+        file: options/git-workflow/trunk-based.ai.yaml
+
+  merge_strategy:
+    default: squash
+    choices:
+      - id: merge-commit
+        file: options/git-workflow/merge-commit.ai.yaml
+      - id: squash
+        file: options/git-workflow/squash-merge.ai.yaml
+      - id: rebase-ff
+        file: options/git-workflow/rebase-ff.ai.yaml
+
+rules:
+  - id: branch-naming
+    trigger: 建立新分支时
+    instruction: 使用格式 <type>/<description>
+    validator: "^(feature|fix|hotfix|refactor|docs|test|chore|release)/[a-z0-9-]+$"
+    examples:
+      good:
+        - feature/user-authentication
+        - fix/memory-leak
+        - hotfix/security-patch
+      bad:
+        - feature/123
+        - Fix-Bug
+        - myFeature
+
+  - id: branch-types
+    trigger: 选择分支类型时
+    instruction: 根据变更目的选择合適的类型前綴
+    priority: required
+
+branch_types:
+  - type: feature
+    purpose: 新功能开发
+    example: feature/oauth-login
+  - type: fix
+    purpose: 非緊急错误修正
+    example: fix/null-pointer
+  - type: hotfix
+    purpose: 緊急正式環境修正
+    example: hotfix/security-patch
+  - type: refactor
+    purpose: 程序码重構
+    example: refactor/extract-service
+  - type: docs
+    purpose: 文件变更
+    example: docs/api-reference
+  - type: test
+    purpose: 新增或修改测试
+    example: test/integration-tests
+  - type: chore
+    purpose: 維護任务
+    example: chore/update-deps
+  - type: release
+    purpose: 發布准备
+    example: release/v1.2.0
+
+quick_reference:
+  strategy_selection:
+    columns: [部署頻率, 建议策略]
+    rows:
+      - [每天多次, Trunk-Based]
+      - [每周到雙周, GitHub Flow]
+      - [每月或更長, GitFlow]

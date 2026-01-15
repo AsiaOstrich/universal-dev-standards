@@ -6,7 +6,7 @@ last_synced: 2026-01-08
 status: current
 ---
 
-> **语言**: [English](../../../core/git-workflow.md) | [繁體中文](../../zh-TW/core/git-workflow.md) | 简体中文
+> **语言**: [English](../../../core/git-workflow.md) | [简体中文](../../zh-TW/core/git-workflow.md) | 简体中文
 
 # Git 工作流程标准
 
@@ -82,7 +82,7 @@ release                     ●
 | 分支 | 用途 | 生命周期 |
 |-----|------|---------|
 | main | 生产版本 | 永久 |
-| develop | 开发整合 | 永久 |
+| develop | 开发集成 | 永久 |
 | feature/* | 新功能 | 临时 |
 | release/* | 发布准备 | 临时 |
 | hotfix/* | 紧急修复 | 临时 |

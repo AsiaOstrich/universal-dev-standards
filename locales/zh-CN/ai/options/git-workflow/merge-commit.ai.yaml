@@ -1,0 +1,88 @@
+# 合併提交 - AI 优化选项
+# 父项: git-workflow
+
+id: merge-commit
+meta:
+  parent: git-workflow
+  version: "1.0.0"
+  description: 使用合併提交保留完整分支历史
+  language: zh-CN
+
+best_for:
+  - 保留完整历史
+  - 長期功能分支
+  - GitFlow 工作流程
+  - 稽核要求
+
+characteristics:
+  history: 非线性（有合併点）
+  commit_count: 保留所有提交
+  reversibility: 可还原整个合併
+  bisect_friendly: 非常友好
+
+rules:
+  - id: no-fast-forward
+    trigger: 合併分支时
+    instruction: 使用 --no-ff 建立合併提交
+    priority: required
+
+  - id: meaningful-merge-message
+    trigger: 建立合併提交时
+    instruction: 撰写描述性的合併消息
+    priority: recommended
+
+  - id: clean-branch-history
+    trigger: 合併前
+    instruction: 确保分支有乾淨、有意義的提交
+    priority: recommended
+
+workflow:
+  - step: 建立功能分支
+    commands:
+      - git checkout main
+      - git checkout -b feature/{功能名称}
+
+  - step: 进行多次有意義的提交
+    commands:
+      - git commit -m "feat: add user model"
+      - git commit -m "feat: add user service"
+      - git commit -m "test: add user tests"
+
+  - step: 使用合併提交合併
+    commands:
+      - git checkout main
+      - git merge --no-ff feature/{功能名称} -m "Merge feature/{功能名称}"
+
+example:
+  result: |
+    *   merge123 Merge branch 'feature/oauth'
+    |\
+    | * abc1234 test: add OAuth tests
+    | * def5678 feat: add OAuth service
+    | * ghi9012 feat: add OAuth model
+    |/
+    * xyz7890 previous commit on main
+
+pros:
+  - 保留完整开发历史
+  - 清楚的功能邊界
+  - 適合 git bisect 偵錯
+  - 簡单还原整个功能
+
+cons:
+  - 历史可能变得複雜
+  - 較難阅读线性流程
+  - 更多合併衝突可能性
+
+commands:
+  merge_no_ff: git merge --no-ff {branch}
+  revert_merge: git revert -m 1 {merge-commit}
+  view_history: git log --oneline --graph
+
+quick_reference:
+  options:
+    columns: [选项, 说明]
+    rows:
+      - ["--no-ff", 即使可快进也建立合併提交]
+      - ["-m", 指定合併消息]
+      - ["--log", 在合併消息中包含提交日誌]

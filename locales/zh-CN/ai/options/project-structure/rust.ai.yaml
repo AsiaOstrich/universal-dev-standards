@@ -1,0 +1,117 @@
+# Rust 项目结构 - AI 优化选项
+# 父层: project-structure
+
+id: rust
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Rust 项目慣例
+
+structure:
+  binary: |
+    project-root/
+    ├── src/
+    │   ├── main.rs           # 进入点
+    │   ├── lib.rs            # 程序庫根目录（可選）
+    │   ├── config.rs
+    │   ├── error.rs
+    │   └── modules/
+    │       ├── mod.rs
+    │       ├── handler.rs
+    │       └── service.rs
+    ├── tests/                # 集成测试
+    │   └── integration_test.rs
+    ├── benches/              # 效能测试
+    │   └── benchmark.rs
+    ├── examples/             # 範例程序码
+    │   └── example.rs
+    ├── Cargo.toml
+    ├── Cargo.lock
+    └── README.md
+
+  library: |
+    project-root/
+    ├── src/
+    │   ├── lib.rs            # 程序庫进入点
+    │   ├── error.rs
+    │   └── modules/
+    │       └── mod.rs
+    ├── tests/
+    ├── examples/
+    ├── Cargo.toml
+    └── README.md
+
+  workspace: |
+    project-root/
+    ├── crates/
+    │   ├── core/
+    │   │   ├── src/
+    │   │   └── Cargo.toml
+    │   ├── api/
+    │   │   ├── src/
+    │   │   └── Cargo.toml
+    │   └── cli/
+    │       ├── src/
+    │       └── Cargo.toml
+    ├── Cargo.toml            # 工作區根目录
+    └── Cargo.lock
+
+config_files:
+  - file: Cargo.toml
+    purpose: 套件设置檔
+    required: true
+
+  - file: Cargo.lock
+    purpose: 相依性鎖定檔
+    required: true
+    note: 二进位檔提交，程序庫忽略
+
+  - file: rust-toolchain.toml
+    purpose: 工具鏈版本
+    required: false
+
+  - file: .cargo/config.toml
+    purpose: Cargo 设置
+    required: false
+
+gitignore:
+  - target/
+  - "*.pdb"
+  - ".env"
+  - "Cargo.lock"  # 僅限程序庫
+
+rules:
+  - id: module-organization
+    trigger: 組織模組
+    instruction: 一致使用 mod.rs 或 module_name.rs 模式
+    priority: required
+
+  - id: tests-location
+    trigger: 放置测试
+    instruction: |
+      单元测试：在同一文件中使用 #[cfg(test)] mod tests
+      集成测试：放在 tests/ 目录
+    priority: required
+
+  - id: error-handling
+    trigger: 定義错误
+    instruction: 在 error.rs 或 errors.rs 中定義自订错误类型
+    priority: recommended
+
+  - id: workspace-for-large
+    trigger: 組織大型项目
+    instruction: 多 crate 项目使用 Cargo 工作區
+    priority: recommended
+
+  - id: doc-comments
+    trigger: 记录公開 API
+    instruction: 公開项目使用 ///，模組级别文件使用 //!
+    priority: recommended
+
+tools:
+  build: [cargo build, cargo build --release]
+  test_runner: [cargo test, cargo nextest]
+  linter: [clippy]
+  formatter: [rustfmt, cargo fmt]
+  package_manager: [cargo, crates.io]
+  documentation: [cargo doc, rustdoc]

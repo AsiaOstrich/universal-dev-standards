@@ -1,0 +1,220 @@
+# 测试完整性維度 - AI 优化版
+# 来源: core/test-completeness-dimensions.md
+
+id: test-completeness-dimensions
+meta:
+  version: "1.0.0"
+  updated: "2025-12-30"
+  source: core/test-completeness-dimensions.md
+  description: 评估测试完整性的 7 个維度框架
+  language: zh-CN
+
+dimensions:
+  - id: 1
+    name: 正常路徑
+    description: 使用有效输入的正常预期行为
+    test_items:
+      - 有效输入产生预期输出
+      - 成功状态码/响应
+      - 数据正确建立/修改
+      - 预期的副作用發生
+
+  - id: 2
+    name: 邊界条件
+    description: 有效範圍邊緣的值
+    test_items:
+      - 最小有效值
+      - 最大有效值
+      - 剛好低於最小值（無效）
+      - 剛好高於最大值（無效）
+      - 空集合 vs 单一项目 vs 多项目
+
+  - id: 3
+    name: 错误处理
+    description: 無效输入和例外情况
+    test_items:
+      - 無效输入格式
+      - 缺少必要欄位
+      - 重複数据衝突
+      - 資源不存在
+      - 外部服务失败
+
+  - id: 4
+    name: 授权
+    description: 每个操作的角色型存取控制
+    test_items:
+      - 每个角色的允許操作
+      - 每个角色的拒絕操作
+      - 未认证存取
+      - 跨租戶/跨使用者数据存取
+    note: 为每个功能建立授权矩陣
+
+  - id: 5
+    name: 状态变更
+    description: 操作前後的系统状态
+    test_items:
+      - 操作前状态
+      - 操作後状态
+      - 状态转换（啟用 → 停用）
+      - 冪等性（重複操作結果相同）
+
+  - id: 6
+    name: 验证邏辑
+    description: 商业規則和格式验证
+    test_items:
+      - 格式验证（email、電話等）
+      - 商业規則验证
+      - 跨欄位验证
+      - 領域特定約束
+
+  - id: 7
+    name: 集成验证
+    description: 实际数据庫查詢和外部集成
+    test_items:
+      - 查詢条件传回正确数据
+      - 实体关联正确载入
+      - 分页正确运作
+      - 排序和篩選正确运作
+    when_required: 如果单元测试使用萬用匹配器（It.IsAny<>、any()、Arg.Any<>）
+
+feature_type_mapping:
+  - type: CRUD API
+    dimensions: [1, 2, 3, 4, 6, 7]
+
+  - type: 查詢/搜尋
+    dimensions: [1, 2, 3, 4, 7]
+
+  - type: 状态机
+    dimensions: [1, 3, 4, 5, 6]
+
+  - type: 验证
+    dimensions: [1, 2, 3, 6]
+
+  - type: 背景作业
+    dimensions: [1, 3, 5]
+
+  - type: 外部集成
+    dimensions: [1, 3, 7]
+
+error_code_coverage:
+  - code: 200
+    meaning: 成功
+    scenario: 正常路徑测试
+
+  - code: 400
+    meaning: 错误请求
+    scenario: 無效格式、缺少欄位
+
+  - code: 401
+    meaning: 未授权
+    scenario: 無效/缺少 token
+
+  - code: 403
+    meaning: 禁止存取
+    scenario: 有效 token 但权限不足
+
+  - code: 404
+    meaning: 找不到
+    scenario: 不存在的資源
+
+  - code: 409
+    meaning: 衝突
+    scenario: 重複数据
+
+  - code: 422
+    meaning: 無法处理
+    scenario: 商业規則違反
+
+  - code: 500
+    meaning: 服务器错误
+    scenario: 例外处理
+
+anti_patterns:
+  - 只测试正常路徑
+  - 多角色系统缺少授权测试
+  - 未验证状态变更
+  - 单元测试使用萬用匹配器但無对应集成测试
+  - 测试数据中 ID 和业务識别码使用相同值
+  - 测试实作細节而非行为
+
+rules:
+  - id: use-checklist
+    trigger: 为功能设计测试时
+    instruction: 使用 7 維度清单确保完整性
+    priority: required
+
+  - id: authorization-matrix
+    trigger: 功能有角色型存取时
+    instruction: 建立授权矩陣，每格都要有测试
+    priority: required
+
+  - id: integration-for-wildcards
+    trigger: 单元测试使用萬用匹配器时
+    instruction: 必須有对应的集成测试
+    priority: required
+
+  - id: cover-error-codes
+    trigger: API 回传错误码时
+    instruction: 每个错误码应有测试場景
+    priority: required
+
+checklist_template: |
+  功能: ___________________
+
+  □ 正常路徑
+    □ 有效输入产生预期成功
+    □ 传回/建立正确数据
+    □ 预期的副作用發生
+
+  □ 邊界条件
+    □ 最小有效值
+    □ 最大有效值
+    □ 空/单一/大量集合
+
+  □ 错误处理
+    □ 無效输入格式
+    □ 缺少必要欄位
+    □ 重複/衝突場景
+    □ 找不到場景
+
+  □ 授权
+    □ 每个允許角色已测试
+    □ 每个拒絕角色已测试
+    □ 未认证存取已测试
+
+  □ 状态变更
+    □ 初始状态已验证
+    □ 最終状态已验证
+    □ 所有有效转换已测试
+
+  □ 验证
+    □ 格式验证
+    □ 商业規則验证
+    □ 跨欄位验证
+
+  □ 集成（如 UT 使用萬用匹配器）
+    □ 查詢条件已验证
+    □ 实体关联已验证
+    □ 分页/排序已验证
+
+quick_reference:
+  dimensions:
+    columns: [ID, 維度, 关鍵焦点]
+    rows:
+      - [1, 正常路徑, 正常预期行为]
+      - [2, 邊界, 最小/最大值和限制]
+      - [3, 错误处理, 無效输入和例外]
+      - [4, 授权, 角色型存取控制]
+      - [5, 状态变更, 前後状态验证]
+      - [6, 验证, 格式和商业規則]
+      - [7, 集成, 实际查詢验证]
+
+  feature_dimensions:
+    columns: [功能类型, 必要維度]
+    rows:
+      - [CRUD API, "1,2,3,4,6,7"]
+      - [查詢/搜尋, "1,2,3,4,7"]
+      - [状态机, "1,3,4,5,6"]
+      - [验证, "1,2,3,6"]
+      - [背景作业, "1,3,5"]
+      - [外部集成, "1,3,7"]

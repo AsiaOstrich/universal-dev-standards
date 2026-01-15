@@ -1,0 +1,120 @@
+# 自动化程序码审查 - AI 优化选项
+# 父项: code-review
+
+id: automated-review
+meta:
+  parent: code-review
+  version: "1.0.0"
+  description: 自动化程序码分析和审查工具
+  language: zh-CN
+
+best_for:
+  - 及早發現常見問題
+  - 強制执行程序码标准
+  - 減輕审查者負擔
+  - CI/CD 集成
+  - 大型程序码庫
+
+tool_categories:
+  static_analysis:
+    name: 静态分析
+    description: 不执行程序码进行分析
+    tools:
+      - name: ESLint
+        languages: [JavaScript, TypeScript]
+        focus: 程序码品质、風格
+      - name: Pylint
+        languages: [Python]
+        focus: 程序码品质、错误
+      - name: SonarQube
+        languages: [多语言]
+        focus: 程序码品质、安全性
+
+  security_scanning:
+    name: 安全掃描
+    description: 尋找安全漏洞
+    tools:
+      - name: Snyk
+        focus: 相依性漏洞
+      - name: CodeQL
+        focus: 語意程序码分析
+      - name: Semgrep
+        focus: 自订安全規則
+
+  formatting:
+    name: 格式化
+    description: 程序码風格強制
+    tools:
+      - name: Prettier
+        languages: [JavaScript, TypeScript, CSS, HTML]
+      - name: Black
+        languages: [Python]
+      - name: gofmt
+        languages: [Go]
+
+  type_checking:
+    name: 型别检查
+    description: 型别安全验证
+    tools:
+      - name: TypeScript
+        languages: [TypeScript, JavaScript]
+      - name: mypy
+        languages: [Python]
+
+  ai_review:
+    name: AI 审查
+    description: AI 驅动的程序码审查
+    tools:
+      - name: GitHub Copilot
+        description: AI 建议和审查
+      - name: CodeRabbit
+        description: AI PR 审查评論
+
+rules:
+  - id: fail-on-errors
+    trigger: 自动检查失败时
+    instruction: 在修復关鍵問題前阻止合併
+    priority: required
+
+  - id: warnings-as-suggestions
+    trigger: 自动检查警告时
+    instruction: 將警告视为非阻擋性建议
+    priority: recommended
+
+  - id: config-in-repo
+    trigger: 设置自动化时
+    instruction: 將工具设置存放在储存庫中
+    priority: required
+
+  - id: pre-commit-hooks
+    trigger: 提交程序码时
+    instruction: 在提交前执行格式化和 linter
+    priority: recommended
+
+recommended_setup:
+  minimum:
+    - 主要语言的 Linter
+    - 格式化工具（啟用自动修復）
+    - 相依性漏洞掃描器
+
+  recommended:
+    - 所有最小工具
+    - 型别检查器（如適用）
+    - 安全掃描器
+    - 程序码覆蓋率检查
+
+  comprehensive:
+    - 所有推荐工具
+    - AI 程序码审查
+    - 项目自订規則
+    - 指標追蹤
+
+comparison_with_manual:
+  columns: [面向, 自动化, 人工审查]
+  rows:
+    - [速度, 即时, 數小时/數天]
+    - [一致性, 100%, 视情况]
+    - [情境理解, 有限, 高]
+    - [商业邏辑, 無法检查, 可验证]
+    - [風格強制, 優秀, 不一致]
+    - [基本安全, 良好, 可能遺漏]

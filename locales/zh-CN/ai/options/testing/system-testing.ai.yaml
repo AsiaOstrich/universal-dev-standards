@@ -1,0 +1,101 @@
+# 系统测试 - AI 优化选项
+# 父项: testing
+
+id: system-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: 测试完整系统作为黑盒
+  language: zh-CN
+
+characteristics:
+  scope: 完整系统
+  speed: "<10 秒每个测试"
+  isolation: 最小（类正式環境）
+  pyramid_percentage: 7%
+
+rules:
+  - id: production-like-environment
+    trigger: 设置系统测试时
+    instruction: 使用盡可能接近正式環境的设置
+    priority: required
+
+  - id: test-complete-flows
+    trigger: 设计系统测试时
+    instruction: 测试完整的业务流程，而非个别元件
+    priority: required
+
+  - id: external-service-stubs
+    trigger: 处理外部服务时
+    instruction: 只对無法控制的外部服务使用 stub
+    priority: recommended
+
+  - id: data-cleanup
+    trigger: 测试执行後
+    instruction: 确保测试数据在测试後清理
+    priority: required
+
+when_to_write:
+  - 测试完整业务工作流程
+  - 测试系统行为
+  - 测试元件互动
+  - 验证配置
+  - 测试非功能需求
+
+environment_setup:
+  - name: Docker Compose
+    description: 编排所有服务
+    example: |
+      # docker-compose.test.yml
+      services:
+        app:
+          build: .
+        db:
+          image: postgres:15
+        redis:
+          image: redis:7
+
+  - name: Testcontainers
+    description: 程序化容器管理
+    example: |
+      const postgres = await new PostgreSqlContainer().start();
+      const redis = await new GenericContainer('redis:7').start();
+
+test_patterns:
+  - name: API 契約测试
+    description: 验证 API 行为符合契約
+    example: |
+      describe('User API Contract', () => {
+        it('POST /users returns 201 with valid data', async () => {
+          const res = await api.post('/users').send(validUser);
+          expect(res.status).toBe(201);
+          expect(res.body).toMatchSchema(userSchema);
+        });
+      });
+
+  - name: 工作流程测试
+    description: 测试完整业务流程
+    example: |
+      describe('Order Workflow', () => {
+        it('completes purchase flow', async () => {
+          await createUser();
+          await addToCart(product);
+          await checkout();
+          await verifyOrder();
+        });
+      });
+
+tools:
+  orchestration:
+    - Docker Compose
+    - Kubernetes (minikube)
+    - Testcontainers
+  api_testing:
+    - Postman/Newman
+    - REST Assured
+    - Supertest
+  contract_testing:
+    - Pact
+    - Spring Cloud Contract
+
+coverage_target: "关鍵业务工作流程"

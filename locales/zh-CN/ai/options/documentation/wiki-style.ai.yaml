@@ -1,0 +1,119 @@
+# Wiki 風格文件 - AI 优化选项
+# 父项: documentation
+
+id: wiki-style
+meta:
+  parent: documentation-structure
+  version: "1.0.0"
+  description: Wiki 風格协作文件
+  language: zh-CN
+
+best_for:
+  - 大型团队
+  - 內部文件
+  - 知識庫
+  - 頻繁更新的内容
+  - 跨職能团队
+
+platforms:
+  - name: Confluence
+    vendor: Atlassian
+    best_for: 使用 Jira 的企业团队
+    features:
+      - 富文本编辑器
+      - 範本
+      - 空间/层级结构
+      - 权限控管
+
+  - name: Notion
+    vendor: Notion Labs
+    best_for: 新创公司、彈性需求
+    features:
+      - 数据庫
+      - 範本
+      - 巢状页面
+      - 评論
+
+  - name: GitHub Wiki
+    vendor: GitHub
+    best_for: 開源、开发者
+    features:
+      - Git 支援
+      - Markdown
+      - 隨储存庫免费
+
+  - name: GitBook
+    vendor: GitBook
+    best_for: 公開文件
+    features:
+      - Git 同步
+      - 美觀界面
+      - API 文件支援
+
+structure:
+  top_level_spaces:
+    - name: 工程
+      content:
+        - 架構决策
+        - 技術标准
+        - 操作手冊
+    - name: 产品
+      content:
+        - 功能規格
+        - 路线图
+        - 使用者研究
+    - name: 团队
+      content:
+        - 入職文件
+        - 流程文件
+        - 会議记录
+
+  page_hierarchy:
+    - 概覽/索引页
+    - 分类页面
+    - 详细页面
+    - 相关連結
+
+rules:
+  - id: page-ownership
+    trigger: 建立 wiki 页面时
+    instruction: 指派一位負責保持内容更新的擁有者
+    priority: required
+
+  - id: date-pages
+    trigger: 建立/更新页面时
+    instruction: 包含最後更新日期
+    priority: required
+
+  - id: link-related
+    trigger: 建立页面时
+    instruction: 連結到相关页面以提高可發現性
+    priority: recommended
+
+  - id: review-quarterly
+    trigger: 每季审查时
+    instruction: 审查并更新過时的内容
+    priority: recommended
+
+  - id: archive-obsolete
+    trigger: 内容過时时
+    instruction: 封存而非刪除
+    priority: recommended
+
+comparison:
+  columns: [面向, Wiki, 储存庫中的 Markdown, 外部文件网站]
+  rows:
+    - [编辑, 所見即所得/容易, 需要 Git 知識, 视情况]
+    - [版本控制, 內建, 基于 Git, 视平台]
+    - [协作, 優秀, 良好, 良好]
+    - [搜尋, 內建, GitHub 搜尋, 视情况]
+    - [存取控制, 細緻, 储存庫层级, 视情况]
+    - [離线存取, 有限, 完整, 有限]
+
+best_practices:
+  - 为常見页面类型建立範本
+  - 使用一致的命名慣例
+  - 移动页面时设置重新导向
+  - 定期内容稽核
+  - 鼓勵评論和提問
+  - 页面之间大量連結

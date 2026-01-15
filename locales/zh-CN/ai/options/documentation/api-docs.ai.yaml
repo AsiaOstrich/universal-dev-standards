@@ -1,0 +1,140 @@
+# API 文件 - AI 优化选项
+# 父项: documentation
+
+id: api-docs
+meta:
+  parent: documentation-structure
+  version: "1.0.0"
+  description: API 參考文件标准
+  language: zh-CN
+
+best_for:
+  - REST API
+  - GraphQL API
+  - SDK/函式庫文件
+  - 公開 API
+
+formats:
+  openapi:
+    name: OpenAPI (Swagger)
+    versions: ["3.0", "3.1"]
+    file_extension: [".yaml", ".json"]
+    best_for: REST API
+    tools:
+      - Swagger UI
+      - Redoc
+      - Stoplight
+
+  graphql:
+    name: GraphQL Schema
+    file_extension: [".graphql", ".gql"]
+    best_for: GraphQL API
+    tools:
+      - GraphQL Playground
+      - Apollo Studio
+
+  asyncapi:
+    name: AsyncAPI
+    versions: ["2.x", "3.x"]
+    best_for: 事件驅动 API
+    tools:
+      - AsyncAPI Studio
+
+documentation_elements:
+  required:
+    - 端点 URL
+    - HTTP 方法
+    - 请求參數
+    - 响应格式
+    - 错误码
+    - 验证方式
+
+  recommended:
+    - 程序码範例（多种语言）
+    - 速率限制
+    - 分页詳情
+    - 变更日誌/版本控制
+
+  optional:
+    - 线上测试主控台
+    - SDK
+    - Postman 集合
+
+rules:
+  - id: describe-all-endpoints
+    trigger: 建立 API 文件时
+    instruction: 记录每个公開端点
+    priority: required
+
+  - id: include-examples
+    trigger: 记录端点时
+    instruction: 包含请求和响应範例
+    priority: required
+
+  - id: document-errors
+    trigger: 记录端点时
+    instruction: 列出所有可能的错误响应
+    priority: required
+
+  - id: version-api-docs
+    trigger: API 变更时
+    instruction: 保持文件与 API 版本同步
+    priority: required
+
+  - id: authentication-first
+    trigger: 建立 API 文件时
+    instruction: 在端点之前先记录验证方式
+    priority: recommended
+
+example_endpoint_doc: |
+  ## 建立使用者
+
+  建立新的使用者帳号。
+
+  **端点：** `POST /users`
+
+  **验证：** 需要 Bearer token
+
+  ### 请求主体
+
+  | 欄位 | 类型 | 必填 | 说明 |
+  |------|------|------|------|
+  | name | string | 是 | 使用者全名 |
+  | email | string | 是 | 電子郵件地址 |
+
+  ### 响应
+
+  ```json
+  {
+    "id": "usr_123",
+    "name": "王小明",
+    "email": "xiaoming@example.com",
+    "createdAt": "2025-01-15T10:30:00Z"
+  }
+  ```
+
+  ### 错误
+
+  | 代码 | 说明 |
+  |------|------|
+  | 400 | 無效的请求主体 |
+  | 409 | 電子郵件已存在 |
+
+tools:
+  generators:
+    - name: swagger-codegen
+      generates: 客户端 SDK
+    - name: openapi-generator
+      generates: 客户端/服务器程序码
+    - name: typedoc
+      generates: TypeScript 文件
+
+  hosting:
+    - name: Swagger UI
+      type: 自架
+    - name: Redoc
+      type: 自架
+    - name: ReadMe
+      type: SaaS
+    - name: Stoplight
+      type: SaaS

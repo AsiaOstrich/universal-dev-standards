@@ -6,31 +6,31 @@ last_synced: 2025-12-25
 status: current
 ---
 
-# README 范本与最佳实践
+# README 範本与最佳实踐
 
-> **语言**: [English](../../../../../skills/claude-code/documentation-guide/readme-template.md) | 繁体中文
+> **语言**: [English](../../../../../skills/claude-code/documentation-guide/readme-template.md) | 简体中文
 
 **版本**: 1.0.0
-**最后更新**: 2025-12-24
-**适用范围**: Claude Code Skills
+**最後更新**: 2025-12-24
+**適用範圍**: Claude Code Skills
 
 ---
 
 ## 目的
 
-本文件提供撰写 README 档案的范本和最佳实践。
+本文件提供撰写 README 文件的範本和最佳实踐。
 
 ---
 
-## README 章节参考
+## README 章节參考
 
 ### 必要章节（最小需求）
 
 | 章节 | 目的 | 必要 |
 |---------|---------|:--------:|
-| 专案名称 | 识别 | ✅ |
+| 项目名称 | 識别 | ✅ |
 | 描述 | 功能说明 | ✅ |
-| 安装 | 安装方式 | ✅ |
+| 安裝 | 安裝方式 | ✅ |
 | 使用 | 使用方式 | ✅ |
 | 授权 | 法律条款 | ✅ |
 
@@ -38,19 +38,19 @@ status: current
 
 | 章节 | 目的 | 何时包含 |
 |---------|---------|-----------------|
-| Badges | 状态指标 | CI、npm、覆盖率 |
-| 功能 | 主要能力 | 多功能专案 |
-| 快速开始 | 快速上手 | 复杂设定 |
-| API 参考 | 技术文件 | 函式库/API |
-| 配置 | 设定选项 | 可配置工具 |
-| 贡献 | 如何协助 | 开源专案 |
-| 变更记录 | 版本历程 | 版本化专案 |
-| FAQ | 常见问题 | 面向使用者的专案 |
-| 致谢 | 感谢名单 | 社群专案 |
+| Badges | 状态指標 | CI、npm、覆蓋率 |
+| 功能 | 主要能力 | 多功能项目 |
+| 快速開始 | 快速上手 | 複雜设置 |
+| API 參考 | 技術文件 | 函式庫/API |
+| 配置 | 设置选项 | 可配置工具 |
+| 貢獻 | 如何協助 | 開源项目 |
+| 变更记录 | 版本歷程 | 版本化项目 |
+| FAQ | 常見問題 | 面向使用者的项目 |
+| 致謝 | 感謝名单 | 社群项目 |
 
 ---
 
-## README 范本
+## README 範本
 
 ### 最小 README
 
@@ -238,9 +238,9 @@ MIT - see [LICENSE](LICENSE) for details.
 
 ---
 
-## 章节细节
+## 章节細节
 
-### 专案名称与描述
+### 项目名称与描述
 
 **良好**:
 ```markdown
@@ -258,7 +258,7 @@ This is a project.
 
 ### Badges
 
-常见徽章：
+常見徽章：
 ```markdown
 [![CI](https://github.com/org/repo/actions/workflows/ci.yml/badge.svg)](https://github.com/org/repo/actions)
 [![npm](https://img.shields.io/npm/v/package.svg)](https://www.npmjs.com/package/package)
@@ -266,9 +266,9 @@ This is a project.
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ```
 
-### 安装
+### 安裝
 
-如果适用，包含多个套件管理器：
+如果適用，包含多个套件管理器：
 
 ```markdown
 ## Installation
@@ -284,7 +284,7 @@ yarn add package-name
 ```
 ```
 
-### 使用范例
+### 使用範例
 
 **良好** - 展示真实使用案例：
 ```markdown
@@ -302,7 +302,7 @@ const strictData = parseJSON('./data.json', { strict: true });
 ```
 ```
 
-**不良** - 过于抽象：
+**不良** - 過於抽象：
 ```markdown
 ## Usage
 
@@ -326,9 +326,9 @@ lib.func();
 
 ---
 
-## 常见错误
+## 常見错误
 
-### ❌ 过于模糊
+### ❌ 過於模糊
 
 ```markdown
 # Project
@@ -344,7 +344,7 @@ Install it.
 Use it.
 ```
 
-### ❌ 没有范例
+### ❌ 没有範例
 
 ```markdown
 # JSON Parser
@@ -354,13 +354,13 @@ A JSON parser library.
 See API docs for usage.
 ```
 
-### ❌ 资讯过时
+### ❌ 信息過时
 
 ```markdown
 ## Requirements
 
-- Node.js 8+  ← 过时
-- npm 5+      ← 过时
+- Node.js 8+  ← 過时
+- npm 5+      ← 過时
 
 ## Installation
 
@@ -369,24 +369,24 @@ npm install old-package-name  ← 错误的套件名称
 ```
 ```
 
-### ❌ 连结失效
+### ❌ 連結失效
 
 ```markdown
-See [documentation](docs/old-path.md) for more info.  ← 连结不存在
+See [documentation](docs/old-path.md) for more info.  ← 連結不存在
 ```
 
 ---
 
 ## README 品质检查清单
 
-- [ ] 专案名称清楚说明
-- [ ] 用 1-2 句话解释目的
-- [ ] 安装说明完整
-- [ ] 使用范例确实可运作
-- [ ] 所有连结都已验证有效
+- [ ] 项目名称清楚说明
+- [ ] 用 1-2 句話解釋目的
+- [ ] 安裝说明完整
+- [ ] 使用範例确实可运作
+- [ ] 所有連結都已验证有效
 - [ ] 版本需求准确
 - [ ] 授权清楚说明
-- [ ] 提供联络/支援资讯（面向使用者的专案）
+- [ ] 提供联络/支援信息（面向使用者的项目）
 
 ---
 
@@ -407,6 +407,6 @@ See [documentation](docs/old-path.md) for more info.  ← 连结不存在
 
 ## 授权
 
-本文件采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权。
+本文件採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权。
 
-**来源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

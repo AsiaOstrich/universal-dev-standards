@@ -8,7 +8,7 @@ status: current
 
 # 通用开发规范
 
-> **Language**: [English](../../README.md) | [繁體中文](../zh-TW/README.md) | 简体中文
+> **Language**: [English](../../README.md) | [简体中文](../zh-TW/README.md) | 简体中文
 
 **版本**: 3.5.0-beta.13
 **最后更新**: 2026-01-13
@@ -694,7 +694,7 @@ universal-dev-standards/
 │   ├── frameworks/                # 框架特定标准
 │   │   └── fat-free-patterns.md   # Fat-Free Framework 模式
 │   ├── locales/                   # 地区特定标准
-│   │   └── zh-tw.md               # 繁体中文
+│   │   └── zh-cn.md               # 繁体中文
 │   └── domains/                   # 领域特定标准
 │       └── （即将推出）
 │

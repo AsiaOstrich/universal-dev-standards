@@ -1,0 +1,108 @@
+# .NET 项目结构 - AI 优化选项
+# 父项: project-structure
+
+id: dotnet
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: .NET/C# 项目的标准目录结构
+  language: zh-CN
+
+structure:
+  template: |
+    SolutionName/
+    ├── src/
+    │   ├── SolutionName.Api/           # Web API 项目
+    │   │   ├── Controllers/
+    │   │   ├── Middleware/
+    │   │   ├── Program.cs
+    │   │   └── appsettings.json
+    │   ├── SolutionName.Core/          # 核心业务邏辑
+    │   │   ├── Entities/
+    │   │   ├── Interfaces/
+    │   │   └── Services/
+    │   ├── SolutionName.Infrastructure/ # 外部服务实作
+    │   │   ├── Data/
+    │   │   ├── Repositories/
+    │   │   └── ExternalServices/
+    │   └── SolutionName.Shared/        # 共用程序码
+    │       ├── DTOs/
+    │       ├── Extensions/
+    │       └── Utils/
+    ├── tests/
+    │   ├── SolutionName.UnitTests/
+    │   ├── SolutionName.IntegrationTests/
+    │   └── SolutionName.FunctionalTests/
+    ├── docs/
+    ├── scripts/
+    ├── SolutionName.sln
+    ├── .editorconfig
+    ├── Directory.Build.props
+    └── README.md
+
+layers:
+  - name: Api
+    responsibility: HTTP 端点、中介软体、DI 设置
+    depends_on: [Core, Infrastructure]
+
+  - name: Core
+    responsibility: 业务邏辑、实体、界面
+    depends_on: []
+
+  - name: Infrastructure
+    responsibility: 数据存取、外部服务
+    depends_on: [Core]
+
+  - name: Shared
+    responsibility: 共用 DTO、擴充方法
+    depends_on: []
+
+conventions:
+  naming:
+    files: PascalCase.cs
+    directories: PascalCase
+    classes: PascalCase
+    interfaces: IPascalCase
+    methods: PascalCase
+    private_fields: _camelCase
+    constants: PascalCase
+
+rules:
+  - id: clean-architecture
+    trigger: 組織项目时
+    instruction: 遵循 Clean Architecture 原則（相依性向內）
+    priority: required
+
+  - id: interface-segregation
+    trigger: 定義界面时
+    instruction: 在 Core 定義界面，在 Infrastructure 实作
+    priority: required
+
+  - id: project-references
+    trigger: 加入參考时
+    instruction: Api → Infrastructure → Core，Shared 可被任何项目參考
+    priority: required
+
+project_files:
+  directory_build_props: |
+    <Project>
+      <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+      </PropertyGroup>
+    </Project>
+
+tools:
+  build: dotnet CLI, MSBuild
+  testing:
+    - xUnit（推荐）
+    - NUnit
+    - MSTest
+  mocking:
+    - Moq
+    - NSubstitute
+  orm:
+    - Entity Framework Core
+    - Dapper

@@ -1,0 +1,79 @@
+# 英文提交格式 - AI 优化选项
+# 父项: commit-message
+
+id: english
+meta:
+  parent: commit-message
+  version: "1.0.0"
+  description: 标准英文提交消息格式
+  language: zh-CN
+
+best_for:
+  - 國际团队
+  - 開源项目
+  - 工具相容性最佳
+
+format:
+  template: "<type>(<scope>): <subject>"
+  note: 类型和範圍使用英文
+
+types:
+  - type: feat
+    description: 新功能
+  - type: fix
+    description: 错误修正
+  - type: refactor
+    description: 程序码重構
+  - type: docs
+    description: 文件更新
+  - type: style
+    description: 格式調整
+  - type: test
+    description: 测试相关
+  - type: perf
+    description: 效能改善
+  - type: build
+    description: 建置系统
+  - type: ci
+    description: 持續集成
+  - type: chore
+    description: 維護任务
+  - type: security
+    description: 安全修正
+
+rules:
+  - id: english-type
+    trigger: 撰写提交標頭时
+    instruction: 使用英文类型（feat, fix, refactor 等）
+    priority: required
+
+  - id: english-subject
+    trigger: 撰写主旨时
+    instruction: 以英文撰写主旨
+    priority: required
+
+  - id: imperative-mood
+    trigger: 撰写主旨时
+    instruction: 使用祈使語氣（Add 而非 Added）
+    priority: required
+
+examples:
+  simple: "feat(auth): Add OAuth2 login support"
+  with_body: |
+    feat(auth): Add OAuth2 Google login support
+
+    Implement Google OAuth2 authentication flow for user login.
+
+    - Add Google OAuth2 SDK integration
+    - Create callback endpoint for OAuth flow
+    - Store refresh tokens securely
+
+    Closes #123
+  breaking: |
+    feat(api)!: Change response format to JSON
+
+    BREAKING CHANGE: API response format changed from XML to JSON
+
+    Migration guide:
+    1. Update API clients to remove .data wrapper
+    2. Use created_at instead of createdAt

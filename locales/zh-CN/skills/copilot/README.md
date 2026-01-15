@@ -35,7 +35,7 @@ curl -o .github/copilot-instructions.md https://raw.githubusercontent.com/AsiaOs
 `copilot-instructions.md` 档案包含以下指引：
 
 - **提交讯息** - Conventional Commits 格式
-- **程式码品质** - 命名和结构指南
+- **程序码品质** - 命名和结构指南
 - **安全** - 输入验证和注入防护
 - **测试** - AAA 模式和 FIRST 原则
 - **文件** - API 文件标准

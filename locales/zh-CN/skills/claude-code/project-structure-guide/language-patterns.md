@@ -6,9 +6,9 @@ last_synced: 2025-12-30
 status: current
 ---
 
-# 语言特定专案模式
+# 语言特定项目模式
 
-各语言专案结构快速参考。
+各语言项目结构快速參考。
 
 ## Node.js / TypeScript
 
@@ -89,7 +89,7 @@ project/
 
 ## Go
 
-### 标准布局
+### 标准佈局
 
 ```
 project/
@@ -111,7 +111,7 @@ project/
 
 ## Rust
 
-### Binary 应用程式
+### Binary 应用程序
 
 ```
 project/
@@ -240,13 +240,13 @@ project/
 ### 通用
 
 ```gitignore
-# 建构输出
+# 建構输出
 dist/
 build/
 out/
 bin/
 
-# 环境
+# 環境
 .env
 .env.*
 
@@ -267,5 +267,5 @@ Thumbs.db
 | Node.js | node_modules/、*.log |
 | Python | __pycache__/、*.pyc、.venv/ |
 | Go | vendor/（如不使用 modules） |
-| Rust | target/、Cargo.lock（函式库） |
+| Rust | target/、Cargo.lock（函式庫） |
 | Java/.NET | *.class、bin/、obj/ |

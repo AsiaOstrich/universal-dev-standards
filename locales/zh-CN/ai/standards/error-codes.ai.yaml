@@ -1,0 +1,139 @@
+# 错误码标准 - AI 优化版
+# 来源: core/error-code-standards.md
+
+id: error-codes
+meta:
+  version: "1.1.0"
+  updated: "2026-01-05"
+  source: core/error-code-standards.md
+  description: 错误码格式、类别与管理
+
+format:
+  pattern: "<前綴>_<类别>_<编号>"
+  example: "AUTH_VAL_001"
+  components:
+    prefix: "应用程序/服务識别码 (AUTH, PAY, USR)"
+    category: "错误类别 (VAL, SYS, BIZ)"
+    number: "唯一數字識别码 (001, 100, 404)"
+
+categories:
+  VAL:
+    name: 验证
+    description: 用戶端输入验证失败
+    http_status: 400
+    ranges:
+      001-099: 欄位验证
+      100-199: 格式验证
+      200-299: 限制验证
+
+  BIZ:
+    name: 业务邏辑
+    description: 业务規則違反
+    http_status: 422
+    ranges:
+      001-099: 状态違反
+      100-199: 規則違反
+      200-299: 限制違反
+
+  SYS:
+    name: 系统
+    description: 內部系统故障
+    http_status: 500
+    ranges:
+      001-099: 內部错误
+      100-199: 資源错误
+      500-599: HTTP 对应错误
+
+  NET:
+    name: 网络
+    description: 通訊和連线問題
+    http_status: 502-504
+    ranges:
+      001-099: 連线错误
+      100-199: 協議错误
+      400-599: HTTP 对应错误
+
+  AUTH:
+    name: 身份验证/授权
+    description: 安全相关错误
+    http_status: 401/403
+    ranges:
+      001-099: 身份验证 (401)
+      100-199: 授权 (403)
+      200-299: 令牌/工作阶段 (401)
+
+error_structure:
+  required_fields:
+    - code
+    - message
+  recommended_fields:
+    - userMessage
+    - userMessageKey
+    - field
+    - requestId
+    - timestamp
+
+rules:
+  - id: use-format
+    trigger: 建立错误码
+    instruction: "使用 PREFIX_CATEGORY_NUMBER 格式: AUTH_VAL_001"
+    priority: required
+
+  - id: category-match
+    trigger: 分类错误
+    instruction: |
+      对应错误到类别：
+      - VAL: 输入验证失败
+      - BIZ: 业务規則違反
+      - SYS: 系统/內部错误
+      - NET: 网络/連线問題
+      - AUTH: 安全相关错误
+    priority: required
+
+  - id: http-mapping
+    trigger: 回传错误响应
+    instruction: |
+      对应到 HTTP 状态：
+      - VAL → 400
+      - BIZ → 422
+      - AUTH → 401/403
+      - SYS → 500
+      - NET → 502/503/504
+    priority: required
+
+  - id: unique-codes
+    trigger: 定義新错误
+    instruction: 确保错误码在应用程序中唯一
+    priority: required
+
+  - id: localize-messages
+    trigger: 定義错误消息
+    instruction: 使用 i18n 金鑰处理面向使用者的消息
+    priority: recommended
+
+  - id: document-errors
+    trigger: 新增新错误码
+    instruction: 记录原因、解决方案和範例
+    priority: required
+
+  - id: centralize-registry
+    trigger: 管理错误码
+    instruction: 維護集中式错误码登录
+    priority: recommended
+
+quick_reference:
+  categories:
+    columns: [代码, 类别, HTTP, 用途]
+    rows:
+      - [VAL, 验证, 400, 输入验证]
+      - [BIZ, 业务, 422, 业务規則]
+      - [AUTH, 验证, 401/403, 安全]
+      - [SYS, 系统, 500, 內部错误]
+      - [NET, 网络, 502/503, 連线]
+
+  format:
+    columns: [組成, 描述, 範例]
+    rows:
+      - [前綴, 服务識别码, AUTH/PAY/USR]
+      - [类别, 错误类型, VAL/BIZ/SYS]
+      - [编号, 唯一 ID, 001/100/404]

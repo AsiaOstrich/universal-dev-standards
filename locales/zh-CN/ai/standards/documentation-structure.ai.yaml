@@ -1,0 +1,124 @@
+# 文件结构标准 - AI 优化版
+# 来源: core/documentation-structure.md
+
+id: documentation-structure
+meta:
+  version: "1.3.0"
+  updated: "2025-12-30"
+  source: core/documentation-structure.md
+  description: 软体项目的一致文件结构规范
+  language: zh-CN
+
+options:
+  documentation_style:
+    description: 选择文件编写方式
+    multiSelect: true
+    choices:
+      - id: markdown-docs
+        file: options/documentation/markdown-docs.ai.yaml
+        best_for: 開源项目、开发者导向文件
+      - id: api-docs
+        file: options/documentation/api-docs.ai.yaml
+        best_for: REST/GraphQL API 文件
+      - id: wiki-style
+        file: options/documentation/wiki-style.ai.yaml
+        best_for: 大型团队、內部知識庫
+
+structure:
+  root:
+    - file: README.md
+      required: true
+      naming: 大写
+      purpose: 项目概覽
+
+    - file: CONTRIBUTING.md
+      required: false
+      naming: 大写
+      purpose: 貢獻指南
+
+    - file: CHANGELOG.md
+      required: false
+      naming: 大写
+      purpose: 版本历史
+
+    - file: LICENSE
+      required: true
+      naming: 大写（無副檔名）
+      purpose: 授权文件
+
+  docs:
+    naming: 小写短橫线
+    files:
+      - index.md（文件索引）
+      - getting-started.md（快速開始）
+      - architecture.md（系统架構）
+      - api-reference.md（API 文件）
+      - deployment.md（部署指南）
+      - troubleshooting.md（常見問題）
+
+    subdirectories:
+      - name: flows/
+        purpose: 流程文件
+        index_required: "當 >5 个流程时"
+
+      - name: ADR/
+        purpose: 架構决策记录
+        naming: "NNN-title.md"
+
+      - name: diagrams/
+        purpose: 架構图表
+        formats: [".mmd", ".puml", ".drawio"]
+
+rules:
+  - id: root-uppercase
+    trigger: 建立根目录文件时
+    instruction: 根目录文件使用大写（README、CONTRIBUTING、CHANGELOG）
+    priority: required
+
+  - id: docs-lowercase-kebab
+    trigger: 建立 docs/ 文件时
+    instruction: docs/ 內所有文件使用小写短橫线
+    validator: "^[a-z][a-z0-9-]*\\.md$"
+    priority: required
+    examples:
+      good:
+        - getting-started.md
+        - api-reference.md
+      bad:
+        - GettingStarted.md
+        - API_Reference.md
+        - "User Guide.md"
+
+  - id: readme-required
+    trigger: 建立新项目时
+    instruction: 每个项目都必須有 README.md
+    priority: required
+
+  - id: flow-index
+    trigger: 建立流程文件时
+    instruction: 當流程超過 5 个时，建立 flows/README.md
+    priority: required
+
+  - id: adr-numbering
+    trigger: 建立 ADR 时
+    instruction: 使用格式 NNN-title.md（例如：001-use-postgres.md）
+    validator: "^\\d{3}-[a-z][a-z0-9-]+\\.md$"
+    priority: required
+
+quick_reference:
+  root_files:
+    columns: [文件, 命名, 用途]
+    rows:
+      - [README.md, 大写, 项目概覽]
+      - [CONTRIBUTING.md, 大写, 貢獻指南]
+      - [CHANGELOG.md, 大写, 版本历史]
+      - [LICENSE, 大写（無副檔名）, 授权文件]
+      - [SECURITY.md, 大写, 安全公告]
+
+  docs_structure:
+    columns: [目录, 用途, 命名]
+    rows:
+      - [docs/, 主要文件, 小写短橫线]
+      - [docs/flows/, 流程文件, "{module}-flow.md"]
+      - [docs/ADR/, 架構决策, "NNN-title.md"]
+      - [docs/diagrams/, 架構图表, 描述性名称]

@@ -109,14 +109,14 @@ Copy-Item path\to\universal-dev-standards\extensions\frameworks\fat-free-pattern
 
 **用于繁体中文团队（macOS / Linux）**:
 ```bash
-cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
+cp path/to/universal-dev-standards/extensions/locales/zh-cn.md .standards/
 ```
 
 **用于繁体中文团队（Windows PowerShell）**:
 ```powershell
-Copy-Item path\to\universal-dev-standards\extensions\locales\zh-tw.md .standards\
+Copy-Item path\to\universal-dev-standards\extensions\locales\zh-cn.md .standards\
 ```
-- [ ] `zh-tw.md` copied (if applicable)
+- [ ] `zh-cn.md` copied (if applicable)
 
 ---
 

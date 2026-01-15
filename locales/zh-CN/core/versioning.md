@@ -6,7 +6,7 @@ last_synced: 2026-01-08
 status: current
 ---
 
-> **语言**: [English](../../../core/versioning.md) | [繁體中文](../zh-TW/core/versioning.md) | 简体中文
+> **语言**: [English](../../../core/versioning.md) | [简体中文](../zh-TW/core/versioning.md) | 简体中文
 
 # 语义化版本标准
 

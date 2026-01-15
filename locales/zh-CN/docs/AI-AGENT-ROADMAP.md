@@ -8,7 +8,7 @@ last_updated: 2026-01-14
 
 # AI Agent 集成规划
 
-> **Language**: [English](../../../docs/AI-AGENT-ROADMAP.md) | [繁體中文](../../zh-TW/docs/AI-AGENT-ROADMAP.md) | 简体中文
+> **Language**: [English](../../../docs/AI-AGENT-ROADMAP.md) | [简体中文](../../zh-TW/docs/AI-AGENT-ROADMAP.md) | 简体中文
 
 **版本**: 1.0.0
 **最后更新**: 2026-01-14
