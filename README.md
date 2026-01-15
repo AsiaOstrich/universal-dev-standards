@@ -2,28 +2,21 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 3.5.0-beta.13
-**Last Updated**: 2026-01-13
+**Version**: 3.5.0
+**Last Updated**: 2026-01-15
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
-> **🧪 Beta Notice**: This version contains experimental features. APIs may change before stable release.
-> For stable version: `npm install universal-dev-standards@3.4.2`
+### What's New in 3.5.0
 
-### Feature Availability
+| Feature | Description |
+|---------|-------------|
+| **i18n Support** | CLI supports EN, ZH-TW, ZH-CN with auto-detection |
+| **9 AI Tools** | Claude Code, Cursor, Windsurf, Cline, GitHub Copilot, Antigravity, Codex, OpenCode, Gemini CLI |
+| **18 Core Standards** | New `ai-instruction-standards.md` |
+| **Interactive Commands** | `/init`, `/config`, `/update` use AskUserQuestion |
+| **Methodology System** 🧪 | TDD/BDD/SDD/ATDD workflows (experimental) |
 
-| Feature | Stable (3.4.2) | Beta (3.5.x) |
-|---------|:--------------:|:------------:|
-| **Core Standards** (16 files) | ✅ | ✅ |
-| **Claude Code Skills** (15 skills) | ✅ | ✅ |
-| **CLI Tool** (`uds init`, `check`, `update`) | ✅ | ✅ |
-| Hash-based integrity checking | ✅ | ✅ |
-| Plugin Marketplace support | ✅ | ✅ |
-| **Methodology System** | ❌ | ✅ 🧪 |
-| `/methodology` command | ❌ | ✅ 🧪 |
-| `/bdd` command | ❌ | ✅ 🧪 |
-| TDD/BDD/SDD/ATDD workflows | ❌ | ✅ 🧪 |
-
-> 🧪 = Experimental feature - will be redesigned in v4.0
+> 🧪 = Experimental feature - requires `-E` flag, will be redesigned in v4.0
 
 ---
 

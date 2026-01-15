@@ -9,453 +9,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [3.5.0-beta.28] - 2026-01-15
-
-### Changed
-- **Commands**: Simplify slash command descriptions to English-only
-  - Remove bilingual format from `description` field (UI space optimization)
-  - Markdown body content remains bilingual for documentation
-- **Commands**: Add AskUserQuestion interactive mode to `/init`, `/config`, `/update`
-  - Commands now prompt users for preferences before executing
-  - Quick mode available via `--yes` flag to skip questions
-- **Commands**: Add missing CLI options to `/check`
-  - Added `--diff`, `--restore`, `--restore-missing`, `--migrate` options
-
-## [3.5.0-beta.27] - 2026-01-15
+## [3.5.0] - 2026-01-15
 
 ### Added
-- **i18n**: Add simplified Chinese (zh-CN) localization
-  - Complete zh-CN translations for all 16 core standards
-  - zh-CN translations for 20+ Claude Code skills
-  - zh-CN translations for adoption guides and checklists
-  - zh-CN AI options (changelog, commit-message, code-review, etc.)
-
-### Changed
-- **CLI**: Add i18n support for all command output messages
-  - All 6 commands now support EN, ZH-TW, and ZH-CN
-  - `uds list`: title, labels, error messages
-  - `uds skills`: status, marketplace info, migration hints
-  - `uds check`: integrity status, interactive mode, coverage report
-  - `uds init`: detection, config summary, spinners, success messages
-  - `uds update`: CLI update, version info, sync status
-  - `uds configure`: menu options, labels, confirmation messages
-  - Environment variable detection: `LANG=zh_CN.UTF-8`, `LANG=zh_TW.UTF-8`
-- **CLI**: Add i18n support for integration prompts (`integrations.js`)
-  - All integration prompts now support `--ui-lang en`, `zh-tw`, and `zh-cn`
-
-## [3.5.0-beta.26] - 2026-01-15
-
-### Changed
-- **CLI**: Complete i18n support for all interactive prompts
-  - `promptAITools`: Title, description, separators, choices
-  - `promptSkillsInstallLocation`: Title, description, choices, explanations
-  - `promptCommitLanguage`: Title, description, choices, labels
-  - `promptInstallMode`: Question, choices, explanations
-  - `promptAdoptionLevel`: Title, question, choices, warnings
-  - `promptMethodology`: Title, description, choices
-  - `promptManageAITools`: All messages and choices
-  - `promptSkillsUpdate`: All messages and choices
-  - All labels now use i18n (no more mixed Chinese/English in prompts)
-
-## [3.5.0-beta.25] - 2026-01-15
-
-### Added
-- **CLI**: Add i18n support for interactive prompts
-  - New `--ui-lang` option: `en`, `zh-tw`, or `auto` (default)
-  - Auto-detection from system locale (`LANG`, `LC_ALL` environment variables)
-  - All 8 interactive prompts now use i18n messages
-  - Prompts display in user's preferred language
-
-## [3.5.0-beta.24] - 2026-01-15
-
-### Changed
-- **CLI**: Improve all interactive prompt descriptions for better UX
-  - `promptContentMode`: Explain how each mode affects AI Agent execution behavior
-  - `promptLevel`: Show specific standards included in each adoption level
-  - `promptFormat`: Explain AI vs human format trade-offs (token efficiency)
-  - `promptStandardsScope`: Clarify Lean vs Complete installation implications
-  - `promptGitWorkflow`: Add use case guidance (small team vs enterprise)
-  - `promptMergeStrategy`: Show pros/cons for each strategy
-  - `promptTestLevels`: Explain what each test level covers + pyramid visualization
-  - All prompts now include bilingual (EN/ZH-TW) descriptions
-  - Post-selection explanations help users understand their choice
-
-## [3.5.0-beta.23] - 2026-01-14
-
-### Added
-- **CLI**: Add `-E, --experimental` flag to `uds init` and `uds configure`
-  - Experimental features (methodology) now hidden by default
-  - Use `-E` flag to enable experimental features
-  - Makes experimental features opt-in rather than always visible
-
-### Changed
-- **CLI**: Methodology option completely hidden without `-E` flag
-  - Not shown in current configuration display
-  - Not shown in configure menu options
-  - Even projects with existing methodology settings won't show it
-
-## [3.5.0-beta.22] - 2026-01-14
-
-### Added
-- **Scripts**: Add registry reference check to `check-standards-sync.sh`
-  - New Check 3 verifies all `ai/standards/*.ai.yaml` files are referenced in `standards-registry.json`
-  - Prevents the issue where AI files exist but registry isn't updated
-  - Automatically runs in pre-commit hook and pre-release check
-  - Updated pre-commit hook error message with registry update reminder
-
-### Changed
-- **Methodology System**: Mark entire methodology system as `[Experimental]`
-  - All methodology features (`/methodology`, `/tdd`, `/bdd` commands) now display experimental warning
-  - CLI commands (`uds init`, `uds configure`) show `[Experimental]` tag for methodology options
-  - Methodology YAML files include `status: experimental` field
-  - Updated README.md to clarify experimental features will be redesigned in v4.0
-  - This system will be redesigned in v4.0 with native multi-methodology support
-
-### Fixed
-- **CLI**: Registry now properly references all existing `.ai.yaml` files for Compact format
-  - Updated `standards-registry.json` to add `source.ai` paths for 15 standards
-  - When selecting "Compact (YAML format)" during `uds init`, all 18 core standards now correctly use `.ai.yaml` format
-  - Previously only 3 standards (commit-message, git-workflow, testing) had AI format references
-  - Templates without AI versions (requirement-*) continue to use `.md` format as expected
-
-## [3.5.0-beta.21] - 2026-01-14
-
-### Fixed
-- **CLI**: Fix Skills version detection showing stale version
-  - `installed_plugins.json` may contain outdated version information
-  - Now scans actual cache directory to find the latest installed version
-  - Fixes discrepancy between `uds check` and `/plugin` UI
-
-## [3.5.0-beta.20] - 2026-01-14
-
-### Added
-- **CLI**: Interactive CLI update prompt during `uds update`
-  - When a newer CLI version is available on npm, users are presented with options
-  - Options: "Update CLI first (recommended)", "Continue with current CLI", "Cancel"
-  - Selecting "Update CLI" runs `npm install -g` and prompts to re-run
-- **CLI**: Add `--beta` flag to `uds update` command
-  - Explicitly check for beta version updates
-  - Default behavior: only check @latest (stable releases)
-  - With `--beta`: compare against @beta tag on npm
-
-### Changed
-- **CLI**: Refactor beta version checking logic
-  - Changed `includeBeta` parameter to `checkBeta` for explicit control
-  - Beta checking is now opt-in via `--beta` flag, not automatic
-
-## [3.5.0-beta.19] - 2026-01-14
-
-### Added
-- **Hooks**: Add standards sync check to pre-commit hook
-  - Automatically checks `core/*.md` ↔ `ai/standards/*.ai.yaml` sync before commit
-  - Prevents commits with missing `.ai.yaml` files
-  - Displays helpful error message with required steps
-
-## [3.5.0-beta.18] - 2026-01-14
-
-### Added
-- **Core**: Add new `ai-instruction-standards.md` (18th core standard)
-  - Define universal vs project-specific separation principle
-  - Cover all AI tools: Claude Code, Cursor, Windsurf, Cline, GitHub Copilot, OpenCode
-  - Include maintenance checklist and labeling conventions
-  - Add zh-TW and zh-CN translations
-
-### Fixed
-- **Docs**: Fix CLAUDE.md universal section leakage
-  - Remove `npm test` from universal testing standards section
-  - Replace with generic "Run tests before committing"
-
-## [3.5.0-beta.17] - 2026-01-14
-
-### Added
-- **Docs**: Add Windows PowerShell equivalents to all adoption guides (33 files)
-  - English source files (11): adoption guides, skills READMEs, maintenance docs
-  - zh-TW translations (11): full sync with English sources
-  - zh-CN translations (11): full sync with English sources
-- **Docs**: Add cross-platform command sync documentation to CLAUDE.md
-  - Standard Bash → PowerShell command equivalents table
-  - Labeling convention: `**macOS / Linux:**` + `**Windows PowerShell:**`
-  - List of 33 files requiring cross-platform maintenance
-- **Scripts**: Add `scripts/pre-release.ps1` for Windows pre-release checks
-
-## [3.5.0-beta.16] - 2026-01-14
-
-### Fixed
-- **Skills**: Add standard format to project-structure-guide SKILL.md
-- **Docs**: Fix multi-language support documentation
-  - Remove unsupported language examples (Spanish, Japanese) from README
-  - Replace with Simplified Chinese examples (actual supported language)
-  - Add platform testing column to AI tool support tables
-  - Add platform support section (macOS tested, Linux/Windows untested)
-- **Docs**: Strengthen locale sync requirements
-  - Change zh-CN status from "partial" to "⚠️ 需與 EN 同步" across all docs
-  - Merge locale creation steps in OPERATION-WORKFLOW.md to emphasize sync
-
-### Added
-- **Docs**: Add LOCALIZATION-ROADMAP.md for future 10-language expansion plan
-  - Priority languages: ja, ko, pt-BR, es, de, fr, id
-  - AI-assisted translation workflow
-  - 833 total files to translate (119 × 7 languages)
-
-## [3.5.0-beta.15] - 2026-01-14
-
-### Fixed
-- **CLI**: Fix `require()` error in ES Module (init.js)
-  - Replaced dynamic `require('path')` with static ES Module import
-  - Resolved JavaScript Temporal Dead Zone (TDZ) error caused by variable shadowing
-  - `uds init` now works correctly in all environments
-
-## [3.5.0-beta.14] - 2026-01-14
-
-### Added
-- **CLI**: Add Marketplace Skills version detection
-  - New `getMarketplaceSkillsInfo()` reads `~/.claude/plugins/installed_plugins.json`
-  - `uds check` now displays Skills version and last updated date for Marketplace installations
-- **Docs**: Add Section 7.5 "CLI and Slash Command Sync" to OPERATION-WORKFLOW.md
-  - Documents the relationship between CLI code and slash command documentation
-  - Provides sync checklist for adding new CLI features
-  - Includes example workflow for version detection feature
-
-### Changed
-- **Skills**: Update `/check` and `/update` slash commands
-  - Document Skills version detection capability
-  - Explain where version info is stored for different installation methods
-
-## [3.5.0-beta.13] - 2026-01-13
-
-### Added
-- **CLI**: Add OpenCode as skills-compatible tool
-  - `uds init` now treats OpenCode like Claude Code for minimal installation
-  - `uds check` shows OpenCode skills compatibility status
-  - Skills auto-installed to `.claude/skills/` (OpenCode auto-detects this path)
-- **Docs**: Add Cross-Tool Compatibility section to skills-mapping.md
-  - Path comparison table for 7 AI agents (Claude Code, OpenCode, Cursor, OpenAI Codex, GitHub Copilot, Windsurf, Cline)
-  - Explains why UDS uses `.claude/skills/` as default path
-  - Cross-tool installation instructions for incompatible tools
-- **Docs**: Restructure README with independent Agent Skills Installation section
-  - Consolidated skills installation methods in one place
-  - Added community marketplaces (n-skills, claude-plugins.dev, agentskills.io)
-- **Docs**: Add beta version installation instructions
-  - `npm install -g universal-dev-standards@beta`
-  - `npx universal-dev-standards@beta init`
-
-### Changed
-- **Docs**: Update integrations/opencode/ documentation
-  - Version 1.4.0 with cross-tool compatibility info
-  - Bilingual translations synced (zh-TW, zh-CN)
-
-## [3.5.0-beta.12] - 2026-01-13
-
-### Added
-- **Docs**: Add usage modes comparison documentation
-  - Compares Skills Only vs Standards Only vs Both modes
-  - Includes feature coverage, token efficiency, and recommendations
-  - Bilingual support (English and Traditional Chinese)
-  - See `docs/USAGE-MODES-COMPARISON.md`
-- **Docs**: Restructure README installation documentation
-  - npm CLI as primary installation method
-  - AI tool extensions as optional features
-  - Complete list of 9 supported AI tools with correct status
-
-### Fixed
-- **CLI**: Add missing AI tool detection in detector.js
-  - Now detects all 9 AI tools: Claude Code, Cursor, Windsurf, Cline, GitHub Copilot, Antigravity, Codex, OpenCode, Gemini CLI
-  - Fixes auto-detection during `uds init`
-
-## [3.5.0-beta.11] - 2026-01-12
-
-### Added
-- **Docs**: Add Feature Availability table to README
-  - Clear comparison of stable (3.4.2) vs beta (3.5.x) features
-  - Mark experimental features with 🧪 indicator
-  - Bilingual support (English and Traditional Chinese)
-
-### Fixed
-- **i18n**: Add missing YAML front matter to 6 translation files
-  - `docs/CLI-INIT-OPTIONS.md`
-  - `skills/claude-code/commands/bdd.md`
-  - `skills/claude-code/commands/methodology.md`
-  - `skills/claude-code/methodology-system/SKILL.md`
-  - `skills/claude-code/methodology-system/create-methodology.md`
-  - `skills/claude-code/methodology-system/runtime.md`
-- **Docs**: Update stable version reference from 3.3.0 to 3.4.2
-
-## [3.5.0-beta.10] - 2026-01-12
-
-### Added
-- **Methodology System**: Add comprehensive development methodology support
+- **i18n**: Complete internationalization support
+  - Simplified Chinese (zh-CN) localization for all 18 core standards, 20+ skills, adoption guides
+  - CLI i18n: `--ui-lang` option (`en`, `zh-tw`, `zh-cn`, `auto`)
+  - All 6 CLI commands and 8 interactive prompts support 3 languages
+  - Environment variable detection (`LANG`, `LC_ALL`)
+- **Methodology System** `[Experimental]`: Development methodology support
   - Built-in methodologies: TDD, BDD, SDD, ATDD
-  - YAML-based methodology definitions with JSON Schema validation
-  - Phase tracking with checklists and checkpoints
-  - Custom methodology template for team-specific workflows
-  - `/methodology` command for status, switching, phase management
-  - CLI integration: methodology selection in `uds init` and `uds configure`
-- **Commands**: Add `/bdd` command for Behavior-Driven Development
-  - Full BDD workflow: Discovery → Formulation → Automation → Living Documentation
-  - Gherkin format examples and Three Amigos guidance
-  - Phase checklists and indicators
-- **Commands**: Integrate `/tdd` with methodology system
-  - Auto-activates TDD methodology when invoked
-  - Shows phase indicators (🔴 RED, 🟢 GREEN, 🔵 REFACTOR)
-- **Docs**: Add bilingual documentation for methodology system
-  - English and Traditional Chinese translations
-  - SKILL.md, runtime.md, create-methodology.md
-
-### Changed
-- **Skills**: Update install scripts to include methodology-system (16 skills total)
-- **Registry**: Add methodologies section to standards-registry.json
-
-## [3.5.0-beta.9] - 2026-01-11
-
-### Added
-- **Scripts**: Add unified pre-release check script
-  - `scripts/pre-release-check.sh` for Unix/macOS
-  - `scripts/pre-release-check.ps1` for Windows PowerShell
-  - Runs all 7 validation checks in a single command
-  - Options: `--fail-fast`, `--skip-tests`
-- **CI**: Add pre-release validation to GitHub Actions publish workflow
-  - Runs version sync, standards sync, linting, and tests before npm publish
-  - Prevents publishing if any check fails
-
-### Changed
-- **Docs**: Add "Automated Pre-release Check" section to release-workflow.md
-- **Docs**: Update CLAUDE.md with pre-release-check.sh in Quick Commands
-
-## [3.5.0-beta.8] - 2026-01-11
-
-### Fixed
-- **CLI**: Fix version mismatch in `standards-registry.json`
-  - Sync `standards-registry.json` version with `package.json` (was stuck at 3.5.0-beta.5)
-  - This caused `uds update` to show outdated "latest version" info
-
-### Changed
-- **Release**: Add version sync check to pre-release checklist
-  - Added `./scripts/check-version-sync.sh` verification step
-  - Prevents future version mismatch issues
-
-## [3.5.0-beta.7] - 2026-01-11
-
-### Fixed
-- **CLI**: Fix Windows path separator issue in untracked file detection
-  - Normalize path separators to forward slashes in `scanDirectory` function
-  - Ensures cross-platform consistency when comparing manifest paths
-
-## [3.5.0-beta.6] - 2026-01-11
-
-### Added
-- **Docs**: Add 18 human-readable markdown files for `options/` directory
-  - `options/changelog/`: keep-a-changelog.md, auto-generated.md
-  - `options/code-review/`: pr-review.md, pair-programming.md, automated-review.md
-  - `options/documentation/`: api-docs.md, markdown-docs.md, wiki-style.md
-  - `options/project-structure/`: kotlin.md, php.md, ruby.md, rust.md, swift.md
-  - `options/testing/`: contract-testing.md, industry-pyramid.md, istqb-framework.md, performance-testing.md, security-testing.md
-  - Completes dual-format architecture: `ai/options/*.ai.yaml` for AI tools, `options/*.md` for human developers
-- **AI Standards**: Add `ai/standards/test-driven-development.ai.yaml`
-  - AI-optimized TDD standards with Red-Green-Refactor cycle
-  - FIRST principles and applicability guide
-- **Docs**: Add comprehensive CLI init options guide with trilingual support
-  - `docs/CLI-INIT-OPTIONS.md` - Complete documentation for all `uds init` options
-  - Covers: AI Tools, Skills Location, Standards Scope, Adoption Level, Format, Standard Options, Extensions, Integration Configuration, Content Mode
-  - Includes use cases, decision flows, and CLI parameter reference
-  - Trilingual: English, Traditional Chinese (`locales/zh-TW/`), Simplified Chinese (`locales/zh-CN/`)
-- **Release**: Add CLI documentation to pre-release checklist
-  - `release-workflow.md` now includes CLI-INIT-OPTIONS.md verification
-- **Release**: Add standards consistency check to pre-release checklist
-  - Verify `core/` ↔ `ai/standards/` content alignment
-  - Verify `options/` ↔ `ai/options/` dual-format completeness
-- **Scripts**: Add automated standards consistency check scripts
-  - `scripts/check-standards-sync.sh` for Unix/macOS
-  - `scripts/check-standards-sync.ps1` for Windows PowerShell
-  - Checks `core/` ↔ `ai/standards/` and `options/` ↔ `ai/options/` consistency
-
-### Changed
-- **CLI**: Improve minimal content mode in integration generator
-  - Minimal mode now includes simplified standards reference list
-  - Ensures AI tools know which standards are available even in minimal mode
-  - New `generateMinimalStandardsReference()` function
-- **CLI**: Optimize `uds init` prompt messages
-  - Unified header format across all prompts
-  - Improved terminology: Starter/Professional/Complete (levels), Compact/Detailed (format), Standard (content mode), Lean (standards scope)
-  - Enhanced color coding: green for recommended options
-  - Simplified post-selection explanations
-
-## [3.5.0-beta.5] - 2026-01-09
-
-### Added
-- **CLI**: Enhanced AI tool integration with automatic standards compliance
+  - YAML-based definitions with JSON Schema validation
+  - `/methodology`, `/tdd`, `/bdd` commands with phase tracking
+  - CLI integration in `uds init` and `uds configure` (requires `-E` flag)
+- **CLI**: Enhanced AI tool integration
   - Support 9 AI tools: Claude Code, Cursor, Windsurf, Cline, GitHub Copilot, Google Antigravity, OpenAI Codex, Gemini CLI, OpenCode
-  - New content mode selection: `full`, `index` (recommended), `minimal`
-  - Generate Standards Compliance Instructions with MUST/SHOULD priorities
-  - Generate Standards Index listing all installed standards
-  - Handle `AGENTS.md` sharing between Codex and OpenCode
-- **CLI**: Enhanced `uds configure` command
-  - New option: AI Tools - Add/Remove AI tool integrations
-  - New option: Adoption Level - Change Level 1/2/3
-  - New option: Content Mode - Change full/index/minimal
-  - Auto-regenerate integration files when settings change
-- **CLI**: Enhanced `uds update` command
-  - New flag: `--integrations-only` - Only update integration files
-  - New flag: `--standards-only` - Only update standard files
-  - Auto-sync integration files during standard updates
-- **CLI**: Enhanced `uds check` command
-  - New section: AI Tool Integration Status
-  - Verify integration files exist and reference standards correctly
-  - Report missing standards references with fix suggestions
+  - Content mode selection: `full`, `index` (recommended), `minimal`
+  - Auto-generate Standards Compliance Instructions and Standards Index
+- **CLI**: Enhanced commands
+  - `uds configure`: AI Tools, Adoption Level, Content Mode options
+  - `uds update`: `--integrations-only`, `--standards-only`, `--sync-refs`, `--beta` flags
+  - `uds check`: AI Tool Integration Status, Reference Sync Status, Marketplace Skills version detection
+  - `uds init/configure`: `-E, --experimental` flag for experimental features
 - **Skills**: New `/config` slash command for standards configuration
+- **Skills**: Interactive mode with AskUserQuestion for `/init`, `/config`, `/update`
+- **Core**: New `ai-instruction-standards.md` (18th core standard)
+- **Docs**: Windows PowerShell support for all adoption guides (33 files)
+- **Docs**: Comprehensive CLI init options guide (`docs/CLI-INIT-OPTIONS.md`)
+- **Docs**: Usage modes comparison (`docs/USAGE-MODES-COMPARISON.md`)
+- **Docs**: 18 human-readable markdown files for `options/` directory
+- **Docs**: LOCALIZATION-ROADMAP.md for future 10-language expansion
+- **Scripts**: Unified pre-release check (`scripts/pre-release-check.sh`)
+- **Scripts**: Standards consistency check (`scripts/check-standards-sync.sh`)
+- **Scripts**: Version sync check (`scripts/check-version-sync.sh`)
+- **CI**: Pre-release validation in GitHub Actions publish workflow
 
 ### Changed
-- **CLI**: Integration files now include compliance instructions and standards index by default (index mode)
-
-## [3.5.0-beta.4] - 2026-01-09
-
-### Added
-- **CLI**: Reference sync feature for AI integration files
-  - `uds check` now shows "Reference Sync Status" section
-    - Detects orphaned references (references in integration file but not in manifest)
-    - Reports missing references (standards in manifest but not referenced)
-  - `uds update --sync-refs` regenerates integration files based on manifest standards
-  - New `integrationConfigs` field in manifest to persist generation settings
-- **Utils**: New `reference-sync.js` module with category-to-standard mappings
-
-### Changed
-- **CLI**: Manifest version upgraded from 3.1.0 to 3.2.0
-  - New `integrationConfigs` field stores integration file generation settings
-  - Allows `uds update --sync-refs` to regenerate with same options (categories, detailLevel, language)
-
-## [3.5.0-beta.3] - 2026-01-09
+- **CLI**: Manifest version upgraded to 3.2.0
+  - New `fileHashes` field for integrity checking
+  - New `integrationConfigs` field for integration settings
+- **CLI**: Improved interactive prompt descriptions with bilingual support
+- **CLI**: Integration files use index mode by default
+- **Skills**: Slash command descriptions simplified to English-only
+- **Skills**: Update install scripts to include methodology-system (16 skills total)
 
 ### Fixed
-- **CLI**: Fix `uds update` showing incorrect version numbers
-  - `standards-registry.json` versions were not synchronized with `package.json`
-  - Now displays correct current and latest version information
-
-### Added
-- **Scripts**: Add version sync check scripts
-  - `scripts/check-version-sync.sh` for Unix/macOS
-  - `scripts/check-version-sync.ps1` for Windows PowerShell
-  - Verifies `standards-registry.json` versions match `package.json`
-- **Docs**: Add version sync check to pre-release checklist in `release-workflow.md`
-
-## [3.5.0-beta.2] - 2026-01-09
-
-### Added
-- **Integrations**: OpenAI Codex CLI integration with `AGENTS.md`
-- **Integrations**: Gemini CLI integration with `GEMINI.md`
-- **Integrations**: OpenCode integration with `AGENTS.md`
-- **Integrations**: Google Antigravity project-level rules file (`.antigravity/rules.md`)
+- **CLI**: Windows path separator issue in untracked file detection
+- **CLI**: `require()` error in ES Module (init.js)
+- **CLI**: Skills version detection showing stale version
+- **CLI**: Version mismatch in `standards-registry.json`
+- **CLI**: Missing AI tool detection (now detects all 9 tools)
+- **CLI**: Registry references for `.ai.yaml` files in Compact format
 
 ### Removed
-- **CLI**: Remove untracked file scanning from `uds check`
-  - `uds check` now only verifies files recorded in manifest
-  - No longer prompts to track unknown files in `.standards/` directory
-
-## [3.5.0-beta.1] - 2026-01-09
-
-### Added
-- **CLI**: Untracked file detection in `uds check` (removed in 3.5.0-beta.2)
-
-### Changed
-- **CLI**: `uds check` now reports "Some issues detected" when untracked files exist (removed in 3.5.0-beta.2)
+- **CLI**: Untracked file scanning from `uds check`
 
 ## [3.4.2] - 2026-01-08
 
