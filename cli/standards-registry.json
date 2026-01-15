@@ -325,18 +325,21 @@
     "1": {
       "name": "Essential",
       "nameZh": "基本",
+      "nameZhCn": "基本",
       "description": "Minimum viable standards for any project",
       "setupTime": "30 minutes"
     },
     "2": {
       "name": "Recommended",
       "nameZh": "推薦",
+      "nameZhCn": "推荐",
       "description": "Professional quality standards for team projects",
       "setupTime": "2 hours"
     },
     "3": {
       "name": "Enterprise",
       "nameZh": "企業",
+      "nameZhCn": "企业",
       "description": "Comprehensive standards for enterprise or regulated projects",
       "setupTime": "1-2 days"
     }

@@ -37,9 +37,10 @@ export function listCommand(options) {
     standards = getStandardsByLevel(levelNum);
     const levelInfo = getLevelInfo(levelNum);
     const lang = getLanguage();
+    const zhName = lang === 'zh-cn' ? levelInfo.nameZhCn : levelInfo.nameZh;
     const levelDisplay = lang === 'en'
       ? `${levelNum}: ${levelInfo.name}`
-      : `${levelNum}: ${levelInfo.name} (${levelInfo.nameZh})`;
+      : `${levelNum}: ${levelInfo.name} (${zhName})`;
     console.log(chalk.cyan(`${msg.showingLevel} ${levelDisplay}`));
     console.log(chalk.gray(levelInfo.description));
     console.log();

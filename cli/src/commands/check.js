@@ -73,9 +73,10 @@ export async function checkCommand(options = {}) {
   console.log();
   console.log(chalk.cyan(msg.adoptionStatus));
   const lang = getLanguage();
+  const zhName = lang === 'zh-cn' ? levelInfo.nameZhCn : levelInfo.nameZh;
   const levelDisplay = lang === 'en'
     ? `${manifest.level} - ${levelInfo.name}`
-    : `${manifest.level} - ${levelInfo.name} (${levelInfo.nameZh})`;
+    : `${manifest.level} - ${levelInfo.name} (${zhName})`;
   console.log(chalk.gray(`  ${common.level}: ${levelDisplay}`));
   console.log(chalk.gray(`  ${msg.installed}: ${manifest.upstream.installed}`));
   console.log(chalk.gray(`  ${common.version}: ${manifest.upstream.version}`));
