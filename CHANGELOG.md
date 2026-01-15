@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.2] - 2026-01-16
+
+### Added
+- **Scripts**: Documentation sync check for pre-release
+  - New `check-docs-sync.sh/.ps1` scripts
+  - Validates CHANGELOG.md has entry for current version
+  - Verifies version sync in plugin.json, marketplace.json, README.md
+  - Provides reminder list for docs that may need updating
+  - Pre-release check now runs 8 checks (7 with --skip-tests)
+
+### Removed
+- **Skills**: Deprecated installation scripts
+  - Removed `skills/claude-code/install.sh` and `install.ps1`
+  - Removed `scripts/check-install-scripts-sync.sh` and `.ps1`
+  - Plugin Marketplace is now the primary installation method
+
+### Changed
+- **Docs**: Updated all documentation to use Plugin Marketplace installation
+  - Updated README.md (en, zh-TW, zh-CN)
+  - Updated all adoption guides and checklists
+  - Updated skills README files
+
 ## [3.5.1-beta.1] - 2026-01-15
 
 ### Added
