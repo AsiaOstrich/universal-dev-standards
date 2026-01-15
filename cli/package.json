@@ -1,6 +1,6 @@
 {
   "name": "universal-dev-standards",
-  "version": "3.5.1-beta.2",
+  "version": "3.5.1-beta.3",
   "description": "CLI tool for adopting Universal Development Standards",
   "keywords": [
     "documentation",
@@ -29,6 +29,7 @@
   "files": [
     "bin",
     "src",
+    "bundled",
     "standards-registry.json",
     "README.md"
   ],
@@ -42,7 +43,8 @@
     "test:e2e": "vitest run tests/e2e/",
     "test:all": "vitest run && vitest run tests/e2e/",
     "lint": "eslint src/",
-    "prepare": "node ../scripts/setup-husky.mjs"
+    "prepare": "node ../scripts/setup-husky.mjs",
+    "prepack": "node scripts/prepack.mjs"
   },
   "dependencies": {
     "chalk": "^5.3.0",

@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.3] - 2026-01-16
+
+### Fixed
+- **CLI**: npm package now bundles standard files
+  - Added `prepack` script to bundle `core/` and `locales/` directories
+  - New `getSourcePath()` function prioritizes bundled files over GitHub download
+  - Resolves 404 errors when updating standards via npm-installed CLI
+  - Improved error messages for file download failures
+
 ## [3.5.1-beta.2] - 2026-01-16
 
 ### Added
