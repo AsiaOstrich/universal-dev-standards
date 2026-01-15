@@ -32,13 +32,9 @@ skills/
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**替代方案：脚本安装（macOS / Linux）**
+**替代方案：手动复制（macOS / Linux）**
 ```bash
-# 全域安装所有技能
-cd skills/claude-code
-./install.sh
-
-# 或复制特定技能
+mkdir -p ~/.claude/skills
 cp -r skills/claude-code/commit-standards ~/.claude/skills/
 ```
 

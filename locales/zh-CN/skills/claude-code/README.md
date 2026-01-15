@@ -106,15 +106,9 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 
 > ⚠️ **已棄用**：透過脚本手动安裝已棄用，將在未來版本中移除。請改用 Plugin Marketplace。
 
-適用於無法存取 Marketplace 的環境（例如企业网络）：
+适用于无法访问 Marketplace 的环境（例如企业网络）：
 
-#### 快速安裝（所有 Skills）
-
-```bash
-./install.sh
-```
-
-#### 手动安裝（选择性 Skills）
+#### 手动安装（选择性 Skills）
 
 **macOS / Linux:**
 ```bash

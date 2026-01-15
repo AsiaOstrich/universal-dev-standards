@@ -242,22 +242,6 @@ Remove-Item -Recurse $env:TEMP\uds
 - **[claude-plugins.dev](https://claude-plugins.dev/skills)** - 从 GitHub 自动索引的技能发现
 - **[agentskills.io](https://agentskills.io)** - 官方 Agent Skills 规范
 
-#### 脚本安装（已弃用）
-
-> ⚠️ 脚本安装正在逐步淘汰。请改用 Plugin Marketplace 或 UDS CLI。
-
-macOS / Linux：
-```bash
-git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards/skills/claude-code && ./install.sh
-```
-
-Windows (PowerShell)：
-```powershell
-git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards\skills\claude-code; .\install.ps1
-```
-
 ---
 
 ### 多 AI 工具支持

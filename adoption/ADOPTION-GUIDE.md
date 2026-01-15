@@ -66,7 +66,7 @@ These 10 standards are **triggered by keywords** and loaded on demand:
 | documentation-guide | docs, README |
 | requirement-assistant | spec, SDD, 新功能 |
 
-**Deployment**: Install as Skills via `skills/claude-code/install.sh`.
+**Deployment**: Install as Skills via Plugin Marketplace or manual copy.
 
 > See [STATIC-DYNAMIC-GUIDE.md](STATIC-DYNAMIC-GUIDE.md) for detailed classification.
 
@@ -78,20 +78,16 @@ These 10 standards are **triggered by keywords** and loaded on demand:
 
 Standards implemented as Claude Code Skills for interactive AI assistance.
 
-**Adoption Method**: Install via [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills)
+**Adoption Method**: Install via Plugin Marketplace (recommended) or manual copy
 
 ```bash
-# macOS / Linux
-git clone https://github.com/AsiaOstrich/universal-dev-skills.git
-cd universal-dev-skills
-./install.sh
-```
+# Plugin Marketplace (Recommended)
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
 
-```powershell
-# Windows PowerShell
-git clone https://github.com/AsiaOstrich/universal-dev-skills.git
-Set-Location universal-dev-skills
-# Use Plugin Marketplace instead (see Installation section)
+# Or manual copy (macOS / Linux)
+mkdir -p ~/.claude/skills
+cp -r skills/claude-code/commit-standards ~/.claude/skills/
 ```
 
 ### Category 2: Reference Documents
@@ -233,21 +229,24 @@ Consider your project's needs:
 
 ### Step 2: Install Skills
 
-**macOS / Linux:**
+**Recommended: Plugin Marketplace**
 ```bash
-# Clone and install universal-dev-skills
-git clone https://github.com/AsiaOstrich/universal-dev-skills.git
-cd universal-dev-skills
-./install.sh
-
-# Choose installation type based on your needs
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
 ```
 
-**Windows PowerShell:**
+**Alternative: Manual Copy (macOS / Linux)**
+```bash
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+mkdir -p ~/.claude/skills
+cp -r universal-dev-standards/skills/claude-code/commit-standards ~/.claude/skills/
+```
+
+**Alternative: Manual Copy (Windows PowerShell)**
 ```powershell
-# Recommended: Use Plugin Marketplace in Claude Code
-# /plugin marketplace add AsiaOstrich/universal-dev-standards
-# /plugin install universal-dev-standards@asia-ostrich
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+New-Item -ItemType Directory -Force -Path $env:USERPROFILE\.claude\skills
+Copy-Item -Recurse universal-dev-standards\skills\claude-code\commit-standards $env:USERPROFILE\.claude\skills\
 ```
 
 ### Step 3: Copy Reference Documents

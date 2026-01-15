@@ -108,12 +108,6 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 
 適用於無法存取 Marketplace 的環境（例如企業網路）：
 
-#### 快速安裝（所有 Skills）
-
-```bash
-./install.sh
-```
-
 #### 手動安裝（選擇性 Skills）
 
 **macOS / Linux:**

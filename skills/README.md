@@ -27,12 +27,9 @@ skills/
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**Alternative: Script Installation (macOS / Linux)**
+**Alternative: Manual Copy (macOS / Linux)**
 ```bash
-cd skills/claude-code
-./install.sh
-
-# Or copy specific skills
+mkdir -p ~/.claude/skills
 cp -r skills/claude-code/commit-standards ~/.claude/skills/
 ```
 

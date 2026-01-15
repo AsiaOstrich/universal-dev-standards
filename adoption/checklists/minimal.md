@@ -25,16 +25,7 @@
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-### Option B: Script Installation (macOS / Linux)
-
-```bash
-git clone https://github.com/AsiaOstrich/universal-dev-skills.git
-cd universal-dev-skills
-./install.sh
-# Select: Global installation
-```
-
-### Option C: Manual Copy (macOS / Linux)
+### Option B: Manual Copy (macOS / Linux)
 
 ```bash
 # Copy only Level 1 skills

@@ -34,14 +34,6 @@ status: current
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**替代方案：脚本安装（macOS / Linux）**
-```bash
-git clone https://github.com/AsiaOstrich/universal-dev-skills.git
-cd universal-dev-skills
-./install.sh
-# Select: Global installation (all skills)
-```
-
 **完整 Skills 检查清单**:
 
 ### Level 1 Skills

@@ -34,7 +34,6 @@ export function getAvailableSkillNames() {
 
   const NON_SKILL_ITEMS = [
     'README.md', 'CONTRIBUTING.template.md',
-    'install.sh', 'install.ps1',
     'commands', '.manifest.json', '.DS_Store'
   ];
 

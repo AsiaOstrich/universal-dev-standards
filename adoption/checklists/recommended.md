@@ -25,14 +25,6 @@ Install additional Level 2 skills:
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**Alternative: Script Installation (macOS / Linux)**
-```bash
-git clone https://github.com/AsiaOstrich/universal-dev-skills.git
-cd universal-dev-skills
-./install.sh
-# Select: Global installation
-```
-
 **Checklist**:
 
 ### From Level 1

@@ -51,7 +51,6 @@ describe('Skills Installer', () => {
 
       expect(skills).not.toContain('README.md');
       expect(skills).not.toContain('commands');
-      expect(skills).not.toContain('install.sh');
     });
   });
 

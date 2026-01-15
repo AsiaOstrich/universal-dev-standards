@@ -33,14 +33,6 @@ status: current
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**替代方案：腳本安裝（macOS / Linux）**
-```bash
-git clone https://github.com/AsiaOstrich/universal-dev-skills.git
-cd universal-dev-skills
-./install.sh
-# Select: Global installation
-```
-
 **檢查清單**:
 
 ### 來自等級一

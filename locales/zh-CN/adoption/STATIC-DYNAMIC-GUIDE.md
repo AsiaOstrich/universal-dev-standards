@@ -174,12 +174,9 @@ status: current
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**替代方案：脚本安装（macOS / Linux）**
+**替代方案：手动安装（macOS / Linux）**
 ```bash
-# 安装所有 skills
-cd skills/claude-code && ./install.sh
-
-# 或选择性安装
+mkdir -p ~/.claude/skills
 cp -r skills/claude-code/commit-standards ~/.claude/skills/
 ```
 

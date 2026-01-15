@@ -229,22 +229,6 @@ Discover and install skills from community platforms:
 - **[claude-plugins.dev](https://claude-plugins.dev/skills)** - Auto-indexed skill discovery from GitHub
 - **[agentskills.io](https://agentskills.io)** - Official Agent Skills specification
 
-#### Script Installation (Deprecated)
-
-> ⚠️ Script installation is being phased out. Use Plugin Marketplace or UDS CLI instead.
-
-macOS / Linux:
-```bash
-git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards/skills/claude-code && ./install.sh
-```
-
-Windows (PowerShell):
-```powershell
-git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards\skills\claude-code; .\install.ps1
-```
-
 ---
 
 ### Multi-AI Tool Support

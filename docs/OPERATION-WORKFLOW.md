@@ -733,7 +733,7 @@ Step 10: Run all sync check scripts
 
 ### 8.2 Adding a New Skill
 
-**Complete Flow (7 steps):**
+**Complete Flow (6 steps):**
 
 ```
 Step 1: Create skills/claude-code/new-skill/ directory
@@ -742,13 +742,11 @@ Step 2: Create SKILL.md with YAML front matter
         ↓
 Step 3: Create supporting guide files
         ↓
-Step 4: Update install scripts (install.sh, install.ps1)
+Step 4: Create translations in locales/
         ↓
-Step 5: Create translations in locales/
+Step 5: Update documentation (README.md, etc.)
         ↓
-Step 6: Update documentation (README.md, etc.)
-        ↓
-Step 7: Run verification scripts
+Step 6: Run verification scripts
 ```
 
 ### 8.3 Adding a New AI Tool Integration

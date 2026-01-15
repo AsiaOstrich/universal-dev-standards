@@ -9,8 +9,6 @@ import { t } from '../i18n/messages.js';
 const NON_SKILL_ITEMS = [
   'README.md',
   'CONTRIBUTING.template.md',
-  'install.sh',
-  'install.ps1',
   'universal-dev-standards',
   '.manifest.json',
   '.DS_Store'

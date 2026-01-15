@@ -53,16 +53,16 @@ npm link
 
 ## Installing Claude Code Skills
 
-**PowerShell:**
-```powershell
-cd universal-dev-standards\skills\claude-code
-.\install.ps1
+**Recommended: Plugin Marketplace**
+```bash
+/plugin marketplace add AsiaOstrich/universal-dev-standards
+/plugin install universal-dev-standards@asia-ostrich
 ```
 
-**Git Bash:**
-```bash
-cd universal-dev-standards/skills/claude-code
-./install.sh
+**Alternative: Manual Copy (PowerShell)**
+```powershell
+New-Item -ItemType Directory -Force -Path $env:USERPROFILE\.claude\skills
+Copy-Item -Recurse skills\claude-code\commit-standards $env:USERPROFILE\.claude\skills\
 ```
 
 Skills will be installed to: `%USERPROFILE%\.claude\skills\`

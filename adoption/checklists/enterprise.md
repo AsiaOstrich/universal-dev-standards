@@ -26,14 +26,6 @@ Ensure ALL skills are installed:
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**Alternative: Script Installation (macOS / Linux)**
-```bash
-git clone https://github.com/AsiaOstrich/universal-dev-skills.git
-cd universal-dev-skills
-./install.sh
-# Select: Global installation (all skills)
-```
-
 **Complete Skills Checklist**:
 
 ### Level 1 Skills

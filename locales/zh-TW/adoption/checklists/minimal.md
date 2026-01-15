@@ -32,16 +32,7 @@ status: current
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-### 選項 B：腳本安裝（macOS / Linux）
-
-```bash
-git clone https://github.com/AsiaOstrich/universal-dev-skills.git
-cd universal-dev-skills
-./install.sh
-# Select: Global installation
-```
-
-### 選項 C：手動複製（macOS / Linux）
+### 選項 B：手動複製（macOS / Linux）
 
 ```bash
 # Copy only Level 1 skills

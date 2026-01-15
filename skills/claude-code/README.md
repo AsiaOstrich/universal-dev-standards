@@ -130,13 +130,6 @@ All skills will be automatically loaded and ready to use.
 
 For users in environments without Marketplace access (e.g., enterprise networks):
 
-#### Quick Install (All Skills)
-
-**macOS / Linux:**
-```bash
-./install.sh
-```
-
 #### Manual Install (Select Skills)
 
 **macOS / Linux:**

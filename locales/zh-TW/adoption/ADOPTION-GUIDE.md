@@ -74,7 +74,7 @@ status: current
 | documentation-guide | docs, README |
 | requirement-assistant | spec, SDD, 新功能 |
 
-**部署方式**：透過 `skills/claude-code/install.sh` 安裝為 Skills。
+**部署方式**：透過 Plugin Marketplace 或手動複製安裝為 Skills。
 
 > 詳細分類請參閱 [STATIC-DYNAMIC-GUIDE.md](../../../adoption/STATIC-DYNAMIC-GUIDE.md)。
 
@@ -86,19 +86,16 @@ status: current
 
 已製作為 Claude Code Skills 的規範，提供互動式 AI 輔助。
 
-**採用方式**：透過 [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) 安裝
+**採用方式**：透過 Plugin Marketplace（推薦）或手動複製安裝
 
-**推薦：Plugin Marketplace**
 ```bash
+# Plugin Marketplace（推薦）
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich
-```
 
-**替代方案：腳本安裝（macOS / Linux）**
-```bash
-git clone https://github.com/AsiaOstrich/universal-dev-skills.git
-cd universal-dev-skills
-./install.sh
+# 或手動複製（macOS / Linux）
+mkdir -p ~/.claude/skills
+cp -r skills/claude-code/commit-standards ~/.claude/skills/
 ```
 
 ### 類別二：參考文件
@@ -246,11 +243,18 @@ Copy-Item <source-file> .standards\
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**替代方案：腳本安裝（macOS / Linux）**
+**替代方案：手動複製（macOS / Linux）**
 ```bash
-git clone https://github.com/AsiaOstrich/universal-dev-skills.git
-cd universal-dev-skills
-./install.sh
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+mkdir -p ~/.claude/skills
+cp -r universal-dev-standards/skills/claude-code/commit-standards ~/.claude/skills/
+```
+
+**替代方案：手動複製（Windows PowerShell）**
+```powershell
+git clone https://github.com/AsiaOstrich/universal-dev-standards.git
+New-Item -ItemType Directory -Force -Path $env:USERPROFILE\.claude\skills
+Copy-Item -Recurse universal-dev-standards\skills\claude-code\commit-standards $env:USERPROFILE\.claude\skills\
 ```
 
 ### 步驟三：複製參考文件
