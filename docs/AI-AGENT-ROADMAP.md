@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/docs/AI-AGENT-ROADMAP.md) | [简体中文](../locales/zh-CN/docs/AI-AGENT-ROADMAP.md)
 
-**Version**: 2.0.0
+**Version**: 2.2.0
 **Last Updated**: 2026-01-15
 
 This document provides a comprehensive reference for AI Agent support in Universal Development Standards (UDS).
@@ -285,6 +285,8 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | SKILL.md Standard | Universal Skills format | ✅ Achieved (Dec 2025) |
 | Cross-tool compatibility | Most tools read `.claude/skills/` | ✅ Achieved |
 | Skills marketplace | Publish and discover Skills | ✅ Multiple platforms |
+| Multi-Agent Installation | Install Skills to multiple agents at once | ✅ v3.5.0 |
+| Gemini CLI TOML | Auto-convert commands to TOML format | ✅ v3.5.0 |
 | Cursor Skills Support | Native SKILL.md support | ⏳ Community requested |
 | CLI auto-detect | Detect installed AI tools | Planned |
 
@@ -294,6 +296,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.2.0 | 2026-01-15 | Added Multi-Agent Installation, Gemini CLI TOML conversion |
 | 2.1.0 | 2026-01-15 | Updated Skills support status for all tools (industry-wide adoption) |
 | 2.0.0 | 2026-01-15 | Major restructure: consolidated content, reduced tables |
 | 1.1.0 | 2026-01-15 | Added Configuration File Matrix, Skills System Configuration |

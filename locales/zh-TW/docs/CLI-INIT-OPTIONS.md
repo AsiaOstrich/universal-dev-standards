@@ -1,8 +1,8 @@
 ---
 source: ../../../docs/CLI-INIT-OPTIONS.md
-source_version: 3.5.0
-translation_version: 3.5.0
-last_synced: 2026-01-12
+source_version: 3.5.1
+translation_version: 3.5.1
+last_synced: 2026-01-15
 status: current
 ---
 
@@ -108,28 +108,44 @@ status: current
 
 ## 2. Skills 安裝位置
 
-### 互動式提示
+### 互動式提示（多 Agent 選擇）
 
 ```
-? Where should Skills be installed?
-❯ Plugin Marketplace (推薦) - Auto-managed by Claude Code
-  User Level (~/.claude/skills/) - Shared across all projects
-  Project Level (.claude/skills/) - This project only
-  Skip - No Skills installation
+? Select AI agents to install Skills for:
+  ── Claude Code ──
+❯ ◉ Claude Code (Plugin Marketplace) - Auto-managed (Recommended)
+  ◯ Claude Code (User Level) - ~/.claude/skills/
+  ◯ Claude Code (Project Level) - .claude/skills/
+  ── OpenCode ──
+  ◯ OpenCode (User Level) - ~/.config/opencode/skill/
+  ◯ OpenCode (Project Level) - .opencode/skill/
+  ── Cline ──
+  ◯ Cline (User Level) - ~/.cline/skills/
+  ◯ Cline (Project Level) - .cline/skills/
+  ── 其他 Agents ──
+  ◯ Roo Code, Codex, Copilot, Windsurf, Gemini CLI...
+  ──────────────
+  ◯ Skip Skills Installation
 ```
 
 ### 說明
 
-決定 Claude Code Skills 的安裝位置。**僅當只選擇 Claude Code 時才會顯示此選項**。
+選擇要安裝 Skills 的 AI agents。**v3.5.0 支援同時安裝 Skills 到多個 agents**。每個 agent 有自己的 skills 目錄路徑。
 
 ### 選項
 
-| 位置 | 路徑 | 說明 | 適用情境 |
-|------|------|------|----------|
-| **Plugin Marketplace** (推薦) | Claude 管理 | 由 Claude Code 插件系統管理，自動更新 | 大多數使用者 |
-| **User Level** | `~/.claude/skills/` | 跨專案共用，所有專案可用 | 個人開發者，多專案 |
-| **Project Level** | `.claude/skills/` | 專案專用，可加入版本控制 | 團隊共享，特定版本 |
-| **None** | - | 不安裝 Skills，使用完整標準 | 不使用 Claude Code |
+| Agent | User Level 路徑 | Project Level 路徑 | 備註 |
+|-------|-----------------|-------------------|------|
+| **Claude Code** | `~/.claude/skills/` | `.claude/skills/` | 也支援 Plugin Marketplace |
+| **OpenCode** | `~/.config/opencode/skill/` | `.opencode/skill/` | 完整 SKILL.md 支援 |
+| **Cline** | `~/.cline/skills/` | `.cline/skills/` | 使用 Claude skills 路徑 |
+| **Roo Code** | `~/.roo/skills/` | `.roo/skills/` | 模式特定: `.roo/skills-{mode}/` |
+| **OpenAI Codex** | `~/.codex/skills/` | `.codex/skills/` | 完整 SKILL.md 支援 |
+| **GitHub Copilot** | `~/.copilot/skills/` | `.github/skills/` | 完整 SKILL.md 支援 |
+| **Windsurf** | `~/.codeium/windsurf/skills/` | `.windsurf/skills/` | 2026/01 起支援 Skills |
+| **Gemini CLI** | `~/.gemini/skills/` | `.gemini/skills/` | 預覽支援 |
+
+> **注意**: Cursor 尚不支援 SKILL.md 格式（使用 `.mdc` rules 格式）。
 
 ### 詳細說明
 

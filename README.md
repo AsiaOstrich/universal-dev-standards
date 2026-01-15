@@ -10,6 +10,8 @@
 
 | Feature | Description |
 |---------|-------------|
+| **Multi-Agent Skills** | Install Skills to multiple AI agents simultaneously |
+| **Gemini CLI TOML** | Auto-convert commands to TOML format for Gemini CLI |
 | **i18n Support** | CLI supports EN, ZH-TW, ZH-CN with auto-detection |
 | **9 AI Tools** | Claude Code, Cursor, Windsurf, Cline, GitHub Copilot, Antigravity, Codex, OpenCode, Gemini CLI |
 | **18 Core Standards** | New `ai-instruction-standards.md` |
@@ -60,19 +62,20 @@ cp core/commit-message-guide.md your-project/.standards/
 
 After installing UDS, optionally enable AI-assisted features for your preferred tools:
 
-| AI Tool | Configuration | Skills Installation |
-|---------|--------------|---------------------|
-| Claude Code | `uds init` → `CLAUDE.md` | `/plugin install universal-dev-standards@asia-ostrich` |
-| OpenCode | `uds init` → `AGENTS.md` | `uds init` (auto-installed to `.claude/skills/`) |
-| OpenAI Codex | `uds init` → `AGENTS.md` | - |
-| Cursor | `uds init` → `.cursorrules` | Coming soon |
-| Windsurf | `uds init` → `.windsurfrules` | Coming soon |
-| Cline | `uds init` → `.clinerules` | Coming soon |
-| GitHub Copilot | `uds init` → `.github/copilot-instructions.md` | - |
-| Google Antigravity | `uds init` → `INSTRUCTIONS.md` | - |
-| Gemini CLI | `uds init` → `GEMINI.md` | - |
+| AI Tool | Configuration | Skills | Commands |
+|---------|--------------|:------:|:--------:|
+| Claude Code | `uds init` → `CLAUDE.md` | ✅ Marketplace / File | Built-in |
+| OpenCode | `uds init` → `AGENTS.md` | ✅ `.opencode/skill/` | ✅ `.opencode/command/` |
+| Cline | `uds init` → `.clinerules` | ✅ `.cline/skills/` | - |
+| Roo Code | `uds init` → `.roorules` | ✅ `.roo/skills/` | ✅ `.roo/commands/` |
+| OpenAI Codex | `uds init` → `AGENTS.md` | ✅ `.codex/skills/` | - |
+| GitHub Copilot | `uds init` → `copilot-instructions.md` | ✅ `.github/skills/` | ✅ `.github/prompts/` |
+| Windsurf | `uds init` → `.windsurfrules` | ✅ `.windsurf/skills/` | - |
+| Gemini CLI | `uds init` → `GEMINI.md` | ✅ `.gemini/skills/` | ✅ `.gemini/commands/` (TOML) |
+| Cursor | `uds init` → `.cursorrules` | ❌ Rules only | - |
+| Google Antigravity | `uds init` → `INSTRUCTIONS.md` | - | - |
 
-> **Note**: `uds init` can configure multiple AI tools during interactive setup. See [Agent Skills Installation](#agent-skills-installation) for detailed skill setup.
+> **New in v3.5.0**: `uds init` supports multi-agent Skills installation. Select multiple agents to install Skills simultaneously. Gemini CLI commands are auto-converted to TOML format.
 
 ---
 

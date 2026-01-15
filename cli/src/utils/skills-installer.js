@@ -273,6 +273,20 @@ export async function installCommandsForAgent(agent, commandNames = null, projec
 }
 
 /**
+ * Get the appropriate file extension for commands based on agent
+ * @param {string} agent - Agent identifier
+ * @returns {string} File extension (including the dot)
+ */
+function getCommandFileExtension(agent) {
+  // Gemini CLI uses TOML format
+  if (agent === 'gemini-cli') {
+    return '.toml';
+  }
+  // Most agents use markdown
+  return '.md';
+}
+
+/**
  * Install a single command to target directory
  * @param {string} cmdName - Command name (without .md)
  * @param {string} targetDir - Target directory
@@ -281,7 +295,8 @@ export async function installCommandsForAgent(agent, commandNames = null, projec
  */
 function installSingleCommand(cmdName, targetDir, agent) {
   const sourcePath = join(COMMANDS_LOCAL_DIR, `${cmdName}.md`);
-  const targetPath = join(targetDir, `${cmdName}.md`);
+  const targetExt = getCommandFileExtension(agent);
+  const targetPath = join(targetDir, `${cmdName}${targetExt}`);
 
   if (!existsSync(sourcePath)) {
     return {
@@ -334,11 +349,75 @@ function transformCommandForAgent(content, cmdName, agent) {
 
   if (agent === 'gemini-cli') {
     // Gemini CLI uses TOML for commands
-    // This would need conversion, but for now keep markdown
-    return content;
+    return convertMarkdownToGeminiToml(content, cmdName);
   }
 
   return content;
+}
+
+/**
+ * Convert markdown command with YAML frontmatter to Gemini CLI TOML format
+ * @param {string} content - Markdown content with YAML frontmatter
+ * @param {string} cmdName - Command name (for fallback description)
+ * @returns {string} TOML formatted content
+ */
+function convertMarkdownToGeminiToml(content, cmdName) {
+  // Parse YAML frontmatter
+  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+
+  if (!frontmatterMatch) {
+    // No frontmatter, wrap entire content as prompt
+    return `description = "${cmdName} command"\n\nprompt = """\n${content}\n"""`;
+  }
+
+  const [, frontmatterText, promptContent] = frontmatterMatch;
+
+  // Parse frontmatter fields
+  let description = `${cmdName} command`;
+  let argumentHint = null;
+
+  // Extract description from YAML
+  const descMatch = frontmatterText.match(/^description:\s*(.+)$/m);
+  if (descMatch) {
+    description = descMatch[1].trim();
+  }
+
+  // Extract argument-hint from YAML
+  const argHintMatch = frontmatterText.match(/^argument-hint:\s*(.+)$/m);
+  if (argHintMatch) {
+    argumentHint = argHintMatch[1].trim();
+  }
+
+  // Build TOML content
+  let toml = `# ${cmdName} command - converted from UDS\n`;
+  toml += `description = "${escapeTomlString(description)}"\n\n`;
+
+  // Add argument placeholder if the command accepts arguments
+  let prompt = promptContent.trim();
+  if (argumentHint) {
+    // Insert argument handling instruction at the beginning
+    const argInstruction = '\n## Arguments\nUser provided: {{args}}\n';
+    prompt = argInstruction + '\n' + prompt;
+  }
+
+  // Multi-line string in TOML uses triple quotes
+  toml += `prompt = """\n${prompt}\n"""`;
+
+  return toml;
+}
+
+/**
+ * Escape special characters for TOML string
+ * @param {string} str - String to escape
+ * @returns {string} Escaped string
+ */
+function escapeTomlString(str) {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
 }
 
 /**
@@ -428,11 +507,18 @@ export function getInstalledCommandsForAgent(agent, projectPath) {
 
   const manifestPath = join(targetDir, '.manifest.json');
 
-  // Count command files
+  // Count command files (handle both .md and .toml based on agent)
   let commandFiles = [];
   try {
     commandFiles = readdirSync(targetDir)
-      .filter(f => f.endsWith('.md') && f !== 'README.md');
+      .filter(f => {
+        // For Gemini CLI, look for .toml files
+        if (agent === 'gemini-cli') {
+          return f.endsWith('.toml');
+        }
+        // For other agents, look for .md files (excluding README)
+        return f.endsWith('.md') && f !== 'README.md';
+      });
   } catch {
     return null;
   }
@@ -441,11 +527,17 @@ export function getInstalledCommandsForAgent(agent, projectPath) {
     return null;
   }
 
+  // Get command names without extension
+  const getCommandName = (filename) => {
+    if (filename.endsWith('.toml')) return basename(filename, '.toml');
+    return basename(filename, '.md');
+  };
+
   if (!existsSync(manifestPath)) {
     return {
       installed: true,
       count: commandFiles.length,
-      commands: commandFiles.map(f => basename(f, '.md')),
+      commands: commandFiles.map(getCommandName),
       version: null,
       agent,
       path: targetDir
@@ -457,7 +549,7 @@ export function getInstalledCommandsForAgent(agent, projectPath) {
     return {
       installed: true,
       count: commandFiles.length,
-      commands: manifest.commands || commandFiles.map(f => basename(f, '.md')),
+      commands: manifest.commands || commandFiles.map(getCommandName),
       version: manifest.version || null,
       agent,
       path: targetDir,
@@ -467,7 +559,7 @@ export function getInstalledCommandsForAgent(agent, projectPath) {
     return {
       installed: true,
       count: commandFiles.length,
-      commands: commandFiles.map(f => basename(f, '.md')),
+      commands: commandFiles.map(getCommandName),
       version: null,
       agent,
       path: targetDir

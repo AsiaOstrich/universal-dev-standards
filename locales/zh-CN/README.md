@@ -1,8 +1,8 @@
 ---
 source: ../../README.md
-source_version: 3.5.0-beta.13
-translation_version: 3.5.0-beta.13
-last_synced: 2026-01-13
+source_version: 3.5.0
+translation_version: 3.5.0
+last_synced: 2026-01-15
 status: current
 ---
 
@@ -75,19 +75,20 @@ cp core/commit-message-guide.md your-project/.standards/
 
 安装 UDS 后，可选择为您偏好的工具启用 AI 辅助功能：
 
-| AI 工具 | 配置文件 | Skills 安装 |
-|---------|----------|-------------|
-| Claude Code | `uds init` → `CLAUDE.md` | `/plugin install universal-dev-standards@asia-ostrich` |
-| OpenCode | `uds init` → `AGENTS.md` | `uds init`（自动安装到 `.claude/skills/`） |
-| OpenAI Codex | `uds init` → `AGENTS.md` | - |
-| Cursor | `uds init` → `.cursorrules` | 即将支持 |
-| Windsurf | `uds init` → `.windsurfrules` | 即将支持 |
-| Cline | `uds init` → `.clinerules` | 即将支持 |
-| GitHub Copilot | `uds init` → `.github/copilot-instructions.md` | - |
-| Google Antigravity | `uds init` → `INSTRUCTIONS.md` | - |
-| Gemini CLI | `uds init` → `GEMINI.md` | - |
+| AI 工具 | 配置文件 | Skills | Commands |
+|---------|----------|:------:|:--------:|
+| Claude Code | `uds init` → `CLAUDE.md` | ✅ Marketplace / 文件 | 内建 |
+| OpenCode | `uds init` → `AGENTS.md` | ✅ `.opencode/skill/` | ✅ `.opencode/command/` |
+| Cline | `uds init` → `.clinerules` | ✅ `.cline/skills/` | - |
+| Roo Code | `uds init` → `.roorules` | ✅ `.roo/skills/` | ✅ `.roo/commands/` |
+| OpenAI Codex | `uds init` → `AGENTS.md` | ✅ `.codex/skills/` | - |
+| GitHub Copilot | `uds init` → `copilot-instructions.md` | ✅ `.github/skills/` | ✅ `.github/prompts/` |
+| Windsurf | `uds init` → `.windsurfrules` | ✅ `.windsurf/skills/` | - |
+| Gemini CLI | `uds init` → `GEMINI.md` | ✅ `.gemini/skills/` | ✅ `.gemini/commands/` (TOML) |
+| Cursor | `uds init` → `.cursorrules` | ❌ 仅 Rules | - |
+| Google Antigravity | `uds init` → `INSTRUCTIONS.md` | - | - |
 
-> **注意**：`uds init` 可在交互式设置中配置多个 AI 工具。详细的技能安装说明请参阅 [Agent Skills 安装](#agent-skills-安装)。
+> **v3.5.0 新功能**：`uds init` 支持多 Agent Skills 安装。可同时选择多个 agents 安装 Skills。Gemini CLI 命令会自动转换为 TOML 格式。
 
 ---
 

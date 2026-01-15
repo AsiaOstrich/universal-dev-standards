@@ -2,7 +2,7 @@
 
 > **語言**: [English](../../../docs/AI-AGENT-ROADMAP.md) | 繁體中文 | [简体中文](../../zh-CN/docs/AI-AGENT-ROADMAP.md)
 
-**版本**: 2.0.0
+**版本**: 2.2.0
 **最後更新**: 2026-01-15
 
 本文件提供 Universal Development Standards (UDS) 對 AI Agent 支援的完整參考。
@@ -285,6 +285,8 @@
 | SKILL.md 標準 | 通用 Skills 格式 | ✅ 已達成 (2025/12) |
 | 跨工具相容性 | 大多數工具可讀取 `.claude/skills/` | ✅ 已達成 |
 | Skills 市集 | 發布和發現 Skills | ✅ 多個平台 |
+| 多 Agent 安裝 | 一次安裝 Skills 到多個 Agent | ✅ v3.5.0 |
+| Gemini CLI TOML | 自動轉換指令為 TOML 格式 | ✅ v3.5.0 |
 | Cursor Skills 支援 | 原生 SKILL.md 支援 | ⏳ 社群已請求 |
 | CLI 自動偵測 | 偵測已安裝的 AI 工具 | 計劃中 |
 
@@ -294,6 +296,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 2.2.0 | 2026-01-15 | 新增多 Agent 安裝、Gemini CLI TOML 轉換 |
 | 2.1.0 | 2026-01-15 | 更新所有工具的 Skills 支援狀態（業界廣泛採用） |
 | 2.0.0 | 2026-01-15 | 重大重構：整合內容、減少表格 |
 | 1.1.0 | 2026-01-15 | 新增配置檔矩陣、Skills 系統配置 |

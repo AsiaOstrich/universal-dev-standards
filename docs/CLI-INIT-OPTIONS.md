@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/docs/CLI-INIT-OPTIONS.md) | [简体中文](../locales/zh-CN/docs/CLI-INIT-OPTIONS.md)
 >
-> **Version**: 3.5.0
-> **Last Updated**: 2026-01-09
+> **Version**: 3.5.1
+> **Last Updated**: 2026-01-15
 
 This document provides detailed explanations for every option in the `uds init` command, including use cases, effects, and recommended choices.
 
@@ -100,28 +100,44 @@ Select the AI coding assistants you use in your project. The CLI will generate c
 
 ## 2. Skills Installation Location
 
-### Interactive Prompt
+### Interactive Prompt (Multi-Agent Selection)
 
 ```
-? Where should Skills be installed?
-❯ Plugin Marketplace (推薦) - Auto-managed by Claude Code
-  User Level (~/.claude/skills/) - Shared across all projects
-  Project Level (.claude/skills/) - This project only
-  Skip - No Skills installation
+? Select AI agents to install Skills for:
+  ── Claude Code ──
+❯ ◉ Claude Code (Plugin Marketplace) - Auto-managed (Recommended)
+  ◯ Claude Code (User Level) - ~/.claude/skills/
+  ◯ Claude Code (Project Level) - .claude/skills/
+  ── OpenCode ──
+  ◯ OpenCode (User Level) - ~/.config/opencode/skill/
+  ◯ OpenCode (Project Level) - .opencode/skill/
+  ── Cline ──
+  ◯ Cline (User Level) - ~/.cline/skills/
+  ◯ Cline (Project Level) - .cline/skills/
+  ── Other Agents ──
+  ◯ Roo Code, Codex, Copilot, Windsurf, Gemini CLI...
+  ──────────────
+  ◯ Skip Skills Installation
 ```
 
 ### Description
 
-Determines where Claude Code Skills are installed. **This option only appears when Claude Code is the only selected tool**.
+Select which AI agents to install Skills for. **v3.5.0 supports installing Skills to multiple agents simultaneously**. Each agent has its own skills directory path.
 
 ### Options
 
-| Location | Path | Description | Use Case |
-|----------|------|-------------|----------|
-| **Plugin Marketplace** (Recommended) | Managed by Claude | Managed by Claude Code plugin system, auto-updates | Most users |
-| **User Level** | `~/.claude/skills/` | Shared across projects, available to all projects | Individual developers, multiple projects |
-| **Project Level** | `.claude/skills/` | Project-specific, can be version controlled | Team sharing, specific version |
-| **None** | - | Don't install Skills, use full standards | Not using Claude Code |
+| Agent | User Level Path | Project Level Path | Notes |
+|-------|-----------------|-------------------|-------|
+| **Claude Code** | `~/.claude/skills/` | `.claude/skills/` | Also supports Plugin Marketplace |
+| **OpenCode** | `~/.config/opencode/skill/` | `.opencode/skill/` | Full SKILL.md support |
+| **Cline** | `~/.cline/skills/` | `.cline/skills/` | Uses Claude skills path |
+| **Roo Code** | `~/.roo/skills/` | `.roo/skills/` | Mode-specific: `.roo/skills-{mode}/` |
+| **OpenAI Codex** | `~/.codex/skills/` | `.codex/skills/` | Full SKILL.md support |
+| **GitHub Copilot** | `~/.copilot/skills/` | `.github/skills/` | Full SKILL.md support |
+| **Windsurf** | `~/.codeium/windsurf/skills/` | `.windsurf/skills/` | Skills since Jan 2026 |
+| **Gemini CLI** | `~/.gemini/skills/` | `.gemini/skills/` | Preview support |
+
+> **Note**: Cursor does not support SKILL.md format yet (uses `.mdc` rules format).
 
 ### Detailed Explanation
 
