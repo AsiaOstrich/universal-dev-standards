@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.26] - 2026-01-15
+
 ### Changed
 - **CLI**: Complete i18n support for all interactive prompts
   - `promptAITools`: Title, description, separators, choices
