@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **CLI**: Improve all interactive prompt descriptions for better UX
+  - `promptContentMode`: Explain how each mode affects AI Agent execution behavior
+  - `promptLevel`: Show specific standards included in each adoption level
+  - `promptFormat`: Explain AI vs human format trade-offs (token efficiency)
+  - `promptStandardsScope`: Clarify Lean vs Complete installation implications
+  - `promptGitWorkflow`: Add use case guidance (small team vs enterprise)
+  - `promptMergeStrategy`: Show pros/cons for each strategy
+  - `promptTestLevels`: Explain what each test level covers + pyramid visualization
+  - All prompts now include bilingual (EN/ZH-TW) descriptions
+  - Post-selection explanations help users understand their choice
+
 ## [3.5.0-beta.23] - 2026-01-14
 
 ### Added
