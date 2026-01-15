@@ -189,6 +189,146 @@ export const messages = {
         full: '  → All rules embedded directly, highest AI compliance',
         minimal: '  → AI must actively read standards, recommend using with Skills'
       }
+    },
+
+    // AI Tools Selection
+    aiTools: {
+      title: 'AI Development Tools:',
+      description: 'Select the AI coding assistants you use with this project',
+      question: 'Which AI tools are you using?',
+      separators: {
+        dynamicSkills: '── Dynamic Skills ──',
+        staticRules: '── Static Rule Files ──',
+        agentsMd: '── AGENTS.md Tools ──',
+        gemini: '── Gemini Tools ──'
+      },
+      choices: {
+        claudeCode: 'Anthropic CLI with dynamic Skills',
+        none: 'None / Skip'
+      }
+    },
+
+    // Skills Installation Location
+    skillsLocation: {
+      title: 'Skills Installation:',
+      description: 'Choose where to install Skills',
+      descriptionWithTools: 'Skills will work with:',
+      question: 'Where should Skills be installed?',
+      choices: {
+        marketplace: 'Auto-managed by Claude Code',
+        user: 'Shared across all projects',
+        project: 'This project only',
+        none: 'No Skills installation'
+      },
+      explanations: {
+        marketplace: '  → Run: /plugin install universal-dev-standards@asia-ostrich',
+        user: '  → Skills available in all your projects',
+        project: '  → Consider adding .claude/skills/ to .gitignore',
+        none: '  → Full standards will be copied to .standards/'
+      }
+    },
+
+    // Commit Message Language
+    commitLanguage: {
+      title: 'Commit Message Language:',
+      description: 'What language for commit messages?',
+      question: 'Select commit message language:',
+      choices: {
+        english: 'Standard international format',
+        chinese: 'For Chinese-speaking teams',
+        bilingual: 'Both English and Chinese'
+      },
+      labels: {
+        english: 'English',
+        chinese: 'Traditional Chinese',
+        bilingual: 'Bilingual'
+      }
+    },
+
+    // Install Mode
+    installMode: {
+      question: 'Select installation mode:',
+      choices: {
+        skills: 'Use Claude Code Skills',
+        full: 'Install all standards without Skills'
+      },
+      explanations: {
+        skills: [
+          '  → Skills will be installed to ~/.claude/skills/',
+          '  → Only static standards will be copied to .standards/'
+        ],
+        full: [
+          '  → All standards will be copied to .standards/',
+          '  → No Skills will be installed'
+        ]
+      }
+    },
+
+    // Adoption Level (configure)
+    adoptionLevelConfig: {
+      title: 'Adoption Level:',
+      currentLevel: 'Current level:',
+      question: 'Select new adoption level:',
+      choices: {
+        1: '6 core standards',
+        2: '12 standards',
+        3: 'All 16 standards'
+      },
+      warnings: {
+        upgrade: '⚠ Upgrading level will add new standard files',
+        downgrade: '⚠ Downgrading level will NOT remove existing files',
+        downgradeHint: '  You may manually remove files from .standards/ if needed'
+      }
+    },
+
+    // Methodology
+    methodology: {
+      title: 'Development Methodology:',
+      experimental: '⚠️  [Experimental] This feature will be redesigned in v4.0',
+      description: 'Select a methodology to guide your development workflow.',
+      question: 'Which development methodology do you want to use?',
+      choices: {
+        tdd: 'Test-Driven Development (Red → Green → Refactor)',
+        bdd: 'Behavior-Driven Development (Given-When-Then)',
+        sdd: 'Spec-Driven Development (Spec First, Code Second)',
+        atdd: 'Acceptance Test-Driven Development',
+        none: 'No specific methodology'
+      }
+    },
+
+    // AI Tools Management
+    manageAITools: {
+      title: 'AI Tools Management:',
+      currentlyInstalled: 'Currently installed:',
+      none: 'none',
+      question: 'What would you like to do?',
+      choices: {
+        add: 'Add new AI tools',
+        remove: 'Remove existing AI tools',
+        view: 'View current AI tools',
+        cancel: 'Cancel'
+      },
+      installedTitle: 'Installed AI Tools:',
+      noTools: 'No AI tools installed',
+      allInstalled: 'All AI tools are already installed!',
+      noToolsToRemove: 'No AI tools to remove!',
+      selectToAdd: 'Select AI tools to add:',
+      selectToRemove: 'Select AI tools to remove:'
+    },
+
+    // Skills Update
+    skillsUpdate: {
+      upToDate: '✓ All Skills installations are up to date',
+      title: 'Skills Update Available:',
+      projectLevel: 'Project level (.claude/skills/):',
+      userLevel: 'User level (~/.claude/skills/):',
+      question: 'What would you like to do?',
+      choices: {
+        both: 'Update all Skills installations',
+        project: 'Only update .claude/skills/',
+        user: 'Only update ~/.claude/skills/',
+        skip: 'Keep current versions'
+      }
     }
   },
 
@@ -373,6 +513,146 @@ export const messages = {
         index: '  → AI 會根據任務對照表判斷何時讀取規範',
         full: '  → 所有規則直接嵌入，AI 合規率最高',
         minimal: '  → AI 需主動讀取規範，建議搭配 Skills'
+      }
+    },
+
+    // AI Tools Selection
+    aiTools: {
+      title: 'AI 開發工具:',
+      description: '選擇你在此專案中使用的 AI 程式助手',
+      question: '你使用哪些 AI 工具？/ Which AI tools are you using?',
+      separators: {
+        dynamicSkills: '── 動態 Skills ──',
+        staticRules: '── 靜態規則檔案 ──',
+        agentsMd: '── AGENTS.md 工具 ──',
+        gemini: '── Gemini 工具 ──'
+      },
+      choices: {
+        claudeCode: 'Anthropic CLI，支援動態 Skills',
+        none: '無 / 跳過'
+      }
+    },
+
+    // Skills Installation Location
+    skillsLocation: {
+      title: 'Skills 安裝位置:',
+      description: '選擇 Skills 的安裝位置',
+      descriptionWithTools: 'Skills 將支援:',
+      question: 'Skills 要安裝在哪裡？/ Where should Skills be installed?',
+      choices: {
+        marketplace: '由 Claude Code 自動管理',
+        user: '跨專案共享',
+        project: '僅限此專案',
+        none: '不安裝 Skills'
+      },
+      explanations: {
+        marketplace: '  → 執行: /plugin install universal-dev-standards@asia-ostrich',
+        user: '  → Skills 可在所有專案中使用',
+        project: '  → 建議將 .claude/skills/ 加入 .gitignore',
+        none: '  → 完整標準將複製到 .standards/'
+      }
+    },
+
+    // Commit Message Language
+    commitLanguage: {
+      title: 'Commit 訊息語言:',
+      description: '選擇 commit 訊息的語言',
+      question: '選擇 commit 訊息語言 / Select commit message language:',
+      choices: {
+        english: '標準國際格式',
+        chinese: '適合中文團隊',
+        bilingual: '英文和中文並用'
+      },
+      labels: {
+        english: 'English',
+        chinese: '繁體中文',
+        bilingual: '雙語'
+      }
+    },
+
+    // Install Mode
+    installMode: {
+      question: '選擇安裝模式 / Select installation mode:',
+      choices: {
+        skills: '使用 Claude Code Skills',
+        full: '安裝所有標準，不使用 Skills'
+      },
+      explanations: {
+        skills: [
+          '  → Skills 將安裝到 ~/.claude/skills/',
+          '  → 僅靜態標準會複製到 .standards/'
+        ],
+        full: [
+          '  → 所有標準將複製到 .standards/',
+          '  → 不安裝 Skills'
+        ]
+      }
+    },
+
+    // Adoption Level (configure)
+    adoptionLevelConfig: {
+      title: 'Adoption Level:',
+      currentLevel: '目前等級:',
+      question: '選擇新的採用等級 / Select new adoption level:',
+      choices: {
+        1: '6 項核心標準',
+        2: '12 項標準',
+        3: '全部 16 項標準'
+      },
+      warnings: {
+        upgrade: '⚠ 升級等級將新增標準檔案',
+        downgrade: '⚠ 降級等級不會移除現有檔案',
+        downgradeHint: '  如有需要，請手動從 .standards/ 移除檔案'
+      }
+    },
+
+    // Methodology
+    methodology: {
+      title: '開發方法論:',
+      experimental: '⚠️  [實驗性] 此功能將在 v4.0 重新設計',
+      description: '選擇指導開發流程的方法論',
+      question: '你想使用哪種開發方法論？/ Which development methodology?',
+      choices: {
+        tdd: '測試驅動開發 (Red → Green → Refactor)',
+        bdd: '行為驅動開發 (Given-When-Then)',
+        sdd: '規格驅動開發 (先規格、後程式)',
+        atdd: '驗收測試驅動開發',
+        none: '不使用特定方法論'
+      }
+    },
+
+    // AI Tools Management
+    manageAITools: {
+      title: 'AI 工具管理:',
+      currentlyInstalled: '目前已安裝:',
+      none: '無',
+      question: '你想做什麼？/ What would you like to do?',
+      choices: {
+        add: '新增 AI 工具',
+        remove: '移除現有 AI 工具',
+        view: '檢視目前的 AI 工具',
+        cancel: '取消'
+      },
+      installedTitle: '已安裝的 AI 工具:',
+      noTools: '未安裝任何 AI 工具',
+      allInstalled: '所有 AI 工具都已安裝！',
+      noToolsToRemove: '沒有可移除的 AI 工具！',
+      selectToAdd: '選擇要新增的 AI 工具:',
+      selectToRemove: '選擇要移除的 AI 工具:'
+    },
+
+    // Skills Update
+    skillsUpdate: {
+      upToDate: '✓ 所有 Skills 安裝都是最新的',
+      title: 'Skills 有可用更新:',
+      projectLevel: '專案層級 (.claude/skills/):',
+      userLevel: '使用者層級 (~/.claude/skills/):',
+      question: '你想做什麼？/ What would you like to do?',
+      choices: {
+        both: '更新所有 Skills 安裝',
+        project: '僅更新 .claude/skills/',
+        user: '僅更新 ~/.claude/skills/',
+        skip: '保持目前版本'
       }
     }
   }

@@ -8,24 +8,26 @@ import { t } from '../i18n/messages.js';
  * @returns {Promise<string[]>} Selected AI tools
  */
 export async function promptAITools(detected = {}) {
+  const msg = t().aiTools;
+
   console.log();
-  console.log(chalk.cyan('AI Development Tools:'));
-  console.log(chalk.gray('  Select the AI coding assistants you use with this project'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const { tools } = await inquirer.prompt([
     {
       type: 'checkbox',
       name: 'tools',
-      message: 'Which AI tools are you using?',
+      message: msg.question,
       choices: [
-        new inquirer.Separator(chalk.gray('── Dynamic Skills ──')),
+        new inquirer.Separator(chalk.gray(msg.separators.dynamicSkills)),
         {
-          name: `${chalk.green('Claude Code')} ${chalk.gray('(推薦)')} - Anthropic CLI with dynamic Skills`,
+          name: `${chalk.green('Claude Code')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.claudeCode}`,
           value: 'claude-code',
           checked: detected.claudeCode || false
         },
-        new inquirer.Separator(chalk.gray('── Static Rule Files ──')),
+        new inquirer.Separator(chalk.gray(msg.separators.staticRules)),
         {
           name: `Cursor ${chalk.gray('(.cursorrules)')}`,
           value: 'cursor',
@@ -51,7 +53,7 @@ export async function promptAITools(detected = {}) {
           value: 'antigravity',
           checked: detected.antigravity || false
         },
-        new inquirer.Separator(chalk.gray('── AGENTS.md Tools ──')),
+        new inquirer.Separator(chalk.gray(msg.separators.agentsMd)),
         {
           name: `OpenAI Codex ${chalk.gray('(AGENTS.md)')} - OpenAI Codex CLI`,
           value: 'codex',
@@ -62,7 +64,7 @@ export async function promptAITools(detected = {}) {
           value: 'opencode',
           checked: detected.opencode || false
         },
-        new inquirer.Separator(chalk.gray('── Gemini Tools ──')),
+        new inquirer.Separator(chalk.gray(msg.separators.gemini)),
         {
           name: `Gemini CLI ${chalk.gray('(GEMINI.md)')} - Google Gemini CLI`,
           value: 'gemini-cli',
@@ -70,7 +72,7 @@ export async function promptAITools(detected = {}) {
         },
         new inquirer.Separator(),
         {
-          name: chalk.gray('None / Skip'),
+          name: chalk.gray(msg.choices.none),
           value: 'none'
         }
       ]
@@ -78,7 +80,7 @@ export async function promptAITools(detected = {}) {
   ]);
 
   // Filter out 'none' and separators
-  const filtered = tools.filter(t => t !== 'none' && typeof t === 'string');
+  const filtered = tools.filter(tool => tool !== 'none' && typeof tool === 'string');
   return filtered;
 }
 
@@ -88,6 +90,7 @@ export async function promptAITools(detected = {}) {
  * @returns {Promise<string>} 'user', 'project', or 'none'
  */
 export async function promptSkillsInstallLocation(selectedTools = []) {
+  const msg = t().skillsLocation;
   const hasClaudeCode = selectedTools.includes('claude-code');
   const hasOpenCode = selectedTools.includes('opencode');
 
@@ -97,13 +100,13 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
   if (hasOpenCode) compatibleTools.push('OpenCode');
 
   console.log();
-  console.log(chalk.cyan('Skills Installation:'));
+  console.log(chalk.cyan(msg.title));
   if (compatibleTools.length > 1) {
-    console.log(chalk.gray(`  Skills will work with: ${compatibleTools.join(' and ')}`));
+    console.log(chalk.gray(`  ${msg.descriptionWithTools} ${compatibleTools.join(' and ')}`));
   } else if (compatibleTools.length === 1) {
-    console.log(chalk.gray(`  Choose where to install ${compatibleTools[0]} Skills`));
+    console.log(chalk.gray(`  ${msg.description} ${compatibleTools[0]} Skills`));
   } else {
-    console.log(chalk.gray('  Choose where to install Skills'));
+    console.log(chalk.gray(`  ${msg.description}`));
   }
   console.log();
 
@@ -111,22 +114,22 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
     {
       type: 'list',
       name: 'location',
-      message: 'Where should Skills be installed?',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.green('Plugin Marketplace')} ${chalk.gray('(推薦)')} - Auto-managed by Claude Code`,
+          name: `${chalk.green('Plugin Marketplace')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.marketplace}`,
           value: 'marketplace'
         },
         {
-          name: `${chalk.blue('User Level')} ${chalk.gray('(~/.claude/skills/)')} - Shared across all projects`,
+          name: `${chalk.blue('User Level')} ${chalk.gray('(~/.claude/skills/)')} - ${msg.choices.user}`,
           value: 'user'
         },
         {
-          name: `${chalk.blue('Project Level')} ${chalk.gray('(.claude/skills/)')} - This project only`,
+          name: `${chalk.blue('Project Level')} ${chalk.gray('(.claude/skills/)')} - ${msg.choices.project}`,
           value: 'project'
         },
         {
-          name: `${chalk.gray('Skip')} - No Skills installation`,
+          name: `${chalk.gray('Skip')} - ${msg.choices.none}`,
           value: 'none'
         }
       ],
@@ -136,13 +139,7 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
 
   // Simplified single-line explanations
   console.log();
-  const explanations = {
-    marketplace: '  → Run: /plugin install universal-dev-standards@asia-ostrich',
-    user: '  → Skills available in all your projects',
-    project: '  → Consider adding .claude/skills/ to .gitignore',
-    none: '  → Full standards will be copied to .standards/'
-  };
-  console.log(chalk.gray(explanations[location]));
+  console.log(chalk.gray(msg.explanations[location]));
   console.log();
 
   return location;
@@ -156,6 +153,7 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
  * @returns {Promise<Object>} Update decision { action: 'both'|'project'|'user'|'none', targets: string[] }
  */
 export async function promptSkillsUpdate(projectInfo, userInfo, latestVersion) {
+  const msg = t().skillsUpdate;
   const choices = [];
   const needsUpdate = [];
 
@@ -179,20 +177,20 @@ export async function promptSkillsUpdate(projectInfo, userInfo, latestVersion) {
 
   // If nothing needs update
   if (needsUpdate.length === 0) {
-    console.log(chalk.green('✓ All Skills installations are up to date'));
+    console.log(chalk.green(msg.upToDate));
     return { action: 'none', targets: [] };
   }
 
   // Build choices based on what needs updating
   console.log();
-  console.log(chalk.cyan('Skills Update Available:'));
+  console.log(chalk.cyan(msg.title));
 
   if (projectInfo?.installed) {
     const pVer = projectInfo.version || 'unknown';
     const pStatus = pVer === latestVersion
       ? chalk.green('✓ up to date')
       : chalk.yellow(`v${pVer} → v${latestVersion}`);
-    console.log(chalk.gray(`  Project level (.claude/skills/): ${pStatus}`));
+    console.log(chalk.gray(`  ${msg.projectLevel} ${pStatus}`));
   }
 
   if (userInfo?.installed) {
@@ -200,34 +198,34 @@ export async function promptSkillsUpdate(projectInfo, userInfo, latestVersion) {
     const uStatus = uVer === latestVersion
       ? chalk.green('✓ up to date')
       : chalk.yellow(`v${uVer} → v${latestVersion}`);
-    console.log(chalk.gray(`  User level (~/.claude/skills/): ${uStatus}`));
+    console.log(chalk.gray(`  ${msg.userLevel} ${uStatus}`));
   }
   console.log();
 
   // Build update choices
   if (needsUpdate.includes('project') && needsUpdate.includes('user')) {
     choices.push({
-      name: `${chalk.green('Update Both')} - Update all Skills installations`,
+      name: `${chalk.green('Update Both')} - ${msg.choices.both}`,
       value: 'both'
     });
   }
 
   if (needsUpdate.includes('project')) {
     choices.push({
-      name: `${chalk.blue('Update Project Level')} - Only update .claude/skills/`,
+      name: `${chalk.blue('Update Project Level')} - ${msg.choices.project}`,
       value: 'project'
     });
   }
 
   if (needsUpdate.includes('user')) {
     choices.push({
-      name: `${chalk.blue('Update User Level')} - Only update ~/.claude/skills/`,
+      name: `${chalk.blue('Update User Level')} - ${msg.choices.user}`,
       value: 'user'
     });
   }
 
   choices.push({
-    name: `${chalk.gray('Skip')} - Keep current versions`,
+    name: `${chalk.gray('Skip')} - ${msg.choices.skip}`,
     value: 'none'
   });
 
@@ -235,7 +233,7 @@ export async function promptSkillsUpdate(projectInfo, userInfo, latestVersion) {
     {
       type: 'list',
       name: 'action',
-      message: 'What would you like to do?',
+      message: msg.question,
       choices,
       default: needsUpdate.length === 2 ? 'both' : needsUpdate[0]
     }
@@ -460,27 +458,29 @@ export async function promptMergeStrategy() {
  * @returns {Promise<string>} Selected language ID
  */
 export async function promptCommitLanguage() {
+  const msg = t().commitLanguage;
+
   console.log();
-  console.log(chalk.cyan('Commit Message Language:'));
-  console.log(chalk.gray('  What language for commit messages?'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const { language } = await inquirer.prompt([
     {
       type: 'list',
       name: 'language',
-      message: 'Select commit message language:',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.green('English')} ${chalk.gray('(推薦)')} - Standard international format`,
+          name: `${chalk.green(msg.labels.english)} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.english}`,
           value: 'english'
         },
         {
-          name: `${chalk.blue('Traditional Chinese')} ${chalk.gray('(繁體中文)')} - For Chinese-speaking teams`,
+          name: `${chalk.blue(msg.labels.chinese)} - ${msg.choices.chinese}`,
           value: 'traditional-chinese'
         },
         {
-          name: `${chalk.yellow('Bilingual')} ${chalk.gray('(雙語)')} - Both English and Chinese`,
+          name: `${chalk.yellow(msg.labels.bilingual)} - ${msg.choices.bilingual}`,
           value: 'bilingual'
         }
       ],
@@ -588,18 +588,20 @@ export async function promptStandardOptions(level) {
  * @returns {Promise<string>} 'skills' or 'full'
  */
 export async function promptInstallMode() {
+  const msg = t().installMode;
+
   const { mode } = await inquirer.prompt([
     {
       type: 'list',
       name: 'mode',
-      message: 'Select installation mode:',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.green('Skills Mode')} ${chalk.gray('(推薦)')} - Use Claude Code Skills`,
+          name: `${chalk.green('Skills Mode')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.skills}`,
           value: 'skills'
         },
         {
-          name: `${chalk.yellow('Full Mode')} - Install all standards without Skills`,
+          name: `${chalk.yellow('Full Mode')} - ${msg.choices.full}`,
           value: 'full'
         }
       ],
@@ -609,12 +611,8 @@ export async function promptInstallMode() {
 
   // Show explanation based on selection
   console.log();
-  if (mode === 'skills') {
-    console.log(chalk.gray('  → Skills will be installed to ~/.claude/skills/'));
-    console.log(chalk.gray('  → Only static standards will be copied to .standards/'));
-  } else {
-    console.log(chalk.gray('  → All standards will be copied to .standards/'));
-    console.log(chalk.gray('  → No Skills will be installed'));
+  for (const line of msg.explanations[mode]) {
+    console.log(chalk.gray(line));
   }
   console.log();
 
@@ -948,30 +946,32 @@ const AI_TOOL_DEFINITIONS = {
  * @returns {Promise<Object>} Action and tools to modify
  */
 export async function promptManageAITools(currentTools = []) {
+  const msg = t().manageAITools;
+
   console.log();
-  console.log(chalk.cyan('AI Tools Management:'));
-  console.log(chalk.gray(`  Currently installed: ${currentTools.length > 0 ? currentTools.join(', ') : 'none'}`));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.currentlyInstalled} ${currentTools.length > 0 ? currentTools.join(', ') : msg.none}`));
   console.log();
 
   const { action } = await inquirer.prompt([
     {
       type: 'list',
       name: 'action',
-      message: 'What would you like to do?',
+      message: msg.question,
       choices: [
-        { name: 'Add new AI tools', value: 'add' },
-        { name: 'Remove existing AI tools', value: 'remove' },
-        { name: 'View current AI tools', value: 'view' },
-        { name: chalk.gray('Cancel'), value: 'cancel' }
+        { name: msg.choices.add, value: 'add' },
+        { name: msg.choices.remove, value: 'remove' },
+        { name: msg.choices.view, value: 'view' },
+        { name: chalk.gray(msg.choices.cancel), value: 'cancel' }
       ]
     }
   ]);
 
   if (action === 'view') {
     console.log();
-    console.log(chalk.cyan('Installed AI Tools:'));
+    console.log(chalk.cyan(msg.installedTitle));
     if (currentTools.length === 0) {
-      console.log(chalk.gray('  No AI tools installed'));
+      console.log(chalk.gray(`  ${msg.noTools}`));
     } else {
       for (const tool of currentTools) {
         const def = AI_TOOL_DEFINITIONS[tool];
@@ -996,7 +996,7 @@ export async function promptManageAITools(currentTools = []) {
       }));
 
     if (availableTools.length === 0) {
-      console.log(chalk.yellow('  All AI tools are already installed!'));
+      console.log(chalk.yellow(`  ${msg.allInstalled}`));
       return { action: 'cancel', tools: [] };
     }
 
@@ -1004,7 +1004,7 @@ export async function promptManageAITools(currentTools = []) {
       {
         type: 'checkbox',
         name: 'toolsToAdd',
-        message: 'Select AI tools to add:',
+        message: msg.selectToAdd,
         choices: availableTools
       }
     ]);
@@ -1014,7 +1014,7 @@ export async function promptManageAITools(currentTools = []) {
 
   if (action === 'remove') {
     if (currentTools.length === 0) {
-      console.log(chalk.yellow('  No AI tools to remove!'));
+      console.log(chalk.yellow(`  ${msg.noToolsToRemove}`));
       return { action: 'cancel', tools: [] };
     }
 
@@ -1030,7 +1030,7 @@ export async function promptManageAITools(currentTools = []) {
       {
         type: 'checkbox',
         name: 'toolsToRemove',
-        message: 'Select AI tools to remove:',
+        message: msg.selectToRemove,
         choices: installedChoices
       }
     ]);
@@ -1047,27 +1047,29 @@ export async function promptManageAITools(currentTools = []) {
  * @returns {Promise<number>} New level
  */
 export async function promptAdoptionLevel(currentLevel) {
+  const msg = t().adoptionLevelConfig;
+
   console.log();
-  console.log(chalk.cyan('Adoption Level:'));
-  console.log(chalk.gray(`  Current level: ${currentLevel}`));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.currentLevel} ${currentLevel}`));
   console.log();
 
   const { level } = await inquirer.prompt([
     {
       type: 'list',
       name: 'level',
-      message: 'Select new adoption level:',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.blue('Level 1: Starter')} ${chalk.gray('(基本)')} - 6 core standards`,
+          name: `${chalk.blue('Level 1: Starter')} - ${msg.choices[1]}`,
           value: 1
         },
         {
-          name: `${chalk.green('Level 2: Professional')} ${chalk.gray('(推薦)')} - 12 standards`,
+          name: `${chalk.green('Level 2: Professional')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices[2]}`,
           value: 2
         },
         {
-          name: `${chalk.yellow('Level 3: Complete')} ${chalk.gray('(完整)')} - All 16 standards`,
+          name: `${chalk.yellow('Level 3: Complete')} - ${msg.choices[3]}`,
           value: 3
         }
       ],
@@ -1078,10 +1080,10 @@ export async function promptAdoptionLevel(currentLevel) {
   if (level !== currentLevel) {
     console.log();
     if (level > currentLevel) {
-      console.log(chalk.yellow('⚠ Upgrading level will add new standard files'));
+      console.log(chalk.yellow(msg.warnings.upgrade));
     } else {
-      console.log(chalk.yellow('⚠ Downgrading level will NOT remove existing files'));
-      console.log(chalk.gray('  You may manually remove files from .standards/ if needed'));
+      console.log(chalk.yellow(msg.warnings.downgrade));
+      console.log(chalk.gray(msg.warnings.downgradeHint));
     }
   }
 
@@ -1146,37 +1148,39 @@ export async function promptContentModeChange(currentMode) {
  * @returns {Promise<string|null>} Selected methodology ID or null
  */
 export async function promptMethodology() {
+  const msg = t().methodology;
+
   console.log();
-  console.log(chalk.cyan('Development Methodology:'));
-  console.log(chalk.yellow('  ⚠️  [Experimental] This feature will be redesigned in v4.0'));
-  console.log(chalk.gray('  Select a methodology to guide your development workflow.'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.yellow(`  ${msg.experimental}`));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   const { methodology } = await inquirer.prompt([
     {
       type: 'list',
       name: 'methodology',
-      message: 'Which development methodology do you want to use?',
+      message: msg.question,
       choices: [
         {
-          name: `${chalk.red('TDD')} ${chalk.gray('- Test-Driven Development (Red → Green → Refactor)')}`,
+          name: `${chalk.red('TDD')} ${chalk.gray(`- ${msg.choices.tdd}`)}`,
           value: 'tdd'
         },
         {
-          name: `${chalk.green('BDD')} ${chalk.gray('- Behavior-Driven Development (Given-When-Then)')}`,
+          name: `${chalk.green('BDD')} ${chalk.gray(`- ${msg.choices.bdd}`)}`,
           value: 'bdd'
         },
         {
-          name: `${chalk.blue('SDD')} ${chalk.gray('- Spec-Driven Development (Spec First, Code Second)')}`,
+          name: `${chalk.blue('SDD')} ${chalk.gray(`- ${msg.choices.sdd}`)}`,
           value: 'sdd'
         },
         {
-          name: `${chalk.yellow('ATDD')} ${chalk.gray('- Acceptance Test-Driven Development')}`,
+          name: `${chalk.yellow('ATDD')} ${chalk.gray(`- ${msg.choices.atdd}`)}`,
           value: 'atdd'
         },
         new inquirer.Separator(),
         {
-          name: `${chalk.gray('None')} - No specific methodology`,
+          name: `${chalk.gray('None')} - ${msg.choices.none}`,
           value: null
         }
       ],

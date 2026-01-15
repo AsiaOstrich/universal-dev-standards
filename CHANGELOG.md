@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **CLI**: Complete i18n support for all interactive prompts
+  - `promptAITools`: Title, description, separators, choices
+  - `promptSkillsInstallLocation`: Title, description, choices, explanations
+  - `promptCommitLanguage`: Title, description, choices, labels
+  - `promptInstallMode`: Question, choices, explanations
+  - `promptAdoptionLevel`: Title, question, choices, warnings
+  - `promptMethodology`: Title, description, choices
+  - `promptManageAITools`: All messages and choices
+  - `promptSkillsUpdate`: All messages and choices
+  - All labels now use i18n (no more mixed Chinese/English in prompts)
+
 ## [3.5.0-beta.25] - 2026-01-15
 
 ### Added
