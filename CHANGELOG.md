@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.28] - 2026-01-15
+
+### Changed
+- **Commands**: Simplify slash command descriptions to English-only
+  - Remove bilingual format from `description` field (UI space optimization)
+  - Markdown body content remains bilingual for documentation
+- **Commands**: Add AskUserQuestion interactive mode to `/init`, `/config`, `/update`
+  - Commands now prompt users for preferences before executing
+  - Quick mode available via `--yes` flag to skip questions
+- **Commands**: Add missing CLI options to `/check`
+  - Added `--diff`, `--restore`, `--restore-missing`, `--migrate` options
+
 ## [3.5.0-beta.27] - 2026-01-15
 
 ### Added
