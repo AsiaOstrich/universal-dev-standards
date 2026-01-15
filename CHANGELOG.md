@@ -9,17 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.27] - 2026-01-15
+
+### Added
+- **i18n**: Add simplified Chinese (zh-CN) localization
+  - Complete zh-CN translations for all 16 core standards
+  - zh-CN translations for 20+ Claude Code skills
+  - zh-CN translations for adoption guides and checklists
+  - zh-CN AI options (changelog, commit-message, code-review, etc.)
+
 ### Changed
+- **CLI**: Add i18n support for all command output messages
+  - All 6 commands now support EN, ZH-TW, and ZH-CN
+  - `uds list`: title, labels, error messages
+  - `uds skills`: status, marketplace info, migration hints
+  - `uds check`: integrity status, interactive mode, coverage report
+  - `uds init`: detection, config summary, spinners, success messages
+  - `uds update`: CLI update, version info, sync status
+  - `uds configure`: menu options, labels, confirmation messages
+  - Environment variable detection: `LANG=zh_CN.UTF-8`, `LANG=zh_TW.UTF-8`
 - **CLI**: Add i18n support for integration prompts (`integrations.js`)
-  - `promptIntegrationMode`: Title, description, question, choices
-  - `promptRuleCategories`: Title, description, question, validation message
-  - `promptLanguageRules`: Title, description, question
-  - `promptExclusions`: Title, description, questions
-  - `promptCustomRules`: Title, description, questions
-  - `promptMergeStrategy`: Title, description, question, choices (for integration file merge)
-  - `promptDetailLevel`: Title, description, question, choices, labels
-  - `promptRuleLanguage`: Question, choices
-  - All integration prompts now support `--ui-lang en` and `--ui-lang zh-tw`
+  - All integration prompts now support `--ui-lang en`, `zh-tw`, and `zh-cn`
 
 ## [3.5.0-beta.26] - 2026-01-15
 
