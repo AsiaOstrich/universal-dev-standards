@@ -178,11 +178,11 @@ try {
     # Step 4: Translation sync
     Run-Check -Step 4 -Name "Running translation sync check" -Command "$ScriptDir\check-translation-sync.ps1"
 
-    # Step 5: Install scripts sync
-    Run-Check -Step 5 -Name "Running install scripts sync check" -Command "$ScriptDir\check-install-scripts-sync.ps1"
+    # Step 5: CLI-docs sync
+    Run-Check -Step 5 -Name "Running CLI-docs sync check" -Command "$ScriptDir\check-cli-docs-sync.ps1"
 
-    # Step 6: CLI-docs sync
-    Run-Check -Step 6 -Name "Running CLI-docs sync check" -Command "$ScriptDir\check-cli-docs-sync.ps1"
+    # Step 6: Documentation sync
+    Run-Check -Step 6 -Name "Running documentation sync check" -Command "$ScriptDir\check-docs-sync.ps1"
 
     # Step 7: Linting
     Run-Check -Step 7 -Name "Running linting" -Command "npm run lint --prefix `"$CliDir`""

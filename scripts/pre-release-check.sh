@@ -165,11 +165,11 @@ run_check "3" "Running standards sync check" "$SCRIPT_DIR/check-standards-sync.s
 # Step 4: Translation sync
 run_check "4" "Running translation sync check" "$SCRIPT_DIR/check-translation-sync.sh"
 
-# Step 5: Install scripts sync
-run_check "5" "Running install scripts sync check" "$SCRIPT_DIR/check-install-scripts-sync.sh"
+# Step 5: CLI-docs sync
+run_check "5" "Running CLI-docs sync check" "$SCRIPT_DIR/check-cli-docs-sync.sh"
 
-# Step 6: CLI-docs sync
-run_check "6" "Running CLI-docs sync check" "$SCRIPT_DIR/check-cli-docs-sync.sh"
+# Step 6: Documentation sync
+run_check "6" "Running documentation sync check" "$SCRIPT_DIR/check-docs-sync.sh"
 
 # Step 7: Linting
 run_check "7" "Running linting" "npm run lint --prefix $CLI_DIR"
