@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0-beta.25] - 2026-01-15
+
 ### Added
 - **CLI**: Add i18n support for interactive prompts
   - New `--ui-lang` option: `en`, `zh-tw`, or `auto` (default)
