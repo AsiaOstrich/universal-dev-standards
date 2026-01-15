@@ -33,7 +33,7 @@ import {
   extractMarkedContent
 } from '../utils/integration-generator.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
-import { t } from '../i18n/messages.js';
+import { t, getLanguage } from '../i18n/messages.js';
 
 /**
  * Check command - verify adoption status
@@ -72,7 +72,11 @@ export async function checkCommand(options = {}) {
   console.log(chalk.green(msg.standardsInitialized));
   console.log();
   console.log(chalk.cyan(msg.adoptionStatus));
-  console.log(chalk.gray(`  ${common.level}: ${manifest.level} - ${levelInfo.name} (${levelInfo.nameZh})`));
+  const lang = getLanguage();
+  const levelDisplay = lang === 'en'
+    ? `${manifest.level} - ${levelInfo.name}`
+    : `${manifest.level} - ${levelInfo.name} (${levelInfo.nameZh})`;
+  console.log(chalk.gray(`  ${common.level}: ${levelDisplay}`));
   console.log(chalk.gray(`  ${msg.installed}: ${manifest.upstream.installed}`));
   console.log(chalk.gray(`  ${common.version}: ${manifest.upstream.version}`));
   console.log();

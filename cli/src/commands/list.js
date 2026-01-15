@@ -7,7 +7,7 @@ import {
   getCategoryInfo,
   getRepositoryInfo
 } from '../utils/registry.js';
-import { t } from '../i18n/messages.js';
+import { t, getLanguage } from '../i18n/messages.js';
 
 /**
  * List command - displays available standards
@@ -36,7 +36,11 @@ export function listCommand(options) {
     }
     standards = getStandardsByLevel(levelNum);
     const levelInfo = getLevelInfo(levelNum);
-    console.log(chalk.cyan(`${msg.showingLevel} ${levelNum}: ${levelInfo.name} (${levelInfo.nameZh})`));
+    const lang = getLanguage();
+    const levelDisplay = lang === 'en'
+      ? `${levelNum}: ${levelInfo.name}`
+      : `${levelNum}: ${levelInfo.name} (${levelInfo.nameZh})`;
+    console.log(chalk.cyan(`${msg.showingLevel} ${levelDisplay}`));
     console.log(chalk.gray(levelInfo.description));
     console.log();
   } else if (category) {
