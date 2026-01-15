@@ -9,6 +9,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.1] - 2026-01-15
+
+### Added
+- **CLI**: Multi-Agent Skills Installation
+  - Support installing Skills to multiple AI agents simultaneously
+  - Checkbox selection for target agents (Claude Code, OpenCode, Cline, Roo Code, etc.)
+  - User-level and project-level installation paths for each agent
+- **CLI**: Gemini CLI TOML Command Conversion
+  - Auto-convert markdown commands to TOML format for Gemini CLI
+  - Support `{{args}}` placeholder for command arguments
+  - Proper TOML string escaping
+- **CLI**: Slash Commands Installation
+  - Install commands to agents that support them (OpenCode, Roo Code, Copilot, Gemini CLI)
+  - `uds update --skills` and `uds update --commands` options
+- **CLI**: Centralized AI Agent Path Configuration
+  - New `src/config/ai-agent-paths.js` module
+  - Unified path management for all 10 supported AI agents
+- **Tests**: Comprehensive unit tests
+  - `ai-agent-paths.test.js` (29 tests)
+  - `skills-installer.test.js` (23 tests)
+  - Total: 400 tests passing
+
+### Changed
+- **Docs**: Updated AI-AGENT-ROADMAP.md to v2.2.0
+  - Added Multi-Agent Installation and Gemini CLI TOML to Feature Enhancement Roadmap
+- **Docs**: Updated CLI-INIT-OPTIONS.md to v3.5.1
+  - New multi-agent Skills installation section
+  - Updated Skills paths table for all agents
+- **Docs**: Updated README.md
+  - New AI Tool Extensions table with Skills and Commands columns
+  - Added Multi-Agent Skills and Gemini CLI TOML to What's New
+
 ## [3.5.0] - 2026-01-15
 
 ### Added
