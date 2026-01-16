@@ -744,7 +744,23 @@ export const messages = {
         categoriesChanged: 'Categories: {old} → {new}',
         failedToUpdate: '✗ Failed to update {path}: {error}',
         updatedCount: '✓ Updated {count} integration file(s)',
-        skippedCount: 'Skipped {count} file(s) (already in sync or not found)'
+        skippedCount: 'Skipped {count} file(s) (already in sync or not found)',
+        // New features discovery
+        newFeaturesAvailable: 'New Features Available',
+        newFeaturesAvailableHint: 'Note: New features available for your AI tools',
+        skillsNotInstalledFor: 'Skills not yet installed for these AI tools:',
+        commandsNotInstalledFor: 'Slash commands not yet installed for these AI tools:',
+        installSkillsNow: 'Would you like to install Skills for these AI tools?',
+        installCommandsNow: 'Would you like to install slash commands for these AI tools?',
+        skillsLevelQuestion: 'Where should Skills be installed?',
+        projectLevel: 'Project level',
+        userLevel: 'User level',
+        installingNewSkills: 'Installing Skills...',
+        installingNewCommands: 'Installing commands...',
+        newSkillsInstalled: 'Installed Skills for {count} AI tools',
+        newSkillsInstalledWithErrors: 'Installed Skills with {errors} errors',
+        newCommandsInstalled: 'Installed commands for {count} AI tools',
+        newCommandsInstalledWithErrors: 'Installed commands with {errors} errors'
       },
 
       // configure command
@@ -1553,7 +1569,23 @@ export const messages = {
         categoriesChanged: '分類：{old} → {new}',
         failedToUpdate: '✗ 更新 {path} 失敗：{error}',
         updatedCount: '✓ 已更新 {count} 個整合檔案',
-        skippedCount: '已跳過 {count} 個檔案（已同步或找不到）'
+        skippedCount: '已跳過 {count} 個檔案（已同步或找不到）',
+        // New features discovery
+        newFeaturesAvailable: '發現新功能',
+        newFeaturesAvailableHint: '提示：您的 AI 工具有新功能可用',
+        skillsNotInstalledFor: '以下 AI 工具尚未安裝 Skills：',
+        commandsNotInstalledFor: '以下 AI 工具尚未安裝斜線命令：',
+        installSkillsNow: '是否要為這些 AI 工具安裝 Skills？',
+        installCommandsNow: '是否要為這些 AI 工具安裝斜線命令？',
+        skillsLevelQuestion: 'Skills 要安裝到哪裡？',
+        projectLevel: '專案層級',
+        userLevel: '使用者層級',
+        installingNewSkills: '安裝 Skills 中...',
+        installingNewCommands: '安裝斜線命令中...',
+        newSkillsInstalled: '已為 {count} 個 AI 工具安裝 Skills',
+        newSkillsInstalledWithErrors: '安裝 Skills 時發生 {errors} 個錯誤',
+        newCommandsInstalled: '已為 {count} 個 AI 工具安裝斜線命令',
+        newCommandsInstalledWithErrors: '安裝斜線命令時發生 {errors} 個錯誤'
       },
 
       // configure command
@@ -2194,7 +2226,23 @@ export const messages = {
         categoriesChanged: '类别：{old} → {new}',
         failedToUpdate: '✗ 更新 {path} 失败：{error}',
         updatedCount: '✓ 已更新 {count} 个集成文件',
-        skippedCount: '跳过 {count} 个文件（已同步或未找到）'
+        skippedCount: '跳过 {count} 个文件（已同步或未找到）',
+        // New features discovery
+        newFeaturesAvailable: '发现新功能',
+        newFeaturesAvailableHint: '提示：您的 AI 工具有新功能可用',
+        skillsNotInstalledFor: '以下 AI 工具尚未安装 Skills：',
+        commandsNotInstalledFor: '以下 AI 工具尚未安装斜线命令：',
+        installSkillsNow: '是否要为这些 AI 工具安装 Skills？',
+        installCommandsNow: '是否要为这些 AI 工具安装斜线命令？',
+        skillsLevelQuestion: 'Skills 要安装到哪里？',
+        projectLevel: '项目级别',
+        userLevel: '用户级别',
+        installingNewSkills: '正在安装 Skills...',
+        installingNewCommands: '正在安装斜线命令...',
+        newSkillsInstalled: '已为 {count} 个 AI 工具安装 Skills',
+        newSkillsInstalledWithErrors: '安装 Skills 时发生 {errors} 个错误',
+        newCommandsInstalled: '已为 {count} 个 AI 工具安装斜线命令',
+        newCommandsInstalledWithErrors: '安装斜线命令时发生 {errors} 个错误'
       },
 
       // configure command

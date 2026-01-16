@@ -26,6 +26,7 @@ import {
 } from '../utils/skills-installer.js';
 import {
   getAgentDisplayName,
+  getAgentConfig,
   getSkillsDirForAgent,
   getCommandsDirForAgent
 } from '../config/ai-agent-paths.js';
@@ -401,6 +402,83 @@ export async function updateCommand(options) {
     console.log(chalk.yellow(msg.errorsOccurred.replace('{count}', results.errors.length)));
     for (const err of results.errors) {
       console.log(chalk.gray(`    ${err}`));
+    }
+  }
+
+  // Check for new features (Skills/Commands) not yet installed
+  if (!options.standardsOnly) {
+    const { missingSkills, missingCommands } = checkNewFeatures(projectPath, manifest);
+
+    if (missingSkills.length > 0 || missingCommands.length > 0) {
+      if (!options.yes) {
+        // Interactive mode: prompt user to install
+        const { installSkills, installCommands } = await promptNewFeatureInstallation(
+          missingSkills,
+          missingCommands
+        );
+
+        // Install Skills if user agreed
+        if (installSkills.length > 0) {
+          const skillSpinner = ora(msg.installingNewSkills || 'Installing Skills...').start();
+          const skillResult = await installSkillsToMultipleAgents(installSkills, null, projectPath);
+
+          // Update manifest
+          if (!manifest.skills) manifest.skills = {};
+          manifest.skills.installed = true;
+          manifest.skills.version = repoInfo.skills.version;
+          manifest.skills.installations = [
+            ...(manifest.skills.installations || []),
+            ...installSkills
+          ];
+
+          if (skillResult.totalErrors === 0) {
+            skillSpinner.succeed((msg.newSkillsInstalled || 'Installed Skills for {count} AI tools')
+              .replace('{count}', installSkills.length));
+          } else {
+            skillSpinner.warn((msg.newSkillsInstalledWithErrors || 'Installed Skills with {errors} errors')
+              .replace('{errors}', skillResult.totalErrors));
+          }
+        }
+
+        // Install Commands if user agreed
+        if (installCommands.length > 0) {
+          const cmdSpinner = ora(msg.installingNewCommands || 'Installing commands...').start();
+          const cmdResult = await installCommandsToMultipleAgents(installCommands, null, projectPath);
+
+          // Update manifest
+          if (!manifest.commands) manifest.commands = {};
+          manifest.commands.installed = true;
+          manifest.commands.installations = [
+            ...(manifest.commands.installations || []),
+            ...installCommands
+          ];
+
+          if (cmdResult.totalErrors === 0) {
+            cmdSpinner.succeed((msg.newCommandsInstalled || 'Installed commands for {count} AI tools')
+              .replace('{count}', installCommands.length));
+          } else {
+            cmdSpinner.warn((msg.newCommandsInstalledWithErrors || 'Installed commands with {errors} errors')
+              .replace('{errors}', cmdResult.totalErrors));
+          }
+        }
+
+        // Write updated manifest if anything was installed
+        if (installSkills.length > 0 || installCommands.length > 0) {
+          writeManifest(manifest, projectPath);
+        }
+      } else {
+        // --yes mode: show hint but don't auto-install (conservative behavior)
+        console.log();
+        console.log(chalk.cyan(msg.newFeaturesAvailableHint || 'Note: New features available for your AI tools'));
+        if (missingSkills.length > 0) {
+          const toolNames = missingSkills.map(s => s.displayName).join(', ');
+          console.log(chalk.gray(`  • Skills (${toolNames}): run "uds update --skills" or "uds init" to install`));
+        }
+        if (missingCommands.length > 0) {
+          const toolNames = missingCommands.map(c => c.displayName).join(', ');
+          console.log(chalk.gray(`  • Commands (${toolNames}): run "uds update --commands" or "uds init" to install`));
+        }
+      }
     }
   }
 
@@ -834,4 +912,154 @@ async function updateCommandsOnly(projectPath, manifest) {
 
   console.log();
   process.exit(0);
+}
+
+/**
+ * Check manifest.aiTools and detect missing Skills/Commands
+ * @param {string} projectPath - Project path
+ * @param {Object} manifest - Manifest object
+ * @returns {{missingSkills: Array, missingCommands: Array}}
+ */
+function checkNewFeatures(projectPath, manifest) {
+  const aiTools = manifest.aiTools || [];
+
+  if (aiTools.length === 0) {
+    return { missingSkills: [], missingCommands: [] };
+  }
+
+  const missingSkills = [];
+  const missingCommands = [];
+
+  for (const tool of aiTools) {
+    const config = getAgentConfig(tool);
+    if (!config) continue;
+
+    // Check Skills support
+    if (config.supportsSkills && config.skills) {
+      // Check if skills are installed for this agent
+      const projectInfo = getInstalledSkillsInfoForAgent(tool, 'project', projectPath);
+      const userInfo = getInstalledSkillsInfoForAgent(tool, 'user');
+
+      // Check if already in manifest.skills.installations
+      const existingInstallations = manifest.skills?.installations || [];
+      const isInManifest = existingInstallations.some(
+        inst => inst.agent === tool || (inst.agent === 'claude-code' && tool === 'claude-code')
+      );
+
+      // Check if using marketplace (Claude Code only)
+      const usingMarketplace = manifest.skills?.location === 'marketplace' && tool === 'claude-code';
+
+      const hasSkills = projectInfo?.installed || userInfo?.installed || isInManifest || usingMarketplace;
+
+      if (!hasSkills) {
+        missingSkills.push({
+          agent: tool,
+          displayName: getAgentDisplayName(tool),
+          paths: config.skills
+        });
+      }
+    }
+
+    // Check Commands support
+    if (config.commands !== null && config.commands) {
+      const cmdInfo = getInstalledCommandsForAgent(tool, projectPath);
+
+      // Check if already in manifest.commands.installations
+      const existingCmdInstallations = manifest.commands?.installations || [];
+      const isInCmdManifest = existingCmdInstallations.includes(tool);
+
+      const hasCommands = cmdInfo?.installed || isInCmdManifest;
+
+      if (!hasCommands) {
+        missingCommands.push({
+          agent: tool,
+          displayName: getAgentDisplayName(tool),
+          path: config.commands.project
+        });
+      }
+    }
+  }
+
+  return { missingSkills, missingCommands };
+}
+
+/**
+ * Prompt user to install new features discovered during update
+ * @param {Array} missingSkills - Array of {agent, displayName, paths}
+ * @param {Array} missingCommands - Array of {agent, displayName, path}
+ * @returns {Promise<{installSkills: Array, installCommands: Array}>}
+ */
+async function promptNewFeatureInstallation(missingSkills, missingCommands) {
+  const msg = t().commands.update;
+
+  // If nothing missing, return empty
+  if (missingSkills.length === 0 && missingCommands.length === 0) {
+    return { installSkills: [], installCommands: [] };
+  }
+
+  console.log();
+  console.log(chalk.cyan('━'.repeat(50)));
+  console.log(chalk.cyan.bold(msg.newFeaturesAvailable || 'New Features Available'));
+  console.log(chalk.cyan('━'.repeat(50)));
+  console.log();
+
+  const result = { installSkills: [], installCommands: [] };
+
+  // Handle missing Skills
+  if (missingSkills.length > 0) {
+    console.log(chalk.yellow(msg.skillsNotInstalledFor || 'Skills not yet installed for these AI tools:'));
+    for (const skill of missingSkills) {
+      console.log(chalk.gray(`  • ${skill.displayName}`));
+    }
+    console.log();
+
+    const { shouldInstallSkills } = await inquirer.prompt([{
+      type: 'confirm',
+      name: 'shouldInstallSkills',
+      message: msg.installSkillsNow || 'Would you like to install Skills for these AI tools?',
+      default: true
+    }]);
+
+    if (shouldInstallSkills) {
+      // Prompt for installation level
+      const { skillsLevel } = await inquirer.prompt([{
+        type: 'list',
+        name: 'skillsLevel',
+        message: msg.skillsLevelQuestion || 'Where should Skills be installed?',
+        choices: [
+          { name: `${msg.projectLevel || 'Project level'} (.claude/skills/, etc.)`, value: 'project' },
+          { name: `${msg.userLevel || 'User level'} (~/.claude/skills/, etc.)`, value: 'user' }
+        ],
+        default: 'project'
+      }]);
+
+      result.installSkills = missingSkills.map(s => ({
+        agent: s.agent,
+        level: skillsLevel
+      }));
+    }
+    console.log();
+  }
+
+  // Handle missing Commands
+  if (missingCommands.length > 0) {
+    console.log(chalk.yellow(msg.commandsNotInstalledFor || 'Slash commands not yet installed for these AI tools:'));
+    for (const cmd of missingCommands) {
+      console.log(chalk.gray(`  • ${cmd.displayName} → ${cmd.path}`));
+    }
+    console.log();
+
+    const { shouldInstallCommands } = await inquirer.prompt([{
+      type: 'confirm',
+      name: 'shouldInstallCommands',
+      message: msg.installCommandsNow || 'Would you like to install slash commands for these AI tools?',
+      default: true
+    }]);
+
+    if (shouldInstallCommands) {
+      result.installCommands = missingCommands.map(c => c.agent);
+    }
+  }
+
+  return result;
 }

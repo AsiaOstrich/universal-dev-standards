@@ -63,6 +63,34 @@ vi.mock('../../src/utils/npm-registry.js', () => ({
   clearCache: vi.fn()
 }));
 
+vi.mock('../../src/config/ai-agent-paths.js', () => ({
+  getAgentDisplayName: vi.fn((agent) => {
+    const names = {
+      'claude-code': 'Claude Code',
+      'opencode': 'OpenCode',
+      'cursor': 'Cursor'
+    };
+    return names[agent] || agent;
+  }),
+  getAgentConfig: vi.fn((agent) => {
+    const configs = {
+      'claude-code': { supportsSkills: true, skills: { project: '.claude/skills/' }, commands: null },
+      'opencode': { supportsSkills: true, skills: { project: '.opencode/skill/' }, commands: { project: '.opencode/command/' } },
+      'cursor': { supportsSkills: true, skills: { project: '.cursor/skills/' }, commands: null }
+    };
+    return configs[agent] || null;
+  }),
+  getSkillsDirForAgent: vi.fn(() => '.claude/skills/'),
+  getCommandsDirForAgent: vi.fn(() => '.opencode/command/')
+}));
+
+vi.mock('../../src/utils/skills-installer.js', () => ({
+  installSkillsToMultipleAgents: vi.fn(() => Promise.resolve({ totalInstalled: 1, totalErrors: 0 })),
+  installCommandsToMultipleAgents: vi.fn(() => Promise.resolve({ totalInstalled: 1, totalErrors: 0 })),
+  getInstalledSkillsInfoForAgent: vi.fn(() => ({ installed: false })),
+  getInstalledCommandsForAgent: vi.fn(() => ({ installed: false }))
+}));
+
 import { updateCommand } from '../../src/commands/update.js';
 import { isInitialized, readManifest, writeManifest, copyStandard } from '../../src/utils/copier.js';
 import { getRepositoryInfo } from '../../src/utils/registry.js';
@@ -343,6 +371,61 @@ describe('Update Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Update available');
+    });
+
+    it('should show new features hint in --yes mode when skills/commands missing', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: [],
+        aiTools: ['opencode'],
+        skills: { installed: false }
+      });
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.0.0' },
+        skills: { version: '1.0.0' }
+      });
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('New features available');
+    });
+
+    it('should not show new features prompt when aiTools is empty', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: [],
+        aiTools: [],
+        skills: { installed: false }
+      });
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).not.toContain('New features available');
+    });
+
+    it('should not prompt for features when --standards-only is used', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: [],
+        aiTools: ['opencode'],
+        skills: { installed: false }
+      });
+
+      await expect(updateCommand({ yes: true, standardsOnly: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).not.toContain('New features available');
     });
   });
 });
