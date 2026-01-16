@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **CLI**: Enhanced file tracking system for Skills, Commands, and Integration blocks
+  - New `skillHashes` field in manifest tracks individual skill file integrity
+  - New `commandHashes` field in manifest tracks slash command file integrity
+  - New `integrationBlockHashes` field tracks UDS marker block content separately from user customizations
+  - `uds check` now verifies integrity of Skills, Commands, and Integration UDS blocks
+  - Users can modify content outside UDS markers without triggering warnings
+- **Utils**: New hash computation functions in `hasher.js`
+  - `computeIntegrationBlockHash()`: Computes hash for UDS marker block content only
+  - `compareIntegrationBlockHash()`: Compares block hash, detects if markers removed
+  - `computeDirectoryHashes()`: Recursively computes hashes for all files in directory
+
+### Changed
+- **CLI**: Manifest version upgraded to `3.3.0` to mark enhanced file tracking feature
+- **CLI**: `writeIntegrationFile()` now returns `blockHashInfo` with UDS block hash
+- **CLI**: `installSkillsForAgent()` and `installCommandsForAgent()` now return `fileHashes`
+- **CLI**: `installSkillsToMultipleAgents()` and `installCommandsToMultipleAgents()` aggregate hashes in `allFileHashes`
+
+### Fixed
+- **CLI**: Integration file path now returns relative path for manifest consistency
+
 ## [3.5.1-beta.16] - 2026-01-16
 
 ### Added

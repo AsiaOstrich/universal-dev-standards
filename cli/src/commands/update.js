@@ -336,6 +336,15 @@ export async function updateCommand(options) {
       if (result.success) {
         results.integrations.push(result.path);
         generatedFiles.add(targetFile);
+
+        // Track integration block hash for UDS content integrity
+        if (result.blockHashInfo) {
+          if (!manifest.integrationBlockHashes) manifest.integrationBlockHashes = {};
+          manifest.integrationBlockHashes[result.path] = {
+            ...result.blockHashInfo,
+            installedAt: new Date().toISOString()
+          };
+        }
       } else {
         results.errors.push(`${tool}: ${result.error}`);
       }
@@ -384,7 +393,7 @@ export async function updateCommand(options) {
   }
 
   // Update manifest
-  manifest.version = '3.2.0';
+  manifest.version = '3.3.0';
   manifest.upstream.version = latestVersion;
   manifest.upstream.installed = new Date().toISOString().split('T')[0];
   writeManifest(manifest, projectPath);
@@ -433,6 +442,12 @@ export async function updateCommand(options) {
             ...installSkills
           ];
 
+          // Update skill hashes for integrity tracking
+          if (skillResult.allFileHashes) {
+            if (!manifest.skillHashes) manifest.skillHashes = {};
+            Object.assign(manifest.skillHashes, skillResult.allFileHashes);
+          }
+
           if (skillResult.totalErrors === 0) {
             skillSpinner.succeed((msg.newSkillsInstalled || 'Installed Skills for {count} AI tools')
               .replace('{count}', installSkills.length));
@@ -450,6 +465,12 @@ export async function updateCommand(options) {
           // Update manifest version
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.version = repoInfo.skills.version;
+
+          // Update skill hashes for integrity tracking
+          if (updateResult.allFileHashes) {
+            if (!manifest.skillHashes) manifest.skillHashes = {};
+            Object.assign(manifest.skillHashes, updateResult.allFileHashes);
+          }
 
           if (updateResult.totalErrors === 0) {
             updateSpinner.succeed((msg.skillsUpdated || 'Updated Skills for {count} AI tools')
@@ -472,6 +493,12 @@ export async function updateCommand(options) {
             ...(manifest.commands.installations || []),
             ...installCommands
           ];
+
+          // Update command hashes for integrity tracking
+          if (cmdResult.allFileHashes) {
+            if (!manifest.commandHashes) manifest.commandHashes = {};
+            Object.assign(manifest.commandHashes, cmdResult.allFileHashes);
+          }
 
           if (cmdResult.totalErrors === 0) {
             cmdSpinner.succeed((msg.newCommandsInstalled || 'Installed commands for {count} AI tools')
@@ -620,6 +647,15 @@ async function updateIntegrationsOnly(projectPath, manifest) {
         }
         manifest.fileHashes[result.path] = { ...hashInfo, installedAt: now };
       }
+
+      // Track integration block hash for UDS content integrity
+      if (result.blockHashInfo) {
+        if (!manifest.integrationBlockHashes) manifest.integrationBlockHashes = {};
+        manifest.integrationBlockHashes[result.path] = {
+          ...result.blockHashInfo,
+          installedAt: now
+        };
+      }
     } else {
       results.errors.push(`${tool}: ${result.error}`);
     }
@@ -628,7 +664,7 @@ async function updateIntegrationsOnly(projectPath, manifest) {
   spinner.succeed(msg.regeneratedIntegrations.replace('{count}', results.updated.length));
 
   // Update manifest
-  manifest.version = '3.2.0';
+  manifest.version = '3.3.0';
   writeManifest(manifest, projectPath);
 
   // Summary
@@ -739,6 +775,15 @@ async function syncIntegrationReferences(projectPath, manifest) {
         manifest.fileHashes[integrationPath] = { ...hashInfo, installedAt: now };
       }
 
+      // Track integration block hash for UDS content integrity
+      if (result.blockHashInfo) {
+        if (!manifest.integrationBlockHashes) manifest.integrationBlockHashes = {};
+        manifest.integrationBlockHashes[integrationPath] = {
+          ...result.blockHashInfo,
+          installedAt: now
+        };
+      }
+
       updatedCount++;
     } else {
       console.log(chalk.red(`  ${msg.failedToUpdate.replace('{path}', integrationPath).replace('{error}', result.error)}`));
@@ -747,7 +792,7 @@ async function syncIntegrationReferences(projectPath, manifest) {
 
   // Update manifest version and save
   if (updatedCount > 0) {
-    manifest.version = '3.2.0';
+    manifest.version = '3.3.0';
     writeManifest(manifest, projectPath);
   }
 
@@ -864,6 +909,13 @@ async function updateSkillsOnly(projectPath, manifest) {
   // Update manifest
   manifest.skills.version = latestVersion;
   manifest.skills.installations = skillsInstallations;
+
+  // Update skill hashes for integrity tracking
+  if (result.allFileHashes) {
+    if (!manifest.skillHashes) manifest.skillHashes = {};
+    Object.assign(manifest.skillHashes, result.allFileHashes);
+  }
+
   writeManifest(manifest, projectPath);
 
   console.log();
@@ -932,6 +984,13 @@ async function updateCommandsOnly(projectPath, manifest) {
   manifest.commands = manifest.commands || {};
   manifest.commands.installed = true;
   manifest.commands.installations = commandsInstallations;
+
+  // Update command hashes for integrity tracking
+  if (result.allFileHashes) {
+    if (!manifest.commandHashes) manifest.commandHashes = {};
+    Object.assign(manifest.commandHashes, result.allFileHashes);
+  }
+
   writeManifest(manifest, projectPath);
 
   console.log();

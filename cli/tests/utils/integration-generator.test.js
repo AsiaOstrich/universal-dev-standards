@@ -291,7 +291,8 @@ describe('Integration Generator', () => {
       const result = writeIntegrationFile('cursor', { categories: [] }, '/project');
 
       expect(result.success).toBe(true);
-      expect(result.path).toBe(join('/project', '.cursorrules'));
+      expect(result.path).toBe('.cursorrules'); // Returns relative path for manifest consistency
+      expect(result.absolutePath).toBe(join('/project', '.cursorrules')); // Absolute path also available
       expect(writeFileSync).toHaveBeenCalled();
     });
 
@@ -301,7 +302,7 @@ describe('Integration Generator', () => {
       const result = writeIntegrationFile('windsurf', { categories: [] }, '/project');
 
       expect(result.success).toBe(true);
-      expect(result.path).toBe(join('/project', '.windsurfrules'));
+      expect(result.path).toBe('.windsurfrules'); // Returns relative path for manifest consistency
     });
 
     it('should write file for copilot in .github directory', () => {
@@ -310,7 +311,7 @@ describe('Integration Generator', () => {
       const result = writeIntegrationFile('copilot', { categories: [] }, '/project');
 
       expect(result.success).toBe(true);
-      expect(result.path).toBe(join('/project', '.github', 'copilot-instructions.md'));
+      expect(result.path).toBe(join('.github', 'copilot-instructions.md')); // Returns relative path for manifest consistency
     });
 
     it('should merge with existing file when strategy provided', () => {

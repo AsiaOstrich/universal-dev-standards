@@ -15,6 +15,7 @@ import {
   getSkillsDirForAgent,
   getCommandsDirForAgent
 } from '../config/ai-agent-paths.js';
+import { computeDirectoryHashes, computeFileHash } from './hasher.js';
 
 // Get the CLI package root directory
 const __filename = fileURLToPath(import.meta.url);
@@ -132,7 +133,8 @@ export async function installSkillsForAgent(agent, level, skillNames = null, pro
     level,
     targetDir,
     installed: [],
-    errors: []
+    errors: [],
+    fileHashes: {} // New: file hashes for installed skills
   };
 
   for (const skillName of toInstall) {
@@ -148,6 +150,11 @@ export async function installSkillsForAgent(agent, level, skillNames = null, pro
   // Write manifest
   if (results.installed.length > 0) {
     writeSkillsManifestForAgent(agent, level, targetDir);
+
+    // Compute file hashes for tracking
+    // Key format: agent/level/skillName/filename (e.g., "opencode/project/commit-standards/SKILL.md")
+    const baseKey = `${agent}/${level}`;
+    results.fileHashes = computeDirectoryHashes(targetDir, baseKey);
   }
 
   return results;
@@ -266,7 +273,8 @@ export async function installCommandsForAgent(agent, commandNames = null, projec
     agent,
     targetDir,
     installed: [],
-    errors: []
+    errors: [],
+    fileHashes: {} // New: file hashes for installed commands
   };
 
   for (const cmdName of toInstall) {
@@ -282,6 +290,21 @@ export async function installCommandsForAgent(agent, commandNames = null, projec
   // Write manifest
   if (results.installed.length > 0) {
     writeCommandsManifest(agent, targetDir, results.installed);
+
+    // Compute file hashes for tracking
+    // Key format: agent/filename (e.g., "opencode/commit.md")
+    const now = new Date().toISOString();
+    for (const cmdName of results.installed) {
+      const ext = getCommandFileExtension(agent);
+      const filePath = join(targetDir, `${cmdName}${ext}`);
+      const hashInfo = computeFileHash(filePath);
+      if (hashInfo) {
+        results.fileHashes[`${agent}/${cmdName}${ext}`] = {
+          ...hashInfo,
+          installedAt: now
+        };
+      }
+    }
   }
 
   return results;
@@ -615,7 +638,8 @@ export async function installSkillsToMultipleAgents(installations, skillNames = 
     success: true,
     installations: [],
     totalInstalled: 0,
-    totalErrors: 0
+    totalErrors: 0,
+    allFileHashes: {} // New: combined file hashes from all installations
   };
 
   for (const { agent, level } of installations) {
@@ -627,6 +651,11 @@ export async function installSkillsToMultipleAgents(installations, skillNames = 
     }
     results.totalInstalled += result.installed.length;
     results.totalErrors += result.errors.length;
+
+    // Merge file hashes from this installation
+    if (result.fileHashes) {
+      Object.assign(results.allFileHashes, result.fileHashes);
+    }
   }
 
   return results;
@@ -644,7 +673,8 @@ export async function installCommandsToMultipleAgents(agents, commandNames = nul
     success: true,
     installations: [],
     totalInstalled: 0,
-    totalErrors: 0
+    totalErrors: 0,
+    allFileHashes: {} // New: combined file hashes from all installations
   };
 
   for (const agent of agents) {
@@ -659,6 +689,11 @@ export async function installCommandsToMultipleAgents(agents, commandNames = nul
     }
     results.totalInstalled += result.installed.length;
     results.totalErrors += result.errors.length;
+
+    // Merge file hashes from this installation
+    if (result.fileHashes) {
+      Object.assign(results.allFileHashes, result.fileHashes);
+    }
   }
 
   return results;

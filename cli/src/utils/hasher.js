@@ -3,6 +3,21 @@ import { readFileSync, statSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 
 /**
+ * Marker block constants for different file formats
+ * (Duplicated from integration-generator.js to avoid circular dependency)
+ */
+const MARKERS = {
+  markdown: {
+    start: '<!-- UDS:STANDARDS:START -->',
+    end: '<!-- UDS:STANDARDS:END -->'
+  },
+  plaintext: {
+    start: '# === UDS:STANDARDS:START ===',
+    end: '# === UDS:STANDARDS:END ==='
+  }
+};
+
+/**
  * Compute SHA-256 hash for a file
  * @param {string} filePath - Absolute file path
  * @returns {Object|null} { hash, size } or null if file doesn't exist
@@ -217,4 +232,182 @@ export function scanForUntrackedFiles(projectPath, manifest) {
   }
 
   return untracked;
+}
+
+/**
+ * Detect file format based on file path
+ * @param {string} filePath - File path
+ * @returns {'markdown'|'plaintext'} Format type
+ */
+function detectFormat(filePath) {
+  // Plaintext rules files
+  if (filePath.endsWith('.cursorrules') ||
+      filePath.endsWith('.windsurfrules') ||
+      filePath.endsWith('.clinerules')) {
+    return 'plaintext';
+  }
+  return 'markdown';
+}
+
+/**
+ * Extract content between UDS markers from file content
+ * @param {string} content - File content
+ * @param {'markdown'|'plaintext'} format - Format type
+ * @returns {{before: string, blockContent: string, after: string}} Extracted parts
+ */
+function extractBlockContent(content, format) {
+  const markers = MARKERS[format] || MARKERS.markdown;
+  const startIdx = content.indexOf(markers.start);
+  const endIdx = content.indexOf(markers.end);
+
+  if (startIdx === -1 || endIdx === -1 || endIdx <= startIdx) {
+    return { before: content, blockContent: '', after: '' };
+  }
+
+  return {
+    before: content.substring(0, startIdx),
+    blockContent: content.substring(startIdx + markers.start.length, endIdx).trim(),
+    after: content.substring(endIdx + markers.end.length)
+  };
+}
+
+/**
+ * Compute hash for UDS marker block content in an integration file
+ * This only hashes the content between UDS markers, not user customizations outside the block
+ * @param {string} filePath - Absolute file path
+ * @returns {Object|null} { blockHash, blockSize, fullHash, fullSize } or null if file doesn't exist or no markers found
+ */
+export function computeIntegrationBlockHash(filePath) {
+  try {
+    const content = readFileSync(filePath, 'utf-8');
+    const format = detectFormat(filePath);
+    const { blockContent } = extractBlockContent(content, format);
+
+    // If no markers found, return null (this file may not have UDS markers)
+    if (!blockContent) {
+      return null;
+    }
+
+    const blockHash = createHash('sha256').update(blockContent).digest('hex');
+    const fullHash = createHash('sha256').update(content).digest('hex');
+    const stats = statSync(filePath);
+
+    return {
+      blockHash: `sha256:${blockHash}`,
+      blockSize: Buffer.byteLength(blockContent, 'utf-8'),
+      fullHash: `sha256:${fullHash}`,
+      fullSize: stats.size
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Compare integration block hash with stored hash info
+ * @param {string} filePath - Absolute file path
+ * @param {Object} storedInfo - Stored hash info from manifest
+ * @param {string} storedInfo.blockHash - Stored block hash
+ * @param {number} storedInfo.blockSize - Stored block size in bytes
+ * @returns {'unchanged'|'modified'|'missing'|'no_markers'} Block status
+ */
+export function compareIntegrationBlockHash(filePath, storedInfo) {
+  if (!existsSync(filePath)) {
+    return 'missing';
+  }
+
+  const current = computeIntegrationBlockHash(filePath);
+  if (!current) {
+    return 'no_markers';
+  }
+
+  // Compare block hash and size
+  if (current.blockSize !== storedInfo.blockSize) {
+    return 'modified';
+  }
+
+  if (current.blockHash !== storedInfo.blockHash) {
+    return 'modified';
+  }
+
+  return 'unchanged';
+}
+
+/**
+ * Compute hashes for all files in a directory recursively
+ * @param {string} dirPath - Directory to scan
+ * @param {string} baseKey - Base key prefix for hash map entries
+ * @returns {Object} Map of key to { hash, size, installedAt }
+ */
+export function computeDirectoryHashes(dirPath, baseKey = '') {
+  const hashes = {};
+  const now = new Date().toISOString();
+
+  if (!existsSync(dirPath)) {
+    return hashes;
+  }
+
+  const files = scanDirectory(dirPath, dirPath);
+
+  for (const relativePath of files) {
+    const fullPath = join(dirPath, relativePath);
+    const hashInfo = computeFileHash(fullPath);
+
+    if (hashInfo) {
+      // Build key: baseKey/relativePath (using forward slashes for consistency)
+      const key = baseKey ? `${baseKey}/${relativePath}` : relativePath;
+      hashes[key] = {
+        ...hashInfo,
+        installedAt: now
+      };
+    }
+  }
+
+  return hashes;
+}
+
+/**
+ * Compare directory contents against stored hashes
+ * @param {string} dirPath - Directory to check
+ * @param {Object} storedHashes - Map of key to { hash, size }
+ * @param {string} baseKey - Base key prefix used when computing hashes
+ * @returns {Object} { unchanged: [], modified: [], missing: [], added: [] }
+ */
+export function compareDirectoryHashes(dirPath, storedHashes, baseKey = '') {
+  const result = {
+    unchanged: [],
+    modified: [],
+    missing: [],
+    added: []
+  };
+
+  // Get current files
+  const currentHashes = computeDirectoryHashes(dirPath, baseKey);
+  const currentKeys = new Set(Object.keys(currentHashes));
+  const storedKeys = new Set(Object.keys(storedHashes));
+
+  // Check stored files
+  for (const key of storedKeys) {
+    if (!currentKeys.has(key)) {
+      result.missing.push(key);
+    } else {
+      const stored = storedHashes[key];
+      const current = currentHashes[key];
+
+      if (stored.hash === current.hash && stored.size === current.size) {
+        result.unchanged.push(key);
+      } else {
+        result.modified.push(key);
+      }
+    }
+  }
+
+  // Check for added files
+  for (const key of currentKeys) {
+    if (!storedKeys.has(key)) {
+      result.added.push(key);
+    }
+  }
+
+  return result;
 }

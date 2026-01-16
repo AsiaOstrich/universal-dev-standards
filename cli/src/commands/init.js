@@ -537,7 +537,11 @@ export async function initCommand(options) {
     integrations: [],
     skills: [],
     commands: [],
-    errors: []
+    errors: [],
+    // New: hash tracking for enhanced file integrity
+    skillHashes: {},
+    commandHashes: {},
+    integrationBlockHashes: {}
   };
 
   // Get standards for the selected level
@@ -702,6 +706,14 @@ export async function initCommand(options) {
       if (result.success) {
         results.integrations.push(result.path);
         generatedFiles.add(targetFile);
+
+        // Capture integration block hash for tracking UDS content
+        if (result.blockHashInfo) {
+          results.integrationBlockHashes[result.path] = {
+            ...result.blockHashInfo,
+            installedAt: new Date().toISOString()
+          };
+        }
       } else {
         // Fall back to legacy static file copy
         const mapping = INTEGRATION_MAPPINGS[tool];
@@ -774,6 +786,11 @@ export async function initCommand(options) {
       for (const err of agentResult.errors) {
         results.errors.push(`${agentResult.agent} - ${err.skill}: ${err.error}`);
       }
+    }
+
+    // Collect skill file hashes for integrity tracking
+    if (installResult.allFileHashes) {
+      Object.assign(results.skillHashes, installResult.allFileHashes);
     }
 
     // Build location summary for display
@@ -865,6 +882,11 @@ export async function initCommand(options) {
       for (const err of agentResult.errors) {
         results.errors.push(`${agentResult.agent} command - ${err.command}: ${err.error}`);
       }
+    }
+
+    // Collect command file hashes for integrity tracking
+    if (cmdResult.allFileHashes) {
+      Object.assign(results.commandHashes, cmdResult.allFileHashes);
     }
 
     // Build location summary
@@ -983,7 +1005,7 @@ export async function initCommand(options) {
   }
 
   const manifest = {
-    version: '3.2.0',
+    version: '3.3.0', // Updated for enhanced file tracking
     upstream: {
       repo: 'AsiaOstrich/universal-dev-standards',
       version: repoInfo.standards.version,
@@ -1021,7 +1043,11 @@ export async function initCommand(options) {
         skipLimit: 3
       }
     } : null,
-    fileHashes
+    fileHashes,
+    // New: enhanced file tracking for Skills, Commands, and Integration blocks
+    skillHashes: results.skillHashes || {},
+    commandHashes: results.commandHashes || {},
+    integrationBlockHashes: results.integrationBlockHashes || {}
   };
 
   writeManifest(manifest, projectPath);

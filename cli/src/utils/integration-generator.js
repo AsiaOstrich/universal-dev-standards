@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { dirname, join, basename } from 'path';
 import { getLanguageRules } from '../prompts/integrations.js';
+import { computeIntegrationBlockHash } from './hasher.js';
 
 /**
  * Marker block constants for different file formats
@@ -2026,7 +2027,16 @@ export function writeIntegrationFile(tool, config, projectPath) {
     }
 
     writeFileSync(filePath, content);
-    return { success: true, path: filePath };
+
+    // Compute block hash for tracking UDS content separately from user content
+    const blockHashInfo = computeIntegrationBlockHash(filePath);
+
+    return {
+      success: true,
+      path: fileName, // Return relative path for consistency
+      absolutePath: filePath,
+      blockHashInfo // Contains: blockHash, blockSize, fullHash, fullSize
+    };
   } catch (error) {
     return { success: false, error: error.message };
   }

@@ -12,7 +12,8 @@ import {
 import {
   computeFileHash,
   compareFileHash,
-  hasFileHashes
+  hasFileHashes,
+  compareIntegrationBlockHash
 } from '../utils/hasher.js';
 import { downloadFromGitHub, getMarketplaceSkillsInfo } from '../utils/github.js';
 import {
@@ -21,7 +22,9 @@ import {
 } from '../utils/skills-installer.js';
 import {
   getAgentConfig,
-  getAgentDisplayName
+  getAgentDisplayName,
+  getSkillsDirForAgent,
+  getCommandsDirForAgent
 } from '../config/ai-agent-paths.js';
 import {
   parseReferences,
@@ -197,6 +200,17 @@ export async function checkCommand(options = {}) {
     .replace('{missing}', fileStatus.missing.length)}` +
     (fileStatus.noHash.length > 0 ? `, ${fileStatus.noHash.length} no hash` : '')));
   console.log();
+
+  // === Enhanced Integrity Checks (v3.3.0+) ===
+
+  // Check Skills integrity if skillHashes exist
+  checkSkillsIntegrity(manifest, projectPath, msg);
+
+  // Check Commands integrity if commandHashes exist
+  checkCommandsIntegrity(manifest, projectPath, msg);
+
+  // Check Integration blocks integrity if integrationBlockHashes exist
+  checkIntegrationBlocksIntegrity(manifest, projectPath, msg);
 
   // Handle --restore option
   if (options.restore) {
@@ -1065,4 +1079,220 @@ async function checkCliVersion(bundledVersion) {
     spinner.stop();
     // Silent failure - don't disrupt main functionality
   }
+}
+
+// ============================================================
+// Enhanced Integrity Check Functions (v3.3.0+)
+// ============================================================
+
+/**
+ * Check Skills files integrity against stored hashes
+ * @param {Object} manifest - Manifest object
+ * @param {string} projectPath - Project root path
+ * @param {Object} msg - Localized messages
+ * @returns {Object} Status { unchanged: [], modified: [], missing: [] }
+ */
+function checkSkillsIntegrity(manifest, projectPath, msg) {
+  const skillHashes = manifest.skillHashes;
+
+  // Skip if no skill hashes tracked
+  if (!skillHashes || Object.keys(skillHashes).length === 0) {
+    return { unchanged: [], modified: [], missing: [], tracked: false };
+  }
+
+  console.log(chalk.cyan(msg.skillsIntegrityCheck || 'Skills File Integrity'));
+
+  const status = { unchanged: [], modified: [], missing: [], tracked: true };
+
+  for (const [hashKey, hashInfo] of Object.entries(skillHashes)) {
+    // Parse key format: agent/level/skillName/filename
+    const keyParts = hashKey.split('/');
+    if (keyParts.length < 3) continue;
+
+    const [agent, level] = keyParts;
+    const relativePath = keyParts.slice(2).join('/');
+
+    // Get actual file path
+    const skillsDir = getSkillsDirForAgent(agent, level, projectPath);
+    if (!skillsDir) {
+      status.missing.push(hashKey);
+      continue;
+    }
+
+    const fullPath = join(skillsDir, relativePath);
+
+    if (!existsSync(fullPath)) {
+      status.missing.push(hashKey);
+      console.log(chalk.red(`  ✗ ${hashKey} (${msg.missing || 'missing'})`));
+      continue;
+    }
+
+    // Compare hash
+    const currentHash = computeFileHash(fullPath);
+    if (!currentHash) {
+      status.missing.push(hashKey);
+      continue;
+    }
+
+    if (currentHash.hash === hashInfo.hash && currentHash.size === hashInfo.size) {
+      status.unchanged.push(hashKey);
+    } else {
+      status.modified.push(hashKey);
+      console.log(chalk.yellow(`  ⚠ ${hashKey} (${msg.modified || 'modified'})`));
+    }
+  }
+
+  // Summary
+  if (status.modified.length === 0 && status.missing.length === 0) {
+    console.log(chalk.green(`  ✓ ${msg.allSkillsIntact || 'All skill files intact'} (${status.unchanged.length} files)`));
+  } else {
+    console.log(chalk.gray(`  ${(msg.skillsIntegritySummary || '{unchanged} unchanged, {modified} modified, {missing} missing')
+      .replace('{unchanged}', status.unchanged.length)
+      .replace('{modified}', status.modified.length)
+      .replace('{missing}', status.missing.length)}`));
+  }
+
+  console.log();
+  return status;
+}
+
+/**
+ * Check Commands files integrity against stored hashes
+ * @param {Object} manifest - Manifest object
+ * @param {string} projectPath - Project root path
+ * @param {Object} msg - Localized messages
+ * @returns {Object} Status { unchanged: [], modified: [], missing: [] }
+ */
+function checkCommandsIntegrity(manifest, projectPath, msg) {
+  const commandHashes = manifest.commandHashes;
+
+  // Skip if no command hashes tracked
+  if (!commandHashes || Object.keys(commandHashes).length === 0) {
+    return { unchanged: [], modified: [], missing: [], tracked: false };
+  }
+
+  console.log(chalk.cyan(msg.commandsIntegrityCheck || 'Commands File Integrity'));
+
+  const status = { unchanged: [], modified: [], missing: [], tracked: true };
+
+  for (const [hashKey, hashInfo] of Object.entries(commandHashes)) {
+    // Parse key format: agent/filename.md
+    const keyParts = hashKey.split('/');
+    if (keyParts.length < 2) continue;
+
+    const agent = keyParts[0];
+    const filename = keyParts.slice(1).join('/');
+
+    // Get actual file path
+    const commandsDir = getCommandsDirForAgent(agent, projectPath);
+    if (!commandsDir) {
+      status.missing.push(hashKey);
+      continue;
+    }
+
+    const fullPath = join(commandsDir, filename);
+
+    if (!existsSync(fullPath)) {
+      status.missing.push(hashKey);
+      console.log(chalk.red(`  ✗ ${hashKey} (${msg.missing || 'missing'})`));
+      continue;
+    }
+
+    // Compare hash
+    const currentHash = computeFileHash(fullPath);
+    if (!currentHash) {
+      status.missing.push(hashKey);
+      continue;
+    }
+
+    if (currentHash.hash === hashInfo.hash && currentHash.size === hashInfo.size) {
+      status.unchanged.push(hashKey);
+    } else {
+      status.modified.push(hashKey);
+      console.log(chalk.yellow(`  ⚠ ${hashKey} (${msg.modified || 'modified'})`));
+    }
+  }
+
+  // Summary
+  if (status.modified.length === 0 && status.missing.length === 0) {
+    console.log(chalk.green(`  ✓ ${msg.allCommandsIntact || 'All command files intact'} (${status.unchanged.length} files)`));
+  } else {
+    console.log(chalk.gray(`  ${(msg.commandsIntegritySummary || '{unchanged} unchanged, {modified} modified, {missing} missing')
+      .replace('{unchanged}', status.unchanged.length)
+      .replace('{modified}', status.modified.length)
+      .replace('{missing}', status.missing.length)}`));
+  }
+
+  console.log();
+  return status;
+}
+
+/**
+ * Check Integration files' UDS block integrity against stored hashes
+ * Only checks the UDS marker block content, not user customizations outside the block
+ * @param {Object} manifest - Manifest object
+ * @param {string} projectPath - Project root path
+ * @param {Object} msg - Localized messages
+ * @returns {Object} Status { unchanged: [], modified: [], missing: [], noMarkers: [] }
+ */
+function checkIntegrationBlocksIntegrity(manifest, projectPath, msg) {
+  const blockHashes = manifest.integrationBlockHashes;
+
+  // Skip if no block hashes tracked
+  if (!blockHashes || Object.keys(blockHashes).length === 0) {
+    return { unchanged: [], modified: [], missing: [], noMarkers: [], tracked: false };
+  }
+
+  console.log(chalk.cyan(msg.integrationBlocksCheck || 'Integration UDS Block Integrity'));
+
+  const status = { unchanged: [], modified: [], missing: [], noMarkers: [], tracked: true };
+
+  for (const [filePath, hashInfo] of Object.entries(blockHashes)) {
+    const fullPath = join(projectPath, filePath);
+
+    if (!existsSync(fullPath)) {
+      status.missing.push(filePath);
+      console.log(chalk.red(`  ✗ ${filePath} (${msg.missing || 'missing'})`));
+      continue;
+    }
+
+    // Compare block hash
+    const blockStatus = compareIntegrationBlockHash(fullPath, hashInfo);
+
+    switch (blockStatus) {
+      case 'unchanged':
+        status.unchanged.push(filePath);
+        break;
+      case 'modified':
+        status.modified.push(filePath);
+        console.log(chalk.yellow(`  ⚠ ${filePath} (${msg.udsBlockModified || 'UDS block modified'})`));
+        break;
+      case 'no_markers':
+        status.noMarkers.push(filePath);
+        console.log(chalk.red(`  ✗ ${filePath} (${msg.udsMarkersRemoved || 'UDS markers removed'})`));
+        break;
+      case 'missing':
+        status.missing.push(filePath);
+        console.log(chalk.red(`  ✗ ${filePath} (${msg.missing || 'missing'})`));
+        break;
+    }
+  }
+
+  // Summary
+  if (status.modified.length === 0 && status.missing.length === 0 && status.noMarkers.length === 0) {
+    console.log(chalk.green(`  ✓ ${msg.allBlocksIntact || 'All UDS blocks intact'} (${status.unchanged.length} files)`));
+    console.log(chalk.gray(`    ${msg.userContentPreserved || 'User customizations outside UDS blocks are preserved'}`));
+  } else {
+    console.log(chalk.gray(`  ${(msg.blocksIntegritySummary || '{unchanged} intact, {modified} modified, {missing} missing')
+      .replace('{unchanged}', status.unchanged.length)
+      .replace('{modified}', status.modified.length)
+      .replace('{missing}', status.missing.length + status.noMarkers.length)}`));
+
+    if (status.modified.length > 0 || status.noMarkers.length > 0) {
+      console.log(chalk.yellow(`    ${msg.runUpdateIntegrations || 'Run "uds update --integrations-only" to restore UDS content'}`));
+    }
+  }
+
+  console.log();
+  return status;
 }
