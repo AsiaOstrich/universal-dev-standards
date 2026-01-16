@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.5] - 2026-01-16
+
+### Changed
+- **Skills**: `/update` slash command now prompts for Skills/Commands installation
+  - Added Step 4 to check if Skills/Commands are installed after update
+  - Uses AskUserQuestion to prompt user for installation
+  - Ensures consistent behavior with CLI interactive mode
+
 ## [3.5.1-beta.4] - 2026-01-16
 
 ### Added
