@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.10] - 2026-01-16
+
+### Fixed
+- **Commands**: Quote `argument-hint` values in YAML frontmatter
+  - Fixes YAML parsing error in OpenCode and other strict YAML parsers
+  - Square brackets in values now properly quoted
+  - Affected 16 command files
+- **CLI**: Add TTY check before showing interactive prompts in check command
+  - Prevents "ERR_USE_AFTER_CLOSE: readline was closed" error
+  - Check command now only prompts when stdin/stdout are TTY
+  - Fixes crash when running from non-interactive environments (e.g., Claude Code skills)
+
 ## [3.5.1-beta.9] - 2026-01-16
 
 ### Changed
