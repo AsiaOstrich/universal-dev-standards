@@ -1,6 +1,6 @@
 ---
 description: Update development standards to latest version
-allowed-tools: Read, Bash(uds update:*), Bash(uds check:*), Bash(npx:*)
+allowed-tools: Read, Bash(uds update:*), Bash(uds check:*), Bash(npx:*), Bash(cat .standards/*), Bash(ls .claude/*), Bash(ls .opencode/*), Bash(ls .github/*)
 argument-hint: [--yes] [--offline] [--beta]
 ---
 
@@ -40,6 +40,35 @@ uds update --yes
 **If Check Beta selected:**
 ```bash
 uds update --beta --yes
+```
+
+### Step 4: Check New Features | 步驟 4：檢查新功能
+
+After update completes, check if Skills/Commands need to be installed:
+
+更新完成後，檢查是否需要安裝 Skills/Commands：
+
+1. Read `.standards/manifest.json` to get `aiTools` list and `skills.installed` status
+2. Check if Skills are installed: `skills.installed === true`
+3. Check if Commands are installed for tools that support them (opencode, copilot, gemini-cli, roo-code)
+
+If `skills.installed` is `false` OR command directories are missing for supported tools, use AskUserQuestion:
+
+| Option | Description | 說明 |
+|--------|-------------|------|
+| **Install All (Recommended)** | Install Skills + Commands | 安裝 Skills 和斜線命令 |
+| **Skills Only** | Install Skills to .claude/skills/ | 只安裝 Skills |
+| **Commands Only** | Install Commands for supported tools | 只安裝斜線命令 |
+| **Skip** | Don't install features | 跳過 |
+
+**If Install All or Skills Only selected:**
+```bash
+uds update --skills
+```
+
+**If Install All or Commands Only selected:**
+```bash
+uds update --commands
 ```
 
 Explain the results and any next steps to the user.
