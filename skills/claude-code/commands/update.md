@@ -52,14 +52,22 @@ For detailed versioning standards, see [core/versioning.md](../../../core/versio
 | **Check Beta** | Check for beta version updates |
 | **Skip** | Don't update at this time |
 
-**If only pre-release version available (e.g., 3.5.1-beta.N, 3.5.1-alpha.N, 3.5.1-rc.N):**
+**If only pre-release version available, show specific type:**
 
-| Option | Description |
-|--------|-------------|
-| **Update to Pre-release** | Update standards to pre-release version X.Y.Z-tag.N (Recommended) |
-| **Skip** | Don't update at this time |
+Detect the version type from `uds check` output and display the specific type name:
 
-Note: Detect version type from `uds check` output. If version contains "beta", "alpha", or "rc", it's a pre-release.
+| Detected Type | Option Label | Description |
+|---------------|--------------|-------------|
+| `X.Y.Z-alpha.N` | **Update to Alpha** | Update to alpha version X.Y.Z-alpha.N (🔴 Early testing) |
+| `X.Y.Z-beta.N` | **Update to Beta** | Update to beta version X.Y.Z-beta.N (🟡 Feature complete) |
+| `X.Y.Z-rc.N` | **Update to RC** | Update to RC version X.Y.Z-rc.N (🟢 Near-stable) |
+
+Always include **Skip** option: Don't update at this time.
+
+**Example AskUserQuestion for beta version:**
+- Question: "有新的 beta 版本可用：3.5.1-beta.3 → 3.5.1-beta.15。您想如何處理？"
+- Option 1: "更新至 Beta (建議)" - "更新標準至 3.5.1-beta.15 版本（🟡 功能大致完成）"
+- Option 2: "暫時跳過" - "目前不進行更新，維持現有版本"
 
 ### Step 3: Execute | 步驟 3：執行
 
