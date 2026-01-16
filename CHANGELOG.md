@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.4] - 2026-01-16
+
+### Added
+- **CLI**: New feature detection during update
+  - `uds update` now detects AI tools in manifest that haven't installed Skills/Commands
+  - Interactive mode prompts users to install missing features
+  - `--yes` mode shows a hint instead of auto-installing (conservative behavior)
+  - Supports all skills-compatible tools: Claude Code, OpenCode, Cursor, Copilot, etc.
+
 ## [3.5.1-beta.3] - 2026-01-16
 
 ### Fixed
