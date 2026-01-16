@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.11] - 2026-01-16
+
+### Changed
+- **CLI**: `check` command is now read-only
+  - No longer prompts to install missing Skills/Commands
+  - Shows hint: "Run `uds update` to install missing Skills/Commands"
+  - Follows single responsibility principle: check reports, update installs
+
+### Removed
+- **CLI**: Removed installation prompt from `check` command
+  - `promptSkillsCommandsInstallation()` function removed
+  - Unused imports cleaned up
+
 ## [3.5.1-beta.10] - 2026-01-16
 
 ### Fixed
