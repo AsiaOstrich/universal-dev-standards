@@ -18,7 +18,8 @@ const BUNDLED_DIR = join(CLI_ROOT, 'bundled');
 // Directories to bundle
 const BUNDLE_DIRS = [
   { src: 'core', dest: 'core' },
-  { src: 'locales', dest: 'locales' }
+  { src: 'locales', dest: 'locales' },
+  { src: 'skills/claude-code', dest: 'skills/claude-code' }
 ];
 
 console.log('📦 Preparing bundled files for npm package...');

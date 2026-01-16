@@ -79,6 +79,8 @@ program
   .option('--standards-only', 'Only update standards, skip integration files')
   .option('--offline', 'Skip npm registry check for CLI updates')
   .option('--beta', 'Check for beta version updates')
+  .option('--skills', 'Install/update Skills for configured AI tools')
+  .option('--commands', 'Install/update slash commands for configured AI tools')
   .action(updateCommand);
 
 program

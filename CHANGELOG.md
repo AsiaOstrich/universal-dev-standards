@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.6] - 2026-01-16
+
+### Fixed
+- **CLI**: Skills and Commands now properly bundled in npm package
+  - Added `skills/claude-code/` to `prepack.mjs` bundle directories
+  - `skills-installer.js` now prioritizes bundled path over development path
+  - Resolves issue where "Installed commands for X AI tools" showed success but directories were empty
+- **CLI**: Registered `--skills` and `--commands` options in update command
+  - Options were implemented in code but not exposed to users
+  - `uds update --skills` and `uds update --commands` now work correctly
+
 ## [3.5.1-beta.5] - 2026-01-16
 
 ### Changed

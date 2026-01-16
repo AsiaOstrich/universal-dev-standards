@@ -20,7 +20,23 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const CLI_ROOT = join(__dirname, '..', '..');
-const SKILLS_LOCAL_DIR = join(CLI_ROOT, '..', 'skills', 'claude-code');
+const BUNDLED_DIR = join(CLI_ROOT, 'bundled');
+
+/**
+ * Get the Skills source directory.
+ * Prioritizes bundled directory (npm install), falls back to development path.
+ * @returns {string} Path to skills source directory
+ */
+function getSkillsSourceDir() {
+  const bundledPath = join(BUNDLED_DIR, 'skills', 'claude-code');
+  if (existsSync(bundledPath)) {
+    return bundledPath;
+  }
+  // Development environment fallback
+  return join(CLI_ROOT, '..', 'skills', 'claude-code');
+}
+
+const SKILLS_LOCAL_DIR = getSkillsSourceDir();
 const COMMANDS_LOCAL_DIR = join(SKILLS_LOCAL_DIR, 'commands');
 
 /**
