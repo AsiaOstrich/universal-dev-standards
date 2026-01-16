@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.9] - 2026-01-16
+
+### Changed
+- **CLI**: Skills/Commands installation now uses checkbox multi-select instead of yes/no
+  - `uds update`: Users can now select specific AI tools to install Skills/Commands for
+  - `uds check`: Added installation prompt for missing Skills/Commands after status display
+  - All options default to checked (opt-out behavior)
+  - Skip option available with validation
+
+### Added
+- **i18n**: New message keys for checkbox prompts in English, Traditional Chinese, and Simplified Chinese
+  - `selectSkillsToInstall`, `selectCommandsToInstall`
+  - `skipSkillsInstallation`, `skipCommandsInstallation`
+  - `skipValidationError`
+
 ## [3.5.1-beta.8] - 2026-01-16
 
 ### Fixed
