@@ -17,9 +17,7 @@ import {
 import { downloadFromGitHub, getMarketplaceSkillsInfo } from '../utils/github.js';
 import {
   getInstalledSkillsInfoForAgent,
-  getInstalledCommandsForAgent,
-  installSkillsToMultipleAgents,
-  installCommandsToMultipleAgents
+  getInstalledCommandsForAgent
 } from '../utils/skills-installer.js';
 import {
   getAgentConfig,
@@ -261,10 +259,10 @@ export async function checkCommand(options = {}) {
     console.log(chalk.yellow(msg.issuesDetected));
   }
 
-  // Offer to install missing Skills/Commands if in interactive mode and TTY available
-  const canPrompt = !options.noInteractive && process.stdin.isTTY && process.stdout.isTTY;
-  if ((missingSkills.length > 0 || missingCommands.length > 0) && canPrompt) {
-    await promptSkillsCommandsInstallation(manifest, projectPath, missingSkills, missingCommands, msg);
+  // Show hint if Skills/Commands are missing (check is read-only, no installation)
+  if (missingSkills.length > 0 || missingCommands.length > 0) {
+    console.log();
+    console.log(chalk.cyan(msg.missingSkillsHint || 'Tip: Run `uds update` to install missing Skills/Commands'));
   }
 
   console.log();
@@ -787,171 +785,6 @@ function displaySkillsStatus(manifest, projectPath, msg) {
   console.log();
 
   return { missingSkills, missingCommands };
-}
-
-/**
- * Prompt user to install missing Skills/Commands discovered during check
- * @param {Object} manifest - The manifest object
- * @param {string} projectPath - Project path
- * @param {Array} missingSkills - Array of {agent, displayName, paths}
- * @param {Array} missingCommands - Array of {agent, displayName, path}
- * @param {Object} msg - i18n messages
- * @returns {Promise<boolean>} - Whether anything was installed
- */
-async function promptSkillsCommandsInstallation(manifest, projectPath, missingSkills, missingCommands, msg) {
-  const repoInfo = getRepositoryInfo();
-  let installedAnything = false;
-
-  // Handle missing Skills with checkbox selection
-  if (missingSkills.length > 0) {
-    console.log();
-    console.log(chalk.cyan('━'.repeat(50)));
-    console.log(chalk.cyan.bold(msg.offerSkillsInstallation || 'Skills Installation'));
-    console.log(chalk.cyan('━'.repeat(50)));
-    console.log();
-
-    // Build checkbox choices
-    const skillChoices = missingSkills.map(skill => ({
-      name: skill.displayName,
-      value: skill.agent,
-      checked: true  // Default checked for opt-out behavior
-    }));
-
-    // Add skip option
-    skillChoices.push(new inquirer.Separator());
-    skillChoices.push({
-      name: chalk.gray(msg.skipInstallation || 'Skip'),
-      value: '__skip__'
-    });
-
-    const { selectedSkillAgents } = await inquirer.prompt([{
-      type: 'checkbox',
-      name: 'selectedSkillAgents',
-      message: msg.selectSkillsToInstall || 'Select AI tools to install Skills for:',
-      choices: skillChoices,
-      validate: (answer) => {
-        if (answer.includes('__skip__') && answer.length > 1) {
-          return t().commands.update.skipValidationError || 'Cannot select Skip with other options';
-        }
-        return true;
-      }
-    }]);
-
-    const filteredSkillAgents = selectedSkillAgents.filter(a => a !== '__skip__');
-
-    if (filteredSkillAgents.length > 0) {
-      // Prompt for installation level
-      const { skillsLevel } = await inquirer.prompt([{
-        type: 'list',
-        name: 'skillsLevel',
-        message: t().commands.update.skillsLevelQuestion || 'Where should Skills be installed?',
-        choices: [
-          { name: `${t().commands.update.projectLevel || 'Project level'} (.claude/skills/, etc.)`, value: 'project' },
-          { name: `${t().commands.update.userLevel || 'User level'} (~/.claude/skills/, etc.)`, value: 'user' }
-        ],
-        default: 'project'
-      }]);
-
-      // Install Skills
-      const spinner = ora(t().commands.update.installingNewSkills || 'Installing Skills...').start();
-      const skillResult = await installSkillsToMultipleAgents(
-        filteredSkillAgents.map(agent => ({ agent, level: skillsLevel })),
-        null,
-        projectPath
-      );
-
-      // Update manifest
-      if (!manifest.skills) manifest.skills = {};
-      manifest.skills.installed = true;
-      manifest.skills.version = repoInfo.skills.version;
-      manifest.skills.installations = [
-        ...(manifest.skills.installations || []),
-        ...filteredSkillAgents.map(agent => ({ agent, level: skillsLevel }))
-      ];
-
-      if (skillResult.totalErrors === 0) {
-        spinner.succeed((msg.skillsInstalledSuccess || 'Installed Skills for {count} AI tools')
-          .replace('{count}', filteredSkillAgents.length));
-      } else {
-        spinner.warn((t().commands.update.newSkillsInstalledWithErrors || 'Installed Skills with {errors} errors')
-          .replace('{errors}', skillResult.totalErrors));
-      }
-
-      installedAnything = true;
-    }
-  }
-
-  // Handle missing Commands with checkbox selection
-  if (missingCommands.length > 0) {
-    console.log();
-    console.log(chalk.cyan('━'.repeat(50)));
-    console.log(chalk.cyan.bold(msg.offerCommandsInstallation || 'Commands Installation'));
-    console.log(chalk.cyan('━'.repeat(50)));
-    console.log();
-
-    // Build checkbox choices
-    const commandChoices = missingCommands.map(cmd => ({
-      name: `${cmd.displayName} ${chalk.gray(`(${cmd.path})`)}`,
-      value: cmd.agent,
-      checked: true  // Default checked for opt-out behavior
-    }));
-
-    // Add skip option
-    commandChoices.push(new inquirer.Separator());
-    commandChoices.push({
-      name: chalk.gray(msg.skipInstallation || 'Skip'),
-      value: '__skip__'
-    });
-
-    const { selectedCommandAgents } = await inquirer.prompt([{
-      type: 'checkbox',
-      name: 'selectedCommandAgents',
-      message: msg.selectCommandsToInstall || 'Select AI tools to install Commands for:',
-      choices: commandChoices,
-      validate: (answer) => {
-        if (answer.includes('__skip__') && answer.length > 1) {
-          return t().commands.update.skipValidationError || 'Cannot select Skip with other options';
-        }
-        return true;
-      }
-    }]);
-
-    const filteredCommandAgents = selectedCommandAgents.filter(a => a !== '__skip__');
-
-    if (filteredCommandAgents.length > 0) {
-      const spinner = ora(t().commands.update.installingNewCommands || 'Installing commands...').start();
-      const cmdResult = await installCommandsToMultipleAgents(
-        filteredCommandAgents,
-        null,
-        projectPath
-      );
-
-      // Update manifest
-      if (!manifest.commands) manifest.commands = {};
-      manifest.commands.installed = true;
-      manifest.commands.installations = [
-        ...(manifest.commands.installations || []),
-        ...filteredCommandAgents
-      ];
-
-      if (cmdResult.totalErrors === 0) {
-        spinner.succeed((msg.commandsInstalledSuccess || 'Installed commands for {count} AI tools')
-          .replace('{count}', filteredCommandAgents.length));
-      } else {
-        spinner.warn((t().commands.update.newCommandsInstalledWithErrors || 'Installed commands with {errors} errors')
-          .replace('{errors}', cmdResult.totalErrors));
-      }
-
-      installedAnything = true;
-    }
-  }
-
-  // Save manifest if anything was installed
-  if (installedAnything) {
-    writeManifest(manifest, projectPath);
-  }
-
-  return installedAnything;
 }
 
 /**

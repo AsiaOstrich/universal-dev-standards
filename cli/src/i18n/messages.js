@@ -602,7 +602,9 @@ export const messages = {
         selectCommandsToInstall: 'Select AI tools to install Commands for:',
         skipInstallation: 'Skip',
         skillsInstalledSuccess: 'Installed Skills for {count} AI tools',
-        commandsInstalledSuccess: 'Installed commands for {count} AI tools'
+        commandsInstalledSuccess: 'Installed commands for {count} AI tools',
+        // Read-only hint
+        missingSkillsHint: 'Tip: Run `uds update` to install missing Skills/Commands'
       },
 
       // init command (commands/init.js)
@@ -1440,7 +1442,9 @@ export const messages = {
         selectCommandsToInstall: '選擇要安裝斜線命令的 AI 工具：',
         skipInstallation: '跳過',
         skillsInstalledSuccess: '已為 {count} 個 AI 工具安裝 Skills',
-        commandsInstalledSuccess: '已為 {count} 個 AI 工具安裝斜線命令'
+        commandsInstalledSuccess: '已為 {count} 個 AI 工具安裝斜線命令',
+        // Read-only hint
+        missingSkillsHint: '提示：執行 `uds update` 安裝缺少的 Skills/斜線命令'
       },
 
       // init command (commands/init.js)
@@ -2181,7 +2185,9 @@ export const messages = {
         selectCommandsToInstall: '选择要安装斜线命令的 AI 工具：',
         skipInstallation: '跳过',
         skillsInstalledSuccess: '已为 {count} 个 AI 工具安装 Skills',
-        commandsInstalledSuccess: '已为 {count} 个 AI 工具安装斜线命令'
+        commandsInstalledSuccess: '已为 {count} 个 AI 工具安装斜线命令',
+        // Read-only hint
+        missingSkillsHint: '提示：执行 `uds update` 安装缺少的 Skills/斜线命令'
       },
 
       // update command
