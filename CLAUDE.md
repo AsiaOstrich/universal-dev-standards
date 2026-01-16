@@ -161,6 +161,37 @@ node cli\bin\uds.js init --help
 ./scripts/pre-release-check.sh
 ```
 
+## Testing Workflow / 測試工作流程
+
+### When to Run Tests / 何時執行測試
+
+| Timing | Command | Purpose |
+|--------|---------|---------|
+| During development | `npm run test:watch` | Instant feedback |
+| Before commit | Automatic (git hook) | Prevent regressions |
+| Before PR | `./scripts/pre-release-check.sh` | Full verification |
+| CI/CD | Automatic (GitHub Actions) | Continuous integration |
+
+### Git Hooks (Automatic) / Git Hooks（自動執行）
+
+Pre-commit hook (`cli/.husky/pre-commit`) automatically runs:
+- `npm test` - All unit and E2E tests (414 tests)
+- `eslint --fix` - Code style auto-fix via lint-staged
+- `check-standards-sync.sh` - If core/*.md files modified
+- `check-cli-docs-sync.sh` - If cli/bin/*.js files modified
+
+> **Note**: If any check fails, the commit is aborted.
+
+### Manual Testing Commands / 手動測試指令
+
+```bash
+# In cli/ directory
+npm test              # Run all tests once
+npm run test:watch    # Watch mode for development
+npm run test:coverage # Generate coverage report
+npm run lint          # Check code style
+```
+
 ## Code Check-in Standards (Mandatory)
 
 Every commit MUST pass these quality gates before committing:

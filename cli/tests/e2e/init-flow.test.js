@@ -442,6 +442,66 @@ describe('E2E: uds init', () => {
       const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
       expect(manifest.contentMode).toBe('full');
     });
+
+    it('should save standard options to manifest in non-interactive mode', async () => {
+      await setupTestDir(testDir, {});
+
+      const result = await runNonInteractive({}, testDir);
+
+      // Verify initialization succeeded
+      expect(result.stdout).toContain('Standards initialized successfully');
+
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+
+      // Options should be saved with default values
+      expect(manifest.options).toBeDefined();
+      expect(manifest.options.workflow).toBe('github-flow');
+      expect(manifest.options.merge_strategy).toBe('squash');
+      expect(manifest.options.commit_language).toBe('english');
+      expect(manifest.options.test_levels).toContain('unit-testing');
+    });
+
+    it('should save detected aiTools to manifest when CLAUDE.md exists', async () => {
+      await setupTestDir(testDir, {});
+      // Create CLAUDE.md to trigger Claude Code detection
+      await writeFile(join(testDir, 'CLAUDE.md'), '# Project Guidelines');
+
+      const result = await runNonInteractive({}, testDir);
+
+      // Verify initialization succeeded
+      expect(result.stdout).toContain('Standards initialized successfully');
+
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+
+      // aiTools should contain claude-code
+      expect(manifest.aiTools).toBeDefined();
+      expect(manifest.aiTools).toContain('claude-code');
+    });
+
+    it('should auto-install commands when AGENTS.md exists (OpenCode detection)', async () => {
+      await setupTestDir(testDir, {});
+      // Create AGENTS.md to trigger OpenCode detection
+      await writeFile(join(testDir, 'AGENTS.md'), '# Agents Configuration');
+
+      const result = await runNonInteractive({}, testDir);
+
+      // Verify initialization succeeded
+      expect(result.stdout).toContain('Standards initialized successfully');
+
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+
+      // Commands should be installed for opencode
+      expect(manifest.commands).toBeDefined();
+      expect(manifest.commands.installed).toBe(true);
+      expect(manifest.commands.installations).toContain('opencode');
+
+      // Verify commands directory was created
+      const commandsDir = join(testDir, '.opencode/command');
+      expect(await fileExists(commandsDir)).toBe(true);
+    });
   });
 });
 

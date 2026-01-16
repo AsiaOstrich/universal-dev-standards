@@ -21,6 +21,33 @@ vi.mock('ora', () => ({
   }))
 }));
 
+vi.mock('../../src/utils/skills-installer.js', () => ({
+  installSkillsToMultipleAgents: vi.fn(() => ({ success: true, results: [] })),
+  installCommandsToMultipleAgents: vi.fn(() => ({
+    success: true,
+    installations: [],
+    totalInstalled: 0,
+    totalErrors: 0
+  })),
+  getInstalledSkillsInfoForAgent: vi.fn(() => null)
+}));
+
+vi.mock('../../src/config/ai-agent-paths.js', () => ({
+  getAgentConfig: vi.fn((agent) => {
+    // Return commands config only for opencode (to test commands installation)
+    const configs = {
+      'opencode': { commands: { project: '.opencode/command/' } },
+      'claude-code': { commands: null },
+      'cursor': { commands: null },
+      'copilot': { commands: { project: '.github/prompts/' } }
+    };
+    return configs[agent] || { commands: null };
+  }),
+  getAgentDisplayName: vi.fn((agent) => agent),
+  getSkillsDirForAgent: vi.fn(() => '/test/skills'),
+  getCommandsDirForAgent: vi.fn(() => '/test/commands')
+}));
+
 vi.mock('../../src/utils/registry.js', () => ({
   getStandardsByLevel: vi.fn(() => [
     { id: 'test-standard', category: 'reference', name: 'Test Standard' }
@@ -107,7 +134,7 @@ vi.mock('../../src/utils/integration-generator.js', () => ({
 }));
 
 import { initCommand } from '../../src/commands/init.js';
-import { isInitialized } from '../../src/utils/copier.js';
+import { isInitialized, writeManifest } from '../../src/utils/copier.js';
 import { detectAll } from '../../src/utils/detector.js';
 import { promptConfirm } from '../../src/prompts/init.js';
 
@@ -324,6 +351,168 @@ describe('Init Command', () => {
       // and Standards Scope should be Complete (full standards)
       const output = consoleLogs.join('\n');
       expect(output).toContain('Standards Scope: Complete');
+    });
+  });
+
+  describe('Manifest Generation in Non-Interactive Mode', () => {
+    it('should save standard options to manifest in non-interactive mode', async () => {
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // Verify writeManifest was called with correct options
+      expect(writeManifest).toHaveBeenCalled();
+      const manifestArg = writeManifest.mock.calls[0][0];
+
+      expect(manifestArg.options).toEqual({
+        workflow: 'github-flow',
+        merge_strategy: 'squash',
+        commit_language: 'english',
+        test_levels: ['unit-testing', 'integration-testing']
+      });
+    });
+
+    it('should save detected aiTools to manifest in non-interactive mode', async () => {
+      // Mock detectAll to return Claude Code detected
+      detectAll.mockReturnValue({
+        languages: { javascript: true },
+        frameworks: {},
+        aiTools: { claudeCode: true, cursor: false }
+      });
+
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // Verify writeManifest was called with correct aiTools
+      expect(writeManifest).toHaveBeenCalled();
+      const manifestArg = writeManifest.mock.calls[0][0];
+
+      expect(manifestArg.aiTools).toEqual(['claude-code']);
+    });
+
+    it('should save multiple detected aiTools to manifest', async () => {
+      // Mock detectAll to return multiple AI tools detected
+      detectAll.mockReturnValue({
+        languages: { javascript: true },
+        frameworks: {},
+        aiTools: { claudeCode: true, opencode: true, cursor: false }
+      });
+
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // Verify writeManifest was called with correct aiTools
+      expect(writeManifest).toHaveBeenCalled();
+      const manifestArg = writeManifest.mock.calls[0][0];
+
+      expect(manifestArg.aiTools).toContain('claude-code');
+      expect(manifestArg.aiTools).toContain('opencode');
+    });
+
+    it('should respect custom options from CLI flags', async () => {
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({
+        yes: true,
+        workflow: 'gitflow',
+        mergeStrategy: 'merge-commit',
+        commitLang: 'traditional-chinese',
+        testLevels: 'unit-testing,e2e-testing'
+      })).rejects.toThrow('process.exit called');
+
+      // Verify writeManifest was called with custom options
+      expect(writeManifest).toHaveBeenCalled();
+      const manifestArg = writeManifest.mock.calls[0][0];
+
+      expect(manifestArg.options.workflow).toBe('gitflow');
+      expect(manifestArg.options.merge_strategy).toBe('merge-commit');
+      expect(manifestArg.options.commit_language).toBe('traditional-chinese');
+      expect(manifestArg.options.test_levels).toEqual(['unit-testing', 'e2e-testing']);
+    });
+
+    it('should save options even when using minimal scope (Skills via marketplace)', async () => {
+      // Mock detectAll to return Claude Code (triggers Skills/minimal scope)
+      detectAll.mockReturnValue({
+        languages: { javascript: true },
+        frameworks: {},
+        aiTools: { claudeCode: true }
+      });
+
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // Verify options are saved even with minimal scope
+      expect(writeManifest).toHaveBeenCalled();
+      const manifestArg = writeManifest.mock.calls[0][0];
+
+      // Options should be saved regardless of standardsScope
+      expect(manifestArg.options.workflow).toBe('github-flow');
+      expect(manifestArg.options.merge_strategy).toBe('squash');
+      expect(manifestArg.standardsScope).toBe('minimal');
+    });
+
+    it('should auto-install commands for detected commands-supported agents', async () => {
+      // Mock detectAll to return opencode (supports commands)
+      detectAll.mockReturnValue({
+        languages: { javascript: true },
+        frameworks: {},
+        aiTools: { opencode: true, claudeCode: false }
+      });
+
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // Verify manifest includes commands installation
+      expect(writeManifest).toHaveBeenCalled();
+      const manifestArg = writeManifest.mock.calls[0][0];
+
+      expect(manifestArg.commands.installed).toBe(true);
+      expect(manifestArg.commands.installations).toContain('opencode');
+    });
+
+    it('should not install commands for agents that do not support commands', async () => {
+      // Mock detectAll to return only claude-code (no file-based commands)
+      detectAll.mockReturnValue({
+        languages: { javascript: true },
+        frameworks: {},
+        aiTools: { claudeCode: true, cursor: false }
+      });
+
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // Verify manifest does not include commands installation
+      expect(writeManifest).toHaveBeenCalled();
+      const manifestArg = writeManifest.mock.calls[0][0];
+
+      expect(manifestArg.commands.installed).toBe(false);
+      expect(manifestArg.commands.installations).toEqual([]);
+    });
+
+    it('should install commands for multiple commands-supported agents', async () => {
+      // Mock detectAll to return opencode and copilot (both support commands)
+      detectAll.mockReturnValue({
+        languages: { javascript: true },
+        frameworks: {},
+        aiTools: { opencode: true, copilot: true }
+      });
+
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // Verify manifest includes both agents
+      expect(writeManifest).toHaveBeenCalled();
+      const manifestArg = writeManifest.mock.calls[0][0];
+
+      expect(manifestArg.commands.installed).toBe(true);
+      expect(manifestArg.commands.installations).toContain('opencode');
+      expect(manifestArg.commands.installations).toContain('copilot');
     });
   });
 });

@@ -384,6 +384,9 @@ export async function initCommand(options) {
       return k;
     });
 
+    // Assign normalized AI tools to manifest variable
+    aiTools = aiToolsNormalized;
+
     // Check if only skills-compatible tools are detected
     const hasSkillsCompatibleTool = aiToolsNormalized.some(t => t === 'claude-code' || t === 'opencode');
     const onlySkillsCompatibleTools = aiToolsNormalized.every(t => t === 'claude-code' || t === 'opencode');
@@ -461,6 +464,17 @@ export async function initCommand(options) {
           contentMode: contentModeFlag
         };
       }
+    }
+
+    // Auto-install commands for detected agents that support commands
+    // This matches the interactive mode behavior where commands are checked by default
+    const commandsSupportedAgents = aiToolsNormalized.filter(tool => {
+      const config = getAgentConfig(tool);
+      return config?.commands !== null;
+    });
+
+    if (commandsSupportedAgents.length > 0) {
+      skillsConfig.commandsInstallations = commandsSupportedAgents;
     }
   }
 
@@ -912,13 +926,13 @@ export async function initCommand(options) {
   // Create manifest
   const repoInfo = getRepositoryInfo();
 
-  // Only record options for standards that were actually copied
-  const standardsToCopyIds = new Set(standardsToCopy.map(s => s.id));
+  // Always record options as user preferences (for Skills and future updates)
+  // Even when standards aren't copied locally (minimal scope), options should be preserved
   const manifestOptions = {
-    workflow: standardsToCopyIds.has('git-workflow') ? (standardOptions.workflow || null) : null,
-    merge_strategy: standardsToCopyIds.has('git-workflow') ? (standardOptions.merge_strategy || null) : null,
-    commit_language: standardsToCopyIds.has('commit-message') ? (standardOptions.commit_language || null) : null,
-    test_levels: standardsToCopyIds.has('testing') ? (standardOptions.test_levels || []) : []
+    workflow: standardOptions.workflow || null,
+    merge_strategy: standardOptions.merge_strategy || null,
+    commit_language: standardOptions.commit_language || null,
+    test_levels: standardOptions.test_levels || []
   };
 
   // Build integrationConfigs for manifest
