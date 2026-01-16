@@ -594,7 +594,15 @@ export const messages = {
         runNpmUpdate: 'Run: npm update -g universal-dev-standards',
         // Final status
         projectCompliant: '✓ Project is compliant with standards',
-        issuesDetected: '⚠ Some issues detected. Review above for details.'
+        issuesDetected: '⚠ Some issues detected. Review above for details.',
+        // Installation prompts
+        offerSkillsInstallation: 'Skills Installation',
+        offerCommandsInstallation: 'Commands Installation',
+        selectSkillsToInstall: 'Select AI tools to install Skills for:',
+        selectCommandsToInstall: 'Select AI tools to install Commands for:',
+        skipInstallation: 'Skip',
+        skillsInstalledSuccess: 'Installed Skills for {count} AI tools',
+        commandsInstalledSuccess: 'Installed commands for {count} AI tools'
       },
 
       // init command (commands/init.js)
@@ -752,6 +760,11 @@ export const messages = {
         commandsNotInstalledFor: 'Slash commands not yet installed for these AI tools:',
         installSkillsNow: 'Would you like to install Skills for these AI tools?',
         installCommandsNow: 'Would you like to install slash commands for these AI tools?',
+        selectSkillsToInstall: 'Select AI tools to install Skills for:',
+        selectCommandsToInstall: 'Select AI tools to install Commands for:',
+        skipSkillsInstallation: 'Skip Skills installation',
+        skipCommandsInstallation: 'Skip Commands installation',
+        skipValidationError: 'Cannot select Skip with other options',
         skillsLevelQuestion: 'Where should Skills be installed?',
         projectLevel: 'Project level',
         userLevel: 'User level',
@@ -1419,7 +1432,15 @@ export const messages = {
         runNpmUpdate: '執行：npm update -g universal-dev-standards',
         // Final status
         projectCompliant: '✓ 專案符合標準',
-        issuesDetected: '⚠ 偵測到一些問題。請檢視上方詳情。'
+        issuesDetected: '⚠ 偵測到一些問題。請檢視上方詳情。',
+        // Installation prompts
+        offerSkillsInstallation: 'Skills 安裝',
+        offerCommandsInstallation: '斜線命令安裝',
+        selectSkillsToInstall: '選擇要安裝 Skills 的 AI 工具：',
+        selectCommandsToInstall: '選擇要安裝斜線命令的 AI 工具：',
+        skipInstallation: '跳過',
+        skillsInstalledSuccess: '已為 {count} 個 AI 工具安裝 Skills',
+        commandsInstalledSuccess: '已為 {count} 個 AI 工具安裝斜線命令'
       },
 
       // init command (commands/init.js)
@@ -1577,6 +1598,11 @@ export const messages = {
         commandsNotInstalledFor: '以下 AI 工具尚未安裝斜線命令：',
         installSkillsNow: '是否要為這些 AI 工具安裝 Skills？',
         installCommandsNow: '是否要為這些 AI 工具安裝斜線命令？',
+        selectSkillsToInstall: '選擇要安裝 Skills 的 AI 工具：',
+        selectCommandsToInstall: '選擇要安裝斜線命令的 AI 工具：',
+        skipSkillsInstallation: '跳過 Skills 安裝',
+        skipCommandsInstallation: '跳過斜線命令安裝',
+        skipValidationError: '選擇「跳過」時不能同時選擇其他選項',
         skillsLevelQuestion: 'Skills 要安裝到哪裡？',
         projectLevel: '專案層級',
         userLevel: '使用者層級',
@@ -2147,7 +2173,15 @@ export const messages = {
         runNpmUpdate: '执行：npm update -g universal-dev-standards',
         // Final status
         projectCompliant: '✓ 项目符合标准',
-        issuesDetected: '⚠ 检测到一些问题。详情请查看上文。'
+        issuesDetected: '⚠ 检测到一些问题。详情请查看上文。',
+        // Installation prompts
+        offerSkillsInstallation: 'Skills 安装',
+        offerCommandsInstallation: '斜线命令安装',
+        selectSkillsToInstall: '选择要安装 Skills 的 AI 工具：',
+        selectCommandsToInstall: '选择要安装斜线命令的 AI 工具：',
+        skipInstallation: '跳过',
+        skillsInstalledSuccess: '已为 {count} 个 AI 工具安装 Skills',
+        commandsInstalledSuccess: '已为 {count} 个 AI 工具安装斜线命令'
       },
 
       // update command
@@ -2234,6 +2268,11 @@ export const messages = {
         commandsNotInstalledFor: '以下 AI 工具尚未安装斜线命令：',
         installSkillsNow: '是否要为这些 AI 工具安装 Skills？',
         installCommandsNow: '是否要为这些 AI 工具安装斜线命令？',
+        selectSkillsToInstall: '选择要安装 Skills 的 AI 工具：',
+        selectCommandsToInstall: '选择要安装斜线命令的 AI 工具：',
+        skipSkillsInstallation: '跳过 Skills 安装',
+        skipCommandsInstallation: '跳过斜线命令安装',
+        skipValidationError: '选择「跳过」时不能同时选择其他选项',
         skillsLevelQuestion: 'Skills 要安装到哪里？',
         projectLevel: '项目级别',
         userLevel: '用户级别',

@@ -1005,7 +1005,7 @@ async function promptNewFeatureInstallation(missingSkills, missingCommands) {
 
   const result = { installSkills: [], installCommands: [] };
 
-  // Handle missing Skills
+  // Handle missing Skills with checkbox selection
   if (missingSkills.length > 0) {
     console.log(chalk.yellow(msg.skillsNotInstalledFor || 'Skills not yet installed for these AI tools:'));
     for (const skill of missingSkills) {
@@ -1013,14 +1013,38 @@ async function promptNewFeatureInstallation(missingSkills, missingCommands) {
     }
     console.log();
 
-    const { shouldInstallSkills } = await inquirer.prompt([{
-      type: 'confirm',
-      name: 'shouldInstallSkills',
-      message: msg.installSkillsNow || 'Would you like to install Skills for these AI tools?',
-      default: true
+    // Build checkbox choices
+    const skillChoices = missingSkills.map(skill => ({
+      name: skill.displayName,
+      value: skill.agent,
+      checked: true  // Default checked for opt-out behavior
+    }));
+
+    // Add skip option
+    skillChoices.push(new inquirer.Separator());
+    skillChoices.push({
+      name: chalk.gray(msg.skipSkillsInstallation || 'Skip Skills installation'),
+      value: '__skip__'
+    });
+
+    const { selectedSkillAgents } = await inquirer.prompt([{
+      type: 'checkbox',
+      name: 'selectedSkillAgents',
+      message: msg.selectSkillsToInstall || 'Select AI tools to install Skills for:',
+      choices: skillChoices,
+      validate: (answer) => {
+        // If skip is selected, ensure it's the only selection
+        if (answer.includes('__skip__') && answer.length > 1) {
+          return msg.skipValidationError || 'Cannot select Skip with other options';
+        }
+        return true;
+      }
     }]);
 
-    if (shouldInstallSkills) {
+    // Filter out skip and handle selection
+    const filteredSkillAgents = selectedSkillAgents.filter(a => a !== '__skip__');
+
+    if (filteredSkillAgents.length > 0) {
       // Prompt for installation level
       const { skillsLevel } = await inquirer.prompt([{
         type: 'list',
@@ -1033,15 +1057,15 @@ async function promptNewFeatureInstallation(missingSkills, missingCommands) {
         default: 'project'
       }]);
 
-      result.installSkills = missingSkills.map(s => ({
-        agent: s.agent,
+      result.installSkills = filteredSkillAgents.map(agent => ({
+        agent,
         level: skillsLevel
       }));
     }
     console.log();
   }
 
-  // Handle missing Commands
+  // Handle missing Commands with checkbox selection
   if (missingCommands.length > 0) {
     console.log(chalk.yellow(msg.commandsNotInstalledFor || 'Slash commands not yet installed for these AI tools:'));
     for (const cmd of missingCommands) {
@@ -1049,16 +1073,35 @@ async function promptNewFeatureInstallation(missingSkills, missingCommands) {
     }
     console.log();
 
-    const { shouldInstallCommands } = await inquirer.prompt([{
-      type: 'confirm',
-      name: 'shouldInstallCommands',
-      message: msg.installCommandsNow || 'Would you like to install slash commands for these AI tools?',
-      default: true
+    // Build checkbox choices
+    const commandChoices = missingCommands.map(cmd => ({
+      name: `${cmd.displayName} ${chalk.gray(`(${cmd.path})`)}`,
+      value: cmd.agent,
+      checked: true  // Default checked for opt-out behavior
+    }));
+
+    // Add skip option
+    commandChoices.push(new inquirer.Separator());
+    commandChoices.push({
+      name: chalk.gray(msg.skipCommandsInstallation || 'Skip Commands installation'),
+      value: '__skip__'
+    });
+
+    const { selectedCommandAgents } = await inquirer.prompt([{
+      type: 'checkbox',
+      name: 'selectedCommandAgents',
+      message: msg.selectCommandsToInstall || 'Select AI tools to install Commands for:',
+      choices: commandChoices,
+      validate: (answer) => {
+        if (answer.includes('__skip__') && answer.length > 1) {
+          return msg.skipValidationError || 'Cannot select Skip with other options';
+        }
+        return true;
+      }
     }]);
 
-    if (shouldInstallCommands) {
-      result.installCommands = missingCommands.map(c => c.agent);
-    }
+    // Filter out skip
+    result.installCommands = selectedCommandAgents.filter(a => a !== '__skip__');
   }
 
   return result;
