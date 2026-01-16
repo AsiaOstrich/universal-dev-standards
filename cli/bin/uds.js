@@ -55,7 +55,8 @@ program
   .command('configure')
   .alias('config')
   .description('Modify options for initialized project')
-  .option('-t, --type <type>', 'Option type to configure (format, workflow, merge_strategy, commit_language, test_levels, all)')
+  .option('-t, --type <type>', 'Option type to configure (format, workflow, merge_strategy, commit_language, test_levels, skills, commands, all)')
+  .option('--ai-tool <tool>', 'Specific AI tool to configure (claude-code, opencode, copilot, etc.) - enables non-interactive mode')
   .option('-E, --experimental', 'Enable experimental features (methodology)')
   .action(configureCommand);
 

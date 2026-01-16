@@ -44,42 +44,35 @@ uds update --beta --yes
 
 ### Step 4: Install Skills/Commands | 步驟 4：安裝 Skills/Commands
 
-The CLI automatically handles Skills/Commands installation in Step 4:
+After update completes, check if Skills/Commands need installation.
 
-CLI 會自動處理 Skills/Commands 安裝：
+更新完成後，檢查是否需要安裝 Skills/Commands。
 
-**With `--yes` flag (automatic):**
-- All missing Skills/Commands are installed automatically for configured AI tools
-- No additional action needed
+**Check installation status:**
 
-使用 `--yes` 時，會自動為所有設定的 AI 工具安裝缺少的 Skills/Commands。
+1. Read `.standards/manifest.json` to get `aiTools` list and `skills.installed` status
+2. Check if Skills are installed for each configured AI tool
+3. Check if Commands are installed for tools that support them (opencode, copilot, gemini-cli, roo-code)
 
-**Without `--yes` (interactive):**
-- CLI shows a checkbox menu to select which AI tools to install for
-- All options are checked by default (opt-out behavior)
+**If missing Skills/Commands detected**, use AskUserQuestion:
 
-不使用 `--yes` 時，CLI 會顯示 checkbox 選單讓用戶選擇要安裝的 AI 工具。
+| Option | Description |
+|--------|-------------|
+| **Install All (Recommended)** | Install Skills + Commands for all configured tools |
+| **Skills Only** | Install only Skills |
+| **Commands Only** | Install only Commands |
+| **Skip** | Don't install at this time |
 
-**Example checkbox interface:**
-```
-? Select AI tools to install Skills for:
-❯◉ Claude Code
- ◉ OpenCode
- ◉ GitHub Copilot
- ──────────────
- ◯ Skip Skills installation
-```
+**Based on user selection, execute:**
 
-**If CLI cannot prompt (non-TTY environment):**
+| Selection | Command |
+|-----------|---------|
+| Install All | `uds configure --type skills --ai-tool <tool>` for each tool, then `uds configure --type commands --ai-tool <tool>` |
+| Skills Only | `uds configure --type skills --ai-tool <tool>` for each tool |
+| Commands Only | `uds configure --type commands --ai-tool <tool>` for each tool |
+| Skip | No action needed |
 
-Use AskUserQuestion and then run `uds configure`:
-
-| User Selection | Action |
-|----------------|--------|
-| **Install All** | `uds configure --type skills` then `uds configure --type commands` |
-| **Skills Only** | `uds configure --type skills` |
-| **Commands Only** | `uds configure --type commands` |
-| **Skip** | No action needed |
+**Note**: The `--ai-tool` option allows non-interactive installation for specific tools.
 
 Explain the results and any next steps to the user.
 

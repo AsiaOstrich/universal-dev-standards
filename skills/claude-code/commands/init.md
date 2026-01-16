@@ -37,12 +37,38 @@ Use AskUserQuestion with these options:
 | **Project Level** | Install at .claude/skills/ |
 | **Skip** | Don't install Skills |
 
-### Step 3: Execute | 步驟 3：執行
+### Step 3: Ask AI Tools Selection | 步驟 3：詢問 AI 工具選擇
 
-After collecting answers, execute:
+Use AskUserQuestion with multiSelect to ask which AI tools to install Skills/Commands for:
 
+使用 AskUserQuestion（多選）詢問要為哪些 AI 工具安裝 Skills/Commands：
+
+| Option | Description |
+|--------|-------------|
+| **Claude Code** | Install Skills for Claude Code |
+| **OpenCode** | Install Skills + Commands for OpenCode |
+| **GitHub Copilot** | Install Skills + Commands for Copilot |
+| **Gemini CLI** | Install Skills + Commands for Gemini CLI |
+| **Skip** | Don't install for any tool |
+
+Note: Only show options for tools that are detected in the environment or commonly used.
+
+### Step 4: Execute | 步驟 4：執行
+
+After collecting answers, execute initialization and tool-specific installations:
+
+收集答案後，執行初始化和工具特定的安裝：
+
+**Initialize standards:**
 ```bash
 uds init --level <level> --skills-location <location> --yes
+```
+
+**Install for selected AI tools:**
+```bash
+# For each selected tool
+uds configure --type skills --ai-tool <tool>
+uds configure --type commands --ai-tool <tool>  # if tool supports commands
 ```
 
 Explain the results and next steps to the user.

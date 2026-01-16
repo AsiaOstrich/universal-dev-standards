@@ -186,13 +186,13 @@ export async function configureCommand(options) {
 
   // Handle Skills configuration
   if (configType === 'skills') {
-    await handleSkillsConfiguration(manifest, projectPath, msg, common);
+    await handleSkillsConfiguration(manifest, projectPath, msg, common, options.aiTool);
     process.exit(0);
   }
 
   // Handle Commands configuration
   if (configType === 'commands') {
-    await handleCommandsConfiguration(manifest, projectPath, msg, common);
+    await handleCommandsConfiguration(manifest, projectPath, msg, common, options.aiTool);
     process.exit(0);
   }
 
@@ -448,11 +448,55 @@ export async function configureCommand(options) {
 
 /**
  * Handle Skills configuration
+ * @param {Object} manifest - Project manifest
+ * @param {string} projectPath - Project path
+ * @param {Object} msg - i18n messages
+ * @param {Object} common - Common i18n messages
+ * @param {string} [specificTool] - Specific AI tool to install (non-interactive mode)
  */
-async function handleSkillsConfiguration(manifest, projectPath, msg, common) {
+async function handleSkillsConfiguration(manifest, projectPath, msg, common, specificTool) {
   const inquirer = await import('inquirer');
   const aiTools = manifest.aiTools || [];
 
+  // Non-interactive mode: install for specific tool
+  if (specificTool) {
+    const config = getAgentConfig(specificTool);
+    if (!config) {
+      console.log(chalk.red(`Unknown AI tool: ${specificTool}`));
+      console.log(chalk.gray('  Available tools: claude-code, opencode, copilot, gemini-cli, roo-code, cursor, windsurf, cline, codex'));
+      return;
+    }
+    if (!config.supportsSkills) {
+      console.log(chalk.yellow(`${getAgentDisplayName(specificTool)} does not support Skills`));
+      return;
+    }
+
+    // Install to project level by default
+    const installations = [{ agent: specificTool, location: 'project' }];
+    const spinner = ora(`Installing Skills for ${getAgentDisplayName(specificTool)}...`).start();
+    const result = await installSkillsToMultipleAgents(installations, null, projectPath);
+    spinner.stop();
+
+    if (result.success) {
+      console.log(chalk.green(`Skills installed for ${getAgentDisplayName(specificTool)}`));
+    } else {
+      console.log(chalk.yellow('Skills installation completed with issues'));
+    }
+
+    // Update manifest
+    manifest.skills = manifest.skills || {};
+    manifest.skills.installations = manifest.skills.installations || [];
+    const existing = manifest.skills.installations.findIndex(i => i.agent === specificTool);
+    if (existing >= 0) {
+      manifest.skills.installations[existing] = installations[0];
+    } else {
+      manifest.skills.installations.push(installations[0]);
+    }
+    writeManifest(manifest, projectPath);
+    return;
+  }
+
+  // Interactive mode
   if (aiTools.length === 0) {
     console.log(chalk.yellow(msg.noAiToolsConfigured || 'No AI tools configured'));
     console.log(chalk.gray(`  ${msg.addAiToolsFirst || 'Add AI tools first with: uds configure --type ai_tools'}`));
@@ -532,15 +576,55 @@ async function handleSkillsConfiguration(manifest, projectPath, msg, common) {
 
 /**
  * Handle Commands configuration
+ * @param {Object} manifest - Project manifest
+ * @param {string} projectPath - Project path
+ * @param {Object} msg - i18n messages
+ * @param {Object} common - Common i18n messages
+ * @param {string} [specificTool] - Specific AI tool to install (non-interactive mode)
  */
-async function handleCommandsConfiguration(manifest, projectPath, msg, common) {
+async function handleCommandsConfiguration(manifest, projectPath, msg, common, specificTool) {
   const inquirer = await import('inquirer');
   const aiTools = manifest.aiTools || [];
 
+  // Non-interactive mode: install for specific tool
+  if (specificTool) {
+    const config = getAgentConfig(specificTool);
+    if (!config) {
+      console.log(chalk.red(`Unknown AI tool: ${specificTool}`));
+      console.log(chalk.gray('  Available tools: claude-code, opencode, copilot, gemini-cli, roo-code'));
+      return;
+    }
+    if (!config.supportsCommands) {
+      console.log(chalk.yellow(`${getAgentDisplayName(specificTool)} does not support Commands`));
+      console.log(chalk.gray('  Tools that support commands: OpenCode, Copilot, Roo Code, Gemini CLI'));
+      return;
+    }
+
+    const spinner = ora(`Installing Commands for ${getAgentDisplayName(specificTool)}...`).start();
+    const result = await installCommandsToMultipleAgents([specificTool], null, projectPath);
+    spinner.stop();
+
+    if (result.success) {
+      console.log(chalk.green(`Commands installed for ${getAgentDisplayName(specificTool)}`));
+    } else {
+      console.log(chalk.yellow('Commands installation completed with issues'));
+    }
+
+    // Update manifest
+    manifest.commands = manifest.commands || {};
+    manifest.commands.installations = manifest.commands.installations || [];
+    if (!manifest.commands.installations.includes(specificTool)) {
+      manifest.commands.installations.push(specificTool);
+    }
+    writeManifest(manifest, projectPath);
+    return;
+  }
+
+  // Interactive mode
   // Filter tools that support commands
   const commandSupportedTools = aiTools.filter(tool => {
     const config = getAgentConfig(tool);
-    return config?.commands !== null;
+    return config?.supportsCommands;
   });
 
   if (commandSupportedTools.length === 0) {

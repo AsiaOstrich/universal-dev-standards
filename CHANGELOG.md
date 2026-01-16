@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.13] - 2026-01-16
+
+### Changed
+- **Commands**: Slash commands now use `AskUserQuestion` for interactive prompts
+  - `/update` Step 4: Asks user to select Skills/Commands installation options
+  - `/init` Step 3: Asks user to select AI tools for Skills/Commands installation
+  - Design principle: "CLI prompts should be mirrored in slash commands"
+
+### Added
+- **CLI**: New `--ai-tool` option for `uds configure` command
+  - Enables non-interactive Skills/Commands installation for specific tools
+  - Usage: `uds configure --type skills --ai-tool claude-code`
+  - Supports: claude-code, opencode, copilot, gemini-cli, roo-code, cursor, windsurf, cline, codex
+
 ## [3.5.1-beta.12] - 2026-01-16
 
 ### Changed
