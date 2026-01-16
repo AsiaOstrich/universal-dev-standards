@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.7] - 2026-01-16
+
+### Fixed
+- **CLI**: Non-interactive mode (`--yes`) now correctly saves configuration to manifest
+  - `aiTools` field now populated with detected AI tools (was empty `[]`)
+  - `options` field now saves workflow, merge strategy, commit language, test levels (was all `null`)
+  - Commands auto-installed for agents that support file-based commands (opencode, copilot, etc.)
+
+### Added
+- **Docs**: Testing Workflow section in CLAUDE.md
+  - Documents when to run tests (development, pre-commit, pre-PR, CI/CD)
+  - Lists git hook automated checks
+  - Provides manual testing command reference
+- **Tests**: 11 new tests for non-interactive mode bug fixes
+  - 8 unit tests in `init.test.js`
+  - 3 E2E tests in `init-flow.test.js`
+
 ## [3.5.1-beta.6] - 2026-01-16
 
 ### Fixed
