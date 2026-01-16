@@ -22,9 +22,27 @@ First, run `uds check` to show current installation status and available updates
 
 ### Step 2: Ask Update Preferences | 步驟 2：詢問更新偏好
 
-If updates are available, use AskUserQuestion with options based on version type:
+If updates are available, use AskUserQuestion with options based on version type.
 
-根據可用更新的版本類型顯示對應選項：
+根據可用更新的版本類型顯示對應選項。
+
+#### Pre-release Version Types | Pre-release 版本類型
+
+Pre-release versions are sorted by stability (ascending):
+
+Pre-release 版本按穩定度排序（由低到高）：
+
+| Type | Stability | Description | 說明 |
+|------|-----------|-------------|------|
+| alpha | 🔴 Early | Features may be incomplete, for internal testing | 功能可能不完整，供內部測試 |
+| beta | 🟡 Testing | Features complete, may have bugs, for early adopters | 功能大致完成，可能有 bug，供早期採用者 |
+| rc | 🟢 Near-stable | Release candidate, close to stable, for beta testers | 候選發布版，接近正式版，供 beta 測試者 |
+
+Version comparison: `alpha < beta < rc < stable`
+
+For detailed versioning standards, see [core/versioning.md](../../../core/versioning.md).
+
+#### Update Options | 更新選項
 
 **If stable version available (e.g., 3.5.1):**
 
