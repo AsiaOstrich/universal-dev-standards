@@ -206,6 +206,30 @@ describe('Skills Installer', () => {
       expect(info.version).toBeNull();
       expect(info.source).toBe('unknown');
     });
+
+    it('should return null for empty skills directory', () => {
+      // Create empty skills directory (no SKILL.md files)
+      const skillsDir = join(TEST_DIR, '.opencode/skill/');
+      mkdirSync(skillsDir, { recursive: true });
+
+      const info = getInstalledSkillsInfoForAgent('opencode', 'project', TEST_DIR);
+
+      // Empty directory should NOT be considered as installed
+      expect(info).toBeNull();
+    });
+
+    it('should return null for skills directory with empty subdirectories', () => {
+      // Create skills directory with empty subdirectory (no SKILL.md)
+      const skillsDir = join(TEST_DIR, '.opencode/skill/');
+      mkdirSync(skillsDir, { recursive: true });
+      mkdirSync(join(skillsDir, 'some-skill'));
+      // No SKILL.md file inside
+
+      const info = getInstalledSkillsInfoForAgent('opencode', 'project', TEST_DIR);
+
+      // Directory with empty subdirs should NOT be considered as installed
+      expect(info).toBeNull();
+    });
   });
 
   describe('getInstalledCommandsForAgent', () => {

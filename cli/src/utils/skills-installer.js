@@ -473,16 +473,37 @@ export function getInstalledSkillsInfoForAgent(agent, level, projectPath = null)
 
   const manifestPath = join(targetDir, '.manifest.json');
 
+  // Check if manifest exists
   if (!existsSync(manifestPath)) {
-    // Skills exist but no manifest
-    return {
-      installed: true,
-      version: null,
-      source: 'unknown',
-      agent,
-      level,
-      path: targetDir
-    };
+    // No manifest - check if there are actual skill files (SKILL.md in subdirectories)
+    try {
+      const entries = readdirSync(targetDir, { withFileTypes: true });
+      const skillDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.'));
+
+      // Check if any subdirectory contains a SKILL.md file
+      const hasSkillFiles = skillDirs.some(dir => {
+        const skillFile = join(targetDir, dir.name, 'SKILL.md');
+        return existsSync(skillFile);
+      });
+
+      if (!hasSkillFiles) {
+        // Empty directory or no valid skills - not installed
+        return null;
+      }
+
+      // Has skill files but no manifest
+      return {
+        installed: true,
+        version: null,
+        source: 'unknown',
+        agent,
+        level,
+        path: targetDir
+      };
+    } catch {
+      // Error reading directory - assume not installed
+      return null;
+    }
   }
 
   try {
