@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.16] - 2026-01-16
+
+### Added
+- **Commands**: Add Skills verification diagnostics to `/check` command
+  - Shows actual directory contents for each AI tool
+  - Helps identify false positives in Skills installation reporting
+  - Add `Bash(ls:*)` to allowed-tools
+
+### Fixed
+- **Commands**: `/update` now shows specific version type (Alpha/Beta/RC)
+  - Option displays "更新至 Beta" instead of generic "更新至 Pre-release"
+  - Includes stability indicators (🔴🟡🟢) in descriptions
+
 ## [3.5.1-beta.15] - 2026-01-16
 
 ### Added
