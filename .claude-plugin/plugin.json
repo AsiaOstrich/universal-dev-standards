@@ -1,7 +1,7 @@
 {
   "name": "universal-dev-standards",
   "description": "Skills for development standards: commit messages, code review, testing, documentation, and more. Supports 15 comprehensive skills for the full development lifecycle.",
-  "version": "3.5.1-beta.7",
+  "version": "3.5.1-beta.8",
   "author": {
     "name": "AsiaOstrich",
     "url": "https://github.com/AsiaOstrich"

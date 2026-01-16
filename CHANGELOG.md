@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.8] - 2026-01-16
+
+### Fixed
+- **CLI**: Empty skills directory no longer detected as installed
+  - `getInstalledSkillsInfoForAgent` now checks for actual `SKILL.md` files
+  - `uds update` Step 4 correctly prompts to install Skills for OpenCode, GitHub Copilot, etc.
+  - Resolves issue where empty `.claude/skills/`, `.github/skills/`, `.opencode/skills/` directories were falsely reported as having skills installed
+
+### Added
+- **Tests**: 2 new unit tests for empty directory detection
+  - Tests empty skills directory returns `null`
+  - Tests skills directory with empty subdirectories returns `null`
+
 ## [3.5.1-beta.7] - 2026-01-16
 
 ### Fixed

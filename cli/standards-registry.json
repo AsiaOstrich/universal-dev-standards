@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "3.5.1-beta.7",
+  "version": "3.5.1-beta.8",
   "lastUpdated": "2026-01-15",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
@@ -48,14 +48,14 @@
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "3.5.1-beta.7"
+      "version": "3.5.1-beta.8"
     },
     "skills": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
       "localPath": "skills/claude-code",
       "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code",
-      "version": "3.5.1-beta.7",
+      "version": "3.5.1-beta.8",
       "note": "Skills are now included in the main repository under skills/"
     }
   },
