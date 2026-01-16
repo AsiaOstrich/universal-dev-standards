@@ -248,7 +248,7 @@ export async function checkCommand(options = {}) {
   const { missingSkills, missingCommands } = displaySkillsStatus(manifest, projectPath, msg);
 
   // Coverage report
-  displayCoverageReport(manifest, msg, common);
+  displayCoverageReport(manifest, msg, common, projectPath);
 
   // Final status
   const allGood = fileStatus.missing.length === 0 &&
@@ -790,7 +790,7 @@ function displaySkillsStatus(manifest, projectPath, msg) {
 /**
  * Display coverage report
  */
-function displayCoverageReport(manifest, msg, _common) {
+function displayCoverageReport(manifest, msg, _common, projectPath) {
   console.log(chalk.cyan(msg.coverageSummary));
   const expectedStandards = getStandardsByLevel(manifest.level);
   const skillStandards = expectedStandards.filter(s => s.skillName);
@@ -800,7 +800,19 @@ function displayCoverageReport(manifest, msg, _common) {
   console.log(chalk.gray(`    ${msg.withSkills.replace('{count}', skillStandards.length)}`));
   console.log(chalk.gray(`    ${msg.referenceDocs.replace('{count}', refStandards.length)}`));
 
-  const coveredBySkills = manifest.skills.installed ? skillStandards.length : 0;
+  // Dynamically check if any AI tool has skills installed
+  let hasInstalledSkills = false;
+  if (manifest.aiTools && manifest.aiTools.length > 0) {
+    for (const tool of manifest.aiTools) {
+      const projectSkillsInfo = getInstalledSkillsInfoForAgent(tool, 'project', projectPath);
+      const userSkillsInfo = getInstalledSkillsInfoForAgent(tool, 'user', projectPath);
+      if (projectSkillsInfo?.installed || userSkillsInfo?.installed) {
+        hasInstalledSkills = true;
+        break;
+      }
+    }
+  }
+  const coveredBySkills = hasInstalledSkills ? skillStandards.length : 0;
   const coveredByDocs = manifest.standards.length;
 
   console.log(chalk.gray(`  ${msg.yourCoverage}`));

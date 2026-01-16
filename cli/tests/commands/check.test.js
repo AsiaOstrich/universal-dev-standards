@@ -553,5 +553,55 @@ describe('Check Command', () => {
       expect(output).toContain('Skills Status');
     });
 
+    it('should show correct skills coverage when skills installed on disk but manifest says false', async () => {
+      // Bug fix test: Coverage Summary should dynamically check disk, not rely on manifest.skills.installed
+      // See: https://github.com/AsiaOstrich/universal-dev-standards/issues/xxx
+
+      const manifest = {
+        version: '3.5.0',
+        upstream: {
+          repo: 'AsiaOstrich/universal-dev-standards',
+          version: '3.5.0',
+          installed: '2024-01-01'
+        },
+        level: 3,
+        standards: [],
+        extensions: [],
+        integrations: [],
+        aiTools: ['claude-code'],
+        skills: { installed: false }  // <-- manifest says false
+      };
+
+      // Create manifest
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+
+      // Simulate skills installed on disk (project level for claude-code)
+      const skillsDir = join(TEST_DIR, '.claude', 'skills');
+      mkdirSync(skillsDir, { recursive: true });
+      writeFileSync(
+        join(skillsDir, '.manifest.json'),
+        JSON.stringify({
+          version: '3.5.1-beta.13',
+          source: 'universal-dev-standards',
+          agent: 'claude-code',
+          installedDate: '2024-01-01'
+        })
+      );
+
+      await checkCommand({ noInteractive: true });
+
+      const output = consoleLogs.join('\n');
+
+      // Should NOT show "0 via Skills" because skills are actually installed
+      expect(output).not.toContain('0 via Skills');
+
+      // Should show correct count (17 skill standards for Level 3)
+      expect(output).toContain('17 via Skills');
+    });
+
   });
 });
