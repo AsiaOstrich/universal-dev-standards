@@ -1,6 +1,6 @@
 ---
 description: Verify standards adoption status
-allowed-tools: Read, Bash(uds check:*), Bash(npx:*)
+allowed-tools: Read, Bash(uds check:*), Bash(npx:*), Bash(ls:*)
 argument-hint: "[--offline | --restore]"
 ---
 
@@ -49,6 +49,39 @@ uds check --restore
 - Installation location (Marketplace, User, Project)
 - Version information
 - Migration suggestions if applicable
+
+### Skills Verification | Skills 驗證
+
+After displaying `uds check` results, verify Skills installation by checking actual paths.
+
+顯示 `uds check` 結果後，透過檢查實際路徑來驗證 Skills 安裝。
+
+**For each AI tool showing "✓ installed", run diagnostic commands:**
+
+針對每個顯示「✓ 已安裝」的 AI 工具，執行診斷命令：
+
+| AI Tool | Skills Path | Diagnostic Command |
+|---------|-------------|-------------------|
+| Claude Code | `.claude/skills/` | `ls -la .claude/skills/ 2>/dev/null \|\| echo "Not found"` |
+| OpenCode | `.opencode/skill/` | `ls -la .opencode/skill/ 2>/dev/null \|\| echo "Not found"` |
+| GitHub Copilot | `.github/skills/` | `ls -la .github/skills/ 2>/dev/null \|\| echo "Not found"` |
+| Cursor | `.cursor/skills/` | `ls -la .cursor/skills/ 2>/dev/null \|\| echo "Not found"` |
+
+**Expected output for valid installation:**
+- Should see skill directories (e.g., `commit-standards/`, `testing-guide/`)
+- Each skill directory should contain `SKILL.md`
+
+**有效安裝的預期輸出：**
+- 應看到 skill 目錄（如 `commit-standards/`、`testing-guide/`）
+- 每個 skill 目錄應包含 `SKILL.md`
+
+**If directory is empty or not found:**
+- Skills are NOT actually installed
+- Run `/update` and select "Install All" to install
+
+**如果目錄為空或不存在：**
+- Skills 實際上未安裝
+- 執行 `/update` 並選擇「全部安裝」
 
 ### Coverage Summary | 覆蓋率摘要
 - Required standards count for current level
