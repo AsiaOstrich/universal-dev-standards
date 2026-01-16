@@ -1,7 +1,7 @@
 ---
 description: Generate commit messages following Conventional Commits standard
 allowed-tools: Read, Grep, Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*)
-argument-hint: [description of changes | 變更描述]
+argument-hint: "[description of changes | 變更描述]"
 ---
 
 # Commit Message Assistant | Commit Message 助手

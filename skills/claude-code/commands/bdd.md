@@ -1,7 +1,7 @@
 ---
 description: Guide through Behavior-Driven Development workflow
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
-argument-hint: [behavior or scenario to implement | 要實作的行為或場景]
+argument-hint: "[behavior or scenario to implement | 要實作的行為或場景]"
 status: experimental
 ---
 

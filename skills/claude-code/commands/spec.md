@@ -1,7 +1,7 @@
 ---
 description: Create or review specification documents for Spec-Driven Development
 allowed-tools: Read, Write, Grep, Glob, Bash(git:*)
-argument-hint: [spec name or feature | 規格名稱或功能]
+argument-hint: "[spec name or feature | 規格名稱或功能]"
 ---
 
 # Spec-Driven Development Assistant | 規格驅動開發助手

@@ -1,7 +1,7 @@
 ---
 description: Guide through release process with semantic versioning
 allowed-tools: Read, Grep, Glob, Bash(git:*), Bash(npm version:*), Bash(gh release:*)
-argument-hint: [version type: major|minor|patch|beta | 版本類型]
+argument-hint: "[version type: major|minor|patch|beta | 版本類型]"
 ---
 
 # Release Assistant | 發布助手

@@ -1,7 +1,7 @@
 ---
 description: Generate or update CHANGELOG following Keep a Changelog format
 allowed-tools: Read, Grep, Glob, Bash(git log:*), Bash(git tag:*), Bash(git diff:*)
-argument-hint: [version number | 版本號]
+argument-hint: "[version number | 版本號]"
 ---
 
 # Changelog Assistant | 變更日誌助手

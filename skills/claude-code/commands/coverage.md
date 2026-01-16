@@ -1,7 +1,7 @@
 ---
 description: Analyze test coverage and provide recommendations
 allowed-tools: Read, Grep, Glob, Bash(npm run test:coverage:*), Bash(npx:*)
-argument-hint: [file or module to analyze | 要分析的檔案或模組]
+argument-hint: "[file or module to analyze | 要分析的檔案或模組]"
 ---
 
 # Test Coverage Assistant | 測試覆蓋率助手

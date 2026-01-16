@@ -1,7 +1,7 @@
 ---
 description: Guide through Test-Driven Development workflow
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
-argument-hint: [feature or function to implement | 要實作的功能]
+argument-hint: "[feature or function to implement | 要實作的功能]"
 status: experimental
 ---
 

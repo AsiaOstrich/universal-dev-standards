@@ -1,7 +1,7 @@
 ---
 description: Initialize development standards in current project
 allowed-tools: Read, Bash(uds init:*), Bash(npx:*)
-argument-hint: [--level N | --yes]
+argument-hint: "[--level N | --yes]"
 ---
 
 # Initialize Standards | 初始化標準

@@ -56,7 +56,7 @@ Create a `.md` file in the `commands/` directory:
 ---
 description: Brief description of the command
 allowed-tools: Read, Write, Bash(git:*)
-argument-hint: [optional arguments]
+argument-hint: "[optional arguments]"
 ---
 
 # Command Name

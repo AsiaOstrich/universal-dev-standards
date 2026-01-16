@@ -1,7 +1,7 @@
 ---
 description: Perform systematic code review with checklist
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
-argument-hint: [file path or branch | 檔案路徑或分支名稱]
+argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
 ---
 
 # Code Review Assistant | 程式碼審查助手

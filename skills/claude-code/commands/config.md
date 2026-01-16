@@ -1,7 +1,7 @@
 ---
 description: Configure project development standards
 allowed-tools: Read, Bash(uds config:*), Bash(uds configure:*)
-argument-hint: [type]
+argument-hint: "[type]"
 ---
 
 # Config Standards | 設定標準

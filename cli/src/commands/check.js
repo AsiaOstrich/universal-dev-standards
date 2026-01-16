@@ -261,8 +261,9 @@ export async function checkCommand(options = {}) {
     console.log(chalk.yellow(msg.issuesDetected));
   }
 
-  // Offer to install missing Skills/Commands if not in noInteractive mode
-  if ((missingSkills.length > 0 || missingCommands.length > 0) && !options.noInteractive) {
+  // Offer to install missing Skills/Commands if in interactive mode and TTY available
+  const canPrompt = !options.noInteractive && process.stdin.isTTY && process.stdout.isTTY;
+  if ((missingSkills.length > 0 || missingCommands.length > 0) && canPrompt) {
     await promptSkillsCommandsInstallation(manifest, projectPath, missingSkills, missingCommands, msg);
   }
 

@@ -1,7 +1,7 @@
 ---
 description: Create or update project documentation structure
 allowed-tools: Read, Write, Grep, Glob
-argument-hint: [document type: readme|api|contributing | 文件類型]
+argument-hint: "[document type: readme|api|contributing | 文件類型]"
 ---
 
 # Documentation Assistant | 文件助手

@@ -1,7 +1,7 @@
 ---
 description: Verify standards adoption status
 allowed-tools: Read, Bash(uds check:*), Bash(npx:*)
-argument-hint: [--offline | --restore]
+argument-hint: "[--offline | --restore]"
 ---
 
 # Check Standards | 檢查標準

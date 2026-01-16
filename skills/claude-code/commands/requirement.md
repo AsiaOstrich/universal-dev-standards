@@ -1,7 +1,7 @@
 ---
 description: Write user stories and requirements following INVEST criteria
 allowed-tools: Read, Write, Grep, Glob
-argument-hint: [feature name or description | 功能名稱或描述]
+argument-hint: "[feature name or description | 功能名稱或描述]"
 ---
 
 # Requirement Assistant | 需求助手
