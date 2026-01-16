@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.12] - 2026-01-16
+
+### Changed
+- **Commands**: Update `/update` command documentation
+  - Reflects CLI's automatic Skills/Commands installation in Step 4
+  - Adds `uds configure` to allowed-tools for non-TTY fallback
+  - Documents checkbox multi-select interface for AI tool selection
+  - Provides `uds configure` commands for non-TTY environments
+
 ## [3.5.1-beta.11] - 2026-01-16
 
 ### Changed

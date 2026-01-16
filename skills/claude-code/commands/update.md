@@ -1,6 +1,6 @@
 ---
 description: Update development standards to latest version
-allowed-tools: Read, Bash(uds update:*), Bash(uds check:*), Bash(npx:*), Bash(cat .standards/*), Bash(ls .claude/*), Bash(ls .opencode/*), Bash(ls .github/*)
+allowed-tools: Read, Bash(uds update:*), Bash(uds check:*), Bash(uds configure:*), Bash(npx:*), Bash(cat .standards/*), Bash(ls .claude/*), Bash(ls .opencode/*), Bash(ls .github/*)
 argument-hint: "[--yes] [--offline] [--beta]"
 ---
 
@@ -42,34 +42,44 @@ uds update --yes
 uds update --beta --yes
 ```
 
-### Step 4: Check New Features | 步驟 4：檢查新功能
+### Step 4: Install Skills/Commands | 步驟 4：安裝 Skills/Commands
 
-After update completes, check if Skills/Commands need to be installed:
+The CLI automatically handles Skills/Commands installation in Step 4:
 
-更新完成後，檢查是否需要安裝 Skills/Commands：
+CLI 會自動處理 Skills/Commands 安裝：
 
-1. Read `.standards/manifest.json` to get `aiTools` list and `skills.installed` status
-2. Check if Skills are installed: `skills.installed === true`
-3. Check if Commands are installed for tools that support them (opencode, copilot, gemini-cli, roo-code)
+**With `--yes` flag (automatic):**
+- All missing Skills/Commands are installed automatically for configured AI tools
+- No additional action needed
 
-If `skills.installed` is `false` OR command directories are missing for supported tools, use AskUserQuestion:
+使用 `--yes` 時，會自動為所有設定的 AI 工具安裝缺少的 Skills/Commands。
 
-| Option | Description | 說明 |
-|--------|-------------|------|
-| **Install All (Recommended)** | Install Skills + Commands | 安裝 Skills 和斜線命令 |
-| **Skills Only** | Install Skills to .claude/skills/ | 只安裝 Skills |
-| **Commands Only** | Install Commands for supported tools | 只安裝斜線命令 |
-| **Skip** | Don't install features | 跳過 |
+**Without `--yes` (interactive):**
+- CLI shows a checkbox menu to select which AI tools to install for
+- All options are checked by default (opt-out behavior)
 
-**If Install All or Skills Only selected:**
-```bash
-uds update --skills
+不使用 `--yes` 時，CLI 會顯示 checkbox 選單讓用戶選擇要安裝的 AI 工具。
+
+**Example checkbox interface:**
+```
+? Select AI tools to install Skills for:
+❯◉ Claude Code
+ ◉ OpenCode
+ ◉ GitHub Copilot
+ ──────────────
+ ◯ Skip Skills installation
 ```
 
-**If Install All or Commands Only selected:**
-```bash
-uds update --commands
-```
+**If CLI cannot prompt (non-TTY environment):**
+
+Use AskUserQuestion and then run `uds configure`:
+
+| User Selection | Action |
+|----------------|--------|
+| **Install All** | `uds configure --type skills` then `uds configure --type commands` |
+| **Skills Only** | `uds configure --type skills` |
+| **Commands Only** | `uds configure --type commands` |
+| **Skip** | No action needed |
 
 Explain the results and any next steps to the user.
 
