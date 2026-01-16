@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.15] - 2026-01-16
+
+### Added
+- **Commands**: Add pre-release version types explanation to `/update` command
+  - New section explains alpha, beta, rc stability levels (🔴🟡🟢)
+  - Includes version comparison: `alpha < beta < rc < stable`
+  - Links to `core/versioning.md` for detailed standards
+
 ## [3.5.1-beta.14] - 2026-01-16
 
 ### Fixed
