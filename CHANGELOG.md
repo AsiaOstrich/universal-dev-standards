@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.14] - 2026-01-16
+
+### Fixed
+- **Commands**: `/update` now shows correct version type in AskUserQuestion
+  - Stable versions show "latest stable version X.Y.Z"
+  - Pre-release versions show "pre-release version X.Y.Z-tag.N"
+  - Fixes misleading "stable version 3.5.1-beta.13" description
+
 ## [3.5.1-beta.13] - 2026-01-16
 
 ### Changed

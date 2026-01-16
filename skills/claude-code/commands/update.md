@@ -22,13 +22,26 @@ First, run `uds check` to show current installation status and available updates
 
 ### Step 2: Ask Update Preferences | 步驟 2：詢問更新偏好
 
-If updates are available, use AskUserQuestion with these options:
+If updates are available, use AskUserQuestion with options based on version type:
+
+根據可用更新的版本類型顯示對應選項：
+
+**If stable version available (e.g., 3.5.1):**
 
 | Option | Description |
 |--------|-------------|
-| **Update Now** | Update standards to latest stable version (Recommended) |
+| **Update Now** | Update standards to latest stable version X.Y.Z (Recommended) |
 | **Check Beta** | Check for beta version updates |
 | **Skip** | Don't update at this time |
+
+**If only pre-release version available (e.g., 3.5.1-beta.N, 3.5.1-alpha.N, 3.5.1-rc.N):**
+
+| Option | Description |
+|--------|-------------|
+| **Update to Pre-release** | Update standards to pre-release version X.Y.Z-tag.N (Recommended) |
+| **Skip** | Don't update at this time |
+
+Note: Detect version type from `uds check` output. If version contains "beta", "alpha", or "rc", it's a pre-release.
 
 ### Step 3: Execute | 步驟 3：執行
 
