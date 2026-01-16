@@ -1,8 +1,8 @@
 ---
 source: core/checkin-standards.md
-source_version: 1.3.0
-translation_version: 1.3.0
-last_synced: 2026-01-05
+source_version: 1.4.0
+translation_version: 1.4.0
+last_synced: 2026-01-16
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **语言**: [English](../../../core/checkin-standards.md) | 繁体中文
 
-**版本**: 1.3.0
-**最后更新**: 2026-01-05
+**版本**: 1.4.0
+**最后更新**: 2026-01-16
 **适用范围**: 所有使用版本控制的软体专案
 
 ---
@@ -97,6 +97,42 @@ pytest --cov=src tests/
 - Run all test suites locally
 - Review test coverage report
 - Ensure new code paths are tested
+
+#### Bug 修复测试评估
+
+修复 bug 时，评估是否需要新增回归测试：
+
+**✅ 必须加测试（高价值）**：
+| 情况 | 原因 |
+|------|------|
+| 安全相关的 bug | 防止漏洞再次发生 |
+| 数据完整性相关的 bug | 保护关键业务数据 |
+| 造成服务中断的 bug | 确保系统稳定性 |
+| 曾经重复出现的 bug | 打破重复出现的循环 |
+| 复杂业务逻辑的 bug | 记录预期行为 |
+
+**⚠️ 测试为可选（低价值）**：
+| 情况 | 原因 |
+|------|------|
+| 单纯的 typo 修正 | 再发风险低 |
+| 显而易见的逻辑错误（如 `>` 写成 `<`） | 审查时容易发现 |
+| 已被现有测试覆盖 | 避免重复测试 |
+| 一次性的配置错误 | 不会在程序码中再发生 |
+
+**快速决策问题**：
+1. 这个 bug 是否可能因未来的程序码变更而重现？ → 是 = 加测试
+2. 现有的测试是否能捕捉到这个 bug？ → 否 = 加测试
+3. 这是否影响核心功能或关键路径？ → 是 = 加测试
+4. 这个 bug 曾经出现过吗？ → 是 = 加测试
+
+**回归测试命名**：
+```javascript
+describe('Regression: [BUG-ID or description]', () => {
+  it('should [correct behavior] when [trigger condition]', () => {
+    // Test that would have caught the bug
+  });
+});
+```
 
 ---
 
@@ -909,6 +945,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 | 版本 | 日期 | 变更 |
 |---------|------|---------|
+| 1.4.0 | 2026-01-16 | 新增：Bug 修复测试评估章节与决策矩阵 |
 | 1.3.0 | 2026-01-05 | 新增：SWEBOK v4.0 第 6 章（软体配置管理）至参考资料 |
 | 1.2.5 | 2025-12-16 | Clarified: CHANGELOG update is for user-facing changes only, added to [Unreleased] section |
 | 1.2.4 | 2025-12-11 | Added: Pre-commit directory hygiene section (IDE artifacts, verification commands) |
