@@ -1,0 +1,67 @@
+{
+  "version": "3.3.0",
+  "upstream": {
+    "repo": "AsiaOstrich/universal-dev-standards",
+    "version": "3.5.1-beta.16",
+    "installed": "2026-01-17"
+  },
+  "level": 2,
+  "format": "ai",
+  "standardsScope": "minimal",
+  "contentMode": "index",
+  "standards": [
+    "ai/standards/checkin-standards.ai.yaml",
+    "ai/standards/ai-instruction-standards.ai.yaml",
+    "ai/standards/refactoring-standards.ai.yaml"
+  ],
+  "extensions": [],
+  "integrations": [],
+  "integrationConfigs": {},
+  "options": {
+    "workflow": "github-flow",
+    "merge_strategy": "squash",
+    "commit_language": "english",
+    "test_levels": [
+      "unit-testing",
+      "integration-testing"
+    ]
+  },
+  "aiTools": [
+    "claude-code"
+  ],
+  "skills": {
+    "installed": true,
+    "location": "marketplace",
+    "names": [
+      "all-via-plugin"
+    ],
+    "version": "3.5.1-beta.16",
+    "installations": []
+  },
+  "commands": {
+    "installed": false,
+    "names": [],
+    "installations": []
+  },
+  "methodology": null,
+  "fileHashes": {
+    ".standards/checkin-standards.ai.yaml": {
+      "hash": "sha256:62f02c7a035729c431989c811259a61b20c07074c9d514555f23748cf6316775",
+      "size": 4953,
+      "installedAt": "2026-01-17T16:36:09.423Z"
+    },
+    ".standards/ai-instruction-standards.ai.yaml": {
+      "hash": "sha256:169162e80cd01fe75f73a342812998d6a3fc154f3312085bdc4d602ba6981f2c",
+      "size": 4270,
+      "installedAt": "2026-01-17T16:36:09.423Z"
+    },
+    ".standards/refactoring-standards.ai.yaml": {
+      "hash": "sha256:a8c95698478b66f50e6d4b32ba34d4653c6bcde8adec22d4523bb82fcfd277f6",
+      "size": 14752,
+      "installedAt": "2026-01-17T16:36:09.423Z"
+    }
+  },
+  "skillHashes": {},
+  "commandHashes": {},
+  "integrationBlockHashes": {}
+}

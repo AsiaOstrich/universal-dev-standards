@@ -1,0 +1,461 @@
+# Refactoring Standards - AI Optimized
+# Source: core/refactoring-standards.md
+
+id: refactoring-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-01-12"
+  source: core/refactoring-standards.md
+  description: Comprehensive refactoring guidelines covering legacy code strategies, large-scale patterns, database refactoring, metrics, and team collaboration
+
+# Refactor vs Rewrite Decision Matrix
+decision_matrix:
+  refactor_when:
+    - Core business logic is sound but code quality is poor
+    - System can be improved incrementally
+    - Team understands the codebase
+    - Tests exist or can be added
+    - Budget/timeline is limited
+  rewrite_when:
+    - Technology stack is obsolete and unsupported
+    - Architecture fundamentally cannot meet requirements
+    - Original team is gone AND no documentation exists
+    - Technical debt exceeds 50% of feature development time
+    - Security vulnerabilities are systemic
+
+# Refactoring Strategies by Scale
+strategies_by_scale:
+  small_scale:
+    name: TDD Cycle Refactoring
+    frequency: Daily
+    scope: Individual methods/functions
+    techniques:
+      - Extract Method
+      - Rename Variable
+      - Inline Temp
+      - Replace Temp with Query
+    safe_refactoring_checklist:
+      before:
+        - All tests pass (green)
+        - Sufficient test coverage exists
+        - Understand what the code does
+      during:
+        - One small change at a time
+        - Run tests after EVERY change
+        - Revert immediately if tests fail
+        - Don't add features while refactoring
+      after:
+        - All tests still pass
+        - Code is cleaner/simpler
+        - No new features added
+
+  medium_scale:
+    name: Feature-Level Refactoring
+    frequency: Weekly/Sprint
+    scope: Classes, modules, components
+    techniques:
+      - Extract Class
+      - Move Method
+      - Replace Conditional with Polymorphism
+      - Introduce Parameter Object
+
+  large_scale:
+    name: Architecture-Level Refactoring
+    frequency: Quarterly/Projects
+    scope: System architecture, major subsystems
+    techniques:
+      - Strangler Fig Pattern
+      - Branch by Abstraction
+      - Parallel Change (Expand-Contract)
+      - Feature Toggle Migration
+
+# Legacy Code Strategies
+legacy_code:
+  characterization_tests:
+    purpose: Capture EXISTING behavior, not correctness
+    steps:
+      - Call the code you want to understand
+      - Write an assertion you expect to fail
+      - Let the test tell you the actual output
+      - Change expected value to match actual
+      - Repeat until you cover needed behavior
+    difference_from_golden_master: Targets specific functions vs whole system output
+
+  finding_seams:
+    definition: Points where behavior can be changed without modifying code
+    types:
+      - type: Object Seam
+        description: Replace behavior through polymorphism
+      - type: Preprocessing Seam
+        description: Replace via preprocessor/compiler settings
+      - type: Link Seam
+        description: Replace at link time (DI, module replacement)
+    purpose: Inject test doubles without changing legacy code
+
+  sprout_wrap_techniques:
+    - technique: Sprout Method
+      when: Need to add new functionality to existing method
+      how: Write new function, call it from original method
+    - technique: Sprout Class
+      when: New functionality needs to evolve independently
+      how: Create new class encapsulating new functionality
+    - technique: Wrap Method
+      when: Need to add behavior before/after a method
+      how: Rename original method, new method wraps it
+    - technique: Wrap Class
+      when: Need to decorate existing class
+      how: Decorator Pattern
+
+  code_archaeology:
+    purpose: Extract business knowledge from undocumented code
+    methods:
+      - name: Scratch Refactoring
+        description: Refactor without committing to understand code
+        action: git reset --hard when done
+      - name: Variable Flow Tracing
+        description: Follow input to output, mark key transformation points
+      - name: Runtime Observation
+        description: Add temporary logging, use debugger
+      - name: Git Archaeology
+        description: git log -p, git blame to find history
+
+# Large-Scale Patterns
+large_scale_patterns:
+  strangler_fig:
+    name: Strangler Fig Pattern
+    use_when:
+      - Replacing legacy system incrementally
+      - Cannot afford big-bang rewrite
+      - Need to maintain service during migration
+    steps:
+      - Create new implementation alongside legacy
+      - Route traffic to new implementation feature by feature
+      - Monitor and verify each migration
+      - Decommission legacy when fully migrated
+    risks:
+      - Long transition period
+      - Two systems to maintain
+      - Data synchronization complexity
+
+  branch_by_abstraction:
+    name: Branch by Abstraction
+    use_when:
+      - Replacing implementation within same codebase
+      - Need trunk-based development
+      - Changes are too risky for single commit
+    steps:
+      - Create abstraction layer over existing code
+      - Add new implementation behind abstraction
+      - Switch to new implementation
+      - Remove abstraction and old code
+    advantages:
+      - No feature branches needed
+      - Continuous integration maintained
+      - Can roll back instantly
+
+  expand_contract:
+    name: Expand-Contract (Parallel Change)
+    use_when:
+      - Changing interfaces with many consumers
+      - Database schema migration
+      - Need zero-downtime migration
+    phases:
+      - phase: EXPAND
+        actions:
+          - Add new field/method/table alongside old
+          - Write to both old and new
+          - Safe to rollback at this stage
+      - phase: MIGRATE
+        actions:
+          - Copy data from old to new
+          - Verify data consistency
+          - Start reading from new
+      - phase: CONTRACT
+        actions:
+          - Confirm old is no longer read
+          - Remove old field/method/table
+          - Clean up transition code
+
+# Database Refactoring
+database_refactoring:
+  common_scenarios:
+    - scenario: Rename column
+      strategy: Add new -> migrate -> drop old
+      risk: Medium
+    - scenario: Split table
+      strategy: New table + FK -> migrate -> update app
+      risk: High
+    - scenario: Merge tables
+      strategy: New table -> merge data -> switch app
+      risk: High
+    - scenario: Change data type
+      strategy: New column -> convert -> switch app
+      risk: Medium
+    - scenario: Add NOT NULL
+      strategy: Fill defaults first -> add constraint
+      risk: Low
+
+  migration_checklist:
+    before:
+      - Data backup complete
+      - Migration script tested in staging
+      - Rollback script prepared
+      - Estimate migration time (consider data volume)
+      - Maintenance window communicated
+    during:
+      - Monitor database performance
+      - Verify data integrity
+      - Application health checks
+    after:
+      - Data consistency verification
+      - Application functionality verified
+      - Performance baseline comparison
+      - Retain backups for period
+
+  zero_downtime_techniques:
+    - name: Online Schema Change
+      tools: [pt-osc, gh-ost]
+      for: MySQL large table changes
+    - name: Blue-Green Database
+      for: High availability requirements
+    - name: Shadow Write
+      for: Verifying migration correctness
+    - name: Feature Flag
+      for: Gradual read source switching
+
+# Metrics
+metrics:
+  code_quality:
+    - metric: Cyclomatic Complexity
+      measurement: Static analysis
+      target: "< 10 per function"
+    - metric: Cognitive Complexity
+      measurement: SonarQube
+      target: Lower is better
+    - metric: Coupling
+      measurement: Module dependencies count
+      target: Reduce dependencies
+    - metric: Code Duplication
+      measurement: Duplicate percentage
+      target: "< 3%"
+
+  test_quality:
+    - metric: Test Coverage
+      target: ">= 80%"
+      note: Should not decrease after refactoring
+    - metric: Test Speed
+      target: Should get faster
+      note: Refactoring improves testability
+    - metric: Flaky Test Count
+      target: Should decrease
+
+  operational:
+    - metric: Deployment Frequency
+      source: CI/CD records
+      expected: Should increase after refactoring
+    - metric: Change Failure Rate
+      source: Rollback count
+      expected: Should decrease
+    - metric: Mean Time to Recovery
+      source: Incident records
+      expected: Should decrease
+    - metric: Lead Time
+      source: Commit to deploy
+      expected: Should decrease
+
+  team_efficiency:
+    - metric: Onboarding Time
+      expected: Shorter = better readability
+    - metric: PR Review Time
+      expected: Shorter = better understandability
+    - metric: Bug Fix Time
+      expected: Shorter = better maintainability
+
+# Team Collaboration
+team_collaboration:
+  kickoff_meeting_agenda:
+    - topic: Refactoring scope definition
+      items: [Which modules included, Which explicitly excluded]
+    - topic: Success criteria alignment
+      items: [Quantitative goals, Functional goals]
+    - topic: Work division
+      items: [By module, Or by layer]
+    - topic: Risk assessment
+      items: [Most likely problem areas, Rollback strategy]
+
+  division_strategies:
+    - strategy: Vertical Split
+      applicable: Functionally independent modules
+      caution: Ensure interface stability
+    - strategy: Horizontal Split
+      applicable: Cross-module refactoring
+      caution: Need strict synchronization
+    - strategy: Strangler Division
+      applicable: Large system replacement
+      method: One person per strangler branch
+    - strategy: Mob Programming
+      applicable: Core/high-risk areas
+      benefit: Reduce risk with collective knowledge
+
+  communication_mechanisms:
+    daily:
+      - Sync refactoring progress in standup
+      - Shared Refactoring Kanban board
+      - Instant messaging channel
+    pr_conventions:
+      - Add [Refactor] prefix to title
+      - Explain what changed and why
+      - Include before/after complexity comparison
+      - Must have characterization tests
+
+  pr_size_limits:
+    - size: Small
+      lines: "< 200"
+      review_time: 30 minutes
+    - size: Medium
+      lines: 200-500
+      review_time: 1 hour
+    - size: Large
+      lines: "> 500"
+      action: SHOULD BE SPLIT
+
+# Technical Debt Quadrant
+technical_debt:
+  quadrants:
+    - type: Deliberate + Prudent
+      example: "We know this is debt, but we need to ship"
+      action: Track and schedule repayment
+    - type: Deliberate + Reckless
+      example: "We don't have time for design"
+      action: Avoid; creates long-term problems
+    - type: Inadvertent + Prudent
+      example: "Now we know a better way"
+      action: Natural learning; refactor when touching code
+    - type: Inadvertent + Reckless
+      example: "What's layering?"
+      action: Training needed; systematic cleanup
+
+  prioritization_matrix:
+    columns: [Debt Type, Priority, Criteria]
+    rows:
+      - [Security Debt, Highest, Vulnerabilities, exposed data]
+      - [Stability Debt, High, "Frequent failures, data loss risk"]
+      - [Performance Debt, Medium, User experience impact]
+      - [Maintainability Debt, Lower, "Developer productivity impact"]
+      - [Code Style Debt, Lowest, "Aesthetic, readability"]
+
+# Code Smells Quick Reference
+code_smells:
+  bloaters:
+    - smell: Long Method
+      sign: "> 20 lines"
+      fix: Extract Method
+    - smell: Large Class
+      sign: "> 200 lines or many responsibilities"
+      fix: Extract Class
+    - smell: Long Parameter List
+      sign: "> 3-4 parameters"
+      fix: Introduce Parameter Object
+    - smell: Primitive Obsession
+      sign: Overusing primitive types
+      fix: Replace with small objects
+
+  oo_abusers:
+    - smell: Switch Statements
+      sign: Complex switch/if chains
+      fix: Replace with Polymorphism
+    - smell: Refused Bequest
+      sign: Subclass doesn't use inherited members
+      fix: Replace Inheritance with Delegation
+
+  change_preventers:
+    - smell: Divergent Change
+      sign: One class changed for many reasons
+      fix: Extract Class
+    - smell: Shotgun Surgery
+      sign: One change affects many classes
+      fix: Move Method/Field to centralize
+
+  dispensables:
+    - smell: Duplicate Code
+      fix: Extract Method/Class
+    - smell: Dead Code
+      fix: Delete it
+    - smell: Lazy Class
+      fix: Inline Class
+
+  couplers:
+    - smell: Feature Envy
+      sign: Method uses another class's data excessively
+      fix: Move Method
+    - smell: Message Chains
+      sign: a.getB().getC().getD()
+      fix: Hide Delegate
+
+# Rules for AI
+rules:
+  - id: test-before-refactor
+    trigger: starting any refactoring
+    instruction: Ensure tests exist and pass before making changes
+    priority: required
+
+  - id: small-steps
+    trigger: during refactoring
+    instruction: Make one small change at a time; run tests after each change
+    priority: required
+
+  - id: no-feature-mixing
+    trigger: refactoring PR
+    instruction: Never mix functional changes with refactoring in the same commit
+    priority: required
+
+  - id: legacy-characterization
+    trigger: refactoring undocumented legacy code
+    instruction: Write characterization tests first to capture existing behavior
+    priority: required
+
+  - id: safe-database-changes
+    trigger: database schema refactoring
+    instruction: Use Expand-Contract pattern for schema changes
+    priority: required
+
+  - id: team-communication
+    trigger: large-scale refactoring
+    instruction: Create refactoring plan document and share with team
+    priority: recommended
+
+  - id: track-metrics
+    trigger: refactoring project
+    instruction: Measure complexity/coupling before and after to prove improvement
+    priority: recommended
+
+  - id: prefer-small-prs
+    trigger: submitting refactoring
+    instruction: Keep PRs under 200 lines; split larger refactorings
+    priority: recommended
+
+quick_reference:
+  scale_selection:
+    columns: [Scale, Frequency, Techniques]
+    rows:
+      - [Small, Daily, "Extract Method, Rename, Inline"]
+      - [Medium, Weekly, "Extract Class, Move Method, Polymorphism"]
+      - [Large, Quarterly, "Strangler Fig, Branch by Abstraction"]
+
+  legacy_workflow:
+    steps:
+      - "Phase 0: Code Archaeology (understand)"
+      - "Phase 1: Safety Net (characterization tests)"
+      - "Phase 2: Incremental Improvement (sprout/wrap)"
+      - "Phase 3: Test Quality Upgrade (unit tests)"
+
+  safe_refactoring:
+    before: [Tests pass, Coverage exists, Understand code]
+    during: [One change at a time, Test after each, Revert if fail]
+    after: [Tests pass, Code cleaner, No new features]
+
+related_standards:
+  - test-driven-development.md
+  - testing-standards.md
+  - code-review-checklist.md
+  - checkin-standards.md
