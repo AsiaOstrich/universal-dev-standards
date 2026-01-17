@@ -47,6 +47,12 @@ export async function checkCommand(options = {}) {
   const msg = t().commands.check;
   const common = t().commands.common;
 
+  // Handle --summary option (compact status for other commands)
+  if (options.summary) {
+    await displaySummary(projectPath, options);
+    return;
+  }
+
   console.log();
   console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
@@ -1295,4 +1301,201 @@ function checkIntegrationBlocksIntegrity(manifest, projectPath, msg) {
 
   console.log();
   return status;
+}
+
+// ============================================================
+// Summary Mode (--summary)
+// ============================================================
+
+/**
+ * Display compact status summary for use by other commands
+ * @param {string} projectPath - Project root path
+ * @param {Object} options - Command options
+ */
+async function displaySummary(projectPath, _options = {}) {
+  const msg = t().commands.check;
+  const common = t().commands.common;
+  const summaryMsg = msg.summary_mode || {};
+
+  console.log();
+  console.log(chalk.bold(summaryMsg.title || 'UDS Status Summary'));
+  console.log(chalk.gray('─'.repeat(50)));
+
+  // Check if initialized
+  if (!isInitialized(projectPath)) {
+    console.log(chalk.red(`  ${summaryMsg.notInitialized || 'Not initialized'}`));
+    console.log(chalk.gray(`  ${common.runInit}`));
+    console.log(chalk.gray('─'.repeat(50)));
+    console.log();
+    return;
+  }
+
+  // Read manifest
+  const manifest = readManifest(projectPath);
+  if (!manifest) {
+    console.log(chalk.red(`  ${summaryMsg.manifestError || 'Manifest error'}`));
+    console.log(chalk.gray('─'.repeat(50)));
+    console.log();
+    return;
+  }
+
+  const levelInfo = getLevelInfo(manifest.level);
+  const repoInfo = getRepositoryInfo();
+  const lang = getLanguage();
+
+  // === Row 1: Version ===
+  const currentVersion = manifest.upstream.version;
+  const latestVersion = repoInfo.standards.version;
+  const hasUpdate = currentVersion !== latestVersion;
+
+  if (hasUpdate) {
+    console.log(chalk.yellow(`  ${summaryMsg.version || 'Version'}: ${currentVersion} → ${latestVersion} ⚠`));
+  } else {
+    console.log(chalk.green(`  ${summaryMsg.version || 'Version'}: ${currentVersion} ✓`));
+  }
+
+  // === Row 2: Level ===
+  const zhName = lang === 'zh-cn' ? levelInfo.nameZhCn : levelInfo.nameZh;
+  const levelDisplay = lang === 'en'
+    ? `${manifest.level} - ${levelInfo.name}`
+    : `${manifest.level} - ${levelInfo.name} (${zhName})`;
+  console.log(chalk.gray(`  ${summaryMsg.level || 'Level'}: ${levelDisplay}`));
+
+  // === Row 3: Files Status ===
+  const fileStatus = getFileStatusCounts(manifest, projectPath);
+  const filesOk = fileStatus.modified === 0 && fileStatus.missing === 0;
+  const filesDisplay = filesOk
+    ? chalk.green(`${fileStatus.unchanged} ✓`)
+    : `${chalk.green(fileStatus.unchanged + ' ✓')} ${chalk.yellow('| ' + fileStatus.modified + ' modified')} ${chalk.red('| ' + fileStatus.missing + ' missing')}`;
+  console.log(`  ${summaryMsg.files || 'Files'}: ${filesDisplay}`);
+
+  // === Row 4: Skills Status ===
+  const aiTools = manifest.aiTools || [];
+  if (aiTools.length > 0) {
+    const skillsStatus = getSkillsStatusSummary(manifest, projectPath);
+    console.log(`  ${summaryMsg.skills || 'Skills'}: ${skillsStatus}`);
+  }
+
+  // === Row 5: Commands Status (if applicable) ===
+  const commandsStatus = getCommandsStatusSummary(manifest, projectPath);
+  if (commandsStatus) {
+    console.log(`  ${summaryMsg.commands || 'Commands'}: ${commandsStatus}`);
+  }
+
+  console.log(chalk.gray('─'.repeat(50)));
+  console.log();
+}
+
+/**
+ * Get file status counts without logging
+ * @param {Object} manifest - Manifest object
+ * @param {string} projectPath - Project root path
+ * @returns {{unchanged: number, modified: number, missing: number}}
+ */
+function getFileStatusCounts(manifest, projectPath) {
+  const counts = { unchanged: 0, modified: 0, missing: 0 };
+
+  if (hasFileHashes(manifest)) {
+    for (const [relativePath, hashInfo] of Object.entries(manifest.fileHashes)) {
+      const fullPath = join(projectPath, relativePath);
+      const status = compareFileHash(fullPath, hashInfo);
+
+      switch (status) {
+        case 'unchanged':
+          counts.unchanged++;
+          break;
+        case 'modified':
+          counts.modified++;
+          break;
+        case 'missing':
+          counts.missing++;
+          break;
+      }
+    }
+  } else {
+    // Legacy manifest - existence check only
+    const allFiles = [
+      ...manifest.standards.map(s => `.standards/${basename(s)}`),
+      ...manifest.extensions.map(e => `.standards/${basename(e)}`),
+      ...manifest.integrations
+    ];
+    for (const relativePath of allFiles) {
+      const fullPath = join(projectPath, relativePath);
+      if (existsSync(fullPath)) {
+        counts.unchanged++;
+      } else {
+        counts.missing++;
+      }
+    }
+  }
+
+  return counts;
+}
+
+/**
+ * Get skills status summary string
+ * @param {Object} manifest - Manifest object
+ * @param {string} projectPath - Project root path
+ * @returns {string} Formatted skills status
+ */
+function getSkillsStatusSummary(manifest, projectPath) {
+  const aiTools = manifest.aiTools || [];
+  const parts = [];
+
+  // Check for Marketplace installation (Claude Code specific)
+  const location = manifest.skills?.location || '';
+  const isMarketplace = location === 'marketplace' ||
+    location.includes('plugins/cache') ||
+    location.includes('plugins\\cache');
+
+  for (const tool of aiTools) {
+    const config = getAgentConfig(tool);
+    if (!config || !config.supportsSkills) continue;
+
+    const displayName = getAgentDisplayName(tool);
+    const usingMarketplace = isMarketplace && tool === 'claude-code';
+
+    if (usingMarketplace) {
+      parts.push(chalk.green(`${displayName} ✓`));
+      continue;
+    }
+
+    const projectSkillsInfo = getInstalledSkillsInfoForAgent(tool, 'project', projectPath);
+    const userSkillsInfo = getInstalledSkillsInfoForAgent(tool, 'user', projectPath);
+
+    if (projectSkillsInfo?.installed || userSkillsInfo?.installed) {
+      parts.push(chalk.green(`${displayName} ✓`));
+    } else {
+      parts.push(chalk.gray(`${displayName} ○`));
+    }
+  }
+
+  return parts.join(' | ') || chalk.gray('None configured');
+}
+
+/**
+ * Get commands status summary string
+ * @param {Object} manifest - Manifest object
+ * @param {string} projectPath - Project root path
+ * @returns {string|null} Formatted commands status or null if no tools support commands
+ */
+function getCommandsStatusSummary(manifest, projectPath) {
+  const aiTools = manifest.aiTools || [];
+  const parts = [];
+
+  for (const tool of aiTools) {
+    const config = getAgentConfig(tool);
+    if (!config || !config.commands) continue;
+
+    const displayName = getAgentDisplayName(tool);
+    const commandsInfo = getInstalledCommandsForAgent(tool, projectPath);
+
+    if (commandsInfo?.installed) {
+      parts.push(chalk.green(`${displayName} ✓`));
+    } else {
+      parts.push(chalk.gray(`${displayName} ○`));
+    }
+  }
+
+  return parts.length > 0 ? parts.join(' | ') : null;
 }

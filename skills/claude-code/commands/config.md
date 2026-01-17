@@ -16,6 +16,20 @@ When invoked without a specific type, use AskUserQuestion to ask what to configu
 
 當不指定類型時，使用 AskUserQuestion 詢問要配置什麼。
 
+### Step 0: Show Current Status | 步驟 0：顯示目前狀態
+
+First, run `uds check --summary` to show current installation status.
+
+首先，執行 `uds check --summary` 顯示目前安裝狀態。
+
+```bash
+uds check --summary
+```
+
+This helps users understand what's currently configured before making changes.
+
+這幫助用戶在修改前了解目前的配置。
+
 ### Step 1: Ask Configuration Type | 步驟 1：詢問配置類型
 
 Use AskUserQuestion with these options:

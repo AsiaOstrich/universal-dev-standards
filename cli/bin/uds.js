@@ -63,6 +63,7 @@ program
 program
   .command('check')
   .description('Check adoption status of current project')
+  .option('--summary', 'Show compact status summary (for use by other commands)')
   .option('--diff', 'Show diff for modified files')
   .option('--restore', 'Restore all modified and missing files')
   .option('--restore-missing', 'Restore only missing files')

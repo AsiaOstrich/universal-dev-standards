@@ -27,6 +27,7 @@ uds check --restore
 
 | Option | Description | 說明 |
 |--------|-------------|------|
+| `--summary` | Show compact status summary | 顯示精簡狀態摘要 |
 | `--offline` | Skip npm registry check | 跳過 npm registry 檢查 |
 | `--diff` | Show diff for modified files | 顯示修改檔案的差異 |
 | `--restore` | Restore all modified and missing files | 還原所有修改和遺失的檔案 |
@@ -34,6 +35,23 @@ uds check --restore
 | `--migrate` | Migrate legacy manifest to hash-based tracking | 遷移舊版 manifest |
 
 ## Output Sections | 輸出區段
+
+### Summary Mode (--summary) | 摘要模式
+
+When using `--summary`, shows compact status for use by other commands:
+
+使用 `--summary` 時，顯示供其他命令使用的精簡狀態：
+
+```
+UDS Status Summary
+──────────────────────────────────────────────────
+  Version: 3.5.1-beta.16 ✓
+  Level: 2 - Recommended (推薦)
+  Files: 12 ✓
+  Skills: Claude Code ✓ | OpenCode ○
+  Commands: OpenCode ✓
+──────────────────────────────────────────────────
+```
 
 ### Adoption Status | 採用狀態
 - Adoption level (1-3)

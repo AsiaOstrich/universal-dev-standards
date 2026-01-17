@@ -604,7 +604,18 @@ export const messages = {
         skillsInstalledSuccess: 'Installed Skills for {count} AI tools',
         commandsInstalledSuccess: 'Installed commands for {count} AI tools',
         // Read-only hint
-        missingSkillsHint: 'Tip: Run `uds update` to install missing Skills/Commands'
+        missingSkillsHint: 'Tip: Run `uds update` to install missing Skills/Commands',
+        // Summary mode (--summary)
+        summary_mode: {
+          title: 'UDS Status Summary',
+          notInitialized: 'Not initialized',
+          manifestError: 'Manifest error',
+          version: 'Version',
+          level: 'Level',
+          files: 'Files',
+          skills: 'Skills',
+          commands: 'Commands'
+        }
       },
 
       // init command (commands/init.js)
@@ -1444,7 +1455,18 @@ export const messages = {
         skillsInstalledSuccess: '已為 {count} 個 AI 工具安裝 Skills',
         commandsInstalledSuccess: '已為 {count} 個 AI 工具安裝斜線命令',
         // Read-only hint
-        missingSkillsHint: '提示：執行 `uds update` 安裝缺少的 Skills/斜線命令'
+        missingSkillsHint: '提示：執行 `uds update` 安裝缺少的 Skills/斜線命令',
+        // Summary mode (--summary)
+        summary_mode: {
+          title: 'UDS 狀態摘要',
+          notInitialized: '尚未初始化',
+          manifestError: 'Manifest 錯誤',
+          version: '版本',
+          level: '等級',
+          files: '檔案',
+          skills: 'Skills',
+          commands: '斜線命令'
+        }
       },
 
       // init command (commands/init.js)
@@ -2187,7 +2209,18 @@ export const messages = {
         skillsInstalledSuccess: '已为 {count} 个 AI 工具安装 Skills',
         commandsInstalledSuccess: '已为 {count} 个 AI 工具安装斜线命令',
         // Read-only hint
-        missingSkillsHint: '提示：执行 `uds update` 安装缺少的 Skills/斜线命令'
+        missingSkillsHint: '提示：执行 `uds update` 安装缺少的 Skills/斜线命令',
+        // Summary mode (--summary)
+        summary_mode: {
+          title: 'UDS 状态摘要',
+          notInitialized: '尚未初始化',
+          manifestError: 'Manifest 错误',
+          version: '版本',
+          level: '等级',
+          files: '文件',
+          skills: 'Skills',
+          commands: '斜线命令'
+        }
       },
 
       // update command

@@ -18,7 +18,15 @@ When invoked without `--yes`, use AskUserQuestion to confirm update preferences.
 
 ### Step 1: Check Current Status | 步驟 1：檢查目前狀態
 
-First, run `uds check` to show current installation status and available updates.
+First, run `uds check --summary` to show compact installation status.
+
+首先，執行 `uds check --summary` 顯示精簡安裝狀態。
+
+```bash
+uds check --summary
+```
+
+This shows: version (with update indicator), level, files status, Skills status, and Commands status.
 
 ### Step 2: Ask Update Preferences | 步驟 2：詢問更新偏好
 
