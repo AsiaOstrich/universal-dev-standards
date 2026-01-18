@@ -91,70 +91,106 @@ uds update --beta --yes
 
 ### Step 4: Check Skills/Commands Status | 步驟 4：檢查 Skills/Commands 狀態
 
-After update completes, the CLI automatically detects missing or outdated Skills/Commands.
+After update completes, check for missing or outdated Skills/Commands using multi-stage AskUserQuestion.
 
-更新完成後，CLI 會自動偵測缺少或過時的 Skills/Commands。
+更新完成後，使用多階段 AskUserQuestion 檢查缺少或過時的 Skills/Commands。
 
-**Important:** The CLI uses file-based detection (`getInstalledSkillsInfoForAgent`) to check actual installation status, not just manifest records.
+**Important:** Since AskUserQuestion has limited options (max 4), we use a multi-stage approach to handle different AI tools and installation preferences.
 
-**重要：** CLI 使用檔案實際存在檢測，而非僅讀取 manifest 記錄。
+**重要：** 由於 AskUserQuestion 選項有限（最多 4 個），使用多階段方式處理不同 AI 工具和安裝偏好。
 
-#### Handling Missing Skills | 處理缺少的 Skills
+#### Step 4a: Detect Missing Skills | 步驟 4a：偵測缺少的 Skills
 
-If missing Skills are detected for configured AI tools, CLI shows checkbox selection:
+First, read the manifest to identify configured AI tools and their Skills status:
 
-如果偵測到已配置 AI 工具缺少 Skills，CLI 會顯示多選介面：
+首先讀取 manifest 來識別已配置的 AI 工具及其 Skills 狀態：
 
-```
-Skills not yet installed for these AI tools:
-  • Claude Code
-  • OpenCode
-
-? Select AI tools to install Skills for: (Press <space> to select)
-❯ ◯ Claude Code
-  ◯ OpenCode
-  ──────────────
-  ◯ Skip Skills installation
+```bash
+# Read manifest to get configured AI tools
+cat .standards/manifest.json
+# Check existing Skills installations
+ls .claude/skills/ 2>/dev/null || echo "Not installed"
+ls .opencode/skill/ 2>/dev/null || echo "Not installed"
 ```
 
-**After tool selection, prompt for installation level:**
+For each configured AI tool that supports Skills, check if Skills are installed.
 
-| Option | Description |
-|--------|-------------|
-| **Project level** | Install to `.claude/skills/`, `.opencode/skill/`, etc. |
-| **User level** | Install to `~/.claude/skills/`, `~/.opencode/skill/`, etc. |
+#### Step 4b: Ask Skills Installation Preferences | 步驟 4b：詢問 Skills 安裝偏好
 
-#### Handling Outdated Skills | 處理過時的 Skills
+If any configured AI tools are missing Skills, use AskUserQuestion with **multiSelect: true**.
 
-If installed Skills have older version than latest, CLI shows update prompt:
+如果有已配置的 AI 工具缺少 Skills，使用 AskUserQuestion 並設定 **multiSelect: true**。
 
-如果已安裝的 Skills 版本比最新版本舊，CLI 會顯示更新提示：
+**Example AskUserQuestion:**
+- Question: "下列 AI 工具尚未安裝 Skills，您想安裝哪些？"
+- Header: "Skills"
+- multiSelect: true
+- Options (based on detected missing tools, max 4):
+  - Option 1: "Claude Code" - "安裝 Skills 到 Claude Code"
+  - Option 2: "OpenCode" - "安裝 Skills 到 OpenCode"
+  - Option 3: "全部跳過" - "目前不安裝任何 Skills"
 
+**Note:** If user selects "全部跳過", skip to Step 4d.
+
+#### Step 4c: Ask Skills Installation Location | 步驟 4c：詢問 Skills 安裝位置
+
+If user selected tools in Step 4b, ask for installation location:
+
+如果用戶在步驟 4b 選擇了工具，詢問安裝位置：
+
+**Example AskUserQuestion:**
+- Question: "Skills 要安裝到哪個層級？"
+- Header: "位置"
+- multiSelect: false
+- Options:
+  - Option 1: "專案層級 (建議)" - "安裝到 .claude/skills/、.opencode/skill/ 等（僅此專案可用）"
+  - Option 2: "用戶層級" - "安裝到 ~/.claude/skills/、~/.opencode/skill/ 等（所有專案共用）"
+
+**Execute installation for each selected tool:**
+
+```bash
+# For each selected tool, run configure command with --skills-location
+uds configure --type skills --ai-tool claude-code --skills-location project
+uds configure --type skills --ai-tool opencode --skills-location user
 ```
-Skills updates available for these AI tools:
-  • Claude Code (project: .claude/skills/)
-      3.4.0 → 3.5.1
 
-? Select AI tools to update Skills for: (Press <space> to select)
-❯ ◉ Claude Code (project) 3.4.0 → 3.5.1
-  ──────────────
-  ◯ Skip Skills update
+#### Step 4d: Detect Missing Commands | 步驟 4d：偵測缺少的 Commands
+
+Check for configured AI tools that support Commands but don't have them installed:
+
+檢查已配置但尚未安裝 Commands 的 AI 工具：
+
+```bash
+# Check existing Commands installations
+ls .opencode/commands/ 2>/dev/null || echo "Not installed"
+ls .github/commands/ 2>/dev/null || echo "Not installed"
 ```
 
-#### Handling Missing Commands | 處理缺少的 Commands
+**Note:** Not all AI tools support Commands. Tools that support Commands:
+- OpenCode (.opencode/commands/)
+- GitHub Copilot (.github/commands/)
+- Roo Code (.roo/commands/)
+- Gemini CLI (.gemini/commands/)
 
-Similar checkbox selection for Commands:
+#### Step 4e: Ask Commands Installation | 步驟 4e：詢問 Commands 安裝
 
-```
-Slash commands not yet installed for these AI tools:
-  • OpenCode → .opencode/commands/
-  • GitHub Copilot → .github/commands/
+If any configured AI tools are missing Commands, use AskUserQuestion:
 
-? Select AI tools to install Commands for: (Press <space> to select)
-❯ ◉ OpenCode (.opencode/commands/)
-  ◉ GitHub Copilot (.github/commands/)
-  ──────────────
-  ◯ Skip Commands installation
+**Example AskUserQuestion:**
+- Question: "下列 AI 工具尚未安裝 Commands，您想安裝哪些？"
+- Header: "Commands"
+- multiSelect: true
+- Options (based on detected missing tools):
+  - Option 1: "OpenCode" - "安裝 Commands 到 .opencode/commands/"
+  - Option 2: "GitHub Copilot" - "安裝 Commands 到 .github/commands/"
+  - Option 3: "全部跳過" - "目前不安裝任何 Commands"
+
+**Execute installation for each selected tool:**
+
+```bash
+# For each selected tool, run configure command
+uds configure --type commands --ai-tool opencode
+uds configure --type commands --ai-tool copilot
 ```
 
 #### Declined Features Handling | 拒絕功能處理

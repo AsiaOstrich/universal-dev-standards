@@ -188,7 +188,7 @@ export async function configureCommand(options) {
 
   // Handle Skills configuration
   if (configType === 'skills') {
-    await handleSkillsConfiguration(manifest, projectPath, msg, common, options.aiTool);
+    await handleSkillsConfiguration(manifest, projectPath, msg, common, options.aiTool, options.skillsLocation);
     process.exit(0);
   }
 
@@ -513,8 +513,9 @@ export async function configureCommand(options) {
  * @param {Object} msg - i18n messages
  * @param {Object} common - Common i18n messages
  * @param {string} [specificTool] - Specific AI tool to install (non-interactive mode)
+ * @param {string} [skillsLocation] - Skills installation location (project, user) for non-interactive mode
  */
-async function handleSkillsConfiguration(manifest, projectPath, msg, common, specificTool) {
+async function handleSkillsConfiguration(manifest, projectPath, msg, common, specificTool, skillsLocation) {
   const inquirer = await import('inquirer');
   const aiTools = manifest.aiTools || [];
 
@@ -531,9 +532,13 @@ async function handleSkillsConfiguration(manifest, projectPath, msg, common, spe
       return;
     }
 
-    // Install to project level by default
-    const installations = [{ agent: specificTool, location: 'project' }];
-    const spinner = ora(`Installing Skills for ${getAgentDisplayName(specificTool)}...`).start();
+    // Validate skillsLocation if provided
+    const validLocations = ['project', 'user'];
+    const location = skillsLocation && validLocations.includes(skillsLocation) ? skillsLocation : 'project';
+
+    // Install to specified level (defaults to project)
+    const installations = [{ agent: specificTool, location }];
+    const spinner = ora(`Installing Skills for ${getAgentDisplayName(specificTool)} (${location} level)...`).start();
     const result = await installSkillsToMultipleAgents(installations, null, projectPath);
     spinner.stop();
 
