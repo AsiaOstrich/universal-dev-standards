@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.20] - 2026-01-19
+
+### Added
+- **CLI**: New `--skills-location` option for `uds configure` command
+  - Allows specifying Skills installation level (project/user) in non-interactive mode
+  - Example: `uds configure --type skills --ai-tool opencode --skills-location user`
+
+### Changed
+- **Commands**: `/update` Step 4 rewritten with multi-stage AskUserQuestion flow
+  - Step 4a: Detect missing Skills
+  - Step 4b: Ask which AI tools to install (multiSelect)
+  - Step 4c: Ask installation location (project/user)
+  - Step 4d-e: Similar flow for Commands
+  - Addresses AskUserQuestion option limit (max 4) constraint
+
+### Documentation
+- **Commands**: `/config` command updated with `--skills-location` option examples
+
 ## [3.5.1-beta.19] - 2026-01-19
 
 ### Fixed
