@@ -45,6 +45,7 @@ import {
   getToolFilePath
 } from '../utils/integration-generator.js';
 import { t } from '../i18n/messages.js';
+import { regenerateIntegrations } from './update.js';
 
 /**
  * Configure command - modify options for initialized project
@@ -263,11 +264,13 @@ export async function configureCommand(options) {
   }
   console.log();
 
-  // Confirm
-  const confirmed = await promptConfirm(msg.applyChanges);
-  if (!confirmed) {
-    console.log(chalk.yellow(msg.configCancelled));
-    process.exit(0);
+  // Confirm (skip if --yes flag is provided)
+  if (!options.yes) {
+    const confirmed = await promptConfirm(msg.applyChanges);
+    if (!confirmed) {
+      console.log(chalk.yellow(msg.configCancelled));
+      process.exit(0);
+    }
   }
 
   // Apply changes
@@ -437,6 +440,62 @@ export async function configureCommand(options) {
     console.log(chalk.yellow(msg.errorsOccurred.replace('{count}', results.errors.length)));
     for (const err of results.errors) {
       console.log(chalk.gray(`    ${err}`));
+    }
+  }
+
+  // Smart apply: offer to regenerate integrations if config changed but not already regenerated
+  // Skip for types that have their own flow or don't affect integrations
+  const skipApplyTypes = ['skills', 'commands', 'methodology'];
+  const alreadyRegenerated = results.generated.length > 0;
+  const shouldOfferApply = !skipApplyTypes.includes(configType) &&
+                           newAITools.length > 0 &&
+                           !alreadyRegenerated;
+
+  if (shouldOfferApply) {
+    console.log();
+
+    if (options.yes) {
+      // --yes flag: auto-apply without prompting
+      const applySpinner = ora(msg.applyingChanges).start();
+      const applyResults = regenerateIntegrations(projectPath, manifest);
+      applySpinner.succeed(msg.changesApplied || msg.regeneratedIntegrations.replace('{count}', applyResults.updated.length));
+
+      // Update manifest with new file hashes
+      writeManifest(manifest, projectPath);
+
+      if (applyResults.errors.length > 0) {
+        console.log(chalk.yellow(msg.errorsOccurred.replace('{count}', applyResults.errors.length)));
+        for (const err of applyResults.errors) {
+          console.log(chalk.gray(`    ${err}`));
+        }
+      }
+    } else {
+      // Interactive mode: prompt user
+      const inquirer = await import('inquirer');
+      const { apply } = await inquirer.default.prompt([{
+        type: 'confirm',
+        name: 'apply',
+        message: msg.applyChangesNow,
+        default: true
+      }]);
+
+      if (apply) {
+        const applySpinner = ora(msg.applyingChanges).start();
+        const applyResults = regenerateIntegrations(projectPath, manifest);
+        applySpinner.succeed(msg.changesApplied || msg.regeneratedIntegrations.replace('{count}', applyResults.updated.length));
+
+        // Update manifest with new file hashes
+        writeManifest(manifest, projectPath);
+
+        if (applyResults.errors.length > 0) {
+          console.log(chalk.yellow(msg.errorsOccurred.replace('{count}', applyResults.errors.length)));
+          for (const err of applyResults.errors) {
+            console.log(chalk.gray(`    ${err}`));
+          }
+        }
+      } else {
+        console.log(chalk.gray(msg.runUpdateLater));
+      }
     }
   }
 

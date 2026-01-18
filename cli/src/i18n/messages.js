@@ -854,7 +854,12 @@ export const messages = {
         errors: 'Errors',
         noCommandSupportedTools: 'No AI tools with command support configured',
         commandSupportedList: 'Tools that support commands: OpenCode, Copilot, Roo Code, Gemini CLI',
-        commandsInstalled: 'commands'
+        commandsInstalled: 'commands',
+        // Smart apply
+        applyChangesNow: 'Apply changes now? (regenerate integration files)',
+        runUpdateLater: 'Run `uds update --integrations-only` later to apply changes',
+        applyingChanges: 'Applying changes...',
+        changesApplied: 'Changes applied successfully'
       }
     }
   },
@@ -1705,7 +1710,12 @@ export const messages = {
         errors: '錯誤',
         noCommandSupportedTools: '未設定支援命令的 AI 工具',
         commandSupportedList: '支援命令的工具：OpenCode、Copilot、Roo Code、Gemini CLI',
-        commandsInstalled: '個命令'
+        commandsInstalled: '個命令',
+        // Smart apply
+        applyChangesNow: '是否立即套用變更？（重新產生整合檔案）',
+        runUpdateLater: '稍後執行 `uds update --integrations-only` 以套用變更',
+        applyingChanges: '正在套用變更...',
+        changesApplied: '變更套用成功'
       }
     }
   },
@@ -2388,7 +2398,12 @@ export const messages = {
         errors: '错误',
         noCommandSupportedTools: '未配置支持命令的 AI 工具',
         commandSupportedList: '支持命令的工具：OpenCode、Copilot、Roo Code、Gemini CLI',
-        commandsInstalled: '个命令'
+        commandsInstalled: '个命令',
+        // Smart apply
+        applyChangesNow: '是否立即应用变更？（重新生成集成文件）',
+        runUpdateLater: '稍后执行 `uds update --integrations-only` 以应用变更',
+        applyingChanges: '正在应用变更...',
+        changesApplied: '变更应用成功'
       }
     }
   }

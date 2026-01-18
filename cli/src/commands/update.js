@@ -578,25 +578,18 @@ export async function updateCommand(options) {
 }
 
 /**
- * Update integration files only (without updating standards)
+ * Regenerate integration files for all configured AI tools
+ * Reusable core logic that can be called from both updateIntegrationsOnly and configureCommand
  * @param {string} projectPath - Project path
- * @param {Object} manifest - Manifest object
+ * @param {Object} manifest - Manifest object (will be mutated with updated hashes)
+ * @returns {{success: boolean, updated: string[], errors: string[]}}
  */
-async function updateIntegrationsOnly(projectPath, manifest) {
-  const msg = t().commands.update;
-
-  console.log(chalk.cyan(msg.updatingIntegrationsOnly));
-  console.log();
-
+export function regenerateIntegrations(projectPath, manifest) {
   const aiTools = manifest.aiTools || [];
-  if (aiTools.length === 0) {
-    console.log(chalk.yellow(msg.noAiToolsConfigured));
-    console.log(chalk.gray(`  ${msg.runConfigure}`));
-    console.log();
-    return;
-  }
 
-  const spinner = ora(msg.regeneratingIntegrations).start();
+  if (aiTools.length === 0) {
+    return { success: true, updated: [], errors: [] };
+  }
 
   // Build installed standards list
   const installedStandardsList = manifest.standards?.map(s => basename(s)) || [];
@@ -660,6 +653,37 @@ async function updateIntegrationsOnly(projectPath, manifest) {
       results.errors.push(`${tool}: ${result.error}`);
     }
   }
+
+  return {
+    success: results.errors.length === 0,
+    updated: results.updated,
+    errors: results.errors
+  };
+}
+
+/**
+ * Update integration files only (without updating standards)
+ * @param {string} projectPath - Project path
+ * @param {Object} manifest - Manifest object
+ */
+async function updateIntegrationsOnly(projectPath, manifest) {
+  const msg = t().commands.update;
+
+  console.log(chalk.cyan(msg.updatingIntegrationsOnly));
+  console.log();
+
+  const aiTools = manifest.aiTools || [];
+  if (aiTools.length === 0) {
+    console.log(chalk.yellow(msg.noAiToolsConfigured));
+    console.log(chalk.gray(`  ${msg.runConfigure}`));
+    console.log();
+    return;
+  }
+
+  const spinner = ora(msg.regeneratingIntegrations).start();
+
+  // Use reusable regeneration function
+  const results = regenerateIntegrations(projectPath, manifest);
 
   spinner.succeed(msg.regeneratedIntegrations.replace('{count}', results.updated.length));
 

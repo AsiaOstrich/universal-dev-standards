@@ -1,0 +1,48 @@
+{
+  "messages": {
+    "header": {
+      "title": "Universal Development Standards - Configure",
+      "separator": "──────────────────────────────────────────────────"
+    },
+    "labels": {
+      "currentConfig": "Current Configuration:",
+      "newConfig": "New Configuration:",
+      "level": "Level:",
+      "format": "Format:",
+      "contentMode": "Content Mode:",
+      "aiTools": "AI Tools:",
+      "methodology": "Methodology:",
+      "gitWorkflow": "Git Workflow:",
+      "mergeStrategy": "Merge Strategy:",
+      "commitLanguage": "Commit Language:",
+      "testLevels": "Test Levels:"
+    },
+    "prompts": {
+      "format": "Select standards format:",
+      "workflow": "Select Git workflow:",
+      "mergeStrategy": "Select merge strategy:",
+      "commitLanguage": "Select commit message language:",
+      "testLevels": "Select test levels:",
+      "applyChanges": "Apply these changes?",
+      "applyChangesNow": "Apply changes now? (regenerate integration files)"
+    },
+    "spinners": {
+      "updatingConfig": "Updating configuration...",
+      "configUpdated": "Configuration updated",
+      "applyingChanges": "Applying changes...",
+      "changesApplied": "Changes applied successfully",
+      "regeneratingIntegrations": "Regenerating integration files..."
+    },
+    "success": {
+      "configSuccess": "Configuration updated successfully!"
+    },
+    "errors": {
+      "notInitialized": "Standards not initialized",
+      "runInit": "uds init",
+      "couldNotReadManifest": "Could not read manifest"
+    },
+    "smartApply": {
+      "skipNote": "uds update --integrations-only"
+    }
+  }
+}

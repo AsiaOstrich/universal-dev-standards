@@ -69,7 +69,9 @@ vi.mock('../../src/prompts/init.js', () => ({
   promptAdoptionLevel: vi.fn((current) => current),
   promptContentModeChange: vi.fn((current) => current),
   promptMethodology: vi.fn(() => null),
-  handleAgentsMdSharing: vi.fn((tools) => tools)
+  handleAgentsMdSharing: vi.fn((tools) => tools),
+  promptSkillsInstallLocation: vi.fn(() => []),
+  promptCommandsInstallation: vi.fn(() => [])
 }));
 
 vi.mock('../../src/utils/integration-generator.js', () => ({
@@ -90,7 +92,16 @@ vi.mock('../../src/utils/integration-generator.js', () => ({
   })
 }));
 
+vi.mock('../../src/commands/update.js', () => ({
+  regenerateIntegrations: vi.fn(() => ({
+    success: true,
+    updated: ['CLAUDE.md'],
+    errors: []
+  }))
+}));
+
 import { configureCommand } from '../../src/commands/configure.js';
+import { regenerateIntegrations } from '../../src/commands/update.js';
 import { isInitialized, readManifest, writeManifest } from '../../src/utils/copier.js';
 import { promptConfirm } from '../../src/prompts/init.js';
 
@@ -224,6 +235,101 @@ describe('Configure Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Configuration updated');
+    });
+
+    describe('Smart Apply', () => {
+      it('should prompt to apply changes when format changed with AI tools configured', async () => {
+        const inquirer = await import('inquirer');
+        isInitialized.mockReturnValue(true);
+        readManifest.mockReturnValue({
+          format: 'human',
+          level: 2,
+          contentMode: 'minimal',
+          aiTools: ['claude-code'],
+          options: {}
+        });
+        promptConfirm.mockResolvedValue(true);
+        // User declines to apply
+        inquirer.default.prompt.mockResolvedValueOnce({ type: 'format' });
+        inquirer.default.prompt.mockResolvedValueOnce({ apply: false });
+
+        await expect(configureCommand({ type: 'format' })).rejects.toThrow('process.exit called');
+
+        const output = consoleLogs.join('\n');
+        expect(output).toContain('uds update --integrations-only');
+      });
+
+      it('should auto-apply changes with --yes flag', async () => {
+        isInitialized.mockReturnValue(true);
+        readManifest.mockReturnValue({
+          format: 'human',
+          level: 2,
+          contentMode: 'minimal',
+          aiTools: ['claude-code'],
+          options: {}
+        });
+        promptConfirm.mockResolvedValue(true);
+
+        await expect(configureCommand({ type: 'format', yes: true })).rejects.toThrow('process.exit called');
+
+        expect(regenerateIntegrations).toHaveBeenCalled();
+      });
+
+      it('should skip first confirmation prompt with --yes flag', async () => {
+        isInitialized.mockReturnValue(true);
+        readManifest.mockReturnValue({
+          format: 'human',
+          level: 2,
+          contentMode: 'minimal',
+          aiTools: ['claude-code'],
+          options: {}
+        });
+        // Reset the mock to track calls
+        promptConfirm.mockClear();
+        promptConfirm.mockResolvedValue(true);
+
+        await expect(configureCommand({ type: 'format', yes: true })).rejects.toThrow('process.exit called');
+
+        // promptConfirm should NOT have been called because --yes skips it
+        expect(promptConfirm).not.toHaveBeenCalled();
+      });
+
+      it('should not prompt for skills configuration type', async () => {
+        isInitialized.mockReturnValue(true);
+        readManifest.mockReturnValue({
+          format: 'human',
+          level: 2,
+          contentMode: 'minimal',
+          aiTools: ['claude-code'],
+          options: {}
+        });
+
+        // Skills config has its own exit path
+        const { promptSkillsInstallLocation } = await import('../../src/prompts/init.js');
+        promptSkillsInstallLocation.mockResolvedValue([]);
+
+        await expect(configureCommand({ type: 'skills' })).rejects.toThrow('process.exit called');
+
+        // regenerateIntegrations should not have been called for skills config
+        expect(regenerateIntegrations).not.toHaveBeenCalled();
+      });
+
+      it('should not prompt when no AI tools are configured', async () => {
+        isInitialized.mockReturnValue(true);
+        readManifest.mockReturnValue({
+          format: 'human',
+          level: 2,
+          contentMode: 'minimal',
+          aiTools: [],
+          options: {}
+        });
+        promptConfirm.mockResolvedValue(true);
+
+        await expect(configureCommand({ type: 'format' })).rejects.toThrow('process.exit called');
+
+        // Should not call regenerateIntegrations when no AI tools
+        expect(regenerateIntegrations).not.toHaveBeenCalled();
+      });
     });
   });
 });
