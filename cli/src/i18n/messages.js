@@ -859,7 +859,14 @@ export const messages = {
         applyChangesNow: 'Apply changes now? (regenerate integration files)',
         runUpdateLater: 'Run `uds update --integrations-only` later to apply changes',
         applyingChanges: 'Applying changes...',
-        changesApplied: 'Changes applied successfully'
+        changesApplied: 'Changes applied successfully',
+        // Declined features
+        previouslyDeclined: 'Previously declined',
+        reinstallDeclinedSkills: 'Reinstall declined Skills',
+        reinstallDeclinedCommands: 'Reinstall declined Commands',
+        skillsLevelQuestion: 'Where should Skills be installed?',
+        projectLevel: 'Project level',
+        userLevel: 'User level'
       }
     }
   },
@@ -1715,7 +1722,14 @@ export const messages = {
         applyChangesNow: '是否立即套用變更？（重新產生整合檔案）',
         runUpdateLater: '稍後執行 `uds update --integrations-only` 以套用變更',
         applyingChanges: '正在套用變更...',
-        changesApplied: '變更套用成功'
+        changesApplied: '變更套用成功',
+        // Declined features
+        previouslyDeclined: '先前已拒絕',
+        reinstallDeclinedSkills: '重新安裝已拒絕的 Skills',
+        reinstallDeclinedCommands: '重新安裝已拒絕的斜線命令',
+        skillsLevelQuestion: 'Skills 要安裝到哪裡？',
+        projectLevel: '專案層級',
+        userLevel: '使用者層級'
       }
     }
   },
@@ -2403,7 +2417,14 @@ export const messages = {
         applyChangesNow: '是否立即应用变更？（重新生成集成文件）',
         runUpdateLater: '稍后执行 `uds update --integrations-only` 以应用变更',
         applyingChanges: '正在应用变更...',
-        changesApplied: '变更应用成功'
+        changesApplied: '变更应用成功',
+        // Declined features
+        previouslyDeclined: '之前已拒绝',
+        reinstallDeclinedSkills: '重新安装已拒绝的 Skills',
+        reinstallDeclinedCommands: '重新安装已拒绝的斜杠命令',
+        skillsLevelQuestion: 'Skills 要安装到哪里？',
+        projectLevel: '项目级别',
+        userLevel: '用户级别'
       }
     }
   }

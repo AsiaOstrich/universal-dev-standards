@@ -562,6 +562,9 @@ async function handleSkillsConfiguration(manifest, projectPath, msg, common, spe
     return;
   }
 
+  // Get declined skills from manifest
+  const declinedSkills = manifest.declinedFeatures?.skills || [];
+
   // Show current Skills status
   console.log(chalk.cyan(msg.currentSkillsStatus || 'Current Skills status:'));
   for (const tool of aiTools) {
@@ -580,11 +583,31 @@ async function handleSkillsConfiguration(manifest, projectPath, msg, common, spe
       if (projectInfo?.installed) {
         console.log(chalk.gray(`    - Project: ${projectInfo.version || 'installed'}`));
       }
+    } else if (declinedSkills.includes(tool)) {
+      console.log(chalk.yellow(`  ⊘ ${displayName}: ${msg.previouslyDeclined || 'Previously declined'}`));
     } else {
       console.log(chalk.gray(`  ○ ${displayName}: ${msg.notInstalled || 'Not installed'}`));
     }
   }
   console.log();
+
+  // Build menu choices
+  const menuChoices = [
+    { name: msg.installSkills || 'Install/Update Skills', value: 'install' }
+  ];
+
+  // Add reinstall declined option if there are declined skills
+  if (declinedSkills.length > 0) {
+    menuChoices.push({
+      name: msg.reinstallDeclinedSkills || 'Reinstall declined Skills',
+      value: 'reinstall_declined'
+    });
+  }
+
+  menuChoices.push(
+    { name: msg.viewStatus || 'View status only', value: 'view' },
+    { name: common.cancel || 'Cancel', value: 'cancel' }
+  );
 
   // Ask what action to take
   const { action } = await inquirer.default.prompt([
@@ -592,16 +615,69 @@ async function handleSkillsConfiguration(manifest, projectPath, msg, common, spe
       type: 'list',
       name: 'action',
       message: msg.skillsAction || 'What would you like to do?',
-      choices: [
-        { name: msg.installSkills || 'Install/Update Skills', value: 'install' },
-        { name: msg.viewStatus || 'View status only', value: 'view' },
-        { name: common.cancel || 'Cancel', value: 'cancel' }
-      ]
+      choices: menuChoices
     }
   ]);
 
   if (action === 'cancel' || action === 'view') {
     console.log(chalk.gray(msg.noChanges || 'No changes made'));
+    return;
+  }
+
+  // Handle reinstall declined action
+  if (action === 'reinstall_declined') {
+    // Get only the declined tools that support skills
+    const declinedToolsWithSupport = declinedSkills.filter(tool => {
+      const config = getAgentConfig(tool);
+      return config?.supportsSkills;
+    });
+
+    if (declinedToolsWithSupport.length === 0) {
+      console.log(chalk.gray(msg.noChanges || 'No changes made'));
+      return;
+    }
+
+    // Prompt for installation level
+    const { skillsLevel } = await inquirer.default.prompt([{
+      type: 'list',
+      name: 'skillsLevel',
+      message: msg.skillsLevelQuestion || 'Where should Skills be installed?',
+      choices: [
+        { name: `${msg.projectLevel || 'Project level'} (.claude/skills/, etc.)`, value: 'project' },
+        { name: `${msg.userLevel || 'User level'} (~/.claude/skills/, etc.)`, value: 'user' }
+      ],
+      default: 'project'
+    }]);
+
+    const installations = declinedToolsWithSupport.map(agent => ({
+      agent,
+      location: skillsLevel
+    }));
+
+    // Install Skills
+    const spinner = ora(msg.installingSkills || 'Installing Skills...').start();
+    const result = await installSkillsToMultipleAgents(installations, null, projectPath);
+    spinner.stop();
+
+    if (result.success) {
+      console.log(chalk.green(msg.skillsInstallSuccess || 'Skills installed successfully'));
+      console.log(chalk.gray(`  ${msg.totalInstalled || 'Total installed'}: ${result.totalInstalled}`));
+    } else {
+      console.log(chalk.yellow(msg.skillsInstallPartial || 'Skills installed with some issues'));
+      if (result.totalErrors > 0) {
+        console.log(chalk.red(`  ${msg.errors || 'Errors'}: ${result.totalErrors}`));
+      }
+    }
+
+    // Update manifest - clear declined status for installed tools
+    manifest.skills = manifest.skills || {};
+    manifest.skills.installations = installations;
+    if (manifest.declinedFeatures?.skills) {
+      manifest.declinedFeatures.skills = manifest.declinedFeatures.skills.filter(
+        tool => !declinedToolsWithSupport.includes(tool)
+      );
+    }
+    writeManifest(manifest, projectPath);
     return;
   }
 
@@ -692,6 +768,9 @@ async function handleCommandsConfiguration(manifest, projectPath, msg, common, s
     return;
   }
 
+  // Get declined commands from manifest
+  const declinedCommands = manifest.declinedFeatures?.commands || [];
+
   // Show current Commands status
   console.log(chalk.cyan(msg.currentCommandsStatus || 'Current Commands status:'));
   for (const tool of commandSupportedTools) {
@@ -700,11 +779,34 @@ async function handleCommandsConfiguration(manifest, projectPath, msg, common, s
 
     if (commandsInfo?.installed) {
       console.log(chalk.green(`  ✓ ${displayName}: ${commandsInfo.count} ${msg.commandsInstalled || 'commands'}`));
+    } else if (declinedCommands.includes(tool)) {
+      console.log(chalk.yellow(`  ⊘ ${displayName}: ${msg.previouslyDeclined || 'Previously declined'}`));
     } else {
       console.log(chalk.gray(`  ○ ${displayName}: ${msg.notInstalled || 'Not installed'}`));
     }
   }
   console.log();
+
+  // Build menu choices
+  const menuChoices = [
+    { name: msg.installCommands || 'Install/Update Commands', value: 'install' }
+  ];
+
+  // Add reinstall declined option if there are declined commands
+  const declinedCommandsWithSupport = declinedCommands.filter(tool =>
+    commandSupportedTools.includes(tool)
+  );
+  if (declinedCommandsWithSupport.length > 0) {
+    menuChoices.push({
+      name: msg.reinstallDeclinedCommands || 'Reinstall declined Commands',
+      value: 'reinstall_declined'
+    });
+  }
+
+  menuChoices.push(
+    { name: msg.viewStatus || 'View status only', value: 'view' },
+    { name: common.cancel || 'Cancel', value: 'cancel' }
+  );
 
   // Ask what action to take
   const { action } = await inquirer.default.prompt([
@@ -712,16 +814,46 @@ async function handleCommandsConfiguration(manifest, projectPath, msg, common, s
       type: 'list',
       name: 'action',
       message: msg.commandsAction || 'What would you like to do?',
-      choices: [
-        { name: msg.installCommands || 'Install/Update Commands', value: 'install' },
-        { name: msg.viewStatus || 'View status only', value: 'view' },
-        { name: common.cancel || 'Cancel', value: 'cancel' }
-      ]
+      choices: menuChoices
     }
   ]);
 
   if (action === 'cancel' || action === 'view') {
     console.log(chalk.gray(msg.noChanges || 'No changes made'));
+    return;
+  }
+
+  // Handle reinstall declined action
+  if (action === 'reinstall_declined') {
+    if (declinedCommandsWithSupport.length === 0) {
+      console.log(chalk.gray(msg.noChanges || 'No changes made'));
+      return;
+    }
+
+    // Install Commands
+    const spinner = ora(msg.installingCommands || 'Installing Commands...').start();
+    const result = await installCommandsToMultipleAgents(declinedCommandsWithSupport, null, projectPath);
+    spinner.stop();
+
+    if (result.success) {
+      console.log(chalk.green(msg.commandsInstallSuccess || 'Commands installed successfully'));
+      console.log(chalk.gray(`  ${msg.totalInstalled || 'Total installed'}: ${result.totalInstalled}`));
+    } else {
+      console.log(chalk.yellow(msg.commandsInstallPartial || 'Commands installed with some issues'));
+      if (result.totalErrors > 0) {
+        console.log(chalk.red(`  ${msg.errors || 'Errors'}: ${result.totalErrors}`));
+      }
+    }
+
+    // Update manifest - clear declined status for installed tools
+    manifest.commands = manifest.commands || {};
+    manifest.commands.installations = declinedCommandsWithSupport;
+    if (manifest.declinedFeatures?.commands) {
+      manifest.declinedFeatures.commands = manifest.declinedFeatures.commands.filter(
+        tool => !declinedCommandsWithSupport.includes(tool)
+      );
+    }
+    writeManifest(manifest, projectPath);
     return;
   }
 

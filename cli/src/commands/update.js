@@ -422,7 +422,7 @@ export async function updateCommand(options) {
     if (missingSkills.length > 0 || outdatedSkills.length > 0 || missingCommands.length > 0) {
       if (!options.yes) {
         // Interactive mode: prompt user to install/update
-        const { installSkills, updateSkills, installCommands } = await promptNewFeatureInstallation(
+        const { installSkills, updateSkills, installCommands, declinedSkills, declinedCommands } = await promptNewFeatureInstallation(
           missingSkills,
           outdatedSkills,
           missingCommands
@@ -509,8 +509,39 @@ export async function updateCommand(options) {
           }
         }
 
-        // Write updated manifest if anything was installed or updated
-        if (installSkills.length > 0 || updateSkills.length > 0 || installCommands.length > 0) {
+        // Update declined features in manifest
+        if (declinedSkills.length > 0 || declinedCommands.length > 0) {
+          if (!manifest.declinedFeatures) manifest.declinedFeatures = {};
+
+          // Merge with existing declined items (avoid duplicates)
+          if (declinedSkills.length > 0) {
+            const existing = manifest.declinedFeatures.skills || [];
+            manifest.declinedFeatures.skills = [...new Set([...existing, ...declinedSkills])];
+          }
+
+          if (declinedCommands.length > 0) {
+            const existing = manifest.declinedFeatures.commands || [];
+            manifest.declinedFeatures.commands = [...new Set([...existing, ...declinedCommands])];
+          }
+        }
+
+        // Remove from declined list if user decided to install this time
+        if (installSkills.length > 0 && manifest.declinedFeatures?.skills) {
+          const installedAgents = installSkills.map(s => s.agent);
+          manifest.declinedFeatures.skills = manifest.declinedFeatures.skills.filter(
+            agent => !installedAgents.includes(agent)
+          );
+        }
+        if (installCommands.length > 0 && manifest.declinedFeatures?.commands) {
+          manifest.declinedFeatures.commands = manifest.declinedFeatures.commands.filter(
+            agent => !installCommands.includes(agent)
+          );
+        }
+
+        // Write updated manifest if anything was installed, updated, or declined
+        const hasChanges = installSkills.length > 0 || updateSkills.length > 0 ||
+          installCommands.length > 0 || declinedSkills.length > 0 || declinedCommands.length > 0;
+        if (hasChanges) {
           writeManifest(manifest, projectPath);
         }
       } else {
@@ -1035,6 +1066,10 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion) {
     return { missingSkills: [], outdatedSkills: [], missingCommands: [] };
   }
 
+  // Get declined features from manifest (to exclude from prompts)
+  const declinedSkills = manifest.declinedFeatures?.skills || [];
+  const declinedCommands = manifest.declinedFeatures?.commands || [];
+
   const missingSkills = [];
   const outdatedSkills = [];
   const missingCommands = [];
@@ -1056,7 +1091,8 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion) {
       // (manifest records can be stale if user deleted the directory)
       const hasSkills = projectInfo?.installed || userInfo?.installed || usingMarketplace;
 
-      if (!hasSkills) {
+      // Skip if user previously declined this tool's skills
+      if (!hasSkills && !declinedSkills.includes(tool)) {
         missingSkills.push({
           agent: tool,
           displayName: getAgentDisplayName(tool),
@@ -1089,7 +1125,8 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion) {
       // Only trust actual file existence, not manifest records
       const hasCommands = cmdInfo?.installed;
 
-      if (!hasCommands) {
+      // Skip if user previously declined this tool's commands
+      if (!hasCommands && !declinedCommands.includes(tool)) {
         missingCommands.push({
           agent: tool,
           displayName: getAgentDisplayName(tool),
@@ -1107,14 +1144,14 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion) {
  * @param {Array} missingSkills - Array of {agent, displayName, paths}
  * @param {Array} outdatedSkills - Array of {agent, displayName, paths, currentVersion, latestVersion, level, path}
  * @param {Array} missingCommands - Array of {agent, displayName, path}
- * @returns {Promise<{installSkills: Array, updateSkills: Array, installCommands: Array}>}
+ * @returns {Promise<{installSkills: Array, updateSkills: Array, installCommands: Array, declinedSkills: Array, declinedCommands: Array}>}
  */
 async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missingCommands) {
   const msg = t().commands.update;
 
   // If nothing to do, return empty
   if (missingSkills.length === 0 && outdatedSkills.length === 0 && missingCommands.length === 0) {
-    return { installSkills: [], updateSkills: [], installCommands: [] };
+    return { installSkills: [], updateSkills: [], installCommands: [], declinedSkills: [], declinedCommands: [] };
   }
 
   console.log();
@@ -1123,7 +1160,7 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
   console.log(chalk.cyan('━'.repeat(50)));
   console.log();
 
-  const result = { installSkills: [], updateSkills: [], installCommands: [] };
+  const result = { installSkills: [], updateSkills: [], installCommands: [], declinedSkills: [], declinedCommands: [] };
 
   // Handle missing Skills with checkbox selection
   if (missingSkills.length > 0) {
@@ -1163,6 +1200,12 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
 
     // Filter out skip and handle selection
     const filteredSkillAgents = selectedSkillAgents.filter(a => a !== '__skip__');
+
+    // Track declined skills (user explicitly skipped or deselected)
+    const skippedSkillAgents = missingSkills
+      .map(s => s.agent)
+      .filter(agent => !filteredSkillAgents.includes(agent));
+    result.declinedSkills = skippedSkillAgents;
 
     if (filteredSkillAgents.length > 0) {
       // Prompt for installation level
@@ -1279,7 +1322,14 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
     }]);
 
     // Filter out skip
-    result.installCommands = selectedCommandAgents.filter(a => a !== '__skip__');
+    const filteredCommandAgents = selectedCommandAgents.filter(a => a !== '__skip__');
+    result.installCommands = filteredCommandAgents;
+
+    // Track declined commands (user explicitly skipped or deselected)
+    const skippedCommandAgents = missingCommands
+      .map(c => c.agent)
+      .filter(agent => !filteredCommandAgents.includes(agent));
+    result.declinedCommands = skippedCommandAgents;
   }
 
   return result;
