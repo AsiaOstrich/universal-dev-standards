@@ -9,7 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.17] - 2026-01-18
+
 ### Added
+- **CLI**: Smart apply feature for `uds config` command
+  - Auto-prompts to regenerate integration files after config changes
+  - New `--yes` flag for non-interactive config changes
+  - Extracted `regenerateIntegrations()` as reusable function from update.js
+- **CLI**: Auto-sync mechanism for E2E test specification
+  - New `npm run generate:e2e-spec` script generates E2E-TEST-CASES.md from test files
+  - `--check` mode for CI verification that spec is up-to-date
+  - Parses test files to extract describe/it blocks and CLI options
 - **CLI**: Enhanced file tracking system for Skills, Commands, and Integration blocks
   - New `skillHashes` field in manifest tracks individual skill file integrity
   - New `commandHashes` field in manifest tracks slash command file integrity
@@ -20,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `computeIntegrationBlockHash()`: Computes hash for UDS marker block content only
   - `compareIntegrationBlockHash()`: Compares block hash, detects if markers removed
   - `computeDirectoryHashes()`: Recursively computes hashes for all files in directory
+- **Tests**: Comprehensive E2E test coverage
+  - 73 E2E tests across 6 commands (init, config, check, update, list, skills)
+  - E2E-TEST-CASES.md specification document with option coverage matrix
 
 ### Changed
 - **CLI**: Manifest version upgraded to `3.3.0` to mark enhanced file tracking feature
@@ -29,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 - **CLI**: Integration file path now returns relative path for manifest consistency
+- **CLI**: `uds check` now tracks all installed standards correctly
 
 ## [3.5.1-beta.16] - 2026-01-16
 
