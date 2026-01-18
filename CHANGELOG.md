@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.18] - 2026-01-19
+
+### Added
+- **CLI**: Remember declined Skills/Commands choices
+  - New `declinedFeatures` field in manifest stores declined items
+  - `uds update` excludes previously declined Skills/Commands from prompts
+  - `uds configure` shows declined items with option to reinstall
+  - Supports both Skills and Commands tracking independently
+- **CLI**: Dynamic Marketplace installation detection
+  - `uds check` dynamically detects Marketplace Skills regardless of manifest
+  - `uds configure` shows Marketplace status in Skills configuration
+  - `uds update` shows "(already via Marketplace)" hint for Claude Code
+  - Default unchecked for file-based installation when Marketplace detected
+  - Adds coexistence note: file-based and Marketplace can work together
+
 ## [3.5.1-beta.17] - 2026-01-18
 
 ### Added

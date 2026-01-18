@@ -14,6 +14,18 @@ vi.mock('../../src/utils/npm-registry.js', () => ({
   clearCache: vi.fn()
 }));
 
+// Mock getMarketplaceSkillsInfo - use vi.hoisted for mock reference
+const { mockGetMarketplaceSkillsInfo } = vi.hoisted(() => ({
+  mockGetMarketplaceSkillsInfo: vi.fn(() => ({ installed: false }))
+}));
+vi.mock('../../src/utils/github.js', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    getMarketplaceSkillsInfo: mockGetMarketplaceSkillsInfo
+  };
+});
+
 import { checkCommand } from '../../src/commands/check.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -292,7 +304,14 @@ describe('Check Command', () => {
       expect(output).toContain('Coverage Summary');
     });
 
-    it('should show Plugin Marketplace message for marketplace location', async () => {
+    it('should show Plugin Marketplace message when marketplace detected', async () => {
+      // Mock marketplace as installed for this test
+      mockGetMarketplaceSkillsInfo.mockReturnValueOnce({
+        installed: true,
+        version: '3.5.0',
+        lastUpdated: '2024-01-15T00:00:00Z'
+      });
+
       const manifest = {
         version: '1.0.0',
         upstream: {
