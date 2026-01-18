@@ -693,18 +693,21 @@ function displaySkillsStatus(manifest, projectPath, msg) {
   }
 
   // Check for Marketplace installation (Claude Code specific)
+  // Dynamically detect marketplace installation regardless of manifest
   const hasClaudeCode = aiTools.includes('claude-code');
+  const marketplaceInfo = getMarketplaceSkillsInfo();
+  const hasMarketplaceSkills = marketplaceInfo?.installed;
+
   const location = manifest.skills?.location || '';
-  const isMarketplace = location === 'marketplace' ||
+  const isMarketplaceInManifest = location === 'marketplace' ||
     location.includes('plugins/cache') ||
     location.includes('plugins\\cache');
 
-  if (isMarketplace && hasClaudeCode) {
+  // Show marketplace status if actually installed (not just manifest)
+  if (hasMarketplaceSkills && hasClaudeCode) {
     console.log(chalk.green(`  ${msg.skillsViaMarketplace}`));
 
-    // Try to get actual version from marketplace
-    const marketplaceInfo = getMarketplaceSkillsInfo();
-    if (marketplaceInfo && marketplaceInfo.version && marketplaceInfo.version !== 'unknown') {
+    if (marketplaceInfo.version && marketplaceInfo.version !== 'unknown') {
       console.log(chalk.gray(`    ${t().commands.common.version}: ${marketplaceInfo.version}`));
       if (marketplaceInfo.lastUpdated) {
         const updateDate = marketplaceInfo.lastUpdated.split('T')[0];
@@ -732,7 +735,7 @@ function displaySkillsStatus(manifest, projectPath, msg) {
     const userSkillsInfo = getInstalledSkillsInfoForAgent(tool, 'user', projectPath);
 
     // Check if using marketplace for Claude Code
-    const usingMarketplace = isMarketplace && tool === 'claude-code';
+    const usingMarketplace = (hasMarketplaceSkills || isMarketplaceInManifest) && tool === 'claude-code';
 
     if (projectSkillsInfo?.installed || userSkillsInfo?.installed || usingMarketplace) {
       console.log(chalk.green(`    ✓ Skills ${msg.installed || 'installed'}:`));
@@ -1425,8 +1428,12 @@ function getSkillsStatusSummary(manifest, projectPath) {
   const parts = [];
 
   // Check for Marketplace installation (Claude Code specific)
+  // Dynamically detect marketplace installation regardless of manifest
+  const marketplaceInfo = getMarketplaceSkillsInfo();
+  const hasMarketplaceSkills = marketplaceInfo?.installed;
+
   const location = manifest.skills?.location || '';
-  const isMarketplace = location === 'marketplace' ||
+  const isMarketplaceInManifest = location === 'marketplace' ||
     location.includes('plugins/cache') ||
     location.includes('plugins\\cache');
 
@@ -1435,7 +1442,7 @@ function getSkillsStatusSummary(manifest, projectPath) {
     if (!config || !config.supportsSkills) continue;
 
     const displayName = getAgentDisplayName(tool);
-    const usingMarketplace = isMarketplace && tool === 'claude-code';
+    const usingMarketplace = (hasMarketplaceSkills || isMarketplaceInManifest) && tool === 'claude-code';
 
     if (usingMarketplace) {
       parts.push(chalk.green(`${displayName} ✓`));

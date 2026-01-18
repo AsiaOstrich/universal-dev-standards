@@ -786,7 +786,10 @@ export const messages = {
         newSkillsInstalled: 'Installed Skills for {count} AI tools',
         newSkillsInstalledWithErrors: 'Installed Skills with {errors} errors',
         newCommandsInstalled: 'Installed commands for {count} AI tools',
-        newCommandsInstalledWithErrors: 'Installed commands with {errors} errors'
+        newCommandsInstalledWithErrors: 'Installed commands with {errors} errors',
+        // Marketplace detection
+        alreadyViaMarketplace: 'already via Marketplace',
+        marketplaceCoexistNote: 'Note: File-based installation will coexist with Marketplace version'
       },
 
       // configure command
@@ -866,7 +869,11 @@ export const messages = {
         reinstallDeclinedCommands: 'Reinstall declined Commands',
         skillsLevelQuestion: 'Where should Skills be installed?',
         projectLevel: 'Project level',
-        userLevel: 'User level'
+        userLevel: 'User level',
+        // Marketplace detection
+        viaMarketplace: 'Via Marketplace',
+        marketplaceOnly: 'Marketplace only (no local files)',
+        marketplaceCoexistNote: 'Note: File-based installation will coexist with Marketplace version'
       }
     }
   },
@@ -1649,7 +1656,10 @@ export const messages = {
         newSkillsInstalled: '已為 {count} 個 AI 工具安裝 Skills',
         newSkillsInstalledWithErrors: '安裝 Skills 時發生 {errors} 個錯誤',
         newCommandsInstalled: '已為 {count} 個 AI 工具安裝斜線命令',
-        newCommandsInstalledWithErrors: '安裝斜線命令時發生 {errors} 個錯誤'
+        newCommandsInstalledWithErrors: '安裝斜線命令時發生 {errors} 個錯誤',
+        // Marketplace detection
+        alreadyViaMarketplace: '已透過 Marketplace 安裝',
+        marketplaceCoexistNote: '注意：檔案安裝將與 Marketplace 版本並存'
       },
 
       // configure command
@@ -1729,7 +1739,11 @@ export const messages = {
         reinstallDeclinedCommands: '重新安裝已拒絕的斜線命令',
         skillsLevelQuestion: 'Skills 要安裝到哪裡？',
         projectLevel: '專案層級',
-        userLevel: '使用者層級'
+        userLevel: '使用者層級',
+        // Marketplace detection
+        viaMarketplace: '透過 Marketplace',
+        marketplaceOnly: '僅 Marketplace（無本機檔案）',
+        marketplaceCoexistNote: '注意：檔案安裝將與 Marketplace 版本並存'
       }
     }
   },
@@ -2344,7 +2358,10 @@ export const messages = {
         newSkillsInstalled: '已为 {count} 个 AI 工具安装 Skills',
         newSkillsInstalledWithErrors: '安装 Skills 时发生 {errors} 个错误',
         newCommandsInstalled: '已为 {count} 个 AI 工具安装斜线命令',
-        newCommandsInstalledWithErrors: '安装斜线命令时发生 {errors} 个错误'
+        newCommandsInstalledWithErrors: '安装斜线命令时发生 {errors} 个错误',
+        // Marketplace detection
+        alreadyViaMarketplace: '已通过 Marketplace 安装',
+        marketplaceCoexistNote: '注意：文件安装将与 Marketplace 版本并存'
       },
 
       // configure command
@@ -2424,7 +2441,11 @@ export const messages = {
         reinstallDeclinedCommands: '重新安装已拒绝的斜杠命令',
         skillsLevelQuestion: 'Skills 要安装到哪里？',
         projectLevel: '项目级别',
-        userLevel: '用户级别'
+        userLevel: '用户级别',
+        // Marketplace detection
+        viaMarketplace: '通过 Marketplace',
+        marketplaceOnly: '仅 Marketplace（无本地文件）',
+        marketplaceCoexistNote: '注意：文件安装将与 Marketplace 版本并存'
       }
     }
   }

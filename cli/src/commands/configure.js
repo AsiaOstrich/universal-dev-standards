@@ -44,6 +44,7 @@ import {
   writeIntegrationFile,
   getToolFilePath
 } from '../utils/integration-generator.js';
+import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import { t } from '../i18n/messages.js';
 import { regenerateIntegrations } from './update.js';
 
@@ -565,8 +566,18 @@ async function handleSkillsConfiguration(manifest, projectPath, msg, common, spe
   // Get declined skills from manifest
   const declinedSkills = manifest.declinedFeatures?.skills || [];
 
+  // Check if Skills are installed via marketplace (Claude Code only)
+  const marketplaceInfo = getMarketplaceSkillsInfo();
+  const hasMarketplaceSkills = marketplaceInfo?.installed;
+
   // Show current Skills status
   console.log(chalk.cyan(msg.currentSkillsStatus || 'Current Skills status:'));
+
+  // Show marketplace status if applicable
+  if (hasMarketplaceSkills && aiTools.includes('claude-code')) {
+    console.log(chalk.green(`  ✓ ${msg.viaMarketplace || 'Via Marketplace'}: ${marketplaceInfo.version || 'installed'}`));
+  }
+
   for (const tool of aiTools) {
     const config = getAgentConfig(tool);
     if (!config?.supportsSkills) continue;
@@ -585,9 +596,18 @@ async function handleSkillsConfiguration(manifest, projectPath, msg, common, spe
       }
     } else if (declinedSkills.includes(tool)) {
       console.log(chalk.yellow(`  ⊘ ${displayName}: ${msg.previouslyDeclined || 'Previously declined'}`));
+    } else if (hasMarketplaceSkills && tool === 'claude-code') {
+      // Claude Code has marketplace skills but no file-based installation
+      console.log(chalk.cyan(`  ◎ ${displayName}: ${msg.marketplaceOnly || 'Marketplace only (no local files)'}`));
     } else {
       console.log(chalk.gray(`  ○ ${displayName}: ${msg.notInstalled || 'Not installed'}`));
     }
+  }
+
+  // Show marketplace coexistence note if user might want to install local files
+  if (hasMarketplaceSkills && aiTools.includes('claude-code')) {
+    console.log();
+    console.log(chalk.cyan(`  ℹ ${msg.marketplaceCoexistNote || 'Note: File-based installation will coexist with Marketplace version'}`));
   }
   console.log();
 

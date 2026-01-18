@@ -30,6 +30,7 @@ import {
   getSkillsDirForAgent,
   getCommandsDirForAgent
 } from '../config/ai-agent-paths.js';
+import { getMarketplaceSkillsInfo } from '../utils/github.js';
 
 /**
  * Compare two semantic versions
@@ -1164,18 +1165,38 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
 
   // Handle missing Skills with checkbox selection
   if (missingSkills.length > 0) {
+    // Check if Skills are already installed via marketplace (Claude Code only)
+    const marketplaceInfo = getMarketplaceSkillsInfo();
+    const hasMarketplaceSkills = marketplaceInfo?.installed;
+
     console.log(chalk.yellow(msg.skillsNotInstalledFor || 'Skills not yet installed for these AI tools:'));
     for (const skill of missingSkills) {
-      console.log(chalk.gray(`  • ${skill.displayName}`));
+      // Show marketplace hint for Claude Code if applicable
+      if (hasMarketplaceSkills && skill.agent === 'claude-code') {
+        console.log(chalk.gray(`  • ${skill.displayName} ${chalk.cyan(`(${msg.alreadyViaMarketplace || 'already via Marketplace'})`)}`));
+      } else {
+        console.log(chalk.gray(`  • ${skill.displayName}`));
+      }
+    }
+
+    // Show marketplace coexistence warning if applicable
+    if (hasMarketplaceSkills && missingSkills.some(s => s.agent === 'claude-code')) {
+      console.log();
+      console.log(chalk.cyan(`  ℹ ${msg.marketplaceCoexistNote || 'Note: File-based installation will coexist with Marketplace version'}`));
     }
     console.log();
 
     // Build checkbox choices
-    const skillChoices = missingSkills.map(skill => ({
-      name: skill.displayName,
-      value: skill.agent,
-      checked: true  // Default checked for opt-out behavior
-    }));
+    const skillChoices = missingSkills.map(skill => {
+      const isClaudeWithMarketplace = hasMarketplaceSkills && skill.agent === 'claude-code';
+      return {
+        name: isClaudeWithMarketplace
+          ? `${skill.displayName} ${chalk.cyan(`(${msg.alreadyViaMarketplace || 'already via Marketplace'})`)}`
+          : skill.displayName,
+        value: skill.agent,
+        checked: !isClaudeWithMarketplace  // Default unchecked if already via marketplace
+      };
+    });
 
     // Add skip option
     skillChoices.push(new inquirer.Separator());
