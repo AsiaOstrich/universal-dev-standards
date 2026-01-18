@@ -43,6 +43,7 @@
     "test:e2e": "vitest run tests/e2e/",
     "test:all": "vitest run && vitest run tests/e2e/",
     "lint": "eslint src/",
+    "generate:e2e-spec": "node scripts/generate-e2e-spec.mjs",
     "prepare": "node ../scripts/setup-husky.mjs",
     "prepack": "node scripts/prepack.mjs"
   },
