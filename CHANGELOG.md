@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.19] - 2026-01-19
+
+### Fixed
+- **Skills**: Sync slash commands with CLI behavior
+  - `/update`: Add declined features handling, outdated Skills update flow, project/user level selection, checkbox multi-select interface
+  - `/init`: Align step order with CLI (AI Tools → Skills → Commands → ...), expand to 9 AI tools, add missing configuration steps
+  - `/config`: Add skills/commands config types, `--ai-tool` option for non-interactive installation, declined features handling
+  - `/check`: Add Interactive mode documentation, Skills/Commands integrity checks, remove obsolete manual verification steps
+
 ## [3.5.1-beta.18] - 2026-01-19
 
 ### Added
