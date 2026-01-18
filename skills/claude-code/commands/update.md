@@ -77,7 +77,7 @@ Always include **Skip** option: Don't update at this time.
 - Option 1: "更新至 Beta (建議)" - "更新標準至 3.5.1-beta.15 版本（🟡 功能大致完成）"
 - Option 2: "暫時跳過" - "目前不進行更新，維持現有版本"
 
-### Step 3: Execute | 步驟 3：執行
+### Step 3: Execute Update | 步驟 3：執行更新
 
 **If Update Now selected:**
 ```bash
@@ -89,39 +89,93 @@ uds update --yes
 uds update --beta --yes
 ```
 
-### Step 4: Install Skills/Commands | 步驟 4：安裝 Skills/Commands
+### Step 4: Check Skills/Commands Status | 步驟 4：檢查 Skills/Commands 狀態
 
-After update completes, check if Skills/Commands need installation.
+After update completes, the CLI automatically detects missing or outdated Skills/Commands.
 
-更新完成後，檢查是否需要安裝 Skills/Commands。
+更新完成後，CLI 會自動偵測缺少或過時的 Skills/Commands。
 
-**Check installation status:**
+**Important:** The CLI uses file-based detection (`getInstalledSkillsInfoForAgent`) to check actual installation status, not just manifest records.
 
-1. Read `.standards/manifest.json` to get `aiTools` list and `skills.installed` status
-2. Check if Skills are installed for each configured AI tool
-3. Check if Commands are installed for tools that support them (opencode, copilot, gemini-cli, roo-code)
+**重要：** CLI 使用檔案實際存在檢測，而非僅讀取 manifest 記錄。
 
-**If missing Skills/Commands detected**, use AskUserQuestion:
+#### Handling Missing Skills | 處理缺少的 Skills
+
+If missing Skills are detected for configured AI tools, CLI shows checkbox selection:
+
+如果偵測到已配置 AI 工具缺少 Skills，CLI 會顯示多選介面：
+
+```
+Skills not yet installed for these AI tools:
+  • Claude Code
+  • OpenCode
+
+? Select AI tools to install Skills for: (Press <space> to select)
+❯ ◯ Claude Code
+  ◯ OpenCode
+  ──────────────
+  ◯ Skip Skills installation
+```
+
+**After tool selection, prompt for installation level:**
 
 | Option | Description |
 |--------|-------------|
-| **Install All (Recommended)** | Install Skills + Commands for all configured tools |
-| **Skills Only** | Install only Skills |
-| **Commands Only** | Install only Commands |
-| **Skip** | Don't install at this time |
+| **Project level** | Install to `.claude/skills/`, `.opencode/skill/`, etc. |
+| **User level** | Install to `~/.claude/skills/`, `~/.opencode/skill/`, etc. |
 
-**Based on user selection, execute:**
+#### Handling Outdated Skills | 處理過時的 Skills
 
-| Selection | Command |
-|-----------|---------|
-| Install All | `uds configure --type skills --ai-tool <tool>` for each tool, then `uds configure --type commands --ai-tool <tool>` |
-| Skills Only | `uds configure --type skills --ai-tool <tool>` for each tool |
-| Commands Only | `uds configure --type commands --ai-tool <tool>` for each tool |
-| Skip | No action needed |
+If installed Skills have older version than latest, CLI shows update prompt:
 
-**Note**: The `--ai-tool` option allows non-interactive installation for specific tools.
+如果已安裝的 Skills 版本比最新版本舊，CLI 會顯示更新提示：
 
-Explain the results and any next steps to the user.
+```
+Skills updates available for these AI tools:
+  • Claude Code (project: .claude/skills/)
+      3.4.0 → 3.5.1
+
+? Select AI tools to update Skills for: (Press <space> to select)
+❯ ◉ Claude Code (project) 3.4.0 → 3.5.1
+  ──────────────
+  ◯ Skip Skills update
+```
+
+#### Handling Missing Commands | 處理缺少的 Commands
+
+Similar checkbox selection for Commands:
+
+```
+Slash commands not yet installed for these AI tools:
+  • OpenCode → .opencode/commands/
+  • GitHub Copilot → .github/commands/
+
+? Select AI tools to install Commands for: (Press <space> to select)
+❯ ◉ OpenCode (.opencode/commands/)
+  ◉ GitHub Copilot (.github/commands/)
+  ──────────────
+  ◯ Skip Commands installation
+```
+
+#### Declined Features Handling | 拒絕功能處理
+
+**Important:** The CLI tracks user's declined choices in `manifest.declinedFeatures`.
+
+**重要：** CLI 會在 `manifest.declinedFeatures` 中追蹤用戶拒絕的選項。
+
+- Tools that user previously declined will NOT be shown in subsequent prompts
+- Users can reinstall declined features via `/config skills` or `/config commands`
+- Declining is remembered per-tool (e.g., declining Skills for OpenCode doesn't affect Claude Code)
+
+用戶之前拒絕的工具不會在後續提示中顯示。可透過 `/config skills` 或 `/config commands` 重新安裝。
+
+### Step 5: Explain Results | 步驟 5：說明結果
+
+After all operations complete, explain:
+1. What was updated (standards version, file count)
+2. Skills/Commands installation results
+3. Any errors encountered
+4. Next steps (restart AI tool if Skills were installed)
 
 ## Quick Mode | 快速模式
 
@@ -131,7 +185,11 @@ When invoked with `--yes` or specific options, skip interactive questions:
 /update --yes           # Update without confirmation
 /update --beta --yes    # Update to beta version
 /update --offline       # Skip npm registry check
+/update --skills        # Update Skills only
+/update --commands      # Update Commands only
 ```
+
+**Note:** In `--yes` mode, CLI shows hints about available Skills/Commands but does NOT auto-install them (conservative behavior).
 
 ## Options Reference | 選項參考
 
@@ -140,12 +198,17 @@ When invoked with `--yes` or specific options, skip interactive questions:
 | `--yes`, `-y` | Skip confirmation prompt | 跳過確認提示 |
 | `--offline` | Skip npm registry check | 跳過 npm registry 檢查 |
 | `--beta` | Check for beta version updates | 檢查 beta 版本更新 |
+| `--skills` | Update Skills only | 僅更新 Skills |
+| `--commands` | Update Commands only | 僅更新 Commands |
+| `--integrations-only` | Regenerate integration files only | 僅重新產生整合檔案 |
+| `--sync-refs` | Sync integration file references | 同步整合檔案參考 |
+| `--standards-only` | Update standards without integrations | 僅更新標準，不更新整合 |
 
 ## What Gets Updated | 更新內容
 
 - Standard files in `.standards/` directory
 - Extension files (language, framework, locale)
-- Integration files (`.cursorrules`, etc.)
+- Integration files (`.cursorrules`, `CLAUDE.md`, etc.)
 - Version info in `manifest.json`
 
 ## Skills Update | Skills 更新
@@ -166,7 +229,11 @@ Skills are managed separately:
 **"Already up to date"**
 - No action needed; standards are current
 
+**"Skills previously declined"**
+- Run `/config skills` to reinstall declined Skills
+
 ## Reference | 參考
 
 - CLI documentation: `uds update --help`
 - Check command: [/check](./check.md)
+- Config command: [/config](./config.md)

@@ -1,7 +1,7 @@
 ---
 description: Configure project development standards
-allowed-tools: Read, Bash(uds config:*), Bash(uds configure:*)
-argument-hint: "[type]"
+allowed-tools: Read, Bash(uds config:*), Bash(uds configure:*), Bash(uds check:*)
+argument-hint: "[type] [--ai-tool <tool>]"
 ---
 
 # Config Standards | 設定標準
@@ -34,34 +34,41 @@ This helps users understand what's currently configured before making changes.
 
 Use AskUserQuestion with these options:
 
-| Option | Description |
-|--------|-------------|
+| Category | Options |
+|----------|---------|
+| **Basic Options** | Format, Git Workflow, Merge Strategy, Commit Language, Test Levels |
 | **AI Tools** | Add or remove AI tool integrations |
-| **Adoption Level** | Change adoption level (1/2/3) |
-| **Content Mode** | Change how much content is embedded |
-| **Other Options** | Format, workflow, merge strategy, etc. |
+| **Skills** | Manage Skills installations (install/update/reinstall declined) |
+| **Commands** | Manage Commands installations |
+| **Advanced** | Adoption Level, Content Mode |
+| **All** | Configure all options |
 
 ### Step 2: Execute Based on Selection | 步驟 2：根據選擇執行
 
 **If AI Tools selected:**
 ```bash
-uds config --type ai_tools
+uds configure --type ai_tools
+```
+
+**If Skills selected:**
+```bash
+uds configure --type skills
+```
+
+**If Commands selected:**
+```bash
+uds configure --type commands
 ```
 
 **If Adoption Level selected:**
-Ask which level (1/2/3), then:
 ```bash
-uds config --type level
+uds configure --type level
 ```
 
 **If Content Mode selected:**
-Ask which mode (full/index/minimal), then:
 ```bash
-uds config --type content_mode
+uds configure --type content_mode
 ```
-
-**If Other Options selected:**
-Ask which specific option, then execute accordingly.
 
 ## Quick Mode | 快速模式
 
@@ -69,8 +76,24 @@ When invoked with a specific type, skip interactive questions:
 
 ```bash
 /config ai_tools      # Directly configure AI tools
+/config skills        # Directly manage Skills
+/config commands      # Directly manage Commands
 /config level         # Directly configure adoption level
 /config content_mode  # Directly configure content mode
+```
+
+### Non-Interactive Installation | 非互動式安裝
+
+Use `--ai-tool` option to install Skills/Commands for a specific tool without prompts:
+
+使用 `--ai-tool` 選項為特定工具安裝 Skills/Commands，無需提示：
+
+```bash
+# Install Skills for specific tool
+uds configure --type skills --ai-tool opencode
+
+# Install Commands for specific tool
+uds configure --type commands --ai-tool copilot
 ```
 
 ## Configuration Types | 設定類型
@@ -78,6 +101,8 @@ When invoked with a specific type, skip interactive questions:
 | Type | Description | 說明 |
 |------|-------------|------|
 | `ai_tools` | AI tool integrations | AI 工具整合 |
+| `skills` | Skills installations | Skills 安裝管理 |
+| `commands` | Commands installations | Commands 安裝管理 |
 | `level` | Adoption level (1/2/3) | 採用等級 |
 | `content_mode` | Integration file content mode | 整合檔案內容模式 |
 | `format` | AI/Human documentation format | AI/人類文件格式 |
@@ -85,7 +110,47 @@ When invoked with a specific type, skip interactive questions:
 | `merge_strategy` | Merge strategy | 合併策略 |
 | `commit_language` | Commit message language | 提交訊息語言 |
 | `test_levels` | Test levels to include | 測試層級 |
+| `methodology` | Development methodology (experimental, requires -E) | 開發方法論（實驗性） |
 | `all` | Configure all options | 設定所有選項 |
+
+## Skills Configuration | Skills 配置
+
+When selecting `skills` type, CLI shows:
+
+1. **Current Status** - Shows installed Skills for each AI tool
+2. **Declined Status** - Shows tools where user previously declined Skills
+3. **Action Menu**:
+   - Install/Update Skills
+   - Reinstall declined Skills
+   - View status only
+
+```
+Current Skills status:
+  ✓ Claude Code:
+    - User: v3.5.1
+  ○ OpenCode: Not installed
+  ⊘ Copilot: Previously declined
+
+? What would you like to do?
+❯ Install/Update Skills
+  Reinstall declined Skills
+  View status only
+  Cancel
+```
+
+## Commands Configuration | Commands 配置
+
+When selecting `commands` type, CLI shows:
+
+1. **Current Status** - Shows installed Commands for each supported tool
+2. **Declined Status** - Shows tools where user previously declined Commands
+3. **Action Menu** similar to Skills
+
+Supported tools for Commands:
+- OpenCode (`.opencode/commands/`)
+- GitHub Copilot (`.github/commands/`)
+- Gemini CLI (`.gemini/commands/`)
+- Roo Code (`.roo-code/commands/`)
 
 ## Content Mode Options | 內容模式選項
 
@@ -101,11 +166,35 @@ When invoked with a specific type, skip interactive questions:
 |---------------|--------|------|
 | AI Tools (add) | Generates new integration files | 產生新的整合檔案 |
 | AI Tools (remove) | Deletes integration files | 刪除整合檔案 |
+| Skills | Installs/updates Skills to configured paths | 安裝/更新 Skills |
+| Commands | Installs/updates Commands to configured paths | 安裝/更新 Commands |
 | Level | Updates standards, regenerates integrations | 更新標準，重新產生整合 |
 | Content Mode | Regenerates all integration files | 重新產生所有整合檔案 |
 
+## Declined Features | 拒絕的功能
+
+The CLI tracks declined Skills/Commands in `manifest.declinedFeatures`:
+
+CLI 在 `manifest.declinedFeatures` 中追蹤拒絕的 Skills/Commands：
+
+- Previously declined tools won't appear in `/update` prompts
+- Use `/config skills` or `/config commands` to reinstall declined features
+- Select "Reinstall declined Skills/Commands" from the menu
+
+之前拒絕的工具不會在 `/update` 提示中出現。使用 `/config skills` 或 `/config commands` 重新安裝。
+
+## Options Reference | 選項參考
+
+| Option | Description | 說明 |
+|--------|-------------|------|
+| `--type <type>` | Configuration type | 配置類型 |
+| `--ai-tool <tool>` | Specific AI tool (non-interactive) | 特定 AI 工具（非互動式）|
+| `--yes`, `-y` | Skip confirmation prompt | 跳過確認提示 |
+| `-E`, `--experimental` | Enable experimental features | 啟用實驗性功能 |
+
 ## Reference | 參考
 
-- CLI documentation: `uds config --help`
+- CLI documentation: `uds configure --help`
 - Init command: [/init](./init.md)
 - Check command: [/check](./check.md)
+- Update command: [/update](./update.md)

@@ -1,7 +1,7 @@
 ---
 description: Verify standards adoption status
 allowed-tools: Read, Bash(uds check:*), Bash(npx:*), Bash(ls:*)
-argument-hint: "[--offline | --restore]"
+argument-hint: "[--offline | --restore | --summary]"
 ---
 
 # Check Standards | 檢查標準
@@ -13,8 +13,11 @@ Verify the adoption status of Universal Development Standards in the current pro
 ## Quick Start | 快速開始
 
 ```bash
-# Basic check
+# Basic check (with interactive mode for issues)
 uds check
+
+# Compact summary for quick status
+uds check --summary
 
 # Check without network access
 uds check --offline
@@ -22,6 +25,71 @@ uds check --offline
 # Restore missing or modified files
 uds check --restore
 ```
+
+## Output Modes | 輸出模式
+
+### Summary Mode (--summary) | 摘要模式
+
+Shows compact status for quick overview:
+
+顯示精簡狀態供快速瀏覽：
+
+```
+UDS Status Summary
+──────────────────────────────────────────────────
+  Version: 3.5.1-beta.16 → 3.5.1-beta.18 ⚠
+  Level: 2 - Recommended (推薦)
+  Files: 12 ✓
+  Skills: Claude Code ✓ | OpenCode ○
+  Commands: OpenCode ✓
+──────────────────────────────────────────────────
+```
+
+### Full Mode (Default) | 完整模式
+
+Shows detailed information including:
+- Adoption status (level, version, install date)
+- File integrity (unchanged/modified/missing counts)
+- Skills integrity (if tracked in manifest)
+- Commands integrity (if tracked in manifest)
+- Integration blocks integrity
+- Reference sync status
+- AI tool integration files coverage
+- Coverage report
+
+## Interactive Mode | 互動模式
+
+When issues are detected (modified/missing files), CLI automatically enters interactive mode:
+
+當偵測到問題時，CLI 自動進入互動模式：
+
+```
+──────────────────────────────────────────────────
+⚠ Modified: .standards/commit-message-guide.md
+
+? What would you like to do?
+❯ View diff
+  Restore original
+  Keep current (update hash)
+  Skip
+```
+
+**Available actions:**
+
+| Action | Description |
+|--------|-------------|
+| **View diff** | Show differences between current and original |
+| **Restore original** | Replace with upstream version |
+| **Keep current** | Accept modifications and update hash |
+| **Skip** | Do nothing for this file |
+
+For missing files:
+
+| Action | Description |
+|--------|-------------|
+| **Restore** | Download and restore from upstream |
+| **Remove from tracking** | Remove from manifest |
+| **Skip** | Do nothing for this file |
 
 ## Options | 選項
 
@@ -36,74 +104,68 @@ uds check --restore
 
 ## Output Sections | 輸出區段
 
-### Summary Mode (--summary) | 摘要模式
-
-When using `--summary`, shows compact status for use by other commands:
-
-使用 `--summary` 時，顯示供其他命令使用的精簡狀態：
-
-```
-UDS Status Summary
-──────────────────────────────────────────────────
-  Version: 3.5.1-beta.16 ✓
-  Level: 2 - Recommended (推薦)
-  Files: 12 ✓
-  Skills: Claude Code ✓ | OpenCode ○
-  Commands: OpenCode ✓
-──────────────────────────────────────────────────
-```
-
 ### Adoption Status | 採用狀態
+
 - Adoption level (1-3)
 - Installation date
 - Installed version
+- Update availability
 
 ### File Integrity | 檔案完整性
-- Checks all expected files exist
-- Reports missing or modified files
-- Shows count of present vs missing
+
+Shows status for each tracked file:
+
+| Symbol | Meaning | 意義 |
+|--------|---------|------|
+| ✓ (green) | Unchanged | 未變更 |
+| ⚠ (yellow) | Modified | 已修改 |
+| ✗ (red) | Missing | 遺失 |
+| ? (gray) | Exists but no hash | 存在但無 hash |
+
+Summary format: `{unchanged} unchanged, {modified} modified, {missing} missing`
+
+### Skills Integrity (v3.3.0+) | Skills 完整性
+
+If `skillHashes` exist in manifest, checks:
+- File existence at expected paths
+- Hash comparison for modifications
+
+### Commands Integrity (v3.3.0+) | Commands 完整性
+
+If `commandHashes` exist in manifest, checks:
+- File existence at expected paths
+- Hash comparison for modifications
+
+### Integration Blocks Integrity (v3.3.0+) | 整合區塊完整性
+
+If `integrationBlockHashes` exist in manifest, checks:
+- UDS marker block presence
+- Block content hash (user customizations outside blocks are preserved)
 
 ### Skills Status | Skills 狀態
-- Installation location (Marketplace, User, Project)
-- Version information
-- Migration suggestions if applicable
 
-### Skills Verification | Skills 驗證
+Shows installation status for each configured AI tool:
 
-After displaying `uds check` results, verify Skills installation by checking actual paths.
+```
+Skills Status
+  Claude Code:
+    ✓ Skills installed:
+      - User level: ~/.claude/skills/
+        Version: 3.5.1
+    ✓ Commands: 7 installed
+      Path: .opencode/commands/
+```
 
-顯示 `uds check` 結果後，透過檢查實際路徑來驗證 Skills 安裝。
-
-**For each AI tool showing "✓ installed", run diagnostic commands:**
-
-針對每個顯示「✓ 已安裝」的 AI 工具，執行診斷命令：
-
-| AI Tool | Skills Path | Diagnostic Command |
-|---------|-------------|-------------------|
-| Claude Code | `.claude/skills/` | `ls -la .claude/skills/ 2>/dev/null \|\| echo "Not found"` |
-| OpenCode | `.opencode/skill/` | `ls -la .opencode/skill/ 2>/dev/null \|\| echo "Not found"` |
-| GitHub Copilot | `.github/skills/` | `ls -la .github/skills/ 2>/dev/null \|\| echo "Not found"` |
-| Cursor | `.cursor/skills/` | `ls -la .cursor/skills/ 2>/dev/null \|\| echo "Not found"` |
-
-**Expected output for valid installation:**
-- Should see skill directories (e.g., `commit-standards/`, `testing-guide/`)
-- Each skill directory should contain `SKILL.md`
-
-**有效安裝的預期輸出：**
-- 應看到 skill 目錄（如 `commit-standards/`、`testing-guide/`）
-- 每個 skill 目錄應包含 `SKILL.md`
-
-**If directory is empty or not found:**
-- Skills are NOT actually installed
-- Run `/update` and select "Install All" to install
-
-**如果目錄為空或不存在：**
-- Skills 實際上未安裝
-- 執行 `/update` 並選擇「全部安裝」
+Status indicators:
+- ✓ installed (green) - Skills/Commands are installed
+- ○ not installed (gray) - Not installed
 
 ### Coverage Summary | 覆蓋率摘要
-- Required standards count for current level
-- Skills vs reference document coverage
+
+Shows standards coverage:
+- Required standards for current level
+- Standards covered by Skills
+- Standards covered by reference documents
 
 ## Status Indicators | 狀態指示
 
@@ -112,6 +174,7 @@ After displaying `uds check` results, verify Skills installation by checking act
 | ✓ (green) | All good | 一切正常 |
 | ⚠ (yellow) | Warning, action recommended | 警告，建議採取行動 |
 | ✗ (red) | Error, action required | 錯誤，需要採取行動 |
+| ○ (gray) | Not installed/configured | 未安裝/配置 |
 
 ## Common Issues | 常見問題
 
@@ -127,16 +190,29 @@ After displaying `uds check` results, verify Skills installation by checking act
 **"Modified files detected"**
 - Run `/check --diff` to see changes
 - Run `/check --restore` to reset to original
+- Or use interactive mode to handle each file
+
+**"Skills not installed"**
+- Run `/update` to install missing Skills
+- Or run `/config skills` to manage Skills
+
+**"Legacy manifest detected"**
+- Run `uds check --migrate` to upgrade to hash-based tracking
 
 ## Usage | 使用方式
 
-- `/check` - Check current adoption status
-- `/check --offline` - Check without network access
-- `/check --restore` - Restore modified/missing files
-- `/check --diff` - Show file differences
+```bash
+/check                  # Full check with interactive mode
+/check --summary        # Quick status overview
+/check --offline        # Check without network access
+/check --restore        # Restore modified/missing files
+/check --diff           # Show file differences
+/check --migrate        # Upgrade manifest format
+```
 
 ## Reference | 參考
 
 - CLI documentation: `uds check --help`
 - Init command: [/init](./init.md)
 - Update command: [/update](./update.md)
+- Config command: [/config](./config.md)
