@@ -36,7 +36,16 @@
       "all-via-plugin"
     ],
     "version": "3.5.1-beta.16",
-    "installations": []
+    "installations": [
+      {
+        "agent": "copilot",
+        "level": "project"
+      },
+      {
+        "agent": "opencode",
+        "location": "project"
+      }
+    ]
   },
   "commands": {
     "installed": false,

@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.21] - 2026-01-19
+
+### Fixed
+- **CLI**: Skills installation now works correctly with `--skills-location` option
+  - Bug fix: Changed property name from `location` to `level` to match `installSkillsToMultipleAgents` API
+  - Previously reported success but no files were created
+
 ## [3.5.1-beta.20] - 2026-01-19
 
 ### Added
