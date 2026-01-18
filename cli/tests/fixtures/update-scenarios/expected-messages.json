@@ -1,0 +1,37 @@
+{
+  "description": "Expected output messages for uds update command",
+  "messages": {
+    "header": {
+      "title": "Universal Documentation Standards - Update",
+      "separator": "─"
+    },
+    "errors": {
+      "notInitialized": "Standards not initialized",
+      "runInit": "uds init",
+      "couldNotReadManifest": "Could not read manifest"
+    },
+    "versionInfo": {
+      "currentVersion": "Current version",
+      "latestVersion": "Latest version",
+      "upToDate": "Standards are up to date"
+    },
+    "updateAvailable": {
+      "message": "Update available"
+    },
+    "integrationsOnly": {
+      "title": "Updating integration files only",
+      "noAiTools": "No AI tools configured",
+      "regenerating": "Regenerating integration files",
+      "success": "Integration files updated successfully"
+    },
+    "skillsUpdate": {
+      "available": "Skills update available",
+      "current": "Current",
+      "latest": "Latest"
+    },
+    "success": {
+      "message": "Standards updated successfully",
+      "versionUpdated": "Version:"
+    }
+  }
+}

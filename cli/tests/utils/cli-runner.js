@@ -439,9 +439,77 @@ function extractContext(text, pattern) {
   return '...' + text.substring(start, end) + '...';
 }
 
+/**
+ * Run any CLI command in non-interactive mode
+ * @param {string} command - Command to run (e.g., 'config', 'check', 'update')
+ * @param {Object} options - CLI options
+ * @param {string} workDir - Working directory
+ * @param {number} timeout - Timeout in ms (default: 30000)
+ * @returns {Promise<Object>} Result with stdout, stderr, exitCode, files
+ */
+export async function runCommand(command, options = {}, workDir, timeout = 30000) {
+  const args = [command];
+
+  // Add options (convert camelCase to kebab-case)
+  for (const [key, value] of Object.entries(options)) {
+    const kebabKey = toKebabCase(key);
+    if (value === true) {
+      args.push(`--${kebabKey}`);
+    } else if (value !== false && value !== undefined) {
+      args.push(`--${kebabKey}=${value}`);
+    }
+  }
+
+  return new Promise((resolve) => {
+    const proc = spawn('node', [CLI_PATH, ...args], {
+      cwd: workDir,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, FORCE_COLOR: '0' }
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    proc.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    proc.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    const timer = setTimeout(() => {
+      proc.kill('SIGTERM');
+      resolve({
+        stdout: stripAnsi(stdout),
+        stderr: stripAnsi(stderr),
+        exitCode: -1,
+        timedOut: true,
+        files: []
+      });
+    }, timeout);
+
+    proc.on('close', async (code) => {
+      clearTimeout(timer);
+
+      // Collect generated files
+      const files = await collectGeneratedFiles(workDir);
+
+      resolve({
+        stdout: stripAnsi(stdout),
+        stderr: stripAnsi(stderr),
+        exitCode: code,
+        timedOut: false,
+        files
+      });
+    });
+  });
+}
+
 export default {
   runNonInteractive,
   runInteractive,
+  runCommand,
   createTempDir,
   cleanupTempDir,
   setupTestDir,

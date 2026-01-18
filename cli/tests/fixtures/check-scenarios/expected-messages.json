@@ -1,0 +1,57 @@
+{
+  "description": "Expected output messages for uds check command",
+  "messages": {
+    "header": {
+      "title": "Universal Documentation Standards - Check",
+      "separator": "─"
+    },
+    "errors": {
+      "notInitialized": "Standards not initialized",
+      "runInit": "uds init",
+      "couldNotReadManifest": "Could not read manifest"
+    },
+    "status": {
+      "standardsInitialized": "Standards initialized",
+      "adoptionStatus": "Adoption Status:",
+      "installed": "Installed",
+      "version": "Version"
+    },
+    "fileIntegrity": {
+      "title": "File Integrity:",
+      "unchanged": "unchanged",
+      "modified": "modified",
+      "missing": "missing",
+      "summary": "Summary:"
+    },
+    "skillsStatus": {
+      "title": "Skills Status:",
+      "viaMarketplace": "Plugin Marketplace",
+      "notInstalled": "Not installed"
+    },
+    "coverage": {
+      "title": "Coverage Summary:",
+      "levelRequires": "Level"
+    },
+    "aiToolIntegration": {
+      "title": "AI Tool Integration Status:"
+    },
+    "refSync": {
+      "title": "Reference Sync Status:"
+    },
+    "summary_mode": {
+      "title": "UDS Status Summary",
+      "version": "Version",
+      "level": "Level",
+      "files": "Files"
+    },
+    "actions": {
+      "actionsAvailable": "Actions available:",
+      "restoreOption": "uds check --restore",
+      "diffOption": "uds check --diff"
+    },
+    "finalStatus": {
+      "compliant": "Project is compliant",
+      "issuesDetected": "issues detected"
+    }
+  }
+}

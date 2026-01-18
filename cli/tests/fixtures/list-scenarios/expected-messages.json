@@ -1,0 +1,35 @@
+{
+  "description": "Expected output messages for uds list command",
+  "messages": {
+    "header": {
+      "title": "Universal Development Standards",
+      "separator": "─"
+    },
+    "version": {
+      "label": "Version"
+    },
+    "categories": {
+      "skill": "Skill",
+      "reference": "Reference",
+      "extension": "Extension"
+    },
+    "filters": {
+      "showingLevel": "Showing Level",
+      "category": "Category"
+    },
+    "summary": {
+      "total": "Total",
+      "standards": "standards",
+      "withSkills": "with Skills",
+      "referenceOnly": "reference-only"
+    },
+    "hints": {
+      "runInit": "uds init",
+      "seeGuide": "https://github.com/AsiaOstrich/universal-dev-standards"
+    },
+    "errors": {
+      "levelRange": "Level must be 1, 2, or 3",
+      "unknownCategory": "Unknown category"
+    }
+  }
+}

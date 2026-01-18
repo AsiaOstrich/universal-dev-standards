@@ -1,0 +1,38 @@
+{
+  "description": "Expected output messages for uds skills command",
+  "messages": {
+    "header": {
+      "title": "Universal Dev Standards - Installed Skills",
+      "separator": "─"
+    },
+    "noSkills": {
+      "message": "No Universal Dev Standards skills installed",
+      "installHint": "Install via Plugin Marketplace"
+    },
+    "installation": {
+      "marketplace": "Plugin Marketplace",
+      "userLevel": "User Level",
+      "projectLevel": "Project Level",
+      "recommended": "recommended",
+      "deprecated": "deprecated"
+    },
+    "version": {
+      "label": "Version",
+      "path": "Path"
+    },
+    "skillsList": {
+      "title": "Skills"
+    },
+    "warnings": {
+      "legacyMarketplace": "Legacy marketplace detected",
+      "manualInstall": "Manual installation is deprecated"
+    },
+    "summary": {
+      "totalUniqueSkills": "Total unique skills"
+    },
+    "recommendation": {
+      "migrate": "Migrate to Plugin Marketplace",
+      "benefits": "automatic updates"
+    }
+  }
+}
