@@ -89,12 +89,25 @@ Use `--ai-tool` option to install Skills/Commands for a specific tool without pr
 使用 `--ai-tool` 選項為特定工具安裝 Skills/Commands，無需提示：
 
 ```bash
-# Install Skills for specific tool
+# Install Skills for specific tool (project level, default)
 uds configure --type skills --ai-tool opencode
+
+# Install Skills for specific tool (user level)
+uds configure --type skills --ai-tool opencode --skills-location user
+
+# Install Skills for specific tool (project level, explicit)
+uds configure --type skills --ai-tool claude-code --skills-location project
 
 # Install Commands for specific tool
 uds configure --type commands --ai-tool copilot
 ```
+
+**Skills location options | Skills 位置選項:**
+
+| Option | Path | Description |
+|--------|------|-------------|
+| `project` | `.claude/skills/`, `.opencode/skill/` | Project-specific (default) |
+| `user` | `~/.claude/skills/`, `~/.opencode/skill/` | Shared across all projects |
 
 ## Configuration Types | 設定類型
 
@@ -189,6 +202,7 @@ CLI 在 `manifest.declinedFeatures` 中追蹤拒絕的 Skills/Commands：
 |--------|-------------|------|
 | `--type <type>` | Configuration type | 配置類型 |
 | `--ai-tool <tool>` | Specific AI tool (non-interactive) | 特定 AI 工具（非互動式）|
+| `--skills-location <loc>` | Skills install location: project, user | Skills 安裝位置 |
 | `--yes`, `-y` | Skip confirmation prompt | 跳過確認提示 |
 | `-E`, `--experimental` | Enable experimental features | 啟用實驗性功能 |
 
