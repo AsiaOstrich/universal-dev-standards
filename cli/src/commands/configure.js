@@ -534,11 +534,11 @@ async function handleSkillsConfiguration(manifest, projectPath, msg, common, spe
 
     // Validate skillsLocation if provided
     const validLocations = ['project', 'user'];
-    const location = skillsLocation && validLocations.includes(skillsLocation) ? skillsLocation : 'project';
+    const level = skillsLocation && validLocations.includes(skillsLocation) ? skillsLocation : 'project';
 
     // Install to specified level (defaults to project)
-    const installations = [{ agent: specificTool, location }];
-    const spinner = ora(`Installing Skills for ${getAgentDisplayName(specificTool)} (${location} level)...`).start();
+    const installations = [{ agent: specificTool, level }];
+    const spinner = ora(`Installing Skills for ${getAgentDisplayName(specificTool)} (${level} level)...`).start();
     const result = await installSkillsToMultipleAgents(installations, null, projectPath);
     spinner.stop();
 
