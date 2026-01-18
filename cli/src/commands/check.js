@@ -856,22 +856,6 @@ function checkIntegrationFiles(manifest, projectPath, msg) {
   let hasIssues = false;
   let checkedCount = 0;
 
-  // Standard filename to task mapping for coverage check
-  const STANDARD_TASK_MAPPING = {
-    'anti-hallucination.md': 'AI collaboration',
-    'commit-message.ai.yaml': 'Writing commits',
-    'checkin-standards.md': 'Committing code',
-    'logging-standards.md': 'Adding logging',
-    'error-code-standards.md': 'Error handling',
-    'testing.ai.yaml': 'Writing tests',
-    'versioning.md': 'Version bumping',
-    'changelog-standards.md': 'Updating changelog',
-    'code-review-checklist.md': 'Code review',
-    'spec-driven-development.md': 'Feature development',
-    'test-completeness-dimensions.md': 'Test coverage',
-    'git-workflow.ai.yaml': 'Git workflow'
-  };
-
   for (const tool of manifest.aiTools) {
     const toolFile = getToolFilePath(tool);
     if (!toolFile) continue;
@@ -915,21 +899,19 @@ function checkIntegrationFiles(manifest, projectPath, msg) {
 
       if (isReferenced) {
         referencedStandards.push(stdFile);
-      } else if (STANDARD_TASK_MAPPING[stdFile]) {
-        // Only report as missing if it's a known trackable standard
+      } else {
+        // Track all installed standards from manifest
         missingStandards.push(stdFile);
       }
     }
 
-    // Report status
-    const totalTrackable = Object.keys(STANDARD_TASK_MAPPING).filter(s =>
-      standardsFiles.includes(s)
-    ).length;
+    // Report status - use all installed standards as the total
+    const totalTrackable = standardsFiles.length;
 
     if (hasStandardsIndex && missingStandards.length === 0) {
       console.log(chalk.green(`  ✓ ${toolFile}:`));
       console.log(chalk.gray(`    ${msg.standardsIndexPresent}`));
-      console.log(chalk.gray(`    ${msg.standardsReferenced.replace('{count}', referencedStandards.length).replace('{total}', totalTrackable || standardsFiles.length)}`));
+      console.log(chalk.gray(`    ${msg.standardsReferenced.replace('{count}', referencedStandards.length).replace('{total}', totalTrackable)}`));
     } else if (hasStandardsIndex) {
       console.log(chalk.yellow(`  ⚠ ${toolFile}:`));
       console.log(chalk.gray(`    ${msg.standardsIndexPresent}`));
