@@ -949,6 +949,8 @@ Team TDD Assessment:
 
 - [Testing Standards](testing-standards.md) - Core testing standards (UT/IT/ST/E2E) (or use `/testing-guide` skill)
 - [Test Completeness Dimensions](test-completeness-dimensions.md) - 7 dimensions framework
+- [Behavior-Driven Development](behavior-driven-development.md) - BDD workflow with Given-When-Then format
+- [Acceptance Test-Driven Development](acceptance-test-driven-development.md) - ATDD workflow with specification workshops
 - [Spec-Driven Development](spec-driven-development.md) - SDD workflow
 - [Code Check-in Standards](checkin-standards.md) - Check-in requirements
 - [Code Review Checklist](code-review-checklist.md) - Review guidelines

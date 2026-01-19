@@ -173,6 +173,8 @@ Reviewers should verify:
 ## Related Standards
 
 - [Test-Driven Development](test-driven-development.md) - TDD workflow and SDD integration
+- [Behavior-Driven Development](behavior-driven-development.md) - BDD workflow with Given-When-Then scenarios
+- [Acceptance Test-Driven Development](acceptance-test-driven-development.md) - ATDD workflow for business acceptance
 - [Testing Standards](testing-standards.md) - Testing framework and best practices (or use `/testing-guide` skill)
 - [Test Completeness Dimensions](test-completeness-dimensions.md) - 7-dimension test coverage
 - [Commit Message Guide](commit-message-guide.md) - Commit message conventions

@@ -618,8 +618,9 @@ describe('Check Command', () => {
       // Should NOT show "0 via Skills" because skills are actually installed
       expect(output).not.toContain('0 via Skills');
 
-      // Should show correct count (17 skill standards for Level 3)
-      expect(output).toContain('17 via Skills');
+      // Should show correct count (19 skill standards for Level 3)
+      // Updated from 17 to 19 after adding BDD and ATDD skills
+      expect(output).toContain('19 via Skills');
     });
 
   });

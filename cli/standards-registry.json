@@ -227,8 +227,19 @@
       "skills/claude-code/tdd-assistant/tdd-workflow.md",
       "skills/claude-code/tdd-assistant/language-examples.md"
     ],
+    "bdd-assistant": [
+      "skills/claude-code/bdd-assistant/SKILL.md",
+      "skills/claude-code/bdd-assistant/bdd-workflow.md",
+      "skills/claude-code/bdd-assistant/gherkin-guide.md"
+    ],
+    "atdd-assistant": [
+      "skills/claude-code/atdd-assistant/SKILL.md",
+      "skills/claude-code/atdd-assistant/atdd-workflow.md",
+      "skills/claude-code/atdd-assistant/acceptance-criteria-guide.md"
+    ],
     "commands": [
       "skills/claude-code/commands/README.md",
+      "skills/claude-code/commands/atdd.md",
       "skills/claude-code/commands/bdd.md",
       "skills/claude-code/commands/changelog.md",
       "skills/claude-code/commands/check.md",
@@ -290,6 +301,14 @@
         "source": "methodologies/atdd.methodology.yaml",
         "phases": ["specification-workshop", "distillation", "development", "demo", "done"],
         "description": "Acceptance criteria defined upfront through collaboration"
+      },
+      {
+        "id": "integrated-flow",
+        "name": "Integrated Development Flow",
+        "nameZh": "整合開發流程",
+        "source": "methodologies/integrated-flow.methodology.yaml",
+        "phases": ["specification-workshop", "spec-proposal", "spec-review", "discovery", "formulation", "tdd-red", "tdd-green", "tdd-refactor", "demo", "archive"],
+        "description": "Complete ATDD → SDD → BDD → TDD workflow"
       }
     ],
     "customPath": ".standards/methodologies/"
@@ -722,6 +741,32 @@
       "skillName": "tdd-assistant",
       "level": 2,
       "description": "Red-Green-Refactor methodology for TDD workflow"
+    },
+    {
+      "id": "behavior-driven-development",
+      "name": "Behavior-Driven Development",
+      "nameZh": "行為驅動開發",
+      "source": {
+        "human": "core/behavior-driven-development.md",
+        "ai": "ai/standards/behavior-driven-development.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": "bdd-assistant",
+      "level": 2,
+      "description": "Given-When-Then format for behavior specification with Three Amigos collaboration"
+    },
+    {
+      "id": "acceptance-test-driven-development",
+      "name": "Acceptance Test-Driven Development",
+      "nameZh": "驗收測試驅動開發",
+      "source": {
+        "human": "core/acceptance-test-driven-development.md",
+        "ai": "ai/standards/acceptance-test-driven-development.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": "atdd-assistant",
+      "level": 2,
+      "description": "Acceptance criteria defined upfront through specification workshops and PO collaboration"
     },
     {
       "id": "refactoring-standards",

@@ -39,6 +39,7 @@ Commands for development methodology workflows.
 | [`/methodology`](./methodology.md) | Manage active methodology | 管理開發方法論 |
 | [`/tdd`](./tdd.md) | Test-Driven Development workflow | TDD 開發流程 |
 | [`/bdd`](./bdd.md) | Behavior-Driven Development workflow | BDD 開發流程 |
+| [`/atdd`](./atdd.md) | Acceptance Test-Driven Development workflow | ATDD 驗收流程 |
 
 ## Commands vs Skills | 命令與技能
 

@@ -24,6 +24,8 @@ These skills are automatically triggered based on context when using Claude Code
 | `code-review-assistant` | Systematic code review | "review", "PR" |
 | `testing-guide` | Testing pyramid | Writing tests |
 | `tdd-assistant` | Test-Driven Development | "TDD", "test first", "red green refactor" |
+| `bdd-assistant` | Behavior-Driven Development | "BDD", "Gherkin", "Given-When-Then" |
+| `atdd-assistant` | Acceptance Test-Driven Development | "ATDD", "acceptance criteria", "specification workshop" |
 | `release-standards` | Semantic versioning | Release preparation |
 | `git-workflow-guide` | Branching strategies | "branch", "merge" |
 | `documentation-guide` | Documentation structure & writing | "README", "docs", "ARCHITECTURE" |
@@ -65,6 +67,8 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 | git-workflow-guide | branch, merge, workflow | 分支, 合併 |
 | testing-guide | test, coverage, pyramid | 測試, 覆蓋率 |
 | tdd-assistant | TDD, test first, red green refactor | TDD, 測試優先, 紅綠重構 |
+| bdd-assistant | BDD, Gherkin, Given-When-Then, feature file | BDD, 行為驅動, 場景 |
+| atdd-assistant | ATDD, acceptance criteria, specification workshop | ATDD, 驗收條件, 規格工作坊 |
 | release-standards | version, release, semver | 版本, 發布 |
 | documentation-guide | README, docs, ARCHITECTURE, API docs | 文件, 架構, API 文件 |
 | requirement-assistant | spec, SDD, requirement | 規格, 需求, 新功能 |
@@ -88,6 +92,8 @@ In addition to automatic Skills, this plugin provides **manual slash commands** 
 | `/requirement` | Write user stories | 撰寫用戶故事 |
 | `/spec` | Create specifications | 建立規格文件 |
 | `/tdd` | TDD workflow | TDD 工作流程 |
+| `/bdd` | BDD workflow | BDD 開發流程 |
+| `/atdd` | ATDD workflow | ATDD 驗收流程 |
 | `/docs` | Documentation | 文件撰寫 |
 | `/coverage` | Test coverage analysis | 測試覆蓋率分析 |
 

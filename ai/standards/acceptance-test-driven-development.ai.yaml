@@ -1,0 +1,345 @@
+# Acceptance Test-Driven Development (ATDD) Standards - AI Optimized
+# Source: core/acceptance-test-driven-development.md
+
+id: acceptance-test-driven-development
+meta:
+  version: "1.0.0"
+  updated: "2026-01-19"
+  source: core/acceptance-test-driven-development.md
+  description: ATDD principles, specification workshop, and acceptance criteria workflow
+
+# ATDD Core Concepts
+core_concepts:
+  definition: Acceptance Test-Driven Development defines acceptance criteria before development through team collaboration
+  philosophy: Shared understanding through specification workshops; PO-driven acceptance
+  key_principle: Acceptance criteria are defined BEFORE implementation begins
+
+# ATDD Workflow
+atdd_workflow:
+  name: Workshop-Distill-Develop-Demo-Done
+  phases:
+    - phase: SPECIFICATION-WORKSHOP
+      purpose: Collaboratively define acceptance criteria
+      participants: [Product Owner, Developer, QA]
+      activities:
+        - PO presents user story
+        - Team asks clarifying questions
+        - Define acceptance criteria together
+        - Document out-of-scope items
+      output: User story with acceptance criteria
+      duration: 30-60 minutes
+
+    - phase: DISTILLATION
+      purpose: Convert criteria to executable tests
+      activities:
+        - Remove ambiguity from criteria
+        - Convert to executable test format
+        - Get PO sign-off on tests
+      output: Executable acceptance tests
+      sign_off: PO approval required
+
+    - phase: DEVELOPMENT
+      purpose: Implement to pass acceptance tests
+      activities:
+        - Run acceptance tests (should fail initially)
+        - Use BDD for feature tests
+        - Use TDD for unit tests
+        - Iterate until all tests pass
+      output: Working feature with passing tests
+
+    - phase: DEMO
+      purpose: Present to stakeholders for acceptance
+      activities:
+        - Prepare demo environment
+        - Show acceptance tests passing
+        - Demonstrate functionality
+        - Get formal PO acceptance
+      output: PO acceptance or refinement feedback
+
+    - phase: DONE
+      purpose: Complete the story
+      criteria:
+        - PO accepted
+        - Code merged
+        - Story closed
+
+# User Story Format
+user_story:
+  template:
+    as_a: "[role]"
+    i_want: "[feature/capability]"
+    so_that: "[benefit/value]"
+
+  invest_criteria:
+    - criterion: Independent
+      description: Can be developed without depending on other stories
+      question: Does this require another story first?
+    - criterion: Negotiable
+      description: Details can be discussed, not a contract
+      question: Is the scope flexible?
+    - criterion: Valuable
+      description: Delivers value to user or business
+      question: Why does this matter?
+    - criterion: Estimable
+      description: Can be estimated by the team
+      question: Do we understand what's needed?
+    - criterion: Small
+      description: Small enough for one sprint
+      question: Can we complete in < 1 week?
+    - criterion: Testable
+      description: Can be verified through testing
+      question: How do we know it's done?
+
+# Acceptance Criteria Format
+acceptance_criteria:
+  format: Given-When-Then
+  structure:
+    given: Precondition/initial context
+    when: Action/event
+    then: Expected outcome
+
+  categories:
+    - category: Happy Path
+      purpose: Normal expected behavior
+    - category: Error Handling
+      purpose: What happens when things go wrong
+    - category: Edge Cases
+      purpose: Boundary conditions
+    - category: Authorization
+      purpose: Who can do what
+    - category: Validation
+      purpose: Data and input validation
+    - category: Performance
+      purpose: Non-functional requirements (if applicable)
+
+  quality_checklist:
+    - criterion: Can a new team member understand it?
+    - criterion: Is it free of technical jargon?
+    - criterion: Can it be automated?
+    - criterion: Are outcomes measurable?
+    - criterion: Does it deliver user value?
+
+# Specification Workshop
+specification_workshop:
+  structure:
+    - step: Story Presentation
+      duration: 5 min
+      owner: Product Owner
+    - step: Clarifying Questions
+      duration: 10 min
+      focus: Business, Development, Testing perspectives
+    - step: AC Definition
+      duration: 20 min
+      output: Given-When-Then criteria
+    - step: Out of Scope
+      duration: 10 min
+      output: Explicit exclusions
+    - step: Technical Notes
+      duration: 5 min
+      output: Implementation hints
+
+  question_types:
+    business: ["What's the value?", "Who are the users?"]
+    development: ["What's the impact?", "Dependencies?"]
+    testing: ["What could go wrong?", "Edge cases?"]
+
+# Role Responsibilities (RACI)
+raci_matrix:
+  activities:
+    - activity: Define user story
+      PO: R/A
+      Dev: C
+      QA: C
+    - activity: Specification workshop
+      PO: R
+      Dev: C
+      QA: C
+    - activity: Define acceptance criteria
+      PO: A
+      Dev: R
+      QA: R
+    - activity: Write executable tests
+      PO: C
+      Dev: R
+      QA: R/A
+    - activity: Implement feature
+      PO: C
+      Dev: R/A
+      QA: C
+    - activity: Accept/reject feature
+      PO: R/A
+      Dev: I
+      QA: I
+  legend:
+    R: Responsible
+    A: Accountable
+    C: Consulted
+    I: Informed
+
+# Anti-Patterns
+anti_patterns:
+  - name: No PO in Workshop
+    description: Writing AC without Product Owner involvement
+    impact: Missed requirements, wrong assumptions
+    fix: PO attendance is mandatory
+
+  - name: Vague Criteria
+    description: AC like "system should be fast"
+    impact: Not testable, subjective
+    fix: Use measurable outcomes ("< 2 seconds")
+
+  - name: Technical Language
+    description: AC with implementation details
+    impact: Business can't validate
+    fix: Use business language
+
+  - name: Compound Criteria
+    description: Single AC testing multiple behaviors
+    impact: Hard to trace failures
+    fix: One behavior per AC
+
+  - name: Missing Out-of-Scope
+    description: Not documenting what's excluded
+    impact: Scope creep during development
+    fix: Always document exclusions
+
+  - name: Skipping Distillation
+    description: Going straight to development
+    impact: Ambiguous tests, PO surprises
+    fix: Get PO sign-off before development
+
+# Integration
+integration:
+  flow: ATDD -> SDD -> BDD -> TDD
+
+  with_sdd:
+    mapping: User story + AC becomes spec input
+    traceability: SPEC-XXX references US-XXX
+
+  with_bdd:
+    mapping: One AC may produce multiple Gherkin scenarios
+    flow: AC defines what; BDD defines how to test
+
+  with_tdd:
+    mapping: BDD scenarios drive TDD implementation
+    flow: TDD for unit-level, BDD for feature-level
+
+# Test Formats
+test_formats:
+  gherkin:
+    best_for: Behavior-focused, business-readable
+    tools: [Cucumber, SpecFlow, Behave]
+  fitnesse:
+    best_for: Data-driven, wiki tables
+    tools: [FitNesse, FIT]
+  robot:
+    best_for: Complex workflows
+    tools: [Robot Framework]
+  code:
+    best_for: Technical teams
+    tools: [xUnit frameworks]
+
+# Rules for AI
+rules:
+  - id: workshop-first
+    trigger: starting new user story
+    instruction: Conduct specification workshop with PO before writing any code
+    priority: required
+
+  - id: gwt-format
+    trigger: writing acceptance criteria
+    instruction: Use Given-When-Then format for all acceptance criteria
+    priority: required
+    examples:
+      good:
+        - "Given I have items in my cart, When I checkout, Then order is created"
+      bad:
+        - "User can checkout" (too vague)
+
+  - id: invest-check
+    trigger: evaluating user story
+    instruction: Verify story meets INVEST criteria before workshop
+    priority: recommended
+
+  - id: po-signoff
+    trigger: completing distillation
+    instruction: Get explicit PO sign-off before development begins
+    priority: required
+
+  - id: tests-fail-first
+    trigger: starting development
+    instruction: Run acceptance tests first - they should fail initially
+    priority: required
+
+  - id: out-of-scope
+    trigger: defining story
+    instruction: Always document what is explicitly out of scope
+    priority: required
+
+  - id: demo-before-done
+    trigger: completing development
+    instruction: Demo to stakeholders and get formal acceptance before marking done
+    priority: required
+
+  - id: measurable-outcomes
+    trigger: writing acceptance criteria
+    instruction: Ensure all outcomes are measurable and verifiable
+    priority: required
+    examples:
+      good:
+        - "Then response time should be < 2 seconds"
+        - "Then user sees error message 'Invalid email'"
+      bad:
+        - "Then system should be fast"
+        - "Then user-friendly error shown"
+
+# Metrics
+metrics:
+  targets:
+    - metric: AC Coverage
+      target: "100% of story AC"
+      warning: "< 100%"
+    - metric: Acceptance Test Pass Rate
+      target: "100%"
+      warning: "< 100%"
+    - metric: PO Acceptance Rate
+      target: "> 95% first demo"
+      warning: "< 80%"
+    - metric: Workshop Duration
+      target: "30-60 minutes"
+      warning: "> 90 minutes"
+
+quick_reference:
+  workflow_phases:
+    columns: [Phase, Purpose, Output]
+    rows:
+      - [Workshop, "Define AC with PO", "User story + AC"]
+      - [Distillation, "Make tests executable", "Test suite (PO signed)"]
+      - [Development, "Implement feature", "Passing tests"]
+      - [Demo, "Present to stakeholders", "PO acceptance"]
+      - [Done, "Close story", "Code merged"]
+
+  invest_criteria:
+    columns: [Letter, Criterion, Question]
+    rows:
+      - [I, Independent, "Can be developed alone?"]
+      - [N, Negotiable, "Scope flexible?"]
+      - [V, Valuable, "Delivers value?"]
+      - [E, Estimable, "Team understands?"]
+      - [S, Small, "< 1 week?"]
+      - [T, Testable, "Clear AC?"]
+
+  raci_summary:
+    columns: [Activity, PO, Dev, QA]
+    rows:
+      - [Define story, "R/A", C, C]
+      - [Define AC, A, R, R]
+      - [Write tests, C, R, "R/A"]
+      - [Implement, C, "R/A", C]
+      - [Accept, "R/A", I, I]
+
+related_standards:
+  - behavior-driven-development.md
+  - test-driven-development.md
+  - spec-driven-development.md
+  - testing-standards.md

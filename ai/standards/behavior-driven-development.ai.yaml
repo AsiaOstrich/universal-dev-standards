@@ -1,0 +1,317 @@
+# Behavior-Driven Development (BDD) Standards - AI Optimized
+# Source: core/behavior-driven-development.md
+
+id: behavior-driven-development
+meta:
+  version: "1.0.0"
+  updated: "2026-01-19"
+  source: core/behavior-driven-development.md
+  description: BDD principles, Gherkin syntax, and Given-When-Then workflow for behavior specification
+
+# BDD Core Concepts
+core_concepts:
+  definition: Behavior-Driven Development bridges business requirements and technical implementation through shared language
+  origin: Dan North, 2006
+  philosophy: Conversations over documentation; specification by example
+
+# Discovery-Formulation-Automation Workflow
+dfa_workflow:
+  name: Discovery-Formulation-Automation
+  phases:
+    - phase: DISCOVERY
+      purpose: Explore behavior through conversation
+      participants: [Product Owner, Developer, QA]
+      activities:
+        - Example Mapping sessions
+        - Identify rules, examples, questions
+        - Discover edge cases and ambiguities
+      output: Examples and acceptance criteria
+
+    - phase: FORMULATION
+      purpose: Convert examples to executable specifications
+      activities:
+        - Write Gherkin scenarios
+        - Use Given-When-Then format
+        - Keep scenarios focused and independent
+      output: Feature files (.feature)
+
+    - phase: AUTOMATION
+      purpose: Implement step definitions and production code
+      activities:
+        - Write step definitions
+        - Implement production code to pass scenarios
+        - Use TDD for unit-level implementation
+      output: Passing automated tests
+
+# Three Amigos
+three_amigos:
+  purpose: Collaborative specification through diverse perspectives
+  participants:
+    - role: Business
+      contributes: Requirements, acceptance criteria, business rules
+      asks: Why? What value? What if?
+    - role: Development
+      contributes: Technical feasibility, implementation details
+      asks: How? Dependencies? Edge cases?
+    - role: Testing
+      contributes: Quality scenarios, edge cases, testability
+      asks: What could go wrong? How to verify?
+
+# Gherkin Syntax
+gherkin_syntax:
+  structure:
+    - element: Feature
+      description: High-level description of capability
+      example: "Feature: User Authentication"
+    - element: Scenario
+      description: Specific example of behavior
+      example: "Scenario: Successful login"
+    - element: Given
+      description: Initial context/preconditions
+      example: "Given I am on the login page"
+    - element: When
+      description: Action or event
+      example: "When I enter valid credentials"
+    - element: Then
+      description: Expected outcome
+      example: "Then I should be logged in"
+    - element: And/But
+      description: Connect multiple steps
+      example: "And I should see my dashboard"
+
+  advanced_elements:
+    - element: Scenario Outline
+      purpose: Data-driven scenarios with examples table
+    - element: Background
+      purpose: Common setup for all scenarios in feature
+    - element: Data Tables
+      purpose: Pass structured data to steps
+    - element: Doc Strings
+      purpose: Multi-line text input
+    - element: Tags
+      purpose: Organize and filter scenarios
+
+  best_practices:
+    do:
+      - Use declarative language (what, not how)
+      - Keep scenarios focused on ONE behavior
+      - Use business language, not technical terms
+      - Limit scenarios to 3-5 steps
+    dont:
+      - Don't include UI implementation details
+      - Don't use conjunctions to combine behaviors
+      - Don't reference test data directly
+      - Don't write duplicate scenarios
+
+# Example Mapping
+example_mapping:
+  purpose: Structured discovery technique
+  artifacts:
+    - color: Yellow
+      represents: User Story
+    - color: Blue
+      represents: Rules/Acceptance Criteria
+    - color: Green
+      represents: Examples (scenarios)
+    - color: Red
+      represents: Questions/Unknowns
+  flow:
+    - Start with user story (yellow)
+    - Identify rules (blue cards under story)
+    - Add examples for each rule (green cards)
+    - Capture questions (red cards)
+    - Session ends when red cards dominate
+
+# Living Documentation
+living_documentation:
+  concept: Executable specifications that serve as always-up-to-date documentation
+  benefits:
+    - Documentation never goes stale
+    - Business can read and validate specifications
+    - Single source of truth for behavior
+  tooling:
+    - Cucumber Living Doc
+    - Pickles
+    - SpecFlow+ LivingDoc
+
+# Step Definition Guidelines
+step_definitions:
+  principles:
+    - Reusable across scenarios
+    - Single responsibility per step
+    - Abstract implementation details
+  layers:
+    - layer: Step Definition
+      purpose: Parse Gherkin and delegate
+    - layer: Support/Helper
+      purpose: Encapsulate common operations
+    - layer: Page Object / Service
+      purpose: Interact with system under test
+
+# Anti-Patterns
+anti_patterns:
+  - name: Incidental Details
+    description: Including UI/implementation details in scenarios
+    impact: Brittle tests, hard to maintain
+    fix: Use declarative language focused on behavior
+
+  - name: Scenario Coupling
+    description: Scenarios depend on each other
+    impact: Order-dependent failures, hard to run individually
+    fix: Each scenario sets up its own context
+
+  - name: Feature Envy
+    description: Testing implementation instead of behavior
+    impact: Tests break on refactoring
+    fix: Test observable behavior only
+
+  - name: Conjunctive Steps
+    description: Steps doing multiple things
+    impact: Hard to reuse, unclear intent
+    fix: Split into focused steps
+
+  - name: Missing Discovery
+    description: Writing scenarios without Three Amigos discussion
+    impact: Missed requirements, wrong assumptions
+    fix: Always conduct discovery sessions first
+
+# Comparison with TDD/ATDD
+comparison:
+  bdd:
+    focus: Behavior specification
+    language: Gherkin (Given-When-Then)
+    participants: Three Amigos
+    test_level: Feature/Scenario
+    when: Before implementation
+
+  tdd:
+    focus: Code units
+    language: Programming code
+    participants: Developers
+    test_level: Unit/Integration
+    when: During coding
+
+  atdd:
+    focus: Acceptance criteria
+    language: Business language
+    participants: Team + Stakeholders
+    test_level: System/Acceptance
+    when: Before development starts
+
+# Integration
+integration:
+  with_atdd:
+    flow: ATDD (acceptance criteria) -> BDD (scenarios) -> TDD (unit tests)
+    mapping: One AC may produce multiple Gherkin scenarios
+
+  with_tdd:
+    flow: BDD scenarios drive TDD implementation
+    mapping: Each scenario step may require TDD cycles
+
+  with_sdd:
+    flow: Spec -> BDD scenarios -> Implementation
+    mapping: Spec acceptance criteria converted to Gherkin
+
+# Rules for AI
+rules:
+  - id: discovery-first
+    trigger: starting new feature or story
+    instruction: Conduct discovery session with Three Amigos approach before writing scenarios
+    priority: required
+
+  - id: gherkin-format
+    trigger: writing behavior specifications
+    instruction: Use Gherkin syntax with Given-When-Then format
+    priority: required
+
+  - id: declarative-language
+    trigger: writing scenarios
+    instruction: Use business language, avoid implementation details
+    priority: required
+    examples:
+      good:
+        - "Given I have items in my cart"
+        - "When I complete checkout"
+      bad:
+        - "Given I click the add-to-cart button"
+        - "When I fill the form and submit"
+
+  - id: single-behavior
+    trigger: writing scenario
+    instruction: Each scenario should test ONE behavior
+    priority: required
+
+  - id: independent-scenarios
+    trigger: organizing scenarios
+    instruction: Scenarios must be executable in any order
+    priority: required
+
+  - id: reusable-steps
+    trigger: writing step definitions
+    instruction: Design steps to be reusable across scenarios
+    priority: recommended
+
+  - id: example-mapping
+    trigger: complex requirements
+    instruction: Use Example Mapping to discover rules, examples, and questions
+    priority: recommended
+
+# Tooling by Language
+tooling:
+  javascript:
+    framework: Cucumber.js
+    runner: Jest or Mocha
+  python:
+    framework: Behave
+    alternative: pytest-bdd
+  java:
+    framework: Cucumber-JVM
+    runner: JUnit 5
+  csharp:
+    framework: SpecFlow
+    runner: NUnit or xUnit
+  ruby:
+    framework: Cucumber
+    runner: RSpec
+
+# Metrics
+metrics:
+  targets:
+    - metric: Scenario Coverage
+      target: "100% of acceptance criteria"
+      warning: "< 80%"
+    - metric: Scenario Pass Rate
+      target: "100%"
+      warning: "< 95%"
+    - metric: Living Doc Currency
+      target: "Always up to date"
+      warning: "More than 1 week stale"
+
+quick_reference:
+  dfa_phases:
+    columns: [Phase, Purpose, Output]
+    rows:
+      - [Discovery, "Explore through conversation", "Examples, questions"]
+      - [Formulation, "Convert to Gherkin", "Feature files"]
+      - [Automation, "Implement steps", "Passing tests"]
+
+  gherkin_keywords:
+    columns: [Keyword, Purpose, Example]
+    rows:
+      - [Given, Precondition, "Given I am logged in"]
+      - [When, Action, "When I add item to cart"]
+      - [Then, Outcome, "Then cart shows 1 item"]
+      - [And/But, Connect steps, "And total is $10"]
+
+  three_amigos:
+    columns: [Role, Contributes, Asks]
+    rows:
+      - [Business, "Requirements, rules", "Why? What value?"]
+      - [Development, "Feasibility, design", "How? Dependencies?"]
+      - [Testing, "Quality scenarios", "What could go wrong?"]
+
+related_standards:
+  - test-driven-development.md
+  - acceptance-test-driven-development.md
+  - spec-driven-development.md
+  - testing-standards.md
