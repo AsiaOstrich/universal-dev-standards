@@ -1,4 +1,15 @@
+---
+source: ../../../templates/reverse-spec-template.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-19
+status: current
+---
+
 # [SPEC-XXX] [功能名稱]（反向工程）
+
+**版本**: 1.0.0
+**最後更新**: 2026-01-19
 
 > ⚠️ **此規格由現有程式碼反向工程而來**
 >

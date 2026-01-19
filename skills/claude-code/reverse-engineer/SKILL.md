@@ -10,9 +10,11 @@ description: |
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/reverse-engineer/SKILL.md)
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Last Updated**: 2026-01-19
 **Applicability**: Claude Code Skills
+
+> **Core Standard**: This skill implements [Reverse Engineering Standards](../../../core/reverse-engineering-standards.md). For comprehensive methodology documentation accessible by any AI tool, refer to the core standard.
 
 ---
 
@@ -374,9 +376,10 @@ This skill auto-detects project configuration:
 
 ## Related Standards
 
-- [Spec-Driven Development](../../../core/spec-driven-development.md)
-- [Anti-Hallucination Guidelines](../../../core/anti-hallucination.md)
-- [Code Review Checklist](../../../core/code-review-checklist.md)
+- [Reverse Engineering Standards](../../../core/reverse-engineering-standards.md) - **Core methodology standard (primary reference)**
+- [Spec-Driven Development](../../../core/spec-driven-development.md) - Output format and review process
+- [Anti-Hallucination Guidelines](../../../core/anti-hallucination.md) - Evidence-based analysis requirements
+- [Code Review Checklist](../../../core/code-review-checklist.md) - Review guidelines
 
 ---
 
@@ -384,7 +387,7 @@ This skill auto-detects project configuration:
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.1.0 | 2026-01-19 | Add BDD/TDD pipeline integration |
+| 1.1.0 | 2026-01-19 | Add BDD/TDD pipeline integration; Add core standard reference |
 | 1.0.0 | 2026-01-19 | Initial release |
 
 ---

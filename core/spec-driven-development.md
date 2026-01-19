@@ -1,7 +1,7 @@
 # Spec-Driven Development (SDD) Standards
 
-**Version**: 1.2.0
-**Last Updated**: 2026-01-05
+**Version**: 1.3.0
+**Last Updated**: 2026-01-19
 **Applicability**: All projects adopting Spec-Driven Development
 
 > **Language**: [English](../core/spec-driven-development.md) | [繁體中文](../locales/zh-TW/core/spec-driven-development.md)
@@ -170,8 +170,78 @@ Reviewers should verify:
 
 ---
 
+## Integration with Reverse Engineering
+
+### Overview
+
+For existing codebases without specifications, use [Reverse Engineering Standards](reverse-engineering-standards.md) to generate SDD-compatible proposal drafts.
+
+### Reverse Engineering → SDD Pipeline
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                  Reverse Engineering → SDD Pipeline                      │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   Existing Code                                                         │
+│        │                                                                │
+│        ▼                                                                │
+│   ┌────────────────────────────────────────────────────────────┐       │
+│   │ /reverse-spec                                               │       │
+│   │   • Code scanning → Technical inventory [Confirmed]         │       │
+│   │   • Test analysis → Acceptance criteria [Confirmed/Inferred]│       │
+│   │   • Gap identification → [Unknown] items                    │       │
+│   └────────────────────────────────────────────────────────────┘       │
+│        │                                                                │
+│        ▼                                                                │
+│   DRAFT SPEC (Reverse-Engineered)                                       │
+│        │                                                                │
+│        ▼                                                                │
+│   ┌────────────────────────────────────────────────────────────┐       │
+│   │ SDD Review Process                                          │       │
+│   │   • Human fills [Unknown] sections (motivation, risks)      │       │
+│   │   • Stakeholder validation of [Inferred] items              │       │
+│   │   • Formal approval                                         │       │
+│   └────────────────────────────────────────────────────────────┘       │
+│        │                                                                │
+│        ▼                                                                │
+│   APPROVED SPEC → Normal SDD workflow continues                         │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Requirements for Reverse-Engineered Specs
+
+When a specification is generated via reverse engineering:
+
+1. **Mark Status**: Include `Status: Draft (Reverse-Engineered)` in metadata
+2. **Fill Unknowns**: All `[Unknown]` sections MUST be filled by humans before approval
+3. **Validate Inferences**: All `[Inferred]` items must be reviewed and confirmed
+4. **Standard Review**: Follow normal SDD review process before implementation
+5. **Source Citations**: Maintain file:line references for traceability
+
+### When to Use Reverse Engineering
+
+| Scenario | Approach |
+|----------|----------|
+| Legacy system modernization | Start with reverse engineering |
+| Documenting undocumented code | Generate specs from code |
+| New team onboarding | Extract specifications for knowledge transfer |
+| Pre-refactoring documentation | Create specs before major changes |
+
+### Related Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/reverse-spec` | Generate SDD specification from existing code |
+| `/reverse-bdd` | Convert acceptance criteria to Gherkin scenarios |
+| `/reverse-tdd` | Analyze test coverage against BDD scenarios |
+
+---
+
 ## Related Standards
 
+- [Reverse Engineering Standards](reverse-engineering-standards.md) - Code-to-specification transformation
 - [Test-Driven Development](test-driven-development.md) - TDD workflow and SDD integration
 - [Behavior-Driven Development](behavior-driven-development.md) - BDD workflow with Given-When-Then scenarios
 - [Acceptance Test-Driven Development](acceptance-test-driven-development.md) - ATDD workflow for business acceptance
@@ -188,6 +258,7 @@ Reviewers should verify:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-01-19 | Added: Integration with Reverse Engineering section, related commands |
 | 1.2.0 | 2026-01-05 | Added: IEEE 830-1998 and SWEBOK v4.0 Chapter 1 (Software Requirements) to References |
 | 1.1.0 | 2025-12-24 | Added: Workflow diagram, Spec template, Integration guide, Best practices, Related standards, License |
 | 1.0.0 | 2025-12-23 | Initial SDD standard definition |

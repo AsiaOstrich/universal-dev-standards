@@ -1,3 +1,11 @@
+---
+source: ../../../docs/AI-AGENT-ROADMAP.md
+source_version: 2.2.0
+translation_version: 2.2.0
+last_synced: 2026-01-15
+status: current
+---
+
 # AI Agent 整合指南
 
 > **語言**: [English](../../../docs/AI-AGENT-ROADMAP.md) | 繁體中文 | [简体中文](../../zh-CN/docs/AI-AGENT-ROADMAP.md)

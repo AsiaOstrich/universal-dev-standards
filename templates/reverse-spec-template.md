@@ -1,5 +1,8 @@
 # [SPEC-XXX] [Feature Name] (Reverse Engineered)
 
+**Version**: 1.0.0
+**Last Updated**: 2026-01-19
+
 > ⚠️ **This specification was reverse engineered from existing code**
 >
 > - **Analysis Date**: YYYY-MM-DD

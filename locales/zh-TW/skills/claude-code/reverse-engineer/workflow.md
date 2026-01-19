@@ -1,4 +1,15 @@
+---
+source: ../../../../../skills/claude-code/reverse-engineer/workflow.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-19
+status: current
+---
+
 # 反向工程工作流程指南
+
+**版本**: 1.0.0
+**最後更新**: 2026-01-19
 
 > **語言**: [English](../../../../../skills/claude-code/reverse-engineer/workflow.md) | 繁體中文
 

@@ -778,6 +778,19 @@
       "description": "Acceptance criteria defined upfront through specification workshops and PO collaboration"
     },
     {
+      "id": "reverse-engineering",
+      "name": "Reverse Engineering Standards",
+      "nameZh": "反向工程標準",
+      "source": {
+        "human": "core/reverse-engineering-standards.md",
+        "ai": "ai/standards/reverse-engineering-standards.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": "reverse-engineer",
+      "level": 2,
+      "description": "Standards for reverse engineering existing code into structured SDD specifications with certainty framework"
+    },
+    {
       "id": "refactoring-standards",
       "name": "Refactoring Standards",
       "nameZh": "重構標準",

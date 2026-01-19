@@ -1,0 +1,296 @@
+# Reverse Engineering Standards - AI Optimized
+# Source: core/reverse-engineering-standards.md
+
+id: reverse-engineering
+meta:
+  version: "1.0.0"
+  updated: "2026-01-19"
+  source: core/reverse-engineering-standards.md
+  description: Standards for reverse engineering code into structured specifications
+
+# Core Workflow
+workflow:
+  name: Reverse Engineering Pipeline
+  stages:
+    - stage: CODE_SCAN
+      description: Analyze code structure, APIs, data models
+      output: Technical inventory
+      certainty: "[Confirmed]"
+      actions:
+        - Identify entry points (main functions, API routes, event handlers)
+        - Map module dependencies
+        - Extract type definitions and interfaces
+        - List configuration sources
+
+    - stage: TEST_ANALYSIS
+      description: Parse existing tests for acceptance criteria
+      output: Draft acceptance criteria
+      certainty: "[Confirmed]/[Inferred]"
+      actions:
+        - Parse test case names
+        - Extract Given-When-Then patterns (if BDD-style)
+        - Identify boundary conditions
+        - Note coverage gaps
+
+    - stage: GAP_IDENTIFICATION
+      description: List unknowns requiring human input
+      output: Gap analysis document
+      certainty: "[Unknown]"
+      actions:
+        - List motivation questions
+        - List business context gaps
+        - Identify risk assessment needs
+        - Note trade-off decisions
+
+    - stage: SPEC_GENERATION
+      description: Generate draft specification
+      output: Draft SPEC-XXX.md
+      certainty: Mixed
+      actions:
+        - Apply specification template
+        - Include all certainty tags
+        - Add source citations
+        - Mark human review required
+
+    - stage: HUMAN_REVIEW
+      description: Stakeholder validation and gap filling
+      output: Validated specification
+      certainty: "[Confirmed]"
+      actions:
+        - Verify [Confirmed] items
+        - Validate [Inferred] items
+        - Fill [Unknown] sections
+        - Get stakeholder sign-off
+
+# Certainty Framework
+certainty_framework:
+  tags:
+    - tag: "[Confirmed]"
+      definition: Directly verified from code or tests
+      use_when: Evidence found in source files
+      example: "POST /api/users endpoint at src/routes/users.ts:15"
+
+    - tag: "[Inferred]"
+      definition: Logical deduction from observed patterns
+      use_when: Pattern-based reasoning
+      example: "Likely uses dependency injection based on constructor pattern"
+
+    - tag: "[Assumption]"
+      definition: Reasonable assumption needing verification
+      use_when: Based on common patterns, unverified
+      example: "Sessions probably expire after 24 hours based on typical patterns"
+
+    - tag: "[Unknown]"
+      definition: Cannot determine from code, requires human input
+      use_when: No evidence available
+      example: "Business motivation for this feature"
+
+  rule: When in doubt, use more uncertain tag rather than overclaiming
+
+# Extractable vs Non-Extractable
+extraction_capability:
+  extractable:
+    - aspect: API Endpoints
+      certainty: "[Confirmed]"
+      source: Route definitions, controllers
+
+    - aspect: Data Models
+      certainty: "[Confirmed]"
+      source: Types, interfaces, schemas
+
+    - aspect: Function Signatures
+      certainty: "[Confirmed]"
+      source: Parameters, return types
+
+    - aspect: Test Cases
+      certainty: "[Confirmed]"
+      source: Test files → Acceptance Criteria
+
+    - aspect: Dependencies
+      certainty: "[Confirmed]"
+      source: Package references, imports
+
+    - aspect: Configuration Patterns
+      certainty: "[Confirmed]"
+      source: Config files
+
+    - aspect: Behavior Patterns
+      certainty: "[Inferred]"
+      source: Code analysis
+
+  not_extractable:
+    - aspect: Motivation/Why
+      reason: Historical context not in code
+      required_action: Ask stakeholders
+
+    - aspect: Business Context
+      reason: Domain knowledge
+      required_action: Ask product owner
+
+    - aspect: Risk Assessment
+      reason: Requires domain expertise
+      required_action: Consult domain experts
+
+    - aspect: Trade-off Decisions
+      reason: Historical context missing
+      required_action: Review design docs if any
+
+    - aspect: Non-Functional Requirements
+      reason: Often implicit
+      required_action: Discuss with architects
+
+# Anti-Patterns
+anti_patterns:
+  code_analysis:
+    - name: Fabricating Motivation
+      impact: Misleading spec
+      fix: Mark as [Unknown]
+
+    - name: Assuming Requirements
+      impact: False confidence
+      fix: Mark as [Need Confirmation]
+
+    - name: Speculating About Unread Code
+      impact: Hallucination
+      fix: Only analyze what's read
+
+    - name: Presenting Inferences as Facts
+      impact: Broken trust
+      fix: Always use appropriate tags
+
+    - name: Skipping Human Review
+      impact: Incomplete spec
+      fix: Always require review phase
+
+  process:
+    - name: Generating for Unread Code
+      impact: Invalid output
+      fix: Read all relevant files first
+
+    - name: Filling [Unknown] Without Human
+      impact: Invalid spec
+      fix: Always get human input
+
+    - name: Skipping Test Analysis
+      impact: Missing criteria
+      fix: Always analyze existing tests
+
+    - name: Single-Pass Generation
+      impact: Shallow spec
+      fix: Use progressive disclosure
+
+# Integration Pipeline
+integration:
+  pipeline: "Code → Reverse Engineering → SDD → BDD → TDD"
+
+  sdd_integration:
+    - step: Output equals SDD Proposal Draft
+    - step: Human fills [Unknown] sections
+    - step: Formal SDD review process
+    - step: Mark status as "Reverse-Engineered"
+
+  bdd_integration:
+    - step: Convert acceptance criteria to Gherkin
+    - step: Tag [Inferred] scenarios with @needs-confirmation
+    - step: Validate with stakeholders
+
+  tdd_integration:
+    - step: Map existing tests to acceptance criteria
+    - step: Identify coverage gaps
+    - step: Prioritize high-risk untested behaviors
+    - step: Write tests using TDD workflow
+
+# Rules for AI
+rules:
+  - id: read-before-claim
+    trigger: starting reverse engineering
+    instruction: Read ALL relevant files before making any claims about code behavior
+    priority: required
+
+  - id: tag-certainty
+    trigger: extracting information
+    instruction: Tag every statement with appropriate certainty level ([Confirmed], [Inferred], [Assumption], [Unknown])
+    priority: required
+
+  - id: cite-sources
+    trigger: making claims
+    instruction: Include source citations with file:line references for all [Confirmed] items
+    priority: required
+
+  - id: preserve-unknowns
+    trigger: encountering information gaps
+    instruction: Mark as [Unknown] and list in gap analysis; never fabricate motivation or business context
+    priority: required
+
+  - id: progressive-disclosure
+    trigger: generating specification
+    instruction: Start with system overview, then component details, then implementation specifics
+    priority: recommended
+
+  - id: test-mapping
+    trigger: analyzing existing tests
+    instruction: Map test cases to acceptance criteria with [Confirmed] tag and line references
+    priority: required
+
+  - id: human-review-required
+    trigger: completing spec generation
+    instruction: Always mark specification as requiring human review; [Unknown] sections MUST be filled by humans
+    priority: required
+
+  - id: anti-hallucination
+    trigger: any reverse engineering task
+    instruction: Follow Anti-Hallucination Standards strictly; only analyze explicitly read content
+    priority: required
+
+  - id: sdd-format
+    trigger: generating output
+    instruction: Use reverse engineering specification template; output is SDD proposal draft
+    priority: required
+
+  - id: inference-disclaimer
+    trigger: making inferences
+    instruction: Use [Inferred] tag and add "Verify with stakeholders" note
+    priority: recommended
+
+# Quick Reference
+quick_reference:
+  certainty_tags:
+    columns: [Tag, Use When, Example]
+    rows:
+      - ["[Confirmed]", Direct evidence, "POST /api/users at src/routes/users.ts:15"]
+      - ["[Inferred]", Pattern-based deduction, "Likely uses DI based on constructor"]
+      - ["[Assumption]", Reasonable but unverified, "Sessions expire after 24h"]
+      - ["[Unknown]", Cannot determine, "Business motivation"]
+
+  workflow_stages:
+    columns: [Stage, Output, Certainty]
+    rows:
+      - [Code Scan, Technical inventory, "[Confirmed]"]
+      - [Test Analysis, Draft AC, "[Confirmed]/[Inferred]"]
+      - [Gap ID, Gap analysis, "[Unknown] items"]
+      - [Spec Gen, Draft SPEC, Mixed]
+      - [Human Review, Validated spec, "[Confirmed]"]
+
+  extractable_vs_not:
+    columns: [Extractable, Not Extractable]
+    rows:
+      - [API Endpoints, Motivation/Why]
+      - [Data Models, Business Context]
+      - [Function Signatures, Risk Assessment]
+      - [Test Cases, Trade-off Decisions]
+      - [Dependencies, Non-Functional Requirements]
+
+  commands:
+    columns: [Command, Purpose]
+    rows:
+      - ["/reverse-spec", Generate SDD specification from code]
+      - ["/reverse-bdd", Convert AC to Gherkin scenarios]
+      - ["/reverse-tdd", Analyze test coverage against BDD]
+
+related_standards:
+  - anti-hallucination.md
+  - spec-driven-development.md
+  - behavior-driven-development.md
+  - test-driven-development.md
+  - acceptance-test-driven-development.md
+  - code-review-checklist.md

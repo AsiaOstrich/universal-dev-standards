@@ -1,4 +1,15 @@
+---
+source: ../../../../../skills/claude-code/reverse-engineer/tdd-analysis.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-19
+status: current
+---
+
 # TDD 分析工作流程指南
+
+**版本**: 1.0.0
+**最後更新**: 2026-01-19
 
 > **語言**: [English](../../../../../skills/claude-code/reverse-engineer/tdd-analysis.md) | 繁體中文
 

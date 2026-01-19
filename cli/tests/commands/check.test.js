@@ -615,12 +615,14 @@ describe('Check Command', () => {
 
       const output = consoleLogs.join('\n');
 
-      // Should NOT show "0 via Skills" because skills are actually installed
-      expect(output).not.toContain('0 via Skills');
+      // Should show correct count (20 skill standards for Level 3)
+      // Updated from 19 to 20 after adding reverse-engineering skill
+      expect(output).toContain('20 via Skills');
 
-      // Should show correct count (19 skill standards for Level 3)
-      // Updated from 17 to 19 after adding BDD and ATDD skills
-      expect(output).toContain('19 via Skills');
+      // Should NOT show exactly "0 via Skills" as a standalone line
+      // Note: We check for the regex pattern since "20 via Skills" contains "0 via Skills" as substring
+      // The pattern matches "  0 via Skills" with leading spaces and NOT preceded by a digit
+      expect(output).not.toMatch(/(?<!\d)\s+0 via Skills/);
     });
 
   });

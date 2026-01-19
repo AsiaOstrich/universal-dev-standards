@@ -1,3 +1,11 @@
+---
+source: ../../../adoption/DAILY-WORKFLOW-GUIDE.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-19
+status: current
+---
+
 # 日常開發工作流程指南
 
 **版本**: 1.0.0
