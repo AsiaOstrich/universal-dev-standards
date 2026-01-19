@@ -239,9 +239,66 @@ When a specification is generated via reverse engineering:
 
 ---
 
+## Integration with Forward Derivation
+
+### Overview
+
+After a specification is approved, use [Forward Derivation Standards](forward-derivation-standards.md) to automatically generate BDD scenarios, TDD test skeletons, and ATDD acceptance tests from the Acceptance Criteria.
+
+### Forward Derivation → SDD Pipeline
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                  Approved Spec → Forward Derivation Pipeline             │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   APPROVED SPEC-XXX.md                                                  │
+│        │                                                                │
+│        ▼                                                                │
+│   ┌────────────────────────────────────────────────────────────┐       │
+│   │ /derive-all specs/SPEC-XXX.md                               │       │
+│   │   • Parse Acceptance Criteria                               │       │
+│   │   • Transform AC → Gherkin scenarios [Generated]           │       │
+│   │   • Generate TDD test skeletons [Generated]                │       │
+│   │   • Create ATDD acceptance tables [Generated]              │       │
+│   └────────────────────────────────────────────────────────────┘       │
+│        │                                                                │
+│        ▼                                                                │
+│   OUTPUT FILES                                                          │
+│   ├── features/SPEC-XXX.feature (BDD)                                  │
+│   ├── tests/SPEC-XXX.test.ts (TDD)                                     │
+│   └── acceptance/SPEC-XXX-acceptance.md (ATDD)                         │
+│        │                                                                │
+│        ▼                                                                │
+│   HUMAN REVIEW → BDD/TDD workflow continues                            │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### When to Use Forward Derivation
+
+| Scenario | Approach |
+|----------|----------|
+| Spec approved, starting implementation | Use `/derive-all` to generate test structures |
+| Need BDD scenarios quickly | Use `/derive-bdd` for Gherkin generation |
+| Starting TDD workflow | Use `/derive-tdd` for test skeletons |
+| Manual acceptance testing | Use `/derive-atdd` for test tables |
+
+### Related Commands
+
+| Command | Input | Output | Purpose |
+|---------|-------|--------|---------|
+| `/derive-bdd` | SPEC-XXX.md | .feature | AC → Gherkin scenarios |
+| `/derive-tdd` | SPEC-XXX.md | .test.ts | AC → Test skeletons |
+| `/derive-atdd` | SPEC-XXX.md | acceptance.md | AC → Test tables |
+| `/derive-all` | SPEC-XXX.md | All above | Full derivation pipeline |
+
+---
+
 ## Related Standards
 
-- [Reverse Engineering Standards](reverse-engineering-standards.md) - Code-to-specification transformation
+- [Forward Derivation Standards](forward-derivation-standards.md) - Specification-to-test transformation (Spec → BDD/TDD/ATDD)
+- [Reverse Engineering Standards](reverse-engineering-standards.md) - Code-to-specification transformation (Code → Spec)
 - [Test-Driven Development](test-driven-development.md) - TDD workflow and SDD integration
 - [Behavior-Driven Development](behavior-driven-development.md) - BDD workflow with Given-When-Then scenarios
 - [Acceptance Test-Driven Development](acceptance-test-driven-development.md) - ATDD workflow for business acceptance
@@ -258,6 +315,7 @@ When a specification is generated via reverse engineering:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.4.0 | 2026-01-19 | Added: Integration with Forward Derivation section, derive commands |
 | 1.3.0 | 2026-01-19 | Added: Integration with Reverse Engineering section, related commands |
 | 1.2.0 | 2026-01-05 | Added: IEEE 830-1998 and SWEBOK v4.0 Chapter 1 (Software Requirements) to References |
 | 1.1.0 | 2025-12-24 | Added: Workflow diagram, Spec template, Integration guide, Best practices, Related standards, License |

@@ -233,7 +233,7 @@ phases:
           fromPhase: spec-proposal
       exit:
         - condition: spec_approved
-          nextPhase: discovery
+          nextPhase: forward-derivation
         - condition: spec_rejected
           nextPhase: spec-proposal
     guidance:
@@ -263,6 +263,80 @@ phases:
         向適當的利害關係人請求審查。
     reminders: []
 
+  # Forward Derivation Phase
+  - id: forward-derivation
+    name: Forward Derivation
+    nameZh: 正向推演
+    description: Automatically derive BDD scenarios and TDD test skeletons from approved spec
+    descriptionZh: 從已批准的規格自動推演 BDD 場景和 TDD 測試骨架
+    duration: "10-30 minutes"
+    emoji: "\U0001F504"
+    methodology: derivation
+    checklist:
+      - id: bdd-derived
+        text: BDD scenarios derived from acceptance criteria
+        textZh: 從驗收條件推演 BDD 場景
+        required: true
+      - id: tdd-skeleton-created
+        text: TDD test skeleton created
+        textZh: TDD 測試骨架已建立
+        required: true
+      - id: atdd-tables-generated
+        text: ATDD acceptance test tables generated
+        textZh: ATDD 驗收測試表格已生成
+        required: false
+      - id: files-reviewed
+        text: Generated files reviewed for accuracy
+        textZh: 已審查生成檔案的準確性
+        required: true
+    triggers:
+      entry:
+        - condition: spec_approved
+          fromPhase: spec-review
+      exit:
+        - condition: derivation_complete
+          nextPhase: discovery
+        - condition: skip_derivation
+          nextPhase: discovery
+    guidance:
+      prompt: |
+        ## 🔄 Phase 3.5: Forward Derivation
+
+        **Goal**: Auto-generate BDD/TDD/ATDD structures from approved spec.
+
+        ### Commands Available
+        | Command | Output | Purpose |
+        |---------|--------|---------|
+        | `/derive-bdd` | .feature | AC → Gherkin |
+        | `/derive-tdd` | .test.ts | AC → Test skeleton |
+        | `/derive-atdd` | acceptance.md | AC → Test table |
+        | `/derive-all` | All above | Full pipeline |
+
+        ### Anti-Hallucination Check
+        - SPEC has N acceptance criteria
+        - Generated outputs must have exactly N items each
+
+        Run `/derive-all specs/SPEC-XXX.md` to generate all test structures.
+      promptZh: |
+        ## 🔄 階段 3.5：正向推演
+
+        **目標**：從已批准的規格自動生成 BDD/TDD/ATDD 結構。
+
+        ### 可用命令
+        | 命令 | 輸出 | 用途 |
+        |------|------|------|
+        | `/derive-bdd` | .feature | AC → Gherkin |
+        | `/derive-tdd` | .test.ts | AC → 測試骨架 |
+        | `/derive-atdd` | acceptance.md | AC → 測試表格 |
+        | `/derive-all` | 以上全部 | 完整管道 |
+
+        ### 反幻覺檢查
+        - SPEC 有 N 個驗收條件
+        - 生成的輸出必須各有 N 個項目
+
+        執行 `/derive-all specs/SPEC-XXX.md` 以生成所有測試結構。
+    reminders: []
+
   # BDD Phases
   - id: discovery
     name: Discovery (BDD)
@@ -287,8 +361,10 @@ phases:
         required: true
     triggers:
       entry:
-        - condition: spec_approved
-          fromPhase: spec-review
+        - condition: derivation_complete
+          fromPhase: forward-derivation
+        - condition: skip_derivation
+          fromPhase: forward-derivation
       exit:
         - condition: scenarios_identified
           nextPhase: formulation
@@ -762,6 +838,9 @@ integrations:
   sdd:
     enabled: true
     phases: [spec-proposal, spec-review, archive]
+  forward-derivation:
+    enabled: true
+    phases: [forward-derivation]
   bdd:
     enabled: true
     phases: [discovery, formulation]
@@ -788,3 +867,6 @@ aiGuidance:
     - "ATDD to TDD"
     - "complete development"
     - "acceptance to unit"
+    - "forward derivation"
+    - "derive from spec"
+    - "spec to test"

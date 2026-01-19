@@ -32,6 +32,10 @@ Commands for development workflow automation.
 | [`/reverse-spec`](./reverse-spec.md) | Reverse engineer code to SDD spec | 反向工程成 SDD 規格 |
 | [`/reverse-bdd`](./reverse-bdd.md) | Transform SDD AC to BDD scenarios | SDD AC 轉換為 BDD 場景 |
 | [`/reverse-tdd`](./reverse-tdd.md) | Analyze BDD-TDD coverage | BDD-TDD 覆蓋率分析 |
+| [`/derive-bdd`](./derive-bdd.md) | Derive BDD scenarios from approved spec | 從規格推演 BDD 場景 |
+| [`/derive-tdd`](./derive-tdd.md) | Derive TDD test skeletons from spec | 從規格推演 TDD 骨架 |
+| [`/derive-atdd`](./derive-atdd.md) | Derive ATDD acceptance tests from spec | 從規格推演 ATDD 測試 |
+| [`/derive-all`](./derive-all.md) | Derive all test structures from spec | 從規格推演完整測試結構 |
 
 ### Methodology | 方法論
 

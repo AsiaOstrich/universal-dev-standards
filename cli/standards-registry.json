@@ -268,6 +268,9 @@
       "skills/claude-code/reverse-engineer/workflow.md",
       "skills/claude-code/reverse-engineer/bdd-extraction.md",
       "skills/claude-code/reverse-engineer/tdd-analysis.md"
+    ],
+    "forward-derivation": [
+      "skills/claude-code/forward-derivation/SKILL.md"
     ]
   },
   "methodologies": {
@@ -789,6 +792,19 @@
       "skillName": "reverse-engineer",
       "level": 2,
       "description": "Standards for reverse engineering existing code into structured SDD specifications with certainty framework"
+    },
+    {
+      "id": "forward-derivation",
+      "name": "Forward Derivation Standards",
+      "nameZh": "正向推演標準",
+      "source": {
+        "human": "core/forward-derivation-standards.md",
+        "ai": "ai/standards/forward-derivation-standards.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": "forward-derivation",
+      "level": 2,
+      "description": "Standards for deriving BDD scenarios, TDD test skeletons, and ATDD acceptance tests from approved SDD specifications"
     },
     {
       "id": "refactoring-standards",
