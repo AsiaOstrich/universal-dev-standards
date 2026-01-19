@@ -222,7 +222,7 @@ export const messages = {
       validationNoMix: 'Cannot select "Skip" with other options',
       installCount: 'Will install Skills to {count} location(s)',
       choices: {
-        marketplace: 'Auto-managed by Claude Code',
+        marketplace: 'Auto-updates, easy version management',
         userLevel: 'User Level',
         projectLevel: 'Project Level',
         user: 'Shared across all projects',
@@ -230,7 +230,7 @@ export const messages = {
         none: 'No Skills installation'
       },
       explanations: {
-        marketplace: '  → Run: /plugin install universal-dev-standards@asia-ostrich',
+        marketplace: '  → Automatic updates when new versions are released\n  → Easy install/uninstall via Claude Code Plugin system\n  → Run: /plugin install universal-dev-standards@asia-ostrich',
         user: '  → Skills available in all your projects',
         project: '  → Consider adding .claude/skills/ to .gitignore',
         none: '  → Full standards will be copied to .standards/'
@@ -1111,7 +1111,7 @@ export const messages = {
       validationNoMix: '選擇「跳過」時不能同時選擇其他選項',
       installCount: '將安裝 Skills 到 {count} 個位置',
       choices: {
-        marketplace: '由 Claude Code 自動管理',
+        marketplace: '自動更新、輕鬆管理版本',
         userLevel: '使用者層級',
         projectLevel: '專案層級',
         user: '跨專案共享',
@@ -1119,7 +1119,7 @@ export const messages = {
         none: '不安裝 Skills'
       },
       explanations: {
-        marketplace: '  → 執行: /plugin install universal-dev-standards@asia-ostrich',
+        marketplace: '  → 新版本發布時自動更新\n  → 透過 Claude Code 外掛系統輕鬆安裝/移除\n  → 執行: /plugin install universal-dev-standards@asia-ostrich',
         user: '  → Skills 可在所有專案中使用',
         project: '  → 建議將 .claude/skills/ 加入 .gitignore',
         none: '  → 完整標準將複製到 .standards/'
@@ -2000,7 +2000,7 @@ export const messages = {
       validationNoMix: '选择「跳过」时不能同时选择其他选项',
       installCount: '将安装 Skills 到 {count} 个位置',
       choices: {
-        marketplace: '由 Claude Code 自动管理',
+        marketplace: '自动更新、轻松管理版本',
         userLevel: '用户层级',
         projectLevel: '项目层级',
         user: '跨项目共享',
@@ -2008,7 +2008,7 @@ export const messages = {
         none: '不安装 Skills'
       },
       explanations: {
-        marketplace: '  → 执行: /plugin install universal-dev-standards@asia-ostrich',
+        marketplace: '  → 新版本发布时自动更新\n  → 通过 Claude Code 插件系统轻松安装/移除\n  → 执行: /plugin install universal-dev-standards@asia-ostrich',
         user: '  → Skills 可在所有项目中使用',
         project: '  → 建议将 .claude/skills/ 加入 .gitignore',
         none: '  → 完整标准将复制到 .standards/'
