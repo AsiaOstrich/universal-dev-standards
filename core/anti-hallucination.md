@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/anti-hallucination.md)
 
-**Version**: 1.3.1
-**Last Updated**: 2025-12-24
+**Version**: 1.4.0
+**Last Updated**: 2026-01-19
 **Applicability**: All software projects using AI assistants
 
 ---
@@ -250,6 +250,11 @@ Users want SSO support (assumption presented as confirmed requirement)
    - ❌ Do NOT list options and ask user to choose without guidance
    - ✅ DO always include a recommended choice with reasoning
 
+7. **Implement Without Side Effect Analysis**
+   - ❌ Do NOT start coding without identifying potential side effects
+   - ✅ DO list at least 3 potential side effects before implementation
+   - ✅ DO consider: state changes, dependencies, cascading effects
+
 #### Detailed Examples
 
 ##### 1. Fabricating APIs or Function Signatures
@@ -396,6 +401,40 @@ If you need social login later, you can add OAuth on top of JWT."
 
 ---
 
+##### 7. Implementing Without Side Effect Analysis
+
+❌ **Incorrect**:
+```
+User: "Add a function to delete user accounts"
+Assistant: "Here's the implementation:
+
+public async Task DeleteUser(Guid userId) {
+    await _dbContext.Users.Where(u => u.Id == userId).DeleteAsync();
+}
+"
+```
+**Problem**: Directly implementing without considering cascading effects.
+
+✅ **Correct**:
+```
+User: "Add a function to delete user accounts"
+Assistant: "Before implementing, let me identify potential side effects:
+
+**Potential Side Effects**:
+1. **Data Integrity**: Related records (orders, comments, sessions) may become orphaned
+2. **External Systems**: May need to notify third-party services (payment provider, email service)
+3. **Audit Trail**: Deletion may violate compliance requirements (GDPR right to be forgotten vs. audit logs)
+
+[Need Confirmation] How should we handle:
+- Related user data (cascade delete vs. anonymize)?
+- Active sessions?
+- Historical records for reporting?
+
+Once clarified, I'll provide the implementation."
+```
+
+---
+
 ## Implementation Checklist
 
 Before making any statement about code, requirements, or architecture, verify:
@@ -427,6 +466,10 @@ Before making any statement about code, requirements, or architecture, verify:
 
 - [ ] **Recommendation Included**
   - When presenting options, did I include a recommended choice?
+
+- [ ] **Side Effects Identified**
+  - Did I list at least 3 potential side effects before implementing?
+  - Did I consider: state changes, dependencies, external systems, data integrity?
 
 ---
 
@@ -573,6 +616,14 @@ simple caching needs, in-memory cache would suffice.
 └─────────────┬───────────────────┘
               │
               ▼
+┌─────────────────────────────────┐
+│  Identify Potential Side Effects│
+│  - State changes?               │
+│  - Dependencies affected?       │
+│  - External system impacts?     │
+└─────────────┬───────────────────┘
+              │
+              ▼
          ┌────┴────┐
          │  Available?  │
          └────┬────┘
@@ -660,6 +711,7 @@ When performing code reviews, apply these principles:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.4.0 | 2026-01-19 | Added: Side Effect Analysis rule (7th prohibited behavior), workflow step, and checklist item |
 | 1.3.1 | 2025-12-24 | Added: Related Standards section |
 | 1.3.0 | 2025-12-22 | Enhanced: Prohibited Behaviors section with detailed comparison examples |
 | 1.2.0 | 2025-12-15 | Added AI Assistant Interaction Standards section (conversation language, recommendation principles) |
