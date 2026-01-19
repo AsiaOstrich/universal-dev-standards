@@ -242,6 +242,70 @@ describe('E2E: uds list', () => {
       });
     });
   });
+
+  // ===== UI Language Flag Tests =====
+  describe('--ui-lang Flag', () => {
+    it('should show English UI when --ui-lang en is set', async () => {
+      await setupTestDir(testDir, {});
+
+      // Run list with --ui-lang en (global option)
+      const result = await runCommand('list', {}, testDir, 30000, { uiLang: 'en' });
+
+      // Should show English UI
+      expect(result.stdout).toContain('Universal Development Standards');
+      expect(result.stdout).toContain('Version');
+      expect(result.stdout).toContain('Total');
+      expect(result.stdout).not.toContain('通用開發標準');
+      expect(result.stdout).not.toContain('版本');
+
+      recordScenarioResult('--ui-lang en shows English', {
+        steps: [
+          { step: 1, name: 'English title', matched: result.stdout.includes('Universal Development Standards') },
+          { step: 2, name: 'English Version label', matched: result.stdout.includes('Version') },
+          { step: 3, name: 'No Chinese title', matched: !result.stdout.includes('通用開發標準') }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should show Traditional Chinese UI when --ui-lang zh-tw is set', async () => {
+      await setupTestDir(testDir, {});
+
+      // Run list with --ui-lang zh-tw (global option)
+      const result = await runCommand('list', {}, testDir, 30000, { uiLang: 'zh-tw' });
+
+      // Should show Chinese UI
+      expect(result.stdout).toContain('通用開發標準');
+      expect(result.stdout).toContain('版本');
+
+      recordScenarioResult('--ui-lang zh-tw shows Chinese', {
+        steps: [
+          { step: 1, name: 'Chinese title', matched: result.stdout.includes('通用開發標準') },
+          { step: 2, name: 'Chinese Version label', matched: result.stdout.includes('版本') }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should show Simplified Chinese UI when --ui-lang zh-cn is set', async () => {
+      await setupTestDir(testDir, {});
+
+      // Run list with --ui-lang zh-cn (global option)
+      const result = await runCommand('list', {}, testDir, 30000, { uiLang: 'zh-cn' });
+
+      // Should show Simplified Chinese UI
+      expect(result.stdout).toContain('通用开发标准');
+      expect(result.stdout).toContain('版本');
+
+      recordScenarioResult('--ui-lang zh-cn shows Simplified Chinese', {
+        steps: [
+          { step: 1, name: 'Simplified Chinese title', matched: result.stdout.includes('通用开发标准') },
+          { step: 2, name: 'Chinese Version label', matched: result.stdout.includes('版本') }
+        ],
+        output: result.stdout
+      });
+    });
+  });
 });
 
 // ===== Report Generation =====
