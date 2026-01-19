@@ -442,15 +442,29 @@ function extractContext(text, pattern) {
 /**
  * Run any CLI command in non-interactive mode
  * @param {string} command - Command to run (e.g., 'config', 'check', 'update')
- * @param {Object} options - CLI options
+ * @param {Object} options - CLI options for the subcommand
  * @param {string} workDir - Working directory
  * @param {number} timeout - Timeout in ms (default: 30000)
+ * @param {Object} globalOptions - Global CLI options (e.g., { uiLang: 'en' })
  * @returns {Promise<Object>} Result with stdout, stderr, exitCode, files
  */
-export async function runCommand(command, options = {}, workDir, timeout = 30000) {
-  const args = [command];
+export async function runCommand(command, options = {}, workDir, timeout = 30000, globalOptions = {}) {
+  const args = [];
 
-  // Add options (convert camelCase to kebab-case)
+  // Add global options first (before command)
+  for (const [key, value] of Object.entries(globalOptions)) {
+    const kebabKey = toKebabCase(key);
+    if (value === true) {
+      args.push(`--${kebabKey}`);
+    } else if (value !== false && value !== undefined) {
+      args.push(`--${kebabKey}=${value}`);
+    }
+  }
+
+  // Add the command
+  args.push(command);
+
+  // Add subcommand options (convert camelCase to kebab-case)
   for (const [key, value] of Object.entries(options)) {
     const kebabKey = toKebabCase(key);
     if (value === true) {

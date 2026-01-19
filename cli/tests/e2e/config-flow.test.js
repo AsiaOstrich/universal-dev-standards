@@ -271,6 +271,86 @@ describe('E2E: uds config', () => {
       });
     });
   });
+
+  // ===== UI Language Flag Tests =====
+  describe('--ui-lang Flag', () => {
+    it('should show English UI when --ui-lang en is set, even if manifest has traditional-chinese', async () => {
+      await setupTestDir(testDir, {});
+      // Initialize with traditional-chinese commit language
+      await runNonInteractive({ commitLang: 'traditional-chinese' }, testDir);
+
+      // Verify manifest has traditional-chinese
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      expect(manifest.options.commit_language).toBe('traditional-chinese');
+
+      // Run config with --ui-lang en (global option)
+      const result = await runCommand('config', { type: 'format', yes: true }, testDir, 5000, { uiLang: 'en' });
+
+      // Should show English UI, not Chinese
+      expect(result.stdout).toContain('Universal Development Standards - Configure');
+      expect(result.stdout).toContain('Current Configuration');
+      expect(result.stdout).not.toContain('通用開發標準');
+      expect(result.stdout).not.toContain('目前設定');
+
+      recordScenarioResult('--ui-lang en overrides manifest', {
+        steps: [
+          { step: 1, name: 'English title', matched: result.stdout.includes('Universal Development Standards - Configure') },
+          { step: 2, name: 'English labels', matched: result.stdout.includes('Current Configuration') },
+          { step: 3, name: 'No Chinese title', matched: !result.stdout.includes('通用開發標準') },
+          { step: 4, name: 'No Chinese labels', matched: !result.stdout.includes('目前設定') }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should show Traditional Chinese UI when --ui-lang zh-tw is set', async () => {
+      await setupTestDir(testDir, {});
+      // Initialize with english commit language
+      await runNonInteractive({ commitLang: 'english' }, testDir);
+
+      // Verify manifest has english
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      expect(manifest.options.commit_language).toBe('english');
+
+      // Run config with --ui-lang zh-tw (global option)
+      const result = await runCommand('config', { type: 'format', yes: true }, testDir, 5000, { uiLang: 'zh-tw' });
+
+      // Should show Chinese UI, not English
+      expect(result.stdout).toContain('通用開發標準 - 設定');
+      expect(result.stdout).toContain('目前設定');
+
+      recordScenarioResult('--ui-lang zh-tw overrides manifest', {
+        steps: [
+          { step: 1, name: 'Chinese title', matched: result.stdout.includes('通用開發標準 - 設定') },
+          { step: 2, name: 'Chinese labels', matched: result.stdout.includes('目前設定') }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should use manifest language when --ui-lang is not specified', async () => {
+      await setupTestDir(testDir, {});
+      // Initialize with traditional-chinese commit language
+      await runNonInteractive({ commitLang: 'traditional-chinese' }, testDir);
+
+      // Run config WITHOUT --ui-lang (should use manifest setting)
+      const result = await runCommand('config', { type: 'format', yes: true }, testDir, 5000);
+
+      // Should show Chinese UI from manifest
+      expect(result.stdout).toContain('通用開發標準 - 設定');
+      expect(result.stdout).toContain('目前設定');
+
+      recordScenarioResult('No --ui-lang uses manifest language', {
+        steps: [
+          { step: 1, name: 'Chinese title from manifest', matched: result.stdout.includes('通用開發標準 - 設定') },
+          { step: 2, name: 'Chinese labels from manifest', matched: result.stdout.includes('目前設定') }
+        ],
+        output: result.stdout
+      });
+    });
+  });
 });
 
 // ===== Report Generation =====
