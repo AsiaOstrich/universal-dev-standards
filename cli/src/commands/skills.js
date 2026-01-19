@@ -3,7 +3,8 @@ import { existsSync, readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 import { getAllSkillNames } from '../utils/registry.js';
-import { t } from '../i18n/messages.js';
+import { readManifest, isInitialized } from '../utils/copier.js';
+import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 
 // Known skill directories (non-skill items to exclude)
 const NON_SKILL_ITEMS = [
@@ -90,6 +91,24 @@ function listSkillsInDir(dirPath) {
  */
 export function skillsCommand() {
   const projectPath = process.cwd();
+
+  // Set UI language based on project's commit_language if initialized
+  // Only override if user didn't explicitly set --ui-lang flag
+  if (!isLanguageExplicitlySet() && isInitialized(projectPath)) {
+    const manifest = readManifest(projectPath);
+    if (manifest?.options?.commit_language) {
+      const langMap = {
+        'traditional-chinese': 'zh-tw',
+        'simplified-chinese': 'zh-cn',
+        english: 'en',
+        bilingual: 'en'
+      };
+      const uiLang = langMap[manifest.options.commit_language] || 'en';
+      setLanguage(uiLang);
+    }
+  }
+
+  // Now get localized messages
   const msg = t().commands.skills;
   const common = t().commands.common;
 

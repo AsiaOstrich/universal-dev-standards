@@ -7,7 +7,8 @@ import {
   getCategoryInfo,
   getRepositoryInfo
 } from '../utils/registry.js';
-import { t, getLanguage } from '../i18n/messages.js';
+import { readManifest, isInitialized } from '../utils/copier.js';
+import { t, getLanguage, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 
 /**
  * List command - displays available standards
@@ -15,6 +16,25 @@ import { t, getLanguage } from '../i18n/messages.js';
  */
 export function listCommand(options) {
   const { level, category } = options;
+  const projectPath = process.cwd();
+
+  // Set UI language based on project's commit_language if initialized
+  // Only override if user didn't explicitly set --ui-lang flag
+  if (!isLanguageExplicitlySet() && isInitialized(projectPath)) {
+    const manifest = readManifest(projectPath);
+    if (manifest?.options?.commit_language) {
+      const langMap = {
+        'traditional-chinese': 'zh-tw',
+        'simplified-chinese': 'zh-cn',
+        english: 'en',
+        bilingual: 'en'
+      };
+      const uiLang = langMap[manifest.options.commit_language] || 'en';
+      setLanguage(uiLang);
+    }
+  }
+
+  // Now get localized messages
   const msg = t().commands.list;
   const common = t().commands.common;
 

@@ -36,7 +36,7 @@ import {
   extractMarkedContent
 } from '../utils/integration-generator.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
-import { t, getLanguage } from '../i18n/messages.js';
+import { t, getLanguage, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 
 /**
  * Check command - verify adoption status
@@ -44,8 +44,9 @@ import { t, getLanguage } from '../i18n/messages.js';
  */
 export async function checkCommand(options = {}) {
   const projectPath = process.cwd();
-  const msg = t().commands.check;
-  const common = t().commands.common;
+  // Get initial messages (before language is set from manifest)
+  let msg = t().commands.check;
+  let common = t().commands.common;
 
   // Handle --summary option (compact status for other commands)
   if (options.summary) {
@@ -73,6 +74,23 @@ export async function checkCommand(options = {}) {
     console.log();
     return;
   }
+
+  // Set UI language based on commit_language setting
+  // Only override if user didn't explicitly set --ui-lang flag
+  if (!isLanguageExplicitlySet()) {
+    const langMap = {
+      'traditional-chinese': 'zh-tw',
+      'simplified-chinese': 'zh-cn',
+      english: 'en',
+      bilingual: 'en'
+    };
+    const uiLang = langMap[manifest.options?.commit_language] || 'en';
+    setLanguage(uiLang);
+  }
+
+  // Re-get localized messages with correct language
+  msg = t().commands.check;
+  common = t().commands.common;
 
   // Display adoption info
   const levelInfo = getLevelInfo(manifest.level);
