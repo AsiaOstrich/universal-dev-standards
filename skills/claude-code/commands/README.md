@@ -30,6 +30,8 @@ Commands for development workflow automation.
 | [`/docs`](./docs.md) | Create/update documentation | 建立/更新文件 |
 | [`/coverage`](./coverage.md) | Analyze test coverage | 分析測試覆蓋率 |
 | [`/reverse-spec`](./reverse-spec.md) | Reverse engineer code to SDD spec | 反向工程成 SDD 規格 |
+| [`/reverse-bdd`](./reverse-bdd.md) | Transform SDD AC to BDD scenarios | SDD AC 轉換為 BDD 場景 |
+| [`/reverse-tdd`](./reverse-tdd.md) | Analyze BDD-TDD coverage | BDD-TDD 覆蓋率分析 |
 
 ### Methodology | 方法論
 

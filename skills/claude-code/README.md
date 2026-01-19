@@ -99,6 +99,8 @@ In addition to automatic Skills, this plugin provides **manual slash commands** 
 | `/docs` | Documentation | 文件撰寫 |
 | `/coverage` | Test coverage analysis | 測試覆蓋率分析 |
 | `/reverse-spec` | Reverse engineer to SDD spec | 反向工程成 SDD 規格 |
+| `/reverse-bdd` | Transform SDD AC to BDD scenarios | SDD AC 轉換為 BDD 場景 |
+| `/reverse-tdd` | Analyze BDD-TDD coverage | BDD-TDD 覆蓋率分析 |
 
 ### Skills vs Commands | Skills 與命令的差異
 

@@ -254,7 +254,9 @@
       "skills/claude-code/commands/spec.md",
       "skills/claude-code/commands/tdd.md",
       "skills/claude-code/commands/update.md",
-      "skills/claude-code/commands/reverse-spec.md"
+      "skills/claude-code/commands/reverse-spec.md",
+      "skills/claude-code/commands/reverse-bdd.md",
+      "skills/claude-code/commands/reverse-tdd.md"
     ],
     "methodology-system": [
       "skills/claude-code/methodology-system/SKILL.md",
@@ -263,7 +265,9 @@
     ],
     "reverse-engineer": [
       "skills/claude-code/reverse-engineer/SKILL.md",
-      "skills/claude-code/reverse-engineer/workflow.md"
+      "skills/claude-code/reverse-engineer/workflow.md",
+      "skills/claude-code/reverse-engineer/bdd-extraction.md",
+      "skills/claude-code/reverse-engineer/tdd-analysis.md"
     ]
   },
   "methodologies": {

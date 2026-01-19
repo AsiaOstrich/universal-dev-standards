@@ -263,6 +263,64 @@ describe('Shopping Cart', () => {
 2. Use `/bdd` to formalize scenarios
 3. Validate scenarios with stakeholders
 
+## Complete Reverse Engineering Pipeline
+
+The reverse engineering skill supports a complete SDD → BDD → TDD pipeline:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                   Complete Reverse Engineering Pipeline                   │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   Code + Tests                                                          │
+│        │                                                                │
+│        ▼                                                                │
+│   /reverse-spec                                                         │
+│        │                                                                │
+│        └─→ Generate SPEC-XXX with Acceptance Criteria                   │
+│                │                                                        │
+│                ▼                                                        │
+│   /reverse-bdd                                                          │
+│        │                                                                │
+│        ├─→ AC → Gherkin scenario conversion                             │
+│        ├─→ Auto-transform bullet points to Given-When-Then              │
+│        └─→ Generate .feature files                                      │
+│                │                                                        │
+│                ▼                                                        │
+│   /reverse-tdd                                                          │
+│        │                                                                │
+│        ├─→ Analyze existing unit tests                                  │
+│        └─→ Generate coverage report with gaps                           │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Pipeline Commands
+
+| Command | Input | Output | Purpose |
+|---------|-------|--------|---------|
+| `/reverse-spec` | Code directory | SPEC-XXX.md | Extract requirements from code |
+| `/reverse-bdd` | SPEC file | .feature files | Convert AC to Gherkin scenarios |
+| `/reverse-tdd` | .feature files | Coverage report | Map scenarios to unit tests |
+
+### Usage Example
+
+```bash
+# Step 1: Reverse engineer code to SDD specification
+/reverse-spec src/auth/
+
+# Step 2: Transform acceptance criteria to BDD scenarios
+/reverse-bdd specs/SPEC-AUTH.md
+
+# Step 3: Analyze test coverage against BDD scenarios
+/reverse-tdd features/auth.feature
+```
+
+### Detailed Guides
+
+- [BDD Extraction Workflow](./bdd-extraction.md) - Detailed guide for AC → Gherkin transformation
+- [TDD Analysis Workflow](./tdd-analysis.md) - Detailed guide for BDD → TDD coverage analysis
+
 ## Anti-Patterns to Avoid
 
 ### ❌ Don't Do This
@@ -326,6 +384,7 @@ This skill auto-detects project configuration:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-19 | Add BDD/TDD pipeline integration |
 | 1.0.0 | 2026-01-19 | Initial release |
 
 ---
