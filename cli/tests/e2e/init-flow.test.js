@@ -503,6 +503,52 @@ describe('E2E: uds init', () => {
       expect(await fileExists(commandsDir)).toBe(true);
     });
   });
+
+  // ===== UI Language Flag Tests =====
+  describe('--ui-lang Flag', () => {
+    it('should show English UI when --ui-lang en is set', async () => {
+      await setupTestDir(testDir, {});
+
+      // Run init with --ui-lang en (global option)
+      const result = await runNonInteractive({}, testDir, 30000, { uiLang: 'en' });
+
+      // Should show English UI
+      expect(result.stdout).toContain('Universal Development Standards');
+      expect(result.stdout).toContain('Configuration Summary');
+      expect(result.stdout).not.toContain('通用開發標準');
+      expect(result.stdout).not.toContain('設定摘要');
+
+      recordScenarioResult('--ui-lang en shows English', {
+        steps: [
+          { step: 1, name: 'English title', matched: result.stdout.includes('Universal Development Standards') },
+          { step: 2, name: 'English summary', matched: result.stdout.includes('Configuration Summary') },
+          { step: 3, name: 'No Chinese title', matched: !result.stdout.includes('通用開發標準') }
+        ],
+        output: result.stdout,
+        files: result.files
+      });
+    });
+
+    it('should show Traditional Chinese UI when --ui-lang zh-tw is set', async () => {
+      await setupTestDir(testDir, {});
+
+      // Run init with --ui-lang zh-tw (global option)
+      const result = await runNonInteractive({}, testDir, 30000, { uiLang: 'zh-tw' });
+
+      // Should show Chinese UI
+      expect(result.stdout).toContain('通用開發標準');
+      expect(result.stdout).toContain('設定摘要');
+
+      recordScenarioResult('--ui-lang zh-tw shows Chinese', {
+        steps: [
+          { step: 1, name: 'Chinese title', matched: result.stdout.includes('通用開發標準') },
+          { step: 2, name: 'Chinese summary', matched: result.stdout.includes('設定摘要') }
+        ],
+        output: result.stdout,
+        files: result.files
+      });
+    });
+  });
 });
 
 // ===== Report Generation =====

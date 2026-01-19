@@ -83,10 +83,24 @@ function toKebabCase(str) {
  * @param {Object} options - CLI options
  * @param {string} workDir - Working directory
  * @param {number} timeout - Timeout in ms (default: 30000)
+ * @param {Object} globalOptions - Global CLI options (e.g., { uiLang: 'en' })
  * @returns {Promise<Object>} Result with stdout, stderr, exitCode, files
  */
-export async function runNonInteractive(options = {}, workDir, timeout = 30000) {
-  const args = ['init'];
+export async function runNonInteractive(options = {}, workDir, timeout = 30000, globalOptions = {}) {
+  const args = [];
+
+  // Add global options first (before command)
+  for (const [key, value] of Object.entries(globalOptions)) {
+    const kebabKey = toKebabCase(key);
+    if (value === true) {
+      args.push(`--${kebabKey}`);
+    } else if (value !== false && value !== undefined) {
+      args.push(`--${kebabKey}=${value}`);
+    }
+  }
+
+  // Add the init command
+  args.push('init');
 
   // Add --yes flag for non-interactive mode
   args.push('--yes');

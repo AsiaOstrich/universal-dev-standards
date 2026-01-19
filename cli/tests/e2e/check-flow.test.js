@@ -386,6 +386,52 @@ describe('E2E: uds check', () => {
       });
     });
   });
+
+  // ===== UI Language Flag Tests =====
+  describe('--ui-lang Flag', () => {
+    it('should show English UI when --ui-lang en is set', async () => {
+      await setupTestDir(testDir, {});
+      await runNonInteractive({}, testDir);
+
+      // Run check with --ui-lang en (global option)
+      const result = await runCommand('check', { noInteractive: true }, testDir, 30000, { uiLang: 'en' });
+
+      // Should show English UI
+      expect(result.stdout).toContain('Check');
+      expect(result.stdout).toContain('Adoption Status');
+      expect(result.stdout).not.toContain('檢查');
+      expect(result.stdout).not.toContain('採用狀態');
+
+      recordScenarioResult('--ui-lang en shows English', {
+        steps: [
+          { step: 1, name: 'English Check', matched: result.stdout.includes('Check') },
+          { step: 2, name: 'English status', matched: result.stdout.includes('Adoption Status') },
+          { step: 3, name: 'No Chinese', matched: !result.stdout.includes('採用狀態') }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should show Traditional Chinese UI when --ui-lang zh-tw is set', async () => {
+      await setupTestDir(testDir, {});
+      await runNonInteractive({}, testDir);
+
+      // Run check with --ui-lang zh-tw (global option)
+      const result = await runCommand('check', { noInteractive: true }, testDir, 30000, { uiLang: 'zh-tw' });
+
+      // Should show Chinese UI
+      expect(result.stdout).toContain('檢查');
+      expect(result.stdout).toContain('採用狀態');
+
+      recordScenarioResult('--ui-lang zh-tw shows Chinese', {
+        steps: [
+          { step: 1, name: 'Chinese Check', matched: result.stdout.includes('檢查') },
+          { step: 2, name: 'Chinese status', matched: result.stdout.includes('採用狀態') }
+        ],
+        output: result.stdout
+      });
+    });
+  });
 });
 
 // ===== Report Generation =====

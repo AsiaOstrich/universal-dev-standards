@@ -158,6 +158,45 @@ describe('E2E: uds skills', () => {
       });
     });
   });
+
+  // ===== UI Language Flag Tests =====
+  describe('--ui-lang Flag', () => {
+    it('should show English UI when --ui-lang en is set', async () => {
+      await setupTestDir(testDir, {});
+
+      // Run skills with --ui-lang en (global option)
+      const result = await runCommand('skills', {}, testDir, 30000, { uiLang: 'en' });
+
+      // Should show English UI
+      expect(result.stdout).toContain('Installed Skills');
+      expect(result.stdout).not.toContain('已安裝的 Skills');
+
+      recordScenarioResult('--ui-lang en shows English', {
+        steps: [
+          { step: 1, name: 'English title', matched: result.stdout.includes('Installed Skills') },
+          { step: 2, name: 'No Chinese', matched: !result.stdout.includes('已安裝的 Skills') }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should show Traditional Chinese UI when --ui-lang zh-tw is set', async () => {
+      await setupTestDir(testDir, {});
+
+      // Run skills with --ui-lang zh-tw (global option)
+      const result = await runCommand('skills', {}, testDir, 30000, { uiLang: 'zh-tw' });
+
+      // Should show Chinese UI
+      expect(result.stdout).toContain('已安裝的 Skills');
+
+      recordScenarioResult('--ui-lang zh-tw shows Chinese', {
+        steps: [
+          { step: 1, name: 'Chinese title', matched: result.stdout.includes('已安裝的 Skills') }
+        ],
+        output: result.stdout
+      });
+    });
+  });
 });
 
 // ===== Report Generation =====
