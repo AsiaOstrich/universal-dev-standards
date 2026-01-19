@@ -14,7 +14,7 @@ status: current
 
 Universal Development Standards 是一个语言无关、框架无关的文件化标准框架。它提供：
 
-- **核心规范** (`core/`)：13 个基础开发标准
+- **核心规范** (`core/`)：16 个基础开发标准
 - **AI 技能** (`skills/`)：用于 AI 辅助开发的 Claude Code 技能
 - **CLI 工具** (`cli/`)：用于采用标准的 Node.js CLI
 - **整合** (`integrations/`)：各种 AI 工具的配置
@@ -184,13 +184,25 @@ node cli\bin\uds.js init --help
 - 需要双语文件（英文主版本，zh-TW 翻译）
 - CLI 工具是主要程式码元件；大部分内容是 Markdown
 
+### 规范合规参考
+
+| 任务 | 必须遵循 | 参考 |
+|------|----------|------|
+| 代码分析 | 反幻觉标准 | [core/anti-hallucination.md](../../core/anti-hallucination.md) |
+| PR 审查 | 代码审查清单 | [core/code-review-checklist.md](../../core/code-review-checklist.md) |
+| 新增功能 | 测试标准 | [core/testing-standards.md](../../core/testing-standards.md) |
+| 任何提交 | 提交规范 | [core/checkin-standards.md](../../core/checkin-standards.md) |
+| 新功能设计 | 规格驱动开发 | [core/spec-driven-development.md](../../core/spec-driven-development.md) |
+| 撰写 AI 指令 | AI 指令标准 | [core/ai-instruction-standards.md](../../core/ai-instruction-standards.md) |
+| 撰写文档 | 文档撰写标准 | [core/documentation-writing-standards.md](../../core/documentation-writing-standards.md) |
+
 ## 档案结构参考
 
 ```
 universal-dev-standards/
-├── core/                  # 核心规范（13 个档案）
+├── core/                  # 核心规范（16 个档案）
 ├── skills/                # AI 工具技能
-│   └── claude-code/       # Claude Code 技能（14 个技能）
+│   └── claude-code/       # Claude Code 技能（15 个技能）
 ├── cli/                   # Node.js CLI 工具
 │   ├── src/               # 原始码
 │   ├── tests/             # 测试档案

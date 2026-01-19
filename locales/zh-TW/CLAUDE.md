@@ -184,6 +184,18 @@ node cli\bin\uds.js init --help
 - 需要雙語文件（英文主版本，zh-TW 翻譯）
 - CLI 工具是主要程式碼元件；大部分內容是 Markdown
 
+### 規範合規參考
+
+| 任務 | 必須遵循 | 參考 |
+|------|----------|------|
+| 程式碼分析 | 反幻覺標準 | [core/anti-hallucination.md](../../core/anti-hallucination.md) |
+| PR 審查 | 程式碼審查清單 | [core/code-review-checklist.md](../../core/code-review-checklist.md) |
+| 新增功能 | 測試標準 | [core/testing-standards.md](../../core/testing-standards.md) |
+| 任何提交 | 提交規範 | [core/checkin-standards.md](../../core/checkin-standards.md) |
+| 新功能設計 | 規格驅動開發 | [core/spec-driven-development.md](../../core/spec-driven-development.md) |
+| 撰寫 AI 指令 | AI 指令標準 | [core/ai-instruction-standards.md](../../core/ai-instruction-standards.md) |
+| 撰寫文件 | 文件撰寫標準 | [core/documentation-writing-standards.md](../../core/documentation-writing-standards.md) |
+
 ## 檔案結構參考
 
 ```

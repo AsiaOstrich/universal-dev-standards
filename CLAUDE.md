@@ -224,7 +224,7 @@ Before EVERY commit, verify:
 
 4. **Documentation**
    - [ ] API documentation updated (if applicable)
-   - [ ] CHANGELOG updated for user-facing changes (add to `[Unreleased]` section)
+   - [ ] CHANGELOG updated for user-facing changes (follow [changelog-standards.md](core/changelog-standards.md))
 
 5. **Workflow Compliance**
    - [ ] Branch naming correct (`feature/`, `fix/`, `docs/`, `chore/`)
@@ -347,6 +347,12 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 | PR review | Code Review Checklist | [core/code-review-checklist.md](core/code-review-checklist.md) |
 | Adding features | Testing Standards | [core/testing-standards.md](core/testing-standards.md) |
 | Any commit | Check-in Standards | [core/checkin-standards.md](core/checkin-standards.md) |
+| New feature design | Spec-Driven Development | [core/spec-driven-development.md](core/spec-driven-development.md) |
+| Writing AI instructions | AI Instruction Standards | [core/ai-instruction-standards.md](core/ai-instruction-standards.md) |
+| Writing documentation | Documentation Writing | [core/documentation-writing-standards.md](core/documentation-writing-standards.md) |
+| New feature design | Spec-Driven Development | [core/spec-driven-development.md](core/spec-driven-development.md) |
+| Writing AI instructions | AI Instruction Standards | [core/ai-instruction-standards.md](core/ai-instruction-standards.md) |
+| Writing documentation | Documentation Writing | [core/documentation-writing-standards.md](core/documentation-writing-standards.md) |
 
 ---
 
@@ -422,6 +428,7 @@ When preparing releases or helping with version management:
 
 - **Complete Release Workflow**: [skills/claude-code/release-standards/release-workflow.md](skills/claude-code/release-standards/release-workflow.md)
 - **Semantic Versioning**: [skills/claude-code/release-standards/semantic-versioning.md](skills/claude-code/release-standards/semantic-versioning.md)
+- **Versioning Standards**: [core/versioning.md](core/versioning.md)
 - **CHANGELOG Format**: [skills/claude-code/release-standards/changelog-format.md](skills/claude-code/release-standards/changelog-format.md)
 
 ### Key Points for AI Assistants
