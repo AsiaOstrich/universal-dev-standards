@@ -990,7 +990,21 @@ async function updateCommandsOnly(projectPath, manifest) {
   console.log();
 
   // Check if any commands are installed
-  const commandsInstallations = manifest.commands?.installations || [];
+  let commandsInstallations = manifest.commands?.installations || [];
+
+  // Check for legacy installation (backward compatibility)
+  if (commandsInstallations.length === 0) {
+    if (manifest.commands?.installed && manifest.aiTools?.length > 0) {
+      // Convert legacy format: infer from aiTools that support commands
+      for (const tool of manifest.aiTools) {
+        const config = getAgentConfig(tool);
+        if (config?.commands !== null) {
+          // Legacy installations were always project level
+          commandsInstallations.push({ agent: tool, level: 'project' });
+        }
+      }
+    }
+  }
 
   if (commandsInstallations.length === 0) {
     console.log(chalk.yellow(msg.noCommandsInstalled || 'No slash commands installations found'));
@@ -1002,13 +1016,17 @@ async function updateCommandsOnly(projectPath, manifest) {
 
   // Show current status
   console.log(chalk.gray(msg.currentCommandsStatus || 'Current commands status:'));
-  for (const agent of commandsInstallations) {
-    const info = getInstalledCommandsForAgent(agent, projectPath);
+  for (const inst of commandsInstallations) {
+    // Support both {agent, level} objects and simple agent strings (backward compatibility)
+    const agent = typeof inst === 'string' ? inst : inst.agent;
+    const level = typeof inst === 'string' ? 'project' : (inst.level || 'project');
+
+    const info = getInstalledCommandsForAgent(agent, level, projectPath);
     const displayName = getAgentDisplayName(agent);
     const count = info?.count || 0;
-    const dir = getCommandsDirForAgent(agent, projectPath);
+    const dir = getCommandsDirForAgent(agent, level, projectPath);
 
-    console.log(chalk.gray(`  ${displayName}: ${count} commands in ${dir}`));
+    console.log(chalk.gray(`  ${displayName} (${level}): ${count} commands in ${dir}`));
   }
   console.log();
 
@@ -1021,10 +1039,12 @@ async function updateCommandsOnly(projectPath, manifest) {
   );
 
   // Build location summary
-  const locations = commandsInstallations.map(agent => {
+  const locations = commandsInstallations.map(inst => {
+    const agent = typeof inst === 'string' ? inst : inst.agent;
+    const level = typeof inst === 'string' ? 'project' : (inst.level || 'project');
     const displayName = getAgentDisplayName(agent);
-    const dir = getCommandsDirForAgent(agent, projectPath);
-    return `${displayName}: ${dir}`;
+    const dir = getCommandsDirForAgent(agent, level, projectPath);
+    return `${displayName} (${level}): ${dir}`;
   }).join(', ');
 
   if (result.totalErrors === 0) {
@@ -1039,7 +1059,13 @@ async function updateCommandsOnly(projectPath, manifest) {
   // Update manifest
   manifest.commands = manifest.commands || {};
   manifest.commands.installed = true;
-  manifest.commands.installations = commandsInstallations;
+  // Normalize to {agent, level} format
+  manifest.commands.installations = commandsInstallations.map(inst => {
+    if (typeof inst === 'string') {
+      return { agent: inst, level: 'project' };
+    }
+    return inst;
+  });
 
   // Update command hashes for integrity tracking
   if (result.allFileHashes) {

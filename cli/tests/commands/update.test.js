@@ -428,4 +428,128 @@ describe('Update Command', () => {
       expect(output).not.toContain('New features available');
     });
   });
+
+  describe('updateCommandsOnly (--commands flag)', () => {
+    it('should handle {agent, level} format correctly', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '3.0.0' },
+        standards: [],
+        extensions: [],
+        integrations: [],
+        aiTools: ['opencode'],
+        commands: {
+          installed: true,
+          installations: [{ agent: 'opencode', level: 'project' }]
+        }
+      });
+
+      await expect(updateCommand({ commands: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('opencode');
+      expect(output).toContain('project');
+      expect(writeManifest).toHaveBeenCalled();
+    });
+
+    it('should show no commands message when installations is empty and no legacy', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '3.0.0' },
+        standards: [],
+        extensions: [],
+        integrations: [],
+        aiTools: [],
+        commands: { installed: false, installations: [] }
+      });
+
+      await expect(updateCommand({ commands: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('No slash commands installations found');
+    });
+
+    it('should convert legacy format when installations is empty but commands.installed is true', async () => {
+      const { getAgentConfig } = await import('../../src/config/ai-agent-paths.js');
+      getAgentConfig.mockReturnValue({ commands: { project: '.opencode/command/' } });
+
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '3.0.0' },
+        standards: [],
+        extensions: [],
+        integrations: [],
+        aiTools: ['opencode'],
+        commands: {
+          installed: true
+          // No installations array - legacy format
+        }
+      });
+
+      await expect(updateCommand({ commands: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      // Should have converted and proceeded, not shown "no installations"
+      expect(output).toContain('Updating slash commands');
+      expect(writeManifest).toHaveBeenCalled();
+
+      // Check that manifest was written with normalized format
+      const manifestArg = writeManifest.mock.calls[0][0];
+      expect(manifestArg.commands.installations).toEqual([
+        { agent: 'opencode', level: 'project' }
+      ]);
+    });
+
+    it('should normalize string installations to {agent, level} format in manifest', async () => {
+      const { installCommandsToMultipleAgents, getInstalledCommandsForAgent } = await import('../../src/utils/skills-installer.js');
+      installCommandsToMultipleAgents.mockResolvedValue({ totalInstalled: 1, totalErrors: 0 });
+      getInstalledCommandsForAgent.mockReturnValue({ count: 1 });
+
+      isInitialized.mockReturnValue(true);
+      // Simulate a case where installations might be strings (hypothetical edge case)
+      readManifest.mockReturnValue({
+        upstream: { version: '3.0.0' },
+        standards: [],
+        extensions: [],
+        integrations: [],
+        aiTools: ['opencode'],
+        commands: {
+          installed: true,
+          installations: [{ agent: 'opencode', level: 'project' }]
+        }
+      });
+
+      await expect(updateCommand({ commands: true })).rejects.toThrow('process.exit called');
+
+      expect(writeManifest).toHaveBeenCalled();
+      const manifestArg = writeManifest.mock.calls[0][0];
+      // Should be normalized to {agent, level} format
+      expect(manifestArg.commands.installations[0]).toHaveProperty('agent');
+      expect(manifestArg.commands.installations[0]).toHaveProperty('level');
+    });
+
+    it('should show level in status output', async () => {
+      const { getInstalledCommandsForAgent } = await import('../../src/utils/skills-installer.js');
+      getInstalledCommandsForAgent.mockReturnValue({ count: 5 });
+
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '3.0.0' },
+        standards: [],
+        extensions: [],
+        integrations: [],
+        aiTools: ['opencode'],
+        commands: {
+          installed: true,
+          installations: [{ agent: 'opencode', level: 'user' }]
+        }
+      });
+
+      await expect(updateCommand({ commands: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('user');
+      expect(output).toContain('5 commands');
+    });
+  });
 });
