@@ -2511,6 +2511,9 @@ export const messages = {
 // Current language setting (can be changed at runtime)
 let currentLang = 'en';
 
+// Track if language was explicitly set by user via --ui-lang flag
+let languageExplicitlySet = false;
+
 /**
  * Set the current UI language
  * @param {string} lang - Language code ('en', 'zh-tw' or 'zh-cn')
@@ -2521,6 +2524,24 @@ export function setLanguage(lang) {
   } else {
     currentLang = 'en';
   }
+}
+
+/**
+ * Set language explicitly (user provided --ui-lang flag)
+ * This marks the language as explicitly set so it won't be overridden
+ * @param {string} lang - Language code ('en', 'zh-tw' or 'zh-cn')
+ */
+export function setLanguageExplicit(lang) {
+  setLanguage(lang);
+  languageExplicitlySet = true;
+}
+
+/**
+ * Check if language was explicitly set by user via --ui-lang flag
+ * @returns {boolean} True if language was explicitly set
+ */
+export function isLanguageExplicitlySet() {
+  return languageExplicitlySet;
 }
 
 /**

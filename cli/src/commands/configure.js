@@ -45,7 +45,7 @@ import {
   getToolFilePath
 } from '../utils/integration-generator.js';
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
-import { t, setLanguage } from '../i18n/messages.js';
+import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 import { regenerateIntegrations } from './update.js';
 
 /**
@@ -72,14 +72,17 @@ export async function configureCommand(options) {
   }
 
   // Set UI language based on commit_language setting
-  const langMap = {
-    'traditional-chinese': 'zh-tw',
-    'simplified-chinese': 'zh-cn',
-    english: 'en',
-    bilingual: 'en'
-  };
-  const uiLang = langMap[manifest.options?.commit_language] || 'en';
-  setLanguage(uiLang);
+  // Only override if user didn't explicitly set --ui-lang flag
+  if (!isLanguageExplicitlySet()) {
+    const langMap = {
+      'traditional-chinese': 'zh-tw',
+      'simplified-chinese': 'zh-cn',
+      english: 'en',
+      bilingual: 'en'
+    };
+    const uiLang = langMap[manifest.options?.commit_language] || 'en';
+    setLanguage(uiLang);
+  }
 
   // Now get localized messages
   const msg = t().commands.configure;

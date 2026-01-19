@@ -8,7 +8,7 @@ import { checkCommand } from '../src/commands/check.js';
 import { updateCommand } from '../src/commands/update.js';
 import { configureCommand } from '../src/commands/configure.js';
 import { skillsCommand } from '../src/commands/skills.js';
-import { setLanguage, detectLanguage } from '../src/i18n/messages.js';
+import { setLanguage, setLanguageExplicit, detectLanguage } from '../src/i18n/messages.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -21,8 +21,13 @@ program
   .hook('preAction', (thisCommand) => {
     const opts = thisCommand.opts();
     const uiLang = opts.uiLang || 'auto';
-    const detectedLang = uiLang === 'auto' ? detectLanguage(null) : uiLang;
-    setLanguage(detectedLang);
+    if (uiLang === 'auto') {
+      // Auto-detect: can be overridden by manifest settings later
+      setLanguage(detectLanguage(null));
+    } else {
+      // Explicit setting: mark as explicitly set to prevent override
+      setLanguageExplicit(uiLang);
+    }
   });
 
 program
