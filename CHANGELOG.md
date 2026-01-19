@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.1-beta.22] - 2026-01-19
+
+### Added
+- **CLI**: New `--debug` flag for `uds update` command
+  - Shows detailed debug output for Skills/Commands detection
+  - Helps diagnose why certain AI tools may not appear in installation prompts
+  - Outputs: aiTools list, declined features, config checks, installation status
+
 ## [3.5.1-beta.21] - 2026-01-19
 
 ### Fixed

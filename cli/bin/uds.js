@@ -85,6 +85,7 @@ program
   .option('--beta', 'Check for beta version updates')
   .option('--skills', 'Install/update Skills for configured AI tools')
   .option('--commands', 'Install/update slash commands for configured AI tools')
+  .option('--debug', 'Show debug output for Skills/Commands detection')
   .action(updateCommand);
 
 program

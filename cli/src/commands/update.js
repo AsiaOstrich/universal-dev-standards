@@ -418,7 +418,7 @@ export async function updateCommand(options) {
   // Check for new features (Skills/Commands) not yet installed or outdated
   if (!options.standardsOnly) {
     const latestSkillsVersion = repoInfo.skills.version;
-    const { missingSkills, outdatedSkills, missingCommands } = checkNewFeatures(projectPath, manifest, latestSkillsVersion);
+    const { missingSkills, outdatedSkills, missingCommands } = checkNewFeatures(projectPath, manifest, latestSkillsVersion, options.debug);
 
     if (missingSkills.length > 0 || outdatedSkills.length > 0 || missingCommands.length > 0) {
       if (!options.yes) {
@@ -1058,12 +1058,28 @@ async function updateCommandsOnly(projectPath, manifest) {
  * @param {string} projectPath - Project path
  * @param {Object} manifest - Manifest object
  * @param {string} latestSkillsVersion - Latest skills version from repository
+ * @param {boolean} debug - Show debug output
  * @returns {{missingSkills: Array, outdatedSkills: Array, missingCommands: Array}}
  */
-function checkNewFeatures(projectPath, manifest, latestSkillsVersion) {
+function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = false) {
   const aiTools = manifest.aiTools || [];
 
+  if (debug) {
+    console.log();
+    console.log(chalk.cyan('━'.repeat(50)));
+    console.log(chalk.cyan.bold('🔍 Skills/Commands Detection Debug'));
+    console.log(chalk.cyan('━'.repeat(50)));
+    console.log(chalk.gray(`  aiTools in manifest: ${JSON.stringify(aiTools)}`));
+    console.log(chalk.gray(`  declinedFeatures.skills: ${JSON.stringify(manifest.declinedFeatures?.skills || [])}`));
+    console.log(chalk.gray(`  declinedFeatures.commands: ${JSON.stringify(manifest.declinedFeatures?.commands || [])}`));
+    console.log(chalk.gray(`  manifest.skills.location: ${manifest.skills?.location || 'not set'}`));
+    console.log();
+  }
+
   if (aiTools.length === 0) {
+    if (debug) {
+      console.log(chalk.yellow('  No aiTools in manifest, skipping detection'));
+    }
     return { missingSkills: [], outdatedSkills: [], missingCommands: [] };
   }
 
@@ -1076,8 +1092,23 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion) {
   const missingCommands = [];
 
   for (const tool of aiTools) {
+    if (debug) {
+      console.log(chalk.cyan(`  Checking tool: ${tool}`));
+    }
+
     const config = getAgentConfig(tool);
-    if (!config) continue;
+    if (!config) {
+      if (debug) {
+        console.log(chalk.red(`    ✗ No config found for '${tool}' - skipping`));
+      }
+      continue;
+    }
+
+    if (debug) {
+      console.log(chalk.gray(`    config.supportsSkills: ${config.supportsSkills}`));
+      console.log(chalk.gray(`    config.skills: ${config.skills ? 'defined' : 'null'}`));
+      console.log(chalk.gray(`    config.commands: ${config.commands ? 'defined' : 'null'}`));
+    }
 
     // Check Skills support
     if (config.supportsSkills && config.skills) {
@@ -1092,8 +1123,20 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion) {
       // (manifest records can be stale if user deleted the directory)
       const hasSkills = projectInfo?.installed || userInfo?.installed || usingMarketplace;
 
+      if (debug) {
+        console.log(chalk.gray('    Skills check:'));
+        console.log(chalk.gray(`      projectInfo?.installed: ${projectInfo?.installed || false}`));
+        console.log(chalk.gray(`      userInfo?.installed: ${userInfo?.installed || false}`));
+        console.log(chalk.gray(`      usingMarketplace: ${usingMarketplace}`));
+        console.log(chalk.gray(`      hasSkills: ${hasSkills}`));
+        console.log(chalk.gray(`      declinedSkills.includes('${tool}'): ${declinedSkills.includes(tool)}`));
+      }
+
       // Skip if user previously declined this tool's skills
       if (!hasSkills && !declinedSkills.includes(tool)) {
+        if (debug) {
+          console.log(chalk.green('    ✓ Added to missingSkills'));
+        }
         missingSkills.push({
           agent: tool,
           displayName: getAgentDisplayName(tool),
@@ -1106,6 +1149,9 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion) {
 
         // Skip marketplace (auto-updates) and unknown versions
         if (!usingMarketplace && installedVersion && installedVersion !== latestSkillsVersion) {
+          if (debug) {
+            console.log(chalk.yellow(`    ✓ Added to outdatedSkills (${installedVersion} → ${latestSkillsVersion})`));
+          }
           outdatedSkills.push({
             agent: tool,
             displayName: getAgentDisplayName(tool),
@@ -1115,8 +1161,17 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion) {
             level: userInfo?.installed ? 'user' : 'project',
             path: installedInfo?.path
           });
+        } else if (debug) {
+          if (hasSkills) {
+            console.log(chalk.gray('    - Skills already installed (hasSkills=true)'));
+          }
+          if (declinedSkills.includes(tool)) {
+            console.log(chalk.gray('    - Previously declined by user'));
+          }
         }
       }
+    } else if (debug) {
+      console.log(chalk.gray('    Skills: not supported or not configured'));
     }
 
     // Check Commands support
@@ -1126,15 +1181,45 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion) {
       // Only trust actual file existence, not manifest records
       const hasCommands = cmdInfo?.installed;
 
+      if (debug) {
+        console.log(chalk.gray('    Commands check:'));
+        console.log(chalk.gray(`      cmdInfo?.installed: ${cmdInfo?.installed || false}`));
+        console.log(chalk.gray(`      hasCommands: ${hasCommands}`));
+        console.log(chalk.gray(`      declinedCommands.includes('${tool}'): ${declinedCommands.includes(tool)}`));
+      }
+
       // Skip if user previously declined this tool's commands
       if (!hasCommands && !declinedCommands.includes(tool)) {
+        if (debug) {
+          console.log(chalk.green('    ✓ Added to missingCommands'));
+        }
         missingCommands.push({
           agent: tool,
           displayName: getAgentDisplayName(tool),
           path: config.commands.project
         });
+      } else if (debug) {
+        if (hasCommands) {
+          console.log(chalk.gray('    - Commands already installed'));
+        }
+        if (declinedCommands.includes(tool)) {
+          console.log(chalk.gray('    - Previously declined by user'));
+        }
       }
+    } else if (debug) {
+      console.log(chalk.gray('    Commands: not supported'));
     }
+
+    if (debug) {
+      console.log();
+    }
+  }
+
+  if (debug) {
+    console.log(chalk.cyan('━'.repeat(50)));
+    console.log(chalk.cyan(`Result: ${missingSkills.length} missing Skills, ${outdatedSkills.length} outdated Skills, ${missingCommands.length} missing Commands`));
+    console.log(chalk.cyan('━'.repeat(50)));
+    console.log();
   }
 
   return { missingSkills, outdatedSkills, missingCommands };
