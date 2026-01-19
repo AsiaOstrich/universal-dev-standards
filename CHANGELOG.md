@@ -9,6 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [4.0.0-beta.1] - 2026-01-19
+
+### Added
+- **Core Standard**: Forward Derivation Standards (`core/forward-derivation-standards.md`)
+  - Derives BDD scenarios, TDD test skeletons, and ATDD acceptance tests from approved SDD specs
+  - Complements Reverse Engineering to form bidirectional derivation system
+  - Strict 1:1 AC mapping with anti-hallucination compliance
+  - Certainty framework: `[Source]`, `[Derived]`, `[Generated]`, `[TODO]` tags
+- **Skill**: Forward Derivation skill for Claude Code (`skills/claude-code/forward-derivation/`)
+  - New commands: `/derive-bdd`, `/derive-tdd`, `/derive-atdd`, `/derive-all`
+  - Multi-language support: TypeScript, Python, Java, Go
+  - AC Parser with Given-When-Then and bullet format support
+- **Specification**: Core Standard Creation Workflow (`specs/core-standard-workflow.md`)
+  - Defines 8-phase workflow for creating/updating core standards
+  - File checklist and skill applicability matrix
+  - CLI integration requirements and verification checkpoints
+- **CLI**: Per-tool level selection for Commands installation
+  - Commands now use `{agent, level}` format (consistent with Skills)
+  - User can choose User Level or Project Level per AI tool
+  - Project Level checked by default
+
+### Changed
+- **CLI**: Unified prompt format for Skills and Commands installation
+  - Both use multiSelect with per-tool User/Project level options
+  - `update` command now uses same prompts as `init` for consistency
+- **Documentation**: Slash commands synced with CLI terminology
+  - Adoption levels: Essential/Recommended/Enterprise → Starter/Professional/Complete
+  - Standards scope: Minimal/Full → Lean/Complete
+  - Content mode: Index → Standard
+  - Skills/Commands installation: Simple list → Per-tool multiSelect
+
+### Documentation
+- Updated `core/spec-driven-development.md` with Forward Derivation integration section
+- Updated AI YAML files for Forward Derivation and SDD standards
+
 ## [3.5.1-beta.22] - 2026-01-19
 
 ### Added
