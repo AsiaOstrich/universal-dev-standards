@@ -16,6 +16,7 @@ This guide helps software projects adopt Universal Documentation Standards witho
 - [Complete Standards Matrix](#complete-standards-matrix)
 - [Adoption Levels](#adoption-levels)
 - [How to Adopt](#how-to-adopt)
+- [After Adoption: Daily Workflow](#after-adoption-daily-workflow)
 - [Common Mistakes to Avoid](#common-mistakes-to-avoid)
 
 ---
@@ -321,6 +322,22 @@ Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-in
 
 ---
 
+## After Adoption: Daily Workflow
+
+After running `uds init`, you may wonder: **"How do I use UDS in my daily development?"**
+
+This is covered in detail in [DAILY-WORKFLOW-GUIDE.md](DAILY-WORKFLOW-GUIDE.md), which explains:
+
+- **Greenfield vs Brownfield**: Different workflows for new projects vs legacy codebases
+- **Incremental Adoption**: You don't need to reverse-engineer all legacy code
+- **Task-Based Workflow Selection**: Choose methodology based on task type
+- **Legacy Code Strategy**: Golden Master Testing, Characterization Tests
+- **Available Commands**: Quick reference for daily use (`/tdd`, `/bdd`, `/spec`, etc.)
+
+> **Key Insight**: For legacy projects, focus on "touch a little, protect a little" rather than comprehensive upfront documentation.
+
+---
+
 ## Common Mistakes to Avoid
 
 ### Mistake 1: Referencing Both Skill AND Source Document
@@ -379,6 +396,7 @@ This JSON file contains the complete mapping of all standards, categories, and a
 
 - [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) - Source repository
 - [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) - Skills repository
+- [Daily Workflow Guide](DAILY-WORKFLOW-GUIDE.md) - How to use UDS after adoption
 - [Minimal Checklist](checklists/minimal.md) - Level 1 adoption checklist
 - [Recommended Checklist](checklists/recommended.md) - Level 2 adoption checklist
 - [Enterprise Checklist](checklists/enterprise.md) - Level 3 adoption checklist

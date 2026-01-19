@@ -24,6 +24,7 @@ status: current
 - [完整規範對照表](#完整規範對照表)
 - [採用等級](#採用等級)
 - [如何採用](#如何採用)
+- [採用後：日常工作流程](#採用後日常工作流程)
 - [常見錯誤避免](#常見錯誤避免)
 
 ---
@@ -329,6 +330,22 @@ Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-in
 
 ---
 
+## 採用後：日常工作流程
+
+執行 `uds init` 後，你可能會想：**「日常開發中要怎麼使用 UDS？」**
+
+這在 [DAILY-WORKFLOW-GUIDE.md](DAILY-WORKFLOW-GUIDE.md) 中有詳細說明，包含：
+
+- **Greenfield vs Brownfield**：新專案與舊有程式碼庫的不同工作流程
+- **漸進式採用**：你不需要為所有舊程式碼進行反向工程
+- **任務導向工作流程選擇**：根據任務類型選擇方法論
+- **舊有程式碼策略**：Golden Master Testing、特徵測試
+- **可用命令**：日常使用的快速參考（`/tdd`、`/bdd`、`/spec` 等）
+
+> **關鍵洞察**：對於舊專案，專注於「觸碰一點，保護一點」，而非全面的前期文件化。
+
+---
+
 ## 常見錯誤避免
 
 ### 錯誤一：同時引用 Skill 和原始文件
@@ -387,6 +404,7 @@ Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-in
 
 - [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) - 來源儲存庫
 - [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) - Skills 儲存庫
+- [日常工作流程指南](DAILY-WORKFLOW-GUIDE.md) - 採用後如何使用 UDS
 - [最小檢查清單](../../../adoption/checklists/minimal.md) - 等級一採用檢查清單
 - [推薦檢查清單](../../../adoption/checklists/recommended.md) - 等級二採用檢查清單
 - [企業檢查清單](../../../adoption/checklists/enterprise.md) - 等級三採用檢查清單
