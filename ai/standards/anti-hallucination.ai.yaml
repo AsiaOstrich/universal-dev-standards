@@ -3,8 +3,8 @@
 
 id: anti-hallucination
 meta:
-  version: "1.3.1"
-  updated: "2025-12-30"
+  version: "1.4.0"
+  updated: "2026-01-19"
   source: core/anti-hallucination.md
   description: Strict guidelines for AI assistants to prevent hallucination
 
@@ -81,6 +81,10 @@ prohibited_behaviors:
     description: Do NOT list options and ask user to choose without guidance
     correct_action: Always include a recommended choice with reasoning
 
+  - id: implement-without-side-effect-analysis
+    description: Do NOT start coding without identifying potential side effects
+    correct_action: List at least 3 potential side effects before implementation (state changes, dependencies, cascading effects)
+
 rules:
   - id: conversation-language
     trigger: responding to user
@@ -112,6 +116,11 @@ rules:
     instruction: Ask clarifying questions before proceeding
     priority: required
 
+  - id: side-effect-analysis
+    trigger: before implementing code changes
+    instruction: Identify at least 3 potential side effects (state changes, dependencies, external systems, data integrity)
+    priority: required
+
 checklist:
   - Source verified (read actual file/document)
   - Source type tagged
@@ -122,6 +131,7 @@ checklist:
   - No fabrication
   - User clarification requested for ambiguous points
   - Recommendation included when presenting options
+  - Side effects identified (at least 3) before implementing
 
 quick_reference:
   source_types:
