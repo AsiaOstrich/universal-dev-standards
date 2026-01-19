@@ -215,8 +215,16 @@ export const messages = {
       description: 'Choose where to install Skills',
       descriptionWithTools: 'Skills will work with:',
       question: 'Where should Skills be installed?',
+      questionMulti: 'Select where to install Skills (multiple selections allowed)',
+      marketplaceWarning: 'Claude Code Skills installed via Marketplace',
+      coexistNote: 'File installation will coexist with Marketplace version',
+      separatorFileInstall: '── Or choose file installation location ──',
+      validationNoMix: 'Cannot select "Skip" with other options',
+      installCount: 'Will install Skills to {count} location(s)',
       choices: {
         marketplace: 'Auto-managed by Claude Code',
+        userLevel: 'User Level',
+        projectLevel: 'Project Level',
         user: 'Shared across all projects',
         project: 'This project only',
         none: 'No Skills installation'
@@ -226,6 +234,17 @@ export const messages = {
         user: '  → Skills available in all your projects',
         project: '  → Consider adding .claude/skills/ to .gitignore',
         none: '  → Full standards will be copied to .standards/'
+      }
+    },
+
+    // Commands Installation
+    commandsInstallation: {
+      title: 'Slash Commands Installation',
+      description: 'The following AI Agents support slash commands:',
+      question: 'Select AI Agents to install slash commands',
+      installCount: 'Will install 15 slash commands for {count} AI Agent(s)',
+      choices: {
+        skip: 'Skip (use Skills instead)'
       }
     },
 
@@ -1085,8 +1104,16 @@ export const messages = {
       description: '選擇 Skills 的安裝位置',
       descriptionWithTools: 'Skills 將支援:',
       question: 'Skills 要安裝在哪裡？/ Where should Skills be installed?',
+      questionMulti: '選擇要安裝 Skills 的位置（可多選）',
+      marketplaceWarning: 'Claude Code Skills 已透過 Marketplace 安裝',
+      coexistNote: '檔案安裝將與 Marketplace 版本並存',
+      separatorFileInstall: '── 或選擇檔案安裝位置 ──',
+      validationNoMix: '選擇「跳過」時不能同時選擇其他選項',
+      installCount: '將安裝 Skills 到 {count} 個位置',
       choices: {
         marketplace: '由 Claude Code 自動管理',
+        userLevel: '使用者層級',
+        projectLevel: '專案層級',
         user: '跨專案共享',
         project: '僅限此專案',
         none: '不安裝 Skills'
@@ -1096,6 +1123,17 @@ export const messages = {
         user: '  → Skills 可在所有專案中使用',
         project: '  → 建議將 .claude/skills/ 加入 .gitignore',
         none: '  → 完整標準將複製到 .standards/'
+      }
+    },
+
+    // Commands Installation
+    commandsInstallation: {
+      title: '斜線命令安裝',
+      description: '以下 AI Agent 支援斜線命令：',
+      question: '選擇要安裝斜線命令的 AI Agent',
+      installCount: '將為 {count} 個 AI Agent 安裝 15 個斜線命令',
+      choices: {
+        skip: '跳過（使用 Skills 替代）'
       }
     },
 
@@ -1955,8 +1993,16 @@ export const messages = {
       description: '选择 Skills 的安装位置',
       descriptionWithTools: 'Skills 将支持:',
       question: 'Skills 要安装在哪里？/ Where should Skills be installed?',
+      questionMulti: '选择要安装 Skills 的位置（可多选）',
+      marketplaceWarning: 'Claude Code Skills 已通过 Marketplace 安装',
+      coexistNote: '文件安装将与 Marketplace 版本并存',
+      separatorFileInstall: '── 或选择文件安装位置 ──',
+      validationNoMix: '选择「跳过」时不能同时选择其他选项',
+      installCount: '将安装 Skills 到 {count} 个位置',
       choices: {
         marketplace: '由 Claude Code 自动管理',
+        userLevel: '用户层级',
+        projectLevel: '项目层级',
         user: '跨项目共享',
         project: '仅限此项目',
         none: '不安装 Skills'
@@ -1966,6 +2012,17 @@ export const messages = {
         user: '  → Skills 可在所有项目中使用',
         project: '  → 建议将 .claude/skills/ 加入 .gitignore',
         none: '  → 完整标准将复制到 .standards/'
+      }
+    },
+
+    // Commands Installation
+    commandsInstallation: {
+      title: '斜杠命令安装',
+      description: '以下 AI Agent 支持斜杠命令：',
+      question: '选择要安装斜杠命令的 AI Agent',
+      installCount: '将为 {count} 个 AI Agent 安装 15 个斜杠命令',
+      choices: {
+        skip: '跳过（使用 Skills 替代）'
       }
     },
 

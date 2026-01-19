@@ -96,24 +96,34 @@ describe('AI Agent Paths Configuration', () => {
   });
 
   describe('getCommandsDirForAgent', () => {
-    it('should return commands path for supported agent', () => {
-      const path = getCommandsDirForAgent('opencode', '/test/project');
+    it('should return commands path for supported agent at project level', () => {
+      const path = getCommandsDirForAgent('opencode', 'project', '/test/project');
       expect(path).toBe(join('/test/project', '.opencode/command/'));
     });
 
+    it('should return commands path for supported agent at user level', () => {
+      const path = getCommandsDirForAgent('opencode', 'user');
+      expect(path).toBe(join(homedir(), '.config', 'opencode', 'command'));
+    });
+
     it('should return null for agent without commands support', () => {
-      const path = getCommandsDirForAgent('claude-code', '/test/project');
+      const path = getCommandsDirForAgent('claude-code', 'project', '/test/project');
       expect(path).toBeNull();
     });
 
     it('should return null for unknown agent', () => {
-      const path = getCommandsDirForAgent('unknown', '/test/project');
+      const path = getCommandsDirForAgent('unknown', 'project', '/test/project');
       expect(path).toBeNull();
     });
 
-    it('should return correct path for Gemini CLI', () => {
-      const path = getCommandsDirForAgent('gemini-cli', '/test/project');
+    it('should return correct path for Gemini CLI at project level', () => {
+      const path = getCommandsDirForAgent('gemini-cli', 'project', '/test/project');
       expect(path).toBe(join('/test/project', '.gemini/commands/'));
+    });
+
+    it('should return null when project level without projectPath', () => {
+      const path = getCommandsDirForAgent('opencode', 'project');
+      expect(path).toBeNull();
     });
   });
 

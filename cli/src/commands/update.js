@@ -1117,7 +1117,10 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = fa
       const userInfo = getInstalledSkillsInfoForAgent(tool, 'user');
 
       // Check if using marketplace (Claude Code only) - marketplace auto-updates
-      const usingMarketplace = manifest.skills?.location === 'marketplace' && tool === 'claude-code';
+      // Check both manifest record AND actual installation status (manifest may be stale)
+      const marketplaceInfo = tool === 'claude-code' ? getMarketplaceSkillsInfo() : null;
+      const usingMarketplace = (manifest.skills?.location === 'marketplace' && tool === 'claude-code') ||
+                               (marketplaceInfo?.installed && tool === 'claude-code');
 
       // Only trust actual file existence, not manifest records
       // (manifest records can be stale if user deleted the directory)
@@ -1127,6 +1130,8 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = fa
         console.log(chalk.gray('    Skills check:'));
         console.log(chalk.gray(`      projectInfo?.installed: ${projectInfo?.installed || false}`));
         console.log(chalk.gray(`      userInfo?.installed: ${userInfo?.installed || false}`));
+        console.log(chalk.gray(`      manifest.skills.location: ${manifest.skills?.location || 'not set'}`));
+        console.log(chalk.gray(`      marketplaceInfo?.installed: ${marketplaceInfo?.installed || false}`));
         console.log(chalk.gray(`      usingMarketplace: ${usingMarketplace}`));
         console.log(chalk.gray(`      hasSkills: ${hasSkills}`));
         console.log(chalk.gray(`      declinedSkills.includes('${tool}'): ${declinedSkills.includes(tool)}`));
@@ -1176,14 +1181,17 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = fa
 
     // Check Commands support
     if (config.commands !== null && config.commands) {
-      const cmdInfo = getInstalledCommandsForAgent(tool, projectPath);
+      // Check both project and user level installations
+      const projectCmdInfo = getInstalledCommandsForAgent(tool, 'project', projectPath);
+      const userCmdInfo = getInstalledCommandsForAgent(tool, 'user');
 
       // Only trust actual file existence, not manifest records
-      const hasCommands = cmdInfo?.installed;
+      const hasCommands = projectCmdInfo?.installed || userCmdInfo?.installed;
 
       if (debug) {
         console.log(chalk.gray('    Commands check:'));
-        console.log(chalk.gray(`      cmdInfo?.installed: ${cmdInfo?.installed || false}`));
+        console.log(chalk.gray(`      projectCmdInfo?.installed: ${projectCmdInfo?.installed || false}`));
+        console.log(chalk.gray(`      userCmdInfo?.installed: ${userCmdInfo?.installed || false}`));
         console.log(chalk.gray(`      hasCommands: ${hasCommands}`));
         console.log(chalk.gray(`      declinedCommands.includes('${tool}'): ${declinedCommands.includes(tool)}`));
       }
@@ -1196,7 +1204,7 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = fa
         missingCommands.push({
           agent: tool,
           displayName: getAgentDisplayName(tool),
-          path: config.commands.project
+          paths: config.commands
         });
       } else if (debug) {
         if (hasCommands) {
@@ -1396,13 +1404,13 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
   if (missingCommands.length > 0) {
     console.log(chalk.yellow(msg.commandsNotInstalledFor || 'Slash commands not yet installed for these AI tools:'));
     for (const cmd of missingCommands) {
-      console.log(chalk.gray(`  • ${cmd.displayName} → ${cmd.path}`));
+      console.log(chalk.gray(`  • ${cmd.displayName}`));
     }
     console.log();
 
     // Build checkbox choices
     const commandChoices = missingCommands.map(cmd => ({
-      name: `${cmd.displayName} ${chalk.gray(`(${cmd.path})`)}`,
+      name: cmd.displayName,
       value: cmd.agent,
       checked: true  // Default checked for opt-out behavior
     }));
@@ -1429,13 +1437,31 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
 
     // Filter out skip
     const filteredCommandAgents = selectedCommandAgents.filter(a => a !== '__skip__');
-    result.installCommands = filteredCommandAgents;
 
     // Track declined commands (user explicitly skipped or deselected)
     const skippedCommandAgents = missingCommands
       .map(c => c.agent)
       .filter(agent => !filteredCommandAgents.includes(agent));
     result.declinedCommands = skippedCommandAgents;
+
+    if (filteredCommandAgents.length > 0) {
+      // Prompt for installation level
+      const { commandsLevel } = await inquirer.prompt([{
+        type: 'list',
+        name: 'commandsLevel',
+        message: msg.commandsLevelQuestion || 'Where should Commands be installed?',
+        choices: [
+          { name: `${msg.projectLevel || 'Project level'} (.opencode/command/, etc.)`, value: 'project' },
+          { name: `${msg.userLevel || 'User level'} (~/.config/opencode/command/, etc.)`, value: 'user' }
+        ],
+        default: 'project'
+      }]);
+
+      result.installCommands = filteredCommandAgents.map(agent => ({
+        agent,
+        level: commandsLevel
+      }));
+    }
   }
 
   return result;

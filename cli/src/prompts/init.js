@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
+import os from 'os';
 import { t } from '../i18n/messages.js';
 import {
   getAgentConfig,
@@ -117,8 +118,8 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
     const marketplaceInfo = getMarketplaceSkillsInfo();
     if (marketplaceInfo && marketplaceInfo.version) {
       console.log();
-      console.log(chalk.yellow(`  ⚠ ${msg.marketplaceWarning || 'Claude Code Skills 已透過 Marketplace 安裝'}`));
-      console.log(chalk.gray(`    ${msg.coexistNote || '檔案安裝將與 Marketplace 版本並存'}`));
+      console.log(chalk.yellow(`  ⚠ ${msg.marketplaceWarning}`));
+      console.log(chalk.gray(`    ${msg.coexistNote}`));
     }
   }
   console.log();
@@ -132,7 +133,7 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
       name: `${chalk.green('Plugin Marketplace')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.marketplace}`,
       value: 'marketplace'
     });
-    choices.push(new inquirer.Separator(chalk.gray('── 或選擇檔案安裝位置 ──')));
+    choices.push(new inquirer.Separator(chalk.gray(msg.separatorFileInstall)));
   }
 
   // Add options for each agent
@@ -142,13 +143,13 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
 
     // User level option
     choices.push({
-      name: `${chalk.blue(displayName)} - ${msg.choices?.userLevel || '使用者層級'} ${chalk.gray(`(${config.skills.user.replace(require('os').homedir(), '~')})`)}`,
+      name: `${chalk.blue(displayName)} - ${msg.choices.userLevel} ${chalk.gray(`(${config.skills.user.replace(os.homedir(), '~')})`)}`,
       value: `${tool}:user`
     });
 
     // Project level option
     choices.push({
-      name: `${chalk.blue(displayName)} - ${msg.choices?.projectLevel || '專案層級'} ${chalk.gray(`(${config.skills.project})`)}`,
+      name: `${chalk.blue(displayName)} - ${msg.choices.projectLevel} ${chalk.gray(`(${config.skills.project})`)}`,
       value: `${tool}:project`
     });
   }
@@ -164,12 +165,12 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
     {
       type: 'checkbox',
       name: 'locations',
-      message: msg.questionMulti || '選擇要安裝 Skills 的位置（可多選）',
+      message: msg.questionMulti,
       choices,
       validate: (answer) => {
         // If 'none' is selected, ensure it's the only selection
         if (answer.includes('none') && answer.length > 1) {
-          return '選擇「跳過」時不能同時選擇其他選項';
+          return msg.validationNoMix;
         }
         return true;
       }
@@ -199,7 +200,7 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
 
   if (installations.length > 0) {
     console.log();
-    console.log(chalk.gray(`  將安裝 Skills 到 ${installations.length} 個位置`));
+    console.log(chalk.gray(`  ${msg.installCount.replace('{count}', installations.length)}`));
     console.log();
   }
 
@@ -225,8 +226,8 @@ export async function promptCommandsInstallation(selectedTools = []) {
   }
 
   console.log();
-  console.log(chalk.cyan(msg.title || '斜線命令安裝'));
-  console.log(chalk.gray(`  ${msg.description || '以下 AI Agent 支援斜線命令：'}`));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
 
   // Show supported tools
   for (const tool of commandsSupportedTools) {
@@ -244,7 +245,7 @@ export async function promptCommandsInstallation(selectedTools = []) {
 
   choices.push(new inquirer.Separator());
   choices.push({
-    name: chalk.gray(msg.choices?.skip || '跳過（使用 Skills 替代）'),
+    name: chalk.gray(msg.choices.skip),
     value: 'none'
   });
 
@@ -252,7 +253,7 @@ export async function promptCommandsInstallation(selectedTools = []) {
     {
       type: 'checkbox',
       name: 'agents',
-      message: msg.question || '選擇要安裝斜線命令的 AI Agent',
+      message: msg.question,
       choices
     }
   ]);
@@ -262,7 +263,7 @@ export async function promptCommandsInstallation(selectedTools = []) {
 
   if (selected.length > 0) {
     console.log();
-    console.log(chalk.gray(`  將為 ${selected.length} 個 AI Agent 安裝 15 個斜線命令`));
+    console.log(chalk.gray(`  ${msg.installCount.replace('{count}', selected.length)}`));
     console.log();
   }
 

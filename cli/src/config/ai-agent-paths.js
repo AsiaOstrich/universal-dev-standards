@@ -40,7 +40,8 @@ export const AI_AGENT_PATHS = {
       user: join(homedir(), '.config', 'opencode', 'skill')
     },
     commands: {
-      project: '.opencode/command/'
+      project: '.opencode/command/',
+      user: join(homedir(), '.config', 'opencode', 'command')
     },
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/', // Can read Claude skills
@@ -75,7 +76,8 @@ export const AI_AGENT_PATHS = {
       user: join(homedir(), '.roo', 'skills')
     },
     commands: {
-      project: '.roo/commands/'
+      project: '.roo/commands/',
+      user: join(homedir(), '.roo', 'commands')
     },
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/',
@@ -99,7 +101,8 @@ export const AI_AGENT_PATHS = {
       user: join(homedir(), '.copilot', 'skills')
     },
     commands: {
-      project: '.github/prompts/'
+      project: '.github/prompts/',
+      user: join(homedir(), '.copilot', 'prompts')
     },
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/', // Legacy support
@@ -123,7 +126,8 @@ export const AI_AGENT_PATHS = {
       user: join(homedir(), '.gemini', 'skills')
     },
     commands: {
-      project: '.gemini/commands/'
+      project: '.gemini/commands/',
+      user: join(homedir(), '.gemini', 'commands')
     },
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/',
@@ -173,13 +177,20 @@ export function getSkillsDirForAgent(agent, level = 'user', projectPath = null) 
 /**
  * Get commands directory path for an agent
  * @param {string} agent - Agent identifier
- * @param {string} projectPath - Project root path
+ * @param {string} level - 'user' or 'project'
+ * @param {string} projectPath - Project root path (required for project level)
  * @returns {string|null} Commands directory path or null if not supported
  */
-export function getCommandsDirForAgent(agent, projectPath) {
+export function getCommandsDirForAgent(agent, level = 'project', projectPath = null) {
   const config = AI_AGENT_PATHS[agent];
-  if (!config || !config.commands || !config.commands.project) return null;
-  return join(projectPath, config.commands.project);
+  if (!config || !config.commands) return null;
+
+  if (level === 'user') {
+    return config.commands.user || null;
+  } else if (level === 'project' && projectPath) {
+    return config.commands.project ? join(projectPath, config.commands.project) : null;
+  }
+  return null;
 }
 
 /**

@@ -45,7 +45,7 @@ import {
   getToolFilePath
 } from '../utils/integration-generator.js';
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
-import { t } from '../i18n/messages.js';
+import { t, setLanguage } from '../i18n/messages.js';
 import { regenerateIntegrations } from './update.js';
 
 /**
@@ -54,26 +54,40 @@ import { regenerateIntegrations } from './update.js';
  */
 export async function configureCommand(options) {
   const projectPath = process.cwd();
+
+  // Check if initialized first
+  if (!isInitialized(projectPath)) {
+    const common = t().commands.common;
+    console.log(chalk.red(common.notInitialized));
+    console.log(chalk.gray(`  ${common.runInit}`));
+    return;
+  }
+
+  // Read manifest and set language before using t()
+  const manifest = readManifest(projectPath);
+  if (!manifest) {
+    const common = t().commands.common;
+    console.log(chalk.red(common.couldNotReadManifest));
+    return;
+  }
+
+  // Set UI language based on commit_language setting
+  const langMap = {
+    'traditional-chinese': 'zh-tw',
+    'simplified-chinese': 'zh-cn',
+    english: 'en',
+    bilingual: 'en'
+  };
+  const uiLang = langMap[manifest.options?.commit_language] || 'en';
+  setLanguage(uiLang);
+
+  // Now get localized messages
   const msg = t().commands.configure;
   const common = t().commands.common;
 
   console.log();
   console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
-
-  // Check if initialized
-  if (!isInitialized(projectPath)) {
-    console.log(chalk.red(common.notInitialized));
-    console.log(chalk.gray(`  ${common.runInit}`));
-    return;
-  }
-
-  // Read current manifest
-  const manifest = readManifest(projectPath);
-  if (!manifest) {
-    console.log(chalk.red(common.couldNotReadManifest));
-    return;
-  }
 
   console.log();
   console.log(chalk.cyan(msg.currentConfig));
@@ -754,7 +768,7 @@ async function handleCommandsConfiguration(manifest, projectPath, msg, common, s
       console.log(chalk.gray('  Available tools: claude-code, opencode, copilot, gemini-cli, roo-code'));
       return;
     }
-    if (!config.supportsCommands) {
+    if (config.commands === null) {
       console.log(chalk.yellow(`${getAgentDisplayName(specificTool)} does not support Commands`));
       console.log(chalk.gray('  Tools that support commands: OpenCode, Copilot, Roo Code, Gemini CLI'));
       return;
@@ -781,10 +795,10 @@ async function handleCommandsConfiguration(manifest, projectPath, msg, common, s
   }
 
   // Interactive mode
-  // Filter tools that support commands
+  // Filter tools that support commands (commands !== null means support)
   const commandSupportedTools = aiTools.filter(tool => {
     const config = getAgentConfig(tool);
-    return config?.supportsCommands;
+    return config?.commands !== null;
   });
 
   if (commandSupportedTools.length === 0) {

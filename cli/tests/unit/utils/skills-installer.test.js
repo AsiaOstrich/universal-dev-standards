@@ -127,14 +127,14 @@ describe('Skills Installer', () => {
 
   describe('installCommandsForAgent', () => {
     it('should fail for agent without commands support', async () => {
-      const result = await installCommandsForAgent('claude-code', null, TEST_DIR);
+      const result = await installCommandsForAgent('claude-code', 'project', null, TEST_DIR);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('does not support slash commands');
     });
 
     it('should install commands to project directory', async () => {
-      const result = await installCommandsForAgent('opencode', ['commit'], TEST_DIR);
+      const result = await installCommandsForAgent('opencode', 'project', ['commit'], TEST_DIR);
 
       expect(result.success).toBe(true);
       expect(result.installed).toContain('commit');
@@ -146,7 +146,7 @@ describe('Skills Installer', () => {
     });
 
     it('should create manifest file after installation', async () => {
-      const result = await installCommandsForAgent('opencode', ['commit'], TEST_DIR);
+      const result = await installCommandsForAgent('opencode', 'project', ['commit'], TEST_DIR);
 
       expect(result.success).toBe(true);
 
@@ -155,10 +155,11 @@ describe('Skills Installer', () => {
 
       const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
       expect(manifest.commands).toContain('commit');
+      expect(manifest.level).toBe('project');
     });
 
     it('should install commands as TOML for Gemini CLI', async () => {
-      const result = await installCommandsForAgent('gemini-cli', ['commit'], TEST_DIR);
+      const result = await installCommandsForAgent('gemini-cli', 'project', ['commit'], TEST_DIR);
 
       expect(result.success).toBe(true);
 
@@ -234,26 +235,27 @@ describe('Skills Installer', () => {
 
   describe('getInstalledCommandsForAgent', () => {
     it('should return null when no commands installed', () => {
-      const info = getInstalledCommandsForAgent('opencode', TEST_DIR);
+      const info = getInstalledCommandsForAgent('opencode', 'project', TEST_DIR);
       expect(info).toBeNull();
     });
 
     it('should return info after installation', async () => {
-      await installCommandsForAgent('opencode', ['commit', 'review'], TEST_DIR);
+      await installCommandsForAgent('opencode', 'project', ['commit', 'review'], TEST_DIR);
 
-      const info = getInstalledCommandsForAgent('opencode', TEST_DIR);
+      const info = getInstalledCommandsForAgent('opencode', 'project', TEST_DIR);
 
       expect(info).not.toBeNull();
       expect(info.installed).toBe(true);
       expect(info.count).toBe(2);
       expect(info.commands).toContain('commit');
       expect(info.commands).toContain('review');
+      expect(info.level).toBe('project');
     });
 
     it('should detect TOML files for Gemini CLI', async () => {
-      await installCommandsForAgent('gemini-cli', ['commit'], TEST_DIR);
+      await installCommandsForAgent('gemini-cli', 'project', ['commit'], TEST_DIR);
 
-      const info = getInstalledCommandsForAgent('gemini-cli', TEST_DIR);
+      const info = getInstalledCommandsForAgent('gemini-cli', 'project', TEST_DIR);
 
       expect(info).not.toBeNull();
       expect(info.installed).toBe(true);
@@ -263,7 +265,7 @@ describe('Skills Installer', () => {
 
   describe('TOML Conversion', () => {
     it('should convert YAML frontmatter to TOML format', async () => {
-      await installCommandsForAgent('gemini-cli', ['commit'], TEST_DIR);
+      await installCommandsForAgent('gemini-cli', 'project', ['commit'], TEST_DIR);
 
       const tomlPath = join(TEST_DIR, '.gemini/commands/commit.toml');
       const content = readFileSync(tomlPath, 'utf-8');
@@ -275,7 +277,7 @@ describe('Skills Installer', () => {
     });
 
     it('should include arguments placeholder in TOML when argument-hint exists', async () => {
-      await installCommandsForAgent('gemini-cli', ['commit'], TEST_DIR);
+      await installCommandsForAgent('gemini-cli', 'project', ['commit'], TEST_DIR);
 
       const tomlPath = join(TEST_DIR, '.gemini/commands/commit.toml');
       const content = readFileSync(tomlPath, 'utf-8');
@@ -285,7 +287,7 @@ describe('Skills Installer', () => {
     });
 
     it('should escape special characters in TOML strings', async () => {
-      await installCommandsForAgent('gemini-cli', ['review'], TEST_DIR);
+      await installCommandsForAgent('gemini-cli', 'project', ['review'], TEST_DIR);
 
       const tomlPath = join(TEST_DIR, '.gemini/commands/review.toml');
       expect(existsSync(tomlPath)).toBe(true);

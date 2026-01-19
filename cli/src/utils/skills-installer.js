@@ -231,16 +231,18 @@ function writeSkillsManifestForAgent(agent, level, targetDir) {
 /**
  * Install slash commands for a specific AI agent
  * @param {string} agent - Agent identifier (e.g., 'opencode', 'copilot')
+ * @param {string} level - 'user' or 'project'
  * @param {string[]} commandNames - Array of command names to install (null = all)
- * @param {string} projectPath - Project root path
+ * @param {string} projectPath - Project root path (required for project level)
  * @returns {Object} Installation result
  */
-export async function installCommandsForAgent(agent, commandNames = null, projectPath) {
+export async function installCommandsForAgent(agent, level = 'project', commandNames = null, projectPath = null) {
   const config = getAgentConfig(agent);
   if (!config || !config.commands) {
     return {
       success: false,
       agent,
+      level,
       error: `Agent '${agent}' does not support slash commands`,
       installed: [],
       errors: []
@@ -248,12 +250,13 @@ export async function installCommandsForAgent(agent, commandNames = null, projec
   }
 
   // Get target directory
-  const targetDir = getCommandsDirForAgent(agent, projectPath);
+  const targetDir = getCommandsDirForAgent(agent, level, projectPath);
   if (!targetDir) {
     return {
       success: false,
       agent,
-      error: `Could not determine commands directory for ${agent}`,
+      level,
+      error: `Could not determine commands directory for ${agent} at ${level} level`,
       installed: [],
       errors: []
     };
@@ -271,6 +274,7 @@ export async function installCommandsForAgent(agent, commandNames = null, projec
   const results = {
     success: true,
     agent,
+    level,
     targetDir,
     installed: [],
     errors: [],
@@ -289,7 +293,7 @@ export async function installCommandsForAgent(agent, commandNames = null, projec
 
   // Write manifest
   if (results.installed.length > 0) {
-    writeCommandsManifest(agent, targetDir, results.installed);
+    writeCommandsManifest(agent, level, targetDir, results.installed);
 
     // Compute file hashes for tracking
     // Key format: agent/filename (e.g., "opencode/commit.md")
@@ -461,10 +465,11 @@ function escapeTomlString(str) {
 /**
  * Write commands manifest
  * @param {string} agent - Agent identifier
+ * @param {string} level - 'user' or 'project'
  * @param {string} targetDir - Target directory
  * @param {string[]} commands - List of installed commands
  */
-function writeCommandsManifest(agent, targetDir, commands) {
+function writeCommandsManifest(agent, level, targetDir, commands) {
   const manifestPath = join(targetDir, '.manifest.json');
   const { version } = JSON.parse(
     readFileSync(join(CLI_ROOT, 'package.json'), 'utf-8')
@@ -474,6 +479,7 @@ function writeCommandsManifest(agent, targetDir, commands) {
     version,
     source: 'universal-dev-standards',
     agent,
+    level,
     commands,
     installedDate: new Date().toISOString().split('T')[0]
   };
@@ -555,11 +561,12 @@ export function getInstalledSkillsInfoForAgent(agent, level, projectPath = null)
 /**
  * Get installed commands info for an agent
  * @param {string} agent - Agent identifier
- * @param {string} projectPath - Project root path
+ * @param {string} level - 'user' or 'project'
+ * @param {string} projectPath - Project root path (required for project level)
  * @returns {Object|null} Installed commands info or null
  */
-export function getInstalledCommandsForAgent(agent, projectPath) {
-  const targetDir = getCommandsDirForAgent(agent, projectPath);
+export function getInstalledCommandsForAgent(agent, level = 'project', projectPath = null) {
+  const targetDir = getCommandsDirForAgent(agent, level, projectPath);
   if (!targetDir || !existsSync(targetDir)) {
     return null;
   }
@@ -599,6 +606,7 @@ export function getInstalledCommandsForAgent(agent, projectPath) {
       commands: commandFiles.map(getCommandName),
       version: null,
       agent,
+      level,
       path: targetDir
     };
   }
@@ -611,6 +619,7 @@ export function getInstalledCommandsForAgent(agent, projectPath) {
       commands: manifest.commands || commandFiles.map(getCommandName),
       version: manifest.version || null,
       agent,
+      level,
       path: targetDir,
       installedDate: manifest.installedDate || null
     };
@@ -621,6 +630,7 @@ export function getInstalledCommandsForAgent(agent, projectPath) {
       commands: commandFiles.map(getCommandName),
       version: null,
       agent,
+      level,
       path: targetDir
     };
   }
@@ -663,12 +673,13 @@ export async function installSkillsToMultipleAgents(installations, skillNames = 
 
 /**
  * Install commands to multiple agents at once
- * @param {string[]} agents - Array of agent identifiers
+ * @param {Array<{agent: string, level: string}> | string[]} installations - Array of installation targets
+ *        Can be either [{agent, level}] objects or simple agent strings (defaults to 'project' level)
  * @param {string[]} commandNames - Commands to install (null = all)
- * @param {string} projectPath - Project root path
+ * @param {string} projectPath - Project root path (required for project level)
  * @returns {Object} Combined results
  */
-export async function installCommandsToMultipleAgents(agents, commandNames = null, projectPath) {
+export async function installCommandsToMultipleAgents(installations, commandNames = null, projectPath = null) {
   const results = {
     success: true,
     installations: [],
@@ -677,11 +688,15 @@ export async function installCommandsToMultipleAgents(agents, commandNames = nul
     allFileHashes: {} // New: combined file hashes from all installations
   };
 
-  for (const agent of agents) {
+  for (const item of installations) {
+    // Support both {agent, level} objects and simple agent strings (backward compatibility)
+    const agent = typeof item === 'string' ? item : item.agent;
+    const level = typeof item === 'string' ? 'project' : (item.level || 'project');
+
     const config = getAgentConfig(agent);
     if (!config?.commands) continue; // Skip agents that don't support commands
 
-    const result = await installCommandsForAgent(agent, commandNames, projectPath);
+    const result = await installCommandsForAgent(agent, level, commandNames, projectPath);
     results.installations.push(result);
 
     if (!result.success) {
