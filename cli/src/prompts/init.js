@@ -210,7 +210,7 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
 /**
  * Prompt for slash commands installation
  * @param {string[]} selectedTools - Selected AI tools
- * @returns {Promise<string[]>} Array of agent identifiers to install commands for
+ * @returns {Promise<Array<{agent: string, level: string}>>} Array of installation targets
  */
 export async function promptCommandsInstallation(selectedTools = []) {
   const msg = t().commandsInstallation || {};
@@ -228,46 +228,80 @@ export async function promptCommandsInstallation(selectedTools = []) {
   console.log();
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
+  console.log();
 
-  // Show supported tools
+  // Build choices dynamically - User Level + Project Level for each agent
+  const choices = [];
+
   for (const tool of commandsSupportedTools) {
     const config = getAgentConfig(tool);
     const displayName = getAgentDisplayName(tool);
-    console.log(chalk.gray(`    • ${displayName} → ${config.commands.project}`));
+
+    // User level option
+    choices.push({
+      name: `${chalk.blue(displayName)} - ${msg.choices.userLevel} ${chalk.gray(`(${config.commands.user.replace(os.homedir(), '~')})`)}`,
+      value: `${tool}:user`
+    });
+
+    // Project level option
+    choices.push({
+      name: `${chalk.blue(displayName)} - ${msg.choices.projectLevel} ${chalk.gray(`(${config.commands.project})`)}`,
+      value: `${tool}:project`,
+      checked: true // Default to project level
+    });
   }
-  console.log();
 
-  const choices = commandsSupportedTools.map(tool => ({
-    name: getAgentDisplayName(tool),
-    value: tool,
-    checked: true // Default to installing commands
-  }));
-
+  // Add skip option
   choices.push(new inquirer.Separator());
   choices.push({
     name: chalk.gray(msg.choices.skip),
     value: 'none'
   });
 
-  const { agents } = await inquirer.prompt([
+  const { locations } = await inquirer.prompt([
     {
       type: 'checkbox',
-      name: 'agents',
-      message: msg.question,
-      choices
+      name: 'locations',
+      message: msg.questionMulti || msg.question,
+      choices,
+      validate: (answer) => {
+        if (answer.includes('none') && answer.length > 1) {
+          return msg.validationNoMix || 'Cannot select "Skip" with other options';
+        }
+        return true;
+      }
     }
   ]);
 
-  // Filter out 'none'
-  const selected = agents.filter(a => a !== 'none');
+  // Handle 'none' selection
+  if (locations.includes('none') || locations.length === 0) {
+    return [];
+  }
 
-  if (selected.length > 0) {
+  // Parse selections into agent:level pairs
+  const installations = locations
+    .filter(loc => loc !== 'none')
+    .map(loc => {
+      const [agent, level] = loc.split(':');
+      return { agent, level };
+    });
+
+  // Show explanation
+  if (installations.length > 0) {
     console.log();
-    console.log(chalk.gray(`  ${msg.installCount.replace('{count}', selected.length)}`));
+    // Group by level for explanation
+    const hasUser = installations.some(i => i.level === 'user');
+    const hasProject = installations.some(i => i.level === 'project');
+    if (hasUser && msg.explanations?.user) {
+      console.log(chalk.gray(msg.explanations.user));
+    }
+    if (hasProject && msg.explanations?.project) {
+      console.log(chalk.gray(msg.explanations.project));
+    }
     console.log();
   }
 
-  return selected;
+  return installations;
 }
 
 /**

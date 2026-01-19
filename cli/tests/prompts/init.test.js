@@ -34,6 +34,7 @@ vi.mock('inquirer', () => ({
 import {
   promptAITools,
   promptSkillsInstallLocation,
+  promptCommandsInstallation,
   promptSkillsUpdate,
   promptStandardsScope,
   promptFormat,
@@ -140,6 +141,69 @@ describe('Init Prompts', () => {
 
       expect(result).toEqual([
         { agent: 'claude-code', level: 'user' },
+        { agent: 'opencode', level: 'project' }
+      ]);
+    });
+  });
+
+  describe('promptCommandsInstallation', () => {
+    it('should return user level location', async () => {
+      mockPrompt.mockResolvedValue({ locations: ['opencode:user'] });
+
+      const result = await promptCommandsInstallation(['opencode']);
+
+      expect(result).toEqual([{ agent: 'opencode', level: 'user' }]);
+    });
+
+    it('should return project level location', async () => {
+      mockPrompt.mockResolvedValue({ locations: ['opencode:project'] });
+
+      const result = await promptCommandsInstallation(['opencode']);
+
+      expect(result).toEqual([{ agent: 'opencode', level: 'project' }]);
+    });
+
+    it('should return empty array when none selected', async () => {
+      mockPrompt.mockResolvedValue({ locations: ['none'] });
+
+      const result = await promptCommandsInstallation(['opencode']);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array when no commands-supported tools', async () => {
+      // claude-code does not support file-based commands (commands: null)
+      const result = await promptCommandsInstallation(['claude-code']);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array when empty selection', async () => {
+      mockPrompt.mockResolvedValue({ locations: [] });
+
+      const result = await promptCommandsInstallation(['opencode']);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should support multi-agent selection with different levels', async () => {
+      mockPrompt.mockResolvedValue({ locations: ['opencode:user', 'copilot:project'] });
+
+      const result = await promptCommandsInstallation(['opencode', 'copilot']);
+
+      expect(result).toEqual([
+        { agent: 'opencode', level: 'user' },
+        { agent: 'copilot', level: 'project' }
+      ]);
+    });
+
+    it('should support same agent with both levels', async () => {
+      mockPrompt.mockResolvedValue({ locations: ['opencode:user', 'opencode:project'] });
+
+      const result = await promptCommandsInstallation(['opencode']);
+
+      expect(result).toEqual([
+        { agent: 'opencode', level: 'user' },
         { agent: 'opencode', level: 'project' }
       ]);
     });

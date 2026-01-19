@@ -242,9 +242,17 @@ export const messages = {
       title: 'Slash Commands Installation',
       description: 'The following AI Agents support slash commands:',
       question: 'Select AI Agents to install slash commands',
+      questionMulti: 'Select where to install slash commands (multiple selections allowed)',
       installCount: 'Will install 15 slash commands for {count} AI Agent(s)',
+      validationNoMix: 'Cannot select "Skip" with other options',
       choices: {
-        skip: 'Skip (use Skills instead)'
+        skip: 'Skip (use Skills instead)',
+        userLevel: 'User Level',
+        projectLevel: 'Project Level'
+      },
+      explanations: {
+        user: '  → Commands available in all your projects',
+        project: '  → Commands only for this project'
       }
     },
 
@@ -1131,9 +1139,17 @@ export const messages = {
       title: '斜線命令安裝',
       description: '以下 AI Agent 支援斜線命令：',
       question: '選擇要安裝斜線命令的 AI Agent',
+      questionMulti: '選擇要安裝斜線命令的位置（可多選）',
       installCount: '將為 {count} 個 AI Agent 安裝 15 個斜線命令',
+      validationNoMix: '無法同時選擇「跳過」和其他選項',
       choices: {
-        skip: '跳過（使用 Skills 替代）'
+        skip: '跳過（使用 Skills 替代）',
+        userLevel: '使用者層級',
+        projectLevel: '專案層級'
+      },
+      explanations: {
+        user: '  → 命令適用於您所有的專案',
+        project: '  → 命令僅適用於此專案'
       }
     },
 
@@ -2020,9 +2036,17 @@ export const messages = {
       title: '斜杠命令安装',
       description: '以下 AI Agent 支持斜杠命令：',
       question: '选择要安装斜杠命令的 AI Agent',
+      questionMulti: '选择要安装斜杠命令的位置（可多选）',
       installCount: '将为 {count} 个 AI Agent 安装 15 个斜杠命令',
+      validationNoMix: '无法同时选择「跳过」和其他选项',
       choices: {
-        skip: '跳过（使用 Skills 替代）'
+        skip: '跳过（使用 Skills 替代）',
+        userLevel: '用户级别',
+        projectLevel: '项目级别'
+      },
+      explanations: {
+        user: '  → 命令适用于您所有的项目',
+        project: '  → 命令仅适用于此项目'
       }
     },
 

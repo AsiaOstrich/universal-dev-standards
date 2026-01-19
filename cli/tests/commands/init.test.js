@@ -471,7 +471,8 @@ describe('Init Command', () => {
       const manifestArg = writeManifest.mock.calls[0][0];
 
       expect(manifestArg.commands.installed).toBe(true);
-      expect(manifestArg.commands.installations).toContain('opencode');
+      // Commands installations now use {agent, level} format
+      expect(manifestArg.commands.installations.some(i => i.agent === 'opencode')).toBe(true);
     });
 
     it('should not install commands for agents that do not support commands', async () => {
@@ -511,8 +512,9 @@ describe('Init Command', () => {
       const manifestArg = writeManifest.mock.calls[0][0];
 
       expect(manifestArg.commands.installed).toBe(true);
-      expect(manifestArg.commands.installations).toContain('opencode');
-      expect(manifestArg.commands.installations).toContain('copilot');
+      // Commands installations now use {agent, level} format
+      expect(manifestArg.commands.installations.some(i => i.agent === 'opencode')).toBe(true);
+      expect(manifestArg.commands.installations.some(i => i.agent === 'copilot')).toBe(true);
     });
   });
 });

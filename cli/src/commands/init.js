@@ -171,7 +171,7 @@ export async function initCommand(options) {
     updateTargets: [],    // Legacy: array of 'user' or 'project'
     // New: multi-agent installations
     skillsInstallations: [],  // Array of {agent, level}
-    commandsInstallations: [] // Array of agent identifiers
+    commandsInstallations: [] // Array of {agent, level}
   };
 
   // AI tools configuration
@@ -467,14 +467,18 @@ export async function initCommand(options) {
     }
 
     // Auto-install commands for detected agents that support commands
-    // This matches the interactive mode behavior where commands are checked by default
+    // This matches the interactive mode behavior where commands are checked by default (project level)
     const commandsSupportedAgents = aiToolsNormalized.filter(tool => {
       const config = getAgentConfig(tool);
       return config?.commands !== null;
     });
 
     if (commandsSupportedAgents.length > 0) {
-      skillsConfig.commandsInstallations = commandsSupportedAgents;
+      // Convert to {agent, level} format for consistency with interactive mode
+      skillsConfig.commandsInstallations = commandsSupportedAgents.map(agent => ({
+        agent,
+        level: 'project' // Default to project level in non-interactive mode
+      }));
     }
   }
 
@@ -890,9 +894,12 @@ export async function initCommand(options) {
     }
 
     // Build location summary
-    const cmdLocations = skillsConfig.commandsInstallations.map(agent => {
+    const cmdLocations = skillsConfig.commandsInstallations.map(item => {
+      // Support both {agent, level} objects and simple agent strings (backward compatibility)
+      const agent = typeof item === 'string' ? item : item.agent;
+      const level = typeof item === 'string' ? 'project' : (item.level || 'project');
       const displayName = getAgentDisplayName(agent);
-      const dir = getCommandsDirForAgent(agent, projectPath);
+      const dir = getCommandsDirForAgent(agent, level, projectPath);
       return `${displayName} (${dir})`;
     }).join(', ');
 
@@ -1087,9 +1094,12 @@ export async function initCommand(options) {
 
   // Show commands installation summary
   if (results.commands?.length > 0) {
-    const cmdLocations = skillsConfig.commandsInstallations?.map(agent => {
+    const cmdLocations = skillsConfig.commandsInstallations?.map(item => {
+      // Support both {agent, level} objects and simple agent strings (backward compatibility)
+      const agent = typeof item === 'string' ? item : item.agent;
+      const level = typeof item === 'string' ? 'project' : (item.level || 'project');
       const displayName = getAgentDisplayName(agent);
-      const dir = getCommandsDirForAgent(agent, projectPath);
+      const dir = getCommandsDirForAgent(agent, level, projectPath);
       return `${displayName}: ${dir}`;
     }).join(' and ') || '';
 

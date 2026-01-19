@@ -496,7 +496,8 @@ describe('E2E: uds init', () => {
       // Commands should be installed for opencode
       expect(manifest.commands).toBeDefined();
       expect(manifest.commands.installed).toBe(true);
-      expect(manifest.commands.installations).toContain('opencode');
+      // Commands installations now use {agent, level} format
+      expect(manifest.commands.installations.some(i => i.agent === 'opencode')).toBe(true);
 
       // Verify commands directory was created
       const commandsDir = join(testDir, '.opencode/command');

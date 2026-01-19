@@ -17,7 +17,7 @@ import {
   getToolFromPath
 } from '../utils/reference-sync.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
-import { t } from '../i18n/messages.js';
+import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 import {
   installSkillsToMultipleAgents,
   installCommandsToMultipleAgents,
@@ -31,6 +31,10 @@ import {
   getCommandsDirForAgent
 } from '../config/ai-agent-paths.js';
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
+import {
+  promptSkillsInstallLocation,
+  promptCommandsInstallation
+} from '../prompts/init.js';
 
 /**
  * Compare two semantic versions
@@ -119,15 +123,10 @@ async function updateCliAndExit(useBeta = false) {
  */
 export async function updateCommand(options) {
   const projectPath = process.cwd();
-  const msg = t().commands.update;
-  const common = t().commands.common;
 
-  console.log();
-  console.log(chalk.bold(msg.title));
-  console.log(chalk.gray('─'.repeat(50)));
-
-  // Check if initialized
+  // Check if initialized first (use default language)
   if (!isInitialized(projectPath)) {
+    const common = t().commands.common;
     console.log(chalk.red(common.notInitialized));
     console.log(chalk.gray(`  ${common.runInit}`));
     console.log();
@@ -137,10 +136,31 @@ export async function updateCommand(options) {
   // Read manifest
   const manifest = readManifest(projectPath);
   if (!manifest) {
+    const common = t().commands.common;
     console.log(chalk.red(common.couldNotReadManifest));
     console.log();
     return;
   }
+
+  // Set UI language based on commit_language setting
+  // Only override if user didn't explicitly set --ui-lang flag
+  if (!isLanguageExplicitlySet()) {
+    const langMap = {
+      'traditional-chinese': 'zh-tw',
+      'simplified-chinese': 'zh-cn',
+      english: 'en',
+      bilingual: 'en'
+    };
+    const uiLang = langMap[manifest.options?.commit_language] || 'en';
+    setLanguage(uiLang);
+  }
+
+  // Now get localized messages
+  const msg = t().commands.update;
+
+  console.log();
+  console.log(chalk.bold(msg.title));
+  console.log(chalk.gray('─'.repeat(50)));
 
   // Handle --sync-refs option
   if (options.syncRefs) {
@@ -1282,90 +1302,24 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
 
   const result = { installSkills: [], updateSkills: [], installCommands: [], declinedSkills: [], declinedCommands: [] };
 
-  // Handle missing Skills with checkbox selection
+  // Handle missing Skills using unified prompt (consistent with init/configure)
   if (missingSkills.length > 0) {
-    // Check if Skills are already installed via marketplace (Claude Code only)
-    const marketplaceInfo = getMarketplaceSkillsInfo();
-    const hasMarketplaceSkills = marketplaceInfo?.installed;
-
     console.log(chalk.yellow(msg.skillsNotInstalledFor || 'Skills not yet installed for these AI tools:'));
     for (const skill of missingSkills) {
-      // Show marketplace hint for Claude Code if applicable
-      if (hasMarketplaceSkills && skill.agent === 'claude-code') {
-        console.log(chalk.gray(`  • ${skill.displayName} ${chalk.cyan(`(${msg.alreadyViaMarketplace || 'already via Marketplace'})`)}`));
-      } else {
-        console.log(chalk.gray(`  • ${skill.displayName}`));
-      }
+      console.log(chalk.gray(`  • ${skill.displayName}`));
     }
 
-    // Show marketplace coexistence warning if applicable
-    if (hasMarketplaceSkills && missingSkills.some(s => s.agent === 'claude-code')) {
-      console.log();
-      console.log(chalk.cyan(`  ℹ ${msg.marketplaceCoexistNote || 'Note: File-based installation will coexist with Marketplace version'}`));
+    // Use unified prompt from init.js (allows per-tool level selection)
+    const missingAgents = missingSkills.map(s => s.agent);
+    const installations = await promptSkillsInstallLocation(missingAgents);
+
+    if (installations.length > 0) {
+      result.installSkills = installations;
     }
-    console.log();
 
-    // Build checkbox choices
-    const skillChoices = missingSkills.map(skill => {
-      const isClaudeWithMarketplace = hasMarketplaceSkills && skill.agent === 'claude-code';
-      return {
-        name: isClaudeWithMarketplace
-          ? `${skill.displayName} ${chalk.cyan(`(${msg.alreadyViaMarketplace || 'already via Marketplace'})`)}`
-          : skill.displayName,
-        value: skill.agent,
-        checked: !isClaudeWithMarketplace  // Default unchecked if already via marketplace
-      };
-    });
-
-    // Add skip option
-    skillChoices.push(new inquirer.Separator());
-    skillChoices.push({
-      name: chalk.gray(msg.skipSkillsInstallation || 'Skip Skills installation'),
-      value: '__skip__'
-    });
-
-    const { selectedSkillAgents } = await inquirer.prompt([{
-      type: 'checkbox',
-      name: 'selectedSkillAgents',
-      message: msg.selectSkillsToInstall || 'Select AI tools to install Skills for:',
-      choices: skillChoices,
-      validate: (answer) => {
-        // If skip is selected, ensure it's the only selection
-        if (answer.includes('__skip__') && answer.length > 1) {
-          return msg.skipValidationError || 'Cannot select Skip with other options';
-        }
-        return true;
-      }
-    }]);
-
-    // Filter out skip and handle selection
-    const filteredSkillAgents = selectedSkillAgents.filter(a => a !== '__skip__');
-
-    // Track declined skills (user explicitly skipped or deselected)
-    const skippedSkillAgents = missingSkills
-      .map(s => s.agent)
-      .filter(agent => !filteredSkillAgents.includes(agent));
-    result.declinedSkills = skippedSkillAgents;
-
-    if (filteredSkillAgents.length > 0) {
-      // Prompt for installation level
-      const { skillsLevel } = await inquirer.prompt([{
-        type: 'list',
-        name: 'skillsLevel',
-        message: msg.skillsLevelQuestion || 'Where should Skills be installed?',
-        choices: [
-          { name: `${msg.projectLevel || 'Project level'} (.claude/skills/, etc.)`, value: 'project' },
-          { name: `${msg.userLevel || 'User level'} (~/.claude/skills/, etc.)`, value: 'user' }
-        ],
-        default: 'project'
-      }]);
-
-      result.installSkills = filteredSkillAgents.map(agent => ({
-        agent,
-        level: skillsLevel
-      }));
-    }
-    console.log();
+    // Track declined skills (agents not selected for installation)
+    const installedAgents = installations.map(i => i.agent);
+    result.declinedSkills = missingAgents.filter(a => !installedAgents.includes(a));
   }
 
   // Handle outdated Skills with checkbox selection
@@ -1426,68 +1380,24 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
     console.log();
   }
 
-  // Handle missing Commands with checkbox selection
+  // Handle missing Commands using unified prompt (consistent with init/configure)
   if (missingCommands.length > 0) {
     console.log(chalk.yellow(msg.commandsNotInstalledFor || 'Slash commands not yet installed for these AI tools:'));
     for (const cmd of missingCommands) {
       console.log(chalk.gray(`  • ${cmd.displayName}`));
     }
-    console.log();
 
-    // Build checkbox choices
-    const commandChoices = missingCommands.map(cmd => ({
-      name: cmd.displayName,
-      value: cmd.agent,
-      checked: true  // Default checked for opt-out behavior
-    }));
+    // Use unified prompt from init.js (allows per-tool level selection)
+    const missingAgents = missingCommands.map(c => c.agent);
+    const installations = await promptCommandsInstallation(missingAgents);
 
-    // Add skip option
-    commandChoices.push(new inquirer.Separator());
-    commandChoices.push({
-      name: chalk.gray(msg.skipCommandsInstallation || 'Skip Commands installation'),
-      value: '__skip__'
-    });
-
-    const { selectedCommandAgents } = await inquirer.prompt([{
-      type: 'checkbox',
-      name: 'selectedCommandAgents',
-      message: msg.selectCommandsToInstall || 'Select AI tools to install Commands for:',
-      choices: commandChoices,
-      validate: (answer) => {
-        if (answer.includes('__skip__') && answer.length > 1) {
-          return msg.skipValidationError || 'Cannot select Skip with other options';
-        }
-        return true;
-      }
-    }]);
-
-    // Filter out skip
-    const filteredCommandAgents = selectedCommandAgents.filter(a => a !== '__skip__');
-
-    // Track declined commands (user explicitly skipped or deselected)
-    const skippedCommandAgents = missingCommands
-      .map(c => c.agent)
-      .filter(agent => !filteredCommandAgents.includes(agent));
-    result.declinedCommands = skippedCommandAgents;
-
-    if (filteredCommandAgents.length > 0) {
-      // Prompt for installation level
-      const { commandsLevel } = await inquirer.prompt([{
-        type: 'list',
-        name: 'commandsLevel',
-        message: msg.commandsLevelQuestion || 'Where should Commands be installed?',
-        choices: [
-          { name: `${msg.projectLevel || 'Project level'} (.opencode/command/, etc.)`, value: 'project' },
-          { name: `${msg.userLevel || 'User level'} (~/.config/opencode/command/, etc.)`, value: 'user' }
-        ],
-        default: 'project'
-      }]);
-
-      result.installCommands = filteredCommandAgents.map(agent => ({
-        agent,
-        level: commandsLevel
-      }));
+    if (installations.length > 0) {
+      result.installCommands = installations;
     }
+
+    // Track declined commands (agents not selected for installation)
+    const installedAgents = installations.map(i => i.agent);
+    result.declinedCommands = missingAgents.filter(a => !installedAgents.includes(a));
   }
 
   return result;
