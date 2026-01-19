@@ -38,7 +38,7 @@ Shows compact status for quick overview:
 UDS Status Summary
 ──────────────────────────────────────────────────
   Version: 3.5.1-beta.16 → 3.5.1-beta.18 ⚠
-  Level: 2 - Recommended (推薦)
+  Level: 2 - Professional (專業)
   Files: 12 ✓
   Skills: Claude Code ✓ | OpenCode ○
   Commands: OpenCode ✓

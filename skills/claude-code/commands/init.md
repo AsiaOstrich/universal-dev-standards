@@ -49,50 +49,68 @@ Pre-select tools detected in the environment. Note: Codex and OpenCode share `AG
 
 ### Step 3: Ask Skills Installation | 步驟 3：詢問 Skills 安裝
 
-For tools that support Skills, use AskUserQuestion:
+For tools that support Skills, use AskUserQuestion with multiSelect allowing per-tool installation:
 
-對於支援 Skills 的工具，使用 AskUserQuestion：
+對於支援 Skills 的工具，使用 AskUserQuestion（多選），允許為每個工具選擇安裝位置：
 
-| Option | Description |
-|--------|-------------|
-| **Plugin Marketplace** | Auto-updates, recommended for Claude Code |
-| **Project Level** | Install to `.claude/skills/`, `.opencode/skill/`, etc. |
-| **User Level** | Install to `~/.claude/skills/`, `~/.opencode/skill/`, etc. |
-| **Skip** | Don't install Skills |
+**For Claude Code**: Plugin Marketplace option is shown first (recommended).
+
+```
+? Select where to install Skills (multiple selections allowed):
+❯ ◉ Plugin Marketplace (Recommended) - Auto-updates, easy version management
+  ── Or choose file installation location ──
+  ◯ Claude Code - User Level (~/.claude/skills/)
+  ◯ Claude Code - Project Level (.claude/skills/)
+  ◯ Cursor - User Level (~/.cursor/skills/)
+  ◯ Cursor - Project Level (.cursor/skills/)
+  ──────────────
+  ◯ Skip (No Skills installation)
+```
+
+Each AI tool can have different installation levels (User/Project), providing flexibility for different project needs.
 
 ### Step 4: Ask Commands Installation | 步驟 4：詢問 Commands 安裝
 
-For tools that support Commands (OpenCode, Copilot, Gemini CLI, Roo Code), use AskUserQuestion with multiSelect:
+For tools that support Commands (OpenCode, Copilot, Gemini CLI), use AskUserQuestion with multiSelect allowing per-tool installation level:
 
-對於支援 Commands 的工具，使用多選介面：
+對於支援 Commands 的工具，使用多選介面，允許為每個工具選擇安裝層級：
 
 ```
-? Select AI tools to install slash commands for:
-❯ ◉ OpenCode (.opencode/commands/)
-  ◉ GitHub Copilot (.github/commands/)
-  ◉ Gemini CLI (.gemini/commands/)
+? Select where to install slash commands (multiple selections allowed):
+❯ ◉ OpenCode - User Level (~/.config/opencode/command/)
+  ◉ OpenCode - Project Level (.opencode/command/)  [default checked]
+  ◯ GitHub Copilot - User Level (~/.config/github-copilot/commands/)
+  ◉ GitHub Copilot - Project Level (.github/commands/)  [default checked]
+  ◯ Gemini CLI - User Level (~/.gemini/commands/)
+  ◉ Gemini CLI - Project Level (.gemini/commands/)  [default checked]
   ──────────────
-  ◯ Skip Commands installation
+  ◯ Skip (use Skills instead)
 ```
+
+Project Level is checked by default. Each AI tool can have commands installed at different levels (User/Project).
 
 ### Step 5: Ask Standards Scope | 步驟 5：詢問標準範圍
 
-Use AskUserQuestion:
+Use AskUserQuestion (only shown if Skills are installed):
+
+使用 AskUserQuestion（僅在安裝 Skills 時顯示）：
 
 | Option | Description |
 |--------|-------------|
-| **Minimal (Recommended with Skills)** | Reference-only standards; Skills handle the rest |
-| **Full** | Include all standards as local files |
+| **Lean (Recommended)** | Reference docs only, Skills provide real-time task guidance |
+| **Complete** | Install all standard files, independent of Skills |
 
 ### Step 6: Ask Adoption Level | 步驟 6：詢問採用層級
 
 Use AskUserQuestion:
 
+使用 AskUserQuestion：
+
 | Option | Description |
 |--------|-------------|
-| **Essential (Level 1)** | Minimum viable standards for small projects |
-| **Recommended (Level 2)** | Professional quality for teams (Recommended) |
-| **Enterprise (Level 3)** | Comprehensive for regulated/enterprise projects |
+| **Level 1: Starter** | 6 core standards: commit, anti-hallucination, checkin, etc. |
+| **Level 2: Professional (Recommended)** | Adds testing, Git workflow, error handling - 12 total |
+| **Level 3: Complete** | Includes versioning, logging, SDD - all 16 standards |
 
 ### Step 7: Ask Standards Format | 步驟 7：詢問標準格式
 
@@ -138,11 +156,13 @@ Use AskUserQuestion:
 
 Use AskUserQuestion for integration file content:
 
+使用 AskUserQuestion 設定整合檔案內容：
+
 | Option | Description |
 |--------|-------------|
-| **Index (Recommended)** | Standards index with compliance instructions |
-| **Full** | Embed all standards in integration files |
-| **Minimal** | Only core rules embedded |
+| **Standard (Recommended)** | Summary + task mapping, AI knows when to read which standard |
+| **Full Embed** | Embed all rules, AI can use immediately but larger file |
+| **Minimal** | File references only, best with Skills |
 
 ### Step 13: Confirm and Execute | 步驟 13：確認並執行
 
@@ -163,7 +183,7 @@ When invoked with `--yes` or specific options, skip interactive questions:
 /init --yes                    # Use all defaults
 /init --level 2 --yes          # Specific level with defaults
 /init --skills-location none   # No Skills installation
-/init --content-mode index     # Specific content mode
+/init --content-mode standard  # Specific content mode
 ```
 
 ## Options Reference | 選項參考
@@ -173,7 +193,7 @@ When invoked with `--yes` or specific options, skip interactive questions:
 | `--yes`, `-y` | Non-interactive mode | 非互動模式 |
 | `--level N` | Adoption level (1, 2, or 3) | 採用層級 |
 | `--skills-location` | marketplace, user, project, or none | Skills 位置 |
-| `--content-mode` | full, index, or minimal | 內容模式 |
+| `--content-mode` | standard, full, or minimal | 內容模式 |
 | `--format` | ai, human, or both | 格式 |
 | `-E`, `--experimental` | Enable experimental features (methodology) | 啟用實驗性功能 |
 
@@ -183,9 +203,9 @@ See `uds init --help` for all options.
 
 | Level | Name | Standards Count | Description | 說明 |
 |-------|------|-----------------|-------------|------|
-| 1 | Essential | 8 | Minimum viable standards | 最基本的標準 |
-| 2 | Recommended | 12 | Professional quality for teams | 團隊專業品質標準 |
-| 3 | Enterprise | 16 | Comprehensive for regulated projects | 企業級完整標準 |
+| 1 | Starter | 6 | Core standards for small projects | 核心標準（小型專案） |
+| 2 | Professional | 12 | Adds testing, Git workflow, error handling | 團隊專業品質標準 |
+| 3 | Complete | 16 | All 16 standards including SDD | 完整的 16 項標準 |
 
 ## What Gets Installed | 安裝內容
 
