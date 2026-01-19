@@ -29,6 +29,7 @@ Commands for development workflow automation.
 | [`/spec`](./spec.md) | Create specification documents | 建立規格文件 |
 | [`/docs`](./docs.md) | Create/update documentation | 建立/更新文件 |
 | [`/coverage`](./coverage.md) | Analyze test coverage | 分析測試覆蓋率 |
+| [`/reverse-spec`](./reverse-spec.md) | Reverse engineer code to SDD spec | 反向工程成 SDD 規格 |
 
 ### Methodology | 方法論
 

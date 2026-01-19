@@ -30,6 +30,7 @@ These skills are automatically triggered based on context when using Claude Code
 | `git-workflow-guide` | Branching strategies | "branch", "merge" |
 | `documentation-guide` | Documentation structure & writing | "README", "docs", "ARCHITECTURE" |
 | `requirement-assistant` | Requirement writing | "requirement", "user story" |
+| `reverse-engineer` | Reverse engineer code to SDD specs | "reverse engineering", "legacy code", "code archaeology" |
 
 ## Static vs Dynamic Standards | 靜態與動態規範
 
@@ -72,6 +73,7 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 | release-standards | version, release, semver | 版本, 發布 |
 | documentation-guide | README, docs, ARCHITECTURE, API docs | 文件, 架構, API 文件 |
 | requirement-assistant | spec, SDD, requirement | 規格, 需求, 新功能 |
+| reverse-engineer | reverse engineering, legacy code, code archaeology | 反向工程, 舊有程式碼, 規格提取 |
 
 > 📖 See [Static vs Dynamic Guide](../../adoption/STATIC-DYNAMIC-GUIDE.md) for detailed classification.
 >
@@ -96,6 +98,7 @@ In addition to automatic Skills, this plugin provides **manual slash commands** 
 | `/atdd` | ATDD workflow | ATDD 驗收流程 |
 | `/docs` | Documentation | 文件撰寫 |
 | `/coverage` | Test coverage analysis | 測試覆蓋率分析 |
+| `/reverse-spec` | Reverse engineer to SDD spec | 反向工程成 SDD 規格 |
 
 ### Skills vs Commands | Skills 與命令的差異
 

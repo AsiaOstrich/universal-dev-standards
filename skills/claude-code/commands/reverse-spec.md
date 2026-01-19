@@ -1,0 +1,185 @@
+---
+description: Reverse engineer existing code into SDD specification document
+allowed-tools: Read, Write, Grep, Glob, Bash(git:*)
+argument-hint: "[file path or directory | 檔案或目錄路徑]"
+---
+
+# Reverse Engineering to SDD Specification | 反向工程成 SDD 規格
+
+Transform existing code into structured specification documents that follow SDD (Spec-Driven Development) format.
+
+將現有程式碼轉換為遵循 SDD（規格驅動開發）格式的結構化規格文件。
+
+## Workflow | 工作流程
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  Code Analysis  │───▶│ Requirement     │───▶│ Gap             │
+│  程式碼分析      │    │ Extraction      │    │ Identification  │
+└─────────────────┘    │ 需求提取        │    │ 缺口識別        │
+                       └─────────────────┘    └────────┬────────┘
+                                                       │
+                                                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  Human Review   │◀───│ Spec Generation │◀───│ Test Analysis   │
+│  人類審查        │    │ 規格生成        │    │ 測試分析        │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+## Anti-Hallucination Compliance | 反幻覺合規
+
+**CRITICAL**: All outputs MUST follow [Anti-Hallucination Standards](../../../core/anti-hallucination.md).
+
+**關鍵**：所有輸出必須遵循[反幻覺標準](../../../core/anti-hallucination.md)。
+
+### Certainty Labels | 確定性標籤
+
+| Label | Use When | 使用時機 |
+|-------|----------|---------|
+| `[Confirmed]` | Directly verified from code | 由程式碼直接驗證 |
+| `[Inferred]` | Logical deduction from code patterns | 從程式碼模式合理推論 |
+| `[Unknown]` | Requires human input (e.g., Motivation) | 需要人類輸入（如動機） |
+
+### Source Attribution | 來源標註
+
+Every extracted requirement MUST include source attribution:
+
+每個提取的需求必須包含來源標註：
+
+```markdown
+## API Design
+[Confirmed] REST endpoint for user authentication
+- [Source: Code] src/controllers/AuthController.ts:15-45
+- [Source: Code] src/routes/auth.ts:8-12
+```
+
+## Steps | 步驟
+
+### 1. Code Analysis | 程式碼分析
+
+Analyze the target code to extract:
+
+分析目標程式碼以提取：
+
+- **Entry points**: Main functions, API endpoints, event handlers
+- **Data models**: Types, interfaces, database schemas
+- **Dependencies**: External libraries, internal modules
+- **Configuration**: Environment variables, settings
+
+### 2. Test Analysis | 測試分析
+
+Extract acceptance criteria from existing tests:
+
+從現有測試提取驗收標準：
+
+- Parse test case names → Acceptance criteria
+- Extract Given-When-Then patterns
+- Identify boundary conditions and edge cases
+
+### 3. Gap Identification | 缺口識別
+
+Identify what CANNOT be extracted from code:
+
+識別無法從程式碼提取的內容：
+
+| Cannot Extract | Reason | 原因 |
+|----------------|--------|------|
+| **Motivation** | Business context not in code | 商業背景不在程式碼中 |
+| **User Stories** | End-user perspective missing | 缺少終端用戶視角 |
+| **Risk Assessment** | Requires domain knowledge | 需要領域知識 |
+| **Trade-off Decisions** | Historical decisions not recorded | 歷史決策未記錄 |
+
+### 4. Spec Generation | 規格生成
+
+Generate specification using the template:
+
+使用範本生成規格：
+
+- Use [reverse-spec-template.md](../../../templates/reverse-spec-template.md)
+- Mark all `[Unknown]` sections for human review
+- Include source citations for all `[Confirmed]` items
+
+### 5. Human Review | 人類審查
+
+The generated spec MUST be reviewed by humans to:
+
+生成的規格必須由人類審查以：
+
+- Fill in `[Unknown]` sections (Motivation, Risks)
+- Verify `[Inferred]` items
+- Add business context and historical decisions
+
+## Output Format | 輸出格式
+
+The generated specification will include:
+
+生成的規格將包含：
+
+```markdown
+# [SPEC-XXX] [Feature Name] (Reverse Engineered)
+
+> ⚠️ This spec was reverse engineered from code
+> Sections marked [Unknown] require human confirmation
+
+## Summary
+[Confirmed] {Extracted from code analysis}
+- [Source: Code] {file}:{lines}
+
+## Motivation
+[Unknown] {Needs human input - business context}
+
+## Detailed Design
+[Confirmed] {Architecture extracted from code}
+
+## Acceptance Criteria
+[Inferred] From test analysis:
+- [ ] {Criterion from test_xxx}
+
+## Human Review Checklist
+- [ ] Confirm Motivation
+- [ ] Verify Risks
+- [ ] Validate Acceptance Criteria completeness
+```
+
+## Usage Examples | 使用範例
+
+```bash
+# Reverse engineer a single file
+/reverse-spec src/auth/login.ts
+
+# Reverse engineer a directory
+/reverse-spec src/features/payment/
+
+# Reverse engineer with test analysis
+/reverse-spec src/cart/ --include-tests
+
+# Output to specific location
+/reverse-spec src/api/ --output specs/SPEC-API.md
+```
+
+## Limitations | 限制
+
+This command **CANNOT**:
+
+此命令**無法**：
+
+- Determine why design decisions were made
+- Extract business requirements that aren't reflected in code
+- Identify risks without domain expertise
+- Verify if current implementation matches original intent
+
+## Integration with /spec | 與 /spec 整合
+
+After generating a reverse-engineered spec:
+
+生成反向工程規格後：
+
+1. Use `/spec review SPEC-XXX` to validate completeness
+2. Fill in `[Unknown]` sections manually
+3. Mark spec as "Review Complete" when done
+
+## Reference | 參考
+
+- Full skill guide: [reverse-engineer](../reverse-engineer/SKILL.md)
+- Template: [reverse-spec-template.md](../../../templates/reverse-spec-template.md)
+- Anti-hallucination: [core/anti-hallucination.md](../../../core/anti-hallucination.md)
