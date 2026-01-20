@@ -9,6 +9,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-01-20
+
+### Highlights
+
+**Bidirectional Derivation System**: v4.0 introduces a complete spec-code lifecycle management system:
+- **Forward Derivation**: Generate BDD/TDD/ATDD artifacts from SDD specifications
+- **Reverse Engineering**: Extract specifications from existing code
+- Together they form a bidirectional derivation cycle for maintaining spec-code consistency
+
+### Added
+- **6 New Core Standards**:
+  - `behavior-driven-development.md` - BDD methodology and standards
+  - `acceptance-test-driven-development.md` - ATDD methodology and standards
+  - `reverse-engineering-standards.md` - Reverse engineering standards
+  - `forward-derivation-standards.md` - Forward derivation standards
+  - `ai-instruction-standards.md` - AI instruction writing standards
+  - `refactoring-standards.md` - Refactoring standards and patterns
+- **8 New Skills** (23 total):
+  - `forward-derivation/` - Forward derivation commands (`/derive-bdd`, `/derive-tdd`, `/derive-atdd`, `/derive-all`)
+  - `reverse-engineer/` - Enhanced reverse engineering (`/reverse-spec`, `/reverse-bdd`, `/reverse-tdd`)
+  - `bdd-assistant/` - BDD workflow assistant (`/bdd`)
+  - `atdd-assistant/` - ATDD workflow assistant (`/atdd`)
+  - `methodology-system/` - Methodology selection (`/methodology`)
+  - `refactoring-assistant/` - Refactoring assistant
+  - `checkin-assistant/` - Check-in assistant
+  - `commands/` - Slash commands collection (`/checkin`, `/methodology`, etc.)
+- **CLI Enhancements**:
+  - Per-tool level selection (User Level or Project Level per AI tool)
+  - `--debug` flag for troubleshooting
+  - Declined features memory
+  - Enhanced file integrity tracking
+  - Commands installation path support for Claude Code
+
+### Changed
+- **Methodology System**: Now production-ready (previously experimental 🧪)
+  - TDD/BDD/SDD/ATDD workflows fully integrated
+  - Removed experimental flags
+- **CLI**: Unified prompt format for Skills and Commands installation
+- **Documentation**: Synced terminology across all components
+
+### Fixed
+- Marketplace detection reliability
+- YAML frontmatter syntax in localized skills
+
+---
+
 ## [4.0.0-beta.2] - 2026-01-20
 
 ### Added

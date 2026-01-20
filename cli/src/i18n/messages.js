@@ -712,7 +712,7 @@ export const messages = {
         nextSteps: 'Next steps:',
         reviewDirectory: '1. Review .standards/ directory',
         addToVcs: '2. Add .standards/ to version control',
-        restartClaude: '3. Restart Claude Code to load new Skills',
+        restartAgent: '3. Restart {tools} to load new Skills',
         runCheck: 'Run `uds check` to verify adoption status'
       },
 
@@ -1609,7 +1609,7 @@ export const messages = {
         nextSteps: '後續步驟：',
         reviewDirectory: '1. 檢視 .standards/ 目錄',
         addToVcs: '2. 將 .standards/ 加入版本控制',
-        restartClaude: '3. 重新啟動 Claude Code 以載入新 Skills',
+        restartAgent: '3. 重新啟動 {tools} 以載入新 Skills',
         runCheck: '執行 `uds check` 驗證採用狀態'
       },
 
@@ -2175,7 +2175,7 @@ export const messages = {
         nextSteps: '后续步骤：',
         reviewDirectory: '1. 查看 .standards/ 目录',
         addToVcs: '2. 将 .standards/ 添加到版本控制',
-        restartClaude: '3. 重启 Claude Code 以加载新 Skills',
+        restartAgent: '3. 重启 {tools} 以加载新 Skills',
         runCheck: '执行 `uds check` 验证采用状态'
       },
 

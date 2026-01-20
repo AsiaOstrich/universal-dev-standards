@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/testing-standards.md)
 
-**Version**: 2.1.0
-**Last Updated**: 2026-01-05
+**Version**: 2.2.0
+**Last Updated**: 2026-01-20
 **Applicability**: All software projects
 
 ---
@@ -38,6 +38,7 @@ This standard defines testing conventions and best practices to ensure software 
 15. [Test Environment Isolation](#test-environment-isolation)
 16. [CI/CD Integration](#cicd-integration)
 17. [Best Practices](#best-practices)
+18. [Test Documentation Structure](#test-documentation-structure) ⭐ NEW
 
 ---
 
@@ -2946,6 +2947,95 @@ public void MethodName_Scenario_ExpectedBehavior()
 
 ---
 
+## Test Documentation Structure
+
+Improve test discoverability by maintaining a standardized documentation structure within test directories.
+
+### tests/README.md Required Sections
+
+Every `tests/` directory SHOULD include a README.md with the following sections for discoverability.
+
+#### 1. Test Overview Table
+
+List all test types with count, technology stack, and execution environment.
+
+```markdown
+| Test Type | Count | Framework | Environment |
+|-----------|-------|-----------|-------------|
+| Unit Tests | 150 | Jest | Node.js |
+| Integration Tests | 45 | Jest | Node.js + TestContainers |
+| E2E Tests | 12 | Playwright | Browser |
+```
+
+#### 2. Current Status Section
+
+Display latest test execution results with clear pass/fail indicators.
+
+```markdown
+## Current Status
+
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Pass Rate | 98.5% | ≥ 95% | ✅ |
+| Line Coverage | 82% | ≥ 80% | ✅ |
+| Branch Coverage | 75% | ≥ 70% | ✅ |
+
+**Last Run**: 2026-01-20 14:30 UTC
+**Report**: [test-report-20260120-143000.md](results/test-report-20260120-143000.md)
+```
+
+#### 3. Report Links Section
+
+Include links to test reports, gap analysis, and coverage summary.
+
+```markdown
+## Reports
+
+| Report Type | Location | Description |
+|-------------|----------|-------------|
+| Test Results | `results/` | Timestamped test execution reports |
+| Coverage | `coverage/` | Code coverage reports (HTML, JSON) |
+| Gap Analysis | `docs/gap-analysis.md` | Missing test coverage analysis |
+```
+
+### Test Report Naming Convention
+
+| Item | Convention | Example |
+|------|------------|---------|
+| Report filename | `test-report-YYYYMMDD-HHMMSS.md` | `test-report-20260120-143000.md` |
+| Report directory | `tests/results/` | `tests/results/test-report-*.md` |
+| Coverage directory | `tests/coverage/` | `tests/coverage/lcov-report/` |
+| Gap analysis | `tests/docs/gap-analysis.md` | - |
+
+### Directory Structure Example
+
+```
+tests/
+├── README.md                    # Test overview and status
+├── results/                     # Test execution reports
+│   ├── test-report-20260120-143000.md
+│   └── test-report-20260119-090000.md
+├── coverage/                    # Coverage reports
+│   ├── lcov-report/
+│   └── coverage-summary.json
+├── docs/                        # Test documentation
+│   └── gap-analysis.md
+├── unit/                        # Unit tests
+├── integration/                 # Integration tests
+└── e2e/                         # End-to-end tests
+```
+
+### Benefits
+
+| Benefit | Description |
+|---------|-------------|
+| **Discoverability** | Developers can quickly find test status without searching |
+| **Transparency** | Current quality metrics visible at a glance |
+| **Traceability** | Historical reports enable trend analysis |
+| **Onboarding** | New team members understand test structure immediately |
+
+---
+
 ## Quick Reference Card
 
 ```
@@ -3042,6 +3132,7 @@ public void MethodName_Scenario_ExpectedBehavior()
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.2.0 | 2026-01-20 | Added Test Documentation Structure section: tests/README.md required sections, test report naming conventions, directory structure example. |
 | 2.1.0 | 2026-01-05 | Added SWEBOK v4.0 reference. New sections: Testing Fundamentals (Faults vs Failures, Oracle Problem, Theoretical Limitations, Testability, Test Adequacy), Test-Related Measures (Fault Density, Reliability Growth, Fault Seeding). Expanded: Test Design Techniques (Pairwise Testing, Data Flow Testing), Specialized Testing (Installation, Alpha/Beta, Recovery, Configuration, Back-to-Back, Usability). Updated Quick Reference Card. |
 | 2.0.0 | 2026-01-05 | Major update aligned with ISTQB CTFL v4.0 and ISO/IEC/IEEE 29119. Added: Static Testing (reviews, static analysis), Test Design Techniques (EP, BVA, Decision Table, State Transition, Use Case, Statement/Branch/Condition/MC/DC coverage), Experience-Based Testing (exploratory, error guessing, checklists), Risk-Based Testing (risk assessment, prioritization), Specialized Testing (contract, mutation, chaos, property-based, visual regression, accessibility), Defect Management (lifecycle, metrics, root cause), Test Process Management (planning, monitoring, completion) |
 | 1.3.0 | 2025-12-29 | Add: Testing Framework Selection (ISTQB vs Industry Pyramid), IT/SIT abbreviation clarification, source references |

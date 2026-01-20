@@ -2,23 +2,23 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 3.5.0
-**Last Updated**: 2026-01-15
+**Version**: 4.0.0
+**Last Updated**: 2026-01-20
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
-### What's New in 3.5.0
+### What's New in 4.0.0
 
 | Feature | Description |
 |---------|-------------|
-| **Multi-Agent Skills** | Install Skills to multiple AI agents simultaneously |
-| **Gemini CLI TOML** | Auto-convert commands to TOML format for Gemini CLI |
-| **i18n Support** | CLI supports EN, ZH-TW, ZH-CN with auto-detection |
-| **9 AI Tools** | Claude Code, Cursor, Windsurf, Cline, GitHub Copilot, Antigravity, Codex, OpenCode, Gemini CLI |
-| **18 Core Standards** | New `ai-instruction-standards.md` |
-| **Interactive Commands** | `/init`, `/config`, `/update` use AskUserQuestion |
-| **Methodology System** 🧪 | TDD/BDD/SDD/ATDD workflows (experimental) |
+| **Bidirectional Derivation** | Forward Derivation + Reverse Engineering form complete spec-code cycle |
+| **6 New Core Standards** | BDD, ATDD, Reverse Engineering, Forward Derivation, AI Instructions, Refactoring |
+| **23 Skills** | 7 new skills including Forward Derivation, BDD/ATDD assistants |
+| **24 Slash Commands** | 9 new commands (`/derive-*`, `/reverse-*`, `/atdd`, `/bdd`) |
+| **Per-Tool Installation** | Skills/Commands support User Level or Project Level per AI tool |
+| **Enhanced CLI** | Debug flag, declined features memory, file integrity tracking |
+| **Methodology System** | TDD/BDD/SDD/ATDD workflows now production-ready |
 
-> 🧪 = Experimental feature - requires `-E` flag, will be redesigned in v4.0
+> **New in 4.0**: Bidirectional Derivation brings complete spec-code lifecycle management with Forward Derivation and Reverse Engineering.
 
 ---
 
@@ -75,7 +75,7 @@ After installing UDS, optionally enable AI-assisted features for your preferred 
 | Cursor | `uds init` → `.cursorrules` | ❌ Rules only | - |
 | Google Antigravity | `uds init` → `INSTRUCTIONS.md` | - | - |
 
-> **New in v3.5.0**: `uds init` supports multi-agent Skills installation. Select multiple agents to install Skills simultaneously. Gemini CLI commands are auto-converted to TOML format.
+> **New in v4.0.0**: `uds init` supports per-tool installation level (User or Project). Bidirectional Derivation system (Forward Derivation + Reverse Engineering) is now available.
 
 ---
 
@@ -99,19 +99,14 @@ uds skills  # List installed skills
 npx universal-dev-standards init
 ```
 
-**Beta Version (Latest Features)**
+**Specific Version**
 ```bash
-# Install beta globally
+# Install specific version
+npm install -g universal-dev-standards@4.0.0
+
+# Or install beta for upcoming features
 npm install -g universal-dev-standards@beta
-
-# Or use specific version
-npm install -g universal-dev-standards@3.5.0-beta.13
-
-# Or via npx
-npx universal-dev-standards@beta init
 ```
-
-> **Note**: Beta versions include experimental features like the Methodology System (`/methodology`, `/bdd`, `/tdd`). These features will be redesigned in v4.0. See [Feature Availability](#feature-availability) for details.
 
 **Clone and Link (Development)**
 
@@ -155,7 +150,7 @@ Or manually copy from `integrations/` directory.
 
 Agent Skills are interactive commands (`/commit`, `/tdd`, `/review`, etc.) that enhance AI-assisted development. Skills follow the [Agent Skills Standard](https://agentskills.io) and work across multiple AI tools.
 
-**Skills included (15 skills):** ai-collaboration-standards, changelog-guide, code-review-assistant, commit-standards, documentation-guide, error-code-guide, git-workflow-guide, logging-guide, project-structure-guide, release-standards, requirement-assistant, spec-driven-dev, tdd-assistant, test-coverage-assistant, testing-guide
+**Skills included (23 skills):** ai-collaboration-standards, atdd-assistant, bdd-assistant, changelog-guide, checkin-assistant, code-review-assistant, commands, commit-standards, documentation-guide, error-code-guide, forward-derivation, git-workflow-guide, logging-guide, methodology-system, project-structure-guide, refactoring-assistant, release-standards, requirement-assistant, reverse-engineer, spec-driven-dev, tdd-assistant, test-coverage-assistant, testing-guide
 
 #### Supported Tools
 
@@ -176,7 +171,7 @@ For Claude Code users, the Plugin Marketplace offers the easiest installation:
 **Benefits:**
 - Single command installation
 - Automatic updates when new versions are released
-- All 15 skills loaded instantly
+- All 23 skills loaded instantly
 
 **Migrating from v3.2.x?** If you used the old marketplace name:
 
@@ -271,7 +266,7 @@ Discover and install skills from community platforms:
 
 ```
 universal-dev-standards/
-├── core/                    # Core universal standards (16 files)
+├── core/                    # Core universal standards (22 files)
 ├── ai/                      # AI-optimized standards (.ai.yaml)
 ├── options/                 # Human-readable option guides
 ├── skills/                  # AI tool skills (Claude Code, etc.)
@@ -563,6 +558,8 @@ All contributions must:
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 4.0.0 | 2026-01-20 | Bidirectional Derivation; 6 new core standards; 23 skills |
+| 3.5.0 | 2026-01-15 | Multi-Agent Skills; Gemini CLI TOML; i18n support |
 | 3.2.2 | 2026-01-06 | Added `uds skills` command; Deprecated manual installation scripts |
 | 3.2.0 | 2026-01-02 | Plugin Marketplace support; CLI enhancements |
 | 3.0.0 | 2025-12-30 | Full Windows support; AI-optimized standards; npm publish |
@@ -615,8 +612,11 @@ Both licenses are permissive and allow commercial use, modification, and redistr
 
 ```
 universal-dev-standards/
-├── core/                                  # Core universal standards (16 files)
+├── core/                                  # Core universal standards (22 files)
+│   ├── acceptance-test-driven-development.md # ATDD methodology
+│   ├── ai-instruction-standards.md       # AI instruction writing guide
 │   ├── anti-hallucination.md             # AI collaboration guidelines
+│   ├── behavior-driven-development.md    # BDD methodology
 │   ├── changelog-standards.md            # Changelog writing guide
 │   ├── checkin-standards.md              # Code check-in quality gates
 │   ├── code-review-checklist.md          # Code review guidelines
@@ -624,16 +624,19 @@ universal-dev-standards/
 │   ├── documentation-structure.md        # Documentation organization
 │   ├── documentation-writing-standards.md # Documentation writing guide
 │   ├── error-code-standards.md           # Error code conventions
+│   ├── forward-derivation-standards.md   # Forward derivation standards
 │   ├── git-workflow.md                   # Git branching strategies
 │   ├── logging-standards.md              # Logging standards
 │   ├── project-structure.md              # Project directory conventions
+│   ├── refactoring-standards.md          # Refactoring standards
+│   ├── reverse-engineering-standards.md  # Reverse engineering standards
 │   ├── spec-driven-development.md        # SDD methodology & standards
 │   ├── test-completeness-dimensions.md   # Test completeness dimensions
 │   ├── test-driven-development.md        # TDD methodology
 │   ├── testing-standards.md              # Testing standards (UT/IT/ST/E2E)
 │   └── versioning.md                     # Semantic versioning guide
 │
-├── ai/                             # AI-optimized standards (v2.3.0)
+├── ai/                             # AI-optimized standards
 │   ├── standards/                 # Token-efficient YAML format (~80% reduction)
 │   │   ├── git-workflow.ai.yaml
 │   │   ├── commit-message.ai.yaml
@@ -651,8 +654,8 @@ universal-dev-standards/
 │   ├── testing/                   # Testing level guides
 │   └── project-structure/         # Language-specific project structures
 │
-├── skills/                         # AI tool skills (v2.1.0)
-│   ├── claude-code/               # Claude Code Skills (15 skills)
+├── skills/                         # AI tool skills
+│   ├── claude-code/               # Claude Code Skills (23 skills)
 │   ├── cursor/                    # Cursor Rules (planned)
 │   ├── windsurf/                  # Windsurf Rules (planned)
 │   ├── cline/                     # Cline Rules (planned)

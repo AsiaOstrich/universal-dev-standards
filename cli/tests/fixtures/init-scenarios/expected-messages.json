@@ -164,7 +164,7 @@
       "title": "Next steps:",
       "step1": "Review .standards/ directory",
       "step2": "Add .standards/ to version control",
-      "step3_with_skills": "Restart Claude Code to load new Skills",
+      "step3_with_skills": "Restart {tools} to load new Skills",
       "step3_without_skills": "Run `uds check` to verify adoption status",
       "step4": "Run `uds check` to verify adoption status"
     },

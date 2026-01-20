@@ -1,8 +1,8 @@
 ---
 source: ../../README.md
-source_version: 3.5.0
-translation_version: 3.5.0
-last_synced: 2026-01-15
+source_version: 4.0.0
+translation_version: 4.0.0
+last_synced: 2026-01-20
 status: current
 ---
 
@@ -10,28 +10,23 @@ status: current
 
 > **Language**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
 
-**版本**: 3.5.0-beta.13
-**最後更新**: 2026-01-13
+**版本**: 4.0.0
+**最後更新**: 2026-01-20
 **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 
-> **🧪 Beta 注意事項**: 此版本包含實驗性功能，API 在正式版發布前可能會有變動。
-> 如需穩定版本：`npm install universal-dev-standards@3.4.2`
+### 4.0.0 新功能
 
-### 功能可用性
+| 功能 | 說明 |
+|------|------|
+| **雙向推演** | 正向推演 + 反向工程形成完整的規格-程式碼循環 |
+| **6 個新核心規範** | BDD、ATDD、反向工程、正向推演、AI 指令、重構 |
+| **23 個 Skills** | 8 個新技能，包括正向推演、BDD/ATDD 助手、Commands |
+| **24 個斜線命令** | 9 個新命令（`/derive-*`、`/reverse-*`、`/atdd`、`/bdd`）|
+| **每工具安裝層級** | Skills/Commands 支援每個 AI 工具的使用者或專案層級 |
+| **增強 CLI** | Debug 旗標、拒絕功能記憶、檔案完整性追蹤 |
+| **方法論系統** | TDD/BDD/SDD/ATDD 工作流程現已正式發布 |
 
-| 功能 | 穩定版 (3.4.2) | Beta 版 (3.5.x) |
-|------|:--------------:|:---------------:|
-| **核心規範** (16 個檔案) | ✅ | ✅ |
-| **Claude Code Skills** (15 個技能) | ✅ | ✅ |
-| **CLI 工具** (`uds init`, `check`, `update`) | ✅ | ✅ |
-| Hash-based 完整性檢查 | ✅ | ✅ |
-| Plugin Marketplace 支援 | ✅ | ✅ |
-| **方法論系統** | ❌ | ✅ 🧪 |
-| `/methodology` 命令 | ❌ | ✅ 🧪 |
-| `/bdd` 命令 | ❌ | ✅ 🧪 |
-| TDD/BDD/SDD/ATDD 工作流程 | ❌ | ✅ 🧪 |
-
-> 🧪 = 實驗性功能，API 可能會變動
+> **4.0 新功能**：雙向推演帶來完整的規格-程式碼生命週期管理，包含正向推演和反向工程。
 
 ---
 
@@ -88,7 +83,7 @@ cp core/commit-message-guide.md your-project/.standards/
 | Cursor | `uds init` → `.cursorrules` | ❌ 僅 Rules | - |
 | Google Antigravity | `uds init` → `INSTRUCTIONS.md` | - | - |
 
-> **v3.5.0 新功能**：`uds init` 支援多 Agent Skills 安裝。可同時選擇多個 agents 安裝 Skills。Gemini CLI 命令會自動轉換為 TOML 格式。
+> **v4.0.0 新功能**：`uds init` 支援每工具安裝層級選擇（使用者或專案層級）。雙向推演系統（正向推演 + 反向工程）現已可用。
 
 ---
 
@@ -112,19 +107,14 @@ uds skills  # 列出已安裝的技能
 npx universal-dev-standards init
 ```
 
-**Beta 版本（最新功能）**
+**特定版本**
 ```bash
-# 全域安裝 beta 版
+# 安裝特定版本
+npm install -g universal-dev-standards@4.0.0
+
+# 或安裝 beta 版以獲得即將推出的功能
 npm install -g universal-dev-standards@beta
-
-# 或安裝特定版本
-npm install -g universal-dev-standards@3.5.0-beta.13
-
-# 或透過 npx
-npx universal-dev-standards@beta init
 ```
-
-> **注意**：Beta 版本包含實驗性功能，例如方法論系統（`/methodology`、`/bdd`）。詳見[功能可用性](#功能可用性)。
 
 **克隆並連結（開發用）**
 
@@ -168,7 +158,7 @@ cd universal-dev-standards\cli; npm install; npm link
 
 Agent Skills 是增強 AI 輔助開發的互動式指令（`/commit`、`/tdd`、`/review` 等）。Skills 遵循 [Agent Skills 標準](https://agentskills.io)，可跨多個 AI 工具使用。
 
-**包含的技能（15 個）：** ai-collaboration-standards、changelog-guide、code-review-assistant、commit-standards、documentation-guide、error-code-guide、git-workflow-guide、logging-guide、project-structure-guide、release-standards、requirement-assistant、spec-driven-dev、tdd-assistant、test-coverage-assistant、testing-guide
+**包含的技能（23 個）：** ai-collaboration-standards、atdd-assistant、bdd-assistant、changelog-guide、checkin-assistant、code-review-assistant、commands、commit-standards、documentation-guide、error-code-guide、forward-derivation、git-workflow-guide、logging-guide、methodology-system、project-structure-guide、refactoring-assistant、release-standards、requirement-assistant、reverse-engineer、spec-driven-dev、tdd-assistant、test-coverage-assistant、testing-guide
 
 #### 支援的工具
 
@@ -189,7 +179,7 @@ Claude Code 用戶可透過 Plugin Marketplace 最簡單地安裝：
 **優點：**
 - 單一指令安裝
 - 新版本發布時自動更新
-- 所有 15 個技能立即載入
+- 所有 22 個技能立即載入
 
 **從 v3.2.x 遷移？** 如果您使用舊的 marketplace 名稱：
 
@@ -284,7 +274,7 @@ Remove-Item -Recurse $env:TEMP\uds
 
 ```
 universal-dev-standards/
-├── core/                    # 核心通用標準（16 個檔案）
+├── core/                    # 核心通用標準（22 個檔案）
 ├── ai/                      # AI 優化標準（.ai.yaml）
 ├── options/                 # 人類可讀選項指南
 ├── skills/                  # AI 工具技能（Claude Code 等）
@@ -556,6 +546,8 @@ cp integrations/openspec/commands/* your-project/.claude/commands/
 
 | 版本 | 日期 | 重點 |
 |------|------|------|
+| 4.0.0 | 2026-01-20 | 雙向推演；6 個新核心規範；22 個技能 |
+| 3.5.0 | 2026-01-15 | 多 Agent Skills；Gemini CLI TOML；i18n 支援 |
 | 3.2.2 | 2026-01-06 | 新增 `uds skills` 指令；棄用手動安裝腳本 |
 | 3.2.0 | 2026-01-02 | Plugin Marketplace 支援；CLI 增強 |
 | 3.0.0 | 2025-12-30 | 完整 Windows 支援；AI 優化標準；npm 發布 |
@@ -608,8 +600,11 @@ cp integrations/openspec/commands/* your-project/.claude/commands/
 
 ```
 universal-dev-standards/
-├── core/                                  # 核心通用標準（16 個檔案）
+├── core/                                  # 核心通用標準（22 個檔案）
+│   ├── acceptance-test-driven-development.md # ATDD 方法論
+│   ├── ai-instruction-standards.md       # AI 指令撰寫指南
 │   ├── anti-hallucination.md             # AI 協作指南
+│   ├── behavior-driven-development.md    # BDD 方法論
 │   ├── changelog-standards.md            # 變更日誌撰寫指南
 │   ├── checkin-standards.md              # 程式碼簽入品質門檻
 │   ├── code-review-checklist.md          # 程式碼審查指南
@@ -617,16 +612,19 @@ universal-dev-standards/
 │   ├── documentation-structure.md        # 文件組織
 │   ├── documentation-writing-standards.md # 文件撰寫指南
 │   ├── error-code-standards.md           # 錯誤碼規範
+│   ├── forward-derivation-standards.md   # 正向推演標準
 │   ├── git-workflow.md                   # Git 分支策略
 │   ├── logging-standards.md              # 日誌標準
 │   ├── project-structure.md              # 專案目錄規範
+│   ├── refactoring-standards.md          # 重構標準
+│   ├── reverse-engineering-standards.md  # 反向工程標準
 │   ├── spec-driven-development.md        # SDD 方法論與標準
 │   ├── test-completeness-dimensions.md   # 測試完整度維度
 │   ├── test-driven-development.md        # TDD 方法論
 │   ├── testing-standards.md              # 測試標準（UT/IT/ST/E2E）
 │   └── versioning.md                     # 語意化版本控制指南
 │
-├── ai/                             # AI 優化標準（v2.3.0）
+├── ai/                             # AI 優化標準
 │   ├── standards/                 # Token 高效 YAML 格式（減少約 80%）
 │   │   ├── git-workflow.ai.yaml
 │   │   ├── commit-message.ai.yaml
@@ -644,8 +642,8 @@ universal-dev-standards/
 │   ├── testing/                   # 測試層級指南
 │   └── project-structure/         # 語言特定專案結構
 │
-├── skills/                         # AI 工具技能（v2.1.0）
-│   ├── claude-code/               # Claude Code Skills（15 個技能）
+├── skills/                         # AI 工具技能
+│   ├── claude-code/               # Claude Code Skills（22 個技能）
 │   ├── cursor/                    # Cursor Rules（規劃中）
 │   ├── windsurf/                  # Windsurf Rules（規劃中）
 │   ├── cline/                     # Cline Rules（規劃中）

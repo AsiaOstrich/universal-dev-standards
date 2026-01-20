@@ -22,26 +22,41 @@ vi.mock('ora', () => ({
 }));
 
 vi.mock('../../src/utils/skills-installer.js', () => ({
-  installSkillsToMultipleAgents: vi.fn(() => ({ success: true, results: [] })),
+  installSkillsToMultipleAgents: vi.fn(() => ({
+    success: true,
+    installations: [],
+    totalInstalled: 0,
+    totalErrors: 0,
+    allFileHashes: {}
+  })),
   installCommandsToMultipleAgents: vi.fn(() => ({
     success: true,
     installations: [],
     totalInstalled: 0,
-    totalErrors: 0
+    totalErrors: 0,
+    allFileHashes: {}
   })),
   getInstalledSkillsInfoForAgent: vi.fn(() => null)
 }));
 
 vi.mock('../../src/config/ai-agent-paths.js', () => ({
   getAgentConfig: vi.fn((agent) => {
-    // Return commands config only for opencode (to test commands installation)
+    // Return configs with supportsSkills and skills for skills-compatible agents
     const configs = {
-      'opencode': { commands: { project: '.opencode/command/' } },
-      'claude-code': { commands: null },
-      'cursor': { commands: null },
-      'copilot': { commands: { project: '.github/prompts/' } }
+      'opencode': {
+        supportsSkills: true,
+        skills: { user: '~/.opencode/skills/', project: '.opencode/skills/' },
+        commands: { project: '.opencode/command/' }
+      },
+      'claude-code': {
+        supportsSkills: true,
+        skills: { user: '~/.claude/skills/', project: '.claude/skills/' },
+        commands: null
+      },
+      'cursor': { supportsSkills: false, skills: null, commands: null },
+      'copilot': { supportsSkills: false, skills: null, commands: { project: '.github/prompts/' } }
     };
-    return configs[agent] || { commands: null };
+    return configs[agent] || { supportsSkills: false, skills: null, commands: null };
   }),
   getAgentDisplayName: vi.fn((agent) => agent),
   getSkillsDirForAgent: vi.fn(() => '/test/skills'),
@@ -88,7 +103,7 @@ vi.mock('../../src/utils/github.js', () => ({
 
 vi.mock('../../src/prompts/init.js', () => ({
   promptAITools: vi.fn(() => []),
-  promptSkillsInstallLocation: vi.fn(() => 'none'),
+  promptSkillsInstallLocation: vi.fn(() => []),
   promptSkillsUpdate: vi.fn(() => ({ action: 'none', targets: [] })),
   promptStandardsScope: vi.fn(() => 'full'),
   promptLevel: vi.fn(() => 2),
@@ -100,6 +115,7 @@ vi.mock('../../src/prompts/init.js', () => ({
   promptStandardOptions: vi.fn(() => ({})),
   promptContentMode: vi.fn(() => 'index'),
   promptMethodology: vi.fn(() => null),
+  promptCommandsInstallation: vi.fn(() => []),
   handleAgentsMdSharing: vi.fn((tools) => tools)
 }));
 
@@ -136,7 +152,8 @@ vi.mock('../../src/utils/integration-generator.js', () => ({
 import { initCommand } from '../../src/commands/init.js';
 import { isInitialized, writeManifest } from '../../src/utils/copier.js';
 import { detectAll } from '../../src/utils/detector.js';
-import { promptConfirm } from '../../src/prompts/init.js';
+import { promptConfirm, promptAITools, promptSkillsInstallLocation, promptCommandsInstallation } from '../../src/prompts/init.js';
+import { getAgentDisplayName } from '../../src/config/ai-agent-paths.js';
 
 describe('Init Command', () => {
   let consoleLogs = [];
@@ -515,6 +532,130 @@ describe('Init Command', () => {
       // Commands installations now use {agent, level} format
       expect(manifestArg.commands.installations.some(i => i.agent === 'opencode')).toBe(true);
       expect(manifestArg.commands.installations.some(i => i.agent === 'copilot')).toBe(true);
+    });
+  });
+
+  describe('Restart Agent Message with Multiple Tools', () => {
+    it('should show single tool name when one tool is installed via interactive mode', async () => {
+      isInitialized.mockReturnValue(false);
+
+      // Mock AI tools selection: only OpenCode
+      promptAITools.mockResolvedValue(['opencode']);
+
+      // Mock skills installation: OpenCode at project level
+      promptSkillsInstallLocation.mockResolvedValue([
+        { agent: 'opencode', level: 'project' }
+      ]);
+
+      // Mock commands installation: skip
+      promptCommandsInstallation.mockResolvedValue([]);
+
+      // Mock display name to return proper name
+      getAgentDisplayName.mockImplementation((agent) => {
+        const names = {
+          'opencode': 'OpenCode',
+          'claude-code': 'Claude Code'
+        };
+        return names[agent] || agent;
+      });
+
+      promptConfirm.mockResolvedValue(true);
+
+      await expect(initCommand({})).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      // Should show "Restart OpenCode to load new Skills"
+      expect(output).toContain('OpenCode');
+      expect(output).toMatch(/Restart.*OpenCode.*to load new Skills/);
+    });
+
+    it('should show multiple tool names joined by "/" when multiple tools are installed', async () => {
+      isInitialized.mockReturnValue(false);
+
+      // Mock AI tools selection: Claude Code and OpenCode
+      promptAITools.mockResolvedValue(['claude-code', 'opencode']);
+
+      // Mock skills installation: both tools at project level
+      promptSkillsInstallLocation.mockResolvedValue([
+        { agent: 'claude-code', level: 'project' },
+        { agent: 'opencode', level: 'project' }
+      ]);
+
+      // Mock commands installation: skip
+      promptCommandsInstallation.mockResolvedValue([]);
+
+      // Mock display names
+      getAgentDisplayName.mockImplementation((agent) => {
+        const names = {
+          'opencode': 'OpenCode',
+          'claude-code': 'Claude Code'
+        };
+        return names[agent] || agent;
+      });
+
+      promptConfirm.mockResolvedValue(true);
+
+      await expect(initCommand({})).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      // Should contain both tool names separated by " / "
+      expect(output).toContain('Claude Code');
+      expect(output).toContain('OpenCode');
+      // Verify the combined format
+      expect(output).toMatch(/Restart.*Claude Code.*\/.*OpenCode.*to load new Skills|Restart.*OpenCode.*\/.*Claude Code.*to load new Skills/);
+    });
+
+    it('should deduplicate tool names when same tool has user and project level', async () => {
+      isInitialized.mockReturnValue(false);
+
+      // Mock AI tools selection: only OpenCode
+      promptAITools.mockResolvedValue(['opencode']);
+
+      // Mock skills installation: OpenCode at both user and project level
+      promptSkillsInstallLocation.mockResolvedValue([
+        { agent: 'opencode', level: 'user' },
+        { agent: 'opencode', level: 'project' }
+      ]);
+
+      // Mock commands installation: skip
+      promptCommandsInstallation.mockResolvedValue([]);
+
+      // Mock display name
+      getAgentDisplayName.mockImplementation((agent) => {
+        const names = {
+          'opencode': 'OpenCode',
+          'claude-code': 'Claude Code'
+        };
+        return names[agent] || agent;
+      });
+
+      promptConfirm.mockResolvedValue(true);
+
+      await expect(initCommand({})).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      // Should show "OpenCode" only once (deduplicated)
+      const matches = output.match(/Restart.*OpenCode.*to load new Skills/g);
+      expect(matches).not.toBeNull();
+      // Verify OpenCode appears only once in the restart message (not "OpenCode / OpenCode")
+      expect(output).not.toMatch(/OpenCode.*\/.*OpenCode/);
+    });
+
+    it('should fallback to "Claude Code" when skillsInstallations is empty (marketplace mode)', async () => {
+      // In non-interactive mode with marketplace, skillsInstallations is not set
+      detectAll.mockReturnValue({
+        languages: { javascript: true },
+        frameworks: {},
+        aiTools: { claudeCode: true }
+      });
+
+      isInitialized.mockReturnValue(false);
+
+      await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      // Should fallback to "Claude Code" when skillsInstallations is empty
+      expect(output).toMatch(/Restart.*Claude Code.*to load new Skills/);
     });
   });
 });

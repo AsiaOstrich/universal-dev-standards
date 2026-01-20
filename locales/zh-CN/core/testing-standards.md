@@ -1,8 +1,8 @@
 ---
 source: ../../../core/testing-standards.md
-source_version: 2.1.0
-translation_version: 2.1.0
-last_synced: 2026-01-08
+source_version: 2.2.0
+translation_version: 2.2.0
+last_synced: 2026-01-20
 status: current
 ---
 
@@ -132,6 +132,95 @@ test_<method>_<condition>_<expected result>
 | 语句覆盖率 | 70% | 80% |
 | 分支覆盖率 | 60% | 75% |
 | 函数覆盖率 | 80% | 90% |
+
+---
+
+## 测试文档结构
+
+通过在测试目录中维护标准化的文档结构，提升测试可发现性。
+
+### tests/README.md 必要区块
+
+每个 `tests/` 目录应包含 README.md，并具备以下区块以提高可发现性。
+
+#### 1. 测试总览表格
+
+列出所有测试类型、数量、技术栈和执行环境。
+
+```markdown
+| 测试类型 | 数量 | 框架 | 环境 |
+|----------|------|------|------|
+| 单元测试 | 150 | Jest | Node.js |
+| 集成测试 | 45 | Jest | Node.js + TestContainers |
+| E2E 测试 | 12 | Playwright | 浏览器 |
+```
+
+#### 2. 当前状态区块
+
+显示最新测试执行结果，包含清楚的通过/失败指标。
+
+```markdown
+## 当前状态
+
+| 指标 | 数值 | 目标 | 状态 |
+|------|------|------|------|
+| 通过率 | 98.5% | ≥ 95% | ✅ |
+| 行覆盖率 | 82% | ≥ 80% | ✅ |
+| 分支覆盖率 | 75% | ≥ 70% | ✅ |
+
+**最后执行**: 2026-01-20 14:30 UTC
+**报告**: [test-report-20260120-143000.md](results/test-report-20260120-143000.md)
+```
+
+#### 3. 报告链接区块
+
+包含测试报告、差距分析和覆盖率摘要的链接。
+
+```markdown
+## 报告
+
+| 报告类型 | 位置 | 说明 |
+|----------|------|------|
+| 测试结果 | `results/` | 带时间戳的测试执行报告 |
+| 覆盖率 | `coverage/` | 代码覆盖率报告（HTML、JSON） |
+| 差距分析 | `docs/gap-analysis.md` | 缺失的测试覆盖率分析 |
+```
+
+### 测试报告命名规范
+
+| 项目 | 规范 | 范例 |
+|------|------|------|
+| 报告文件名 | `test-report-YYYYMMDD-HHMMSS.md` | `test-report-20260120-143000.md` |
+| 报告目录 | `tests/results/` | `tests/results/test-report-*.md` |
+| 覆盖率目录 | `tests/coverage/` | `tests/coverage/lcov-report/` |
+| 差距分析 | `tests/docs/gap-analysis.md` | - |
+
+### 目录结构范例
+
+```
+tests/
+├── README.md                    # 测试总览与状态
+├── results/                     # 测试执行报告
+│   ├── test-report-20260120-143000.md
+│   └── test-report-20260119-090000.md
+├── coverage/                    # 覆盖率报告
+│   ├── lcov-report/
+│   └── coverage-summary.json
+├── docs/                        # 测试文档
+│   └── gap-analysis.md
+├── unit/                        # 单元测试
+├── integration/                 # 集成测试
+└── e2e/                         # 端对端测试
+```
+
+### 效益
+
+| 效益 | 说明 |
+|------|------|
+| **可发现性** | 开发者可快速找到测试状态，无需全面搜索 |
+| **透明度** | 当前质量指标一目了然 |
+| **可追溯性** | 历史报告支援趋势分析 |
+| **新人入门** | 新团队成员可立即理解测试结构 |
 
 ---
 
