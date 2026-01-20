@@ -107,7 +107,7 @@ describe('AI Agent Paths Configuration', () => {
     });
 
     it('should return null for agent without commands support', () => {
-      const path = getCommandsDirForAgent('claude-code', 'project', '/test/project');
+      const path = getCommandsDirForAgent('cursor', 'project', '/test/project');
       expect(path).toBeNull();
     });
 
@@ -160,7 +160,7 @@ describe('AI Agent Paths Configuration', () => {
     it('should not include agents without commands support', () => {
       const agents = getCommandsSupportedAgents();
 
-      expect(agents).not.toContain('claude-code');
+      // These agents don't support file-based commands
       expect(agents).not.toContain('cursor');
       expect(agents).not.toContain('cline');
     });

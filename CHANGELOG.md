@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [4.0.0-beta.2] - 2026-01-20
+
+### Added
+- **CLI**: Claude Code Commands path support (`ai-agent-paths.js`)
+  - Added `commands.project` and `commands.user` paths for Claude Code
+  - Enables Commands installation to Claude Code
+
+### Fixed
+- **CLI**: Marketplace detection now only trusts actual installation status
+  - Previously trusted both manifest record and actual status (could be stale)
+  - Now checks `marketplaceInfo?.installed === true` instead of manifest `skills.location`
+  - Fixes issue where stale manifest could cause incorrect marketplace detection
+- **Skills**: YAML frontmatter syntax error in `argument-hint` field
+  - Square brackets `[]` need to be quoted in YAML to avoid array interpretation
+  - Fixed in `locales/zh-TW/` and `locales/zh-CN/` for `methodology.md` and `bdd.md`
+
 ## [4.0.0-beta.1] - 2026-01-19
 
 ### Added

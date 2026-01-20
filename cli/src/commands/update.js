@@ -1163,10 +1163,10 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = fa
       const userInfo = getInstalledSkillsInfoForAgent(tool, 'user');
 
       // Check if using marketplace (Claude Code only) - marketplace auto-updates
-      // Check both manifest record AND actual installation status (manifest may be stale)
+      // IMPORTANT: Only trust marketplace if it's actually installed, not just what manifest says
+      // Manifest can be stale if user removed marketplace plugin
       const marketplaceInfo = tool === 'claude-code' ? getMarketplaceSkillsInfo() : null;
-      const usingMarketplace = (manifest.skills?.location === 'marketplace' && tool === 'claude-code') ||
-                               (marketplaceInfo?.installed && tool === 'claude-code');
+      const usingMarketplace = tool === 'claude-code' && marketplaceInfo?.installed === true;
 
       // Only trust actual file existence, not manifest records
       // (manifest records can be stale if user deleted the directory)
@@ -1176,9 +1176,9 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = fa
         console.log(chalk.gray('    Skills check:'));
         console.log(chalk.gray(`      projectInfo?.installed: ${projectInfo?.installed || false}`));
         console.log(chalk.gray(`      userInfo?.installed: ${userInfo?.installed || false}`));
-        console.log(chalk.gray(`      manifest.skills.location: ${manifest.skills?.location || 'not set'}`));
-        console.log(chalk.gray(`      marketplaceInfo?.installed: ${marketplaceInfo?.installed || false}`));
-        console.log(chalk.gray(`      usingMarketplace: ${usingMarketplace}`));
+        console.log(chalk.gray(`      manifest.skills.location: ${manifest.skills?.location || 'not set'} (may be stale)`));
+        console.log(chalk.gray(`      marketplaceInfo?.installed: ${marketplaceInfo?.installed || false} (actual status)`));
+        console.log(chalk.gray(`      usingMarketplace: ${usingMarketplace} (only true if marketplace actually installed)`));
         console.log(chalk.gray(`      hasSkills: ${hasSkills}`));
         console.log(chalk.gray(`      declinedSkills.includes('${tool}'): ${declinedSkills.includes(tool)}`));
       }

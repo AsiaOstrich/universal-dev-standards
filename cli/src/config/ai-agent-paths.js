@@ -28,7 +28,10 @@ export const AI_AGENT_PATHS = {
       project: '.claude/skills/',
       user: join(homedir(), '.claude', 'skills')
     },
-    commands: null, // Built-in, no file-based commands
+    commands: {
+      project: '.claude/commands/',
+      user: join(homedir(), '.claude', 'commands')
+    },
     supportsMarketplace: true,
     fallbackSkillsPath: null, // Native implementation
     supportsSkills: true

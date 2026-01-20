@@ -9,7 +9,7 @@ status: experimental
 ---
 description: 引導行為驅動開發流程 | Guide through Behavior-Driven Development workflow
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
-argument-hint: [要實作的行為或場景 | behavior or scenario to implement]
+argument-hint: "[要實作的行為或場景 | behavior or scenario to implement]"
 status: experimental
 ---
 

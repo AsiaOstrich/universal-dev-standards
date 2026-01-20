@@ -127,7 +127,7 @@ describe('Skills Installer', () => {
 
   describe('installCommandsForAgent', () => {
     it('should fail for agent without commands support', async () => {
-      const result = await installCommandsForAgent('claude-code', 'project', null, TEST_DIR);
+      const result = await installCommandsForAgent('cursor', 'project', null, TEST_DIR);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('does not support slash commands');

@@ -172,8 +172,8 @@ describe('Init Prompts', () => {
     });
 
     it('should return empty array when no commands-supported tools', async () => {
-      // claude-code does not support file-based commands (commands: null)
-      const result = await promptCommandsInstallation(['claude-code']);
+      // cursor does not support file-based commands (commands: null)
+      const result = await promptCommandsInstallation(['cursor']);
 
       expect(result).toEqual([]);
     });

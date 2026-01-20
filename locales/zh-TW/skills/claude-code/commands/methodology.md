@@ -9,7 +9,7 @@ status: experimental
 ---
 description: 管理開發方法論工作流 | Manage development methodology workflow
 allowed-tools: Read, Write, Glob, Grep, Bash(git:*)
-argument-hint: [action] [argument]
+argument-hint: "[action] [argument]"
 status: experimental
 ---
 
