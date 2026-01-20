@@ -117,13 +117,13 @@ For each configured AI tool that supports Skills, check if Skills are installed.
 
 #### Step 4b/4c: Ask Skills Installation (Combined) | 步驟 4b/4c：詢問 Skills 安裝（整合）
 
-If any configured AI tools are missing Skills, use AskUserQuestion with **multiSelect: true**.
+If any configured AI tools are missing Skills, use **Smart Grouping** strategy.
 
-如果有已配置的 AI 工具缺少 Skills，使用 AskUserQuestion 並設定 **multiSelect: true**。
+如果有已配置的 AI 工具缺少 Skills，使用**智能分組**策略。
 
-**IMPORTANT: AskUserQuestion has a 4-option limit.** Use multiple questions if needed.
+**IMPORTANT: AskUserQuestion has a 4-option limit.** Use smart grouping to handle this.
 
-**重要：AskUserQuestion 最多只能有 4 個選項。** 如需更多選項，請分多次詢問。
+**重要：AskUserQuestion 最多只能有 4 個選項。** 使用智能分組來處理。
 
 **Step 4b-1: Check Marketplace Status (Claude Code only)**
 
@@ -132,39 +132,57 @@ First, check if Plugin Marketplace is already installed:
 ls ~/.claude/plugins/universal-dev-standards@asia-ostrich 2>/dev/null && echo "Marketplace installed"
 ```
 
-- If Marketplace IS installed → Show "(already installed via Marketplace)" and skip Claude Code file installation
+- If Marketplace IS installed → Show "Claude Code: ✓ 已透過 Marketplace 安裝" and skip Claude Code options
 - If Marketplace NOT installed → Include Marketplace option
 
-**Step 4b-2: Ask Installation Level per Tool**
+**Step 4b-2: Apply Smart Grouping Strategy**
 
-Since AskUserQuestion has max 4 options, ask **per-tool** with User/Project options:
+#### Strategy A: 1-2 Tools → Combined Question | 策略 A：1-2 個工具 → 合併詢問
 
-**Example for Claude Code (if Marketplace NOT installed):**
+**Example (Claude Code only, Marketplace not installed):**
 ```
-Question: "Claude Code Skills 要安裝到哪裡？"
+Question: "Skills 要安裝到哪裡？"
 Options:
 1. Plugin Marketplace (建議) - 自動更新，易於管理
 2. User Level (~/.claude/skills/) - 所有專案共用
 3. Project Level (.claude/skills/) - 僅此專案
-4. 跳過 - 不安裝 Claude Code Skills
+4. 跳過 - 不安裝 Skills
 ```
 
-**Example for OpenCode:**
+**Example (OpenCode + Copilot, Claude Code already via Marketplace):**
 ```
-Question: "OpenCode Skills 要安裝到哪裡？"
+Question: "Skills 要安裝到哪裡？（Claude Code: ✓ 已透過 Marketplace 安裝）"
 Options:
-1. User Level (~/.opencode/skill/) - 所有專案共用
-2. Project Level (.opencode/skill/) - 僅此專案 (建議)
-3. 跳過 - 不安裝 OpenCode Skills
+1. 全部 User Level - 所有專案共用
+2. 全部 Project Level (建議) - 僅此專案
+3. 跳過 - 不安裝額外 Skills
 ```
 
-**Execute installation based on selections:**
+#### Strategy B: 3+ Tools → Two-Stage Question | 策略 B：3+ 個工具 → 兩階段詢問
 
+**Stage 1: Ask unified or individual**
+```
+Question: "有多個 AI 工具需要安裝 Skills，安裝層級要如何設定？"
+Options:
+1. 統一層級 (建議) - 所有工具使用相同層級
+2. 個別設定 - 為每個工具分別選擇層級
+3. 跳過 - 不安裝 Skills
+```
+
+**Stage 2a: If unified → ask level once**
+```
+Question: "所有 Skills 要安裝到哪個層級？"
+Options:
+1. User Level - 所有專案共用
+2. Project Level (建議) - 僅此專案
+```
+
+**Stage 2b: If individual → per-tool questions**
+
+**Execute installation:**
 ```bash
-# Plugin Marketplace - no CLI command needed, just inform user
-# File-based installation
 uds configure --type skills --ai-tool opencode --skills-location project
-uds configure --type skills --ai-tool opencode --skills-location user
+uds configure --type skills --ai-tool cursor --skills-location user
 ```
 
 #### Step 4d: Detect Missing Commands | 步驟 4d：偵測缺少的 Commands
@@ -187,39 +205,59 @@ ls .github/commands/ 2>/dev/null || echo "Not installed"
 
 #### Step 4e: Ask Commands Installation | 步驟 4e：詢問 Commands 安裝
 
-If any configured AI tools are missing Commands, use AskUserQuestion.
+If any configured AI tools are missing Commands, use **Smart Grouping** strategy.
 
-如果有已配置的 AI 工具缺少 Commands，使用 AskUserQuestion。
+如果有已配置的 AI 工具缺少 Commands，使用**智能分組**策略。
 
-**IMPORTANT: AskUserQuestion has a 4-option limit.** Ask per-tool if multiple tools need Commands.
+**IMPORTANT: AskUserQuestion has a 4-option limit.** Use smart grouping to handle this.
 
-**重要：AskUserQuestion 最多只能有 4 個選項。** 如有多個工具需要 Commands，請分別詢問。
+**重要：AskUserQuestion 最多只能有 4 個選項。** 使用智能分組來處理。
 
-**Example for OpenCode:**
+#### Strategy A: 1-2 Tools → Combined Question | 策略 A：1-2 個工具 → 合併詢問
+
+**Example (OpenCode only):**
 ```
-Question: "OpenCode Commands 要安裝到哪裡？"
+Question: "Commands 要安裝到哪裡？"
 Options:
 1. User Level (~/.config/opencode/command/) - 所有專案共用
 2. Project Level (.opencode/command/) - 僅此專案 (建議)
-3. 跳過 - 不安裝 OpenCode Commands
+3. 跳過 - 使用 Skills 即可
 ```
 
-**Example for GitHub Copilot:**
+**Example (OpenCode + Copilot):**
 ```
-Question: "GitHub Copilot Commands 要安裝到哪裡？"
+Question: "Commands 要安裝到哪裡？"
 Options:
-1. User Level (~/.config/github-copilot/commands/) - 所有專案共用
-2. Project Level (.github/commands/) - 僅此專案 (建議)
-3. 跳過 - 不安裝 GitHub Copilot Commands
+1. 全部 User Level - 所有專案共用
+2. 全部 Project Level (建議) - 僅此專案
+3. 跳過 - 使用 Skills 即可
 ```
 
-**Execute installation based on selections:**
+#### Strategy B: 3+ Tools → Two-Stage Question | 策略 B：3+ 個工具 → 兩階段詢問
 
+**Stage 1: Ask unified or individual**
+```
+Question: "有多個 AI 工具需要安裝 Commands，安裝層級要如何設定？"
+Options:
+1. 統一層級 (建議) - 所有工具使用相同層級
+2. 個別設定 - 為每個工具分別選擇層級
+3. 跳過 - 不安裝 Commands
+```
+
+**Stage 2a: If unified → ask level once**
+```
+Question: "所有 Commands 要安裝到哪個層級？"
+Options:
+1. User Level - 所有專案共用
+2. Project Level (建議) - 僅此專案
+```
+
+**Stage 2b: If individual → per-tool questions**
+
+**Execute installation:**
 ```bash
-# For each selected tool with its level
 uds configure --type commands --ai-tool opencode --commands-location project
-uds configure --type commands --ai-tool opencode --commands-location user
-uds configure --type commands --ai-tool copilot --commands-location project
+uds configure --type commands --ai-tool copilot --commands-location user
 ```
 
 #### Declined Features Handling | 拒絕功能處理
