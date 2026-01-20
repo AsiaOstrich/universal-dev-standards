@@ -211,7 +211,7 @@ export async function configureCommand(options) {
 
   // Handle Commands configuration
   if (configType === 'commands') {
-    await handleCommandsConfiguration(manifest, projectPath, msg, common, options.aiTool);
+    await handleCommandsConfiguration(manifest, projectPath, msg, common, options.aiTool, options.commandsLocation);
     process.exit(0);
   }
 
@@ -758,8 +758,9 @@ async function handleSkillsConfiguration(manifest, projectPath, msg, common, spe
  * @param {Object} msg - i18n messages
  * @param {Object} common - Common i18n messages
  * @param {string} [specificTool] - Specific AI tool to install (non-interactive mode)
+ * @param {string} [commandsLocation] - Commands installation location (project, user) for non-interactive mode
  */
-async function handleCommandsConfiguration(manifest, projectPath, msg, common, specificTool) {
+async function handleCommandsConfiguration(manifest, projectPath, msg, common, specificTool, commandsLocation) {
   const inquirer = await import('inquirer');
   const aiTools = manifest.aiTools || [];
 
@@ -777,8 +778,14 @@ async function handleCommandsConfiguration(manifest, projectPath, msg, common, s
       return;
     }
 
-    const spinner = ora(`Installing Commands for ${getAgentDisplayName(specificTool)}...`).start();
-    const result = await installCommandsToMultipleAgents([specificTool], null, projectPath);
+    // Validate commandsLocation if provided
+    const validLocations = ['project', 'user'];
+    const level = commandsLocation && validLocations.includes(commandsLocation) ? commandsLocation : 'project';
+
+    // Install to specified level (defaults to project)
+    const installations = [{ agent: specificTool, level }];
+    const spinner = ora(`Installing Commands for ${getAgentDisplayName(specificTool)} (${level} level)...`).start();
+    const result = await installCommandsToMultipleAgents(installations, null, projectPath);
     spinner.stop();
 
     if (result.success) {
@@ -790,8 +797,13 @@ async function handleCommandsConfiguration(manifest, projectPath, msg, common, s
     // Update manifest
     manifest.commands = manifest.commands || {};
     manifest.commands.installations = manifest.commands.installations || [];
-    if (!manifest.commands.installations.includes(specificTool)) {
-      manifest.commands.installations.push(specificTool);
+    const existing = manifest.commands.installations.findIndex(i =>
+      typeof i === 'string' ? i === specificTool : i.agent === specificTool
+    );
+    if (existing >= 0) {
+      manifest.commands.installations[existing] = installations[0];
+    } else {
+      manifest.commands.installations.push(installations[0]);
     }
     writeManifest(manifest, projectPath);
     return;
@@ -813,14 +825,21 @@ async function handleCommandsConfiguration(manifest, projectPath, msg, common, s
   // Get declined commands from manifest
   const declinedCommands = manifest.declinedFeatures?.commands || [];
 
-  // Show current Commands status
+  // Show current Commands status (check both project and user levels)
   console.log(chalk.cyan(msg.currentCommandsStatus || 'Current Commands status:'));
   for (const tool of commandSupportedTools) {
     const displayName = getAgentDisplayName(tool);
-    const commandsInfo = getInstalledCommandsForAgent(tool, projectPath);
+    const projectCmdInfo = getInstalledCommandsForAgent(tool, 'project', projectPath);
+    const userCmdInfo = getInstalledCommandsForAgent(tool, 'user');
 
-    if (commandsInfo?.installed) {
-      console.log(chalk.green(`  ✓ ${displayName}: ${commandsInfo.count} ${msg.commandsInstalled || 'commands'}`));
+    if (projectCmdInfo?.installed || userCmdInfo?.installed) {
+      console.log(chalk.green(`  ✓ ${displayName}:`));
+      if (userCmdInfo?.installed) {
+        console.log(chalk.gray(`    - User: ${userCmdInfo.count} commands`));
+      }
+      if (projectCmdInfo?.installed) {
+        console.log(chalk.gray(`    - Project: ${projectCmdInfo.count} commands`));
+      }
     } else if (declinedCommands.includes(tool)) {
       console.log(chalk.yellow(`  ⊘ ${displayName}: ${msg.previouslyDeclined || 'Previously declined'}`));
     } else {

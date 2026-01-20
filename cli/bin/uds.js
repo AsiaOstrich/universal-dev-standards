@@ -63,6 +63,7 @@ program
   .option('-t, --type <type>', 'Option type to configure (format, workflow, merge_strategy, commit_language, test_levels, skills, commands, all)')
   .option('--ai-tool <tool>', 'Specific AI tool to configure (claude-code, opencode, copilot, etc.) - enables non-interactive mode')
   .option('--skills-location <location>', 'Skills installation location (project, user) for non-interactive mode')
+  .option('--commands-location <location>', 'Commands installation location (project, user) for non-interactive mode')
   .option('-y, --yes', 'Apply changes immediately without prompting')
   .option('-E, --experimental', 'Enable experimental features (methodology)')
   .action(configureCommand);

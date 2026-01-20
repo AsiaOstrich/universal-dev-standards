@@ -786,9 +786,11 @@ function displaySkillsStatus(manifest, projectPath, msg) {
       });
     }
 
-    // Check Commands installation for this agent
+    // Check Commands installation for this agent (check both project and user levels)
     if (config.commands) {
-      const commandsInfo = getInstalledCommandsForAgent(tool, projectPath);
+      const projectCmdInfo = getInstalledCommandsForAgent(tool, 'project', projectPath);
+      const userCmdInfo = getInstalledCommandsForAgent(tool, 'user');
+      const commandsInfo = projectCmdInfo || userCmdInfo;
       if (commandsInfo?.installed) {
         console.log(chalk.green(`    ✓ Commands: ${commandsInfo.count} ${msg.commandsInstalled || 'installed'}`));
         console.log(chalk.gray(`      ${msg.path || 'Path'}: ${commandsInfo.path}`));
@@ -1495,7 +1497,10 @@ function getCommandsStatusSummary(manifest, projectPath) {
     if (!config || !config.commands) continue;
 
     const displayName = getAgentDisplayName(tool);
-    const commandsInfo = getInstalledCommandsForAgent(tool, projectPath);
+    // Check both project and user levels
+    const projectCmdInfo = getInstalledCommandsForAgent(tool, 'project', projectPath);
+    const userCmdInfo = getInstalledCommandsForAgent(tool, 'user');
+    const commandsInfo = projectCmdInfo || userCmdInfo;
 
     if (commandsInfo?.installed) {
       parts.push(chalk.green(`${displayName} ✓`));
