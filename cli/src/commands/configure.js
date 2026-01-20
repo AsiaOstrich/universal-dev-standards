@@ -401,7 +401,9 @@ export async function configureCommand(options) {
         language: commonLanguage,
         installedStandards: installedStandardsList,
         contentMode: newContentMode,
-        level: newLevel
+        level: newLevel,
+        // Pass commit_language for dynamic commit standards generation
+        commitLanguage: newOptions.commit_language || 'english'
       };
 
       const result = writeIntegrationFile(tool, toolConfig, projectPath);

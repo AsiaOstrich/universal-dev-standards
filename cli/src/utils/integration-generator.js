@@ -85,6 +85,310 @@ const STANDARD_DESCRIPTIONS = {
 };
 
 /**
+ * Commit type templates for different commit_language options
+ * These are used to generate dynamic commit standards based on user's language preference
+ */
+const COMMIT_TYPE_TEMPLATES = {
+  english: {
+    types: [
+      { type: 'feat', description: 'New feature', example: 'feat(auth): add OAuth2 login' },
+      { type: 'fix', description: 'Bug fix', example: 'fix(api): handle null response' },
+      { type: 'docs', description: 'Documentation', example: 'docs(readme): update setup guide' },
+      { type: 'style', description: 'Formatting', example: 'style(lint): fix indentation' },
+      { type: 'refactor', description: 'Code restructure', example: 'refactor(user): extract validation' },
+      { type: 'test', description: 'Tests', example: 'test(cart): add checkout tests' },
+      { type: 'chore', description: 'Maintenance', example: 'chore(deps): update packages' },
+      { type: 'perf', description: 'Performance', example: 'perf(query): optimize database' },
+      { type: 'ci', description: 'CI/CD changes', example: 'ci(github): add deploy workflow' }
+    ],
+    format: '<type>(<scope>): <subject>',
+    formatNote: 'English types for maximum tool compatibility'
+  },
+  'traditional-chinese': {
+    types: [
+      { type: '功能', english: 'feat', description: '新功能', example: '功能(認證): 新增 OAuth2 登入' },
+      { type: '修正', english: 'fix', description: '錯誤修正', example: '修正(api): 處理空值回應' },
+      { type: '文件', english: 'docs', description: '文件更新', example: '文件(readme): 更新安裝指南' },
+      { type: '樣式', english: 'style', description: '格式調整', example: '樣式(lint): 修正縮排' },
+      { type: '重構', english: 'refactor', description: '程式碼重構', example: '重構(user): 抽取驗證邏輯' },
+      { type: '測試', english: 'test', description: '測試相關', example: '測試(cart): 新增結帳測試' },
+      { type: '雜項', english: 'chore', description: '維護任務', example: '雜項(deps): 更新套件' },
+      { type: '效能', english: 'perf', description: '效能改善', example: '效能(query): 優化資料庫查詢' },
+      { type: '整合', english: 'ci', description: '持續整合', example: '整合(github): 新增部署流程' }
+    ],
+    format: '<類型>(<範圍>): <主旨>',
+    formatNote: '類型使用中文，範圍可使用英文或中文'
+  },
+  bilingual: {
+    types: [
+      { type: 'feat', description_en: 'New feature', description_zh: '新功能', example: 'feat(auth): Add login form. 新增登入表單.' },
+      { type: 'fix', description_en: 'Bug fix', description_zh: '錯誤修正', example: 'fix(api): Fix null pointer. 修正空指標.' },
+      { type: 'docs', description_en: 'Documentation', description_zh: '文件更新', example: 'docs(readme): Update guide. 更新指南.' },
+      { type: 'style', description_en: 'Formatting', description_zh: '格式調整', example: 'style(lint): Fix indent. 修正縮排.' },
+      { type: 'refactor', description_en: 'Code restructure', description_zh: '程式碼重構', example: 'refactor(user): Extract logic. 抽取邏輯.' },
+      { type: 'test', description_en: 'Tests', description_zh: '測試相關', example: 'test(cart): Add tests. 新增測試.' },
+      { type: 'chore', description_en: 'Maintenance', description_zh: '維護任務', example: 'chore(deps): Update deps. 更新套件.' },
+      { type: 'perf', description_en: 'Performance', description_zh: '效能改善', example: 'perf(query): Optimize DB. 優化資料庫.' },
+      { type: 'ci', description_en: 'CI/CD changes', description_zh: '持續整合', example: 'ci(github): Add deploy. 新增部署.' }
+    ],
+    format: '<type>(<scope>): <English subject>. <Chinese subject>.',
+    formatNote: 'English types for tool compatibility, bilingual subjects for clarity'
+  }
+};
+
+/**
+ * Generate commit types table based on commit_language
+ * @param {string} commitLanguage - The commit language: 'english', 'traditional-chinese', or 'bilingual'
+ * @param {string} format - Output format: 'markdown' or 'plaintext'
+ * @returns {string} Formatted commit types section
+ */
+function generateCommitTypesTable(commitLanguage, format = 'markdown') {
+  const template = COMMIT_TYPE_TEMPLATES[commitLanguage] || COMMIT_TYPE_TEMPLATES.english;
+  const lines = [];
+
+  if (format === 'markdown') {
+    if (commitLanguage === 'traditional-chinese') {
+      lines.push('| 類型 | 英文對照 | 說明 | 範例 |');
+      lines.push('|------|----------|------|------|');
+      for (const t of template.types) {
+        lines.push(`| \`${t.type}\` | ${t.english} | ${t.description} | ${t.example} |`);
+      }
+    } else if (commitLanguage === 'bilingual') {
+      lines.push('| Type | EN Description | 中文說明 | Example |');
+      lines.push('|------|----------------|----------|---------|');
+      for (const t of template.types) {
+        lines.push(`| \`${t.type}\` | ${t.description_en} | ${t.description_zh} | ${t.example} |`);
+      }
+    } else {
+      // English (default)
+      lines.push('| Type | Description | Example |');
+      lines.push('|------|-------------|---------|');
+      for (const t of template.types) {
+        lines.push(`| \`${t.type}\` | ${t.description} | ${t.example} |`);
+      }
+    }
+  } else {
+    // Plaintext format
+    if (commitLanguage === 'traditional-chinese') {
+      for (const t of template.types) {
+        lines.push(`- ${t.type} (${t.english}): ${t.description}`);
+      }
+    } else if (commitLanguage === 'bilingual') {
+      for (const t of template.types) {
+        lines.push(`- ${t.type}: ${t.description_en} / ${t.description_zh}`);
+      }
+    } else {
+      for (const t of template.types) {
+        lines.push(`- ${t.type}: ${t.description}`);
+      }
+    }
+  }
+
+  return lines.join('\n');
+}
+
+/**
+ * Generate dynamic commit standards template based on commit_language
+ * @param {string} commitLanguage - The commit language option: 'english', 'traditional-chinese', or 'bilingual'
+ * @param {string} detailLevel - Detail level: 'minimal', 'standard', or 'comprehensive'
+ * @returns {string} Generated commit standards content
+ */
+function generateCommitStandardsContent(commitLanguage, detailLevel = 'standard') {
+  const template = COMMIT_TYPE_TEMPLATES[commitLanguage] || COMMIT_TYPE_TEMPLATES.english;
+
+  if (detailLevel === 'minimal') {
+    if (commitLanguage === 'traditional-chinese') {
+      return `## 提交標準
+- 格式: \`${template.format}\`
+- ${template.formatNote}
+- 主題保持在 72 字元內`;
+    } else if (commitLanguage === 'bilingual') {
+      return `## Commit Standards | 提交標準
+- Format: \`${template.format}\`
+- ${template.formatNote}
+- Keep subject under 72 characters | 主題保持在 72 字元內`;
+    } else {
+      return `## Commit Standards
+- Format: \`${template.format}\`
+- ${template.formatNote}
+- Keep subject under 72 characters`;
+    }
+  }
+
+  if (detailLevel === 'standard') {
+    const typesTable = generateCommitTypesTable(commitLanguage, 'markdown');
+
+    if (commitLanguage === 'traditional-chinese') {
+      return `## 提交訊息標準
+參考: .standards/commit-message-guide.md, .standards/options/traditional-chinese.ai.yaml
+
+### 格式
+\`\`\`
+${template.format}
+
+<本文>
+
+<頁腳>
+\`\`\`
+
+### 類型
+${typesTable}
+
+### 規則
+- 主題行: 最多 72 字元
+- 使用祈使語氣
+- 本文: 說明做了什麼及為什麼，而非如何做`;
+    } else if (commitLanguage === 'bilingual') {
+      return `## Commit Message Standards | 提交訊息標準
+Reference: .standards/commit-message-guide.md, .standards/options/bilingual.ai.yaml
+
+### Format | 格式
+\`\`\`
+${template.format}
+
+<English body>
+
+<Chinese body>
+
+<footer>
+\`\`\`
+
+### Types | 類型
+${typesTable}
+
+### Rules | 規則
+- Subject line: max 72 characters | 主題行: 最多 72 字元
+- Use imperative mood | 使用祈使語氣
+- Body: explain WHAT and WHY | 本文: 說明做了什麼及為什麼`;
+    } else {
+      return `## Commit Message Standards
+Reference: .standards/commit-message-guide.md
+
+### Format
+\`\`\`
+${template.format}
+
+<body>
+
+<footer>
+\`\`\`
+
+### Types
+${typesTable}
+
+### Rules
+- Subject line: max 72 characters
+- Use imperative mood: "add" not "added"
+- Body: explain WHAT and WHY, not HOW`;
+    }
+  }
+
+  // Comprehensive level
+  const typesTable = generateCommitTypesTable(commitLanguage, 'markdown');
+
+  if (commitLanguage === 'traditional-chinese') {
+    return `## 提交訊息標準
+參考: .standards/commit-message-guide.md, .standards/options/traditional-chinese.ai.yaml
+
+### 格式結構
+\`\`\`
+${template.format}
+
+<本文>
+
+<頁腳>
+\`\`\`
+
+**注意**: ${template.formatNote}
+
+### 提交類型
+${typesTable}
+
+### 主題行規則
+- 最多 72 字元
+- 使用祈使語氣
+- 結尾不加句點
+- 首字母大寫
+
+### 本文指引
+- 每行 72 字元換行
+- 說明做了什麼及為什麼，而非如何做
+- 與主題以空行分隔
+
+### 頁腳格式
+- 破壞性變更: \`破壞性變更: 說明\`
+- Issue 引用: \`關閉 #123\`, \`修正 #456\`
+- 共同作者: \`Co-authored-by: Name <email>\``;
+  } else if (commitLanguage === 'bilingual') {
+    return `## Commit Message Standards | 提交訊息標準
+Reference: .standards/commit-message-guide.md, .standards/options/bilingual.ai.yaml
+
+### Format Structure | 格式結構
+\`\`\`
+${template.format}
+
+<English body>
+
+<Chinese body / 中文本文>
+
+<footer>
+\`\`\`
+
+**Note**: ${template.formatNote}
+
+### Commit Types | 提交類型
+${typesTable}
+
+### Subject Line Rules | 主題行規則
+- Maximum 72 characters | 最多 72 字元
+- Use imperative mood | 使用祈使語氣
+- No period at the end | 結尾不加句點
+- Include both EN and ZH subjects | 包含英文和中文主旨
+
+### Body Guidelines | 本文指引
+- Wrap at 72 characters | 每行 72 字元換行
+- Explain WHAT and WHY | 說明做了什麼及為什麼
+- Write English first, then Chinese | 先英文後中文
+
+### Footer Format | 頁腳格式
+- Breaking changes: \`BREAKING CHANGE: description\`
+- Issue references: \`Fixes #123\`, \`Closes #456\`
+- Co-authors: \`Co-authored-by: Name <email>\``;
+  } else {
+    return `## Commit Message Standards
+Reference: .standards/commit-message-guide.md
+
+### Format Structure
+\`\`\`
+${template.format}
+
+<body>
+
+<footer>
+\`\`\`
+
+### Commit Types
+${typesTable}
+
+### Subject Line Rules
+- Maximum 72 characters
+- Use imperative mood: "add" not "added"
+- No period at the end
+- Capitalize first letter
+
+### Body Guidelines
+- Wrap at 72 characters
+- Explain WHAT and WHY, not HOW
+- Separate from subject with blank line
+
+### Footer Format
+- Breaking changes: \`BREAKING CHANGE: description\`
+- Issue references: \`Fixes #123\`, \`Closes #456\`
+- Co-authors: \`Co-authored-by: Name <email>\``;
+  }
+}
+
+/**
  * Rule templates for different categories
  */
 const RULE_TEMPLATES = {
@@ -1867,7 +2171,9 @@ export function generateIntegrationContent(config) {
     // New fields for enhanced standards compliance
     installedStandards = [],
     contentMode = 'minimal',
-    level = 2
+    level = 2,
+    // Commit language option for dynamic commit standards generation
+    commitLanguage = 'english'
   } = config;
 
   const sections = [];
@@ -1880,6 +2186,14 @@ export function generateIntegrationContent(config) {
 
   // Add rule sections based on selected categories (core rules - always included)
   for (const categoryId of categories) {
+    // Special handling for commit-standards: use dynamic generation based on commitLanguage
+    if (categoryId === 'commit-standards') {
+      const commitContent = generateCommitStandardsContent(commitLanguage, detailLevel);
+      sections.push(commitContent);
+      sections.push('\n---\n');
+      continue;
+    }
+
     const template = RULE_TEMPLATES[categoryId];
     if (template && template[detailLevel]) {
       if (language === 'bilingual') {

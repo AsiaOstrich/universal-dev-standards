@@ -350,7 +350,9 @@ export async function updateCommand(options) {
         language: commonLanguage,
         installedStandards: installedStandardsList,
         contentMode: manifest.contentMode || 'minimal',
-        level: manifest.level || 2
+        level: manifest.level || 2,
+        // Pass commit_language for dynamic commit standards generation
+        commitLanguage: manifest.options?.commit_language || 'english'
       };
 
       const result = writeIntegrationFile(tool, toolConfig, projectPath);
@@ -675,7 +677,9 @@ export function regenerateIntegrations(projectPath, manifest) {
       language: commonLanguage,
       installedStandards: installedStandardsList,
       contentMode: manifest.contentMode || 'minimal',
-      level: manifest.level || 2
+      level: manifest.level || 2,
+      // Pass commit_language for dynamic commit standards generation
+      commitLanguage: manifest.options?.commit_language || 'english'
     };
 
     const result = writeIntegrationFile(tool, toolConfig, projectPath);
@@ -827,7 +831,9 @@ async function syncIntegrationReferences(projectPath, manifest) {
     const newConfig = {
       ...config,
       tool: toolName,
-      categories: expectedCategories
+      categories: expectedCategories,
+      // Pass commit_language for dynamic commit standards generation
+      commitLanguage: manifest.options?.commit_language || config.commitLanguage || 'english'
     };
 
     const result = writeIntegrationFile(toolName, newConfig, projectPath);

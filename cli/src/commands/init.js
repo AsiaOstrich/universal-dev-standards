@@ -702,7 +702,9 @@ export async function initCommand(options) {
         language: integrationConfigs[tool]?.language || commonLanguage,
         installedStandards: installedStandardsList,
         contentMode: skillsConfig.contentMode || 'minimal',
-        level: level
+        level: level,
+        // Pass commit_language for dynamic commit standards generation
+        commitLanguage: standardOptions?.commit_language || 'english'
       };
 
       // Use dynamic generator
@@ -754,7 +756,9 @@ export async function initCommand(options) {
       // Enhanced standards compliance fields
       installedStandards: installedStandardsList,
       contentMode: skillsConfig.contentMode || 'minimal',
-      level: level
+      level: level,
+      // Pass commit_language for dynamic commit standards generation
+      commitLanguage: standardOptions?.commit_language || 'english'
     };
 
     const result = writeIntegrationFile('claude-code', claudeConfig, projectPath);
@@ -1120,7 +1124,11 @@ export async function initCommand(options) {
   console.log(chalk.gray(`  ${msg.reviewDirectory}`));
   console.log(chalk.gray(`  ${msg.addToVcs}`));
   if (skillsConfig.installed) {
-    console.log(chalk.gray(`  ${msg.restartClaude}`));
+    // Build unique tool names from installations
+    const toolNames = skillsConfig.skillsInstallations?.length > 0
+      ? [...new Set(skillsConfig.skillsInstallations.map(inst => getAgentDisplayName(inst.agent)))].join(' / ')
+      : 'Claude Code';
+    console.log(chalk.gray(`  ${msg.restartAgent.replace('{tools}', toolNames)}`));
     console.log(chalk.gray(`  4. ${msg.runCheck}`));
   } else {
     console.log(chalk.gray(`  3. ${msg.runCheck}`));

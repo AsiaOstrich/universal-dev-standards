@@ -213,6 +213,133 @@ describe('Integration Generator', () => {
         expect(result).toContain('Universal Dev Standards');
       }
     });
+
+    describe('commitLanguage option', () => {
+      it('should generate English commit types by default', () => {
+        const config = {
+          tool: 'cursor',
+          categories: ['commit-standards'],
+          languages: [],
+          exclusions: [],
+          customRules: [],
+          detailLevel: 'standard',
+          language: 'en'
+        };
+
+        const result = generateIntegrationContent(config);
+
+        expect(result).toContain('feat');
+        expect(result).toContain('fix');
+        expect(result).toContain('docs');
+        expect(result).not.toContain('功能');
+        expect(result).not.toContain('修正');
+      });
+
+      it('should generate English commit types when commitLanguage is english', () => {
+        const config = {
+          tool: 'cursor',
+          categories: ['commit-standards'],
+          languages: [],
+          exclusions: [],
+          customRules: [],
+          detailLevel: 'standard',
+          language: 'en',
+          commitLanguage: 'english'
+        };
+
+        const result = generateIntegrationContent(config);
+
+        expect(result).toContain('feat');
+        expect(result).toContain('fix');
+        expect(result).toContain('docs');
+        expect(result).toContain('<type>(<scope>): <subject>');
+        expect(result).not.toContain('功能');
+      });
+
+      it('should generate Traditional Chinese commit types when commitLanguage is traditional-chinese', () => {
+        const config = {
+          tool: 'cursor',
+          categories: ['commit-standards'],
+          languages: [],
+          exclusions: [],
+          customRules: [],
+          detailLevel: 'standard',
+          language: 'zh-tw',
+          commitLanguage: 'traditional-chinese'
+        };
+
+        const result = generateIntegrationContent(config);
+
+        expect(result).toContain('功能');
+        expect(result).toContain('修正');
+        expect(result).toContain('文件');
+        expect(result).toContain('重構');
+        expect(result).toContain('<類型>(<範圍>): <主旨>');
+        // English equivalents should be in the table as reference
+        expect(result).toContain('feat');
+      });
+
+      it('should generate bilingual commit types when commitLanguage is bilingual', () => {
+        const config = {
+          tool: 'cursor',
+          categories: ['commit-standards'],
+          languages: [],
+          exclusions: [],
+          customRules: [],
+          detailLevel: 'standard',
+          language: 'bilingual',
+          commitLanguage: 'bilingual'
+        };
+
+        const result = generateIntegrationContent(config);
+
+        // Bilingual uses English types
+        expect(result).toContain('feat');
+        expect(result).toContain('fix');
+        // But includes both English and Chinese descriptions
+        expect(result).toContain('New feature');
+        expect(result).toContain('新功能');
+        expect(result).toContain('<type>(<scope>): <English subject>. <Chinese subject>.');
+      });
+
+      it('should use correct format for Traditional Chinese minimal level', () => {
+        const config = {
+          tool: 'cursor',
+          categories: ['commit-standards'],
+          languages: [],
+          exclusions: [],
+          customRules: [],
+          detailLevel: 'minimal',
+          language: 'zh-tw',
+          commitLanguage: 'traditional-chinese'
+        };
+
+        const result = generateIntegrationContent(config);
+
+        expect(result).toContain('提交標準');
+        expect(result).toContain('<類型>(<範圍>): <主旨>');
+      });
+
+      it('should use correct format for comprehensive level', () => {
+        const config = {
+          tool: 'cursor',
+          categories: ['commit-standards'],
+          languages: [],
+          exclusions: [],
+          customRules: [],
+          detailLevel: 'comprehensive',
+          language: 'en',
+          commitLanguage: 'traditional-chinese'
+        };
+
+        const result = generateIntegrationContent(config);
+
+        // Should include comprehensive elements
+        expect(result).toContain('主題行規則');
+        expect(result).toContain('本文指引');
+        expect(result).toContain('頁腳格式');
+      });
+    });
   });
 
   describe('mergeRules', () => {
