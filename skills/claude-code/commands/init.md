@@ -49,45 +49,64 @@ Pre-select tools detected in the environment. Note: Codex and OpenCode share `AG
 
 ### Step 3: Ask Skills Installation | 步驟 3：詢問 Skills 安裝
 
-For tools that support Skills, use AskUserQuestion with multiSelect allowing per-tool installation:
+For tools that support Skills, use AskUserQuestion to ask installation location.
 
-對於支援 Skills 的工具，使用 AskUserQuestion（多選），允許為每個工具選擇安裝位置：
+對於支援 Skills 的工具，使用 AskUserQuestion 詢問安裝位置。
 
-**For Claude Code**: Plugin Marketplace option is shown first (recommended).
+**IMPORTANT: AskUserQuestion has a 4-option limit.** Ask per-tool if multiple tools selected.
 
+**重要：AskUserQuestion 最多只能有 4 個選項。** 如選擇多個工具，請分別詢問。
+
+**Example for Claude Code:**
 ```
-? Select where to install Skills (multiple selections allowed):
-❯ ◉ Plugin Marketplace (Recommended) - Auto-updates, easy version management
-  ── Or choose file installation location ──
-  ◯ Claude Code - User Level (~/.claude/skills/)
-  ◯ Claude Code - Project Level (.claude/skills/)
-  ◯ Cursor - User Level (~/.cursor/skills/)
-  ◯ Cursor - Project Level (.cursor/skills/)
-  ──────────────
-  ◯ Skip (No Skills installation)
+Question: "Claude Code Skills 要安裝到哪裡？"
+Options:
+1. Plugin Marketplace (建議) - 自動更新，易於管理
+2. User Level (~/.claude/skills/) - 所有專案共用
+3. Project Level (.claude/skills/) - 僅此專案
+4. 跳過 - 不安裝 Claude Code Skills
+```
+
+**Example for OpenCode:**
+```
+Question: "OpenCode Skills 要安裝到哪裡？"
+Options:
+1. User Level (~/.opencode/skill/) - 所有專案共用
+2. Project Level (.opencode/skill/) - 僅此專案 (建議)
+3. 跳過 - 不安裝 OpenCode Skills
 ```
 
 Each AI tool can have different installation levels (User/Project), providing flexibility for different project needs.
 
 ### Step 4: Ask Commands Installation | 步驟 4：詢問 Commands 安裝
 
-For tools that support Commands (OpenCode, Copilot, Gemini CLI), use AskUserQuestion with multiSelect allowing per-tool installation level:
+For tools that support Commands (OpenCode, Copilot, Gemini CLI), use AskUserQuestion to ask installation location.
 
-對於支援 Commands 的工具，使用多選介面，允許為每個工具選擇安裝層級：
+對於支援 Commands 的工具，使用 AskUserQuestion 詢問安裝位置。
 
+**IMPORTANT: AskUserQuestion has a 4-option limit.** Ask per-tool if multiple tools selected.
+
+**重要：AskUserQuestion 最多只能有 4 個選項。** 如選擇多個工具，請分別詢問。
+
+**Example for OpenCode:**
 ```
-? Select where to install slash commands (multiple selections allowed):
-❯ ◉ OpenCode - User Level (~/.config/opencode/command/)
-  ◉ OpenCode - Project Level (.opencode/command/)  [default checked]
-  ◯ GitHub Copilot - User Level (~/.config/github-copilot/commands/)
-  ◉ GitHub Copilot - Project Level (.github/commands/)  [default checked]
-  ◯ Gemini CLI - User Level (~/.gemini/commands/)
-  ◉ Gemini CLI - Project Level (.gemini/commands/)  [default checked]
-  ──────────────
-  ◯ Skip (use Skills instead)
+Question: "OpenCode Commands 要安裝到哪裡？"
+Options:
+1. User Level (~/.config/opencode/command/) - 所有專案共用
+2. Project Level (.opencode/command/) - 僅此專案 (建議)
+3. 跳過 - 不安裝 OpenCode Commands
 ```
 
-Project Level is checked by default. Each AI tool can have commands installed at different levels (User/Project).
+**Example for GitHub Copilot:**
+```
+Question: "GitHub Copilot Commands 要安裝到哪裡？"
+Options:
+1. User Level (~/.config/github-copilot/commands/) - 所有專案共用
+2. Project Level (.github/commands/) - 僅此專案 (建議)
+3. 跳過 - 不安裝 GitHub Copilot Commands
+```
+
+Project Level is recommended. Each AI tool can have commands installed at different levels (User/Project).
 
 ### Step 5: Ask Standards Scope | 步驟 5：詢問標準範圍
 
