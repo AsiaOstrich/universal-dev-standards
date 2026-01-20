@@ -185,6 +185,10 @@ uds configure --type skills --ai-tool opencode --skills-location project
 uds configure --type skills --ai-tool cursor --skills-location user
 ```
 
+**Note:** If user selects unified level, the `--skills-location` option is used. If individual, run without the option to trigger interactive prompt.
+
+**注意：** 如果用戶選擇統一層級，使用 `--skills-location` 選項。如果選擇個別設定，不帶此選項執行以觸發互動提示。
+
 #### Step 4d: Detect Missing Commands | 步驟 4d：偵測缺少的 Commands
 
 Check for configured AI tools that support Commands but don't have them installed:
@@ -256,9 +260,14 @@ Options:
 
 **Execute installation:**
 ```bash
-uds configure --type commands --ai-tool opencode --commands-location project
-uds configure --type commands --ai-tool copilot --commands-location user
+# CLI will prompt for installation level
+uds configure --type commands --ai-tool opencode
+uds configure --type commands --ai-tool copilot
 ```
+
+**Note:** The CLI will interactively prompt for installation level (project or user) when `--ai-tool` is specified.
+
+**注意：** 指定 `--ai-tool` 時，CLI 會互動詢問安裝層級（project 或 user）。
 
 #### Declined Features Handling | 拒絕功能處理
 

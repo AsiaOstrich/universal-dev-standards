@@ -211,7 +211,7 @@ export async function configureCommand(options) {
 
   // Handle Commands configuration
   if (configType === 'commands') {
-    await handleCommandsConfiguration(manifest, projectPath, msg, common, options.aiTool, options.commandsLocation);
+    await handleCommandsConfiguration(manifest, projectPath, msg, common, options.aiTool);
     process.exit(0);
   }
 
@@ -757,14 +757,13 @@ async function handleSkillsConfiguration(manifest, projectPath, msg, common, spe
  * @param {string} projectPath - Project path
  * @param {Object} msg - i18n messages
  * @param {Object} common - Common i18n messages
- * @param {string} [specificTool] - Specific AI tool to install (non-interactive mode)
- * @param {string} [commandsLocation] - Commands installation location (project, user) for non-interactive mode
+ * @param {string} [specificTool] - Specific AI tool to install (triggers interactive prompt for level)
  */
-async function handleCommandsConfiguration(manifest, projectPath, msg, common, specificTool, commandsLocation) {
+async function handleCommandsConfiguration(manifest, projectPath, msg, common, specificTool) {
   const inquirer = await import('inquirer');
   const aiTools = manifest.aiTools || [];
 
-  // Non-interactive mode: install for specific tool
+  // Semi-interactive mode: install for specific tool (prompt for level)
   if (specificTool) {
     const config = getAgentConfig(specificTool);
     if (!config) {
@@ -778,13 +777,21 @@ async function handleCommandsConfiguration(manifest, projectPath, msg, common, s
       return;
     }
 
-    // Validate commandsLocation if provided
-    const validLocations = ['project', 'user'];
-    const level = commandsLocation && validLocations.includes(commandsLocation) ? commandsLocation : 'project';
+    // Prompt for installation level
+    const { commandsLevel } = await inquirer.default.prompt([{
+      type: 'list',
+      name: 'commandsLevel',
+      message: msg.commandsLevelQuestion || 'Where should Commands be installed?',
+      choices: [
+        { name: `${msg.projectLevel || 'Project level'} (${config.commands.project}) (${msg.recommended || 'Recommended'})`, value: 'project' },
+        { name: `${msg.userLevel || 'User level'} (${config.commands.user})`, value: 'user' }
+      ],
+      default: 'project'
+    }]);
 
-    // Install to specified level (defaults to project)
-    const installations = [{ agent: specificTool, level }];
-    const spinner = ora(`Installing Commands for ${getAgentDisplayName(specificTool)} (${level} level)...`).start();
+    // Install to selected level
+    const installations = [{ agent: specificTool, level: commandsLevel }];
+    const spinner = ora(`Installing Commands for ${getAgentDisplayName(specificTool)} (${commandsLevel} level)...`).start();
     const result = await installCommandsToMultipleAgents(installations, null, projectPath);
     spinner.stop();
 
