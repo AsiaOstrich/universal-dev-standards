@@ -9,6 +9,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [4.1.0-alpha.1] - 2026-01-20
+
+### Highlights
+
+**Subagent System**: v4.1 introduces a comprehensive agent orchestration system:
+- **AGENT.md Format**: Define specialized AI subagents with roles, expertise, and tool permissions
+- **Workflow Orchestration**: Multi-step workflow definitions in YAML format
+- **Cross-Tool Compatibility**: Agents work across Claude Code, OpenCode, and other AI tools with automatic mode degradation
+
+### Added
+- **Agent System**:
+  - `skills/claude-code/agents/` - AGENT.md format specification and definitions
+  - 5 built-in agents:
+    - `code-architect` - Software architecture specialist (read-only)
+    - `test-specialist` - Testing expert with TDD/BDD expertise
+    - `reviewer` - Code review specialist (read-only)
+    - `doc-writer` - Documentation writer
+    - `spec-analyst` - Specification analysis specialist
+  - Cross-tool execution modes: `task` (subagent), `inline` (context injection), `manual` (instructions)
+- **Workflow System**:
+  - `skills/claude-code/workflows/` - Workflow definition format
+  - 3 built-in workflows:
+    - `integrated-flow` - 8-step ATDD→SDD→BDD→TDD complete development flow
+    - `feature-dev` - 6-step standard feature development workflow
+    - `code-review` - 4-step comprehensive code review workflow
+- **CLI Commands**:
+  - `uds agent list` - List available and installed agents
+  - `uds agent install [name]` - Install agents (supports `--tool`, `--global`)
+  - `uds agent info <name>` - Show detailed agent information
+  - `uds workflow list` - List available and installed workflows
+  - `uds workflow install [name]` - Install workflows
+  - `uds workflow info <name>` - Show detailed workflow information
+- **New Utilities**:
+  - `agents-installer.js` - Agent installation and management
+  - `agent-adapter.js` - Cross-tool adaptation layer
+  - `workflows-installer.js` - Workflow installation and management
+- **Dependencies**:
+  - Added `js-yaml` for YAML workflow parsing
+
+### Changed
+- **AI Agent Paths**: Extended configuration with agents and workflows paths for all supported AI tools
+- **Standards Registry**: Added `agents` and `workflows` sections with built-in definitions
+
+### Tests
+- Added 91 new unit tests for agents and workflows functionality (602 total tests)
+
+---
+
 ## [4.0.0] - 2026-01-20
 
 ### Highlights

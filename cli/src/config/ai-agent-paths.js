@@ -17,9 +17,13 @@ import { homedir } from 'os';
  * - name: Display name for the AI agent
  * - skills: Paths for skills installation (project and user level)
  * - commands: Paths for slash commands (if supported)
+ * - agents: Paths for agent definitions (if supported)
+ * - workflows: Paths for workflow definitions (if supported)
  * - supportsMarketplace: Whether the agent supports a marketplace (Claude Code only)
  * - fallbackSkillsPath: Alternative path the agent can read skills from
  * - supportsSkills: Whether the agent supports SKILL.md format
+ * - supportsTask: Whether the agent supports Task tool for subagent execution
+ * - supportsAgents: Whether the agent supports AGENT.md format
  */
 export const AI_AGENT_PATHS = {
   'claude-code': {
@@ -32,9 +36,19 @@ export const AI_AGENT_PATHS = {
       project: '.claude/commands/',
       user: join(homedir(), '.claude', 'commands')
     },
+    agents: {
+      project: '.claude/agents/',
+      user: join(homedir(), '.claude', 'agents')
+    },
+    workflows: {
+      project: '.claude/workflows/',
+      user: join(homedir(), '.claude', 'workflows')
+    },
     supportsMarketplace: true,
     fallbackSkillsPath: null, // Native implementation
-    supportsSkills: true
+    supportsSkills: true,
+    supportsTask: true,
+    supportsAgents: true
   },
   'opencode': {
     name: 'OpenCode',
@@ -46,9 +60,19 @@ export const AI_AGENT_PATHS = {
       project: '.opencode/command/',
       user: join(homedir(), '.config', 'opencode', 'command')
     },
+    agents: {
+      project: '.opencode/agents/',
+      user: join(homedir(), '.config', 'opencode', 'agents')
+    },
+    workflows: {
+      project: '.opencode/workflows/',
+      user: join(homedir(), '.config', 'opencode', 'workflows')
+    },
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/', // Can read Claude skills
-    supportsSkills: true
+    supportsSkills: true,
+    supportsTask: true,
+    supportsAgents: true
   },
   'cursor': {
     name: 'Cursor',
@@ -57,9 +81,16 @@ export const AI_AGENT_PATHS = {
       user: join(homedir(), '.cursor', 'skills')
     },
     commands: null, // Rules only, no SKILL.md support yet
+    agents: {
+      project: '.cursor/agents/',
+      user: join(homedir(), '.cursor', 'agents')
+    },
+    workflows: null, // Not supported
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/',
-    supportsSkills: false // Uses .mdc rules format
+    supportsSkills: false, // Uses .mdc rules format
+    supportsTask: false, // No Task tool support
+    supportsAgents: true // Can load agents as inline context
   },
   'cline': {
     name: 'Cline',
@@ -68,9 +99,19 @@ export const AI_AGENT_PATHS = {
       user: join(homedir(), '.cline', 'skills')
     },
     commands: null, // Uses workflow files
+    agents: {
+      project: '.cline/agents/',
+      user: join(homedir(), '.cline', 'agents')
+    },
+    workflows: {
+      project: '.cline/workflows/',
+      user: join(homedir(), '.cline', 'workflows')
+    },
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/',
-    supportsSkills: true
+    supportsSkills: true,
+    supportsTask: false,
+    supportsAgents: true
   },
   'roo-code': {
     name: 'Roo Code',
@@ -82,9 +123,19 @@ export const AI_AGENT_PATHS = {
       project: '.roo/commands/',
       user: join(homedir(), '.roo', 'commands')
     },
+    agents: {
+      project: '.roo/agents/',
+      user: join(homedir(), '.roo', 'agents')
+    },
+    workflows: {
+      project: '.roo/workflows/',
+      user: join(homedir(), '.roo', 'workflows')
+    },
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/',
-    supportsSkills: true
+    supportsSkills: true,
+    supportsTask: true,
+    supportsAgents: true
   },
   'codex': {
     name: 'OpenAI Codex',
@@ -93,9 +144,16 @@ export const AI_AGENT_PATHS = {
       user: join(homedir(), '.codex', 'skills')
     },
     commands: null, // Uses system commands
+    agents: {
+      project: '.codex/agents/',
+      user: join(homedir(), '.codex', 'agents')
+    },
+    workflows: null,
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/',
-    supportsSkills: true
+    supportsSkills: true,
+    supportsTask: false,
+    supportsAgents: true
   },
   'copilot': {
     name: 'GitHub Copilot',
@@ -107,9 +165,16 @@ export const AI_AGENT_PATHS = {
       project: '.github/prompts/',
       user: join(homedir(), '.copilot', 'prompts')
     },
+    agents: {
+      project: '.github/agents/',
+      user: join(homedir(), '.copilot', 'agents')
+    },
+    workflows: null,
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/', // Legacy support
-    supportsSkills: true
+    supportsSkills: true,
+    supportsTask: false,
+    supportsAgents: true
   },
   'windsurf': {
     name: 'Windsurf',
@@ -118,9 +183,16 @@ export const AI_AGENT_PATHS = {
       user: join(homedir(), '.codeium', 'windsurf', 'skills')
     },
     commands: null, // Uses rulebook
+    agents: {
+      project: '.windsurf/agents/',
+      user: join(homedir(), '.codeium', 'windsurf', 'agents')
+    },
+    workflows: null,
     supportsMarketplace: false,
     fallbackSkillsPath: null,
-    supportsSkills: true
+    supportsSkills: true,
+    supportsTask: false,
+    supportsAgents: true
   },
   'gemini-cli': {
     name: 'Gemini CLI',
@@ -132,9 +204,19 @@ export const AI_AGENT_PATHS = {
       project: '.gemini/commands/',
       user: join(homedir(), '.gemini', 'commands')
     },
+    agents: {
+      project: '.gemini/agents/',
+      user: join(homedir(), '.gemini', 'agents')
+    },
+    workflows: {
+      project: '.gemini/workflows/',
+      user: join(homedir(), '.gemini', 'workflows')
+    },
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/',
-    supportsSkills: true // Preview support
+    supportsSkills: true, // Preview support
+    supportsTask: false,
+    supportsAgents: true
   },
   'antigravity': {
     name: 'Google Antigravity',
@@ -143,9 +225,13 @@ export const AI_AGENT_PATHS = {
       user: join(homedir(), '.antigravity', 'skills')
     },
     commands: null,
+    agents: null,
+    workflows: null,
     supportsMarketplace: false,
     fallbackSkillsPath: null,
-    supportsSkills: false
+    supportsSkills: false,
+    supportsTask: false,
+    supportsAgents: false
   }
 };
 
@@ -247,6 +333,94 @@ export function getAgentDisplayName(agent) {
 }
 
 /**
+ * Get agents directory path for an AI tool
+ * @param {string} agent - Agent identifier
+ * @param {string} level - 'user' or 'project'
+ * @param {string} projectPath - Project root path (required for project level)
+ * @returns {string|null} Agents directory path or null if not supported
+ */
+export function getAgentsDirForAgent(agent, level = 'project', projectPath = null) {
+  const config = AI_AGENT_PATHS[agent];
+  if (!config || !config.agents) return null;
+
+  if (level === 'user') {
+    return config.agents.user || null;
+  } else if (level === 'project' && projectPath) {
+    return config.agents.project ? join(projectPath, config.agents.project) : null;
+  }
+  return null;
+}
+
+/**
+ * Get workflows directory path for an AI tool
+ * @param {string} agent - Agent identifier
+ * @param {string} level - 'user' or 'project'
+ * @param {string} projectPath - Project root path (required for project level)
+ * @returns {string|null} Workflows directory path or null if not supported
+ */
+export function getWorkflowsDirForAgent(agent, level = 'project', projectPath = null) {
+  const config = AI_AGENT_PATHS[agent];
+  if (!config || !config.workflows) return null;
+
+  if (level === 'user') {
+    return config.workflows.user || null;
+  } else if (level === 'project' && projectPath) {
+    return config.workflows.project ? join(projectPath, config.workflows.project) : null;
+  }
+  return null;
+}
+
+/**
+ * Get all agents that support AGENT.md format
+ * @returns {string[]} Array of agent identifiers
+ */
+export function getAgentsSupportedAgents() {
+  return Object.entries(AI_AGENT_PATHS)
+    .filter(([, config]) => config.supportsAgents && config.agents)
+    .map(([agent]) => agent);
+}
+
+/**
+ * Get all agents that support Task tool (subagent execution)
+ * @returns {string[]} Array of agent identifiers
+ */
+export function getTaskSupportedAgents() {
+  return Object.entries(AI_AGENT_PATHS)
+    .filter(([, config]) => config.supportsTask)
+    .map(([agent]) => agent);
+}
+
+/**
+ * Get all agents that support workflow definitions
+ * @returns {string[]} Array of agent identifiers
+ */
+export function getWorkflowsSupportedAgents() {
+  return Object.entries(AI_AGENT_PATHS)
+    .filter(([, config]) => config.workflows !== null)
+    .map(([agent]) => agent);
+}
+
+/**
+ * Check if an agent supports Task tool (subagent execution)
+ * @param {string} agent - Agent identifier
+ * @returns {boolean} True if Task tool is supported
+ */
+export function supportsTask(agent) {
+  const config = AI_AGENT_PATHS[agent];
+  return config?.supportsTask || false;
+}
+
+/**
+ * Check if an agent supports AGENT.md format
+ * @param {string} agent - Agent identifier
+ * @returns {boolean} True if agents are supported
+ */
+export function supportsAgents(agent) {
+  const config = AI_AGENT_PATHS[agent];
+  return config?.supportsAgents || false;
+}
+
+/**
  * List of all available slash commands (from skills/claude-code/commands/)
  */
 export const AVAILABLE_COMMANDS = [
@@ -265,6 +439,26 @@ export const AVAILABLE_COMMANDS = [
   { name: 'config', description: 'Project structure configuration' },
   { name: 'init', description: 'Initialize standards' },
   { name: 'update', description: 'Update standards' }
+];
+
+/**
+ * List of all available agents (from skills/claude-code/agents/)
+ */
+export const AVAILABLE_AGENTS = [
+  { name: 'code-architect', description: 'Software architecture and system design specialist' },
+  { name: 'test-specialist', description: 'Testing strategy and test implementation expert' },
+  { name: 'reviewer', description: 'Code review and quality assessment specialist' },
+  { name: 'doc-writer', description: 'Documentation and technical writing specialist' },
+  { name: 'spec-analyst', description: 'Specification analysis and requirement extraction expert' }
+];
+
+/**
+ * List of all available workflows (from skills/claude-code/workflows/)
+ */
+export const AVAILABLE_WORKFLOWS = [
+  { name: 'integrated-flow', description: 'Complete ATDD → SDD → BDD → TDD workflow' },
+  { name: 'feature-dev', description: 'Feature development workflow' },
+  { name: 'code-review', description: 'Code review workflow' }
 ];
 
 export default AI_AGENT_PATHS;

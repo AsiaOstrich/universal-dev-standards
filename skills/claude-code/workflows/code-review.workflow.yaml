@@ -1,0 +1,186 @@
+# Code Review Workflow
+# Comprehensive code review process
+#
+# This workflow guides a thorough code review process,
+# ensuring quality, security, and maintainability.
+
+name: code-review
+version: 1.0.0
+description: |
+  Comprehensive code review workflow for PRs and code changes.
+  Use for thorough review before merging to main branch.
+  Keywords: code review, PR review, pull request, 程式碼審查, PR 審查.
+
+metadata:
+  author: universal-dev-standards
+  category: review
+  difficulty: intermediate
+  estimated_steps: 4
+  related_skills:
+    - code-review-assistant
+    - testing-guide
+    - checkin-assistant
+
+prerequisites:
+  - Pull request created
+  - CI checks passing (or reasons documented)
+  - PR description complete
+
+steps:
+  # Step 1: Context Understanding
+  - id: understand
+    name: Understand Context
+    type: agent
+    agent: spec-analyst
+    description: |
+      Understand the purpose and scope of the changes.
+      Review PR description, linked issues, and specs.
+    inputs:
+      - pr_description
+      - linked_issues
+      - diff_summary
+    outputs:
+      - context_summary
+      - review_focus_areas
+    questions:
+      - What problem does this solve?
+      - What is the expected behavior?
+      - What are the risks?
+
+  # Step 2: Code Quality Review
+  - id: quality-review
+    name: Code Quality Review
+    type: agent
+    agent: reviewer
+    description: |
+      Review code for quality, maintainability, and best practices.
+      Focus on readability, design patterns, and conventions.
+    inputs:
+      - code_changes
+      - context_summary
+    outputs:
+      - quality_report
+      - suggestions
+    checklist:
+      - Code follows project style guide
+      - Functions are appropriately sized
+      - No code duplication
+      - Error handling is appropriate
+      - Naming is clear and consistent
+      - Comments are helpful (not redundant)
+    severity_levels:
+      blocking: Must fix before merge
+      important: Should fix
+      suggestion: Nice to have
+      note: Informational
+
+  # Step 3: Security & Testing Review
+  - id: security-review
+    name: Security & Testing Review
+    type: agent
+    agent: test-specialist
+    description: |
+      Review for security vulnerabilities and test coverage.
+      Ensure changes are properly tested.
+    inputs:
+      - code_changes
+      - existing_tests
+    outputs:
+      - security_report
+      - coverage_assessment
+    security_checks:
+      - No hardcoded secrets
+      - Input validation present
+      - No SQL injection vulnerabilities
+      - No XSS vulnerabilities
+      - Proper authentication/authorization
+      - Dependencies are safe
+    testing_checks:
+      - New code has tests
+      - Edge cases covered
+      - Tests are meaningful (not just coverage)
+      - No flaky tests introduced
+
+  # Step 4: Final Decision
+  - id: decision
+    name: Review Decision
+    type: manual
+    description: |
+      Make final review decision based on findings.
+      Approve, request changes, or discuss.
+    inputs:
+      - quality_report
+      - security_report
+      - coverage_assessment
+    outputs:
+      - review_decision
+      - feedback_comments
+    decisions:
+      approve:
+        condition: No blocking issues
+        action: Approve PR
+      request_changes:
+        condition: Blocking issues found
+        action: Request changes with clear feedback
+      comment:
+        condition: Need clarification
+        action: Add comments and discuss
+    instructions: |
+      When providing feedback:
+      1. Use appropriate prefixes (BLOCKING, IMPORTANT, SUGGESTION)
+      2. Be specific about location and issue
+      3. Suggest solutions when possible
+      4. Be respectful and constructive
+      5. Acknowledge good practices
+
+outputs:
+  - name: review_summary
+    description: Summary of review findings
+    format: markdown
+
+  - name: action_items
+    description: List of changes requested
+    format: checklist
+
+  - name: decision
+    description: Final review decision
+    format: status
+
+# Review comment templates
+comment_templates:
+  blocking: |
+    ❗ BLOCKING: [Issue description]
+
+    [Why this is a problem]
+
+    Suggested fix:
+    ```
+    [code suggestion]
+    ```
+
+  important: |
+    ⚠️ IMPORTANT: [Issue description]
+
+    [Why this should be addressed]
+
+  suggestion: |
+    💡 SUGGESTION: [Improvement idea]
+
+    [Rationale and benefits]
+
+  question: |
+    ❓ QUESTION: [Your question]
+
+    [Context for the question]
+
+  note: |
+    📝 NOTE: [Observation]
+
+    [Additional context]
+
+completion_criteria:
+  - All critical issues addressed or waived
+  - Security review completed
+  - Test coverage acceptable
+  - Review decision documented
+  - Feedback provided constructively

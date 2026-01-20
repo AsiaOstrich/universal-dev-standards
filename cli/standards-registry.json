@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "4.0.0",
+  "version": "4.1.0-alpha.1",
   "lastUpdated": "2026-01-20",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
@@ -48,14 +48,14 @@
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "4.0.0"
+      "version": "4.1.0-alpha.1"
     },
     "skills": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
       "localPath": "skills/claude-code",
       "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code",
-      "version": "4.0.0",
+      "version": "4.1.0-alpha.1",
       "note": "Skills are now included in the main repository under skills/"
     }
   },
@@ -64,11 +64,15 @@
       "name": "Claude Code",
       "skillsPath": "skills/claude-code",
       "nativePaths": {
-        "skills": { "project": ".claude/skills/", "user": "~/.claude/skills/" }
+        "skills": { "project": ".claude/skills/", "user": "~/.claude/skills/" },
+        "agents": { "project": ".claude/agents/", "user": "~/.claude/agents/" },
+        "workflows": { "project": ".claude/workflows/", "user": "~/.claude/workflows/" }
       },
       "supportsMarketplace": true,
       "supportsSkills": true,
       "supportsCommands": false,
+      "supportsTask": true,
+      "supportsAgents": true,
       "status": "complete"
     },
     "opencode": {
@@ -76,33 +80,44 @@
       "skillsPath": "skills/claude-code",
       "nativePaths": {
         "skills": { "project": ".opencode/skill/", "user": "~/.config/opencode/skill/" },
-        "commands": { "project": ".opencode/command/" }
+        "commands": { "project": ".opencode/command/" },
+        "agents": { "project": ".opencode/agents/", "user": "~/.config/opencode/agents/" },
+        "workflows": { "project": ".opencode/workflows/", "user": "~/.config/opencode/workflows/" }
       },
       "fallbackSkillsPath": ".claude/skills/",
       "supportsSkills": true,
       "supportsCommands": true,
+      "supportsTask": true,
+      "supportsAgents": true,
       "status": "complete"
     },
     "cursor": {
       "name": "Cursor",
       "skillsPath": "skills/cursor",
       "nativePaths": {
-        "skills": { "project": ".cursor/skills/", "user": "~/.cursor/skills/" }
+        "skills": { "project": ".cursor/skills/", "user": "~/.cursor/skills/" },
+        "agents": { "project": ".cursor/agents/", "user": "~/.cursor/agents/" }
       },
       "fallbackSkillsPath": ".claude/skills/",
       "supportsSkills": false,
       "supportsCommands": false,
+      "supportsTask": false,
+      "supportsAgents": true,
       "status": "planned"
     },
     "cline": {
       "name": "Cline",
       "skillsPath": "skills/cline",
       "nativePaths": {
-        "skills": { "project": ".cline/skills/", "user": "~/.cline/skills/" }
+        "skills": { "project": ".cline/skills/", "user": "~/.cline/skills/" },
+        "agents": { "project": ".cline/agents/", "user": "~/.cline/agents/" },
+        "workflows": { "project": ".cline/workflows/", "user": "~/.cline/workflows/" }
       },
       "fallbackSkillsPath": ".claude/skills/",
       "supportsSkills": true,
       "supportsCommands": false,
+      "supportsTask": false,
+      "supportsAgents": true,
       "status": "planned"
     },
     "roo-code": {
@@ -110,22 +125,29 @@
       "skillsPath": "skills/claude-code",
       "nativePaths": {
         "skills": { "project": ".roo/skills/", "user": "~/.roo/skills/" },
-        "commands": { "project": ".roo/commands/" }
+        "commands": { "project": ".roo/commands/" },
+        "agents": { "project": ".roo/agents/", "user": "~/.roo/agents/" },
+        "workflows": { "project": ".roo/workflows/", "user": "~/.roo/workflows/" }
       },
       "fallbackSkillsPath": ".claude/skills/",
       "supportsSkills": true,
       "supportsCommands": true,
+      "supportsTask": true,
+      "supportsAgents": true,
       "status": "planned"
     },
     "codex": {
       "name": "OpenAI Codex",
       "skillsPath": "skills/claude-code",
       "nativePaths": {
-        "skills": { "project": ".codex/skills/", "user": "~/.codex/skills/" }
+        "skills": { "project": ".codex/skills/", "user": "~/.codex/skills/" },
+        "agents": { "project": ".codex/agents/", "user": "~/.codex/agents/" }
       },
       "fallbackSkillsPath": ".claude/skills/",
       "supportsSkills": true,
       "supportsCommands": false,
+      "supportsTask": false,
+      "supportsAgents": true,
       "status": "planned"
     },
     "copilot": {
@@ -133,21 +155,27 @@
       "skillsPath": "skills/copilot",
       "nativePaths": {
         "skills": { "project": ".github/skills/", "user": "~/.copilot/skills/" },
-        "commands": { "project": ".github/prompts/" }
+        "commands": { "project": ".github/prompts/" },
+        "agents": { "project": ".github/agents/", "user": "~/.copilot/agents/" }
       },
       "fallbackSkillsPath": ".claude/skills/",
       "supportsSkills": true,
       "supportsCommands": true,
+      "supportsTask": false,
+      "supportsAgents": true,
       "status": "planned"
     },
     "windsurf": {
       "name": "Windsurf",
       "skillsPath": "skills/windsurf",
       "nativePaths": {
-        "skills": { "project": ".windsurf/skills/", "user": "~/.codeium/windsurf/skills/" }
+        "skills": { "project": ".windsurf/skills/", "user": "~/.codeium/windsurf/skills/" },
+        "agents": { "project": ".windsurf/agents/", "user": "~/.codeium/windsurf/agents/" }
       },
       "supportsSkills": true,
       "supportsCommands": false,
+      "supportsTask": false,
+      "supportsAgents": true,
       "status": "planned"
     },
     "gemini-cli": {
@@ -155,11 +183,15 @@
       "skillsPath": "skills/claude-code",
       "nativePaths": {
         "skills": { "project": ".gemini/skills/", "user": "~/.gemini/skills/" },
-        "commands": { "project": ".gemini/commands/" }
+        "commands": { "project": ".gemini/commands/" },
+        "agents": { "project": ".gemini/agents/", "user": "~/.gemini/agents/" },
+        "workflows": { "project": ".gemini/workflows/", "user": "~/.gemini/workflows/" }
       },
       "fallbackSkillsPath": ".claude/skills/",
       "supportsSkills": true,
       "supportsCommands": true,
+      "supportsTask": false,
+      "supportsAgents": true,
       "status": "planned"
     }
   },
@@ -271,6 +303,95 @@
     ],
     "forward-derivation": [
       "skills/claude-code/forward-derivation/SKILL.md"
+    ]
+  },
+  "agents": {
+    "status": "stable",
+    "statusNote": "New in v4.1.0 - Subagent orchestration system",
+    "statusNoteZh": "v4.1.0 新增 - Subagent 編排系統",
+    "description": "Specialized AI subagents that can be orchestrated to handle complex development workflows",
+    "descriptionZh": "專門的 AI 子代理，可編排處理複雜的開發工作流程",
+    "basePath": "skills/claude-code/agents/",
+    "builtIn": [
+      {
+        "id": "code-architect",
+        "name": "Code Architect",
+        "nameZh": "程式碼架構師",
+        "source": "skills/claude-code/agents/code-architect.md",
+        "role": "specialist",
+        "expertise": ["system-design", "api-design", "database-modeling"],
+        "description": "Software architecture specialist for system design and technical planning"
+      },
+      {
+        "id": "test-specialist",
+        "name": "Test Specialist",
+        "nameZh": "測試專家",
+        "source": "skills/claude-code/agents/test-specialist.md",
+        "role": "specialist",
+        "expertise": ["test-strategy", "tdd", "bdd", "coverage-analysis"],
+        "description": "Testing strategy specialist for test design, coverage analysis, and quality assurance"
+      },
+      {
+        "id": "reviewer",
+        "name": "Code Reviewer",
+        "nameZh": "程式碼審查員",
+        "source": "skills/claude-code/agents/reviewer.md",
+        "role": "reviewer",
+        "expertise": ["code-review", "security-analysis", "best-practices"],
+        "description": "Code review specialist for quality assessment, security analysis, and best practices enforcement"
+      },
+      {
+        "id": "doc-writer",
+        "name": "Documentation Writer",
+        "nameZh": "文件撰寫員",
+        "source": "skills/claude-code/agents/doc-writer.md",
+        "role": "specialist",
+        "expertise": ["technical-writing", "api-documentation", "user-guides"],
+        "description": "Documentation specialist for technical writing, API docs, and user guides"
+      },
+      {
+        "id": "spec-analyst",
+        "name": "Specification Analyst",
+        "nameZh": "規格分析師",
+        "source": "skills/claude-code/agents/spec-analyst.md",
+        "role": "specialist",
+        "expertise": ["requirement-analysis", "specification-writing", "reverse-engineering"],
+        "description": "Specification analysis specialist for requirement extraction and spec generation"
+      }
+    ]
+  },
+  "workflows": {
+    "status": "experimental",
+    "statusNote": "New in v4.1.0 - Multi-agent workflow orchestration",
+    "statusNoteZh": "v4.1.0 新增 - 多代理工作流程編排",
+    "description": "Workflow definitions that orchestrate multiple agents for complex development tasks",
+    "descriptionZh": "編排多個代理處理複雜開發任務的工作流程定義",
+    "basePath": "skills/claude-code/workflows/",
+    "builtIn": [
+      {
+        "id": "integrated-flow",
+        "name": "Integrated Development Flow",
+        "nameZh": "整合開發流程",
+        "source": "skills/claude-code/workflows/integrated-flow.workflow.yaml",
+        "stages": 8,
+        "description": "Complete ATDD → SDD → BDD → TDD workflow"
+      },
+      {
+        "id": "feature-dev",
+        "name": "Feature Development",
+        "nameZh": "功能開發",
+        "source": "skills/claude-code/workflows/feature-dev.workflow.yaml",
+        "stages": 6,
+        "description": "Feature development workflow"
+      },
+      {
+        "id": "code-review",
+        "name": "Code Review Workflow",
+        "nameZh": "程式碼審查流程",
+        "source": "skills/claude-code/workflows/code-review.workflow.yaml",
+        "stages": 4,
+        "description": "Code review workflow"
+      }
     ]
   },
   "methodologies": {
