@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/github-copilot/COPILOT-CHAT-REFERENCE.md) | [简体中文](../../locales/zh-CN/integrations/github-copilot/COPILOT-CHAT-REFERENCE.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-13
+**Version**: 1.1.0
+**Last Updated**: 2026-01-21
 
 This document provides prompt templates for GitHub Copilot Chat to achieve similar functionality to Claude Code slash commands.
 
@@ -201,6 +201,88 @@ Include:
 
 ---
 
+### 9. Refactoring Guidance
+
+**Claude Code**: `/refactor`
+
+**Copilot Chat Prompt (Decision Tree)**:
+```
+Help me decide whether to refactor or rewrite this code. Answer these questions:
+
+1. Is the code currently working in production? [Y/N]
+   → N: Consider rewrite (lower risk)
+2. Do I understand what the code does? [Y/N]
+   → N: Write characterization tests first
+3. Is test coverage > 60%? [Y/N]
+   → N: Add tests first
+4. Is the core architecture salvageable? [Y/N]
+   → N: Use Strangler Fig pattern (gradual replacement)
+   → Y: Use incremental refactoring
+
+Based on my answers, recommend the appropriate strategy.
+```
+
+**Copilot Chat Prompt (Tactical Refactoring)**:
+```
+Suggest tactical refactoring improvements for this code:
+
+**Boy Scout Rule** (small, opportunistic cleanup):
+- Rename confusing variables
+- Extract methods
+- Remove dead code
+- Minutes, not hours
+
+**Preparatory Refactoring** (before adding features):
+- "First make the change easy, then make the easy change" - Kent Beck
+- Restructure to accommodate new requirements
+- Separate commit from feature work
+
+Which approach fits my situation?
+```
+
+**Copilot Chat Prompt (Legacy Code Safety)**:
+```
+Help me safely refactor this legacy code:
+
+1. **Characterization Tests** (do this FIRST):
+   - Call the code, write assertion expected to fail
+   - Update assertion to match actual behavior
+   - Repeat until behavior is captured
+
+2. **Find Seams**:
+   - Object seams (polymorphism)
+   - Link seams (dependency injection)
+
+3. **Sprout/Wrap Techniques**:
+   - Sprout Method: New logic in new testable method
+   - Wrap Method: Add behavior before/after existing code
+
+Start by helping me write characterization tests.
+```
+
+**Copilot Chat Prompt (Strategic Refactoring)**:
+```
+I need to do a large-scale refactoring. Help me choose between:
+
+1. **Strangler Fig**: Gradually replace legacy system
+   - Use when: Replacing entire system, need continuous operation
+   - How: Intercept → Migrate → Complete
+
+2. **Anti-Corruption Layer (ACL)**: Translate between old and new
+   - Use when: Must coexist with legacy system
+   - How: Create Facade + Adapter + Translator layer
+
+3. **Branch by Abstraction**: Refactor shared code on trunk
+   - Use when: Long-term refactoring, no feature branches
+   - How: Introduce abstraction → Add new implementation → Switch → Remove old
+
+Which pattern fits my situation? My constraints are: [describe situation]
+```
+
+Reference: `core/refactoring-standards.md`
+
+---
+
 ## Quick Reference Card
 
 | Task | Copilot Chat Prompt Start |
@@ -213,6 +295,9 @@ Include:
 | Pre-commit | "Verify these quality gates before commit..." |
 | Release | "Prepare release following semantic versioning..." |
 | Docs | "Write documentation for this..." |
+| Refactor | "Help me decide whether to refactor or rewrite..." |
+| Tactical | "Suggest tactical refactoring improvements..." |
+| Legacy | "Help me safely refactor this legacy code..." |
 
 ---
 
@@ -257,6 +342,7 @@ Include:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-21 | Added refactoring guidance prompts (decision tree, tactical, legacy, strategic) |
 | 1.0.0 | 2026-01-13 | Initial release |
 
 ---

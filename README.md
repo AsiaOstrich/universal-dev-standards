@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 4.0.0
-**Last Updated**: 2026-01-20
+**Version**: 4.1.0
+**Last Updated**: 2026-01-21
 **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 ### What's New in 4.0.0

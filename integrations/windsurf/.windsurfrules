@@ -64,3 +64,42 @@ Reference: `.standards/anti-hallucination.md` (or `core/anti-hallucination.md`)
 
 2. **Check-in Quality**:
    - Before suggesting "I'm done", verify work against `.standards/checkin-standards.md`.
+
+## Refactoring Standards
+## 重構標準
+
+Reference: `.standards/refactoring-standards.md` (or `core/refactoring-standards.md`)
+
+When helping with refactoring:
+
+1. **Decision Tree**:
+   - Is code in production? No → Consider rewrite
+   - Understood? No → Characterization tests first
+   - Test coverage >60%? No → Add tests first
+   - Architecture salvageable? No → Strangler Fig; Yes → Incremental refactoring
+
+2. **Tactical Strategies** (daily, minutes):
+   - **Boy Scout Rule**: Small cleanup as you go, don't change behavior
+   - **Preparatory Refactoring**: Restructure before adding features ("First make the change easy, then make the easy change" - Kent Beck)
+   - **Red-Green-Refactor**: TDD development cycle
+
+3. **Strategic Strategies** (architectural, weeks-months):
+   - **Strangler Fig**: Gradually replace legacy system (Intercept → Migrate → Complete)
+   - **Anti-Corruption Layer (ACL)**: Translation layer to coexist with legacy without pollution
+   - **Branch by Abstraction**: Refactor shared code on trunk with feature toggles
+
+4. **Safety Strategies** (legacy code protection):
+   - **Characterization Tests**: Capture existing behavior before changes
+   - **Scratch Refactoring**: Refactor to understand, then discard
+   - **Find Seams**: Identify injection points for test doubles
+   - **Sprout/Wrap**: Add new logic in testable methods
+
+**Quick Reference**:
+
+| Situation | Recommended Strategy |
+|-----------|---------------------|
+| Feature blocked by messy code | Preparatory Refactoring |
+| Bug fix touching existing code | Boy Scout Rule |
+| Replacing entire legacy system | Strangler Fig |
+| Integrating with messy legacy API | Anti-Corruption Layer |
+| Working with untested code | Characterization Tests FIRST |

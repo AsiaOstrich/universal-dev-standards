@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/refactoring-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-12
+**Version**: 2.0.0
+**Last Updated**: 2026-01-21
 **Applicability**: All software projects undertaking code improvement initiatives
 
 ---
@@ -23,17 +23,29 @@ This standard defines comprehensive guidelines for code refactoring, covering ev
 ## Table of Contents
 
 1. [Refactoring vs. Rewriting Decision Matrix](#refactoring-vs-rewriting-decision-matrix)
-2. [Refactoring Strategies by Scale](#refactoring-strategies-by-scale)
-3. [Legacy Code Strategies](#legacy-code-strategies)
-4. [Large-Scale Refactoring Patterns](#large-scale-refactoring-patterns)
+2. [Tactical Refactoring Strategies](#tactical-refactoring-strategies)
+   - [Preparatory Refactoring](#preparatory-refactoring)
+   - [The Boy Scout Rule](#the-boy-scout-rule)
+   - [Red-Green-Refactor](#red-green-refactor)
+3. [Strategic Refactoring Strategies](#strategic-refactoring-strategies)
+   - [Strangler Fig Pattern](#strangler-fig-pattern)
+   - [Anti-Corruption Layer](#anti-corruption-layer)
+   - [Branch by Abstraction](#branch-by-abstraction)
+   - [Parallel Change](#parallel-change-expand-migrate-contract)
+4. [Safety Strategies for Legacy Code](#safety-strategies-for-legacy-code)
+   - [Characterization Tests](#characterization-tests)
+   - [Scratch Refactoring](#scratch-refactoring)
+   - [Finding Seams](#finding-seams)
+   - [Sprout and Wrap Techniques](#sprout-and-wrap-techniques)
 5. [Database Refactoring](#database-refactoring)
 6. [Safe Refactoring Workflow](#safe-refactoring-workflow)
 7. [Refactoring Metrics](#refactoring-metrics)
 8. [Team Collaboration](#team-collaboration)
 9. [Technical Debt Management](#technical-debt-management)
-10. [Related Standards](#related-standards)
-11. [References](#references)
-12. [Version History](#version-history)
+10. [Decision Matrix Summary](#decision-matrix-summary)
+11. [Related Standards](#related-standards)
+12. [References](#references)
+13. [Version History](#version-history)
 
 ---
 
@@ -90,154 +102,119 @@ When rewriting, teams often over-engineer. Avoid:
 
 ---
 
-## Refactoring Strategies by Scale
+## Tactical Refactoring Strategies
 
-### Small-Scale: TDD Refactor Phase (Minutes)
+Tactical strategies are applied during daily development work. They operate at minute-to-hour timescales and require minimal coordination.
 
-Part of the Red-Green-Refactor cycle. See [Test-Driven Development](test-driven-development.md) for details.
+### Preparatory Refactoring
+
+**Definition**: Restructuring existing code to make an upcoming change easier to implement.
+
+> "First make the change easy (this might be hard), then make the easy change." — Kent Beck
+
+**When to Use**:
+- Existing architecture resists the feature you need to add
+- Code structure needs adjustment to accommodate new requirements
+- You want to reduce friction for upcoming changes
+
+**Workflow**:
+
+```
+1. Identify the change you want to make
+2. Identify what makes this change difficult
+3. Refactor to make the change easy
+4. Make the (now easy) change
+```
+
+**Example**:
+- Before: Adding caching to a tightly-coupled service is complex
+- Preparatory refactoring: Extract interface, inject dependencies
+- After: Adding caching becomes straightforward
+
+**Key Principles**:
+- The preparatory refactoring is a separate commit from the feature
+- Each step maintains passing tests
+- Don't combine refactoring with feature work in the same commit
+
+### The Boy Scout Rule
+
+**Definition**: Leave the code cleaner than you found it. This is "opportunistic refactoring" — instead of scheduling refactoring sprints, clean up code as you touch it during bug fixes or feature work.
+
+> "Leave the campground cleaner than you found it." — Robert C. Martin
+
+**When to Use**:
+- Any maintenance task
+- Bug fixes
+- Feature additions
+- Fighting software entropy
+
+**Guidelines**:
+- Make only small improvements (minutes, not hours)
+- Don't change behavior
+- Don't break existing tests
+- Keep scope within your current task
+
+**Examples of Boy Scout Improvements**:
+- Rename a confusingly-named variable
+- Extract a few lines into a well-named method
+- Remove dead code you notice
+- Add a clarifying comment
+- Fix a minor code style issue
+
+**Anti-patterns to Avoid**:
+- Turning a bug fix into a major refactoring project
+- Refactoring unrelated code
+- Making changes without test coverage
+- Scope creep beyond the original task
+
+### Red-Green-Refactor
+
+Part of the Test-Driven Development (TDD) cycle. See [Test-Driven Development](test-driven-development.md) for complete details.
 
 **Characteristics**:
-- Duration: 5-15 minutes
+- Duration: 5-15 minutes per cycle
 - Scope: Single method or class
-- Tests: Must remain green
+- Tests: Must remain green after refactoring
 
-**Common techniques**:
+**The Cycle**:
+
+```
+┌─────────────────────────────────────────┐
+│                                         │
+│    ┌─────┐     ┌─────┐     ┌─────────┐ │
+│    │ RED │ ──► │GREEN│ ──► │REFACTOR │ │
+│    └─────┘     └─────┘     └─────────┘ │
+│       ▲                          │      │
+│       └──────────────────────────┘      │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+**Common Refactoring Techniques**:
 - Extract Method
 - Rename
 - Inline Variable
 - Replace Magic Number with Constant
-
-### Medium-Scale: Feature-Level Refactoring (Hours to Days)
-
-Improving a specific feature or module without changing its external behavior.
-
-**Characteristics**:
-- Duration: Hours to days
-- Scope: One feature or module
-- Tests: Add characterization tests if missing
-
-**Planning Checklist**:
-
-```
-□ Define scope boundaries (what's in, what's out)
-□ Identify all entry points to the module
-□ Ensure test coverage > 80% for affected code
-□ Plan incremental commits (each should be deployable)
-□ Communicate with team (avoid merge conflicts)
-```
-
-### Large-Scale: Architecture-Level Refactoring (Weeks to Months)
-
-Significant architectural changes like migrating from monolith to microservices.
-
-**Characteristics**:
-- Duration: Weeks to months
-- Scope: Multiple modules or entire system
-- Tests: Comprehensive integration tests required
-
-**Patterns**: See [Large-Scale Refactoring Patterns](#large-scale-refactoring-patterns)
+- Remove Duplication
 
 ---
 
-## Legacy Code Strategies
+## Strategic Refactoring Strategies
 
-Based on Michael Feathers' "Working Effectively with Legacy Code".
-
-### The Legacy Code Dilemma
-
-**Definition**: Legacy code = code without tests (regardless of age)
-
-**The Dilemma**:
-- To change code safely, we need tests
-- To add tests, we often need to change code
-- Changing code without tests is risky
-
-**Solution**: Use safe techniques to add tests before making changes.
-
-### Characterization Tests
-
-**Purpose**: Capture existing behavior (not verify correctness)
-
-**Process**:
-
-```
-1. Call the code you want to understand
-2. Write an assertion you expect to FAIL
-3. Run the test and see what actually happens
-4. Update the assertion to match actual behavior
-5. Repeat until you've covered the behavior you need to change
-```
-
-**Example**:
-
-```javascript
-// Step 1: Initial (expected to fail)
-test('calculateDiscount returns... something', () => {
-  const result = calculateDiscount(100, 'GOLD');
-  expect(result).toBe(0); // Guess - will probably fail
-});
-
-// Step 2: After running, update with actual value
-test('calculateDiscount returns 15 for GOLD customers', () => {
-  const result = calculateDiscount(100, 'GOLD');
-  expect(result).toBe(15); // Actual behavior
-});
-```
-
-### Finding Seams
-
-**Definition**: A seam is a place where you can alter behavior without editing code.
-
-| Seam Type | How It Works | Example |
-|-----------|--------------|---------|
-| **Object Seam** | Override via polymorphism | Inject test double via interface |
-| **Preprocessing Seam** | Compile-time substitution | Conditional compilation, macros |
-| **Link Seam** | Replace at link time | Dependency injection, module replacement |
-
-### Sprout and Wrap Techniques
-
-| Technique | When to Use | How |
-|-----------|-------------|-----|
-| **Sprout Method** | Adding new logic to existing method | Create new method, call from old |
-| **Sprout Class** | New logic needs to evolve independently | Create new class, reference from old |
-| **Wrap Method** | Need to add behavior before/after | Rename original, create wrapper |
-| **Wrap Class** | Decorate existing class | Decorator pattern |
-
-**Principle**: New code uses TDD; legacy code stays untouched until tested.
-
-### Code Archaeology
-
-Techniques for understanding undocumented code:
-
-```
-1. Scratch Refactoring
-   ├─ Refactor to understand, not to keep
-   ├─ Use git stash or branch
-   └─ Discard when done (git reset --hard)
-
-2. Trace Variable Flow
-   ├─ Follow data from input to output
-   ├─ Mark key transformation points
-   └─ Document as you discover
-
-3. Runtime Observation
-   ├─ Add temporary logging
-   ├─ Use debugger step-through
-   └─ Build mental model
-
-4. Git Archaeology
-   ├─ git log -p <file> (see all changes)
-   ├─ git blame (find original author)
-   └─ Search commit messages for context
-```
-
----
-
-## Large-Scale Refactoring Patterns
+Strategic strategies are used for significant architectural changes. They operate at week-to-month timescales and require team coordination.
 
 ### Strangler Fig Pattern
 
-**Use when**: Gradually replacing a legacy system
+**Definition**: Gradually replacing a legacy system by incrementally routing functionality to a new system.
+
+**Origin**: Named after strangler fig trees that grow around a host tree, eventually replacing it.
+
+**When to Use**:
+- Gradually replacing a legacy system
+- Cannot afford big-bang rewrite
+- Need to maintain service during migration
+
+**Architecture**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -272,9 +249,71 @@ Techniques for understanding undocumented code:
 - [ ] Monitor and compare results
 - [ ] Decommission legacy component
 
+### Anti-Corruption Layer
+
+**Definition**: A translation layer between a legacy system and a new system that prevents the legacy system's chaotic domain model from "corrupting" the new system's clean architecture.
+
+**Origin**: Eric Evans, Domain-Driven Design (2003)
+
+**When to Use**:
+- New and legacy systems must coexist and interact frequently
+- Legacy system has a complex/chaotic domain model
+- Protecting the new system's Bounded Context
+
+**Architecture**:
+
+```
+┌────────────────────────────────────────────────────────────┐
+│                    Anti-Corruption Layer (ACL)              │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐  │
+│  │  New System │────▶│     ACL     │────▶│Legacy System│  │
+│  │ (Clean API) │     │             │     │(Messy Model)│  │
+│  └─────────────┘     │ ┌─────────┐ │     └─────────────┘  │
+│                      │ │ Adapter │ │                      │
+│                      │ │ Facade  │ │                      │
+│                      │ │Translator││                      │
+│                      │ └─────────┘ │                      │
+│                      └─────────────┘                      │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+```
+
+**Components**:
+
+| Component | Purpose |
+|-----------|---------|
+| **Facade** | Simplifies complex legacy interfaces |
+| **Adapter** | Converts legacy data formats to new domain model |
+| **Translator** | Maps legacy terminology to ubiquitous language |
+
+**Implementation Checklist**:
+- [ ] Define clear interface for the ACL
+- [ ] Map legacy entities to new domain model
+- [ ] Handle data format conversions
+- [ ] Implement error translation
+- [ ] Add logging for debugging
+- [ ] Thoroughly test ACL isolation
+
+**Comparison with Strangler Fig**:
+
+| Aspect | Strangler Fig | Anti-Corruption Layer |
+|--------|---------------|----------------------|
+| **Goal** | Replace legacy system | Coexist with legacy system |
+| **Direction** | Migrate away from legacy | Integrate with legacy |
+| **End state** | Legacy decommissioned | Both systems continue |
+
 ### Branch by Abstraction
 
-**Use when**: Refactoring shared code without long-lived branches
+**Definition**: Refactoring shared code without long-lived branches by introducing an abstraction layer.
+
+**When to Use**:
+- Refactoring shared code without long-lived branches
+- Need trunk-based development
+- Changes are too risky for single commit
+
+**Steps**:
 
 ```
 Step 1: Introduce Abstraction
@@ -296,7 +335,14 @@ Step 3: Switch and Remove
 
 ### Parallel Change (Expand-Migrate-Contract)
 
-**Use when**: Changing interfaces used by multiple clients
+**Definition**: Changing interfaces used by multiple clients through a three-phase approach.
+
+**When to Use**:
+- Changing interfaces used by multiple clients
+- Database schema migration
+- Need zero-downtime migration
+
+**Phases**:
 
 ```
 Phase 1: EXPAND
@@ -313,6 +359,129 @@ Phase 3: CONTRACT
 ├─ Remove old field/method
 ├─ Clean up migration code
 └─ Update documentation
+```
+
+---
+
+## Safety Strategies for Legacy Code
+
+Based on Michael Feathers' "Working Effectively with Legacy Code".
+
+### The Legacy Code Dilemma
+
+**Definition**: Legacy code = code without tests (regardless of age)
+
+**The Dilemma**:
+- To change code safely, we need tests
+- To add tests, we often need to change code
+- Changing code without tests is risky
+
+**Solution**: Use safe techniques to add tests before making changes.
+
+### Characterization Tests
+
+**Definition**: Tests that capture existing behavior (not verify correctness).
+
+**Purpose**: Create a safety net before refactoring legacy code.
+
+**Process**:
+
+```
+1. Call the code you want to understand
+2. Write an assertion you expect to FAIL
+3. Run the test and see what actually happens
+4. Update the assertion to match actual behavior
+5. Repeat until you've covered the behavior you need to change
+```
+
+**Example**:
+
+```javascript
+// Step 1: Initial (expected to fail)
+test('calculateDiscount returns... something', () => {
+  const result = calculateDiscount(100, 'GOLD');
+  expect(result).toBe(0); // Guess - will probably fail
+});
+
+// Step 2: After running, update with actual value
+test('calculateDiscount returns 15 for GOLD customers', () => {
+  const result = calculateDiscount(100, 'GOLD');
+  expect(result).toBe(15); // Actual behavior
+});
+```
+
+**Key Principle**: Characterization tests document what the code *does*, not what it *should do*.
+
+### Scratch Refactoring
+
+**Definition**: Refactoring to understand code, without keeping the changes.
+
+**Purpose**: Explore and understand undocumented code through hands-on modification.
+
+**Workflow**:
+
+```
+1. Create a scratch branch (or use git stash)
+2. Aggressively refactor to understand the code
+3. Take notes on what you learn
+4. Discard all changes (git reset --hard)
+5. Apply learnings to write characterization tests
+```
+
+**When to Use**:
+- Code is too complex to understand by reading
+- No documentation exists
+- You need to build a mental model quickly
+
+**Key Principle**: The goal is understanding, not clean code. Discard everything when done.
+
+### Finding Seams
+
+**Definition**: A seam is a place where you can alter behavior without editing code.
+
+| Seam Type | How It Works | Example |
+|-----------|--------------|---------|
+| **Object Seam** | Override via polymorphism | Inject test double via interface |
+| **Preprocessing Seam** | Compile-time substitution | Conditional compilation, macros |
+| **Link Seam** | Replace at link time | Dependency injection, module replacement |
+
+**Purpose**: Inject test doubles without modifying legacy code.
+
+### Sprout and Wrap Techniques
+
+| Technique | When to Use | How |
+|-----------|-------------|-----|
+| **Sprout Method** | Adding new logic to existing method | Create new method, call from old |
+| **Sprout Class** | New logic needs to evolve independently | Create new class, reference from old |
+| **Wrap Method** | Need to add behavior before/after | Rename original, create wrapper |
+| **Wrap Class** | Decorate existing class | Decorator pattern |
+
+**Principle**: New code uses TDD; legacy code stays untouched until tested.
+
+### Code Archaeology
+
+Techniques for understanding undocumented code:
+
+```
+1. Scratch Refactoring (see above)
+   ├─ Refactor to understand, not to keep
+   ├─ Use git stash or branch
+   └─ Discard when done (git reset --hard)
+
+2. Trace Variable Flow
+   ├─ Follow data from input to output
+   ├─ Mark key transformation points
+   └─ Document as you discover
+
+3. Runtime Observation
+   ├─ Add temporary logging
+   ├─ Use debugger step-through
+   └─ Build mental model
+
+4. Git Archaeology
+   ├─ git log -p <file> (see all changes)
+   ├─ git blame (find original author)
+   └─ Search commit messages for context
 ```
 
 ---
@@ -591,6 +760,54 @@ For each debt item, record:
 
 ---
 
+## Decision Matrix Summary
+
+Quick reference for selecting the appropriate refactoring strategy:
+
+| Strategy | Scale | Risk | Key Use Case |
+|----------|-------|------|--------------|
+| **Preparatory Refactoring** | Small | Low | Reduce friction before feature work |
+| **Boy Scout Rule** | Very Small | Low | Continuous debt repayment |
+| **Red-Green-Refactor** | Small | Low | TDD development cycle |
+| **Strangler Fig** | Large | Medium | System replacement, architecture migration |
+| **Anti-Corruption Layer** | Medium | Low | New-legacy system coexistence |
+| **Branch by Abstraction** | Large | Medium | Long-term refactoring on trunk |
+| **Parallel Change** | Medium | Low | Interface/schema migration |
+| **Characterization Tests** | — | — | **Prerequisite for all legacy refactoring** |
+| **Scratch Refactoring** | Small | Low | Understanding black-box code |
+
+### Strategy Selection Guide
+
+```
+What's your situation?
+
+Feature development blocked by messy code?
+└─► Preparatory Refactoring
+
+Touching code during a bug fix?
+└─► Boy Scout Rule
+
+Writing new code with TDD?
+└─► Red-Green-Refactor
+
+Replacing an entire legacy system?
+└─► Strangler Fig Pattern
+
+Need to integrate with legacy without being polluted?
+└─► Anti-Corruption Layer
+
+Refactoring shared code without feature branches?
+└─► Branch by Abstraction
+
+Changing a widely-used interface?
+└─► Parallel Change (Expand-Migrate-Contract)
+
+Working with untested legacy code?
+└─► Characterization Tests + Scratch Refactoring FIRST
+```
+
+---
+
 ## Related Standards
 
 - [Test-Driven Development](test-driven-development.md) - TDD cycle including refactoring phase
@@ -607,11 +824,15 @@ For each debt item, record:
 - Martin Fowler - "Refactoring: Improving the Design of Existing Code" (2nd Edition, 2018)
 - Michael Feathers - "Working Effectively with Legacy Code" (2004)
 - Joshua Kerievsky - "Refactoring to Patterns" (2004)
+- Kent Beck - "Implementation Patterns" (2007)
+- Robert C. Martin - "Clean Code" (2008)
+- Eric Evans - "Domain-Driven Design" (2003)
 
 ### Articles
 
 - Martin Fowler - [Strangler Fig Application](https://martinfowler.com/bliki/StranglerFigApplication.html)
 - Martin Fowler - [Branch by Abstraction](https://martinfowler.com/bliki/BranchByAbstraction.html)
+- Martin Fowler - [Preparatory Refactoring](https://martinfowler.com/articles/preparatory-refactoring-example.html)
 - Pete Hodgson - [Feature Toggles](https://martinfowler.com/articles/feature-toggles.html)
 - Martin Fowler - [Technical Debt Quadrant](https://martinfowler.com/bliki/TechnicalDebtQuadrant.html)
 
@@ -627,6 +848,7 @@ For each debt item, record:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0.0 | 2026-01-21 | Major restructure: Added tactical strategies (Preparatory Refactoring, Boy Scout Rule), Anti-Corruption Layer, Decision Matrix Summary. Reorganized into Tactical/Strategic/Safety categories. |
 | 1.0.0 | 2026-01-12 | Initial refactoring standards definition |
 
 ---

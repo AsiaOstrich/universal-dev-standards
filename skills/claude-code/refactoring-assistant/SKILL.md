@@ -10,15 +10,15 @@ description: |
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/refactoring-assistant/SKILL.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-12
+**Version**: 2.0.0
+**Last Updated**: 2026-01-21
 **Applicability**: Claude Code Skills
 
 ---
 
 ## Purpose
 
-This skill provides decision frameworks for refactoring vs rewriting, large-scale refactoring patterns, and technical debt management.
+This skill provides decision frameworks for refactoring vs rewriting, large-scale refactoring patterns, and technical debt management. Strategies are organized into three tiers: Tactical (daily), Strategic (architectural), and Safety (legacy code).
 
 ---
 
@@ -51,68 +51,142 @@ rewrite_antipatterns:
   - "Ignoring lessons from existing system"
 quote: "The second system is the most dangerous system a person ever designs. — Fred Brooks"
 
-# === SCALE: Refactoring Strategies ===
-scales:
-  small:
-    duration: "5-15 min"
+# === TACTICAL: Daily Refactoring Strategies ===
+tactical:
+  preparatory_refactoring:
+    definition: "Restructure code to make upcoming change easier"
+    quote: "First make the change easy (this might be hard), then make the easy change. — Kent Beck"
+    when: [feature_blocked, reduce_friction, upcoming_changes]
+    workflow:
+      1: "Identify the change you want to make"
+      2: "Identify what makes this change difficult"
+      3: "Refactor to make the change easy"
+      4: "Make the (now easy) change"
+    principles:
+      - "Preparatory refactoring is separate commit from feature"
+      - "Each step maintains passing tests"
+      - "Don't combine refactoring with feature work"
+
+  boy_scout_rule:
+    definition: "Leave code cleaner than you found it (opportunistic refactoring)"
+    quote: "Leave the campground cleaner than you found it. — Robert C. Martin"
+    when: [any_maintenance, bug_fixes, feature_additions, fighting_entropy]
+    guidelines:
+      - "Only small improvements (minutes, not hours)"
+      - "Don't change behavior"
+      - "Don't break existing tests"
+      - "Keep scope within current task"
+    examples:
+      - "Rename confusingly-named variable"
+      - "Extract lines into well-named method"
+      - "Remove dead code"
+      - "Add clarifying comment"
+    antipatterns:
+      - "Turning bug fix into major refactoring"
+      - "Refactoring unrelated code"
+      - "Changes without test coverage"
+      - "Scope creep beyond original task"
+
+  red_green_refactor:
+    definition: "TDD refactoring phase"
+    duration: "5-15 min per cycle"
     scope: "single method/class"
     techniques: [extract_method, rename, inline_var, replace_magic_number]
-  medium:
-    duration: "hours-days"
-    scope: "one feature/module"
-    checklist: [define_scope, identify_entry_points, "coverage>80%", incremental_commits, communicate]
-  large:
-    duration: "weeks-months"
-    scope: "multiple modules/system"
-    patterns: [strangler_fig, branch_by_abstraction, parallel_change]
+    reference: "→ See TDD Standards"
 
-# === PATTERNS: Large-Scale Refactoring ===
-strangler_fig:
-  phases:
-    1_intercept: "Request → Facade → Legacy(100%)"
-    2_migrate: "Request → Facade → [New(FeatureA), Legacy(Rest)]"
-    3_complete: "Request → New(100%) [Legacy decommissioned]"
-  checklist: [identify_interception_point, create_event_capture, implement_first_feature, route_incrementally, monitor_compare, decommission]
+# === STRATEGIC: Architectural Refactoring ===
+strategic:
+  strangler_fig:
+    definition: "Gradually replace legacy by routing to new system"
+    origin: "Named after strangler fig trees"
+    phases:
+      1_intercept: "Request → Facade → Legacy(100%)"
+      2_migrate: "Request → Facade → [New(Feature), Legacy(Rest)]"
+      3_complete: "Request → New(100%) [Legacy decommissioned]"
+    checklist:
+      - "Identify interception point"
+      - "Create event capture layer"
+      - "Implement first feature in new"
+      - "Route traffic incrementally"
+      - "Monitor and compare"
+      - "Decommission legacy"
 
-branch_by_abstraction:
-  steps:
-    1: "Client → Abstraction(interface) → OldImpl"
-    2: "Client → Abstraction → [OldImpl, NewImpl(toggled)]"
-    3: "Client → NewImpl [OldImpl removed]"
-  principles: [all_changes_on_trunk, feature_toggles, coexist_during_transition]
+  anti_corruption_layer:
+    definition: "Translation layer preventing legacy model from polluting new system"
+    origin: "Eric Evans, Domain-Driven Design (2003)"
+    when:
+      - "New and legacy must coexist and interact"
+      - "Legacy has chaotic domain model"
+      - "Protecting new system's Bounded Context"
+    components:
+      facade: "Simplifies complex legacy interfaces"
+      adapter: "Converts legacy data to new domain model"
+      translator: "Maps legacy terminology to ubiquitous language"
+    checklist:
+      - "Define clear ACL interface"
+      - "Map legacy entities to new model"
+      - "Handle data format conversions"
+      - "Implement error translation"
+      - "Add logging for debugging"
+      - "Test ACL isolation thoroughly"
+    vs_strangler:
+      strangler: "Goal is to replace legacy"
+      acl: "Goal is to coexist with legacy"
 
-expand_migrate_contract:
-  phases:
-    expand: "Add new alongside old, new code uses new, old still works"
-    migrate: "Update all clients to new, verify, data migration"
-    contract: "Remove old, clean up, update docs"
+  branch_by_abstraction:
+    steps:
+      1: "Client → Abstraction(interface) → OldImpl"
+      2: "Client → Abstraction → [OldImpl, NewImpl(toggled)]"
+      3: "Client → NewImpl [OldImpl removed]"
+    principles: [all_changes_on_trunk, feature_toggles, coexist_during_transition]
 
-# === LEGACY CODE: Strategies ===
-legacy:
-  definition: "Code without tests (regardless of age)"
-  dilemma: "Need tests to change safely → Need to change to add tests"
-  solution: "Safe techniques to add tests first"
+  parallel_change:
+    aka: "Expand-Migrate-Contract"
+    phases:
+      expand: "Add new alongside old, new code uses new, old still works"
+      migrate: "Update all clients to new, verify, data migration"
+      contract: "Remove old, clean up, update docs"
 
-characterization_tests:
-  purpose: "Capture existing behavior (not verify correctness)"
-  process:
-    1: "Call code to understand"
-    2: "Write assertion expected to FAIL"
-    3: "Run, see actual result"
-    4: "Update assertion to match actual"
-    5: "Repeat until behavior covered"
+# === SAFETY: Legacy Code Strategies ===
+safety:
+  legacy:
+    definition: "Code without tests (regardless of age)"
+    dilemma: "Need tests to change safely → Need to change to add tests"
+    solution: "Safe techniques to add tests first"
 
-seams:
-  object: "Override via polymorphism (inject test double)"
-  preprocessing: "Compile-time substitution (macros)"
-  link: "Replace at link time (DI, module replacement)"
+  characterization_tests:
+    purpose: "Capture existing behavior (not verify correctness)"
+    process:
+      1: "Call code to understand"
+      2: "Write assertion expected to FAIL"
+      3: "Run, see actual result"
+      4: "Update assertion to match actual"
+      5: "Repeat until behavior covered"
+    principle: "Document what code DOES, not what it SHOULD do"
 
-sprout_wrap:
-  sprout_method: "New logic → create new method, call from old"
-  sprout_class: "New logic evolves independently → new class"
-  wrap_method: "Add before/after → rename original, create wrapper"
-  wrap_class: "Decorate existing → decorator pattern"
-principle: "New code uses TDD; legacy untouched until tested"
+  scratch_refactoring:
+    definition: "Refactor to understand, discard all changes"
+    workflow:
+      1: "Create scratch branch (or git stash)"
+      2: "Aggressively refactor to understand"
+      3: "Take notes on learnings"
+      4: "Discard changes (git reset --hard)"
+      5: "Apply learnings to write characterization tests"
+    when: [code_too_complex, no_docs, need_mental_model_fast]
+    principle: "Goal is understanding, not clean code"
+
+  seams:
+    definition: "Place to alter behavior without editing code"
+    object: "Override via polymorphism (inject test double)"
+    preprocessing: "Compile-time substitution (macros)"
+    link: "Replace at link time (DI, module replacement)"
+
+  sprout_wrap:
+    sprout_method: "New logic → create new method, call from old"
+    sprout_class: "New logic evolves independently → new class"
+    wrap_method: "Add before/after → rename original, create wrapper"
+    wrap_class: "Decorate existing → decorator pattern"
+    principle: "New code uses TDD; legacy untouched until tested"
 
 # === DATABASE: Refactoring ===
 db_expand_contract:
@@ -159,6 +233,29 @@ priority:
 
 tracking:
   fields: [description, impact, estimated_effort, risk_if_ignored, related_code]
+
+# === DECISION MATRIX SUMMARY ===
+decision_matrix:
+  - {strategy: "Preparatory Refactoring", scale: "Small", risk: "Low", use: "Reduce friction before feature work"}
+  - {strategy: "Boy Scout Rule", scale: "Very Small", risk: "Low", use: "Continuous debt repayment"}
+  - {strategy: "Red-Green-Refactor", scale: "Small", risk: "Low", use: "TDD development cycle"}
+  - {strategy: "Strangler Fig", scale: "Large", risk: "Medium", use: "System replacement"}
+  - {strategy: "Anti-Corruption Layer", scale: "Medium", risk: "Low", use: "New-legacy coexistence"}
+  - {strategy: "Branch by Abstraction", scale: "Large", risk: "Medium", use: "Trunk refactoring"}
+  - {strategy: "Parallel Change", scale: "Medium", risk: "Low", use: "Interface/schema migration"}
+  - {strategy: "Characterization Tests", scale: "—", risk: "—", use: "Prerequisite for legacy refactoring"}
+  - {strategy: "Scratch Refactoring", scale: "Small", risk: "Low", use: "Understanding black-box code"}
+
+# === STRATEGY SELECTION ===
+selection_guide:
+  feature_blocked_by_messy_code: "Preparatory Refactoring"
+  touching_code_during_bug_fix: "Boy Scout Rule"
+  writing_new_code_with_tdd: "Red-Green-Refactor"
+  replacing_entire_legacy_system: "Strangler Fig"
+  integrating_without_pollution: "Anti-Corruption Layer"
+  refactoring_shared_code_on_trunk: "Branch by Abstraction"
+  changing_widely_used_interface: "Parallel Change"
+  working_with_untested_legacy: "Characterization Tests + Scratch Refactoring FIRST"
 ```
 
 ---
@@ -194,6 +291,7 @@ For complete standards, see:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0.0 | 2026-01-21 | Added tactical strategies (Preparatory Refactoring, Boy Scout Rule), Anti-Corruption Layer, Decision Matrix Summary. Reorganized into Tactical/Strategic/Safety tiers. |
 | 1.0.0 | 2026-01-12 | Initial release |
 
 ---

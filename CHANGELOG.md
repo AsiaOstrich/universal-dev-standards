@@ -9,6 +9,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [4.1.0] - 2026-01-21
+
+### Added
+- **Refactoring Standards v2.0**: Enhanced with industry best practices
+  - Tactical strategies: Preparatory Refactoring (Kent Beck), Boy Scout Rule (Robert C. Martin)
+  - Strategic strategies: Anti-Corruption Layer (Eric Evans/DDD)
+  - Decision Matrix Summary for quick strategy selection
+- **New `/refactor` command**: Interactive refactoring assistant with decision tree
+  - `/refactor decide` - Run refactor vs. rewrite decision tree
+  - `/refactor tactical` - Suggest daily refactoring strategies
+  - `/refactor strategic` - Guide architectural refactoring
+  - `/refactor legacy` - Legacy code safety strategies
+- **AI Tool Integrations**: Refactoring guidance for non-Claude Code tools
+  - GitHub Copilot Chat prompt templates
+  - Cursor/Windsurf rules sections
+  - Gemini CLI guidelines
+
+### Changed
+- **Refactoring Standards**: Reorganized into three-tier classification
+  - Tactical (daily, minutes-scale operations)
+  - Strategic (architectural, weeks-months scale)
+  - Safety (legacy code protection)
+- **Registry**: `refactoring-standards` upgraded from "reference" to "skill" category with `refactoring-assistant` skill mapping
+
+### Documentation
+- Updated zh-TW translations for refactoring standards (v2.0.0)
+- Updated zh-CN translations for refactoring standards (v2.0.0)
+- New command translations: `/refactor` in zh-TW and zh-CN
+- Updated AI-optimized YAML format for refactoring standards
+
+---
+
 ## [4.0.0] - 2026-01-20
 
 ### Highlights

@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/gemini-cli/GEMINI.md) | [简体中文](../../locales/zh-CN/integrations/gemini-cli/GEMINI.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-09
+**Version**: 1.1.0
+**Last Updated**: 2026-01-21
 
 This project follows the Universal Doc Standards to ensure high-quality, hallucination-free code and documentation.
 
@@ -86,10 +86,42 @@ Before finishing, verify work against `core/checkin-standards.md`:
 
 ---
 
+## Refactoring Guidelines
+
+Reference: `core/refactoring-standards.md`
+
+### Three-Tier Strategy
+
+| Tier | Strategies | Timescale |
+|------|------------|-----------|
+| **Tactical** | Boy Scout Rule, Preparatory Refactoring, Red-Green-Refactor | Minutes |
+| **Strategic** | Strangler Fig, Anti-Corruption Layer, Branch by Abstraction | Weeks-Months |
+| **Safety** | Characterization Tests, Scratch Refactoring, Find Seams | Prerequisite |
+
+### Decision Tree
+
+1. In production? No → Consider rewrite
+2. Understood? No → Characterization tests first
+3. Coverage >60%? No → Add tests first
+4. Architecture salvageable? No → Strangler Fig; Yes → Incremental refactoring
+
+### Quick Reference
+
+| Situation | Strategy |
+|-----------|----------|
+| Feature blocked by messy code | **Preparatory Refactoring** |
+| Bug fix opportunity | **Boy Scout Rule** |
+| Replacing legacy system | **Strangler Fig** |
+| Coexisting with legacy | **Anti-Corruption Layer** |
+| Untested legacy code | **Characterization Tests FIRST** |
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-21 | Added Refactoring Guidelines section |
 | 1.0.0 | 2026-01-09 | Initial Gemini CLI context file |
 
 ---

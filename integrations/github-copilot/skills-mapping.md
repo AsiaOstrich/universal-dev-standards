@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/github-copilot/skills-mapping.md) | [简体中文](../../locales/zh-CN/integrations/github-copilot/skills-mapping.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-13
+**Version**: 1.1.0
+**Last Updated**: 2026-01-21
 
 This document maps Claude Code skills to their GitHub Copilot equivalents and workarounds.
 
@@ -33,7 +33,7 @@ Claude Code provides 18 skills with 16 slash commands. GitHub Copilot doesn't su
 | **git-workflow-guide** | Chat prompt only | ⚠️ Partial |
 | **documentation-guide** | Chat prompt only | ⚠️ Partial |
 | **methodology-system** | Not available | ❌ None |
-| **refactoring-assistant** | Chat prompt only | ⚠️ Partial |
+| **refactoring-assistant** | COPILOT-CHAT-REFERENCE.md §9 | ✅ Full |
 | **error-code-guide** | Chat prompt only | ⚠️ Partial |
 | **project-structure-guide** | Chat prompt only | ⚠️ Partial |
 | **logging-guide** | Chat prompt only | ⚠️ Partial |
@@ -62,6 +62,9 @@ Claude Code provides 18 skills with 16 slash commands. GitHub Copilot doesn't su
 | `/changelog` | "Generate CHANGELOG entry in Keep a Changelog format" |
 | `/docs` | "Write documentation for this function/module" |
 | `/spec` | "Create spec document for this feature" |
+| `/refactor` | "Help me decide whether to refactor or rewrite..." |
+| `/refactor tactical` | "Suggest tactical refactoring improvements..." |
+| `/refactor legacy` | "Help me safely refactor this legacy code..." |
 | `/methodology` | ❌ Not available |
 | `/bdd` | "Help me write BDD scenarios in Gherkin format" |
 | `/config` | "Suggest project structure for this type of application" |
@@ -180,6 +183,7 @@ For teams using both Claude Code and Copilot:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-21 | Updated refactoring-assistant to Full status, added /refactor command mappings |
 | 1.0.0 | 2026-01-13 | Initial release |
 
 ---
