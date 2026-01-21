@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/agents/README.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-20
+**Version**: 1.1.0
+**Last Updated**: 2026-01-21
 **Status**: Stable
 
 ---
@@ -55,6 +55,14 @@ skills:
 model: claude-sonnet-4-20250514  # Preferred model
 temperature: 0.3              # Response creativity (0.0-1.0)
 
+# === CONTEXT STRATEGY (RLM-inspired) ===
+# Configuration for handling large codebases and long contexts
+context-strategy:
+  mode: adaptive              # full | chunked | adaptive
+  max-chunk-size: 50000       # Maximum tokens per chunk
+  overlap: 500                # Token overlap between chunks
+  analysis-pattern: hierarchical  # hierarchical | parallel | sequential
+
 # === TRIGGER CONDITIONS ===
 triggers:
   keywords:                   # Auto-activate on these keywords
@@ -93,6 +101,49 @@ allowed-tools:
 allowed-tools:
   - Write(*.md)     # Only markdown files
   - Edit(src/**)    # Only src directory
+```
+
+### Context Strategy Configuration (RLM-inspired)
+
+The `context-strategy` section enables intelligent handling of large codebases and long contexts using RLM (Recursive Language Model) principles.
+
+#### Mode Options
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| `full` | Load complete context at once | Small projects, documentation tasks |
+| `chunked` | Divide context into fixed-size chunks | Sequential code review, large file analysis |
+| `adaptive` | Dynamically adjust based on content structure | Complex analysis, architecture exploration |
+
+#### Analysis Patterns
+
+| Pattern | Description | Best For |
+|---------|-------------|----------|
+| `hierarchical` | Analyze high-level structure first, then drill down | Architecture analysis, system design |
+| `parallel` | Process multiple sections simultaneously | Independent module analysis, spec review |
+| `sequential` | Process sections in order, preserving context | Code review, step-by-step analysis |
+
+#### Configuration Examples
+
+```yaml
+# For architecture analysis (need overview first)
+context-strategy:
+  mode: adaptive
+  max-chunk-size: 50000
+  overlap: 500
+  analysis-pattern: hierarchical
+
+# For code review (sequential processing)
+context-strategy:
+  mode: chunked
+  max-chunk-size: 30000
+  overlap: 200
+  analysis-pattern: sequential
+
+# For documentation (need full context)
+context-strategy:
+  mode: full
+  analysis-pattern: hierarchical
 ```
 
 ### Cross-Tool Execution Modes
@@ -242,6 +293,7 @@ See [workflows/README.md](../workflows/README.md) for workflow documentation.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-21 | Added RLM-inspired context-strategy configuration |
 | 1.0.0 | 2026-01-20 | Initial release |
 
 ---

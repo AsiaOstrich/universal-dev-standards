@@ -4,7 +4,9 @@
  * Provides installation and management of workflow definitions
  * across all supported AI coding assistants.
  *
- * @version 1.0.0
+ * v1.1.0 - Added RLM context strategy support and parallel-agents step type
+ *
+ * @version 1.1.0
  */
 
 import { mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, statSync } from 'fs';
@@ -89,6 +91,197 @@ export function parseWorkflow(content) {
   } catch {
     return {};
   }
+}
+
+/**
+ * Valid step types for workflow validation
+ */
+const VALID_STEP_TYPES = ['agent', 'manual', 'conditional', 'parallel-agents'];
+
+/**
+ * Valid context modes for RLM-aware steps
+ */
+const VALID_CONTEXT_MODES = ['minimal', 'focused', 'full'];
+
+/**
+ * Valid merge strategies for parallel-agents steps
+ */
+const VALID_MERGE_STRATEGIES = ['aggregate', 'sequential', 'summary'];
+
+/**
+ * Valid context inheritance modes
+ */
+const VALID_CONTEXT_INHERITANCE = ['full', 'selective', 'summary'];
+
+/**
+ * Validate a workflow definition
+ * @param {Object} workflow - Parsed workflow object
+ * @returns {Object} Validation result { valid: boolean, errors: string[], warnings: string[] }
+ */
+export function validateWorkflow(workflow) {
+  const errors = [];
+  const warnings = [];
+
+  // Required fields
+  if (!workflow.name) {
+    errors.push('Missing required field: name');
+  }
+  if (!workflow.version) {
+    errors.push('Missing required field: version');
+  }
+  if (!workflow.steps || !Array.isArray(workflow.steps)) {
+    errors.push('Missing or invalid field: steps (must be an array)');
+  }
+
+  // Validate steps
+  if (workflow.steps && Array.isArray(workflow.steps)) {
+    workflow.steps.forEach((step, index) => {
+      const stepId = step.id || `step[${index}]`;
+
+      // Required step fields
+      if (!step.id) {
+        warnings.push(`Step ${index}: missing 'id' field`);
+      }
+      if (!step.type) {
+        errors.push(`Step ${stepId}: missing required 'type' field`);
+      } else if (!VALID_STEP_TYPES.includes(step.type)) {
+        errors.push(`Step ${stepId}: invalid type '${step.type}'. Valid types: ${VALID_STEP_TYPES.join(', ')}`);
+      }
+
+      // Type-specific validation
+      if (step.type === 'agent' || step.type === 'parallel-agents') {
+        if (!step.agent) {
+          errors.push(`Step ${stepId}: type '${step.type}' requires 'agent' field`);
+        }
+      }
+
+      // Parallel-agents specific validation
+      if (step.type === 'parallel-agents') {
+        if (!step.foreach) {
+          errors.push(`Step ${stepId}: parallel-agents requires 'foreach' field`);
+        }
+        if (step['context-mode'] && !VALID_CONTEXT_MODES.includes(step['context-mode'])) {
+          errors.push(`Step ${stepId}: invalid context-mode '${step['context-mode']}'. Valid modes: ${VALID_CONTEXT_MODES.join(', ')}`);
+        }
+        if (step['merge-strategy'] && !VALID_MERGE_STRATEGIES.includes(step['merge-strategy'])) {
+          errors.push(`Step ${stepId}: invalid merge-strategy '${step['merge-strategy']}'. Valid strategies: ${VALID_MERGE_STRATEGIES.join(', ')}`);
+        }
+      }
+
+      // Context mode validation for any step
+      if (step['context-mode'] && !VALID_CONTEXT_MODES.includes(step['context-mode'])) {
+        errors.push(`Step ${stepId}: invalid context-mode '${step['context-mode']}'`);
+      }
+    });
+  }
+
+  // Validate context-strategy if present
+  if (workflow['context-strategy']) {
+    const cs = workflow['context-strategy'];
+    if (cs['context-inheritance'] && !VALID_CONTEXT_INHERITANCE.includes(cs['context-inheritance'])) {
+      errors.push(`context-strategy: invalid context-inheritance '${cs['context-inheritance']}'. Valid modes: ${VALID_CONTEXT_INHERITANCE.join(', ')}`);
+    }
+    if (cs['max-context-per-step'] && typeof cs['max-context-per-step'] !== 'number') {
+      warnings.push('context-strategy: max-context-per-step should be a number');
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings
+  };
+}
+
+/**
+ * Extract RLM features used in a workflow
+ * @param {Object} workflow - Parsed workflow object
+ * @returns {Object} Features used { hasRlm, hasParallelAgents, contextModes, mergeStrategies }
+ */
+export function getWorkflowFeatures(workflow) {
+  const features = {
+    hasRlm: false,
+    hasParallelAgents: false,
+    contextModes: new Set(),
+    mergeStrategies: new Set(),
+    stepTypes: new Set(),
+    agents: new Set()
+  };
+
+  // Check context-strategy
+  if (workflow['context-strategy']) {
+    features.hasRlm = workflow['context-strategy']['enable-rlm'] === true;
+  }
+
+  // Analyze steps
+  if (workflow.steps && Array.isArray(workflow.steps)) {
+    for (const step of workflow.steps) {
+      if (step.type) {
+        features.stepTypes.add(step.type);
+      }
+
+      if (step.type === 'parallel-agents') {
+        features.hasParallelAgents = true;
+      }
+
+      if (step['context-mode']) {
+        features.contextModes.add(step['context-mode']);
+      }
+
+      if (step['merge-strategy']) {
+        features.mergeStrategies.add(step['merge-strategy']);
+      }
+
+      if (step.agent) {
+        features.agents.add(step.agent);
+      }
+    }
+  }
+
+  // Convert Sets to Arrays for easier consumption
+  return {
+    hasRlm: features.hasRlm,
+    hasParallelAgents: features.hasParallelAgents,
+    contextModes: Array.from(features.contextModes),
+    mergeStrategies: Array.from(features.mergeStrategies),
+    stepTypes: Array.from(features.stepTypes),
+    agents: Array.from(features.agents)
+  };
+}
+
+/**
+ * Get workflow summary for display
+ * @param {string} workflowName - Workflow name
+ * @returns {Object|null} Workflow summary or null if not found
+ */
+export function getWorkflowSummary(workflowName) {
+  const content = getWorkflowContent(workflowName);
+  if (!content) {
+    return null;
+  }
+
+  const workflow = parseWorkflow(content);
+  if (!workflow.name) {
+    return null;
+  }
+
+  const features = getWorkflowFeatures(workflow);
+  const validation = validateWorkflow(workflow);
+
+  return {
+    name: workflow.name,
+    version: workflow.version || '0.0.0',
+    description: workflow.description || '',
+    stepCount: workflow.steps?.length || 0,
+    category: workflow.metadata?.category || 'general',
+    difficulty: workflow.metadata?.difficulty || 'unknown',
+    features,
+    validation: {
+      valid: validation.valid,
+      errorCount: validation.errors.length,
+      warningCount: validation.warnings.length
+    }
+  };
 }
 
 /**
@@ -342,5 +535,8 @@ export default {
   installWorkflowsToMultipleTools,
   getAvailableWorkflowNames,
   getWorkflowContent,
-  parseWorkflow
+  parseWorkflow,
+  validateWorkflow,
+  getWorkflowFeatures,
+  getWorkflowSummary
 };

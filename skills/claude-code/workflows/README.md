@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/workflows/README.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-20
+**Version**: 1.1.0
+**Last Updated**: 2026-01-21
 **Status**: Experimental
 
 ---
@@ -74,6 +74,51 @@ outputs:
     format: markdown
 ```
 
+### RLM Context Configuration (v1.1.0)
+
+Workflows can include RLM-inspired context handling for large codebases:
+
+```yaml
+# === RLM CONTEXT CONFIGURATION ===
+context-strategy:
+  enable-rlm: true                    # Enable RLM-aware processing
+  max-context-per-step: 100000        # Maximum tokens per step
+  context-inheritance: selective      # full | selective | summary
+
+steps:
+  - id: parallel-analysis
+    type: parallel-agents             # NEW: Execute agent on multiple inputs
+    agent: code-architect
+    foreach: ${modules}               # Dynamic iteration variable
+    context-mode: focused             # minimal | focused | full
+    merge-strategy: aggregate         # aggregate | sequential | summary
+    outputs: [analysis_results]
+```
+
+#### Context Inheritance Modes
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| `full` | Pass all previous outputs to next step | Sequential analysis |
+| `selective` | Pass only specified outputs | Memory-efficient pipelines |
+| `summary` | Pass summarized version of outputs | Large-scale processing |
+
+#### Context Modes for Steps
+
+| Mode | Description | Token Usage |
+|------|-------------|-------------|
+| `minimal` | Only essential context | Low |
+| `focused` | Context relevant to current item | Medium |
+| `full` | Complete available context | High |
+
+#### Merge Strategies for Parallel Results
+
+| Strategy | Description | Output Format |
+|----------|-------------|---------------|
+| `aggregate` | Combine all results into array | Array of results |
+| `sequential` | Maintain processing order | Ordered list |
+| `summary` | AI-generated summary of all results | Single summary |
+
 ### Step Types
 
 | Type | Description | Execution |
@@ -81,6 +126,25 @@ outputs:
 | `agent` | Executed by a UDS agent | Automatic |
 | `manual` | Requires human intervention | Interactive |
 | `conditional` | Branching based on conditions | Depends on condition |
+| `parallel-agents` | Execute agent on multiple inputs concurrently | Parallel (v1.1.0) |
+
+#### Parallel-Agents Step Configuration (v1.1.0)
+
+```yaml
+- id: parallel-module-analysis
+  name: Analyze Modules in Parallel
+  type: parallel-agents
+  agent: code-architect
+  foreach: ${modules}           # Variable containing items to iterate
+  context-mode: focused         # minimal | focused | full
+  merge-strategy: aggregate     # How to combine results
+  max-concurrent: 3             # Optional: limit concurrent executions
+  timeout: 300                  # Optional: timeout per item (seconds)
+  inputs:                       # Optional: additional inputs
+    - project_context
+  outputs:
+    - module_analysis_results
+```
 
 ## Built-in Workflows
 
@@ -89,6 +153,7 @@ outputs:
 | [integrated-flow](./integrated-flow.workflow.yaml) | 8 | Complete ATDD → SDD → BDD → TDD cycle |
 | [feature-dev](./feature-dev.workflow.yaml) | 6 | Feature development workflow |
 | [code-review](./code-review.workflow.yaml) | 4 | Comprehensive code review workflow |
+| [large-codebase-analysis](./large-codebase-analysis.workflow.yaml) | 4 | RLM-enhanced workflow for analyzing 50+ file projects |
 
 ## Usage
 
@@ -226,6 +291,7 @@ steps:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-21 | Added RLM context configuration, parallel-agents step type, large-codebase-analysis workflow |
 | 1.0.0 | 2026-01-20 | Initial release |
 
 ---

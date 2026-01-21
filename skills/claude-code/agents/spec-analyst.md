@@ -1,6 +1,6 @@
 ---
 name: spec-analyst
-version: 1.0.0
+version: 1.1.0
 description: |
   Specification analysis specialist for requirement extraction and spec generation.
   Use when: analyzing requirements, extracting specs from code, creating specifications, requirement clarification.
@@ -30,6 +30,14 @@ skills:
 
 model: claude-sonnet-4-20250514
 temperature: 0.3
+
+# === CONTEXT STRATEGY (RLM-inspired) ===
+# Requirement documents can be analyzed in parallel sections
+context-strategy:
+  mode: adaptive
+  max-chunk-size: 50000
+  overlap: 500
+  analysis-pattern: parallel
 
 triggers:
   keywords:
@@ -354,6 +362,7 @@ The system validates cart contents before checkout:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-21 | Added RLM-inspired context-strategy configuration |
 | 1.0.0 | 2026-01-20 | Initial release |
 
 ---

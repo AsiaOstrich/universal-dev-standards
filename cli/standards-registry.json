@@ -511,6 +511,19 @@
       "description": "Guidelines for AI collaboration to prevent hallucination and ensure evidence-based responses"
     },
     {
+      "id": "ai-friendly-architecture",
+      "name": "AI-Friendly Architecture",
+      "nameZh": "AI 友善架構",
+      "source": {
+        "human": "core/ai-friendly-architecture.md",
+        "ai": "ai/standards/ai-friendly-architecture.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": "ai-collaboration-standards",
+      "level": 2,
+      "description": "Standards for designing project architecture that maximizes AI collaboration effectiveness"
+    },
+    {
       "id": "commit-message",
       "name": "Commit Message Guide",
       "nameZh": "提交訊息指南",

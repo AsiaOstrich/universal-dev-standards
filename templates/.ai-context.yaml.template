@@ -1,0 +1,194 @@
+# ============================================================
+# .ai-context.yaml - AI Context Configuration Template
+# ============================================================
+#
+# This file helps AI assistants understand your project structure
+# and optimize their analysis and code generation.
+#
+# Usage:
+# 1. Copy this file to your project root as `.ai-context.yaml`
+# 2. Customize the values for your project
+# 3. AI tools will use this for better context management
+#
+# Reference: core/ai-friendly-architecture.md
+# ============================================================
+
+version: 1.0.0
+
+# ============================================================
+# PROJECT INFORMATION
+# ============================================================
+project:
+  # Project name (should match package.json or pyproject.toml)
+  name: my-project
+
+  # Project type affects analysis strategy
+  # Options: web-app | library | cli | api | monorepo | mobile
+  type: web-app
+
+  # Primary programming language
+  # Options: typescript | javascript | python | go | rust | java | other
+  primary-language: typescript
+
+  # Brief description for AI context
+  description: |
+    A brief description of what this project does.
+    Include key features and architectural decisions.
+
+# ============================================================
+# MODULE DEFINITIONS
+# ============================================================
+# Define logical modules in your codebase for structured analysis.
+# AI will use these boundaries to chunk large codebases efficiently.
+
+modules:
+  # Example: Authentication module
+  - name: auth
+    path: src/auth/
+    entry: index.ts
+    description: User authentication and session management
+    dependencies:
+      - database
+      - crypto
+    # Priority affects analysis order (high | medium | low)
+    priority: high
+
+  # Example: API module
+  - name: api
+    path: src/api/
+    entry: routes.ts
+    description: REST API endpoints and handlers
+    dependencies:
+      - auth
+      - database
+    priority: high
+
+  # Example: Database module
+  - name: database
+    path: src/db/
+    entry: index.ts
+    description: Database connection and models
+    dependencies: []
+    priority: high
+
+  # Example: Utilities module
+  - name: utils
+    path: src/utils/
+    entry: index.ts
+    description: Shared utility functions
+    dependencies: []
+    priority: low
+
+# ============================================================
+# ANALYSIS HINTS
+# ============================================================
+# Guide AI tools on how to analyze this project
+
+analysis-hints:
+  # Main entry points - AI starts analysis here
+  entry-points:
+    - src/main.ts
+    - src/index.ts
+
+  # Patterns to ignore during analysis
+  ignore-patterns:
+    - node_modules
+    - dist
+    - build
+    - coverage
+    - "*.test.ts"
+    - "*.spec.ts"
+    - __pycache__
+    - .venv
+
+  # Architecture type affects analysis approach
+  # Options: layered | microservices | modular | monolith | event-driven
+  architecture-type: layered
+
+  # Key configuration files to understand project setup
+  config-files:
+    - package.json
+    - tsconfig.json
+    - .env.example
+
+# ============================================================
+# DOCUMENTATION REFERENCES
+# ============================================================
+# Point AI to different documentation layers
+
+documentation:
+  # Level 1: Quick reference (< 500 tokens)
+  quick-ref: docs/QUICK-REF.md
+
+  # Level 2: Detailed architecture (< 5000 tokens)
+  detailed: docs/ARCHITECTURE.md
+
+  # Level 3: Full examples
+  examples: docs/examples/
+
+  # API documentation
+  api-docs: docs/api/
+
+  # Changelog for understanding recent changes
+  changelog: CHANGELOG.md
+
+# ============================================================
+# RLM CONTEXT STRATEGY
+# ============================================================
+# Configuration for handling large codebases with AI
+
+context-strategy:
+  # Maximum tokens per analysis chunk
+  max-chunk-size: 50000
+
+  # Token overlap between chunks for context continuity
+  overlap: 500
+
+  # Analysis pattern
+  # Options: hierarchical | parallel | sequential
+  analysis-pattern: hierarchical
+
+  # Enable RLM-aware processing
+  enable-rlm: true
+
+# ============================================================
+# CUSTOM ANNOTATIONS
+# ============================================================
+# Define project-specific code annotation patterns
+
+annotations:
+  # Security-related code markers
+  security:
+    - "@ai-security"
+    - "@security-critical"
+
+  # Performance-critical code markers
+  performance:
+    - "@ai-performance"
+    - "@perf-critical"
+
+  # Complexity hints
+  complexity:
+    - "@ai-complexity"
+
+# ============================================================
+# TEAM CONVENTIONS
+# ============================================================
+# Help AI understand your team's conventions
+
+conventions:
+  # Naming conventions
+  naming:
+    files: kebab-case        # kebab-case | camelCase | snake_case | PascalCase
+    functions: camelCase
+    classes: PascalCase
+    constants: UPPER_SNAKE
+
+  # Code style
+  style:
+    indent: 2
+    quotes: single
+    semicolons: true
+
+  # Commit message format
+  commits: conventional      # conventional | angular | custom

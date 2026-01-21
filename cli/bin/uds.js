@@ -10,6 +10,7 @@ import { configureCommand } from '../src/commands/configure.js';
 import { skillsCommand } from '../src/commands/skills.js';
 import { agentListCommand, agentInstallCommand, agentInfoCommand } from '../src/commands/agent.js';
 import { workflowListCommand, workflowInstallCommand, workflowInfoCommand } from '../src/commands/workflow.js';
+import { aiContextInitCommand, aiContextValidateCommand, aiContextGraphCommand } from '../src/commands/ai-context.js';
 import { setLanguage, setLanguageExplicit, detectLanguage } from '../src/i18n/messages.js';
 
 const require = createRequire(import.meta.url);
@@ -147,5 +148,29 @@ workflowCommand
   .command('info <workflow-name>')
   .description('Show detailed information about a workflow')
   .action(workflowInfoCommand);
+
+// AI Context command with subcommands
+const aiContextCommand = program
+  .command('ai-context')
+  .description('Manage .ai-context.yaml configuration for AI-friendly architecture');
+
+aiContextCommand
+  .command('init')
+  .description('Generate .ai-context.yaml configuration file')
+  .option('-f, --force', 'Overwrite existing configuration')
+  .option('-y, --yes', 'Use defaults, skip interactive prompts')
+  .action(aiContextInitCommand);
+
+aiContextCommand
+  .command('validate')
+  .description('Validate .ai-context.yaml configuration')
+  .option('-v, --verbose', 'Show full configuration')
+  .action(aiContextValidateCommand);
+
+aiContextCommand
+  .command('graph')
+  .description('Show module dependency graph')
+  .option('-m, --mermaid', 'Output Mermaid diagram format')
+  .action(aiContextGraphCommand);
 
 program.parse();

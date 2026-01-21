@@ -1,6 +1,6 @@
 ---
 name: code-architect
-version: 1.0.0
+version: 1.1.0
 description: |
   Software architecture specialist for system design and technical planning.
   Use when: designing systems, planning architecture, evaluating patterns, creating technical proposals.
@@ -32,6 +32,14 @@ skills:
 
 model: claude-sonnet-4-20250514
 temperature: 0.3
+
+# === CONTEXT STRATEGY (RLM-inspired) ===
+# Architecture analysis requires understanding overall structure before drilling into details
+context-strategy:
+  mode: adaptive
+  max-chunk-size: 50000
+  overlap: 500
+  analysis-pattern: hierarchical
 
 triggers:
   keywords:
@@ -239,6 +247,7 @@ Based on my analysis, I recommend:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-21 | Added RLM-inspired context-strategy configuration |
 | 1.0.0 | 2026-01-20 | Initial release |
 
 ---

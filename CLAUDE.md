@@ -6,7 +6,7 @@ This document defines the development standards for the Universal Development St
 
 Universal Development Standards is a language-agnostic, framework-agnostic documentation standards framework. It provides:
 
-- **Core Standards** (`core/`): 22 fundamental development standards
+- **Core Standards** (`core/`): 23 fundamental development standards
 - **AI Skills** (`skills/`): Claude Code skills for AI-assisted development
 - **CLI Tool** (`cli/`): Node.js CLI for adopting standards
 - **Integrations** (`integrations/`): Configurations for various AI tools
@@ -350,9 +350,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 | New feature design | Spec-Driven Development | [core/spec-driven-development.md](core/spec-driven-development.md) |
 | Writing AI instructions | AI Instruction Standards | [core/ai-instruction-standards.md](core/ai-instruction-standards.md) |
 | Writing documentation | Documentation Writing | [core/documentation-writing-standards.md](core/documentation-writing-standards.md) |
-| New feature design | Spec-Driven Development | [core/spec-driven-development.md](core/spec-driven-development.md) |
-| Writing AI instructions | AI Instruction Standards | [core/ai-instruction-standards.md](core/ai-instruction-standards.md) |
-| Writing documentation | Documentation Writing | [core/documentation-writing-standards.md](core/documentation-writing-standards.md) |
+| Project architecture for AI | AI-Friendly Architecture | [core/ai-friendly-architecture.md](core/ai-friendly-architecture.md) |
 
 ---
 

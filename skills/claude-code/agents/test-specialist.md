@@ -1,6 +1,6 @@
 ---
 name: test-specialist
-version: 1.0.0
+version: 1.1.0
 description: |
   Testing strategy specialist for test design, coverage analysis, and quality assurance.
   Use when: designing tests, analyzing coverage, implementing TDD/BDD, writing test plans.
@@ -32,6 +32,14 @@ skills:
 
 model: claude-sonnet-4-20250514
 temperature: 0.2
+
+# === CONTEXT STRATEGY (RLM-inspired) ===
+# Testing can be planned per module in parallel
+context-strategy:
+  mode: adaptive
+  max-chunk-size: 50000
+  overlap: 500
+  analysis-pattern: parallel
 
 triggers:
   keywords:
@@ -344,6 +352,7 @@ I recommend starting with unit tests for the validation logic, then building up 
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-21 | Added RLM-inspired context-strategy configuration |
 | 1.0.0 | 2026-01-20 | Initial release |
 
 ---

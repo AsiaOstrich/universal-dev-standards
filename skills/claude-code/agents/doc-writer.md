@@ -1,6 +1,6 @@
 ---
 name: doc-writer
-version: 1.0.0
+version: 1.1.0
 description: |
   Documentation specialist for technical writing, API docs, and user guides.
   Use when: writing documentation, creating READMEs, API documentation, user guides, changelogs.
@@ -30,6 +30,14 @@ skills:
 
 model: claude-sonnet-4-20250514
 temperature: 0.4
+
+# === CONTEXT STRATEGY (RLM-inspired) ===
+# Documentation generation typically requires complete context
+context-strategy:
+  mode: full
+  max-chunk-size: 100000
+  overlap: 0
+  analysis-pattern: hierarchical
 
 triggers:
   keywords:
@@ -386,6 +394,7 @@ Authenticates a user and returns a JWT token.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-21 | Added RLM-inspired context-strategy configuration |
 | 1.0.0 | 2026-01-20 | Initial release |
 
 ---

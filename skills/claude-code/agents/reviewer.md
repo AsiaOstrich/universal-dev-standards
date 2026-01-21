@@ -1,6 +1,6 @@
 ---
 name: reviewer
-version: 1.0.0
+version: 1.1.0
 description: |
   Code review specialist for quality assessment, security analysis, and best practices enforcement.
   Use when: reviewing pull requests, checking code quality, security audit, pre-merge review.
@@ -31,6 +31,14 @@ skills:
 
 model: claude-sonnet-4-20250514
 temperature: 0.2
+
+# === CONTEXT STRATEGY (RLM-inspired) ===
+# Code review requires sequential processing to maintain context across changes
+context-strategy:
+  mode: chunked
+  max-chunk-size: 30000
+  overlap: 200
+  analysis-pattern: sequential
 
 triggers:
   keywords:
@@ -333,6 +341,7 @@ I'll perform a systematic review of the authentication PR.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-21 | Added RLM-inspired context-strategy configuration |
 | 1.0.0 | 2026-01-20 | Initial release |
 
 ---
