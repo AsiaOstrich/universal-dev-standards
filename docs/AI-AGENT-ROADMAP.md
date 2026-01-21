@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/docs/AI-AGENT-ROADMAP.md) | [简体中文](../locales/zh-CN/docs/AI-AGENT-ROADMAP.md)
 
-**Version**: 2.2.0
-**Last Updated**: 2026-01-15
+**Version**: 2.3.0
+**Last Updated**: 2026-01-21
 
 This document provides a comprehensive reference for AI Agent support in Universal Development Standards (UDS).
 
@@ -35,6 +35,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | Windsurf | `.windsurfrules` | Settings UI | 6K/file, 12K total |
 | Gemini CLI | `.gemini/GEMINI.md` | `~/.gemini/GEMINI.md` | Supports `@import` |
 | Cursor | `.cursor/rules/*.mdc` | `~/.cursor/rules/` | YAML frontmatter required |
+| Antigravity | `.antigravity/` | `~/.antigravity/` | Minimal support, manual mode |
 
 ### Skills Paths
 
@@ -49,6 +50,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | Windsurf | ✅ Full | `.windsurf/rules/` | Settings UI | Skills since 2026/01 |
 | Gemini CLI | ✅ Preview | `.gemini/skills/` | `~/.gemini/skills/` | v0.23+ preview |
 | Cursor | ❌ No | `.cursor/rules/` | `~/.cursor/rules/` | Rules only, no SKILL.md |
+| Antigravity | ❌ No | `.antigravity/skills/` | `~/.antigravity/skills/` | No SKILL.md support |
 
 ### Slash Commands
 
@@ -63,6 +65,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | Windsurf | ✅ | Rulebook | Auto-generated | From `.windsurfrules` |
 | Gemini CLI | ✅ | System + Custom | `/clear`, `/memory`, `/mcp` | `.gemini/commands/*.toml` |
 | Cursor | ✅ | Built-in + Custom | `/summarize`, `/models` | `.cursor/commands/*.md` |
+| Antigravity | ❌ | N/A | N/A | N/A |
 
 ### Platform Support
 
@@ -102,6 +105,15 @@ This document provides a comprehensive reference for AI Agent support in Univers
 - Has own rules format (`.cursor/rules/*.mdc`)
 - Does NOT support SKILL.md format yet
 - Feature requested by community
+
+### Minimal Support
+
+**Tools**: Antigravity
+
+- No SKILL.md support
+- No AGENT.md support
+- Manual execution mode only
+- Included for completeness
 
 ---
 
@@ -145,6 +157,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | Windsurf | `.windsurf/rules/` | Settings UI | ✅ Yes |
 | Gemini CLI | `.gemini/skills/` | `~/.gemini/skills/` | ✅ Yes |
 | Cursor | `.cursor/rules/` | `~/.cursor/rules/` | ❌ No |
+| Antigravity | `.antigravity/skills/` | `~/.antigravity/skills/` | ❌ No |
 
 #### Activation Methods
 
@@ -159,6 +172,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | Windsurf | Manual (@mention), Always On, Model Decision |
 | Gemini CLI | Auto-trigger, Enable/Disable via settings |
 | Cursor | Glob pattern, `alwaysApply` flag (rules only) |
+| Antigravity | Manual only |
 
 **Recommendation**: Use `.claude/skills/` as the default installation path — most tools can read it for cross-tool compatibility.
 
@@ -177,6 +191,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | Windsurf | ✅ Full | Jan 9, 2026 |
 | Gemini CLI | ✅ Preview | Jan 7, 2026 |
 | Cursor | ❌ Not yet | Requested |
+| Antigravity | ❌ No | N/A |
 
 **Cross-platform installers**:
 - [skilz](https://github.com/skilz-ai/skilz) - Universal Skills installer (14+ platforms)
@@ -200,6 +215,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | GitHub Copilot | `.github/copilot-instructions.md` | Personal settings | ~8KB |
 | OpenAI Codex | `AGENTS.md` | `~/.codex/AGENTS.md` | 32KB |
 | Gemini CLI | `GEMINI.md` | `~/.gemini/GEMINI.md` | 1M tokens |
+| Antigravity | N/A | `~/.antigravity/` | N/A |
 
 ### 4.2 Configuration Merge Behavior
 
@@ -213,6 +229,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | GitHub Copilot | Combine | Personal > Repository > Organization |
 | OpenAI Codex | Concatenate | Override files > Base, closer wins |
 | Gemini CLI | Concatenate | All files with `@import` support |
+| Antigravity | N/A | N/A |
 
 ### 4.3 Skills File Format
 
@@ -229,6 +246,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | Windsurf | ✅ SKILL.md | `.windsurfrules` | YAML |
 | Gemini CLI | ✅ SKILL.md | `GEMINI.md` | YAML |
 | Cursor | ❌ `.mdc` | `.cursor/rules/` | YAML (globs, alwaysApply) |
+| Antigravity | ❌ N/A | N/A | N/A |
 
 ---
 
@@ -296,6 +314,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.3.0 | 2026-01-21 | Added Antigravity to all tables for CLI consistency |
 | 2.2.0 | 2026-01-15 | Added Multi-Agent Installation, Gemini CLI TOML conversion |
 | 2.1.0 | 2026-01-15 | Updated Skills support status for all tools (industry-wide adoption) |
 | 2.0.0 | 2026-01-15 | Major restructure: consolidated content, reduced tables |

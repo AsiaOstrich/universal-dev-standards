@@ -1,8 +1,8 @@
 ---
 source: ../../../docs/AI-AGENT-ROADMAP.md
-source_version: 2.2.0
-translation_version: 2.2.0
-last_synced: 2026-01-15
+source_version: 2.3.0
+translation_version: 2.3.0
+last_synced: 2026-01-21
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../docs/AI-AGENT-ROADMAP.md) | 繁體中文 | [简体中文](../../zh-CN/docs/AI-AGENT-ROADMAP.md)
 
-**版本**: 2.2.0
-**最後更新**: 2026-01-15
+**版本**: 2.3.0
+**最後更新**: 2026-01-21
 
 本文件提供 Universal Development Standards (UDS) 對 AI Agent 支援的完整參考。
 
@@ -43,6 +43,7 @@ status: current
 | Windsurf | `.windsurfrules` | 設定 UI | 6K/檔，總計 12K |
 | Gemini CLI | `.gemini/GEMINI.md` | `~/.gemini/GEMINI.md` | 支援 `@import` |
 | Cursor | `.cursor/rules/*.mdc` | `~/.cursor/rules/` | 需要 YAML frontmatter |
+| Antigravity | `.antigravity/` | `~/.antigravity/` | 最低支援，手動模式 |
 
 ### Skills 路徑
 
@@ -57,6 +58,7 @@ status: current
 | Windsurf | ✅ 完整 | `.windsurf/rules/` | 設定 UI | 2026/01 起支援 Skills |
 | Gemini CLI | ✅ 預覽 | `.gemini/skills/` | `~/.gemini/skills/` | v0.23+ 預覽版 |
 | Cursor | ❌ 否 | `.cursor/rules/` | `~/.cursor/rules/` | 僅 Rules，不支援 SKILL.md |
+| Antigravity | ❌ 否 | `.antigravity/skills/` | `~/.antigravity/skills/` | 不支援 SKILL.md |
 
 ### 斜線命令
 
@@ -71,6 +73,7 @@ status: current
 | Windsurf | ✅ | Rulebook | 自動產生 | 從 `.windsurfrules` |
 | Gemini CLI | ✅ | 系統 + 自訂 | `/clear`, `/memory`, `/mcp` | `.gemini/commands/*.toml` |
 | Cursor | ✅ | 內建 + 自訂 | `/summarize`, `/models` | `.cursor/commands/*.md` |
+| Antigravity | ❌ | N/A | N/A | N/A |
 
 ### 平台支援
 
@@ -110,6 +113,15 @@ status: current
 - 有自己的規則格式（`.cursor/rules/*.mdc`）
 - 尚未支援 SKILL.md 格式
 - 社群已提出功能請求
+
+### 最低支援
+
+**工具**: Antigravity
+
+- 不支援 SKILL.md
+- 不支援 AGENT.md
+- 僅手動執行模式
+- 為完整性而收錄
 
 ---
 
@@ -153,6 +165,7 @@ status: current
 | Windsurf | `.windsurf/rules/` | 設定 UI | ✅ 是 |
 | Gemini CLI | `.gemini/skills/` | `~/.gemini/skills/` | ✅ 是 |
 | Cursor | `.cursor/rules/` | `~/.cursor/rules/` | ❌ 否 |
+| Antigravity | `.antigravity/skills/` | `~/.antigravity/skills/` | ❌ 否 |
 
 #### 啟用方式
 
@@ -167,6 +180,7 @@ status: current
 | Windsurf | 手動（@提及）、始終開啟、模型決定 |
 | Gemini CLI | 自動觸發、透過設定啟用/停用 |
 | Cursor | Glob 模式、`alwaysApply` 旗標（僅 rules） |
+| Antigravity | 僅手動 |
 
 **建議**：使用 `.claude/skills/` 作為預設安裝路徑 — 大多數工具都可讀取以獲得跨工具相容性。
 
@@ -185,6 +199,7 @@ status: current
 | Windsurf | ✅ 完整 | 2026/01/09 |
 | Gemini CLI | ✅ 預覽版 | 2026/01/07 |
 | Cursor | ❌ 尚未 | 已請求 |
+| Antigravity | ❌ 否 | N/A |
 
 **跨平台安裝器**:
 - [skilz](https://github.com/skilz-ai/skilz) - 通用 Skills 安裝器（14+ 平台）
@@ -208,6 +223,7 @@ status: current
 | GitHub Copilot | `.github/copilot-instructions.md` | 個人設定 | ~8KB |
 | OpenAI Codex | `AGENTS.md` | `~/.codex/AGENTS.md` | 32KB |
 | Gemini CLI | `GEMINI.md` | `~/.gemini/GEMINI.md` | 1M tokens |
+| Antigravity | N/A | `~/.antigravity/` | N/A |
 
 ### 4.2 配置合併行為
 
@@ -221,6 +237,7 @@ status: current
 | GitHub Copilot | 組合 | 個人 > 儲存庫 > 組織 |
 | OpenAI Codex | 串接 | 覆寫檔 > 基礎，較近者優先 |
 | Gemini CLI | 串接 | 所有檔案支援 `@import` |
+| Antigravity | N/A | N/A |
 
 ### 4.3 Skills 檔案格式
 
@@ -237,6 +254,7 @@ status: current
 | Windsurf | ✅ SKILL.md | `.windsurfrules` | YAML |
 | Gemini CLI | ✅ SKILL.md | `GEMINI.md` | YAML |
 | Cursor | ❌ `.mdc` | `.cursor/rules/` | YAML (globs, alwaysApply) |
+| Antigravity | ❌ N/A | N/A | N/A |
 
 ---
 
@@ -304,6 +322,7 @@ status: current
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 2.3.0 | 2026-01-21 | 新增 Antigravity 至所有表格以與 CLI 保持一致 |
 | 2.2.0 | 2026-01-15 | 新增多 Agent 安裝、Gemini CLI TOML 轉換 |
 | 2.1.0 | 2026-01-15 | 更新所有工具的 Skills 支援狀態（業界廣泛採用） |
 | 2.0.0 | 2026-01-15 | 重大重構：整合內容、減少表格 |
