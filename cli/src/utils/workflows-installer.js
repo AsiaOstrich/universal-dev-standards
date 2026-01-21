@@ -100,8 +100,11 @@ const VALID_STEP_TYPES = ['agent', 'manual', 'conditional', 'parallel-agents'];
 
 /**
  * Valid context modes for RLM-aware steps
+ * - minimal: Load only essential structure info
+ * - focused: Load current module/partition context
+ * - summary: Use summarized results from previous steps
  */
-const VALID_CONTEXT_MODES = ['minimal', 'focused', 'full'];
+const VALID_CONTEXT_MODES = ['minimal', 'focused', 'summary'];
 
 /**
  * Valid merge strategies for parallel-agents steps

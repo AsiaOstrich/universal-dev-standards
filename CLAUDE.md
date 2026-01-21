@@ -192,6 +192,38 @@ npm run test:coverage # Generate coverage report
 npm run lint          # Check code style
 ```
 
+### AI Assistant Testing Guidelines / AI 助手測試指南
+
+> **Important**: This section provides guidance for AI assistants (Claude Code, etc.) on how to efficiently run tests in this project.
+
+**Test Suite Characteristics / 測試套件特性：**
+- Full test suite: 400+ tests (unit + E2E)
+- E2E tests spawn CLI subprocesses, taking ~5 seconds each
+- Full suite runtime: 2-5 minutes depending on system
+
+**Recommended Approach / 建議方式：**
+
+| Scenario | Method | Command |
+|----------|--------|---------|
+| Testing specific changes | Foreground, targeted | `npm test -- tests/path/to/file.test.js` |
+| Verifying multiple files | Foreground, targeted | `npm test -- tests/file1.test.js tests/file2.test.js` |
+| Full test suite | **User's terminal** | Ask user to run `cd cli && npm test` |
+| CI verification | GitHub Actions | Automatic on push/PR |
+
+**⚠️ Avoid / 避免：**
+- Running full test suite in background mode (timeout issues, exit code 137)
+- Using `--reporter=summary` or custom reporters (compatibility issues)
+- Waiting indefinitely for full suite completion
+
+**Best Practice / 最佳實踐：**
+```bash
+# ✅ Good: Test only the files you modified
+npm test -- tests/commands/ai-context.test.js tests/unit/utils/workflows-installer.test.js
+
+# ❌ Avoid: Running full suite in Claude Code background mode
+npm test  # This may timeout or be killed
+```
+
 ## Code Check-in Standards (Mandatory)
 
 Every commit MUST pass these quality gates before committing:

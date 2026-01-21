@@ -7,6 +7,9 @@ import {
   getAvailableWorkflowNames,
   getWorkflowContent,
   parseWorkflow,
+  validateWorkflow,
+  getWorkflowFeatures,
+  getWorkflowSummary,
   installWorkflowsForTool,
   getInstalledWorkflowsForTool,
   installWorkflowsToMultipleTools
@@ -115,6 +118,375 @@ steps:
       expect(parsed.name).toBe('code-review');
       expect(parsed.steps).toBeDefined();
       expect(Array.isArray(parsed.steps)).toBe(true);
+    });
+  });
+
+  describe('validateWorkflow', () => {
+    it('should validate valid workflow', () => {
+      const workflow = {
+        name: 'test-workflow',
+        version: '1.0.0',
+        steps: [
+          { id: 'step1', type: 'manual', name: 'Manual Step' }
+        ]
+      };
+
+      const result = validateWorkflow(workflow);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should report missing required fields', () => {
+      const workflow = { steps: [] };
+
+      const result = validateWorkflow(workflow);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Missing required field: name');
+      expect(result.errors).toContain('Missing required field: version');
+    });
+
+    it('should report invalid steps array', () => {
+      const workflow = {
+        name: 'test',
+        version: '1.0.0',
+        steps: 'not-an-array'
+      };
+
+      const result = validateWorkflow(workflow);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('steps'))).toBe(true);
+    });
+
+    it('should validate step type', () => {
+      const workflow = {
+        name: 'test',
+        version: '1.0.0',
+        steps: [
+          { id: 'step1', type: 'invalid-type' }
+        ]
+      };
+
+      const result = validateWorkflow(workflow);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('invalid type'))).toBe(true);
+    });
+
+    it('should validate agent step requires agent field', () => {
+      const workflow = {
+        name: 'test',
+        version: '1.0.0',
+        steps: [
+          { id: 'step1', type: 'agent' }
+        ]
+      };
+
+      const result = validateWorkflow(workflow);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes("requires 'agent' field"))).toBe(true);
+    });
+
+    // RLM-specific validation tests
+    it('should validate parallel-agents step requires foreach', () => {
+      const workflow = {
+        name: 'test',
+        version: '1.0.0',
+        steps: [
+          { id: 'step1', type: 'parallel-agents', agent: 'code-architect' }
+        ]
+      };
+
+      const result = validateWorkflow(workflow);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes("parallel-agents requires 'foreach'"))).toBe(true);
+    });
+
+    it('should validate parallel-agents with valid configuration', () => {
+      const workflow = {
+        name: 'test',
+        version: '1.0.0',
+        steps: [
+          {
+            id: 'parallel-step',
+            type: 'parallel-agents',
+            agent: 'code-architect',
+            foreach: '${modules}',
+            'context-mode': 'focused',
+            'merge-strategy': 'aggregate'
+          }
+        ]
+      };
+
+      const result = validateWorkflow(workflow);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should reject invalid context-mode', () => {
+      const workflow = {
+        name: 'test',
+        version: '1.0.0',
+        steps: [
+          {
+            id: 'step1',
+            type: 'parallel-agents',
+            agent: 'code-architect',
+            foreach: '${items}',
+            'context-mode': 'invalid-mode'
+          }
+        ]
+      };
+
+      const result = validateWorkflow(workflow);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('invalid context-mode'))).toBe(true);
+    });
+
+    it('should reject invalid merge-strategy', () => {
+      const workflow = {
+        name: 'test',
+        version: '1.0.0',
+        steps: [
+          {
+            id: 'step1',
+            type: 'parallel-agents',
+            agent: 'code-architect',
+            foreach: '${items}',
+            'merge-strategy': 'invalid-strategy'
+          }
+        ]
+      };
+
+      const result = validateWorkflow(workflow);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('invalid merge-strategy'))).toBe(true);
+    });
+
+    it('should validate context-strategy configuration', () => {
+      const workflow = {
+        name: 'test',
+        version: '1.0.0',
+        'context-strategy': {
+          'enable-rlm': true,
+          'max-context-per-step': 100000,
+          'context-inheritance': 'selective'
+        },
+        steps: [
+          { id: 'step1', type: 'manual' }
+        ]
+      };
+
+      const result = validateWorkflow(workflow);
+
+      expect(result.valid).toBe(true);
+    });
+
+    it('should reject invalid context-inheritance', () => {
+      const workflow = {
+        name: 'test',
+        version: '1.0.0',
+        'context-strategy': {
+          'context-inheritance': 'invalid-mode'
+        },
+        steps: [
+          { id: 'step1', type: 'manual' }
+        ]
+      };
+
+      const result = validateWorkflow(workflow);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('invalid context-inheritance'))).toBe(true);
+    });
+
+    it('should warn about non-numeric max-context-per-step', () => {
+      const workflow = {
+        name: 'test',
+        version: '1.0.0',
+        'context-strategy': {
+          'max-context-per-step': 'not-a-number'
+        },
+        steps: [
+          { id: 'step1', type: 'manual' }
+        ]
+      };
+
+      const result = validateWorkflow(workflow);
+
+      expect(result.warnings.some(w => w.includes('max-context-per-step'))).toBe(true);
+    });
+
+    it('should validate real large-codebase-analysis workflow', () => {
+      const content = getWorkflowContent('large-codebase-analysis');
+      if (content) {
+        const workflow = parseWorkflow(content);
+        const result = validateWorkflow(workflow);
+
+        expect(result.valid).toBe(true);
+        expect(result.errors).toHaveLength(0);
+      }
+    });
+  });
+
+  describe('getWorkflowFeatures', () => {
+    it('should detect RLM enabled workflow', () => {
+      const workflow = {
+        name: 'test',
+        'context-strategy': {
+          'enable-rlm': true
+        },
+        steps: []
+      };
+
+      const features = getWorkflowFeatures(workflow);
+
+      expect(features.hasRlm).toBe(true);
+    });
+
+    it('should detect non-RLM workflow', () => {
+      const workflow = {
+        name: 'test',
+        steps: [
+          { id: 'step1', type: 'manual' }
+        ]
+      };
+
+      const features = getWorkflowFeatures(workflow);
+
+      expect(features.hasRlm).toBe(false);
+    });
+
+    it('should detect parallel-agents steps', () => {
+      const workflow = {
+        name: 'test',
+        steps: [
+          { id: 'step1', type: 'manual' },
+          { id: 'step2', type: 'parallel-agents', agent: 'code-architect', foreach: '${items}' }
+        ]
+      };
+
+      const features = getWorkflowFeatures(workflow);
+
+      expect(features.hasParallelAgents).toBe(true);
+      expect(features.stepTypes).toContain('parallel-agents');
+      expect(features.stepTypes).toContain('manual');
+    });
+
+    it('should collect context modes', () => {
+      const workflow = {
+        name: 'test',
+        steps: [
+          { id: 'step1', type: 'agent', agent: 'a', 'context-mode': 'minimal' },
+          { id: 'step2', type: 'agent', agent: 'b', 'context-mode': 'focused' },
+          { id: 'step3', type: 'agent', agent: 'c', 'context-mode': 'minimal' }
+        ]
+      };
+
+      const features = getWorkflowFeatures(workflow);
+
+      expect(features.contextModes).toContain('minimal');
+      expect(features.contextModes).toContain('focused');
+      expect(features.contextModes).toHaveLength(2); // Deduped
+    });
+
+    it('should collect merge strategies', () => {
+      const workflow = {
+        name: 'test',
+        steps: [
+          { id: 'step1', type: 'parallel-agents', agent: 'a', foreach: '${x}', 'merge-strategy': 'aggregate' },
+          { id: 'step2', type: 'parallel-agents', agent: 'b', foreach: '${y}', 'merge-strategy': 'summary' }
+        ]
+      };
+
+      const features = getWorkflowFeatures(workflow);
+
+      expect(features.mergeStrategies).toContain('aggregate');
+      expect(features.mergeStrategies).toContain('summary');
+    });
+
+    it('should collect all agents used', () => {
+      const workflow = {
+        name: 'test',
+        steps: [
+          { id: 'step1', type: 'agent', agent: 'code-architect' },
+          { id: 'step2', type: 'agent', agent: 'doc-writer' },
+          { id: 'step3', type: 'parallel-agents', agent: 'code-architect', foreach: '${x}' }
+        ]
+      };
+
+      const features = getWorkflowFeatures(workflow);
+
+      expect(features.agents).toContain('code-architect');
+      expect(features.agents).toContain('doc-writer');
+      expect(features.agents).toHaveLength(2); // Deduped
+    });
+
+    it('should extract features from large-codebase-analysis', () => {
+      const content = getWorkflowContent('large-codebase-analysis');
+      if (content) {
+        const workflow = parseWorkflow(content);
+        const features = getWorkflowFeatures(workflow);
+
+        expect(features.hasRlm).toBe(true);
+        expect(features.hasParallelAgents).toBe(true);
+        expect(features.stepTypes).toContain('parallel-agents');
+        expect(features.contextModes).toContain('minimal');
+        expect(features.contextModes).toContain('focused');
+        expect(features.agents).toContain('code-architect');
+      }
+    });
+  });
+
+  describe('getWorkflowSummary', () => {
+    it('should return null for non-existent workflow', () => {
+      const summary = getWorkflowSummary('non-existent-workflow');
+      expect(summary).toBeNull();
+    });
+
+    it('should return summary for valid workflow', () => {
+      const summary = getWorkflowSummary('feature-dev');
+
+      expect(summary).not.toBeNull();
+      expect(summary.name).toBe('feature-dev');
+      expect(summary.version).toBeDefined();
+      expect(summary.stepCount).toBeGreaterThan(0);
+      expect(summary.features).toBeDefined();
+      expect(summary.validation).toBeDefined();
+      expect(summary.validation.valid).toBe(true);
+    });
+
+    it('should include RLM features in summary', () => {
+      const summary = getWorkflowSummary('large-codebase-analysis');
+
+      if (summary) {
+        expect(summary.features.hasRlm).toBe(true);
+        expect(summary.features.hasParallelAgents).toBe(true);
+      }
+    });
+
+    it('should include metadata category and difficulty', () => {
+      const summary = getWorkflowSummary('code-review');
+
+      expect(summary).not.toBeNull();
+      expect(summary.category).toBe('review');
+      expect(summary.difficulty).toBeDefined();
+    });
+
+    it('should include validation status', () => {
+      const summary = getWorkflowSummary('integrated-flow');
+
+      expect(summary).not.toBeNull();
+      expect(summary.validation.valid).toBe(true);
+      expect(typeof summary.validation.errorCount).toBe('number');
+      expect(typeof summary.validation.warningCount).toBe('number');
     });
   });
 
