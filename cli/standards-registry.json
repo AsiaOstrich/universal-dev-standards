@@ -92,7 +92,7 @@
       "fallbackSkillsPath": ".claude/skills/",
       "supportsSkills": false,
       "supportsCommands": false,
-      "status": "planned"
+      "status": "minimal"
     },
     "cline": {
       "name": "Cline",
@@ -103,7 +103,7 @@
       "fallbackSkillsPath": ".claude/skills/",
       "supportsSkills": true,
       "supportsCommands": false,
-      "status": "planned"
+      "status": "partial"
     },
     "roo-code": {
       "name": "Roo Code",
@@ -126,7 +126,7 @@
       "fallbackSkillsPath": ".claude/skills/",
       "supportsSkills": true,
       "supportsCommands": false,
-      "status": "planned"
+      "status": "partial"
     },
     "copilot": {
       "name": "GitHub Copilot",
@@ -138,7 +138,7 @@
       "fallbackSkillsPath": ".claude/skills/",
       "supportsSkills": true,
       "supportsCommands": true,
-      "status": "planned"
+      "status": "partial"
     },
     "windsurf": {
       "name": "Windsurf",
@@ -146,9 +146,9 @@
       "nativePaths": {
         "skills": { "project": ".windsurf/skills/", "user": "~/.codeium/windsurf/skills/" }
       },
-      "supportsSkills": true,
+      "supportsSkills": false,
       "supportsCommands": false,
-      "status": "planned"
+      "status": "minimal"
     },
     "gemini-cli": {
       "name": "Gemini CLI",
@@ -160,7 +160,17 @@
       "fallbackSkillsPath": ".claude/skills/",
       "supportsSkills": true,
       "supportsCommands": true,
-      "status": "planned"
+      "status": "preview"
+    },
+    "antigravity": {
+      "name": "Google Antigravity",
+      "skillsPath": null,
+      "nativePaths": {
+        "config": { "project": "INSTRUCTIONS.md" }
+      },
+      "supportsSkills": false,
+      "supportsCommands": false,
+      "status": "minimal"
     }
   },
   "skillFiles": {

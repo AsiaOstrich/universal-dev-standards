@@ -1,38 +1,26 @@
----
-source: ../../README.md
-source_version: 4.0.0
-translation_version: 4.0.0
-last_synced: 2026-01-20
-status: current
----
+# Universal Development Standards
 
-# 通用開發規範
+[![npm version](https://img.shields.io/npm/v/universal-dev-standards.svg)](https://www.npmjs.com/package/universal-dev-standards)
+[![License: MIT + CC BY 4.0](https://img.shields.io/badge/License-MIT%20%2B%20CC%20BY%204.0-blue.svg)](../../LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 
-> **Language**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
+> **語言**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
 
-**版本**: 4.0.0
-**最後更新**: 2026-01-20
-**授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
+**版本**: 4.1.0 | **發布日期**: 2026-01-21 | **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 
-### 4.0.0 新功能
-
-| 功能 | 說明 |
-|------|------|
-| **雙向推演** | 正向推演 + 反向工程形成完整的規格-程式碼循環 |
-| **6 個新核心規範** | BDD、ATDD、反向工程、正向推演、AI 指令、重構 |
-| **23 個 Skills** | 8 個新技能，包括正向推演、BDD/ATDD 助手、Commands |
-| **24 個斜線命令** | 9 個新命令（`/derive-*`、`/reverse-*`、`/atdd`、`/bdd`）|
-| **每工具安裝層級** | Skills/Commands 支援每個 AI 工具的使用者或專案層級 |
-| **增強 CLI** | Debug 旗標、拒絕功能記憶、檔案完整性追蹤 |
-| **方法論系統** | TDD/BDD/SDD/ATDD 工作流程現已正式發布 |
-
-> **4.0 新功能**：雙向推演帶來完整的規格-程式碼生命週期管理，包含正向推演和反向工程。
+語言無關、框架無關的軟體專案文件標準。確保不同技術堆疊之間的一致性、品質和可維護性。
 
 ---
 
-## 目的
+## 功能特色
 
-此儲存庫提供**與語言無關、與框架無關、與領域無關**的軟體專案文件標準。這些標準確保各種技術堆疊的一致性、品質和可維護性。
+| 類別 | 數量 | 說明 |
+|------|------|------|
+| **核心標準** | 22 | 通用開發準則（Markdown） |
+| **AI Skills** | 23 | Claude Code 互動式技能 |
+| **Slash Commands** | 24 | 快速操作（`/commit`、`/tdd`、`/review` 等） |
+| **CLI 指令** | 6 | `list`、`init`、`configure`、`check`、`update`、`skills` |
+| **語言支援** | 3 | 英文、繁體中文、簡體中文 |
 
 ---
 
@@ -44,11 +32,11 @@ status: current
 # 全域安裝
 npm install -g universal-dev-standards
 
-# 初始化您的專案
+# 初始化專案
 uds init
 ```
 
-### 或使用 npx（免安裝）
+### 或使用 npx（無需安裝）
 
 ```bash
 npx universal-dev-standards init
@@ -56,42 +44,15 @@ npx universal-dev-standards init
 
 ### 手動設定
 
-複製必要規範到您的專案：
+若不使用 npm 的手動設定方式，請參閱下方[安裝方式](#安裝方式)。
 
-```bash
-cp core/anti-hallucination.md your-project/.standards/
-cp core/checkin-standards.md your-project/.standards/
-cp core/commit-message-guide.md your-project/.standards/
-```
-
-> **重要**：僅複製規範檔案並不會啟用 AI 輔助功能。您還必須在 AI 工具的配置檔案中引用這些規範（如 `CLAUDE.md`、`.cursorrules`）。建議使用 `uds init` 進行自動配置。
-
-### AI 工具擴充（選用）
-
-安裝 UDS 後，可選擇為您偏好的工具啟用 AI 輔助功能：
-
-| AI 工具 | 配置檔案 | Skills | Commands |
-|---------|----------|:------:|:--------:|
-| Claude Code | `uds init` → `CLAUDE.md` | ✅ Marketplace / 檔案 | 內建 |
-| OpenCode | `uds init` → `AGENTS.md` | ✅ `.opencode/skill/` | ✅ `.opencode/command/` |
-| Cline | `uds init` → `.clinerules` | ✅ `.cline/skills/` | - |
-| Roo Code | `uds init` → `.roorules` | ✅ `.roo/skills/` | ✅ `.roo/commands/` |
-| OpenAI Codex | `uds init` → `AGENTS.md` | ✅ `.codex/skills/` | - |
-| GitHub Copilot | `uds init` → `copilot-instructions.md` | ✅ `.github/skills/` | ✅ `.github/prompts/` |
-| Windsurf | `uds init` → `.windsurfrules` | ✅ `.windsurf/skills/` | - |
-| Gemini CLI | `uds init` → `GEMINI.md` | ✅ `.gemini/skills/` | ✅ `.gemini/commands/` (TOML) |
-| Cursor | `uds init` → `.cursorrules` | ❌ 僅 Rules | - |
-| Google Antigravity | `uds init` → `INSTRUCTIONS.md` | - | - |
-
-> **v4.0.0 新功能**：`uds init` 支援每工具安裝層級選擇（使用者或專案層級）。雙向推演系統（正向推演 + 反向工程）現已可用。
+> **注意**：僅複製標準文件不會啟用 AI 協助功能。請使用 `uds init` 自動設定 AI 工具，或手動在工具設定檔中引用標準。
 
 ---
 
 ## 安裝方式
 
-### CLI 工具（主要安裝）
-
-CLI 工具是在專案中採用 UDS 的主要方式。
+### CLI 工具（主要方式）
 
 **npm（推薦）**
 ```bash
@@ -99,408 +60,202 @@ npm install -g universal-dev-standards
 uds init    # 互動式初始化
 uds check   # 檢查採用狀態
 uds update  # 更新至最新版本
-uds skills  # 列出已安裝的技能
+uds skills  # 列出已安裝的 skills
 ```
 
-**npx（免安裝）**
+**npx（無需安裝）**
 ```bash
 npx universal-dev-standards init
 ```
 
-**特定版本**
+**指定版本**
 ```bash
-# 安裝特定版本
-npm install -g universal-dev-standards@4.0.0
-
-# 或安裝 beta 版以獲得即將推出的功能
-npm install -g universal-dev-standards@beta
+npm install -g universal-dev-standards@4.1.0
+npm install -g universal-dev-standards@beta  # 預覽功能
 ```
 
-**克隆並連結（開發用）**
+**Clone 並連結（開發用）**
 
-macOS / Linux：
+macOS / Linux:
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git
 cd universal-dev-standards/cli && npm install && npm link
 ```
 
-Windows (PowerShell)：
+Windows (PowerShell):
 ```powershell
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git
 cd universal-dev-standards\cli; npm install; npm link
 ```
 
-請參閱 [CLI README](../../cli/README.md) 了解詳細使用方法、[Windows 指南](docs/WINDOWS-GUIDE.md) 獲得 Windows 特定說明，以及[作業流程](docs/OPERATION-WORKFLOW.md)了解專案維護與開發流程。
+---
+
+## AI 工具支援
+
+| AI 工具 | 狀態 | Skills | Commands | 設定檔 |
+|---------|------|:------:|:--------:|--------|
+| **Claude Code** | ✅ 完整支援 | ✅ | 內建 | `CLAUDE.md` |
+| **OpenCode** | ✅ 完整支援 | ✅ | ✅ | `AGENTS.md` |
+| Cline | 🔶 部分支援 | ✅ | - | `.clinerules` |
+| GitHub Copilot | 🔶 部分支援 | ✅ | ✅ | `copilot-instructions.md` |
+| OpenAI Codex | 🔶 部分支援 | ✅ | - | `AGENTS.md` |
+| Gemini CLI | 🧪 預覽版 | ✅ | ✅ | `GEMINI.md` |
+| Roo Code | ⏳ 計畫中 | ✅ | ✅ | `.roorules` |
+| Cursor | 📄 基本支援 | - | - | `.cursorrules` |
+| Windsurf | 📄 基本支援 | - | - | `.windsurfrules` |
+| Antigravity | 📄 基本支援 | - | - | `INSTRUCTIONS.md` |
+
+> **狀態圖例**（UDS CLI 實作狀態）：
+> - ✅ 完整支援 = Skills + Commands 完整支援，已測試
+> - 🔶 部分支援 = Skills 可用，Commands 受限或不支援
+> - 🧪 預覽版 = 功能可用但為預覽版本
+> - ⏳ 計畫中 = 程式碼存在，待測試
+> - 📄 基本支援 = 僅規則檔生成，不支援 Skills/Commands
+
+### 平台支援
+
+| 平台 | 狀態 | 備註 |
+|------|------|------|
+| **macOS** | ✅ 已測試 | 主要開發平台 |
+| **Linux** | ⚠️ 未測試 | 預期可運作（基於 Node.js） |
+| **Windows** | ⚠️ 未測試 | 提供 PowerShell 腳本 |
+
+請參閱 [Windows 指南](../../docs/WINDOWS-GUIDE.md)了解平台特定說明。
 
 ---
 
-### AI 工具配置
+## Skills 安裝
 
-每個 AI 工具使用配置檔案來定義專案特定規則。`uds init` 會自動產生這些檔案：
-
-| 工具 | 配置檔案 | 位置 |
-|------|----------|------|
-| Claude Code | `CLAUDE.md` | 專案根目錄 |
-| OpenCode | `AGENTS.md` | 專案根目錄 |
-| OpenAI Codex | `AGENTS.md` | 專案根目錄 |
-| Cursor | `.cursorrules` | 專案根目錄 |
-| Windsurf | `.windsurfrules` | 專案根目錄 |
-| Cline | `.clinerules` | 專案根目錄 |
-| GitHub Copilot | `copilot-instructions.md` | `.github/` |
-| Google Antigravity | `INSTRUCTIONS.md` | 專案根目錄 |
-| Gemini CLI | `GEMINI.md` | 專案根目錄 |
-
-或從 `integrations/` 目錄手動複製。
-
----
-
-### Agent Skills 安裝
-
-Agent Skills 是增強 AI 輔助開發的互動式指令（`/commit`、`/tdd`、`/review` 等）。Skills 遵循 [Agent Skills 標準](https://agentskills.io)，可跨多個 AI 工具使用。
-
-**包含的技能（23 個）：** ai-collaboration-standards、atdd-assistant、bdd-assistant、changelog-guide、checkin-assistant、code-review-assistant、commands、commit-standards、documentation-guide、error-code-guide、forward-derivation、git-workflow-guide、logging-guide、methodology-system、project-structure-guide、refactoring-assistant、release-standards、requirement-assistant、reverse-engineer、spec-driven-dev、tdd-assistant、test-coverage-assistant、testing-guide
-
-#### 支援的工具
-
-| 工具 | Skills 支援 | 推薦方式 |
-|------|------------|----------|
-| Claude Code | ✅ 完整 | Plugin Marketplace |
-| OpenCode | ✅ 完整 | UDS CLI |
-| （更多工具即將支援） | - | - |
-
-#### 方法一：Claude Code Plugin Marketplace
-
-Claude Code 用戶可透過 Plugin Marketplace 最簡單地安裝：
+### 方法 1：Claude Code Plugin Marketplace（最簡單）
 
 ```bash
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**優點：**
-- 單一指令安裝
-- 新版本發布時自動更新
-- 所有 22 個技能立即載入
+**優點**：單一指令、自動更新、立即載入全部 23 個 skills。
 
-**從 v3.2.x 遷移？** 如果您使用舊的 marketplace 名稱：
-
+**從 v3.x 升級？**
 ```bash
 /plugin uninstall universal-dev-standards@universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-#### 方法二：UDS CLI（推薦用於 OpenCode）
-
-OpenCode 和其他工具，請使用 UDS CLI：
+### 方法 2：UDS CLI
 
 ```bash
-# 全域安裝 UDS CLI
 npm install -g universal-dev-standards
-
-# 初始化專案 - 選擇您的 AI 工具
-uds init
-
-# Skills 會安裝到 .claude/skills/
-# OpenCode 會自動偵測此路徑 ✅
+uds init  # 選擇 AI 工具，skills 自動安裝
 ```
 
-使用 `uds check` 驗證安裝狀態和 skills 相容性。
+使用 `uds check` 驗證安裝狀態。
 
-#### 方法三：手動安裝
+### 方法 3：手動安裝
 
-克隆並直接複製 skills：
-
-macOS / Linux：
+macOS / Linux:
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git /tmp/uds
 cp -r /tmp/uds/skills/claude-code/* ~/.claude/skills/    # 全域
-# 或：cp -r /tmp/uds/skills/claude-code/* .claude/skills/  # 專案
+# 或: cp -r /tmp/uds/skills/claude-code/* .claude/skills/  # 專案
 rm -rf /tmp/uds
 ```
 
-Windows (PowerShell)：
+Windows (PowerShell):
 ```powershell
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git $env:TEMP\uds
 Copy-Item -Recurse $env:TEMP\uds\skills\claude-code\* $env:USERPROFILE\.claude\skills\
 Remove-Item -Recurse $env:TEMP\uds
 ```
 
-#### 社群 Marketplace
+### 社群市集
 
-從社群平台發現和安裝 skills：
-
-- **[n-skills](https://github.com/numman-ali/n-skills)** - 精選 marketplace，支援 Claude Code、OpenCode、Cursor 等
-- **[claude-plugins.dev](https://claude-plugins.dev/skills)** - 從 GitHub 自動索引的技能發現
+- **[n-skills](https://github.com/numman-ali/n-skills)** - Claude Code、OpenCode、Cursor 精選市集
+- **[claude-plugins.dev](https://claude-plugins.dev/skills)** - 自動索引的 skill 探索
 - **[agentskills.io](https://agentskills.io)** - 官方 Agent Skills 規範
 
 ---
 
-### 多 AI 工具支援
+## 使用模式
 
-| AI 工具 | 狀態 | 路徑 | 平台測試 |
-|---------|------|------|----------|
-| Claude Code | ✅ 完成 | `skills/claude-code/` | macOS ✅ |
-| OpenCode | 🧪 測試中 | `integrations/opencode/` | macOS 🧪 |
-| GitHub Copilot | 🧪 測試中 | `integrations/github-copilot/` | macOS 🧪 |
-| Cursor | ⏳ 規劃中 | `integrations/cursor/` | - |
-| Windsurf | ⏳ 規劃中 | `integrations/windsurf/` | - |
-| Cline | ⏳ 規劃中 | `integrations/cline/` | - |
-| Google Antigravity | ⏳ 規劃中 | `integrations/google-antigravity/` | - |
-| OpenAI Codex | ⏳ 規劃中 | `integrations/codex/` | - |
-| Gemini CLI | ⏳ 規劃中 | `integrations/gemini-cli/` | - |
+| 模式 | 最適合 | 主要優勢 |
+|------|--------|----------|
+| **僅 Skills** | 個人開發者 + Claude Code | 最低 token 使用量、最佳互動體驗 |
+| **僅標準** | 多工具團隊 / 企業 | 完整自訂、版本控制 |
+| **Skills + 標準** | 完整體驗 / 學習 | 100% 功能覆蓋 |
 
-### 平台支援
+### 快速決策指南
 
-| 平台 | CLI 工具 | Skills | 備註 |
-|------|----------|--------|------|
-| **macOS** | ✅ 已測試 | ✅ 已測試 | 主要開發平台 |
-| **Linux** | ⚠️ 未測試 | ⚠️ 未測試 | 預期可運作（基於 Node.js） |
-| **Windows** | ⚠️ 未測試 | ⚠️ 未測試 | 提供 PowerShell 腳本 |
+- **個人專案使用 Claude Code？** → 僅 Skills
+- **團隊使用多個 AI 工具？** → Skills + 標準
+- **企業合規需求？** → 僅標準
 
-> **注意**：UDS CLI 基於 Node.js，應可在所有平台運作。平台測試指的是在該作業系統上與 AI 工具搭配使用的功能驗證。詳細狀態請參閱 [AI Agent 規劃](docs/AI-AGENT-ROADMAP.md)。
+詳細分析請參閱[使用模式比較](../../docs/USAGE-MODES-COMPARISON.md)。
 
 ---
 
-## 核心原則
+## 核心標準概覽
 
-1. **通用適用性** - 標準適用於任何程式語言、框架或領域
-2. **模組化設計** - 選擇與您專案相關的標準
-3. **可擴充架構** - 可使用語言特定、框架特定或領域特定規則進行擴充
-4. **基於證據** - 標準源自業界最佳實務與實際驗證
-5. **自包含** - 每個標準都可獨立使用，無需依賴其他標準
+### Level 1：基本（30 分鐘設定）
 
----
+每個專案必須包含：
 
-## 內容概覽
-
-```
-universal-dev-standards/
-├── core/                    # 核心通用標準（22 個檔案）
-├── ai/                      # AI 優化標準（.ai.yaml）
-├── options/                 # 人類可讀選項指南
-├── skills/                  # AI 工具技能（Claude Code 等）
-├── extensions/              # 語言/框架/領域特定
-├── templates/               # 文件範本
-├── integrations/            # 工具設定
-├── cli/                     # CLI 工具（uds 指令）
-├── locales/                 # 翻譯（zh-TW、zh-CN）
-└── adoption/                # 採用指南
-```
-
-請參閱下方的[詳細目錄結構](#詳細目錄結構)。
-
----
-
-## 規範等級
-
-### 等級 1：必要（最小可行標準）
-
-**每個專案必須具備**：
-- `anti-hallucination.md` - AI 協作指南
-- `checkin-standards.md` - 提交前的品質門檻
-- `commit-message-guide.md` - 標準化的 commit 格式
-- `spec-driven-development.md` - 規格驅動開發標準
-
-**預估設定時間**：30 分鐘
-
----
-
-### 等級 2：推薦（專業品質）
-
-**包含等級 1 +**：
-- `git-workflow.md` - 分支策略
-- `code-review-checklist.md` - 審查指南
-- `versioning.md` - 版本管理
-- `changelog-standards.md` - 變更日誌撰寫指南
-- `testing-standards.md` - 測試金字塔（UT/IT/ST/E2E）
-- 語言特定的風格指南（例如 `csharp-style.md`）
-
-**預估設定時間**：2 小時
-
----
-
-### 等級 3：全面（企業級）
-
-**包含等級 2 +**：
-- `documentation-structure.md` - 文件組織
-- 框架特定標準（例如 `dotnet.md`）
-- 領域特定標準（例如 `fintech.md`）
-- OpenSpec 整合用於規格驅動開發
-- 完整範本套件
-
-**預估設定時間**：1-2 天
-
----
-
-## AI 優化標準
-
-### 雙格式架構
-
-| 格式 | 位置 | 使用場景 | Token 使用量 |
-|------|------|----------|--------------|
-| **人類可讀** | `core/`、`options/` | 文件、入職、參考 | 標準 |
-| **AI 優化** | `ai/` | AI 助手、自動化、CLAUDE.md | 減少約 80% |
-
-### 使用 AI 優化標準
-
-```yaml
-# 在 CLAUDE.md 或系統提示中引用
-standards:
-  source: ai/standards/
-  options:
-    workflow: ai/options/git-workflow/github-flow.ai.yaml
-    commit_language: ai/options/commit-message/english.ai.yaml
-```
-
-### 可用選項
-
-| 類別 | 選項 |
+| 標準 | 說明 |
 |------|------|
-| **Git 工作流** | `github-flow`、`gitflow`、`trunk-based`、`squash-merge`、`merge-commit`、`rebase-ff` |
-| **Commit 語言** | `english`、`traditional-chinese`、`bilingual` |
-| **測試層級** | `unit`、`integration`、`system`、`e2e` |
-| **專案結構** | `nodejs`、`python`、`dotnet`、`java`、`go` |
+| `anti-hallucination.md` | AI 協作準則 |
+| `checkin-standards.md` | 提交前品質檢查 |
+| `commit-message-guide.md` | Conventional Commits 格式 |
+| `spec-driven-development.md` | 規格優先方法 |
+
+### Level 2：推薦（2 小時設定）
+
+包含 Level 1 加上：
+
+| 標準 | 說明 |
+|------|------|
+| `git-workflow.md` | 分支策略（GitHub Flow、GitFlow、Trunk-Based） |
+| `code-review-checklist.md` | 系統化審查準則 |
+| `versioning.md` | 語意化版本（SemVer） |
+| `changelog-standards.md` | Keep a Changelog 格式 |
+| `testing-standards.md` | 測試金字塔（70/20/7/3） |
+| `test-driven-development.md` | TDD 方法論 |
+| `behavior-driven-development.md` | BDD 與 Given-When-Then |
+
+### Level 3：全面（1-2 天設定）
+
+包含 Level 2 加上：
+
+| 標準 | 說明 |
+|------|------|
+| `documentation-structure.md` | 文件組織 |
+| `project-structure.md` | 目錄慣例 |
+| `acceptance-test-driven-development.md` | ATDD 方法論 |
+| `refactoring-standards.md` | 安全重構實務 |
+
+完整指引請參閱[採用指南](../../adoption/ADOPTION-GUIDE.md)。
 
 ---
 
-## 規範涵蓋範圍
+## 客製化
 
-| 規範 | Skill 可用 | 採用方式 |
-|------|-----------|----------|
-| anti-hallucination.md | ai-collaboration-standards | 安裝 Skill |
-| commit-message-guide.md | commit-standards | 安裝 Skill |
-| code-review-checklist.md | code-review-assistant | 安裝 Skill |
-| git-workflow.md | git-workflow-guide | 安裝 Skill |
-| versioning.md + changelog-standards.md | release-standards | 安裝 Skill |
-| testing-standards.md | testing-guide | 安裝 Skill |
-| documentation-structure.md | documentation-guide | 安裝 Skill |
-| requirement templates | requirement-assistant | 安裝 Skill |
-| error-code-standards.md | error-code-guide | 安裝 Skill |
-| logging-standards.md | logging-guide | 安裝 Skill |
-| test-driven-development.md | tdd-assistant | 安裝 Skill |
-| test-completeness-dimensions.md | test-coverage-assistant | 安裝 Skill |
-| **checkin-standards.md** | - | 複製到專案 |
-| **spec-driven-development.md** | - | 複製到專案 |
-| **project-structure.md** | - | 複製到專案 |
-| **documentation-writing-standards.md** | - | 複製到專案 |
+### 客製化檔案位置
 
-> **重要**：對於有 Skill 的規範，使用 Skill 或複製原始文件 — **擇一即可**。
+| 類型 | 檔案 | 位置 |
+|------|------|------|
+| AI 工具規則 | `CLAUDE.md`、`.cursorrules` 等 | 專案根目錄 |
+| 專案覆寫 | `PROJECT-STANDARDS.md` | 專案根目錄 |
+| 複製的標準 | `docs/standards/` | 您的專案 |
 
-請參閱 [採用指南](adoption/ADOPTION-GUIDE.md) 獲得完整指導。
+### 調整標準
 
----
-
-## 自訂指南
-
-### 自訂內容要寫在哪裡
-
-| 自訂類型 | 檔案 | 位置 |
-|---------|------|------|
-| AI 工具規則與排除 | `CLAUDE.md`、`.cursorrules` 等 | 專案根目錄 |
-| 專案標準覆寫 | `PROJECT-STANDARDS.md` | 專案根目錄 |
-| 複製的核心規範 | `docs/standards/` | 您的專案 |
-
-### 調整規範
-
-1. **語言選擇**：英文、繁體中文、簡體中文 commit 類型
-2. **工具設定**：`npm run build`、`dotnet build`、`mvn package`
-3. **閾值調整**：測試覆蓋率 80%、最大方法長度 50 行
-4. **範圍定義**：為您的模組定義允許的 commit 範圍
+1. **語言**：英文、繁體中文或簡體中文提交類型
+2. **工具**：設定建置指令（`npm`、`dotnet`、`mvn` 等）
+3. **閾值**：調整測試覆蓋率、方法長度限制
+4. **範圍**：定義模組允許的提交範圍
 
 ### 排除標準
 
-1. **在 `uds init` 時**：互動式選擇需要的標準
-2. **選擇性採用**：只複製特定檔案
-3. **AI 工具排除**：在 `CLAUDE.md` 或 `.cursorrules` 中新增排除模式
-4. **專案層級覆寫**：建立 `PROJECT-STANDARDS.md` 記錄偏差
-
----
-
-## 多語言支援
-
-### Commit 訊息語言範例
-
-**英文**：
-```
-feat(auth): Add OAuth2 support
-fix(api): Resolve memory leak
-```
-
-**繁體中文**：
-```
-新增(認證): 實作 OAuth2 支援
-修正(API): 解決記憶體洩漏
-```
-
-**簡體中文**：
-```
-新增(认证): 实现 OAuth2 支持
-修正(API): 解决内存泄漏
-```
-
----
-
-## 工具整合
-
-### Git Hooks
-
-```bash
-npm install --save-dev @commitlint/{cli,config-conventional} husky
-npx husky install
-npx husky add .husky/commit-msg 'npx commitlint --edit $1'
-```
-
-### CI/CD 整合
-
-```yaml
-# .github/workflows/quality-gate.yml
-name: Quality Gate
-on: [push, pull_request]
-jobs:
-  quality:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: npx commitlint --from HEAD~1 --to HEAD --verbose
-      - run: npm run build
-      - run: npm test -- --coverage
-      - run: npm run lint
-```
-
-### OpenSpec 整合
-
-```bash
-cp -r integrations/openspec/ your-project/openspec/
-mkdir -p your-project/.claude/commands/
-cp integrations/openspec/commands/* your-project/.claude/commands/
-```
-
----
-
-## 範例
-
-### 範例 1：.NET Web API 專案
-
-```
-核心規範：anti-hallucination.md、checkin-standards.md、commit-message-guide.md、git-workflow.md（GitFlow）
-擴充：languages/csharp-style.md、frameworks/dotnet.md
-範本：CLAUDE.md（為 .NET 自訂）、README.md、CONTRIBUTING.md
-```
-
-### 範例 2：React SPA 專案
-
-```
-核心規範：anti-hallucination.md、checkin-standards.md、commit-message-guide.md、git-workflow.md（GitHub Flow）
-擴充：languages/typescript-style.md、frameworks/react.md
-工具：ESLint + Prettier、Husky + commitlint、Jest + React Testing Library
-```
-
-### 範例 3：Python ML 專案
-
-```
-核心規範：anti-hallucination.md、checkin-standards.md、commit-message-guide.md、git-workflow.md（主幹開發）
-擴充：languages/python-style.md、domains/machine-learning.md
-工具：Black、pylint、pytest、mypy
-```
+- **執行 `uds init` 時**：互動式選擇需要的標準
+- **選擇性採用**：僅複製特定檔案
+- **AI 工具排除**：在 `CLAUDE.md` 或 `.cursorrules` 中新增模式
 
 ---
 
@@ -508,37 +263,68 @@ cp integrations/openspec/commands/* your-project/.claude/commands/
 
 ### 如何貢獻
 
-1. **建議改善**：開啟 issue 描述問題和建議的解決方案
-2. **新增範例**：提交您如何應用這些標準的範例
-3. **擴展標準**：貢獻新的語言/框架/領域擴充
-4. **翻譯**：協助將標準翻譯成其他語言
+1. **建議改進**：開立 issue 說明問題與解決方案
+2. **新增範例**：提交實際使用範例
+3. **擴展標準**：貢獻語言/框架/領域擴展
+4. **翻譯**：協助翻譯成其他語言
 
-### 貢獻指南
+### 準則
 
-所有貢獻必須：
-- 維持語言/框架/領域無關性（對於核心規範）
-- 在至少 2 個不同情境中包含範例
-- 遵循現有的文件結構
-- 以 CC BY 4.0 授權
+- 核心標準保持語言/框架無關性
+- 至少在 2 個不同情境中包含範例
+- 遵循現有文件結構
+- 採用 CC BY 4.0 授權
+
+詳細準則請參閱 [CONTRIBUTING.md](../../CONTRIBUTING.md)。
+
+---
+
+## 常見問題
+
+### 如何選擇「僅 Skills」還是「僅標準」？
+
+- **僅 Skills**：最適合使用 Claude Code 的個人開發者，想要以最少設定獲得互動式 AI 協助
+- **僅標準**：最適合使用多個 AI 工具或需要企業合規與完整版本控制的團隊
+
+### 可以只採用部分標準嗎？
+
+可以！執行 `uds init` 並選擇需要的標準。也可以從 `core/` 手動複製特定檔案。
+
+### 如何更新已安裝的 skills？
+
+Plugin Marketplace：Skills 會自動更新或使用 `/plugin update`。
+CLI 安裝：執行 `uds update --skills`。
+
+### UDS 支援 Windows 嗎？
+
+支援。CLI 基於 Node.js，可在所有平台運作。PowerShell 特定說明請參閱 [Windows 指南](../../docs/WINDOWS-GUIDE.md)。
+
+### 核心標準和 skills 有什麼不同？
+
+- **核心標準**：定義最佳實務的文件（Markdown）- 參考資料
+- **Skills**：實作這些標準的互動式 AI 指令 - 主動協助
+
+### 為什麼有些 AI 工具標示為「計畫中」？
+
+我們提供這些工具的設定檔，但完整整合測試尚待進行。設定應該可以運作，但可能存在邊緣案例。
 
 ---
 
 ## 延伸閱讀
 
-### 相關標準與框架
+### 相關標準
 
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [Semantic Versioning](https://semver.org/)
 - [Keep a Changelog](https://keepachangelog.com/)
-- [Git Best Practices](https://sethrobertson.github.io/GitBestPractices/)
-- [Code Review Best Practices](https://google.github.io/eng-practices/review/)
+- [Google Engineering Practices](https://google.github.io/eng-practices/)
 
-### 書籍與文章
+### 推薦書籍
 
-- **The Art of Readable Code** by Boswell & Foucher
-- **Clean Code** by Robert C. Martin
-- **The Pragmatic Programmer** by Hunt & Thomas
-- **Accelerate** by Forsgren, Humble, and Kim
+- **The Art of Readable Code** - Boswell & Foucher
+- **Clean Code** - Robert C. Martin
+- **The Pragmatic Programmer** - Hunt & Thomas
+- **Accelerate** - Forsgren, Humble & Kim
 
 ---
 
@@ -546,140 +332,75 @@ cp integrations/openspec/commands/* your-project/.claude/commands/
 
 | 版本 | 日期 | 重點 |
 |------|------|------|
-| 4.0.0 | 2026-01-20 | 雙向推演；6 個新核心規範；22 個技能 |
-| 3.5.0 | 2026-01-15 | 多 Agent Skills；Gemini CLI TOML；i18n 支援 |
-| 3.2.2 | 2026-01-06 | 新增 `uds skills` 指令；棄用手動安裝腳本 |
-| 3.2.0 | 2026-01-02 | Plugin Marketplace 支援；CLI 增強 |
-| 3.0.0 | 2025-12-30 | 完整 Windows 支援；AI 優化標準；npm 發布 |
+| **4.1.0** | 2026-01-21 | 增強重構標準 |
+| **4.0.0** | 2026-01-20 | 雙向推導；6 個新核心標準 |
+| 3.5.0 | 2026-01-15 | 多代理 Skills；Gemini CLI；i18n |
+| 3.2.2 | 2026-01-06 | `uds skills` 指令 |
+| 3.0.0 | 2025-12-30 | Windows 支援；npm 發布 |
 
-請參閱 [CHANGELOG.md](CHANGELOG.md) 獲得完整版本歷史。
+完整歷史請參閱 [CHANGELOG.md](../../CHANGELOG.md)。
+
+---
+
+## 4.x 新功能
+
+### 4.1.0 重點
+
+- 增強重構標準，包含戰術、策略和遺留程式碼安全策略
+- 選擇重構方法的決策矩陣
+
+### 4.0.0 重點
+
+| 功能 | 說明 |
+|------|------|
+| **雙向推導** | Forward Derivation + Reverse Engineering 實現完整規格-程式碼生命週期 |
+| **6 個新核心標準** | BDD、ATDD、Reverse Engineering、Forward Derivation、AI Instructions、Refactoring |
+| **23 Skills** | 7 個新 skills 包括 Forward Derivation、BDD/ATDD assistants |
+| **24 Slash Commands** | 9 個新指令（`/derive-*`、`/reverse-*`、`/atdd`、`/bdd`） |
+| **方法論系統** | TDD/BDD/SDD/ATDD 工作流程已達生產就緒 |
 
 ---
 
 ## 授權
 
-| 組件 | 授權 |
-|------|------|
-| 文件（`core/`、`extensions/`、`templates/` 等）| [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
-| CLI 工具（`cli/`）| [MIT](../../cli/LICENSE) |
+| 元件 | 授權 | 允許 |
+|------|------|------|
+| 文件 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | 商業使用、修改、帶署名的再發布 |
+| CLI 工具 | [MIT](../../cli/LICENSE) | 商業使用、修改、再發布 |
 
-兩種授權都是寬鬆型授權，允許商業使用、修改與再發布。請參閱 [LICENSE](../../LICENSE) 獲取完整詳情。
-
----
-
-## 社群
-
-- **Issues**：回報錯誤或建議改善
-- **Discussions**：分享您如何使用這些標準
-- **Examples**：提交您的專案作為範例
+完整詳情請參閱 [LICENSE](../../LICENSE)。
 
 ---
 
-## 採用標準檢查清單
-
-- [ ] 選擇安裝方式（Marketplace / npm / 手動）
-- [ ] 執行 `uds init` 或複製核心規範
-- [ ] 視需要新增語言/框架擴充
-- [ ] 在 CONTRIBUTING.md 中設定專案特定設定
-- [ ] 設定 Git hooks（commitlint, pre-commit）
-- [ ] 在 CI/CD 中整合品質門檻
-- [ ] 對團隊進行標準培訓
-- [ ] 建立遵循標準的第一個 commit
-
----
-
-**準備好提升專案品質了嗎？** 從上方的快速開始開始！
-
----
-
-**由開源社群用愛維護**
-
----
-
-## 詳細目錄結構
+## 目錄結構
 
 ```
 universal-dev-standards/
-├── core/                                  # 核心通用標準（22 個檔案）
-│   ├── acceptance-test-driven-development.md # ATDD 方法論
-│   ├── ai-instruction-standards.md       # AI 指令撰寫指南
-│   ├── anti-hallucination.md             # AI 協作指南
-│   ├── behavior-driven-development.md    # BDD 方法論
-│   ├── changelog-standards.md            # 變更日誌撰寫指南
-│   ├── checkin-standards.md              # 程式碼簽入品質門檻
-│   ├── code-review-checklist.md          # 程式碼審查指南
-│   ├── commit-message-guide.md           # Commit 訊息規範
-│   ├── documentation-structure.md        # 文件組織
-│   ├── documentation-writing-standards.md # 文件撰寫指南
-│   ├── error-code-standards.md           # 錯誤碼規範
-│   ├── forward-derivation-standards.md   # 正向推演標準
-│   ├── git-workflow.md                   # Git 分支策略
-│   ├── logging-standards.md              # 日誌標準
-│   ├── project-structure.md              # 專案目錄規範
-│   ├── refactoring-standards.md          # 重構標準
-│   ├── reverse-engineering-standards.md  # 反向工程標準
-│   ├── spec-driven-development.md        # SDD 方法論與標準
-│   ├── test-completeness-dimensions.md   # 測試完整度維度
-│   ├── test-driven-development.md        # TDD 方法論
-│   ├── testing-standards.md              # 測試標準（UT/IT/ST/E2E）
-│   └── versioning.md                     # 語意化版本控制指南
-│
-├── ai/                             # AI 優化標準
-│   ├── standards/                 # Token 高效 YAML 格式（減少約 80%）
-│   │   ├── git-workflow.ai.yaml
-│   │   ├── commit-message.ai.yaml
-│   │   ├── testing.ai.yaml
-│   │   └── ...
-│   └── options/                   # 可配置選項
-│       ├── git-workflow/          # github-flow、gitflow、trunk-based 等
-│       ├── commit-message/        # english、traditional-chinese、bilingual
-│       ├── testing/               # unit、integration、system、e2e
-│       └── project-structure/     # nodejs、python、dotnet、java、go
-│
-├── options/                        # 人類可讀選項指南
-│   ├── git-workflow/              # 詳細工作流程文件
-│   ├── commit-message/            # Commit 語言指南
-│   ├── testing/                   # 測試層級指南
-│   └── project-structure/         # 語言特定專案結構
-│
-├── skills/                         # AI 工具技能
-│   ├── claude-code/               # Claude Code Skills（22 個技能）
-│   ├── cursor/                    # Cursor Rules（規劃中）
-│   ├── windsurf/                  # Windsurf Rules（規劃中）
-│   ├── cline/                     # Cline Rules（規劃中）
-│   ├── copilot/                   # GitHub Copilot（規劃中）
-│   └── _shared/                   # 共享範本
-│
-├── extensions/                     # 選用擴充
-│   ├── languages/                 # 語言特定標準
-│   │   ├── csharp-style.md        # C# 編碼規範
-│   │   └── php-style.md           # PHP 8.1+ 風格指南
-│   ├── frameworks/                # 框架特定標準
-│   │   └── fat-free-patterns.md   # Fat-Free Framework 模式
-│   ├── locales/                   # 地區特定標準
-│   │   └── zh-tw.md               # 繁體中文
-│   └── domains/                   # 領域特定標準
-│       └── （即將推出）
-│
-├── templates/                      # 專案文件範本
-│   ├── requirement-*.md           # 需求範本
-│   └── migration-template.md      # 遷移計畫範本
-│
-├── integrations/                   # 工具設定檔
-│   ├── cline/                     # Cline .clinerules
-│   ├── cursor/                    # Cursor .cursorrules
-│   ├── github-copilot/            # Copilot 指示
-│   ├── google-antigravity/        # Antigravity 整合
-│   ├── windsurf/                  # Windsurf .windsurfrules
-│   └── openspec/                  # OpenSpec 框架
-│
-├── cli/                           # CLI 工具
-│   └── （uds 指令）
-│
-├── locales/                       # 翻譯
-│   ├── zh-TW/                     # 繁體中文
-│   └── zh-CN/                     # 簡體中文
-│
-└── adoption/                       # 採用指南
-    └── ADOPTION-GUIDE.md
+├── core/                    # 核心標準（22 個檔案）
+│   ├── anti-hallucination.md
+│   ├── commit-message-guide.md
+│   ├── testing-standards.md
+│   └── ...
+├── ai/                      # AI 最佳化格式（.ai.yaml）
+├── skills/                  # AI 工具 skills
+│   └── claude-code/         # 23 個 skill 目錄
+├── extensions/              # 語言/框架擴展
+│   ├── languages/           # csharp-style.md、php-style.md
+│   └── frameworks/          # fat-free-patterns.md
+├── integrations/            # AI 工具設定
+│   ├── cursor/              # .cursorrules
+│   ├── windsurf/            # .windsurfrules
+│   └── ...
+├── cli/                     # CLI 工具（uds 指令）
+├── locales/                 # 翻譯
+│   ├── zh-TW/               # 繁體中文
+│   └── zh-CN/               # 簡體中文
+├── templates/               # 文件模板
+└── adoption/                # 採用指南
 ```
+
+---
+
+**準備好提升專案品質了嗎？** 從[快速開始](#快速開始)開始！
+
+**由開源社群用 ❤️ 維護**

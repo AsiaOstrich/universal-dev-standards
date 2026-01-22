@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/docs/AI-AGENT-ROADMAP.md) | [简体中文](../locales/zh-CN/docs/AI-AGENT-ROADMAP.md)
 
-**Version**: 2.2.0
-**Last Updated**: 2026-01-15
+**Version**: 2.3.0
+**Last Updated**: 2026-01-22
 
 This document provides a comprehensive reference for AI Agent support in Universal Development Standards (UDS).
 
@@ -11,18 +11,59 @@ This document provides a comprehensive reference for AI Agent support in Univers
 
 ## Table of Contents
 
-1. [Quick Reference](#1-quick-reference)
-2. [Integration Levels](#2-integration-levels)
-3. [Skills System](#3-skills-system)
-4. [Configuration Reference](#4-configuration-reference)
-5. [Resources](#5-resources)
-6. [Appendix: Future Development](#appendix-future-development)
+1. [UDS CLI Implementation Status](#1-uds-cli-implementation-status)
+2. [Quick Reference](#2-quick-reference)
+3. [Integration Levels](#3-integration-levels)
+4. [Skills System](#4-skills-system)
+5. [Configuration Reference](#5-configuration-reference)
+6. [Resources](#6-resources)
+7. [Appendix: Future Development](#appendix-future-development)
 
 ---
 
-## 1. Quick Reference
+## 1. UDS CLI Implementation Status
 
-### Configuration Files
+> **Important**: This section describes UDS CLI's implementation status for each tool, NOT the tool's native capabilities. For native capabilities, see [Quick Reference](#2-quick-reference).
+
+### Status Definitions
+
+| Status | Definition |
+|--------|------------|
+| `complete` | Full Skills + Commands support, tested and production-ready |
+| `partial` | Skills work, Commands limited or unsupported |
+| `preview` | Functional but in preview, may have edge cases |
+| `planned` | Code exists in CLI but not fully tested |
+| `minimal` | Rules file generation only, no Skills/Commands |
+
+### Implementation Matrix
+
+| AI Tool | UDS Status | Skills | Commands | Config File | Notes |
+|---------|:----------:|:------:|:--------:|-------------|-------|
+| **Claude Code** | ✅ complete | ✅ | Built-in | `CLAUDE.md` | Marketplace + User + Project levels |
+| **OpenCode** | ✅ complete | ✅ | ✅ | `AGENTS.md` | Full implementation, reads Claude rules |
+| Cline | 🔶 partial | ✅ | - | `.clinerules` | Skills via fallback, Commands use Workflow |
+| GitHub Copilot | 🔶 partial | ✅ | ✅ | `copilot-instructions.md` | Complements Copilot Chat |
+| OpenAI Codex | 🔶 partial | ✅ | - | `AGENTS.md` (shared) | Skills available |
+| Gemini CLI | 🧪 preview | ✅ | ✅ (TOML) | `GEMINI.md` | Commands auto-converted to TOML |
+| Roo Code | ⏳ planned | ✅ | ✅ | - | Implementation exists, testing pending |
+| Cursor | 📄 minimal | - | - | `.cursorrules` | Rules file only |
+| Windsurf | 📄 minimal | - | - | `.windsurfrules` | Rules file only |
+| Antigravity | 📄 minimal | - | - | `INSTRUCTIONS.md` | Rules file only |
+
+### Two Types of "Support"
+
+| Concept | Definition | Documented In |
+|---------|------------|---------------|
+| **Tool Native Capabilities** | What the AI tool itself supports | [Quick Reference](#2-quick-reference) |
+| **UDS CLI Implementation** | How UDS CLI implements support | This section |
+
+Example: Cursor natively doesn't support SKILL.md (tool capability), but UDS CLI can generate `.cursorrules` for it (implementation status = minimal).
+
+---
+
+## 2. Quick Reference
+
+### 2.1 Configuration Files
 
 | AI Agent | Project Config | Global Config | Notes |
 |----------|----------------|---------------|-------|
@@ -36,7 +77,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | Gemini CLI | `.gemini/GEMINI.md` | `~/.gemini/GEMINI.md` | Supports `@import` |
 | Cursor | `.cursor/rules/*.mdc` | `~/.cursor/rules/` | YAML frontmatter required |
 
-### Skills Paths
+### 2.2 Skills Paths
 
 | AI Agent | Skills | Project Path | Global Path | Notes |
 |----------|:------:|--------------|-------------|-------|
@@ -50,7 +91,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | Gemini CLI | ✅ Preview | `.gemini/skills/` | `~/.gemini/skills/` | v0.23+ preview |
 | Cursor | ❌ No | `.cursor/rules/` | `~/.cursor/rules/` | Rules only, no SKILL.md |
 
-### Slash Commands
+### 2.3 Slash Commands
 
 | AI Agent | Support | Type | Examples | Custom Path |
 |----------|:-------:|------|----------|-------------|
@@ -64,7 +105,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | Gemini CLI | ✅ | System + Custom | `/clear`, `/memory`, `/mcp` | `.gemini/commands/*.toml` |
 | Cursor | ✅ | Built-in + Custom | `/summarize`, `/models` | `.cursor/commands/*.md` |
 
-### Platform Support
+### 2.4 Platform Support
 
 | Platform | CLI Tool | Skills |
 |----------|:--------:|:------:|
@@ -74,7 +115,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 
 ---
 
-## 2. Integration Levels
+## 3. Integration Levels
 
 > **Note**: As of January 2026, Agent Skills (SKILL.md) has become an industry standard. Most major AI coding tools now support the same Skills format.
 
@@ -105,9 +146,9 @@ This document provides a comprehensive reference for AI Agent support in Univers
 
 ---
 
-## 3. Skills System
+## 4. Skills System
 
-### 3.1 UDS Skills Compatibility
+### 4.1 UDS Skills Compatibility
 
 | # | Skill | Slash Command | Claude | OpenCode | Cursor | Copilot |
 |---|-------|---------------|:------:|:--------:|:------:|:-------:|
@@ -130,7 +171,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | 17 | project-structure-guide | `/config` | Full | Full | Partial | No |
 | 18 | logging-guide | - | Full | Full | Full | Full |
 
-### 3.2 Skills Paths & Activation
+### 4.2 Skills Paths & Activation
 
 #### Skills Discovery Paths
 
@@ -162,7 +203,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 
 **Recommendation**: Use `.claude/skills/` as the default installation path — most tools can read it for cross-tool compatibility.
 
-### 3.3 Cross-Platform Portability
+### 4.3 Cross-Platform Portability
 
 > **Industry Standard**: As of December 2025, SKILL.md has been adopted by OpenAI, GitHub, Google, and the broader AI coding ecosystem.
 
@@ -185,9 +226,9 @@ This document provides a comprehensive reference for AI Agent support in Univers
 
 ---
 
-## 4. Configuration Reference
+## 5. Configuration Reference
 
-### 4.1 Configuration Files
+### 5.1 Configuration Files
 
 | AI Agent | Project Config | Global Config | Character Limit |
 |----------|----------------|---------------|-----------------|
@@ -201,7 +242,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | OpenAI Codex | `AGENTS.md` | `~/.codex/AGENTS.md` | 32KB |
 | Gemini CLI | `GEMINI.md` | `~/.gemini/GEMINI.md` | 1M tokens |
 
-### 4.2 Configuration Merge Behavior
+### 5.2 Configuration Merge Behavior
 
 | AI Agent | Merge Strategy | Priority (High to Low) |
 |----------|----------------|------------------------|
@@ -214,7 +255,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 | OpenAI Codex | Concatenate | Override files > Base, closer wins |
 | Gemini CLI | Concatenate | All files with `@import` support |
 
-### 4.3 Skills File Format
+### 5.3 Skills File Format
 
 > **Standard Format**: SKILL.md with YAML frontmatter is the universal format supported by most tools.
 
@@ -232,7 +273,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 
 ---
 
-## 5. Resources
+## 6. Resources
 
 ### Official Documentation
 
@@ -296,6 +337,7 @@ This document provides a comprehensive reference for AI Agent support in Univers
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.3.0 | 2026-01-22 | Added UDS CLI Implementation Status section with status definitions |
 | 2.2.0 | 2026-01-15 | Added Multi-Agent Installation, Gemini CLI TOML conversion |
 | 2.1.0 | 2026-01-15 | Updated Skills support status for all tools (industry-wide adoption) |
 | 2.0.0 | 2026-01-15 | Major restructure: consolidated content, reduced tables |
