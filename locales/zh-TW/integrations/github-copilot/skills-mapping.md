@@ -1,8 +1,8 @@
 ---
 source: ../../../../integrations/github-copilot/skills-mapping.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-13
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-24
 status: current
 ---
 
@@ -36,7 +36,7 @@ Claude Code 提供 18 個 skills 和 16 個斜線命令。GitHub Copilot 不支�
 | **git-workflow-guide** | 僅 Chat 提示 | ⚠️ 部分 |
 | **documentation-guide** | 僅 Chat 提示 | ⚠️ 部分 |
 | **methodology-system** | 不可用 | ❌ 無 |
-| **refactoring-assistant** | 僅 Chat 提示 | ⚠️ 部分 |
+| **refactoring-assistant** | COPILOT-CHAT-REFERENCE.md §9 | ✅ 完整 |
 | **error-code-guide** | 僅 Chat 提示 | ⚠️ 部分 |
 | **project-structure-guide** | 僅 Chat 提示 | ⚠️ 部分 |
 | **logging-guide** | 僅 Chat 提示 | ⚠️ 部分 |
@@ -65,6 +65,9 @@ Claude Code 提供 18 個 skills 和 16 個斜線命令。GitHub Copilot 不支�
 | `/changelog` | "以 Keep a Changelog 格式產生 CHANGELOG 條目" |
 | `/docs` | "為此函式/模組撰寫文件" |
 | `/spec` | "為此功能建立規格文件" |
+| `/refactor` | "幫我決定是否應該重構或重寫..." |
+| `/refactor tactical` | "建議戰術重構改進..." |
+| `/refactor legacy` | "幫我安全地重構此遺留程式碼..." |
 | `/methodology` | ❌ 不可用 |
 | `/bdd` | "幫我用 Gherkin 格式撰寫 BDD 情境" |
 | `/config` | "為此類型應用程式建議專案結構" |
@@ -183,6 +186,7 @@ gh repo create my-project --template my-org/project-template
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.1.0 | 2026-01-21 | 更新 refactoring-assistant 為完整狀態，新增 /refactor 命令對照 |
 | 1.0.0 | 2026-01-13 | 初始發布 |
 
 ---
