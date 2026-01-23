@@ -87,9 +87,14 @@ vi.mock('../../src/utils/detector.js', () => ({
 
 vi.mock('../../src/utils/copier.js', () => ({
   copyStandard: vi.fn(() => ({ success: true, error: null, path: '/test/path' })),
-  copyIntegration: vi.fn(() => ({ success: true, error: null, path: '/test/path' })),
+  copyIntegration: vi.fn(() => ({ success: true, error: null, path: '/test/path' }))
+}));
+
+// Mock the core manifest module (init.js imports directly from here)
+vi.mock('../../src/core/manifest.js', () => ({
   writeManifest: vi.fn(),
-  isInitialized: vi.fn(() => false)
+  readManifest: vi.fn(() => null),
+  manifestExists: vi.fn(() => false)
 }));
 
 vi.mock('../../src/utils/github.js', () => ({
@@ -150,7 +155,7 @@ vi.mock('../../src/utils/integration-generator.js', () => ({
 }));
 
 import { initCommand } from '../../src/commands/init.js';
-import { isInitialized, writeManifest } from '../../src/utils/copier.js';
+import { manifestExists as isInitialized, writeManifest } from '../../src/core/manifest.js';
 import { detectAll } from '../../src/utils/detector.js';
 import { promptConfirm, promptAITools, promptSkillsInstallLocation, promptCommandsInstallation } from '../../src/prompts/init.js';
 import { getAgentDisplayName } from '../../src/config/ai-agent-paths.js';

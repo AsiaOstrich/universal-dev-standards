@@ -103,7 +103,7 @@ export const SUPPORTED_AI_TOOLS = {
   },
   'antigravity': {
     name: 'Antigravity',
-    file: '.antigravity/ANTIGRAVITY.md',
+    file: 'INSTRUCTIONS.md',
     format: 'markdown',
     category: 'secondary',
     supports: ['skills', 'workflows']

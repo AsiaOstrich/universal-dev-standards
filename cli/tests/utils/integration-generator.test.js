@@ -394,11 +394,13 @@ describe('Integration Generator', () => {
   });
 
   describe('writeIntegrationFile', () => {
-    it('should return error for unknown tool', () => {
-      const result = writeIntegrationFile('unknown-tool', {}, '/project');
+    it('should allow unknown tool with generic filename', () => {
+      // Design: unknown tools are allowed, generating ${tool}.md file
+      existsSync.mockReturnValue(false);
+      const result = writeIntegrationFile('unknown-tool', { categories: [] }, '/project');
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('Unknown tool');
+      expect(result.success).toBe(true);
+      expect(result.path).toBe('unknown-tool.md');
     });
 
     it('should create directory if it does not exist', () => {

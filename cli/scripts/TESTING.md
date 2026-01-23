@@ -68,7 +68,7 @@ node bin/uds.js list | head -20
 # Run all unit tests
 npm test -- tests/unit/
 
-# Expected: 289 tests passed
+# Expected: 496 tests passed
 ```
 
 For targeted testing of specific modules:
@@ -131,7 +131,7 @@ rm -rf /tmp/uds-test-project
 |-----------|---------|-----------------|
 | Module Loading | `node -e "import(...)..."` | ✅ All modules load |
 | CLI Version | `uds --version` | ✅ Shows 4.1.0 |
-| Unit Tests | `npm test -- tests/unit/` | ✅ 289 passed |
+| Unit Tests | `npm test -- tests/unit/` | ✅ 496 passed |
 | Command Tests | `npm test -- tests/commands/` | ⚠️ Some may fail (environment issues) |
 | Manual Verification | `uds init`, `uds check` | ✅ Functions correctly |
 
@@ -169,6 +169,24 @@ hasher.js ◄───────── copier.js
      │                    │
      ▼                    ▼
 integration-generator.js
+```
+
+### Core Module Unit Tests
+
+Test files for the core modules:
+
+```
+cli/tests/unit/core/
+├── constants.test.js  # 43 tests - constants, helper functions
+├── errors.test.js     # 54 tests - error classes, result utilities
+├── manifest.test.js   # 60 tests - CRUD, validation, migration
+└── paths.test.js      # 50 tests - PathResolver, file type detection
+```
+
+Run core module tests only:
+
+```bash
+npm test -- tests/unit/core/
 ```
 
 ## Troubleshooting
