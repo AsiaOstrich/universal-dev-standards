@@ -31,10 +31,10 @@ import {
   compareStandardsWithReferences
 } from '../utils/reference-sync.js';
 import {
-  getToolFilePath,
-  getToolFormat,
-  extractMarkedContent
+  extractMarkedContent,
+  getToolFilePath
 } from '../utils/integration-generator.js';
+import { getToolFormat } from '../core/constants.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
 import { t, getLanguage, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 

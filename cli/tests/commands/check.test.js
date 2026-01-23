@@ -32,6 +32,34 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const TEST_DIR = join(__dirname, '../temp/check-test');
 
+// Helper to create a valid manifest with all required fields
+const createValidManifest = (overrides = {}) => ({
+  version: '3.3.0',
+  upstream: {
+    repo: 'AsiaOstrich/universal-dev-standards',
+    version: '2.1.0',
+    installed: '2024-01-01'
+  },
+  level: 2,
+  format: 'ai',
+  standardsScope: 'minimal',
+  contentMode: 'index',
+  standards: [],
+  extensions: [],
+  integrations: [],
+  integrationConfigs: {},
+  options: {},
+  aiTools: [],
+  skills: { installed: false, location: 'marketplace', names: [], version: null, installations: [] },
+  commands: { installed: false, names: [], installations: [] },
+  methodology: null,
+  fileHashes: {},
+  skillHashes: {},
+  commandHashes: {},
+  integrationBlockHashes: {},
+  ...overrides
+});
+
 describe('Check Command', () => {
   let originalCwd;
   let consoleLogs = [];
@@ -68,20 +96,7 @@ describe('Check Command', () => {
     });
 
     it('should report initialized status', async () => {
-      // Create minimal manifest
-      const manifest = {
-        version: '1.0.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '2.1.0',
-          installed: '2024-01-01'
-        },
-        level: 2,
-        standards: [],
-        extensions: [],
-        integrations: [],
-        skills: { installed: false }
-      };
+      const manifest = createValidManifest({ level: 2 });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -97,19 +112,10 @@ describe('Check Command', () => {
     });
 
     it('should report missing files', async () => {
-      const manifest = {
-        version: '1.0.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '2.1.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 1,
-        standards: ['core/anti-hallucination.md'],
-        extensions: [],
-        integrations: [],
-        skills: { installed: false }
-      };
+        standards: ['core/anti-hallucination.md']
+      });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -124,19 +130,10 @@ describe('Check Command', () => {
     });
 
     it('should report all files present when complete (legacy manifest)', async () => {
-      const manifest = {
-        version: '1.0.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '2.1.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 1,
-        standards: ['core/anti-hallucination.md'],
-        extensions: [],
-        integrations: [],
-        skills: { installed: false }
-      };
+        standards: ['core/anti-hallucination.md']
+      });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -164,22 +161,13 @@ describe('Check Command', () => {
       const { computeFileHash } = await import('../../src/utils/hasher.js');
       const hashInfo = computeFileHash(filePath);
 
-      const manifest = {
-        version: '3.1.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '3.3.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 1,
         standards: ['core/anti-hallucination.md'],
-        extensions: [],
-        integrations: [],
-        skills: { installed: false },
         fileHashes: {
           '.standards/anti-hallucination.md': hashInfo
         }
-      };
+      });
 
       writeFileSync(
         join(TEST_DIR, '.standards', 'manifest.json'),
@@ -207,22 +195,13 @@ describe('Check Command', () => {
       // Modify the file
       writeFileSync(filePath, '# Modified Content');
 
-      const manifest = {
-        version: '3.1.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '3.3.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 1,
         standards: ['core/anti-hallucination.md'],
-        extensions: [],
-        integrations: [],
-        skills: { installed: false },
         fileHashes: {
           '.standards/anti-hallucination.md': originalHash
         }
-      };
+      });
 
       writeFileSync(
         join(TEST_DIR, '.standards', 'manifest.json'),
@@ -250,19 +229,10 @@ describe('Check Command', () => {
     });
 
     it('should show skills status when installed', async () => {
-      const manifest = {
-        version: '1.0.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '2.1.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 1,
-        standards: [],
-        extensions: [],
-        integrations: [],
-        skills: { installed: true }
-      };
+        skills: { installed: true, location: 'project', names: [], version: null, installations: [] }
+      });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -277,19 +247,10 @@ describe('Check Command', () => {
     });
 
     it('should show coverage summary', async () => {
-      const manifest = {
-        version: '1.0.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '2.1.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 2,
-        standards: ['core/anti-hallucination.md'],
-        extensions: [],
-        integrations: [],
-        skills: { installed: false }
-      };
+        standards: ['core/anti-hallucination.md']
+      });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -312,24 +273,17 @@ describe('Check Command', () => {
         lastUpdated: '2024-01-15T00:00:00Z'
       });
 
-      const manifest = {
-        version: '1.0.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '3.0.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 2,
-        standards: [],
-        extensions: [],
-        integrations: [],
-        aiTools: ['claude-code'],  // Need aiTools for Skills Status to show agents
+        aiTools: ['claude-code'],
         skills: {
           installed: true,
           location: 'marketplace',
-          names: ['all-via-plugin']
+          names: ['all-via-plugin'],
+          version: null,
+          installations: []
         }
-      };
+      });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -346,23 +300,16 @@ describe('Check Command', () => {
     });
 
     it('should not show file-not-found warning for marketplace skills', async () => {
-      const manifest = {
-        version: '1.0.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '3.0.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 2,
-        standards: [],
-        extensions: [],
-        integrations: [],
         skills: {
           installed: true,
           location: 'marketplace',
-          names: ['all-via-plugin']
+          names: ['all-via-plugin'],
+          version: null,
+          installations: []
         }
-      };
+      });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -379,19 +326,11 @@ describe('Check Command', () => {
     });
 
     it('should suggest migration for legacy manifests', async () => {
-      const manifest = {
-        version: '1.0.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '2.1.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 1,
         standards: ['core/anti-hallucination.md'],
-        extensions: [],
-        integrations: [],
-        skills: { installed: false }
-      };
+        fileHashes: {}  // Empty fileHashes triggers migration suggestion
+      });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -408,20 +347,12 @@ describe('Check Command', () => {
     });
 
     it('should show AI Tool Integration Status when aiTools configured', async () => {
-      const manifest = {
-        version: '3.2.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '3.5.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 2,
         standards: ['core/anti-hallucination.md'],
-        extensions: [],
         integrations: ['CLAUDE.md'],
-        aiTools: ['claude-code'],
-        skills: { installed: false }
-      };
+        aiTools: ['claude-code']
+      });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -441,20 +372,11 @@ describe('Check Command', () => {
     });
 
     it('should report missing integration file', async () => {
-      const manifest = {
-        version: '3.2.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '3.5.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 2,
-        standards: [],
-        extensions: [],
         integrations: ['CLAUDE.md'],
-        aiTools: ['claude-code'],
-        skills: { installed: false }
-      };
+        aiTools: ['claude-code']
+      });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -471,20 +393,10 @@ describe('Check Command', () => {
     });
 
     it('should skip AI Tool Integration Status when no aiTools configured', async () => {
-      const manifest = {
-        version: '3.2.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '3.5.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 2,
-        standards: [],
-        extensions: [],
-        integrations: [],
-        skills: { installed: false }
-        // Note: no aiTools field
-      };
+        aiTools: []  // Empty aiTools
+      });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -500,23 +412,18 @@ describe('Check Command', () => {
     });
 
     it('should show OpenCode status when OpenCode configured', async () => {
-      const manifest = {
-        version: '3.2.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '3.5.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 2,
-        standards: [],
-        extensions: [],
         integrations: ['AGENTS.md'],
         aiTools: ['opencode'],
         skills: {
           installed: true,
-          location: 'marketplace'
+          location: 'marketplace',
+          names: [],
+          version: null,
+          installations: []
         }
-      };
+      });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -539,23 +446,18 @@ describe('Check Command', () => {
     });
 
     it('should show both Claude Code and OpenCode status when both configured', async () => {
-      const manifest = {
-        version: '3.2.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '3.5.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 2,
-        standards: [],
-        extensions: [],
         integrations: ['CLAUDE.md', 'AGENTS.md'],
         aiTools: ['claude-code', 'opencode'],
         skills: {
           installed: true,
-          location: 'marketplace'
+          location: 'marketplace',
+          names: [],
+          version: null,
+          installations: []
         }
-      };
+      });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -576,20 +478,11 @@ describe('Check Command', () => {
       // Bug fix test: Coverage Summary should dynamically check disk, not rely on manifest.skills.installed
       // See: https://github.com/AsiaOstrich/universal-dev-standards/issues/xxx
 
-      const manifest = {
-        version: '3.5.0',
-        upstream: {
-          repo: 'AsiaOstrich/universal-dev-standards',
-          version: '3.5.0',
-          installed: '2024-01-01'
-        },
+      const manifest = createValidManifest({
         level: 3,
-        standards: [],
-        extensions: [],
-        integrations: [],
-        aiTools: ['claude-code'],
-        skills: { installed: false }  // <-- manifest says false
-      };
+        aiTools: ['claude-code']
+        // skills.installed defaults to false
+      });
 
       // Create manifest
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });

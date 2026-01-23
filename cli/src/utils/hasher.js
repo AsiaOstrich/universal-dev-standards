@@ -1,21 +1,7 @@
 import { createHash } from 'crypto';
 import { readFileSync, statSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
-
-/**
- * Marker block constants for different file formats
- * (Duplicated from integration-generator.js to avoid circular dependency)
- */
-const MARKERS = {
-  markdown: {
-    start: '<!-- UDS:STANDARDS:START -->',
-    end: '<!-- UDS:STANDARDS:END -->'
-  },
-  plaintext: {
-    start: '# === UDS:STANDARDS:START ===',
-    end: '# === UDS:STANDARDS:END ==='
-  }
-};
+import { UDS_MARKERS } from '../core/constants.js';
 
 /**
  * Compute SHA-256 hash for a file
@@ -256,7 +242,7 @@ function detectFormat(filePath) {
  * @returns {{before: string, blockContent: string, after: string}} Extracted parts
  */
 function extractBlockContent(content, format) {
-  const markers = MARKERS[format] || MARKERS.markdown;
+  const markers = UDS_MARKERS[format] || UDS_MARKERS.markdown;
   const startIdx = content.indexOf(markers.start);
   const endIdx = content.indexOf(markers.end);
 

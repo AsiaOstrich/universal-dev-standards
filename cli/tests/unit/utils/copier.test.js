@@ -14,6 +14,34 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const TEST_DIR = join(__dirname, '../../temp/copier-test');
 
+// Helper to create a valid manifest with all required fields
+const createValidManifest = (overrides = {}) => ({
+  version: '3.3.0',
+  upstream: {
+    repo: 'AsiaOstrich/universal-dev-standards',
+    version: null,
+    installed: new Date().toISOString()
+  },
+  level: 2,
+  format: 'ai',
+  standardsScope: 'minimal',
+  contentMode: 'index',
+  standards: [],
+  extensions: [],
+  integrations: [],
+  integrationConfigs: {},
+  options: {},
+  aiTools: [],
+  skills: { installed: false, location: 'marketplace', names: [], version: null, installations: [] },
+  commands: { installed: false, names: [], installations: [] },
+  methodology: null,
+  fileHashes: {},
+  skillHashes: {},
+  commandHashes: {},
+  integrationBlockHashes: {},
+  ...overrides
+});
+
 describe('Copier Utils', () => {
   beforeEach(() => {
     if (existsSync(TEST_DIR)) {
@@ -30,43 +58,39 @@ describe('Copier Utils', () => {
 
   describe('writeManifest', () => {
     it('should create manifest file in .standards directory', () => {
-      const manifest = {
-        version: '1.0.0',
-        level: 2,
-        standards: []
-      };
+      const manifest = createValidManifest({ level: 2 });
 
       const path = writeManifest(manifest, TEST_DIR);
 
       expect(existsSync(path)).toBe(true);
       const content = JSON.parse(readFileSync(path, 'utf-8'));
-      expect(content.version).toBe('1.0.0');
+      expect(content.version).toBe('3.3.0');
       expect(content.level).toBe(2);
     });
 
     it('should create .standards directory if it does not exist', () => {
-      const manifest = { version: '1.0.0' };
+      const manifest = createValidManifest();
       writeManifest(manifest, TEST_DIR);
 
       expect(existsSync(join(TEST_DIR, '.standards'))).toBe(true);
     });
 
     it('should overwrite existing manifest', () => {
-      const manifest1 = { version: '1.0.0', level: 1 };
-      const manifest2 = { version: '2.0.0', level: 2 };
+      const manifest1 = createValidManifest({ level: 1 });
+      const manifest2 = createValidManifest({ level: 2 });
 
       writeManifest(manifest1, TEST_DIR);
       writeManifest(manifest2, TEST_DIR);
 
       const result = readManifest(TEST_DIR);
-      expect(result.version).toBe('2.0.0');
+      expect(result.version).toBe('3.3.0');
       expect(result.level).toBe(2);
     });
   });
 
   describe('readManifest', () => {
     it('should read existing manifest', () => {
-      const manifest = { version: '1.0.0', level: 1 };
+      const manifest = createValidManifest({ level: 1 });
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
         join(TEST_DIR, '.standards', 'manifest.json'),
@@ -75,7 +99,7 @@ describe('Copier Utils', () => {
 
       const result = readManifest(TEST_DIR);
 
-      expect(result.version).toBe('1.0.0');
+      expect(result.version).toBe('3.3.0');
       expect(result.level).toBe(1);
     });
 

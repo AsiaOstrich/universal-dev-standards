@@ -12,10 +12,12 @@ import {
 import { detectAll } from '../utils/detector.js';
 import {
   copyStandard,
-  copyIntegration,
-  writeManifest,
-  isInitialized
+  copyIntegration
 } from '../utils/copier.js';
+import { 
+  writeManifest, 
+  manifestExists as isInitialized 
+} from '../core/manifest.js';
 import { t } from '../i18n/messages.js';
 import {
   downloadSkillToLocation,
@@ -558,6 +560,7 @@ export async function initCommand(options) {
 
   // Helper to copy standard with format awareness
   const copyStandardWithFormat = async (std, targetFormat) => {
+    // Use registry.getStandardSource to get relative path from standard object
     const sourcePath = getStandardSource(std, targetFormat);
     const result = await copyStandard(sourcePath, '.standards', projectPath);
     return { ...result, sourcePath };

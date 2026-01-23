@@ -2,50 +2,33 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { dirname, join, basename } from 'path';
 import { getLanguageRules } from '../prompts/integrations.js';
 import { computeIntegrationBlockHash } from './hasher.js';
+import { UDS_MARKERS, SUPPORTED_AI_TOOLS, LEGACY_TOOL_MAPPINGS } from '../core/constants.js';
 
 /**
- * Marker block constants for different file formats
+ * Helper functions for tool configuration
  */
-const MARKERS = {
-  markdown: {
-    start: '<!-- UDS:STANDARDS:START -->',
-    end: '<!-- UDS:STANDARDS:END -->'
-  },
-  plaintext: {
-    start: '# === UDS:STANDARDS:START ===',
-    end: '# === UDS:STANDARDS:END ==='
-  }
-};
 
 /**
- * Tool file mappings - maps tool names to their integration file paths
+ * Get tool file name with legacy mapping support
+ * @param {string} tool - Tool name
+ * @returns {string} File name
  */
-const TOOL_FILES = {
-  cursor: '.cursorrules',
-  windsurf: '.windsurfrules',
-  cline: '.clinerules',
-  copilot: '.github/copilot-instructions.md',
-  antigravity: 'INSTRUCTIONS.md',
-  'claude-code': 'CLAUDE.md',
-  codex: 'AGENTS.md',
-  'gemini-cli': 'GEMINI.md',
-  opencode: 'AGENTS.md'  // Shares file with codex
-};
+function getToolFileName(tool) {
+  const normalizedName = LEGACY_TOOL_MAPPINGS[tool] || tool;
+  const config = SUPPORTED_AI_TOOLS[normalizedName];
+  return config ? config.file : `${tool}.md`;
+}
 
 /**
- * Tool format mappings - determines if tool uses markdown or plaintext format
+ * Get tool format with legacy mapping support
+ * @param {string} tool - Tool name
+ * @returns {string} Format ('markdown' or 'plaintext')
  */
-const TOOL_FORMATS = {
-  cursor: 'plaintext',
-  windsurf: 'plaintext',
-  cline: 'plaintext',
-  copilot: 'markdown',
-  antigravity: 'markdown',
-  'claude-code': 'markdown',
-  codex: 'markdown',
-  'gemini-cli': 'markdown',
-  opencode: 'markdown'
-};
+function getToolFormat(tool) {
+  const normalizedName = LEGACY_TOOL_MAPPINGS[tool] || tool;
+  const config = SUPPORTED_AI_TOOLS[normalizedName];
+  return config ? config.format : 'markdown';
+}
 
 /**
  * Mapping from standard filename to task description
@@ -2177,7 +2160,7 @@ export function generateIntegrationContent(config) {
   } = config;
 
   const sections = [];
-  const format = TOOL_FORMATS[tool] || 'markdown';
+  const format = getToolFormat(tool) || 'markdown';
 
   // Add header
   const header = TOOL_HEADERS[tool]?.[language] || TOOL_HEADERS[tool]?.en || '';
@@ -2318,7 +2301,7 @@ export function mergeRules(existingContent, newContent, strategy) {
  * @returns {Object} Result with success status
  */
 export function writeIntegrationFile(tool, config, projectPath) {
-  const fileName = TOOL_FILES[tool];
+  const fileName = getToolFileName(tool);
   if (!fileName) {
     return { success: false, error: `Unknown tool: ${tool}` };
   }
@@ -2363,7 +2346,7 @@ export function writeIntegrationFile(tool, config, projectPath) {
  * @returns {boolean} True if file exists
  */
 export function integrationFileExists(tool, projectPath) {
-  const fileName = TOOL_FILES[tool];
+  const fileName = getToolFileName(tool);
   return fileName && existsSync(join(projectPath, fileName));
 }
 
@@ -2547,7 +2530,7 @@ export function generateStandardsIndex(installedStandards, format, language = 'z
  * @returns {string} Content wrapped with markers
  */
 export function wrapWithMarkers(content, format) {
-  const markers = MARKERS[format] || MARKERS.markdown;
+  const markers = UDS_MARKERS[format] || UDS_MARKERS.markdown;
   return `${markers.start}\n${content}\n${markers.end}`;
 }
 
@@ -2558,7 +2541,7 @@ export function wrapWithMarkers(content, format) {
  * @returns {Object} Object with before, content, and after parts
  */
 export function extractMarkedContent(fileContent, format) {
-  const markers = MARKERS[format] || MARKERS.markdown;
+  const markers = UDS_MARKERS[format] || UDS_MARKERS.markdown;
   const startIdx = fileContent.indexOf(markers.start);
   const endIdx = fileContent.indexOf(markers.end);
 
@@ -2581,7 +2564,7 @@ export function extractMarkedContent(fileContent, format) {
  * @returns {string} Updated file content
  */
 export function updateMarkedSection(existingContent, newMarkedContent, format) {
-  const markers = MARKERS[format] || MARKERS.markdown;
+  const markers = UDS_MARKERS[format] || UDS_MARKERS.markdown;
   const startIdx = existingContent.indexOf(markers.start);
   const endIdx = existingContent.indexOf(markers.end);
 
@@ -2603,24 +2586,17 @@ export function updateMarkedSection(existingContent, newMarkedContent, format) {
  * @returns {string|null} File path or null if unknown tool
  */
 export function getToolFilePath(tool) {
-  return TOOL_FILES[tool] || null;
+  return getToolFileName(tool) || null;
 }
 
-/**
- * Get tool format type
- * @param {string} tool - Tool name
- * @returns {string} Format type: 'markdown' or 'plaintext'
- */
-export function getToolFormat(tool) {
-  return TOOL_FORMATS[tool] || 'markdown';
-}
+
 
 /**
  * Get all supported tools
  * @returns {string[]} Array of tool names
  */
 export function getSupportedTools() {
-  return Object.keys(TOOL_FILES);
+  return Object.keys(SUPPORTED_AI_TOOLS).concat(Object.keys(LEGACY_TOOL_MAPPINGS)).filter((v, i, a) => a.indexOf(v) === i);
 }
 
 /**
@@ -2630,5 +2606,5 @@ export function getSupportedTools() {
  * @returns {boolean} True if tools share the same file
  */
 export function toolsShareFile(tool1, tool2) {
-  return TOOL_FILES[tool1] && TOOL_FILES[tool1] === TOOL_FILES[tool2];
+  return getToolFileName(tool1) && getToolFileName(tool1) === getToolFileName(tool2);
 }
