@@ -142,6 +142,10 @@ export function findSemanticBoundaries(content, contentType = 'generic') {
     const regex = new RegExp(pattern.source, 'gm');
     while ((match = regex.exec(content)) !== null) {
       boundaries.add(match.index);
+      // Prevent infinite loop on zero-length matches (e.g., /^\s*$/gm matching empty lines)
+      if (match[0].length === 0) {
+        regex.lastIndex++;
+      }
     }
   }
 
