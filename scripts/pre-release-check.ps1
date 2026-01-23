@@ -187,8 +187,12 @@ try {
     # Step 7: Linting
     Run-Check -Step 7 -Name "Running linting" -Command "npm run lint --prefix `"$CliDir`""
 
-    # Step 8: Tests (unless skipped)
+    # Step 8: Tests
     if ($SkipTests) {
+        Write-Host "[8/$Total] " -ForegroundColor Cyan -NoNewline
+        Write-Host "Running tests..."
+        Write-Host "      " -NoNewline
+        Write-Host "[SKIP] Skipped (-SkipTests flag)" -ForegroundColor Yellow
         $Skipped++
     }
     else {

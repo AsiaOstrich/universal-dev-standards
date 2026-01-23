@@ -197,10 +197,10 @@ npm run lint          # Check code style
 > **Important**: This section provides guidance for AI assistants (Claude Code, etc.) on how to efficiently run tests in this project.
 
 **Test Suite Characteristics / 測試套件特性：**
-- Full test suite: 2,931 tests across 33 files (unit + E2E)
-- 864 unit tests: < 3 seconds execution time
-- 139 E2E tests: 59+ minutes (spawn CLI subprocesses, ~5 seconds each)
-- Full suite runtime: 59+ minutes depending on system
+- Full test suite: ~1,000 tests across 30+ files (unit + E2E)
+- Unit tests: < 10 seconds execution time
+- E2E tests: ~6 minutes (spawn CLI subprocesses)
+- Full suite runtime: ~6 minutes
 
 **🚀 Recommended AI Agent Commands / 推薦的 AI Agent 指令：**
 
@@ -222,9 +222,8 @@ cd cli && node scripts/test-discovery.mjs commands development
 ```
 
 **⚠️ Avoid / 避免：**
-- Running full test suite in background mode (timeout issues, exit code 137)
-- Running E2E tests in AI agent environment (takes 59+ minutes)
 - Using `--reporter=summary` or custom reporters (compatibility issues)
+- Running tests without checking current working directory
 
 **✅ Best Practice / 最佳實踐：**
 ```bash
@@ -237,16 +236,24 @@ npm test -- tests/commands/ai-context.test.js tests/unit/utils/workflows-install
 # ✅ Good: Use test discovery for targeted testing
 cd cli && npm run test:discover
 
-# ❌ Avoid: Full suite in Claude Code background mode
-npm test  # This will timeout after 2-5 minutes
+# ✅ Full test suite is now fast enough to run directly
+cd cli && npm test  # ~6 minutes
 ```
 
-**🎯 For Complete Testing / 完整測試：**
-For E2E tests or full suite verification, ask the user to run in their terminal:
+### Test Certificate System (Optional) / 測試憑證系統（可選）
+
+The test certificate system is available for advanced workflows but is not used by default in pre-release checks since the full test suite runs quickly (~6 minutes).
+
+**Commands / 指令：**
 ```bash
-cd cli && npm test                    # Full suite (59+ minutes)
-cd cli && npm run test:e2e          # E2E only (59 minutes)
+# Generate certificate after passing tests (optional)
+cd cli && npm run test:with-cert
+
+# Verify existing certificate
+cd cli && npm run test:verify
 ```
+
+> **Note**: Pre-release checks (`pre-release-check.sh`) always run the full test suite. The certificate system is available for custom CI/CD workflows if needed.
 
 ## Code Check-in Standards (Mandatory)
 

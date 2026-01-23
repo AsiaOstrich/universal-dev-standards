@@ -174,8 +174,10 @@ run_check "6" "Running documentation sync check" "$SCRIPT_DIR/check-docs-sync.sh
 # Step 7: Linting
 run_check "7" "Running linting" "npm run lint --prefix $CLI_DIR"
 
-# Step 8: Tests (unless skipped)
+# Step 8: Tests
 if [ "$SKIP_TESTS" = true ]; then
+    echo -e "${CYAN}[8/$TOTAL]${NC} Running tests..."
+    echo -e "      ${YELLOW}⏭ Skipped (--skip-tests flag)${NC}"
     SKIPPED=$((SKIPPED + 1))
 else
     run_check "8" "Running tests" "npm test --prefix $CLI_DIR"
