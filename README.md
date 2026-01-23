@@ -1,30 +1,26 @@
 # Universal Development Standards
 
+[![npm version](https://img.shields.io/npm/v/universal-dev-standards.svg)](https://www.npmjs.com/package/universal-dev-standards)
+[![License: MIT + CC BY 4.0](https://img.shields.io/badge/License-MIT%20%2B%20CC%20BY%204.0-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
+
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 4.0.0
-**Last Updated**: 2026-01-20
-**License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
+**Version**: 4.1.0 | **Released**: 2026-01-21 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
-### What's New in 4.0.0
-
-| Feature | Description |
-|---------|-------------|
-| **Bidirectional Derivation** | Forward Derivation + Reverse Engineering form complete spec-code cycle |
-| **6 New Core Standards** | BDD, ATDD, Reverse Engineering, Forward Derivation, AI Instructions, Refactoring |
-| **23 Skills** | 7 new skills including Forward Derivation, BDD/ATDD assistants |
-| **24 Slash Commands** | 9 new commands (`/derive-*`, `/reverse-*`, `/atdd`, `/bdd`) |
-| **Per-Tool Installation** | Skills/Commands support User Level or Project Level per AI tool |
-| **Enhanced CLI** | Debug flag, declined features memory, file integrity tracking |
-| **Methodology System** | TDD/BDD/SDD/ATDD workflows now production-ready |
-
-> **New in 4.0**: Bidirectional Derivation brings complete spec-code lifecycle management with Forward Derivation and Reverse Engineering.
+Language-agnostic, framework-agnostic documentation standards for software projects. Ensure consistency, quality, and maintainability across diverse technology stacks.
 
 ---
 
-## Purpose
+## Features
 
-This repository provides **language-agnostic, framework-agnostic, domain-agnostic** documentation standards for software projects. These standards ensure consistency, quality, and maintainability across diverse technology stacks.
+| Category | Count | Description |
+|----------|-------|-------------|
+| **Core Standards** | 22 | Universal development guidelines (Markdown) |
+| **AI Skills** | 23 | Interactive Claude Code skills for AI-assisted development |
+| **Slash Commands** | 24 | Quick actions (`/commit`, `/tdd`, `/review`, etc.) |
+| **CLI Commands** | 6 | `list`, `init`, `configure`, `check`, `update`, `skills` |
+| **Languages** | 3 | English, Traditional Chinese, Simplified Chinese |
 
 ---
 
@@ -48,42 +44,15 @@ npx universal-dev-standards init
 
 ### Manual Setup
 
-Copy essential standards to your project:
+For manual setup without npm, see [Installation Methods](#installation-methods) below.
 
-```bash
-cp core/anti-hallucination.md your-project/.standards/
-cp core/checkin-standards.md your-project/.standards/
-cp core/commit-message-guide.md your-project/.standards/
-```
-
-> **Important**: Copying standards alone won't enable AI assistance. You must also reference them in your AI tool's configuration file (e.g., `CLAUDE.md`, `.cursorrules`). Use `uds init` for automatic configuration.
-
-### AI Tool Extensions (Optional)
-
-After installing UDS, optionally enable AI-assisted features for your preferred tools:
-
-| AI Tool | Configuration | Skills | Commands |
-|---------|--------------|:------:|:--------:|
-| Claude Code | `uds init` → `CLAUDE.md` | ✅ Marketplace / File | Built-in |
-| OpenCode | `uds init` → `AGENTS.md` | ✅ `.opencode/skill/` | ✅ `.opencode/command/` |
-| Cline | `uds init` → `.clinerules` | ✅ `.cline/skills/` | - |
-| Roo Code | `uds init` → `.roorules` | ✅ `.roo/skills/` | ✅ `.roo/commands/` |
-| OpenAI Codex | `uds init` → `AGENTS.md` | ✅ `.codex/skills/` | - |
-| GitHub Copilot | `uds init` → `copilot-instructions.md` | ✅ `.github/skills/` | ✅ `.github/prompts/` |
-| Windsurf | `uds init` → `.windsurfrules` | ✅ `.windsurf/skills/` | - |
-| Gemini CLI | `uds init` → `GEMINI.md` | ✅ `.gemini/skills/` | ✅ `.gemini/commands/` (TOML) |
-| Cursor | `uds init` → `.cursorrules` | ❌ Rules only | - |
-| Google Antigravity | `uds init` → `INSTRUCTIONS.md` | - | - |
-
-> **New in v4.0.0**: `uds init` supports per-tool installation level (User or Project). Bidirectional Derivation system (Forward Derivation + Reverse Engineering) is now available.
+> **Note**: Copying standards alone won't enable AI assistance. Use `uds init` to automatically configure your AI tool or manually reference standards in your tool's configuration file.
 
 ---
 
 ## Installation Methods
 
-### CLI Tool (Primary Installation)
-
-The CLI tool is the primary way to adopt UDS in your projects.
+### CLI Tool (Primary)
 
 **npm (Recommended)**
 ```bash
@@ -101,11 +70,8 @@ npx universal-dev-standards init
 
 **Specific Version**
 ```bash
-# Install specific version
-npm install -g universal-dev-standards@4.0.0
-
-# Or install beta for upcoming features
-npm install -g universal-dev-standards@beta
+npm install -g universal-dev-standards@4.1.0
+npm install -g universal-dev-standards@beta  # Preview features
 ```
 
 **Clone and Link (Development)**
@@ -122,84 +88,68 @@ git clone https://github.com/AsiaOstrich/universal-dev-standards.git
 cd universal-dev-standards\cli; npm install; npm link
 ```
 
-See [CLI README](cli/README.md) for detailed usage, [Windows Guide](docs/WINDOWS-GUIDE.md) for Windows-specific instructions, and [Operation Workflow](docs/OPERATION-WORKFLOW.md) for project maintenance and development workflow.
+---
+
+## AI Tool Support
+
+| AI Tool | Status | Skills | Commands | Configuration |
+|---------|--------|:------:|:--------:|---------------|
+| **Claude Code** | ✅ Complete | ✅ | Built-in | `CLAUDE.md` |
+| **OpenCode** | ✅ Complete | ✅ | ✅ | `AGENTS.md` |
+| Cline | 🔶 Partial | ✅ | - | `.clinerules` |
+| GitHub Copilot | 🔶 Partial | ✅ | ✅ | `copilot-instructions.md` |
+| OpenAI Codex | 🔶 Partial | ✅ | - | `AGENTS.md` |
+| Gemini CLI | 🧪 Preview | ✅ | ✅ | `GEMINI.md` |
+| Roo Code | ⏳ Planned | ✅ | ✅ | `.roorules` |
+| Cursor | 📄 Minimal | - | - | `.cursorrules` |
+| Windsurf | 📄 Minimal | - | - | `.windsurfrules` |
+| Antigravity | 📄 Minimal | - | - | `INSTRUCTIONS.md` |
+
+> **Status Legend** (UDS CLI implementation status):
+> - ✅ Complete = Full Skills + Commands support, tested
+> - 🔶 Partial = Skills work, Commands limited or unsupported
+> - 🧪 Preview = Functional but preview-level support
+> - ⏳ Planned = Code exists, testing pending
+> - 📄 Minimal = Rules file only, no Skills/Commands
+
+### Platform Support
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| **macOS** | ✅ Tested | Primary development platform |
+| **Linux** | ⚠️ Untested | Expected to work (Node.js based) |
+| **Windows** | ⚠️ Untested | PowerShell scripts provided |
+
+See [Windows Guide](docs/WINDOWS-GUIDE.md) for platform-specific instructions.
 
 ---
 
-### AI Tool Configuration
+## Skills Installation
 
-Each AI tool uses a configuration file for project-specific rules. `uds init` generates these automatically:
-
-| Tool | Configuration File | Location |
-|------|-------------------|----------|
-| Claude Code | `CLAUDE.md` | Project root |
-| OpenCode | `AGENTS.md` | Project root |
-| OpenAI Codex | `AGENTS.md` | Project root |
-| Cursor | `.cursorrules` | Project root |
-| Windsurf | `.windsurfrules` | Project root |
-| Cline | `.clinerules` | Project root |
-| GitHub Copilot | `copilot-instructions.md` | `.github/` |
-| Google Antigravity | `INSTRUCTIONS.md` | Project root |
-| Gemini CLI | `GEMINI.md` | Project root |
-
-Or manually copy from `integrations/` directory.
-
----
-
-### Agent Skills Installation
-
-Agent Skills are interactive commands (`/commit`, `/tdd`, `/review`, etc.) that enhance AI-assisted development. Skills follow the [Agent Skills Standard](https://agentskills.io) and work across multiple AI tools.
-
-**Skills included (23 skills):** ai-collaboration-standards, atdd-assistant, bdd-assistant, changelog-guide, checkin-assistant, code-review-assistant, commands, commit-standards, documentation-guide, error-code-guide, forward-derivation, git-workflow-guide, logging-guide, methodology-system, project-structure-guide, refactoring-assistant, release-standards, requirement-assistant, reverse-engineer, spec-driven-dev, tdd-assistant, test-coverage-assistant, testing-guide
-
-#### Supported Tools
-
-| Tool | Skills Support | Recommended Method |
-|------|---------------|-------------------|
-| Claude Code | ✅ Full | Plugin Marketplace |
-| OpenCode | ✅ Full | UDS CLI |
-| (More tools coming) | - | - |
-
-#### Method 1: Claude Code Plugin Marketplace
-
-For Claude Code users, the Plugin Marketplace offers the easiest installation:
+### Method 1: Claude Code Plugin Marketplace (Easiest)
 
 ```bash
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**Benefits:**
-- Single command installation
-- Automatic updates when new versions are released
-- All 23 skills loaded instantly
+**Benefits**: Single command, automatic updates, all 23 skills loaded instantly.
 
-**Migrating from v3.2.x?** If you used the old marketplace name:
-
+**Migrating from v3.x?**
 ```bash
 /plugin uninstall universal-dev-standards@universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-#### Method 2: UDS CLI (Recommended for OpenCode)
-
-For OpenCode and other tools, use the UDS CLI:
+### Method 2: UDS CLI
 
 ```bash
-# Install UDS CLI globally
 npm install -g universal-dev-standards
-
-# Initialize project - select your AI tool
-uds init
-
-# Skills will be installed to .claude/skills/
-# OpenCode auto-detects this path ✅
+uds init  # Select your AI tool, skills auto-installed
 ```
 
-Use `uds check` to verify installation status and skills compatibility.
+Use `uds check` to verify installation status.
 
-#### Method 3: Manual Installation
-
-Clone and copy skills directly:
+### Method 3: Manual Installation
 
 macOS / Linux:
 ```bash
@@ -216,174 +166,15 @@ Copy-Item -Recurse $env:TEMP\uds\skills\claude-code\* $env:USERPROFILE\.claude\s
 Remove-Item -Recurse $env:TEMP\uds
 ```
 
-#### Community Marketplaces
+### Community Marketplaces
 
-Discover and install skills from community platforms:
-
-- **[n-skills](https://github.com/numman-ali/n-skills)** - Curated marketplace for Claude Code, OpenCode, Cursor, and more
-- **[claude-plugins.dev](https://claude-plugins.dev/skills)** - Auto-indexed skill discovery from GitHub
+- **[n-skills](https://github.com/numman-ali/n-skills)** - Curated marketplace for Claude Code, OpenCode, Cursor
+- **[claude-plugins.dev](https://claude-plugins.dev/skills)** - Auto-indexed skill discovery
 - **[agentskills.io](https://agentskills.io)** - Official Agent Skills specification
 
 ---
 
-### Multi-AI Tool Support
-
-| AI Tool | Status | Path | Platform Tested |
-|---------|--------|------|-----------------|
-| Claude Code | ✅ Complete | `skills/claude-code/` | macOS ✅ |
-| OpenCode | 🧪 Testing | `integrations/opencode/` | macOS 🧪 |
-| GitHub Copilot | 🧪 Testing | `integrations/github-copilot/` | macOS 🧪 |
-| Cursor | ⏳ Planned | `integrations/cursor/` | - |
-| Windsurf | ⏳ Planned | `integrations/windsurf/` | - |
-| Cline | ⏳ Planned | `integrations/cline/` | - |
-| Google Antigravity | ⏳ Planned | `integrations/google-antigravity/` | - |
-| OpenAI Codex | ⏳ Planned | `integrations/codex/` | - |
-| Gemini CLI | ⏳ Planned | `integrations/gemini-cli/` | - |
-
-### Platform Support
-
-| Platform | CLI Tool | Skills | Notes |
-|----------|----------|--------|-------|
-| **macOS** | ✅ Tested | ✅ Tested | Primary development platform |
-| **Linux** | ⚠️ Untested | ⚠️ Untested | Expected to work (Node.js based) |
-| **Windows** | ⚠️ Untested | ⚠️ Untested | PowerShell scripts provided |
-
-> **Note**: UDS CLI is Node.js-based and should work on all platforms. Platform testing refers to verified functionality with AI tools on that OS. See [AI Agent Roadmap](docs/AI-AGENT-ROADMAP.md) for detailed status.
-
----
-
-## Core Principles
-
-1. **Universal Applicability** - Standards work for any programming language, framework, or domain
-2. **Modular Design** - Pick and choose standards relevant to your project
-3. **Extensible Architecture** - Extend with language-specific, framework-specific, or domain-specific rules
-4. **Evidence-Based** - Standards derived from industry best practices and real-world validation
-5. **Self-Contained** - Each standard is independently usable without dependencies
-
----
-
-## What's Inside
-
-```
-universal-dev-standards/
-├── core/                    # Core universal standards (22 files)
-├── ai/                      # AI-optimized standards (.ai.yaml)
-├── options/                 # Human-readable option guides
-├── skills/                  # AI tool skills (Claude Code, etc.)
-├── extensions/              # Language/framework/domain-specific
-├── templates/               # Document templates
-├── integrations/            # Tool configurations
-├── cli/                     # CLI tool (uds command)
-├── locales/                 # Translations (zh-TW, zh-CN)
-└── adoption/                # Adoption guides
-```
-
-See the full [directory structure](#detailed-directory-structure) below.
-
----
-
-## Standard Levels
-
-### Level 1: Essential (Minimum Viable Standards)
-
-**Every project MUST have**:
-- `anti-hallucination.md` - AI collaboration guidelines
-- `checkin-standards.md` - Quality gates before commit
-- `commit-message-guide.md` - Standardized commit format
-- `spec-driven-development.md` - Spec-Driven Development standards
-
-**Estimated Setup Time**: 30 minutes
-
----
-
-### Level 2: Recommended (Professional Quality)
-
-**Include Level 1 +**:
-- `git-workflow.md` - Branching strategy
-- `code-review-checklist.md` - Review guidelines
-- `versioning.md` - Version management
-- `changelog-standards.md` - Changelog writing guide
-- `testing-standards.md` - Testing pyramid (UT/IT/ST/E2E)
-- Language-specific style guide (e.g., `csharp-style.md`)
-
-**Estimated Setup Time**: 2 hours
-
----
-
-### Level 3: Comprehensive (Enterprise Grade)
-
-**Include Level 2 +**:
-- `documentation-structure.md` - Docs organization
-- Framework-specific standards (e.g., `dotnet.md`)
-- Domain-specific standards (e.g., `fintech.md`)
-- OpenSpec integration for spec-driven development
-- Full template suite
-
-**Estimated Setup Time**: 1-2 days
-
----
-
-## AI-Optimized Standards
-
-### Dual-Format Architecture
-
-| Format | Location | Use Case | Token Usage |
-|--------|----------|----------|-------------|
-| **Human-Readable** | `core/`, `options/` | Documentation, onboarding, reference | Standard |
-| **AI-Optimized** | `ai/` | AI assistants, automation, CLAUDE.md | ~80% reduction |
-
-### Using AI-Optimized Standards
-
-```yaml
-# Reference in CLAUDE.md or system prompts
-standards:
-  source: ai/standards/
-  options:
-    workflow: ai/options/git-workflow/github-flow.ai.yaml
-    commit_language: ai/options/commit-message/english.ai.yaml
-```
-
-### Available Options
-
-| Category | Options |
-|----------|---------|
-| **Git Workflow** | `github-flow`, `gitflow`, `trunk-based`, `squash-merge`, `merge-commit`, `rebase-ff` |
-| **Commit Language** | `english`, `traditional-chinese`, `bilingual` |
-| **Testing Levels** | `unit`, `integration`, `system`, `e2e` |
-| **Project Structure** | `nodejs`, `python`, `dotnet`, `java`, `go` |
-
----
-
-## Standards Coverage
-
-| Standard | Skill Available | Adoption |
-|----------|----------------|----------|
-| anti-hallucination.md | ai-collaboration-standards | Install Skill |
-| commit-message-guide.md | commit-standards | Install Skill |
-| code-review-checklist.md | code-review-assistant | Install Skill |
-| git-workflow.md | git-workflow-guide | Install Skill |
-| versioning.md + changelog-standards.md | release-standards | Install Skill |
-| testing-standards.md | testing-guide | Install Skill |
-| documentation-structure.md | documentation-guide | Install Skill |
-| requirement templates | requirement-assistant | Install Skill |
-| error-code-standards.md | error-code-guide | Install Skill |
-| logging-standards.md | logging-guide | Install Skill |
-| test-driven-development.md | tdd-assistant | Install Skill |
-| test-completeness-dimensions.md | test-coverage-assistant | Install Skill |
-| **checkin-standards.md** | - | Copy to project |
-| **spec-driven-development.md** | - | Copy to project |
-| **project-structure.md** | - | Copy to project |
-| **documentation-writing-standards.md** | - | Copy to project |
-
-> **Important**: For standards with Skills available, use the Skill OR copy the source document - **never both**.
-
-See [Adoption Guide](adoption/ADOPTION-GUIDE.md) for complete guidance.
-
----
-
-## Usage Modes Comparison
-
-When using UDS, you can choose between three usage modes:
+## Usage Modes
 
 | Mode | Best For | Key Advantage |
 |------|----------|---------------|
@@ -393,126 +184,78 @@ When using UDS, you can choose between three usage modes:
 
 ### Quick Decision Guide
 
-- **Personal projects with Claude Code?** → Skills Only (`standardsScope: minimal`)
-- **Team with multiple AI tools?** → Skills + Standards (`standardsScope: full`)
-- **Enterprise compliance needs?** → Standards Only (no Skills dependency)
+- **Personal projects with Claude Code?** → Skills Only
+- **Team with multiple AI tools?** → Skills + Standards
+- **Enterprise compliance needs?** → Standards Only
 
-See [Usage Modes Comparison](docs/USAGE-MODES-COMPARISON.md) for detailed analysis including feature coverage, token efficiency, and recommendations.
+See [Usage Modes Comparison](docs/USAGE-MODES-COMPARISON.md) for detailed analysis.
 
 ---
 
-## Customization Guide
+## Core Standards Overview
+
+### Level 1: Essential (30 minutes setup)
+
+Every project MUST have:
+
+| Standard | Description |
+|----------|-------------|
+| `anti-hallucination.md` | AI collaboration guidelines |
+| `checkin-standards.md` | Quality gates before commit |
+| `commit-message-guide.md` | Conventional Commits format |
+| `spec-driven-development.md` | Specification-first approach |
+
+### Level 2: Recommended (2 hours setup)
+
+Include Level 1 plus:
+
+| Standard | Description |
+|----------|-------------|
+| `git-workflow.md` | Branching strategies (GitHub Flow, GitFlow, Trunk-Based) |
+| `code-review-checklist.md` | Systematic review guidelines |
+| `versioning.md` | Semantic Versioning (SemVer) |
+| `changelog-standards.md` | Keep a Changelog format |
+| `testing-standards.md` | Testing pyramid (70/20/7/3) |
+| `test-driven-development.md` | TDD methodology |
+| `behavior-driven-development.md` | BDD with Given-When-Then |
+
+### Level 3: Comprehensive (1-2 days setup)
+
+Include Level 2 plus:
+
+| Standard | Description |
+|----------|-------------|
+| `documentation-structure.md` | Documentation organization |
+| `project-structure.md` | Directory conventions |
+| `acceptance-test-driven-development.md` | ATDD methodology |
+| `refactoring-standards.md` | Safe refactoring practices |
+
+See [Adoption Guide](adoption/ADOPTION-GUIDE.md) for complete guidance.
+
+---
+
+## Customization
 
 ### Where to Write Customizations
 
-| Customization Type | File | Location |
-|--------------------|------|----------|
-| AI tool rules & exclusions | `CLAUDE.md`, `.cursorrules`, etc. | Project root |
-| Project standard overrides | `PROJECT-STANDARDS.md` | Project root |
-| Copied core standards | `docs/standards/` | Your project |
+| Type | File | Location |
+|------|------|----------|
+| AI tool rules | `CLAUDE.md`, `.cursorrules`, etc. | Project root |
+| Project overrides | `PROJECT-STANDARDS.md` | Project root |
+| Copied standards | `docs/standards/` | Your project |
 
 ### Adapting Standards
 
-1. **Language Choice**: English, Traditional Chinese, Simplified Chinese commit types
-2. **Tool Configuration**: `npm run build`, `dotnet build`, `mvn package`
-3. **Threshold Adjustment**: Test coverage 80%, max method length 50 lines
-4. **Scope Definition**: Define allowed commit scopes for your modules
+1. **Language**: English, Traditional Chinese, or Simplified Chinese commit types
+2. **Tools**: Configure build commands (`npm`, `dotnet`, `mvn`, etc.)
+3. **Thresholds**: Adjust test coverage, method length limits
+4. **Scopes**: Define allowed commit scopes for your modules
 
 ### Excluding Standards
 
-1. **During `uds init`**: Select only needed standards interactively
-2. **Selective Adoption**: Copy only specific files
-3. **AI Tool Exclusions**: Add exclusion patterns to `CLAUDE.md` or `.cursorrules`
-4. **Project-Level Overrides**: Create `PROJECT-STANDARDS.md` to document deviations
-
----
-
-## Multi-Language Support
-
-### Commit Message Language Examples
-
-**English**:
-```
-feat(auth): Add OAuth2 support
-fix(api): Resolve memory leak
-```
-
-**Traditional Chinese**:
-```
-新增(認證): 實作 OAuth2 支援
-修正(API): 解決記憶體洩漏
-```
-
-**Simplified Chinese**:
-```
-新增(认证): 实现 OAuth2 支持
-修正(API): 解决内存泄漏
-```
-
----
-
-## Tool Integration
-
-### Git Hooks
-
-```bash
-npm install --save-dev @commitlint/{cli,config-conventional} husky
-npx husky install
-npx husky add .husky/commit-msg 'npx commitlint --edit $1'
-```
-
-### CI/CD Integration
-
-```yaml
-# .github/workflows/quality-gate.yml
-name: Quality Gate
-on: [push, pull_request]
-jobs:
-  quality:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: npx commitlint --from HEAD~1 --to HEAD --verbose
-      - run: npm run build
-      - run: npm test -- --coverage
-      - run: npm run lint
-```
-
-### OpenSpec Integration
-
-```bash
-cp -r integrations/openspec/ your-project/openspec/
-mkdir -p your-project/.claude/commands/
-cp integrations/openspec/commands/* your-project/.claude/commands/
-```
-
----
-
-## Examples
-
-### Example 1: .NET Web API Project
-
-```
-Core Standards: anti-hallucination.md, checkin-standards.md, commit-message-guide.md, git-workflow.md (GitFlow)
-Extensions: languages/csharp-style.md, frameworks/dotnet.md
-Templates: CLAUDE.md (customized for .NET), README.md, CONTRIBUTING.md
-```
-
-### Example 2: React SPA Project
-
-```
-Core Standards: anti-hallucination.md, checkin-standards.md, commit-message-guide.md, git-workflow.md (GitHub Flow)
-Extensions: languages/typescript-style.md, frameworks/react.md
-Tools: ESLint + Prettier, Husky + commitlint, Jest + React Testing Library
-```
-
-### Example 3: Python ML Project
-
-```
-Core Standards: anti-hallucination.md, checkin-standards.md, commit-message-guide.md, git-workflow.md (Trunk-Based)
-Extensions: languages/python-style.md, domains/machine-learning.md
-Tools: Black, pylint, pytest, mypy
-```
+- **During `uds init`**: Select only needed standards interactively
+- **Selective Adoption**: Copy only specific files
+- **AI Tool Exclusions**: Add patterns to `CLAUDE.md` or `.cursorrules`
 
 ---
 
@@ -520,37 +263,68 @@ Tools: Black, pylint, pytest, mypy
 
 ### How to Contribute
 
-1. **Suggest Improvements**: Open an issue describing the problem and proposed solution
-2. **Add Examples**: Submit examples of how you've applied these standards
-3. **Extend Standards**: Contribute new language/framework/domain extensions
-4. **Translate**: Help translate standards to other languages
+1. **Suggest Improvements**: Open an issue with problem and solution
+2. **Add Examples**: Submit real-world usage examples
+3. **Extend Standards**: Contribute language/framework/domain extensions
+4. **Translate**: Help translate to other languages
 
-### Contribution Guidelines
+### Guidelines
 
-All contributions must:
-- Maintain language/framework/domain agnosticism (for core standards)
+- Maintain language/framework agnosticism for core standards
 - Include examples in at least 2 different contexts
-- Follow the existing documentation structure
-- Be licensed under CC BY 4.0
+- Follow existing documentation structure
+- License under CC BY 4.0
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+---
+
+## FAQ
+
+### How do I choose between Skills Only and Standards Only?
+
+- **Skills Only**: Best for individual developers using Claude Code who want interactive AI assistance with minimal setup
+- **Standards Only**: Best for teams using multiple AI tools or requiring enterprise compliance with full version control
+
+### Can I adopt only some standards?
+
+Yes! Run `uds init` and select only the standards you need. You can also manually copy specific files from `core/`.
+
+### How do I update installed skills?
+
+For Plugin Marketplace: Skills update automatically or use `/plugin update`.
+For CLI installation: Run `uds update --skills`.
+
+### Does UDS work on Windows?
+
+Yes. The CLI is Node.js-based and works on all platforms. See [Windows Guide](docs/WINDOWS-GUIDE.md) for PowerShell-specific instructions.
+
+### What's the difference between core standards and skills?
+
+- **Core Standards**: Documentation (Markdown) that defines best practices - reference material
+- **Skills**: Interactive AI commands that implement those standards - active assistance
+
+### Why are some AI tools marked as "Planned"?
+
+We provide configuration files for these tools, but full integration testing is pending. The configurations should work, but edge cases may exist.
 
 ---
 
 ## Further Reading
 
-### Related Standards and Frameworks
+### Related Standards
 
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [Semantic Versioning](https://semver.org/)
 - [Keep a Changelog](https://keepachangelog.com/)
-- [Git Best Practices](https://sethrobertson.github.io/GitBestPractices/)
-- [Code Review Best Practices](https://google.github.io/eng-practices/review/)
+- [Google Engineering Practices](https://google.github.io/eng-practices/)
 
-### Books and Articles
+### Recommended Books
 
-- **The Art of Readable Code** by Boswell & Foucher
-- **Clean Code** by Robert C. Martin
-- **The Pragmatic Programmer** by Hunt & Thomas
-- **Accelerate** by Forsgren, Humble, and Kim
+- **The Art of Readable Code** - Boswell & Foucher
+- **Clean Code** - Robert C. Martin
+- **The Pragmatic Programmer** - Hunt & Thomas
+- **Accelerate** - Forsgren, Humble & Kim
 
 ---
 
@@ -558,140 +332,75 @@ All contributions must:
 
 | Version | Date | Highlights |
 |---------|------|------------|
-| 4.0.0 | 2026-01-20 | Bidirectional Derivation; 6 new core standards; 23 skills |
-| 3.5.0 | 2026-01-15 | Multi-Agent Skills; Gemini CLI TOML; i18n support |
-| 3.2.2 | 2026-01-06 | Added `uds skills` command; Deprecated manual installation scripts |
-| 3.2.0 | 2026-01-02 | Plugin Marketplace support; CLI enhancements |
-| 3.0.0 | 2025-12-30 | Full Windows support; AI-optimized standards; npm publish |
+| **4.1.0** | 2026-01-21 | Enhanced refactoring standards |
+| **4.0.0** | 2026-01-20 | Bidirectional Derivation; 6 new core standards |
+| 3.5.0 | 2026-01-15 | Multi-Agent Skills; Gemini CLI; i18n |
+| 3.2.2 | 2026-01-06 | `uds skills` command |
+| 3.0.0 | 2025-12-30 | Windows support; npm publish |
 
-See [CHANGELOG.md](CHANGELOG.md) for complete version history.
+See [CHANGELOG.md](CHANGELOG.md) for complete history.
+
+---
+
+## What's New in 4.x
+
+### 4.1.0 Highlights
+
+- Enhanced refactoring standards with tactical, strategic, and legacy code safety strategies
+- Decision matrix for choosing refactoring approach
+
+### 4.0.0 Highlights
+
+| Feature | Description |
+|---------|-------------|
+| **Bidirectional Derivation** | Forward Derivation + Reverse Engineering for complete spec-code lifecycle |
+| **6 New Core Standards** | BDD, ATDD, Reverse Engineering, Forward Derivation, AI Instructions, Refactoring |
+| **23 Skills** | 7 new skills including Forward Derivation, BDD/ATDD assistants |
+| **24 Slash Commands** | 9 new commands (`/derive-*`, `/reverse-*`, `/atdd`, `/bdd`) |
+| **Methodology System** | TDD/BDD/SDD/ATDD workflows now production-ready |
 
 ---
 
 ## License
 
-| Component | License |
-|-----------|---------|
-| Documentation (`core/`, `extensions/`, `templates/`, etc.) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
-| CLI Tool (`cli/`) | [MIT](cli/LICENSE) |
+| Component | License | Allows |
+|-----------|---------|--------|
+| Documentation | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | Commercial use, modification, redistribution with attribution |
+| CLI Tool | [MIT](cli/LICENSE) | Commercial use, modification, redistribution |
 
-Both licenses are permissive and allow commercial use, modification, and redistribution. See [LICENSE](LICENSE) for full details.
-
----
-
-## Community
-
-- **Issues**: Report bugs or suggest improvements
-- **Discussions**: Share how you're using these standards
-- **Examples**: Submit your project as an example
+See [LICENSE](LICENSE) for full details.
 
 ---
 
-## Checklist for Adopting Standards
-
-- [ ] Choose installation method (Marketplace / npm / manual)
-- [ ] Run `uds init` or copy core standards
-- [ ] Add language/framework extensions if needed
-- [ ] Configure project-specific settings in CONTRIBUTING.md
-- [ ] Set up Git hooks (commitlint, pre-commit)
-- [ ] Integrate quality gates in CI/CD
-- [ ] Train team on standards
-- [ ] Create first commit following standards
-
----
-
-**Ready to improve your project's quality?** Start with Quick Start above!
-
----
-
-**Maintained with love by the open-source community**
-
----
-
-## Detailed Directory Structure
+## Directory Structure
 
 ```
 universal-dev-standards/
-├── core/                                  # Core universal standards (22 files)
-│   ├── acceptance-test-driven-development.md # ATDD methodology
-│   ├── ai-instruction-standards.md       # AI instruction writing guide
-│   ├── anti-hallucination.md             # AI collaboration guidelines
-│   ├── behavior-driven-development.md    # BDD methodology
-│   ├── changelog-standards.md            # Changelog writing guide
-│   ├── checkin-standards.md              # Code check-in quality gates
-│   ├── code-review-checklist.md          # Code review guidelines
-│   ├── commit-message-guide.md           # Commit message conventions
-│   ├── documentation-structure.md        # Documentation organization
-│   ├── documentation-writing-standards.md # Documentation writing guide
-│   ├── error-code-standards.md           # Error code conventions
-│   ├── forward-derivation-standards.md   # Forward derivation standards
-│   ├── git-workflow.md                   # Git branching strategies
-│   ├── logging-standards.md              # Logging standards
-│   ├── project-structure.md              # Project directory conventions
-│   ├── refactoring-standards.md          # Refactoring standards
-│   ├── reverse-engineering-standards.md  # Reverse engineering standards
-│   ├── spec-driven-development.md        # SDD methodology & standards
-│   ├── test-completeness-dimensions.md   # Test completeness dimensions
-│   ├── test-driven-development.md        # TDD methodology
-│   ├── testing-standards.md              # Testing standards (UT/IT/ST/E2E)
-│   └── versioning.md                     # Semantic versioning guide
-│
-├── ai/                             # AI-optimized standards
-│   ├── standards/                 # Token-efficient YAML format (~80% reduction)
-│   │   ├── git-workflow.ai.yaml
-│   │   ├── commit-message.ai.yaml
-│   │   ├── testing.ai.yaml
-│   │   └── ...
-│   └── options/                   # Configurable options
-│       ├── git-workflow/          # github-flow, gitflow, trunk-based, etc.
-│       ├── commit-message/        # english, traditional-chinese, bilingual
-│       ├── testing/               # unit, integration, system, e2e
-│       └── project-structure/     # nodejs, python, dotnet, java, go
-│
-├── options/                        # Human-readable option guides (Markdown)
-│   ├── git-workflow/              # Detailed workflow documentation
-│   ├── commit-message/            # Commit language guides
-│   ├── testing/                   # Testing level guides
-│   └── project-structure/         # Language-specific project structures
-│
-├── skills/                         # AI tool skills
-│   ├── claude-code/               # Claude Code Skills (23 skills)
-│   ├── cursor/                    # Cursor Rules (planned)
-│   ├── windsurf/                  # Windsurf Rules (planned)
-│   ├── cline/                     # Cline Rules (planned)
-│   ├── copilot/                   # GitHub Copilot (planned)
-│   └── _shared/                   # Shared templates
-│
-├── extensions/                     # Optional extensions
-│   ├── languages/                 # Language-specific standards
-│   │   ├── csharp-style.md        # C# coding conventions
-│   │   └── php-style.md           # PHP 8.1+ style guide
-│   ├── frameworks/                # Framework-specific standards
-│   │   └── fat-free-patterns.md   # Fat-Free Framework patterns
-│   ├── locales/                   # Locale-specific standards
-│   │   └── zh-tw.md               # Traditional Chinese
-│   └── domains/                   # Domain-specific standards
-│       └── (coming soon)
-│
-├── templates/                      # Project document templates
-│   ├── requirement-*.md           # Requirement templates
-│   └── migration-template.md      # Migration plan template
-│
-├── integrations/                   # Tool configuration files
-│   ├── cline/                     # Cline .clinerules
-│   ├── cursor/                    # Cursor .cursorrules
-│   ├── github-copilot/            # Copilot instructions
-│   ├── google-antigravity/        # Antigravity integration
-│   ├── windsurf/                  # Windsurf .windsurfrules
-│   └── openspec/                  # OpenSpec framework
-│
-├── cli/                           # CLI tool
-│   └── (uds command)
-│
-├── locales/                       # Translations
-│   ├── zh-TW/                     # Traditional Chinese
-│   └── zh-CN/                     # Simplified Chinese
-│
-└── adoption/                       # Adoption guides
-    └── ADOPTION-GUIDE.md
+├── core/                    # Core standards (22 files)
+│   ├── anti-hallucination.md
+│   ├── commit-message-guide.md
+│   ├── testing-standards.md
+│   └── ...
+├── ai/                      # AI-optimized formats (.ai.yaml)
+├── skills/                  # AI tool skills
+│   └── claude-code/         # 23 skill directories
+├── extensions/              # Language/framework extensions
+│   ├── languages/           # csharp-style.md, php-style.md
+│   └── frameworks/          # fat-free-patterns.md
+├── integrations/            # AI tool configurations
+│   ├── cursor/              # .cursorrules
+│   ├── windsurf/            # .windsurfrules
+│   └── ...
+├── cli/                     # CLI tool (uds command)
+├── locales/                 # Translations
+│   ├── zh-TW/               # Traditional Chinese
+│   └── zh-CN/               # Simplified Chinese
+├── templates/               # Document templates
+└── adoption/                # Adoption guides
 ```
+
+---
+
+**Ready to improve your project's quality?** Start with [Quick Start](#quick-start)!
+
+**Maintained with ❤️ by the open-source community**

@@ -1,6 +1,6 @@
 {
   "name": "universal-dev-standards",
-  "version": "4.1.0-alpha.1",
+  "version": "4.1.0",
   "description": "CLI tool for adopting Universal Development Standards",
   "keywords": [
     "documentation",
