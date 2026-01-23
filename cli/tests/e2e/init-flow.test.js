@@ -701,8 +701,8 @@ describe('E2E: uds init', () => {
         '\r',
         // Standards Scope: Lean
         '\r',
-        // Level: Level 3 (third option, down twice)
-        '\x1B[B\x1B[B\r',
+        // Level: Level 3 (one down from default Level 2)
+        '\x1B[B\r',
         // Format: Compact
         '\r',
         // Standard Options (more options at Level 3)
