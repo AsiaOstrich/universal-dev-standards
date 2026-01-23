@@ -1,0 +1,337 @@
+{
+  "sections": {
+    "Already Initialized Project": "專案已初始化",
+    "Scenario D: Already Initialized Project": "情境 D: 專案已初始化",
+    "Non-Interactive Mode (--yes)": "非互動模式 (--yes)",
+    "Scenario C: Non-Interactive Mode (--yes)": "情境 C: 非互動模式 (--yes)",
+    "Interactive Mode (Default Flow)": "互動模式（預設流程）",
+    "Scenario A: Interactive Mode (Default Flow)": "情境 A: 互動模式（預設流程）",
+    "Interactive Mode (Custom Choices)": "互動模式（自訂選項）",
+    "Scenario B: Interactive Mode (Custom Choices)": "情境 B: 互動模式（自訂選項）",
+    "--ui-lang Flag": "--ui-lang 旗標",
+    "Output Message Coverage": "輸出訊息覆蓋",
+    "File Output Verification": "檔案輸出驗證",
+    "Pre-requisite Checks": "前置條件檢查",
+    "Configuration Display": "配置顯示",
+    "Manifest State": "Manifest 狀態",
+    "Integration Files State": "整合檔案狀態",
+    "Command Help": "命令說明",
+    "Basic Check Output": "基本檢查輸出",
+    "Summary Mode": "摘要模式",
+    "Coverage and Skills Status": "覆蓋率與技能狀態",
+    "Modified Files Detection": "修改檔案偵測",
+    "Diff Mode": "差異模式",
+    "Restore Mode": "還原模式",
+    "Offline Mode": "離線模式",
+    "Migrate Mode": "遷移模式",
+    "Basic Update Output": "基本更新輸出",
+    "Integrations Only Mode": "僅整合模式",
+    "Standards Only Mode": "僅標準模式",
+    "Sync Refs Mode": "同步參照模式",
+    "Skills Update Mode": "技能更新模式",
+    "Commands Update Mode": "命令更新模式",
+    "Basic List Output": "基本列表輸出",
+    "Level Filtering": "等級篩選",
+    "Category Filtering": "類別篩選",
+    "Basic Skills Output": "基本技能輸出",
+    "Skills Status Display": "技能狀態顯示"
+  },
+  "tests": {
+    "should show warning when .standards/ already exists": {
+      "name": "當 .standards/ 已存在時應顯示警告",
+      "expected": "包含 `Standards already initialized` 和 `uds update` 提示"
+    },
+    "should complete with default settings": {
+      "name": "應以預設設定完成",
+      "expected": "包含 `Level: 2`、`Format: Compact`、`Standards initialized successfully`"
+    },
+    "should respect --level option": {
+      "name": "應遵循 --level 選項",
+      "expected": "包含 `Level: 3`、`Standards initialized successfully`"
+    },
+    "should use marketplace when --skills-location=marketplace": {
+      "name": "當 --skills-location=marketplace 時應使用 marketplace",
+      "expected": "包含 `Plugin Marketplace`、`Lean`"
+    },
+    "should use complete scope when --skills-location=none": {
+      "name": "當 --skills-location=none 時應使用完整範圍",
+      "expected": "包含 `Complete`，不包含 `Plugin Marketplace`"
+    },
+    "should respect --content-mode=full": {
+      "name": "應遵循 --content-mode=full",
+      "expected": "包含 `Full Embed`"
+    },
+    "should respect --content-mode=minimal": {
+      "name": "應遵循 --content-mode=minimal",
+      "expected": "包含 `Minimal`"
+    },
+    "should generate .md files when --format=human": {
+      "name": "當 --format=human 時應生成 .md 檔案",
+      "expected": "包含 `Format: Detailed`；生成 `.md` 檔案，無 `.ai.yaml`"
+    },
+    "should generate both formats when --format=both": {
+      "name": "當 --format=both 時應生成兩種格式",
+      "expected": "包含 `Format: Both`；同時生成 `.md` 和 `.ai.yaml` 檔案"
+    },
+    "should generate .ai.yaml files when --format=ai (default)": {
+      "name": "當 --format=ai（預設）時應生成 .ai.yaml 檔案",
+      "expected": "包含 `Format: Compact`；生成 `.ai.yaml` 檔案"
+    },
+    "should show all header messages": {
+      "name": "應顯示所有標題訊息",
+      "expected": "包含 `Universal Development Standards - Initialize`"
+    },
+    "should show detected languages in output": {
+      "name": "應在輸出中顯示偵測到的語言",
+      "expected": "包含 `Languages:` 和偵測到的語言名稱"
+    },
+    "should show all summary section labels": {
+      "name": "應顯示所有摘要區段標籤",
+      "expected": "包含 `Configuration Summary:`、`Level:`、`Format:`、`AI Tools:`"
+    },
+    "should show success and next steps messages": {
+      "name": "應顯示成功及後續步驟訊息",
+      "expected": "包含 `Standards initialized successfully`、`Next steps:`"
+    },
+    "should create .standards/manifest.json with correct structure": {
+      "name": "應建立結構正確的 .standards/manifest.json",
+      "expected": "建立 manifest.json，包含 `version`、`level`、`format` 欄位"
+    },
+    "should copy standard files based on level": {
+      "name": "應根據等級複製標準檔案",
+      "expected": "level 2 時建立 6+ 個標準檔案"
+    },
+    "should record content mode in manifest": {
+      "name": "應在 manifest 中記錄內容模式",
+      "expected": "manifest.json 包含 `contentMode: \"full\"`"
+    },
+    "should save standard options to manifest in non-interactive mode": {
+      "name": "在非互動模式下應將標準選項儲存至 manifest",
+      "expected": "manifest.json 包含 `standardOptions` 物件"
+    },
+    "should save detected aiTools to manifest when CLAUDE.md exists": {
+      "name": "當 CLAUDE.md 存在時應將偵測到的 AI 工具儲存至 manifest",
+      "expected": "manifest.json 的 `aiTools` 包含 `claude-code`"
+    },
+    "should auto-install commands when AGENTS.md exists (OpenCode detection)": {
+      "name": "當 AGENTS.md 存在時應自動安裝命令（OpenCode 偵測）",
+      "expected": "manifest.json 的 `aiTools` 包含 `opencode`"
+    },
+    "should show error when not initialized": {
+      "name": "未初始化時應顯示錯誤",
+      "expected": "包含 `not initialized` 或錯誤訊息"
+    },
+    "should show header when initialized": {
+      "name": "已初始化時應顯示標題",
+      "expected": "包含 `Universal Development Standards`"
+    },
+    "should display current configuration labels": {
+      "name": "應顯示目前配置標籤",
+      "expected": "包含 `Level:`、`Format:`、`AI Tools:`"
+    },
+    "should display AI tools when configured": {
+      "name": "已配置時應顯示 AI 工具",
+      "expected": "包含已配置的 AI 工具名稱"
+    },
+    "should show methodology with -E flag": {
+      "name": "使用 -E 旗標時應顯示方法論",
+      "expected": "包含 `Methodology:` 區段"
+    },
+    "should have correct structure after init": {
+      "name": "初始化後應有正確結構",
+      "expected": "manifest.json 包含必要欄位"
+    },
+    "should preserve options from init": {
+      "name": "應保留初始化時的選項",
+      "expected": "config 顯示與 init 時相同的選項"
+    },
+    "should create .cursorrules when cursor detected": {
+      "name": "偵測到 Cursor 時應建立 .cursorrules",
+      "expected": "建立 `.cursorrules` 檔案"
+    },
+    "should track integrations in manifest": {
+      "name": "應在 manifest 中追蹤整合",
+      "expected": "manifest.json 包含 `integrations` 陣列"
+    },
+    "should show help with --help": {
+      "name": "使用 --help 時應顯示說明",
+      "expected": "包含 `Usage:`、`Options:` 或命令說明"
+    },
+    "should show header and status when initialized": {
+      "name": "已初始化時應顯示標題和狀態",
+      "expected": "包含標題和 `Status:` 區段"
+    },
+    "should show level and version information": {
+      "name": "應顯示等級和版本資訊",
+      "expected": "包含 `Level:`、`Version:`"
+    },
+    "should show file integrity section": {
+      "name": "應顯示檔案完整性區段",
+      "expected": "包含 `File Integrity:` 或檔案狀態資訊"
+    },
+    "should show compact summary with --summary flag": {
+      "name": "使用 --summary 旗標時應顯示精簡摘要",
+      "expected": "輸出為單行或精簡格式"
+    },
+    "should show not initialized in summary mode when not initialized": {
+      "name": "未初始化時摘要模式應顯示未初始化",
+      "expected": "包含 `not initialized`"
+    },
+    "should show coverage summary": {
+      "name": "應顯示覆蓋率摘要",
+      "expected": "包含覆蓋率百分比或統計"
+    },
+    "should show skills status section": {
+      "name": "應顯示技能狀態區段",
+      "expected": "包含 `Skills:` 或技能狀態資訊"
+    },
+    "should detect modified files": {
+      "name": "應偵測修改的檔案",
+      "expected": "包含 `modified` 或修改的檔案清單"
+    },
+    "should show diff output with --diff flag": {
+      "name": "使用 --diff 旗標時應顯示差異輸出",
+      "expected": "包含差異內容或 `diff` 輸出"
+    },
+    "should restore modified files with --restore flag": {
+      "name": "使用 --restore 旗標時應還原修改的檔案",
+      "expected": "包含 `restored` 或還原成功訊息"
+    },
+    "should skip CLI update check with --offline flag": {
+      "name": "使用 --offline 旗標時應跳過 CLI 更新檢查",
+      "expected": "不包含版本檢查訊息，快速完成"
+    },
+    "should show migrate output with --migrate flag": {
+      "name": "使用 --migrate 旗標時應顯示遷移輸出",
+      "expected": "包含 `migrate` 或遷移相關訊息"
+    },
+    "should show header and version info when initialized": {
+      "name": "已初始化時應顯示標題和版本資訊",
+      "expected": "包含標題和版本號"
+    },
+    "should show up-to-date message when no updates available": {
+      "name": "無可用更新時應顯示已是最新訊息",
+      "expected": "包含 `up to date` 或 `already at latest`"
+    },
+    "should show no AI tools error when none configured": {
+      "name": "未配置 AI 工具時應顯示錯誤",
+      "expected": "包含錯誤訊息，指出未配置 AI 工具"
+    },
+    "should regenerate integration files with --integrations-only": {
+      "name": "使用 --integrations-only 時應重新生成整合檔案",
+      "expected": "僅更新整合檔案，不更新標準"
+    },
+    "should update only standards with --standards-only": {
+      "name": "使用 --standards-only 時應僅更新標準",
+      "expected": "僅更新標準檔案，不更新整合"
+    },
+    "should sync integration references with --sync-refs": {
+      "name": "使用 --sync-refs 時應同步整合參照",
+      "expected": "包含同步參照的訊息"
+    },
+    "should show skills status with --skills": {
+      "name": "使用 --skills 時應顯示技能狀態",
+      "expected": "包含技能狀態資訊"
+    },
+    "should show commands status with --commands": {
+      "name": "使用 --commands 時應顯示命令狀態",
+      "expected": "包含命令狀態資訊"
+    },
+    "should show header and version": {
+      "name": "應顯示標題和版本",
+      "expected": "包含 `Universal Development Standards` 和版本號"
+    },
+    "should show standards categories": {
+      "name": "應顯示標準類別",
+      "expected": "包含類別名稱如 `core`、`skill`、`reference`"
+    },
+    "should show summary at bottom": {
+      "name": "應在底部顯示摘要",
+      "expected": "底部包含標準總數統計"
+    },
+    "should show init hint at bottom": {
+      "name": "應在底部顯示初始化提示",
+      "expected": "包含 `uds init` 提示"
+    },
+    "should filter by level 1": {
+      "name": "應依等級 1 篩選",
+      "expected": "僅顯示 level 1 的標準"
+    },
+    "should filter by level 2": {
+      "name": "應依等級 2 篩選",
+      "expected": "顯示 level 1 和 level 2 的標準"
+    },
+    "should show error for invalid level": {
+      "name": "無效等級時應顯示錯誤",
+      "expected": "包含錯誤訊息"
+    },
+    "should filter by skill category": {
+      "name": "應依技能類別篩選",
+      "expected": "僅顯示 skill 類別的標準"
+    },
+    "should filter by reference category": {
+      "name": "應依參考類別篩選",
+      "expected": "僅顯示 reference 類別的標準"
+    },
+    "should show error for invalid category": {
+      "name": "無效類別時應顯示錯誤",
+      "expected": "包含錯誤訊息"
+    },
+    "should show header": {
+      "name": "應顯示標題",
+      "expected": "包含 `Skills` 標題"
+    },
+    "should show no skills message when none installed": {
+      "name": "未安裝技能時應顯示無技能訊息",
+      "expected": "包含 `No skills installed` 或類似訊息"
+    },
+    "should show marketplace install hint when no skills": {
+      "name": "無技能時應顯示 marketplace 安裝提示",
+      "expected": "包含 marketplace 安裝說明"
+    },
+    "should show version info when skills are installed": {
+      "name": "已安裝技能時應顯示版本資訊",
+      "expected": "包含技能版本號"
+    },
+    "should show path info when skills are installed": {
+      "name": "已安裝技能時應顯示路徑資訊",
+      "expected": "包含技能安裝路徑"
+    },
+    "should show English UI when --ui-lang en is set": {
+      "name": "設定 --ui-lang en 時應顯示英文介面",
+      "expected": "UI 文字為英文"
+    },
+    "should show Traditional Chinese UI when --ui-lang zh-tw is set": {
+      "name": "設定 --ui-lang zh-tw 時應顯示繁體中文介面",
+      "expected": "UI 文字為繁體中文"
+    },
+    "should show Simplified Chinese UI when --ui-lang zh-cn is set": {
+      "name": "設定 --ui-lang zh-cn 時應顯示簡體中文介面",
+      "expected": "UI 文字為簡體中文"
+    },
+    "should use manifest language when --ui-lang is not specified": {
+      "name": "未指定 --ui-lang 時應使用 manifest 語言",
+      "expected": "使用 manifest 中設定的語言"
+    },
+    "should show English UI when --ui-lang en is set, even if manifest has traditional-chinese": {
+      "name": "即使 manifest 為繁體中文，設定 --ui-lang en 時仍應顯示英文介面",
+      "expected": "UI 文字為英文（覆蓋 manifest 設定）"
+    },
+    "should complete with step-by-step user input": {
+      "name": "應能以逐步輸入完成",
+      "expected": "stepOutputs 包含各步驟輸出；最終顯示 `Standards initialized successfully`"
+    },
+    "should allow selecting multiple AI tools": {
+      "name": "應能選擇多個 AI 工具",
+      "expected": "manifest.json 的 `aiTools` 包含多個工具"
+    },
+    "should allow selecting Level 3": {
+      "name": "應能選擇等級 3",
+      "expected": "輸出包含 `Level: 3`"
+    },
+    "should allow cancelling installation": {
+      "name": "應能取消安裝",
+      "expected": "輸出包含 `cancelled`；不建立 `.standards/`"
+    }
+  }
+}

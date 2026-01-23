@@ -17,6 +17,42 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const E2E_DIR = join(__dirname, '../tests/e2e');
 const OUTPUT_FILE = join(__dirname, '../tests/E2E-TEST-CASES.md');
+const TRANSLATIONS_FILE = join(__dirname, 'e2e-translations.json');
+
+// Load translations
+let translations = { sections: {}, tests: {} };
+try {
+  const content = await readFile(TRANSLATIONS_FILE, 'utf8');
+  translations = JSON.parse(content);
+} catch (err) {
+  console.warn('⚠️ Translation file not found, using English');
+}
+
+/**
+ * Translate text using the translation mapping
+ * Falls back to original text if no translation found
+ * @param {string} text - Original text to translate
+ * @param {string} type - 'sections' or 'tests'
+ * @returns {string} Translated name
+ */
+function translate(text, type = 'tests') {
+  const dict = type === 'sections' ? translations.sections : translations.tests;
+  const entry = dict[text];
+  if (!entry) return text;
+  // Support both string format and object format { name, expected }
+  return typeof entry === 'string' ? entry : entry.name || text;
+}
+
+/**
+ * Get expected result for a test
+ * @param {string} testName - Original test name
+ * @returns {string|null} Expected result or null if not defined
+ */
+function getExpected(testName) {
+  const entry = translations.tests[testName];
+  if (!entry || typeof entry === 'string') return null;
+  return entry.expected || null;
+}
 
 /**
  * Parse a test file and extract structure
@@ -185,23 +221,40 @@ function generateMarkdown(parsedFiles) {
     md += `### uds ${file.command}（${file.totalTests} tests）\n\n`;
 
     for (const section of file.sections) {
-      md += `#### ${section.name}（${section.tests.length} test${section.tests.length > 1 ? 's' : ''}）\n\n`;
+      // Translate section name
+      md += `#### ${translate(section.name, 'sections')}（${section.tests.length} test${section.tests.length > 1 ? 's' : ''}）\n\n`;
 
-      // Check if any test has options
+      // Check if any test has options or expected results
       const hasOptions = section.tests.some(t => t.options);
+      const hasExpected = section.tests.some(t => getExpected(t.name));
 
-      if (hasOptions) {
-        md += `| # | 測試案例 | 選項 |\n`;
-        md += `|---|----------|------|\n`;
+      if (hasOptions && hasExpected) {
+        md += '| # | 測試案例 | 選項 | 預期結果 |\n';
+        md += '|---|----------|------|----------|\n';
         section.tests.forEach((test, i) => {
           const options = test.options || '-';
-          md += `| ${i + 1} | ${test.name} | \`${options}\` |\n`;
+          const expected = getExpected(test.name) || '-';
+          md += `| ${i + 1} | ${translate(test.name, 'tests')} | \`${options}\` | ${expected} |\n`;
+        });
+      } else if (hasOptions) {
+        md += '| # | 測試案例 | 選項 |\n';
+        md += '|---|----------|------|\n';
+        section.tests.forEach((test, i) => {
+          const options = test.options || '-';
+          md += `| ${i + 1} | ${translate(test.name, 'tests')} | \`${options}\` |\n`;
+        });
+      } else if (hasExpected) {
+        md += '| # | 測試案例 | 預期結果 |\n';
+        md += '|---|----------|----------|\n';
+        section.tests.forEach((test, i) => {
+          const expected = getExpected(test.name) || '-';
+          md += `| ${i + 1} | ${translate(test.name, 'tests')} | ${expected} |\n`;
         });
       } else {
-        md += `| # | 測試案例 |\n`;
-        md += `|---|----------|\n`;
+        md += '| # | 測試案例 |\n';
+        md += '|---|----------|\n';
         section.tests.forEach((test, i) => {
-          md += `| ${i + 1} | ${test.name} |\n`;
+          md += `| ${i + 1} | ${translate(test.name, 'tests')} |\n`;
         });
       }
       md += '\n';
@@ -278,8 +331,8 @@ function generateOptionMatrix(parsedFiles) {
     if (knownOptions.length === 0) continue;
 
     md += `### uds ${file.command}\n\n`;
-    md += `| 選項 | 有測試 | 測試案例 |\n`;
-    md += `|------|--------|----------|\n`;
+    md += '| 選項 | 有測試 | 測試案例 |\n';
+    md += '|------|--------|----------|\n';
 
     // Collect all tested options
     const testedOptions = new Map();

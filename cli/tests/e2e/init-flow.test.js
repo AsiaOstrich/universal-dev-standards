@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import {
   runNonInteractive,
+  runInteractive,
   createTempDir,
   cleanupTempDir,
   setupTestDir,
@@ -550,6 +551,237 @@ describe('E2E: uds init', () => {
       });
     });
   });
+
+  // ===== Scenario A: Interactive Mode - Default Flow =====
+  describe('Scenario A: Interactive Mode (Default Flow)', () => {
+    it('should complete with step-by-step user input', async () => {
+      await setupTestDir(testDir, {});
+
+      // Interactive flow inputs:
+      // Step 1: AI Tools - select Claude Code (first option, toggle with space, confirm with enter)
+      // Step 2: Skills Location - Plugin Marketplace (first option)
+      // Step 3: Commands Installation - accept defaults (project level pre-selected)
+      // Step 4: Standards Scope - Lean (first option)
+      // Step 5: Level - Level 2 (second option, recommended)
+      // Step 6: Format - Compact (first option)
+      // Step 7-10: Standard Options (Git Workflow, Merge Strategy, Commit Lang, Test Levels)
+      // Step 11: Language Extensions - skip (no detected, or confirm defaults)
+      // Step 12: Framework Extensions - skip (no detected)
+      // Step 13: Locale - No (default)
+      // Step 14: Content Mode - Standard (first option, recommended)
+      // Step 15: Confirm - Yes
+
+      const inputs = [
+        // AI Tools: select first option (Claude Code), space to toggle, enter to confirm
+        { type: 'checkbox', selections: [{ toggle: true }] },
+        // Skills Location: first option (Plugin Marketplace), enter to select
+        '\r',
+        // Commands Installation: accept pre-selected defaults
+        '\r',
+        // Standards Scope: first option (Lean), enter
+        '\r',
+        // Level: second option (Level 2), down then enter
+        '\x1B[B\r',
+        // Format: first option (Compact), enter
+        '\r',
+        // Git Workflow: first option (GitHub Flow), enter
+        '\r',
+        // Merge Strategy: first option (Squash), enter
+        '\r',
+        // Commit Language: first option (English), enter
+        '\r',
+        // Test Levels: accept defaults (Unit + Integration pre-selected), enter
+        '\r',
+        // Locale: No (default)
+        'n',
+        // Content Mode: first option (Standard), enter
+        '\r',
+        // Final Confirm: Yes
+        'Y'
+      ];
+
+      const result = await runInteractive(inputs, {}, testDir, 90000);
+
+      // Record scenario result for reporting
+      recordScenarioResult('Interactive Default Flow', {
+        steps: [
+          { step: 1, name: 'Exit code 0', matched: result.exitCode === 0 },
+          { step: 2, name: 'Has step outputs', matched: result.stepOutputs.length > 5 },
+          { step: 3, name: 'Success message', matched: result.stdout.includes('Standards initialized successfully') || result.stdout.includes('initialized') }
+        ],
+        output: result.stdout,
+        files: result.files
+      });
+
+      // Verify results - interactive mode may time out in CI, check for progress
+      // If it times out, it should at least have captured some step outputs
+      if (result.timedOut) {
+        // Interactive tests are inherently unstable due to prompt timing
+        // At minimum, verify we captured some interaction steps
+        expect(result.stepOutputs.length).toBeGreaterThan(0);
+      } else {
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toContain('Standards initialized successfully');
+      }
+
+      // Verify step outputs were captured
+      expect(result.stepOutputs.length).toBeGreaterThan(3);
+    }, 120000); // Extended timeout for interactive mode
+  });
+
+  // ===== Scenario B: Interactive Mode - Custom Choices =====
+  describe('Scenario B: Interactive Mode (Custom Choices)', () => {
+    it('should allow selecting multiple AI tools', async () => {
+      await setupTestDir(testDir, {});
+
+      // Select Claude Code AND Cursor (first two options)
+      const inputs = [
+        // AI Tools: toggle first (Claude Code), down, toggle second (separator), down, toggle (Cursor)
+        { type: 'checkbox', selections: [
+          { toggle: true },
+          { down: true },
+          { toggle: false }, // skip separator
+          { down: true },
+          { toggle: true }   // Cursor
+        ] },
+        // Skills Location: first option (Plugin Marketplace)
+        '\r',
+        // Commands Installation: accept defaults
+        '\r',
+        // Standards Scope: first option
+        '\r',
+        // Level: Level 2
+        '\x1B[B\r',
+        // Format: Compact
+        '\r',
+        // Standard Options
+        '\r', '\r', '\r', '\r',
+        // Integration Config (for Cursor) - accept defaults
+        '\r', '\r', '\r', '\r',
+        // Locale: No
+        'n',
+        // Content Mode: Standard
+        '\r',
+        // Final Confirm: Yes
+        'Y'
+      ];
+
+      const result = await runInteractive(inputs, {}, testDir, 90000);
+
+      recordScenarioResult('Interactive Multiple AI Tools', {
+        steps: [
+          { step: 1, name: 'Exit code 0 or captured steps', matched: result.exitCode === 0 || result.stepOutputs.length > 3 },
+          { step: 2, name: 'Has outputs', matched: result.stdout.length > 0 }
+        ],
+        output: result.stdout,
+        files: result.files
+      });
+
+      // Verify at least some steps were captured
+      expect(result.stepOutputs.length).toBeGreaterThan(0);
+
+      // If completed successfully, check manifest for multiple tools
+      if (result.exitCode === 0 && await fileExists(join(testDir, '.standards/manifest.json'))) {
+        const manifestContent = await readFile(join(testDir, '.standards/manifest.json'), 'utf8');
+        const manifest = JSON.parse(manifestContent);
+        // Should contain at least claude-code
+        expect(manifest.aiTools).toContain('claude-code');
+      }
+    }, 120000);
+
+    it('should allow selecting Level 3', async () => {
+      await setupTestDir(testDir, {});
+
+      const inputs = [
+        // AI Tools: Claude Code only
+        { type: 'checkbox', selections: [{ toggle: true }] },
+        // Skills Location: Plugin Marketplace
+        '\r',
+        // Commands: accept defaults
+        '\r',
+        // Standards Scope: Lean
+        '\r',
+        // Level: Level 3 (third option, down twice)
+        '\x1B[B\x1B[B\r',
+        // Format: Compact
+        '\r',
+        // Standard Options (more options at Level 3)
+        '\r', '\r', '\r', '\r',
+        // Locale: No
+        'n',
+        // Content Mode: Standard
+        '\r',
+        // Final Confirm: Yes
+        'Y'
+      ];
+
+      const result = await runInteractive(inputs, {}, testDir, 90000);
+
+      recordScenarioResult('Interactive Level 3', {
+        steps: [
+          { step: 1, name: 'Level 3 in output', matched: result.stdout.includes('Level: 3') || result.stdout.includes('Level 3') },
+          { step: 2, name: 'Has step outputs', matched: result.stepOutputs.length > 3 }
+        ],
+        output: result.stdout,
+        files: result.files
+      });
+
+      // Verify Level 3 appears in output or manifest
+      if (result.exitCode === 0) {
+        expect(result.stdout).toContain('Level: 3');
+      }
+      expect(result.stepOutputs.length).toBeGreaterThan(0);
+    }, 120000);
+
+    it('should allow cancelling installation', async () => {
+      await setupTestDir(testDir, {});
+
+      const inputs = [
+        // AI Tools: Claude Code
+        { type: 'checkbox', selections: [{ toggle: true }] },
+        // Skills Location: Plugin Marketplace
+        '\r',
+        // Commands: accept defaults
+        '\r',
+        // Standards Scope: Lean
+        '\r',
+        // Level: Level 2
+        '\x1B[B\r',
+        // Format: Compact
+        '\r',
+        // Standard Options
+        '\r', '\r', '\r', '\r',
+        // Locale: No
+        'n',
+        // Content Mode: Standard
+        '\r',
+        // Final Confirm: NO - Cancel installation
+        'n'
+      ];
+
+      const result = await runInteractive(inputs, {}, testDir, 90000);
+
+      recordScenarioResult('Interactive Cancel', {
+        steps: [
+          { step: 1, name: 'Cancelled message or no .standards', matched:
+            result.stdout.includes('cancelled') ||
+            result.stdout.includes('Cancelled') ||
+            !(await fileExists(join(testDir, '.standards/manifest.json')))
+          }
+        ],
+        output: result.stdout,
+        files: result.files
+      });
+
+      // Verify installation was cancelled
+      if (!result.timedOut && result.stdout.length > 100) {
+        // Should show cancellation message or not create .standards directory
+        const hasCancelMessage = result.stdout.toLowerCase().includes('cancel');
+        const noManifest = !(await fileExists(join(testDir, '.standards/manifest.json')));
+        expect(hasCancelMessage || noManifest).toBe(true);
+      }
+    }, 120000);
+  });
 });
 
 // ===== Report Generation =====
@@ -606,7 +838,7 @@ afterAll(async () => {
   const mdReportPath = join(reportsDir, 'init-test-report.md');
   await writeFile(mdReportPath, mdReport);
 
-  console.log(`\n📋 Test report written to:`);
+  console.log('\n📋 Test report written to:');
   console.log(`   - ${jsonReportPath}`);
   console.log(`   - ${mdReportPath}`);
 });

@@ -53,5 +53,6 @@ cd "$REPO_ROOT/cli"
 # Run lint-staged for JavaScript files
 npx lint-staged
 
-# Run tests
-npm test
+# Run unit tests only (excludes E2E tests which take 59+ minutes)
+# E2E tests should be run in CI/CD or manually before PRs
+npm run test:unit

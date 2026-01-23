@@ -2,7 +2,7 @@
 
 > **自動生成文件** - 由 `npm run generate:e2e-spec` 從測試程式碼生成
 >
-> 最後更新: 2026-01-18 | 總測試數: 73
+> 最後更新: 2026-01-23 | 總測試數: 91
 
 此文件記錄 UDS CLI 的端對端（E2E）測試案例，作為測試的永久規格文件與程式碼審查依據。
 
@@ -12,282 +12,340 @@
 
 | 指令 | 測試數量 | 檔案 |
 |------|----------|------|
-| `uds init` | 20 | `e2e/init-flow.test.js` |
-| `uds config` | 10 | `e2e/config-flow.test.js` |
-| `uds check` | 16 | `e2e/check-flow.test.js` |
-| `uds update` | 10 | `e2e/update-flow.test.js` |
-| `uds list` | 11 | `e2e/list-flow.test.js` |
-| `uds skills` | 6 | `e2e/skills-flow.test.js` |
-| **總計** | **73** | |
+| `uds init` | 26 | `e2e/init-flow.test.js` |
+| `uds config` | 13 | `e2e/config-flow.test.js` |
+| `uds check` | 18 | `e2e/check-flow.test.js` |
+| `uds update` | 12 | `e2e/update-flow.test.js` |
+| `uds list` | 14 | `e2e/list-flow.test.js` |
+| `uds skills` | 8 | `e2e/skills-flow.test.js` |
+| **總計** | **91** | |
 
 ---
 
 ## 測試案例詳情
 
-### uds init（20 tests）
+### uds init（26 tests）
 
-#### Scenario D: Already Initialized Project（1 test）
+#### 情境 D: 專案已初始化（1 test）
 
-| # | 測試案例 |
-|---|----------|
-| 1 | should show warning when .standards/ already exists |
+| # | 測試案例 | 預期結果 |
+|---|----------|----------|
+| 1 | 當 .standards/ 已存在時應顯示警告 | 包含 `Standards already initialized` 和 `uds update` 提示 |
 
-#### Scenario C: Non-Interactive Mode (--yes)（9 tests）
+#### 情境 C: 非互動模式 (--yes)（9 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should complete with default settings | `-` |
-| 2 | should respect --level option | `--level=3` |
-| 3 | should use marketplace when --skills-location=marketplace | `--skills-location=marketplace` |
-| 4 | should use complete scope when --skills-location=none | `--skills-location=none` |
-| 5 | should respect --content-mode=full | `--content-mode=full` |
-| 6 | should respect --content-mode=minimal | `--content-mode=minimal` |
-| 7 | should generate .md files when --format=human | `--format=human` |
-| 8 | should generate both formats when --format=both | `--format=both` |
-| 9 | should generate .ai.yaml files when --format=ai (default) | `--format=ai` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 應以預設設定完成 | `-` | 包含 `Level: 2`、`Format: Compact`、`Standards initialized successfully` |
+| 2 | 應遵循 --level 選項 | `--level=3` | 包含 `Level: 3`、`Standards initialized successfully` |
+| 3 | 當 --skills-location=marketplace 時應使用 marketplace | `--skills-location=marketplace` | 包含 `Plugin Marketplace`、`Lean` |
+| 4 | 當 --skills-location=none 時應使用完整範圍 | `--skills-location=none` | 包含 `Complete`，不包含 `Plugin Marketplace` |
+| 5 | 應遵循 --content-mode=full | `--content-mode=full` | 包含 `Full Embed` |
+| 6 | 應遵循 --content-mode=minimal | `--content-mode=minimal` | 包含 `Minimal` |
+| 7 | 當 --format=human 時應生成 .md 檔案 | `--format=human` | 包含 `Format: Detailed`；生成 `.md` 檔案，無 `.ai.yaml` |
+| 8 | 當 --format=both 時應生成兩種格式 | `--format=both` | 包含 `Format: Both`；同時生成 `.md` 和 `.ai.yaml` 檔案 |
+| 9 | 當 --format=ai（預設）時應生成 .ai.yaml 檔案 | `--format=ai` | 包含 `Format: Compact`；生成 `.ai.yaml` 檔案 |
 
-#### Output Message Coverage（4 tests）
+#### 輸出訊息覆蓋（4 tests）
 
-| # | 測試案例 |
-|---|----------|
-| 1 | should show all header messages |
-| 2 | should show detected languages in output |
-| 3 | should show all summary section labels |
-| 4 | should show success and next steps messages |
+| # | 測試案例 | 預期結果 |
+|---|----------|----------|
+| 1 | 應顯示所有標題訊息 | 包含 `Universal Development Standards - Initialize` |
+| 2 | 應在輸出中顯示偵測到的語言 | 包含 `Languages:` 和偵測到的語言名稱 |
+| 3 | 應顯示所有摘要區段標籤 | 包含 `Configuration Summary:`、`Level:`、`Format:`、`AI Tools:` |
+| 4 | 應顯示成功及後續步驟訊息 | 包含 `Standards initialized successfully`、`Next steps:` |
 
-#### File Output Verification（6 tests）
+#### 檔案輸出驗證（6 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should create .standards/manifest.json with correct structure | `-` |
-| 2 | should copy standard files based on level | `--level=2` |
-| 3 | should record content mode in manifest | `--content-mode=full` |
-| 4 | should save standard options to manifest in non-interactive mode | `-` |
-| 5 | should save detected aiTools to manifest when CLAUDE.md exists | `-` |
-| 6 | should auto-install commands when AGENTS.md exists (OpenCode detection) | `-` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 應建立結構正確的 .standards/manifest.json | `-` | 建立 manifest.json，包含 `version`、`level`、`format` 欄位 |
+| 2 | 應根據等級複製標準檔案 | `--level=2` | level 2 時建立 6+ 個標準檔案 |
+| 3 | 應在 manifest 中記錄內容模式 | `--content-mode=full` | manifest.json 包含 `contentMode: "full"` |
+| 4 | 在非互動模式下應將標準選項儲存至 manifest | `-` | manifest.json 包含 `standardOptions` 物件 |
+| 5 | 當 CLAUDE.md 存在時應將偵測到的 AI 工具儲存至 manifest | `-` | manifest.json 的 `aiTools` 包含 `claude-code` |
+| 6 | 當 AGENTS.md 存在時應自動安裝命令（OpenCode 偵測） | `-` | manifest.json 的 `aiTools` 包含 `opencode` |
 
----
+#### --ui-lang 旗標（2 tests）
 
-### uds config（10 tests）
+| # | 測試案例 | 預期結果 |
+|---|----------|----------|
+| 1 | 設定 --ui-lang en 時應顯示英文介面 | UI 文字為英文 |
+| 2 | 設定 --ui-lang zh-tw 時應顯示繁體中文介面 | UI 文字為繁體中文 |
 
-#### Pre-requisite Checks（2 tests）
+#### 情境 A: 互動模式（預設流程）（1 test）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show error when not initialized | `--type=format --yes` |
-| 2 | should show header when initialized | `--type=format --yes` |
+| # | 測試案例 | 預期結果 |
+|---|----------|----------|
+| 1 | 應能以逐步輸入完成 | stepOutputs 包含各步驟輸出；最終顯示 `Standards initialized successfully` |
 
-#### Configuration Display（3 tests）
+#### 情境 B: 互動模式（自訂選項）（3 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should display current configuration labels | `--level=2 --type=format --yes` |
-| 2 | should display AI tools when configured | `--type=format --yes` |
-| 3 | should show methodology with -E flag | `--type=format --yes -E` |
-
-#### Manifest State（2 tests）
-
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should have correct structure after init | `--level=2` |
-| 2 | should preserve options from init | `-` |
-
-#### Integration Files State（2 tests）
-
-| # | 測試案例 |
-|---|----------|
-| 1 | should create .cursorrules when cursor detected |
-| 2 | should track integrations in manifest |
-
-#### Command Help（1 test）
-
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show help with --help | `--help` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 應能選擇多個 AI 工具 | `-` | manifest.json 的 `aiTools` 包含多個工具 |
+| 2 | 應能選擇等級 3 | `--type=checkbox` | 輸出包含 `Level: 3` |
+| 3 | 應能取消安裝 | `--type=checkbox` | 輸出包含 `cancelled`；不建立 `.standards/` |
 
 ---
 
-### uds check（16 tests）
+### uds config（13 tests）
 
-#### Pre-requisite Checks（1 test）
+#### 前置條件檢查（2 tests）
 
-| # | 測試案例 |
-|---|----------|
-| 1 | should show error when not initialized |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 未初始化時應顯示錯誤 | `--type=format --yes` | 包含 `not initialized` 或錯誤訊息 |
+| 2 | 已初始化時應顯示標題 | `--type=format --yes` | 包含 `Universal Development Standards` |
 
-#### Basic Check Output（3 tests）
+#### 配置顯示（3 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show header and status when initialized | `--no-interactive` |
-| 2 | should show level and version information | `--level=2 --no-interactive` |
-| 3 | should show file integrity section | `--no-interactive` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 應顯示目前配置標籤 | `--level=2 --type=format --yes` | 包含 `Level:`、`Format:`、`AI Tools:` |
+| 2 | 已配置時應顯示 AI 工具 | `--type=format --yes` | 包含已配置的 AI 工具名稱 |
+| 3 | 使用 -E 旗標時應顯示方法論 | `--type=format --yes -E` | 包含 `Methodology:` 區段 |
 
-#### Summary Mode（2 tests）
+#### Manifest 狀態（2 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show compact summary with --summary flag | `--summary` |
-| 2 | should show not initialized in summary mode when not initialized | `--summary` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 初始化後應有正確結構 | `--level=2` | manifest.json 包含必要欄位 |
+| 2 | 應保留初始化時的選項 | `-` | config 顯示與 init 時相同的選項 |
 
-#### Coverage and Skills Status（2 tests）
+#### 整合檔案狀態（2 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show coverage summary | `--level=2 --no-interactive` |
-| 2 | should show skills status section | `--no-interactive` |
+| # | 測試案例 | 預期結果 |
+|---|----------|----------|
+| 1 | 偵測到 Cursor 時應建立 .cursorrules | 建立 `.cursorrules` 檔案 |
+| 2 | 應在 manifest 中追蹤整合 | manifest.json 包含 `integrations` 陣列 |
 
-#### Modified Files Detection（1 test）
+#### 命令說明（1 test）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should detect modified files | `--no-interactive` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --help 時應顯示說明 | `--help` | 包含 `Usage:`、`Options:` 或命令說明 |
 
-#### Diff Mode（2 tests）
+#### --ui-lang 旗標（3 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show diff output with --diff flag | `--diff --no-interactive` |
-| 2 | / | `-` |
-
-#### Restore Mode（2 tests）
-
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should restore modified files with --restore flag | `--restore --no-interactive` |
-| 2 | / | `-` |
-
-#### Offline Mode（1 test）
-
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should skip CLI update check with --offline flag | `--offline --no-interactive` |
-
-#### Migrate Mode（1 test）
-
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show migrate output with --migrate flag | `--migrate --no-interactive` |
-
-#### Command Help（1 test）
-
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show help with --help | `--help` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 即使 manifest 為繁體中文，設定 --ui-lang en 時仍應顯示英文介面 | `--type=format --yes` | UI 文字為英文（覆蓋 manifest 設定） |
+| 2 | 設定 --ui-lang zh-tw 時應顯示繁體中文介面 | `--type=format --yes` | UI 文字為繁體中文 |
+| 3 | 未指定 --ui-lang 時應使用 manifest 語言 | `--type=format --yes` | 使用 manifest 中設定的語言 |
 
 ---
 
-### uds update（10 tests）
+### uds check（18 tests）
 
-#### Pre-requisite Checks（1 test）
+#### 前置條件檢查（1 test）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show error when not initialized | `--yes` |
+| # | 測試案例 | 預期結果 |
+|---|----------|----------|
+| 1 | 未初始化時應顯示錯誤 | 包含 `not initialized` 或錯誤訊息 |
 
-#### Basic Update Output（2 tests）
+#### 基本檢查輸出（3 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show header and version info when initialized | `--yes --offline` |
-| 2 | should show up-to-date message when no updates available | `--yes --offline` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 已初始化時應顯示標題和狀態 | `--no-interactive` | 包含標題和 `Status:` 區段 |
+| 2 | 應顯示等級和版本資訊 | `--level=2 --no-interactive` | 包含 `Level:`、`Version:` |
+| 3 | 應顯示檔案完整性區段 | `--no-interactive` | 包含 `File Integrity:` 或檔案狀態資訊 |
 
-#### Integrations Only Mode（2 tests）
+#### 摘要模式（2 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show no AI tools error when none configured | `--skills-location=none --integrations-only` |
-| 2 | should regenerate integration files with --integrations-only | `--integrations-only` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --summary 旗標時應顯示精簡摘要 | `--summary` | 輸出為單行或精簡格式 |
+| 2 | 未初始化時摘要模式應顯示未初始化 | `--summary` | 包含 `not initialized` |
 
-#### Standards Only Mode（1 test）
+#### 覆蓋率與技能狀態（2 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should update only standards with --standards-only | `--yes --offline --standards-only` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 應顯示覆蓋率摘要 | `--level=2 --no-interactive` | 包含覆蓋率百分比或統計 |
+| 2 | 應顯示技能狀態區段 | `--no-interactive` | 包含 `Skills:` 或技能狀態資訊 |
 
-#### Sync Refs Mode（1 test）
+#### 修改檔案偵測（1 test）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should sync integration references with --sync-refs | `--sync-refs` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 應偵測修改的檔案 | `--no-interactive` | 包含 `modified` 或修改的檔案清單 |
 
-#### Skills Update Mode（1 test）
+#### 差異模式（2 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show skills status with --skills | `--skills` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --diff 旗標時應顯示差異輸出 | `--diff --no-interactive` | 包含差異內容或 `diff` 輸出 |
+| 2 | / | `-` | - |
 
-#### Commands Update Mode（1 test）
+#### 還原模式（2 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show commands status with --commands | `--commands` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --restore 旗標時應還原修改的檔案 | `--restore --no-interactive` | 包含 `restored` 或還原成功訊息 |
+| 2 | / | `-` | - |
 
-#### Command Help（1 test）
+#### 離線模式（1 test）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show help with --help | `--help` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --offline 旗標時應跳過 CLI 更新檢查 | `--offline --no-interactive` | 不包含版本檢查訊息，快速完成 |
 
----
+#### 遷移模式（1 test）
 
-### uds list（11 tests）
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --migrate 旗標時應顯示遷移輸出 | `--migrate --no-interactive` | 包含 `migrate` 或遷移相關訊息 |
 
-#### Basic List Output（4 tests）
+#### 命令說明（1 test）
 
-| # | 測試案例 |
-|---|----------|
-| 1 | should show header and version |
-| 2 | should show standards categories |
-| 3 | should show summary at bottom |
-| 4 | should show init hint at bottom |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --help 時應顯示說明 | `--help` | 包含 `Usage:`、`Options:` 或命令說明 |
 
-#### Level Filtering（3 tests）
+#### --ui-lang 旗標（2 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should filter by level 1 | `--level=1` |
-| 2 | should filter by level 2 | `--level=2` |
-| 3 | should show error for invalid level | `--level=5` |
-
-#### Category Filtering（3 tests）
-
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should filter by skill category | `--category=skill` |
-| 2 | should filter by reference category | `--category=reference` |
-| 3 | should show error for invalid category | `--category=invalid` |
-
-#### Command Help（1 test）
-
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show help with --help | `--help` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 設定 --ui-lang en 時應顯示英文介面 | `--no-interactive` | UI 文字為英文 |
+| 2 | 設定 --ui-lang zh-tw 時應顯示繁體中文介面 | `--no-interactive` | UI 文字為繁體中文 |
 
 ---
 
-### uds skills（6 tests）
+### uds update（12 tests）
 
-#### Basic Skills Output（3 tests）
+#### 前置條件檢查（1 test）
 
-| # | 測試案例 |
-|---|----------|
-| 1 | should show header |
-| 2 | should show no skills message when none installed |
-| 3 | should show marketplace install hint when no skills |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 未初始化時應顯示錯誤 | `--yes` | 包含 `not initialized` 或錯誤訊息 |
 
-#### Skills Status Display（2 tests）
+#### 基本更新輸出（2 tests）
 
-| # | 測試案例 |
-|---|----------|
-| 1 | should show version info when skills are installed |
-| 2 | should show path info when skills are installed |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 已初始化時應顯示標題和版本資訊 | `--yes --offline` | 包含標題和版本號 |
+| 2 | 無可用更新時應顯示已是最新訊息 | `--yes --offline` | 包含 `up to date` 或 `already at latest` |
 
-#### Command Help（1 test）
+#### 僅整合模式（2 tests）
 
-| # | 測試案例 | 選項 |
-|---|----------|------|
-| 1 | should show help with --help | `--help` |
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 未配置 AI 工具時應顯示錯誤 | `--skills-location=none --integrations-only` | 包含錯誤訊息，指出未配置 AI 工具 |
+| 2 | 使用 --integrations-only 時應重新生成整合檔案 | `--integrations-only` | 僅更新整合檔案，不更新標準 |
+
+#### 僅標準模式（1 test）
+
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --standards-only 時應僅更新標準 | `--yes --offline --standards-only` | 僅更新標準檔案，不更新整合 |
+
+#### 同步參照模式（1 test）
+
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --sync-refs 時應同步整合參照 | `--sync-refs` | 包含同步參照的訊息 |
+
+#### 技能更新模式（1 test）
+
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --skills 時應顯示技能狀態 | `--skills` | 包含技能狀態資訊 |
+
+#### 命令更新模式（1 test）
+
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --commands 時應顯示命令狀態 | `--commands` | 包含命令狀態資訊 |
+
+#### 命令說明（1 test）
+
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --help 時應顯示說明 | `--help` | 包含 `Usage:`、`Options:` 或命令說明 |
+
+#### --ui-lang 旗標（2 tests）
+
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 設定 --ui-lang en 時應顯示英文介面 | `--yes --offline` | UI 文字為英文 |
+| 2 | 設定 --ui-lang zh-tw 時應顯示繁體中文介面 | `--yes --offline` | UI 文字為繁體中文 |
+
+---
+
+### uds list（14 tests）
+
+#### 基本列表輸出（4 tests）
+
+| # | 測試案例 | 預期結果 |
+|---|----------|----------|
+| 1 | 應顯示標題和版本 | 包含 `Universal Development Standards` 和版本號 |
+| 2 | 應顯示標準類別 | 包含類別名稱如 `core`、`skill`、`reference` |
+| 3 | 應在底部顯示摘要 | 底部包含標準總數統計 |
+| 4 | 應在底部顯示初始化提示 | 包含 `uds init` 提示 |
+
+#### 等級篩選（3 tests）
+
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 應依等級 1 篩選 | `--level=1` | 僅顯示 level 1 的標準 |
+| 2 | 應依等級 2 篩選 | `--level=2` | 顯示 level 1 和 level 2 的標準 |
+| 3 | 無效等級時應顯示錯誤 | `--level=5` | 包含錯誤訊息 |
+
+#### 類別篩選（3 tests）
+
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 應依技能類別篩選 | `--category=skill` | 僅顯示 skill 類別的標準 |
+| 2 | 應依參考類別篩選 | `--category=reference` | 僅顯示 reference 類別的標準 |
+| 3 | 無效類別時應顯示錯誤 | `--category=invalid` | 包含錯誤訊息 |
+
+#### 命令說明（1 test）
+
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --help 時應顯示說明 | `--help` | 包含 `Usage:`、`Options:` 或命令說明 |
+
+#### --ui-lang 旗標（3 tests）
+
+| # | 測試案例 | 預期結果 |
+|---|----------|----------|
+| 1 | 設定 --ui-lang en 時應顯示英文介面 | UI 文字為英文 |
+| 2 | 設定 --ui-lang zh-tw 時應顯示繁體中文介面 | UI 文字為繁體中文 |
+| 3 | 設定 --ui-lang zh-cn 時應顯示簡體中文介面 | UI 文字為簡體中文 |
+
+---
+
+### uds skills（8 tests）
+
+#### 基本技能輸出（3 tests）
+
+| # | 測試案例 | 預期結果 |
+|---|----------|----------|
+| 1 | 應顯示標題 | 包含 `Skills` 標題 |
+| 2 | 未安裝技能時應顯示無技能訊息 | 包含 `No skills installed` 或類似訊息 |
+| 3 | 無技能時應顯示 marketplace 安裝提示 | 包含 marketplace 安裝說明 |
+
+#### 技能狀態顯示（2 tests）
+
+| # | 測試案例 | 預期結果 |
+|---|----------|----------|
+| 1 | 已安裝技能時應顯示版本資訊 | 包含技能版本號 |
+| 2 | 已安裝技能時應顯示路徑資訊 | 包含技能安裝路徑 |
+
+#### 命令說明（1 test）
+
+| # | 測試案例 | 選項 | 預期結果 |
+|---|----------|------|----------|
+| 1 | 使用 --help 時應顯示說明 | `--help` | 包含 `Usage:`、`Options:` 或命令說明 |
+
+#### --ui-lang 旗標（2 tests）
+
+| # | 測試案例 | 預期結果 |
+|---|----------|----------|
+| 1 | 設定 --ui-lang en 時應顯示英文介面 | UI 文字為英文 |
+| 2 | 設定 --ui-lang zh-tw 時應顯示繁體中文介面 | UI 文字為繁體中文 |
 
 ---
 

@@ -175,7 +175,7 @@ node cli\bin\uds.js init --help
 ### Git Hooks (Automatic) / Git Hooks（自動執行）
 
 Pre-commit hook (`cli/.husky/pre-commit`) automatically runs:
-- `npm test` - All unit and E2E tests (414 tests)
+- `npm run test:unit` - Unit tests only, excludes E2E (fast, < 5 seconds)
 - `eslint --fix` - Code style auto-fix via lint-staged
 - `check-standards-sync.sh` - If core/*.md files modified
 - `check-cli-docs-sync.sh` - If cli/bin/*.js files modified
@@ -197,31 +197,55 @@ npm run lint          # Check code style
 > **Important**: This section provides guidance for AI assistants (Claude Code, etc.) on how to efficiently run tests in this project.
 
 **Test Suite Characteristics / 測試套件特性：**
-- Full test suite: 400+ tests (unit + E2E)
-- E2E tests spawn CLI subprocesses, taking ~5 seconds each
-- Full suite runtime: 2-5 minutes depending on system
+- Full test suite: 2,931 tests across 33 files (unit + E2E)
+- 864 unit tests: < 3 seconds execution time
+- 139 E2E tests: 59+ minutes (spawn CLI subprocesses, ~5 seconds each)
+- Full suite runtime: 59+ minutes depending on system
 
-**Recommended Approach / 建議方式：**
+**🚀 Recommended AI Agent Commands / 推薦的 AI Agent 指令：**
 
-| Scenario | Method | Command |
-|----------|--------|---------|
-| Testing specific changes | Foreground, targeted | `npm test -- tests/path/to/file.test.js` |
-| Verifying multiple files | Foreground, targeted | `npm test -- tests/file1.test.js tests/file2.test.js` |
-| Full test suite | **User's terminal** | Ask user to run `cd cli && npm test` |
-| CI verification | GitHub Actions | Automatic on push/PR |
+| Scenario | Command | Execution Time |
+|----------|---------|----------------|
+| **Quick Development** | `cd cli && npm run test:quick` | < 6 seconds (864 tests) |
+| **Test Discovery** | `cd cli && npm run test:discover` | < 1 second |
+| **Unit Tests Only** | `cd cli && npm run test:unit` | < 3 seconds |
+| **Exclude E2E Tests** | `cd cli && npm run test:fast` | < 5 seconds |
+| **Specific Changes** | `npm test -- tests/unit/core/ tests/commands/` | < 2 seconds |
+
+**📋 Test Discovery Tool / 測試發現工具：**
+```bash
+# Discover all tests and get execution commands
+cd cli && npm run test:discover
+
+# Show commands for different scenarios
+cd cli && node scripts/test-discovery.mjs commands development
+```
 
 **⚠️ Avoid / 避免：**
 - Running full test suite in background mode (timeout issues, exit code 137)
+- Running E2E tests in AI agent environment (takes 59+ minutes)
 - Using `--reporter=summary` or custom reporters (compatibility issues)
-- Waiting indefinitely for full suite completion
 
-**Best Practice / 最佳實踐：**
+**✅ Best Practice / 最佳實踐：**
 ```bash
-# ✅ Good: Test only the files you modified
+# ✅ Recommended: Quick development testing
+cd cli && npm run test:quick
+
+# ✅ Good: Test specific modules
 npm test -- tests/commands/ai-context.test.js tests/unit/utils/workflows-installer.test.js
 
-# ❌ Avoid: Running full suite in Claude Code background mode
-npm test  # This may timeout or be killed
+# ✅ Good: Use test discovery for targeted testing
+cd cli && npm run test:discover
+
+# ❌ Avoid: Full suite in Claude Code background mode
+npm test  # This will timeout after 2-5 minutes
+```
+
+**🎯 For Complete Testing / 完整測試：**
+For E2E tests or full suite verification, ask the user to run in their terminal:
+```bash
+cd cli && npm test                    # Full suite (59+ minutes)
+cd cli && npm run test:e2e          # E2E only (59 minutes)
 ```
 
 ## Code Check-in Standards (Mandatory)
