@@ -76,6 +76,7 @@ Example: Cursor natively doesn't support SKILL.md (tool capability), but UDS CLI
 | Windsurf | `.windsurfrules` | Settings UI | 6K/file, 12K total |
 | Gemini CLI | `.gemini/GEMINI.md` | `~/.gemini/GEMINI.md` | Supports `@import` |
 | Cursor | `.cursor/rules/*.mdc` | `~/.cursor/rules/` | YAML frontmatter required |
+| Antigravity | `.antigravity/` | `~/.antigravity/` | Minimal support, manual mode |
 
 ### 2.2 Skills Paths
 
@@ -90,6 +91,7 @@ Example: Cursor natively doesn't support SKILL.md (tool capability), but UDS CLI
 | Windsurf | ✅ Full | `.windsurf/rules/` | Settings UI | Skills since 2026/01 |
 | Gemini CLI | ✅ Preview | `.gemini/skills/` | `~/.gemini/skills/` | v0.23+ preview |
 | Cursor | ❌ No | `.cursor/rules/` | `~/.cursor/rules/` | Rules only, no SKILL.md |
+| Antigravity | ❌ No | `.antigravity/skills/` | `~/.antigravity/skills/` | No SKILL.md support |
 
 ### 2.3 Slash Commands
 
@@ -104,6 +106,7 @@ Example: Cursor natively doesn't support SKILL.md (tool capability), but UDS CLI
 | Windsurf | ✅ | Rulebook | Auto-generated | From `.windsurfrules` |
 | Gemini CLI | ✅ | System + Custom | `/clear`, `/memory`, `/mcp` | `.gemini/commands/*.toml` |
 | Cursor | ✅ | Built-in + Custom | `/summarize`, `/models` | `.cursor/commands/*.md` |
+| Antigravity | ❌ | N/A | N/A | N/A |
 
 ### 2.4 Platform Support
 
@@ -143,6 +146,15 @@ Example: Cursor natively doesn't support SKILL.md (tool capability), but UDS CLI
 - Has own rules format (`.cursor/rules/*.mdc`)
 - Does NOT support SKILL.md format yet
 - Feature requested by community
+
+### Minimal Support
+
+**Tools**: Antigravity
+
+- No SKILL.md support
+- No AGENT.md support
+- Manual execution mode only
+- Included for completeness
 
 ---
 
@@ -186,6 +198,7 @@ Example: Cursor natively doesn't support SKILL.md (tool capability), but UDS CLI
 | Windsurf | `.windsurf/rules/` | Settings UI | ✅ Yes |
 | Gemini CLI | `.gemini/skills/` | `~/.gemini/skills/` | ✅ Yes |
 | Cursor | `.cursor/rules/` | `~/.cursor/rules/` | ❌ No |
+| Antigravity | `.antigravity/skills/` | `~/.antigravity/skills/` | ❌ No |
 
 #### Activation Methods
 
@@ -200,6 +213,7 @@ Example: Cursor natively doesn't support SKILL.md (tool capability), but UDS CLI
 | Windsurf | Manual (@mention), Always On, Model Decision |
 | Gemini CLI | Auto-trigger, Enable/Disable via settings |
 | Cursor | Glob pattern, `alwaysApply` flag (rules only) |
+| Antigravity | Manual only |
 
 **Recommendation**: Use `.claude/skills/` as the default installation path — most tools can read it for cross-tool compatibility.
 
@@ -218,6 +232,7 @@ Example: Cursor natively doesn't support SKILL.md (tool capability), but UDS CLI
 | Windsurf | ✅ Full | Jan 9, 2026 |
 | Gemini CLI | ✅ Preview | Jan 7, 2026 |
 | Cursor | ❌ Not yet | Requested |
+| Antigravity | ❌ No | N/A |
 
 **Cross-platform installers**:
 - [skilz](https://github.com/skilz-ai/skilz) - Universal Skills installer (14+ platforms)
@@ -241,6 +256,7 @@ Example: Cursor natively doesn't support SKILL.md (tool capability), but UDS CLI
 | GitHub Copilot | `.github/copilot-instructions.md` | Personal settings | ~8KB |
 | OpenAI Codex | `AGENTS.md` | `~/.codex/AGENTS.md` | 32KB |
 | Gemini CLI | `GEMINI.md` | `~/.gemini/GEMINI.md` | 1M tokens |
+| Antigravity | N/A | `~/.antigravity/` | N/A |
 
 ### 5.2 Configuration Merge Behavior
 
@@ -254,6 +270,7 @@ Example: Cursor natively doesn't support SKILL.md (tool capability), but UDS CLI
 | GitHub Copilot | Combine | Personal > Repository > Organization |
 | OpenAI Codex | Concatenate | Override files > Base, closer wins |
 | Gemini CLI | Concatenate | All files with `@import` support |
+| Antigravity | N/A | N/A |
 
 ### 5.3 Skills File Format
 
@@ -270,6 +287,7 @@ Example: Cursor natively doesn't support SKILL.md (tool capability), but UDS CLI
 | Windsurf | ✅ SKILL.md | `.windsurfrules` | YAML |
 | Gemini CLI | ✅ SKILL.md | `GEMINI.md` | YAML |
 | Cursor | ❌ `.mdc` | `.cursor/rules/` | YAML (globs, alwaysApply) |
+| Antigravity | ❌ N/A | N/A | N/A |
 
 ---
 
@@ -337,7 +355,7 @@ Example: Cursor natively doesn't support SKILL.md (tool capability), but UDS CLI
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 2.3.0 | 2026-01-22 | Added UDS CLI Implementation Status section with status definitions |
+| 2.3.0 | 2026-01-22 | Added UDS CLI Implementation Status section with status definitions; Added Antigravity to all tables for CLI consistency |
 | 2.2.0 | 2026-01-15 | Added Multi-Agent Installation, Gemini CLI TOML conversion |
 | 2.1.0 | 2026-01-15 | Updated Skills support status for all tools (industry-wide adoption) |
 | 2.0.0 | 2026-01-15 | Major restructure: consolidated content, reduced tables |

@@ -1,0 +1,174 @@
+# Feature Development Workflow
+# Standard workflow for developing new features
+#
+# This workflow guides the development of new features from requirements
+# through implementation and review.
+
+name: feature-dev
+version: 1.0.0
+description: |
+  Standard feature development workflow from requirements to deployment.
+  Use for typical feature work with balanced rigor and efficiency.
+  Keywords: feature, development, implementation, 功能開發, 開發流程.
+
+metadata:
+  author: universal-dev-standards
+  category: development
+  difficulty: intermediate
+  estimated_steps: 6
+  related_skills:
+    - spec-driven-dev
+    - testing-guide
+    - code-review-assistant
+
+prerequisites:
+  - User story or feature request defined
+  - Git branch created (feature/xxx)
+  - Development environment ready
+
+steps:
+  # Step 1: Requirements Analysis
+  - id: analyze
+    name: Analyze Requirements
+    type: agent
+    agent: spec-analyst
+    description: |
+      Analyze the feature request and clarify requirements.
+      Identify acceptance criteria and potential challenges.
+    inputs:
+      - feature_request
+      - existing_codebase_context
+    outputs:
+      - requirements_analysis
+      - acceptance_criteria
+      - technical_considerations
+    checklist:
+      - Requirements understood
+      - Questions clarified
+      - Scope defined
+
+  # Step 2: Architecture Design
+  - id: design
+    name: Design Architecture
+    type: agent
+    agent: code-architect
+    description: |
+      Design the technical architecture for the feature.
+      Identify components, interfaces, and data flow.
+    inputs:
+      - requirements_analysis
+      - existing_architecture
+    outputs:
+      - architecture_design
+      - component_list
+      - api_contracts
+    considerations:
+      - Reuse existing components where possible
+      - Follow project patterns and conventions
+      - Consider performance and scalability
+
+  # Step 3: Test Planning
+  - id: test-plan
+    name: Plan Tests
+    type: agent
+    agent: test-specialist
+    description: |
+      Define testing strategy for the feature.
+      Identify test cases at different levels.
+    inputs:
+      - acceptance_criteria
+      - architecture_design
+    outputs:
+      - test_plan
+      - test_cases
+    test_levels:
+      - unit: Core logic functions
+      - integration: Component interactions
+      - e2e: Critical user paths
+
+  # Step 4: Implementation
+  - id: implement
+    name: Implement Feature
+    type: manual
+    description: |
+      Implement the feature following the design and test plan.
+      Use TDD approach where appropriate.
+    inputs:
+      - architecture_design
+      - test_plan
+    outputs:
+      - implementation_code
+      - tests
+    instructions: |
+      Implementation guidelines:
+      1. Start with tests (TDD recommended)
+      2. Implement core functionality first
+      3. Add edge case handling
+      4. Run tests frequently
+      5. Commit in logical chunks
+    checklist:
+      - Core functionality implemented
+      - Unit tests written and passing
+      - Integration tests passing
+      - No linting errors
+      - Code committed
+
+  # Step 5: Self Review
+  - id: self-review
+    name: Self Code Review
+    type: agent
+    agent: reviewer
+    description: |
+      Perform self-review before requesting peer review.
+      Check for common issues and improvements.
+    inputs:
+      - implementation_code
+      - tests
+    outputs:
+      - self_review_report
+      - improvement_suggestions
+    focus_areas:
+      - Code quality and style
+      - Test coverage
+      - Security considerations
+      - Performance implications
+
+  # Step 6: Documentation
+  - id: document
+    name: Update Documentation
+    type: agent
+    agent: doc-writer
+    description: |
+      Update relevant documentation for the new feature.
+      Include API docs, user guides, and changelog.
+    inputs:
+      - implementation_code
+      - architecture_design
+    outputs:
+      - updated_docs
+      - changelog_entry
+    documentation_types:
+      - API documentation
+      - User-facing documentation
+      - CHANGELOG entry
+      - README updates (if needed)
+
+outputs:
+  - name: feature_branch
+    description: Git branch with implemented feature
+    format: git-branch
+
+  - name: test_suite
+    description: Tests for the feature
+    format: varies
+
+  - name: documentation
+    description: Updated documentation
+    format: markdown
+
+completion_criteria:
+  - All acceptance criteria met
+  - Tests passing
+  - Self-review completed
+  - Documentation updated
+  - Ready for peer review/PR

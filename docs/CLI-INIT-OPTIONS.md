@@ -937,6 +937,7 @@ uds init --experimental
 | Experimental | `-E, --experimental` | Enable experimental features (methodology selection) |
 | UI Language | `--ui-lang` | UI language for prompts (`en`, `zh-tw`, `auto`) - default: `auto` |
 | Mode (deprecated) | `-m, --mode` | Installation mode (skills, full) - use `--skills-location` instead |
+| Force overwrite | `-f, --force` | Overwrite existing configuration (used by `uds ai-context init`) |
 
 ### Complete CLI Examples
 

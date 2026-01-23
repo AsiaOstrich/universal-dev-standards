@@ -8,6 +8,9 @@ import { checkCommand } from '../src/commands/check.js';
 import { updateCommand } from '../src/commands/update.js';
 import { configureCommand } from '../src/commands/configure.js';
 import { skillsCommand } from '../src/commands/skills.js';
+import { agentListCommand, agentInstallCommand, agentInfoCommand } from '../src/commands/agent.js';
+import { workflowListCommand, workflowInstallCommand, workflowInfoCommand } from '../src/commands/workflow.js';
+import { aiContextInitCommand, aiContextValidateCommand, aiContextGraphCommand } from '../src/commands/ai-context.js';
 import { setLanguage, setLanguageExplicit, detectLanguage } from '../src/i18n/messages.js';
 
 const require = createRequire(import.meta.url);
@@ -97,5 +100,77 @@ program
   .command('skills')
   .description('List installed Claude Code skills')
   .action(skillsCommand);
+
+// Agent command with subcommands
+const agentCommand = program
+  .command('agent')
+  .description('Manage UDS agents for AI tools');
+
+agentCommand
+  .command('list')
+  .description('List available and installed agents')
+  .option('--installed', 'Show installation status for all AI tools')
+  .action(agentListCommand);
+
+agentCommand
+  .command('install [agent-name]')
+  .description('Install agents (specify name or "all" for all agents)')
+  .option('-t, --tool <tool>', 'Target AI tool (default: claude-code)')
+  .option('-g, --global', 'Install to user level instead of project level')
+  .option('-y, --yes', 'Skip confirmation prompts')
+  .action(agentInstallCommand);
+
+agentCommand
+  .command('info <agent-name>')
+  .description('Show detailed information about an agent')
+  .action(agentInfoCommand);
+
+// Workflow command with subcommands
+const workflowCommand = program
+  .command('workflow')
+  .description('Manage UDS workflows for AI tools');
+
+workflowCommand
+  .command('list')
+  .description('List available and installed workflows')
+  .option('--installed', 'Show installation status for all AI tools')
+  .action(workflowListCommand);
+
+workflowCommand
+  .command('install [workflow-name]')
+  .description('Install workflows (specify name or "all" for all workflows)')
+  .option('-t, --tool <tool>', 'Target AI tool (default: claude-code)')
+  .option('-g, --global', 'Install to user level instead of project level')
+  .option('-y, --yes', 'Skip confirmation prompts')
+  .action(workflowInstallCommand);
+
+workflowCommand
+  .command('info <workflow-name>')
+  .description('Show detailed information about a workflow')
+  .action(workflowInfoCommand);
+
+// AI Context command with subcommands
+const aiContextCommand = program
+  .command('ai-context')
+  .description('Manage .ai-context.yaml configuration for AI-friendly architecture');
+
+aiContextCommand
+  .command('init')
+  .description('Generate .ai-context.yaml configuration file')
+  .option('-f, --force', 'Overwrite existing configuration')
+  .option('-y, --yes', 'Use defaults, skip interactive prompts')
+  .action(aiContextInitCommand);
+
+aiContextCommand
+  .command('validate')
+  .description('Validate .ai-context.yaml configuration')
+  .option('-v, --verbose', 'Show full configuration')
+  .action(aiContextValidateCommand);
+
+aiContextCommand
+  .command('graph')
+  .description('Show module dependency graph')
+  .option('-m, --mermaid', 'Output Mermaid diagram format')
+  .action(aiContextGraphCommand);
 
 program.parse();

@@ -1,0 +1,238 @@
+# Integrated Development Flow Workflow
+# Complete ATDD → SDD → BDD → TDD development cycle
+#
+# This workflow orchestrates the full software development lifecycle,
+# integrating acceptance testing, specification, behavior, and test-driven approaches.
+
+name: integrated-flow
+version: 1.0.0
+description: |
+  Complete development workflow integrating ATDD, SDD, BDD, and TDD methodologies.
+  Use for comprehensive feature development with full traceability from requirements to tests.
+  Keywords: ATDD, SDD, BDD, TDD, integrated, full-cycle, 整合流程, 完整開發.
+
+metadata:
+  author: universal-dev-standards
+  category: development
+  difficulty: advanced
+  estimated_steps: 8
+  related_skills:
+    - atdd-assistant
+    - spec-driven-dev
+    - bdd-assistant
+    - tdd-assistant
+
+prerequisites:
+  - Project initialized with UDS standards
+  - Git repository configured
+  - Test framework set up
+  - AI tool with Task support (recommended)
+
+# Workflow execution steps
+steps:
+  # Phase 1: ATDD - Acceptance Test-Driven Development
+  - id: specification-workshop
+    name: Specification Workshop
+    phase: ATDD
+    type: agent
+    agent: spec-analyst
+    description: |
+      Conduct specification workshop to define acceptance criteria.
+      Involves stakeholder collaboration to clarify requirements.
+    inputs:
+      - user_story
+      - business_context
+    outputs:
+      - acceptance_criteria
+      - test_scenarios
+    checklist:
+      - Stakeholders identified
+      - User story clarified
+      - Acceptance criteria in Given-When-Then format
+      - Edge cases documented
+
+  # Phase 2: SDD - Spec-Driven Development
+  - id: spec-proposal
+    name: Specification Proposal
+    phase: SDD
+    type: agent
+    agent: spec-analyst
+    description: |
+      Draft formal specification document based on acceptance criteria.
+      Include technical design, API contracts, and data models.
+    inputs:
+      - acceptance_criteria
+      - test_scenarios
+    outputs:
+      - spec_document
+    template: |
+      # SPEC-XXX: [Feature Name]
+
+      ## Summary
+      [Brief description]
+
+      ## Acceptance Criteria
+      [From workshop]
+
+      ## Technical Design
+      [Architecture, components]
+
+      ## API Contract
+      [Endpoints, data structures]
+
+      ## Risks & Mitigations
+      [Identified risks]
+
+  - id: spec-review
+    name: Specification Review
+    phase: SDD
+    type: manual
+    description: |
+      Review and approve specification document.
+      Ensure technical feasibility and alignment with requirements.
+    inputs:
+      - spec_document
+    outputs:
+      - approved_spec
+    instructions: |
+      Review the specification document:
+      1. Verify technical accuracy
+      2. Check acceptance criteria completeness
+      3. Assess risks and mitigations
+      4. Approve or request changes
+    checklist:
+      - Technical design is sound
+      - Acceptance criteria are testable
+      - Risks are acceptable
+      - Stakeholders approved
+
+  # Phase 3: BDD - Behavior-Driven Development
+  - id: discovery
+    name: BDD Discovery
+    phase: BDD
+    type: agent
+    agent: test-specialist
+    description: |
+      Discover and formulate BDD scenarios from approved spec.
+      Generate Gherkin feature files.
+    inputs:
+      - approved_spec
+    outputs:
+      - feature_files
+      - scenario_outlines
+    example_output: |
+      Feature: User Authentication
+        As a user
+        I want to log in with my credentials
+        So that I can access my account
+
+        Scenario: Successful login
+          Given I am on the login page
+          When I enter valid credentials
+          Then I should be redirected to dashboard
+
+  - id: formulation
+    name: BDD Formulation
+    phase: BDD
+    type: manual
+    description: |
+      Review and refine BDD scenarios with stakeholders.
+      Ensure scenarios are clear and testable.
+    inputs:
+      - feature_files
+    outputs:
+      - refined_features
+    checklist:
+      - Scenarios cover all acceptance criteria
+      - Language is clear to all stakeholders
+      - Examples are realistic
+      - Edge cases included
+
+  # Phase 4: TDD - Test-Driven Development
+  - id: tdd-red
+    name: TDD Red Phase
+    phase: TDD
+    type: agent
+    agent: test-specialist
+    description: |
+      Write failing tests based on BDD scenarios.
+      Tests should be minimal and focused.
+    inputs:
+      - refined_features
+    outputs:
+      - failing_tests
+    instructions: |
+      For each BDD scenario:
+      1. Write unit test that captures behavior
+      2. Run test to verify it fails
+      3. Document test purpose
+
+  - id: tdd-green
+    name: TDD Green Phase
+    phase: TDD
+    type: manual
+    description: |
+      Implement minimum code to make tests pass.
+      Focus on functionality, not optimization.
+    inputs:
+      - failing_tests
+    outputs:
+      - passing_implementation
+    instructions: |
+      Implementation guidelines:
+      1. Write minimum code to pass tests
+      2. Do not optimize yet
+      3. Commit when tests pass
+    checklist:
+      - All tests pass
+      - No extra functionality added
+      - Code committed
+
+  - id: tdd-refactor
+    name: TDD Refactor Phase
+    phase: TDD
+    type: agent
+    agent: reviewer
+    description: |
+      Refactor implementation while maintaining passing tests.
+      Review code quality and suggest improvements.
+    inputs:
+      - passing_implementation
+    outputs:
+      - refactored_code
+      - review_report
+    checklist:
+      - Code follows project standards
+      - No code duplication
+      - Tests still pass
+      - Documentation updated
+
+# Final outputs
+outputs:
+  - name: spec_document
+    description: Approved specification document
+    format: markdown
+    path: specs/SPEC-XXX.md
+
+  - name: feature_files
+    description: BDD feature files
+    format: gherkin
+    path: features/
+
+  - name: test_suite
+    description: TDD test files
+    format: varies
+    path: tests/
+
+  - name: implementation
+    description: Refactored implementation
+    format: varies
+    path: src/
+
+# Workflow completion criteria
+completion_criteria:
+  - All acceptance criteria met
+  - All tests passing
+  - Code reviewed and approved
+  - Documentation updated
+  - Spec archived with links to implementation

@@ -615,9 +615,9 @@ describe('Check Command', () => {
 
       const output = consoleLogs.join('\n');
 
-      // Should show correct count (22 skill standards for Level 3)
-      // Updated from 21 to 22 after adding refactoring-assistant skill
-      expect(output).toContain('22 via Skills');
+      // Should show correct count (23 skill standards for Level 3)
+      // Updated from 22 to 23 after adding ai-friendly-architecture skill
+      expect(output).toContain('23 via Skills');
 
       // Should NOT show exactly "0 via Skills" as a standalone line
       // Note: We check for the regex pattern since "22 via Skills" contains "0 via Skills" as substring

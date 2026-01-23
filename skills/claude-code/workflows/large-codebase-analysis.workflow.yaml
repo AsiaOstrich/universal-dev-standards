@@ -1,0 +1,226 @@
+# Large Codebase Analysis Workflow (RLM-enhanced)
+# Workflow for analyzing large codebases (50+ files) using RLM principles
+#
+# This workflow uses hierarchical analysis and parallel processing
+# to efficiently analyze large codebases that exceed typical context limits.
+
+name: large-codebase-analysis
+version: 1.0.0
+description: |
+  RLM-enhanced workflow for analyzing large codebases with 50+ files.
+  Uses hierarchical analysis (structure first, then details) and parallel
+  processing for efficient analysis of projects exceeding context limits.
+  Keywords: large codebase, analysis, RLM, parallel processing, 大型代碼庫, 分析.
+
+metadata:
+  author: universal-dev-standards
+  category: development
+  difficulty: advanced
+  estimated_steps: 4
+  related_skills:
+    - project-structure-guide
+    - spec-driven-dev
+
+# RLM Context Configuration
+context-strategy:
+  enable-rlm: true
+  max-context-per-step: 100000
+  context-inheritance: selective
+
+prerequisites:
+  - Git repository with codebase
+  - AI tool with Task support (Claude Code, OpenCode)
+  - Project size > 50 files or > 200K tokens
+
+# Workflow Variables (set during execution)
+variables:
+  modules: []               # Populated by structure-scan step
+  total_files: 0
+  estimated_tokens: 0
+
+steps:
+  # Step 1: Structure Scan
+  - id: structure-scan
+    name: Scan Project Structure
+    type: agent
+    agent: code-architect
+    description: |
+      Perform initial high-level scan of the codebase.
+      Identify major modules, directories, and entry points.
+      This step uses minimal context to get the big picture.
+    context-mode: minimal
+    inputs:
+      - project_root
+    outputs:
+      - structure_map
+      - module_boundaries
+      - entry_points
+      - dependency_overview
+    instructions: |
+      Scan the project structure without reading file contents deeply.
+      Focus on:
+      1. Directory structure and organization
+      2. Package/module boundaries
+      3. Entry points (main files, index files)
+      4. Configuration files
+      5. Test directories
+
+      Output a structured map that can be used for parallel analysis.
+    checklist:
+      - Directory tree mapped
+      - Module boundaries identified
+      - Entry points documented
+      - File count by directory
+
+  # Step 2: Module Partition (Manual)
+  - id: module-partition
+    name: Define Analysis Partitions
+    type: manual
+    description: |
+      Based on the structure scan, define logical partitions for parallel analysis.
+      Each partition should be independently analyzable.
+    inputs:
+      - structure_map
+      - module_boundaries
+    outputs:
+      - partition_definitions
+      - analysis_priority
+    instructions: |
+      Review the structure scan results and define partitions:
+
+      1. **Group related modules**
+         - Identify modules that can be analyzed independently
+         - Keep tightly coupled modules together
+
+      2. **Set priorities**
+         - Core/critical modules first
+         - Dependencies before dependents
+         - Shared utilities early
+
+      3. **Estimate complexity**
+         - Token count per partition
+         - Expected analysis depth
+
+      Example partition format:
+      ```yaml
+      partitions:
+        - name: core-auth
+          paths: [src/auth/, src/middleware/auth/]
+          priority: 1
+          estimated_tokens: 15000
+
+        - name: api-layer
+          paths: [src/api/, src/routes/]
+          priority: 2
+          depends_on: [core-auth]
+          estimated_tokens: 25000
+      ```
+    checklist:
+      - All major areas covered
+      - Dependencies mapped
+      - Priorities assigned
+      - Token estimates reasonable
+
+  # Step 3: Parallel Module Analysis
+  - id: parallel-module-analysis
+    name: Analyze Modules in Parallel
+    type: parallel-agents
+    agent: code-architect
+    description: |
+      Execute architecture analysis on each partition in parallel.
+      Each analysis focuses only on its partition with minimal cross-module context.
+    foreach: ${partitions}
+    context-mode: focused
+    merge-strategy: aggregate
+    max-concurrent: 3
+    timeout: 300
+    inputs:
+      - structure_map
+      - partition_definitions
+    outputs:
+      - module_analyses
+    analysis_focus:
+      - Module purpose and responsibility
+      - Internal architecture patterns
+      - Public interfaces/APIs
+      - Dependencies (internal and external)
+      - Code quality observations
+      - Potential issues or debt
+
+  # Step 4: Integration Analysis
+  - id: integration-analysis
+    name: Synthesize Integration Analysis
+    type: agent
+    agent: code-architect
+    description: |
+      Synthesize all parallel analyses into a unified codebase understanding.
+      Focus on cross-module interactions and overall architecture.
+    context-mode: summary
+    inputs:
+      - module_analyses
+      - structure_map
+      - dependency_overview
+    outputs:
+      - integrated_analysis
+      - architecture_diagram
+      - recommendations
+      - technical_debt_inventory
+    instructions: |
+      Combine parallel analysis results:
+
+      1. **Architecture Overview**
+         - Overall system architecture
+         - Module interaction patterns
+         - Data flow between modules
+
+      2. **Cross-Cutting Concerns**
+         - Shared patterns and conventions
+         - Common utilities and helpers
+         - Configuration management
+
+      3. **Quality Assessment**
+         - Consistency across modules
+         - Identified technical debt
+         - Security considerations
+
+      4. **Recommendations**
+         - Improvement opportunities
+         - Refactoring suggestions
+         - Documentation gaps
+    checklist:
+      - All modules integrated
+      - Cross-module interactions documented
+      - Architecture diagram created
+      - Recommendations prioritized
+
+outputs:
+  - name: full_analysis_report
+    description: Complete codebase analysis report
+    format: markdown
+
+  - name: architecture_diagram
+    description: System architecture visualization (Mermaid)
+    format: mermaid
+
+  - name: module_summaries
+    description: Individual module analysis summaries
+    format: json
+
+  - name: recommendations
+    description: Prioritized improvement recommendations
+    format: markdown
+
+completion_criteria:
+  - All partitions analyzed
+  - Integration analysis completed
+  - Architecture diagram generated
+  - Recommendations documented
+  - Report suitable for team sharing
+
+# Best Practices for This Workflow
+best_practices:
+  - Start with quick structure scan before deep analysis
+  - Keep partitions small enough to fit in context
+  - Use focused context mode to avoid overwhelming agents
+  - Review partition definitions before parallel analysis
+  - Validate cross-module findings in integration step
