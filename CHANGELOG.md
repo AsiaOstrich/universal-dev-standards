@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [4.2.0] - 2026-01-24
+
+### Added
+- **CLI Specifications**: Published 31 CLI specification documents as Stable
+  - Agent command specifications (2 docs): Overview, Installation
+  - Workflow command specifications (2 docs): Overview, Installation
+  - AI-Context command specifications (2 docs): Overview, Config Generation
+  - Init command specifications (4 docs): Overview, Project Detection, Configuration Flow, Execution Stages
+  - Check command specifications (4 docs): Overview, Integrity Checking, Status Display, Restore Operations
+  - Update command specifications (4 docs): Overview, Version Checking, Standards Update, Feature Detection
+  - Configure command specifications (3 docs): Overview, Option Types, AI Tools Management
+  - Shared module specifications (7 docs): Manifest Schema, File Operations, Hash Tracking, Integration Generation, Skills Installation, AI Agent Paths, Prompts
+  - List command specification (1 doc)
+  - Skills command specification (1 doc)
+
 ### Changed
 - **AI Agent Paths**: Updated configurations to match official vendor documentation (2026-01-24)
   - Cline: Path corrected from `.cline/` to `.clinerules/` per [official docs](https://docs.cline.bot/features/slash-commands/workflows)
@@ -957,7 +972,11 @@ This reflects the project's expanded scope covering all development standards, n
 - Templates: Requirement document templates
 - Integrations: OpenSpec framework
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.4.0...HEAD
+[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.2.0...HEAD
+[4.2.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.1.0...v4.2.0
+[4.1.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.0.0...v4.1.0
+[4.0.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.5.0...v4.0.0
+[3.5.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.4.0...v3.5.0
 [3.4.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.3.0...v3.4.0
 [3.0.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.3.0...v3.0.0
 [2.3.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.2.0...v2.3.0

@@ -6,7 +6,7 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 4.1.0 | **Released**: 2026-01-21 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
+**Version**: 4.2.0 | **Released**: 2026-01-24 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 Language-agnostic, framework-agnostic documentation standards for software projects. Ensure consistency, quality, and maintainability across diverse technology stacks.
 

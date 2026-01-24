@@ -14,7 +14,7 @@
       "name": "universal-dev-standards",
       "source": "./skills/claude-code",
       "description": "23 skills for development standards: commit messages, code review, testing, documentation, git workflow, release management, and more. Language-agnostic and framework-agnostic.",
-      "version": "4.1.0",
+      "version": "4.2.0",
       "license": "CC BY 4.0",
       "keywords": [
         "standards",
