@@ -1,8 +1,8 @@
 ---
 source: ../../../core/documentation-structure.md
-source_version: 1.2.2
-translation_version: 1.2.2
-last_synced: 2026-01-08
+source_version: 1.3.0
+translation_version: 1.3.0
+last_synced: 2026-01-24
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 # 文档结构标准
 
-**版本**: 1.0.0
-**最后更新**: 2025-12-30
+**版本**: 1.3.0
+**最后更新**: 2026-01-24
 **适用范围**: 所有需要文档的软件项目
 
 ---
@@ -36,6 +36,10 @@ project/
 │   ├── getting-started.md # 快速入门
 │   ├── installation.md    # 安装指南
 │   ├── configuration.md   # 配置说明
+│   ├── specs/             # 规格文档
+│   │   ├── README.md      # 规格索引
+│   │   ├── system/        # 系统设计规格
+│   │   └── {component}/   # 组件规格
 │   ├── api/               # API 文档
 │   │   └── README.md
 │   ├── guides/            # 使用指南
@@ -161,10 +165,44 @@ const example = 'code';
 
 ---
 
+## 规格文档
+
+### 目的
+
+规格文档定义**实作前**的设计与实作细节。
+
+| 类型 | 目的 | 位置 |
+|------|------|------|
+| **规格** | 定义要建什么及如何建 | `docs/specs/` |
+| **文档** | 说明建了什么 | `docs/` |
+
+### 规格目录结构
+
+```
+docs/specs/
+├── README.md               # 规格索引
+├── system/                 # 系统设计规格
+└── {component}/            # 组件规格
+    ├── design/             # 设计规格
+    └── {module}/           # 实作规格
+```
+
+---
+
 ## 相关标准
 
 - [API 文档标准](api-documentation-standards.md)
 - [变更日志标准](changelog-standards.md)
+- [规格驱动开发](spec-driven-development.md)
+
+---
+
+## 版本历史
+
+| 版本 | 日期 | 变更 |
+|------|------|------|
+| 1.3.0 | 2026-01-24 | 新增规格文档标准 |
+| 1.0.0 | 2025-12-30 | 初始版本 |
 
 ---
 

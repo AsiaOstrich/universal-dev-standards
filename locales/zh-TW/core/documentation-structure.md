@@ -1,8 +1,8 @@
 ---
 source: core/documentation-structure.md
-source_version: 1.2.2
-translation_version: 1.2.2
-last_synced: 2025-12-25
+source_version: 1.3.0
+translation_version: 1.3.0
+last_synced: 2026-01-24
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../core/documentation-structure.md) | 繁體中文
 
-**版本**: 1.2.2
-**最後更新**: 2025-12-24
+**版本**: 1.3.0
+**最後更新**: 2026-01-24
 **適用範圍**: 所有需要文件的軟體專案
 
 ---
@@ -42,7 +42,14 @@ project-root/
 │   ├── api-reference.md         # API documentation
 │   ├── deployment.md            # Deployment guide
 │   ├── troubleshooting.md       # Common issues
-│   ├── flows/                   # Flow documentation (NEW)
+│   ├── specs/                   # Specification documents
+│   │   ├── README.md            # Specification index
+│   │   ├── system/              # System design specifications
+│   │   │   └── *.md             # High-level architecture designs
+│   │   └── {component}/         # Component-specific specifications
+│   │       ├── design/          # Design specifications
+│   │       └── {module}/        # Implementation specifications
+│   ├── flows/                   # Flow documentation
 │   │   ├── README.md            # Flow index (REQUIRED when >5 flows)
 │   │   ├── templates/
 │   │   │   └── flow-template.md
@@ -245,7 +252,89 @@ docs/flows/
 
 ---
 
-## 索引文件規範 (NEW)
+## 規格文件
+
+### 目的
+
+規格文件定義**實作前**的設計與實作細節。它們與一般文件的差異：
+
+| 類型 | 目的 | 受眾 | 撰寫時機 | 位置 |
+|------|------|------|----------|------|
+| **規格** | 定義要建什麼及如何建 | 開發者 | 實作前 | `docs/specs/` |
+| **文件** | 說明建了什麼 | 使用者、開發者 | 實作後 | `docs/` |
+
+### 規格目錄結構
+
+```
+docs/specs/
+├── README.md               # 規格索引（必要）
+├── system/                 # 系統層級設計規格
+│   └── {feature}.md        # 高階架構設計
+└── {component}/            # 元件特定規格
+    ├── design/             # 設計規格（實作前）
+    ├── shared/             # 跨模組共用規格
+    └── {module}/           # 實作規格
+```
+
+### 規格類型
+
+| 層級 | 說明 | 範例 | 位置 |
+|------|------|------|------|
+| **系統規格** | 跨領域架構 | agents-workflows-system.md | `specs/system/` |
+| **設計規格** | 元件設計決策 | ui-language-option.md | `specs/{component}/design/` |
+| **實作規格** | 模組實作細節 | init/00-init-overview.md | `specs/{component}/{module}/` |
+| **共用規格** | 跨模組工具 | manifest-schema.md | `specs/{component}/shared/` |
+
+### 何時建立規格
+
+| 情境 | 建立規格？ | 類型 |
+|------|----------|------|
+| 具有多個元件的新功能 | 是 | 系統或設計 |
+| 新 CLI 命令 | 是 | 實作 |
+| 跨領域工具 | 是 | 共用 |
+| 錯誤修復 | 否 | - |
+| 重構（相同行為） | 否 | - |
+
+### 規格檔案格式
+
+每份規格文件應包含：
+
+```markdown
+# 功能名稱規格
+
+**Feature ID**: COMPONENT-FEATURE-NNN
+**Version**: 1.0.0
+**Last Updated**: YYYY-MM-DD
+**Status**: Draft | In Review | Approved | Implemented
+
+## 概述
+[此規格涵蓋內容的簡要說明]
+
+## 驗收條件
+[AC-1、AC-2、... 使用 Given-When-Then 格式]
+
+## 技術設計
+[實作細節]
+
+## 參考資料
+[相關規格和文件]
+```
+
+### specs/README.md 要求
+
+規格索引（`specs/README.md`）必須包含：
+
+| 章節 | 說明 | 必要 |
+|------|------|:----:|
+| 目錄結構 | 規格樹狀圖 | ✅ |
+| 系統規格 | 含說明和狀態的清單 | ✅ |
+| 元件規格 | 按元件組織 | ✅ |
+| 規格類型 | 類型定義和位置 | ⚪ |
+| 相關文件 | 連結至 docs/ | ✅ |
+
+---
+
+## 索引文件規範
 
 ### docs/index.md 必要章節
 
@@ -1097,6 +1186,7 @@ git push origin gh-pages
 - [Documentation Writing Standards](documentation-writing-standards.md) - 文件撰寫規範
 - [Changelog Standards](changelog-standards.md) - 變更日誌標準
 - [Project Structure Standard](project-structure.md) - 專案結構標準
+- [Spec-Driven Development](spec-driven-development.md) - 規格驅動開發
 
 ---
 
@@ -1104,6 +1194,7 @@ git push origin gh-pages
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-01-24 | Added: 規格文件標準與 specs/ 目錄結構 |
 | 1.2.2 | 2025-12-24 | Added: Related Standards section |
 | 1.2.1 | 2025-12-12 | Added: Physical DFD layer, Flows vs Diagrams separation clarification |
 | 1.2.0 | 2025-12-11 | Added: Flow documentation standards, Cross-reference standards, Index document standards, CHANGELOG documentation integration, Document requirements matrix, DFD standards |

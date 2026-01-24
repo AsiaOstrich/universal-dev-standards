@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/documentation-structure.md)
 
-**Version**: 1.2.2
-**Last Updated**: 2025-12-24
+**Version**: 1.3.0
+**Last Updated**: 2026-01-24
 **Applicability**: All software projects requiring documentation
 
 ---
@@ -34,7 +34,14 @@ project-root/
 │   ├── api-reference.md         # API documentation
 │   ├── deployment.md            # Deployment guide
 │   ├── troubleshooting.md       # Common issues
-│   ├── flows/                   # Flow documentation (NEW)
+│   ├── specs/                   # Specification documents
+│   │   ├── README.md            # Specification index
+│   │   ├── system/              # System design specifications
+│   │   │   └── *.md             # High-level architecture designs
+│   │   └── {component}/         # Component-specific specifications
+│   │       ├── design/          # Design specifications
+│   │       └── {module}/        # Implementation specifications
+│   ├── flows/                   # Flow documentation
 │   │   ├── README.md            # Flow index (REQUIRED when >5 flows)
 │   │   ├── templates/
 │   │   │   └── flow-template.md
@@ -237,7 +244,89 @@ When you have more than 5 flow documents, `flows/README.md` is **required** and 
 
 ---
 
-## Index Document Standards (NEW)
+## Specification Documentation
+
+### Purpose
+
+Specification documents define the design and implementation details **before** coding. They differ from regular documentation:
+
+| Type | Purpose | Audience | When Written | Location |
+|------|---------|----------|--------------|----------|
+| **Specification** | Define WHAT to build and HOW | Developers | Before implementation | `docs/specs/` |
+| **Documentation** | Explain WHAT was built | Users, Developers | After implementation | `docs/` |
+
+### Specification Directory Structure
+
+```
+docs/specs/
+├── README.md               # Specification index (REQUIRED)
+├── system/                 # System-level design specifications
+│   └── {feature}.md        # High-level architecture designs
+└── {component}/            # Component-specific specifications
+    ├── design/             # Design specifications (pre-implementation)
+    ├── shared/             # Cross-module shared specifications
+    └── {module}/           # Implementation specifications
+```
+
+### Specification Types
+
+| Level | Description | Example | Location |
+|-------|-------------|---------|----------|
+| **System Spec** | Cross-cutting architecture | agents-workflows-system.md | `specs/system/` |
+| **Design Spec** | Component design decisions | ui-language-option.md | `specs/{component}/design/` |
+| **Implementation Spec** | Module implementation details | init/00-init-overview.md | `specs/{component}/{module}/` |
+| **Shared Spec** | Cross-module utilities | manifest-schema.md | `specs/{component}/shared/` |
+
+### When to Create Specifications
+
+| Scenario | Create Spec? | Type |
+|----------|--------------|------|
+| New feature with multiple components | Yes | System or Design |
+| New CLI command | Yes | Implementation |
+| Cross-cutting utility | Yes | Shared |
+| Bug fix | No | - |
+| Refactoring (same behavior) | No | - |
+
+### Specification File Format
+
+Every specification document should include:
+
+```markdown
+# Feature Name Specification
+
+**Feature ID**: COMPONENT-FEATURE-NNN
+**Version**: 1.0.0
+**Last Updated**: YYYY-MM-DD
+**Status**: Draft | In Review | Approved | Implemented
+
+## Overview
+[Brief description of what this specification covers]
+
+## Acceptance Criteria
+[AC-1, AC-2, ... with Given-When-Then format]
+
+## Technical Design
+[Implementation details]
+
+## References
+[Related specs and documentation]
+```
+
+### specs/README.md Requirements
+
+The specification index (`specs/README.md`) must include:
+
+| Section | Description | Required |
+|---------|-------------|:--------:|
+| Directory Structure | Specification tree diagram | ✅ |
+| System Specifications | List with descriptions and status | ✅ |
+| Component Specifications | Organized by component | ✅ |
+| Specification Types | Type definitions and locations | ⚪ |
+| Related Documentation | Links to docs/ | ✅ |
+
+---
+
+## Index Document Standards
 
 ### docs/index.md Required Sections
 
@@ -1089,6 +1178,7 @@ git push origin gh-pages
 - [Documentation Writing Standards](documentation-writing-standards.md)
 - [Changelog Standards](changelog-standards.md)
 - [Project Structure Standard](project-structure.md)
+- [Spec-Driven Development](spec-driven-development.md)
 
 ---
 
@@ -1096,6 +1186,7 @@ git push origin gh-pages
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-01-24 | Added: Specification documentation standards with specs/ directory structure |
 | 1.2.2 | 2025-12-24 | Added: Related Standards section |
 | 1.2.1 | 2025-12-12 | Added: Physical DFD layer, Flows vs Diagrams separation clarification |
 | 1.2.0 | 2025-12-11 | Added: Flow documentation standards, Cross-reference standards, Index document standards, CHANGELOG documentation integration, Document requirements matrix, DFD standards |

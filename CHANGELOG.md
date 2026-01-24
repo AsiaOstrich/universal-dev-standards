@@ -148,7 +148,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - New commands: `/derive-bdd`, `/derive-tdd`, `/derive-atdd`, `/derive-all`
   - Multi-language support: TypeScript, Python, Java, Go
   - AC Parser with Given-When-Then and bullet format support
-- **Specification**: Core Standard Creation Workflow (`specs/core-standard-workflow.md`)
+- **Specification**: Core Standard Creation Workflow (`docs/specs/system/core-standard-workflow.md`)
   - Defines 8-phase workflow for creating/updating core standards
   - File checklist and skill applicability matrix
   - CLI integration requirements and verification checkpoints
