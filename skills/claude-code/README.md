@@ -81,6 +81,14 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 
 ## Slash Commands | 斜線命令
 
+> **Claude Code v2.1.3+ Note**: Slash commands and skills are now merged. Both `.claude/commands/review.md` and `.claude/skills/review/SKILL.md` create `/review` and work identically. Your existing `.claude/commands/` files continue to work.
+>
+> **Claude Code v2.1.3+ 注意**：斜線命令與 Skills 已合併。`.claude/commands/review.md` 和 `.claude/skills/review/SKILL.md` 都會創建 `/review`，功能相同。現有的 `.claude/commands/` 檔案繼續運作。
+>
+> **For other AI tools**: OpenCode, Roo Code, Gemini CLI and others still use the traditional commands format.
+>
+> **其他 AI 工具**：OpenCode、Roo Code、Gemini CLI 等仍使用傳統的 commands 格式。
+
 In addition to automatic Skills, this plugin provides **manual slash commands** for explicit actions:
 
 除了自動觸發的 Skills，此插件還提供**手動斜線命令**用於明確的操作：

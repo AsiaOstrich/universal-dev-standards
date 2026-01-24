@@ -105,5 +105,6 @@ function getSkillsDirForAgent(agent, level, projectPath) {
 
 ## Related Specifications
 
+- [SHARED-07 AI Agent Paths Update](ai-agent-paths-update.md) - January 2026 configuration updates
 - [SHARED-05 Skills Installation](skills-installation.md)
 - [INIT-02 Configuration Flow](../init/02-configuration-flow.md)

@@ -95,17 +95,18 @@ export const AI_AGENT_PATHS = {
   'cline': {
     name: 'Cline',
     skills: {
-      project: '.cline/skills/',
-      user: join(homedir(), '.cline', 'skills')
+      project: '.clinerules/skills/',
+      user: join(homedir(), '.clinerules', 'skills')
     },
     commands: null, // Uses workflow files
     agents: {
-      project: '.cline/agents/',
-      user: join(homedir(), '.cline', 'agents')
+      project: '.clinerules/agents/',
+      user: join(homedir(), '.clinerules', 'agents')
     },
     workflows: {
-      project: '.cline/workflows/',
-      user: join(homedir(), '.cline', 'workflows')
+      // Official path per docs.cline.bot/features/slash-commands/workflows
+      project: '.clinerules/workflows/',
+      user: join(homedir(), '.clinerules', 'workflows')
     },
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/',
@@ -163,7 +164,9 @@ export const AI_AGENT_PATHS = {
     },
     commands: {
       project: '.github/prompts/',
-      user: join(homedir(), '.copilot', 'prompts')
+      // Note: Custom prompts only work in VS Code IDE, not CLI or Cloud
+      // See: docs.github.com/copilot/get-started/getting-started-with-prompts-for-copilot-chat
+      user: null
     },
     agents: {
       project: '.github/agents/',
@@ -187,7 +190,11 @@ export const AI_AGENT_PATHS = {
       project: '.windsurf/agents/',
       user: join(homedir(), '.codeium', 'windsurf', 'agents')
     },
-    workflows: null,
+    workflows: {
+      // Official path per docs.windsurf.com/windsurf/cascade/workflows
+      project: '.windsurf/rules/',
+      user: join(homedir(), '.codeium', 'windsurf', 'rules')
+    },
     supportsMarketplace: false,
     fallbackSkillsPath: null,
     supportsSkills: true,
@@ -212,6 +219,9 @@ export const AI_AGENT_PATHS = {
       project: '.gemini/workflows/',
       user: join(homedir(), '.gemini', 'workflows')
     },
+    // Gemini CLI uses TOML format for commands, not Markdown
+    // See: cloud.google.com/blog/topics/developers-practitioners/gemini-cli-custom-slash-commands
+    commandFormat: 'toml',
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/',
     supportsSkills: true, // Preview support

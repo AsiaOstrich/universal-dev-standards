@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **AI Agent Paths**: Updated configurations to match official vendor documentation (2026-01-24)
+  - Cline: Path corrected from `.cline/` to `.clinerules/` per [official docs](https://docs.cline.bot/features/slash-commands/workflows)
+  - Windsurf: Added workflows support with `.windsurf/rules/` path per [official docs](https://docs.windsurf.com/windsurf/cascade/workflows)
+  - Gemini CLI: Added `commandFormat: 'toml'` field to document TOML format requirement
+  - GitHub Copilot: Marked `commands.user` as unsupported (VS Code IDE only)
+
+### Fixed
+- **CLI**: `promptCommandsInstallation` now gracefully handles agents with `commands.user: null`
+  - Skips user-level option for agents that don't support it (e.g., GitHub Copilot CLI)
+
+### Documentation
+- **Claude Code Skills/Commands merger note**: Added documentation explaining that Claude Code v2.1.3+ has merged slash commands and skills
+  - Both `.claude/commands/review.md` and `.claude/skills/review/SKILL.md` create `/review`
+  - Existing commands files continue to work
+  - Other AI tools (OpenCode, Roo Code, Gemini CLI) still use traditional commands format
+- **New Specification**: Added [SHARED-07] AI Agent Paths Update specification (`docs/specs/cli/shared/ai-agent-paths-update.md`)
+
 ## [4.1.0] - 2026-01-21
 
 ### Added

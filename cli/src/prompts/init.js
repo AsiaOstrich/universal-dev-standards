@@ -237,11 +237,13 @@ export async function promptCommandsInstallation(selectedTools = []) {
     const config = getAgentConfig(tool);
     const displayName = getAgentDisplayName(tool);
 
-    // User level option
-    choices.push({
-      name: `${chalk.blue(displayName)} - ${msg.choices.userLevel} ${chalk.gray(`(${config.commands.user.replace(os.homedir(), '~')})`)}`,
-      value: `${tool}:user`
-    });
+    // User level option (skip if user path is null - e.g., Copilot only supports VS Code IDE)
+    if (config.commands.user) {
+      choices.push({
+        name: `${chalk.blue(displayName)} - ${msg.choices.userLevel} ${chalk.gray(`(${config.commands.user.replace(os.homedir(), '~')})`)}`,
+        value: `${tool}:user`
+      });
+    }
 
     // Project level option
     choices.push({
