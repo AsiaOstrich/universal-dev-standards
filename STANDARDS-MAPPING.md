@@ -2,6 +2,56 @@
 
 This document provides a comprehensive mapping between core standards and their implementations across different AI tools.
 
+## Standards Relationship Diagram
+
+```mermaid
+graph TB
+    subgraph "Development Methodology"
+        SDD[spec-driven-development.md] --> FD[forward-derivation-standards.md]
+        RE[reverse-engineering-standards.md] --> SDD
+        SDD --> TDD[test-driven-development.md]
+        TDD --> BDD[behavior-driven-development.md]
+        BDD --> ATDD[acceptance-test-driven-development.md]
+    end
+
+    subgraph "Testing Standards"
+        TS[testing-standards.md] --> TCD[test-completeness-dimensions.md]
+        TDD --> TS
+        BDD --> TS
+        ATDD --> TS
+    end
+
+    subgraph "Quality & Process"
+        AH[anti-hallucination.md] --> SDD
+        AH --> RE
+        CS[checkin-standards.md] --> CRG[code-review-checklist.md]
+        CS --> CMG[commit-message-guide.md]
+        CS --> TS
+    end
+
+    subgraph "Documentation"
+        DS[documentation-structure.md] --> DWS[documentation-writing-standards.md]
+        DWS --> CL[changelog-standards.md]
+        CL --> VER[versioning.md]
+    end
+
+    subgraph "Infrastructure"
+        GW[git-workflow.md] --> CMG
+        PS[project-structure.md] --> DS
+        LS[logging-standards.md] --> ECS[error-code-standards.md]
+    end
+
+    %% Cross-group connections
+    TS --> CS
+    SDD --> DS
+    VER --> CS
+```
+
+**How to Read This Diagram**:
+- Arrows show dependency/reference relationships
+- Start with your task type to find relevant standards
+- Follow arrows to discover related standards
+
 ## Coverage Summary
 
 | Category | Core Standards | AI Standards | Claude Code Skills | Other AI Tools |

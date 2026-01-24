@@ -19,6 +19,27 @@ This standard defines testing conventions and best practices to ensure software 
 
 ---
 
+## Glossary
+
+Quick reference for test terminology abbreviations used in this document:
+
+| Abbreviation | Full Term | Description |
+|--------------|-----------|-------------|
+| **UT** | Unit Testing | Testing individual functions/methods in isolation |
+| **IT** | Integration Testing | Testing interactions between components |
+| **ST** | System Testing | Testing the complete integrated system |
+| **AT** | Acceptance Testing | Testing against business acceptance criteria |
+| **E2E** | End-to-End Testing | Testing complete user workflows |
+| **UAT** | User Acceptance Testing | Acceptance testing performed by end users |
+| **SIT** | System Integration Testing | Testing integration of multiple systems |
+| **TDD** | Test-Driven Development | Development methodology: test first, code second |
+| **BDD** | Behavior-Driven Development | Development methodology using natural language scenarios |
+| **ATDD** | Acceptance Test-Driven Development | Development methodology driven by acceptance criteria |
+
+> **Note**: "IT" in this document always refers to "Integration Testing", not "Information Technology".
+
+---
+
 ## Table of Contents
 
 1. [Testing Fundamentals](#testing-fundamentals) ⭐ NEW
@@ -323,6 +344,16 @@ Examples:
   should_return_null_when_user_not_found()
   test_validate_email_invalid_format_returns_false()
 ```
+
+**Naming Style Selection Guide**:
+
+| Style | Best For | Example |
+|-------|----------|---------|
+| `[Method]_[Scenario]_[Result]` | Unit tests targeting specific methods; C#, Java conventions | `CalculateTotal_NegativePrice_ThrowsException()` |
+| `should_[behavior]_when_[condition]` | BDD-style tests; behavior-focused testing; JavaScript/TypeScript | `should_reject_login_when_account_locked()` |
+| `test_[method]_[scenario]_[expected]` | Python conventions; pytest naming | `test_validate_email_invalid_format_returns_false()` |
+
+**Recommendation**: Choose ONE style per project and document it in your project's testing conventions. Consistency within a codebase is more important than which style you choose.
 
 ### Coverage Guidelines
 

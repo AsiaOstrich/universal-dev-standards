@@ -1,8 +1,8 @@
 ---
 source: ../../../core/documentation-writing-standards.md
-source_version: 1.0.1
-translation_version: 1.0.1
-last_synced: 2025-12-30
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-24
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > [English](../../../core/documentation-writing-standards.md) | **繁體中文**
 
-**版本**: 1.0.1
-**最後更新**: 2025-12-24
+**版本**: 1.1.0
+**最後更新**: 2026-01-24
 **適用範圍**: 所有軟體專案（新建、重構、遷移、維護）
 
 ---
@@ -405,6 +405,116 @@ status: current
 
 ---
 
+## AI 協作文件
+
+### 概述
+
+現代文件必須同時為人類讀者和 AI 助手最佳化。本節提供撰寫 AI 工具能有效解析和利用的文件指南。
+
+### Token 感知的文件設計
+
+AI 模型有上下文視窗限制。結構化文件以提高 LLM 消費效率：
+
+| 原則 | 說明 | 範例 |
+|------|------|------|
+| **前置關鍵資訊** | 將重要資訊放在前面 | 摘要先於細節 |
+| **使用清晰標題** | 階層結構有助導航 | H1 > H2 > H3 |
+| **保持章節原子化** | 每個章節自成一體 | 可獨立閱讀 |
+| **減少冗餘** | 避免重複資訊 | 引用而非複製 |
+| **使用結構化格式** | 表格和清單優於散文 | 易於解析和提取 |
+
+**建議文件大小**:
+
+| 文件類型 | 目標大小 | 理由 |
+|---------|---------|------|
+| README | 500-1000 字 | 快速概覽 |
+| API 端點文件 | 每端點 200-400 字 | 聚焦且可掃描 |
+| 架構文件 | 每章節 1000-2000 字 | 詳細但分塊 |
+| ADR | 300-600 字 | 決策導向 |
+
+### AI 友善的文件模式
+
+**模式 1：結構化中繼資料區塊**
+
+```markdown
+---
+title: 使用者認證 API
+version: 2.1.0
+last_updated: 2026-01-24
+owner: auth-team
+status: stable
+---
+```
+
+**模式 2：清晰的章節標記**
+
+```markdown
+## Overview / 概述
+## Quick Start / 快速開始
+## API Reference / API 參考
+## Configuration / 配置
+## Troubleshooting / 故障排除
+```
+
+### 為 AI 程式碼生成撰寫
+
+**包含明確限制**:
+
+```markdown
+## 驗證規則
+
+| 欄位 | 類型 | 限制 |
+|------|------|------|
+| email | string | 必填，有效電子郵件格式，最多 255 字元 |
+| age | integer | 必填，範圍 0-150 |
+| role | string | 列舉: "admin", "user", "guest" |
+```
+
+**明確業務邏輯**:
+
+```markdown
+## 折扣計算邏輯
+
+1. 基礎折扣 = 0%
+2. 若客戶類型為 "VIP"，加 20%
+3. 若訂單總額 > $100，加 5%
+4. 最大總折扣 = 50%
+```
+
+---
+
+## API 文件標準
+
+### OpenAPI 3.1 合規性
+
+對於 REST API，使用 OpenAPI 3.1（完全對齊 JSON Schema draft 2020-12）：
+
+**OpenAPI 3.1 主要功能**:
+
+| 功能 | 說明 |
+|------|------|
+| JSON Schema 對齊 | 與 JSON Schema 完全相容 |
+| Webhooks 支援 | 一級 webhook 文件 |
+| `type` 陣列 | 支援 `"type": ["string", "null"]` |
+
+### AsyncAPI 2.6 用於事件驅動 API
+
+對於訊息/事件驅動 API，使用 AsyncAPI 2.6：
+
+```yaml
+asyncapi: 2.6.0
+info:
+  title: 訂單事件
+  version: 1.0.0
+channels:
+  orders/created:
+    publish:
+      message:
+        $ref: '#/components/messages/OrderCreated'
+```
+
+---
+
 ## 品質標準
 
 ### 格式要求
@@ -481,10 +591,21 @@ project-root/
 
 ---
 
+## 參考資料
+
+- [OpenAPI 3.1 規格](https://spec.openapis.org/oas/v3.1.0) - 最新 OpenAPI 規格
+- [AsyncAPI 2.6 規格](https://www.asyncapi.com/docs/reference/specification/v2.6.0) - 事件驅動 API 文件
+- [JSON Schema 2020-12](https://json-schema.org/draft/2020-12/json-schema-core.html) - JSON Schema 規格
+- [Diátaxis 文件框架](https://diataxis.fr/) - 文件結構方法論
+- [Write the Docs](https://www.writethedocs.org/guide/) - 文件社群最佳實踐
+
+---
+
 ## 版本歷史
 
 | 版本 | 日期 | 變更內容 |
 |---------|------|---------|
+| 1.1.0 | 2026-01-24 | 新增：AI 協作文件章節、Token 感知文件設計、API 文件標準（OpenAPI 3.1、AsyncAPI 2.6） |
 | 1.0.1 | 2025-12-24 | 新增：相關標準章節 |
 | 1.0.0 | 2025-12-10 | 初版文件撰寫標準 |
 

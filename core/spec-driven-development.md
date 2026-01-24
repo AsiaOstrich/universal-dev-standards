@@ -295,6 +295,55 @@ After a specification is approved, use [Forward Derivation Standards](forward-de
 
 ---
 
+## Integration with Forward/Reverse Engineering
+
+This standard works together with two complementary standards to form a complete specification ecosystem:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    SDD Ecosystem Integration                             │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   Legacy Code                    New Feature                            │
+│       │                              │                                  │
+│       ▼                              ▼                                  │
+│   ┌─────────────────┐        ┌─────────────────┐                        │
+│   │ Reverse         │        │ SDD             │                        │
+│   │ Engineering     │        │ (This Standard) │                        │
+│   │ Standards       │        │                 │                        │
+│   └────────┬────────┘        └────────┬────────┘                        │
+│            │                          │                                  │
+│            │  Code → Spec             │  Spec First                      │
+│            │                          │                                  │
+│            ▼                          ▼                                  │
+│       ┌─────────────────────────────────────┐                           │
+│       │          SPEC-XXX.md                │                           │
+│       │    (Approved Specification)         │                           │
+│       └──────────────────┬──────────────────┘                           │
+│                          │                                               │
+│                          ▼                                               │
+│   ┌─────────────────────────────────────────────────────┐               │
+│   │          Forward Derivation Standards                │               │
+│   │                                                      │               │
+│   │   Spec → BDD (.feature)                              │               │
+│   │   Spec → TDD (.test.ts)                              │               │
+│   │   Spec → ATDD (acceptance.md)                        │               │
+│   └─────────────────────────────────────────────────────┘               │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**When to Use Each**:
+
+| Scenario | Starting Point | Standard to Use |
+|----------|---------------|-----------------|
+| New feature development | Nothing exists | SDD → Forward Derivation |
+| Documenting existing code | Code exists, no spec | Reverse Engineering → SDD |
+| Adding tests to existing code | Spec exists | Forward Derivation |
+| Major refactoring | Code exists, unclear behavior | Reverse Engineering → SDD → Forward Derivation |
+
+---
+
 ## Related Standards
 
 - [Forward Derivation Standards](forward-derivation-standards.md) - Specification-to-test transformation (Spec → BDD/TDD/ATDD)

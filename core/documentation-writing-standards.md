@@ -2,8 +2,8 @@
 
 > **English** | [繁體中文](../locales/zh-TW/core/documentation-writing-standards.md)
 
-**Version**: 1.0.1
-**Last Updated**: 2025-12-24
+**Version**: 1.1.0
+**Last Updated**: 2026-01-24
 **Applicability**: All software projects (new, refactoring, migration, maintenance)
 
 ---
@@ -397,6 +397,262 @@ Accepted
 
 ---
 
+## AI Collaboration Documentation
+
+### Overview
+
+Modern documentation must be optimized for both human readers and AI assistants. This section provides guidelines for writing documentation that AI tools can effectively parse and utilize.
+
+### Token-Aware Document Design
+
+AI models have context window limits. Structure documents for efficient LLM consumption:
+
+**Document Structure Principles**:
+
+| Principle | Description | Example |
+|-----------|-------------|---------|
+| **Front-load key info** | Put critical information early | Summary before details |
+| **Use clear headings** | Hierarchical structure aids navigation | H1 > H2 > H3 progression |
+| **Keep sections atomic** | Each section is self-contained | Can be read independently |
+| **Minimize redundancy** | Avoid repeating information | Reference instead of copy |
+| **Use structured formats** | Tables and lists over prose | Easy to parse and extract |
+
+**Recommended Document Sizes**:
+
+| Document Type | Target Size | Rationale |
+|---------------|-------------|-----------|
+| README | 500-1000 words | Quick overview |
+| API endpoint doc | 200-400 words per endpoint | Focused and scannable |
+| Architecture doc | 1000-2000 words per section | Detailed but chunked |
+| ADR | 300-600 words | Decision-focused |
+
+### AI-Friendly Documentation Patterns
+
+**Pattern 1: Structured Metadata Block**
+
+Include machine-readable metadata at the top of documents:
+
+```markdown
+---
+title: User Authentication API
+version: 2.1.0
+last_updated: 2026-01-24
+owner: auth-team
+status: stable
+dependencies:
+  - user-service
+  - token-service
+---
+```
+
+**Pattern 2: Clear Section Markers**
+
+Use consistent section headers that AI can recognize:
+
+```markdown
+## Overview
+[Brief description of what this component/API does]
+
+## Quick Start
+[Minimal steps to get started]
+
+## API Reference
+[Detailed API documentation]
+
+## Configuration
+[Configuration options and defaults]
+
+## Troubleshooting
+[Common issues and solutions]
+```
+
+**Pattern 3: Explicit Examples**
+
+Provide complete, runnable examples with clear context:
+
+```markdown
+### Example: Create User
+
+**Prerequisites**:
+- Valid API key
+- Admin role
+
+**Request**:
+```bash
+curl -X POST https://api.example.com/v1/users \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John", "email": "john@example.com"}'
+```
+
+**Response** (201 Created):
+```json
+{
+  "id": "usr_123",
+  "name": "John",
+  "email": "john@example.com",
+  "created_at": "2026-01-24T10:30:00Z"
+}
+```
+```
+
+### Writing for AI Code Generation
+
+When documentation will be used to generate code:
+
+**Include Explicit Constraints**:
+
+```markdown
+## Validation Rules
+
+| Field | Type | Constraints |
+|-------|------|-------------|
+| email | string | Required, valid email format, max 255 chars |
+| age | integer | Required, range 0-150 |
+| role | string | Enum: "admin", "user", "guest" |
+```
+
+**Specify Error Scenarios**:
+
+```markdown
+## Error Responses
+
+| Scenario | HTTP Status | Error Code | Message |
+|----------|-------------|------------|---------|
+| Invalid email | 400 | INVALID_EMAIL | "Email format is invalid" |
+| User exists | 409 | DUPLICATE_USER | "User with this email already exists" |
+| Missing auth | 401 | UNAUTHORIZED | "Authentication required" |
+```
+
+**Clarify Business Logic**:
+
+```markdown
+## Discount Calculation Logic
+
+1. Base discount = 0%
+2. If customer type is "VIP", add 20%
+3. If order total > $100, add 5%
+4. If coupon code is valid, add coupon discount
+5. Maximum total discount = 50%
+6. Apply discount to subtotal (not including tax)
+```
+
+### AI Prompt Integration
+
+For documents that define AI-assisted workflows:
+
+**Embedded Prompt Templates**:
+
+```markdown
+## AI Code Review Prompt
+
+When reviewing code changes, use this prompt:
+
+```
+Review this code change for:
+1. Security vulnerabilities (OWASP Top 10)
+2. Performance issues
+3. Error handling completeness
+4. Adherence to [project-conventions.md]
+
+Provide feedback in this format:
+- 🔴 Critical: [Must fix before merge]
+- 🟡 Important: [Should address]
+- 🟢 Suggestion: [Nice to have]
+```
+```
+
+---
+
+## API Documentation Standards
+
+### OpenAPI 3.1 Compliance
+
+For REST APIs, use OpenAPI 3.1 (fully aligned with JSON Schema draft 2020-12):
+
+**Key OpenAPI 3.1 Features**:
+
+| Feature | Description |
+|---------|-------------|
+| JSON Schema alignment | Full compatibility with JSON Schema |
+| Webhooks support | First-class webhook documentation |
+| `type` arrays | Support for `"type": ["string", "null"]` |
+| `$ref` alongside properties | Reference and extend in same object |
+
+**Example OpenAPI 3.1 Schema**:
+
+```yaml
+openapi: 3.1.0
+info:
+  title: User API
+  version: 2.1.0
+paths:
+  /users:
+    post:
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+components:
+  schemas:
+    CreateUserRequest:
+      type: object
+      required: [name, email]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+```
+
+### AsyncAPI 2.6 for Event-Driven APIs
+
+For message-based/event-driven APIs, use AsyncAPI 2.6:
+
+**Example AsyncAPI Document**:
+
+```yaml
+asyncapi: 2.6.0
+info:
+  title: Order Events
+  version: 1.0.0
+channels:
+  orders/created:
+    publish:
+      message:
+        $ref: '#/components/messages/OrderCreated'
+components:
+  messages:
+    OrderCreated:
+      payload:
+        type: object
+        properties:
+          orderId:
+            type: string
+          customerId:
+            type: string
+          totalAmount:
+            type: number
+          createdAt:
+            type: string
+            format: date-time
+```
+
+---
+
 ## Quality Standards
 
 ### Format Requirements
@@ -473,10 +729,21 @@ project-root/
 
 ---
 
+## References
+
+- [OpenAPI 3.1 Specification](https://spec.openapis.org/oas/v3.1.0) - Latest OpenAPI specification
+- [AsyncAPI 2.6 Specification](https://www.asyncapi.com/docs/reference/specification/v2.6.0) - Event-driven API documentation
+- [JSON Schema 2020-12](https://json-schema.org/draft/2020-12/json-schema-core.html) - JSON Schema specification
+- [Diátaxis Documentation Framework](https://diataxis.fr/) - Documentation structure methodology
+- [Write the Docs](https://www.writethedocs.org/guide/) - Documentation community best practices
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-24 | Added: AI Collaboration Documentation section, Token-aware document design, API Documentation Standards (OpenAPI 3.1, AsyncAPI 2.6) |
 | 1.0.1 | 2025-12-24 | Added: Related Standards section |
 | 1.0.0 | 2025-12-10 | Initial documentation writing standards |
 

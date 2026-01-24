@@ -108,21 +108,23 @@ docs/
 
 ## Document Requirements Matrix
 
-Different project types require different documentation:
+> **See Also**: For the complete document requirements matrix with detailed content requirements and project type descriptions, see [documentation-writing-standards.md](documentation-writing-standards.md#document-requirements-matrix).
 
-| Document | New Project | Refactor | Migration | Maintenance | Description |
-|----------|:-----------:|:--------:|:---------:|:-----------:|-------------|
-| **README.md** | ✅ | ✅ | ✅ | ✅ | Project entry point |
-| **ARCHITECTURE.md** | ✅ | ✅ | ✅ | ⚪ | System architecture |
-| **API.md** | ⚪ | ✅ | ✅ | ⚪ | External API specs |
-| **DATABASE.md** | ⚪ | ✅ | ✅ | ⚪ | Database structure |
-| **DEPLOYMENT.md** | ✅ | ✅ | ✅ | ⚪ | Deployment guide |
-| **MIGRATION.md** | ❌ | ✅ | ✅ | ❌ | Migration plan |
-| **ADR/** | ⚪ | ✅ | ✅ | ⚪ | Decision records |
-| **CHANGELOG.md** | ✅ | ✅ | ✅ | ✅ | Change history |
-| **flows/README.md** | ⚪ | ✅ | ✅ | ⚪ | Flow index (when >5 flows) |
+This standard defines WHERE documents go (file structure). The writing standards define WHAT each document should contain.
 
-**Legend**: ✅ Required | ⚪ Recommended | ❌ Not needed
+**Quick Reference** (for full matrix, see writing standards):
+
+| Document | Primary Location |
+|----------|------------------|
+| README.md | Project root |
+| ARCHITECTURE.md | `docs/` |
+| API.md | `docs/` |
+| DATABASE.md | `docs/` |
+| DEPLOYMENT.md | `docs/` |
+| MIGRATION.md | `docs/` |
+| ADR/ | `docs/adr/` |
+| CHANGELOG.md | Project root |
+| flows/ | `docs/flows/` |
 
 ---
 

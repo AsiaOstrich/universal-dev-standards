@@ -200,66 +200,24 @@ Next Major Release:
 
 ## Changelog Integration
 
-> **See Also**: For comprehensive CHANGELOG writing guidelines, see [changelog-standards.md](changelog-standards.md).
+> **See Also**: For comprehensive CHANGELOG writing guidelines, format templates, and examples, see [changelog-standards.md](changelog-standards.md).
 
-### CHANGELOG.md Format
+### CHANGELOG.md Quick Reference
 
-```markdown
-# Changelog
+CHANGELOG files should follow the [Keep a Changelog](https://keepachangelog.com/) format with these categories:
 
-All notable changes to this project will be documented in this file.
+| Category | Use For |
+|----------|---------|
+| `Added` | New features |
+| `Changed` | Changes to existing functionality |
+| `Deprecated` | Features to be removed in future |
+| `Removed` | Removed features |
+| `Fixed` | Bug fixes |
+| `Security` | Security vulnerability patches |
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/),
-and this project adheres to [Semantic Versioning](https://semver.org/).
+**Breaking Changes**: Prefix with `**BREAKING**:` to ensure visibility.
 
-## [Unreleased]
-
-### Added
-- New feature X
-- New API endpoint Y
-
-### Changed
-- Updated dependency Z to v3.0
-
-### Deprecated
-- Method A will be removed in v3.0
-
-### Removed
-- Old API endpoint B
-
-### Fixed
-- Bug fix for issue #123
-
-### Security
-- Security vulnerability patch
-
-## [2.1.0] - 2025-11-12
-
-### Added
-- OAuth2 authentication support
-- Email notification system
-
-### Fixed
-- Memory leak in user session cache
-
-## [2.0.0] - 2025-10-01
-
-### Changed
-- **BREAKING**: User API response format
-
-### Removed
-- **BREAKING**: Deprecated v1 endpoints
-
-## [1.5.2] - 2025-09-15
-
-### Fixed
-- Null pointer exception in payment module
-
-[Unreleased]: https://github.com/user/repo/compare/v2.1.0...HEAD
-[2.1.0]: https://github.com/user/repo/compare/v2.0.0...v2.1.0
-[2.0.0]: https://github.com/user/repo/compare/v1.5.2...v2.0.0
-[1.5.2]: https://github.com/user/repo/releases/tag/v1.5.2
-```
+For complete format templates and examples, refer to [changelog-standards.md](changelog-standards.md).
 
 ### Exclusion Rules
 

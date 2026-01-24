@@ -208,66 +208,24 @@ Next Major Release:
 
 ## 變更日誌整合
 
-> **另見**：完整的 CHANGELOG 撰寫指南，請參閱 [changelog-standards.md](changelog-standards.md)。
+> **另見**：完整的 CHANGELOG 撰寫指南、格式範本和範例，請參閱 [changelog-standards.md](changelog-standards.md)。
 
-### CHANGELOG.md Format
+### CHANGELOG.md 快速參考
 
-```markdown
-# Changelog
+CHANGELOG 檔案應遵循 [Keep a Changelog](https://keepachangelog.com/) 格式，包含以下類別：
 
-All notable changes to this project will be documented in this file.
+| 類別 | 用於 |
+|------|------|
+| `Added` | 新功能 |
+| `Changed` | 現有功能的變更 |
+| `Deprecated` | 將來會移除的功能 |
+| `Removed` | 已移除的功能 |
+| `Fixed` | 錯誤修復 |
+| `Security` | 安全漏洞修補 |
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/),
-and this project adheres to [Semantic Versioning](https://semver.org/).
+**重大變更**：前綴加上 `**BREAKING**:` 以確保可見性。
 
-## [Unreleased]
-
-### Added
-- New feature X
-- New API endpoint Y
-
-### Changed
-- Updated dependency Z to v3.0
-
-### Deprecated
-- Method A will be removed in v3.0
-
-### Removed
-- Old API endpoint B
-
-### Fixed
-- Bug fix for issue #123
-
-### Security
-- Security vulnerability patch
-
-## [2.1.0] - 2025-11-12
-
-### Added
-- OAuth2 authentication support
-- Email notification system
-
-### Fixed
-- Memory leak in user session cache
-
-## [2.0.0] - 2025-10-01
-
-### Changed
-- **BREAKING**: User API response format
-
-### Removed
-- **BREAKING**: Deprecated v1 endpoints
-
-## [1.5.2] - 2025-09-15
-
-### Fixed
-- Null pointer exception in payment module
-
-[Unreleased]: https://github.com/user/repo/compare/v2.1.0...HEAD
-[2.1.0]: https://github.com/user/repo/compare/v2.0.0...v2.1.0
-[2.0.0]: https://github.com/user/repo/compare/v1.5.2...v2.0.0
-[1.5.2]: https://github.com/user/repo/releases/tag/v1.5.2
-```
+完整的格式範本和範例，請參閱 [changelog-standards.md](changelog-standards.md)。
 
 ### 排除規則
 

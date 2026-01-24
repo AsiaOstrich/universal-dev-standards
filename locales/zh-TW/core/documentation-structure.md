@@ -116,21 +116,23 @@ docs/
 
 ## 文件需求矩陣
 
-不同專案類型需要不同的文件：
+> **另見**：完整的文件需求矩陣及詳細內容需求與專案類型說明，請參閱 [documentation-writing-standards.md](documentation-writing-standards.md#document-requirements-matrix)。
 
-| Document | New Project | Refactor | Migration | Maintenance | Description |
-|----------|:-----------:|:--------:|:---------:|:-----------:|-------------|
-| **README.md** | ✅ | ✅ | ✅ | ✅ | Project entry point |
-| **ARCHITECTURE.md** | ✅ | ✅ | ✅ | ⚪ | System architecture |
-| **API.md** | ⚪ | ✅ | ✅ | ⚪ | External API specs |
-| **DATABASE.md** | ⚪ | ✅ | ✅ | ⚪ | Database structure |
-| **DEPLOYMENT.md** | ✅ | ✅ | ✅ | ⚪ | Deployment guide |
-| **MIGRATION.md** | ❌ | ✅ | ✅ | ❌ | Migration plan |
-| **ADR/** | ⚪ | ✅ | ✅ | ⚪ | Decision records |
-| **CHANGELOG.md** | ✅ | ✅ | ✅ | ✅ | Change history |
-| **flows/README.md** | ⚪ | ✅ | ✅ | ⚪ | Flow index (when >5 flows) |
+本標準定義文件「放在哪裡」（檔案結構）。撰寫標準定義每個文件「應包含什麼內容」。
 
-**圖例**: ✅ Required | ⚪ Recommended | ❌ Not needed
+**快速參考**（完整矩陣請參閱撰寫標準）：
+
+| 文件 | 主要位置 |
+|------|---------|
+| README.md | 專案根目錄 |
+| ARCHITECTURE.md | `docs/` |
+| API.md | `docs/` |
+| DATABASE.md | `docs/` |
+| DEPLOYMENT.md | `docs/` |
+| MIGRATION.md | `docs/` |
+| ADR/ | `docs/adr/` |
+| CHANGELOG.md | 專案根目錄 |
+| flows/ | `docs/flows/` |
 
 ---
 

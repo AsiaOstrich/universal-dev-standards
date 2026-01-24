@@ -1,7 +1,7 @@
 # Test Completeness Dimensions
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
+**Version**: 1.1.0
+**Last Updated**: 2026-01-24
 **Applicability**: All software projects with testing requirements
 
 [English](.) | [繁體中文](../locales/zh-TW/core/test-completeness-dimensions.md)
@@ -14,13 +14,13 @@ This document defines a systematic framework for evaluating test completeness. I
 
 ---
 
-## The Seven Dimensions
+## The Eight Dimensions
 
-A complete test suite should cover these 7 dimensions for each feature:
+A complete test suite should cover these 8 dimensions for each feature:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│              Test Completeness = 7 Dimensions                │
+│              Test Completeness = 8 Dimensions                │
 ├─────────────────────────────────────────────────────────────┤
 │  1. Happy Path        Normal expected behavior              │
 │  2. Boundary          Min/max values, limits                │
@@ -29,6 +29,7 @@ A complete test suite should cover these 7 dimensions for each feature:
 │  5. State Changes     Before/after verification             │
 │  6. Validation        Format, business rules                │
 │  7. Integration       Real query verification               │
+│  8. AI Generation     AI-generated test quality (NEW)       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -407,6 +408,179 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
 
 ---
 
+### 8. AI Test Generation Quality
+
+Evaluate the quality and effectiveness of AI-generated tests.
+
+**Why This Dimension Matters**:
+
+AI coding assistants can generate tests quickly, but quantity ≠ quality. This dimension ensures AI-generated tests provide real value.
+
+**Quality Evaluation Criteria**:
+
+| Criterion | Poor Quality | Good Quality |
+|-----------|--------------|--------------|
+| **Test Purpose** | Tests obvious getters/setters | Tests business logic and edge cases |
+| **Assertion Depth** | `result != null` only | Verifies specific values and states |
+| **Independence** | Tests depend on execution order | Each test is self-contained |
+| **Naming** | `test1`, `test2` | Descriptive: `should_reject_invalid_email` |
+| **Coverage Intent** | Covers lines, not behavior | Covers all code paths meaningfully |
+
+**AI Test Generation Checklist**:
+
+```
+□ Test Purpose Verification
+  □ Does the test verify meaningful behavior?
+  □ Would a bug cause the test to fail?
+  □ Is the test testing the right thing?
+
+□ Assertion Quality
+  □ Are assertions specific (not just "not null")?
+  □ Do assertions verify the expected output values?
+  □ Are edge cases in assertions covered?
+
+□ Test Independence
+  □ Can tests run in any order?
+  □ Does each test set up its own data?
+  □ No shared mutable state between tests?
+
+□ Mutation Score
+  □ Would mutations in the code be caught?
+  □ Does the test fail when logic is changed?
+```
+
+**Example - Evaluating AI-Generated Tests**:
+
+```csharp
+// ❌ Poor AI-generated test - tests almost nothing
+[Fact]
+public void CalculateDiscount_Test()
+{
+    var service = new PricingService();
+    var result = service.CalculateDiscount(100, "VIP");
+    Assert.NotNull(result);  // Only checks not null!
+}
+
+// ✅ Good test - verifies specific business logic
+[Fact]
+public void CalculateDiscount_VipCustomer_Returns20PercentDiscount()
+{
+    // Arrange
+    var service = new PricingService();
+    var originalPrice = 100m;
+    var customerType = "VIP";
+
+    // Act
+    var result = service.CalculateDiscount(originalPrice, customerType);
+
+    // Assert
+    result.DiscountAmount.Should().Be(20m);       // VIP gets 20%
+    result.FinalPrice.Should().Be(80m);
+    result.DiscountType.Should().Be("VIP_DISCOUNT");
+}
+```
+
+**AI Test Quality Metrics**:
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| Mutation Score | > 80% | Mutations killed / total mutations |
+| Assertion Density | > 2 per test | Assertions / test count |
+| Behavior Coverage | 100% | Business rules tested / total rules |
+| Edge Case Coverage | > 90% | Edge cases tested / identified edge cases |
+
+---
+
+## Mutation Testing
+
+### Overview
+
+Mutation testing validates test effectiveness by introducing small changes (mutations) to your code and checking if tests catch them.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Mutation Testing Flow                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│   Original Code    Mutate        Mutated Code               │
+│   ──────────────   ──────►       ──────────────             │
+│   if (x > 0)                     if (x >= 0)  ← mutation    │
+│                                                              │
+│                    Run Tests                                 │
+│                    ──────────►                               │
+│                                                              │
+│   Test FAILS?     → Mutation KILLED ✅ (test is effective)  │
+│   Test PASSES?    → Mutation SURVIVED ❌ (test is weak)     │
+│                                                              │
+│   Mutation Score = Killed / Total Mutations                  │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Common Mutation Operators
+
+| Operator | Original | Mutated | Tests Should Catch |
+|----------|----------|---------|-------------------|
+| Boundary | `>` | `>=` | Off-by-one errors |
+| Negation | `true` | `false` | Boolean logic |
+| Arithmetic | `+` | `-` | Math operations |
+| Return | `return x` | `return null` | Return value usage |
+| Remove Call | `validate()` | (removed) | Side effects |
+| Constant | `0` | `1` | Magic number usage |
+
+### Mutation Testing Tools
+
+| Language | Tool | Link |
+|----------|------|------|
+| Java | PIT | https://pitest.org/ |
+| JavaScript/TypeScript | Stryker | https://stryker-mutator.io/ |
+| C# | Stryker.NET | https://stryker-mutator.io/docs/stryker-net/ |
+| Python | mutmut | https://github.com/boxed/mutmut |
+| Go | go-mutesting | https://github.com/zimmski/go-mutesting |
+
+### Interpreting Results
+
+| Mutation Score | Interpretation | Action |
+|----------------|----------------|--------|
+| > 90% | Excellent | Maintain this level |
+| 80-90% | Good | Review survived mutations |
+| 60-80% | Fair | Add missing test cases |
+| < 60% | Poor | Significant test gaps |
+
+### Example: Stryker Configuration
+
+```json
+// stryker.config.json (JavaScript/TypeScript)
+{
+  "packageManager": "npm",
+  "reporters": ["html", "clear-text", "progress"],
+  "testRunner": "jest",
+  "coverageAnalysis": "perTest",
+  "mutate": [
+    "src/**/*.ts",
+    "!src/**/*.spec.ts",
+    "!src/**/*.test.ts"
+  ],
+  "thresholds": {
+    "high": 80,
+    "low": 60,
+    "break": 50
+  }
+}
+```
+
+### When to Use Mutation Testing
+
+| Scenario | Recommended |
+|----------|-------------|
+| Critical business logic | ✅ Yes |
+| Security-sensitive code | ✅ Yes |
+| After AI generates tests | ✅ Yes |
+| Simple CRUD operations | ⚠️ Optional |
+| UI/presentation code | ❌ Usually not worth it |
+
+---
+
 ## Test Case Design Checklist
 
 Use this checklist for each feature to ensure completeness:
@@ -454,6 +628,12 @@ Feature: ___________________
   □ Entity relationships verified
   □ Pagination verified
   □ Sorting/filtering verified
+
+□ AI Generation Quality (if AI-generated)
+  □ Tests verify meaningful behavior
+  □ Assertions are specific (not just "not null")
+  □ Mutation score > 80%
+  □ Edge cases covered
 ```
 
 ---
@@ -481,12 +661,14 @@ Not all dimensions apply to every feature. Use this guide:
 
 | Feature Type | Required Dimensions |
 |--------------|---------------------|
-| CRUD API | 1, 2, 3, 4, 6, 7 |
-| Query/Search | 1, 2, 3, 4, 7 |
-| State Machine | 1, 3, 4, 5, 6 |
-| Validation | 1, 2, 3, 6 |
-| Background Job | 1, 3, 5 |
-| External Integration | 1, 3, 7 |
+| CRUD API | 1, 2, 3, 4, 6, 7, 8* |
+| Query/Search | 1, 2, 3, 4, 7, 8* |
+| State Machine | 1, 3, 4, 5, 6, 8* |
+| Validation | 1, 2, 3, 6, 8* |
+| Background Job | 1, 3, 5, 8* |
+| External Integration | 1, 3, 7, 8* |
+
+*Dimension 8 (AI Generation Quality) applies when tests are AI-generated
 
 ---
 
@@ -506,6 +688,12 @@ Avoid these common mistakes:
 ❌ Same values for ID and business identifier in test data
 
 ❌ Testing implementation details instead of behavior
+
+❌ Accepting AI-generated tests without review
+
+❌ Assuming high line coverage means effective tests
+
+❌ Skipping mutation testing for critical code
 ```
 
 ---
@@ -519,10 +707,21 @@ Avoid these common mistakes:
 
 ---
 
+## References
+
+- [ISTQB AI Testing Syllabus](https://www.istqb.org/certifications/ai-testing) - Foundation level AI testing certification
+- [Stryker Mutation Testing](https://stryker-mutator.io/) - Multi-language mutation testing framework
+- [PIT Mutation Testing](https://pitest.org/) - Java mutation testing
+- [Google Testing Blog - Mutation Testing](https://testing.googleblog.com/2021/04/mutation-testing.html) - Google's perspective on mutation testing
+- [ISTQB Foundation Level Syllabus](https://www.istqb.org/certifications/certified-tester-foundation-level) - Core testing concepts
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-24 | Added: 8th dimension (AI Test Generation Quality), Mutation Testing section |
 | 1.0.0 | 2025-12-24 | Initial release with 7 dimensions framework |
 
 ---

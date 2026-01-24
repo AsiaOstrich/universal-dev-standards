@@ -1,8 +1,8 @@
 ---
 source: ../../../core/project-structure.md
-source_version: 1.0.1
-translation_version: 1.0.1
-last_synced: 2026-01-08
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-24
 status: current
 ---
 
@@ -172,10 +172,122 @@ Thumbs.db
 
 ---
 
+## Monorepo vs Polyrepo 决策指南
+
+### 决策矩阵
+
+| 因素 | Monorepo 适合 | Polyrepo 适合 |
+|------|-------------|--------------||
+| **代码共享** | 高（共用库、组件） | 低（独立服务） |
+| **团队结构** | 单一团队或紧密协作 | 自治团队 |
+| **发布节奏** | 协调发布 | 独立发布 |
+| **CI/CD 复杂度** | 可接受统一管道 | 需要隔离管道 |
+| **仓库大小** | < 5GB，< 100万文件 | 大型资产、长历史 |
+
+### 快速选择指南
+
+**选择 Monorepo 当**:
+- 多个项目共享大量代码或依赖
+- 团队愿意投资于工具
+
+**选择 Polyrepo 当**:
+- 团队需要发布独立性
+- 各项目完全独立
+
+---
+
+## Monorepo 工具比较
+
+| 功能 | Turborepo | Nx | Lerna | Rush |
+|------|-----------|----|----|------|
+| **主要用途** | 任务执行 | 完整框架 | 发布 | 企业级 |
+| **学习曲线** | 低 | 中高 | 低 | 高 |
+| **构建速度** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+| **远程缓存** | ✅ 内置 | ✅ Nx Cloud | ❌ 手动 | ✅ 内置 |
+| **代码生成** | ❌ | ✅ 丰富 | ❌ | ❌ |
+| **最适合** | 小中型团队 | 大型团队、企业 | 简单发布 | 企业规模 |
+
+---
+
+## Workspace 配置
+
+### pnpm Workspaces
+
+```yaml
+# pnpm-workspace.yaml
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'tools/*'
+```
+
+### Yarn Workspaces
+
+```json
+{
+  "workspaces": ["apps/*", "packages/*"]
+}
+```
+
+---
+
+## 基于包的架构
+
+### 概念
+
+基于包的架构按**功能边界**而非技术层次组织代码。每个包是独立的单元，有清晰的接口。
+
+```
+传统（分层）                    基于包（按功能）
+─────────────                  ────────────────
+src/                           packages/
+├── controllers/               ├── authentication/
+├── services/                  │   ├── api/
+├── models/                    │   ├── domain/
+└── repositories/              │   └── infrastructure/
+                               ├── orders/
+                               └── shared/
+```
+
+### 好处
+
+| 好处 | 说明 |
+|------|------|
+| **清晰边界** | 每个包有明确的公开 API |
+| **独立测试** | 可隔离测试包 |
+| **并行开发** | 团队可在不同包上工作 |
+| **选择性部署** | 只部署变更的包 |
+
+---
+
 ## 相关标准
 
-- [文档结构](documentation-structure.md)
-- [Git 工作流程](git-workflow.md)
+- [文档结构标准](documentation-structure.md) - 文档结构标准
+- [代码签入标准](checkin-standards.md) - 代码签入标准
+
+---
+
+## 版本历史
+
+| 版本 | 日期 | 变更 |
+|------|------|------|
+| 1.1.0 | 2026-01-24 | 新增：Monorepo vs Polyrepo 决策指南、Monorepo 工具比较、Workspace 配置、基于包的架构 |
+| 1.0.1 | 2025-12-24 | 新增：相关标准章节 |
+| 1.0.0 | 2025-12-11 | 初始项目结构标准 |
+
+---
+
+## 参考资料
+
+- [.NET Project Structure](https://docs.microsoft.com/en-us/dotnet/core/porting/project-structure)
+- [Node.js Project Structure Best Practices](https://github.com/goldbergyoni/nodebestpractices)
+- [Python Packaging User Guide](https://packaging.python.org/en/latest/)
+- [Standard Go Project Layout](https://github.com/golang-standards/project-layout)
+- [Maven Standard Directory Layout](https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html)
+- [Turborepo 文档](https://turbo.build/repo/docs) - 现代 JavaScript/TypeScript monorepo 构建系统
+- [Nx 文档](https://nx.dev/getting-started/intro) - 智能 monorepo 工具
+- [pnpm Workspaces](https://pnpm.io/workspaces) - 快速、高效的包管理器 workspaces
+- [Monorepo Explained](https://monorepo.tools/) - Monorepo 工具全面指南
 
 ---
 

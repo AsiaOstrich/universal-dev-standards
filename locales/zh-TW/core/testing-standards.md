@@ -27,6 +27,27 @@ status: current
 
 ---
 
+## 術語表
+
+本文件中使用的測試術語縮寫快速參考：
+
+| 縮寫 | 全名 | 說明 |
+|------|------|------|
+| **UT** | Unit Testing（單元測試）| 隔離測試個別函式/方法 |
+| **IT** | Integration Testing（整合測試）| 測試元件之間的互動 |
+| **ST** | System Testing（系統測試）| 測試完整整合的系統 |
+| **AT** | Acceptance Testing（驗收測試）| 根據業務驗收標準測試 |
+| **E2E** | End-to-End Testing（端對端測試）| 測試完整的使用者工作流程 |
+| **UAT** | User Acceptance Testing（使用者驗收測試）| 由最終使用者執行的驗收測試 |
+| **SIT** | System Integration Testing（系統整合測試）| 測試多個系統的整合 |
+| **TDD** | Test-Driven Development（測試驅動開發）| 開發方法論：先測試，後編碼 |
+| **BDD** | Behavior-Driven Development（行為驅動開發）| 使用自然語言場景的開發方法論 |
+| **ATDD** | Acceptance Test-Driven Development（驗收測試驅動開發）| 由驗收標準驅動的開發方法論 |
+
+> **注意**：本文件中的「IT」一律指「Integration Testing（整合測試）」，而非「Information Technology（資訊科技）」。
+
+---
+
 ## 目錄
 
 1. [測試基礎](#測試基礎) ⭐ 新增
@@ -334,6 +355,16 @@ test_[method]_[scenario]_[expected]
   should_return_null_when_user_not_found()
   test_validate_email_invalid_format_returns_false()
 ```
+
+**命名風格選擇指南**:
+
+| 風格 | 最適合 | 範例 |
+|------|--------|------|
+| `[Method]_[Scenario]_[Result]` | 針對特定方法的單元測試；C#、Java 慣例 | `CalculateTotal_NegativePrice_ThrowsException()` |
+| `should_[behavior]_when_[condition]` | BDD 風格測試；行為導向測試；JavaScript/TypeScript | `should_reject_login_when_account_locked()` |
+| `test_[method]_[scenario]_[expected]` | Python 慣例；pytest 命名 | `test_validate_email_invalid_format_returns_false()` |
+
+**建議**：每個專案選擇一種風格並在專案的測試慣例中記錄。程式碼庫內的一致性比選擇哪種風格更重要。
 
 ### 覆蓋率指引
 

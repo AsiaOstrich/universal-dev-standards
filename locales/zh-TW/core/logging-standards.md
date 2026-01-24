@@ -1,14 +1,14 @@
 ---
 source: ../../../core/logging-standards.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-01-05
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-01-24
 status: current
 ---
 
 # 日誌標準
 
-> 版本: 1.1.0 | 最後更新: 2026-01-05
+> 版本: 1.2.0 | 最後更新: 2026-01-24
 
 ## 概述
 
@@ -223,6 +223,157 @@ logger.info('處理請求', { request_id: req.requestId });
 - `span_id`：此特定操作的 ID
 - `parent_span_id`：呼叫操作的 ID
 
+---
+
+## OpenTelemetry 整合
+
+### 語義慣例
+
+OpenTelemetry 定義標準化的屬性名稱，確保跨工具的互操作性。
+
+**資源屬性**（服務身份）:
+
+| 屬性 | 說明 | 範例 |
+|------|------|------|
+| `service.name` | 邏輯服務名稱 | `payment-service` |
+| `service.version` | 服務版本 | `2.3.1` |
+| `service.instance.id` | 唯一實例識別碼 | `pod-abc123` |
+| `deployment.environment` | 環境名稱 | `production` |
+
+**HTTP 屬性**:
+
+| 屬性 | 說明 | 範例 |
+|------|------|------|
+| `http.request.method` | HTTP 方法 | `POST` |
+| `http.route` | 路由模式 | `/api/v1/users/{id}` |
+| `http.response.status_code` | 回應狀態 | `200` |
+
+**資料庫屬性**:
+
+| 屬性 | 說明 | 範例 |
+|------|------|------|
+| `db.system` | 資料庫類型 | `postgresql` |
+| `db.name` | 資料庫名稱 | `orders_db` |
+| `db.operation` | 操作類型 | `SELECT` |
+
+### 日誌嚴重性對照
+
+| 傳統等級 | OTel 嚴重性 | OTel 數值 |
+|---------|------------|----------|
+| TRACE | TRACE | 1-4 |
+| DEBUG | DEBUG | 5-8 |
+| INFO | INFO | 9-12 |
+| WARN | WARN | 13-16 |
+| ERROR | ERROR | 17-20 |
+| FATAL | FATAL | 21-24 |
+
+---
+
+## 可觀測性三支柱整合
+
+### 日誌、指標、追蹤關聯
+
+現代可觀測性需要透過共享識別碼關聯三大支柱。
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      可觀測性三支柱                               │
+├─────────────────────────────────────────────────────────────────┤
+│   ┌──────────┐    trace_id    ┌──────────┐    trace_id    ┌──────────┐
+│   │   LOGS   │◄──────────────►│  TRACES  │◄──────────────►│ METRICS  │
+│   │  (事件)   │                │  (Spans) │                │ (計數器)  │
+│   └──────────┘                └──────────┘                └──────────┘
+│                    關聯鍵: trace_id, span_id, service.name              │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 關聯最佳實踐
+
+| 實踐 | 好處 |
+|------|------|
+| 日誌中始終包含 `trace_id` | 從日誌跳轉到完整追蹤 |
+| 在指標中加入 `trace_id` 作為 exemplar | 調查指標異常 |
+| 使用一致的 `service.name` | 跨所有支柱篩選 |
+
+---
+
+## 基於日誌的告警
+
+### 告警設計原則
+
+**1. 避免告警風暴**
+
+```yaml
+# 不好：每個錯誤都告警
+- alert: ErrorOccurred
+  expr: log_errors_total > 0  # ❌ 太吵雜
+
+# 好：基於錯誤率告警
+- alert: ErrorRateHigh
+  expr: rate(log_errors_total[5m]) > 0.01  # ✅ 基於比率
+  for: 5m
+```
+
+**2. 分組相關告警**
+
+```yaml
+group_by: ['service', 'error_type']
+group_wait: 30s
+group_interval: 5m
+```
+
+### 告警嚴重性指南
+
+| 嚴重性 | 回應時間 | 條件範例 |
+|--------|---------|---------|
+| Critical | 立即（呼叫） | 服務當機、資料遺失風險 |
+| Warning | 數小時內 | 錯誤率升高、資源 80% |
+| Info | 下個工作日 | 棄用警告、輕微異常 |
+
+---
+
+## 進階關聯模式
+
+### 跨服務關聯 ID
+
+跨服務邊界傳播關聯上下文：
+
+**W3C Trace Context 標頭**:
+
+```http
+traceparent: 00-abc123def456-span789-01
+tracestate: vendor=value
+```
+
+**訊息佇列傳播**:
+
+```json
+{
+  "headers": {
+    "traceparent": "00-abc123-def456-01"
+  },
+  "body": {
+    "order_id": "ORD-123"
+  }
+}
+```
+
+### 業務交易關聯
+
+對於多步驟業務流程：
+
+```json
+{
+  "trace_id": "abc123",
+  "business_correlation": {
+    "transaction_id": "TXN-789",
+    "order_id": "ORD-456",
+    "flow_step": "3/5",
+    "flow_name": "order_fulfillment"
+  }
+}
+```
+
 ## 效能考量
 
 ### 日誌量管理
@@ -306,6 +457,7 @@ logger.info('處理請求', { request_id: req.requestId });
 
 | 版本 | 日期 | 變更 |
 |-----|------|------|
+| 1.2.0 | 2026-01-24 | 新增：OpenTelemetry 語義慣例、可觀測性三支柱整合、基於日誌的告警、進階關聯模式 |
 | 1.1.0 | 2026-01-05 | 新增：參考標準章節，包含 OWASP、RFC 5424、OpenTelemetry 和 12 Factor App |
 | 1.0.0 | 2025-12-30 | 初始日誌標準 |
 
@@ -316,7 +468,10 @@ logger.info('處理請求', { request_id: req.requestId });
 - [OWASP 日誌備忘單](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html) - 安全日誌最佳實踐
 - [RFC 5424 - Syslog 協定](https://datatracker.ietf.org/doc/html/rfc5424) - 標準日誌訊息格式
 - [OpenTelemetry 日誌](https://opentelemetry.io/docs/specs/otel/logs/) - 現代可觀測性標準
+- [OpenTelemetry 語義慣例](https://opentelemetry.io/docs/specs/semconv/) - 標準化屬性命名
+- [W3C Trace Context](https://www.w3.org/TR/trace-context/) - 分散式追蹤上下文傳播
 - [12 Factor App - 日誌](https://12factor.net/logs) - 雲原生日誌原則
+- [Google SRE - 基於 SLO 告警](https://sre.google/workbook/alerting-on-slos/) - 告警設計最佳實踐
 
 ---
 

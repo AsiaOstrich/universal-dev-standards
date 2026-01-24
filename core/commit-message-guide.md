@@ -364,7 +364,13 @@ See also #999
 
 ### Breaking Changes
 
-**CRITICAL**: Always document breaking changes in footer.
+**CRITICAL**: Always document breaking changes in footer with migration guidance.
+
+**Requirements**:
+1. Use `BREAKING CHANGE:` prefix in footer
+2. Describe what changed and why
+3. **MUST** include migration guide with actionable steps
+4. Include before/after examples when possible
 
 **Format**:
 
@@ -372,9 +378,11 @@ See also #999
 BREAKING CHANGE: <description>
 
 Migration guide:
-- Step 1
-- Step 2
+- Step 1: <specific action>
+- Step 2: <specific action>
 ```
+
+> **Why migration guide is required**: Breaking changes without migration paths frustrate users and slow adoption. Every breaking change MUST tell users exactly what to do.
 
 **Example**:
 

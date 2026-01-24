@@ -1,8 +1,8 @@
 ---
 source: ../../../core/documentation-writing-standards.md
-source_version: 1.0.1
-translation_version: 1.0.1
-last_synced: 2025-12-30
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-24
 status: current
 ---
 
@@ -469,8 +469,139 @@ project-root/
 |---------|-------|
 | Markdown 编辑 | VS Code + Markdown Preview Enhanced |
 | 图表绘制 | Mermaid / draw.io / PlantUML |
-| API 文件 | OpenAPI (Swagger) / Redoc |
+| API 文档 | OpenAPI (Swagger) / Redoc |
 | ER 图 | dbdiagram.io / DBeaver |
+
+---
+
+## AI 协作文档
+
+### Token 感知设计
+
+为 AI 助手优化文档结构：
+
+**原则**:
+
+| 原则 | 说明 |
+|------|------|
+| **前置重要信息** | 关键信息放在文档开头 |
+| **结构化数据** | 使用表格、列表、代码块 |
+| **明确标记** | 使用清晰的章节标题 |
+| **避免冗余** | 减少重复内容 |
+
+**AI 友好文档模式**:
+
+```markdown
+---
+# YAML 前置元数据（AI 可解析）
+title: API 端点文档
+version: 2.0.0
+last_updated: 2026-01-24
+ai_summary: 用户认证 API，支持 OAuth2
+---
+
+<!-- AI-SECTION-START: quick-reference -->
+## 快速参考
+[最常用的信息放这里]
+<!-- AI-SECTION-END: quick-reference -->
+
+<!-- AI-SECTION-START: details -->
+## 详细说明
+[完整详情放这里]
+<!-- AI-SECTION-END: details -->
+```
+
+### 为 AI 代码生成撰写
+
+撰写 AI 可用于生成代码的文档：
+
+**范例 - 好的 AI 提示友好文档**:
+
+```markdown
+## 创建用户 API
+
+### 约束条件
+- 用户名：3-20 字符，仅字母数字
+- 邮箱：必须唯一
+- 密码：最少 8 字符，需含数字
+
+### 成功响应
+返回 HTTP 201 和用户对象（不含密码）
+
+### 错误情况
+- 409: 邮箱已存在
+- 400: 验证失败
+```
+
+**AI 提示友好特点**:
+
+| 特点 | 好处 |
+|------|------|
+| 明确约束条件 | AI 可生成验证代码 |
+| 列出错误情况 | AI 可生成错误处理 |
+| 结构化格式 | AI 易于解析 |
+
+---
+
+## API 文档标准
+
+### OpenAPI 3.1 规范
+
+```yaml
+openapi: 3.1.0
+info:
+  title: 示例 API
+  version: 1.0.0
+  description: |
+    ## 概述
+    此 API 提供用户管理功能。
+
+    ## 认证
+    使用 Bearer Token 认证。
+
+paths:
+  /users:
+    post:
+      summary: 创建用户
+      operationId: createUser
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: 用户创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+```
+
+### AsyncAPI 2.6 规范（异步 API）
+
+```yaml
+asyncapi: 2.6.0
+info:
+  title: 事件 API
+  version: 1.0.0
+
+channels:
+  user/created:
+    publish:
+      summary: 用户创建事件
+      message:
+        payload:
+          type: object
+          properties:
+            userId:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+```
 
 ---
 
@@ -485,8 +616,18 @@ project-root/
 
 | 版本 | 日期 | 变更内容 |
 |---------|------|---------|
+| 1.1.0 | 2026-01-24 | 新增：AI 协作文档章节、API 文档标准（OpenAPI 3.1、AsyncAPI 2.6） |
 | 1.0.1 | 2025-12-24 | 新增：相关标准章节 |
-| 1.0.0 | 2025-12-10 | 初版文件撰写标准 |
+| 1.0.0 | 2025-12-10 | 初版文档撰写标准 |
+
+---
+
+## 参考资料
+
+- [OpenAPI 3.1 规范](https://spec.openapis.org/oas/v3.1.0) - RESTful API 描述标准
+- [AsyncAPI 2.6 规范](https://www.asyncapi.com/docs/reference/specification/v2.6.0) - 异步 API 描述标准
+- [JSON Schema](https://json-schema.org/) - 数据验证标准
+- [Diátaxis 文档框架](https://diataxis.fr/) - 技术文档组织方法
 
 ---
 

@@ -59,10 +59,12 @@ pip install -r requirements.txt && python -m py_compile src/**/*.py
 
 ### 2. Test Verification
 
-- [ ] **All existing tests pass**
-  - Unit tests: 100% pass rate
-  - Integration tests: 100% pass rate
-  - End-to-end tests (if applicable): 100% pass rate
+- [ ] **All relevant tests pass**
+  - Unit tests: All tests in modified modules pass
+  - Integration tests: All tests related to changed components pass
+  - End-to-end tests (if applicable): All critical path tests pass
+
+  > **Note**: "Relevant tests" means tests directly exercising changed code plus tests that may be affected by the changes. Use your project's test impact analysis tools if available.
 
 - [ ] **New code is tested**
   - New features have corresponding tests
@@ -218,6 +220,17 @@ def authenticate(username: str, password: str) -> Optional[str]:
         ValueError: If username or password is empty
     """
 ```
+
+#### Applicability Criteria
+
+Use this table to determine when optional items apply:
+
+| Item | When It Applies | When It Doesn't Apply |
+|------|-----------------|----------------------|
+| **README update** | New features added, setup changed, API behavior changed | Internal refactoring, test-only changes, dependency updates |
+| **CHANGELOG entry** | User-facing changes, bug fixes affecting users, breaking changes | Internal refactoring, test-only changes, documentation-only changes, dev dependency updates |
+| **E2E tests** | User flows changed, critical paths affected, integration points modified | Backend-only changes with no UI impact, isolated utility functions |
+| **API documentation** | Public API changed, new endpoints added, parameter meanings changed | Private methods, internal utilities, test code |
 
 ---
 

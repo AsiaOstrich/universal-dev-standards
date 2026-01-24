@@ -272,6 +272,9 @@ Robert C. Martin (Uncle Bob) 用三条严格的规则定义 TDD：
 │   需求层       ATDD - 验收测试驱动开发                           │
 │               （接收业务验收标准）                                │
 │                        ↓                                        │
+│   规格层       SDD - 规格驱动开发                                │
+│               （正式规格、验收条件）                              │
+│                        ↓                                        │
 │   功能层       BDD - 行为驱动开发                                │
 │               （场景 → Step Definitions）                        │
 │                        ↓                                        │
@@ -280,7 +283,7 @@ Robert C. Martin (Uncle Bob) 用三条严格的规则定义 TDD：
 │                        ↓                                        │
 │   集成层       集成与系统测试                                     │
 │                                                                 │
-│   关键：ATDD → BDD → TDD → 集成测试（自上而下流程）              │
+│   关键：ATDD → SDD → BDD → TDD → 集成测试（自上而下）            │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -613,15 +616,9 @@ test('should reject password exceeding max length', () => {
 
 ### 测试边界情况
 
-确保测试涵盖 [测试完整性维度](test-completeness-dimensions.md) 的所有七个维度：
+确保测试涵盖 [测试完整性维度](test-completeness-dimensions.md) 定义的所有八个维度。这些维度包括：快乐路径、边界条件、错误处理、授权、状态变化、验证、集成，以及 AI 生成质量（适用时）。
 
-1. **快乐路径** - 正常预期行为
-2. **边界条件** - 最小/最大值、限制
-3. **错误处理** - 无效输入、例外
-4. **授权** - 角色为基础的存取控制
-5. **状态变化** - 前后验证
-6. **验证** - 格式、业务规则
-7. **集成** - 真实查询验证
+请使用该文件中的检查清单来验证每个功能的覆盖率。
 
 ---
 
@@ -955,7 +952,7 @@ test('should send confirmation email after successful payment', async () => {
 ## 相关标准
 
 - [测试标准](testing-standards.md) - 核心测试标准（UT/IT/ST/E2E）（或使用 `/testing-guide` 技能）
-- [测试完整性维度](test-completeness-dimensions.md) - 7 维度框架
+- [测试完整性维度](test-completeness-dimensions.md) - 8 维度框架
 - [规格驱动开发](spec-driven-development.md) - SDD 工作流程
 - [程序码入库标准](checkin-standards.md) - 入库要求
 - [程序码审查检查清单](code-review-checklist.md) - 审查指南

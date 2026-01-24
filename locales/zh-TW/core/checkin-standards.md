@@ -67,10 +67,12 @@ pip install -r requirements.txt && python -m py_compile src/**/*.py
 
 ### 2. 測試驗證
 
-- [ ] **所有現有測試通過**
-  - Unit tests: 100% pass rate
-  - Integration tests: 100% pass rate
-  - End-to-end tests (if applicable): 100% pass rate
+- [ ] **所有相關測試通過**
+  - 單元測試：已修改模組的所有測試通過
+  - 整合測試：與已變更元件相關的所有測試通過
+  - 端對端測試（如適用）：所有關鍵路徑測試通過
+
+  > **注意**：「相關測試」指直接執行已變更程式碼的測試，以及可能受變更影響的測試。如有可用的測試影響分析工具，請使用。
 
 - [ ] **新程式碼已測試**
   - New features have corresponding tests
@@ -226,6 +228,17 @@ def authenticate(username: str, password: str) -> Optional[str]:
         ValueError: If username or password is empty
     """
 ```
+
+#### 適用性判斷標準
+
+使用此表格判斷選用項目何時適用：
+
+| 項目 | 何時適用 | 何時不適用 |
+|------|---------|-----------|
+| **README 更新** | 新增功能、設定變更、API 行為變更 | 內部重構、僅測試變更、依賴更新 |
+| **CHANGELOG 條目** | 使用者可見的變更、影響使用者的錯誤修復、重大變更 | 內部重構、僅測試變更、僅文件變更、開發依賴更新 |
+| **端對端測試** | 使用者流程變更、關鍵路徑受影響、整合點修改 | 純後端變更且無 UI 影響、獨立的工具函式 |
+| **API 文件** | 公開 API 變更、新增端點、參數含義變更 | 私有方法、內部工具、測試程式碼 |
 
 ---
 

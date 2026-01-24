@@ -220,6 +220,42 @@ We should implement caching (presented as fact, not suggestion)
 Users want SSO support (assumption presented as confirmed requirement)
 ```
 
+#### Unified Tag System
+
+This standard defines two complementary tag categories used across related standards:
+
+**Category 1: Certainty Tags** (for analyzing existing content)
+
+Used when analyzing code, reviewing documentation, or discussing systems. See [Reverse Engineering Standards](reverse-engineering-standards.md).
+
+| Tag | Purpose | Example Context |
+|-----|---------|-----------------|
+| `[Confirmed]` | Direct evidence from code/docs | Code analysis, test extraction |
+| `[Inferred]` | Logical deduction from patterns | Behavior analysis, architecture review |
+| `[Assumption]` | Reasonable guess needing verification | Gap identification, speculation |
+| `[Unknown]` | Cannot determine from available info | Missing documentation |
+| `[Need Confirmation]` | Requires human input | Ambiguous requirements |
+
+**Category 2: Derivation Tags** (for generating new content)
+
+Used when generating tests, specifications, or documentation from approved sources. See [Forward Derivation Standards](forward-derivation-standards.md).
+
+| Tag | Purpose | Example Context |
+|-----|---------|-----------------|
+| `[Source]` | Direct content from spec/requirement | SPEC title, AC text verbatim |
+| `[Derived]` | Transformed from source content | GWT from bullet AC |
+| `[Generated]` | AI-generated structure | Test skeleton, TODO comments |
+| `[TODO]` | Requires human implementation | Step definitions, assertions |
+
+**When to Use Which**:
+
+| Workflow | Primary Tags | Secondary Tags |
+|----------|--------------|----------------|
+| Code analysis | Certainty Tags | - |
+| Reverse engineering | Certainty Tags | - |
+| Forward derivation | Derivation Tags | Certainty Tags (for gaps) |
+| Spec generation | Derivation Tags | Certainty Tags (for unknowns) |
+
 ---
 
 ### 4. Prohibited Behaviors

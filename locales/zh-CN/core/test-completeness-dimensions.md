@@ -1,8 +1,8 @@
 ---
 source: ../../../core/test-completeness-dimensions.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-30
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-24
 status: current
 ---
 
@@ -22,22 +22,23 @@ status: current
 
 ---
 
-## 七个维度
+## 八个维度
 
-完整的测试套件应为每个功能涵盖以下 7 个维度：
+完整的测试套件应为每个功能涵盖以下 8 个维度：
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    测试完整性 = 7 个维度                      │
-├─────────────────────────────────────────────────────────────┤
-│  1. 正向路径          正常预期行为                            │
-│  2. 边界条件          最小/最大值、限制                       │
-│  3. 错误处理          无效输入、例外状况                       │
-│  4. 权限验证          角色存取控制                            │
-│  5. 状态转换          前后验证                                │
-│  6. 验证逻辑          格式、业务规则                          │
-│  7. 集成验证          实际查询验证                            │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                    测试完整性 = 8 个维度                           │
+├──────────────────────────────────────────────────────────────────┤
+│  1. 正向路径          正常预期行为                                 │
+│  2. 边界条件          最小/最大值、限制                            │
+│  3. 错误处理          无效输入、异常状况                           │
+│  4. 权限验证          角色访问控制                                 │
+│  5. 状态转换          前后验证                                     │
+│  6. 验证逻辑          格式、业务规则                               │
+│  7. 集成验证          实际查询验证                                 │
+│  8. AI 生成质量       AI 测试的有效性评估                          │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -415,6 +416,114 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
 
 ---
 
+### 8. AI 生成质量
+
+评估 AI 生成测试的有效性和可维护性。
+
+**何时需要**:
+
+当使用 AI 工具（GitHub Copilot、Claude、ChatGPT）生成测试时，需评估其质量。
+
+**评估标准**:
+
+| 标准 | 说明 | 通过条件 |
+|------|------|---------|
+| **意图清晰** | 测试目的明确 | 测试名称描述行为 |
+| **独立性** | 测试互不依赖 | 可单独执行通过 |
+| **断言有效** | 断言验证正确行为 | 非仅检查 "not null" |
+| **边界覆盖** | 含边界案例 | 最小/最大值已测试 |
+| **可读性** | 代码易理解 | 无需注释即可理解 |
+
+**评估范例**:
+
+```csharp
+// ❌ 差：AI 生成的低质量测试
+[Fact]
+public void Test1()
+{
+    var result = _service.Process(null);
+    Assert.NotNull(result);  // 仅检查非空
+}
+
+// ✅ 好：AI 生成的高质量测试
+[Fact]
+public void Process_WithEmptyInput_ReturnsEmptyResult()
+{
+    // Arrange
+    var input = Array.Empty<Item>();
+
+    // Act
+    var result = _service.Process(input);
+
+    // Assert
+    result.Should().BeEmpty();
+    result.ProcessedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
+}
+```
+
+**AI 测试反模式**:
+
+| 反模式 | 问题 | 修正 |
+|--------|------|------|
+| 仅检查非空 | 无实际验证 | 断言具体值 |
+| 硬编码魔术值 | 难以维护 | 使用常量或工厂 |
+| 测试名称如 `Test1` | 无法理解意图 | 使用描述性名称 |
+| 无边界案例 | 覆盖不完整 | 加入边界测试 |
+
+---
+
+## Mutation Testing
+
+### 概念
+
+Mutation Testing 通过在代码中引入小变异（mutations）来评估测试质量。如果测试套件未能检测到变异，表示测试不够强健。
+
+### 变异操作符
+
+| 操作符 | 原始 | 变异 |
+|--------|------|------|
+| 关系运算符 | `>` | `>=`, `<`, `==` |
+| 算术运算符 | `+` | `-`, `*` |
+| 逻辑运算符 | `&&` | `\|\|` |
+| 返回值 | `return x` | `return null` |
+| 条件边界 | `i < 10` | `i <= 10` |
+
+### 工具推荐
+
+| 语言 | 工具 | 链接 |
+|------|------|------|
+| JavaScript/TypeScript | Stryker | stryker-mutator.io |
+| Java | PIT | pitest.org |
+| C# | Stryker.NET | stryker-mutator.io/docs/stryker-net |
+| Python | mutmut | github.com/boxed/mutmut |
+
+### 结果解读
+
+| 指标 | 意义 | 目标 |
+|------|------|------|
+| 杀死的变异 | 测试检测到变异 | 越高越好 |
+| 存活的变异 | 测试未检测到 | 需要加强测试 |
+| 变异分数 | 杀死数 / 总数 | > 80% |
+
+### 范例配置 (Stryker)
+
+```json
+{
+  "stryker": {
+    "mutate": ["src/**/*.ts", "!src/**/*.spec.ts"],
+    "testRunner": "jest",
+    "reporters": ["html", "clear-text"],
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 50
+    }
+  }
+}
+```
+
+---
+
 ## 测试案例设计清单
 
 使用此清单检核每个功能的完整性：
@@ -462,6 +571,12 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
   □ 实体关联已验证
   □ 分页已验证
   □ 排序/筛选已验证
+
+□ AI 生成质量（如使用 AI 生成测试）
+  □ 测试意图清晰
+  □ 断言验证具体值
+  □ 包含边界案例
+  □ 测试名称描述行为
 ```
 
 ---
@@ -489,12 +604,14 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
 
 | 功能类型 | 必需维度 |
 |---------|---------|
-| CRUD API | 1, 2, 3, 4, 6, 7 |
-| 查询/搜寻 | 1, 2, 3, 4, 7 |
-| 状态机 | 1, 3, 4, 5, 6 |
-| 验证 | 1, 2, 3, 6 |
-| 背景工作 | 1, 3, 5 |
-| 外部集成 | 1, 3, 7 |
+| CRUD API | 1, 2, 3, 4, 6, 7, 8* |
+| 查询/搜索 | 1, 2, 3, 4, 7, 8* |
+| 状态机 | 1, 3, 4, 5, 6, 8* |
+| 验证 | 1, 2, 3, 6, 8* |
+| 后台任务 | 1, 3, 5, 8* |
+| 外部集成 | 1, 3, 7, 8* |
+
+*维度 8 仅在使用 AI 生成测试时适用
 
 ---
 
@@ -511,9 +628,13 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
 
 ❌ 单元测试使用万用匹配器但无对应集成测试
 
-❌ 测试资料的 ID 与业务识别码使用相同值
+❌ 测试数据的 ID 与业务标识码使用相同值
 
-❌ 测试实作细节而非行为
+❌ 测试实现细节而非行为
+
+❌ 盲目信任 AI 生成的测试而不审查
+
+❌ AI 测试仅检查非空而无具体断言
 ```
 
 ---
@@ -531,7 +652,17 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.1.0 | 2026-01-24 | 新增：第 8 维度 AI 生成质量、Mutation Testing 章节 |
 | 1.0.0 | 2025-12-24 | 初始发布，包含 7 维度框架 |
+
+---
+
+## 参考资料
+
+- [ISTQB AI Testing Guidelines](https://www.istqb.org/) - 软件测试认证
+- [Stryker Mutator](https://stryker-mutator.io/) - JavaScript/TypeScript Mutation Testing
+- [PIT Mutation Testing](https://pitest.org/) - Java Mutation Testing
+- [Mutation Testing 概念](https://en.wikipedia.org/wiki/Mutation_testing) - Wikipedia
 
 ---
 

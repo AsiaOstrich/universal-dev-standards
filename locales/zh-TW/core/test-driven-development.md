@@ -272,6 +272,9 @@ Robert C. Martin (Uncle Bob) 用三條嚴格的規則定義 TDD：
 │   需求層       ATDD - 驗收測試驅動開發                           │
 │               （接收業務驗收標準）                                │
 │                        ↓                                        │
+│   規格層       SDD - 規格驅動開發                                │
+│               （正式規格、驗收條件）                              │
+│                        ↓                                        │
 │   功能層       BDD - 行為驅動開發                                │
 │               （場景 → Step Definitions）                        │
 │                        ↓                                        │
@@ -280,7 +283,7 @@ Robert C. Martin (Uncle Bob) 用三條嚴格的規則定義 TDD：
 │                        ↓                                        │
 │   整合層       整合與系統測試                                     │
 │                                                                 │
-│   關鍵：ATDD → BDD → TDD → 整合測試（自上而下流程）              │
+│   關鍵：ATDD → SDD → BDD → TDD → 整合測試（自上而下）            │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -613,15 +616,9 @@ test('should reject password exceeding max length', () => {
 
 ### 測試邊界情況
 
-確保測試涵蓋 [測試完整性維度](test-completeness-dimensions.md) 的所有七個維度：
+確保測試涵蓋 [測試完整性維度](test-completeness-dimensions.md) 定義的所有八個維度。這些維度包括：快樂路徑、邊界條件、錯誤處理、授權、狀態變化、驗證、整合，以及 AI 生成品質（適用時）。
 
-1. **快樂路徑** - 正常預期行為
-2. **邊界條件** - 最小/最大值、限制
-3. **錯誤處理** - 無效輸入、例外
-4. **授權** - 角色為基礎的存取控制
-5. **狀態變化** - 前後驗證
-6. **驗證** - 格式、業務規則
-7. **整合** - 真實查詢驗證
+請使用該文件中的檢查清單來驗證每個功能的覆蓋率。
 
 ---
 
@@ -957,7 +954,7 @@ test('should send confirmation email after successful payment', async () => {
 
 - [重構標準](refactoring-standards.md) - 完整重構指南（遺留程式碼策略、大規模模式、度量指標）
 - [測試標準](testing-standards.md) - 核心測試標準（UT/IT/ST/E2E）（或使用 `/testing-guide` 技能）
-- [測試完整性維度](test-completeness-dimensions.md) - 7 維度框架
+- [測試完整性維度](test-completeness-dimensions.md) - 8 維度框架
 - [規格驅動開發](spec-driven-development.md) - SDD 工作流程
 - [程式碼入庫標準](checkin-standards.md) - 入庫要求
 - [程式碼審查檢查清單](code-review-checklist.md) - 審查指南

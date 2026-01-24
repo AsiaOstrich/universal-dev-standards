@@ -445,7 +445,7 @@ Convert the acceptance criteria from the workshop into executable, automatable t
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    ATDD → BDD → TDD Integration                              │
+│                    ATDD → SDD → BDD → TDD Integration                        │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │   ATDD Level (System/Acceptance)                                            │
@@ -454,6 +454,15 @@ Convert the acceptance criteria from the workshop into executable, automatable t
 │   │  AC-1: Valid checkout creates order                          │          │
 │   │  AC-2: Invalid payment shows error                           │          │
 │   │  AC-3: Minimum order enforced                                │          │
+│   └──────────────────────┬──────────────────────────────────────┘           │
+│                          │                                                  │
+│                          ▼                                                  │
+│   SDD Level (Specification)                                                 │
+│   ┌─────────────────────────────────────────────────────────────┐           │
+│   │  SPEC-001: Checkout Feature                                  │          │
+│   │    - Formal acceptance criteria                              │          │
+│   │    - Edge cases documented                                   │          │
+│   │    - Stakeholder approved                                    │          │
 │   └──────────────────────┬──────────────────────────────────────┘           │
 │                          │                                                  │
 │                          ▼                                                  │
@@ -475,7 +484,7 @@ Convert the acceptance criteria from the workshop into executable, automatable t
 │   │  test_send_confirmation_email()                              │          │
 │   └─────────────────────────────────────────────────────────────┘           │
 │                                                                             │
-│   Flow: ATDD defines WHAT → BDD specifies HOW it behaves →                  │
+│   Flow: ATDD defines WHAT → SDD formalizes specs → BDD specifies behavior → │
 │         TDD implements the details                                          │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘

@@ -1,7 +1,7 @@
 # Project Structure Standard
 
-**Version**: 1.0.1
-**Last Updated**: 2025-12-24
+**Version**: 1.1.0
+**Last Updated**: 2026-01-24
 **Applicability**: All software projects
 
 **English** | [繁體中文](../locales/zh-TW/core/project-structure.md)
@@ -222,6 +222,311 @@ project-root/
 
 ---
 
+## Monorepo vs Polyrepo Decision Guide
+
+### Decision Matrix
+
+Use this matrix to determine which approach fits your project:
+
+| Factor | Monorepo Favored | Polyrepo Favored |
+|--------|------------------|------------------|
+| **Code Sharing** | High (shared libs, components) | Low (independent services) |
+| **Team Structure** | Single team or tight collaboration | Autonomous teams |
+| **Release Cadence** | Coordinated releases | Independent releases |
+| **CI/CD Complexity** | Unified pipeline acceptable | Need isolated pipelines |
+| **Repository Size** | < 5GB, < 1M files | Large assets, long history |
+| **Dependency Management** | Centralized version control | Team-specific versions OK |
+| **Tooling Investment** | Willing to invest in tooling | Prefer simple git workflow |
+
+### Decision Flowchart
+
+```
+┌─────────────────────────────────────────┐
+│ Do multiple projects share significant  │
+│ code or dependencies?                   │
+└───────────────┬─────────────────────────┘
+                │
+        ┌───────┴───────┐
+        ▼               ▼
+       YES              NO
+        │               │
+        ▼               ▼
+┌───────────────┐ ┌─────────────────────┐
+│ Consider      │ │ Do teams need       │
+│ MONOREPO      │ │ release independence│
+└───────┬───────┘ └──────────┬──────────┘
+        │                    │
+        ▼            ┌───────┴───────┐
+┌───────────────┐    ▼               ▼
+│ Can you invest│   YES              NO
+│ in tooling?   │    │               │
+└───────┬───────┘    ▼               ▼
+        │      ┌──────────┐   ┌──────────┐
+┌───────┴───────┐│ POLYREPO │   │ MONOREPO │
+▼               ▼└──────────┘   │ may work │
+YES            NO               └──────────┘
+│               │
+▼               ▼
+┌──────────┐  ┌──────────┐
+│ MONOREPO │  │ POLYREPO │
+│ (full)   │  │ (simpler)│
+└──────────┘  └──────────┘
+```
+
+---
+
+## Monorepo Tools Comparison
+
+### Tool Selection Matrix
+
+| Feature | Turborepo | Nx | Lerna | Rush |
+|---------|-----------|----|----|------|
+| **Primary Use** | Task running | Full framework | Publishing | Enterprise |
+| **Learning Curve** | Low | Medium-High | Low | High |
+| **Build Speed** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+| **Remote Caching** | ✅ Built-in | ✅ Nx Cloud | ❌ Manual | ✅ Built-in |
+| **Code Generation** | ❌ | ✅ Extensive | ❌ | ❌ |
+| **Affected Detection** | ✅ | ✅ | ✅ | ✅ |
+| **Framework Support** | Framework-agnostic | React, Angular, etc. | Any | Any |
+| **Maintenance** | Vercel | Nrwl | Lerna-Lite fork | Microsoft |
+| **Best For** | Small-medium teams | Large teams, enterprise | Simple publishing | Enterprise-scale |
+
+### Quick Selection Guide
+
+**Choose Turborepo if**:
+- You want minimal configuration
+- Primary need is fast builds with caching
+- Team is small to medium (< 50 developers)
+- You prefer convention over configuration
+
+**Choose Nx if**:
+- You need code generation and scaffolding
+- You want built-in framework integrations
+- Team is large or enterprise-scale
+- You need advanced dependency graph visualization
+
+**Choose Lerna if**:
+- Primary need is npm package publishing
+- You want simple, familiar tooling
+- You're migrating from individual packages
+
+**Choose Rush if**:
+- You're in an enterprise environment
+- You need strict dependency isolation
+- You have complex approval workflows
+- You're using pnpm at scale
+
+### Turborepo Example
+
+```json
+// turbo.json
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [".env"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**"]
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "inputs": ["src/**", "test/**"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}
+```
+
+### Nx Example
+
+```json
+// nx.json
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "cache": true
+    },
+    "test": {
+      "cache": true
+    }
+  },
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*"],
+    "production": ["default", "!{projectRoot}/**/*.spec.ts"]
+  },
+  "defaultBase": "main"
+}
+```
+
+---
+
+## Workspace Configuration
+
+### pnpm Workspaces
+
+```yaml
+# pnpm-workspace.yaml
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'tools/*'
+```
+
+```json
+// package.json (root)
+{
+  "name": "my-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  }
+}
+```
+
+### Yarn Workspaces
+
+```json
+// package.json (root)
+{
+  "name": "my-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "yarn workspaces foreach -pt run build",
+    "test": "yarn workspaces foreach run test"
+  }
+}
+```
+
+### npm Workspaces
+
+```json
+// package.json (root)
+{
+  "name": "my-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces --if-present"
+  }
+}
+```
+
+---
+
+## Package-based Architecture
+
+### Concept
+
+Package-based architecture organizes code by **feature boundaries** rather than technical layers. Each package is a self-contained unit with clear interfaces.
+
+```
+Traditional (Layer-based)          Package-based (Feature-based)
+─────────────────────────          ────────────────────────────
+src/                               packages/
+├── controllers/                   ├── authentication/
+│   ├── userController.js         │   ├── api/
+│   └── orderController.js        │   ├── domain/
+├── services/                      │   ├── infrastructure/
+│   ├── userService.js            │   └── index.ts
+│   └── orderService.js           ├── orders/
+├── models/                        │   ├── api/
+│   ├── user.js                   │   ├── domain/
+│   └── order.js                  │   ├── infrastructure/
+└── repositories/                  │   └── index.ts
+    ├── userRepository.js         └── shared/
+    └── orderRepository.js            ├── database/
+                                      └── utils/
+```
+
+### Benefits
+
+| Benefit | Description |
+|---------|-------------|
+| **Clear Boundaries** | Each package has explicit public API |
+| **Independent Testing** | Test packages in isolation |
+| **Parallel Development** | Teams work on separate packages |
+| **Selective Deployment** | Deploy only changed packages |
+| **Code Ownership** | Clear ownership per package |
+
+### Package Structure Template
+
+```
+packages/feature-name/
+├── package.json          # Package metadata
+├── tsconfig.json         # TypeScript config (if applicable)
+├── src/
+│   ├── index.ts          # Public API exports
+│   ├── api/              # External interfaces (REST, GraphQL, etc.)
+│   ├── domain/           # Business logic
+│   │   ├── entities/
+│   │   ├── services/
+│   │   └── events/
+│   └── infrastructure/   # External integrations
+│       ├── database/
+│       └── external-services/
+├── tests/
+│   ├── unit/
+│   └── integration/
+└── README.md             # Package documentation
+```
+
+### Public API Design
+
+```typescript
+// packages/authentication/src/index.ts
+// Only export what other packages need
+
+// Domain types
+export type { User, AuthToken, AuthResult } from './domain/types';
+
+// Service interfaces
+export { AuthService } from './domain/services/auth-service';
+
+// API handlers (if needed by other packages)
+export { createAuthRouter } from './api/routes';
+
+// Do NOT export internal implementation details
+// ❌ export { hashPassword } from './infrastructure/crypto';
+```
+
+### Inter-Package Dependencies
+
+```json
+// packages/orders/package.json
+{
+  "name": "@myorg/orders",
+  "version": "1.0.0",
+  "dependencies": {
+    "@myorg/authentication": "workspace:*",
+    "@myorg/shared": "workspace:*"
+  }
+}
+```
+
+---
+
 ## IDE and Editor Artifacts
 
 ### Common Artifacts to Gitignore
@@ -334,6 +639,7 @@ Before committing, verify:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-24 | Added: Monorepo vs Polyrepo decision guide, Monorepo tools comparison (Turborepo, Nx, Lerna, Rush), Workspace configuration examples, Package-based Architecture |
 | 1.0.1 | 2025-12-24 | Added: Related Standards section |
 | 1.0.0 | 2025-12-11 | Initial project structure standard |
 
@@ -346,6 +652,10 @@ Before committing, verify:
 - [Python Packaging User Guide](https://packaging.python.org/en/latest/)
 - [Standard Go Project Layout](https://github.com/golang-standards/project-layout)
 - [Maven Standard Directory Layout](https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html)
+- [Turborepo Documentation](https://turbo.build/repo/docs) - Modern build system for JavaScript/TypeScript monorepos
+- [Nx Documentation](https://nx.dev/getting-started/intro) - Smart monorepo tool with advanced features
+- [pnpm Workspaces](https://pnpm.io/workspaces) - Fast, disk-efficient package manager workspaces
+- [Monorepo Explained](https://monorepo.tools/) - Comprehensive guide to monorepo tools
 
 ---
 

@@ -264,6 +264,9 @@ Requirement Source?
 │   Requirements     ATDD - Acceptance Test-Driven Development    │
 │   Layer           (Receive business acceptance criteria)        │
 │                        ↓                                        │
+│   Specification   SDD - Spec-Driven Development                 │
+│   Layer           (Formal specs, acceptance criteria)           │
+│                        ↓                                        │
 │   Feature         BDD - Behavior-Driven Development             │
 │   Layer           (Scenario → Step Definitions)                 │
 │                        ↓                                        │
@@ -273,7 +276,7 @@ Requirement Source?
 │   Integration     Integration & System Tests                    │
 │   Layer                                                         │
 │                                                                 │
-│   Key: ATDD → BDD → TDD → Integration Tests (top-down flow)     │
+│   Key: ATDD → SDD → BDD → TDD → Integration Tests (top-down)    │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -606,15 +609,9 @@ test('should reject password exceeding max length', () => {
 
 ### Testing Edge Cases
 
-Ensure tests cover all seven dimensions from [Test Completeness Dimensions](test-completeness-dimensions.md):
+Ensure tests cover all eight dimensions defined in [Test Completeness Dimensions](test-completeness-dimensions.md). These include happy path, boundary conditions, error handling, authorization, state changes, validation, integration, and AI generation quality (when applicable).
 
-1. **Happy Path** - Normal expected behavior
-2. **Boundary Conditions** - Min/max values, limits
-3. **Error Handling** - Invalid input, exceptions
-4. **Authorization** - Role-based access control
-5. **State Changes** - Before/after verification
-6. **Validation** - Format, business rules
-7. **Integration** - Real query verification
+Use the checklist in that document to verify coverage for each feature.
 
 ---
 
@@ -948,7 +945,7 @@ Team TDD Assessment:
 ## Related Standards
 
 - [Testing Standards](testing-standards.md) - Core testing standards (UT/IT/ST/E2E) (or use `/testing-guide` skill)
-- [Test Completeness Dimensions](test-completeness-dimensions.md) - 7 dimensions framework
+- [Test Completeness Dimensions](test-completeness-dimensions.md) - 8 dimensions framework
 - [Behavior-Driven Development](behavior-driven-development.md) - BDD workflow with Given-When-Then format
 - [Acceptance Test-Driven Development](acceptance-test-driven-development.md) - ATDD workflow with specification workshops
 - [Spec-Driven Development](spec-driven-development.md) - SDD workflow

@@ -1,15 +1,15 @@
 ---
 source: ../../../core/project-structure.md
-source_version: 1.0.1
-translation_version: 1.0.1
-last_synced: 2025-12-30
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-24
 status: current
 ---
 
 # 專案結構標準
 
-**版本**: 1.0.1
-**最後更新**: 2025-12-24
+**版本**: 1.1.0
+**最後更新**: 2026-01-24
 **適用範圍**: 所有軟體專案
 
 [English](../../../core/project-structure.md) | **繁體中文**
@@ -230,6 +230,94 @@ project-root/
 
 ---
 
+## Monorepo vs Polyrepo 決策指南
+
+### 決策矩陣
+
+| 因素 | Monorepo 適合 | Polyrepo 適合 |
+|------|-------------|--------------|
+| **程式碼共享** | 高（共用函式庫、元件） | 低（獨立服務） |
+| **團隊結構** | 單一團隊或緊密協作 | 自治團隊 |
+| **發布節奏** | 協調發布 | 獨立發布 |
+| **CI/CD 複雜度** | 可接受統一管道 | 需要隔離管道 |
+| **儲存庫大小** | < 5GB，< 100萬檔案 | 大型資產、長歷史 |
+
+### 快速選擇指南
+
+**選擇 Monorepo 當**:
+- 多個專案共享大量程式碼或依賴
+- 團隊願意投資於工具
+
+**選擇 Polyrepo 當**:
+- 團隊需要發布獨立性
+- 各專案完全獨立
+
+---
+
+## Monorepo 工具比較
+
+| 功能 | Turborepo | Nx | Lerna | Rush |
+|------|-----------|----|----|------|
+| **主要用途** | 任務執行 | 完整框架 | 發布 | 企業級 |
+| **學習曲線** | 低 | 中高 | 低 | 高 |
+| **建置速度** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+| **遠端快取** | ✅ 內建 | ✅ Nx Cloud | ❌ 手動 | ✅ 內建 |
+| **程式碼生成** | ❌ | ✅ 豐富 | ❌ | ❌ |
+| **最適合** | 小中型團隊 | 大型團隊、企業 | 簡單發布 | 企業規模 |
+
+---
+
+## Workspace 配置
+
+### pnpm Workspaces
+
+```yaml
+# pnpm-workspace.yaml
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'tools/*'
+```
+
+### Yarn Workspaces
+
+```json
+{
+  "workspaces": ["apps/*", "packages/*"]
+}
+```
+
+---
+
+## 基於套件的架構
+
+### 概念
+
+基於套件的架構按**功能邊界**而非技術層次組織程式碼。每個套件是獨立的單元，有清晰的介面。
+
+```
+傳統（分層）                    基於套件（按功能）
+─────────────                  ────────────────
+src/                           packages/
+├── controllers/               ├── authentication/
+├── services/                  │   ├── api/
+├── models/                    │   ├── domain/
+└── repositories/              │   └── infrastructure/
+                               ├── orders/
+                               └── shared/
+```
+
+### 好處
+
+| 好處 | 說明 |
+|------|------|
+| **清晰邊界** | 每個套件有明確的公開 API |
+| **獨立測試** | 可隔離測試套件 |
+| **平行開發** | 團隊可在不同套件上工作 |
+| **選擇性部署** | 只部署變更的套件 |
+
+---
+
 ## IDE 與編輯器產生檔案
 
 ### 應加入 .gitignore 的常見檔案
@@ -340,10 +428,11 @@ rm -rf '${workspaceFolder}'
 
 ## 版本歷史
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.1 | 2025-12-24 | Added: Related Standards section |
-| 1.0.0 | 2025-12-11 | Initial project structure standard |
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.1.0 | 2026-01-24 | 新增：Monorepo vs Polyrepo 決策指南、Monorepo 工具比較、Workspace 配置、基於套件的架構 |
+| 1.0.1 | 2025-12-24 | 新增：相關標準區段 |
+| 1.0.0 | 2025-12-11 | 初始專案結構標準 |
 
 ---
 
@@ -354,6 +443,10 @@ rm -rf '${workspaceFolder}'
 - [Python Packaging User Guide](https://packaging.python.org/en/latest/)
 - [Standard Go Project Layout](https://github.com/golang-standards/project-layout)
 - [Maven Standard Directory Layout](https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html)
+- [Turborepo 文件](https://turbo.build/repo/docs) - 現代 JavaScript/TypeScript monorepo 建置系統
+- [Nx 文件](https://nx.dev/getting-started/intro) - 智能 monorepo 工具
+- [pnpm Workspaces](https://pnpm.io/workspaces) - 快速、高效的套件管理器 workspaces
+- [Monorepo Explained](https://monorepo.tools/) - Monorepo 工具全面指南
 
 ---
 
