@@ -1,44 +1,76 @@
 # Integrated Development Flow Guide
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-19
+**Version**: 2.0.0
+**Last Updated**: 2026-01-25
 
 ---
 
 ## Overview
 
-The Integrated Development Flow combines four development methodologies into a cohesive workflow:
+The Integrated Development Flow provides **two independent methodology systems** for different development contexts:
 
 ```
-ATDD → SDD → BDD → TDD → Verification
+┌────────────────────────────────────────────────────────────────────────────┐
+│                  Two Independent Methodology Systems                         │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  System A: SDD (AI-Era Methodology)                                        │
+│  ─────────────────────────────────────                                     │
+│  Best for: New projects, AI-assisted development, greenfield features     │
+│                                                                            │
+│  System B: Double-Loop TDD (Traditional)                                   │
+│  ─────────────────────────────────────                                     │
+│  Best for: Legacy systems, manual development, established codebases      │
+│                                                                            │
+│  Note: ATDD is an OPTIONAL input method for either system,                 │
+│        NOT a sequential step in the workflow.                              │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
 ```
 
 This approach ensures:
-- **Business alignment** through ATDD specification workshops
-- **Technical clarity** through SDD specifications
-- **Behavior coverage** through BDD scenarios
-- **Code quality** through TDD cycles
+- **Methodology choice** based on project context and team needs
+- **Optional stakeholder collaboration** through ATDD workshops
+- **Technical clarity** through SDD specifications (System A)
+- **Behavior coverage** through BDD scenarios (System B outer loop)
+- **Code quality** through TDD cycles (both systems)
 - **Formal acceptance** through demos
 
 ---
 
-## Complete Workflow Diagram
+## Methodology Selection Guide
+
+Choose your development approach based on project context:
+
+| Context | Recommended System | Rationale |
+|---------|-------------------|-----------|
+| **New project with AI assistance** | System A: SDD | AI-native workflow, spec-first approach |
+| **Greenfield feature development** | System A: SDD | Clear requirements, forward derivation |
+| **Legacy system modification** | System B: Double-Loop TDD | Tests protect existing behavior |
+| **Complex business logic** | System B: Double-Loop TDD | BDD ensures shared understanding |
+| **API-first development** | System A: SDD | Spec defines contract clearly |
+| **Exploratory/prototype work** | Either (lightweight) | Skip formal phases as appropriate |
+
+---
+
+## System A: SDD Workflow (AI-Era Methodology)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                     Integrated Development Flow                          │
+│                     System A: SDD (Spec-Driven Development)              │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  🤝 ATDD: SPECIFICATION WORKSHOP                                        │
-│  ├─ PO presents user story                                              │
-│  ├─ Team defines acceptance criteria (Given-When-Then)                  │
-│  └─ Output: User Story + AC + Out of Scope                              │
+│  📥 OPTIONAL INPUTS (choose one or more):                               │
+│  ├─ ATDD Workshop (formal stakeholder collaboration)                    │
+│  ├─ Requirements interview                                              │
+│  ├─ PRD document                                                        │
+│  └─ User story backlog                                                  │
 │       │                                                                 │
 │       ▼                                                                 │
-│  📝 SDD: SPEC PROPOSAL                                                  │
-│  ├─ Write technical specification                                       │
-│  ├─ Link to acceptance criteria                                         │
-│  └─ Output: SPEC-XXX document                                           │
+│  📝 SDD: SPEC PROPOSAL (/spec)                                          │
+│  ├─ Write technical specification (SPEC.md)                             │
+│  ├─ Define acceptance criteria                                          │
+│  └─ Output: SPEC-XXX document (authoritative source)                    │
 │       │                                                                 │
 │       ▼                                                                 │
 │  🔍 SDD: SPEC REVIEW                                                    │
@@ -46,54 +78,176 @@ This approach ensures:
 │  └─ Output: Approved specification                                      │
 │       │                                                                 │
 │       ▼                                                                 │
-│  🔎 BDD: DISCOVERY                                                      │
-│  ├─ Three Amigos session                                                │
-│  ├─ Example Mapping                                                     │
-│  └─ Output: Identified scenarios                                        │
+│  🔄 FORWARD DERIVATION (/derive-all)                                    │
+│  ├─ AI generates test structure from spec                               │
+│  ├─ Creates .feature files (Gherkin)                                    │
+│  └─ Creates .test.ts scaffolds                                          │
 │       │                                                                 │
 │       ▼                                                                 │
-│  📄 BDD: FORMULATION                                                    │
-│  ├─ Write Gherkin scenarios                                             │
-│  ├─ PO reviews for correctness                                          │
-│  └─ Output: Feature files (.feature)                                    │
+│  ⚙️ IMPLEMENTATION                                                       │
+│  ├─ AI-assisted code generation                                         │
+│  ├─ Optional: Use Double-Loop TDD for complex logic                     │
+│  └─ Fill in test implementations                                        │
 │       │                                                                 │
 │       ▼                                                                 │
-│  ┌─────────────────────────────────────────┐                            │
-│  │         TDD: RED-GREEN-REFACTOR          │                           │
-│  │  ┌─────────┐   ┌─────────┐   ┌─────────┐ │                           │
-│  │  │ 🔴 RED   │──▶│ 🟢 GREEN│──▶│ 🔵 REFAC│ │                           │
-│  │  └─────────┘   └─────────┘   └────┬────┘ │                           │
-│  │       ▲                           │      │                           │
-│  │       └───────────────────────────┘      │                           │
-│  │              (more tests needed)         │                           │
-│  └───────────────────┬─────────────────────┘                            │
-│                      │ (all BDD scenarios pass)                         │
-│                      ▼                                                  │
-│  🎬 DEMO & ACCEPTANCE                                                   │
-│  ├─ Run acceptance tests live                                           │
-│  ├─ Demonstrate functionality                                           │
-│  └─ PO accepts or requests refinement                                   │
+│  ✅ VERIFICATION                                                        │
+│  ├─ All tests pass                                                      │
+│  ├─ Spec-code traceability verified                                     │
+│  └─ Demo to stakeholders (optional)                                     │
 │       │                                                                 │
 │       ▼                                                                 │
-│  ✅ ARCHIVE & COMPLETE                                                  │
-│  ├─ Archive spec with links                                             │
-│  ├─ Close user story                                                    │
+│  📦 ARCHIVE & COMPLETE                                                  │
+│  ├─ Archive spec with PR/commit links                                   │
 │  └─ Merge code to main                                                  │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
+### SDD Phase Details
+
+#### Phase 1: Optional Inputs 📥
+
+**Purpose**: Gather requirements from various sources.
+
+**Options** (not sequential):
+- **ATDD Workshop**: Formal stakeholder collaboration session
+- **Requirements Interview**: Direct conversation with PO
+- **PRD Document**: Written product requirements
+- **User Story Backlog**: Existing prioritized work items
+
 ---
 
-## Phase Details
+#### Phase 2-3: Spec Proposal & Review (SDD) 📝🔍
 
-### Phase 1: Specification Workshop (ATDD) 🤝
+**Purpose**: Create authoritative technical specification.
+
+**Output**: Approved SPEC-XXX document
+
+```markdown
+# SPEC-001: User Authentication
+
+## Summary
+Implement user login with email/password.
+
+## Acceptance Criteria
+- AC-1: Users can login with valid credentials
+- AC-2: Invalid credentials show error message
+
+## Detailed Design
+- Use JWT tokens for session management
+- Password hashing with bcrypt
+- Rate limiting: 5 attempts per minute
+
+## Dependencies
+- Database: users table
+- JWT library
+```
+
+---
+
+#### Phase 4: Forward Derivation 🔄
+
+**Purpose**: AI generates test structures from specification.
+
+**Command**: `/derive-all`
+
+**Output**:
+- `.feature` files (Gherkin scenarios)
+- `.test.ts` scaffolds (unit test structure)
+
+---
+
+#### Phase 5: Implementation ⚙️
+
+**Purpose**: Implement code guided by spec and tests.
+
+**Approach**:
+- AI-assisted code generation from spec
+- Fill in derived test implementations
+- Optional: Use TDD cycles for complex logic
+
+---
+
+#### Phase 6: Verification ✅
+
+**Purpose**: Ensure implementation matches specification.
+
+**Checklist**:
+- [ ] All derived tests pass
+- [ ] Spec-code traceability verified
+- [ ] No scope creep beyond spec
+
+---
+
+## System B: Double-Loop TDD Workflow (Traditional)
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                 System B: Double-Loop TDD (BDD + TDD)                    │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  📥 OPTIONAL INPUTS (choose one or more):                               │
+│  ├─ ATDD Workshop (formal stakeholder collaboration)                    │
+│  ├─ Requirements interview                                              │
+│  ├─ PRD document                                                        │
+│  └─ User story backlog                                                  │
+│       │                                                                 │
+│       ▼                                                                 │
+│  📋 ACCEPTANCE CRITERIA                                                 │
+│  ├─ Define Given-When-Then format                                       │
+│  └─ Clarify scope and boundaries                                        │
+│       │                                                                 │
+│       ▼                                                                 │
+│  ┌─────────────────────────────────────────────────────────────────┐    │
+│  │  🔎 BDD OUTER LOOP (/bdd)                                        │   │
+│  │  ├─ DISCOVERY: Three Amigos, Example Mapping                     │   │
+│  │  ├─ FORMULATION: Write Gherkin scenarios (.feature)              │   │
+│  │  └─ PO reviews for correctness                                   │   │
+│  │       │                                                          │   │
+│  │       ▼                                                          │   │
+│  │  ┌─────────────────────────────────────────────────────────┐     │   │
+│  │  │  🔴🟢🔵 TDD INNER LOOP (/tdd)                            │    │   │
+│  │  │  ┌─────────┐   ┌─────────┐   ┌─────────┐                │    │   │
+│  │  │  │ 🔴 RED   │──▶│ 🟢 GREEN│──▶│ 🔵 REFAC│                │    │   │
+│  │  │  └─────────┘   └─────────┘   └────┬────┘                │    │   │
+│  │  │       ▲                           │                     │    │   │
+│  │  │       └───────────────────────────┘                     │    │   │
+│  │  │              (more unit tests needed)                   │    │   │
+│  │  └──────────────────────────┬──────────────────────────────┘    │   │
+│  │                             │ (step implemented)                │   │
+│  │                             ▼                                   │   │
+│  │                    Next BDD scenario step                       │   │
+│  └─────────────────────────────┬───────────────────────────────────┘   │
+│                                │ (all scenarios pass)                  │
+│                                ▼                                       │
+│  🎬 DEMO & ACCEPTANCE                                                  │
+│  ├─ Run acceptance tests live                                          │
+│  ├─ Demonstrate functionality                                          │
+│  └─ PO accepts or requests refinement                                  │
+│       │                                                                │
+│       ▼                                                                │
+│  ✅ COMPLETE                                                           │
+│  ├─ Close user story                                                   │
+│  └─ Merge code to main                                                 │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### Double-Loop TDD Phase Details
+
+#### Phase 1: Optional Inputs 📥
+
+**Purpose**: Gather requirements from various sources.
+
+Same options as SDD - ATDD Workshop, interviews, PRD, or backlog items.
+
+---
+
+#### Phase 2: Acceptance Criteria 📋
 
 **Purpose**: Define WHAT we're building with stakeholders.
 
-**Participants**: Product Owner, Developer, QA
-
-**Output**: User Story with Acceptance Criteria
+**Output**: User Story with Acceptance Criteria in Given-When-Then format
 
 ```markdown
 ## User Story: User Login
@@ -114,47 +268,21 @@ This approach ensures:
 **Given** I am on the login page
 **When** I enter invalid credentials
 **Then** I should see error message
-
-## Out of Scope
-- Social login (OAuth)
-- Remember me functionality
 ```
 
 ---
 
-### Phase 2-3: Spec Proposal & Review (SDD) 📝🔍
+#### Phase 3: BDD Outer Loop 🔎
 
-**Purpose**: Document HOW we'll build it technically.
+**Purpose**: Discovery and Formulation of behavior scenarios.
 
-**Output**: Approved SPEC-XXX document
+**Command**: `/bdd`
 
-```markdown
-# SPEC-001: User Authentication
+**Steps**:
+1. **Discovery**: Three Amigos session, Example Mapping
+2. **Formulation**: Write Gherkin scenarios
 
-## Summary
-Implement user login with email/password.
-
-## References
-- User Story: US-001
-- Acceptance Criteria: AC-1, AC-2
-
-## Detailed Design
-- Use JWT tokens for session management
-- Password hashing with bcrypt
-- Rate limiting: 5 attempts per minute
-
-## Dependencies
-- Database: users table
-- JWT library
-```
-
----
-
-### Phase 4-5: Discovery & Formulation (BDD) 🔎📄
-
-**Purpose**: Convert requirements to executable scenarios.
-
-**Output**: Gherkin feature files
+**Output**: `.feature` files
 
 ```gherkin
 Feature: User Authentication
@@ -166,22 +294,15 @@ Feature: User Authentication
     And I enter password "correctpassword"
     And I click the login button
     Then I should be redirected to the dashboard
-    And I should see welcome message "Hello, User"
-
-  Scenario: Failed login with invalid password
-    Given I am on the login page
-    When I enter email "user@example.com"
-    And I enter password "wrongpassword"
-    And I click the login button
-    Then I should see error "Invalid credentials"
-    And I should remain on the login page
 ```
 
 ---
 
-### Phase 6-8: Red-Green-Refactor (TDD) 🔴🟢🔵
+#### Phase 4: TDD Inner Loop 🔴🟢🔵
 
-**Purpose**: Implement code driven by tests.
+**Purpose**: Implement code driven by unit tests.
+
+**Command**: `/tdd`
 
 **Cycle**:
 
@@ -210,11 +331,11 @@ Feature: User Authentication
    }
    ```
 
-4. Repeat until all BDD scenarios pass
+4. Return to BDD outer loop for next scenario step
 
 ---
 
-### Phase 9: Demo & Acceptance 🎬
+#### Phase 5: Demo & Acceptance 🎬
 
 **Purpose**: Get formal acceptance from Product Owner.
 
@@ -225,87 +346,97 @@ Feature: User Authentication
 4. **Feedback** (5 min): Q&A
 
 **Outcomes**:
-- ✅ Accepted → Proceed to Archive
-- 🔄 Refinement needed → Return to Workshop
+- ✅ Accepted → Proceed to Complete
+- 🔄 Refinement needed → Return to appropriate phase
 
 ---
 
-### Phase 10: Archive & Complete ✅
+## ATDD: Optional Collaborative Input Method
 
-**Purpose**: Close out the feature properly.
+> **Important**: ATDD is NOT a methodology in itself within this framework.
+> It is an **optional input method** that can feed into either SDD or Double-Loop TDD.
 
-**Checklist**:
-- [ ] Archive spec with PR/commit links
-- [ ] Close user story
-- [ ] Merge code to main branch
-- [ ] Update documentation if needed
+### When to Use ATDD Workshop
+
+| Situation | Use ATDD Workshop? |
+|-----------|-------------------|
+| Multiple stakeholders with differing views | ✅ Yes |
+| Complex business rules | ✅ Yes |
+| New domain for the team | ✅ Yes |
+| Solo developer with clear requirements | ❌ No |
+| Technical refactoring | ❌ No |
+| Bug fixes | ❌ No |
+
+### ATDD Workshop Structure
+
+**Participants**: Product Owner, Developer, QA (Three Amigos)
+
+**Output**: User Story + Acceptance Criteria + Out of Scope
+
+**Flow**:
+1. PO presents user story context
+2. Team asks clarifying questions
+3. Define Given-When-Then acceptance criteria
+4. Document out-of-scope items
+5. Feed output into chosen methodology (SDD or Double-Loop TDD)
 
 ---
 
-## When to Use Integrated Flow
+## When to Use Each System
 
-| Scenario | Recommendation |
-|----------|----------------|
-| **Enterprise features** | ✅ Recommended - Full traceability |
-| **Complex business logic** | ✅ Recommended - Shared understanding |
-| **Cross-team collaboration** | ✅ Recommended - Clear handoffs |
-| **Small bug fixes** | ❌ Overkill - Use TDD only |
-| **Exploratory prototypes** | ❌ Too rigid - Skip formal phases |
-| **Simple CRUD operations** | ⚠️ Optional - Consider lighter flow |
-
----
-
-## Phase Transition Rules
-
-| From | To | Entry Condition |
-|------|-----|-----------------|
-| (Start) | Specification Workshop | New feature request |
-| Specification Workshop | Spec Proposal | AC defined, PO present |
-| Spec Proposal | Spec Review | Spec submitted |
-| Spec Review | Discovery | Spec approved |
-| Discovery | Formulation | Scenarios identified |
-| Formulation | TDD Red | Gherkin written, PO reviewed |
-| TDD Red | TDD Green | Test fails |
-| TDD Green | TDD Refactor | Test passes |
-| TDD Refactor | TDD Red | More tests needed |
-| TDD Refactor | Demo | All BDD scenarios pass |
-| Demo | Archive | PO accepts |
-| Demo | Specification Workshop | Refinement needed |
+| Scenario | System A: SDD | System B: Double-Loop TDD |
+|----------|--------------|---------------------------|
+| **Enterprise features** | ✅ With full traceability | ✅ With shared understanding |
+| **Complex business logic** | ⚠️ Possible | ✅ BDD excels here |
+| **Cross-team collaboration** | ✅ Clear handoffs | ✅ Three Amigos |
+| **Small bug fixes** | ❌ Overkill | ⚠️ Use TDD only (inner loop) |
+| **Exploratory prototypes** | ❌ Too rigid | ❌ Too rigid |
+| **AI-assisted development** | ✅ Native workflow | ⚠️ Less optimal |
 
 ---
 
 ## Artifacts Produced
 
+### System A: SDD Artifacts
+
 | Phase | Artifact | Format |
 |-------|----------|--------|
-| Specification Workshop | User Story | Markdown |
 | Spec Proposal | SPEC-XXX | Markdown |
-| Discovery | Example Map | Notes/Cards |
-| Formulation | Feature Files | Gherkin (.feature) |
-| TDD | Unit Tests | Code |
+| Forward Derivation | Feature Files | Gherkin (.feature) |
+| Forward Derivation | Test Scaffolds | TypeScript (.test.ts) |
 | Archive | Archived Spec | Markdown with links |
+
+### System B: Double-Loop TDD Artifacts
+
+| Phase | Artifact | Format |
+|-------|----------|--------|
+| Acceptance Criteria | User Story | Markdown |
+| BDD Discovery | Example Map | Notes/Cards |
+| BDD Formulation | Feature Files | Gherkin (.feature) |
+| TDD | Unit Tests | Code |
 
 ---
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `/integrated-flow` | Start integrated workflow |
-| `/flow-status` | Show current phase |
-| `/flow-skip [phase]` | Skip to specific phase (advanced) |
+| Command | System | Description |
+|---------|--------|-------------|
+| `/spec` | A: SDD | Start SDD spec proposal |
+| `/derive-all` | A: SDD | Generate tests from spec |
+| `/bdd` | B: Double-Loop TDD | Start BDD outer loop |
+| `/tdd` | B: Double-Loop TDD | Start TDD inner loop |
+| `/atdd` | Both (input) | Start ATDD workshop |
+| `/methodology` | Both | Show current methodology status |
 
 ---
 
 ## Related Standards
 
-- [Acceptance Test-Driven Development](../../../core/acceptance-test-driven-development.md)
 - [Spec-Driven Development](../../../core/spec-driven-development.md)
 - [Behavior-Driven Development](../../../core/behavior-driven-development.md)
 - [Test-Driven Development](../../../core/test-driven-development.md)
-- [ATDD Assistant](../atdd-assistant/SKILL.md)
-- [BDD Assistant](../bdd-assistant/SKILL.md)
-- [TDD Assistant](../tdd-assistant/SKILL.md)
+- [Acceptance Test-Driven Development](../../../core/acceptance-test-driven-development.md)
+- [Forward Derivation Standards](../../../core/forward-derivation-standards.md)
 
 ---
 
@@ -313,6 +444,7 @@ Feature: User Authentication
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0.0 | 2026-01-25 | Major refactor: Two independent systems, ATDD as optional input |
 | 1.0.0 | 2026-01-19 | Initial release |
 
 ---

@@ -17,20 +17,53 @@ status: experimental
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/methodology-system/SKILL.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-12
+**Version**: 2.0.0
+**Last Updated**: 2026-01-25
 
 ---
 
 ## Overview
 
-The Methodology System provides a unified framework for managing development methodologies in projects that adopt Universal Development Standards. It supports:
+The Methodology System provides a unified framework for managing development methodologies in projects that adopt Universal Development Standards.
 
-- **TDD** - Test-Driven Development (Red → Green → Refactor)
-- **BDD** - Behavior-Driven Development (Discovery → Formulation → Automation)
-- **SDD** - Spec-Driven Development (Proposal → Review → Implementation → Verification → Archive)
-- **ATDD** - Acceptance Test-Driven Development (Workshop → Distillation → Development → Demo)
-- **Custom** - User-defined methodologies
+### Two Independent Systems
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│                  Two Independent Methodology Systems                         │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  System A: SDD (AI-Era Methodology)                                        │
+│  ─────────────────────────────────────                                     │
+│  /spec → Review → /derive-all → Implementation → Verification              │
+│  Best for: New projects, AI-assisted development, greenfield features     │
+│                                                                            │
+│  System B: Double-Loop TDD (Traditional)                                   │
+│  ─────────────────────────────────────                                     │
+│  /bdd (Outer Loop) → /tdd (Inner Loop) → Demo                              │
+│  Best for: Legacy systems, manual development, established codebases      │
+│                                                                            │
+│  Optional Input: ATDD Workshop                                             │
+│  ─────────────────────────────────────                                     │
+│  Stakeholder collaboration that feeds into EITHER system                   │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Supported Methodologies
+
+**System A: SDD (Spec-Driven Development)**
+- Proposal → Review → Forward Derivation → Implementation → Verification → Archive
+- AI-native workflow with spec as authoritative source
+
+**System B: Double-Loop TDD**
+- **BDD** (Outer Loop) - Discovery → Formulation → Automation
+- **TDD** (Inner Loop) - Red → Green → Refactor
+
+**Optional Input**
+- **ATDD** - Acceptance Test-Driven Development workshop (feeds into either system)
+
+**Custom** - User-defined methodologies
 
 ---
 
@@ -153,12 +186,12 @@ Methodology configuration is stored in `.standards/manifest.json`:
 
 AI will automatically activate methodology context when these keywords are detected:
 
-| Methodology | Keywords |
-|-------------|----------|
-| TDD | test first, red green refactor, failing test |
-| BDD | given when then, gherkin, cucumber, scenario |
-| SDD | specification, spec first, proposal, acceptance criteria |
-| ATDD | acceptance test, user story, product owner |
+| System | Methodology | Keywords |
+|--------|-------------|----------|
+| A: SDD | SDD | specification, spec first, proposal, derive tests, forward derivation |
+| B: Double-Loop | BDD (outer) | given when then, gherkin, cucumber, scenario, discovery |
+| B: Double-Loop | TDD (inner) | test first, red green refactor, failing test |
+| Input | ATDD | acceptance test, user story, product owner, workshop |
 
 ---
 
@@ -203,6 +236,7 @@ Additional review checks are added based on active methodology:
 
 ## Files
 
+- [integrated-flow.md](./integrated-flow.md) - Complete workflow guide for both systems
 - [runtime.md](./runtime.md) - AI behavior and runtime guide
 - [create-methodology.md](./create-methodology.md) - Custom methodology creation wizard
 
@@ -212,4 +246,5 @@ Additional review checks are added based on active methodology:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0.0 | 2026-01-25 | Refactor to two independent systems architecture |
 | 1.0.0 | 2026-01-12 | Initial methodology system |

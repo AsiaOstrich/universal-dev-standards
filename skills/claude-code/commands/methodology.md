@@ -15,9 +15,16 @@ status: experimental
 > This feature is under active development and may change significantly in v4.0.
 > 此功能正在積極開發中，可能在 v4.0 中有重大變更。
 
-Manage the active development methodology for the current project. Supports TDD, BDD, SDD, ATDD, and custom methodologies.
+Manage the active development methodology for the current project.
 
-管理當前專案的開發方法論。支援 TDD、BDD、SDD、ATDD 和自訂方法論。
+管理當前專案的開發方法論。
+
+**Two Independent Systems / 兩個獨立系統：**
+- **System A: SDD** - Spec-Driven Development (AI-era, spec-first)
+- **System B: Double-Loop TDD** - BDD (outer) + TDD (inner) (traditional)
+
+**Optional Input / 可選輸入：**
+- **ATDD** - Acceptance Test-Driven Development (workshop method, feeds into either system)
 
 ---
 
@@ -151,18 +158,23 @@ Are you sure you want to skip?
 
 **Output:**
 ```
-📚 Available Methodologies
+📚 Available Methodology Systems
 
-Built-in:
-  ├─ tdd    Test-Driven Development (Red → Green → Refactor)
-  ├─ bdd    Behavior-Driven Development (Given-When-Then)
-  ├─ sdd    Spec-Driven Development (Spec First, Code Second)
-  └─ atdd   Acceptance Test-Driven Development
+System A: SDD (AI-Era)
+  └─ sdd    Spec-Driven Development
+            /spec → Review → /derive-all → Implementation
+
+System B: Double-Loop TDD (Traditional)
+  ├─ bdd    BDD Outer Loop (Discovery → Formulation)
+  └─ tdd    TDD Inner Loop (Red → Green → Refactor)
+
+Optional Input (feeds into either system):
+  └─ atdd   ATDD Workshop (stakeholder collaboration)
 
 Custom (.standards/methodologies/):
   └─ my-team-workflow   Our Team's Development Process
 
-Active: tdd ✓
+Active: sdd (System A) ✓
 
 Use '/methodology switch <id>' to change.
 ```
@@ -245,11 +257,14 @@ You can also configure methodology settings using:
 
 ## Related Commands | 相關命令
 
-| Command | Description |
-|---------|-------------|
-| `/tdd` | Start TDD workflow (activates TDD methodology) |
-| `/spec` | Start SDD workflow (activates SDD methodology) |
-| `/config methodology` | Configure methodology settings |
+| Command | System | Description |
+|---------|--------|-------------|
+| `/spec` | A: SDD | Start SDD spec proposal |
+| `/derive-all` | A: SDD | Generate tests from spec |
+| `/bdd` | B: Double-Loop TDD | Start BDD outer loop |
+| `/tdd` | B: Double-Loop TDD | Start TDD inner loop |
+| `/atdd` | Input (both) | Start ATDD workshop |
+| `/config methodology` | - | Configure methodology settings |
 
 ---
 
@@ -265,4 +280,5 @@ You can also configure methodology settings using:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-25 | Update to reflect two independent systems architecture |
 | 1.0.0 | 2026-01-12 | Initial /methodology command |
