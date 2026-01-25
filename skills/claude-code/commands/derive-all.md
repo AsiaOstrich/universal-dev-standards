@@ -1,14 +1,18 @@
 ---
-description: Derive all test structures (BDD, TDD, ATDD) from approved SDD specification
+description: Derive BDD scenarios and TDD test skeletons from approved SDD specification
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "<spec-file> [--lang <language>] [--framework <framework>] [--output-dir <dir>] [--dry-run]"
 ---
 
-# Derive All Test Structures from Specification | 從規格推演完整測試結構
+# Derive Test Structures from Specification | 從規格推演測試結構
 
-Generate complete test structures (BDD scenarios, TDD skeletons, ATDD acceptance tests) from approved SDD specification.
+Generate test structures (BDD scenarios and TDD skeletons) from approved SDD specification.
 
-從已批准的 SDD 規格生成完整測試結構（BDD 場景、TDD 骨架、ATDD 驗收測試）。
+從已批准的 SDD 規格生成測試結構（BDD 場景、TDD 骨架）。
+
+> **Note**: ATDD test tables are available via the separate `/derive-atdd` command for specialized needs. BDD scenarios already serve as executable acceptance tests.
+>
+> **注意**：ATDD 測試表格可透過 `/derive-atdd` 命令另行產生。BDD 場景本身已是可執行的驗收測試。
 
 ## Workflow | 工作流程
 
@@ -26,11 +30,11 @@ Generate complete test structures (BDD scenarios, TDD skeletons, ATDD acceptance
          │
     ┌────┼────┬────────────┐
     │    │    │            │
-    ▼    ▼    ▼            ▼
-┌──────┐ ┌──────┐ ┌──────┐ ┌──────────┐
-│ BDD  │ │ TDD  │ │ ATDD │ │ Summary  │
-│.feat │ │.test │ │.md   │ │ Report   │
-└──────┘ └──────┘ └──────┘ └──────────┘
+    ▼    ▼    │            ▼
+┌──────┐ ┌──────┐          ┌──────────┐
+│ BDD  │ │ TDD  │          │ Summary  │
+│.feat │ │.test │          │ Report   │
+└──────┘ └──────┘          └──────────┘
 ```
 
 ## Anti-Hallucination Compliance | 反幻覺合規
@@ -44,7 +48,6 @@ Input:  SPEC with N Acceptance Criteria
 Output:
   - Exactly N BDD Scenarios
   - Exactly N TDD Test Groups
-  - Exactly N ATDD Test Tables
 
 If any output count ≠ input count → VIOLATION
 ```
@@ -72,14 +75,7 @@ Run `/derive-tdd` logic:
 - Add AAA structure with TODOs
 - Output to `tests/SPEC-XXX.test.{ext}`
 
-### 4. Generate ATDD Tables | 生成 ATDD 表格
-
-Run `/derive-atdd` logic:
-- Create test table per AC
-- Add step-by-step actions
-- Output to `acceptance/SPEC-XXX-acceptance.md`
-
-### 5. Generate Summary Report | 生成摘要報告
+### 4. Generate Summary Report | 生成摘要報告
 
 Create derivation summary:
 - Files generated
@@ -94,8 +90,6 @@ generated/
 │   └── SPEC-001.feature        # BDD scenarios
 ├── tests/
 │   └── SPEC-001.test.ts        # TDD skeletons
-├── acceptance/
-│   └── SPEC-001-acceptance.md  # ATDD test tables
 └── DERIVATION-REPORT.md        # Summary report
 ```
 
@@ -106,7 +100,7 @@ generated/
 
 **Source**: specs/SPEC-001.md
 **Generated**: [timestamp]
-**Generator**: /derive-all v1.0.0
+**Generator**: /derive-all v2.0.0
 
 ## Summary
 
@@ -115,7 +109,6 @@ generated/
 | Acceptance Criteria | N |
 | BDD Scenarios | N |
 | TDD Test Groups | N |
-| ATDD Test Tables | N |
 
 ## Generated Files
 
@@ -123,23 +116,21 @@ generated/
 |------|------|-------------|
 | features/SPEC-001.feature | BDD | AC-1, AC-2, AC-3 |
 | tests/SPEC-001.test.ts | TDD | AC-1, AC-2, AC-3 |
-| acceptance/SPEC-001-acceptance.md | ATDD | AC-1, AC-2, AC-3 |
 
 ## AC Traceability Matrix
 
-| AC ID | BDD Scenario | TDD Test | ATDD Table |
-|-------|--------------|----------|------------|
-| AC-1 | ✓ Line 10 | ✓ Line 15 | ✓ AT-001 |
-| AC-2 | ✓ Line 20 | ✓ Line 35 | ✓ AT-002 |
-| AC-3 | ✓ Line 30 | ✓ Line 55 | ✓ AT-003 |
+| AC ID | BDD Scenario | TDD Test |
+|-------|--------------|----------|
+| AC-1 | ✓ Line 10 | ✓ Line 15 |
+| AC-2 | ✓ Line 20 | ✓ Line 35 |
+| AC-3 | ✓ Line 30 | ✓ Line 55 |
 
 ## Next Steps
 
 1. [ ] Review generated BDD scenarios with stakeholders
 2. [ ] Fill [TODO] sections in TDD skeletons
-3. [ ] Execute ATDD acceptance tests manually
-4. [ ] Implement step definitions for BDD
-5. [ ] Start TDD Red-Green-Refactor cycle
+3. [ ] Implement step definitions for BDD
+4. [ ] Start TDD Red-Green-Refactor cycle
 ```
 
 ## Parameters | 參數
@@ -184,13 +175,10 @@ After running `/derive-all`, the recommended workflow:
 │  2. Fill TDD [TODO] Sections                                     │
 │     └─→ Use /tdd to enter Red-Green-Refactor cycle              │
 │                                                                  │
-│  3. Execute ATDD Tests                                           │
-│     └─→ Manual testing with acceptance tables                   │
-│                                                                  │
-│  4. Implement Step Definitions                                   │
+│  3. Implement Step Definitions                                   │
 │     └─→ Connect BDD scenarios to code                           │
 │                                                                  │
-│  5. Complete TDD Implementation                                  │
+│  4. Complete TDD Implementation                                  │
 │     └─→ Make all tests pass                                     │
 │                                                                  │
 └──────────────────────────────────────────────────────────────────┘
@@ -211,4 +199,5 @@ This command **CANNOT**:
 
 - Full skill guide: [forward-derivation](../forward-derivation/SKILL.md)
 - Core standard: [forward-derivation-standards.md](../../../core/forward-derivation-standards.md)
-- Individual commands: [derive-bdd](./derive-bdd.md), [derive-tdd](./derive-tdd.md), [derive-atdd](./derive-atdd.md)
+- Individual commands: [derive-bdd](./derive-bdd.md), [derive-tdd](./derive-tdd.md)
+- Optional: [derive-atdd](./derive-atdd.md) (for specialized ATDD test tables)

@@ -1,7 +1,8 @@
 ---
 name: forward-derivation
 description: |
-  Derive BDD scenarios, TDD test skeletons, and ATDD acceptance tests from approved SDD specifications.
+  Derive BDD scenarios and TDD test skeletons from approved SDD specifications.
+  ATDD acceptance test tables are optional output for specialized needs.
   Use when: spec is approved, starting BDD/TDD implementation, generating test structures.
   Keywords: forward derivation, spec to test, BDD generation, TDD skeleton, test derivation, 正向推演, 規格轉測試, 測試生成.
 ---
@@ -10,8 +11,8 @@ description: |
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/forward-derivation/SKILL.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-19
+**Version**: 2.0.0
+**Last Updated**: 2026-01-25
 **Applicability**: Claude Code Skills
 
 > **Core Standard**: This skill implements [Forward Derivation Standards](../../../core/forward-derivation-standards.md). For comprehensive methodology documentation accessible by any AI tool, refer to the core standard.
@@ -20,7 +21,9 @@ description: |
 
 ## Purpose
 
-This skill guides you through deriving BDD scenarios, TDD test skeletons, and ATDD acceptance tests from approved SDD specifications, with strict adherence to Anti-Hallucination standards.
+This skill guides you through deriving BDD scenarios and TDD test skeletons from approved SDD specifications, with strict adherence to Anti-Hallucination standards.
+
+> **Note**: ATDD test tables are optional and available via `/derive-atdd`. BDD scenarios already serve as executable acceptance tests, making ATDD tables redundant for most use cases.
 
 Forward Derivation is the symmetrical counterpart to [Reverse Engineering](../reverse-engineer/SKILL.md):
 - **Reverse Engineering**: Code → Specification
@@ -43,7 +46,7 @@ Forward Derivation is the symmetrical counterpart to [Reverse Engineering](../re
 │  2️⃣  Derivation (AI Automated)                                 │
 │      ├─ AC → BDD Gherkin scenarios                             │
 │      ├─ AC → TDD test skeletons with TODOs                     │
-│      └─ AC → ATDD acceptance test tables                       │
+│      └─ (Optional) AC → ATDD acceptance test tables            │
 │                                                                 │
 │  3️⃣  Human Review (Required)                                   │
 │      ├─ Verify generated scenarios match AC intent              │
@@ -59,8 +62,8 @@ Forward Derivation is the symmetrical counterpart to [Reverse Engineering](../re
 |---------|-------|--------|---------|
 | `/derive-bdd` | SPEC-XXX.md | .feature | AC → Gherkin scenarios |
 | `/derive-tdd` | SPEC-XXX.md | .test.ts | AC → Test skeletons |
-| `/derive-atdd` | SPEC-XXX.md | acceptance.md | AC → Acceptance test tables |
-| `/derive-all` | SPEC-XXX.md | All above | Full derivation pipeline |
+| `/derive-all` | SPEC-XXX.md | .feature + .test.ts | Full derivation pipeline |
+| `/derive-atdd` | SPEC-XXX.md | acceptance.md | AC → Acceptance test tables (optional) |
 
 ## Core Principles
 
@@ -73,7 +76,7 @@ Forward Derivation is the symmetrical counterpart to [Reverse Engineering](../re
 Input:  SPEC with N Acceptance Criteria
 Output: Exactly N scenarios (BDD)
         Exactly N test groups (TDD)
-        Exactly N acceptance tests (ATDD)
+        Exactly N acceptance tests (ATDD, if requested)
 
 If output count ≠ input count → VIOLATION
 ```
@@ -90,7 +93,9 @@ Every generated item MUST include traceability:
 Scenario: User login with valid credentials
 ```
 
-### 3. Certainty Labels
+### 3. Derivation Tags (from Unified Tag System)
+
+This skill uses **Derivation Tags** for generating new content from specifications. See [Anti-Hallucination Standards](../../../core/anti-hallucination.md#unified-tag-system) for the complete tag reference.
 
 | Tag | Use When | Example |
 |-----|----------|---------|
@@ -171,7 +176,12 @@ Scenario: Login shows error for invalid credentials
 | `--lang` | typescript, javascript, python, java, go | typescript |
 | `--framework` | vitest, jest, pytest, junit, go-test | vitest |
 
-### Stage 4: ATDD Derivation
+### Stage 4: ATDD Derivation (Optional)
+
+> **Note**: ATDD test tables are optional. BDD scenarios already serve as executable acceptance tests. Use ATDD tables only when:
+> - Manual testing workflows are required
+> - Stakeholders prefer tabular test documentation
+> - Regulatory compliance requires specific test evidence format
 
 **Input**: Parsed Acceptance Criteria
 **Output**: Acceptance test table document
@@ -264,7 +274,9 @@ describe('SPEC-001: User Authentication', () => {
 });
 ```
 
-### ATDD Acceptance Test Table
+### ATDD Acceptance Test Table (Optional)
+
+> Generated via `/derive-atdd` when ATDD test tables are needed.
 
 ```markdown
 # SPEC-001 Acceptance Tests
@@ -319,8 +331,9 @@ Forward Derivation fits in the Integrated Flow methodology:
 spec-review (approved) → forward-derivation → discovery (BDD)
                               │
                               ├─→ .feature files for BDD
-                              ├─→ .test.ts skeletons for TDD
-                              └─→ acceptance.md for ATDD
+                              └─→ .test.ts skeletons for TDD
+
+Optional: /derive-atdd → acceptance.md for manual testing
 ```
 
 ## Complete Derivation Pipeline
@@ -338,11 +351,11 @@ spec-review (approved) → forward-derivation → discovery (BDD)
 │        ├─→ /derive-bdd                                                  │
 │        │    └─→ features/SPEC-XXX.feature                              │
 │        │                                                                │
-│        ├─→ /derive-tdd                                                  │
-│        │    └─→ tests/SPEC-XXX.test.ts                                 │
-│        │                                                                │
-│        └─→ /derive-atdd                                                 │
-│             └─→ acceptance/SPEC-XXX-acceptance.md                      │
+│        └─→ /derive-tdd                                                  │
+│             └─→ tests/SPEC-XXX.test.ts                                 │
+│                                                                         │
+│   Optional: /derive-atdd specs/SPEC-XXX.md                              │
+│        └─→ acceptance/SPEC-XXX-acceptance.md                           │
 │                                                                         │
 │   Human Review                                                          │
 │        │                                                                │
@@ -444,6 +457,8 @@ This skill auto-detects project configuration:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0.0 | 2026-01-25 | ATDD changed from required to optional output; /derive-all now outputs BDD + TDD only |
+| 1.1.0 | 2026-01-25 | Added: Reference to Unified Tag System |
 | 1.0.0 | 2026-01-19 | Initial release |
 
 ---

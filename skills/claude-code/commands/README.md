@@ -2,6 +2,10 @@
 
 Custom slash commands for Universal Development Standards.
 
+> **Workflow Guide**: For a comprehensive overview of how methodology commands work together, see **[Command Family Overview](./COMMAND-FAMILY-OVERVIEW.md)**.
+>
+> **工作流程指南**：關於方法論指令如何協同運作的完整說明，請參閱 **[指令家族總覽](./COMMAND-FAMILY-OVERVIEW.md)**。
+
 ## Available Commands | 可用命令
 
 ### Standards Management | 標準管理
@@ -34,7 +38,7 @@ Commands for development workflow automation.
 | [`/reverse-tdd`](./reverse-tdd.md) | Analyze BDD-TDD coverage | BDD-TDD 覆蓋率分析 |
 | [`/derive-bdd`](./derive-bdd.md) | Derive BDD scenarios from approved spec | 從規格推演 BDD 場景 |
 | [`/derive-tdd`](./derive-tdd.md) | Derive TDD test skeletons from spec | 從規格推演 TDD 骨架 |
-| [`/derive-atdd`](./derive-atdd.md) | Derive ATDD acceptance tests from spec | 從規格推演 ATDD 測試 |
+| [`/derive-atdd`](./derive-atdd.md) | (Optional) Derive ATDD acceptance tests | （可選）推演 ATDD 測試 |
 | [`/derive-all`](./derive-all.md) | Derive all test structures from spec | 從規格推演完整測試結構 |
 
 ### Methodology | 方法論
