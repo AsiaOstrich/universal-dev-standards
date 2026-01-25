@@ -1,0 +1,316 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-26",
+  "description": "AI Agent integration registry for cross-agent sync verification",
+  "descriptionZh": "AI Agent 整合註冊表，用於跨 Agent 同步驗證",
+
+  "agents": {
+    "claude-code": {
+      "name": "Claude Code",
+      "tier": "complete",
+      "integrationFiles": [
+        "CLAUDE.md"
+      ],
+      "instructionFile": "CLAUDE.md",
+      "rulesLocation": "project-root",
+      "supportsSkills": true,
+      "supportsAgents": true,
+      "supportsWorkflows": true
+    },
+    "opencode": {
+      "name": "OpenCode",
+      "tier": "complete",
+      "integrationFiles": [
+        "integrations/opencode/AGENTS.md",
+        "integrations/opencode/opencode.json"
+      ],
+      "instructionFile": "integrations/opencode/AGENTS.md",
+      "rulesLocation": "integrations/opencode/",
+      "supportsSkills": true,
+      "supportsAgents": true,
+      "supportsWorkflows": true
+    },
+    "cursor": {
+      "name": "Cursor",
+      "tier": "partial",
+      "integrationFiles": [
+        "integrations/cursor/.cursorrules"
+      ],
+      "instructionFile": "integrations/cursor/.cursorrules",
+      "rulesLocation": "integrations/cursor/",
+      "supportsSkills": false,
+      "supportsAgents": true,
+      "supportsWorkflows": false
+    },
+    "cline": {
+      "name": "Cline",
+      "tier": "partial",
+      "integrationFiles": [
+        "integrations/cline/.clinerules"
+      ],
+      "instructionFile": "integrations/cline/.clinerules",
+      "rulesLocation": "integrations/cline/",
+      "supportsSkills": true,
+      "supportsAgents": true,
+      "supportsWorkflows": false
+    },
+    "windsurf": {
+      "name": "Windsurf",
+      "tier": "partial",
+      "integrationFiles": [
+        "integrations/windsurf/.windsurfrules"
+      ],
+      "instructionFile": "integrations/windsurf/.windsurfrules",
+      "rulesLocation": "integrations/windsurf/",
+      "supportsSkills": false,
+      "supportsAgents": true,
+      "supportsWorkflows": false
+    },
+    "copilot": {
+      "name": "GitHub Copilot",
+      "tier": "partial",
+      "integrationFiles": [
+        "integrations/github-copilot/copilot-instructions.md"
+      ],
+      "instructionFile": "integrations/github-copilot/copilot-instructions.md",
+      "rulesLocation": "integrations/github-copilot/",
+      "supportsSkills": true,
+      "supportsAgents": true,
+      "supportsWorkflows": false
+    },
+    "codex": {
+      "name": "OpenAI Codex",
+      "tier": "partial",
+      "integrationFiles": [
+        "integrations/codex/AGENTS.md"
+      ],
+      "instructionFile": "integrations/codex/AGENTS.md",
+      "rulesLocation": "integrations/codex/",
+      "supportsSkills": true,
+      "supportsAgents": true,
+      "supportsWorkflows": false
+    },
+    "gemini-cli": {
+      "name": "Gemini CLI",
+      "tier": "preview",
+      "integrationFiles": [
+        "integrations/gemini-cli/GEMINI.md"
+      ],
+      "instructionFile": "integrations/gemini-cli/GEMINI.md",
+      "rulesLocation": "integrations/gemini-cli/",
+      "supportsSkills": true,
+      "supportsAgents": true,
+      "supportsWorkflows": false
+    },
+    "antigravity": {
+      "name": "Google Antigravity",
+      "tier": "minimal",
+      "integrationFiles": [
+        "integrations/google-antigravity/INSTRUCTIONS.md",
+        "integrations/google-antigravity/.antigravity/rules.md"
+      ],
+      "instructionFile": "integrations/google-antigravity/INSTRUCTIONS.md",
+      "rulesLocation": "integrations/google-antigravity/",
+      "supportsSkills": false,
+      "supportsAgents": false,
+      "supportsWorkflows": false
+    },
+    "roo-code": {
+      "name": "Roo Code",
+      "tier": "planned",
+      "integrationFiles": [],
+      "instructionFile": null,
+      "rulesLocation": null,
+      "supportsSkills": true,
+      "supportsAgents": true,
+      "supportsWorkflows": true,
+      "note": "Planned integration - not yet implemented"
+    },
+    "spec-kit": {
+      "name": "Spec Kit",
+      "tier": "tool",
+      "integrationFiles": [
+        "integrations/spec-kit/AGENTS.md"
+      ],
+      "instructionFile": "integrations/spec-kit/AGENTS.md",
+      "rulesLocation": "integrations/spec-kit/",
+      "supportsSkills": false,
+      "supportsAgents": false,
+      "supportsWorkflows": false,
+      "note": "SDD tool, not AI coding assistant"
+    },
+    "openspec": {
+      "name": "OpenSpec",
+      "tier": "tool",
+      "integrationFiles": [
+        "integrations/openspec/AGENTS.md"
+      ],
+      "instructionFile": "integrations/openspec/AGENTS.md",
+      "rulesLocation": "integrations/openspec/",
+      "supportsSkills": false,
+      "supportsAgents": false,
+      "supportsWorkflows": false,
+      "note": "SDD tool, not AI coding assistant"
+    }
+  },
+
+  "tiers": {
+    "complete": {
+      "name": "Complete Support",
+      "nameZh": "完全支援",
+      "description": "Full UDS integration with Skills, Agents, and Workflows support",
+      "requiredRules": ["AH-001", "AH-002", "AH-003", "AH-004", "SDD-001", "SDD-002", "CMT-001"]
+    },
+    "partial": {
+      "name": "Partial Support",
+      "nameZh": "部分支援",
+      "description": "Basic UDS integration with core anti-hallucination and commit rules",
+      "requiredRules": ["AH-001", "AH-002", "AH-003", "AH-004", "SDD-001", "CMT-001"]
+    },
+    "minimal": {
+      "name": "Minimal Support",
+      "nameZh": "最小支援",
+      "description": "Minimal integration with basic guidelines",
+      "requiredRules": ["AH-001", "AH-002"]
+    },
+    "preview": {
+      "name": "Preview",
+      "nameZh": "預覽版",
+      "description": "Experimental integration under development",
+      "requiredRules": ["AH-001", "AH-002", "AH-003"]
+    },
+    "planned": {
+      "name": "Planned",
+      "nameZh": "計劃中",
+      "description": "Integration planned but not yet implemented",
+      "requiredRules": []
+    },
+    "tool": {
+      "name": "SDD Tool",
+      "nameZh": "SDD 工具",
+      "description": "Spec-Driven Development tool, not AI coding assistant",
+      "requiredRules": []
+    }
+  },
+
+  "syncRules": {
+    "AH-001": {
+      "id": "AH-001",
+      "name": "Evidence-Based Analysis",
+      "nameZh": "證據基礎分析",
+      "description": "Must read files before analyzing them",
+      "severity": "error",
+      "patterns": [
+        "read.*file.*before",
+        "must.*read",
+        "MUST read files before analyzing",
+        "read files before analyzing them",
+        "Evidence-Based Analysis",
+        "Evidence-Based"
+      ],
+      "source": "core/anti-hallucination.md",
+      "section": "1. Evidence-Based Analysis Only"
+    },
+    "AH-002": {
+      "id": "AH-002",
+      "name": "Source Attribution",
+      "nameZh": "來源標注",
+      "description": "Cite sources for all factual claims",
+      "severity": "error",
+      "patterns": [
+        "\\[Source:",
+        "Source Attribution",
+        "cite.*source",
+        "must cite sources"
+      ],
+      "source": "core/anti-hallucination.md",
+      "section": "2. Explicit Source Attribution"
+    },
+    "AH-003": {
+      "id": "AH-003",
+      "name": "Certainty Classification",
+      "nameZh": "確定性分類",
+      "description": "Use certainty tags for confidence level",
+      "severity": "warning",
+      "patterns": [
+        "\\[Confirmed\\]",
+        "\\[Inferred\\]",
+        "\\[Assumption\\]",
+        "\\[Unknown\\]",
+        "Certainty Classification",
+        "certainty.*tag"
+      ],
+      "source": "core/anti-hallucination.md",
+      "section": "3. Classify Certainty Levels"
+    },
+    "AH-004": {
+      "id": "AH-004",
+      "name": "Recommendation Required",
+      "nameZh": "推薦選項必要",
+      "description": "When presenting options, include recommended choice with reasoning",
+      "severity": "warning",
+      "patterns": [
+        "recommend.*option",
+        "Recommended.*choice",
+        "MUST.*recommend",
+        "explicitly state.*Recommended"
+      ],
+      "source": "core/anti-hallucination.md",
+      "section": "Recommendation Principles"
+    },
+    "SDD-001": {
+      "id": "SDD-001",
+      "name": "SDD Tool Detection",
+      "nameZh": "SDD 工具偵測",
+      "description": "Check for OpenSpec or Spec Kit integration",
+      "severity": "error",
+      "patterns": [
+        "OpenSpec",
+        "Spec Kit",
+        "openspec/",
+        "specs/",
+        "\\.speckit"
+      ],
+      "source": "core/spec-driven-development.md",
+      "section": "SDD Tool Integration"
+    },
+    "SDD-002": {
+      "id": "SDD-002",
+      "name": "SDD Command Priority",
+      "nameZh": "SDD 命令優先級",
+      "description": "Prioritize SDD commands over manual file editing",
+      "severity": "warning",
+      "patterns": [
+        "prioritize.*command",
+        "MUST prioritize using these commands",
+        "Spec-Driven Development.*Priority",
+        "SDD.*Priority"
+      ],
+      "source": "core/spec-driven-development.md",
+      "section": "Command Priority"
+    },
+    "CMT-001": {
+      "id": "CMT-001",
+      "name": "Conventional Commits Format",
+      "nameZh": "Conventional Commits 格式",
+      "description": "Follow type(scope): subject format",
+      "severity": "warning",
+      "patterns": [
+        "type.*scope.*subject",
+        "<type>\\(<scope>\\):",
+        "Conventional Commits",
+        "feat.*fix.*docs.*chore"
+      ],
+      "source": "core/commit-message-guide.md",
+      "section": "Commit Message Format"
+    }
+  },
+
+  "checkConfig": {
+    "excludeAgents": ["planned", "tool"],
+    "verboseOutput": false,
+    "failOnWarning": false,
+    "reportFormat": "summary"
+  }
+}
