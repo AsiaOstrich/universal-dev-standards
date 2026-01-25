@@ -193,13 +193,14 @@ completion_criteria:
 
 **Given** the UDS CLI is installed
 **When** I run `uds workflow list`
-**Then** 3 built-in workflows are available:
+**Then** 4 built-in workflows are available:
 
 | Workflow | Steps | Category | Description |
 |----------|-------|----------|-------------|
 | `integrated-flow` | 8 | development | ATDD→SDD→BDD→TDD complete flow |
 | `feature-dev` | 6 | development | Standard feature development |
 | `code-review` | 4 | review | Comprehensive code review |
+| `large-codebase-analysis` | 4 | development | RLM-enhanced large codebase analysis |
 
 ### AC-7: Workflow Installation
 
@@ -251,7 +252,8 @@ skills/claude-code/
     ├── README.md              # Format specification
     ├── integrated-flow.workflow.yaml
     ├── feature-dev.workflow.yaml
-    └── code-review.workflow.yaml
+    ├── code-review.workflow.yaml
+    └── large-codebase-analysis.workflow.yaml
 
 cli/src/
 ├── commands/
