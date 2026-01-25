@@ -22,6 +22,8 @@ import {
 } from '../config/ai-agent-paths.js';
 import { setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 import { readManifest, isInitialized } from '../utils/copier.js';
+import { WorkflowExecutor } from '../utils/workflow-executor.js';
+import { WorkflowStateManager } from '../utils/workflow-state.js';
 
 /**
  * Workflow list command - list available and installed workflows
@@ -418,8 +420,270 @@ function cleanDescription(description) {
     .trim();
 }
 
+/**
+ * Workflow execute command - execute a workflow step by step
+ * @param {string} workflowName - Name of the workflow to execute
+ * @param {Object} options - Command options
+ */
+export async function workflowExecuteCommand(workflowName, options) {
+  const projectPath = process.cwd();
+
+  // Set UI language based on project's commit_language if initialized
+  if (!isLanguageExplicitlySet() && isInitialized(projectPath)) {
+    const manifest = readManifest(projectPath);
+    if (manifest?.options?.commit_language) {
+      const langMap = {
+        'traditional-chinese': 'zh-tw',
+        'simplified-chinese': 'zh-cn',
+        english: 'en',
+        bilingual: 'en'
+      };
+      const uiLang = langMap[manifest.options.commit_language] || 'en';
+      setLanguage(uiLang);
+    }
+  }
+
+  // Validate workflow name
+  if (!workflowName) {
+    console.log(chalk.red('Please specify a workflow name.'));
+    console.log(chalk.gray('Usage: uds workflow execute <workflow-name>'));
+    console.log();
+
+    const available = getAvailableWorkflowNames();
+    if (available.length > 0) {
+      console.log(chalk.gray('Available workflows:'));
+      for (const name of available) {
+        console.log(chalk.gray(`  - ${name}`));
+      }
+    }
+    return;
+  }
+
+  // Check if workflow exists
+  const content = getWorkflowContent(workflowName);
+  if (!content) {
+    console.log(chalk.red(`Workflow not found: ${workflowName}`));
+    const available = getAvailableWorkflowNames();
+    console.log(chalk.gray(`Available workflows: ${available.join(', ')}`));
+    return;
+  }
+
+  // Determine target AI tool
+  let targetTool = options.tool || 'claude-code';
+  const supportedTools = getWorkflowsSupportedAgents();
+
+  if (!supportedTools.includes(targetTool)) {
+    console.log(chalk.red(`AI tool '${targetTool}' does not support workflows.`));
+    console.log(chalk.gray(`Supported tools: ${supportedTools.join(', ')}`));
+    return;
+  }
+
+  // Check for resume mode
+  if (options.resume) {
+    const stateManager = new WorkflowStateManager(workflowName, projectPath);
+    if (!stateManager.exists()) {
+      console.log(chalk.yellow('No saved state found for this workflow.'));
+      console.log(chalk.gray('Starting fresh execution...'));
+      console.log();
+      options.resume = false;
+    } else if (!stateManager.canResume()) {
+      console.log(chalk.yellow('Workflow state exists but cannot be resumed.'));
+      console.log(chalk.gray('Starting fresh execution...'));
+      console.log();
+      options.resume = false;
+    }
+  }
+
+  // Create executor
+  const executor = new WorkflowExecutor({
+    aiTool: targetTool,
+    projectPath,
+    verbose: options.verbose || false,
+    dryRun: options.dryRun || false,
+    interactive: !options.yes
+  });
+
+  // Execute or resume
+  let result;
+  if (options.resume) {
+    result = await executor.resume(workflowName);
+  } else {
+    result = await executor.execute(workflowName, {
+      restart: options.restart || false
+    });
+  }
+
+  // Handle result
+  if (!result.success) {
+    if (result.paused) {
+      console.log();
+      console.log(chalk.yellow('Workflow paused.'));
+      console.log(chalk.gray('Run with --resume to continue from where you left off:'));
+      console.log(chalk.gray(`  uds workflow execute ${workflowName} --resume`));
+    } else {
+      console.log();
+      console.log(chalk.red(`Workflow execution failed: ${result.error}`));
+
+      if (result.failedStep) {
+        console.log(chalk.gray(`Failed at step: ${result.failedStep}`));
+      }
+    }
+    return;
+  }
+
+  // Success
+  if (result.dryRun) {
+    console.log();
+    console.log(chalk.cyan('Dry run complete. No changes were made.'));
+    console.log(chalk.gray('Remove --dry-run to execute the workflow.'));
+  }
+
+  console.log();
+}
+
+/**
+ * Workflow status command - show current execution status
+ * @param {string} workflowName - Name of the workflow
+ * @param {Object} options - Command options
+ */
+export async function workflowStatusCommand(workflowName, _options) {
+  const projectPath = process.cwd();
+
+  if (!workflowName) {
+    // List all workflows with saved state
+    console.log();
+    console.log(chalk.bold('📊 Workflow Execution Status'));
+    console.log(chalk.gray('─'.repeat(50)));
+    console.log();
+
+    const available = getAvailableWorkflowNames();
+    let foundAny = false;
+
+    for (const name of available) {
+      const stateManager = new WorkflowStateManager(name, projectPath);
+      if (stateManager.exists()) {
+        stateManager.load();
+        const summary = stateManager.getSummary();
+
+        if (summary) {
+          foundAny = true;
+          const statusIcon = getStatusIcon(summary.status);
+          console.log(`  ${statusIcon} ${chalk.cyan(name)}`);
+          console.log(`    Status: ${summary.status}`);
+          console.log(`    Progress: ${summary.progress.completed}/${summary.progress.total} steps`);
+
+          if (summary.currentStepId) {
+            console.log(`    Current: ${summary.currentStepId}`);
+          }
+
+          console.log();
+        }
+      }
+    }
+
+    if (!foundAny) {
+      console.log(chalk.gray('No workflows currently in progress.'));
+      console.log();
+    }
+
+    return;
+  }
+
+  // Show status for specific workflow
+  const stateManager = new WorkflowStateManager(workflowName, projectPath);
+
+  if (!stateManager.exists()) {
+    console.log(chalk.yellow(`No execution state found for workflow: ${workflowName}`));
+    return;
+  }
+
+  stateManager.load();
+  const summary = stateManager.getSummary();
+  const state = stateManager.getState();
+
+  console.log();
+  console.log(chalk.bold(`📊 Workflow Status: ${workflowName}`));
+  console.log(chalk.gray('─'.repeat(50)));
+  console.log();
+
+  console.log(`Status: ${getStatusIcon(summary.status)} ${summary.status}`);
+  console.log(`Progress: ${summary.progress.completed}/${summary.progress.total} steps (${summary.progress.percentage}%)`);
+
+  if (summary.startedAt) {
+    console.log(`Started: ${summary.startedAt}`);
+  }
+
+  if (summary.completedAt) {
+    console.log(`Completed: ${summary.completedAt}`);
+  }
+
+  console.log();
+  console.log(chalk.bold('Steps:'));
+  console.log();
+
+  for (const [stepId, stepState] of Object.entries(state.steps)) {
+    const statusIcon = getStepStatusIcon(stepState.status);
+    console.log(`  ${statusIcon} ${stepId}: ${stepState.status}`);
+
+    if (stepState.error) {
+      console.log(chalk.red(`    Error: ${stepState.error}`));
+    }
+  }
+
+  console.log();
+
+  if (stateManager.canResume()) {
+    console.log(chalk.cyan('To resume: uds workflow execute ' + workflowName + ' --resume'));
+    console.log();
+  }
+}
+
+/**
+ * Get status icon for workflow status
+ * @param {string} status - Workflow status
+ * @returns {string} Icon
+ */
+function getStatusIcon(status) {
+  switch (status) {
+    case 'completed':
+      return chalk.green('✓');
+    case 'in_progress':
+      return chalk.yellow('◐');
+    case 'paused':
+      return chalk.blue('⏸');
+    case 'failed':
+      return chalk.red('✗');
+    default:
+      return chalk.gray('○');
+  }
+}
+
+/**
+ * Get status icon for step status
+ * @param {string} status - Step status
+ * @returns {string} Icon
+ */
+function getStepStatusIcon(status) {
+  switch (status) {
+    case 'completed':
+      return chalk.green('✓');
+    case 'in_progress':
+      return chalk.yellow('◐');
+    case 'pending':
+      return chalk.gray('○');
+    case 'failed':
+      return chalk.red('✗');
+    case 'skipped':
+      return chalk.gray('⊘');
+    default:
+      return chalk.gray('○');
+  }
+}
+
 export default {
   workflowListCommand,
   workflowInstallCommand,
-  workflowInfoCommand
+  workflowInfoCommand,
+  workflowExecuteCommand,
+  workflowStatusCommand
 };

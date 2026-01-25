@@ -9,7 +9,7 @@ import { updateCommand } from '../src/commands/update.js';
 import { configureCommand } from '../src/commands/configure.js';
 import { skillsCommand } from '../src/commands/skills.js';
 import { agentListCommand, agentInstallCommand, agentInfoCommand } from '../src/commands/agent.js';
-import { workflowListCommand, workflowInstallCommand, workflowInfoCommand } from '../src/commands/workflow.js';
+import { workflowListCommand, workflowInstallCommand, workflowInfoCommand, workflowExecuteCommand, workflowStatusCommand } from '../src/commands/workflow.js';
 import { aiContextInitCommand, aiContextValidateCommand, aiContextGraphCommand } from '../src/commands/ai-context.js';
 import { setLanguage, setLanguageExplicit, detectLanguage } from '../src/i18n/messages.js';
 
@@ -148,6 +148,23 @@ workflowCommand
   .command('info <workflow-name>')
   .description('Show detailed information about a workflow')
   .action(workflowInfoCommand);
+
+workflowCommand
+  .command('execute <workflow-name>')
+  .alias('run')
+  .description('Execute a workflow step by step')
+  .option('-t, --tool <tool>', 'Target AI tool (default: claude-code)')
+  .option('--resume', 'Resume from saved state')
+  .option('--restart', 'Restart from beginning (discard saved state)')
+  .option('-v, --verbose', 'Show detailed output')
+  .option('--dry-run', 'Show steps without executing')
+  .option('-y, --yes', 'Skip confirmation prompts')
+  .action(workflowExecuteCommand);
+
+workflowCommand
+  .command('status [workflow-name]')
+  .description('Show execution status of workflows')
+  .action(workflowStatusCommand);
 
 // AI Context command with subcommands
 const aiContextCommand = program
