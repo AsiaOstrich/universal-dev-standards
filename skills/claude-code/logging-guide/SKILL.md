@@ -16,6 +16,8 @@ description: |
 
 ---
 
+> **Core Standard**: This skill implements [Logging Standards](../../../core/logging-standards.md). For comprehensive methodology documentation, refer to the core standard.
+
 ## Purpose
 
 This skill helps implement consistent, structured, and actionable application logs across all environments.

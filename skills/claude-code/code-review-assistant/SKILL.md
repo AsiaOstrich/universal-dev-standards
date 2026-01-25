@@ -16,6 +16,8 @@ description: |
 
 ---
 
+> **Core Standard**: This skill implements [Code Review Checklist](../../../core/code-review-checklist.md). For comprehensive methodology documentation, refer to the core standard.
+
 ## Purpose
 
 This skill provides systematic checklists for code review and pre-commit verification.
@@ -199,9 +201,9 @@ BLOCKING, IMPORTANT, SUGGESTION, QUESTION, NOTE
 
 ## Related Standards
 
-- [Code Review Checklist](../../core/code-review-checklist.md)
-- [Checkin Standards](../../core/checkin-standards.md)
-- [Testing Standards](../../core/testing-standards.md)
+- [Code Review Checklist](../../../core/code-review-checklist.md) - Core code review standard
+- [Checkin Standards](../../../core/checkin-standards.md) - Pre-commit quality gates
+- [Testing Standards](../../../core/testing-standards.md) - Testing requirements
 
 ---
 

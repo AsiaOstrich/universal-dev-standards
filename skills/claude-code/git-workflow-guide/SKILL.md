@@ -16,6 +16,8 @@ description: |
 
 ---
 
+> **Core Standard**: This skill implements [Git Workflow](../../../core/git-workflow.md). For comprehensive methodology documentation, refer to the core standard.
+
 ## Purpose
 
 This skill provides guidance on Git branching strategies, branch naming conventions, and merge operations.
@@ -205,9 +207,9 @@ Example: `feature/oauth-login`, `fix/memory-leak`
 
 ## Related Standards
 
-- [Git Workflow](../../core/git-workflow.md)
-- [Commit Message Guide](../../core/commit-message-guide.md)
-- [Checkin Standards](../../core/checkin-standards.md)
+- [Git Workflow](../../../core/git-workflow.md) - Core Git workflow standard
+- [Commit Message Guide](../../../core/commit-message-guide.md) - Commit message conventions
+- [Checkin Standards](../../../core/checkin-standards.md) - Pre-commit quality gates
 
 ---
 

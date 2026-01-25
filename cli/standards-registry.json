@@ -319,6 +319,12 @@
     ],
     "forward-derivation": [
       "skills/claude-code/forward-derivation/SKILL.md"
+    ],
+    "ai-friendly-architecture": [
+      "skills/claude-code/ai-friendly-architecture/SKILL.md"
+    ],
+    "ai-instruction-standards": [
+      "skills/claude-code/ai-instruction-standards/SKILL.md"
     ]
   },
   "agents": {
@@ -535,7 +541,7 @@
         "ai": "ai/standards/ai-friendly-architecture.ai.yaml"
       },
       "category": "skill",
-      "skillName": "ai-collaboration-standards",
+      "skillName": "ai-friendly-architecture",
       "level": 2,
       "description": "Standards for designing project architecture that maximizes AI collaboration effectiveness"
     },
@@ -834,8 +840,8 @@
         "human": "core/ai-instruction-standards.md",
         "ai": "ai/standards/ai-instruction-standards.ai.yaml"
       },
-      "category": "reference",
-      "skillName": null,
+      "category": "skill",
+      "skillName": "ai-instruction-standards",
       "level": 2,
       "description": "Best practices for creating AI instruction files with universal vs project-specific separation"
     },

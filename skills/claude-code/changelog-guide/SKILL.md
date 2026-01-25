@@ -16,6 +16,8 @@ description: |
 
 ---
 
+> **Core Standard**: This skill implements [Changelog Standards](../../../core/changelog-standards.md). For comprehensive methodology documentation, refer to the core standard.
+
 ## Purpose
 
 This skill helps write and maintain CHANGELOG.md files following the Keep a Changelog format, ensuring clear communication of changes to users.

@@ -16,6 +16,8 @@ description: |
 
 ---
 
+> **Core Standard**: This skill implements [Commit Message Guide](../../../core/commit-message-guide.md). For comprehensive methodology documentation, refer to the core standard.
+
 ## Purpose
 
 This skill ensures consistent, meaningful commit messages following conventional commits.
