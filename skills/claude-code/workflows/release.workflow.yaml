@@ -1,0 +1,893 @@
+# Release Workflow
+# Complete release workflow for software projects
+#
+# This workflow guides version planning, changelog update, and release creation.
+# Suitable for projects using semantic versioning and GitHub releases.
+#
+# Extended with enterprise-grade checklists, security checks, and multi-platform support.
+
+name: release
+version: 1.1.0
+description: |
+  Complete release workflow for software projects.
+  Guides version planning, changelog update, and release creation.
+  Includes security checks, multi-platform publishing, and team notification guidance.
+  Keywords: release, publish, version, changelog, 發布, 版本.
+
+metadata:
+  author: universal-dev-standards
+  category: release
+  difficulty: intermediate
+  estimated_steps: 7
+  related_skills:
+    - release-standards
+
+prerequisites:
+  - Git working directory clean (no uncommitted changes)
+  - All features for this release merged
+  - Tests passing on main/develop branch
+  - Access to create GitHub releases
+  - (Optional) GPG key configured for signed commits/tags
+
+steps:
+  # Step 1: Pre-release Verification
+  - id: verify
+    name: Pre-release Verification
+    type: agent
+    agent: test-specialist
+    phase: preparation
+    description: |
+      Run pre-release checks to ensure codebase is ready.
+      Execute ./scripts/pre-release-check.sh or equivalent.
+      Includes security, license, and dependency checks.
+    inputs:
+      - project_config
+    outputs:
+      - verification_status
+      - issues_found
+      - security_report
+    checklist:
+      # Core verification
+      - Git working directory clean
+      - All tests passing
+      - Linting passing
+      - Version files in sync
+      - Documentation up to date
+      # Security & compliance (新增)
+      - Security vulnerabilities checked (npm audit / pip-audit / cargo audit)
+      - No high/critical severity issues unresolved
+      - License compatibility verified (license-checker / pip-licenses)
+      - Dependencies up to date (npm outdated / pip list --outdated)
+      - Breaking changes documented in CHANGELOG
+    instructions: |
+      **基本檢查：**
+      ```bash
+      # 確認 Git 狀態
+      git status
+
+      # 執行測試
+      npm test  # 或 pytest / cargo test
+
+      # 執行 linting
+      npm run lint  # 或 flake8 / cargo clippy
+      ```
+
+      **Security Checks（安全檢查）：**
+
+      | 技術棧 | 指令 | 說明 |
+      |--------|------|------|
+      | Node.js | `npm audit --audit-level=high` | 檢查 npm 套件漏洞 |
+      | Node.js | `npx snyk test` | Snyk 深度掃描 |
+      | Python | `pip-audit` | 檢查 PyPI 套件漏洞 |
+      | Python | `safety check` | Safety DB 檢查 |
+      | Rust | `cargo audit` | 檢查 Cargo 套件漏洞 |
+      | Go | `govulncheck ./...` | Go 漏洞檢查 |
+
+      **處理安全漏洞：**
+      - HIGH/CRITICAL: 必須修復後才能發布
+      - MEDIUM: 建議修復，或記錄於 Release Notes
+      - LOW: 可接受，追蹤於 Issue
+
+      **License Checks（授權檢查）：**
+      ```bash
+      # Node.js - 檢查所有依賴的授權
+      npx license-checker --summary
+      npx license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC"
+
+      # Python
+      pip-licenses --format=markdown
+      pip-licenses --allow-only="MIT;Apache-2.0;BSD"
+      ```
+
+      **常見相容授權：**
+      - ✅ MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
+      - ⚠️ LGPL（需注意連結方式）
+      - ❌ GPL（若為閉源專案）
+
+      **Dependency Freshness（依賴更新狀態）：**
+      ```bash
+      # 檢查過時的依賴
+      npm outdated              # Node.js
+      pip list --outdated       # Python
+      cargo outdated            # Rust (需安裝 cargo-outdated)
+      ```
+
+      - Major 版本落後：評估是否需要升級
+      - 有已知安全漏洞：必須升級
+
+  # Step 2: Plan Version
+  - id: plan-version
+    name: Plan Version
+    type: manual
+    phase: planning
+    description: |
+      Determine the version type and number for this release.
+      Includes breaking change detection guidance.
+    instructions: |
+      **Version Types (Semantic Versioning):**
+
+      | 類型 | 格式 | 使用時機 |
+      |------|------|----------|
+      | MAJOR | X.0.0 | Breaking changes，不相容的 API 變更 |
+      | MINOR | X.Y.0 | 新功能，向後相容 |
+      | PATCH | X.Y.Z | Bug 修復，向後相容 |
+
+      **Pre-release Tags:**
+
+      | Tag | 用途 | 穩定性 |
+      |-----|------|--------|
+      | alpha | 早期測試，API 可能變更 | 不穩定 |
+      | beta | 功能完整，測試中 | 較穩定 |
+      | rc | 發布候選，最終測試 | 接近穩定 |
+
+      **Example Version Formats:**
+      - Stable: `1.2.3`
+      - Beta: `1.2.3-beta.1`
+      - Alpha: `1.2.3-alpha.1`
+      - RC: `1.2.3-rc.1`
+
+      ---
+
+      **Breaking Change Detection（破壞性變更偵測）：**
+
+      檢查以下項目判斷是否為 breaking change：
+
+      | 類別 | 檢查項目 | Breaking? |
+      |------|----------|-----------|
+      | API | 函式/方法簽名變更（參數、回傳值） | ✅ |
+      | API | 移除已發布的 public API | ✅ |
+      | API | 變更 API 預設行為 | ✅ |
+      | Config | 設定檔格式不相容變更 | ✅ |
+      | Data | 資料庫 schema 不相容變更 | ✅ |
+      | Env | 最低版本需求提升（Node.js、Python 等） | ✅ |
+      | API | 新增可選參數 | ❌ |
+      | API | 新增新的 API | ❌ |
+      | Fix | Bug 修復（即使改變行為） | ❌ |
+
+      **Deprecation Policy（棄用政策）：**
+
+      建議的棄用流程：
+      1. **MINOR 版本**：標記 deprecated，加入警告訊息
+         ```javascript
+         /** @deprecated Use newFunction() instead. Will be removed in v3.0.0 */
+         function oldFunction() { ... }
+         ```
+         ```python
+         import warnings
+         warnings.warn("oldFunction is deprecated, use newFunction instead", DeprecationWarning)
+         ```
+      2. **下一個 MAJOR 版本**：移除 deprecated 功能
+      3. 在 CHANGELOG 的 Deprecated section 記錄
+
+      **版本決策流程：**
+      ```
+      有 breaking changes？
+        ├─ 是 → MAJOR (X.0.0)
+        └─ 否 → 有新功能？
+                  ├─ 是 → MINOR (X.Y.0)
+                  └─ 否 → PATCH (X.Y.Z)
+      ```
+
+      **決定版本號時考慮：**
+      1. 本次發布包含哪些變更？
+      2. 是否有破壞性變更（breaking changes）？
+      3. 是否需要先發布預發布版本進行測試？
+      4. 上次發布到現在的變更量？
+    inputs:
+      - verification_status
+    outputs:
+      - version_type
+      - new_version
+      - release_type
+      - has_breaking_changes
+    checklist:
+      - Version type selected (major/minor/patch)
+      - New version number determined
+      - Release type decided (stable/beta/alpha/rc)
+      - Breaking changes identified and documented
+      - Deprecation notices added (if applicable)
+
+  # Step 3: Update CHANGELOG
+  - id: update-changelog
+    name: Update CHANGELOG
+    type: agent
+    agent: doc-writer
+    phase: documentation
+    description: |
+      Update CHANGELOG.md with changes for this release.
+      Follow Keep a Changelog format.
+      Includes guidance for auto-generating from commits and PRs.
+    inputs:
+      - new_version
+      - has_breaking_changes
+    outputs:
+      - changelog_entry
+    checklist:
+      - Added section for new version
+      - Date included (YYYY-MM-DD format)
+      - Changes categorized (Added/Changed/Fixed/Deprecated/Removed/Security)
+      - Breaking changes clearly marked (⚠️)
+      - Links updated (comparison URL)
+      - Issue/PR references included
+    instructions: |
+      **CHANGELOG Format (Keep a Changelog):**
+
+      ```markdown
+      ## [X.Y.Z] - YYYY-MM-DD
+
+      ### Added
+      - New features
+
+      ### Changed
+      - Changes in existing functionality
+
+      ### Deprecated
+      - Soon-to-be removed features
+
+      ### Removed
+      - Removed features
+
+      ### Fixed
+      - Bug fixes
+
+      ### Security
+      - Security fixes
+      ```
+
+      ---
+
+      **自動生成變更來源：**
+
+      可從以下來源收集變更：
+
+      1. **Git Commits：**
+         ```bash
+         # 列出上次 release 到現在的所有 commits
+         git log --oneline vPREV..HEAD
+
+         # 更詳細的格式
+         git log --pretty=format:"- %s (%h)" vPREV..HEAD
+         ```
+
+      2. **GitHub Pull Requests：**
+         ```bash
+         # 列出已合併的 PR
+         gh pr list --state merged --base main --limit 50
+
+         # 查看特定 PR 的詳細資訊
+         gh pr view <number>
+         ```
+
+      3. **GitHub Issues（標記為 changelog）：**
+         ```bash
+         gh issue list --label changelog --state closed
+         ```
+
+      ---
+
+      **Conventional Commits 對應表：**
+
+      | Commit Type | CHANGELOG Section | 說明 |
+      |-------------|-------------------|------|
+      | `feat:` | Added | 新功能 |
+      | `fix:` | Fixed | Bug 修復 |
+      | `perf:` | Changed | 效能改善 |
+      | `refactor:` | Changed | 重構（無功能變更） |
+      | `docs:` | (通常省略) | 文件更新 |
+      | `style:` | (通常省略) | 格式調整 |
+      | `test:` | (通常省略) | 測試相關 |
+      | `chore:` | (通常省略) | 維護任務 |
+      | `BREAKING CHANGE:` | Changed (標記 ⚠️) | 破壞性變更 |
+      | `security:` | Security | 安全修復 |
+      | `deprecate:` | Deprecated | 棄用功能 |
+
+      ---
+
+      **撰寫指引：**
+
+      ✅ **DO:**
+      - 面向使用者撰寫，非開發者
+      - 說明「影響」而非「實作細節」
+      - 包含相關 Issue/PR 連結
+      - Breaking changes 使用 ⚠️ 標記
+
+      **Good Example:**
+      ```markdown
+      ### Added
+      - Add support for custom themes (#123)
+      - New `--verbose` flag for detailed output (#125)
+
+      ### Changed
+      - ⚠️ **BREAKING**: Configuration file format changed from JSON to YAML
+        - Migration guide: [docs/migration-v3.md](docs/migration-v3.md)
+
+      ### Fixed
+      - Fix crash when input file is empty (#128)
+      ```
+
+      ❌ **DON'T:**
+      ```markdown
+      ### Changed
+      - Refactored the config parser module
+      - Updated dependencies
+      - Fixed typo in variable name
+      ```
+
+      ---
+
+      **版本連結（底部）：**
+      ```markdown
+      [X.Y.Z]: https://github.com/owner/repo/compare/vPREV...vX.Y.Z
+      [PREV]: https://github.com/owner/repo/compare/vOLDER...vPREV
+      ```
+
+  # Step 4: Sync Version Files
+  - id: sync-versions
+    name: Sync Version Files
+    type: agent
+    agent: code-architect
+    phase: execution
+    description: |
+      Update version in all required files.
+      Ensure all version references are synchronized.
+      Includes multi-technology stack examples.
+    inputs:
+      - new_version
+      - release_type
+    outputs:
+      - files_updated
+    checklist:
+      - package.json updated (if Node.js)
+      - pyproject.toml updated (if Python)
+      - Other version files synced (project-specific)
+      - Version strings consistent across all files
+      - Lock files regenerated if needed
+    instructions: |
+      **常見版本檔案位置：**
+
+      | 技術棧 | 檔案 | 欄位/格式 |
+      |--------|------|-----------|
+      | Node.js | `package.json` | `"version": "X.Y.Z"` |
+      | Node.js | `package-lock.json` | 自動更新（npm install 後） |
+      | Python | `pyproject.toml` | `[project] version = "X.Y.Z"` |
+      | Python | `setup.py` | `version="X.Y.Z"` |
+      | Python | `__init__.py` | `__version__ = "X.Y.Z"` |
+      | Rust | `Cargo.toml` | `[package] version = "X.Y.Z"` |
+      | Java/Gradle | `build.gradle` | `version = "X.Y.Z"` |
+      | Java/Maven | `pom.xml` | `<version>X.Y.Z</version>` |
+      | Go | `version.go` | `const Version = "X.Y.Z"` |
+      | General | `VERSION` | Plain text: `X.Y.Z` |
+      | General | `.version` | Plain text: `X.Y.Z` |
+      | Docs | `README.md` | Badge URL 或 Version 欄位 |
+
+      ---
+
+      **更新指令範例：**
+
+      **Node.js:**
+      ```bash
+      # 更新 package.json（不自動建立 git tag）
+      npm version X.Y.Z --no-git-tag-version
+
+      # 或手動編輯後重新安裝以更新 lock file
+      npm install
+      ```
+
+      **Python (使用 bump2version):**
+      ```bash
+      # 安裝
+      pip install bump2version
+
+      # 更新版本
+      bump2version patch  # 或 minor / major
+      bump2version --new-version X.Y.Z patch
+      ```
+
+      **通用 (sed):**
+      ```bash
+      # macOS
+      sed -i '' 's/OLD_VERSION/NEW_VERSION/g' file
+
+      # Linux
+      sed -i 's/OLD_VERSION/NEW_VERSION/g' file
+      ```
+
+      ---
+
+      **Monorepo 考量：**
+
+      | 策略 | 說明 | 適用場景 |
+      |------|------|----------|
+      | Fixed/Locked | 所有 packages 使用相同版本 | 緊密耦合的專案 |
+      | Independent | 每個 package 獨立版本 | 鬆散耦合的專案 |
+
+      **常用 Monorepo 工具：**
+      - **Lerna**: `lerna version --conventional-commits`
+      - **Changesets**: `npx changeset version`
+      - **Turborepo**: 配合 changesets 使用
+
+      ---
+
+      **UDS 專案版本檔案（供參考）：**
+      ```
+      cli/package.json              → "version"
+      cli/standards-registry.json   → "version" (3 places)
+      .claude-plugin/plugin.json    → "version"
+      .claude-plugin/marketplace.json → "version"
+      README.md                     → **Version**: (stable only)
+      ```
+
+  # Step 5: Commit and Tag
+  - id: commit-tag
+    name: Commit and Tag
+    type: manual
+    phase: execution
+    description: |
+      Create git commit and tag for the release.
+      Includes GPG signing and protected branch handling.
+    instructions: |
+      **基本流程：**
+
+      1. **Stage all changed files:**
+         ```bash
+         git add -A
+         ```
+
+      2. **Commit with release message:**
+         ```bash
+         git commit -m "chore(release): vX.Y.Z"
+         ```
+
+      3. **Create annotated tag:**
+         ```bash
+         git tag -a vX.Y.Z -m "Release vX.Y.Z"
+         ```
+
+      4. **Push commit and tags:**
+         ```bash
+         git push && git push --tags
+         ```
+
+      **Note:** Replace X.Y.Z with the actual version number.
+
+      ---
+
+      **GPG 簽名（建議用於正式發布）：**
+
+      GPG 簽名可驗證 commit/tag 確實來自授權的發布者。
+
+      ```bash
+      # 檢查 GPG 設定
+      git config --get user.signingkey
+
+      # 簽名 commit
+      git commit -S -m "chore(release): vX.Y.Z"
+
+      # 簽名 tag
+      git tag -s vX.Y.Z -m "Release vX.Y.Z"
+
+      # 驗證 tag 簽名
+      git verify-tag vX.Y.Z
+
+      # 設定預設簽名（全域）
+      git config --global commit.gpgsign true
+      git config --global tag.gpgsign true
+      ```
+
+      **GitHub 顯示：**
+      - 簽名的 commits 會顯示 "Verified" 綠色標籤
+
+      ---
+
+      **Protected Branch 處理：**
+
+      若 main/master 分支有保護規則（如需要 PR 審核）：
+
+      **方法 1：Release Branch（推薦）**
+      ```bash
+      # 1. 建立 release branch
+      git checkout -b release/vX.Y.Z
+
+      # 2. 在此 branch 完成版本更新
+      git add -A
+      git commit -m "chore(release): vX.Y.Z"
+
+      # 3. 推送並建立 PR
+      git push -u origin release/vX.Y.Z
+      gh pr create --title "Release vX.Y.Z" --body "Release preparation"
+
+      # 4. PR 通過審核後合併
+
+      # 5. 在 main 上建立 tag
+      git checkout main
+      git pull
+      git tag -a vX.Y.Z -m "Release vX.Y.Z"
+      git push --tags
+      ```
+
+      **方法 2：Branch Protection Exception**
+      - 在 repo settings 中為 release bot 或特定用戶設定 bypass
+
+      ---
+
+      **Tag 命名慣例：**
+
+      | 格式 | 範例 | 說明 |
+      |------|------|------|
+      | 有 v prefix | `v1.2.3` | 較常見 |
+      | 無 v prefix | `1.2.3` | 部分專案使用 |
+      | Pre-release | `v1.2.3-beta.1` | 預發布版本 |
+
+      ⚠️ **重要：選定一種格式後保持一致！**
+
+    inputs:
+      - new_version
+      - files_updated
+    outputs:
+      - commit_sha
+      - tag_name
+    checklist:
+      - All changes staged
+      - Commit created with proper message
+      - Tag created with proper format (annotated)
+      - GPG signed (if configured)
+      - Pushed to remote
+      - Protected branch rules satisfied
+
+  # Step 6: Create GitHub Release
+  - id: create-release
+    name: Create GitHub Release
+    type: manual
+    phase: execution
+    description: |
+      Create GitHub Release from the tag.
+      Includes multi-platform publishing options.
+    instructions: |
+      **GitHub Release（主要）：**
+
+      **Option 1: GitHub CLI (推薦)**
+      ```bash
+      # 從檔案讀取 release notes
+      gh release create vX.Y.Z \
+        --title "vX.Y.Z" \
+        --notes-file RELEASE_NOTES.md
+
+      # 或內嵌 notes
+      gh release create vX.Y.Z \
+        --title "vX.Y.Z" \
+        --notes "$(cat <<'EOF'
+      ## What's Changed
+      - Feature 1
+      - Bug fix 2
+
+      **Full Changelog**: https://github.com/owner/repo/compare/vPREV...vX.Y.Z
+      EOF
+      )"
+      ```
+
+      **Pre-release:**
+      ```bash
+      gh release create vX.Y.Z-beta.1 \
+        --title "vX.Y.Z Beta 1" \
+        --prerelease \
+        --notes "Beta release for testing. Not recommended for production."
+      ```
+
+      **Option 2: GitHub Web UI**
+      1. Repository → Releases → "Draft a new release"
+      2. Select the tag (vX.Y.Z)
+      3. Set title: vX.Y.Z
+      4. Copy CHANGELOG entry as release notes
+      5. Check "Set as the latest release" (for stable)
+      6. Click "Publish release"
+
+      ---
+
+      **npm 發布（Node.js 專案）：**
+
+      ```bash
+      # Stable release (latest tag)
+      npm publish
+
+      # Beta release
+      npm publish --tag beta
+
+      # Alpha release
+      npm publish --tag alpha
+
+      # Dry run（測試，不實際發布）
+      npm publish --dry-run
+
+      # 驗證發布
+      npm info <package-name> versions
+      ```
+
+      **npm 2FA 注意事項：**
+      - 若啟用 2FA，可能需要 `--otp=XXXXXX`
+      - 或使用 automation token（CI/CD 用）
+
+      ---
+
+      **PyPI 發布（Python 專案）：**
+
+      ```bash
+      # 安裝建置工具
+      pip install build twine
+
+      # 建置
+      python -m build
+
+      # 上傳到 PyPI
+      twine upload dist/*
+
+      # 或先測試（TestPyPI）
+      twine upload --repository testpypi dist/*
+      pip install --index-url https://test.pypi.org/simple/ <package-name>
+      ```
+
+      **PyPI API Token:**
+      - 建議使用 project-scoped token
+      - 設定 `~/.pypirc` 或環境變數 `TWINE_USERNAME=__token__`
+
+      ---
+
+      **Docker Image（容器化專案）：**
+
+      ```bash
+      # Build
+      docker build -t myapp:vX.Y.Z .
+
+      # 多重 tag
+      docker tag myapp:vX.Y.Z myapp:latest
+      docker tag myapp:vX.Y.Z myapp:X.Y
+      docker tag myapp:vX.Y.Z myapp:X
+
+      # Push to registry
+      docker push myapp:vX.Y.Z
+      docker push myapp:latest
+
+      # Multi-platform build (ARM + AMD64)
+      docker buildx build --platform linux/amd64,linux/arm64 \
+        -t myapp:vX.Y.Z --push .
+      ```
+
+      ---
+
+      **發布 Assets（二進位檔案）：**
+
+      ```bash
+      # 上傳 assets 到 GitHub Release
+      gh release upload vX.Y.Z ./dist/myapp-linux-amd64 ./dist/myapp-darwin-amd64
+
+      # 產生 checksums
+      sha256sum ./dist/* > checksums.txt
+      gh release upload vX.Y.Z checksums.txt
+      ```
+
+      **建議包含的 Assets：**
+      - Binary 檔案（各平台）
+      - SHA256 checksums（`checksums.txt` 或 `.sha256`）
+      - 簽名檔案（`.sig` 或 `.asc`）
+
+    inputs:
+      - tag_name
+      - changelog_entry
+      - release_type
+    outputs:
+      - release_url
+      - package_published
+    checklist:
+      - Release created on GitHub
+      - Correct tag selected
+      - Release notes accurate
+      - Pre-release flag set if applicable
+      - Package published (npm/pypi/docker if applicable)
+      - Assets uploaded (if applicable)
+      - Checksums provided (if applicable)
+
+  # Step 7: Post-release Tasks
+  - id: post-release
+    name: Post-release Tasks
+    type: agent
+    agent: doc-writer
+    phase: verification
+    description: |
+      Verify release and perform post-release tasks.
+      Includes notification and announcement guidance.
+    inputs:
+      - release_url
+      - new_version
+      - release_type
+    outputs:
+      - verification_complete
+      - announcement_draft
+    checklist:
+      # Verification
+      - Release published successfully
+      - Package available (if npm/pypi/docker)
+      - Documentation reflects new version
+      # Housekeeping
+      - README badges updated (version, build status)
+      - Related issues closed with release note reference
+      - Related PRs linked to release
+      - Milestone closed (if using)
+      # Communication
+      - Announcement prepared (if major release)
+      - Team notified
+      # Operations
+      - Monitoring alerts configured for new version (if applicable)
+      - Rollback plan documented (if major release)
+    instructions: |
+      **驗證發布：**
+
+      ```bash
+      # GitHub Release
+      gh release view vX.Y.Z
+
+      # npm
+      npm info <package-name> version
+      npm info <package-name> dist-tags
+
+      # PyPI
+      pip index versions <package-name>
+
+      # Docker
+      docker pull myapp:vX.Y.Z
+      docker inspect myapp:vX.Y.Z
+      ```
+
+      ---
+
+      **Issue/PR 清理：**
+
+      ```bash
+      # 關閉相關 issues
+      gh issue close <number> --comment "Fixed in vX.Y.Z"
+
+      # 批次更新 milestone
+      gh issue list --milestone "vX.Y.Z" --state open
+      gh issue edit <number> --milestone "vX.Y.Z"
+
+      # 關閉 milestone
+      gh api repos/{owner}/{repo}/milestones/{number} -X PATCH -f state=closed
+      ```
+
+      ---
+
+      **通知管道（依需要選用）：**
+
+      **1. Slack/Discord:**
+      ```
+      🚀 Released <project> vX.Y.Z
+
+      **Highlights:**
+      • Feature A
+      • Bug fix B
+
+      📦 Install: `npm i <package>@X.Y.Z`
+      📝 Release: <release_url>
+      ```
+
+      **2. Twitter/X:**
+      ```
+      🎉 <Project> vX.Y.Z is out!
+
+      ✨ New: Feature A
+      🐛 Fixed: Bug B
+
+      📦 npm i <package>
+      📝 Changelog: <url>
+
+      #opensource #release
+      ```
+
+      **3. Email Newsletter（重大版本）：**
+      - 詳細功能說明
+      - 升級指南
+      - Breaking changes 警告
+
+      **4. Blog Post（MAJOR 版本）：**
+      - 版本願景與方向
+      - 詳細功能介紹
+      - Migration guide
+      - 感謝貢獻者
+
+      ---
+
+      **README Badge 更新：**
+
+      ```markdown
+      <!-- npm version badge -->
+      ![npm version](https://img.shields.io/npm/v/<package-name>)
+
+      <!-- pypi version badge -->
+      ![PyPI version](https://img.shields.io/pypi/v/<package-name>)
+
+      <!-- GitHub release badge -->
+      ![GitHub release](https://img.shields.io/github/v/release/owner/repo)
+      ```
+
+      ---
+
+      **Rollback Plan（重大版本）：**
+
+      記錄回滾步驟以備不時之需：
+      1. 如何回滾到前一版本
+      2. 資料庫回滾步驟（如有 migration）
+      3. 相依服務的處理
+      4. 通知用戶的範本
+
+      ---
+
+      **下一版本準備：**
+
+      ```bash
+      # 建立下一個 milestone
+      gh api repos/{owner}/{repo}/milestones -X POST \
+        -f title="vX.Y+1.0" \
+        -f description="Next minor release"
+      ```
+
+outputs:
+  - name: release_url
+    description: URL to the published GitHub release
+    format: url
+
+  - name: new_version
+    description: The version number that was released
+    format: semver
+
+  - name: changelog_entry
+    description: The CHANGELOG content for this release
+    format: markdown
+
+  - name: security_report
+    description: Security audit results from pre-release checks
+    format: text
+
+completion_criteria:
+  - All pre-release checks passed (including security)
+  - Version files synchronized
+  - CHANGELOG updated with proper categorization
+  - Git tag created and pushed (signed if configured)
+  - GitHub release published
+  - Package published to registry (if applicable)
+  - Post-release verification completed
+  - Team notified (if applicable)
+
+# Project-specific configuration example
+# Override this section for your project
+project_config:
+  # Example: UDS project version files
+  # version_files:
+  #   - cli/package.json
+  #   - cli/standards-registry.json
+  #   - .claude-plugin/plugin.json
+  #   - .claude-plugin/marketplace.json
+  #   - README.md (stable releases only)
+  # pre_release_script: ./scripts/pre-release-check.sh
+  # security_checks:
+  #   - npm audit --audit-level=high
+  # license_policy:
+  #   allowed: [MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC]
+  #   denied: [GPL-3.0, AGPL-3.0]
