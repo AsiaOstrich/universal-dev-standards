@@ -3,8 +3,8 @@
 
 id: anti-hallucination
 meta:
-  version: "1.4.0"
-  updated: "2026-01-19"
+  version: "1.5.0"
+  updated: "2026-01-25"
   source: core/anti-hallucination.md
   description: Strict guidelines for AI assistants to prevent hallucination
 
@@ -44,17 +44,40 @@ principles:
 
   certainty_classification:
     rule: Clearly distinguish between confirmed facts, inferences, and unknowns
-    tags:
-      - tag: "[Confirmed]"
-        use_when: Direct evidence from code/docs
-      - tag: "[Inferred]"
-        use_when: Logical deduction from available evidence
-      - tag: "[Assumption]"
-        use_when: Based on common patterns (needs verification)
-      - tag: "[Unknown]"
-        use_when: Information not available
-      - tag: "[Need Confirmation]"
-        use_when: Requires user clarification
+    note: Uses Unified Tag System with two complementary tag categories
+    certainty_tags:
+      description: For analyzing existing content
+      tags:
+        - tag: "[Confirmed]"
+          use_when: Direct evidence from code/docs
+        - tag: "[Inferred]"
+          use_when: Logical deduction from available evidence
+        - tag: "[Assumption]"
+          use_when: Based on common patterns (needs verification)
+        - tag: "[Unknown]"
+          use_when: Information not available
+        - tag: "[Need Confirmation]"
+          use_when: Requires user clarification
+    derivation_tags:
+      description: For generating new content from approved sources
+      tags:
+        - tag: "[Source]"
+          use_when: Direct content from spec/requirement (verbatim)
+        - tag: "[Derived]"
+          use_when: Transformed from source content
+        - tag: "[Generated]"
+          use_when: AI-generated structure
+        - tag: "[TODO]"
+          use_when: Requires human implementation
+    workflow_mapping:
+      - workflow: Code analysis
+        primary_tags: Certainty Tags
+      - workflow: Reverse engineering
+        primary_tags: Certainty Tags
+      - workflow: Forward derivation
+        primary_tags: Derivation Tags
+      - workflow: Spec generation
+        primary_tags: Derivation Tags
 
 prohibited_behaviors:
   - id: fabricate-apis
@@ -145,6 +168,7 @@ quick_reference:
       - ["[Source: User]", "⭐⭐⭐", User conversation]
 
   certainty_tags:
+    description: For analyzing existing content
     columns: [Tag, Use When]
     rows:
       - ["[Confirmed]", Direct evidence from code/docs]
@@ -152,3 +176,20 @@ quick_reference:
       - ["[Assumption]", Common patterns (verify)]
       - ["[Unknown]", Information not available]
       - ["[Need Confirmation]", Requires clarification]
+
+  derivation_tags:
+    description: For generating new content
+    columns: [Tag, Use When]
+    rows:
+      - ["[Source]", Direct content from spec/requirement]
+      - ["[Derived]", Transformed from source content]
+      - ["[Generated]", AI-generated structure]
+      - ["[TODO]", Requires human implementation]
+
+  workflow_tag_mapping:
+    columns: [Workflow, Primary Tags]
+    rows:
+      - [Code analysis, Certainty Tags]
+      - [Reverse engineering, Certainty Tags]
+      - [Forward derivation, Derivation Tags]
+      - [Spec generation, Derivation Tags]

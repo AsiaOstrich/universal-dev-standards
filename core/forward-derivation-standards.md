@@ -1,7 +1,7 @@
 # Forward Derivation Standards | 正向推演標準
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-19
+**Version**: 1.1.0
+**Last Updated**: 2026-01-25
 **Applicability**: All projects using Spec-Driven Development
 
 > **Language**: [English](../core/forward-derivation-standards.md) | [繁體中文](../locales/zh-TW/core/forward-derivation-standards.md)
@@ -54,6 +54,7 @@ This standard defines the principles and workflows for Forward Derivation—auto
 | **Generate BDD** | Transform AC to Gherkin scenarios | .feature files | [Generated] |
 | **Generate TDD** | Create test skeletons from AC | Test files with TODOs | [Generated] |
 | **Generate ATDD** | Create acceptance test tables | Markdown test tables | [Generated] |
+| **Generate Contracts** | Extract pre/post conditions | contract.json, schema.json | [Generated] |
 | **Human Review** | Verify generated outputs | Approved test structures | [Reviewed] |
 
 ---
@@ -306,6 +307,94 @@ describe('SPEC-001: User Authentication', () => {
 **Notes**: _______________
 ```
 
+### Contract Output (contract.json)
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "metadata": {
+    "generatedFrom": "specs/SPEC-001.md",
+    "generatedAt": "2026-01-25T10:00:00Z",
+    "generator": "forward-derivation v1.1.0",
+    "acCoverage": ["AC-1", "AC-2"]
+  },
+  "contracts": [
+    {
+      "id": "AC-1",
+      "name": "User login with valid credentials",
+      "preconditions": [
+        { "type": "state", "description": "User is registered in system" },
+        { "type": "input", "description": "Valid email and password provided" }
+      ],
+      "postconditions": [
+        { "type": "state", "description": "User session created" },
+        { "type": "output", "description": "Redirect to dashboard" }
+      ],
+      "invariants": [
+        { "description": "Session token is cryptographically secure" }
+      ]
+    },
+    {
+      "id": "AC-2",
+      "name": "Login fails with invalid credentials",
+      "preconditions": [
+        { "type": "input", "description": "Invalid credentials provided" }
+      ],
+      "postconditions": [
+        { "type": "state", "description": "No session created" },
+        { "type": "output", "description": "Error message displayed" }
+      ]
+    }
+  ]
+}
+```
+
+### Schema Output (schema.json)
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "metadata": {
+    "generatedFrom": "specs/SPEC-001.md",
+    "generatedAt": "2026-01-25T10:00:00Z",
+    "generator": "forward-derivation v1.1.0"
+  },
+  "schemas": {
+    "LoginRequest": {
+      "type": "object",
+      "required": ["email", "password"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "[Source] SPEC-001 AC-1: Valid email required"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "description": "[Source] SPEC-001 AC-1: Password required"
+        }
+      }
+    },
+    "LoginResponse": {
+      "type": "object",
+      "required": ["success"],
+      "properties": {
+        "success": { "type": "boolean" },
+        "sessionToken": {
+          "type": "string",
+          "description": "[Source] SPEC-001 AC-1: Session token on success"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "[Source] SPEC-001 AC-2: Error message on failure"
+        }
+      }
+    }
+  }
+}
+```
+
 ---
 
 ## Bullet-to-GWT Transformation
@@ -400,7 +489,8 @@ spec-review → forward-derivation → discovery
 | `/derive-bdd` | SPEC-XXX.md | .feature | AC → Gherkin scenarios |
 | `/derive-tdd` | SPEC-XXX.md | .test.ts | AC → Test skeletons |
 | `/derive-atdd` | SPEC-XXX.md | acceptance.md | AC → Acceptance test tables |
-| `/derive-all` | SPEC-XXX.md | All above | Full derivation pipeline |
+| `/derive-contracts` | SPEC-XXX.md | contract.json, schema.json | AC → Contract and schema definitions |
+| `/derive-all` | SPEC-XXX.md | All above | Full derivation pipeline (BDD + TDD + ATDD + Contracts) |
 
 ### Command Parameters
 
@@ -420,7 +510,10 @@ spec-review → forward-derivation → discovery
 # Generate TDD test skeleton with Python/pytest
 /derive-tdd specs/SPEC-001.md --lang python --framework pytest
 
-# Generate all outputs
+# Generate contract and schema definitions for verification
+/derive-contracts specs/SPEC-001.md --output-dir ./contracts
+
+# Generate all outputs (BDD + TDD + ATDD + Contracts)
 /derive-all specs/SPEC-001.md --output-dir ./generated
 
 # Preview without creating files
@@ -497,10 +590,40 @@ spec-review → forward-derivation → discovery
 
 ---
 
+## References
+
+### Books
+
+- Steve Freeman & Nat Pryce - "Growing Object-Oriented Software, Guided by Tests" (2009) - Double-Loop TDD pattern foundation
+- Gojko Adzic - "Specification by Example" (2011) - Specification to test derivation concepts
+
+### Online Resources
+
+#### Contract Testing
+
+- [Microsoft: Consumer-Driven Contract Testing](https://microsoft.github.io/code-with-engineering-playbook/automated-testing/cdc-testing/) - Engineering playbook on CDC testing
+- [BrowserStack: Contract Testing Guide](https://www.browserstack.com/guide/contract-testing) - Comprehensive contract testing overview
+- [Specmatic: AI-powered API Contract Testing](https://specmatic.io/) - Modern contract-first development tool
+
+#### Verification Theory
+
+- [Wikipedia: Formal Verification](https://en.wikipedia.org/wiki/Formal_verification) - Theoretical foundations of verification
+- [Wikipedia: Design by Contract](https://en.wikipedia.org/wiki/Design_by_contract) - Bertrand Meyer's DbC concept (1986)
+
+#### SDD & Forward Derivation
+
+- [Thoughtworks: Spec-Driven Development](https://www.thoughtworks.com/en-us/insights/blog/agile-engineering-practices/spec-driven-development-unpacking-2025-new-engineering-practices) - SDD methodology definition
+- [Martin Fowler: SDD Tools (Kiro, spec-kit, Tessl)](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html) - AI-era SDD tooling exploration
+- [GitHub spec-kit](https://github.com/github/spec-kit/blob/main/spec-driven.md) - GitHub's SDD implementation
+- [InfoQ: Spec-Driven Development](https://www.infoq.com/articles/spec-driven-development/) - SDD practices overview
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-25 | Added: Contract output (contract.json), Schema output (schema.json), /derive-contracts command for verification artifact generation |
 | 1.0.0 | 2026-01-19 | Initial release |
 
 ---

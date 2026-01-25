@@ -1,7 +1,7 @@
 # Behavior-Driven Development (BDD) Standards
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-19
+**Version**: 1.1.0
+**Last Updated**: 2026-01-25
 **Applicability**: All projects adopting Behavior-Driven Development
 
 > **Language**: [English](../core/behavior-driven-development.md) | [繁體中文](../locales/zh-TW/core/behavior-driven-development.md)
@@ -18,6 +18,72 @@ This standard defines the principles, workflows, and best practices for Behavior
 - Tests written in natural language that stakeholders can read and validate
 - Reduced ambiguity in requirements through concrete examples
 - Improved collaboration through Three Amigos sessions
+
+---
+
+## Methodology Classification
+
+> **Classification**: Traditional Development Methodology (2006)
+
+BDD is part of the **traditional test-driven development family** that evolved from TDD. It is distinct from the **AI-era SDD (Spec-Driven Development)** methodology.
+
+### Historical Context
+
+| Methodology | Era | Origin | Focus |
+|-------------|-----|--------|-------|
+| **TDD** | 1999 | Kent Beck, XP | Tests drive code design |
+| **BDD** | 2006 | Dan North | Behavior drives tests |
+| **ATDD** | 2003-2006 | GOOS, Gojko Adzic | Acceptance drives development |
+| **SDD** | 2025+ | Thoughtworks, Martin Fowler | Specs drive generation (AI-era) |
+
+### Double-Loop TDD (GOOS)
+
+BDD and TDD form the **Double-Loop TDD** pattern described in "Growing Object-Oriented Software, Guided by Tests" (Freeman & Pryce, 2009):
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    Double-Loop TDD (GOOS)                     │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│   ┌─────────────────────────────────────────────────────┐   │
+│   │  BDD (Outer Loop) - Hours to Days                    │   │
+│   │  ├─ User/Business perspective                        │   │
+│   │  ├─ Given-When-Then scenarios                        │   │
+│   │  └─ Feature-level acceptance                         │   │
+│   │        ↓                                             │   │
+│   │   ┌─────────────────────────────────────────────┐   │   │
+│   │   │  TDD (Inner Loop) - Minutes                  │   │   │
+│   │   │  ├─ Code/Implementation perspective          │   │   │
+│   │   │  └─ Red → Green → Refactor                   │   │   │
+│   │   └─────────────────────────────────────────────┘   │   │
+│   └─────────────────────────────────────────────────────┘   │
+│                                                              │
+│   Key: BDD → TDD (not ATDD → SDD → BDD → TDD)               │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Relationship to SDD
+
+SDD's Forward Derivation **generates** BDD scenarios from specifications:
+
+```
+SDD: Spec → /derive-bdd → .feature files → BDD Workflow
+```
+
+BDD can be used to **refine** the generated scenarios with stakeholders, but BDD is not part of the SDD methodology itself.
+
+### Collaborative Acceptance (Formerly ATDD Focus)
+
+BDD naturally incorporates collaborative acceptance practices:
+
+- **Three Amigos**: Customer/PO + Developer + Tester
+- **Specification Workshop**: (Optional) Define AC together before development
+- **Given-When-Then**: Shared language for acceptance criteria
+
+> **Note**: Formal ATDD workshops are optional. Teams may define AC through any input method (interviews, PRDs, emails) and still use BDD effectively.
+
+**Reference**: [Spec-Driven Development Standards](spec-driven-development.md)
 
 ---
 
@@ -708,7 +774,7 @@ Team BDD Assessment:
 - [Acceptance Test-Driven Development](acceptance-test-driven-development.md) - ATDD standards
 - [Spec-Driven Development](spec-driven-development.md) - SDD workflow
 - [Testing Standards](testing-standards.md) - Core testing standards
-- [Test Completeness Dimensions](test-completeness-dimensions.md) - 7 dimensions framework
+- [Test Completeness Dimensions](test-completeness-dimensions.md) - 8 dimensions framework
 - [Code Check-in Standards](checkin-standards.md) - Check-in requirements
 
 ---
@@ -718,6 +784,7 @@ Team BDD Assessment:
 ### Books
 
 - Dan North - "Introducing BDD" (2006, Blog Post)
+- Steve Freeman & Nat Pryce - "Growing Object-Oriented Software, Guided by Tests" (2009) - Defines the Double-Loop TDD pattern (BDD outer loop + TDD inner loop)
 - Gojko Adzic - "Specification by Example" (2011)
 - Gojko Adzic - "Bridging the Communication Gap" (2009)
 - Seb Rose & Matt Wynne - "The Cucumber Book" (2017)
@@ -725,11 +792,13 @@ Team BDD Assessment:
 
 ### Online Resources
 
+- [Introducing BDD - Dan North (Original Article)](https://dannorth.net/introducing-bdd/) - The original article that introduced BDD in 2006
 - [Cucumber Documentation](https://cucumber.io/docs)
 - [BDD 101 - Automation Panda](https://automationpanda.com/bdd/)
 - [Example Mapping - Cucumber Blog](https://cucumber.io/blog/bdd/example-mapping-introduction/)
 - [Gherkin Reference](https://cucumber.io/docs/gherkin/reference/)
 - [Three Amigos - Agile Alliance](https://www.agilealliance.org/glossary/three-amigos/)
+- [Wikipedia: Behavior-driven development](https://en.wikipedia.org/wiki/Behavior-driven_development)
 
 ### Standards
 
@@ -742,6 +811,7 @@ Team BDD Assessment:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-25 | Added: Methodology Classification section (Traditional Development Methodology designation, Double-Loop TDD explanation, relationship to SDD) |
 | 1.0.0 | 2026-01-19 | Initial BDD standard definition |
 
 ---

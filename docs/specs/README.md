@@ -3,7 +3,7 @@
 > **Language**: English | 繁體中文
 
 **Version**: 1.0.0
-**Last Updated**: 2026-01-24
+**Last Updated**: 2026-01-25
 
 This directory contains all specification documents for the Universal Development Standards project.
 
@@ -27,7 +27,13 @@ docs/specs/
     │   └── skills-installation.md  # Skills installation mechanism
     ├── shared/                     # Shared specifications
     │   ├── ui-lang-consistency.md  # UI language consistency
+    │   ├── i18n-system.md          # i18n message system [SHARED-08]
+    │   ├── error-handling.md       # Error handling system [SHARED-09]
     │   └── ...                     # Other shared specs
+    ├── publishing/                 # Publishing specifications
+    │   └── npm-release.md          # npm release automation [PUBLISH-00]
+    ├── testing/                    # Testing specifications
+    │   └── test-strategy.md        # CLI test strategy [TEST-00]
     └── {command}/                  # Command implementation specs
         └── ...
 ```
@@ -43,8 +49,8 @@ High-level architecture and design documents that define cross-cutting concerns 
 | Document | Description | Status |
 |----------|-------------|--------|
 | [agents-workflows-system.md](system/agents-workflows-system.md) | Agent & Workflow 系統設計 | Implemented |
-| [core-standard-workflow.md](system/core-standard-workflow.md) | 核心標準建立/更新工作流程 | Draft |
-| [forward-derivation.md](system/forward-derivation.md) | 正向推演規格（SDD → BDD/TDD/ATDD） | Draft |
+| [core-standard-workflow.md](system/core-standard-workflow.md) | 核心標準建立/更新工作流程 | Approved |
+| [forward-derivation.md](system/forward-derivation.md) | 正向推演規格（SDD → BDD/TDD/ATDD） | Approved |
 
 ---
 
@@ -101,6 +107,20 @@ Cross-cutting specifications used by multiple commands.
 | [manifest-schema.md](cli/shared/manifest-schema.md) | Manifest Schema |
 | [prompts.md](cli/shared/prompts.md) | 互動提示規範 |
 | [ai-agent-paths.md](cli/shared/ai-agent-paths.md) | AI 工具路徑配置 |
+| [i18n-system.md](cli/shared/i18n-system.md) | 國際化訊息系統 [SHARED-08] |
+| [error-handling.md](cli/shared/error-handling.md) | 錯誤處理系統 [SHARED-09] |
+
+### Publishing Specifications / 發布規格
+
+| Document | Description |
+|----------|-------------|
+| [npm-release.md](cli/publishing/npm-release.md) | npm 發布自動化 [PUBLISH-00] |
+
+### Testing Specifications / 測試規格
+
+| Document | Description |
+|----------|-------------|
+| [test-strategy.md](cli/testing/test-strategy.md) | CLI 測試策略 [TEST-00] |
 
 ---
 
@@ -127,6 +147,7 @@ Cross-cutting specifications used by multiple commands.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-25 | Added SHARED-08, SHARED-09, PUBLISH-00, TEST-00; Updated system specs to Approved |
 | 1.0.0 | 2026-01-24 | Initial consolidation of specs directories |
 
 ---

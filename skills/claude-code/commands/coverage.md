@@ -19,7 +19,7 @@ Analyze test coverage across multiple dimensions and provide actionable recommen
 | **Function** | Functions called | 呼叫的函數 |
 | **Statement** | Statements executed | 執行的陳述式 |
 
-## 7-Dimension Framework | 七維度框架
+## 8-Dimension Framework | 八維度框架
 
 1. **Code Coverage** - Lines, branches, functions
 2. **Requirement Coverage** - All requirements tested
@@ -28,6 +28,7 @@ Analyze test coverage across multiple dimensions and provide actionable recommen
 5. **Edge Case Coverage** - Boundary conditions
 6. **Error Coverage** - Error handling paths
 7. **Permission Coverage** - Access control scenarios
+8. **AI Generation Quality** - AI-generated test effectiveness
 
 ## Workflow | 工作流程
 

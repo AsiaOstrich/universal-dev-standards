@@ -1,7 +1,7 @@
 # Test-Driven Development (TDD) Standards
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-12
+**Version**: 1.2.0
+**Last Updated**: 2026-01-25
 **Applicability**: All projects adopting Test-Driven Development
 
 > **Language**: [English](../core/test-driven-development.md) | [繁體中文](../locales/zh-TW/core/test-driven-development.md)
@@ -18,6 +18,58 @@ This standard defines the principles, workflows, and best practices for Test-Dri
 - Tests serve as living documentation
 - Reduced debugging time and defect rates
 - Confidence in refactoring
+
+---
+
+## Methodology Classification
+
+> **Classification**: Traditional Development Methodology (1999-2011)
+
+TDD is part of the **traditional test-driven development family** that emerged from Extreme Programming (XP) and Agile practices. It is distinct from the **AI-era SDD (Spec-Driven Development)** methodology.
+
+### Historical Context
+
+| Methodology | Era | Origin | Focus |
+|-------------|-----|--------|-------|
+| **TDD** | 1999 | Kent Beck, XP | Tests drive code design |
+| **BDD** | 2006 | Dan North | Behavior drives tests |
+| **ATDD** | 2003-2006 | GOOS, Gojko Adzic | Acceptance drives development |
+| **SDD** | 2025+ | Thoughtworks, Martin Fowler | Specs drive generation (AI-era) |
+
+### Relationship to SDD
+
+TDD can be used **within** the SDD Implementation phase but is not part of the SDD methodology itself:
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    Methodology Relationship                   │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│   SDD Workflow:                                              │
+│   Proposal → Review → [Implementation] → Verification        │
+│                             ↑                                │
+│                     TDD can be used here                     │
+│                     (optional, not required)                 │
+│                                                              │
+│   Traditional Double-Loop TDD (GOOS):                        │
+│   BDD (Outer) → TDD (Inner)                                  │
+│                                                              │
+│   SDD generates test artifacts through Forward Derivation,   │
+│   which TDD can then use as starting point.                  │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### When to Use TDD
+
+| Context | Recommendation |
+|---------|----------------|
+| **SDD projects** | Use TDD during Implementation phase (optional) |
+| **Legacy projects** | Use TDD for new features and bug fixes |
+| **Non-AI development** | Use TDD as primary methodology |
+| **Performance-critical code** | Use TDD for algorithm correctness |
+
+**Reference**: [Spec-Driven Development Standards](spec-driven-development.md)
 
 ---
 
@@ -254,32 +306,44 @@ Requirement Source?
 | **Tools** | xUnit frameworks | Cucumber, Behave, SpecFlow | FitNesse, Concordion |
 | **When** | During coding | Before coding | Before development starts |
 
-### Integration Pyramid
+### Double-Loop TDD (GOOS Pattern)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│              Complete Test-Driven Development Stack              │
+│             Double-Loop TDD (Freeman & Pryce, 2009)              │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   Requirements     ATDD - Acceptance Test-Driven Development    │
-│   Layer           (Receive business acceptance criteria)        │
-│                        ↓                                        │
-│   Specification   SDD - Spec-Driven Development                 │
-│   Layer           (Formal specs, acceptance criteria)           │
-│                        ↓                                        │
-│   Feature         BDD - Behavior-Driven Development             │
-│   Layer           (Scenario → Step Definitions)                 │
-│                        ↓                                        │
-│   Development     TDD - Test-Driven Development                 │
-│   Layer           (Unit Tests → Code)                           │
-│                        ↓                                        │
-│   Integration     Integration & System Tests                    │
-│   Layer                                                         │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │  BDD (Outer Loop) - Hours to Days                        │   │
+│   │  ├─ Feature/Acceptance level                             │   │
+│   │  ├─ User/Business perspective                            │   │
+│   │  └─ Given-When-Then scenarios                            │   │
+│   │        ↓                                                 │   │
+│   │   ┌─────────────────────────────────────────────────┐   │   │
+│   │   │  TDD (Inner Loop) - Minutes                      │   │   │
+│   │   │  ├─ Unit/Component level                         │   │   │
+│   │   │  ├─ Code/Implementation perspective              │   │   │
+│   │   │  └─ Red → Green → Refactor                       │   │   │
+│   │   └─────────────────────────────────────────────────┘   │   │
+│   └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
-│   Key: ATDD → SDD → BDD → TDD → Integration Tests (top-down)    │
+│   Key: BDD → TDD (Double-Loop from GOOS)                        │
+│                                                                 │
+│   Note: ATDD is an optional collaboration method for defining   │
+│   acceptance criteria, not a required step in this sequence.    │
+│   SDD (2025) is a separate AI-era methodology.                  │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+### Traditional vs AI-Era Methodologies
+
+| Category | Methodologies | Focus |
+|----------|---------------|-------|
+| **Traditional (1999-2011)** | TDD, BDD, ATDD | Tests drive design |
+| **AI-Era (2025+)** | SDD | Specs drive generation |
+
+> **Note**: SDD can use TDD during its Implementation phase, but they are independent methodologies. See [Spec-Driven Development](spec-driven-development.md) for details.
 
 ### BDD Gherkin Syntax Overview
 
@@ -974,6 +1038,7 @@ Team TDD Assessment:
 - [TDD by Example - Martin Fowler](https://martinfowler.com/bliki/TestDrivenDevelopment.html)
 - [The Three Rules of TDD - Uncle Bob](http://butunclebob.com/ArticleS.UncleBob.TheThreeRulesOfTdd)
 - [Test Pyramid - Martin Fowler](https://martinfowler.com/bliki/TestPyramid.html)
+- [Double-Loop TDD - Samman Coaching](https://sammancoaching.org/learning_hours/bdd/double_loop_tdd.html) - Explains the BDD outer loop / TDD inner loop pattern
 - [Approval Tests](https://approvaltests.com/)
 
 ---
@@ -982,6 +1047,7 @@ Team TDD Assessment:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-01-25 | Added: Methodology Classification section (Traditional Development Methodology designation, relationship to SDD) |
 | 1.1.0 | 2026-01-12 | Added: Comprehensive Code Smell Catalog (22+ smells in 5 categories based on Martin Fowler's Refactoring 2nd Ed.), Code Smell Detection Checklist |
 | 1.0.0 | 2026-01-07 | Initial TDD standard definition |
 

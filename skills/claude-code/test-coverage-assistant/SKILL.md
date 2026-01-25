@@ -1,32 +1,32 @@
 ---
 name: test-coverage-assistant
 description: |
-  Evaluate test completeness using the 7 dimensions framework.
+  Evaluate test completeness using the 8 dimensions framework.
   Use when: writing tests, reviewing test coverage, ensuring test quality.
-  Keywords: test coverage, completeness, dimensions, 7 dimensions, test quality, 測試覆蓋, 測試完整性, 七維度.
+  Keywords: test coverage, completeness, dimensions, 8 dimensions, test quality, AI test quality, 測試覆蓋, 測試完整性, 八維度.
 ---
 
 # Test Coverage Assistant
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/test-coverage-assistant/SKILL.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-30
+**Version**: 1.1.0
+**Last Updated**: 2026-01-25
 **Applicability**: Claude Code Skills
 
 ---
 
 ## Purpose
 
-This skill helps evaluate and improve test completeness using the 7 dimensions framework, ensuring comprehensive test coverage for each feature.
+This skill helps evaluate and improve test completeness using the 8 dimensions framework, ensuring comprehensive test coverage for each feature.
 
 ## Quick Reference
 
-### The 7 Dimensions
+### The 8 Dimensions
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│              Test Completeness = 7 Dimensions                │
+│              Test Completeness = 8 Dimensions                │
 ├─────────────────────────────────────────────────────────────┤
 │  1. Happy Path        Normal expected behavior              │
 │  2. Boundary          Min/max values, limits                │
@@ -35,6 +35,7 @@ This skill helps evaluate and improve test completeness using the 7 dimensions f
 │  5. State Changes     Before/after verification             │
 │  6. Validation        Format, business rules                │
 │  7. Integration       Real query verification               │
+│  8. AI Generation     AI-generated test quality (NEW)       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -49,17 +50,20 @@ This skill helps evaluate and improve test completeness using the 7 dimensions f
 | 5 | **State Changes** | Before/after states | Did the state change correctly? |
 | 6 | **Validation** | Format, business rules | Is input validated? |
 | 7 | **Integration** | Real DB/API calls | Does the query really work? |
+| 8 | **AI Generation** | AI-generated test quality | Are AI tests meaningful? |
 
 ### When to Apply Each Dimension
 
 | Feature Type | Required Dimensions |
 |--------------|---------------------|
-| CRUD API | 1, 2, 3, 4, 6, 7 |
-| Query/Search | 1, 2, 3, 4, 7 |
-| State Machine | 1, 3, 4, 5, 6 |
-| Validation Logic | 1, 2, 3, 6 |
-| Background Job | 1, 3, 5 |
-| External Integration | 1, 3, 7 |
+| CRUD API | 1, 2, 3, 4, 6, 7, 8* |
+| Query/Search | 1, 2, 3, 4, 7, 8* |
+| State Machine | 1, 3, 4, 5, 6, 8* |
+| Validation Logic | 1, 2, 3, 6, 8* |
+| Background Job | 1, 3, 5, 8* |
+| External Integration | 1, 3, 7, 8* |
+
+*Dimension 8 (AI Generation Quality) applies when tests are AI-generated
 
 ## Test Design Checklist
 
@@ -108,6 +112,12 @@ Feature: ___________________
   □ Entity relationships verified
   □ Pagination verified
   □ Sorting/filtering verified
+
+□ AI Generation Quality (if AI-generated)
+  □ Tests verify meaningful behavior
+  □ Assertions are specific (not just "not null")
+  □ Tests are independent and self-contained
+  □ Mutation score > 80% (if evaluated)
 ```
 
 ## Detailed Guidelines
@@ -221,6 +231,8 @@ Each cell should have a corresponding test case.
 - ❌ Using wildcards in UT without corresponding IT
 - ❌ Same values for ID and business identifier in test data
 - ❌ Testing implementation details instead of behavior
+- ❌ Accepting AI-generated tests without review
+- ❌ Assuming high line coverage means effective tests
 
 ---
 
@@ -232,7 +244,7 @@ This skill supports project-specific configuration.
 
 1. Check `CONTRIBUTING.md` for "Testing Standards" section
 2. Check for existing test patterns in the codebase
-3. If not found, **default to all 7 dimensions**
+3. If not found, **default to all 8 dimensions** (dimension 8 only when tests are AI-generated)
 
 ### First-Time Setup
 
@@ -244,12 +256,14 @@ If no configuration found:
 ```markdown
 ## Test Completeness
 
-We use the 7 Dimensions framework for test coverage.
+We use the 8 Dimensions framework for test coverage.
 
 ### Required Dimensions by Feature Type
-- API endpoints: All 7 dimensions
-- Utility functions: Dimensions 1, 2, 3, 6
-- Background jobs: Dimensions 1, 3, 5
+- API endpoints: All 8 dimensions (8 only when AI-generated)
+- Utility functions: Dimensions 1, 2, 3, 6, 8*
+- Background jobs: Dimensions 1, 3, 5, 8*
+
+*Dimension 8 applies when tests are AI-generated
 ```
 
 ---
@@ -266,6 +280,7 @@ We use the 7 Dimensions framework for test coverage.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-25 | Updated: 7 dimensions → 8 dimensions (added AI Generation Quality) |
 | 1.0.0 | 2025-12-30 | Initial release |
 
 ---

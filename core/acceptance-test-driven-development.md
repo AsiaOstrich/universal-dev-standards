@@ -1,7 +1,7 @@
 # Acceptance Test-Driven Development (ATDD) Standards
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-19
+**Version**: 1.1.0
+**Last Updated**: 2026-01-25
 **Applicability**: All projects adopting Acceptance Test-Driven Development
 
 > **Language**: [English](../core/acceptance-test-driven-development.md) | [繁體中文](../locales/zh-TW/core/acceptance-test-driven-development.md)
@@ -18,6 +18,82 @@ This standard defines the principles, workflows, and best practices for Acceptan
 - Executable acceptance criteria that verify business value
 - Improved collaboration between business and technical teams
 - Clear traceability from requirements to implementation
+
+---
+
+## Methodology Classification
+
+> **Classification**: Traditional Development Methodology (2003-2006)
+
+ATDD is part of the **traditional test-driven development family** that emphasizes collaborative acceptance. It is distinct from the **AI-era SDD (Spec-Driven Development)** methodology.
+
+### Historical Context
+
+| Methodology | Era | Origin | Focus |
+|-------------|-----|--------|-------|
+| **TDD** | 1999 | Kent Beck, XP | Tests drive code design |
+| **BDD** | 2006 | Dan North | Behavior drives tests |
+| **ATDD** | 2003-2006 | GOOS, Gojko Adzic | Acceptance drives development |
+| **SDD** | 2025+ | Thoughtworks, Martin Fowler | Specs drive generation (AI-era) |
+
+### ATDD's Role in Modern Development
+
+ATDD is an **optional collaboration method** for defining acceptance criteria, not a required step in any development sequence. The "ATDD → BDD → TDD" sequence is a practical pattern but not a strict requirement.
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                 ATDD as Optional Collaboration                │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│   Traditional View (Overly Prescriptive):                    │
+│   ATDD → SDD → BDD → TDD  ← Not supported by literature      │
+│                                                              │
+│   Actual Practice:                                           │
+│   ┌─────────────────────────────────────────────────────┐   │
+│   │  Input Sources (Any of these):                       │   │
+│   │  ├─ ATDD Workshop (formal collaboration)             │   │
+│   │  ├─ Requirements interviews                          │   │
+│   │  ├─ PRD documents                                    │   │
+│   │  └─ Stakeholder emails/discussions                   │   │
+│   └──────────────────┬──────────────────────────────────┘   │
+│                      │                                       │
+│                      ▼                                       │
+│   ┌─────────────────────────────────────────────────────┐   │
+│   │  Acceptance Criteria (Given-When-Then)               │   │
+│   └──────────────────┬──────────────────────────────────┘   │
+│                      │                                       │
+│                      ▼                                       │
+│   BDD → TDD (Double-Loop)                                    │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Relationship to SDD
+
+In SDD workflows, ATDD workshops are **optional inputs** for defining acceptance criteria:
+
+| Input Method | When to Use |
+|--------------|-------------|
+| **ATDD Workshop** | Complex features requiring stakeholder alignment |
+| **Requirements Interview** | Most common, direct conversation with stakeholders |
+| **PRD Review** | Formal product requirements exist |
+| **Direct Definition** | Clear requirements, minimal ambiguity |
+
+SDD does not require ATDD workshops; the spec itself becomes the source of acceptance criteria.
+
+### Three Amigos (Core Value of ATDD)
+
+The most valuable aspect of ATDD is the **Three Amigos** collaboration pattern:
+
+| Role | Contribution | Question |
+|------|--------------|----------|
+| **Customer/PO** | Business requirements, priority | "What problem are we solving?" |
+| **Developer** | Technical feasibility, design | "How do we build it?" |
+| **Tester** | Edge cases, verification | "What could go wrong?" |
+
+> **Recommendation**: Adopt the Three Amigos pattern even if you don't use formal ATDD workshops.
+
+**Reference**: [Spec-Driven Development Standards](spec-driven-development.md)
 
 ---
 
@@ -443,49 +519,53 @@ Convert the acceptance criteria from the workshop into executable, automatable t
 
 ### How They Work Together
 
+> **Important**: ATDD, BDD, and TDD are traditional methodologies (1999-2011). SDD (2025) is a separate AI-era methodology that can integrate with them but is not part of their sequence.
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    ATDD → SDD → BDD → TDD Integration                        │
+│                    Traditional Double-Loop TDD Pattern                        │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│   ATDD Level (System/Acceptance)                                            │
 │   ┌─────────────────────────────────────────────────────────────┐           │
-│   │  User Story: "User can checkout cart"                        │          │
+│   │  Optional Input: ATDD Workshop                               │          │
+│   │  (or interviews, PRDs, stakeholder discussions)              │          │
+│   └──────────────────────┬──────────────────────────────────────┘           │
+│                          │                                                  │
+│                          ▼                                                  │
+│   ┌─────────────────────────────────────────────────────────────┐           │
+│   │  Acceptance Criteria (Given-When-Then)                       │          │
 │   │  AC-1: Valid checkout creates order                          │          │
 │   │  AC-2: Invalid payment shows error                           │          │
 │   │  AC-3: Minimum order enforced                                │          │
 │   └──────────────────────┬──────────────────────────────────────┘           │
 │                          │                                                  │
 │                          ▼                                                  │
-│   SDD Level (Specification)                                                 │
-│   ┌─────────────────────────────────────────────────────────────┐           │
-│   │  SPEC-001: Checkout Feature                                  │          │
-│   │    - Formal acceptance criteria                              │          │
-│   │    - Edge cases documented                                   │          │
-│   │    - Stakeholder approved                                    │          │
-│   └──────────────────────┬──────────────────────────────────────┘           │
-│                          │                                                  │
-│                          ▼                                                  │
-│   BDD Level (Feature/Behavior)                                              │
-│   ┌─────────────────────────────────────────────────────────────┐           │
-│   │  Feature: Shopping Cart Checkout                             │          │
-│   │    Scenario: Successful checkout                             │          │
-│   │      Given items in cart                                     │          │
-│   │      When I checkout with valid payment                      │          │
-│   │      Then order is created                                   │          │
-│   └──────────────────────┬──────────────────────────────────────┘           │
-│                          │                                                  │
-│                          ▼                                                  │
-│   TDD Level (Unit/Component)                                                │
-│   ┌─────────────────────────────────────────────────────────────┐           │
-│   │  test_calculate_order_total()                                │          │
-│   │  test_validate_payment_info()                                │          │
-│   │  test_create_order_record()                                  │          │
-│   │  test_send_confirmation_email()                              │          │
-│   └─────────────────────────────────────────────────────────────┘           │
+│   ╔═════════════════════════════════════════════════════════════╗           │
+│   ║  Double-Loop TDD (GOOS Pattern)                              ║          │
+│   ╠═════════════════════════════════════════════════════════════╣           │
+│   ║                                                              ║          │
+│   ║  BDD (Outer Loop) - Feature/Behavior                         ║          │
+│   ║  ┌────────────────────────────────────────────────────────┐ ║          │
+│   ║  │  Feature: Shopping Cart Checkout                        │ ║          │
+│   ║  │    Scenario: Successful checkout                        │ ║          │
+│   ║  │      Given items in cart                                │ ║          │
+│   ║  │      When I checkout with valid payment                 │ ║          │
+│   ║  │      Then order is created                              │ ║          │
+│   ║  └───────────────────────┬────────────────────────────────┘ ║          │
+│   ║                          │                                   ║          │
+│   ║                          ▼                                   ║          │
+│   ║  TDD (Inner Loop) - Unit/Component                           ║          │
+│   ║  ┌────────────────────────────────────────────────────────┐ ║          │
+│   ║  │  test_calculate_order_total()                           │ ║          │
+│   ║  │  test_validate_payment_info()                           │ ║          │
+│   ║  │  test_create_order_record()                             │ ║          │
+│   ║  └────────────────────────────────────────────────────────┘ ║          │
+│   ║                                                              ║          │
+│   ╚═════════════════════════════════════════════════════════════╝           │
 │                                                                             │
-│   Flow: ATDD defines WHAT → SDD formalizes specs → BDD specifies behavior → │
-│         TDD implements the details                                          │
+│   Flow: (ATDD optional) → AC → BDD → TDD                                    │
+│                                                                             │
+│   Note: SDD (2025) is a separate methodology. See Integration section.      │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -522,15 +602,26 @@ Convert the acceptance criteria from the workshop into executable, automatable t
 
 ## Integration with SDD, BDD, and TDD
 
-### Complete Development Workflow
+### Understanding the Two Approaches
+
+There are two distinct development approaches:
+
+| Approach | Era | Core Concept | Use Case |
+|----------|-----|--------------|----------|
+| **Traditional (ATDD + BDD + TDD)** | 1999-2011 | Tests drive design | Manual development, legacy systems |
+| **AI-Era (SDD)** | 2025+ | Specs drive generation | AI-assisted development |
+
+### Traditional ATDD + BDD + TDD Workflow
+
+This workflow applies when using ATDD as the collaboration method:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    ATDD → SDD → BDD → TDD Workflow                           │
+│                    Traditional ATDD + BDD + TDD Workflow                      │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  ╔═══════════════════╗                                                      │
-│  ║  ATDD Phase       ║  Business Layer Acceptance                           │
+│  ║  ATDD Phase       ║  Optional Collaboration                              │
 │  ║  (Stakeholders)   ║                                                      │
 │  ╠═══════════════════╣                                                      │
 │  ║ 1. Spec Workshop  ║  PO presents user story                              │
@@ -539,20 +630,11 @@ Convert the acceptance criteria from the workshop into executable, automatable t
 │            │ Output: User Story + AC + Out of Scope                         │
 │            ▼                                                                │
 │  ╔═══════════════════╗                                                      │
-│  ║  SDD Phase        ║  Technical Specification                             │
-│  ║  (Architect)      ║                                                      │
-│  ╠═══════════════════╣                                                      │
-│  ║ 3. Proposal       ║  Write technical spec                                │
-│  ║ 4. Review         ║  Technical review and approval                       │
-│  ╚═════════╤═════════╝                                                      │
-│            │ Output: SPEC-XXX document                                      │
-│            ▼                                                                │
-│  ╔═══════════════════╗                                                      │
 │  ║  BDD Phase        ║  Behavior Specification                              │
 │  ║  (Three Amigos)   ║                                                      │
 │  ╠═══════════════════╣                                                      │
-│  ║ 5. Discovery      ║  Identify scenarios from AC                          │
-│  ║ 6. Formulation    ║  Write Gherkin scenarios                             │
+│  ║ 3. Discovery      ║  Identify scenarios from AC                          │
+│  ║ 4. Formulation    ║  Write Gherkin scenarios                             │
 │  ╚═════════╤═════════╝                                                      │
 │            │ Output: Feature files (Given-When-Then)                        │
 │            ▼                                                                │
@@ -560,32 +642,70 @@ Convert the acceptance criteria from the workshop into executable, automatable t
 │  ║  TDD Phase        ║  Implementation                                      │
 │  ║  (Developers)     ║                                                      │
 │  ╠═══════════════════╣                                                      │
-│  ║ 7. RED            ║  Write failing tests                                 │
-│  ║ 8. GREEN          ║  Minimal implementation                              │
-│  ║ 9. REFACTOR       ║  Clean up code                                       │
+│  ║ 5. RED            ║  Write failing tests                                 │
+│  ║ 6. GREEN          ║  Minimal implementation                              │
+│  ║ 7. REFACTOR       ║  Clean up code                                       │
 │  ╚═════════╤═════════╝                                                      │
 │            │ Repeat until all BDD scenarios pass                            │
 │            ▼                                                                │
 │  ╔═══════════════════╗                                                      │
-│  ║  Verification     ║  Acceptance and Archive                              │
+│  ║  Acceptance       ║  Demo and Sign-off                                   │
 │  ╠═══════════════════╣                                                      │
-│  ║ 10. Demo          ║  Demo to stakeholders                                │
-│  ║ 11. Archive       ║  Archive spec, close story                           │
+│  ║ 8. Demo           ║  Demo to stakeholders                                │
+│  ║ 9. Sign-off       ║  PO accepts feature                                  │
 │  ╚═══════════════════╝                                                      │
+│                                                                             │
+│   Flow: (ATDD optional) → BDD → TDD → Acceptance                            │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Phase Transition Rules
+### SDD + ATDD Integration (AI-Era)
+
+When using SDD as the primary methodology, ATDD can be an optional input:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       SDD Workflow (with optional ATDD)                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌──────────────────────────────────────────────────────────┐             │
+│   │  Input Sources (choose any):                              │             │
+│   │  ├─ ATDD Workshop (formal collaboration)                  │             │
+│   │  ├─ Requirements interviews                               │             │
+│   │  ├─ PRD documents                                         │             │
+│   │  └─ Stakeholder discussions                               │             │
+│   └───────────────────────┬──────────────────────────────────┘             │
+│                           │                                                 │
+│                           ▼                                                 │
+│   ╔═══════════════════════════════════════════════════════════╗            │
+│   ║  SDD Workflow                                              ║            │
+│   ╠═══════════════════════════════════════════════════════════╣            │
+│   ║ 1. Proposal     → SPEC-XXX.md (with AC)                    ║            │
+│   ║ 2. Review       → Stakeholder approval                     ║            │
+│   ║ 3. Derivation   → /derive-all generates tests              ║            │
+│   ║ 4. Implementation (TDD optional)                           ║            │
+│   ║ 5. Verification → All tests pass                           ║            │
+│   ║ 6. Archive      → Close spec                               ║            │
+│   ╚═══════════════════════════════════════════════════════════╝            │
+│                                                                             │
+│   Key: SDD is independent; ATDD is an optional input method                 │
+│   Reference: spec-driven-development.md                                     │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Phase Transition Rules (Traditional ATDD + BDD + TDD)
 
 | From | To | Entry Criteria | Required Artifacts |
 |------|-----|---------------|-------------------|
-| (Start) | ATDD | New feature request | User story title |
-| ATDD | SDD | AC defined, PO sign-off | User Story + AC + Out of Scope |
-| SDD | BDD | Spec approved | SPEC-XXX document |
+| (Start) | ATDD Workshop | New feature request | User story title |
+| ATDD Workshop | BDD | AC defined, PO sign-off | User Story + AC + Out of Scope |
 | BDD | TDD | Scenarios formulated | Feature files (Given-When-Then) |
-| TDD | Verification | All scenarios pass | Passing test suite |
-| Verification | Archive | PO accepts | Demo complete, code merged |
+| TDD | Acceptance | All scenarios pass | Passing test suite |
+| Acceptance | Done | PO accepts | Demo complete, code merged |
+
+> **Note**: For SDD workflow phase transitions, see [Spec-Driven Development](spec-driven-development.md).
 
 ---
 
@@ -704,7 +824,7 @@ Team ATDD Assessment:
 - [Test-Driven Development](test-driven-development.md) - TDD workflow
 - [Spec-Driven Development](spec-driven-development.md) - SDD workflow
 - [Testing Standards](testing-standards.md) - Core testing standards
-- [Test Completeness Dimensions](test-completeness-dimensions.md) - 7 dimensions framework
+- [Test Completeness Dimensions](test-completeness-dimensions.md) - 8 dimensions framework
 - [Code Check-in Standards](checkin-standards.md) - Check-in requirements
 
 ---
@@ -713,6 +833,7 @@ Team ATDD Assessment:
 
 ### Books
 
+- Steve Freeman & Nat Pryce - "Growing Object-Oriented Software, Guided by Tests" (2009) - Foundational ATDD/BDD patterns
 - Elisabeth Hendrickson - "Explore It!: Reduce Risk and Increase Confidence with Exploratory Testing" (2013)
 - Gojko Adzic - "Specification by Example" (2011)
 - Gojko Adzic - "Bridging the Communication Gap" (2009)
@@ -723,6 +844,8 @@ Team ATDD Assessment:
 
 - [ATDD Overview - Agile Alliance](https://www.agilealliance.org/glossary/atdd/)
 - [Specification by Example - Gojko Adzic](https://gojko.net/books/specification-by-example/)
+- [Specification by Example: 10 Years Later - Gojko Adzic](https://gojko.net/2020/03/17/sbe-10-years.html) - Retrospective on SbE practices
+- [AccelQ: ATDD Complete Guide](https://www.accelq.com/blog/acceptance-test-driven-development/) - Comprehensive ATDD overview
 - [FitNesse Documentation](http://fitnesse.org/)
 - [Robot Framework](https://robotframework.org/)
 
@@ -737,6 +860,7 @@ Team ATDD Assessment:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-25 | Added: Methodology Classification section (Traditional Development Methodology designation, ATDD as optional collaboration, relationship to SDD) |
 | 1.0.0 | 2026-01-19 | Initial ATDD standard definition |
 
 ---

@@ -2,19 +2,30 @@
 
 > **Language**: English | [繁體中文](../../../../locales/zh-TW/skills/claude-code/ai-collaboration-standards/certainty-labels.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
+**Version**: 1.1.0
+**Last Updated**: 2026-01-25
 **Applicability**: Claude Code Skills
 
 ---
 
 ## Purpose
 
-This document provides reference for certainty labels and source types used in AI responses.
+This document provides reference for certainty labels, derivation tags, and source types used in AI responses.
 
 ---
 
-## Tag Mapping (English / 中文)
+## Unified Tag System Overview
+
+This skill uses two complementary tag categories:
+
+| Category | Purpose | Used In |
+|----------|---------|---------|
+| **Certainty Tags** | Analyzing existing content | Code analysis, reverse engineering |
+| **Derivation Tags** | Generating new content | Forward derivation, spec generation |
+
+---
+
+## Certainty Tags (English / 中文)
 
 | English Tag | 中文標籤 | Use When |
 |-------------|---------|----------|
@@ -23,6 +34,19 @@ This document provides reference for certainty labels and source types used in A
 | `[Assumption]` | `[假設]` | Based on common patterns (needs verification) |
 | `[Unknown]` | `[未知]` | Information not available |
 | `[Need Confirmation]` | `[待確認]` | Requires user clarification |
+
+---
+
+## Derivation Tags (English / 中文)
+
+Used when generating tests, specifications, or documentation from approved sources.
+
+| English Tag | 中文標籤 | Use When |
+|-------------|---------|----------|
+| `[Source]` | `[來源]` | Direct content from spec/requirement (verbatim) |
+| `[Derived]` | `[推演]` | Transformed from source content (e.g., bullet → GWT) |
+| `[Generated]` | `[生成]` | AI-generated structure (test skeleton, TODO comments) |
+| `[TODO]` | `[待辦]` | Requires human implementation |
 
 ---
 
@@ -113,6 +137,7 @@ Did you read the actual code/doc?
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-25 | Added: Unified Tag System, Derivation Tags with Chinese translations |
 | 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
 
 ---

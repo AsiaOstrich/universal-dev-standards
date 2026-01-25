@@ -10,8 +10,8 @@ description: |
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/reverse-engineer/SKILL.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-19
+**Version**: 1.2.0
+**Last Updated**: 2026-01-25
 **Applicability**: Claude Code Skills
 
 > **Core Standard**: This skill implements [Reverse Engineering Standards](../../../core/reverse-engineering-standards.md). For comprehensive methodology documentation accessible by any AI tool, refer to the core standard.
@@ -69,7 +69,9 @@ This skill guides you through reverse engineering existing code into SDD (Spec-D
 
 **CRITICAL**: This skill MUST strictly follow [Anti-Hallucination Standards](../../../core/anti-hallucination.md).
 
-#### Certainty Labels
+#### Certainty Labels (from Unified Tag System)
+
+This skill uses **Certainty Tags** for analyzing existing code. See [Anti-Hallucination Standards](../../../core/anti-hallucination.md#unified-tag-system) for the complete tag reference.
 
 | Tag | Use When | Example |
 |-----|----------|---------|
@@ -387,6 +389,7 @@ This skill auto-detects project configuration:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-01-25 | Added: Reference to Unified Tag System |
 | 1.1.0 | 2026-01-19 | Add BDD/TDD pipeline integration; Add core standard reference |
 | 1.0.0 | 2026-01-19 | Initial release |
 

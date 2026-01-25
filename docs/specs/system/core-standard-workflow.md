@@ -4,7 +4,7 @@
 **Feature ID**: WORKFLOW-001
 **Version**: 1.0.0
 **Last Updated**: 2026-01-19
-**Status**: Draft
+**Status**: Approved
 
 > **Language**: English | [繁體中文](#chinese-version)
 
@@ -331,6 +331,7 @@ status: current
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.0.1 | 2026-01-25 | Status: Draft → Approved |
 | 1.0.0 | 2026-01-19 | Initial specification |
 
 ---

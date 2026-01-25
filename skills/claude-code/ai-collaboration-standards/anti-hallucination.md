@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../../../locales/zh-TW/skills/claude-code/ai-collaboration-standards/anti-hallucination.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
+**Version**: 1.1.0
+**Last Updated**: 2026-01-25
 **Applicability**: Claude Code Skills
 
 ---
@@ -74,9 +74,11 @@ When referencing libraries, frameworks, or APIs, always include version informat
 
 ---
 
-### 3. Classify Certainty Levels
+### 3. Classify Certainty Levels (Unified Tag System)
 
 **Rule**: Clearly distinguish between confirmed facts, inferences, and unknowns.
+
+#### Certainty Tags (for analyzing existing content)
 
 | Tag | Use When |
 |-----|----------|
@@ -86,14 +88,30 @@ When referencing libraries, frameworks, or APIs, always include version informat
 | `[Unknown]` | Information not available |
 | `[Need Confirmation]` | Requires user clarification |
 
+#### Derivation Tags (for generating new content)
+
+| Tag | Use When |
+|-----|----------|
+| `[Source]` | Direct content from spec/requirement |
+| `[Derived]` | Transformed from source content |
+| `[Generated]` | AI-generated structure |
+| `[TODO]` | Requires human implementation |
+
 **Examples**:
 
 ```
+# Certainty Tags (analysis)
 [Confirmed] src/database/connection.ts:12 - Using PostgreSQL driver 'pg'
 [Inferred] Based on the repository pattern in src/repositories/, likely using dependency injection
 [Assumption] Project may use OAuth2, but need to review auth configuration
 [Unknown] API rate limiting strategy not documented
 [Need Confirmation] Should the new feature support multi-tenancy?
+
+# Derivation Tags (generation)
+[Source] Feature title from SPEC-001
+[Derived] Gherkin scenario from bullet-point AC
+[Generated] Test skeleton structure
+[TODO] Implement actual assertions
 ```
 
 ---
@@ -204,6 +222,7 @@ AI assistants MUST NOT:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-25 | Added: Unified Tag System with Certainty and Derivation tags |
 | 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
 
 ---

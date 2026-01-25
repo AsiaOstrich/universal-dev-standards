@@ -347,6 +347,26 @@ When using AI assistants (Claude Code, Cursor, etc.) with this project:
 - Bilingual documentation is required (English primary, zh-TW translation)
 - CLI tool is the primary code component; most content is Markdown
 
+### BDD/TDD Output Directories / BDD/TDD 輸出目錄
+
+When generating BDD and TDD files from SDD specifications:
+
+| Type | Directory | Description |
+|------|-----------|-------------|
+| BDD Features | `tests/features/` | Gherkin .feature files |
+| TDD Unit Tests | `cli/tests/unit/` | Vitest unit tests |
+| SDD Specs | `docs/specs/` | Specification documents |
+
+**BDD Feature File Format:**
+- Include `@SPEC-XXX` and `@AC-N` tags for traceability
+- Include `# [Source: path:AC-N]` comments for source attribution
+- One Scenario per AC (1:1 mapping)
+
+**TDD Test File Format:**
+- Nested describe: SPEC level → AC level
+- AAA pattern comments (Arrange-Act-Assert)
+- Use `[TODO]` markers for implementation placeholders
+
 ### Anti-Hallucination Standards / 反幻覺規範
 
 When working on this project, AI assistants MUST follow [core/anti-hallucination.md](core/anti-hallucination.md):

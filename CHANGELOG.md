@@ -9,6 +9,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **Methodology Refactoring**: Major separation of SDD from TDD/BDD/ATDD family
+  - SDD (Spec-Driven Development, 2025) is now positioned as independent AI-era methodology
+  - TDD/BDD/ATDD (1999-2011) classified as Traditional Development Methodologies
+  - Removed incorrect "ATDD → SDD → BDD → TDD" sequence from all documents
+  - Added Methodology Classification section to TDD, BDD, and ATDD standards
+  - Based on literature research: GOOS (Freeman & Pryce), Thoughtworks, Martin Fowler
+
+- **SDD Enhancements** (v2.0.0):
+  - Added SDD as Independent Methodology section with historical context
+  - Added SDD Maturity Levels (Spec-first, Spec-anchored, Spec-as-source) based on Martin Fowler 2025
+  - Added Common Pitfalls section with industry warnings
+  - Added Validation Layer section with theoretical foundation (Design by Contract, Contract Testing)
+  - Added SDD + Testing Integration Model with practical workflow
+  - Added new references: Thoughtworks, GitHub spec-kit, InfoQ, Specmatic
+
+- **Forward Derivation Enhancements** (v1.1.0):
+  - Added contract.json output format for contract verification
+  - Added schema.json output format for schema validation
+  - Added `/derive-contracts` command for verification artifact generation
+
+- **Traditional Methodology Updates**:
+  - TDD (v1.2.0): Added Methodology Classification, replaced Integration Pyramid with Double-Loop TDD (GOOS)
+  - BDD (v1.1.0): Added Methodology Classification, Double-Loop TDD explanation, Collaborative Acceptance
+  - ATDD (v1.1.0): Added Methodology Classification, ATDD as optional collaboration, Two-approach comparison
+
+- **Test Completeness Dimensions**: Updated from 7 dimensions to 8 dimensions
+  - Added dimension 8: AI Test Generation Quality (mutation testing, assertion depth, test purpose)
+  - Updated skills, AI YAML, and integrations to reflect 8-dimension framework
+- **Anti-Hallucination Standards**: Added Unified Tag System
+  - Certainty Tags: For analyzing existing content (`[Confirmed]`, `[Inferred]`, `[Assumption]`, `[Unknown]`, `[Need Confirmation]`)
+  - Derivation Tags: For generating new content (`[Source]`, `[Derived]`, `[Generated]`, `[TODO]`)
+  - Workflow mapping specifies which tag category applies to each workflow type
+
+### Documentation
+- Updated skills for Phase 1-4 consistency synchronization:
+  - `test-coverage-assistant`: 7→8 dimensions
+  - `ai-collaboration-standards`: Added Unified Tag System
+  - `reverse-engineer`: Added Unified Tag System reference
+  - `forward-derivation`: Added Unified Tag System reference
+- Updated AI standards (YAML):
+  - `test-completeness-dimensions.ai.yaml`: Added dimension 8
+  - `anti-hallucination.ai.yaml`: Added Unified Tag System with workflow mapping
+- Updated integrations:
+  - `github-copilot/copilot-instructions.md`: 7→8 dimensions
+
 ## [4.2.0] - 2026-01-24
 
 ### Added

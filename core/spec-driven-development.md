@@ -1,7 +1,7 @@
 # Spec-Driven Development (SDD) Standards
 
-**Version**: 1.3.0
-**Last Updated**: 2026-01-19
+**Version**: 2.0.0
+**Last Updated**: 2026-01-25
 **Applicability**: All projects adopting Spec-Driven Development
 
 > **Language**: [English](../core/spec-driven-development.md) | [繁體中文](../locales/zh-TW/core/spec-driven-development.md)
@@ -16,6 +16,123 @@ This standard defines the principles and workflows for Spec-Driven Development (
 - Reduced miscommunication between stakeholders and developers
 - Clear audit trail for all changes
 - Easier onboarding for new team members
+
+---
+
+## SDD as Independent Methodology
+
+SDD (Spec-Driven Development, 2025) is an AI-era methodology distinct from the traditional TDD/BDD/ATDD family. It emerged from the increasing adoption of AI-assisted development tools and the need for specification-first approaches in modern software engineering.
+
+### Historical Context
+
+| Methodology Family | Era | Core Literature | Relationship |
+|-------------------|-----|-----------------|--------------|
+| **TDD/BDD/ATDD** | 1999-2011 | GOOS (Freeman & Pryce), Dan North, Gojko Adzic | Traditional test-driven development family |
+| **SDD (2025)** | 2025+ | Thoughtworks, GitHub spec-kit, Martin Fowler | AI-era emerging concept, independent from traditional family |
+
+### Relationship to Testing Methodologies
+
+SDD is **not** part of the "ATDD → BDD → TDD" sequence. Instead, it generates test artifacts through Forward Derivation but remains a separate methodology.
+
+| Methodology | Origin | Focus | SDD Integration |
+|-------------|--------|-------|-----------------|
+| **TDD** | 1999, Kent Beck | Code-level tests | Can be used during SDD Implementation phase |
+| **BDD** | 2006, Dan North | Behavior scenarios | Forward Derivation generates .feature files |
+| **ATDD** | 2003-2006, GOOS | Collaborative acceptance | Optional input method for AC definition |
+
+### Key Distinction
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    Two Independent Methodological Systems                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌─────────────────────────────────────┐                                   │
+│   │     SDD (AI-Era Methodology)         │                                  │
+│   │                                      │                                  │
+│   │   Requirements → SPEC.md → Forward   │                                  │
+│   │              Derivation → Tests      │                                  │
+│   │                                      │                                  │
+│   │   • Spec is authoritative source     │                                  │
+│   │   • AI-assisted code generation      │                                  │
+│   │   • Forward Derivation generates     │                                  │
+│   │     test structures                  │                                  │
+│   └─────────────────────────────────────┘                                   │
+│                                                                             │
+│   ┌─────────────────────────────────────┐                                   │
+│   │  Double-Loop TDD (Traditional)       │                                  │
+│   │                                      │                                  │
+│   │   BDD (Outer Loop) → TDD (Inner Loop)│                                  │
+│   │                                      │                                  │
+│   │   • Tests drive design               │                                  │
+│   │   • Manual development               │                                  │
+│   │   • ATDD is optional collaboration   │                                  │
+│   │     input, not a sequential step     │                                  │
+│   └─────────────────────────────────────┘                                   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## SDD Maturity Levels
+
+Based on Martin Fowler's analysis of SDD tools (2025), teams can operate at different maturity levels:
+
+| Level | Name | Description | Human Role |
+|-------|------|-------------|------------|
+| 1 | **Spec-first** | Write spec, discard after completion | Edit spec and code |
+| 2 | **Spec-anchored** | Maintain spec throughout evolution | Edit spec, AI assists code |
+| 3 | **Spec-as-source** | Spec is only source, code auto-generated | Only edit spec, never touch code |
+
+### Level Characteristics
+
+**Level 1: Spec-first**
+- Specifications written before implementation
+- Specs may be discarded after feature completion
+- Code remains the authoritative source
+- Most common in 2025
+
+**Level 2: Spec-anchored**
+- Specifications maintained throughout the lifecycle
+- Specs used for evolution and maintenance
+- AI assists with code changes based on spec updates
+- Growing adoption in enterprise environments
+
+**Level 3: Spec-as-source**
+- Specifications are the only source of truth
+- Code is marked as "GENERATED - DO NOT EDIT"
+- Any change requires spec modification first
+- Still experimental in 2025
+
+### References
+
+- [Thoughtworks: Spec-Driven Development](https://www.thoughtworks.com/en-us/insights/blog/agile-engineering-practices/spec-driven-development-unpacking-2025-new-engineering-practices)
+- [Martin Fowler: SDD Tools (Kiro, spec-kit, Tessl)](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html)
+- [GitHub spec-kit](https://github.com/github/spec-kit/blob/main/spec-driven.md)
+
+---
+
+## Common Pitfalls
+
+Avoid these common pitfalls when adopting SDD:
+
+| Pitfall | Problem | Mitigation |
+|---------|---------|------------|
+| **Over-formalization** | Slows feedback like waterfall development | Keep iterative, use short cycles |
+| **Spec Drift** | Spec and code become out of sync | Continuous validation, drift detection in CI/CD |
+| **AI Hallucination** | AI generates code that doesn't match spec | Robust verification, contract testing |
+| **Size Mismatch** | Using heavy workflow for small bugs | Choose appropriate process based on complexity |
+| **Premature Optimization** | Jumping to Spec-as-source (Level 3) | Start with Spec-first, evolve gradually |
+
+### When NOT to Use Full SDD
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Critical hotfixes | Fix first, document later |
+| Typos and formatting | Direct commit, no spec needed |
+| Exploratory prototypes | Skip formal specs, iterate quickly |
+| Small bug fixes (< 30 min) | Lightweight tracking only |
 
 ---
 
@@ -292,6 +409,160 @@ After a specification is approved, use [Forward Derivation Standards](forward-de
 | `/derive-tdd` | SPEC-XXX.md | .test.ts | AC → Test skeletons |
 | `/derive-atdd` | SPEC-XXX.md | acceptance.md | AC → Test tables |
 | `/derive-all` | SPEC-XXX.md | All above | Full derivation pipeline |
+| `/derive-contracts` | SPEC-XXX.md | contract.json, schema.json | AC → Contract verification |
+
+---
+
+## Validation Layer
+
+SDD requires robust verification mechanisms to ensure generated code aligns with specifications. The Validation Layer provides continuous verification throughout the development lifecycle.
+
+### Theoretical Foundation
+
+| Theory | Source | Application in SDD |
+|--------|--------|-------------------|
+| **Design by Contract** | Bertrand Meyer, 1986 | AC as pre/post conditions |
+| **Formal Verification** | Computer Science | Spec vs Implementation |
+| **Specification by Example** | Gojko Adzic, 2011 | Executable specifications |
+| **Contract Testing** | Pact, 2013+ | Service contract verification |
+
+### Verification Mechanisms
+
+| Mechanism | Purpose | Tools |
+|-----------|---------|-------|
+| **Contract Testing** | Verify implementation honors interface guarantees | Pact, Spring Cloud Contract, Specmatic |
+| **Schema Validation** | Reject payloads violating structural requirements | JSON Schema, OpenAPI validators |
+| **Drift Detection** | Detect divergence between spec and behavior | CI/CD integration, Specmatic |
+| **Backward Compatibility** | Classify changes as additive/breaking | OpenAPI diff tools |
+
+### SDD Verification Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         SDD Validation Layer                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   SPEC-XXX.md (Approved)                                                    │
+│        │                                                                    │
+│        ├──→ Forward Derivation                                              │
+│        │         │                                                          │
+│        │         ├──→ Contract Tests (generated)                            │
+│        │         ├──→ Schema Validators (generated)                         │
+│        │         ├──→ BDD Scenarios (generated)                             │
+│        │         └──→ TDD Skeletons (generated)                             │
+│        │                                                                    │
+│        └──→ Implementation (AI-assisted)                                    │
+│                  │                                                          │
+│                  ▼                                                          │
+│        ┌─────────────────────────────────────────────────────┐             │
+│        │              Continuous Verification                 │             │
+│        │  ┌─────────────────────────────────────────────────┐│             │
+│        │  │ Contract Tests          ✓/✗                     ││             │
+│        │  │ Schema Validation       ✓/✗                     ││             │
+│        │  │ Drift Detection         ✓/✗                     ││             │
+│        │  │ BDD Scenarios           ✓/✗                     ││             │
+│        │  │ TDD Unit Tests          ✓/✗                     ││             │
+│        │  └─────────────────────────────────────────────────┘│             │
+│        └─────────────────────────────────────────────────────┘             │
+│                  │                                                          │
+│                  ▼                                                          │
+│        Verification Report → Archive or Iterate                             │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Generated Verification Artifacts
+
+| Artifact | Purpose | Verification Role |
+|----------|---------|-------------------|
+| `.feature` (BDD) | Behavior scenarios | Acceptance verification |
+| `.test.ts` (TDD) | Unit test skeletons | Implementation verification |
+| `acceptance.md` (ATDD) | Acceptance test tables | Business verification |
+| `contract.json` | Contract definitions | Interface verification |
+| `schema.json` | Schema definitions | Structure verification |
+
+### V&V in SDD
+
+- **Verification** (Building it right): Contract tests pass, schema valid, code matches spec
+- **Validation** (Building right thing): AC met, stakeholder approval, business value delivered
+
+### References
+
+- [InfoQ: Spec-Driven Development - Validation Layer](https://www.infoq.com/articles/spec-driven-development/)
+- [Microsoft: Consumer-Driven Contract Testing](https://microsoft.github.io/code-with-engineering-playbook/automated-testing/cdc-testing/)
+- [Wikipedia: Formal Verification](https://en.wikipedia.org/wiki/Formal_verification)
+- [Specmatic: AI-powered API Contract Testing](https://specmatic.io/)
+
+---
+
+## SDD + Testing Integration Model
+
+### Theoretical Basis
+
+SDD verification is grounded in established testing theory:
+
+```
+Design by Contract (1986)     Specification by Example (2011)
+        │                              │
+        ▼                              ▼
+┌───────────────────────────────────────────────────────────────┐
+│               SDD Verification Model                           │
+│                                                               │
+│   Spec (AC)  ←──→  Contract Tests  ←──→  Implementation       │
+│       ↑                 ↑                      ↓              │
+│   Pre/Post          Verification           Runtime            │
+│   Conditions        Mechanisms             Behavior           │
+└───────────────────────────────────────────────────────────────┘
+```
+
+### Integration Points
+
+| SDD Phase | Testing Integration | Theory |
+|-----------|---------------------|--------|
+| **Spec Writing** | AC = Pre/Post conditions | Design by Contract |
+| **Forward Derivation** | Generate Contract Tests | Executable Specification |
+| **Implementation** | TDD (optional) | Test-Driven Development |
+| **Verification** | Contract Testing + Drift Detection | Runtime Verification |
+| **Archive** | Test results as evidence | Traceability |
+
+### Practical Workflow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    Practical SDD Workflow                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   【Input Sources】(Any of these)                                            │
+│   ├── Requirements interviews (most common)                                 │
+│   ├── Stakeholder emails/documents                                          │
+│   ├── Product Requirements Document (PRD)                                   │
+│   └── ATDD Workshop (optional collaboration)                                │
+│        ↓                                                                    │
+│   【SDD Proposal Writing】                                                   │
+│   SPEC-XXX.md includes:                                                     │
+│   - Summary, Motivation                                                     │
+│   - Detailed Design                                                         │
+│   - Acceptance Criteria (Given-When-Then)                                   │
+│   - Dependencies, Risks                                                     │
+│        ↓                                                                    │
+│   【Review & Approval】                                                      │
+│        ↓                                                                    │
+│   【Forward Derivation】                                                     │
+│   /derive-all → .feature, .test.ts, acceptance.md, contract.json            │
+│        ↓                                                                    │
+│   【Implementation】(TDD optional)                                           │
+│        ↓                                                                    │
+│   【Verification】→ 【Archive】                                              │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Key Adjustments from Traditional Approaches
+
+1. **ATDD Workshop is Optional**: Not every feature needs a formal workshop
+2. **Spec is the Starting Point**: Regardless of input source, convert to SPEC-XXX.md
+3. **Given-When-Then Embedded**: AC format borrows from BDD, but doesn't require formal ATDD process
+4. **Forward Derivation Fills Gaps**: Auto-generates test structures, compensating for lack of workshops
 
 ---
 
@@ -352,7 +623,7 @@ This standard works together with two complementary standards to form a complete
 - [Behavior-Driven Development](behavior-driven-development.md) - BDD workflow with Given-When-Then scenarios
 - [Acceptance Test-Driven Development](acceptance-test-driven-development.md) - ATDD workflow for business acceptance
 - [Testing Standards](testing-standards.md) - Testing framework and best practices (or use `/testing-guide` skill)
-- [Test Completeness Dimensions](test-completeness-dimensions.md) - 7-dimension test coverage
+- [Test Completeness Dimensions](test-completeness-dimensions.md) - 8-dimension test coverage
 - [Commit Message Guide](commit-message-guide.md) - Commit message conventions
 - [Code Check-in Standards](checkin-standards.md) - Code check-in requirements
 - [Code Review Checklist](code-review-checklist.md) - Code review guidelines
@@ -364,6 +635,7 @@ This standard works together with two complementary standards to form a complete
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0.0 | 2026-01-25 | **Major refactor**: Added SDD as Independent Methodology section (separating SDD from TDD/BDD/ATDD family), Maturity Levels (Martin Fowler 2025), Common Pitfalls, Validation Layer with theoretical foundation, SDD + Testing Integration Model, /derive-contracts command |
 | 1.4.0 | 2026-01-19 | Added: Integration with Forward Derivation section, derive commands |
 | 1.3.0 | 2026-01-19 | Added: Integration with Reverse Engineering section, related commands |
 | 1.2.0 | 2026-01-05 | Added: IEEE 830-1998 and SWEBOK v4.0 Chapter 1 (Software Requirements) to References |
@@ -374,11 +646,28 @@ This standard works together with two complementary standards to form a complete
 
 ## References
 
+### SDD (2025 AI-Era)
+
+- [Thoughtworks: Spec-Driven Development](https://www.thoughtworks.com/en-us/insights/blog/agile-engineering-practices/spec-driven-development-unpacking-2025-new-engineering-practices)
+- [Martin Fowler: SDD Tools (Kiro, spec-kit, Tessl)](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html)
+- [GitHub spec-kit](https://github.com/github/spec-kit/blob/main/spec-driven.md)
+- [InfoQ: Spec-Driven Development](https://www.infoq.com/articles/spec-driven-development/)
+
+### Traditional Requirements Engineering
+
 - [OpenSpec Documentation](https://github.com/openspec)
 - [Design Documents Best Practices](https://www.industrialempathy.com/posts/design-docs-at-google/)
 - [ADR (Architecture Decision Records)](https://adr.github.io/)
 - [IEEE 830-1998 - Software Requirements Specifications](https://standards.ieee.org/ieee/830/1222/) - Requirements documentation standard
 - [SWEBOK v4.0 - Chapter 1: Software Requirements](https://www.computer.org/education/bodies-of-knowledge/software-engineering) - IEEE Computer Society
+
+### Verification Theory
+
+- [Design by Contract - Bertrand Meyer, 1986](https://en.wikipedia.org/wiki/Design_by_contract) - Pre/post conditions theory
+- [Wikipedia: Formal Verification](https://en.wikipedia.org/wiki/Formal_verification) - Formal verification theory
+- [Microsoft: Consumer-Driven Contract Testing](https://microsoft.github.io/code-with-engineering-playbook/automated-testing/cdc-testing/) - Contract Testing framework
+- [Specmatic: AI-powered API Contract Testing](https://specmatic.io/) - Modern contract testing tool
+- [Gojko Adzic: Specification by Example](https://gojko.net/books/specification-by-example/) - Executable specifications (2011)
 
 ---
 

@@ -10,8 +10,8 @@ description: |
 
 > **Language**: English | [繁體中文](../../../../locales/zh-TW/skills/claude-code/ai-collaboration-standards/SKILL.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
+**Version**: 1.1.0
+**Last Updated**: 2026-01-25
 **Applicability**: Claude Code Skills
 
 ---
@@ -22,7 +22,11 @@ This skill ensures AI assistants provide accurate, evidence-based responses with
 
 ## Quick Reference
 
-### Certainty Tags
+### Unified Tag System
+
+This skill uses two complementary tag categories:
+
+**Category 1: Certainty Tags** (for analyzing existing content)
 
 | Tag | Use When |
 |-----|----------|
@@ -31,6 +35,24 @@ This skill ensures AI assistants provide accurate, evidence-based responses with
 | `[Assumption]` | Based on common patterns (needs verification) |
 | `[Unknown]` | Information not available |
 | `[Need Confirmation]` | Requires user clarification |
+
+**Category 2: Derivation Tags** (for generating new content)
+
+| Tag | Use When |
+|-----|----------|
+| `[Source]` | Direct content from spec/requirement |
+| `[Derived]` | Transformed from source content |
+| `[Generated]` | AI-generated structure |
+| `[TODO]` | Requires human implementation |
+
+**When to Use Which**:
+
+| Workflow | Primary Tags |
+|----------|--------------|
+| Code analysis | Certainty Tags |
+| Reverse engineering | Certainty Tags |
+| Forward derivation | Derivation Tags |
+| Spec generation | Derivation Tags |
 
 ### Source Types
 
@@ -164,6 +186,7 @@ This project uses **English** certainty tags.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-25 | Added: Unified Tag System with Certainty and Derivation tag categories |
 | 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
 
 ---

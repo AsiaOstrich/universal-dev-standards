@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/github-copilot/copilot-instructions.md) | [简体中文](../../locales/zh-CN/integrations/github-copilot/copilot-instructions.md)
 
-**Version**: 2.0.0
-**Last Updated**: 2026-01-13
+**Version**: 2.1.0
+**Last Updated**: 2026-01-25
 
 This file defines custom instructions for GitHub Copilot Chat to ensure compliance with Universal Dev Standards.
 
@@ -131,11 +131,11 @@ Reference: `.standards/test-driven-development.md`
 
 ---
 
-## 5. Test Coverage: 7 Dimensions
+## 5. Test Coverage: 8 Dimensions
 
 Reference: `.standards/test-completeness-dimensions.md`
 
-### The 7 Dimensions
+### The 8 Dimensions
 
 | # | Dimension | What to Test |
 |---|-----------|--------------|
@@ -146,16 +146,19 @@ Reference: `.standards/test-completeness-dimensions.md`
 | 5 | **State Changes** | Before/after states |
 | 6 | **Validation** | Format, business rules |
 | 7 | **Integration** | Real DB/API calls |
+| 8 | **AI Generation** | AI-generated test quality |
 
 ### Feature Type → Required Dimensions
 
 | Feature Type | Required Dimensions |
 |--------------|---------------------|
-| CRUD API | 1, 2, 3, 4, 6, 7 |
-| Query/Search | 1, 2, 3, 4, 7 |
-| State Machine | 1, 3, 4, 5, 6 |
-| Validation | 1, 2, 3, 6 |
-| Background Job | 1, 3, 5 |
+| CRUD API | 1, 2, 3, 4, 6, 7, 8* |
+| Query/Search | 1, 2, 3, 4, 7, 8* |
+| State Machine | 1, 3, 4, 5, 6, 8* |
+| Validation | 1, 2, 3, 6, 8* |
+| Background Job | 1, 3, 5, 8* |
+
+*Dimension 8 applies when tests are AI-generated
 
 ---
 
@@ -249,6 +252,7 @@ Good: Specific, Measurable, Testable
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.1.0 | 2026-01-25 | Updated: Test Coverage 7 dimensions → 8 dimensions (added AI Generation) |
 | 2.0.0 | 2026-01-13 | Major enhancement: Added TDD, Test Coverage, Code Review, Checkin, Requirement sections |
 | 1.0.1 | 2025-12-24 | Added: Related Standards, Version History, License sections |
 | 1.0.0 | 2025-12-23 | Initial GitHub Copilot integration |
