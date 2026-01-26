@@ -1,5 +1,6 @@
 ---
 name: reverse-engineer
+scope: partial
 description: |
   Reverse engineer existing code into SDD specification documents.
   Use when: analyzing legacy code, documenting undocumented systems, creating specs from existing implementations.

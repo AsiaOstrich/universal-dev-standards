@@ -3,6 +3,7 @@
 **Version**: 1.1.0
 **Last Updated**: 2026-01-25
 **Applicability**: All projects adopting Behavior-Driven Development
+**Scope**: universal
 
 > **Language**: [English](../core/behavior-driven-development.md) | [繁體中文](../locales/zh-TW/core/behavior-driven-development.md)
 

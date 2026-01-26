@@ -1,5 +1,6 @@
 ---
 name: changelog-guide
+scope: partial
 description: |
   Write and maintain CHANGELOG.md following Keep a Changelog format.
   Use when: creating changelog entries, preparing releases, documenting changes.

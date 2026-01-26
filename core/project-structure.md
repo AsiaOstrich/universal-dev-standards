@@ -3,6 +3,7 @@
 **Version**: 1.1.0
 **Last Updated**: 2026-01-24
 **Applicability**: All software projects
+**Scope**: partial
 
 **English** | [繁體中文](../locales/zh-TW/core/project-structure.md)
 

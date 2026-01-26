@@ -1,5 +1,6 @@
 ---
 name: methodology-system
+scope: partial
 description: |
   Manage and guide developers through active development methodology workflows.
   Use when: TDD, BDD, SDD, ATDD, or custom methodology workflows are needed.

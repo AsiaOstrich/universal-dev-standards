@@ -1,5 +1,6 @@
 ---
 name: tdd-assistant
+scope: partial
 description: |
   Guide developers through Test-Driven Development workflow.
   Use when: writing tests first, practicing TDD, red-green-refactor cycle, BDD scenarios.

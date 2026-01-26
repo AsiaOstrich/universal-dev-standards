@@ -1,5 +1,6 @@
 ---
 name: documentation-guide
+scope: universal
 description: |
   Guide documentation structure, content requirements, and project documentation best practices.
   Use when: creating README, documentation, docs folder, project setup, technical docs.

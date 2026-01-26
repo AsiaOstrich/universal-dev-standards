@@ -1,5 +1,6 @@
 ---
 name: test-coverage-assistant
+scope: partial
 description: |
   Evaluate test completeness using the 8 dimensions framework.
   Use when: writing tests, reviewing test coverage, ensuring test quality.

@@ -5,6 +5,7 @@
 **Version**: 1.0.0
 **Last Updated**: 2026-01-14
 **Applicability**: All projects using AI coding assistants
+**Scope**: partial
 
 ---
 

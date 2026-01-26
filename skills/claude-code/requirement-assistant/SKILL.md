@@ -1,5 +1,6 @@
 ---
 name: requirement-assistant
+scope: universal
 description: |
   Guide requirement writing, user story creation, and feature specification.
   Use when: writing requirements, user stories, issues, feature planning.

@@ -1,5 +1,6 @@
 ---
 name: commit-standards
+scope: universal
 description: |
   Format commit messages following conventional commits standard.
   Use when: writing commit messages, git commit, reviewing commit history.

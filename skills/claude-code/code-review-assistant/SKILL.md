@@ -1,5 +1,6 @@
 ---
 name: code-review-assistant
+scope: universal
 description: |
   Systematic code review checklist and pre-commit quality gates for PRs.
   Use when: reviewing pull requests, checking code quality, before committing code.

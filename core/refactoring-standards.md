@@ -5,6 +5,7 @@
 **Version**: 2.0.0
 **Last Updated**: 2026-01-21
 **Applicability**: All software projects undertaking code improvement initiatives
+**Scope**: partial
 
 ---
 

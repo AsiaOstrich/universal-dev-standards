@@ -1,5 +1,6 @@
 ---
 name: testing-guide
+scope: uds-specific
 description: |
   Testing pyramid and test writing standards for UT/IT/ST/E2E.
   Supports ISTQB and Industry Pyramid frameworks.

@@ -62,10 +62,10 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=10
+TOTAL=12
 
 if [ "$SKIP_TESTS" = true ]; then
-    TOTAL=9
+    TOTAL=11
 fi
 
 # Function to run a check
@@ -177,16 +177,22 @@ run_check "7" "Running AI Agent sync check" "$SCRIPT_DIR/check-ai-agent-sync.sh"
 # Step 8: Usage docs sync
 run_check "8" "Running usage docs sync check" "$SCRIPT_DIR/check-usage-docs-sync.sh"
 
-# Step 9: Linting
-run_check "9" "Running linting" "npm run lint --prefix $CLI_DIR"
+# Step 9: Spec sync (Core↔Skill)
+run_check "9" "Running spec sync check (Core↔Skill)" "$SCRIPT_DIR/check-spec-sync.sh"
 
-# Step 10: Tests
+# Step 10: Scope sync
+run_check "10" "Running scope sync check" "$SCRIPT_DIR/check-scope-sync.sh"
+
+# Step 11: Linting
+run_check "11" "Running linting" "npm run lint --prefix $CLI_DIR"
+
+# Step 12: Tests
 if [ "$SKIP_TESTS" = true ]; then
-    echo -e "${CYAN}[10/$TOTAL]${NC} Running tests..."
+    echo -e "${CYAN}[12/$TOTAL]${NC} Running tests..."
     echo -e "      ${YELLOW}⏭ Skipped (--skip-tests flag)${NC}"
     SKIPPED=$((SKIPPED + 1))
 else
-    run_check "10" "Running tests" "npm test --prefix $CLI_DIR"
+    run_check "12" "Running tests" "npm test --prefix $CLI_DIR"
 fi
 
 # Show summary

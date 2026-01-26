@@ -1,5 +1,6 @@
 ---
 name: docs-generator
+scope: uds-specific
 description: |
   Generate usage documentation from project sources.
   Use when: "generate docs", "create cheatsheet", "usage guide", "feature reference", "list all features"

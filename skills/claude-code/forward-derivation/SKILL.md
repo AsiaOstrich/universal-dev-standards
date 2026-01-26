@@ -1,5 +1,6 @@
 ---
 name: forward-derivation
+scope: partial
 description: |
   Derive BDD scenarios and TDD test skeletons from approved SDD specifications.
   ATDD acceptance test tables are optional output for specialized needs.

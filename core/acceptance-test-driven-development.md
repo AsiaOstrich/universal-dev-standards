@@ -3,6 +3,7 @@
 **Version**: 1.1.0
 **Last Updated**: 2026-01-25
 **Applicability**: All projects adopting Acceptance Test-Driven Development
+**Scope**: universal
 
 > **Language**: [English](../core/acceptance-test-driven-development.md) | [繁體中文](../locales/zh-TW/core/acceptance-test-driven-development.md)
 

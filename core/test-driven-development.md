@@ -3,6 +3,7 @@
 **Version**: 1.2.0
 **Last Updated**: 2026-01-25
 **Applicability**: All projects adopting Test-Driven Development
+**Scope**: universal
 
 > **Language**: [English](../core/test-driven-development.md) | [繁體中文](../locales/zh-TW/core/test-driven-development.md)
 

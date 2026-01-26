@@ -5,6 +5,7 @@
 **Version**: 2.2.0
 **Last Updated**: 2026-01-20
 **Applicability**: All software projects
+**Scope**: universal
 
 ---
 

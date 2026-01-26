@@ -1,5 +1,6 @@
 ---
 name: logging-guide
+scope: universal
 description: |
   Implement structured logging with proper log levels and sensitive data handling.
   Use when: adding logging, debugging, setting up observability.

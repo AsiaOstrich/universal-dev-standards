@@ -1,5 +1,6 @@
 ---
 name: atdd-assistant
+scope: partial
 description: |
   Guide teams through Acceptance Test-Driven Development workflow.
   Use when: defining acceptance criteria, running specification workshops, writing user stories with acceptance tests, PO sign-off.

@@ -1,5 +1,6 @@
 ---
 name: project-structure-guide
+scope: universal
 description: |
   Guide for organizing project directories following language-specific best practices.
   Use when: creating projects, reorganizing structure, adding modules, setting up builds.

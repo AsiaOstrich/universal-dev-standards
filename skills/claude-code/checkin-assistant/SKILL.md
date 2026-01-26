@@ -1,5 +1,6 @@
 ---
 name: checkin-assistant
+scope: partial
 description: |
   Guide pre-commit quality gates and check-in workflow.
   Use when: committing code, preparing commits, quality gate verification.

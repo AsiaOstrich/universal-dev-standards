@@ -3,6 +3,7 @@
 **Version**: 1.1.0
 **Last Updated**: 2026-01-25
 **Applicability**: All projects using Spec-Driven Development
+**Scope**: uds-specific
 
 > **Language**: [English](../core/forward-derivation-standards.md) | [繁體中文](../locales/zh-TW/core/forward-derivation-standards.md)
 

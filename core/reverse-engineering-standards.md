@@ -3,6 +3,7 @@
 **Version**: 1.0.0
 **Last Updated**: 2026-01-19
 **Applicability**: All projects requiring code-to-specification transformation
+**Scope**: uds-specific
 
 > **Language**: [English](../core/reverse-engineering-standards.md) | [繁體中文](../locales/zh-TW/core/reverse-engineering-standards.md)
 

@@ -1,5 +1,6 @@
 ---
 name: refactoring-assistant
+scope: universal
 description: |
   Guide refactoring decisions and large-scale code improvements.
   Use when: refactoring code, legacy modernization, technical debt, rewrite decisions.

@@ -431,6 +431,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 | Adding features | Testing Standards | [core/testing-standards.md](core/testing-standards.md) |
 | Any commit | Check-in Standards | [core/checkin-standards.md](core/checkin-standards.md) |
 | New feature design | Spec-Driven Development | [core/spec-driven-development.md](core/spec-driven-development.md) |
+| Adding/modifying Core↔Skill | /spec + Sync Check | See "Core↔Skill Sync Rules" below |
 | Writing AI instructions | AI Instruction Standards | [core/ai-instruction-standards.md](core/ai-instruction-standards.md) |
 | Writing documentation | Documentation Writing | [core/documentation-writing-standards.md](core/documentation-writing-standards.md) |
 | Project architecture for AI | AI-Friendly Architecture | [core/ai-friendly-architecture.md](core/ai-friendly-architecture.md) |
@@ -462,6 +463,8 @@ After ANY modification, run:
 ./scripts/check-translation-sync.sh
 ./scripts/check-version-sync.sh
 ./scripts/check-ai-agent-sync.sh
+./scripts/check-spec-sync.sh        # Core↔Skill sync
+./scripts/check-scope-sync.sh       # Scope universality check
 cd cli && npm test && npm run lint
 ```
 
@@ -525,6 +528,125 @@ cd cli && npm test && npm run lint
 參考檔案：
 - docs/internal/AI-AGENT-SYNC-SOP.md
 - integrations/REGISTRY.json
+```
+
+### Core↔Skill Sync Rules (UDS-specific) / Core↔Skill 同步規則
+
+> ⚠️ This section is UDS project-specific. The UDS project maintains bidirectional relationships between Core Standards, Skills, and Commands.
+
+#### Sync Architecture / 同步架構
+
+```
+Core Standard ◄──────────► Skill ◄──────────► Command
+      │                       │                   │
+      └───────────────────────┴───────────────────┘
+                          ▼
+                    Translations
+```
+
+#### Sync Matrix / 同步矩陣
+
+| Change Origin | MUST Evaluate Sync To |
+|---------------|----------------------|
+| Core Standard | → Skill, Command, AI YAML, Translations |
+| Skill | → Core Standard (if applicable), Command, Translations |
+| Command | → Skill, Translations |
+
+#### Core↔Skill Mapping / Core↔Skill 對應
+
+| Category | Description | Examples |
+|----------|-------------|----------|
+| **Has Core Standard** | Skill implements a Core Standard | `commit-standards` ↔ `commit-message-guide.md` |
+| **Utility Skill** | No Core Standard needed (tool/generator) | `docs-generator`, `code-formatter` |
+| **Static Skill** | Reference only, no interaction | Skills that only link to standards |
+
+#### Mandatory /spec Workflow | 強制 /spec 工作流程
+
+**ANY of the following changes MUST use `/spec` first:**
+
+1. **Adding Features | 新增功能**
+   - New Core Standard
+   - New Skill
+   - New Slash Command
+
+2. **Modifying Features | 修改功能**
+   - Modifying Core Standard content
+   - Modifying Skill behavior
+   - Modifying Command functionality
+
+3. **Removing Features | 移除功能**
+   - Removing standards
+   - Removing Skills/Commands
+
+**Exceptions (can skip /spec):**
+- Typo fixes
+- Formatting changes
+- Pure translation updates
+- Emergency hotfixes (must document retroactively)
+
+#### Sync Check Script / 同步檢查腳本
+
+**macOS / Linux:**
+```bash
+./scripts/check-spec-sync.sh
+```
+
+**Windows PowerShell:**
+```powershell
+.\scripts\check-spec-sync.ps1
+```
+
+Expected output:
+```
+✓ commit-standards ↔ core/commit-message-guide.md
+✓ testing-guide ↔ core/testing-standards.md
+⚠ docs-generator (utility, no core standard required)
+✓ All Skills synced with Core Standards
+```
+
+### Scope Universality System / Scope 通用性標記系統
+
+All Core Standards and Skills are marked with a `scope` field indicating their universality:
+
+| Scope | Description | Usage |
+|-------|-------------|-------|
+| `universal` | Fully universal, usable by any project | Can be adopted as-is |
+| `partial` | Concept is universal but contains UDS-specific details | Review before adopting |
+| `uds-specific` | UDS project-specific tool or workflow | For internal use only |
+
+#### Scope Distribution / 分布統計
+
+**Current distribution:**
+- **Core Standards**: 14 universal (61%), 7 partial (30%), 2 uds-specific (9%)
+- **Skills**: 12 universal (48%), 10 partial (40%), 3 uds-specific (12%)
+
+#### Where to Find Scope Markers / 標記位置
+
+- **Skills**: In YAML frontmatter of `SKILL.md`
+  ```yaml
+  ---
+  name: skill-name
+  scope: universal
+  description: ...
+  ---
+  ```
+
+- **Core Standards**: In markdown metadata
+  ```markdown
+  **Applicability**: All software projects
+  **Scope**: universal
+  ```
+
+#### Scope Check Script / 範圍檢查腳本
+
+**macOS / Linux:**
+```bash
+./scripts/check-scope-sync.sh
+```
+
+**Windows PowerShell:**
+```powershell
+.\scripts\check-scope-sync.ps1
 ```
 
 ### Cross-Platform Command Sync (UDS-specific) / 跨平台指令同步

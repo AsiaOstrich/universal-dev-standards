@@ -5,6 +5,7 @@
 **Version**: 1.2.3
 **Last Updated**: 2025-12-24
 **Applicability**: All projects using Git version control
+**Scope**: universal
 
 ---
 

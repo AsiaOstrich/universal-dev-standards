@@ -44,10 +44,10 @@ $CliDir = Join-Path $RootDir "cli"
 $Passed = 0
 $Failed = 0
 $Skipped = 0
-$Total = 10
+$Total = 12
 
 if ($SkipTests) {
-    $Total = 9
+    $Total = 11
 }
 
 # Function to run a check
@@ -190,19 +190,25 @@ try {
     # Step 8: Usage docs sync
     Run-Check -Step 8 -Name "Running usage docs sync check" -Command "$ScriptDir\check-usage-docs-sync.ps1"
 
-    # Step 9: Linting
-    Run-Check -Step 9 -Name "Running linting" -Command "npm run lint --prefix `"$CliDir`""
+    # Step 9: Spec sync (Core↔Skill)
+    Run-Check -Step 9 -Name "Running spec sync check (Core↔Skill)" -Command "$ScriptDir\check-spec-sync.ps1"
 
-    # Step 10: Tests
+    # Step 10: Scope sync
+    Run-Check -Step 10 -Name "Running scope sync check" -Command "$ScriptDir\check-scope-sync.ps1"
+
+    # Step 11: Linting
+    Run-Check -Step 11 -Name "Running linting" -Command "npm run lint --prefix `"$CliDir`""
+
+    # Step 12: Tests
     if ($SkipTests) {
-        Write-Host "[10/$Total] " -ForegroundColor Cyan -NoNewline
+        Write-Host "[12/$Total] " -ForegroundColor Cyan -NoNewline
         Write-Host "Running tests..."
         Write-Host "      " -NoNewline
         Write-Host "[SKIP] Skipped (-SkipTests flag)" -ForegroundColor Yellow
         $Skipped++
     }
     else {
-        Run-Check -Step 10 -Name "Running tests" -Command "npm test --prefix `"$CliDir`""
+        Run-Check -Step 12 -Name "Running tests" -Command "npm test --prefix `"$CliDir`""
     }
 
     # Show summary

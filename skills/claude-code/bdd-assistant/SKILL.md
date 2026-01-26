@@ -1,5 +1,6 @@
 ---
 name: bdd-assistant
+scope: partial
 description: |
   Guide developers through Behavior-Driven Development workflow.
   Use when: writing BDD scenarios, using Gherkin syntax, Given-When-Then format, feature files, Three Amigos collaboration.

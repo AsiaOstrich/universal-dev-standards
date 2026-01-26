@@ -1,5 +1,6 @@
 ---
 name: spec-driven-dev
+scope: universal
 description: |
   Guide Spec-Driven Development (SDD) workflow for planning changes before implementation.
   Use when: creating specs, proposals, planning features, using OpenSpec or similar tools.
@@ -10,8 +11,8 @@ description: |
 
 > **Language**: English | [繁體中文](../../../locales/zh-TW/skills/claude-code/spec-driven-dev/SKILL.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-30
+**Version**: 1.1.0
+**Last Updated**: 2026-01-26
 **Applicability**: Claude Code Skills
 
 ---
@@ -49,9 +50,21 @@ This skill guides you through Spec-Driven Development (SDD), ensuring changes ar
 
 | Principle | Description |
 |-----------|-------------|
+| **Evaluate First** | Assess scope and sync needs before creating spec |
 | **Spec First** | No functional changes without approved spec |
 | **Tool Priority** | Use SDD tool commands when available |
 | **Methodology > Tooling** | SDD works with any tool or manual process |
+| **Bidirectional Sync** | Changes propagate to all related artifacts |
+
+### Pre-Spec Evaluation
+
+Before creating a specification, answer these questions:
+
+| Question | Options | Result |
+|----------|---------|--------|
+| **Scope?** | Project-specific / Universal | Determines if Core Standard needed |
+| **Interactive?** | Yes / No | Determines if Skill needed |
+| **User-triggered?** | Yes / No | Determines if Command needed |
 
 ### Exceptions to "Spec First"
 
@@ -163,21 +176,50 @@ Adding login.
 | **Spec Kit** | Lightweight spec tracking | `/spec create`, `/spec close` |
 | **Manual** | No tool, file-based | Create `specs/SPEC-XXX.md` manually |
 
+## Sync Verification
+
+After completing a spec, verify synchronization:
+
+### Sync Checklist
+
+```markdown
+## Sync Status
+
+### Scope: [Universal|Project|Utility]
+
+- [ ] Core Standard: [Created|Updated|N/A]
+- [ ] Skill: [Created|Updated|N/A]
+- [ ] Command: [Created|Updated|N/A]
+- [ ] Translations: [Synced|Pending|N/A]
+```
+
+### Sync Matrix
+
+| Change Origin | Sync To |
+|---------------|---------|
+| Core Standard | → Skills, Commands, Translations |
+| Skill | → Core Standard, Commands, Translations |
+| Command | → Skill, Translations |
+
 ## Best Practices
 
 ### Do's
 
+- ✅ Evaluate scope before creating spec
 - ✅ Keep specs focused and atomic (one change per spec)
 - ✅ Include clear acceptance criteria
 - ✅ Link specs to implementation PRs
 - ✅ Archive specs after completion
+- ✅ Verify sync status before closing
 
 ### Don'ts
 
 - ❌ Start coding before spec approval
+- ❌ Skip scope evaluation
 - ❌ Modify scope during implementation without updating spec
 - ❌ Leave specs in limbo (always close or archive)
 - ❌ Skip verification step
+- ❌ Forget to sync related artifacts
 
 ---
 
@@ -227,6 +269,7 @@ See `specs/TEMPLATE.md`
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-26 | Added: Pre-Spec Evaluation, Sync Verification, Sync Matrix, enhanced best practices |
 | 1.0.0 | 2025-12-30 | Initial release |
 
 ---

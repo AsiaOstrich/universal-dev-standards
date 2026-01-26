@@ -1,5 +1,6 @@
 ---
 name: git-workflow-guide
+scope: universal
 description: |
   Guide Git branching strategies, branch naming, and merge operations.
   Use when: creating branches, merging, pull requests, Git workflow questions.

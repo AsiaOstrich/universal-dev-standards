@@ -1,8 +1,9 @@
 # Spec-Driven Development (SDD) Standards
 
-**Version**: 2.0.0
-**Last Updated**: 2026-01-25
+**Version**: 2.1.0
+**Last Updated**: 2026-01-26
 **Applicability**: All projects adopting Spec-Driven Development
+**Scope**: universal
 
 > **Language**: [English](../core/spec-driven-development.md) | [繁體中文](../locales/zh-TW/core/spec-driven-development.md)
 
@@ -136,6 +137,77 @@ Avoid these common pitfalls when adopting SDD:
 
 ---
 
+## Change Evaluation (Pre-SDD Assessment)
+
+Before starting the SDD workflow, evaluate the nature and scope of the change. This prevents over-engineering and ensures changes are routed appropriately.
+
+### Evaluation Decision Tree
+
+```
+New Requirement/Change
+    │
+    ▼
+┌─────────────────────────────────────────────────────────┐
+│ Q1: What is the scope of this change?                    │
+│     這個變更的適用範圍是什麼？                            │
+├─────────────────────────────────────────────────────────┤
+│ A) Project-specific internal use only                    │
+│    → Add to CLAUDE.md or project config                 │
+│    → No Core Standard needed                            │
+│                                                          │
+│ B) Reusable rule for other projects                      │
+│    → Create Core Standard                               │
+│    → Evaluate if Skill/Command is needed                │
+└─────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────┐
+│ Q2: Does this feature require AI interaction?            │
+│     這個功能需要 AI 互動嗎？                              │
+├─────────────────────────────────────────────────────────┤
+│ A) Needs interactive workflow                            │
+│    → Create Skill                                       │
+│    → Evaluate if Slash Command is needed                │
+│                                                          │
+│ B) Static rule / background knowledge                    │
+│    → Core Standard only                                 │
+│    → Reference in CLAUDE.md                             │
+└─────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────┐
+│ Q3: Does the user need to trigger this directly?         │
+│     使用者需要直接觸發嗎？                                │
+├─────────────────────────────────────────────────────────┤
+│ A) Needs /command trigger                                │
+│    → Create Slash Command                               │
+│                                                          │
+│ B) AI applies automatically                              │
+│    → Skill only, no Command needed                      │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Evaluation Outcomes
+
+| Evaluation Result | Artifacts to Create |
+|-------------------|---------------------|
+| Project-specific only | CLAUDE.md update only |
+| Universal static rule | Core Standard + CLAUDE.md reference |
+| Universal interactive | Core Standard + Skill |
+| User-triggered workflow | Core Standard + Skill + Command |
+
+### Scope Classification Tags
+
+Use these tags in spec documents to indicate scope:
+
+| Tag | Meaning | Example |
+|-----|---------|---------|
+| `[Scope: Project]` | Project-specific, not for distribution | CI/CD config, team conventions |
+| `[Scope: Universal]` | Reusable by other projects | Coding standards, testing patterns |
+| `[Scope: Utility]` | Tool/generator, no Core Standard needed | docs-generator, code-formatter |
+
+---
+
 ## SDD Workflow
 
 ```
@@ -158,6 +230,55 @@ Avoid these common pitfalls when adopting SDD:
 | **Implementation** | Execute the approved spec | Code, tests, docs |
 | **Verification** | Confirm implementation matches spec | Test results, review |
 | **Archive** | Close and archive the spec | Archived spec with links to commits/PRs |
+
+---
+
+## Bidirectional Sync Assessment
+
+When working with specifications and their implementations, always evaluate what needs to be synchronized. Changes can originate from any artifact and should propagate to related artifacts.
+
+### Sync Matrix
+
+| Change Origin | Evaluate Sync To |
+|---------------|------------------|
+| Core Standard | → Skills, Commands, AI YAML, Translations |
+| Skill | → Core Standard (if applicable), Commands, Translations |
+| Command | → Skill, Core Standard (if applicable), Translations |
+
+### Sync Checklist Template
+
+Include this checklist in spec documents:
+
+```markdown
+## Sync Checklist
+
+### Starting from Core Standard
+- [ ] Create/update corresponding Skill? (if interactive)
+- [ ] Create/update Slash Command? (if user-triggered)
+- [ ] Update translations? (zh-TW, zh-CN, etc.)
+- [ ] Update AI YAML version? (if applicable)
+
+### Starting from Skill
+- [ ] Should this Skill have a Core Standard?
+- [ ] If utility Skill (e.g., docs-generator), mark as "[Scope: Utility]"
+- [ ] Create Slash Command?
+- [ ] Update translations?
+
+### Starting from Command
+- [ ] Which Skill does this Command belong to?
+- [ ] Update Skill documentation?
+- [ ] Update translations?
+```
+
+### Sync Markers
+
+Use these markers in documentation to indicate sync status:
+
+| Marker | Meaning |
+|--------|---------|
+| `[Synced: ✓]` | All related artifacts are synchronized |
+| `[Synced: Pending]` | Sync needed but not yet completed |
+| `[Synced: N/A]` | No related artifacts to sync (e.g., standalone utility) |
 
 ---
 
@@ -635,6 +756,7 @@ This standard works together with two complementary standards to form a complete
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.1.0 | 2026-01-26 | Added: Change Evaluation (Pre-SDD Assessment) section with decision tree, Bidirectional Sync Assessment section with sync matrix and checklist |
 | 2.0.0 | 2026-01-25 | **Major refactor**: Added SDD as Independent Methodology section (separating SDD from TDD/BDD/ATDD family), Maturity Levels (Martin Fowler 2025), Common Pitfalls, Validation Layer with theoretical foundation, SDD + Testing Integration Model, /derive-contracts command |
 | 1.4.0 | 2026-01-19 | Added: Integration with Forward Derivation section, derive commands |
 | 1.3.0 | 2026-01-19 | Added: Integration with Reverse Engineering section, related commands |

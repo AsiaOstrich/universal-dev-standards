@@ -5,6 +5,7 @@
 **Version**: 1.4.0
 **Last Updated**: 2026-01-16
 **Applicability**: All software projects using version control
+**Scope**: partial
 
 ---
 

@@ -5,6 +5,7 @@
 **Version**: 1.2.0
 **Last Updated**: 2025-12-30
 **Applicability**: All software projects with versioned releases
+**Scope**: universal
 
 ---
 

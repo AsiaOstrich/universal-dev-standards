@@ -1,5 +1,6 @@
 ---
 name: release-standards
+scope: universal
 description: |
   Semantic versioning and changelog formatting for software releases.
   Use when: preparing releases, updating version numbers, writing changelogs.

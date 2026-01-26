@@ -1,5 +1,6 @@
 ---
 name: error-code-guide
+scope: universal
 description: |
   Design consistent error codes following the PREFIX_CATEGORY_NUMBER format.
   Use when: defining error codes, creating error handling, designing APIs.

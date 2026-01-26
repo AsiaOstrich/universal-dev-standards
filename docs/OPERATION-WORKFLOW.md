@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/docs/OPERATION-WORKFLOW.md) | [简体中文](../locales/zh-CN/docs/OPERATION-WORKFLOW.md)
 
-**Version**: 1.2.0
-**Last Updated**: 2026-01-14
+**Version**: 1.3.0
+**Last Updated**: 2026-01-26
 
 This document provides a complete operation workflow for the Universal Development Standards (UDS) project, covering the entire process from core standards to file generation.
 
@@ -498,9 +498,30 @@ cli/
 | `check-standards-sync.sh` | Check MD ↔ AI YAML sync | `./scripts/check-standards-sync.sh` |
 | `check-version-sync.sh` | Check version consistency | `./scripts/check-version-sync.sh` |
 | `check-install-scripts-sync.sh` | Check install scripts sync | `./scripts/check-install-scripts-sync.sh` |
+| `check-spec-sync.sh` | Check Core↔Skill sync | `./scripts/check-spec-sync.sh` |
 | `pre-release.sh` | Pre-release automation | `./scripts/pre-release.sh --version X.Y.Z` |
 
-### 7.2 Translation Sync Mechanism
+### 7.2 Core↔Skill Sync Mechanism
+
+**Purpose**: Verify synchronization between Core Standards, Skills, and Commands.
+
+**Check Process:**
+```bash
+./scripts/check-spec-sync.sh
+```
+
+**Output Status:**
+- `✓` (green) - Skill and Core Standard are synchronized
+- `⚠` (yellow) - Utility skill (no Core Standard required)
+- `✗` (red) - Missing Core Standard or mapping
+
+**When to Run:**
+- After creating/modifying Core Standards
+- After creating/modifying Skills
+- After creating/modifying Commands
+- Before releases (included in pre-release-check.sh)
+
+### 7.3 Translation Sync Mechanism
 
 **Check Process:**
 ```bash
@@ -524,7 +545,7 @@ cli/
 4. Update `source_version` and `translation_version` in YAML Front Matter
 5. Run sync check again to verify
 
-### 7.3 Standards Sync Mechanism
+### 7.4 Standards Sync Mechanism
 
 **Check Process:**
 ```bash
@@ -545,7 +566,7 @@ options/commit-message/english.md ↔ ai/options/commit-message/english.ai.yaml
 ...
 ```
 
-### 7.4 Version Sync Mechanism
+### 7.5 Version Sync Mechanism
 
 **Version File Locations (6 places):**
 
@@ -564,7 +585,7 @@ options/commit-message/english.md ↔ ai/options/commit-message/english.ai.yaml
 ./scripts/check-version-sync.sh
 ```
 
-### 7.5 CLI and Slash Command Sync
+### 7.6 CLI and Slash Command Sync
 
 #### Relationship Overview
 
@@ -987,6 +1008,7 @@ Step 7: Verify Release
 | Standards Sync | `scripts/check-standards-sync.sh` | Check MD ↔ YAML sync |
 | Version Sync | `scripts/check-version-sync.sh` | Check version consistency |
 | Install Scripts Sync | `scripts/check-install-scripts-sync.sh` | Check install scripts |
+| Spec Sync | `scripts/check-spec-sync.sh` | Check Core↔Skill sync |
 | Pre-release | `scripts/pre-release.sh` | Pre-release automation |
 
 ### 10.3 Configuration Files
@@ -1018,6 +1040,10 @@ Step 7: Verify Release
 ./scripts/check-standards-sync.sh
 ./scripts/check-translation-sync.sh
 ./scripts/check-version-sync.sh
+./scripts/check-spec-sync.sh
+
+# Or run all checks at once
+./scripts/pre-release-check.sh
 
 # Run tests and linting
 cd cli && npm test && npm run lint
