@@ -1,8 +1,8 @@
 ---
 source: ../../../../../skills/claude-code/release-standards/release-workflow.md
-source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-01-14
+source_version: 2.2.0
+translation_version: 2.2.0
+last_synced: 2026-01-26
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **Language**: [English](../../../../../skills/claude-code/release-standards/release-workflow.md) | 简体中文
 
-**版本**: 2.0.0
-**最後更新**: 2026-01-14
+**版本**: 2.2.0
+**最後更新**: 2026-01-26
 **適用範圍**: 所有使用語義化版本的软体项目
 
 ---

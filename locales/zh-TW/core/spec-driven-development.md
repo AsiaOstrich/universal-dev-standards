@@ -1,16 +1,17 @@
 ---
 source: ../../../core/spec-driven-development.md
-source_version: 1.3.0
-translation_version: 1.3.0
-last_synced: 2026-01-19
+source_version: 2.1.0
+translation_version: 2.1.0
+last_synced: 2026-01-26
 status: current
 ---
 
 # 規格驅動開發 (SDD) 標準
 
-**版本**: 1.3.0
-**最後更新**: 2026-01-19
+**版本**: 2.1.0
+**最後更新**: 2026-01-26
 **適用範圍**: 所有採用規格驅動開發的專案
+**範圍**: universal
 
 > **語言**: [English](../../../core/spec-driven-development.md) | [繁體中文](../locales/zh-TW/core/spec-driven-development.md)
 

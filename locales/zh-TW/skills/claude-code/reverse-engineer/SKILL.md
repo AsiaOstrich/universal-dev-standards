@@ -5,9 +5,9 @@ description: |
   使用時機：分析舊有程式碼、為未文件化的系統撰寫文件、從現有實作提取規格。
   關鍵字：reverse engineering, legacy code, documentation, spec extraction, code archaeology, 反向工程, 舊有程式碼, 規格提取。
 source: ../../../../../skills/claude-code/reverse-engineer/SKILL.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-01-19
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-01-25
 status: current
 ---
 

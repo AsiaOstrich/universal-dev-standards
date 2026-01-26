@@ -1,8 +1,8 @@
 ---
 source: skills/claude-code/ai-collaboration-standards/certainty-labels.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-25
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **语言**: [English](../../../../../skills/claude-code/ai-collaboration-standards/certainty-labels.md) | 简体中文
 
-**版本**: 1.0.0
-**最後更新**: 2025-12-24
+**版本**: 1.1.0
+**最後更新**: 2026-01-25
 **適用範圍**: Claude Code Skills
 
 ---

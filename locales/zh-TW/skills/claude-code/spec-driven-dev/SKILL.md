@@ -5,9 +5,9 @@ description: |
   使用時機：建立規格、提案、規劃功能、使用 OpenSpec 或類似工具。
   關鍵字：spec, specification, SDD, proposal, openspec, design doc, 規格, 提案, 設計文件。
 source: ../../../../../skills/claude-code/spec-driven-dev/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-08
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-25
 status: current
 ---
 

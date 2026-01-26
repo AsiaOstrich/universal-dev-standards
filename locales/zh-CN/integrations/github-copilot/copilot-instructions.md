@@ -1,8 +1,8 @@
 ---
 source: ../../../../integrations/github-copilot/copilot-instructions.md
-source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-01-13
+source_version: 2.1.0
+translation_version: 2.1.0
+last_synced: 2026-01-25
 status: current
 ---
 

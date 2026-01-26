@@ -1,13 +1,15 @@
 ---
 name: forward-derivation
+scope: partial
 description: |
-  從已批准的 SDD 規格推演 BDD 場景、TDD 測試骨架和 ATDD 驗收測試。
+  從已批准的 SDD 規格推演 BDD 場景和 TDD 測試骨架。
+  ATDD 驗收測試表為可選輸出，用於特殊需求。
   使用時機：規格已批准、開始 BDD/TDD 實作、生成測試結構。
   關鍵字：forward derivation, spec to test, BDD generation, TDD skeleton, test derivation, 正向推演, 規格轉測試, 測試生成。
 source: ../../../../../skills/claude-code/forward-derivation/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-19
+source_version: 2.0.0
+translation_version: 2.0.0
+last_synced: 2026-01-25
 status: current
 ---
 
@@ -15,8 +17,8 @@ status: current
 
 > **語言**: [English](../../../../../skills/claude-code/forward-derivation/SKILL.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-01-19
+**版本**: 2.0.0
+**最後更新**: 2026-01-25
 **適用範圍**: Claude Code Skills
 
 > **核心規範**：此技能實作[正向推演標準](../../../core/forward-derivation-standards.md)。任何 AI 工具皆可參考核心規範取得完整方法論文件。
@@ -25,7 +27,9 @@ status: current
 
 ## 目的
 
-此技能引導您從已批准的 SDD 規格推演 BDD 場景、TDD 測試骨架和 ATDD 驗收測試，並嚴格遵循反幻覺標準。
+此技能引導您從已批准的 SDD 規格推演 BDD 場景和 TDD 測試骨架，並嚴格遵循反幻覺標準。
+
+> **注意**: ATDD 測試表為可選項，可透過 `/derive-atdd` 取得。BDD 場景本身已作為可執行驗收測試，使 ATDD 表對大多數用例變得多餘。
 
 正向推演是[反向工程](../reverse-engineer/SKILL.md)的對稱對應：
 - **反向工程**：程式碼 → 規格
@@ -399,6 +403,8 @@ spec-review (已批准) → forward-derivation → discovery (BDD)
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 2.0.0 | 2026-01-25 | ATDD 從必需改為可選輸出；/derive-all 現在只輸出 BDD + TDD |
+| 1.1.0 | 2026-01-25 | 新增：統一標籤系統參考 |
 | 1.0.0 | 2026-01-19 | 初始發布 |
 
 ---
