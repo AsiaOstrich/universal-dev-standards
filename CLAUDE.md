@@ -646,6 +646,62 @@ For stable releases, ensure translations are synchronized:
 ./scripts/check-translation-sync.sh zh-CN # zh-CN
 ```
 
+#### UDS Three-Phase Release Workflow (Alpha→Beta→Stable)
+
+> **Note**: This workflow is specific to the UDS project. The generic release workflow (see `release-workflow.md`) uses a simpler Beta→Stable pattern suitable for most projects.
+
+**Workflow Philosophy**: Version first, then validate. Assign version number before testing to ensure validation targets the exact release version.
+
+**Phase Overview:**
+
+| Phase | Version Pattern | npm Tag | Purpose |
+|-------|-----------------|---------|---------|
+| Phase 1: Alpha | `X.Y.Z-alpha.N` | `@alpha` | Internal validation, pre-release checks |
+| Phase 2: Beta | `X.Y.Z-beta.N` | `@beta` | Public testing, early adopter feedback |
+| Phase 3: Stable | `X.Y.Z` | `@latest` | Production release |
+
+**Detailed Steps:**
+
+**Phase 1: Alpha Release (Internal)**
+1. Update version to alpha: `npm version X.Y.Z-alpha.1 --no-git-tag-version`
+2. Update all 6 version files (see above)
+3. Run pre-release checks: `./scripts/pre-release-check.sh`
+4. Update CHANGELOG with alpha notes
+5. Commit: `chore(release): X.Y.Z-alpha.1`
+6. Create tag: `vX.Y.Z-alpha.1`
+7. Push and create GitHub Release (mark as pre-release)
+
+**Phase 2: Beta Release (Public Testing)**
+1. After alpha validation passes, update to beta: `npm version X.Y.Z-beta.1 --no-git-tag-version`
+2. Update all 6 version files
+3. Run full test suite
+4. Update CHANGELOG with beta notes
+5. Commit: `chore(release): X.Y.Z-beta.1`
+6. Create tag: `vX.Y.Z-beta.1`
+7. Push and create GitHub Release (mark as pre-release)
+8. Announce to early adopters for feedback
+
+**Phase 3: Stable Release (Production)**
+1. After beta testing completes, update to stable: `npm version X.Y.Z --no-git-tag-version`
+2. Update all 6 version files (including README.md)
+3. Finalize CHANGELOG (remove beta warnings, add stable notes)
+4. Sync translations: `./scripts/check-translation-sync.sh`
+5. Run final pre-release checks
+6. Commit: `chore(release): X.Y.Z`
+7. Create tag: `vX.Y.Z`
+8. Push and create GitHub Release
+9. Verify npm publication: `npm view @anthropic/uds dist-tags`
+
+**When to Use This Workflow:**
+- Major releases with breaking changes
+- Features requiring extensive testing
+- Releases needing early adopter validation
+
+**When to Skip Alpha (Beta→Stable only):**
+- Patch releases (bug fixes only)
+- Minor releases with low-risk changes
+- Urgent security fixes
+
 ### Example Interaction
 
 ```

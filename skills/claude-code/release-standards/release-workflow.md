@@ -70,20 +70,9 @@ This document provides a universal release workflow guide applicable to any soft
 
 ## Standard Release Workflow
 
-> **Workflow Philosophy**: Alpha for internal testing, Beta for public release. This ensures thorough validation before each stage.
+> **Workflow Philosophy**: Version first, then validate. Update version before testing to ensure validation runs against the exact release version.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Alpha (Internal)  →  Beta (Public)  →  Stable (Production)    │
-│  X.Y.Z-alpha.N        X.Y.Z-beta.N      X.Y.Z                   │
-└─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-### Phase A: Alpha Release (Internal Testing)
-
-#### Step 1: Prepare Release Branch
+### Step 1: Prepare Release Branch
 
 ```bash
 # Ensure you're on the main branch and up to date
@@ -94,31 +83,43 @@ git pull origin main
 git status
 ```
 
-#### Step 2: Update to Alpha Version
+### Step 2: Update Version
 
 ```bash
 # For npm projects
-npm version X.Y.Z-alpha.1 --no-git-tag-version
+npm version X.Y.Z --no-git-tag-version        # Stable
+npm version X.Y.Z-beta.N --no-git-tag-version # Beta
 
 # For other projects, update version file manually
 # Update all project-specific version files (see CLAUDE.md)
 ```
 
-#### Step 3: Update CHANGELOG
+### Step 3: Update CHANGELOG
+
+Update `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com/) format:
 
 ```markdown
-## [X.Y.Z-alpha.1] - YYYY-MM-DD
-
-> ⚠️ **Alpha Release**: Internal testing only.
+## [X.Y.Z] - YYYY-MM-DD
 
 ### Added
 - New feature descriptions
 
 ### Changed
 - Change descriptions
+
+### Fixed
+- Bug fix descriptions
 ```
 
-#### Step 4: Run All Tests
+For beta releases, add a warning:
+
+```markdown
+## [X.Y.Z-beta.N] - YYYY-MM-DD
+
+> ⚠️ **Beta Release**: For testing. Install with `npm install <package>@beta`
+```
+
+### Step 4: Run All Tests
 
 ```bash
 # Run automated tests
@@ -131,107 +132,49 @@ npm run lint  # or your project's lint command
 ./scripts/pre-release-check.sh  # or .\scripts\pre-release-check.ps1
 ```
 
-#### Step 5: Internal Verification
+### Step 5: Manual Verification
 
 Before proceeding, manually verify:
 
 - [ ] **Build verification**: Application builds successfully
 - [ ] **Smoke test**: Core functionality works as expected
-- [ ] **Version display**: Version shows `X.Y.Z-alpha.N`
-- [ ] **Known issues**: Documented for team reference
+- [ ] **Version display**: Version number is displayed correctly
+- [ ] **For beta**: Known issues documented in CHANGELOG
 
-> ⚠️ **Stop here if any verification fails.** Fix issues and increment alpha (alpha.2, alpha.3...).
+> ⚠️ **Stop here if any verification fails.** Fix issues before proceeding.
 
-#### Step 6: Commit Alpha (Optional: Local Only)
-
-```bash
-# Commit changes (can be local-only for internal testing)
-git add .
-git commit -m "chore(release): X.Y.Z-alpha.1"
-
-# Optional: Push for CI/CD testing
-git push origin main
-```
-
----
-
-### Phase B: Beta Release (Public Testing)
-
-#### Step 7: Promote Alpha to Beta
-
-After internal testing passes:
-
-```bash
-# Update version from alpha to beta
-npm version X.Y.Z-beta.1 --no-git-tag-version
-
-# Update all project-specific version files
-```
-
-#### Step 8: Update CHANGELOG for Beta
-
-```markdown
-## [X.Y.Z-beta.1] - YYYY-MM-DD
-
-> ⚠️ **Beta Release**: For testing. Install with `npm install <package>@beta`
-
-### Added
-- New feature descriptions
-
-### Fixed
-- Issues found during alpha testing
-```
-
-#### Step 9: Final Verification
-
-- [ ] All alpha issues resolved
-- [ ] Version displays `X.Y.Z-beta.1`
-- [ ] CHANGELOG updated with beta notes
-
-#### Step 10: Commit and Tag Beta
+### Step 6: Commit and Tag
 
 ```bash
 # Commit changes
 git add .
-git commit -m "chore(release): X.Y.Z-beta.1"
+git commit -m "chore(release): X.Y.Z"
 
 # Create and push tag
-git tag vX.Y.Z-beta.1
+git tag vX.Y.Z
 git push origin main --tags
 ```
 
-#### Step 11: Create Beta Release
+### Step 7: Create Release
 
 Create a GitHub/GitLab release:
-- Tag: `vX.Y.Z-beta.1`
-- Title: `vX.Y.Z-beta.1 - [Release Name]`
-- ✅ Mark as **pre-release**
+- Tag: `vX.Y.Z`
+- Title: `vX.Y.Z - [Release Name]`
+- Mark as pre-release if beta/alpha/rc
 - Add release notes from CHANGELOG
 
-#### Step 12: Verify Beta Publication
+### Step 8: Verify Publication
 
 ```bash
 # For npm packages
 npm view <package-name> dist-tags
-# Should show: beta: X.Y.Z-beta.1
 
 # Test installation
-npm install -g <package-name>@beta
+npm install -g <package-name>@<version>
 
 # Verify version
-<command> --version  # Should show X.Y.Z-beta.1
+<command> --version  # Should show X.Y.Z
 ```
-
----
-
-### Phase C: Stable Release (Production)
-
-After beta testing is complete, follow the same pattern:
-1. Update version to `X.Y.Z` (remove `-beta.N`)
-2. Update CHANGELOG (remove beta warning)
-3. Commit, tag, push
-4. Create GitHub release (NOT marked as pre-release)
-5. Verify `@latest` tag on npm
 
 ---
 
@@ -339,32 +282,27 @@ npm version patch
 
 ## Pre-release Checklist
 
-### Before Alpha Release (Internal)
+### Universal Checks (All Releases)
 
-- [ ] On correct branch (main)
+- [ ] On correct branch (main for stable)
 - [ ] Git working directory clean
-- [ ] Version updated to `X.Y.Z-alpha.N`
+- [ ] Version updated in all required files
+- [ ] CHANGELOG updated with release notes
 - [ ] All tests passing
 - [ ] Linting passing
 - [ ] Build successful
 - [ ] Core functionality works (smoke test)
 
-### Before Beta Release (Public)
+### Before Beta Release
 
-- [ ] Alpha testing completed
-- [ ] All alpha issues resolved
-- [ ] Version updated to `X.Y.Z-beta.N`
-- [ ] CHANGELOG updated with beta notes
-- [ ] Known issues documented
-- [ ] Pre-release check script passes
+- [ ] Universal checks completed
+- [ ] Known issues documented in CHANGELOG
 
-### Before Stable Release (Production)
+### Before Stable Release
 
-- [ ] Beta testing completed
-- [ ] All beta feedback addressed
+- [ ] Universal checks completed
+- [ ] Beta testing completed (if applicable)
 - [ ] No critical bugs
-- [ ] Version updated to `X.Y.Z`
-- [ ] CHANGELOG finalized (beta warning removed)
 - [ ] Migration guide created (if breaking changes)
 
 ---
@@ -422,7 +360,7 @@ When helping with releases:
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 2.2.0 | 2026-01-26 | Add Alpha→Beta→Stable three-phase workflow pattern |
+| 2.2.0 | 2026-01-26 | Simplify to universal Beta→Stable workflow; Alpha→Beta→Stable moved to project-specific |
 | 2.1.0 | 2026-01-26 | Adopt "version first" workflow: update version → test → verify → release |
 | 2.0.0 | 2026-01-14 | Refactor to universal guide, move project-specific content to CLAUDE.md |
 | 1.0.0 | 2026-01-02 | Initial release workflow guide |
