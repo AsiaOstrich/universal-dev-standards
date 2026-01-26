@@ -1,0 +1,187 @@
+# Usage Documentation Generator Configuration
+# 使用說明文件產生器配置
+#
+# This configuration defines how to generate comprehensive usage documentation
+# from project source files. The generator reads this file to know:
+# - What sources to scan (CLI, skills, commands, agents, workflows, standards)
+# - What output formats to produce (reference, cheatsheet)
+# - What languages to generate (en, zh-TW, zh-CN)
+
+version: "1.0"
+
+# Output configuration
+output:
+  directory: "docs/"
+  formats:
+    - reference    # FEATURE-REFERENCE.md - Complete feature documentation
+    - cheatsheet   # CHEATSHEET.md - Single-page quick reference
+  languages:
+    - en           # English (primary)
+    - zh-TW        # Traditional Chinese
+    - zh-CN        # Simplified Chinese
+
+  # Language-specific output paths
+  paths:
+    en: "docs/"
+    zh-TW: "locales/zh-TW/docs/"
+    zh-CN: "locales/zh-CN/docs/"
+
+# Feature sources configuration
+sources:
+  # CLI Commands - parsed from Commander.js definitions
+  cli:
+    enabled: true
+    entry: "cli/bin/uds.js"
+    commands_dir: "cli/src/commands/"
+    package: "cli/package.json"
+    # Fields to extract
+    fields:
+      - name
+      - description
+      - options
+      - examples
+
+  # Skills - Claude Code skills with SKILL.md files
+  skills:
+    enabled: true
+    directory: "skills/claude-code/"
+    pattern: "**/SKILL.md"
+    exclude:
+      - "commands/**"
+      - "agents/**"
+      - "workflows/**"
+    # Frontmatter fields to extract
+    frontmatter:
+      - name
+      - description
+    # Content sections to extract
+    sections:
+      - purpose
+      - quick-reference
+
+  # Slash Commands - command definitions
+  commands:
+    enabled: true
+    directory: "skills/claude-code/commands/"
+    pattern: "*.md"
+    exclude:
+      - "README.md"
+      - "COMMAND-FAMILY-OVERVIEW.md"
+    frontmatter:
+      - description
+      - allowed-tools
+      - argument-hint
+
+  # AI Agents - specialized agents
+  agents:
+    enabled: true
+    directory: "skills/claude-code/agents/"
+    pattern: "*.md"
+    exclude:
+      - "README.md"
+    frontmatter:
+      - name
+      - description
+      - role
+      - expertise
+      - triggers
+      - skills
+
+  # Workflows - workflow definitions
+  workflows:
+    enabled: true
+    directory: "skills/claude-code/workflows/"
+    pattern: "*.md"
+    exclude:
+      - "README.md"
+    # YAML workflow files (if any)
+    yaml_pattern: "*.workflow.yaml"
+    fields:
+      - name
+      - description
+      - steps
+      - agents
+
+  # Core Standards - fundamental development standards
+  standards:
+    enabled: true
+    directory: "core/"
+    pattern: "*.md"
+    # Content sections to extract
+    sections:
+      - purpose
+      - quick-reference
+    # Metadata from document header
+    metadata:
+      - version
+      - last-updated
+      - applicability
+
+  # Scripts - utility scripts
+  scripts:
+    enabled: true
+    directory: "scripts/"
+    patterns:
+      - "*.sh"
+      - "*.ps1"
+      - "*.mjs"
+    exclude:
+      - "generate-usage-docs.mjs"  # Self-reference
+    # Parse comments for description
+    parse_header_comments: true
+
+  # Templates - document templates
+  templates:
+    enabled: true
+    directory: "templates/"
+    pattern: "**/*.md"
+    exclude:
+      - "README.md"
+
+# Translation configuration
+translations:
+  # Source file to translation mapping
+  sources:
+    en: ""  # Root directory (no prefix)
+    zh-TW: "locales/zh-TW/"
+    zh-CN: "locales/zh-CN/"
+
+  # Translation metadata fields
+  metadata:
+    - source
+    - source_version
+    - translation_version
+    - last_synced
+    - status
+
+# Document structure templates
+templates:
+  # FEATURE-REFERENCE.md structure
+  reference:
+    title:
+      en: "UDS Feature Reference"
+      zh-TW: "UDS 功能參考手冊"
+      zh-CN: "UDS 功能参考手册"
+    sections:
+      - cli
+      - commands
+      - skills
+      - agents
+      - workflows
+      - standards
+      - scripts
+      - templates
+
+  # CHEATSHEET.md structure
+  cheatsheet:
+    title:
+      en: "UDS Cheatsheet"
+      zh-TW: "UDS 速查表"
+      zh-CN: "UDS 速查表"
+    format: "table"  # Table-based layout for quick reference
+
+# Metadata
+metadata:
+  generator: "generate-usage-docs.mjs"
+  project: "universal-dev-standards"
+  repository: "https://github.com/AsiaOstrich/universal-dev-standards"
