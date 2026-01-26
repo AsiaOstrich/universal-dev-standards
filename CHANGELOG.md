@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [4.3.0-alpha.1] - 2026-01-26
+
+> ⚠️ **Alpha Release**: This is an internal validation release for local testing. Not recommended for production use.
+
 ### Changed
 - **Methodology Refactoring**: Major separation of SDD from TDD/BDD/ATDD family
   - SDD (Spec-Driven Development, 2025) is now positioned as independent AI-era methodology
@@ -1018,7 +1022,8 @@ This reflects the project's expanded scope covering all development standards, n
 - Templates: Requirement document templates
 - Integrations: OpenSpec framework
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.2.0...HEAD
+[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.3.0-alpha.1...HEAD
+[4.3.0-alpha.1]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.2.0...v4.3.0-alpha.1
 [4.2.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.5.0...v4.0.0
