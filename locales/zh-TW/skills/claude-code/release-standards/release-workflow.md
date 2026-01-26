@@ -1,8 +1,8 @@
 ---
 source: ../../../../../skills/claude-code/release-standards/release-workflow.md
-source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-01-14
+source_version: 2.1.0
+translation_version: 2.1.0
+last_synced: 2026-01-26
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **Language**: [English](../../../../../skills/claude-code/release-standards/release-workflow.md) | 繁體中文
 
-**版本**: 2.0.0
-**最後更新**: 2026-01-14
+**版本**: 2.1.0
+**最後更新**: 2026-01-26
 **適用範圍**: 所有使用語義化版本的軟體專案
 
 ---
@@ -78,31 +78,28 @@ status: current
 
 ## 標準發布流程
 
-### 步驟 1：發布前檢查
+> **流程理念**：先給版號，再驗證。確保測試是針對即將發布的確切版本進行。
+
+### 步驟 1：準備發布分支
 
 ```bash
 # 確保在 main 分支並已更新
 git checkout main
 git pull origin main
 
-# 執行測試
-npm test  # 或專案的測試指令
-
-# 執行程式碼檢查
-npm run lint  # 或專案的 lint 指令
-
-# 檢查 git 狀態
-git status  # 應為乾淨狀態
+# 檢查 git 狀態（應為乾淨狀態）
+git status
 ```
 
-### 步驟 2：更新版本
+### 步驟 2：更新版本（優先！）
 
 ```bash
 # npm 專案
-npm version X.Y.Z        # 穩定版
-npm version X.Y.Z-beta.N # Beta 版
+npm version X.Y.Z --no-git-tag-version        # 穩定版
+npm version X.Y.Z-beta.N --no-git-tag-version # Beta 版
 
 # 其他專案，手動更新版本檔案
+# 更新所有專案特定的版本檔案（請參考 CLAUDE.md）
 ```
 
 ### 步驟 3：更新 CHANGELOG
@@ -124,7 +121,31 @@ npm version X.Y.Z-beta.N # Beta 版
 - 錯誤修正描述
 ```
 
-### 步驟 4：提交與標籤
+### 步驟 4：執行所有測試
+
+```bash
+# 執行自動化測試
+npm test  # 或專案的測試指令
+
+# 執行程式碼檢查
+npm run lint  # 或專案的 lint 指令
+
+# 執行預發布檢查（如有）
+./scripts/pre-release-check.sh  # 或 .\scripts\pre-release-check.ps1
+```
+
+### 步驟 5：手動驗證
+
+繼續前請手動驗證：
+
+- [ ] **建置驗證**：應用程式成功建置
+- [ ] **冒煙測試**：核心功能如預期運作
+- [ ] **版本顯示**：CLI/UI 正確顯示版本號
+- [ ] **Beta 版**：已知問題記錄於 CHANGELOG
+
+> ⚠️ **若任何驗證失敗，請在此停止。** 先修復問題再繼續。
+
+### 步驟 6：提交與標籤
 
 ```bash
 # 提交變更
@@ -136,7 +157,7 @@ git tag vX.Y.Z
 git push origin main --tags
 ```
 
-### 步驟 5：建立 Release
+### 步驟 7：建立 Release
 
 建立 GitHub/GitLab Release：
 - Tag：`vX.Y.Z`
@@ -144,7 +165,7 @@ git push origin main --tags
 - 若為 beta/alpha/rc，標記為 pre-release
 - 從 CHANGELOG 加入發布說明
 
-### 步驟 6：驗證發布
+### 步驟 8：驗證發布
 
 ```bash
 # npm 套件
@@ -260,22 +281,33 @@ npm version patch
 
 ## 預發布檢查清單
 
-### 通用檢查
+### 階段 1：更新版號（優先執行）
+
+- [ ] 在正確的分支（穩定版用 main）
+- [ ] Git 工作目錄乾淨
+- [ ] 所有必要檔案的版本已更新
+- [ ] CHANGELOG 已更新發布說明
+
+### 階段 2：自動化驗證
 
 - [ ] 所有測試通過
 - [ ] Linting 通過
-- [ ] Git 工作目錄乾淨
-- [ ] CHANGELOG 已更新
-- [ ] 在正確的分支（穩定版用 main）
+- [ ] 預發布檢查腳本通過（如有）
+
+### 階段 3：手動驗證
+
+- [ ] 建置成功
+- [ ] 核心功能運作正常（冒煙測試）
+- [ ] 版本號顯示正確
 
 ### Beta 發布前
 
-- [ ] 通用檢查完成
-- [ ] 已知問題已記錄
+- [ ] 階段 1-3 完成
+- [ ] 已知問題記錄於 CHANGELOG
 
 ### 穩定發布前
 
-- [ ] 通用檢查完成
+- [ ] 階段 1-3 完成
 - [ ] Beta 測試完成（如適用）
 - [ ] 無嚴重錯誤
 - [ ] 已建立遷移指南（如有破壞性變更）
@@ -335,6 +367,7 @@ npm version patch
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 2.1.0 | 2026-01-26 | 採用「版號優先」流程：更新版號 → 測試 → 驗證 → 發布 |
 | 2.0.0 | 2026-01-14 | 重構為通用指南，專案特有內容移至 CLAUDE.md |
 | 1.0.0 | 2026-01-02 | 初始發布流程指南 |
 
