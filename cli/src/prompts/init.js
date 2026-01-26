@@ -1,12 +1,73 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import os from 'os';
-import { t } from '../i18n/messages.js';
+import { t, setLanguage, detectLanguage } from '../i18n/messages.js';
 import {
   getAgentConfig,
   getAgentDisplayName
 } from '../config/ai-agent-paths.js';
-import { getMarketplaceSkillsInfo } from '../utils/github.js';
+import { patchCheckboxInstructions } from '../utils/inquirer-patch.js';
+
+// Apply inquirer checkbox patch to properly support instructions: false
+// This allows us to show translated checkbox hints instead of the default English text
+patchCheckboxInstructions();
+
+/**
+ * Prompt for display language (first prompt in init flow)
+ * This sets the language for CLI messages and AI Agent instructions.
+ *
+ * The prompt uses bilingual format since we don't know user's preferred
+ * language at this point. After selection, the CLI language switches
+ * immediately for all subsequent prompts.
+ *
+ * @returns {Promise<string>} Selected language code ('en', 'zh-tw', or 'zh-cn')
+ */
+export async function promptDisplayLanguage() {
+  // Detect system language for smart default
+  const systemLang = detectLanguage(null);
+
+  // Use the message from current (initial) language - which is bilingual by design
+  const msg = t().displayLanguage;
+
+  console.log();
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
+  console.log();
+
+  const { language } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'language',
+      message: msg.question,
+      choices: [
+        {
+          name: `English ${chalk.gray('(Default for international teams)')}`,
+          value: 'en'
+        },
+        {
+          name: `繁體中文 ${chalk.gray('(Traditional Chinese)')}`,
+          value: 'zh-tw'
+        },
+        {
+          name: `简体中文 ${chalk.gray('(Simplified Chinese)')}`,
+          value: 'zh-cn'
+        }
+      ],
+      default: systemLang
+    }
+  ]);
+
+  // Immediately switch language for all subsequent prompts
+  setLanguage(language);
+
+  // Show confirmation in the selected language
+  const selectedMsg = t().displayLanguage;
+  console.log();
+  console.log(chalk.gray(selectedMsg.explanations[language]));
+  console.log();
+
+  return language;
+}
 
 /**
  * Prompt for AI tools being used
@@ -15,10 +76,12 @@ import { getMarketplaceSkillsInfo } from '../utils/github.js';
  */
 export async function promptAITools(detected = {}) {
   const msg = t().aiTools;
+  const checkboxHint = t().checkboxHint;
 
   console.log();
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${checkboxHint}`));
   console.log();
 
   const { tools } = await inquirer.prompt([
@@ -26,14 +89,13 @@ export async function promptAITools(detected = {}) {
       type: 'checkbox',
       name: 'tools',
       message: msg.question,
+      instructions: false,  // Hide default English hint, we show translated hint above
       choices: [
-        new inquirer.Separator(chalk.gray(msg.separators.dynamicSkills)),
         {
-          name: `${chalk.green('Claude Code')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.claudeCode}`,
+          name: `${chalk.green('Claude Code')} ${chalk.gray('(CLAUDE.md)')}`,
           value: 'claude-code',
           checked: detected.claudeCode || false
         },
-        new inquirer.Separator(chalk.gray(msg.separators.staticRules)),
         {
           name: `Cursor ${chalk.gray('(.cursorrules)')}`,
           value: 'cursor',
@@ -55,38 +117,31 @@ export async function promptAITools(detected = {}) {
           checked: detected.copilot || false
         },
         {
-          name: `Google Antigravity ${chalk.gray('(INSTRUCTIONS.md)')} - Gemini Agent`,
+          name: `Google Antigravity ${chalk.gray('(INSTRUCTIONS.md)')}`,
           value: 'antigravity',
           checked: detected.antigravity || false
         },
-        new inquirer.Separator(chalk.gray(msg.separators.agentsMd)),
         {
-          name: `OpenAI Codex ${chalk.gray('(AGENTS.md)')} - OpenAI Codex CLI`,
+          name: `OpenAI Codex ${chalk.gray('(AGENTS.md)')}`,
           value: 'codex',
           checked: detected.codex || false
         },
         {
-          name: `OpenCode ${chalk.gray('(AGENTS.md)')} - Open-source AI coding agent`,
+          name: `OpenCode ${chalk.gray('(AGENTS.md)')}`,
           value: 'opencode',
           checked: detected.opencode || false
         },
-        new inquirer.Separator(chalk.gray(msg.separators.gemini)),
         {
-          name: `Gemini CLI ${chalk.gray('(GEMINI.md)')} - Google Gemini CLI`,
+          name: `Gemini CLI ${chalk.gray('(GEMINI.md)')}`,
           value: 'gemini-cli',
           checked: detected.geminiCli || false
-        },
-        new inquirer.Separator(),
-        {
-          name: chalk.gray(msg.choices.none),
-          value: 'none'
         }
       ]
     }
   ]);
 
-  // Filter out 'none' and separators
-  const filtered = tools.filter(tool => tool !== 'none' && typeof tool === 'string');
+  // Filter out separators (keep only string values)
+  const filtered = tools.filter(tool => typeof tool === 'string');
   return filtered;
 }
 
@@ -108,33 +163,29 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
     return [];
   }
 
+  // Check if Claude Code is selected (for marketplace info)
+  const hasClaudeCode = skillsTools.includes('claude-code');
+
+  // Get translated checkbox hint
+  const checkboxHint = t().checkboxHint;
+  const marketplaceMsg = t().marketplaceInstall || {};
+
   console.log();
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${checkboxHint}`));
 
-  // Check Claude Code Marketplace status
-  const hasClaudeCode = skillsTools.includes('claude-code');
+  // Show Marketplace info for Claude Code (not as a selectable option)
   if (hasClaudeCode) {
-    const marketplaceInfo = getMarketplaceSkillsInfo();
-    if (marketplaceInfo && marketplaceInfo.version) {
-      console.log();
-      console.log(chalk.yellow(`  ⚠ ${msg.marketplaceWarning}`));
-      console.log(chalk.gray(`    ${msg.coexistNote}`));
-    }
+    console.log();
+    console.log(chalk.yellow(`  💡 ${marketplaceMsg.claudeCodeTip || 'Claude Code can be installed via Marketplace:'}`));
+    console.log(chalk.white('     /plugin install universal-dev-standards@asia-ostrich'));
+    console.log(chalk.gray(`     → ${msg.choices.marketplace}`));
   }
   console.log();
 
   // Build choices dynamically based on selected tools
   const choices = [];
-
-  // Add Marketplace option for Claude Code (recommended)
-  if (hasClaudeCode) {
-    choices.push({
-      name: `${chalk.green('Plugin Marketplace')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.marketplace}`,
-      value: 'marketplace'
-    });
-    choices.push(new inquirer.Separator(chalk.gray(msg.separatorFileInstall)));
-  }
 
   // Add options for each agent
   for (const tool of skillsTools) {
@@ -154,40 +205,19 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
     });
   }
 
-  // Add skip option
-  choices.push(new inquirer.Separator());
-  choices.push({
-    name: `${chalk.gray('Skip')} - ${msg.choices.none}`,
-    value: 'none'
-  });
-
   const { locations } = await inquirer.prompt([
     {
       type: 'checkbox',
       name: 'locations',
       message: msg.questionMulti,
       choices,
-      validate: (answer) => {
-        // If 'none' is selected, ensure it's the only selection
-        if (answer.includes('none') && answer.length > 1) {
-          return msg.validationNoMix;
-        }
-        return true;
-      }
+      instructions: false  // Hide default English hint, we show translated hint above
     }
   ]);
 
-  // Handle 'none' selection
-  if (locations.includes('none') || locations.length === 0) {
+  // Handle empty selection (user chose to skip)
+  if (locations.length === 0) {
     return [];
-  }
-
-  // Handle marketplace selection
-  if (locations.includes('marketplace')) {
-    console.log();
-    console.log(chalk.gray(msg.explanations?.marketplace || '透過 Claude Code Marketplace 安裝，自動更新'));
-    console.log();
-    return [{ agent: 'claude-code', level: 'marketplace' }];
   }
 
   // Parse selections into agent:level pairs
@@ -214,6 +244,7 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
  */
 export async function promptCommandsInstallation(selectedTools = []) {
   const msg = t().commandsInstallation || {};
+  const checkboxHint = t().checkboxHint;
 
   // Filter to only commands-supported tools
   const commandsSupportedTools = selectedTools.filter(tool => {
@@ -228,6 +259,7 @@ export async function promptCommandsInstallation(selectedTools = []) {
   console.log();
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${checkboxHint}`));
   console.log();
 
   // Build choices dynamically - User Level + Project Level for each agent
@@ -253,37 +285,23 @@ export async function promptCommandsInstallation(selectedTools = []) {
     });
   }
 
-  // Add skip option
-  choices.push(new inquirer.Separator());
-  choices.push({
-    name: chalk.gray(msg.choices.skip),
-    value: 'none'
-  });
-
   const { locations } = await inquirer.prompt([
     {
       type: 'checkbox',
       name: 'locations',
       message: msg.questionMulti || msg.question,
       choices,
-      validate: (answer) => {
-        if (answer.includes('none') && answer.length > 1) {
-          return msg.validationNoMix || 'Cannot select "Skip" with other options';
-        }
-        return true;
-      }
+      instructions: false  // Hide default English hint, we show translated hint above
     }
   ]);
 
-  // Handle 'none' selection
-  if (locations.includes('none') || locations.length === 0) {
+  // Handle empty selection (user chose to skip)
+  if (locations.length === 0) {
     return [];
   }
 
   // Parse selections into agent:level pairs
-  const installations = locations
-    .filter(loc => loc !== 'none')
-    .map(loc => {
+  const installations = locations.map(loc => {
       const [agent, level] = loc.split(':');
       return { agent, level };
     });
@@ -616,9 +634,15 @@ export async function promptMergeStrategy() {
 
 /**
  * Prompt for commit message language
- * @returns {Promise<string>} Selected language ID
+ *
+ * The bilingual option is only shown when displayLanguage is Chinese (zh-tw or zh-cn),
+ * as bilingual commits are primarily useful for Chinese-speaking teams who want both
+ * English and Chinese in their commit messages.
+ *
+ * @param {string} displayLanguage - Display language ('en', 'zh-tw', or 'zh-cn')
+ * @returns {Promise<string>} Selected language ID: 'english', 'traditional-chinese', or 'bilingual'
  */
-export async function promptCommitLanguage() {
+export async function promptCommitLanguage(displayLanguage = 'en') {
   const msg = t().commitLanguage;
 
   console.log();
@@ -626,25 +650,33 @@ export async function promptCommitLanguage() {
   console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
+  // Build choices - bilingual option only for Chinese display languages
+  const choices = [
+    {
+      name: `${chalk.green(msg.labels.english)} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.english}`,
+      value: 'english'
+    },
+    {
+      name: `${chalk.blue(msg.labels.chinese)} - ${msg.choices.chinese}`,
+      value: 'traditional-chinese'
+    }
+  ];
+
+  // Only show bilingual option for Chinese display languages
+  // When zh-cn is selected, bilingual will use Simplified Chinese in the generated content
+  if (displayLanguage === 'zh-tw' || displayLanguage === 'zh-cn') {
+    choices.push({
+      name: `${chalk.yellow(msg.labels.bilingual)} - ${msg.choices.bilingual}`,
+      value: 'bilingual'
+    });
+  }
+
   const { language } = await inquirer.prompt([
     {
       type: 'list',
       name: 'language',
       message: msg.question,
-      choices: [
-        {
-          name: `${chalk.green(msg.labels.english)} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.english}`,
-          value: 'english'
-        },
-        {
-          name: `${chalk.blue(msg.labels.chinese)} - ${msg.choices.chinese}`,
-          value: 'traditional-chinese'
-        },
-        {
-          name: `${chalk.yellow(msg.labels.bilingual)} - ${msg.choices.bilingual}`,
-          value: 'bilingual'
-        }
-      ],
+      choices,
       default: 'english'
     }
   ]);
@@ -716,10 +748,12 @@ export async function promptTestLevels() {
 
 /**
  * Prompt for all standard options
+ *
  * @param {number} level - Adoption level
+ * @param {string} displayLanguage - Display language for bilingual commit option filtering
  * @returns {Promise<Object>} Selected options
  */
-export async function promptStandardOptions(level) {
+export async function promptStandardOptions(level, displayLanguage = 'en') {
   const options = {};
 
   console.log();
@@ -734,7 +768,8 @@ export async function promptStandardOptions(level) {
   }
 
   // Commit message options (level 1+)
-  options.commit_language = await promptCommitLanguage();
+  // Pass displayLanguage to filter bilingual option
+  options.commit_language = await promptCommitLanguage(displayLanguage);
 
   // Testing options (level 2+)
   if (level >= 2) {

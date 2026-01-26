@@ -116,12 +116,29 @@ const COMMIT_TYPE_TEMPLATES = {
     ],
     format: '<type>(<scope>): <English subject>. <Chinese subject>.',
     formatNote: 'English types for tool compatibility, bilingual subjects for clarity'
+  },
+
+  // Bilingual with Simplified Chinese (used when displayLanguage is zh-cn)
+  'bilingual-zhcn': {
+    types: [
+      { type: 'feat', description_en: 'New feature', description_zh: '新功能', example: 'feat(auth): Add login form. 新增登录表单.' },
+      { type: 'fix', description_en: 'Bug fix', description_zh: '错误修正', example: 'fix(api): Fix null pointer. 修正空指针.' },
+      { type: 'docs', description_en: 'Documentation', description_zh: '文档更新', example: 'docs(readme): Update guide. 更新指南.' },
+      { type: 'style', description_en: 'Formatting', description_zh: '格式调整', example: 'style(lint): Fix indent. 修正缩排.' },
+      { type: 'refactor', description_en: 'Code restructure', description_zh: '代码重构', example: 'refactor(user): Extract logic. 抽取逻辑.' },
+      { type: 'test', description_en: 'Tests', description_zh: '测试相关', example: 'test(cart): Add tests. 新增测试.' },
+      { type: 'chore', description_en: 'Maintenance', description_zh: '维护任务', example: 'chore(deps): Update deps. 更新套件.' },
+      { type: 'perf', description_en: 'Performance', description_zh: '性能改善', example: 'perf(query): Optimize DB. 优化数据库.' },
+      { type: 'ci', description_en: 'CI/CD changes', description_zh: '持续集成', example: 'ci(github): Add deploy. 新增部署.' }
+    ],
+    format: '<type>(<scope>): <English subject>. <Chinese subject>.',
+    formatNote: 'English types for tool compatibility, bilingual subjects for clarity'
   }
 };
 
 /**
  * Generate commit types table based on commit_language
- * @param {string} commitLanguage - The commit language: 'english', 'traditional-chinese', or 'bilingual'
+ * @param {string} commitLanguage - The commit language: 'english', 'traditional-chinese', 'bilingual', or 'bilingual-zhcn'
  * @param {string} format - Output format: 'markdown' or 'plaintext'
  * @returns {string} Formatted commit types section
  */
@@ -142,6 +159,13 @@ function generateCommitTypesTable(commitLanguage, format = 'markdown') {
       for (const t of template.types) {
         lines.push(`| \`${t.type}\` | ${t.description_en} | ${t.description_zh} | ${t.example} |`);
       }
+    } else if (commitLanguage === 'bilingual-zhcn') {
+      // Simplified Chinese bilingual - header uses Simplified Chinese
+      lines.push('| Type | EN Description | 中文说明 | Example |');
+      lines.push('|------|----------------|----------|---------|');
+      for (const t of template.types) {
+        lines.push(`| \`${t.type}\` | ${t.description_en} | ${t.description_zh} | ${t.example} |`);
+      }
     } else {
       // English (default)
       lines.push('| Type | Description | Example |');
@@ -156,7 +180,7 @@ function generateCommitTypesTable(commitLanguage, format = 'markdown') {
       for (const t of template.types) {
         lines.push(`- ${t.type} (${t.english}): ${t.description}`);
       }
-    } else if (commitLanguage === 'bilingual') {
+    } else if (commitLanguage === 'bilingual' || commitLanguage === 'bilingual-zhcn') {
       for (const t of template.types) {
         lines.push(`- ${t.type}: ${t.description_en} / ${t.description_zh}`);
       }
@@ -190,6 +214,11 @@ function generateCommitStandardsContent(commitLanguage, detailLevel = 'standard'
 - Format: \`${template.format}\`
 - ${template.formatNote}
 - Keep subject under 72 characters | 主題保持在 72 字元內`;
+    } else if (commitLanguage === 'bilingual-zhcn') {
+      return `## Commit Standards | 提交标准
+- Format: \`${template.format}\`
+- ${template.formatNote}
+- Keep subject under 72 characters | 主题保持在 72 字符内`;
     } else {
       return `## Commit Standards
 - Format: \`${template.format}\`
@@ -243,6 +272,28 @@ ${typesTable}
 - Subject line: max 72 characters | 主題行: 最多 72 字元
 - Use imperative mood | 使用祈使語氣
 - Body: explain WHAT and WHY | 本文: 說明做了什麼及為什麼`;
+    } else if (commitLanguage === 'bilingual-zhcn') {
+      return `## Commit Message Standards | 提交消息标准
+Reference: .standards/commit-message-guide.md, .standards/options/bilingual.ai.yaml
+
+### Format | 格式
+\`\`\`
+${template.format}
+
+<English body>
+
+<Chinese body>
+
+<footer>
+\`\`\`
+
+### Types | 类型
+${typesTable}
+
+### Rules | 规则
+- Subject line: max 72 characters | 主题行: 最多 72 字符
+- Use imperative mood | 使用祈使语气
+- Body: explain WHAT and WHY | 本文: 说明做了什么及为什么`;
     } else {
       return `## Commit Message Standards
 Reference: .standards/commit-message-guide.md
@@ -334,6 +385,41 @@ ${typesTable}
 - Write English first, then Chinese | 先英文後中文
 
 ### Footer Format | 頁腳格式
+- Breaking changes: \`BREAKING CHANGE: description\`
+- Issue references: \`Fixes #123\`, \`Closes #456\`
+- Co-authors: \`Co-authored-by: Name <email>\``;
+  } else if (commitLanguage === 'bilingual-zhcn') {
+    return `## Commit Message Standards | 提交消息标准
+Reference: .standards/commit-message-guide.md, .standards/options/bilingual.ai.yaml
+
+### Format Structure | 格式结构
+\`\`\`
+${template.format}
+
+<English body>
+
+<Chinese body / 中文本文>
+
+<footer>
+\`\`\`
+
+**Note**: ${template.formatNote}
+
+### Commit Types | 提交类型
+${typesTable}
+
+### Subject Line Rules | 主题行规则
+- Maximum 72 characters | 最多 72 字符
+- Use imperative mood | 使用祈使语气
+- No period at the end | 结尾不加句点
+- Include both EN and ZH subjects | 包含英文和中文主旨
+
+### Body Guidelines | 本文指引
+- Wrap at 72 characters | 每行 72 字符换行
+- Explain WHAT and WHY | 说明做了什么及为什么
+- Write English first, then Chinese | 先英文后中文
+
+### Footer Format | 页脚格式
 - Breaking changes: \`BREAKING CHANGE: description\`
 - Issue references: \`Fixes #123\`, \`Closes #456\`
 - Co-authors: \`Co-authored-by: Name <email>\``;
@@ -2171,7 +2257,13 @@ export function generateIntegrationContent(config) {
   for (const categoryId of categories) {
     // Special handling for commit-standards: use dynamic generation based on commitLanguage
     if (categoryId === 'commit-standards') {
-      const commitContent = generateCommitStandardsContent(commitLanguage, detailLevel);
+      // When bilingual is selected with zh-cn display language, use bilingual-zhcn template
+      // This provides Simplified Chinese content instead of Traditional Chinese
+      let effectiveCommitLanguage = commitLanguage;
+      if (commitLanguage === 'bilingual' && language === 'zh-cn') {
+        effectiveCommitLanguage = 'bilingual-zhcn';
+      }
+      const commitContent = generateCommitStandardsContent(effectiveCommitLanguage, detailLevel);
       sections.push(commitContent);
       sections.push('\n---\n');
       continue;

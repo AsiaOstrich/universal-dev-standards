@@ -1,17 +1,28 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock dependencies before importing the module
-vi.mock('chalk', () => ({
-  default: {
-    bold: vi.fn((s) => s),
-    gray: vi.fn((s) => s),
-    green: vi.fn((s) => s),
-    yellow: vi.fn((s) => s),
-    red: vi.fn((s) => s),
-    cyan: vi.fn((s) => s),
-    blue: vi.fn((s) => s)
-  }
-}));
+vi.mock('chalk', () => {
+  // Create a chainable mock that works both as function and object
+  const createChainableMock = () => {
+    const fn = (s) => s;
+    fn.bold = (s) => s;
+    return fn;
+  };
+
+  return {
+    default: {
+      bold: (s) => s,
+      gray: (s) => s,
+      green: (s) => s,
+      yellow: (s) => s,
+      red: (s) => s,
+      cyan: (s) => s,
+      blue: (s) => s,
+      // Support chalk.white and chalk.white.bold
+      white: createChainableMock()
+    }
+  };
+});
 
 // Use hoisted to define mock before vi.mock
 const { mockPrompt } = vi.hoisted(() => ({
@@ -78,16 +89,8 @@ describe('Init Prompts', () => {
       expect(result).toEqual(['claude-code', 'cursor']);
     });
 
-    it('should filter out none option', async () => {
-      mockPrompt.mockResolvedValue({ tools: ['claude-code', 'none'] });
-
-      const result = await promptAITools({});
-
-      expect(result).toEqual(['claude-code']);
-    });
-
-    it('should return empty array when none selected', async () => {
-      mockPrompt.mockResolvedValue({ tools: ['none'] });
+    it('should return empty array when nothing selected', async () => {
+      mockPrompt.mockResolvedValue({ tools: [] });
 
       const result = await promptAITools({});
 
@@ -96,12 +99,14 @@ describe('Init Prompts', () => {
   });
 
   describe('promptSkillsInstallLocation', () => {
-    it('should return marketplace location', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['marketplace'] });
+    it('should show marketplace tip for Claude Code', async () => {
+      mockPrompt.mockResolvedValue({ locations: ['claude-code:user'] });
 
-      const result = await promptSkillsInstallLocation(['claude-code']);
+      await promptSkillsInstallLocation(['claude-code']);
 
-      expect(result).toEqual([{ agent: 'claude-code', level: 'marketplace' }]);
+      // Verify marketplace tip is shown in console output
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('/plugin install universal-dev-standards@asia-ostrich');
     });
 
     it('should return user location', async () => {
@@ -161,14 +166,6 @@ describe('Init Prompts', () => {
       const result = await promptCommandsInstallation(['opencode']);
 
       expect(result).toEqual([{ agent: 'opencode', level: 'project' }]);
-    });
-
-    it('should return empty array when none selected', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['none'] });
-
-      const result = await promptCommandsInstallation(['opencode']);
-
-      expect(result).toEqual([]);
     });
 
     it('should return empty array when no commands-supported tools', async () => {
@@ -344,12 +341,37 @@ describe('Init Prompts', () => {
       expect(result).toBe('english');
     });
 
-    it('should return bilingual', async () => {
+    it('should return bilingual when displayLanguage is zh-tw', async () => {
       mockPrompt.mockResolvedValue({ language: 'bilingual' });
+
+      const result = await promptCommitLanguage('zh-tw');
+
+      expect(result).toBe('bilingual');
+    });
+
+    it('should return bilingual when displayLanguage is zh-cn', async () => {
+      mockPrompt.mockResolvedValue({ language: 'bilingual' });
+
+      const result = await promptCommitLanguage('zh-cn');
+
+      expect(result).toBe('bilingual');
+    });
+
+    it('should work with default displayLanguage (en)', async () => {
+      mockPrompt.mockResolvedValue({ language: 'traditional-chinese' });
 
       const result = await promptCommitLanguage();
 
-      expect(result).toBe('bilingual');
+      expect(result).toBe('traditional-chinese');
+    });
+
+    it('should accept displayLanguage parameter', async () => {
+      mockPrompt.mockResolvedValue({ language: 'english' });
+
+      // Should not throw when displayLanguage is provided
+      const result = await promptCommitLanguage('en');
+
+      expect(result).toBe('english');
     });
   });
 
@@ -385,6 +407,22 @@ describe('Init Prompts', () => {
       expect(result).toHaveProperty('merge_strategy');
       expect(result).toHaveProperty('commit_language');
       expect(result).toHaveProperty('test_levels');
+    });
+
+    it('should pass displayLanguage to promptCommitLanguage', async () => {
+      mockPrompt.mockResolvedValue({ language: 'bilingual' });
+
+      const result = await promptStandardOptions(1, 'zh-cn');
+
+      expect(result.commit_language).toBe('bilingual');
+    });
+
+    it('should use default displayLanguage when not provided', async () => {
+      mockPrompt.mockResolvedValue({ language: 'english' });
+
+      const result = await promptStandardOptions(1);
+
+      expect(result.commit_language).toBe('english');
     });
   });
 

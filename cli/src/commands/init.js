@@ -18,7 +18,7 @@ import {
   writeManifest, 
   manifestExists as isInitialized 
 } from '../core/manifest.js';
-import { t } from '../i18n/messages.js';
+import { t, detectLanguage } from '../i18n/messages.js';
 import {
   downloadSkillToLocation,
   getInstalledSkillsInfo,
@@ -39,13 +39,13 @@ import {
   getCommandsDirForAgent
 } from '../config/ai-agent-paths.js';
 import {
+  promptDisplayLanguage,
   promptAITools,
   promptSkillsInstallLocation,
   promptStandardsScope,
   promptLevel,
   promptLanguage,
   promptFramework,
-  promptLocale,
   promptConfirm,
   promptFormat,
   promptStandardOptions,
@@ -105,7 +105,8 @@ const EXTENSION_MAPPINGS = {
   csharp: 'extensions/languages/csharp-style.md',
   php: 'extensions/languages/php-style.md',
   'fat-free': 'extensions/frameworks/fat-free-patterns.md',
-  'zh-tw': 'extensions/locales/zh-tw.md'
+  'zh-tw': 'extensions/locales/zh-tw.md',
+  'zh-cn': 'extensions/locales/zh-cn.md'
 };
 
 /**
@@ -161,7 +162,7 @@ export async function initCommand(options) {
   let level = options.level ? parseInt(options.level, 10) : null;
   let languages = options.lang ? [options.lang] : null;
   let frameworks = options.framework ? [options.framework] : null;
-  let locale = options.locale || null;
+  let displayLanguage = options.locale || null; // Renamed: locale -> displayLanguage
   let format = options.format || null;
   let standardOptions = {};
 
@@ -183,7 +184,15 @@ export async function initCommand(options) {
   if (!options.yes) {
     // ===== Interactive mode =====
 
-    // STEP 3: Ask for AI tools (all 9 supported tools)
+    // === STEP 1: Display Language (first prompt) ===
+    // This sets CLI language and determines locale extension installation
+    displayLanguage = await promptDisplayLanguage();
+    // After this point, all messages use the selected language
+
+    // Refresh msg reference after language change
+    const msgAfterLang = t().commands.init;
+
+    // === STEP 2: AI Tools Selection ===
     aiTools = await promptAITools({
       claudeCode: detected.aiTools.claudeCode || false,
       cursor: detected.aiTools.cursor || false,
@@ -196,7 +205,17 @@ export async function initCommand(options) {
       geminiCli: detected.aiTools.geminiCli || false
     });
 
-    // Handle AGENTS.md sharing notification (Codex + OpenCode)
+    // Exit if no AI tools selected - UDS requires at least one AI tool
+    if (aiTools.length === 0) {
+      console.log();
+      console.log(chalk.yellow(msgAfterLang.noAiToolsSelected || 'No AI tools selected.'));
+      console.log(chalk.gray(msgAfterLang.noAiToolsExplanation || '  UDS provides development standards for AI coding assistants.'));
+      console.log(chalk.gray(msgAfterLang.noAiToolsExplanation2 || '  Without an AI tool, there is nothing to install.'));
+      console.log();
+      process.exit(0);
+    }
+
+    // === STEP 3: Handle AGENTS.md sharing notification (Codex + OpenCode) ===
     aiTools = handleAgentsMdSharing(aiTools);
 
     // Check which tools support skills
@@ -206,14 +225,25 @@ export async function initCommand(options) {
     });
     const hasSkillsTools = skillsSupportedTools.length > 0;
 
-    // STEP 4: Skills handling (unified for all AI agents)
-    // Now supports multiple agents with individual user/project level choices
+    // === STEP 4: Skills Installation (filter by AI Agent support) ===
     if (hasSkillsTools) {
       // Check existing installations for each skills-supported agent
+      // Import marketplace check function
+      const { getMarketplaceSkillsInfo } = await import('../utils/github.js');
+      const marketplaceInfo = getMarketplaceSkillsInfo();
+
       console.log();
-      console.log(chalk.cyan(msg.skillsStatus));
+      console.log(chalk.cyan(msgAfterLang.skillsStatus));
 
       let hasAnyExisting = false;
+
+      // Check Marketplace installation first
+      if (marketplaceInfo && marketplaceInfo.version) {
+        hasAnyExisting = true;
+        console.log(chalk.gray(`  ${msgAfterLang.skillsMarketplaceInstalled || 'Marketplace'}: v${marketplaceInfo.version}`));
+      }
+
+      // Check file-based installations
       for (const tool of skillsSupportedTools) {
         const displayName = getAgentDisplayName(tool);
         const projectInfo = getInstalledSkillsInfoForAgent(tool, 'project', projectPath);
@@ -222,16 +252,16 @@ export async function initCommand(options) {
         if (projectInfo || userInfo) {
           hasAnyExisting = true;
           if (projectInfo) {
-            console.log(chalk.gray(`  ${displayName} ${msg.projectLevel}: v${projectInfo.version || 'unknown'}`));
+            console.log(chalk.gray(`  ${displayName} ${msgAfterLang.projectLevel}: v${projectInfo.version || 'unknown'}`));
           }
           if (userInfo) {
-            console.log(chalk.gray(`  ${displayName} ${msg.userLevel}: v${userInfo.version || 'unknown'}`));
+            console.log(chalk.gray(`  ${displayName} ${msgAfterLang.userLevel}: v${userInfo.version || 'unknown'}`));
           }
         }
       }
 
       if (!hasAnyExisting) {
-        console.log(chalk.gray(`  ${msg.noSkillsDetected}`));
+        console.log(chalk.gray(`  ${msgAfterLang.noSkillsDetected}`));
       }
 
       // Prompt for installation locations (multi-agent, multi-select)
@@ -263,43 +293,42 @@ export async function initCommand(options) {
         }
       }
 
-      // STEP 4.5: Slash commands installation (for supported agents)
+      // === STEP 5: Slash Commands Installation (filter by AI Agent support) ===
       const commandsAgents = await promptCommandsInstallation(aiTools);
       if (commandsAgents.length > 0) {
         skillsConfig.commandsInstallations = commandsAgents;
       }
     }
 
-    // STEP 5: Standards scope (if Skills are installed)
+    // === STEP 6: Standards Scope (if Skills are installed) ===
     const standardsScope = await promptStandardsScope(skillsConfig.installed);
 
-    // STEP 6: Adoption level
+    // === STEP 7: Adoption Level ===
     if (!level) {
       level = await promptLevel();
     }
 
-    // STEP 7: Standards format
+    // === STEP 8: Standards Format ===
     if (!format) {
       format = await promptFormat();
     }
 
-    // STEP 8: Standard options
-    standardOptions = await promptStandardOptions(level);
+    // === STEP 9: Standard Options ===
+    // Pass displayLanguage to filter bilingual commit option based on UI language
+    standardOptions = await promptStandardOptions(level, displayLanguage);
 
-    // STEP 9: Language extensions
+    // === STEP 10: Language Extensions (programming languages) ===
     if (!languages) {
       languages = await promptLanguage(detected.languages) || [];
     }
 
-    // STEP 10: Framework extensions
+    // === STEP 11: Framework Extensions ===
     if (!frameworks) {
       frameworks = await promptFramework(detected.frameworks) || [];
     }
 
-    // STEP 11: Locale
-    if (!locale) {
-      locale = await promptLocale();
-    }
+    // Note: Locale extension is now auto-installed based on displayLanguage
+    // (zh-tw -> install zh-tw extension, zh-cn -> install zh-cn extension)
 
     // Determine integrations from AI tools (excluding claude-code)
     integrations = aiTools.filter(t => t !== 'claude-code');
@@ -363,6 +392,10 @@ export async function initCommand(options) {
 
   } else {
     // ===== Non-interactive mode =====
+    // Use system language detection if displayLanguage not provided via --locale
+    if (!displayLanguage) {
+      displayLanguage = detectLanguage(null);
+    }
     level = level || 2;
     format = format || 'ai';
     languages = languages || Object.keys(detected.languages).filter(k => detected.languages[k]);
@@ -493,7 +526,7 @@ export async function initCommand(options) {
   console.log(chalk.gray(`  ${msg.contentModeLabel}: ${skillsConfig.contentMode === 'full' ? msg.contentModeFull : skillsConfig.contentMode === 'index' ? msg.contentModeIndex : msg.contentModeMinimal}`));
   console.log(chalk.gray(`  ${msg.languages}: ${languages.length > 0 ? languages.join(', ') : common.none}`));
   console.log(chalk.gray(`  ${msg.frameworks}: ${frameworks.length > 0 ? frameworks.join(', ') : common.none}`));
-  console.log(chalk.gray(`  ${msg.locale}: ${locale || msg.localeDefault}`));
+  console.log(chalk.gray(`  ${msg.displayLanguageLabel || 'Display Language'}: ${displayLanguage === 'zh-tw' ? '繁體中文' : displayLanguage === 'zh-cn' ? '简体中文' : 'English'}`));
   console.log(chalk.gray(`  ${common.aiTools}: ${aiTools.length > 0 ? aiTools.join(', ') : common.none}`));
   console.log(chalk.gray(`  ${msg.integrations}: ${integrations.length > 0 ? integrations.join(', ') : common.none}`));
   console.log(chalk.gray(`  ${common.methodology}: ${skillsConfig.methodology || common.none}${skillsConfig.methodology ? chalk.yellow(' [Experimental]') : ''}`));
@@ -631,7 +664,11 @@ export async function initCommand(options) {
   copySpinner.succeed(msg.copiedStandards.replace('{count}', results.standards.length));
 
   // Copy extensions
-  if (languages.length > 0 || frameworks.length > 0 || locale) {
+  // Determine if locale extension should be installed based on displayLanguage
+  // Auto-install locale extension for non-English display languages
+  const localeExtension = (displayLanguage === 'zh-tw' || displayLanguage === 'zh-cn') ? displayLanguage : null;
+
+  if (languages.length > 0 || frameworks.length > 0 || localeExtension) {
     const extSpinner = ora(msg.copyingExtensions).start();
 
     for (const lang of languages) {
@@ -656,12 +693,13 @@ export async function initCommand(options) {
       }
     }
 
-    if (locale && EXTENSION_MAPPINGS[locale]) {
-      const result = await copyStandard(EXTENSION_MAPPINGS[locale], '.standards', projectPath);
+    // Auto-install locale extension based on display language
+    if (localeExtension && EXTENSION_MAPPINGS[localeExtension]) {
+      const result = await copyStandard(EXTENSION_MAPPINGS[localeExtension], '.standards', projectPath);
       if (result.success) {
-        results.extensions.push(EXTENSION_MAPPINGS[locale]);
+        results.extensions.push(EXTENSION_MAPPINGS[localeExtension]);
       } else {
-        results.errors.push(`${EXTENSION_MAPPINGS[locale]}: ${result.error}`);
+        results.errors.push(`${EXTENSION_MAPPINGS[localeExtension]}: ${result.error}`);
       }
     }
 
@@ -671,10 +709,12 @@ export async function initCommand(options) {
   // Build installed standards list for compliance instructions (used by all AI tools)
   const installedStandardsList = results.standards.map(s => basename(s));
 
-  // Determine common language setting
+  // Determine common language setting based on displayLanguage
   let commonLanguage = 'en';
-  if (locale === 'zh-tw') {
+  if (displayLanguage === 'zh-tw') {
     commonLanguage = 'zh-tw';
+  } else if (displayLanguage === 'zh-cn') {
+    commonLanguage = 'zh-cn';
   } else if (standardOptions?.commit_language === 'bilingual') {
     commonLanguage = 'bilingual';
   } else if (standardOptions?.commit_language === 'traditional-chinese') {
@@ -965,6 +1005,7 @@ export async function initCommand(options) {
   // Always record options as user preferences (for Skills and future updates)
   // Even when standards aren't copied locally (minimal scope), options should be preserved
   const manifestOptions = {
+    display_language: displayLanguage || 'en',
     workflow: standardOptions.workflow || null,
     merge_strategy: standardOptions.merge_strategy || null,
     commit_language: standardOptions.commit_language || null,
@@ -1046,6 +1087,7 @@ export async function initCommand(options) {
     commands: {
       installed: skillsConfig.commandsInstallations?.length > 0,
       names: results.commands || [],
+      version: skillsConfig.commandsInstallations?.length > 0 ? repoInfo.skills.version : null,
       installations: skillsConfig.commandsInstallations || []
     },
     methodology: skillsConfig.methodology ? {
