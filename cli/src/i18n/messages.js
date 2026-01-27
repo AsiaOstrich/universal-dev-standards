@@ -12,6 +12,24 @@ export const messages = {
     // Common labels
     recommended: 'Recommended',
     advanced: 'Advanced',
+    checkboxHint: '(Space to select, A to toggle all, Enter to confirm)',
+
+    // Display Language (first prompt - uses bilingual format)
+    displayLanguage: {
+      title: 'Display Language / 顯示語言',
+      description: 'Select the language for CLI messages and AI Agent instructions',
+      question: 'Select display language / 選擇顯示語言:',
+      choices: {
+        en: 'English',
+        'zh-tw': '繁體中文 (Traditional Chinese)',
+        'zh-cn': '简体中文 (Simplified Chinese)'
+      },
+      explanations: {
+        en: '  → CLI messages and AI Agent instructions will be in English',
+        'zh-tw': '  → CLI 訊息和 AI Agent 指示將使用繁體中文',
+        'zh-cn': '  → CLI 消息和 AI Agent 指示将使用简体中文'
+      }
+    },
 
     // Content Mode
     contentMode: {
@@ -94,7 +112,7 @@ export const messages = {
       question: 'Select installation scope:',
       choices: {
         minimal: 'Reference docs only, Skills provide real-time task guidance',
-        full: 'Install all standard files, independent of Skills'
+        full: 'Install all standard files, not just relying on Skills'
       },
       explanations: {
         minimal: [
@@ -194,7 +212,7 @@ export const messages = {
 
     // AI Tools Selection
     aiTools: {
-      title: 'AI Development Tools:',
+      title: 'AI Development Tools',
       description: 'Select the AI coding assistants you use with this project',
       question: 'Which AI tools are you using?',
       separators: {
@@ -204,7 +222,7 @@ export const messages = {
         gemini: '── Gemini Tools ──'
       },
       choices: {
-        claudeCode: 'Anthropic CLI with dynamic Skills',
+        claudeCode: '',
         none: 'None / Skip'
       }
     },
@@ -215,7 +233,7 @@ export const messages = {
       description: 'Choose where to install Skills',
       descriptionWithTools: 'Skills will work with:',
       question: 'Where should Skills be installed?',
-      questionMulti: 'Select where to install Skills (multiple selections allowed)',
+      questionMulti: 'Select where to install Skills:',
       marketplaceWarning: 'Claude Code Skills installed via Marketplace',
       coexistNote: 'File installation will coexist with Marketplace version',
       separatorFileInstall: '── Or choose file installation location ──',
@@ -237,12 +255,21 @@ export const messages = {
       }
     },
 
+    // Marketplace Installation Guide
+    marketplaceInstall: {
+      claudeCodeTip: 'Claude Code can be installed via Marketplace:',
+      guide: 'Please run the following command in Claude Code:',
+      note: 'After installation, Skills will auto-load and stay updated.',
+      alreadyInstalled: 'Marketplace plugin already installed.',
+      version: 'Version'
+    },
+
     // Commands Installation
     commandsInstallation: {
       title: 'Slash Commands Installation',
       description: 'The following AI Agents support slash commands:',
       question: 'Select AI Agents to install slash commands',
-      questionMulti: 'Select where to install slash commands (multiple selections allowed)',
+      questionMulti: 'Select where to install slash commands:',
       installCount: 'Will install 15 slash commands for {count} AI Agent(s)',
       validationNoMix: 'Cannot select "Skip" with other options',
       choices: {
@@ -662,6 +689,11 @@ export const messages = {
         userLevel: 'User level',
         notInstalled: 'not installed',
         noSkillsDetected: 'No Skills installation detected',
+        skillsMarketplaceInstalled: 'Marketplace',
+        // No AI tools selected - exit
+        noAiToolsSelected: 'No AI tools selected.',
+        noAiToolsExplanation: '  UDS provides development standards for AI coding assistants.',
+        noAiToolsExplanation2: '  Without an AI tool, there is nothing to install.',
         // Integration
         integrationConfig: 'Integration Configuration:',
         sharedRuleConfig: 'All selected tools will share the same rule configuration.',
@@ -674,8 +706,7 @@ export const messages = {
         contentModeFull: 'Full Embed',
         contentModeIndex: 'Standard (recommended)',
         contentModeMinimal: 'Minimal (core only)',
-        locale: 'Locale',
-        localeDefault: 'default (English)',
+        displayLanguageLabel: 'Display Language',
         integrations: 'Integrations',
         skillsLabel: 'Skills',
         skillsMarketplace: 'Plugin Marketplace (managed by Claude Code)',
@@ -814,6 +845,19 @@ export const messages = {
         newSkillsInstalledWithErrors: 'Installed Skills with {errors} errors',
         newCommandsInstalled: 'Installed commands for {count} AI tools',
         newCommandsInstalledWithErrors: 'Installed commands with {errors} errors',
+        // Outdated Skills/Commands
+        skillsOutdatedFor: 'Skills updates available for these AI tools:',
+        commandsOutdatedFor: 'Commands updates available for these AI tools:',
+        selectSkillsToUpdate: 'Select AI tools to update Skills for:',
+        selectCommandsToUpdate: 'Select AI tools to update Commands for:',
+        skipSkillsUpdate: 'Skip Skills update',
+        skipCommandsUpdate: 'Skip Commands update',
+        updatingSkills: 'Updating Skills...',
+        skillsUpdated: 'Updated Skills for {count} AI tools',
+        skillsUpdatedWithErrors: 'Updated Skills with {errors} errors',
+        updatingCommands: 'Updating Commands...',
+        commandsUpdated: 'Updated Commands for {count} AI tools',
+        commandsUpdatedWithErrors: 'Updated Commands with {errors} errors',
         // Marketplace detection
         alreadyViaMarketplace: 'already via Marketplace',
         marketplaceCoexistNote: 'Note: File-based installation will coexist with Marketplace version'
@@ -909,6 +953,24 @@ export const messages = {
     // Common labels
     recommended: '推薦',
     advanced: '進階',
+    checkboxHint: '（空格選擇、A 全選/取消、Enter 確認）',
+
+    // Display Language (first prompt - uses bilingual format)
+    displayLanguage: {
+      title: '顯示語言 / Display Language',
+      description: '選擇 CLI 訊息和 AI Agent 指示的語言',
+      question: '選擇顯示語言 / Select display language:',
+      choices: {
+        en: 'English',
+        'zh-tw': '繁體中文 (Traditional Chinese)',
+        'zh-cn': '简体中文 (Simplified Chinese)'
+      },
+      explanations: {
+        en: '  → CLI messages and AI Agent instructions will be in English',
+        'zh-tw': '  → CLI 訊息和 AI Agent 指示將使用繁體中文',
+        'zh-cn': '  → CLI 消息和 AI Agent 指示将使用简体中文'
+      }
+    },
 
     // Content Mode
     contentMode: {
@@ -991,7 +1053,7 @@ export const messages = {
       question: '選擇安裝範圍 / Select installation scope:',
       choices: {
         minimal: '只裝參考文件，Skills 即時提供任務導向指引',
-        full: '安裝全部標準檔案，不依賴 Skills'
+        full: '安裝全部標準檔案，不僅只依賴 Skills'
       },
       explanations: {
         minimal: [
@@ -1091,9 +1153,9 @@ export const messages = {
 
     // AI Tools Selection
     aiTools: {
-      title: 'AI 開發工具:',
+      title: 'AI 開發工具',
       description: '選擇你在此專案中使用的 AI 程式助手',
-      question: '你使用哪些 AI 工具？/ Which AI tools are you using?',
+      question: '你使用哪些 AI 工具？',
       separators: {
         dynamicSkills: '── 動態 Skills ──',
         staticRules: '── 靜態規則檔案 ──',
@@ -1101,7 +1163,7 @@ export const messages = {
         gemini: '── Gemini 工具 ──'
       },
       choices: {
-        claudeCode: 'Anthropic CLI，支援動態 Skills',
+        claudeCode: '',
         none: '無 / 跳過'
       }
     },
@@ -1112,7 +1174,7 @@ export const messages = {
       description: '選擇 Skills 的安裝位置',
       descriptionWithTools: 'Skills 將支援:',
       question: 'Skills 要安裝在哪裡？/ Where should Skills be installed?',
-      questionMulti: '選擇要安裝 Skills 的位置（可多選）',
+      questionMulti: '選擇要安裝 Skills 的位置：',
       marketplaceWarning: 'Claude Code Skills 已透過 Marketplace 安裝',
       coexistNote: '檔案安裝將與 Marketplace 版本並存',
       separatorFileInstall: '── 或選擇檔案安裝位置 ──',
@@ -1134,12 +1196,21 @@ export const messages = {
       }
     },
 
+    // Marketplace Installation Guide
+    marketplaceInstall: {
+      claudeCodeTip: 'Claude Code 可透過 Marketplace 安裝：',
+      guide: '請在 Claude Code 中執行以下指令：',
+      note: '安裝完成後，Skills 將自動載入並保持更新。',
+      alreadyInstalled: 'Marketplace 外掛已安裝。',
+      version: '版本'
+    },
+
     // Commands Installation
     commandsInstallation: {
       title: '斜線命令安裝',
       description: '以下 AI Agent 支援斜線命令：',
       question: '選擇要安裝斜線命令的 AI Agent',
-      questionMulti: '選擇要安裝斜線命令的位置（可多選）',
+      questionMulti: '選擇要安裝斜線命令的位置：',
       installCount: '將為 {count} 個 AI Agent 安裝 15 個斜線命令',
       validationNoMix: '無法同時選擇「跳過」和其他選項',
       choices: {
@@ -1559,6 +1630,11 @@ export const messages = {
         userLevel: '使用者層級',
         notInstalled: '未安裝',
         noSkillsDetected: '未偵測到 Skills 安裝',
+        skillsMarketplaceInstalled: 'Marketplace',
+        // No AI tools selected - exit
+        noAiToolsSelected: '未選擇任何 AI 工具。',
+        noAiToolsExplanation: '  UDS 為 AI 程式開發助手提供開發標準。',
+        noAiToolsExplanation2: '  沒有選擇 AI 工具，就沒有需要安裝的內容。',
         // Integration
         integrationConfig: '整合設定：',
         sharedRuleConfig: '所有選取的工具將共用相同的規則設定。',
@@ -1571,8 +1647,7 @@ export const messages = {
         contentModeFull: '完整嵌入',
         contentModeIndex: '標準（推薦）',
         contentModeMinimal: '最小（僅核心）',
-        locale: '地區設定',
-        localeDefault: '預設（英文）',
+        displayLanguageLabel: '顯示語言',
         integrations: '整合',
         skillsLabel: 'Skills',
         skillsMarketplace: 'Plugin Marketplace（由 Claude Code 管理）',
@@ -1711,6 +1786,19 @@ export const messages = {
         newSkillsInstalledWithErrors: '安裝 Skills 時發生 {errors} 個錯誤',
         newCommandsInstalled: '已為 {count} 個 AI 工具安裝斜線命令',
         newCommandsInstalledWithErrors: '安裝斜線命令時發生 {errors} 個錯誤',
+        // Outdated Skills/Commands
+        skillsOutdatedFor: '以下 AI 工具有 Skills 更新：',
+        commandsOutdatedFor: '以下 AI 工具有斜線命令更新：',
+        selectSkillsToUpdate: '選擇要更新 Skills 的 AI 工具：',
+        selectCommandsToUpdate: '選擇要更新斜線命令的 AI 工具：',
+        skipSkillsUpdate: '跳過 Skills 更新',
+        skipCommandsUpdate: '跳過斜線命令更新',
+        updatingSkills: '更新 Skills 中...',
+        skillsUpdated: '已為 {count} 個 AI 工具更新 Skills',
+        skillsUpdatedWithErrors: '更新 Skills 時發生 {errors} 個錯誤',
+        updatingCommands: '更新斜線命令中...',
+        commandsUpdated: '已為 {count} 個 AI 工具更新斜線命令',
+        commandsUpdatedWithErrors: '更新斜線命令時發生 {errors} 個錯誤',
         // Marketplace detection
         alreadyViaMarketplace: '已透過 Marketplace 安裝',
         marketplaceCoexistNote: '注意：檔案安裝將與 Marketplace 版本並存'
@@ -1806,6 +1894,24 @@ export const messages = {
     // Common labels
     recommended: '推荐',
     advanced: '高级',
+    checkboxHint: '（空格选择、A 全选/取消、Enter 确认）',
+
+    // Display Language (first prompt - uses bilingual format)
+    displayLanguage: {
+      title: '显示语言 / Display Language',
+      description: '选择 CLI 消息和 AI Agent 指示的语言',
+      question: '选择显示语言 / Select display language:',
+      choices: {
+        en: 'English',
+        'zh-tw': '繁體中文 (Traditional Chinese)',
+        'zh-cn': '简体中文 (Simplified Chinese)'
+      },
+      explanations: {
+        en: '  → CLI messages and AI Agent instructions will be in English',
+        'zh-tw': '  → CLI 訊息和 AI Agent 指示將使用繁體中文',
+        'zh-cn': '  → CLI 消息和 AI Agent 指示将使用简体中文'
+      }
+    },
 
     // Content Mode
     contentMode: {
@@ -1888,7 +1994,7 @@ export const messages = {
       question: '选择安装范围 / Select installation scope:',
       choices: {
         minimal: '只装参考文档，Skills 实时提供任务导向指引',
-        full: '安装所有标准文件，不依赖 Skills'
+        full: '安装所有标准文件，不仅只依赖 Skills'
       },
       explanations: {
         minimal: [
@@ -1988,9 +2094,9 @@ export const messages = {
 
     // AI Tools Selection
     aiTools: {
-      title: 'AI 开发工具:',
+      title: 'AI 开发工具',
       description: '选择你在此项目中使用的 AI 编程助手',
-      question: '你使用哪些 AI 工具？/ Which AI tools are you using?',
+      question: '你使用哪些 AI 工具？',
       separators: {
         dynamicSkills: '── 动态 Skills ──',
         staticRules: '── 静态规则文件 ──',
@@ -1998,7 +2104,7 @@ export const messages = {
         gemini: '── Gemini 工具 ──'
       },
       choices: {
-        claudeCode: 'Anthropic CLI，支持动态 Skills',
+        claudeCode: '',
         none: '无 / 跳过'
       }
     },
@@ -2009,7 +2115,7 @@ export const messages = {
       description: '选择 Skills 的安装位置',
       descriptionWithTools: 'Skills 将支持:',
       question: 'Skills 要安装在哪里？/ Where should Skills be installed?',
-      questionMulti: '选择要安装 Skills 的位置（可多选）',
+      questionMulti: '选择要安装 Skills 的位置：',
       marketplaceWarning: 'Claude Code Skills 已通过 Marketplace 安装',
       coexistNote: '文件安装将与 Marketplace 版本并存',
       separatorFileInstall: '── 或选择文件安装位置 ──',
@@ -2031,12 +2137,21 @@ export const messages = {
       }
     },
 
+    // Marketplace Installation Guide
+    marketplaceInstall: {
+      claudeCodeTip: 'Claude Code 可通过 Marketplace 安装：',
+      guide: '请在 Claude Code 中执行以下指令：',
+      note: '安装完成后，Skills 将自动加载并保持更新。',
+      alreadyInstalled: 'Marketplace 插件已安装。',
+      version: '版本'
+    },
+
     // Commands Installation
     commandsInstallation: {
       title: '斜杠命令安装',
       description: '以下 AI Agent 支持斜杠命令：',
       question: '选择要安装斜杠命令的 AI Agent',
-      questionMulti: '选择要安装斜杠命令的位置（可多选）',
+      questionMulti: '选择要安装斜杠命令的位置：',
       installCount: '将为 {count} 个 AI Agent 安装 15 个斜杠命令',
       validationNoMix: '无法同时选择「跳过」和其他选项',
       choices: {
@@ -2125,6 +2240,11 @@ export const messages = {
         userLevel: '用户级别',
         notInstalled: '未安装',
         noSkillsDetected: '未检测到 Skills 安装',
+        skillsMarketplaceInstalled: 'Marketplace',
+        // No AI tools selected - exit
+        noAiToolsSelected: '未选择任何 AI 工具。',
+        noAiToolsExplanation: '  UDS 为 AI 编程助手提供开发标准。',
+        noAiToolsExplanation2: '  没有选择 AI 工具，就没有需要安装的内容。',
         // Integration
         integrationConfig: '集成配置：',
         sharedRuleConfig: '所有选中的工具将共享相同的规则配置。',
@@ -2137,8 +2257,7 @@ export const messages = {
         contentModeFull: '完整嵌入',
         contentModeIndex: '标准（推荐）',
         contentModeMinimal: '最小（仅核心）',
-        locale: '地区设置',
-        localeDefault: '默认（英文）',
+        displayLanguageLabel: '显示语言',
         integrations: '集成',
         skillsLabel: 'Skills',
         skillsMarketplace: 'Plugin Marketplace（由 Claude Code 管理）',
@@ -2440,6 +2559,19 @@ export const messages = {
         newSkillsInstalledWithErrors: '安装 Skills 时发生 {errors} 个错误',
         newCommandsInstalled: '已为 {count} 个 AI 工具安装斜线命令',
         newCommandsInstalledWithErrors: '安装斜线命令时发生 {errors} 个错误',
+        // Outdated Skills/Commands
+        skillsOutdatedFor: '以下 AI 工具有 Skills 更新：',
+        commandsOutdatedFor: '以下 AI 工具有斜线命令更新：',
+        selectSkillsToUpdate: '选择要更新 Skills 的 AI 工具：',
+        selectCommandsToUpdate: '选择要更新斜线命令的 AI 工具：',
+        skipSkillsUpdate: '跳过 Skills 更新',
+        skipCommandsUpdate: '跳过斜线命令更新',
+        updatingSkills: '正在更新 Skills...',
+        skillsUpdated: '已为 {count} 个 AI 工具更新 Skills',
+        skillsUpdatedWithErrors: '更新 Skills 时发生 {errors} 个错误',
+        updatingCommands: '正在更新斜线命令...',
+        commandsUpdated: '已为 {count} 个 AI 工具更新斜线命令',
+        commandsUpdatedWithErrors: '更新斜线命令时发生 {errors} 个错误',
         // Marketplace detection
         alreadyViaMarketplace: '已通过 Marketplace 安装',
         marketplaceCoexistNote: '注意：文件安装将与 Marketplace 版本并存'

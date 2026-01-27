@@ -317,8 +317,10 @@ describe('GitHub Utils', () => {
       expect(result).toBeNull();
     });
 
-    it('should return plugin info when universal-dev-standards is found', () => {
-      existsSync.mockReturnValue(true);
+    it('should return plugin info when universal-dev-standards is found and cache exists', () => {
+      existsSync
+        .mockReturnValueOnce(true)  // plugins file exists
+        .mockReturnValueOnce(true); // cache directory exists
       readFileSync.mockReturnValue(JSON.stringify({
         version: 2,
         plugins: {
@@ -331,6 +333,8 @@ describe('GitHub Utils', () => {
           }]
         }
       }));
+      // Mock cache directory contents (no version folders to avoid version override)
+      readdirSync.mockReturnValue([]);
 
       const result = getMarketplaceSkillsInfo();
 
@@ -366,6 +370,58 @@ describe('GitHub Utils', () => {
       const result = getMarketplaceSkillsInfo();
 
       expect(result).toBeNull();
+    });
+
+    it('should return null when JSON record exists but cache directory is missing (stale record)', () => {
+      // Scenario: Plugin was uninstalled but installed_plugins.json was not cleaned up
+      existsSync
+        .mockReturnValueOnce(true)   // plugins file exists
+        .mockReturnValueOnce(false); // cache directory does NOT exist (plugin uninstalled)
+      readFileSync.mockReturnValue(JSON.stringify({
+        version: 2,
+        plugins: {
+          'universal-dev-standards@asia-ostrich': [{
+            scope: 'user',
+            installPath: '/Users/test/.claude/plugins/cache/asia-ostrich/universal-dev-standards/3.5.0-beta.3',
+            version: '3.5.0-beta.3',
+            installedAt: '2026-01-13T01:53:03.151Z',
+            lastUpdated: '2026-01-13T01:53:03.151Z'
+          }]
+        }
+      }));
+
+      const result = getMarketplaceSkillsInfo();
+
+      // Should return null because cache directory is missing (stale record)
+      expect(result).toBeNull();
+    });
+
+    it('should return plugin info when cache directory exists and has version folders', () => {
+      existsSync
+        .mockReturnValueOnce(true)  // plugins file exists
+        .mockReturnValueOnce(true); // cache directory exists
+      readFileSync.mockReturnValue(JSON.stringify({
+        version: 2,
+        plugins: {
+          'universal-dev-standards@asia-ostrich': [{
+            scope: 'user',
+            installPath: '/Users/test/.claude/plugins/cache/asia-ostrich/universal-dev-standards/3.5.0-beta.3',
+            version: '3.5.0-beta.3',
+            installedAt: '2026-01-13T01:53:03.151Z',
+            lastUpdated: '2026-01-13T01:53:03.151Z'
+          }]
+        }
+      }));
+      // Simulate cache directory with multiple versions
+      readdirSync.mockReturnValue(['3.5.0-beta.3', '4.0.0']);
+
+      const result = getMarketplaceSkillsInfo();
+
+      expect(result).not.toBeNull();
+      expect(result.installed).toBe(true);
+      // Should pick the latest version from cache directory
+      expect(result.version).toBe('4.0.0');
+      expect(result.source).toBe('marketplace');
     });
   });
 });

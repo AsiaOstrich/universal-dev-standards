@@ -545,30 +545,34 @@ export function getMarketplaceSkillsInfo() {
     const info = pluginInfo[0];
     let version = info.version || 'unknown';
 
-    // installed_plugins.json may have stale version info
-    // Check the actual cache directory for the latest installed version
+    // installed_plugins.json may have stale records - plugin may be uninstalled
+    // but JSON record not cleaned up. Verify cache directory actually exists.
     // pluginKey format: "universal-dev-standards@asia-ostrich"
     const parts = pluginKey.split('@');
     if (parts.length === 2) {
       const [pluginName, marketplace] = parts;
       const cacheDir = join(homedir(), '.claude', 'plugins', 'cache', marketplace, pluginName);
 
-      if (existsSync(cacheDir)) {
-        try {
-          const versions = readdirSync(cacheDir)
-            .filter(name => name.match(/^\d+\.\d+\.\d+/));
+      // Fix: If cache directory doesn't exist, plugin was uninstalled but record remains
+      // Return null to indicate plugin is not actually installed
+      if (!existsSync(cacheDir)) {
+        return null;
+      }
 
-          if (versions.length > 0) {
-            // Sort versions and get the latest
-            versions.sort(compareVersionsForSort);
-            const latestVersion = versions[versions.length - 1];
-            if (latestVersion && latestVersion !== version) {
-              version = latestVersion;
-            }
+      try {
+        const versions = readdirSync(cacheDir)
+          .filter(name => name.match(/^\d+\.\d+\.\d+/));
+
+        if (versions.length > 0) {
+          // Sort versions and get the latest
+          versions.sort(compareVersionsForSort);
+          const latestVersion = versions[versions.length - 1];
+          if (latestVersion && latestVersion !== version) {
+            version = latestVersion;
           }
-        } catch {
-          // Ignore errors reading cache directory
         }
+      } catch {
+        // Ignore errors reading cache directory
       }
     }
 

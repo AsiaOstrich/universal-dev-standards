@@ -1,7 +1,7 @@
 # [INIT-02] Configuration Flow Specification
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-23
+**Version**: 1.3.0
+**Last Updated**: 2026-01-26
 **Status**: Stable
 **Spec ID**: INIT-02
 
@@ -29,20 +29,23 @@ The configuration flow must:
 
 | Parameter | Type | Interactive Source | Non-Interactive Source |
 |-----------|------|-------------------|----------------------|
+| `displayLanguage` | string | `promptDisplayLanguage()` | `--locale` or system detection |
 | `level` | 1 \| 2 \| 3 | `promptLevel()` | `--level` |
 | `aiTools` | string[] | `promptAITools()` | `--ai-tools` |
 | `skillsLocation` | string | `promptSkillsInstallLocation()` | Default: project |
 | `standardsScope` | string | `promptStandardsScope()` | Default: minimal |
 | `contentMode` | string | `promptContentMode()` | Default: index |
-| `locale` | string | `promptLocale()` | `--locale` |
 | `format` | string | `promptFormat()` | Default: ai |
 | `language` | string[] | `promptLanguage()` | Auto from detection |
 | `framework` | string[] | `promptFramework()` | Auto from detection |
 | `installSkills` | boolean | `promptCommandsInstallation()` | `!--skip-skills` |
 | `installCommands` | boolean | `promptCommandsInstallation()` | `!--skip-commands` |
+| `options.display_language` | string | From `displayLanguage` | From `displayLanguage` |
 | `options.workflow` | string | Derived from level | Default based on level |
 | `options.merge_strategy` | string | Derived from level | Default: squash |
 | `options.commit_language` | string | `promptIntegrationConfig()` | Default: english |
+
+> **Note**: The `locale` parameter has been replaced by `displayLanguage`. Locale extensions (zh-tw, zh-cn) are now auto-installed based on the selected display language.
 
 ---
 
@@ -67,26 +70,68 @@ The configuration flow must:
 │   ══════════════════════════════════════════════════════════════════════    │
 │                                                                              │
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ Step 1: AI Tools Selection                                          │   │
+│   │ Step 1: Display Language (FIRST PROMPT)                             │   │
 │   │                                                                      │   │
-│   │ promptAITools(detected.aiTools)                                     │   │
+│   │ promptDisplayLanguage()                                             │   │
 │   │                                                                      │   │
-│   │ ? Select AI tools to configure:                                     │   │
-│   │   ◉ Claude Code (CLAUDE.md) - detected                              │   │
-│   │   ◉ Cursor (.cursorrules) - detected                                │   │
-│   │   ○ Windsurf (.windsurfrules)                                       │   │
-│   │   ○ Cline (.clinerules)                                             │   │
-│   │   ○ GitHub Copilot                                                  │   │
-│   │   ○ OpenCode                                                        │   │
-│   │   ○ Aider                                                           │   │
-│   │   ○ Roo                                                             │   │
-│   │   ○ Antigravity                                                     │   │
+│   │ ? Select display language / 選擇顯示語言:                           │   │
+│   │   ○ English (Default for international teams)                       │   │
+│   │   ○ 繁體中文 (Traditional Chinese)                                  │   │
+│   │   ○ 简体中文 (Simplified Chinese)                                   │   │
+│   │                                                                      │   │
+│   │ Note: This sets CLI language and determines locale extension        │   │
+│   │       installation. All subsequent prompts use selected language.   │   │
 │   │                                                                      │   │
 │   └─────────────────────────────────────────────────────────────────────┘   │
 │                            │                                                 │
 │                            ▼                                                 │
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ Step 2: Skills Installation Location                                │   │
+│   │ Step 2: AI Tools Selection                                          │   │
+│   │                                                                      │   │
+│   │ promptAITools(detected.aiTools)                                     │   │
+│   │                                                                      │   │
+│   │ ? Select AI tools to configure:                                     │   │
+│   │   ◉ Claude Code - detected                                          │   │
+│   │   ◉ Cursor (.cursorrules) - detected                                │   │
+│   │   ○ Windsurf (.windsurfrules)                                       │   │
+│   │   ○ Cline (.clinerules)                                             │   │
+│   │   ○ GitHub Copilot (.github/copilot-instructions.md)                │   │
+│   │   ○ Google Antigravity (INSTRUCTIONS.md)                            │   │
+│   │   ○ OpenAI Codex (AGENTS.md)                                        │   │
+│   │   ○ OpenCode (AGENTS.md)                                            │   │
+│   │   ○ Gemini CLI (GEMINI.md)                                          │   │
+│   │                                                                      │   │
+│   │ Note: No separators or "None" option. At least one must be selected.│   │
+│   │       If none selected, init exits with explanation.                │   │
+│   │                                                                      │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                            │                                                 │
+│                    ┌───────┴───────┐                                        │
+│                    │ aiTools.length │                                        │
+│                    │    === 0?      │                                        │
+│                    └───────┬───────┘                                        │
+│                      Yes   │   No                                            │
+│                       │    │                                                 │
+│          ┌────────────┘    └────────────┐                                   │
+│          ▼                              ▼                                    │
+│   ┌──────────────────────┐   ┌─────────────────────────────────────────────┐│
+│   │ EXIT with message:   │   │ Continue to Step 3...                       ││
+│   │                      │   └─────────────────────────────────────────────┘│
+│   │ "No AI tools         │                                                  │
+│   │  selected.           │                                                  │
+│   │  UDS provides        │                                                  │
+│   │  standards for AI    │                                                  │
+│   │  coding assistants.  │                                                  │
+│   │  Without an AI tool, │                                                  │
+│   │  there is nothing    │                                                  │
+│   │  to install."        │                                                  │
+│   │                      │                                                  │
+│   │ process.exit(0)      │                                                  │
+│   └──────────────────────┘                                                  │
+│                                                                              │
+│                            ▼                                                 │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │ Step 3: Skills Installation Location                                │   │
 │   │                                                                      │   │
 │   │ promptSkillsInstallLocation(selectedAgents)                         │   │
 │   │                                                                      │   │
@@ -96,12 +141,28 @@ The configuration flow must:
 │   │   ○ Via Marketplace (plugin)                                        │   │
 │   │                                                                      │   │
 │   │ Note: Shows per-agent options if multiple agents selected           │   │
+│   │       Only shown for agents that support Skills                     │   │
 │   │                                                                      │   │
 │   └─────────────────────────────────────────────────────────────────────┘   │
 │                            │                                                 │
 │                            ▼                                                 │
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ Step 3: Adoption Level                                              │   │
+│   │ Step 4: Slash Commands Installation                                 │   │
+│   │                                                                      │   │
+│   │ promptCommandsInstallation(selectedAgents)                          │   │
+│   │                                                                      │   │
+│   │ ? Install UDS slash commands?                                       │   │
+│   │   ◉ Yes - Install /uds-init, /uds-check commands                    │   │
+│   │   ○ No - Skip command installation                                  │   │
+│   │                                                                      │   │
+│   │ Note: Only shown for agents that support Commands                   │   │
+│   │       Claude Code uses Skills for commands (v2.1.3+ merged)         │   │
+│   │                                                                      │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                            │                                                 │
+│                            ▼                                                 │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │ Step 5: Adoption Level                                              │   │
 │   │                                                                      │   │
 │   │ promptLevel()                                                       │   │
 │   │                                                                      │   │
@@ -114,7 +175,7 @@ The configuration flow must:
 │                            │                                                 │
 │                            ▼                                                 │
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ Step 4: Standards Scope                                             │   │
+│   │ Step 6: Standards Scope                                             │   │
 │   │                                                                      │   │
 │   │ promptStandardsScope()                                              │   │
 │   │                                                                      │   │
@@ -126,58 +187,7 @@ The configuration flow must:
 │                            │                                                 │
 │                            ▼                                                 │
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ Step 5: Content Mode (Integration Files)                            │   │
-│   │                                                                      │   │
-│   │ promptContentMode()                                                 │   │
-│   │                                                                      │   │
-│   │ ? How should standards appear in AI tool files?                     │   │
-│   │   ○ Minimal - References only                                       │   │
-│   │   ◉ Index - Standard index with descriptions                        │   │
-│   │   ○ Full - Embed full content                                       │   │
-│   │                                                                      │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                            │                                                 │
-│                            ▼                                                 │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ Step 6: Language Extensions (if detected)                           │   │
-│   │                                                                      │   │
-│   │ promptLanguage(detected.languages)                                  │   │
-│   │                                                                      │   │
-│   │ ? Include language-specific standards for detected languages?       │   │
-│   │   ◉ TypeScript (detected)                                           │   │
-│   │   ◉ JavaScript (detected)                                           │   │
-│   │   ○ Python                                                          │   │
-│   │                                                                      │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                            │                                                 │
-│                            ▼                                                 │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ Step 7: Framework Extensions (if detected)                          │   │
-│   │                                                                      │   │
-│   │ promptFramework(detected.frameworks)                                │   │
-│   │                                                                      │   │
-│   │ ? Include framework-specific standards?                             │   │
-│   │   ◉ React (detected)                                                │   │
-│   │   ○ Vue                                                             │   │
-│   │                                                                      │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                            │                                                 │
-│                            ▼                                                 │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ Step 8: Locale Selection                                            │   │
-│   │                                                                      │   │
-│   │ promptLocale()                                                      │   │
-│   │                                                                      │   │
-│   │ ? Select documentation locale:                                      │   │
-│   │   ◉ English (en)                                                    │   │
-│   │   ○ 繁體中文 (zh-TW)                                                │   │
-│   │   ○ 简体中文 (zh-CN)                                                │   │
-│   │                                                                      │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                            │                                                 │
-│                            ▼                                                 │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ Step 9: Format Selection                                            │   │
+│   │ Step 7: Format Selection                                            │   │
 │   │                                                                      │   │
 │   │ promptFormat()                                                      │   │
 │   │                                                                      │   │
@@ -190,13 +200,42 @@ The configuration flow must:
 │                            │                                                 │
 │                            ▼                                                 │
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ Step 10: Slash Commands Installation                                │   │
+│   │ Step 8: Standard Options                                            │   │
 │   │                                                                      │   │
-│   │ promptCommandsInstallation(selectedAgents)                          │   │
+│   │ promptStandardOptions(level)                                        │   │
 │   │                                                                      │   │
-│   │ ? Install UDS slash commands?                                       │   │
-│   │   ◉ Yes - Install /uds-init, /uds-check commands                    │   │
-│   │   ○ No - Skip command installation                                  │   │
+│   │ Prompts for workflow, merge strategy, commit language, test levels  │   │
+│   │ based on selected adoption level.                                   │   │
+│   │                                                                      │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                            │                                                 │
+│                            ▼                                                 │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │ Step 9: Language Extensions (Programming Languages)                 │   │
+│   │                                                                      │   │
+│   │ promptLanguage(detected.languages)                                  │   │
+│   │                                                                      │   │
+│   │ ? Include language-specific standards for detected languages?       │   │
+│   │   ◉ TypeScript (detected)                                           │   │
+│   │   ◉ JavaScript (detected)                                           │   │
+│   │   ○ C# (csharp extension)                                           │   │
+│   │   ○ PHP (php extension)                                             │   │
+│   │                                                                      │   │
+│   │ Note: This is for PROGRAMMING language extensions (C#, PHP, etc.)   │   │
+│   │       NOT display language (which was set in Step 1)                │   │
+│   │                                                                      │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                            │                                                 │
+│                            ▼                                                 │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │ Step 10: Framework Extensions (if detected)                         │   │
+│   │                                                                      │   │
+│   │ promptFramework(detected.frameworks)                                │   │
+│   │                                                                      │   │
+│   │ ? Include framework-specific standards?                             │   │
+│   │   ◉ React (detected)                                                │   │
+│   │   ○ Vue                                                             │   │
+│   │   ○ Fat-Free (PHP framework)                                        │   │
 │   │                                                                      │   │
 │   └─────────────────────────────────────────────────────────────────────┘   │
 │                            │                                                 │
@@ -219,23 +258,27 @@ The configuration flow must:
 │                                                                              │
 │   Apply defaults:                                                           │
 │   {                                                                         │
+│     displayLanguage: options.locale || detectSystemLanguage() || 'en',      │
 │     level: options.level || 2,                                              │
 │     aiTools: options.aiTools?.split(',') || detected.aiTools || ['claude-code'],│
 │     skillsLocation: 'project',                                              │
 │     standardsScope: 'minimal',                                              │
 │     contentMode: 'index',                                                   │
-│     locale: options.locale || detectSystemLocale() || 'en',                 │
 │     format: 'ai',                                                           │
 │     languages: detected.languages,                                          │
 │     frameworks: detected.frameworks,                                        │
 │     installSkills: !options.skipSkills,                                     │
 │     installCommands: !options.skipCommands,                                 │
 │     options: {                                                              │
+│       display_language: displayLanguage,                                    │
 │       workflow: 'github-flow',                                              │
 │       merge_strategy: 'squash',                                             │
 │       commit_language: 'english'                                            │
 │     }                                                                       │
 │   }                                                                         │
+│                                                                              │
+│   Note: Locale extension (zh-tw.md, zh-cn.md) is auto-installed based on    │
+│         displayLanguage selection. No separate locale prompt needed.                                                                         │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -244,6 +287,33 @@ The configuration flow must:
 
 ## Prompt Functions
 
+### promptDisplayLanguage (NEW - v1.2.0)
+
+```typescript
+/**
+ * Prompt user to select display language (FIRST PROMPT in init flow)
+ *
+ * This sets the language for:
+ * - CLI messages (all subsequent prompts)
+ * - AI Agent instructions language
+ * - Auto-installation of locale extension (zh-tw.md, zh-cn.md)
+ *
+ * @returns Promise<'en' | 'zh-tw' | 'zh-cn'>
+ */
+async function promptDisplayLanguage(): Promise<'en' | 'zh-tw' | 'zh-cn'>;
+```
+
+**Behavior:**
+- Uses bilingual prompt text (before language is selected)
+- Detects system language for smart default
+- Immediately switches CLI language after selection
+- Auto-installs corresponding locale extension (zh-tw.md, zh-cn.md)
+
+**Design Rationale:**
+- First prompt ensures all subsequent prompts use user's preferred language
+- Merges the old `promptLocale()` functionality (locale extension installation)
+- Improves UX by reducing number of prompts
+
 ### promptAITools
 
 ```typescript
@@ -251,16 +321,26 @@ The configuration flow must:
  * Prompt user to select AI tools for configuration
  *
  * @param detected - Pre-detected AI tools (will be pre-selected)
- * @returns Promise<string[]> - Selected AI tool IDs
+ * @returns Promise<string[]> - Selected AI tool IDs (may be empty)
  */
 async function promptAITools(detected: string[]): Promise<string[]>;
 ```
 
 **Behavior:**
-- Shows all 9 AI tools as checkboxes
+- Shows all 9 AI tools as checkboxes in a flat list (no separators)
 - Pre-selects detected tools
-- Requires at least one selection
-- Groups by capability (skills-capable vs integration-only)
+- Returns empty array if nothing selected (caller handles exit)
+- No "None/Skip" option - users simply deselect all to indicate no selection
+
+**Exit on Empty Selection (v1.3.0):**
+- If `promptAITools` returns empty array, `initCommand` exits with explanation
+- Exit message explains that UDS requires at least one AI tool
+- Uses `process.exit(0)` for clean exit
+
+**UI Simplification (v1.3.0):**
+- Removed separator lines (previously grouped by capability)
+- Removed "(推薦)" / "(Recommended)" tag from Claude Code
+- Simplified tool descriptions (removed redundant text like "- Gemini Agent")
 
 ### promptSkillsInstallLocation
 
@@ -348,15 +428,13 @@ async function promptContentMode(): Promise<'minimal' | 'index' | 'full'>;
 | index | Standard index with descriptions | ~5-10KB |
 | full | Embed full standard content | ~50-100KB |
 
-### promptLocale
+### ~~promptLocale~~ (DEPRECATED - v1.2.0)
+
+> **DEPRECATED**: This function has been removed. Locale selection is now handled by `promptDisplayLanguage()` which is the first prompt in the init flow. Locale extensions (zh-tw.md, zh-cn.md) are automatically installed based on the display language selection.
 
 ```typescript
-/**
- * Prompt for documentation locale
- *
- * @returns Promise<'en' | 'zh-TW' | 'zh-CN'>
- */
-async function promptLocale(): Promise<'en' | 'zh-TW' | 'zh-CN'>;
+// REMOVED - replaced by promptDisplayLanguage()
+// async function promptLocale(): Promise<'en' | 'zh-TW' | 'zh-CN'>;
 ```
 
 ### promptFormat
@@ -412,6 +490,10 @@ async function promptFramework(detected: string[]): Promise<string[]>;
  */
 async function promptCommandsInstallation(agents: string[]): Promise<boolean>;
 ```
+
+**Agent-specific behavior:**
+- **Claude Code**: Uses Skills instead of Commands (v2.1.3+ merged Commands/Skills). Not shown in Commands installation prompt.
+- **Other agents**: Use dedicated Commands directories if supported.
 
 ### promptIntegrationConfig
 
@@ -506,6 +588,9 @@ function validateSkillsLocation(location, agent) {
 
 ```typescript
 interface InitConfiguration {
+  /** Display language for CLI and AI Agent instructions */
+  displayLanguage: 'en' | 'zh-tw' | 'zh-cn';
+
   /** Selected AI tools */
   aiTools: string[];
 
@@ -520,9 +605,6 @@ interface InitConfiguration {
 
   /** Integration content mode */
   contentMode: 'minimal' | 'index' | 'full';
-
-  /** Documentation locale */
-  locale: 'en' | 'zh-TW' | 'zh-CN';
 
   /** Language extensions to install */
   languages: string[];
@@ -588,6 +670,9 @@ interface InitConfiguration {
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-01-26 | **UI Simplification**: Removed separator lines from AI tools prompt, removed "None/Skip" option, exit with explanation when no tools selected |
+| 1.2.0 | 2026-01-26 | **Breaking**: Refactored init flow - Display Language now first prompt, removed promptLocale(), locale extensions auto-installed based on display language |
+| 1.1.0 | 2026-01-26 | Added note: Claude Code uses Skills for commands (v2.1.3+ merged) |
 | 1.0.0 | 2026-01-23 | Initial specification |
 
 ---

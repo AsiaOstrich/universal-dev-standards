@@ -558,6 +558,7 @@ describe('E2E: uds init', () => {
       await setupTestDir(testDir, {});
 
       // Interactive flow inputs:
+      // Step 0: Display Language - English (default, first option)
       // Step 1: AI Tools - select Claude Code (first option, toggle with space, confirm with enter)
       // Step 2: Skills Location - Plugin Marketplace (first option)
       // Step 3: Commands Installation - accept defaults (project level pre-selected)
@@ -572,6 +573,8 @@ describe('E2E: uds init', () => {
       // Step 15: Confirm - Yes
 
       const inputs = [
+        // Display Language: first option (English), enter to confirm
+        '\r',
         // AI Tools: select first option (Claude Code), space to toggle, enter to confirm
         { type: 'checkbox', selections: [{ toggle: true }] },
         // Skills Location: first option (Plugin Marketplace), enter to select
@@ -636,11 +639,11 @@ describe('E2E: uds init', () => {
 
       // Select Claude Code AND Cursor (first two options)
       const inputs = [
-        // AI Tools: toggle first (Claude Code), down, toggle second (separator), down, toggle (Cursor)
+        // Display Language: English (first option)
+        '\r',
+        // AI Tools: toggle first (Claude Code), down, toggle (Cursor)
         { type: 'checkbox', selections: [
           { toggle: true },
-          { down: true },
-          { toggle: false }, // skip separator
           { down: true },
           { toggle: true }   // Cursor
         ] },
@@ -693,6 +696,8 @@ describe('E2E: uds init', () => {
       await setupTestDir(testDir, {});
 
       const inputs = [
+        // Display Language: English (first option)
+        '\r',
         // AI Tools: Claude Code only
         { type: 'checkbox', selections: [{ toggle: true }] },
         // Skills Location: Plugin Marketplace
@@ -737,6 +742,8 @@ describe('E2E: uds init', () => {
       await setupTestDir(testDir, {});
 
       const inputs = [
+        // Display Language: English (first option)
+        '\r',
         // AI Tools: Claude Code
         { type: 'checkbox', selections: [{ toggle: true }] },
         // Skills Location: Plugin Marketplace

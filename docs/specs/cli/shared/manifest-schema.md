@@ -208,6 +208,8 @@ interface CommandsConfig {
   installed: boolean;
   /** List of installed command names */
   names?: string[];
+  /** UDS version of installed commands */
+  version?: string;
   /** Per-agent installation details */
   installations?: AgentInstallation[];
 }
@@ -332,6 +334,7 @@ type AIToolName =
   "commands": {
     "installed": true,
     "names": ["uds-init", "uds-check"],
+    "version": "4.1.0",
     "installations": [
       { "agent": "claude-code", "level": "project" }
     ]

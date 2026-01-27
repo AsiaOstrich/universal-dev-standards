@@ -1,7 +1,7 @@
 # [SHARED-06] AI Agent Paths Specification
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-23
+**Version**: 1.1.0
+**Last Updated**: 2026-01-26
 **Status**: Stable
 **Spec ID**: SHARED-06
 
@@ -55,7 +55,7 @@ interface AgentPathConfig {
 
 | Agent | Skills | Commands | Agents | Workflows | Marketplace | Task |
 |-------|--------|----------|--------|-----------|-------------|------|
-| claude-code | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| claude-code | ✅ | ❌¹ | ✅ | ✅ | ✅ | ✅ |
 | opencode | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
 | cursor | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | windsurf | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -64,6 +64,9 @@ interface AgentPathConfig {
 | aider | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | copilot | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | antigravity | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
+
+> ¹ **Claude Code v2.1.3+**: Commands and Skills have been merged. UDS CLI now uses Skills for Claude Code.
+> See: *"Merged slash commands and skills, simplifying the mental model with no change in behavior."*
 
 ### Main API
 
@@ -108,3 +111,12 @@ function getSkillsDirForAgent(agent, level, projectPath) {
 - [SHARED-07 AI Agent Paths Update](ai-agent-paths-update.md) - January 2026 configuration updates
 - [SHARED-05 Skills Installation](skills-installation.md)
 - [INIT-02 Configuration Flow](../init/02-configuration-flow.md)
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.1.0 | 2026-01-26 | Claude Code commands set to null (v2.1.3+ merged Commands/Skills) |
+| 1.0.0 | 2026-01-23 | Initial specification |

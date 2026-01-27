@@ -103,18 +103,19 @@ vi.mock('../../src/utils/github.js', () => ({
   getProjectInstalledSkillsInfo: vi.fn(() => null),
   writeSkillsManifest: vi.fn(),
   getSkillsDir: vi.fn(() => '/home/user/.claude/skills'),
-  getProjectSkillsDir: vi.fn(() => '/project/.claude/skills')
+  getProjectSkillsDir: vi.fn(() => '/project/.claude/skills'),
+  getMarketplaceSkillsInfo: vi.fn(() => null)
 }));
 
 vi.mock('../../src/prompts/init.js', () => ({
-  promptAITools: vi.fn(() => []),
+  promptDisplayLanguage: vi.fn(() => 'en'),
+  promptAITools: vi.fn(() => ['claude-code']),
   promptSkillsInstallLocation: vi.fn(() => []),
   promptSkillsUpdate: vi.fn(() => ({ action: 'none', targets: [] })),
   promptStandardsScope: vi.fn(() => 'full'),
   promptLevel: vi.fn(() => 2),
   promptLanguage: vi.fn(() => []),
   promptFramework: vi.fn(() => []),
-  promptLocale: vi.fn(() => null),
   promptConfirm: vi.fn(() => true),
   promptFormat: vi.fn(() => 'ai'),
   promptStandardOptions: vi.fn(() => ({})),
@@ -387,6 +388,7 @@ describe('Init Command', () => {
       const manifestArg = writeManifest.mock.calls[0][0];
 
       expect(manifestArg.options).toEqual({
+        display_language: 'en',
         workflow: 'github-flow',
         merge_strategy: 'squash',
         commit_language: 'english',

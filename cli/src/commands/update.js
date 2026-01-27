@@ -440,15 +440,16 @@ export async function updateCommand(options) {
   // Check for new features (Skills/Commands) not yet installed or outdated
   if (!options.standardsOnly) {
     const latestSkillsVersion = repoInfo.skills.version;
-    const { missingSkills, outdatedSkills, missingCommands } = checkNewFeatures(projectPath, manifest, latestSkillsVersion, options.debug);
+    const { missingSkills, outdatedSkills, missingCommands, outdatedCommands } = checkNewFeatures(projectPath, manifest, latestSkillsVersion, options.debug);
 
-    if (missingSkills.length > 0 || outdatedSkills.length > 0 || missingCommands.length > 0) {
+    if (missingSkills.length > 0 || outdatedSkills.length > 0 || missingCommands.length > 0 || outdatedCommands.length > 0) {
       if (!options.yes) {
         // Interactive mode: prompt user to install/update
-        const { installSkills, updateSkills, installCommands, declinedSkills, declinedCommands } = await promptNewFeatureInstallation(
+        const { installSkills, updateSkills, installCommands, updateCommands, declinedSkills, declinedCommands } = await promptNewFeatureInstallation(
           missingSkills,
           outdatedSkills,
-          missingCommands
+          missingCommands,
+          outdatedCommands
         );
 
         // Install Skills if user agreed
@@ -512,6 +513,7 @@ export async function updateCommand(options) {
           // Update manifest
           if (!manifest.commands) manifest.commands = {};
           manifest.commands.installed = true;
+          manifest.commands.version = repoInfo.skills.version;  // Track version
           manifest.commands.installations = [
             ...(manifest.commands.installations || []),
             ...installCommands
@@ -529,6 +531,30 @@ export async function updateCommand(options) {
           } else {
             cmdSpinner.warn((msg.newCommandsInstalledWithErrors || 'Installed commands with {errors} errors')
               .replace('{errors}', cmdResult.totalErrors));
+          }
+        }
+
+        // Update outdated Commands if user agreed
+        if (updateCommands.length > 0) {
+          const updateCmdSpinner = ora(msg.updatingCommands || 'Updating Commands...').start();
+          const updateCmdResult = await installCommandsToMultipleAgents(updateCommands, null, projectPath);
+
+          // Update manifest version
+          if (!manifest.commands) manifest.commands = {};
+          manifest.commands.version = repoInfo.skills.version;
+
+          // Update command hashes for integrity tracking
+          if (updateCmdResult.allFileHashes) {
+            if (!manifest.commandHashes) manifest.commandHashes = {};
+            Object.assign(manifest.commandHashes, updateCmdResult.allFileHashes);
+          }
+
+          if (updateCmdResult.totalErrors === 0) {
+            updateCmdSpinner.succeed((msg.commandsUpdated || 'Updated Commands for {count} AI tools')
+              .replace('{count}', updateCommands.length));
+          } else {
+            updateCmdSpinner.warn((msg.commandsUpdatedWithErrors || 'Updated Commands with {errors} errors')
+              .replace('{errors}', updateCmdResult.totalErrors));
           }
         }
 
@@ -563,7 +589,8 @@ export async function updateCommand(options) {
 
         // Write updated manifest if anything was installed, updated, or declined
         const hasChanges = installSkills.length > 0 || updateSkills.length > 0 ||
-          installCommands.length > 0 || declinedSkills.length > 0 || declinedCommands.length > 0;
+          installCommands.length > 0 || updateCommands.length > 0 ||
+          declinedSkills.length > 0 || declinedCommands.length > 0;
         if (hasChanges) {
           writeManifest(manifest, projectPath);
         }
@@ -582,6 +609,10 @@ export async function updateCommand(options) {
         if (missingCommands.length > 0) {
           const toolNames = missingCommands.map(c => c.displayName).join(', ');
           console.log(chalk.gray(`  • Commands (${toolNames}): run "uds update --commands" or "uds init" to install`));
+        }
+        if (outdatedCommands.length > 0) {
+          const toolNames = outdatedCommands.map(c => `${c.displayName} (${c.currentVersion} → ${c.latestVersion})`).join(', ');
+          console.log(chalk.gray(`  • Commands update (${toolNames}): run "uds update" interactively to update`));
         }
       }
     }
@@ -1083,8 +1114,10 @@ async function updateCommandsOnly(projectPath, manifest) {
   }
 
   // Update manifest
+  const repoInfo = getRepositoryInfo();
   manifest.commands = manifest.commands || {};
   manifest.commands.installed = true;
+  manifest.commands.version = repoInfo.skills.version;  // Track version
   // Normalize to {agent, level} format
   manifest.commands.installations = commandsInstallations.map(inst => {
     if (typeof inst === 'string') {
@@ -1111,7 +1144,7 @@ async function updateCommandsOnly(projectPath, manifest) {
  * @param {Object} manifest - Manifest object
  * @param {string} latestSkillsVersion - Latest skills version from repository
  * @param {boolean} debug - Show debug output
- * @returns {{missingSkills: Array, outdatedSkills: Array, missingCommands: Array}}
+ * @returns {{missingSkills: Array, outdatedSkills: Array, missingCommands: Array, outdatedCommands: Array}}
  */
 function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = false) {
   const aiTools = manifest.aiTools || [];
@@ -1132,7 +1165,7 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = fa
     if (debug) {
       console.log(chalk.yellow('  No aiTools in manifest, skipping detection'));
     }
-    return { missingSkills: [], outdatedSkills: [], missingCommands: [] };
+    return { missingSkills: [], outdatedSkills: [], missingCommands: [], outdatedCommands: [] };
   }
 
   // Get declined features from manifest (to exclude from prompts)
@@ -1142,6 +1175,7 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = fa
   const missingSkills = [];
   const outdatedSkills = [];
   const missingCommands = [];
+  const outdatedCommands = [];
 
   for (const tool of aiTools) {
     if (debug) {
@@ -1258,10 +1292,34 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = fa
           displayName: getAgentDisplayName(tool),
           paths: config.commands
         });
-      } else if (debug) {
-        if (hasCommands) {
-          console.log(chalk.gray('    - Commands already installed'));
+      } else if (hasCommands && latestSkillsVersion) {
+        // Check if installed Commands are outdated (similar to Skills)
+        const installedCmdInfo = userCmdInfo?.installed ? userCmdInfo : projectCmdInfo;
+        const installedCmdVersion = installedCmdInfo?.version;
+
+        if (debug) {
+          console.log(chalk.gray(`      installedCmdVersion: ${installedCmdVersion || 'unknown'}`));
+          console.log(chalk.gray(`      latestSkillsVersion: ${latestSkillsVersion}`));
         }
+
+        // Check if version differs from latest
+        if (installedCmdVersion && installedCmdVersion !== latestSkillsVersion) {
+          if (debug) {
+            console.log(chalk.yellow(`    ✓ Added to outdatedCommands (${installedCmdVersion} → ${latestSkillsVersion})`));
+          }
+          outdatedCommands.push({
+            agent: tool,
+            displayName: getAgentDisplayName(tool),
+            paths: config.commands,
+            currentVersion: installedCmdVersion,
+            latestVersion: latestSkillsVersion,
+            level: userCmdInfo?.installed ? 'user' : 'project',
+            path: installedCmdInfo?.path
+          });
+        } else if (debug) {
+          console.log(chalk.gray('    - Commands up to date'));
+        }
+      } else if (debug) {
         if (declinedCommands.includes(tool)) {
           console.log(chalk.gray('    - Previously declined by user'));
         }
@@ -1277,12 +1335,12 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = fa
 
   if (debug) {
     console.log(chalk.cyan('━'.repeat(50)));
-    console.log(chalk.cyan(`Result: ${missingSkills.length} missing Skills, ${outdatedSkills.length} outdated Skills, ${missingCommands.length} missing Commands`));
+    console.log(chalk.cyan(`Result: ${missingSkills.length} missing Skills, ${outdatedSkills.length} outdated Skills, ${missingCommands.length} missing Commands, ${outdatedCommands.length} outdated Commands`));
     console.log(chalk.cyan('━'.repeat(50)));
     console.log();
   }
 
-  return { missingSkills, outdatedSkills, missingCommands };
+  return { missingSkills, outdatedSkills, missingCommands, outdatedCommands };
 }
 
 /**
@@ -1290,14 +1348,15 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = fa
  * @param {Array} missingSkills - Array of {agent, displayName, paths}
  * @param {Array} outdatedSkills - Array of {agent, displayName, paths, currentVersion, latestVersion, level, path}
  * @param {Array} missingCommands - Array of {agent, displayName, path}
- * @returns {Promise<{installSkills: Array, updateSkills: Array, installCommands: Array, declinedSkills: Array, declinedCommands: Array}>}
+ * @param {Array} outdatedCommands - Array of {agent, displayName, paths, currentVersion, latestVersion, level, path}
+ * @returns {Promise<{installSkills: Array, updateSkills: Array, installCommands: Array, updateCommands: Array, declinedSkills: Array, declinedCommands: Array}>}
  */
-async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missingCommands) {
+async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missingCommands, outdatedCommands = []) {
   const msg = t().commands.update;
 
   // If nothing to do, return empty
-  if (missingSkills.length === 0 && outdatedSkills.length === 0 && missingCommands.length === 0) {
-    return { installSkills: [], updateSkills: [], installCommands: [], declinedSkills: [], declinedCommands: [] };
+  if (missingSkills.length === 0 && outdatedSkills.length === 0 && missingCommands.length === 0 && outdatedCommands.length === 0) {
+    return { installSkills: [], updateSkills: [], installCommands: [], updateCommands: [], declinedSkills: [], declinedCommands: [] };
   }
 
   console.log();
@@ -1306,7 +1365,7 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
   console.log(chalk.cyan('━'.repeat(50)));
   console.log();
 
-  const result = { installSkills: [], updateSkills: [], installCommands: [], declinedSkills: [], declinedCommands: [] };
+  const result = { installSkills: [], updateSkills: [], installCommands: [], updateCommands: [], declinedSkills: [], declinedCommands: [] };
 
   // Handle missing Skills using unified prompt (consistent with init/configure)
   if (missingSkills.length > 0) {
@@ -1404,6 +1463,64 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
     // Track declined commands (agents not selected for installation)
     const installedAgents = installations.map(i => i.agent);
     result.declinedCommands = missingAgents.filter(a => !installedAgents.includes(a));
+  }
+
+  // Handle outdated Commands with checkbox selection (similar to Skills)
+  if (outdatedCommands.length > 0) {
+    console.log(chalk.yellow(msg.commandsOutdatedFor || 'Commands updates available for these AI tools:'));
+    for (const cmd of outdatedCommands) {
+      const levelLabel = cmd.level === 'user' ? 'user' : 'project';
+      const pathDisplay = cmd.path || getCommandsDirForAgent(cmd.agent, cmd.level);
+      console.log(chalk.gray(`  • ${cmd.displayName} (${levelLabel}: ${pathDisplay})`));
+      console.log(chalk.gray(`      ${cmd.currentVersion} → ${cmd.latestVersion}`));
+    }
+    console.log();
+
+    // Build checkbox choices with path info
+    const updateCmdChoices = outdatedCommands.map(cmd => {
+      const levelLabel = cmd.level === 'user' ? 'user' : 'project';
+      const pathDisplay = cmd.path || getCommandsDirForAgent(cmd.agent, cmd.level);
+      return {
+        name: `${cmd.displayName} ${chalk.gray(`(${levelLabel}: ${pathDisplay}) ${cmd.currentVersion} → ${cmd.latestVersion}`)}`,
+        value: cmd.agent,
+        checked: true  // Default checked for opt-out behavior
+      };
+    });
+
+    // Add skip option
+    updateCmdChoices.push(new inquirer.Separator());
+    updateCmdChoices.push({
+      name: chalk.gray(msg.skipCommandsUpdate || 'Skip Commands update'),
+      value: '__skip__'
+    });
+
+    const { selectedUpdateCmdAgents } = await inquirer.prompt([{
+      type: 'checkbox',
+      name: 'selectedUpdateCmdAgents',
+      message: msg.selectCommandsToUpdate || 'Select AI tools to update Commands for:',
+      choices: updateCmdChoices,
+      validate: (answer) => {
+        if (answer.includes('__skip__') && answer.length > 1) {
+          return msg.skipValidationError || 'Cannot select Skip with other options';
+        }
+        return true;
+      }
+    }]);
+
+    // Filter out skip and map to update info
+    const filteredUpdateCmdAgents = selectedUpdateCmdAgents.filter(a => a !== '__skip__');
+
+    if (filteredUpdateCmdAgents.length > 0) {
+      result.updateCommands = filteredUpdateCmdAgents.map(agent => {
+        const cmdInfo = outdatedCommands.find(c => c.agent === agent);
+        return {
+          agent,
+          level: cmdInfo.level,
+          path: cmdInfo.path
+        };
+      });
+    }
+    console.log();
   }
 
   return result;

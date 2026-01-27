@@ -46,6 +46,7 @@ export const DEFAULT_MANIFEST = {
   commands: {
     installed: false,
     names: [],
+    version: null,
     installations: []
   },
   methodology: null,

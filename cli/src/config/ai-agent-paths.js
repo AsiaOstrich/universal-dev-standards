@@ -32,10 +32,9 @@ export const AI_AGENT_PATHS = {
       project: '.claude/skills/',
       user: join(homedir(), '.claude', 'skills')
     },
-    commands: {
-      project: '.claude/commands/',
-      user: join(homedir(), '.claude', 'commands')
-    },
+    // v2.1.3+: Commands and Skills merged, unified to Skills
+    // See: "Merged slash commands and skills, simplifying the mental model with no change in behavior."
+    commands: null,
     agents: {
       project: '.claude/agents/',
       user: join(homedir(), '.claude', 'agents')
