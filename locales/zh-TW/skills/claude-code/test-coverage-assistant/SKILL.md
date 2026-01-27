@@ -1,5 +1,5 @@
 ---
-name: test-coverage-assistant
+name: coverage
 description: |
   使用 8 維度框架評估測試完整性。
   使用時機：撰寫測試、審查測試覆蓋率、確保測試品質。

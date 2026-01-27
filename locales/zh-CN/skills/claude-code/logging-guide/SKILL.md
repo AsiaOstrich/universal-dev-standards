@@ -1,5 +1,5 @@
 ---
-name: logging-guide
+name: logging
 description: |
   实作结构化日誌，包含正确的日誌层级和敏感数据处理。
   使用时机：新增日誌、除錯、设置可觀测性。

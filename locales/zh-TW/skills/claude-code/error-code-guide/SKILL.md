@@ -1,5 +1,5 @@
 ---
-name: error-code-guide
+name: errors
 description: |
   設計一致的錯誤碼，遵循 PREFIX_CATEGORY_NUMBER 格式。
   使用時機：定義錯誤碼、建立錯誤處理、設計 API。

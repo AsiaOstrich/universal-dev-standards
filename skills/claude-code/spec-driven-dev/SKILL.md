@@ -1,5 +1,5 @@
 ---
-name: spec-driven-dev
+name: spec
 scope: universal
 description: |
   Guide Spec-Driven Development (SDD) workflow for planning changes before implementation.

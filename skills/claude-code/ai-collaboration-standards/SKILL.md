@@ -1,5 +1,5 @@
 ---
-name: ai-collaboration-standards
+name: ai-collab
 scope: universal
 description: |
   Prevent AI hallucination and ensure evidence-based responses when analyzing code or making suggestions.

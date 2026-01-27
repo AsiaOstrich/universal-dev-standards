@@ -1,5 +1,5 @@
 ---
-name: forward-derivation
+name: derive
 scope: partial
 description: |
   從已批准的 SDD 規格推演 BDD 場景和 TDD 測試骨架。

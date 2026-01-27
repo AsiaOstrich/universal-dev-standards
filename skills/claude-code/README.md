@@ -16,21 +16,33 @@ These skills are automatically triggered based on context when using Claude Code
 
 ## Available Skills
 
-| Skill | Description | Triggers |
-|-------|-------------|----------|
-| `ai-collaboration-standards` | Prevent AI hallucination | Code analysis, "certainty" |
-| `checkin-assistant` | Pre-commit quality gates | "commit", "checkin", "quality gate" |
-| `commit-standards` | Conventional Commits format | "commit", git operations |
-| `code-review-assistant` | Systematic code review | "review", "PR" |
-| `testing-guide` | Testing pyramid | Writing tests |
-| `tdd-assistant` | Test-Driven Development | "TDD", "test first", "red green refactor" |
-| `bdd-assistant` | Behavior-Driven Development | "BDD", "Gherkin", "Given-When-Then" |
-| `atdd-assistant` | Acceptance Test-Driven Development | "ATDD", "acceptance criteria", "specification workshop" |
-| `release-standards` | Semantic versioning | Release preparation |
-| `git-workflow-guide` | Branching strategies | "branch", "merge" |
-| `documentation-guide` | Documentation structure & writing | "README", "docs", "ARCHITECTURE" |
-| `requirement-assistant` | Requirement writing | "requirement", "user story" |
-| `reverse-engineer` | Reverse engineer code to SDD specs | "reverse engineering", "legacy code", "code archaeology" |
+| Skill (Folder) | Command | Description | Triggers |
+|----------------|---------|-------------|----------|
+| `ai-collaboration-standards` | `/ai-collab` | Prevent AI hallucination | Code analysis, "certainty" |
+| `checkin-assistant` | `/checkin` | Pre-commit quality gates | "commit", "checkin", "quality gate" |
+| `commit-standards` | `/commit` | Conventional Commits format | "commit", git operations |
+| `code-review-assistant` | `/review` | Systematic code review | "review", "PR" |
+| `testing-guide` | `/testing` | Testing pyramid | Writing tests |
+| `tdd-assistant` | `/tdd` | Test-Driven Development | "TDD", "test first", "red green refactor" |
+| `bdd-assistant` | `/bdd` | Behavior-Driven Development | "BDD", "Gherkin", "Given-When-Then" |
+| `atdd-assistant` | `/atdd` | Acceptance Test-Driven Development | "ATDD", "acceptance criteria", "specification workshop" |
+| `release-standards` | `/release` | Semantic versioning | Release preparation |
+| `git-workflow-guide` | `/git-flow` | Branching strategies | "branch", "merge" |
+| `documentation-guide` | `/docs` | Documentation structure & writing | "README", "docs", "ARCHITECTURE" |
+| `requirement-assistant` | `/requirement` | Requirement writing | "requirement", "user story" |
+| `reverse-engineer` | `/reverse` | Reverse engineer code to SDD specs | "reverse engineering", "legacy code", "code archaeology" |
+| `forward-derivation` | `/derive` | Derive BDD/TDD from SDD specs | "forward derivation", "spec to test" |
+| `spec-driven-dev` | `/spec` | Spec-Driven Development | "spec", "SDD", "proposal" |
+| `changelog-guide` | `/changelog` | CHANGELOG.md maintenance | "changelog", "release notes" |
+| `test-coverage-assistant` | `/coverage` | Test coverage analysis | "coverage", "8 dimensions" |
+| `methodology-system` | `/methodology` | Development methodology | "methodology", "workflow" |
+| `project-structure-guide` | `/structure` | Project directory organization | "structure", "scaffold" |
+| `refactoring-assistant` | `/refactor` | Refactoring guidance | "refactor", "rewrite", "technical debt" |
+| `error-code-guide` | `/errors` | Error code design | "error code", "error handling" |
+| `logging-guide` | `/logging` | Structured logging | "logging", "observability" |
+| `docs-generator` | `/docgen` | Generate documentation | "generate docs", "cheatsheet" |
+| `ai-instruction-standards` | `/ai-instruct` | AI instruction files | "CLAUDE.md", "cursorrules" |
+| `ai-friendly-architecture` | `/ai-arch` | AI-friendly architecture | "AI-friendly", "context" |
 
 ## Static vs Dynamic Standards | 靜態與動態規範
 
@@ -60,20 +72,20 @@ These are **triggered by keywords** or specific tasks. Install as Skills:
 
 這些規範由**關鍵字觸發**，按需載入。安裝為 Skills 使用：
 
-| Skill | Trigger Keywords | 觸發關鍵字 |
-|-------|-----------------|-----------|
-| checkin-assistant | checkin, pre-commit, quality gate | 簽入, 品質關卡 |
-| commit-standards | commit, git, message | 提交, 訊息 |
-| code-review-assistant | review, PR, checklist | 審查, 檢查 |
-| git-workflow-guide | branch, merge, workflow | 分支, 合併 |
-| testing-guide | test, coverage, pyramid | 測試, 覆蓋率 |
-| tdd-assistant | TDD, test first, red green refactor | TDD, 測試優先, 紅綠重構 |
-| bdd-assistant | BDD, Gherkin, Given-When-Then, feature file | BDD, 行為驅動, 場景 |
-| atdd-assistant | ATDD, acceptance criteria, specification workshop | ATDD, 驗收條件, 規格工作坊 |
-| release-standards | version, release, semver | 版本, 發布 |
-| documentation-guide | README, docs, ARCHITECTURE, API docs | 文件, 架構, API 文件 |
-| requirement-assistant | spec, SDD, requirement | 規格, 需求, 新功能 |
-| reverse-engineer | reverse engineering, legacy code, code archaeology | 反向工程, 舊有程式碼, 規格提取 |
+| Skill (Folder) | Command | Trigger Keywords | 觸發關鍵字 |
+|----------------|---------|-----------------|-----------|
+| checkin-assistant | `/checkin` | checkin, pre-commit, quality gate | 簽入, 品質關卡 |
+| commit-standards | `/commit` | commit, git, message | 提交, 訊息 |
+| code-review-assistant | `/review` | review, PR, checklist | 審查, 檢查 |
+| git-workflow-guide | `/git-flow` | branch, merge, workflow | 分支, 合併 |
+| testing-guide | `/testing` | test, coverage, pyramid | 測試, 覆蓋率 |
+| tdd-assistant | `/tdd` | TDD, test first, red green refactor | TDD, 測試優先, 紅綠重構 |
+| bdd-assistant | `/bdd` | BDD, Gherkin, Given-When-Then, feature file | BDD, 行為驅動, 場景 |
+| atdd-assistant | `/atdd` | ATDD, acceptance criteria, specification workshop | ATDD, 驗收條件, 規格工作坊 |
+| release-standards | `/release` | version, release, semver | 版本, 發布 |
+| documentation-guide | `/docs` | README, docs, ARCHITECTURE, API docs | 文件, 架構, API 文件 |
+| requirement-assistant | `/requirement` | spec, SDD, requirement | 規格, 需求, 新功能 |
+| reverse-engineer | `/reverse` | reverse engineering, legacy code, code archaeology | 反向工程, 舊有程式碼, 規格提取 |
 
 > 📖 See [Static vs Dynamic Guide](../../adoption/STATIC-DYNAMIC-GUIDE.md) for detailed classification.
 >
@@ -104,11 +116,22 @@ In addition to automatic Skills, this plugin provides **manual slash commands** 
 | `/tdd` | TDD workflow | TDD 工作流程 |
 | `/bdd` | BDD workflow | BDD 開發流程 |
 | `/atdd` | ATDD workflow | ATDD 驗收流程 |
-| `/docs` | Documentation | 文件撰寫 |
+| `/docs` | Documentation guide | 文件撰寫指南 |
 | `/coverage` | Test coverage analysis | 測試覆蓋率分析 |
-| `/reverse-spec` | Reverse engineer to SDD spec | 反向工程成 SDD 規格 |
-| `/reverse-bdd` | Transform SDD AC to BDD scenarios | SDD AC 轉換為 BDD 場景 |
-| `/reverse-tdd` | Analyze BDD-TDD coverage | BDD-TDD 覆蓋率分析 |
+| `/checkin` | Pre-commit quality gates | 簽入品質關卡 |
+| `/git-flow` | Git workflow guidance | Git 工作流程 |
+| `/testing` | Testing pyramid guide | 測試金字塔指南 |
+| `/structure` | Project structure guide | 專案結構指南 |
+| `/refactor` | Refactoring guidance | 重構指引 |
+| `/errors` | Error code design | 錯誤碼設計 |
+| `/logging` | Structured logging | 結構化日誌 |
+| `/derive` | Forward derivation (spec→test) | 正向推演（規格→測試） |
+| `/reverse` | Reverse engineering to spec | 反向工程成規格 |
+| `/methodology` | Development methodology | 開發方法論 |
+| `/ai-collab` | AI collaboration standards | AI 協作規範 |
+| `/ai-instruct` | AI instruction files | AI 指令檔案 |
+| `/ai-arch` | AI-friendly architecture | AI 友善架構 |
+| `/docgen` | Generate documentation | 生成功能文件 |
 
 ### Skills vs Commands | Skills 與命令的差異
 

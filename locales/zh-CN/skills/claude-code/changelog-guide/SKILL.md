@@ -1,5 +1,5 @@
 ---
-name: changelog-guide
+name: changelog
 description: |
   依照 Keep a Changelog 格式撰写与維護 CHANGELOG.md。
   使用时机：建立变更日誌条目、准备發布、记录变更。

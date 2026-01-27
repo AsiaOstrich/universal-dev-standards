@@ -1,5 +1,5 @@
 ---
-name: testing-guide
+name: testing
 scope: uds-specific
 description: |
   Testing pyramid and test writing standards for UT/IT/ST/E2E.

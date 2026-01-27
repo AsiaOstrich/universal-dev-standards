@@ -1,5 +1,5 @@
 ---
-name: tdd-assistant
+name: tdd
 scope: partial
 description: |
   Guide developers through Test-Driven Development workflow.

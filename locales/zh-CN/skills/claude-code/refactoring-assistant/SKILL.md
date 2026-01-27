@@ -4,7 +4,7 @@ source_version: 2.0.0
 translation_version: 2.0.0
 last_synced: 2026-01-21
 status: current
-name: refactoring-assistant
+name: refactor
 description: |
   引导重构决策和大规模代码改进。
   使用时机：重构代码、遗留系统现代化、技术债、重写决策。

@@ -1,5 +1,5 @@
 ---
-name: test-coverage-assistant
+name: coverage
 scope: partial
 description: |
   Evaluate test completeness using the 8 dimensions framework.

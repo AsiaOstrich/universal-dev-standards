@@ -1,5 +1,5 @@
 ---
-name: docs-generator
+name: docgen
 description: |
   從專案來源產生使用說明文件。
   使用時機：「產生文件」、「建立速查表」、「使用指南」、「功能參考」、「列出所有功能」

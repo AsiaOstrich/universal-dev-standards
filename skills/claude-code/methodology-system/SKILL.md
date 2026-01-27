@@ -1,5 +1,5 @@
 ---
-name: methodology-system
+name: methodology
 scope: partial
 description: |
   Manage and guide developers through active development methodology workflows.

@@ -1,5 +1,5 @@
 ---
-name: docs-generator
+name: docgen
 scope: uds-specific
 description: |
   Generate usage documentation from project sources.

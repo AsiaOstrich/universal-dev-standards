@@ -1,5 +1,5 @@
 ---
-name: reverse-engineer
+name: reverse
 description: |
   將現有程式碼反向工程成 SDD 規格文件。
   使用時機：分析舊有程式碼、為未文件化的系統撰寫文件、從現有實作提取規格。

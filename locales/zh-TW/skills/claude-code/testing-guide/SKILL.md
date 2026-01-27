@@ -4,7 +4,7 @@ source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2025-12-29
 status: current
-name: testing-guide
+name: testing
 description: |
   Testing pyramid and test writing standards for UT/IT/ST/E2E.
   Supports ISTQB and Industry Pyramid frameworks.

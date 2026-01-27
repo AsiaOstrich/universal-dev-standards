@@ -1,5 +1,5 @@
 ---
-name: checkin-assistant
+name: checkin
 scope: partial
 description: |
   Guide pre-commit quality gates and check-in workflow.

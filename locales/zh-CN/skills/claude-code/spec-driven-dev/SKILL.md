@@ -1,5 +1,5 @@
 ---
-name: spec-driven-dev
+name: spec
 description: |
   引導規格驅动开发 (SDD) 工作流程，在实作前規划变更。
   使用时机：建立規格、提案、規划功能、使用 OpenSpec 或类似工具。

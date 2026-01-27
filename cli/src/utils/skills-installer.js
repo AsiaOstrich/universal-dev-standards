@@ -75,9 +75,12 @@ export function getAvailableCommandNames() {
     return [];
   }
 
+  // Files to exclude from command list
+  const EXCLUDED_FILES = ['README.md', 'COMMAND-FAMILY-OVERVIEW.md'];
+
   try {
     return readdirSync(COMMANDS_LOCAL_DIR)
-      .filter(file => file.endsWith('.md') && file !== 'README.md')
+      .filter(file => file.endsWith('.md') && !EXCLUDED_FILES.includes(file))
       .map(file => basename(file, '.md'));
   } catch {
     return [];

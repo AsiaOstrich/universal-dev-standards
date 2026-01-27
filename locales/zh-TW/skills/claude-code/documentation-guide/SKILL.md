@@ -4,7 +4,7 @@ source_version: 2.0.0
 translation_version: 2.0.0
 last_synced: 2026-01-12
 status: current
-name: documentation-guide
+name: docs
 description: |
   引導文件結構、內容需求和專案文件最佳實踐。
   使用時機：建立 README、文件、docs 目錄、專案設定、技術文件。

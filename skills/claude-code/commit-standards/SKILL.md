@@ -1,5 +1,5 @@
 ---
-name: commit-standards
+name: commit
 scope: universal
 description: |
   Format commit messages following conventional commits standard.

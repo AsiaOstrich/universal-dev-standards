@@ -1,5 +1,5 @@
 ---
-name: forward-derivation
+name: derive
 scope: partial
 description: |
   Derive BDD scenarios and TDD test skeletons from approved SDD specifications.

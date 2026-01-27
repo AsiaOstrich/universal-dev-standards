@@ -4,7 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-25
 status: current
-name: git-workflow-guide
+name: git-flow
 description: |
   指導 Git 分支策略、分支命名與合併操作。
   使用時機：建立分支、合併、Pull Request、Git 工作流程問題。

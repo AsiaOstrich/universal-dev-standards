@@ -4,7 +4,7 @@ source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-01-02
 status: current
-name: release-standards
+name: release
 description: |
   語意化版本控制和变更日誌格式化的软体發布标准。
   使用时机：准备發布、更新版本号、撰写变更日誌。

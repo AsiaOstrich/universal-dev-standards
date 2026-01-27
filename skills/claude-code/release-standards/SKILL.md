@@ -1,5 +1,5 @@
 ---
-name: release-standards
+name: release
 scope: universal
 description: |
   Semantic versioning and changelog formatting for software releases.

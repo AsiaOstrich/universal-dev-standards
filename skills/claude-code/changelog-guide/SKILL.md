@@ -1,5 +1,5 @@
 ---
-name: changelog-guide
+name: changelog
 scope: partial
 description: |
   Write and maintain CHANGELOG.md following Keep a Changelog format.

@@ -133,10 +133,13 @@ describe('Init Prompts', () => {
       expect(result).toEqual([]);
     });
 
-    it('should return empty array when no skills-supported tools', async () => {
+    it('should prompt for Cursor skills installation (added Jan 2026, v2.3.35)', async () => {
+      // Cursor now supports SKILL.md as of v2.3.35 (Jan 2026)
+      mockPrompt.mockResolvedValue({ locations: ['cursor:project'] });
+
       const result = await promptSkillsInstallLocation(['cursor']);
 
-      expect(result).toEqual([]);
+      expect(result).toEqual([{ agent: 'cursor', level: 'project' }]);
     });
 
     it('should support multi-agent selection', async () => {
@@ -168,11 +171,13 @@ describe('Init Prompts', () => {
       expect(result).toEqual([{ agent: 'opencode', level: 'project' }]);
     });
 
-    it('should return empty array when no commands-supported tools', async () => {
-      // cursor does not support file-based commands (commands: null)
+    it('should prompt for Cursor commands installation (added Jan 2026, v2.3.35)', async () => {
+      // Cursor now supports commands as of v2.3.35 (Jan 2026)
+      mockPrompt.mockResolvedValue({ locations: ['cursor:project'] });
+
       const result = await promptCommandsInstallation(['cursor']);
 
-      expect(result).toEqual([]);
+      expect(result).toEqual([{ agent: 'cursor', level: 'project' }]);
     });
 
     it('should return empty array when empty selection', async () => {

@@ -39,7 +39,8 @@ describe('AI Agent Paths Configuration', () => {
     });
 
     it('should have valid commands paths for agents that support commands', () => {
-      const agentsWithCommands = ['opencode', 'roo-code', 'copilot', 'gemini-cli'];
+      // Updated Jan 2026: Cursor v2.3.35 added commands support
+      const agentsWithCommands = ['opencode', 'cursor', 'roo-code', 'copilot', 'gemini-cli'];
 
       for (const agent of agentsWithCommands) {
         expect(AI_AGENT_PATHS[agent].commands).toBeDefined();
@@ -106,9 +107,9 @@ describe('AI Agent Paths Configuration', () => {
       expect(path).toBe(join(homedir(), '.config', 'opencode', 'command'));
     });
 
-    it('should return null for agent without commands support', () => {
+    it('should return commands path for Cursor (added Jan 2026, v2.3.35)', () => {
       const path = getCommandsDirForAgent('cursor', 'project', '/test/project');
-      expect(path).toBeNull();
+      expect(path).toBe(join('/test/project', '.cursor/commands/'));
     });
 
     it('should return null for unknown agent', () => {
@@ -138,11 +139,11 @@ describe('AI Agent Paths Configuration', () => {
       expect(agents).toContain('gemini-cli');
     });
 
-    it('should not include agents that do not support skills', () => {
+    it('should include Cursor (added Jan 2026, v2.3.35)', () => {
       const agents = getSkillsSupportedAgents();
 
-      // Cursor does not support SKILL.md
-      expect(agents).not.toContain('cursor');
+      // Cursor added SKILL.md support in v2.3.35 (Jan 2026)
+      expect(agents).toContain('cursor');
     });
   });
 
@@ -157,11 +158,12 @@ describe('AI Agent Paths Configuration', () => {
       expect(agents).toContain('gemini-cli');
     });
 
-    it('should not include agents without commands support', () => {
+    it('should include Cursor (added Jan 2026, v2.3.35)', () => {
       const agents = getCommandsSupportedAgents();
 
-      // These agents don't support file-based commands
-      expect(agents).not.toContain('cursor');
+      // Cursor added commands support in v2.3.35 (Jan 2026)
+      expect(agents).toContain('cursor');
+      // Cline still doesn't support file-based commands
       expect(agents).not.toContain('cline');
     });
   });
@@ -217,6 +219,11 @@ describe('AI Agent Paths Configuration', () => {
       expect(AVAILABLE_COMMANDS.length).toBeGreaterThan(0);
     });
 
+    it('should have 37 commands (25 Skills + 12 Commands-only)', () => {
+      // Updated Jan 2026: Expanded to include Commands-only commands
+      expect(AVAILABLE_COMMANDS.length).toBe(37);
+    });
+
     it('should have name and description for each command', () => {
       for (const cmd of AVAILABLE_COMMANDS) {
         expect(cmd.name).toBeDefined();
@@ -226,13 +233,61 @@ describe('AI Agent Paths Configuration', () => {
       }
     });
 
-    it('should contain essential commands', () => {
+    it('should contain essential Skills-based commands', () => {
       const names = AVAILABLE_COMMANDS.map(c => c.name);
 
+      // Core development workflow
       expect(names).toContain('commit');
       expect(names).toContain('review');
-      expect(names).toContain('tdd');
       expect(names).toContain('release');
+      expect(names).toContain('changelog');
+
+      // Testing
+      expect(names).toContain('tdd');
+      expect(names).toContain('bdd');
+      expect(names).toContain('atdd');
+      expect(names).toContain('coverage');
+
+      // Spec & requirements
+      expect(names).toContain('spec');
+      expect(names).toContain('requirement');
+      expect(names).toContain('derive');
+      expect(names).toContain('reverse');
+
+      // AI collaboration
+      expect(names).toContain('ai-collab');
+      expect(names).toContain('ai-instruct');
+      expect(names).toContain('ai-arch');
+    });
+
+    it('should contain Commands-only commands (added Jan 2026)', () => {
+      const names = AVAILABLE_COMMANDS.map(c => c.name);
+
+      // CLI management commands
+      expect(names).toContain('init');
+      expect(names).toContain('update');
+      expect(names).toContain('check');
+      expect(names).toContain('config');
+
+      // Derivation commands
+      expect(names).toContain('derive-bdd');
+      expect(names).toContain('derive-tdd');
+      expect(names).toContain('derive-atdd');
+      expect(names).toContain('derive-all');
+
+      // Reverse engineering commands
+      expect(names).toContain('reverse-spec');
+      expect(names).toContain('reverse-bdd');
+      expect(names).toContain('reverse-tdd');
+
+      // Documentation
+      expect(names).toContain('generate-docs');
+    });
+
+    it('should have unique command names', () => {
+      const names = AVAILABLE_COMMANDS.map(c => c.name);
+      const uniqueNames = [...new Set(names)];
+      expect(names.length).toBe(uniqueNames.length);
     });
   });
 });

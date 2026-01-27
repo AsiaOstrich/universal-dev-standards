@@ -1,5 +1,5 @@
 ---
-name: bdd-assistant
+name: bdd
 scope: partial
 description: |
   Guide developers through Behavior-Driven Development workflow.

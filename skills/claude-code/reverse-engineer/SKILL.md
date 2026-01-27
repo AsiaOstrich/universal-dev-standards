@@ -1,5 +1,5 @@
 ---
-name: reverse-engineer
+name: reverse
 scope: partial
 description: |
   Reverse engineer existing code into SDD specification documents.

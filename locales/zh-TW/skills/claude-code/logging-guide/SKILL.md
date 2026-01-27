@@ -1,5 +1,5 @@
 ---
-name: logging-guide
+name: logging
 description: |
   實作結構化日誌，包含正確的日誌層級和敏感資料處理。
   使用時機：新增日誌、除錯、設定可觀測性。

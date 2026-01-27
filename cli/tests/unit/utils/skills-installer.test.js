@@ -62,7 +62,7 @@ describe('Skills Installer', () => {
       expect(commands.length).toBeGreaterThan(0);
     });
 
-    it('should include known commands', () => {
+    it('should include known commands from Skills', () => {
       const commands = getAvailableCommandNames();
 
       expect(commands).toContain('commit');
@@ -70,9 +70,34 @@ describe('Skills Installer', () => {
       expect(commands).toContain('tdd');
     });
 
-    it('should not include README', () => {
+    it('should include Commands-only commands (added Jan 2026)', () => {
+      const commands = getAvailableCommandNames();
+
+      // CLI management
+      expect(commands).toContain('init');
+      expect(commands).toContain('update');
+      expect(commands).toContain('check');
+      expect(commands).toContain('config');
+
+      // Derivation commands
+      expect(commands).toContain('derive-bdd');
+      expect(commands).toContain('derive-tdd');
+      expect(commands).toContain('derive-atdd');
+      expect(commands).toContain('derive-all');
+
+      // Reverse engineering
+      expect(commands).toContain('reverse-spec');
+      expect(commands).toContain('reverse-bdd');
+      expect(commands).toContain('reverse-tdd');
+
+      // Documentation
+      expect(commands).toContain('generate-docs');
+    });
+
+    it('should not include README or COMMAND-FAMILY-OVERVIEW', () => {
       const commands = getAvailableCommandNames();
       expect(commands).not.toContain('README');
+      expect(commands).not.toContain('COMMAND-FAMILY-OVERVIEW');
     });
   });
 
@@ -126,11 +151,12 @@ describe('Skills Installer', () => {
   });
 
   describe('installCommandsForAgent', () => {
-    it('should fail for agent without commands support', async () => {
-      const result = await installCommandsForAgent('cursor', 'project', null, TEST_DIR);
+    it('should install commands for Cursor (added Jan 2026, v2.3.35)', async () => {
+      // Cursor added commands support in v2.3.35 (Jan 2026)
+      const result = await installCommandsForAgent('cursor', 'project', ['commit'], TEST_DIR);
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('does not support slash commands');
+      expect(result.success).toBe(true);
+      expect(result.installed).toContain('commit');
     });
 
     it('should install commands to project directory', async () => {
@@ -171,6 +197,50 @@ describe('Skills Installer', () => {
       const content = readFileSync(join(targetDir, 'commit.toml'), 'utf-8');
       expect(content).toContain('description =');
       expect(content).toContain('prompt =');
+    });
+
+    it('should install Commands-only commands (CLI management)', async () => {
+      // Test CLI management commands that don't have corresponding Skills
+      const result = await installCommandsForAgent('opencode', 'project', ['init', 'check'], TEST_DIR);
+
+      expect(result.success).toBe(true);
+      expect(result.installed).toContain('init');
+      expect(result.installed).toContain('check');
+
+      // Verify files exist
+      const targetDir = result.targetDir;
+      expect(existsSync(join(targetDir, 'init.md'))).toBe(true);
+      expect(existsSync(join(targetDir, 'check.md'))).toBe(true);
+    });
+
+    it('should install Commands-only commands (derivation)', async () => {
+      // Test derivation commands
+      const result = await installCommandsForAgent('cursor', 'project', ['derive-bdd', 'derive-tdd'], TEST_DIR);
+
+      expect(result.success).toBe(true);
+      expect(result.installed).toContain('derive-bdd');
+      expect(result.installed).toContain('derive-tdd');
+    });
+
+    it('should install Commands-only commands (reverse engineering)', async () => {
+      // Test reverse engineering commands
+      const result = await installCommandsForAgent('opencode', 'project', ['reverse-spec', 'reverse-bdd'], TEST_DIR);
+
+      expect(result.success).toBe(true);
+      expect(result.installed).toContain('reverse-spec');
+      expect(result.installed).toContain('reverse-bdd');
+    });
+
+    it('should install all available commands when null is passed', async () => {
+      const result = await installCommandsForAgent('opencode', 'project', null, TEST_DIR);
+
+      expect(result.success).toBe(true);
+      // Should install all commands from the commands/ directory
+      expect(result.installed.length).toBeGreaterThanOrEqual(25);
+      // Verify some Commands-only commands are included
+      expect(result.installed).toContain('init');
+      expect(result.installed).toContain('derive-bdd');
+      expect(result.installed).toContain('reverse-spec');
     });
   });
 

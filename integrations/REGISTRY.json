@@ -33,15 +33,16 @@
     },
     "cursor": {
       "name": "Cursor",
-      "tier": "partial",
+      "tier": "complete",
       "integrationFiles": [
         "integrations/cursor/.cursorrules"
       ],
       "instructionFile": "integrations/cursor/.cursorrules",
       "rulesLocation": "integrations/cursor/",
-      "supportsSkills": false,
+      "supportsSkills": true,
       "supportsAgents": true,
-      "supportsWorkflows": false
+      "supportsWorkflows": false,
+      "note": "SKILL.md support added in v2.3.35 (Jan 2026)"
     },
     "cline": {
       "name": "Cline",

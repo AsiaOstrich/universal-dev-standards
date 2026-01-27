@@ -1,5 +1,5 @@
 ---
-name: requirement-assistant
+name: requirement
 scope: universal
 description: |
   Guide requirement writing, user story creation, and feature specification.

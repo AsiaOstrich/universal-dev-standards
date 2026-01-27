@@ -4,7 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-25
 status: current
-name: commit-standards
+name: commit
 description: |
   遵循約定式提交标准格式化提交消息。
   使用时机：撰写提交消息、git commit、檢视提交历史。

@@ -4,7 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-25
 status: current
-name: requirement-assistant
+name: requirement
 description: |
   引導需求撰写、使用者故事建立与功能規格制定。
   使用时机：撰写需求、使用者故事、問題单、功能規划。

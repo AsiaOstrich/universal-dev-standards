@@ -4,7 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-12
 status: current
-name: checkin-assistant
+name: checkin
 description: |
   引導提交前品質關卡和簽入工作流程。
   使用時機：提交程式碼、準備提交、品質關卡驗證。

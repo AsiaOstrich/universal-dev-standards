@@ -1,5 +1,5 @@
 ---
-name: refactoring-assistant
+name: refactor
 scope: universal
 description: |
   Guide refactoring decisions and large-scale code improvements.

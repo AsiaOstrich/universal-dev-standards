@@ -1,5 +1,5 @@
 ---
-name: atdd-assistant
+name: atdd
 scope: partial
 description: |
   Guide teams through Acceptance Test-Driven Development workflow.

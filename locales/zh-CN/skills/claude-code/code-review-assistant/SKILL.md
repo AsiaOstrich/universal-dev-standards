@@ -4,7 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-25
 status: current
-name: code-review-assistant
+name: review
 description: |
   系统化的程序码审查检查清单和提交前品质关卡。
   使用时机：审查 pull request、检查程序码品质、提交程序码前。

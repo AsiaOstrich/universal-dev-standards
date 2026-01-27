@@ -1,5 +1,5 @@
 ---
-name: git-workflow-guide
+name: git-flow
 scope: universal
 description: |
   Guide Git branching strategies, branch naming, and merge operations.

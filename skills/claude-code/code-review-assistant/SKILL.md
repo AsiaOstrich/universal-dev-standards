@@ -1,5 +1,5 @@
 ---
-name: code-review-assistant
+name: review
 scope: universal
 description: |
   Systematic code review checklist and pre-commit quality gates for PRs.

@@ -79,7 +79,10 @@ export const AI_AGENT_PATHS = {
       project: '.cursor/skills/',
       user: join(homedir(), '.cursor', 'skills')
     },
-    commands: null, // Rules only, no SKILL.md support yet
+    commands: {
+      project: '.cursor/commands/',
+      user: join(homedir(), '.cursor', 'commands')
+    },
     agents: {
       project: '.cursor/agents/',
       user: join(homedir(), '.cursor', 'agents')
@@ -87,7 +90,7 @@ export const AI_AGENT_PATHS = {
     workflows: null, // Not supported
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/',
-    supportsSkills: false, // Uses .mdc rules format
+    supportsSkills: true, // SKILL.md support since v2.3.35 (Jan 2026)
     supportsTask: false, // No Task tool support
     supportsAgents: true // Can load agents as inline context
   },
@@ -430,24 +433,92 @@ export function supportsAgents(agent) {
 }
 
 /**
- * List of all available slash commands (from skills/claude-code/commands/)
+ * List of all available slash commands (from skills/claude-code/)
+ * Note: Since Claude Code v2.1.3+, Skills and Commands are merged.
+ * The `name` field in SKILL.md directly becomes the slash command.
+ *
+ * This list includes:
+ * - 25 commands from Skills (SKILL.md files)
+ * - 12 commands from Commands-only files (no corresponding Skill)
+ * Total: 37 available commands
  */
 export const AVAILABLE_COMMANDS = [
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Core Development Workflow (Skills + Commands)
+  // ═══════════════════════════════════════════════════════════════════════════
   { name: 'commit', description: 'Generate commit messages following Conventional Commits' },
   { name: 'review', description: 'Perform code review with checklist' },
-  { name: 'tdd', description: 'Guide TDD workflow (Red-Green-Refactor)' },
-  { name: 'bdd', description: 'Guide BDD workflow' },
-  { name: 'coverage', description: 'Analyze test coverage' },
-  { name: 'requirement', description: 'Write requirements following INVEST' },
-  { name: 'check', description: 'Check-in verification' },
+  { name: 'checkin', description: 'Pre-commit quality gates verification' },
   { name: 'release', description: 'Guide release process' },
   { name: 'changelog', description: 'Generate changelog entries' },
-  { name: 'docs', description: 'Generate documentation' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Testing Methodologies (Skills + Commands)
+  // ═══════════════════════════════════════════════════════════════════════════
+  { name: 'tdd', description: 'Guide TDD workflow (Red-Green-Refactor)' },
+  { name: 'bdd', description: 'Guide BDD workflow (Gherkin, Given-When-Then)' },
+  { name: 'atdd', description: 'Guide ATDD workflow (acceptance criteria)' },
+  { name: 'testing', description: 'Testing pyramid and test writing standards' },
+  { name: 'coverage', description: 'Analyze test coverage (8 dimensions)' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Specification and Requirements (Skills + Commands)
+  // ═══════════════════════════════════════════════════════════════════════════
   { name: 'spec', description: 'Spec-driven development guide' },
+  { name: 'requirement', description: 'Write requirements following INVEST' },
+  { name: 'derive', description: 'Forward derivation (spec to BDD/TDD)' },
+  { name: 'reverse', description: 'Reverse engineer code to SDD specs' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Derivation Commands (Commands-only, specific transformations)
+  // ═══════════════════════════════════════════════════════════════════════════
+  { name: 'derive-bdd', description: 'Derive BDD Gherkin scenarios from SDD specification' },
+  { name: 'derive-tdd', description: 'Derive TDD test skeletons from SDD specification' },
+  { name: 'derive-atdd', description: 'Derive ATDD acceptance tests from SDD specification' },
+  { name: 'derive-all', description: 'Derive all test structures (BDD, TDD, ATDD) from spec' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Reverse Engineering Commands (Commands-only, specific transformations)
+  // ═══════════════════════════════════════════════════════════════════════════
+  { name: 'reverse-spec', description: 'Reverse engineer code into SDD specification document' },
+  { name: 'reverse-bdd', description: 'Transform SDD acceptance criteria to BDD scenarios' },
+  { name: 'reverse-tdd', description: 'Analyze BDD-TDD coverage gaps' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Project Structure and Documentation (Skills + Commands)
+  // ═══════════════════════════════════════════════════════════════════════════
+  { name: 'structure', description: 'Project directory organization guide' },
+  { name: 'docs', description: 'Documentation structure and writing guide' },
+  { name: 'docgen', description: 'Generate usage documentation' },
+  { name: 'generate-docs', description: 'Generate documentation from .usage-docs.yaml config' },
+  { name: 'git-flow', description: 'Git branching strategies and workflow' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Code Quality (Skills)
+  // ═══════════════════════════════════════════════════════════════════════════
+  { name: 'refactor', description: 'Refactoring and legacy modernization guide' },
+  { name: 'errors', description: 'Error code design standards' },
+  { name: 'logging', description: 'Structured logging implementation' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // AI Collaboration (Skills)
+  // ═══════════════════════════════════════════════════════════════════════════
+  { name: 'ai-collab', description: 'AI collaboration and anti-hallucination standards' },
+  { name: 'ai-instruct', description: 'AI instruction files (CLAUDE.md, cursorrules)' },
+  { name: 'ai-arch', description: 'AI-friendly architecture design' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Development Methodology (Skills + Commands)
+  // ═══════════════════════════════════════════════════════════════════════════
   { name: 'methodology', description: 'Development methodology selection' },
-  { name: 'config', description: 'Project structure configuration' },
-  { name: 'init', description: 'Initialize standards' },
-  { name: 'update', description: 'Update standards' }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CLI Management (Commands-only, UDS CLI specific)
+  // ═══════════════════════════════════════════════════════════════════════════
+  { name: 'init', description: 'Initialize UDS standards in project' },
+  { name: 'update', description: 'Update standards to latest version' },
+  { name: 'check', description: 'Verify standards adoption status' },
+  { name: 'config', description: 'Configure project standards settings' }
 ];
 
 /**

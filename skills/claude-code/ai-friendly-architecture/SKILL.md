@@ -1,5 +1,5 @@
 ---
-name: ai-friendly-architecture
+name: ai-arch
 scope: uds-specific
 description: |
   Design AI-friendly architecture with explicit patterns, layered documentation, and semantic boundaries.
