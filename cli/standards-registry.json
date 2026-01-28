@@ -976,6 +976,19 @@
       "description": "Comprehensive refactoring guidelines with tactical, strategic, and legacy code safety strategies including decision matrix"
     },
     {
+      "id": "requirement-engineering",
+      "name": "Requirement Engineering Standards",
+      "nameZh": "需求工程標準",
+      "source": {
+        "human": "core/requirement-engineering.md",
+        "ai": "ai/standards/requirement-engineering.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": "requirement-assistant",
+      "level": 2,
+      "description": "Requirements engineering lifecycle, elicitation, specification, and validation standards based on IEEE 830, SWEBOK v4.0, and ISO 25010"
+    },
+    {
       "id": "csharp-style",
       "name": "C# Style Guide",
       "nameZh": "C# 風格指南",

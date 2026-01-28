@@ -16,7 +16,7 @@ Language-agnostic, framework-agnostic documentation standards for software proje
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Core Standards** | 22 | Universal development guidelines (Markdown) |
+| **Core Standards** | 23 | Universal development guidelines (Markdown) |
 | **AI Skills** | 23 | Interactive Claude Code skills for AI-assisted development |
 | **Slash Commands** | 24 | Quick actions (`/commit`, `/tdd`, `/review`, etc.) |
 | **CLI Commands** | 6 | `list`, `init`, `configure`, `check`, `update`, `skills` |
@@ -301,8 +301,37 @@ Yes. The CLI is Node.js-based and works on all platforms. See [Windows Guide](do
 
 ### What's the difference between core standards and skills?
 
-- **Core Standards**: Documentation (Markdown) that defines best practices - reference material
-- **Skills**: Interactive AI commands that implement those standards - active assistance
+UDS uses a **dual-layer architecture**:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Skills (Execution Layer)                                │
+│  • Quick reference tables & decision trees               │
+│  • AI-optimized, token-efficient                         │
+│  • Interactive workflows & configuration detection       │
+│  • Best for: Daily tasks, quick lookups                  │
+└────────────────────────┬────────────────────────────────┘
+                         │ When depth needed:
+┌────────────────────────▼────────────────────────────────┐
+│  Core Standards (Knowledge Base)                         │
+│  • Complete theory & edge case coverage                  │
+│  • Tool configurations & automation guides               │
+│  • "Why" explanations & rationale                        │
+│  • Best for: Deep understanding, complex scenarios       │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key Differences**:
+
+| Aspect | Core Standards | Skills |
+|--------|---------------|--------|
+| **Format** | Full Markdown (verbose) | YAML-optimized (token-efficient) |
+| **Coverage** | 100% including edge cases | Common cases (80/20) |
+| **Content** | Theory + "Why" + "How" | Quick "What" + "How" |
+| **Interactivity** | Reference documentation | Config detection, wizards |
+| **Best For** | Learning, complex scenarios | Daily execution |
+
+**When Skills are unavailable**, use Core Standards directly. See [Skill Fallback Guide](docs/SKILL-FALLBACK-GUIDE.md) for alternative workflows
 
 ### Why are some AI tools marked as "Planned"?
 

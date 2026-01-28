@@ -11,9 +11,10 @@ description: |
 
 > **Language**: English | [繁體中文](../../../../locales/zh-TW/skills/claude-code/requirement-assistant/SKILL.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
+**Version**: 1.1.0
+**Last Updated**: 2026-01-28
 **Applicability**: Claude Code Skills
+**Core Standard**: [Requirement Engineering Standards](../../../core/requirement-engineering.md)
 
 ---
 
@@ -203,8 +204,14 @@ This project uses **English** for requirements and issues.
 
 ## Related Standards
 
-- [Spec-Driven Development](../../core/spec-driven-development.md)
-- [Checkin Standards](../../core/checkin-standards.md)
+**Core Standard (Theory & Deep Reference)**:
+- [Requirement Engineering Standards](../../../core/requirement-engineering.md) - Complete theoretical foundation including IEEE 830, SWEBOK v4.0, ISO 25010
+
+**Related Standards**:
+- [Spec-Driven Development](../../../core/spec-driven-development.md) - Specification workflow
+- [Behavior-Driven Development](../../../core/behavior-driven-development.md) - Given-When-Then scenarios
+- [Acceptance Test-Driven Development](../../../core/acceptance-test-driven-development.md) - ATDD workshops
+- [Checkin Standards](../../../core/checkin-standards.md) - Code check-in requirements
 
 ---
 
@@ -212,6 +219,7 @@ This project uses **English** for requirements and issues.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-28 | Added: Core Standard reference to requirement-engineering.md, expanded Related Standards section |
 | 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
 
 ---
