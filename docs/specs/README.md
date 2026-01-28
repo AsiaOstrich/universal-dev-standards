@@ -2,8 +2,8 @@
 
 > **Language**: English | 繁體中文
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-25
+**Version**: 1.2.0
+**Last Updated**: 2026-01-28
 
 This directory contains all specification documents for the Universal Development Standards project.
 
@@ -19,7 +19,21 @@ docs/specs/
 ├── system/                         # System design specifications
 │   ├── agents-workflows-system.md  # Agent & Workflow system design
 │   ├── core-standard-workflow.md   # Core standard creation workflow
-│   └── forward-derivation.md       # Forward derivation methodology
+│   ├── forward-derivation.md       # Forward derivation methodology
+│   ├── vibe-coding-integration.md  # [NEW] Vibe Coding integration (P0)
+│   ├── custom-agent-creation.md    # [NEW] Custom agent creation (P1)
+│   ├── cascading-config.md         # [NEW] Cascading configuration (P1)
+│   ├── self-healing-cli.md         # [NEW] Self-healing CLI (P1)
+│   ├── hitl-protocol.md            # [NEW] Human-in-the-loop protocol (P1)
+│   ├── i18n-standards.md           # [NEW] i18n standards (P1)
+│   ├── agent-sandbox.md            # [NEW] Agent sandbox (P1)
+│   ├── workflow-rollback.md        # [NEW] Workflow rollback (P1)
+│   ├── agent-marketplace.md        # [NEW] Agent marketplace (P2)
+│   ├── workflow-visualization.md   # [NEW] Workflow visualization (P2)
+│   ├── folder-restructure.md       # [NEW] Folder restructure (P2)
+│   ├── telemetry-feedback.md       # [NEW] Telemetry & feedback (P2)
+│   ├── skills-api.md               # [NEW] Skills as a Service (P2)
+│   └── ai-tool-detection.md        # [NEW] AI tool auto-detection (P2)
 └── cli/                            # CLI implementation specifications
     ├── 00-overview.md              # CLI architecture overview
     ├── design/                     # Design specifications
@@ -34,13 +48,58 @@ docs/specs/
     │   └── npm-release.md          # npm release automation [PUBLISH-00]
     ├── testing/                    # Testing specifications
     │   └── test-strategy.md        # CLI test strategy [TEST-00]
+    ├── upgrade/                    # [NEW] Upgrade command specs
+    │   └── 00-upgrade-overview.md  # UDS upgrade command (P0)
+    ├── rules/                      # [NEW] Rules command specs
+    │   └── 00-rules-overview.md    # Rules management (P1)
     └── {command}/                  # Command implementation specs
         └── ...
 ```
 
 ---
 
-## System Design Specifications / 系統設計規格
+## Future Features / 未來功能規格
+
+Specifications for planned features, organized by priority. These specs are not tied to specific versions.
+
+計劃功能的規格，按優先級組織。這些規格不綁定特定版本。
+
+### Priority P0 - Core Features / 核心功能
+
+| Document | Description | Status |
+|----------|-------------|--------|
+| [upgrade-overview.md](cli/upgrade/00-upgrade-overview.md) | `uds upgrade` 無痛升級命令 | Draft |
+| [vibe-coding-integration.md](system/vibe-coding-integration.md) | Vibe Coding 整合（意圖導航+品質守門） | Draft |
+
+### Priority P1 - Enhanced Features / 增強功能
+
+| Document | Description | Status |
+|----------|-------------|--------|
+| [custom-agent-creation.md](system/custom-agent-creation.md) | `uds agent create` 互動式精靈 | Draft |
+| [cascading-config.md](system/cascading-config.md) | Global → Org → Project 三層配置 | Draft |
+| [rules-overview.md](cli/rules/00-rules-overview.md) | `uds rules` 規則管理命令 | Draft |
+| [self-healing-cli.md](system/self-healing-cli.md) | `uds fix --auto` 自動修正功能 | Draft |
+| [hitl-protocol.md](system/hitl-protocol.md) | 人機協作協議（HITL） | Draft |
+| [i18n-standards.md](system/i18n-standards.md) | 多語言支援規範 | Draft |
+| [agent-sandbox.md](system/agent-sandbox.md) | Agent 執行沙盒環境 | Draft |
+| [workflow-rollback.md](system/workflow-rollback.md) | 工作流程失敗回溯機制 | Draft |
+
+### Priority P2 - Future Vision / 未來願景
+
+| Document | Description | Status |
+|----------|-------------|--------|
+| [agent-marketplace.md](system/agent-marketplace.md) | Git-based 去中心化代理市場 | Draft |
+| [workflow-visualization.md](system/workflow-visualization.md) | Mermaid 圖表生成 | Draft |
+| [folder-restructure.md](system/folder-restructure.md) | 目錄結構重構 | Draft |
+| [telemetry-feedback.md](system/telemetry-feedback.md) | 遙測與回饋循環 | Draft |
+| [skills-api.md](system/skills-api.md) | Skills as a Service API | Draft |
+| [ai-tool-detection.md](system/ai-tool-detection.md) | AI 工具自動偵測 | Draft |
+
+---
+
+## Implemented Specifications / 已實作規格
+
+### System Design Specifications / 系統設計規格
 
 High-level architecture and design documents that define cross-cutting concerns and methodologies.
 
@@ -147,6 +206,7 @@ Cross-cutting specifications used by multiple commands.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-01-28 | Added 16 future feature specs (P0: 2, P1: 8, P2: 6); Reorganized into priority sections |
 | 1.1.0 | 2026-01-25 | Added SHARED-08, SHARED-09, PUBLISH-00, TEST-00; Updated system specs to Approved |
 | 1.0.0 | 2026-01-24 | Initial consolidation of specs directories |
 
