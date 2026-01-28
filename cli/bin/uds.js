@@ -7,6 +7,7 @@ import { initCommand } from '../src/commands/init.js';
 import { checkCommand } from '../src/commands/check.js';
 import { updateCommand } from '../src/commands/update.js';
 import { configureCommand } from '../src/commands/configure.js';
+import { configCommand } from '../src/commands/config.js';
 import { skillsCommand } from '../src/commands/skills.js';
 import { agentListCommand, agentInstallCommand, agentInfoCommand } from '../src/commands/agent.js';
 import { workflowListCommand, workflowInstallCommand, workflowInfoCommand, workflowExecuteCommand, workflowStatusCommand } from '../src/commands/workflow.js';
@@ -60,9 +61,14 @@ program
   .action(initCommand);
 
 program
+  .command('config [action] [key] [value]')
+  .description('Manage UDS configuration (list, get, set, init)')
+  .option('-g, --global', 'Use global configuration')
+  .action(configCommand);
+
+program
   .command('configure')
-  .alias('config')
-  .description('Modify options for initialized project')
+  .description('Modify options for initialized project (Legacy)')
   .option('-t, --type <type>', 'Option type to configure (format, workflow, merge_strategy, commit_language, test_levels, skills, commands, all)')
   .option('--ai-tool <tool>', 'Specific AI tool to configure (claude-code, opencode, copilot, etc.) - enables non-interactive mode')
   .option('--skills-location <location>', 'Skills installation location (project, user) for non-interactive mode')
