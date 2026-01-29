@@ -1,12 +1,12 @@
 ---
-source: ../../../core/versioning.md
+source: ../../core/versioning.md
 source_version: 1.2.0
 translation_version: 1.2.0
 last_synced: 2025-12-30
 status: current
 ---
 
-> **語言**: [English](../../../core/versioning.md) | 繁體中文
+> **語言**: [English](../../core/versioning.md) | 繁體中文
 
 # 語義化版本標準
 

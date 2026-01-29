@@ -1,5 +1,5 @@
 ---
-source: ../../../../integrations/gemini-cli/README.md
+source: ../../../integrations/gemini-cli/README.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-13
@@ -19,7 +19,7 @@ Gemini CLI 是 Google 的开源 AI 代理工具，将 Gemini 模型带入终端�
 - **[GEMINI.md](./GEMINI.md)**（推荐）：
   项目级指令文件，Gemini CLI 会自动加载。
 
-- **[settings-example.json](../../../../integrations/gemini-cli/settings-example.json)**：
+- **[settings-example.json](../../../integrations/gemini-cli/settings-example.json)**：
   用于自定义 CLI 行为的设置示例文件。
 
 ## 配置层级

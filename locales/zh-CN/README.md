@@ -154,8 +154,8 @@ uds init  # 选择 AI 工具，skills 自动安装
 macOS / Linux:
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git /tmp/uds
-cp -r /tmp/uds/skills/claude-code/* ~/.claude/skills/    # 全局
-# 或: cp -r /tmp/uds/skills/claude-code/* .claude/skills/  # 项目
+cp -r /tmp/uds/skills/* ~/.claude/skills/    # 全局
+# 或: cp -r /tmp/uds/skills/* .claude/skills/  # 项目
 rm -rf /tmp/uds
 ```
 

@@ -1,5 +1,5 @@
 ---
-source: ../../../docs/OPERATION-WORKFLOW.md
+source: ../../docs/OPERATION-WORKFLOW.md
 source_version: 1.3.0
 translation_version: 1.3.0
 status: current
@@ -9,7 +9,7 @@ translator: Claude
 
 # UDS 作业流程
 
-> **Language**: [English](../../../docs/OPERATION-WORKFLOW.md) | [繁體中文](../zh-TW/docs/OPERATION-WORKFLOW.md) | 简体中文
+> **Language**: [English](../../docs/OPERATION-WORKFLOW.md) | [繁體中文](../zh-TW/docs/OPERATION-WORKFLOW.md) | 简体中文
 
 **版本**: 1.3.0
 **最后更新**: 2026-01-26
@@ -55,7 +55,7 @@ translator: Claude
                  ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Claude Code Skills                            │
-│   skills/claude-code/ - 15 个 Skills                            │
+│   skills/ - 15 个 Skills                            │
 │   每个 Skill 对应 1+ 个核心规范                                  │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
@@ -75,7 +75,7 @@ translator: Claude
 | `ai/standards/*.ai.yaml` | AI 优化规范 | 16 |
 | `options/*/*.md` | 实践选项 | 36 |
 | `ai/options/*/*.ai.yaml` | AI 优化选项 | 36 |
-| `skills/claude-code/*/` | Claude Code 技能 | 15 |
+| `skills/*/` | Claude Code 技能 | 15 |
 | `integrations/*/` | AI 工具模板 | 10 |
 | `locales/zh-TW/` | 繁体中文 | ~129 |
 | `locales/zh-CN/` | 简体中文 | 部分 |
@@ -250,26 +250,26 @@ translator: [名称]
 
 | Skill 名称 | 对应核心规范 | 路径 |
 |------------|--------------|------|
-| ai-collaboration-standards | anti-hallucination | `skills/claude-code/ai-collaboration-standards/` |
-| changelog-guide | changelog | `skills/claude-code/changelog-guide/` |
-| code-review-assistant | code-review, checkin | `skills/claude-code/code-review-assistant/` |
-| commit-standards | commit-message | `skills/claude-code/commit-standards/` |
-| documentation-guide | documentation-* | `skills/claude-code/documentation-guide/` |
-| error-code-guide | error-codes | `skills/claude-code/error-code-guide/` |
-| git-workflow-guide | git-workflow | `skills/claude-code/git-workflow-guide/` |
-| logging-guide | logging | `skills/claude-code/logging-guide/` |
-| project-structure-guide | project-structure | `skills/claude-code/project-structure-guide/` |
-| release-standards | versioning | `skills/claude-code/release-standards/` |
-| requirement-assistant | （需求文档） | `skills/claude-code/requirement-assistant/` |
-| spec-driven-dev | spec-driven | `skills/claude-code/spec-driven-dev/` |
-| tdd-assistant | tdd | `skills/claude-code/tdd-assistant/` |
-| test-coverage-assistant | test-completeness | `skills/claude-code/test-coverage-assistant/` |
-| testing-guide | testing | `skills/claude-code/testing-guide/` |
+| ai-collaboration-standards | anti-hallucination | `skills/ai-collaboration-standards/` |
+| changelog-guide | changelog | `skills/changelog-guide/` |
+| code-review-assistant | code-review, checkin | `skills/code-review-assistant/` |
+| commit-standards | commit-message | `skills/commit-standards/` |
+| documentation-guide | documentation-* | `skills/documentation-guide/` |
+| error-code-guide | error-codes | `skills/error-code-guide/` |
+| git-workflow-guide | git-workflow | `skills/git-workflow-guide/` |
+| logging-guide | logging | `skills/logging-guide/` |
+| project-structure-guide | project-structure | `skills/project-structure-guide/` |
+| release-standards | versioning | `skills/release-standards/` |
+| requirement-assistant | （需求文档） | `skills/requirement-assistant/` |
+| spec-driven-dev | spec-driven | `skills/spec-driven-dev/` |
+| tdd-assistant | tdd | `skills/tdd-assistant/` |
+| test-coverage-assistant | test-completeness | `skills/test-coverage-assistant/` |
+| testing-guide | testing | `skills/testing-guide/` |
 
 ### 4.2 Skill 目录结构
 
 ```
-skills/claude-code/[skill-name]/
+skills/[skill-name]/
 ├── SKILL.md              # 主要技能文档（YAML 前置 + 内容）
 ├── [guide1].md           # 详细指南
 ├── [guide2].md           # 详细指南
@@ -582,13 +582,13 @@ UDS 有两个相关但独立的组件：
 | 组件 | 类型 | 位置 | 用途 |
 |------|------|------|------|
 | UDS CLI | Node.js 程序 | `cli/src/` | 执行实际操作（`uds init`、`uds check` 等）|
-| 斜线命令 | Markdown 文档 | `skills/claude-code/commands/` | 指导 AI 如何使用 CLI |
+| 斜线命令 | Markdown 文档 | `skills/commands/` | 指导 AI 如何使用 CLI |
 
 **执行流程：**
 ```
 用户在 Claude Code 输入 /update
     ↓
-AI 读取 skills/claude-code/commands/update.md
+AI 读取 skills/commands/update.md
     ↓
 AI 执行 CLI 命令（uds check、uds update）
     ↓
@@ -601,12 +601,12 @@ AI 根据 CLI 输出向用户报告结果
 
 | CLI 文件 | 斜线命令 |
 |----------|----------|
-| `cli/src/commands/init.js` | `skills/claude-code/commands/init.md` |
-| `cli/src/commands/check.js` | `skills/claude-code/commands/check.md` |
-| `cli/src/commands/update.js` | `skills/claude-code/commands/update.md` |
-| `cli/src/commands/configure.js` | `skills/claude-code/commands/configure.md` |
-| `cli/src/commands/list.js` | `skills/claude-code/commands/list.md` |
-| `cli/src/commands/skills.js` | `skills/claude-code/commands/skills.md` |
+| `cli/src/commands/init.js` | `skills/commands/init.md` |
+| `cli/src/commands/check.js` | `skills/commands/check.md` |
+| `cli/src/commands/update.js` | `skills/commands/update.md` |
+| `cli/src/commands/configure.js` | `skills/commands/configure.md` |
+| `cli/src/commands/list.js` | `skills/commands/list.md` |
+| `cli/src/commands/skills.js` | `skills/commands/skills.md` |
 
 #### 同步检查清单
 
@@ -614,7 +614,7 @@ AI 根据 CLI 输出向用户报告结果
 
 1. [ ] 在 CLI 实现功能（`cli/src/commands/*.js` 或 `cli/src/utils/*.js`）
 2. [ ] 添加单元测试（`cli/tests/`）
-3. [ ] 更新斜线命令文档（`skills/claude-code/commands/*.md`）
+3. [ ] 更新斜线命令文档（`skills/commands/*.md`）
 4. [ ] 如需要，更新翻译（`locales/zh-TW/skills/`、`locales/zh-CN/skills/`）
 5. [ ] 运行验证：`cd cli && npm test && npm run lint`
 
@@ -634,10 +634,10 @@ AI 根据 CLI 输出向用户报告结果
 步骤 3：在 cli/tests/utils/github.test.js 添加单元测试
         - 测试各种场景（文件存在、找不到、解析错误）
         ↓
-步骤 4：更新 skills/claude-code/commands/check.md
+步骤 4：更新 skills/commands/check.md
         - 在 Skills Status 区段记录新的版本输出
         ↓
-步骤 5：更新 skills/claude-code/commands/update.md
+步骤 5：更新 skills/commands/update.md
         - 添加说明如何检查 Skills 版本的章节
 ```
 
@@ -660,7 +660,7 @@ AI 根据 CLI 输出向用户报告结果
         ↓
 步骤 4：创建 ai/options/new-standard/*.ai.yaml（如适用）
         ↓
-步骤 5：创建 skills/claude-code/new-skill/（如适用）
+步骤 5：创建 skills/new-skill/（如适用）
         ↓
 步骤 6：创建 locales/zh-TW/core/new-standard.md
         ↓
@@ -701,9 +701,9 @@ AI 根据 CLI 输出向用户报告结果
 
 4. **创建 Skill（如适用）**
    ```bash
-   mkdir -p skills/claude-code/new-standard-skill
-   touch skills/claude-code/new-standard-skill/SKILL.md
-   touch skills/claude-code/new-standard-skill/guide.md
+   mkdir -p skills/new-standard-skill
+   touch skills/new-standard-skill/SKILL.md
+   touch skills/new-standard-skill/guide.md
    ```
 
 5. **创建翻译**
@@ -745,7 +745,7 @@ AI 根据 CLI 输出向用户报告结果
 **完整流程（6 步骤）：**
 
 ```
-步骤 1：创建 skills/claude-code/new-skill/ 目录
+步骤 1：创建 skills/new-skill/ 目录
         ↓
 步骤 2：创建含 YAML 前置的 SKILL.md
         ↓
@@ -863,7 +863,7 @@ integrations/github-copilot/
 **YAML 前置模板：**
 ```yaml
 ---
-source: ../../../../integrations/[tool-name]/[file].md
+source: ../../../integrations/[tool-name]/[file].md
 source_version: X.Y.Z
 translation_version: X.Y.Z
 last_synced: YYYY-MM-DD
@@ -983,7 +983,7 @@ cd cli && npm test && npm run lint
 | `ai/standards/` | AI 优化规范 | 16 文件 |
 | `ai/options/` | AI 优化选项 | 36 文件 |
 | `options/` | 人类可读选项 | 36 文件 |
-| `skills/claude-code/` | Claude Code skills | 15 目录 |
+| `skills/` | Claude Code skills | 15 目录 |
 | `integrations/` | AI 工具集成模板 | 10 目录 |
 | `locales/zh-TW/` | 繁体中文翻译 | ~129 文件 |
 | `locales/zh-CN/` | 简体中文翻译 | 部分 |

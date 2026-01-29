@@ -1,5 +1,5 @@
 ---
-source: ../../../../adoption/checklists/recommended.md
+source: ../../../adoption/checklists/recommended.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-25
@@ -8,7 +8,7 @@ status: current
 
 # 等級二：推薦採用檢查清單
 
-> **語言**: [English](../../../adoption/checklists/recommended.md) | 繁體中文
+> **語言**: [English](../../adoption/checklists/recommended.md) | 繁體中文
 
 > 團隊專案的專業品質標準
 >
@@ -251,10 +251,10 @@ Document decision in project README or CONTRIBUTING.md.
 
 - [Essential Adoption Checklist](minimal.md) - Level 1 基本採用
 - [Enterprise Adoption Checklist](enterprise.md) - Level 3 升級指南
-- [Checkin Standards](../../../core/checkin-standards.md) - 簽入標準
-- [Git Workflow](../../../core/git-workflow.md) - Git 工作流程
-- [Testing Standards](../../../core/testing-standards.md) - 測試標準
-- [Code Review Checklist](../../../core/code-review-checklist.md) - 程式碼審查
+- [Checkin Standards](../../core/checkin-standards.md) - 簽入標準
+- [Git Workflow](../../core/git-workflow.md) - Git 工作流程
+- [Testing Standards](../../core/testing-standards.md) - 測試標準
+- [Code Review Checklist](../../core/code-review-checklist.md) - 程式碼審查
 
 ---
 

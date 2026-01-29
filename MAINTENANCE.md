@@ -262,7 +262,7 @@ locales/zh-TW/
 ├── ai/
 │   ├── standards/           ← 16 translated AI standards
 │   └── options/             ← 36 translated AI options
-├── skills/claude-code/      ← Translated skills
+├── skills/      ← Translated skills
 ├── adoption/                ← Translated adoption guides
 ├── templates/               ← Translated templates
 ├── README.md
@@ -391,8 +391,8 @@ Standards with these characteristics should be added to CLAUDE.md instead of bec
    a. Update ai/options/{category}/*.ai.yaml
    b. Update locales/zh-TW/ai/options/{category}/
 7. If has skill:
-   a. Update skills/claude-code/{skill}/
-   b. Update locales/zh-TW/skills/claude-code/{skill}/
+   a. Update skills/{skill}/
+   b. Update locales/zh-TW/skills/{skill}/
 8. Run ./scripts/check-translation-sync.sh zh-TW
 9. Run ./scripts/check-install-scripts-sync.sh (if skills changed)
 10. Update CHANGELOG.md if significant
@@ -410,8 +410,8 @@ Standards with these characteristics should be added to CLAUDE.md instead of bec
    b. Create ai/options/{category}/*.ai.yaml
    c. Create all locale translations
 6. If needs skill:
-   a. Create skills/claude-code/{skill-name}/
-   b. Create locales/zh-TW/skills/claude-code/{skill-name}/
+   a. Create skills/{skill-name}/
+   b. Create locales/zh-TW/skills/{skill-name}/
 7. Update:
    - README.md (add to standards list)
    - STANDARDS-MAPPING.md
@@ -444,10 +444,10 @@ Standards with these characteristics should be added to CLAUDE.md instead of bec
    If YES to most → Create Skill (continue to step 1)
    If NO to most  → Add to CLAUDE.md instead (see Static Standards)
 
-1. Create skills/claude-code/{skill-name}/
+1. Create skills/{skill-name}/
    - SKILL.md (main skill definition with YAML frontmatter)
    - {topic}.md (supporting documents, optional)
-2. Create locales/zh-TW/skills/claude-code/{skill-name}/
+2. Create locales/zh-TW/skills/{skill-name}/
    - SKILL.md (translated version)
 3. Update MAINTENANCE.md
    - Add to skills table in section 4

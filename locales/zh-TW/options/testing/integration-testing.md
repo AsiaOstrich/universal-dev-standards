@@ -1,5 +1,5 @@
 ---
-source: ../../../../options/testing/integration-testing.md
+source: ../../../options/testing/integration-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-30
@@ -8,7 +8,7 @@ status: current
 
 # 整合測試 (IT/SIT)
 
-> **語言**: [English](../../../../options/testing/integration-testing.md) | 繁體中文
+> **語言**: [English](../../../options/testing/integration-testing.md) | 繁體中文
 
 **上層標準**: [測試指南](../../core/testing.md)
 

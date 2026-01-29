@@ -46,7 +46,7 @@ This document provides a complete operation workflow for the Universal Developme
                  ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Claude Code Skills                            │
-│   skills/claude-code/ - 15 Skills                               │
+│   skills/ - 15 Skills                               │
 │   Each skill corresponds to 1+ core standards                   │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
@@ -66,7 +66,7 @@ This document provides a complete operation workflow for the Universal Developme
 | `ai/standards/*.ai.yaml` | AI-optimized standards | 16 |
 | `options/*/*.md` | Practice options | 36 |
 | `ai/options/*/*.ai.yaml` | AI-optimized options | 36 |
-| `skills/claude-code/*/` | Claude Code skills | 15 |
+| `skills/*/` | Claude Code skills | 15 |
 | `integrations/*/` | AI tool templates | 10 |
 | `locales/zh-TW/` | Traditional Chinese | ~119 |
 | `locales/zh-CN/` | Simplified Chinese | ⚠️ 需與 EN 同步 |
@@ -241,26 +241,26 @@ translator: [Name]
 
 | Skill Name | Core Standard(s) | Path |
 |------------|------------------|------|
-| ai-collaboration-standards | anti-hallucination | `skills/claude-code/ai-collaboration-standards/` |
-| changelog-guide | changelog | `skills/claude-code/changelog-guide/` |
-| code-review-assistant | code-review, checkin | `skills/claude-code/code-review-assistant/` |
-| commit-standards | commit-message | `skills/claude-code/commit-standards/` |
-| documentation-guide | documentation-* | `skills/claude-code/documentation-guide/` |
-| error-code-guide | error-codes | `skills/claude-code/error-code-guide/` |
-| git-workflow-guide | git-workflow | `skills/claude-code/git-workflow-guide/` |
-| logging-guide | logging | `skills/claude-code/logging-guide/` |
-| project-structure-guide | project-structure | `skills/claude-code/project-structure-guide/` |
-| release-standards | versioning | `skills/claude-code/release-standards/` |
-| requirement-assistant | (requirements) | `skills/claude-code/requirement-assistant/` |
-| spec-driven-dev | spec-driven | `skills/claude-code/spec-driven-dev/` |
-| tdd-assistant | tdd | `skills/claude-code/tdd-assistant/` |
-| test-coverage-assistant | test-completeness | `skills/claude-code/test-coverage-assistant/` |
-| testing-guide | testing | `skills/claude-code/testing-guide/` |
+| ai-collaboration-standards | anti-hallucination | `skills/ai-collaboration-standards/` |
+| changelog-guide | changelog | `skills/changelog-guide/` |
+| code-review-assistant | code-review, checkin | `skills/code-review-assistant/` |
+| commit-standards | commit-message | `skills/commit-standards/` |
+| documentation-guide | documentation-* | `skills/documentation-guide/` |
+| error-code-guide | error-codes | `skills/error-code-guide/` |
+| git-workflow-guide | git-workflow | `skills/git-workflow-guide/` |
+| logging-guide | logging | `skills/logging-guide/` |
+| project-structure-guide | project-structure | `skills/project-structure-guide/` |
+| release-standards | versioning | `skills/release-standards/` |
+| requirement-assistant | (requirements) | `skills/requirement-assistant/` |
+| spec-driven-dev | spec-driven | `skills/spec-driven-dev/` |
+| tdd-assistant | tdd | `skills/tdd-assistant/` |
+| test-coverage-assistant | test-completeness | `skills/test-coverage-assistant/` |
+| testing-guide | testing | `skills/testing-guide/` |
 
 ### 4.2 Skill Directory Structure
 
 ```
-skills/claude-code/[skill-name]/
+skills/[skill-name]/
 ├── SKILL.md              # Main skill document (YAML front matter + content)
 ├── [guide1].md           # Detailed guide
 ├── [guide2].md           # Detailed guide
@@ -594,13 +594,13 @@ UDS has two related but independent components:
 | Component | Type | Location | Purpose |
 |-----------|------|----------|---------|
 | UDS CLI | Node.js program | `cli/src/` | Execute actual operations (`uds init`, `uds check`, etc.) |
-| Slash commands | Markdown docs | `skills/claude-code/commands/` | Guide AI on how to use CLI |
+| Slash commands | Markdown docs | `skills/commands/` | Guide AI on how to use CLI |
 
 **Execution Flow:**
 ```
 User inputs /update in Claude Code
     ↓
-AI reads skills/claude-code/commands/update.md
+AI reads skills/commands/update.md
     ↓
 AI executes CLI commands (uds check, uds update)
     ↓
@@ -613,12 +613,12 @@ When modifying CLI functionality, corresponding slash command documentation MUST
 
 | CLI File | Slash Command |
 |----------|---------------|
-| `cli/src/commands/init.js` | `skills/claude-code/commands/init.md` |
-| `cli/src/commands/check.js` | `skills/claude-code/commands/check.md` |
-| `cli/src/commands/update.js` | `skills/claude-code/commands/update.md` |
-| `cli/src/commands/configure.js` | `skills/claude-code/commands/configure.md` |
-| `cli/src/commands/list.js` | `skills/claude-code/commands/list.md` |
-| `cli/src/commands/skills.js` | `skills/claude-code/commands/skills.md` |
+| `cli/src/commands/init.js` | `skills/commands/init.md` |
+| `cli/src/commands/check.js` | `skills/commands/check.md` |
+| `cli/src/commands/update.js` | `skills/commands/update.md` |
+| `cli/src/commands/configure.js` | `skills/commands/configure.md` |
+| `cli/src/commands/list.js` | `skills/commands/list.md` |
+| `cli/src/commands/skills.js` | `skills/commands/skills.md` |
 
 #### Sync Checklist
 
@@ -626,7 +626,7 @@ When adding new CLI features:
 
 1. [ ] Implement feature in CLI (`cli/src/commands/*.js` or `cli/src/utils/*.js`)
 2. [ ] Add unit tests (`cli/tests/`)
-3. [ ] Update slash command documentation (`skills/claude-code/commands/*.md`)
+3. [ ] Update slash command documentation (`skills/commands/*.md`)
 4. [ ] Update translations if needed (`locales/zh-TW/skills/`, `locales/zh-CN/skills/`)
 5. [ ] Run verification: `cd cli && npm test && npm run lint`
 
@@ -646,10 +646,10 @@ Step 2: Update displaySkillsStatus() in cli/src/commands/check.js
 Step 3: Add unit tests in cli/tests/utils/github.test.js
         - Test various scenarios (file exists, not found, parse error)
         ↓
-Step 4: Update skills/claude-code/commands/check.md
+Step 4: Update skills/commands/check.md
         - Document new version output in Skills Status section
         ↓
-Step 5: Update skills/claude-code/commands/update.md
+Step 5: Update skills/commands/update.md
         - Add section explaining how to check Skills version
 ```
 
@@ -672,7 +672,7 @@ Step 3: Create options/new-standard/*.md (if applicable)
         ↓
 Step 4: Create ai/options/new-standard/*.ai.yaml (if applicable)
         ↓
-Step 5: Create skills/claude-code/new-skill/ (if applicable)
+Step 5: Create skills/new-skill/ (if applicable)
         ↓
 Step 6: Create ALL locale translations (⚠️ MUST sync all locales)
         - locales/zh-TW/core/new-standard.md
@@ -713,9 +713,9 @@ Step 10: Run all sync check scripts
 
 4. **Create Skill (if applicable)**
    ```bash
-   mkdir -p skills/claude-code/new-standard-skill
-   touch skills/claude-code/new-standard-skill/SKILL.md
-   touch skills/claude-code/new-standard-skill/guide.md
+   mkdir -p skills/new-standard-skill
+   touch skills/new-standard-skill/SKILL.md
+   touch skills/new-standard-skill/guide.md
    ```
 
 5. **Create Translations**
@@ -757,7 +757,7 @@ Step 10: Run all sync check scripts
 **Complete Flow (6 steps):**
 
 ```
-Step 1: Create skills/claude-code/new-skill/ directory
+Step 1: Create skills/new-skill/ directory
         ↓
 Step 2: Create SKILL.md with YAML front matter
         ↓
@@ -995,7 +995,7 @@ Step 7: Verify Release
 | `ai/standards/` | AI-optimized standards | 16 files |
 | `ai/options/` | AI-optimized options | 36 files |
 | `options/` | Human-readable options | 36 files |
-| `skills/claude-code/` | Claude Code skills | 15 directories |
+| `skills/` | Claude Code skills | 15 directories |
 | `integrations/` | AI tool integration templates | 10 directories |
 | `locales/zh-TW/` | Traditional Chinese translations | ~119 files |
 | `locales/zh-CN/` | Simplified Chinese translations | ⚠️ 需與 EN 同步 |

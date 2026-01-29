@@ -131,7 +131,7 @@ Update commands.user to null with explanation:
 
 ### REQ-005: Update Documentation
 
-Add Claude Code skills/commands merger note to `skills/claude-code/README.md`:
+Add Claude Code skills/commands merger note to `skills/README.md`:
 
 ```markdown
 ## Slash Commands | 斜線命令
@@ -189,7 +189,7 @@ Add Claude Code skills/commands merger note to `skills/claude-code/README.md`:
 ### Affected Files
 
 1. `cli/src/config/ai-agent-paths.js` - Configuration updates
-2. `skills/claude-code/README.md` - Documentation updates
+2. `skills/README.md` - Documentation updates
 3. `CHANGELOG.md` - Change documentation
 
 ---

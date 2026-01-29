@@ -8,10 +8,14 @@ import { checkCommand } from '../src/commands/check.js';
 import { updateCommand } from '../src/commands/update.js';
 import { configureCommand } from '../src/commands/configure.js';
 import { configCommand } from '../src/commands/config.js';
+import { hitlCommand } from '../src/commands/hitl.js';
 import { skillsCommand } from '../src/commands/skills.js';
 import { agentListCommand, agentInstallCommand, agentInfoCommand } from '../src/commands/agent.js';
 import { workflowListCommand, workflowInstallCommand, workflowInfoCommand, workflowExecuteCommand, workflowStatusCommand } from '../src/commands/workflow.js';
 import { aiContextInitCommand, aiContextValidateCommand, aiContextGraphCommand } from '../src/commands/ai-context.js';
+import { sweepCommand } from '../src/commands/sweep.js';
+import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand, specArchiveCommand, specDeleteCommand } from '../src/commands/spec.js';
+import { startCommand, missionStatusCommand, missionPauseCommand, missionResumeCommand, missionCancelCommand, missionListCommand } from '../src/commands/start.js';
 import { setLanguage, setLanguageExplicit, detectLanguage } from '../src/i18n/messages.js';
 
 const require = createRequire(import.meta.url);
@@ -64,7 +68,17 @@ program
   .command('config [action] [key] [value]')
   .description('Manage UDS configuration (list, get, set, init)')
   .option('-g, --global', 'Use global configuration')
+  .option('--vibe-mode', 'Initialize vibe coding mode (use with init action)')
+  .option('-y, --yes', 'Skip confirmation prompts')
   .action(configCommand);
+
+program
+  .command('hitl')
+  .description('Human-in-the-Loop controls')
+  .command('check')
+  .description('Check if an operation is allowed')
+  .option('--op <operation>', 'Operation description')
+  .action(hitlCommand);
 
 program
   .command('configure')
@@ -106,6 +120,56 @@ program
   .command('skills')
   .description('List installed Claude Code skills')
   .action(skillsCommand);
+
+program
+  .command('sweep')
+  .description('Auto-cleanup code after vibe coding sessions')
+  .option('--fix', 'Apply fixes instead of dry-run preview')
+  .option('--report', 'Save report to .uds/reports/')
+  .option('-v, --verbose', 'Show detailed output')
+  .action(sweepCommand);
+
+// Spec command with subcommands (Vibe Coding)
+const specCommand = program
+  .command('spec')
+  .description('Manage micro-specs for vibe coding');
+
+specCommand
+  .command('create <intent>')
+  .alias('new')
+  .description('Create a micro-spec from natural language intent')
+  .option('-s, --scope <scope>', 'Scope (frontend, backend, fullstack)')
+  .option('-y, --yes', 'Auto-confirm without prompting')
+  .action(specCreateCommand);
+
+specCommand
+  .command('list')
+  .alias('ls')
+  .description('List all micro-specs')
+  .option('--status <status>', 'Filter by status (draft, confirmed, archived)')
+  .action(specListCommand);
+
+specCommand
+  .command('show <id>')
+  .description('Show a specific micro-spec')
+  .action(specShowCommand);
+
+specCommand
+  .command('confirm <id>')
+  .description('Confirm a micro-spec for implementation')
+  .action(specConfirmCommand);
+
+specCommand
+  .command('archive <id>')
+  .description('Archive a completed micro-spec')
+  .action(specArchiveCommand);
+
+specCommand
+  .command('delete <id>')
+  .alias('rm')
+  .description('Delete a micro-spec')
+  .option('-y, --yes', 'Skip confirmation')
+  .action(specDeleteCommand);
 
 // Agent command with subcommands
 const agentCommand = program
@@ -195,5 +259,49 @@ aiContextCommand
   .description('Show module dependency graph')
   .option('-m, --mermaid', 'Output Mermaid diagram format')
   .action(aiContextGraphCommand);
+
+// Start command for mission-oriented development
+program
+  .command('start [mission-type] [intent]')
+  .description('Start a new development mission')
+  .option('-y, --yes', 'Skip confirmation prompts')
+  .option('--skip-planning', 'Skip automatic transition to planning phase')
+  .action(startCommand);
+
+// Mission command with subcommands
+const missionCommand = program
+  .command('mission')
+  .description('Manage development missions');
+
+missionCommand
+  .command('status')
+  .description('Show current mission status')
+  .action(missionStatusCommand);
+
+missionCommand
+  .command('pause')
+  .description('Pause current mission')
+  .option('-r, --reason <reason>', 'Reason for pausing')
+  .action(missionPauseCommand);
+
+missionCommand
+  .command('resume')
+  .description('Resume paused mission')
+  .action(missionResumeCommand);
+
+missionCommand
+  .command('cancel')
+  .description('Cancel current mission')
+  .option('-r, --reason <reason>', 'Reason for cancellation')
+  .option('-y, --yes', 'Skip confirmation')
+  .action(missionCancelCommand);
+
+missionCommand
+  .command('list')
+  .alias('ls')
+  .description('List all missions')
+  .option('-t, --type <type>', 'Filter by mission type')
+  .option('-s, --state <state>', 'Filter by state')
+  .action(missionListCommand);
 
 program.parse();

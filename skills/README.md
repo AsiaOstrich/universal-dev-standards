@@ -1,128 +1,92 @@
-# Skills - AI Coding Assistant Rules
+# Universal Development Skills
 
-This directory contains skill/rule implementations for various AI coding assistants, all derived from the core standards in this repository.
+This directory contains the reference implementations of Universal Development Standards (UDS) skills. These skills are designed to be tool-agnostic where possible, serving as the "Source of Truth" for AI coding assistants.
+
+> Derived from [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) core standards.
 
 ## Directory Structure
 
 ```
 skills/
-├── _shared/           # Shared templates and generation utilities
-├── claude-code/       # Claude Code Skills (SKILL.md format)
-├── cursor/            # Cursor Rules (.cursorrules, Notepads)
-├── windsurf/          # Windsurf Rules (.windsurfrules)
-├── cline/             # Cline Rules (.clinerules)
-└── copilot/           # GitHub Copilot (copilot-instructions.md)
+├── commands/          # Universal Slash Command definitions (.md)
+├── agents/            # Universal Agent definitions (.md)
+├── workflows/         # Universal Workflow definitions (.yaml)
+├── tools/             # Tool-specific adapters and configs
+│   ├── cline/         # Cline (.clinerules)
+│   ├── cursor/        # Cursor (.cursorrules)
+│   ├── windsurf/      # Windsurf (.windsurfrules)
+│   └── copilot/       # GitHub Copilot (instructions.md)
+├── _shared/           # Shared templates and utilities
+└── [skill-name]/      # Individual skill definitions (e.g., git-workflow-guide/)
 ```
 
-## Quick Start
+## Universal Skills & Commands
 
-### Claude Code
+These skills provide standard guidance and workflows. They can be accessed via slash commands in supporting tools (like Claude Code, OpenCode) or referenced manually.
 
-**Recommended: Plugin Marketplace**
+| Skill (Folder) | Command | Description |
+|----------------|---------|-------------|
+| `guide` | `/guide` | [UDS] Access all standard guides |
+| `checkin-assistant` | `/checkin` | [UDS] Pre-commit quality gates |
+| `commit-standards` | `/commit` | [UDS] Conventional Commits format |
+| `code-review-assistant` | `/review` | [UDS] Systematic code review |
+| `tdd-assistant` | `/tdd` | [UDS] Test-Driven Development |
+| `bdd-assistant` | `/bdd` | [UDS] Behavior-Driven Development |
+| `atdd-assistant` | `/atdd` | [UDS] Acceptance Test-Driven Development |
+| `release-standards` | `/release` | [UDS] Release & Changelog management |
+| `documentation-guide` | `/docs` | [UDS] Documentation management |
+| `requirement-assistant` | `/requirement` | [UDS] Requirement writing |
+| `reverse-engineer` | `/reverse` | [UDS] Reverse engineer code |
+| `forward-derivation` | `/derive` | [UDS] Derive artifacts from spec |
+| `spec-driven-dev` | `/spec` | [UDS] Spec-Driven Development |
+| `test-coverage-assistant` | `/coverage` | [UDS] Test coverage analysis |
+| `methodology-system` | `/methodology` | [UDS] Development methodology |
+| `refactoring-assistant` | `/refactor` | [UDS] Refactoring guidance |
+
+> **Note**: For reference guides (e.g., Git Workflow, Logging, Error Codes), use the `/guide` command.
+
+## Tool Adapters
+
+Specific configurations for various AI tools are located in `skills/tools/`.
+
+### Claude Code / OpenCode
+The files in the root of `skills/` (commands, agents, workflows) are directly compatible with Claude Code and OpenCode.
+
+**Installation (Plugin Marketplace):**
 ```bash
-# Add the marketplace (one-time setup)
 /plugin marketplace add AsiaOstrich/universal-dev-standards
-
-# Install the plugin with all skills
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**Alternative: Manual Copy (macOS / Linux)**
-```bash
-mkdir -p ~/.claude/skills
-cp -r skills/claude-code/commit-standards ~/.claude/skills/
-```
-
-**Alternative: Manual Copy (Windows PowerShell)**
-```powershell
-# Copy specific skills
-Copy-Item -Recurse skills\claude-code\commit-standards $env:USERPROFILE\.claude\skills\
-```
-
 ### Cursor
-
-**macOS / Linux:**
+Located in `skills/tools/cursor/`.
 ```bash
-cp skills/cursor/.cursorrules .cursorrules
-```
-
-**Windows PowerShell:**
-```powershell
-Copy-Item skills\cursor\.cursorrules .cursorrules
+cp skills/tools/cursor/.cursorrules .cursorrules
 ```
 
 ### Windsurf
-
-**macOS / Linux:**
+Located in `skills/tools/windsurf/`.
 ```bash
-cp skills/windsurf/.windsurfrules .windsurfrules
-```
-
-**Windows PowerShell:**
-```powershell
-Copy-Item skills\windsurf\.windsurfrules .windsurfrules
+cp skills/tools/windsurf/.windsurfrules .windsurfrules
 ```
 
 ### Cline
-
-**macOS / Linux:**
+Located in `skills/tools/cline/`.
 ```bash
-cp skills/cline/.clinerules .clinerules
-```
-
-**Windows PowerShell:**
-```powershell
-Copy-Item skills\cline\.clinerules .clinerules
+cp skills/tools/cline/.clinerules .clinerules
 ```
 
 ### GitHub Copilot
-
-**macOS / Linux:**
+Located in `skills/tools/copilot/`.
 ```bash
 mkdir -p .github
-cp skills/copilot/copilot-instructions.md .github/copilot-instructions.md
+cp skills/tools/copilot/copilot-instructions.md .github/copilot-instructions.md
 ```
-
-**Windows PowerShell:**
-```powershell
-New-Item -ItemType Directory -Force -Path .github
-Copy-Item skills\copilot\copilot-instructions.md .github\copilot-instructions.md
-```
-
-## Available Skills
-
-| Skill | Description | Claude Code | Cursor | Windsurf | Cline | Copilot |
-|-------|-------------|:-----------:|:------:|:--------:|:-----:|:-------:|
-| AI Collaboration | Prevent hallucination | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Changelog Guide | Changelog writing | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| Code Review | Review checklists | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Commit Standards | Conventional Commits | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Documentation | README templates | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Error Code Guide | Error code standards | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| Git Workflow | Branching strategies | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Logging Guide | Logging best practices | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| Project Structure | Directory conventions | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| Release Standards | Semantic versioning | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Requirements | User story guidance | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Spec-Driven Dev | SDD methodology | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| Test Coverage | Coverage analysis | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| Testing Guide | Testing best practices | ✅ | ✅ | ✅ | ✅ | ✅ |
-
-Legend: ✅ Complete | 🚧 Planned | ❌ Not Applicable
-
-## Relationship to Core Standards
-
-These skills are **interactive implementations** of the core standards:
-
-```
-core/anti-hallucination.md
-    ↓ transforms to
-skills/claude-code/ai-collaboration-standards/SKILL.md
-skills/cursor/.cursorrules (AI section)
-```
-
-**Important**: Use Skills OR copy core documents — **never both** for the same standard.
 
 ## Contributing
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on adding new skills or supporting additional AI tools.
+See [CONTRIBUTING.template.md](CONTRIBUTING.template.md) for guidelines on adding new skills or supporting additional AI tools.
+
+## License
+
+Dual-licensed: CC BY 4.0 (documentation) + MIT (code)

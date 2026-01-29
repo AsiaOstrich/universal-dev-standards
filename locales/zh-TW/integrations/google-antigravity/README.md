@@ -1,5 +1,5 @@
 ---
-source: ../../../../integrations/google-antigravity/README.md
+source: ../../../integrations/google-antigravity/README.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-01-13
@@ -16,7 +16,7 @@ Google Antigravity 是一個先進的代理程式碼開發助理。此整合協�
 
 ## 資源
 
-- **[.antigravity/rules.md](../../../../integrations/google-antigravity/.antigravity/rules.md)**（推薦）：
+- **[.antigravity/rules.md](../../../integrations/google-antigravity/.antigravity/rules.md)**（推薦）：
   專案級規則檔，Antigravity 會自動載入。
 
 - **[INSTRUCTIONS.md](./INSTRUCTIONS.md)**：

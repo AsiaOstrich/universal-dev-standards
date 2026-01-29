@@ -49,7 +49,7 @@ locales/{lang}/
 │   ├── testing/
 │   └── project-structure/
 ├── adoption/                 # 採用指南
-└── skills/claude-code/       # Skills (15 skills)
+└── skills/       # Skills (15 skills)
 ```
 
 ## 實施階段

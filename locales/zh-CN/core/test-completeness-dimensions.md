@@ -1,5 +1,5 @@
 ---
-source: ../../../core/test-completeness-dimensions.md
+source: ../../core/test-completeness-dimensions.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-01-24
@@ -12,7 +12,7 @@ status: current
 **最后更新**: 2025-12-24
 **适用范围**: 所有需要测试的软体专案
 
-[English](../../../core/test-completeness-dimensions.md) | [繁体中文](.)
+[English](../../core/test-completeness-dimensions.md) | [繁体中文](.)
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-source: ../../../core/reverse-engineering-standards.md
+source: ../../core/reverse-engineering-standards.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-19
@@ -12,7 +12,7 @@ status: current
 **最后更新**: 2026-01-19
 **适用范围**: 所有需要将程序码转换为规格文件的专案
 
-> **语言**: [English](../../../core/reverse-engineering-standards.md) | [繁体中文](../../zh-TW/core/reverse-engineering-standards.md)
+> **语言**: [English](../../core/reverse-engineering-standards.md) | [繁体中文](../../zh-TW/core/reverse-engineering-standards.md)
 
 ---
 
@@ -213,10 +213,10 @@ describe('Authentication', () => {
 
 ### 技能参考
 
-- [反向工程技能](../../../skills/claude-code/reverse-engineer/SKILL.md) - 详细工作流程实作
-- [规格驱动开发技能](../../../skills/claude-code/spec-driven-dev/SKILL.md) - SDD 整合
-- [BDD 助手技能](../../../skills/claude-code/bdd-assistant/SKILL.md) - Gherkin 撰写
-- [TDD 助手技能](../../../skills/claude-code/tdd-assistant/SKILL.md) - 测试覆盖分析
+- [反向工程技能](../../skills/reverse-engineer/SKILL.md) - 详细工作流程实作
+- [规格驱动开发技能](../../skills/spec-driven-dev/SKILL.md) - SDD 整合
+- [BDD 助手技能](../../skills/bdd-assistant/SKILL.md) - Gherkin 撰写
+- [TDD 助手技能](../../skills/tdd-assistant/SKILL.md) - 测试覆盖分析
 
 ---
 

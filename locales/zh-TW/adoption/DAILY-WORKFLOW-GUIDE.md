@@ -1,5 +1,5 @@
 ---
-source: ../../../adoption/DAILY-WORKFLOW-GUIDE.md
+source: ../../adoption/DAILY-WORKFLOW-GUIDE.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-19
@@ -11,7 +11,7 @@ status: current
 **版本**: 1.0.0
 **最後更新**: 2026-01-19
 
-> **語言**: [English](../../../adoption/DAILY-WORKFLOW-GUIDE.md) | 繁體中文
+> **語言**: [English](../../adoption/DAILY-WORKFLOW-GUIDE.md) | 繁體中文
 
 本指南說明在執行 `uds init` 後，如何在日常開發工作流程中使用 Universal Development Standards。
 
@@ -444,12 +444,12 @@ test('should reject email without domain', () => {
 ## 相關標準
 
 - [採用指南](ADOPTION-GUIDE.md) - 如何安裝 UDS
-- [測試驅動開發](../../../core/test-driven-development.md) - TDD 標準（包含 Golden Master Testing）
-- [行為驅動開發](../../../core/behavior-driven-development.md) - BDD 工作流程
-- [驗收測試驅動開發](../../../core/acceptance-test-driven-development.md) - ATDD 工作流程
-- [規格驅動開發](../../../core/spec-driven-development.md) - SDD 工作流程
-- [提交規範](../../../core/checkin-standards.md) - 程式碼提交要求
-- [程式碼審查清單](../../../core/code-review-checklist.md) - 審查流程
+- [測試驅動開發](../../core/test-driven-development.md) - TDD 標準（包含 Golden Master Testing）
+- [行為驅動開發](../../core/behavior-driven-development.md) - BDD 工作流程
+- [驗收測試驅動開發](../../core/acceptance-test-driven-development.md) - ATDD 工作流程
+- [規格驅動開發](../../core/spec-driven-development.md) - SDD 工作流程
+- [提交規範](../../core/checkin-standards.md) - 程式碼提交要求
+- [程式碼審查清單](../../core/code-review-checklist.md) - 審查流程
 
 ---
 

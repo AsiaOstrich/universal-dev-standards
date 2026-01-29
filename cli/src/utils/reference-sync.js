@@ -9,21 +9,24 @@
  * Based on standards-registry.json and RULE_TEMPLATES in integration-generator.js
  */
 export const CATEGORY_TO_STANDARDS = {
-  'anti-hallucination': ['core/anti-hallucination.md'],
+  'anti-hallucination': ['core/anti-hallucination.md', 'core/guides/anti-hallucination-guide.md'],
   'commit-standards': ['core/commit-message-guide.md'],
   'code-review': ['core/code-review-checklist.md', 'core/checkin-standards.md'],
-  'spec-driven-development': ['core/spec-driven-development.md'],
-  'testing': ['core/testing-standards.md'],
+  'spec-driven-development': ['core/spec-driven-development.md', 'methodologies/guides/sdd-guide.md'],
+  'testing': ['core/testing-standards.md', 'skills/testing-guide/testing-theory.md'],
   'documentation': ['core/documentation-structure.md'],
-  'git-workflow': ['core/git-workflow.md'],
+  'git-workflow': ['core/git-workflow.md', 'core/guides/git-workflow-guide.md'],
   'error-handling': ['core/error-code-standards.md', 'core/logging-standards.md'],
-  'project-structure': ['core/project-structure.md']
+  'project-structure': ['core/project-structure.md'],
+  'refactoring': ['core/refactoring-standards.md', 'core/guides/refactoring-guide.md'],
+  'requirement': ['core/requirement-engineering.md', 'methodologies/guides/requirement-engineering-guide.md']
 };
 
 /**
  * Reverse mapping from standard filename to category ID
  */
 export const STANDARD_TO_CATEGORY = {
+  // Core Rules
   'anti-hallucination.md': 'anti-hallucination',
   'commit-message-guide.md': 'commit-standards',
   'code-review-checklist.md': 'code-review',
@@ -34,7 +37,16 @@ export const STANDARD_TO_CATEGORY = {
   'git-workflow.md': 'git-workflow',
   'error-code-standards.md': 'error-handling',
   'logging-standards.md': 'error-handling',
-  'project-structure.md': 'project-structure'
+  'project-structure.md': 'project-structure',
+  'refactoring-standards.md': 'refactoring',
+  'requirement-engineering.md': 'requirement',
+  // Guides (educational content)
+  'anti-hallucination-guide.md': 'anti-hallucination',
+  'sdd-guide.md': 'spec-driven-development',
+  'testing-theory.md': 'testing',
+  'git-workflow-guide.md': 'git-workflow',
+  'refactoring-guide.md': 'refactoring',
+  'requirement-engineering-guide.md': 'requirement'
 };
 
 /**

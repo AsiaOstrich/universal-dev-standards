@@ -4,8 +4,8 @@
 id: requirement-engineering
 meta:
   version: "1.0.0"
-  updated: "2026-01-28"
-  source: core/requirement-engineering.md
+  updated: "2026-01-13"
+  source: methodologies/guides/requirement-engineering-guide.md
   description: Requirements engineering lifecycle, elicitation, specification, and validation standards
 
 # Reference Standards

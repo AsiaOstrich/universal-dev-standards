@@ -225,7 +225,7 @@ describe('PathResolver', () => {
 
     describe('isSkillFile', () => {
       it('should return true for skill files', () => {
-        expect(PathResolver.isSkillFile('skills/claude-code/agent.md')).toBe(true);
+        expect(PathResolver.isSkillFile('skills/agent.md')).toBe(true);
       });
 
       it('should return false for non-skill files', () => {
@@ -256,7 +256,7 @@ describe('PathResolver', () => {
     describe('getFileType', () => {
       it('should return correct file type', () => {
         expect(PathResolver.getFileType('core/test.md')).toBe('standard');
-        expect(PathResolver.getFileType('skills/claude-code/test.md')).toBe('skill');
+        expect(PathResolver.getFileType('skills/test.md')).toBe('skill');
         expect(PathResolver.getFileType('integrations/tool/test.md')).toBe('integration');
         expect(PathResolver.getFileType('locales/zh-TW/test.md')).toBe('locale');
         expect(PathResolver.getFileType('random/path/file.md')).toBe('unknown');

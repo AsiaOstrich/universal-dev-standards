@@ -240,7 +240,7 @@ completion_criteria:
 ### File Structure / 檔案結構
 
 ```
-skills/claude-code/
+skills/
 ├── agents/
 │   ├── README.md              # Format specification
 │   ├── code-architect.md      # Architecture specialist
@@ -415,7 +415,7 @@ uds workflow info feature-dev
 
 ## References / 參考資料
 
-- [AGENT.md Format Specification](../skills/claude-code/agents/README.md)
-- [Workflow Format Specification](../skills/claude-code/workflows/README.md)
+- [AGENT.md Format Specification](../skills/agents/README.md)
+- [Workflow Format Specification](../skills/workflows/README.md)
 - [AI Agent Paths Configuration](../cli/src/config/ai-agent-paths.js)
 - [CHANGELOG v4.1.0-alpha.1](../CHANGELOG.md)

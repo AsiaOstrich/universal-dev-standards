@@ -1,5 +1,5 @@
 ---
-source: ../../../../options/project-structure/dotnet.md
+source: ../../../options/project-structure/dotnet.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-30
@@ -8,7 +8,7 @@ status: current
 
 # .NET 专案结构
 
-> **语言**: [English](../../../../options/project-structure/dotnet.md) | 繁体中文
+> **语言**: [English](../../../options/project-structure/dotnet.md) | 繁体中文
 
 **上层标准**: [专案结构](../../core/project-structure.md)
 

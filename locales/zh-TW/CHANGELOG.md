@@ -69,11 +69,11 @@ status: current
 ### 修復
 - **i18n**：為 6 個翻譯檔案新增缺失的 YAML front matter
   - `docs/CLI-INIT-OPTIONS.md`
-  - `skills/claude-code/commands/bdd.md`
-  - `skills/claude-code/commands/methodology.md`
-  - `skills/claude-code/methodology-system/SKILL.md`
-  - `skills/claude-code/methodology-system/create-methodology.md`
-  - `skills/claude-code/methodology-system/runtime.md`
+  - `skills/commands/bdd.md`
+  - `skills/commands/methodology.md`
+  - `skills/methodology-system/SKILL.md`
+  - `skills/methodology-system/create-methodology.md`
+  - `skills/methodology-system/runtime.md`
 - **文件**：更新穩定版本參考從 3.3.0 至 3.4.2
 
 ## [3.5.0-beta.10] - 2026-01-12
@@ -385,9 +385,9 @@ status: current
   - ML 測試邊界（模型準確度 vs 資料工程）
   - 遺留系統的 Golden Master 測試
 - **Skills**：為 Claude Code 新增 `tdd-assistant` 技能（第 15 個技能）
-  - `skills/claude-code/tdd-assistant/SKILL.md` - TDD 工作流程指引
-  - `skills/claude-code/tdd-assistant/tdd-workflow.md` - 逐步 TDD 流程
-  - `skills/claude-code/tdd-assistant/language-examples.md` - 6 種語言範例
+  - `skills/tdd-assistant/SKILL.md` - TDD 工作流程指引
+  - `skills/tdd-assistant/tdd-workflow.md` - 逐步 TDD 流程
+  - `skills/tdd-assistant/language-examples.md` - 6 種語言範例
   - 所有 TDD 檔案的完整繁體中文翻譯
 
 ### 變更
@@ -440,7 +440,7 @@ status: current
 
 ### 新增
 - **Skills**：新增發布流程指南，提供完整的發布流程
-  - 新增 `skills/claude-code/release-standards/release-workflow.md` 包含逐步發布指示
+  - 新增 `skills/release-standards/release-workflow.md` 包含逐步發布指示
   - 涵蓋 beta、alpha、rc 和穩定版發布工作流程
   - 包含 npm dist-tag 策略、疑難排解和 AI 助理指南
   - 在 CLAUDE.md 中新增發布流程章節供 AI 助理參考
@@ -495,7 +495,7 @@ status: current
   - 新增 `.claude-plugin/plugin.json` - Plugin manifest 配置
   - 新增 `.claude-plugin/marketplace.json` - Marketplace 分發配置
   - 新增 `.claude-plugin/README.md` - Plugin 文檔和維護指南
-  - 更新 `skills/claude-code/README.md` 新增方法 1：Marketplace 安裝（推薦）
+  - 更新 `skills/README.md` 新增方法 1：Marketplace 安裝（推薦）
 
 ### 優點
 - 使用者可以用單一指令安裝所有 14 個技能：`/plugin install universal-dev-standards@universal-dev-standards`
@@ -521,7 +521,7 @@ status: current
 - **完整 Windows 支援**：為 Windows 使用者提供完整的跨平台相容性
   - 新增 `.gitattributes` 確保跨平台換行符一致性
   - 新增 `scripts/check-translation-sync.ps1` - 翻譯檢查器 PowerShell 版本
-  - 新增 `skills/claude-code/install.ps1` - Skills 安裝器 PowerShell 版本
+  - 新增 `skills/install.ps1` - Skills 安裝器 PowerShell 版本
   - 新增 `scripts/setup-husky.js` - 跨平台 Husky 設定腳本
   - 新增 `docs/WINDOWS-GUIDE.md` - 完整的 Windows 開發指南
 - **5 個新 Claude Code 技能**：技能庫從 9 個擴充至 14 個
@@ -576,7 +576,7 @@ status: current
 - **多語言支援**：新增 `locales/` 目錄結構用於國際化
 - 新增所有文件的繁體中文 (zh-TW) 翻譯（44 個檔案）
   - `locales/zh-TW/core/` - 13 個核心規範翻譯
-  - `locales/zh-TW/skills/claude-code/` - 25 個 skill 檔案翻譯
+  - `locales/zh-TW/skills/` - 25 個 skill 檔案翻譯
   - `locales/zh-TW/adoption/` - 5 個採用指南翻譯
   - `locales/zh-TW/README.md` - 完整的中文 README
 - 為所有英文文件新增語言切換器
@@ -588,7 +588,7 @@ status: current
 ### 變更
 - 將雙語內容分離到專用語言檔案（AI 工具減少約 50% token 消耗）
 - 英文版本現在僅包含英文內容並帶有語言切換器
-- 更新 `skills/claude-code/README.md` - 新增靜態與動態區塊及觸發關鍵字
+- 更新 `skills/README.md` - 新增靜態與動態區塊及觸發關鍵字
 
 ## [2.2.0] - 2025-12-24
 
@@ -605,17 +605,17 @@ status: current
 
 ### 新增
 - **整合 Skills**：將 `universal-dev-skills` 合併至 `skills/` 目錄
-- 新增 `skills/claude-code/` - 所有 Claude Code Skills 現已包含在主儲存庫中
+- 新增 `skills/` - 所有 Claude Code Skills 現已包含在主儲存庫中
 - 新增 `skills/_shared/` - 用於多 AI 工具支援的共享模板
 - 為未來 AI 工具新增佔位目錄：`skills/cursor/`、`skills/windsurf/`、`skills/cline/`、`skills/copilot/`
 
 ### 變更
-- CLI 現在從本地 `skills/claude-code/` 安裝技能，而非從遠端儲存庫獲取
+- CLI 現在從本地 `skills/` 安裝技能，而非從遠端儲存庫獲取
 - 更新 `standards-registry.json` 以反映整合的 skills 架構
 
 ### 遷移指南
 - 如果您之前單獨使用 `universal-dev-skills`，現在可以使用本儲存庫中包含的 skills
-- 執行 `cd skills/claude-code && ./install.sh` 從整合位置重新安裝 skills
+- 執行 `cd skills && ./install.sh` 從整合位置重新安裝 skills
 
 ## [2.0.0] - 2025-12-24
 

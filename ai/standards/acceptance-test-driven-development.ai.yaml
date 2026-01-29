@@ -3,10 +3,10 @@
 
 id: acceptance-test-driven-development
 meta:
-  version: "1.0.0"
-  updated: "2026-01-19"
-  source: core/acceptance-test-driven-development.md
-  description: ATDD principles, specification workshop, and acceptance criteria workflow
+  version: "1.1.0"
+  updated: "2026-01-20"
+  source: methodologies/guides/atdd-guide.md
+  description: ATDD workflow, Three Amigos collaboration, and acceptance criteria format
 
 # ATDD Core Concepts
 core_concepts:

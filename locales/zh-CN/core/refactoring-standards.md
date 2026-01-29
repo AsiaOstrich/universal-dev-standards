@@ -1,5 +1,5 @@
 ---
-source: ../../../core/refactoring-standards.md
+source: ../../core/refactoring-standards.md
 source_version: 2.0.0
 translation_version: 2.0.0
 last_synced: 2026-01-21
@@ -8,7 +8,7 @@ status: current
 
 # 重构标准
 
-> **语言**: [English](../../../core/refactoring-standards.md) | 简体中文
+> **语言**: [English](../../core/refactoring-standards.md) | 简体中文
 
 **版本**: 2.0.0
 **最后更新**: 2026-01-21

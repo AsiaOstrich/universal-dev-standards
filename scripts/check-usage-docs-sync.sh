@@ -100,7 +100,7 @@ fi
 
 # Check if source files are newer than generated docs
 SOURCE_DIRS=(
-  "skills/claude-code"
+  "skills"
   "core"
   "cli/bin/uds.js"
   "scripts"

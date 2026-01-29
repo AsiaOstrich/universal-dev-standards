@@ -3,10 +3,10 @@
 
 id: behavior-driven-development
 meta:
-  version: "1.0.0"
-  updated: "2026-01-19"
-  source: core/behavior-driven-development.md
-  description: BDD principles, Gherkin syntax, and Given-When-Then workflow for behavior specification
+  version: "1.1.0"
+  updated: "2026-01-20"
+  source: methodologies/guides/bdd-guide.md
+  description: BDD workflow, Gherkin syntax rules, and Example Mapping techniques
 
 # BDD Core Concepts
 core_concepts:

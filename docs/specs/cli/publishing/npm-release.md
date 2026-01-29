@@ -295,9 +295,9 @@ npm unpublish universal-dev-standards@<version>
 
 ## Related Specifications
 
-- [Release Workflow Guide](../../../../skills/claude-code/release-standards/release-workflow.md) - High-level release process
-- [Semantic Versioning](../../../../skills/claude-code/release-standards/semantic-versioning.md) - Version numbering rules
-- [Changelog Format](../../../../skills/claude-code/release-standards/changelog-format.md) - CHANGELOG standards
+- [Release Workflow Guide](../../../../skills/release-standards/release-workflow.md) - High-level release process
+- [Semantic Versioning](../../../../skills/release-standards/semantic-versioning.md) - Version numbering rules
+- [Changelog Format](../../../../skills/release-standards/changelog-format.md) - CHANGELOG standards
 
 ---
 

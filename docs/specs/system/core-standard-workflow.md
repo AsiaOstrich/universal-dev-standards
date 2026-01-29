@@ -82,7 +82,7 @@ So that I can ensure all components are properly integrated and synchronized.
 **Then** translations are created for:
   - `locales/zh-TW/core/[name].md` (Traditional Chinese)
   - `locales/zh-CN/core/[name].md` (Simplified Chinese, if locale exists)
-  - Skill translations in `locales/[locale]/skills/claude-code/[skill]/`
+  - Skill translations in `locales/[locale]/skills/[skill]/`
   - With proper frontmatter (source, source_version, translation_version, status)
 
 ### AC-5: Documentation Updates
@@ -90,7 +90,7 @@ So that I can ensure all components are properly integrated and synchronized.
 **When** the workflow is executed
 **Then** the following documentation is updated:
   - Related standards (add to "Related Standards" sections)
-  - `skills/claude-code/commands/README.md` (if commands added)
+  - `skills/commands/README.md` (if commands added)
   - `STANDARDS-MAPPING.md` (if standard mapping changes)
   - `docs/OPERATION-WORKFLOW.md` (if workflow-related)
   - Standard's "Version History" section
@@ -134,17 +134,17 @@ So that I can ensure all components are properly integrated and synchronized.
 │  3️⃣  SKILL EVALUATION                                                       │
 │      ├── Is standard interactive/workflow-based? → Create skill             │
 │      ├── Is standard reference-only? → Skip skill                           │
-│      └── If skill: skills/claude-code/[skill-name]/SKILL.md                 │
+│      └── If skill: skills/[skill-name]/SKILL.md                 │
 │                                                                              │
 │  4️⃣  COMMAND EVALUATION                                                     │
 │      ├── Does skill have actionable workflows? → Create commands            │
-│      ├── Commands: skills/claude-code/commands/[command].md                 │
-│      └── Update: skills/claude-code/commands/README.md                      │
+│      ├── Commands: skills/commands/[command].md                 │
+│      └── Update: skills/commands/README.md                      │
 │                                                                              │
 │  5️⃣  TRANSLATIONS                                                           │
 │      ├── locales/zh-TW/core/[name].md                                       │
 │      ├── locales/zh-CN/core/[name].md (if exists)                           │
-│      └── locales/[locale]/skills/claude-code/[skill]/SKILL.md               │
+│      └── locales/[locale]/skills/[skill]/SKILL.md               │
 │                                                                              │
 │  6️⃣  DOCUMENTATION UPDATES                                                  │
 │      ├── Update related standards' "Related Standards" sections             │
@@ -180,9 +180,9 @@ So that I can ensure all components are properly integrated and synchronized.
 
 | # | File | Purpose | Required |
 |---|------|---------|----------|
-| 5 | `skills/claude-code/[skill]/SKILL.md` | Skill definition | If interactive |
-| 6 | `skills/claude-code/commands/[cmd].md` | Slash commands | If actionable |
-| 7 | `locales/zh-TW/skills/claude-code/[skill]/SKILL.md` | Skill translation | If skill created |
+| 5 | `skills/[skill]/SKILL.md` | Skill definition | If interactive |
+| 6 | `skills/commands/[cmd].md` | Slash commands | If actionable |
+| 7 | `locales/zh-TW/skills/[skill]/SKILL.md` | Skill translation | If skill created |
 
 #### Registry and Documentation Updates
 
@@ -190,7 +190,7 @@ So that I can ensure all components are properly integrated and synchronized.
 |---|------|--------|----------|
 | 8 | `cli/standards-registry.json` | Add to `standards[]` | ✅ Always |
 | 9 | `cli/standards-registry.json` | Add to `skillFiles` | If skill created |
-| 10 | `skills/claude-code/commands/README.md` | Add command entries | If commands created |
+| 10 | `skills/commands/README.md` | Add command entries | If commands created |
 | 11 | Related `core/*.md` files | Update "Related Standards" | ✅ Always |
 | 12 | `cli/tests/commands/check.test.js` | Update skill count | If skill count changes |
 
@@ -227,8 +227,8 @@ So that I can ensure all components are properly integrated and synchronized.
 ```json
 "skillFiles": {
   "[skill-name]": [
-    "skills/claude-code/[skill-name]/SKILL.md",
-    "skills/claude-code/[skill-name]/[component].md"
+    "skills/[skill-name]/SKILL.md",
+    "skills/[skill-name]/[component].md"
   ]
 }
 ```
@@ -240,7 +240,7 @@ So that I can ensure all components are properly integrated and synchronized.
 name: [skill-name]
 description: |
   [Translation of description in target language]
-source: ../../../../../skills/claude-code/[skill]/SKILL.md
+source: ../../../../../skills/[skill]/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-19
@@ -260,7 +260,7 @@ status: current
 
 2. **Phase 2: Skill & Command Creation** (if applicable)
    - Evaluate skill applicability
-   - Create `skills/claude-code/[skill]/SKILL.md`
+   - Create `skills/[skill]/SKILL.md`
    - Create command files
    - Update `commands/README.md`
 
@@ -374,8 +374,8 @@ This specification is released under [CC BY 4.0](https://creativecommons.org/lic
 
 | 檔案 | 用途 |
 |------|------|
-| `skills/claude-code/[skill]/SKILL.md` | Skill 定義 |
-| `skills/claude-code/commands/[cmd].md` | 斜線命令 |
+| `skills/[skill]/SKILL.md` | Skill 定義 |
+| `skills/commands/[cmd].md` | 斜線命令 |
 
 ### 整合更新
 

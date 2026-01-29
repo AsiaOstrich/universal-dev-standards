@@ -167,7 +167,7 @@ Standards that are **triggered by specific keywords** or tasks, loaded on demand
 **Alternative: Manual Copy (macOS / Linux)**
 ```bash
 mkdir -p ~/.claude/skills
-cp -r skills/claude-code/commit-standards ~/.claude/skills/
+cp -r skills/commit-standards ~/.claude/skills/
 ```
 
 **Alternative: Manual Copy (Windows PowerShell)**
@@ -176,7 +176,7 @@ cp -r skills/claude-code/commit-standards ~/.claude/skills/
 Copy-Item -Recurse skills\claude-code\commit-standards $env:USERPROFILE\.claude\skills\
 ```
 
-See [Claude Code Skills README](../skills/claude-code/README.md) for details.
+See [Claude Code Skills README](../skills/README.md) for details.
 
 ---
 
@@ -271,7 +271,7 @@ If you currently have all rules in one file:
 ## Related Resources
 
 - [CLAUDE.md Template](../templates/CLAUDE.md.template) - Ready-to-use static rules template
-- [Claude Code Skills](../skills/claude-code/README.md) - Skill installation guide
+- [Claude Code Skills](../skills/README.md) - Skill installation guide
 - [Adoption Guide](./ADOPTION-GUIDE.md) - Overall adoption strategy
 - [MAINTENANCE.md](../MAINTENANCE.md) - How to add/update Skills (for maintainers)
 

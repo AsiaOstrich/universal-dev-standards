@@ -2,7 +2,7 @@
 
 > Quick reference for all UDS features | Last updated: 2026-01-26
 
-**Language**: [English](../../../docs/CHEATSHEET.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CHEATSHEET.md)
+**Language**: [English](../../docs/CHEATSHEET.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CHEATSHEET.md)
 
 ---
 

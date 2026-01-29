@@ -1,5 +1,5 @@
 ---
-source: ../../../core/test-driven-development.md
+source: ../../core/test-driven-development.md
 source_version: 1.2.0
 translation_version: 1.2.0
 last_synced: 2026-01-25
@@ -13,7 +13,7 @@ status: current
 **适用范围**: 所有采用测试驱动开发的项目
 **范围**: universal
 
-> **语言**: [English](../../../core/test-driven-development.md) | [繁體中文](../zh-TW/core/test-driven-development.md)
+> **语言**: [English](../../core/test-driven-development.md) | [繁體中文](../zh-TW/core/test-driven-development.md)
 
 ---
 
@@ -935,7 +935,7 @@ test('should send confirmation email after successful payment', async () => {
 ## 语言/框架实践
 
 详细的语言特定 TDD 范例，请参阅 TDD Assistant skill：
-- [语言范例](../skills/claude-code/tdd-assistant/language-examples.md)
+- [语言范例](../skills/tdd-assistant/language-examples.md)
 
 ### 依语言快速参考
 

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "4.3.0-alpha.1",
-  "lastUpdated": "2026-01-26",
+  "version": "5.0.0-alpha.1",
+  "lastUpdated": "2026-01-29",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
     "ai": {
@@ -53,8 +53,8 @@
     "skills": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "localPath": "skills/claude-code",
-      "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code",
+      "localPath": "skills",
+      "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills",
       "version": "4.3.0-alpha.1",
       "note": "Skills are now included in the main repository under skills/"
     }
@@ -62,7 +62,7 @@
   "supportedAITools": {
     "claude-code": {
       "name": "Claude Code",
-      "skillsPath": "skills/claude-code",
+      "skillsPath": "skills",
       "nativePaths": {
         "skills": { "project": ".claude/skills/", "user": "~/.claude/skills/" },
         "agents": { "project": ".claude/agents/", "user": "~/.claude/agents/" },
@@ -77,7 +77,7 @@
     },
     "opencode": {
       "name": "OpenCode",
-      "skillsPath": "skills/claude-code",
+      "skillsPath": "skills",
       "nativePaths": {
         "skills": { "project": ".opencode/skill/", "user": "~/.config/opencode/skill/" },
         "commands": { "project": ".opencode/command/" },
@@ -122,7 +122,7 @@
     },
     "roo-code": {
       "name": "Roo Code",
-      "skillsPath": "skills/claude-code",
+      "skillsPath": "skills",
       "nativePaths": {
         "skills": { "project": ".roo/skills/", "user": "~/.roo/skills/" },
         "commands": { "project": ".roo/commands/" },
@@ -138,7 +138,7 @@
     },
     "codex": {
       "name": "OpenAI Codex",
-      "skillsPath": "skills/claude-code",
+      "skillsPath": "skills",
       "nativePaths": {
         "skills": { "project": ".codex/skills/", "user": "~/.codex/skills/" },
         "agents": { "project": ".codex/agents/", "user": "~/.codex/agents/" }
@@ -180,7 +180,7 @@
     },
     "gemini-cli": {
       "name": "Gemini CLI",
-      "skillsPath": "skills/claude-code",
+      "skillsPath": "skills",
       "nativePaths": {
         "skills": { "project": ".gemini/skills/", "user": "~/.gemini/skills/" },
         "commands": { "project": ".gemini/commands/" },
@@ -209,122 +209,122 @@
   },
   "skillFiles": {
     "ai-collaboration-standards": [
-      "skills/claude-code/ai-collaboration-standards/SKILL.md",
-      "skills/claude-code/ai-collaboration-standards/anti-hallucination.md",
-      "skills/claude-code/ai-collaboration-standards/certainty-labels.md"
+      "skills/ai-collaboration-standards/SKILL.md",
+      "skills/ai-collaboration-standards/anti-hallucination.md",
+      "skills/ai-collaboration-standards/certainty-labels.md"
     ],
     "commit-standards": [
-      "skills/claude-code/commit-standards/SKILL.md",
-      "skills/claude-code/commit-standards/conventional-commits.md",
-      "skills/claude-code/commit-standards/language-options.md"
+      "skills/commit-standards/SKILL.md",
+      "skills/commit-standards/conventional-commits.md",
+      "skills/commit-standards/language-options.md"
     ],
     "code-review-assistant": [
-      "skills/claude-code/code-review-assistant/SKILL.md",
-      "skills/claude-code/code-review-assistant/checkin-checklist.md",
-      "skills/claude-code/code-review-assistant/review-checklist.md"
+      "skills/code-review-assistant/SKILL.md",
+      "skills/code-review-assistant/checkin-checklist.md",
+      "skills/code-review-assistant/review-checklist.md"
     ],
     "testing-guide": [
-      "skills/claude-code/testing-guide/SKILL.md",
-      "skills/claude-code/testing-guide/testing-pyramid.md"
+      "skills/testing-guide/SKILL.md",
+      "skills/testing-guide/testing-pyramid.md"
     ],
     "release-standards": [
-      "skills/claude-code/release-standards/SKILL.md",
-      "skills/claude-code/release-standards/changelog-format.md",
-      "skills/claude-code/release-standards/semantic-versioning.md"
+      "skills/release-standards/SKILL.md",
+      "skills/release-standards/changelog-format.md",
+      "skills/release-standards/semantic-versioning.md"
     ],
     "git-workflow-guide": [
-      "skills/claude-code/git-workflow-guide/SKILL.md",
-      "skills/claude-code/git-workflow-guide/branch-naming.md",
-      "skills/claude-code/git-workflow-guide/git-workflow.md"
+      "skills/git-workflow-guide/SKILL.md",
+      "skills/git-workflow-guide/branch-naming.md",
+      "skills/git-workflow-guide/git-workflow.md"
     ],
     "documentation-guide": [
-      "skills/claude-code/documentation-guide/SKILL.md",
-      "skills/claude-code/documentation-guide/documentation-structure.md",
-      "skills/claude-code/documentation-guide/readme-template.md"
+      "skills/documentation-guide/SKILL.md",
+      "skills/documentation-guide/documentation-structure.md",
+      "skills/documentation-guide/readme-template.md"
     ],
     "requirement-assistant": [
-      "skills/claude-code/requirement-assistant/SKILL.md",
-      "skills/claude-code/requirement-assistant/requirement-checklist.md",
-      "skills/claude-code/requirement-assistant/requirement-writing.md"
+      "skills/requirement-assistant/SKILL.md",
+      "skills/requirement-assistant/requirement-checklist.md",
+      "skills/requirement-assistant/requirement-writing.md"
     ],
     "project-structure-guide": [
-      "skills/claude-code/project-structure-guide/SKILL.md",
-      "skills/claude-code/project-structure-guide/language-patterns.md"
+      "skills/project-structure-guide/SKILL.md",
+      "skills/project-structure-guide/language-patterns.md"
     ],
     "spec-driven-dev": [
-      "skills/claude-code/spec-driven-dev/SKILL.md"
+      "skills/spec-driven-dev/SKILL.md"
     ],
     "test-coverage-assistant": [
-      "skills/claude-code/test-coverage-assistant/SKILL.md"
+      "skills/test-coverage-assistant/SKILL.md"
     ],
     "changelog-guide": [
-      "skills/claude-code/changelog-guide/SKILL.md"
+      "skills/changelog-guide/SKILL.md"
     ],
     "error-code-guide": [
-      "skills/claude-code/error-code-guide/SKILL.md"
+      "skills/error-code-guide/SKILL.md"
     ],
     "logging-guide": [
-      "skills/claude-code/logging-guide/SKILL.md"
+      "skills/logging-guide/SKILL.md"
     ],
     "tdd-assistant": [
-      "skills/claude-code/tdd-assistant/SKILL.md",
-      "skills/claude-code/tdd-assistant/tdd-workflow.md",
-      "skills/claude-code/tdd-assistant/language-examples.md"
+      "skills/tdd-assistant/SKILL.md",
+      "skills/tdd-assistant/tdd-workflow.md",
+      "skills/tdd-assistant/language-examples.md"
     ],
     "bdd-assistant": [
-      "skills/claude-code/bdd-assistant/SKILL.md",
-      "skills/claude-code/bdd-assistant/bdd-workflow.md",
-      "skills/claude-code/bdd-assistant/gherkin-guide.md"
+      "skills/bdd-assistant/SKILL.md",
+      "skills/bdd-assistant/bdd-workflow.md",
+      "skills/bdd-assistant/gherkin-guide.md"
     ],
     "atdd-assistant": [
-      "skills/claude-code/atdd-assistant/SKILL.md",
-      "skills/claude-code/atdd-assistant/atdd-workflow.md",
-      "skills/claude-code/atdd-assistant/acceptance-criteria-guide.md"
+      "skills/atdd-assistant/SKILL.md",
+      "skills/atdd-assistant/atdd-workflow.md",
+      "skills/atdd-assistant/acceptance-criteria-guide.md"
     ],
     "commands": [
-      "skills/claude-code/commands/README.md",
-      "skills/claude-code/commands/atdd.md",
-      "skills/claude-code/commands/bdd.md",
-      "skills/claude-code/commands/changelog.md",
-      "skills/claude-code/commands/check.md",
-      "skills/claude-code/commands/commit.md",
-      "skills/claude-code/commands/coverage.md",
-      "skills/claude-code/commands/docs.md",
-      "skills/claude-code/commands/init.md",
-      "skills/claude-code/commands/methodology.md",
-      "skills/claude-code/commands/release.md",
-      "skills/claude-code/commands/requirement.md",
-      "skills/claude-code/commands/review.md",
-      "skills/claude-code/commands/spec.md",
-      "skills/claude-code/commands/tdd.md",
-      "skills/claude-code/commands/update.md",
-      "skills/claude-code/commands/reverse-spec.md",
-      "skills/claude-code/commands/reverse-bdd.md",
-      "skills/claude-code/commands/reverse-tdd.md",
-      "skills/claude-code/commands/refactor.md"
+      "skills/commands/README.md",
+      "skills/commands/atdd.md",
+      "skills/commands/bdd.md",
+      "skills/commands/changelog.md",
+      "skills/commands/check.md",
+      "skills/commands/commit.md",
+      "skills/commands/coverage.md",
+      "skills/commands/docs.md",
+      "skills/commands/init.md",
+      "skills/commands/methodology.md",
+      "skills/commands/release.md",
+      "skills/commands/requirement.md",
+      "skills/commands/review.md",
+      "skills/commands/spec.md",
+      "skills/commands/tdd.md",
+      "skills/commands/update.md",
+      "skills/commands/reverse-spec.md",
+      "skills/commands/reverse-bdd.md",
+      "skills/commands/reverse-tdd.md",
+      "skills/commands/refactor.md"
     ],
     "refactoring-assistant": [
-      "skills/claude-code/refactoring-assistant/SKILL.md"
+      "skills/refactoring-assistant/SKILL.md"
     ],
     "methodology-system": [
-      "skills/claude-code/methodology-system/SKILL.md",
-      "skills/claude-code/methodology-system/runtime.md",
-      "skills/claude-code/methodology-system/create-methodology.md"
+      "skills/methodology-system/SKILL.md",
+      "skills/methodology-system/runtime.md",
+      "skills/methodology-system/create-methodology.md"
     ],
     "reverse-engineer": [
-      "skills/claude-code/reverse-engineer/SKILL.md",
-      "skills/claude-code/reverse-engineer/workflow.md",
-      "skills/claude-code/reverse-engineer/bdd-extraction.md",
-      "skills/claude-code/reverse-engineer/tdd-analysis.md"
+      "skills/reverse-engineer/SKILL.md",
+      "skills/reverse-engineer/workflow.md",
+      "skills/reverse-engineer/bdd-extraction.md",
+      "skills/reverse-engineer/tdd-analysis.md"
     ],
     "forward-derivation": [
-      "skills/claude-code/forward-derivation/SKILL.md"
+      "skills/forward-derivation/SKILL.md"
     ],
     "ai-friendly-architecture": [
-      "skills/claude-code/ai-friendly-architecture/SKILL.md"
+      "skills/ai-friendly-architecture/SKILL.md"
     ],
     "ai-instruction-standards": [
-      "skills/claude-code/ai-instruction-standards/SKILL.md"
+      "skills/ai-instruction-standards/SKILL.md"
     ]
   },
   "agents": {
@@ -333,13 +333,13 @@
     "statusNoteZh": "v4.1.0 新增 - Subagent 編排系統",
     "description": "Specialized AI subagents that can be orchestrated to handle complex development workflows",
     "descriptionZh": "專門的 AI 子代理，可編排處理複雜的開發工作流程",
-    "basePath": "skills/claude-code/agents/",
+    "basePath": "skills/agents/",
     "builtIn": [
       {
         "id": "code-architect",
         "name": "Code Architect",
         "nameZh": "程式碼架構師",
-        "source": "skills/claude-code/agents/code-architect.md",
+        "source": "skills/agents/code-architect.md",
         "role": "specialist",
         "expertise": ["system-design", "api-design", "database-modeling"],
         "description": "Software architecture specialist for system design and technical planning"
@@ -348,7 +348,7 @@
         "id": "test-specialist",
         "name": "Test Specialist",
         "nameZh": "測試專家",
-        "source": "skills/claude-code/agents/test-specialist.md",
+        "source": "skills/agents/test-specialist.md",
         "role": "specialist",
         "expertise": ["test-strategy", "tdd", "bdd", "coverage-analysis"],
         "description": "Testing strategy specialist for test design, coverage analysis, and quality assurance"
@@ -357,7 +357,7 @@
         "id": "reviewer",
         "name": "Code Reviewer",
         "nameZh": "程式碼審查員",
-        "source": "skills/claude-code/agents/reviewer.md",
+        "source": "skills/agents/reviewer.md",
         "role": "reviewer",
         "expertise": ["code-review", "security-analysis", "best-practices"],
         "description": "Code review specialist for quality assessment, security analysis, and best practices enforcement"
@@ -366,7 +366,7 @@
         "id": "doc-writer",
         "name": "Documentation Writer",
         "nameZh": "文件撰寫員",
-        "source": "skills/claude-code/agents/doc-writer.md",
+        "source": "skills/agents/doc-writer.md",
         "role": "specialist",
         "expertise": ["technical-writing", "api-documentation", "user-guides"],
         "description": "Documentation specialist for technical writing, API docs, and user guides"
@@ -375,7 +375,7 @@
         "id": "spec-analyst",
         "name": "Specification Analyst",
         "nameZh": "規格分析師",
-        "source": "skills/claude-code/agents/spec-analyst.md",
+        "source": "skills/agents/spec-analyst.md",
         "role": "specialist",
         "expertise": ["requirement-analysis", "specification-writing", "reverse-engineering"],
         "description": "Specification analysis specialist for requirement extraction and spec generation"
@@ -388,13 +388,13 @@
     "statusNoteZh": "v4.1.0 新增 - 多代理工作流程編排",
     "description": "Workflow definitions that orchestrate multiple agents for complex development tasks",
     "descriptionZh": "編排多個代理處理複雜開發任務的工作流程定義",
-    "basePath": "skills/claude-code/workflows/",
+    "basePath": "skills/workflows/",
     "builtIn": [
       {
         "id": "integrated-flow",
         "name": "Integrated Development Flow",
         "nameZh": "整合開發流程",
-        "source": "skills/claude-code/workflows/integrated-flow.workflow.yaml",
+        "source": "skills/workflows/integrated-flow.workflow.yaml",
         "stages": 8,
         "description": "Complete ATDD → SDD → BDD → TDD workflow"
       },
@@ -402,7 +402,7 @@
         "id": "feature-dev",
         "name": "Feature Development",
         "nameZh": "功能開發",
-        "source": "skills/claude-code/workflows/feature-dev.workflow.yaml",
+        "source": "skills/workflows/feature-dev.workflow.yaml",
         "stages": 6,
         "description": "Feature development workflow"
       },
@@ -410,7 +410,7 @@
         "id": "code-review",
         "name": "Code Review Workflow",
         "nameZh": "程式碼審查流程",
-        "source": "skills/claude-code/workflows/code-review.workflow.yaml",
+        "source": "skills/workflows/code-review.workflow.yaml",
         "stages": 4,
         "description": "Code review workflow"
       }
@@ -525,7 +525,8 @@
       "nameZh": "反幻覺指南",
       "source": {
         "human": "core/anti-hallucination.md",
-        "ai": "ai/standards/anti-hallucination.ai.yaml"
+        "ai": "ai/standards/anti-hallucination.ai.yaml",
+        "guide": "core/guides/anti-hallucination-guide.md"
       },
       "category": "skill",
       "skillName": "ai-collaboration-standards",
@@ -612,7 +613,8 @@
       "nameZh": "規格驅動開發",
       "source": {
         "human": "core/spec-driven-development.md",
-        "ai": "ai/standards/spec-driven-development.ai.yaml"
+        "ai": "ai/standards/spec-driven-development.ai.yaml",
+        "guide": "methodologies/guides/sdd-guide.md"
       },
       "category": "skill",
       "skillName": "spec-driven-dev",
@@ -638,7 +640,8 @@
       "nameZh": "Git 工作流程指南",
       "source": {
         "human": "core/git-workflow.md",
-        "ai": "ai/standards/git-workflow.ai.yaml"
+        "ai": "ai/standards/git-workflow.ai.yaml",
+        "guide": "core/guides/git-workflow-guide.md"
       },
       "category": "skill",
       "skillName": "git-workflow-guide",
@@ -755,7 +758,8 @@
       "nameZh": "測試標準",
       "source": {
         "human": "core/testing-standards.md",
-        "ai": "ai/standards/testing.ai.yaml"
+        "ai": "ai/standards/testing.ai.yaml",
+        "guide": "skills/testing-guide/testing-theory.md"
       },
       "category": "skill",
       "skillName": "testing-guide",
@@ -903,7 +907,8 @@
       "nameZh": "測試驅動開發",
       "source": {
         "human": "core/test-driven-development.md",
-        "ai": "ai/standards/test-driven-development.ai.yaml"
+        "ai": "ai/standards/test-driven-development.ai.yaml",
+        "guide": "methodologies/guides/tdd-guide.md"
       },
       "category": "skill",
       "skillName": "tdd-assistant",
@@ -916,7 +921,8 @@
       "nameZh": "行為驅動開發",
       "source": {
         "human": "core/behavior-driven-development.md",
-        "ai": "ai/standards/behavior-driven-development.ai.yaml"
+        "ai": "ai/standards/behavior-driven-development.ai.yaml",
+        "guide": "methodologies/guides/bdd-guide.md"
       },
       "category": "skill",
       "skillName": "bdd-assistant",
@@ -929,7 +935,8 @@
       "nameZh": "驗收測試驅動開發",
       "source": {
         "human": "core/acceptance-test-driven-development.md",
-        "ai": "ai/standards/acceptance-test-driven-development.ai.yaml"
+        "ai": "ai/standards/acceptance-test-driven-development.ai.yaml",
+        "guide": "methodologies/guides/atdd-guide.md"
       },
       "category": "skill",
       "skillName": "atdd-assistant",
@@ -963,12 +970,37 @@
       "description": "Standards for deriving BDD scenarios, TDD test skeletons, and ATDD acceptance tests from approved SDD specifications"
     },
     {
+      "id": "ai-agreement",
+      "name": "AI Agreement Standards",
+      "nameZh": "AI 協議標準",
+      "source": {
+        "human": "core/ai-agreement-standards.md",
+        "ai": "ai/standards/ai-agreement-standards.ai.yaml"
+      },
+      "category": "reference",
+      "level": 2,
+      "description": "Protocols for establishing service-level agreements and context contracts between AI agents"
+    },
+    {
+      "id": "virtual-organization",
+      "name": "Virtual Organization Standards",
+      "nameZh": "虛擬組織標準",
+      "source": {
+        "human": "core/virtual-organization-standards.md",
+        "ai": "ai/standards/virtual-organization-standards.ai.yaml"
+      },
+      "category": "reference",
+      "level": 3,
+      "description": "Standards for AI agent integration into virtual organizational structures including MCP tools and skill management"
+    },
+    {
       "id": "refactoring-standards",
       "name": "Refactoring Standards",
       "nameZh": "重構標準",
       "source": {
         "human": "core/refactoring-standards.md",
-        "ai": "ai/standards/refactoring-standards.ai.yaml"
+        "ai": "ai/standards/refactoring-standards.ai.yaml",
+        "guide": "core/guides/refactoring-guide.md"
       },
       "category": "skill",
       "skillName": "refactoring-assistant",
@@ -981,12 +1013,54 @@
       "nameZh": "需求工程標準",
       "source": {
         "human": "core/requirement-engineering.md",
-        "ai": "ai/standards/requirement-engineering.ai.yaml"
+        "ai": "ai/standards/requirement-engineering.ai.yaml",
+        "guide": "methodologies/guides/requirement-engineering-guide.md"
       },
       "category": "skill",
       "skillName": "requirement-assistant",
       "level": 2,
       "description": "Requirements engineering lifecycle, elicitation, specification, and validation standards based on IEEE 830, SWEBOK v4.0, and ISO 25010"
+    },
+    {
+      "id": "security-standards",
+      "name": "Security Standards",
+      "nameZh": "安全標準",
+      "source": {
+        "human": "core/security-standards.md",
+        "ai": "ai/standards/security-standards.ai.yaml",
+        "guide": "core/guides/security-guide.md"
+      },
+      "category": "reference",
+      "skillName": null,
+      "level": 1,
+      "description": "Comprehensive security development standards covering OWASP Top 10, authentication, authorization, cryptography, and security testing"
+    },
+    {
+      "id": "performance-standards",
+      "name": "Performance Standards",
+      "nameZh": "效能標準",
+      "source": {
+        "human": "core/performance-standards.md",
+        "ai": "ai/standards/performance-standards.ai.yaml",
+        "guide": "core/guides/performance-guide.md"
+      },
+      "category": "reference",
+      "skillName": null,
+      "level": 2,
+      "description": "Performance engineering standards covering metrics (RED/USE/Golden Signals), testing, optimization, Core Web Vitals, and capacity planning"
+    },
+    {
+      "id": "accessibility-standards",
+      "name": "Accessibility Standards",
+      "nameZh": "無障礙標準",
+      "source": {
+        "human": "core/accessibility-standards.md",
+        "ai": "ai/standards/accessibility-standards.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "level": 2,
+      "description": "WCAG 2.1 Level AA accessibility standards covering POUR principles, keyboard navigation, ARIA, color/contrast, and testing"
     },
     {
       "id": "csharp-style",

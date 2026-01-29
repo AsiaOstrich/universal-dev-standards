@@ -39,97 +39,47 @@ import { checkForUpdates } from '../utils/npm-registry.js';
 import { t, getLanguage, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 
 /**
- * Check command - verify adoption status
- * @param {Object} options - Command options
+ * Display the summary of file integrity status
  */
-export async function checkCommand(options = {}) {
-  const projectPath = process.cwd();
-  // Get initial messages (before language is set from manifest)
-  let msg = t().commands.check;
-  let common = t().commands.common;
+function displayFileIntegritySummary(fileStatus, msg) {
+  if (fileStatus.unchanged.length > 0) {
+    for (const file of fileStatus.unchanged) {
+      console.log(chalk.green(`  ✓ ${file} (${msg.unchanged})`));
+    }
+  }
 
-  // Handle --summary option (compact status for other commands)
-  if (options.summary) {
-    await displaySummary(projectPath, options);
-    return;
+  if (fileStatus.modified.length > 0) {
+    for (const file of fileStatus.modified) {
+      console.log(chalk.yellow(`  ⚠ ${file} (${msg.modified})`));
+    }
+  }
+
+  if (fileStatus.missing.length > 0) {
+    for (const file of fileStatus.missing) {
+      console.log(chalk.red(`  ✗ ${file} (${msg.missing})`));
+    }
+  }
+
+  if (fileStatus.noHash.length > 0) {
+    for (const file of fileStatus.noHash) {
+      console.log(chalk.gray(`  ? ${file} (${msg.existsNoHash})`));
+    }
   }
 
   console.log();
-  console.log(chalk.bold(msg.title));
-  console.log(chalk.gray('─'.repeat(50)));
-
-  // Check if initialized
-  if (!isInitialized(projectPath)) {
-    console.log(chalk.red(common.notInitialized));
-    console.log(chalk.gray(`  ${common.runInit}`));
-    console.log();
-    return;
-  }
-
-  // Read manifest
-  const manifest = readManifest(projectPath);
-  if (!manifest) {
-    console.log(chalk.red(common.couldNotReadManifest));
-    console.log(chalk.gray('  The .standards/manifest.json may be corrupted.'));
-    console.log();
-    return;
-  }
-
-  // Set UI language based on commit_language setting
-  // Only override if user didn't explicitly set --ui-lang flag
-  if (!isLanguageExplicitlySet()) {
-    const langMap = {
-      'traditional-chinese': 'zh-tw',
-      'simplified-chinese': 'zh-cn',
-      english: 'en',
-      bilingual: 'en'
-    };
-    const uiLang = langMap[manifest.options?.commit_language] || 'en';
-    setLanguage(uiLang);
-  }
-
-  // Re-get localized messages with correct language
-  msg = t().commands.check;
-  common = t().commands.common;
-
-  // Display adoption info
-  const levelInfo = getLevelInfo(manifest.level);
-  const repoInfo = getRepositoryInfo();
-
-  console.log(chalk.green(msg.standardsInitialized));
+  console.log(chalk.gray(`  ${msg.summary
+    .replace('{unchanged}', fileStatus.unchanged.length)
+    .replace('{modified}', fileStatus.modified.length)
+    .replace('{missing}', fileStatus.missing.length)}` +
+    (fileStatus.noHash.length > 0 ? `, ${fileStatus.noHash.length} no hash` : '')));
   console.log();
-  console.log(chalk.cyan(msg.adoptionStatus));
-  const lang = getLanguage();
-  const zhName = lang === 'zh-cn' ? levelInfo.nameZhCn : levelInfo.nameZh;
-  const levelDisplay = lang === 'en'
-    ? `${manifest.level} - ${levelInfo.name}`
-    : `${manifest.level} - ${levelInfo.name} (${zhName})`;
-  console.log(chalk.gray(`  ${common.level}: ${levelDisplay}`));
-  console.log(chalk.gray(`  ${msg.installed}: ${manifest.upstream.installed}`));
-  console.log(chalk.gray(`  ${common.version}: ${manifest.upstream.version}`));
-  console.log();
+}
 
-  // Check for updates (bundled registry)
-  if (manifest.upstream.version !== repoInfo.standards.version) {
-    console.log(chalk.yellow(msg.updateAvailable.replace('{current}', manifest.upstream.version).replace('{latest}', repoInfo.standards.version)));
-    console.log(chalk.gray(`  ${msg.runUpdate}`));
-    console.log();
-  }
-
-  // Check for CLI updates from npm registry (unless --offline)
-  if (!options.offline) {
-    await checkCliVersion(repoInfo.standards.version);
-  }
-
-  // Handle --migrate option
-  if (options.migrate) {
-    await migrateToHashBasedTracking(projectPath, manifest);
-    return;
-  }
-
-  // Check file integrity
-  console.log(chalk.cyan(msg.fileIntegrity));
-
+/**
+ * Perform integrity check for standards and integration files
+ * @returns {Object} File status object
+ */
+function performFileIntegrityCheck(projectPath, manifest, msg) {
   const fileStatus = {
     unchanged: [],
     modified: [],
@@ -192,38 +142,131 @@ export async function checkCommand(options = {}) {
     }
   }
 
+  return fileStatus;
+}
+
+/**
+ * Initialize context for the check command (manifest, language, messages)
+ * @returns {Object|null} Context object or null if initialization failed
+ */
+function initializeCheckContext(projectPath) {
+  // Get initial messages (before language is set from manifest)
+  let msg = t().commands.check;
+  let common = t().commands.common;
+
+  // Check if initialized
+  if (!isInitialized(projectPath)) {
+    console.log(chalk.red(common.notInitialized));
+    console.log(chalk.gray(`  ${common.runInit}`));
+    console.log();
+    return null;
+  }
+
+  // Read manifest
+  const manifest = readManifest(projectPath);
+  if (!manifest) {
+    console.log(chalk.red(common.couldNotReadManifest));
+    console.log(chalk.gray('  The .standards/manifest.json may be corrupted.'));
+    console.log();
+    return null;
+  }
+
+  // Set UI language based on commit_language setting
+  // Only override if user didn't explicitly set --ui-lang flag
+  if (!isLanguageExplicitlySet()) {
+    const langMap = {
+      'traditional-chinese': 'zh-tw',
+      'simplified-chinese': 'zh-cn',
+      english: 'en',
+      bilingual: 'en'
+    };
+    const uiLang = langMap[manifest.options?.commit_language] || 'en';
+    setLanguage(uiLang);
+  }
+
+  // Re-get localized messages with correct language
+  return {
+    manifest,
+    repoInfo: getRepositoryInfo(),
+    msg: t().commands.check,
+    common: t().commands.common
+  };
+}
+
+/**
+ * Display standards adoption status and update information
+ */
+function displayAdoptionStatus(manifest, msg, common, repoInfo) {
+  const levelInfo = getLevelInfo(manifest.level);
+
+  console.log(chalk.green(msg.standardsInitialized));
+  console.log();
+  console.log(chalk.cyan(msg.adoptionStatus));
+  const lang = getLanguage();
+  const zhName = lang === 'zh-cn' ? levelInfo.nameZhCn : levelInfo.nameZh;
+  const levelDisplay = lang === 'en'
+    ? `${manifest.level} - ${levelInfo.name}`
+    : `${manifest.level} - ${levelInfo.name} (${zhName})`;
+  console.log(chalk.gray(`  ${common.level}: ${levelDisplay}`));
+  console.log(chalk.gray(`  ${msg.installed}: ${manifest.upstream.installed}`));
+  console.log(chalk.gray(`  ${common.version}: ${manifest.upstream.version}`));
+  console.log();
+
+  // Check for updates (bundled registry)
+  if (manifest.upstream.version !== repoInfo.standards.version) {
+    console.log(chalk.yellow(msg.updateAvailable.replace('{current}', manifest.upstream.version).replace('{latest}', repoInfo.standards.version)));
+    console.log(chalk.gray(`  ${msg.runUpdate}`));
+    console.log();
+  }
+}
+
+/**
+ * Check command - verify adoption status
+ * @param {Object} options - Command options
+ */
+export async function checkCommand(options = {}) {
+  const projectPath = process.cwd();
+
+  // Handle --summary option (compact status for other commands)
+  if (options.summary) {
+    await displaySummary(projectPath, options);
+    return;
+  }
+
+  // Phase 0: Initialization
+  const context = initializeCheckContext(projectPath);
+  if (!context) return;
+
+  const { manifest, msg, common, repoInfo } = context;
+
+  console.log();
+  console.log(chalk.bold(msg.title));
+  console.log(chalk.gray('─'.repeat(50)));
+
+  // Display adoption info
+  displayAdoptionStatus(manifest, msg, common, repoInfo);
+
+  // Check for CLI updates from npm registry (unless --offline)
+
+  // Check for CLI updates from npm registry (unless --offline)
+  if (!options.offline) {
+    await checkCliVersion(repoInfo.standards.version);
+  }
+
+  // Handle --migrate option
+  if (options.migrate) {
+    await migrateToHashBasedTracking(projectPath, manifest);
+    return;
+  }
+
+  // Check file integrity
+  console.log(chalk.cyan(msg.fileIntegrity));
+  const fileStatus = performFileIntegrityCheck(projectPath, manifest, msg);
+
   // Display file status
-  if (fileStatus.unchanged.length > 0) {
-    for (const file of fileStatus.unchanged) {
-      console.log(chalk.green(`  ✓ ${file} (${msg.unchanged})`));
-    }
-  }
+  displayFileIntegritySummary(fileStatus, msg);
 
-  if (fileStatus.modified.length > 0) {
-    for (const file of fileStatus.modified) {
-      console.log(chalk.yellow(`  ⚠ ${file} (${msg.modified})`));
-    }
-  }
-
-  if (fileStatus.missing.length > 0) {
-    for (const file of fileStatus.missing) {
-      console.log(chalk.red(`  ✗ ${file} (${msg.missing})`));
-    }
-  }
-
-  if (fileStatus.noHash.length > 0) {
-    for (const file of fileStatus.noHash) {
-      console.log(chalk.gray(`  ? ${file} (${msg.existsNoHash})`));
-    }
-  }
-
-  console.log();
-  console.log(chalk.gray(`  ${msg.summary
-    .replace('{unchanged}', fileStatus.unchanged.length)
-    .replace('{modified}', fileStatus.modified.length)
-    .replace('{missing}', fileStatus.missing.length)}` +
-    (fileStatus.noHash.length > 0 ? `, ${fileStatus.noHash.length} no hash` : '')));
-  console.log();
+  // === Enhanced Integrity Checks (v3.3.0+) ===
 
   // === Enhanced Integrity Checks (v3.3.0+) ===
 

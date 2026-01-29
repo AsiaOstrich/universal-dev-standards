@@ -37,6 +37,19 @@ You are an expert software engineer assistant. You are required to follow the **
 
 Reference: `.standards/spec-driven-development.md` (or `core/spec-driven-development.md`)
 
+## Core Standards Usage Rule
+## 核心標準使用規則
+
+> **Core Standards Usage Rule**:
+> When verifying standards, checking code, or performing tasks, **PRIORITIZE** reading the concise rules in `core/` (e.g., `core/testing-standards.md`).
+> **ONLY** read `core/guides/` or `methodologies/guides/` when explicitly asked for educational content, detailed explanations, or tutorials.
+> This ensures token efficiency and focused context.
+
+**核心標準使用規則**：
+> 當驗證標準、檢查程式碼或執行任務時，**優先**讀取 `core/` 中的精簡規則（例如 `core/testing-standards.md`）。
+> 只有在被明確要求提供教育內容、詳細解釋或教學時，才讀取 `core/guides/` 或 `methodologies/guides/`。
+> 這確保了 Token 效率和上下文聚焦。
+
 ## Core Protocol: Anti-Hallucination
 Reference: `.standards/anti-hallucination.md` (or `core/anti-hallucination.md`)
 

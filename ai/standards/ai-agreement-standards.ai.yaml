@@ -1,0 +1,20 @@
+# AI Agreement Standards (AI-Optimized)
+# Source: core/ai-agreement-standards.md
+
+id: ai-agreement
+meta:
+  version: "1.0.0"
+  updated: "2026-01-29"
+  source: core/ai-agreement-standards.md
+  description: Protocols for establishing service-level agreements and context contracts between AI agents
+
+rules:
+  - id: context-contract
+    trigger: starting collaboration
+    instruction: Establish a clear context contract defining roles and boundaries
+    priority: required
+
+  - id: self-verification
+    trigger: completing task
+    instruction: Perform self-verification against the agreed contract
+    priority: required

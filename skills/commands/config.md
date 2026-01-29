@@ -1,0 +1,214 @@
+---
+description: [UDS] Configure project development standards
+allowed-tools: Read, Bash(uds config:*), Bash(uds configure:*), Bash(uds check:*)
+argument-hint: "[type] [--ai-tool <tool>]"
+---
+
+# Config Standards | 設定標準
+
+Configure Universal Development Standards settings for the current project.
+
+配置當前專案的 Universal Development Standards 設定。
+
+## Interactive Mode (Default) | 互動模式（預設）
+
+When invoked without a specific type, use AskUserQuestion to ask what to configure.
+
+當不指定類型時，使用 AskUserQuestion 詢問要配置什麼。
+
+### Step 0: Show Current Status | 步驟 0：顯示目前狀態
+
+First, run `uds check --summary` to show current installation status.
+
+首先，執行 `uds check --summary` 顯示目前安裝狀態。
+
+```bash
+uds check --summary
+```
+
+This helps users understand what's currently configured before making changes.
+
+這幫助用戶在修改前了解目前的配置。
+
+### Step 1: Ask Configuration Type | 步驟 1：詢問配置類型
+
+Use AskUserQuestion with these options:
+
+| Category | Options |
+|----------|---------|
+| **Basic Options** | Format, Git Workflow, Merge Strategy, Commit Language, Test Levels |
+| **AI Tools** | Add or remove AI tool integrations |
+| **Skills** | Manage Skills installations (install/update/reinstall declined) |
+| **Commands** | Manage Commands installations |
+| **Advanced** | Adoption Level, Content Mode |
+| **All** | Configure all options |
+
+### Step 2: Execute Based on Selection | 步驟 2：根據選擇執行
+
+**If AI Tools selected:**
+```bash
+uds configure --type ai_tools
+```
+
+**If Skills selected:**
+```bash
+uds configure --type skills
+```
+
+**If Commands selected:**
+```bash
+uds configure --type commands
+```
+
+**If Adoption Level selected:**
+```bash
+uds configure --type level
+```
+
+**If Content Mode selected:**
+```bash
+uds configure --type content_mode
+```
+
+## Quick Mode | 快速模式
+
+When invoked with a specific type, skip interactive questions:
+
+```bash
+/config ai_tools      # Directly configure AI tools
+/config skills        # Directly manage Skills
+/config commands      # Directly manage Commands
+/config level         # Directly configure adoption level
+/config content_mode  # Directly configure content mode
+```
+
+### Non-Interactive Installation | 非互動式安裝
+
+Use `--ai-tool` option to install Skills/Commands for a specific tool without prompts:
+
+使用 `--ai-tool` 選項為特定工具安裝 Skills/Commands，無需提示：
+
+```bash
+# Install Skills for specific tool (project level, default)
+uds configure --type skills --ai-tool opencode
+
+# Install Skills for specific tool (user level)
+uds configure --type skills --ai-tool opencode --skills-location user
+
+# Install Skills for specific tool (project level, explicit)
+uds configure --type skills --ai-tool claude-code --skills-location project
+
+# Install Commands for specific tool
+uds configure --type commands --ai-tool copilot
+```
+
+**Skills location options | Skills 位置選項:**
+
+| Option | Path | Description |
+|--------|------|-------------|
+| `project` | `.claude/skills/`, `.opencode/skill/` | Project-specific (default) |
+| `user` | `~/.claude/skills/`, `~/.opencode/skill/` | Shared across all projects |
+
+## Configuration Types | 設定類型
+
+| Type | Description | 說明 |
+|------|-------------|------|
+| `ai_tools` | AI tool integrations | AI 工具整合 |
+| `skills` | Skills installations | Skills 安裝管理 |
+| `commands` | Commands installations | Commands 安裝管理 |
+| `level` | Adoption level (1/2/3) | 採用等級 |
+| `content_mode` | Integration file content mode | 整合檔案內容模式 |
+| `format` | AI/Human documentation format | AI/人類文件格式 |
+| `workflow` | Git workflow strategy | Git 工作流程策略 |
+| `merge_strategy` | Merge strategy | 合併策略 |
+| `commit_language` | Commit message language | 提交訊息語言 |
+| `test_levels` | Test levels to include | 測試層級 |
+| `methodology` | Development methodology (experimental, requires -E) | 開發方法論（實驗性） |
+| `all` | Configure all options | 設定所有選項 |
+
+## Skills Configuration | Skills 配置
+
+When selecting `skills` type, CLI shows:
+
+1. **Current Status** - Shows installed Skills for each AI tool
+2. **Declined Status** - Shows tools where user previously declined Skills
+3. **Action Menu**:
+   - Install/Update Skills
+   - Reinstall declined Skills
+   - View status only
+
+```
+Current Skills status:
+  ✓ Claude Code:
+    - User: v3.5.1
+  ○ OpenCode: Not installed
+  ⊘ Copilot: Previously declined
+
+? What would you like to do?
+❯ Install/Update Skills
+  Reinstall declined Skills
+  View status only
+  Cancel
+```
+
+## Commands Configuration | Commands 配置
+
+When selecting `commands` type, CLI shows:
+
+1. **Current Status** - Shows installed Commands for each supported tool
+2. **Declined Status** - Shows tools where user previously declined Commands
+3. **Action Menu** similar to Skills
+
+Supported tools for Commands:
+- OpenCode (`.opencode/commands/`)
+- GitHub Copilot (`.github/commands/`)
+- Gemini CLI (`.gemini/commands/`)
+- Roo Code (`.roo-code/commands/`)
+
+## Content Mode Options | 內容模式選項
+
+| Mode | Description | 說明 |
+|------|-------------|------|
+| `standard` | Summary + task mapping, AI knows when to read which standard (Recommended) | 摘要 + 任務映射（推薦）|
+| `full` | Embed all standards in integration files | 完整內嵌所有標準 |
+| `minimal` | Only core rules embedded | 僅內嵌核心規則 |
+
+## Effects of Configuration Changes | 設定變更的影響
+
+| Configuration | Effect | 影響 |
+|---------------|--------|------|
+| AI Tools (add) | Generates new integration files | 產生新的整合檔案 |
+| AI Tools (remove) | Deletes integration files | 刪除整合檔案 |
+| Skills | Installs/updates Skills to configured paths | 安裝/更新 Skills |
+| Commands | Installs/updates Commands to configured paths | 安裝/更新 Commands |
+| Level | Updates standards, regenerates integrations | 更新標準，重新產生整合 |
+| Content Mode | Regenerates all integration files | 重新產生所有整合檔案 |
+
+## Declined Features | 拒絕的功能
+
+The CLI tracks declined Skills/Commands in `manifest.declinedFeatures`:
+
+CLI 在 `manifest.declinedFeatures` 中追蹤拒絕的 Skills/Commands：
+
+- Previously declined tools won't appear in `/update` prompts
+- Use `/config skills` or `/config commands` to reinstall declined features
+- Select "Reinstall declined Skills/Commands" from the menu
+
+之前拒絕的工具不會在 `/update` 提示中出現。使用 `/config skills` 或 `/config commands` 重新安裝。
+
+## Options Reference | 選項參考
+
+| Option | Description | 說明 |
+|--------|-------------|------|
+| `--type <type>` | Configuration type | 配置類型 |
+| `--ai-tool <tool>` | Specific AI tool (non-interactive) | 特定 AI 工具（非互動式）|
+| `--skills-location <loc>` | Skills install location: project, user | Skills 安裝位置 |
+| `--yes`, `-y` | Skip confirmation prompt | 跳過確認提示 |
+| `-E`, `--experimental` | Enable experimental features | 啟用實驗性功能 |
+
+## Reference | 參考
+
+- CLI documentation: `uds configure --help`
+- Init command: [/init](./init.md)
+- Check command: [/check](./check.md)
+- Update command: [/update](./update.md)

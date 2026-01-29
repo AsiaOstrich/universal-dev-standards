@@ -1,5 +1,5 @@
 ---
-source: ../../../adoption/DAILY-WORKFLOW-GUIDE.md
+source: ../../adoption/DAILY-WORKFLOW-GUIDE.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-19
@@ -11,7 +11,7 @@ status: current
 **版本**: 1.0.0
 **最后更新**: 2026-01-19
 
-> **语言**: [English](../../../adoption/DAILY-WORKFLOW-GUIDE.md) | [繁體中文](../../zh-TW/adoption/DAILY-WORKFLOW-GUIDE.md) | 简体中文
+> **语言**: [English](../../adoption/DAILY-WORKFLOW-GUIDE.md) | [繁體中文](../../zh-TW/adoption/DAILY-WORKFLOW-GUIDE.md) | 简体中文
 
 本指南说明在执行 `uds init` 后，如何在日常开发工作流程中使用 Universal Development Standards。
 
@@ -444,12 +444,12 @@ test('should reject email without domain', () => {
 ## 相关标准
 
 - [采用指南](ADOPTION-GUIDE.md) - 如何安装 UDS
-- [测试驱动开发](../../../core/test-driven-development.md) - TDD 标准（包含 Golden Master Testing）
-- [行为驱动开发](../../../core/behavior-driven-development.md) - BDD 工作流程
-- [验收测试驱动开发](../../../core/acceptance-test-driven-development.md) - ATDD 工作流程
-- [规格驱动开发](../../../core/spec-driven-development.md) - SDD 工作流程
-- [提交规范](../../../core/checkin-standards.md) - 代码提交要求
-- [代码审查清单](../../../core/code-review-checklist.md) - 审查流程
+- [测试驱动开发](../../core/test-driven-development.md) - TDD 标准（包含 Golden Master Testing）
+- [行为驱动开发](../../core/behavior-driven-development.md) - BDD 工作流程
+- [验收测试驱动开发](../../core/acceptance-test-driven-development.md) - ATDD 工作流程
+- [规格驱动开发](../../core/spec-driven-development.md) - SDD 工作流程
+- [提交规范](../../core/checkin-standards.md) - 代码提交要求
+- [代码审查清单](../../core/code-review-checklist.md) - 审查流程
 
 ---
 

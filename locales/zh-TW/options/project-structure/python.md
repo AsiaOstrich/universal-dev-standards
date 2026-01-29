@@ -1,5 +1,5 @@
 ---
-source: ../../../../options/project-structure/python.md
+source: ../../../options/project-structure/python.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-30
@@ -8,7 +8,7 @@ status: current
 
 # Python 專案結構
 
-> **語言**: [English](../../../../options/project-structure/python.md) | 繁體中文
+> **語言**: [English](../../../options/project-structure/python.md) | 繁體中文
 
 **上層標準**: [專案結構](../../core/project-structure.md)
 

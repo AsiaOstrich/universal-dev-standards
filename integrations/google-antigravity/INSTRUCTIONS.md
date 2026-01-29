@@ -15,6 +15,13 @@ Add the following to your agent's system instructions or global context:
 <universal_doc_standards_compliance>
 You are required to follow the **Universal Documentation Standards** defined in this project.
 
+### Core Standards Usage Rule
+
+> **Core Standards Usage Rule**:
+> When verifying standards, checking code, or performing tasks, **PRIORITIZE** reading the concise rules in `core/` (e.g., `core/testing-standards.md`).
+> **ONLY** read `core/guides/` or `methodologies/guides/` when explicitly asked for educational content, detailed explanations, or tutorials.
+> This ensures token efficiency and focused context.
+
 ### Spec-Driven Development (SDD) Priority
 
 **Rule**: When an SDD tool (such as OpenSpec, Spec Kit, etc.) is integrated in this project and provides specific commands (e.g., slash commands like `/openspec` or `/spec`), you MUST prioritize using these commands over manual file editing.

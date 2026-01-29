@@ -1,5 +1,5 @@
 ---
-source: ../../../../integrations/github-copilot/skills-mapping.md
+source: ../../../integrations/github-copilot/skills-mapping.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-01-24
@@ -178,7 +178,7 @@ gh repo create my-project --template my-org/project-template
 
 - [copilot-instructions.md](./copilot-instructions.md) - 完整规范
 - [COPILOT-CHAT-REFERENCE.md](./COPILOT-CHAT-REFERENCE.md) - Chat 提示
-- [Claude Code Skills](../../skills/claude-code/) - 原始 skills
+- [Claude Code Skills](../../skills/) - 原始 skills
 
 ---
 

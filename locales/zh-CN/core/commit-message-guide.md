@@ -1,12 +1,12 @@
 ---
-source: ../../../core/commit-message-guide.md
+source: ../../core/commit-message-guide.md
 source_version: 1.2.3
 translation_version: 1.2.3
 last_synced: 2026-01-08
 status: current
 ---
 
-> **语言**: [English](../../../core/commit-message-guide.md) | [简体中文](../../zh-TW/core/commit-message-guide.md) | 简体中文
+> **语言**: [English](../../core/commit-message-guide.md) | [简体中文](../../zh-TW/core/commit-message-guide.md) | 简体中文
 
 # 提交消息指南
 

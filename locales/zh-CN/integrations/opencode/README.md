@@ -1,5 +1,5 @@
 ---
-source: ../../../../integrations/opencode/README.md
+source: ../../../integrations/opencode/README.md
 source_version: 1.3.0
 translation_version: 1.3.0
 last_synced: 2026-01-13
@@ -22,7 +22,7 @@ OpenCode 是开源 AI 编码代理，可作为终端界面、桌面应用或 IDE
 - **[skills-mapping.md](./skills-mapping.md)**（参考）：
   将所有 18 个 Claude Code 技能对应到 OpenCode 等效方式。
 
-- **[opencode.json](../../../../integrations/opencode/opencode.json)**（可选）：
+- **[opencode.json](../../../integrations/opencode/opencode.json)**（可选）：
   配置示例，包含权限设置和自定义 agent。
 
 ## 配置层级

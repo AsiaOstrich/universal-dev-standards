@@ -1,12 +1,12 @@
 ---
-source: ../../../core/changelog-standards.md
+source: ../../core/changelog-standards.md
 source_version: 1.0.2
 translation_version: 1.0.2
 last_synced: 2025-12-30
 status: current
 ---
 
-> **Language**: [English](../../../core/changelog-standards.md) | 繁體中文
+> **Language**: [English](../../core/changelog-standards.md) | 繁體中文
 
 # 變更日誌標準
 

@@ -139,7 +139,7 @@ status: current
 
 | 工具 | 档案 | 格式 | 状态 |
 |-----|-----|-----|-----|
-| Claude Code | skills/claude-code/**/*.md | SKILL.md | ✅ 完成 |
+| Claude Code | skills/**/*.md | SKILL.md | ✅ 完成 |
 | Cursor | skills/cursor/.cursorrules | Rules 档案 | ✅ 完成 |
 | Windsurf | skills/windsurf/.windsurfrules | Rules 档案 | ✅ 完成 |
 | Cline | skills/cline/.clinerules | Rules 档案 | ✅ 完成 |

@@ -1,5 +1,5 @@
 ---
-source: ../../../../integrations/opencode/skills-mapping.md
+source: ../../../integrations/opencode/skills-mapping.md
 source_version: 1.4.0
 translation_version: 1.4.0
 last_synced: 2026-01-13
@@ -116,10 +116,10 @@ uds check
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git /tmp/uds
 
 # 複製技能到 OpenCode 目錄
-cp -r /tmp/uds/skills/claude-code/* ~/.config/opencode/skill/
+cp -r /tmp/uds/skills/* ~/.config/opencode/skill/
 
 # 或複製到專案層級
-cp -r /tmp/uds/skills/claude-code/* .opencode/skill/
+cp -r /tmp/uds/skills/* .opencode/skill/
 
 # 清理
 rm -rf /tmp/uds
@@ -146,7 +146,7 @@ cp -r .claude/skills/commit-standards ~/.config/opencode/skill/
 # 直接下載特定技能
 mkdir -p .opencode/skill/commit-standards
 curl -o .opencode/skill/commit-standards/SKILL.md \
-  https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code/commit-standards/SKILL.md
+  https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/commit-standards/SKILL.md
 ```
 
 ### 方法五：使用 Claude 路徑（零配置）
@@ -372,9 +372,9 @@ temperature: 0.5
 
 ## 相關資源
 
-- [AGENTS.md](../../../../integrations/opencode/AGENTS.md) - 核心規則檔
-- [opencode.json](../../../../integrations/opencode/opencode.json) - 配置範例
-- [Claude Code Skills](../../../../skills/claude-code/) - 原始技能
+- [AGENTS.md](../../../integrations/opencode/AGENTS.md) - 核心規則檔
+- [opencode.json](../../../integrations/opencode/opencode.json) - 配置範例
+- [Claude Code Skills](../../../skills/) - 原始技能
 - [GitHub Copilot 技能對照](../github-copilot/skills-mapping.md) - Copilot 等效版本
 
 ---

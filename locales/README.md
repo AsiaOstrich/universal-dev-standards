@@ -26,7 +26,7 @@ locales/
 │   ├── README.md             # Chinese entry point
 │   ├── CHANGELOG.md          # Changelog translation
 │   ├── core/                 # Core standards translations
-│   ├── skills/claude-code/   # Skills translations
+│   ├── skills/   # Skills translations
 │   ├── templates/            # Templates translations
 │   └── adoption/             # Adoption guide translations
 └── zh-CN/                    # Simplified Chinese
@@ -43,7 +43,7 @@ Each translated file includes a YAML front matter with synchronization metadata:
 
 ```yaml
 ---
-source: ../../../core/example.md      # Path to English source
+source: ../../core/example.md      # Path to English source
 source_version: 1.2.0                 # Version of English source
 translation_version: 1.2.0            # Version this translation matches
 last_synced: 2025-12-24               # Last synchronization date
@@ -81,8 +81,8 @@ When using AI tools (Claude Code, Cursor, etc.):
 Example Claude Code skill installation:
 ```bash
 # English (default)
-cp skills/claude-code/commit-standards/SKILL.md ~/.claude/skills/
+cp skills/commit-standards/SKILL.md ~/.claude/skills/
 
 # Traditional Chinese
-cp locales/zh-TW/skills/claude-code/commit-standards/SKILL.md ~/.claude/skills/
+cp locales/zh-TW/skills/commit-standards/SKILL.md ~/.claude/skills/
 ```

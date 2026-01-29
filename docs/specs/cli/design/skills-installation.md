@@ -47,10 +47,10 @@ uds configure --type skills
 **macOS / Linux:**
 ```bash
 # Copy skills to user-level directory
-cp -r skills/claude-code/* ~/.claude/skills/
+cp -r skills/* ~/.claude/skills/
 
 # Or copy to project-level directory
-cp -r skills/claude-code/* .claude/skills/
+cp -r skills/* .claude/skills/
 ```
 
 **Windows PowerShell:**
@@ -65,7 +65,7 @@ Copy-Item -Recurse skills\claude-code\* .claude\skills\
 ## Skills Directory Structure / Skills 目錄結構
 
 ```
-skills/claude-code/
+skills/
 ├── README.md                          # Skills overview
 ├── CONTRIBUTING.template.md           # Contribution template
 │
@@ -277,7 +277,7 @@ Skills installations are tracked in `.standards/manifest.json`:
 
 ```bash
 # Action:
-cp -r skills/claude-code/* ~/.claude/skills/
+cp -r skills/* ~/.claude/skills/
 
 # Verify:
 ls ~/.claude/skills/commit-standards/SKILL.md
@@ -315,4 +315,4 @@ uds skills
 
 - [Skills Installation Utility](../../cli/src/utils/skills-installer.js)
 - [AI Agent Paths Configuration](../../cli/src/config/ai-agent-paths.js)
-- [Skills Directory](../../skills/claude-code/)
+- [Skills Directory](../../skills/)

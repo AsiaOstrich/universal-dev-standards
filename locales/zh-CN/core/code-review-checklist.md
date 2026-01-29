@@ -1,5 +1,5 @@
 ---
-source: ../../../core/code-review-checklist.md
+source: ../../core/code-review-checklist.md
 source_version: 1.3.0
 translation_version: 1.3.0
 last_synced: 2026-01-12
@@ -8,7 +8,7 @@ status: current
 
 # 代码审查检查清单
 
-> **语言**: [English](../../../core/code-review-checklist.md) | [简体中文](../../zh-TW/core/code-review-checklist.md) | 简体中文
+> **语言**: [English](../../core/code-review-checklist.md) | [简体中文](../../zh-TW/core/code-review-checklist.md) | 简体中文
 
 **版本**: 1.3.0
 **最后更新**: 2026-01-12

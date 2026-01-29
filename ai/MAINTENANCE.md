@@ -359,7 +359,7 @@ core/anti-hallucination.md                          ← SOURCE
 ├── locales/zh-TW/core/anti-hallucination.md
 ├── ai/standards/anti-hallucination.ai.yaml
 ├── locales/zh-TW/ai/standards/anti-hallucination.ai.yaml
-└── skills/claude-code/ai-collaboration-standards/
+└── skills/ai-collaboration-standards/
     ├── SKILL.md
     ├── anti-hallucination.md
     └── locales/zh-TW/.../
@@ -384,7 +384,7 @@ core/changelog-standards.md                         ← SOURCE
 ├── locales/zh-TW/ai/options/changelog/
 │   ├── keep-a-changelog.ai.yaml
 │   └── auto-generated.ai.yaml
-└── skills/claude-code/release-standards/
+└── skills/release-standards/
     ├── SKILL.md
     ├── changelog-format.md
     └── locales/zh-TW/.../
@@ -403,7 +403,7 @@ core/checkin-standards.md                           ← SOURCE
 ├── locales/zh-TW/core/checkin-standards.md
 ├── ai/standards/checkin-standards.ai.yaml
 ├── locales/zh-TW/ai/standards/checkin-standards.ai.yaml
-└── skills/claude-code/commit-standards/
+└── skills/commit-standards/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -429,7 +429,7 @@ core/code-review-checklist.md                       ← SOURCE
 │   ├── pr-review.ai.yaml
 │   ├── pair-programming.ai.yaml
 │   └── automated-review.ai.yaml
-└── skills/claude-code/code-review-assistant/
+└── skills/code-review-assistant/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -463,7 +463,7 @@ core/commit-message-guide.md                        ← SOURCE
 │   ├── english.ai.yaml
 │   ├── traditional-chinese.ai.yaml
 │   └── bilingual.ai.yaml
-└── skills/claude-code/commit-standards/
+└── skills/commit-standards/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -489,7 +489,7 @@ core/documentation-structure.md                     ← SOURCE
 │   ├── markdown-docs.ai.yaml
 │   ├── api-docs.ai.yaml
 │   └── wiki-style.ai.yaml
-└── skills/claude-code/documentation-guide/
+└── skills/documentation-guide/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -507,7 +507,7 @@ core/documentation-writing-standards.md             ← SOURCE
 ├── locales/zh-TW/core/documentation-writing-standards.md
 ├── ai/standards/documentation-writing-standards.ai.yaml
 ├── locales/zh-TW/ai/standards/documentation-writing-standards.ai.yaml
-└── skills/claude-code/documentation-guide/
+└── skills/documentation-guide/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -553,7 +553,7 @@ core/git-workflow.md                                ← SOURCE
 │   └── (6 .ai.yaml files)
 ├── locales/zh-TW/ai/options/git-workflow/
 │   └── (6 translated .ai.yaml files)
-└── skills/claude-code/git-workflow-guide/
+└── skills/git-workflow-guide/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -607,7 +607,7 @@ core/project-structure.md                           ← SOURCE
 │   └── swift.ai.yaml     ← YAML only (no MD)
 ├── locales/zh-TW/ai/options/project-structure/
 │   └── (10 translated .ai.yaml files)
-└── skills/claude-code/project-structure-guide/ (if exists)
+└── skills/project-structure-guide/ (if exists)
 ```
 
 **Files to update**: ~38 files
@@ -640,7 +640,7 @@ core/test-completeness-dimensions.md                ← SOURCE
 ├── locales/zh-TW/core/test-completeness-dimensions.md
 ├── ai/standards/test-completeness-dimensions.ai.yaml
 ├── locales/zh-TW/ai/standards/test-completeness-dimensions.ai.yaml
-└── skills/claude-code/testing-guide/
+└── skills/testing-guide/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -677,7 +677,7 @@ core/testing-standards.md                           ← SOURCE
 │   └── contract-testing.ai.yaml   ← YAML only
 ├── locales/zh-TW/ai/options/testing/
 │   └── (9 translated .ai.yaml files)
-└── skills/claude-code/testing-guide/
+└── skills/testing-guide/
     ├── SKILL.md
     ├── testing-pyramid.md
     └── locales/zh-TW/.../
@@ -698,7 +698,7 @@ core/versioning.md                                  ← SOURCE
 ├── locales/zh-TW/core/versioning.md
 ├── ai/standards/versioning.ai.yaml
 ├── locales/zh-TW/ai/standards/versioning.ai.yaml
-└── skills/claude-code/release-standards/
+└── skills/release-standards/
     ├── SKILL.md
     ├── semantic-versioning.md
     └── locales/zh-TW/.../
@@ -745,7 +745,7 @@ When updating a single `core/*.md` file, follow this order:
 6. locales/zh-TW/options/{category}/     ← Translate MD options
 7. ai/options/{category}/*.ai.yaml       ← If YAML options exist
 8. locales/zh-TW/ai/options/{category}/  ← Translate YAML options
-9. skills/claude-code/{skill}/           ← Update related skill
+9. skills/{skill}/           ← Update related skill
 10. locales/zh-TW/skills/...             ← Translate skill
 ```
 

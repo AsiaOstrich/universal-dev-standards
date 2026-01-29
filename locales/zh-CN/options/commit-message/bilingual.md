@@ -1,5 +1,5 @@
 ---
-source: ../../../../options/commit-message/bilingual.md
+source: ../../../options/commit-message/bilingual.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-30
@@ -8,7 +8,7 @@ status: current
 
 # 双语 Commit 讯息
 
-> **语言**: [English](../../../../options/commit-message/bilingual.md) | 繁体中文
+> **语言**: [English](../../../options/commit-message/bilingual.md) | 繁体中文
 
 **上层标准**: [Commit 讯息指南](../../core/commit-message-guide.md)
 

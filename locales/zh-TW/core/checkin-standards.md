@@ -8,7 +8,7 @@ status: current
 
 # 程式碼簽入檢查點標準
 
-> **語言**: [English](../../../core/checkin-standards.md) | 繁體中文
+> **語言**: [English](../../core/checkin-standards.md) | 繁體中文
 
 **版本**: 1.4.0
 **最後更新**: 2026-01-16

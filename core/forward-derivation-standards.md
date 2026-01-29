@@ -573,10 +573,10 @@ spec-review → forward-derivation → discovery
 
 ### Skill References
 
-- [Forward Derivation Skill](../skills/claude-code/forward-derivation/SKILL.md) - Detailed workflow implementation
-- [Spec-Driven Development Skill](../skills/claude-code/spec-driven-dev/SKILL.md) - SDD workflow
-- [BDD Assistant Skill](../skills/claude-code/bdd-assistant/SKILL.md) - Gherkin refinement
-- [TDD Assistant Skill](../skills/claude-code/tdd-assistant/SKILL.md) - Test implementation
+- [Forward Derivation Skill](../skills/forward-derivation/SKILL.md) - Detailed workflow implementation
+- [Spec-Driven Development Skill](../skills/spec-driven-dev/SKILL.md) - SDD workflow
+- [BDD Assistant Skill](../skills/bdd-assistant/SKILL.md) - Gherkin refinement
+- [TDD Assistant Skill](../skills/tdd-assistant/SKILL.md) - Test implementation
 
 ---
 

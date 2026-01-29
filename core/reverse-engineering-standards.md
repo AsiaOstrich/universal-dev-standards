@@ -360,10 +360,10 @@ Use reverse-engineered specifications to identify test coverage gaps:
 
 ### Skill References
 
-- [Reverse Engineer Skill](../skills/claude-code/reverse-engineer/SKILL.md) - Detailed workflow implementation
-- [Spec-Driven Development Skill](../skills/claude-code/spec-driven-dev/SKILL.md) - SDD integration
-- [BDD Assistant Skill](../skills/claude-code/bdd-assistant/SKILL.md) - Gherkin formulation
-- [TDD Assistant Skill](../skills/claude-code/tdd-assistant/SKILL.md) - Test coverage analysis
+- [Reverse Engineer Skill](../skills/reverse-engineer/SKILL.md) - Detailed workflow implementation
+- [Spec-Driven Development Skill](../skills/spec-driven-dev/SKILL.md) - SDD integration
+- [BDD Assistant Skill](../skills/bdd-assistant/SKILL.md) - Gherkin formulation
+- [TDD Assistant Skill](../skills/tdd-assistant/SKILL.md) - Test coverage analysis
 
 ---
 

@@ -3,7 +3,7 @@
 > Universal Development Standards - 完整功能文档
 > Auto-generated | Last updated: 2026-01-26
 
-**Language**: [English](../../../docs/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
+**Language**: [English](../../docs/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
 ---
 

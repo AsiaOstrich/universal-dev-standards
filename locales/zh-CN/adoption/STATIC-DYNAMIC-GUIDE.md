@@ -1,5 +1,5 @@
 ---
-source: ../../../adoption/STATIC-DYNAMIC-GUIDE.md
+source: ../../adoption/STATIC-DYNAMIC-GUIDE.md
 source_version: 1.2.0
 translation_version: 1.2.0
 last_synced: 2026-01-07
@@ -8,7 +8,7 @@ status: current
 
 # 静态与动态规范指南
 
-> **语言**: [English](../../../adoption/STATIC-DYNAMIC-GUIDE.md) | 繁体中文
+> **语言**: [English](../../adoption/STATIC-DYNAMIC-GUIDE.md) | 繁体中文
 
 **版本**: 1.2.0
 **最后更新**: 2026-01-07
@@ -97,7 +97,7 @@ status: current
 - `.github/copilot-instructions.md` (GitHub Copilot)
 - `AI_GUIDELINES.md` (通用)
 
-**范本**: 参见 [CLAUDE.md.template](../../../templates/CLAUDE.md.template)
+**范本**: 参见 [CLAUDE.md.template](../../templates/CLAUDE.md.template)
 
 ---
 
@@ -177,7 +177,7 @@ status: current
 **替代方案：手动安装（macOS / Linux）**
 ```bash
 mkdir -p ~/.claude/skills
-cp -r skills/claude-code/commit-standards ~/.claude/skills/
+cp -r skills/commit-standards ~/.claude/skills/
 ```
 
 **替代方案：手动安装（Windows PowerShell）**
@@ -186,7 +186,7 @@ cp -r skills/claude-code/commit-standards ~/.claude/skills/
 Copy-Item -Recurse skills\claude-code\commit-standards $env:USERPROFILE\.claude\skills\
 ```
 
-详见 [Claude Code Skills README](../../../skills/claude-code/README.md)。
+详见 [Claude Code Skills README](../../skills/README.md)。
 
 ---
 
@@ -280,8 +280,8 @@ description: |
 
 ## 相关资源
 
-- [CLAUDE.md 范本](../../../templates/CLAUDE.md.template) - 可立即使用的静态规则范本
-- [Claude Code Skills](../../../skills/claude-code/README.md) - 技能安装指南
+- [CLAUDE.md 范本](../../templates/CLAUDE.md.template) - 可立即使用的静态规则范本
+- [Claude Code Skills](../../skills/README.md) - 技能安装指南
 - [采用指南](ADOPTION-GUIDE.md) - 整体采用策略
 - [MAINTENANCE.md](../MAINTENANCE.md) - 如何新增/更新技能（维护者专用）
 

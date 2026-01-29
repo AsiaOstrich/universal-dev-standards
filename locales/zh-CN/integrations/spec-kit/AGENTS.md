@@ -1,5 +1,5 @@
 ---
-source: ../../../../integrations/spec-kit/AGENTS.md
+source: ../../../integrations/spec-kit/AGENTS.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-13

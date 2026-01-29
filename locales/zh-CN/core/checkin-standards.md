@@ -8,7 +8,7 @@ status: current
 
 # 程序码签入检查点标准
 
-> **语言**: [English](../../../core/checkin-standards.md) | 繁体中文
+> **语言**: [English](../../core/checkin-standards.md) | 繁体中文
 
 **版本**: 1.4.0
 **最后更新**: 2026-01-16

@@ -1,12 +1,12 @@
 ---
-source: ../../../core/project-structure.md
+source: ../../core/project-structure.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-01-24
 status: current
 ---
 
-> **语言**: [English](../../../core/project-structure.md) | [简体中文](../../zh-TW/core/project-structure.md) | 简体中文
+> **语言**: [English](../../core/project-structure.md) | [简体中文](../../zh-TW/core/project-structure.md) | 简体中文
 
 # 项目结构标准
 

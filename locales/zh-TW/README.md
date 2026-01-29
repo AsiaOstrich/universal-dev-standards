@@ -6,7 +6,7 @@
 
 > **語言**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
 
-**版本**: 4.1.0 | **發布日期**: 2026-01-21 | **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
+**版本**: 5.0.0-alpha.1 (Pre-release) | **發布日期**: 2026-01-29 | **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 
 語言無關、框架無關的軟體專案文件標準。確保不同技術堆疊之間的一致性、品質和可維護性。
 
@@ -154,8 +154,8 @@ uds init  # 選擇 AI 工具，skills 自動安裝
 macOS / Linux:
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git /tmp/uds
-cp -r /tmp/uds/skills/claude-code/* ~/.claude/skills/    # 全域
-# 或: cp -r /tmp/uds/skills/claude-code/* .claude/skills/  # 專案
+cp -r /tmp/uds/skills/* ~/.claude/skills/    # 全域
+# 或: cp -r /tmp/uds/skills/* .claude/skills/  # 專案
 rm -rf /tmp/uds
 ```
 
@@ -194,7 +194,11 @@ Remove-Item -Recurse $env:TEMP\uds
 
 ## 核心標準概覽
 
-### Level 1：基本（30 分鐘設定）
+> **更新 (v4.3.0)**：核心標準已針對 AI Token 使用量進行最佳化。
+> - **規則 (`core/*.md`)**：供 AI 驗證使用的精簡檢查清單與規則。
+> - **指南 (`core/guides/*.md`)**：供人類閱讀的詳細解釋與教學。
+
+### 等級一：基本（30 分鐘設定）
 
 每個專案必須包含：
 
@@ -372,15 +376,17 @@ CLI 安裝：執行 `uds update --skills`。
 
 ---
 
-## 目錄結構
+### 目錄結構
 
 ```
 universal-dev-standards/
-├── core/                    # 核心標準（22 個檔案）
+├── core/                    # 核心規則與檢查清單（輕量化）
+│   ├── guides/              # 詳細指南與教學
 │   ├── anti-hallucination.md
 │   ├── commit-message-guide.md
-│   ├── testing-standards.md
 │   └── ...
+├── methodologies/           # 方法論指南 (TDD, BDD, SDD)
+│   └── guides/              # 詳細方法論教學
 ├── ai/                      # AI 最佳化格式（.ai.yaml）
 ├── skills/                  # AI 工具 skills
 │   └── claude-code/         # 23 個 skill 目錄

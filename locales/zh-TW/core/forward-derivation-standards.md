@@ -4,7 +4,7 @@
 **最後更新**: 2026-01-19
 **適用範圍**: 所有使用規格驅動開發的專案
 
-> **語言**: [English](../../../core/forward-derivation-standards.md) | 繁體中文
+> **語言**: [English](../../core/forward-derivation-standards.md) | 繁體中文
 
 ---
 

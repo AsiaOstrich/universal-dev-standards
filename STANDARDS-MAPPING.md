@@ -7,11 +7,11 @@ This document provides a comprehensive mapping between core standards and their 
 ```mermaid
 graph TB
     subgraph "Development Methodology"
-        SDD[spec-driven-development.md] --> FD[forward-derivation-standards.md]
+        SDD[methodologies/guides/sdd-guide.md] --> FD[forward-derivation-standards.md]
         RE[reverse-engineering-standards.md] --> SDD
-        SDD --> TDD[test-driven-development.md]
-        TDD --> BDD[behavior-driven-development.md]
-        BDD --> ATDD[acceptance-test-driven-development.md]
+        SDD --> TDD[methodologies/guides/tdd-guide.md]
+        TDD --> BDD[methodologies/guides/bdd-guide.md]
+        BDD --> ATDD[methodologies/guides/atdd-guide.md]
     end
 
     subgraph "Testing Standards"
@@ -63,10 +63,41 @@ graph TB
 
 **Total**: 16 core standards → 16 AI standards → 15 Claude Code skills → 4 AI tool integrations
 
+## ISO Standards Alignment
+
+This section maps UDS components to international software engineering standards.
+
+### ISO/IEC 12207 (Software Life Cycle Processes)
+
+| ISO 12207 Process Group | Process | UDS Component | Implementation |
+|-------------------------|---------|---------------|----------------|
+| **Agreement (6.1)** | Acquisition (6.1.1) | `ai-agreement-standards.md` | Context Contract / RFP Prompts |
+| | Supply (6.1.2) | `ai-agreement-standards.md` | Supply Acceptance / Self-Verification |
+| **Org Enabling (6.2)** | Infrastructure (6.2.2) | `virtual-organization-standards.md` | Tool Integration (MCP) |
+| | Human Resource (6.2.4) | `virtual-organization-standards.md` | Skill Management |
+| | Quality Management (6.2.5) | `checkin-standards.md` | Vibe Checks / CI Gates |
+| **Technical (6.4)** | Stakeholder Req (6.4.1) | `requirement-engineering.md` | Requirement Templates |
+| | Implementation (6.4.4) | `checkin-standards.md` | Coding Standards |
+| | Verification (6.4.7) | `testing-standards.md` | Test Pyramids |
+| | Maintenance (6.4.10) | `refactoring-standards.md` | Refactoring Protocols |
+
+### ISO/IEC 25010 (System and Software Quality Models)
+
+| Quality Characteristic | UDS Component | Metrics/Indicator |
+|------------------------|---------------|-------------------|
+| **Maintainability** | `refactoring-standards.md` | Modularity, Analyzability |
+| **Reliability** | `testing-standards.md` | Test Coverage, Fault Tolerance |
+| **Security** | `security-standards.md` | Confidentiality, Integrity |
+| **Performance Efficiency** | `performance-standards.md` | Time Behavior, Resource Utilization |
+| **Usability** | `accessibility-standards.md` | Operability, Accessibility |
+
 ## Core Standards Matrix
 
 | Core Standard | AI Standard | Claude Code Skill | Cursor | Windsurf | Cline | Copilot |
 |---------------|-------------|-------------------|--------|----------|-------|---------|
+| ai-agreement-standards.md | - | contract-auditor (planned) | ✅ | ✅ | ✅ | ✅ |
+| virtual-organization-standards.md | - | hr-manager (planned) | ✅ | ✅ | ✅ | ✅ |
+| refactoring-standards.md | ✅ refactoring-standards.ai.yaml | refactoring-assistant | ✅ | ✅ | ✅ | ✅ |
 | anti-hallucination.md | ✅ | ai-collaboration-standards | ✅ | ✅ | ✅ | ✅ |
 | commit-message-guide.md | ✅ commit-message.ai.yaml | commit-standards | ✅ | ✅ | ✅ | ✅ |
 | code-review-guide.md | ✅ code-review.ai.yaml | code-review-assistant | ✅ | ✅ | ✅ | ✅ |
@@ -181,7 +212,7 @@ Legend: ✅ = Implemented | - = Not applicable as standalone skill
 
 | Tool | File | Format | Status |
 |------|------|--------|--------|
-| Claude Code | skills/claude-code/**/*.md | SKILL.md | ✅ Complete |
+| Claude Code | skills/**/*.md | SKILL.md | ✅ Complete |
 | Cursor | skills/cursor/.cursorrules | Rules file | ✅ Complete |
 | Windsurf | skills/windsurf/.windsurfrules | Rules file | ✅ Complete |
 | Cline | skills/cline/.clinerules | Rules file | ✅ Complete |

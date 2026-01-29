@@ -12,7 +12,7 @@ This directory contains the configuration files for distributing Universal Devel
 - **Name**: `universal-dev-standards`
 - **Version**: `3.4.2` (synced with CLI version)
 - **Skills Included**: 15 comprehensive development skills
-- **Source**: `./skills/claude-code`
+- **Source**: `./skills`
 
 ## Installation for Users
 
@@ -31,7 +31,7 @@ This directory contains the configuration files for distributing Universal Devel
 ```bash
 # Test plugin locally during development
 cd /path/to/universal-dev-standards
-claude --plugin-dir ./skills/claude-code
+claude --plugin-dir ./skills
 ```
 
 ## Plugin Contents
@@ -97,7 +97,7 @@ python3 -m json.tool plugin.json > /dev/null
 python3 -m json.tool marketplace.json > /dev/null
 
 # Test local installation
-claude --plugin-dir ./skills/claude-code
+claude --plugin-dir ./skills
 ```
 
 ## License
@@ -109,6 +109,6 @@ See [LICENSE](../LICENSE) for details.
 
 ## Related Documentation
 
-- [Skills README](../skills/claude-code/README.md) - Detailed skill documentation
+- [Skills README](../skills/README.md) - Detailed skill documentation
 - [INTEGRATION-GUIDE.md](../skills/INTEGRATION-GUIDE.md) - Skill interaction workflows
 - [CLAUDE.md](../CLAUDE.md) - Project development guidelines

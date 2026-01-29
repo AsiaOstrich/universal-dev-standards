@@ -1,6 +1,6 @@
 # ATDD - Acceptance Test-Driven Development Methodology
 # Version: 1.0.0
-# Based on: skills/claude-code/tdd-assistant/tdd-workflow.md (ATDD section)
+# Based on: skills/tdd-assistant/tdd-workflow.md (ATDD section)
 
 $schema: "./methodology-schema.json"
 id: atdd

@@ -1,0 +1,109 @@
+# Security Standards (AI-Optimized)
+# Source: core/security-standards.md
+# Guide: core/guides/security-guide.md
+# Version: 1.0.0
+
+principles:
+  defense_in_depth: [perimeter, application, data, monitoring]
+  core:
+    - least_privilege: "Minimum permissions needed"
+    - fail_securely: "Default to secure on failure"
+    - separation_of_duties: "Divide critical functions"
+    - zero_trust: "Never trust, always verify"
+
+owasp_top10_2021:
+  A01_broken_access_control:
+    prevention: [deny_default, server_side_check, validate_ownership, log_failures]
+  A02_cryptographic_failures:
+    use: [TLS_1.3, AES_256, Argon2id]
+    avoid: [MD5, SHA1, hardcoded_keys]
+  A03_injection:
+    sql: "Parameterized queries only"
+    command: "execFile with args, no shell"
+  A05_security_misconfiguration:
+    headers: [CSP, X-Frame-Options:DENY, HSTS, X-Content-Type-Options:nosniff]
+  A07_auth_failures: "→ See auth section"
+  A10_ssrf: "Allowlist hosts, block internal IPs"
+
+authentication:
+  password:
+    min_length: 8
+    recommended: 12
+    hashing: [Argon2id, bcrypt_cost12, scrypt]
+    never: [MD5, SHA256_unsalted, plaintext]
+  mfa:
+    required_for: [admin, sensitive_ops, recovery]
+    preferred: WebAuthn
+  session:
+    id_length: "≥128 bits"
+    timeout_idle: "15-30 min"
+    timeout_absolute: "8-24 hours"
+    cookie: "Secure; HttpOnly; SameSite=Strict"
+  jwt:
+    algorithm: RS256
+    access_token_ttl: "15m max"
+    never: [sensitive_data_in_payload, symmetric_multiparty]
+
+authorization:
+  rbac: {admin: all, manager: read_write_delete_team, editor: read_write, viewer: read}
+  checklist:
+    - "Server-side check on every request"
+    - "Deny by default"
+    - "Log failures"
+    - "Rate limit per user/role"
+
+input_validation:
+  layers: [client_ux_only, gateway, application_primary, database_last]
+  rules:
+    email: "RFC 5322 + domain check"
+    url: "Protocol allowlist, block internal IPs"
+    string: "Length limits, character allowlist"
+    file: "Type, size, magic bytes"
+  output_encoding:
+    html: "&lt; → entity"
+    javascript: "\\x3C"
+    url: "%3C"
+
+cryptography:
+  symmetric: AES-256-GCM
+  asymmetric: "RSA-2048+, ECDSA P-256+"
+  hashing: "SHA-256, SHA-3, BLAKE3"
+  tls: "1.3 preferred, 1.2 minimum"
+  key_lifecycle: [generate_secure_rng, store_kms, rotate_90days, revoke_immediately]
+
+secrets:
+  never: [hardcode, commit_vcs, share_chat, same_across_envs]
+  use: [Vault, AWS_Secrets_Manager, Azure_Key_Vault]
+  rotate: "90 days max"
+
+security_testing:
+  sast: {frequency: every_commit, tools: [SonarQube, Semgrep, CodeQL]}
+  dast: {frequency: weekly_release, tools: [OWASP_ZAP, Burp]}
+  sca: {frequency: daily, tools: [Snyk, npm_audit, Dependabot]}
+  pentest: {frequency: quarterly_annually}
+
+logging:
+  log: [auth_success_fail, access_denied, sensitive_data_access, admin_actions]
+  never_log: [passwords, tokens, PII_unmasked]
+  alert_thresholds:
+    failed_logins_user: "5 in 15min → lock"
+    failed_logins_global: "100 in 5min → SOC"
+
+incident_response:
+  severity:
+    P1: {desc: "Active breach", response: "<15min"}
+    P2: {desc: "Vulnerability exploited", response: "<1h"}
+    P3: {desc: "Vulnerability found", response: "<24h"}
+  process: [identify, contain, eradicate, recover, lessons_learned]
+
+checklist:
+  pre_deploy:
+    - "Passwords hashed (Argon2id/bcrypt)"
+    - "MFA available"
+    - "Session secure (HttpOnly, Secure, SameSite)"
+    - "Authorization server-side"
+    - "Input validated"
+    - "Parameterized queries"
+    - "TLS 1.2+ enforced"
+    - "No secrets in code/VCS"
+    - "Security headers configured"

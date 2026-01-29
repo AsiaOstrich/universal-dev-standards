@@ -92,7 +92,7 @@ All three language versions now document:
 ## 🔗 Links
 
 - **Plugin Marketplace**: AsiaOstrich/universal-dev-standards
-- **Documentation**: [skills/claude-code/README.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/claude-code/README.md)
+- **Documentation**: [skills/README.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/README.md)
 - **Changelog**: [CHANGELOG.md#320](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/CHANGELOG.md#320---2026-01-02)
 
 ---

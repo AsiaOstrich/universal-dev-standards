@@ -1,5 +1,5 @@
 ---
-source: ../../../../integrations/google-antigravity/README.md
+source: ../../../integrations/google-antigravity/README.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-01-13
@@ -16,7 +16,7 @@ Google Antigravity 是一个先进的代理程序代码开发助理。此集成�
 
 ## 资源
 
-- **[.antigravity/rules.md](../../../../integrations/google-antigravity/.antigravity/rules.md)**（推荐）：
+- **[.antigravity/rules.md](../../../integrations/google-antigravity/.antigravity/rules.md)**（推荐）：
   项目级规则文件，Antigravity 会自动加载。
 
 - **[INSTRUCTIONS.md](./INSTRUCTIONS.md)**：

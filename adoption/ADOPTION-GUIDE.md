@@ -88,7 +88,7 @@ Standards implemented as Claude Code Skills for interactive AI assistance.
 
 # Or manual copy (macOS / Linux)
 mkdir -p ~/.claude/skills
-cp -r skills/claude-code/commit-standards ~/.claude/skills/
+cp -r skills/commit-standards ~/.claude/skills/
 ```
 
 ### Category 2: Reference Documents
@@ -240,7 +240,7 @@ Consider your project's needs:
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git
 mkdir -p ~/.claude/skills
-cp -r universal-dev-standards/skills/claude-code/commit-standards ~/.claude/skills/
+cp -r universal-dev-standards/skills/commit-standards ~/.claude/skills/
 ```
 
 **Alternative: Manual Copy (Windows PowerShell)**

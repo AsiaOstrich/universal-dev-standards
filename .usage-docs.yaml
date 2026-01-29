@@ -44,7 +44,7 @@ sources:
   # Skills - Claude Code skills with SKILL.md files
   skills:
     enabled: true
-    directory: "skills/claude-code/"
+    directory: "skills/"
     pattern: "**/SKILL.md"
     exclude:
       - "commands/**"
@@ -62,7 +62,7 @@ sources:
   # Slash Commands - command definitions
   commands:
     enabled: true
-    directory: "skills/claude-code/commands/"
+    directory: "skills/commands/"
     pattern: "*.md"
     exclude:
       - "README.md"
@@ -75,7 +75,7 @@ sources:
   # AI Agents - specialized agents
   agents:
     enabled: true
-    directory: "skills/claude-code/agents/"
+    directory: "skills/agents/"
     pattern: "*.md"
     exclude:
       - "README.md"
@@ -90,7 +90,7 @@ sources:
   # Workflows - workflow definitions
   workflows:
     enabled: true
-    directory: "skills/claude-code/workflows/"
+    directory: "skills/workflows/"
     pattern: "*.md"
     exclude:
       - "README.md"

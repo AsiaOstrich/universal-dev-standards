@@ -1,5 +1,5 @@
 ---
-source: ../../../adoption/ADOPTION-GUIDE.md
+source: ../../adoption/ADOPTION-GUIDE.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-25
@@ -58,7 +58,7 @@ status: current
 - `checkin-standards.md` - 建置、测试、覆盖率门槛
 - `project-structure.md` - 目录惯例
 
-**部署方式**：加入 `CLAUDE.md` 或 `.cursorrules`。请参阅 [CLAUDE.md.template](../../../templates/CLAUDE.md.template)。
+**部署方式**：加入 `CLAUDE.md` 或 `.cursorrules`。请参阅 [CLAUDE.md.template](../../templates/CLAUDE.md.template)。
 
 ### 动态规范
 
@@ -76,7 +76,7 @@ status: current
 
 **部署方式**：通过 Plugin Marketplace 或手动复制安装为 Skills。
 
-> 详细分类请参阅 [STATIC-DYNAMIC-GUIDE.md](../../../adoption/STATIC-DYNAMIC-GUIDE.md)。
+> 详细分类请参阅 [STATIC-DYNAMIC-GUIDE.md](../../adoption/STATIC-DYNAMIC-GUIDE.md)。
 
 ---
 
@@ -95,7 +95,7 @@ status: current
 
 # 或手动复制（macOS / Linux）
 mkdir -p ~/.claude/skills
-cp -r skills/claude-code/commit-standards ~/.claude/skills/
+cp -r skills/commit-standards ~/.claude/skills/
 ```
 
 ### 类别二：参考文件
@@ -196,7 +196,7 @@ Copy-Item <source-file> .standards\
 - [ ] checkin-standards.md (参考文件)
 - [ ] spec-driven-development.md (参考文件)
 
-详细检查清单请参阅 [checklists/minimal.md](../../../adoption/checklists/minimal.md)。
+详细检查清单请参阅 [checklists/minimal.md](../../adoption/checklists/minimal.md)。
 
 ### 等级二：推荐
 
@@ -210,7 +210,7 @@ Copy-Item <source-file> .standards\
 - [ ] 适用的延伸规范
 - [ ] AI 工具整合
 
-详细检查清单请参阅 [checklists/recommended.md](../../../adoption/checklists/recommended.md)。
+详细检查清单请参阅 [checklists/recommended.md](../../adoption/checklists/recommended.md)。
 
 ### 等级三：企业
 
@@ -222,7 +222,7 @@ Copy-Item <source-file> .standards\
 - [ ] project-structure.md (参考文件)
 - [ ] migration-template.md (如适用)
 
-详细检查清单请参阅 [checklists/enterprise.md](../../../adoption/checklists/enterprise.md)。
+详细检查清单请参阅 [checklists/enterprise.md](../../adoption/checklists/enterprise.md)。
 
 ---
 
@@ -247,7 +247,7 @@ Copy-Item <source-file> .standards\
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git
 mkdir -p ~/.claude/skills
-cp -r universal-dev-standards/skills/claude-code/commit-standards ~/.claude/skills/
+cp -r universal-dev-standards/skills/commit-standards ~/.claude/skills/
 ```
 
 **替代方案：手动复制（Windows PowerShell）**
@@ -377,7 +377,7 @@ Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-in
 
 ## 机器可读注册表
 
-工具和自动化请参阅 [standards-registry.json](../../../adoption/standards-registry.json)。
+工具和自动化请参阅 [standards-registry.json](../../adoption/standards-registry.json)。
 
 此 JSON 档案包含所有规范、类别和采用方法的完整对照。
 
@@ -387,6 +387,6 @@ Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-in
 
 - [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) - 来源储存库
 - [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) - Skills 储存库
-- [最小检查清单](../../../adoption/checklists/minimal.md) - 等级一采用检查清单
-- [推荐检查清单](../../../adoption/checklists/recommended.md) - 等级二采用检查清单
-- [企业检查清单](../../../adoption/checklists/enterprise.md) - 等级三采用检查清单
+- [最小检查清单](../../adoption/checklists/minimal.md) - 等级一采用检查清单
+- [推荐检查清单](../../adoption/checklists/recommended.md) - 等级二采用检查清单
+- [企业检查清单](../../adoption/checklists/enterprise.md) - 等级三采用检查清单

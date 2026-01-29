@@ -22,7 +22,7 @@ NC='\033[0m' # No Color
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-SKILLS_DIR="$ROOT_DIR/skills/claude-code"
+SKILLS_DIR="$ROOT_DIR/skills"
 CORE_DIR="$ROOT_DIR/core"
 
 VERBOSE=false

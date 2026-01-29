@@ -1,12 +1,12 @@
 ---
-source: ../../../core/logging-standards.md
+source: ../../core/logging-standards.md
 source_version: 1.2.0
 translation_version: 1.2.0
 last_synced: 2026-01-24
 status: current
 ---
 
-> **语言**: [English](../../../core/logging-standards.md) | [简体中文](../../zh-TW/core/logging-standards.md) | 简体中文
+> **语言**: [English](../../core/logging-standards.md) | [简体中文](../../zh-TW/core/logging-standards.md) | 简体中文
 
 # 日志标准
 

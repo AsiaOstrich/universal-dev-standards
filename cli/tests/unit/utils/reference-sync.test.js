@@ -108,8 +108,9 @@ reference: .standards/commit-message-guide.md`;
     it('should return paths for anti-hallucination category', () => {
       const paths = getCategoryStandardPaths('anti-hallucination');
 
-      expect(paths).toHaveLength(1);
+      expect(paths).toHaveLength(2);
       expect(paths).toContain('core/anti-hallucination.md');
+      expect(paths).toContain('core/guides/anti-hallucination-guide.md');
     });
 
     it('should return multiple paths for code-review category', () => {

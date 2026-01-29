@@ -1,12 +1,12 @@
 ---
-source: ../../../core/error-code-standards.md
+source: ../../core/error-code-standards.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-01-08
 status: current
 ---
 
-> **语言**: [English](../../../core/error-code-standards.md) | [简体中文](../../zh-TW/core/error-code-standards.md) | 简体中文
+> **语言**: [English](../../core/error-code-standards.md) | [简体中文](../../zh-TW/core/error-code-standards.md) | 简体中文
 
 # 错误码标准
 

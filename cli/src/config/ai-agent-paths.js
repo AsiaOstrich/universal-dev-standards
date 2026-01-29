@@ -433,7 +433,7 @@ export function supportsAgents(agent) {
 }
 
 /**
- * List of all available slash commands (from skills/claude-code/)
+ * List of all available slash commands (from skills/)
  * Note: Since Claude Code v2.1.3+, Skills and Commands are merged.
  * The `name` field in SKILL.md directly becomes the slash command.
  *
@@ -522,7 +522,7 @@ export const AVAILABLE_COMMANDS = [
 ];
 
 /**
- * List of all available agents (from skills/claude-code/agents/)
+ * List of all available agents (from skills/agents/)
  */
 export const AVAILABLE_AGENTS = [
   { name: 'code-architect', description: 'Software architecture and system design specialist' },
@@ -533,7 +533,7 @@ export const AVAILABLE_AGENTS = [
 ];
 
 /**
- * List of all available workflows (from skills/claude-code/workflows/)
+ * List of all available workflows (from skills/workflows/)
  */
 export const AVAILABLE_WORKFLOWS = [
   { name: 'integrated-flow', description: 'Complete ATDD → SDD → BDD → TDD workflow' },

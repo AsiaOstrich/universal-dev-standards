@@ -1,5 +1,5 @@
 ---
-source: ../../../../options/git-workflow/trunk-based.md
+source: ../../../options/git-workflow/trunk-based.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-30
@@ -8,7 +8,7 @@ status: current
 
 # Trunk-Based 開發
 
-> **語言**: [English](../../../../options/git-workflow/trunk-based.md) | 繁體中文
+> **語言**: [English](../../../options/git-workflow/trunk-based.md) | 繁體中文
 
 **上層標準**: [Git 工作流程](../../core/git-workflow.md)
 

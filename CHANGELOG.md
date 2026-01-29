@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-alpha.1] - 2026-01-29
+
+### Changed
+- **Core Standards Slimming (Token Optimization)**: Major refactoring to reduce AI context load
+  - **Rules vs. Guides Separation**: Split massive standard files into concise "Rules" (for AI) and detailed "Guides" (for Humans/Reference)
+  - **Methodology Relocation**: Moved pure methodology tutorials from `core/` to `methodologies/guides/`
+  - **New Directory Structure**:
+    - `core/`: Contains only actionable rules, checklists, and thresholds (< 10KB each target)
+    - `core/guides/`: Contains detailed explanations, tutorials, and examples
+    - `methodologies/guides/`: Contains full methodology guides (TDD, BDD, SDD, etc.)
+  - **Significant Size Reductions**:
+    - `testing-standards.md`: 141KB → 14KB (90% reduction)
+    - `test-driven-development.md`: 54KB → ~1KB Stub (Moved to methodologies)
+    - `git-workflow.md`: 38KB → ~8KB (Split)
+    - Overall `core/` directory size reduced by ~75%
+
 ## [4.3.0-alpha.1] - 2026-01-26
 
 > ⚠️ **Alpha Release**: This is an internal validation release for local testing. Not recommended for production use.
@@ -194,7 +210,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - Complements Reverse Engineering to form bidirectional derivation system
   - Strict 1:1 AC mapping with anti-hallucination compliance
   - Certainty framework: `[Source]`, `[Derived]`, `[Generated]`, `[TODO]` tags
-- **Skill**: Forward Derivation skill for Claude Code (`skills/claude-code/forward-derivation/`)
+- **Skill**: Forward Derivation skill for Claude Code (`skills/forward-derivation/`)
   - New commands: `/derive-bdd`, `/derive-tdd`, `/derive-atdd`, `/derive-all`
   - Multi-language support: TypeScript, Python, Java, Go
   - AC Parser with Given-When-Then and bullet format support
@@ -439,7 +455,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 - **CLI**: Skills and Commands now properly bundled in npm package
-  - Added `skills/claude-code/` to `prepack.mjs` bundle directories
+  - Added `skills/` to `prepack.mjs` bundle directories
   - `skills-installer.js` now prioritizes bundled path over development path
   - Resolves issue where "Installed commands for X AI tools" showed success but directories were empty
 - **CLI**: Registered `--skills` and `--commands` options in update command
@@ -484,7 +500,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Removed
 - **Skills**: Deprecated installation scripts
-  - Removed `skills/claude-code/install.sh` and `install.ps1`
+  - Removed `skills/install.sh` and `install.ps1`
   - Removed `scripts/check-install-scripts-sync.sh` and `.ps1`
   - Plugin Marketplace is now the primary installation method
 
@@ -590,7 +606,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `.claude-plugin/README.md`: 3.2.0 → 3.4.2
   - `adoption/standards-registry.json`: 3.2.0 → 3.4.2
 - **Plugin**: Fix `adoption/standards-registry.json` still referencing deprecated `universal-dev-skills` repo
-  - Now correctly points to `skills/claude-code` in main repository
+  - Now correctly points to `skills` in main repository
 
 ## [3.4.1] - 2026-01-08
 
@@ -715,9 +731,9 @@ If you installed via the old marketplace name, please migrate:
   - ML testing boundaries (model accuracy vs data engineering)
   - Golden Master Testing for legacy systems
 - **Skills**: Add `tdd-assistant` skill for Claude Code (skill #15)
-  - `skills/claude-code/tdd-assistant/SKILL.md` - TDD workflow guidance
-  - `skills/claude-code/tdd-assistant/tdd-workflow.md` - Step-by-step TDD process
-  - `skills/claude-code/tdd-assistant/language-examples.md` - 6 language examples (JS/TS, Python, C#, Go, Java, Ruby)
+  - `skills/tdd-assistant/SKILL.md` - TDD workflow guidance
+  - `skills/tdd-assistant/tdd-workflow.md` - Step-by-step TDD process
+  - `skills/tdd-assistant/language-examples.md` - 6 language examples (JS/TS, Python, C#, Go, Java, Ruby)
   - Complete zh-TW translations for all TDD files
 
 ### Changed
@@ -770,7 +786,7 @@ If you installed via the old marketplace name, please migrate:
 
 ### Added
 - **Skills**: Add Release Workflow Guide for comprehensive release process
-  - New `skills/claude-code/release-standards/release-workflow.md` with step-by-step release instructions
+  - New `skills/release-standards/release-workflow.md` with step-by-step release instructions
   - Covers beta, alpha, rc, and stable release workflows
   - Includes npm dist-tag strategy, troubleshooting, and AI assistant guidelines
   - Add Release Process section in CLAUDE.md for AI assistants
@@ -825,7 +841,7 @@ If you installed via the old marketplace name, please migrate:
   - Add `.claude-plugin/plugin.json` - Plugin manifest with metadata
   - Add `.claude-plugin/marketplace.json` - Marketplace configuration for plugin distribution
   - Add `.claude-plugin/README.md` - Plugin documentation and maintenance guide
-  - Update `skills/claude-code/README.md` with Method 1: Marketplace Installation (Recommended)
+  - Update `skills/README.md` with Method 1: Marketplace Installation (Recommended)
 
 ### Benefits
 - Users can install all 14 skills with a single command: `/plugin install universal-dev-standards@universal-dev-standards`
@@ -851,7 +867,7 @@ If you installed via the old marketplace name, please migrate:
 - **Full Windows Support**: Complete cross-platform compatibility for Windows users
   - Add `.gitattributes` for consistent line endings across platforms
   - Add `scripts/check-translation-sync.ps1` - PowerShell version of translation checker
-  - Add `skills/claude-code/install.ps1` - PowerShell version of skills installer
+  - Add `skills/install.ps1` - PowerShell version of skills installer
   - Add `scripts/setup-husky.js` - Cross-platform Husky setup script
   - Add `docs/WINDOWS-GUIDE.md` - Comprehensive Windows development guide
 - **5 New Claude Code Skills**: Expand skill library from 9 to 14 skills
@@ -906,7 +922,7 @@ If you installed via the old marketplace name, please migrate:
 - **Multilingual Support**: Add `locales/` directory structure for internationalization
 - Add Traditional Chinese (zh-TW) translations for all documentation (44 files)
   - `locales/zh-TW/core/` - 13 core standard translations
-  - `locales/zh-TW/skills/claude-code/` - 25 skill file translations
+  - `locales/zh-TW/skills/` - 25 skill file translations
   - `locales/zh-TW/adoption/` - 5 adoption guide translations
   - `locales/zh-TW/README.md` - Complete Chinese README
 - Add language switcher to all English documentation files
@@ -918,7 +934,7 @@ If you installed via the old marketplace name, please migrate:
 ### Changed
 - Separate bilingual content into dedicated language files (~50% token reduction for AI tools)
 - English versions now contain English-only content with language switcher
-- Update `skills/claude-code/README.md` - Add Static vs Dynamic section with trigger keywords
+- Update `skills/README.md` - Add Static vs Dynamic section with trigger keywords
 
 ## [2.2.0] - 2025-12-24
 
@@ -935,17 +951,17 @@ If you installed via the old marketplace name, please migrate:
 
 ### Added
 - **Integrated Skills**: Merge `universal-dev-skills` into `skills/` directory
-- Add `skills/claude-code/` - All Claude Code Skills now included in main repo
+- Add `skills/` - All Claude Code Skills now included in main repo
 - Add `skills/_shared/` - Shared templates for multi-AI tool support
 - Add placeholder directories for future AI tools: `skills/cursor/`, `skills/windsurf/`, `skills/cline/`, `skills/copilot/`
 
 ### Changed
-- CLI now installs skills from local `skills/claude-code/` instead of fetching from remote repository
+- CLI now installs skills from local `skills/` instead of fetching from remote repository
 - Update `standards-registry.json` to reflect integrated skills architecture
 
 ### Migration Guide
 - If you previously used `universal-dev-skills` separately, you can now use the skills included in this repo
-- Run `cd skills/claude-code && ./install.sh` to reinstall skills from the integrated location
+- Run `cd skills && ./install.sh` to reinstall skills from the integrated location
 
 ## [2.0.0] - 2025-12-24
 

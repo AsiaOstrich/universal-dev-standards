@@ -270,7 +270,7 @@ locales/zh-TW/
 ├── ai/
 │   ├── standards/           ← 16 個翻譯 AI 標準
 │   └── options/             ← 36 個翻譯 AI 選項
-├── skills/claude-code/      ← 翻譯技能
+├── skills/      ← 翻譯技能
 ├── adoption/                ← 翻譯採用指南
 ├── templates/               ← 翻譯模板
 ├── README.md
@@ -399,8 +399,8 @@ locales/zh-TW/
    a. 更新 ai/options/{category}/*.ai.yaml
    b. 更新 locales/zh-TW/ai/options/{category}/
 7. 如有技能：
-   a. 更新 skills/claude-code/{skill}/
-   b. 更新 locales/zh-TW/skills/claude-code/{skill}/
+   a. 更新 skills/{skill}/
+   b. 更新 locales/zh-TW/skills/{skill}/
 8. 執行 ./scripts/check-translation-sync.sh zh-TW
 9. 如有重大變更，更新 CHANGELOG.md
 ```
@@ -417,8 +417,8 @@ locales/zh-TW/
    b. 建立 ai/options/{category}/*.ai.yaml
    c. 建立所有語系翻譯
 6. 如需技能：
-   a. 建立 skills/claude-code/{skill-name}/
-   b. 建立 locales/zh-TW/skills/claude-code/{skill-name}/
+   a. 建立 skills/{skill-name}/
+   b. 建立 locales/zh-TW/skills/{skill-name}/
 7. 更新：
    - README.md（加入標準列表）
    - STANDARDS-MAPPING.md
@@ -451,10 +451,10 @@ locales/zh-TW/
    若大部分為是 → 建立技能（繼續步驟 1）
    若大部分為否 → 改加入 CLAUDE.md（參見靜態標準）
 
-1. 建立 skills/claude-code/{skill-name}/
+1. 建立 skills/{skill-name}/
    - SKILL.md（含 YAML frontmatter 的主要技能定義）
    - {topic}.md（選用的支援文件）
-2. 建立 locales/zh-TW/skills/claude-code/{skill-name}/
+2. 建立 locales/zh-TW/skills/{skill-name}/
    - SKILL.md（翻譯版本）
 3. 更新 MAINTENANCE.md
    - 在第 4 節新增至技能表格

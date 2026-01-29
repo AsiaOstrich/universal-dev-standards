@@ -3,10 +3,11 @@
 
 id: git-workflow
 meta:
-  version: "1.2.1"
-  updated: "2025-12-26"
+  version: "1.3.0"
+  updated: "2026-01-24"
   source: core/git-workflow.md
-  description: Git 分支策略與工作流程
+  guide: core/guides/git-workflow-guide.md
+  description: Git 分支策略、提交慣例與 Pull Request 工作流程
   language: zh-TW
 
 decision:

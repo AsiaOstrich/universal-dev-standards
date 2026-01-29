@@ -1,5 +1,5 @@
 ---
-source: ../../../ai/MAINTENANCE.md
+source: ../../ai/MAINTENANCE.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-08
@@ -8,7 +8,7 @@ status: current
 
 # AI 标准维护指南
 
-> **Language**: [English](../../../ai/MAINTENANCE.md) | 繁体中文
+> **Language**: [English](../../ai/MAINTENANCE.md) | 繁体中文
 
 **版本**: 1.0.0
 **最后更新**: 2025-12-30
@@ -333,7 +333,7 @@ core/anti-hallucination.md                          ← 来源
 ├── locales/zh-TW/core/anti-hallucination.md
 ├── ai/standards/anti-hallucination.ai.yaml
 ├── locales/zh-TW/ai/standards/anti-hallucination.ai.yaml
-└── skills/claude-code/ai-collaboration-standards/
+└── skills/ai-collaboration-standards/
     ├── SKILL.md
     ├── anti-hallucination.md
     └── locales/zh-TW/.../
@@ -358,7 +358,7 @@ core/changelog-standards.md                         ← 来源
 ├── locales/zh-TW/ai/options/changelog/
 │   ├── keep-a-changelog.ai.yaml
 │   └── auto-generated.ai.yaml
-└── skills/claude-code/release-standards/
+└── skills/release-standards/
     ├── SKILL.md
     ├── changelog-format.md
     └── locales/zh-TW/.../
@@ -377,7 +377,7 @@ core/checkin-standards.md                           ← 来源
 ├── locales/zh-TW/core/checkin-standards.md
 ├── ai/standards/checkin-standards.ai.yaml
 ├── locales/zh-TW/ai/standards/checkin-standards.ai.yaml
-└── skills/claude-code/commit-standards/
+└── skills/commit-standards/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -403,7 +403,7 @@ core/code-review-checklist.md                       ← 来源
 │   ├── pr-review.ai.yaml
 │   ├── pair-programming.ai.yaml
 │   └── automated-review.ai.yaml
-└── skills/claude-code/code-review-assistant/
+└── skills/code-review-assistant/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -437,7 +437,7 @@ core/commit-message-guide.md                        ← 来源
 │   ├── english.ai.yaml
 │   ├── traditional-chinese.ai.yaml
 │   └── bilingual.ai.yaml
-└── skills/claude-code/commit-standards/
+└── skills/commit-standards/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -463,7 +463,7 @@ core/documentation-structure.md                     ← 来源
 │   ├── markdown-docs.ai.yaml
 │   ├── api-docs.ai.yaml
 │   └── wiki-style.ai.yaml
-└── skills/claude-code/documentation-guide/
+└── skills/documentation-guide/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -481,7 +481,7 @@ core/documentation-writing-standards.md             ← 来源
 ├── locales/zh-TW/core/documentation-writing-standards.md
 ├── ai/standards/documentation-writing-standards.ai.yaml
 ├── locales/zh-TW/ai/standards/documentation-writing-standards.ai.yaml
-└── skills/claude-code/documentation-guide/
+└── skills/documentation-guide/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -527,7 +527,7 @@ core/git-workflow.md                                ← 来源
 │   └── (6 个 .ai.yaml 档案)
 ├── locales/zh-TW/ai/options/git-workflow/
 │   └── (6 个翻译的 .ai.yaml 档案)
-└── skills/claude-code/git-workflow-guide/
+└── skills/git-workflow-guide/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -581,7 +581,7 @@ core/project-structure.md                           ← 来源
 │   └── swift.ai.yaml     ← 仅 YAML（无 MD）
 ├── locales/zh-TW/ai/options/project-structure/
 │   └── (10 个翻译的 .ai.yaml 档案)
-└── skills/claude-code/project-structure-guide/（如存在）
+└── skills/project-structure-guide/（如存在）
 ```
 
 **需更新档案**: ~38 个
@@ -614,7 +614,7 @@ core/test-completeness-dimensions.md                ← 来源
 ├── locales/zh-TW/core/test-completeness-dimensions.md
 ├── ai/standards/test-completeness-dimensions.ai.yaml
 ├── locales/zh-TW/ai/standards/test-completeness-dimensions.ai.yaml
-└── skills/claude-code/testing-guide/
+└── skills/testing-guide/
     ├── SKILL.md
     └── locales/zh-TW/.../
 ```
@@ -651,7 +651,7 @@ core/testing-standards.md                           ← 来源
 │   └── contract-testing.ai.yaml   ← 仅 YAML
 ├── locales/zh-TW/ai/options/testing/
 │   └── (9 个翻译的 .ai.yaml 档案)
-└── skills/claude-code/testing-guide/
+└── skills/testing-guide/
     ├── SKILL.md
     ├── testing-pyramid.md
     └── locales/zh-TW/.../
@@ -672,7 +672,7 @@ core/versioning.md                                  ← 来源
 ├── locales/zh-TW/core/versioning.md
 ├── ai/standards/versioning.ai.yaml
 ├── locales/zh-TW/ai/standards/versioning.ai.yaml
-└── skills/claude-code/release-standards/
+└── skills/release-standards/
     ├── SKILL.md
     ├── semantic-versioning.md
     └── locales/zh-TW/.../
@@ -719,7 +719,7 @@ core/versioning.md                                  ← 来源
 6. locales/zh-TW/options/{category}/     ← 翻译 MD 选项
 7. ai/options/{category}/*.ai.yaml       ← 如有 YAML 选项
 8. locales/zh-TW/ai/options/{category}/  ← 翻译 YAML 选项
-9. skills/claude-code/{skill}/           ← 更新相关技能
+9. skills/{skill}/           ← 更新相关技能
 10. locales/zh-TW/skills/...             ← 翻译技能
 ```
 

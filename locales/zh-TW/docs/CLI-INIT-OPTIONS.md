@@ -1,5 +1,5 @@
 ---
-source: ../../../docs/CLI-INIT-OPTIONS.md
+source: ../../docs/CLI-INIT-OPTIONS.md
 source_version: 3.5.1
 translation_version: 3.5.1
 last_synced: 2026-01-15
@@ -8,7 +8,7 @@ status: current
 
 # UDS CLI Init 選項完整指南
 
-> **語言**: [English](../../../docs/CLI-INIT-OPTIONS.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CLI-INIT-OPTIONS.md)
+> **語言**: [English](../../docs/CLI-INIT-OPTIONS.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CLI-INIT-OPTIONS.md)
 >
 > **版本**: 3.5.0
 > **最後更新**: 2026-01-09
@@ -980,10 +980,10 @@ uds init -y --level 2 --lang php --framework fat-free
 
 ## 相關文件
 
-- [CLI README](../../../cli/README.md) - CLI 基本使用
+- [CLI README](../../cli/README.md) - CLI 基本使用
 - [ADOPTION-GUIDE.md](../adoption/ADOPTION-GUIDE.md) - 採用指南
-- [CLAUDE.md](../../../CLAUDE.md) - 專案開發指引
-- [CHANGELOG.md](../../../CHANGELOG.md) - 版本歷史
+- [CLAUDE.md](../../CLAUDE.md) - 專案開發指引
+- [CHANGELOG.md](../../CHANGELOG.md) - 版本歷史
 
 ---
 

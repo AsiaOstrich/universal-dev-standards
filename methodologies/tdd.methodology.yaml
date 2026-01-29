@@ -1,6 +1,6 @@
 # TDD - Test-Driven Development Methodology
 # Version: 1.0.0
-# Source: skills/claude-code/tdd-assistant/
+# Source: skills/tdd-assistant/
 
 $schema: "./methodology-schema.json"
 id: tdd

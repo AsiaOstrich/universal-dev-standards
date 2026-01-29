@@ -1,5 +1,5 @@
 ---
-source: ../../../core/anti-hallucination.md
+source: ../../core/anti-hallucination.md
 source_version: 1.4.0
 translation_version: 1.4.0
 last_synced: 2026-01-19
@@ -8,7 +8,7 @@ status: current
 
 # AI 协作防幻觉标准
 
-> **语言**: [English](../../../core/anti-hallucination.md) | 繁体中文
+> **语言**: [English](../../core/anti-hallucination.md) | 繁体中文
 
 **版本**: 1.4.0
 **最后更新**: 2026-01-19

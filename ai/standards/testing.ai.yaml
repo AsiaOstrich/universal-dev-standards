@@ -6,6 +6,7 @@ meta:
   version: "1.3.0"
   updated: "2025-12-30"
   source: core/testing-standards.md
+  guide: skills/testing-guide/testing-theory.md
   description: Testing pyramid and recommended coverage ratios with framework options
 
 # Framework Selection - Choose based on project needs

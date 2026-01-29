@@ -113,10 +113,10 @@ uds check
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git /tmp/uds
 
 # Copy skills to OpenCode directory
-cp -r /tmp/uds/skills/claude-code/* ~/.config/opencode/skill/
+cp -r /tmp/uds/skills/* ~/.config/opencode/skill/
 
 # Or copy to project level
-cp -r /tmp/uds/skills/claude-code/* .opencode/skill/
+cp -r /tmp/uds/skills/* .opencode/skill/
 
 # Clean up
 rm -rf /tmp/uds
@@ -143,7 +143,7 @@ cp -r .claude/skills/commit-standards ~/.config/opencode/skill/
 # Download specific skills directly
 mkdir -p .opencode/skill/commit-standards
 curl -o .opencode/skill/commit-standards/SKILL.md \
-  https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code/commit-standards/SKILL.md
+  https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/commit-standards/SKILL.md
 ```
 
 ### Method 5: Use Claude Path (Zero Config)
@@ -371,7 +371,7 @@ After setting up skills:
 
 - [AGENTS.md](./AGENTS.md) - Core rules file
 - [opencode.json](./opencode.json) - Configuration example
-- [Claude Code Skills](../../skills/claude-code/) - Original skills
+- [Claude Code Skills](../../skills/) - Original skills
 - [GitHub Copilot Skills Mapping](../github-copilot/skills-mapping.md) - Copilot equivalent
 
 ---

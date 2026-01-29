@@ -1,0 +1,20 @@
+# Virtual Organization Standards (AI-Optimized)
+# Source: core/virtual-organization-standards.md
+
+id: virtual-organization
+meta:
+  version: "1.0.0"
+  updated: "2026-01-29"
+  source: core/virtual-organization-standards.md
+  description: Standards for AI agent integration into virtual organizational structures including MCP tools and skill management
+
+rules:
+  - id: skill-governance
+    trigger: installing skills
+    instruction: Follow centralized skill management protocols
+    priority: required
+
+  - id: mcp-usage
+    trigger: using MCP tools
+    instruction: Document MCP tool dependencies and usage patterns
+    priority: recommended

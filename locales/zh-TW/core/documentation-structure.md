@@ -8,7 +8,7 @@ status: current
 
 # 文件結構標準
 
-> **語言**: [English](../../../core/documentation-structure.md) | 繁體中文
+> **語言**: [English](../../core/documentation-structure.md) | 繁體中文
 
 **版本**: 1.3.0
 **最後更新**: 2026-01-24

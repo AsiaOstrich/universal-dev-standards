@@ -374,7 +374,7 @@ async function scanCliCommands() {
 // Scan skills from SKILL.md files
 async function scanSkills() {
   const skills = [];
-  const skillsDir = path.join(ROOT_DIR, 'skills/claude-code');
+  const skillsDir = path.join(ROOT_DIR, 'skills');
 
   if (!fs.existsSync(skillsDir)) return skills;
 
@@ -396,7 +396,7 @@ async function scanSkills() {
         name: frontmatter?.name || entry.name,
         description:
           frontmatter?.description?.split('\n')[0] || purpose || title || '',
-        path: `skills/claude-code/${entry.name}/SKILL.md`,
+        path: `skills/${entry.name}/SKILL.md`,
       });
     } catch (error) {
       log(`  Warning: Could not parse ${skillPath}: ${error.message}`, COLORS.yellow);
@@ -409,7 +409,7 @@ async function scanSkills() {
 // Scan slash commands
 async function scanCommands() {
   const commands = [];
-  const commandsDir = path.join(ROOT_DIR, 'skills/claude-code/commands');
+  const commandsDir = path.join(ROOT_DIR, 'skills/commands');
 
   if (!fs.existsSync(commandsDir)) return commands;
 
@@ -431,7 +431,7 @@ async function scanCommands() {
         description: frontmatter?.description?.split('\n')[0] || title || '',
         'allowed-tools': frontmatter?.['allowed-tools'] || '',
         'argument-hint': frontmatter?.['argument-hint'] || '',
-        path: `skills/claude-code/commands/${file}`,
+        path: `skills/commands/${file}`,
       });
     } catch (error) {
       log(`  Warning: Could not parse ${filePath}: ${error.message}`, COLORS.yellow);
@@ -444,7 +444,7 @@ async function scanCommands() {
 // Scan agents
 async function scanAgents() {
   const agents = [];
-  const agentsDir = path.join(ROOT_DIR, 'skills/claude-code/agents');
+  const agentsDir = path.join(ROOT_DIR, 'skills/agents');
 
   if (!fs.existsSync(agentsDir)) return agents;
 
@@ -465,7 +465,7 @@ async function scanAgents() {
           frontmatter?.description?.split('\n')[0] || purpose || title || '',
         role: frontmatter?.role || '',
         expertise: frontmatter?.expertise || [],
-        path: `skills/claude-code/agents/${file}`,
+        path: `skills/agents/${file}`,
       });
     } catch (error) {
       log(`  Warning: Could not parse ${filePath}: ${error.message}`, COLORS.yellow);
@@ -478,7 +478,7 @@ async function scanAgents() {
 // Scan workflows
 async function scanWorkflows() {
   const workflows = [];
-  const workflowsDir = path.join(ROOT_DIR, 'skills/claude-code/workflows');
+  const workflowsDir = path.join(ROOT_DIR, 'skills/workflows');
 
   if (!fs.existsSync(workflowsDir)) return workflows;
 
@@ -518,7 +518,7 @@ async function scanWorkflows() {
           id: file.replace('.workflow.yaml', '').replace('.yaml', ''),
           name: nameMatch?.[1] || file.replace('.workflow.yaml', ''),
           description: description,
-          path: `skills/claude-code/workflows/${file}`,
+          path: `skills/workflows/${file}`,
         });
       } else {
         const { frontmatter, title, purpose } = extractDocInfo(content);
@@ -526,7 +526,7 @@ async function scanWorkflows() {
           id: file.replace('.md', ''),
           name: frontmatter?.name || title || file.replace('.md', ''),
           description: frontmatter?.description || purpose || '',
-          path: `skills/claude-code/workflows/${file}`,
+          path: `skills/workflows/${file}`,
         });
       }
     } catch (error) {

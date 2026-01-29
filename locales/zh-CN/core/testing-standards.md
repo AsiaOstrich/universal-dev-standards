@@ -1,12 +1,12 @@
 ---
-source: ../../../core/testing-standards.md
+source: ../../core/testing-standards.md
 source_version: 2.2.0
 translation_version: 2.2.0
 last_synced: 2026-01-20
 status: current
 ---
 
-> **语言**: [English](../../../core/testing-standards.md) | [简体中文](../../zh-TW/core/testing-standards.md) | 简体中文
+> **语言**: [English](../../core/testing-standards.md) | [简体中文](../../zh-TW/core/testing-standards.md) | 简体中文
 
 # 测试标准
 

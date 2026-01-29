@@ -25,6 +25,11 @@ Universal Development Standards is a language-agnostic, framework-agnostic docum
 
 ## Development Standards
 
+> **Core Standards Usage Rule**:
+> When verifying standards, checking code, or performing tasks, **PRIORITIZE** reading the concise rules in `core/` (e.g., `core/testing-standards.md`).
+> **ONLY** read `core/guides/` or `methodologies/guides/` when explicitly asked for educational content, detailed explanations, or tutorials.
+> This ensures token efficiency and focused context.
+
 ### 1. Commit Message Format
 
 Follow the Conventional Commits specification defined in `core/commit-message-guide.md`:
@@ -692,10 +697,10 @@ When preparing releases or helping with version management:
 
 ### Reference Documentation
 
-- **Complete Release Workflow**: [skills/claude-code/release-standards/release-workflow.md](skills/claude-code/release-standards/release-workflow.md)
-- **Semantic Versioning**: [skills/claude-code/release-standards/semantic-versioning.md](skills/claude-code/release-standards/semantic-versioning.md)
+- **Complete Release Workflow**: [skills/release-standards/release-workflow.md](skills/release-standards/release-workflow.md)
+- **Semantic Versioning**: [skills/release-standards/semantic-versioning.md](skills/release-standards/semantic-versioning.md)
 - **Versioning Standards**: [core/versioning.md](core/versioning.md)
-- **CHANGELOG Format**: [skills/claude-code/release-standards/changelog-format.md](skills/claude-code/release-standards/changelog-format.md)
+- **CHANGELOG Format**: [skills/release-standards/changelog-format.md](skills/release-standards/changelog-format.md)
 
 ### Key Points for AI Assistants
 

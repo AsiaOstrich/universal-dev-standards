@@ -1,5 +1,5 @@
 ---
-source: ../../../core/reverse-engineering-standards.md
+source: ../../core/reverse-engineering-standards.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-19
@@ -12,7 +12,7 @@ status: current
 **最後更新**: 2026-01-19
 **適用範圍**: 所有需要將程式碼轉換為規格文件的專案
 
-> **語言**: [English](../../../core/reverse-engineering-standards.md) | [繁體中文](reverse-engineering-standards.md)
+> **語言**: [English](../../core/reverse-engineering-standards.md) | [繁體中文](reverse-engineering-standards.md)
 
 ---
 
@@ -367,10 +367,10 @@ Feature: 購物車
 
 ### 技能參考
 
-- [反向工程技能](../../../skills/claude-code/reverse-engineer/SKILL.md) - 詳細工作流程實作
-- [規格驅動開發技能](../../../skills/claude-code/spec-driven-dev/SKILL.md) - SDD 整合
-- [BDD 助手技能](../../../skills/claude-code/bdd-assistant/SKILL.md) - Gherkin 撰寫
-- [TDD 助手技能](../../../skills/claude-code/tdd-assistant/SKILL.md) - 測試覆蓋分析
+- [反向工程技能](../../skills/reverse-engineer/SKILL.md) - 詳細工作流程實作
+- [規格驅動開發技能](../../skills/spec-driven-dev/SKILL.md) - SDD 整合
+- [BDD 助手技能](../../skills/bdd-assistant/SKILL.md) - Gherkin 撰寫
+- [TDD 助手技能](../../skills/tdd-assistant/SKILL.md) - 測試覆蓋分析
 
 ---
 

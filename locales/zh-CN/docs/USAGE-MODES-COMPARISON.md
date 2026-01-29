@@ -1,5 +1,5 @@
 ---
-source: ../../../docs/USAGE-MODES-COMPARISON.md
+source: ../../docs/USAGE-MODES-COMPARISON.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-12
@@ -8,7 +8,7 @@ status: current
 
 # 使用模式比較：Skills vs 规范文件 vs 兩者并用
 
-> **语言**: [English](../../../docs/USAGE-MODES-COMPARISON.md) | 简体中文
+> **语言**: [English](../../docs/USAGE-MODES-COMPARISON.md) | 简体中文
 >
 > **版本**: 1.0.0
 > **最後更新**: 2026-01-12
@@ -325,8 +325,8 @@ uds init -y --skills-location none --content-mode full
 ## 相关文件
 
 - [CLI 初始化选项](CLI-INIT-OPTIONS.md) - 完整 CLI 选项指南
-- [採用指南](../../../adoption/ADOPTION-GUIDE.md) - 标准採用指南
-- [Skills README](../../../skills/claude-code/README.md) - Claude Code Skills 文件
+- [採用指南](../../adoption/ADOPTION-GUIDE.md) - 标准採用指南
+- [Skills README](../../skills/README.md) - Claude Code Skills 文件
 
 ---
 

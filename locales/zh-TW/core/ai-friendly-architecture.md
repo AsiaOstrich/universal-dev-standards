@@ -1,6 +1,6 @@
 # AI 友善架構標準
 
-> **語言**: [English](../../../core/ai-friendly-architecture.md) | 繁體中文
+> **語言**: [English](../../core/ai-friendly-architecture.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-21

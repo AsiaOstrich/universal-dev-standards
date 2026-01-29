@@ -6,7 +6,7 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 4.2.0 | **Released**: 2026-01-24 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
+**Version**: 5.0.0-alpha.1 (Pre-release) | **Released**: 2026-01-29 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 Language-agnostic, framework-agnostic documentation standards for software projects. Ensure consistency, quality, and maintainability across diverse technology stacks.
 
@@ -154,8 +154,8 @@ Use `uds check` to verify installation status.
 macOS / Linux:
 ```bash
 git clone https://github.com/AsiaOstrich/universal-dev-standards.git /tmp/uds
-cp -r /tmp/uds/skills/claude-code/* ~/.claude/skills/    # Global
-# Or: cp -r /tmp/uds/skills/claude-code/* .claude/skills/  # Project
+cp -r /tmp/uds/skills/* ~/.claude/skills/    # Global
+# Or: cp -r /tmp/uds/skills/* .claude/skills/  # Project
 rm -rf /tmp/uds
 ```
 
@@ -193,6 +193,10 @@ See [Usage Modes Comparison](docs/USAGE-MODES-COMPARISON.md) for detailed analys
 ---
 
 ## Core Standards Overview
+
+> **Update (v4.3.0)**: Core standards have been optimized for AI token usage.
+> - **Rules (`core/*.md`)**: Concise checklists and rules for AI verification.
+> - **Guides (`core/guides/*.md`)**: Detailed explanations and tutorials for humans.
 
 ### Level 1: Essential (30 minutes setup)
 
@@ -405,11 +409,14 @@ See [LICENSE](LICENSE) for full details.
 
 ```
 universal-dev-standards/
-├── core/                    # Core standards (22 files)
+├── core/                    # Core rules & checklists (lightweight)
+│   ├── guides/              # Detailed guides & tutorials
 │   ├── anti-hallucination.md
 │   ├── commit-message-guide.md
 │   ├── testing-standards.md
 │   └── ...
+├── methodologies/           # Methodology guides (TDD, BDD, SDD)
+│   └── guides/              # Detailed methodology tutorials
 ├── ai/                      # AI-optimized formats (.ai.yaml)
 ├── skills/                  # AI tool skills
 │   └── claude-code/         # 23 skill directories

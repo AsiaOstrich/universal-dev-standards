@@ -1,5 +1,5 @@
 ---
-source: ../../../core/spec-driven-development.md
+source: ../../core/spec-driven-development.md
 source_version: 2.1.0
 translation_version: 2.1.0
 last_synced: 2026-01-26
@@ -13,7 +13,7 @@ status: current
 **适用范围**: 所有采用规格驱动开发的项目
 **范围**: universal
 
-> **语言**: [English](../../../core/spec-driven-development.md) | [繁體中文](../zh-TW/core/spec-driven-development.md)
+> **语言**: [English](../../core/spec-driven-development.md) | [繁體中文](../zh-TW/core/spec-driven-development.md)
 
 ---
 
@@ -746,10 +746,10 @@ SDD 验证基于已建立的测试理论：
 - [验收测试驱动开发](acceptance-test-driven-development.md) - ATDD 工作流程与商业验收
 - [测试标准](testing-standards.md) - 测试框架与最佳实践（或使用 `/testing-guide` 技能）
 - [测试完整性维度](test-completeness-dimensions.md) - 7 维度测试覆盖
-- [Commit 讯息指南](../../../core/commit-message-guide.md) - Commit 讯息规范
-- [程序码签入标准](../../../core/checkin-standards.md) - 程序码签入标准
-- [程序码审查清单](../../../core/code-review-checklist.md) - 程序码审查清单
-- [文件结构标准](../../../core/documentation-structure.md) - 文件结构标准
+- [Commit 讯息指南](../../core/commit-message-guide.md) - Commit 讯息规范
+- [程序码签入标准](../../core/checkin-standards.md) - 程序码签入标准
+- [程序码审查清单](../../core/code-review-checklist.md) - 程序码审查清单
+- [文件结构标准](../../core/documentation-structure.md) - 文件结构标准
 
 ---
 

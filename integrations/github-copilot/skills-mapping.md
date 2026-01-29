@@ -175,7 +175,7 @@ For teams using both Claude Code and Copilot:
 
 - [copilot-instructions.md](./copilot-instructions.md) - Full standards
 - [COPILOT-CHAT-REFERENCE.md](./COPILOT-CHAT-REFERENCE.md) - Chat prompts
-- [Claude Code Skills](../../skills/claude-code/) - Original skills
+- [Claude Code Skills](../../skills/) - Original skills
 
 ---
 

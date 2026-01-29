@@ -1,12 +1,12 @@
 ---
-source: ../../../core/documentation-structure.md
+source: ../../core/documentation-structure.md
 source_version: 1.3.0
 translation_version: 1.3.0
 last_synced: 2026-01-24
 status: current
 ---
 
-> **语言**: [English](../../../core/documentation-structure.md) | [简体中文](../../zh-TW/core/documentation-structure.md) | 简体中文
+> **语言**: [English](../../core/documentation-structure.md) | [简体中文](../../zh-TW/core/documentation-structure.md) | 简体中文
 
 # 文档结构标准
 

@@ -1,5 +1,5 @@
 ---
-source: ../../../../adoption/checklists/enterprise.md
+source: ../../../adoption/checklists/enterprise.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-25
@@ -8,7 +8,7 @@ status: current
 
 # 等级三：企业采用检查清单
 
-> **语言**: [English](../../../adoption/checklists/enterprise.md) | 繁体中文
+> **语言**: [English](../../adoption/checklists/enterprise.md) | 繁体中文
 
 > 企业或受监管专案的全面标准
 >
@@ -311,10 +311,10 @@ project/
 
 - [Essential Adoption Checklist](minimal.md) - Level 1 基本采用
 - [Recommended Adoption Checklist](recommended.md) - Level 2 推荐采用
-- [Documentation Writing Standards](../../../core/documentation-writing-standards.md) - 文件撰写规范
-- [Project Structure](../../../core/project-structure.md) - 专案结构标准
-- [Checkin Standards](../../../core/checkin-standards.md) - 签入标准
-- [Spec-Driven Development](../../../core/spec-driven-development.md) - 规格驱动开发
+- [Documentation Writing Standards](../../core/documentation-writing-standards.md) - 文件撰写规范
+- [Project Structure](../../core/project-structure.md) - 专案结构标准
+- [Checkin Standards](../../core/checkin-standards.md) - 签入标准
+- [Spec-Driven Development](../../core/spec-driven-development.md) - 规格驱动开发
 
 ---
 

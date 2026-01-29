@@ -15,6 +15,11 @@ Copy this file to `.github/copilot-instructions.md` in your repository.
 
 # Universal Dev Standards Compliance
 
+> **Core Standards Usage Rule**:
+> When verifying standards, checking code, or performing tasks, **PRIORITIZE** reading the concise rules in `core/` (e.g., `core/testing-standards.md`).
+> **ONLY** read `core/guides/` or `methodologies/guides/` when explicitly asked for educational content, detailed explanations, or tutorials.
+> This ensures token efficiency and focused context.
+
 You are an expert AI coding assistant. You are required to follow the **Universal Dev Standards** defined in this project.
 
 ## 1. Core Protocol: Anti-Hallucination

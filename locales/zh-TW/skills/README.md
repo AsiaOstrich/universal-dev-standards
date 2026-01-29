@@ -6,127 +6,169 @@ last_synced: 2026-01-07
 status: current
 ---
 
-# 技能 - AI 編程助手規則
+# Claude Code Skills
 
-此目錄包含各種 AI 編程助手的技能/規則實作，皆衍生自本倉庫的核心標準。
+> **語言**: [English](../../../skills/README.md) | 繁體中文
 
-## 目錄結構
+軟體開發標準的 Claude Code Skills。
 
-```
-skills/
-├── _shared/           # 共用模板和生成工具
-├── claude-code/       # Claude Code 技能（SKILL.md 格式）
-├── cursor/            # Cursor 規則（.cursorrules、Notepads）
-├── windsurf/          # Windsurf 規則（.windsurfrules）
-├── cline/             # Cline 規則（.clinerules）
-└── copilot/           # GitHub Copilot（copilot-instructions.md）
-```
+> 衍生自 [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) 核心標準。
 
-## 快速開始
+## 概述
 
-### Claude Code
+這些技能會根據上下文在使用 Claude Code 時自動觸發，協助您：
 
-**推薦：Plugin Marketplace**
+- 透過基於證據的回應防止 AI 幻覺
+- 撰寫一致且格式良好的提交訊息
+- 進行全面的程式碼審查
+- 遵循測試最佳實踐
+- 使用語意化版本管理發布
+
+## 可用的 Skills
+
+| Skill | 描述 | 觸發條件 |
+|-------|------|----------|
+| `ai-collaboration-standards` | 防止 AI 幻覺 | 程式碼分析、"certainty" |
+| `commit-standards` | Conventional Commits 格式 | "commit"、git 操作 |
+| `code-review-assistant` | 系統化程式碼審查 | "review"、"PR" |
+| `testing-guide` | 測試金字塔 | 撰寫測試 |
+| `tdd-assistant` | 測試驅動開發 | "TDD"、"test first"、"紅綠重構" |
+| `release-standards` | 語意化版本控制 | 準備發布 |
+| `git-workflow-guide` | 分支策略 | "branch"、"merge" |
+| `documentation-guide` | 文件結構 | "README"、"docs" |
+| `requirement-assistant` | 需求撰寫 | "requirement"、"user story" |
+
+## 靜態與動態規範
+
+規範依據應用時機分為兩類：
+
+Standards are classified into two types based on when they should be applied:
+
+### 靜態規範（專案檔案）
+
+這些規範應該**隨時生效**，建議放在專案的 `CLAUDE.md` 或 `.cursorrules` 中：
+
+These standards should **always be active**. Add them to your project's `CLAUDE.md` or `.cursorrules`:
+
+| Standard | 核心規則 | Key Rules |
+|----------|---------|-----------|
+| [anti-hallucination](../../../core/anti-hallucination.md) | 確定性標籤、建議原則 | Certainty labels, suggestion principles |
+| [checkin-standards](../../../core/checkin-standards.md) | 編譯通過、測試通過、覆蓋率達標 | Build passes, tests pass, coverage met |
+| [project-structure](../../../core/project-structure.md) | 目錄結構規範 | Directory structure conventions |
+
+> 📄 參見 [CLAUDE.md.template](../../../templates/CLAUDE.md.template) 取得可直接使用的範本。
+>
+> 📄 See [CLAUDE.md.template](../../../templates/CLAUDE.md.template) for a ready-to-use template.
+
+### 動態規範（Skills）
+
+這些規範由**關鍵字觸發**，按需載入。安裝為 Skills 使用：
+
+These are **triggered by keywords** or specific tasks. Install as Skills:
+
+| Skill | 觸發關鍵字 | Trigger Keywords |
+|-------|-----------|-----------------|
+| commit-standards | 提交、訊息 | commit, git, message |
+| code-review-assistant | 審查、檢查 | review, PR, checklist |
+| git-workflow-guide | 分支、合併 | branch, merge, workflow |
+| testing-guide | 測試、覆蓋率 | test, coverage, pyramid |
+| tdd-assistant | TDD、測試優先、紅綠重構 | TDD, test first, red green refactor |
+| release-standards | 版本、發布 | version, release, semver |
+| documentation-guide | 文件、文檔 | README, docs, documentation |
+| requirement-assistant | 規格、需求、新功能 | spec, SDD, requirement |
+
+> 📖 參見[靜態與動態指南](../../../adoption/STATIC-DYNAMIC-GUIDE.md)了解詳細分類說明。
+>
+> 📖 See [Static vs Dynamic Guide](../../../adoption/STATIC-DYNAMIC-GUIDE.md) for detailed classification.
+
+## 安裝
+
+### 推薦：Plugin Marketplace
+
+透過 Claude Code Plugin Marketplace 安裝以獲得自動更新：
+
 ```bash
+# 新增 marketplace（一次性設定）
 /plugin marketplace add AsiaOstrich/universal-dev-standards
+
+# 安裝包含所有 15 個技能的插件
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**替代方案：手動複製（macOS / Linux）**
+**優點：**
+- ✅ Claude Code 重啟時自動更新
+- ✅ 與 Claude Code 更好的整合
+- ✅ 無需手動維護
+
+所有技能將自動載入並可使用。
+
+### 替代方案：腳本安裝（已棄用）
+
+> ⚠️ **已棄用**：透過腳本手動安裝已棄用，將在未來版本中移除。請改用 Plugin Marketplace。
+
+適用於無法存取 Marketplace 的環境（例如企業網路）：
+
+#### 手動安裝（選擇性 Skills）
+
+**macOS / Linux:**
 ```bash
 mkdir -p ~/.claude/skills
-cp -r skills/claude-code/commit-standards ~/.claude/skills/
-```
-
-**手動複製特定技能（Windows PowerShell）**
-```powershell
-Copy-Item -Recurse skills\claude-code\commit-standards $env:USERPROFILE\.claude\skills\
-```
-
-### Cursor
-
-**macOS / Linux:**
-```bash
-cp skills/cursor/.cursorrules .cursorrules
+cp -r ai-collaboration-standards ~/.claude/skills/
+cp -r commit-standards ~/.claude/skills/
 ```
 
 **Windows PowerShell:**
 ```powershell
-Copy-Item skills\cursor\.cursorrules .cursorrules
+New-Item -ItemType Directory -Force -Path $env:USERPROFILE\.claude\skills
+Copy-Item -Recurse ai-collaboration-standards $env:USERPROFILE\.claude\skills\
+Copy-Item -Recurse commit-standards $env:USERPROFILE\.claude\skills\
 ```
 
-### Windsurf
+### 替代方案：專案層級安裝（已棄用）
+
+> ⚠️ **已棄用**：專案層級手動安裝已棄用。建議使用 Plugin Marketplace 以獲得最佳體驗。
+
+適用於專案特定技能自訂：
 
 **macOS / Linux:**
 ```bash
-cp skills/windsurf/.windsurfrules .windsurfrules
+mkdir -p .claude/skills
+cp -r /path/to/skills/* .claude/skills/
 ```
 
 **Windows PowerShell:**
 ```powershell
-Copy-Item skills\windsurf\.windsurfrules .windsurfrules
+New-Item -ItemType Directory -Force -Path .claude\skills
+Copy-Item -Recurse path\to\skills\claude-code\* .claude\skills\
 ```
 
-### Cline
+> **注意**：專案層級技能（`.claude/skills/`）優先於全域技能（`~/.claude/skills/`）。
 
-**macOS / Linux:**
-```bash
-cp skills/cline/.clinerules .clinerules
+## 設定
+
+Skills 支援透過 `CONTRIBUTING.md` 進行專案特定設定。
+
+### 停用 Skills
+
+在您的專案 `CONTRIBUTING.md` 中加入：
+
+```markdown
+## Disabled Skills
+
+- testing-guide
+- release-standards
 ```
 
-**Windows PowerShell:**
-```powershell
-Copy-Item skills\cline\.clinerules .clinerules
-```
+### 設定範本
 
-### GitHub Copilot
+完整設定選項請參見 [CONTRIBUTING.template.md](../../../skills/CONTRIBUTING.template.md)。
 
-**macOS / Linux:**
-```bash
-mkdir -p .github
-cp skills/copilot/copilot-instructions.md .github/copilot-instructions.md
-```
+## Skill 優先順序
 
-**Windows PowerShell:**
-```powershell
-New-Item -ItemType Directory -Force -Path .github
-Copy-Item skills\copilot\copilot-instructions.md .github\copilot-instructions.md
-```
+當同一個 skill 同時存在於兩個位置時：
+1. **專案層級**（`.claude/skills/`）優先
+2. **全域層級**（`~/.claude/skills/`）為備援
 
-## 可用技能
+## 授權條款
 
-| 技能 | 說明 | Claude Code | Cursor | Windsurf | Cline | Copilot |
-|------|------|:-----------:|:------:|:--------:|:-----:|:-------:|
-| AI 協作 | 防止幻覺 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 變更日誌指南 | 變更日誌撰寫 | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| 程式碼審查 | 審查檢查表 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 提交標準 | Conventional Commits | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 文件 | README 模板 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 錯誤碼指南 | 錯誤碼標準 | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| Git 工作流程 | 分支策略 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 日誌指南 | 日誌最佳實踐 | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| 專案結構 | 目錄規範 | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| 發布標準 | 語意化版本 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 需求 | 使用者故事指引 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 規格驅動開發 | SDD 方法論 | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| 測試覆蓋率 | 覆蓋率分析 | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| 測試指南 | 測試最佳實踐 | ✅ | ✅ | ✅ | ✅ | ✅ |
-
-圖例：✅ 完成 | 🚧 計劃中 | ❌ 不適用
-
-## 與核心標準的關係
-
-這些技能是核心標準的**互動式實作**：
-
-```
-core/anti-hallucination.md
-    ↓ 轉換為
-skills/claude-code/ai-collaboration-standards/SKILL.md
-skills/cursor/.cursorrules（AI 區段）
-```
-
-**重要**：使用技能或複製核心文件——同一標準**不要兩者並用**。
-
-## 貢獻
-
-請參閱 [CONTRIBUTING.md](../CONTRIBUTING.md) 了解新增技能或支援其他 AI 工具的指南。
+雙重授權：CC BY 4.0（文件）+ MIT（程式碼）

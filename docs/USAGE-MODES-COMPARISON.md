@@ -318,7 +318,7 @@ Enterprise + Compliance Requirements
 
 - [CLI Init Options](CLI-INIT-OPTIONS.md) - Complete CLI options guide
 - [Adoption Guide](../adoption/ADOPTION-GUIDE.md) - Standards adoption guide
-- [Skills README](../skills/claude-code/README.md) - Claude Code Skills documentation
+- [Skills README](../skills/README.md) - Claude Code Skills documentation
 
 ---
 

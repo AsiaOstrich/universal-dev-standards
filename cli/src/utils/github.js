@@ -19,7 +19,7 @@ export {
 } from '../config/ai-agent-paths.js';
 
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main';
-const SKILLS_RAW_BASE = 'https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills/claude-code';
+const SKILLS_RAW_BASE = 'https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills';
 
 // Get the CLI package root directory
 const __filename = fileURLToPath(import.meta.url);
@@ -624,7 +624,7 @@ export async function downloadSkillToLocation(skillName, skillFiles, targetLocat
 
     try {
       // For remote download, we need to extract just the skill-relative path
-      // skillFiles paths are like: skills/claude-code/ai-collaboration-standards/SKILL.md
+      // skillFiles paths are like: skills/ai-collaboration-standards/SKILL.md
       // We need just: ai-collaboration-standards/SKILL.md
       const relativePath = filePath.replace(/^skills\/claude-code\//, '');
       const content = await downloadFromSkillsRepo(relativePath);
