@@ -54,8 +54,8 @@ describe('SHARED-08: i18n System Specification', () => {
       // Act
       const title = msg('contentMode.title');
 
-      // Assert
-      expect(title).toBe('Content Mode:');
+      // Assert - After SPEC-004 i18n cleanup, titles are translated
+      expect(title).toBe('內容模式:');
     });
 
     it('should fall back to en for invalid language code', () => {

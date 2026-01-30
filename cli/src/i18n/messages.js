@@ -98,11 +98,11 @@ export const messages = {
       listTitle: 'Missions:'
     },
 
-    // Display Language (first prompt - uses bilingual format)
+    // Display Language (first prompt - English only since language not yet selected)
     displayLanguage: {
-      title: 'Display Language / 顯示語言',
+      title: 'Display Language',
       description: 'Select the language for CLI messages and AI Agent instructions',
-      question: 'Select display language / 選擇顯示語言:',
+      question: 'Select display language:',
       choices: {
         en: 'English',
         'zh-tw': '繁體中文 (Traditional Chinese)',
@@ -224,7 +224,8 @@ export const messages = {
         ],
         full: [
           '  → .standards/ contains all standards (~16 files)',
-          '  → Can view complete standards even if Skills unavailable'
+          '  → Can view complete standards even if Skills unavailable',
+          '  → Note: More files means more AI context window usage'
         ]
       }
     },
@@ -342,6 +343,7 @@ export const messages = {
       separatorFileInstall: '── Or choose file installation location ──',
       validationNoMix: 'Cannot select "Skip" with other options',
       installCount: 'Will install Skills to {count} location(s)',
+      gitSharingHint: 'Tip: Commit .claude/skills/ to Git to share with your team',
       choices: {
         marketplace: 'Auto-updates, easy version management',
         userLevel: 'User Level',
@@ -375,6 +377,7 @@ export const messages = {
       questionMulti: 'Select where to install slash commands:',
       installCount: 'Will install 15 slash commands for {count} AI Agent(s)',
       validationNoMix: 'Cannot select "Skip" with other options',
+      gitSharingHint: 'Tip: Commit .claude/commands/ to Git to share with your team',
       choices: {
         skip: 'Skip (use Skills instead)',
         userLevel: 'User Level',
@@ -1149,11 +1152,11 @@ export const messages = {
       listTitle: '任務列表：'
     },
 
-    // Display Language (first prompt - uses bilingual format)
+    // Display Language (first prompt - English only since language not yet selected)
     displayLanguage: {
-      title: '顯示語言 / Display Language',
+      title: 'Display Language',
       description: '選擇 CLI 訊息和 AI Agent 指示的語言',
-      question: '選擇顯示語言 / Select display language:',
+      question: 'Select display language:',
       choices: {
         en: 'English',
         'zh-tw': '繁體中文 (Traditional Chinese)',
@@ -1168,7 +1171,7 @@ export const messages = {
 
     // Content Mode
     contentMode: {
-      title: 'Content Mode:',
+      title: '內容模式:',
       description: '控制 AI 工具設定檔中嵌入多少規範內容',
       description2: '這會影響 AI Agent 的執行行為和合規程度',
       question: '選擇內容模式：',
@@ -1203,7 +1206,7 @@ export const messages = {
 
     // Adoption Level
     level: {
-      title: 'Adoption Level:',
+      title: '採用等級:',
       description: '選擇要採用的標準數量，等級越高涵蓋越完整',
       question: '選擇採用等級：',
       labels: {
@@ -1234,7 +1237,7 @@ export const messages = {
 
     // Standards Format
     format: {
-      title: 'Standards Format:',
+      title: '標準格式:',
       description: '選擇標準檔案的格式，影響 AI 讀取效率和人類可讀性',
       question: '選擇標準格式：',
       labels: {
@@ -1256,7 +1259,7 @@ export const messages = {
 
     // Standards Scope
     scope: {
-      title: 'Standards Installation:',
+      title: '標準安裝範圍:',
       description: '選擇要安裝多少標準檔案到專案中',
       description2: '（已安裝 Skills，可選擇精簡安裝）',
       question: '選擇安裝範圍：',
@@ -1275,14 +1278,15 @@ export const messages = {
         ],
         full: [
           '  → .standards/ 包含全部標準（約 16 個檔案）',
-          '  → 即使 Skills 不可用也能查閱完整規範'
+          '  → 即使 Skills 不可用也能查閱完整規範',
+          '  → 注意：檔案越多，AI Context Window 使用量越大'
         ]
       }
     },
 
     // Git Workflow
     gitWorkflow: {
-      title: 'Git Workflow:',
+      title: 'Git 工作流程:',
       description: '選擇分支策略，影響團隊協作和發布流程',
       question: '選擇 Git 分支策略：',
       choices: {
@@ -1308,7 +1312,7 @@ export const messages = {
 
     // Merge Strategy
     mergeStrategy: {
-      title: 'Merge Strategy:',
+      title: '合併策略:',
       description: '選擇合併策略，影響 Git 歷史紀錄的呈現方式',
       question: '選擇合併策略：',
       choices: {
@@ -1334,7 +1338,7 @@ export const messages = {
 
     // Test Levels
     testLevels: {
-      title: 'Test Coverage:',
+      title: '測試覆蓋:',
       description: '選擇要包含的測試層級（測試金字塔）',
       description2: '百分比為建議的覆蓋率比例',
       question: '選擇測試層級：',
@@ -1393,6 +1397,7 @@ export const messages = {
       separatorFileInstall: '── 或選擇檔案安裝位置 ──',
       validationNoMix: '選擇「跳過」時不能同時選擇其他選項',
       installCount: '將安裝 Skills 到 {count} 個位置',
+      gitSharingHint: '提示：將 .claude/skills/ 加入版控，即可與團隊共享',
       choices: {
         marketplace: '自動更新、輕鬆管理版本',
         userLevel: '使用者層級',
@@ -1426,6 +1431,7 @@ export const messages = {
       questionMulti: '選擇要安裝斜線命令的位置：',
       installCount: '將為 {count} 個 AI Agent 安裝 15 個斜線命令',
       validationNoMix: '無法同時選擇「跳過」和其他選項',
+      gitSharingHint: '提示：將 .claude/commands/ 加入版控，即可與團隊共享',
       choices: {
         skip: '跳過（使用 Skills 替代）',
         userLevel: '使用者層級',
@@ -2200,11 +2206,11 @@ export const messages = {
       listTitle: '任务列表：'
     },
 
-    // Display Language (first prompt - uses bilingual format)
+    // Display Language (first prompt - English only since language not yet selected)
     displayLanguage: {
-      title: '显示语言 / Display Language',
+      title: 'Display Language',
       description: '选择 CLI 消息和 AI Agent 指示的语言',
-      question: '选择显示语言 / Select display language:',
+      question: 'Select display language:',
       choices: {
         en: 'English',
         'zh-tw': '繁體中文 (Traditional Chinese)',
@@ -2219,7 +2225,7 @@ export const messages = {
 
     // Content Mode
     contentMode: {
-      title: 'Content Mode:',
+      title: '内容模式:',
       description: '控制 AI 工具配置文件中嵌入多少规范内容',
       description2: '这会影响 AI Agent 的执行行为和合规程度',
       question: '选择内容模式：',
@@ -2254,7 +2260,7 @@ export const messages = {
 
     // Adoption Level
     level: {
-      title: 'Adoption Level:',
+      title: '采用等级:',
       description: '选择要采用的标准数量，等级越高涵盖越完整',
       question: '选择采用等级：',
       labels: {
@@ -2285,7 +2291,7 @@ export const messages = {
 
     // Standards Format
     format: {
-      title: 'Standards Format:',
+      title: '标准格式:',
       description: '选择标准文件的格式，影响 AI 读取效率和人类可读性',
       question: '选择标准格式：',
       labels: {
@@ -2307,7 +2313,7 @@ export const messages = {
 
     // Standards Scope
     scope: {
-      title: 'Standards Installation:',
+      title: '标准安装范围:',
       description: '选择要安装多少标准文件到项目中',
       description2: '（已安装 Skills，可选择精简安装）',
       question: '选择安装范围：',
@@ -2326,14 +2332,15 @@ export const messages = {
         ],
         full: [
           '  → .standards/ 包含全部标准（约 16 个文件）',
-          '  → 即使 Skills 不可用也能查阅完整规范'
+          '  → 即使 Skills 不可用也能查阅完整规范',
+          '  → 注意：文件越多，AI Context Window 使用量越大'
         ]
       }
     },
 
     // Git Workflow
     gitWorkflow: {
-      title: 'Git Workflow:',
+      title: 'Git 工作流:',
       description: '选择分支策略，影响团队协作和发布流程',
       question: '选择 Git 分支策略：',
       choices: {
@@ -2359,7 +2366,7 @@ export const messages = {
 
     // Merge Strategy
     mergeStrategy: {
-      title: 'Merge Strategy:',
+      title: '合并策略:',
       description: '选择合并策略，影响 Git 历史记录的呈现方式',
       question: '选择合并策略：',
       choices: {
@@ -2385,7 +2392,7 @@ export const messages = {
 
     // Test Levels
     testLevels: {
-      title: 'Test Coverage:',
+      title: '测试覆盖:',
       description: '选择要包含的测试层级（测试金字塔）',
       description2: '百分比为建议的覆盖率比例',
       question: '选择测试层级：',
@@ -2444,6 +2451,7 @@ export const messages = {
       separatorFileInstall: '── 或选择文件安装位置 ──',
       validationNoMix: '选择「跳过」时不能同时选择其他选项',
       installCount: '将安装 Skills 到 {count} 个位置',
+      gitSharingHint: '提示：将 .claude/skills/ 加入版本控制，即可与团队共享',
       choices: {
         marketplace: '自动更新、轻松管理版本',
         userLevel: '用户层级',
@@ -2477,6 +2485,7 @@ export const messages = {
       questionMulti: '选择要安装斜杠命令的位置：',
       installCount: '将为 {count} 个 AI Agent 安装 15 个斜杠命令',
       validationNoMix: '无法同时选择「跳过」和其他选项',
+      gitSharingHint: '提示：将 .claude/commands/ 加入版本控制，即可与团队共享',
       choices: {
         skip: '跳过（使用 Skills 替代）',
         userLevel: '用户级别',

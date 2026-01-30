@@ -92,7 +92,7 @@ export async function promptAITools(detected = {}) {
       instructions: false,  // Hide default English hint, we show translated hint above
       choices: [
         {
-          name: `${chalk.green('Claude Code')} ${chalk.gray('(CLAUDE.md)')}`,
+          name: `Claude Code ${chalk.gray('(CLAUDE.md)')}`,
           value: 'claude-code',
           checked: detected.claudeCode || false
         },
@@ -182,6 +182,12 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
     console.log(chalk.white('     /plugin install universal-dev-standards@asia-ostrich'));
     console.log(chalk.gray(`     → ${msg.choices.marketplace}`));
   }
+
+  // Show git sharing hint for project-level installation
+  if (msg.gitSharingHint) {
+    console.log();
+    console.log(chalk.gray(`  💡 ${msg.gitSharingHint}`));
+  }
   console.log();
 
   // Build choices dynamically based on selected tools
@@ -260,6 +266,12 @@ export async function promptCommandsInstallation(selectedTools = []) {
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
   console.log(chalk.gray(`  ${checkboxHint}`));
+
+  // Show git sharing hint for project-level installation
+  if (msg.gitSharingHint) {
+    console.log();
+    console.log(chalk.gray(`  💡 ${msg.gitSharingHint}`));
+  }
   console.log();
 
   // Build choices dynamically - User Level + Project Level for each agent
