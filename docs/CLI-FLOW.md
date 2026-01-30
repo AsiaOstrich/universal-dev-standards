@@ -1,5 +1,7 @@
 # CLI Command Flows
 
+> **Language**: English | [繁體中文](../locales/zh-TW/docs/CLI-FLOW.md) | [简体中文](../locales/zh-CN/docs/CLI-FLOW.md)
+
 This document visualizes the interactive flows for the Universal Development Standards (UDS) CLI commands.
 
 ## 1. Init Command (`uds init`)
