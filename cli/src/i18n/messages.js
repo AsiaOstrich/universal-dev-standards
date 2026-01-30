@@ -236,6 +236,11 @@ export const messages = {
       title: 'Git Workflow:',
       description: 'Choose branching strategy, affects team collaboration and release process',
       question: 'Select Git branching strategy:',
+      labels: {
+        'github-flow': 'GitHub Flow',
+        gitflow: 'Gitflow',
+        'trunk-based': 'Trunk-Based'
+      },
       choices: {
         'github-flow': 'Simple PR workflow, good for continuous deployment',
         gitflow: 'develop/release branches, good for scheduled releases',
@@ -262,6 +267,11 @@ export const messages = {
       title: 'Merge Strategy:',
       description: 'Choose merge strategy, affects how Git history is displayed',
       question: 'Select merge strategy:',
+      labels: {
+        squash: 'Squash',
+        'merge-commit': 'Merge Commit',
+        'rebase-ff': 'Rebase + FF'
+      },
       choices: {
         squash: 'One commit per PR, clean history',
         'merge-commit': 'Preserve full branch history, create merge commit',
@@ -289,6 +299,12 @@ export const messages = {
       description: 'Select test levels to include (test pyramid)',
       description2: 'Percentages are recommended coverage ratios',
       question: 'Select test levels:',
+      labels: {
+        unit: 'Unit',
+        integration: 'Integration',
+        system: 'System',
+        e2e: 'E2E'
+      },
       choices: {
         unit: 'Test individual functions, fast feedback',
         integration: 'Test component interactions, API calls',
@@ -1291,6 +1307,11 @@ export const messages = {
       title: 'Git 工作流程:',
       description: '選擇分支策略，影響團隊協作和發布流程',
       question: '選擇 Git 分支策略：',
+      labels: {
+        'github-flow': 'GitHub Flow',
+        gitflow: 'Gitflow',
+        'trunk-based': 'Trunk-Based'
+      },
       choices: {
         'github-flow': '簡單 PR 流程，適合持續部署',
         gitflow: 'develop/release 分支，適合定期發布',
@@ -1317,6 +1338,11 @@ export const messages = {
       title: '合併策略:',
       description: '選擇合併策略，影響 Git 歷史紀錄的呈現方式',
       question: '選擇合併策略：',
+      labels: {
+        squash: 'Squash',
+        'merge-commit': 'Merge Commit',
+        'rebase-ff': 'Rebase + FF'
+      },
       choices: {
         squash: '每個 PR 一個 commit，歷史乾淨',
         'merge-commit': '保留完整分支歷史，建立合併 commit',
@@ -1344,6 +1370,12 @@ export const messages = {
       description: '選擇要包含的測試層級（測試金字塔）',
       description2: '百分比為建議的覆蓋率比例',
       question: '選擇測試層級：',
+      labels: {
+        'unit-testing': '單元測試',
+        'integration-testing': '整合測試',
+        'system-testing': '系統測試',
+        'e2e-testing': 'E2E 測試'
+      },
       choices: {
         unit: '測試個別函式，快速回饋',
         integration: '測試元件互動、API 呼叫',
@@ -2346,6 +2378,11 @@ export const messages = {
       title: 'Git 工作流:',
       description: '选择分支策略，影响团队协作和发布流程',
       question: '选择 Git 分支策略：',
+      labels: {
+        'github-flow': 'GitHub Flow',
+        gitflow: 'Gitflow',
+        'trunk-based': 'Trunk-Based'
+      },
       choices: {
         'github-flow': '简单 PR 流程，适合持续部署',
         gitflow: 'develop/release 分支，适合定期发布',
@@ -2372,6 +2409,11 @@ export const messages = {
       title: '合并策略:',
       description: '选择合并策略，影响 Git 历史记录的呈现方式',
       question: '选择合并策略：',
+      labels: {
+        squash: 'Squash',
+        'merge-commit': 'Merge Commit',
+        'rebase-ff': 'Rebase + FF'
+      },
       choices: {
         squash: '每个 PR 一个 commit，历史干净',
         'merge-commit': '保留完整分支历史，建立合并 commit',
@@ -2399,6 +2441,12 @@ export const messages = {
       description: '选择要包含的测试层级（测试金字塔）',
       description2: '百分比为建议的覆盖率比例',
       question: '选择测试层级：',
+      labels: {
+        'unit-testing': '单元测试',
+        'integration-testing': '集成测试',
+        'system-testing': '系统测试',
+        'e2e-testing': 'E2E 测试'
+      },
       choices: {
         unit: '测试个别函数，快速反馈',
         integration: '测试组件互动、API 调用',

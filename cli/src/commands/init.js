@@ -23,8 +23,8 @@ import {
  */
 export async function initCommand(options) {
   const projectPath = process.cwd();
-  const msg = t().commands.init;
-  const common = t().commands.common;
+  let msg = t().commands.init;
+  let common = t().commands.common;
 
   console.log();
   console.log(chalk.bold(msg.title));
@@ -59,6 +59,9 @@ export async function initCommand(options) {
     // Interactive Mode
     config = await runInitFlow(options, detected, projectPath);
     if (!config) return; // Flow cancelled or exited
+    // Re-fetch translations after language selection in flow
+    msg = t().commands.init;
+    common = t().commands.common;
   } else {
     // Non-interactive Mode (Defaults/Flags)
     config = buildNonInteractiveConfig(options, detected, projectPath);
@@ -218,25 +221,31 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
 }
 
 /**
+ * Get label for a value from translation labels object
+ * @param {string} key - The translation key (e.g., 'gitWorkflow', 'mergeStrategy')
+ * @param {string} value - The value to look up
+ * @returns {string} The label or the original value if not found
+ */
+function getValueLabel(key, value) {
+  const labels = t()[key]?.labels;
+  return labels?.[value] || value;
+}
+
+/**
  * Display configuration summary
+ * Order follows init-flow.js question sequence for consistency
  */
 function displaySummary(config, msg, common) {
   console.log(chalk.cyan(msg.configSummary));
-  console.log(chalk.gray(`  ${common.level}: ${config.level}`));
-  const formatLabels = t().format?.labels || { ai: 'Compact', human: 'Detailed', both: 'Both' };
-  console.log(chalk.gray(`  ${common.format}: ${formatLabels[config.format]}`));
-  console.log(chalk.gray(`  ${msg.standardsScope}: ${config.skillsConfig.standardsScope === 'minimal' ? msg.standardsScopeLean : msg.standardsScopeComplete}`));
-  console.log(chalk.gray(`  ${msg.contentModeLabel}: ${config.contentMode === 'full' ? msg.contentModeFull : config.contentMode === 'index' ? msg.contentModeIndex : msg.contentModeMinimal}`));
-  console.log(chalk.gray(`  ${msg.languages}: ${config.languages.length > 0 ? config.languages.join(', ') : common.none}`));
-  console.log(chalk.gray(`  ${msg.frameworks}: ${config.frameworks.length > 0 ? config.frameworks.join(', ') : common.none}`));
-  console.log(chalk.gray(`  ${msg.displayLanguageLabel || 'Display Language'}: ${config.displayLanguage === 'zh-tw' ? '繁體中文' : config.displayLanguage === 'zh-cn' ? '简体中文' : 'English'}`));
-  console.log(chalk.gray(`  ${common.aiTools}: ${config.aiTools.length > 0 ? config.aiTools.join(', ') : common.none}`));
-  console.log(chalk.gray(`  ${msg.integrations}: ${config.integrations.length > 0 ? config.integrations.join(', ') : common.none}`));
-  
-  if (config.skillsConfig.methodology) {
-    console.log(chalk.gray(`  ${common.methodology}: ${config.skillsConfig.methodology} ${chalk.yellow('[Experimental]')}`));
-  }
 
+  // 1. Display Language (STEP 1)
+  const displayLangLabel = config.displayLanguage === 'zh-tw' ? '繁體中文' : config.displayLanguage === 'zh-cn' ? '简体中文' : 'English';
+  console.log(chalk.gray(`  ${msg.displayLanguageLabel || 'Display Language'}: ${displayLangLabel}`));
+
+  // 2. AI Tools (STEP 2)
+  console.log(chalk.gray(`  ${common.aiTools}: ${config.aiTools.length > 0 ? config.aiTools.join(', ') : common.none}`));
+
+  // 3. Skills Installation (STEP 4)
   if (config.skillsConfig.installed) {
     let skillsStatusText;
     if (config.skillsConfig.location === 'marketplace') {
@@ -249,10 +258,48 @@ function displaySummary(config, msg, common) {
     console.log(chalk.gray(`  ${msg.skillsLabel}: ${skillsStatusText}`));
   }
 
-  // Show selected standard options
-  if (config.standardOptions.workflow) console.log(chalk.gray(`  ${msg.gitWorkflow}: ${config.standardOptions.workflow}`));
-  if (config.standardOptions.merge_strategy) console.log(chalk.gray(`  ${msg.mergeStrategy}: ${config.standardOptions.merge_strategy}`));
-  if (config.standardOptions.commit_language) console.log(chalk.gray(`  ${msg.commitLanguage}: ${config.standardOptions.commit_language}`));
-  if (config.standardOptions.test_levels?.length > 0) console.log(chalk.gray(`  ${msg.testLevels}: ${config.standardOptions.test_levels.join(', ')}`));
+  // 4. Standards Scope (STEP 6)
+  console.log(chalk.gray(`  ${msg.standardsScope}: ${config.skillsConfig.standardsScope === 'minimal' ? msg.standardsScopeLean : msg.standardsScopeComplete}`));
+
+  // 5. Adoption Level (STEP 7)
+  console.log(chalk.gray(`  ${common.level}: ${config.level}`));
+
+  // 6. Standards Format (STEP 8)
+  const formatLabels = t().format?.labels || { ai: 'Compact', human: 'Detailed', both: 'Both' };
+  console.log(chalk.gray(`  ${common.format}: ${formatLabels[config.format]}`));
+
+  // 7. Standard Options (STEP 9) - use labels for human-readable values
+  if (config.standardOptions.workflow) {
+    console.log(chalk.gray(`  ${msg.gitWorkflow}: ${getValueLabel('gitWorkflow', config.standardOptions.workflow)}`));
+  }
+  if (config.standardOptions.merge_strategy) {
+    console.log(chalk.gray(`  ${msg.mergeStrategy}: ${getValueLabel('mergeStrategy', config.standardOptions.merge_strategy)}`));
+  }
+  if (config.standardOptions.commit_language) {
+    console.log(chalk.gray(`  ${msg.commitLanguage}: ${getValueLabel('commitLanguage', config.standardOptions.commit_language)}`));
+  }
+  if (config.standardOptions.test_levels?.length > 0) {
+    const testLabels = config.standardOptions.test_levels.map(level => getValueLabel('testLevels', level));
+    console.log(chalk.gray(`  ${msg.testLevels}: ${testLabels.join(', ')}`));
+  }
+
+  // 8. Language Extensions (STEP 10)
+  console.log(chalk.gray(`  ${msg.languages}: ${config.languages.length > 0 ? config.languages.join(', ') : common.none}`));
+
+  // 9. Framework Extensions (STEP 11)
+  console.log(chalk.gray(`  ${msg.frameworks}: ${config.frameworks.length > 0 ? config.frameworks.join(', ') : common.none}`));
+
+  // 10. Integrations (STEP 12)
+  console.log(chalk.gray(`  ${msg.integrations}: ${config.integrations.length > 0 ? config.integrations.join(', ') : common.none}`));
+
+  // 11. Content Mode (STEP 13)
+  const contentModeLabels = t().contentMode?.labels || { index: 'Standard', full: 'Full', minimal: 'Minimal' };
+  console.log(chalk.gray(`  ${msg.contentModeLabel}: ${contentModeLabels[config.contentMode] || config.contentMode}`));
+
+  // 12. Methodology (STEP 14, experimental)
+  if (config.skillsConfig.methodology) {
+    console.log(chalk.gray(`  ${common.methodology}: ${config.skillsConfig.methodology} ${chalk.yellow('[Experimental]')}`));
+  }
+
   console.log();
 }

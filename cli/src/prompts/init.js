@@ -784,12 +784,6 @@ export async function promptTestLevels() {
  */
 export async function promptStandardOptions(level, displayLanguage = 'en') {
   const options = {};
-  const msg = t().standardOptions;
-
-  console.log();
-  console.log(chalk.cyan(msg.title));
-  console.log(chalk.gray(`  ${msg.description}`));
-  console.log();
 
   // Git workflow options (level 2+)
   if (level >= 2) {
