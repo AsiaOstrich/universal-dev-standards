@@ -1,8 +1,11 @@
 {
   "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
     "opencc-js": "^1.0.5"
   },
   "scripts": {
+    "commitlint": "commitlint --edit",
     "uds:check": "node cli/bin/uds.js check",
     "uds:update": "node cli/bin/uds.js update",
     "uds:skills": "node cli/bin/uds.js skills"
