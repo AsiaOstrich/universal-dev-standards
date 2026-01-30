@@ -64,7 +64,7 @@ export function listCommand(options) {
     console.log(chalk.cyan(`${msg.showingLevel} ${levelDisplay}`));
     console.log(chalk.gray(levelInfo.description));
     console.log();
-  } else if (category) {
+  } else if (category !== undefined) {
     const categoryInfo = getCategoryInfo(category);
     if (!categoryInfo) {
       console.log(chalk.red(`${msg.errorUnknownCategory} '${category}'`));
