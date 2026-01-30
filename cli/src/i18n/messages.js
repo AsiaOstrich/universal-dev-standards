@@ -1171,7 +1171,7 @@ export const messages = {
       title: 'Content Mode:',
       description: '控制 AI 工具設定檔中嵌入多少規範內容',
       description2: '這會影響 AI Agent 的執行行為和合規程度',
-      question: '選擇內容模式 / Select content mode:',
+      question: '選擇內容模式：',
       labels: {
         index: '標準',
         full: '完整嵌入',
@@ -1205,7 +1205,7 @@ export const messages = {
     level: {
       title: 'Adoption Level:',
       description: '選擇要採用的標準數量，等級越高涵蓋越完整',
-      question: '選擇採用等級 / Select adoption level:',
+      question: '選擇採用等級：',
       labels: {
         1: 'Level 1: 入門',
         2: 'Level 2: 專業',
@@ -1236,7 +1236,7 @@ export const messages = {
     format: {
       title: 'Standards Format:',
       description: '選擇標準檔案的格式，影響 AI 讀取效率和人類可讀性',
-      question: '選擇標準格式 / Select standards format:',
+      question: '選擇標準格式：',
       labels: {
         ai: '精簡',
         human: '詳細',
@@ -1259,7 +1259,7 @@ export const messages = {
       title: 'Standards Installation:',
       description: '選擇要安裝多少標準檔案到專案中',
       description2: '（已安裝 Skills，可選擇精簡安裝）',
-      question: '選擇安裝範圍 / Select installation scope:',
+      question: '選擇安裝範圍：',
       labels: {
         minimal: '精簡',
         full: '完整'
@@ -1284,7 +1284,7 @@ export const messages = {
     gitWorkflow: {
       title: 'Git Workflow:',
       description: '選擇分支策略，影響團隊協作和發布流程',
-      question: '選擇 Git 分支策略 / Select Git branching strategy:',
+      question: '選擇 Git 分支策略：',
       choices: {
         'github-flow': '簡單 PR 流程，適合持續部署',
         gitflow: 'develop/release 分支，適合定期發布',
@@ -1310,7 +1310,7 @@ export const messages = {
     mergeStrategy: {
       title: 'Merge Strategy:',
       description: '選擇合併策略，影響 Git 歷史紀錄的呈現方式',
-      question: '選擇合併策略 / Select merge strategy:',
+      question: '選擇合併策略：',
       choices: {
         squash: '每個 PR 一個 commit，歷史乾淨',
         'merge-commit': '保留完整分支歷史，建立合併 commit',
@@ -1337,7 +1337,7 @@ export const messages = {
       title: 'Test Coverage:',
       description: '選擇要包含的測試層級（測試金字塔）',
       description2: '百分比為建議的覆蓋率比例',
-      question: '選擇測試層級 / Select test levels:',
+      question: '選擇測試層級：',
       choices: {
         unit: '測試個別函式，快速回饋',
         integration: '測試元件互動、API 呼叫',
@@ -1386,7 +1386,7 @@ export const messages = {
       title: 'Skills 安裝位置:',
       description: '選擇 Skills 的安裝位置',
       descriptionWithTools: 'Skills 將支援:',
-      question: 'Skills 要安裝在哪裡？/ Where should Skills be installed?',
+      question: 'Skills 要安裝在哪裡？',
       questionMulti: '選擇要安裝 Skills 的位置：',
       marketplaceWarning: 'Claude Code Skills 已透過 Marketplace 安裝',
       coexistNote: '檔案安裝將與 Marketplace 版本並存',
@@ -1441,7 +1441,7 @@ export const messages = {
     commitLanguage: {
       title: 'Commit 訊息語言:',
       description: '選擇 commit 訊息的語言',
-      question: '選擇 commit 訊息語言 / Select commit message language:',
+      question: '選擇 commit 訊息語言：',
       choices: {
         english: '標準國際格式',
         chinese: '適合中文團隊',
@@ -1456,7 +1456,7 @@ export const messages = {
 
     // Install Mode
     installMode: {
-      question: '選擇安裝模式 / Select installation mode:',
+      question: '選擇安裝模式：',
       choices: {
         skills: '使用 Claude Code Skills',
         full: '安裝所有標準，不使用 Skills'
@@ -1477,7 +1477,7 @@ export const messages = {
     adoptionLevelConfig: {
       title: 'Adoption Level:',
       currentLevel: '目前等級:',
-      question: '選擇新的採用等級 / Select new adoption level:',
+      question: '選擇新的採用等級：',
       choices: {
         1: '6 項核心標準',
         2: '12 項標準',
@@ -1495,7 +1495,7 @@ export const messages = {
       title: '開發方法論:',
       experimental: '⚠️  [實驗性] 此功能將在 v4.0 重新設計',
       description: '選擇指導開發流程的方法論',
-      question: '你想使用哪種開發方法論？/ Which development methodology?',
+      question: '你想使用哪種開發方法論？',
       labels: {
         tdd: 'TDD',
         bdd: 'BDD',
@@ -1517,7 +1517,7 @@ export const messages = {
       title: 'AI 工具管理:',
       currentlyInstalled: '目前已安裝:',
       none: '無',
-      question: '你想做什麼？/ What would you like to do?',
+      question: '你想做什麼？',
       choices: {
         add: '新增 AI 工具',
         remove: '移除現有 AI 工具',
@@ -1538,7 +1538,7 @@ export const messages = {
       title: 'Skills 有可用更新:',
       projectLevel: '專案層級 (.claude/skills/):',
       userLevel: '使用者層級 (~/.claude/skills/):',
-      question: '你想做什麼？/ What would you like to do?',
+      question: '你想做什麼？',
       choices: {
         both: '更新所有 Skills 安裝',
         project: '僅更新 .claude/skills/',
@@ -1553,7 +1553,7 @@ export const messages = {
       mode: {
         title: '整合設定:',
         description: '設定 AI 工具規則的產生方式',
-        question: '你想如何設定整合檔案？/ How would you like to configure integration files?',
+        question: '你想如何設定整合檔案？',
         choices: {
           default: '使用標準規則集',
           custom: '選擇要包含的特定規則',
@@ -1564,34 +1564,34 @@ export const messages = {
       categories: {
         title: '規則類別:',
         description: '選擇要包含在整合檔案中的標準',
-        question: '選擇規則類別 / Select rule categories:',
+        question: '選擇規則類別：',
         validation: '請至少選擇一個類別'
       },
       // promptLanguageRules
       languageRules: {
         title: '語言特定規則:',
         description: '包含程式語言特定的編碼標準',
-        question: '包含語言特定規則 / Include language-specific rules:'
+        question: '包含語言特定規則：'
       },
       // promptExclusions
       exclusions: {
         title: '自訂排除:',
         description: '指定要排除執行的規則或模式',
-        question: '是否要新增自訂排除？/ Do you want to add custom exclusions?',
-        inputPrompt: '輸入排除模式（用逗號分隔）/ Enter exclusion patterns (comma-separated):'
+        question: '是否要新增自訂排除？',
+        inputPrompt: '輸入排除模式（用逗號分隔）：'
       },
       // promptCustomRules
       customRules: {
         title: '專案特定規則:',
         description: '新增專案特定的自訂規則',
-        question: '是否要新增專案特定的自訂規則？/ Do you want to add project-specific custom rules?',
-        inputPrompt: '輸入自訂規則（留空結束）/ Enter custom rule (or empty to finish):'
+        question: '是否要新增專案特定的自訂規則？',
+        inputPrompt: '輸入自訂規則（留空結束）：'
       },
       // promptMergeStrategy (for integration files)
       mergeStrategy: {
         title: '偵測到現有規則:',
         description: '選擇如何處理現有規則',
-        question: '如何處理現有規則？/ How should we handle the existing rules?',
+        question: '如何處理現有規則？',
         choices: {
           append: '在現有規則後新增',
           merge: '智慧合併（避免重複）',
@@ -1603,7 +1603,7 @@ export const messages = {
       detailLevel: {
         title: '規則詳細程度:',
         description: '選擇產生規則的詳細程度',
-        question: '選擇規則詳細程度 / Select rule detail level:',
+        question: '選擇規則詳細程度：',
         choices: {
           minimal: '僅基本規則（約 50 行）',
           standard: '平衡覆蓋（約 150 行）',
@@ -1618,7 +1618,7 @@ export const messages = {
       },
       // promptRuleLanguage
       ruleLanguage: {
-        question: '選擇規則文件語言 / Select rule documentation language:',
+        question: '選擇規則文件語言：',
         choices: {
           en: 'English',
           zhTw: '繁體中文',
@@ -2222,7 +2222,7 @@ export const messages = {
       title: 'Content Mode:',
       description: '控制 AI 工具配置文件中嵌入多少规范内容',
       description2: '这会影响 AI Agent 的执行行为和合规程度',
-      question: '选择内容模式 / Select content mode:',
+      question: '选择内容模式：',
       labels: {
         index: '标准',
         full: '完整嵌入',
@@ -2256,7 +2256,7 @@ export const messages = {
     level: {
       title: 'Adoption Level:',
       description: '选择要采用的标准数量，等级越高涵盖越完整',
-      question: '选择采用等级 / Select adoption level:',
+      question: '选择采用等级：',
       labels: {
         1: 'Level 1: 入门',
         2: 'Level 2: 专业',
@@ -2287,7 +2287,7 @@ export const messages = {
     format: {
       title: 'Standards Format:',
       description: '选择标准文件的格式，影响 AI 读取效率和人类可读性',
-      question: '选择标准格式 / Select standards format:',
+      question: '选择标准格式：',
       labels: {
         ai: '精简',
         human: '详细',
@@ -2310,7 +2310,7 @@ export const messages = {
       title: 'Standards Installation:',
       description: '选择要安装多少标准文件到项目中',
       description2: '（已安装 Skills，可选择精简安装）',
-      question: '选择安装范围 / Select installation scope:',
+      question: '选择安装范围：',
       labels: {
         minimal: '精简',
         full: '完整'
@@ -2335,7 +2335,7 @@ export const messages = {
     gitWorkflow: {
       title: 'Git Workflow:',
       description: '选择分支策略，影响团队协作和发布流程',
-      question: '选择 Git 分支策略 / Select Git branching strategy:',
+      question: '选择 Git 分支策略：',
       choices: {
         'github-flow': '简单 PR 流程，适合持续部署',
         gitflow: 'develop/release 分支，适合定期发布',
@@ -2361,7 +2361,7 @@ export const messages = {
     mergeStrategy: {
       title: 'Merge Strategy:',
       description: '选择合并策略，影响 Git 历史记录的呈现方式',
-      question: '选择合并策略 / Select merge strategy:',
+      question: '选择合并策略：',
       choices: {
         squash: '每个 PR 一个 commit，历史干净',
         'merge-commit': '保留完整分支历史，建立合并 commit',
@@ -2388,7 +2388,7 @@ export const messages = {
       title: 'Test Coverage:',
       description: '选择要包含的测试层级（测试金字塔）',
       description2: '百分比为建议的覆盖率比例',
-      question: '选择测试层级 / Select test levels:',
+      question: '选择测试层级：',
       choices: {
         unit: '测试个别函数，快速反馈',
         integration: '测试组件互动、API 调用',
@@ -2437,7 +2437,7 @@ export const messages = {
       title: 'Skills 安装位置:',
       description: '选择 Skills 的安装位置',
       descriptionWithTools: 'Skills 将支持:',
-      question: 'Skills 要安装在哪里？/ Where should Skills be installed?',
+      question: 'Skills 要安装在哪里？',
       questionMulti: '选择要安装 Skills 的位置：',
       marketplaceWarning: 'Claude Code Skills 已通过 Marketplace 安装',
       coexistNote: '文件安装将与 Marketplace 版本并存',
@@ -2492,7 +2492,7 @@ export const messages = {
     commitLanguage: {
       title: 'Commit 消息语言:',
       description: '选择 commit 消息的语言',
-      question: '选择 commit 消息语言 / Select commit message language:',
+      question: '选择 commit 消息语言：',
       choices: {
         english: '标准国际格式',
         chinese: '适合中文团队',
@@ -2510,7 +2510,7 @@ export const messages = {
       title: '开发方法论:',
       experimental: '⚠️  [实验性] 此功能将在 v4.0 重新设计',
       description: '选择指导开发流程的方法论',
-      question: '你想使用哪种开发方法论？/ Which development methodology?',
+      question: '你想使用哪种开发方法论？',
       labels: {
         tdd: 'TDD',
         bdd: 'BDD',
