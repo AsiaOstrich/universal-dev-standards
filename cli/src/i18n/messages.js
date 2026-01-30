@@ -119,8 +119,8 @@ export const messages = {
     // Content Mode
     contentMode: {
       title: 'Content Mode:',
-      description: 'Control how much standards content is embedded in AI config files (e.g., .cursorrules, CLAUDE.md, GEMINI.md)',
-      description2: 'This affects AI Agent execution behavior and compliance',
+      description: 'Control how much standards content is embedded in AI assistant configuration files',
+      description2: '(Affects Claude Code CLAUDE.md, Cursor .cursorrules, Copilot Instructions, etc.)',
       question: 'Select content mode:',
       labels: {
         index: 'Standard',
@@ -302,12 +302,6 @@ export const messages = {
         '      /----\\       <- Integration',
         '     /------\\      <- Unit (many, fast)'
       ]
-    },
-
-    // Standard Options
-    standardOptions: {
-      title: 'Standard Options:',
-      description: 'Configure your preferred options for each standard'
     },
 
     // Content Mode Change (configure)
@@ -511,7 +505,7 @@ export const messages = {
       // promptIntegrationMode
       mode: {
         title: 'Integration Configuration:',
-        description: 'Configure how AI tool rules are generated (affects .cursorrules, CLAUDE.md, etc.)',
+        description: 'Configure how AI assistant rule files are generated (CLAUDE.md, .cursorrules, etc.)',
         question: 'How would you like to configure integration files?',
         choices: {
           default: 'Use standard rule set',
@@ -1180,8 +1174,8 @@ export const messages = {
     // Content Mode
     contentMode: {
       title: '內容模式:',
-      description: '控制 AI 配置檔（如 .cursorrules, CLAUDE.md, GEMINI.md）嵌入多少規範內容',
-      description2: '這會影響 AI Agent 的執行行為和合規程度',
+      description: '控制 AI 助手的配置檔中嵌入多少規範內容',
+      description2: '（影響 Claude Code CLAUDE.md, Cursor .cursorrules, Copilot 指示檔等）',
       question: '選擇內容模式：',
       labels: {
         index: '標準',
@@ -1363,12 +1357,6 @@ export const messages = {
         '      /────\\       ← Integration',
         '     /──────\\      ← Unit (大量，快)'
       ]
-    },
-
-    // Standard Options
-    standardOptions: {
-      title: '標準選項:',
-      description: '設定每個標準的偏好選項'
     },
 
     // Content Mode Change (configure)
@@ -1572,7 +1560,7 @@ export const messages = {
       // promptIntegrationMode
       mode: {
         title: '整合設定:',
-        description: '設定 AI 工具規則的產生方式（影響 .cursorrules, CLAUDE.md 等）',
+        description: '設定 AI 助手規則檔的產生方式（影響 CLAUDE.md, .cursorrules, GEMINI.md 等）',
         question: '你想如何設定整合檔案？',
         choices: {
           default: '使用標準規則集',
@@ -2241,8 +2229,8 @@ export const messages = {
     // Content Mode
     contentMode: {
       title: '内容模式:',
-      description: '控制 AI 配置文件（如 .cursorrules, CLAUDE.md, GEMINI.md）中嵌入多少规范内容',
-      description2: '这会影响 AI Agent 的执行行为和合规程度',
+      description: '控制 AI 助手的配置文件中嵌入多少规范内容',
+      description2: '（影响 Claude Code CLAUDE.md, Cursor .cursorrules, Copilot 指示档等）',
       question: '选择内容模式：',
       labels: {
         index: '标准',
@@ -2426,12 +2414,6 @@ export const messages = {
       ]
     },
 
-    // Standard Options
-    standardOptions: {
-      title: '标准选项:',
-      description: '设置每个标准的偏好选项'
-    },
-
     // Content Mode Change (configure)
     contentModeChange: {
       currentMode: '目前模式:',
@@ -2533,6 +2515,88 @@ export const messages = {
         chinese: '简体中文',
         bilingual: '双语'
       }
+    },
+
+    // Integration Configuration
+    integration: {
+      // promptIntegrationMode
+      mode: {
+        title: '集成配置:',
+        description: '配置 AI 助手规则文件的生成方式（影响 CLAUDE.md, .cursorrules, GEMINI.md 等）',
+        question: '你想如何配置集成文件？',
+        choices: {
+          default: '使用标准规则集',
+          custom: '选择要包含的特定规则',
+          merge: '与现有规则文件合并'
+        }
+      },
+      // promptRuleCategories
+      categories: {
+        title: '规则类别:',
+        description: '选择要包含在集成文件中的标准',
+        question: '选择规则类别：',
+        validation: '请至少选择一个类别'
+      },
+      // promptLanguageRules
+      languageRules: {
+        title: '语言特定规则:',
+        description: '包含编程语言特定的编码标准',
+        question: '包含语言特定规则：'
+      },
+      // promptExclusions
+      exclusions: {
+        title: '自定义排除:',
+        description: '指定要排除执行的规则或模式',
+        question: '是否要添加自定义排除？',
+        inputPrompt: '输入排除模式（用逗号分隔）：'
+      },
+      // promptCustomRules
+      customRules: {
+        title: '项目特定规则:',
+        description: '添加项目特定的自定义规则',
+        question: '是否要添加项目特定的自定义规则？',
+        inputPrompt: '输入自定义规则（留空结束）：'
+      },
+      // promptMergeStrategy (for integration files)
+      mergeStrategy: {
+        title: '检测到现有规则:',
+        description: '选择如何处理现有规则',
+        question: '如何处理现有规则？',
+        choices: {
+          append: '在现有规则后添加',
+          merge: '智能合并（避免重复）',
+          overwrite: '以新规则替换',
+          keep: '保留现有，跳过安装'
+        }
+      },
+      // promptDetailLevel
+      detailLevel: {
+        title: '规则详细程度:',
+        description: '选择生成规则的详细程度',
+        question: '选择规则详细程度：',
+        choices: {
+          minimal: '仅基本规则（约 50 行）',
+          standard: '平衡覆盖（约 150 行）',
+          comprehensive: '完整文档（约 300+ 行）'
+        },
+        labels: {
+          minimal: '精简',
+          standard: '标准',
+          comprehensive: '详尽',
+          complete: '完整'
+        }
+      },
+      // promptRuleLanguage
+      ruleLanguage: {
+        question: '选择规则文件语言：',
+        choices: {
+          en: 'English',
+          zhCn: '简体中文',
+          bilingual: '双语'
+        }
+      },
+      // Other messages
+      noExistingFile: '找不到现有规则文件，使用默认模式。'
     },
 
     // Methodology
