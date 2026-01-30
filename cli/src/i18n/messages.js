@@ -13,6 +13,7 @@ export const messages = {
     recommended: 'Recommended',
     advanced: 'Advanced',
     checkboxHint: '(Space to select, A to toggle all, Enter to confirm)',
+    listHint: '(Use arrow keys to select, Enter to confirm)',
 
     // Sweep Command
     sweep: {
@@ -118,7 +119,7 @@ export const messages = {
     // Content Mode
     contentMode: {
       title: 'Content Mode:',
-      description: 'Control how much standards content is embedded in AI tool config files',
+      description: 'Control how much standards content is embedded in AI config files (e.g., .cursorrules, CLAUDE.md, GEMINI.md)',
       description2: 'This affects AI Agent execution behavior and compliance',
       question: 'Select content mode:',
       labels: {
@@ -301,6 +302,12 @@ export const messages = {
         '      /----\\       <- Integration',
         '     /------\\      <- Unit (many, fast)'
       ]
+    },
+
+    // Standard Options
+    standardOptions: {
+      title: 'Standard Options:',
+      description: 'Configure your preferred options for each standard'
     },
 
     // Content Mode Change (configure)
@@ -504,7 +511,7 @@ export const messages = {
       // promptIntegrationMode
       mode: {
         title: 'Integration Configuration:',
-        description: 'Configure how AI tool rules are generated',
+        description: 'Configure how AI tool rules are generated (affects .cursorrules, CLAUDE.md, etc.)',
         question: 'How would you like to configure integration files?',
         choices: {
           default: 'Use standard rule set',
@@ -1067,6 +1074,7 @@ export const messages = {
     recommended: '推薦',
     advanced: '進階',
     checkboxHint: '（空格選擇、A 全選/取消、Enter 確認）',
+    listHint: '（使用方向鍵選擇，Enter 確認）',
 
     // Sweep Command
     sweep: {
@@ -1172,7 +1180,7 @@ export const messages = {
     // Content Mode
     contentMode: {
       title: '內容模式:',
-      description: '控制 AI 工具設定檔中嵌入多少規範內容',
+      description: '控制 AI 配置檔（如 .cursorrules, CLAUDE.md, GEMINI.md）嵌入多少規範內容',
       description2: '這會影響 AI Agent 的執行行為和合規程度',
       question: '選擇內容模式：',
       labels: {
@@ -1355,6 +1363,12 @@ export const messages = {
         '      /────\\       ← Integration',
         '     /──────\\      ← Unit (大量，快)'
       ]
+    },
+
+    // Standard Options
+    standardOptions: {
+      title: '標準選項:',
+      description: '設定每個標準的偏好選項'
     },
 
     // Content Mode Change (configure)
@@ -1558,7 +1572,7 @@ export const messages = {
       // promptIntegrationMode
       mode: {
         title: '整合設定:',
-        description: '設定 AI 工具規則的產生方式',
+        description: '設定 AI 工具規則的產生方式（影響 .cursorrules, CLAUDE.md 等）',
         question: '你想如何設定整合檔案？',
         choices: {
           default: '使用標準規則集',
@@ -2121,6 +2135,7 @@ export const messages = {
     recommended: '推荐',
     advanced: '高级',
     checkboxHint: '（空格选择、A 全选/取消、Enter 确认）',
+    listHint: '（使用方向键选择，Enter 确认）',
 
     // Sweep Command
     sweep: {
@@ -2226,7 +2241,7 @@ export const messages = {
     // Content Mode
     contentMode: {
       title: '内容模式:',
-      description: '控制 AI 工具配置文件中嵌入多少规范内容',
+      description: '控制 AI 配置文件（如 .cursorrules, CLAUDE.md, GEMINI.md）中嵌入多少规范内容',
       description2: '这会影响 AI Agent 的执行行为和合规程度',
       question: '选择内容模式：',
       labels: {
@@ -2409,6 +2424,12 @@ export const messages = {
         '      /----\\       ← Integration',
         '     /------\\      ← Unit (大量，快)'
       ]
+    },
+
+    // Standard Options
+    standardOptions: {
+      title: '标准选项:',
+      description: '设置每个标准的偏好选项'
     },
 
     // Content Mode Change (configure)

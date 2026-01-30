@@ -32,6 +32,7 @@ export async function promptDisplayLanguage() {
   console.log();
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${t().listHint}`));
   console.log();
 
   const { language } = await inquirer.prompt([
@@ -39,6 +40,7 @@ export async function promptDisplayLanguage() {
       type: 'list',
       name: 'language',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `English ${chalk.gray('(Default for international teams)')}`,
@@ -420,11 +422,14 @@ export async function promptSkillsUpdate(projectInfo, userInfo, latestVersion) {
     value: 'none'
   });
 
+  console.log(chalk.gray(`  ${t().listHint}`));
+
   const { action } = await inquirer.prompt([
     {
       type: 'list',
       name: 'action',
       message: msg.question,
+      suffix: ' ',
       choices,
       default: needsUpdate.length === 2 ? 'both' : needsUpdate[0]
     }
@@ -462,6 +467,7 @@ export async function promptStandardsScope(hasSkills) {
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
   console.log(chalk.gray(`  ${msg.description2}`));
+  console.log(chalk.gray(`  ${t().listHint}`));
   console.log();
 
   const { scope } = await inquirer.prompt([
@@ -469,6 +475,7 @@ export async function promptStandardsScope(hasSkills) {
       type: 'list',
       name: 'scope',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.green(msg.labels.minimal)} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.minimal}`,
@@ -509,6 +516,7 @@ export async function promptFormat() {
   console.log();
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${t().listHint}`));
   console.log();
 
   const { format } = await inquirer.prompt([
@@ -516,6 +524,7 @@ export async function promptFormat() {
       type: 'list',
       name: 'format',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.green(msg.labels.ai)} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.ai}`,
@@ -558,6 +567,7 @@ export async function promptGitWorkflow() {
   console.log();
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${t().listHint}`));
   console.log();
 
   const { workflow } = await inquirer.prompt([
@@ -565,6 +575,7 @@ export async function promptGitWorkflow() {
       type: 'list',
       name: 'workflow',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.green('GitHub Flow')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices['github-flow']}`,
@@ -609,6 +620,7 @@ export async function promptMergeStrategy() {
   console.log();
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${t().listHint}`));
   console.log();
 
   const { strategy } = await inquirer.prompt([
@@ -616,6 +628,7 @@ export async function promptMergeStrategy() {
       type: 'list',
       name: 'strategy',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.green('Squash Merge')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.squash}`,
@@ -660,6 +673,7 @@ export async function promptCommitLanguage(displayLanguage = 'en') {
   console.log();
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${t().listHint}`));
   console.log();
 
   // Build choices - bilingual option only for Chinese display languages
@@ -688,6 +702,7 @@ export async function promptCommitLanguage(displayLanguage = 'en') {
       type: 'list',
       name: 'language',
       message: msg.question,
+      suffix: ' ',
       choices,
       default: 'english'
     }
@@ -714,6 +729,7 @@ export async function promptTestLevels() {
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
   console.log(chalk.gray(`  ${msg.description2}`));
+  console.log(chalk.gray(`  ${t().checkboxHint}`));
   console.log();
 
   const { levels } = await inquirer.prompt([
@@ -721,6 +737,7 @@ export async function promptTestLevels() {
       type: 'checkbox',
       name: 'levels',
       message: msg.question,
+      instructions: false,
       choices: [
         {
           name: `Unit Testing ${chalk.gray('(70%)')} - ${msg.choices.unit}`,
@@ -767,10 +784,11 @@ export async function promptTestLevels() {
  */
 export async function promptStandardOptions(level, displayLanguage = 'en') {
   const options = {};
+  const msg = t().standardOptions;
 
   console.log();
-  console.log(chalk.cyan('Standard Options:'));
-  console.log(chalk.gray('  Configure your preferred options for each standard'));
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
   // Git workflow options (level 2+)
@@ -798,11 +816,14 @@ export async function promptStandardOptions(level, displayLanguage = 'en') {
 export async function promptInstallMode() {
   const msg = t().installMode;
 
+  console.log(chalk.gray(`  ${t().listHint}`));
+
   const { mode } = await inquirer.prompt([
     {
       type: 'list',
       name: 'mode',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.green('Skills Mode')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.skills}`,
@@ -838,11 +859,14 @@ export async function promptSkillsUpgrade(installedVersion, latestVersion) {
     ? `v${installedVersion} → v${latestVersion}`
     : `unknown → v${latestVersion}`;
 
+  console.log(chalk.gray(`  ${t().listHint}`));
+
   const { action } = await inquirer.prompt([
     {
       type: 'list',
       name: 'action',
       message: `Skills detected (${versionDisplay}). What would you like to do?`,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.green('Upgrade')} - Update to latest version`,
@@ -880,6 +904,7 @@ export async function promptLevel() {
   console.log();
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${t().listHint}`));
   console.log();
 
   const { level } = await inquirer.prompt([
@@ -887,6 +912,7 @@ export async function promptLevel() {
       type: 'list',
       name: 'level',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.blue(msg.labels[1])} - ${msg.choices[1]}`,
@@ -934,11 +960,14 @@ export async function promptLanguage(detected) {
     return null;
   }
 
+  console.log(chalk.gray(`  ${t().checkboxHint}`));
+
   const { languages } = await inquirer.prompt([
     {
       type: 'checkbox',
       name: 'languages',
       message: 'Detected language(s). Select style guides to include:',
+      instructions: false,
       choices
     }
   ]);
@@ -962,11 +991,14 @@ export async function promptFramework(detected) {
     return null;
   }
 
+  console.log(chalk.gray(`  ${t().checkboxHint}`));
+
   const { frameworks } = await inquirer.prompt([
     {
       type: 'checkbox',
       name: 'frameworks',
       message: 'Detected framework(s). Select patterns to include:',
+      instructions: false,
       choices
     }
   ]);
@@ -1021,11 +1053,14 @@ export async function promptIntegrations(detected) {
     checked: detected.copilot || false
   });
 
+  console.log(chalk.gray(`  ${t().checkboxHint}`));
+
   const { integrations } = await inquirer.prompt([
     {
       type: 'checkbox',
       name: 'integrations',
       message: 'Select AI tool integrations:',
+      instructions: false,
       choices
     }
   ]);
@@ -1077,6 +1112,7 @@ export async function promptContentMode() {
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.description}`));
   console.log(chalk.gray(`  ${msg.description2}`));
+  console.log(chalk.gray(`  ${t().listHint}`));
   console.log();
 
   const { mode } = await inquirer.prompt([
@@ -1084,6 +1120,7 @@ export async function promptContentMode() {
       type: 'list',
       name: 'mode',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.green(msg.labels.index)} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.index}`,
@@ -1159,6 +1196,7 @@ export async function promptManageAITools(currentTools = []) {
   console.log();
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.currentlyInstalled} ${currentTools.length > 0 ? currentTools.join(', ') : msg.none}`));
+  console.log(chalk.gray(`  ${t().listHint}`));
   console.log();
 
   const { action } = await inquirer.prompt([
@@ -1166,6 +1204,7 @@ export async function promptManageAITools(currentTools = []) {
       type: 'list',
       name: 'action',
       message: msg.question,
+      suffix: ' ',
       choices: [
         { name: msg.choices.add, value: 'add' },
         { name: msg.choices.remove, value: 'remove' },
@@ -1208,11 +1247,14 @@ export async function promptManageAITools(currentTools = []) {
       return { action: 'cancel', tools: [] };
     }
 
+    console.log(chalk.gray(`  ${t().checkboxHint}`));
+
     const { toolsToAdd } = await inquirer.prompt([
       {
         type: 'checkbox',
         name: 'toolsToAdd',
         message: msg.selectToAdd,
+        instructions: false,
         choices: availableTools
       }
     ]);
@@ -1234,11 +1276,14 @@ export async function promptManageAITools(currentTools = []) {
       };
     });
 
+    console.log(chalk.gray(`  ${t().checkboxHint}`));
+
     const { toolsToRemove } = await inquirer.prompt([
       {
         type: 'checkbox',
         name: 'toolsToRemove',
         message: msg.selectToRemove,
+        instructions: false,
         choices: installedChoices
       }
     ]);
@@ -1261,6 +1306,7 @@ export async function promptAdoptionLevel(currentLevel) {
   console.log();
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${msg.currentLevel} ${currentLevel}`));
+  console.log(chalk.gray(`  ${t().listHint}`));
   console.log();
 
   const { level } = await inquirer.prompt([
@@ -1268,6 +1314,7 @@ export async function promptAdoptionLevel(currentLevel) {
       type: 'list',
       name: 'level',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.blue(levelLabels[1])} - ${msg.choices[1]}`,
@@ -1312,6 +1359,7 @@ export async function promptContentModeChange(currentMode) {
   console.log(chalk.cyan(msg.title));
   console.log(chalk.gray(`  ${changeMsg.currentMode} ${msg.labels[currentMode] || currentMode || msg.labels.minimal}`));
   console.log(chalk.gray(`  ${msg.description2}`));
+  console.log(chalk.gray(`  ${t().listHint}`));
   console.log();
 
   const { mode } = await inquirer.prompt([
@@ -1319,6 +1367,7 @@ export async function promptContentModeChange(currentMode) {
       type: 'list',
       name: 'mode',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.green(msg.labels.index)} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.index}`,
@@ -1357,6 +1406,7 @@ export async function promptMethodology() {
   console.log(chalk.cyan(msg.title));
   console.log(chalk.yellow(`  ${msg.experimental}`));
   console.log(chalk.gray(`  ${msg.description}`));
+  console.log(chalk.gray(`  ${t().listHint}`));
   console.log();
 
   const { methodology } = await inquirer.prompt([
@@ -1364,6 +1414,7 @@ export async function promptMethodology() {
       type: 'list',
       name: 'methodology',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.red(msg.labels.tdd)} ${chalk.gray(`- ${msg.choices.tdd}`)}`,

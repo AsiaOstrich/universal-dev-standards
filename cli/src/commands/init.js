@@ -223,7 +223,8 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
 function displaySummary(config, msg, common) {
   console.log(chalk.cyan(msg.configSummary));
   console.log(chalk.gray(`  ${common.level}: ${config.level}`));
-  console.log(chalk.gray(`  ${common.format}: ${config.format === 'ai' ? 'Compact' : config.format === 'human' ? 'Detailed' : 'Both'}`));
+  const formatLabels = t().format?.labels || { ai: 'Compact', human: 'Detailed', both: 'Both' };
+  console.log(chalk.gray(`  ${common.format}: ${formatLabels[config.format]}`));
   console.log(chalk.gray(`  ${msg.standardsScope}: ${config.skillsConfig.standardsScope === 'minimal' ? msg.standardsScopeLean : msg.standardsScopeComplete}`));
   console.log(chalk.gray(`  ${msg.contentModeLabel}: ${config.contentMode === 'full' ? msg.contentModeFull : config.contentMode === 'index' ? msg.contentModeIndex : msg.contentModeMinimal}`));
   console.log(chalk.gray(`  ${msg.languages}: ${config.languages.length > 0 ? config.languages.join(', ') : common.none}`));
