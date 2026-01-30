@@ -121,6 +121,11 @@ export const messages = {
       description: 'Control how much standards content is embedded in AI tool config files',
       description2: 'This affects AI Agent execution behavior and compliance',
       question: 'Select content mode:',
+      labels: {
+        index: 'Standard',
+        full: 'Full Embed',
+        minimal: 'Minimal'
+      },
       choices: {
         index: 'Summary + task mapping, AI knows when to read which standard',
         full: 'Embed all rules, AI can use immediately but larger file',
@@ -150,6 +155,11 @@ export const messages = {
       title: 'Adoption Level:',
       description: 'Choose how many standards to adopt, higher levels are more comprehensive',
       question: 'Select adoption level:',
+      labels: {
+        1: 'Level 1: Starter',
+        2: 'Level 2: Professional',
+        3: 'Level 3: Complete'
+      },
       choices: {
         1: '6 core standards: commit, anti-hallucination, checkin, etc.',
         2: 'Adds testing, Git workflow, error handling - 12 total',
@@ -176,6 +186,11 @@ export const messages = {
       title: 'Standards Format:',
       description: 'Choose file format for standards, affects AI reading efficiency and human readability',
       question: 'Select standards format:',
+      labels: {
+        ai: 'Compact',
+        human: 'Detailed',
+        both: 'Both'
+      },
       choices: {
         ai: 'YAML format, fewer tokens, faster AI parsing',
         human: 'Full Markdown with examples, best for team learning',
@@ -194,6 +209,10 @@ export const messages = {
       description: 'Choose how many standard files to install in project',
       description2: '(Skills installed, lean installation available)',
       question: 'Select installation scope:',
+      labels: {
+        minimal: 'Lean',
+        full: 'Complete'
+      },
       choices: {
         minimal: 'Reference docs only, Skills provide real-time task guidance',
         full: 'Install all standard files, not just relying on Skills'
@@ -426,6 +445,13 @@ export const messages = {
       experimental: '⚠️  [Experimental] This feature will be redesigned in v4.0',
       description: 'Select a methodology to guide your development workflow.',
       question: 'Which development methodology do you want to use?',
+      labels: {
+        tdd: 'TDD',
+        bdd: 'BDD',
+        sdd: 'SDD',
+        atdd: 'ATDD',
+        none: 'None'
+      },
       choices: {
         tdd: 'Test-Driven Development (Red → Green → Refactor)',
         bdd: 'Behavior-Driven Development (Given-When-Then)',
@@ -1146,6 +1172,11 @@ export const messages = {
       description: '控制 AI 工具設定檔中嵌入多少規範內容',
       description2: '這會影響 AI Agent 的執行行為和合規程度',
       question: '選擇內容模式 / Select content mode:',
+      labels: {
+        index: '標準',
+        full: '完整嵌入',
+        minimal: '最小化'
+      },
       choices: {
         index: '摘要 + 任務對照表，AI 知道何時讀哪個規範',
         full: '完整嵌入所有規則，AI 立即可用但檔案較大',
@@ -1175,6 +1206,11 @@ export const messages = {
       title: 'Adoption Level:',
       description: '選擇要採用的標準數量，等級越高涵蓋越完整',
       question: '選擇採用等級 / Select adoption level:',
+      labels: {
+        1: 'Level 1: 入門',
+        2: 'Level 2: 專業',
+        3: 'Level 3: 完整'
+      },
       choices: {
         1: '提交規範、反幻覺、簽入檢查等 6 項核心',
         2: '加入測試、Git 流程、錯誤處理共 12 項',
@@ -1201,6 +1237,11 @@ export const messages = {
       title: 'Standards Format:',
       description: '選擇標準檔案的格式，影響 AI 讀取效率和人類可讀性',
       question: '選擇標準格式 / Select standards format:',
+      labels: {
+        ai: '精簡',
+        human: '詳細',
+        both: '兩者'
+      },
       choices: {
         ai: 'YAML 格式，token 少，AI 解析快',
         human: '完整 Markdown，含範例說明，適合團隊學習',
@@ -1219,6 +1260,10 @@ export const messages = {
       description: '選擇要安裝多少標準檔案到專案中',
       description2: '（已安裝 Skills，可選擇精簡安裝）',
       question: '選擇安裝範圍 / Select installation scope:',
+      labels: {
+        minimal: '精簡',
+        full: '完整'
+      },
       choices: {
         minimal: '只裝參考文件，Skills 即時提供任務導向指引',
         full: '安裝全部標準檔案，不僅只依賴 Skills'
@@ -1451,6 +1496,13 @@ export const messages = {
       experimental: '⚠️  [實驗性] 此功能將在 v4.0 重新設計',
       description: '選擇指導開發流程的方法論',
       question: '你想使用哪種開發方法論？/ Which development methodology?',
+      labels: {
+        tdd: 'TDD',
+        bdd: 'BDD',
+        sdd: 'SDD',
+        atdd: 'ATDD',
+        none: '無'
+      },
       choices: {
         tdd: '測試驅動開發 (Red → Green → Refactor)',
         bdd: '行為驅動開發 (Given-When-Then)',
@@ -2171,6 +2223,11 @@ export const messages = {
       description: '控制 AI 工具配置文件中嵌入多少规范内容',
       description2: '这会影响 AI Agent 的执行行为和合规程度',
       question: '选择内容模式 / Select content mode:',
+      labels: {
+        index: '标准',
+        full: '完整嵌入',
+        minimal: '最小化'
+      },
       choices: {
         index: '摘要 + 任务对照表，AI 知道何时读哪个规范',
         full: '完整嵌入所有规则，AI 立即可用但文件较大',
@@ -2200,6 +2257,11 @@ export const messages = {
       title: 'Adoption Level:',
       description: '选择要采用的标准数量，等级越高涵盖越完整',
       question: '选择采用等级 / Select adoption level:',
+      labels: {
+        1: 'Level 1: 入门',
+        2: 'Level 2: 专业',
+        3: 'Level 3: 完整'
+      },
       choices: {
         1: '提交规范、反幻觉、签入检查等 6 项核心',
         2: '加入测试、Git 流程、错误处理共 12 项',
@@ -2226,6 +2288,11 @@ export const messages = {
       title: 'Standards Format:',
       description: '选择标准文件的格式，影响 AI 读取效率和人类可读性',
       question: '选择标准格式 / Select standards format:',
+      labels: {
+        ai: '精简',
+        human: '详细',
+        both: '两者'
+      },
       choices: {
         ai: 'YAML 格式，token 少，AI 解析快',
         human: '完整 Markdown，含范例说明，适合团队学习',
@@ -2244,6 +2311,10 @@ export const messages = {
       description: '选择要安装多少标准文件到项目中',
       description2: '（已安装 Skills，可选择精简安装）',
       question: '选择安装范围 / Select installation scope:',
+      labels: {
+        minimal: '精简',
+        full: '完整'
+      },
       choices: {
         minimal: '只装参考文档，Skills 实时提供任务导向指引',
         full: '安装所有标准文件，不仅只依赖 Skills'
@@ -2431,6 +2502,28 @@ export const messages = {
         english: 'English',
         chinese: '简体中文',
         bilingual: '双语'
+      }
+    },
+
+    // Methodology
+    methodology: {
+      title: '开发方法论:',
+      experimental: '⚠️  [实验性] 此功能将在 v4.0 重新设计',
+      description: '选择指导开发流程的方法论',
+      question: '你想使用哪种开发方法论？/ Which development methodology?',
+      labels: {
+        tdd: 'TDD',
+        bdd: 'BDD',
+        sdd: 'SDD',
+        atdd: 'ATDD',
+        none: '无'
+      },
+      choices: {
+        tdd: '测试驱动开发 (Red → Green → Refactor)',
+        bdd: '行为驱动开发 (Given-When-Then)',
+        sdd: '规格驱动开发 (先规格、后代码)',
+        atdd: '验收测试驱动开发',
+        none: '不使用特定方法论'
       }
     },
 

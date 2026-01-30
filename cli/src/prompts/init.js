@@ -459,11 +459,11 @@ export async function promptStandardsScope(hasSkills) {
       message: msg.question,
       choices: [
         {
-          name: `${chalk.green('Lean')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.minimal}`,
+          name: `${chalk.green(msg.labels.minimal)} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.minimal}`,
           value: 'minimal'
         },
         {
-          name: `${chalk.blue('Complete')} - ${msg.choices.full}`,
+          name: `${chalk.blue(msg.labels.full)} - ${msg.choices.full}`,
           value: 'full'
         }
       ],
@@ -506,15 +506,15 @@ export async function promptFormat() {
       message: msg.question,
       choices: [
         {
-          name: `${chalk.green('Compact')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.ai}`,
+          name: `${chalk.green(msg.labels.ai)} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.ai}`,
           value: 'ai'
         },
         {
-          name: `${chalk.blue('Detailed')} - ${msg.choices.human}`,
+          name: `${chalk.blue(msg.labels.human)} - ${msg.choices.human}`,
           value: 'human'
         },
         {
-          name: `${chalk.yellow('Both')} ${chalk.gray(`(${t().advanced})`)} - ${msg.choices.both}`,
+          name: `${chalk.yellow(msg.labels.both)} ${chalk.gray(`(${t().advanced})`)} - ${msg.choices.both}`,
           value: 'both'
         }
       ],
@@ -877,15 +877,15 @@ export async function promptLevel() {
       message: msg.question,
       choices: [
         {
-          name: `${chalk.blue('Level 1: Starter')} - ${msg.choices[1]}`,
+          name: `${chalk.blue(msg.labels[1])} - ${msg.choices[1]}`,
           value: 1
         },
         {
-          name: `${chalk.green('Level 2: Professional')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices[2]}`,
+          name: `${chalk.green(msg.labels[2])} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices[2]}`,
           value: 2
         },
         {
-          name: `${chalk.yellow('Level 3: Complete')} - ${msg.choices[3]}`,
+          name: `${chalk.yellow(msg.labels[3])} - ${msg.choices[3]}`,
           value: 3
         }
       ],
@@ -1074,15 +1074,15 @@ export async function promptContentMode() {
       message: msg.question,
       choices: [
         {
-          name: `${chalk.green('Standard')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.index}`,
+          name: `${chalk.green(msg.labels.index)} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.index}`,
           value: 'index'
         },
         {
-          name: `${chalk.blue('Full Embed')} - ${msg.choices.full}`,
+          name: `${chalk.blue(msg.labels.full)} - ${msg.choices.full}`,
           value: 'full'
         },
         {
-          name: `${chalk.gray('Minimal')} - ${msg.choices.minimal}`,
+          name: `${chalk.gray(msg.labels.minimal)} - ${msg.choices.minimal}`,
           value: 'minimal'
         }
       ],
@@ -1244,6 +1244,7 @@ export async function promptManageAITools(currentTools = []) {
  */
 export async function promptAdoptionLevel(currentLevel) {
   const msg = t().adoptionLevelConfig;
+  const levelLabels = t().level.labels;
 
   console.log();
   console.log(chalk.cyan(msg.title));
@@ -1257,15 +1258,15 @@ export async function promptAdoptionLevel(currentLevel) {
       message: msg.question,
       choices: [
         {
-          name: `${chalk.blue('Level 1: Starter')} - ${msg.choices[1]}`,
+          name: `${chalk.blue(levelLabels[1])} - ${msg.choices[1]}`,
           value: 1
         },
         {
-          name: `${chalk.green('Level 2: Professional')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices[2]}`,
+          name: `${chalk.green(levelLabels[2])} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices[2]}`,
           value: 2
         },
         {
-          name: `${chalk.yellow('Level 3: Complete')} - ${msg.choices[3]}`,
+          name: `${chalk.yellow(levelLabels[3])} - ${msg.choices[3]}`,
           value: 3
         }
       ],
@@ -1295,15 +1296,9 @@ export async function promptContentModeChange(currentMode) {
   const msg = t().contentMode;
   const changeMsg = t().contentModeChange;
 
-  const modeLabels = {
-    index: 'Standard',
-    full: 'Full Embed',
-    minimal: 'Minimal'
-  };
-
   console.log();
   console.log(chalk.cyan(msg.title));
-  console.log(chalk.gray(`  ${changeMsg.currentMode} ${modeLabels[currentMode] || currentMode || 'minimal'}`));
+  console.log(chalk.gray(`  ${changeMsg.currentMode} ${msg.labels[currentMode] || currentMode || msg.labels.minimal}`));
   console.log(chalk.gray(`  ${msg.description2}`));
   console.log();
 
@@ -1314,15 +1309,15 @@ export async function promptContentModeChange(currentMode) {
       message: msg.question,
       choices: [
         {
-          name: `${chalk.green('Standard')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.index}`,
+          name: `${chalk.green(msg.labels.index)} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.index}`,
           value: 'index'
         },
         {
-          name: `${chalk.blue('Full Embed')} - ${msg.choices.full}`,
+          name: `${chalk.blue(msg.labels.full)} - ${msg.choices.full}`,
           value: 'full'
         },
         {
-          name: `${chalk.gray('Minimal')} - ${msg.choices.minimal}`,
+          name: `${chalk.gray(msg.labels.minimal)} - ${msg.choices.minimal}`,
           value: 'minimal'
         }
       ],
@@ -1359,24 +1354,24 @@ export async function promptMethodology() {
       message: msg.question,
       choices: [
         {
-          name: `${chalk.red('TDD')} ${chalk.gray(`- ${msg.choices.tdd}`)}`,
+          name: `${chalk.red(msg.labels.tdd)} ${chalk.gray(`- ${msg.choices.tdd}`)}`,
           value: 'tdd'
         },
         {
-          name: `${chalk.green('BDD')} ${chalk.gray(`- ${msg.choices.bdd}`)}`,
+          name: `${chalk.green(msg.labels.bdd)} ${chalk.gray(`- ${msg.choices.bdd}`)}`,
           value: 'bdd'
         },
         {
-          name: `${chalk.blue('SDD')} ${chalk.gray(`- ${msg.choices.sdd}`)}`,
+          name: `${chalk.blue(msg.labels.sdd)} ${chalk.gray(`- ${msg.choices.sdd}`)}`,
           value: 'sdd'
         },
         {
-          name: `${chalk.yellow('ATDD')} ${chalk.gray(`- ${msg.choices.atdd}`)}`,
+          name: `${chalk.yellow(msg.labels.atdd)} ${chalk.gray(`- ${msg.choices.atdd}`)}`,
           value: 'atdd'
         },
         new inquirer.Separator(),
         {
-          name: `${chalk.gray('None')} - ${msg.choices.none}`,
+          name: `${chalk.gray(msg.labels.none)} - ${msg.choices.none}`,
           value: null
         }
       ],
