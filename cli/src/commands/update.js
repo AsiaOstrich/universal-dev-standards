@@ -1096,7 +1096,7 @@ async function updateCommandsOnly(projectPath, manifest) {
   );
 
   // Build location summary
-  const locations = commandsInstallations.map(inst => {
+  const locations = (commandsInstallations || []).map(inst => {
     const agent = typeof inst === 'string' ? inst : inst.agent;
     const level = typeof inst === 'string' ? 'project' : (inst.level || 'project');
     const displayName = getAgentDisplayName(agent);
@@ -1119,7 +1119,7 @@ async function updateCommandsOnly(projectPath, manifest) {
   manifest.commands.installed = true;
   manifest.commands.version = repoInfo.skills.version;  // Track version
   // Normalize to {agent, level} format
-  manifest.commands.installations = commandsInstallations.map(inst => {
+  manifest.commands.installations = (commandsInstallations || []).map(inst => {
     if (typeof inst === 'string') {
       return { agent: inst, level: 'project' };
     }

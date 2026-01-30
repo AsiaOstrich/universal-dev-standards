@@ -104,7 +104,7 @@ export async function installSkills(skillsConfig, projectPath, messages, results
     }
 
     // Build location summary for display
-    const targetLocations = skillsConfig.skillsInstallations.map(inst => {
+    const targetLocations = (skillsConfig.skillsInstallations || []).map(inst => {
       const displayName = getAgentDisplayName(inst.agent);
       const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath);
       return `${displayName} (${dir})`;
@@ -160,7 +160,7 @@ async function installSkillsLegacy(skillsConfig, projectPath, messages, results)
         }
       } else {
         errorCount++;
-        const failedFiles = result.files.filter(f => !f.success).map(f => f.file).join(', ');
+        const failedFiles = (result.files || []).filter(f => !f.success).map(f => f.file).join(', ');
         results.errors.push(`Skill ${skillName} (${target}): failed to install ${failedFiles}`);
       }
     }
@@ -236,7 +236,7 @@ export async function installCommands(skillsConfig, projectPath, messages, resul
   }
 
   // Build location summary
-  const cmdLocations = skillsConfig.commandsInstallations.map(item => {
+  const cmdLocations = (skillsConfig.commandsInstallations || []).map(item => {
     // Support both {agent, level} objects and simple agent strings (backward compatibility)
     const agent = typeof item === 'string' ? item : item.agent;
     const level = typeof item === 'string' ? 'project' : (item.level || 'project');

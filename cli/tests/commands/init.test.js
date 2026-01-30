@@ -36,7 +36,8 @@ vi.mock('../../src/utils/skills-installer.js', () => ({
     totalErrors: 0,
     allFileHashes: {}
   })),
-  getInstalledSkillsInfoForAgent: vi.fn(() => null)
+  getInstalledSkillsInfoForAgent: vi.fn(() => null),
+  getAvailableSkillNames: vi.fn(() => ['test-skill'])
 }));
 
 vi.mock('../../src/config/ai-agent-paths.js', () => ({
@@ -99,12 +100,18 @@ vi.mock('../../src/core/manifest.js', () => ({
 
 vi.mock('../../src/utils/github.js', () => ({
   downloadSkillToLocation: vi.fn(() => ({ success: true, files: [] })),
-  getInstalledSkillsInfo: vi.fn(() => null),
-  getProjectInstalledSkillsInfo: vi.fn(() => null),
+  getInstalledSkillsInfo: vi.fn(),
+  getProjectInstalledSkillsInfo: vi.fn(),
   writeSkillsManifest: vi.fn(),
-  getSkillsDir: vi.fn(() => '/home/user/.claude/skills'),
-  getProjectSkillsDir: vi.fn(() => '/project/.claude/skills'),
-  getMarketplaceSkillsInfo: vi.fn(() => null)
+  getSkillsDir: vi.fn(() => '/mock/skills'),
+  getProjectSkillsDir: vi.fn(() => '/test/project/.claude/skills'),
+  getAgentConfig: vi.fn((agent) => ({
+    supportsSkills: true,
+    skills: true,
+    commands: agent === 'claude-code' ? null : true
+  })),
+  getMarketplaceSkillsInfo: vi.fn(() => ({ installed: false, version: null })),
+  getAgentDisplayName: vi.fn((agent) => agent)
 }));
 
 vi.mock('../../src/prompts/init.js', () => ({
