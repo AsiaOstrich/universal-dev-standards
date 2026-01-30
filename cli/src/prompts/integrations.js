@@ -103,6 +103,7 @@ export async function promptIntegrationMode() {
       type: 'list',
       name: 'mode',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.green('Default')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.default}`,
@@ -149,6 +150,8 @@ export async function promptRuleCategories(_detected = {}) {
       type: 'checkbox',
       name: 'categories',
       message: msg.question,
+      suffix: ' ',
+      instructions: false,
       choices,
       validate: (answer) => {
         if (answer.length === 0) {
@@ -199,6 +202,8 @@ export async function promptLanguageRules(detected = {}) {
       type: 'checkbox',
       name: 'languages',
       message: msg.question,
+      suffix: ' ',
+      instructions: false,
       choices
     }
   ]);
@@ -223,6 +228,7 @@ export async function promptExclusions() {
       type: 'confirm',
       name: 'hasExclusions',
       message: msg.question,
+      suffix: ' ',
       default: false
     }
   ]);
@@ -236,6 +242,7 @@ export async function promptExclusions() {
       type: 'input',
       name: 'exclusions',
       message: msg.inputPrompt,
+      suffix: ' ',
       filter: (input) => input.split(',').map(s => s.trim()).filter(s => s.length > 0)
     }
   ]);
@@ -260,6 +267,7 @@ export async function promptCustomRules() {
       type: 'confirm',
       name: 'hasCustomRules',
       message: msg.question,
+      suffix: ' ',
       default: false
     }
   ]);
@@ -277,6 +285,7 @@ export async function promptCustomRules() {
         type: 'input',
         name: 'rule',
         message: msg.inputPrompt,
+        suffix: ' '
       }
     ]);
 
@@ -308,6 +317,7 @@ export async function promptMergeStrategy(toolName) {
       type: 'list',
       name: 'strategy',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.green('Append')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.append}`,
@@ -350,6 +360,7 @@ export async function promptDetailLevel() {
       type: 'list',
       name: 'level',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.gray(msg.labels.minimal)} - ${msg.choices.minimal}`,
@@ -383,6 +394,7 @@ export async function promptRuleLanguage() {
       type: 'list',
       name: 'language',
       message: msg.question,
+      suffix: ' ',
       choices: [
         {
           name: `${chalk.green(msg.choices.en)} ${chalk.gray(`(${t().recommended})`)}`,

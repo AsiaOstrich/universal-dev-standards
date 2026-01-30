@@ -523,6 +523,11 @@ export const messages = {
         title: 'Integration Configuration:',
         description: 'Configure how AI assistant rule files are generated (CLAUDE.md, .cursorrules, etc.)',
         question: 'How would you like to configure integration files?',
+        labels: {
+          default: 'Default',
+          custom: 'Custom',
+          merge: 'Merge'
+        },
         choices: {
           default: 'Use standard rule set',
           custom: 'Select specific rules to include',
@@ -535,6 +540,17 @@ export const messages = {
         description: 'Select which standards to include in integration files',
         question: 'Select rule categories:',
         validation: 'Please select at least one category'
+      },
+      // Category labels for display
+      categoryLabels: {
+        'anti-hallucination': 'Anti-Hallucination',
+        'commit-standards': 'Commit Standards',
+        'code-review': 'Code Review',
+        testing: 'Testing',
+        documentation: 'Documentation',
+        'git-workflow': 'Git Workflow',
+        'error-handling': 'Error Handling',
+        'project-structure': 'Project Structure'
       },
       // promptLanguageRules
       languageRules: {
@@ -837,11 +853,16 @@ export const messages = {
         contentModeIndex: 'Standard (recommended)',
         contentModeMinimal: 'Minimal (core only)',
         displayLanguageLabel: 'Display Language',
-        integrations: 'Integrations',
+        integrations: 'Generated Configs',
         skillsLabel: 'Skills',
         skillsMarketplace: 'Plugin Marketplace (managed by Claude Code)',
         skillsInstallTo: 'install/update to {location}',
         skillsUsingExisting: 'using existing ({location})',
+        skillsInstalledToCount: '{count} locations',
+        commandsLabel: 'Slash Commands',
+        commandsInstalledToCount: '{count} locations',
+        integrationConfigLabel: 'Integration Config',
+        ruleCategoriesLabel: 'Rule Categories',
         gitWorkflow: 'Git Workflow',
         mergeStrategy: 'Merge Strategy',
         commitLanguage: 'Commit Language',
@@ -1594,6 +1615,11 @@ export const messages = {
         title: '整合設定:',
         description: '設定 AI 助手規則檔的產生方式（影響 CLAUDE.md, .cursorrules, GEMINI.md 等）',
         question: '你想如何設定整合檔案？',
+        labels: {
+          default: '預設',
+          custom: '自訂',
+          merge: '合併'
+        },
         choices: {
           default: '使用標準規則集',
           custom: '選擇要包含的特定規則',
@@ -1606,6 +1632,17 @@ export const messages = {
         description: '選擇要包含在整合檔案中的標準',
         question: '選擇規則類別：',
         validation: '請至少選擇一個類別'
+      },
+      // Category labels for display
+      categoryLabels: {
+        'anti-hallucination': '反幻覺協議',
+        'commit-standards': '提交訊息標準',
+        'code-review': '程式碼審查',
+        testing: '測試標準',
+        documentation: '文件標準',
+        'git-workflow': 'Git 工作流程',
+        'error-handling': '錯誤處理',
+        'project-structure': '專案結構'
       },
       // promptLanguageRules
       languageRules: {
@@ -1908,11 +1945,16 @@ export const messages = {
         contentModeIndex: '標準（推薦）',
         contentModeMinimal: '最小（僅核心）',
         displayLanguageLabel: '顯示語言',
-        integrations: '整合',
+        integrations: '整合配置檔',
         skillsLabel: 'Skills',
         skillsMarketplace: 'Plugin Marketplace（由 Claude Code 管理）',
         skillsInstallTo: '安裝/更新到 {location}',
         skillsUsingExisting: '使用現有（{location}）',
+        skillsInstalledToCount: '已安裝到 {count} 個位置',
+        commandsLabel: '斜線命令',
+        commandsInstalledToCount: '已安裝到 {count} 個位置',
+        integrationConfigLabel: '整合設定',
+        ruleCategoriesLabel: '規則類別',
         gitWorkflow: 'Git 工作流程',
         mergeStrategy: '合併策略',
         commitLanguage: '提交訊息語言',
@@ -2572,6 +2614,11 @@ export const messages = {
         title: '集成配置:',
         description: '配置 AI 助手规则文件的生成方式（影响 CLAUDE.md, .cursorrules, GEMINI.md 等）',
         question: '你想如何配置集成文件？',
+        labels: {
+          default: '默认',
+          custom: '自定义',
+          merge: '合并'
+        },
         choices: {
           default: '使用标准规则集',
           custom: '选择要包含的特定规则',
@@ -2584,6 +2631,17 @@ export const messages = {
         description: '选择要包含在集成文件中的标准',
         question: '选择规则类别：',
         validation: '请至少选择一个类别'
+      },
+      // Category labels for display
+      categoryLabels: {
+        'anti-hallucination': '反幻觉协议',
+        'commit-standards': '提交消息标准',
+        'code-review': '代码审查',
+        testing: '测试标准',
+        documentation: '文档标准',
+        'git-workflow': 'Git 工作流',
+        'error-handling': '错误处理',
+        'project-structure': '项目结构'
       },
       // promptLanguageRules
       languageRules: {
@@ -2745,11 +2803,16 @@ export const messages = {
         contentModeIndex: '标准（推荐）',
         contentModeMinimal: '最小（仅核心）',
         displayLanguageLabel: '显示语言',
-        integrations: '集成',
+        integrations: '集成配置文件',
         skillsLabel: 'Skills',
         skillsMarketplace: 'Plugin Marketplace（由 Claude Code 管理）',
         skillsInstallTo: '安装/更新到 {location}',
         skillsUsingExisting: '使用现有（{location}）',
+        skillsInstalledToCount: '已安装到 {count} 个位置',
+        commandsLabel: '斜杠命令',
+        commandsInstalledToCount: '已安装到 {count} 个位置',
+        integrationConfigLabel: '集成配置',
+        ruleCategoriesLabel: '规则类别',
         gitWorkflow: 'Git 工作流',
         mergeStrategy: '合并策略',
         commitLanguage: '提交消息语言',

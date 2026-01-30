@@ -14,7 +14,8 @@ import { writeFinalManifest } from '../installers/manifest-installer.js';
 import {
   getInstalledSkillsInfo,
   getProjectInstalledSkillsInfo,
-  getAgentConfig
+  getAgentConfig,
+  getAgentDisplayName
 } from '../utils/github.js';
 
 /**
@@ -222,13 +223,24 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
 
 /**
  * Get label for a value from translation labels object
- * @param {string} key - The translation key (e.g., 'gitWorkflow', 'mergeStrategy')
- * @param {string} value - The value to look up
+ * Tries to find in messages.js labels, falls back to original value
+ * @param {string} key - The translation key (e.g., 'gitWorkflow', 'mergeStrategy', 'level')
+ * @param {string|number} value - The value to look up
  * @returns {string} The label or the original value if not found
  */
 function getValueLabel(key, value) {
-  const labels = t()[key]?.labels;
-  return labels?.[value] || value;
+  const translations = t();
+  // Try direct key lookup (e.g., t().gitWorkflow.labels)
+  const labels = translations[key]?.labels;
+  if (labels?.[value]) {
+    return labels[value];
+  }
+  // Try commands.init labels for nested structures
+  const initLabels = translations.commands?.init?.[key + 'Labels'];
+  if (initLabels?.[value]) {
+    return initLabels[value];
+  }
+  return String(value);
 }
 
 /**
@@ -242,14 +254,19 @@ function displaySummary(config, msg, common) {
   const displayLangLabel = config.displayLanguage === 'zh-tw' ? '繁體中文' : config.displayLanguage === 'zh-cn' ? '简体中文' : 'English';
   console.log(chalk.gray(`  ${msg.displayLanguageLabel || 'Display Language'}: ${displayLangLabel}`));
 
-  // 2. AI Tools (STEP 2)
-  console.log(chalk.gray(`  ${common.aiTools}: ${config.aiTools.length > 0 ? config.aiTools.join(', ') : common.none}`));
+  // 2. AI Tools (STEP 2) - Use getAgentDisplayName for readable names
+  const aiToolNames = config.aiTools.map(id => getAgentDisplayName(id) || id);
+  console.log(chalk.gray(`  ${common.aiTools}: ${aiToolNames.length > 0 ? aiToolNames.join(', ') : common.none}`));
 
   // 3. Skills Installation (STEP 4)
   if (config.skillsConfig.installed) {
     let skillsStatusText;
     if (config.skillsConfig.location === 'marketplace') {
       skillsStatusText = msg.skillsMarketplace;
+    } else if (config.skillsConfig.location === 'multiple') {
+      // Handle multiple installation locations
+      const count = config.skillsConfig.skillsInstallations?.length || 0;
+      skillsStatusText = (msg.skillsInstalledToCount || '{count} locations').replace('{count}', count);
     } else {
       skillsStatusText = config.skillsConfig.needsInstall
         ? msg.skillsInstallTo.replace('{location}', config.skillsConfig.location)
@@ -258,11 +275,19 @@ function displaySummary(config, msg, common) {
     console.log(chalk.gray(`  ${msg.skillsLabel}: ${skillsStatusText}`));
   }
 
+  // 3b. Commands Installation (STEP 5)
+  if (config.skillsConfig.commandsInstallations?.length > 0) {
+    const count = config.skillsConfig.commandsInstallations.length;
+    const commandsStatusText = (msg.commandsInstalledToCount || '{count} locations').replace('{count}', count);
+    console.log(chalk.gray(`  ${msg.commandsLabel || 'Slash Commands'}: ${commandsStatusText}`));
+  }
+
   // 4. Standards Scope (STEP 6)
   console.log(chalk.gray(`  ${msg.standardsScope}: ${config.skillsConfig.standardsScope === 'minimal' ? msg.standardsScopeLean : msg.standardsScopeComplete}`));
 
-  // 5. Adoption Level (STEP 7)
-  console.log(chalk.gray(`  ${common.level}: ${config.level}`));
+  // 5. Adoption Level (STEP 7) - Use level.labels for translated display
+  const levelLabels = t().level?.labels || { 1: 'Level 1', 2: 'Level 2', 3: 'Level 3' };
+  console.log(chalk.gray(`  ${common.level}: ${levelLabels[config.level] || `Level ${config.level}`}`));
 
   // 6. Standards Format (STEP 8)
   const formatLabels = t().format?.labels || { ai: 'Compact', human: 'Detailed', both: 'Both' };
@@ -289,8 +314,29 @@ function displaySummary(config, msg, common) {
   // 9. Framework Extensions (STEP 11)
   console.log(chalk.gray(`  ${msg.frameworks}: ${config.frameworks.length > 0 ? config.frameworks.join(', ') : common.none}`));
 
-  // 10. Integrations (STEP 12)
-  console.log(chalk.gray(`  ${msg.integrations}: ${config.integrations.length > 0 ? config.integrations.join(', ') : common.none}`));
+  // 10. Integrations (STEP 12) - Use getAgentDisplayName for readable names
+  const integrationNames = config.integrations.map(id => getAgentDisplayName(id) || id);
+  console.log(chalk.gray(`  ${msg.integrations}: ${integrationNames.length > 0 ? integrationNames.join(', ') : common.none}`));
+
+  // 10b. Integration Config (STEP 12 continued)
+  if (config.skillsConfig.integrationConfigs && Object.keys(config.skillsConfig.integrationConfigs).length > 0) {
+    // Get the first config (shared config)
+    const firstConfigKey = Object.keys(config.skillsConfig.integrationConfigs)[0];
+    const integrationConfig = config.skillsConfig.integrationConfigs[firstConfigKey];
+
+    if (integrationConfig && integrationConfig.mode) {
+      const modeLabels = t().integration?.mode?.labels || { default: 'Default', custom: 'Custom', merge: 'Merge' };
+      const modeLabel = modeLabels[integrationConfig.mode] || integrationConfig.mode;
+      console.log(chalk.gray(`  ${msg.integrationConfigLabel || 'Integration Config'}: ${modeLabel}`));
+
+      // If custom mode, show selected categories
+      if (integrationConfig.mode === 'custom' && integrationConfig.categories?.length > 0) {
+        const categoryLabels = t().integration?.categoryLabels || {};
+        const categoryNames = integrationConfig.categories.map(cat => categoryLabels[cat] || cat);
+        console.log(chalk.gray(`  ${msg.ruleCategoriesLabel || 'Rule Categories'}: ${categoryNames.join(', ')}`));
+      }
+    }
+  }
 
   // 11. Content Mode (STEP 13)
   const contentModeLabels = t().contentMode?.labels || { index: 'Standard', full: 'Full', minimal: 'Minimal' };
