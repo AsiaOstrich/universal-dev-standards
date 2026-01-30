@@ -33,7 +33,7 @@ import { integrationFileExists } from '../utils/integration-generator.js';
  * @returns {Promise<Object|null>} Configuration object or null if cancelled
  */
 export async function runInitFlow(options, detected, projectPath) {
-  const msg = t().commands.init;
+  let msg = t().commands.init;
   
   // Initialize configuration variables
   let level = options.level ? parseInt(options.level, 10) : null;
@@ -58,7 +58,8 @@ export async function runInitFlow(options, detected, projectPath) {
 
   // === STEP 1: Display Language ===
   displayLanguage = await promptDisplayLanguage();
-  const msgAfterLang = t().commands.init;
+  msg = t().commands.init; // Re-fetch after language change
+  const msgAfterLang = msg;
 
   // === STEP 2: AI Tools Selection ===
   aiTools = await promptAITools({
@@ -186,18 +187,10 @@ export async function runInitFlow(options, detected, projectPath) {
   }
 
   // === STEP 12: Integrations ===
-  integrations = aiTools.filter(t => t !== 'claude-code');
+  integrations = [...aiTools];
   const integrationConfigs = {};
   
   if (integrations.length > 0) {
-    console.log();
-    console.log(chalk.cyan(msg.integrationConfig));
-
-    if (integrations.length > 1) {
-      console.log(chalk.gray(`  ${msg.sharedRuleConfig}`));
-      console.log();
-    }
-
     const existingFiles = {};
     for (const tool of integrations) {
       existingFiles[tool] = integrationFileExists(tool, projectPath);

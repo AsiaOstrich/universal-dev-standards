@@ -243,7 +243,7 @@ describe('Init Command', () => {
       await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
-      expect(output).toContain('Level: 2');
+      expect(output).toContain('Level: Level 2');
       // When no skills-compatible tools are detected, skills default to 'none' (Complete standards)
       expect(output).toContain('Standards Scope: Complete');
     });
@@ -254,7 +254,7 @@ describe('Init Command', () => {
       await expect(initCommand({ yes: true, level: '3' })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
-      expect(output).toContain('Level: 3');
+      expect(output).toContain('Level: Level 3');
     });
 
     it('should show configuration summary', async () => {

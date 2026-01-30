@@ -91,6 +91,7 @@ export async function promptAITools(detected = {}) {
       type: 'checkbox',
       name: 'tools',
       message: msg.question,
+      suffix: ' ',
       instructions: false,  // Hide default English hint, we show translated hint above
       choices: [
         {
@@ -218,6 +219,7 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
       type: 'checkbox',
       name: 'locations',
       message: msg.questionMulti,
+      suffix: ' ',
       choices,
       instructions: false  // Hide default English hint, we show translated hint above
     }
@@ -304,6 +306,7 @@ export async function promptCommandsInstallation(selectedTools = []) {
       type: 'checkbox',
       name: 'locations',
       message: msg.questionMulti || msg.question,
+      suffix: ' ',
       choices,
       instructions: false  // Hide default English hint, we show translated hint above
     }
@@ -737,6 +740,7 @@ export async function promptTestLevels() {
       type: 'checkbox',
       name: 'levels',
       message: msg.question,
+      suffix: ' ',
       instructions: false,
       choices: [
         {
@@ -921,7 +925,7 @@ export async function promptLevel() {
           value: 3
         }
       ],
-      default: 2
+      default: 1
     }
   ]);
 
@@ -961,6 +965,7 @@ export async function promptLanguage(detected) {
       type: 'checkbox',
       name: 'languages',
       message: 'Detected language(s). Select style guides to include:',
+      suffix: ' ',
       instructions: false,
       choices
     }
@@ -992,6 +997,7 @@ export async function promptFramework(detected) {
       type: 'checkbox',
       name: 'frameworks',
       message: 'Detected framework(s). Select patterns to include:',
+      suffix: ' ',
       instructions: false,
       choices
     }
@@ -1010,6 +1016,7 @@ export async function promptLocale() {
       type: 'confirm',
       name: 'useLocale',
       message: 'Use Traditional Chinese (繁體中文) locale?',
+      suffix: ' ',
       default: false
     }
   ]);
@@ -1054,6 +1061,7 @@ export async function promptIntegrations(detected) {
       type: 'checkbox',
       name: 'integrations',
       message: 'Select AI tool integrations:',
+      suffix: ' ',
       instructions: false,
       choices
     }
@@ -1073,6 +1081,7 @@ export async function promptConfirm(message) {
       type: 'confirm',
       name: 'confirmed',
       message,
+      suffix: ' ',
       default: true
     }
   ]);
@@ -1248,6 +1257,7 @@ export async function promptManageAITools(currentTools = []) {
         type: 'checkbox',
         name: 'toolsToAdd',
         message: msg.selectToAdd,
+        suffix: ' ',
         instructions: false,
         choices: availableTools
       }
@@ -1277,6 +1287,7 @@ export async function promptManageAITools(currentTools = []) {
         type: 'checkbox',
         name: 'toolsToRemove',
         message: msg.selectToRemove,
+        suffix: ' ',
         instructions: false,
         choices: installedChoices
       }

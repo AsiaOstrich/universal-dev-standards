@@ -15,11 +15,9 @@ Address remaining UX issues identified during manual testing: incorrect default 
 - **Issue**: Defaults to Level 3, but Level 2 is recommended.
 - **Resolution**: Verified `default: 2` (Level 2) was already set in `promptLevel`.
 
-### 2.2 Untranslated Headers
-- **Issue**: "Standard Options" and "Integration Configuration" headers appear in English.
-- **Fix**:
-  - Added `standardOptions` translation to `messages.js` (en, zh-tw, zh-cn).
-  - Updated `promptStandardOptions` to use `t().standardOptions.title` and `t().standardOptions.description`.
+### 2.2 Standard Options Header
+- **Issue**: "Standard Options" header is redundant since each sub-option (Git Workflow, etc.) has its own title.
+- **Fix**: Removed the Standard Options header and description from `promptStandardOptions`.
 
 ### 2.3 Context Descriptions
 - **Issue**: Users may not understand "Integration Config" and "Content Mode" affect AI config files.
@@ -40,8 +38,8 @@ Address remaining UX issues identified during manual testing: incorrect default 
 
 | File | Change Type |
 |------|-------------|
-| `cli/src/i18n/messages.js` | Added `standardOptions` to all locales, updated `contentMode.description` in zh-cn |
-| `cli/src/prompts/init.js` | Changed `suffix: ''` to `suffix: ' '`, updated `promptStandardOptions` to use translations |
+| `cli/src/i18n/messages.js` | Updated `contentMode.description` in zh-cn |
+| `cli/src/prompts/init.js` | Changed `suffix: ''` to `suffix: ' '`, removed redundant Standard Options header |
 | `cli/src/commands/init.js` | Updated `displaySummary` to use translated format labels |
 
 ## 4. Verification
@@ -49,5 +47,7 @@ Address remaining UX issues identified during manual testing: incorrect default 
 - ✅ All 1173 unit tests pass
 - ✅ ESLint shows only pre-existing warnings (0 errors)
 - ✅ `suffix: ' '` applied to all 15 list prompts
-- ✅ `standardOptions` translations available in en, zh-tw, zh-cn
+- ✅ Standard Options header removed (each sub-prompt has its own title)
 - ✅ `displaySummary` uses localized format labels with fallback
+- ✅ `promptLevel` default correctly set to 2 (Level 2)
+- ✅ `configSummary` and `proceedInstall` correctly translated

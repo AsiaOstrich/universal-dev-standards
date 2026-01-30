@@ -214,7 +214,7 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     },
     skillsConfig,
     aiTools: aiToolsNormalized,
-    integrations: Object.keys(detected.aiTools).filter(k => detected.aiTools[k] && k !== 'claudeCode'),
+    integrations: [...aiToolsNormalized],
     contentMode: skillsConfig.contentMode || 'minimal',
     standardsScope: skillsConfig.standardsScope || 'full',
     methodology: null
@@ -314,11 +314,7 @@ function displaySummary(config, msg, common) {
   // 9. Framework Extensions (STEP 11)
   console.log(chalk.gray(`  ${msg.frameworks}: ${config.frameworks.length > 0 ? config.frameworks.join(', ') : common.none}`));
 
-  // 10. Integrations (STEP 12) - Use getAgentDisplayName for readable names
-  const integrationNames = config.integrations.map(id => getAgentDisplayName(id) || id);
-  console.log(chalk.gray(`  ${msg.integrations}: ${integrationNames.length > 0 ? integrationNames.join(', ') : common.none}`));
-
-  // 10b. Integration Config (STEP 12 continued)
+  // 10. Integration Config (STEP 12)
   if (config.skillsConfig.integrationConfigs && Object.keys(config.skillsConfig.integrationConfigs).length > 0) {
     // Get the first config (shared config)
     const firstConfigKey = Object.keys(config.skillsConfig.integrationConfigs)[0];
