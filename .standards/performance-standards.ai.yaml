@@ -1,0 +1,129 @@
+# Performance Standards (AI-Optimized)
+# Source: core/performance-standards.md
+# Guide: core/guides/performance-guide.md
+# Version: 1.0.0
+
+iso25010_efficiency:
+  time_behavior: "Response time, throughput"
+  resource_utilization: "CPU, memory, disk, network"
+  capacity: "Maximum limits meeting requirements"
+
+requirements:
+  template: "The system SHALL respond to API requests within [target]ms for p[percentile] under [load] conditions"
+  targets:
+    ecommerce: {p95: "<200ms", throughput: "1000+ rps", availability: "99.9%"}
+    internal: {p95: "<500ms", throughput: "100+ rps", availability: "99.5%"}
+    realtime: {p99: "<50ms", throughput: "10K+ rps", availability: "99.99%"}
+
+testing:
+  types:
+    load: {purpose: "Verify expected load", duration: "10-60 min", load: "normal-peak"}
+    stress: {purpose: "Find breaking point", duration: "until failure", load: "beyond capacity"}
+    soak: {purpose: "Find leaks", duration: "4-72 hours", load: "sustained normal"}
+    spike: {purpose: "Sudden changes", duration: "short bursts", load: "sudden increase"}
+    scalability: {purpose: "Scaling behavior", load: "incrementally increasing"}
+  tools:
+    load: [k6, JMeter, Gatling, Locust]
+    frontend: [Lighthouse, WebPageTest]
+    apm: [Datadog, New_Relic, Dynatrace]
+  frequency:
+    dev: "Unit perf every commit"
+    staging: "Load/stress every release"
+    prod: "Load monthly, stress quarterly"
+
+metrics:
+  red_method: # Request-oriented
+    rate: "Requests per second"
+    errors: "Error rate % (<0.1%)"
+    duration: "Response time distribution"
+  use_method: # Resource-oriented
+    utilization: "% busy (warn >70%, crit >90%)"
+    saturation: "Queue length"
+    errors: "Error count"
+  golden_signals: # Google SRE
+    latency: "Track p50, p90, p95, p99"
+    traffic: "Requests/transactions per second"
+    errors: "Explicit + implicit + policy violations"
+    saturation: "CPU, memory, disk, network"
+  percentiles:
+    p50: "Typical user experience"
+    p95: "SLA threshold (common)"
+    p99: "Worst case for most users"
+
+optimization:
+  principles:
+    - "MEASURE FIRST (avoid premature optimization)"
+    - "IDENTIFY BOTTLENECK (Amdahl's Law)"
+    - "OPTIMIZE RIGHT LEVEL: Algorithm > Architecture > Database > Code > Infrastructure"
+    - "VERIFY IMPROVEMENT"
+  techniques:
+    algorithm: {impact: very_high, example: "O(n²) → O(n log n)"}
+    architecture: {impact: high, example: "Caching, async, load balancing"}
+    database: {impact: high, example: "Indexing, query optimization, connection pooling"}
+    code: {impact: medium, example: "Lazy loading, batching, memoization"}
+
+database:
+  query_issues:
+    full_table_scan: "Add indexes"
+    n_plus_1: "Eager loading/JOINs"
+    large_results: "Pagination"
+  connection_pool:
+    min: "5-10"
+    max: "20-100"
+    idle_timeout: "10-30 min"
+
+api:
+  optimization:
+    - "Pagination (default 20-100 items)"
+    - "Field selection (?fields=id,name)"
+    - "Compression (gzip/brotli >1KB)"
+    - "Async for long operations (return 202)"
+  rate_limits:
+    login: "5/15min"
+    authenticated: "1000/hour"
+    unauthenticated: "100/hour"
+
+frontend:
+  core_web_vitals:
+    LCP: "<2.5s"
+    INP: "<200ms"
+    CLS: "<0.1"
+  techniques: [lazy_loading, code_splitting, image_optimization, CDN]
+  budget:
+    total: "500KB"
+    javascript: "200KB"
+    lighthouse_perf: "90+"
+
+caching:
+  levels: [browser, CDN, application, database]
+  strategies:
+    ttl_based: "Static content, read-heavy"
+    event_based: "Real-time data, consistency critical"
+    stale_while_revalidate: "High availability"
+  headers:
+    static: "public, max-age=31536000, immutable"
+    api_short: "private, max-age=60, stale-while-revalidate=300"
+    no_cache: "no-store, no-cache, must-revalidate"
+
+monitoring:
+  components:
+    application: "APM (response time, traces)"
+    infrastructure: "Prometheus/Grafana (CPU, memory)"
+    database: "Slow query log, connections"
+    frontend: "RUM (Core Web Vitals)"
+  alerts:
+    p95_response: {warn: ">200ms", crit: ">500ms"}
+    error_rate: {warn: ">0.1%", crit: ">1%"}
+    cpu: {warn: ">70%", crit: ">90%"}
+    memory: {warn: ">80%", crit: ">95%"}
+
+capacity_planning:
+  process: [collect_data, analyze_trends, forecast, plan, execute]
+  scaling:
+    vertical: {pros: "Simple", cons: "Hardware limits", when: "Quick fix"}
+    horizontal: {pros: "No limit, fault tolerant", cons: "Complexity", when: "Production"}
+    auto: {pros: "Cost-effective", cons: "Warm-up time", when: "Variable load"}
+  thresholds:
+    cpu: "Plan at 70%"
+    memory: "Plan at 80%"
+    storage: "Plan at 70%"

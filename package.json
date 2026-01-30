@@ -1,5 +1,11 @@
 {
   "devDependencies": {
     "opencc-js": "^1.0.5"
-  }
+  },
+  "scripts": {
+    "uds:check": "node cli/bin/uds.js check",
+    "uds:update": "node cli/bin/uds.js update",
+    "uds:skills": "node cli/bin/uds.js skills"
+  },
+  "type": "module"
 }

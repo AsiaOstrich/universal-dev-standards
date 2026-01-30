@@ -1,0 +1,331 @@
+# Test-Driven Development (TDD) Standards - AI Optimized
+# Source: core/test-driven-development.md
+
+id: test-driven-development
+meta:
+  version: "1.0.0"
+  updated: "2026-01-10"
+  source: methodologies/guides/tdd-guide.md
+  description: TDD principles, workflows, and best practices for test-first development
+
+# TDD Core Cycle
+core_cycle:
+  name: Red-Green-Refactor
+  mantra: "Red -> Green -> Refactor -> Repeat"
+  phases:
+    - phase: RED
+      duration: 1-5 minutes
+      actions:
+        - Write a failing test that describes expected behavior
+        - Test should fail for the RIGHT reason
+        - Verify the test actually fails
+      warning: If >10 min, test scope is too large
+
+    - phase: GREEN
+      duration: 1-10 minutes
+      actions:
+        - Write the MINIMUM code to make the test pass
+        - "Fake it till you make it" is acceptable
+        - Don't over-engineer; just make it work
+      warning: If >15 min, break down the problem
+
+    - phase: REFACTOR
+      duration: 5-15 minutes
+      actions:
+        - Improve code quality while keeping tests green
+        - Remove duplication (DRY)
+        - Improve naming, structure, readability
+        - Run tests after each refactoring step
+      warning: If skipped, technical debt accumulates
+
+# FIRST Principles
+first_principles:
+  - principle: Fast
+    description: Tests should run quickly
+    guideline: Unit tests < 100ms each; total suite < 10s
+
+  - principle: Independent
+    description: Tests don't depend on each other
+    guideline: No shared state; each test sets up its own data
+
+  - principle: Repeatable
+    description: Same result every time
+    guideline: No randomness; no time dependencies; no external I/O
+
+  - principle: Self-validating
+    description: Clear pass/fail result
+    guideline: No manual inspection; explicit assertions
+
+  - principle: Timely
+    description: Written before production code
+    guideline: This is the essence of TDD
+
+# Uncle Bob's Three Rules
+three_rules:
+  - rule: Red Rule
+    text: You are not allowed to write any production code unless it is to make a failing unit test pass
+
+  - rule: Test Rule
+    text: You are not allowed to write any more of a unit test than is sufficient to fail; and compilation failures are failures
+
+  - rule: Green Rule
+    text: You are not allowed to write any more production code than is sufficient to pass the one failing unit test
+
+# Applicability Guide
+applicability:
+  high_value:
+    - scenario: New feature development
+      rating: 5
+      note: Best TDD use case; design emerges from tests
+    - scenario: Bug fixing
+      rating: 5
+      note: Write failing test to reproduce bug first
+    - scenario: API design
+      rating: 5
+      note: Tests serve as API usage documentation
+    - scenario: Core business logic
+      rating: 5
+      note: High-value code must have test protection
+    - scenario: Algorithm implementation
+      rating: 4
+      note: Many edge cases; TDD helps think through them
+    - scenario: Refactoring existing code
+      rating: 4
+      note: Add tests first, then refactor safely
+
+  medium_value:
+    - scenario: UI components
+      rating: 3
+      note: Partially applicable; combine with BDD
+    - scenario: Third-party integrations
+      rating: 2
+      note: Hard to mock; use integration tests instead
+
+  low_value:
+    - scenario: Exploratory prototypes
+      rating: 2
+      note: TDD may slow down uncertain exploration
+    - scenario: One-off scripts
+      rating: 1
+      note: Low cost-benefit ratio
+
+# Test Design Patterns
+test_patterns:
+  aaa_pattern:
+    name: Arrange-Act-Assert
+    sections:
+      - Arrange: Set up test data and dependencies
+      - Act: Execute the behavior being tested
+      - Assert: Verify the result
+
+  gwt_pattern:
+    name: Given-When-Then
+    sections:
+      - Given: Initial context/state
+      - When: Action or event
+      - Then: Expected outcome
+
+  naming_conventions:
+    good:
+      - should_return_error_when_email_invalid
+      - calculateTotal_withDiscount_returnsReducedPrice
+      - test_login_invalidPassword_throwsError
+    bad:
+      - test1
+      - testCalculate
+      - itWorks
+
+# Test Doubles
+test_doubles:
+  types:
+    - type: Dummy
+      purpose: Fill parameter lists
+      when: Required parameter not used in test
+
+    - type: Stub
+      purpose: Return predefined values
+      when: Simulate specific scenarios
+
+    - type: Spy
+      purpose: Record interactions
+      when: Verify method was called
+
+    - type: Mock
+      purpose: Verify interactions + return values
+      when: Test behavior and collaboration
+
+    - type: Fake
+      purpose: Simplified working implementation
+      when: In-memory database
+
+  by_test_level:
+    - level: Unit Test
+      doubles: Mocks, Stubs for all external dependencies
+    - level: Integration Test
+      doubles: Fakes for DB, Stubs for external APIs
+    - level: System Test
+      doubles: Real components, Fakes only for external services
+    - level: E2E Test
+      doubles: Real everything
+
+# Anti-Patterns
+anti_patterns:
+  code_level:
+    - name: Testing Implementation Details
+      impact: Brittle tests, refactoring breaks tests
+      fix: Test public behavior only
+
+    - name: Over-Mocking
+      impact: False confidence, bugs in production
+      fix: Balance mocks with real components
+
+    - name: Test Interdependence
+      impact: Random failures, hard to isolate
+      fix: Each test sets up its own state
+
+    - name: Flaky Tests
+      impact: Eroded trust in test suite
+      fix: Eliminate time/order dependencies
+
+    - name: Missing Assertions
+      impact: False positives
+      fix: Every test needs clear assertions
+
+  process_level:
+    - name: Skipping Red Phase
+      impact: Lose TDD design benefits
+      fix: "Discipline: always write failing test first"
+
+    - name: Skipping Refactor Phase
+      impact: Technical debt accumulates
+      fix: Schedule refactoring time
+
+    - name: Test After Development (TAD)
+      impact: Not TDD, miss design feedback
+      fix: "True TDD: test first"
+
+    - name: 100% Coverage Obsession
+      impact: Meaningless tests
+      fix: Focus on behavior coverage
+
+# Rules for AI
+rules:
+  - id: red-first
+    trigger: starting new feature or bug fix
+    instruction: Write a failing test BEFORE writing production code
+    priority: required
+
+  - id: minimum-code
+    trigger: making test pass
+    instruction: Write the MINIMUM code needed to pass the test
+    priority: required
+
+  - id: refactor-after-green
+    trigger: test passes
+    instruction: Refactor code while keeping tests green
+    priority: required
+
+  - id: single-assertion
+    trigger: writing test
+    instruction: Each test should verify ONE behavior
+    priority: recommended
+
+  - id: descriptive-names
+    trigger: naming tests
+    instruction: Use names that describe the expected behavior
+    priority: required
+    examples:
+      good:
+        - should_return_empty_list_when_no_users_found
+        - should_throw_validation_error_when_email_is_invalid
+      bad:
+        - test1
+        - testIt
+
+  - id: follow-first
+    trigger: writing tests
+    instruction: Follow FIRST principles (Fast, Independent, Repeatable, Self-validating, Timely)
+    priority: required
+
+  - id: avoid-over-mocking
+    trigger: using test doubles
+    instruction: Only mock external services, slow operations, and non-deterministic operations
+    priority: recommended
+
+  - id: sdd-integration
+    trigger: implementing from spec
+    instruction: Map Spec acceptance criteria to TDD tests; reference SPEC-ID in test comments
+    priority: recommended
+
+# Comparison with BDD/ATDD
+comparison:
+  tdd:
+    focus: Code units
+    language: Programming code
+    participants: Developers
+    test_level: Unit/Integration
+    when: During coding
+
+  bdd:
+    focus: Behavior
+    language: Natural language (Gherkin)
+    participants: Developers + BA + QA
+    test_level: Feature/Scenario
+    when: Before coding
+
+  atdd:
+    focus: Acceptance criteria
+    language: Business language
+    participants: Entire team + stakeholders
+    test_level: System/Acceptance
+    when: Before development starts
+
+# Metrics
+metrics:
+  targets:
+    - metric: Code Coverage
+      target: "> 80%"
+      warning: "< 60%"
+    - metric: Test-to-Code Ratio
+      target: "1:1 to 2:1"
+      warning: "< 0.5:1"
+    - metric: Test Execution Time
+      target: "< 30 seconds (unit)"
+      warning: "> 2 minutes"
+    - metric: Flaky Test Rate
+      target: "0%"
+      warning: "> 1%"
+
+quick_reference:
+  cycle_timing:
+    columns: [Phase, Duration, Warning]
+    rows:
+      - [RED, 1-5 min, ">10 min = test too large"]
+      - [GREEN, 1-10 min, ">15 min = break it down"]
+      - [REFACTOR, 5-15 min, "Skipped = tech debt"]
+
+  first_principles:
+    columns: [Principle, Description]
+    rows:
+      - [Fast, "Tests run quickly (<100ms each)"]
+      - [Independent, No dependencies between tests]
+      - [Repeatable, Same result every time]
+      - [Self-validating, Clear pass/fail]
+      - [Timely, Written before production code]
+
+  applicability:
+    columns: [Scenario, Rating, Note]
+    rows:
+      - [New feature, 5/5, Best TDD use case]
+      - [Bug fixing, 5/5, Write failing test first]
+      - [API design, 5/5, Tests as documentation]
+      - [Business logic, 5/5, Must have test protection]
+      - [UI components, 3/5, Combine with BDD]
+      - [Prototypes, 2/5, May slow exploration]
+
+related_standards:
+  - testing-standards.md
+  - test-completeness-dimensions.md
+  - spec-driven-development.md
+  - checkin-standards.md
+  - code-review-checklist.md

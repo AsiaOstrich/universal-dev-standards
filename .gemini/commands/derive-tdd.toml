@@ -1,0 +1,262 @@
+# derive-tdd command - converted from UDS
+description = "Derive TDD test skeletons from approved SDD specification"
+
+prompt = """
+
+## Arguments
+User provided: {{args}}
+
+# Derive TDD Test Skeletons from Specification | 從規格推演 TDD 測試骨架
+
+Generate TDD test skeleton files from approved SDD specification's Acceptance Criteria.
+
+從已批准的 SDD 規格驗收條件生成 TDD 測試骨架檔案。
+
+## Workflow | 工作流程
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  Read SPEC      │───▶│ Parse AC        │───▶│ Generate Test   │
+│  讀取規格        │    │ 解析驗收條件     │    │ Skeleton        │
+└─────────────────┘    └─────────────────┘    │ 生成測試骨架     │
+                                              └────────┬────────┘
+                                                       │
+                                                       ▼
+                       ┌─────────────────┐    ┌─────────────────┐
+                       │  Fill [TODO]    │◀───│ Write Test File │
+                       │  填寫 [TODO]    │    │ 寫入測試檔案     │
+                       └─────────────────┘    └─────────────────┘
+```
+
+## Anti-Hallucination Compliance | 反幻覺合規
+
+**CRITICAL**: Output MUST strictly follow 1:1 AC mapping.
+
+**關鍵**：輸出必須嚴格遵循 1:1 AC 對應。
+
+```
+Input:  SPEC with N Acceptance Criteria
+Output: Exactly N describe blocks (test groups)
+
+If output count ≠ input count → VIOLATION
+```
+
+## Steps | 步驟
+
+### 1. Read Specification | 讀取規格
+
+Read the approved specification file and identify:
+- SPEC ID and title
+- Acceptance Criteria with IDs
+
+### 2. Determine Language/Framework | 決定語言/框架
+
+Auto-detect or use specified parameters:
+
+| Language | Frameworks | File Extension |
+|----------|------------|----------------|
+| TypeScript | vitest, jest | `.test.ts` |
+| JavaScript | vitest, jest, mocha | `.test.js` |
+| Python | pytest, unittest | `_test.py` or `test_*.py` |
+| Java | junit, testng | `Test.java` |
+| Go | go test | `_test.go` |
+
+### 3. Generate Test Structure | 生成測試結構
+
+For each AC, generate:
+- describe block with AC reference
+- it block with behavior description
+- AAA comments (Arrange-Act-Assert)
+- Placeholder assertion
+- [TODO] markers for implementation
+
+## Output Formats | 輸出格式
+
+### TypeScript (Vitest/Jest)
+
+```typescript
+/**
+ * Tests for SPEC-001: [Title]
+ * Generated from: specs/SPEC-001.md
+ * Generated at: [timestamp]
+ * AC Coverage: AC-1, AC-2
+ */
+
+import { describe, it, expect } from 'vitest';
+
+describe('SPEC-001: [Title]', () => {
+  describe('AC-1: [AC Title]', () => {
+    it('should [expected behavior]', async () => {
+      // Arrange
+      // [TODO] Set up test data
+
+      // Act
+      // [TODO] Call method under test
+
+      // Assert
+      // [TODO] Add assertions
+      expect(true).toBe(true); // Placeholder
+    });
+  });
+
+  describe('AC-2: [AC Title]', () => {
+    it('should [expected behavior]', async () => {
+      // Arrange
+      // [TODO] Set up test data
+
+      // Act
+      // [TODO] Call method under test
+
+      // Assert
+      // [TODO] Add assertions
+      expect(true).toBe(true); // Placeholder
+    });
+  });
+});
+```
+
+### Python (pytest)
+
+```python
+\"""
+Tests for SPEC-001: [Title]
+Generated from: specs/SPEC-001.md
+Generated at: [timestamp]
+AC Coverage: AC-1, AC-2
+\"""
+
+import pytest
+
+
+class TestSPEC001:
+    \"""SPEC-001: [Title]\"""
+
+    class TestAC1:
+        \"""AC-1: [AC Title]\"""
+
+        def test_should_expected_behavior(self):
+            # Arrange
+            # [TODO] Set up test data
+
+            # Act
+            # [TODO] Call method under test
+
+            # Assert
+            # [TODO] Add assertions
+            assert True  # Placeholder
+
+    class TestAC2:
+        \"""AC-2: [AC Title]\"""
+
+        def test_should_expected_behavior(self):
+            # Arrange
+            # [TODO] Set up test data
+
+            # Act
+            # [TODO] Call method under test
+
+            # Assert
+            # [TODO] Add assertions
+            assert True  # Placeholder
+```
+
+### Java (JUnit 5)
+
+```java
+/**
+ * Tests for SPEC-001: [Title]
+ * Generated from: specs/SPEC-001.md
+ * Generated at: [timestamp]
+ * AC Coverage: AC-1, AC-2
+ */
+
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+class SPEC001Test {
+
+    @Nested
+    @DisplayName("AC-1: [AC Title]")
+    class AC1Test {
+
+        @Test
+        @DisplayName("should [expected behavior]")
+        void shouldExpectedBehavior() {
+            // Arrange
+            // [TODO] Set up test data
+
+            // Act
+            // [TODO] Call method under test
+
+            // Assert
+            // [TODO] Add assertions
+            assertTrue(true); // Placeholder
+        }
+    }
+
+    @Nested
+    @DisplayName("AC-2: [AC Title]")
+    class AC2Test {
+
+        @Test
+        @DisplayName("should [expected behavior]")
+        void shouldExpectedBehavior() {
+            // Arrange
+            // [TODO] Set up test data
+
+            // Act
+            // [TODO] Call method under test
+
+            // Assert
+            // [TODO] Add assertions
+            assertTrue(true); // Placeholder
+        }
+    }
+}
+```
+
+## Parameters | 參數
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--lang` | Target language: ts, js, python, java, go | `typescript` |
+| `--framework` | Test framework | `vitest` |
+| `--output-dir` | Output directory | `./tests` |
+| `--dry-run` | Preview without creating files | `false` |
+
+## Usage Examples | 使用範例
+
+```bash
+# Basic usage (TypeScript/Vitest)
+/derive-tdd specs/SPEC-001.md
+
+# Python with pytest
+/derive-tdd specs/SPEC-001.md --lang python --framework pytest
+
+# Java with JUnit
+/derive-tdd specs/SPEC-001.md --lang java --framework junit
+
+# Specify output directory
+/derive-tdd specs/SPEC-001.md --output-dir ./src/__tests__
+
+# Preview without creating file
+/derive-tdd specs/SPEC-001.md --dry-run
+```
+
+## Limitations | 限制
+
+This command **CANNOT**:
+
+此命令**無法**：
+
+- Generate test groups beyond AC count
+- Implement actual test logic
+- Fill in assertions automatically
+- Run the generated tests
+
+## Reference | 參考
+
+- Full skill guide: [forward-derivation](../forward-derivation/SKILL.md)
+- Core standard: [forward-derivation-standards.md](../../../core/forward-derivation-standards.md)
+- TDD workflow: [test-driven-development.md](../../../core/test-driven-development.md)
+"""

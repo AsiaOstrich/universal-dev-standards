@@ -1,0 +1,196 @@
+# AI Collaboration Anti-Hallucination Standards - AI Optimized
+# Source: core/anti-hallucination.md
+
+id: anti-hallucination
+meta:
+  version: "1.3.1"
+  updated: "2026-01-26"
+  source: core/anti-hallucination.md
+  guide: core/guides/anti-hallucination-guide.md
+  description: Protocols to prevent AI hallucination through evidence-based analysis and strict verification tags
+
+principles:
+  evidence_based:
+    rule: Only analyze and reference content that has been explicitly provided or read
+    do:
+      - Analyze code files that have been read using file reading tools
+      - Reference documentation that has been fetched
+      - Cite configuration files that have been inspected
+    do_not:
+      - Speculate about APIs, functions, or configurations not seen
+      - Assume framework behavior without verification
+      - Fabricate requirement details
+
+  source_attribution:
+    rule: All references must include source type, location, and verifiability
+    source_types:
+      - type: "[Source: Code]"
+        description: Directly read from codebase
+        reliability: 5
+      - type: "[Source: Docs]"
+        description: README, Wiki, inline comments
+        reliability: 4
+      - type: "[Source: External]"
+        description: Official documentation with URL
+        reliability: 4
+      - type: "[Source: Search]"
+        description: Search results (include date)
+        reliability: 3
+      - type: "[Source: Knowledge]"
+        description: AI training data (needs verification)
+        reliability: 2
+      - type: "[Source: User]"
+        description: Information from user conversation
+        reliability: 3
+
+  certainty_classification:
+    rule: Clearly distinguish between confirmed facts, inferences, and unknowns
+    note: Uses Unified Tag System with two complementary tag categories
+    certainty_tags:
+      description: For analyzing existing content
+      tags:
+        - tag: "[Confirmed]"
+          use_when: Direct evidence from code/docs
+        - tag: "[Inferred]"
+          use_when: Logical deduction from available evidence
+        - tag: "[Assumption]"
+          use_when: Based on common patterns (needs verification)
+        - tag: "[Unknown]"
+          use_when: Information not available
+        - tag: "[Need Confirmation]"
+          use_when: Requires user clarification
+    derivation_tags:
+      description: For generating new content from approved sources
+      tags:
+        - tag: "[Source]"
+          use_when: Direct content from spec/requirement (verbatim)
+        - tag: "[Derived]"
+          use_when: Transformed from source content
+        - tag: "[Generated]"
+          use_when: AI-generated structure
+        - tag: "[TODO]"
+          use_when: Requires human implementation
+    workflow_mapping:
+      - workflow: Code analysis
+        primary_tags: Certainty Tags
+      - workflow: Reverse engineering
+        primary_tags: Certainty Tags
+      - workflow: Forward derivation
+        primary_tags: Derivation Tags
+      - workflow: Spec generation
+        primary_tags: Derivation Tags
+
+prohibited_behaviors:
+  - id: fabricate-apis
+    description: Do NOT invent method names, parameters, or return types
+    correct_action: Read the actual source code or ask the user
+
+  - id: assume-requirements
+    description: Do NOT guess user needs or business rules
+    correct_action: Ask clarifying questions when requirements are ambiguous
+
+  - id: speculate-unread-code
+    description: Do NOT describe functionality of files not reviewed
+    correct_action: Explicitly state "Need to read [file] to confirm"
+
+  - id: invent-configuration
+    description: Do NOT assume environment variables, config keys, or database schemas
+    correct_action: Review actual configuration files
+
+  - id: hallucinate-errors
+    description: Do NOT claim code has issues without evidence
+    correct_action: Analyze actual code and cite specific lines
+
+  - id: options-without-recommendation
+    description: Do NOT list options and ask user to choose without guidance
+    correct_action: Always include a recommended choice with reasoning
+
+  - id: implement-without-side-effect-analysis
+    description: Do NOT start coding without identifying potential side effects
+    correct_action: List at least 3 potential side effects before implementation (state changes, dependencies, cascading effects)
+
+rules:
+  - id: conversation-language
+    trigger: responding to user
+    instruction: Adapt to user's preferred language; preserve technical terms
+    priority: required
+
+  - id: include-recommendation
+    trigger: presenting multiple options
+    instruction: Always indicate recommended option with reasoning
+    priority: required
+
+  - id: suggest-next-steps
+    trigger: completing a task or subtask
+    instruction: Suggest logical next steps and identify the most recommended one
+    priority: required
+
+  - id: cite-sources
+    trigger: making any statement about code
+    instruction: Include source type tag and file:line reference
+    priority: required
+
+  - id: version-sensitivity
+    trigger: referencing libraries or APIs
+    instruction: Always include version information when available
+    priority: required
+
+  - id: ask-for-clarification
+    trigger: requirements are ambiguous
+    instruction: Ask clarifying questions before proceeding
+    priority: required
+
+  - id: side-effect-analysis
+    trigger: before implementing code changes
+    instruction: Identify at least 3 potential side effects (state changes, dependencies, external systems, data integrity)
+    priority: required
+
+checklist:
+  - Source verified (read actual file/document)
+  - Source type tagged
+  - Reference cited (file:line or URL)
+  - Version specified (if applicable)
+  - Certainty classified
+  - AI knowledge flagged with verification warning
+  - No fabrication
+  - User clarification requested for ambiguous points
+  - Recommendation included when presenting options
+  - Side effects identified (at least 3) before implementing
+
+quick_reference:
+  source_types:
+    columns: [Tag, Reliability, Description]
+    rows:
+      - ["[Source: Code]", "⭐⭐⭐⭐⭐", Directly from codebase]
+      - ["[Source: Docs]", "⭐⭐⭐⭐", README/Wiki/comments]
+      - ["[Source: External]", "⭐⭐⭐⭐", Official docs with URL]
+      - ["[Source: Search]", "⭐⭐⭐", Web search results]
+      - ["[Source: Knowledge]", "⭐⭐", AI knowledge (verify)]
+      - ["[Source: User]", "⭐⭐⭐", User conversation]
+
+  certainty_tags:
+    description: For analyzing existing content
+    columns: [Tag, Use When]
+    rows:
+      - ["[Confirmed]", Direct evidence from code/docs]
+      - ["[Inferred]", Logical deduction]
+      - ["[Assumption]", Common patterns (verify)]
+      - ["[Unknown]", Information not available]
+      - ["[Need Confirmation]", Requires clarification]
+
+  derivation_tags:
+    description: For generating new content
+    columns: [Tag, Use When]
+    rows:
+      - ["[Source]", Direct content from spec/requirement]
+      - ["[Derived]", Transformed from source content]
+      - ["[Generated]", AI-generated structure]
+      - ["[TODO]", Requires human implementation]
+
+  workflow_tag_mapping:
+    columns: [Workflow, Primary Tags]
+    rows:
+      - [Code analysis, Certainty Tags]
+      - [Reverse engineering, Certainty Tags]
+      - [Forward derivation, Derivation Tags]
+      - [Spec generation, Derivation Tags]

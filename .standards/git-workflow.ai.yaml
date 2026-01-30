@@ -1,0 +1,97 @@
+# Git Workflow Standards - AI Optimized
+# Source: core/git-workflow.md
+
+id: git-workflow
+meta:
+  version: "1.3.0"
+  updated: "2026-01-24"
+  source: core/git-workflow.md
+  guide: core/guides/git-workflow-guide.md
+  description: Git branching strategies, commit conventions, and pull request workflows
+
+decision:
+  question: "How often do you deploy to production?"
+  matrix:
+    - answer: "Multiple times per day"
+      select: trunk-based
+    - answer: "Weekly to bi-weekly"
+      select: github-flow
+    - answer: "Monthly or longer"
+      select: gitflow
+
+options:
+  workflow:
+    default: github-flow
+    choices:
+      - id: gitflow
+        file: options/git-workflow/gitflow.ai.yaml
+      - id: github-flow
+        file: options/git-workflow/github-flow.ai.yaml
+      - id: trunk-based
+        file: options/git-workflow/trunk-based.ai.yaml
+  merge_strategy:
+    default: squash
+    choices:
+      - id: merge-commit
+        file: options/git-workflow/merge-commit.ai.yaml
+      - id: squash
+        file: options/git-workflow/squash-merge.ai.yaml
+      - id: rebase-ff
+        file: options/git-workflow/rebase-ff.ai.yaml
+
+rules:
+  - id: choose-workflow
+    trigger: starting a new project
+    instruction: Choose ONE workflow strategy and document in CONTRIBUTING.md
+    priority: required
+
+  - id: branch-naming
+    trigger: creating a new branch
+    instruction: Use format <type>/<description>
+    validator: "^(feature|fix|hotfix|refactor|docs|test|chore|release)/[a-z0-9-]+$"
+    examples:
+      good:
+        - feature/user-authentication
+        - fix/null-pointer-payment
+        - hotfix/critical-data-loss
+      bad:
+        - feature/123
+        - Fix-Bug
+        - myFeature
+
+  - id: branch-lowercase
+    trigger: naming a branch
+    instruction: Use lowercase with hyphens for word separation
+    priority: required
+
+  - id: branch-descriptive
+    trigger: naming a branch
+    instruction: Be descriptive but concise in branch names
+    priority: recommended
+
+  - id: pre-branch-checklist
+    trigger: before creating a new branch
+    instruction: Verify no unmerged branches, sync with remote, run tests
+    priority: recommended
+
+quick_reference:
+  selection_matrix:
+    columns: [Factor, GitFlow, GitHub Flow, Trunk-Based]
+    rows:
+      - [Release frequency, Monthly+, Weekly, Multiple/day]
+      - [Team size, "Large (10+)", "Medium (5-15)", "Small-Medium (3-10)"]
+      - [CI/CD maturity, Basic, Intermediate, Advanced]
+      - [Feature flags, Optional, Optional, Required]
+      - [Complexity, High, Low, Medium]
+
+  branch_types:
+    columns: [Type, Purpose]
+    rows:
+      - [feature, new functionality]
+      - [fix, bug fixes]
+      - [hotfix, urgent production fixes]
+      - [refactor, code refactoring]
+      - [docs, documentation only]
+      - [test, test additions]
+      - [chore, maintenance tasks]
+      - [release, release preparation]

@@ -1,0 +1,191 @@
+# Requirement Engineering Standards - AI Optimized
+# Source: core/requirement-engineering.md
+
+id: requirement-engineering
+meta:
+  version: "1.0.0"
+  updated: "2026-01-13"
+  source: methodologies/guides/requirement-engineering-guide.md
+  description: Requirements engineering lifecycle, elicitation, specification, and validation standards
+
+# Reference Standards
+references:
+  - IEEE 830-1998 (Software Requirements Specifications)
+  - IEEE 29148-2018 (Requirements Engineering)
+  - SWEBOK v4.0 Chapter 1 (Software Requirements)
+  - ISO/IEC 25010:2011 (Quality Requirements)
+
+# Requirements Engineering Lifecycle
+lifecycle:
+  phases:
+    - name: Elicitation
+      purpose: Gather requirements from stakeholders
+      outputs: [Raw requirements, Interview notes]
+      techniques:
+        - Interviews (deep understanding)
+        - Workshops/JAD (consensus building)
+        - Observation (actual processes)
+        - Prototyping (UI/UX clarification)
+    - name: Analysis
+      purpose: Organize, prioritize, resolve conflicts
+      outputs: [Requirement models, Priority matrix]
+    - name: Specification
+      purpose: Document requirements formally
+      outputs: [SRS, User stories, Use cases]
+    - name: Validation
+      purpose: Confirm correctness and completeness
+      outputs: [Review reports, Prototypes]
+    - name: Change Management
+      purpose: Handle requirement changes
+      outputs: [Change requests, Impact assessments]
+
+# User Story Standards (Agile)
+user_story:
+  format: "As a [role], I want [feature], so that [benefit]"
+  invest_criteria:
+    - criterion: Independent
+      question: Can be delivered standalone?
+    - criterion: Negotiable
+      question: Details flexible?
+    - criterion: Valuable
+      question: Who benefits?
+    - criterion: Estimable
+      question: Can estimate effort?
+    - criterion: Small
+      question: Fits in one sprint?
+    - criterion: Testable
+      question: How to verify?
+
+# Priority Methods
+priority:
+  moscow:
+    M: { label: "Must Have", meaning: "Critical - system won't work without" }
+    S: { label: "Should Have", meaning: "Important but can work around" }
+    C: { label: "Could Have", meaning: "Nice to have if time permits" }
+    W: { label: "Won't Have", meaning: "Out of scope for this release" }
+  p_levels:
+    P0: { label: "Critical", response: "Immediate" }
+    P1: { label: "High", response: "This sprint" }
+    P2: { label: "Medium", response: "This release" }
+    P3: { label: "Low", response: "Backlog" }
+
+# Acceptance Criteria
+acceptance_criteria:
+  formats:
+    - name: Given-When-Then (BDD)
+      template: "Given [context], When [action], Then [result]"
+    - name: Checkbox Style
+      template: "- [ ] [Testable criterion]"
+  quality:
+    specific: Clear, unambiguous
+    measurable: Quantifiable outcome
+    testable: Can write automated test
+
+# Requirement Types
+requirement_types:
+  functional:
+    abbrev: FR
+    description: What the system should DO
+    categories: [Business Rules, User Operations, Data Processing, Integration]
+  non_functional:
+    abbrev: NFR
+    description: How the system should BEHAVE
+    reference: ISO/IEC 25010 Quality Model
+    categories:
+      - Performance Efficiency (response time, throughput)
+      - Compatibility (co-existence, interoperability)
+      - Usability (accessibility, learnability)
+      - Reliability (availability, fault tolerance)
+      - Security (confidentiality, integrity)
+      - Maintainability (modularity, testability)
+      - Portability (adaptability, installability)
+  constraints:
+    types: [Technical, Business, Resource, Time]
+
+# IEEE 830 SRS Structure
+srs_structure:
+  sections:
+    - "1. Introduction (Purpose, Scope, Definitions)"
+    - "2. Overall Description (Product Perspective, Functions, Users)"
+    - "3. Specific Requirements (Interfaces, FRs, NFRs, Constraints)"
+  quality_characteristics:
+    - Correct (accurately represents needs)
+    - Unambiguous (one interpretation only)
+    - Complete (all requirements documented)
+    - Consistent (no contradictions)
+    - Ranked (priority assigned)
+    - Verifiable (can be tested)
+    - Modifiable (easy to change)
+    - Traceable (origin and implementation linkable)
+
+# SMART Requirements
+smart:
+  S: { label: Specific, example: "Display 'Invalid email format' error" }
+  M: { label: Measurable, example: "Response time < 200ms" }
+  A: { label: Achievable, example: "Support 1000 concurrent users" }
+  R: { label: Relevant, example: "Aligned with business goal" }
+  T: { label: Time-bound, example: "Available for Q2 release" }
+
+# Traceability
+traceability:
+  matrix_columns: [Req ID, Source, Design, Code, Test, Status]
+  relationship_types:
+    - derived-from (Business Need → Stakeholder Requirement)
+    - refined-to (Stakeholder Requirement → System Requirement)
+    - allocated-to (System Requirement → Design Component)
+    - verified-by (System Requirement → Test Case)
+
+# Change Management
+change_management:
+  process: Request → Analyze Impact → Decide → Implement → Verify
+  impact_analysis_checklist:
+    - Affected requirements identified
+    - Affected design components listed
+    - Affected code modules identified
+    - Affected test cases updated
+    - Schedule impact assessed
+    - Cost impact estimated
+    - Risk assessment completed
+    - Stakeholder approval obtained
+
+# Integration with SDD
+sdd_integration:
+  mapping:
+    user_story: SPEC Summary section
+    acceptance_criteria: SPEC Acceptance Criteria
+    nfrs: SPEC Constraints/Requirements
+    traceability: SPEC Dependencies
+    validation: SPEC Verification phase
+
+# Common Pitfalls
+pitfalls:
+  elicitation:
+    - Assuming stakeholder knowledge
+    - Ignoring edge cases
+    - Gold plating (unnecessary features)
+    - Scope creep
+  specification:
+    - Ambiguous language
+    - Solution in requirements (limiting options)
+    - Missing NFRs
+    - No traceability
+  validation:
+    - Rubber-stamp reviews
+    - Late validation
+    - Missing stakeholders
+
+# Best Practices
+best_practices:
+  do:
+    - Involve ALL stakeholders in elicitation
+    - Prioritize using consistent method
+    - Write testable acceptance criteria
+    - Maintain traceability throughout lifecycle
+    - Version control all requirements documents
+    - Document assumptions explicitly
+  dont:
+    - Skip requirements for "small" changes
+    - Write requirements in isolation
+    - Mix requirements with design/implementation
+    - Use ambiguous language ("appropriate", "user-friendly")
+    - Ignore non-functional requirements

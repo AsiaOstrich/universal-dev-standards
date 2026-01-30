@@ -1,0 +1,13 @@
+{
+  "test_command": "npm run test:fast",
+  "test_dir": "cli/tests",
+  "src_dir": "cli/src",
+  "exclude": [
+    "node_modules",
+    "tmp",
+    "coverage",
+    ".git"
+  ],
+  "build_command": "npm run lint",
+  "lint_command": "npm run lint"
+}

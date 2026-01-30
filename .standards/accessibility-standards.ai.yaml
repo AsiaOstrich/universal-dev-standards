@@ -1,0 +1,146 @@
+# Accessibility Standards (AI-Optimized)
+# Source: core/accessibility-standards.md
+# Version: 1.0.0
+
+target: "WCAG 2.1 Level AA"
+
+pour_principles:
+  perceivable: "Users can perceive content (alt text, captions, contrast)"
+  operable: "All functionality via keyboard, enough time, no seizures"
+  understandable: "Readable, predictable, input assistance"
+  robust: "Compatible with assistive tech, valid markup"
+
+conformance:
+  A: "Minimum (30 criteria)"
+  AA: "Legal compliance (50 criteria)"
+  AAA: "Highest (78 criteria)"
+  regions:
+    USA: "WCAG 2.0 AA (Section 508, ADA)"
+    EU: "WCAG 2.1 AA (EN 301 549)"
+    UK: "WCAG 2.1 AA (Equality Act)"
+
+perceivable:
+  text_alternatives:
+    informative: "alt='Description of information'"
+    decorative: "alt='' role='presentation'"
+    functional: "alt='Action description'"
+    complex: "alt='Summary' + aria-describedby"
+  media:
+    video: "Captions + audio description"
+    audio: "Transcript"
+    live: "Real-time captions"
+  contrast:
+    normal_text: "4.5:1 (AA), 7:1 (AAA)"
+    large_text: "3:1 (AA), 4.5:1 (AAA)"
+    ui_components: "3:1"
+
+operable:
+  keyboard:
+    all_interactive: "Must be keyboard accessible"
+    focus_visible: "outline: 2px solid #005fcc"
+    no_traps: "User can always move focus away"
+  timing:
+    adjustable: "Allow turn off, adjust, extend"
+    session_timeout: "Warn before timeout, allow extension"
+  seizures:
+    flashing: "No more than 3 flashes/second"
+    motion: "Respect prefers-reduced-motion"
+  navigation:
+    skip_links: "Skip to main content"
+    focus_order: "Logical, follows visual order"
+    target_size: "44x44 CSS pixels minimum"
+
+understandable:
+  readable:
+    lang: "<html lang='en'>"
+    lang_changes: "<span lang='fr'>...</span>"
+  predictable:
+    on_focus: "Don't change context"
+    consistent: "Same navigation across pages"
+  input_assistance:
+    errors: "Clear message + instructions"
+    prevention: "Reversible, reviewable, confirmable"
+
+robust:
+  valid_html: "Unique IDs, proper nesting"
+  aria: "Valid attributes and values"
+
+aria_rules:
+  1: "Don't use ARIA if native HTML works"
+  2: "Don't change native semantics"
+  3: "Interactive ARIA must be keyboard usable"
+  4: "Don't hide focusable elements"
+  5: "All interactive elements need accessible names"
+
+aria_patterns:
+  live_regions:
+    polite: "aria-live='polite' aria-atomic='true'"
+    urgent: "role='alert'"
+  dialogs: "role='dialog' aria-modal='true' aria-labelledby"
+  tabs: "role='tablist', role='tab', role='tabpanel'"
+
+keyboard_interactions:
+  Tab: "Next focusable"
+  Shift_Tab: "Previous focusable"
+  Enter: "Activate link/button"
+  Space: "Activate button, toggle checkbox"
+  Arrows: "Navigate within components"
+  Escape: "Close modal, cancel"
+
+color:
+  contrast_aa:
+    normal: "4.5:1"
+    large: "3:1"
+  color_blindness:
+    - "Don't rely on color alone"
+    - "Use patterns, icons, text additionally"
+    - "Avoid red/green for critical info"
+
+forms:
+  labeling:
+    explicit: "<label for='id'>Label</label>"
+    aria_label: "For icon-only buttons"
+    aria_labelledby: "For complex labels"
+  validation:
+    - "aria-invalid='true/false'"
+    - "aria-describedby for hints and errors"
+    - "role='alert' for error messages"
+  required:
+    - "aria-required='true'"
+    - "Visual indicator + screen reader text"
+
+testing:
+  automated:
+    tools: [axe-core, WAVE, Lighthouse, Pa11y]
+    coverage: "~57% of issues"
+  manual:
+    keyboard: [Tab_reach, focus_visible, Enter_Space, Escape, no_traps]
+    screen_reader: [alt_text, labels, headings, live_regions]
+    visual: [contrast, zoom_200, no_horizontal_scroll_320px]
+  screen_readers:
+    Windows: "NVDA (free), JAWS"
+    macOS: VoiceOver
+    iOS: VoiceOver
+    Android: TalkBack
+
+checklist:
+  structure:
+    - "Semantic HTML (header, nav, main)"
+    - "Logical heading hierarchy (h1→h2→h3)"
+    - "Page has descriptive title"
+    - "lang attribute set"
+  images:
+    - "All images have alt"
+    - "Decorative images have empty alt"
+  keyboard:
+    - "All interactive keyboard accessible"
+    - "Visible focus indicators"
+    - "No keyboard traps"
+    - "Skip links provided"
+  forms:
+    - "All inputs have labels"
+    - "Required fields indicated"
+    - "Clear error messages"
+  color:
+    - "Contrast requirements met"
+    - "Color not sole information carrier"

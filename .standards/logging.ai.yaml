@@ -1,0 +1,128 @@
+# Logging Standards - AI Optimized
+# Source: core/logging-standards.md
+
+id: logging
+meta:
+  version: "1.1.0"
+  updated: "2026-01-05"
+  source: core/logging-standards.md
+  description: Logging levels, structured logging, and best practices
+
+log_levels:
+  ordered:
+    - name: TRACE
+      code: 10
+      use_for: Very detailed debugging
+      production: false
+    - name: DEBUG
+      code: 20
+      use_for: Diagnostic information
+      production: false
+    - name: INFO
+      code: 30
+      use_for: Normal operations
+      production: true
+    - name: WARN
+      code: 40
+      use_for: Potential issues
+      production: true
+    - name: ERROR
+      code: 50
+      use_for: Errors needing attention
+      production: true
+    - name: FATAL
+      code: 60
+      use_for: Critical failures
+      production: true
+
+structured_logging:
+  required_fields:
+    - timestamp
+    - level
+    - message
+    - service
+    - environment
+  recommended_fields:
+    - trace_id
+    - span_id
+    - request_id
+    - user_id
+    - duration_ms
+  field_naming: snake_case
+  format: JSON in production
+
+sensitive_data:
+  never_log:
+    - passwords
+    - api_keys
+    - tokens_full
+    - credit_cards
+    - ssn
+  mask_patterns:
+    - "password: '***REDACTED***'"
+    - "token: 'tok_...abc'"
+    - "card: '****4242'"
+
+rules:
+  - id: select-level
+    trigger: adding log statement
+    instruction: |
+      Select appropriate level:
+      - DEBUG: Diagnostic only, off in prod
+      - INFO: Normal operation completed
+      - WARN: Unexpected but recoverable
+      - ERROR: Failed operation
+      - FATAL: Cannot continue
+    priority: required
+
+  - id: structured-format
+    trigger: writing logs
+    instruction: Use structured JSON logging with required fields
+    priority: required
+
+  - id: include-context
+    trigger: logging operations
+    instruction: Include request_id or trace_id for correlation
+    priority: required
+
+  - id: no-sensitive-data
+    trigger: logging data
+    instruction: Never log passwords, secrets, tokens, or PII
+    priority: required
+
+  - id: error-context
+    trigger: logging errors
+    instruction: Include error_type, error_message, stack, and relevant IDs
+    priority: required
+
+  - id: async-logging
+    trigger: production deployment
+    instruction: Use async/buffered logging for performance
+    priority: recommended
+
+quick_reference:
+  level_selection:
+    columns: [Question, Level]
+    rows:
+      - [Debugging only?, DEBUG]
+      - [Normal operation?, INFO]
+      - [Unexpected but OK?, WARN]
+      - [Operation failed?, ERROR]
+      - [Cannot continue?, FATAL]
+
+  required_fields:
+    columns: [Field, Format, Required]
+    rows:
+      - [timestamp, "ISO 8601", Yes]
+      - [level, "INFO/ERROR/etc", Yes]
+      - [message, String, Yes]
+      - [service, String, Yes]
+      - [request_id, UUID, Recommended]
+
+  retention:
+    columns: [Level, Retention]
+    rows:
+      - [DEBUG, 7 days]
+      - [INFO, 30 days]
+      - [WARN, 90 days]
+      - [ERROR/FATAL, 1 year]

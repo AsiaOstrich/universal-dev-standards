@@ -1,0 +1,419 @@
+# Forward Derivation Standards - AI Optimized
+# Source: core/forward-derivation-standards.md
+
+id: forward-derivation
+meta:
+  version: "1.0.0"
+  updated: "2026-01-19"
+  source: core/forward-derivation-standards.md
+  description: Standards for deriving BDD scenarios, TDD test skeletons, and ATDD acceptance tests from approved SDD specifications
+
+# Core Workflow
+workflow:
+  name: Forward Derivation Pipeline
+  stages:
+    - stage: SPEC_PARSING
+      description: Parse approved specification and extract Acceptance Criteria
+      output: Structured AC list
+      certainty: "[Source]"
+      actions:
+        - Read approved specification file
+        - Identify Acceptance Criteria section
+        - Parse AC format (Given-When-Then or bullet)
+        - Validate AC completeness and structure
+
+    - stage: BDD_DERIVATION
+      description: Transform Acceptance Criteria to Gherkin scenarios
+      output: Feature file (.feature)
+      certainty: "[Derived]/[Generated]"
+      actions:
+        - Create Feature from SPEC title
+        - Add @SPEC-XXX tag at feature level
+        - Generate one Scenario per AC with @AC-N tag
+        - Transform AC to Given/When/Then steps
+
+    - stage: TDD_DERIVATION
+      description: Generate test skeleton structure from Acceptance Criteria
+      output: Test file (.test.ts, .test.py, etc.)
+      certainty: "[Generated]"
+      actions:
+        - Create describe block for SPEC
+        - Create describe block per AC
+        - Generate it blocks with descriptive names
+        - Add AAA structure with TODO markers
+
+    - stage: ATDD_DERIVATION
+      description: Create acceptance test tables from Acceptance Criteria
+      output: Acceptance test document (.md)
+      certainty: "[Generated]"
+      actions:
+        - Create test case table per AC
+        - Add step-by-step action columns
+        - Include expected result columns
+        - Add Pass/Fail checkboxes and sign-off section
+
+    - stage: HUMAN_REVIEW
+      description: Review and refine generated outputs
+      output: Validated test structures
+      certainty: "[Confirmed]"
+      actions:
+        - Verify 1:1 AC to output mapping
+        - Fill [TODO] blocks with actual assertions
+        - Refine step definitions if needed
+        - Validate business-level language
+
+# Certainty Framework
+certainty_framework:
+  tags:
+    - tag: "[Source]"
+      definition: Directly from specification content
+      use_when: Content copied from SPEC
+      example: "Feature name from SPEC title, AC text"
+
+    - tag: "[Derived]"
+      definition: Transformed from SPEC content
+      use_when: Content logically derived from AC
+      example: "Given-When-Then derived from bullet AC"
+
+    - tag: "[Generated]"
+      definition: AI-generated structure
+      use_when: Structural elements created by AI
+      example: "Test skeleton, describe blocks"
+
+    - tag: "[TODO]"
+      definition: Placeholder requiring human implementation
+      use_when: Implementation details needed
+      example: "Assertions, step definitions, setup code"
+
+  rule: Every generated item must have exactly one certainty tag indicating its provenance
+
+# Anti-Hallucination Rules
+anti_hallucination:
+  fundamental_rule: Only derive what exists in specification
+
+  1_to_1_mapping:
+    description: Strict correspondence between AC and output
+    rule: |
+      Input: SPEC with N Acceptance Criteria
+      Output: Exactly N scenarios (BDD)
+             Exactly N test groups (TDD)
+             Exactly N acceptance tests (ATDD)
+      Violation: Any output count != input count
+
+  forbidden_actions:
+    - Adding scenarios not in AC
+    - Inventing test cases beyond AC scope
+    - Fabricating edge cases not specified
+    - Inferring requirements not documented
+
+  required_actions:
+    - Source attribution on all outputs
+    - 1:1 AC mapping verification
+    - Human review before use
+
+# Transformation Rules
+transformation_rules:
+  ac_to_bdd:
+    given_when_then_ac:
+      rule: Direct mapping to Gherkin
+      example: |
+        AC: Given X, When Y, Then Z
+        Output: Given X / When Y / Then Z
+
+    bullet_ac:
+      rule: Use pattern matching to transform
+      patterns:
+        - conditions: "conditions, setup, preconditions" -> Given
+        - actions: "actions, triggers, user does" -> When
+        - outcomes: "results, outcomes, then" -> Then
+      example: |
+        AC: - User is logged in
+            - User clicks submit
+            - Form is saved
+        Output: Given user is logged in
+                When user clicks submit
+                Then form is saved
+
+    checklist_ac:
+      rule: Convert each item based on context
+      pattern: |
+        [ ] Condition statements -> Given
+        [ ] Action statements -> When
+        [ ] Result statements -> Then
+
+  ac_to_tdd:
+    structure: |
+      describe('SPEC-XXX: [Title]') {
+        describe('AC-N: [AC Title]') {
+          it('should [expected behavior]') {
+            // Arrange [TODO]
+            // Act [TODO]
+            // Assert [TODO]
+          }
+        }
+      }
+
+    language_support:
+      - lang: typescript
+        framework: vitest
+        pattern: describe/it with async
+      - lang: python
+        framework: pytest
+        pattern: class TestSpecXXX / def test_ac_n
+      - lang: java
+        framework: junit
+        pattern: @Nested class / @Test method
+      - lang: go
+        framework: go-test
+        pattern: func TestSpec_AC / t.Run
+
+  ac_to_atdd:
+    structure: |
+      # AT-N: [From AC-N]
+      | Step | Action | Expected | Pass/Fail |
+      | 1    | [...]  | [...]    | [ ]       |
+      Tester: ___ Date: ___ Result: [ ] Pass / [ ] Fail
+
+# Output Formats
+output_formats:
+  bdd_feature:
+    header: |
+      # Generated from: specs/SPEC-XXX.md
+      # Generator: /derive-bdd v1.0.0
+      # Generated at: [timestamp]
+
+    feature: |
+      @SPEC-XXX
+      Feature: [Feature Name]
+        [Source] From SPEC summary
+
+    scenario: |
+      @AC-N @[tag]
+      Scenario: [From AC title]
+        # [Source] From SPEC-XXX AC-N
+        Given [precondition]
+        When [action]
+        Then [expected result]
+
+  tdd_skeleton:
+    header: |
+      /**
+       * Tests for SPEC-XXX: [Title]
+       * Generated from: specs/SPEC-XXX.md
+       * Generated at: [timestamp]
+       * AC Coverage: AC-1, AC-2, ...
+       */
+
+    structure: |
+      describe('SPEC-XXX: [Title]', () => {
+        describe('AC-N: [AC Title]', () => {
+          it('should [expected]', async () => {
+            // Arrange
+            // [TODO] Set up test data
+
+            // Act
+            // [TODO] Call method under test
+
+            // Assert
+            // [TODO] Add assertions
+            expect(true).toBe(true); // Placeholder
+          });
+        });
+      });
+
+  atdd_table:
+    header: |
+      # SPEC-XXX Acceptance Tests
+      **Spec**: SPEC-XXX
+      **Generated**: [date]
+      **Status**: Pending Review
+
+    test_case: |
+      ## AT-N: [From AC-N]
+      **Source**: AC-N
+
+      | Step | Action | Expected | Pass/Fail |
+      |------|--------|----------|-----------|
+      | 1    | [...]  | [...]    | [ ]       |
+
+      **Tester**: _______________
+      **Date**: _______________
+      **Result**: [ ] Pass / [ ] Fail
+
+# Anti-Patterns
+anti_patterns:
+  derivation:
+    - name: Adding Extra Scenarios
+      impact: Scope creep, hallucination
+      example: "SPEC has 3 AC, output has 5 scenarios"
+      fix: Strict 1:1 AC mapping
+
+    - name: Deriving from Draft Specs
+      impact: Invalid outputs
+      example: "Running /derive-all on unapproved spec"
+      fix: Only derive from approved specifications
+
+    - name: Skipping Source Attribution
+      impact: Lost traceability
+      example: "Scenarios without @SPEC-XXX tags"
+      fix: Always include source references
+
+    - name: Over-specifying Technical Details
+      impact: Fragile tests
+      example: "Given database connection established with PostgreSQL driver"
+      fix: Keep steps at business level
+
+    - name: Treating Skeletons as Complete
+      impact: False confidence
+      example: "Using generated tests without filling TODOs"
+      fix: Always fill [TODO] blocks before running
+
+  process:
+    - name: Generating Without Reading
+      impact: Invalid output
+      example: "Deriving from assumed spec content"
+      fix: Read entire spec file first
+
+    - name: Skipping Human Review
+      impact: Incorrect test logic
+      example: "Using generated files without validation"
+      fix: Always require human review phase
+
+    - name: Mixing Certainty Levels
+      impact: Confused provenance
+      example: "Unmarked generated content"
+      fix: Tag every item with certainty level
+
+# Integration Pipeline
+integration:
+  pipeline: "SDD → Forward Derivation → BDD → TDD → Implementation"
+
+  symmetry_with_reverse_engineering: |
+    Reverse Engineering: Code → Specification
+    Forward Derivation: Specification → Tests
+    Together they form a complete bidirectional system
+
+  sdd_integration:
+    - step: Spec must be approved before derivation
+    - step: Read entire spec including AC section
+    - step: Validate AC format and completeness
+    - step: Generate outputs with source attribution
+
+  bdd_integration:
+    - step: Generate .feature files from AC
+    - step: Tag scenarios with @SPEC-XXX @AC-N
+    - step: Review with stakeholders
+    - step: Implement step definitions
+
+  tdd_integration:
+    - step: Generate test skeletons from AC
+    - step: Fill [TODO] blocks with actual assertions
+    - step: Enter TDD red phase with failing tests
+    - step: Implement code to pass tests
+
+  integrated_flow_position:
+    before: spec-review (must be approved)
+    after: discovery (BDD workflow continues)
+    role: Bridge between specification and implementation
+
+# Rules for AI
+rules:
+  - id: approved-spec-only
+    trigger: starting derivation
+    instruction: Only derive from specifications with approved/ready status; refuse draft specs
+    priority: required
+
+  - id: read-before-derive
+    trigger: starting derivation
+    instruction: Read entire specification file before generating any output
+    priority: required
+
+  - id: strict-1-to-1
+    trigger: generating outputs
+    instruction: Generate exactly one scenario/test group per Acceptance Criteria; no more, no less
+    priority: required
+
+  - id: source-attribution
+    trigger: creating any output
+    instruction: Include source reference (spec file, AC number) on every generated item
+    priority: required
+
+  - id: certainty-tagging
+    trigger: creating any output
+    instruction: Tag every item with [Source], [Derived], [Generated], or [TODO]
+    priority: required
+
+  - id: business-level-language
+    trigger: writing scenarios/tests
+    instruction: Keep step language at business level; avoid implementation details
+    priority: recommended
+
+  - id: human-review-required
+    trigger: completing derivation
+    instruction: Mark all outputs as requiring human review; [TODO] blocks must be filled by humans
+    priority: required
+
+  - id: anti-hallucination
+    trigger: any derivation task
+    instruction: Follow Anti-Hallucination Standards; only derive from explicitly read content
+    priority: required
+
+  - id: verify-count
+    trigger: completing derivation
+    instruction: Verify output count matches AC count; report discrepancy as error
+    priority: required
+
+  - id: preserve-structure
+    trigger: transforming AC
+    instruction: Preserve AC structure and intent; do not add interpretation beyond what's written
+    priority: required
+
+# Quick Reference
+quick_reference:
+  certainty_tags:
+    columns: [Tag, Use When, Example]
+    rows:
+      - ["[Source]", Direct from SPEC, "Feature title, AC text"]
+      - ["[Derived]", Transformed from SPEC, "GWT from bullet AC"]
+      - ["[Generated]", AI-created structure, "Test skeleton, describe blocks"]
+      - ["[TODO]", Needs human implementation, "Assertions, step definitions"]
+
+  workflow_stages:
+    columns: [Stage, Output, Certainty]
+    rows:
+      - [SPEC Parsing, Structured AC list, "[Source]"]
+      - [BDD Derivation, .feature file, "[Derived]/[Generated]"]
+      - [TDD Derivation, .test.ts file, "[Generated]"]
+      - [ATDD Derivation, acceptance.md, "[Generated]"]
+      - [Human Review, Validated outputs, "[Confirmed]"]
+
+  commands:
+    columns: [Command, Input, Output, Purpose]
+    rows:
+      - ["/derive-bdd", SPEC-XXX.md, .feature, AC to Gherkin]
+      - ["/derive-tdd", SPEC-XXX.md, .test.ts, AC to test skeleton]
+      - ["/derive-atdd", SPEC-XXX.md, acceptance.md, AC to test table]
+      - ["/derive-all", SPEC-XXX.md, All above, Full pipeline]
+
+  parameters:
+    columns: [Parameter, Options, Default]
+    rows:
+      - ["--lang", "typescript, python, java, go", "typescript"]
+      - ["--framework", "vitest, jest, pytest, junit", "vitest"]
+      - ["--output-dir", "path", "./generated"]
+      - ["--dry-run", "boolean", "false"]
+
+  anti_hallucination_check:
+    columns: [Input AC Count, Expected Output Count, Violation?]
+    rows:
+      - ["3 AC", "3 scenarios", "No"]
+      - ["3 AC", "5 scenarios", "Yes - extra scenarios"]
+      - ["3 AC", "2 scenarios", "Yes - missing scenarios"]
+
+related_standards:
+  - reverse-engineering-standards.md
+  - spec-driven-development.md
+  - behavior-driven-development.md
+  - test-driven-development.md
+  - acceptance-test-driven-development.md
+  - anti-hallucination.md

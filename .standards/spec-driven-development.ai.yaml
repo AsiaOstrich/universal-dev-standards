@@ -1,0 +1,168 @@
+# Spec-Driven Development Standards - AI Optimized
+# Source: core/spec-driven-development.md
+
+id: spec-driven-development
+meta:
+  version: "1.2.0"
+  updated: "2025-12-30"
+  source: methodologies/guides/sdd-guide.md
+  description: Spec-Driven Development workflow where documentation precedes implementation
+
+workflow:
+  stages:
+    - stage: Proposal
+      description: Define what to change and why
+      artifacts: proposal.md
+
+    - stage: Review
+      description: Stakeholder approval
+      artifacts: Review comments, approval record
+
+    - stage: Implementation
+      description: Execute the approved spec
+      artifacts: Code, tests, docs
+
+    - stage: Verification
+      description: Confirm implementation matches spec
+      artifacts: Test results, review
+
+    - stage: Archive
+      description: Close and archive the spec
+      artifacts: Archived spec with links to commits/PRs
+
+principles:
+  tool_priority:
+    rule: When SDD tool provides commands, prioritize using those over manual file editing
+    rationale:
+      - Consistency (strict schemas)
+      - Traceability (automatic logging, IDs, linking)
+      - Safety (built-in validation)
+    example: 'Use /openspec proposal "Add Login" instead of manually creating files'
+
+  methodology_over_tooling:
+    rule: SDD is a methodology, not bound to a single tool
+    universal_flow: Proposal -> Review -> Implementation -> Verification -> Archive
+
+  spec_first:
+    rule: No functional code changes without approved specification
+    exceptions:
+      - Critical hotfixes (restore service immediately, document later)
+      - Trivial changes (typos, comments, formatting)
+
+spec_template:
+  sections:
+    - name: Summary
+      description: Brief description of the proposed change
+      required: true
+
+    - name: Motivation
+      description: Why is this change needed? What problem does it solve?
+      required: true
+
+    - name: Detailed Design
+      description: Technical approach, affected components, data flow
+      required: true
+
+    - name: Acceptance Criteria
+      description: Checkable criteria for completion
+      required: true
+
+    - name: Dependencies
+      description: Dependencies on other specs or external systems
+      required: false
+
+    - name: Risks
+      description: Potential risks and mitigation strategies
+      required: false
+
+integration:
+  commit_messages:
+    instruction: Reference spec ID in commit messages
+    example: |
+      feat(auth): implement login feature
+
+      Implements SPEC-001 login functionality with OAuth2 support.
+
+      Refs: SPEC-001
+
+  checkin_standards:
+    checklist:
+      - Spec is approved
+      - Implementation matches spec
+      - Tests cover acceptance criteria
+      - Spec ID referenced in PR
+
+  code_review:
+    checklist:
+      - Change matches approved spec
+      - No scope creep beyond spec
+      - Spec acceptance criteria met
+
+common_tools:
+  - tool: OpenSpec
+    description: Specification management
+    commands: ["/openspec proposal", "/openspec approve"]
+
+  - tool: Spec Kit
+    description: Lightweight spec tracking
+    commands: ["/spec create", "/spec close"]
+
+  - tool: Manual
+    description: No tool, file-based
+    commands: ["Create specs/SPEC-XXX.md manually"]
+
+rules:
+  - id: use-sdd-commands
+    trigger: SDD tool is available
+    instruction: Use tool commands instead of manual file editing
+    priority: required
+
+  - id: spec-before-code
+    trigger: starting new feature
+    instruction: Create and get approval for spec before coding
+    priority: required
+
+  - id: reference-spec-id
+    trigger: committing implementation
+    instruction: Include spec ID in commit message and PR
+    priority: required
+
+  - id: verify-against-spec
+    trigger: completing implementation
+    instruction: Verify all acceptance criteria are met
+    priority: required
+
+  - id: archive-completed-specs
+    trigger: spec implementation verified
+    instruction: Archive spec with links to commits/PRs
+    priority: required
+
+best_practices:
+  do:
+    - Keep specs focused and atomic (one change per spec)
+    - Include clear acceptance criteria
+    - Link specs to implementation PRs
+    - Archive specs after completion
+
+  do_not:
+    - Start coding before spec approval
+    - Modify scope during implementation without updating spec
+    - Leave specs in limbo (always close or archive)
+    - Skip verification step
+
+quick_reference:
+  workflow:
+    columns: [Stage, Artifacts]
+    rows:
+      - [Proposal, proposal.md]
+      - [Review, Comments/approval]
+      - [Implementation, Code/tests/docs]
+      - [Verification, Test results]
+      - [Archive, Archived spec]
+
+  tools:
+    columns: [Tool, Commands]
+    rows:
+      - [OpenSpec, "/openspec proposal, /openspec approve"]
+      - [Spec Kit, "/spec create, /spec close"]
+      - [Manual, "specs/SPEC-XXX.md"]

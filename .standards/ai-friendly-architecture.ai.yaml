@@ -1,0 +1,202 @@
+# AI-Friendly Architecture Standards - AI Optimized
+# Source: core/ai-friendly-architecture.md
+
+id: ai-friendly-architecture
+meta:
+  version: "1.0.0"
+  updated: "2026-01-21"
+  source: core/ai-friendly-architecture.md
+  description: Standards for designing project architecture that maximizes AI collaboration effectiveness
+
+principles:
+  explicit_over_implicit:
+    rule: Document behavior and structure explicitly, not through convention
+    do:
+      - Document module responsibilities clearly
+      - Annotate entry points explicitly
+      - Declare dependencies at module level
+      - Create self-documenting configuration files
+    do_not:
+      - Rely on magic naming conventions
+      - Assume framework behavior is known
+      - Hide dependencies in implementation details
+      - Use convention-based routing without documentation
+
+  layered_context:
+    rule: Structure documentation in layers for appropriate detail levels
+    layers:
+      - level: 1
+        name: Quick Reference
+        token_limit: 500
+        includes:
+          - One-liner descriptions
+          - API signatures only
+          - Key entry points
+      - level: 2
+        name: Detailed Guide
+        token_limit: 5000
+        includes:
+          - Full API documentation
+          - Usage examples
+          - Configuration options
+      - level: 3
+        name: Full Examples
+        token_limit: unlimited
+        includes:
+          - Complete implementation examples
+          - Edge case documentation
+          - Migration guides
+
+  semantic_boundaries:
+    rule: Design clear module boundaries for independent analysis
+    requirements:
+      - Each module has single responsibility
+      - Clear input/output contracts
+      - Explicit dependency declarations
+      - Module header comments with standard format
+
+  discoverable_structure:
+    rule: Enable understanding through configuration and entry point analysis
+    key_files:
+      - .ai-context.yaml
+      - package.json / pyproject.toml
+      - Entry point files
+      - QUICK-REF.md files
+
+module_design:
+  header_template:
+    required_fields:
+      - module: Module name
+      - description: One-sentence purpose
+      - responsibility: Primary responsibility area
+      - dependencies: List of module dependencies
+      - exports: Public API functions
+      - entrypoint: Main entry file
+
+  input_output_contracts:
+    elements:
+      - element: Function Parameters
+        requirement: Type + description
+        example: "@param {string} email - User's email address"
+      - element: Return Values
+        requirement: Type + possible values
+        example: "@returns {Promise<User | null>}"
+      - element: Side Effects
+        requirement: Documented explicitly
+        example: "@sideeffect Writes to database"
+      - element: Error Conditions
+        requirement: All possible errors
+        example: "@throws {AuthError} Invalid credentials"
+
+documentation_layering:
+  quick_ref:
+    file: QUICK-REF.md
+    location: Each major module
+    max_tokens: 500
+    sections:
+      - Purpose (one paragraph)
+      - Key Functions (signature only)
+      - Configuration (env vars, settings)
+      - Entry Point
+
+  detailed_guide:
+    file: README.md
+    location: Module root
+    max_tokens: 5000
+    sections:
+      - Overview
+      - Architecture
+      - API Reference
+      - Configuration Options
+      - Usage Examples
+      - Error Handling
+
+  full_examples:
+    directory: examples/
+    location: Module or project root
+    content: Complete implementation files
+
+ai_context_config:
+  file: .ai-context.yaml
+  required_sections:
+    - project:
+        fields: [name, type, primary-language, description]
+    - modules:
+        fields: [name, path, entry, description, dependencies, priority]
+    - analysis-hints:
+        fields: [entry-points, ignore-patterns, architecture-type]
+  optional_sections:
+    - documentation
+    - context-strategy
+    - annotations
+    - conventions
+
+anti_patterns:
+  - pattern: Magic strings
+    problem: AI cannot trace constants
+    solution: Use typed constants with documentation
+
+  - pattern: Implicit routing
+    problem: Hidden behavior
+    solution: Document route mappings explicitly
+
+  - pattern: Global state
+    problem: Unpredictable dependencies
+    solution: Dependency injection with explicit wiring
+
+  - pattern: Circular dependencies
+    problem: Context confusion
+    solution: Clear hierarchical dependencies
+
+  - pattern: Monolithic files
+    problem: Context overflow
+    solution: Split into focused modules
+
+  - pattern: Outdated documentation
+    problem: Misleading AI
+    solution: Keep docs in sync with code
+
+context_priority:
+  order:
+    - priority: 1
+      content: Entry points
+      reason: Understand application structure
+    - priority: 2
+      content: .ai-context.yaml
+      reason: Module map and dependencies
+    - priority: 3
+      content: QUICK-REF files
+      reason: Rapid API understanding
+    - priority: 4
+      content: Modified files
+      reason: Direct task relevance
+    - priority: 5
+      content: Dependency chain
+      reason: Context for changes
+
+implementation_checklist:
+  quick_start:
+    time: "< 1 hour"
+    tasks:
+      - Create .ai-context.yaml with module list
+      - Add QUICK-REF.md to project root
+      - Document entry points in README
+      - Add module headers to main files
+
+  standard:
+    time: "< 1 day"
+    tasks:
+      - Complete .ai-context.yaml configuration
+      - Add QUICK-REF.md to each major module
+      - Document all public APIs with type information
+      - Add section dividers to large files
+      - Create dependency documentation
+
+  full:
+    time: "< 1 week"
+    tasks:
+      - Three-layer documentation for all modules
+      - Searchable code annotations
+      - Examples directory with use cases
+      - Architecture diagrams
+      - Integration with CI for doc validation

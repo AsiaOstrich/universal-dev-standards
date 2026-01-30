@@ -1,0 +1,138 @@
+# spec command - converted from UDS
+description = "Create or review specification documents for Spec-Driven Development"
+
+prompt = """
+
+## Arguments
+User provided: {{args}}
+
+# Spec-Driven Development Assistant | 規格驅動開發助手
+
+Create, review, and manage specification documents for implementing features.
+
+建立、審查和管理規格文件，用於實作功能。
+
+## Enhanced Workflow | 增強工作流程
+
+### Phase 0: Scope Evaluation (NEW) | 範圍評估（新增）
+
+Before creating a spec, evaluate the change scope:
+
+在建立規格前，先評估變更範圍：
+
+**Q1: Scope | 範圍**
+- [ ] Project-specific (CLAUDE.md only) | 專案專用
+- [ ] Universal (Core Standard) | 通用規則
+
+**Q2: Interaction | 互動**
+- [ ] Needs AI interaction → Create Skill | 需要 AI 互動 → 建立 Skill
+- [ ] Static rule only | 靜態規則
+
+**Q3: Trigger | 觸發**
+- [ ] User-triggered → Create Command | 使用者觸發 → 建立命令
+- [ ] AI applies automatically | AI 自動應用
+
+**Record in spec metadata:**
+```yaml
+scope: universal|project|utility
+sync-to:
+  - core-standard: pending|complete|N/A
+  - skill: pending|complete|N/A
+  - command: pending|complete|N/A
+  - translations: pending|complete|N/A
+```
+
+### Phase 1-5: Standard Workflow | 標準流程
+
+1. **Create spec** - Write detailed specification document
+2. **Review spec** - Validate against requirements
+3. **Approve spec** - Get stakeholder sign-off
+4. **Implement** - Code follows the approved spec
+5. **Verify** - Ensure implementation matches spec
+
+### Phase 6: Sync Verification (NEW) | 同步驗證（新增）
+
+After implementation, verify all sync targets:
+
+實作後，驗證所有同步目標：
+
+- [ ] Core Standard created/updated (if universal)
+- [ ] Skill created/updated (if interactive)
+- [ ] Command created/updated (if user-triggered)
+- [ ] Translations synchronized
+
+## Spec Document Structure | 規格文件結構
+
+```markdown
+# Feature: [Feature Name]
+
+## Overview
+Brief description of the feature.
+
+## Requirements
+- REQ-001: [Requirement description]
+- REQ-002: [Requirement description]
+
+## Technical Design
+### Architecture
+[Design details]
+
+### API Changes
+[API specifications]
+
+### Database Changes
+[Schema changes]
+
+## Test Plan
+- [ ] Unit tests for [component]
+- [ ] Integration tests for [flow]
+
+## Rollout Plan
+[Deployment strategy]
+```
+
+## Spec States | 規格狀態
+
+| State | Description | 說明 |
+|-------|-------------|------|
+| Draft | Work in progress | 草稿中 |
+| Review | Under review | 審查中 |
+| Approved | Ready for implementation | 已核准 |
+| Implemented | Code complete | 已實作 |
+| Archived | Completed or deprecated | 已歸檔 |
+
+## Usage | 使用方式
+
+- `/spec` - Interactive spec creation wizard (includes scope evaluation)
+- `/spec auth-flow` - Create spec for specific feature
+- `/spec review` - Review existing specs
+- `/spec --evaluate` - Run scope evaluation only (without creating spec)
+- `/spec --sync-check` - Check sync status of existing specs
+
+## Sync Checklist Template | 同步檢查清單範本
+
+Include in every spec:
+
+```markdown
+## Sync Checklist
+
+### From Core Standard
+- [ ] Skill created/updated?
+- [ ] Command created?
+- [ ] Translations synced?
+
+### From Skill
+- [ ] Core Standard exists? (or marked as [Scope: Utility])
+- [ ] Command created?
+- [ ] Translations synced?
+
+### From Command
+- [ ] Skill documentation updated?
+- [ ] Translations synced?
+```
+
+## Reference | 參考
+
+- Full standard: [spec-driven-dev](../../spec-driven-dev/SKILL.md)
+- Core standard: [spec-driven-development.md](../../../core/spec-driven-development.md)
+"""

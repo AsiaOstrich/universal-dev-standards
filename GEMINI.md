@@ -141,3 +141,62 @@ Reference: `core/refactoring-standards.md`
 - **Tactical**: Boy Scout Rule, Preparatory Refactoring (Minutes)
 - **Strategic**: Strangler Fig, Anti-Corruption Layer (Weeks-Months)
 - **Safety**: Add characterization tests BEFORE refactoring legacy code.
+
+---
+
+<!-- UDS:STANDARDS:START -->
+## Standards Compliance Instructions
+
+**MUST follow** (always required):
+| Task | Standard | When |
+|------|----------|------|
+| Writing commits | [commit-message.ai.yaml](.standards/commit-message.ai.yaml) | Every commit |
+
+**SHOULD follow** (when relevant):
+| Task | Standard | When |
+|------|----------|------|
+| Git workflow | [git-workflow.ai.yaml](.standards/git-workflow.ai.yaml) | Branch/merge decisions |
+| Writing tests | [testing.ai.yaml](.standards/testing.ai.yaml) | When creating tests |
+
+
+## Installed Standards Index
+
+This project has adopted **Level 3** (Enterprise) standards. All standards are located in `.standards/`:
+
+### Core Standards
+- `anti-hallucination.ai.yaml` - Anti-Hallucination Guidelines
+- `ai-friendly-architecture.ai.yaml` - AI-Friendly Architecture
+- `commit-message.ai.yaml` - Conventional Commits
+- `checkin-standards.ai.yaml` - Code Check-in Quality Gates
+- `spec-driven-development.ai.yaml` - Spec-Driven Development
+- `code-review.ai.yaml` - Code Review Checklist
+- `git-workflow.ai.yaml` - Git Workflow & Branching
+- `versioning.ai.yaml` - Semantic Versioning
+- `changelog.ai.yaml` - Changelog Standards
+- `testing.ai.yaml` - Testing Pyramid & Standards
+- `documentation-structure.ai.yaml` - Documentation Structure
+- `documentation-writing-standards.ai.yaml` - Documentation Writing
+- `ai-instruction-standards.ai.yaml` - AI Instruction Files
+- `project-structure.ai.yaml` - Project Directory Structure
+- `error-codes.ai.yaml` - Error Code Standards
+- `logging.ai.yaml` - Logging Standards
+- `test-completeness-dimensions.ai.yaml` - Test Completeness
+- `test-driven-development.ai.yaml` - TDD Workflow
+- `behavior-driven-development.ai.yaml` - BDD Workflow
+- `acceptance-test-driven-development.ai.yaml` - ATDD Workflow
+- `reverse-engineering-standards.ai.yaml` - Reverse Engineering
+- `forward-derivation-standards.ai.yaml` - Forward Derivation
+- `ai-agreement-standards.ai.yaml` - AI Agreement Protocols
+- `virtual-organization-standards.ai.yaml` - Virtual Organization
+- `refactoring-standards.ai.yaml` - Refactoring Standards
+- `requirement-engineering.ai.yaml` - Requirement Engineering
+- `security-standards.ai.yaml` - Security Standards
+- `performance-standards.ai.yaml` - Performance Standards
+- `accessibility-standards.ai.yaml` - Accessibility Standards
+
+### Templates & Checklists
+- `requirement-checklist.md` - Requirement Checklist
+- `requirement-template.md` - User Story Template
+- `requirement-document-template.md` - Requirement Document Template
+
+<!-- UDS:STANDARDS:END -->

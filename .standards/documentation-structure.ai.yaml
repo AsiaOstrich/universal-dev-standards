@@ -1,0 +1,123 @@
+# Documentation Structure Standard - AI Optimized
+# Source: core/documentation-structure.md
+
+id: documentation-structure
+meta:
+  version: "1.3.0"
+  updated: "2025-12-29"
+  source: core/documentation-structure.md
+  description: Consistent documentation structure for software projects
+
+options:
+  documentation_style:
+    description: Select documentation approach
+    multiSelect: true
+    choices:
+      - id: markdown-docs
+        file: options/documentation/markdown-docs.ai.yaml
+        best_for: Open source, developer-focused docs
+      - id: api-docs
+        file: options/documentation/api-docs.ai.yaml
+        best_for: REST/GraphQL API documentation
+      - id: wiki-style
+        file: options/documentation/wiki-style.ai.yaml
+        best_for: Large teams, internal knowledge bases
+
+structure:
+  root:
+    - file: README.md
+      required: true
+      naming: UPPERCASE
+      purpose: Project overview
+
+    - file: CONTRIBUTING.md
+      required: false
+      naming: UPPERCASE
+      purpose: Contribution guidelines
+
+    - file: CHANGELOG.md
+      required: false
+      naming: UPPERCASE
+      purpose: Version history
+
+    - file: LICENSE
+      required: true
+      naming: UPPERCASE (no extension)
+      purpose: License file
+
+  docs:
+    naming: lowercase-kebab-case
+    files:
+      - index.md (documentation index)
+      - getting-started.md (quick start)
+      - architecture.md (system architecture)
+      - api-reference.md (API docs)
+      - deployment.md (deployment guide)
+      - troubleshooting.md (common issues)
+
+    subdirectories:
+      - name: flows/
+        purpose: Flow documentation
+        index_required: "when >5 flows"
+
+      - name: ADR/
+        purpose: Architecture Decision Records
+        naming: "NNN-title.md"
+
+      - name: diagrams/
+        purpose: Architecture diagrams
+        formats: [".mmd", ".puml", ".drawio"]
+
+rules:
+  - id: root-uppercase
+    trigger: creating root documentation
+    instruction: Use UPPERCASE for root-level docs (README, CONTRIBUTING, CHANGELOG)
+    priority: required
+
+  - id: docs-lowercase-kebab
+    trigger: creating docs/ files
+    instruction: Use lowercase-kebab-case for all docs/ files
+    validator: "^[a-z][a-z0-9-]*\\.md$"
+    priority: required
+    examples:
+      good:
+        - getting-started.md
+        - api-reference.md
+      bad:
+        - GettingStarted.md
+        - API_Reference.md
+        - "User Guide.md"
+
+  - id: readme-required
+    trigger: creating new project
+    instruction: README.md is required for every project
+    priority: required
+
+  - id: flow-index
+    trigger: creating flow documentation
+    instruction: Create flows/README.md when there are more than 5 flows
+    priority: required
+
+  - id: adr-numbering
+    trigger: creating ADR
+    instruction: Use format NNN-title.md (e.g., 001-use-postgres.md)
+    validator: "^\\d{3}-[a-z][a-z0-9-]+\\.md$"
+    priority: required
+
+quick_reference:
+  root_files:
+    columns: [File, Naming, Purpose]
+    rows:
+      - [README.md, UPPERCASE, Project overview]
+      - [CONTRIBUTING.md, UPPERCASE, Contribution guidelines]
+      - [CHANGELOG.md, UPPERCASE, Version history]
+      - [LICENSE, UPPERCASE (no ext), License file]
+      - [SECURITY.md, UPPERCASE, Security advisory]
+
+  docs_structure:
+    columns: [Directory, Purpose, Naming]
+    rows:
+      - [docs/, Main documentation, lowercase-kebab-case]
+      - [docs/flows/, Flow documentation, "{module}-flow.md"]
+      - [docs/ADR/, Architecture decisions, "NNN-title.md"]
+      - [docs/diagrams/, Architecture diagrams, descriptive names]

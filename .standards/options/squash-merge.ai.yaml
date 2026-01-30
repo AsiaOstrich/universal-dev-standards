@@ -1,0 +1,56 @@
+# Squash Merge Strategy - AI Optimized Option
+# Parent: git-workflow
+
+id: squash
+meta:
+  parent: git-workflow
+  version: "1.0.0"
+  description: Combines all commits into one clean commit
+
+best_for:
+  - GitHub Flow workflow
+  - clean main branch history
+  - feature branches with messy commits
+  - small to medium features
+
+command: git merge --squash
+
+pros:
+  - clean, linear history
+  - one commit per feature
+  - easy to understand
+
+cons:
+  - loses detailed commit history
+  - harder to debug individual changes
+
+rules:
+  - id: meaningful-squash-message
+    trigger: squash merging
+    instruction: Write comprehensive commit message summarizing all changes
+    priority: required
+
+  - id: reference-pr
+    trigger: writing squash commit message
+    instruction: Include PR number in commit message
+    priority: recommended
+
+examples:
+  command: |
+    git checkout main
+    git merge --squash feature/user-auth
+    git commit -m "feat(auth): add user authentication (#123)"
+
+  log_output: |
+    * feat(auth): add user authentication (#123)
+    * previous commit on main
+
+  message_template: |
+    feat(auth): add user authentication (#123)
+
+    - Add login form with email/password
+    - Implement password reset flow
+    - Add user model and database migration
+    - Include unit tests for auth service
+
+    Co-authored-by: Developer Name <dev@example.com>

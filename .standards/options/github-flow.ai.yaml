@@ -1,0 +1,97 @@
+# GitHub Flow - AI Optimized Option
+# Parent: git-workflow
+
+id: github-flow
+meta:
+  parent: git-workflow
+  version: "1.0.0"
+  description: Simple workflow for continuous deployment
+
+best_for:
+  - continuous deployment
+  - web applications
+  - small to medium teams (5-15)
+  - fast iteration cycles
+
+branches:
+  - name: main
+    purpose: always deployable production code
+    lifetime: permanent
+    protection:
+      - require pull request reviews
+      - require status checks
+      - no force push
+
+  - name: "feature/*"
+    purpose: new features
+    base: main
+    merge_to: main
+    lifetime: temporary
+
+  - name: "bugfix/*"
+    purpose: bug fixes
+    base: main
+    merge_to: main
+    lifetime: temporary
+
+  - name: "hotfix/*"
+    purpose: urgent fixes
+    base: main
+    merge_to: main
+    lifetime: temporary
+
+rules:
+  - id: main-always-deployable
+    trigger: merging to main
+    instruction: Ensure all tests pass before merge
+    validator: CI status must be green
+
+  - id: feature-branch-lifetime
+    trigger: creating feature branch
+    instruction: Keep branches short-lived (< 1 week)
+    priority: recommended
+
+  - id: merge-via-pr
+    trigger: completing feature
+    instruction: Always create PR for code review
+    priority: required
+
+  - id: deploy-after-merge
+    trigger: after merge to main
+    instruction: Deploy immediately or trigger deployment pipeline
+    priority: recommended
+
+workflow:
+  - step: create branch
+    commands:
+      - git checkout main
+      - git pull origin main
+      - git checkout -b feature/{name}
+
+  - step: develop and commit
+    commands:
+      - git add .
+      - "git commit -m \"{type}({scope}): {message}\""
+      - git push -u origin feature/{name}
+
+  - step: create pull request
+    note: use GitHub/GitLab UI or gh CLI
+
+  - step: code review
+    note: address review comments, push additional commits
+
+  - step: merge after approval
+    commands:
+      - git checkout main
+      - git merge --squash feature/{name}
+      - git push origin main
+    note: squash merge recommended for clean history
+
+  - step: deploy
+    note: trigger deployment pipeline automatically
+
+  - step: cleanup
+    commands:
+      - git branch -d feature/{name}
+      - git push origin --delete feature/{name}
+    note: auto-deleted by GitHub/GitLab
