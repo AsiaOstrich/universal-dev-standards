@@ -185,3 +185,55 @@ flowchart TD
     style Start fill:#f9f,stroke:#333,stroke-width:2px
     style Finish fill:#9f9,stroke:#333,stroke-width:2px
 ```
+
+## 5. 未来架构 (SPEC-009)
+
+提议简化流程，以规则选择取代采用等级。
+
+```mermaid
+flowchart TD
+    Start([uds init]) --> DetectProject[检测项目技术与 AI 工具]
+    DetectProject --> Step1[Q1: 选择显示语言]
+
+    Step1 --> Step2[Q2: 选择 AI 工具]
+    Step2 --> CheckAITools{已选择 AI 工具?}
+    CheckAITools -- 否 --> ExitNoTools([结束])
+    CheckAITools -- 是 --> CheckSkillsSupport{支持 Skills?}
+
+    %% Skills & Commands Flow (不变)
+    CheckSkillsSupport -- 否 --> Step6
+    CheckSkillsSupport -- 是 --> Step4[Q3: Skills 安装位置]
+    Step4 --> CheckMarketplace{Marketplace?}
+    CheckMarketplace -- 是 --> Step6
+    CheckMarketplace -- 否 --> Step5[Q4: 斜杠命令安装位置]
+
+    %% 新核心：规则选择（取代等级）
+    Step5 --> Step6[Q5: 选择标准规则]
+    Step6 --> RuleConfig{检查已选规则}
+
+    %% 动态规则配置
+    RuleConfig -- 已选 Git 工作流 --> Q_Git[Q6a: Git 策略]
+    RuleConfig -- 已选测试 --> Q_Test[Q6b: 测试级别]
+    RuleConfig -- 已选 Commit 消息 --> Q_Commit[Q6c: Commit 语言]
+    RuleConfig -- 其他 --> Q_Scope
+
+    Q_Git --> Q_Scope
+    Q_Test --> Q_Scope
+    Q_Commit --> Q_Scope
+
+    %% 简化的生成流程
+    Q_Scope[Q7: 标准范围] --> DisplaySummary
+
+    %% 隐式决策（对用户隐藏）
+    DisplaySummary --> ImplicitConfig[[隐式：内容模式 = 标准]]
+    ImplicitConfig --> ImplicitInteg[[隐式：集成 = 默认]]
+
+    ImplicitInteg --> Confirm{继续?}
+    Confirm -- 是 --> Install[安装文件并生成配置]
+    Install --> Finish([完成])
+
+    %% Styling
+    style Step6 fill:#f96,stroke:#333,stroke-width:2px
+    style ImplicitConfig fill:#ddd,stroke:#999,stroke-dasharray: 5 5
+    style ImplicitInteg fill:#ddd,stroke:#999,stroke-dasharray: 5 5
+```
