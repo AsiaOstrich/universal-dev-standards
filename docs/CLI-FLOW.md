@@ -185,3 +185,55 @@ flowchart TD
     style Start fill:#f9f,stroke:#333,stroke-width:2px
     style Finish fill:#9f9,stroke:#333,stroke-width:2px
 ```
+
+## 5. Future Architecture (SPEC-009)
+
+Proposed simplified flow focusing on Rule Selection instead of Adoption Levels.
+
+```mermaid
+flowchart TD
+    Start([uds init]) --> DetectProject[Detect Tech & AI Tools]
+    DetectProject --> Step1[Q1: Select Display Language]
+    
+    Step1 --> Step2[Q2: Select AI Tools]
+    Step2 --> CheckAITools{AI Tools Selected?}
+    CheckAITools -- No --> ExitNoTools([Exit])
+    CheckAITools -- Yes --> CheckSkillsSupport{Supports Skills?}
+    
+    %% Skills & Commands Flow (Unchanged)
+    CheckSkillsSupport -- No --> Step6
+    CheckSkillsSupport -- Yes --> Step4[Q3: Skills Location]
+    Step4 --> CheckMarketplace{Marketplace?}
+    CheckMarketplace -- Yes --> Step6
+    CheckMarketplace -- No --> Step5[Q4: Slash Commands Location]
+    
+    %% NEW CORE: Rule Selection (Replaces Level)
+    Step5 --> Step6[Q5: Select Standard Rules]
+    Step6 --> RuleConfig{Check Selected Rules}
+    
+    %% Dynamic Rule Configuration
+    RuleConfig -- Git Workflow Selected --> Q_Git[Q6a: Git Strategy]
+    RuleConfig -- Testing Selected --> Q_Test[Q6b: Test Levels]
+    RuleConfig -- Commit Msg Selected --> Q_Commit[Q6c: Commit Language]
+    RuleConfig -- Others --> Q_Scope
+    
+    Q_Git --> Q_Scope
+    Q_Test --> Q_Scope
+    Q_Commit --> Q_Scope
+    
+    %% Simplified Generation
+    Q_Scope[Q7: Standards Scope] --> DisplaySummary
+    
+    %% Implicit Decisions (Hidden from User)
+    DisplaySummary --> ImplicitConfig[[Implicit: Content Mode = Standard]]
+    ImplicitConfig --> ImplicitInteg[[Implicit: Integration = Default]]
+    
+    ImplicitInteg --> Confirm{Proceed?}
+    Confirm -- Yes --> Install[Install Files & Generate Configs]
+    Install --> Finish([Done])
+
+    %% Styling
+    style Step6 fill:#f96,stroke:#333,stroke-width:2px
+    style ImplicitConfig fill:#ddd,stroke:#999,stroke-dasharray: 5 5
+    style ImplicitInteg fill:#ddd,stroke:#999,stroke-dasharray: 5 5
+```
