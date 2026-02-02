@@ -42,7 +42,9 @@ export async function specCreateCommand(intent, options = {}) {
   console.log(chalk.gray(t('spec.analyzing', 'Analyzing your intent...')));
   console.log('');
 
-  const microSpec = new MicroSpec();
+  const microSpec = new MicroSpec({
+    output: options.output
+  });
 
   const spinner = ora({
     text: t('spec.generating', 'Generating micro-spec...'),
@@ -118,7 +120,9 @@ export async function specListCommand(options = {}) {
   console.log(chalk.bold(t('spec.listTitle', 'Micro-Specs')));
   console.log('');
 
-  const microSpec = new MicroSpec();
+  const microSpec = new MicroSpec({
+    output: options.output
+  });
   const specs = microSpec.list({
     status: options.status
   });
@@ -163,15 +167,18 @@ export async function specListCommand(options = {}) {
 /**
  * Execute the spec show command
  * @param {string} id - Spec ID
+ * @param {Object} options - Command options
  */
-export async function specShowCommand(id) {
+export async function specShowCommand(id, options = {}) {
   if (!id) {
     console.log(chalk.red(t('spec.noId', 'Error: Please provide a spec ID.')));
     process.exitCode = 1;
     return;
   }
 
-  const microSpec = new MicroSpec();
+  const microSpec = new MicroSpec({
+    output: options.output
+  });
   const spec = microSpec.get(id);
 
   if (!spec) {
@@ -187,15 +194,18 @@ export async function specShowCommand(id) {
 /**
  * Execute the spec confirm command
  * @param {string} id - Spec ID
+ * @param {Object} options - Command options
  */
-export async function specConfirmCommand(id) {
+export async function specConfirmCommand(id, options = {}) {
   if (!id) {
     console.log(chalk.red(t('spec.noId', 'Error: Please provide a spec ID.')));
     process.exitCode = 1;
     return;
   }
 
-  const microSpec = new MicroSpec();
+  const microSpec = new MicroSpec({
+    output: options.output
+  });
   const spec = microSpec.confirm(id);
 
   if (!spec) {
@@ -211,15 +221,18 @@ export async function specConfirmCommand(id) {
 /**
  * Execute the spec archive command
  * @param {string} id - Spec ID
+ * @param {Object} options - Command options
  */
-export async function specArchiveCommand(id) {
+export async function specArchiveCommand(id, options = {}) {
   if (!id) {
     console.log(chalk.red(t('spec.noId', 'Error: Please provide a spec ID.')));
     process.exitCode = 1;
     return;
   }
 
-  const microSpec = new MicroSpec();
+  const microSpec = new MicroSpec({
+    output: options.output
+  });
   const success = microSpec.archive(id);
 
   if (!success) {
@@ -243,7 +256,9 @@ export async function specDeleteCommand(id, options = {}) {
     return;
   }
 
-  const microSpec = new MicroSpec();
+  const microSpec = new MicroSpec({
+    output: options.output
+  });
 
   if (!options.yes) {
     const { confirm } = await inquirer.prompt([

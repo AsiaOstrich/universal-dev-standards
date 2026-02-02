@@ -30,12 +30,18 @@ export const SpecStatus = {
 export class MicroSpec {
   constructor(options = {}) {
     this.cwd = options.cwd || process.cwd();
-    this.specsDir = join(this.cwd, '.uds', 'micro-specs');
+
+    // Priority: CLI parameter > project config > default
+    const configuredPath = config.get('specs.path', 'specs');
+    this.specsDir = options.output
+      ? join(this.cwd, options.output)
+      : join(this.cwd, configuredPath);
+
     this.archiveDir = join(this.specsDir, 'archive');
     this.config = config.get('vibe-coding.micro-specs', {
       generate: true,
       requireConfirmation: true,
-      storage: '.uds/micro-specs/'
+      storage: 'specs/'
     });
   }
 
@@ -52,18 +58,37 @@ export class MicroSpec {
   }
 
   /**
-   * Generate a unique spec ID based on date and title
+   * Get the next available spec number
+   * @returns {number} Next spec number
+   */
+  getNextSpecNumber() {
+    this.ensureDirectories();
+    const files = readdirSync(this.specsDir).filter(f => f.match(/^SPEC-\d{3}/));
+    if (files.length === 0) return 1;
+
+    const numbers = files.map(f => {
+      const match = f.match(/^SPEC-(\d{3})/);
+      return match ? parseInt(match[1], 10) : 0;
+    });
+    return Math.max(...numbers) + 1;
+  }
+
+  /**
+   * Generate a unique spec ID based on sequential number and title
    * @param {string} title - Spec title
-   * @returns {string} Unique spec ID
+   * @returns {string} Unique spec ID (SPEC-XXX-slug format)
    */
   generateId(title) {
-    const date = new Date().toISOString().slice(0, 10);
+    const nextNumber = this.getNextSpecNumber();
+    const paddedNumber = String(nextNumber).padStart(3, '0');
+
     const slug = title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '')
       .slice(0, 30);
-    return `${date}-${slug}`;
+
+    return `SPEC-${paddedNumber}-${slug}`;
   }
 
   /**

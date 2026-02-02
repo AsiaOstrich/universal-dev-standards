@@ -113,7 +113,7 @@ So that I can validate quickly during prototyping.
 - **Confirmation Strategy**:
   - *Terminal Mode*: User is prompted via Inquirer CLI (best for shell users)
   - *Chat Mode* (Recommended for Cursor/Windsurf): Spec is output to stdout; AI tool reads it and asks user in-chat "Shall I proceed?" to maintain flow
-- Spec is stored in `.uds/micro-specs/` for traceability
+- Spec is stored in `specs/` directory with format `SPEC-XXX-slug.md` for traceability
 
 **Micro-Spec Format**:
 ```markdown
@@ -224,10 +224,10 @@ So that I can validate quickly during prototyping.
 
 ### Micro-Spec Lifecycle / 微規格生命週期
 
-1.  **Creation**: Generated in `.uds/micro-specs/` (Draft status).
+1.  **Creation**: Generated in `specs/` directory with format `SPEC-XXX-slug.md` (Draft status).
 2.  **Active**: Used during the Vibe Session as the source of truth.
 3.  **Cleanup (Auto-Sweep)**:
-    *   **Ephemeral (Default)**: If the code is simple/prototyping, the spec is archived to `.uds/micro-specs/archive/`.
+    *   **Ephemeral (Default)**: If the code is simple/prototyping, the spec is archived to `specs/archive/`.
     *   **Promote**: If the user flags it as important (or via config), it is converted to a formal spec in `docs/specs/` and linked to the implementation.
 
 ### Configuration / 配置
@@ -240,7 +240,7 @@ vibe-coding:
   micro-specs:
     generate: true
     require-confirmation: false  # Skip confirmation prompts
-    storage: .uds/micro-specs/
+    storage: specs/  # Default: specs/, configurable via specs.path
 
   auto-sweep:
     enabled: true
@@ -266,15 +266,17 @@ vibe-coding:
 ### File Structure / 檔案結構
 
 ```
-.uds/
-├── config.yaml              # Vibe coding configuration
-├── micro-specs/             # Generated micro-specs
-│   ├── 2026-01-28-login.md
-│   └── 2026-01-28-dashboard.md
-├── snapshots/               # Visual verification snapshots
-│   └── login-page-v1.png
-└── reports/                 # Auto-sweep reports
-    └── 2026-01-28-session.md
+project/
+├── .uds/
+│   ├── config.yaml          # Vibe coding configuration
+│   ├── snapshots/           # Visual verification snapshots
+│   │   └── login-page-v1.png
+│   └── reports/             # Auto-sweep reports
+│       └── 2026-01-28-session.md
+└── specs/                   # Generated micro-specs (default location)
+    ├── SPEC-001-login.md
+    ├── SPEC-002-dashboard.md
+    └── archive/             # Archived specs
 ```
 
 ### CLI Commands / CLI 命令

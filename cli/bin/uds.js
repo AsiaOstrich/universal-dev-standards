@@ -139,6 +139,7 @@ specCommand
   .alias('new')
   .description('Create a micro-spec from natural language intent')
   .option('-s, --scope <scope>', 'Scope (frontend, backend, fullstack)')
+  .option('-o, --output <path>', 'Output directory (default: specs/)')
   .option('-y, --yes', 'Auto-confirm without prompting')
   .action(specCreateCommand);
 
@@ -147,21 +148,25 @@ specCommand
   .alias('ls')
   .description('List all micro-specs')
   .option('--status <status>', 'Filter by status (draft, confirmed, archived)')
+  .option('-o, --output <path>', 'Specs directory (default: specs/)')
   .action(specListCommand);
 
 specCommand
   .command('show <id>')
   .description('Show a specific micro-spec')
+  .option('-o, --output <path>', 'Specs directory (default: specs/)')
   .action(specShowCommand);
 
 specCommand
   .command('confirm <id>')
   .description('Confirm a micro-spec for implementation')
+  .option('-o, --output <path>', 'Specs directory (default: specs/)')
   .action(specConfirmCommand);
 
 specCommand
   .command('archive <id>')
   .description('Archive a completed micro-spec')
+  .option('-o, --output <path>', 'Specs directory (default: specs/)')
   .action(specArchiveCommand);
 
 specCommand
@@ -169,6 +174,7 @@ specCommand
   .alias('rm')
   .description('Delete a micro-spec')
   .option('-y, --yes', 'Skip confirmation')
+  .option('-o, --output <path>', 'Specs directory (default: specs/)')
   .action(specDeleteCommand);
 
 // Agent command with subcommands

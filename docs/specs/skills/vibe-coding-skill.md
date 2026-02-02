@@ -49,10 +49,11 @@ The following context MUST be injected when Vibe Mode is active:
 1.  **Intent First**: Do not implement until you have a confirmed Micro-Spec.
 2.  **Micro-Spec Flow**:
     - If no spec exists, generate one using `uds spec create` or ask the user.
-    - If a spec exists, read it using `read_file .uds/micro-specs/<active>.md`.
+    - If a spec exists, read it using `read_file specs/SPEC-XXX-<slug>.md`.
 3.  **Soft Constraints**: You are aware of UDS standards (in `core/`), but you prioritize *flow* and *functioning code* over strict compliance. Violations will be caught by the Auto-Sweep later.
 4.  **Verification**: For UI components, prioritize *Visual Verification* (screenshots) over unit tests.
 5.  **Safety**: For destructive actions (Level 3+), you MUST use the `uds hitl check` command or ask explicitly.
+6.  **Spec Storage**: Micro-specs are stored in `specs/` directory with format `SPEC-XXX-slug.md`.
 
 **Output Style**:
 - Concise. Minimal explanation.
@@ -76,7 +77,7 @@ The skill provides the following user-facing commands:
 The AI Agent must be equipped with these specific tool capabilities:
 
 **A. Spec Management**
-- `create_spec(intent: string)` -> generates `.uds/micro-specs/timestamp.md`
+- `create_spec(intent: string)` -> generates `specs/SPEC-XXX-slug.md`
 - `list_specs()` -> lists active specs
 
 **B. HITL Check**

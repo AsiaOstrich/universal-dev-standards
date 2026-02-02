@@ -16,10 +16,16 @@ vi.mock('node:fs', () => ({
 
 vi.mock('../../../src/utils/config-manager.js', () => ({
   config: {
-    get: vi.fn().mockReturnValue({
-      generate: true,
-      requireConfirmation: true,
-      storage: '.uds/micro-specs/'
+    get: vi.fn((key, defaultValue) => {
+      if (key === 'specs.path') return 'specs';
+      if (key === 'vibe-coding.micro-specs') {
+        return {
+          generate: true,
+          requireConfirmation: true,
+          storage: 'specs/'
+        };
+      }
+      return defaultValue;
     })
   }
 }));
@@ -52,27 +58,83 @@ describe('MicroSpec', () => {
       expect(defaultSpec.cwd).toBe(process.cwd());
     });
 
-    it('should set correct directories', () => {
-      expect(microSpec.specsDir).toBe(join('/test/project', '.uds', 'micro-specs'));
-      expect(microSpec.archiveDir).toBe(join('/test/project', '.uds', 'micro-specs', 'archive'));
+    it('should set correct directories with default path', () => {
+      expect(microSpec.specsDir).toBe(join('/test/project', 'specs'));
+      expect(microSpec.archiveDir).toBe(join('/test/project', 'specs', 'archive'));
+    });
+
+    it('should use custom output path when provided', () => {
+      const customSpec = new MicroSpec({ cwd: '/test/project', output: 'my-specs' });
+      expect(customSpec.specsDir).toBe(join('/test/project', 'my-specs'));
+      expect(customSpec.archiveDir).toBe(join('/test/project', 'my-specs', 'archive'));
+    });
+  });
+
+  describe('getNextSpecNumber', () => {
+    it('should return 1 when no specs exist', () => {
+      existsSync.mockReturnValue(true);
+      readdirSync.mockReturnValue([]);
+
+      const nextNum = microSpec.getNextSpecNumber();
+
+      expect(nextNum).toBe(1);
+    });
+
+    it('should return next number based on existing specs', () => {
+      existsSync.mockReturnValue(true);
+      readdirSync.mockReturnValue(['SPEC-001-login.md', 'SPEC-002-logout.md', 'SPEC-005-profile.md']);
+
+      const nextNum = microSpec.getNextSpecNumber();
+
+      expect(nextNum).toBe(6);
+    });
+
+    it('should ignore non-spec files', () => {
+      existsSync.mockReturnValue(true);
+      readdirSync.mockReturnValue(['SPEC-001-login.md', 'README.md', 'other-file.md']);
+
+      const nextNum = microSpec.getNextSpecNumber();
+
+      expect(nextNum).toBe(2);
     });
   });
 
   describe('generateId', () => {
-    it('should generate ID with date prefix', () => {
+    it('should generate ID with SPEC-XXX prefix', () => {
+      existsSync.mockReturnValue(true);
+      readdirSync.mockReturnValue([]);
+
       const id = microSpec.generateId('Test Feature');
-      expect(id).toMatch(/^\d{4}-\d{2}-\d{2}-test-feature$/);
+
+      expect(id).toMatch(/^SPEC-001-test-feature$/);
     });
 
     it('should handle special characters in title', () => {
+      existsSync.mockReturnValue(true);
+      readdirSync.mockReturnValue([]);
+
       const id = microSpec.generateId('Add login/auth page!');
-      expect(id).toMatch(/^\d{4}-\d{2}-\d{2}-add-login-auth-page$/);
+
+      expect(id).toMatch(/^SPEC-001-add-login-auth-page$/);
     });
 
     it('should truncate long titles', () => {
+      existsSync.mockReturnValue(true);
+      readdirSync.mockReturnValue([]);
+
       const longTitle = 'This is a very long title that should be truncated to fit within limits';
       const id = microSpec.generateId(longTitle);
-      expect(id.length).toBeLessThanOrEqual(41); // date(10) + dash(1) + slug(30)
+
+      expect(id.length).toBeLessThanOrEqual(42); // SPEC-XXX-(8) + slug(30) + dashes
+    });
+
+    it('should increment number based on existing specs', () => {
+      existsSync.mockReturnValue(true);
+      readdirSync.mockReturnValue(['SPEC-001-login.md', 'SPEC-002-logout.md']);
+
+      const id = microSpec.generateId('New Feature');
+
+      expect(id).toMatch(/^SPEC-003-new-feature$/);
     });
   });
 
@@ -145,6 +207,7 @@ describe('MicroSpec', () => {
   describe('create', () => {
     it('should create a micro-spec', () => {
       existsSync.mockReturnValue(false);
+      readdirSync.mockReturnValue([]);
 
       const result = microSpec.create('Add a login page with email authentication');
 
@@ -152,12 +215,14 @@ describe('MicroSpec', () => {
       expect(writeFileSync).toHaveBeenCalled();
       expect(result.spec.status).toBe(SpecStatus.DRAFT);
       expect(result.spec.confirmed).toBe(false);
-      expect(result.filepath).toContain('.uds/micro-specs');
+      expect(result.filepath).toContain('specs');
+      expect(result.spec.id).toMatch(/^SPEC-001-/);
       expect(result.markdown).toContain('## Micro-Spec:');
     });
 
     it('should use provided scope option', () => {
       existsSync.mockReturnValue(false);
+      readdirSync.mockReturnValue([]);
 
       const result = microSpec.create('Add a feature', { scope: 'backend' });
 
@@ -168,7 +233,7 @@ describe('MicroSpec', () => {
   describe('toMarkdown', () => {
     it('should generate valid markdown', () => {
       const spec = {
-        id: '2026-01-28-test',
+        id: 'SPEC-001-test',
         title: 'Test Feature',
         status: SpecStatus.DRAFT,
         createdAt: '2026-01-28T10:00:00.000Z',
@@ -193,7 +258,7 @@ describe('MicroSpec', () => {
 
     it('should include notes if present', () => {
       const spec = {
-        id: '2026-01-28-test',
+        id: 'SPEC-001-test',
         title: 'Test',
         status: SpecStatus.DRAFT,
         createdAt: '2026-01-28',
@@ -232,9 +297,9 @@ describe('MicroSpec', () => {
 **Confirmed**: Yes
 `;
 
-      const spec = microSpec.fromMarkdown(markdown, '2026-01-28-test');
+      const spec = microSpec.fromMarkdown(markdown, 'SPEC-001-test');
 
-      expect(spec.id).toBe('2026-01-28-test');
+      expect(spec.id).toBe('SPEC-001-test');
       expect(spec.title).toBe('Test Feature');
       expect(spec.status).toBe('confirmed');
       expect(spec.type).toBe('feature');
@@ -296,7 +361,7 @@ describe('MicroSpec', () => {
       existsSync.mockReturnValue(true);
       readFileSync.mockReturnValue('## Micro-Spec: Test\n**Status**: draft\n**Created**: 2026-01-28\n**Type**: feature\n**Intent**: Test\n**Scope**: frontend\n**Confirmed**: No');
 
-      const spec = microSpec.get('2026-01-28-test');
+      const spec = microSpec.get('SPEC-001-test');
 
       expect(spec).not.toBeNull();
       expect(spec.title).toBe('Test');
@@ -308,7 +373,7 @@ describe('MicroSpec', () => {
       existsSync.mockReturnValue(true);
       readFileSync.mockReturnValue('## Micro-Spec: Test\n**Status**: draft\n**Created**: 2026-01-28\n**Type**: feature\n**Intent**: Test\n**Scope**: frontend\n**Confirmed**: No');
 
-      const spec = microSpec.updateStatus('2026-01-28-test', SpecStatus.CONFIRMED);
+      const spec = microSpec.updateStatus('SPEC-001-test', SpecStatus.CONFIRMED);
 
       expect(spec.status).toBe(SpecStatus.CONFIRMED);
       expect(spec.confirmed).toBe(true);
@@ -329,7 +394,7 @@ describe('MicroSpec', () => {
       existsSync.mockReturnValue(true);
       readFileSync.mockReturnValue('## Micro-Spec: Test\n**Status**: draft\n**Created**: 2026-01-28\n**Type**: feature\n**Intent**: Test\n**Scope**: frontend\n**Confirmed**: No');
 
-      const spec = microSpec.confirm('2026-01-28-test');
+      const spec = microSpec.confirm('SPEC-001-test');
 
       expect(spec.status).toBe(SpecStatus.CONFIRMED);
       expect(spec.confirmed).toBe(true);
@@ -344,7 +409,7 @@ describe('MicroSpec', () => {
       });
       readFileSync.mockReturnValue('## Micro-Spec: Test\n**Status**: draft\n**Created**: 2026-01-28\n**Type**: feature\n**Intent**: Test\n**Scope**: frontend\n**Confirmed**: No');
 
-      const success = microSpec.archive('2026-01-28-test');
+      const success = microSpec.archive('SPEC-001-test');
 
       expect(success).toBe(true);
       expect(renameSync).toHaveBeenCalled();
@@ -363,7 +428,7 @@ describe('MicroSpec', () => {
     it('should delete a spec', () => {
       existsSync.mockReturnValue(true);
 
-      const success = microSpec.delete('2026-01-28-test');
+      const success = microSpec.delete('SPEC-001-test');
 
       expect(success).toBe(true);
       expect(unlinkSync).toHaveBeenCalled();
@@ -383,10 +448,10 @@ describe('MicroSpec', () => {
       existsSync.mockReturnValue(true);
       readFileSync.mockReturnValue('## Micro-Spec: Test\n**Status**: draft\n**Created**: 2026-01-28\n**Type**: feature\n**Intent**: Test\n**Scope**: frontend\n**Confirmed**: No');
 
-      const path = microSpec.getPromotePath('2026-01-28-test');
+      const path = microSpec.getPromotePath('SPEC-001-test');
 
       expect(path).toContain('docs/specs/features');
-      expect(path).toContain('2026-01-28-test.md');
+      expect(path).toContain('SPEC-001-test.md');
     });
 
     it('should return null for non-existent spec', () => {
