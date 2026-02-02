@@ -4,6 +4,7 @@
 **Last Updated**: 2026-01-25
 **Applicability**: All projects adopting Acceptance Test-Driven Development
 **Scope**: universal
+**Industry Standards**: None (2003-2006 practice)
 
 ---
 

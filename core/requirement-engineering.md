@@ -4,6 +4,8 @@
 **Last Updated**: 2026-01-28
 **Applicability**: All software projects
 **Scope**: universal
+**Industry Standards**: IEEE 830-1998, IEEE 29148-2018, SWEBOK v4.0
+**References**: [computer.org](https://www.computer.org/education/bodies-of-knowledge/software-engineering/v4)
 
 ---
 

@@ -6,6 +6,8 @@
 **Last Updated**: 2026-01-12
 **Applicability**: All software projects with code review processes
 **Scope**: universal
+**Industry Standards**: SWEBOK v4.0 Chapter 10
+**References**: [google.github.io](https://google.github.io/eng-practices/review/)
 
 ---
 

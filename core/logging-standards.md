@@ -6,6 +6,8 @@
 **Last Updated**: 2026-01-24
 **Applicability**: All software projects
 **Scope**: universal
+**Industry Standards**: RFC 5424, OpenTelemetry, W3C Trace Context
+**References**: [opentelemetry.io](https://opentelemetry.io/)
 
 ---
 

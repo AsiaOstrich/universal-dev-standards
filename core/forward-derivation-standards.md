@@ -4,6 +4,8 @@
 **Last Updated**: 2026-01-25
 **Applicability**: All projects using Spec-Driven Development
 **Scope**: uds-specific
+**Industry Standards**: JSON Schema 2020-12
+**References**: [specmatic.io](https://specmatic.io/)
 
 > **Language**: [English](../core/forward-derivation-standards.md) | [繁體中文](../locales/zh-TW/core/forward-derivation-standards.md)
 

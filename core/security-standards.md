@@ -6,6 +6,8 @@
 **Last Updated**: 2026-01-29
 **Applicability**: All software projects
 **Scope**: universal
+**Industry Standards**: OWASP Top 10 (2021), OWASP ASVS v4.0, NIST SP 800-53
+**References**: [owasp.org](https://owasp.org/Top10/), [owasp.org](https://owasp.org/www-project-application-security-verification-standard/)
 
 > **For detailed explanations and examples, see [Security Guide](guides/security-guide.md)**
 

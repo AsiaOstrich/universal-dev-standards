@@ -6,6 +6,8 @@
 **Last Updated**: 2026-01-29
 **Applicability**: All software projects
 **Scope**: universal
+**Industry Standards**: ISTQB CTFL v4.0, ISO/IEC/IEEE 29119
+**References**: [istqb.org](https://istqb.org/)
 
 ---
 

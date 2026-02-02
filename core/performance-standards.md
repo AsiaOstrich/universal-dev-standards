@@ -6,6 +6,8 @@
 **Last Updated**: 2026-01-29
 **Applicability**: All software projects
 **Scope**: universal
+**Industry Standards**: ISO/IEC 25010 Performance Efficiency
+**References**: [sre.google](https://sre.google/books/)
 
 > **For detailed explanations and optimization techniques, see [Performance Guide](guides/performance-guide.md)**
 

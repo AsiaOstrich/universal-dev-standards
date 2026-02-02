@@ -4,6 +4,7 @@
 **Last Updated**: 2026-01-25
 **Applicability**: All projects adopting Behavior-Driven Development
 **Scope**: universal
+**Industry Standards**: None (Dan North practice, 2006)
 
 ---
 

@@ -6,6 +6,8 @@
 **Last Updated**: 2025-12-24
 **Applicability**: All software projects with versioned releases
 **Scope**: universal
+**Industry Standards**: Keep a Changelog 1.1.0
+**References**: [keepachangelog.com](https://keepachangelog.com/)
 
 ---
 

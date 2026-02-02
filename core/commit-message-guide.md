@@ -6,6 +6,8 @@
 **Last Updated**: 2025-12-24
 **Applicability**: All projects using Git version control
 **Scope**: universal
+**Industry Standards**: Conventional Commits 1.0.0
+**References**: [conventionalcommits.org](https://www.conventionalcommits.org/)
 
 ---
 

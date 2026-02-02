@@ -6,6 +6,7 @@
 **Last Updated**: 2026-01-29
 **Applicability**: All software projects undertaking code improvement initiatives
 **Scope**: partial
+**Industry Standards**: ISO/IEC 25010 Maintainability
 
 > **For detailed patterns and tutorials, see [Refactoring Guide](guides/refactoring-guide.md)**
 

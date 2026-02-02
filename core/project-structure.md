@@ -4,6 +4,8 @@
 **Last Updated**: 2026-01-24
 **Applicability**: All software projects
 **Scope**: partial
+**Industry Standards**: Maven Standard Directory Layout
+**References**: [github.com](https://github.com/golang-standards/project-layout)
 
 **English** | [繁體中文](../locales/zh-TW/core/project-structure.md)
 

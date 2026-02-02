@@ -6,6 +6,8 @@
 **Last Updated**: 2026-01-05
 **Applicability**: All software projects
 **Scope**: universal
+**Industry Standards**: RFC 7807, RFC 9457
+**References**: [datatracker.ietf.org](https://datatracker.ietf.org/doc/html/rfc7807)
 
 ---
 

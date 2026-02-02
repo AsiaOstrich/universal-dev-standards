@@ -6,6 +6,8 @@
 **Last Updated**: 2026-01-24
 **Applicability**: All software projects (new, refactoring, migration, maintenance)
 **Scope**: partial
+**Industry Standards**: OpenAPI 3.1, AsyncAPI 2.6, JSON Schema 2020-12
+**References**: [openapis.org](https://www.openapis.org/)
 
 ---
 

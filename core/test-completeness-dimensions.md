@@ -4,6 +4,8 @@
 **Last Updated**: 2026-01-24
 **Applicability**: All software projects with testing requirements
 **Scope**: universal
+**Industry Standards**: ISTQB AI Testing Syllabus
+**References**: [istqb.org](https://istqb.org/certifications/certified-tester-ai-testing-ct-ai/)
 
 [English](.) | [繁體中文](../locales/zh-TW/core/test-completeness-dimensions.md)
 

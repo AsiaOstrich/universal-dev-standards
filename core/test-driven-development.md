@@ -4,6 +4,7 @@
 **Last Updated**: 2026-01-25
 **Applicability**: All projects adopting Test-Driven Development
 **Scope**: universal
+**Industry Standards**: None (Kent Beck practice, 1999)
 
 ---
 

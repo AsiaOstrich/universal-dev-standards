@@ -6,6 +6,8 @@
 **Last Updated**: 2026-01-16
 **Applicability**: All software projects using version control
 **Scope**: partial
+**Industry Standards**: SWEBOK v4.0 Chapter 6
+**References**: [computer.org](https://www.computer.org/education/bodies-of-knowledge/software-engineering/v4)
 
 ---
 

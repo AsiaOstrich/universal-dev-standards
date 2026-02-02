@@ -6,6 +6,8 @@
 **Last Updated**: 2026-01-29
 **Applicability**: Project setup and AI tool configuration
 **Scope**: universal
+**Industry Standards**: ISO 12207 §6.2
+**References**: [iso.org](https://www.iso.org/standard/63712.html)
 **ISO 12207 Mapping**: Organizational Project-Enabling Processes (6.2)
 
 ---

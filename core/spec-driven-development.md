@@ -4,6 +4,8 @@
 **Last Updated**: 2026-01-26
 **Applicability**: All projects adopting Spec-Driven Development
 **Scope**: universal
+**Industry Standards**: None (Emerging 2025+ methodology)
+**References**: [specmatic.io](https://specmatic.io/)
 
 ---
 

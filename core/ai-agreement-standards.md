@@ -6,6 +6,8 @@
 **Last Updated**: 2026-01-29
 **Applicability**: All AI-assisted development sessions
 **Scope**: universal
+**Industry Standards**: ISO 12207 §6.1
+**References**: [iso.org](https://www.iso.org/standard/63712.html)
 **ISO 12207 Mapping**: Agreement Processes (6.1)
 
 ---

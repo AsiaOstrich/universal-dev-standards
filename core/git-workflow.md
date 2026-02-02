@@ -6,6 +6,8 @@
 **Last Updated**: 2026-01-29
 **Applicability**: All projects using Git for version control
 **Scope**: universal
+**Industry Standards**: None (Industry common practice)
+**References**: [atlassian.com](https://www.atlassian.com/git/tutorials)
 
 > **For detailed explanations and tutorials, see [Git Workflow Guide](guides/git-workflow-guide.md)**
 

@@ -6,6 +6,8 @@
 **Last Updated**: 2025-12-30
 **Applicability**: All software projects with versioned releases
 **Scope**: universal
+**Industry Standards**: Semantic Versioning 2.0.0
+**References**: [semver.org](https://semver.org/)
 
 ---
 

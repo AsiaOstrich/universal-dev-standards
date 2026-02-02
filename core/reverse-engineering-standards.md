@@ -4,6 +4,7 @@
 **Last Updated**: 2026-01-19
 **Applicability**: All projects requiring code-to-specification transformation
 **Scope**: uds-specific
+**Industry Standards**: IEEE 830-1998, SWEBOK v4.0 Chapter 9
 
 > **Language**: [English](../core/reverse-engineering-standards.md) | [繁體中文](../locales/zh-TW/core/reverse-engineering-standards.md)
 

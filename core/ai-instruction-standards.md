@@ -6,6 +6,7 @@
 **Last Updated**: 2026-01-14
 **Applicability**: All projects using AI coding assistants
 **Scope**: partial
+**Industry Standards**: None (Emerging AI tool practice)
 
 ---
 

@@ -6,6 +6,7 @@
 **Last Updated**: 2026-01-29
 **Applicability**: All software projects using AI assistants
 **Scope**: universal
+**Industry Standards**: None (UDS original)
 
 > **For detailed examples and case studies, see [Anti-Hallucination Guide](guides/anti-hallucination-guide.md)**
 

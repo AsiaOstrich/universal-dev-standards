@@ -6,6 +6,8 @@
 **Last Updated**: 2026-01-29
 **Applicability**: All software projects with user interfaces
 **Scope**: universal
+**Industry Standards**: WCAG 2.1/2.2, WAI-ARIA 1.2, Section 508
+**References**: [w3.org](https://www.w3.org/WAI/WCAG21/quickref/)
 
 ---
 
