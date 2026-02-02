@@ -325,6 +325,12 @@
     ],
     "ai-instruction-standards": [
       "skills/ai-instruction-standards/SKILL.md"
+    ],
+    "checkin-assistant": [
+      "skills/checkin-assistant/SKILL.md"
+    ],
+    "docs-generator": [
+      "skills/docs-generator/SKILL.md"
     ]
   },
   "agents": {
@@ -601,11 +607,10 @@
         "human": "core/checkin-standards.md",
         "ai": "ai/standards/checkin-standards.ai.yaml"
       },
-      "category": "reference",
-      "skillName": null,
+      "category": "skill",
+      "skillName": "checkin-assistant",
       "level": 1,
-      "description": "Quality gates and verification steps before committing code",
-      "note": "Partially incorporated into code-review-assistant skill"
+      "description": "Quality gates and verification steps before committing code"
     },
     {
       "id": "spec-driven-development",
