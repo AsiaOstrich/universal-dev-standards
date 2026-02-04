@@ -128,7 +128,4 @@ export function writeFinalManifest(config, results, projectPath) {
     console.log(chalk.gray(`  3. ${msg.runCheck}`));
   }
   console.log();
-
-  // Exit explicitly
-  process.exit(0);
 }

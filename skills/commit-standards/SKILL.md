@@ -23,6 +23,16 @@ description: |
 
 This skill ensures consistent, meaningful commit messages following conventional commits.
 
+# [Physical Binding]
+## Reality Check
+Before submitting the commit message, you MUST:
+1. Verify Environment: Run `uds check --standard commit-message` to ensure `commitlint` is configured.
+2. Verify Content: Run `echo "{message}" | npx commitlint` to validate the generated message.
+3. IF exit_code != 0:
+   - Read the error message.
+   - REVISE the message.
+   - RETRY validation until it passes.
+
 ## Quick Reference
 
 ### Basic Format

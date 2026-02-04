@@ -182,8 +182,8 @@ quick_reference:
   testing_types:
     columns: [Type, Abbreviation, When, Tools]
     rows:
-      - [Static Analysis, SAST, CI/CD, SonarQube/Semgrep]
-      - [Dynamic Analysis, DAST, Staging, OWASP ZAP/Burp]
-      - [Dependency Scan, SCA, Every build, Snyk/Dependabot]
-      - [Penetration Test, Pentest, Annually, Manual/Professional]
-      - [Secret Scanning, -, Pre-commit, GitLeaks/TruffleHog]
+      - ["Static Analysis", "SAST", "CI/CD", "SonarQube/Semgrep"]
+      - ["Dynamic Analysis", "DAST", "Staging", "OWASP ZAP/Burp"]
+      - ["Dependency Scan", "SCA", "Every build", "Snyk/Dependabot"]
+      - ["Penetration Test", "Pentest", "Annually", "Manual/Professional"]
+      - ["Secret Scanning", "-", "Pre-commit", "GitLeaks/TruffleHog"]

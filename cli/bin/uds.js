@@ -5,6 +5,8 @@ import { program } from 'commander';
 import { listCommand } from '../src/commands/list.js';
 import { initCommand } from '../src/commands/init.js';
 import { checkCommand } from '../src/commands/check.js';
+import { simulateCommand } from '../src/commands/simulate.js';
+import { fixCommand } from '../src/commands/fix.js';
 import { updateCommand } from '../src/commands/update.js';
 import { configureCommand } from '../src/commands/configure.js';
 import { configCommand } from '../src/commands/config.js';
@@ -93,6 +95,8 @@ program
 program
   .command('check')
   .description('Check adoption status of current project')
+  .option('-s, --standard <id>', 'Validate against a specific standard physical spec')
+  .option('--json', 'Output result in JSON format')
   .option('--summary', 'Show compact status summary (for use by other commands)')
   .option('--diff', 'Show diff for modified files')
   .option('--restore', 'Restore all modified and missing files')
@@ -101,6 +105,21 @@ program
   .option('--migrate', 'Migrate legacy manifest to hash-based tracking')
   .option('--offline', 'Skip npm registry check for CLI updates')
   .action(checkCommand);
+
+program
+  .command('simulate')
+  .description('Simulate a standard check with input (Predictive Validation)')
+  .option('-s, --standard <id>', 'Standard to simulate against')
+  .option('-i, --input <string>', 'Input string to test')
+  .option('--json', 'Output result in JSON format')
+  .action(simulateCommand);
+
+program
+  .command('fix')
+  .description('Auto-fix standard violations (Self-Healing)')
+  .option('-s, --standard <id>', 'Standard to fix')
+  .option('--json', 'Output result in JSON format')
+  .action(fixCommand);
 
 program
   .command('update')

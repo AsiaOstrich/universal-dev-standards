@@ -1,8 +1,8 @@
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-01-26
+> Quick reference for all UDS features | Last updated: 2026-02-04
 
-**Language**: [English](../../docs/CHEATSHEET.md) | [繁體中文](../../zh-TW/docs/CHEATSHEET.md) | 简体中文
+**Language**: [English](../../../docs/CHEATSHEET.md) | [繁體中文](../../zh-TW/docs/CHEATSHEET.md) | 简体中文
 
 ---
 
@@ -24,31 +24,25 @@
 
 | Command | 说明 |
 |---------|-------------|
-| `/atdd` | Guide through Acceptance Test-Driven Development workflow |
-| `/bdd` | Guide through Behavior-Driven Development workflow |
-| `/changelog` | Generate or update CHANGELOG following Keep a Changelog format |
-| `/check` | Verify standards adoption status |
-| `/commit` | Generate commit messages following Conventional Commits standard |
-| `/config` | Configure project development standards |
-| `/coverage` | Analyze test coverage and provide recommendations |
-| `/derive-all` | Derive BDD scenarios and TDD test skeletons from approved SDD specification |
-| `/derive-atdd` | (Optional) Derive ATDD acceptance test tables from approved SDD specification |
-| `/derive-bdd` | Derive BDD Gherkin scenarios from approved SDD specification |
-| `/derive-tdd` | Derive TDD test skeletons from approved SDD specification |
-| `/docs` | Create or update project documentation structure |
-| `/generate-docs` | Generate usage documentation from project sources \| 從專案來源產生使用說明文件 |
-| `/init` | Initialize development standards in current project |
-| `/methodology` | Manage development methodology workflow |
-| `/refactor` | Guide refactoring decisions and strategy selection |
-| `/release` | Guide through release process with semantic versioning |
-| `/requirement` | Write user stories and requirements following INVEST criteria |
-| `/reverse-bdd` | Transform SDD acceptance criteria into BDD Gherkin scenarios |
-| `/reverse-spec` | Reverse engineer existing code into SDD specification document |
-| `/reverse-tdd` | Analyze test coverage for BDD scenarios |
-| `/review` | Perform systematic code review with checklist |
-| `/spec` | Create or review specification documents for Spec-Driven Development |
-| `/tdd` | Guide through Test-Driven Development workflow |
-| `/update` | Update development standards to latest version |
+| `/atdd` | [UDS] Guide through Acceptance Test-Driven Development workflow |
+| `/bdd` | [UDS] Guide through Behavior-Driven Development workflow |
+| `/check` | [UDS] Verify standards adoption status |
+| `/commit` | [UDS] Generate commit messages following Conventional Commits standard |
+| `/config` | [UDS] Configure project development standards |
+| `/coverage` | [UDS] Analyze test coverage and provide recommendations |
+| `/derive` | [UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications. |
+| `/docs` | [UDS] Manage, guide, and generate documentation. |
+| `/guide` | [UDS] Access Universal Development Standards guides and references. |
+| `/init` | [UDS] Initialize development standards in current project |
+| `/methodology` | [UDS] Manage development methodology workflow |
+| `/refactor` | [UDS] Guide refactoring decisions and strategy selection |
+| `/release` | [UDS] Manage release process and changelogs. |
+| `/requirement` | [UDS] Write user stories and requirements following INVEST criteria |
+| `/reverse` | [UDS] Reverse engineer code to Specs, BDD, or TDD coverage. |
+| `/review` | [UDS] Perform systematic code review with checklist |
+| `/spec` | [UDS] Create or review specification documents for Spec-Driven Development |
+| `/tdd` | [UDS] Guide through Test-Driven Development workflow |
+| `/update` | [UDS] Update development standards to latest version |
 
 ## 🎯 技能
 
@@ -104,11 +98,13 @@
 
 | Standard | 说明 |
 |----------|-------------|
-| `acceptance-test-driven-development` | This standard defines the principles, workflows, a |
+| `acceptance-test-driven-development` | Acceptance Test-Driven Development (ATDD) Standards |
+| `accessibility-standards` | This standard defines comprehensive guidelines for |
+| `ai-agreement-standards` | This standard formalizes the interaction between H |
 | `ai-friendly-architecture` | This standard defines architecture and documentati |
 | `ai-instruction-standards` | This standard defines best practices for creating  |
 | `anti-hallucination` | This standard defines strict guidelines for AI ass |
-| `behavior-driven-development` | This standard defines the principles, workflows, a |
+| `behavior-driven-development` | Behavior-Driven Development (BDD) Standards |
 | `changelog-standards` | This standard defines how to write and maintain a  |
 | `checkin-standards` | This standard defines quality gates that MUST be p |
 | `code-review-checklist` | This standard provides a comprehensive checklist f |
@@ -119,25 +115,36 @@
 | `forward-derivation-standards` | This standard defines the principles and workflows |
 | `git-workflow` | This standard defines Git branching strategies and |
 | `logging-standards` | Logging Standards |
+| `performance-standards` | This standard defines comprehensive guidelines for |
 | `project-structure` | This standard defines conventions for project dire |
 | `refactoring-standards` | This standard defines comprehensive guidelines for |
+| `requirement-engineering` | Requirement Engineering Standards |
 | `reverse-engineering-standards` | This standard defines the principles, workflows, a |
-| `spec-driven-development` | This standard defines the principles and workflows |
+| `security-standards` | This standard defines comprehensive security guide |
+| `spec-driven-development` | Spec-Driven Development (SDD) Standards |
 | `test-completeness-dimensions` | This document defines a systematic framework for e |
-| `test-driven-development` | This standard defines the principles, workflows, a |
-| `testing-standards` | This standard defines testing conventions and best |
+| `test-driven-development` | Test-Driven Development (TDD) Standards |
+| `testing-standards` | This standard defines actionable testing rules and |
 | `versioning` | This standard defines how to version software rele |
+| `virtual-organization-standards` | This standard treats the AI ecosystem as a "Virtua |
 
 ## 📜 脚本
 
 | Script | 说明 |
 |--------|-------------|
+| `add-industry-standards-metadata.mjs` | Add industry standards metadata to core/ |
 | `check-ai-agent-sync.ps1` | Check Ai Agent Sync |
 | `check-ai-agent-sync.sh` | AI Agent Sync Checker |
 | `check-cli-docs-sync.ps1` | Check Cli Docs Sync |
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |
 | `check-docs-sync.ps1` | Check Docs Sync |
 | `check-docs-sync.sh` | Documentation Sync Checker |
+| `check-scope-sync.ps1` | Check Scope Sync |
+| `check-scope-sync.sh` | Scope Consistency Check Script |
+| `check-spec-sync.ps1` | Core↔Skill Sync Check Script |
+| `check-spec-sync.sh` | Core↔Skill Sync Check Script |
+| `check-standards-reference-sync.ps1` | Check Standards Reference Sync |
+| `check-standards-reference-sync.sh` | check-standards-reference-sync.sh |
 | `check-standards-sync.ps1` | Check Standards Sync |
 | `check-standards-sync.sh` | Standards Consistency Checker |
 | `check-translation-sync.ps1` | Check Translation Sync |

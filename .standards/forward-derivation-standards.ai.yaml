@@ -123,9 +123,9 @@ transformation_rules:
     bullet_ac:
       rule: Use pattern matching to transform
       patterns:
-        - conditions: "conditions, setup, preconditions" -> Given
-        - actions: "actions, triggers, user does" -> When
-        - outcomes: "results, outcomes, then" -> Then
+        - 'conditions: "conditions, setup, preconditions" -> Given'
+        - 'actions: "actions, triggers, user does" -> When'
+        - 'outcomes: "results, outcomes, then" -> Then'
       example: |
         AC: - User is logged in
             - User clicks submit
@@ -162,7 +162,7 @@ transformation_rules:
         pattern: class TestSpecXXX / def test_ac_n
       - lang: java
         framework: junit
-        pattern: @Nested class / @Test method
+        pattern: '@Nested class / @Test method'
       - lang: go
         framework: go-test
         pattern: func TestSpec_AC / t.Run

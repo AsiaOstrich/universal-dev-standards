@@ -61,6 +61,18 @@ Follow the testing pyramid defined in `core/testing-standards.md`.
 
 Verify work against `core/code-review-checklist.md` before finishing tasks.
 
+### 5. Dual-Layer Workflow (UDS v2) / 雙層工作流
+
+**Protocol**:
+1. **Simulate**: Before acting, try `uds simulate -s <id> -i <content>` (e.g., commit message).
+2. **Implement**: Write code or documentation.
+3. **Validate**: Run `uds check --standard <id>` (or rely on pre-commit hook) to ensure compliance.
+
+**協議**：
+1. **模擬**：行動前，嘗試 `uds simulate -s <id> -i <content>`（例如提交訊息）。
+2. **實作**：撰寫程式碼或文件。
+3. **驗證**：執行 `uds check --standard <id>`（或依賴 pre-commit hook）確保合規。
+
 ---
 
 ## Quick Commands / 快速指令

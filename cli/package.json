@@ -1,6 +1,6 @@
 {
   "name": "universal-dev-standards",
-  "version": "5.0.0-alpha.1",
+  "version": "5.0.0-alpha.2",
   "description": "CLI tool for adopting Universal Development Standards",
   "keywords": [
     "documentation",
@@ -65,7 +65,10 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.16",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "eslint": "^8.56.0",
+    "glob": "^13.0.1",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
     "vitest": "^4.0.16"

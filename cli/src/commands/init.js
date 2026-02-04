@@ -1,5 +1,8 @@
 import chalk from 'chalk';
 import ora from 'ora';
+import { execSync } from 'child_process';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import {
   manifestExists as isInitialized
 } from '../core/manifest.js';
@@ -121,6 +124,77 @@ export async function initCommand(options) {
 
   // 4. Write Manifest & Display Summary
   writeFinalManifest(config, combinedResults, projectPath);
+
+  // 5. Setup Pre-commit Hook
+  await setupHuskyHook(projectPath);
+
+  process.exit(0);
+}
+
+/**
+ * Configure Husky pre-commit hook
+ */
+async function setupHuskyHook(projectPath) {
+  const hasGit = existsSync(join(projectPath, '.git'));
+  if (!hasGit) return;
+
+  console.log(chalk.cyan('Configuring Pre-commit Hook (Husky)...'));
+
+  // 1. Install husky if needed
+  try {
+    const pkgPath = join(projectPath, 'package.json');
+    if (existsSync(pkgPath)) {
+      const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+      const hasHusky = pkg.devDependencies?.husky || pkg.dependencies?.husky;
+
+      if (!hasHusky) {
+        console.log(chalk.gray('  Installing husky...'));
+        execSync('npm install --save-dev husky', { stdio: 'ignore', cwd: projectPath });
+      }
+    }
+  } catch (e) {
+    console.log(chalk.yellow(`  ⚠ Failed to check/install husky: ${e.message}`));
+    return;
+  }
+
+  // 2. Initialize husky
+  try {
+    if (!existsSync(join(projectPath, '.husky'))) {
+       console.log(chalk.gray('  Initializing husky...'));
+       execSync('npx husky init', { stdio: 'ignore', cwd: projectPath });
+    }
+  } catch (e) {
+     // Ignore, might already be init
+  }
+
+  // 3. Add pre-commit hook
+  const preCommitPath = join(projectPath, '.husky', 'pre-commit');
+  const udsCmd = 'npx uds check --standard checkin-standards';
+  
+  try {
+    let content = '';
+    if (existsSync(preCommitPath)) {
+      content = readFileSync(preCommitPath, 'utf-8');
+    } else {
+      // Create if not exists (husky init usually creates it, but just in case)
+      content = '#!/usr/bin/env sh\n. "$(dirname -- "$0")/_/husky.sh"\n';
+    }
+    
+    if (!content.includes('checkin-standards')) {
+      console.log(chalk.green('  ✓ Adding uds check to pre-commit hook'));
+      writeFileSync(preCommitPath, content + `\n# UDS Standard Check\n${udsCmd}\n`, 'utf-8');
+      try { 
+        execSync(`chmod +x ${preCommitPath}`); 
+      } catch (e) {
+        // Ignore chmod failures on systems that don't support it
+      }
+    } else {
+      console.log(chalk.gray('  ✓ Pre-commit hook already configured'));
+    }
+  } catch (e) {
+    console.log(chalk.red(`  ✗ Failed to configure pre-commit hook: ${e.message}`));
+  }
+  console.log();
 }
 
 /**

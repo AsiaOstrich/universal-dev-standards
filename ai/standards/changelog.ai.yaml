@@ -1,139 +1,120 @@
-# Changelog Standards - AI Optimized
+# Changelog Standards - AI Optimized (v2 Dual-Layer)
 # Source: core/changelog-standards.md
 
-id: changelog
-meta:
-  version: "1.1.0"
-  updated: "2025-12-29"
-  source: core/changelog-standards.md
+standard:
+  id: changelog
+  name: Changelog Standards
   description: Keep a Changelog format for documenting notable changes
+  guidelines:
+    - "Maintain a CHANGELOG.md file"
+    - "Use Keep a Changelog format"
+    - "Update [Unreleased] section during development"
+    - "Follow Semantic Versioning"
 
-options:
-  changelog_format:
-    description: Select changelog format approach
-    multiSelect: false
-    choices:
-      - id: keep-a-changelog
-        file: options/changelog/keep-a-changelog.ai.yaml
-        best_for: Manual, human-readable changelogs
-      - id: auto-generated
-        file: options/changelog/auto-generated.ai.yaml
-        best_for: Automated generation from commits
+  meta:
+    version: "2.0.0"
+    updated: "2026-02-04"
+    source: core/changelog-standards.md
+    description: Keep a Changelog format for documenting notable changes
 
-format:
-  filename: CHANGELOG.md
-  structure: |
-    # Changelog
+  options:
+    changelog_format:
+      description: Select changelog format approach
+      multiSelect: false
+      choices:
+        - id: keep-a-changelog
+          file: options/changelog/keep-a-changelog.ai.yaml
+          best_for: Manual, human-readable changelogs
+        - id: auto-generated
+          file: options/changelog/auto-generated.ai.yaml
+          best_for: Automated generation from commits
 
-    All notable changes to this project will be documented in this file.
+  format:
+    filename: CHANGELOG.md
+    structure: |
+      # Changelog
 
-    The format is based on [Keep a Changelog](https://keepachangelog.com/).
+      All notable changes to this project will be documented in this file.
 
-    ## [Unreleased]
+      The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
-    ### Added
-    - New features
+      ## [Unreleased]
 
-    ### Changed
-    - Changes in existing functionality
+      ### Added
+      - New features
 
-    ### Deprecated
-    - Soon-to-be removed features
+      ### Changed
+      - Changes in existing functionality
 
-    ### Removed
-    - Removed features
+      ### Deprecated
+      - Soon-to-be removed features
 
-    ### Fixed
-    - Bug fixes
+      ### Removed
+      - Removed features
 
-    ### Security
-    - Security vulnerabilities
+      ### Fixed
+      - Bug fixes
 
-    ## [1.0.0] - 2025-01-01
+      ### Security
+      - Security vulnerabilities
 
-    ### Added
-    - Initial release
+      ## [1.0.0] - 2025-01-01
 
-change_types:
-  - type: Added
-    description: New features
-    order: 1
+      ### Added
+      - Initial release
 
-  - type: Changed
-    description: Changes in existing functionality
-    order: 2
-
-  - type: Deprecated
-    description: Soon-to-be removed features
-    order: 3
-
-  - type: Removed
-    description: Removed features
-    order: 4
-
-  - type: Fixed
-    description: Bug fixes
-    order: 5
-
-  - type: Security
-    description: Security vulnerability fixes
-    order: 6
-
-rules:
-  - id: unreleased-section
-    trigger: making changes
-    instruction: Add entries to [Unreleased] section during development
-    priority: required
-
-  - id: version-on-release
-    trigger: releasing new version
-    instruction: Move [Unreleased] entries to new version section with date
-    priority: required
-
-  - id: semantic-versioning
-    trigger: choosing version number
-    instruction: Follow SemVer (MAJOR.MINOR.PATCH)
-    priority: required
-
-  - id: date-format
-    trigger: adding release date
-    instruction: Use ISO format YYYY-MM-DD
-    validator: "^\\d{4}-\\d{2}-\\d{2}$"
-    priority: required
-
-  - id: reverse-chronological
-    trigger: ordering versions
-    instruction: List newest version first
-    priority: required
-
-  - id: link-versions
-    trigger: adding version section
-    instruction: Add comparison links at bottom of file
-    priority: recommended
-
-examples:
-  entry: |
-    ## [1.2.0] - 2025-01-15
-
-    ### Added
-    - User authentication with OAuth2 (#123)
-    - Dark mode support (#145)
-
-    ### Fixed
-    - Login timeout issue (#156)
-
-  links: |
-    [Unreleased]: https://github.com/user/repo/compare/v1.2.0...HEAD
-    [1.2.0]: https://github.com/user/repo/compare/v1.1.0...v1.2.0
-    [1.1.0]: https://github.com/user/repo/releases/tag/v1.1.0
-
-quick_reference:
   change_types:
-    columns: [Type, Description, Example]
-    rows:
-      - [Added, New features, "New login page"]
-      - [Changed, Modified functionality, "Updated API response format"]
-      - [Deprecated, Will be removed, "Legacy auth endpoint"]
-      - [Removed, Deleted features, "Removed v1 API"]
-      - [Fixed, Bug fixes, "Fixed null pointer error"]
-      - [Security, Vulnerability fixes, "Patched XSS vulnerability"]
+    - type: Added
+      description: New features
+      order: 1
+    - type: Changed
+      description: Changes in existing functionality
+      order: 2
+    - type: Deprecated
+      description: Soon-to-be removed features
+      order: 3
+    - type: Removed
+      description: Removed features
+      order: 4
+    - type: Fixed
+      description: Bug fixes
+      order: 5
+    - type: Security
+      description: Security vulnerability fixes
+      order: 6
+
+  rules:
+    - id: unreleased-section
+      trigger: making changes
+      instruction: Add entries to [Unreleased] section during development
+      priority: required
+    - id: version-on-release
+      trigger: releasing new version
+      instruction: Move [Unreleased] entries to new version section with date
+      priority: required
+    - id: semantic-versioning
+      trigger: choosing version number
+      instruction: Follow SemVer (MAJOR.MINOR.PATCH)
+      priority: required
+    - id: date-format
+      trigger: adding release date
+      instruction: Use ISO format YYYY-MM-DD
+      validator: "^\\d{4}-\\d{2}-\\d{2}$"
+      priority: required
+    - id: reverse-chronological
+      trigger: ordering versions
+      instruction: List newest version first
+      priority: required
+    - id: link-versions
+      trigger: adding version section
+      instruction: Add comparison links at bottom of file
+      priority: recommended
+
+physical_spec:
+  type: filesystem_schema
+  validator:
+    command: "test -f CHANGELOG.md"
+    rule: "changelog_exists"
+  fixer:
+    type: command
+    command: 'echo "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n## [Unreleased]\n\n### Added\n- Initial release" > CHANGELOG.md'

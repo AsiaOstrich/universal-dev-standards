@@ -59,6 +59,22 @@ Help translate standards to other languages:
 - 遵循 `extensions/locales/_template.md` 範本
 - 確保術語一致性
 
+### 5. Adding a New Standard (Dual-Layer) | 新增標準 (雙層架構)
+
+All new standards MUST use the UDS v2 format (Physical + Imagination):
+- Define `standard` object for human/AI guidelines
+- Define `physical_spec` object for machine validation
+- Verify using `uds check --standard <id>`
+
+See [MIGRATION-GUIDE-V2.md](docs/internal/MIGRATION-GUIDE-V2.md) for templates.
+
+所有新標準必須使用 UDS v2 格式 (物理層 + 想像層)：
+- 定義 `standard` 物件用於人類/AI 指引
+- 定義 `physical_spec` 物件用於機器驗證
+- 使用 `uds check --standard <id>` 進行驗證
+
+請參閱 [MIGRATION-GUIDE-V2.md](docs/internal/MIGRATION-GUIDE-V2.md) 以獲取範本。
+
 ---
 
 ## Contribution Guidelines | 貢獻指南

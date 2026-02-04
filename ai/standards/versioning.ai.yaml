@@ -1,210 +1,186 @@
-# Semantic Versioning Standard - AI Optimized
+# Semantic Versioning Standard - AI Optimized (v2 Dual-Layer)
 # Source: core/versioning.md
 
-id: versioning
-meta:
-  version: "1.2.0"
-  updated: "2025-12-30"
-  source: core/versioning.md
+standard:
+  id: versioning
+  name: Semantic Versioning Standard
   description: Semantic Versioning (SemVer) for software releases
+  guidelines:
+    - "Follow SemVer: MAJOR.MINOR.PATCH"
+    - "Increment MAJOR for breaking changes"
+    - "Increment MINOR for new features"
+    - "Increment PATCH for bug fixes"
+    - "Use pre-release identifiers (alpha, beta, rc)"
 
-format:
-  template: "MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]"
-  examples:
-    - "2.3.1"
-    - "1.0.0-alpha.1"
-    - "3.2.0-beta.2+20250112"
+  meta:
+    version: "2.0.0"
+    updated: "2026-02-04"
+    source: core/versioning.md
+    description: Semantic Versioning (SemVer) for software releases
 
-components:
-  major:
-    purpose: Breaking changes
-    when_to_increment:
-      - Incompatible API changes
-      - Removing deprecated features
-      - Major architecture changes
-    guidelines:
-      - Reset MINOR and PATCH to 0
-      - Document migration guide
-      - Provide deprecation warnings in previous MINOR
+  format:
+    template: "MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]"
+    examples:
+      - "2.3.1"
+      - "1.0.0-alpha.1"
+      - "3.2.0-beta.2+20250112"
 
-  minor:
-    purpose: New features
-    when_to_increment:
-      - Adding backward-compatible features
-      - Deprecating features (not removing)
-      - Substantial internal improvements
-    guidelines:
-      - Reset PATCH to 0
-      - Existing functionality unchanged
-      - New features are opt-in
+  components:
+    major:
+      purpose: Breaking changes
+      when_to_increment:
+        - Incompatible API changes
+        - Removing deprecated features
+        - Major architecture changes
+      guidelines:
+        - Reset MINOR and PATCH to 0
+        - Document migration guide
+        - Provide deprecation warnings in previous MINOR
+    minor:
+      purpose: New features
+      when_to_increment:
+        - Adding backward-compatible features
+        - Deprecating features (not removing)
+        - Substantial internal improvements
+      guidelines:
+        - Reset PATCH to 0
+        - Existing functionality unchanged
+        - New features are opt-in
+    patch:
+      purpose: Bug fixes
+      when_to_increment:
+        - Bug fixes (no new features)
+        - Security patches
+        - Documentation corrections
+        - Internal refactoring (no API changes)
+      guidelines:
+        - No new functionality
+        - No API changes
+        - Safe to update immediately
 
-  patch:
-    purpose: Bug fixes
-    when_to_increment:
-      - Bug fixes (no new features)
-      - Security patches
-      - Documentation corrections
-      - Internal refactoring (no API changes)
-    guidelines:
-      - No new functionality
-      - No API changes
-      - Safe to update immediately
+  prerelease:
+    identifiers:
+      - id: alpha
+        purpose: Early testing
+        stability: Unstable
+        audience: Internal team
+      - id: beta
+        purpose: Feature complete
+        stability: Mostly stable
+        audience: Early adopters
+      - id: rc
+        purpose: Final testing (release candidate)
+        stability: Stable
+        audience: Beta testers
+    ordering: "alpha < beta < rc < stable"
 
-prerelease:
-  identifiers:
-    - id: alpha
-      purpose: Early testing
-      stability: Unstable
-      audience: Internal team
+  initial_development:
+    version_0:
+      description: Major version 0 indicates development phase
+      guidelines:
+        - API may change frequently
+        - Breaking changes allowed in MINOR versions
+        - Move to 1.0.0 when API is stable
 
-    - id: beta
-      purpose: Feature complete
-      stability: Mostly stable
-      audience: Early adopters
+  deprecation:
+    timeline:
+      internal_api: 1 minor version
+      partner_api: 2 minor versions + 3 months
+      public_api: 2 minor versions + 6 months
+      critical_infrastructure: 1 year minimum
+    backward_compatibility:
+      breaking_changes:
+        - Remove public API endpoints
+        - Remove required request fields
+        - Add required request fields
+        - Change response field types
+        - Change error code meanings
+        - Remove response fields consumers depend on
+      safe_changes:
+        - Add optional request fields
+        - Add new response fields
+        - Add new endpoints
+        - Add new error codes
+        - Improve error messages
+        - Performance improvements
 
-    - id: rc
-      purpose: Final testing (release candidate)
-      stability: Stable
-      audience: Beta testers
+  api_versioning_strategies:
+    - strategy: URL Path
+      format: "/api/v1/users"
+      pros: Clear, easy routing
+      cons: URL pollution
+      recommended: true
+    - strategy: Query Parameter
+      format: "/api/users?version=1"
+      pros: Optional versioning
+      cons: Cache issues
+    - strategy: Header
+      format: "Accept: application/vnd.api.v1+json"
+      pros: Clean URLs
+      cons: Less visible
 
-  ordering: "alpha < beta < rc < stable"
+  release_process:
+    phases:
+      - phase: 1
+        name: Pre-release Diagnosis
+        mandatory: true
+        check_items:
+          - System tool versions
+          - Required drivers
+          - Disk space
+          - Database connectivity
+          - Application version
+          - Configuration completeness
+      - phase: 2
+        name: Environment Preparation
+        purpose: Install missing tools and drivers
+      - phase: 3
+        name: Package Generation
+        naming: "{PROJECT}-upgrade-v{VERSION}-{DATE}.tar.gz"
+      - phase: 4
+        name: Deployment Execution
+        steps:
+          - Upload upgrade package
+          - Extract package
+          - Dry-run test (strongly recommended)
+          - Actual upgrade
+      - phase: 5
+        name: Post-release Verification
+        check_items:
+          - Service running normally
+          - API returns correct version
+          - No fatal errors in logs
+          - Functionality verification passed
 
-initial_development:
-  version_0:
-    description: Major version 0 indicates development phase
-    guidelines:
-      - API may change frequently
-      - Breaking changes allowed in MINOR versions
-      - Move to 1.0.0 when API is stable
+  rules:
+    - id: semver-compliance
+      trigger: releasing new version
+      instruction: Follow Semantic Versioning format strictly
+      priority: required
+    - id: deprecation-warning
+      trigger: planning breaking change
+      instruction: Add deprecation warning N-1 version before removal
+      priority: required
+    - id: migration-guide
+      trigger: releasing MAJOR version
+      instruction: Document migration guide with before/after examples
+      priority: required
+    - id: changelog-update
+      trigger: releasing any version
+      instruction: Update CHANGELOG.md with all notable changes
+      priority: required
+    - id: pre-release-diagnosis
+      trigger: starting release process
+      instruction: Must not skip diagnosis phase
+      priority: required
+    - id: dry-run-test
+      trigger: deploying upgrade
+      instruction: Must not skip dry-run test
+      priority: required
 
-deprecation:
-  timeline:
-    internal_api: 1 minor version
-    partner_api: 2 minor versions + 3 months
-    public_api: 2 minor versions + 6 months
-    critical_infrastructure: 1 year minimum
-
-  backward_compatibility:
-    breaking_changes:
-      - Remove public API endpoints
-      - Remove required request fields
-      - Add required request fields
-      - Change response field types
-      - Change error code meanings
-      - Remove response fields consumers depend on
-
-    safe_changes:
-      - Add optional request fields
-      - Add new response fields
-      - Add new endpoints
-      - Add new error codes
-      - Improve error messages
-      - Performance improvements
-
-api_versioning_strategies:
-  - strategy: URL Path
-    format: "/api/v1/users"
-    pros: Clear, easy routing
-    cons: URL pollution
-    recommended: true
-
-  - strategy: Query Parameter
-    format: "/api/users?version=1"
-    pros: Optional versioning
-    cons: Cache issues
-
-  - strategy: Header
-    format: "Accept: application/vnd.api.v1+json"
-    pros: Clean URLs
-    cons: Less visible
-
-release_process:
-  phases:
-    - phase: 1
-      name: Pre-release Diagnosis
-      mandatory: true
-      check_items:
-        - System tool versions
-        - Required drivers
-        - Disk space
-        - Database connectivity
-        - Application version
-        - Configuration completeness
-
-    - phase: 2
-      name: Environment Preparation
-      purpose: Install missing tools and drivers
-
-    - phase: 3
-      name: Package Generation
-      naming: "{PROJECT}-upgrade-v{VERSION}-{DATE}.tar.gz"
-
-    - phase: 4
-      name: Deployment Execution
-      steps:
-        - Upload upgrade package
-        - Extract package
-        - Dry-run test (strongly recommended)
-        - Actual upgrade
-
-    - phase: 5
-      name: Post-release Verification
-      check_items:
-        - Service running normally
-        - API returns correct version
-        - No fatal errors in logs
-        - Functionality verification passed
-
-rules:
-  - id: semver-compliance
-    trigger: releasing new version
-    instruction: Follow Semantic Versioning format strictly
-    priority: required
-
-  - id: deprecation-warning
-    trigger: planning breaking change
-    instruction: Add deprecation warning N-1 version before removal
-    priority: required
-
-  - id: migration-guide
-    trigger: releasing MAJOR version
-    instruction: Document migration guide with before/after examples
-    priority: required
-
-  - id: changelog-update
-    trigger: releasing any version
-    instruction: Update CHANGELOG.md with all notable changes
-    priority: required
-
-  - id: pre-release-diagnosis
-    trigger: starting release process
-    instruction: Must not skip diagnosis phase
-    priority: required
-
-  - id: dry-run-test
-    trigger: deploying upgrade
-    instruction: Must not skip dry-run test
-    priority: required
-
-quick_reference:
-  version_components:
-    columns: [Component, Purpose, Reset]
-    rows:
-      - [MAJOR, Breaking changes, "MINOR=0, PATCH=0"]
-      - [MINOR, New features, "PATCH=0"]
-      - [PATCH, Bug fixes, None]
-
-  prerelease_order:
-    columns: [Identifier, Stability, Audience]
-    rows:
-      - [alpha, Unstable, Internal team]
-      - [beta, Mostly stable, Early adopters]
-      - [rc, Stable, Beta testers]
-
-  deprecation_periods:
-    columns: [API Type, Minimum Period]
-    rows:
-      - [Internal API, 1 minor version]
-      - [Partner API, 2 minor + 3 months]
-      - [Public API, 2 minor + 6 months]
-      - [Critical Infrastructure, 1 year]
+physical_spec:
+  type: custom_script
+  validator:
+    command: >
+      node -e 'try { require("./package.json").version ? process.exit(0) : process.exit(1) } catch { process.exit(1) }'
+    rule: "package_version_exists"

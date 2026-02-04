@@ -20,6 +20,16 @@ description: |
 
 This skill provides guidance on structuring projects according to language and framework conventions. It helps create consistent, maintainable directory layouts.
 
+# [Physical Binding]
+## Reality Check
+Before confirming the project structure is valid, you MUST:
+1. Run the validator: `uds check --standard project-structure`
+2. IF exit_code != 0:
+   - Read the error message (e.g., "Missing required directories").
+   - Report the violation to the user.
+   - Suggest specific commands (`mkdir ...`) to fix it.
+   - RETRY validation after fixes are applied.
+
 ## Trigger
 
 Use this skill when:

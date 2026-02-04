@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-alpha.2] - 2026-02-04
+
+### Added
+- **Dual-Layer Architecture**: Introduced Physical Spec (validators) alongside Imagination Layer (guidelines)
+- **Predictive Simulation**: Added `uds simulate` command to preview compliance checks
+- **Auto-Healing**: Added `uds fix` command to automatically resolve violations
+- **Agent-Ready API**: Added `--json` output mode for check, simulate, and fix commands
+- **Pre-commit Integration**: `uds init` now automatically configures Husky hooks
+- **Smart Locator**: Enhanced standard file resolution with fuzzy matching and internal ID verification
+
+### Changed
+- Upgraded `changelog`, `versioning`, `testing`, `security`, `code-review`, `commit-message`, `project-structure` to v2 format with physical specs
+
 ## [5.0.0-alpha.1] - 2026-01-29
 
 ### Changed

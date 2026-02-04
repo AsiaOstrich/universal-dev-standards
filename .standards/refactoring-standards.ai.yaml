@@ -224,7 +224,8 @@ safety_strategies:
     - technique: Wrap Class
       when: Need to decorate existing class
       how: Decorator Pattern
-    principle: New code uses TDD; legacy untouched until tested
+      
+  principle: New code uses TDD; legacy untouched until tested
 
 # Database Refactoring
 database_refactoring:

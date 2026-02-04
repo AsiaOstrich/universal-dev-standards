@@ -30,12 +30,10 @@ import {
   parseReferences,
   compareStandardsWithReferences
 } from '../utils/reference-sync.js';
-import {
-  extractMarkedContent,
-  getToolFilePath
-} from '../utils/integration-generator.js';
+import { extractMarkedContent, getToolFilePath } from '../utils/integration-generator.js';
 import { getToolFormat } from '../core/constants.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
+import { StandardValidator } from '../utils/standard-validator.js';
 import { t, getLanguage, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 
 /**
@@ -151,7 +149,6 @@ function performFileIntegrityCheck(projectPath, manifest, msg) {
  */
 function initializeCheckContext(projectPath) {
   // Get initial messages (before language is set from manifest)
-  let msg = t().commands.check;
   let common = t().commands.common;
 
   // Check if initialized
@@ -226,6 +223,40 @@ function displayAdoptionStatus(manifest, msg, common, repoInfo) {
  */
 export async function checkCommand(options = {}) {
   const projectPath = process.cwd();
+
+  // Handle --standard option (validate specific standard physical spec)
+  if (options.standard) {
+    const validator = new StandardValidator(projectPath);
+    const result = await validator.validate(options.standard);
+    
+    if (options.json) {
+      console.log(JSON.stringify(result, null, 2));
+      // Optionally exit with 1 if failed, but ensure JSON is printed first
+      if (!result.success) process.exitCode = 1;
+      return;
+    }
+
+    console.log();
+    console.log(chalk.bold(`Checking compliance with standard: ${options.standard}`));
+    console.log(chalk.gray('─'.repeat(50)));
+    
+    if (result.success) {
+      if (result.skipped) {
+        console.log(chalk.yellow(`⚠  ${result.message}`));
+      } else {
+        console.log(chalk.green('✓  Validation Passed'));
+        console.log(chalk.gray(`   ${result.message}`));
+        if (result.details) console.log(chalk.gray(`   ${result.details}`));
+      }
+    } else {
+      console.log(chalk.red('✗  Validation Failed'));
+      console.log(chalk.red(`   ${result.message}`));
+      if (result.details) console.log(chalk.gray(`   ${result.details}`));
+      process.exitCode = 1;
+    }
+    console.log();
+    return;
+  }
 
   // Handle --summary option (compact status for other commands)
   if (options.summary) {

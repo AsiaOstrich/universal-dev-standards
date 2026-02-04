@@ -254,7 +254,7 @@ rules:
       good:
         - "Given I have items in my cart, When I checkout, Then order is created"
       bad:
-        - "User can checkout" (too vague)
+        - '"User can checkout" (too vague)'
 
   - id: invest-check
     trigger: evaluating user story

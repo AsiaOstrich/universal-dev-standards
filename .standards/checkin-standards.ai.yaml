@@ -1,169 +1,158 @@
-# Code Check-in Standards - AI Optimized
+# Code Check-in Standards - AI Optimized (v2 Dual-Layer)
 # Source: core/checkin-standards.md
 
-id: checkin-standards
-meta:
-  version: "1.3.0"
-  updated: "2026-01-05"
-  source: core/checkin-standards.md
+standard:
+  id: checkin-standards
+  name: Code Check-in Standards
   description: Quality gates that must be passed before committing code
+  guidelines:
+    - "Build verification: code compiles, dependencies installed"
+    - "Test verification: all tests pass, new code covered"
+    - "Code quality: no lint errors, no secrets"
+    - "Documentation: docs updated, CHANGELOG updated"
 
-philosophy:
-  every_commit_should:
-    - Be a complete logical unit of work
-    - Leave the codebase in a working state
-    - Be reversible without breaking functionality
-    - Contain its own tests (for new features)
-    - Be understandable to future developers
+  meta:
+    version: "2.0.0"
+    updated: "2026-02-04"
+    source: core/checkin-standards.md
+    description: Quality gates that must be passed before committing code
 
-checklist:
-  build_verification:
-    items:
-      - Code compiles successfully (zero errors)
-      - Zero build warnings (or documented exceptions)
-      - All package dependencies installed
-      - Dependency versions locked/documented
-      - No missing imports or modules
+  philosophy:
+    every_commit_should:
+      - Be a complete logical unit of work
+      - Leave the codebase in a working state
+      - Be reversible without breaking functionality
+      - Contain its own tests (for new features)
+      - Be understandable to future developers
 
-  test_verification:
-    items:
-      - All existing tests pass (100% pass rate)
-      - New code has corresponding tests
-      - Bug fixes include regression tests
-      - Edge cases are covered
-      - Test coverage maintained or improved
-
-  code_quality:
-    items:
-      - Follows coding standards
-      - Methods ≤50 lines (or project standard)
-      - Nesting depth ≤3 levels
-      - Cyclomatic complexity ≤10
-      - No duplicated code blocks
-      - No hardcoded secrets
-      - No SQL/XSS injection vulnerabilities
-
-  documentation:
-    items:
-      - API documentation updated
-      - README updated (if needed)
-      - CHANGELOG updated (for user-facing changes to [Unreleased] section)
-
-  workflow_compliance:
-    items:
-      - Branch naming correct
-      - Commit message formatted
-      - Synchronized with target branch
-      - No merge conflicts
-
-timing:
-  appropriate:
-    - Completed functional unit (feature + tests + docs)
-    - Specific bug fixed (with regression test)
-    - Independent refactor (all tests pass)
-    - Runnable state (code compiles, app can run)
-
-  inappropriate:
-    - Build failures
-    - Test failures
-    - Incomplete features
-    - Experimental code (TODOs, debugging code, commented-out code)
-
-granularity:
-  ideal_commit_size:
-    file_count: 1-10
-    lines_changed: 50-300
-    scope: Single concern
-
-  splitting_principles:
-    combine:
-      - Feature implementation + corresponding tests
-      - Tightly related multi-file changes
-    separate:
-      - Feature A + Feature B
-      - Refactoring + new feature
-      - Bug fix + incidental refactoring
-
-trigger_points:
-  - trigger: Phase complete
-    condition: Completed a development phase
-    intensity: Suggest
-  - trigger: Change accumulation
-    condition: Files ≥5 or lines ≥200
-    intensity: Suggest
-  - trigger: Consecutive skips
-    condition: Skipped check-in 3 times
-    intensity: Warning
-  - trigger: Work complete
-    condition: Uncommitted changes before finishing
-    intensity: Strongly recommend
-
-special_scenarios:
-  emergency_leave:
-    option_1:
-      name: Git Stash (Recommended)
-      command: 'git stash save "WIP: description"'
-    option_2:
-      name: WIP Branch
-      command: 'git checkout -b wip/feature-temp'
-    prohibited: Committing WIP code directly on feature branch
-
-  experimental:
-    - Create experiment branch
-    - Free commits during experiment
-    - If success - clean up history, squash, merge
-    - If failure - document lessons, delete branch
-
-  hotfix:
-    - Create hotfix branch from main
-    - Minimize changes (only fix the problem)
-    - Quick verification
-    - Mark urgency in commit message
-
-rules:
-  - id: build-before-commit
-    trigger: before committing
-    instruction: Run build command locally, ensure exit code is 0
-    priority: required
-
-  - id: test-before-commit
-    trigger: before committing
-    instruction: Run all test suites locally, review coverage
-    priority: required
-
-  - id: no-wip-commits
-    trigger: writing commit message
-    instruction: Avoid WIP, save work, trying stuff - use git stash instead
-    priority: required
-
-  - id: no-commented-code
-    trigger: reviewing changes
-    instruction: Delete commented code, rely on git history
-    priority: required
-
-  - id: single-concern
-    trigger: staging changes
-    instruction: One commit does one thing - separate unrelated changes
-    priority: required
-
-  - id: ai-wait-confirmation
-    trigger: AI completing code changes
-    instruction: AI must NOT auto-execute git add/commit/push, wait for explicit user approval
-    priority: required
-
-quick_reference:
   checklist:
-    columns: [Category, Key Items]
-    rows:
-      - [Build, "Zero errors, zero warnings, dependencies satisfied"]
-      - [Tests, "All pass, new code tested, coverage maintained"]
-      - [Quality, "Standards followed, no secrets, no vulnerabilities"]
-      - [Docs, "API docs, README, CHANGELOG updated"]
-      - [Workflow, "Branch naming, commit message, synced"]
+    build_verification:
+      items:
+        - Code compiles successfully (zero errors)
+        - Zero build warnings (or documented exceptions)
+        - All package dependencies installed
+        - Dependency versions locked/documented
+        - No missing imports or modules
+    test_verification:
+      items:
+        - All existing tests pass (100% pass rate)
+        - New code has corresponding tests
+        - Bug fixes include regression tests
+        - Edge cases are covered
+        - Test coverage maintained or improved
+    code_quality:
+      items:
+        - Follows coding standards
+        - Methods ≤50 lines (or project standard)
+        - Nesting depth ≤3 levels
+        - Cyclomatic complexity ≤10
+        - No duplicated code blocks
+        - No hardcoded secrets
+        - No SQL/XSS injection vulnerabilities
+    documentation:
+      items:
+        - API documentation updated
+        - README updated (if needed)
+        - CHANGELOG updated (for user-facing changes to [Unreleased] section)
+    workflow_compliance:
+      items:
+        - Branch naming correct
+        - Commit message formatted
+        - Synchronized with target branch
+        - No merge conflicts
 
-  commit_size:
-    columns: [Metric, Recommended]
-    rows:
-      - [File count, 1-10 files]
-      - [Lines changed, 50-300 lines]
-      - [Scope, Single concern]
+  timing:
+    appropriate:
+      - Completed functional unit (feature + tests + docs)
+      - Specific bug fixed (with regression test)
+      - Independent refactor (all tests pass)
+      - Runnable state (code compiles, app can run)
+    inappropriate:
+      - Build failures
+      - Test failures
+      - Incomplete features
+      - Experimental code (TODOs, debugging code, commented-out code)
+
+  granularity:
+    ideal_commit_size:
+      file_count: 1-10
+      lines_changed: 50-300
+      scope: Single concern
+    splitting_principles:
+      combine:
+        - Feature implementation + corresponding tests
+        - Tightly related multi-file changes
+      separate:
+        - Feature A + Feature B
+        - Refactoring + new feature
+        - Bug fix + incidental refactoring
+
+  trigger_points:
+    - trigger: Phase complete
+      condition: Completed a development phase
+      intensity: Suggest
+    - trigger: Change accumulation
+      condition: Files ≥5 or lines ≥200
+      intensity: Suggest
+    - trigger: Consecutive skips
+      condition: Skipped check-in 3 times
+      intensity: Warning
+    - trigger: Work complete
+      condition: Uncommitted changes before finishing
+      intensity: Strongly recommend
+
+  special_scenarios:
+    emergency_leave:
+      option_1:
+        name: Git Stash (Recommended)
+        command: 'git stash save "WIP: description"'
+      option_2:
+        name: WIP Branch
+        command: 'git checkout -b wip/feature-temp'
+      prohibited: Committing WIP code directly on feature branch
+    experimental:
+      - Create experiment branch
+      - Free commits during experiment
+      - If success - clean up history, squash, merge
+      - If failure - document lessons, delete branch
+    hotfix:
+      - Create hotfix branch from main
+      - Minimize changes (only fix the problem)
+      - Quick verification
+      - Mark urgency in commit message
+
+  rules:
+    - id: build-before-commit
+      trigger: before committing
+      instruction: Run build command locally, ensure exit code is 0
+      priority: required
+    - id: test-before-commit
+      trigger: before committing
+      instruction: Run all test suites locally, review coverage
+      priority: required
+    - id: no-wip-commits
+      trigger: writing commit message
+      instruction: Avoid WIP, save work, trying stuff - use git stash instead
+      priority: required
+    - id: no-commented-code
+      trigger: reviewing changes
+      instruction: Delete commented code, rely on git history
+      priority: required
+    - id: single-concern
+      trigger: staging changes
+      instruction: One commit does one thing - separate unrelated changes
+      priority: required
+    - id: ai-wait-confirmation
+      trigger: AI completing code changes
+      instruction: AI must NOT auto-execute git add/commit/push, wait for explicit user approval
+      priority: required
+
+physical_spec:
+  type: custom_script
+  validator:
+    command: >
+      echo "🔍 UDS Check-in Gates:" && 
+      (npm run lint --if-present || echo "ℹ️ No lint script") && 
+      (npm test --if-present || echo "ℹ️ No test script") && 
+      (test -f CHANGELOG.md || echo "ℹ️ No CHANGELOG.md")
+    rule: "checkin_gates_passed"

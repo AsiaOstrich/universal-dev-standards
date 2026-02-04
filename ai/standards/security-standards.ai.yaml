@@ -1,68 +1,83 @@
-# Security Standards (AI-Optimized)
+# Security Standards (AI-Optimized v2)
 # Source: core/security-standards.md
-# Guide: core/guides/security-guide.md
-# Version: 1.0.0
 
-principles:
-  defense_in_depth: [perimeter, application, data, monitoring]
-  core:
-    - least_privilege: "Minimum permissions needed"
-    - fail_securely: "Default to secure on failure"
-    - separation_of_duties: "Divide critical functions"
-    - zero_trust: "Never trust, always verify"
+standard:
+  id: security
+  name: Security Standards
+  description: Security principles, OWASP Top 10, and best practices
+  guidelines:
+    - "Follow OWASP Top 10"
+    - "Use defense in depth"
+    - "Apply least privilege"
+    - "Never hardcode secrets"
 
-owasp_top10_2021:
-  A01_broken_access_control:
-    prevention: [deny_default, server_side_check, validate_ownership, log_failures]
-  A02_cryptographic_failures:
-    use: [TLS_1.3, AES_256, Argon2id]
-    avoid: [MD5, SHA1, hardcoded_keys]
-  A03_injection:
-    sql: "Parameterized queries only"
-    command: "execFile with args, no shell"
-  A05_security_misconfiguration:
-    headers: [CSP, X-Frame-Options:DENY, HSTS, X-Content-Type-Options:nosniff]
-  A07_auth_failures: "→ See auth section"
-  A10_ssrf: "Allowlist hosts, block internal IPs"
+  meta:
+    version: "2.0.0"
+    updated: "2026-02-04"
+    source: core/security-standards.md
+    guide: core/guides/security-guide.md
+    description: Security principles, OWASP Top 10, and best practices
 
-authentication:
-  password:
-    min_length: 8
-    recommended: 12
-    hashing: [Argon2id, bcrypt_cost12, scrypt]
-    never: [MD5, SHA256_unsalted, plaintext]
-  mfa:
-    required_for: [admin, sensitive_ops, recovery]
-    preferred: WebAuthn
-  session:
-    id_length: "≥128 bits"
-    timeout_idle: "15-30 min"
-    timeout_absolute: "8-24 hours"
-    cookie: "Secure; HttpOnly; SameSite=Strict"
-  jwt:
-    algorithm: RS256
-    access_token_ttl: "15m max"
-    never: [sensitive_data_in_payload, symmetric_multiparty]
+  principles:
+    defense_in_depth: [perimeter, application, data, monitoring]
+    core:
+      - least_privilege: "Minimum permissions needed"
+      - fail_securely: "Default to secure on failure"
+      - separation_of_duties: "Divide critical functions"
+      - zero_trust: "Never trust, always verify"
 
-authorization:
-  rbac: {admin: all, manager: read_write_delete_team, editor: read_write, viewer: read}
-  checklist:
-    - "Server-side check on every request"
-    - "Deny by default"
-    - "Log failures"
-    - "Rate limit per user/role"
+  owasp_top10_2021:
+    A01_broken_access_control:
+      prevention: [deny_default, server_side_check, validate_ownership, log_failures]
+    A02_cryptographic_failures:
+      use: [TLS_1.3, AES_256, Argon2id]
+      avoid: [MD5, SHA1, hardcoded_keys]
+    A03_injection:
+      sql: "Parameterized queries only"
+      command: "execFile with args, no shell"
+    A05_security_misconfiguration:
+      headers: [CSP, X-Frame-Options:DENY, HSTS, X-Content-Type-Options:nosniff]
+    A07_auth_failures: "→ See auth section"
+    A10_ssrf: "Allowlist hosts, block internal IPs"
 
-input_validation:
-  layers: [client_ux_only, gateway, application_primary, database_last]
-  rules:
-    email: "RFC 5322 + domain check"
-    url: "Protocol allowlist, block internal IPs"
-    string: "Length limits, character allowlist"
-    file: "Type, size, magic bytes"
-  output_encoding:
-    html: "&lt; → entity"
-    javascript: "\\x3C"
-    url: "%3C"
+  authentication:
+    password:
+      min_length: 8
+      recommended: 12
+      hashing: [Argon2id, bcrypt_cost12, scrypt]
+      never: [MD5, SHA256_unsalted, plaintext]
+    mfa:
+      required_for: [admin, sensitive_ops, recovery]
+      preferred: WebAuthn
+    session:
+      id_length: "≥128 bits"
+      timeout_idle: "15-30 min"
+      timeout_absolute: "8-24 hours"
+      cookie: "Secure; HttpOnly; SameSite=Strict"
+    jwt:
+      algorithm: RS256
+      access_token_ttl: "15m max"
+      never: [sensitive_data_in_payload, symmetric_multiparty]
+
+  authorization:
+    rbac: {admin: all, manager: read_write_delete_team, editor: read_write, viewer: read}
+    checklist:
+      - "Server-side check on every request"
+      - "Deny by default"
+      - "Log failures"
+      - "Rate limit per user/role"
+
+  input_validation:
+    layers: [client_ux_only, gateway, application_primary, database_last]
+    rules:
+      email: "RFC 5322 + domain check"
+      url: "Protocol allowlist, block internal IPs"
+      string: "Length limits, character allowlist"
+      file: "Type, size, magic bytes"
+    output_encoding:
+      html: "&lt; → entity"
+      javascript: "\x3C"
+      url: "%3C"
 
 cryptography:
   symmetric: AES-256-GCM
@@ -107,3 +122,9 @@ checklist:
     - "TLS 1.2+ enforced"
     - "No secrets in code/VCS"
     - "Security headers configured"
+
+physical_spec:
+  type: custom_script
+  validator:
+    command: "npm audit --dry-run > /dev/null 2>&1 || test -f .trivyignore || test -f .snyk"
+    rule: "security_scan_configured"

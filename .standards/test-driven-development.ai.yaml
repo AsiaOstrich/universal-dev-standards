@@ -25,7 +25,7 @@ core_cycle:
       duration: 1-10 minutes
       actions:
         - Write the MINIMUM code to make the test pass
-        - "Fake it till you make it" is acceptable
+        - '"Fake it till you make it" is acceptable'
         - Don't over-engineer; just make it work
       warning: If >15 min, break down the problem
 

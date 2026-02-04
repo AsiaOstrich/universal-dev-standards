@@ -1,113 +1,117 @@
-# Commit Message Guide - AI Optimized
+# Commit Message Guide - AI Optimized (v2 Dual-Layer)
 # Source: core/commit-message-guide.md
 
-id: commit-message
-meta:
-  version: "1.2.3"
-  updated: "2025-12-24"
-  source: core/commit-message-guide.md
+standard:
+  id: commit-message
+  name: Commit Message Standards
   description: Conventional Commits format for standardized git commit messages
+  guidelines:
+    - "Use Conventional Commits format: <type>(<scope>): <subject>"
+    - "Use imperative mood in subject (add, fix, not added, fixed)"
+    - "Keep subject line under 72 characters"
+    - "Use lowercase for scope"
+    - "Reference issue numbers in footer"
 
-format:
-  template: |
-    <type>(<scope>): <subject>
+  meta:
+    version: "2.0.0"
+    updated: "2026-02-04"
+    source: core/commit-message-guide.md
+    description: Conventional Commits format for standardized git commit messages
 
-    <body>
+  format:
+    template: |
+      <type>(<scope>): <subject>
 
-    <footer>
-  components:
-    - name: type
-      required: true
-      description: Type of change
-    - name: scope
-      required: false
-      description: Module/component affected
-    - name: subject
-      required: true
-      description: Brief description (max 72 chars)
-    - name: body
-      required: false
-      description: Detailed explanation
-    - name: footer
-      required: false
-      description: Issue references, breaking changes
+      <body>
 
-decision:
-  question: "What is your team composition?"
-  matrix:
-    - answer: "International or mixed team"
-      select: english
-    - answer: "Local team (Taiwan)"
-      select: traditional-chinese
-    - answer: "Mixed with local focus"
-      select: bilingual
+      <footer>
+    components:
+      - name: type
+        required: true
+        description: Type of change
+      - name: scope
+        required: false
+        description: Module/component affected
+      - name: subject
+        required: true
+        description: Brief description (max 72 chars)
+      - name: body
+        required: false
+        description: Detailed explanation
+      - name: footer
+        required: false
+        description: Issue references, breaking changes
 
-options:
-  commit_language:
-    default: english
-    choices:
-      - id: english
-        file: options/commit-message/english.ai.yaml
-      - id: traditional-chinese
-        file: options/commit-message/traditional-chinese.ai.yaml
-      - id: bilingual
-        file: options/commit-message/bilingual.ai.yaml
+  decision:
+    question: "What is your team composition?"
+    matrix:
+      - answer: "International or mixed team"
+        select: english
+      - answer: "Local team (Taiwan)"
+        select: traditional-chinese
+      - answer: "Mixed with local focus"
+        select: bilingual
 
-rules:
-  - id: choose-language
-    trigger: starting a project
-    instruction: Choose ONE commit message language and document in CONTRIBUTING.md
-    priority: required
+  options:
+    commit_language:
+      default: english
+      choices:
+        - id: english
+          file: options/commit-message/english.ai.yaml
+        - id: traditional-chinese
+          file: options/commit-message/traditional-chinese.ai.yaml
+        - id: bilingual
+          file: options/commit-message/bilingual.ai.yaml
 
-  - id: consistent-language
-    trigger: writing commit message
-    instruction: Use the same language consistently across all commits
-    priority: required
+  rules:
+    - id: choose-language
+      trigger: starting a project
+      instruction: Choose ONE commit message language and document in CONTRIBUTING.md
+      priority: required
+    - id: consistent-language
+      trigger: writing commit message
+      instruction: Use the same language consistently across all commits
+      priority: required
+    - id: subject-max-length
+      trigger: writing commit subject
+      instruction: Keep subject line under 72 characters
+      validator: "^.{1,72}$"
+      priority: required
+    - id: scope-lowercase
+      trigger: specifying scope
+      instruction: Use lowercase for scope (auth, not Auth)
+      validator: "^[a-z][a-z0-9-]*$"
+      priority: required
+    - id: imperative-mood
+      trigger: writing commit subject
+      instruction: Use imperative mood (add, fix, not added, fixed)
+      priority: required
+      examples:
+        good:
+          - "feat(auth): add OAuth2 login"
+          - "fix(api): handle null response"
+        bad:
+          - "feat(auth): added OAuth2 login"
+          - "fix(api): handles null response"
+    - id: no-mixed-changes
+      trigger: committing code
+      instruction: One commit per logical change; avoid mixing unrelated changes
+      priority: required
+    - id: reference-issues
+      trigger: fixing bugs or implementing features
+      instruction: Reference issue numbers in footer
+      priority: recommended
+      examples:
+        good:
+          - "Closes #123"
+          - "Fixes #456"
+          - "Refs #789"
 
-  - id: subject-max-length
-    trigger: writing commit subject
-    instruction: Keep subject line under 72 characters
-    validator: "^.{1,72}$"
-    priority: required
-
-  - id: scope-lowercase
-    trigger: specifying scope
-    instruction: Use lowercase for scope (auth, not Auth)
-    validator: "^[a-z][a-z0-9-]*$"
-    priority: required
-
-  - id: imperative-mood
-    trigger: writing commit subject
-    instruction: Use imperative mood (add, fix, not added, fixed)
-    priority: required
-    examples:
-      good:
-        - "feat(auth): add OAuth2 login"
-        - "fix(api): handle null response"
-      bad:
-        - "feat(auth): added OAuth2 login"
-        - "fix(api): handles null response"
-
-  - id: no-mixed-changes
-    trigger: committing code
-    instruction: One commit per logical change; avoid mixing unrelated changes
-    priority: required
-
-  - id: reference-issues
-    trigger: fixing bugs or implementing features
-    instruction: Reference issue numbers in footer
-    priority: recommended
-    examples:
-      good:
-        - "Closes #123"
-        - "Fixes #456"
-        - "Refs #789"
-
-quick_reference:
-  language_selection:
-    columns: [Factor, English, Traditional Chinese, Bilingual]
-    rows:
-      - [Team composition, International/mixed, Local (Taiwan), Mixed with local focus]
-      - [Tool compatibility, Best, Limited, Good]
-      - [Changelog automation, Full support, Custom config, Supported]
-      - [Open source, Recommended, Not recommended, Good choice]
+physical_spec:
+  type: custom_script
+  validator:
+    command: "test -f commitlint.config.js || test -f .commitlintrc.js || test -f .commitlintrc.json"
+    rule: "commitlint_config_exists"
+  simulator:
+    type: command
+    command: 'echo "{input}" | npx commitlint'
