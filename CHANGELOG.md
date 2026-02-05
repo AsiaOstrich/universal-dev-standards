@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-beta.2] - 2026-02-05
+
+### Fixed
+- **E2E Tests**: Updated config-flow tests for new config command JSON API
+  - Config command now outputs JSON format instead of UI labels
+  - Skipped UI language tests pending redesign
+
 ## [5.0.0-beta.1] - 2026-02-05
 
 ### Added
