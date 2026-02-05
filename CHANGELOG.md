@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-beta.1] - 2026-02-05
+
+### Added
+- **Marketplace Version Strategy**: Implemented stable-only update policy for `.claude-plugin/` files
+  - Pre-release versions (alpha/beta/rc) no longer update marketplace files
+  - Marketplace users only receive stable, tested releases
+  - Enhanced `check-version-sync.sh` script with pre-release detection
+
+### Fixed
+- **Bundled Path Resolution**: Corrected paths for skills, agents, and workflows installers
+  - Fixed `skills/claude-code/agents` → `skills/agents`
+  - Fixed `skills/claude-code/workflows` → `skills/workflows`
+  - Fixed `skills/claude-code` → `skills`
+- **E2E Test Expectations**: Updated init-flow tests to match actual CLI output format
+  - Level format: `Level: Level 3` instead of `Level: 3`
+  - Removed non-existent integrations summary label
+
 ## [5.0.0-alpha.2] - 2026-02-04
 
 ### Added
