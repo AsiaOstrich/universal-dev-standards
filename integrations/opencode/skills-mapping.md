@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/opencode/skills-mapping.md) | [简体中文](../../locales/zh-CN/integrations/opencode/skills-mapping.md)
 
-**Version**: 1.4.0
-**Last Updated**: 2026-01-13
+**Version**: 1.5.0
+**Last Updated**: 2026-02-05
 
 This document maps Claude Code skills to their OpenCode equivalents and implementation methods.
 
@@ -11,7 +11,7 @@ This document maps Claude Code skills to their OpenCode equivalents and implemen
 
 ## Overview
 
-Claude Code provides 18 skills with 16 slash commands. OpenCode supports skills natively and is **fully compatible** with Claude Code skill format.
+Claude Code provides 25 skills with 17 slash commands. OpenCode supports skills natively and is **fully compatible** with Claude Code skill format.
 
 ### Key Advantage: Native Compatibility
 
@@ -46,6 +46,13 @@ This means all UDS Claude Code skills work in OpenCode without modification.
 | **error-code-guide** | Skill (auto-loaded) | ✅ Full |
 | **project-structure-guide** | Skill (auto-loaded) | ✅ Full |
 | **logging-guide** | Skill (auto-loaded) | ✅ Full |
+| **bdd-assistant** | Skill (auto-loaded) | ✅ Full |
+| **atdd-assistant** | Skill (auto-loaded) | ✅ Full |
+| **docs-generator** | Skill (auto-loaded) | ✅ Full |
+| **forward-derivation** | Skill (auto-loaded) | ✅ Full |
+| **reverse-engineer** | Skill (auto-loaded) | ✅ Full |
+| **ai-friendly-architecture** | Skill (auto-loaded) | ✅ Full |
+| **ai-instruction-standards** | Skill (auto-loaded) | ✅ Full |
 
 ### Status Legend
 
@@ -74,7 +81,11 @@ OpenCode supports the same skill invocation syntax as Claude Code:
 | `/docs` | `/docs` or `skill("documentation-guide")` | Identical |
 | `/spec` | `/spec` or `skill("spec-driven-dev")` | Identical |
 | `/methodology` | `/methodology` or `skill("methodology-system")` | Identical |
-| `/bdd` | Via `/methodology` or `/tdd` | Same functionality |
+| `/bdd` | `/bdd` or `skill("bdd-assistant")` | Identical |
+| `/atdd` | `/atdd` or `skill("atdd-assistant")` | Identical |
+| `/docgen` | `/docgen` or `skill("docs-generator")` | Identical |
+| `/derive` | `/derive` or `skill("forward-derivation")` | Identical |
+| `/reverse` | `/reverse` or `skill("reverse-engineer")` | Identical |
 | `/config` | `/config` or `skill("project-structure-guide")` | Identical |
 | `/init` | `/init` (built-in) | OpenCode native |
 | `/update` | Manual or via CLI | Use `uds update` |
@@ -380,6 +391,7 @@ After setting up skills:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.5.0 | 2026-02-05 | Updated skills count (18→25), added 7 new skills and 5 new slash commands |
 | 1.4.0 | 2026-01-13 | Added Cross-Tool Compatibility section with path comparison table |
 | 1.3.0 | 2026-01-13 | Added community marketplaces section (n-skills, claude-plugins.dev, agentskills.io) |
 | 1.2.0 | 2026-01-13 | Updated CLI method; OpenCode now skills-compatible in UDS CLI |

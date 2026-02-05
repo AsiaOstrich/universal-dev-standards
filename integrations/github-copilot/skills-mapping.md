@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/github-copilot/skills-mapping.md) | [简体中文](../../locales/zh-CN/integrations/github-copilot/skills-mapping.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-21
+**Version**: 1.2.0
+**Last Updated**: 2026-02-05
 
 This document maps Claude Code skills to their GitHub Copilot equivalents and workarounds.
 
@@ -11,7 +11,7 @@ This document maps Claude Code skills to their GitHub Copilot equivalents and wo
 
 ## Overview
 
-Claude Code provides 18 skills with 16 slash commands. GitHub Copilot doesn't support slash commands, but most functionality can be achieved through Chat prompts and the `copilot-instructions.md` file.
+Claude Code provides 25 skills with 17 slash commands. GitHub Copilot doesn't support slash commands, but most functionality can be achieved through Chat prompts and the `copilot-instructions.md` file.
 
 ---
 
@@ -37,6 +37,13 @@ Claude Code provides 18 skills with 16 slash commands. GitHub Copilot doesn't su
 | **error-code-guide** | Chat prompt only | ⚠️ Partial |
 | **project-structure-guide** | Chat prompt only | ⚠️ Partial |
 | **logging-guide** | Chat prompt only | ⚠️ Partial |
+| **bdd-assistant** | Chat prompt only | ⚠️ Partial |
+| **atdd-assistant** | Chat prompt only | ⚠️ Partial |
+| **docs-generator** | Chat prompt only | ⚠️ Partial |
+| **forward-derivation** | Chat prompt only | ⚠️ Partial |
+| **reverse-engineer** | Chat prompt only | ⚠️ Partial |
+| **ai-friendly-architecture** | Chat prompt only | ⚠️ Partial |
+| **ai-instruction-standards** | Chat prompt only | ⚠️ Partial |
 
 ### Status Legend
 
@@ -67,6 +74,10 @@ Claude Code provides 18 skills with 16 slash commands. GitHub Copilot doesn't su
 | `/refactor legacy` | "Help me safely refactor this legacy code..." |
 | `/methodology` | ❌ Not available |
 | `/bdd` | "Help me write BDD scenarios in Gherkin format" |
+| `/atdd` | "Help me implement ATDD workflow with acceptance tests" |
+| `/docgen` | "Generate documentation for this module" |
+| `/derive` | "Derive implementation from this specification" |
+| `/reverse` | "Reverse engineer documentation from this code" |
 | `/config` | "Suggest project structure for this type of application" |
 | `/update` | ❌ Not available (manual file update needed) |
 | `/init` | ❌ Not available (use UDS CLI instead) |
@@ -183,6 +194,7 @@ For teams using both Claude Code and Copilot:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-02-05 | Updated skills count (18→25), added 7 new skills and 5 new slash commands |
 | 1.1.0 | 2026-01-21 | Updated refactoring-assistant to Full status, added /refactor command mappings |
 | 1.0.0 | 2026-01-13 | Initial release |
 

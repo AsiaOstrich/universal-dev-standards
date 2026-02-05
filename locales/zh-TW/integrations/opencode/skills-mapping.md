@@ -1,8 +1,8 @@
 ---
 source: ../../../integrations/opencode/skills-mapping.md
-source_version: 1.4.0
-translation_version: 1.4.0
-last_synced: 2026-01-13
+source_version: 1.5.0
+translation_version: 1.5.0
+last_synced: 2026-02-05
 status: current
 ---
 
@@ -14,7 +14,7 @@ status: current
 
 ## 概述
 
-Claude Code 提供 18 個技能和 16 個斜線指令。OpenCode 原生支援技能，且**完全相容** Claude Code 技能格式。
+Claude Code 提供 25 個技能和 17 個斜線指令。OpenCode 原生支援技能，且**完全相容** Claude Code 技能格式。
 
 ### 關鍵優勢：原生相容
 
@@ -49,6 +49,13 @@ OpenCode 按以下順序搜索技能：
 | **error-code-guide** | 技能（自動載入） | ✅ 完整 |
 | **project-structure-guide** | 技能（自動載入） | ✅ 完整 |
 | **logging-guide** | 技能（自動載入） | ✅ 完整 |
+| **bdd-assistant** | 技能（自動載入） | ✅ 完整 |
+| **atdd-assistant** | 技能（自動載入） | ✅ 完整 |
+| **docs-generator** | 技能（自動載入） | ✅ 完整 |
+| **forward-derivation** | 技能（自動載入） | ✅ 完整 |
+| **reverse-engineer** | 技能（自動載入） | ✅ 完整 |
+| **ai-friendly-architecture** | 技能（自動載入） | ✅ 完整 |
+| **ai-instruction-standards** | 技能（自動載入） | ✅ 完整 |
 
 ### 狀態說明
 
@@ -77,7 +84,11 @@ OpenCode 支援與 Claude Code 相同的技能調用語法：
 | `/docs` | `/docs` 或 `skill("documentation-guide")` | 相同 |
 | `/spec` | `/spec` 或 `skill("spec-driven-dev")` | 相同 |
 | `/methodology` | `/methodology` 或 `skill("methodology-system")` | 相同 |
-| `/bdd` | 透過 `/methodology` 或 `/tdd` | 相同功能 |
+| `/bdd` | `/bdd` 或 `skill("bdd-assistant")` | 相同 |
+| `/atdd` | `/atdd` 或 `skill("atdd-assistant")` | 相同 |
+| `/docgen` | `/docgen` 或 `skill("docs-generator")` | 相同 |
+| `/derive` | `/derive` 或 `skill("forward-derivation")` | 相同 |
+| `/reverse` | `/reverse` 或 `skill("reverse-engineer")` | 相同 |
 | `/config` | `/config` 或 `skill("project-structure-guide")` | 相同 |
 | `/init` | `/init`（內建） | OpenCode 原生 |
 | `/update` | 手動或透過 CLI | 使用 `uds update` |
@@ -383,6 +394,7 @@ temperature: 0.5
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.5.0 | 2026-02-05 | 更新技能數量（18→25），新增 7 個技能和 5 個斜線指令 |
 | 1.4.0 | 2026-01-13 | 新增跨工具相容性章節與路徑對照表 |
 | 1.3.0 | 2026-01-13 | 新增社群 marketplace 章節（n-skills、claude-plugins.dev、agentskills.io） |
 | 1.2.0 | 2026-01-13 | 更新 CLI 方法；OpenCode 現在在 UDS CLI 中支援 skills |

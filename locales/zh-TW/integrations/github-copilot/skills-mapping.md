@@ -1,8 +1,8 @@
 ---
 source: ../../../integrations/github-copilot/skills-mapping.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-01-24
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-02-05
 status: current
 ---
 
@@ -14,7 +14,7 @@ status: current
 
 ## 概述
 
-Claude Code 提供 18 個 skills 和 16 個斜線命令。GitHub Copilot 不支援斜線命令，但大部分功能可透過 Chat 提示和 `copilot-instructions.md` 檔案實現。
+Claude Code 提供 25 個 skills 和 17 個斜線命令。GitHub Copilot 不支援斜線命令，但大部分功能可透過 Chat 提示和 `copilot-instructions.md` 檔案實現。
 
 ---
 
@@ -40,6 +40,13 @@ Claude Code 提供 18 個 skills 和 16 個斜線命令。GitHub Copilot 不支�
 | **error-code-guide** | 僅 Chat 提示 | ⚠️ 部分 |
 | **project-structure-guide** | 僅 Chat 提示 | ⚠️ 部分 |
 | **logging-guide** | 僅 Chat 提示 | ⚠️ 部分 |
+| **bdd-assistant** | 僅 Chat 提示 | ⚠️ 部分 |
+| **atdd-assistant** | 僅 Chat 提示 | ⚠️ 部分 |
+| **docs-generator** | 僅 Chat 提示 | ⚠️ 部分 |
+| **forward-derivation** | 僅 Chat 提示 | ⚠️ 部分 |
+| **reverse-engineer** | 僅 Chat 提示 | ⚠️ 部分 |
+| **ai-friendly-architecture** | 僅 Chat 提示 | ⚠️ 部分 |
+| **ai-instruction-standards** | 僅 Chat 提示 | ⚠️ 部分 |
 
 ### 狀態說明
 
@@ -70,6 +77,10 @@ Claude Code 提供 18 個 skills 和 16 個斜線命令。GitHub Copilot 不支�
 | `/refactor legacy` | "幫我安全地重構此遺留程式碼..." |
 | `/methodology` | ❌ 不可用 |
 | `/bdd` | "幫我用 Gherkin 格式撰寫 BDD 情境" |
+| `/atdd` | "幫我實作 ATDD 工作流程與驗收測試" |
+| `/docgen` | "為此模組產生文件" |
+| `/derive` | "從此規格推導實作" |
+| `/reverse` | "從此程式碼逆向工程產生文件" |
 | `/config` | "為此類型應用程式建議專案結構" |
 | `/update` | ❌ 不可用（需手動更新檔案） |
 | `/init` | ❌ 不可用（請改用 UDS CLI） |
@@ -186,6 +197,7 @@ gh repo create my-project --template my-org/project-template
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.2.0 | 2026-02-05 | 更新 skills 數量（18→25），新增 7 個 skills 和 5 個斜線命令 |
 | 1.1.0 | 2026-01-21 | 更新 refactoring-assistant 為完整狀態，新增 /refactor 命令對照 |
 | 1.0.0 | 2026-01-13 | 初始發布 |
 
