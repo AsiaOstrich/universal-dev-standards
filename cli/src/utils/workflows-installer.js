@@ -32,12 +32,12 @@ const BUNDLED_DIR = join(CLI_ROOT, 'bundled');
  * @returns {string} Path to workflows source directory
  */
 function getWorkflowsSourceDir() {
-  const bundledPath = join(BUNDLED_DIR, 'skills', 'claude-code', 'workflows');
+  const bundledPath = join(BUNDLED_DIR, 'skills', 'workflows');
   if (existsSync(bundledPath)) {
     return bundledPath;
   }
   // Development environment fallback
-  return join(CLI_ROOT, '..', 'skills', 'claude-code', 'workflows');
+  return join(CLI_ROOT, '..', 'skills', 'workflows');
 }
 
 const WORKFLOWS_LOCAL_DIR = getWorkflowsSourceDir();

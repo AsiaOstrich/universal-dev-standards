@@ -1,5 +1,5 @@
 ---
-source: skills/testing-guide/SKILL.md
+source: ../../../../skills/testing-guide/SKILL.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2025-12-29

@@ -1,5 +1,5 @@
 ---
-source: core/checkin-standards.md
+source: ../../core/checkin-standards.md
 source_version: 1.4.0
 translation_version: 1.4.0
 last_synced: 2026-01-16

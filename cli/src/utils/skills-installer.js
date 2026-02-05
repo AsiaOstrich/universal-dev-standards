@@ -29,12 +29,12 @@ const BUNDLED_DIR = join(CLI_ROOT, 'bundled');
  * @returns {string} Path to skills source directory
  */
 function getSkillsSourceDir() {
-  const bundledPath = join(BUNDLED_DIR, 'skills', 'claude-code');
+  const bundledPath = join(BUNDLED_DIR, 'skills');
   if (existsSync(bundledPath)) {
     return bundledPath;
   }
   // Development environment fallback
-  return join(CLI_ROOT, '..', 'skills', 'claude-code');
+  return join(CLI_ROOT, '..', 'skills');
 }
 
 const SKILLS_LOCAL_DIR = getSkillsSourceDir();

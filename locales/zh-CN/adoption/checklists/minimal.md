@@ -1,5 +1,5 @@
 ---
-source: adoption/checklists/minimal.md
+source: ../../../adoption/checklists/minimal.md
 source_version: 1.0.1
 translation_version: 1.0.1
 last_synced: 2025-12-25

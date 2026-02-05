@@ -29,12 +29,12 @@ const BUNDLED_DIR = join(CLI_ROOT, 'bundled');
  * @returns {string} Path to agents source directory
  */
 function getAgentsSourceDir() {
-  const bundledPath = join(BUNDLED_DIR, 'skills', 'claude-code', 'agents');
+  const bundledPath = join(BUNDLED_DIR, 'skills', 'agents');
   if (existsSync(bundledPath)) {
     return bundledPath;
   }
   // Development environment fallback
-  return join(CLI_ROOT, '..', 'skills', 'claude-code', 'agents');
+  return join(CLI_ROOT, '..', 'skills', 'agents');
 }
 
 const AGENTS_LOCAL_DIR = getAgentsSourceDir();

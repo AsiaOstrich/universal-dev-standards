@@ -80,18 +80,13 @@ describe('Skills Installer', () => {
       expect(commands).toContain('config');
 
       // Derivation commands
-      expect(commands).toContain('derive-bdd');
-      expect(commands).toContain('derive-tdd');
-      expect(commands).toContain('derive-atdd');
-      expect(commands).toContain('derive-all');
+      expect(commands).toContain('derive');
 
       // Reverse engineering
-      expect(commands).toContain('reverse-spec');
-      expect(commands).toContain('reverse-bdd');
-      expect(commands).toContain('reverse-tdd');
+      expect(commands).toContain('reverse');
 
       // Documentation
-      expect(commands).toContain('generate-docs');
+      expect(commands).toContain('docs');
     });
 
     it('should not include README or COMMAND-FAMILY-OVERVIEW', () => {
@@ -215,32 +210,30 @@ describe('Skills Installer', () => {
 
     it('should install Commands-only commands (derivation)', async () => {
       // Test derivation commands
-      const result = await installCommandsForAgent('cursor', 'project', ['derive-bdd', 'derive-tdd'], TEST_DIR);
+      const result = await installCommandsForAgent('cursor', 'project', ['derive'], TEST_DIR);
 
       expect(result.success).toBe(true);
-      expect(result.installed).toContain('derive-bdd');
-      expect(result.installed).toContain('derive-tdd');
+      expect(result.installed).toContain('derive');
     });
 
     it('should install Commands-only commands (reverse engineering)', async () => {
       // Test reverse engineering commands
-      const result = await installCommandsForAgent('opencode', 'project', ['reverse-spec', 'reverse-bdd'], TEST_DIR);
+      const result = await installCommandsForAgent('opencode', 'project', ['reverse'], TEST_DIR);
 
       expect(result.success).toBe(true);
-      expect(result.installed).toContain('reverse-spec');
-      expect(result.installed).toContain('reverse-bdd');
+      expect(result.installed).toContain('reverse');
     });
 
     it('should install all available commands when null is passed', async () => {
       const result = await installCommandsForAgent('opencode', 'project', null, TEST_DIR);
 
       expect(result.success).toBe(true);
-      // Should install all commands from the commands/ directory
-      expect(result.installed.length).toBeGreaterThanOrEqual(25);
+      // Should install all commands from the commands/ directory (19 commands)
+      expect(result.installed.length).toBeGreaterThanOrEqual(19);
       // Verify some Commands-only commands are included
       expect(result.installed).toContain('init');
-      expect(result.installed).toContain('derive-bdd');
-      expect(result.installed).toContain('reverse-spec');
+      expect(result.installed).toContain('derive');
+      expect(result.installed).toContain('reverse');
     });
   });
 

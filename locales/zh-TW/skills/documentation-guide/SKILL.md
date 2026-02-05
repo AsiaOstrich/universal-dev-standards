@@ -1,5 +1,5 @@
 ---
-source: skills/documentation-guide/SKILL.md
+source: ../../../../skills/documentation-guide/SKILL.md
 source_version: 2.0.0
 translation_version: 2.0.0
 last_synced: 2026-01-12
