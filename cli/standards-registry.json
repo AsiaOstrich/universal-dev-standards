@@ -48,14 +48,14 @@
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "4.3.0-alpha.1"
+      "version": "5.0.0-alpha.2"
     },
     "skills": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
       "localPath": "skills",
       "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills",
-      "version": "4.3.0-alpha.1",
+      "version": "5.0.0-alpha.2",
       "note": "Skills are now included in the main repository under skills/"
     }
   },

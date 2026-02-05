@@ -793,17 +793,19 @@ When user asks to prepare a release:
 
 > ⚠️ **IMPORTANT**: This section contains UDS-specific requirements that MUST be followed in addition to the standard release workflow.
 
-#### Version Files to Update (6 files)
+#### Version Files to Update
 
-When updating version, **ALL** of the following files must be synchronized:
+When updating version, files must be synchronized based on release type:
 
-| File | Field | Required For |
-|------|-------|--------------|
-| `cli/package.json` | `"version"` | All releases |
-| `cli/standards-registry.json` | `"version"` (3 places) | All releases |
-| `.claude-plugin/plugin.json` | `"version"` | All releases |
-| `.claude-plugin/marketplace.json` | `"version"` | All releases |
-| `README.md` | `**Version**:` | Stable releases only |
+| File | Field | Alpha/Beta/RC | Stable |
+|------|-------|---------------|--------|
+| `cli/package.json` | `"version"` | ✅ Update | ✅ Update |
+| `cli/standards-registry.json` | `"version"` (3 places) | ✅ Update | ✅ Update |
+| `.claude-plugin/plugin.json` | `"version"` | ❌ Keep stable | ✅ Update |
+| `.claude-plugin/marketplace.json` | `"version"` | ❌ Keep stable | ✅ Update |
+| `README.md` | `**Version**:` | ❌ Keep stable | ✅ Update |
+
+> **Marketplace Version Strategy**: `.claude-plugin/` files are only updated for stable releases. This prevents beta/alpha versions from being automatically pushed to Claude Plugin Marketplace users. Marketplace users will only receive stable versions.
 
 #### Pre-release Verification Scripts
 
@@ -850,26 +852,37 @@ For stable releases, ensure translations are synchronized:
 
 **Phase 1: Alpha Release (Internal)**
 1. Update version to alpha: `npm version X.Y.Z-alpha.1 --no-git-tag-version`
-2. Update all 6 version files (see above)
-3. Run pre-release checks: `./scripts/pre-release-check.sh`
-4. Update CHANGELOG with alpha notes
-5. Commit: `chore(release): X.Y.Z-alpha.1`
-6. Create tag: `vX.Y.Z-alpha.1`
-7. Push and create GitHub Release (mark as pre-release)
+2. Update CLI version files only (2 files):
+   - `cli/package.json`
+   - `cli/standards-registry.json`
+3. **Do NOT update** `.claude-plugin/` files (keep previous stable version)
+4. Run pre-release checks: `./scripts/pre-release-check.sh`
+5. Update CHANGELOG with alpha notes
+6. Commit: `chore(release): X.Y.Z-alpha.1`
+7. Create tag: `vX.Y.Z-alpha.1`
+8. Push and create GitHub Release (mark as pre-release)
 
 **Phase 2: Beta Release (Public Testing)**
 1. After alpha validation passes, update to beta: `npm version X.Y.Z-beta.1 --no-git-tag-version`
-2. Update all 6 version files
-3. Run full test suite
-4. Update CHANGELOG with beta notes
-5. Commit: `chore(release): X.Y.Z-beta.1`
-6. Create tag: `vX.Y.Z-beta.1`
-7. Push and create GitHub Release (mark as pre-release)
-8. Announce to early adopters for feedback
+2. Update CLI version files only (2 files):
+   - `cli/package.json`
+   - `cli/standards-registry.json`
+3. **Do NOT update** `.claude-plugin/` files (keep previous stable version)
+4. Run full test suite
+5. Update CHANGELOG with beta notes
+6. Commit: `chore(release): X.Y.Z-beta.1`
+7. Create tag: `vX.Y.Z-beta.1`
+8. Push and create GitHub Release (mark as pre-release)
+9. Announce to early adopters for feedback
 
 **Phase 3: Stable Release (Production)**
 1. After beta testing completes, update to stable: `npm version X.Y.Z --no-git-tag-version`
-2. Update all 6 version files (including README.md)
+2. Update **ALL** version files (5 files):
+   - `cli/package.json`
+   - `cli/standards-registry.json`
+   - `.claude-plugin/plugin.json` ← Marketplace updated here
+   - `.claude-plugin/marketplace.json` ← Marketplace updated here
+   - `README.md`
 3. Finalize CHANGELOG (remove beta warnings, add stable notes)
 4. Sync translations: `./scripts/check-translation-sync.sh`
 5. Run final pre-release checks

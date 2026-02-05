@@ -24,6 +24,8 @@ CLI_DIR="$ROOT_DIR/cli"
 
 PACKAGE_JSON="$CLI_DIR/package.json"
 REGISTRY_JSON="$CLI_DIR/standards-registry.json"
+PLUGIN_JSON="$ROOT_DIR/.claude-plugin/plugin.json"
+MARKETPLACE_JSON="$ROOT_DIR/.claude-plugin/marketplace.json"
 
 echo ""
 echo "=========================================="
@@ -88,6 +90,67 @@ if [ "$SKILLS_VERSION" = "$PACKAGE_VERSION" ]; then
 else
     echo -e "${RED}[MISMATCH]${NC} repositories.skills.version: $SKILLS_VERSION (expected: $PACKAGE_VERSION)"
     ERRORS=$((ERRORS + 1))
+fi
+
+echo ""
+echo "----------------------------------------"
+echo "Checking .claude-plugin/ files..."
+echo "----------------------------------------"
+echo ""
+
+# Check if this is a pre-release version (contains -alpha, -beta, or -rc)
+IS_PRERELEASE=false
+if [[ "$PACKAGE_VERSION" =~ -(alpha|beta|rc)\. ]]; then
+    IS_PRERELEASE=true
+    echo -e "${YELLOW}[INFO]${NC}  Pre-release version detected: $PACKAGE_VERSION"
+    echo -e "${YELLOW}[INFO]${NC}  Marketplace files should keep stable version (not required to match)"
+    echo ""
+fi
+
+# Check .claude-plugin/plugin.json
+if [ -f "$PLUGIN_JSON" ]; then
+    PLUGIN_VERSION=$(grep '"version"' "$PLUGIN_JSON" | head -1 | sed 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+    if [ "$IS_PRERELEASE" = true ]; then
+        # For pre-release, just show info (marketplace should NOT match)
+        if [[ "$PLUGIN_VERSION" =~ -(alpha|beta|rc)\. ]]; then
+            echo -e "${YELLOW}[WARN]${NC}  plugin.json version: $PLUGIN_VERSION (should be stable, not pre-release)"
+        else
+            echo -e "${GREEN}[OK]${NC}     plugin.json version: $PLUGIN_VERSION (stable - correct for marketplace)"
+        fi
+    else
+        # For stable release, must match
+        if [ "$PLUGIN_VERSION" = "$PACKAGE_VERSION" ]; then
+            echo -e "${GREEN}[OK]${NC}     plugin.json version: $PLUGIN_VERSION"
+        else
+            echo -e "${RED}[MISMATCH]${NC} plugin.json version: $PLUGIN_VERSION (expected: $PACKAGE_VERSION)"
+            ERRORS=$((ERRORS + 1))
+        fi
+    fi
+else
+    echo -e "${YELLOW}[SKIP]${NC}  plugin.json not found"
+fi
+
+# Check .claude-plugin/marketplace.json
+if [ -f "$MARKETPLACE_JSON" ]; then
+    MARKETPLACE_VERSION=$(grep -A20 '"plugins"' "$MARKETPLACE_JSON" | grep '"version"' | head -1 | sed 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+    if [ "$IS_PRERELEASE" = true ]; then
+        # For pre-release, just show info (marketplace should NOT match)
+        if [[ "$MARKETPLACE_VERSION" =~ -(alpha|beta|rc)\. ]]; then
+            echo -e "${YELLOW}[WARN]${NC}  marketplace.json version: $MARKETPLACE_VERSION (should be stable, not pre-release)"
+        else
+            echo -e "${GREEN}[OK]${NC}     marketplace.json version: $MARKETPLACE_VERSION (stable - correct for marketplace)"
+        fi
+    else
+        # For stable release, must match
+        if [ "$MARKETPLACE_VERSION" = "$PACKAGE_VERSION" ]; then
+            echo -e "${GREEN}[OK]${NC}     marketplace.json version: $MARKETPLACE_VERSION"
+        else
+            echo -e "${RED}[MISMATCH]${NC} marketplace.json version: $MARKETPLACE_VERSION (expected: $PACKAGE_VERSION)"
+            ERRORS=$((ERRORS + 1))
+        fi
+    fi
+else
+    echo -e "${YELLOW}[SKIP]${NC}  marketplace.json not found"
 fi
 
 echo ""
