@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-beta.4] - 2026-02-06
+
+### Fixed
+- **Integration Installer Config Resolution**: Fixed `displayLanguage` and `skillsConfig` config resolution in integration installer
+  - Now correctly resolves configuration values when generating AI tool integration files
+
+### Added
+- **Integration Content Matrix Tests**: Added comprehensive data-driven matrix tests for `generateIntegrationContent`
+  - Covers all language × config combinations for integration content generation
+
 ## [5.0.0-beta.3] - 2026-02-06
 
 ### Fixed
