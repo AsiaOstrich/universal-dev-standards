@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-beta.5] - 2026-02-06
+
+### Fixed
+- **Commands Integrity Path Resolution**: Fixed `checkCommandsIntegrity` calling `getCommandsDirForAgent` without `level` parameter, causing all tracked commands to report as "missing"
+- **i18n Skills Labels**: Removed hardcoded `.claude/` paths from `skillsProject`/`skillsGlobal` labels to support multi-agent display correctly
+- **Command Installations Display**: Fixed `commands.installations` objects rendering as `[object Object]` instead of `agent: level` format
+- **AGENTS.md Path Mapping**: Added missing `AGENTS.md → codex` mapping in `getToolFromPath` for OpenAI Codex CLI integration detection
+
+### Added
+- **Regression Tests**: Added 4 targeted regression tests covering all bug fixes above
+
 ## [5.0.0-beta.4] - 2026-02-06
 
 ### Fixed
