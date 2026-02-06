@@ -474,6 +474,81 @@ describe('Check Command', () => {
       expect(output).toContain('Skills Status');
     });
 
+    it('should correctly check commands file integrity when commandHashes exist', async () => {
+      // Regression test: Bug #1 - getCommandsDirForAgent was called without 'level' parameter,
+      // causing all commands to report as "missing" instead of "unchanged"
+      const commandsDir = join(TEST_DIR, '.gemini', 'commands');
+      mkdirSync(commandsDir, { recursive: true });
+      const commandContent = '# Test Command\nSome content here';
+      writeFileSync(join(commandsDir, 'test-command.md'), commandContent);
+
+      // Compute hash for the command file
+      const { computeFileHash } = await import('../../src/utils/hasher.js');
+      const hashInfo = computeFileHash(join(commandsDir, 'test-command.md'));
+
+      const manifest = createValidManifest({
+        aiTools: ['gemini-cli'],
+        commands: {
+          installed: true,
+          names: ['test-command'],
+          installations: [{ agent: 'gemini-cli', level: 'project' }]
+        },
+        commandHashes: {
+          'gemini-cli/test-command.md': hashInfo
+        }
+      });
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), JSON.stringify(manifest));
+
+      await checkCommand({ noInteractive: true });
+      const output = consoleLogs.join('\n');
+
+      // Should report commands as unchanged/intact, NOT as missing
+      expect(output).toContain('All command files intact');
+      // The commands integrity section should show 1 file intact
+      expect(output).toMatch(/All command files intact \(1 files\)/);
+    });
+
+    it('should not contain hardcoded agent paths in skills status labels', async () => {
+      // Regression test: Bug #2 - i18n labels like skillsProject were '專案：.claude/skills/'
+      // which is misleading for non-Claude agents. Labels should be generic.
+      const { messages } = await import('../../src/i18n/messages.js');
+
+      for (const lang of ['en', 'zh-tw', 'zh-cn']) {
+        const skillsProject = messages[lang].commands.check.skillsProject;
+        const skillsGlobal = messages[lang].commands.check.skillsGlobal;
+
+        expect(skillsProject, `${lang} skillsProject should not contain .claude/`).not.toContain('.claude/');
+        expect(skillsGlobal, `${lang} skillsGlobal should not contain .claude/`).not.toContain('.claude/');
+        expect(skillsProject, `${lang} skillsProject should not contain .gemini/`).not.toContain('.gemini/');
+        expect(skillsGlobal, `${lang} skillsGlobal should not contain .gemini/`).not.toContain('.gemini/');
+      }
+    });
+
+    it('should display tracked command installations without [object Object]', async () => {
+      // Regression test: Bug #3 - commands.installations objects were printed as
+      // '[object Object]' instead of 'agent: level' format
+      const manifest = createValidManifest({
+        level: 2,
+        aiTools: ['gemini-cli'],
+        commands: {
+          installed: true,
+          names: ['test-cmd'],
+          installations: [{ agent: 'gemini-cli', level: 'project' }]
+        }
+      });
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), JSON.stringify(manifest));
+
+      await checkCommand({ noInteractive: true });
+      const output = consoleLogs.join('\n');
+
+      expect(output).toContain('gemini-cli: project');
+      expect(output).not.toContain('[object Object]');
+    });
+
     it('should show correct skills coverage when skills installed on disk but manifest says false', async () => {
       // Bug fix test: Coverage Summary should dynamically check disk, not rely on manifest.skills.installed
       // See: https://github.com/AsiaOstrich/universal-dev-standards/issues/xxx

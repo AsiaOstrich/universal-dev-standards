@@ -336,6 +336,11 @@ reference: .standards/commit-message-guide.md`;
       expect(getToolFromPath('.standards/CLAUDE.md')).toBe('claude-code');
     });
 
+    it('should return codex for AGENTS.md', () => {
+      // Regression test: Bug #4 - AGENTS.md mapping was missing from getToolFromPath
+      expect(getToolFromPath('AGENTS.md')).toBe('codex');
+    });
+
     it('should return null for unknown path', () => {
       expect(getToolFromPath('unknown.md')).toBeNull();
     });

@@ -894,8 +894,8 @@ function displaySkillsStatus(manifest, projectPath, msg) {
 
   if (manifest.commands?.installations?.length > 0) {
     console.log(chalk.gray(`  ${msg.trackedCommandInstallations || 'Tracked command installations'}:`));
-    for (const agent of manifest.commands.installations) {
-      console.log(chalk.gray(`    - ${agent}`));
+    for (const inst of manifest.commands.installations) {
+      console.log(chalk.gray(`    - ${inst.agent}: ${inst.level}`));
     }
   }
 
@@ -1269,7 +1269,7 @@ function checkCommandsIntegrity(manifest, projectPath, msg) {
     const filename = keyParts.slice(1).join('/');
 
     // Get actual file path
-    const commandsDir = getCommandsDirForAgent(agent, projectPath);
+    const commandsDir = getCommandsDirForAgent(agent, 'project', projectPath);
     if (!commandsDir) {
       status.missing.push(hashKey);
       continue;

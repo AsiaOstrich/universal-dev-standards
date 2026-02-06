@@ -194,7 +194,8 @@ export function getToolFromPath(integrationPath) {
     '.github/copilot-instructions.md': 'copilot',
     'INSTRUCTIONS.md': 'antigravity',
     'CLAUDE.md': 'claude-code',
-    '.standards/CLAUDE.md': 'claude-code'
+    '.standards/CLAUDE.md': 'claude-code',
+    'AGENTS.md': 'codex'
   };
 
   return pathToTool[integrationPath] || null;
