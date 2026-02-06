@@ -340,6 +340,269 @@ describe('Integration Generator', () => {
         expect(result).toContain('頁腳格式');
       });
     });
+
+    describe('all tools × languages header verification', () => {
+      const expectedHeaders = {
+        cursor:        { en: 'Cursor Rules',                      'zh-tw': 'Cursor 規則',                      bilingual: 'Cursor Rules | Cursor 規則' },
+        windsurf:      { en: 'Windsurf Rules',                    'zh-tw': 'Windsurf 規則',                    bilingual: 'Windsurf Rules | Windsurf 規則' },
+        cline:         { en: 'Cline Rules',                       'zh-tw': 'Cline 規則',                       bilingual: 'Cline Rules | Cline 規則' },
+        copilot:       { en: 'GitHub Copilot Instructions',       'zh-tw': 'GitHub Copilot 說明',              bilingual: 'GitHub Copilot Instructions | GitHub Copilot 說明' },
+        antigravity:   { en: 'Antigravity System Instructions',   'zh-tw': 'Antigravity 系統指令',             bilingual: 'Antigravity System Instructions | Antigravity 系統指令' },
+        'claude-code': { en: 'Project Guidelines for Claude Code','zh-tw': 'Claude Code 專案指南',             bilingual: 'Project Guidelines for Claude Code | Claude Code 專案指南' },
+        codex:         { en: 'AGENTS.md - OpenAI Codex CLI Rules','zh-tw': 'AGENTS.md - OpenAI Codex CLI 規則',bilingual: 'AGENTS.md - OpenAI Codex CLI Rules | OpenAI Codex CLI 規則' },
+        'gemini-cli':  { en: 'GEMINI.md - Gemini CLI Rules',     'zh-tw': 'GEMINI.md - Gemini CLI 規則',      bilingual: 'GEMINI.md - Gemini CLI Rules | Gemini CLI 規則' },
+        opencode:      { en: 'AGENTS.md - OpenCode Rules',       'zh-tw': 'AGENTS.md - OpenCode 規則',        bilingual: 'AGENTS.md - OpenCode Rules | OpenCode 規則' },
+      };
+
+      const tools = Object.keys(expectedHeaders);
+      const languages = ['en', 'zh-tw', 'bilingual'];
+
+      const cases = tools.flatMap(tool =>
+        languages.map(lang => [tool, lang, expectedHeaders[tool][lang]])
+      );
+
+      it.each(cases)(
+        '%s + %s should contain header "%s"',
+        (tool, language, expectedHeader) => {
+          const result = generateIntegrationContent({
+            tool,
+            categories: [],
+            languages: [],
+            exclusions: [],
+            customRules: [],
+            detailLevel: 'standard',
+            language,
+          });
+
+          expect(result).toContain(expectedHeader);
+        }
+      );
+
+      const languageSettingCases = tools.flatMap(tool => [
+        [tool, 'en', 'English'],
+        [tool, 'zh-tw', '繁體中文'],
+        [tool, 'bilingual', '繁體中文'],
+      ]);
+
+      it.each(languageSettingCases)(
+        '%s + %s should contain language setting "%s"',
+        (tool, language, expectedText) => {
+          const result = generateIntegrationContent({
+            tool,
+            categories: [],
+            languages: [],
+            exclusions: [],
+            customRules: [],
+            detailLevel: 'standard',
+            language,
+          });
+
+          expect(result).toContain(expectedText);
+        }
+      );
+
+      const bilingualTools = tools.map(tool => [tool]);
+
+      it.each(bilingualTools)(
+        '%s bilingual should also contain "Traditional Chinese"',
+        (tool) => {
+          const result = generateIntegrationContent({
+            tool,
+            categories: [],
+            languages: [],
+            exclusions: [],
+            customRules: [],
+            detailLevel: 'standard',
+            language: 'bilingual',
+          });
+
+          expect(result).toContain('Traditional Chinese');
+        }
+      );
+    });
+
+    describe('all categories × languages content verification', () => {
+      const expectedCategoryHeaders = {
+        'spec-driven-development': { en: 'Spec-Driven Development (SDD) Priority', 'zh-tw': '規格驅動開發 (SDD) 優先' },
+        'anti-hallucination':      { en: 'Anti-Hallucination Protocol',            'zh-tw': '反幻覺協議' },
+        'code-review':             { en: 'Code Review Checklist',                  'zh-tw': '程式碼審查清單' },
+        'testing':                 { en: 'Testing Standards',                      'zh-tw': '測試標準' },
+        'documentation':           { en: 'Documentation Standards',                'zh-tw': '文件標準' },
+        'git-workflow':            { en: 'Git Workflow',                           'zh-tw': 'Git 工作流程' },
+        'error-handling':          { en: 'Error Handling',                         'zh-tw': '錯誤處理' },
+        'project-structure':       { en: 'Project Structure',                      'zh-tw': '專案結構' },
+      };
+
+      const categories = Object.keys(expectedCategoryHeaders);
+      const languages = ['en', 'zh-tw', 'bilingual'];
+
+      const enCases = categories.map(cat => [cat, 'en', expectedCategoryHeaders[cat].en]);
+
+      it.each(enCases)(
+        '%s + en should contain "%s"',
+        (category, _lang, expectedHeader) => {
+          const result = generateIntegrationContent({
+            tool: 'cursor',
+            categories: [category],
+            languages: [],
+            exclusions: [],
+            customRules: [],
+            detailLevel: 'standard',
+            language: 'en',
+          });
+
+          expect(result).toContain(expectedHeader);
+        }
+      );
+
+      const zhtwCases = categories.map(cat => [cat, 'zh-tw', expectedCategoryHeaders[cat]['zh-tw']]);
+
+      it.each(zhtwCases)(
+        '%s + zh-tw should contain "%s"',
+        (category, _lang, expectedHeader) => {
+          const result = generateIntegrationContent({
+            tool: 'cursor',
+            categories: [category],
+            languages: [],
+            exclusions: [],
+            customRules: [],
+            detailLevel: 'standard',
+            language: 'zh-tw',
+          });
+
+          expect(result).toContain(expectedHeader);
+        }
+      );
+
+      const bilingualCases = categories.map(cat => [
+        cat,
+        expectedCategoryHeaders[cat].en,
+        expectedCategoryHeaders[cat]['zh-tw'],
+      ]);
+
+      it.each(bilingualCases)(
+        '%s bilingual should contain both "%s" and "%s"',
+        (category, enHeader, zhtwHeader) => {
+          const result = generateIntegrationContent({
+            tool: 'cursor',
+            categories: [category],
+            languages: [],
+            exclusions: [],
+            customRules: [],
+            detailLevel: 'standard',
+            language: 'bilingual',
+          });
+
+          expect(result).toContain(enHeader);
+          expect(result).toContain(zhtwHeader);
+        }
+      );
+    });
+
+    describe('all categories × detailLevels differentiation verification', () => {
+      const expectedDetailFeatures = {
+        'anti-hallucination': {
+          minimal:       '[Confirmed]',
+          standard:      '### Evidence-Based Analysis',
+          comprehensive: '### Error Correction',
+        },
+        'code-review': {
+          minimal:       'Before committing',
+          standard:      '### Before Every Commit',
+          comprehensive: '### Core Philosophy',
+        },
+        'testing': {
+          minimal:       'Unit tests: 70%',
+          standard:      '### Test Pyramid Distribution',
+          comprehensive: '### Naming Convention',
+        },
+        'documentation': {
+          minimal:       'Every public API needs docs',
+          standard:      '### README Requirements',
+          comprehensive: '### Documentation Checklist',
+        },
+        'git-workflow': {
+          minimal:       'Always create PR for review',
+          standard:      '### Branch Naming',
+          comprehensive: '### Branch Strategy',
+        },
+        'error-handling': {
+          minimal:       'Use structured error codes',
+          standard:      '### Error Code Format',
+          comprehensive: '### Error Code System',
+        },
+        'project-structure': {
+          minimal:       'Keep related files together',
+          standard:      '### Standard Layout',
+          comprehensive: '### Universal Layout',
+        },
+        'spec-driven-development': {
+          minimal:       '/openspec',
+          standard:      'Detection',
+          comprehensive: '### SDD Workflow',
+        },
+      };
+
+      const categories = Object.keys(expectedDetailFeatures);
+      const detailLevels = ['minimal', 'standard', 'comprehensive'];
+
+      const cases = categories.flatMap(cat =>
+        detailLevels.map(level => [cat, level, expectedDetailFeatures[cat][level]])
+      );
+
+      it.each(cases)(
+        '%s at %s level should contain "%s"',
+        (category, detailLevel, expectedFeature) => {
+          const result = generateIntegrationContent({
+            tool: 'cursor',
+            categories: [category],
+            languages: [],
+            exclusions: [],
+            customRules: [],
+            detailLevel,
+            language: 'en',
+          });
+
+          expect(result).toContain(expectedFeature);
+        }
+      );
+    });
+
+    describe('commit-standards × commitLanguage × detailLevel full matrix', () => {
+      const commitCases = [
+        // [commitLanguage, detailLevel, mustContain, mustNotContain]
+        ['english',             'minimal',       '<type>(<scope>): <subject>',         '功能'],
+        ['english',             'standard',      '<type>(<scope>): <subject>',         '功能'],
+        ['english',             'comprehensive', 'Subject Line Rules',                 '功能'],
+        ['traditional-chinese', 'minimal',       '<類型>(<範圍>): <主旨>',             null],
+        ['traditional-chinese', 'standard',      '<類型>(<範圍>): <主旨>',             null],
+        ['traditional-chinese', 'comprehensive', '主題行規則',                         null],
+        ['bilingual',           'minimal',       '<type>(<scope>): <English subject>', null],
+        ['bilingual',           'standard',      '<type>(<scope>): <English subject>', null],
+        ['bilingual',           'comprehensive', 'Subject Line Rules',                 null],
+      ];
+
+      it.each(commitCases)(
+        'commitLanguage=%s detailLevel=%s should contain "%s"',
+        (commitLanguage, detailLevel, mustContain, mustNotContain) => {
+          const result = generateIntegrationContent({
+            tool: 'cursor',
+            categories: ['commit-standards'],
+            languages: [],
+            exclusions: [],
+            customRules: [],
+            detailLevel,
+            language: 'en',
+            commitLanguage,
+          });
+
+          expect(result).toContain(mustContain);
+          if (mustNotContain) {
+            expect(result).not.toContain(mustNotContain);
+          }
+        }
+      );
+    });
   });
 
   describe('mergeRules', () => {
