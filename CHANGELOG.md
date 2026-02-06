@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-beta.6] - 2026-02-06
+
+### Fixed
+- **Init → Integration Standards Passthrough**: Fixed `init` command not passing `installedStandards` to integration installer, causing integration files to use hardcoded default categories
+- **Integration Category Filtering**: Changed integration installer to filter requested categories against actually installed standards, preventing orphaned `Reference:` lines in generated files (AGENTS.md, GEMINI.md, .cursorrules, etc.)
+- **AI YAML Format Recognition**: Added `.ai.yaml` format entries to `STANDARD_TO_CATEGORY` mapping so `uds check` correctly recognizes AI-optimized standard files
+- **Cross-Format Reference Comparison**: Rewrote `compareStandardsWithReferences` to compare at category level, handling `.md` vs `.ai.yaml` format differences correctly
+
+### Added
+- **Regression Tests**: Added 7 targeted tests covering category filtering, `.ai.yaml` format support, and cross-format reference comparison
+
 ## [5.0.0-beta.5] - 2026-02-06
 
 ### Fixed
