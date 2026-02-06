@@ -26,7 +26,7 @@ export const CATEGORY_TO_STANDARDS = {
  * Reverse mapping from standard filename to category ID
  */
 export const STANDARD_TO_CATEGORY = {
-  // Core Rules
+  // Core Rules (human .md format)
   'anti-hallucination.md': 'anti-hallucination',
   'commit-message-guide.md': 'commit-standards',
   'code-review-checklist.md': 'code-review',
@@ -40,6 +40,20 @@ export const STANDARD_TO_CATEGORY = {
   'project-structure.md': 'project-structure',
   'refactoring-standards.md': 'refactoring',
   'requirement-engineering.md': 'requirement',
+  // Core Rules (AI .ai.yaml format)
+  'anti-hallucination.ai.yaml': 'anti-hallucination',
+  'commit-message.ai.yaml': 'commit-standards',
+  'code-review.ai.yaml': 'code-review',
+  'checkin-standards.ai.yaml': 'code-review',
+  'spec-driven-development.ai.yaml': 'spec-driven-development',
+  'testing.ai.yaml': 'testing',
+  'documentation-structure.ai.yaml': 'documentation',
+  'git-workflow.ai.yaml': 'git-workflow',
+  'error-codes.ai.yaml': 'error-handling',
+  'logging.ai.yaml': 'error-handling',
+  'project-structure.ai.yaml': 'project-structure',
+  'refactoring-standards.ai.yaml': 'refactoring',
+  'requirement-engineering.ai.yaml': 'requirement',
   // Guides (educational content)
   'anti-hallucination-guide.md': 'anti-hallucination',
   'sdd-guide.md': 'spec-driven-development',
@@ -104,26 +118,43 @@ export function getStandardCategory(sourcePath) {
  *   - syncedRefs: Standards that are properly synced
  */
 export function compareStandardsWithReferences(manifestStandards, integrationReferences) {
-  // Get filenames from manifest standards (only those that have category mappings)
-  const manifestFileNames = new Set();
+  // Compare at category level to handle .md vs .ai.yaml format differences
+  // e.g., manifest has 'anti-hallucination.ai.yaml' but integration references 'anti-hallucination.md'
+  const manifestCategories = new Set();
   for (const std of manifestStandards) {
     const fileName = std.split('/').pop();
-    // Only include standards that are part of the category system
-    if (STANDARD_TO_CATEGORY[fileName]) {
-      manifestFileNames.add(fileName);
+    const category = STANDARD_TO_CATEGORY[fileName];
+    if (category) {
+      manifestCategories.add(category);
     }
   }
 
-  const refSet = new Set(integrationReferences);
+  // References in integration file but not backed by any manifest standard (by category)
+  const orphanedRefs = integrationReferences.filter(ref => {
+    const category = STANDARD_TO_CATEGORY[ref];
+    return !category || !manifestCategories.has(category);
+  });
 
-  // References in integration file but not in manifest
-  const orphanedRefs = integrationReferences.filter(ref => !manifestFileNames.has(ref));
-
-  // Standards in manifest but not referenced
-  const missingRefs = [...manifestFileNames].filter(fileName => !refSet.has(fileName));
+  // Categories in manifest but not referenced in integration file
+  const refCategories = new Set();
+  for (const ref of integrationReferences) {
+    const category = STANDARD_TO_CATEGORY[ref];
+    if (category) {
+      refCategories.add(category);
+    }
+  }
+  const missingCategories = [...manifestCategories].filter(cat => !refCategories.has(cat));
+  // Convert missing categories back to representative filenames for reporting
+  const missingRefs = missingCategories.flatMap(cat => {
+    const paths = CATEGORY_TO_STANDARDS[cat] || [];
+    return paths.map(p => p.split('/').pop());
+  });
 
   // Properly synced references
-  const syncedRefs = integrationReferences.filter(ref => manifestFileNames.has(ref));
+  const syncedRefs = integrationReferences.filter(ref => {
+    const category = STANDARD_TO_CATEGORY[ref];
+    return category && manifestCategories.has(category);
+  });
 
   return { orphanedRefs, missingRefs, syncedRefs };
 }

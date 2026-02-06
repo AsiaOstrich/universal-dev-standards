@@ -87,6 +87,7 @@ describe('integration-installer', () => {
 
     it('should_install_multiple_tools_successfully_when_generator_succeeds', async () => {
       // Arrange - Multiple tools configuration
+      // installedStandards must include standards that map to requested categories
       const config = {
         integrations: ['cursor', 'windsurf', 'cline'],
         integrationConfigs: {
@@ -94,7 +95,7 @@ describe('integration-installer', () => {
           windsurf: { categories: ['commit-standards'] },
           cline: { language: 'zh-tw' }
         },
-        installedStandards: ['commit-message.ai.yaml', 'testing.ai.yaml'],
+        installedStandards: ['anti-hallucination.ai.yaml', 'commit-message.ai.yaml', 'testing.ai.yaml'],
         contentMode: 'index',
         level: 3,
         commonLanguage: 'en',
@@ -130,7 +131,7 @@ describe('integration-installer', () => {
         expect.objectContaining({
           tool: 'cursor',
           categories: ['anti-hallucination'],
-          installedStandards: ['commit-message.ai.yaml', 'testing.ai.yaml'],
+          installedStandards: ['anti-hallucination.ai.yaml', 'commit-message.ai.yaml', 'testing.ai.yaml'],
           contentMode: 'index',
           level: 3,
           language: 'en',
@@ -316,6 +317,7 @@ describe('integration-installer', () => {
 
     it('should_merge_tool_config_with_enhanced_settings', async () => {
       // Arrange - Tool with specific config
+      // installedStandards include both testing and documentation standards
       const config = {
         integrations: ['windsurf'],
         integrationConfigs: {
@@ -325,7 +327,7 @@ describe('integration-installer', () => {
             customField: 'custom-value'
           }
         },
-        installedStandards: ['testing.ai.yaml'],
+        installedStandards: ['testing.ai.yaml', 'documentation-structure.ai.yaml'],
         contentMode: 'full',
         level: 3,
         commonLanguage: 'en',
@@ -338,7 +340,7 @@ describe('integration-installer', () => {
       // Act - Install with enhanced config
       await installIntegrations(config, mockProjectPath);
 
-      // Assert - Config merged correctly
+      // Assert - Config merged correctly, categories filtered to match installed standards
       expect(writeIntegrationFile).toHaveBeenCalledWith(
         'windsurf',
         expect.objectContaining({
@@ -346,7 +348,7 @@ describe('integration-installer', () => {
           categories: ['testing', 'documentation'],
           language: 'zh-tw',
           customField: 'custom-value',
-          installedStandards: ['testing.ai.yaml'],
+          installedStandards: ['testing.ai.yaml', 'documentation-structure.ai.yaml'],
           contentMode: 'full',
           level: 3,
           commitLanguage: 'traditional-chinese'
@@ -482,6 +484,7 @@ describe('integration-installer', () => {
 
     it('should_generate_claudemd_when_claude_code_selected_and_file_does_not_exist', async () => {
       // Arrange - Claude Code selected, file doesn't exist
+      // installedStandards only has commit-message.ai.yaml → categories derived as ['commit-standards']
       const config = {
         aiTools: ['claude-code', 'cursor'],
         installedStandards: ['commit-message.ai.yaml'],
@@ -507,7 +510,7 @@ describe('integration-installer', () => {
         'claude-code',
         expect.objectContaining({
           tool: 'claude-code',
-          categories: ['anti-hallucination', 'commit-standards', 'code-review'],
+          categories: ['commit-standards'],
           languages: [],
           exclusions: [],
           customRules: [],
@@ -748,6 +751,84 @@ describe('integration-installer', () => {
         }),
         mockProjectPath
       );
+    });
+
+    it('should_derive_categories_from_installedStandards_instead_of_hardcoded_defaults', async () => {
+      // Arrange - Only commit-message.ai.yaml installed (minimal scope scenario)
+      const config = {
+        integrations: ['cursor'],
+        integrationConfigs: {},
+        installedStandards: ['commit-message.ai.yaml'],
+        contentMode: 'minimal',
+        level: 2,
+        commonLanguage: 'en',
+        commitLanguage: 'english'
+      };
+
+      getToolFilePath.mockReturnValue('.cursorrules');
+      writeIntegrationFile.mockReturnValue({ success: true, path: '.cursorrules' });
+
+      // Act
+      await installIntegrations(config, mockProjectPath);
+
+      // Assert - categories should only include 'commit-standards', NOT the old hardcoded defaults
+      expect(writeIntegrationFile).toHaveBeenCalledWith(
+        'cursor',
+        expect.objectContaining({
+          categories: ['commit-standards']
+        }),
+        mockProjectPath
+      );
+    });
+
+    it('should_derive_multiple_categories_from_installedStandards', async () => {
+      // Arrange - Multiple standards installed that map to different categories
+      const config = {
+        integrations: ['cursor'],
+        integrationConfigs: {},
+        installedStandards: ['anti-hallucination.ai.yaml', 'commit-message.ai.yaml', 'code-review.ai.yaml'],
+        contentMode: 'index',
+        level: 2,
+        commonLanguage: 'en',
+        commitLanguage: 'english'
+      };
+
+      getToolFilePath.mockReturnValue('.cursorrules');
+      writeIntegrationFile.mockReturnValue({ success: true, path: '.cursorrules' });
+
+      // Act
+      await installIntegrations(config, mockProjectPath);
+
+      // Assert - all 3 categories derived from installed standards
+      const configArg = writeIntegrationFile.mock.calls[0][1];
+      expect(configArg.categories).toContain('anti-hallucination');
+      expect(configArg.categories).toContain('commit-standards');
+      expect(configArg.categories).toContain('code-review');
+    });
+
+    it('should_not_include_categories_for_uninstalled_standards', async () => {
+      // Regression test: minimal scope with only reference standards (no category-mapped standards)
+      const config = {
+        integrations: ['cursor'],
+        integrationConfigs: {},
+        installedStandards: ['documentation-writing-standards.ai.yaml', 'security-standards.ai.yaml'],
+        contentMode: 'minimal',
+        level: 2,
+        commonLanguage: 'en',
+        commitLanguage: 'english'
+      };
+
+      getToolFilePath.mockReturnValue('.cursorrules');
+      writeIntegrationFile.mockReturnValue({ success: true, path: '.cursorrules' });
+
+      // Act
+      await installIntegrations(config, mockProjectPath);
+
+      // Assert - no categories (these standards have no category mapping)
+      const configArg = writeIntegrationFile.mock.calls[0][1];
+      expect(configArg.categories).not.toContain('anti-hallucination');
+      expect(configArg.categories).not.toContain('commit-standards');
+      expect(configArg.categories).not.toContain('code-review');
     });
   });
 

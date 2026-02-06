@@ -346,6 +346,73 @@ reference: .standards/commit-message-guide.md`;
     });
   });
 
+  describe('AI YAML format support', () => {
+    it('should map .ai.yaml filenames to correct categories', () => {
+      expect(STANDARD_TO_CATEGORY['anti-hallucination.ai.yaml']).toBe('anti-hallucination');
+      expect(STANDARD_TO_CATEGORY['commit-message.ai.yaml']).toBe('commit-standards');
+      expect(STANDARD_TO_CATEGORY['code-review.ai.yaml']).toBe('code-review');
+      expect(STANDARD_TO_CATEGORY['checkin-standards.ai.yaml']).toBe('code-review');
+      expect(STANDARD_TO_CATEGORY['testing.ai.yaml']).toBe('testing');
+      expect(STANDARD_TO_CATEGORY['git-workflow.ai.yaml']).toBe('git-workflow');
+      expect(STANDARD_TO_CATEGORY['error-codes.ai.yaml']).toBe('error-handling');
+      expect(STANDARD_TO_CATEGORY['logging.ai.yaml']).toBe('error-handling');
+    });
+
+    it('should calculate categories from .ai.yaml standard paths', () => {
+      const standards = [
+        'ai/standards/anti-hallucination.ai.yaml',
+        'ai/standards/commit-message.ai.yaml'
+      ];
+
+      const categories = calculateCategoriesFromStandards(standards);
+
+      expect(categories).toContain('anti-hallucination');
+      expect(categories).toContain('commit-standards');
+    });
+
+    it('should detect no orphaned refs when manifest uses .ai.yaml and integration uses .md references', () => {
+      // This is the core regression test: manifest has .ai.yaml standards,
+      // integration file has .md references — both should map to same categories
+      const manifestStandards = [
+        'ai/standards/anti-hallucination.ai.yaml',
+        'ai/standards/commit-message.ai.yaml',
+        'ai/standards/checkin-standards.ai.yaml'
+      ];
+      const integrationRefs = [
+        'anti-hallucination.md',
+        'commit-message-guide.md',
+        'checkin-standards.md'
+      ];
+
+      const result = compareStandardsWithReferences(manifestStandards, integrationRefs);
+
+      // .ai.yaml standards should be recognized in manifest, so .md references are NOT orphaned
+      expect(result.orphanedRefs).toHaveLength(0);
+    });
+
+    it('should detect orphaned refs when minimal scope has no matching .ai.yaml standards', () => {
+      // Minimal scope: only reference-category standards installed
+      // These don't map to anti-hallucination/commit-standards/code-review categories
+      const manifestStandards = [
+        'ai/standards/documentation-writing-standards.ai.yaml',
+        'ai/standards/security-standards.ai.yaml'
+      ];
+      const integrationRefs = [
+        'anti-hallucination.md',
+        'commit-message-guide.md',
+        'checkin-standards.md'
+      ];
+
+      const result = compareStandardsWithReferences(manifestStandards, integrationRefs);
+
+      // These references ARE orphaned because the manifest doesn't have matching standards
+      expect(result.orphanedRefs).toHaveLength(3);
+      expect(result.orphanedRefs).toContain('anti-hallucination.md');
+      expect(result.orphanedRefs).toContain('commit-message-guide.md');
+      expect(result.orphanedRefs).toContain('checkin-standards.md');
+    });
+  });
+
   describe('CATEGORY_TO_STANDARDS mapping', () => {
     it('should have all expected categories', () => {
       const expectedCategories = [

@@ -5,6 +5,7 @@ import {
   integrationFileExists,
   getToolFilePath
 } from '../utils/integration-generator.js';
+import { calculateCategoriesFromStandards } from '../utils/reference-sync.js';
 import { t } from '../i18n/messages.js';
 
 /**
@@ -105,10 +106,15 @@ export async function installIntegrations(config, projectPath) {
     }
 
     // Build enhanced config with installed standards
+    // Filter categories to only those backed by installed standards to avoid orphaned references
+    const requestedCategories = integrationConfigs[tool]?.categories || ['anti-hallucination', 'commit-standards', 'code-review'];
+    const validCategories = installedStandards.length > 0
+      ? requestedCategories.filter(cat => calculateCategoriesFromStandards(installedStandards).includes(cat))
+      : requestedCategories;
     const enhancedConfig = {
       ...integrationConfigs[tool],
       tool,
-      categories: integrationConfigs[tool]?.categories || ['anti-hallucination', 'commit-standards', 'code-review'],
+      categories: validCategories,
       language: integrationConfigs[tool]?.language || commonLanguage,
       installedStandards,
       contentMode,
@@ -200,9 +206,13 @@ export async function generateClaudeMd(config, projectPath) {
 
   const claudeSpinner = ora(msg.generatingClaudeMd).start();
 
+  // Derive categories from installedStandards to avoid referencing non-installed standards
+  const categories = installedStandards.length > 0
+    ? calculateCategoriesFromStandards(installedStandards)
+    : ['anti-hallucination', 'commit-standards', 'code-review'];
   const claudeConfig = {
     tool: 'claude-code',
-    categories: ['anti-hallucination', 'commit-standards', 'code-review'],
+    categories,
     languages: [],
     exclusions: [],
     customRules: [],
