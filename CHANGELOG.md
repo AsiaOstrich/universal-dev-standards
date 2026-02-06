@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-beta.3] - 2026-02-06
+
+### Fixed
+- **Husky Init Fallback**: Added fallback `.husky` directory creation when `husky init` fails
+  - Ensures pre-commit hooks are properly set up even in environments where `husky init` encounters errors
+
 ## [5.0.0-beta.2] - 2026-02-05
 
 ### Fixed

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "5.0.0-beta.2",
+  "version": "5.0.0-beta.3",
   "lastUpdated": "2026-02-04",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
@@ -48,14 +48,14 @@
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "5.0.0-beta.2"
+      "version": "5.0.0-beta.3"
     },
     "skills": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
       "localPath": "skills",
       "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills",
-      "version": "5.0.0-beta.2",
+      "version": "5.0.0-beta.3",
       "note": "Skills are now included in the main repository under skills/"
     }
   },
