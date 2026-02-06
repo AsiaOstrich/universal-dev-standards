@@ -66,13 +66,15 @@ export const INTEGRATION_MAPPINGS = {
 export async function installIntegrations(config, projectPath) {
   const {
     integrations = [],
-    integrationConfigs = {},
     installedStandards = [],
     contentMode = 'minimal',
     level = 2,
-    commonLanguage = 'en',
-    commitLanguage = 'english'
   } = config;
+
+  // Resolve parameters (support both naming conventions from different callers)
+  const integrationConfigs = config.integrationConfigs || config.skillsConfig?.integrationConfigs || {};
+  const commonLanguage = config.commonLanguage || config.displayLanguage || 'en';
+  const commitLanguage = config.commitLanguage || config.standardOptions?.commit_language || 'english';
 
   const msg = t().commands.init;
 
@@ -182,9 +184,11 @@ export async function generateClaudeMd(config, projectPath) {
     installedStandards = [],
     contentMode = 'minimal',
     level = 2,
-    commonLanguage = 'en',
-    commitLanguage = 'english'
   } = config;
+
+  // Resolve parameters (support both naming conventions from different callers)
+  const commonLanguage = config.commonLanguage || config.displayLanguage || 'en';
+  const commitLanguage = config.commitLanguage || config.standardOptions?.commit_language || 'english';
 
   const msg = t().commands.init;
 

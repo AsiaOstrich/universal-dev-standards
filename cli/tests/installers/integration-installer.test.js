@@ -355,6 +355,73 @@ describe('integration-installer', () => {
       );
     });
 
+    it('should_resolve_language_from_displayLanguage_when_commonLanguage_not_set', async () => {
+      // Arrange - Config from init-flow uses displayLanguage, not commonLanguage
+      const config = {
+        integrations: ['cursor'],
+        displayLanguage: 'zh-tw',
+        standardOptions: { commit_language: 'traditional-chinese' },
+        skillsConfig: {
+          integrationConfigs: {
+            cursor: { categories: ['anti-hallucination'] }
+          }
+        },
+        installedStandards: [],
+        contentMode: 'minimal',
+        level: 2,
+      };
+
+      getToolFilePath.mockReturnValue('.cursorrules');
+      writeIntegrationFile.mockReturnValue({ success: true, path: '.cursorrules' });
+
+      // Act - Install with init-flow config shape
+      await installIntegrations(config, mockProjectPath);
+
+      // Assert - Language resolved from displayLanguage, commitLanguage from standardOptions
+      expect(writeIntegrationFile).toHaveBeenCalledWith(
+        'cursor',
+        expect.objectContaining({
+          language: 'zh-tw',
+          commitLanguage: 'traditional-chinese'
+        }),
+        mockProjectPath
+      );
+    });
+
+    it('should_resolve_integrationConfigs_from_skillsConfig_when_not_at_top_level', async () => {
+      // Arrange - Config from init-flow nests integrationConfigs inside skillsConfig
+      const config = {
+        integrations: ['windsurf'],
+        displayLanguage: 'zh-tw',
+        standardOptions: { commit_language: 'bilingual' },
+        skillsConfig: {
+          integrationConfigs: {
+            windsurf: { categories: ['testing'], language: 'bilingual' }
+          }
+        },
+        installedStandards: [],
+        contentMode: 'index',
+        level: 3,
+      };
+
+      getToolFilePath.mockReturnValue('.windsurfrules');
+      writeIntegrationFile.mockReturnValue({ success: true, path: '.windsurfrules' });
+
+      // Act - Install with nested integrationConfigs
+      await installIntegrations(config, mockProjectPath);
+
+      // Assert - integrationConfigs resolved from skillsConfig, tool-level language overrides
+      expect(writeIntegrationFile).toHaveBeenCalledWith(
+        'windsurf',
+        expect.objectContaining({
+          language: 'bilingual',
+          categories: ['testing'],
+          commitLanguage: 'bilingual'
+        }),
+        mockProjectPath
+      );
+    });
+
     it('should_handle_mixed_success_and_failure_gracefully', async () => {
       // Arrange - Mix of success and failure
       const config = {
@@ -523,6 +590,34 @@ describe('integration-installer', () => {
       // Assert - Error returned
       expect(result).toEqual({ path: null, error: 'Template rendering failed' });
       expect(mockSpinner.warn).toHaveBeenCalledWith('Could not generate CLAUDE.md');
+    });
+
+    it('should_resolve_language_from_displayLanguage_when_commonLanguage_not_set', async () => {
+      // Arrange - Config from init-flow uses displayLanguage
+      const config = {
+        aiTools: ['claude-code'],
+        installedStandards: ['commit-message.ai.yaml'],
+        contentMode: 'index',
+        level: 3,
+        displayLanguage: 'zh-tw',
+        standardOptions: { commit_language: 'traditional-chinese' }
+      };
+
+      integrationFileExists.mockReturnValue(false);
+      writeIntegrationFile.mockReturnValue({ success: true, path: 'CLAUDE.md' });
+
+      // Act - Generate with init-flow config shape
+      await generateClaudeMd(config, mockProjectPath);
+
+      // Assert - Language resolved from displayLanguage
+      expect(writeIntegrationFile).toHaveBeenCalledWith(
+        'claude-code',
+        expect.objectContaining({
+          language: 'zh-tw',
+          commitLanguage: 'traditional-chinese'
+        }),
+        mockProjectPath
+      );
     });
 
     it('should_use_default_values_when_config_fields_missing', async () => {
