@@ -167,6 +167,7 @@ import { manifestExists as isInitialized, writeManifest } from '../../src/core/m
 import { detectAll } from '../../src/utils/detector.js';
 import { promptConfirm, promptAITools, promptSkillsInstallLocation, promptCommandsInstallation } from '../../src/prompts/init.js';
 import { getAgentDisplayName } from '../../src/config/ai-agent-paths.js';
+import { writeIntegrationFile } from '../../src/utils/integration-generator.js';
 
 describe('Init Command', () => {
   let consoleLogs = [];
@@ -670,6 +671,28 @@ describe('Init Command', () => {
       const output = consoleLogs.join('\n');
       // Should fallback to "Claude Code" when skillsInstallations is empty
       expect(output).toMatch(/Restart.*Claude Code.*to load new Skills/);
+    });
+  });
+
+  describe('installedStandards flow to integration installer', () => {
+    it('should pass installed standards from standards-installer to integration-generator', async () => {
+      isInitialized.mockReturnValue(false);
+      promptConfirm.mockResolvedValue(true);
+
+      // Default mock: getStandardsByLevel returns [{ id: 'test-standard', category: 'reference' }]
+      // getStandardSource returns 'core/test-standard.md'
+      // copyStandard returns { success: true }
+      // So standardsResults.standards = ['core/test-standard.md']
+      // After basename: ['test-standard.md']
+
+      await expect(initCommand({})).rejects.toThrow('process.exit called');
+
+      // Verify writeIntegrationFile received the installed standards (not empty array)
+      expect(writeIntegrationFile).toHaveBeenCalled();
+      const calls = writeIntegrationFile.mock.calls;
+      // Find a call and check the config argument (2nd param)
+      const configArg = calls[0][1];
+      expect(configArg.installedStandards).toContain('test-standard.md');
     });
   });
 });

@@ -677,6 +677,80 @@ describe('integration-installer', () => {
     });
   });
 
+  describe('installedStandards propagation', () => {
+    const mockProjectPath = '/test/project';
+
+    beforeEach(() => {
+      vi.clearAllMocks();
+      const mockSpinner = {
+        start: vi.fn().mockReturnThis(),
+        succeed: vi.fn().mockReturnThis(),
+        warn: vi.fn().mockReturnThis(),
+        fail: vi.fn().mockReturnThis()
+      };
+      ora.mockReturnValue(mockSpinner);
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('should_default_installedStandards_to_empty_when_not_provided', async () => {
+      // Arrange - Config without installedStandards (the old bug scenario)
+      const config = {
+        integrations: ['cursor'],
+        integrationConfigs: {},
+        contentMode: 'minimal',
+        level: 2,
+        commonLanguage: 'en',
+        commitLanguage: 'english'
+      };
+
+      getToolFilePath.mockReturnValue('.cursorrules');
+      writeIntegrationFile.mockReturnValue({ success: true, path: '.cursorrules' });
+
+      // Act
+      await installIntegrations(config, mockProjectPath);
+
+      // Assert - installedStandards defaults to empty array
+      expect(writeIntegrationFile).toHaveBeenCalledWith(
+        'cursor',
+        expect.objectContaining({
+          installedStandards: []
+        }),
+        mockProjectPath
+      );
+    });
+
+    it('should_pass_installedStandards_to_writeIntegrationFile_when_provided', async () => {
+      // Arrange - Config with installedStandards properly set
+      const config = {
+        integrations: ['cursor'],
+        integrationConfigs: {},
+        installedStandards: ['commit-message.ai.yaml', 'testing.ai.yaml', 'git-workflow.ai.yaml'],
+        contentMode: 'index',
+        level: 2,
+        commonLanguage: 'en',
+        commitLanguage: 'english'
+      };
+
+      getToolFilePath.mockReturnValue('.cursorrules');
+      writeIntegrationFile.mockReturnValue({ success: true, path: '.cursorrules' });
+
+      // Act
+      await installIntegrations(config, mockProjectPath);
+
+      // Assert - installedStandards flows through to writeIntegrationFile
+      expect(writeIntegrationFile).toHaveBeenCalledWith(
+        'cursor',
+        expect.objectContaining({
+          installedStandards: ['commit-message.ai.yaml', 'testing.ai.yaml', 'git-workflow.ai.yaml']
+        }),
+        mockProjectPath
+      );
+    });
+  });
+
   describe('INTEGRATION_MAPPINGS', () => {
     it('should_export_correct_legacy_mappings', () => {
       // Assert - Legacy mappings defined

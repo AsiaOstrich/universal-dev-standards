@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { basename, join } from 'path';
 import {
   manifestExists as isInitialized
 } from '../core/manifest.js';
@@ -88,6 +88,7 @@ export async function initCommand(options) {
   
   // 1. Install Standards
   const standardsResults = await installStandards(config, projectPath);
+  config.installedStandards = standardsResults.standards.map(s => basename(s));
 
   // 2. Install Integrations
   const integrationResults = await installIntegrations(config, projectPath);
