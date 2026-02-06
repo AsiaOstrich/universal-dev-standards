@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import ora from 'ora';
 import { execSync } from 'child_process';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import {
   manifestExists as isInitialized
@@ -158,8 +158,9 @@ async function setupHuskyHook(projectPath) {
   }
 
   // 2. Initialize husky
+  const huskyDir = join(projectPath, '.husky');
   try {
-    if (!existsSync(join(projectPath, '.husky'))) {
+    if (!existsSync(huskyDir)) {
        console.log(chalk.gray('  Initializing husky...'));
        execSync('npx husky init', { stdio: 'ignore', cwd: projectPath });
     }
@@ -167,10 +168,20 @@ async function setupHuskyHook(projectPath) {
      // Ignore, might already be init
   }
 
-  // 3. Add pre-commit hook
-  const preCommitPath = join(projectPath, '.husky', 'pre-commit');
+  // 3. Ensure .husky directory exists (fallback if husky init failed)
+  if (!existsSync(huskyDir)) {
+    try {
+      mkdirSync(huskyDir, { recursive: true });
+    } catch (e) {
+      console.log(chalk.red(`  ✗ Failed to create .husky directory: ${e.message}`));
+      return;
+    }
+  }
+
+  // 4. Add pre-commit hook
+  const preCommitPath = join(huskyDir, 'pre-commit');
   const udsCmd = 'npx uds check --standard checkin-standards';
-  
+
   try {
     let content = '';
     if (existsSync(preCommitPath)) {
@@ -179,15 +190,15 @@ async function setupHuskyHook(projectPath) {
       // Create if not exists (husky init usually creates it, but just in case)
       content = '#!/usr/bin/env sh\n. "$(dirname -- "$0")/_/husky.sh"\n';
     }
-    
+
     if (!content.includes('checkin-standards')) {
-      console.log(chalk.green('  ✓ Adding uds check to pre-commit hook'));
       writeFileSync(preCommitPath, content + `\n# UDS Standard Check\n${udsCmd}\n`, 'utf-8');
-      try { 
-        execSync(`chmod +x ${preCommitPath}`); 
+      try {
+        execSync(`chmod +x ${preCommitPath}`);
       } catch (e) {
         // Ignore chmod failures on systems that don't support it
       }
+      console.log(chalk.green('  ✓ Adding uds check to pre-commit hook'));
     } else {
       console.log(chalk.gray('  ✓ Pre-commit hook already configured'));
     }
