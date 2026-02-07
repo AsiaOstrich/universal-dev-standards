@@ -456,6 +456,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 |------|----------|------|
 | Git workflow | [git-workflow.ai.yaml](.standards/git-workflow.ai.yaml) | Branch/merge decisions |
 | Writing tests | [testing.ai.yaml](.standards/testing.ai.yaml) | When creating tests |
+| Developer memory | [developer-memory.ai.yaml](.standards/developer-memory.ai.yaml) | Always (protocol) |
 
 
 ## Installed Standards Index
@@ -492,6 +493,7 @@ This project has adopted **Level 3** (Enterprise) standards. All standards are l
 - `security-standards.ai.yaml` - Security Standards
 - `performance-standards.ai.yaml` - Performance Standards
 - `accessibility-standards.ai.yaml` - Accessibility Standards
+- `developer-memory.ai.yaml` - Developer Persistent Memory
 
 ### Templates & Checklists
 - `requirement-checklist.md` - Requirement Checklist

@@ -1,0 +1,213 @@
+# Developer Persistent Memory Standards - AI Optimized (v2 Dual-Layer)
+# Source: core/developer-memory.md
+
+standard:
+  id: developer-memory
+  name: Developer Persistent Memory Standards
+  description: Structured system for capturing, retrieving, and surfacing developer experience insights across conversations and projects
+  guidelines:
+    - "Capture insights using the 30-second rule: problem + cause + fix"
+    - "Surface relevant memories proactively when context matches triggers"
+    - "Adjust confidence dynamically based on feedback"
+    - "De-identify entries before storing (remove secrets, project names)"
+    - "Respect noise control levels and cooldown periods"
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-02-07"
+    source: core/developer-memory.md
+    description: Structured system for capturing, retrieving, and surfacing developer experience insights across conversations and projects
+
+  schema:
+    required:
+      - field: id
+        type: string
+        format: "MEM-YYYY-NNNN"
+      - field: insight
+        type: string
+        description: Core insight in one sentence
+      - field: category
+        type: enum
+        values: [pitfall, pattern, anti-pattern, mental-model, workaround, performance, debugging-strategy, tool-usage, decision-rationale]
+      - field: confidence
+        type: float
+        range: "0.0–1.0"
+      - field: created_at
+        type: date
+    optional:
+      - field: context
+        description: Situation where this applies
+      - field: anti_pattern
+        description: What NOT to do
+      - field: resolution
+        description: How to fix/avoid
+      - field: example
+        description: "{bad: string, good: string}"
+      - field: tags
+        description: Free-form search tags
+      - field: applicability
+        description: "{languages: [], frameworks: [], universal: bool, exclusions: []}"
+      - field: triggers
+        description: Patterns that cause surfacing
+      - field: related
+        description: IDs of related entries
+      - field: validity
+        description: "{type: evergreen|versioned|temporal, version_bound?, expires_at?}"
+    auto_managed:
+      - "stats.times_surfaced, stats.times_useful, stats.times_not_useful, stats.last_surfaced"
+      - "feedback[]: {date, result: valid|invalid|needs-revision, note}"
+
+  categories:
+    - id: pitfall
+      description: Common mistake or trap
+    - id: pattern
+      description: Proven solution or best practice
+    - id: anti-pattern
+      description: Known bad practice to avoid
+    - id: mental-model
+      description: Conceptual framework for understanding
+    - id: workaround
+      description: Temporary fix for known issue
+    - id: performance
+      description: Performance insight or optimization
+    - id: debugging-strategy
+      description: Approach for diagnosing issues
+    - id: tool-usage
+      description: Tool/library tips and tricks
+    - id: decision-rationale
+      description: Why a specific decision was made
+
+  operations:
+    record:
+      description: Capture new insight from natural language
+      levels:
+        - level: 1
+          name: Quick
+          fields: "insight, category, tags"
+        - level: 2
+          name: Contextual
+          fields: "Level 1 + context, anti_pattern, resolution"
+        - level: 3
+          name: Refined
+          fields: "Level 2 + example, triggers, applicability"
+      rules:
+        - "30-second rule: specific problem + why it happens + how to fix"
+        - "De-identify: remove API keys, project names, team names"
+        - "AI pre-structures, developer confirms"
+
+    query:
+      description: Search and retrieve memories
+      methods: ["keyword", "tag", "category", "language", "confidence", "combined"]
+      sort_priority: ["relevance", "confidence", "hit_rate", "recency"]
+
+    feedback:
+      description: Rate surfaced memories
+      actions:
+        - result: valid
+          confidence_delta: "+0.05"
+          stat: "times_useful += 1"
+        - result: invalid
+          confidence_delta: "-0.15"
+          stat: "times_not_useful += 1"
+        - result: needs-revision
+          confidence_delta: "-0.05"
+          stat: "no change"
+      bonus_rules:
+        - "3 consecutive valid: bonus +0.05"
+        - "3 consecutive invalid: flag for review"
+        - "confidence < 0.2: flag for retirement"
+        - "confidence > 0.9 after 10+ uses: mark proven"
+
+    review:
+      description: AI scans memory store and generates report
+      checks:
+        - type: merge
+          trigger: ">80% semantic similarity"
+        - type: retirement
+          trigger: "confidence < 0.2 OR 180+ days unsurfaced with confidence < 0.5"
+        - type: staleness
+          trigger: "versioned type with outdated version_bound"
+        - type: revision
+          trigger: "2+ needs-revision feedback"
+
+  rules:
+    - id: proactive-surfacing
+      trigger: conversation start or matching code pattern/error/decision detected
+      instruction: >
+        Surface top 3 relevant memories when relevance > 0.7.
+        Max 5 per trigger. Cooldown 7 days per entry.
+        If > 5 matches, summarize into grouped insight.
+      priority: required
+
+    - id: proactive-extraction
+      trigger: "developer signals insight (repeated edits, reverts, 'I see'/'原來'/'the trick is')"
+      instruction: >
+        Detect insight moments and offer to record.
+        Pre-structure entry from conversation context.
+        Developer confirms/edits/skips.
+      priority: required
+
+    - id: proactive-aggregation
+      trigger: "3+ related entries in same category or 5+ entries with same tag"
+      instruction: >
+        Suggest merging fragments into higher-level insight.
+        Upgrade path: pitfalls → pattern → mental-model.
+      priority: recommended
+
+    - id: noise-control
+      trigger: surfacing memories
+      instruction: >
+        Default: Level 2 (show top 3 with one-line summaries).
+        Reduce to Level 1 if 3+ invalid feedback.
+        Respect "not now" → Level 0 for session.
+        Only surface confidence >= 0.5.
+      priority: required
+
+    - id: de-identification
+      trigger: recording new memory
+      instruction: >
+        Remove: API keys, secrets, project names, internal URLs, team names.
+        Keep: technical patterns, framework/library names, language/version info.
+      priority: required
+
+    - id: confidence-lifecycle
+      trigger: memory feedback received
+      instruction: >
+        New entries start at 0.5. Adjust per feedback rules.
+        Flag retirement at < 0.2. Mark proven at > 0.9 with 10+ uses.
+      priority: required
+
+    - id: storage-bootstrap
+      trigger: first memory record operation
+      instruction: >
+        Create .memory/ directory if it doesn't exist on first record.
+        Initialize _index.yaml with last_id, total_entries: 0, by_category: {}.
+        Create empty category files as needed (pitfall.yaml, pattern.yaml, etc.).
+      priority: required
+
+  storage:
+    format: YAML per category
+    directory: ".memory/"
+    files:
+      - "{category}.yaml (one file per category, < 100 entries each)"
+      - "_index.yaml (ID registry and cross-references)"
+    alternative: "JSONL for > 500 entries per category"
+
+  architecture:
+    classification: always-on-protocol
+    note: >
+      Developer Memory is an Always-On Protocol, not a User-Triggered workflow.
+      No CLI commands, Skills, or slash commands are needed.
+      AI loads this ai.yaml and automatically follows all rules.
+    not_needed:
+      - "CLI commands (uds memory ...) — core operations require LLM intelligence"
+      - "Skill (skills/developer-memory/) — this ai.yaml is self-sufficient"
+      - "/memory add, /memory search — contradicts proactive behavior design"
+    deferred:
+      - "/memory review — only if user feedback indicates need"
+
+  surfacing_format: |
+    💡 Memory Match [MEM-YYYY-NNNN] (confidence: X.XX)
+    Category: {category} | Tags: {tags}
+    Insight: {insight}
+    Context: {context}

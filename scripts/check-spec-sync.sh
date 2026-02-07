@@ -67,6 +67,10 @@ release-standards|versioning.md
 # Note: requirement-assistant is marked as utility until a core/requirement-engineering.md is created
 UTILITY_SKILLS="docs-generator methodology-system requirement-assistant"
 
+# Define reference-only core standards (no Skill needed — Always-On Protocol or static reference)
+# These standards have skillName: null in the registry and use .ai.yaml as self-sufficient rule engines
+REFERENCE_ONLY_STANDARDS="developer-memory.md documentation-writing-standards.md ai-agreement-standards.md virtual-organization-standards.md security-standards.md performance-standards.md accessibility-standards.md"
+
 echo ""
 echo "=========================================="
 echo "  Core↔Skill Sync Check"
@@ -129,6 +133,19 @@ for skill in $UTILITY_SKILLS; do
     else
         if [ "$VERBOSE" = true ]; then
             echo -e "  ${YELLOW}⚠${NC} $skill (utility skill not found)"
+        fi
+    fi
+done
+
+# Check reference-only core standards (no Skill needed)
+echo ""
+echo -e "${CYAN}Checking reference-only standards (no Skill required)...${NC}"
+for std in $REFERENCE_ONLY_STANDARDS; do
+    if check_core "$std"; then
+        echo -e "  ${GREEN}✓${NC} core/$std ${YELLOW}(reference-only, no skill required)${NC}"
+    else
+        if [ "$VERBOSE" = true ]; then
+            echo -e "  ${YELLOW}⚠${NC} core/$std (reference-only standard not found)"
         fi
     fi
 done

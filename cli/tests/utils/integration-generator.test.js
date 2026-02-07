@@ -26,6 +26,8 @@ vi.mock('../../src/prompts/integrations.js', () => ({
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
 import {
   generateIntegrationContent,
+  generateStandardsIndex,
+  generateComplianceInstructions,
   mergeRules,
   writeIntegrationFile,
   integrationFileExists
@@ -778,6 +780,116 @@ describe('Integration Generator', () => {
       expect(existsSync).toHaveBeenCalledWith(
         join('/project', 'INSTRUCTIONS.md')
       );
+    });
+  });
+
+  describe('generateStandardsIndex', () => {
+    it('should include developer-memory description in standards index', () => {
+      const result = generateStandardsIndex(
+        ['.standards/developer-memory.ai.yaml'],
+        'markdown', 'zh-tw', 3
+      );
+      expect(result).toContain('開發者持久記憶');
+    });
+  });
+
+  describe('generateComplianceInstructions', () => {
+    it('should categorize developer-memory as SHOULD follow with Always (protocol)', () => {
+      const result = generateComplianceInstructions(
+        ['.standards/developer-memory.ai.yaml'],
+        'full', 'markdown', 'en'
+      );
+      expect(result).toContain('SHOULD follow');
+      expect(result).toContain('Developer memory');
+      expect(result).toContain('Always (protocol)');
+    });
+
+    it('should categorize anti-hallucination as MUST follow', () => {
+      const result = generateComplianceInstructions(
+        ['.standards/anti-hallucination.md'],
+        'full', 'markdown', 'en'
+      );
+      expect(result).toContain('MUST follow');
+      expect(result).toContain('AI collaboration');
+    });
+
+    it('should separate MUST and SHOULD standards correctly', () => {
+      const result = generateComplianceInstructions(
+        [
+          '.standards/commit-message.ai.yaml',
+          '.standards/developer-memory.ai.yaml',
+          '.standards/testing.ai.yaml'
+        ],
+        'full', 'markdown', 'en'
+      );
+      // MUST section should contain commit-message
+      expect(result).toContain('MUST follow');
+      expect(result).toContain('Writing commits');
+      // SHOULD section should contain developer-memory and testing
+      expect(result).toContain('SHOULD follow');
+      expect(result).toContain('Developer memory');
+      expect(result).toContain('Writing tests');
+    });
+
+    it('should return empty for minimal mode', () => {
+      const result = generateComplianceInstructions(
+        ['.standards/developer-memory.ai.yaml'],
+        'minimal', 'markdown', 'en'
+      );
+      expect(result).toBe('');
+    });
+
+    it('should generate plaintext format for developer-memory', () => {
+      const result = generateComplianceInstructions(
+        ['.standards/developer-memory.ai.yaml'],
+        'full', 'plaintext', 'en'
+      );
+      expect(result).toContain('SHOULD follow');
+      expect(result).toContain('Developer memory');
+      expect(result).not.toContain('|'); // no markdown tables
+    });
+  });
+
+  describe('Always-On Protocol end-to-end', () => {
+    it('should include developer-memory in plaintext integration content', () => {
+      const result = generateIntegrationContent({
+        tool: 'cursor',
+        categories: [],
+        languages: [],
+        exclusions: [],
+        customRules: [],
+        detailLevel: 'standard',
+        language: 'en',
+        installedStandards: ['.standards/developer-memory.ai.yaml'],
+        contentMode: 'index',
+        level: 3
+      });
+      expect(result).toContain('developer-memory.ai.yaml');
+      expect(result).toContain('Developer memory');
+      expect(result).toContain('SHOULD follow');
+    });
+
+    it('should include developer-memory in markdown integration with Always (protocol) marker', () => {
+      const result = generateIntegrationContent({
+        tool: 'claude-code',
+        categories: [],
+        languages: [],
+        exclusions: [],
+        customRules: [],
+        detailLevel: 'standard',
+        language: 'en',
+        installedStandards: [
+          '.standards/commit-message.ai.yaml',
+          '.standards/developer-memory.ai.yaml'
+        ],
+        contentMode: 'full',
+        level: 3
+      });
+      expect(result).toContain('MUST follow');
+      expect(result).toContain('Writing commits');
+      expect(result).toContain('SHOULD follow');
+      expect(result).toContain('Developer memory');
+      expect(result).toContain('Always (protocol)');
     });
   });
 });

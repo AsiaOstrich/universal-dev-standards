@@ -1068,6 +1068,19 @@
       "description": "WCAG 2.1 Level AA accessibility standards covering POUR principles, keyboard navigation, ARIA, color/contrast, and testing"
     },
     {
+      "id": "developer-memory",
+      "name": "Developer Persistent Memory Standards",
+      "nameZh": "開發者持久記憶標準",
+      "source": {
+        "human": "core/developer-memory.md",
+        "ai": "ai/standards/developer-memory.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "level": 3,
+      "description": "Structured system for capturing, retrieving, and surfacing developer experience insights across conversations and projects"
+    },
+    {
       "id": "csharp-style",
       "name": "C# Style Guide",
       "nameZh": "C# 風格指南",

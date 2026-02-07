@@ -67,6 +67,18 @@ $UtilitySkills = @(
     "requirement-assistant"
 )
 
+# Define reference-only core standards (no Skill needed - Always-On Protocol or static reference)
+# These standards have skillName: null in the registry and use .ai.yaml as self-sufficient rule engines
+$ReferenceOnlyStandards = @(
+    "developer-memory.md"
+    "documentation-writing-standards.md"
+    "ai-agreement-standards.md"
+    "virtual-organization-standards.md"
+    "security-standards.md"
+    "performance-standards.md"
+    "accessibility-standards.md"
+)
+
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host "  Core↔Skill Sync Check"
@@ -101,6 +113,22 @@ foreach ($skill in $UtilitySkills) {
         Write-Host "  " -NoNewline
         Write-Host "⚠" -ForegroundColor Yellow -NoNewline
         Write-Host " $skill (utility skill not found)"
+    }
+}
+
+# Check reference-only core standards (no Skill needed)
+Write-Host ""
+Write-Host "Checking reference-only standards (no Skill required)..." -ForegroundColor Cyan
+foreach ($std in $ReferenceOnlyStandards) {
+    if (Test-Core $std) {
+        Write-Host "  " -NoNewline
+        Write-Host "✓" -ForegroundColor Green -NoNewline
+        Write-Host " core/$std " -NoNewline
+        Write-Host "(reference-only, no skill required)" -ForegroundColor Yellow
+    } elseif ($Verbose) {
+        Write-Host "  " -NoNewline
+        Write-Host "⚠" -ForegroundColor Yellow -NoNewline
+        Write-Host " core/$std (reference-only standard not found)"
     }
 }
 
