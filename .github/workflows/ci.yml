@@ -96,7 +96,7 @@ jobs:
   e2e:
     name: E2E Tests
     needs: changes
-    if: ${{ needs.changes.outputs.cli == 'true' }}
+    if: ${{ github.event_name == 'pull_request' && needs.changes.outputs.cli == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
