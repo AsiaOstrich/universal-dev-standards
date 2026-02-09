@@ -436,7 +436,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 | Adding features | Testing Standards | [core/testing-standards.md](core/testing-standards.md) |
 | Any commit | Check-in Standards | [core/checkin-standards.md](core/checkin-standards.md) |
 | New feature design | Spec-Driven Development | [core/spec-driven-development.md](core/spec-driven-development.md) |
-| Adding/modifying Core↔Skill | /spec + Sync Check | See "Core↔Skill Sync Rules" below |
+| Adding/modifying Core↔Skill | /sdd + Sync Check | See "Core↔Skill Sync Rules" below |
 | Writing AI instructions | AI Instruction Standards | [core/ai-instruction-standards.md](core/ai-instruction-standards.md) |
 | Writing documentation | Documentation Writing | [core/documentation-writing-standards.md](core/documentation-writing-standards.md) |
 | Project architecture for AI | AI-Friendly Architecture | [core/ai-friendly-architecture.md](core/ai-friendly-architecture.md) |
@@ -626,9 +626,9 @@ Core Standard ◄──────────► Skill ◄──────�
 | **Utility Skill** | No Core Standard needed (tool/generator) | `docs-generator`, `code-formatter` |
 | **Static Skill** | Reference only, no interaction | Skills that only link to standards |
 
-#### Mandatory /spec Workflow | 強制 /spec 工作流程
+#### Mandatory /sdd Workflow | 強制 /sdd 工作流程
 
-**ANY of the following changes MUST use `/spec` first:**
+**ANY of the following changes MUST use `/sdd` first:**
 
 1. **Adding Features | 新增功能**
    - New Core Standard
@@ -644,7 +644,7 @@ Core Standard ◄──────────► Skill ◄──────�
    - Removing standards
    - Removing Skills/Commands
 
-**Exceptions (can skip /spec):**
+**Exceptions (can skip /sdd):**
 - Typo fixes
 - Formatting changes
 - Pure translation updates

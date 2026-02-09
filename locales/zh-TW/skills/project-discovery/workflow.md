@@ -545,7 +545,7 @@ pip-extra-reqs --requirements-file=requirements.txt .
 ## 後續步驟
 - [ ] 處理阻塞項目
 - [ ] /reverse — 若舊程式碼需要 SDD 規格
-- [ ] /spec — 為新功能撰寫規格
+- [ ] /sdd — 為新功能撰寫規格
 - [ ] 開始實作
 ```
 

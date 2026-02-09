@@ -161,7 +161,7 @@ AI 应從以下來源偵测方法論上下文：
    - 「为这个变更建立規格」
 
 3. **命令調用**
-   - `/tdd`、`/bdd`、`/spec`、`/atdd`
+   - `/tdd`、`/bdd`、`/sdd`、`/atdd`
    - `/methodology switch <id>`
 
 ### 载入方法論定義

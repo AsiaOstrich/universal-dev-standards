@@ -24,7 +24,7 @@ You are required to follow the **Universal Documentation Standards** defined in 
 
 ### Spec-Driven Development (SDD) Priority
 
-**Rule**: When an SDD tool (such as OpenSpec, Spec Kit, etc.) is integrated in this project and provides specific commands (e.g., slash commands like `/openspec` or `/spec`), you MUST prioritize using these commands over manual file editing.
+**Rule**: When an SDD tool (such as OpenSpec, Spec Kit, etc.) is integrated in this project and provides specific commands (e.g., slash commands like `/openspec` or `/sdd`), you MUST prioritize using these commands over manual file editing.
 
 **Detection**:
 - OpenSpec: Check for `openspec/` directory or `openspec.json`

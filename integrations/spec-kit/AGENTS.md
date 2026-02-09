@@ -33,12 +33,12 @@ When Spec Kit is available, prioritize using these commands:
 
 | Command | Description |
 |---------|-------------|
-| `/spec create <title>` | Create a new specification |
-| `/spec list` | List all active specifications |
-| `/spec show <id>` | Display specification details |
-| `/spec approve <id>` | Mark specification as approved |
-| `/spec close <id>` | Close completed specification |
-| `/spec archive <id>` | Archive specification |
+| `/sdd create <title>` | Create a new specification |
+| `/sdd list` | List all active specifications |
+| `/sdd show <id>` | Display specification details |
+| `/sdd approve <id>` | Mark specification as approved |
+| `/sdd close <id>` | Close completed specification |
+| `/sdd archive <id>` | Archive specification |
 
 ### Command Priority
 
@@ -68,18 +68,18 @@ When Spec Kit is available, prioritize using these commands:
 
 | Stage | Description | Action |
 |-------|-------------|--------|
-| **Proposal** | Define what to change and why | `/spec create` |
-| **Review** | Stakeholder approval | `/spec approve` |
+| **Proposal** | Define what to change and why | `/sdd create` |
+| **Review** | Stakeholder approval | `/sdd approve` |
 | **Implementation** | Execute the approved spec | Code changes |
 | **Verification** | Confirm implementation matches spec | Testing |
-| **Archive** | Close and archive the spec | `/spec close` |
+| **Archive** | Close and archive the spec | `/sdd close` |
 
 ---
 
 ## Before Any Task
 
 **Context Checklist**:
-- [ ] Check for active specifications: `/spec list`
+- [ ] Check for active specifications: `/sdd list`
 - [ ] Review relevant specs before making changes
 - [ ] Verify no conflicting specs exist
 - [ ] Create spec if change is non-trivial

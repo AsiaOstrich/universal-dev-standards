@@ -40,7 +40,7 @@ Manage the active development methodology for the current project with two indep
 
 | System | ID | Workflow | 工作流程 |
 |--------|-----|---------|---------|
-| A: SDD | `sdd` | /spec -> Review -> /derive-all -> Implementation | 規格優先 |
+| A: SDD | `sdd` | /sdd -> Review -> /derive-all -> Implementation | 規格優先 |
 | B: BDD | `bdd` | Discovery -> Formulation -> Automation | 外部迴圈 |
 | B: TDD | `tdd` | Red -> Green -> Refactor | 內部迴圈 |
 | Input | `atdd` | Workshop -> Examples -> Tests | 驗收測試驅動 |

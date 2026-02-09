@@ -160,7 +160,7 @@
 | `/requirement` | [UDS] Write user stories and requirements following INVEST criteria |
 | `/reverse` | [UDS] Reverse engineer code to Specs, BDD, or TDD coverage. |
 | `/review` | [UDS] Perform systematic code review with checklist |
-| `/spec` | [UDS] Create or review specification documents for Spec-Driven Development |
+| `/sdd` | [UDS] Create or review specification documents for Spec-Driven Development |
 | `/tdd` | [UDS] Guide through Test-Driven Development workflow |
 | `/update` | [UDS] Update development standards to latest version |
 

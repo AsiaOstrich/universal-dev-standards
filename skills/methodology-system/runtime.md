@@ -153,7 +153,7 @@ AI should detect methodology context from:
    - "Create a spec for this change"
 
 3. **Command Invocation**
-   - `/tdd`, `/bdd`, `/spec`, `/atdd`
+   - `/tdd`, `/bdd`, `/sdd`, `/atdd`
    - `/methodology switch <id>`
 
 ### Loading Methodology Definition

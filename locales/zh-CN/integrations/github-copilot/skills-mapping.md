@@ -71,7 +71,7 @@ Claude Code 提供 25 个 skills 和 17 个斜杠命令。GitHub Copilot 不支�
 | `/release` | "按照语义化版本准备发布" |
 | `/changelog` | "以 Keep a Changelog 格式生成 CHANGELOG 条目" |
 | `/docs` | "为此函数/模块撰写文档" |
-| `/spec` | "为此功能创建规格文档" |
+| `/sdd` | "为此功能创建规格文档" |
 | `/refactor` | "帮我决定是否应该重构或重写..." |
 | `/refactor tactical` | "建议战术重构改进..." |
 | `/refactor legacy` | "帮我安全地重构此遗留代码..." |

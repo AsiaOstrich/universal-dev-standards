@@ -247,11 +247,11 @@ describe('Shopping Cart', () => {
 
 ## Integration with Other Skills
 
-### With /spec (Spec-Driven Development)
+### With /sdd (Spec-Driven Development)
 
-1. Generate reverse-engineered spec using `/reverse-spec`
+1. Generate reverse-engineered spec using `/reverse-sdd`
 2. Review and fill in `[Unknown]` sections
-3. Use `/spec review` to validate completeness
+3. Use `/sdd review` to validate completeness
 4. Proceed with normal SDD workflow for enhancements
 
 ### With /tdd (Test-Driven Development)
@@ -279,7 +279,7 @@ The reverse engineering skill supports a complete SDD → BDD → TDD pipeline:
 │   Code + Tests                                                          │
 │        │                                                                │
 │        ▼                                                                │
-│   /reverse-spec                                                         │
+│   /reverse-sdd                                                         │
 │        │                                                                │
 │        └─→ Generate SPEC-XXX with Acceptance Criteria                   │
 │                │                                                        │
@@ -303,7 +303,7 @@ The reverse engineering skill supports a complete SDD → BDD → TDD pipeline:
 
 | Command | Input | Output | Purpose |
 |---------|-------|--------|---------|
-| `/reverse-spec` | Code directory | SPEC-XXX.md | Extract requirements from code |
+| `/reverse-sdd` | Code directory | SPEC-XXX.md | Extract requirements from code |
 | `/reverse-bdd` | SPEC file | .feature files | Convert AC to Gherkin scenarios |
 | `/reverse-tdd` | .feature files | Coverage report | Map scenarios to unit tests |
 
@@ -311,7 +311,7 @@ The reverse engineering skill supports a complete SDD → BDD → TDD pipeline:
 
 ```bash
 # Step 1: Reverse engineer code to SDD specification
-/reverse-spec src/auth/
+/reverse-sdd src/auth/
 
 # Step 2: Transform acceptance criteria to BDD scenarios
 /reverse-bdd specs/SPEC-AUTH.md

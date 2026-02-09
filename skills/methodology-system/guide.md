@@ -35,7 +35,7 @@ The Methodology System provides a unified framework for managing development met
 │                                                                            │
 │  System A: SDD (AI-Era Methodology)                                        │
 │  ─────────────────────────────────────                                     │
-│  /spec → Review → /derive-all → Implementation → Verification              │
+│  /sdd → Review → /derive-all → Implementation → Verification               │
 │  Best for: New projects, AI-assisted development, greenfield features     │
 │                                                                            │
 │  System B: Double-Loop TDD (Traditional)                                   │

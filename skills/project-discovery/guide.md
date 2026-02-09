@@ -53,7 +53,7 @@ This skill guides you through 6 assessment steps, each referencing existing UDS 
 │                                                                  │
 │  ──────────────────────────────────────────────────────────────  │
 │  Output: Discovery Report (go / no-go / conditional)            │
-│  Next:  /reverse → /spec → implement                            │
+│  Next:  /reverse → /sdd → implement                            │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -282,7 +282,7 @@ After completing all 6 steps, synthesize findings into a Discovery Report:
 
 ## Next Steps
 - [ ] /reverse (if legacy code needs SDD specs)
-- [ ] /spec (for new feature specification)
+- [ ] /sdd (for new feature specification)
 - [ ] Address blockers listed above
 ```
 
@@ -295,9 +295,9 @@ Use `/reverse` after discovery when:
 - You need formal SDD specs for existing modules
 - Legacy code needs structured analysis before changes
 
-### With /spec (Spec-Driven Development)
+### With /sdd (Spec-Driven Development)
 
-Use `/spec` after discovery to:
+Use `/sdd` after discovery to:
 - Write specifications for new features informed by discovery findings
 - Reference the Discovery Report for risk assessment sections
 

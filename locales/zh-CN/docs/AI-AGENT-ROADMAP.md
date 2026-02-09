@@ -216,7 +216,7 @@ status: current
 | 9 | documentation-guide | `/docs` | 完整 | 完整 | 部分 | 无 |
 | 10 | requirement-assistant | `/requirement` | 完整 | 完整 | 部分 | 部分 |
 | 11 | changelog-guide | `/changelog` | 完整 | 完整 | 部分 | 无 |
-| 12 | spec-driven-dev | `/spec` | 完整 | 完整 | 部分 | 部分 |
+| 12 | spec-driven-dev | `/sdd` | 完整 | 完整 | 部分 | 部分 |
 | 13 | test-coverage-assistant | `/coverage` | 完整 | 完整 | 部分 | 部分 |
 | 14 | refactoring-assistant | - | 完整 | 完整 | 完整 | 完整 |
 | 15 | error-code-guide | - | 完整 | 完整 | 完整 | 完整 |

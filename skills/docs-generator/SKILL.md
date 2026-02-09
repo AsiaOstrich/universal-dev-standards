@@ -60,7 +60,7 @@ language: [en, zh-TW]
 |------------|---------------------------|
 | /commit    | Generate commit message    |
 | /review    | Run code review            |
-| /spec      | Create SDD specification   |
+| /sdd       | Create SDD specification   |
 | /discover  | Assess project health      |
 ```
 

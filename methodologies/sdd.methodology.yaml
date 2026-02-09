@@ -196,9 +196,9 @@ phases:
         5. **Risk**: Are risks adequately addressed?
 
         ### Actions
-        - `/spec approve` - Approve the specification
-        - `/spec request-changes` - Request changes
-        - `/spec reject` - Reject the proposal
+        - `/sdd approve` - Approve the specification
+        - `/sdd request-changes` - Request changes
+        - `/sdd reject` - Reject the proposal
 
         Who should review this spec?
       promptZh: |
@@ -219,9 +219,9 @@ phases:
         5. **風險**：風險是否已充分處理？
 
         ### 動作
-        - `/spec approve` - 核准規格
-        - `/spec request-changes` - 請求變更
-        - `/spec reject` - 拒絕提案
+        - `/sdd approve` - 核准規格
+        - `/sdd request-changes` - 請求變更
+        - `/sdd reject` - 拒絕提案
 
         誰應該審查這個規格？
     reminders:
@@ -541,15 +541,15 @@ checkpoints:
       [3] 標記為緊急修復（之後記錄）
 
 commands:
-  - name: spec
+  - name: sdd
     description: Start SDD workflow / manage specifications
     descriptionZh: 啟動 SDD 工作流 / 管理規格
-    usage: "/spec [create|approve|close|status]"
+    usage: "/sdd [create|approve|close|status]"
     action: start_workflow
-  - name: spec-status
+  - name: sdd-status
     description: Show current spec status
     descriptionZh: 顯示當前規格狀態
-    usage: "/spec-status"
+    usage: "/sdd-status"
     action: show_status
 
 integrations:

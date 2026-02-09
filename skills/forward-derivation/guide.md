@@ -302,9 +302,9 @@ describe('SPEC-001: User Authentication', () => {
 
 ## Integration with Other Skills
 
-### With /spec (Spec-Driven Development)
+### With /sdd (Spec-Driven Development)
 
-1. Complete SPEC using `/spec` workflow
+1. Complete SPEC using `/sdd` workflow
 2. Get SPEC approved through review
 3. Run `/derive-all` to generate test structures
 4. Use generated outputs in BDD/TDD workflows

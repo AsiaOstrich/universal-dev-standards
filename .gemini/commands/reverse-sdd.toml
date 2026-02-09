@@ -1,4 +1,4 @@
-# reverse-spec command - converted from UDS
+# reverse-sdd command - converted from UDS
 description = "Reverse engineer existing code into SDD specification document"
 
 prompt = """
@@ -147,16 +147,16 @@ The generated specification will include:
 
 ```bash
 # Reverse engineer a single file
-/reverse-spec src/auth/login.ts
+/reverse-sdd src/auth/login.ts
 
 # Reverse engineer a directory
-/reverse-spec src/features/payment/
+/reverse-sdd src/features/payment/
 
 # Reverse engineer with test analysis
-/reverse-spec src/cart/ --include-tests
+/reverse-sdd src/cart/ --include-tests
 
 # Output to specific location
-/reverse-spec src/api/ --output specs/SPEC-API.md
+/reverse-sdd src/api/ --output specs/SPEC-API.md
 ```
 
 ## Limitations | 限制
@@ -170,13 +170,13 @@ This command **CANNOT**:
 - Identify risks without domain expertise
 - Verify if current implementation matches original intent
 
-## Integration with /spec | 與 /spec 整合
+## Integration with /sdd | 與 /sdd 整合
 
 After generating a reverse-engineered spec:
 
 生成反向工程規格後：
 
-1. Use `/spec review SPEC-XXX` to validate completeness
+1. Use `/sdd review SPEC-XXX` to validate completeness
 2. Fill in `[Unknown]` sections manually
 3. Mark spec as "Review Complete" when done
 

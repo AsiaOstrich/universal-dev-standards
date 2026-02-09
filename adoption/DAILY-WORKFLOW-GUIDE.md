@@ -242,7 +242,7 @@ For significant new features requiring stakeholder acceptance:
     ├─ Write technical design document based on AC
     ├─ Technical review and approval
     └─ Output: SPEC-XXX document
-    💡 Command: /spec
+    💡 Command: /sdd
 
 3️⃣  BDD Phase: Write Behavior Specifications
     ├─ Discovery: Identify scenarios from AC
@@ -310,7 +310,7 @@ For significant new features requiring stakeholder acceptance:
 |---------|---------|-------------|
 | `/tdd` | Start TDD workflow | Writing code |
 | `/bdd` | Start BDD workflow | Designing behavior specs |
-| `/spec` | Start SDD workflow | Need technical specification |
+| `/sdd` | Start SDD workflow | Need technical specification |
 | `/atdd` | Start ATDD workflow | Features requiring formal acceptance |
 | `/methodology` | View/switch current methodology | Managing dev process |
 | `/commit` | Generate conventional commit message | Committing code |

@@ -520,7 +520,7 @@ Developer Persistent Memory is classified as an **Always-On Protocol**, not a Us
 
 | Pattern | Characteristics | Examples | Skill Required? |
 |---------|----------------|----------|-----------------|
-| **User-Triggered** | User explicitly invokes, multi-step guided workflow | `/commit`, `/review`, `/spec` | Yes |
+| **User-Triggered** | User explicitly invokes, multi-step guided workflow | `/commit`, `/review`, `/sdd` | Yes |
 | **Always-On Protocol** | AI continuously follows rules after loading ai.yaml | Anti-hallucination, Developer Memory | No |
 
 ### Rationale: No CLI / Skill / Slash Command Needed

@@ -67,7 +67,7 @@ Choose your development approach based on project context:
 │  └─ User story backlog                                                  │
 │       │                                                                 │
 │       ▼                                                                 │
-│  📝 SDD: SPEC PROPOSAL (/spec)                                          │
+│  📝 SDD: SPEC PROPOSAL (/sdd)                                           │
 │  ├─ Write technical specification (SPEC.md)                             │
 │  ├─ Define acceptance criteria                                          │
 │  └─ Output: SPEC-XXX document (authoritative source)                    │
@@ -421,7 +421,7 @@ Feature: User Authentication
 
 | Command | System | Description |
 |---------|--------|-------------|
-| `/spec` | A: SDD | Start SDD spec proposal |
+| `/sdd` | A: SDD | Start SDD spec proposal |
 | `/derive-all` | A: SDD | Generate tests from spec |
 | `/bdd` | B: Double-Loop TDD | Start BDD outer loop |
 | `/tdd` | B: Double-Loop TDD | Start TDD inner loop |

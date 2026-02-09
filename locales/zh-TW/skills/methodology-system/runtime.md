@@ -161,7 +161,7 @@ AI 應從以下來源偵測方法論上下文：
    - 「為這個變更建立規格」
 
 3. **命令調用**
-   - `/tdd`、`/bdd`、`/spec`、`/atdd`
+   - `/tdd`、`/bdd`、`/sdd`、`/atdd`
    - `/methodology switch <id>`
 
 ### 載入方法論定義

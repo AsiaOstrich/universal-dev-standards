@@ -340,7 +340,7 @@ Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-in
 - **漸進式採用**：你不需要為所有舊程式碼進行反向工程
 - **任務導向工作流程選擇**：根據任務類型選擇方法論
 - **舊有程式碼策略**：Golden Master Testing、特徵測試
-- **可用命令**：日常使用的快速參考（`/tdd`、`/bdd`、`/spec` 等）
+- **可用命令**：日常使用的快速參考（`/tdd`、`/bdd`、`/sdd` 等）
 
 > **關鍵洞察**：對於舊專案，專注於「觸碰一點，保護一點」，而非全面的前期文件化。
 

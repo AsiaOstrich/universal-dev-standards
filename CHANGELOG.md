@@ -242,7 +242,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `refactoring-standards.md` - Refactoring standards and patterns
 - **8 New Skills** (23 total):
   - `forward-derivation/` - Forward derivation commands (`/derive-bdd`, `/derive-tdd`, `/derive-atdd`, `/derive-all`)
-  - `reverse-engineer/` - Enhanced reverse engineering (`/reverse-spec`, `/reverse-bdd`, `/reverse-tdd`)
+  - `reverse-engineer/` - Enhanced reverse engineering (`/reverse-sdd`, `/reverse-bdd`, `/reverse-tdd`)
   - `bdd-assistant/` - BDD workflow assistant (`/bdd`)
   - `atdd-assistant/` - ATDD workflow assistant (`/atdd`)
   - `methodology-system/` - Methodology selection (`/methodology`)
@@ -733,7 +733,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `/release` - Guide through release process
   - `/changelog` - Update CHANGELOG.md
   - `/requirement` - Write user stories and requirements
-  - `/spec` - Create specification documents
+  - `/sdd` - Create specification documents
   - `/tdd` - Test-Driven Development workflow
   - `/docs` - Create/update documentation
   - `/coverage` - Analyze test coverage
@@ -769,7 +769,7 @@ If you installed via the old marketplace name, please migrate:
   - `/release` - Guide through release process
   - `/changelog` - Update CHANGELOG.md
   - `/requirement` - Write user stories and requirements
-  - `/spec` - Create specification documents
+  - `/sdd` - Create specification documents
   - `/tdd` - Test-Driven Development workflow
   - `/docs` - Create/update documentation
   - `/coverage` - Analyze test coverage

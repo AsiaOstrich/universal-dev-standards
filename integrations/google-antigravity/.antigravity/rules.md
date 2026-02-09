@@ -10,9 +10,9 @@ This project follows the Universal Doc Standards to ensure high-quality, halluci
 ## Spec-Driven Development (SDD) Priority
 ## 規格驅動開發 (SDD) 優先
 
-**Rule**: When an SDD tool (such as OpenSpec, Spec Kit, etc.) is integrated in this project and provides specific commands (e.g., slash commands like `/openspec` or `/spec`), you MUST prioritize using these commands over manual file editing.
+**Rule**: When an SDD tool (such as OpenSpec, Spec Kit, etc.) is integrated in this project and provides specific commands (e.g., slash commands like `/openspec` or `/sdd`), you MUST prioritize using these commands over manual file editing.
 
-**規則**：當專案中整合了 SDD 工具（如 OpenSpec、Spec Kit 等）並提供特定命令時（例如 `/openspec` 或 `/spec` 等斜線命令），你必須優先使用這些命令，而非手動編輯檔案。
+**規則**：當專案中整合了 SDD 工具（如 OpenSpec、Spec Kit 等）並提供特定命令時（例如 `/openspec` 或 `/sdd` 等斜線命令），你必須優先使用這些命令，而非手動編輯檔案。
 
 **Detection | 偵測方式**:
 - OpenSpec: Check for `openspec/` directory or `openspec.json`

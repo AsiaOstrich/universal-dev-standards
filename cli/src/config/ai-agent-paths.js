@@ -438,9 +438,9 @@ export function supportsAgents(agent) {
  * The `name` field in SKILL.md directly becomes the slash command.
  *
  * This list includes:
- * - 17 commands from Action Skills (SKILL.md files with `name` field)
+ * - 16 commands from Action Skills (SKILL.md files with `name` field)
  * - 12 commands from Commands-only files (no corresponding Skill)
- * Total: 29 available commands
+ * Total: 28 available commands
  *
  * Reference-only Skills (no `name` field, not slash commands):
  * testing-guide, project-structure-guide, git-workflow-guide,
@@ -468,7 +468,7 @@ export const AVAILABLE_COMMANDS = [
   // ═══════════════════════════════════════════════════════════════════════════
   // Specification and Requirements (Action Skills)
   // ═══════════════════════════════════════════════════════════════════════════
-  { name: 'spec', description: 'Spec-driven development guide' },
+  { name: 'sdd', description: 'Spec-driven development guide' },
   { name: 'requirement', description: 'Write requirements following INVEST' },
   { name: 'derive', description: 'Forward derivation (spec to BDD/TDD)' },
   { name: 'reverse', description: 'Reverse engineer code to SDD specs' },
@@ -485,7 +485,7 @@ export const AVAILABLE_COMMANDS = [
   // ═══════════════════════════════════════════════════════════════════════════
   // Reverse Engineering Commands (Commands-only, specific transformations)
   // ═══════════════════════════════════════════════════════════════════════════
-  { name: 'reverse-spec', description: 'Reverse engineer code into SDD specification document' },
+  { name: 'reverse-sdd', description: 'Reverse engineer code into SDD specification document' },
   { name: 'reverse-bdd', description: 'Transform SDD acceptance criteria to BDD scenarios' },
   { name: 'reverse-tdd', description: 'Analyze BDD-TDD coverage gaps' },
 
@@ -493,7 +493,6 @@ export const AVAILABLE_COMMANDS = [
   // Documentation and Code Quality (Action Skills + Commands-only)
   // ═══════════════════════════════════════════════════════════════════════════
   { name: 'docgen', description: 'Generate usage documentation' },
-  { name: 'generate-docs', description: 'Generate documentation from .usage-docs.yaml config' },
   { name: 'refactor', description: 'Refactoring and legacy modernization guide' },
 
   // ═══════════════════════════════════════════════════════════════════════════

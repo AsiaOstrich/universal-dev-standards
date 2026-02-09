@@ -254,7 +254,7 @@ status: experimental
 | 命令 | 说明 |
 |------|------|
 | `/tdd` | 啟动 TDD 工作流（啟用 TDD 方法論） |
-| `/spec` | 啟动 SDD 工作流（啟用 SDD 方法論） |
+| `/sdd` | 啟动 SDD 工作流（啟用 SDD 方法論） |
 | `/config methodology` | 配置方法論设置 |
 
 ---

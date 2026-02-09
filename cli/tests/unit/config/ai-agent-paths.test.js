@@ -233,10 +233,11 @@ describe('AI Agent Paths Configuration', () => {
       expect(AVAILABLE_COMMANDS.length).toBeGreaterThan(0);
     });
 
-    it('should have 29 commands (17 Action Skills + 12 Commands-only)', () => {
+    it('should have 28 commands (16 Action Skills + 12 Commands-only)', () => {
       // Updated Feb 2026: Split architecture — 9 reference-only skills
       // no longer have `name` field and are not slash commands
-      expect(AVAILABLE_COMMANDS.length).toBe(29);
+      // generate-docs removed (docgen is the Action Skill command)
+      expect(AVAILABLE_COMMANDS.length).toBe(28);
     });
 
     it('should have name and description for each command', () => {
@@ -264,7 +265,7 @@ describe('AI Agent Paths Configuration', () => {
       expect(names).toContain('coverage');
 
       // Spec & requirements
-      expect(names).toContain('spec');
+      expect(names).toContain('sdd');
       expect(names).toContain('requirement');
       expect(names).toContain('derive');
       expect(names).toContain('reverse');
@@ -289,12 +290,9 @@ describe('AI Agent Paths Configuration', () => {
       expect(names).toContain('derive-all');
 
       // Reverse engineering commands
-      expect(names).toContain('reverse-spec');
+      expect(names).toContain('reverse-sdd');
       expect(names).toContain('reverse-bdd');
       expect(names).toContain('reverse-tdd');
-
-      // Documentation
-      expect(names).toContain('generate-docs');
     });
 
     it('should have unique command names', () => {

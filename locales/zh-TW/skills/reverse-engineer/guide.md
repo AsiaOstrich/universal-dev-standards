@@ -249,11 +249,11 @@ describe('購物車', () => {
 
 ## 與其他技能的整合
 
-### 與 /spec（規格驅動開發）
+### 與 /sdd（規格驅動開發）
 
-1. 使用 `/reverse-spec` 生成反向工程規格
+1. 使用 `/reverse-sdd` 生成反向工程規格
 2. 審查並填寫 `[未知]` 區塊
-3. 使用 `/spec review` 驗證完整性
+3. 使用 `/sdd review` 驗證完整性
 4. 繼續正常 SDD 工作流程進行增強
 
 ### 與 /tdd（測試驅動開發）
@@ -281,7 +281,7 @@ describe('購物車', () => {
 │   程式碼 + 測試                                                          │
 │        │                                                                │
 │        ▼                                                                │
-│   /reverse-spec                                                         │
+│   /reverse-sdd                                                          │
 │        │                                                                │
 │        └─→ 生成 SPEC-XXX 含驗收標準                                      │
 │                │                                                        │
@@ -305,7 +305,7 @@ describe('購物車', () => {
 
 | 命令 | 輸入 | 輸出 | 目的 |
 |------|------|------|------|
-| `/reverse-spec` | 程式碼目錄 | SPEC-XXX.md | 從程式碼提取需求 |
+| `/reverse-sdd` | 程式碼目錄 | SPEC-XXX.md | 從程式碼提取需求 |
 | `/reverse-bdd` | SPEC 檔案 | .feature 檔案 | 將 AC 轉換為 Gherkin 場景 |
 | `/reverse-tdd` | .feature 檔案 | 覆蓋率報告 | 映射場景到單元測試 |
 
@@ -313,7 +313,7 @@ describe('購物車', () => {
 
 ```bash
 # 步驟 1：將程式碼反向工程成 SDD 規格
-/reverse-spec src/auth/
+/reverse-sdd src/auth/
 
 # 步驟 2：將驗收標準轉換為 BDD 場景
 /reverse-bdd specs/SPEC-AUTH.md

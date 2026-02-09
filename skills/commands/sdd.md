@@ -101,11 +101,11 @@ Brief description of the feature.
 
 ## Usage | 使用方式
 
-- `/spec` - Interactive spec creation wizard (includes scope evaluation)
-- `/spec auth-flow` - Create spec for specific feature
-- `/spec review` - Review existing specs
-- `/spec --evaluate` - Run scope evaluation only (without creating spec)
-- `/spec --sync-check` - Check sync status of existing specs
+- `/sdd` - Interactive spec creation wizard (includes scope evaluation)
+- `/sdd auth-flow` - Create spec for specific feature
+- `/sdd review` - Review existing specs
+- `/sdd --evaluate` - Run scope evaluation only (without creating spec)
+- `/sdd --sync-check` - Check sync status of existing specs
 
 ## Sync Checklist Template | 同步檢查清單範本
 

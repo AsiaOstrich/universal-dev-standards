@@ -36,10 +36,10 @@ Commands for development workflow automation.
 | [`/release`](./release.md) | Guide through release process | 引導發布流程 |
 | [`/changelog`](./changelog.md) | Update CHANGELOG.md | 更新 CHANGELOG |
 | [`/requirement`](./requirement.md) | Write user stories and requirements | 撰寫需求文件 |
-| [`/spec`](./spec.md) | Create specification documents | 建立規格文件 |
+| [`/sdd`](./sdd.md) | Create specification documents | 建立規格文件 |
 | [`/docs`](./docs.md) | Create/update documentation | 建立/更新文件 |
 | [`/coverage`](./coverage.md) | Analyze test coverage | 分析測試覆蓋率 |
-| [`/reverse-spec`](./reverse-spec.md) | Reverse engineer code to SDD spec | 反向工程成 SDD 規格 |
+| [`/reverse-sdd`](./reverse-sdd.md) | Reverse engineer code to SDD spec | 反向工程成 SDD 規格 |
 | [`/reverse-bdd`](./reverse-bdd.md) | Transform SDD AC to BDD scenarios | SDD AC 轉換為 BDD 場景 |
 | [`/reverse-tdd`](./reverse-tdd.md) | Analyze BDD-TDD coverage | BDD-TDD 覆蓋率分析 |
 | [`/derive-bdd`](./derive-bdd.md) | Derive BDD scenarios from approved spec | 從規格推演 BDD 場景 |

@@ -38,7 +38,7 @@ These skills provide standard guidance and workflows. They can be accessed via s
 | `requirement-assistant` | `/requirement` | [UDS] Requirement writing |
 | `reverse-engineer` | `/reverse` | [UDS] Reverse engineer code |
 | `forward-derivation` | `/derive` | [UDS] Derive artifacts from spec |
-| `spec-driven-dev` | `/spec` | [UDS] Spec-Driven Development |
+| `spec-driven-dev` | `/sdd` | [UDS] Spec-Driven Development |
 | `test-coverage-assistant` | `/coverage` | [UDS] Test coverage analysis |
 | `methodology-system` | `/methodology` | [UDS] Development methodology |
 | `refactoring-assistant` | `/refactor` | [UDS] Refactoring guidance |

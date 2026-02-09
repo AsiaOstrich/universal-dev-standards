@@ -68,7 +68,7 @@ Claude Code provides 25 skills with 17 slash commands. GitHub Copilot doesn't su
 | `/release` | "Prepare release following semantic versioning" |
 | `/changelog` | "Generate CHANGELOG entry in Keep a Changelog format" |
 | `/docs` | "Write documentation for this function/module" |
-| `/spec` | "Create spec document for this feature" |
+| `/sdd` | "Create spec document for this feature" |
 | `/refactor` | "Help me decide whether to refactor or rewrite..." |
 | `/refactor tactical` | "Suggest tactical refactoring improvements..." |
 | `/refactor legacy` | "Help me safely refactor this legacy code..." |

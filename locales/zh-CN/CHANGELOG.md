@@ -304,7 +304,7 @@ status: current
   - `/release` - 引导发布流程
   - `/changelog` - 更新 CHANGELOG.md
   - `/requirement` - 撰写用户故事和需求
-  - `/spec` - 创建规格文档
+  - `/sdd` - 创建规格文档
   - `/tdd` - 测试驱动开发工作流程
   - `/docs` - 创建/更新文档
   - `/coverage` - 分析测试覆盖率
@@ -340,7 +340,7 @@ status: current
   - `/release` - 引导发布流程
   - `/changelog` - 更新变更日志
   - `/requirement` - 撰写用户故事
-  - `/spec` - 建立规格文件
+  - `/sdd` - 建立规格文件
   - `/tdd` - TDD 工作流程
   - `/docs` - 文档撰写
   - `/coverage` - 测试覆盖率

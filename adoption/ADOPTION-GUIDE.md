@@ -332,7 +332,7 @@ This is covered in detail in [DAILY-WORKFLOW-GUIDE.md](DAILY-WORKFLOW-GUIDE.md),
 - **Incremental Adoption**: You don't need to reverse-engineer all legacy code
 - **Task-Based Workflow Selection**: Choose methodology based on task type
 - **Legacy Code Strategy**: Golden Master Testing, Characterization Tests
-- **Available Commands**: Quick reference for daily use (`/tdd`, `/bdd`, `/spec`, etc.)
+- **Available Commands**: Quick reference for daily use (`/tdd`, `/bdd`, `/sdd`, etc.)
 
 > **Key Insight**: For legacy projects, focus on "touch a little, protect a little" rather than comprehensive upfront documentation.
 

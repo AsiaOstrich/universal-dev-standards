@@ -537,7 +537,7 @@ After completing all 6 steps, combine findings into a single report.
 ## Next Steps
 - [ ] Address blockers
 - [ ] /reverse — if legacy code needs SDD specs
-- [ ] /spec — write specifications for new features
+- [ ] /sdd — write specifications for new features
 - [ ] Begin implementation
 ```
 

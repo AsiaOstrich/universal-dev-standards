@@ -68,7 +68,7 @@ The skill provides the following user-facing commands:
 | Command | Description | UDS Equivalent |
 |---------|-------------|----------------|
 | `/vibe` | Enter Vibe Mode (relax constraints) | `uds configure --vibe-mode` |
-| `/spec` | Generate a micro-spec from chat | `uds spec create` |
+| `/sdd` | Generate a micro-spec from chat | `uds sdd create` |
 | `/done` | End session & trigger auto-sweep | `uds sweep` |
 | `/fix` | Fix last verification failure | `uds fix` |
 
@@ -139,9 +139,9 @@ export const vibeSkill = {
   description: "High-velocity development mode",
   commands: [
     {
-      name: "/spec",
+      name: "/sdd",
       action: async (context) => {
-        // Implementation calling `uds spec create`
+        // Implementation calling `uds sdd create`
       }
     }
   ],

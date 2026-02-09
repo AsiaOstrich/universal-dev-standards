@@ -64,10 +64,10 @@ Brief description.
 
 ## 使用方式
 
-- `/spec` - 互動式規格建立精靈
-- `/spec auth-flow` - 為特定功能建立規格
-- `/spec review` - 審查現有規格
-- `/spec --sync-check` - 檢查同步狀態
+- `/sdd` - 互動式規格建立精靈
+- `/sdd auth-flow` - 為特定功能建立規格
+- `/sdd review` - 審查現有規格
+- `/sdd --sync-check` - 檢查同步狀態
 
 ## 參考
 

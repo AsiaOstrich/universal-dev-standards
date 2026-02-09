@@ -1,5 +1,5 @@
 ---
-name: spec
+name: sdd
 scope: universal
 description: "[UDS] Create or review specification documents for Spec-Driven Development"
 allowed-tools: Read, Write, Grep, Glob, Bash(git:*)
@@ -68,10 +68,10 @@ Brief description.
 ## Usage | 使用方式
 
 ```
-/spec                    - Interactive spec creation wizard | 互動式規格建立精靈
-/spec auth-flow          - Create spec for specific feature | 為特定功能建立規格
-/spec review             - Review existing specs | 審查現有規格
-/spec --sync-check       - Check sync status | 檢查同步狀態
+/sdd                     - Interactive spec creation wizard | 互動式規格建立精靈
+/sdd auth-flow           - Create spec for specific feature | 為特定功能建立規格
+/sdd review              - Review existing specs | 審查現有規格
+/sdd --sync-check        - Check sync status | 檢查同步狀態
 ```
 
 ## Reference | 參考

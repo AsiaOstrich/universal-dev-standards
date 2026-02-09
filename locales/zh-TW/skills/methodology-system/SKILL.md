@@ -43,7 +43,7 @@ description: |
 
 | 系統 | ID | 工作流程 |
 |------|-----|---------|
-| A：SDD | `sdd` | /spec -> 審查 -> /derive-all -> 實作 |
+| A：SDD | `sdd` | /sdd -> 審查 -> /derive-all -> 實作 |
 | B：BDD | `bdd` | 探索 -> 制定 -> 自動化 |
 | B：TDD | `tdd` | 紅 -> 綠 -> 重構 |
 | 輸入 | `atdd` | 工作坊 -> 範例 -> 測試 |

@@ -248,7 +248,7 @@ test('should reject email without domain', () => {
     ├─ 根據 AC 撰寫技術設計文件
     ├─ 技術審查並獲得批准
     └─ 輸出：SPEC-XXX 文件
-    💡 命令：/spec
+    💡 命令：/sdd
 
 3️⃣  BDD 階段：撰寫行為規格
     ├─ Discovery：從 AC 識別場景
@@ -316,7 +316,7 @@ test('should reject email without domain', () => {
 |------|------|----------|
 | `/tdd` | 啟動 TDD 工作流程 | 寫程式碼時 |
 | `/bdd` | 啟動 BDD 工作流程 | 設計行為規格時 |
-| `/spec` | 啟動 SDD 工作流程 | 需要技術規格時 |
+| `/sdd` | 啟動 SDD 工作流程 | 需要技術規格時 |
 | `/atdd` | 啟動 ATDD 工作流程 | 需要正式驗收的功能 |
 | `/methodology` | 查看/切換當前方法論 | 管理開發流程 |
 | `/commit` | 生成規範的 commit message | 提交程式碼 |

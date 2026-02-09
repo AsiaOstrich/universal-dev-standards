@@ -4,7 +4,6 @@ source_version: 2.0.0
 translation_version: 2.0.0
 last_synced: 2026-01-12
 status: current
-name: docs
 description: |
   引導文件结构、内容需求和项目文件最佳实踐。
   使用时机：建立 README、文件、docs 目录、项目设置、技術文件。

@@ -163,7 +163,7 @@ Are you sure you want to skip?
 
 System A: SDD (AI-Era)
   └─ sdd    Spec-Driven Development
-            /spec → Review → /derive-all → Implementation
+            /sdd → Review → /derive-all → Implementation
 
 System B: Double-Loop TDD (Traditional)
   ├─ bdd    BDD Outer Loop (Discovery → Formulation)
@@ -260,7 +260,7 @@ You can also configure methodology settings using:
 
 | Command | System | Description |
 |---------|--------|-------------|
-| `/spec` | A: SDD | Start SDD spec proposal |
+| `/sdd` | A: SDD | Start SDD spec proposal |
 | `/derive-all` | A: SDD | Generate tests from spec |
 | `/bdd` | B: Double-Loop TDD | Start BDD outer loop |
 | `/tdd` | B: Double-Loop TDD | Start TDD inner loop |

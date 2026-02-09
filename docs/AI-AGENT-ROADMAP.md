@@ -208,7 +208,7 @@ Example: Cursor now natively supports SKILL.md (since v2.4, Jan 22, 2026), and U
 | 9 | documentation-guide | `/docs` | Full | Full | Partial | No |
 | 10 | requirement-assistant | `/requirement` | Full | Full | Partial | Partial |
 | 11 | changelog-guide | `/changelog` | Full | Full | Partial | No |
-| 12 | spec-driven-dev | `/spec` | Full | Full | Partial | Partial |
+| 12 | spec-driven-dev | `/sdd` | Full | Full | Partial | Partial |
 | 13 | test-coverage-assistant | `/coverage` | Full | Full | Partial | Partial |
 | 14 | refactoring-assistant | - | Full | Full | Full | Full |
 | 15 | error-code-guide | - | Full | Full | Full | Full |

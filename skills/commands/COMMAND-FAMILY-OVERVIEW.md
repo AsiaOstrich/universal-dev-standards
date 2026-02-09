@@ -22,7 +22,7 @@ This document provides a comprehensive guide to the development methodology comm
 │                                                                             │
 │  System A: SDD (AI-Era Methodology)                                         │
 │  ────────────────────────────────────                                       │
-│  /spec          → Create specification proposal                             │
+│  /sdd          → Create specification proposal                             │
 │  /derive-all    → Generate BDD + TDD from spec (Forward Derivation)         │
 │  /derive-bdd    → Generate BDD scenarios only                               │
 │  /derive-tdd    → Generate TDD skeletons only                               │
@@ -50,13 +50,13 @@ This document provides a comprehensive guide to the development methodology comm
 
 | Scenario / 情境 | Recommended Commands / 推薦指令 |
 |-----------------|-------------------------------|
-| New project with AI assistance | `/spec` → `/derive-all` → Implement |
-| Greenfield feature development | `/spec` → `/derive-all` → Implement |
+| New project with AI assistance | `/sdd` → `/derive-all` → Implement |
+| Greenfield feature development | `/sdd` → `/derive-all` → Implement |
 | Legacy system modification | `/bdd` → `/tdd` cycles |
 | Complex business logic | `/bdd discovery` → `/tdd` |
-| Multiple stakeholders need alignment | `/atdd` → then `/spec` or `/bdd` |
+| Multiple stakeholders need alignment | `/atdd` → then `/sdd` or `/bdd` |
 | Quick prototype | `/tdd` only |
-| API-first development | `/spec` → `/derive-all` |
+| API-first development | `/sdd` → `/derive-all` |
 | Check methodology status | `/methodology` |
 
 ---
@@ -71,8 +71,8 @@ SDD（規格驅動開發）針對 AI 輔助開發工作流程進行了優化。
 
 | Command | Purpose / 用途 | Input / 輸入 | Output / 輸出 |
 |---------|----------------|--------------|---------------|
-| `/spec` | Create specification proposal | Requirements description | `SPEC-XXX.md` |
-| `/spec review` | Review specification | SPEC file | Review comments |
+| `/sdd` | Create specification proposal | Requirements description | `SPEC-XXX.md` |
+| `/sdd review` | Review specification | SPEC file | Review comments |
 | `/derive-all` | Full forward derivation | SPEC file | `.feature` + `.test.ts` |
 | `/derive-bdd` | BDD derivation only | SPEC file | `.feature` |
 | `/derive-tdd` | TDD derivation only | SPEC file | `.test.ts` |
@@ -81,10 +81,10 @@ SDD（規格驅動開發）針對 AI 輔助開發工作流程進行了優化。
 
 ```bash
 # Step 1: Create specification
-/spec user-authentication
+/sdd user-authentication
 
 # Step 2: Review and approve
-/spec review specs/SPEC-001.md
+/sdd review specs/SPEC-001.md
 
 # Step 3: Derive test structures
 /derive-all specs/SPEC-001.md
@@ -184,8 +184,8 @@ Best for: New features, AI-assisted development, greenfield projects
 
 ```bash
 # Create and review specification
-/spec user-authentication
-/spec review specs/SPEC-001.md
+/sdd user-authentication
+/sdd review specs/SPEC-001.md
 
 # Generate all test structures
 /derive-all specs/SPEC-001.md
@@ -228,7 +228,7 @@ Best for: When you need spec clarity + TDD discipline
 
 ```bash
 # Start with SDD for specification
-/spec feature-x
+/sdd feature-x
 /derive-all specs/SPEC-001.md
 
 # Use TDD for complex implementation logic
@@ -245,7 +245,7 @@ Best for: When you need spec clarity + TDD discipline
 
 | Goal / 目標 | Command / 指令 |
 |-------------|----------------|
-| Start new feature with spec | `/spec <feature-name>` |
+| Start new feature with spec | `/sdd <feature-name>` |
 | Generate tests from spec | `/derive-all <spec-file>` |
 | Start BDD workflow | `/bdd` |
 | Start TDD cycle | `/tdd` |
@@ -255,7 +255,7 @@ Best for: When you need spec clarity + TDD discipline
 
 ```
 Is this a new feature with clear requirements?
-├─ Yes → Use /spec + /derive-all (System A: SDD)
+├─ Yes → Use /sdd + /derive-all (System A: SDD)
 └─ No
    ├─ Is this legacy code modification?
    │  └─ Yes → Use /bdd + /tdd (System B: Double-Loop)
