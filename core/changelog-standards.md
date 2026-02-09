@@ -531,6 +531,7 @@ Document your CHANGELOG practices in `CONTRIBUTING.md`:
 - [Versioning Standard](versioning.md) - Semantic versioning standard
 - [Commit Message Guide](commit-message-guide.md) - Commit message conventions
 - [Git Workflow Standards](git-workflow.md) - Git workflow standards
+- [Deployment Standards](deployment-standards.md) - Documenting deployed changes
 
 ---
 

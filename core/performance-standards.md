@@ -213,6 +213,7 @@ lighthouse_scores:
 - [Requirement Engineering](requirement-engineering.md) - NFR documentation
 - [Logging Standards](logging-standards.md) - Performance logging
 - [Code Review Checklist](code-review-checklist.md) - Performance review
+- [Deployment Standards](deployment-standards.md) - Performance validation pre-deployment
 
 ---
 

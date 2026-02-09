@@ -226,6 +226,7 @@ Permissions-Policy: geolocation=(), camera=(), microphone=()
 - [Testing Standards](testing-standards.md) - Security testing integration
 - [Logging Standards](logging-standards.md) - Security logging
 - [Error Code Standards](error-code-standards.md) - AUTH error codes
+- [Deployment Standards](deployment-standards.md) - Pre-deployment security checklist
 
 ---
 

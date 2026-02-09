@@ -442,6 +442,7 @@ tests/
 - [Spec-Driven Development](spec-driven-development.md) - SDD workflow integration
 - [Code Check-in Standards](checkin-standards.md)
 - [Code Review Checklist](code-review-checklist.md)
+- [Deployment Standards](deployment-standards.md) - Test requirements for deployment readiness
 
 ---
 

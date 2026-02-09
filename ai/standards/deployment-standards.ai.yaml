@@ -1,0 +1,132 @@
+# Deployment Standards (AI-Optimized v1)
+# Source: core/deployment-standards.md
+
+standard:
+  id: deployment
+  name: Deployment Standards
+  description: Safe deployment strategies, feature flags, rollback, environment parity, and DORA metrics
+  guidelines:
+    - "Deploy ≠ Release: separate deployment from user exposure"
+    - "Progressive exposure: internal → canary → percentage → GA"
+    - "Every deployment must have a tested rollback path (<5 min)"
+    - "Automate build, test, deploy, and rollback"
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-02-09"
+    source: core/deployment-standards.md
+    description: Safe deployment strategies, feature flags, rollback, environment parity, and DORA metrics
+
+  principles:
+    core:
+      - deploy_not_release: "Deploying code and exposing to users are separate actions"
+      - progressive_exposure: "Roll out to increasingly larger audiences"
+      - quick_rollback: "Tested rollback path, executes in <5 min"
+      - environment_parity: "Keep dev/staging/prod as similar as possible"
+      - automate_everything: "Manual steps are error-prone; automate all"
+      - monitor_everything: "Deploy with observability; measure before trusting"
+
+strategies:
+  rolling:
+    use_case: "Stateless services, standard updates"
+    rollback_speed: medium
+    resource_cost: low
+    complexity: low
+  blue_green:
+    use_case: "Zero-downtime, database-compatible changes"
+    rollback_speed: fast
+    resource_cost: high
+    complexity: medium
+  canary:
+    use_case: "High-risk changes, large user base"
+    rollback_speed: fast
+    resource_cost: medium
+    complexity: high
+  feature_flag:
+    use_case: "Decouple deploy from release, A/B testing"
+    rollback_speed: instant
+    resource_cost: low
+    complexity: medium
+
+feature_flags:
+  types:
+    release: {lifetime: "days-weeks", example: "enable_new_checkout"}
+    experiment: {lifetime: "weeks-months", example: "experiment_pricing_v2"}
+    ops: {lifetime: permanent, example: "enable_cache_layer"}
+    permission: {lifetime: permanent, example: "feature_premium_export"}
+  lifecycle: [create, enable_progressive, monitor, cleanup]
+  tech_debt:
+    release_flags_max_age: "30 days after full rollout"
+    experiment_flags_max_age: "90 days"
+    every_flag_must_have: [owner, expiry_date]
+    max_flags_per_service: 20
+
+rollback:
+  auto_triggers:
+    error_rate: {warning: ">1%", auto_rollback: ">5%", window: "5min"}
+    p95_latency: {warning: ">2× baseline", auto_rollback: ">3× baseline", window: "5min"}
+    health_check: {warning: "1 failure", auto_rollback: "3 consecutive", window: immediate}
+  severity_matrix:
+    P1: {impact: "Service down, data loss", action: "Immediate rollback", timeline: "<5min"}
+    P2: {impact: "Major feature broken", action: "Rollback within window", timeline: "<15min"}
+    P3: {impact: "Minor feature broken", action: "Decide rollback or hotfix", timeline: "<1hr"}
+    P4: {impact: "Cosmetic issue", action: "Forward-fix next release", timeline: "next deploy"}
+  methods:
+    - revert_deployment: "Application code issues, <5 min"
+    - feature_flag_toggle: "Flag-controlled features, instant"
+    - database_rollback: "Schema migration failure, 5-30 min"
+
+environment_parity:
+  three_gaps:
+    time: "Deploy hours after development, not weeks"
+    personnel: "Developers involved in deploying their code"
+    tools: "Same backing services everywhere"
+  checklist_categories: [infrastructure, application, data, configuration]
+  key_rules:
+    - "Same build artifacts across environments (build once, deploy everywhere)"
+    - "Environment-specific values via environment variables only"
+    - "No environment-specific code paths"
+    - "Same database engine and version"
+
+dora_metrics:
+  deployment_frequency:
+    elite: "On-demand (multiple/day)"
+    high: "Weekly to monthly"
+    medium: "Monthly to semi-annually"
+    low: "Semi-annually to annually"
+  lead_time:
+    elite: "<1 hour"
+    high: "1 day to 1 week"
+    medium: "1 week to 1 month"
+    low: "1 to 6 months"
+  change_failure_rate:
+    elite: "<5%"
+    high: "5-10%"
+    medium: "10-15%"
+    low: ">15%"
+  mttr:
+    elite: "<1 hour"
+    high: "<1 day"
+    medium: "<1 week"
+    low: ">1 week"
+
+checklist:
+  pre_deploy:
+    code_quality: ["All tests pass", "Code review approved", "No critical analysis warnings"]
+    security: ["Dependency scan passed", "No secrets in code", "Security headers configured"]
+    performance: ["Load testing completed", "No regression detected", "DB query performance verified"]
+    database: ["Migration tested on staging", "Rollback migration available", "Backward-compatible schema"]
+    config: ["Env vars documented and set", "Feature flags configured", "API compatibility confirmed"]
+    readiness: ["Runbook updated", "Rollback procedure tested", "Monitoring dashboards prepared"]
+    communication: ["Stakeholders notified", "On-call identified", "Support briefed"]
+  post_deploy:
+    immediate_5min: ["Health checks 200", "No error logs", "Business metrics unchanged"]
+    short_term_1hr: ["Error rate <0.1%", "Response times within SLA", "No support ticket spike"]
+    medium_term_24hr: ["Batch jobs successful", "Data consistency verified", "No memory leaks"]
+    long_term_1wk: ["Flag cleanup scheduled", "Retrospective completed", "Docs updated"]
+
+physical_spec:
+  type: custom_script
+  validator:
+    command: "test -f Dockerfile || test -f .github/workflows/*.yml || test -f Jenkinsfile || test -f .gitlab-ci.yml"
+    rule: "deployment_pipeline_configured"

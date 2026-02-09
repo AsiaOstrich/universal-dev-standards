@@ -971,6 +971,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 - [Testing Standards](testing-standards.md) (or use `/testing-guide` skill)
 - [Commit Message Guide](commit-message-guide.md)
 - [Code Review Checklist](code-review-checklist.md)
+- [Deployment Standards](deployment-standards.md) - Quality gates feed into deployment readiness
 
 ---
 
