@@ -8,8 +8,8 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['tests/**/*.test.js'],
-    // Run tests in sequence to avoid race conditions with temp directories
-    fileParallelism: false,
+    // E2E tests are fully isolated (independent temp dirs, no shared state)
+    fileParallelism: true,
     // Use dot reporter in non-TTY environments (CI, background processes)
     // to prevent hanging due to terminal capability detection
     reporters: isCI ? ['dot'] : ['default'],
