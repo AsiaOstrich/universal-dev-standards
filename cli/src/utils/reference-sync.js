@@ -19,7 +19,9 @@ export const CATEGORY_TO_STANDARDS = {
   'error-handling': ['core/error-code-standards.md', 'core/logging-standards.md'],
   'project-structure': ['core/project-structure.md'],
   'refactoring': ['core/refactoring-standards.md', 'core/guides/refactoring-guide.md'],
-  'requirement': ['core/requirement-engineering.md', 'methodologies/guides/requirement-engineering-guide.md']
+  'requirement': ['core/requirement-engineering.md', 'methodologies/guides/requirement-engineering-guide.md'],
+  'developer-memory': ['core/developer-memory.md'],
+  'project-context-memory': ['core/project-context-memory.md']
 };
 
 /**
@@ -40,6 +42,8 @@ export const STANDARD_TO_CATEGORY = {
   'project-structure.md': 'project-structure',
   'refactoring-standards.md': 'refactoring',
   'requirement-engineering.md': 'requirement',
+  'developer-memory.md': 'developer-memory',
+  'project-context-memory.md': 'project-context-memory',
   // Core Rules (AI .ai.yaml format)
   'anti-hallucination.ai.yaml': 'anti-hallucination',
   'commit-message.ai.yaml': 'commit-standards',
@@ -54,6 +58,8 @@ export const STANDARD_TO_CATEGORY = {
   'project-structure.ai.yaml': 'project-structure',
   'refactoring-standards.ai.yaml': 'refactoring',
   'requirement-engineering.ai.yaml': 'requirement',
+  'developer-memory.ai.yaml': 'developer-memory',
+  'project-context-memory.ai.yaml': 'project-context-memory',
   // Guides (educational content)
   'anti-hallucination-guide.md': 'anti-hallucination',
   'sdd-guide.md': 'spec-driven-development',

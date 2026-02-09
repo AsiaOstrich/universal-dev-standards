@@ -40,7 +40,7 @@ describe('ConfigLoader', () => {
 
   it('should load project config if file exists', () => {
     const mockContent = 'vibe-coding:\n  enabled: true';
-    fs.existsSync.mockImplementation((p) => p.includes('.uds/config.yaml'));
+    fs.existsSync.mockImplementation((p) => p.includes(path.join('.uds', 'config.yaml')));
     fs.readFileSync.mockReturnValue(mockContent);
     
     const loader = new ConfigLoader(mockCwd);

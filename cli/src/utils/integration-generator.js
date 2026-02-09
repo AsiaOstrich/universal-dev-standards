@@ -46,7 +46,8 @@ const STANDARD_TASK_MAPPING = {
   'spec-driven-development.md': { task: 'Feature development', when: 'When SDD tool present', priority: 'SHOULD' },
   'test-completeness-dimensions.md': { task: 'Test coverage', when: 'When evaluating tests', priority: 'SHOULD' },
   'git-workflow.ai.yaml': { task: 'Git workflow', when: 'Branch/merge decisions', priority: 'SHOULD' },
-  'developer-memory.ai.yaml': { task: 'Developer memory', when: 'Always (protocol)', priority: 'SHOULD' }
+  'developer-memory.ai.yaml': { task: 'Developer memory', when: 'Always (protocol)', priority: 'SHOULD' },
+  'project-context-memory.ai.yaml': { task: 'Project context', when: 'Planning & Coding', priority: 'MUST' }
 };
 
 /**
@@ -66,6 +67,7 @@ const STANDARD_DESCRIPTIONS = {
   'test-completeness-dimensions.md': '測試完整性維度',
   'git-workflow.ai.yaml': 'Git 工作流程',
   'developer-memory.ai.yaml': '開發者持久記憶',
+  'project-context-memory.ai.yaml': '專案情境記憶',
   'zh-tw.md': '繁體中文本地化'
 };
 

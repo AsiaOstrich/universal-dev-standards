@@ -450,7 +450,7 @@ describe('MicroSpec', () => {
 
       const path = microSpec.getPromotePath('SPEC-001-test');
 
-      expect(path).toContain('docs/specs/features');
+      expect(path).toContain(join('docs', 'specs', 'features'));
       expect(path).toContain('SPEC-001-test.md');
     });
 

@@ -304,7 +304,7 @@ describe('AutoSweep', () => {
         { recursive: true }
       );
       expect(writeFileSync).toHaveBeenCalled();
-      expect(reportPath).toContain('.uds/reports/sweep-');
+      expect(reportPath).toContain(join('.uds', 'reports', 'sweep-'));
       expect(reportPath).toContain('.md');
     });
   });

@@ -705,7 +705,7 @@ describe('Integration Generator', () => {
       const result = writeIntegrationFile('copilot', { categories: [] }, '/project');
 
       expect(result.success).toBe(true);
-      expect(result.path).toBe(join('.github', 'copilot-instructions.md')); // Returns relative path for manifest consistency
+      expect(result.path).toBe('.github/copilot-instructions.md'); // Returns relative path with forward slashes for manifest consistency
     });
 
     it('should merge with existing file when strategy provided', () => {
