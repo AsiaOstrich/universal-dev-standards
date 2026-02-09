@@ -331,6 +331,10 @@
     ],
     "docs-generator": [
       "skills/docs-generator/SKILL.md"
+    ],
+    "project-discovery": [
+      "skills/project-discovery/SKILL.md",
+      "skills/project-discovery/workflow.md"
     ]
   },
   "agents": {
@@ -611,6 +615,19 @@
       "skillName": "checkin-assistant",
       "level": 1,
       "description": "Quality gates and verification steps before committing code"
+    },
+    {
+      "id": "deployment-standards",
+      "name": "Deployment Standards",
+      "nameZh": "部署標準",
+      "source": {
+        "human": "core/deployment-standards.md",
+        "ai": "ai/standards/deployment-standards.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "level": 1,
+      "description": "Safe deployment strategies, feature flags, rollback, environment parity, and DORA metrics"
     },
     {
       "id": "spec-driven-development",
@@ -1092,6 +1109,19 @@
       "skillName": null,
       "level": 3,
       "description": "System for capturing, retrieving, and enforcing project-specific context, architectural decisions, and domain knowledge"
+    },
+    {
+      "id": "project-discovery",
+      "name": "Project Discovery",
+      "nameZh": "專案現況評估",
+      "source": {
+        "human": null,
+        "ai": null
+      },
+      "category": "skill",
+      "skillName": "project-discovery",
+      "level": 2,
+      "description": "Assess project health, architecture, dependencies and risks before adding features to existing codebases"
     },
     {
       "id": "csharp-style",

@@ -233,9 +233,10 @@ describe('AI Agent Paths Configuration', () => {
       expect(AVAILABLE_COMMANDS.length).toBeGreaterThan(0);
     });
 
-    it('should have 37 commands (25 Skills + 12 Commands-only)', () => {
+    it('should have 38 commands (26 Skills + 12 Commands-only)', () => {
       // Updated Jan 2026: Expanded to include Commands-only commands
-      expect(AVAILABLE_COMMANDS.length).toBe(37);
+      // Updated Feb 2026: Added project-discovery (discover) skill
+      expect(AVAILABLE_COMMANDS.length).toBe(38);
     });
 
     it('should have name and description for each command', () => {

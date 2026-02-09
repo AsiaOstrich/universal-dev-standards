@@ -583,12 +583,13 @@ describe('Check Command', () => {
 
       const output = consoleLogs.join('\n');
 
-      // Should show correct count (26 skill standards for Level 3)
+      // Should show correct count (27 skill standards for Level 3)
       // Updated from 23 to 24 after adding ai-instruction-standards skill
       // Updated from 24 to 25 after adding requirement-engineering skill
       // Updated from 25 to 26 after linking checkin-standards to checkin-assistant skill
       // (ai-friendly-architecture was remapped from ai-collaboration-standards to its own skill, no count change)
-      expect(output).toContain('26 via Skills');
+      // Updated from 26 to 27 after adding project-discovery skill
+      expect(output).toContain('27 via Skills');
 
       // Should NOT show exactly "0 via Skills" as a standalone line
       // Note: We check for the regex pattern since "22 via Skills" contains "0 via Skills" as substring

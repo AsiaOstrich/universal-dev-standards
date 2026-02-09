@@ -438,9 +438,9 @@ export function supportsAgents(agent) {
  * The `name` field in SKILL.md directly becomes the slash command.
  *
  * This list includes:
- * - 25 commands from Skills (SKILL.md files)
+ * - 26 commands from Skills (SKILL.md files)
  * - 12 commands from Commands-only files (no corresponding Skill)
- * Total: 37 available commands
+ * Total: 38 available commands
  */
 export const AVAILABLE_COMMANDS = [
   // ═══════════════════════════════════════════════════════════════════════════
@@ -468,6 +468,7 @@ export const AVAILABLE_COMMANDS = [
   { name: 'requirement', description: 'Write requirements following INVEST' },
   { name: 'derive', description: 'Forward derivation (spec to BDD/TDD)' },
   { name: 'reverse', description: 'Reverse engineer code to SDD specs' },
+  { name: 'discover', description: 'Assess project health and risks before adding features' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Derivation Commands (Commands-only, specific transformations)
