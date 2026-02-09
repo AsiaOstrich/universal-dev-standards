@@ -1,0 +1,121 @@
+# Project Context Memory Standards - AI Optimized
+# Source: core/project-context-memory.md
+
+standard:
+  id: project-context-memory
+  name: Project Context Memory Standards
+  description: System for capturing, retrieving, and enforcing project-specific context, architectural decisions, and domain knowledge
+  guidelines:
+    - "Capture project-specific decisions and conventions (e.g., 'Use Hexagonal Architecture')"
+    - "Inject context proactively during planning and coding phases based on file scope"
+    - "Store entries as Markdown files with YAML Frontmatter in .project-context/"
+    - "Use identified paths and specific names (unlike Developer Memory)"
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-02-09"
+    source: core/project-context-memory.md
+    description: System for capturing, retrieving, and enforcing project-specific context, architectural decisions, and domain knowledge
+
+  schema:
+    format: "Markdown with YAML Frontmatter"
+    required:
+      - field: id
+        type: string
+        format: "PRJ-YYYY-NNNN"
+      - field: type
+        type: enum
+        values: [decision, convention, structure, glossary, constraint, workflow]
+      - field: status
+        type: enum
+        values: [active, proposed, deprecated]
+      - field: confidence
+        type: float
+        range: "0.0–1.0"
+      - field: scope
+        type: list
+        description: "List of file glob patterns (e.g., 'src/api/**')"
+      - field: triggers
+        type: list
+        description: "Keywords or patterns that make this relevant"
+    content_sections:
+      - "Context: What is the background?"
+      - "Decision/Rule: What is the consensus?"
+      - "Constraint: What is forbidden/required?"
+
+  operations:
+    record:
+      description: Capture new project context from conversation
+      triggers:
+        - "User says: 'Let's agree to...'"
+        - "User says: 'From now on...'"
+        - "User corrects AI on project convention multiple times"
+        - "User defines a new architectural pattern"
+      steps:
+        - "Detect consensus moment"
+        - "Propose: 'Seems like a project decision. Save to Project Context?'"
+        - "Generate .project-context/{topic}.md with frontmatter"
+
+    query:
+      description: Retrieve relevant context
+      triggers:
+        - "Planning phase: User asks to build feature"
+        - "Coding phase: User edits file matching 'scope'"
+        - "Review phase: User asks for code review"
+      steps:
+        - "Scan .project-context/ for matching 'scope' or 'triggers'"
+        - "Read content of matching files"
+        - "Cite 'PRJ-YYYY-NNNN' when applying rules"
+
+    review:
+      description: Maintain lifecycle
+      triggers:
+        - "File paths in 'scope' no longer exist"
+        - "New decision contradicts old one"
+      steps:
+        - "Mark old entry as status: deprecated"
+        - "Update supersedes field in new entry"
+
+  rules:
+    - id: proactive-extraction
+      trigger: "consensus moments in conversation"
+      instruction: >
+        Listen for phrases like 'Let's agree to', 'From now on'.
+        If detected, propose creating a PRJ entry.
+        Do NOT save without user confirmation.
+      priority: required
+
+    - id: context-injection
+      trigger: "user intent involves modifying files or planning features"
+      instruction: >
+        Before generating code, check .project-context/.
+        Match 'scope' glob patterns to target files.
+        Match 'triggers' keywords to user request.
+        Inject relevant constraints into the prompt context.
+      priority: required
+
+    - id: enforcement
+      trigger: "generating code"
+      instruction: >
+        Strictly adhere to 'active' PRJ entries.
+        If a user request violates a 'constraint', warn them:
+        'This violates PRJ-XXXX (Constraint Summary). Proceed?'
+      priority: required
+
+    - id: storage-location
+      trigger: "saving new entry"
+      instruction: >
+        Save to .project-context/{slug}.md.
+        Ensure filename is kebab-case (e.g., unified-error-handling.md).
+      priority: required
+
+  storage:
+    directory: ".project-context/"
+    format: "Markdown (.md) with YAML Frontmatter"
+
+  architecture:
+    classification: always-on-protocol
+    note: >
+      Project Context Memory is an Always-On Protocol.
+      It does not require slash commands to function.
+      AI must actively scan and enforce these rules.

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "5.0.0-beta.6",
-  "lastUpdated": "2026-02-04",
+  "version": "5.0.0-beta.7",
+  "lastUpdated": "2026-02-09",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
     "ai": {
@@ -48,14 +48,14 @@
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "5.0.0-beta.6"
+      "version": "5.0.0-beta.7"
     },
     "skills": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
       "localPath": "skills",
       "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills",
-      "version": "5.0.0-beta.6",
+      "version": "5.0.0-beta.7",
       "note": "Skills are now included in the main repository under skills/"
     }
   },
@@ -1079,6 +1079,19 @@
       "skillName": null,
       "level": 3,
       "description": "Structured system for capturing, retrieving, and surfacing developer experience insights across conversations and projects"
+    },
+    {
+      "id": "project-context-memory",
+      "name": "Project Context Memory Standards",
+      "nameZh": "專案情境記憶標準",
+      "source": {
+        "human": "core/project-context-memory.md",
+        "ai": "ai/standards/project-context-memory.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "level": 3,
+      "description": "System for capturing, retrieving, and enforcing project-specific context, architectural decisions, and domain knowledge"
     },
     {
       "id": "csharp-style",

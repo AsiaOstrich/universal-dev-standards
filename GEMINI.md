@@ -151,6 +151,8 @@ Reference: `core/refactoring-standards.md`
 | Task | Standard | When |
 |------|----------|------|
 | Writing commits | [commit-message.ai.yaml](.standards/commit-message.ai.yaml) | Every commit |
+| Memory Management | [developer-memory.ai.yaml](.standards/developer-memory.ai.yaml) | Proactive extraction |
+| Project Context | [project-context-memory.ai.yaml](.standards/project-context-memory.ai.yaml) | Planning & Coding |
 
 **SHOULD follow** (when relevant):
 | Task | Standard | When |
@@ -193,6 +195,8 @@ This project has adopted **Level 3** (Enterprise) standards. All standards are l
 - `security-standards.ai.yaml` - Security Standards
 - `performance-standards.ai.yaml` - Performance Standards
 - `accessibility-standards.ai.yaml` - Accessibility Standards
+- `developer-memory.ai.yaml` - Developer Persistent Memory
+- `project-context-memory.ai.yaml` - Project Context Memory
 
 ### Templates & Checklists
 - `requirement-checklist.md` - Requirement Checklist

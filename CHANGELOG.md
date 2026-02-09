@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-beta.7] - 2026-02-09
+
+### Added
+- **Project Context Memory (PCM)**: New core standard for capturing, retrieving, and enforcing project-specific context, architectural decisions, and domain knowledge (`core/project-context-memory.md`, `.standards/project-context-memory.ai.yaml`)
+- **Developer Persistent Memory (DPM)**: Integration of developer persistent memory standard with Always-On Protocol delivery pipeline (`core/developer-memory.md`, `.standards/developer-memory.ai.yaml`)
+- **Memory Adoption Strategy**: Architecture guide for memory system adoption in `docs/specs/system/`
+- **Initial Project Context**: Bootstrap project context document in `.project-context/uds-architecture.md`
+
 ## [5.0.0-beta.6] - 2026-02-06
 
 ### Fixed
