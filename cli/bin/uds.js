@@ -68,10 +68,14 @@ program
 
 program
   .command('config [action] [key] [value]')
-  .description('Manage UDS configuration (list, get, set, init)')
+  .description('Manage UDS configuration and project settings')
   .option('-g, --global', 'Use global configuration')
   .option('--vibe-mode', 'Initialize vibe coding mode (use with init action)')
   .option('-y, --yes', 'Skip confirmation prompts')
+  .option('-t, --type <type>', 'Option type to configure (format, workflow, merge_strategy, commit_language, test_levels, skills, commands, all)')
+  .option('--ai-tool <tool>', 'Specific AI tool to configure (claude-code, opencode, copilot, etc.)')
+  .option('--skills-location <location>', 'Skills installation location (project, user)')
+  .option('-E, --experimental', 'Enable experimental features (methodology)')
   .action(configCommand);
 
 program
@@ -84,10 +88,10 @@ program
 
 program
   .command('configure')
-  .description('Modify options for initialized project (Legacy)')
+  .description('Alias for "uds config" — Modify project settings')
   .option('-t, --type <type>', 'Option type to configure (format, workflow, merge_strategy, commit_language, test_levels, skills, commands, all)')
-  .option('--ai-tool <tool>', 'Specific AI tool to configure (claude-code, opencode, copilot, etc.) - enables non-interactive mode')
-  .option('--skills-location <location>', 'Skills installation location (project, user) for non-interactive mode')
+  .option('--ai-tool <tool>', 'Specific AI tool to configure (claude-code, opencode, copilot, etc.)')
+  .option('--skills-location <location>', 'Skills installation location (project, user)')
   .option('-y, --yes', 'Apply changes immediately without prompting')
   .option('-E, --experimental', 'Enable experimental features (methodology)')
   .action(configureCommand);

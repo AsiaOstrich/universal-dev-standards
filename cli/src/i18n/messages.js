@@ -614,6 +614,14 @@ export const messages = {
       noExistingFile: 'No existing rules file found. Using default mode.'
     },
 
+    // Unified config menu (uds config with no arguments)
+    config: {
+      menuQuestion: 'What would you like to configure?',
+      menuProjectSettings: 'Project settings (level, AI tools, Skills, format, workflow...)',
+      menuPreferences: 'Preferences (UI language, HITL threshold, Vibe Coding)',
+      menuShowConfig: 'Show current configuration (JSON)'
+    },
+
     // Command output messages
     commands: {
       // Common messages used across commands
@@ -775,7 +783,7 @@ export const messages = {
         noAiToolFiles: 'No AI tool integration files configured.',
         toFixIntegration: 'To fix integration issues:',
         runUpdateToSync: '• Run `uds update` to sync all integration files',
-        runConfigureTools: '• Run `uds configure --type ai_tools` to manage AI tools',
+        runConfigureTools: '• Run `uds config --type ai_tools` to manage AI tools',
         // Reference sync
         refSyncStatus: 'Reference Sync Status:',
         noRefsFound: 'No standard references found',
@@ -950,7 +958,7 @@ export const messages = {
         // Integrations only
         updatingIntegrationsOnly: 'Updating integration files only...',
         noAiToolsConfigured: '⚠ No AI tools configured in manifest.',
-        runConfigure: 'Run `uds configure` to add AI tools.',
+        runConfigure: 'Run `uds config` to add AI tools.',
         regeneratingIntegrations: 'Regenerating integration files...',
         regeneratedIntegrations: 'Regenerated {count} integration files',
         integrationsSuccess: '✓ Integration files updated successfully!',
@@ -1060,7 +1068,7 @@ export const messages = {
         optionSkills: 'Skills - Manage Skills installations',
         optionCommands: 'Commands - Manage slash commands',
         noAiToolsConfigured: 'No AI tools configured',
-        addAiToolsFirst: 'Add AI tools first with: uds configure --type ai_tools',
+        addAiToolsFirst: 'Add AI tools first with: uds config --type ai_tools',
         currentSkillsStatus: 'Current Skills status:',
         currentCommandsStatus: 'Current Commands status:',
         notInstalled: 'Not installed',
@@ -1706,6 +1714,14 @@ export const messages = {
       noExistingFile: '找不到現有規則檔案，使用預設模式。'
     },
 
+    // Unified config menu (uds config with no arguments)
+    config: {
+      menuQuestion: '你要設定什麼？',
+      menuProjectSettings: '專案設定（等級、AI 工具、Skills、格式、工作流程...）',
+      menuPreferences: '偏好設定（UI 語言、HITL 閾值、Vibe Coding）',
+      menuShowConfig: '顯示目前設定（JSON）'
+    },
+
     // Command output messages
     commands: {
       // Common messages used across commands
@@ -1867,7 +1883,7 @@ export const messages = {
         noAiToolFiles: '未設定 AI 工具整合檔案。',
         toFixIntegration: '修復整合問題：',
         runUpdateToSync: '• 執行 `uds update` 同步所有整合檔案',
-        runConfigureTools: '• 執行 `uds configure --type ai_tools` 管理 AI 工具',
+        runConfigureTools: '• 執行 `uds config --type ai_tools` 管理 AI 工具',
         // Reference sync
         refSyncStatus: '參考同步狀態：',
         noRefsFound: '找不到標準參考',
@@ -2042,7 +2058,7 @@ export const messages = {
         // Integrations only
         updatingIntegrationsOnly: '僅更新整合檔案中...',
         noAiToolsConfigured: '⚠ manifest 中未設定任何 AI 工具。',
-        runConfigure: '執行 `uds configure` 來新增 AI 工具。',
+        runConfigure: '執行 `uds config` 來新增 AI 工具。',
         regeneratingIntegrations: '重新產生整合檔案中...',
         regeneratedIntegrations: '已重新產生 {count} 個整合檔案',
         integrationsSuccess: '✓ 整合檔案更新成功！',
@@ -2152,7 +2168,7 @@ export const messages = {
         optionSkills: 'Skills - 管理 Skills 安裝',
         optionCommands: '命令 - 管理斜線命令',
         noAiToolsConfigured: '未設定 AI 工具',
-        addAiToolsFirst: '請先新增 AI 工具：uds configure --type ai_tools',
+        addAiToolsFirst: '請先新增 AI 工具：uds config --type ai_tools',
         currentSkillsStatus: '目前 Skills 狀態：',
         currentCommandsStatus: '目前命令狀態：',
         notInstalled: '未安裝',
@@ -2727,6 +2743,14 @@ export const messages = {
       }
     },
 
+    // Unified config menu (uds config with no arguments)
+    config: {
+      menuQuestion: '您想要配置什么？',
+      menuProjectSettings: '项目设置（级别、AI 工具、Skills、格式、工作流...）',
+      menuPreferences: '偏好设置（UI 语言、HITL 阈值、Vibe Coding）',
+      menuShowConfig: '显示当前配置（JSON）'
+    },
+
     // Command output messages
     commands: {
       // Common messages used across commands
@@ -2968,7 +2992,7 @@ export const messages = {
         noAiToolFiles: '未配置 AI 工具集成文件。',
         toFixIntegration: '要修复集成问题：',
         runUpdateToSync: '• 执行 `uds update` 同步所有集成文件',
-        runConfigureTools: '• 执行 `uds configure --type ai_tools` 管理 AI 工具',
+        runConfigureTools: '• 执行 `uds config --type ai_tools` 管理 AI 工具',
         // Reference sync
         refSyncStatus: '参考同步状态：',
         noRefsFound: '未找到标准引用',
@@ -3063,7 +3087,7 @@ export const messages = {
         // Integrations only
         updatingIntegrationsOnly: '仅更新集成文件...',
         noAiToolsConfigured: '⚠ manifest 中未配置 AI 工具。',
-        runConfigure: '运行 `uds configure` 添加 AI 工具。',
+        runConfigure: '运行 `uds config` 添加 AI 工具。',
         regeneratingIntegrations: '正在重新生成集成文件...',
         regeneratedIntegrations: '已重新生成 {count} 个集成文件',
         integrationsSuccess: '✓ 集成文件更新成功！',
@@ -3173,7 +3197,7 @@ export const messages = {
         optionSkills: 'Skills - 管理 Skills 安装',
         optionCommands: '命令 - 管理斜杠命令',
         noAiToolsConfigured: '未配置 AI 工具',
-        addAiToolsFirst: '请先添加 AI 工具：uds configure --type ai_tools',
+        addAiToolsFirst: '请先添加 AI 工具：uds config --type ai_tools',
         currentSkillsStatus: '当前 Skills 状态：',
         currentCommandsStatus: '当前命令状态：',
         notInstalled: '未安装',

@@ -100,7 +100,32 @@ vi.mock('../../src/commands/update.js', () => ({
   }))
 }));
 
+vi.mock('../../src/utils/skills-installer.js', () => ({
+  installSkillsToMultipleAgents: vi.fn(() => ({ success: true, totalInstalled: 0, totalErrors: 0 })),
+  installCommandsToMultipleAgents: vi.fn(() => ({ success: true, totalInstalled: 0, totalErrors: 0 })),
+  getInstalledSkillsInfoForAgent: vi.fn(() => null),
+  getInstalledCommandsForAgent: vi.fn(() => null)
+}));
+
+vi.mock('../../src/config/ai-agent-paths.js', () => ({
+  getAgentConfig: vi.fn(() => ({ supportsSkills: true, commands: null })),
+  getAgentDisplayName: vi.fn((tool) => tool)
+}));
+
+vi.mock('../../src/utils/github.js', () => ({
+  getMarketplaceSkillsInfo: vi.fn(() => null)
+}));
+
+vi.mock('../../src/utils/config-manager.js', () => ({
+  config: {
+    init: vi.fn(() => ({})),
+    get: vi.fn(),
+    set: vi.fn()
+  }
+}));
+
 import { configureCommand } from '../../src/commands/configure.js';
+import { configCommand, runProjectConfiguration } from '../../src/commands/config.js';
 import { regenerateIntegrations } from '../../src/commands/update.js';
 import { isInitialized, readManifest, writeManifest } from '../../src/utils/copier.js';
 import { promptConfirm } from '../../src/prompts/init.js';
@@ -125,11 +150,31 @@ describe('Configure Command', () => {
     vi.clearAllMocks();
   });
 
-  describe('configureCommand', () => {
+  describe('configureCommand (alias)', () => {
+    it('should delegate to runProjectConfiguration', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        format: 'human',
+        level: 2,
+        contentMode: 'minimal',
+        aiTools: [],
+        options: {}
+      });
+      promptConfirm.mockResolvedValue(true);
+
+      await expect(configureCommand({ type: 'format' })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Configuration updated successfully');
+      expect(writeManifest).toHaveBeenCalled();
+    });
+  });
+
+  describe('runProjectConfiguration', () => {
     it('should show error if not initialized', async () => {
       isInitialized.mockReturnValue(false);
 
-      await configureCommand({});
+      await runProjectConfiguration({});
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Standards not initialized');
@@ -140,7 +185,7 @@ describe('Configure Command', () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue(null);
 
-      await configureCommand({});
+      await runProjectConfiguration({});
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Could not read manifest');
@@ -161,7 +206,7 @@ describe('Configure Command', () => {
       });
       promptConfirm.mockResolvedValue(false);
 
-      await expect(configureCommand({ type: 'format' })).rejects.toThrow('process.exit called');
+      await expect(runProjectConfiguration({ type: 'format' })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Current Configuration');
@@ -179,7 +224,7 @@ describe('Configure Command', () => {
       });
       promptConfirm.mockResolvedValue(false);
 
-      await expect(configureCommand({ type: 'format' })).rejects.toThrow('process.exit called');
+      await expect(runProjectConfiguration({ type: 'format' })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Configuration cancelled');
@@ -196,7 +241,7 @@ describe('Configure Command', () => {
       });
       promptConfirm.mockResolvedValue(true);
 
-      await expect(configureCommand({ type: 'format' })).rejects.toThrow('process.exit called');
+      await expect(runProjectConfiguration({ type: 'format' })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Configuration updated successfully');
@@ -214,7 +259,7 @@ describe('Configure Command', () => {
       });
       promptConfirm.mockResolvedValue(true);
 
-      await expect(configureCommand({ type: 'format' })).rejects.toThrow('process.exit called');
+      await expect(runProjectConfiguration({ type: 'format' })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('New Configuration');
@@ -231,7 +276,7 @@ describe('Configure Command', () => {
       });
       promptConfirm.mockResolvedValue(true);
 
-      await expect(configureCommand({ type: 'workflow' })).rejects.toThrow('process.exit called');
+      await expect(runProjectConfiguration({ type: 'workflow' })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Configuration updated');
@@ -253,7 +298,7 @@ describe('Configure Command', () => {
         inquirer.default.prompt.mockResolvedValueOnce({ type: 'format' });
         inquirer.default.prompt.mockResolvedValueOnce({ apply: false });
 
-        await expect(configureCommand({ type: 'format' })).rejects.toThrow('process.exit called');
+        await expect(runProjectConfiguration({ type: 'format' })).rejects.toThrow('process.exit called');
 
         const output = consoleLogs.join('\n');
         expect(output).toContain('uds update --integrations-only');
@@ -270,7 +315,7 @@ describe('Configure Command', () => {
         });
         promptConfirm.mockResolvedValue(true);
 
-        await expect(configureCommand({ type: 'format', yes: true })).rejects.toThrow('process.exit called');
+        await expect(runProjectConfiguration({ type: 'format', yes: true })).rejects.toThrow('process.exit called');
 
         expect(regenerateIntegrations).toHaveBeenCalled();
       });
@@ -288,7 +333,7 @@ describe('Configure Command', () => {
         promptConfirm.mockClear();
         promptConfirm.mockResolvedValue(true);
 
-        await expect(configureCommand({ type: 'format', yes: true })).rejects.toThrow('process.exit called');
+        await expect(runProjectConfiguration({ type: 'format', yes: true })).rejects.toThrow('process.exit called');
 
         // promptConfirm should NOT have been called because --yes skips it
         expect(promptConfirm).not.toHaveBeenCalled();
@@ -308,7 +353,7 @@ describe('Configure Command', () => {
         const { promptSkillsInstallLocation } = await import('../../src/prompts/init.js');
         promptSkillsInstallLocation.mockResolvedValue([]);
 
-        await expect(configureCommand({ type: 'skills' })).rejects.toThrow('process.exit called');
+        await expect(runProjectConfiguration({ type: 'skills' })).rejects.toThrow('process.exit called');
 
         // regenerateIntegrations should not have been called for skills config
         expect(regenerateIntegrations).not.toHaveBeenCalled();
@@ -325,11 +370,79 @@ describe('Configure Command', () => {
         });
         promptConfirm.mockResolvedValue(true);
 
-        await expect(configureCommand({ type: 'format' })).rejects.toThrow('process.exit called');
+        await expect(runProjectConfiguration({ type: 'format' })).rejects.toThrow('process.exit called');
 
         // Should not call regenerateIntegrations when no AI tools
         expect(regenerateIntegrations).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('configCommand (unified entry)', () => {
+    it('should show JSON config with "list" action', async () => {
+      await configCommand('list', null, null, {});
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Current Configuration');
+    });
+
+    it('should show interactive menu when called with no action and no --type', async () => {
+      const inquirer = await import('inquirer');
+      isInitialized.mockReturnValue(true);
+      // First prompt: unified menu → choose 'show'
+      inquirer.default.prompt.mockResolvedValueOnce({ menuChoice: 'show' });
+
+      await configCommand(undefined, null, null, {});
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Current Configuration');
+    });
+
+    it('should forward to project configuration when --type is provided', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        format: 'human',
+        level: 2,
+        contentMode: 'minimal',
+        aiTools: [],
+        options: {}
+      });
+      promptConfirm.mockResolvedValue(true);
+
+      await expect(configCommand(undefined, null, null, { type: 'format' })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Configuration updated successfully');
+    });
+
+    it('should show project settings option only when initialized', async () => {
+      const inquirer = await import('inquirer');
+      isInitialized.mockReturnValue(false);
+      inquirer.default.prompt.mockResolvedValueOnce({ menuChoice: 'show' });
+
+      await configCommand(undefined, null, null, {});
+
+      // Verify prompt was called with choices that do NOT include project settings
+      const promptCall = inquirer.default.prompt.mock.calls[0][0][0];
+      const choiceValues = promptCall.choices.map(c => c.value);
+      expect(choiceValues).not.toContain('project');
+      expect(choiceValues).toContain('preferences');
+      expect(choiceValues).toContain('show');
+    });
+
+    it('should include project settings option when initialized', async () => {
+      const inquirer = await import('inquirer');
+      isInitialized.mockReturnValue(true);
+      inquirer.default.prompt.mockResolvedValueOnce({ menuChoice: 'show' });
+
+      await configCommand(undefined, null, null, {});
+
+      // Verify prompt was called with choices that include project settings
+      const promptCall = inquirer.default.prompt.mock.calls[0][0][0];
+      const choiceValues = promptCall.choices.map(c => c.value);
+      expect(choiceValues).toContain('project');
+      expect(choiceValues).toContain('preferences');
+      expect(choiceValues).toContain('show');
     });
   });
 });
