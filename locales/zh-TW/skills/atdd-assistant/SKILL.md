@@ -2,368 +2,70 @@
 source: ../../../../skills/atdd-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-02-05
+last_synced: 2026-02-10
 status: current
-name: atdd
-scope: partial
 description: |
-  引導團隊完成驗收測試驅動開發工作流程。
-  使用時機：定義驗收標準、進行規格研討會、撰寫含驗收測試的用戶故事、PO 簽核。
-  關鍵字：ATDD, acceptance test, acceptance criteria, user story, product owner, specification workshop, 驗收測試驅動開發.
+  引導驗收測試驅動開發（ATDD）流程，用於定義和驗證使用者故事。
+  使用時機：定義驗收條件、使用者故事驗證、ATDD 流程。
+  關鍵字：atdd, acceptance, user story, INVEST, 驗收測試, 使用者故事, 驗收條件。
 ---
 
 # ATDD 助手
 
 > **語言**: [English](../../../../skills/atdd-assistant/SKILL.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-01-19
-**適用範圍**: Claude Code Skills
+引導驗收測試驅動開發（ATDD）流程，用於定義和驗證使用者故事。
 
----
+## ATDD 循環
 
-## 目的
+WORKSHOP ──► DISTILLATION ──► DEVELOPMENT ──► DEMO ──► DONE
 
-本技能引導團隊完成驗收測試驅動開發工作流程，協助：
-- 進行有效的規格研討會
-- 以 Given-When-Then 格式撰寫可測試的驗收標準
-- 將標準轉換為可執行的驗收測試
-- 確保 PO、Dev 和 QA 之間的適當協作
-- 整合 ATDD 與 BDD 和 TDD 以完成完整工作流程
+## 工作流程
 
----
+### 1. WORKSHOP - 定義驗收條件
+PO 提出使用者故事，團隊提出澄清問題，共同定義驗收條件。
 
-## 快速參考
+### 2. DISTILLATION - 轉換為測試
+將驗收條件轉換為可執行的測試格式，消除歧義，取得 PO 簽核。
 
-### ATDD 工作流程檢查清單
+### 3. DEVELOPMENT - 實作
+執行驗收測試（初始應失敗），使用 BDD/TDD 進行實作，迭代直到全部通過。
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  🤝 規格研討會階段                                               │
-│  □ 產品負責人說明用戶故事                                        │
-│  □ 團隊提出澄清問題                                              │
-│  □ 共同定義驗收標準                                              │
-│  □ 為每個 AC 撰寫具體範例                                        │
-│  □ 討論邊界案例和錯誤情境                                        │
-│  □ 明確記錄範圍外內容                                            │
-├─────────────────────────────────────────────────────────────────┤
-│  🧪 精煉階段                                                     │
-│  □ 將範例轉換為可執行測試                                        │
-│  □ 移除測試中的歧義                                              │
-│  □ 測試採用可執行格式（Gherkin、FitNesse 等）                    │
-│  □ 產品負責人簽核測試                                            │
-├─────────────────────────────────────────────────────────────────┤
-│  💻 開發階段                                                     │
-│  □ 驗收測試初始失敗（RED）                                       │
-│  □ 功能測試使用 BDD，單元測試使用 TDD                            │
-│  □ 逐步達成 AT 通過                                              │
-│  □ 所有驗收測試通過（GREEN）                                     │
-│  □ 程式碼重構且整潔                                              │
-├─────────────────────────────────────────────────────────────────┤
-│  🎬 展示階段                                                     │
-│  □ 所有驗收測試通過                                              │
-│  □ 展示環境已準備                                                │
-│  □ 關鍵利害關係人出席                                            │
-│  □ 產品負責人驗證功能                                            │
-│  □ 故事被接受或標準被優化                                        │
-└─────────────────────────────────────────────────────────────────┘
-```
+### 4. DEMO - 向利害關係人展示
+展示通過的驗收測試，示範可運作的功能，取得正式驗收。
 
-### 驗收標準快速參考
+### 5. DONE - 完成
+PO 已驗收，程式碼已合併，故事已關閉。
 
-| 元素 | 格式 | 範例 |
-|------|------|------|
-| **用戶故事** | As a / I want / So that | 身為客戶，我想要重設密碼，以便我能重新存取帳號 |
-| **AC 格式** | Given / When / Then | 假設我在登入頁面，當我點擊「忘記密碼」，那麼我應該看到重設表單 |
-| **範圍外** | 項目清單 | - SMS 重設、- 管理員重設功能 |
-| **技術備註** | 項目清單 | - Token 24 小時後過期 |
+## INVEST 準則
 
-### INVEST 準則
+| 準則 | 說明 | Criterion | Description |
+|------|------|-----------|-------------|
+| **I**ndependent | 可獨立開發 | Independent | Can be developed separately |
+| **N**egotiable | 可協商細節 | Negotiable | Details can be discussed |
+| **V**aluable | 提供商業價值 | Valuable | Delivers business value |
+| **E**stimable | 可估算工作量 | Estimable | Can estimate effort |
+| **S**mall | 一個 Sprint 可完成 | Small | Fits in one sprint |
+| **T**estable | 有明確驗收條件 | Testable | Has clear acceptance criteria |
 
-| 原則 | 描述 | 檢查 |
-|------|------|------|
-| **I**ndependent 獨立 | 可獨立開發 | 無阻塞依賴 |
-| **N**egotiable 可協商 | 細節可討論 | 非合約 |
-| **V**aluable 有價值 | 傳遞商業價值 | PO 能解釋「為什麼」 |
-| **E**stimable 可估算 | 可被估算 | 團隊理解範圍 |
-| **S**mall 小 | 可在一個 Sprint 內完成 | < 1 週工作量 |
-| **T**estable 可測試 | 可被驗證 | 明確的驗收標準 |
-
----
-
-## 工作流程協助
-
-### 規格研討會指引
-
-進行規格研討會時：
-
-1. **故事說明** (5 分鐘)
-   ```
-   用戶故事: [標題]
-
-   身為 [角色]
-   我想要 [功能]
-   以便 [好處]
-
-   商業價值: [為什麼重要]
-   ```
-
-2. **澄清問題** (10 分鐘)
-   - 商業：「價值是什麼？」「使用者是誰？」
-   - 開發：「影響是什麼？」「依賴？」
-   - 測試：「可能出什麼錯？」「邊界案例？」
-
-3. **AC 定義** (20 分鐘)
-   ```markdown
-   ### AC-1: [標準名稱]
-   **Given** [前置條件]
-   **When** [動作]
-   **Then** [預期結果]
-   ```
-
-4. **範圍外** (10 分鐘)
-   - 明確列出不包含的內容
-   - 防止開發期間範圍蔓延
-
-5. **技術備註** (5 分鐘)
-   - 實作提示
-   - 已知限制
-   - 依賴
-
-### 精煉指引
-
-將 AC 轉換為可執行測試時：
-
-1. **審查每個 AC**
-   - 是否明確無歧義？
-   - 可以自動化嗎？
-   - 是否驗證商業價值？
-
-2. **選擇測試格式**
-   | 格式 | 最適合 |
-   |------|--------|
-   | Gherkin | 行為導向、商業可讀 |
-   | FitNesse | 資料驅動、Wiki 表格 |
-   | Robot Framework | 複雜工作流程 |
-   | Code (xUnit) | 技術團隊 |
-
-3. **撰寫可執行測試**
-   ```gherkin
-   # AC-1: 密碼重設請求
-   Scenario: 請求密碼重設
-     Given 我在登入頁面
-     And 我有一個已註冊帳號
-     When 我點擊「忘記密碼」
-     And 我輸入我的電子郵件地址
-     Then 我應該看到「重設連結已寄出」
-     And 我應該在 5 分鐘內收到電子郵件
-   ```
-
-4. **取得 PO 簽核**
-   - PO 確認測試代表需求
-   - 開發開始前簽核
-
-### 展示指引
-
-準備展示時：
-
-1. **展示前檢查清單**
-   ```
-   □ 所有驗收測試通過
-   □ 展示環境就緒
-   □ 測試資料已準備
-   □ 利害關係人已通知
-   ```
-
-2. **展示結構** (15-30 分鐘)
-   - 背景 (1 分鐘)：提醒故事和 AC
-   - 測試 (2 分鐘)：現場執行驗收測試
-   - 功能 (5-10 分鐘)：逐一展示每個 AC
-   - 回饋 (5 分鐘)：收集回饋、問答
-
-3. **可能結果**
-   - ✅ 接受：故事完成
-   - 🔄 需精煉：返回研討會
-   - ❌ 拒絕：識別差距
-
----
-
-## 用戶故事範本
-
-```markdown
-## 用戶故事: [標題]
-
-**身為** [角色]
-**我想要** [功能]
-**以便** [好處]
-
-## 驗收標準
-
-### AC-1: [Happy path]
-**Given** [前置條件]
-**When** [動作]
-**Then** [預期結果]
-
-### AC-2: [錯誤情境]
-**Given** [前置條件]
-**When** [無效動作]
-**Then** [錯誤處理]
-
-### AC-3: [邊界案例]
-**Given** [邊界條件]
-**When** [動作]
-**Then** [適當結果]
-
-## 範圍外
-- [未包含的功能 1]
-- [延後至未來的功能 2]
-
-## 技術備註
-- [實作限制]
-- [依賴資訊]
-- [效能需求]
-
-## 問題 / 假設
-- [開放問題 1]
-- [假設 1]
-```
-
----
-
-## 與其他工作流程整合
-
-### ATDD → BDD → TDD 流程
+## 使用者故事格式
 
 ```
-ATDD 層級（商業驗收）
-  │
-  │  用戶故事 + 驗收標準
-  │  PO 簽核
-  │
-  ▼
-BDD 層級（行為規格）
-  │
-  │  Feature 檔案（Gherkin）
-  │  三方協作
-  │
-  ▼
-TDD 層級（實作）
-  │
-  │  單元測試
-  │  Red → Green → Refactor
-  │
-  ▼
-驗證（展示）
-  │
-  └──▶ PO 驗收
+As a [role],
+I want [feature],
+So that [benefit].
+
+### Acceptance Criteria
+- Given [context], when [action], then [result]
 ```
 
----
+## 使用方式
 
-## 配置偵測
+- `/atdd` - 啟動互動式 ATDD 會話
+- `/atdd "user can reset password"` - 針對特定功能進行 ATDD
+- `/atdd US-123` - 針對現有使用者故事進行 ATDD
 
-本技能支援專案特定配置。
+## 參考
 
-### 偵測順序
-
-1. 檢查 `CONTRIBUTING.md` 的「Disabled Skills」區段
-2. 檢查 `CONTRIBUTING.md` 的「ATDD Standards」區段
-3. 檢查現有的驗收測試模式
-4. 若未找到，**預設使用標準 ATDD 實務**
-
-### 首次設定
-
-若未找到配置：
-
-1. 詢問：「此專案尚未配置 ATDD 偏好。您偏好哪種驗收測試格式？」
-   - Gherkin (Cucumber, SpecFlow)
-   - FitNesse 表格
-   - 程式碼基礎 (xUnit)
-
-2. 選擇後，建議記錄在 `CONTRIBUTING.md`：
-
-```markdown
-## ATDD 標準
-
-### 驗收測試格式
-- Gherkin (Cucumber.js)
-
-### 用戶故事範本
-- 需要 INVEST 準則
-- AC 使用 Given-When-Then 格式
-
-### 工作流程
-- 所有故事需要規格研討會
-- 開發前需要 PO 簽核
-- 每個完成的故事需要展示
-```
-
----
-
-## 詳細指南
-
-完整標準請參閱：
-- [ATDD 核心標準](../../core/acceptance-test-driven-development.md)
-- [ATDD 工作流程指南](./atdd-workflow.md)
-- [驗收標準撰寫指南](./acceptance-criteria-guide.md)
-
-相關標準：
-- [BDD 標準](../../core/behavior-driven-development.md)
-- [TDD 標準](../../core/test-driven-development.md)
-- [測試標準](../../core/testing-standards.md)
-
----
-
-## 反模式快速偵測
-
-| 症狀 | 可能問題 | 快速修復 |
-|------|---------|---------|
-| 功能標記完成但 PO 拒絕 | AC 未與 PO 驗證 | 強制 PO 簽核 |
-| 長期開發無進展 | AC 太大或模糊 | 拆分為更小的標準 |
-| 驗收測試首次就通過 | 實作後才寫測試 | 開發前寫測試 |
-| 無盡的範圍討論 | 沒有「範圍外」定義 | 明確範圍外 |
-| AC 無法自動化 | QA/Dev 未參與 AC 定義 | 研討會納入技術觀點 |
-
----
-
-## RACI 矩陣
-
-| 活動 | 產品負責人 | 開發人員 | QA/測試人員 |
-|------|-----------|---------|------------|
-| 定義用戶故事 | **R/A** | C | C |
-| 規格研討會 | **R** | C | C |
-| 定義驗收標準 | **A** | R | R |
-| 撰寫可執行測試 | C | R | **R/A** |
-| 實作功能 | C | **R/A** | C |
-| 執行驗收測試 | I | R | **R/A** |
-| 接受/拒絕功能 | **R/A** | I | I |
-
-**圖例**: R = 負責, A = 當責, C = 諮詢, I = 知會
-
----
-
-## 相關標準
-
-- [驗收測試驅動開發](../../core/acceptance-test-driven-development.md) - 核心 ATDD 標準
-- [行為驅動開發](../../core/behavior-driven-development.md) - BDD 標準
-- [測試驅動開發](../../core/test-driven-development.md) - TDD 標準
-- [規格驅動開發](../../core/spec-driven-development.md) - SDD 工作流程
-- [測試標準](../../core/testing-standards.md) - 測試框架
-- [BDD 助手](../bdd-assistant/SKILL.md) - BDD 技能
-- [TDD 助手](../tdd-assistant/SKILL.md) - TDD 技能
-
----
-
-## 版本歷史
-
-| 版本 | 日期 | 變更 |
-|------|------|------|
-| 1.0.0 | 2026-01-19 | 初始發布 |
-
----
-
-## 授權
-
-本技能以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
-
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[acceptance-test-driven-development.md](../../../../core/acceptance-test-driven-development.md)

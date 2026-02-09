@@ -233,10 +233,10 @@ describe('AI Agent Paths Configuration', () => {
       expect(AVAILABLE_COMMANDS.length).toBeGreaterThan(0);
     });
 
-    it('should have 38 commands (26 Skills + 12 Commands-only)', () => {
-      // Updated Jan 2026: Expanded to include Commands-only commands
-      // Updated Feb 2026: Added project-discovery (discover) skill
-      expect(AVAILABLE_COMMANDS.length).toBe(38);
+    it('should have 29 commands (17 Action Skills + 12 Commands-only)', () => {
+      // Updated Feb 2026: Split architecture — 9 reference-only skills
+      // no longer have `name` field and are not slash commands
+      expect(AVAILABLE_COMMANDS.length).toBe(29);
     });
 
     it('should have name and description for each command', () => {
@@ -269,10 +269,8 @@ describe('AI Agent Paths Configuration', () => {
       expect(names).toContain('derive');
       expect(names).toContain('reverse');
 
-      // AI collaboration
-      expect(names).toContain('ai-collab');
-      expect(names).toContain('ai-instruct');
-      expect(names).toContain('ai-arch');
+      // Discovery
+      expect(names).toContain('discover');
     });
 
     it('should contain Commands-only commands (added Jan 2026)', () => {

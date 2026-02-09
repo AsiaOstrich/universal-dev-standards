@@ -438,13 +438,18 @@ export function supportsAgents(agent) {
  * The `name` field in SKILL.md directly becomes the slash command.
  *
  * This list includes:
- * - 26 commands from Skills (SKILL.md files)
+ * - 17 commands from Action Skills (SKILL.md files with `name` field)
  * - 12 commands from Commands-only files (no corresponding Skill)
- * Total: 38 available commands
+ * Total: 29 available commands
+ *
+ * Reference-only Skills (no `name` field, not slash commands):
+ * testing-guide, project-structure-guide, git-workflow-guide,
+ * error-code-guide, logging-guide, ai-collaboration-standards,
+ * ai-friendly-architecture, ai-instruction-standards, documentation-guide
  */
 export const AVAILABLE_COMMANDS = [
   // ═══════════════════════════════════════════════════════════════════════════
-  // Core Development Workflow (Skills + Commands)
+  // Core Development Workflow (Action Skills)
   // ═══════════════════════════════════════════════════════════════════════════
   { name: 'commit', description: 'Generate commit messages following Conventional Commits' },
   { name: 'review', description: 'Perform code review with checklist' },
@@ -453,16 +458,15 @@ export const AVAILABLE_COMMANDS = [
   { name: 'changelog', description: 'Generate changelog entries' },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Testing Methodologies (Skills + Commands)
+  // Testing Methodologies (Action Skills)
   // ═══════════════════════════════════════════════════════════════════════════
   { name: 'tdd', description: 'Guide TDD workflow (Red-Green-Refactor)' },
   { name: 'bdd', description: 'Guide BDD workflow (Gherkin, Given-When-Then)' },
   { name: 'atdd', description: 'Guide ATDD workflow (acceptance criteria)' },
-  { name: 'testing', description: 'Testing pyramid and test writing standards' },
   { name: 'coverage', description: 'Analyze test coverage (8 dimensions)' },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Specification and Requirements (Skills + Commands)
+  // Specification and Requirements (Action Skills)
   // ═══════════════════════════════════════════════════════════════════════════
   { name: 'spec', description: 'Spec-driven development guide' },
   { name: 'requirement', description: 'Write requirements following INVEST' },
@@ -486,30 +490,14 @@ export const AVAILABLE_COMMANDS = [
   { name: 'reverse-tdd', description: 'Analyze BDD-TDD coverage gaps' },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Project Structure and Documentation (Skills + Commands)
+  // Documentation and Code Quality (Action Skills + Commands-only)
   // ═══════════════════════════════════════════════════════════════════════════
-  { name: 'structure', description: 'Project directory organization guide' },
-  { name: 'docs', description: 'Documentation structure and writing guide' },
   { name: 'docgen', description: 'Generate usage documentation' },
   { name: 'generate-docs', description: 'Generate documentation from .usage-docs.yaml config' },
-  { name: 'git-flow', description: 'Git branching strategies and workflow' },
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Code Quality (Skills)
-  // ═══════════════════════════════════════════════════════════════════════════
   { name: 'refactor', description: 'Refactoring and legacy modernization guide' },
-  { name: 'errors', description: 'Error code design standards' },
-  { name: 'logging', description: 'Structured logging implementation' },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // AI Collaboration (Skills)
-  // ═══════════════════════════════════════════════════════════════════════════
-  { name: 'ai-collab', description: 'AI collaboration and anti-hallucination standards' },
-  { name: 'ai-instruct', description: 'AI instruction files (CLAUDE.md, cursorrules)' },
-  { name: 'ai-arch', description: 'AI-friendly architecture design' },
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Development Methodology (Skills + Commands)
+  // Development Methodology (Action Skills)
   // ═══════════════════════════════════════════════════════════════════════════
   { name: 'methodology', description: 'Development methodology selection' },
 

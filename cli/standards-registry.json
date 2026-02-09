@@ -215,11 +215,13 @@
     ],
     "commit-standards": [
       "skills/commit-standards/SKILL.md",
+      "skills/commit-standards/guide.md",
       "skills/commit-standards/conventional-commits.md",
       "skills/commit-standards/language-options.md"
     ],
     "code-review-assistant": [
       "skills/code-review-assistant/SKILL.md",
+      "skills/code-review-assistant/guide.md",
       "skills/code-review-assistant/checkin-checklist.md",
       "skills/code-review-assistant/review-checklist.md"
     ],
@@ -229,6 +231,7 @@
     ],
     "release-standards": [
       "skills/release-standards/SKILL.md",
+      "skills/release-standards/guide.md",
       "skills/release-standards/changelog-format.md",
       "skills/release-standards/semantic-versioning.md"
     ],
@@ -244,6 +247,7 @@
     ],
     "requirement-assistant": [
       "skills/requirement-assistant/SKILL.md",
+      "skills/requirement-assistant/guide.md",
       "skills/requirement-assistant/requirement-checklist.md",
       "skills/requirement-assistant/requirement-writing.md"
     ],
@@ -252,13 +256,16 @@
       "skills/project-structure-guide/language-patterns.md"
     ],
     "spec-driven-dev": [
-      "skills/spec-driven-dev/SKILL.md"
+      "skills/spec-driven-dev/SKILL.md",
+      "skills/spec-driven-dev/guide.md"
     ],
     "test-coverage-assistant": [
-      "skills/test-coverage-assistant/SKILL.md"
+      "skills/test-coverage-assistant/SKILL.md",
+      "skills/test-coverage-assistant/guide.md"
     ],
     "changelog-guide": [
-      "skills/changelog-guide/SKILL.md"
+      "skills/changelog-guide/SKILL.md",
+      "skills/changelog-guide/guide.md"
     ],
     "error-code-guide": [
       "skills/error-code-guide/SKILL.md"
@@ -268,16 +275,19 @@
     ],
     "tdd-assistant": [
       "skills/tdd-assistant/SKILL.md",
+      "skills/tdd-assistant/guide.md",
       "skills/tdd-assistant/tdd-workflow.md",
       "skills/tdd-assistant/language-examples.md"
     ],
     "bdd-assistant": [
       "skills/bdd-assistant/SKILL.md",
+      "skills/bdd-assistant/guide.md",
       "skills/bdd-assistant/bdd-workflow.md",
       "skills/bdd-assistant/gherkin-guide.md"
     ],
     "atdd-assistant": [
       "skills/atdd-assistant/SKILL.md",
+      "skills/atdd-assistant/guide.md",
       "skills/atdd-assistant/atdd-workflow.md",
       "skills/atdd-assistant/acceptance-criteria-guide.md"
     ],
@@ -304,21 +314,25 @@
       "skills/commands/refactor.md"
     ],
     "refactoring-assistant": [
-      "skills/refactoring-assistant/SKILL.md"
+      "skills/refactoring-assistant/SKILL.md",
+      "skills/refactoring-assistant/guide.md"
     ],
     "methodology-system": [
       "skills/methodology-system/SKILL.md",
+      "skills/methodology-system/guide.md",
       "skills/methodology-system/runtime.md",
       "skills/methodology-system/create-methodology.md"
     ],
     "reverse-engineer": [
       "skills/reverse-engineer/SKILL.md",
+      "skills/reverse-engineer/guide.md",
       "skills/reverse-engineer/workflow.md",
       "skills/reverse-engineer/bdd-extraction.md",
       "skills/reverse-engineer/tdd-analysis.md"
     ],
     "forward-derivation": [
-      "skills/forward-derivation/SKILL.md"
+      "skills/forward-derivation/SKILL.md",
+      "skills/forward-derivation/guide.md"
     ],
     "ai-friendly-architecture": [
       "skills/ai-friendly-architecture/SKILL.md"
@@ -327,13 +341,16 @@
       "skills/ai-instruction-standards/SKILL.md"
     ],
     "checkin-assistant": [
-      "skills/checkin-assistant/SKILL.md"
+      "skills/checkin-assistant/SKILL.md",
+      "skills/checkin-assistant/guide.md"
     ],
     "docs-generator": [
-      "skills/docs-generator/SKILL.md"
+      "skills/docs-generator/SKILL.md",
+      "skills/docs-generator/guide.md"
     ],
     "project-discovery": [
       "skills/project-discovery/SKILL.md",
+      "skills/project-discovery/guide.md",
       "skills/project-discovery/workflow.md"
     ]
   },

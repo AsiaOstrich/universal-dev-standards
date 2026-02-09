@@ -1,231 +1,66 @@
 ---
 name: requirement
 scope: universal
-description: |
-  Guide requirement writing, user story creation, and feature specification.
-  Use when: writing requirements, user stories, issues, feature planning.
-  Keywords: requirement, user story, issue, feature, specification, 需求, 功能規劃, 規格.
+description: "[UDS] Write user stories and requirements following INVEST criteria"
+allowed-tools: Read, Write, Grep
+argument-hint: "[feature description | 功能描述]"
 ---
 
-# Requirement Assistant
+# Requirement Assistant | 需求助手
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/requirement-assistant/SKILL.md)
+Write well-structured user stories and requirements following INVEST criteria.
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-28
-**Applicability**: Claude Code Skills
-**Core Standard**: [Requirement Engineering Standards](../../core/requirement-engineering.md)
+撰寫結構良好的使用者故事和需求文件，遵循 INVEST 準則。
 
----
+## Workflow | 工作流程
 
-## Purpose
+1. **Understand context** - Gather feature information | 蒐集功能資訊
+2. **Identify stakeholders** - Who benefits from this feature? | 誰受益？
+3. **Write user story** - Follow the standard format | 遵循標準格式
+4. **Define acceptance criteria** - Specific, testable conditions | 定義可測試條件
+5. **Validate with INVEST** - Check quality criteria | 用 INVEST 驗證品質
 
-This skill provides guidance on writing clear, complete, and actionable requirements.
+## User Story Format | 使用者故事格式
 
-## Quick Reference
-
-### User Story Format (INVEST)
-
-```
+```markdown
 As a [role],
 I want [feature],
 So that [benefit].
+
+### Acceptance Criteria
+
+- [ ] Given [context], when [action], then [result]
+- [ ] Given [context], when [action], then [result]
 ```
 
-### INVEST Criteria
+## INVEST Criteria | INVEST 準則
 
-| Criterion | Description | Question to Ask |
-|-----------|-------------|-----------------|
-| **I**ndependent | Can be delivered alone | Does this depend on other stories? |
-| **N**egotiable | Details can be discussed | Is this too prescriptive? |
-| **V**aluable | Provides user value | What problem does this solve? |
-| **E**stimable | Can estimate effort | Do we understand the scope? |
-| **S**mall | Fits in one sprint | Can we break this down? |
-| **T**estable | Has clear acceptance criteria | How do we know it's done? |
+| Criterion | Description | 說明 |
+|-----------|-------------|------|
+| **I**ndependent | Can be developed separately | 可獨立開發 |
+| **N**egotiable | Details can be discussed | 可協商細節 |
+| **V**aluable | Delivers value to user | 提供使用者價值 |
+| **E**stimable | Can estimate effort | 可估算工作量 |
+| **S**mall | Fits in one sprint | 適合單一迭代 |
+| **T**estable | Has clear test criteria | 有明確測試標準 |
 
-### Requirement Priority Levels
+## Quality Checklist | 品質檢查清單
 
-| Priority | Label | Description |
-|----------|-------|-------------|
-| P0 | Must Have | Critical for release |
-| P1 | Should Have | Important but not blocking |
-| P2 | Could Have | Nice to have |
-| P3 | Won't Have | Out of scope (this release) |
+- [ ] User story follows "As a / I want / So that" format
+- [ ] At least 2 acceptance criteria defined
+- [ ] All 6 INVEST criteria satisfied
+- [ ] Edge cases and error scenarios considered
+- [ ] Out of scope items documented
 
-## Detailed Guidelines
+## Usage | 使用方式
 
-For complete standards, see:
-- [Requirement Writing Guide](./requirement-writing.md)
-- [Requirement Checklist](./requirement-checklist.md)
-
-## Quick Templates
-
-### Simple Issue Template
-
-```markdown
-## Problem
-[What problem are we solving?]
-
-## Proposed Solution
-[How should we solve it?]
-
-## Acceptance Criteria
-- [ ] [Criterion 1]
-- [ ] [Criterion 2]
-- [ ] [Criterion 3]
+```
+/requirement                         - Interactive requirement wizard | 互動式需求精靈
+/requirement user login              - Write requirement for feature | 為功能撰寫需求
+/requirement "users can export data" - Based on description | 根據描述撰寫
 ```
 
-### Feature Request Template
+## Reference | 參考
 
-```markdown
-## Summary
-[One-line description]
-
-## Motivation
-[Why is this needed? Who benefits?]
-
-## Detailed Description
-[Full description of the feature]
-
-## Acceptance Criteria
-- [ ] [Measurable criterion 1]
-- [ ] [Measurable criterion 2]
-
-## Out of Scope
-- [What this feature does NOT include]
-```
-
-### Bug Report Template
-
-```markdown
-## Description
-[Brief description of the bug]
-
-## Steps to Reproduce
-1. [Step 1]
-2. [Step 2]
-3. [Step 3]
-
-## Expected Behavior
-[What should happen]
-
-## Actual Behavior
-[What actually happens]
-
-## Environment
-- OS: [e.g., Windows 11]
-- Version: [e.g., v1.2.3]
-```
-
-## Acceptance Criteria Guidelines
-
-### Good Acceptance Criteria
-
-- **Specific**: Clear, unambiguous
-- **Measurable**: Can verify pass/fail
-- **Achievable**: Technically feasible
-- **Relevant**: Related to the requirement
-- **Testable**: Can write a test for it
-
-### Examples
-
-**Good**:
-```markdown
-- [ ] User can upload files up to 10MB
-- [ ] System responds within 500ms for 95th percentile
-- [ ] Error message displays when upload fails
-```
-
-**Bad**:
-```markdown
-- [ ] System should be fast  # Not measurable
-- [ ] Make it user-friendly  # Too vague
-- [ ] Fix the bug            # No specific criteria
-```
-
-## Requirement Completeness Checklist
-
-When writing requirements, ensure you cover:
-
-- [ ] **What**: Clear description of the feature
-- [ ] **Why**: Business value / problem solved
-- [ ] **Who**: Target users / personas
-- [ ] **When**: Priority / timeline
-- [ ] **How**: High-level approach (if known)
-- [ ] **Acceptance**: Criteria for completion
-- [ ] **Scope**: What's NOT included
-
----
-
-## Configuration Detection
-
-This skill supports project-specific requirement templates.
-
-### Detection Order
-
-1. Check `CONTRIBUTING.md` for "Disabled Skills" section
-   - If this skill is listed, it is disabled for this project
-2. Check `CONTRIBUTING.md` for "Requirement Language" section
-3. Check for `.github/ISSUE_TEMPLATE/` directory
-4. Check for `docs/templates/` directory
-5. If not found, **default to English** and use default templates
-
-### First-Time Setup
-
-If no templates found:
-
-1. Ask the user: "This project doesn't have requirement templates. Which language should I use? (English / 中文)"
-2. After user selection, suggest documenting in `CONTRIBUTING.md`:
-
-```markdown
-## Requirement Language
-
-This project uses **[chosen option]** for requirements and issues.
-<!-- Options: English | 中文 -->
-```
-
-3. Suggest appropriate template based on project type
-
-### Configuration Example
-
-In project's `CONTRIBUTING.md`:
-
-```markdown
-## Requirement Language
-
-This project uses **English** for requirements and issues.
-<!-- Options: English | 中文 -->
-
-### Issue Templates Location
-`.github/ISSUE_TEMPLATE/`
-```
-
----
-
-## Related Standards
-
-**Core Standard (Theory & Deep Reference)**:
-- [Requirement Engineering Standards](../../core/requirement-engineering.md) - Complete theoretical foundation including IEEE 830, SWEBOK v4.0, ISO 25010
-
-**Related Standards**:
-- [Spec-Driven Development](../../core/spec-driven-development.md) - Specification workflow
-- [Behavior-Driven Development](../../core/behavior-driven-development.md) - Given-When-Then scenarios
-- [Acceptance Test-Driven Development](../../core/acceptance-test-driven-development.md) - ATDD workshops
-- [Checkin Standards](../../core/checkin-standards.md) - Code check-in requirements
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.1.0 | 2026-01-28 | Added: Core Standard reference to requirement-engineering.md, expanded Related Standards section |
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
-
----
-
-## License
-
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+- Detailed guide: [guide.md](./guide.md)
+- Core standard: [requirement-engineering.md](../../core/requirement-engineering.md)

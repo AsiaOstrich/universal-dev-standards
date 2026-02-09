@@ -1,5 +1,11 @@
 # Claude Code Custom Commands
 
+> **Note**: Since Claude Code v2.1.3+, Skills and Commands are merged.
+> SKILL.md files now include all command metadata (`allowed-tools`, `argument-hint`).
+> This directory is maintained for backward compatibility with AI agents that
+> use separate command directories (OpenCode, Copilot, Roo Code, Gemini CLI).
+> For new commands, create a SKILL.md in `skills/<name>/` instead.
+
 Custom slash commands for Universal Development Standards.
 
 > **Workflow Guide**: For a comprehensive overview of how methodology commands work together, see **[Command Family Overview](./COMMAND-FAMILY-OVERVIEW.md)**.
