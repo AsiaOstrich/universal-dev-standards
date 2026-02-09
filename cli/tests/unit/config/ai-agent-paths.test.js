@@ -38,8 +38,16 @@ describe('AI Agent Paths Configuration', () => {
       }
     });
 
+    it('should have correct paths for Antigravity', () => {
+      const config = AI_AGENT_PATHS['antigravity'];
+
+      expect(config.skills.project).toBe('.agent/skills/');
+      expect(config.skills.user).toBe(join(homedir(), '.gemini', 'antigravity', 'skills'));
+      expect(config.supportsSkills).toBe(true);
+    });
+
     it('should have valid commands paths for agents that support commands', () => {
-      // Updated Jan 2026: Cursor v2.3.35 added commands support
+      // Updated Jan 2026: Cursor v2.4 added commands support
       const agentsWithCommands = ['opencode', 'cursor', 'roo-code', 'copilot', 'gemini-cli'];
 
       for (const agent of agentsWithCommands) {
@@ -107,7 +115,7 @@ describe('AI Agent Paths Configuration', () => {
       expect(path).toBe(join(homedir(), '.config', 'opencode', 'command'));
     });
 
-    it('should return commands path for Cursor (added Jan 2026, v2.3.35)', () => {
+    it('should return commands path for Cursor (added Jan 2026, v2.4)', () => {
       const path = getCommandsDirForAgent('cursor', 'project', '/test/project');
       expect(path).toBe(join('/test/project', '.cursor/commands/'));
     });
@@ -139,11 +147,17 @@ describe('AI Agent Paths Configuration', () => {
       expect(agents).toContain('gemini-cli');
     });
 
-    it('should include Cursor (added Jan 2026, v2.3.35)', () => {
+    it('should include Cursor (added Jan 2026, v2.4)', () => {
       const agents = getSkillsSupportedAgents();
 
-      // Cursor added SKILL.md support in v2.3.35 (Jan 2026)
+      // Cursor added SKILL.md support in v2.4 (Jan 22, 2026)
       expect(agents).toContain('cursor');
+    });
+
+    it('should include Antigravity (Skills since Nov 2025)', () => {
+      const agents = getSkillsSupportedAgents();
+
+      expect(agents).toContain('antigravity');
     });
   });
 
@@ -158,10 +172,10 @@ describe('AI Agent Paths Configuration', () => {
       expect(agents).toContain('gemini-cli');
     });
 
-    it('should include Cursor (added Jan 2026, v2.3.35)', () => {
+    it('should include Cursor (added Jan 2026, v2.4)', () => {
       const agents = getCommandsSupportedAgents();
 
-      // Cursor added commands support in v2.3.35 (Jan 2026)
+      // Cursor added commands support in v2.4 (Jan 22, 2026)
       expect(agents).toContain('cursor');
       // Cline still doesn't support file-based commands
       expect(agents).not.toContain('cline');

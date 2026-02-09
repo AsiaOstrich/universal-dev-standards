@@ -90,25 +90,25 @@ export const AI_AGENT_PATHS = {
     workflows: null, // Not supported
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/',
-    supportsSkills: true, // SKILL.md support since v2.3.35 (Jan 2026)
+    supportsSkills: true, // SKILL.md support since v2.4 (Jan 22, 2026)
     supportsTask: false, // No Task tool support
     supportsAgents: true // Can load agents as inline context
   },
   'cline': {
     name: 'Cline',
     skills: {
-      project: '.clinerules/skills/',
-      user: join(homedir(), '.clinerules', 'skills')
+      project: '.cline/skills/',
+      user: join(homedir(), '.cline', 'skills')
     },
     commands: null, // Uses workflow files
     agents: {
-      project: '.clinerules/agents/',
-      user: join(homedir(), '.clinerules', 'agents')
+      project: '.cline/agents/',
+      user: join(homedir(), '.cline', 'agents')
     },
     workflows: {
       // Official path per docs.cline.bot/features/slash-commands/workflows
-      project: '.clinerules/workflows/',
-      user: join(homedir(), '.clinerules', 'workflows')
+      project: '.cline/workflows/',
+      user: join(homedir(), '.cline', 'workflows')
     },
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/',
@@ -226,22 +226,22 @@ export const AI_AGENT_PATHS = {
     commandFormat: 'toml',
     supportsMarketplace: false,
     fallbackSkillsPath: '.claude/skills/',
-    supportsSkills: true, // Preview support
+    supportsSkills: true, // Stable since v0.27.0 (Feb 2026)
     supportsTask: false,
     supportsAgents: true
   },
   'antigravity': {
     name: 'Google Antigravity',
     skills: {
-      project: '.antigravity/skills/',
-      user: join(homedir(), '.antigravity', 'skills')
+      project: '.agent/skills/',
+      user: join(homedir(), '.gemini', 'antigravity', 'skills')
     },
     commands: null,
     agents: null,
     workflows: null,
     supportsMarketplace: false,
     fallbackSkillsPath: null,
-    supportsSkills: false,
+    supportsSkills: true, // Skills since Nov 2025
     supportsTask: false,
     supportsAgents: false
   }

@@ -449,7 +449,7 @@ export async function promptIntegrationConfig(tool, detected, existingRulesFound
     customRules: [],
     mergeStrategy: null,
     detailLevel: 'standard',
-    language: 'en'
+    language: null
   };
 
   // If existing rules found, ask about merge strategy first

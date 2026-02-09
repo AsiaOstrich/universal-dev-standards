@@ -121,8 +121,11 @@ describe('Core Constants', () => {
   describe('LEGACY_TOOL_MAPPINGS', () => {
     it('should map legacy tool names', () => {
       expect(LEGACY_TOOL_MAPPINGS['codex']).toBe('opencode');
-      expect(LEGACY_TOOL_MAPPINGS['gemini-cli']).toBe('opencode');
       expect(LEGACY_TOOL_MAPPINGS['copilot']).toBe('github-copilot');
+    });
+
+    it('should not map gemini-cli to opencode', () => {
+      expect(LEGACY_TOOL_MAPPINGS['gemini-cli']).toBeUndefined();
     });
   });
 
@@ -306,7 +309,7 @@ describe('Helper Functions', () => {
   describe('getNormalizedToolName', () => {
     it('should return normalized name for legacy tools', () => {
       expect(getNormalizedToolName('codex')).toBe('opencode');
-      expect(getNormalizedToolName('gemini-cli')).toBe('opencode');
+      expect(getNormalizedToolName('gemini-cli')).toBe('gemini-cli');
       expect(getNormalizedToolName('copilot')).toBe('github-copilot');
     });
 

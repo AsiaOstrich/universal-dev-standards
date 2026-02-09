@@ -107,6 +107,13 @@ export const SUPPORTED_AI_TOOLS = {
     format: 'markdown',
     category: 'secondary',
     supports: ['skills', 'workflows']
+  },
+  'gemini-cli': {
+    name: 'Gemini CLI',
+    file: 'GEMINI.md',
+    format: 'markdown',
+    category: 'primary',
+    supports: ['skills', 'commands']
   }
 };
 
@@ -115,7 +122,6 @@ export const SUPPORTED_AI_TOOLS = {
  */
 export const LEGACY_TOOL_MAPPINGS = {
   'codex': 'opencode',
-  'gemini-cli': 'opencode',
   'copilot': 'github-copilot'
 };
 
