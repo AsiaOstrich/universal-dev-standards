@@ -2576,9 +2576,21 @@ export function writeIntegrationFile(tool, config, projectPath) {
     let content = generateIntegrationContent({ ...config, tool });
 
     // Handle merge if file exists
-    if (existsSync(filePath) && config.mergeStrategy) {
+    if (existsSync(filePath)) {
       const existingContent = readFileSync(filePath, 'utf-8');
-      content = mergeRules(existingContent, content, config.mergeStrategy);
+
+      if (config.mergeStrategy) {
+        // Explicit merge strategy takes precedence
+        content = mergeRules(existingContent, content, config.mergeStrategy);
+      } else {
+        // Default: marker-based update preserves user content outside markers
+        const format = getToolFormat(tool);
+        const newParts = extractMarkedContent(content, format);
+        if (newParts.content) {
+          content = updateMarkedSection(existingContent, newParts.content, format);
+        }
+        // If new content has no markers, overwrite entirely (backward compat)
+      }
     }
 
     writeFileSync(filePath, content);

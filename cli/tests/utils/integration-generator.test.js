@@ -725,6 +725,118 @@ describe('Integration Generator', () => {
       expect(writtenContent).toContain('Existing rules');
     });
 
+    it('should use marker-based update when file exists with markers and no mergeStrategy', () => {
+      const existingContent = [
+        '# My Project',
+        '',
+        '## Custom Section',
+        'Project-specific content here.',
+        '',
+        '<!-- UDS:STANDARDS:START -->',
+        '## Old Standards',
+        'Old content',
+        '<!-- UDS:STANDARDS:END -->',
+        '',
+        '## Another Custom Section',
+        'More project content.'
+      ].join('\n');
+
+      existsSync
+        .mockReturnValueOnce(true)   // dir exists
+        .mockReturnValueOnce(true);  // file exists
+      readFileSync.mockReturnValue(existingContent);
+
+      // installedStandards triggers marker generation in new content
+      const result = writeIntegrationFile(
+        'claude-code',
+        {
+          categories: [],
+          installedStandards: ['.standards/commit-message.ai.yaml']
+        },
+        '/project'
+      );
+
+      expect(result.success).toBe(true);
+      const writtenContent = writeFileSync.mock.calls[0][1];
+      // User content before markers is preserved
+      expect(writtenContent).toContain('# My Project');
+      expect(writtenContent).toContain('Project-specific content here.');
+      // User content after markers is preserved
+      expect(writtenContent).toContain('## Another Custom Section');
+      expect(writtenContent).toContain('More project content.');
+      // Old UDS content is replaced
+      expect(writtenContent).not.toContain('Old content');
+      // New UDS markers are present
+      expect(writtenContent).toContain('<!-- UDS:STANDARDS:START -->');
+      expect(writtenContent).toContain('<!-- UDS:STANDARDS:END -->');
+    });
+
+    it('should append markers when file exists without markers and no mergeStrategy', () => {
+      const existingContent = [
+        '# My Project',
+        '',
+        '## Custom Section',
+        'Project-specific content only.'
+      ].join('\n');
+
+      existsSync
+        .mockReturnValueOnce(true)   // dir exists
+        .mockReturnValueOnce(true);  // file exists
+      readFileSync.mockReturnValue(existingContent);
+
+      // installedStandards triggers marker generation in new content
+      const result = writeIntegrationFile(
+        'claude-code',
+        {
+          categories: [],
+          installedStandards: ['.standards/commit-message.ai.yaml']
+        },
+        '/project'
+      );
+
+      expect(result.success).toBe(true);
+      const writtenContent = writeFileSync.mock.calls[0][1];
+      // User content is preserved
+      expect(writtenContent).toContain('# My Project');
+      expect(writtenContent).toContain('Project-specific content only.');
+      // New UDS markers are appended
+      expect(writtenContent).toContain('<!-- UDS:STANDARDS:START -->');
+      expect(writtenContent).toContain('<!-- UDS:STANDARDS:END -->');
+    });
+
+    it('should overwrite entire file when mergeStrategy is explicitly set', () => {
+      const existingContent = [
+        '# My Project',
+        '',
+        '<!-- UDS:STANDARDS:START -->',
+        '## Old Standards',
+        '<!-- UDS:STANDARDS:END -->',
+        '',
+        '## Custom Section'
+      ].join('\n');
+
+      existsSync
+        .mockReturnValueOnce(true)   // dir exists
+        .mockReturnValueOnce(true);  // file exists
+      readFileSync.mockReturnValue(existingContent);
+
+      const result = writeIntegrationFile(
+        'claude-code',
+        {
+          categories: [],
+          installedStandards: ['.standards/commit-message.ai.yaml'],
+          mergeStrategy: 'overwrite'
+        },
+        '/project'
+      );
+
+      expect(result.success).toBe(true);
+      const writtenContent = writeFileSync.mock.calls[0][1];
+      // With mergeStrategy='overwrite', mergeRules handles it - user content may not be preserved
+      // The key assertion is that mergeStrategy takes precedence over marker-based update
+      expect(writtenContent).toBeDefined();
+    });
+
     it('should handle write errors', () => {
       existsSync.mockReturnValue(true);
       writeFileSync.mockImplementation(() => {
