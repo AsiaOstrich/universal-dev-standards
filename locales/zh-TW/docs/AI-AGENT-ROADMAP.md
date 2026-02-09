@@ -1,8 +1,8 @@
 ---
 source: ../../docs/AI-AGENT-ROADMAP.md
-source_version: 2.3.0
-translation_version: 2.3.0
-last_synced: 2026-01-22
+source_version: 2.5.0
+translation_version: 2.5.0
+last_synced: 2026-02-09
 status: current
 ---
 
@@ -10,10 +10,51 @@ status: current
 
 > **語言**: [English](../../docs/AI-AGENT-ROADMAP.md) | 繁體中文 | [简体中文](../../zh-CN/docs/AI-AGENT-ROADMAP.md)
 
-**版本**: 2.3.0
-**最後更新**: 2026-01-22
+**版本**: 2.5.0
+**最後更新**: 2026-02-09
 
 本文件提供 Universal Development Standards (UDS) 對 AI Agent 支援的完整參考。
+
+---
+
+## 2026 年產業變動摘要
+
+> **2026 年 2 月更新**：UDS 追蹤的所有 10 個 AI 程式碼工具現在都支援 SKILL.md。業界已達成 100% Skills 覆蓋率。
+>
+> *研究日期：2026-02-09。來源：各工具的官方文件與變更日誌。*
+
+### 重要發展
+
+| 變動 | 影響 | 日期 | 來源 |
+|------|------|------|------|
+| **Cursor SKILL.md 支援** | Cursor v2.4 透過 agentskills.io 標準原生支援 SKILL.md | 2026/01/22 | [cursor.com/changelog/2-4](https://cursor.com/changelog/2-4) |
+| **SKILL.md 業界標準** | 所有主流 AI 程式碼工具都支援相同的 Skills 格式 | 2025/12 - 2026/01 | [agentskills.io](https://agentskills.io) |
+| **Skills/Commands 合併** | Claude Code 在 v2.1.3+ 合併了 Skills 與 Commands | 2026/01/09 | [Claude Code Changelog](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md) |
+| **Gemini CLI Skills 穩定版** | Skills 在 v0.27.0 從預覽升級為穩定版 | 2026/02/03 | [geminicli.com/docs/changelogs/latest](https://geminicli.com/docs/changelogs/latest/) |
+| **Antigravity Skills** | Google Antigravity 支援 SKILL.md 與斜線命令 | 2025/11/18 | [antigravity.google/docs/skills](https://antigravity.google/docs/skills) |
+| **Windsurf 被 Cognition 收購** | Windsurf (Devin) 現在有完整的 Skills + Workflows 支援 | 2025/07 | [TechCrunch](https://techcrunch.com/2025/07/14/cognition-maker-of-the-ai-coding-agent-devin-acquires-windsurf/) |
+| **Codex 桌面應用程式** | OpenAI Codex 桌面應用程式發布，支援 Skills | 2026/02/02 | [openai.com/index/introducing-the-codex-app](https://openai.com/index/introducing-the-codex-app/) |
+| **Vibe Coding 時代** | 自然語言 → 程式碼生成成為主流 | 2026 | - |
+
+### 通用 Skills 覆蓋率
+
+截至 2026 年 2 月，SKILL.md 已被**全部 10 個追蹤的 AI 工具**支援：
+- ✅ Claude Code（原生，參考實作，2025/10）
+- ✅ OpenCode（完整支援，v1.1.53）
+- ✅ Cursor（完整支援，v2.4，2026/01）
+- ✅ GitHub Copilot（完整支援，2025/12）
+- ✅ Cline（完整支援，v3.48.0，2026/01）
+- ✅ Roo Code（完整支援，v3.47.3）
+- ✅ OpenAI Codex（完整支援，CLI v0.98.0）
+- ✅ Windsurf（完整支援，2026/01）
+- ✅ Gemini CLI（穩定版，v0.27.0，2026/02）
+- ✅ Antigravity（完整支援，2025/11）
+
+### 對 UDS 的影響
+
+1. **跨平台可攜性**：Skills 只需撰寫一次即可在全部 10 個 AI 工具上使用（100% 覆蓋率）
+2. **簡化維護**：不需要工具專用的轉換
+3. **統一工作流程**：在所有工具中使用相同的 `/commit`、`/review`、`/tdd` 命令
 
 ---
 
@@ -54,9 +95,9 @@ status: current
 | OpenAI Codex | 🔶 partial | ✅ | - | `AGENTS.md`（共用） | Skills 可用 |
 | Gemini CLI | 🧪 preview | ✅ | ✅ (TOML) | `GEMINI.md` | Commands 自動轉換為 TOML |
 | Roo Code | ⏳ planned | ✅ | ✅ | - | 實作存在，待測試 |
-| Cursor | 📄 minimal | - | - | `.cursorrules` | 僅規則檔 |
-| Windsurf | 📄 minimal | - | - | `.windsurfrules` | 僅規則檔 |
-| Antigravity | 📄 minimal | - | - | `INSTRUCTIONS.md` | 僅規則檔 |
+| Cursor | ✅ complete | ✅ | ✅ | `.cursorrules` | Skills 支援自 v2.4（2026/01/22） |
+| Windsurf | 🔶 partial | ✅ | ✅ | `.windsurfrules` | Skills + Workflows（2026/01） |
+| Antigravity | 📄 minimal | - | - | `INSTRUCTIONS.md` | UDS CLI 尚未更新（工具原生支援 Skills） |
 
 ### 兩種「支援」的區別
 
@@ -65,13 +106,13 @@ status: current
 | **工具原生能力** | AI 工具本身支援什麼功能 | [快速參考](#2-快速參考) |
 | **UDS CLI 實作** | UDS CLI 對該工具的實作程度 | 本節 |
 
-範例：Cursor 原生不支援 SKILL.md（工具能力），但 UDS CLI 可以為它生成 `.cursorrules`（實作狀態 = minimal）。
+範例：Cursor 自 v2.4（2026/01/22）起原生支援 SKILL.md，UDS CLI 提供完整的 Skills、Commands 與 `.cursorrules` 生成整合。
 
 ---
 
 ## 2. 快速參考
 
-### 配置檔
+### 2.1 配置檔
 
 | AI Agent | 專案配置 | 全域配置 | 備註 |
 |----------|----------|----------|------|
@@ -83,10 +124,10 @@ status: current
 | OpenAI Codex | `.codex/AGENTS.md` | `~/.codex/AGENTS.md` | 32KB 限制 |
 | Windsurf | `.windsurfrules` | 設定 UI | 6K/檔，總計 12K |
 | Gemini CLI | `.gemini/GEMINI.md` | `~/.gemini/GEMINI.md` | 支援 `@import` |
-| Cursor | `.cursor/rules/*.mdc` | `~/.cursor/rules/` | 需要 YAML frontmatter |
-| Antigravity | `.antigravity/` | `~/.antigravity/` | 最低支援，手動模式 |
+| Cursor | `.cursor/skills/` | `~/.cursor/skills/` | SKILL.md + Rules 支援 |
+| Antigravity | `INSTRUCTIONS.md` | `~/.antigravity/` | Skills + 斜線命令 |
 
-### Skills 路徑
+### 2.2 Skills 路徑
 
 | AI Agent | Skills | 專案路徑 | 全域路徑 | 備註 |
 |----------|:------:|----------|----------|------|
@@ -97,11 +138,11 @@ status: current
 | Roo Code | ✅ 完整 | `.roo/skills/` | `~/.roo/skills/` | 模式特定：`.roo/skills-{mode}/` |
 | OpenAI Codex | ✅ 完整 | `.codex/skills/` | `~/.codex/skills/` | 也讀取 `.claude/skills/` |
 | Windsurf | ✅ 完整 | `.windsurf/rules/` | 設定 UI | 2026/01 起支援 Skills |
-| Gemini CLI | ✅ 預覽 | `.gemini/skills/` | `~/.gemini/skills/` | v0.23+ 預覽版 |
-| Cursor | ❌ 否 | `.cursor/rules/` | `~/.cursor/rules/` | 僅 Rules，不支援 SKILL.md |
-| Antigravity | ❌ 否 | `.antigravity/skills/` | `~/.antigravity/skills/` | 不支援 SKILL.md |
+| Gemini CLI | ✅ 穩定版 | `.gemini/skills/` | `~/.gemini/skills/` | v0.27.0 穩定版 |
+| Cursor | ✅ 完整 | `.cursor/skills/` | `~/.cursor/skills/` | SKILL.md 支援自 v2.4 |
+| Antigravity | ✅ 完整 | `.agent/skills/` | `~/.gemini/antigravity/skills/` | 2025/11 起支援 Skills |
 
-### 斜線命令
+### 2.3 斜線命令
 
 | AI Agent | 支援 | 類型 | 範例 | 自訂路徑 |
 |----------|:----:|------|------|----------|
@@ -113,10 +154,10 @@ status: current
 | OpenAI Codex | ✅ | 系統命令 | `/model`, `/diff`, `/skills` | 自訂 prompts |
 | Windsurf | ✅ | Rulebook | 自動產生 | 從 `.windsurfrules` |
 | Gemini CLI | ✅ | 系統 + 自訂 | `/clear`, `/memory`, `/mcp` | `.gemini/commands/*.toml` |
-| Cursor | ✅ | 內建 + 自訂 | `/summarize`, `/models` | `.cursor/commands/*.md` |
-| Antigravity | ❌ | N/A | N/A | N/A |
+| Cursor | ✅ | 內建 + 自訂 + Skills | `/summarize`, `/models`, `/rules`, `/mcp` | `.cursor/skills/`, `.cursor/commands/*.md` |
+| Antigravity | ✅ | 斜線命令 | `/deslop`, `/refactor`, `/write-tests` | 社群驅動 |
 
-### 平台支援
+### 2.4 平台支援
 
 | 平台 | CLI 工具 | Skills |
 |------|:--------:|:------:|
@@ -128,41 +169,33 @@ status: current
 
 ## 3. 整合深度
 
-> **說明**: 截至 2026 年 1 月，Agent Skills (SKILL.md) 已成為業界標準。大多數主流 AI 程式碼工具現在都支援相同的 Skills 格式。
+> **說明**: 截至 2026 年 2 月，Agent Skills (SKILL.md) 已成為業界標準。所有 10 個追蹤的 AI 程式碼工具現在都支援相同的 Skills 格式。
 
 ### 原生 Skills（參考實作）
 
 **工具**: Claude Code
 
 - Agent Skills 標準的參考實作
-- 18 個內建 UDS Skills + Marketplace
+- 25 個內建 UDS Skills + Marketplace
+- 37 個斜線命令（25 個基於 Skill + 12 個僅 Commands）
 - 完整斜線命令支援（`/commit`、`/review`、`/tdd` 等）
 - 關鍵字自動觸發
 
 ### 完整 Skills 支援
 
-**工具**: OpenCode, GitHub Copilot, Cline, Roo Code, OpenAI Codex, Windsurf, Gemini CLI
+**工具**: OpenCode, Cursor, GitHub Copilot, Cline, Roo Code, OpenAI Codex, Windsurf, Gemini CLI
 
 - 可讀取並執行 SKILL.md 檔案
 - 跨平台相容 `.claude/skills/` 目錄
 - 大多數工具也有自己的原生路徑（見 Skills 路徑欄）
 
-### 僅 Rules（無 Skills）
-
-**工具**: Cursor
-
-- 有自己的規則格式（`.cursor/rules/*.mdc`）
-- 尚未支援 SKILL.md 格式
-- 社群已提出功能請求
-
-### 最低支援
+### 最低 UDS CLI 支援
 
 **工具**: Antigravity
 
-- 不支援 SKILL.md
-- 不支援 AGENT.md
-- 僅手動執行模式
-- 為完整性而收錄
+- 工具原生支援 SKILL.md 與斜線命令（自 2025/11 起）
+- UDS CLI 整合尚未更新 — 目前僅生成 `INSTRUCTIONS.md`
+- 計劃中：升級 UDS CLI 以為 Antigravity 生成 Skills
 
 ---
 
@@ -205,8 +238,8 @@ status: current
 | OpenAI Codex | `.codex/skills/` | `~/.codex/skills/` | ✅ 是 |
 | Windsurf | `.windsurf/rules/` | 設定 UI | ✅ 是 |
 | Gemini CLI | `.gemini/skills/` | `~/.gemini/skills/` | ✅ 是 |
-| Cursor | `.cursor/rules/` | `~/.cursor/rules/` | ❌ 否 |
-| Antigravity | `.antigravity/skills/` | `~/.antigravity/skills/` | ❌ 否 |
+| Cursor | `.cursor/skills/` | `~/.cursor/skills/` | ✅ 是 |
+| Antigravity | `.agent/skills/` | `~/.gemini/antigravity/skills/` | ✅ 是 |
 
 #### 啟用方式
 
@@ -220,8 +253,8 @@ status: current
 | OpenAI Codex | `/skills` 命令、自動觸發 |
 | Windsurf | 手動（@提及）、始終開啟、模型決定 |
 | Gemini CLI | 自動觸發、透過設定啟用/停用 |
-| Cursor | Glob 模式、`alwaysApply` 旗標（僅 rules） |
-| Antigravity | 僅手動 |
+| Cursor | 斜線命令、Glob 模式、`alwaysApply` 旗標 |
+| Antigravity | 斜線命令、語義觸發 |
 
 **建議**：使用 `.claude/skills/` 作為預設安裝路徑 — 大多數工具都可讀取以獲得跨工具相容性。
 
@@ -238,9 +271,9 @@ status: current
 | Cline | ✅ 完整 | v3.48.0 |
 | Roo Code | ✅ 完整 | 2025/12/27 |
 | Windsurf | ✅ 完整 | 2026/01/09 |
-| Gemini CLI | ✅ 預覽版 | 2026/01/07 |
-| Cursor | ❌ 尚未 | 已請求 |
-| Antigravity | ❌ 否 | N/A |
+| Gemini CLI | ✅ 穩定版 | 2026/02/03，v0.27.0 |
+| Cursor | ✅ 完整 | 2026/01/22，v2.4 |
+| Antigravity | ✅ 完整 | 2025/11/18 |
 
 **跨平台安裝器**:
 - [skilz](https://github.com/skilz-ai/skilz) - 通用 Skills 安裝器（14+ 平台）
@@ -257,14 +290,14 @@ status: current
 |----------|----------|----------|----------|
 | Claude Code | `CLAUDE.md` | `~/.claude/CLAUDE.md` | ~100KB |
 | OpenCode | `AGENTS.md` | `~/.config/opencode/AGENTS.md` | 無限制 |
-| Cursor | `.cursor/rules/*.mdc` | `~/.cursor/rules/` | 每檔不同 |
+| Cursor | `.cursor/skills/`, `.cursor/rules/*.mdc` | `~/.cursor/skills/` | 每檔不同 |
 | Windsurf | `.windsurfrules` | 設定 UI | 6K/檔，總計 12K |
 | Cline | `.clinerules` | `~/.cline-rules/` | 無限制 |
 | Roo Code | `.roorules` | `~/.roo/rules/` | 無限制 |
 | GitHub Copilot | `.github/copilot-instructions.md` | 個人設定 | ~8KB |
 | OpenAI Codex | `AGENTS.md` | `~/.codex/AGENTS.md` | 32KB |
 | Gemini CLI | `GEMINI.md` | `~/.gemini/GEMINI.md` | 1M tokens |
-| Antigravity | N/A | `~/.antigravity/` | N/A |
+| Antigravity | `INSTRUCTIONS.md` | `~/.antigravity/` | Skills + 斜線命令 |
 
 ### 5.2 配置合併行為
 
@@ -278,7 +311,7 @@ status: current
 | GitHub Copilot | 組合 | 個人 > 儲存庫 > 組織 |
 | OpenAI Codex | 串接 | 覆寫檔 > 基礎，較近者優先 |
 | Gemini CLI | 串接 | 所有檔案支援 `@import` |
-| Antigravity | N/A | N/A |
+| Antigravity | 串接 | 工作區 > 全域 |
 
 ### 5.3 Skills 檔案格式
 
@@ -294,8 +327,8 @@ status: current
 | OpenAI Codex | ✅ SKILL.md | `AGENTS.md` | YAML |
 | Windsurf | ✅ SKILL.md | `.windsurfrules` | YAML |
 | Gemini CLI | ✅ SKILL.md | `GEMINI.md` | YAML |
-| Cursor | ❌ `.mdc` | `.cursor/rules/` | YAML (globs, alwaysApply) |
-| Antigravity | ❌ N/A | N/A | N/A |
+| Cursor | ✅ SKILL.md | `.cursor/skills/`, `.cursor/rules/` | YAML (globs, alwaysApply) |
+| Antigravity | ✅ SKILL.md | `INSTRUCTIONS.md` | YAML |
 
 ---
 
@@ -354,7 +387,11 @@ status: current
 | Skills 市集 | 發布和發現 Skills | ✅ 多個平台 |
 | 多 Agent 安裝 | 一次安裝 Skills 到多個 Agent | ✅ v3.5.0 |
 | Gemini CLI TOML | 自動轉換指令為 TOML 格式 | ✅ v3.5.0 |
-| Cursor Skills 支援 | 原生 SKILL.md 支援 | ⏳ 社群已請求 |
+| Cursor Skills 支援 | 原生 SKILL.md 支援 | ✅ v2.4（2026/01/22） |
+| Antigravity Skills | 原生 SKILL.md + 斜線命令 | ✅ 2025/11 |
+| Gemini CLI Skills 穩定版 | Skills 從預覽升級為穩定版 | ✅ v0.27.0（2026/02/03） |
+| Windsurf 完整 Skills | Skills + Workflows（Cognition 擁有） | ✅ 2026/01 |
+| 100% SKILL.md 覆蓋率 | 所有 10 個追蹤的 AI 工具支援 SKILL.md | ✅ 已達成（2026/02） |
 | CLI 自動偵測 | 偵測已安裝的 AI 工具 | 計劃中 |
 
 ---
@@ -363,7 +400,9 @@ status: current
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
-| 2.3.0 | 2026-01-21 | 新增 Antigravity 至所有表格以與 CLI 保持一致 |
+| 2.5.0 | 2026-02-09 | 研究更新：Antigravity 支援 Skills + 斜線命令（先前錯誤標記為不支援）；Gemini CLI Skills 升級為穩定版（v0.27.0）；Windsurf 升級為 partial（Skills + Workflows）；Cursor 版本更正為 v2.4；新增來源 URL 至重要發展；所有 10 個 AI 工具現在支援 SKILL.md（100% 覆蓋率） |
+| 2.4.0 | 2026-01-27 | 更新 Cursor 為 complete/完整 Skills 支援（v2.3.35）；新增「2026 年產業變動摘要」章節；移除「僅 Rules」分類（Cursor 已升級） |
+| 2.3.0 | 2026-01-22 | 新增 UDS CLI 實作狀態章節與狀態定義；新增 Antigravity 至所有表格以與 CLI 保持一致 |
 | 2.2.0 | 2026-01-15 | 新增多 Agent 安裝、Gemini CLI TOML 轉換 |
 | 2.1.0 | 2026-01-15 | 更新所有工具的 Skills 支援狀態（業界廣泛採用） |
 | 2.0.0 | 2026-01-15 | 重大重構：整合內容、減少表格 |

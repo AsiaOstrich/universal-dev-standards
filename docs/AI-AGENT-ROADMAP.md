@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/docs/AI-AGENT-ROADMAP.md) | [简体中文](../locales/zh-CN/docs/AI-AGENT-ROADMAP.md)
 
-**Version**: 2.4.0
-**Last Updated**: 2026-01-27
+**Version**: 2.5.0
+**Last Updated**: 2026-02-09
 
 This document provides a comprehensive reference for AI Agent support in Universal Development Standards (UDS).
 
@@ -11,34 +11,40 @@ This document provides a comprehensive reference for AI Agent support in Univers
 
 ## 2026 Industry Changes Summary
 
-> **January 2026 Update**: The AI coding assistant landscape has undergone significant changes.
+> **February 2026 Update**: All 10 AI coding tools tracked by UDS now support SKILL.md. The industry has achieved 100% Skills coverage.
+>
+> *Research date: 2026-02-09. Sources: Official documentation and changelogs for each tool.*
 
 ### Key Developments
 
-| Change | Impact | Date |
-|--------|--------|------|
-| **Cursor SKILL.md Support** | Cursor v2.3.35 now natively supports SKILL.md format | Jan 2026 |
-| **SKILL.md Industry Standard** | All major AI coding tools now support the same Skills format | Dec 2025 - Jan 2026 |
-| **Skills/Commands Merge** | Claude Code merged Skills and Commands in v2.1.3+ | 2025 |
-| **Vibe Coding Era** | Natural language → code generation becoming mainstream | 2026 |
+| Change | Impact | Date | Source |
+|--------|--------|------|--------|
+| **Cursor SKILL.md Support** | Cursor v2.4 natively supports SKILL.md via agentskills.io standard | Jan 22, 2026 | [cursor.com/changelog/2-4](https://cursor.com/changelog/2-4) |
+| **SKILL.md Industry Standard** | All major AI coding tools now support the same Skills format | Dec 2025 - Jan 2026 | [agentskills.io](https://agentskills.io) |
+| **Skills/Commands Merge** | Claude Code merged Skills and Commands in v2.1.3+ | Jan 9, 2026 | [Claude Code Changelog](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md) |
+| **Gemini CLI Skills Stable** | Skills promoted from preview to stable in v0.27.0 | Feb 3, 2026 | [geminicli.com/docs/changelogs/latest](https://geminicli.com/docs/changelogs/latest/) |
+| **Antigravity Skills** | Google Antigravity supports SKILL.md and slash commands | Nov 18, 2025 | [antigravity.google/docs/skills](https://antigravity.google/docs/skills) |
+| **Windsurf Acquired by Cognition** | Windsurf (Devin) now has full Skills + Workflows support | Jul 2025 | [TechCrunch](https://techcrunch.com/2025/07/14/cognition-maker-of-the-ai-coding-agent-devin-acquires-windsurf/) |
+| **Codex Desktop App** | OpenAI Codex desktop app launched with Skills support | Feb 2, 2026 | [openai.com/index/introducing-the-codex-app](https://openai.com/index/introducing-the-codex-app/) |
+| **Vibe Coding Era** | Natural language → code generation becoming mainstream | 2026 | - |
 
 ### Universal Skills Coverage
 
-As of January 2026, SKILL.md is supported by:
-- ✅ Claude Code (native, reference implementation)
-- ✅ OpenCode (full support)
-- ✅ Cursor (NEW - v2.3.35, Jan 2026)
-- ✅ GitHub Copilot (full support)
-- ✅ Cline (full support)
-- ✅ Roo Code (full support)
-- ✅ OpenAI Codex (full support)
-- ✅ Windsurf (full support)
-- ✅ Gemini CLI (preview)
-- ❌ Antigravity (no support)
+As of February 2026, SKILL.md is supported by **all 10 tracked AI tools**:
+- ✅ Claude Code (native, reference implementation, Oct 2025)
+- ✅ OpenCode (full support, v1.1.53)
+- ✅ Cursor (full support, v2.4, Jan 2026)
+- ✅ GitHub Copilot (full support, Dec 2025)
+- ✅ Cline (full support, v3.48.0, Jan 2026)
+- ✅ Roo Code (full support, v3.47.3)
+- ✅ OpenAI Codex (full support, CLI v0.98.0)
+- ✅ Windsurf (full support, Jan 2026)
+- ✅ Gemini CLI (stable, v0.27.0, Feb 2026)
+- ✅ Antigravity (full support, Nov 2025)
 
 ### Implications for UDS
 
-1. **Cross-Platform Portability**: Skills written once work across 9+ AI tools
+1. **Cross-Platform Portability**: Skills written once work across all 10 AI tools (100% coverage)
 2. **Simplified Maintenance**: No need for tool-specific conversions
 3. **Unified Workflow**: Same `/commit`, `/review`, `/tdd` commands everywhere
 
@@ -81,9 +87,9 @@ As of January 2026, SKILL.md is supported by:
 | OpenAI Codex | 🔶 partial | ✅ | - | `AGENTS.md` (shared) | Skills available |
 | Gemini CLI | 🧪 preview | ✅ | ✅ (TOML) | `GEMINI.md` | Commands auto-converted to TOML |
 | Roo Code | ⏳ planned | ✅ | ✅ | - | Implementation exists, testing pending |
-| Cursor | ✅ complete | ✅ | ✅ | `.cursorrules` | Skills support since v2.3.35 (Jan 2026) |
-| Windsurf | 📄 minimal | - | - | `.windsurfrules` | Rules file only |
-| Antigravity | 📄 minimal | - | - | `INSTRUCTIONS.md` | Rules file only |
+| Cursor | ✅ complete | ✅ | ✅ | `.cursorrules` | Skills support since v2.4 (Jan 22, 2026) |
+| Windsurf | 🔶 partial | ✅ | ✅ | `.windsurfrules` | Skills + Workflows (Jan 2026) |
+| Antigravity | 📄 minimal | - | - | `INSTRUCTIONS.md` | UDS CLI not yet updated (tool supports Skills natively) |
 
 ### Two Types of "Support"
 
@@ -92,7 +98,7 @@ As of January 2026, SKILL.md is supported by:
 | **Tool Native Capabilities** | What the AI tool itself supports | [Quick Reference](#2-quick-reference) |
 | **UDS CLI Implementation** | How UDS CLI implements support | This section |
 
-Example: Cursor now natively supports SKILL.md (since v2.3.35, Jan 2026), and UDS CLI provides full integration with Skills, Commands, and `.cursorrules` generation.
+Example: Cursor now natively supports SKILL.md (since v2.4, Jan 22, 2026), and UDS CLI provides full integration with Skills, Commands, and `.cursorrules` generation.
 
 ---
 
@@ -126,7 +132,7 @@ Example: Cursor now natively supports SKILL.md (since v2.3.35, Jan 2026), and UD
 | Windsurf | ✅ Full | `.windsurf/rules/` | Settings UI | Skills since 2026/01 |
 | Gemini CLI | ✅ Preview | `.gemini/skills/` | `~/.gemini/skills/` | v0.23+ preview |
 | Cursor | ✅ Full (NEW) | `.cursor/skills/` | `~/.cursor/skills/` | SKILL.md support since v2.3.35 |
-| Antigravity | ❌ No | `.antigravity/skills/` | `~/.antigravity/skills/` | No SKILL.md support |
+| Antigravity | ✅ Full | `.agent/skills/` | `~/.gemini/antigravity/skills/` | Skills since Nov 2025 |
 
 ### 2.3 Slash Commands
 
@@ -141,7 +147,7 @@ Example: Cursor now natively supports SKILL.md (since v2.3.35, Jan 2026), and UD
 | Windsurf | ✅ | Rulebook | Auto-generated | From `.windsurfrules` |
 | Gemini CLI | ✅ | System + Custom | `/clear`, `/memory`, `/mcp` | `.gemini/commands/*.toml` |
 | Cursor | ✅ | Built-in + Custom + Skills | `/summarize`, `/models`, `/rules`, `/mcp` | `.cursor/skills/`, `.cursor/commands/*.md` |
-| Antigravity | ❌ | N/A | N/A | N/A |
+| Antigravity | ✅ | Slash commands | `/deslop`, `/refactor`, `/write-tests` | Community-driven repos |
 
 ### 2.4 Platform Support
 
@@ -175,14 +181,13 @@ Example: Cursor now natively supports SKILL.md (since v2.3.35, Jan 2026), and UD
 - Cross-compatible with `.claude/skills/` directory
 - Most also have their own native paths (see Skills Path column)
 
-### Minimal Support
+### Minimal UDS CLI Support
 
 **Tools**: Antigravity
 
-- No SKILL.md support
-- No AGENT.md support
-- Manual execution mode only
-- Included for completeness
+- Tool natively supports SKILL.md and slash commands (since Nov 2025)
+- UDS CLI integration not yet updated — currently generates `INSTRUCTIONS.md` only
+- Planned: Upgrade UDS CLI to generate Skills for Antigravity
 
 ---
 
@@ -226,7 +231,7 @@ Example: Cursor now natively supports SKILL.md (since v2.3.35, Jan 2026), and UD
 | Windsurf | `.windsurf/rules/` | Settings UI | ✅ Yes |
 | Gemini CLI | `.gemini/skills/` | `~/.gemini/skills/` | ✅ Yes |
 | Cursor | `.cursor/skills/` | `~/.cursor/skills/` | ✅ Yes |
-| Antigravity | `.antigravity/skills/` | `~/.antigravity/skills/` | ❌ No |
+| Antigravity | `.agent/skills/` | `~/.gemini/antigravity/skills/` | ✅ Yes |
 
 #### Activation Methods
 
@@ -241,7 +246,7 @@ Example: Cursor now natively supports SKILL.md (since v2.3.35, Jan 2026), and UD
 | Windsurf | Manual (@mention), Always On, Model Decision |
 | Gemini CLI | Auto-trigger, Enable/Disable via settings |
 | Cursor | Slash command, Glob pattern, `alwaysApply` flag |
-| Antigravity | Manual only |
+| Antigravity | Slash command, Semantic triggering |
 
 **Recommendation**: Use `.claude/skills/` as the default installation path — most tools can read it for cross-tool compatibility.
 
@@ -258,9 +263,9 @@ Example: Cursor now natively supports SKILL.md (since v2.3.35, Jan 2026), and UD
 | Cline | ✅ Full | v3.48.0 |
 | Roo Code | ✅ Full | Dec 27, 2025 |
 | Windsurf | ✅ Full | Jan 9, 2026 |
-| Gemini CLI | ✅ Preview | Jan 7, 2026 |
-| Cursor | ✅ Full | Jan 2026, v2.3.35 |
-| Antigravity | ❌ No | N/A |
+| Gemini CLI | ✅ Stable | Feb 3, 2026, v0.27.0 |
+| Cursor | ✅ Full | Jan 22, 2026, v2.4 |
+| Antigravity | ✅ Full | Nov 18, 2025 |
 
 **Cross-platform installers**:
 - [skilz](https://github.com/skilz-ai/skilz) - Universal Skills installer (14+ platforms)
@@ -284,7 +289,7 @@ Example: Cursor now natively supports SKILL.md (since v2.3.35, Jan 2026), and UD
 | GitHub Copilot | `.github/copilot-instructions.md` | Personal settings | ~8KB |
 | OpenAI Codex | `AGENTS.md` | `~/.codex/AGENTS.md` | 32KB |
 | Gemini CLI | `GEMINI.md` | `~/.gemini/GEMINI.md` | 1M tokens |
-| Antigravity | N/A | `~/.antigravity/` | N/A |
+| Antigravity | `INSTRUCTIONS.md` | `~/.antigravity/` | Skills + Slash commands |
 
 ### 5.2 Configuration Merge Behavior
 
@@ -298,7 +303,7 @@ Example: Cursor now natively supports SKILL.md (since v2.3.35, Jan 2026), and UD
 | GitHub Copilot | Combine | Personal > Repository > Organization |
 | OpenAI Codex | Concatenate | Override files > Base, closer wins |
 | Gemini CLI | Concatenate | All files with `@import` support |
-| Antigravity | N/A | N/A |
+| Antigravity | Concatenate | Workspace > Global |
 
 ### 5.3 Skills File Format
 
@@ -315,7 +320,7 @@ Example: Cursor now natively supports SKILL.md (since v2.3.35, Jan 2026), and UD
 | Windsurf | ✅ SKILL.md | `.windsurfrules` | YAML |
 | Gemini CLI | ✅ SKILL.md | `GEMINI.md` | YAML |
 | Cursor | ✅ SKILL.md | `.cursor/skills/`, `.cursor/rules/` | YAML (globs, alwaysApply) |
-| Antigravity | ❌ N/A | N/A | N/A |
+| Antigravity | ✅ SKILL.md | `INSTRUCTIONS.md` | YAML |
 
 ---
 
@@ -374,7 +379,11 @@ Example: Cursor now natively supports SKILL.md (since v2.3.35, Jan 2026), and UD
 | Skills marketplace | Publish and discover Skills | ✅ Multiple platforms |
 | Multi-Agent Installation | Install Skills to multiple agents at once | ✅ v3.5.0 |
 | Gemini CLI TOML | Auto-convert commands to TOML format | ✅ v3.5.0 |
-| Cursor Skills Support | Native SKILL.md support | ✅ v2.3.35 (Jan 2026) |
+| Cursor Skills Support | Native SKILL.md support | ✅ v2.4 (Jan 22, 2026) |
+| Antigravity Skills | Native SKILL.md + slash commands | ✅ Nov 2025 |
+| Gemini CLI Skills Stable | Skills promoted from preview to stable | ✅ v0.27.0 (Feb 3, 2026) |
+| Windsurf Full Skills | Skills + Workflows (owned by Cognition) | ✅ Jan 2026 |
+| 100% SKILL.md Coverage | All 10 tracked AI tools support SKILL.md | ✅ Achieved (Feb 2026) |
 | CLI auto-detect | Detect installed AI tools | Planned |
 
 ---
@@ -383,6 +392,7 @@ Example: Cursor now natively supports SKILL.md (since v2.3.35, Jan 2026), and UD
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.5.0 | 2026-02-09 | Research update: Antigravity supports Skills + slash commands (was incorrectly marked as unsupported); Gemini CLI Skills promoted to stable (v0.27.0); Windsurf upgraded to partial (Skills + Workflows); Cursor version corrected to v2.4; Added source URLs to Key Developments; All 10 AI tools now support SKILL.md (100% coverage) |
 | 2.4.0 | 2026-01-27 | Updated Cursor to complete/full Skills support (v2.3.35); Added "2026 Industry Changes Summary" section; Removed "Rules Only" category (Cursor upgraded) |
 | 2.3.0 | 2026-01-22 | Added UDS CLI Implementation Status section with status definitions; Added Antigravity to all tables for CLI consistency |
 | 2.2.0 | 2026-01-15 | Added Multi-Agent Installation, Gemini CLI TOML conversion |
