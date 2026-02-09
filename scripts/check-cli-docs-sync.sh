@@ -87,6 +87,7 @@ CLI_OPTIONS=$(sed -n "/\.command('init')/,/\.command('/p" "$CLI_FILE" | \
     sed "s/\.option('//g" | \
     sed "s/'$//g" | \
     sort -u)
+# Note: grep patterns below avoid \` and [a-z\-] which are undefined in POSIX ERE
 
 # Parse option names (both short and long forms)
 declare -a CLI_LONG_OPTIONS=()
@@ -94,13 +95,13 @@ declare -a CLI_SHORT_OPTIONS=()
 
 while IFS= read -r opt; do
     # Extract long option (--xxx)
-    long_opt=$(echo "$opt" | grep -oE '\-\-[a-z\-]+' | head -1)
+    long_opt=$(echo "$opt" | grep -oE -- '--[-a-z]+' | head -1)
     if [[ -n "$long_opt" ]]; then
         CLI_LONG_OPTIONS+=("$long_opt")
     fi
 
     # Extract short option (-x)
-    short_opt=$(echo "$opt" | grep -oE '^\-[a-zA-Z]' | head -1)
+    short_opt=$(echo "$opt" | grep -oE '^-[a-zA-Z]' | head -1)
     if [[ -n "$short_opt" ]]; then
         CLI_SHORT_OPTIONS+=("$short_opt")
     fi
@@ -113,8 +114,8 @@ echo ""
 echo -e "${CYAN}Step 2: Extracting documented options from CLI-INIT-OPTIONS.md...${NC}"
 
 # Look for options in markdown tables (format: `--option` or `-o, --option`)
-DOCS_OPTIONS=$(grep -oE '\`\-\-[a-z\-]+\`|\`\-[a-zA-Z], \-\-[a-z\-]+\`' "$DOCS_FILE" | \
-    grep -oE '\-\-[a-z\-]+' | \
+DOCS_OPTIONS=$(grep -oE '`--[-a-z]+`|`-[a-zA-Z], --[-a-z]+`' "$DOCS_FILE" | \
+    grep -oE -- '--[-a-z]+' | \
     sort -u)
 
 declare -a DOC_LONG_OPTIONS=()
