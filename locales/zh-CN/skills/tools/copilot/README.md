@@ -1,5 +1,5 @@
 ---
-source: ../../../skills/copilot/README.md
+source: ../../../../../skills/tools/copilot/README.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-30

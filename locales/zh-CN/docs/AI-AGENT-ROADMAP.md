@@ -1,5 +1,5 @@
 ---
-source: ../../docs/AI-AGENT-ROADMAP.md
+source: ../../../docs/AI-AGENT-ROADMAP.md
 source_version: 2.5.0
 translation_version: 2.5.0
 last_synced: 2026-02-09

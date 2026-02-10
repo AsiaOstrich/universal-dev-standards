@@ -1,5 +1,5 @@
 ---
-source: ../../core/commit-message-guide.md
+source: ../../../core/commit-message-guide.md
 source_version: 1.2.3
 translation_version: 1.2.3
 last_synced: 2026-01-08

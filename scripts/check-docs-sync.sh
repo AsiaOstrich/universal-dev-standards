@@ -105,11 +105,13 @@ echo "Check 2: Version Sync"
 echo "----------------------------------------"
 echo ""
 
-# Check plugin.json
+# Check plugin.json (skip for pre-release: marketplace stays at stable version)
 PLUGIN_JSON="$ROOT_DIR/.claude-plugin/plugin.json"
 if [ -f "$PLUGIN_JSON" ]; then
     PLUGIN_VERSION=$(grep '"version"' "$PLUGIN_JSON" | head -1 | sed 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
-    if [ "$PLUGIN_VERSION" = "$VERSION" ]; then
+    if [ "$IS_PRERELEASE" = true ]; then
+        echo -e "${CYAN}[INFO]${NC}  .claude-plugin/plugin.json: $PLUGIN_VERSION (kept at stable - correct for marketplace)"
+    elif [ "$PLUGIN_VERSION" = "$VERSION" ]; then
         echo -e "${GREEN}[OK]${NC}    .claude-plugin/plugin.json: $PLUGIN_VERSION"
     else
         echo -e "${RED}[ERROR]${NC} .claude-plugin/plugin.json: $PLUGIN_VERSION (expected: $VERSION)"
@@ -119,11 +121,13 @@ else
     echo -e "${YELLOW}[SKIP]${NC}  .claude-plugin/plugin.json not found"
 fi
 
-# Check marketplace.json
+# Check marketplace.json (skip for pre-release: marketplace stays at stable version)
 MARKETPLACE_JSON="$ROOT_DIR/.claude-plugin/marketplace.json"
 if [ -f "$MARKETPLACE_JSON" ]; then
     MARKETPLACE_VERSION=$(grep '"version"' "$MARKETPLACE_JSON" | head -1 | sed 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
-    if [ "$MARKETPLACE_VERSION" = "$VERSION" ]; then
+    if [ "$IS_PRERELEASE" = true ]; then
+        echo -e "${CYAN}[INFO]${NC}  .claude-plugin/marketplace.json: $MARKETPLACE_VERSION (kept at stable - correct for marketplace)"
+    elif [ "$MARKETPLACE_VERSION" = "$VERSION" ]; then
         echo -e "${GREEN}[OK]${NC}    .claude-plugin/marketplace.json: $MARKETPLACE_VERSION"
     else
         echo -e "${RED}[ERROR]${NC} .claude-plugin/marketplace.json: $MARKETPLACE_VERSION (expected: $VERSION)"

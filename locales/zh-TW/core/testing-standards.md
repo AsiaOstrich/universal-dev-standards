@@ -3,7 +3,7 @@
 > **語言**: English | [繁體中文](locales/zh-TW/core/testing-standards.md)
 
 **版本**: 3.0.0
-**最後更新**: 2026-01-29
+**最後更新**: 2026-02-10
 **適用性**: 所有軟體專案
 **範圍**: 通用 (Universal)
 

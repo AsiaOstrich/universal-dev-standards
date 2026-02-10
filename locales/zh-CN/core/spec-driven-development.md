@@ -1,5 +1,5 @@
 ---
-source: ../../core/spec-driven-development.md
+source: ../../../core/spec-driven-development.md
 source_version: 2.1.0
 translation_version: 2.1.0
 last_synced: 2026-01-26

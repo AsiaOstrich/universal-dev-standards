@@ -1,5 +1,5 @@
 ---
-source: ../../docs/OPERATION-WORKFLOW.md
+source: ../../../docs/OPERATION-WORKFLOW.md
 source_version: 1.3.0
 translation_version: 1.3.0
 status: current
@@ -228,7 +228,7 @@ locales/zh-CN/core/*.md（簡體中文）
 **YAML Front Matter 範本：**
 ```yaml
 ---
-source: ../../core/commit-message-guide.md
+source: ../../../docs/OPERATION-WORKFLOW.md
 source_version: 1.2.0
 translation_version: 1.2.0
 status: current
@@ -863,7 +863,7 @@ integrations/github-copilot/
 **YAML 前置範本：**
 ```yaml
 ---
-source: ../../../integrations/[tool-name]/[file].md
+source: ../../../docs/OPERATION-WORKFLOW.md
 source_version: X.Y.Z
 translation_version: X.Y.Z
 last_synced: YYYY-MM-DD

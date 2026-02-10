@@ -1,8 +1,8 @@
 ---
-source: ../../core/refactoring-standards.md
-source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-01-21
+source: ../../../core/refactoring-standards.md
+source_version: 2.1.0
+translation_version: 2.1.0
+last_synced: 2026-02-10
 status: current
 ---
 

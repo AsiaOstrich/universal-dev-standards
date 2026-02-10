@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-beta.8] - 2026-02-10
+
+### Added
+- **Deployment Standards**: New core standard for deployment workflows with cross-references (`core/deployment-standards.md`)
+- **`/discover` Skill**: Phase 0 project assessment skill for evaluating project readiness
+- **Skill Harvesting SDD**: Specification for systematic skill extraction from existing workflows
+
+### Changed
+- **`/spec` → `/sdd` Rename**: Renamed `/spec` skill to `/sdd` (Spec-Driven Development), added missing subcommands, synced zh-CN split architecture
+- **SKILL.md Split Architecture**: Skills now use slim command reference + detailed guide structure
+- **`uds configure` → `uds config`**: Merged `uds configure` into `uds config` as unified entry point
+
+### Fixed
+- **Integration File Preservation**: `uds update` now preserves user-customized content in integration files (AGENTS.md, .cursorrules, etc.)
+- **Translation Source Paths**: Fixed 143 broken relative paths in zh-CN and zh-TW translation files
+- **Pre-release Check Script**: `check-docs-sync.sh` now correctly skips `.claude-plugin/` version checks for beta releases
+- **Scope Marker**: Fixed `project-context-memory.md` scope from `Project-Specific (Local)` to `uds-specific`
+
 ## [5.0.0-beta.7] - 2026-02-09
 
 ### Added

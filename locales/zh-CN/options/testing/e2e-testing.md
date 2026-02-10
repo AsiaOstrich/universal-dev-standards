@@ -1,5 +1,5 @@
 ---
-source: ../../../options/testing/e2e-testing.md
+source: ../../../../options/testing/e2e-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-30

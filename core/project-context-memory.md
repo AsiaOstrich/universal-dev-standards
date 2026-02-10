@@ -5,7 +5,7 @@
 **Version**: 1.0.0
 **Last Updated**: 2026-02-09
 **Applicability**: All software projects using AI assistants
-**Scope**: Project-Specific (Local)
+**Scope**: uds-specific
 
 ---
 

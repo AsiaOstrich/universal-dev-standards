@@ -1,8 +1,8 @@
 ---
-source: ../../core/anti-hallucination.md
-source_version: 1.4.0
-translation_version: 1.4.0
-last_synced: 2026-01-19
+source: ../../../core/anti-hallucination.md
+source_version: 1.5.0
+translation_version: 1.5.0
+last_synced: 2026-02-10
 status: current
 ---
 

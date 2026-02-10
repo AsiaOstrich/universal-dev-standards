@@ -1,5 +1,5 @@
 ---
-source: ../../../integrations/github-copilot/skills-mapping.md
+source: ../../../../integrations/github-copilot/skills-mapping.md
 source_version: 1.2.0
 translation_version: 1.2.0
 last_synced: 2026-02-05

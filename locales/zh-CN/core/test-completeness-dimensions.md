@@ -1,5 +1,5 @@
 ---
-source: ../../core/test-completeness-dimensions.md
+source: ../../../core/test-completeness-dimensions.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-01-24

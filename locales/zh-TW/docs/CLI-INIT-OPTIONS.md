@@ -1,5 +1,5 @@
 ---
-source: ../../docs/CLI-INIT-OPTIONS.md
+source: ../../../docs/CLI-INIT-OPTIONS.md
 source_version: 3.5.1
 translation_version: 3.5.1
 last_synced: 2026-01-15

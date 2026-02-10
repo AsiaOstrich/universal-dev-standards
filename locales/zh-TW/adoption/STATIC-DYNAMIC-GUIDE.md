@@ -1,5 +1,5 @@
 ---
-source: ../../adoption/STATIC-DYNAMIC-GUIDE.md
+source: ../../../adoption/STATIC-DYNAMIC-GUIDE.md
 source_version: 1.2.0
 translation_version: 1.2.0
 last_synced: 2026-01-07

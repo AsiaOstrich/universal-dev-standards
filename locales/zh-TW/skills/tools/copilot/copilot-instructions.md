@@ -1,5 +1,5 @@
 ---
-source: ../../../skills/copilot/copilot-instructions.md
+source: ../../../../../skills/tools/copilot/copilot-instructions.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2025-12-30

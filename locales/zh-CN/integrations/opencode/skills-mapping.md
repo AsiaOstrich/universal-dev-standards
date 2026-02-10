@@ -1,5 +1,5 @@
 ---
-source: ../../../integrations/opencode/skills-mapping.md
+source: ../../../../integrations/opencode/skills-mapping.md
 source_version: 1.5.0
 translation_version: 1.5.0
 last_synced: 2026-02-05

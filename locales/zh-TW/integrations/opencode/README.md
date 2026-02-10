@@ -1,5 +1,5 @@
 ---
-source: ../../../integrations/opencode/README.md
+source: ../../../../integrations/opencode/README.md
 source_version: 1.3.0
 translation_version: 1.3.0
 last_synced: 2026-01-13
