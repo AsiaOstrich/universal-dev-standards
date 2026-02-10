@@ -44,10 +44,10 @@ $CliDir = Join-Path $RootDir "cli"
 $Passed = 0
 $Failed = 0
 $Skipped = 0
-$Total = 12
+$Total = 13
 
 if ($SkipTests) {
-    $Total = 11
+    $Total = 12
 }
 
 # Function to run a check
@@ -196,19 +196,22 @@ try {
     # Step 10: Scope sync
     Run-Check -Step 10 -Name "Running scope sync check" -Command "$ScriptDir\check-scope-sync.ps1"
 
-    # Step 11: Linting
-    Run-Check -Step 11 -Name "Running linting" -Command "npm run lint --prefix `"$CliDir`""
+    # Step 11: Commands sync
+    Run-Check -Step 11 -Name "Running commands sync check" -Command "$ScriptDir\check-commands-sync.ps1"
 
-    # Step 12: Tests
+    # Step 12: Linting
+    Run-Check -Step 12 -Name "Running linting" -Command "npm run lint --prefix `"$CliDir`""
+
+    # Step 13: Tests
     if ($SkipTests) {
-        Write-Host "[12/$Total] " -ForegroundColor Cyan -NoNewline
+        Write-Host "[13/$Total] " -ForegroundColor Cyan -NoNewline
         Write-Host "Running tests..."
         Write-Host "      " -NoNewline
         Write-Host "[SKIP] Skipped (-SkipTests flag)" -ForegroundColor Yellow
         $Skipped++
     }
     else {
-        Run-Check -Step 12 -Name "Running tests" -Command "npm test --prefix `"$CliDir`""
+        Run-Check -Step 13 -Name "Running tests" -Command "npm test --prefix `"$CliDir`""
     }
 
     # Show summary
