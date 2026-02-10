@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-beta.9] - 2026-02-10
+
+### Added
+- **Missing Command Files**: Create `changelog.md`, `checkin.md`, `discover.md`, `docgen.md` in `skills/commands/` for Gemini CLI TOML conversion
+- **Register `/docs` and `/guide`**: Add to `AVAILABLE_COMMANDS` so all agents can discover these commands
+
+### Changed
+- **Daily Workflow Guide v1.1.0**: Add Phase 0 project discovery section, update decision tree with `/discover` entry point, add `/discover` + `/reverse` as prerequisites in Strategy 3, expand commands reference with `/discover`, `/reverse`, `/refactor`
+- **Translations Synced**: zh-TW and zh-CN DAILY-WORKFLOW-GUIDE.md updated to v1.1.0
+
 ## [5.0.0-beta.8] - 2026-02-10
 
 ### Added
