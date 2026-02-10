@@ -302,12 +302,12 @@ TDD 層級（實作）
 ## 詳細指南
 
 完整標準請參閱：
-- [ATDD 核心標準](../../core/acceptance-test-driven-development.md)
+- [ATDD 核心標準](../../../../core/acceptance-test-driven-development.md)
 - [ATDD 工作流程指南](./atdd-workflow.md)
 - [驗收標準撰寫指南](./acceptance-criteria-guide.md)
 
 相關標準：
-- [BDD 標準](../../core/behavior-driven-development.md)
+- [BDD 標準](../../../../core/behavior-driven-development.md)
 - [TDD 標準](../../core/test-driven-development.md)
 - [測試標準](../../core/testing-standards.md)
 
@@ -343,8 +343,8 @@ TDD 層級（實作）
 
 ## 相關標準
 
-- [驗收測試驅動開發](../../core/acceptance-test-driven-development.md) - 核心 ATDD 標準
-- [行為驅動開發](../../core/behavior-driven-development.md) - BDD 標準
+- [驗收測試驅動開發](../../../../core/acceptance-test-driven-development.md) - 核心 ATDD 標準
+- [行為驅動開發](../../../../core/behavior-driven-development.md) - BDD 標準
 - [測試驅動開發](../../core/test-driven-development.md) - TDD 標準
 - [規格驅動開發](../../core/spec-driven-development.md) - SDD 工作流程
 - [測試標準](../../core/testing-standards.md) - 測試框架

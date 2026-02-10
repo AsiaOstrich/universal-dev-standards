@@ -1,6 +1,6 @@
 # 防幻覺規範 (Anti-Hallucination Standards)
 
-> **語言**: English | [繁體中文](locales/zh-TW/core/anti-hallucination.md)
+> **語言**: [English](../../../core/anti-hallucination.md) | 繁體中文
 
 **版本**: 1.5.0
 **最後更新**: 2026-02-10

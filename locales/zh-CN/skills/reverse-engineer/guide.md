@@ -18,7 +18,7 @@ status: current
 **最后更新**: 2026-01-19
 **适用范围**: Claude Code Skills
 
-> **核心规范**：此技能实作[反向工程标准](../../core/reverse-engineering-standards.md)。任何 AI 工具皆可参考核心规范取得完整方法论文档。
+> **核心规范**：此技能实作[反向工程标准](../../../../core/reverse-engineering-standards.md)。任何 AI 工具皆可参考核心规范取得完整方法论文档。
 
 ---
 
@@ -71,7 +71,7 @@ status: current
 
 ### 1. 反幻觉合规
 
-**关键**：此技能必须严格遵循[反幻觉标准](../../core/anti-hallucination.md)。
+**关键**：此技能必须严格遵循[反幻觉标准](../../../../core/anti-hallucination.md)。
 
 #### 确定性标签
 
@@ -172,7 +172,7 @@ describe('认证', () => {
 **输入**：所有分析结果
 **输出**：初稿规格文档
 
-**范本**：使用 [reverse-spec-template.md](../../templates/reverse-spec-template.md)
+**范本**：使用 [reverse-spec-template.md](../../../../templates/reverse-spec-template.md)
 
 ### 阶段 5：人类审查
 
@@ -380,9 +380,9 @@ describe('购物车', () => {
 
 ## 相关标准
 
-- [规格驱动开发](../../core/spec-driven-development.md)
-- [反幻觉指南](../../core/anti-hallucination.md)
-- [代码审查检查清单](../../core/code-review-checklist.md)
+- [规格驱动开发](../../../../core/spec-driven-development.md)
+- [反幻觉指南](../../../../core/anti-hallucination.md)
+- [代码审查检查清单](../../../../core/code-review-checklist.md)
 
 ---
 

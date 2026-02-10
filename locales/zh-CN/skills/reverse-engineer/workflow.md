@@ -268,7 +268,7 @@ describe('UserService', () => {
 
 ### 4.1 使用范本
 
-套用 [reverse-spec-template.md](../../templates/reverse-spec-template.md)：
+套用 [reverse-spec-template.md](../../../../templates/reverse-spec-template.md)：
 
 ```markdown
 # [SPEC-XXX] 功能名称（反向工程）

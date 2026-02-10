@@ -19,7 +19,7 @@ Gemini CLI 是 Google 的开源 AI 代理工具，将 Gemini 模型带入终端�
 - **[GEMINI.md](./GEMINI.md)**（推荐）：
   项目级指令文件，Gemini CLI 会自动加载。
 
-- **[settings-example.json](../../../integrations/gemini-cli/settings-example.json)**：
+- **[settings-example.json](../../../../integrations/gemini-cli/settings-example.json)**：
   用于自定义 CLI 行为的设置示例文件。
 
 ## 配置层级
@@ -120,9 +120,9 @@ Gemini CLI 支持从其他文件导入内容：
 
 ## 相关标准
 
-- [防幻觉标准](../../core/anti-hallucination.md)
-- [Commit 消息指南](../../core/commit-message-guide.md)
-- [规格驱动开发](../../core/spec-driven-development.md)
+- [防幻觉标准](../../../../core/anti-hallucination.md)
+- [Commit 消息指南](../../../../core/commit-message-guide.md)
+- [规格驱动开发](../../../../core/spec-driven-development.md)
 - [Gemini CLI 官方文档](https://geminicli.com/docs/)
 
 ---

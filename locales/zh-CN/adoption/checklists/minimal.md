@@ -8,7 +8,7 @@ status: current
 
 # 等级 1：基本采用检查清单
 
-> **语言**: [English](../../adoption/checklists/minimal.md) | 繁体中文
+> **语言**: [English](../../../../adoption/checklists/minimal.md) | 繁体中文
 
 > 任何专案的最低可行标准
 >
@@ -122,8 +122,8 @@ Copy-Item path\to\universal-dev-standards\core\spec-driven-development.md .stand
 
 - [Recommended Adoption Checklist](recommended.md) - Level 2 升级指南
 - [Enterprise Adoption Checklist](enterprise.md) - Level 3 升级指南
-- [Checkin Standards](../../core/checkin-standards.md) - 签入标准
-- [Spec-Driven Development](../../core/spec-driven-development.md) - 规格驱动开发
+- [Checkin Standards](../../../../core/checkin-standards.md) - 签入标准
+- [Spec-Driven Development](../../../../core/spec-driven-development.md) - 规格驱动开发
 
 ---
 

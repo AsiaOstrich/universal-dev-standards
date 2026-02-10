@@ -8,7 +8,7 @@ status: current
 
 # 開發者持久記憶標準
 
-> [English](../../core/developer-memory.md) | **繁體中文**
+> [English](../../../core/developer-memory.md) | **繁體中文**
 
 **版本**: 1.0.0
 **最後更新**: 2026-02-07

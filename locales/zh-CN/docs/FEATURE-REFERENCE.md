@@ -1,7 +1,7 @@
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档
-> Auto-generated | Last updated: 2026-02-04
+> Auto-generated | Last updated: 2026-02-10
 
 **Language**: [English](../../../docs/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
@@ -10,14 +10,14 @@
 ## 目录
 
 1. [CLI 指令](#cli-commands) (9)
-2. [斜线命令](#slash-commands) (19)
-3. [技能](#skills) (25)
+2. [斜线命令](#slash-commands) (30)
+3. [技能](#skills) (26)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
-6. [核心规范](#core-standards) (29)
-7. [脚本](#scripts) (29)
+6. [核心规范](#core-standards) (32)
+7. [脚本](#scripts) (31)
 
-**Total Features: 121**
+**Total Features: 138**
 
 ---
 
@@ -63,8 +63,8 @@
 | Option | 说明 |
 |--------|-------------|
 | `-t, --type` | Option type to configure (format, workflow, merge_strategy, commit_language, test_levels, skills, commands, all) |
-| `--ai-tool` | Specific AI tool to configure (claude-code, opencode, copilot, etc.) - enables non-interactive mode |
-| `--skills-location` | Skills installation location (project, user) for non-interactive mode |
+| `--ai-tool` | Specific AI tool to configure (claude-code, opencode, copilot, etc.) |
+| `--skills-location` | Skills installation location (project, user) |
 | `-y, --yes` | Apply changes immediately without prompting |
 | `-E, --experimental` | Enable experimental features (methodology) |
 
@@ -75,6 +75,8 @@
 **选项**:
 | Option | 说明 |
 |--------|-------------|
+| `-s, --standard` | Validate against a specific standard physical spec |
+| `--json` | Output result in JSON format |
 | `--summary` | Show compact status summary (for use by other commands) |
 | `--diff` | Show diff for modified files |
 | `--restore` | Restore all modified and missing files |
@@ -146,11 +148,19 @@
 |---------|-------------|
 | `/atdd` | [UDS] Guide through Acceptance Test-Driven Development workflow |
 | `/bdd` | [UDS] Guide through Behavior-Driven Development workflow |
+| `/changelog` | "[UDS] Generate and maintain CHANGELOG.md entries" |
 | `/check` | [UDS] Verify standards adoption status |
+| `/checkin` | "[UDS] Pre-commit quality gates verification" |
 | `/commit` | [UDS] Generate commit messages following Conventional Commits standard |
 | `/config` | [UDS] Configure project development standards |
 | `/coverage` | [UDS] Analyze test coverage and provide recommendations |
+| `/derive-all` | [UDS] Derive all test structures (BDD, TDD, ATDD) from SDD specification |
+| `/derive-atdd` | [UDS] Derive ATDD acceptance tests from SDD specification |
+| `/derive-bdd` | [UDS] Derive BDD Gherkin scenarios from SDD specification |
+| `/derive-tdd` | [UDS] Derive TDD test skeletons from SDD specification |
 | `/derive` | [UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications. |
+| `/discover` | "[UDS] Assess project health, architecture, and risks before adding features" |
+| `/docgen` | "[UDS] Generate usage documentation from project sources" |
 | `/docs` | [UDS] Manage, guide, and generate documentation. |
 | `/guide` | [UDS] Access Universal Development Standards guides and references. |
 | `/init` | [UDS] Initialize development standards in current project |
@@ -158,6 +168,9 @@
 | `/refactor` | [UDS] Guide refactoring decisions and strategy selection |
 | `/release` | [UDS] Manage release process and changelogs. |
 | `/requirement` | [UDS] Write user stories and requirements following INVEST criteria |
+| `/reverse-bdd` | [UDS] Transform SDD acceptance criteria to BDD scenarios |
+| `/reverse-sdd` | [UDS] Reverse engineer code into SDD specification document |
+| `/reverse-tdd` | [UDS] Analyze BDD-TDD coverage gaps |
 | `/reverse` | [UDS] Reverse engineer code to Specs, BDD, or TDD coverage. |
 | `/review` | [UDS] Perform systematic code review with checklist |
 | `/sdd` | [UDS] Create or review specification documents for Spec-Driven Development |
@@ -173,27 +186,28 @@
 | `ai-collaboration-standards` | Prevent AI hallucination and ensure evidence-based responses when analyzing code or making suggestions. |
 | `ai-friendly-architecture` | Design AI-friendly architecture with explicit patterns, layered documentation, and semantic boundaries. |
 | `ai-instruction-standards` | Create and maintain AI instruction files (CLAUDE.md, .cursorrules, etc.) with proper structure. |
-| `atdd-assistant` | Guide teams through Acceptance Test-Driven Development workflow. |
-| `bdd-assistant` | Guide developers through Behavior-Driven Development workflow. |
-| `changelog-guide` | Write and maintain CHANGELOG.md following Keep a Changelog format. |
-| `checkin-assistant` | Guide pre-commit quality gates and check-in workflow. |
-| `code-review-assistant` | Systematic code review checklist and pre-commit quality gates for PRs. |
-| `commit-standards` | Format commit messages following conventional commits standard. |
-| `docs-generator` | Generate usage documentation from project sources. |
+| `atdd-assistant` | "[UDS] Guide through Acceptance Test-Driven Development workflow" |
+| `bdd-assistant` | "[UDS] Guide through Behavior-Driven Development workflow" |
+| `changelog-guide` | "[UDS] Generate and maintain CHANGELOG.md entries" |
+| `checkin-assistant` | "[UDS] Pre-commit quality gates verification" |
+| `code-review-assistant` | "[UDS] Perform systematic code review with checklist" |
+| `commit-standards` | "[UDS] Generate commit messages following Conventional Commits standard" |
+| `docs-generator` | "[UDS] Generate usage documentation from project sources" |
 | `documentation-guide` | Guide documentation structure, content requirements, and project documentation best practices. |
 | `error-code-guide` | Design consistent error codes following the PREFIX_CATEGORY_NUMBER format. |
-| `forward-derivation` | Derive BDD scenarios and TDD test skeletons from approved SDD specifications. |
+| `forward-derivation` | "[UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications" |
 | `git-workflow-guide` | Guide Git branching strategies, branch naming, and merge operations. |
 | `logging-guide` | Implement structured logging with proper log levels and sensitive data handling. |
-| `methodology-system` | Manage and guide developers through active development methodology workflows. |
+| `methodology-system` | "[UDS] Manage development methodology workflow" |
+| `project-discovery` | "[UDS] Assess project health, architecture, and risks before adding features" |
 | `project-structure-guide` | Guide for organizing project directories following language-specific best practices. |
-| `refactoring-assistant` | Guide refactoring decisions and large-scale code improvements. |
-| `release-standards` | Semantic versioning and changelog formatting for software releases. |
-| `requirement-assistant` | Guide requirement writing, user story creation, and feature specification. |
-| `reverse-engineer` | Reverse engineer existing code into SDD specification documents. |
-| `spec-driven-dev` | Guide Spec-Driven Development (SDD) workflow for planning changes before implementation. |
-| `tdd-assistant` | Guide developers through Test-Driven Development workflow. |
-| `test-coverage-assistant` | Evaluate test completeness using the 8 dimensions framework. |
+| `refactoring-assistant` | "[UDS] Guide refactoring decisions and strategy selection" |
+| `release-standards` | "[UDS] Guide release process and changelogs" |
+| `requirement-assistant` | "[UDS] Write user stories and requirements following INVEST criteria" |
+| `reverse-engineer` | "[UDS] Reverse engineer code to Specs, BDD, or TDD coverage" |
+| `spec-driven-dev` | "[UDS] Create or review specification documents for Spec-Driven Development" |
+| `tdd-assistant` | "[UDS] Guide through Test-Driven Development workflow" |
+| `test-coverage-assistant` | "[UDS] Analyze test coverage and provide recommendations" |
 | `testing-guide` | Testing pyramid and test writing standards for UT/IT/ST/E2E. |
 
 ---
@@ -237,6 +251,8 @@
 | `checkin-standards` | 1.4.0 | This standard defines quality gates that MUST be passed before committing code t |
 | `code-review-checklist` | 1.3.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
 | `commit-message-guide` | 1.2.3 | Standardized commit messages improve code review efficiency, facilitate automate |
+| `deployment-standards` | 1.0.0 | This standard defines guidelines for safely deploying software to production, co |
+| `developer-memory` | 1.0.0 | This standard defines a structured system for capturing, retrieving, and surfaci |
 | `documentation-structure` | 1.3.0 | This standard defines a consistent documentation structure for software projects |
 | `documentation-writing-standards` | 1.1.0 | This standard defines documentation requirements based on project types and prov |
 | `error-code-standards` | 1.1.0 |  |
@@ -244,6 +260,7 @@
 | `git-workflow` | 1.4.0 | This standard defines Git branching strategies and workflows to ensure consisten |
 | `logging-standards` | 1.2.0 |  |
 | `performance-standards` | 1.1.0 | This standard defines comprehensive guidelines for software performance engineer |
+| `project-context-memory` | 1.0.0 | This standard defines a structured system for capturing, retrieving, and enforci |
 | `project-structure` | 1.1.0 | This standard defines conventions for project directory structure beyond documen |
 | `refactoring-standards` | 2.1.0 | This standard defines comprehensive guidelines for code refactoring, covering ev |
 | `requirement-engineering` | 1.0.0 |  |
@@ -267,6 +284,8 @@
 | `check-ai-agent-sync.sh` | AI Agent Sync Checker |
 | `check-cli-docs-sync.ps1` | Check Cli Docs Sync |
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |
+| `check-commands-sync.ps1` | Check Commands Sync |
+| `check-commands-sync.sh` | Commands Sync Checker |
 | `check-docs-sync.ps1` | Check Docs Sync |
 | `check-docs-sync.sh` | Documentation Sync Checker |
 | `check-scope-sync.ps1` | Check Scope Sync |

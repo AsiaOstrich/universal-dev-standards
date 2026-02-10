@@ -12,7 +12,7 @@ status: current
 **最後更新**: 2026-01-24
 **適用範圍**: 所有軟體專案
 
-[English](../../core/project-structure.md) | **繁體中文**
+[English](../../../core/project-structure.md) | **繁體中文**
 
 ---
 

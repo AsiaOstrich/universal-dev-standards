@@ -339,7 +339,7 @@ interface OperationResult {
 ## Related Documents
 
 - [Manifest Schema Spec](shared/manifest-schema.md) - Detailed manifest structure
-- [Core Standards](../../core/) - UDS core standards
+- [Core Standards](../../../core/) - UDS core standards
 - [CLI Source Code](../../../cli/src/) - Implementation reference
 
 ---

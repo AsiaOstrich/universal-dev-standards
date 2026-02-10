@@ -306,7 +306,7 @@ status: current
 ## 相关标准
 
 - [需求撰写指南](./requirement-writing.md)
-- [規格驅动开发](../../core/spec-driven-development.md)
+- [規格驅动开发](../../../../core/spec-driven-development.md)
 
 ---
 

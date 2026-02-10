@@ -11,7 +11,7 @@ status: current
 **版本**: 1.1.0
 **最後更新**: 2026-02-10
 
-> **語言**: [English](../../adoption/DAILY-WORKFLOW-GUIDE.md) | 繁體中文
+> **語言**: [English](../../../adoption/DAILY-WORKFLOW-GUIDE.md) | 繁體中文
 
 本指南說明在執行 `uds init` 後，如何在日常開發工作流程中使用 Universal Development Standards。
 
@@ -372,6 +372,11 @@ test('should reject email without domain', () => {
 | `/commit` | 生成規範的 commit message | 提交程式碼 |
 | `/review` | 啟動程式碼審查 | 審查 PR |
 | `/requirement` | 撰寫需求文件 | 定義 User Story |
+| `/checkin` | 提交前品質驗證 | 提交程式碼前 |
+| `/changelog` | 生成變更日誌條目 | 準備發布期間 |
+| `/coverage` | 分析測試覆蓋率 | 評估測試品質 |
+| `/docs` | 管理文件 | 撰寫/更新文件 |
+| `/release` | 引導發布流程 | 準備發布 |
 
 ---
 
@@ -495,14 +500,14 @@ test('should reject email without domain', () => {
 
 - [採用指南](ADOPTION-GUIDE.md) - 如何安裝 UDS
 - [專案現況評估](../../../skills/project-discovery/SKILL.md) - Phase 0 專案評估
-- [反向工程標準](../../core/reverse-engineering-standards.md) - 反向工程工作流程
-- [重構標準](../../core/refactoring-standards.md) - 重構工作流程
-- [測試驅動開發](../../core/test-driven-development.md) - TDD 標準（包含 Golden Master Testing）
-- [行為驅動開發](../../core/behavior-driven-development.md) - BDD 工作流程
-- [驗收測試驅動開發](../../core/acceptance-test-driven-development.md) - ATDD 工作流程
-- [規格驅動開發](../../core/spec-driven-development.md) - SDD 工作流程
-- [提交規範](../../core/checkin-standards.md) - 程式碼提交要求
-- [程式碼審查清單](../../core/code-review-checklist.md) - 審查流程
+- [反向工程標準](../../../core/reverse-engineering-standards.md) - 反向工程工作流程
+- [重構標準](../../../core/refactoring-standards.md) - 重構工作流程
+- [測試驅動開發](../../../core/test-driven-development.md) - TDD 標準（包含 Golden Master Testing）
+- [行為驅動開發](../../../core/behavior-driven-development.md) - BDD 工作流程
+- [驗收測試驅動開發](../../../core/acceptance-test-driven-development.md) - ATDD 工作流程
+- [規格驅動開發](../../../core/spec-driven-development.md) - SDD 工作流程
+- [提交規範](../../../core/checkin-standards.md) - 程式碼提交要求
+- [程式碼審查清單](../../../core/code-review-checklist.md) - 審查流程
 
 ---
 

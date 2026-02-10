@@ -14,7 +14,7 @@ status: current
 
 Universal Development Standards 是一个语言无关、框架无关的文件化标准框架。它提供：
 
-- **核心规范** (`core/`)：22 个基础开发标准
+- **核心规范** (`core/`)：32 个基础开发标准
 - **AI 技能** (`skills/`)：用于 AI 辅助开发的 Claude Code 技能
 - **CLI 工具** (`cli/`)：用于采用标准的 Node.js CLI
 - **整合** (`integrations/`)：各种 AI 工具的配置
@@ -200,9 +200,9 @@ node cli\bin\uds.js init --help
 
 ```
 universal-dev-standards/
-├── core/                  # 核心规范（22 个档案）
+├── core/                  # 核心规范（32 个档案）
 ├── skills/                # AI 工具技能
-│   └── claude-code/       # Claude Code 技能（23 个技能）
+│   └── claude-code/       # Claude Code 技能（26 个技能）
 ├── cli/                   # Node.js CLI 工具
 │   ├── src/               # 原始码
 │   ├── tests/             # 测试档案

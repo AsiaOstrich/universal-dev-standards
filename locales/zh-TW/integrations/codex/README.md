@@ -19,7 +19,7 @@ OpenAI Codex 是雲端 AI 編碼代理，可作為 CLI、IDE 擴充或網頁介�
 - **[AGENTS.md](./AGENTS.md)**（必要）：
   專案級規則檔，Codex 會自動載入。
 
-- **[config.toml.example](../../../integrations/codex/config.toml.example)**（可選）：
+- **[config.toml.example](../../../../integrations/codex/config.toml.example)**（可選）：
   Codex 設定的配置範例。
 
 ## 配置層級

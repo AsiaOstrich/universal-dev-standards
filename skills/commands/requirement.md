@@ -51,4 +51,4 @@ So that [benefit].
 ## Reference | 參考
 
 - Full standard: [requirement-assistant](../requirement-assistant/SKILL.md)
-- Core guide: [requirements-standards](../../core/requirements-standards.md)
+- Core guide: [requirements-standards](../../core/requirement-engineering.md)

@@ -14,13 +14,13 @@ status: current
 
 # 正向推导指南
 
-> **语言**: [English](../../../../skills/forward-derivation/SKILL.md) | [繁體中文](../../zh-TW/skills/forward-derivation/SKILL.md)
+> **语言**: [English](../../../../skills/forward-derivation/SKILL.md) | [繁體中文](../../../zh-TW/skills/forward-derivation/SKILL.md)
 
 **版本**: 2.0.0
 **最后更新**: 2026-01-25
 **适用范围**: Claude Code Skills
 
-> **核心标准**: 此技能实现[正向推导标准](../../core/forward-derivation-standards.md)。任何 AI 工具皆可参考核心标准取得完整方法论文档。
+> **核心标准**: 此技能实现[正向推导标准](../../../../core/forward-derivation-standards.md)。任何 AI 工具皆可参考核心标准取得完整方法论文档。
 
 ---
 
@@ -102,7 +102,7 @@ Scenario: 使用有效凭据的用户登录
 
 ### 3. 推导标签（来自统一标签系统）
 
-此技能使用**推导标签**从规格生成新内容。有关完整标签参考，请参见[反幻觉标准](../../core/anti-hallucination.md#unified-tag-system)。
+此技能使用**推导标签**从规格生成新内容。有关完整标签参考，请参见[反幻觉标准](../../../../core/anti-hallucination.md#certainty-classification-tags)。
 
 | 标签 | 使用时机 | 示例 |
 |-----|----------|------|

@@ -8,9 +8,9 @@ status: current
 
 # Python 專案結構
 
-> **語言**: [English](../../../options/project-structure/python.md) | 繁體中文
+> **語言**: [English](../../../../options/project-structure/python.md) | 繁體中文
 
-**上層標準**: [專案結構](../../core/project-structure.md)
+**上層標準**: [專案結構](../../../../core/project-structure.md)
 
 ---
 

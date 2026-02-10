@@ -239,12 +239,12 @@ docs(readme): 更新安装说明
 
 ## 相关标准
 
-- [防幻觉](../../core/anti-hallucination.md)
-- [Commit 消息指南](../../core/commit-message-guide.md)
-- [代码审查检查清单](../../core/code-review-checklist.md)
-- [测试规范](../../core/testing-standards.md)
-- [测试完整性维度](../../core/test-completeness-dimensions.md)
-- [签入规范](../../core/checkin-standards.md)
+- [防幻觉](../../../../core/anti-hallucination.md)
+- [Commit 消息指南](../../../../core/commit-message-guide.md)
+- [代码审查检查清单](../../../../core/code-review-checklist.md)
+- [测试规范](../../../../core/testing-standards.md)
+- [测试完整性维度](../../../../core/test-completeness-dimensions.md)
+- [签入规范](../../../../core/checkin-standards.md)
 
 ---
 

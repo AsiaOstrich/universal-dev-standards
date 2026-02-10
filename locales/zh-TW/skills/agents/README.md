@@ -135,11 +135,11 @@ allowed-tools:
 
 | 代理 | 角色 | 描述 |
 |------|------|------|
-| [code-architect](./code-architect.md) | specialist | 軟體架構和系統設計 |
-| [test-specialist](./test-specialist.md) | specialist | 測試策略和測試實作 |
-| [reviewer](./reviewer.md) | reviewer | 程式碼審查和品質評估 |
-| [doc-writer](./doc-writer.md) | specialist | 文件和技術寫作 |
-| [spec-analyst](./spec-analyst.md) | specialist | 規格分析和需求萃取 |
+| [code-architect](../../../../skills/agents/code-architect.md) | specialist | 軟體架構和系統設計 |
+| [test-specialist](../../../../skills/agents/test-specialist.md) | specialist | 測試策略和測試實作 |
+| [reviewer](../../../../skills/agents/reviewer.md) | reviewer | 程式碼審查和品質評估 |
+| [doc-writer](../../../../skills/agents/doc-writer.md) | specialist | 文件和技術寫作 |
+| [spec-analyst](../../../../skills/agents/spec-analyst.md) | specialist | 規格分析和需求萃取 |
 
 ## 使用方式
 
@@ -253,15 +253,15 @@ steps:
     task: 程式碼審查
 ```
 
-請參閱 [workflows/README.md](../workflows/README.md) 取得工作流程文件。
+請參閱 [workflows/README.md](../../../../skills/workflows/README.md) 取得工作流程文件。
 
 ---
 
 ## 相關資源
 
 - [技能文件](../README.md)
-- [工作流程文件](../workflows/README.md)
-- [AI 代理路徑配置](../../cli/src/config/ai-agent-paths.js)
+- [工作流程文件](../../../../skills/workflows/README.md)
+- [AI 代理路徑配置](../../../../cli/src/config/ai-agent-paths.js)
 
 ---
 

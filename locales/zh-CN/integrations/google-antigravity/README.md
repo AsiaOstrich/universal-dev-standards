@@ -16,7 +16,7 @@ Google Antigravity 是一个先进的代理程序代码开发助理。此集成�
 
 ## 资源
 
-- **[.antigravity/rules.md](../../../integrations/google-antigravity/.antigravity/rules.md)**（推荐）：
+- **[.antigravity/rules.md](../../../../integrations/google-antigravity/.antigravity/rules.md)**（推荐）：
   项目级规则文件，Antigravity 会自动加载。
 
 - **[INSTRUCTIONS.md](./INSTRUCTIONS.md)**：
@@ -63,8 +63,8 @@ curl -o .antigravity/rules.md https://raw.githubusercontent.com/AsiaOstrich/univ
 
 ## 相关规范
 
-- [防幻觉规范](../../core/anti-hallucination.md)
-- [Commit 消息指南](../../core/commit-message-guide.md)
+- [防幻觉规范](../../../../core/anti-hallucination.md)
+- [Commit 消息指南](../../../../core/commit-message-guide.md)
 - [INSTRUCTIONS.md](./INSTRUCTIONS.md)
 
 ---

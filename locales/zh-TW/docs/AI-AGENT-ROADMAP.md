@@ -8,7 +8,7 @@ status: current
 
 # AI Agent 整合指南
 
-> **語言**: [English](../../docs/AI-AGENT-ROADMAP.md) | 繁體中文 | [简体中文](../../zh-CN/docs/AI-AGENT-ROADMAP.md)
+> **語言**: [English](../../../docs/AI-AGENT-ROADMAP.md) | 繁體中文 | [简体中文](../../zh-CN/docs/AI-AGENT-ROADMAP.md)
 
 **版本**: 2.5.0
 **最後更新**: 2026-02-09
@@ -360,7 +360,7 @@ status: current
 2. 在 `integrations/<tool-name>/` 下建立整合目錄
 3. 新增包含設定說明的 README.md
 4. 更新本文件
-5. 依照 [CONTRIBUTING.md](../../CONTRIBUTING.md) 提交 PR
+5. 依照 [CONTRIBUTING.md](../../../CONTRIBUTING.md) 提交 PR
 
 **問題回報**: [GitHub Issues](https://github.com/anthropics-tw/universal-dev-standards/issues)
 

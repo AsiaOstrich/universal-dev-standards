@@ -357,7 +357,7 @@ uds spec "Build a dashboard with charts"
 
 - [Thoughtworks: Vibe Coding Practices](https://www.thoughtworks.com/)
 - [Martin Fowler: AI-Assisted Development](https://martinfowler.com/)
-- [UDS Refactoring Standards](../../core/refactoring-standards.md)
+- [UDS Refactoring Standards](../../../core/refactoring-standards.md)
 - [HITL Protocol Spec](./hitl-protocol.md)
 
 ---

@@ -8,7 +8,7 @@ status: current
 
 # Git 工作流程標準
 
-> **語言**: [English](../../core/git-workflow.md) | 繁體中文
+> **語言**: [English](../../../../core/git-workflow.md) | 繁體中文
 
 **版本**: 1.3.0
 **最後更新**: 2026-01-24
@@ -171,7 +171,7 @@ git push origin --delete feature/oauth-login
 
 #### 2. 發布準備
 
-> **變更日誌更新**：將 `[Unreleased]` 的條目移至新版本區段並加上發布日期。詳細指南請參閱 [changelog-standards.md](../../core/changelog-standards.md)。
+> **變更日誌更新**：將 `[Unreleased]` 的條目移至新版本區段並加上發布日期。詳細指南請參閱 [changelog-standards.md](../../../../core/changelog-standards.md)。
 
 ```bash
 # Create release branch from develop
@@ -979,10 +979,10 @@ git reset --hard <previous-commit-hash>
 
 ## 相關標準
 
-- [Commit Message Guide](../../core/commit-message-guide.md) - Commit 訊息規範
-- [Code Check-in Standards](../../core/checkin-standards.md) - 程式碼簽入標準
-- [Versioning Standard](../../core/versioning.md) - 語義化版本標準
-- [Changelog Standards](../../core/changelog-standards.md) - 變更日誌標準
+- [Commit Message Guide](../../../../core/commit-message-guide.md) - Commit 訊息規範
+- [Code Check-in Standards](../../../../core/checkin-standards.md) - 程式碼簽入標準
+- [Versioning Standard](../../../../core/versioning.md) - 語義化版本標準
+- [Changelog Standards](../../../../core/changelog-standards.md) - 變更日誌標準
 
 ---
 

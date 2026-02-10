@@ -206,8 +206,8 @@ description: |
 
 ## 相关标准
 
-- [規格驅动开发](../../core/spec-driven-development.md)
-- [簽入标准](../../core/checkin-standards.md)
+- [規格驅动开发](../../../../core/spec-driven-development.md)
+- [簽入标准](../../../../core/checkin-standards.md)
 
 ---
 

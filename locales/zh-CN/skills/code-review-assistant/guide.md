@@ -132,9 +132,9 @@ BLOCKING, IMPORTANT, SUGGESTION, QUESTION, NOTE
 
 ## 相关标准
 
-- [Code Review Checklist](../../core/code-review-checklist.md)
-- [Checkin Standards](../../core/checkin-standards.md)
-- [Testing Standards](../../core/testing-standards.md)
+- [Code Review Checklist](../../../../core/code-review-checklist.md)
+- [Checkin Standards](../../../../core/checkin-standards.md)
+- [Testing Standards](../../../../core/testing-standards.md)
 
 ---
 

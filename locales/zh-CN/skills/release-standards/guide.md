@@ -168,9 +168,9 @@ This project follows **Keep a Changelog** format.
 
 ## 相关标准
 
-- [版本控制](../../core/versioning.md)
-- [变更日誌标准](../../core/changelog-standards.md)
-- [Git 工作流程](../../core/git-workflow.md)
+- [版本控制](../../../../core/versioning.md)
+- [变更日誌标准](../../../../core/changelog-standards.md)
+- [Git 工作流程](../../../../core/git-workflow.md)
 
 ---
 

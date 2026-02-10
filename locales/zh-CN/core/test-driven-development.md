@@ -13,7 +13,7 @@ status: current
 **适用范围**: 所有采用测试驱动开发的项目
 **范围**: universal
 
-> **语言**: [English](../../core/test-driven-development.md) | [繁體中文](../zh-TW/core/test-driven-development.md)
+> **语言**: [English](../../../core/test-driven-development.md) | [繁體中文](../../zh-TW/core/test-driven-development.md)
 
 ---
 

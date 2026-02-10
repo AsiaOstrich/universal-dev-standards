@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/options/testing/istqb-framework.md)
 
-**Parent Standard**: [Testing Completeness](../../core/testing-completeness.md)
+**Parent Standard**: [Testing Completeness](../../core/test-completeness-dimensions.md)
 
 ---
 

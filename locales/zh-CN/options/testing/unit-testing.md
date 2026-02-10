@@ -8,9 +8,9 @@ status: current
 
 # 单元测试
 
-> **语言**: [English](../../../options/testing/unit-testing.md) | 繁体中文
+> **语言**: [English](../../../../options/testing/unit-testing.md) | 繁体中文
 
-**上层标准**: [测试指南](../../core/testing.md)
+**上层标准**: [测试指南](../../../../core/testing-standards.md)
 
 ---
 

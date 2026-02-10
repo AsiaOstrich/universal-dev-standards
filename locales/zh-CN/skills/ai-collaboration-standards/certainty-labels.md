@@ -113,7 +113,7 @@ status: current
 ## 相关标准
 
 - [防幻覺指南](./anti-hallucination.md)
-- [防幻覺标准](../../core/anti-hallucination.md)
+- [防幻覺标准](../../../../core/anti-hallucination.md)
 
 ---
 

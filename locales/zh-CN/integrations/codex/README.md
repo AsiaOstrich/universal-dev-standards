@@ -48,9 +48,9 @@ curl -o AGENTS.md https://raw.githubusercontent.com/AsiaOstrich/universal-dev-st
 
 ## 相关规范
 
-- [防幻觉规范](../../core/anti-hallucination.md)
-- [Commit 消息指南](../../core/commit-message-guide.md)
-- [代码审查清单](../../core/code-review-checklist.md)
+- [防幻觉规范](../../../../core/anti-hallucination.md)
+- [Commit 消息指南](../../../../core/commit-message-guide.md)
+- [代码审查清单](../../../../core/code-review-checklist.md)
 
 ---
 

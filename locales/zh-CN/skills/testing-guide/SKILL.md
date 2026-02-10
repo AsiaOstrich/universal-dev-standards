@@ -213,8 +213,8 @@ test('method_scenario_expected', () => {
 
 ## 相关标准
 
-- [测试标准](../../core/testing-standards.md)
-- [程序码审查检查清单](../../core/code-review-checklist.md)
+- [测试标准](../../../../core/testing-standards.md)
+- [程序码审查检查清单](../../../../core/code-review-checklist.md)
 
 ---
 

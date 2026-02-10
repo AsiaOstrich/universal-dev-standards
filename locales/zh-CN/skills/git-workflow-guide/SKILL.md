@@ -197,9 +197,9 @@ git push origin feature/my-feature
 
 ## 相关标准
 
-- [Git 工作流程](../../core/git-workflow.md)
-- [提交消息指南](../../core/commit-message-guide.md)
-- [簽入标准](../../core/checkin-standards.md)
+- [Git 工作流程](../../../../core/git-workflow.md)
+- [提交消息指南](../../../../core/commit-message-guide.md)
+- [簽入标准](../../../../core/checkin-standards.md)
 
 ---
 

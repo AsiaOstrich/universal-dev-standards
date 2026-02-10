@@ -5,7 +5,7 @@
 **Applicability**: All projects adopting Behavior-Driven Development
 **Scope**: universal
 
-> **Language**: [English](../core/behavior-driven-development.md) | [繁體中文](../locales/zh-TW/core/behavior-driven-development.md)
+> **Language**: [English](../../core/behavior-driven-development.md) | [繁體中文](../../locales/zh-TW/core/behavior-driven-development.md)
 
 ---
 
@@ -84,7 +84,7 @@ BDD naturally incorporates collaborative acceptance practices:
 
 > **Note**: Formal ATDD workshops are optional. Teams may define AC through any input method (interviews, PRDs, emails) and still use BDD effectively.
 
-**Reference**: [Spec-Driven Development Standards](spec-driven-development.md)
+**Reference**: [Spec-Driven Development Standards](../../core/spec-driven-development.md)
 
 ---
 
@@ -771,12 +771,12 @@ Team BDD Assessment:
 
 ## Related Standards
 
-- [Test-Driven Development](test-driven-development.md) - TDD workflow and integration
-- [Acceptance Test-Driven Development](acceptance-test-driven-development.md) - ATDD standards
-- [Spec-Driven Development](spec-driven-development.md) - SDD workflow
-- [Testing Standards](testing-standards.md) - Core testing standards
-- [Test Completeness Dimensions](test-completeness-dimensions.md) - 8 dimensions framework
-- [Code Check-in Standards](checkin-standards.md) - Check-in requirements
+- [Test-Driven Development](../../core/test-driven-development.md) - TDD workflow and integration
+- [Acceptance Test-Driven Development](../../core/acceptance-test-driven-development.md) - ATDD standards
+- [Spec-Driven Development](../../core/spec-driven-development.md) - SDD workflow
+- [Testing Standards](../../core/testing-standards.md) - Core testing standards
+- [Test Completeness Dimensions](../../core/test-completeness-dimensions.md) - 8 dimensions framework
+- [Code Check-in Standards](../../core/checkin-standards.md) - Check-in requirements
 
 ---
 

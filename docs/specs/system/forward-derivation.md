@@ -353,8 +353,8 @@ describe('SPEC-001: [Title]', () => {
 
 ## References / 參考資料
 
-- [Spec-Driven Development](../core/spec-driven-development.md)
-- [Reverse Engineering Standards](../core/reverse-engineering-standards.md)
-- [Behavior-Driven Development](../core/behavior-driven-development.md)
-- [Test-Driven Development](../core/test-driven-development.md)
-- [Integrated Flow Methodology](../methodologies/integrated-flow.methodology.yaml)
+- [Spec-Driven Development](../../../core/spec-driven-development.md)
+- [Reverse Engineering Standards](../../../core/reverse-engineering-standards.md)
+- [Behavior-Driven Development](../../../core/behavior-driven-development.md)
+- [Test-Driven Development](../../../core/test-driven-development.md)
+- [Integrated Flow Methodology](../../../methodologies/integrated-flow.methodology.yaml)

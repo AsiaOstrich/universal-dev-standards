@@ -203,7 +203,7 @@ AI 助理絕对不能:
 
 ## 相关标准
 
-- [防止幻覺标准](../../core/anti-hallucination.md)
+- [防止幻覺标准](../../../../core/anti-hallucination.md)
 - [确定性标签參考](./certainty-labels.md)
 
 ---

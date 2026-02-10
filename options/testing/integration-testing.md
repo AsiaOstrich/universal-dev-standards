@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/options/testing/integration-testing.md)
 
-**Parent Standard**: [Testing Guide](../../core/testing.md)
+**Parent Standard**: [Testing Guide](../../core/testing-standards.md)
 
 ---
 

@@ -275,13 +275,13 @@ ATDD: 驗收標準（商業簽核）
 ## 詳細指南
 
 完整標準請參閱：
-- [BDD 核心標準](../../core/behavior-driven-development.md)
+- [BDD 核心標準](../../../../core/behavior-driven-development.md)
 - [BDD 工作流程指南](./bdd-workflow.md)
 - [Gherkin 快速參考](./gherkin-guide.md)
 
 相關標準：
 - [TDD 標準](../../core/test-driven-development.md)
-- [ATDD 標準](../../core/acceptance-test-driven-development.md)
+- [ATDD 標準](../../../../core/acceptance-test-driven-development.md)
 - [測試標準](../../core/testing-standards.md)
 
 ---
@@ -300,8 +300,8 @@ ATDD: 驗收標準（商業簽核）
 
 ## 相關標準
 
-- [行為驅動開發](../../core/behavior-driven-development.md) - 核心 BDD 標準
-- [驗收測試驅動開發](../../core/acceptance-test-driven-development.md) - ATDD 標準
+- [行為驅動開發](../../../../core/behavior-driven-development.md) - 核心 BDD 標準
+- [驗收測試驅動開發](../../../../core/acceptance-test-driven-development.md) - ATDD 標準
 - [測試驅動開發](../../core/test-driven-development.md) - TDD 標準
 - [規格驅動開發](../../core/spec-driven-development.md) - SDD 工作流程
 - [測試標準](../../core/testing-standards.md) - 測試框架

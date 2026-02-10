@@ -277,16 +277,16 @@ selection_guide:
 ## 详细指南
 
 完整标准请参阅：
-- [重构标准](../../core/refactoring-standards.md)
+- [重构标准](../../../../core/refactoring-standards.md)
 
 ---
 
 ## 相关标准
 
-- [重构标准](../../core/refactoring-standards.md) - 核心标准
-- [测试驱动开发](../../core/test-driven-development.md) - TDD 重构阶段
-- [代码审查检查清单](../../core/code-review-checklist.md) - 重构 PR 审查
-- [签入标准](../../core/checkin-standards.md) - 提交前要求
+- [重构标准](../../../../core/refactoring-standards.md) - 核心标准
+- [测试驱动开发](../../../../core/test-driven-development.md) - TDD 重构阶段
+- [代码审查检查清单](../../../../core/code-review-checklist.md) - 重构 PR 审查
+- [签入标准](../../../../core/checkin-standards.md) - 提交前要求
 - [TDD 助手](../tdd-assistant/SKILL.md) - TDD 工作流程
 
 ---

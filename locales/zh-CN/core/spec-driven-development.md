@@ -13,7 +13,7 @@ status: current
 **适用范围**: 所有采用规格驱动开发的项目
 **范围**: universal
 
-> **语言**: [English](../../core/spec-driven-development.md) | [繁體中文](../zh-TW/core/spec-driven-development.md)
+> **语言**: [English](../../../core/spec-driven-development.md) | [繁體中文](../../zh-TW/core/spec-driven-development.md)
 
 ---
 
@@ -483,7 +483,7 @@ Refs: SPEC-001
 
 ### 概述
 
-规格批准后，使用[正向推导标准](forward-derivation-standards.md)自动从验收标准生成 BDD 场景、TDD 测试骨架和 ATDD 验收测试。
+规格批准后，使用[正向推导标准](../../../core/forward-derivation-standards.md)自动从验收标准生成 BDD 场景、TDD 测试骨架和 ATDD 验收测试。
 
 ### 正向推导 → SDD 流水线
 
@@ -742,14 +742,14 @@ SDD 验证基于已建立的测试理论：
 
 - [反向工程标准](reverse-engineering-standards.md) - 程序码转规格转换
 - [测试驱动开发](test-driven-development.md) - TDD 工作流程与 SDD 集成
-- [行为驱动开发](behavior-driven-development.md) - BDD 工作流程与 Given-When-Then 情境
-- [验收测试驱动开发](acceptance-test-driven-development.md) - ATDD 工作流程与商业验收
+- [行为驱动开发](../../../core/behavior-driven-development.md) - BDD 工作流程与 Given-When-Then 情境
+- [验收测试驱动开发](../../../core/acceptance-test-driven-development.md) - ATDD 工作流程与商业验收
 - [测试标准](testing-standards.md) - 测试框架与最佳实践（或使用 `/testing-guide` 技能）
 - [测试完整性维度](test-completeness-dimensions.md) - 7 维度测试覆盖
-- [Commit 讯息指南](../../core/commit-message-guide.md) - Commit 讯息规范
-- [程序码签入标准](../../core/checkin-standards.md) - 程序码签入标准
-- [程序码审查清单](../../core/code-review-checklist.md) - 程序码审查清单
-- [文件结构标准](../../core/documentation-structure.md) - 文件结构标准
+- [Commit 讯息指南](../../../core/commit-message-guide.md) - Commit 讯息规范
+- [程序码签入标准](../../../core/checkin-standards.md) - 程序码签入标准
+- [程序码审查清单](../../../core/code-review-checklist.md) - 程序码审查清单
+- [文件结构标准](../../../core/documentation-structure.md) - 文件结构标准
 
 ---
 

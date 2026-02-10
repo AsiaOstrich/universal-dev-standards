@@ -119,8 +119,8 @@ status: current
 ## 详细指南
 
 完整标准请参考：
-- [测试完整性维度](../../core/test-completeness-dimensions.md)
-- [测试标准](../../core/testing-standards.md)
+- [测试完整性维度](../../../../core/test-completeness-dimensions.md)
+- [测试标准](../../../../core/testing-standards.md)
 
 ### AI 优化格式（节省 Token）
 
@@ -262,8 +262,8 @@ public async Task DisableUser_UpdatesStateCorrectly()
 
 ## 相关标准
 
-- [测试完整性维度](../../core/test-completeness-dimensions.md)
-- [测试标准](../../core/testing-standards.md)
+- [测试完整性维度](../../../../core/test-completeness-dimensions.md)
+- [测试标准](../../../../core/testing-standards.md)
 - [测试指南](../testing-guide/SKILL.md)
 
 ---

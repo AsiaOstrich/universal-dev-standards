@@ -95,7 +95,7 @@ Scenario: User login with valid credentials
 
 ### 3. Derivation Tags (from Unified Tag System)
 
-This skill uses **Derivation Tags** for generating new content from specifications. See [Anti-Hallucination Standards](../../core/anti-hallucination.md#unified-tag-system) for the complete tag reference.
+This skill uses **Derivation Tags** for generating new content from specifications. See [Anti-Hallucination Standards](../../core/anti-hallucination.md#certainty-classification-tags) for the complete tag reference.
 
 | Tag | Use When | Example |
 |-----|----------|---------|

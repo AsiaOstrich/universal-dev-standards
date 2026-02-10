@@ -8,7 +8,7 @@ status: current
 
 # AI 协作防幻觉标准
 
-> **语言**: [English](../../core/anti-hallucination.md) | 繁体中文
+> **语言**: [English](../../../core/anti-hallucination.md) | 繁体中文
 
 **版本**: 1.4.0
 **最后更新**: 2026-01-19
@@ -245,7 +245,7 @@ React useState 的运作方式是...（无版本，无引用）
 
 **类别 2：推导标签**（用于生成新内容）
 
-用于从已核准来源生成测试、规格或文件时。参见[正向推演标准](forward-derivation-standards.md)。
+用于从已核准来源生成测试、规格或文件时。参见[正向推演标准](../../../core/forward-derivation-standards.md)。
 
 | 标签 | 用途 | 范例情境 |
 |-----|------|---------|

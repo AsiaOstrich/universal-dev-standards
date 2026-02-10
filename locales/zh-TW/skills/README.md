@@ -26,17 +26,27 @@ status: current
 
 ## 可用的 Skills
 
-| Skill | 描述 | 觸發條件 |
-|-------|------|----------|
-| `ai-collaboration-standards` | 防止 AI 幻覺 | 程式碼分析、"certainty" |
-| `commit-standards` | Conventional Commits 格式 | "commit"、git 操作 |
-| `code-review-assistant` | 系統化程式碼審查 | "review"、"PR" |
-| `testing-guide` | 測試金字塔 | 撰寫測試 |
-| `tdd-assistant` | 測試驅動開發 | "TDD"、"test first"、"紅綠重構" |
-| `release-standards` | 語意化版本控制 | 準備發布 |
-| `git-workflow-guide` | 分支策略 | "branch"、"merge" |
-| `documentation-guide` | 文件結構 | "README"、"docs" |
-| `requirement-assistant` | 需求撰寫 | "requirement"、"user story" |
+| Skill（資料夾） | 指令 | 描述 |
+|----------------|---------|-------------|
+| `guide` | `/guide` | [UDS] 存取所有標準指南 |
+| `checkin-assistant` | `/checkin` | [UDS] 提交前品質閘道 |
+| `commit-standards` | `/commit` | [UDS] Conventional Commits 格式 |
+| `code-review-assistant` | `/review` | [UDS] 系統化程式碼審查 |
+| `tdd-assistant` | `/tdd` | [UDS] 測試驅動開發 |
+| `bdd-assistant` | `/bdd` | [UDS] 行為驅動開發 |
+| `atdd-assistant` | `/atdd` | [UDS] 驗收測試驅動開發 |
+| `release-standards` | `/release` | [UDS] 發布與變更日誌管理 |
+| `documentation-guide` | `/docs` | [UDS] 文件管理 |
+| `requirement-assistant` | `/requirement` | [UDS] 需求撰寫 |
+| `reverse-engineer` | `/reverse` | [UDS] 逆向工程程式碼 |
+| `forward-derivation` | `/derive` | [UDS] 從規格衍生產出物 |
+| `spec-driven-dev` | `/sdd` | [UDS] 規格驅動開發 |
+| `test-coverage-assistant` | `/coverage` | [UDS] 測試覆蓋率分析 |
+| `methodology-system` | `/methodology` | [UDS] 開發方法論 |
+| `refactoring-assistant` | `/refactor` | [UDS] 重構指引 |
+| `project-discovery` | `/discover` | [UDS] 評估專案健康度與風險 |
+| `changelog-guide` | `/changelog` | [UDS] 生成變更日誌條目 |
+| `docs-generator` | `/docgen` | [UDS] 生成使用文件 |
 
 ## 靜態與動態規範
 

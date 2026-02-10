@@ -42,6 +42,9 @@ These skills provide standard guidance and workflows. They can be accessed via s
 | `test-coverage-assistant` | `/coverage` | [UDS] Test coverage analysis |
 | `methodology-system` | `/methodology` | [UDS] Development methodology |
 | `refactoring-assistant` | `/refactor` | [UDS] Refactoring guidance |
+| `project-discovery` | `/discover` | [UDS] Assess project health and risks |
+| `changelog-guide` | `/changelog` | [UDS] Generate changelog entries |
+| `docs-generator` | `/docgen` | [UDS] Generate usage documentation |
 
 > **Note**: For reference guides (e.g., Git Workflow, Logging, Error Codes), use the `/guide` command.
 

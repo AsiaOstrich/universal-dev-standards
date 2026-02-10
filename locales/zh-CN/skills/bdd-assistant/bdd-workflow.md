@@ -402,5 +402,5 @@ Then('我应该看到错误 {string}', async function (message) {
 ## 相关资源
 
 - [Gherkin 快速参考](./gherkin-guide.md)
-- [BDD 核心标准](../../core/behavior-driven-development.md)
+- [BDD 核心标准](../../../../core/behavior-driven-development.md)
 - [TDD 工作流程](../tdd-assistant/tdd-workflow.md)

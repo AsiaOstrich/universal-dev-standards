@@ -8,7 +8,7 @@ status: current
 
 # AI 指令檔案規範
 
-> **語言**: [English](../../core/ai-instruction-standards.md) | 繁體中文
+> **語言**: [English](../../../core/ai-instruction-standards.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-14

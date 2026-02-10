@@ -380,7 +380,7 @@ Epic：電子商务平台
 ## 相关标准
 
 - [需求完整性检查清单](./requirement-checklist.md)
-- [規格驅动开发](../../core/spec-driven-development.md)
+- [規格驅动开发](../../../../core/spec-driven-development.md)
 
 ---
 

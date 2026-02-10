@@ -8,9 +8,9 @@ status: current
 
 # 端對端 (E2E) 測試
 
-> **語言**: [English](../../../options/testing/e2e-testing.md) | 繁體中文
+> **語言**: [English](../../../../options/testing/e2e-testing.md) | 繁體中文
 
-**上層標準**: [測試指南](../../core/testing.md)
+**上層標準**: [測試指南](../../../../core/testing-standards.md)
 
 ---
 

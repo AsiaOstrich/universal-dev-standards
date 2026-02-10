@@ -415,7 +415,7 @@ uds workflow info feature-dev
 
 ## References / 參考資料
 
-- [AGENT.md Format Specification](../skills/agents/README.md)
-- [Workflow Format Specification](../skills/workflows/README.md)
-- [AI Agent Paths Configuration](../cli/src/config/ai-agent-paths.js)
-- [CHANGELOG v4.1.0-alpha.1](../CHANGELOG.md)
+- [AGENT.md Format Specification](../../../skills/agents/README.md)
+- [Workflow Format Specification](../../../skills/workflows/README.md)
+- [AI Agent Paths Configuration](../../../cli/src/config/ai-agent-paths.js)
+- [CHANGELOG v4.1.0-alpha.1](../../../CHANGELOG.md)

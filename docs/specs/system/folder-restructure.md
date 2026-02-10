@@ -288,7 +288,7 @@ universal-dev-standards/
 
 ## References / 參考資料
 
-- [Upgrade Command Spec](../cli/upgrade/00-upgrade-overview.md)
+- [Upgrade Command Spec](../../../cli/upgrade/00-upgrade-overview.md)
 - [Node.js Project Structure](https://github.com/nodejs/node)
 - [Conventional Directory Layout](https://github.com/kriasoft/Folder-Structure-Conventions)
 

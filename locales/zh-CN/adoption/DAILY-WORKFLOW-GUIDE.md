@@ -11,7 +11,7 @@ status: current
 **版本**: 1.1.0
 **最后更新**: 2026-02-10
 
-> **语言**: [English](../../adoption/DAILY-WORKFLOW-GUIDE.md) | [繁體中文](../../zh-TW/adoption/DAILY-WORKFLOW-GUIDE.md) | 简体中文
+> **语言**: [English](../../../adoption/DAILY-WORKFLOW-GUIDE.md) | [繁體中文](../../zh-TW/adoption/DAILY-WORKFLOW-GUIDE.md) | 简体中文
 
 本指南说明在执行 `uds init` 后，如何在日常开发工作流程中使用 Universal Development Standards。
 
@@ -372,6 +372,11 @@ test('should reject email without domain', () => {
 | `/commit` | 生成规范的 commit message | 提交代码 |
 | `/review` | 启动代码审查 | 审查 PR |
 | `/requirement` | 撰写需求文档 | 定义 User Story |
+| `/checkin` | 提交前质量验证 | 提交代码前 |
+| `/changelog` | 生成变更日志条目 | 准备发布期间 |
+| `/coverage` | 分析测试覆盖率 | 评估测试质量 |
+| `/docs` | 管理文档 | 撰写/更新文档 |
+| `/release` | 引导发布流程 | 准备发布 |
 
 ---
 
@@ -495,14 +500,14 @@ test('should reject email without domain', () => {
 
 - [采用指南](ADOPTION-GUIDE.md) - 如何安装 UDS
 - [专案现况评估](../../../skills/project-discovery/SKILL.md) - Phase 0 专案评估
-- [反向工程标准](../../core/reverse-engineering-standards.md) - 反向工程工作流程
-- [重构标准](../../core/refactoring-standards.md) - 重构工作流程
-- [测试驱动开发](../../core/test-driven-development.md) - TDD 标准（包含 Golden Master Testing）
-- [行为驱动开发](../../core/behavior-driven-development.md) - BDD 工作流程
-- [验收测试驱动开发](../../core/acceptance-test-driven-development.md) - ATDD 工作流程
-- [规格驱动开发](../../core/spec-driven-development.md) - SDD 工作流程
-- [提交规范](../../core/checkin-standards.md) - 代码提交要求
-- [代码审查清单](../../core/code-review-checklist.md) - 审查流程
+- [反向工程标准](../../../core/reverse-engineering-standards.md) - 反向工程工作流程
+- [重构标准](../../../core/refactoring-standards.md) - 重构工作流程
+- [测试驱动开发](../../../core/test-driven-development.md) - TDD 标准（包含 Golden Master Testing）
+- [行为驱动开发](../../../core/behavior-driven-development.md) - BDD 工作流程
+- [验收测试驱动开发](../../../core/acceptance-test-driven-development.md) - ATDD 工作流程
+- [规格驱动开发](../../../core/spec-driven-development.md) - SDD 工作流程
+- [提交规范](../../../core/checkin-standards.md) - 代码提交要求
+- [代码审查清单](../../../core/code-review-checklist.md) - 审查流程
 
 ---
 

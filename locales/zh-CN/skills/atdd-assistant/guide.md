@@ -302,14 +302,14 @@ TDD 层级（实现）
 ## 详细指南
 
 完整标准请参阅：
-- [ATDD 核心标准](../../core/acceptance-test-driven-development.md)
+- [ATDD 核心标准](../../../../core/acceptance-test-driven-development.md)
 - [ATDD 工作流程指南](./atdd-workflow.md)
 - [验收标准撰写指南](./acceptance-criteria-guide.md)
 
 相关标准：
-- [BDD 标准](../../core/behavior-driven-development.md)
-- [TDD 标准](../../core/test-driven-development.md)
-- [测试标准](../../core/testing-standards.md)
+- [BDD 标准](../../../../core/behavior-driven-development.md)
+- [TDD 标准](../../../../core/test-driven-development.md)
+- [测试标准](../../../../core/testing-standards.md)
 
 ---
 
@@ -343,11 +343,11 @@ TDD 层级（实现）
 
 ## 相关标准
 
-- [验收测试驱动开发](../../core/acceptance-test-driven-development.md) - 核心 ATDD 标准
-- [行为驱动开发](../../core/behavior-driven-development.md) - BDD 标准
-- [测试驱动开发](../../core/test-driven-development.md) - TDD 标准
-- [规格驱动开发](../../core/spec-driven-development.md) - SDD 工作流程
-- [测试标准](../../core/testing-standards.md) - 测试框架
+- [验收测试驱动开发](../../../../core/acceptance-test-driven-development.md) - 核心 ATDD 标准
+- [行为驱动开发](../../../../core/behavior-driven-development.md) - BDD 标准
+- [测试驱动开发](../../../../core/test-driven-development.md) - TDD 标准
+- [规格驱动开发](../../../../core/spec-driven-development.md) - SDD 工作流程
+- [测试标准](../../../../core/testing-standards.md) - 测试框架
 - [BDD 助手](../bdd-assistant/SKILL.md) - BDD 技能
 - [TDD 助手](../tdd-assistant/SKILL.md) - TDD 技能
 

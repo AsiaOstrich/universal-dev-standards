@@ -8,9 +8,9 @@ status: current
 
 # Merge Commit 合併策略
 
-> **語言**: [English](../../../options/git-workflow/merge-commit.md) | 繁體中文
+> **語言**: [English](../../../../options/git-workflow/merge-commit.md) | 繁體中文
 
-**上層標準**: [Git 工作流程](../../core/git-workflow.md)
+**上層標準**: [Git 工作流程](../../../../core/git-workflow.md)
 
 ---
 

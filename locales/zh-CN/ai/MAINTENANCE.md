@@ -8,7 +8,7 @@ status: current
 
 # AI 标准维护指南
 
-> **Language**: [English](../../ai/MAINTENANCE.md) | 繁体中文
+> **Language**: [English](../../../ai/MAINTENANCE.md) | 繁体中文
 
 **版本**: 1.0.0
 **最后更新**: 2025-12-30

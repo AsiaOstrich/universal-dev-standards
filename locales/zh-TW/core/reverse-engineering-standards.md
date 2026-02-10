@@ -12,7 +12,7 @@ status: current
 **最後更新**: 2026-01-19
 **適用範圍**: 所有需要將程式碼轉換為規格文件的專案
 
-> **語言**: [English](../../core/reverse-engineering-standards.md) | [繁體中文](reverse-engineering-standards.md)
+> **語言**: [English](../../../core/reverse-engineering-standards.md) | [繁體中文](reverse-engineering-standards.md)
 
 ---
 
@@ -367,10 +367,10 @@ Feature: 購物車
 
 ### 技能參考
 
-- [反向工程技能](../../skills/reverse-engineer/SKILL.md) - 詳細工作流程實作
-- [規格驅動開發技能](../../skills/spec-driven-dev/SKILL.md) - SDD 整合
-- [BDD 助手技能](../../skills/bdd-assistant/SKILL.md) - Gherkin 撰寫
-- [TDD 助手技能](../../skills/tdd-assistant/SKILL.md) - 測試覆蓋分析
+- [反向工程技能](../../../skills/reverse-engineer/SKILL.md) - 詳細工作流程實作
+- [規格驅動開發技能](../../../skills/spec-driven-dev/SKILL.md) - SDD 整合
+- [BDD 助手技能](../../../skills/bdd-assistant/SKILL.md) - Gherkin 撰寫
+- [TDD 助手技能](../../../skills/tdd-assistant/SKILL.md) - 測試覆蓋分析
 
 ---
 
@@ -378,9 +378,9 @@ Feature: 購物車
 
 - [反幻覺指南](anti-hallucination.md) - 基於證據的分析要求
 - [規格驅動開發](spec-driven-development.md) - 規格工作流程
-- [行為驅動開發](behavior-driven-development.md) - Given-When-Then 情境
+- [行為驅動開發](../../../core/behavior-driven-development.md) - Given-When-Then 情境
 - [測試驅動開發](test-driven-development.md) - 紅-綠-重構循環
-- [驗收測試驅動開發](acceptance-test-driven-development.md) - 驗收條件
+- [驗收測試驅動開發](../../../core/acceptance-test-driven-development.md) - 驗收條件
 - [程式碼審查清單](code-review-checklist.md) - 審查指南
 
 ---

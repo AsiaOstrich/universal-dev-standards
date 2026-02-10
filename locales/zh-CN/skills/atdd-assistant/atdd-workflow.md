@@ -479,6 +479,6 @@ TDD                单元实现               开发人员
 ## 相关资源
 
 - [验收标准撰写指南](./acceptance-criteria-guide.md)
-- [ATDD 核心标准](../../core/acceptance-test-driven-development.md)
+- [ATDD 核心标准](../../../../core/acceptance-test-driven-development.md)
 - [BDD 工作流程](../bdd-assistant/bdd-workflow.md)
 - [TDD 工作流程](../tdd-assistant/tdd-workflow.md)

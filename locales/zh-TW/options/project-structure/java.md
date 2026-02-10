@@ -8,9 +8,9 @@ status: current
 
 # Java 專案結構
 
-> **語言**: [English](../../../options/project-structure/java.md) | 繁體中文
+> **語言**: [English](../../../../options/project-structure/java.md) | 繁體中文
 
-**上層標準**: [專案結構](../../core/project-structure.md)
+**上層標準**: [專案結構](../../../../core/project-structure.md)
 
 ---
 

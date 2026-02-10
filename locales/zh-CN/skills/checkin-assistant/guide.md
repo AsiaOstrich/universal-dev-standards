@@ -377,15 +377,15 @@ npm run lint
 ## 详细指南
 
 完整标准請參見：
-- [簽入标准](../../core/checkin-standards.md)
+- [簽入标准](../../../../core/checkin-standards.md)
 
 ---
 
 ## 相关标准
 
-- [簽入标准](../../core/checkin-standards.md) - 核心标准
-- [提交消息指南](../../core/commit-message-guide.md) - 消息格式
-- [程序码审查检查清单](../../core/code-review-checklist.md) - PR 审查
+- [簽入标准](../../../../core/checkin-standards.md) - 核心标准
+- [提交消息指南](../../../../core/commit-message-guide.md) - 消息格式
+- [程序码审查检查清单](../../../../core/code-review-checklist.md) - PR 审查
 - [程序码审查助手](../code-review-assistant/SKILL.md) - 审查技能
 - [提交标准技能](../commit-standards/SKILL.md) - 提交消息技能
 

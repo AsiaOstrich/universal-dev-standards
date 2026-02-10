@@ -36,7 +36,7 @@ status: current
 ## 相关资源
 
 - [Spec Kit 集成](../spec-kit/) - 替代的轻量级 SDD 工具
-- [规格驱动开发规范](../../core/spec-driven-development.md) - SDD 方法论
+- [规格驱动开发规范](../../../../core/spec-driven-development.md) - SDD 方法论
 
 ## 注意事项
 

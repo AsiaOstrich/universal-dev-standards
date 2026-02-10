@@ -21,7 +21,7 @@ description: |
 
 ---
 
-> **核心标准**: 本技能实现 [AI 友善架构](../../core/ai-friendly-architecture.md)。完整方法论文档请参阅核心标准。
+> **核心标准**: 本技能实现 [AI 友善架构](../../../../core/ai-friendly-architecture.md)。完整方法论文档请参阅核心标准。
 
 ## 目的
 
@@ -90,7 +90,7 @@ project/
 ## 详细指南
 
 完整标准请参阅：
-- [AI 友善架构标准](../../core/ai-friendly-architecture.md)
+- [AI 友善架构标准](../../../../core/ai-friendly-architecture.md)
 
 ### AI 优化格式（Token 效率）
 
@@ -199,10 +199,10 @@ documentation:
 
 ## 相关标准
 
-- [AI 友善架构](../../core/ai-friendly-architecture.md) - 核心架构标准
-- [项目结构](../../core/project-structure.md) - 目录组织
-- [文档结构](../../core/documentation-structure.md) - 文档分层
-- [反幻觉](../../core/anti-hallucination.md) - AI 准确性标准
+- [AI 友善架构](../../../../core/ai-friendly-architecture.md) - 核心架构标准
+- [项目结构](../../../../core/project-structure.md) - 目录组织
+- [文档结构](../../../../core/documentation-structure.md) - 文档分层
+- [反幻觉](../../../../core/anti-hallucination.md) - AI 准确性标准
 
 ---
 

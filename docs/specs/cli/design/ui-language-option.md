@@ -186,5 +186,5 @@ uds config
 
 ## References / 參考資料
 
-- [CLI Architecture](../../cli/README.md)
-- [i18n Module](../../cli/src/i18n/messages.js)
+- [CLI Architecture](../../../../cli/README.md)
+- [i18n Module](../../../../cli/src/i18n/messages.js)

@@ -16,9 +16,9 @@ Language-agnostic, framework-agnostic documentation standards for software proje
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Core Standards** | 23 | Universal development guidelines (Markdown) |
-| **AI Skills** | 23 | Interactive Claude Code skills for AI-assisted development |
-| **Slash Commands** | 24 | Quick actions (`/commit`, `/tdd`, `/review`, etc.) |
+| **Core Standards** | 32 | Universal development guidelines (Markdown) |
+| **AI Skills** | 26 | Interactive Claude Code skills for AI-assisted development |
+| **Slash Commands** | 30 | Quick actions (`/commit`, `/tdd`, `/review`, etc.) |
 | **CLI Commands** | 6 | `list`, `init`, `configure`, `check`, `update`, `skills` |
 | **Languages** | 3 | English, Traditional Chinese, Simplified Chinese |
 
@@ -132,7 +132,7 @@ See [Windows Guide](docs/WINDOWS-GUIDE.md) for platform-specific instructions.
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**Benefits**: Single command, automatic updates, all 23 skills loaded instantly.
+**Benefits**: Single command, automatic updates, all 26 skills loaded instantly.
 
 **Migrating from v3.x?**
 ```bash
@@ -388,8 +388,8 @@ See [CHANGELOG.md](CHANGELOG.md) for complete history.
 |---------|-------------|
 | **Bidirectional Derivation** | Forward Derivation + Reverse Engineering for complete spec-code lifecycle |
 | **6 New Core Standards** | BDD, ATDD, Reverse Engineering, Forward Derivation, AI Instructions, Refactoring |
-| **23 Skills** | 7 new skills including Forward Derivation, BDD/ATDD assistants |
-| **24 Slash Commands** | 9 new commands (`/derive-*`, `/reverse-*`, `/atdd`, `/bdd`) |
+| **26 Skills** | 7 new skills including Forward Derivation, BDD/ATDD assistants |
+| **30 Slash Commands** | 9 new commands (`/derive-*`, `/reverse-*`, `/atdd`, `/bdd`) |
 | **Methodology System** | TDD/BDD/SDD/ATDD workflows now production-ready |
 
 ---
@@ -419,7 +419,7 @@ universal-dev-standards/
 │   └── guides/              # Detailed methodology tutorials
 ├── ai/                      # AI-optimized formats (.ai.yaml)
 ├── skills/                  # AI tool skills
-│   └── claude-code/         # 23 skill directories
+│   └── claude-code/         # 26 skill directories
 ├── extensions/              # Language/framework extensions
 │   ├── languages/           # csharp-style.md, php-style.md
 │   └── frameworks/          # fat-free-patterns.md

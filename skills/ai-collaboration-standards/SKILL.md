@@ -176,9 +176,9 @@ This project uses **English** certainty tags.
 
 ## Related Standards
 
-- [Anti-Hallucination Standards](../core/anti-hallucination.md)
-- [Code Review Checklist](../core/code-review-checklist.md)
-- [Testing Standards](../core/testing-standards.md)
+- [Anti-Hallucination Standards](../../core/anti-hallucination.md)
+- [Code Review Checklist](../../core/code-review-checklist.md)
+- [Testing Standards](../../core/testing-standards.md)
 
 ---
 

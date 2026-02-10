@@ -8,9 +8,9 @@ status: current
 
 # Rebase and Fast-Forward 策略
 
-> **語言**: [English](../../../options/git-workflow/rebase-ff.md) | 繁體中文
+> **語言**: [English](../../../../options/git-workflow/rebase-ff.md) | 繁體中文
 
-**上層標準**: [Git 工作流程](../../core/git-workflow.md)
+**上層標準**: [Git 工作流程](../../../../core/git-workflow.md)
 
 ---
 

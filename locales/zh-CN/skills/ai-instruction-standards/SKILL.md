@@ -21,7 +21,7 @@ description: |
 
 ---
 
-> **核心标准**: 本技能实现 [AI 指令文件标准](../../core/ai-instruction-standards.md)。完整方法论文档请参阅核心标准。
+> **核心标准**: 本技能实现 [AI 指令文件标准](../../../../core/ai-instruction-standards.md)。完整方法论文档请参阅核心标准。
 
 ## 目的
 
@@ -77,7 +77,7 @@ description: |
 ## 详细指南
 
 完整标准请参阅：
-- [AI 指令文件标准](../../core/ai-instruction-standards.md)
+- [AI 指令文件标准](../../../../core/ai-instruction-standards.md)
 
 ### AI 优化格式（Token 效率）
 
@@ -192,10 +192,10 @@ project/
 
 ## 相关标准
 
-- [AI 指令文件标准](../../core/ai-instruction-standards.md) - 核心标准
-- [文档撰写标准](../../core/documentation-writing-standards.md) - 撰写指南
-- [反幻觉规范](../../core/anti-hallucination.md) - AI 准确性规则
-- [AI 友善架构](../../core/ai-friendly-architecture.md) - 上下文优化
+- [AI 指令文件标准](../../../../core/ai-instruction-standards.md) - 核心标准
+- [文档撰写标准](../../../../core/documentation-writing-standards.md) - 撰写指南
+- [反幻觉规范](../../../../core/anti-hallucination.md) - AI 准确性规则
+- [AI 友善架构](../../../../core/ai-friendly-architecture.md) - 上下文优化
 
 ---
 

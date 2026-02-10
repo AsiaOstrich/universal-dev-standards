@@ -8,7 +8,7 @@ status: current
 
 # 文件撰写规范
 
-> [English](../../core/documentation-writing-standards.md) | **繁体中文**
+> [English](../../../core/documentation-writing-standards.md) | **繁体中文**
 
 **版本**: 1.0.1
 **最后更新**: 2025-12-24

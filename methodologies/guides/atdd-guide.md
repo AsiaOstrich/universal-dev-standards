@@ -5,7 +5,7 @@
 **Applicability**: All projects adopting Acceptance Test-Driven Development
 **Scope**: universal
 
-> **Language**: [English](../core/acceptance-test-driven-development.md) | [繁體中文](../locales/zh-TW/core/acceptance-test-driven-development.md)
+> **Language**: [English](../../core/acceptance-test-driven-development.md) | [繁體中文](../../locales/zh-TW/core/acceptance-test-driven-development.md)
 
 ---
 
@@ -94,7 +94,7 @@ The most valuable aspect of ATDD is the **Three Amigos** collaboration pattern:
 
 > **Recommendation**: Adopt the Three Amigos pattern even if you don't use formal ATDD workshops.
 
-**Reference**: [Spec-Driven Development Standards](spec-driven-development.md)
+**Reference**: [Spec-Driven Development Standards](../../core/spec-driven-development.md)
 
 ---
 
@@ -706,7 +706,7 @@ When using SDD as the primary methodology, ATDD can be an optional input:
 | TDD | Acceptance | All scenarios pass | Passing test suite |
 | Acceptance | Done | PO accepts | Demo complete, code merged |
 
-> **Note**: For SDD workflow phase transitions, see [Spec-Driven Development](spec-driven-development.md).
+> **Note**: For SDD workflow phase transitions, see [Spec-Driven Development](../../core/spec-driven-development.md).
 
 ---
 
@@ -821,12 +821,12 @@ Team ATDD Assessment:
 
 ## Related Standards
 
-- [Behavior-Driven Development](behavior-driven-development.md) - BDD standards
-- [Test-Driven Development](test-driven-development.md) - TDD workflow
-- [Spec-Driven Development](spec-driven-development.md) - SDD workflow
-- [Testing Standards](testing-standards.md) - Core testing standards
-- [Test Completeness Dimensions](test-completeness-dimensions.md) - 8 dimensions framework
-- [Code Check-in Standards](checkin-standards.md) - Check-in requirements
+- [Behavior-Driven Development](../../core/behavior-driven-development.md) - BDD standards
+- [Test-Driven Development](../../core/test-driven-development.md) - TDD workflow
+- [Spec-Driven Development](../../core/spec-driven-development.md) - SDD workflow
+- [Testing Standards](../../core/testing-standards.md) - Core testing standards
+- [Test Completeness Dimensions](../../core/test-completeness-dimensions.md) - 8 dimensions framework
+- [Code Check-in Standards](../../core/checkin-standards.md) - Check-in requirements
 
 ---
 

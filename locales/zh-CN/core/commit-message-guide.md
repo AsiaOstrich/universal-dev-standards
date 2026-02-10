@@ -6,7 +6,7 @@ last_synced: 2026-01-08
 status: current
 ---
 
-> **语言**: [English](../../core/commit-message-guide.md) | [简体中文](../../zh-TW/core/commit-message-guide.md) | 简体中文
+> **语言**: [English](../../../core/commit-message-guide.md) | [简体中文](../../zh-TW/core/commit-message-guide.md) | 简体中文
 
 # 提交消息指南
 
@@ -120,7 +120,7 @@ a different JSON structure. See migration guide.
 ## 相关标准
 
 - [Git 工作流程](git-workflow.md)
-- [代码审查指南](code-review-guide.md)
+- [代码审查指南](code-review-checklist.md)
 
 ---
 

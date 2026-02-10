@@ -8,7 +8,7 @@ status: current
 
 # 測試標準
 
-> **語言**: [English](../../core/testing-standards.md) | 繁體中文
+> **語言**: [English](../../../../core/testing-standards.md) | 繁體中文
 
 **版本**: 2.2.0
 **最後更新**: 2026-01-20
@@ -2246,13 +2246,13 @@ tests/
 
 ## 相關標準
 
-- [測試驅動開發](test-driven-development.md) - TDD/BDD/ATDD 方法論
-- [測試完整性維度](test-completeness-dimensions.md) - 7 維度測試覆蓋
-- [規格驅動開發](spec-driven-development.md) - SDD 工作流程整合
-- [AI 協作防幻覺標準](anti-hallucination.md)
-- [程式碼簽入檢查點標準](checkin-standards.md)
-- [程式碼審查清單](code-review-checklist.md)
-- [Commit 訊息規範](commit-message-guide.md)
+- [測試驅動開發](../test-driven-development.md) - TDD/BDD/ATDD 方法論
+- [測試完整性維度](../test-completeness-dimensions.md) - 7 維度測試覆蓋
+- [規格驅動開發](../spec-driven-development.md) - SDD 工作流程整合
+- [AI 協作防幻覺標準](../anti-hallucination.md)
+- [程式碼簽入檢查點標準](../checkin-standards.md)
+- [程式碼審查清單](../code-review-checklist.md)
+- [Commit 訊息規範](../commit-message-guide.md)
 
 ---
 

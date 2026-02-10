@@ -36,7 +36,7 @@ status: current
 ## 相关资源
 
 - [OpenSpec 集成](../openspec/) - 替代的 SDD 工具集成
-- [规格驱动开发规范](../../core/spec-driven-development.md) - SDD 方法论
+- [规格驱动开发规范](../../../../core/spec-driven-development.md) - SDD 方法论
 
 ## 注意事项
 

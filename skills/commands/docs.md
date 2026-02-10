@@ -56,4 +56,4 @@ Used with `/docs generate`:
 ## References | 參考
 
 *   [Documentation Guide Skill](../documentation-guide/SKILL.md)
-*   [Core Standard](../../core/documentation-standards.md)
+*   [Core Standard](../../core/documentation-writing-standards.md)

@@ -99,8 +99,8 @@ status: current
 **质量闸门**：若测试通过率 < 70%，标记为高风险后再继续。
 
 **引用规范**：
-- [测试标准](../../core/testing-standards.md)
-- [反向工程标准](../../core/reverse-engineering-standards.md)
+- [测试标准](../../../../core/testing-standards.md)
+- [反向工程标准](../../../../core/reverse-engineering-standards.md)
 
 ### 步骤 0.2：架构理解
 
@@ -132,8 +132,8 @@ routes -> controllers -> services -> repositories -> database
 **质量闸门**：若无清晰模块边界，建议在功能开发前进行架构重构。
 
 **引用规范**：
-- [AI 友善架构](../../core/ai-friendly-architecture.md)
-- [反向工程标准](../../core/reverse-engineering-standards.md)
+- [AI 友善架构](../../../../core/ai-friendly-architecture.md)
+- [反向工程标准](../../../../core/reverse-engineering-standards.md)
 
 ### 步骤 0.3：文档盘点
 
@@ -161,8 +161,8 @@ routes -> controllers -> services -> repositories -> database
 **质量闸门**：若 README 遗失或严重过期，建议先更新文档。
 
 **引用规范**：
-- [文档结构](../../core/documentation-structure.md)
-- [变更日志标准](../../core/changelog-standards.md)
+- [文档结构](../../../../core/documentation-structure.md)
+- [变更日志标准](../../../../core/changelog-standards.md)
 
 ### 步骤 0.4：代码审查快照
 
@@ -193,8 +193,8 @@ routes -> controllers -> services -> repositories -> database
 **质量闸门**：任何 ❌ 安全性发现必须在功能开发前立即处理。
 
 **引用规范**：
-- [反幻觉指南](../../core/anti-hallucination.md)
-- [代码审查清单](../../core/code-review-checklist.md)
+- [反幻觉指南](../../../../core/anti-hallucination.md)
+- [代码审查清单](../../../../core/code-review-checklist.md)
 
 ### 步骤 0.5：依赖与安全检查
 
@@ -222,8 +222,8 @@ routes -> controllers -> services -> repositories -> database
 **质量闸门**：任何严重漏洞必须在新增功能前修补。
 
 **引用规范**：
-- [安全标准](../../core/security-standards.md)
-- [签入标准](../../core/checkin-standards.md)
+- [安全标准](../../../../core/security-standards.md)
+- [签入标准](../../../../core/checkin-standards.md)
 
 ### 步骤 0.6：影响范围分析
 
@@ -255,7 +255,7 @@ routes -> controllers -> services -> repositories -> database
 **质量闸门**：若爆炸半径超过模块总数的 30%，建议采用渐进式方法。
 
 **引用规范**：
-- [需求工程](../../core/requirement-engineering.md)
+- [需求工程](../../../../core/requirement-engineering.md)
 
 ## 现况评估报告模板
 
@@ -343,16 +343,16 @@ routes -> controllers -> services -> repositories -> database
 
 ## 相关规范
 
-- [反向工程标准](../../core/reverse-engineering-standards.md) -- 深度代码分析方法论
-- [测试标准](../../core/testing-standards.md) -- 测试覆盖率基准
-- [安全标准](../../core/security-standards.md) -- 漏洞评估
-- [AI 友善架构](../../core/ai-friendly-architecture.md) -- 架构评估标准
-- [文档结构](../../core/documentation-structure.md) -- 文档完整性
-- [变更日志标准](../../core/changelog-standards.md) -- 变更追踪
-- [反幻觉指南](../../core/anti-hallucination.md) -- 证据导向分析
-- [代码审查清单](../../core/code-review-checklist.md) -- 审查方法论
-- [签入标准](../../core/checkin-standards.md) -- 质量闸门
-- [需求工程](../../core/requirement-engineering.md) -- 影响分析
+- [反向工程标准](../../../../core/reverse-engineering-standards.md) -- 深度代码分析方法论
+- [测试标准](../../../../core/testing-standards.md) -- 测试覆盖率基准
+- [安全标准](../../../../core/security-standards.md) -- 漏洞评估
+- [AI 友善架构](../../../../core/ai-friendly-architecture.md) -- 架构评估标准
+- [文档结构](../../../../core/documentation-structure.md) -- 文档完整性
+- [变更日志标准](../../../../core/changelog-standards.md) -- 变更追踪
+- [反幻觉指南](../../../../core/anti-hallucination.md) -- 证据导向分析
+- [代码审查清单](../../../../core/code-review-checklist.md) -- 审查方法论
+- [签入标准](../../../../core/checkin-standards.md) -- 质量闸门
+- [需求工程](../../../../core/requirement-engineering.md) -- 影响分析
 
 ---
 

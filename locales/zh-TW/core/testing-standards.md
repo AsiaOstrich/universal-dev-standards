@@ -1,6 +1,6 @@
 # 測試標準
 
-> **語言**: English | [繁體中文](locales/zh-TW/core/testing-standards.md)
+> **語言**: [English](../../../core/testing-standards.md) | 繁體中文
 
 **版本**: 3.0.0
 **最後更新**: 2026-02-10

@@ -232,7 +232,7 @@ When you have more than 5 flow documents, `flows/README.md` is **required** and 
 
 1. **Define centrally** in `flows/README.md` or `DATABASE.md`
 2. **Reference in flow docs**: List only relevant codes, with note:
-   > Complete definitions at [flows/README.md](../README.md#status-codes)
+   > Complete definitions at [flows/README.md](../README.md)
 3. **Version control**: Status code changes must be recorded in CHANGELOG.md
 
 **Status Code Definition Format**:

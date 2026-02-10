@@ -8,9 +8,9 @@ status: current
 
 # .NET 专案结构
 
-> **语言**: [English](../../../options/project-structure/dotnet.md) | 繁体中文
+> **语言**: [English](../../../../options/project-structure/dotnet.md) | 繁体中文
 
-**上层标准**: [专案结构](../../core/project-structure.md)
+**上层标准**: [专案结构](../../../../core/project-structure.md)
 
 ---
 

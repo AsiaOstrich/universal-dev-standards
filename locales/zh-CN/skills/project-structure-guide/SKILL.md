@@ -139,5 +139,5 @@ project/
 
 ## 相关标准
 
-- [核心：项目结构](../../core/project-structure.md)
-- [AI：项目结构选项](../../ai/options/project-structure/)
+- [核心：项目结构](../../../../core/project-structure.md)
+- [AI：项目结构选项](../../../../ai/options/project-structure/)

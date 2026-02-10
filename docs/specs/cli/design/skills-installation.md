@@ -313,6 +313,6 @@ uds skills
 
 ## References / 參考資料
 
-- [Skills Installation Utility](../../cli/src/utils/skills-installer.js)
-- [AI Agent Paths Configuration](../../cli/src/config/ai-agent-paths.js)
+- [Skills Installation Utility](../../../../cli/src/utils/skills-installer.js)
+- [AI Agent Paths Configuration](../../../../cli/src/config/ai-agent-paths.js)
 - [Skills Directory](../../skills/)

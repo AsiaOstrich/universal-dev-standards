@@ -294,7 +294,7 @@ cli/src/
 ## References / 參考資料
 
 - [Agents & Workflows System Spec](./agents-workflows-system.md)
-- [AGENT.md Format](../../skills/agents/README.md)
+- [AGENT.md Format](../../../skills/agents/README.md)
 
 ---
 

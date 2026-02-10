@@ -8,7 +8,7 @@ status: current
 
 # 靜態與動態規範指南
 
-> **語言**: [English](../../adoption/STATIC-DYNAMIC-GUIDE.md) | 繁體中文
+> **語言**: [English](../../../adoption/STATIC-DYNAMIC-GUIDE.md) | 繁體中文
 
 **版本**: 1.2.0
 **最後更新**: 2026-01-07
@@ -86,7 +86,7 @@ status: current
 
 | 規範 | 核心規則 | 核心目的 |
 |------|---------|---------|
-| [checkin-standards](../../core/checkin-standards.md) | 編譯通過、測試通過、覆蓋率維持 | 確保 commit 前的程式碼品質 |
+| [checkin-standards](../../../core/checkin-standards.md) | 編譯通過、測試通過、覆蓋率維持 | 確保 commit 前的程式碼品質 |
 
 ### 部署方式
 
@@ -97,7 +97,7 @@ status: current
 - `.github/copilot-instructions.md` (GitHub Copilot)
 - `AI_GUIDELINES.md` (通用)
 
-**範本**: 參見 [CLAUDE.md.template](../../templates/CLAUDE.md.template)
+**範本**: 參見 [CLAUDE.md.template](../../../templates/CLAUDE.md.template)
 
 ---
 
@@ -119,8 +119,8 @@ status: current
 
 | 規範 | 靜態元件 | 動態技能 | 觸發關鍵字 |
 |------|----------|----------|------------|
-| [anti-hallucination](../../core/anti-hallucination.md) | 確定性標籤、建議原則 | ai-collaboration-standards | certainty, assumption, 確定性 |
-| [project-structure](../../core/project-structure.md) | 目錄慣例 | project-structure-guide | structure, organization, 結構 |
+| [anti-hallucination](../../../core/anti-hallucination.md) | 確定性標籤、建議原則 | ai-collaboration-standards | certainty, assumption, 確定性 |
+| [project-structure](../../../core/project-structure.md) | 目錄慣例 | project-structure-guide | structure, organization, 結構 |
 
 ### 部署方式
 
@@ -147,22 +147,22 @@ status: current
 
 | 規範 | 技能 | 觸發關鍵字 |
 |------|------|-----------|
-| [anti-hallucination](../../core/anti-hallucination.md) | ai-collaboration-standards | certainty, assumption, 確定性 |
-| [changelog-standards](../../core/changelog-standards.md) | changelog-guide | changelog, release notes, 變更日誌 |
-| [code-review-checklist](../../core/code-review-checklist.md) | code-review-assistant | review, PR, 審查 |
-| [commit-message-guide](../../core/commit-message-guide.md) | commit-standards | commit, git, 提交, feat, fix |
-| [documentation-structure](../../core/documentation-structure.md) | documentation-guide | README, docs, 文件 |
-| [documentation-writing-standards](../../core/documentation-writing-standards.md) | documentation-guide | documentation |
-| [error-code-standards](../../core/error-code-standards.md) | error-code-guide | error code, error handling, 錯誤碼 |
-| [git-workflow](../../core/git-workflow.md) | git-workflow-guide | branch, merge, 分支 |
-| [logging-standards](../../core/logging-standards.md) | logging-guide | logging, log level, 日誌 |
-| [project-structure](../../core/project-structure.md) | project-structure-guide | structure, organization, 結構 |
-| [spec-driven-development](../../core/spec-driven-development.md) | requirement-assistant | spec, SDD, 規格, 新功能 |
-| [spec-driven-development](../../core/spec-driven-development.md) | spec-driven-dev | spec, proposal, 提案 |
-| [test-driven-development](../../core/test-driven-development.md) | tdd-assistant | TDD, test first, 紅綠重構 |
-| [test-completeness-dimensions](../../core/test-completeness-dimensions.md) | test-coverage-assistant | test coverage, 7 dimensions, 測試覆蓋 |
-| [testing-standards](../../core/testing-standards.md) | testing-guide | test, 測試, coverage |
-| [versioning](../../core/versioning.md) | release-standards | version, release, 版本 |
+| [anti-hallucination](../../../core/anti-hallucination.md) | ai-collaboration-standards | certainty, assumption, 確定性 |
+| [changelog-standards](../../../core/changelog-standards.md) | changelog-guide | changelog, release notes, 變更日誌 |
+| [code-review-checklist](../../../core/code-review-checklist.md) | code-review-assistant | review, PR, 審查 |
+| [commit-message-guide](../../../core/commit-message-guide.md) | commit-standards | commit, git, 提交, feat, fix |
+| [documentation-structure](../../../core/documentation-structure.md) | documentation-guide | README, docs, 文件 |
+| [documentation-writing-standards](../../../core/documentation-writing-standards.md) | documentation-guide | documentation |
+| [error-code-standards](../../../core/error-code-standards.md) | error-code-guide | error code, error handling, 錯誤碼 |
+| [git-workflow](../../../core/git-workflow.md) | git-workflow-guide | branch, merge, 分支 |
+| [logging-standards](../../../core/logging-standards.md) | logging-guide | logging, log level, 日誌 |
+| [project-structure](../../../core/project-structure.md) | project-structure-guide | structure, organization, 結構 |
+| [spec-driven-development](../../../core/spec-driven-development.md) | requirement-assistant | spec, SDD, 規格, 新功能 |
+| [spec-driven-development](../../../core/spec-driven-development.md) | spec-driven-dev | spec, proposal, 提案 |
+| [test-driven-development](../../../core/test-driven-development.md) | tdd-assistant | TDD, test first, 紅綠重構 |
+| [test-completeness-dimensions](../../../core/test-completeness-dimensions.md) | test-coverage-assistant | test coverage, 7 dimensions, 測試覆蓋 |
+| [testing-standards](../../../core/testing-standards.md) | testing-guide | test, 測試, coverage |
+| [versioning](../../../core/versioning.md) | release-standards | version, release, 版本 |
 
 ### 部署方式
 
@@ -183,7 +183,7 @@ cp -r skills/commit-standards ~/.claude/skills/
 Copy-Item -Recurse skills\claude-code\commit-standards $env:USERPROFILE\.claude\skills\
 ```
 
-詳見 [Claude Code Skills README](../../skills/README.md)。
+詳見 [Claude Code Skills README](../../../skills/README.md)。
 
 ---
 
@@ -277,8 +277,8 @@ description: |
 
 ## 相關資源
 
-- [CLAUDE.md 範本](../../templates/CLAUDE.md.template) - 可立即使用的靜態規則範本
-- [Claude Code Skills](../../skills/README.md) - 技能安裝指南
+- [CLAUDE.md 範本](../../../templates/CLAUDE.md.template) - 可立即使用的靜態規則範本
+- [Claude Code Skills](../../../skills/README.md) - 技能安裝指南
 - [採用指南](ADOPTION-GUIDE.md) - 整體採用策略
 - [MAINTENANCE.md](../MAINTENANCE.md) - 如何新增/更新技能（維護者專用）
 

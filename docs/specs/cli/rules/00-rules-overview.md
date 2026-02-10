@@ -363,7 +363,7 @@ cli/src/
 ## References / 參考資料
 
 - [ESLint Configuration](https://eslint.org/docs/user-guide/configuring/)
-- [Cascading Config Spec](../system/cascading-config.md)
+- [Cascading Config Spec](../../system/cascading-config.md)
 
 ---
 

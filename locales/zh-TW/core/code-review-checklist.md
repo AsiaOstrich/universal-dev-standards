@@ -8,7 +8,7 @@ status: current
 
 # 程式碼審查檢查清單
 
-> **語言**: [English](../../core/code-review-checklist.md) | 繁體中文
+> **語言**: [English](../../../core/code-review-checklist.md) | 繁體中文
 
 **版本**: 1.3.0
 **最後更新**: 2026-01-12

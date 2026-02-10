@@ -366,6 +366,11 @@ For significant new features requiring stakeholder acceptance:
 | `/commit` | Generate conventional commit message | Committing code |
 | `/review` | Start code review | Reviewing PRs |
 | `/requirement` | Write requirement document | Defining User Stories |
+| `/checkin` | Pre-commit quality verification | Before committing code |
+| `/changelog` | Generate changelog entries | During release preparation |
+| `/coverage` | Analyze test coverage | Assessing test quality |
+| `/docs` | Manage documentation | Writing/updating docs |
+| `/release` | Guide release process | Preparing releases |
 
 ---
 

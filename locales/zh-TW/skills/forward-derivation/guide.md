@@ -392,7 +392,7 @@ spec-review (已批准) → forward-derivation → discovery (BDD)
 - [正向推演標準](../../core/forward-derivation-standards.md) - **核心方法論規範（主要參考）**
 - [反向工程標準](../../core/reverse-engineering-standards.md) - 對稱對應
 - [規格驅動開發](../../core/spec-driven-development.md) - 輸入規格格式
-- [行為驅動開發](../../core/behavior-driven-development.md) - BDD 輸出格式
+- [行為驅動開發](../../../../core/behavior-driven-development.md) - BDD 輸出格式
 - [測試驅動開發](../../core/test-driven-development.md) - TDD 輸出用法
 - [反幻覺指南](../../core/anti-hallucination.md) - 生成合規
 

@@ -389,17 +389,17 @@ MIT
 ## 详细指南
 
 完整标准請參阅：
-- [文件撰写标准](../../core/documentation-writing-standards.md)
-- [文件结构标准](../../core/documentation-structure.md)
+- [文件撰写标准](../../../../core/documentation-writing-standards.md)
+- [文件结构标准](../../../../core/documentation-structure.md)
 - [README 範本](./readme-template.md)
 
 ---
 
 ## 相关标准
 
-- [文件撰写标准](../../core/documentation-writing-standards.md) - 内容需求
-- [文件结构标准](../../core/documentation-structure.md) - 文件組織
-- [变更日誌标准](../../core/changelog-standards.md) - CHANGELOG 格式
+- [文件撰写标准](../../../../core/documentation-writing-standards.md) - 内容需求
+- [文件结构标准](../../../../core/documentation-structure.md) - 文件組織
+- [变更日誌标准](../../../../core/changelog-standards.md) - CHANGELOG 格式
 - [变更日誌指南技能](../changelog-guide/SKILL.md) - CHANGELOG 技能
 
 ---

@@ -8,9 +8,9 @@ status: current
 
 # 繁體中文 Commit 訊息
 
-> **語言**: [English](../../../options/commit-message/traditional-chinese.md) | 繁體中文
+> **語言**: [English](../../../../options/commit-message/traditional-chinese.md) | 繁體中文
 
-**上層標準**: [Commit 訊息指南](../../core/commit-message-guide.md)
+**上層標準**: [Commit 訊息指南](../../../../core/commit-message-guide.md)
 
 ---
 

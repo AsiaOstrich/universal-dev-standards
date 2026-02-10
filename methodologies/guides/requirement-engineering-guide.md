@@ -1,6 +1,6 @@
 # Requirement Engineering Standards
 
-> **Language**: English | [繁體中文](../locales/zh-TW/core/requirement-engineering.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/core/requirement-engineering.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2026-01-28
@@ -659,7 +659,7 @@ Requirements engineering integrates with Spec-Driven Development at multiple poi
 
 ### Reference
 
-See [Spec-Driven Development Standards](spec-driven-development.md) for complete SDD workflow.
+See [Spec-Driven Development Standards](../../core/spec-driven-development.md) for complete SDD workflow.
 
 ---
 
@@ -720,12 +720,12 @@ See [Spec-Driven Development Standards](spec-driven-development.md) for complete
 
 ## Related Standards
 
-- [Spec-Driven Development](spec-driven-development.md) - Specification workflow
-- [Forward Derivation Standards](forward-derivation-standards.md) - AC → Test derivation
-- [Behavior-Driven Development](behavior-driven-development.md) - Given-When-Then scenarios
-- [Acceptance Test-Driven Development](acceptance-test-driven-development.md) - ATDD workshops
-- [Testing Standards](testing-standards.md) - Test verification
-- [Documentation Structure](documentation-structure.md) - Documentation standards
+- [Spec-Driven Development](../../core/spec-driven-development.md) - Specification workflow
+- [Forward Derivation Standards](../../core/forward-derivation-standards.md) - AC → Test derivation
+- [Behavior-Driven Development](../../core/behavior-driven-development.md) - Given-When-Then scenarios
+- [Acceptance Test-Driven Development](../../core/acceptance-test-driven-development.md) - ATDD workshops
+- [Testing Standards](../../core/testing-standards.md) - Test verification
+- [Documentation Structure](../../core/documentation-structure.md) - Documentation standards
 
 ---
 

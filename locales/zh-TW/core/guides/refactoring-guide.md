@@ -8,7 +8,7 @@ status: current
 
 # 重構標準
 
-> **語言**: [English](../../core/refactoring-standards.md) | 繁體中文
+> **語言**: [English](../../../../core/refactoring-standards.md) | 繁體中文
 
 **版本**: 2.0.0
 **最後更新**: 2026-01-21
@@ -177,7 +177,7 @@ status: current
 
 ### 紅-綠-重構
 
-測試驅動開發（TDD）循環的一部分。完整細節請見[測試驅動開發](test-driven-development.md)。
+測試驅動開發（TDD）循環的一部分。完整細節請見[測試驅動開發](../test-driven-development.md)。
 
 **特點**：
 - 時長：每循環 5-15 分鐘
@@ -816,10 +816,10 @@ PR 規範：
 
 ## 相關標準
 
-- [測試驅動開發](test-driven-development.md) - TDD 循環包含重構階段
-- [程式碼審查清單](code-review-checklist.md) - 重構 PR 審查指引
-- [提交訊息指南](commit-message-guide.md) - `refactor` 提交類型
-- [程式碼簽入標準](checkin-standards.md) - 提交前要求
+- [測試驅動開發](../test-driven-development.md) - TDD 循環包含重構階段
+- [程式碼審查清單](../code-review-checklist.md) - 重構 PR 審查指引
+- [提交訊息指南](../commit-message-guide.md) - `refactor` 提交類型
+- [程式碼簽入標準](../checkin-standards.md) - 提交前要求
 
 ---
 

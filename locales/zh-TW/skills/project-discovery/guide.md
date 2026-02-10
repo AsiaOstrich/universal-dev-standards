@@ -222,7 +222,7 @@ routes → controllers → services → repositories → database
 **品質閘門**：任何嚴重漏洞必須在新增功能前修補。
 
 **引用規範**：
-- [安全標準](../../core/security-standards.md)
+- [安全標準](../../../../core/security-standards.md)
 - [簽入標準](../../core/checkin-standards.md)
 
 ### 步驟 0.6：影響範圍分析
@@ -255,7 +255,7 @@ routes → controllers → services → repositories → database
 **品質閘門**：若爆炸半徑超過模組總數的 30%，建議採用漸進式方法。
 
 **引用規範**：
-- [需求工程](../../core/requirement-engineering.md)
+- [需求工程](../../../../core/requirement-engineering.md)
 
 ## 現況評估報告範本
 
@@ -345,14 +345,14 @@ routes → controllers → services → repositories → database
 
 - [反向工程標準](../../core/reverse-engineering-standards.md) — 深度程式碼分析方法論
 - [測試標準](../../core/testing-standards.md) — 測試覆蓋率基準
-- [安全標準](../../core/security-standards.md) — 漏洞評估
+- [安全標準](../../../../core/security-standards.md) — 漏洞評估
 - [AI 友善架構](../../core/ai-friendly-architecture.md) — 架構評估標準
 - [文件結構](../../core/documentation-structure.md) — 文件完整性
 - [變更日誌標準](../../core/changelog-standards.md) — 變更追蹤
 - [反幻覺指南](../../core/anti-hallucination.md) — 證據導向分析
 - [程式碼審查清單](../../core/code-review-checklist.md) — 審查方法論
 - [簽入標準](../../core/checkin-standards.md) — 品質閘門
-- [需求工程](../../core/requirement-engineering.md) — 影響分析
+- [需求工程](../../../../core/requirement-engineering.md) — 影響分析
 
 ---
 

@@ -22,7 +22,7 @@ OpenCode 是開源 AI 編碼代理，可作為終端介面、桌面應用或 IDE
 - **[skills-mapping.md](./skills-mapping.md)**（參考）：
   將所有 18 個 Claude Code 技能對應到 OpenCode 等效方式。
 
-- **[opencode.json](../../../integrations/opencode/opencode.json)**（可選）：
+- **[opencode.json](../../../../integrations/opencode/opencode.json)**（可選）：
   配置範例，包含權限設定和自訂 agent。
 
 ## 配置層級

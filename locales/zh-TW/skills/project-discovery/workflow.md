@@ -432,7 +432,7 @@ pip-extra-reqs --requirements-file=requirements.txt .
 
 ### 引用規範
 
-- [安全標準](../../core/security-standards.md)
+- [安全標準](../../../../core/security-standards.md)
 - [簽入標準](../../core/checkin-standards.md)
 
 ---
@@ -503,7 +503,7 @@ pip-extra-reqs --requirements-file=requirements.txt .
 
 ### 引用規範
 
-- [需求工程](../../core/requirement-engineering.md)
+- [需求工程](../../../../core/requirement-engineering.md)
 
 ---
 

@@ -1,6 +1,6 @@
 # 規格驅動開發 (SDD) 標準
 
-> **語言**: English | [繁體中文](locales/zh-TW/core/spec-driven-development.md)
+> **語言**: [English](../../../core/spec-driven-development.md) | 繁體中文
 
 **版本**: 1.2.0
 **最後更新**: 2025-12-30
@@ -17,7 +17,7 @@ SDD 的核心流程：**規格提案 → 規格審查 → 實作 → 驗證 → 
 
 ---
 
-**完整指南: [SDD 指南](../../methodologies/guides/sdd-guide.md)**
+**完整指南: [SDD 指南](../methodologies/guides/sdd-guide.md)**
 
 ---
 

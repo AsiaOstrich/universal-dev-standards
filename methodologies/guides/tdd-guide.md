@@ -5,7 +5,7 @@
 **Applicability**: All projects adopting Test-Driven Development
 **Scope**: universal
 
-> **Language**: [English](../core/test-driven-development.md) | [繁體中文](../locales/zh-TW/core/test-driven-development.md)
+> **Language**: [English](../../core/test-driven-development.md) | [繁體中文](../../locales/zh-TW/core/test-driven-development.md)
 
 ---
 
@@ -70,7 +70,7 @@ TDD can be used **within** the SDD Implementation phase but is not part of the S
 | **Non-AI development** | Use TDD as primary methodology |
 | **Performance-critical code** | Use TDD for algorithm correctness |
 
-**Reference**: [Spec-Driven Development Standards](spec-driven-development.md)
+**Reference**: [Spec-Driven Development Standards](../../core/spec-driven-development.md)
 
 ---
 
@@ -344,7 +344,7 @@ Requirement Source?
 | **Traditional (1999-2011)** | TDD, BDD, ATDD | Tests drive design |
 | **AI-Era (2025+)** | SDD | Specs drive generation |
 
-> **Note**: SDD can use TDD during its Implementation phase, but they are independent methodologies. See [Spec-Driven Development](spec-driven-development.md) for details.
+> **Note**: SDD can use TDD during its Implementation phase, but they are independent methodologies. See [Spec-Driven Development](../../core/spec-driven-development.md) for details.
 
 ### BDD Gherkin Syntax Overview
 
@@ -674,7 +674,7 @@ test('should reject password exceeding max length', () => {
 
 ### Testing Edge Cases
 
-Ensure tests cover all eight dimensions defined in [Test Completeness Dimensions](test-completeness-dimensions.md). These include happy path, boundary conditions, error handling, authorization, state changes, validation, integration, and AI generation quality (when applicable).
+Ensure tests cover all eight dimensions defined in [Test Completeness Dimensions](../../core/test-completeness-dimensions.md). These include happy path, boundary conditions, error handling, authorization, state changes, validation, integration, and AI generation quality (when applicable).
 
 Use the checklist in that document to verify coverage for each feature.
 
@@ -1103,13 +1103,13 @@ Team TDD Assessment:
 
 ## Related Standards
 
-- [Testing Standards](testing-standards.md) - Core testing standards (UT/IT/ST/E2E) (or use `/testing-guide` skill)
-- [Test Completeness Dimensions](test-completeness-dimensions.md) - 8 dimensions framework
-- [Behavior-Driven Development](behavior-driven-development.md) - BDD workflow with Given-When-Then format
-- [Acceptance Test-Driven Development](acceptance-test-driven-development.md) - ATDD workflow with specification workshops
-- [Spec-Driven Development](spec-driven-development.md) - SDD workflow
-- [Code Check-in Standards](checkin-standards.md) - Check-in requirements
-- [Code Review Checklist](code-review-checklist.md) - Review guidelines
+- [Testing Standards](../../core/testing-standards.md) - Core testing standards (UT/IT/ST/E2E) (or use `/testing-guide` skill)
+- [Test Completeness Dimensions](../../core/test-completeness-dimensions.md) - 8 dimensions framework
+- [Behavior-Driven Development](../../core/behavior-driven-development.md) - BDD workflow with Given-When-Then format
+- [Acceptance Test-Driven Development](../../core/acceptance-test-driven-development.md) - ATDD workflow with specification workshops
+- [Spec-Driven Development](../../core/spec-driven-development.md) - SDD workflow
+- [Code Check-in Standards](../../core/checkin-standards.md) - Check-in requirements
+- [Code Review Checklist](../../core/code-review-checklist.md) - Review guidelines
 
 ---
 

@@ -240,7 +240,7 @@ So that I can ensure all components are properly integrated and synchronized.
 name: [skill-name]
 description: |
   [Translation of description in target language]
-source: ../../../../../skills/[skill]/SKILL.md
+source: ../../../../../../skills/[skill]/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-19
@@ -323,7 +323,7 @@ status: current
 ## Related Specifications
 
 - [Forward Derivation](./forward-derivation.md) - Example of full workflow execution
-- [Reverse Engineering Standards](../core/reverse-engineering-standards.md) - Another workflow-based standard
+- [Reverse Engineering Standards](../../../core/reverse-engineering-standards.md) - Another workflow-based standard
 
 ---
 

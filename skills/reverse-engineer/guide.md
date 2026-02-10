@@ -71,7 +71,7 @@ This skill guides you through reverse engineering existing code into SDD (Spec-D
 
 #### Certainty Labels (from Unified Tag System)
 
-This skill uses **Certainty Tags** for analyzing existing code. See [Anti-Hallucination Standards](../../core/anti-hallucination.md#unified-tag-system) for the complete tag reference.
+This skill uses **Certainty Tags** for analyzing existing code. See [Anti-Hallucination Standards](../../core/anti-hallucination.md#certainty-classification-tags) for the complete tag reference.
 
 | Tag | Use When | Example |
 |-----|----------|---------|

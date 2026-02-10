@@ -9,7 +9,7 @@ translator: Claude
 
 # UDS 作業流程
 
-> **Language**: [English](../../docs/OPERATION-WORKFLOW.md) | 繁體中文 | [简体中文](../zh-CN/docs/OPERATION-WORKFLOW.md)
+> **Language**: [English](../../../docs/OPERATION-WORKFLOW.md) | 繁體中文 | [简体中文](../../zh-CN/docs/OPERATION-WORKFLOW.md)
 
 **版本**: 1.3.0
 **最後更新**: 2026-01-26

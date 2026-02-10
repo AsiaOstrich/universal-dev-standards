@@ -8,7 +8,7 @@ status: current
 
 # AI 協作防幻覺標準
 
-> **語言**: [English](../../core/anti-hallucination.md) | 繁體中文
+> **語言**: [English](../../../../core/anti-hallucination.md) | 繁體中文
 
 **版本**: 1.4.0
 **最後更新**: 2026-01-19
@@ -233,7 +233,7 @@ React useState 的運作方式是...（無版本，無引用）
 
 **類別 1：確定性標籤**（用於分析現有內容）
 
-用於分析程式碼、審查文件或討論系統時。參見[反向工程標準](reverse-engineering-standards.md)。
+用於分析程式碼、審查文件或討論系統時。參見[反向工程標準](../reverse-engineering-standards.md)。
 
 | 標籤 | 用途 | 範例情境 |
 |-----|------|---------|
@@ -245,7 +245,7 @@ React useState 的運作方式是...（無版本，無引用）
 
 **類別 2：推導標籤**（用於生成新內容）
 
-用於從已核准來源生成測試、規格或文件時。參見[正向推演標準](forward-derivation-standards.md)。
+用於從已核准來源生成測試、規格或文件時。參見[正向推演標準](../forward-derivation-standards.md)。
 
 | 標籤 | 用途 | 範例情境 |
 |-----|------|---------|
@@ -744,9 +744,9 @@ Redis 是最佳選擇。如果這是單實例應用程式且有
 
 ## 相關標準
 
-- [測試標準](testing-standards.md) - 確保驗證 AI 分析結果（或使用 `/testing-guide` 技能）
-- [程式碼審查清單](code-review-checklist.md) - 審查 AI 生成內容
-- [程式碼簽入標準](checkin-standards.md) - AI 協作簽入流程
+- [測試標準](../testing-standards.md) - 確保驗證 AI 分析結果（或使用 `/testing-guide` 技能）
+- [程式碼審查清單](../code-review-checklist.md) - 審查 AI 生成內容
+- [程式碼簽入標準](../checkin-standards.md) - AI 協作簽入流程
 
 ---
 

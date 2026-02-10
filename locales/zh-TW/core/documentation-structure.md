@@ -8,7 +8,7 @@ status: current
 
 # 文件結構標準
 
-> **語言**: [English](../../core/documentation-structure.md) | 繁體中文
+> **語言**: [English](../../../core/documentation-structure.md) | 繁體中文
 
 **版本**: 1.3.0
 **最後更新**: 2026-01-24
@@ -116,7 +116,7 @@ docs/
 
 ## 文件需求矩陣
 
-> **另見**：完整的文件需求矩陣及詳細內容需求與專案類型說明，請參閱 [documentation-writing-standards.md](documentation-writing-standards.md#document-requirements-matrix)。
+> **另見**：完整的文件需求矩陣及詳細內容需求與專案類型說明，請參閱 [documentation-writing-standards.md](documentation-writing-standards.md#文件需求矩陣)。
 
 本標準定義文件「放在哪裡」（檔案結構）。撰寫標準定義每個文件「應包含什麼內容」。
 
@@ -237,7 +237,7 @@ docs/flows/
 
 1. **Define centrally** in `flows/README.md` or `DATABASE.md`
 2. **Reference in flow docs**: List only relevant codes, with note:
-   > Complete definitions at [flows/README.md](../README.md#status-codes)
+   > Complete definitions at [flows/README.md](../README.md)
 3. **Version control**: Status code changes must be recorded in CHANGELOG.md
 
 **狀態碼定義格式**:

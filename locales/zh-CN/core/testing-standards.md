@@ -6,7 +6,7 @@ last_synced: 2026-02-10
 status: current
 ---
 
-> **语言**: [English](../../core/testing-standards.md) | [简体中文](../../zh-TW/core/testing-standards.md) | 简体中文
+> **语言**: [English](../../../core/testing-standards.md) | [简体中文](../../zh-TW/core/testing-standards.md) | 简体中文
 
 # 测试标准
 
@@ -249,7 +249,7 @@ tests/
 
 ## 相关标准
 
-- [代码审查指南](code-review-guide.md)
+- [代码审查指南](code-review-checklist.md)
 - [测试完整性维度](test-completeness-dimensions.md)
 
 ---

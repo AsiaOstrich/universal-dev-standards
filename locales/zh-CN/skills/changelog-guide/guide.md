@@ -105,7 +105,7 @@ status: current
 ## 详细指南
 
 完整标准請參考：
-- [变更日誌标准](../../core/changelog-standards.md)
+- [变更日誌标准](../../../../core/changelog-standards.md)
 
 ### AI 優化格式（节省 Token）
 
@@ -214,9 +214,9 @@ AI 助手可使用 YAML 格式文件以減少 Token 使用量：
 
 ## 相关标准
 
-- [变更日誌标准](../../core/changelog-standards.md)
-- [版本控制标准](../../core/versioning.md)
-- [提交消息指南](../../core/commit-message-guide.md)
+- [变更日誌标准](../../../../core/changelog-standards.md)
+- [版本控制标准](../../../../core/versioning.md)
+- [提交消息指南](../../../../core/commit-message-guide.md)
 - [發布标准技能](../release-standards/SKILL.md)
 
 ---

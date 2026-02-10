@@ -13,7 +13,7 @@ status: current
 **適用範圍**: 所有採用規格驅動開發的專案
 **範圍**: universal
 
-> **語言**: [English](../../core/spec-driven-development.md) | [繁體中文](../locales/zh-TW/core/spec-driven-development.md)
+> **語言**: [English](../../../../core/spec-driven-development.md) | [繁體中文](../../core/spec-driven-development.md)
 
 ---
 
@@ -183,7 +183,7 @@ Refs: SPEC-001
 
 ### 概述
 
-對於沒有規格的現有程式碼庫，使用[反向工程標準](reverse-engineering-standards.md)來生成與 SDD 相容的提案草稿。
+對於沒有規格的現有程式碼庫，使用[反向工程標準](../../core/reverse-engineering-standards.md)來生成與 SDD 相容的提案草稿。
 
 ### 反向工程 → SDD 流水線
 
@@ -298,13 +298,13 @@ Refs: SPEC-001
 
 ## 相關標準
 
-- [正向推演標準](forward-derivation-standards.md) - 規格轉測試轉換（規格 → BDD/TDD/ATDD）
-- [反向工程標準](reverse-engineering-standards.md) - 程式碼轉規格轉換
-- [測試驅動開發](test-driven-development.md) - TDD 工作流程與 SDD 整合
-- [行為驅動開發](behavior-driven-development.md) - BDD 工作流程與 Given-When-Then 情境
-- [驗收測試驅動開發](acceptance-test-driven-development.md) - ATDD 工作流程與商業驗收
-- [測試標準](testing-standards.md) - 測試框架與最佳實踐（或使用 `/testing-guide` 技能）
-- [測試完整性維度](test-completeness-dimensions.md) - 7 維度測試覆蓋
+- [正向推演標準](../../core/forward-derivation-standards.md) - 規格轉測試轉換（規格 → BDD/TDD/ATDD）
+- [反向工程標準](../../core/reverse-engineering-standards.md) - 程式碼轉規格轉換
+- [測試驅動開發](../../core/test-driven-development.md) - TDD 工作流程與 SDD 整合
+- [行為驅動開發](../../../../core/behavior-driven-development.md) - BDD 工作流程與 Given-When-Then 情境
+- [驗收測試驅動開發](../../../../core/acceptance-test-driven-development.md) - ATDD 工作流程與商業驗收
+- [測試標準](../../core/testing-standards.md) - 測試框架與最佳實踐（或使用 `/testing-guide` 技能）
+- [測試完整性維度](../../core/test-completeness-dimensions.md) - 7 維度測試覆蓋
 - [Commit 訊息指南](../../core/commit-message-guide.md) - Commit 訊息規範
 - [程式碼簽入標準](../../core/checkin-standards.md) - 程式碼簽入標準
 - [程式碼審查清單](../../core/code-review-checklist.md) - 程式碼審查清單

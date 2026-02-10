@@ -19,7 +19,7 @@ Gemini CLI 是 Google 的開源 AI 代理工具，將 Gemini 模型帶入終端�
 - **[GEMINI.md](./GEMINI.md)**（推薦）：
   專案級指令檔案，Gemini CLI 會自動載入。
 
-- **[settings-example.json](../../../integrations/gemini-cli/settings-example.json)**：
+- **[settings-example.json](../../../../integrations/gemini-cli/settings-example.json)**：
   用於自訂 CLI 行為的設定範例檔案。
 
 ## 配置層級

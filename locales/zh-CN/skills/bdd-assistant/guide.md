@@ -275,14 +275,14 @@ ATDD: 验收标准（商业签核）
 ## 详细指南
 
 完整标准请参阅：
-- [BDD 核心标准](../../core/behavior-driven-development.md)
+- [BDD 核心标准](../../../../core/behavior-driven-development.md)
 - [BDD 工作流程指南](./bdd-workflow.md)
 - [Gherkin 快速参考](./gherkin-guide.md)
 
 相关标准：
-- [TDD 标准](../../core/test-driven-development.md)
-- [ATDD 标准](../../core/acceptance-test-driven-development.md)
-- [测试标准](../../core/testing-standards.md)
+- [TDD 标准](../../../../core/test-driven-development.md)
+- [ATDD 标准](../../../../core/acceptance-test-driven-development.md)
+- [测试标准](../../../../core/testing-standards.md)
 
 ---
 
@@ -300,11 +300,11 @@ ATDD: 验收标准（商业签核）
 
 ## 相关标准
 
-- [行为驱动开发](../../core/behavior-driven-development.md) - 核心 BDD 标准
-- [验收测试驱动开发](../../core/acceptance-test-driven-development.md) - ATDD 标准
-- [测试驱动开发](../../core/test-driven-development.md) - TDD 标准
-- [规格驱动开发](../../core/spec-driven-development.md) - SDD 工作流程
-- [测试标准](../../core/testing-standards.md) - 测试框架
+- [行为驱动开发](../../../../core/behavior-driven-development.md) - 核心 BDD 标准
+- [验收测试驱动开发](../../../../core/acceptance-test-driven-development.md) - ATDD 标准
+- [测试驱动开发](../../../../core/test-driven-development.md) - TDD 标准
+- [规格驱动开发](../../../../core/spec-driven-development.md) - SDD 工作流程
+- [测试标准](../../../../core/testing-standards.md) - 测试框架
 - [TDD 助手](../tdd-assistant/SKILL.md) - TDD 技能
 
 ---

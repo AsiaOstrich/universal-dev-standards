@@ -207,7 +207,7 @@ uds init --help
 ## 相关文件
 
 - [主 README](../../README.md) - 专案概述
-- [CLI README](../../cli/README.md) - CLI 文件
+- [CLI README](../../../cli/README.md) - CLI 文件
 - [采用指南](../adoption/ADOPTION-GUIDE.md) - 完整采用指南
 
 ---

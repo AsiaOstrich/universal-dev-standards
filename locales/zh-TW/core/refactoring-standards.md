@@ -1,6 +1,6 @@
 # 重構標準
 
-> **語言**: English | [繁體中文](locales/zh-TW/core/refactoring-standards.md)
+> **語言**: [English](../../../core/refactoring-standards.md) | 繁體中文
 
 **版本**: 2.1.0
 **最後更新**: 2026-02-10

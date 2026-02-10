@@ -8,7 +8,7 @@ status: current
 
 # 等級三：企業採用檢查清單
 
-> **語言**: [English](../../adoption/checklists/enterprise.md) | 繁體中文
+> **語言**: [English](../../../../adoption/checklists/enterprise.md) | 繁體中文
 
 > 企業或受監管專案的全面標準
 >
@@ -311,10 +311,10 @@ project/
 
 - [Essential Adoption Checklist](minimal.md) - Level 1 基本採用
 - [Recommended Adoption Checklist](recommended.md) - Level 2 推薦採用
-- [Documentation Writing Standards](../../core/documentation-writing-standards.md) - 文件撰寫規範
-- [Project Structure](../../core/project-structure.md) - 專案結構標準
-- [Checkin Standards](../../core/checkin-standards.md) - 簽入標準
-- [Spec-Driven Development](../../core/spec-driven-development.md) - 規格驅動開發
+- [Documentation Writing Standards](../../../../core/documentation-writing-standards.md) - 文件撰寫規範
+- [Project Structure](../../../../core/project-structure.md) - 專案結構標準
+- [Checkin Standards](../../../../core/checkin-standards.md) - 簽入標準
+- [Spec-Driven Development](../../../../core/spec-driven-development.md) - 規格驅動開發
 
 ---
 

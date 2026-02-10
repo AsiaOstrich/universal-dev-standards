@@ -8,7 +8,7 @@ status: current
 
 # Commit 訊息規範指南
 
-> **語言**: [English](../../core/commit-message-guide.md) | 繁體中文
+> **語言**: [English](../../../core/commit-message-guide.md) | 繁體中文
 
 **版本**: 1.2.3
 **最後更新**: 2025-12-24

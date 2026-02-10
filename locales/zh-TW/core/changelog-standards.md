@@ -6,7 +6,7 @@ last_synced: 2025-12-30
 status: current
 ---
 
-> **Language**: [English](../../core/changelog-standards.md) | 繁體中文
+> **Language**: [English](../../../core/changelog-standards.md) | 繁體中文
 
 # 變更日誌標準
 
@@ -422,7 +422,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## 排除規則
 
-> **另見**：完整的排除規則，請參閱 [versioning.md](versioning.md#exclusion-rules--排除規則)。
+> **另見**：完整的排除規則，請參閱 [versioning.md](versioning.md#排除規則)。
 
 ### 核心原則
 

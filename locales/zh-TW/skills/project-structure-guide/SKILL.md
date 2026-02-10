@@ -140,4 +140,4 @@ project/
 ## 相關標準
 
 - [核心：專案結構](../../core/project-structure.md)
-- [AI：專案結構選項](../../ai/options/project-structure/)
+- [AI：專案結構選項](../../../../options/project-structure/)

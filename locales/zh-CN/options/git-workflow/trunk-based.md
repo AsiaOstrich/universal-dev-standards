@@ -8,9 +8,9 @@ status: current
 
 # Trunk-Based 开发
 
-> **语言**: [English](../../../options/git-workflow/trunk-based.md) | 繁体中文
+> **语言**: [English](../../../../options/git-workflow/trunk-based.md) | 繁体中文
 
-**上层标准**: [Git 工作流程](../../core/git-workflow.md)
+**上层标准**: [Git 工作流程](../../../../core/git-workflow.md)
 
 ---
 

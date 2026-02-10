@@ -8,9 +8,9 @@ status: current
 
 # GitFlow 工作流程
 
-> **語言**: [English](../../../options/git-workflow/gitflow.md) | 繁體中文
+> **語言**: [English](../../../../options/git-workflow/gitflow.md) | 繁體中文
 
-**上層標準**: [Git 工作流程](../../core/git-workflow.md)
+**上層標準**: [Git 工作流程](../../../../core/git-workflow.md)
 
 ---
 

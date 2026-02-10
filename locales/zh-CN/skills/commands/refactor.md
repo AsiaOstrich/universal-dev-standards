@@ -159,7 +159,7 @@ AI: 处理遗留代码需要安全优先的策略。
 
 ## 参考
 
-- [重构标准](../../core/refactoring-standards.md) - 核心标准
+- [重构标准](../../../../core/refactoring-standards.md) - 核心标准
 - [重构助手技能](../refactoring-assistant/SKILL.md) - 完整技能
 - [TDD 助手](../tdd-assistant/SKILL.md) - TDD 工作流程
 

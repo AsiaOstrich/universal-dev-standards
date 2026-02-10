@@ -8,9 +8,9 @@ status: current
 
 # 整合测试 (IT/SIT)
 
-> **语言**: [English](../../../options/testing/integration-testing.md) | 繁体中文
+> **语言**: [English](../../../../options/testing/integration-testing.md) | 繁体中文
 
-**上层标准**: [测试指南](../../core/testing.md)
+**上层标准**: [测试指南](../../../../core/testing-standards.md)
 
 ---
 

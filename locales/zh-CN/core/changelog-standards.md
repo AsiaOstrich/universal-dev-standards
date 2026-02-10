@@ -6,7 +6,7 @@ last_synced: 2026-01-08
 status: current
 ---
 
-> **语言**: [English](../../core/changelog-standards.md) | [简体中文](../../zh-TW/core/changelog-standards.md) | 简体中文
+> **语言**: [English](../../../core/changelog-standards.md) | [简体中文](../../zh-TW/core/changelog-standards.md) | 简体中文
 
 # 变更日志标准
 

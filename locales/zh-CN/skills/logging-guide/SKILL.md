@@ -108,7 +108,7 @@ status: current
 ## 详细指南
 
 完整标准請參考：
-- [日誌标准](../../core/logging-standards.md)
+- [日誌标准](../../../../core/logging-standards.md)
 
 ### AI 優化格式（节省 Token）
 
@@ -265,8 +265,8 @@ logger.error('处理订单失败', {
 
 ## 相关标准
 
-- [日誌标准](../../core/logging-standards.md)
-- [错误码标准](../../core/error-code-standards.md)
+- [日誌标准](../../../../core/logging-standards.md)
+- [错误码标准](../../../../core/error-code-standards.md)
 
 ---
 

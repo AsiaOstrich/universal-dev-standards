@@ -8,7 +8,7 @@ status: current
 
 # 規範採用指南
 
-> **語言**: [English](../../adoption/ADOPTION-GUIDE.md) | 繁體中文
+> **語言**: [English](../../../adoption/ADOPTION-GUIDE.md) | 繁體中文
 >
 > 版本 1.0.0
 
@@ -59,7 +59,7 @@ status: current
 - `checkin-standards.md` - 建置、測試、覆蓋率門檻
 - `project-structure.md` - 目錄慣例
 
-**部署方式**：加入 `CLAUDE.md` 或 `.cursorrules`。請參閱 [CLAUDE.md.template](../../templates/CLAUDE.md.template)。
+**部署方式**：加入 `CLAUDE.md` 或 `.cursorrules`。請參閱 [CLAUDE.md.template](../../../templates/CLAUDE.md.template)。
 
 ### 動態規範
 
@@ -77,7 +77,7 @@ status: current
 
 **部署方式**：透過 Plugin Marketplace 或手動複製安裝為 Skills。
 
-> 詳細分類請參閱 [STATIC-DYNAMIC-GUIDE.md](../../adoption/STATIC-DYNAMIC-GUIDE.md)。
+> 詳細分類請參閱 [STATIC-DYNAMIC-GUIDE.md](../../../adoption/STATIC-DYNAMIC-GUIDE.md)。
 
 ---
 
@@ -197,7 +197,7 @@ Copy-Item <source-file> .standards\
 - [ ] checkin-standards.md (參考文件)
 - [ ] spec-driven-development.md (參考文件)
 
-詳細檢查清單請參閱 [checklists/minimal.md](../../adoption/checklists/minimal.md)。
+詳細檢查清單請參閱 [checklists/minimal.md](../../../adoption/checklists/minimal.md)。
 
 ### 等級二：推薦
 
@@ -211,7 +211,7 @@ Copy-Item <source-file> .standards\
 - [ ] 適用的延伸規範
 - [ ] AI 工具整合
 
-詳細檢查清單請參閱 [checklists/recommended.md](../../adoption/checklists/recommended.md)。
+詳細檢查清單請參閱 [checklists/recommended.md](../../../adoption/checklists/recommended.md)。
 
 ### 等級三：企業
 
@@ -223,7 +223,7 @@ Copy-Item <source-file> .standards\
 - [ ] project-structure.md (參考文件)
 - [ ] migration-template.md (如適用)
 
-詳細檢查清單請參閱 [checklists/enterprise.md](../../adoption/checklists/enterprise.md)。
+詳細檢查清單請參閱 [checklists/enterprise.md](../../../adoption/checklists/enterprise.md)。
 
 ---
 
@@ -394,7 +394,7 @@ Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-in
 
 ## 機器可讀註冊表
 
-工具和自動化請參閱 [standards-registry.json](../../adoption/standards-registry.json)。
+工具和自動化請參閱 [standards-registry.json](../../../adoption/standards-registry.json)。
 
 此 JSON 檔案包含所有規範、類別和採用方法的完整對照。
 
@@ -405,6 +405,6 @@ Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-in
 - [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) - 來源儲存庫
 - [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) - Skills 儲存庫
 - [日常工作流程指南](DAILY-WORKFLOW-GUIDE.md) - 採用後如何使用 UDS
-- [最小檢查清單](../../adoption/checklists/minimal.md) - 等級一採用檢查清單
-- [推薦檢查清單](../../adoption/checklists/recommended.md) - 等級二採用檢查清單
-- [企業檢查清單](../../adoption/checklists/enterprise.md) - 等級三採用檢查清單
+- [最小檢查清單](../../../adoption/checklists/minimal.md) - 等級一採用檢查清單
+- [推薦檢查清單](../../../adoption/checklists/recommended.md) - 等級二採用檢查清單
+- [企業檢查清單](../../../adoption/checklists/enterprise.md) - 等級三採用檢查清單

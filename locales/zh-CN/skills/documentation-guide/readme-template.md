@@ -393,7 +393,7 @@ See [documentation](docs/old-path.md) for more info.  ← 連結不存在
 ## 相关标准
 
 - [Documentation Structure Reference](./documentation-structure.md)
-- [Documentation Writing Standards](../../core/documentation-writing-standards.md)
+- [Documentation Writing Standards](../../../../core/documentation-writing-standards.md)
 
 ---
 

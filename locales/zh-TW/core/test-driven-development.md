@@ -1,6 +1,6 @@
 # 測試驅動開發 (TDD) 標準
 
-> **語言**: English | [繁體中文](locales/zh-TW/core/test-driven-development.md)
+> **語言**: [English](../../../core/test-driven-development.md) | 繁體中文
 
 **版本**: 1.2.0
 **最後更新**: 2026-01-25
@@ -21,7 +21,7 @@ TDD 是傳統測試驅動開發家族的一部分（與 BDD 和 ATDD 並列）�
 
 ---
 
-**完整指南: [TDD 指南](../../methodologies/guides/tdd-guide.md)**
+**完整指南: [TDD 指南](../methodologies/guides/tdd-guide.md)**
 
 ---
 

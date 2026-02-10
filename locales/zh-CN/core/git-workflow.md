@@ -6,7 +6,7 @@ last_synced: 2026-02-10
 status: current
 ---
 
-> **语言**: [English](../../core/git-workflow.md) | [简体中文](../../zh-TW/core/git-workflow.md) | 简体中文
+> **语言**: [English](../../../core/git-workflow.md) | [简体中文](../../zh-TW/core/git-workflow.md) | 简体中文
 
 # Git 工作流程标准
 

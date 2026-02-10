@@ -90,7 +90,7 @@ status: current
 ## 详细指南
 
 完整标准請參考：
-- [規格驅动开发标准](../../core/spec-driven-development.md)
+- [規格驅动开发标准](../../../../core/spec-driven-development.md)
 
 ### AI 優化格式（节省 Token）
 
@@ -221,9 +221,9 @@ Refs: SPEC-001
 
 ## 相关标准
 
-- [規格驅动开发标准](../../core/spec-driven-development.md)
-- [提交消息指南](../../core/commit-message-guide.md)
-- [程序码审查检查清单](../../core/code-review-checklist.md)
+- [規格驅动开发标准](../../../../core/spec-driven-development.md)
+- [提交消息指南](../../../../core/commit-message-guide.md)
+- [程序码审查检查清单](../../../../core/code-review-checklist.md)
 
 ---
 

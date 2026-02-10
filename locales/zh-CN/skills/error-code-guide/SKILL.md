@@ -86,7 +86,7 @@ API_NET_408     → API 网络逾时
 ## 详细指南
 
 完整标准請參考：
-- [错误码标准](../../core/error-code-standards.md)
+- [错误码标准](../../../../core/error-code-standards.md)
 
 ### AI 優化格式（节省 Token）
 
@@ -249,8 +249,8 @@ export const ErrorCodes = {
 
 ## 相关标准
 
-- [错误码标准](../../core/error-code-standards.md)
-- [日誌标准](../../core/logging-standards.md)
+- [错误码标准](../../../../core/error-code-standards.md)
+- [日誌标准](../../../../core/logging-standards.md)
 
 ---
 

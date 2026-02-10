@@ -4,7 +4,7 @@
 **最後更新**: 2026-01-19
 **適用範圍**: 所有使用規格驅動開發的專案
 
-> **語言**: [English](../../core/forward-derivation-standards.md) | 繁體中文
+> **語言**: [English](../../../core/forward-derivation-standards.md) | 繁體中文
 
 ---
 
@@ -413,9 +413,9 @@ spec-review → forward-derivation → discovery
 
 - [反向工程標準](reverse-engineering-standards.md) - 對稱對應（程式碼 → 規格）
 - [規格驅動開發](spec-driven-development.md) - 輸入規格格式
-- [行為驅動開發](behavior-driven-development.md) - BDD 輸出格式
+- [行為驅動開發](../../../core/behavior-driven-development.md) - BDD 輸出格式
 - [測試驅動開發](test-driven-development.md) - TDD 輸出用法
-- [驗收測試驅動開發](acceptance-test-driven-development.md) - ATDD 輸出格式
+- [驗收測試驅動開發](../../../core/acceptance-test-driven-development.md) - ATDD 輸出格式
 - [反幻覺指南](anti-hallucination.md) - 生成合規
 
 ---

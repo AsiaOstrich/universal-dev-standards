@@ -1,6 +1,6 @@
 # Git 工作流程標準
 
-> **語言**: English | [繁體中文](locales/zh-TW/core/git-workflow.md)
+> **語言**: [English](../../../core/git-workflow.md) | 繁體中文
 
 **版本**: 1.4.0
 **最後更新**: 2026-02-10

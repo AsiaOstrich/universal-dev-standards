@@ -135,11 +135,11 @@ allowed-tools:
 
 | 代理 | 角色 | 描述 |
 |------|------|------|
-| [code-architect](./code-architect.md) | specialist | 软件架构和系统设计 |
-| [test-specialist](./test-specialist.md) | specialist | 测试策略和测试实现 |
-| [reviewer](./reviewer.md) | reviewer | 代码审查和质量评估 |
-| [doc-writer](./doc-writer.md) | specialist | 文档和技术写作 |
-| [spec-analyst](./spec-analyst.md) | specialist | 规格分析和需求萃取 |
+| [code-architect](../../../../skills/agents/code-architect.md) | specialist | 软件架构和系统设计 |
+| [test-specialist](../../../../skills/agents/test-specialist.md) | specialist | 测试策略和测试实现 |
+| [reviewer](../../../../skills/agents/reviewer.md) | reviewer | 代码审查和质量评估 |
+| [doc-writer](../../../../skills/agents/doc-writer.md) | specialist | 文档和技术写作 |
+| [spec-analyst](../../../../skills/agents/spec-analyst.md) | specialist | 规格分析和需求萃取 |
 
 ## 使用方式
 
@@ -253,15 +253,15 @@ steps:
     task: 代码审查
 ```
 
-请参阅 [workflows/README.md](../workflows/README.md) 获取工作流程文档。
+请参阅 [workflows/README.md](../../../../skills/workflows/README.md) 获取工作流程文档。
 
 ---
 
 ## 相关资源
 
 - [技能文档](../README.md)
-- [工作流程文档](../workflows/README.md)
-- [AI 代理路径配置](../../cli/src/config/ai-agent-paths.js)
+- [工作流程文档](../../../../skills/workflows/README.md)
+- [AI 代理路径配置](../../../../cli/src/config/ai-agent-paths.js)
 
 ---
 

@@ -5,7 +5,7 @@
 **Applicability**: All projects adopting Spec-Driven Development
 **Scope**: universal
 
-> **Language**: [English](../core/spec-driven-development.md) | [繁體中文](../locales/zh-TW/core/spec-driven-development.md)
+> **Language**: [English](../../core/spec-driven-development.md) | [繁體中文](../../locales/zh-TW/core/spec-driven-development.md)
 
 ---
 
@@ -412,7 +412,7 @@ Reviewers should verify:
 
 ### Overview
 
-For existing codebases without specifications, use [Reverse Engineering Standards](reverse-engineering-standards.md) to generate SDD-compatible proposal drafts.
+For existing codebases without specifications, use [Reverse Engineering Standards](../../core/reverse-engineering-standards.md) to generate SDD-compatible proposal drafts.
 
 ### Reverse Engineering → SDD Pipeline
 
@@ -481,7 +481,7 @@ When a specification is generated via reverse engineering:
 
 ### Overview
 
-After a specification is approved, use [Forward Derivation Standards](forward-derivation-standards.md) to automatically generate BDD scenarios, TDD test skeletons, and ATDD acceptance tests from the Acceptance Criteria.
+After a specification is approved, use [Forward Derivation Standards](../../core/forward-derivation-standards.md) to automatically generate BDD scenarios, TDD test skeletons, and ATDD acceptance tests from the Acceptance Criteria.
 
 ### Forward Derivation → SDD Pipeline
 
@@ -738,17 +738,17 @@ This standard works together with two complementary standards to form a complete
 
 ## Related Standards
 
-- [Forward Derivation Standards](forward-derivation-standards.md) - Specification-to-test transformation (Spec → BDD/TDD/ATDD)
-- [Reverse Engineering Standards](reverse-engineering-standards.md) - Code-to-specification transformation (Code → Spec)
-- [Test-Driven Development](test-driven-development.md) - TDD workflow and SDD integration
-- [Behavior-Driven Development](behavior-driven-development.md) - BDD workflow with Given-When-Then scenarios
-- [Acceptance Test-Driven Development](acceptance-test-driven-development.md) - ATDD workflow for business acceptance
-- [Testing Standards](testing-standards.md) - Testing framework and best practices (or use `/testing-guide` skill)
-- [Test Completeness Dimensions](test-completeness-dimensions.md) - 8-dimension test coverage
-- [Commit Message Guide](commit-message-guide.md) - Commit message conventions
-- [Code Check-in Standards](checkin-standards.md) - Code check-in requirements
-- [Code Review Checklist](code-review-checklist.md) - Code review guidelines
-- [Documentation Structure](documentation-structure.md) - Documentation structure standards
+- [Forward Derivation Standards](../../core/forward-derivation-standards.md) - Specification-to-test transformation (Spec → BDD/TDD/ATDD)
+- [Reverse Engineering Standards](../../core/reverse-engineering-standards.md) - Code-to-specification transformation (Code → Spec)
+- [Test-Driven Development](../../core/test-driven-development.md) - TDD workflow and SDD integration
+- [Behavior-Driven Development](../../core/behavior-driven-development.md) - BDD workflow with Given-When-Then scenarios
+- [Acceptance Test-Driven Development](../../core/acceptance-test-driven-development.md) - ATDD workflow for business acceptance
+- [Testing Standards](../../core/testing-standards.md) - Testing framework and best practices (or use `/testing-guide` skill)
+- [Test Completeness Dimensions](../../core/test-completeness-dimensions.md) - 8-dimension test coverage
+- [Commit Message Guide](../../core/commit-message-guide.md) - Commit message conventions
+- [Code Check-in Standards](../../core/checkin-standards.md) - Code check-in requirements
+- [Code Review Checklist](../../core/code-review-checklist.md) - Code review guidelines
+- [Documentation Structure](../../core/documentation-structure.md) - Documentation structure standards
 
 ---
 

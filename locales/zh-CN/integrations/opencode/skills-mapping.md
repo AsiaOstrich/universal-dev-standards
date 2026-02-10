@@ -383,9 +383,9 @@ temperature: 0.5
 
 ## 相关资源
 
-- [AGENTS.md](../../../integrations/opencode/AGENTS.md) - 核心规则文件
-- [opencode.json](../../../integrations/opencode/opencode.json) - 配置示例
-- [Claude Code Skills](../../../skills/) - 原始技能
+- [AGENTS.md](../../../../integrations/opencode/AGENTS.md) - 核心规则文件
+- [opencode.json](../../../../integrations/opencode/opencode.json) - 配置示例
+- [Claude Code Skills](../../../../skills/) - 原始技能
 - [GitHub Copilot 技能对照](../github-copilot/skills-mapping.md) - Copilot 等效版本
 
 ---

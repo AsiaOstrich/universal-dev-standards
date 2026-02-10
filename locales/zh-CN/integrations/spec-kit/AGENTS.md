@@ -165,9 +165,9 @@ Refs: SPEC-001
 
 ## 相关规范
 
-- [规格驱动开发](../../core/spec-driven-development.md) - SDD 方法论
-- [Commit 消息指南](../../core/commit-message-guide.md) - Commit 惯例
-- [代码签入规范](../../core/checkin-standards.md) - 签入要求
+- [规格驱动开发](../../../../core/spec-driven-development.md) - SDD 方法论
+- [Commit 消息指南](../../../../core/commit-message-guide.md) - Commit 惯例
+- [代码签入规范](../../../../core/checkin-standards.md) - 签入要求
 
 ---
 

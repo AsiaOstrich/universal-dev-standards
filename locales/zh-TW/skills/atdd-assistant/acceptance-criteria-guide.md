@@ -423,6 +423,6 @@ Scenario: 成功的密碼重設
 ## 相關資源
 
 - [ATDD 工作流程指南](./atdd-workflow.md)
-- [ATDD 核心標準](../../core/acceptance-test-driven-development.md)
+- [ATDD 核心標準](../../../../core/acceptance-test-driven-development.md)
 - [Gherkin 指南](../bdd-assistant/gherkin-guide.md)
 - [需求助手](../requirement-assistant/SKILL.md)

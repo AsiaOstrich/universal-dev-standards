@@ -6,7 +6,7 @@ This document defines the development standards for the Universal Development St
 
 Universal Development Standards is a language-agnostic, framework-agnostic documentation standards framework. It provides:
 
-- **Core Standards** (`core/`): 23 fundamental development standards
+- **Core Standards** (`core/`): 32 fundamental development standards
 - **AI Skills** (`skills/`): Claude Code skills for AI-assisted development
 - **CLI Tool** (`cli/`): Node.js CLI for adopting standards
 - **Integrations** (`integrations/`): Configurations for various AI tools
@@ -531,6 +531,7 @@ After ANY modification, run:
 ./scripts/check-ai-agent-sync.sh
 ./scripts/check-spec-sync.sh        # Core↔Skill sync
 ./scripts/check-scope-sync.sh       # Scope universality check
+./scripts/check-docs-integrity.sh   # Documentation integrity
 cd cli && npm test && npm run lint
 ```
 
@@ -819,14 +820,15 @@ When updating version, files must be synchronized based on release type:
 .\scripts\pre-release-check.ps1
 ```
 
-This runs 7 checks:
+This runs 14 checks including:
 1. Git working directory status
 2. Version sync (`check-version-sync.sh`)
 3. Standards sync (`check-standards-sync.sh`)
 4. Translation sync (`check-translation-sync.sh`)
-5. Install scripts sync (`check-install-scripts-sync.sh`)
-6. Linting
-7. Tests
+5-11. CLI-docs, docs, AI agent, usage docs, spec, scope, commands sync checks
+12. Documentation integrity (`check-docs-integrity.sh`)
+13. Linting
+14. Tests
 
 #### Translation Sync (Stable Releases)
 
@@ -939,9 +941,9 @@ AI:
 
 ```
 universal-dev-standards/
-├── core/                  # Core standards (22 files)
+├── core/                  # Core standards (32 files)
 ├── skills/                # AI tool skills
-│   └── claude-code/       # Claude Code skills (23 skills)
+│   └── claude-code/       # Claude Code skills (26 skills)
 ├── cli/                   # Node.js CLI tool
 │   ├── src/               # Source code
 │   ├── tests/             # Test files

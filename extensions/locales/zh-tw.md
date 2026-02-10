@@ -706,7 +706,7 @@ Maintain a **terminology glossary** for consistent Chinese translations:
 
 - [Chinese Copywriting Guidelines](https://github.com/sparanoid/chinese-copywriting-guidelines)
 - [中文技術文件寫作規範](https://github.com/yikeke/zh-style-guide)
-- [Anti-Hallucination Standards](../core/anti-hallucination.md)
+- [Anti-Hallucination Standards](../../core/anti-hallucination.md)
 
 ---
 
