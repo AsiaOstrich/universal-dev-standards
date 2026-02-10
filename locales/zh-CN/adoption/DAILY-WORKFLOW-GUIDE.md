@@ -1,15 +1,15 @@
 ---
 source: ../../../adoption/DAILY-WORKFLOW-GUIDE.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-19
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-02-10
 status: current
 ---
 
 # 日常开发工作流程指南
 
-**版本**: 1.0.0
-**最后更新**: 2026-01-19
+**版本**: 1.1.0
+**最后更新**: 2026-02-10
 
 > **语言**: [English](../../adoption/DAILY-WORKFLOW-GUIDE.md) | [繁體中文](../../zh-TW/adoption/DAILY-WORKFLOW-GUIDE.md) | 简体中文
 
@@ -19,6 +19,7 @@ status: current
 
 ## 目录
 
+- [Phase 0：专案现况评估](#phase-0专案现况评估)
 - [核心原则：渐进式采用](#核心原则渐进式采用)
 - [根据任务类型选择工作流程](#根据任务类型选择工作流程)
 - [Greenfield 与 Brownfield 专案](#greenfield-与-brownfield-专案)
@@ -31,6 +32,41 @@ status: current
 - [相关标准](#相关标准)
 - [版本历史](#版本历史)
 - [授权](#授权)
+
+---
+
+## Phase 0：专案现况评估
+
+> **使用时机**：首次接触既有代码库，或在不熟悉的模块进行重大变更之前。
+
+在 Brownfield 专案进行代码变更之前，先执行 `/discover` 评估现况：
+
+```
+1. /discover [area]     → 评估专案健康度、架构、风险
+2. /reverse spec        → 反向工程现有代码为规格（如有需要）
+3. /sdd                 → 撰写新功能规格
+4. 实作                  → 使用 /tdd 或 /bdd 在测试保护下实作
+```
+
+### 评估维度
+
+| 维度 | 检查项目 |
+|------|----------|
+| **架构** | 模块结构、依赖图、入口点 |
+| **依赖性** | 过时套件、已知漏洞、授权风险 |
+| **测试覆盖** | 现有测试、覆盖率缺口、测试质量 |
+| **安全性** | `npm audit` 结果、硬编码密钥、暴露端点 |
+| **技术债** | TODO 标记、代码重复、复杂度热点 |
+
+### 输出
+
+Discovery Report 提供：
+- 整体健康度分数（1-10）
+- 各维度分数与关键发现
+- **结论**：GO / NO-GO / CONDITIONAL
+- 优先级排序的建议（HIGH / MED / LOW）
+
+> **下一步**：评估完成后，如需理解现有代码请使用 `/reverse`，然后用 `/sdd` 设计新功能。
 
 ---
 
@@ -70,6 +106,12 @@ status: current
 ┌─────────────────────────────────────────────────────────────────┐
 │                    任务类型 → 工作流程选择                        │
 ├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  第一次接触这个代码库？                                          │
+│  │                                                              │
+│  ├─ 是 → 先执行 /discover（Phase 0 评估）                       │
+│  │                                                              │
+│  └─ 否（熟悉代码库）                                            │
 │                                                                 │
 │  这是全新功能吗？                                                │
 │  │                                                              │
@@ -209,6 +251,11 @@ test('should reject email without domain', () => {
 │                                                                │
 │  ⚠️  只有这种情况才需要较完整的流程                             │
 │                                                                │
+│  0️⃣  评估现况（Discovery + 反向工程）                          │
+│      ├─ /discover 评估专案健康度与风险                          │
+│      ├─ /reverse spec 反向工程现有代码                          │
+│      └─ 输出：Discovery Report + 现有规格                      │
+│                                                                │
 │  1️⃣  撰写变更规格（SDD）                                       │
 │      ├─ 描述为什么要重构                                       │
 │      ├─ 定义影响范围                                           │
@@ -314,10 +361,13 @@ test('should reject email without domain', () => {
 
 | 命令 | 用途 | 使用时机 |
 |------|------|----------|
+| `/discover` | 评估专案健康度与风险 | 首次接触代码库、重大变更前 |
+| `/reverse` | 反向工程代码为规格/BDD/TDD | 理解现有代码 |
 | `/tdd` | 启动 TDD 工作流程 | 写代码时 |
 | `/bdd` | 启动 BDD 工作流程 | 设计行为规格时 |
 | `/sdd` | 启动 SDD 工作流程 | 需要技术规格时 |
 | `/atdd` | 启动 ATDD 工作流程 | 需要正式验收的功能 |
+| `/refactor` | 启动重构工作流程 | 改善代码结构 |
 | `/methodology` | 查看/切换当前方法论 | 管理开发流程 |
 | `/commit` | 生成规范的 commit message | 提交代码 |
 | `/review` | 启动代码审查 | 审查 PR |
@@ -444,6 +494,9 @@ test('should reject email without domain', () => {
 ## 相关标准
 
 - [采用指南](ADOPTION-GUIDE.md) - 如何安装 UDS
+- [专案现况评估](../../../skills/project-discovery/SKILL.md) - Phase 0 专案评估
+- [反向工程标准](../../core/reverse-engineering-standards.md) - 反向工程工作流程
+- [重构标准](../../core/refactoring-standards.md) - 重构工作流程
 - [测试驱动开发](../../core/test-driven-development.md) - TDD 标准（包含 Golden Master Testing）
 - [行为驱动开发](../../core/behavior-driven-development.md) - BDD 工作流程
 - [验收测试驱动开发](../../core/acceptance-test-driven-development.md) - ATDD 工作流程
@@ -457,6 +510,7 @@ test('should reject email without domain', () => {
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.1.0 | 2026-02-10 | 新增 Phase 0 专案评估、/discover + /reverse + /refactor 命令 |
 | 1.0.0 | 2026-01-19 | 初版日常工作流程指南 |
 
 ---

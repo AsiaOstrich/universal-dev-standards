@@ -1,7 +1,7 @@
 # Daily Development Workflow Guide
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-19
+**Version**: 1.1.0
+**Last Updated**: 2026-02-10
 
 > **Language**: English | [繁體中文](../locales/zh-TW/adoption/DAILY-WORKFLOW-GUIDE.md)
 
@@ -11,6 +11,7 @@ This guide explains how to use Universal Development Standards in your daily dev
 
 ## Table of Contents
 
+- [Phase 0: Project Discovery](#phase-0-project-discovery)
 - [Core Principle: Incremental Adoption](#core-principle-incremental-adoption)
 - [Workflow Selection by Task Type](#workflow-selection-by-task-type)
 - [Greenfield vs Brownfield Projects](#greenfield-vs-brownfield-projects)
@@ -23,6 +24,41 @@ This guide explains how to use Universal Development Standards in your daily dev
 - [Related Standards](#related-standards)
 - [Version History](#version-history)
 - [License](#license)
+
+---
+
+## Phase 0: Project Discovery
+
+> **When to use**: First time onboarding to an existing codebase, or before making major changes to unfamiliar modules.
+
+Before diving into code changes on a brownfield project, run `/discover` to assess the current state:
+
+```
+1. /discover [area]     → Assess project health, architecture, risks
+2. /reverse spec        → Reverse engineer existing code to specs (if needed)
+3. /sdd                 → Write specification for new features
+4. Implement            → /tdd or /bdd with test protection
+```
+
+### Assessment Dimensions
+
+| Dimension | What to Check |
+|-----------|--------------|
+| **Architecture** | Module structure, dependency graph, entry points |
+| **Dependencies** | Outdated packages, known vulnerabilities, license risks |
+| **Test Coverage** | Existing test suite, coverage gaps, test quality |
+| **Security** | `npm audit` findings, hardcoded secrets, exposed endpoints |
+| **Technical Debt** | TODOs, code duplication, complexity hotspots |
+
+### Output
+
+The Discovery Report provides:
+- Overall health score (1-10)
+- Per-dimension scores and key findings
+- **Verdict**: GO / NO-GO / CONDITIONAL
+- Prioritized recommendations (HIGH / MED / LOW)
+
+> **Next**: After discovery, proceed to `/reverse` if you need to understand existing code, then `/sdd` for new features.
 
 ---
 
@@ -64,6 +100,12 @@ This guide explains how to use Universal Development Standards in your daily dev
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Task Type → Workflow Selection                │
 ├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  First time in this codebase?                                   │
+│  │                                                              │
+│  ├─ Yes → /discover first (Phase 0 assessment)                  │
+│  │                                                              │
+│  └─ No (familiar with codebase)                                 │
 │                                                                 │
 │  Is this a brand new feature?                                   │
 │  │                                                              │
@@ -203,6 +245,11 @@ test('should reject email without domain', () => {
 │                                                                │
 │  ⚠️  Only this scenario requires a more complete workflow       │
 │                                                                │
+│  0️⃣  Assess Current State (Discovery + Reverse Engineering)    │
+│      ├─ /discover to assess project health and risks           │
+│      ├─ /reverse spec to reverse engineer existing code        │
+│      └─ Output: Discovery Report + existing specs              │
+│                                                                │
 │  1️⃣  Write Change Specification (SDD)                          │
 │      ├─ Describe why refactoring is needed                     │
 │      ├─ Define impact scope                                    │
@@ -308,10 +355,13 @@ For significant new features requiring stakeholder acceptance:
 
 | Command | Purpose | When to Use |
 |---------|---------|-------------|
+| `/discover` | Assess project health and risks | First time in codebase, before major changes |
+| `/reverse` | Reverse engineer code to specs/BDD/TDD | Understanding existing code |
 | `/tdd` | Start TDD workflow | Writing code |
 | `/bdd` | Start BDD workflow | Designing behavior specs |
 | `/sdd` | Start SDD workflow | Need technical specification |
 | `/atdd` | Start ATDD workflow | Features requiring formal acceptance |
+| `/refactor` | Start refactoring workflow | Improving code structure |
 | `/methodology` | View/switch current methodology | Managing dev process |
 | `/commit` | Generate conventional commit message | Committing code |
 | `/review` | Start code review | Reviewing PRs |
@@ -438,6 +488,9 @@ For significant new features requiring stakeholder acceptance:
 ## Related Standards
 
 - [Adoption Guide](ADOPTION-GUIDE.md) - How to install UDS
+- [Project Discovery](../skills/project-discovery/SKILL.md) - Phase 0 project assessment
+- [Reverse Engineering Standards](../core/reverse-engineering-standards.md) - Reverse engineering workflow
+- [Refactoring Standards](../core/refactoring-standards.md) - Refactoring workflow
 - [Test-Driven Development](../core/test-driven-development.md) - TDD standards including Golden Master Testing
 - [Behavior-Driven Development](../core/behavior-driven-development.md) - BDD workflow
 - [Acceptance Test-Driven Development](../core/acceptance-test-driven-development.md) - ATDD workflow
@@ -451,6 +504,7 @@ For significant new features requiring stakeholder acceptance:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-02-10 | Add Phase 0 discovery, /discover + /reverse + /refactor commands |
 | 1.0.0 | 2026-01-19 | Initial daily workflow guide |
 
 ---

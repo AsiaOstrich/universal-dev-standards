@@ -492,7 +492,9 @@ export const AVAILABLE_COMMANDS = [
   // ═══════════════════════════════════════════════════════════════════════════
   // Documentation and Code Quality (Action Skills + Commands-only)
   // ═══════════════════════════════════════════════════════════════════════════
+  { name: 'docs', description: 'Manage, guide, and generate documentation' },
   { name: 'docgen', description: 'Generate usage documentation' },
+  { name: 'guide', description: 'Access UDS guides and references' },
   { name: 'refactor', description: 'Refactoring and legacy modernization guide' },
 
   // ═══════════════════════════════════════════════════════════════════════════

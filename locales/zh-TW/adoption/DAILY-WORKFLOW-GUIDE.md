@@ -1,15 +1,15 @@
 ---
 source: ../../../adoption/DAILY-WORKFLOW-GUIDE.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-19
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-02-10
 status: current
 ---
 
 # 日常開發工作流程指南
 
-**版本**: 1.0.0
-**最後更新**: 2026-01-19
+**版本**: 1.1.0
+**最後更新**: 2026-02-10
 
 > **語言**: [English](../../adoption/DAILY-WORKFLOW-GUIDE.md) | 繁體中文
 
@@ -19,6 +19,7 @@ status: current
 
 ## 目錄
 
+- [Phase 0：專案現況評估](#phase-0專案現況評估)
 - [核心原則：漸進式採用](#核心原則漸進式採用)
 - [根據任務類型選擇工作流程](#根據任務類型選擇工作流程)
 - [Greenfield 與 Brownfield 專案](#greenfield-與-brownfield-專案)
@@ -31,6 +32,41 @@ status: current
 - [相關標準](#相關標準)
 - [版本歷史](#版本歷史)
 - [授權](#授權)
+
+---
+
+## Phase 0：專案現況評估
+
+> **使用時機**：首次接觸既有程式碼庫，或在不熟悉的模組進行重大變更之前。
+
+在 Brownfield 專案進行程式碼變更之前，先執行 `/discover` 評估現況：
+
+```
+1. /discover [area]     → 評估專案健康度、架構、風險
+2. /reverse spec        → 反向工程現有程式碼為規格（如有需要）
+3. /sdd                 → 撰寫新功能規格
+4. 實作                  → 使用 /tdd 或 /bdd 在測試保護下實作
+```
+
+### 評估維度
+
+| 維度 | 檢查項目 |
+|------|----------|
+| **架構** | 模組結構、相依圖、進入點 |
+| **相依性** | 過時套件、已知漏洞、授權風險 |
+| **測試覆蓋** | 現有測試、覆蓋率缺口、測試品質 |
+| **安全性** | `npm audit` 結果、硬編碼密鑰、暴露端點 |
+| **技術債** | TODO 標記、程式碼重複、複雜度熱點 |
+
+### 輸出
+
+Discovery Report 提供：
+- 整體健康度分數（1-10）
+- 各維度分數與關鍵發現
+- **結論**：GO / NO-GO / CONDITIONAL
+- 優先級排序的建議（HIGH / MED / LOW）
+
+> **下一步**：評估完成後，如需理解現有程式碼請使用 `/reverse`，然後用 `/sdd` 設計新功能。
 
 ---
 
@@ -70,6 +106,12 @@ status: current
 ┌─────────────────────────────────────────────────────────────────┐
 │                    任務類型 → 工作流程選擇                        │
 ├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  第一次接觸這個程式碼庫？                                        │
+│  │                                                              │
+│  ├─ 是 → 先執行 /discover（Phase 0 評估）                       │
+│  │                                                              │
+│  └─ 否（熟悉程式碼庫）                                          │
 │                                                                 │
 │  這是全新功能嗎？                                                │
 │  │                                                              │
@@ -209,6 +251,11 @@ test('should reject email without domain', () => {
 │                                                                │
 │  ⚠️  只有這種情況才需要較完整的流程                             │
 │                                                                │
+│  0️⃣  評估現況（Discovery + 反向工程）                          │
+│      ├─ /discover 評估專案健康度與風險                          │
+│      ├─ /reverse spec 反向工程現有程式碼                        │
+│      └─ 輸出：Discovery Report + 現有規格                      │
+│                                                                │
 │  1️⃣  撰寫變更規格（SDD）                                       │
 │      ├─ 描述為什麼要重構                                       │
 │      ├─ 定義影響範圍                                           │
@@ -314,10 +361,13 @@ test('should reject email without domain', () => {
 
 | 命令 | 用途 | 使用時機 |
 |------|------|----------|
+| `/discover` | 評估專案健康度與風險 | 首次接觸程式碼庫、重大變更前 |
+| `/reverse` | 反向工程程式碼為規格/BDD/TDD | 理解現有程式碼 |
 | `/tdd` | 啟動 TDD 工作流程 | 寫程式碼時 |
 | `/bdd` | 啟動 BDD 工作流程 | 設計行為規格時 |
 | `/sdd` | 啟動 SDD 工作流程 | 需要技術規格時 |
 | `/atdd` | 啟動 ATDD 工作流程 | 需要正式驗收的功能 |
+| `/refactor` | 啟動重構工作流程 | 改善程式碼結構 |
 | `/methodology` | 查看/切換當前方法論 | 管理開發流程 |
 | `/commit` | 生成規範的 commit message | 提交程式碼 |
 | `/review` | 啟動程式碼審查 | 審查 PR |
@@ -444,6 +494,9 @@ test('should reject email without domain', () => {
 ## 相關標準
 
 - [採用指南](ADOPTION-GUIDE.md) - 如何安裝 UDS
+- [專案現況評估](../../../skills/project-discovery/SKILL.md) - Phase 0 專案評估
+- [反向工程標準](../../core/reverse-engineering-standards.md) - 反向工程工作流程
+- [重構標準](../../core/refactoring-standards.md) - 重構工作流程
 - [測試驅動開發](../../core/test-driven-development.md) - TDD 標準（包含 Golden Master Testing）
 - [行為驅動開發](../../core/behavior-driven-development.md) - BDD 工作流程
 - [驗收測試驅動開發](../../core/acceptance-test-driven-development.md) - ATDD 工作流程
@@ -457,6 +510,7 @@ test('should reject email without domain', () => {
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.1.0 | 2026-02-10 | 新增 Phase 0 專案評估、/discover + /reverse + /refactor 命令 |
 | 1.0.0 | 2026-01-19 | 初版日常工作流程指南 |
 
 ---
