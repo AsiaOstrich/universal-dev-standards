@@ -1055,39 +1055,34 @@ function checkReferenceSync(manifest, projectPath, msg) {
     return;
   }
 
-  console.log(chalk.cyan(msg.refSyncStatus));
-
-  let hasIssues = false;
-  let checkedCount = 0;
-
+  // Pre-scan: collect results for files that have references
+  const results = [];
   for (const integrationPath of manifest.integrations) {
     const fullPath = join(projectPath, integrationPath);
 
-    // Skip if file doesn't exist
-    if (!existsSync(fullPath)) {
-      continue;
-    }
+    if (!existsSync(fullPath)) continue;
 
-    // Read integration file content
     let content;
     try {
       content = readFileSync(fullPath, 'utf-8');
     } catch {
-      console.log(chalk.yellow(`  ⚠ ${integrationPath}: ${msg.couldNotRead}`));
       continue;
     }
 
-    // Parse references from integration file
     const references = parseReferences(content);
+    if (references.length === 0) continue;
 
-    // Skip if no references found (might be a static file or custom content)
-    if (references.length === 0) {
-      console.log(chalk.gray(`  ℹ ${integrationPath}: ${msg.noRefsFound}`));
-      continue;
-    }
+    results.push({ integrationPath, references });
+  }
 
-    checkedCount++;
+  // Skip entire section if no files have references
+  if (results.length === 0) return;
 
+  console.log(chalk.cyan(msg.refSyncStatus));
+
+  let hasIssues = false;
+
+  for (const { integrationPath, references } of results) {
     // Compare with manifest standards
     const { orphanedRefs, missingRefs, syncedRefs } = compareStandardsWithReferences(
       manifest.standards,
@@ -1116,10 +1111,6 @@ function checkReferenceSync(manifest, projectPath, msg) {
     if (orphanedRefs.length === 0 && missingRefs.length === 0) {
       console.log(chalk.green(`  ✓ ${msg.refsInSync.replace('{path}', integrationPath).replace('{count}', syncedRefs.length)}`));
     }
-  }
-
-  if (checkedCount === 0) {
-    console.log(chalk.gray(`  ${msg.noIntegrationRefs}`));
   }
 
   if (hasIssues) {
