@@ -806,7 +806,7 @@ When updating version, files must be synchronized based on release type:
 | `cli/standards-registry.json` | `"version"` (3 places) | ✅ Update | ✅ Update |
 | `.claude-plugin/plugin.json` | `"version"` | ❌ Keep stable | ✅ Update |
 | `.claude-plugin/marketplace.json` | `"version"` | ❌ Keep stable | ✅ Update |
-| `README.md` | `**Version**:` | ❌ Keep stable | ✅ Update |
+| `README.md` | `**Version**:` | ✅ Update | ✅ Update |
 
 > **Marketplace Version Strategy**: `.claude-plugin/` files are only updated for stable releases. This prevents beta/alpha versions from being automatically pushed to Claude Plugin Marketplace users. Marketplace users will only receive stable versions.
 
