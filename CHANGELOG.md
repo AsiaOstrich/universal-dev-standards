@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-beta.11] - 2026-02-11
+
+### Added
+- **Display Language Setting**: New `uds config` option to set UI display language independently from commit language
+
+### Fixed
+- **Language Resolution Bug**: Fix language detection fallback logic in `uds config` to correctly resolve display language
+- **Release Scripts**: Fix README version update bugs in release scripts
+
+### Changed
+- **README**: Add beta installation guide and sync version display to 5.0.0-beta.10
+
 ## [5.0.0-beta.10] - 2026-02-11
 
 ### Added
