@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-beta.10] - 2026-02-11
+
+### Added
+- **Commit Language Directive**: Integration files now include commit message language instructions, ensuring AI tools always know the expected language even without `commit-message.ai.yaml`
+- **Config i18n**: Trilingual translations (en/zh-tw/zh-cn) for vibe coding presets and config preferences UI
+
+### Fixed
+- **Config Language Detection**: `uds config` now auto-detects UI language from project manifest, matching `uds configure` behavior
+- **Documentation Integrity**: Skip reference sync section when no Reference markers exist
+- **Broken Links**: Fix 153 broken markdown links across 212 files
+
+### Changed
+- **Documentation Integrity Checker**: New script with 4 sub-checks for pre-release validation
+- **Commands Sync Checker**: New script integrated into pre-release checks
+
 ## [5.0.0-beta.9] - 2026-02-10
 
 ### Added
