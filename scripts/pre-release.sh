@@ -170,18 +170,23 @@ if [ "$DRY_RUN" = false ]; then
         echo -e "${GREEN}[UPDATED]${NC} cli/package.json"
     fi
 
-    # Update .claude-plugin/plugin.json
-    if [ -f ".claude-plugin/plugin.json" ]; then
-        sed -i.bak "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" .claude-plugin/plugin.json
-        rm -f .claude-plugin/plugin.json.bak
-        echo -e "${GREEN}[UPDATED]${NC} .claude-plugin/plugin.json"
-    fi
+    # Update .claude-plugin/ files (stable releases only - marketplace stays at stable version)
+    if [ "$RELEASE_TYPE" = "stable" ]; then
+        # Update .claude-plugin/plugin.json
+        if [ -f ".claude-plugin/plugin.json" ]; then
+            sed -i.bak "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" .claude-plugin/plugin.json
+            rm -f .claude-plugin/plugin.json.bak
+            echo -e "${GREEN}[UPDATED]${NC} .claude-plugin/plugin.json"
+        fi
 
-    # Update .claude-plugin/marketplace.json
-    if [ -f ".claude-plugin/marketplace.json" ]; then
-        sed -i.bak "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" .claude-plugin/marketplace.json
-        rm -f .claude-plugin/marketplace.json.bak
-        echo -e "${GREEN}[UPDATED]${NC} .claude-plugin/marketplace.json"
+        # Update .claude-plugin/marketplace.json
+        if [ -f ".claude-plugin/marketplace.json" ]; then
+            sed -i.bak "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" .claude-plugin/marketplace.json
+            rm -f .claude-plugin/marketplace.json.bak
+            echo -e "${GREEN}[UPDATED]${NC} .claude-plugin/marketplace.json"
+        fi
+    else
+        echo -e "${YELLOW}[SKIP]${NC}  .claude-plugin/ files (pre-release: keeping stable version)"
     fi
 
     # Update cli/standards-registry.json (multiple occurrences)
@@ -191,12 +196,37 @@ if [ "$DRY_RUN" = false ]; then
         echo -e "${GREEN}[UPDATED]${NC} cli/standards-registry.json"
     fi
 
-    # Update README.md (only for stable releases)
-    if [ "$RELEASE_TYPE" = "stable" ] && [ -f "README.md" ]; then
-        sed -i.bak "s/\*\*Version\*\*: [0-9]\+\.[0-9]\+\.[0-9]\+[^*]*/\*\*Version\*\*: $VERSION/" README.md
-        sed -i.bak "s/\*\*Last Updated\*\*: [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/\*\*Last Updated\*\*: $TODAY/" README.md
-        rm -f README.md.bak
-        echo -e "${GREEN}[UPDATED]${NC} README.md"
+    # Update README files (only for stable releases)
+    if [ "$RELEASE_TYPE" = "stable" ]; then
+        # EN README.md
+        if [ -f "README.md" ]; then
+            sed -i.bak \
+                -e "s/\*\*Version\*\*: [^|]*/\*\*Version\*\*: $VERSION /" \
+                -e "s/\*\*Released\*\*: [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/\*\*Released\*\*: $TODAY/" \
+                README.md
+            rm -f README.md.bak
+            echo -e "${GREEN}[UPDATED]${NC} README.md"
+        fi
+
+        # zh-TW README.md
+        if [ -f "locales/zh-TW/README.md" ]; then
+            sed -i.bak \
+                -e "s/\*\*版本\*\*: [^|]*/\*\*版本\*\*: $VERSION /" \
+                -e "s/\*\*發布日期\*\*: [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/\*\*發布日期\*\*: $TODAY/" \
+                locales/zh-TW/README.md
+            rm -f locales/zh-TW/README.md.bak
+            echo -e "${GREEN}[UPDATED]${NC} locales/zh-TW/README.md"
+        fi
+
+        # zh-CN README.md
+        if [ -f "locales/zh-CN/README.md" ]; then
+            sed -i.bak \
+                -e "s/\*\*版本\*\*: [^|]*/\*\*版本\*\*: $VERSION /" \
+                -e "s/\*\*发布日期\*\*: [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/\*\*发布日期\*\*: $TODAY/" \
+                locales/zh-CN/README.md
+            rm -f locales/zh-CN/README.md.bak
+            echo -e "${GREEN}[UPDATED]${NC} locales/zh-CN/README.md"
+        fi
     fi
 fi
 
@@ -316,11 +346,15 @@ else
     echo ""
     echo "Files updated:"
     echo "  - cli/package.json"
-    echo "  - .claude-plugin/plugin.json"
-    echo "  - .claude-plugin/marketplace.json"
     echo "  - cli/standards-registry.json"
     if [ "$RELEASE_TYPE" = "stable" ]; then
+        echo "  - .claude-plugin/plugin.json"
+        echo "  - .claude-plugin/marketplace.json"
         echo "  - README.md"
+        echo "  - locales/zh-TW/README.md"
+        echo "  - locales/zh-CN/README.md"
+    else
+        echo "  (skipped: .claude-plugin/, README files — pre-release)"
     fi
 fi
 

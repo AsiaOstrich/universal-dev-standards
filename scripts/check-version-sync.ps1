@@ -99,6 +99,110 @@ else {
 }
 
 Write-Host ""
+Write-Host "----------------------------------------"
+Write-Host "Checking .claude-plugin/ files..."
+Write-Host "----------------------------------------"
+Write-Host ""
+
+# Check if this is a pre-release version
+$isPrerelease = $packageVersion -match "-(alpha|beta|rc)\."
+if ($isPrerelease) {
+    Write-Host "[INFO]  Pre-release version detected: $packageVersion" -ForegroundColor Yellow
+    Write-Host "[INFO]  Marketplace files should keep stable version (not required to match)" -ForegroundColor Yellow
+    Write-Host ""
+}
+
+# Check .claude-plugin/plugin.json
+$PluginJson = Join-Path $RootDir ".claude-plugin" "plugin.json"
+if (Test-Path $PluginJson) {
+    $pluginContent = Get-Content $PluginJson -Raw | ConvertFrom-Json
+    $pluginVersion = $pluginContent.version
+    if ($isPrerelease) {
+        if ($pluginVersion -match "-(alpha|beta|rc)\.") {
+            Write-Host "[WARN]  plugin.json version: $pluginVersion (should be stable, not pre-release)" -ForegroundColor Yellow
+        } else {
+            Write-Host "[OK]     plugin.json version: $pluginVersion (stable - correct for marketplace)" -ForegroundColor Green
+        }
+    } else {
+        if ($pluginVersion -eq $packageVersion) {
+            Write-Host "[OK]     plugin.json version: $pluginVersion" -ForegroundColor Green
+        } else {
+            Write-Host "[MISMATCH] plugin.json version: $pluginVersion (expected: $packageVersion)" -ForegroundColor Red
+            $errors++
+        }
+    }
+} else {
+    Write-Host "[SKIP]  plugin.json not found" -ForegroundColor Yellow
+}
+
+# Check .claude-plugin/marketplace.json
+$MarketplaceJson = Join-Path $RootDir ".claude-plugin" "marketplace.json"
+if (Test-Path $MarketplaceJson) {
+    $marketplaceContent = Get-Content $MarketplaceJson -Raw | ConvertFrom-Json
+    # marketplace.json has version nested under plugins array
+    $marketplaceVersion = $marketplaceContent.plugins[0].version
+    if ($isPrerelease) {
+        if ($marketplaceVersion -match "-(alpha|beta|rc)\.") {
+            Write-Host "[WARN]  marketplace.json version: $marketplaceVersion (should be stable, not pre-release)" -ForegroundColor Yellow
+        } else {
+            Write-Host "[OK]     marketplace.json version: $marketplaceVersion (stable - correct for marketplace)" -ForegroundColor Green
+        }
+    } else {
+        if ($marketplaceVersion -eq $packageVersion) {
+            Write-Host "[OK]     marketplace.json version: $marketplaceVersion" -ForegroundColor Green
+        } else {
+            Write-Host "[MISMATCH] marketplace.json version: $marketplaceVersion (expected: $packageVersion)" -ForegroundColor Red
+            $errors++
+        }
+    }
+} else {
+    Write-Host "[SKIP]  marketplace.json not found" -ForegroundColor Yellow
+}
+
+Write-Host ""
+Write-Host "----------------------------------------"
+Write-Host "Checking README files..."
+Write-Host "----------------------------------------"
+Write-Host ""
+
+# Check README files (EN: **Version**, zh-TW: **版本**, zh-CN: **版本**)
+$readmeChecks = @(
+    @{ Path = "README.md"; Label = "Version" },
+    @{ Path = "locales/zh-TW/README.md"; Label = "版本" },
+    @{ Path = "locales/zh-CN/README.md"; Label = "版本" }
+)
+
+foreach ($check in $readmeChecks) {
+    $readmePath = Join-Path $RootDir $check.Path
+    $label = $check.Label
+    if (Test-Path $readmePath) {
+        $readmeContent = Get-Content $readmePath -Raw
+        if ($readmeContent -match "\*\*${label}\*\*:\s*([^\|]+)\|") {
+            $readmeVersion = $Matches[1].Trim()
+        } else {
+            $readmeVersion = ""
+        }
+
+        if ($isPrerelease) {
+            if ($readmeVersion -match "-(alpha|beta|rc)\.") {
+                Write-Host "[WARN]  $($check.Path) version: $readmeVersion (should be stable, not pre-release)" -ForegroundColor Yellow
+            } else {
+                Write-Host "[OK]     $($check.Path) version: $readmeVersion (stable - correct for pre-release)" -ForegroundColor Green
+            }
+        } else {
+            if ($readmeVersion -eq $packageVersion) {
+                Write-Host "[OK]     $($check.Path) version: $readmeVersion" -ForegroundColor Green
+            } else {
+                Write-Host "[MISMATCH] $($check.Path) version: $readmeVersion (expected: $packageVersion)" -ForegroundColor Red
+                $errors++
+            }
+        }
+    } else {
+        Write-Host "[SKIP]  $($check.Path) not found" -ForegroundColor Yellow
+    }
+}
+
+Write-Host ""
 Write-Host "=========================================="
 Write-Host "  Summary | 摘要"
 Write-Host "=========================================="

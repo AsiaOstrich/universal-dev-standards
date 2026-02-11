@@ -137,30 +137,43 @@ else
     echo -e "${YELLOW}[SKIP]${NC}  .claude-plugin/marketplace.json not found"
 fi
 
-# Check README.md version (only for stable releases)
-README="$ROOT_DIR/README.md"
-if [ -f "$README" ]; then
-    if [ "$IS_PRERELEASE" = true ]; then
-        echo -e "${CYAN}[INFO]${NC}  README.md version check skipped (pre-release)"
-    else
-        # Extract version from **Version**: X.Y.Z pattern
-        README_VERSION=$(grep -E '\*\*Version\*\*:' "$README" | head -1 | sed 's/.*\*\*Version\*\*:[[:space:]]*\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/')
-        if [ -n "$README_VERSION" ]; then
-            if [ "$README_VERSION" = "$VERSION" ]; then
-                echo -e "${GREEN}[OK]${NC}    README.md **Version**: $README_VERSION"
-            else
-                echo -e "${RED}[ERROR]${NC} README.md **Version**: $README_VERSION (expected: $VERSION)"
-                ERRORS=$((ERRORS + 1))
-            fi
+# Check README version across all languages (only for stable releases)
+# EN: **Version**, zh-TW: **版本**, zh-CN: **版本**
+README_CHECKS=(
+    "README.md|Version"
+    "locales/zh-TW/README.md|版本"
+    "locales/zh-CN/README.md|版本"
+)
+
+for readme_info in "${README_CHECKS[@]}"; do
+    IFS='|' read -r readme_path version_label <<< "$readme_info"
+    readme_full="$ROOT_DIR/$readme_path"
+
+    if [ -f "$readme_full" ]; then
+        if [ "$IS_PRERELEASE" = true ]; then
+            echo -e "${CYAN}[INFO]${NC}  $readme_path version check skipped (pre-release)"
         else
-            echo -e "${YELLOW}[WARN]${NC}  README.md: Could not find **Version** field"
-            WARNINGS=$((WARNINGS + 1))
+            # Extract version from **Label**: X.Y.Z pattern
+            README_VERSION=$(grep -E "\*\*${version_label}\*\*:" "$readme_full" | head -1 | sed "s/.*\*\*${version_label}\*\*:[[:space:]]*//" | sed 's/[[:space:]]*|.*//' | sed 's/[[:space:]]*$//')
+            # Strip any trailing non-version text (e.g., "(Pre-release)")
+            README_VERSION_CLEAN=$(echo "$README_VERSION" | sed 's/[[:space:]].*//')
+            if [ -n "$README_VERSION_CLEAN" ]; then
+                if [ "$README_VERSION_CLEAN" = "$VERSION" ]; then
+                    echo -e "${GREEN}[OK]${NC}    $readme_path **${version_label}**: $README_VERSION_CLEAN"
+                else
+                    echo -e "${RED}[ERROR]${NC} $readme_path **${version_label}**: $README_VERSION_CLEAN (expected: $VERSION)"
+                    ERRORS=$((ERRORS + 1))
+                fi
+            else
+                echo -e "${YELLOW}[WARN]${NC}  $readme_path: Could not find **${version_label}** field"
+                WARNINGS=$((WARNINGS + 1))
+            fi
         fi
+    else
+        echo -e "${YELLOW}[WARN]${NC}  $readme_path not found"
+        WARNINGS=$((WARNINGS + 1))
     fi
-else
-    echo -e "${RED}[ERROR]${NC} README.md not found"
-    ERRORS=$((ERRORS + 1))
-fi
+done
 echo ""
 
 # ==========================================

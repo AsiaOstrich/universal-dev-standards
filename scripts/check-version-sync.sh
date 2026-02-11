@@ -154,6 +154,48 @@ else
 fi
 
 echo ""
+echo "----------------------------------------"
+echo "Checking README files..."
+echo "----------------------------------------"
+echo ""
+
+# Define README files to check: path|version_label|date_label
+README_FILES=(
+    "README.md|Version|Released"
+    "locales/zh-TW/README.md|版本|發布日期"
+    "locales/zh-CN/README.md|版本|发布日期"
+)
+
+for readme_info in "${README_FILES[@]}"; do
+    IFS='|' read -r readme_path version_label date_label <<< "$readme_info"
+    readme_full="$ROOT_DIR/$readme_path"
+
+    if [ -f "$readme_full" ]; then
+        # Extract version from **Version**: X.Y.Z or **版本**: X.Y.Z pattern
+        README_VERSION=$(grep -E "\*\*${version_label}\*\*:" "$readme_full" | head -1 | sed "s/.*\*\*${version_label}\*\*:[[:space:]]*//" | sed 's/[[:space:]]*|.*//' | sed 's/[[:space:]]*$//')
+
+        if [ "$IS_PRERELEASE" = true ]; then
+            # For pre-release, README should keep a stable version (not match)
+            if [[ "$README_VERSION" =~ -(alpha|beta|rc)\. ]]; then
+                echo -e "${YELLOW}[WARN]${NC}  $readme_path version: $README_VERSION (should be stable, not pre-release)"
+            else
+                echo -e "${GREEN}[OK]${NC}     $readme_path version: $README_VERSION (stable - correct for pre-release)"
+            fi
+        else
+            # For stable release, must match package.json
+            if [ "$README_VERSION" = "$PACKAGE_VERSION" ]; then
+                echo -e "${GREEN}[OK]${NC}     $readme_path version: $README_VERSION"
+            else
+                echo -e "${RED}[MISMATCH]${NC} $readme_path version: $README_VERSION (expected: $PACKAGE_VERSION)"
+                ERRORS=$((ERRORS + 1))
+            fi
+        fi
+    else
+        echo -e "${YELLOW}[SKIP]${NC}  $readme_path not found"
+    fi
+done
+
+echo ""
 echo "=========================================="
 echo "  Summary | 摘要"
 echo "=========================================="

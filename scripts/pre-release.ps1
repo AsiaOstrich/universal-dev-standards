@@ -149,20 +149,25 @@ if (-not $DryRun) {
         Write-Host "[UPDATED] cli/package.json" -ForegroundColor Green
     }
 
-    # Update .claude-plugin/plugin.json
-    if (Test-Path ".claude-plugin/plugin.json") {
-        $content = Get-Content ".claude-plugin/plugin.json" -Raw
-        $content = $content -replace '"version": "[^"]*"', "`"version`": `"$Version`""
-        Set-Content ".claude-plugin/plugin.json" -Value $content -NoNewline
-        Write-Host "[UPDATED] .claude-plugin/plugin.json" -ForegroundColor Green
-    }
+    # Update .claude-plugin/ files (stable releases only - marketplace stays at stable version)
+    if ($ReleaseType -eq "stable") {
+        # Update .claude-plugin/plugin.json
+        if (Test-Path ".claude-plugin/plugin.json") {
+            $content = Get-Content ".claude-plugin/plugin.json" -Raw
+            $content = $content -replace '"version": "[^"]*"', "`"version`": `"$Version`""
+            Set-Content ".claude-plugin/plugin.json" -Value $content -NoNewline
+            Write-Host "[UPDATED] .claude-plugin/plugin.json" -ForegroundColor Green
+        }
 
-    # Update .claude-plugin/marketplace.json
-    if (Test-Path ".claude-plugin/marketplace.json") {
-        $content = Get-Content ".claude-plugin/marketplace.json" -Raw
-        $content = $content -replace '"version": "[^"]*"', "`"version`": `"$Version`""
-        Set-Content ".claude-plugin/marketplace.json" -Value $content -NoNewline
-        Write-Host "[UPDATED] .claude-plugin/marketplace.json" -ForegroundColor Green
+        # Update .claude-plugin/marketplace.json
+        if (Test-Path ".claude-plugin/marketplace.json") {
+            $content = Get-Content ".claude-plugin/marketplace.json" -Raw
+            $content = $content -replace '"version": "[^"]*"', "`"version`": `"$Version`""
+            Set-Content ".claude-plugin/marketplace.json" -Value $content -NoNewline
+            Write-Host "[UPDATED] .claude-plugin/marketplace.json" -ForegroundColor Green
+        }
+    } else {
+        Write-Host "[SKIP]  .claude-plugin/ files (pre-release: keeping stable version)" -ForegroundColor Yellow
     }
 
     # Update cli/standards-registry.json (multiple occurrences)
@@ -173,13 +178,34 @@ if (-not $DryRun) {
         Write-Host "[UPDATED] cli/standards-registry.json" -ForegroundColor Green
     }
 
-    # Update README.md (only for stable releases)
-    if ($ReleaseType -eq "stable" -and (Test-Path "README.md")) {
-        $content = Get-Content "README.md" -Raw
-        $content = $content -replace '\*\*Version\*\*: \d+\.\d+\.\d+[^*]*', "**Version**: $Version"
-        $content = $content -replace '\*\*Last Updated\*\*: \d{4}-\d{2}-\d{2}', "**Last Updated**: $Today"
-        Set-Content "README.md" -Value $content -NoNewline
-        Write-Host "[UPDATED] README.md" -ForegroundColor Green
+    # Update README files (only for stable releases)
+    if ($ReleaseType -eq "stable") {
+        # EN README.md
+        if (Test-Path "README.md") {
+            $content = Get-Content "README.md" -Raw
+            $content = $content -replace '\*\*Version\*\*: [^|]*', "**Version**: $Version "
+            $content = $content -replace '\*\*Released\*\*: \d{4}-\d{2}-\d{2}', "**Released**: $Today"
+            Set-Content "README.md" -Value $content -NoNewline
+            Write-Host "[UPDATED] README.md" -ForegroundColor Green
+        }
+
+        # zh-TW README.md
+        if (Test-Path "locales/zh-TW/README.md") {
+            $content = Get-Content "locales/zh-TW/README.md" -Raw
+            $content = $content -replace '\*\*版本\*\*: [^|]*', "**版本**: $Version "
+            $content = $content -replace '\*\*發布日期\*\*: \d{4}-\d{2}-\d{2}', "**發布日期**: $Today"
+            Set-Content "locales/zh-TW/README.md" -Value $content -NoNewline
+            Write-Host "[UPDATED] locales/zh-TW/README.md" -ForegroundColor Green
+        }
+
+        # zh-CN README.md
+        if (Test-Path "locales/zh-CN/README.md") {
+            $content = Get-Content "locales/zh-CN/README.md" -Raw
+            $content = $content -replace '\*\*版本\*\*: [^|]*', "**版本**: $Version "
+            $content = $content -replace '\*\*发布日期\*\*: \d{4}-\d{2}-\d{2}', "**发布日期**: $Today"
+            Set-Content "locales/zh-CN/README.md" -Value $content -NoNewline
+            Write-Host "[UPDATED] locales/zh-CN/README.md" -ForegroundColor Green
+        }
     }
 }
 
@@ -316,11 +342,15 @@ if ($DryRun) {
     Write-Host ""
     Write-Host "Files updated:"
     Write-Host "  - cli/package.json"
-    Write-Host "  - .claude-plugin/plugin.json"
-    Write-Host "  - .claude-plugin/marketplace.json"
     Write-Host "  - cli/standards-registry.json"
     if ($ReleaseType -eq "stable") {
+        Write-Host "  - .claude-plugin/plugin.json"
+        Write-Host "  - .claude-plugin/marketplace.json"
         Write-Host "  - README.md"
+        Write-Host "  - locales/zh-TW/README.md"
+        Write-Host "  - locales/zh-CN/README.md"
+    } else {
+        Write-Host "  (skipped: .claude-plugin/, README files - pre-release)"
     }
 }
 
