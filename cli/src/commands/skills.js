@@ -92,18 +92,12 @@ function listSkillsInDir(dirPath) {
 export function skillsCommand() {
   const projectPath = process.cwd();
 
-  // Set UI language based on project's commit_language if initialized
+  // Set UI language based on project's display_language if initialized
   // Only override if user didn't explicitly set --ui-lang flag
   if (!isLanguageExplicitlySet() && isInitialized(projectPath)) {
     const manifest = readManifest(projectPath);
-    if (manifest?.options?.commit_language) {
-      const langMap = {
-        'traditional-chinese': 'zh-tw',
-        'simplified-chinese': 'zh-cn',
-        english: 'en',
-        bilingual: 'en'
-      };
-      const uiLang = langMap[manifest.options.commit_language] || 'en';
+    if (manifest?.options?.display_language) {
+      const uiLang = manifest.options.display_language;
       setLanguage(uiLang);
     }
   }

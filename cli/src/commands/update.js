@@ -142,16 +142,10 @@ export async function updateCommand(options) {
     return;
   }
 
-  // Set UI language based on commit_language setting
+  // Set UI language based on display_language setting
   // Only override if user didn't explicitly set --ui-lang flag
   if (!isLanguageExplicitlySet()) {
-    const langMap = {
-      'traditional-chinese': 'zh-tw',
-      'simplified-chinese': 'zh-cn',
-      english: 'en',
-      bilingual: 'en'
-    };
-    const uiLang = langMap[manifest.options?.commit_language] || 'en';
+    const uiLang = manifest.options?.display_language || 'en';
     setLanguage(uiLang);
   }
 

@@ -31,7 +31,8 @@ import {
   handleAgentsMdSharing,
   promptMethodology,
   promptSkillsInstallLocation,
-  promptCommandsInstallation
+  promptCommandsInstallation,
+  promptDisplayLanguage
 } from '../prompts/init.js';
 import {
   installSkillsToMultipleAgents,
@@ -176,13 +177,7 @@ export async function configCommand(action, key, value, options) {
     if (initialized && !isLanguageExplicitlySet()) {
       const manifest = readManifest(projectPath);
       if (manifest) {
-        const langMap = {
-          'traditional-chinese': 'zh-tw',
-          'simplified-chinese': 'zh-cn',
-          english: 'en',
-          bilingual: 'en'
-        };
-        const uiLang = langMap[manifest.options?.commit_language] || 'en';
+        const uiLang = manifest.options?.display_language || 'en';
         setLanguage(uiLang);
       }
     }
@@ -255,6 +250,10 @@ async function handleConfigInit(options) {
       message: t('config.initQuestion', 'What would you like to configure?'),
       choices: [
         {
+          name: t('config.displayLanguageOption', 'Display Language - Change UI language'),
+          value: 'display_language'
+        },
+        {
           name: t('config.vibeMode', 'Vibe Coding Mode - For AI-assisted development'),
           value: 'vibe'
         },
@@ -270,13 +269,74 @@ async function handleConfigInit(options) {
     }
   ]);
 
-  if (initType === 'vibe') {
+  if (initType === 'display_language') {
+    await handleDisplayLanguageChange();
+    return;
+  } else if (initType === 'vibe') {
     await initVibeMode(options);
   } else if (initType === 'mission') {
     console.log(chalk.yellow(t('config.missionComingSoon', 'Mission mode setup coming soon!')));
     console.log(chalk.gray(t('config.useStartCommand', 'For now, use: uds start <mission-type> <intent>')));
   } else {
     console.log(chalk.gray(t('config.customHint', 'Use: uds config set <key> <value>')));
+  }
+}
+
+/**
+ * Handle display language change
+ */
+async function handleDisplayLanguageChange() {
+  const projectPath = process.cwd();
+  const initialized = isInitialized(projectPath);
+  let currentLang = config.get('ui.language') || 'en';
+
+  if (initialized) {
+    const manifest = readManifest(projectPath);
+    if (manifest?.options?.display_language) {
+      currentLang = manifest.options.display_language;
+    }
+  }
+
+  const langNames = { en: 'English', 'zh-tw': '繁體中文', 'zh-cn': '简体中文' };
+  console.log(chalk.gray(`  ${t('config.currentLanguage', 'Current language')}: ${langNames[currentLang] || currentLang}`));
+
+  const newLang = await promptDisplayLanguage();
+
+  if (newLang === currentLang) {
+    console.log(chalk.gray(t('config.noLanguageChange', 'Language unchanged.')));
+    return;
+  }
+
+  if (!initialized) {
+    const common = getMessages().commands.common;
+    console.log(chalk.red(common.notInitialized));
+    console.log(chalk.gray(`  ${common.runInit}`));
+    return;
+  }
+
+  const manifest = readManifest(projectPath);
+  if (manifest) {
+    manifest.options = manifest.options || {};
+    manifest.options.display_language = newLang;
+    writeManifest(manifest, projectPath);
+    console.log(chalk.green(t('config.languageUpdated', 'Display language updated!')));
+
+    // Offer to regenerate integrations if AI tools are configured
+    if (manifest.aiTools?.length > 0) {
+      const { confirm } = await inquirer.prompt([{
+        type: 'confirm',
+        name: 'confirm',
+        message: t('config.regenerateForLanguage', 'Regenerate AI tool integrations with new language?'),
+        default: true
+      }]);
+
+      if (confirm) {
+        const spinner = (await import('ora')).default(t('config.applyingPreset', 'Applying...')).start();
+        regenerateIntegrations(projectPath, manifest);
+        writeManifest(manifest, projectPath);
+        spinner.succeed(t('config.languageUpdated', 'Display language updated!'));
+      }
+    }
   }
 }
 
@@ -377,16 +437,10 @@ export async function runProjectConfiguration(options) {
     return;
   }
 
-  // Set UI language based on commit_language setting
+  // Set UI language based on display_language setting
   // Only override if user didn't explicitly set --ui-lang flag
   if (!isLanguageExplicitlySet()) {
-    const langMap = {
-      'traditional-chinese': 'zh-tw',
-      'simplified-chinese': 'zh-cn',
-      english: 'en',
-      bilingual: 'en'
-    };
-    const uiLang = langMap[manifest.options?.commit_language] || 'en';
+    const uiLang = manifest.options?.display_language || 'en';
     setLanguage(uiLang);
   }
 

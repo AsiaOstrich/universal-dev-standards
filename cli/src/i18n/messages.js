@@ -653,7 +653,13 @@ export const messages = {
       nextSteps: 'Next steps:',
       useSpec: 'Generate specs:',
       useSweep: 'Clean up code:',
-      useStart: 'Start a mission:'
+      useStart: 'Start a mission:',
+      // Display Language
+      displayLanguageOption: 'Display Language - Change UI language',
+      currentLanguage: 'Current language',
+      noLanguageChange: 'Language unchanged.',
+      languageUpdated: 'Display language updated!',
+      regenerateForLanguage: 'Regenerate AI tool integrations with new language?'
     },
 
     // Command output messages
@@ -1787,7 +1793,13 @@ export const messages = {
       nextSteps: '後續步驟：',
       useSpec: '產生規格：',
       useSweep: '清理程式碼：',
-      useStart: '開始任務：'
+      useStart: '開始任務：',
+      // Display Language
+      displayLanguageOption: '顯示語言 - 變更 UI 語言',
+      currentLanguage: '目前語言',
+      noLanguageChange: '語言未變更。',
+      languageUpdated: '顯示語言已更新！',
+      regenerateForLanguage: '是否重新產生 AI 工具整合檔案以使用新語言？'
     },
 
     // Command output messages
@@ -2850,7 +2862,13 @@ export const messages = {
       nextSteps: '后续步骤：',
       useSpec: '生成规格：',
       useSweep: '清理代码：',
-      useStart: '开始任务：'
+      useStart: '开始任务：',
+      // Display Language
+      displayLanguageOption: '显示语言 - 更改 UI 语言',
+      currentLanguage: '当前语言',
+      noLanguageChange: '语言未更改。',
+      languageUpdated: '显示语言已更新！',
+      regenerateForLanguage: '是否重新生成 AI 工具集成文件以使用新语言？'
     },
 
     // Command output messages

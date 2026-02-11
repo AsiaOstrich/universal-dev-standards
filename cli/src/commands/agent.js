@@ -33,17 +33,11 @@ import { readManifest, isInitialized } from '../utils/copier.js';
 export async function agentListCommand(options) {
   const projectPath = process.cwd();
 
-  // Set UI language based on project's commit_language if initialized
+  // Set UI language based on project's display_language if initialized
   if (!isLanguageExplicitlySet() && isInitialized(projectPath)) {
     const manifest = readManifest(projectPath);
-    if (manifest?.options?.commit_language) {
-      const langMap = {
-        'traditional-chinese': 'zh-tw',
-        'simplified-chinese': 'zh-cn',
-        english: 'en',
-        bilingual: 'en'
-      };
-      const uiLang = langMap[manifest.options.commit_language] || 'en';
+    if (manifest?.options?.display_language) {
+      const uiLang = manifest.options.display_language;
       setLanguage(uiLang);
     }
   }
