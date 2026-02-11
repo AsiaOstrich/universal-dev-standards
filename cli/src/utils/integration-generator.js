@@ -2390,6 +2390,60 @@ export function generateMinimalStandardsReference(installedStandards, format, la
 }
 
 /**
+ * Generate commit message language directive for integration files
+ * Ensures AI tools always know the expected commit language, even when
+ * commit-message.ai.yaml is not installed as a standard.
+ * @param {string} commitLanguage - 'english', 'traditional-chinese', 'simplified-chinese', 'bilingual', or 'bilingual-zhcn'
+ * @param {string} language - Display language: 'en', 'zh-tw', 'zh-cn', or 'bilingual'
+ * @returns {string|null} The directive section, or null if not needed
+ */
+function generateCommitLanguageDirective(commitLanguage, language) {
+  if (!commitLanguage || commitLanguage === 'english') {
+    // For zh-tw/zh-cn display language with english commits, still add a note
+    if (language === 'zh-tw') {
+      return '## 提交訊息語言\n所有提交訊息使用**英文**撰寫。';
+    }
+    if (language === 'zh-cn') {
+      return '## 提交消息语言\n所有提交消息使用**英文**撰写。';
+    }
+    return null; // English display + English commits = no directive needed
+  }
+
+  if (commitLanguage === 'traditional-chinese') {
+    if (language === 'zh-tw') {
+      return '## 提交訊息語言\n所有提交訊息必須使用**繁體中文**撰寫。\n格式：`<類型>(<範圍>): <主旨>`';
+    }
+    if (language === 'zh-cn') {
+      return '## 提交消息语言\n所有提交消息必须使用**繁体中文**撰写。\n格式：`<类型>(<范围>): <主旨>`';
+    }
+    return '## Commit Message Language\nWrite all commit messages in **Traditional Chinese (繁體中文)**.\nFormat: `<類型>(<範圍>): <主旨>`';
+  }
+
+  if (commitLanguage === 'simplified-chinese') {
+    if (language === 'zh-tw') {
+      return '## 提交訊息語言\n所有提交訊息必須使用**簡體中文**撰寫。\n格式：`<类型>(<范围>): <主旨>`';
+    }
+    if (language === 'zh-cn') {
+      return '## 提交消息语言\n所有提交消息必须使用**简体中文**撰写。\n格式：`<类型>(<范围>): <主旨>`';
+    }
+    return '## Commit Message Language\nWrite all commit messages in **Simplified Chinese (简体中文)**.\nFormat: `<类型>(<范围>): <主旨>`';
+  }
+
+  if (commitLanguage === 'bilingual' || commitLanguage === 'bilingual-zhcn') {
+    const secondary = commitLanguage === 'bilingual-zhcn' ? '简体中文' : '繁體中文';
+    if (language === 'zh-tw') {
+      return `## 提交訊息語言\n使用**雙語**格式撰寫提交訊息（英文 + ${secondary}）。\n格式：\`<type>(<scope>): <English>. <中文>.\``;
+    }
+    if (language === 'zh-cn') {
+      return `## 提交消息语言\n使用**双语**格式撰写提交消息（英文 + ${secondary}）。\n格式：\`<type>(<scope>): <English>. <中文>.\``;
+    }
+    return `## Commit Message Language\nWrite commit messages in **bilingual** format (English + ${secondary}).\nFormat: \`<type>(<scope>): <English>. <中文>.\``;
+  }
+
+  return null;
+}
+
+/**
  * Generate integration file content
  * @param {Object} config - Integration configuration
  * @returns {string} Generated content
@@ -2450,33 +2504,43 @@ export function generateIntegrationContent(config) {
 
   // Add standards reference/compliance instructions (based on contentMode)
   // ALL modes should reference installed standards, just with different detail levels
-  if (installedStandards.length > 0) {
+  if (installedStandards.length > 0 || commitLanguage) {
     let standardsContent = '';
 
-    if (contentMode === 'minimal') {
-      // Minimal mode: simple reference list
-      standardsContent = generateMinimalStandardsReference(
-        installedStandards,
-        format,
-        language
-      );
-    } else {
-      // Index/Full mode: detailed compliance instructions + index
-      const complianceInstructions = generateComplianceInstructions(
-        installedStandards,
-        contentMode,
-        format,
-        language
-      );
+    // Include commit message language directive inside markers so it updates with marker-based updates
+    if (commitLanguage) {
+      const commitLangSection = generateCommitLanguageDirective(commitLanguage, language);
+      if (commitLangSection) {
+        standardsContent += commitLangSection + '\n\n';
+      }
+    }
 
-      const standardsIndex = generateStandardsIndex(
-        installedStandards,
-        format,
-        language,
-        level
-      );
+    if (installedStandards.length > 0) {
+      if (contentMode === 'minimal') {
+        // Minimal mode: simple reference list
+        standardsContent += generateMinimalStandardsReference(
+          installedStandards,
+          format,
+          language
+        );
+      } else {
+        // Index/Full mode: detailed compliance instructions + index
+        const complianceInstructions = generateComplianceInstructions(
+          installedStandards,
+          contentMode,
+          format,
+          language
+        );
 
-      standardsContent = complianceInstructions + '\n\n' + standardsIndex;
+        const standardsIndex = generateStandardsIndex(
+          installedStandards,
+          format,
+          language,
+          level
+        );
+
+        standardsContent += complianceInstructions + '\n\n' + standardsIndex;
+      }
     }
 
     // Wrap with markers for future updates

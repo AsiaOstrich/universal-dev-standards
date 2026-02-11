@@ -172,6 +172,21 @@ export async function configCommand(action, key, value, options) {
     const projectPath = process.cwd();
     const initialized = isInitialized(projectPath);
 
+    // Set language from manifest (same pattern as runProjectConfiguration)
+    if (initialized && !isLanguageExplicitlySet()) {
+      const manifest = readManifest(projectPath);
+      if (manifest) {
+        const langMap = {
+          'traditional-chinese': 'zh-tw',
+          'simplified-chinese': 'zh-cn',
+          english: 'en',
+          bilingual: 'en'
+        };
+        const uiLang = langMap[manifest.options?.commit_language] || 'en';
+        setLanguage(uiLang);
+      }
+    }
+
     const menuChoices = [];
 
     if (initialized) {
@@ -285,9 +300,9 @@ async function initVibeMode(options) {
         name: 'selectedPreset',
         message: t('config.selectPreset', 'Select a preset:'),
         choices: Object.entries(VIBE_PRESETS).map(([key, value]) => ({
-          name: `${value.name}\n     ${chalk.gray(value.description)}`,
+          name: `${t(`config.presets.${key}.name`, value.name)}\n     ${chalk.gray(t(`config.presets.${key}.description`, value.description))}`,
           value: key,
-          short: value.name
+          short: t(`config.presets.${key}.name`, value.name)
         }))
       }
     ]);
@@ -299,7 +314,8 @@ async function initVibeMode(options) {
 
   // Show what will be set
   console.log('');
-  console.log(chalk.cyan(t('config.applyingPreset', `Applying preset: ${presetConfig.name}`)));
+  const presetName = t(`config.presets.${preset}.name`, presetConfig.name);
+  console.log(chalk.cyan(`${t('config.applyingPreset', 'Applying preset:')} ${presetName}`));
   console.log(chalk.gray('─'.repeat(50)));
 
   for (const [key, value] of Object.entries(presetConfig.settings)) {

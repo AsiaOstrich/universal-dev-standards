@@ -619,7 +619,41 @@ export const messages = {
       menuQuestion: 'What would you like to configure?',
       menuProjectSettings: 'Project settings (level, AI tools, Skills, format, workflow...)',
       menuPreferences: 'Preferences (UI language, HITL threshold, Vibe Coding)',
-      menuShowConfig: 'Show current configuration (JSON)'
+      menuShowConfig: 'Show current configuration (JSON)',
+      // Preferences / Vibe Coding init
+      initTitle: 'UDS Configuration Setup',
+      initQuestion: 'What would you like to configure?',
+      vibeMode: 'Vibe Coding Mode - For AI-assisted development',
+      missionMode: 'Mission Mode - For goal-oriented development',
+      customMode: 'Custom - Set individual options',
+      missionComingSoon: 'Mission mode setup coming soon!',
+      useStartCommand: 'For now, use: uds start <mission-type> <intent>',
+      customHint: 'Use: uds config set <key> <value>',
+      vibeModeTitle: 'Vibe Coding Configuration',
+      vibeModeDesc: 'Configure UDS for natural language-driven development',
+      selectPreset: 'Select a preset:',
+      presets: {
+        relaxed: {
+          name: 'Relaxed (Prototype/Hackathon)',
+          description: 'Maximum speed, minimal interrupts. Good for rapid prototyping.'
+        },
+        balanced: {
+          name: 'Balanced (Recommended)',
+          description: 'Good balance between speed and safety. Confirms critical actions.'
+        },
+        strict: {
+          name: 'Strict (Production)',
+          description: 'Maximum safety. Confirms most actions. Good for production code.'
+        }
+      },
+      applyingPreset: 'Applying preset:',
+      confirmApply: 'Apply these settings?',
+      cancelled: 'Configuration cancelled.',
+      vibeEnabled: 'Vibe Coding mode enabled!',
+      nextSteps: 'Next steps:',
+      useSpec: 'Generate specs:',
+      useSweep: 'Clean up code:',
+      useStart: 'Start a mission:'
     },
 
     // Command output messages
@@ -1719,7 +1753,41 @@ export const messages = {
       menuQuestion: '你要設定什麼？',
       menuProjectSettings: '專案設定（等級、AI 工具、Skills、格式、工作流程...）',
       menuPreferences: '偏好設定（UI 語言、HITL 閾值、Vibe Coding）',
-      menuShowConfig: '顯示目前設定（JSON）'
+      menuShowConfig: '顯示目前設定（JSON）',
+      // Preferences / Vibe Coding init
+      initTitle: 'UDS 設定精靈',
+      initQuestion: '你要設定什麼？',
+      vibeMode: 'Vibe Coding 模式 - AI 輔助開發',
+      missionMode: 'Mission 模式 - 目標導向開發',
+      customMode: '自訂 - 個別設定選項',
+      missionComingSoon: 'Mission 模式設定即將推出！',
+      useStartCommand: '目前請使用：uds start <mission-type> <intent>',
+      customHint: '使用：uds config set <key> <value>',
+      vibeModeTitle: 'Vibe Coding 設定',
+      vibeModeDesc: '設定 UDS 以進行自然語言驅動開發',
+      selectPreset: '選擇預設方案：',
+      presets: {
+        relaxed: {
+          name: '寬鬆（原型/黑客松）',
+          description: '最大速度、最少中斷。適合快速原型開發。'
+        },
+        balanced: {
+          name: '平衡（推薦）',
+          description: '速度與安全的良好平衡。確認關鍵操作。'
+        },
+        strict: {
+          name: '嚴格（正式環境）',
+          description: '最大安全性。確認大多數操作。適合正式程式碼。'
+        }
+      },
+      applyingPreset: '套用預設方案：',
+      confirmApply: '套用這些設定？',
+      cancelled: '設定已取消。',
+      vibeEnabled: 'Vibe Coding 模式已啟用！',
+      nextSteps: '後續步驟：',
+      useSpec: '產生規格：',
+      useSweep: '清理程式碼：',
+      useStart: '開始任務：'
     },
 
     // Command output messages
@@ -2748,7 +2816,41 @@ export const messages = {
       menuQuestion: '您想要配置什么？',
       menuProjectSettings: '项目设置（级别、AI 工具、Skills、格式、工作流...）',
       menuPreferences: '偏好设置（UI 语言、HITL 阈值、Vibe Coding）',
-      menuShowConfig: '显示当前配置（JSON）'
+      menuShowConfig: '显示当前配置（JSON）',
+      // Preferences / Vibe Coding init
+      initTitle: 'UDS 配置向导',
+      initQuestion: '您想要配置什么？',
+      vibeMode: 'Vibe Coding 模式 - AI 辅助开发',
+      missionMode: 'Mission 模式 - 目标导向开发',
+      customMode: '自定义 - 单独设置选项',
+      missionComingSoon: 'Mission 模式设置即将推出！',
+      useStartCommand: '目前请使用：uds start <mission-type> <intent>',
+      customHint: '使用：uds config set <key> <value>',
+      vibeModeTitle: 'Vibe Coding 配置',
+      vibeModeDesc: '配置 UDS 以进行自然语言驱动开发',
+      selectPreset: '选择预设方案：',
+      presets: {
+        relaxed: {
+          name: '宽松（原型/黑客松）',
+          description: '最大速度、最少中断。适合快速原型开发。'
+        },
+        balanced: {
+          name: '平衡（推荐）',
+          description: '速度与安全的良好平衡。确认关键操作。'
+        },
+        strict: {
+          name: '严格（生产环境）',
+          description: '最大安全性。确认大多数操作。适合生产代码。'
+        }
+      },
+      applyingPreset: '应用预设方案：',
+      confirmApply: '应用这些设置？',
+      cancelled: '配置已取消。',
+      vibeEnabled: 'Vibe Coding 模式已启用！',
+      nextSteps: '后续步骤：',
+      useSpec: '生成规格：',
+      useSweep: '清理代码：',
+      useStart: '开始任务：'
     },
 
     // Command output messages
