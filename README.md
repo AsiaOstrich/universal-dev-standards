@@ -6,7 +6,7 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 5.0.0-alpha.1 (Pre-release) | **Released**: 2026-01-29 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
+**Version**: 5.0.0-beta.10 (Pre-release) | **Released**: 2026-02-11 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 Language-agnostic, framework-agnostic documentation standards for software projects. Ensure consistency, quality, and maintainability across diverse technology stacks.
 
@@ -24,13 +24,53 @@ Language-agnostic, framework-agnostic documentation standards for software proje
 
 ---
 
+## Beta Installation Guide
+
+> **This is a pre-release version.** Features may change before the stable release. Please [report issues](https://github.com/AsiaOstrich/universal-dev-standards/issues) if you encounter any problems.
+
+### Install Beta
+
+```bash
+# Install the latest beta globally
+npm install -g universal-dev-standards@beta
+
+# Or install a specific beta version
+npm install -g universal-dev-standards@5.0.0-beta.10
+
+# Use without installing
+npx universal-dev-standards@beta init
+```
+
+### Downgrade to Stable
+
+```bash
+npm install -g universal-dev-standards@latest
+```
+
+### What's New in 5.0 Beta
+
+| Feature | Description |
+|---------|-------------|
+| **32 Core Standards** | 10 new standards including Security, Performance, Accessibility, Requirement Engineering |
+| **26 Skills / 30 Commands** | New `/requirement`, `/security`, `/perf` commands |
+| **Developer Memory** | Persistent memory across sessions (`.standards/developer-memory.ai.yaml`) |
+| **Enhanced i18n** | Commit language preferences, improved zh-CN support |
+| **Config Unification** | `uds config` merges preferences + project settings |
+
+See [CHANGELOG.md](CHANGELOG.md) for complete beta release notes.
+
+---
+
 ## Quick Start
 
 ### Install via npm (Recommended)
 
 ```bash
-# Install globally
+# Install globally (stable)
 npm install -g universal-dev-standards
+
+# Or install beta for latest features
+npm install -g universal-dev-standards@beta
 
 # Initialize your project
 uds init
@@ -70,8 +110,9 @@ npx universal-dev-standards init
 
 **Specific Version**
 ```bash
-npm install -g universal-dev-standards@4.1.0
-npm install -g universal-dev-standards@beta  # Preview features
+npm install -g universal-dev-standards@5.0.0-beta.10  # Latest beta
+npm install -g universal-dev-standards@beta            # Always latest beta
+npm install -g universal-dev-standards@latest           # Stable release
 ```
 
 **Clone and Link (Development)**

@@ -6,7 +6,7 @@
 
 > **語言**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
 
-**版本**: 5.0.0-alpha.1 (Pre-release) | **發布日期**: 2026-01-29 | **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
+**版本**: 5.0.0-beta.10 (Pre-release) | **發布日期**: 2026-02-11 | **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 
 語言無關、框架無關的軟體專案文件標準。確保不同技術堆疊之間的一致性、品質和可維護性。
 
@@ -24,13 +24,53 @@
 
 ---
 
+## Beta 安裝指南
+
+> **這是預發布版本。** 功能可能在正式發布前有所變更。如遇到任何問題，請[回報 issue](https://github.com/AsiaOstrich/universal-dev-standards/issues)。
+
+### 安裝 Beta
+
+```bash
+# 全域安裝最新 beta
+npm install -g universal-dev-standards@beta
+
+# 或安裝特定 beta 版本
+npm install -g universal-dev-standards@5.0.0-beta.10
+
+# 無需安裝直接使用
+npx universal-dev-standards@beta init
+```
+
+### 降級回穩定版
+
+```bash
+npm install -g universal-dev-standards@latest
+```
+
+### 5.0 Beta 新功能
+
+| 功能 | 說明 |
+|------|------|
+| **32 個核心標準** | 新增 10 個標準，包含安全性、效能、無障礙、需求工程 |
+| **26 Skills / 30 Commands** | 新增 `/requirement`、`/security`、`/perf` 指令 |
+| **開發者記憶** | 跨工作階段的持久記憶（`.standards/developer-memory.ai.yaml`） |
+| **增強 i18n** | 提交語言偏好設定、改進簡體中文支援 |
+| **設定統一** | `uds config` 合併偏好設定 + 專案設定 |
+
+完整 beta 版本紀錄請參閱 [CHANGELOG.md](../../CHANGELOG.md)。
+
+---
+
 ## 快速開始
 
 ### 透過 npm 安裝（推薦）
 
 ```bash
-# 全域安裝
+# 全域安裝（穩定版）
 npm install -g universal-dev-standards
+
+# 或安裝 beta 取得最新功能
+npm install -g universal-dev-standards@beta
 
 # 初始化專案
 uds init
@@ -70,8 +110,9 @@ npx universal-dev-standards init
 
 **指定版本**
 ```bash
-npm install -g universal-dev-standards@4.1.0
-npm install -g universal-dev-standards@beta  # 預覽功能
+npm install -g universal-dev-standards@5.0.0-beta.10  # 最新 beta
+npm install -g universal-dev-standards@beta            # 始終取得最新 beta
+npm install -g universal-dev-standards@latest           # 穩定版
 ```
 
 **Clone 並連結（開發用）**
