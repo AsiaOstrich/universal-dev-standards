@@ -25,11 +25,25 @@ Language-agnostic, framework-agnostic documentation standards for software proje
 
 ---
 
-## Beta Installation Guide
+## Pre-release Installation Guide
 
 > **This is a pre-release version.** Features may change before the stable release. Please [report issues](https://github.com/AsiaOstrich/universal-dev-standards/issues) if you encounter any problems.
 
+### Install RC (Release Candidate)
+
+Recommended for testing final features before the stable release.
+
+```bash
+# Install the latest RC globally
+npm install -g universal-dev-standards@rc
+
+# Use without installing
+npx universal-dev-standards@rc init
+```
+
 ### Install Beta
+
+Recommended for early access to the latest development features.
 
 ```bash
 # Install the latest beta globally

@@ -25,11 +25,25 @@
 
 ---
 
-## Beta 安装指南
+## 预发布 (Pre-release) 安装指南
 
-> **这是预发布版本。** 功能可能在正式发布前有所变更。如遇到任何问题，请[报告 issue](https://github.com/AsiaOstrich/universal-dev-standards/issues)。
+> **这是预发布版本。** 功能可能在正式发布前有所变更。如遇到任何问题，請[报告 issue](https://github.com/AsiaOstrich/universal-dev-standards/issues)。
+
+### 安装 RC (Release Candidate)
+
+建议用于在稳定版发布前测试最终功能。
+
+```bash
+# 全局安装最新 RC
+npm install -g universal-dev-standards@rc
+
+# 无需安装直接使用
+npx universal-dev-standards@rc init
+```
 
 ### 安装 Beta
+
+建议用于提前体验最新的开发中功能。
 
 ```bash
 # 全局安装最新 beta
