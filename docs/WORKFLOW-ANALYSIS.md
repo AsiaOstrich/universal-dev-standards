@@ -133,8 +133,16 @@ graph TD
         COV["/coverage"]
     end
 
-    subgraph "Reverse Engineering"
-        REV["/reverse"]
+    subgraph "Reverse Engineering (3-Dimension)"
+        REV["/reverse (all)"]
+        REV_DATA["/reverse data"]
+        REV_RUNTIME["/reverse runtime"]
+        REV_SPEC["/reverse spec"]
+        REV --> REV_DATA
+        REV --> REV_RUNTIME
+        REV --> REV_SPEC
+        REV_DATA --> REV_SPEC
+        REV_RUNTIME --> REV_SPEC
     end
 
     BRAIN --> REQ
@@ -153,7 +161,7 @@ graph TD
 
     BDD --> TDD
 
-    REV --> SDD
+    REV_SPEC --> SDD
 
     TDD --> CHECKIN
     REFACTOR --> CHECKIN
@@ -263,5 +271,6 @@ These are the key transition points where one command's output feeds into anothe
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-02-12 | Expand Mermaid diagram with 3-dimension reverse engineering sub-nodes |
 | 1.1.0 | 2026-02-12 | Add 3-dimension reverse engineering (Data + Runtime + Logic) |
 | 1.0.0 | 2026-02-12 | Initial comprehensive workflow analysis |
