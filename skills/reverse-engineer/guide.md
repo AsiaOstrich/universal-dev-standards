@@ -1,17 +1,17 @@
 ---
 scope: partial
 description: |
-  Reverse engineer existing code into SDD specification documents.
-  Use when: analyzing legacy code, documenting undocumented systems, creating specs from existing implementations.
-  Keywords: reverse engineering, legacy code, documentation, spec extraction, code archaeology, 反向工程, 舊有程式碼, 規格提取.
+  System archeology — reverse engineer existing systems across Logic, Data, and Runtime dimensions.
+  Use when: analyzing legacy code, documenting undocumented systems, creating specs from existing implementations, understanding data models, baselining runtime environments.
+  Keywords: reverse engineering, legacy code, documentation, spec extraction, code archaeology, system archeology, data model, runtime baseline, 反向工程, 舊有程式碼, 規格提取, 系統考古.
 ---
 
-# Reverse Engineering to SDD Specification Guide
+# System Archeology Guide — Reverse Engineering across 3 Dimensions
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/skills/reverse-engineer/SKILL.md)
 
-**Version**: 1.2.0
-**Last Updated**: 2026-01-25
+**Version**: 2.0.0
+**Last Updated**: 2026-02-12
 **Applicability**: Claude Code Skills
 
 > **Core Standard**: This skill implements [Reverse Engineering Standards](../../core/reverse-engineering-standards.md). For comprehensive methodology documentation accessible by any AI tool, refer to the core standard.
@@ -20,32 +20,40 @@ description: |
 
 ## Purpose
 
-This skill guides you through reverse engineering existing code into SDD (Spec-Driven Development) specification documents, with strict adherence to Anti-Hallucination standards.
+This skill provides a **system archeology framework** for reverse engineering existing systems across three dimensions — **Logic**, **Data**, and **Runtime** — producing comprehensive SDD specification documents with strict Anti-Hallucination compliance.
 
 ## Quick Reference
 
-### Reverse Engineering Workflow
+### System Archeology Framework
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│              Reverse Engineering Workflow                        │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  1️⃣  Code Analysis (AI Automated)                              │
-│      ├─ Scan code structure, APIs, data models                 │
-│      ├─ Parse existing tests for acceptance criteria           │
-│      └─ Generate draft spec (with uncertainty labels)          │
-│                                                                 │
-│  2️⃣  Human Input (Required)                                    │
-│      ├─ Write Motivation (why this feature exists)             │
-│      ├─ Add Risk Assessment                                    │
-│      └─ Verify dependencies and business context               │
-│                                                                 │
-│  3️⃣  Review & Confirm                                          │
-│      ├─ Discuss with stakeholders                              │
-│      └─ Confirm [Confirmed] / [Inferred] / [Unknown] labels    │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                   System Archeology Framework                      │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  Dimension 1: DATA (/reverse data)                                │
+│      ├─ DB schemas, ORM models, migrations                       │
+│      ├─ Entity-relationship mapping                               │
+│      └─ Output: Data Model Spec                                   │
+│                                                                    │
+│  Dimension 2: RUNTIME (/reverse runtime)                          │
+│      ├─ Configs, env vars, feature flags                          │
+│      ├─ Docker/K8s topology, CI/CD pipelines                     │
+│      └─ Output: Runtime Baseline                                  │
+│                                                                    │
+│  Dimension 3: LOGIC (/reverse spec)                               │
+│      ├─ APIs, modules, data flows, tests                          │
+│      ├─ Enriched with Data + Runtime context                      │
+│      └─ Output: SPEC-XXX.md                                       │
+│                                                                    │
+│  /reverse (no subcommand) = All 3 dimensions → Full Report       │
+│                                                                    │
+│  Human Review:                                                     │
+│      ├─ Verify [Confirmed] / [Inferred] / [Unknown] labels       │
+│      ├─ Add Motivation, Risk Assessment, Business Context         │
+│      └─ Approve spec via /sdd                                     │
+│                                                                    │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ### What Can vs Cannot Be Extracted
@@ -267,6 +275,116 @@ describe('Shopping Cart', () => {
 2. Use `/bdd` to formalize scenarios
 3. Validate scenarios with stakeholders
 
+## Data Dimension Guide (`/reverse data`)
+
+### What to Scan
+
+| Source | What to Look For | Certainty |
+|--------|-----------------|-----------|
+| `schema.prisma` / `*.schema.*` | Models, fields, relations, enums | [Confirmed] |
+| `migrations/` / `*.migration.*` | Schema evolution history | [Confirmed] |
+| `models/` / `entities/` | ORM model definitions | [Confirmed] |
+| `knexfile.*` / `sequelize` config | DB connection, dialect | [Confirmed] |
+| `seeds/` / `fixtures/` | Test data, default values | [Confirmed] |
+| `docker-compose.yml` (db services) | DB engine, ports, volumes | [Confirmed] |
+| Code patterns (`.findBy`, `.save`) | Implicit relationships | [Inferred] |
+| No schema files found | Possible schemaless/NoSQL | [Unknown] |
+
+### Output Template: Data Model Spec
+
+```markdown
+# Data Model Spec — [Project Name]
+
+## Entities
+
+### User
+[Confirmed] Source: schema.prisma:5-15
+| Field | Type | Constraints | Notes |
+|-------|------|-------------|-------|
+| id | UUID | PK, auto | — |
+| email | String | Unique, Not Null | — |
+| role | Enum(admin,user) | Default: user | — |
+
+### Order
+[Confirmed] Source: models/Order.ts:3-20
+...
+
+## Relationships
+[Confirmed] User 1:N Order (FK: order.userId → user.id)
+[Inferred] Order M:N Product (join table: order_items — from code pattern)
+
+## Migration History
+| Version | Date | Description | Source |
+|---------|------|-------------|--------|
+| 001 | 2024-03-01 | Initial schema | migrations/001_init.ts |
+| 002 | 2024-06-15 | Add role to user | migrations/002_add_role.ts |
+
+## Data Flow Paths
+- Write: API → Service → Repository → DB
+- Read: DB → Repository → Service → Serializer → API
+```
+
+---
+
+## Runtime Dimension Guide (`/reverse runtime`)
+
+### What to Scan
+
+| Source | What to Look For | Certainty |
+|--------|-----------------|-----------|
+| `.env.example` / `.env.template` | Environment variable names | [Confirmed] |
+| `docker-compose.yml` | Services, ports, dependencies | [Confirmed] |
+| `Dockerfile` | Base image, build steps, exposed ports | [Confirmed] |
+| `k8s/` / Helm charts | Deployment topology | [Confirmed] |
+| CI/CD files (`.github/`, `.gitlab-ci.yml`) | Build/deploy pipeline | [Confirmed] |
+| Config files (`*.config.*`) | Feature flags, settings hierarchy | [Confirmed] |
+| Log files (patterns only) | Error patterns, log levels | [Inferred] |
+| Monitoring endpoints (`/health`, `/metrics`) | Observability surface | [Confirmed] |
+
+### Security Rules
+
+- **NEVER** output actual values from `.env`, secrets, API keys, or passwords
+- Only list variable **names** and infer their **purpose**
+- Mark any sensitive config as `[REDACTED]`
+
+### Output Template: Runtime Baseline
+
+```markdown
+# Runtime Baseline — [Project Name]
+
+## Environment Variables
+| Variable | Purpose | Required | Source |
+|----------|---------|----------|--------|
+| DATABASE_URL | DB connection string | Yes | .env.example:1 |
+| JWT_SECRET | Token signing key | Yes | .env.example:3 |
+| REDIS_URL | Cache connection | No | .env.example:5 |
+| FEATURE_NEW_UI | Feature flag | No | config/features.ts:12 |
+
+## External Dependencies
+| Service | Protocol | Purpose | Source |
+|---------|----------|---------|--------|
+| PostgreSQL 15 | TCP:5432 | Primary database | docker-compose.yml:8 |
+| Redis 7 | TCP:6379 | Session cache | docker-compose.yml:15 |
+| Stripe API | HTTPS | Payment processing | [Inferred] src/services/payment.ts:3 |
+
+## Deployment Topology
+[Confirmed] Source: docker-compose.yml
+- app (Node.js 20) → port 3000
+- db (PostgreSQL 15) → port 5432
+- redis (Redis 7) → port 6379
+
+## Health & Monitoring
+[Confirmed] GET /health → src/routes/health.ts:5
+[Inferred] No metrics endpoint found — consider adding /metrics
+
+## CI/CD Pipeline
+[Confirmed] Source: .github/workflows/ci.yml
+- Trigger: push to main, PR
+- Steps: lint → test → build → deploy
+```
+
+---
+
 ## Complete Reverse Engineering Pipeline
 
 The reverse engineering skill supports a complete SDD → BDD → TDD pipeline:
@@ -389,6 +507,7 @@ This skill auto-detects project configuration:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0.0 | 2026-02-12 | Major: 3-dimension system archeology (Logic + Data + Runtime) |
 | 1.2.0 | 2026-01-25 | Added: Reference to Unified Tag System |
 | 1.1.0 | 2026-01-19 | Add BDD/TDD pipeline integration; Add core standard reference |
 | 1.0.0 | 2026-01-19 | Initial release |

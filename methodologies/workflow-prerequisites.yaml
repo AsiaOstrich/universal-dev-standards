@@ -1,10 +1,10 @@
 # Workflow Prerequisite Registry
 # Defines slash command prerequisites and workflow membership
 #
-# Version: 1.0.0
+# Version: 1.1.0
 # Last Updated: 2026-02-12
 
-version: "1.0.0"
+version: "1.1.0"
 description: "Workflow prerequisite registry for slash commands"
 
 # ─────────────────────────────────────────────────────────────
@@ -30,8 +30,13 @@ workflows:
 
   legacy-modernization:
     name: "Legacy Modernization"
-    description: "Reverse-engineer existing code, create specs, then modernize"
-    steps: [discover, reverse, sdd, refactor, tdd, checkin, commit]
+    description: "System archeology with 3-dimension reverse engineering, then modernize"
+    steps: [discover, reverse-data, reverse-runtime, reverse-spec, sdd, refactor, tdd, checkin, commit]
+
+  system-archeology:
+    name: "System Archeology (Full)"
+    description: "Comprehensive 3-dimension reverse engineering: Data + Runtime + Logic"
+    steps: [discover, reverse, sdd]
 
   release-flow:
     name: "Release Flow"
@@ -108,9 +113,24 @@ commands:
 
   reverse:
     entry_point: true
-    artifact: "reverse-spec"
+    artifact: "reverse-full-report"
     recommended_prior: [discover]
-    description: "Reverse-engineer code to spec; /discover recommended first"
+    description: "Full 3-dimension reverse engineering (Logic + Data + Runtime); /discover recommended first"
+    subcommands:
+      spec:
+        artifact: "reverse-spec"
+        description: "Logic dimension — extract spec from code"
+      data:
+        artifact: "data-model-spec"
+        description: "Data dimension — analyze schemas, ORMs, migrations"
+      runtime:
+        artifact: "runtime-baseline"
+        description: "Runtime dimension — analyze logs, configs, metrics"
+      bdd:
+        requires_artifact: "reverse-spec"
+        description: "Convert reversed spec ACs to Gherkin"
+      tdd:
+        description: "Analyze test coverage against BDD scenarios"
 
   atdd:
     entry_point: true

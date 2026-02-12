@@ -21,7 +21,7 @@ UDS 提供約 27 個獨立流程，涵蓋 4 大方法論（TDD/BDD/ATDD/SDD）�
 |----------|-----------|-------|
 | **Methodology** | `/sdd`, `/tdd`, `/bdd`, `/atdd`, `/methodology` | 5 |
 | **Derivation** | `/derive all`, `/derive bdd`, `/derive tdd`, `/derive atdd` | 4 |
-| **Reverse Engineering** | `/reverse spec`, `/reverse bdd`, `/reverse tdd` | 3 |
+| **Reverse Engineering** | `/reverse` (full), `/reverse spec`, `/reverse data`, `/reverse runtime`, `/reverse bdd`, `/reverse tdd` | 6 |
 | **Quality Gates** | `/checkin`, `/review`, `/coverage` | 3 |
 | **Release Management** | `/release start`, `/release finish`, `/release changelog`, `/release check` | 4 |
 | **Discovery & Planning** | `/discover`, `/brainstorm`, `/requirement` | 3 |
@@ -29,7 +29,7 @@ UDS 提供約 27 個獨立流程，涵蓋 4 大方法論（TDD/BDD/ATDD/SDD）�
 | **Utilities** | `/commit`, `/changelog` | 2 |
 | **Documentation** | `/docs-generator` | 1 |
 
-**Total**: ~27 processes
+**Total**: ~30 processes
 
 ---
 
@@ -64,10 +64,16 @@ Best for: Legacy systems, manual development, established codebases
                 └── /atdd workshop as optional input
 ```
 
-### Legacy Modernization Path
+### Legacy Modernization Path (System Archeology)
 
 ```
-/discover ──► /reverse spec ──► /sdd (review) ──► /refactor ──► /tdd ──► /commit
+/discover ──► /reverse data ──► /reverse runtime ──► /reverse spec ──► /sdd ──► /refactor ──► /tdd ──► /commit
+                  │                    │                    │
+                  │                    │                    └── Logic: APIs, flows, tests
+                  │                    └── Runtime: configs, infra, logs
+                  └── Data: schemas, ORMs, migrations
+
+Or use `/reverse` (no subcommand) for all 3 dimensions at once.
 ```
 
 ### Release Path
@@ -85,7 +91,7 @@ Best for: Legacy systems, manual development, established codebases
 | **New feature (AI-assisted)** | `/sdd` → `/derive` → implement → `/commit` | `/discover` → `/sdd` → `/derive` → `/tdd` → `/checkin` → `/commit` → `/review` |
 | **Bug fix** | `/tdd` → `/commit` | `/tdd` → `/checkin` → `/commit` → `/review` |
 | **Refactoring** | `/refactor decide` → implement → `/commit` | `/discover` → `/refactor decide` → `/tdd` → `/checkin` → `/commit` |
-| **Legacy code update** | `/reverse spec` → implement → `/commit` | `/discover` → `/reverse spec` → `/sdd` → `/derive` → `/tdd` → `/commit` |
+| **Legacy code update** | `/reverse spec` → implement → `/commit` | `/discover` → `/reverse` (3-dim) → `/sdd` → `/derive` → `/tdd` → `/commit` |
 | **Business logic feature** | `/bdd` → `/tdd` → `/commit` | `/atdd` → `/bdd` → `/tdd` → `/checkin` → `/commit` → `/review` |
 | **Release preparation** | `/release check` → `/release changelog` → `/release start` | `/release check` → `/release changelog` → `/release start` → `/release finish` |
 | **Ideation / exploration** | `/brainstorm` | `/brainstorm` → `/requirement` → `/sdd` |
@@ -228,6 +234,8 @@ These are the key transition points where one command's output feeds into anothe
 |------|-----|-----------------|----------|
 | `/discover` | `/sdd` | Discovery report with recommendations | 專案評估報告 |
 | `/discover` | `/reverse` | Architecture understanding | 架構理解 |
+| `/reverse data` | `/reverse spec` | Data model context enriches logic spec | 資料模型充實邏輯規格 |
+| `/reverse runtime` | `/reverse spec` | Runtime context enriches logic spec | 執行環境充實邏輯規格 |
 | `/discover` | `/refactor` | Complexity hotspots identified | 複雜度熱點 |
 | `/sdd` | `/derive` | Approved SPEC-XXX.md | 已核准規格文件 |
 | `/derive` | `/bdd-review` | Generated .feature files | 產生的 .feature 檔案 |
@@ -255,4 +263,5 @@ These are the key transition points where one command's output feeds into anothe
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-02-12 | Add 3-dimension reverse engineering (Data + Runtime + Logic) |
 | 1.0.0 | 2026-02-12 | Initial comprehensive workflow analysis |
