@@ -434,6 +434,21 @@ Standards with these characteristics should be added to CLAUDE.md instead of bec
 
 ## Update Workflows
 
+### Workflow 0: Documentation & Manifest Sync (New)
+
+Use this workflow whenever core standards, skills, or commands are added, modified, or deleted to keep all multi-language READMEs in sync.
+
+```bash
+# 1. Sync metadata from file system to JSON registry
+npm run docs:manifest
+
+# 2. Inject latest stats into all README files (EN, zh-TW, zh-CN)
+npm run docs:generate
+
+# OR: Run both in one command
+npm run docs:sync
+```
+
 ### Workflow 1: Update a Core Standard
 
 ```

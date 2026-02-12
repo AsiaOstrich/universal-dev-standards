@@ -321,11 +321,13 @@ This matrix shows the support level for UDS features across different AI agents.
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
+| `generate-docs.mjs` | Multi-language documentation content injector |
 | `pre-release-check.ps1` | Pre Release Check |
 | `pre-release-check.sh` | Pre-release Check Script |
 | `pre-release.ps1` | Pre-Release Preparation Script for Universal Development Standards |
 | `pre-release.sh` | Pre-Release Preparation Script |
 | `setup-husky.mjs` | Cross-platform Husky Setup Script |
+| `sync-manifest.mjs` | Automatically sync metadata from file system to uds-manifest.json |
 
 ---
 
