@@ -156,6 +156,16 @@ else
     PASSED=$((PASSED + 1))
 fi
 
+# Step 1.5: Sync Documentation (Auto-fix)
+echo -e "${CYAN}[1.5/$TOTAL]${NC} Syncing Documentation & Manifest..."
+npm run docs:sync > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+    echo -e "      ${GREEN}✓ Documentation synchronized${NC}"
+else
+    echo -e "      ${RED}✗ Documentation sync failed${NC}"
+    FAILED=$((FAILED + 1))
+fi
+
 # Step 2: Version sync
 run_check "2" "Running version sync check" "$SCRIPT_DIR/check-version-sync.sh"
 

@@ -21,6 +21,22 @@
 
 ---
 
+## AI Agent Functionality Matrix
+
+This matrix shows the support level for UDS features across different AI agents.
+
+| AI Agent | Skills Support | Slash Commands | Primary Config |
+| :--- | :--- | :--- | :--- |
+| **Claude Code** | **Full (26)** | **Native (30)**: `/tdd`, `/review`, `/commit`, etc. | `CLAUDE.md` |
+| **OpenCode** | **Full (26)** | **Native (30)**: Same as Claude Code | `AGENTS.md` |
+| **Gemini CLI** | **Complete (18+)** | **Native (20+)**: `/derive-*`, `/reverse-*`, `/config` | `GEMINI.md` |
+| **Cursor** | **Core (v2.4+)** | **Simulated**: `/sdd`, `/review`, `/refactor` | `.cursorrules` |
+| **Cline / Roo Code** | **Core (v3.48+)** | **Workflow-based**: `/checkin`, `/tdd`, `/sdd` | `.clinerules` |
+| **GitHub Copilot** | **Instruction-based** | **Chat-based**: `commit`, `review`, `guide` | `copilot-instructions.md` |
+| **Windsurf** | **Core (Jan 2026)** | **Rulebook-based**: `/refactor`, `/sdd` | `.windsurfrules` |
+
+---
+
 ## CLI Commands
 
 ### `uds list`

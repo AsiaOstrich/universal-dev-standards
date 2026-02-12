@@ -8,7 +8,10 @@
     "commitlint": "commitlint --edit",
     "uds:check": "node cli/bin/uds.js check",
     "uds:update": "node cli/bin/uds.js update",
-    "uds:skills": "node cli/bin/uds.js skills"
+    "uds:skills": "node cli/bin/uds.js skills",
+    "docs:manifest": "node scripts/sync-manifest.mjs",
+    "docs:generate": "node scripts/generate-docs.mjs",
+    "docs:sync": "npm run docs:manifest && npm run docs:generate"
   },
   "type": "module"
 }

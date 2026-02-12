@@ -56,12 +56,12 @@ graph TB
 
 | Category | Core Standards | AI Standards | Claude Code Skills | Other AI Tools |
 |----------|---------------|--------------|-------------------|----------------|
-| Development | 14 | 16 | 10 | 4 |
-| Testing | 2 | 7 | 2 | 4 |
-| Documentation | 2 | 4 | 1 | 4 |
-| Process | 4 | 4 | 4 | 4 |
+| Development | 18 | 18 | 12 | 4 |
+| Testing | 6 | 6 | 4 | 4 |
+| Documentation | 4 | 4 | 2 | 4 |
+| Process & Quality | 4 | 4 | 8 | 4 |
 
-**Total**: 16 core standards → 16 AI standards → 15 Claude Code skills → 4 AI tool integrations
+**Total**: 32 core standards → 32 AI standards → 26 Claude Code skills → 10 AI tool integrations
 
 ## ISO Standards Alignment
 
@@ -114,6 +114,19 @@ This section maps UDS components to international software engineering standards
 | error-code-standards.md | ✅ error-codes.ai.yaml | error-code-guide | ✅ | ✅ | ✅ | ✅ |
 | test-driven-development.md | ✅ | tdd-assistant | ✅ | ✅ | ✅ | ✅ |
 | spec-driven-development.md | ✅ | spec-driven-dev | ✅ | ✅ | ✅ | ✅ |
+| accessibility-standards.md | ✅ | - | ✅ | ✅ | ✅ | ✅ |
+| security-standards.md | ✅ | - | ✅ | ✅ | ✅ | ✅ |
+| performance-standards.md | ✅ | - | ✅ | ✅ | ✅ | ✅ |
+| requirement-engineering.md | ✅ | requirement-assistant | ✅ | ✅ | ✅ | ✅ |
+| reverse-engineering-standards.md | ✅ | reverse-engineer | ✅ | ✅ | ✅ | ✅ |
+| forward-derivation-standards.md | ✅ | forward-derivation | ✅ | ✅ | ✅ | ✅ |
+| acceptance-test-driven-development.md | ✅ | atdd-assistant | ✅ | ✅ | ✅ | ✅ |
+| behavior-driven-development.md | ✅ | bdd-assistant | ✅ | ✅ | ✅ | ✅ |
+| ai-friendly-architecture.md | ✅ | ai-friendly-architecture | ✅ | ✅ | ✅ | ✅ |
+| ai-instruction-standards.md | ✅ | ai-instruction-standards | ✅ | ✅ | ✅ | ✅ |
+| developer-memory.md | ✅ | - | ✅ | ✅ | ✅ | ✅ |
+| project-context-memory.md | ✅ | project-discovery | ✅ | ✅ | ✅ | ✅ |
+| deployment-standards.md | ✅ | - | ✅ | ✅ | ✅ | ✅ |
 
 Legend: ✅ = Implemented | - = Not applicable as standalone skill
 

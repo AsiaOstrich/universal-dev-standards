@@ -25,26 +25,26 @@ status: current
 
 ```
 universal-dev-standards/
-├── core/                    ← 一級來源（16 個標準）
-├── options/                 ← MD 選項（18 個檔案）
-├── ai/                      ← AI 優化版（52 個 YAML 檔案）
-│   ├── standards/           ← 16 個 AI 標準
+├── core/                    ← 一級來源 (32 個標準)
+├── options/                 ← MD 選項 (18 個檔案)
+├── ai/                      ← AI 優化版 (52 個 YAML 檔案)
+│   ├── standards/           ← 32 個 AI 標準
 │   ├── options/             ← 36 個 AI 選項
 │   └── MAINTENANCE.md       ← AI 專用維護指南
-├── extensions/              ← 語言/框架/地區擴充（4 個檔案）
+├── extensions/              ← 語言/框架/地區擴充 (4 個檔案)
 │   ├── languages/           ← 語言特定標準
 │   ├── frameworks/          ← 框架特定模式
 │   └── locales/             ← 地區特定規範
-├── skills/                  ← Claude Code 技能（48 個檔案）
-│   └── claude-code/         ← 15 個技能套件
-├── adoption/                ← 採用指南（5 個檔案）
-├── templates/               ← 文件模板（4 個檔案）
-├── integrations/            ← AI 工具配置（7 個檔案）
+├── skills/                  ← Claude Code 技能 (60 個檔案)
+│   └── claude-code/         ← 26 個技能套件
+├── adoption/                ← 採用指南 (5 個檔案)
+├── templates/               ← 文件模板 (4 個檔案)
+├── integrations/            ← AI 工具配置 (7 個檔案)
 ├── cli/                     ← Node.js CLI 工具
 ├── scripts/                 ← 維護腳本
-├── locales/                 ← 翻譯（129 個檔案）
+├── locales/                 ← 翻譯 (129 個檔案)
 │   ├── zh-TW/               ← 繁體中文
-│   └── zh-CN/               ← 簡體中文（部分）
+│   └── zh-CN/               ← 簡體中文 (⚠️ 需與 EN 同步)
 └── [根目錄檔案]              ← README、CHANGELOG、CLAUDE.md 等
 ```
 
@@ -88,16 +88,40 @@ universal-dev-standards/
 
 | 檔案 | 版本 | 說明 |
 |------|------|------|
-| anti-hallucination.md | 1.3.1 | AI 行為準則 |
-| changelog-standards.md | 1.1.0 | 變更日誌格式 |
-| checkin-standards.md | 1.3.0 | 程式碼簽入檢查表 |
-| code-review-checklist.md | 1.2.0 | 程式碼審查指南 |
-| commit-message-guide.md | 1.2.0 | 提交訊息格式 |
-| documentation-structure.md | 1.0.0 | 文件組織 |
-| documentation-writing-standards.md | 1.0.1 | 撰寫指南 |
-| error-code-standards.md | 1.1.0 | 錯誤碼格式 |
-| git-workflow.md | 1.1.0 | Git 工作流程 |
-| logging-standards.md | 1.1.0 | 日誌指南 |
+| acceptance-test-driven-development.md | 1.1.0 | ATDD 方法論 |
+| accessibility-standards.md | 1.0.0 | 無障礙標準指引 |
+| ai-agreement-standards.md | 1.0.0 | 人機協議標準 |
+| ai-friendly-architecture.md | 1.0.0 | AI 友善架構設計 |
+| ai-instruction-standards.md | 1.0.0 | AI 指令撰寫標準 |
+| anti-hallucination.md | 1.5.0 | AI 防幻覺行為指引 |
+| behavior-driven-development.md | 1.1.0 | BDD 方法論 |
+| changelog-standards.md | 1.0.2 | 變更日誌格式規則 |
+| checkin-standards.md | 1.4.0 | 代碼檢核清單 |
+| code-review-checklist.md | 1.3.0 | 代碼審查指引 |
+| commit-message-guide.md | 1.2.3 | Commit 訊息格式 |
+| deployment-standards.md | 1.0.0 | 部署標準指引 |
+| developer-memory.md | 1.0.0 | 開發者記憶系統 |
+| documentation-structure.md | 1.3.0 | 文件組織結構 |
+| documentation-writing-standards.md | 1.1.0 | 文件撰寫標準 |
+| error-code-standards.md | 1.1.0 | 錯誤碼格式標準 |
+| forward-derivation-standards.md | 1.1.0 | 正向推導標準 |
+| git-workflow.md | 1.4.0 | Git 工作流模式 |
+| logging-standards.md | 1.2.0 | 日誌記錄標準 |
+| performance-standards.md | 1.1.0 | 效能工程標準 |
+| project-context-memory.md | 1.0.0 | 專案上下文記憶 |
+| project-structure.md | 1.1.0 | 專案組織結構 |
+| refactoring-standards.md | 2.1.0 | 安全重構實務 |
+| requirement-engineering.md | 1.0.0 | 需求工程與 INVEST |
+| reverse-engineering-standards.md | 1.0.0 | 反向工程標準 |
+| security-standards.md | 1.1.0 | 安全性標準指引 |
+| spec-driven-development.md | 2.1.0 | SDD 工作流 |
+| test-completeness-dimensions.md | 1.1.0 | 測試完備性維度 |
+| test-driven-development.md | 1.2.0 | TDD 工作流 |
+| testing-standards.md | 3.0.0 | 測試標準指引 |
+| versioning.md | 1.2.0 | 語意化版本控制 |
+| virtual-organization-standards.md | 1.0.0 | 虛擬組織編排框架 |
+
+**總計**: 32 個檔案
 | project-structure.md | 1.1.0 | 專案組織 |
 | spec-driven-development.md | 1.2.0 | SDD 工作流程 |
 | test-completeness-dimensions.md | 1.0.0 | 測試維度 |
@@ -301,28 +325,45 @@ locales/zh-TW/
 
 每個核心標準都有依賴樹。更新核心檔案時，必須更新所有下游檔案。
 
-#### 簡單標準（無選項）
+#### 簡單標準 (無選項)
 
 | 核心標準 | 下游檔案 | 總計 |
 |----------|----------|------|
-| anti-hallucination.md | ai/standards、skill、2x locales | ~6 |
-| checkin-standards.md | ai/standards、skill、2x locales | ~6 |
-| documentation-writing-standards.md | ai/standards、skill、2x locales | ~6 |
-| spec-driven-development.md | ai/standards、2x locales | ~4 |
-| test-completeness-dimensions.md | ai/standards、skill、2x locales | ~6 |
-| error-code-standards.md | ai/standards、2x locales | ~4 |
-| logging-standards.md | ai/standards、2x locales | ~4 |
-| versioning.md | ai/standards、skill、2x locales | ~8 |
+| acceptance-test-driven-development.md | ai/standards, skill, 2x locales | ~6 |
+| accessibility-standards.md | ai/standards, 2x locales | ~4 |
+| ai-agreement-standards.md | ai/standards, 2x locales | ~4 |
+| ai-friendly-architecture.md | ai/standards, skill, 2x locales | ~6 |
+| ai-instruction-standards.md | ai/standards, skill, 2x locales | ~6 |
+| anti-hallucination.md | ai/standards, skill, 2x locales | ~6 |
+| behavior-driven-development.md | ai/standards, skill, 2x locales | ~6 |
+| checkin-standards.md | ai/standards, skill, 2x locales | ~6 |
+| deployment-standards.md | ai/standards, 2x locales | ~4 |
+| developer-memory.md | ai/standards, 2x locales | ~4 |
+| documentation-writing-standards.md | ai/standards, skill, 2x locales | ~6 |
+| error-code-standards.md | ai/standards, skill, 2x locales | ~4 |
+| forward-derivation-standards.md | ai/standards, skill, 2x locales | ~6 |
+| logging-standards.md | ai/standards, skill, 2x locales | ~4 |
+| performance-standards.md | ai/standards, 2x locales | ~4 |
+| project-context-memory.md | ai/standards, skill, 2x locales | ~6 |
+| refactoring-standards.md | ai/standards, skill, 2x locales | ~6 |
+| requirement-engineering.md | ai/standards, skill, 2x locales | ~6 |
+| reverse-engineering-standards.md | ai/standards, skill, 2x locales | ~6 |
+| security-standards.md | ai/standards, 2x locales | ~4 |
+| spec-driven-development.md | ai/standards, skill, 2x locales | ~4 |
+| test-completeness-dimensions.md | ai/standards, skill, 2x locales | ~6 |
+| test-driven-development.md | ai/standards, skill, 2x locales | ~6 |
+| versioning.md | ai/standards, skill, 2x locales | ~8 |
+| virtual-organization-standards.md | ai/standards, 2x locales | ~4 |
 
-#### 中等複雜度（僅 YAML 選項）
+#### 中等複雜度 (僅 YAML 選項)
 
 | 核心標準 | 選項數 | 下游檔案 | 總計 |
 |----------|--------|----------|------|
-| changelog-standards.md | 2 YAML | ai/standards、ai/options、skill、locales | ~12 |
-| code-review-checklist.md | 3 YAML | ai/standards、ai/options、skill、locales | ~14 |
-| documentation-structure.md | 3 YAML | ai/standards、ai/options、skill、locales | ~14 |
+| changelog-standards.md | 2 YAML | ai/standards, ai/options, skill, locales | ~12 |
+| code-review-checklist.md | 3 YAML | ai/standards, ai/options, skill, locales | ~14 |
+| documentation-structure.md | 3 YAML | ai/standards, ai/options, skill, locales | ~14 |
 
-#### 高複雜度（MD + YAML 選項）
+#### 高複雜度 (MD + YAML 選項)
 
 | 核心標準 | MD 選項 | YAML 選項 | 總檔案數 |
 |----------|---------|-----------|----------|
@@ -344,32 +385,40 @@ locales/zh-TW/
 
 > **採用決策**：詳細的決策流程圖和部署指南請參見 [STATIC-DYNAMIC-GUIDE.md](adoption/STATIC-DYNAMIC-GUIDE.md)。
 
-### 動態標準（適合作為技能）
+### 動態標準 (適合作為技能)
 
 具有以下特徵的標準應該成為技能：
-- ✅ 有明確的觸發時機（事件、關鍵字）
-- ✅ 需要決策支援（選擇、建議）
+- ✅ 有明確的觸發時機 (事件、關鍵字)
+- ✅ 需要決策支援 (選擇、建議)
 - ✅ 有步驟化的工作流程
-- ✅ 能產出具體結果（訊息、檔案）
+- ✅ 能產出具體結果 (訊息、檔案)
 
 | 核心標準 | 技能 | 觸發關鍵字 |
-|----------|------|------------|
-| anti-hallucination.md | ai-collaboration-standards | certainty, assumption, 確定性, 推論 |
-| changelog-standards.md | changelog-guide | changelog, release notes, 變更日誌 |
-| code-review-checklist.md | code-review-assistant | review, PR, checklist, 審查 |
-| commit-message-guide.md | commit-standards | commit, git, message, 提交訊息 |
-| documentation-*.md | documentation-guide | README, docs, CONTRIBUTING, 文件 |
-| error-code-standards.md | error-code-guide | error code, error handling, 錯誤碼 |
-| git-workflow.md | git-workflow-guide | branch, merge, PR, 分支 |
-| logging-standards.md | logging-guide | logging, log level, 日誌 |
-| project-structure.md | project-structure-guide | structure, organization, 結構 |
-| spec-driven-development.md | spec-driven-dev | spec, SDD, proposal, 規格, 提案 |
-| test-completeness-dimensions.md | test-coverage-assistant | test coverage, 7 dimensions, 測試覆蓋 |
-| test-driven-development.md | tdd-assistant | TDD, red-green-refactor, test first, 紅綠重構 |
-| testing-standards.md | testing-guide | test, unit, integration, 測試 |
-| versioning.md | release-standards | version, release, semver, 版本 |
+|---------------|-------|------------------|
+| anti-hallucination.md | ai-collaboration-standards | certainty, assumption, inference |
+| acceptance-test-driven-development.md | atdd-assistant | ATDD, acceptance tests |
+| ai-friendly-architecture.md | ai-friendly-architecture | architecture, design patterns |
+| ai-instruction-standards.md | ai-instruction-standards | CLAUDE.md, instructions, rules |
+| behavior-driven-development.md | bdd-assistant | BDD, gherkin, scenarios |
+| changelog-standards.md | changelog-guide | changelog, release notes |
+| code-review-checklist.md | code-review-assistant | review, PR, checklist |
+| commit-message-guide.md | commit-standards | commit, git, message |
+| documentation-*.md | documentation-guide | README, docs, CONTRIBUTING |
+| error-code-standards.md | error-code-guide | error code, error handling |
+| forward-derivation-standards.md | forward-derivation | derive, generate, skeleton |
+| git-workflow.md | git-workflow-guide | branch, merge, PR |
+| logging-standards.md | logging-guide | logging, log level |
+| project-structure.md | project-structure-guide | structure, organization |
+| refactoring-standards.md | refactoring-assistant | refactor, optimize, debt |
+| requirement-engineering.md | requirement-assistant | story, INVEST, requirement |
+| reverse-engineering-standards.md | reverse-engineer | reverse, spec recovery |
+| spec-driven-development.md | spec-driven-dev | spec, SDD, proposal |
+| test-completeness-dimensions.md | test-coverage-assistant | test coverage, 7 dimensions |
+| test-driven-development.md | tdd-assistant | TDD, red-green-refactor, test first |
+| testing-standards.md | testing-guide | test, unit, integration |
+| versioning.md | release-standards | version, release, semver |
 
-### 靜態標準（適合加入 CLAUDE.md）
+### 靜態標準 (適合加入 CLAUDE.md)
 
 具有以下特徵的標準應該加入 CLAUDE.md，而非成為技能：
 - ❌ 全域適用，無特定觸發時機
@@ -378,8 +427,13 @@ locales/zh-TW/
 - ❌ 背景知識性質
 
 | 核心標準 | 位置 | 原因 |
-|----------|------|------|
+|---------------|----------|--------|
 | checkin-standards.md | CLAUDE.md | 強制性的提交前檢查表，全時適用 |
+| accessibility-standards.md | 規則檔 | 通用原則，全時適用 |
+| security-standards.md | 規則檔 | 通用原則，全時適用 |
+| performance-standards.md | 規則檔 | 通用原則，全時適用 |
+| developer-memory.md | 系統層 | 背景持續存儲 |
+| virtual-organization-standards.md | 系統層 | 組織編排管理 |
 
 ---
 
@@ -643,18 +697,18 @@ Set-Location cli; npm test
 ## 檔案數量摘要
 
 | 目錄 | 英文 | zh-TW | 總計 |
-|------|------|-------|------|
-| core/ | 16 | 16 | 32 |
+|-----------|---------|-------|-------|
+| core/ | 32 | 32 | 64 |
 | options/ | 18 | 18 | 36 |
-| ai/standards/ | 16 | 16 | 32 |
+| ai/standards/ | 32 | 32 | 64 |
 | ai/options/ | 36 | 36 | 72 |
 | extensions/ | 4 | 0 | 4 |
-| skills/ | 38 | 38 | 76 |
+| skills/ | 60 | 60 | 120 |
 | adoption/ | 5 | 5 | 10 |
 | templates/ | 4 | 4 | 8 |
 | integrations/ | 7 | 0 | 7 |
 | 根目錄檔案 | 6 | 3 | 9 |
-| **總計** | **150** | **136** | **286** |
+| **總計** | **204** | **190** | **394** |
 
 *備註：cli/ 和 scripts/ 不包含在內（不需翻譯）*
 

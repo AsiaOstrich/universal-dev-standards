@@ -1,0 +1,371 @@
+{
+  "project": "Universal Development Standards",
+  "version": "5.0.0-beta.11",
+  "last_updated": "2026-02-12",
+  "stats": {
+    "core_standards": 32,
+    "skills": 32,
+    "slash_commands": 30
+  },
+  "standards": [
+    {
+      "id": "acceptance-test-driven-development",
+      "category": "development",
+      "level": 3
+    },
+    {
+      "id": "accessibility-standards",
+      "category": "quality",
+      "level": 3
+    },
+    {
+      "id": "ai-agreement-standards",
+      "category": "governance",
+      "level": 1
+    },
+    {
+      "id": "ai-friendly-architecture",
+      "category": "development",
+      "level": 2
+    },
+    {
+      "id": "ai-instruction-standards",
+      "category": "governance",
+      "level": 1
+    },
+    {
+      "id": "anti-hallucination",
+      "category": "governance",
+      "level": 1
+    },
+    {
+      "id": "behavior-driven-development",
+      "category": "development",
+      "level": 2
+    },
+    {
+      "id": "changelog-standards",
+      "category": "documentation",
+      "level": 2
+    },
+    {
+      "id": "checkin-standards",
+      "category": "quality",
+      "level": 1
+    },
+    {
+      "id": "code-review-checklist",
+      "category": "quality",
+      "level": 2
+    },
+    {
+      "id": "commit-message-guide",
+      "category": "quality",
+      "level": 1
+    },
+    {
+      "id": "deployment-standards",
+      "category": "quality",
+      "level": 3
+    },
+    {
+      "id": "developer-memory",
+      "category": "productivity",
+      "level": 2
+    },
+    {
+      "id": "documentation-structure",
+      "category": "documentation",
+      "level": 3
+    },
+    {
+      "id": "documentation-writing-standards",
+      "category": "documentation",
+      "level": 2
+    },
+    {
+      "id": "error-code-standards",
+      "category": "development",
+      "level": 2
+    },
+    {
+      "id": "forward-derivation-standards",
+      "category": "automation",
+      "level": 2
+    },
+    {
+      "id": "git-workflow",
+      "category": "quality",
+      "level": 2
+    },
+    {
+      "id": "logging-standards",
+      "category": "development",
+      "level": 2
+    },
+    {
+      "id": "performance-standards",
+      "category": "quality",
+      "level": 3
+    },
+    {
+      "id": "project-context-memory",
+      "category": "productivity",
+      "level": 2
+    },
+    {
+      "id": "project-structure",
+      "category": "development",
+      "level": 3
+    },
+    {
+      "id": "refactoring-standards",
+      "category": "development",
+      "level": 3
+    },
+    {
+      "id": "requirement-engineering",
+      "category": "development",
+      "level": 3
+    },
+    {
+      "id": "reverse-engineering-standards",
+      "category": "automation",
+      "level": 2
+    },
+    {
+      "id": "security-standards",
+      "category": "quality",
+      "level": 3
+    },
+    {
+      "id": "spec-driven-development",
+      "category": "development",
+      "level": 1
+    },
+    {
+      "id": "test-completeness-dimensions",
+      "category": "testing",
+      "level": 2
+    },
+    {
+      "id": "test-driven-development",
+      "category": "development",
+      "level": 2
+    },
+    {
+      "id": "testing-standards",
+      "category": "testing",
+      "level": 2
+    },
+    {
+      "id": "versioning",
+      "category": "documentation",
+      "level": 2
+    },
+    {
+      "id": "virtual-organization-standards",
+      "category": "governance",
+      "level": 3
+    }
+  ],
+  "skills": [
+    {
+      "id": "ai-collaboration-standards",
+      "command": "/guide",
+      "category": "governance"
+    },
+    {
+      "id": "ai-friendly-architecture",
+      "command": "/guide",
+      "category": "development"
+    },
+    {
+      "id": "ai-instruction-standards",
+      "command": "/guide",
+      "category": "governance"
+    },
+    {
+      "id": "atdd-assistant",
+      "command": "/atdd",
+      "category": "development"
+    },
+    {
+      "id": "bdd-assistant",
+      "command": "/bdd",
+      "category": "development"
+    },
+    {
+      "id": "changelog-guide",
+      "command": "/changelog",
+      "category": "documentation"
+    },
+    {
+      "id": "checkin-assistant",
+      "command": "/checkin",
+      "category": "quality"
+    },
+    {
+      "id": "code-review-assistant",
+      "command": "/review",
+      "category": "quality"
+    },
+    {
+      "id": "commit-standards",
+      "command": "/commit",
+      "category": "quality"
+    },
+    {
+      "id": "docs-generator",
+      "command": "/docgen",
+      "category": "documentation"
+    },
+    {
+      "id": "documentation-guide",
+      "command": "/docs",
+      "category": "documentation"
+    },
+    {
+      "id": "error-code-guide",
+      "command": "/guide",
+      "category": "development"
+    },
+    {
+      "id": "forward-derivation",
+      "command": "/derive",
+      "category": "automation"
+    },
+    {
+      "id": "git-workflow-guide",
+      "command": "/guide",
+      "category": "quality"
+    },
+    {
+      "id": "logging-guide",
+      "command": "/guide",
+      "category": "development"
+    },
+    {
+      "id": "methodology-system",
+      "command": "/methodology",
+      "category": "development"
+    },
+    {
+      "id": "project-discovery",
+      "command": "/discover",
+      "category": "productivity"
+    },
+    {
+      "id": "project-structure-guide",
+      "command": "/config",
+      "category": "development"
+    },
+    {
+      "id": "refactoring-assistant",
+      "command": "/refactor",
+      "category": "development"
+    },
+    {
+      "id": "release-standards",
+      "command": "/release",
+      "category": "documentation"
+    },
+    {
+      "id": "requirement-assistant",
+      "command": "/requirement",
+      "category": "development"
+    },
+    {
+      "id": "reverse-engineer",
+      "command": "/reverse",
+      "category": "automation"
+    },
+    {
+      "id": "spec-driven-dev",
+      "command": "/sdd",
+      "category": "development"
+    },
+    {
+      "id": "tdd-assistant",
+      "command": "/tdd",
+      "category": "development"
+    },
+    {
+      "id": "test-coverage-assistant",
+      "command": "/coverage",
+      "category": "testing"
+    },
+    {
+      "id": "testing-guide",
+      "command": "/guide",
+      "category": "testing"
+    },
+    {
+      "id": "agents",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "ai",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "brainstorm-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "commands",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "tools",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "workflows",
+      "command": "/guide",
+      "category": "uncategorized"
+    }
+  ],
+  "agent_support": {
+    "claude-code": {
+      "tier": "complete",
+      "skills": true,
+      "slash_commands": "native"
+    },
+    "opencode": {
+      "tier": "complete",
+      "skills": true,
+      "slash_commands": "native"
+    },
+    "gemini-cli": {
+      "tier": "preview",
+      "skills": true,
+      "slash_commands": "native"
+    },
+    "cursor": {
+      "tier": "complete",
+      "skills": "core",
+      "slash_commands": "simulated"
+    },
+    "cline": {
+      "tier": "partial",
+      "skills": "core",
+      "slash_commands": "workflow"
+    },
+    "copilot": {
+      "tier": "partial",
+      "skills": "instruction-based",
+      "slash_commands": "chat"
+    },
+    "windsurf": {
+      "tier": "partial",
+      "skills": "core",
+      "slash_commands": "rulebook"
+    }
+  }
+}

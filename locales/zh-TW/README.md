@@ -6,7 +6,7 @@
 
 > **語言**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
 
-**版本**: 5.0.0-beta.10 (Pre-release) | **發布日期**: 2026-02-11 | **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
+**版本**: 5.0.0-beta.11 (Pre-release) | **發布日期**: 2026-02-11 | **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 
 語言無關、框架無關的軟體專案文件標準。確保不同技術堆疊之間的一致性、品質和可維護性。
 
@@ -14,13 +14,14 @@
 
 ## 功能特色
 
+<!-- UDS_STATS_TABLE_START -->
 | 類別 | 數量 | 說明 |
-|------|------|------|
-| **核心標準** | 22 | 通用開發準則（Markdown） |
-| **AI Skills** | 23 | Claude Code 互動式技能 |
-| **Slash Commands** | 24 | 快速操作（`/commit`、`/tdd`、`/review` 等） |
-| **CLI 指令** | 6 | `list`、`init`、`configure`、`check`、`update`、`skills` |
-| **語言支援** | 3 | 英文、繁體中文、簡體中文 |
+|----------|-------|-------------|
+| **核心標準** | 32 | 通用開發準則 |
+| **AI Skills** | 32 | 互動式技能 |
+| **斜線命令** | 30 | 快速操作 |
+| **CLI 指令** | 6 | list, init, configure, check, update, skills |
+<!-- UDS_STATS_TABLE_END -->
 
 ---
 
@@ -35,7 +36,7 @@
 npm install -g universal-dev-standards@beta
 
 # 或安裝特定 beta 版本
-npm install -g universal-dev-standards@5.0.0-beta.10
+npm install -g universal-dev-standards@5.0.0-beta.11
 
 # 無需安裝直接使用
 npx universal-dev-standards@beta init
@@ -133,25 +134,24 @@ cd universal-dev-standards\cli; npm install; npm link
 
 ## AI 工具支援
 
-| AI 工具 | 狀態 | Skills | Commands | 設定檔 |
-|---------|------|:------:|:--------:|--------|
-| **Claude Code** | ✅ 完整支援 | ✅ | 內建 | `CLAUDE.md` |
-| **OpenCode** | ✅ 完整支援 | ✅ | ✅ | `AGENTS.md` |
-| Cline | 🔶 部分支援 | ✅ | - | `.clinerules` |
-| GitHub Copilot | 🔶 部分支援 | ✅ | ✅ | `copilot-instructions.md` |
+| AI 工具 | 狀態 | Skills | 斜線命令 (Slash Commands) | 設定檔 |
+|---------|--------|:------:|:--------------:|--------|
+| **Claude Code** | ✅ 完整支援 | **26** | **30** (如 `/tdd`, `/review`) | `CLAUDE.md` |
+| **OpenCode** | ✅ 完整支援 | **26** | **30** (如 `/sdd`, `/commit`) | `AGENTS.md` |
+| **Gemini CLI** | 🧪 預覽版 | **18+** | **20+** (如 `/derive`, `/config`) | `GEMINI.md` |
+| **Cursor** | ✅ 完整支援 | **核心** | **模擬支援** (`/review`, `/refactor`) | `.cursorrules` |
+| **Cline / Roo Code**| 🔶 部分支援 | **核心** | **工作流** (`/checkin`, `/tdd`) | `.clinerules` |
+| GitHub Copilot | 🔶 部分支援 | ✅ | **對話式** (`commit`, `review`) | `copilot-instructions.md` |
 | OpenAI Codex | 🔶 部分支援 | ✅ | - | `AGENTS.md` |
-| Gemini CLI | 🧪 預覽版 | ✅ | ✅ | `GEMINI.md` |
-| Roo Code | ⏳ 計畫中 | ✅ | ✅ | `.roorules` |
-| Cursor | 📄 基本支援 | - | - | `.cursorrules` |
-| Windsurf | 📄 基本支援 | - | - | `.windsurfrules` |
-| Antigravity | 📄 基本支援 | - | - | `INSTRUCTIONS.md` |
+| Windsurf | 🔶 部分支援 | ✅ | **規則書** (`/sdd`, `/refactor`) | `.windsurfrules` |
+| Antigravity | 📄 最小支援 | - | - | `INSTRUCTIONS.md` |
 
 > **狀態圖例**（UDS CLI 實作狀態）：
 > - ✅ 完整支援 = Skills + Commands 完整支援，已測試
 > - 🔶 部分支援 = Skills 可用，Commands 受限或不支援
 > - 🧪 預覽版 = 功能可用但為預覽版本
 > - ⏳ 計畫中 = 程式碼存在，待測試
-> - 📄 基本支援 = 僅規則檔生成，不支援 Skills/Commands
+> - 📄 最小支援 = 僅規則檔生成，不支援 Skills/Commands
 
 ### 平台支援
 
@@ -223,13 +223,29 @@ Remove-Item -Recurse $env:TEMP\uds
 | **僅標準** | 多工具團隊 / 企業 | 完整自訂、版本控制 |
 | **Skills + 標準** | 完整體驗 / 學習 | 100% 功能覆蓋 |
 
-### 快速決策指南
+---
 
-- **個人專案使用 Claude Code？** → 僅 Skills
-- **團隊使用多個 AI 工具？** → Skills + 標準
-- **企業合規需求？** → 僅標準
+## 選擇您的路徑
 
-詳細分析請參閱[使用模式比較](../../docs/USAGE-MODES-COMPARISON.md)。
+根據您的角色與需求開始使用 UDS：
+
+### 🚀 個人開發者 (快速開始)
+- **目標**：利用 AI 協助進行高速開發。
+- **路徑**：[僅 Skills 模式](#使用模式)。
+- **工具**：Claude Code 或 OpenCode。
+- **行動**：`/plugin install universal-dev-standards@asia-ostrich`。
+
+### 🏗️ 架構師 / 技術主管 (標準優先)
+- **目標**：建立技術邊界並確保跨團隊品質。
+- **路徑**：[僅標準模式](#使用模式)。
+- **工具**：任何 AI 編碼助手。
+- **行動**：`uds init -m full --level 2`。
+
+### 🛡️ 企業 / DevOps (治理優先)
+- **目標**：合規性、安全稽核與自動化品質門檻。
+- **路徑**：[Skills + 標準模式](#使用模式)。
+- **工具**：多工具環境 + CI/CD。
+- **行動**：`uds init -m full --level 3`。
 
 ---
 

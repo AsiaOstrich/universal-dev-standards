@@ -17,10 +17,10 @@ This document defines the complete maintenance workflow for the Universal Develo
 
 ```
 universal-dev-standards/
-├── core/                    ← PRIMARY SOURCE (16 standards)
+├── core/                    ← PRIMARY SOURCE (32 standards)
 ├── options/                 ← MD options (18 files)
 ├── ai/                      ← AI-optimized versions (52 YAML files)
-│   ├── standards/           ← 16 AI standards
+│   ├── standards/           ← 32 AI standards
 │   ├── options/             ← 36 AI options
 │   └── MAINTENANCE.md       ← AI-specific maintenance guide
 ├── extensions/              ← Language/framework/locale extensions (4 files)
@@ -28,7 +28,7 @@ universal-dev-standards/
 │   ├── frameworks/          ← Framework-specific patterns
 │   └── locales/             ← Locale-specific guidelines
 ├── skills/                  ← Claude Code skills (38 files)
-│   └── claude-code/         ← 15 skill packages
+│   └── claude-code/         ← 26 skill packages
 ├── adoption/                ← Adoption guides (5 files)
 ├── templates/               ← Document templates (4 files)
 ├── integrations/            ← AI tool configs (7 files)
@@ -80,24 +80,40 @@ universal-dev-standards/
 
 | File | Version | Description |
 |------|---------|-------------|
-| anti-hallucination.md | 1.3.1 | AI behavior guidelines |
-| changelog-standards.md | 1.1.0 | Changelog format rules |
-| checkin-standards.md | 1.3.0 | Code check-in checklist |
-| code-review-checklist.md | 1.2.0 | Code review guidelines |
-| commit-message-guide.md | 1.2.0 | Commit message format |
-| documentation-structure.md | 1.0.0 | Doc organization |
-| documentation-writing-standards.md | 1.0.1 | Writing guidelines |
+| acceptance-test-driven-development.md | 1.1.0 | ATDD methodology |
+| accessibility-standards.md | 1.0.0 | Accessibility guidelines |
+| ai-agreement-standards.md | 1.0.0 | Human-AI agreement protocol |
+| ai-friendly-architecture.md | 1.0.0 | AI-optimized design patterns |
+| ai-instruction-standards.md | 1.0.0 | Best practices for AI instructions |
+| anti-hallucination.md | 1.5.0 | AI behavior guidelines |
+| behavior-driven-development.md | 1.1.0 | BDD methodology |
+| changelog-standards.md | 1.0.2 | Changelog format rules |
+| checkin-standards.md | 1.4.0 | Code check-in checklist |
+| code-review-checklist.md | 1.3.0 | Code review guidelines |
+| commit-message-guide.md | 1.2.3 | Commit message format |
+| deployment-standards.md | 1.0.0 | Deployment guidelines |
+| developer-memory.md | 1.0.0 | Structured AI memory system |
+| documentation-structure.md | 1.3.0 | Doc organization |
+| documentation-writing-standards.md | 1.1.0 | Writing guidelines |
 | error-code-standards.md | 1.1.0 | Error code format |
-| git-workflow.md | 1.1.0 | Git workflow patterns |
-| logging-standards.md | 1.1.0 | Logging guidelines |
+| forward-derivation-standards.md | 1.1.0 | Auto-derivation principles |
+| git-workflow.md | 1.4.0 | Git workflow patterns |
+| logging-standards.md | 1.2.0 | Logging guidelines |
+| performance-standards.md | 1.1.0 | Performance engineering |
+| project-context-memory.md | 1.0.0 | Context-aware memory system |
 | project-structure.md | 1.1.0 | Project organization |
-| spec-driven-development.md | 1.2.0 | SDD workflow |
-| test-completeness-dimensions.md | 1.0.0 | Testing dimensions |
-| test-driven-development.md | 1.0.0 | TDD workflow |
-| testing-standards.md | 2.1.0 | Testing guidelines |
+| refactoring-standards.md | 2.1.0 | Safe refactoring practices |
+| requirement-engineering.md | 1.0.0 | INVEST criteria & storytelling |
+| reverse-engineering-standards.md | 1.0.0 | Code-to-spec recovery |
+| security-standards.md | 1.1.0 | Security best practices |
+| spec-driven-development.md | 2.1.0 | SDD workflow |
+| test-completeness-dimensions.md | 1.1.0 | Testing dimensions |
+| test-driven-development.md | 1.2.0 | TDD workflow |
+| testing-standards.md | 3.0.0 | Testing guidelines |
 | versioning.md | 1.2.0 | Semantic versioning |
+| virtual-organization-standards.md | 1.0.0 | AI orchestration framework |
 
-**Total**: 16 files
+**Total**: 32 files
 
 ---
 
@@ -142,22 +158,33 @@ Skill packages for Claude Code AI assistant.
 | Skill | Files | Related Core Standards |
 |-------|-------|------------------------|
 | ai-collaboration-standards/ | 3 | anti-hallucination.md |
+| ai-friendly-architecture/ | 2 | ai-friendly-architecture.md |
+| ai-instruction-standards/ | 2 | ai-instruction-standards.md |
+| atdd-assistant/ | 3 | acceptance-test-driven-development.md |
+| bdd-assistant/ | 3 | behavior-driven-development.md |
 | changelog-guide/ | 2 | changelog-standards.md |
+| checkin-assistant/ | 3 | checkin-standards.md |
 | code-review-assistant/ | 3 | code-review-checklist.md, checkin-standards.md |
 | commit-standards/ | 3 | commit-message-guide.md |
+| docs-generator/ | 2 | documentation-writing-standards.md |
 | documentation-guide/ | 3 | documentation-structure.md, documentation-writing-standards.md |
 | error-code-guide/ | 2 | error-code-standards.md |
+| forward-derivation/ | 3 | forward-derivation-standards.md |
 | git-workflow-guide/ | 3 | git-workflow.md |
 | logging-guide/ | 2 | logging-standards.md |
+| methodology-system/ | 3 | methodology-system (cross-standard) |
+| project-discovery/ | 2 | project-context-memory.md |
 | project-structure-guide/ | 2 | project-structure.md |
+| refactoring-assistant/ | 3 | refactoring-standards.md |
 | release-standards/ | 4 | changelog-standards.md, versioning.md |
-| requirement-assistant/ | 3 | spec-driven-development.md |
+| requirement-assistant/ | 3 | requirement-engineering.md |
+| reverse-engineer/ | 3 | reverse-engineering-standards.md |
 | spec-driven-dev/ | 2 | spec-driven-development.md |
 | tdd-assistant/ | 3 | test-driven-development.md |
 | test-coverage-assistant/ | 2 | test-completeness-dimensions.md |
 | testing-guide/ | 2 | testing-standards.md |
 
-**Total**: 38 skill files + 10 shared/README files = 48 files
+**Total**: 26 skill packages
 
 ---
 
@@ -297,14 +324,31 @@ Each core standard has a dependency tree. When updating a core file, all downstr
 
 | Core Standard | Downstream Files | Total |
 |---------------|------------------|-------|
+| acceptance-test-driven-development.md | ai/standards, skill, 2x locales | ~6 |
+| accessibility-standards.md | ai/standards, 2x locales | ~4 |
+| ai-agreement-standards.md | ai/standards, 2x locales | ~4 |
+| ai-friendly-architecture.md | ai/standards, skill, 2x locales | ~6 |
+| ai-instruction-standards.md | ai/standards, skill, 2x locales | ~6 |
 | anti-hallucination.md | ai/standards, skill, 2x locales | ~6 |
+| behavior-driven-development.md | ai/standards, skill, 2x locales | ~6 |
 | checkin-standards.md | ai/standards, skill, 2x locales | ~6 |
+| deployment-standards.md | ai/standards, 2x locales | ~4 |
+| developer-memory.md | ai/standards, 2x locales | ~4 |
 | documentation-writing-standards.md | ai/standards, skill, 2x locales | ~6 |
-| spec-driven-development.md | ai/standards, 2x locales | ~4 |
+| error-code-standards.md | ai/standards, skill, 2x locales | ~4 |
+| forward-derivation-standards.md | ai/standards, skill, 2x locales | ~6 |
+| logging-standards.md | ai/standards, skill, 2x locales | ~4 |
+| performance-standards.md | ai/standards, 2x locales | ~4 |
+| project-context-memory.md | ai/standards, skill, 2x locales | ~6 |
+| refactoring-standards.md | ai/standards, skill, 2x locales | ~6 |
+| requirement-engineering.md | ai/standards, skill, 2x locales | ~6 |
+| reverse-engineering-standards.md | ai/standards, skill, 2x locales | ~6 |
+| security-standards.md | ai/standards, 2x locales | ~4 |
+| spec-driven-development.md | ai/standards, skill, 2x locales | ~4 |
 | test-completeness-dimensions.md | ai/standards, skill, 2x locales | ~6 |
-| error-code-standards.md | ai/standards, 2x locales | ~4 |
-| logging-standards.md | ai/standards, 2x locales | ~4 |
+| test-driven-development.md | ai/standards, skill, 2x locales | ~6 |
 | versioning.md | ai/standards, skill, 2x locales | ~8 |
+| virtual-organization-standards.md | ai/standards, 2x locales | ~4 |
 
 #### Medium Complexity (YAML Options Only)
 
@@ -347,14 +391,22 @@ Standards with these characteristics should become Skills:
 | Core Standard | Skill | Trigger Keywords |
 |---------------|-------|------------------|
 | anti-hallucination.md | ai-collaboration-standards | certainty, assumption, inference |
+| acceptance-test-driven-development.md | atdd-assistant | ATDD, acceptance tests |
+| ai-friendly-architecture.md | ai-friendly-architecture | architecture, design patterns |
+| ai-instruction-standards.md | ai-instruction-standards | CLAUDE.md, instructions, rules |
+| behavior-driven-development.md | bdd-assistant | BDD, gherkin, scenarios |
 | changelog-standards.md | changelog-guide | changelog, release notes |
 | code-review-checklist.md | code-review-assistant | review, PR, checklist |
 | commit-message-guide.md | commit-standards | commit, git, message |
 | documentation-*.md | documentation-guide | README, docs, CONTRIBUTING |
 | error-code-standards.md | error-code-guide | error code, error handling |
+| forward-derivation-standards.md | forward-derivation | derive, generate, skeleton |
 | git-workflow.md | git-workflow-guide | branch, merge, PR |
 | logging-standards.md | logging-guide | logging, log level |
 | project-structure.md | project-structure-guide | structure, organization |
+| refactoring-standards.md | refactoring-assistant | refactor, optimize, debt |
+| requirement-engineering.md | requirement-assistant | story, INVEST, requirement |
+| reverse-engineering-standards.md | reverse-engineer | reverse, spec recovery |
 | spec-driven-development.md | spec-driven-dev | spec, SDD, proposal |
 | test-completeness-dimensions.md | test-coverage-assistant | test coverage, 7 dimensions |
 | test-driven-development.md | tdd-assistant | TDD, red-green-refactor, test first |
@@ -372,6 +424,11 @@ Standards with these characteristics should be added to CLAUDE.md instead of bec
 | Core Standard | Location | Reason |
 |---------------|----------|--------|
 | checkin-standards.md | CLAUDE.md | Mandatory pre-commit checklist, always applicable |
+| accessibility-standards.md | Rules | Universal principles, always applicable |
+| security-standards.md | Rules | Universal principles, always applicable |
+| performance-standards.md | Rules | Universal principles, always applicable |
+| developer-memory.md | System | Background persistent storage |
+| virtual-organization-standards.md | System | Organizational orchestration |
 
 ---
 
@@ -649,17 +706,17 @@ Set-Location cli; npm test
 
 | Directory | English | zh-TW | Total |
 |-----------|---------|-------|-------|
-| core/ | 16 | 16 | 32 |
+| core/ | 32 | 32 | 64 |
 | options/ | 18 | 18 | 36 |
-| ai/standards/ | 16 | 16 | 32 |
+| ai/standards/ | 32 | 32 | 64 |
 | ai/options/ | 36 | 36 | 72 |
 | extensions/ | 4 | 0 | 4 |
-| skills/ | 38 | 38 | 76 |
+| skills/ | 60 | 60 | 120 |
 | adoption/ | 5 | 5 | 10 |
 | templates/ | 4 | 4 | 8 |
 | integrations/ | 7 | 0 | 7 |
 | Root files | 6 | 3 | 9 |
-| **Total** | **150** | **136** | **286** |
+| **Total** | **204** | **190** | **394** |
 
 *Note: cli/ and scripts/ not included (not translated)*
 

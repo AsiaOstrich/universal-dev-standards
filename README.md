@@ -14,13 +14,14 @@ Language-agnostic, framework-agnostic documentation standards for software proje
 
 ## Features
 
+<!-- UDS_STATS_TABLE_START -->
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Core Standards** | 32 | Universal development guidelines (Markdown) |
-| **AI Skills** | 26 | Interactive Claude Code skills for AI-assisted development |
-| **Slash Commands** | 30 | Quick actions (`/commit`, `/tdd`, `/review`, etc.) |
-| **CLI Commands** | 6 | `list`, `init`, `configure`, `check`, `update`, `skills` |
-| **Languages** | 3 | English, Traditional Chinese, Simplified Chinese |
+| **Core Standards** | 32 | Universal development guidelines |
+| **AI Skills** | 32 | Interactive skills |
+| **Slash Commands** | 30 | Quick actions |
+| **CLI Commands** | 6 | list, init, configure, check, update, skills |
+<!-- UDS_STATS_TABLE_END -->
 
 ---
 
@@ -133,17 +134,16 @@ cd universal-dev-standards\cli; npm install; npm link
 
 ## AI Tool Support
 
-| AI Tool | Status | Skills | Commands | Configuration |
-|---------|--------|:------:|:--------:|---------------|
-| **Claude Code** | ✅ Complete | ✅ | Built-in | `CLAUDE.md` |
-| **OpenCode** | ✅ Complete | ✅ | ✅ | `AGENTS.md` |
-| Cline | 🔶 Partial | ✅ | - | `.clinerules` |
-| GitHub Copilot | 🔶 Partial | ✅ | ✅ | `copilot-instructions.md` |
+| AI Tool | Status | Skills | Slash Commands | Configuration |
+|---------|--------|:------:|:--------------:|---------------|
+| **Claude Code** | ✅ Complete | **26** | **30** (e.g., `/tdd`, `/review`) | `CLAUDE.md` |
+| **OpenCode** | ✅ Complete | **26** | **30** (e.g., `/sdd`, `/commit`) | `AGENTS.md` |
+| **Gemini CLI** | 🧪 Preview | **18+** | **20+** (e.g., `/derive`, `/config`) | `GEMINI.md` |
+| **Cursor** | ✅ Complete | **Core** | **Simulated** (`/review`, `/refactor`) | `.cursorrules` |
+| **Cline / Roo Code**| 🔶 Partial | **Core** | **Workflow** (`/checkin`, `/tdd`) | `.clinerules` |
+| GitHub Copilot | 🔶 Partial | ✅ | **Chat** (`commit`, `review`) | `copilot-instructions.md` |
 | OpenAI Codex | 🔶 Partial | ✅ | - | `AGENTS.md` |
-| Gemini CLI | 🧪 Preview | ✅ | ✅ | `GEMINI.md` |
-| Roo Code | ⏳ Planned | ✅ | ✅ | `.roorules` |
-| Cursor | 📄 Minimal | - | - | `.cursorrules` |
-| Windsurf | 📄 Minimal | - | - | `.windsurfrules` |
+| Windsurf | 🔶 Partial | ✅ | **Rulebook** (`/sdd`, `/refactor`) | `.windsurfrules` |
 | Antigravity | 📄 Minimal | - | - | `INSTRUCTIONS.md` |
 
 > **Status Legend** (UDS CLI implementation status):
@@ -223,13 +223,29 @@ Remove-Item -Recurse $env:TEMP\uds
 | **Standards Only** | Multi-tool teams / Enterprise | Full customization, version control |
 | **Skills + Standards** | Complete experience / Learning | 100% feature coverage |
 
-### Quick Decision Guide
+---
 
-- **Personal projects with Claude Code?** → Skills Only
-- **Team with multiple AI tools?** → Skills + Standards
-- **Enterprise compliance needs?** → Standards Only
+## Choose Your Path
 
-See [Usage Modes Comparison](docs/USAGE-MODES-COMPARISON.md) for detailed analysis.
+Get started with UDS based on your role and needs:
+
+### 🚀 Individual Developer (Fastest Start)
+- **Goal**: High-speed development with AI assistance.
+- **Path**: [Skills Only Mode](#usage-modes).
+- **Tool**: Claude Code or OpenCode.
+- **Action**: `/plugin install universal-dev-standards@asia-ostrich`.
+
+### 🏗️ Architect / Tech Lead (Standards Focus)
+- **Goal**: Establish technical boundaries and ensure cross-team quality.
+- **Path**: [Standards Only Mode](#usage-modes).
+- **Tool**: Any AI coding assistant.
+- **Action**: `uds init -m full --level 2`.
+
+### 🛡️ Enterprise / DevOps (Governance Focus)
+- **Goal**: Compliance, security auditing, and automated quality gates.
+- **Path**: [Skills + Standards Mode](#usage-modes).
+- **Tool**: Multi-tool environment + CI/CD.
+- **Action**: `uds init -m full --level 3`.
 
 ---
 

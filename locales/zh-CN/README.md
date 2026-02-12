@@ -6,7 +6,7 @@
 
 > **语言**: [English](../../README.md) | [繁體中文](../zh-TW/README.md) | 简体中文
 
-**版本**: 5.0.0-beta.10 (Pre-release) | **发布日期**: 2026-02-11 | **授权**: [双重授权](../../LICENSE) (CC BY 4.0 + MIT)
+**版本**: 5.0.0-beta.11 (Pre-release) | **发布日期**: 2026-02-11 | **授权**: [双重授权](../../LICENSE) (CC BY 4.0 + MIT)
 
 语言无关、框架无关的软件项目文档标准。确保不同技术栈之间的一致性、质量和可维护性。
 
@@ -14,13 +14,14 @@
 
 ## 功能特色
 
+<!-- UDS_STATS_TABLE_START -->
 | 类别 | 数量 | 说明 |
-|------|------|------|
-| **核心标准** | 22 | 通用开发准则（Markdown） |
-| **AI Skills** | 23 | Claude Code 交互式技能 |
-| **Slash Commands** | 24 | 快速操作（`/commit`、`/tdd`、`/review` 等） |
-| **CLI 命令** | 6 | `list`、`init`、`configure`、`check`、`update`、`skills` |
-| **语言支持** | 3 | 英文、繁体中文、简体中文 |
+|----------|-------|-------------|
+| **核心标准** | 32 | 通用开发准则 |
+| **AI Skills** | 32 | 互动式技能 |
+| **斜线命令** | 30 | 快速操作 |
+| **CLI 命令** | 6 | list, init, configure, check, update, skills |
+<!-- UDS_STATS_TABLE_END -->
 
 ---
 
@@ -35,7 +36,7 @@
 npm install -g universal-dev-standards@beta
 
 # 或安装特定 beta 版本
-npm install -g universal-dev-standards@5.0.0-beta.10
+npm install -g universal-dev-standards@5.0.0-beta.11
 
 # 无需安装直接使用
 npx universal-dev-standards@beta init
@@ -108,9 +109,9 @@ uds skills  # 列出已安装的 skills
 npx universal-dev-standards init
 ```
 
-**指定版本**
+**特定版本**
 ```bash
-npm install -g universal-dev-standards@5.0.0-beta.10  # 最新 beta
+npm install -g universal-dev-standards@5.0.0-beta.11  # 最新 beta
 npm install -g universal-dev-standards@beta            # 始终获取最新 beta
 npm install -g universal-dev-standards@latest           # 稳定版
 ```
@@ -133,25 +134,24 @@ cd universal-dev-standards\cli; npm install; npm link
 
 ## AI 工具支持
 
-| AI 工具 | 状态 | Skills | Commands | 配置文件 |
-|---------|------|:------:|:--------:|----------|
-| **Claude Code** | ✅ 完整支持 | ✅ | 内建 | `CLAUDE.md` |
-| **OpenCode** | ✅ 完整支持 | ✅ | ✅ | `AGENTS.md` |
-| Cline | 🔶 部分支持 | ✅ | - | `.clinerules` |
-| GitHub Copilot | 🔶 部分支持 | ✅ | ✅ | `copilot-instructions.md` |
+| AI 工具 | 状态 | Skills | 斜线命令 (Slash Commands) | 配置文件 |
+|---------|--------|:------:|:--------------:|----------|
+| **Claude Code** | ✅ 完整支持 | **26** | **30** (如 `/tdd`, `/review`) | `CLAUDE.md` |
+| **OpenCode** | ✅ 完整支持 | **26** | **30** (如 `/sdd`, `/commit`) | `AGENTS.md` |
+| **Gemini CLI** | 🧪 预览版 | **18+** | **20+** (如 `/derive`, `/config`) | `GEMINI.md` |
+| **Cursor** | ✅ 完整支持 | **核心** | **模拟支持** (`/review`, `/refactor`) | `.cursorrules` |
+| **Cline / Roo Code**| 🔶 部分支持 | **核心** | **工作流** (`/checkin`, `/tdd`) | `.clinerules` |
+| GitHub Copilot | 🔶 部分支持 | ✅ | **对话式** (`commit`, `review`) | `copilot-instructions.md` |
 | OpenAI Codex | 🔶 部分支持 | ✅ | - | `AGENTS.md` |
-| Gemini CLI | 🧪 预览版 | ✅ | ✅ | `GEMINI.md` |
-| Roo Code | ⏳ 计划中 | ✅ | ✅ | `.roorules` |
-| Cursor | 📄 基本支持 | - | - | `.cursorrules` |
-| Windsurf | 📄 基本支持 | - | - | `.windsurfrules` |
-| Antigravity | 📄 基本支持 | - | - | `INSTRUCTIONS.md` |
+| Windsurf | 🔶 部分支持 | ✅ | **规则书** (`/sdd`, `/refactor`) | `.windsurfrules` |
+| Antigravity | 📄 最小支持 | - | - | `INSTRUCTIONS.md` |
 
 > **状态图例**（UDS CLI 实现状态）：
 > - ✅ 完整支持 = Skills + Commands 完整支持，已测试
 > - 🔶 部分支持 = Skills 可用，Commands 受限或不支持
 > - 🧪 预览版 = 功能可用但为预览版本
 > - ⏳ 计划中 = 代码存在，待测试
-> - 📄 基本支持 = 仅规则文件生成，不支持 Skills/Commands
+> - 📄 最小支持 = 仅规则文件生成，不支持 Skills/Commands
 
 ### 平台支持
 
@@ -173,7 +173,7 @@ cd universal-dev-standards\cli; npm install; npm link
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**优点**：单一命令、自动更新、立即加载全部 23 个 skills。
+**优点**：单一命令、自动更新、立即加载全部 26 个 skills。
 
 **从 v3.x 升级？**
 ```bash
@@ -219,23 +219,43 @@ Remove-Item -Recurse $env:TEMP\uds
 
 | 模式 | 最适合 | 主要优势 |
 |------|--------|----------|
-| **仅 Skills** | 个人开发者 + Claude Code | 最低 token 使用量、最佳交互体验 |
+| **仅 Skills** | 个人开发者 + Claude Code | 最低 token 使用量、最佳互动体验 |
 | **仅标准** | 多工具团队 / 企业 | 完整自定义、版本控制 |
 | **Skills + 标准** | 完整体验 / 学习 | 100% 功能覆盖 |
 
-### 快速决策指南
+---
 
-- **个人项目使用 Claude Code？** → 仅 Skills
-- **团队使用多个 AI 工具？** → Skills + 标准
-- **企业合规需求？** → 仅标准
+## 选择您的路径
 
-详细分析请参阅[使用模式比较](../../docs/USAGE-MODES-COMPARISON.md)。
+根据您的角色与需求开始使用 UDS：
+
+### 🚀 个人开发者 (快速开始)
+- **目标**：利用 AI 协助进行高速开发。
+- **路径**：[仅 Skills 模式](#使用模式)。
+- **工具**：Claude Code 或 OpenCode。
+- **行动**：`/plugin install universal-dev-standards@asia-ostrich`。
+
+### 🏗️ 架构师 / 技术主管 (标准优先)
+- **目标**：建立技术边界并确保跨团队质量。
+- **路径**：[仅标准模式](#使用模式)。
+- **工具**：任何 AI 编码助手。
+- **行动**：`uds init -m full --level 2`。
+
+### 🛡️ 企业 / DevOps (治理优先)
+- **目标**：合规性、安全审计与自动化质量门槛。
+- **路径**：[Skills + 标准模式](#使用模式)。
+- **工具**：多工具环境 + CI/CD。
+- **行动**：`uds init -m full --level 3`。
 
 ---
 
 ## 核心标准概览
 
-### Level 1：基本（30 分钟设置）
+> **更新 (v4.3.0)**：核心标准已针对 AI Token 使用量进行最佳化。
+> - **规则 (`core/*.md`)**：供 AI 验证使用的精简检查清单与规则。
+> - **指南 (`core/guides/*.md`)**：供人类阅读的详细解释与教学。
+
+### 等级一：基本（30 分钟设置）
 
 每个项目必须包含：
 
@@ -312,11 +332,11 @@ Remove-Item -Recurse $env:TEMP\uds
 ### 准则
 
 - 核心标准保持语言/框架无关性
-- 至少在 2 个不同情境中包含示例
+- 至少在 2 個不同情境中包含示例
 - 遵循现有文档结构
 - 采用 CC BY 4.0 授权
 
-详细准则请参阅 [CONTRIBUTING.md](../../CONTRIBUTING.md)。
+詳細準則請參閱 [CONTRIBUTING.md](../../CONTRIBUTING.md)。
 
 ---
 
@@ -394,11 +414,11 @@ CLI 安装：执行 `uds update --skills`。
 
 | 功能 | 说明 |
 |------|------|
-| **双向推导** | Forward Derivation + Reverse Engineering 实现完整规格-代码生命周期 |
-| **6 个新核心标准** | BDD、ATDD、Reverse Engineering、Forward Derivation、AI Instructions、Refactoring |
-| **23 Skills** | 7 个新 skills 包括 Forward Derivation、BDD/ATDD assistants |
-| **24 Slash Commands** | 9 个新命令（`/derive-*`、`/reverse-*`、`/atdd`、`/bdd`） |
-| **方法论系统** | TDD/BDD/SDD/ATDD 工作流已达生产就绪 |
+| **双向推导** | Forward Derivation + Reverse Engineering 实现完整规格-代码生命週期 |
+| **6 個新核心標準** | BDD、ATDD、Reverse Engineering、Forward Derivation、AI Instructions、Refactoring |
+| **26 Skills** | 7 個新 skills 包括 Forward Derivation、BDD/ATDD assistants |
+| **30 Slash Commands** | 9 個新指令（`/derive-*`、`/reverse-*`、`/atdd`、`/bdd`） |
+| **方法論系統** | TDD/BDD/SDD/ATDD 工作流已達生產就緒 |
 
 ---
 
@@ -413,18 +433,20 @@ CLI 安装：执行 `uds update --skills`。
 
 ---
 
-## 目录结构
+### 目录结构
 
 ```
 universal-dev-standards/
-├── core/                    # 核心标准（22 个文件）
+├── core/                    # 核心规则与检查清单（轻量化）
+│   ├── guides/              # 详细指南与教学
 │   ├── anti-hallucination.md
 │   ├── commit-message-guide.md
-│   ├── testing-standards.md
 │   └── ...
-├── ai/                      # AI 优化格式（.ai.yaml）
+├── methodologies/           # 方法论指南 (TDD, BDD, SDD)
+│   └── guides/              # 详细方法论教学
+├── ai/                      # AI 最佳化格式（.ai.yaml）
 ├── skills/                  # AI 工具 skills
-│   └── claude-code/         # 23 个 skill 目录
+│   └── claude-code/         # 26 個 skill 目錄
 ├── extensions/              # 语言/框架扩展
 │   ├── languages/           # csharp-style.md、php-style.md
 │   └── frameworks/          # fat-free-patterns.md
