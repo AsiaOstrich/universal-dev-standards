@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-beta.12] - 2026-02-12
+
+### Added
+- **Workflow Prerequisite System**: New `workflow-prerequisites.yaml` registry and `prerequisite-check.md` AI behavior protocol for checking command prerequisites before execution
+- **Workflow Analysis Document**: Comprehensive `docs/WORKFLOW-ANALYSIS.md` with process inventory, decision quick reference, and adoption roadmap
+- **Workflow Gaps Tracker**: `docs/WORKFLOW-GAPS.md` tracking 12 identified gaps (CI/CD, incident response, etc.)
+- **Cross-Command Handoff Guidance**: `/discover`, `/reverse`, `/derive`, `/release` now suggest logical next steps after completion
+- **Doc Generation Tooling**: `scripts/sync-manifest.mjs` and `scripts/generate-docs.mjs` for automated README stats sync
+- **`/brainstorm` Skill**: Structured AI-assisted ideation skill
+
+### Changed
+- **Documentation Sync**: Update all READMEs, MAINTENANCE.md, STANDARDS-MAPPING.md, FEATURE-REFERENCE.md with accurate counts (32 standards, 26 skills, 30 commands)
+- **AI Tool Support Table**: Expanded to include Gemini CLI, Cursor, Cline/Roo Code, Windsurf with detailed feature support
+- **Pre-release Checks**: Add Step 1.5 `docs:sync` to `pre-release-check.sh`
+- **Skill Prerequisites**: `/derive` now declares `spec-approved` prerequisite; `/release` declares `release-check` prerequisite
+
 ## [5.0.0-beta.11] - 2026-02-11
 
 ### Added

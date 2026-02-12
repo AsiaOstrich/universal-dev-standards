@@ -6,7 +6,7 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 5.0.0-beta.11 (Pre-release) | **Released**: 2026-02-11 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
+**Version**: 5.0.0-beta.12 (Pre-release) | **Released**: 2026-02-11 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 Language-agnostic, framework-agnostic documentation standards for software projects. Ensure consistency, quality, and maintainability across diverse technology stacks.
 
@@ -36,7 +36,7 @@ Language-agnostic, framework-agnostic documentation standards for software proje
 npm install -g universal-dev-standards@beta
 
 # Or install a specific beta version
-npm install -g universal-dev-standards@5.0.0-beta.11
+npm install -g universal-dev-standards@5.0.0-beta.12
 
 # Use without installing
 npx universal-dev-standards@beta init
@@ -111,7 +111,7 @@ npx universal-dev-standards init
 
 **Specific Version**
 ```bash
-npm install -g universal-dev-standards@5.0.0-beta.11  # Latest beta
+npm install -g universal-dev-standards@5.0.0-beta.12  # Latest beta
 npm install -g universal-dev-standards@beta            # Always latest beta
 npm install -g universal-dev-standards@latest           # Stable release
 ```
