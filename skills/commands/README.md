@@ -31,6 +31,7 @@ Commands for development workflow automation.
 
 | Command | Description | 說明 |
 |---------|-------------|------|
+| [`/brainstorm`](./brainstorm.md) | Structured AI-assisted brainstorming | AI 輔助腦力激盪 |
 | [`/commit`](./commit.md) | Generate conventional commit messages | 產生 commit message |
 | [`/review`](./review.md) | Perform systematic code review | 執行程式碼審查 |
 | [`/release`](./release.md) | Guide through release process | 引導發布流程 |

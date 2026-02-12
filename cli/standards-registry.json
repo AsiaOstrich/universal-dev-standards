@@ -279,6 +279,10 @@
       "skills/tdd-assistant/tdd-workflow.md",
       "skills/tdd-assistant/language-examples.md"
     ],
+    "brainstorm-assistant": [
+      "skills/brainstorm-assistant/SKILL.md",
+      "skills/brainstorm-assistant/guide.md"
+    ],
     "bdd-assistant": [
       "skills/bdd-assistant/SKILL.md",
       "skills/bdd-assistant/guide.md",
@@ -295,6 +299,7 @@
       "skills/commands/README.md",
       "skills/commands/atdd.md",
       "skills/commands/bdd.md",
+      "skills/commands/brainstorm.md",
       "skills/commands/changelog.md",
       "skills/commands/check.md",
       "skills/commands/commit.md",

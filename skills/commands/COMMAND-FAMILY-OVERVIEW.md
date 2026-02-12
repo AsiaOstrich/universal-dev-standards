@@ -20,6 +20,10 @@ This document provides a comprehensive guide to the development methodology comm
 │                           Command Family Overview                             │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
+│  Pre-Workflow (Optional / 可選前置)                                          │
+│  ────────────────────────────────────                                       │
+│  /brainstorm    → Structured ideation before spec/requirement               │
+│                                                                             │
 │  System A: SDD (AI-Era Methodology)                                         │
 │  ────────────────────────────────────                                       │
 │  /sdd          → Create specification proposal                             │
@@ -50,6 +54,8 @@ This document provides a comprehensive guide to the development methodology comm
 
 | Scenario / 情境 | Recommended Commands / 推薦指令 |
 |-----------------|-------------------------------|
+| Vague idea, need exploration / 模糊構想 | `/brainstorm` → `/requirement` → `/sdd` |
+| Improve existing feature / 改善現有功能 | `/brainstorm --technique scamper` → `/sdd` |
 | New project with AI assistance | `/sdd` → `/derive-all` → Implement |
 | Greenfield feature development | `/sdd` → `/derive-all` → Implement |
 | Legacy system modification | `/bdd` → `/tdd` cycles |
