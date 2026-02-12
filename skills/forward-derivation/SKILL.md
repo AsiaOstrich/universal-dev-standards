@@ -4,6 +4,7 @@ scope: partial
 description: "[UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications"
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[all|bdd|tdd|atdd] <spec-file>"
+prerequisites: ["spec-approved"]
 disable-model-invocation: true
 ---
 

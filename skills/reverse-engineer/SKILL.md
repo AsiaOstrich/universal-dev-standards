@@ -58,6 +58,15 @@ Reverse engineer existing code into specifications, BDD scenarios, or TDD covera
 - `/reverse bdd specs/SPEC-AUTH.md` - Convert spec ACs to Gherkin scenarios
 - `/reverse tdd features/auth.feature` - Analyze test coverage for feature file
 
+## Next Steps Guidance | 下一步引導
+
+After `/reverse spec` completes, the AI assistant should suggest:
+
+> **已產生 SPEC 文件。建議下一步 / Spec generated. Suggested next steps:**
+> - 執行 `/sdd` 審查並核准此規格 — Review and approve the generated spec
+> - 執行 `/derive` 從規格推導測試 — Derive tests from spec (requires approval first)
+> - 審查規格中的 `[Inferred]` 和 `[Unknown]` 標記 — Review uncertainty tags manually
+
 ## Reference | 參考
 
 - Detailed guide: [guide.md](./guide.md)

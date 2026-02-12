@@ -1,0 +1,146 @@
+# Workflow Prerequisite Registry
+# Defines slash command prerequisites and workflow membership
+#
+# Version: 1.0.0
+# Last Updated: 2026-02-12
+
+version: "1.0.0"
+description: "Workflow prerequisite registry for slash commands"
+
+# ─────────────────────────────────────────────────────────────
+# Workflow Definitions
+# Each workflow is a named sequence of commands representing
+# a complete development path from start to finish.
+# ─────────────────────────────────────────────────────────────
+workflows:
+  sdd-flow:
+    name: "SDD Flow (AI-Era)"
+    description: "Spec-Driven Development for new features with AI assistance"
+    steps: [discover, sdd, derive, bdd-review, tdd, checkin, commit, review]
+
+  bugfix-flow:
+    name: "Bug Fix Flow"
+    description: "Minimal workflow for fixing bugs with test coverage"
+    steps: [tdd, checkin, commit, review]
+
+  double-loop-flow:
+    name: "Double-Loop TDD"
+    description: "BDD outer loop + TDD inner loop for behavior-driven development"
+    steps: [bdd, tdd, checkin, commit, review]
+
+  legacy-modernization:
+    name: "Legacy Modernization"
+    description: "Reverse-engineer existing code, create specs, then modernize"
+    steps: [discover, reverse, sdd, refactor, tdd, checkin, commit]
+
+  release-flow:
+    name: "Release Flow"
+    description: "Pre-release checks, changelog update, and release"
+    steps: [release-check, changelog, release]
+
+  review-flow:
+    name: "Code Review Flow"
+    description: "Review code and commit"
+    steps: [review, commit]
+
+# ─────────────────────────────────────────────────────────────
+# Command Prerequisites
+#
+# Fields:
+#   entry_point      - true if the command can be used directly
+#                      without prior steps
+#   artifact         - what this command produces (used by
+#                      downstream commands to check readiness)
+#   requires_artifact - hard prerequisite; cannot produce
+#                       meaningful output without this artifact
+#   recommended_prior - soft prerequisite; better results with
+#                       these steps, but not required
+# ─────────────────────────────────────────────────────────────
+commands:
+  discover:
+    entry_point: true
+    artifact: "discovery-report"
+    description: "Project health assessment — always available"
+
+  sdd:
+    entry_point: true
+    artifact: "spec-approved"
+    recommended_prior: [discover]
+    description: "Create technical specification; /discover recommended for context"
+
+  derive:
+    entry_point: false
+    requires_artifact: "spec-approved"
+    artifact: "derived-tests"
+    description: "Forward derivation — requires an approved SPEC document"
+
+  bdd:
+    entry_point: true
+    artifact: "feature-files"
+    description: "BDD outer loop — entry point for Double-Loop TDD"
+
+  bdd-review:
+    entry_point: false
+    requires_artifact: "derived-tests"
+    description: "Review derived .feature files from /derive"
+
+  tdd:
+    entry_point: true
+    artifact: "passing-tests"
+    description: "TDD inner loop — entry point for bug fix flow"
+
+  refactor:
+    entry_point: true
+    recommended_prior: [discover]
+    description: "Refactoring — /discover recommended to identify hotspots"
+
+  checkin:
+    entry_point: true
+    description: "Pre-commit quality gate — always available"
+
+  commit:
+    entry_point: true
+    description: "Create conventional commit — always available"
+
+  review:
+    entry_point: true
+    description: "Code review — always available"
+
+  reverse:
+    entry_point: true
+    artifact: "reverse-spec"
+    recommended_prior: [discover]
+    description: "Reverse-engineer code to spec; /discover recommended first"
+
+  atdd:
+    entry_point: true
+    artifact: "acceptance-criteria"
+    description: "ATDD workshop — optional input method for SDD or BDD"
+
+  changelog:
+    entry_point: true
+    description: "Update CHANGELOG.md — always available"
+
+  release:
+    entry_point: false
+    requires_artifact: "changelog-updated"
+    recommended_prior: [release-check]
+    description: "Release process — requires changelog update and pre-release check"
+
+  release-check:
+    entry_point: true
+    description: "Pre-release verification — always available"
+
+  brainstorm:
+    entry_point: true
+    artifact: "ideation-output"
+    description: "Structured ideation — always available"
+
+  requirement:
+    entry_point: true
+    artifact: "user-story"
+    description: "Requirement engineering — always available"
+
+  coverage:
+    entry_point: true
+    description: "Test coverage analysis — always available"

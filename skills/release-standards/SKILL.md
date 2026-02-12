@@ -4,6 +4,7 @@ scope: universal
 description: "[UDS] Guide release process and changelogs"
 allowed-tools: Read, Write, Grep, Bash(git:*), Bash(npm version:*)
 argument-hint: "[version]"
+prerequisites: ["release-check"]
 disable-model-invocation: true
 ---
 
