@@ -43,6 +43,7 @@ These skills provide standard guidance and workflows. They can be accessed via s
 | `methodology-system` | `/methodology` | [UDS] Development methodology |
 | `refactoring-assistant` | `/refactor` | [UDS] Refactoring guidance |
 | `project-discovery` | `/discover` | [UDS] Assess project health and risks |
+| `brainstorm-assistant` | `/brainstorm` | [UDS] Structured AI-assisted ideation |
 | `changelog-guide` | `/changelog` | [UDS] Generate changelog entries |
 | `docs-generator` | `/docgen` | [UDS] Generate usage documentation |
 

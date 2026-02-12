@@ -35,9 +35,10 @@ async function syncManifest() {
     }
   });
 
-  // 2. Sync Skills
+  // 2. Sync Skills (only directories containing SKILL.md)
   const skillFolders = fs.readdirSync(skillsDir)
-    .filter(f => fs.statSync(path.join(skillsDir, f)).isDirectory() && !f.startsWith('_'));
+    .filter(f => fs.statSync(path.join(skillsDir, f)).isDirectory() && !f.startsWith('_')
+      && fs.existsSync(path.join(skillsDir, f, 'SKILL.md')));
 
   manifest.stats.skills = skillFolders.length;
 

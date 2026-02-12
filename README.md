@@ -18,7 +18,7 @@ Language-agnostic, framework-agnostic documentation standards for software proje
 | Category | Count | Description |
 |----------|-------|-------------|
 | **Core Standards** | 32 | Universal development guidelines |
-| **AI Skills** | 32 | Interactive skills |
+| **AI Skills** | 27 | Interactive skills |
 | **Slash Commands** | 30 | Quick actions |
 | **CLI Commands** | 6 | list, init, configure, check, update, skills |
 <!-- UDS_STATS_TABLE_END -->

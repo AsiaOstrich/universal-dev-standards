@@ -473,6 +473,7 @@ export const AVAILABLE_COMMANDS = [
   { name: 'derive', description: 'Forward derivation (spec to BDD/TDD)' },
   { name: 'reverse', description: 'Reverse engineer code to SDD specs' },
   { name: 'discover', description: 'Assess project health and risks before adding features' },
+  { name: 'brainstorm', description: 'Structured AI-assisted ideation and exploration' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Derivation Commands (Commands-only, specific transformations)

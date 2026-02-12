@@ -18,7 +18,7 @@
 | 类别 | 数量 | 说明 |
 |----------|-------|-------------|
 | **核心标准** | 32 | 通用开发准则 |
-| **AI Skills** | 32 | 互动式技能 |
+| **AI Skills** | 27 | 互动式技能 |
 | **斜线命令** | 30 | 快速操作 |
 | **CLI 命令** | 6 | list, init, configure, check, update, skills |
 <!-- UDS_STATS_TABLE_END -->

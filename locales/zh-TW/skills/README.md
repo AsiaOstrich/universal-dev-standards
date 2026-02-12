@@ -45,6 +45,7 @@ status: current
 | `methodology-system` | `/methodology` | [UDS] 開發方法論 |
 | `refactoring-assistant` | `/refactor` | [UDS] 重構指引 |
 | `project-discovery` | `/discover` | [UDS] 評估專案健康度與風險 |
+| `brainstorm-assistant` | `/brainstorm` | [UDS] 結構化 AI 輔助構想 |
 | `changelog-guide` | `/changelog` | [UDS] 生成變更日誌條目 |
 | `docs-generator` | `/docgen` | [UDS] 生成使用文件 |
 

@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.1] - 2026-02-12
+
+> **Release Candidate**: This is the first RC for v5.0.0. All major features are complete; this release focuses on final validation before stable.
+
+### Added
+- **3-Dimension Reverse Engineering**: Evolve `/reverse` to full system archeology with Logic, Data, and Runtime dimensions (`/reverse spec`, `/reverse data`, `/reverse runtime`)
+
+### Fixed
+- **Skills Count**: Fix `sync-manifest.mjs` to count only directories with `SKILL.md` (was 32, now correctly 27)
+- **Missing Command Registration**: Register `/brainstorm` in `AVAILABLE_COMMANDS` and skills README tables
+
+### Changed
+- **Workflow Visualization**: Expand Mermaid diagram in `WORKFLOW-ANALYSIS.md` with 3-dimension reverse engineering sub-nodes and data flow arrows
+
 ## [5.0.0-beta.12] - 2026-02-12
 
 ### Added
