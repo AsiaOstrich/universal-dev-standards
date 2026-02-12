@@ -6,7 +6,7 @@
 
 > **語言**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
 
-**版本**: 5.0.0-beta.12 (Pre-release) | **發布日期**: 2026-02-11 | **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
+**版本**: 5.0.0-rc.1 (Pre-release) | **發布日期**: 2026-02-11 | **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 
 語言無關、框架無關的軟體專案文件標準。確保不同技術堆疊之間的一致性、品質和可維護性。
 
@@ -50,7 +50,7 @@ npx universal-dev-standards@rc init
 npm install -g universal-dev-standards@beta
 
 # 或安裝特定 beta 版本
-npm install -g universal-dev-standards@5.0.0-beta.12
+npm install -g universal-dev-standards@5.0.0-rc.1
 
 # 無需安裝直接使用
 npx universal-dev-standards@beta init
@@ -125,7 +125,7 @@ npx universal-dev-standards init
 
 **指定版本**
 ```bash
-npm install -g universal-dev-standards@5.0.0-beta.10  # 最新 beta
+npm install -g universal-dev-standards@5.0.0-rc.1  # 最新 beta
 npm install -g universal-dev-standards@beta            # 始終取得最新 beta
 npm install -g universal-dev-standards@latest           # 穩定版
 ```
