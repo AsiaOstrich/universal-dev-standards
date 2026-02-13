@@ -93,7 +93,9 @@ vi.mock('../../src/utils/skills-installer.js', () => ({
   installSkillsToMultipleAgents: vi.fn(() => Promise.resolve({ totalInstalled: 1, totalErrors: 0 })),
   installCommandsToMultipleAgents: vi.fn(() => Promise.resolve({ totalInstalled: 1, totalErrors: 0 })),
   getInstalledSkillsInfoForAgent: vi.fn(() => ({ installed: false })),
-  getInstalledCommandsForAgent: vi.fn(() => ({ installed: false }))
+  getInstalledCommandsForAgent: vi.fn(() => ({ installed: false })),
+  cleanupDuplicateSkills: vi.fn(() => ({ cleaned: [], errors: [] })),
+  cleanupLegacyCommands: vi.fn(() => ({ cleaned: [], errors: [] }))
 }));
 
 import { updateCommand } from '../../src/commands/update.js';

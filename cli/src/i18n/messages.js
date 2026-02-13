@@ -374,6 +374,9 @@ export const messages = {
         user: '  → Skills available in all your projects',
         project: '  → Consider adding .claude/skills/ to .gitignore',
         none: '  → Full standards will be copied to .standards/'
+      },
+      warnings: {
+        duplicateLevel: 'Same agent selected at both levels, keeping project level (shareable via Git)'
       }
     },
 
@@ -403,6 +406,9 @@ export const messages = {
       explanations: {
         user: '  → Commands available in all your projects',
         project: '  → Commands only for this project'
+      },
+      warnings: {
+        duplicateLevel: 'Same agent selected at both levels, keeping project level (shareable via Git)'
       }
     },
 
@@ -1064,7 +1070,13 @@ export const messages = {
         newStandardsInstalled: 'Installed {count} new standard(s)',
         // Marketplace detection
         alreadyViaMarketplace: 'already via Marketplace',
-        marketplaceCoexistNote: 'Note: File-based installation will coexist with Marketplace version'
+        marketplaceCoexistNote: 'Note: File-based installation will coexist with Marketplace version',
+        // Duplicate cleanup
+        cleaningDuplicates: 'Checking for duplicate installations...',
+        duplicatesFound: 'Found duplicate installations:',
+        duplicatesCleaned: 'Cleaned {count} duplicate installation(s)',
+        legacyCleaned: 'Cleaned {count} legacy command file(s)',
+        noDuplicatesFound: 'No duplicate installations found'
       },
 
       // configure command
@@ -1519,6 +1531,9 @@ export const messages = {
         user: '  → Skills 可在所有專案中使用',
         project: '  → 建議將 .claude/skills/ 加入 .gitignore',
         none: '  → 完整標準將複製到 .standards/'
+      },
+      warnings: {
+        duplicateLevel: '同一 Agent 同時選了兩個層級，保留專案層級（可透過 Git 分享）'
       }
     },
 
@@ -1548,6 +1563,9 @@ export const messages = {
       explanations: {
         user: '  → 命令適用於您所有的專案',
         project: '  → 命令僅適用於此專案'
+      },
+      warnings: {
+        duplicateLevel: '同一 Agent 同時選了兩個層級，保留專案層級（可透過 Git 分享）'
       }
     },
 
@@ -2209,7 +2227,13 @@ export const messages = {
         newStandardsInstalled: '已安裝 {count} 個新標準',
         // Marketplace detection
         alreadyViaMarketplace: '已透過 Marketplace 安裝',
-        marketplaceCoexistNote: '注意：檔案安裝將與 Marketplace 版本並存'
+        marketplaceCoexistNote: '注意：檔案安裝將與 Marketplace 版本並存',
+        // Duplicate cleanup
+        cleaningDuplicates: '檢查重複安裝...',
+        duplicatesFound: '發現重複安裝：',
+        duplicatesCleaned: '已清理 {count} 個重複安裝',
+        legacyCleaned: '已清理 {count} 個舊版命令檔案',
+        noDuplicatesFound: '未發現重複安裝'
       },
 
       // configure command
@@ -2664,6 +2688,9 @@ export const messages = {
         user: '  → Skills 可在所有项目中使用',
         project: '  → 建议将 .claude/skills/ 加入 .gitignore',
         none: '  → 完整标准将复制到 .standards/'
+      },
+      warnings: {
+        duplicateLevel: '同一 Agent 同时选了两个层级，保留项目层级（可通过 Git 共享）'
       }
     },
 
@@ -2693,6 +2720,9 @@ export const messages = {
       explanations: {
         user: '  → 命令适用于您所有的项目',
         project: '  → 命令仅适用于此项目'
+      },
+      warnings: {
+        duplicateLevel: '同一 Agent 同时选了两个层级，保留项目层级（可通过 Git 共享）'
       }
     },
 
@@ -3283,7 +3313,13 @@ export const messages = {
         newStandardsInstalled: '已安装 {count} 个新标准',
         // Marketplace detection
         alreadyViaMarketplace: '已通过 Marketplace 安装',
-        marketplaceCoexistNote: '注意：文件安装将与 Marketplace 版本并存'
+        marketplaceCoexistNote: '注意：文件安装将与 Marketplace 版本并存',
+        // Duplicate cleanup
+        cleaningDuplicates: '检查重复安装...',
+        duplicatesFound: '发现重复安装：',
+        duplicatesCleaned: '已清理 {count} 个重复安装',
+        legacyCleaned: '已清理 {count} 个旧版命令文件',
+        noDuplicatesFound: '未发现重复安装'
       },
 
       // configure command

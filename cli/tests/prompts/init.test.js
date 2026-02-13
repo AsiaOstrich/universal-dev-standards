@@ -199,13 +199,44 @@ describe('Init Prompts', () => {
       ]);
     });
 
-    it('should support same agent with both levels', async () => {
+    it('should deduplicate same agent with both levels, keeping project', async () => {
       mockPrompt.mockResolvedValue({ locations: ['opencode:user', 'opencode:project'] });
 
       const result = await promptCommandsInstallation(['opencode']);
 
       expect(result).toEqual([
-        { agent: 'opencode', level: 'user' },
+        { agent: 'opencode', level: 'project' }
+      ]);
+    });
+  });
+
+  describe('promptSkillsInstallLocation deduplication', () => {
+    it('should deduplicate same agent selected at both levels, keeping project', async () => {
+      mockPrompt.mockResolvedValue({ locations: ['claude-code:user', 'claude-code:project'] });
+
+      const result = await promptSkillsInstallLocation(['claude-code']);
+
+      expect(result).toEqual([
+        { agent: 'claude-code', level: 'project' }
+      ]);
+    });
+
+    it('should show warning when deduplicating', async () => {
+      mockPrompt.mockResolvedValue({ locations: ['claude-code:user', 'claude-code:project'] });
+
+      await promptSkillsInstallLocation(['claude-code']);
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Claude Code');
+    });
+
+    it('should not deduplicate different agents', async () => {
+      mockPrompt.mockResolvedValue({ locations: ['claude-code:user', 'opencode:project'] });
+
+      const result = await promptSkillsInstallLocation(['claude-code', 'opencode']);
+
+      expect(result).toEqual([
+        { agent: 'claude-code', level: 'user' },
         { agent: 'opencode', level: 'project' }
       ]);
     });

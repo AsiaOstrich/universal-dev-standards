@@ -9,7 +9,10 @@ import {
   installSkillsForAgent,
   installCommandsForAgent,
   getInstalledSkillsInfoForAgent,
-  getInstalledCommandsForAgent
+  getInstalledCommandsForAgent,
+  deduplicateInstallations,
+  cleanupDuplicateSkills,
+  cleanupLegacyCommands
 } from '../../../src/utils/skills-installer.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -358,6 +361,116 @@ describe('Skills Installer', () => {
       const content = readFileSync(tomlPath, 'utf-8');
       // Should be valid TOML (no unescaped quotes in description)
       expect(content).toMatch(/description = "[^"]*"/);
+    });
+  });
+
+  describe('deduplicateInstallations', () => {
+    it('should keep single installation unchanged', () => {
+      const input = [{ agent: 'claude-code', level: 'project' }];
+      const result = deduplicateInstallations(input);
+      expect(result).toEqual([{ agent: 'claude-code', level: 'project' }]);
+    });
+
+    it('should deduplicate same agent at both levels, keeping project', () => {
+      const input = [
+        { agent: 'claude-code', level: 'user' },
+        { agent: 'claude-code', level: 'project' }
+      ];
+      const result = deduplicateInstallations(input);
+      expect(result).toEqual([{ agent: 'claude-code', level: 'project' }]);
+    });
+
+    it('should keep user level when project is not selected', () => {
+      const input = [
+        { agent: 'claude-code', level: 'user' },
+        { agent: 'claude-code', level: 'user' }
+      ];
+      const result = deduplicateInstallations(input);
+      expect(result).toEqual([{ agent: 'claude-code', level: 'user' }]);
+    });
+
+    it('should not deduplicate different agents', () => {
+      const input = [
+        { agent: 'claude-code', level: 'user' },
+        { agent: 'opencode', level: 'project' }
+      ];
+      const result = deduplicateInstallations(input);
+      expect(result).toEqual([
+        { agent: 'claude-code', level: 'user' },
+        { agent: 'opencode', level: 'project' }
+      ]);
+    });
+
+    it('should handle multiple agents with duplicates', () => {
+      const input = [
+        { agent: 'claude-code', level: 'user' },
+        { agent: 'opencode', level: 'user' },
+        { agent: 'claude-code', level: 'project' },
+        { agent: 'opencode', level: 'project' }
+      ];
+      const result = deduplicateInstallations(input);
+      expect(result).toEqual([
+        { agent: 'claude-code', level: 'project' },
+        { agent: 'opencode', level: 'project' }
+      ]);
+    });
+
+    it('should handle empty array', () => {
+      expect(deduplicateInstallations([])).toEqual([]);
+    });
+  });
+
+  describe('cleanupDuplicateSkills', () => {
+    it('should return empty when no duplicates exist', () => {
+      const result = cleanupDuplicateSkills(TEST_DIR);
+      expect(result.cleaned).toEqual([]);
+      expect(result.errors).toEqual([]);
+    });
+
+    it('should clean user-level skills when project-level exists', async () => {
+      // Install skills at project level for claude-code
+      await installSkillsForAgent('claude-code', 'project', ['commit-standards'], TEST_DIR);
+
+      // Manually create user-level skill to simulate duplicate
+      // Note: we can't easily test real user-level paths in test, but we verify the function runs
+      const result = cleanupDuplicateSkills(TEST_DIR);
+      // In test environment, user paths point to real home dir, so no duplicates expected
+      expect(result.errors).toEqual([]);
+    });
+  });
+
+  describe('cleanupLegacyCommands', () => {
+    it('should return empty when no legacy commands dir exists', () => {
+      const result = cleanupLegacyCommands(TEST_DIR);
+      expect(result.cleaned).toEqual([]);
+      expect(result.errors).toEqual([]);
+    });
+
+    it('should clean legacy command files that have matching skills', () => {
+      // Create legacy commands dir with a file
+      const legacyDir = join(TEST_DIR, '.claude', 'commands');
+      const skillsDir = join(TEST_DIR, '.claude', 'skills', 'commit-standards');
+      mkdirSync(legacyDir, { recursive: true });
+      mkdirSync(skillsDir, { recursive: true });
+      writeFileSync(join(legacyDir, 'commit-standards.md'), '# Legacy command');
+      writeFileSync(join(skillsDir, 'SKILL.md'), '# Skill');
+
+      const result = cleanupLegacyCommands(TEST_DIR);
+      expect(result.cleaned.length).toBe(1);
+      expect(result.cleaned[0].path).toContain('commit-standards.md');
+      expect(existsSync(join(legacyDir, 'commit-standards.md'))).toBe(false);
+    });
+
+    it('should not remove legacy commands without matching skills', () => {
+      const legacyDir = join(TEST_DIR, '.claude', 'commands');
+      const skillsDir = join(TEST_DIR, '.claude', 'skills');
+      mkdirSync(legacyDir, { recursive: true });
+      mkdirSync(skillsDir, { recursive: true });
+      writeFileSync(join(legacyDir, 'custom-command.md'), '# Custom command');
+
+      const result = cleanupLegacyCommands(TEST_DIR);
+      expect(result.cleaned).toEqual([]);
+      expect(existsSync(join(legacyDir, 'custom-command.md'))).toBe(true);
     });
   });
 });

@@ -238,13 +238,31 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
       return { agent, level };
     });
 
-  if (installations.length > 0) {
+  // Deduplicate: if same agent selected at both user + project levels, keep project (shareable via Git)
+  const seen = new Map();
+  const deduped = [];
+  for (const inst of installations) {
+    const existing = seen.get(inst.agent);
+    if (existing) {
+      if (inst.level === 'project') {
+        deduped[deduped.indexOf(existing)] = inst;
+        seen.set(inst.agent, inst);
+      }
+      const displayName = getAgentDisplayName(inst.agent);
+      console.log(chalk.yellow(`  ⚠ ${displayName}: ${msg.warnings?.duplicateLevel || 'Same agent selected at both levels, keeping project level'}`));
+    } else {
+      seen.set(inst.agent, inst);
+      deduped.push(inst);
+    }
+  }
+
+  if (deduped.length > 0) {
     console.log();
-    console.log(chalk.gray(`  ${msg.installCount.replace('{count}', installations.length)}`));
+    console.log(chalk.gray(`  ${msg.installCount.replace('{count}', deduped.length)}`));
     console.log();
   }
 
-  return installations;
+  return deduped;
 }
 
 /**
@@ -323,12 +341,30 @@ export async function promptCommandsInstallation(selectedTools = []) {
       return { agent, level };
     });
 
+  // Deduplicate: if same agent selected at both user + project levels, keep project (shareable via Git)
+  const seen = new Map();
+  const deduped = [];
+  for (const inst of installations) {
+    const existing = seen.get(inst.agent);
+    if (existing) {
+      if (inst.level === 'project') {
+        deduped[deduped.indexOf(existing)] = inst;
+        seen.set(inst.agent, inst);
+      }
+      const displayName = getAgentDisplayName(inst.agent);
+      console.log(chalk.yellow(`  ⚠ ${displayName}: ${msg.warnings?.duplicateLevel || 'Same agent selected at both levels, keeping project level'}`));
+    } else {
+      seen.set(inst.agent, inst);
+      deduped.push(inst);
+    }
+  }
+
   // Show explanation
-  if (installations.length > 0) {
+  if (deduped.length > 0) {
     console.log();
     // Group by level for explanation
-    const hasUser = installations.some(i => i.level === 'user');
-    const hasProject = installations.some(i => i.level === 'project');
+    const hasUser = deduped.some(i => i.level === 'user');
+    const hasProject = deduped.some(i => i.level === 'project');
     if (hasUser && msg.explanations?.user) {
       console.log(chalk.gray(msg.explanations.user));
     }
@@ -338,7 +374,7 @@ export async function promptCommandsInstallation(selectedTools = []) {
     console.log();
   }
 
-  return installations;
+  return deduped;
 }
 
 /**

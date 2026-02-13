@@ -7,13 +7,15 @@
  * @version 1.0.0
  */
 
-import { mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, copyFileSync, statSync } from 'fs';
+import { mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, copyFileSync, statSync, rmSync, unlinkSync } from 'fs';
 import { dirname, join, basename } from 'path';
 import { fileURLToPath } from 'url';
 import {
   getAgentConfig,
   getSkillsDirForAgent,
-  getCommandsDirForAgent
+  getCommandsDirForAgent,
+  getSkillsSupportedAgents,
+  getCommandsSupportedAgents
 } from '../config/ai-agent-paths.js';
 import { computeDirectoryHashes, computeFileHash } from './hasher.js';
 
@@ -640,6 +642,32 @@ export function getInstalledCommandsForAgent(agent, level = 'project', projectPa
 }
 
 /**
+ * Deduplicate installations: if same agent appears at both user + project levels, keep project level.
+ * Project level is preferred because it can be shared via Git.
+ * @param {Array<{agent: string, level: string}>} installations - Array of installation targets
+ * @returns {Array<{agent: string, level: string}>} Deduplicated installations
+ */
+export function deduplicateInstallations(installations) {
+  const seen = new Map();
+  const deduped = [];
+  for (const inst of installations) {
+    const existing = seen.get(inst.agent);
+    if (existing) {
+      // Same agent at two levels — prefer project
+      if (inst.level === 'project') {
+        deduped[deduped.indexOf(existing)] = inst;
+        seen.set(inst.agent, inst);
+      }
+      // else: already have project or user, skip this duplicate
+    } else {
+      seen.set(inst.agent, inst);
+      deduped.push(inst);
+    }
+  }
+  return deduped;
+}
+
+/**
  * Install skills to multiple agents at once
  * @param {Array<{agent: string, level: string}>} installations - Array of installation targets
  * @param {string[]} skillNames - Skills to install (null = all)
@@ -647,6 +675,9 @@ export function getInstalledCommandsForAgent(agent, level = 'project', projectPa
  * @returns {Object} Combined results
  */
 export async function installSkillsToMultipleAgents(installations, skillNames = null, projectPath = null) {
+  // Deduplicate: same agent at both levels → keep project
+  const uniqueInstallations = deduplicateInstallations(installations);
+
   const results = {
     success: true,
     installations: [],
@@ -655,7 +686,7 @@ export async function installSkillsToMultipleAgents(installations, skillNames = 
     allFileHashes: {} // New: combined file hashes from all installations
   };
 
-  for (const { agent, level } of installations) {
+  for (const { agent, level } of uniqueInstallations) {
     const result = await installSkillsForAgent(agent, level, skillNames, projectPath);
     results.installations.push(result);
 
@@ -683,6 +714,12 @@ export async function installSkillsToMultipleAgents(installations, skillNames = 
  * @returns {Object} Combined results
  */
 export async function installCommandsToMultipleAgents(installations, commandNames = null, projectPath = null) {
+  // Normalize to {agent, level} objects first, then deduplicate
+  const normalized = installations.map(item =>
+    typeof item === 'string' ? { agent: item, level: 'project' } : { agent: item.agent, level: item.level || 'project' }
+  );
+  const uniqueInstallations = deduplicateInstallations(normalized);
+
   const results = {
     success: true,
     installations: [],
@@ -691,10 +728,9 @@ export async function installCommandsToMultipleAgents(installations, commandName
     allFileHashes: {} // New: combined file hashes from all installations
   };
 
-  for (const item of installations) {
-    // Support both {agent, level} objects and simple agent strings (backward compatibility)
-    const agent = typeof item === 'string' ? item : item.agent;
-    const level = typeof item === 'string' ? 'project' : (item.level || 'project');
+  for (const item of uniqueInstallations) {
+    const agent = item.agent;
+    const level = item.level;
 
     const config = getAgentConfig(agent);
     if (!config?.commands) continue; // Skip agents that don't support commands
@@ -717,6 +753,105 @@ export async function installCommandsToMultipleAgents(installations, commandName
   return results;
 }
 
+/**
+ * Cleanup duplicate Skills installations where the same agent has both user and project level.
+ * Keeps project level (shareable via Git), removes user level duplicates.
+ * @param {string} projectPath - Project root path
+ * @returns {{cleaned: Array<{agent: string, level: string, path: string}>, errors: string[]}}
+ */
+export function cleanupDuplicateSkills(projectPath) {
+  const cleaned = [];
+  const errors = [];
+
+  const agents = getSkillsSupportedAgents();
+  for (const agent of agents) {
+    const projectDir = getSkillsDirForAgent(agent, 'project', projectPath);
+    const userDir = getSkillsDirForAgent(agent, 'user');
+
+    // Only clean up if both levels have installations
+    if (projectDir && userDir && existsSync(projectDir) && existsSync(userDir)) {
+      const projectSkills = safeReaddir(projectDir);
+      const userSkills = safeReaddir(userDir);
+
+      // Find skills that exist at both levels
+      const duplicates = userSkills.filter(s => projectSkills.includes(s));
+      for (const skillName of duplicates) {
+        const userSkillDir = join(userDir, skillName);
+        try {
+          if (existsSync(userSkillDir) && statSync(userSkillDir).isDirectory()) {
+            rmSync(userSkillDir, { recursive: true, force: true });
+            cleaned.push({ agent, level: 'user', path: userSkillDir });
+          }
+        } catch (err) {
+          errors.push(`Failed to remove ${userSkillDir}: ${err.message}`);
+        }
+      }
+    }
+  }
+
+  return { cleaned, errors };
+}
+
+/**
+ * Cleanup legacy command files in .claude/commands/ that duplicate skills in .claude/skills/.
+ * @param {string} projectPath - Project root path
+ * @returns {{cleaned: Array<{agent: string, level: string, path: string}>, errors: string[]}}
+ */
+export function cleanupLegacyCommands(projectPath) {
+  const cleaned = [];
+  const errors = [];
+
+  // Legacy commands path for Claude Code
+  const legacyDir = join(projectPath, '.claude', 'commands');
+  const skillsDir = join(projectPath, '.claude', 'skills');
+
+  if (!existsSync(legacyDir) || !existsSync(skillsDir)) {
+    return { cleaned, errors };
+  }
+
+  try {
+    const legacyFiles = readdirSync(legacyDir).filter(f => f.endsWith('.md'));
+    const skillFolders = safeReaddir(skillsDir);
+
+    for (const file of legacyFiles) {
+      const commandName = basename(file, '.md');
+      // If there's a matching skill folder, the legacy command is redundant
+      if (skillFolders.includes(commandName)) {
+        const filePath = join(legacyDir, file);
+        try {
+          unlinkSync(filePath);
+          cleaned.push({ agent: 'claude-code', level: 'project', path: filePath });
+        } catch (err) {
+          errors.push(`Failed to remove ${filePath}: ${err.message}`);
+        }
+      }
+    }
+  } catch (err) {
+    errors.push(`Failed to scan legacy commands: ${err.message}`);
+  }
+
+  return { cleaned, errors };
+}
+
+/**
+ * Safe readdir that returns empty array on error
+ * @param {string} dir - Directory path
+ * @returns {string[]} Directory entries
+ */
+function safeReaddir(dir) {
+  try {
+    return readdirSync(dir).filter(item => {
+      try {
+        return statSync(join(dir, item)).isDirectory();
+      } catch {
+        return false;
+      }
+    });
+  } catch {
+    return [];
+  }
+}
+
 export default {
   installSkillsForAgent,
   installCommandsForAgent,
@@ -725,5 +860,8 @@ export default {
   installSkillsToMultipleAgents,
   installCommandsToMultipleAgents,
   getAvailableSkillNames,
-  getAvailableCommandNames
+  getAvailableCommandNames,
+  deduplicateInstallations,
+  cleanupDuplicateSkills,
+  cleanupLegacyCommands
 };

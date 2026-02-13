@@ -22,7 +22,9 @@ import {
   installSkillsToMultipleAgents,
   installCommandsToMultipleAgents,
   getInstalledSkillsInfoForAgent,
-  getInstalledCommandsForAgent
+  getInstalledCommandsForAgent,
+  cleanupDuplicateSkills,
+  cleanupLegacyCommands
 } from '../utils/skills-installer.js';
 import {
   getAgentDisplayName,
@@ -694,6 +696,29 @@ export async function updateCommand(options) {
         if (outdatedCommands.length > 0) {
           const toolNames = outdatedCommands.map(c => `${c.displayName} (${c.currentVersion} → ${c.latestVersion})`).join(', ');
           console.log(chalk.gray(`  • Commands update (${toolNames}): run "uds update" interactively to update`));
+        }
+      }
+    }
+  }
+
+  // Detect and cleanup duplicate installations
+  if (manifest.skills?.installed || manifest.commands?.installed) {
+    const duplicateResult = cleanupDuplicateSkills(projectPath);
+    const legacyResult = cleanupLegacyCommands(projectPath);
+    const totalCleaned = duplicateResult.cleaned.length + legacyResult.cleaned.length;
+
+    if (totalCleaned > 0) {
+      console.log();
+      if (duplicateResult.cleaned.length > 0) {
+        console.log(chalk.green(`  ✓ ${(msg.duplicatesCleaned || 'Cleaned {count} duplicate installation(s)').replace('{count}', duplicateResult.cleaned.length)}`));
+        for (const item of duplicateResult.cleaned) {
+          console.log(chalk.gray(`    - ${item.agent} (${item.level}): ${item.path}`));
+        }
+      }
+      if (legacyResult.cleaned.length > 0) {
+        console.log(chalk.green(`  ✓ ${(msg.legacyCleaned || 'Cleaned {count} legacy command file(s)').replace('{count}', legacyResult.cleaned.length)}`));
+        for (const item of legacyResult.cleaned) {
+          console.log(chalk.gray(`    - ${item.path}`));
         }
       }
     }
