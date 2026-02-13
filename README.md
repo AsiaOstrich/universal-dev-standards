@@ -6,7 +6,7 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 5.0.0-rc.1 (Pre-release) | **Released**: 2026-02-13 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
+**Version**: 5.0.0-rc.2 (Pre-release) | **Released**: 2026-02-13 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 Language-agnostic, framework-agnostic documentation standards for software projects. Ensure consistency, quality, and maintainability across diverse technology stacks with AI-native workflows.
 
@@ -41,11 +41,11 @@ npx universal-dev-standards init
 
 <!-- UDS_STATS_TABLE_START -->
 | Category | Count | Description |
-| :--- | :--- | :--- |
-| **Core Standards** | 32 | Universal development guidelines (TDD, BDD, Security, etc.) |
-| **AI Skills** | 27 | Interactive skills for Claude Code, OpenCode, etc. |
-| **Slash Commands** | 30 | Quick actions (e.g., `/tdd`, `/review`, `/derive`) |
-| **CLI Commands** | 6 | `list`, `init`, `configure`, `check`, `update`, `skills` |
+|----------|-------|-------------|
+| **Core Standards** | 32 | Universal development guidelines |
+| **AI Skills** | 27 | Interactive skills |
+| **Slash Commands** | 30 | Quick actions |
+| **CLI Commands** | 6 | list, init, configure, check, update, skills |
 <!-- UDS_STATS_TABLE_END -->
 
 ### What's New in 5.0 Beta

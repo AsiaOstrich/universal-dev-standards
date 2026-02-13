@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.2] - 2026-02-13
+
+> **Release Candidate**: Second RC for v5.0.0 with documentation improvements and CLI bug fixes.
+
+### Fixed
+- **Slash Command Deduplication**: Prevent duplicate skill installation when selecting multiple levels for the same agent
+- **Update Command**: Detect and install new standards during `uds update`
+
+### Changed
+- **README Structure**: Restructure all READMEs into modular and AI-optimized format
+
 ## [5.0.0-rc.1] - 2026-02-12
 
 > **Release Candidate**: This is the first RC for v5.0.0. All major features are complete; this release focuses on final validation before stable.
