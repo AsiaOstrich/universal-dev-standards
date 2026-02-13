@@ -1057,6 +1057,11 @@ export const messages = {
         updatingCommands: 'Updating Commands...',
         commandsUpdated: 'Updated Commands for {count} AI tools',
         commandsUpdatedWithErrors: 'Updated Commands with {errors} errors',
+        // New standards detection
+        newStandardsFound: '{count} new standard(s) available for your level:',
+        installNewStandards: 'Install these new standards?',
+        installingNewStandards: 'Installing new standards...',
+        newStandardsInstalled: 'Installed {count} new standard(s)',
         // Marketplace detection
         alreadyViaMarketplace: 'already via Marketplace',
         marketplaceCoexistNote: 'Note: File-based installation will coexist with Marketplace version'
@@ -2197,6 +2202,11 @@ export const messages = {
         updatingCommands: '更新斜線命令中...',
         commandsUpdated: '已為 {count} 個 AI 工具更新斜線命令',
         commandsUpdatedWithErrors: '更新斜線命令時發生 {errors} 個錯誤',
+        // New standards detection
+        newStandardsFound: '有 {count} 個新標準可供您的等級使用：',
+        installNewStandards: '是否安裝這些新標準？',
+        installingNewStandards: '安裝新標準中...',
+        newStandardsInstalled: '已安裝 {count} 個新標準',
         // Marketplace detection
         alreadyViaMarketplace: '已透過 Marketplace 安裝',
         marketplaceCoexistNote: '注意：檔案安裝將與 Marketplace 版本並存'
@@ -3266,6 +3276,11 @@ export const messages = {
         updatingCommands: '正在更新斜线命令...',
         commandsUpdated: '已为 {count} 个 AI 工具更新斜线命令',
         commandsUpdatedWithErrors: '更新斜线命令时发生 {errors} 个错误',
+        // New standards detection
+        newStandardsFound: '有 {count} 个新标准可用于您的级别：',
+        installNewStandards: '是否安装这些新标准？',
+        installingNewStandards: '正在安装新标准...',
+        newStandardsInstalled: '已安装 {count} 个新标准',
         // Marketplace detection
         alreadyViaMarketplace: '已通过 Marketplace 安装',
         marketplaceCoexistNote: '注意：文件安装将与 Marketplace 版本并存'

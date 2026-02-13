@@ -5,7 +5,7 @@ import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 import { join, basename } from 'path';
 import { readManifest, writeManifest, copyStandard, isInitialized } from '../utils/copier.js';
-import { getRepositoryInfo } from '../utils/registry.js';
+import { getRepositoryInfo, getStandardsByLevel, getStandardSource } from '../utils/registry.js';
 import { computeFileHash } from '../utils/hasher.js';
 import {
   writeIntegrationFile,
@@ -115,6 +115,42 @@ async function updateCliAndExit(useBeta = false) {
     console.log();
     process.exit(1);
   }
+}
+
+/**
+ * Check for new standards available in the registry that are not yet installed
+ * @param {Object} manifest - Manifest object
+ * @returns {{newStandards: Array<{source: string, name: string}>, count: number}}
+ */
+function checkNewStandards(manifest) {
+  const level = manifest.level || 2;
+  const scope = manifest.standardsScope || 'minimal';
+  const format = manifest.format || 'ai';
+
+  // Get all standards for this level from the registry
+  const registryStandards = getStandardsByLevel(level);
+
+  // Filter by scope (same logic as standards-installer.js)
+  const eligibleStandards = scope === 'minimal'
+    ? registryStandards.filter(s => s.category === 'reference')
+    : registryStandards.filter(s => s.category === 'reference' || s.category === 'skill');
+
+  // Get installed standard basenames for comparison
+  const installedBasenames = new Set(
+    (manifest.standards || []).map(s => basename(s))
+  );
+
+  // Find standards in registry that are not yet installed
+  const newStandards = [];
+  for (const std of eligibleStandards) {
+    const sourcePath = getStandardSource(std, format);
+    const fileName = basename(sourcePath);
+    if (!installedBasenames.has(fileName)) {
+      newStandards.push({ source: sourcePath, name: fileName });
+    }
+  }
+
+  return { newStandards, count: newStandards.length };
 }
 
 /**
@@ -249,6 +285,9 @@ export async function updateCommand(options) {
   console.log(chalk.cyan(msg.updateAvailable.replace('{current}', currentVersion).replace('{latest}', latestVersion)));
   console.log();
 
+  // Detect new standards available in the registry
+  const { newStandards } = checkNewStandards(manifest);
+
   // List files to update
   console.log(chalk.gray(msg.filesToUpdate));
   for (const std of manifest.standards) {
@@ -260,6 +299,15 @@ export async function updateCommand(options) {
   if (!options.standardsOnly) {
     for (const int of manifest.integrations) {
       console.log(chalk.gray(`  ${int}`));
+    }
+  }
+
+  // Show new standards if any
+  if (newStandards.length > 0) {
+    console.log();
+    console.log(chalk.cyan(msg.newStandardsFound.replace('{count}', newStandards.length)));
+    for (const ns of newStandards) {
+      console.log(chalk.green(`  + .standards/${ns.name}`));
     }
   }
   console.log();
@@ -312,6 +360,45 @@ export async function updateCommand(options) {
   }
 
   spinner.succeed(msg.updatedStandards.replace('{count}', results.updated.length));
+
+  // Install new standards if detected
+  if (newStandards.length > 0) {
+    let shouldInstallNew = false;
+
+    if (options.yes) {
+      // --yes mode: auto-install new standards
+      shouldInstallNew = true;
+    } else {
+      // Interactive mode: ask user
+      const { installNew } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'installNew',
+          message: msg.installNewStandards,
+          default: true
+        }
+      ]);
+      shouldInstallNew = installNew;
+    }
+
+    if (shouldInstallNew) {
+      const newSpinner = ora(msg.installingNewStandards).start();
+      let newCount = 0;
+
+      for (const ns of newStandards) {
+        const result = await copyStandard(ns.source, '.standards', projectPath);
+        if (result.success) {
+          manifest.standards.push(ns.source);
+          results.updated.push(ns.source);
+          newCount++;
+        } else {
+          results.errors.push(`${ns.source}: ${result.error}`);
+        }
+      }
+
+      newSpinner.succeed(msg.newStandardsInstalled.replace('{count}', newCount));
+    }
+  }
 
   // Update integrations (unless --standards-only)
   if (!options.standardsOnly && manifest.integrations && manifest.integrations.length > 0) {
