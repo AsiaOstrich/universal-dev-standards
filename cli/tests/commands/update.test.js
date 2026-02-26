@@ -54,7 +54,7 @@ vi.mock('../../src/utils/registry.js', () => ({
   getStandardsByLevel: vi.fn(() => []),
   getStandardSource: vi.fn((std, format) => {
     if (typeof std.source === 'string') return std.source;
-    return std.source[format] || std.source.human;
+    return std.source?.[format] || std.source?.human || null;
   })
 }));
 
@@ -701,6 +701,34 @@ describe('Update Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).not.toContain('new standard');
+    });
+
+    it('should skip standards with null source (skill-only like project-discovery)', async () => {
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['ai/commit-message.ai.yaml'],
+        extensions: [],
+        integrations: [],
+        level: 2,
+        standardsScope: 'full',
+        format: 'ai',
+        skills: { installed: false }
+      });
+
+      // project-discovery has source: { human: null, ai: null }
+      getStandardsByLevel.mockReturnValue([
+        { name: 'commit-message', category: 'reference', source: { ai: 'ai/commit-message.ai.yaml' } },
+        { name: 'project-discovery', category: 'skill', source: { human: null, ai: null } },
+        { name: 'testing', category: 'reference', source: { ai: 'ai/testing.ai.yaml' } }
+      ]);
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      // Should not crash and should still detect testing as new
+      expect(output).toContain('testing.ai.yaml');
+      // project-discovery should be silently skipped
+      expect(output).not.toContain('project-discovery');
     });
 
     it('should include skill category when standardsScope is full', async () => {

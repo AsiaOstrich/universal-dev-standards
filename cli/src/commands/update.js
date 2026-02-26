@@ -146,6 +146,7 @@ function checkNewStandards(manifest) {
   const newStandards = [];
   for (const std of eligibleStandards) {
     const sourcePath = getStandardSource(std, format);
+    if (!sourcePath) continue; // Skip skill-only standards with no source file
     const fileName = basename(sourcePath);
     if (!installedBasenames.has(fileName)) {
       newStandards.push({ source: sourcePath, name: fileName });

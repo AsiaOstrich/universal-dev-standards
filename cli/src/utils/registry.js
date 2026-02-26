@@ -144,13 +144,13 @@ export function getOptionCategories() {
  * Get source path for a standard based on format
  * @param {Object} standard - Standard object from registry
  * @param {string} format - 'ai' or 'human'
- * @returns {string} Source path
+ * @returns {string|null} Source path, or null if no source available
  */
 export function getStandardSource(standard, format = 'human') {
   if (typeof standard.source === 'string') {
     return standard.source;
   }
-  return standard.source[format] || standard.source.human;
+  return standard.source?.[format] || standard.source?.human || null;
 }
 
 /**

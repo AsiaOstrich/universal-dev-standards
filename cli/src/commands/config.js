@@ -719,6 +719,7 @@ export async function runProjectConfiguration(options) {
     for (const std of newStandards) {
       for (const targetFormat of formatsToUse) {
         const sourcePath = getStandardSource(std, targetFormat);
+        if (!sourcePath) continue; // Skip skill-only standards with no source file
         const fileName = basename(sourcePath);
         if (!existingStandards.has(fileName)) {
           const result = await copyStandard(sourcePath, '.standards', projectPath);
