@@ -16,6 +16,7 @@ import { agentListCommand, agentInstallCommand, agentInfoCommand } from '../src/
 import { workflowListCommand, workflowInstallCommand, workflowInfoCommand, workflowExecuteCommand, workflowStatusCommand } from '../src/commands/workflow.js';
 import { aiContextInitCommand, aiContextValidateCommand, aiContextGraphCommand } from '../src/commands/ai-context.js';
 import { sweepCommand } from '../src/commands/sweep.js';
+import { uninstallCommand } from '../src/commands/uninstall.js';
 import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand, specArchiveCommand, specDeleteCommand } from '../src/commands/spec.js';
 import { startCommand, missionStatusCommand, missionPauseCommand, missionResumeCommand, missionCancelCommand, missionListCommand } from '../src/commands/start.js';
 import { setLanguage, setLanguageExplicit, detectLanguage } from '../src/i18n/messages.js';
@@ -151,6 +152,17 @@ program
   .option('--report', 'Save report to .uds/reports/')
   .option('-v, --verbose', 'Show detailed output')
   .action(sweepCommand);
+
+program
+  .command('uninstall')
+  .description('Remove UDS standards, integrations, skills, and hooks')
+  .option('--all', 'Remove everything including user-level installations')
+  .option('--standards-only', 'Remove only .standards/ directory')
+  .option('--skills-only', 'Remove only skills and commands')
+  .option('--integrations-only', 'Remove only UDS blocks from integration files')
+  .option('--dry-run', 'Preview mode, no files modified')
+  .option('-y, --yes', 'Skip confirmation prompts')
+  .action(uninstallCommand);
 
 // Spec command with subcommands (Vibe Coding)
 const specCommand = program

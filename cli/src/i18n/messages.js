@@ -1161,6 +1161,36 @@ export const messages = {
         viaMarketplace: 'Via Marketplace',
         marketplaceOnly: 'Marketplace only (no local files)',
         marketplaceCoexistNote: 'Note: File-based installation will coexist with Marketplace version'
+      },
+
+      // uninstall command
+      uninstall: {
+        title: 'UDS Uninstall',
+        selectCategories: 'Select categories to remove:',
+        categoryHooks: 'Git Hooks',
+        categorySkills: 'Skills & Commands',
+        categoryIntegrations: 'Integration Files',
+        categoryStandards: 'Standards',
+        category_hooks: 'Hooks',
+        category_skills: 'Skills',
+        category_integrations: 'Integrations',
+        category_standards: 'Standards',
+        nothingSelected: 'Nothing selected. Aborting.',
+        dryRunMode: '(dry-run mode — no files will be modified)',
+        dryRunHint: 'Dry-run complete. Run without --dry-run to apply.',
+        previewTitle: 'The following changes will be made:',
+        willRemove: 'Remove',
+        willSkip: 'Skip',
+        confirmUninstall: 'Proceed with uninstall?',
+        integrationAction: 'What should be done?',
+        removeBlockOnly: 'Remove UDS block only (keep user content)',
+        deleteEntireFile: 'Delete entire file',
+        skipFile: 'Skip this file',
+        uninstallSuccess: '✓ Uninstall complete.',
+        uninstallPartial: '⚠ Uninstall completed with errors.',
+        removed: 'Removed',
+        skippedLabel: 'Skipped',
+        errorsLabel: 'Errors'
       }
     }
   },
@@ -2318,6 +2348,36 @@ export const messages = {
         viaMarketplace: '透過 Marketplace',
         marketplaceOnly: '僅 Marketplace（無本機檔案）',
         marketplaceCoexistNote: '注意：檔案安裝將與 Marketplace 版本並存'
+      },
+
+      // uninstall command
+      uninstall: {
+        title: 'UDS 解除安裝',
+        selectCategories: '選擇要移除的類別：',
+        categoryHooks: 'Git Hooks',
+        categorySkills: 'Skills 與命令',
+        categoryIntegrations: '整合檔案',
+        categoryStandards: '標準',
+        category_hooks: 'Hooks',
+        category_skills: 'Skills',
+        category_integrations: '整合檔案',
+        category_standards: '標準',
+        nothingSelected: '未選擇任何項目。已中止。',
+        dryRunMode: '（預覽模式 — 不會修改任何檔案）',
+        dryRunHint: '預覽完成。移除 --dry-run 以實際執行。',
+        previewTitle: '將執行以下變更：',
+        willRemove: '移除',
+        willSkip: '跳過',
+        confirmUninstall: '確定要執行解除安裝嗎？',
+        integrationAction: '如何處理？',
+        removeBlockOnly: '僅移除 UDS 區塊（保留使用者內容）',
+        deleteEntireFile: '刪除整個檔案',
+        skipFile: '跳過此檔案',
+        uninstallSuccess: '✓ 解除安裝完成。',
+        uninstallPartial: '⚠ 解除安裝完成但有錯誤。',
+        removed: '已移除',
+        skippedLabel: '已跳過',
+        errorsLabel: '錯誤'
       }
     }
   },
@@ -3404,6 +3464,36 @@ export const messages = {
         viaMarketplace: '通过 Marketplace',
         marketplaceOnly: '仅 Marketplace（无本地文件）',
         marketplaceCoexistNote: '注意：文件安装将与 Marketplace 版本并存'
+      },
+
+      // uninstall command
+      uninstall: {
+        title: 'UDS 卸载',
+        selectCategories: '选择要移除的类别：',
+        categoryHooks: 'Git Hooks',
+        categorySkills: 'Skills 与命令',
+        categoryIntegrations: '集成文件',
+        categoryStandards: '标准',
+        category_hooks: 'Hooks',
+        category_skills: 'Skills',
+        category_integrations: '集成文件',
+        category_standards: '标准',
+        nothingSelected: '未选择任何项目。已中止。',
+        dryRunMode: '（预览模式 — 不会修改任何文件）',
+        dryRunHint: '预览完成。移除 --dry-run 以实际执行。',
+        previewTitle: '将执行以下变更：',
+        willRemove: '移除',
+        willSkip: '跳过',
+        confirmUninstall: '确定要执行卸载吗？',
+        integrationAction: '如何处理？',
+        removeBlockOnly: '仅移除 UDS 区块（保留用户内容）',
+        deleteEntireFile: '删除整个文件',
+        skipFile: '跳过此文件',
+        uninstallSuccess: '✓ 卸载完成。',
+        uninstallPartial: '⚠ 卸载完成但有错误。',
+        removed: '已移除',
+        skippedLabel: '已跳过',
+        errorsLabel: '错误'
       }
     }
   }
