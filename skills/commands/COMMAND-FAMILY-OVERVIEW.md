@@ -26,10 +26,11 @@ This document provides a comprehensive guide to the development methodology comm
 │                                                                             │
 │  System A: SDD (AI-Era Methodology)                                         │
 │  ────────────────────────────────────                                       │
-│  /sdd          → Create specification proposal                             │
-│  /derive-all    → Generate BDD + TDD from spec (Forward Derivation)         │
-│  /derive-bdd    → Generate BDD scenarios only                               │
-│  /derive-tdd    → Generate TDD skeletons only                               │
+│  /sdd            → Full SDD lifecycle (create/review/approve/implement/     │
+│                    verify sub-commands)                                      │
+│  /derive-all     → Generate BDD + TDD from spec (Forward Derivation)        │
+│  /derive-bdd     → Generate BDD scenarios only                              │
+│  /derive-tdd     → Generate TDD skeletons only                              │
 │                                                                             │
 │  System B: Double-Loop TDD (Traditional)                                    │
 │  ────────────────────────────────────                                       │
@@ -56,13 +57,13 @@ This document provides a comprehensive guide to the development methodology comm
 |-----------------|-------------------------------|
 | Vague idea, need exploration / 模糊構想 | `/brainstorm` → `/requirement` → `/sdd` |
 | Improve existing feature / 改善現有功能 | `/brainstorm --technique scamper` → `/sdd` |
-| New project with AI assistance | `/sdd` → `/derive-all` → Implement |
-| Greenfield feature development | `/sdd` → `/derive-all` → Implement |
+| New project with AI assistance | `/sdd` → `/sdd approve` → `/derive-all` → `/sdd implement` |
+| Greenfield feature development | `/sdd` → `/sdd approve` → `/derive-all` → `/sdd implement` |
 | Legacy system modification | `/bdd` → `/tdd` cycles |
 | Complex business logic | `/bdd discovery` → `/tdd` |
 | Multiple stakeholders need alignment | `/atdd` → then `/sdd` or `/bdd` |
 | Quick prototype | `/tdd` only |
-| API-first development | `/sdd` → `/derive-all` |
+| API-first development | `/sdd` → `/sdd approve` → `/derive-all` |
 | Check methodology status | `/methodology` |
 
 ---
@@ -77,8 +78,11 @@ SDD（規格驅動開發）針對 AI 輔助開發工作流程進行了優化。
 
 | Command | Purpose / 用途 | Input / 輸入 | Output / 輸出 |
 |---------|----------------|--------------|---------------|
-| `/sdd` | Create specification proposal | Requirements description | `SPEC-XXX.md` |
-| `/sdd review` | Review specification | SPEC file | Review comments |
+| `/sdd` | Create specification (Phase 1) | Requirements description | `SPEC-XXX.md` |
+| `/sdd review` | Review specification (Phase 2) | SPEC file | Review comments |
+| `/sdd approve` | Approve specification (Phase 3) | SPEC file | Updated spec status |
+| `/sdd implement` | Track implementation (Phase 4) | SPEC file | Implementation checklist |
+| `/sdd verify` | Verify implementation (Phase 5) | SPEC file | `VERIFICATION-REPORT.md` |
 | `/derive-all` | Full forward derivation | SPEC file | `.feature` + `.test.ts` |
 | `/derive-bdd` | BDD derivation only | SPEC file | `.feature` |
 | `/derive-tdd` | TDD derivation only | SPEC file | `.test.ts` |
@@ -86,17 +90,23 @@ SDD（規格驅動開發）針對 AI 輔助開發工作流程進行了優化。
 ### Typical SDD Workflow | 典型 SDD 工作流程
 
 ```bash
-# Step 1: Create specification
+# Phase 1: Create specification
 /sdd user-authentication
 
-# Step 2: Review and approve
+# Phase 2: Review specification
 /sdd review specs/SPEC-001.md
 
-# Step 3: Derive test structures
+# Phase 3: Approve specification
+/sdd approve specs/SPEC-001.md
+
+# Derive test structures from approved spec
 /derive-all specs/SPEC-001.md
 
-# Step 4: Implement (with AI assistance or TDD cycles)
-# Fill in [TODO] sections, implement step definitions
+# Phase 4: Track implementation progress
+/sdd implement specs/SPEC-001.md
+
+# Phase 5: Verify implementation matches spec
+/sdd verify specs/SPEC-001.md
 ```
 
 ---
@@ -189,19 +199,26 @@ Best for: New features, AI-assisted development, greenfield projects
 適用於：新功能、AI 輔助開發、全新專案
 
 ```bash
-# Create and review specification
+# Phase 1: Create specification
 /sdd user-authentication
+
+# Phase 2: Review specification
 /sdd review specs/SPEC-001.md
 
-# Generate all test structures
+# Phase 3: Approve specification
+/sdd approve specs/SPEC-001.md
+
+# Generate all test structures from approved spec
 /derive-all specs/SPEC-001.md
+# Output: .feature (BDD), .test.ts (TDD), DERIVATION-REPORT.md
 
-# Output:
-# - features/SPEC-001.feature (BDD scenarios)
-# - tests/SPEC-001.test.ts (TDD skeletons)
-# - DERIVATION-REPORT.md (summary)
+# Phase 4: Track implementation progress
+/sdd implement specs/SPEC-001.md
+# Fill [TODO] markers, implement code
 
-# Implementation: Fill [TODO], implement code
+# Phase 5: Verify implementation
+/sdd verify specs/SPEC-001.md
+# Output: VERIFICATION-REPORT.md
 ```
 
 ### Example 2: Double-Loop TDD Flow | 範例 2：雙迴圈 TDD 流程
@@ -235,12 +252,15 @@ Best for: When you need spec clarity + TDD discipline
 ```bash
 # Start with SDD for specification
 /sdd feature-x
+/sdd approve specs/SPEC-001.md
 /derive-all specs/SPEC-001.md
 
 # Use TDD for complex implementation logic
+/sdd implement specs/SPEC-001.md
 /tdd red → /tdd green → /tdd refactor
 
-# BDD scenarios serve as acceptance criteria
+# Verify against spec (BDD scenarios serve as acceptance criteria)
+/sdd verify specs/SPEC-001.md
 ```
 
 ---
@@ -252,7 +272,11 @@ Best for: When you need spec clarity + TDD discipline
 | Goal / 目標 | Command / 指令 |
 |-------------|----------------|
 | Start new feature with spec | `/sdd <feature-name>` |
+| Review a specification | `/sdd review <spec-file>` |
+| Approve a specification | `/sdd approve <spec-file>` |
 | Generate tests from spec | `/derive-all <spec-file>` |
+| Track implementation progress | `/sdd implement <spec-file>` |
+| Verify implementation | `/sdd verify <spec-file>` |
 | Start BDD workflow | `/bdd` |
 | Start TDD cycle | `/tdd` |
 | Check methodology status | `/methodology` |
