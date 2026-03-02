@@ -4,8 +4,6 @@ import {
   promptDisplayLanguage,
   promptAITools,
   promptSkillsInstallLocation,
-  promptStandardsScope,
-  promptLevel,
   promptLanguage,
   promptFramework,
   promptFormat,
@@ -36,7 +34,6 @@ export async function runInitFlow(options, detected, projectPath) {
   let msg = t().commands.init;
   
   // Initialize configuration variables
-  let level = options.level ? parseInt(options.level, 10) : null;
   let languages = options.lang ? [options.lang] : null;
   let frameworks = options.framework ? [options.framework] : null;
   let displayLanguage = options.locale || null;
@@ -160,33 +157,25 @@ export async function runInitFlow(options, detected, projectPath) {
     }
   }
 
-  // === STEP 6: Standards Scope ===
-  const standardsScope = await promptStandardsScope(skillsConfig.installed);
-
-  // === STEP 7: Adoption Level ===
-  if (!level) {
-    level = await promptLevel();
-  }
-
-  // === STEP 8: Standards Format ===
+  // === STEP 6: Standards Format ===
   if (!format) {
     format = await promptFormat();
   }
 
-  // === STEP 9: Standard Options ===
-  standardOptions = await promptStandardOptions(level, displayLanguage);
+  // === STEP 7: Standard Options ===
+  standardOptions = await promptStandardOptions(3, displayLanguage);
 
-  // === STEP 10: Language Extensions ===
+  // === STEP 8: Language Extensions ===
   if (!languages) {
     languages = await promptLanguage(detected.languages) || [];
   }
 
-  // === STEP 11: Framework Extensions ===
+  // === STEP 9: Framework Extensions ===
   if (!frameworks) {
     frameworks = await promptFramework(detected.frameworks) || [];
   }
 
-  // === STEP 12: Integrations ===
+  // === STEP 10: Integrations ===
   integrations = [...aiTools];
   const integrationConfigs = {};
   
@@ -211,16 +200,15 @@ export async function runInitFlow(options, detected, projectPath) {
   }
 
   skillsConfig.integrationConfigs = integrationConfigs;
-  skillsConfig.standardsScope = standardsScope;
 
-  // === STEP 13: Content Mode ===
+  // === STEP 11: Content Mode ===
   let contentMode = 'minimal';
   if (aiTools.length > 0) {
     contentMode = await promptContentMode();
   }
   skillsConfig.contentMode = contentMode;
 
-  // === STEP 14: Methodology ===
+  // === STEP 12: Methodology ===
   let methodology = null;
   if (options.experimental) {
     methodology = await promptMethodology();
@@ -228,7 +216,6 @@ export async function runInitFlow(options, detected, projectPath) {
   skillsConfig.methodology = methodology;
 
   return {
-    level,
     languages,
     frameworks,
     displayLanguage,
@@ -237,7 +224,6 @@ export async function runInitFlow(options, detected, projectPath) {
     skillsConfig,
     aiTools,
     integrations,
-    contentMode,
-    standardsScope
+    contentMode
   };
 }

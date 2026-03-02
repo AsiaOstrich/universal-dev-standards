@@ -108,7 +108,6 @@ describe('Check Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Standards initialized');
-      expect(output).toContain('Level: 2');
     });
 
     it('should report missing files', async () => {

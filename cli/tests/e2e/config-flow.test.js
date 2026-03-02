@@ -100,7 +100,7 @@ describe('E2E: uds config', () => {
     it('should display current configuration in JSON format', async () => {
       await setupTestDir(testDir, {});
       await writeFile(join(testDir, '.cursorrules'), '# Cursor rules');
-      await runNonInteractive({ level: '2' }, testDir);
+      await runNonInteractive({}, testDir);
 
       // Short timeout - we just want to verify initial display
       const result = await runCommand('config', { yes: true }, testDir, 5000);
@@ -168,24 +168,22 @@ describe('E2E: uds config', () => {
     it('should have correct structure after init', async () => {
       await setupTestDir(testDir, {});
       await writeFile(join(testDir, '.cursorrules'), '# Cursor rules');
-      await runNonInteractive({ level: '2' }, testDir);
+      await runNonInteractive({}, testDir);
 
       const manifestPath = join(testDir, '.standards/manifest.json');
       expect(await fileExists(manifestPath)).toBe(true);
 
       const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 
-      expect(manifest.level).toBe(2);
       expect(manifest.format).toBeDefined();
       expect(manifest.aiTools).toContain('cursor');
       expect(manifest.options).toBeDefined();
 
       recordScenarioResult('Manifest structure', {
         steps: [
-          { step: 1, name: 'Level correct', matched: manifest.level === 2 },
-          { step: 2, name: 'Format defined', matched: manifest.format !== undefined },
-          { step: 3, name: 'AI Tools contains cursor', matched: manifest.aiTools.includes('cursor') },
-          { step: 4, name: 'Options defined', matched: manifest.options !== undefined }
+          { step: 1, name: 'Format defined', matched: manifest.format !== undefined },
+          { step: 2, name: 'AI Tools contains cursor', matched: manifest.aiTools.includes('cursor') },
+          { step: 3, name: 'Options defined', matched: manifest.options !== undefined }
         ],
         output: JSON.stringify(manifest, null, 2)
       });

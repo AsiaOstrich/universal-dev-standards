@@ -922,58 +922,7 @@ export async function promptSkillsUpgrade(installedVersion, latestVersion) {
   return action;
 }
 
-/**
- * Prompt for adoption level
- *
- * Adoption levels determine how many standards are installed:
- * - Level 1 (Starter): 6 core standards - commit, anti-hallucination, checkin, etc.
- * - Level 2 (Professional): 12 standards - adds testing, git workflow, error handling
- * - Level 3 (Complete): All 16 standards - includes versioning, logging, SDD
- *
- * @returns {Promise<number>} Selected level
- */
-export async function promptLevel() {
-  const msg = t().level;
-
-  console.log();
-  console.log(chalk.cyan(msg.title));
-  console.log(chalk.gray(`  ${msg.description}`));
-  console.log(chalk.gray(`  ${t().listHint}`));
-  console.log();
-
-  const { level } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'level',
-      message: msg.question,
-      suffix: ' ',
-      choices: [
-        {
-          name: `${chalk.blue(msg.labels[1])} - ${msg.choices[1]}`,
-          value: 1
-        },
-        {
-          name: `${chalk.green(msg.labels[2])} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices[2]}`,
-          value: 2
-        },
-        {
-          name: `${chalk.yellow(msg.labels[3])} - ${msg.choices[3]}`,
-          value: 3
-        }
-      ],
-      default: 1
-    }
-  ]);
-
-  // Show what's included in selected level
-  console.log();
-  for (const line of msg.details[level]) {
-    console.log(chalk.gray(line));
-  }
-  console.log();
-
-  return level;
-}
+// promptLevel removed — Level system no longer exists, all standards are installed
 
 /**
  * Prompt for language extension
@@ -1335,57 +1284,7 @@ export async function promptManageAITools(currentTools = []) {
   return { action: 'cancel', tools: [] };
 }
 
-/**
- * Prompt for adoption level change
- * @param {number} currentLevel - Current adoption level
- * @returns {Promise<number>} New level
- */
-export async function promptAdoptionLevel(currentLevel) {
-  const msg = t().adoptionLevelConfig;
-  const levelLabels = t().level.labels;
-
-  console.log();
-  console.log(chalk.cyan(msg.title));
-  console.log(chalk.gray(`  ${msg.currentLevel} ${currentLevel}`));
-  console.log(chalk.gray(`  ${t().listHint}`));
-  console.log();
-
-  const { level } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'level',
-      message: msg.question,
-      suffix: ' ',
-      choices: [
-        {
-          name: `${chalk.blue(levelLabels[1])} - ${msg.choices[1]}`,
-          value: 1
-        },
-        {
-          name: `${chalk.green(levelLabels[2])} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices[2]}`,
-          value: 2
-        },
-        {
-          name: `${chalk.yellow(levelLabels[3])} - ${msg.choices[3]}`,
-          value: 3
-        }
-      ],
-      default: currentLevel - 1  // 0-indexed
-    }
-  ]);
-
-  if (level !== currentLevel) {
-    console.log();
-    if (level > currentLevel) {
-      console.log(chalk.yellow(msg.warnings.upgrade));
-    } else {
-      console.log(chalk.yellow(msg.warnings.downgrade));
-      console.log(chalk.gray(msg.warnings.downgradeHint));
-    }
-  }
-
-  return level;
-}
+// promptAdoptionLevel removed — Level system no longer exists
 
 /**
  * Prompt for content mode change (used in uds configure)

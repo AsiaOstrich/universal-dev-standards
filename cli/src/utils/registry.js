@@ -30,12 +30,12 @@ export function loadRegistry() {
 
 /**
  * Get standards filtered by level
- * @param {number} level - Adoption level (1, 2, or 3)
- * @returns {Array} Standards at or below the specified level
+ * @deprecated Use getAllStandards() instead. Level system has been removed.
+ * @param {number} _level - Ignored (kept for backward compatibility)
+ * @returns {Array} All standards
  */
-export function getStandardsByLevel(level) {
-  const registry = loadRegistry();
-  return registry.standards.filter(s => s.level <= level);
+export function getStandardsByLevel(_level) {
+  return getAllStandards();
 }
 
 /**
@@ -59,12 +59,12 @@ export function getAllStandards() {
 
 /**
  * Get adoption level info
- * @param {number} level - Adoption level
- * @returns {Object} Level information
+ * @deprecated Level system has been removed.
+ * @param {number} _level - Ignored
+ * @returns {Object} Stub level info for backward compatibility
  */
-export function getLevelInfo(level) {
-  const registry = loadRegistry();
-  return registry.adoptionLevels[String(level)];
+export function getLevelInfo(_level) {
+  return { name: 'All Standards', nameZh: '全部標準', nameZhCn: '全部标准', description: 'All available standards' };
 }
 
 /**

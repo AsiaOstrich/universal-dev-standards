@@ -461,7 +461,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 
 ## Installed Standards Index
 
-This project has adopted **Level 3** (Enterprise) standards. All standards are located in `.standards/`:
+This project has adopted all available UDS standards. All standards are located in `.standards/`:
 
 ### Core Standards
 - `anti-hallucination.ai.yaml` - Anti-Hallucination Guidelines

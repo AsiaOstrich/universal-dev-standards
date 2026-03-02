@@ -56,7 +56,6 @@ import {
   promptStandardOptions,
   promptInstallMode,
   promptSkillsUpgrade,
-  promptLevel,
   promptLanguage,
   promptFramework,
   promptLocale,
@@ -498,31 +497,7 @@ describe('Init Prompts', () => {
     });
   });
 
-  describe('promptLevel', () => {
-    it('should return level 1', async () => {
-      mockPrompt.mockResolvedValue({ level: 1 });
-
-      const result = await promptLevel();
-
-      expect(result).toBe(1);
-    });
-
-    it('should return level 2', async () => {
-      mockPrompt.mockResolvedValue({ level: 2 });
-
-      const result = await promptLevel();
-
-      expect(result).toBe(2);
-    });
-
-    it('should return level 3', async () => {
-      mockPrompt.mockResolvedValue({ level: 3 });
-
-      const result = await promptLevel();
-
-      expect(result).toBe(3);
-    });
-  });
+  // promptLevel tests removed — Level system no longer exists
 
   describe('promptLanguage', () => {
     it('should return null when no languages detected', async () => {

@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { basename, join } from 'path';
 import {
-  getStandardsByLevel,
+  getAllStandards,
   getStandardSource,
   getOptionSource,
   findOption
@@ -35,13 +35,11 @@ export async function installStandards(config, projectPath) {
     fileHashes: {}
   };
 
-  // Get standards for the selected level
-  const standards = getStandardsByLevel(config.level);
+  // Get all standards (level system removed — install everything)
+  const standards = getAllStandards();
 
-  // Determine which standards to copy based on scope
-  const standardsToCopy = config.standardsScope === 'minimal'
-    ? standards.filter(s => s.category === 'reference')
-    : standards.filter(s => s.category === 'reference' || s.category === 'skill');
+  // Copy all reference and skill standards
+  const standardsToCopy = standards.filter(s => s.category === 'reference' || s.category === 'skill');
 
   // Helper to copy standard with format awareness
   const copyStandardWithFormat = async (std, targetFormat) => {

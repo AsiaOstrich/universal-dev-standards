@@ -287,7 +287,6 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
   }
 
   return {
-    level: options.level ? parseInt(options.level, 10) : 2,
     languages: options.lang ? [options.lang] : Object.keys(detected.languages).filter(k => detected.languages[k]),
     frameworks: options.framework ? [options.framework] : Object.keys(detected.frameworks).filter(k => detected.frameworks[k]),
     displayLanguage,
@@ -302,7 +301,6 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     aiTools: aiToolsNormalized,
     integrations: [...aiToolsNormalized],
     contentMode: skillsConfig.contentMode || 'minimal',
-    standardsScope: skillsConfig.standardsScope || 'full',
     methodology: null
   };
 }
@@ -368,18 +366,11 @@ function displaySummary(config, msg, common) {
     console.log(chalk.gray(`  ${msg.commandsLabel || 'Slash Commands'}: ${commandsStatusText}`));
   }
 
-  // 4. Standards Scope (STEP 6)
-  console.log(chalk.gray(`  ${msg.standardsScope}: ${config.skillsConfig.standardsScope === 'minimal' ? msg.standardsScopeLean : msg.standardsScopeComplete}`));
-
-  // 5. Adoption Level (STEP 7) - Use level.labels for translated display
-  const levelLabels = t().level?.labels || { 1: 'Level 1', 2: 'Level 2', 3: 'Level 3' };
-  console.log(chalk.gray(`  ${common.level}: ${levelLabels[config.level] || `Level ${config.level}`}`));
-
-  // 6. Standards Format (STEP 8)
+  // 4. Standards Format (STEP 6)
   const formatLabels = t().format?.labels || { ai: 'Compact', human: 'Detailed', both: 'Both' };
   console.log(chalk.gray(`  ${common.format}: ${formatLabels[config.format]}`));
 
-  // 7. Standard Options (STEP 9) - use labels for human-readable values
+  // 5. Standard Options (STEP 7) - use labels for human-readable values
   if (config.standardOptions.workflow) {
     console.log(chalk.gray(`  ${msg.gitWorkflow}: ${getValueLabel('gitWorkflow', config.standardOptions.workflow)}`));
   }
@@ -394,13 +385,13 @@ function displaySummary(config, msg, common) {
     console.log(chalk.gray(`  ${msg.testLevels}: ${testLabels.join(', ')}`));
   }
 
-  // 8. Language Extensions (STEP 10)
+  // 6. Language Extensions (STEP 8)
   console.log(chalk.gray(`  ${msg.languages}: ${config.languages.length > 0 ? config.languages.join(', ') : common.none}`));
 
-  // 9. Framework Extensions (STEP 11)
+  // 7. Framework Extensions (STEP 9)
   console.log(chalk.gray(`  ${msg.frameworks}: ${config.frameworks.length > 0 ? config.frameworks.join(', ') : common.none}`));
 
-  // 10. Integration Config (STEP 12)
+  // 8. Integration Config (STEP 10)
   if (config.skillsConfig.integrationConfigs && Object.keys(config.skillsConfig.integrationConfigs).length > 0) {
     // Get the first config (shared config)
     const firstConfigKey = Object.keys(config.skillsConfig.integrationConfigs)[0];
@@ -420,11 +411,11 @@ function displaySummary(config, msg, common) {
     }
   }
 
-  // 11. Content Mode (STEP 13)
+  // 9. Content Mode (STEP 11)
   const contentModeLabels = t().contentMode?.labels || { index: 'Standard', full: 'Full', minimal: 'Minimal' };
   console.log(chalk.gray(`  ${msg.contentModeLabel}: ${contentModeLabels[config.contentMode] || config.contentMode}`));
 
-  // 12. Methodology (STEP 14, experimental)
+  // 10. Methodology (STEP 12, experimental)
   if (config.skillsConfig.methodology) {
     console.log(chalk.gray(`  ${common.methodology}: ${config.skillsConfig.methodology} ${chalk.yellow('[Experimental]')}`));
   }

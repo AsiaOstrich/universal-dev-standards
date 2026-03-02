@@ -21,7 +21,6 @@ import {
   removeFileHash,
   getAITools,
   getStandards,
-  getAdoptionLevel,
   areSkillsInstalled,
   areCommandsInstalled
 } from '../../../src/core/manifest.js';
@@ -38,9 +37,7 @@ const createValidManifest = (overrides = {}) => ({
     version: null,
     installed: new Date().toISOString()
   },
-  level: 2,
   format: 'ai',
-  standardsScope: 'minimal',
   contentMode: 'index',
   standards: [],
   extensions: [],
@@ -78,10 +75,13 @@ describe('Schema Constants', () => {
     it('should have all required fields', () => {
       expect(DEFAULT_MANIFEST.version).toBe(CURRENT_SCHEMA_VERSION);
       expect(DEFAULT_MANIFEST.upstream).toBeDefined();
-      expect(DEFAULT_MANIFEST.level).toBe(2);
       expect(DEFAULT_MANIFEST.format).toBe('ai');
-      expect(DEFAULT_MANIFEST.standardsScope).toBe('minimal');
       expect(DEFAULT_MANIFEST.contentMode).toBe('index');
+    });
+
+    it('should not have removed level or standardsScope fields', () => {
+      expect(DEFAULT_MANIFEST).not.toHaveProperty('level');
+      expect(DEFAULT_MANIFEST).not.toHaveProperty('standardsScope');
     });
 
     it('should have all hash tracking fields', () => {
@@ -196,12 +196,12 @@ describe('Manifest CRUD Operations', () => {
     });
 
     it('should write manifest as JSON', () => {
-      const manifest = createValidManifest({ level: 3 });
+      const manifest = createValidManifest({ format: 'human' });
       const path = writeManifest(manifest, TEST_DIR);
 
       expect(existsSync(path)).toBe(true);
       const content = JSON.parse(readFileSync(path, 'utf-8'));
-      expect(content.level).toBe(3);
+      expect(content.format).toBe('human');
     });
 
     it('should throw for invalid manifest', () => {
@@ -231,18 +231,8 @@ describe('Manifest Validation', () => {
       expect(validateManifest(manifest)).toBe(false);
     });
 
-    it('should return false for invalid level', () => {
-      const manifest = createValidManifest({ level: 5 });
-      expect(validateManifest(manifest)).toBe(false);
-    });
-
     it('should return false for invalid format', () => {
       const manifest = createValidManifest({ format: 'invalid' });
-      expect(validateManifest(manifest)).toBe(false);
-    });
-
-    it('should return false for invalid standardsScope', () => {
-      const manifest = createValidManifest({ standardsScope: 'invalid' });
       expect(validateManifest(manifest)).toBe(false);
     });
 
@@ -261,10 +251,12 @@ describe('Manifest Validation', () => {
       expect(validateManifest(manifest)).toBe(true);
     });
 
-    it('should accept all valid levels', () => {
+    it('should pass validation for manifests with legacy level/standardsScope fields (backward compat)', () => {
       expect(validateManifest(createValidManifest({ level: 1 }))).toBe(true);
-      expect(validateManifest(createValidManifest({ level: 2 }))).toBe(true);
-      expect(validateManifest(createValidManifest({ level: 3 }))).toBe(true);
+      expect(validateManifest(createValidManifest({ level: 5 }))).toBe(true);
+      expect(validateManifest(createValidManifest({ standardsScope: 'minimal' }))).toBe(true);
+      expect(validateManifest(createValidManifest({ standardsScope: 'anything' }))).toBe(true);
+      expect(validateManifest(createValidManifest({ level: 2, standardsScope: 'full' }))).toBe(true);
     });
 
     it('should accept all valid formats', () => {
@@ -287,15 +279,16 @@ describe('Manifest Creation and Merging', () => {
       const manifest = createManifest();
 
       expect(manifest.version).toBe(CURRENT_SCHEMA_VERSION);
-      expect(manifest.level).toBe(2);
       expect(manifest.format).toBe('ai');
+      expect(manifest).not.toHaveProperty('level');
+      expect(manifest).not.toHaveProperty('standardsScope');
     });
 
     it('should allow overriding fields', () => {
-      const manifest = createManifest({ level: 3, format: 'human' });
+      const manifest = createManifest({ format: 'human', contentMode: 'full' });
 
-      expect(manifest.level).toBe(3);
       expect(manifest.format).toBe('human');
+      expect(manifest.contentMode).toBe('full');
     });
 
     it('should merge nested objects', () => {
@@ -312,17 +305,17 @@ describe('Manifest Creation and Merging', () => {
 
   describe('mergeManifest', () => {
     it('should create manifest if base is null', () => {
-      const merged = mergeManifest(null, { level: 3 });
+      const merged = mergeManifest(null, { format: 'human' });
 
       expect(merged.version).toBe(CURRENT_SCHEMA_VERSION);
-      expect(merged.level).toBe(3);
+      expect(merged.format).toBe('human');
     });
 
     it('should merge updates into base manifest', () => {
-      const base = createValidManifest({ level: 1 });
-      const merged = mergeManifest(base, { level: 2 });
+      const base = createValidManifest({ contentMode: 'index' });
+      const merged = mergeManifest(base, { contentMode: 'full' });
 
-      expect(merged.level).toBe(2);
+      expect(merged.contentMode).toBe('full');
     });
 
     it('should merge nested objects correctly', () => {
@@ -339,7 +332,7 @@ describe('Manifest Creation and Merging', () => {
 
     it('should throw for invalid merged result', () => {
       const base = createValidManifest();
-      expect(() => mergeManifest(base, { level: 'invalid' })).toThrow();
+      expect(() => mergeManifest(base, { format: 'invalid' })).toThrow();
     });
   });
 });
@@ -379,9 +372,7 @@ describe('Manifest Migration', () => {
       const oldManifest = {
         version: '3.0.0',
         upstream: { repo: 'test/repo' },
-        level: 2,
         format: 'ai',
-        standardsScope: 'minimal',
         contentMode: 'index'
       };
 
@@ -396,9 +387,7 @@ describe('Manifest Migration', () => {
       const oldManifest = {
         version: '3.1.0',
         upstream: { repo: 'test/repo' },
-        level: 2,
         format: 'ai',
-        standardsScope: 'minimal',
         contentMode: 'index',
         fileHashes: { 'test.md': { hash: 'sha256:abc' } }
       };
@@ -414,9 +403,7 @@ describe('Manifest Migration', () => {
       const oldManifest = {
         version: '3.2.0',
         upstream: { repo: 'test/repo' },
-        level: 2,
         format: 'ai',
-        standardsScope: 'full',
         contentMode: 'full',
         fileHashes: {}
       };
@@ -424,7 +411,6 @@ describe('Manifest Migration', () => {
       const migrated = migrateManifest(oldManifest);
 
       expect(migrated.version).toBe(CURRENT_SCHEMA_VERSION);
-      expect(migrated.standardsScope).toBe('full');
       expect(migrated.skillHashes).toEqual({});
       expect(migrated.commandHashes).toEqual({});
       expect(migrated.integrationBlockHashes).toEqual({});
@@ -434,9 +420,7 @@ describe('Manifest Migration', () => {
       const oldManifest = {
         version: '3.0.0',
         upstream: { repo: 'custom/repo', version: '1.0.0' },
-        level: 3,
         format: 'human',
-        standardsScope: 'minimal',
         contentMode: 'index',
         aiTools: ['claude-code', 'cursor'],
         standards: ['core/test.md']
@@ -445,9 +429,26 @@ describe('Manifest Migration', () => {
       const migrated = migrateManifest(oldManifest);
 
       expect(migrated.upstream.repo).toBe('custom/repo');
-      expect(migrated.level).toBe(3);
       expect(migrated.aiTools).toContain('claude-code');
       expect(migrated.standards).toContain('core/test.md');
+    });
+
+    it('should preserve legacy level/standardsScope fields during migration', () => {
+      const oldManifest = {
+        version: '3.0.0',
+        upstream: { repo: 'test/repo' },
+        level: 3,
+        format: 'ai',
+        standardsScope: 'full',
+        contentMode: 'index'
+      };
+
+      const migrated = migrateManifest(oldManifest);
+
+      // Legacy fields are carried through (not stripped), but not required
+      expect(migrated.version).toBe(CURRENT_SCHEMA_VERSION);
+      expect(migrated.level).toBe(3);
+      expect(migrated.standardsScope).toBe('full');
     });
   });
 });
@@ -540,18 +541,6 @@ describe('Manifest Query Helpers', () => {
     it('should return empty array if not defined', () => {
       const manifest = { ...createValidManifest(), standards: undefined };
       expect(getStandards(manifest)).toEqual([]);
-    });
-  });
-
-  describe('getAdoptionLevel', () => {
-    it('should return adoption level', () => {
-      const manifest = createValidManifest({ level: 3 });
-      expect(getAdoptionLevel(manifest)).toBe(3);
-    });
-
-    it('should return default level if not defined', () => {
-      const manifest = { ...createValidManifest(), level: undefined };
-      expect(getAdoptionLevel(manifest)).toBe(2);
     });
   });
 

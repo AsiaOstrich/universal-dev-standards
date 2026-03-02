@@ -44,26 +44,6 @@
       "adoptionMethod": "Copy and customize"
     }
   },
-  "adoptionLevels": {
-    "1": {
-      "name": "Essential",
-      "nameZh": "基本",
-      "description": "Minimum viable standards for any project",
-      "setupTime": "30 minutes"
-    },
-    "2": {
-      "name": "Recommended",
-      "nameZh": "推薦",
-      "description": "Professional quality standards for team projects",
-      "setupTime": "2 hours"
-    },
-    "3": {
-      "name": "Enterprise",
-      "nameZh": "企業",
-      "description": "Comprehensive standards for enterprise or regulated projects",
-      "setupTime": "1-2 days"
-    }
-  },
   "standards": [
     {
       "id": "anti-hallucination",
@@ -72,7 +52,6 @@
       "source": "core/anti-hallucination.md",
       "category": "skill",
       "skillName": "ai-collaboration-standards",
-      "level": 1,
       "description": "Guidelines for AI collaboration to prevent hallucination and ensure evidence-based responses"
     },
     {
@@ -82,7 +61,6 @@
       "source": "core/commit-message-guide.md",
       "category": "skill",
       "skillName": "commit-standards",
-      "level": 1,
       "description": "Conventional Commits format for standardized git commit messages"
     },
     {
@@ -92,7 +70,6 @@
       "source": "core/checkin-standards.md",
       "category": "reference",
       "skillName": null,
-      "level": 1,
       "description": "Quality gates and verification steps before committing code",
       "note": "Partially incorporated into code-review-assistant skill"
     },
@@ -103,7 +80,6 @@
       "source": "core/spec-driven-development.md",
       "category": "reference",
       "skillName": null,
-      "level": 1,
       "description": "Methodology for specification-first development approach"
     },
     {
@@ -113,7 +89,6 @@
       "source": "core/code-review-checklist.md",
       "category": "skill",
       "skillName": "code-review-assistant",
-      "level": 2,
       "description": "Systematic checklist for reviewing code quality, security, and maintainability"
     },
     {
@@ -123,7 +98,6 @@
       "source": "core/git-workflow.md",
       "category": "skill",
       "skillName": "git-workflow-guide",
-      "level": 2,
       "description": "Branching strategies including Trunk-Based, GitHub Flow, and GitFlow"
     },
     {
@@ -133,7 +107,6 @@
       "source": "core/versioning.md",
       "category": "skill",
       "skillName": "release-standards",
-      "level": 2,
       "description": "SemVer standard for version numbering (MAJOR.MINOR.PATCH)"
     },
     {
@@ -143,7 +116,6 @@
       "source": "core/changelog-standards.md",
       "category": "skill",
       "skillName": "release-standards",
-      "level": 2,
       "description": "Keep a Changelog format for documenting notable changes"
     },
     {
@@ -153,7 +125,6 @@
       "source": "core/testing-standards.md",
       "category": "skill",
       "skillName": "testing-guide",
-      "level": 2,
       "description": "Testing pyramid and recommended coverage ratios (70/20/7/3)"
     },
     {
@@ -163,7 +134,6 @@
       "source": "core/documentation-structure.md",
       "category": "skill",
       "skillName": "documentation-guide",
-      "level": 3,
       "description": "Standard directory structure for project documentation"
     },
     {
@@ -173,7 +143,6 @@
       "source": "core/documentation-writing-standards.md",
       "category": "reference",
       "skillName": null,
-      "level": 3,
       "description": "Content requirements and writing guidelines for different project types"
     },
     {
@@ -183,7 +152,6 @@
       "source": "core/project-structure.md",
       "category": "reference",
       "skillName": null,
-      "level": 3,
       "description": "Standard directory conventions for source code organization"
     },
     {
@@ -193,7 +161,6 @@
       "source": "extensions/languages/csharp-style.md",
       "category": "extension",
       "skillName": null,
-      "level": 2,
       "description": "C# naming conventions and code style rules",
       "applicability": "C# projects"
     },
@@ -204,7 +171,6 @@
       "source": "extensions/languages/php-style.md",
       "category": "extension",
       "skillName": null,
-      "level": 2,
       "description": "PHP 8.1+ PSR-12 style guide",
       "applicability": "PHP 8.1+ projects"
     },
@@ -215,7 +181,6 @@
       "source": "extensions/frameworks/fat-free-patterns.md",
       "category": "extension",
       "skillName": null,
-      "level": 2,
       "description": "Development patterns for Fat-Free Framework v3.8+",
       "applicability": "Fat-Free Framework projects"
     },
@@ -226,7 +191,6 @@
       "source": "extensions/locales/zh-tw.md",
       "category": "extension",
       "skillName": null,
-      "level": 2,
       "description": "Traditional Chinese (Taiwan) localization for all standards",
       "applicability": "Traditional Chinese speaking teams"
     },
@@ -237,7 +201,6 @@
       "source": "integrations/github-copilot/copilot-instructions.md",
       "category": "integration",
       "skillName": null,
-      "level": 2,
       "description": "Custom instructions for GitHub Copilot Chat",
       "targetPath": ".github/copilot-instructions.md"
     },
@@ -248,7 +211,6 @@
       "source": "integrations/cursor/.cursorrules",
       "category": "integration",
       "skillName": null,
-      "level": 2,
       "description": "AI assistant rules for Cursor IDE",
       "targetPath": ".cursorrules"
     },
@@ -259,7 +221,6 @@
       "source": "integrations/windsurf/.windsurfrules",
       "category": "integration",
       "skillName": null,
-      "level": 2,
       "description": "AI assistant rules for Windsurf IDE",
       "targetPath": ".windsurfrules"
     },
@@ -270,7 +231,6 @@
       "source": "integrations/cline/.clinerules",
       "category": "integration",
       "skillName": null,
-      "level": 2,
       "description": "AI assistant rules for Cline",
       "targetPath": ".clinerules"
     },
@@ -281,7 +241,6 @@
       "source": "integrations/google-antigravity/INSTRUCTIONS.md",
       "category": "integration",
       "skillName": null,
-      "level": 2,
       "description": "System prompt snippets for Google Antigravity agent",
       "targetPath": "See integration README"
     },
@@ -292,7 +251,6 @@
       "source": "integrations/openspec/",
       "category": "integration",
       "skillName": null,
-      "level": 2,
       "description": "Spec-Driven Development tooling for AI assistants",
       "targetPath": "See integration README"
     },
@@ -303,7 +261,6 @@
       "source": "templates/requirement-checklist.md",
       "category": "skill",
       "skillName": "requirement-assistant",
-      "level": 2,
       "description": "Checklist for reviewing requirement documents"
     },
     {
@@ -313,7 +270,6 @@
       "source": "templates/requirement-template.md",
       "category": "skill",
       "skillName": "requirement-assistant",
-      "level": 2,
       "description": "Template for writing user stories"
     },
     {
@@ -323,7 +279,6 @@
       "source": "templates/requirement-document-template.md",
       "category": "skill",
       "skillName": "requirement-assistant",
-      "level": 2,
       "description": "Template for writing comprehensive requirement documents"
     },
     {
@@ -333,7 +288,6 @@
       "source": "templates/migration-template.md",
       "category": "template",
       "skillName": null,
-      "level": 3,
       "description": "Template for planning technology migrations",
       "applicability": "Migration projects"
     }

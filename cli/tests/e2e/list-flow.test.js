@@ -1,6 +1,6 @@
 /**
  * E2E Tests for uds list command
- * Tests standards listing, filtering by level/category, and output format
+ * Tests standards listing, filtering by category, and output format
  */
 
 import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
@@ -119,58 +119,6 @@ describe('E2E: uds list', () => {
     });
   });
 
-  // ===== Level Filtering =====
-  describe('Level Filtering', () => {
-    it('should filter by level 1', async () => {
-      await setupTestDir(testDir, {});
-
-      const result = await runCommand('list', { level: '1' }, testDir);
-
-      expect(result.stdout).toContain(expectedMessages.filters.showingLevel);
-      expect(result.stdout).toContain('1');
-
-      recordScenarioResult('Level 1 Filter', {
-        steps: [
-          { step: 1, name: 'Showing Level', matched: result.stdout.includes('Showing Level') },
-          { step: 2, name: 'Level 1', matched: result.stdout.includes('1') }
-        ],
-        output: result.stdout
-      });
-    });
-
-    it('should filter by level 2', async () => {
-      await setupTestDir(testDir, {});
-
-      const result = await runCommand('list', { level: '2' }, testDir);
-
-      expect(result.stdout).toContain(expectedMessages.filters.showingLevel);
-      expect(result.stdout).toContain('2');
-
-      recordScenarioResult('Level 2 Filter', {
-        steps: [
-          { step: 1, name: 'Showing Level', matched: result.stdout.includes('Showing Level') },
-          { step: 2, name: 'Level 2', matched: result.stdout.includes('2') }
-        ],
-        output: result.stdout
-      });
-    });
-
-    it('should show error for invalid level', async () => {
-      await setupTestDir(testDir, {});
-
-      const result = await runCommand('list', { level: '5' }, testDir);
-
-      expect(result.stdout).toContain(expectedMessages.errors.levelRange);
-
-      recordScenarioResult('Invalid Level Error', {
-        steps: [
-          { step: 1, name: 'Level range error', matched: result.stdout.includes('Level must be') }
-        ],
-        output: result.stdout
-      });
-    });
-  });
-
   // ===== Category Filtering =====
   describe('Category Filtering', () => {
     it('should filter by skill category', async () => {
@@ -229,14 +177,12 @@ describe('E2E: uds list', () => {
       const result = await runCommand('list', { help: true }, testDir);
 
       expect(result.stdout).toContain('list');
-      expect(result.stdout).toContain('--level');
       expect(result.stdout).toContain('--category');
 
       recordScenarioResult('Help output', {
         steps: [
           { step: 1, name: 'Shows list', matched: result.stdout.includes('list') },
-          { step: 2, name: 'Shows --level', matched: result.stdout.includes('--level') },
-          { step: 3, name: 'Shows --category', matched: result.stdout.includes('--category') }
+          { step: 2, name: 'Shows --category', matched: result.stdout.includes('--category') }
         ],
         output: result.stdout
       });

@@ -5,7 +5,7 @@ import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 import { join, basename } from 'path';
 import { readManifest, writeManifest, copyStandard, isInitialized } from '../utils/copier.js';
-import { getRepositoryInfo, getStandardsByLevel, getStandardSource } from '../utils/registry.js';
+import { getRepositoryInfo, getAllStandards, getStandardSource } from '../utils/registry.js';
 import { computeFileHash } from '../utils/hasher.js';
 import {
   writeIntegrationFile,
@@ -125,17 +125,13 @@ async function updateCliAndExit(useBeta = false) {
  * @returns {{newStandards: Array<{source: string, name: string}>, count: number}}
  */
 function checkNewStandards(manifest) {
-  const level = manifest.level || 2;
-  const scope = manifest.standardsScope || 'minimal';
   const format = manifest.format || 'ai';
 
-  // Get all standards for this level from the registry
-  const registryStandards = getStandardsByLevel(level);
+  // Get all standards (level system removed)
+  const registryStandards = getAllStandards();
 
-  // Filter by scope (same logic as standards-installer.js)
-  const eligibleStandards = scope === 'minimal'
-    ? registryStandards.filter(s => s.category === 'reference')
-    : registryStandards.filter(s => s.category === 'reference' || s.category === 'skill');
+  // Include all reference and skill standards
+  const eligibleStandards = registryStandards.filter(s => s.category === 'reference' || s.category === 'skill');
 
   // Get installed standard basenames for comparison
   const installedBasenames = new Set(
@@ -434,7 +430,6 @@ export async function updateCommand(options) {
         language: commonLanguage,
         installedStandards: installedStandardsList,
         contentMode: manifest.contentMode || 'minimal',
-        level: manifest.level || 2,
         // Pass commit_language for dynamic commit standards generation
         commitLanguage: manifest.options?.commit_language || 'english'
       };
@@ -815,7 +810,6 @@ export function regenerateIntegrations(projectPath, manifest) {
       language: commonLanguage,
       installedStandards: installedStandardsList,
       contentMode: manifest.contentMode || 'minimal',
-      level: manifest.level || 2,
       // Pass commit_language for dynamic commit standards generation
       commitLanguage: manifest.options?.commit_language || 'english'
     };

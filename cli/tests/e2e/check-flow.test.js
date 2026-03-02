@@ -93,21 +93,17 @@ describe('E2E: uds check', () => {
       });
     });
 
-    it('should show level and version information', async () => {
+    it('should show version information', async () => {
       await setupTestDir(testDir, {});
-      await runNonInteractive({ level: '2' }, testDir);
+      await runNonInteractive({}, testDir);
 
       const result = await runCommand('check', { noInteractive: true }, testDir);
 
-      expect(result.stdout).toContain('Level:');
-      expect(result.stdout).toContain('2');
       expect(result.stdout).toContain(expectedMessages.status.version);
 
-      recordScenarioResult('Level and Version Info', {
+      recordScenarioResult('Version Info', {
         steps: [
-          { step: 1, name: 'Level shown', matched: result.stdout.includes('Level:') },
-          { step: 2, name: 'Level 2', matched: result.stdout.includes('2') },
-          { step: 3, name: 'Version shown', matched: result.stdout.includes('Version') }
+          { step: 1, name: 'Version shown', matched: result.stdout.includes('Version') }
         ],
         output: result.stdout
       });
@@ -143,15 +139,13 @@ describe('E2E: uds check', () => {
 
       expect(result.stdout).toContain(expectedMessages.summary_mode.title);
       expect(result.stdout).toContain(expectedMessages.summary_mode.version);
-      expect(result.stdout).toContain(expectedMessages.summary_mode.level);
       expect(result.stdout).toContain(expectedMessages.summary_mode.files);
 
       recordScenarioResult('Summary Mode Output', {
         steps: [
           { step: 1, name: 'Summary title', matched: result.stdout.includes('Status Summary') },
           { step: 2, name: 'Version shown', matched: result.stdout.includes('Version') },
-          { step: 3, name: 'Level shown', matched: result.stdout.includes('Level') },
-          { step: 4, name: 'Files shown', matched: result.stdout.includes('Files') }
+          { step: 3, name: 'Files shown', matched: result.stdout.includes('Files') }
         ],
         output: result.stdout
       });
@@ -180,7 +174,7 @@ describe('E2E: uds check', () => {
   describe('Coverage and Skills Status', () => {
     it('should show coverage summary', async () => {
       await setupTestDir(testDir, {});
-      await runNonInteractive({ level: '2' }, testDir);
+      await runNonInteractive({}, testDir);
 
       const result = await runCommand('check', { noInteractive: true }, testDir);
 

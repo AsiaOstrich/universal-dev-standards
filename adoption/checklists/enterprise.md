@@ -1,18 +1,18 @@
-# Level 3: Enterprise Adoption Checklist
+# Complete Adoption Checklist
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/adoption/checklists/enterprise.md)
 
-> Comprehensive standards for enterprise or regulated projects
+> Comprehensive standards for all projects
 >
-> Setup time: 1-2 days
+> Quick setup: `npx @anthropic/uds init`
 
 ---
 
 ## Prerequisites
 
-- [ ] Level 2 (Recommended) completed
-- [ ] Stakeholder approval for comprehensive adoption
-- [ ] Dedicated time for documentation review
+- [ ] Git repository initialized
+- [ ] Claude Code installed (for Skills)
+- [ ] Stakeholder approval for adoption
 
 ---
 

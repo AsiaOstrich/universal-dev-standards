@@ -23,9 +23,7 @@ export function writeFinalManifest(config, results, projectPath) {
       version: repoInfo.standards.version,
       installed: new Date().toISOString().split('T')[0]
     },
-    level: config.level,
     format: config.format,
-    standardsScope: config.standardsScope || 'full',
     contentMode: config.contentMode || 'minimal',
     standards: results.standards || [],
     extensions: results.extensions || [],

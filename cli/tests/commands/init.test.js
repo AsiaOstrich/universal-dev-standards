@@ -65,6 +65,9 @@ vi.mock('../../src/config/ai-agent-paths.js', () => ({
 }));
 
 vi.mock('../../src/utils/registry.js', () => ({
+  getAllStandards: vi.fn(() => [
+    { id: 'test-standard', category: 'reference', name: 'Test Standard' }
+  ]),
   getStandardsByLevel: vi.fn(() => [
     { id: 'test-standard', category: 'reference', name: 'Test Standard' }
   ]),
@@ -119,8 +122,6 @@ vi.mock('../../src/prompts/init.js', () => ({
   promptAITools: vi.fn(() => ['claude-code']),
   promptSkillsInstallLocation: vi.fn(() => []),
   promptSkillsUpdate: vi.fn(() => ({ action: 'none', targets: [] })),
-  promptStandardsScope: vi.fn(() => 'full'),
-  promptLevel: vi.fn(() => 2),
   promptLanguage: vi.fn(() => []),
   promptFramework: vi.fn(() => []),
   promptConfirm: vi.fn(() => true),
@@ -238,26 +239,6 @@ describe('Init Command', () => {
       expect(output).toContain('Installation cancelled');
     });
 
-    it('should use default options in non-interactive mode', async () => {
-      isInitialized.mockReturnValue(false);
-
-      await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
-
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('Level: Level 2');
-      // When no skills-compatible tools are detected, skills default to 'none' (Complete standards)
-      expect(output).toContain('Standards Scope: Complete');
-    });
-
-    it('should respect level option', async () => {
-      isInitialized.mockReturnValue(false);
-
-      await expect(initCommand({ yes: true, level: '3' })).rejects.toThrow('process.exit called');
-
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('Level: Level 3');
-    });
-
     it('should show configuration summary', async () => {
       isInitialized.mockReturnValue(false);
       promptConfirm.mockResolvedValue(true);
@@ -289,30 +270,6 @@ describe('Init Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Plugin Marketplace');
-    });
-
-    it('should use full scope when --skills-location=none', async () => {
-      isInitialized.mockReturnValue(false);
-
-      await expect(initCommand({
-        yes: true,
-        skillsLocation: 'none'
-      })).rejects.toThrow('process.exit called');
-
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('Standards Scope: Complete');
-    });
-
-    it('should use minimal scope when --skills-location=marketplace', async () => {
-      isInitialized.mockReturnValue(false);
-
-      await expect(initCommand({
-        yes: true,
-        skillsLocation: 'marketplace'
-      })).rejects.toThrow('process.exit called');
-
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('Standards Scope: Lean');
     });
 
     it('should use project location when --skills-location=project', async () => {
@@ -379,9 +336,8 @@ describe('Init Command', () => {
       await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
 
       // When non-skills tools (cursor) are included, skills should not be offered
-      // and Standards Scope should be Complete (full standards)
       const output = consoleLogs.join('\n');
-      expect(output).toContain('Standards Scope: Complete');
+      expect(output).not.toContain('Plugin Marketplace');
     });
   });
 
@@ -464,8 +420,8 @@ describe('Init Command', () => {
       expect(manifestArg.options.test_levels).toEqual(['unit-testing', 'e2e-testing']);
     });
 
-    it('should save options even when using minimal scope (Skills via marketplace)', async () => {
-      // Mock detectAll to return Claude Code (triggers Skills/minimal scope)
+    it('should save options even when using marketplace skills location', async () => {
+      // Mock detectAll to return Claude Code (triggers Skills/marketplace)
       detectAll.mockReturnValue({
         languages: { javascript: true },
         frameworks: {},
@@ -476,14 +432,12 @@ describe('Init Command', () => {
 
       await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
 
-      // Verify options are saved even with minimal scope
+      // Verify options are saved regardless of skills location
       expect(writeManifest).toHaveBeenCalled();
       const manifestArg = writeManifest.mock.calls[0][0];
 
-      // Options should be saved regardless of standardsScope
       expect(manifestArg.options.workflow).toBe('github-flow');
       expect(manifestArg.options.merge_strategy).toBe('squash');
-      expect(manifestArg.standardsScope).toBe('minimal');
     });
 
     it('should auto-install commands for detected commands-supported agents', async () => {
@@ -679,7 +633,7 @@ describe('Init Command', () => {
       isInitialized.mockReturnValue(false);
       promptConfirm.mockResolvedValue(true);
 
-      // Default mock: getStandardsByLevel returns [{ id: 'test-standard', category: 'reference' }]
+      // Default mock: getAllStandards returns [{ id: 'test-standard', category: 'reference' }]
       // getStandardSource returns 'core/test-standard.md'
       // copyStandard returns { success: true }
       // So standardsResults.standards = ['core/test-standard.md']

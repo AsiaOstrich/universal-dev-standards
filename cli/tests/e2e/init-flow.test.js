@@ -100,7 +100,6 @@ describe('E2E: uds init', () => {
       const expectedPatterns = [
         expectedMessages.header.title,
         expectedMessages.summary.title,
-        'Level: Level 2',
         'Format: Compact',
         expectedMessages.success.message
       ];
@@ -123,25 +122,6 @@ describe('E2E: uds init', () => {
       expect(await fileExists(join(testDir, '.standards/manifest.json'))).toBe(true);
     });
 
-    it('should respect --level option', async () => {
-      await setupTestDir(testDir, {});
-
-      const options = { level: '3' };
-      const result = await runNonInteractive(options, testDir);
-
-      expect(result.stdout).toContain('Level: Level 3');
-      expect(result.stdout).toContain(expectedMessages.success.message);
-
-      recordScenarioResult('Non-Interactive Level 3', {
-        steps: [
-          { step: 1, name: 'Level option', matched: result.stdout.includes('Level: 3') }
-        ],
-        output: result.stdout,
-        files: result.files,
-        options
-      });
-    });
-
     it('should use marketplace when --skills-location=marketplace', async () => {
       await setupTestDir(testDir, {});
 
@@ -150,13 +130,10 @@ describe('E2E: uds init', () => {
 
       // Skills: Plugin Marketplace appears in the summary
       expect(result.stdout).toContain('Plugin Marketplace');
-      // Scope should be Lean when using marketplace
-      expect(result.stdout).toContain('Lean');
 
       recordScenarioResult('Non-Interactive Skills Marketplace', {
         steps: [
-          { step: 1, name: 'Marketplace', matched: result.stdout.includes('Plugin Marketplace') },
-          { step: 2, name: 'Lean scope', matched: result.stdout.includes('Lean') }
+          { step: 1, name: 'Marketplace', matched: result.stdout.includes('Plugin Marketplace') }
         ],
         output: result.stdout,
         files: result.files,
@@ -164,19 +141,17 @@ describe('E2E: uds init', () => {
       });
     });
 
-    it('should use complete scope when --skills-location=none', async () => {
+    it('should not show marketplace when --skills-location=none', async () => {
       await setupTestDir(testDir, {});
 
       const options = { skillsLocation: 'none' };
       const result = await runNonInteractive(options, testDir);
 
-      expect(result.stdout).toContain('Complete');
       expect(result.stdout).not.toContain('Plugin Marketplace');
 
       recordScenarioResult('Non-Interactive Skills None', {
         steps: [
-          { step: 1, name: 'Complete scope', matched: result.stdout.includes('Complete') },
-          { step: 2, name: 'No marketplace', matched: !result.stdout.includes('Plugin Marketplace') }
+          { step: 1, name: 'No marketplace', matched: !result.stdout.includes('Plugin Marketplace') }
         ],
         output: result.stdout,
         files: result.files,
@@ -341,15 +316,13 @@ describe('E2E: uds init', () => {
 
       const summaryLabels = [
         expectedMessages.summary.title,
-        expectedMessages.summary.level,
         expectedMessages.summary.format,
-        expectedMessages.summary.standards_scope,
         expectedMessages.summary.content_mode,
         expectedMessages.summary.languages,
         expectedMessages.summary.frameworks,
         expectedMessages.summary.locale,
         expectedMessages.summary.ai_tools
-        // Note: integrations and methodology are conditional and not always shown
+        // Note: integrations, methodology, and standards_scope are conditional
       ];
 
       for (const label of summaryLabels) {
@@ -388,7 +361,6 @@ describe('E2E: uds init', () => {
 
       expect(manifest).toHaveProperty('version');
       expect(manifest).toHaveProperty('upstream');
-      expect(manifest).toHaveProperty('level');
       expect(manifest).toHaveProperty('format');
       expect(manifest).toHaveProperty('standards');
       expect(manifest).toHaveProperty('integrations');
@@ -398,11 +370,10 @@ describe('E2E: uds init', () => {
         steps: [
           { step: 1, name: 'version', matched: manifest.version !== undefined },
           { step: 2, name: 'upstream', matched: manifest.upstream !== undefined },
-          { step: 3, name: 'level', matched: manifest.level !== undefined },
-          { step: 4, name: 'format', matched: manifest.format !== undefined },
-          { step: 5, name: 'standards', matched: Array.isArray(manifest.standards) },
-          { step: 6, name: 'integrations', matched: Array.isArray(manifest.integrations) },
-          { step: 7, name: 'skills', matched: manifest.skills !== undefined }
+          { step: 3, name: 'format', matched: manifest.format !== undefined },
+          { step: 4, name: 'standards', matched: Array.isArray(manifest.standards) },
+          { step: 5, name: 'integrations', matched: Array.isArray(manifest.integrations) },
+          { step: 6, name: 'skills', matched: manifest.skills !== undefined }
         ],
         output: result.stdout,
         files: result.files,
@@ -410,10 +381,10 @@ describe('E2E: uds init', () => {
       });
     });
 
-    it('should copy standard files based on level', async () => {
+    it('should copy standard files to project', async () => {
       await setupTestDir(testDir, {});
 
-      const result = await runNonInteractive({ level: '2' }, testDir);
+      const result = await runNonInteractive({}, testDir);
 
       // Spinner succeed messages may not appear in stdout
       // Verify success via "files copied to project" summary
@@ -425,7 +396,6 @@ describe('E2E: uds init', () => {
 
       const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
       expect(manifest.standards.length).toBeGreaterThan(0);
-      expect(manifest.level).toBe(2);
     });
 
     it('should record content mode in manifest', async () => {
@@ -562,14 +532,13 @@ describe('E2E: uds init', () => {
       // Step 2: Skills Location - Plugin Marketplace (first option)
       // Step 3: Commands Installation - accept defaults (project level pre-selected)
       // Step 4: Standards Scope - Lean (first option)
-      // Step 5: Level - Level 2 (second option, recommended)
-      // Step 6: Format - Compact (first option)
-      // Step 7-10: Standard Options (Git Workflow, Merge Strategy, Commit Lang, Test Levels)
-      // Step 11: Language Extensions - skip (no detected, or confirm defaults)
-      // Step 12: Framework Extensions - skip (no detected)
-      // Step 13: Locale - No (default)
-      // Step 14: Content Mode - Standard (first option, recommended)
-      // Step 15: Confirm - Yes
+      // Step 5: Format - Compact (first option)
+      // Step 6-9: Standard Options (Git Workflow, Merge Strategy, Commit Lang, Test Levels)
+      // Step 10: Language Extensions - skip (no detected, or confirm defaults)
+      // Step 11: Framework Extensions - skip (no detected)
+      // Step 12: Locale - No (default)
+      // Step 13: Content Mode - Standard (first option, recommended)
+      // Step 14: Confirm - Yes
 
       const inputs = [
         // Display Language: first option (English), enter to confirm
@@ -582,8 +551,6 @@ describe('E2E: uds init', () => {
         '\r',
         // Standards Scope: first option (Lean), enter
         '\r',
-        // Level: second option (Level 2), down then enter
-        '\x1B[B\r',
         // Format: first option (Compact), enter
         '\r',
         // Git Workflow: first option (GitHub Flow), enter
@@ -652,8 +619,6 @@ describe('E2E: uds init', () => {
         '\r',
         // Standards Scope: first option
         '\r',
-        // Level: Level 2
-        '\x1B[B\r',
         // Format: Compact
         '\r',
         // Standard Options
@@ -691,52 +656,6 @@ describe('E2E: uds init', () => {
       }
     }, 120000);
 
-    it('should allow selecting Level 3', async () => {
-      await setupTestDir(testDir, {});
-
-      const inputs = [
-        // Display Language: English (first option)
-        '\r',
-        // AI Tools: Claude Code only
-        { type: 'checkbox', selections: [{ toggle: true }] },
-        // Skills Location: Plugin Marketplace
-        '\r',
-        // Commands: accept defaults
-        '\r',
-        // Standards Scope: Lean
-        '\r',
-        // Level: Level 3 (one down from default Level 2)
-        '\x1B[B\r',
-        // Format: Compact
-        '\r',
-        // Standard Options (more options at Level 3)
-        '\r', '\r', '\r', '\r',
-        // Locale: No
-        'n',
-        // Content Mode: Standard
-        '\r',
-        // Final Confirm: Yes
-        'Y'
-      ];
-
-      const result = await runInteractive(inputs, {}, testDir, 90000);
-
-      recordScenarioResult('Interactive Level 3', {
-        steps: [
-          { step: 1, name: 'Level 3 in output', matched: result.stdout.includes('Level: 3') || result.stdout.includes('Level 3') },
-          { step: 2, name: 'Has step outputs', matched: result.stepOutputs.length > 3 }
-        ],
-        output: result.stdout,
-        files: result.files
-      });
-
-      // Verify Level 3 appears in output or manifest
-      if (result.exitCode === 0) {
-        expect(result.stdout).toContain('Level: Level 3');
-      }
-      expect(result.stepOutputs.length).toBeGreaterThan(0);
-    }, 120000);
-
     it('should allow cancelling installation', async () => {
       await setupTestDir(testDir, {});
 
@@ -751,8 +670,6 @@ describe('E2E: uds init', () => {
         '\r',
         // Standards Scope: Lean
         '\r',
-        // Level: Level 2
-        '\x1B[B\r',
         // Format: Compact
         '\r',
         // Standard Options

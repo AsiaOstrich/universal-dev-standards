@@ -14,7 +14,6 @@
       "extension": "Extension"
     },
     "filters": {
-      "showingLevel": "Showing Level",
       "category": "Category"
     },
     "summary": {
@@ -28,7 +27,6 @@
       "seeGuide": "https://github.com/AsiaOstrich/universal-dev-standards"
     },
     "errors": {
-      "levelRange": "Level must be 1, 2, or 3",
       "unknownCategory": "Unknown category"
     }
   }

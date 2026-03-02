@@ -2460,7 +2460,6 @@ export function generateIntegrationContent(config) {
     // New fields for enhanced standards compliance
     installedStandards = [],
     contentMode = 'minimal',
-    level = 2,
     // Commit language option for dynamic commit standards generation
     commitLanguage = 'english'
   } = config;
@@ -2535,8 +2534,7 @@ export function generateIntegrationContent(config) {
         const standardsIndex = generateStandardsIndex(
           installedStandards,
           format,
-          language,
-          level
+          language
         );
 
         standardsContent += complianceInstructions + '\n\n' + standardsIndex;
@@ -2782,10 +2780,9 @@ export function generateComplianceInstructions(installedStandards, mode, format,
  * @param {string[]} installedStandards - List of installed standard file paths
  * @param {string} format - Output format: 'markdown' or 'plaintext'
  * @param {string} language - Language: 'en', 'zh-tw', or 'bilingual'
- * @param {number} level - Adoption level (1, 2, or 3)
  * @returns {string} Generated standards index
  */
-export function generateStandardsIndex(installedStandards, format, language = 'zh-tw', level = 2) {
+export function generateStandardsIndex(installedStandards, format, language = 'zh-tw') {
   if (!installedStandards || installedStandards.length === 0) {
     return '';
   }
@@ -2812,8 +2809,8 @@ export function generateStandardsIndex(installedStandards, format, language = 'z
     sections.push('## Installed Standards Index');
     sections.push('');
     sections.push(language === 'en'
-      ? `This project has adopted **Level ${level}** standards. All standards are in \`.standards/\`:`
-      : `本專案採用 **Level ${level}** 標準。所有規範位於 \`.standards/\`：`);
+      ? 'This project has adopted UDS standards. All standards are in `.standards/`:'
+      : '本專案採用 UDS 標準。所有規範位於 `.standards/`：');
     sections.push('');
 
     if (coreStandards.length > 0) {
@@ -2836,8 +2833,8 @@ export function generateStandardsIndex(installedStandards, format, language = 'z
     sections.push('## Installed Standards Index');
     sections.push('');
     sections.push(language === 'en'
-      ? `Level ${level} standards installed in .standards/:`
-      : `Level ${level} 標準已安裝於 .standards/：`);
+      ? 'UDS standards installed in .standards/:'
+      : 'UDS 標準已安裝於 .standards/：');
     sections.push('');
 
     for (const std of coreStandards) {

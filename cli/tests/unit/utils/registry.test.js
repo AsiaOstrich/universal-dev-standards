@@ -19,7 +19,6 @@ describe('Registry Utils', () => {
       const registry = loadRegistry();
       expect(registry).toBeDefined();
       expect(registry.standards).toBeInstanceOf(Array);
-      expect(registry.adoptionLevels).toBeDefined();
       expect(registry.categories).toBeDefined();
     });
 
@@ -38,27 +37,24 @@ describe('Registry Utils', () => {
       expect(standards[0]).toHaveProperty('name');
       expect(standards[0]).toHaveProperty('source');
       expect(standards[0]).toHaveProperty('category');
-      expect(standards[0]).toHaveProperty('level');
     });
   });
 
-  describe('getStandardsByLevel', () => {
-    it('should return standards at or below level 1', () => {
-      const standards = getStandardsByLevel(1);
-      expect(standards.every(s => s.level <= 1)).toBe(true);
-    });
-
-    it('should return standards at or below level 2', () => {
-      const standards = getStandardsByLevel(2);
-      const level1 = getStandardsByLevel(1);
-      expect(standards.length).toBeGreaterThanOrEqual(level1.length);
-      expect(standards.every(s => s.level <= 2)).toBe(true);
-    });
-
-    it('should return all standards at level 3', () => {
-      const standards = getStandardsByLevel(3);
+  describe('getStandardsByLevel (deprecated)', () => {
+    it('should return all standards regardless of level parameter', () => {
       const all = getAllStandards();
-      expect(standards.length).toBe(all.length);
+      const level1 = getStandardsByLevel(1);
+      const level2 = getStandardsByLevel(2);
+      const level3 = getStandardsByLevel(3);
+      expect(level1.length).toBe(all.length);
+      expect(level2.length).toBe(all.length);
+      expect(level3.length).toBe(all.length);
+    });
+
+    it('should be an alias for getAllStandards', () => {
+      const all = getAllStandards();
+      const byLevel = getStandardsByLevel(1);
+      expect(byLevel).toEqual(all);
     });
   });
 
@@ -80,21 +76,15 @@ describe('Registry Utils', () => {
     });
   });
 
-  describe('getLevelInfo', () => {
-    it('should return level 1 info', () => {
-      const info = getLevelInfo(1);
-      expect(info.name).toBe('Essential');
-      expect(info.nameZh).toBe('基本');
-    });
-
-    it('should return level 2 info', () => {
-      const info = getLevelInfo(2);
-      expect(info.name).toBe('Recommended');
-    });
-
-    it('should return level 3 info', () => {
-      const info = getLevelInfo(3);
-      expect(info.name).toBe('Enterprise');
+  describe('getLevelInfo (deprecated)', () => {
+    it('should return stub info regardless of level parameter', () => {
+      const info1 = getLevelInfo(1);
+      const info2 = getLevelInfo(2);
+      const info3 = getLevelInfo(3);
+      const expected = { name: 'All Standards', nameZh: '全部標準', nameZhCn: '全部标准', description: 'All available standards' };
+      expect(info1).toEqual(expected);
+      expect(info2).toEqual(expected);
+      expect(info3).toEqual(expected);
     });
   });
 

@@ -14,7 +14,6 @@ This guide helps software projects adopt Universal Documentation Standards witho
 - [Static vs Dynamic Standards](#static-vs-dynamic-standards)
 - [Standard Categories](#standard-categories)
 - [Complete Standards Matrix](#complete-standards-matrix)
-- [Adoption Levels](#adoption-levels)
 - [How to Adopt](#how-to-adopt)
 - [After Adoption: Daily Workflow](#after-adoption-daily-workflow)
 - [Common Mistakes to Avoid](#common-mistakes-to-avoid)
@@ -133,100 +132,61 @@ Document templates for specific purposes.
 
 ### Core Standards
 
-| Standard | Category | Skill Name | Level | Adoption |
-|----------|----------|------------|-------|----------|
-| anti-hallucination.md | Skill | ai-collaboration-standards | 1 | Install Skill |
-| commit-message-guide.md | Skill | commit-standards | 1 | Install Skill |
-| checkin-standards.md | Reference | - | 1 | Copy to project |
-| spec-driven-development.md | Reference | - | 1 | Copy to project |
-| code-review-checklist.md | Skill | code-review-assistant | 2 | Install Skill |
-| git-workflow.md | Skill | git-workflow-guide | 2 | Install Skill |
-| versioning.md | Skill | release-standards | 2 | Install Skill |
-| changelog-standards.md | Skill | release-standards | 2 | Install Skill |
-| testing-standards.md | Skill | testing-guide | 2 | Install Skill |
-| documentation-structure.md | Skill | documentation-guide | 3 | Install Skill |
-| documentation-writing-standards.md | Reference | - | 3 | Copy to project |
-| project-structure.md | Reference | - | 3 | Copy to project |
+| Standard | Category | Skill Name | Adoption |
+|----------|----------|------------|----------|
+| anti-hallucination.md | Skill | ai-collaboration-standards | Install Skill |
+| commit-message-guide.md | Skill | commit-standards | Install Skill |
+| checkin-standards.md | Reference | - | Copy to project |
+| spec-driven-development.md | Reference | - | Copy to project |
+| code-review-checklist.md | Skill | code-review-assistant | Install Skill |
+| git-workflow.md | Skill | git-workflow-guide | Install Skill |
+| versioning.md | Skill | release-standards | Install Skill |
+| changelog-standards.md | Skill | release-standards | Install Skill |
+| testing-standards.md | Skill | testing-guide | Install Skill |
+| documentation-structure.md | Skill | documentation-guide | Install Skill |
+| documentation-writing-standards.md | Reference | - | Copy to project |
+| project-structure.md | Reference | - | Copy to project |
 
 ### Extensions
 
-| Standard | Category | Applicability | Level |
-|----------|----------|---------------|-------|
-| csharp-style.md | Extension | C# projects | 2 |
-| php-style.md | Extension | PHP 8.1+ projects | 2 |
-| fat-free-patterns.md | Extension | Fat-Free Framework | 2 |
-| zh-tw.md | Extension | Traditional Chinese teams | 2 |
+| Standard | Category | Applicability |
+|----------|----------|---------------|
+| csharp-style.md | Extension | C# projects |
+| php-style.md | Extension | PHP 8.1+ projects |
+| fat-free-patterns.md | Extension | Fat-Free Framework |
+| zh-tw.md | Extension | Traditional Chinese teams |
 
 ### Integrations
 
-| Standard | Target Path | Level |
-|----------|-------------|-------|
-| copilot-instructions.md | .github/copilot-instructions.md | 2 |
-| .cursorrules | .cursorrules | 2 |
-| .windsurfrules | .windsurfrules | 2 |
-| .clinerules | .clinerules | 2 |
-| google-antigravity/* | See README | 2 |
-| openspec/* | See README | 2 |
+| Standard | Target Path |
+|----------|-------------|
+| copilot-instructions.md | .github/copilot-instructions.md |
+| .cursorrules | .cursorrules |
+| .windsurfrules | .windsurfrules |
+| .clinerules | .clinerules |
+| google-antigravity/* | See README |
+| openspec/* | See README |
 
 ### Templates
 
-| Template | Category | Applicability | Level |
-|----------|----------|---------------|-------|
-| requirement-*.md | Skill | All projects | 2 |
-| migration-template.md | Template | Migration projects | 3 |
-
----
-
-## Adoption Levels
-
-### Level 1: Essential
-
-Minimum viable standards for any project. Setup time: ~30 minutes.
-
-**Required**:
-- [ ] ai-collaboration-standards (Skill)
-- [ ] commit-standards (Skill)
-- [ ] checkin-standards.md (Reference)
-- [ ] spec-driven-development.md (Reference)
-
-See [checklists/minimal.md](checklists/minimal.md) for detailed checklist.
-
-### Level 2: Recommended
-
-Professional quality standards for team projects. Setup time: ~2 hours.
-
-**Includes Level 1, plus**:
-- [ ] code-review-assistant (Skill)
-- [ ] git-workflow-guide (Skill)
-- [ ] release-standards (Skill)
-- [ ] testing-guide (Skill)
-- [ ] Applicable extensions
-- [ ] AI tool integrations
-
-See [checklists/recommended.md](checklists/recommended.md) for detailed checklist.
-
-### Level 3: Enterprise
-
-Comprehensive standards for enterprise or regulated projects. Setup time: 1-2 days.
-
-**Includes Level 2, plus**:
-- [ ] documentation-guide (Skill)
-- [ ] documentation-writing-standards.md (Reference)
-- [ ] project-structure.md (Reference)
-- [ ] migration-template.md (if applicable)
-
-See [checklists/enterprise.md](checklists/enterprise.md) for detailed checklist.
+| Template | Category | Applicability |
+|----------|----------|---------------|
+| requirement-*.md | Skill | All projects |
+| migration-template.md | Template | Migration projects |
 
 ---
 
 ## How to Adopt
 
-### Step 1: Determine Your Level
+### Step 1: Install Standards via CLI (Recommended)
 
-Consider your project's needs:
-- **Personal/Side project**: Level 1
-- **Team project**: Level 2
-- **Enterprise/Regulated**: Level 3
+The easiest way to adopt all standards:
+
+```bash
+npx @anthropic/uds init
+```
+
+This installs all available standards, skills, and integrations for your project.
 
 ### Step 2: Install Skills
 
@@ -257,12 +217,9 @@ Copy-Item -Recurse universal-dev-standards\skills\claude-code\commit-standards $
 # In your project directory
 mkdir -p .standards
 
-# Copy reference documents based on your level
-# Level 1
+# Copy all reference documents
 cp path/to/universal-dev-standards/core/checkin-standards.md .standards/
 cp path/to/universal-dev-standards/core/spec-driven-development.md .standards/
-
-# Level 3 (additional)
 cp path/to/universal-dev-standards/core/documentation-writing-standards.md .standards/
 cp path/to/universal-dev-standards/core/project-structure.md .standards/
 ```
@@ -272,12 +229,9 @@ cp path/to/universal-dev-standards/core/project-structure.md .standards/
 # In your project directory
 New-Item -ItemType Directory -Force -Path .standards
 
-# Copy reference documents based on your level
-# Level 1
+# Copy all reference documents
 Copy-Item path\to\universal-dev-standards\core\checkin-standards.md .standards\
 Copy-Item path\to\universal-dev-standards\core\spec-driven-development.md .standards\
-
-# Level 3 (additional)
 Copy-Item path\to\universal-dev-standards\core\documentation-writing-standards.md .standards\
 Copy-Item path\to\universal-dev-standards\core\project-structure.md .standards\
 ```
@@ -397,6 +351,4 @@ This JSON file contains the complete mapping of all standards, categories, and a
 - [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) - Source repository
 - [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) - Skills repository
 - [Daily Workflow Guide](DAILY-WORKFLOW-GUIDE.md) - How to use UDS after adoption
-- [Minimal Checklist](checklists/minimal.md) - Level 1 adoption checklist
-- [Recommended Checklist](checklists/recommended.md) - Level 2 adoption checklist
-- [Enterprise Checklist](checklists/enterprise.md) - Level 3 adoption checklist
+- [Adoption Checklist](checklists/enterprise.md) - Complete adoption checklist

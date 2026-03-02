@@ -1,9 +1,7 @@
 import chalk from 'chalk';
 import {
   getAllStandards,
-  getStandardsByLevel,
   getStandardsByCategory,
-  getLevelInfo,
   getCategoryInfo,
   getRepositoryInfo
 } from '../utils/registry.js';
@@ -15,7 +13,7 @@ import { t, getLanguage, setLanguage, isLanguageExplicitlySet } from '../i18n/me
  * @param {Object} options - Command options
  */
 export function listCommand(options) {
-  const { level, category } = options;
+  const { category } = options;
   const projectPath = process.cwd();
 
   // Set UI language based on project's display_language if initialized
@@ -42,23 +40,7 @@ export function listCommand(options) {
 
   let standards;
 
-  if (level) {
-    const levelNum = parseInt(level, 10);
-    if (![1, 2, 3].includes(levelNum)) {
-      console.log(chalk.red(msg.errorLevelRange));
-      process.exit(1);
-    }
-    standards = getStandardsByLevel(levelNum);
-    const levelInfo = getLevelInfo(levelNum);
-    const lang = getLanguage();
-    const zhName = lang === 'zh-cn' ? levelInfo.nameZhCn : levelInfo.nameZh;
-    const levelDisplay = lang === 'en'
-      ? `${levelNum}: ${levelInfo.name}`
-      : `${levelNum}: ${levelInfo.name} (${zhName})`;
-    console.log(chalk.cyan(`${msg.showingLevel} ${levelDisplay}`));
-    console.log(chalk.gray(levelInfo.description));
-    console.log();
-  } else if (category !== undefined) {
+  if (category !== undefined) {
     const categoryInfo = getCategoryInfo(category);
     if (!categoryInfo) {
       console.log(chalk.red(`${msg.errorUnknownCategory} '${category}'`));
@@ -92,12 +74,11 @@ export function listCommand(options) {
     console.log(chalk.yellow.bold(`${catInfo.name} (${grouped[cat].length})`));
 
     for (const std of grouped[cat]) {
-      const levelBadge = chalk.gray(`[L${std.level}]`);
       const name = std.skillName
         ? chalk.green(`${std.name}`) + chalk.gray(` → ${std.skillName}`)
         : chalk.white(std.name);
 
-      console.log(`  ${levelBadge} ${name}`);
+      console.log(`  ${name}`);
       // Handle source being an object with human/ai paths
       const sourceDisplay = typeof std.source === 'object'
         ? std.source.human || std.source.ai

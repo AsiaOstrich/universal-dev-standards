@@ -9,7 +9,6 @@ import {
   getOptionSource,
   findOption,
   getAllStandards,
-  getStandardsByLevel,
   getStandardSource
 } from '../utils/registry.js';
 import {
@@ -26,7 +25,6 @@ import {
   promptTestLevels,
   promptConfirm,
   promptManageAITools,
-  promptAdoptionLevel,
   promptContentModeChange,
   handleAgentsMdSharing,
   promptMethodology,
@@ -454,7 +452,6 @@ export async function runProjectConfiguration(options) {
 
   console.log();
   console.log(chalk.cyan(msgObj.currentConfig));
-  console.log(chalk.gray(`  ${common.level}: ${manifest.level || 2}`));
   console.log(chalk.gray(`  ${common.format}: ${manifest.format || 'human'}`));
   console.log(chalk.gray(`  ${common.contentMode}: ${manifest.contentMode || 'minimal'}`));
   console.log(chalk.gray(`  ${common.aiTools}: ${manifest.aiTools?.length > 0 ? manifest.aiTools.join(', ') : common.none}`));
@@ -496,7 +493,6 @@ export async function runProjectConfiguration(options) {
       { name: chalk.cyan(msgObj.optionSkills || 'Manage Skills installations'), value: 'skills' },
       { name: chalk.cyan(msgObj.optionCommands || 'Manage Commands installations'), value: 'commands' },
       new inq.default.Separator(),
-      { name: chalk.cyan(msgObj.optionLevel), value: 'level' },
       { name: chalk.cyan(msgObj.optionContentMode), value: 'content_mode' }
     ];
 
@@ -526,7 +522,6 @@ export async function runProjectConfiguration(options) {
   // Collect new options
   const newOptions = { ...manifest.options };
   let newFormat = manifest.format;
-  let newLevel = manifest.level || 2;
   let newContentMode = manifest.contentMode || 'minimal';
   let newAITools = [...(manifest.aiTools || [])];
   let needsIntegrationRegeneration = false;
@@ -575,14 +570,6 @@ export async function runProjectConfiguration(options) {
     process.exit(0);
   }
 
-  // Handle Level configuration
-  if (configType === 'level') {
-    newLevel = await promptAdoptionLevel(manifest.level || 2);
-    if (newLevel !== manifest.level) {
-      needsIntegrationRegeneration = true;
-    }
-  }
-
   // Handle Content Mode configuration
   if (configType === 'content_mode') {
     newContentMode = await promptContentModeChange(manifest.contentMode || 'minimal');
@@ -621,7 +608,6 @@ export async function runProjectConfiguration(options) {
   // Show changes
   console.log();
   console.log(chalk.cyan(msgObj.newConfig));
-  console.log(chalk.gray(`  ${common.level}: ${newLevel}`));
   console.log(chalk.gray(`  ${common.format}: ${newFormat}`));
   console.log(chalk.gray(`  ${common.contentMode}: ${newContentMode}`));
   console.log(chalk.gray(`  ${common.aiTools}: ${newAITools.length > 0 ? newAITools.join(', ') : common.none}`));
@@ -710,28 +696,6 @@ export async function runProjectConfiguration(options) {
     }
   }
 
-  // Handle level change - copy new standards if upgrading
-  if (newLevel > (manifest.level || 2)) {
-    const levelSpinner = ora(msgObj.addingStandards).start();
-    const newStandards = getStandardsByLevel(newLevel);
-    const existingStandards = new Set(manifest.standards?.map(s => basename(s)) || []);
-
-    for (const std of newStandards) {
-      for (const targetFormat of formatsToUse) {
-        const sourcePath = getStandardSource(std, targetFormat);
-        if (!sourcePath) continue; // Skip skill-only standards with no source file
-        const fileName = basename(sourcePath);
-        if (!existingStandards.has(fileName)) {
-          const result = await copyStandard(sourcePath, '.standards', projectPath);
-          if (result.success) {
-            results.copied.push(sourcePath);
-          }
-        }
-      }
-    }
-    levelSpinner.succeed(msgObj.standardsAdded);
-  }
-
   // Regenerate integration files if needed
   if (needsIntegrationRegeneration && newAITools.length > 0) {
     const intSpinner = ora(msgObj.regeneratingIntegrations).start();
@@ -762,7 +726,6 @@ export async function runProjectConfiguration(options) {
         language: commonLanguage,
         installedStandards: installedStandardsList,
         contentMode: newContentMode,
-        level: newLevel,
         // Pass commit_language for dynamic commit standards generation
         commitLanguage: newOptions.commit_language || 'english'
       };
@@ -781,7 +744,6 @@ export async function runProjectConfiguration(options) {
   // Update manifest
   manifest.format = newFormat;
   manifest.options = newOptions;
-  manifest.level = newLevel;
   manifest.contentMode = newContentMode;
   manifest.aiTools = newAITools;
   manifest.version = '3.2.0';

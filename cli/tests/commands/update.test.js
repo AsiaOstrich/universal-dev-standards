@@ -51,7 +51,7 @@ vi.mock('../../src/utils/registry.js', () => ({
     standards: { version: '3.0.0' },
     skills: { version: '1.0.0' }
   })),
-  getStandardsByLevel: vi.fn(() => []),
+  getAllStandards: vi.fn(() => []),
   getStandardSource: vi.fn((std, format) => {
     if (typeof std.source === 'string') return std.source;
     return std.source?.[format] || std.source?.human || null;
@@ -100,7 +100,7 @@ vi.mock('../../src/utils/skills-installer.js', () => ({
 
 import { updateCommand } from '../../src/commands/update.js';
 import { isInitialized, readManifest, writeManifest, copyStandard } from '../../src/utils/copier.js';
-import { getRepositoryInfo, getStandardsByLevel } from '../../src/utils/registry.js';
+import { getRepositoryInfo, getAllStandards } from '../../src/utils/registry.js';
 
 describe('Update Command', () => {
   let consoleLogs = [];
@@ -575,14 +575,12 @@ describe('Update Command', () => {
         standards: ['ai/commit-message.ai.yaml'],
         extensions: [],
         integrations: [],
-        level: 2,
-        standardsScope: 'minimal',
         format: 'ai',
         skills: { installed: false }
       });
 
       // Registry returns standards including one not yet installed
-      getStandardsByLevel.mockReturnValue([
+      getAllStandards.mockReturnValue([
         { name: 'commit-message', category: 'reference', source: { ai: 'ai/commit-message.ai.yaml' } },
         { name: 'testing', category: 'reference', source: { ai: 'ai/testing.ai.yaml' } }
       ]);
@@ -602,13 +600,11 @@ describe('Update Command', () => {
         standards: ['ai/commit-message.ai.yaml'],
         extensions: [],
         integrations: [],
-        level: 2,
-        standardsScope: 'minimal',
         format: 'ai',
         skills: { installed: false }
       });
 
-      getStandardsByLevel.mockReturnValue([
+      getAllStandards.mockReturnValue([
         { name: 'commit-message', category: 'reference', source: { ai: 'ai/commit-message.ai.yaml' } },
         { name: 'testing', category: 'reference', source: { ai: 'ai/testing.ai.yaml' } }
       ]);
@@ -629,13 +625,11 @@ describe('Update Command', () => {
         standards: ['ai/commit-message.ai.yaml'],
         extensions: [],
         integrations: [],
-        level: 2,
-        standardsScope: 'minimal',
         format: 'ai',
         skills: { installed: false }
       });
 
-      getStandardsByLevel.mockReturnValue([
+      getAllStandards.mockReturnValue([
         { name: 'commit-message', category: 'reference', source: { ai: 'ai/commit-message.ai.yaml' } },
         { name: 'testing', category: 'reference', source: { ai: 'ai/testing.ai.yaml' } }
       ]);
@@ -652,20 +646,18 @@ describe('Update Command', () => {
       expect(copyStandard).not.toHaveBeenCalledWith('ai/testing.ai.yaml', '.standards', '/test/project');
     });
 
-    it('should only include reference category when standardsScope is minimal', async () => {
+    it('should include both reference and skill categories as new standards', async () => {
       readManifest.mockReturnValue({
         upstream: { version: '2.0.0' },
         standards: ['ai/commit-message.ai.yaml'],
         extensions: [],
         integrations: [],
-        level: 2,
-        standardsScope: 'minimal',
         format: 'ai',
         skills: { installed: false }
       });
 
       // Registry returns both reference and skill category standards
-      getStandardsByLevel.mockReturnValue([
+      getAllStandards.mockReturnValue([
         { name: 'commit-message', category: 'reference', source: { ai: 'ai/commit-message.ai.yaml' } },
         { name: 'testing', category: 'reference', source: { ai: 'ai/testing.ai.yaml' } },
         { name: 'sdd', category: 'skill', source: { ai: 'ai/sdd.ai.yaml' } }
@@ -674,9 +666,9 @@ describe('Update Command', () => {
       await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
-      // Should show testing (reference) as new but not sdd (skill)
+      // Both reference and skill categories should be detected as new
       expect(output).toContain('testing.ai.yaml');
-      expect(output).not.toContain('sdd.ai.yaml');
+      expect(output).toContain('sdd.ai.yaml');
     });
 
     it('should not show new standards prompt when all standards are already installed', async () => {
@@ -685,14 +677,12 @@ describe('Update Command', () => {
         standards: ['ai/commit-message.ai.yaml', 'ai/testing.ai.yaml'],
         extensions: [],
         integrations: [],
-        level: 2,
-        standardsScope: 'minimal',
         format: 'ai',
         skills: { installed: false }
       });
 
       // Registry has same standards as installed
-      getStandardsByLevel.mockReturnValue([
+      getAllStandards.mockReturnValue([
         { name: 'commit-message', category: 'reference', source: { ai: 'ai/commit-message.ai.yaml' } },
         { name: 'testing', category: 'reference', source: { ai: 'ai/testing.ai.yaml' } }
       ]);
@@ -709,14 +699,12 @@ describe('Update Command', () => {
         standards: ['ai/commit-message.ai.yaml'],
         extensions: [],
         integrations: [],
-        level: 2,
-        standardsScope: 'full',
         format: 'ai',
         skills: { installed: false }
       });
 
       // project-discovery has source: { human: null, ai: null }
-      getStandardsByLevel.mockReturnValue([
+      getAllStandards.mockReturnValue([
         { name: 'commit-message', category: 'reference', source: { ai: 'ai/commit-message.ai.yaml' } },
         { name: 'project-discovery', category: 'skill', source: { human: null, ai: null } },
         { name: 'testing', category: 'reference', source: { ai: 'ai/testing.ai.yaml' } }
@@ -731,28 +719,29 @@ describe('Update Command', () => {
       expect(output).not.toContain('project-discovery');
     });
 
-    it('should include skill category when standardsScope is full', async () => {
+    it('should exclude non-reference non-skill categories from new standards', async () => {
       readManifest.mockReturnValue({
         upstream: { version: '2.0.0' },
         standards: ['ai/commit-message.ai.yaml'],
         extensions: [],
         integrations: [],
-        level: 2,
-        standardsScope: 'full',
         format: 'ai',
         skills: { installed: false }
       });
 
-      getStandardsByLevel.mockReturnValue([
+      getAllStandards.mockReturnValue([
         { name: 'commit-message', category: 'reference', source: { ai: 'ai/commit-message.ai.yaml' } },
-        { name: 'sdd', category: 'skill', source: { ai: 'ai/sdd.ai.yaml' } }
+        { name: 'sdd', category: 'skill', source: { ai: 'ai/sdd.ai.yaml' } },
+        { name: 'internal-tool', category: 'internal', source: { ai: 'ai/internal-tool.ai.yaml' } }
       ]);
 
       await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
-      // Should show sdd as new (skill category included for full scope)
+      // skill category should be included
       expect(output).toContain('sdd.ai.yaml');
+      // non-reference/non-skill category should be excluded
+      expect(output).not.toContain('internal-tool.ai.yaml');
     });
   });
 });

@@ -144,6 +144,7 @@ describe('Init Command Interactive', () => {
     vi.mocked(messages.detectLanguage).mockReturnValue('en');
 
     // Mock Registry
+    vi.mocked(registry.getAllStandards).mockReturnValue([]);
     vi.mocked(registry.getStandardsByLevel).mockReturnValue([]);
     vi.mocked(registry.getRepositoryInfo).mockReturnValue({
       standards: { version: '1.0.0' }, skills: { version: '1.0.0' }
@@ -163,8 +164,6 @@ describe('Init Command Interactive', () => {
       { agent: 'claude-code', level: 'marketplace' }
     ]);
     vi.mocked(prompts.promptCommandsInstallation).mockResolvedValue([]);
-    vi.mocked(prompts.promptStandardsScope).mockResolvedValue('minimal');
-    vi.mocked(prompts.promptLevel).mockResolvedValue(1);
     vi.mocked(prompts.promptFormat).mockResolvedValue('ai');
     vi.mocked(prompts.promptStandardOptions).mockResolvedValue({});
     vi.mocked(prompts.promptLanguage).mockResolvedValue([]);
@@ -204,11 +203,10 @@ describe('Init Command Interactive', () => {
     vi.restoreAllMocks();
   });
 
-  it('should write manifest with Level 1 config', async () => {
+  it('should write manifest with basic config', async () => {
     await initCommand({});
     expect(manifest.writeManifest).toHaveBeenCalled();
     const manifestCall = vi.mocked(manifest.writeManifest).mock.calls[0][0];
-    expect(manifestCall.level).toBe(1);
     expect(manifestCall.aiTools).toEqual(['claude-code']);
   });
 
@@ -218,7 +216,7 @@ describe('Init Command Interactive', () => {
     expect(manifest.writeManifest).not.toHaveBeenCalled();
   });
 
-  it('should write manifest with Level 3 config including multiple AI tools and git workflow options', async () => {
+  it('should write manifest with full config including multiple AI tools and git workflow options', async () => {
     vi.mocked(prompts.promptDisplayLanguage).mockResolvedValue('en');
     vi.mocked(prompts.promptAITools).mockResolvedValue(['claude-code', 'cursor', 'windsurf']);
     vi.mocked(prompts.handleAgentsMdSharing).mockImplementation((tools) => tools);
@@ -229,8 +227,6 @@ describe('Init Command Interactive', () => {
     vi.mocked(prompts.promptCommandsInstallation).mockResolvedValue([
       { agent: 'claude-code', level: 'project' }
     ]);
-    vi.mocked(prompts.promptStandardsScope).mockResolvedValue('full');
-    vi.mocked(prompts.promptLevel).mockResolvedValue(3);
     vi.mocked(prompts.promptFormat).mockResolvedValue('both');
     vi.mocked(prompts.promptStandardOptions).mockResolvedValue({
       workflow: 'git-flow',
@@ -270,9 +266,7 @@ describe('Init Command Interactive', () => {
     expect(manifest.writeManifest).toHaveBeenCalled();
     const manifestCall = vi.mocked(manifest.writeManifest).mock.calls[0][0];
 
-    expect(manifestCall.level).toBe(3);
     expect(manifestCall.format).toBe('both');
-    expect(manifestCall.standardsScope).toBe('full');
     expect(manifestCall.contentMode).toBe('full');
     expect(manifestCall.aiTools).toEqual(['claude-code', 'cursor', 'windsurf']);
 

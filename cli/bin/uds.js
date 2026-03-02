@@ -44,7 +44,6 @@ program
 program
   .command('list')
   .description('List available standards')
-  .option('-l, --level <level>', 'Filter by adoption level (1, 2, or 3)')
   .option('-c, --category <category>', 'Filter by category (skill, reference, extension, integration, template)')
   .action(listCommand);
 
@@ -52,7 +51,6 @@ program
   .command('init')
   .description('Initialize standards in current project')
   .option('-m, --mode <mode>', 'Installation mode (skills, full)')
-  .option('-l, --level <level>', 'Adoption level (1=Essential, 2=Recommended, 3=Enterprise)')
   .option('-f, --format <format>', 'Standards format (ai, human, both)')
   .option('--workflow <workflow>', 'Git workflow (github-flow, gitflow, trunk-based)')
   .option('--merge-strategy <strategy>', 'Merge strategy (squash, merge-commit, rebase-ff)')

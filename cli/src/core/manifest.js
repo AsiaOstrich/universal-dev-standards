@@ -26,9 +26,7 @@ export const DEFAULT_MANIFEST = {
     version: null,
     installed: new Date().toISOString()
   },
-  level: 2,
   format: 'ai',
-  standardsScope: 'minimal',
   contentMode: 'index',
   standards: [],
   extensions: [],
@@ -60,12 +58,10 @@ export const DEFAULT_MANIFEST = {
  * Validation schema for manifest
  */
 const MANIFEST_SCHEMA = {
-  required: ['version', 'upstream', 'level', 'format', 'standardsScope', 'contentMode'],
+  required: ['version', 'upstream', 'format', 'contentMode'],
   properties: {
     version: { type: 'string', pattern: '^\\d+\\.\\d+\\.\\d+$' },
-    level: { type: 'number', enum: [1, 2, 3] },
     format: { type: 'string', enum: ['ai', 'human', 'both'] },
-    standardsScope: { type: 'string', enum: ['minimal', 'full'] },
     contentMode: { type: 'string', enum: ['minimal', 'index', 'full'] }
   }
 };
@@ -340,7 +336,6 @@ function migrateToV320(manifest) {
   return {
     ...manifest,
     version: '3.2.0',
-    standardsScope: manifest.standardsScope || 'minimal',
     contentMode: manifest.contentMode || 'index'
   };
 }
@@ -444,15 +439,6 @@ export function getAITools(manifest) {
  */
 export function getStandards(manifest) {
   return manifest.standards || [];
-}
-
-/**
- * Get adoption level
- * @param {Object} manifest - Manifest
- * @returns {number} Adoption level (1-3)
- */
-export function getAdoptionLevel(manifest) {
-  return manifest.level || 2;
 }
 
 /**

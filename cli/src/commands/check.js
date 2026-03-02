@@ -5,8 +5,7 @@ import { existsSync, readFileSync } from 'fs';
 import { join, basename } from 'path';
 import { readManifest, writeManifest, isInitialized, copyStandard, copyIntegration } from '../utils/copier.js';
 import {
-  getStandardsByLevel,
-  getLevelInfo,
+  getAllStandards,
   getRepositoryInfo
 } from '../utils/registry.js';
 import {
@@ -188,17 +187,9 @@ function initializeCheckContext(projectPath) {
  * Display standards adoption status and update information
  */
 function displayAdoptionStatus(manifest, msg, common, repoInfo) {
-  const levelInfo = getLevelInfo(manifest.level);
-
   console.log(chalk.green(msg.standardsInitialized));
   console.log();
   console.log(chalk.cyan(msg.adoptionStatus));
-  const lang = getLanguage();
-  const zhName = lang === 'zh-cn' ? levelInfo.nameZhCn : levelInfo.nameZh;
-  const levelDisplay = lang === 'en'
-    ? `${manifest.level} - ${levelInfo.name}`
-    : `${manifest.level} - ${levelInfo.name} (${zhName})`;
-  console.log(chalk.gray(`  ${common.level}: ${levelDisplay}`));
   console.log(chalk.gray(`  ${msg.installed}: ${manifest.upstream.installed}`));
   console.log(chalk.gray(`  ${common.version}: ${manifest.upstream.version}`));
   console.log();
@@ -903,11 +894,11 @@ function displaySkillsStatus(manifest, projectPath, msg) {
  */
 function displayCoverageReport(manifest, msg, _common, projectPath) {
   console.log(chalk.cyan(msg.coverageSummary));
-  const expectedStandards = getStandardsByLevel(manifest.level);
+  const expectedStandards = getAllStandards();
   const skillStandards = expectedStandards.filter(s => s.skillName);
   const refStandards = expectedStandards.filter(s => !s.skillName);
 
-  console.log(chalk.gray(`  ${msg.levelRequires.replace('{level}', manifest.level).replace('{count}', expectedStandards.length)}`));
+  console.log(chalk.gray(`  ${(msg.totalStandards || 'Total: {count} standards').replace('{count}', expectedStandards.length)}`));
   console.log(chalk.gray(`    ${msg.withSkills.replace('{count}', skillStandards.length)}`));
   console.log(chalk.gray(`    ${msg.referenceDocs.replace('{count}', refStandards.length)}`));
 
@@ -1403,9 +1394,7 @@ async function displaySummary(projectPath, _options = {}) {
     return;
   }
 
-  const levelInfo = getLevelInfo(manifest.level);
   const repoInfo = getRepositoryInfo();
-  const lang = getLanguage();
 
   // === Row 1: Version ===
   const currentVersion = manifest.upstream.version;
@@ -1418,14 +1407,7 @@ async function displaySummary(projectPath, _options = {}) {
     console.log(chalk.green(`  ${summaryMsg.version || 'Version'}: ${currentVersion} ✓`));
   }
 
-  // === Row 2: Level ===
-  const zhName = lang === 'zh-cn' ? levelInfo.nameZhCn : levelInfo.nameZh;
-  const levelDisplay = lang === 'en'
-    ? `${manifest.level} - ${levelInfo.name}`
-    : `${manifest.level} - ${levelInfo.name} (${zhName})`;
-  console.log(chalk.gray(`  ${summaryMsg.level || 'Level'}: ${levelDisplay}`));
-
-  // === Row 3: Files Status ===
+  // === Row 2: Files Status ===
   const fileStatus = getFileStatusCounts(manifest, projectPath);
   const filesOk = fileStatus.modified === 0 && fileStatus.missing === 0;
   const filesDisplay = filesOk
@@ -1433,7 +1415,7 @@ async function displaySummary(projectPath, _options = {}) {
     : `${chalk.green(fileStatus.unchanged + ' ✓')} ${chalk.yellow('| ' + fileStatus.modified + ' modified')} ${chalk.red('| ' + fileStatus.missing + ' missing')}`;
   console.log(`  ${summaryMsg.files || 'Files'}: ${filesDisplay}`);
 
-  // === Row 4: Skills Status ===
+  // === Row 3: Skills Status ===
   const aiTools = manifest.aiTools || [];
   if (aiTools.length > 0) {
     const skillsStatus = getSkillsStatusSummary(manifest, projectPath);

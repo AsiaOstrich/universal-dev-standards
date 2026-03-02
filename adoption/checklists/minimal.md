@@ -1,6 +1,8 @@
-# Level 1: Essential Adoption Checklist
+# Essential Adoption Checklist (Historical Reference)
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/adoption/checklists/minimal.md)
+>
+> **Note**: The Level system has been removed. UDS now installs all standards by default via `uds init`. This checklist is kept as a historical reference. See [enterprise.md](enterprise.md) for the complete adoption checklist.
 
 > Minimum viable standards for any project
 >

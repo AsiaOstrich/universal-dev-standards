@@ -7,13 +7,11 @@ import { dirname } from 'path';
 // Mock registry module
 vi.mock('../../src/utils/registry.js', () => ({
   getAllStandards: vi.fn(() => [
-    { name: 'Standard 1', category: 'skill', level: 1, source: 'core/standard-1.md', skillName: 'skill-1' },
-    { name: 'Standard 2', category: 'reference', level: 2, source: { human: 'core/standard-2.md' }, applicability: 'All' },
-    { name: 'Standard 3', category: 'extension', level: 3, source: 'extensions/standard-3.md' }
+    { name: 'Standard 1', category: 'skill', source: 'core/standard-1.md', skillName: 'skill-1' },
+    { name: 'Standard 2', category: 'reference', source: { human: 'core/standard-2.md' }, applicability: 'All' },
+    { name: 'Standard 3', category: 'extension', source: 'extensions/standard-3.md' }
   ]),
-  getStandardsByLevel: vi.fn(() => []),
   getStandardsByCategory: vi.fn(() => []),
-  getLevelInfo: vi.fn(() => ({ name: 'Level 1', description: 'Desc', nameZh: '等級1', nameZhCn: '等级1' })),
   getCategoryInfo: vi.fn((cat) => {
     const categories = {
       skill: { name: 'Skill', description: 'Desc' },
@@ -43,10 +41,8 @@ vi.mock('../../src/i18n/messages.js', () => ({
     commands: {
       list: {
         title: 'Available Standards',
-        errorLevelRange: 'Error: Level must be 1, 2, or 3',
         errorUnknownCategory: 'Unknown category',
         validCategories: 'Valid categories: skill, reference, extension, integration, template',
-        showingLevel: 'Showing standards for level',
         category: 'Category',
         appliesTo: 'Applies to',
         totalSummary: 'standards',
@@ -137,11 +133,10 @@ describe('List Command', () => {
 
       // Assert
       const output = consoleLogs.join('\n');
-      // Check that standards are displayed with level badges
-      // Use simple string matching instead of complex regex
-      expect(output).toContain('[L1]');
-      expect(output).toContain('[L2]');
-      expect(output).toContain('[L3]');
+      // Check that standards are displayed grouped by category
+      expect(output).toContain('Standard 1');
+      expect(output).toContain('Standard 2');
+      expect(output).toContain('Standard 3');
     });
 
     it('should show summary with skill and reference counts', () => {
@@ -162,72 +157,6 @@ describe('List Command', () => {
       const output = consoleLogs.join('\n');
       expect(output).toContain('uds init');
       expect(output).toContain('See adoption guide');
-    });
-  });
-
-  describe('Level Filtering', () => {
-    it('should filter standards by level 1', () => {
-      listCommand({ level: '1' });
-
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('Showing standards for level');
-      expect(output).toContain('1:');
-    });
-
-    it('should filter standards by level 2', () => {
-      listCommand({ level: '2' });
-
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('Showing standards for level');
-      expect(output).toContain('2:');
-    });
-
-    it('should filter standards by level 3', () => {
-      listCommand({ level: '3' });
-
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('Showing standards for level');
-      expect(output).toContain('3:');
-    });
-
-    it('should reject invalid level 0', () => {
-      expect(() => {
-        listCommand({ level: '0' });
-      }).toThrow('process.exit(1)');
-
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('Error: Level must be 1, 2, or 3');
-      expect(processExitSpy).toHaveBeenCalledWith(1);
-    });
-
-    it('should reject invalid level 4', () => {
-      expect(() => {
-        listCommand({ level: '4' });
-      }).toThrow('process.exit(1)');
-
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('Error: Level must be 1, 2, or 3');
-      expect(processExitSpy).toHaveBeenCalledWith(1);
-    });
-
-    it('should reject non-numeric level', () => {
-      expect(() => {
-        listCommand({ level: 'invalid' });
-      }).toThrow('process.exit(1)');
-
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('Error: Level must be 1, 2, or 3');
-      expect(processExitSpy).toHaveBeenCalledWith(1);
-    });
-
-    it('should reject negative level', () => {
-      expect(() => {
-        listCommand({ level: '-1' });
-      }).toThrow('process.exit(1)');
-
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('Error: Level must be 1, 2, or 3');
-      expect(processExitSpy).toHaveBeenCalledWith(1);
     });
   });
 
@@ -414,14 +343,6 @@ describe('List Command', () => {
   });
 
   describe('Edge Cases', () => {
-    it('should handle both level and category filters (level takes precedence)', () => {
-      listCommand({ level: '1', category: 'skill' });
-
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('Showing standards for level');
-      expect(output).not.toContain('Category:');
-    });
-
     it('should handle null options', () => {
       expect(() => {
         listCommand(null);
@@ -466,15 +387,6 @@ describe('List Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Available Standards');
-    });
-
-    it('should display level badges for all standards', () => {
-      listCommand({});
-
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('[L1]');
-      expect(output).toContain('[L2]');
-      expect(output).toContain('[L3]');
     });
 
     it('should show skill name mapping when available', () => {
