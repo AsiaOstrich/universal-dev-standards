@@ -14,14 +14,13 @@ This document provides detailed explanations for every option in the `uds init` 
 1. [AI Tools Selection](#1-ai-tools-selection)
 2. [Skills Installation Location](#2-skills-installation-location)
 3. [Standards Scope](#3-standards-scope)
-4. [Adoption Level](#4-adoption-level)
-5. [Format](#5-format)
-6. [Standard Options](#6-standard-options)
-7. [Extensions](#7-extensions)
-8. [Integration Configuration](#8-integration-configuration)
-9. [Content Mode](#9-content-mode)
-10. [Methodology (Experimental)](#10-methodology-experimental)
-11. [CLI Parameter Reference](#11-cli-parameter-reference)
+4. [Format](#4-format)
+5. [Standard Options](#5-standard-options)
+6. [Extensions](#6-extensions)
+7. [Integration Configuration](#7-integration-configuration)
+8. [Content Mode](#8-content-mode)
+9. [Methodology (Experimental)](#9-methodology-experimental)
+10. [CLI Parameter Reference](#10-cli-parameter-reference)
 
 ---
 
@@ -249,8 +248,8 @@ Only copies **Reference** category standards (those without corresponding Skills
 .standards/
 ├── checkin-standards.md          # Reference
 ├── spec-driven-development.md    # Reference
-├── project-structure.md          # Reference (Level 3)
-└── documentation-writing-standards.md  # Reference (Level 3)
+├── project-structure.md          # Reference
+└── documentation-writing-standards.md  # Reference
 ```
 
 **Use Cases**:
@@ -285,82 +284,7 @@ Copies **Reference + Skill** category standards:
 
 ---
 
-## 4. Adoption Level
-
-### Interactive Prompt
-
-```
-? Select adoption level:
-  Level 1: Starter (基本) - 6 core standards
-❯ Level 2: Professional (推薦) - 12 standards
-  Level 3: Complete (完整) - All 16 standards
-```
-
-### Description
-
-Determines the quantity and depth of adopted standards. Higher levels include more comprehensive standards.
-
-### Options
-
-| Level | Name | Standard Count | Setup Time | Use Case |
-|-------|------|----------------|------------|----------|
-| **Level 1** | Starter | 6 core standards | ~30 minutes | Personal projects, quick start |
-| **Level 2** | Professional | 12 standards | ~2 hours | Team projects, professional development |
-| **Level 3** | Complete | All 16 standards | 1-2 days | Enterprise projects, regulatory compliance |
-
-### Level 1: Starter
-
-**Included Standards**:
-- `anti-hallucination.md` - AI collaboration anti-hallucination
-- `checkin-standards.md` - Code check-in standards
-- `commit-message-guide.md` - Commit message format
-- `spec-driven-development.md` - Spec-driven development
-
-**Use Cases**:
-- Personal side projects
-- Rapid prototyping
-- Teams just starting to adopt standards
-
-**Standard Options**:
-- ✅ Commit Language
-
-### Level 2: Professional
-
-**Includes Level 1 + Additional Standards**:
-- `code-review-checklist.md` - Code review
-- `git-workflow.md` - Git workflow
-- `versioning.md` - Semantic versioning
-- `changelog-standards.md` - Changelog
-- `testing-standards.md` - Testing standards
-- Applicable language/framework extensions
-
-**Use Cases**:
-- Multi-person collaborative team projects
-- Projects requiring Code Review process
-- Projects with CI/CD
-
-**Standard Options**:
-- ✅ Git Workflow
-- ✅ Merge Strategy
-- ✅ Commit Language
-- ✅ Test Levels
-
-### Level 3: Complete
-
-**Includes Level 2 + Additional Standards**:
-- `documentation-structure.md` - Documentation structure
-- `documentation-writing-standards.md` - Documentation writing
-- `project-structure.md` - Project structure
-- Complete template suite
-
-**Use Cases**:
-- Enterprise-level projects
-- Regulatory compliance requirements (finance, healthcare, etc.)
-- Projects requiring complete documentation
-
----
-
-## 5. Format
+## 4. Format
 
 ### Interactive Prompt
 
@@ -435,13 +359,13 @@ Copies both formats, suitable when you need:
 
 ---
 
-## 6. Standard Options
+## 5. Standard Options
 
 ### Description
 
-Configuration options for specific standards. Options are displayed based on Adoption Level.
+Configuration options for specific standards.
 
-### 6.1 Git Workflow (Level 2+)
+### 5.1 Git Workflow
 
 #### Interactive Prompt
 
@@ -499,7 +423,7 @@ main ─────────────────────────
 - Uses feature flags
 - Requires highly automated testing
 
-### 6.2 Merge Strategy (Level 2+)
+### 5.2 Merge Strategy
 
 #### Interactive Prompt
 
@@ -518,7 +442,7 @@ Determines PR merge method.
 | **Merge Commit** | Preserve complete branch history | Need detailed history tracking |
 | **Rebase + Fast-Forward** | Linear history, advanced | Pursuit of perfect linear history |
 
-### 6.3 Commit Language (Level 1+)
+### 5.3 Commit Language
 
 #### Interactive Prompt
 
@@ -537,7 +461,7 @@ Determines commit message language.
 | **Traditional Chinese** | `新增(認證): 實作 OAuth2 支援` | Traditional Chinese teams |
 | **Bilingual** | `feat(auth): add OAuth2 / 新增 OAuth2` | Bilingual environments |
 
-### 6.4 Test Levels (Level 2+)
+### 5.4 Test Levels
 
 #### Interactive Prompt
 
@@ -560,13 +484,13 @@ Select test levels to include.
 
 ---
 
-## 7. Extensions
+## 6. Extensions
 
 ### Description
 
 Based on project language, framework, and locale settings, copy corresponding extension standards.
 
-### 7.1 Language Extensions
+### 6.1 Language Extensions
 
 #### Interactive Prompt
 
@@ -583,7 +507,7 @@ Based on project language, framework, and locale settings, copy corresponding ex
 | **C#** | `csharp-style.md` | `.cs` files, `.csproj` |
 | **PHP** | `php-style.md` | `.php` files, `composer.json` |
 
-### 7.2 Framework Extensions
+### 6.2 Framework Extensions
 
 #### Interactive Prompt
 
@@ -598,7 +522,7 @@ Based on project language, framework, and locale settings, copy corresponding ex
 |-----------|------|-----------------|
 | **Fat-Free** | `fat-free-patterns.md` | Fat-Free Framework related files |
 
-### 7.3 Locale Extensions
+### 6.3 Locale Extensions
 
 #### Interactive Prompt
 
@@ -624,7 +548,7 @@ uds init
 
 ---
 
-## 8. Integration Configuration
+## 7. Integration Configuration
 
 ### Description
 
@@ -681,7 +605,7 @@ Generate three files with same rules
 
 ---
 
-## 9. Content Mode
+## 8. Content Mode
 
 ### Interactive Prompt
 
@@ -757,7 +681,7 @@ Determines how much standards content to embed in AI tool integration files. Thi
 
 ## Installed Standards Index
 
-This project has adopted **Level 2** standards. All standards are in `.standards/`:
+All standards are located in `.standards/`:
 
 ### Core (6 standards)
 - `anti-hallucination.md` - AI collaboration anti-hallucination
@@ -866,7 +790,7 @@ Legacy migration / Want minimal changes? → Minimal
 
 ---
 
-## 10. Methodology (Experimental)
+## 9. Methodology (Experimental)
 
 ### Interactive Prompt
 
@@ -908,7 +832,7 @@ uds init --experimental
 
 ---
 
-## 11. CLI Parameter Reference
+## 10. CLI Parameter Reference
 
 ### Interactive Mode vs Non-Interactive Mode
 
@@ -917,7 +841,6 @@ uds init --experimental
 | AI Tools | `promptAITools()` | - (detected) | Auto-detect |
 | Skills Location | `promptSkillsInstallLocation()` | `--skills-location` | `marketplace` |
 | Standards Scope | `promptStandardsScope()` | - | Depends on Skills |
-| Level | `promptLevel()` | `-l, --level` | `2` |
 | Format | `promptFormat()` | `-f, --format` | `ai` |
 | Git Workflow | `promptGitWorkflow()` | `--workflow` | `github-flow` |
 | Merge Strategy | `promptMergeStrategy()` | `--merge-strategy` | `squash` |
@@ -950,7 +873,6 @@ uds init -y
 
 # Specify all options
 uds init -y \
-  --level 2 \
   --format ai \
   --skills-location marketplace \
   --workflow github-flow \
@@ -959,14 +881,11 @@ uds init -y \
   --test-levels unit,integration \
   --content-mode index
 
-# Level 1 quick setup
-uds init -y --level 1
-
 # Enterprise full setup
-uds init -y --level 3 --content-mode full
+uds init -y --content-mode full
 
 # Traditional Chinese team
-uds init -y --level 2 --commit-lang traditional-chinese --locale zh-tw
+uds init -y --commit-lang traditional-chinese --locale zh-tw
 
 # Force English prompts
 uds init --ui-lang en
@@ -975,7 +894,7 @@ uds init --ui-lang en
 uds init --ui-lang zh-tw
 
 # PHP project
-uds init -y --level 2 --lang php --framework fat-free
+uds init -y --lang php --framework fat-free
 ```
 
 ---

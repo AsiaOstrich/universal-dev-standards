@@ -22,14 +22,13 @@ status: current
 1. [AI 工具选择](#1-ai-工具选择)
 2. [Skills 安装位置](#2-skills-安装位置)
 3. [Standards Scope（标准范围）](#3-standards-scope标准范围)
-4. [Adoption Level（采用等级）](#4-adoption-level采用等级)
-5. [Format（标准格式）](#5-format标准格式)
-6. [Standard Options（标准选项）](#6-standard-options标准选项)
-7. [Extensions（扩展）](#7-extensions扩展)
-8. [Integration Configuration（集成配置）](#8-integration-configuration集成配置)
-9. [Content Mode（内容模式）](#9-content-mode内容模式)
-10. [Methodology（开发方法论）](#10-methodology开发方法论)
-11. [CLI 参数对照表](#11-cli-参数对照表)
+4. [Format（标准格式）](#4-format标准格式)
+5. [Standard Options（标准选项）](#5-standard-options标准选项)
+6. [Extensions（扩展）](#6-extensions扩展)
+7. [Integration Configuration（集成配置）](#7-integration-configuration集成配置)
+8. [Content Mode（内容模式）](#8-content-mode内容模式)
+9. [Methodology（开发方法论）](#9-methodology开发方法论)
+10. [CLI 参数对照表](#10-cli-参数对照表)
 
 ---
 
@@ -257,8 +256,8 @@ your-project/
 .standards/
 ├── checkin-standards.md          # Reference
 ├── spec-driven-development.md    # Reference
-├── project-structure.md          # Reference (Level 3)
-└── documentation-writing-standards.md  # Reference (Level 3)
+├── project-structure.md          # Reference
+└── documentation-writing-standards.md  # Reference
 ```
 
 **适用情境**：
@@ -293,82 +292,7 @@ your-project/
 
 ---
 
-## 4. Adoption Level（采用等级）
-
-### 交互式提示
-
-```
-? Select adoption level:
-  Level 1: Starter (基本) - 6 core standards
-❯ Level 2: Professional (推荐) - 12 standards
-  Level 3: Complete (完整) - All 16 standards
-```
-
-### 说明
-
-决定采用的标准数量和深度。等级越高，包含的标准越完整。
-
-### 选项
-
-| 等级 | 名称 | 标准数量 | 设定时间 | 适用情境 |
-|------|------|----------|----------|----------|
-| **Level 1** | Starter (基本) | 6 个核心标准 | ~30 分钟 | 个人项目、快速启动 |
-| **Level 2** | Professional (推荐) | 12 标准 | ~2 小时 | 团队项目、专业开发 |
-| **Level 3** | Complete (完整) | 全部 16 标准 | 1-2 天 | 企业项目、法规遵循 |
-
-### Level 1: Starter (基本)
-
-**包含标准**：
-- `anti-hallucination.md` - AI 协作防幻觉
-- `checkin-standards.md` - 代码签入检查
-- `commit-message-guide.md` - 提交信息格式
-- `spec-driven-development.md` - 规格驱动开发
-
-**适用情境**：
-- 个人 side project
-- 快速原型开发
-- 刚开始导入标准的团队
-
-**Standard Options**：
-- ✅ Commit Language
-
-### Level 2: Professional (推荐)
-
-**包含 Level 1 + 额外标准**：
-- `code-review-checklist.md` - 代码审查
-- `git-workflow.md` - Git 工作流程
-- `versioning.md` - 语义化版本
-- `changelog-standards.md` - 变更日志
-- `testing-standards.md` - 测试标准
-- 适用的语言/框架扩展
-
-**适用情境**：
-- 多人协作的团队项目
-- 需要 Code Review 流程
-- 有 CI/CD 的项目
-
-**Standard Options**：
-- ✅ Git Workflow
-- ✅ Merge Strategy
-- ✅ Commit Language
-- ✅ Test Levels
-
-### Level 3: Complete (完整)
-
-**包含 Level 2 + 额外标准**：
-- `documentation-structure.md` - 文档结构
-- `documentation-writing-standards.md` - 文档撰写
-- `project-structure.md` - 项目结构
-- 完整模板套件
-
-**适用情境**：
-- 企业级项目
-- 法规遵循要求（金融、医疗等）
-- 需要完整文档的项目
-
----
-
-## 5. Format（标准格式）
+## 4. Format（标准格式）
 
 ### 交互式提示
 
@@ -443,13 +367,13 @@ rules:
 
 ---
 
-## 6. Standard Options（标准选项）
+## 5. Standard Options（标准选项）
 
 ### 说明
 
-针对特定标准的配置选项。选项会根据 Adoption Level 显示。
+针对特定标准的配置选项。
 
-### 6.1 Git Workflow（Level 2+）
+### 5.1 Git Workflow
 
 #### 交互式提示
 
@@ -507,7 +431,7 @@ main ─────────────────────────
 - 使用 feature flags
 - 需要高度自动化测试
 
-### 6.2 Merge Strategy（Level 2+）
+### 5.2 Merge Strategy
 
 #### 交互式提示
 
@@ -526,7 +450,7 @@ main ─────────────────────────
 | **Merge Commit** | 保留完整分支历史 | 需要追踪详细历史 |
 | **Rebase + Fast-Forward** | 线性历史，进阶 | 追求完美线性历史 |
 
-### 6.3 Commit Language（Level 1+）
+### 5.3 Commit Language
 
 #### 交互式提示
 
@@ -545,7 +469,7 @@ main ─────────────────────────
 | **简体中文** | `新增(认证): 实作 OAuth2 支援` | 繁体中文团队 |
 | **Bilingual** | `feat(auth): add OAuth2 / 新增 OAuth2` | 双语环境 |
 
-### 6.4 Test Levels（Level 2+）
+### 5.4 Test Levels
 
 #### 交互式提示
 
@@ -568,13 +492,13 @@ main ─────────────────────────
 
 ---
 
-## 7. Extensions（扩展）
+## 6. Extensions（扩展）
 
 ### 说明
 
 根据项目的语言、框架、地区设置，复制对应的扩展标准。
 
-### 7.1 Language Extensions（语言扩展）
+### 6.1 Language Extensions（语言扩展）
 
 #### 交互式提示
 
@@ -591,7 +515,7 @@ main ─────────────────────────
 | **C#** | `csharp-style.md` | `.cs` 文件、`.csproj` |
 | **PHP** | `php-style.md` | `.php` 文件、`composer.json` |
 
-### 7.2 Framework Extensions（框架扩展）
+### 6.2 Framework Extensions（框架扩展）
 
 #### 交互式提示
 
@@ -606,7 +530,7 @@ main ─────────────────────────
 |------|------|----------|
 | **Fat-Free** | `fat-free-patterns.md` | Fat-Free Framework 相关文件 |
 
-### 7.3 Locale Extensions（地区扩展）
+### 6.3 Locale Extensions（地区扩展）
 
 #### 交互式提示
 
@@ -632,7 +556,7 @@ uds init
 
 ---
 
-## 8. Integration Configuration（集成配置）
+## 7. Integration Configuration（集成配置）
 
 ### 说明
 
@@ -689,7 +613,7 @@ uds init
 
 ---
 
-## 9. Content Mode（内容模式）
+## 8. Content Mode（内容模式）
 
 ### 交互式提示
 
@@ -765,7 +689,7 @@ uds init
 
 ## Installed Standards Index
 
-本项目采用 **Level 2** 标准。所有规范位于 `.standards/`：
+所有规范位于 `.standards/`：
 
 ### Core (6 standards)
 - `anti-hallucination.md` - AI 协作防幻觉规范
@@ -872,7 +796,7 @@ Index    Full
 
 ---
 
-## 10. Methodology（开发方法论）
+## 9. Methodology（开发方法论）
 
 ### 交互式提示
 
@@ -914,7 +838,7 @@ uds init --experimental
 
 ---
 
-## 11. CLI 参数对照表
+## 10. CLI 参数对照表
 
 ### 交互模式 vs 非交互模式
 
@@ -923,7 +847,6 @@ uds init --experimental
 | AI Tools | `promptAITools()` | - (检测) | 自动检测 |
 | Skills Location | `promptSkillsInstallLocation()` | `--skills-location` | `marketplace` |
 | Standards Scope | `promptStandardsScope()` | - | 依 Skills 决定 |
-| Level | `promptLevel()` | `-l, --level` | `2` |
 | Format | `promptFormat()` | `-f, --format` | `ai` |
 | Git Workflow | `promptGitWorkflow()` | `--workflow` | `github-flow` |
 | Merge Strategy | `promptMergeStrategy()` | `--merge-strategy` | `squash` |
@@ -954,7 +877,6 @@ uds init -y
 
 # 指定所有选项
 uds init -y \
-  --level 2 \
   --format ai \
   --skills-location marketplace \
   --workflow github-flow \
@@ -963,17 +885,14 @@ uds init -y \
   --test-levels unit,integration \
   --content-mode index
 
-# Level 1 快速设置
-uds init -y --level 1
-
 # 企业级完整设置
-uds init -y --level 3 --content-mode full
+uds init -y --content-mode full
 
 # 繁体中文团队
-uds init -y --level 2 --commit-lang traditional-chinese --locale zh-cn
+uds init -y --commit-lang traditional-chinese --locale zh-cn
 
 # PHP 项目
-uds init -y --level 2 --lang php --framework fat-free
+uds init -y --lang php --framework fat-free
 ```
 
 ---
