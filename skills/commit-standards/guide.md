@@ -188,13 +188,23 @@ traditional_chinese:
   example: "功能(認證): 新增 OAuth2 Google 登入支援"
 
 bilingual:
-  format: "type(scope): English subject\n\n中文詳細說明"
+  format: "type(scope): English subject. 中文主旨.\n\nEnglish body\n\n中文 body\n\nfooter"
   example: |
-    feat(auth): add OAuth2 Google login
+    feat(auth): Add OAuth2 Google login support. 新增 OAuth2 Google 登入支援.
 
-    新增 Google OAuth2 登入功能
-    - 實作授權流程
-    - 處理 token 交換
+    Implement Google OAuth2 authentication flow for user login.
+
+    - Add Google OAuth2 SDK integration
+    - Create callback endpoint for OAuth flow
+    - Store refresh tokens securely
+
+    實作 Google OAuth2 認證流程供使用者登入。
+
+    - 整合 Google OAuth2 SDK
+    - 建立 OAuth 流程回呼端點
+    - 安全儲存更新權杖
+
+    Closes #123
 ```
 
 ---

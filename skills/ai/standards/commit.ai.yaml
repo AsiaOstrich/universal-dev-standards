@@ -12,7 +12,7 @@ lang_decision:
     local_EN: {l:EN,r:"tools,mobility"}
     local_ZH: {l:ZH,r:"clarity,preference"}
     mixed: {l:bilingual,r:"best of both"}
-bilingual_format: "type(scope): EN subject\n\n中文 body"
+bilingual_format: "type(scope): EN subject. 中文 subject.\n\nEN body\n\n中文 body\n\nfooter"
 refs: {closes:"#N→auto_close",fixes:"#N→auto_close",refs:"#N→link_only"}
 breaking: "BREAKING CHANGE: description\n\nMigration guide:\n1. step"
 examples:
