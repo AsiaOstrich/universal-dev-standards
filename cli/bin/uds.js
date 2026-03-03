@@ -136,6 +136,9 @@ program
   .option('--skills', 'Install/update Skills for configured AI tools')
   .option('--commands', 'Install/update slash commands for configured AI tools')
   .option('--debug', 'Show debug output for Skills/Commands detection')
+  .option('--plan', 'Show reconciliation plan without executing (like terraform plan)')
+  .option('--force', 'Force update all files, ignoring hash comparison')
+  .option('--rollback', 'Rollback to the most recent backup')
   .action(updateCommand);
 
 program

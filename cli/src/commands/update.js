@@ -37,6 +37,13 @@ import {
   promptSkillsInstallLocation,
   promptCommandsInstallation
 } from '../prompts/init.js';
+import {
+  reconcile,
+  plan as reconcilerPlan,
+  rollbackLast,
+  formatPlan,
+  listBackups
+} from '../reconciler/index.js';
 
 /**
  * Compare two semantic versions
@@ -212,6 +219,24 @@ export async function updateCommand(options) {
   // Handle --commands option
   if (options.commands) {
     await updateCommandsOnly(projectPath, manifest);
+    return;
+  }
+
+  // Handle --rollback option (DSR)
+  if (options.rollback) {
+    await handleRollback(projectPath);
+    return;
+  }
+
+  // Handle --plan option (DSR dry-run)
+  if (options.plan) {
+    await handlePlan(projectPath, options);
+    return;
+  }
+
+  // Handle --force option (DSR force reconciliation)
+  if (options.force) {
+    await handleForceReconcile(projectPath, options);
     return;
   }
 
@@ -1625,4 +1650,134 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
   }
 
   return result;
+}
+
+// ─── DSR (Declarative State Reconciliation) Handlers ─────────────
+
+/**
+ * Handle --rollback: restore from the most recent backup.
+ */
+async function handleRollback(projectPath) {
+  const backups = listBackups(projectPath);
+  if (backups.length === 0) {
+    console.log(chalk.yellow('No backups found. Nothing to rollback.'));
+    console.log();
+    return;
+  }
+
+  const latest = backups[0];
+  console.log(chalk.cyan(`Rolling back to: ${latest.backupId}`));
+  console.log(chalk.gray(`  Created: ${latest.createdAt}`));
+  console.log(chalk.gray(`  Actions: ${latest.actionCount}`));
+  console.log();
+
+  const result = rollbackLast(projectPath);
+  if (result.success) {
+    console.log(chalk.green(`Rollback successful. Restored ${result.restored.length} files.`));
+    for (const file of result.restored) {
+      console.log(chalk.gray(`  ← ${file}`));
+    }
+  } else {
+    console.log(chalk.red('Rollback failed:'));
+    for (const err of result.errors) {
+      console.log(chalk.red(`  ${err}`));
+    }
+  }
+  console.log();
+}
+
+/**
+ * Handle --plan: show what the reconciler would do without executing.
+ */
+async function handlePlan(projectPath, options) {
+  const spinner = ora('Calculating reconciliation plan...').start();
+
+  const result = await reconcilerPlan(projectPath, { force: false });
+
+  spinner.stop();
+
+  if (result.errors.length > 0) {
+    for (const err of result.errors) {
+      console.log(chalk.yellow(`  ⚠ ${err}`));
+    }
+    console.log();
+  }
+
+  console.log(formatPlan(result.plan));
+  console.log();
+
+  if (result.plan.actions.length > 0) {
+    console.log(chalk.gray('Run `uds update` to apply these changes.'));
+    console.log(chalk.gray('Run `uds update --force` to force update all files.'));
+    console.log();
+  }
+}
+
+/**
+ * Handle --force: run the full reconciler with force mode.
+ */
+async function handleForceReconcile(projectPath, options) {
+  console.log(chalk.cyan('Running declarative state reconciliation (force mode)...'));
+  console.log();
+
+  // First show the plan
+  const planResult = await reconcilerPlan(projectPath, { force: true });
+
+  if (planResult.plan.actions.length === 0) {
+    console.log(chalk.green('Everything is up to date. No changes needed.'));
+    console.log();
+    return;
+  }
+
+  console.log(formatPlan(planResult.plan));
+  console.log();
+
+  // Confirm unless --yes
+  if (!options.yes) {
+    const { confirmed } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'confirmed',
+        message: `Apply ${planResult.plan.actions.length} changes?`,
+        default: true
+      }
+    ]);
+
+    if (!confirmed) {
+      console.log(chalk.yellow('Cancelled.'));
+      return;
+    }
+  }
+
+  // Execute
+  const spinner = ora('Applying reconciliation plan...').start();
+
+  const result = await reconcile(projectPath, {
+    force: true,
+    backup: true,
+    onAction: (action, index, total) => {
+      spinner.text = `[${index + 1}/${total}] ${action.type} ${action.path || action.category}`;
+    }
+  });
+
+  if (result.success) {
+    spinner.succeed(`Reconciliation complete: ${result.execution?.summary.succeeded || 0} succeeded`);
+  } else {
+    spinner.warn(`Reconciliation completed with errors: ${result.execution?.summary.failed || 0} failed`);
+  }
+
+  if (result.execution?.backupId) {
+    console.log(chalk.gray(`  Backup: ${result.execution.backupId}`));
+    console.log(chalk.gray('  Use `uds update --rollback` to undo.'));
+  }
+
+  if (result.errors.length > 0) {
+    console.log();
+    console.log(chalk.yellow(`Errors (${result.errors.length}):`));
+    for (const err of result.errors) {
+      console.log(chalk.gray(`  ${err}`));
+    }
+  }
+
+  console.log();
 }
