@@ -225,8 +225,8 @@ uds upgrade --force
 function detectVersion(projectDir) {
   // Check package.json devDependencies
   const pkg = readPackageJson(projectDir);
-  if (pkg?.devDependencies?.['@anthropic/uds']) {
-    return pkg.devDependencies['@anthropic/uds'];
+  if (pkg?.devDependencies?.['universal-dev-standards']) {
+    return pkg.devDependencies['universal-dev-standards'];
   }
 
   // Check manifest.json

@@ -4,7 +4,7 @@
 
 > Comprehensive standards for all projects
 >
-> Quick setup: `npx @anthropic/uds init`
+> Quick setup: `npx universal-dev-standards init`
 
 ---
 

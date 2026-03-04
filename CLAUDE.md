@@ -902,7 +902,7 @@ For stable releases, ensure translations are synchronized:
 6. Commit: `chore(release): X.Y.Z`
 7. Create tag: `vX.Y.Z`
 8. Push and create GitHub Release
-9. Verify npm publication: `npm view @anthropic/uds dist-tags`
+9. Verify npm publication: `npm view universal-dev-standards dist-tags`
 
 **When to Use This Workflow:**
 - Major releases with breaking changes

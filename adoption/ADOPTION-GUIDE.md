@@ -183,7 +183,7 @@ Document templates for specific purposes.
 The easiest way to adopt all standards:
 
 ```bash
-npx @anthropic/uds init
+npx universal-dev-standards init
 ```
 
 This installs all available standards, skills, and integrations for your project.
