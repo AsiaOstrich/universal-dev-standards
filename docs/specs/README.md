@@ -2,8 +2,8 @@
 
 > **Language**: English | 繁體中文
 
-**Version**: 1.3.0
-**Last Updated**: 2026-02-04
+**Version**: 1.4.0
+**Last Updated**: 2026-03-04
 
 This directory contains all specification documents for the Universal Development Standards project, organized by architectural layer.
 
@@ -58,8 +58,20 @@ High-level designs for cross-cutting concerns (Agents, Workflows, Derivation).
 | [agents-workflows-system.md](system/agents-workflows-system.md) | Agent & Workflow System | Implemented |
 | [forward-derivation.md](system/forward-derivation.md) | Forward Derivation Methodology | Approved |
 | [core-standard-workflow.md](system/core-standard-workflow.md) | Core Standard Creation Workflow | Approved |
-| [SPEC-AUDIT-01-standards-audit.md](system/SPEC-AUDIT-01-standards-audit.md) | UDS Health & Feedback System — UDS 健康檢查與回饋系統 | Draft |
+| [SPEC-AUDIT-01-standards-audit.md](system/SPEC-AUDIT-01-standards-audit.md) | UDS Health & Feedback System — UDS 健康檢查與回饋系統 | Approved |
 | ... | (See system/ directory for full list) | |
+
+---
+
+## Standards Specifications / 規範規格
+
+Meta-standards that define how standards themselves are structured, organized, and applied.
+
+定義規範本身如何被組織、結構化和應用的後設規範。
+
+| Document | Description | Status |
+|----------|-------------|--------|
+| [SPEC-STRUCT-01-file-placement-guide.md](standards/SPEC-STRUCT-01-file-placement-guide.md) | File Placement Decision Guide — 檔案歸檔決策指南 | Draft |
 
 ---
 
@@ -116,6 +128,7 @@ UDS CLI 工具的實作細節。
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.4.0 | 2026-03-04 | Added Standards Specifications section; Added SPEC-STRUCT-01 |
 | 1.3.0 | 2026-02-04 | Reorganized into Architecture/System/CLI structure; Added Dual-Layer Architecture spec |
 | 1.2.0 | 2026-01-28 | Added future feature specs |
 | 1.1.0 | 2026-01-25 | Added SHARED/PUBLISH/TEST specs |
