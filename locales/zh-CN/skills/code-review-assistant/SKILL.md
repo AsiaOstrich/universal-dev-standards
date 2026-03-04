@@ -58,6 +58,7 @@ description: |
 > - 有 ❗ BLOCKING 项目 → 修复后重新执行 `/review`
 > - 全部通过 → 执行 `/checkin` 品质关卡
 > - 仅有 💡 SUGGESTION → 执行 `/commit` 提交变更
+> - 审查中发现规范不实用或缺失 → 执行 `/audit --report` 回报
 
 ## 参考
 

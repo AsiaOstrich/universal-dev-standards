@@ -78,6 +78,7 @@ Brief description.
 > - 执行 `/derive bdd` 仅推导 BDD 场景
 > - 执行 `/derive tdd` 仅推导 TDD 骨架
 > - 审查 AC 完整性，确保所有验收条件可测试
+> - 检查 UDS 规范覆盖率 → 执行 `/audit --patterns`
 
 ## 参考
 

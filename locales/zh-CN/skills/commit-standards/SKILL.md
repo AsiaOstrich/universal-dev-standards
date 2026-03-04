@@ -63,6 +63,7 @@ description: |
 > - 执行 `/changelog` 更新变更日志
 > - 执行 `git push` 推送到远端
 > - 执行 `/release`（若准备发布）
+> - 发现重复模式或规范摩擦 → 执行 `/audit --report` 回报
 
 ## 参考
 
