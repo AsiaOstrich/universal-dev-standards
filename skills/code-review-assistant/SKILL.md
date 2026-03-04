@@ -55,6 +55,7 @@ After `/review` completes, the AI assistant should suggest:
 > - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/review` — Fix issues then re-run `/review`
 > - 全部通過 → 執行 `/checkin` 品質關卡 — All passed → Run `/checkin` quality gates
 > - 僅有 💡 SUGGESTION → 執行 `/commit` 提交變更 — Only suggestions → Run `/commit`
+> - 審查中發現規範不實用或缺失 → 執行 `/audit --report` 回報 — Found impractical or missing standards → Run `/audit --report`
 
 ## Reference | 參考
 

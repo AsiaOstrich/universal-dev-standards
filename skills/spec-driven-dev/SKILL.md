@@ -83,6 +83,7 @@ After `/sdd` completes, the AI assistant should suggest:
 > - 執行 `/derive bdd` 僅推導 BDD 場景 — Derive BDD scenarios only
 > - 執行 `/derive tdd` 僅推導 TDD 骨架 — Derive TDD skeletons only
 > - 審查 AC 完整性，確保所有驗收條件可測試 — Review AC completeness
+> - 檢查 UDS 規範覆蓋率 → 執行 `/audit --patterns` — Check UDS standard coverage → Run `/audit --patterns`
 
 ## Reference | 參考
 
