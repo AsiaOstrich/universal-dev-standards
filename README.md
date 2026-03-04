@@ -20,12 +20,11 @@ Language-agnostic, framework-agnostic documentation standards for software proje
 # Install globally (stable)
 npm install -g universal-dev-standards
 
-# Or install beta for latest features
-npm install -g universal-dev-standards@beta
-
 # Initialize your project
 uds init
 ```
+
+> Looking for beta or RC versions? See [Pre-release Versions](docs/PRE-RELEASE.md).
 
 ### Or use npx (No installation required)
 
@@ -34,6 +33,20 @@ npx universal-dev-standards init
 ```
 
 > **Note**: Copying standards alone won't enable AI assistance. Use `uds init` to automatically configure your AI tool or manually reference standards in your tool's configuration file.
+
+### 🗺️ What's Next?
+
+| I want to... | Command |
+| :--- | :--- |
+| **Understand an existing codebase** | `/discover` |
+| **Build a new feature with specs** | `/sdd` |
+| **Work with legacy code** | `/reverse` |
+| **Choose a development methodology** | `/methodology` |
+| **Make a clean commit** | `/commit` |
+
+> **Tip**: Type `/dev-workflow` for a complete guide to all development phases and available commands.
+>
+> See also: [Daily Workflow Guide](adoption/DAILY-WORKFLOW-GUIDE.md)
 
 ---
 
@@ -48,14 +61,7 @@ npx universal-dev-standards init
 | **CLI Commands** | 6 | list, init, configure, check, update, skills |
 <!-- UDS_STATS_TABLE_END -->
 
-### What's New in 5.0 Beta
-
-| Feature | Description |
-| :--- | :--- |
-| **32 Core Standards** | 10 new standards including Security, Performance, Accessibility |
-| **26 Skills / 30 Commands** | New `/requirement`, `/security`, `/perf` commands |
-| **Developer Memory** | Persistent memory across sessions (`.standards/developer-memory.ai.yaml`) |
-| **Enhanced i18n** | Commit language preferences, improved zh-CN support |
+> **What's New in 5.0?** See [Pre-release Notes](docs/PRE-RELEASE.md) for details on new features.
 
 ---
 
@@ -108,26 +114,11 @@ graph TD
 **npm (Recommended)**
 ```bash
 npm install -g universal-dev-standards
-uds init    # Interactive initialization
-uds check   # Check adoption status
-uds update  # Update to latest version
-```
-
-### Pre-release Versions
-
-```bash
-# Install the latest RC (Release Candidate)
-npm install -g universal-dev-standards@rc
-
-# Install the latest Beta
-npm install -g universal-dev-standards@beta
-```
-
-### Source Installation (Development)
-
-```bash
-git clone https://github.com/AsiaOstrich/universal-dev-standards.git
-cd universal-dev-standards/cli && npm install && npm link
+uds init        # Interactive initialization
+uds check       # Check adoption status
+uds update      # Update to latest version
+uds config      # Manage preferences (language, mode)
+uds uninstall   # Remove standards from project
 ```
 
 ---
