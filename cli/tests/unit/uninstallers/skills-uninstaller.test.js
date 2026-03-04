@@ -99,18 +99,19 @@ describe('skills-uninstaller', () => {
     });
 
     it('should include user-level when includeUserLevel is true', () => {
-      // We can't easily test actual user-level removal without touching real home dirs,
-      // but we can verify it's not skipped when flag is set
+      // Use dryRun to avoid touching real home dirs
       const manifest = makeManifest([
         { agent: 'claude-code', level: 'user', status: 'success' }
       ]);
 
-      const result = uninstallSkills(testDir, manifest, { includeUserLevel: true });
+      const result = uninstallSkills(testDir, manifest, { includeUserLevel: true, dryRun: true });
 
-      // The dir probably doesn't exist in test env, so it will be 'not found'
-      expect(result.skipped.some(s => s.includes('not found'))).toBe(true);
-      // But it should NOT be skipped for being user-level
+      // Should NOT be skipped for being user-level
       expect(result.skipped.some(s => s.includes('user-level'))).toBe(false);
+      // Should either be in removed (dryRun preview) or skipped with 'not found'
+      const wasProcessed = result.removed.length > 0 ||
+                           result.skipped.some(s => s.includes('not found'));
+      expect(wasProcessed).toBe(true);
     });
   });
 
