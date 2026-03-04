@@ -3,8 +3,8 @@
 
 id: documentation-structure
 meta:
-  version: "1.3.0"
-  updated: "2025-12-29"
+  version: "1.4.0"
+  updated: "2026-03-04"
   source: core/documentation-structure.md
   description: Consistent documentation structure for software projects
 
@@ -68,6 +68,15 @@ structure:
         purpose: Architecture diagrams
         formats: [".mmd", ".puml", ".drawio"]
 
+      - name: working/
+        purpose: Development artifacts (brainstorms, RFCs, investigations, POCs)
+        subdirs:
+          - brainstorms/
+          - investigations/
+          - rfcs/
+          - meeting-notes/
+          - poc/
+
 rules:
   - id: root-uppercase
     trigger: creating root documentation
@@ -104,6 +113,16 @@ rules:
     validator: "^\\d{3}-[a-z][a-z0-9-]+\\.md$"
     priority: required
 
+  - id: working-documents
+    trigger: creating brainstorm, RFC, investigation, POC, or meeting notes
+    instruction: "Place in docs/working/{type}/; include status header (draft/active/graduated/archived); follow naming conventions"
+    priority: required
+
+  - id: working-doc-lifecycle
+    trigger: reviewing working documents
+    instruction: "Brainstorms graduate to specs; RFCs graduate to ADRs; POCs graduate to feature implementations; archive after 3 months inactivity"
+    priority: recommended
+
 quick_reference:
   root_files:
     columns: [File, Naming, Purpose]
@@ -121,3 +140,9 @@ quick_reference:
       - [docs/flows/, Flow documentation, "{module}-flow.md"]
       - [docs/ADR/, Architecture decisions, "NNN-title.md"]
       - [docs/diagrams/, Architecture diagrams, descriptive names]
+      - [docs/working/, Development artifacts, see subtypes below]
+      - [docs/working/brainstorms/, Brainstorm documents, "YYYY-MM-DD-topic.md"]
+      - [docs/working/rfcs/, Request for Comments, "RFC-NNN-title.md"]
+      - [docs/working/investigations/, Technical investigations, "YYYY-MM-DD-topic.md"]
+      - [docs/working/poc/, Proof of Concept, "{name}/README.md"]
+      - [docs/working/meeting-notes/, Meeting records, "YYYY-MM-DD-topic.md"]

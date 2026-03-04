@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/documentation-structure.md)
 
-**Version**: 1.3.0
-**Last Updated**: 2026-01-24
+**Version**: 1.4.0
+**Last Updated**: 2026-03-04
 **Applicability**: All software projects requiring documentation
 **Scope**: partial
 **Industry Standards**: None (Industry convention)
@@ -1178,6 +1178,106 @@ git push origin gh-pages
 
 ---
 
+## Development Artifacts (Working Documents)
+
+Development produces intermediate documents that are not formal documentation but need a discoverable home. These "working documents" live in `docs/working/` with a defined lifecycle.
+
+### Directory Structure
+
+```
+docs/working/
+├── README.md                 # Index and lifecycle rules
+├── brainstorms/              # YYYY-MM-DD-topic.md
+├── investigations/           # Technical investigations and research
+├── rfcs/                     # RFC-NNN-title.md
+├── meeting-notes/            # Meeting records
+└── poc/                      # Proof of concept documents
+    └── {poc-name}/
+        └── README.md         # Findings, conclusions, next steps
+```
+
+### Status Header (Required)
+
+Every working document MUST include a status header:
+
+```markdown
+---
+status: draft | active | graduated | archived
+created: YYYY-MM-DD
+author: name
+graduated-to: path/to/formal-doc.md  # if graduated
+---
+```
+
+### Lifecycle Management
+
+| Document Type | Directory | Retention | Graduation Path |
+|---------------|-----------|-----------|-----------------|
+| **Brainstorm** | `brainstorms/` | 6 months active | → Spec (`docs/specs/`) or discard |
+| **Investigation** | `investigations/` | Until resolved | → ADR (`docs/ADR/`) or knowledge base |
+| **RFC** | `rfcs/` | Until decided | → ADR (`docs/ADR/`) if accepted |
+| **Meeting notes** | `meeting-notes/` | 12 months | → Archive or discard |
+| **POC** | `poc/` | Until feature decision | → Feature implementation or discard |
+
+### Graduation Process
+
+1. Update the working document status to `graduated`
+2. Add `graduated-to: path/to/formal-doc.md` in the header
+3. Create the formal document in its proper location
+4. Keep the working document as a historical reference (do not delete)
+
+### Naming Conventions
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| Brainstorm | `YYYY-MM-DD-topic.md` | `2026-03-04-caching-strategy.md` |
+| Investigation | `YYYY-MM-DD-topic.md` | `2026-03-04-oom-root-cause.md` |
+| RFC | `RFC-NNN-title.md` | `RFC-001-api-versioning.md` |
+| Meeting notes | `YYYY-MM-DD-topic.md` | `2026-03-04-sprint-planning.md` |
+| POC | `{poc-name}/README.md` | `redis-caching/README.md` |
+
+---
+
+## Expanded Document Types Matrix
+
+This matrix extends the Document Requirements Matrix above to include all document types and their canonical locations.
+
+### Code-Related Documents
+
+| File Type | Location | Notes |
+|-----------|----------|-------|
+| API reference | `docs/api-reference.md` | Auto-generated preferred |
+| Architecture overview | `docs/architecture.md` | High-level system design |
+| ADR | `docs/ADR/NNN-title.md` | Architecture Decision Records |
+| Spec | `docs/specs/` | Specification documents |
+| Troubleshooting | `docs/troubleshooting.md` | Common issues and solutions |
+| Flow diagram | `docs/flows/` | Process and data flows |
+| Architecture diagram | `docs/diagrams/` | Visual architecture (.mmd, .puml) |
+
+### Working Documents
+
+| File Type | Location | Notes |
+|-----------|----------|-------|
+| Brainstorm | `docs/working/brainstorms/` | Date-prefixed, lifecycle-managed |
+| Investigation | `docs/working/investigations/` | Technical research reports |
+| RFC | `docs/working/rfcs/` | Request for Comments, numbered |
+| Meeting notes | `docs/working/meeting-notes/` | Date-prefixed records |
+| POC report | `docs/working/poc/` | Subdirectory per POC |
+
+### Project-Level Documents
+
+| File Type | Location | Notes |
+|-----------|----------|-------|
+| README | Root `/` | UPPERCASE, required |
+| CONTRIBUTING | Root `/` | UPPERCASE |
+| CHANGELOG | Root `/` | UPPERCASE, Keep a Changelog format |
+| LICENSE | Root `/` | UPPERCASE, no extension |
+| SECURITY | Root `/` | UPPERCASE, security policy |
+| Getting started | `docs/getting-started.md` | Quick start guide |
+| Deployment guide | `docs/deployment.md` | Deployment instructions |
+
+---
+
 ## Related Standards
 
 - [Documentation Writing Standards](documentation-writing-standards.md)
@@ -1191,6 +1291,7 @@ git push origin gh-pages
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.4.0 | 2026-03-04 | Added: Development Artifacts (docs/working/) directory and lifecycle management, Expanded Document Types Matrix |
 | 1.3.0 | 2026-01-24 | Added: Specification documentation standards with specs/ directory structure |
 | 1.2.2 | 2025-12-24 | Added: Related Standards section |
 | 1.2.1 | 2025-12-12 | Added: Physical DFD layer, Flows vs Diagrams separation clarification |

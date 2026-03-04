@@ -2,16 +2,16 @@
 scope: universal
 description: |
   Guide for organizing project directories following language-specific best practices.
-  Use when: creating projects, reorganizing structure, adding modules, setting up builds.
-  Keywords: project, structure, directory, layout, gitignore, scaffold, 專案結構, 目錄.
+  Use when: creating projects, reorganizing structure, adding modules, setting up builds, deciding file placement.
+  Keywords: project, structure, directory, layout, gitignore, scaffold, 專案結構, 目錄, file placement, utils, helpers, shared, where to put, 檔案歸檔.
 ---
 
 # Project Structure Guide
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/skills/project-structure-guide/SKILL.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-30
+**Version**: 1.1.0
+**Last Updated**: 2026-03-04
 **Applicability**: Claude Code Skills
 
 ---
@@ -38,6 +38,9 @@ Use this skill when:
 - Adding new modules or features
 - Setting up build configuration
 - Creating .gitignore files
+- Deciding where to place a file (code, docs, config, asset)
+- Choosing between utils/, helpers/, shared/, lib/, or internal/
+- Placing development artifacts (brainstorms, RFCs, POCs, investigations)
 
 ## Supported Languages
 
@@ -146,8 +149,13 @@ When reviewing existing structure:
 3. **Gitignore build outputs** - Never commit dist/, build/, out/
 4. **Consistent naming** - Use language-appropriate casing
 5. **Config at root** - Place config files at project root
+6. **Disambiguate directories** - utils/ (stateless, generic), helpers/ (layer-bound), shared/ (cross-module), lib/ (wrapped deps)
+7. **Working docs in docs/working/** - Brainstorms, RFCs, POCs, investigations go in docs/working/ with lifecycle management
+8. **Generated code separated** - Place in src/generated/{type}/, never mix with hand-written code
 
 ## Related Standards
 
 - [Core: Project Structure](../../core/project-structure.md)
+- [Core: Documentation Structure](../../core/documentation-structure.md)
+- [Guide: File Placement Decision Guide](../../core/guides/file-placement-guide.md)
 - [AI: Project Structure Options](../../ai/options/project-structure/)
