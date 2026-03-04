@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/project-structure-guide/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-30
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-03-04
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **Language**: [English](../../../../skills/project-structure-guide/SKILL.md) | 简体中文
 
-**版本**：1.0.0
-**最後更新**：2025-12-30
+**版本**：1.1.0
+**最后更新**：2026-03-04
 **適用性**：Claude Code Skills
 
 ---
@@ -24,10 +24,13 @@ status: current
 
 在以下情况使用此技能：
 - 建立新项目
-- 重組現有项目结构
-- 新增模組或功能
-- 设置建構配置
+- 重组现有项目结构
+- 新增模块或功能
+- 设置构建配置
 - 建立 .gitignore 文件
+- 决定文件的放置位置（代码、文档、配置、资源）
+- 在 utils/、helpers/、shared/、lib/ 或 internal/ 之间做选择
+- 放置开发中间产物（头脑风暴、RFC、POC、技术调查）
 
 ## 支援的语言
 
@@ -131,13 +134,18 @@ project/
 
 ## 規則
 
-1. **遵循语言慣例** - 每种语言都有既定模式
-2. **分離关注点** - 將原始码、测试、文件分開
-3. **Gitignore 建構输出** - 永不提交 dist/、build/、out/
-4. **一致命名** - 使用语言適當的命名風格
-5. **配置在根目录** - 將配置文件放在项目根目录
+1. **遵循语言惯例** - 每种语言都有既定模式
+2. **分离关注点** - 将源代码、测试、文档分开
+3. **Gitignore 构建输出** - 永不提交 dist/、build/、out/
+4. **一致命名** - 使用语言适当的命名风格
+5. **配置在根目录** - 将配置文件放在项目根目录
+6. **辨析目录术语** - utils/（无状态、通用）、helpers/（层级绑定）、shared/（跨模块）、lib/（包装依赖）
+7. **工作文档放 docs/working/** - 头脑风暴、RFC、POC、技术调查放在 docs/working/ 并进行生命周期管理
+8. **生成代码分离** - 放在 src/generated/{type}/，永不与手写代码混合
 
 ## 相关标准
 
-- [核心：项目结构](../../../../core/project-structure.md)
-- [AI：项目结构选项](../../../../ai/options/project-structure/)
+- [核心：项目结构](../../core/project-structure.md)
+- [核心：文档结构](../../core/documentation-structure.md)
+- [指南：文件归档决策指南](../../core/guides/file-placement-guide.md)
+- [AI：项目结构选项](../../../../options/project-structure/)

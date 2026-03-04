@@ -1,8 +1,8 @@
 ---
 source: ../../../core/documentation-structure.md
-source_version: 1.3.0
-translation_version: 1.3.0
-last_synced: 2026-01-24
+source_version: 1.4.0
+translation_version: 1.4.0
+last_synced: 2026-03-04
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 # 文档结构标准
 
-**版本**: 1.3.0
-**最后更新**: 2026-01-24
+**版本**: 1.4.0
+**最后更新**: 2026-03-04
 **适用范围**: 所有需要文档的软件项目
 
 ---
@@ -189,6 +189,106 @@ docs/specs/
 
 ---
 
+## 开发中间产物（工作文件）
+
+开发过程会产生不属于正式文件但需要可被发现的中间文件。这些「工作文件」存放在 `docs/working/` 中，并有定义的生命周期。
+
+### 目录结构
+
+```
+docs/working/
+├── README.md                 # 索引与生命周期规则
+├── brainstorms/              # YYYY-MM-DD-topic.md
+├── investigations/           # 技术调查与研究
+├── rfcs/                     # RFC-NNN-title.md
+├── meeting-notes/            # 会议记录
+└── poc/                      # 概念验证文件
+    └── {poc-name}/
+        └── README.md         # 发现、结论、后续步骤
+```
+
+### 状态头部（必需）
+
+每份工作文件必须包含状态头部：
+
+```markdown
+---
+status: draft | active | graduated | archived
+created: YYYY-MM-DD
+author: 姓名
+graduated-to: path/to/formal-doc.md  # 若已毕业
+---
+```
+
+### 生命周期管理
+
+| 文件类型 | 目录 | 保留期限 | 毕业路径 |
+|---------|------|---------|---------|
+| **头脑风暴** | `brainstorms/` | 活跃 6 个月 | → 规格（`docs/specs/`）或丢弃 |
+| **技术调查** | `investigations/` | 直到解决 | → ADR（`docs/ADR/`）或知识库 |
+| **RFC** | `rfcs/` | 直到决定 | → ADR（`docs/ADR/`）若被接受 |
+| **会议记录** | `meeting-notes/` | 12 个月 | → 归档或丢弃 |
+| **POC** | `poc/` | 直到功能决策 | → 功能实现或丢弃 |
+
+### 毕业流程
+
+1. 将工作文件状态更新为 `graduated`
+2. 在头部加入 `graduated-to: path/to/formal-doc.md`
+3. 在适当位置创建正式文件
+4. 保留工作文件作为历史参考（不要删除）
+
+### 命名惯例
+
+| 类型 | 格式 | 示例 |
+|------|------|------|
+| 头脑风暴 | `YYYY-MM-DD-topic.md` | `2026-03-04-caching-strategy.md` |
+| 技术调查 | `YYYY-MM-DD-topic.md` | `2026-03-04-oom-root-cause.md` |
+| RFC | `RFC-NNN-title.md` | `RFC-001-api-versioning.md` |
+| 会议记录 | `YYYY-MM-DD-topic.md` | `2026-03-04-sprint-planning.md` |
+| POC | `{poc-name}/README.md` | `redis-caching/README.md` |
+
+---
+
+## 扩展文件类型矩阵
+
+本矩阵扩展上方的文件需求矩阵，包含所有文件类型及其标准位置。
+
+### 代码相关文件
+
+| 文件类型 | 位置 | 说明 |
+|---------|------|------|
+| API 参考 | `docs/api-reference.md` | 建议自动生成 |
+| 架构概览 | `docs/architecture.md` | 高级系统设计 |
+| ADR | `docs/ADR/NNN-title.md` | 架构决策记录 |
+| 规格 | `docs/specs/` | 规格文件 |
+| 疑难排解 | `docs/troubleshooting.md` | 常见问题与解决方案 |
+| 流程图 | `docs/flows/` | 流程与数据流 |
+| 架构图 | `docs/diagrams/` | 可视化架构（.mmd、.puml） |
+
+### 工作文件
+
+| 文件类型 | 位置 | 说明 |
+|---------|------|------|
+| 头脑风暴 | `docs/working/brainstorms/` | 日期前缀、生命周期管理 |
+| 技术调查 | `docs/working/investigations/` | 技术研究报告 |
+| RFC | `docs/working/rfcs/` | 请求评论，编号管理 |
+| 会议记录 | `docs/working/meeting-notes/` | 日期前缀记录 |
+| POC 报告 | `docs/working/poc/` | 每个 POC 一个子目录 |
+
+### 项目级别文件
+
+| 文件类型 | 位置 | 说明 |
+|---------|------|------|
+| README | 根目录 `/` | 大写，必需 |
+| CONTRIBUTING | 根目录 `/` | 大写 |
+| CHANGELOG | 根目录 `/` | 大写，Keep a Changelog 格式 |
+| LICENSE | 根目录 `/` | 大写，无扩展名 |
+| SECURITY | 根目录 `/` | 大写，安全策略 |
+| 快速入门 | `docs/getting-started.md` | 快速入门指南 |
+| 部署指南 | `docs/deployment.md` | 部署说明 |
+
+---
+
 ## 相关标准
 
 - [API 文档标准](api-documentation-standards.md)
@@ -201,6 +301,7 @@ docs/specs/
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.4.0 | 2026-03-04 | 新增：开发中间产物（docs/working/）目录与生命周期管理、扩展文件类型矩阵 |
 | 1.3.0 | 2026-01-24 | 新增规格文档标准 |
 | 1.0.0 | 2025-12-30 | 初始版本 |
 

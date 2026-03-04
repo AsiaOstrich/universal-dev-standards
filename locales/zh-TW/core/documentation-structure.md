@@ -1,8 +1,8 @@
 ---
 source: ../../../core/documentation-structure.md
-source_version: 1.3.0
-translation_version: 1.3.0
-last_synced: 2026-01-24
+source_version: 1.4.0
+translation_version: 1.4.0
+last_synced: 2026-03-04
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../core/documentation-structure.md) | 繁體中文
 
-**版本**: 1.3.0
-**最後更新**: 2026-01-24
+**版本**: 1.4.0
+**最後更新**: 2026-03-04
 **適用範圍**: 所有需要文件的軟體專案
 
 ---
@@ -1183,6 +1183,106 @@ git push origin gh-pages
 
 ---
 
+## 開發中間產物（工作文件）
+
+開發過程會產生不屬於正式文件但需要可被發現的中間文件。這些「工作文件」存放在 `docs/working/` 中，並有定義的生命週期。
+
+### 目錄結構
+
+```
+docs/working/
+├── README.md                 # 索引與生命週期規則
+├── brainstorms/              # YYYY-MM-DD-topic.md
+├── investigations/           # 技術調查與研究
+├── rfcs/                     # RFC-NNN-title.md
+├── meeting-notes/            # 會議記錄
+└── poc/                      # 概念驗證文件
+    └── {poc-name}/
+        └── README.md         # 發現、結論、後續步驟
+```
+
+### 狀態標頭（必要）
+
+每份工作文件必須包含狀態標頭：
+
+```markdown
+---
+status: draft | active | graduated | archived
+created: YYYY-MM-DD
+author: 姓名
+graduated-to: path/to/formal-doc.md  # 若已畢業
+---
+```
+
+### 生命週期管理
+
+| 文件類型 | 目錄 | 保留期限 | 畢業路徑 |
+|---------|------|---------|---------|
+| **腦力激盪** | `brainstorms/` | 活躍 6 個月 | → 規格（`docs/specs/`）或捨棄 |
+| **技術調查** | `investigations/` | 直到解決 | → ADR（`docs/ADR/`）或知識庫 |
+| **RFC** | `rfcs/` | 直到決定 | → ADR（`docs/ADR/`）若被接受 |
+| **會議記錄** | `meeting-notes/` | 12 個月 | → 歸檔或捨棄 |
+| **POC** | `poc/` | 直到功能決策 | → 功能實作或捨棄 |
+
+### 畢業流程
+
+1. 將工作文件狀態更新為 `graduated`
+2. 在標頭加入 `graduated-to: path/to/formal-doc.md`
+3. 在適當位置建立正式文件
+4. 保留工作文件作為歷史參考（不要刪除）
+
+### 命名慣例
+
+| 類型 | 格式 | 範例 |
+|------|------|------|
+| 腦力激盪 | `YYYY-MM-DD-topic.md` | `2026-03-04-caching-strategy.md` |
+| 技術調查 | `YYYY-MM-DD-topic.md` | `2026-03-04-oom-root-cause.md` |
+| RFC | `RFC-NNN-title.md` | `RFC-001-api-versioning.md` |
+| 會議記錄 | `YYYY-MM-DD-topic.md` | `2026-03-04-sprint-planning.md` |
+| POC | `{poc-name}/README.md` | `redis-caching/README.md` |
+
+---
+
+## 擴展文件類型矩陣
+
+本矩陣擴展上方的文件需求矩陣，包含所有文件類型及其標準位置。
+
+### 程式碼相關文件
+
+| 檔案類型 | 位置 | 說明 |
+|---------|------|------|
+| API 參考 | `docs/api-reference.md` | 建議自動生成 |
+| 架構概覽 | `docs/architecture.md` | 高階系統設計 |
+| ADR | `docs/ADR/NNN-title.md` | 架構決策記錄 |
+| 規格 | `docs/specs/` | 規格文件 |
+| 疑難排解 | `docs/troubleshooting.md` | 常見問題與解決方案 |
+| 流程圖 | `docs/flows/` | 流程與資料流 |
+| 架構圖 | `docs/diagrams/` | 視覺化架構（.mmd、.puml） |
+
+### 工作文件
+
+| 檔案類型 | 位置 | 說明 |
+|---------|------|------|
+| 腦力激盪 | `docs/working/brainstorms/` | 日期前綴、生命週期管理 |
+| 技術調查 | `docs/working/investigations/` | 技術研究報告 |
+| RFC | `docs/working/rfcs/` | 請求評論，編號管理 |
+| 會議記錄 | `docs/working/meeting-notes/` | 日期前綴記錄 |
+| POC 報告 | `docs/working/poc/` | 每個 POC 一個子目錄 |
+
+### 專案層級文件
+
+| 檔案類型 | 位置 | 說明 |
+|---------|------|------|
+| README | 根目錄 `/` | 大寫，必要 |
+| CONTRIBUTING | 根目錄 `/` | 大寫 |
+| CHANGELOG | 根目錄 `/` | 大寫，Keep a Changelog 格式 |
+| LICENSE | 根目錄 `/` | 大寫，無副檔名 |
+| SECURITY | 根目錄 `/` | 大寫，安全政策 |
+| 快速入門 | `docs/getting-started.md` | 快速入門指南 |
+| 部署指南 | `docs/deployment.md` | 部署說明 |
+
+---
+
 ## 相關標準
 
 - [Documentation Writing Standards](documentation-writing-standards.md) - 文件撰寫規範
@@ -1196,6 +1296,7 @@ git push origin gh-pages
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.4.0 | 2026-03-04 | 新增：開發中間產物（docs/working/）目錄與生命週期管理、擴展文件類型矩陣 |
 | 1.3.0 | 2026-01-24 | Added: 規格文件標準與 specs/ 目錄結構 |
 | 1.2.2 | 2025-12-24 | Added: Related Standards section |
 | 1.2.1 | 2025-12-12 | Added: Physical DFD layer, Flows vs Diagrams separation clarification |
