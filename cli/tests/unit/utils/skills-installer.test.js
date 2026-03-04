@@ -12,7 +12,9 @@ import {
   getInstalledCommandsForAgent,
   deduplicateInstallations,
   cleanupDuplicateSkills,
-  cleanupLegacyCommands
+  cleanupLegacyCommands,
+  parseFrontmatter,
+  rebuildWithFrontmatter
 } from '../../../src/utils/skills-installer.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -471,6 +473,143 @@ describe('Skills Installer', () => {
       const result = cleanupLegacyCommands(TEST_DIR);
       expect(result.cleaned).toEqual([]);
       expect(existsSync(join(legacyDir, 'custom-command.md'))).toBe(true);
+    });
+  });
+
+  describe('parseFrontmatter', () => {
+    it('should parse simple frontmatter', () => {
+      const content = '---\nname: commit\nscope: universal\n---\n# Body';
+      const result = parseFrontmatter(content);
+
+      expect(result).not.toBeNull();
+      expect(result.frontmatter.name).toBe('commit');
+      expect(result.frontmatter.scope).toBe('universal');
+      expect(result.body).toBe('# Body');
+    });
+
+    it('should parse multi-line description with pipe', () => {
+      const content = '---\ndescription: |\n  First line\n  Second line\nname: test\n---\n# Body';
+      const result = parseFrontmatter(content);
+
+      expect(result).not.toBeNull();
+      expect(result.frontmatter.description).toContain('First line');
+      expect(result.frontmatter.description).toContain('Second line');
+      expect(result.frontmatter.name).toBe('test');
+    });
+
+    it('should return null for content without frontmatter', () => {
+      const content = '# Just a heading\nSome text';
+      const result = parseFrontmatter(content);
+      expect(result).toBeNull();
+    });
+
+    it('should handle frontmatter with hyphenated keys', () => {
+      const content = '---\nallowed-tools: Read, Grep\ndisable-model-invocation: true\n---\nBody';
+      const result = parseFrontmatter(content);
+
+      expect(result).not.toBeNull();
+      expect(result.frontmatter['allowed-tools']).toBe('Read, Grep');
+      expect(result.frontmatter['disable-model-invocation']).toBe('true');
+    });
+
+    it('should handle frontmatter with quoted values', () => {
+      const content = '---\ndescription: "[UDS] Generate commit messages"\n---\nBody';
+      const result = parseFrontmatter(content);
+
+      expect(result).not.toBeNull();
+      expect(result.frontmatter.description).toBe('"[UDS] Generate commit messages"');
+    });
+  });
+
+  describe('rebuildWithFrontmatter', () => {
+    it('should merge new fields into existing frontmatter', () => {
+      const content = '---\ndescription: Test skill\nstatus: current\n---\n# Body';
+      const result = rebuildWithFrontmatter(content, { name: 'test', scope: 'universal' });
+
+      expect(result).toContain('name: test');
+      expect(result).toContain('scope: universal');
+      expect(result).toContain('description: Test skill');
+      expect(result).toContain('# Body');
+    });
+
+    it('should override existing fields', () => {
+      const content = '---\nname: old-name\nscope: partial\n---\n# Body';
+      const result = rebuildWithFrontmatter(content, { name: 'new-name' });
+
+      expect(result).toContain('name: new-name');
+      expect(result).not.toContain('name: old-name');
+    });
+
+    it('should create frontmatter for content without one', () => {
+      const content = '# Just a heading';
+      const result = rebuildWithFrontmatter(content, { name: 'test' });
+
+      expect(result).toContain('---\nname: test\n---');
+      expect(result).toContain('# Just a heading');
+    });
+  });
+
+  describe('Locale support', () => {
+    it('should install skills with locale=en using English source (default behavior)', async () => {
+      const result = await installSkillsForAgent('opencode', 'project', ['commit-standards'], TEST_DIR, 'en');
+
+      expect(result.success).toBe(true);
+      expect(result.installed).toContain('commit-standards');
+
+      // Verify SKILL.md is the English version
+      const skillPath = join(result.targetDir, 'commit-standards', 'SKILL.md');
+      const content = readFileSync(skillPath, 'utf-8');
+      expect(content).toContain('name: commit');
+    });
+
+    it('should install zh-TW skills when locale=zh-TW', async () => {
+      const result = await installSkillsForAgent('opencode', 'project', ['commit-standards'], TEST_DIR, 'zh-TW');
+
+      expect(result.success).toBe(true);
+      expect(result.installed).toContain('commit-standards');
+
+      // Verify SKILL.md has merged frontmatter
+      const skillPath = join(result.targetDir, 'commit-standards', 'SKILL.md');
+      const content = readFileSync(skillPath, 'utf-8');
+
+      // Should have required fields from English source
+      expect(content).toContain('name: commit');
+      expect(content).toContain('allowed-tools:');
+    });
+
+    it('should fallback to English when locale directory does not exist', async () => {
+      const result = await installSkillsForAgent('opencode', 'project', ['commit-standards'], TEST_DIR, 'ja-JP');
+
+      expect(result.success).toBe(true);
+      expect(result.installed).toContain('commit-standards');
+
+      // Should still work with English fallback
+      const skillPath = join(result.targetDir, 'commit-standards', 'SKILL.md');
+      expect(existsSync(skillPath)).toBe(true);
+    });
+
+    it('should fallback to English for a skill missing in locale directory', async () => {
+      // zh-CN may be missing brainstorm-assistant — verify fallback works
+      const result = await installSkillsForAgent('opencode', 'project', ['commit-standards'], TEST_DIR, 'zh-CN');
+
+      expect(result.success).toBe(true);
+      expect(result.installed).toContain('commit-standards');
+    });
+
+    it('should record locale in manifest', async () => {
+      await installSkillsForAgent('opencode', 'project', ['commit-standards'], TEST_DIR, 'zh-TW');
+
+      const manifestPath = join(TEST_DIR, '.opencode/skill/', '.manifest.json');
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+      expect(manifest.locale).toBe('zh-TW');
+    });
+
+    it('should record default locale in manifest when not specified', async () => {
+      await installSkillsForAgent('opencode', 'project', ['commit-standards'], TEST_DIR);
+
+      const manifestPath = join(TEST_DIR, '.opencode/skill/', '.manifest.json');
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+      expect(manifest.locale).toBe('en');
     });
   });
 });

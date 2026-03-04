@@ -22,6 +22,7 @@ import {
 } from '../utils/github.js';
 import { getInstalledSkillsInfoForAgent } from '../utils/skills-installer.js';
 import { integrationFileExists } from '../utils/integration-generator.js';
+import { displayLanguageToLocale } from '../utils/locale.js';
 
 /**
  * Execute the interactive initialization flow
@@ -214,6 +215,7 @@ export async function runInitFlow(options, detected, projectPath) {
     methodology = await promptMethodology();
   }
   skillsConfig.methodology = methodology;
+  skillsConfig.locale = displayLanguageToLocale(displayLanguage);
 
   return {
     languages,

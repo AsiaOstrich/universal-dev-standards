@@ -98,8 +98,15 @@ export function readManifest(projectPath) {
 
   try {
     const content = readFileSync(manifestPath, 'utf-8');
-    const manifest = JSON.parse(content);
-    
+    let manifest = JSON.parse(content);
+
+    // Auto-migrate before validation. Always run migration regardless of
+    // version field, because older CLIs may have set version to CURRENT but
+    // omitted fields introduced in that schema (e.g., contentMode, skillHashes).
+    if (manifest && typeof manifest === 'object' && manifest.version) {
+      manifest = migrateManifest(manifest);
+    }
+
     // Validate basic structure
     if (!validateManifest(manifest)) {
       console.warn('Invalid manifest structure detected');
@@ -257,10 +264,11 @@ export function migrateManifest(manifest) {
   }
 
   const currentVersion = manifest.version || '1.0.0';
-  
-  // Already at current version
+
+  // Even at current version, ensure all required fields exist.
+  // Older CLIs may have stamped the version without writing all fields.
   if (currentVersion === CURRENT_SCHEMA_VERSION) {
-    return manifest;
+    return ensureRequiredFields(manifest);
   }
 
   let migrated = { ...manifest };
@@ -288,8 +296,12 @@ export function migrateManifest(manifest) {
 
   // Update schema version
   migrated.version = CURRENT_SCHEMA_VERSION;
-  
-  return migrated;
+
+  // Always ensure all required fields exist after migration.
+  // Version-specific migrations may be skipped when the version number
+  // matches but fields were never written (e.g. 3.5.0-beta.4 stamped
+  // version 3.2.0 without writing contentMode).
+  return ensureRequiredFields(migrated);
 }
 
 /**
@@ -352,6 +364,24 @@ function migrateToV330(manifest) {
     skillHashes: manifest.skillHashes || {},
     commandHashes: manifest.commandHashes || {},
     integrationBlockHashes: manifest.integrationBlockHashes || {}
+  };
+}
+
+/**
+ * Ensure all required fields exist on a manifest that already has the current
+ * schema version. Older CLIs may have stamped the version number without
+ * actually writing every field introduced in that schema.
+ * @param {Object} manifest
+ * @returns {Object} manifest with missing fields filled in
+ */
+function ensureRequiredFields(manifest) {
+  return {
+    ...manifest,
+    contentMode: manifest.contentMode || 'index',
+    fileHashes: manifest.fileHashes || {},
+    skillHashes: manifest.skillHashes || {},
+    commandHashes: manifest.commandHashes || {},
+    integrationBlockHashes: manifest.integrationBlockHashes || {},
   };
 }
 

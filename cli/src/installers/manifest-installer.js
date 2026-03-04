@@ -40,6 +40,7 @@ export function writeFinalManifest(config, results, projectPath) {
     skills: {
       installed: config.skillsConfig?.installed || false,
       location: config.skillsConfig?.location || null,
+      locale: config.skillsConfig?.locale || 'en',
       names: config.skillsConfig?.location === 'marketplace' ? ['all-via-plugin'] : (results.skills || []),
       version: config.skillsConfig?.installed ? repoInfo.skills.version : null,
       installations: config.skillsConfig?.skillsInstallations || []

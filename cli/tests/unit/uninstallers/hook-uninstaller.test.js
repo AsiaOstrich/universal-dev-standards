@@ -49,6 +49,37 @@ describe('hook-uninstaller', () => {
       expect(updated).toContain('npm test');
     });
 
+    it('should remove npx uds check line (new format without --standard)', () => {
+      const huskyDir = join(testDir, '.husky');
+      mkdirSync(huskyDir, { recursive: true });
+      const hookContent = '#!/usr/bin/env sh\nnpm run lint\nnpx uds check\nnpm test\n';
+      writeFileSync(join(huskyDir, 'pre-commit'), hookContent);
+
+      const result = uninstallHook(testDir);
+
+      expect(result.removed).toHaveLength(1);
+      const updated = readFileSync(join(huskyDir, 'pre-commit'), 'utf-8');
+      expect(updated).not.toContain('uds check');
+      expect(updated).toContain('npm run lint');
+      expect(updated).toContain('npm test');
+    });
+
+    it('should remove npx uds check --standard checkin-standards line (legacy format)', () => {
+      const huskyDir = join(testDir, '.husky');
+      mkdirSync(huskyDir, { recursive: true });
+      const hookContent = '#!/usr/bin/env sh\nnpm run lint\nnpx uds check --standard checkin-standards\nnpm test\n';
+      writeFileSync(join(huskyDir, 'pre-commit'), hookContent);
+
+      const result = uninstallHook(testDir);
+
+      expect(result.removed).toHaveLength(1);
+      const updated = readFileSync(join(huskyDir, 'pre-commit'), 'utf-8');
+      expect(updated).not.toContain('uds check');
+      expect(updated).not.toContain('checkin-standards');
+      expect(updated).toContain('npm run lint');
+      expect(updated).toContain('npm test');
+    });
+
     it('should skip when .husky/pre-commit does not exist', () => {
       const result = uninstallHook(testDir);
 

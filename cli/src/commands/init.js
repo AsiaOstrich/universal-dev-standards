@@ -20,6 +20,7 @@ import {
   getAgentConfig,
   getAgentDisplayName
 } from '../utils/github.js';
+import { displayLanguageToLocale } from '../utils/locale.js';
 
 /**
  * Init command - initialize standards in current project
@@ -181,7 +182,7 @@ async function setupHuskyHook(projectPath) {
 
   // 4. Add pre-commit hook
   const preCommitPath = join(huskyDir, 'pre-commit');
-  const udsCmd = 'npx uds check --standard checkin-standards';
+  const udsCmd = 'npx uds check';
 
   try {
     let content = '';
@@ -192,7 +193,7 @@ async function setupHuskyHook(projectPath) {
       content = '#!/usr/bin/env sh\n. "$(dirname -- "$0")/_/husky.sh"\n';
     }
 
-    if (!content.includes('checkin-standards')) {
+    if (!content.includes('uds check')) {
       writeFileSync(preCommitPath, content + `\n# UDS Standard Check\n${udsCmd}\n`, 'utf-8');
       try {
         execSync(`chmod +x ${preCommitPath}`);
@@ -285,6 +286,8 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
       level: 'project'
     }));
   }
+
+  skillsConfig.locale = displayLanguageToLocale(displayLanguage);
 
   return {
     languages: options.lang ? [options.lang] : Object.keys(detected.languages).filter(k => detected.languages[k]),

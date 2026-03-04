@@ -81,7 +81,8 @@ export async function installSkills(skillsConfig, projectPath, messages, results
     const installResult = await installSkillsToMultipleAgents(
       skillsConfig.skillsInstallations,
       null, // Install all skills
-      projectPath
+      projectPath,
+      skillsConfig.locale || 'en'
     );
 
     // Collect results

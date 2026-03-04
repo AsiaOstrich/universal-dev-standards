@@ -18,6 +18,7 @@ import {
   getCommandsSupportedAgents
 } from '../config/ai-agent-paths.js';
 import { computeDirectoryHashes, computeFileHash } from './hasher.js';
+import { isLocalizedLocale } from './locale.js';
 
 // Get the CLI package root directory
 const __filename = fileURLToPath(import.meta.url);
@@ -37,6 +38,34 @@ function getSkillsSourceDir() {
   }
   // Development environment fallback
   return join(CLI_ROOT, '..', 'skills');
+}
+
+/**
+ * Get the localized Skills source directory for a given locale.
+ * Falls back to the English source directory if the localized path does not exist.
+ * @param {string} locale - Locale identifier (e.g., 'zh-TW', 'zh-CN', 'en')
+ * @returns {string} Path to skills source directory for the locale
+ */
+function getLocalizedSkillsSourceDir(locale) {
+  const enDir = getSkillsSourceDir();
+  if (!isLocalizedLocale(locale)) {
+    return enDir;
+  }
+
+  // Try bundled path first (npm install)
+  const bundledPath = join(BUNDLED_DIR, 'locales', locale, 'skills');
+  if (existsSync(bundledPath)) {
+    return bundledPath;
+  }
+
+  // Development environment fallback
+  const devPath = join(CLI_ROOT, '..', 'locales', locale, 'skills');
+  if (existsSync(devPath)) {
+    return devPath;
+  }
+
+  // Locale directory not found, fall back to English
+  return enDir;
 }
 
 const SKILLS_LOCAL_DIR = getSkillsSourceDir();
@@ -95,9 +124,10 @@ export function getAvailableCommandNames() {
  * @param {string} level - 'user' or 'project'
  * @param {string[]} skillNames - Array of skill names to install (null = all)
  * @param {string} projectPath - Project root path (required for project level)
+ * @param {string} locale - Locale for skill content (default: 'en')
  * @returns {Object} Installation result
  */
-export async function installSkillsForAgent(agent, level, skillNames = null, projectPath = null) {
+export async function installSkillsForAgent(agent, level, skillNames = null, projectPath = null, locale = 'en') {
   const config = getAgentConfig(agent);
   if (!config || !config.skills) {
     return {
@@ -143,7 +173,7 @@ export async function installSkillsForAgent(agent, level, skillNames = null, pro
   };
 
   for (const skillName of toInstall) {
-    const result = installSingleSkill(skillName, targetDir);
+    const result = installSingleSkill(skillName, targetDir, locale);
     if (result.success) {
       results.installed.push(skillName);
     } else {
@@ -154,7 +184,7 @@ export async function installSkillsForAgent(agent, level, skillNames = null, pro
 
   // Write manifest
   if (results.installed.length > 0) {
-    writeSkillsManifestForAgent(agent, level, targetDir);
+    writeSkillsManifestForAgent(agent, level, targetDir, locale);
 
     // Compute file hashes for tracking
     // Key format: agent/level/skillName/filename (e.g., "opencode/project/commit-standards/SKILL.md")
@@ -166,14 +196,161 @@ export async function installSkillsForAgent(agent, level, skillNames = null, pro
 }
 
 /**
+ * Parse YAML frontmatter from a markdown file content.
+ * Handles multi-line values (e.g., `description: |`).
+ * @param {string} content - File content with YAML frontmatter
+ * @returns {{ frontmatter: Object, body: string } | null} Parsed result or null if no frontmatter
+ */
+export function parseFrontmatter(content) {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!match) return null;
+
+  const [, yamlText, body] = match;
+  const frontmatter = {};
+
+  const lines = yamlText.split('\n');
+  let currentKey = null;
+  let currentValue = '';
+  let isMultiline = false;
+
+  for (const line of lines) {
+    if (isMultiline) {
+      // Multi-line value: lines starting with spaces belong to current key
+      if (line.match(/^\s/) || line === '') {
+        currentValue += (currentValue ? '\n' : '') + line;
+        continue;
+      } else {
+        // End of multi-line value
+        frontmatter[currentKey] = currentValue.trimEnd();
+        isMultiline = false;
+      }
+    }
+
+    const keyMatch = line.match(/^([a-zA-Z_-]+):\s*(.*)$/);
+    if (keyMatch) {
+      currentKey = keyMatch[1];
+      const value = keyMatch[2].trim();
+
+      if (value === '|' || value === '>') {
+        // Start of multi-line value
+        isMultiline = true;
+        currentValue = '';
+      } else {
+        frontmatter[currentKey] = value;
+      }
+    }
+  }
+
+  // Flush last multi-line value
+  if (isMultiline && currentKey) {
+    frontmatter[currentKey] = currentValue.trimEnd();
+  }
+
+  return { frontmatter, body };
+}
+
+/**
+ * Rebuild file content with updated frontmatter fields.
+ * Preserves existing frontmatter fields and adds/overrides with provided fields.
+ * @param {string} content - Original file content
+ * @param {Object} fieldsToMerge - Fields to add or override in frontmatter
+ * @returns {string} Rebuilt content
+ */
+export function rebuildWithFrontmatter(content, fieldsToMerge) {
+  const parsed = parseFrontmatter(content);
+  if (!parsed) {
+    // No existing frontmatter — create one
+    const lines = ['---'];
+    for (const [key, value] of Object.entries(fieldsToMerge)) {
+      lines.push(`${key}: ${value}`);
+    }
+    lines.push('---');
+    return lines.join('\n') + '\n' + content;
+  }
+
+  const merged = { ...parsed.frontmatter, ...fieldsToMerge };
+
+  const lines = ['---'];
+  for (const [key, value] of Object.entries(merged)) {
+    if (value && value.includes('\n')) {
+      // Multi-line value
+      lines.push(`${key}: |`);
+      for (const vline of value.split('\n')) {
+        lines.push(vline);
+      }
+    } else {
+      lines.push(`${key}: ${value}`);
+    }
+  }
+  lines.push('---');
+
+  return lines.join('\n') + '\n' + parsed.body;
+}
+
+/**
+ * Merge required Claude Code frontmatter fields from the English source
+ * into an installed localized SKILL.md.
+ *
+ * The English source contains fields like `name`, `allowed-tools`, `scope`,
+ * `argument-hint`, and `disable-model-invocation` that Claude Code needs
+ * to function. Translated SKILL.md files typically lack these fields.
+ *
+ * @param {string} enSourceDir - English source directory for the skill
+ * @param {string} targetDir - Target directory where translated SKILL.md is installed
+ */
+function mergeSkillFrontmatter(enSourceDir, targetDir) {
+  const enSkillPath = join(enSourceDir, 'SKILL.md');
+  const targetSkillPath = join(targetDir, 'SKILL.md');
+
+  if (!existsSync(enSkillPath) || !existsSync(targetSkillPath)) {
+    return;
+  }
+
+  const enContent = readFileSync(enSkillPath, 'utf-8');
+  const enParsed = parseFrontmatter(enContent);
+  if (!enParsed) return;
+
+  // Fields required by Claude Code that must come from English source
+  const REQUIRED_FIELDS = ['name', 'allowed-tools', 'scope', 'argument-hint', 'disable-model-invocation'];
+
+  const fieldsToMerge = {};
+  for (const field of REQUIRED_FIELDS) {
+    if (enParsed.frontmatter[field] !== undefined) {
+      fieldsToMerge[field] = enParsed.frontmatter[field];
+    }
+  }
+
+  if (Object.keys(fieldsToMerge).length === 0) return;
+
+  const targetContent = readFileSync(targetSkillPath, 'utf-8');
+  const rebuilt = rebuildWithFrontmatter(targetContent, fieldsToMerge);
+  writeFileSync(targetSkillPath, rebuilt);
+}
+
+/**
  * Install a single skill to a target directory
  * @param {string} skillName - Skill name
  * @param {string} targetBaseDir - Target base directory
+ * @param {string} locale - Locale for skill content (default: 'en')
  * @returns {Object} Result
  */
-function installSingleSkill(skillName, targetBaseDir) {
-  const sourceDir = join(SKILLS_LOCAL_DIR, skillName);
+function installSingleSkill(skillName, targetBaseDir, locale = 'en') {
+  const enSourceDir = join(SKILLS_LOCAL_DIR, skillName);
   const targetDir = join(targetBaseDir, skillName);
+
+  // Determine the actual source directory based on locale
+  let sourceDir = enSourceDir;
+  let needsFrontmatterMerge = false;
+
+  if (isLocalizedLocale(locale)) {
+    const localizedDir = getLocalizedSkillsSourceDir(locale);
+    const localizedSkillDir = join(localizedDir, skillName);
+    if (existsSync(localizedSkillDir)) {
+      sourceDir = localizedSkillDir;
+      needsFrontmatterMerge = true;
+    }
+    // else: fall back to English source
+  }
 
   if (!existsSync(sourceDir)) {
     return {
@@ -200,6 +377,11 @@ function installSingleSkill(skillName, targetBaseDir) {
       copyFileSync(sourcePath, targetPath);
     }
 
+    // Merge required frontmatter fields from English source into localized SKILL.md
+    if (needsFrontmatterMerge) {
+      mergeSkillFrontmatter(enSourceDir, targetDir);
+    }
+
     return { success: true, skillName, path: targetDir };
   } catch (error) {
     return {
@@ -215,8 +397,9 @@ function installSingleSkill(skillName, targetBaseDir) {
  * @param {string} agent - Agent identifier
  * @param {string} level - 'user' or 'project'
  * @param {string} targetDir - Target directory
+ * @param {string} locale - Locale used for installation (default: 'en')
  */
-function writeSkillsManifestForAgent(agent, level, targetDir) {
+function writeSkillsManifestForAgent(agent, level, targetDir, locale = 'en') {
   const manifestPath = join(targetDir, '.manifest.json');
   const { version } = JSON.parse(
     readFileSync(join(CLI_ROOT, 'package.json'), 'utf-8')
@@ -227,6 +410,7 @@ function writeSkillsManifestForAgent(agent, level, targetDir) {
     source: 'universal-dev-standards',
     agent,
     level,
+    locale,
     installedDate: new Date().toISOString().split('T')[0]
   };
 
@@ -672,9 +856,10 @@ export function deduplicateInstallations(installations) {
  * @param {Array<{agent: string, level: string}>} installations - Array of installation targets
  * @param {string[]} skillNames - Skills to install (null = all)
  * @param {string} projectPath - Project root path
+ * @param {string} locale - Locale for skill content (default: 'en')
  * @returns {Object} Combined results
  */
-export async function installSkillsToMultipleAgents(installations, skillNames = null, projectPath = null) {
+export async function installSkillsToMultipleAgents(installations, skillNames = null, projectPath = null, locale = 'en') {
   // Deduplicate: same agent at both levels → keep project
   const uniqueInstallations = deduplicateInstallations(installations);
 
@@ -687,7 +872,7 @@ export async function installSkillsToMultipleAgents(installations, skillNames = 
   };
 
   for (const { agent, level } of uniqueInstallations) {
-    const result = await installSkillsForAgent(agent, level, skillNames, projectPath);
+    const result = await installSkillsForAgent(agent, level, skillNames, projectPath, locale);
     results.installations.push(result);
 
     if (!result.success) {
@@ -863,5 +1048,7 @@ export default {
   getAvailableCommandNames,
   deduplicateInstallations,
   cleanupDuplicateSkills,
-  cleanupLegacyCommands
+  cleanupLegacyCommands,
+  parseFrontmatter,
+  rebuildWithFrontmatter
 };

@@ -45,6 +45,7 @@ These skills provide standard guidance and workflows. They can be accessed via s
 | `project-discovery` | `/discover` | [UDS] Assess project health and risks |
 | `brainstorm-assistant` | `/brainstorm` | [UDS] Structured AI-assisted ideation |
 | `changelog-guide` | `/changelog` | [UDS] Generate changelog entries |
+| `dev-workflow-guide` | `/dev-workflow` | [UDS] Map development phases to UDS commands |
 | `docs-generator` | `/docgen` | [UDS] Generate usage documentation |
 
 > **Note**: For reference guides (e.g., Git Workflow, Logging, Error Codes), use the `/guide` command.

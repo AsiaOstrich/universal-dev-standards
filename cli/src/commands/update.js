@@ -2,11 +2,11 @@ import chalk from 'chalk';
 import ora from 'ora';
 import inquirer from 'inquirer';
 import { execSync } from 'child_process';
-import { existsSync } from 'fs';
+import { existsSync, unlinkSync } from 'fs';
 import { join, basename } from 'path';
 import { readManifest, writeManifest, copyStandard, isInitialized } from '../utils/copier.js';
 import { getRepositoryInfo, getAllStandards, getStandardSource } from '../utils/registry.js';
-import { computeFileHash } from '../utils/hasher.js';
+import { computeFileHash, scanForUntrackedFiles } from '../utils/hasher.js';
 import {
   writeIntegrationFile,
   getToolFilePath
@@ -26,6 +26,7 @@ import {
   cleanupDuplicateSkills,
   cleanupLegacyCommands
 } from '../utils/skills-installer.js';
+import { displayLanguageToLocale } from '../utils/locale.js';
 import {
   getAgentDisplayName,
   getAgentConfig,
@@ -519,6 +520,21 @@ export async function updateCommand(options) {
     }
   }
 
+  // Clean up orphan files in .standards/ that are no longer tracked
+  // This handles files renamed or removed between versions
+  const orphanFiles = scanForUntrackedFiles(projectPath, manifest);
+  const standardsOrphans = orphanFiles.filter(f => f.startsWith('.standards/'));
+  if (standardsOrphans.length > 0) {
+    for (const orphan of standardsOrphans) {
+      try {
+        unlinkSync(join(projectPath, orphan));
+        results.updated.push(`removed: ${orphan}`);
+      } catch {
+        // Ignore removal errors
+      }
+    }
+  }
+
   // Update manifest
   manifest.version = '3.3.0';
   manifest.upstream.version = latestVersion;
@@ -559,7 +575,8 @@ export async function updateCommand(options) {
         // Install Skills if user agreed
         if (installSkills.length > 0) {
           const skillSpinner = ora(msg.installingNewSkills || 'Installing Skills...').start();
-          const skillResult = await installSkillsToMultipleAgents(installSkills, null, projectPath);
+          const skillsLocale = displayLanguageToLocale(manifest.options?.display_language);
+          const skillResult = await installSkillsToMultipleAgents(installSkills, null, projectPath, skillsLocale);
 
           // Update manifest
           if (!manifest.skills) manifest.skills = {};
@@ -588,7 +605,8 @@ export async function updateCommand(options) {
         // Update outdated Skills if user agreed
         if (updateSkills.length > 0) {
           const updateSpinner = ora(msg.updatingSkills || 'Updating Skills...').start();
-          const updateResult = await installSkillsToMultipleAgents(updateSkills, null, projectPath);
+          const updateLocale = displayLanguageToLocale(manifest.options?.display_language);
+          const updateResult = await installSkillsToMultipleAgents(updateSkills, null, projectPath, updateLocale);
 
           // Update manifest version
           if (!manifest.skills) manifest.skills = {};
@@ -1123,10 +1141,12 @@ async function updateSkillsOnly(projectPath, manifest) {
 
   const spinner = ora(msg.installingSkills || 'Installing Skills...').start();
 
+  const skillsLocaleForUpdate = displayLanguageToLocale(manifest.options?.display_language);
   const result = await installSkillsToMultipleAgents(
     fileBasedInstallations,
     null, // Install all skills
-    projectPath
+    projectPath,
+    skillsLocaleForUpdate
   );
 
   // Build location summary

@@ -34,6 +34,7 @@
 | `/coverage` | [UDS] Analyze test coverage and provide recommendations |
 | `/derive-all` | [UDS] Derive all test structures (BDD, TDD, ATDD) from SDD specification |
 | `/derive-atdd` | [UDS] Derive ATDD acceptance tests from SDD specification |
+| `/dev-workflow` | [UDS] Guide for mapping software development phases to UDS commands |
 | `/derive-bdd` | [UDS] Derive BDD Gherkin scenarios from SDD specification |
 | `/derive-tdd` | [UDS] Derive TDD test skeletons from SDD specification |
 | `/derive` | [UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications. |
@@ -68,6 +69,7 @@
 | `checkin-assistant` | "[UDS] Pre-commit quality gates verification" |
 | `code-review-assistant` | "[UDS] Perform systematic code review with checklist" |
 | `commit-standards` | "[UDS] Generate commit messages following Conventional Commi |
+| `dev-workflow-guide` | "[UDS] Guide for mapping development phases to UDS commands" |
 | `docs-generator` | "[UDS] Generate usage documentation from project sources" |
 | `documentation-guide` | Guide documentation structure, content requirements, and pro |
 | `error-code-guide` | Design consistent error codes following the PREFIX_CATEGORY_ |

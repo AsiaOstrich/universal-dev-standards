@@ -54,6 +54,7 @@
     "lint": "eslint src/",
     "generate:e2e-spec": "node scripts/generate-e2e-spec.mjs",
     "prepare": "node ../scripts/setup-husky.mjs",
+    "test:upgrade": "node scripts/test-upgrade-path.mjs",
     "prepack": "node scripts/prepack.mjs"
   },
   "dependencies": {

@@ -17,6 +17,7 @@ const BUNDLED_DIR = join(CLI_ROOT, 'bundled');
 
 // Directories to bundle
 const BUNDLE_DIRS = [
+  { src: 'ai', dest: 'ai' },
   { src: 'core', dest: 'core' },
   { src: 'locales', dest: 'locales' },
   { src: 'skills', dest: 'skills' }
