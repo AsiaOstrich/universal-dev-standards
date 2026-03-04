@@ -3,7 +3,7 @@
 **Priority**: P1
 **Status**: Draft
 **Created**: 2026-03-04
-**Last Updated**: 2026-03-04
+**Last Updated**: 2026-03-05
 **Feature ID**: SYS-AUDIT-001
 **Dependencies**: None (leverages existing check scripts)
 
@@ -11,9 +11,9 @@
 
 ## Summary | 摘要
 
-A unified audit system that automatically detects errors, standards gaps, and suggests new standards when valuable patterns emerge. Combines existing 15 check scripts into a single intelligent reporting pipeline with gap analysis capabilities.
+A unified audit system that automatically detects errors, standards gaps, and suggests new standards when valuable patterns emerge. Combines existing 13 check scripts into a single intelligent reporting pipeline with gap analysis capabilities.
 
-統一審計系統，自動偵測錯誤、規範缺口，並在發現有價值的模式時建議建立新規範。將現有 15 個檢查腳本整合為單一智慧型報告管線，具備缺口分析能力。
+統一審計系統，自動偵測錯誤、規範缺口，並在發現有價值的模式時建議建立新規範。將現有 13 個檢查腳本整合為單一智慧型報告管線，具備缺口分析能力。
 
 ---
 
@@ -21,11 +21,11 @@ A unified audit system that automatically detects errors, standards gaps, and su
 
 ### Problem Statement | 問題陳述
 
-1. **Fragmented error reporting** — 15 check scripts run independently, each with different output formats. Developers must manually aggregate results and determine priority.
+1. **Fragmented error reporting** — 13 check scripts run independently, each with different output formats. Developers must manually aggregate results and determine priority.
 2. **No standards gap detection** — When a project grows, new patterns emerge (e.g., deployment, monitoring, API versioning) that existing standards don't cover. Currently no mechanism to detect these gaps.
 3. **No actionable suggestions** — Even when gaps are found, there's no guided workflow to evaluate whether a new standard is warranted.
 
-1. **錯誤報告分散** — 15 個檢查腳本各自獨立執行，輸出格式不一。開發者必須手動彙整結果並判斷優先順序。
+1. **錯誤報告分散** — 13 個檢查腳本各自獨立執行，輸出格式不一。開發者必須手動彙整結果並判斷優先順序。
 2. **無規範缺口偵測** — 當專案成長，新的模式出現（如部署、監控、API 版本控制），現有規範未涵蓋。目前無機制偵測這些缺口。
 3. **無可操作建議** — 即使發現缺口，也沒有引導式流程來評估是否需要建立新規範。
 
@@ -47,9 +47,9 @@ A two-layer audit system:
 
 ### US-1: Developer runs unified audit | 開發者執行統一審計
 
-As a developer, I want to run a single command that checks all standards compliance, so that I get a prioritized list of issues instead of running 15 scripts manually.
+As a developer, I want to run a single command that checks all standards compliance, so that I get a prioritized list of issues instead of running 13 scripts manually.
 
-身為開發者，我希望執行單一指令來檢查所有標準合規性，這樣我就能得到一份依優先順序排列的問題清單，而不用手動執行 15 個腳本。
+身為開發者，我希望執行單一指令來檢查所有標準合規性，這樣我就能得到一份依優先順序排列的問題清單，而不用手動執行 13 個腳本。
 
 ### US-2: Maintainer detects standards gaps | 維護者偵測規範缺口
 
@@ -108,6 +108,13 @@ As a user of AI-assisted development, I want the system to suggest when a new st
 **When** the user runs `uds audit --changed`,
 **Then** only files changed since the last commit are checked (faster feedback loop).
 
+**Incremental scope | 增量範圍**:
+- **Layer 1**: Only scripts relevant to changed file types are executed (e.g., if only `.md` files changed, skip linting/test checks). Scripts that perform global checks (e.g., `check-version-sync.sh`) are always skipped in incremental mode.
+- **Layer 2**: Gap Analyzer is skipped entirely in incremental mode (gap detection requires full project context).
+
+第一層：僅執行與變更檔案類型相關的腳本（如僅變更 `.md` 檔，則跳過 lint/test 檢查）。全域檢查腳本（如 `check-version-sync.sh`）在增量模式下一律跳過。
+第二層：增量模式下完全跳過 Gap Analyzer（缺口偵測需要完整專案上下文）。
+
 ### AC-6: Skill integration | 技能整合
 
 **Given** the audit is complete,
@@ -117,6 +124,24 @@ As a user of AI-assisted development, I want the system to suggest when a new st
 ---
 
 ## Technical Design | 技術設計
+
+### Relationship with `uds check` | 與 `uds check` 的關係
+
+`uds check` and `uds audit` serve different purposes and coexist:
+
+`uds check` 與 `uds audit` 定位不同，兩者並存：
+
+| Aspect | `uds check` | `uds audit` |
+|--------|------------|-------------|
+| **Purpose** | Validate installed standards integrity | Comprehensive audit + gap analysis |
+| **Scope** | File hashes, YAML validity, installed status | All check scripts + gap detection + suggestions |
+| **Target user** | Developer (quick validation) | Maintainer (holistic review) |
+| **Output** | Pass/fail per standard | Unified report with severity, category, fix suggestions |
+| **用途** | 驗證已安裝標準的完整性 | 全面審計 + 缺口分析 |
+
+`uds audit` Layer 1 orchestrates the existing `scripts/check-*.sh` scripts (which `uds check` does not use). `uds check` remains the lightweight, focused validation tool.
+
+`uds audit` 第一層調度現有的 `scripts/check-*.sh` 腳本（`uds check` 不使用這些）。`uds check` 仍為輕量級的專注驗證工具。
 
 ### Component Architecture | 元件架構
 
@@ -198,7 +223,7 @@ uds audit --create-standard deployment
 ══════════════════════════════════════
 
 📊 Summary
-  Checks:  15 passed, 2 failed, 1 warning
+  Checks:  13 passed, 2 failed, 1 warning
   Gaps:    3 detected (1 HIGH, 2 MEDIUM)
 
 ❌ ERRORS (2)
@@ -212,17 +237,17 @@ uds audit --create-standard deployment
          Fix: Run /changelog to update
 
 🔍 GAPS DETECTED (3)
-  [HIGH]   deployment — No deployment standard found
-           Evidence: deploy/ directory, 8 deploy-related commits
-           → Run: uds audit --create-standard deployment
-
-  [MEDIUM] monitoring — No monitoring/observability standard
-           Evidence: monitoring.config.js, 3 related commits
+  [HIGH]   monitoring — No monitoring/observability standard
+           Evidence: monitoring/ directory, 8 monitoring-related commits
            → Run: uds audit --create-standard monitoring
 
   [MEDIUM] api-versioning — No API versioning standard
            Evidence: /api/v1/, /api/v2/ routes detected
            → Run: uds audit --create-standard api-versioning
+
+  [MEDIUM] feature-flags — No feature flags standard
+           Evidence: flags.config.js, 3 related commits
+           → Run: uds audit --create-standard feature-flags
 ```
 
 #### JSON Output
@@ -231,7 +256,7 @@ uds audit --create-standard deployment
 {
   "timestamp": "2026-03-04T10:00:00Z",
   "summary": {
-    "checks": { "passed": 15, "failed": 2, "warnings": 1 },
+    "checks": { "passed": 13, "failed": 2, "warnings": 1 },
     "gaps": { "total": 3, "high": 1, "medium": 2, "low": 0 }
   },
   "issues": [
@@ -245,14 +270,37 @@ uds audit --create-standard deployment
   ],
   "gaps": [
     {
-      "name": "deployment",
+      "name": "monitoring",
       "value": "HIGH",
-      "evidence": ["deploy/ directory", "8 deploy-related commits"],
-      "suggestion": "Create deployment-standards.ai.yaml"
+      "evidence": ["monitoring/ directory", "8 monitoring-related commits"],
+      "suggestion": "Create monitoring-standards.ai.yaml"
+    }
+  ],
+  "suggestions": [
+    {
+      "action": "create-standard",
+      "name": "monitoring",
+      "command": "uds audit --create-standard monitoring",
+      "reason": "High-frequency pattern detected without corresponding standard"
     }
   ]
 }
 ```
+
+### Standard Scaffold Template | 規範鷹架模板
+
+When `uds audit --create-standard <name>` is executed, the system generates:
+
+執行 `uds audit --create-standard <name>` 時，系統產生：
+
+| File | Purpose | 用途 |
+|------|---------|------|
+| `core/<name>.md` | Core standard (Markdown, bilingual template) | 核心規範（Markdown，雙語模板） |
+| `.standards/<name>.ai.yaml` | AI-readable skill standard | AI 可讀技能規範 |
+
+The generated files follow existing templates in `core/` and `.standards/`, pre-populated with the standard name and detected evidence from the gap analysis.
+
+產生的檔案遵循 `core/` 和 `.standards/` 中的現有模板，並預填標準名稱及缺口分析偵測到的證據。
 
 ### Known Standard Categories Checklist | 已知標準類別清單
 
@@ -266,7 +314,7 @@ For gap detection, compare against these common categories:
 | Security | ✅ | — |
 | Performance | ✅ | — |
 | Accessibility | ✅ | — |
-| Deployment | ❌ | `deploy/`, `Dockerfile`, CI/CD configs |
+| Deployment | ✅ | — |
 | Monitoring | ❌ | `monitoring/`, logging configs |
 | API versioning | ❌ | `/api/v*/` routes, version headers |
 | Database migration | ❌ | `migrations/`, schema files |
@@ -316,13 +364,14 @@ For gap detection, compare against these common categories:
 - [ ] `cli/tests/commands/audit.test.js` — Unit tests
 - [ ] `cli/src/messages/messages.en.js` — i18n messages
 - [ ] `cli/src/messages/messages.zh-TW.js` — i18n messages
-- [ ] `docs/specs/README.md` — Update spec index
+- [ ] `cli/src/messages/messages.zh-CN.js` — i18n messages
+- [ ] `docs/specs/README.md` — Update spec index ✅ (done in v0.2.0)
 
 ---
 
 ## References | 參考資料
 
-- Existing check infrastructure: `scripts/check-*.sh` (15 scripts)
+- Existing check infrastructure: `scripts/check-*.sh` (13 scripts)
 - Standard validator: `cli/src/utils/standard-validator.js`
 - Check command: `cli/src/commands/check.js`
 - Pre-release check: `scripts/pre-release-check.sh`
@@ -333,4 +382,5 @@ For gap detection, compare against these common categories:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 0.2.0 | 2026-03-05 | Review fixes — corrected script count (15→13), fixed Deployment category, added suggestions[] to JSON, clarified uds check relationship, added incremental mode details, added scaffold template spec, added zh-CN i18n |
 | 0.1.0 | 2026-03-04 | Initial draft — dual-layer audit architecture |
