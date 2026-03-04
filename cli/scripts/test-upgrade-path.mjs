@@ -11,8 +11,10 @@
  * Usage:
  *   npm run test:upgrade                           # Run all published versions
  *   npm run test:upgrade -- --stable-only          # Stable versions only (no beta/rc/alpha)
- *   npm run test:upgrade -- --direct-only          # Direct upgrades only (no chain test)
- *   npm run test:upgrade -- --chain-only           # Chain upgrade only
+ *   npm run test:upgrade -- --direct-only          # Direct upgrades only (no chain/uninstall)
+ *   npm run test:upgrade -- --chain-only           # Chain upgrade only (no direct/uninstall)
+ *   npm run test:upgrade -- --uninstall-only       # Uninstall tests only (no direct/chain)
+ *   npm run test:upgrade -- --skip-uninstall       # Skip uninstall tests
  *   npm run test:upgrade -- --versions 3.0.0,4.2.0 # Specific versions
  *   npm run test:upgrade -- --keep-cache           # Reuse installed versions
  *   npm run test:upgrade -- --json                 # JSON report output
@@ -251,6 +253,71 @@ class TestProject {
     );
   }
 
+  hasStandardsDir() {
+    return existsSync(join(this.dir, '.standards'));
+  }
+
+  /**
+   * Scan known integration file locations for existence.
+   * Returns array of relative paths that exist.
+   */
+  scanIntegrationFiles() {
+    const candidates = [
+      'CLAUDE.md',
+      '.cursorrules',
+      '.cursor/rules/uds.mdc',
+      '.aider',
+      '.aiderignore',
+      '.github/copilot-instructions.md',
+      '.windsurfrules',
+    ];
+    return candidates.filter(f => existsSync(join(this.dir, f)));
+  }
+
+  /**
+   * Check if .husky/pre-commit contains UDS hook lines.
+   */
+  hasUdsHookLines() {
+    const hookPath = join(this.dir, '.husky', 'pre-commit');
+    if (!existsSync(hookPath)) return false;
+    try {
+      const content = readFileSync(hookPath, 'utf-8');
+      return /uds\s+check|checkin-standards/i.test(content);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Scan for skills/commands directories installed by UDS.
+   * Returns array of relative paths that exist.
+   */
+  scanSkillsDirs() {
+    const candidates = [
+      '.claude/skills',
+      '.claude/commands',
+    ];
+    return candidates.filter(f => existsSync(join(this.dir, f)));
+  }
+
+  /**
+   * Check if any integration files contain UDS markers.
+   */
+  hasUdsMarkers() {
+    const files = this.scanIntegrationFiles();
+    for (const f of files) {
+      try {
+        const content = readFileSync(join(this.dir, f), 'utf-8');
+        if (content.includes('UDS:STANDARDS:START') || content.includes('UDS:SKILLS:START')) {
+          return true;
+        }
+      } catch {
+        // skip unreadable
+      }
+    }
+    return false;
+  }
+
   async cleanup() {
     if (this.dir && this.dir.includes('uds-upgrade-test-')) {
       await rm(this.dir, { recursive: true, force: true });
@@ -309,6 +376,10 @@ class UpgradeRunner {
 
   static devUpdate(workDir) {
     return this.run(DEV_CLI_BIN, 'update', workDir, ['--offline']);
+  }
+
+  static devUninstall(workDir) {
+    return this.run(DEV_CLI_BIN, 'uninstall', workDir, ['--all']);
   }
 }
 
@@ -428,6 +499,91 @@ class Validator {
 }
 
 // ---------------------------------------------------------------------------
+// UninstallValidator
+// ---------------------------------------------------------------------------
+
+/**
+ * Capture pre-uninstall state snapshot.
+ * Used to determine whether each check should PASS or SKIP.
+ */
+function capturePreUninstallState(project) {
+  return {
+    hasStandards: project.hasStandardsDir(),
+    integrationFiles: project.scanIntegrationFiles(),
+    hasMarkers: project.hasUdsMarkers(),
+    hasHooks: project.hasUdsHookLines(),
+    skillsDirs: project.scanSkillsDirs(),
+  };
+}
+
+class UninstallValidator {
+  static validate(runResult, project, preState) {
+    const results = [];
+    results.push(this.checkExitCode(runResult));
+    results.push(this.checkNoFatalErrors(runResult));
+    results.push(this.checkStandardsRemoved(project, preState));
+    results.push(this.checkIntegrationsCleaned(project, preState));
+    results.push(this.checkHooksRemoved(project, preState));
+    results.push(this.checkSkillsRemoved(project, preState));
+    return results;
+  }
+
+  static checkExitCode({ exitCode, timedOut }) {
+    if (timedOut) return { id: 'UNINSTALL_EXIT', name: 'Exit code', status: 'FAIL', detail: 'Timed out' };
+    if (exitCode === 0) return { id: 'UNINSTALL_EXIT', name: 'Exit code', status: 'PASS' };
+    return { id: 'UNINSTALL_EXIT', name: 'Exit code', status: 'FAIL', detail: `exitCode=${exitCode}` };
+  }
+
+  static checkNoFatalErrors({ stderr }) {
+    const fatalPatterns = /TypeError|ReferenceError|ENOENT|SyntaxError|Cannot find module/;
+    const lines = stderr.split('\n').filter(l => fatalPatterns.test(l));
+    if (lines.length === 0) return { id: 'UNINSTALL_NO_ERRORS', name: 'No fatal errors', status: 'PASS' };
+    return { id: 'UNINSTALL_NO_ERRORS', name: 'No fatal errors', status: 'FAIL', detail: lines.slice(0, 3).join(' | ') };
+  }
+
+  static checkStandardsRemoved(project, preState) {
+    if (!preState.hasStandards) {
+      return { id: 'STANDARDS_REMOVED', name: '.standards/ removed', status: 'SKIP', detail: 'No .standards/ before uninstall' };
+    }
+    if (!project.hasStandardsDir()) {
+      return { id: 'STANDARDS_REMOVED', name: '.standards/ removed', status: 'PASS' };
+    }
+    return { id: 'STANDARDS_REMOVED', name: '.standards/ removed', status: 'FAIL', detail: '.standards/ still exists' };
+  }
+
+  static checkIntegrationsCleaned(project, preState) {
+    if (!preState.hasMarkers) {
+      return { id: 'INTEGRATIONS_CLEANED', name: 'UDS markers cleaned', status: 'SKIP', detail: 'No UDS markers before uninstall' };
+    }
+    if (!project.hasUdsMarkers()) {
+      return { id: 'INTEGRATIONS_CLEANED', name: 'UDS markers cleaned', status: 'PASS' };
+    }
+    return { id: 'INTEGRATIONS_CLEANED', name: 'UDS markers cleaned', status: 'FAIL', detail: 'UDS markers still present' };
+  }
+
+  static checkHooksRemoved(project, preState) {
+    if (!preState.hasHooks) {
+      return { id: 'HOOKS_REMOVED', name: 'Hooks removed', status: 'SKIP', detail: 'No UDS hooks before uninstall' };
+    }
+    if (!project.hasUdsHookLines()) {
+      return { id: 'HOOKS_REMOVED', name: 'Hooks removed', status: 'PASS' };
+    }
+    return { id: 'HOOKS_REMOVED', name: 'Hooks removed', status: 'FAIL', detail: 'UDS hook lines still present' };
+  }
+
+  static checkSkillsRemoved(project, preState) {
+    if (preState.skillsDirs.length === 0) {
+      return { id: 'SKILLS_REMOVED', name: 'Skills removed', status: 'SKIP', detail: 'No skills before uninstall' };
+    }
+    const remaining = project.scanSkillsDirs();
+    if (remaining.length === 0) {
+      return { id: 'SKILLS_REMOVED', name: 'Skills removed', status: 'PASS' };
+    }
+    return { id: 'SKILLS_REMOVED', name: 'Skills removed', status: 'FAIL', detail: `Remaining: ${remaining.join(', ')}` };
+  }
+}
+
+// ---------------------------------------------------------------------------
 // ReportGenerator
 // ---------------------------------------------------------------------------
 
@@ -509,6 +665,8 @@ async function main() {
       'direct-only': { type: 'boolean', default: false },
       'chain-only': { type: 'boolean', default: false },
       'stable-only': { type: 'boolean', default: false },
+      'uninstall-only': { type: 'boolean', default: false },
+      'skip-uninstall': { type: 'boolean', default: false },
       'versions': { type: 'string', default: '' },
       'keep-cache': { type: 'boolean', default: false },
       'json': { type: 'boolean', default: false },
@@ -569,7 +727,7 @@ async function main() {
     const installedVersions = new Set(successInstalls.map(r => r.version));
 
     // Phase 2: Direct upgrade tests
-    if (!opts['chain-only']) {
+    if (!opts['chain-only'] && !opts['uninstall-only']) {
       if (!opts.json) console.log(`\nPhase 2: Direct upgrade tests (${versionsToTest.length} versions)...`);
 
       for (const version of versionsToTest) {
@@ -613,7 +771,7 @@ async function main() {
     }
 
     // Phase 3: Chain upgrade test
-    if (!opts['direct-only']) {
+    if (!opts['direct-only'] && !opts['uninstall-only']) {
       if (!opts.json) console.log(`\nPhase 3: Chain upgrade test...`);
 
       const chainVersions = CHAIN_MILESTONES.filter(v => installedVersions.has(v));
@@ -670,7 +828,99 @@ async function main() {
       }
     }
 
-    // Phase 4: Report
+    // Phase 4: Uninstall tests
+    if (!opts['skip-uninstall'] && !opts['direct-only'] && !opts['chain-only']) {
+      const UNINSTALL_MILESTONES = ['3.0.0', '3.3.0', '3.5.0', '4.0.0', '4.2.0'];
+      const uninstallVersions = UNINSTALL_MILESTONES.filter(v => installedVersions.has(v));
+
+      if (!opts.json) console.log(`\nPhase 4: Uninstall tests (${uninstallVersions.length} versions)...`);
+
+      // 4a: Direct uninstall — init(V) → uninstall(dev)
+      if (uninstallVersions.length > 0) {
+        if (!opts.json) console.log('  4a: Direct uninstall (init → uninstall)');
+
+        for (const version of uninstallVersions) {
+          if (!opts.json) process.stdout.write(`    ${version}: init → uninstall(dev) ... `);
+
+          const project = new TestProject(`uninstall-direct-${version}`);
+          try {
+            await project.create();
+
+            const cliBin = vm.getCliBin(version);
+            const initResult = await UpgradeRunner.init(cliBin, project.dir);
+
+            if (initResult.exitCode !== 0 && !initResult.timedOut) {
+              report.addSection(`Uninstall direct: ${version}`, [
+                { id: 'INIT', name: 'Init', status: 'SKIP', detail: `Old CLI init failed (exitCode=${initResult.exitCode})` }
+              ]);
+              if (!opts.json) console.log('INIT FAILED (skipped)');
+              continue;
+            }
+
+            const preState = capturePreUninstallState(project);
+            const uninstallResult = await UpgradeRunner.devUninstall(project.dir);
+            const checks = UninstallValidator.validate(uninstallResult, project, preState);
+            report.addSection(`Uninstall direct: ${version}`, checks);
+
+            const failed = checks.filter(c => c.status === 'FAIL').length;
+            if (!opts.json) console.log(failed === 0 ? 'OK' : `${failed} FAILED`);
+          } finally {
+            await project.cleanup();
+          }
+        }
+      }
+
+      // 4b: Upgrade-then-uninstall — init(V) → update(dev) → uninstall(dev)
+      const upgradeUninstallVersions = uninstallVersions.length >= 2
+        ? [uninstallVersions[0], uninstallVersions[uninstallVersions.length - 1]]
+        : uninstallVersions.slice(0, 1);
+
+      if (upgradeUninstallVersions.length > 0) {
+        if (!opts.json) console.log('  4b: Upgrade-then-uninstall (init → update → uninstall)');
+
+        for (const version of upgradeUninstallVersions) {
+          if (!opts.json) process.stdout.write(`    ${version}: init → update(dev) → uninstall(dev) ... `);
+
+          const project = new TestProject(`uninstall-upgrade-${version}`);
+          try {
+            await project.create();
+
+            const cliBin = vm.getCliBin(version);
+            const initResult = await UpgradeRunner.init(cliBin, project.dir);
+
+            if (initResult.exitCode !== 0 && !initResult.timedOut) {
+              report.addSection(`Uninstall after upgrade: ${version}`, [
+                { id: 'INIT', name: 'Init', status: 'SKIP', detail: `Old CLI init failed (exitCode=${initResult.exitCode})` }
+              ]);
+              if (!opts.json) console.log('INIT FAILED (skipped)');
+              continue;
+            }
+
+            // Update with dev CLI first
+            const updateResult = await UpgradeRunner.devUpdate(project.dir);
+            if (updateResult.exitCode !== 0 && !updateResult.timedOut) {
+              report.addSection(`Uninstall after upgrade: ${version}`, [
+                { id: 'UPDATE', name: 'Update', status: 'FAIL', detail: `Dev update failed (exitCode=${updateResult.exitCode})` }
+              ]);
+              if (!opts.json) console.log('UPDATE FAILED');
+              continue;
+            }
+
+            const preState = capturePreUninstallState(project);
+            const uninstallResult = await UpgradeRunner.devUninstall(project.dir);
+            const checks = UninstallValidator.validate(uninstallResult, project, preState);
+            report.addSection(`Uninstall after upgrade: ${version}`, checks);
+
+            const failed = checks.filter(c => c.status === 'FAIL').length;
+            if (!opts.json) console.log(failed === 0 ? 'OK' : `${failed} FAILED`);
+          } finally {
+            await project.cleanup();
+          }
+        }
+      }
+    }
+
+    // Phase 5: Report
     if (opts.json) {
       console.log(JSON.stringify(report.toJSON(), null, 2));
       process.exitCode = report.toJSON().summary.fail > 0 ? 1 : 0;
