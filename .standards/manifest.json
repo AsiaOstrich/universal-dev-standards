@@ -131,7 +131,10 @@
       }
     ]
   },
-  "methodology": null,
+  "methodology": {
+    "active": "sdd",
+    "available": ["tdd", "bdd", "sdd", "atdd"]
+  },
   "fileHashes": {
     ".standards/anti-hallucination.ai.yaml": {
       "hash": "sha256:1a2e18d0726a329f689305b8f3813fb9896ec23286016843e8e66c660297cfe6",
