@@ -56,7 +56,7 @@ npx universal-dev-standards init
 | 類別 | 數量 | 說明 |
 |----------|-------|-------------|
 | **核心標準** | 32 | 通用開發準則 |
-| **AI Skills** | 27 | 互動式技能 |
+| **AI Skills** | 29 | 互動式技能 |
 | **斜線命令** | 30 | 快速操作 |
 | **CLI 指令** | 6 | list, init, configure, check, update, skills |
 <!-- UDS_STATS_TABLE_END -->

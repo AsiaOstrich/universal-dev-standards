@@ -4,7 +4,7 @@
   "last_updated": "2026-02-12",
   "stats": {
     "core_standards": 32,
-    "skills": 27,
+    "skills": 29,
     "slash_commands": 30
   },
   "standards": [
@@ -327,6 +327,16 @@
     },
     {
       "id": "workflows",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "audit-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "dev-workflow-guide",
       "command": "/guide",
       "category": "uncategorized"
     }

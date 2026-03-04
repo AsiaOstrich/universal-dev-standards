@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.4] - 2026-03-05
+
+> **Release Candidate**: Fourth RC for v5.0.0 with new audit command, file placement guide, and skill inter-linking.
+
+### Added
+- **`uds audit` Command**: New CLI command for UDS health checks and feedback collection (`--health`, `--patterns`, `--friction`, `--report`)
+- **File Placement Decision Guide**: New `core/guides/file-placement-guide.md` — master decision tree, reverse lookup index (30+ file types), code organization deep dive, development artifacts lifecycle
+- **Source Code Organization Terminology**: Added utils/helpers/shared/lib/internal disambiguation to `project-structure.md`
+- **Configuration Files Placement**: Added standard locations for tool configs, app configs, env vars, CI/CD, IaC
+- **Generated Code Placement**: Added `src/generated/` standard with gitignore guidelines
+- **Development Artifacts Directory**: Added `docs/working/` structure with lifecycle management (brainstorms, RFCs, investigations, POCs)
+- **Expanded Document Types Matrix**: Complete file type → destination mapping in `documentation-structure.md`
+- **Audit Assistant Skill**: New `/audit` skill with health check and feedback workflows
+- **Skill Inter-linking**: Added `/audit` next-step suggestions to `/checkin`, `/review`, `/commit`, `/sdd`
+- **Next Steps Guidance**: Added next-step suggestions to 17 existing skills
+
+### Fixed
+- **Config Display Language**: Fix `displayLanguage` not passed to config path
+- **Skills Uninstaller Tests**: Fix tests accidentally deleting user-level directories
+- **Package Name in Docs**: Fix incorrect package name references
+
+### Changed
+- **README Structure**: Extract pre-release info and add config/uninstall/methodology sections
+- **SPEC-AUDIT-01**: Rewritten as user-oriented specification with brainstorm integration
+
 ## [5.0.0-rc.2] - 2026-02-13
 
 > **Release Candidate**: Second RC for v5.0.0 with documentation improvements and CLI bug fixes.
