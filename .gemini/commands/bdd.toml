@@ -1,5 +1,5 @@
 # bdd command - converted from UDS
-description = "Guide through Behavior-Driven Development workflow"
+description = "[UDS] Guide through Behavior-Driven Development workflow"
 
 prompt = """
 
@@ -139,6 +139,6 @@ BDD works best with collaboration:
 
 ## Reference | 參考
 
-- Methodology: [bdd.methodology.yaml](../../../../methodologies/bdd.methodology.yaml)
+- Methodology: [bdd.methodology.yaml](../../methodologies/bdd.methodology.yaml)
 - Methodology System: [methodology-system](../methodology-system/SKILL.md)
 """

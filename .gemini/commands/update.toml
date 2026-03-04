@@ -1,5 +1,5 @@
 # update command - converted from UDS
-description = "Update development standards to latest version"
+description = "[UDS] Update development standards to latest version"
 
 prompt = """
 
@@ -50,7 +50,7 @@ Pre-release 版本按穩定度排序（由低到高）：
 
 Version comparison: `alpha < beta < rc < stable`
 
-For detailed versioning standards, see [core/versioning.md](../../../core/versioning.md).
+For detailed versioning standards, see [core/versioning.md](../../core/versioning.md).
 
 #### Update Options | 更新選項
 

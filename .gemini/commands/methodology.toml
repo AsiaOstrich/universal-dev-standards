@@ -1,5 +1,5 @@
 # methodology command - converted from UDS
-description = "Manage development methodology workflow"
+description = "[UDS] Manage development methodology workflow"
 
 prompt = """
 
@@ -8,7 +8,7 @@ User provided: {{args}}
 
 # Methodology Command | 方法論命令
 
-> **Language**: English | [繁體中文](../../../locales/zh-TW/skills/commands/methodology.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/commands/methodology.md)
 
 > [!WARNING]
 > **Experimental Feature / 實驗性功能**

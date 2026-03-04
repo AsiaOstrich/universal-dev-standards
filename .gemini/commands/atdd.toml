@@ -1,5 +1,5 @@
 # atdd command - converted from UDS
-description = "Guide through Acceptance Test-Driven Development workflow"
+description = "[UDS] Guide through Acceptance Test-Driven Development workflow"
 
 prompt = """
 
@@ -158,8 +158,8 @@ ATDD Level (Business Acceptance)
 
 ## Reference | 參考
 
-- Core Standard: [acceptance-test-driven-development.md](../../../../core/acceptance-test-driven-development.md)
+- Core Standard: [acceptance-test-driven-development.md](../../core/acceptance-test-driven-development.md)
 - Skill: [atdd-assistant](../atdd-assistant/SKILL.md)
-- Methodology: [atdd.methodology.yaml](../../../../methodologies/atdd.methodology.yaml)
+- Methodology: [atdd.methodology.yaml](../../methodologies/atdd.methodology.yaml)
 - Methodology System: [methodology-system](../methodology-system/SKILL.md)
 """

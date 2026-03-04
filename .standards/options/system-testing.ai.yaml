@@ -1,0 +1,88 @@
+# System Testing - AI Optimized Option
+# Parent: testing
+
+id: system-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: Testing the complete system in a production-like environment
+
+characteristics:
+  scope: Full system including all components
+  speed: "<10 seconds per test"
+  isolation: None (full system)
+  pyramid_percentage: 7%
+
+rules:
+  - id: production-like-environment
+    trigger: setting up system tests
+    instruction: Use environment as close to production as possible
+    priority: required
+
+  - id: test-critical-paths
+    trigger: selecting what to test
+    instruction: Focus on critical business flows and scenarios
+    priority: required
+
+  - id: stable-test-data
+    trigger: managing test data
+    instruction: Use stable, reproducible test data sets
+    priority: required
+
+  - id: handle-async
+    trigger: testing async operations
+    instruction: Use proper waiting strategies, avoid arbitrary sleeps
+    priority: required
+
+when_to_write:
+  - Testing complete business workflows
+  - Testing system configuration
+  - Testing performance characteristics
+  - Testing failure scenarios
+  - Testing security controls
+
+types:
+  - name: Smoke Tests
+    purpose: Verify system is operational
+    frequency: Every deployment
+    example: |
+      - Health check endpoint returns 200
+      - Login page loads
+      - Database connection works
+
+  - name: Regression Tests
+    purpose: Verify existing functionality still works
+    frequency: Before release
+    example: |
+      - User can complete purchase
+      - Reports generate correctly
+      - Notifications are sent
+
+  - name: Load Tests
+    purpose: Verify system handles expected load
+    frequency: Before major releases
+    tools: [k6, JMeter, Gatling, Locust]
+
+  - name: Security Tests
+    purpose: Verify security controls
+    frequency: Before release
+    tools: [OWASP ZAP, Burp Suite]
+
+environment:
+  requirements:
+    - All services deployed
+    - Real database with test data
+    - External services mocked or sandboxed
+    - Monitoring enabled
+
+  isolation_strategies:
+    - Dedicated test environment
+    - Feature flags for test mode
+    - Test data namespace
+
+coverage_target: "Critical business flows"
+
+tools:
+  orchestration: [Docker Compose, Kubernetes, Terraform]
+  execution: [Playwright, Selenium, REST clients]
+  monitoring: [Prometheus, Grafana, Jaeger]

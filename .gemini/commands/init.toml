@@ -1,5 +1,5 @@
 # init command - converted from UDS
-description = "Initialize development standards in current project"
+description = "[UDS] Initialize development standards in current project"
 
 prompt = """
 
@@ -285,7 +285,7 @@ See `uds init --help` for all options.
 ## Reference | 參考
 
 - CLI documentation: `uds init --help`
-- Adoption guide: [ADOPTION-GUIDE.md](../../../adoption/ADOPTION-GUIDE.md)
+- Adoption guide: [ADOPTION-GUIDE.md](../../adoption/ADOPTION-GUIDE.md)
 - Check command: [/check](./check.md)
 - Update command: [/update](./update.md)
 """

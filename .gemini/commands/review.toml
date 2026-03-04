@@ -1,5 +1,5 @@
 # review command - converted from UDS
-description = "Perform systematic code review with checklist"
+description = "[UDS] Perform systematic code review with checklist"
 
 prompt = """
 
@@ -48,6 +48,6 @@ Perform systematic code review using standardized checklists and comment prefixe
 
 ## Reference | 參考
 
-- Full standard: [code-review-assistant](../../code-review-assistant/SKILL.md)
-- Core guide: [code-review-checklist](../../../../core/code-review-checklist.md)
+- Full standard: [code-review-assistant](../code-review-assistant/SKILL.md)
+- Core guide: [code-review-checklist](../../core/code-review-checklist.md)
 """

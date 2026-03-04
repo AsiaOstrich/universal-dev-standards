@@ -1,5 +1,5 @@
 # config command - converted from UDS
-description = "Configure project development standards"
+description = "[UDS] Configure project development standards"
 
 prompt = """
 

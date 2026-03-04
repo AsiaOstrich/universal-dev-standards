@@ -1,5 +1,5 @@
 # check command - converted from UDS
-description = "Verify standards adoption status"
+description = "[UDS] Verify standards adoption status"
 
 prompt = """
 

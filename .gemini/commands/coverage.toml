@@ -1,5 +1,5 @@
 # coverage command - converted from UDS
-description = "Analyze test coverage and provide recommendations"
+description = "[UDS] Analyze test coverage and provide recommendations"
 
 prompt = """
 
@@ -57,6 +57,6 @@ Analyze test coverage across multiple dimensions and provide actionable recommen
 
 ## Reference | 參考
 
-- Full standard: [test-coverage-assistant](../../test-coverage-assistant/SKILL.md)
-- Core guide: [testing-standards](../../../../core/testing-standards.md)
+- Full standard: [test-coverage-assistant](../test-coverage-assistant/SKILL.md)
+- Core guide: [testing-standards](../../core/testing-standards.md)
 """

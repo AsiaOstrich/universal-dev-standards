@@ -1,53 +1,59 @@
 # release command - converted from UDS
-description = "Guide through release process with semantic versioning"
+description = "[UDS] Manage release process and changelogs."
 
 prompt = """
 
 ## Arguments
 User provided: {{args}}
 
-# Release Assistant | 發布助手
+# /release Command | /release 命令
 
-Guide through the complete release process following semantic versioning standards.
+Manage the release workflow and changelogs according to Semantic Versioning.
 
-引導完整的發布流程，遵循語義化版本標準。
+根據語義化版本管理發布流程和變更日誌。
 
-## Workflow | 工作流程
+## Usage | 用法
 
-1. **Pre-release checks** - Run tests, linting, verify git status
-2. **Determine version** - Based on changes since last release
-3. **Update CHANGELOG** - Document all changes
-4. **Update version** - Bump version in package.json
-5. **Create tag** - Git tag with version number
-6. **Push changes** - Commit and push to remote
-7. **Create release** - GitHub release (triggers npm publish)
+```bash
+/release [subcommand] [version]
+```
 
-## Version Types | 版本類型
+### Subcommands | 子命令
 
-| Type | When to Use | Example |
-|------|-------------|---------|
-| `major` | Breaking changes | 1.0.0 → 2.0.0 |
-| `minor` | New features (backward compatible) | 1.0.0 → 1.1.0 |
-| `patch` | Bug fixes | 1.0.0 → 1.0.1 |
-| `beta` | Pre-release testing | 1.0.0 → 1.1.0-beta.1 |
-| `alpha` | Early testing | 1.0.0 → 1.1.0-alpha.1 |
+| Subcommand | Description |
+|------------|-------------|
+| `start` | Start a release branch/process |
+| `finish` | Finalize release (tag, merge) |
+| `changelog` | Generate or update CHANGELOG.md |
+| `check` | Run pre-release checks |
 
-## Pre-release Checklist | 發布前檢查
+## Changelog Management
 
-- [ ] All tests pass
-- [ ] Linting passes
-- [ ] Git working directory is clean
-- [ ] On correct branch (main for stable)
-- [ ] CHANGELOG is updated
+```bash
+/release changelog [version]
+```
 
-## Usage | 使用方式
+Updates `CHANGELOG.md` by:
+1.  Moving "Unreleased" changes to the new `[version]` section.
+2.  Creating a new "Unreleased" section.
+3.  Updating comparison links at the bottom.
 
-- `/release` - Interactive release wizard
-- `/release patch` - Create patch release
-- `/release beta` - Create beta pre-release
+## Examples | 範例
 
-## Reference | 參考
+```bash
+# Start release v1.2.0
+/release start 1.2.0
 
-- Full standard: [release-standards](../../release-standards/SKILL.md)
-- Workflow guide: [release-workflow](../../release-standards/release-workflow.md)
+# Update changelog for v1.2.0
+/release changelog 1.2.0
+
+# Finish release
+/release finish 1.2.0
+```
+
+## References | 參考
+
+*   [Release Standards Skill](../release-standards/SKILL.md)
+*   [Changelog Guide](../changelog-guide/SKILL.md)
+*   [Core Standard](../../core/versioning.md)
 """

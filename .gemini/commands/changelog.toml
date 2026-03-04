@@ -1,60 +1,58 @@
 # changelog command - converted from UDS
-description = "Generate or update CHANGELOG following Keep a Changelog format"
+description = "\"[UDS] Generate and maintain CHANGELOG.md entries\""
 
 prompt = """
-
-## Arguments
-User provided: {{args}}
-
 # Changelog Assistant | 變更日誌助手
 
-Generate or update CHANGELOG.md following the Keep a Changelog format.
+Generate and maintain CHANGELOG.md entries following the Keep a Changelog format.
 
-依據 Keep a Changelog 格式產生或更新 CHANGELOG.md。
+根據 Keep a Changelog 格式產生和維護 CHANGELOG.md 條目。
+
+## Usage | 用法
+
+```bash
+/changelog
+```
 
 ## Workflow | 工作流程
 
-1. **Read existing CHANGELOG** - Parse current entries
-2. **Analyze commits** - Get commits since last version tag
-3. **Categorize changes** - Group by type (Added, Changed, etc.)
-4. **Generate entry** - Create new version section
-5. **Update file** - Insert new entry at top of Unreleased section
+1. **Analyze git log** - Read commit history since last release using `git log`
+2. **Categorize changes** - Map commits to changelog categories
+3. **Generate entries** - Write user-friendly descriptions for each change
+4. **Update CHANGELOG.md** - Insert entries into the [Unreleased] or versioned section
 
-## Change Categories | 變更類別
+## Change Categories | 變更分類
 
-| Category | Description | 說明 |
-|----------|-------------|------|
-| **Added** | New features | 新功能 |
-| **Changed** | Changes to existing features | 功能變更 |
-| **Deprecated** | Soon-to-be removed features | 即將移除 |
-| **Removed** | Removed features | 已移除 |
-| **Fixed** | Bug fixes | 錯誤修復 |
-| **Security** | Security vulnerability fixes | 安全修復 |
+| Category | When to Use | 使用時機 | Commit Types |
+|----------|-------------|---------|-------------|
+| **Added** | New features | 新功能 | `feat` |
+| **Changed** | Modifications to existing features | 修改既有功能 | `perf`, `BREAKING CHANGE` |
+| **Deprecated** | Features to be removed | 即將移除的功能 | -- |
+| **Removed** | Removed features | 已移除的功能 | `BREAKING CHANGE` |
+| **Fixed** | Bug fixes | 錯誤修復 | `fix` |
+| **Security** | Security patches | 安全性修補 | `security` |
 
-## CHANGELOG Format | 格式
+## Entry Format | 條目格式
 
 ```markdown
 ## [Unreleased]
 
 ### Added
-- New feature description
+- Add user dashboard with customizable widgets (#123)
 
 ### Fixed
-- Bug fix description
-
-## [1.0.0] - 2024-01-15
-
-### Added
-- Initial release
+- Fix memory leak when processing large files (#456)
 ```
 
-## Usage | 使用方式
+### Writing Guidelines | 撰寫指南
 
-- `/changelog` - Update Unreleased section with recent commits
-- `/changelog 1.2.0` - Prepare changelog for specific version
+- Write for **users**, not developers | 為使用者而非開發者撰寫
+- Focus on **impact**, not implementation | 聚焦影響而非實作
+- Include issue/PR references | 附上 issue/PR 編號
+- Mark breaking changes with **BREAKING** prefix | 用 **BREAKING** 標記破壞性變更
 
-## Reference | 參考
+## References | 參考
 
-- Full standard: [changelog-guide](../../changelog-guide/SKILL.md)
-- Core guide: [changelog-standards](../../../../core/changelog-standards.md)
+*   [Changelog Guide Skill](../changelog-guide/SKILL.md)
+*   [Core Standard](../../core/changelog-standards.md)
 """

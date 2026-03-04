@@ -598,7 +598,8 @@ export async function runProjectConfiguration(options) {
   }
 
   if (configType === 'all' || configType === 'commit_language') {
-    newOptions.commit_language = await promptCommitLanguage();
+    const displayLanguage = manifest.options?.display_language || 'en';
+    newOptions.commit_language = await promptCommitLanguage(displayLanguage);
   }
 
   if (configType === 'all' || configType === 'test_levels') {

@@ -1,5 +1,5 @@
 # refactor command - converted from UDS
-description = "Guide refactoring decisions and strategy selection"
+description = "[UDS] Guide refactoring decisions and strategy selection"
 
 prompt = """
 
@@ -169,7 +169,7 @@ This command integrates with:
 
 ## Reference | 參考
 
-- [Refactoring Standards](../../../core/refactoring-standards.md) - Core standard
+- [Refactoring Standards](../../core/refactoring-standards.md) - Core standard
 - [Refactoring Assistant Skill](../refactoring-assistant/SKILL.md) - Full skill
 - [TDD Assistant](../tdd-assistant/SKILL.md) - TDD workflow
 """

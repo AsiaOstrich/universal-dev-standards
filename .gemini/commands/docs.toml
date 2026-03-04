@@ -1,78 +1,62 @@
 # docs command - converted from UDS
-description = "Create or update project documentation structure"
+description = "[UDS] Manage, guide, and generate documentation."
 
 prompt = """
 
 ## Arguments
 User provided: {{args}}
 
-# Documentation Assistant | 文件助手
+# /docs Command | /docs 命令
 
-Create and maintain well-structured project documentation.
+Manage, write, and generate project documentation.
 
-建立和維護結構良好的專案文件。
+管理、撰寫和生成專案文件。
 
-## Workflow | 工作流程
+## Usage | 用法
 
-1. **Assess current state** - Check existing documentation
-2. **Identify gaps** - What documentation is missing?
-3. **Generate templates** - Create appropriate document templates
-4. **Fill content** - Add project-specific information
-5. **Validate links** - Ensure all references work
-
-## Document Types | 文件類型
-
-| Type | Purpose | 用途 |
-|------|---------|------|
-| **README.md** | Project overview | 專案概述 |
-| **CONTRIBUTING.md** | Contribution guide | 貢獻指南 |
-| **CHANGELOG.md** | Version history | 版本歷史 |
-| **API.md** | API documentation | API 文件 |
-| **docs/** | Detailed guides | 詳細指南 |
-
-## README Structure | README 結構
-
-```markdown
-# Project Name
-
-Brief description.
-
-## Features
-- Feature 1
-- Feature 2
-
-## Installation
 ```bash
-npm install package
+/docs [subcommand] [options]
 ```
 
-## Usage
-[Examples]
+### Subcommands | 子命令
 
-## Contributing
-See CONTRIBUTING.md
+| Subcommand | Description |
+|------------|-------------|
+| `generate` | Generate documentation artifacts (cheatsheets, reference) |
+| `readme` | Audit and update README.md |
+| `api` | Generate API documentation from code |
+| `structure` | Check documentation folder structure |
+| `(none)` | Show documentation guide/status |
 
-## License
-MIT
+### Generate Options
+
+Used with `/docs generate`:
+
+| Option | Description |
+|--------|-------------|
+| `--lang <lang>` | Language (`en`, `zh-TW`, `zh-CN`) |
+| `--cheatsheet` | Generate cheatsheet only |
+| `--reference` | Generate feature reference only |
+| `--check` | Check if docs are out of sync |
+
+## Examples | 範例
+
+```bash
+# Generate all docs
+/docs generate
+
+# Generate Traditional Chinese docs
+/docs generate --lang zh-TW
+
+# Update README
+/docs readme
+
+# Check doc structure
+/docs structure
 ```
 
-## Documentation Checklist | 文件檢查清單
+## References | 參考
 
-- [ ] README has clear project description
-- [ ] Installation instructions are accurate
-- [ ] Usage examples are provided
-- [ ] API is documented (if applicable)
-- [ ] Contributing guidelines exist
-- [ ] License is specified
-
-## Usage | 使用方式
-
-- `/docs` - Audit current documentation
-- `/docs readme` - Generate/update README
-- `/docs api` - Generate API documentation
-
-## Reference | 參考
-
-- Full standard: [documentation-guide](../../documentation-guide/SKILL.md)
-- Core guide: [documentation-standards](../../../../core/documentation-standards.md)
+*   [Documentation Guide Skill](../documentation-guide/SKILL.md)
+*   [Core Standard](../../core/documentation-writing-standards.md)
 """

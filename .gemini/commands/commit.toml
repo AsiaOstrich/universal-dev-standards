@@ -1,5 +1,5 @@
 # commit command - converted from UDS
-description = "Generate commit messages following Conventional Commits standard"
+description = "[UDS] Generate commit messages following Conventional Commits standard"
 
 prompt = """
 
@@ -46,6 +46,6 @@ Generate well-formatted commit messages following the Conventional Commits stand
 
 ## Reference | 參考
 
-- Full standard: [commit-standards](../../commit-standards/SKILL.md)
-- Core guide: [commit-message-guide](../../../../core/commit-message-guide.md)
+- Full standard: [commit-standards](../commit-standards/SKILL.md)
+- Core guide: [commit-message-guide](../../core/commit-message-guide.md)
 """

@@ -1,5 +1,5 @@
 # tdd command - converted from UDS
-description = "Guide through Test-Driven Development workflow"
+description = "[UDS] Guide through Test-Driven Development workflow"
 
 prompt = """
 
@@ -83,6 +83,6 @@ See [methodology-system](../methodology-system/SKILL.md) for full methodology tr
 
 ## Reference | 參考
 
-- Full standard: [tdd-assistant](../../tdd-assistant/SKILL.md)
-- Core guide: [testing-standards](../../../../core/testing-standards.md)
+- Full standard: [tdd-assistant](../tdd-assistant/SKILL.md)
+- Core guide: [testing-standards](../../core/testing-standards.md)
 """
