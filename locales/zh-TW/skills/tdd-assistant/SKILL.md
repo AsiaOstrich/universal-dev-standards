@@ -60,6 +60,15 @@ description: |
 - `/tdd calculateTotal` - 對特定函式進行 TDD
 - `/tdd "user can login"` - 對使用者故事進行 TDD
 
+## 下一步引導
+
+`/tdd` 完成後，AI 助手應建議：
+
+> **TDD 循環完成。建議下一步：**
+> - 執行 `/checkin` 通過品質關卡
+> - 執行 `/coverage` 確認測試覆蓋率
+> - 執行 `/review` 自我審查程式碼
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)

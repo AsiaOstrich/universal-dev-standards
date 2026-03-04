@@ -50,6 +50,15 @@ description: |
 - `/checkin` - 對目前變更執行完整品質關卡驗證
 - 驗證通過後，使用 `/commit` 建立 commit message
 
+## 下一步引導
+
+`/checkin` 完成後，AI 助手應建議：
+
+> **品質關卡驗證完成。建議下一步：**
+> - 全部通過 ✅ → 執行 `/commit` 提交變更
+> - 有失敗項目 ❌ → 修復問題後重新執行 `/checkin`
+> - 需要程式碼審查 → 執行 `/review` 進行自我審查
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)

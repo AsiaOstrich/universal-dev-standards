@@ -50,6 +50,15 @@ description: |
 - `/review src/auth.js` - 审查特定文件
 - `/review feature/login` - 审查特定分支
 
+## 下一步引导
+
+`/review` 完成后，AI 助手应建议：
+
+> **代码审查完成。建议下一步：**
+> - 有 ❗ BLOCKING 项目 → 修复后重新执行 `/review`
+> - 全部通过 → 执行 `/checkin` 品质关卡
+> - 仅有 💡 SUGGESTION → 执行 `/commit` 提交变更
+
 ## 参考
 
 - 详细指南：[guide.md](./guide.md)

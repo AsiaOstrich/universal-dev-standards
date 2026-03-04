@@ -56,6 +56,15 @@ Guide the release process following Semantic Versioning and changelog best pract
 - `/release finish 1.2.0` - Finalize and tag v1.2.0
 - `/release check` - Run pre-release verification
 
+## Next Steps Guidance | 下一步引導
+
+After `/release` completes, the AI assistant should suggest:
+
+> **發布流程完成。建議下一步 / Release process complete. Suggested next steps:**
+> - 驗證 npm 發布狀態 `npm view <pkg> dist-tags` — Verify npm publication status
+> - 建立 GitHub Release 並撰寫發布說明 — Create GitHub Release with notes
+> - 通知利害關係人新版本已發布 — Notify stakeholders of new release
+
 ## Reference | 參考
 
 - Detailed guide: [guide.md](./guide.md)

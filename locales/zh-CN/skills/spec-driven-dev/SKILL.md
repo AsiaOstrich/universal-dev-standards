@@ -69,6 +69,16 @@ Brief description.
 - `/sdd review` - 审查现有规格
 - `/sdd --sync-check` - 检查同步状态
 
+## 下一步引导
+
+`/sdd` 完成后，AI 助手应建议：
+
+> **规格文档已建立。建议下一步：**
+> - 执行 `/derive` 从规格推导测试工件
+> - 执行 `/derive bdd` 仅推导 BDD 场景
+> - 执行 `/derive tdd` 仅推导 TDD 骨架
+> - 审查 AC 完整性，确保所有验收条件可测试
+
 ## 参考
 
 - 详细指南：[guide.md](./guide.md)

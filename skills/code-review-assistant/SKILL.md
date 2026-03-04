@@ -47,6 +47,15 @@ Perform systematic code review using standardized checklists and comment prefixe
 - `/review src/auth.js` - Review specific file
 - `/review feature/login` - Review specific branch
 
+## Next Steps Guidance | 下一步引導
+
+After `/review` completes, the AI assistant should suggest:
+
+> **程式碼審查完成。建議下一步 / Code review complete. Suggested next steps:**
+> - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/review` — Fix issues then re-run `/review`
+> - 全部通過 → 執行 `/checkin` 品質關卡 — All passed → Run `/checkin` quality gates
+> - 僅有 💡 SUGGESTION → 執行 `/commit` 提交變更 — Only suggestions → Run `/commit`
+
 ## Reference | 參考
 
 - Detailed guide: [guide.md](./guide.md)

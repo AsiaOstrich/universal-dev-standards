@@ -60,6 +60,15 @@ Generate and maintain CHANGELOG.md entries following the Keep a Changelog format
 - `/changelog` - Analyze recent commits and generate changelog entries
 - Also available via `/release changelog [version]`
 
+## Next Steps Guidance | 下一步引導
+
+After `/changelog` completes, the AI assistant should suggest:
+
+> **變更日誌已更新。建議下一步 / Changelog updated. Suggested next steps:**
+> - 執行 `/release` 開始發布流程 — Start release process
+> - 執行 `/commit` 提交日誌變更 — Commit changelog changes
+> - 審查日誌條目確保使用者導向語言 — Review entries for user-facing language
+
 ## Reference | 參考
 
 - Detailed guide: [guide.md](./guide.md)

@@ -65,6 +65,15 @@ So that [benefit].
 - `/atdd "user can reset password"` - 针对特定功能进行 ATDD
 - `/atdd US-123` - 针对现有用户故事进行 ATDD
 
+## 下一步引导
+
+`/atdd` 完成后，AI 助手应建议：
+
+> **验收测试已定义。建议下一步：**
+> - 执行 `/sdd` 建立规格文档
+> - 执行 `/bdd` 将 AC 转为 Gherkin 场景
+> - 执行 `/tdd` 直接实现验收测试
+
 ## 参考
 
 - 详细指南：[guide.md](./guide.md)

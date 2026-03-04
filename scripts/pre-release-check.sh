@@ -62,10 +62,10 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=14
+TOTAL=15
 
 if [ "$SKIP_TESTS" = true ]; then
-    TOTAL=13
+    TOTAL=14
 fi
 
 # Function to run a check
@@ -199,16 +199,19 @@ run_check "11" "Running commands sync check" "$SCRIPT_DIR/check-commands-sync.sh
 # Step 12: Docs integrity
 run_check "12" "Running docs integrity check | 文件完整性檢查" "$SCRIPT_DIR/check-docs-integrity.sh"
 
-# Step 13: Linting
-run_check "13" "Running linting" "npm run lint --prefix $CLI_DIR"
+# Step 13: Skill Next Steps sync
+run_check "13" "Running skill next steps sync check" "$SCRIPT_DIR/check-skill-next-steps-sync.sh"
 
-# Step 14: Tests
+# Step 14: Linting
+run_check "14" "Running linting" "npm run lint --prefix $CLI_DIR"
+
+# Step 15: Tests
 if [ "$SKIP_TESTS" = true ]; then
-    echo -e "${CYAN}[14/$TOTAL]${NC} Running tests..."
+    echo -e "${CYAN}[15/$TOTAL]${NC} Running tests..."
     echo -e "      ${YELLOW}⏭ Skipped (--skip-tests flag)${NC}"
     SKIPPED=$((SKIPPED + 1))
 else
-    run_check "14" "Running tests" "npm test --prefix $CLI_DIR"
+    run_check "15" "Running tests" "npm test --prefix $CLI_DIR"
 fi
 
 # Show summary

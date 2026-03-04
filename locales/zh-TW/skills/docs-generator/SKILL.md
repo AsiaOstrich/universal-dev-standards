@@ -54,6 +54,15 @@ language: [en, zh-TW]
 - `/docgen .usage-docs.yaml` - 從指定的設定檔產生文件
 - `/docgen --format cheatsheet` - 僅產生速查表
 
+## 下一步引導
+
+`/docgen` 完成後，AI 助手應建議：
+
+> **文件已產生。建議下一步：**
+> - 審查產生的文件內容是否完整
+> - 執行 `/commit` 提交文件變更
+> - 執行 `/review` 審查文件品質
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)

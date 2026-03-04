@@ -62,6 +62,15 @@ Feature: User Login
 - `/bdd "user can reset password"` - 针对特定功能进行 BDD
 - `/bdd login-feature.feature` - 使用现有的 feature 文件
 
+## 下一步引导
+
+`/bdd` 完成后，AI 助手应建议：
+
+> **BDD 场景已定义。建议下一步：**
+> - 执行 `/tdd` 实现步骤定义
+> - 执行 `/checkin` 品质关卡（若功能完成）
+> - 与利益相关者审查场景确保业务正确性
+
 ## 参考
 
 - 详细指南：[guide.md](./guide.md)

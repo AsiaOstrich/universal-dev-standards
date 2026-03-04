@@ -111,6 +111,15 @@ Produce a Brainstorm Report ready for `/requirement` or `/sdd`.
 - `/brainstorm "user retention"` - Brainstorm around a specific topic
 - `/brainstorm --technique scamper` - Use a specific technique
 
+## Next Steps Guidance | 下一步引導
+
+After `/brainstorm` completes, the AI assistant should suggest:
+
+> **腦力激盪完成。建議下一步 / Brainstorming complete. Suggested next steps:**
+> - 執行 `/requirement` 將最佳構想轉為使用者故事 — Convert top idea to user stories
+> - 執行 `/sdd` 直接建立規格（若需求已明確）— Create spec directly (if requirements are clear)
+> - 針對特定構想進行更深入探索 — Explore a specific idea further
+
 ## Reference | 參考
 
 - Detailed guide: [guide.md](./guide.md)

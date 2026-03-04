@@ -61,6 +61,16 @@ description: |
 - `/discover auth` - 针对 auth 相关模块进行评估
 - `/discover payments` - 在新增支付功能前评估风险
 
+## 下一步引导
+
+`/discover` 完成后，AI 助手应根据评估结果建议：
+
+> **根据评估结果，建议下一步：**
+> - **新功能** → 执行 `/sdd` 建立规格
+> - **遗留代码** → 执行 `/reverse spec` 提取现有行为
+> - **重构** → 执行 `/refactor decide` 选择策略
+> - **快速修复** → 执行 `/tdd` 撰写针对性测试并修复
+
 ## 参考
 
 - 详细指南：[guide.md](./guide.md)

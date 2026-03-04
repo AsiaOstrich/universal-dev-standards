@@ -54,6 +54,15 @@ Generate well-formatted commit messages following the Conventional Commits stand
 - `/commit` - Auto-analyze staged changes and suggest commit message
 - `/commit fix login bug` - Generate message based on provided description
 
+## Next Steps Guidance | 下一步引導
+
+After `/commit` completes, the AI assistant should suggest:
+
+> **提交完成。建議下一步 / Commit complete. Suggested next steps:**
+> - 執行 `/changelog` 更新變更日誌 — Update the changelog
+> - 執行 `git push` 推送到遠端 — Push to remote
+> - 執行 `/release`（若準備發布）— Start release process (if ready)
+
 ## Reference | 參考
 
 - Detailed guide: [guide.md](./guide.md)

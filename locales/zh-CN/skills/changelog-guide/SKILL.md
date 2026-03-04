@@ -58,6 +58,15 @@ description: |
 - `/changelog` - 分析近期提交并产生变更日志条目
 - 也可通过 `/release changelog [version]` 使用
 
+## 下一步引导
+
+`/changelog` 完成后，AI 助手应建议：
+
+> **变更日志已更新。建议下一步：**
+> - 执行 `/release` 开始发布流程
+> - 执行 `/commit` 提交日志变更
+> - 审查日志条目确保用户导向语言
+
 ## 参考
 
 - 详细指南：[guide.md](./guide.md)

@@ -56,6 +56,15 @@ description: |
 - `/derive tdd specs/SPEC-001.md` - 仅推演 TDD 骨架
 - `/derive atdd specs/SPEC-001.md` - 推演 ATDD 表格
 
+## 下一步引导
+
+`/derive` 完成后，AI 助手应建议：
+
+> **测试工件已生成。建议下一步：**
+> - 执行 `/tdd` 开始红绿重构循环
+> - 执行 `/bdd` 细化 Gherkin 场景
+> - 检查生成的 `[TODO]` 标记并补齐实现
+
 ## 参考
 
 - 详细指南：[guide.md](./guide.md)

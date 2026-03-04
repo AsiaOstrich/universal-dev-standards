@@ -61,6 +61,15 @@ description: |
 - `/reverse bdd specs/SPEC-AUTH.md` - 将规格 AC 转为 Gherkin 场景
 - `/reverse tdd features/auth.feature` - 分析 feature 文件的测试覆盖率
 
+## 下一步引导
+
+`/reverse`（完整或 `spec`）完成后，AI 助手应建议：
+
+> **系统考古完成。建议下一步：**
+> - 执行 `/sdd` 审查并核准此规格
+> - 执行 `/derive` 从规格推导测试
+> - 审查规格中的 `[Inferred]` 和 `[Unknown]` 标记
+
 ## 参考
 
 - 详细指南：[guide.md](./guide.md)

@@ -44,10 +44,10 @@ $CliDir = Join-Path $RootDir "cli"
 $Passed = 0
 $Failed = 0
 $Skipped = 0
-$Total = 14
+$Total = 15
 
 if ($SkipTests) {
-    $Total = 13
+    $Total = 14
 }
 
 # Function to run a check
@@ -202,19 +202,22 @@ try {
     # Step 12: Docs integrity
     Run-Check -Step 12 -Name "Running docs integrity check | 文件完整性檢查" -Command "$ScriptDir\check-docs-integrity.ps1"
 
-    # Step 13: Linting
-    Run-Check -Step 13 -Name "Running linting" -Command "npm run lint --prefix `"$CliDir`""
+    # Step 13: Skill Next Steps sync
+    Run-Check -Step 13 -Name "Running skill next steps sync check" -Command "$ScriptDir\check-skill-next-steps-sync.ps1"
 
-    # Step 14: Tests
+    # Step 14: Linting
+    Run-Check -Step 14 -Name "Running linting" -Command "npm run lint --prefix `"$CliDir`""
+
+    # Step 15: Tests
     if ($SkipTests) {
-        Write-Host "[14/$Total] " -ForegroundColor Cyan -NoNewline
+        Write-Host "[15/$Total] " -ForegroundColor Cyan -NoNewline
         Write-Host "Running tests..."
         Write-Host "      " -NoNewline
         Write-Host "[SKIP] Skipped (-SkipTests flag)" -ForegroundColor Yellow
         $Skipped++
     }
     else {
-        Run-Check -Step 14 -Name "Running tests" -Command "npm test --prefix `"$CliDir`""
+        Run-Check -Step 15 -Name "Running tests" -Command "npm test --prefix `"$CliDir`""
     }
 
     # Show summary

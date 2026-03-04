@@ -61,6 +61,15 @@ So that [benefit].
 - `/requirement user login` - 為功能撰寫需求
 - `/requirement "users can export data"` - 根據描述撰寫需求
 
+## 下一步引導
+
+`/requirement` 完成後，AI 助手應建議：
+
+> **需求文件已完成。建議下一步：**
+> - 執行 `/sdd` 建立規格文件
+> - 執行 `/atdd` 定義驗收測試
+> - 執行 `/brainstorm` 進一步探索需求空間
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)

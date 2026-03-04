@@ -58,6 +58,15 @@ description: |
 - `/release finish 1.2.0` - 完成并标签 v1.2.0
 - `/release check` - 执行发布前验证
 
+## 下一步引导
+
+`/release` 完成后，AI 助手应建议：
+
+> **发布流程完成。建议下一步：**
+> - 验证 npm 发布状态 `npm view <pkg> dist-tags`
+> - 建立 GitHub Release 并撰写发布说明
+> - 通知利益相关者新版本已发布
+
 ## 参考
 
 - 详细指南：[guide.md](./guide.md)

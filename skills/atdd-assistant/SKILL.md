@@ -68,6 +68,15 @@ So that [benefit].
 /atdd US-123                       - ATDD for existing user story | 處理現有使用者故事
 ```
 
+## Next Steps Guidance | 下一步引導
+
+After `/atdd` completes, the AI assistant should suggest:
+
+> **驗收測試已定義。建議下一步 / Acceptance tests defined. Suggested next steps:**
+> - 執行 `/sdd` 建立規格文件 — Create a specification document
+> - 執行 `/bdd` 將 AC 轉為 Gherkin 場景 — Convert AC to Gherkin scenarios
+> - 執行 `/tdd` 直接實作驗收測試 — Implement acceptance tests directly
+
 ## Reference | 參考
 
 - Detailed guide: [guide.md](./guide.md)

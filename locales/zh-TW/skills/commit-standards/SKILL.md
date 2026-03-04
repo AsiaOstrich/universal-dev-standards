@@ -55,6 +55,15 @@ description: |
 - `/commit` - 自動分析 staged 的變更並建議 commit message
 - `/commit fix login bug` - 根據提供的描述產生訊息
 
+## 下一步引導
+
+`/commit` 完成後，AI 助手應建議：
+
+> **提交完成。建議下一步：**
+> - 執行 `/changelog` 更新變更日誌
+> - 執行 `git push` 推送到遠端
+> - 執行 `/release`（若準備發布）
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)

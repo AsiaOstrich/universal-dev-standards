@@ -59,6 +59,15 @@ description: |
 - `/coverage src/auth` - 分析特定模組
 - `/coverage --recommend` - 取得測試建議
 
+## 下一步引導
+
+`/coverage` 完成後，AI 助手應建議：
+
+> **覆蓋率分析完成。建議下一步：**
+> - 覆蓋率不足 → 執行 `/tdd` 補齊測試
+> - 已達標 → 執行 `/checkin` 品質關卡
+> - 發現熱點 → 執行 `/refactor` 改善可測試性
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)

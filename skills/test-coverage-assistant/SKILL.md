@@ -57,6 +57,15 @@ Analyze test coverage across multiple dimensions and provide actionable recommen
 /coverage --recommend       - Get test recommendations | 取得測試建議
 ```
 
+## Next Steps Guidance | 下一步引導
+
+After `/coverage` completes, the AI assistant should suggest:
+
+> **覆蓋率分析完成。建議下一步 / Coverage analysis complete. Suggested next steps:**
+> - 覆蓋率不足 → 執行 `/tdd` 補齊測試 — Coverage gaps → Run `/tdd` to add tests
+> - 已達標 → 執行 `/checkin` 品質關卡 — Targets met → Run `/checkin` quality gates
+> - 發現熱點 → 執行 `/refactor` 改善可測試性 — Hotspots found → Run `/refactor`
+
 ## Reference | 參考
 
 - Detailed guide: [guide.md](./guide.md)

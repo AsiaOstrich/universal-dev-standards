@@ -59,6 +59,15 @@ Guide through the Test-Driven Development workflow: Red-Green-Refactor.
 - `/tdd calculateTotal` - TDD for specific function
 - `/tdd "user can login"` - TDD for user story
 
+## Next Steps Guidance | 下一步引導
+
+After `/tdd` completes, the AI assistant should suggest:
+
+> **TDD 循環完成。建議下一步 / TDD cycle complete. Suggested next steps:**
+> - 執行 `/checkin` 通過品質關卡 — Pass quality gates
+> - 執行 `/coverage` 確認測試覆蓋率 — Check test coverage
+> - 執行 `/review` 自我審查程式碼 — Self-review code quality
+
 ## Reference | 參考
 
 - Detailed guide: [guide.md](./guide.md)
