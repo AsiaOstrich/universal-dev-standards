@@ -872,6 +872,26 @@ export const messages = {
         }
       },
 
+      // audit command (commands/audit.js)
+      audit: {
+        title: 'UDS Audit Report',
+        healthTitle: 'Health Check',
+        patternsTitle: 'Patterns Detected',
+        frictionsTitle: 'Friction Points',
+        notInitialized: 'UDS not initialized in this project',
+        suggestInit: 'Run `uds init` to install standards',
+        allHealthy: 'All files intact',
+        submitPrompt: 'Select findings to submit:',
+        userCommentsPrompt: 'Additional comments (optional):',
+        reportTitle: 'UDS Audit Feedback',
+        dryRunNotice: 'Dry run — no issue created',
+        ghNotFound: 'gh CLI not found, using browser deeplink',
+        copiedToClipboard: 'Full report copied to clipboard',
+        urlTruncated: 'Report too long for URL, summary used. Full report on clipboard.',
+        quietSummary: 'Health: {health} | Patterns: {patterns} | Frictions: {frictions}',
+        noFindings: 'No issues found. Your UDS installation is healthy!'
+      },
+
       // init command (commands/init.js)
       init: {
         title: 'Universal Development Standards - Initialize',
@@ -2057,6 +2077,26 @@ export const messages = {
           skills: 'Skills',
           commands: '斜線命令'
         }
+      },
+
+      // audit command (commands/audit.js)
+      audit: {
+        title: 'UDS 審計報告',
+        healthTitle: '健康檢查',
+        patternsTitle: '偵測到的模式',
+        frictionsTitle: '摩擦點',
+        notInitialized: '此專案尚未初始化 UDS',
+        suggestInit: '執行 `uds init` 安裝標準',
+        allHealthy: '所有檔案完整',
+        submitPrompt: '選擇要提交的發現：',
+        userCommentsPrompt: '補充說明（選填）：',
+        reportTitle: 'UDS 審計回饋',
+        dryRunNotice: '預覽模式 — 未建立 issue',
+        ghNotFound: '未找到 gh CLI，使用瀏覽器連結',
+        copiedToClipboard: '完整報告已複製至剪貼簿',
+        urlTruncated: '報告過長無法放入 URL，已使用摘要。完整報告已複製至剪貼簿。',
+        quietSummary: '健康：{health} | 模式：{patterns} | 摩擦：{frictions}',
+        noFindings: '未發現問題。您的 UDS 安裝正常！'
       },
 
       // init command (commands/init.js)
@@ -3253,6 +3293,26 @@ export const messages = {
           skills: 'Skills',
           commands: '斜线命令'
         }
+      },
+
+      // audit command (commands/audit.js)
+      audit: {
+        title: 'UDS 审计报告',
+        healthTitle: '健康检查',
+        patternsTitle: '检测到的模式',
+        frictionsTitle: '摩擦点',
+        notInitialized: '此项目尚未初始化 UDS',
+        suggestInit: '执行 `uds init` 安装标准',
+        allHealthy: '所有文件完整',
+        submitPrompt: '选择要提交的发现：',
+        userCommentsPrompt: '补充说明（选填）：',
+        reportTitle: 'UDS 审计反馈',
+        dryRunNotice: '预览模式 — 未创建 issue',
+        ghNotFound: '未找到 gh CLI，使用浏览器链接',
+        copiedToClipboard: '完整报告已复制到剪贴板',
+        urlTruncated: '报告过长无法放入 URL，已使用摘要。完整报告已复制到剪贴板。',
+        quietSummary: '健康：{health} | 模式：{patterns} | 摩擦：{frictions}',
+        noFindings: '未发现问题。您的 UDS 安装正常！'
       },
 
       // update command

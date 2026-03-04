@@ -1,7 +1,7 @@
 # [SPEC-AUDIT-01] UDS Health & Feedback System | UDS 健康檢查與回饋系統
 
 **Priority**: P1
-**Status**: Draft
+**Status**: Approved
 **Created**: 2026-03-04
 **Last Updated**: 2026-03-05
 **Feature ID**: SYS-AUDIT-001

@@ -16,6 +16,7 @@ import { agentListCommand, agentInstallCommand, agentInfoCommand } from '../src/
 import { workflowListCommand, workflowInstallCommand, workflowInfoCommand, workflowExecuteCommand, workflowStatusCommand } from '../src/commands/workflow.js';
 import { aiContextInitCommand, aiContextValidateCommand, aiContextGraphCommand } from '../src/commands/ai-context.js';
 import { sweepCommand } from '../src/commands/sweep.js';
+import { auditCommand } from '../src/commands/audit.js';
 import { uninstallCommand } from '../src/commands/uninstall.js';
 import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand, specArchiveCommand, specDeleteCommand } from '../src/commands/spec.js';
 import { startCommand, missionStatusCommand, missionPauseCommand, missionResumeCommand, missionCancelCommand, missionListCommand } from '../src/commands/start.js';
@@ -153,6 +154,19 @@ program
   .option('--report', 'Save report to .uds/reports/')
   .option('-v, --verbose', 'Show detailed output')
   .action(sweepCommand);
+
+program
+  .command('audit')
+  .description('Audit UDS installation and collect feedback')
+  .option('--health', 'Health check only')
+  .option('--patterns', 'Pattern detection only')
+  .option('--friction', 'Friction detection only')
+  .option('--report', 'Interactive feedback submission')
+  .option('--dry-run', 'Preview report without submitting')
+  .option('--gh', 'Force gh CLI for submission')
+  .option('--format <format>', 'Output format (json)')
+  .option('--quiet', 'Summary only')
+  .action(auditCommand);
 
 program
   .command('uninstall')
