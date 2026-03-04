@@ -58,6 +58,7 @@ High-level designs for cross-cutting concerns (Agents, Workflows, Derivation).
 | [agents-workflows-system.md](system/agents-workflows-system.md) | Agent & Workflow System | Implemented |
 | [forward-derivation.md](system/forward-derivation.md) | Forward Derivation Methodology | Approved |
 | [core-standard-workflow.md](system/core-standard-workflow.md) | Core Standard Creation Workflow | Approved |
+| [SPEC-AUDIT-01-standards-audit.md](system/SPEC-AUDIT-01-standards-audit.md) | Standards Audit & Gap Detection 標準審計與缺口偵測 | Draft |
 | ... | (See system/ directory for full list) | |
 
 ---
@@ -103,6 +104,7 @@ UDS CLI 工具的實作細節。
 ### Priority P1
 | Document | Description |
 |----------|-------------|
+| [SPEC-AUDIT-01-standards-audit.md](system/SPEC-AUDIT-01-standards-audit.md) | `uds audit` — Standards Audit & Gap Detection |
 | [custom-agent-creation.md](system/custom-agent-creation.md) | `uds agent create` wizard |
 | [cascading-config.md](system/cascading-config.md) | 3-Layer Configuration |
 | [self-healing-cli.md](system/self-healing-cli.md) | Self-healing capabilities |
