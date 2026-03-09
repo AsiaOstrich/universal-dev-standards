@@ -1,7 +1,7 @@
 # UDS Feature Reference
 
 > Universal Development Standards - Complete Feature Documentation
-> Auto-generated | Last updated: 2026-02-10
+> Auto-generated | Last updated: 2026-03-09
 
 **Language**: English | [繁體中文](../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -10,30 +10,14 @@
 ## Table of Contents
 
 1. [CLI Commands](#cli-commands) (9)
-2. [Slash Commands](#slash-commands) (30)
-3. [Skills](#skills) (26)
+2. [Slash Commands](#slash-commands) (32)
+3. [Skills](#skills) (29)
 4. [Agents](#agents) (5)
 5. [Workflows](#workflows) (5)
 6. [Core Standards](#core-standards) (32)
-7. [Scripts](#scripts) (31)
+7. [Scripts](#scripts) (37)
 
-**Total Features: 138**
-
----
-
-## AI Agent Functionality Matrix
-
-This matrix shows the support level for UDS features across different AI agents.
-
-| AI Agent | Skills Support | Slash Commands | Primary Config |
-| :--- | :--- | :--- | :--- |
-| **Claude Code** | **Full (26)** | **Native (30)**: `/tdd`, `/review`, `/commit`, etc. | `CLAUDE.md` |
-| **OpenCode** | **Full (26)** | **Native (30)**: Same as Claude Code | `AGENTS.md` |
-| **Gemini CLI** | **Complete (18+)** | **Native (20+)**: `/derive-*`, `/reverse-*`, `/config` | `GEMINI.md` |
-| **Cursor** | **Core (v2.4+)** | **Simulated**: `/sdd`, `/review`, `/refactor` | `.cursorrules` |
-| **Cline / Roo Code** | **Core (v3.48+)** | **Workflow-based**: `/checkin`, `/tdd`, `/sdd` | `.clinerules` |
-| **GitHub Copilot** | **Instruction-based** | **Chat-based**: `commit`, `review`, `guide` | `copilot-instructions.md` |
-| **Windsurf** | **Core (Jan 2026)** | **Rulebook-based**: `/refactor`, `/sdd` | `.windsurfrules` |
+**Total Features: 149**
 
 ---
 
@@ -46,7 +30,6 @@ This matrix shows the support level for UDS features across different AI agents.
 **Options**:
 | Option | Description |
 |--------|-------------|
-| `-l, --level` | Filter by adoption level (1, 2, or 3) |
 | `-c, --category` | Filter by category (skill, reference, extension, integration, template) |
 
 ### `uds init`
@@ -57,7 +40,6 @@ This matrix shows the support level for UDS features across different AI agents.
 | Option | Description |
 |--------|-------------|
 | `-m, --mode` | Installation mode (skills, full) |
-| `-l, --level` | Adoption level (1=Essential, 2=Recommended, 3=Enterprise) |
 | `-f, --format` | Standards format (ai, human, both) |
 | `--workflow` | Git workflow (github-flow, gitflow, trunk-based) |
 | `--merge-strategy` | Merge strategy (squash, merge-commit, rebase-ff) |
@@ -117,6 +99,9 @@ This matrix shows the support level for UDS features across different AI agents.
 | `--skills` | Install/update Skills for configured AI tools |
 | `--commands` | Install/update slash commands for configured AI tools |
 | `--debug` | Show debug output for Skills/Commands detection |
+| `--plan` | Show reconciliation plan without executing (like terraform plan) |
+| `--force` | Force update all files, ignoring hash comparison |
+| `--rollback` | Rollback to the most recent backup |
 
 ### `uds skills`
 
@@ -164,6 +149,7 @@ This matrix shows the support level for UDS features across different AI agents.
 |---------|-------------|
 | `/atdd` | [UDS] Guide through Acceptance Test-Driven Development workflow |
 | `/bdd` | [UDS] Guide through Behavior-Driven Development workflow |
+| `/brainstorm` | "[UDS] Structured AI-assisted brainstorming before spec creation" |
 | `/changelog` | "[UDS] Generate and maintain CHANGELOG.md entries" |
 | `/check` | [UDS] Verify standards adoption status |
 | `/checkin` | "[UDS] Pre-commit quality gates verification" |
@@ -175,6 +161,7 @@ This matrix shows the support level for UDS features across different AI agents.
 | `/derive-bdd` | [UDS] Derive BDD Gherkin scenarios from SDD specification |
 | `/derive-tdd` | [UDS] Derive TDD test skeletons from SDD specification |
 | `/derive` | [UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications. |
+| `/dev-workflow` | "[UDS] Guide for mapping software development phases to UDS commands and features" |
 | `/discover` | "[UDS] Assess project health, architecture, and risks before adding features" |
 | `/docgen` | "[UDS] Generate usage documentation from project sources" |
 | `/docs` | [UDS] Manage, guide, and generate documentation. |
@@ -203,11 +190,14 @@ This matrix shows the support level for UDS features across different AI agents.
 | `ai-friendly-architecture` | Design AI-friendly architecture with explicit patterns, layered documentation, and semantic boundaries. |
 | `ai-instruction-standards` | Create and maintain AI instruction files (CLAUDE.md, .cursorrules, etc.) with proper structure. |
 | `atdd-assistant` | "[UDS] Guide through Acceptance Test-Driven Development workflow" |
+| `audit-assistant` | "[UDS] UDS Health & Feedback System \| UDS 健康檢查與回饋系統" |
 | `bdd-assistant` | "[UDS] Guide through Behavior-Driven Development workflow" |
+| `brainstorm-assistant` | "[UDS] Structured AI-assisted brainstorming before spec creation" |
 | `changelog-guide` | "[UDS] Generate and maintain CHANGELOG.md entries" |
 | `checkin-assistant` | "[UDS] Pre-commit quality gates verification" |
 | `code-review-assistant` | "[UDS] Perform systematic code review with checklist" |
 | `commit-standards` | "[UDS] Generate commit messages following Conventional Commits standard" |
+| `dev-workflow-guide` | "[UDS] Guide for mapping software development phases to UDS commands and features" |
 | `docs-generator` | "[UDS] Generate usage documentation from project sources" |
 | `documentation-guide` | Guide documentation structure, content requirements, and project documentation best practices. |
 | `error-code-guide` | Design consistent error codes following the PREFIX_CATEGORY_NUMBER format. |
@@ -220,7 +210,7 @@ This matrix shows the support level for UDS features across different AI agents.
 | `refactoring-assistant` | "[UDS] Guide refactoring decisions and strategy selection" |
 | `release-standards` | "[UDS] Guide release process and changelogs" |
 | `requirement-assistant` | "[UDS] Write user stories and requirements following INVEST criteria" |
-| `reverse-engineer` | "[UDS] Reverse engineer code to Specs, BDD, or TDD coverage" |
+| `reverse-engineer` | "[UDS] System archeology — reverse engineer code across Logic, Data, and Runtime dimensions" |
 | `spec-driven-dev` | "[UDS] Create or review specification documents for Spec-Driven Development" |
 | `tdd-assistant` | "[UDS] Guide through Test-Driven Development workflow" |
 | `test-coverage-assistant` | "[UDS] Analyze test coverage and provide recommendations" |
@@ -269,7 +259,7 @@ This matrix shows the support level for UDS features across different AI agents.
 | `commit-message-guide` | 1.2.3 | Standardized commit messages improve code review efficiency, facilitate automate |
 | `deployment-standards` | 1.0.0 | This standard defines guidelines for safely deploying software to production, co |
 | `developer-memory` | 1.0.0 | This standard defines a structured system for capturing, retrieving, and surfaci |
-| `documentation-structure` | 1.3.0 | This standard defines a consistent documentation structure for software projects |
+| `documentation-structure` | 1.4.0 | This standard defines a consistent documentation structure for software projects |
 | `documentation-writing-standards` | 1.1.0 | This standard defines documentation requirements based on project types and prov |
 | `error-code-standards` | 1.1.0 |  |
 | `forward-derivation-standards` | 1.1.0 | This standard defines the principles and workflows for Forward Derivation—automa |
@@ -277,7 +267,7 @@ This matrix shows the support level for UDS features across different AI agents.
 | `logging-standards` | 1.2.0 |  |
 | `performance-standards` | 1.1.0 | This standard defines comprehensive guidelines for software performance engineer |
 | `project-context-memory` | 1.0.0 | This standard defines a structured system for capturing, retrieving, and enforci |
-| `project-structure` | 1.1.0 | This standard defines conventions for project directory structure beyond documen |
+| `project-structure` | 1.2.0 | This standard defines conventions for project directory structure beyond documen |
 | `refactoring-standards` | 2.1.0 | This standard defines comprehensive guidelines for code refactoring, covering ev |
 | `requirement-engineering` | 1.0.0 |  |
 | `reverse-engineering-standards` | 1.0.0 | This standard defines the principles, workflows, and best practices for reverse  |
@@ -302,10 +292,14 @@ This matrix shows the support level for UDS features across different AI agents.
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |
 | `check-commands-sync.ps1` | Check Commands Sync |
 | `check-commands-sync.sh` | Commands Sync Checker |
+| `check-docs-integrity.ps1` | Check Docs Integrity |
+| `check-docs-integrity.sh` | Documentation Integrity Checker |
 | `check-docs-sync.ps1` | Check Docs Sync |
 | `check-docs-sync.sh` | Documentation Sync Checker |
 | `check-scope-sync.ps1` | Check Scope Sync |
 | `check-scope-sync.sh` | Scope Consistency Check Script |
+| `check-skill-next-steps-sync.ps1` | Check Skill Next Steps Sync |
+| `check-skill-next-steps-sync.sh` | Skill Next Steps Guidance Sync Checker |
 | `check-spec-sync.ps1` | Core↔Skill Sync Check Script |
 | `check-spec-sync.sh` | Core↔Skill Sync Check Script |
 | `check-standards-reference-sync.ps1` | Check Standards Reference Sync |
@@ -321,13 +315,13 @@ This matrix shows the support level for UDS features across different AI agents.
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
-| `generate-docs.mjs` | Multi-language documentation content injector |
+| `generate-docs.mjs` | Generate Docs |
 | `pre-release-check.ps1` | Pre Release Check |
 | `pre-release-check.sh` | Pre-release Check Script |
 | `pre-release.ps1` | Pre-Release Preparation Script for Universal Development Standards |
 | `pre-release.sh` | Pre-Release Preparation Script |
 | `setup-husky.mjs` | Cross-platform Husky Setup Script |
-| `sync-manifest.mjs` | Automatically sync metadata from file system to uds-manifest.json |
+| `sync-manifest.mjs` | Sync Manifest |
 
 ---
 

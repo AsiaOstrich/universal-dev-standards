@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-02-10
+> Quick reference for all UDS features | Last updated: 2026-03-09
 
 **Language**: English | [繁體中文](../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../locales/zh-CN/docs/CHEATSHEET.md)
 
@@ -26,6 +26,7 @@
 |---------|-------------|
 | `/atdd` | [UDS] Guide through Acceptance Test-Driven Development workflow |
 | `/bdd` | [UDS] Guide through Behavior-Driven Development workflow |
+| `/brainstorm` | "[UDS] Structured AI-assisted brainstorming before spec creation" |
 | `/changelog` | "[UDS] Generate and maintain CHANGELOG.md entries" |
 | `/check` | [UDS] Verify standards adoption status |
 | `/checkin` | "[UDS] Pre-commit quality gates verification" |
@@ -34,10 +35,10 @@
 | `/coverage` | [UDS] Analyze test coverage and provide recommendations |
 | `/derive-all` | [UDS] Derive all test structures (BDD, TDD, ATDD) from SDD specification |
 | `/derive-atdd` | [UDS] Derive ATDD acceptance tests from SDD specification |
-| `/dev-workflow` | [UDS] Guide for mapping software development phases to UDS commands |
 | `/derive-bdd` | [UDS] Derive BDD Gherkin scenarios from SDD specification |
 | `/derive-tdd` | [UDS] Derive TDD test skeletons from SDD specification |
 | `/derive` | [UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications. |
+| `/dev-workflow` | "[UDS] Guide for mapping software development phases to UDS commands and features" |
 | `/discover` | "[UDS] Assess project health, architecture, and risks before adding features" |
 | `/docgen` | "[UDS] Generate usage documentation from project sources" |
 | `/docs` | [UDS] Manage, guide, and generate documentation. |
@@ -64,12 +65,14 @@
 | `ai-friendly-architecture` | Design AI-friendly architecture with explicit patterns, laye |
 | `ai-instruction-standards` | Create and maintain AI instruction files (CLAUDE.md, .cursor |
 | `atdd-assistant` | "[UDS] Guide through Acceptance Test-Driven Development work |
+| `audit-assistant` | "[UDS] UDS Health & Feedback System \| UDS 健康檢查與回饋系統" |
 | `bdd-assistant` | "[UDS] Guide through Behavior-Driven Development workflow" |
+| `brainstorm-assistant` | "[UDS] Structured AI-assisted brainstorming before spec crea |
 | `changelog-guide` | "[UDS] Generate and maintain CHANGELOG.md entries" |
 | `checkin-assistant` | "[UDS] Pre-commit quality gates verification" |
 | `code-review-assistant` | "[UDS] Perform systematic code review with checklist" |
 | `commit-standards` | "[UDS] Generate commit messages following Conventional Commi |
-| `dev-workflow-guide` | "[UDS] Guide for mapping development phases to UDS commands" |
+| `dev-workflow-guide` | "[UDS] Guide for mapping software development phases to UDS  |
 | `docs-generator` | "[UDS] Generate usage documentation from project sources" |
 | `documentation-guide` | Guide documentation structure, content requirements, and pro |
 | `error-code-guide` | Design consistent error codes following the PREFIX_CATEGORY_ |
@@ -82,7 +85,7 @@
 | `refactoring-assistant` | "[UDS] Guide refactoring decisions and strategy selection" |
 | `release-standards` | "[UDS] Guide release process and changelogs" |
 | `requirement-assistant` | "[UDS] Write user stories and requirements following INVEST  |
-| `reverse-engineer` | "[UDS] Reverse engineer code to Specs, BDD, or TDD coverage" |
+| `reverse-engineer` | "[UDS] System archeology — reverse engineer code across Logi |
 | `spec-driven-dev` | "[UDS] Create or review specification documents for Spec-Dri |
 | `tdd-assistant` | "[UDS] Guide through Test-Driven Development workflow" |
 | `test-coverage-assistant` | "[UDS] Analyze test coverage and provide recommendations" |
@@ -156,10 +159,14 @@
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |
 | `check-commands-sync.ps1` | Check Commands Sync |
 | `check-commands-sync.sh` | Commands Sync Checker |
+| `check-docs-integrity.ps1` | Check Docs Integrity |
+| `check-docs-integrity.sh` | Documentation Integrity Checker |
 | `check-docs-sync.ps1` | Check Docs Sync |
 | `check-docs-sync.sh` | Documentation Sync Checker |
 | `check-scope-sync.ps1` | Check Scope Sync |
 | `check-scope-sync.sh` | Scope Consistency Check Script |
+| `check-skill-next-steps-sync.ps1` | Check Skill Next Steps Sync |
+| `check-skill-next-steps-sync.sh` | Skill Next Steps Guidance Sync Checker |
 | `check-spec-sync.ps1` | Core↔Skill Sync Check Script |
 | `check-spec-sync.sh` | Core↔Skill Sync Check Script |
 | `check-standards-reference-sync.ps1` | Check Standards Reference Sync |
@@ -175,11 +182,13 @@
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
+| `generate-docs.mjs` | Generate Docs |
 | `pre-release-check.ps1` | Pre Release Check |
 | `pre-release-check.sh` | Pre-release Check Script |
 | `pre-release.ps1` | Pre-Release Preparation Script for Universal Devel |
 | `pre-release.sh` | Pre-Release Preparation Script |
 | `setup-husky.mjs` | Cross-platform Husky Setup Script |
+| `sync-manifest.mjs` | Sync Manifest |
 
 ---
 

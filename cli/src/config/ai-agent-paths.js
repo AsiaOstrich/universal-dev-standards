@@ -502,6 +502,7 @@ export const AVAILABLE_COMMANDS = [
   // Development Methodology (Action Skills)
   // ═══════════════════════════════════════════════════════════════════════════
   { name: 'methodology', description: 'Development methodology selection' },
+  { name: 'dev-workflow', description: 'Guide for mapping development phases to UDS commands' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CLI Management (Commands-only, UDS CLI specific)
