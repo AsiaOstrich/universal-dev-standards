@@ -1,0 +1,148 @@
+# Test Governance Standards - AI Optimized
+# Covers: Test Policy, Completion Criteria, Environment Management
+# References: ISO 29119-2/3, ISO 12207, Agile/Scrum DoD, ISTQB
+
+standard:
+  id: test-governance
+  name: Test Governance
+  description: Test policy, completion criteria, and environment management standards
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-11"
+    references:
+      - "ISO/IEC/IEEE 29119-2 (Test Processes)"
+      - "ISO/IEC/IEEE 29119-3 (Test Documentation)"
+      - "ISO/IEC/IEEE 12207 (Verification + Integration Process)"
+      - "Agile/Scrum Guide (Definition of Done)"
+      - "ISTQB Foundation Syllabus"
+      - "Mike Cohn Test Pyramid"
+
+  test_policy:
+    quality_objectives:
+      - id: QO-1
+        name: Functional Correctness
+        description: All specified behaviors produce correct outputs
+        measurement: Test pass rate >= 95%
+      - id: QO-2
+        name: Regression Prevention
+        description: No previously fixed defects reappear
+        measurement: Zero regression failures in CI
+      - id: QO-3
+        name: Code Quality
+        description: Code meets static analysis and style standards
+        measurement: Zero lint/type errors, static analysis pass
+
+    level_ownership:
+      - level: Unit Tests (UT)
+        owner: Developer
+        environment: local
+        pyramid_ratio: 70
+      - level: Integration Tests (IT)
+        owner: Developer
+        environment: local / ci
+        pyramid_ratio: 20
+      - level: System Tests (ST)
+        owner: QA / Developer
+        environment: ci / sit
+        pyramid_ratio: 7
+      - level: E2E Tests
+        owner: QA
+        environment: staging
+        pyramid_ratio: 3
+
+    static_analysis:
+      description: Run static analysis tools before test execution
+      examples:
+        - "ruff check . (Python)"
+        - "eslint . (TypeScript/JavaScript)"
+        - "mypy . (Python type checking)"
+
+  completion_criteria:
+    description: >
+      Test completion criteria define when testing activities can be considered done.
+      ISO 29119 calls these "Test Completion Criteria" or "Test Exit Criteria".
+      Agile/Scrum calls them "Definition of Done (DoD)".
+
+    task_level:
+      description: Per-task completion criteria (checked after each task)
+      checks:
+        - name: verify_command_passed
+          required: true
+          description: Task verify command or test levels all pass
+        - name: no_lint_errors
+          required: true
+          description: No lint errors in changed files
+        - name: type_check_passed
+          required: true
+          description: Type checking passes
+
+    feature_level:
+      description: Per-feature completion criteria (checked at feature boundary)
+      checks:
+        - name: all_tasks_passed
+          required: true
+          description: All tasks in the feature are completed successfully
+        - name: acceptance_criteria_met
+          required: true
+          description: All acceptance criteria are verified
+        - name: no_regression
+          required: true
+          description: No existing tests broken
+
+    release_level:
+      description: Release completion criteria (checked before release)
+      checks:
+        - name: all_features_complete
+          required: true
+          description: All planned features are complete
+        - name: e2e_pass
+          required: true
+          description: Full E2E test suite passes
+        - name: static_analysis_clean
+          required: true
+          description: Static analysis reports zero issues
+        - name: documentation_updated
+          required: false
+          description: Documentation reflects changes
+
+  environment_management:
+    environments:
+      - name: local
+        description: Developer workstation
+        purpose: Unit tests, fast integration tests
+        mock_strategy: In-memory mocks and stubs
+      - name: ci
+        description: CI/CD pipeline (GitHub Actions, etc.)
+        purpose: Full test suite, lint, type check, static analysis
+        mock_strategy: Containerized dependencies (testcontainers)
+      - name: sit
+        description: System Integration Testing environment
+        purpose: System tests with real service interactions
+        mock_strategy: Stubbed external APIs, real internal services
+        note: "SIT = System Integration Testing, aligned with ISO 12207 Verification + Integration Process"
+      - name: staging
+        description: Pre-production environment
+        purpose: E2E tests, smoke tests
+        mock_strategy: No mocks, real external services
+
+  rules:
+    - id: enforce-completion-criteria
+      trigger: completing a task or feature
+      instruction: >
+        Verify all required completion criteria are met before marking task/feature as done.
+      priority: required
+
+    - id: pyramid-compliance
+      trigger: planning test strategy
+      instruction: >
+        Follow the 70/20/7/3 pyramid ratio as a guideline.
+        Deviation is acceptable with documented justification.
+      priority: required
+
+    - id: sit-isolation
+      trigger: running system tests
+      instruction: >
+        System tests should stub external dependencies but use real internal services.
+        Use SIT environment for system-level validation.
+      priority: recommended

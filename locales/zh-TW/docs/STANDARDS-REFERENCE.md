@@ -130,7 +130,7 @@
 | 類型 | 項目 |
 |------|------|
 | **業界標準** | ISTQB CTFL v4.0、ISO/IEC/IEEE 29119、SWEBOK v4.0 |
-| **通用做法** | 測試金字塔（70/20/10）、FIRST 原則、AAA 模式 |
+| **通用做法** | 測試金字塔（70/20/7/3）、FIRST 原則、AAA 模式 |
 | **參考文獻** | [ISTQB Syllabus](https://istqb.org/)、[ISO 29119](https://www.iso.org/standard/81291.html)、[IEEE SWEBOK](https://www.computer.org/education/bodies-of-knowledge/software-engineering/v4) |
 
 ---
@@ -389,7 +389,7 @@
 - 紅-綠-重構（TDD）
 - Given-When-Then（BDD）
 - 三方會談（ATDD）
-- 測試金字塔（70/20/10）
+- 測試金字塔（70/20/7/3）
 - FIRST 原則
 - 變異測試
 

@@ -130,7 +130,7 @@
 | Type | Items |
 |------|-------|
 | **Industry Standards** | ISTQB CTFL v4.0, ISO/IEC/IEEE 29119, SWEBOK v4.0 |
-| **Common Practices** | Testing Pyramid (70/20/10), FIRST Principles, AAA Pattern |
+| **Common Practices** | Testing Pyramid (70/20/7/3), FIRST Principles, AAA Pattern |
 | **References** | [ISTQB Syllabus](https://istqb.org/), [ISO 29119](https://www.iso.org/standard/81291.html), [IEEE SWEBOK](https://www.computer.org/education/bodies-of-knowledge/software-engineering/v4) |
 
 ---
@@ -389,7 +389,7 @@
 - Red-Green-Refactor (TDD)
 - Given-When-Then (BDD)
 - Three Amigos (ATDD)
-- Testing Pyramid (70/20/10)
+- Testing Pyramid (70/20/7/3)
 - FIRST Principles
 - Mutation Testing
 

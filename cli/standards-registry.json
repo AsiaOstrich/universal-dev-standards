@@ -912,6 +912,18 @@
       "description": "Keep a Changelog format for documenting notable changes"
     },
     {
+      "id": "test-governance",
+      "name": "Test Governance Standards",
+      "nameZh": "測試治理標準",
+      "source": {
+        "human": "core/test-governance.md",
+        "ai": "ai/standards/test-governance.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Test policy, completion criteria, and environment management standards (ISO 29119, Agile DoD)"
+    },
+    {
       "id": "testing",
       "name": "Testing Standards",
       "nameZh": "測試標準",

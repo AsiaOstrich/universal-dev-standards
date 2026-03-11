@@ -27,7 +27,7 @@ This specification defines the testing architecture, execution strategy, and cov
 ### Solution / 解決方案
 
 A comprehensive test strategy that:
-- Defines testing pyramid with 70/20/10 ratio
+- Defines testing pyramid with 70/20/7/3 ratio
 - Provides quick test suite (<6 seconds) for rapid feedback
 - Documents test discovery and execution patterns
 - Ensures cross-platform compatibility (macOS, Linux, Windows)

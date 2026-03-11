@@ -7,7 +7,7 @@ meta:
   parent: testing
   version: "1.0.0"
   language: zh-CN
-  description: 业界标准 3 层测试金字塔，適合敏捷团队
+  description: 务实的 4 层测试金字塔，适合敏捷团队
   sources:
     - "Martin Fowler's Testing Pyramid (https://martinfowler.com/bliki/TestPyramid.html)"
     - "Google Testing Blog (https://testing.googleblog.com)"
@@ -22,17 +22,21 @@ best_for:
 pyramid:
   visual: |
     ┌─────────┐
-    │   E2E   │  ← 10% (慢、成本高)
+    │   E2E   │  ←  3% (慢、成本高)
     ├─────────┤
-    │   IT    │  ← 20% (中等速度)
+    │   ST    │  ←  7% (中等速度)
     ├─────────┤
-    │   UT    │  ← 70% (快速、數量多)
+    │   IT    │  ← 20% (快速)
+    ├─────────┤
+    │   UT    │  ← 70% (非常快、数量多)
     └─────────┘
-  ratio: "70/20/10"
+  ratio: "70/20/7/3"
+  note: "Mike Cohn 的经验建议，非强制标准"
   rationale: |
-    - 更多单元测试 = 更快回饋
-    - 較少 E2E 测试 = 較低維護成本
-    - 集成测试捕捉界面問題
+    - 更多单元测试 = 更快回馈
+    - 较少 E2E 测试 = 较低维护成本
+    - 集成测试捕捉界面问题
+    - 系统测试验证子系统行为（外部依赖使用 stub）
 
 levels:
   - name: 单元测试
@@ -50,33 +54,39 @@ levels:
 
   - name: 集成测试
     abbreviation: IT
-    alternative_abbreviation: SIT
     percentage: 20
     definition: 测试元件互动和数据流
-    scope: 多个元件協同运作
-    speed: "每个测试 1-10 秒"
-    dependencies: 真实与模擬混合
-    note: |
-      縮写慣例因環境而異：
-      - IT: 敏捷/DevOps 社群常用 (Martin Fowler, Google)
-      - SIT: 企业/传统 QA 環境常用
-      兩者指的是相同的测试概念
+    scope: 多个元件互动
+    speed: "每个测试 < 1 秒"
+    dependencies: 真实与模拟混合
     characteristics:
       - 测试真实集成
       - 可使用容器 (Testcontainers)
       - 验证数据流
 
+  - name: 系统测试
+    abbreviation: ST
+    percentage: 7
+    definition: 测试完整子系统，外部依赖使用 stub
+    scope: 完整子系统验证
+    speed: "每个测试 < 10 秒"
+    dependencies: 内部服务真实，外部 API 使用 stub
+    characteristics:
+      - 验证子系统端对端行为
+      - 外部依赖使用 stub
+      - 在 SIT 环境中测试
+
   - name: 端对端测试
     abbreviation: E2E
-    percentage: 10
-    definition: 從 UI 到数据庫测试完整使用者工作流程
-    scope: 從使用者角度测试完整系统
-    speed: "每个测试 30 秒到數分鐘"
+    percentage: 3
+    definition: 跨整体系统测试完整使用者工作流程
+    scope: 从使用者角度测试完整使用者流程
+    speed: "每个测试 30 秒到数分钟"
     dependencies: 全部真实
     characteristics:
-      - 模擬真实使用者行为
-      - 只测试关鍵路徑
-      - 維護成本最高
+      - 模拟真实使用者行为
+      - 只测试关键路径
+      - 维护成本最高
 
 coverage_targets:
   columns: [指標, 最低, 建议]
@@ -87,8 +97,8 @@ coverage_targets:
 
 rules:
   - id: follow-pyramid-ratio
-    trigger: 使用业界金字塔規划测试策略
-    instruction: 目標 UT/IT/E2E 比例为 70/20/10
+    trigger: 使用业界金字塔规划测试策略
+    instruction: 目标 UT/IT/ST/E2E 比例为 70/20/7/3（经验建议，非强制）
     priority: required
 
   - id: test-at-lowest-level
@@ -110,8 +120,9 @@ comparison_with_istqb:
   columns: [业界层级, ISTQB 对应, 说明]
   rows:
     - [单元测试 (UT), 元件测试, 相同概念]
-    - [集成测试 (IT), 集成测试, 相同概念，IT vs SIT 縮写]
-    - [E2E 测试, 系统测试 + 驗收测试, 业界將这些层级合併]
+    - [集成测试 (IT), 集成测试, 相同概念]
+    - [系统测试 (ST), 系统测试, 相同概念]
+    - [E2E 测试, 验收测试, 业界 E2E ≈ ISTQB 验收测试]
 
 when_to_choose:
   choose_industry_when:

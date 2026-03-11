@@ -7,7 +7,7 @@ meta:
   parent: testing
   version: "1.0.0"
   language: zh-TW
-  description: 業界標準 3 層測試金字塔，適合敏捷團隊
+  description: 務實的 4 層測試金字塔，適合敏捷團隊
   sources:
     - "Martin Fowler's Testing Pyramid (https://martinfowler.com/bliki/TestPyramid.html)"
     - "Google Testing Blog (https://testing.googleblog.com)"
@@ -22,17 +22,21 @@ best_for:
 pyramid:
   visual: |
     ┌─────────┐
-    │   E2E   │  ← 10% (慢、成本高)
+    │   E2E   │  ←  3% (慢、成本高)
     ├─────────┤
-    │   IT    │  ← 20% (中等速度)
+    │   ST    │  ←  7% (中等速度)
     ├─────────┤
-    │   UT    │  ← 70% (快速、數量多)
+    │   IT    │  ← 20% (快速)
+    ├─────────┤
+    │   UT    │  ← 70% (非常快、數量多)
     └─────────┘
-  ratio: "70/20/10"
+  ratio: "70/20/7/3"
+  note: "Mike Cohn 的經驗建議，非強制標準"
   rationale: |
     - 更多單元測試 = 更快回饋
     - 較少 E2E 測試 = 較低維護成本
     - 整合測試捕捉介面問題
+    - 系統測試驗證子系統行為（外部依賴使用 stub）
 
 levels:
   - name: 單元測試
@@ -50,27 +54,33 @@ levels:
 
   - name: 整合測試
     abbreviation: IT
-    alternative_abbreviation: SIT
     percentage: 20
     definition: 測試元件互動和資料流
-    scope: 多個元件協同運作
-    speed: "每個測試 1-10 秒"
+    scope: 多個元件互動
+    speed: "每個測試 < 1 秒"
     dependencies: 真實與模擬混合
-    note: |
-      縮寫慣例因環境而異：
-      - IT: 敏捷/DevOps 社群常用 (Martin Fowler, Google)
-      - SIT: 企業/傳統 QA 環境常用
-      兩者指的是相同的測試概念
     characteristics:
       - 測試真實整合
       - 可使用容器 (Testcontainers)
       - 驗證資料流
 
+  - name: 系統測試
+    abbreviation: ST
+    percentage: 7
+    definition: 測試完整子系統，外部依賴使用 stub
+    scope: 完整子系統驗證
+    speed: "每個測試 < 10 秒"
+    dependencies: 內部服務真實，外部 API 使用 stub
+    characteristics:
+      - 驗證子系統端對端行為
+      - 外部依賴使用 stub
+      - 在 SIT 環境中測試
+
   - name: 端對端測試
     abbreviation: E2E
-    percentage: 10
-    definition: 從 UI 到資料庫測試完整使用者工作流程
-    scope: 從使用者角度測試完整系統
+    percentage: 3
+    definition: 跨整體系統測試完整使用者工作流程
+    scope: 從使用者角度測試完整使用者流程
     speed: "每個測試 30 秒到數分鐘"
     dependencies: 全部真實
     characteristics:
@@ -88,7 +98,7 @@ coverage_targets:
 rules:
   - id: follow-pyramid-ratio
     trigger: 使用業界金字塔規劃測試策略
-    instruction: 目標 UT/IT/E2E 比例為 70/20/10
+    instruction: 目標 UT/IT/ST/E2E 比例為 70/20/7/3（經驗建議，非強制）
     priority: required
 
   - id: test-at-lowest-level
@@ -110,8 +120,9 @@ comparison_with_istqb:
   columns: [業界層級, ISTQB 對應, 說明]
   rows:
     - [單元測試 (UT), 元件測試, 相同概念]
-    - [整合測試 (IT), 整合測試, 相同概念，IT vs SIT 縮寫]
-    - [E2E 測試, 系統測試 + 驗收測試, 業界將這些層級合併]
+    - [整合測試 (IT), 整合測試, 相同概念]
+    - [系統測試 (ST), 系統測試, 相同概念]
+    - [E2E 測試, 驗收測試, 業界 E2E ≈ ISTQB 驗收測試]
 
 when_to_choose:
   choose_industry_when:

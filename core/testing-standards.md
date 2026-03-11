@@ -43,29 +43,35 @@ This standard defines actionable testing rules and conventions for AI agents and
 | Framework | Levels | Best For |
 |-----------|--------|----------|
 | **ISTQB** | UT → IT/SIT → ST → AT/UAT | Enterprise, compliance, formal QA |
-| **Industry Pyramid** | UT (70%) → IT (20%) → E2E (10%) | Agile, DevOps, CI/CD |
+| **Industry Pyramid** | UT (70%) → IT (20%) → ST (7%) → E2E (3%) | Agile, DevOps, CI/CD |
 
 ---
 
 ## Testing Pyramid (Default Ratios)
 
 ```
-              ┌─────────┐
-              │   E2E   │  ← 10% (Fewer, slower, expensive)
-             ─┴─────────┴─
+                ┌───────┐
+                │  E2E  │  ←  3% (Slow, expensive)
+               ─┴───────┴─
+              ┌───────────┐
+              │    ST     │  ←  7% (System Testing)
+             ─┴───────────┴─
             ┌─────────────┐
-            │    IT/SIT   │  ← 20% (Integration Testing)
+            │     IT      │  ← 20% (Integration Testing)
            ─┴─────────────┴─
           ┌─────────────────┐
           │       UT        │  ← 70% (Unit Testing - Foundation)
           └─────────────────┘
 ```
 
+> **Note**: The 70/20/7/3 ratio is an empirical recommendation (Mike Cohn), not a mandatory standard.
+
 | Level | Percentage | Execution Time Target |
 |-------|------------|----------------------|
 | Unit Testing (UT) | 70% | < 10 min total |
 | Integration Testing (IT) | 20% | < 30 min total |
-| E2E Testing | 10% | < 2 hours total |
+| System Testing (ST) | 7% | < 1 hour total |
+| E2E Testing | 3% | < 2 hours total |
 
 ---
 

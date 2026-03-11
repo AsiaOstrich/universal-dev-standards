@@ -206,7 +206,8 @@ So that [benefit].
 |-------|-------|-------|
 | Unit | 70% | Functions/methods |
 | Integration | 20% | Components |
-| E2E | 10% | Workflows |
+| System | 7% | Subsystems |
+| E2E | 3% | Workflows |
 
 ## Test Naming
 
@@ -286,7 +287,7 @@ These Skills are tools without corresponding Core Standards:
 **Manual Workflow**:
 
 1. Read `core/testing-standards.md`
-2. Follow the Testing Pyramid ratios (70/20/10)
+2. Follow the Testing Pyramid ratios (70/20/7/3)
 3. Use ISTQB terminology from the Core Standard
 4. Reference edge case coverage checklist
 
@@ -318,7 +319,7 @@ Follow UDS Core Standards in this project:
 - Reference: core/commit-message-guide.md
 
 ### Testing
-- Follow Testing Pyramid (70% unit, 20% integration, 10% E2E)
+- Follow Testing Pyramid (70% unit, 20% integration, 7% system, 3% E2E)
 - Reference: core/testing-standards.md
 
 ### Requirements

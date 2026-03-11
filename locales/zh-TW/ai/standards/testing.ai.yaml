@@ -24,21 +24,24 @@ framework_options:
 
 # 預設金字塔 (業界標準 - 可由框架選擇覆蓋)
 pyramid:
-  ratio: "70/20/10"
-  note: "業界標準比例。ISTQB 框架使用 4 層但無固定比例。"
+  ratio: "70/20/7/3"
+  note: "基於 Mike Cohn 測試金字塔的經驗建議比例（非強制）。ISTQB 定義 4 層：UT/IT/ST/E2E。"
   levels:
     - name: 單元測試 (UT)
       percentage: 70
       scope: 單一函式/方法
       speed: 非常快 (<100ms)
-    - name: 整合測試 (IT/SIT)
+    - name: 整合測試 (IT)
       percentage: 20
-      scope: 多個元件
+      scope: 多個元件互動
       speed: 快速 (<1s)
-      note: "IT (敏捷/DevOps) 或 SIT (企業/ISTQB) - 兩者都指整合測試"
+    - name: 系統測試 (ST)
+      percentage: 7
+      scope: 完整子系統，外部依賴使用 stub
+      speed: 中等 (<10s)
     - name: 端對端測試 (E2E)
-      percentage: 10
-      scope: 使用者流程/系統測試
+      percentage: 3
+      scope: 跨整體系統的完整使用者流程
       speed: 較慢 (>10s)
 
 options:

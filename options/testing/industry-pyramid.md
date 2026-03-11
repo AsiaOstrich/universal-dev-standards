@@ -8,7 +8,7 @@
 
 ## Overview
 
-The industry testing pyramid is the standard 3-level testing model used by agile and DevOps teams. It emphasizes fast feedback through many unit tests, moderate integration tests, and minimal end-to-end tests.
+The industry testing pyramid is a pragmatic 4-level testing model used by agile and DevOps teams. It emphasizes fast feedback through many unit tests, moderate integration tests, system tests for subsystem validation, and minimal end-to-end tests.
 
 ## Best For
 
@@ -22,20 +22,25 @@ The industry testing pyramid is the standard 3-level testing model used by agile
 
 ```
     ┌─────────┐
-    │   E2E   │  ← 10% (Slow, expensive)
+    │   E2E   │  ←  3% (Slow, expensive)
     ├─────────┤
-    │   IT    │  ← 20% (Medium speed)
+    │   ST    │  ←  7% (Medium speed)
     ├─────────┤
-    │   UT    │  ← 70% (Fast, many)
+    │   IT    │  ← 20% (Fast)
+    ├─────────┤
+    │   UT    │  ← 70% (Very fast, many)
     └─────────┘
 ```
 
-**Target Ratio:** 70/20/10 (UT/IT/E2E)
+**Target Ratio:** 70/20/7/3 (UT/IT/ST/E2E)
+
+**Note:** Empirical recommendation by Mike Cohn, not a mandatory standard.
 
 **Rationale:**
 - More unit tests = faster feedback
 - Fewer E2E tests = lower maintenance cost
 - Integration tests catch interface issues
+- System tests validate subsystem behavior with stubbed externals
 
 ## Testing Levels
 
@@ -59,23 +64,35 @@ The industry testing pyramid is the standard 3-level testing model used by agile
 | Aspect | Details |
 |--------|---------|
 | **Definition** | Tests for component interactions and data flow |
-| **Scope** | Multiple components working together |
-| **Speed** | 1-10 seconds per test |
+| **Scope** | Multiple components interacting |
+| **Speed** | < 1 second per test |
 | **Dependencies** | Mix of real and mocked |
-
-**Note:** Also called SIT (System Integration Testing) in enterprise environments.
 
 **Characteristics:**
 - Tests real integrations
 - May use containers (Testcontainers)
 - Validates data flow
 
-### End-to-End Testing (E2E) - 10%
+### System Testing (ST) - 7%
 
 | Aspect | Details |
 |--------|---------|
-| **Definition** | Tests complete user workflows from UI to database |
-| **Scope** | Full system from user perspective |
+| **Definition** | Tests complete subsystem with stubbed external dependencies |
+| **Scope** | Complete subsystem validation |
+| **Speed** | < 10 seconds per test |
+| **Dependencies** | Real internal services, stubbed external APIs |
+
+**Characteristics:**
+- Validates subsystem behavior end-to-end
+- Stubbed external dependencies
+- Tests in SIT environment
+
+### End-to-End Testing (E2E) - 3%
+
+| Aspect | Details |
+|--------|---------|
+| **Definition** | Tests complete user workflows across entire system |
+| **Scope** | Full user flows from user perspective |
 | **Speed** | 30 seconds to minutes per test |
 | **Dependencies** | All real |
 
@@ -141,14 +158,15 @@ The industry testing pyramid is the standard 3-level testing model used by agile
 | Industry Level | ISTQB Equivalent | Note |
 |----------------|------------------|------|
 | Unit Testing (UT) | Component Testing | Same concept |
-| Integration Testing (IT) | Integration Testing | Same concept, IT vs SIT abbreviation |
-| E2E Testing | System Testing + Acceptance Testing | Industry combines these levels |
+| Integration Testing (IT) | Integration Testing | Same concept |
+| System Testing (ST) | System Testing | Same concept |
+| E2E Testing | Acceptance Testing | Industry E2E ≈ ISTQB Acceptance |
 
 ## Rules
 
 | Rule | Description | Priority |
 |------|-------------|----------|
-| Follow pyramid ratio | Target 70/20/10 ratio for UT/IT/E2E | Required |
+| Follow pyramid ratio | Target 70/20/7/3 ratio for UT/IT/ST/E2E (empirical, not mandatory) | Required |
 | Test at lowest level | Write tests at the lowest level that provides confidence | Recommended |
 | Avoid E2E for edge cases | Use unit tests for edge cases, not E2E | Recommended |
 | Integration for boundaries | Use integration tests to verify interface contracts | Recommended |

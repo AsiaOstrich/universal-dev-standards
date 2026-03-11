@@ -6,7 +6,7 @@ standard:
   name: Testing Standards
   description: Testing pyramid and recommended coverage ratios with framework options
   guidelines:
-    - "Follow 70/20/10 testing pyramid"
+    - "Follow 70/20/7/3 testing pyramid (UT/IT/ST/E2E)"
     - "Use FIRST principles for unit tests"
     - "Structure tests with Arrange-Act-Assert"
     - "Use meaningful test names"
@@ -29,21 +29,24 @@ standard:
         best_for: Agile development, CI/CD optimization, rapid iteration
 
   pyramid:
-    ratio: "70/20/10"
-    note: "Industry standard ratio. ISTQB framework uses 4 levels without fixed ratios."
+    ratio: "70/20/7/3"
+    note: "Recommended ratio based on Mike Cohn's test pyramid (empirical, not mandatory). ISTQB defines 4 levels: UT/IT/ST/E2E."
     levels:
       - name: Unit Tests (UT)
         percentage: 70
         scope: Single function/method
         speed: Very fast (<100ms)
-      - name: Integration Tests (IT/SIT)
+      - name: Integration Tests (IT)
         percentage: 20
-        scope: Multiple components
+        scope: Multiple components interacting
         speed: Fast (<1s)
-        note: "IT (Agile/DevOps) or SIT (Enterprise/ISTQB) - both refer to integration testing"
+      - name: System Tests (ST)
+        percentage: 7
+        scope: Complete subsystem with stubbed external dependencies
+        speed: Medium (<10s)
       - name: E2E Tests
-        percentage: 10
-        scope: User flows / System testing
+        percentage: 3
+        scope: Full user flows across entire system
         speed: Slow (>10s)
 
   options:
@@ -80,7 +83,7 @@ standard:
   rules:
     - id: follow-pyramid
       trigger: planning test strategy
-      instruction: Follow 70/20/7/3 ratio for UT/IT/ST/E2E
+      instruction: Follow 70/20/7/3 recommended ratio for UT/IT/ST/E2E (Mike Cohn empirical, not mandatory)
       priority: required
     - id: first-principles
       trigger: writing tests
