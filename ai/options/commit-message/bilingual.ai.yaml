@@ -81,8 +81,43 @@ rules:
 
   - id: bilingual-body
     trigger: writing commit body
-    instruction: Write body in both languages, English first
-    priority: recommended
+    instruction: |
+      MUST write body in BOTH languages with this exact structure:
+      1. English body paragraph(s) first
+      2. Blank line separator
+      3. Chinese body paragraph(s) second
+      4. Blank line separator
+      5. Footer (BREAKING CHANGE, Fixes #, Co-authored-by)
+      Never mix languages within the same paragraph.
+      Never omit the Chinese body section.
+    priority: required
+
+anti_patterns:
+  - id: mixed-language-body
+    description: Mixing English and Chinese in the same paragraph
+    bad_example: |
+      Add login form and 新增登入表單 for better UX.
+    good_example: |
+      Add login form for better UX.
+
+      新增登入表單以改善使用者體驗。
+
+  - id: missing-chinese-body
+    description: Writing only English body without Chinese translation
+    bad_example: |
+      feat(auth): Add login form. 新增登入表單.
+
+      Implement login form with email and password fields.
+
+      Closes #123
+    good_example: |
+      feat(auth): Add login form. 新增登入表單.
+
+      Implement login form with email and password fields.
+
+      實作包含電子郵件和密碼欄位的登入表單。
+
+      Closes #123
 
 examples:
   simple: "feat(auth): Add login form. 新增登入表單."

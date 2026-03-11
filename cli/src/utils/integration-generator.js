@@ -275,7 +275,8 @@ ${typesTable}
 ### Rules | 規則
 - Subject line: max 72 characters | 主題行: 最多 72 字元
 - Use imperative mood | 使用祈使語氣
-- Body: explain WHAT and WHY | 本文: 說明做了什麼及為什麼`;
+- Body: MUST include both English and Chinese, English first | 本文: 必須雙語，英文在前中文在後
+- NEVER mix languages in one paragraph | 禁止同段落混合語言`;
     } else if (commitLanguage === 'bilingual-zhcn') {
       return `## Commit Message Standards | 提交消息标准
 Reference: .standards/commit-message-guide.md, .standards/options/bilingual.ai.yaml
@@ -297,7 +298,8 @@ ${typesTable}
 ### Rules | 规则
 - Subject line: max 72 characters | 主题行: 最多 72 字符
 - Use imperative mood | 使用祈使语气
-- Body: explain WHAT and WHY | 本文: 说明做了什么及为什么`;
+- Body: MUST include both English and Chinese, English first | 本文: 必须双语，英文在前中文在后
+- NEVER mix languages in one paragraph | 禁止同段落混合语言`;
     } else {
       return `## Commit Message Standards
 Reference: .standards/commit-message-guide.md
@@ -383,10 +385,29 @@ ${typesTable}
 - No period at the end | 結尾不加句點
 - Include both EN and ZH subjects | 包含英文和中文主旨
 
-### Body Guidelines | 本文指引
+### Body Guidelines (REQUIRED) | 本文指引（必須）
+- MUST write body in BOTH languages | 必須使用雙語撰寫本文
+- English body FIRST, then blank line, then Chinese body | 英文本文在前，空行分隔，中文本文在後
+- NEVER mix languages in the same paragraph | 禁止在同一段落混合語言
+- NEVER omit the Chinese body section | 禁止省略中文本文
 - Wrap at 72 characters | 每行 72 字元換行
-- Explain WHAT and WHY | 說明做了什麼及為什麼
-- Write English first, then Chinese | 先英文後中文
+
+### Bilingual Body Example | 雙語本文範例
+\`\`\`
+feat(auth): Add login form. 新增登入表單.
+
+Implement login form with email and password fields.
+Add client-side validation for required fields.
+
+實作包含電子郵件和密碼欄位的登入表單。
+新增必填欄位的前端驗證。
+
+Closes #123
+\`\`\`
+
+### ❌ Anti-Patterns | 反面模式
+- Mixed: \`Add login 新增登入 for UX\` → Separate into two paragraphs
+- Missing Chinese body → Always include both languages
 
 ### Footer Format | 頁腳格式
 - Breaking changes: \`BREAKING CHANGE: description\`
@@ -418,10 +439,29 @@ ${typesTable}
 - No period at the end | 结尾不加句点
 - Include both EN and ZH subjects | 包含英文和中文主旨
 
-### Body Guidelines | 本文指引
+### Body Guidelines (REQUIRED) | 本文指引（必须）
+- MUST write body in BOTH languages | 必须使用双语撰写本文
+- English body FIRST, then blank line, then Chinese body | 英文本文在前，空行分隔，中文本文在后
+- NEVER mix languages in the same paragraph | 禁止在同一段落混合语言
+- NEVER omit the Chinese body section | 禁止省略中文本文
 - Wrap at 72 characters | 每行 72 字符换行
-- Explain WHAT and WHY | 说明做了什么及为什么
-- Write English first, then Chinese | 先英文后中文
+
+### Bilingual Body Example | 双语本文范例
+\`\`\`
+feat(auth): Add login form. 新增登录表单.
+
+Implement login form with email and password fields.
+Add client-side validation for required fields.
+
+实现包含电子邮件和密码字段的登录表单。
+新增必填字段的前端验证。
+
+Closes #123
+\`\`\`
+
+### ❌ Anti-Patterns | 反面模式
+- Mixed: \`Add login 新增登录 for UX\` → Separate into two paragraphs
+- Missing Chinese body → Always include both languages
 
 ### Footer Format | 页脚格式
 - Breaking changes: \`BREAKING CHANGE: description\`
@@ -2431,13 +2471,16 @@ function generateCommitLanguageDirective(commitLanguage, language) {
 
   if (commitLanguage === 'bilingual' || commitLanguage === 'bilingual-zhcn') {
     const secondary = commitLanguage === 'bilingual-zhcn' ? '简体中文' : '繁體中文';
+    const bodyRule = commitLanguage === 'bilingual-zhcn'
+      ? '本文必须双语：英文在前 → 空行 → 中文在后。禁止混合语言。'
+      : '本文必須雙語：英文在前 → 空行 → 中文在後。禁止混合語言。';
     if (language === 'zh-tw') {
-      return `## 提交訊息語言\n使用**雙語**格式撰寫提交訊息（英文 + ${secondary}）。\n格式：\`<type>(<scope>): <English>. <中文>.\``;
+      return `## 提交訊息語言\n使用**雙語**格式撰寫提交訊息（英文 + ${secondary}）。\n格式：\`<type>(<scope>): <English>. <中文>.\`\n${bodyRule}`;
     }
     if (language === 'zh-cn') {
-      return `## 提交消息语言\n使用**双语**格式撰写提交消息（英文 + ${secondary}）。\n格式：\`<type>(<scope>): <English>. <中文>.\``;
+      return `## 提交消息语言\n使用**双语**格式撰写提交消息（英文 + ${secondary}）。\n格式：\`<type>(<scope>): <English>. <中文>.\`\n${bodyRule}`;
     }
-    return `## Commit Message Language\nWrite commit messages in **bilingual** format (English + ${secondary}).\nFormat: \`<type>(<scope>): <English>. <中文>.\``;
+    return `## Commit Message Language\nWrite commit messages in **bilingual** format (English + ${secondary}).\nFormat: \`<type>(<scope>): <English>. <中文>.\`\nBody MUST be bilingual: English first → blank line → Chinese second. NEVER mix languages in one paragraph.`;
   }
 
   return null;

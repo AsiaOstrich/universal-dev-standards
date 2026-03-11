@@ -248,6 +248,39 @@ feat, fix, refactor, docs, style, test, perf, build, ci, chore, revert, security
 
 ---
 
+## Bilingual Body Convention
+
+When using bilingual commit messages, the body MUST follow this exact structure:
+
+```
+<type>(<scope>): <English subject>. <中文主旨>.
+                                                    ← blank line
+<English body>                                      ← English explanation first
+                                                    ← blank line
+<中文本文>                                           ← Chinese explanation second
+                                                    ← blank line
+<footer>                                            ← BREAKING CHANGE, Fixes #, etc.
+```
+
+### Structure Rules
+
+1. **English body first** — Write the full English explanation (paragraph + bullet points if needed)
+2. **Blank line separator** — One blank line between English and Chinese sections
+3. **Chinese body second** — Write the full Chinese explanation (mirrors the English content)
+4. **Blank line before footer** — One blank line before any footer lines
+5. **No language mixing** — Each paragraph must be entirely in one language
+
+### Anti-Patterns
+
+| Pattern | Problem | Fix |
+|---------|---------|-----|
+| Mixed paragraph: `Add login 新增登入` | Languages mixed in one paragraph | Separate into two paragraphs |
+| English body only | Missing Chinese body | Add Chinese body after English |
+| Chinese body only | Missing English body | Add English body before Chinese |
+| Footer between bodies | Footer splits the bilingual content | Move footer to the end |
+
+---
+
 ## Related Standards
 
 - [Commit Message Guide](../../core/commit-message-guide.md)
