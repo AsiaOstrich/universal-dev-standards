@@ -24,8 +24,7 @@ Inspired by the CARL framework's context-aware loading principle: load what you 
 
 ### Desired Behavior
 
-- Standards declare their own activation conditions (`activation` field in `.ai.yaml`)
-- `manifest.json` defines `domains` mapping task contexts to standard subsets
+- `manifest.json` defines `domains` mapping task contexts to standard subsets (single source of truth)
 - A subset of standards is designated `always-on` (loaded regardless of task)
 - AI tools can selectively load standards based on the current activity
 
@@ -33,37 +32,31 @@ Inspired by the CARL framework's context-aware loading principle: load what you 
 
 | ID | Description | Priority |
 |----|-------------|----------|
-| REQ-001 | `.ai.yaml` format supports `activation` field with `domain`, `triggers`, and `priority` | P0 |
-| REQ-002 | `manifest.json` defines `domains` mapping (domain name → standard list) | P0 |
-| REQ-003 | Standards classified as `always-on` are loaded in every session | P0 |
-| REQ-004 | Standards classified as `on-demand` are loaded only when domain/triggers match | P1 |
-| REQ-005 | New core standard documents the context-aware loading protocol | P1 |
+| REQ-001 | `manifest.json` `domains` field is the single source of truth, mapping domain names to arrays of standard file paths | P0 |
+| REQ-002 | Standards classified as `always-on` are loaded in every session | P0 |
+| REQ-003 | Standards classified as `on-demand` are loaded only when domain/triggers match | P1 |
+| REQ-004 | New core standard documents the context-aware loading protocol | P1 |
 
 ## 4. Acceptance Criteria
 
-### AC-1: Activation Field in .ai.yaml
-
-**Given** a `.ai.yaml` standard file
-**When** it includes an `activation` section
-**Then** it declares: `domain` (category), `triggers` (keywords/patterns), and `priority` (always-on / on-demand)
-
-### AC-2: Domains in manifest.json
+### AC-1: Domains Configuration in manifest.json
 
 **Given** the project's `manifest.json`
 **When** a `domains` field is present
 **Then** it maps domain names to arrays of standard file paths
 **And** includes an `always-on` domain with core standards
+**And** is the single source of truth for all domain→standard mappings
 
-### AC-3: Always-On Standards
+### AC-2: Always-On Standards
 
 **Given** the following standards: `anti-hallucination`, `commit-message`, `checkin-standards`, `project-context-memory`, `developer-memory`
 **When** any AI session starts
 **Then** these standards are always loaded regardless of task context
 
-### AC-4: On-Demand Loading
+### AC-3: On-Demand Loading
 
-**Given** standards with `priority: on-demand` and specific `triggers`
-**When** the user's task matches those triggers (e.g., writing tests, doing code review)
+**Given** standards assigned to on-demand domains with specific triggers in `manifest.json`
+**When** the user's task matches those domain triggers (e.g., writing tests, doing code review)
 **Then** only the matching standards are loaded into context
 
 ## 5. Domain Classification
@@ -90,7 +83,7 @@ Inspired by the CARL framework's context-aware loading principle: load what you 
 ## 7. Test Plan
 
 - [ ] `manifest.json` includes valid `domains` mapping
-- [ ] At least 5 standards have `activation` field defined
+- [ ] `manifest.json` `domains` covers all non-always-on standards
 - [ ] `always-on` domain includes the 5 core standards
 - [ ] Standards sync check passes after changes
 

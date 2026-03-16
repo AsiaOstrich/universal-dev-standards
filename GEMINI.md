@@ -8,7 +8,7 @@ This document defines the development standards and context for the Universal De
 
 Universal Development Standards is a language-agnostic, framework-agnostic documentation standards framework. It provides:
 
-- **Core Standards** (`core/`): 23 fundamental development standards
+- **Core Standards** (`core/`): 34 fundamental development standards
 - **AI Skills** (`skills/`): AI skills for assisted development
 - **CLI Tool** (`cli/`): Node.js CLI for adopting standards
 - **Integrations** (`integrations/`): Configurations for various AI tools
@@ -169,7 +169,7 @@ Reference: `core/refactoring-standards.md`
 
 本專案採用 UDS 標準。所有規範位於 `.standards/`：
 
-### Core (40 standards)
+### Core (41 standards)
 - `anti-hallucination.ai.yaml` - anti-hallucination.ai.yaml
 - `ai-friendly-architecture.ai.yaml` - ai-friendly-architecture.ai.yaml
 - `commit-message.ai.yaml` - 提交訊息格式
@@ -210,4 +210,5 @@ Reference: `core/refactoring-standards.md`
 - `deployment-standards.ai.yaml` - deployment-standards.ai.yaml
 - `developer-memory.ai.yaml` - 開發者持久記憶
 - `project-context-memory.ai.yaml` - 專案情境記憶
+- `context-aware-loading.ai.yaml` - 上下文感知標準載入
 <!-- UDS:STANDARDS:END -->

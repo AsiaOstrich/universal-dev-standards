@@ -21,8 +21,8 @@ This standard defines a protocol for AI tools to selectively load development st
 |---------|-------------|
 | **Domain** | A named group of related standards (e.g., `testing`, `quality`) |
 | **Always-On** | Standards loaded in every session regardless of task |
-| **On-Demand** | Standards loaded only when the task context matches their triggers |
-| **Activation** | The mechanism by which a standard declares when it should be loaded |
+| **On-Demand** | Standards loaded only when the task context matches their domain triggers |
+| **Manifest Domains** | The single source of truth for domain→standard mappings (`manifest.json`) |
 
 ---
 
@@ -55,22 +55,7 @@ These standards are fundamental to every AI interaction and must always be loade
 
 ## 2. Activation Protocol
 
-### 2.1 Standard Activation Field
-
-Each `.ai.yaml` file may include an `activation` section:
-
-```yaml
-activation:
-  domain: testing          # Which domain this belongs to
-  priority: on-demand      # always-on | on-demand
-  triggers:                # Keywords/patterns that activate this standard
-    - "write tests"
-    - "test coverage"
-    - "*.test.*"           # File pattern
-    - "/tdd"               # Command pattern
-```
-
-### 2.2 Loading Decision Flow
+### 2.1 Loading Decision Flow
 
 ```
 Session Start
@@ -81,7 +66,7 @@ Session Start
   └─ Load matching on-demand standards
 ```
 
-### 2.3 Manifest Domains Configuration
+### 2.2 Manifest Domains Configuration
 
 Projects configure domain mappings in `manifest.json`:
 
@@ -114,10 +99,10 @@ Projects configure domain mappings in `manifest.json`:
 
 ### 3.1 For Standard Authors
 
-- Add `activation` section to new `.ai.yaml` standards
+- Register new standards in `manifest.json` under the appropriate domain
 - Choose `always-on` only for standards that genuinely apply to every interaction
-- Define specific, actionable triggers (not vague keywords)
-- Assign to exactly one domain
+- Define specific, actionable triggers in the domain configuration (not vague keywords)
+- Assign each standard to exactly one domain
 
 ### 3.2 For AI Tool Integrations
 
@@ -128,7 +113,6 @@ Projects configure domain mappings in `manifest.json`:
 
 ### 3.3 Backward Compatibility
 
-- Standards without an `activation` field default to `always-on` behavior
 - Existing `manifest.json` without `domains` continues to work (all standards loaded)
 - The `domains` field is additive — it does not remove existing `standards` list behavior
 

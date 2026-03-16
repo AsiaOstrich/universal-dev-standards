@@ -7,20 +7,15 @@ standard:
   description: Protocol for AI tools to selectively load standards based on task context, reducing token usage and improving focus
   guidelines:
     - "Always load 'always-on' standards: anti-hallucination, commit-message, checkin-standards, project-context-memory, developer-memory"
-    - "Load 'on-demand' standards only when task context matches their activation triggers"
+    - "Load 'on-demand' standards only when task context matches their domain triggers"
     - "When in doubt, load the standard — false positives are better than missing context"
-    - "Standards without activation field default to always-on behavior"
+    - "manifest.json domains is the single source of truth for domain→standard mappings"
 
   meta:
     version: "1.0.0"
     updated: "2026-03-16"
     source: core/context-aware-loading.md
     description: Protocol for AI tools to selectively load standards based on task context
-
-  activation:
-    domain: always-on
-    priority: always-on
-    triggers: []
 
   domains:
     always-on:
@@ -156,14 +151,6 @@ standard:
         /review, /refactor, /check → quality
         /docs, /changelog, /generate-docs → documentation
         /release, /commit → workflow
-      priority: required
-
-    - id: backward-compatibility
-      trigger: "standard has no activation field"
-      instruction: >
-        Standards without an explicit 'activation' section are treated
-        as always-on for backward compatibility. This ensures no standard
-        is silently dropped when context-aware loading is adopted.
       priority: required
 
   architecture:
