@@ -1,5 +1,13 @@
-import { describe, it, expect } from 'vitest';
-import { displayLanguageToLocale, isLocalizedLocale } from '../../../src/utils/locale.js';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { mkdirSync, writeFileSync, rmSync, existsSync } from 'fs';
+import { join } from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { displayLanguageToLocale, isLocalizedLocale, detectLocaleFromStandards } from '../../../src/utils/locale.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const TEST_DIR = join(__dirname, '../../temp/locale-test');
 
 describe('Locale Utils', () => {
   describe('displayLanguageToLocale', () => {
@@ -51,6 +59,52 @@ describe('Locale Utils', () => {
 
     it('should return false for empty string', () => {
       expect(isLocalizedLocale('')).toBeFalsy();
+    });
+  });
+
+  describe('detectLocaleFromStandards', () => {
+    beforeEach(() => {
+      if (existsSync(TEST_DIR)) {
+        rmSync(TEST_DIR, { recursive: true, force: true });
+      }
+      mkdirSync(TEST_DIR, { recursive: true });
+    });
+
+    afterEach(() => {
+      if (existsSync(TEST_DIR)) {
+        rmSync(TEST_DIR, { recursive: true, force: true });
+      }
+    });
+
+    it('should return zh-TW when .standards/zh-tw.md exists', () => {
+      const standardsDir = join(TEST_DIR, '.standards');
+      mkdirSync(standardsDir, { recursive: true });
+      writeFileSync(join(standardsDir, 'zh-tw.md'), '# zh-TW locale');
+
+      expect(detectLocaleFromStandards(TEST_DIR)).toBe('zh-TW');
+    });
+
+    it('should return zh-CN when .standards/zh-cn.md exists', () => {
+      const standardsDir = join(TEST_DIR, '.standards');
+      mkdirSync(standardsDir, { recursive: true });
+      writeFileSync(join(standardsDir, 'zh-cn.md'), '# zh-CN locale');
+
+      expect(detectLocaleFromStandards(TEST_DIR)).toBe('zh-CN');
+    });
+
+    it('should return null when no locale file exists', () => {
+      const standardsDir = join(TEST_DIR, '.standards');
+      mkdirSync(standardsDir, { recursive: true });
+
+      expect(detectLocaleFromStandards(TEST_DIR)).toBeNull();
+    });
+
+    it('should return null when .standards directory does not exist', () => {
+      expect(detectLocaleFromStandards(TEST_DIR)).toBeNull();
+    });
+
+    it('should return null when projectPath is null', () => {
+      expect(detectLocaleFromStandards(null)).toBeNull();
     });
   });
 });

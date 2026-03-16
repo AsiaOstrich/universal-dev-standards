@@ -612,4 +612,53 @@ describe('Skills Installer', () => {
       expect(manifest.locale).toBe('en');
     });
   });
+
+  describe('installCommandsForAgent with locale', () => {
+    it('should use localized command file when locale is zh-TW and translation exists', async () => {
+      // 'bdd' has a zh-TW translation in locales/zh-TW/skills/commands/bdd.md
+      const result = await installCommandsForAgent('opencode', 'project', ['bdd'], TEST_DIR, 'zh-TW');
+
+      expect(result.success).toBe(true);
+      expect(result.installed).toContain('bdd');
+
+      // Read installed file and verify it contains Chinese content
+      const targetDir = result.targetDir;
+      const content = readFileSync(join(targetDir, 'bdd.md'), 'utf-8');
+      expect(content).toContain('引導行為驅動開發');
+    });
+
+    it('should fall back to English when locale is zh-TW but no translation exists', async () => {
+      // 'commit' does NOT have a zh-TW translation in locales/zh-TW/skills/commands/
+      const result = await installCommandsForAgent('opencode', 'project', ['commit'], TEST_DIR, 'zh-TW');
+
+      expect(result.success).toBe(true);
+      expect(result.installed).toContain('commit');
+
+      // Should still install successfully with English content
+      const targetDir = result.targetDir;
+      const content = readFileSync(join(targetDir, 'commit.md'), 'utf-8');
+      expect(content).toBeTruthy();
+    });
+
+    it('should use English source when locale is en (no regression)', async () => {
+      const result = await installCommandsForAgent('opencode', 'project', ['commit'], TEST_DIR, 'en');
+
+      expect(result.success).toBe(true);
+      expect(result.installed).toContain('commit');
+    });
+
+    it('should use English source when locale is not provided (default)', async () => {
+      const resultDefault = await installCommandsForAgent('opencode', 'project', ['commit'], TEST_DIR);
+      const targetDir = resultDefault.targetDir;
+      const contentDefault = readFileSync(join(targetDir, 'commit.md'), 'utf-8');
+
+      // Clean up and install with explicit 'en'
+      rmSync(targetDir, { recursive: true, force: true });
+      const resultEn = await installCommandsForAgent('opencode', 'project', ['commit'], TEST_DIR, 'en');
+      const contentEn = readFileSync(join(resultEn.targetDir, 'commit.md'), 'utf-8');
+
+      // Both should produce identical content
+      expect(contentDefault).toBe(contentEn);
+    });
+  });
 });

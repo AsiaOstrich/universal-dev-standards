@@ -68,6 +68,34 @@ function getLocalizedSkillsSourceDir(locale) {
   return enDir;
 }
 
+/**
+ * Get the localized Commands source directory for a given locale.
+ * Falls back to the English commands directory if the localized path does not exist.
+ * @param {string} locale - Locale identifier (e.g., 'zh-TW', 'zh-CN', 'en')
+ * @returns {string} Path to commands source directory for the locale
+ */
+function getLocalizedCommandsSourceDir(locale) {
+  const enDir = join(getSkillsSourceDir(), 'commands');
+  if (!isLocalizedLocale(locale)) {
+    return enDir;
+  }
+
+  // Try bundled path first (npm install)
+  const bundledPath = join(BUNDLED_DIR, 'locales', locale, 'skills', 'commands');
+  if (existsSync(bundledPath)) {
+    return bundledPath;
+  }
+
+  // Development environment fallback
+  const devPath = join(CLI_ROOT, '..', 'locales', locale, 'skills', 'commands');
+  if (existsSync(devPath)) {
+    return devPath;
+  }
+
+  // Locale directory not found, fall back to English
+  return enDir;
+}
+
 const SKILLS_LOCAL_DIR = getSkillsSourceDir();
 const COMMANDS_LOCAL_DIR = join(SKILLS_LOCAL_DIR, 'commands');
 
@@ -423,9 +451,10 @@ function writeSkillsManifestForAgent(agent, level, targetDir, locale = 'en') {
  * @param {string} level - 'user' or 'project'
  * @param {string[]} commandNames - Array of command names to install (null = all)
  * @param {string} projectPath - Project root path (required for project level)
+ * @param {string} locale - Locale for command content (default: 'en')
  * @returns {Object} Installation result
  */
-export async function installCommandsForAgent(agent, level = 'project', commandNames = null, projectPath = null) {
+export async function installCommandsForAgent(agent, level = 'project', commandNames = null, projectPath = null, locale = 'en') {
   const config = getAgentConfig(agent);
   if (!config || !config.commands) {
     return {
@@ -471,7 +500,7 @@ export async function installCommandsForAgent(agent, level = 'project', commandN
   };
 
   for (const cmdName of toInstall) {
-    const result = installSingleCommand(cmdName, targetDir, agent);
+    const result = installSingleCommand(cmdName, targetDir, agent, locale);
     if (result.success) {
       results.installed.push(cmdName);
     } else {
@@ -522,10 +551,22 @@ function getCommandFileExtension(agent) {
  * @param {string} cmdName - Command name (without .md)
  * @param {string} targetDir - Target directory
  * @param {string} agent - Agent identifier (for potential format transformation)
+ * @param {string} locale - Locale for command content (default: 'en')
  * @returns {Object} Result
  */
-function installSingleCommand(cmdName, targetDir, agent) {
-  const sourcePath = join(COMMANDS_LOCAL_DIR, `${cmdName}.md`);
+function installSingleCommand(cmdName, targetDir, agent, locale = 'en') {
+  let sourcePath = join(COMMANDS_LOCAL_DIR, `${cmdName}.md`);
+
+  // Check for localized command file
+  if (isLocalizedLocale(locale)) {
+    const localizedDir = getLocalizedCommandsSourceDir(locale);
+    const localizedPath = join(localizedDir, `${cmdName}.md`);
+    if (existsSync(localizedPath)) {
+      sourcePath = localizedPath;
+    }
+    // else: fall back to English source
+  }
+
   const targetExt = getCommandFileExtension(agent);
   const targetPath = join(targetDir, `${cmdName}${targetExt}`);
 
@@ -896,9 +937,10 @@ export async function installSkillsToMultipleAgents(installations, skillNames = 
  *        Can be either [{agent, level}] objects or simple agent strings (defaults to 'project' level)
  * @param {string[]} commandNames - Commands to install (null = all)
  * @param {string} projectPath - Project root path (required for project level)
+ * @param {string} locale - Locale for command content (default: 'en')
  * @returns {Object} Combined results
  */
-export async function installCommandsToMultipleAgents(installations, commandNames = null, projectPath = null) {
+export async function installCommandsToMultipleAgents(installations, commandNames = null, projectPath = null, locale = 'en') {
   // Normalize to {agent, level} objects first, then deduplicate
   const normalized = installations.map(item =>
     typeof item === 'string' ? { agent: item, level: 'project' } : { agent: item.agent, level: item.level || 'project' }
@@ -920,7 +962,7 @@ export async function installCommandsToMultipleAgents(installations, commandName
     const config = getAgentConfig(agent);
     if (!config?.commands) continue; // Skip agents that don't support commands
 
-    const result = await installCommandsForAgent(agent, level, commandNames, projectPath);
+    const result = await installCommandsForAgent(agent, level, commandNames, projectPath, locale);
     results.installations.push(result);
 
     if (!result.success) {

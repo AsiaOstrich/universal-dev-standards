@@ -20,6 +20,7 @@ import {
   installCommandsToMultipleAgents
 } from '../utils/skills-installer.js';
 import { writeManifest } from '../core/manifest.js';
+import { displayLanguageToLocale } from '../utils/locale.js';
 import { computeFileHash } from '../utils/hasher.js';
 import { createBackup, cleanupBackups } from './backup-manager.js';
 
@@ -392,10 +393,12 @@ async function executeCommandBatch(projectPath, commandActions, manifest) {
 
     if (commandNames.length > 0) {
       try {
+        const cmdLocale = displayLanguageToLocale(manifest?.options?.display_language);
         const installResult = await installCommandsToMultipleAgents(
           manifest.commands.installations,
           commandNames,
-          projectPath
+          projectPath,
+          cmdLocale
         );
 
         if (installResult.allFileHashes) {

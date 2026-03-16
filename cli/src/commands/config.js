@@ -42,6 +42,7 @@ import {
   getAgentConfig,
   getAgentDisplayName
 } from '../config/ai-agent-paths.js';
+import { displayLanguageToLocale } from '../utils/locale.js';
 import {
   writeIntegrationFile,
   getToolFilePath
@@ -1118,7 +1119,8 @@ async function handleCommandsConfiguration(manifest, projectPath, msgObj, common
     // Install to selected level
     const installations = [{ agent: specificTool, level: commandsLevel }];
     const spinner = ora(`Installing Commands for ${getAgentDisplayName(specificTool)} (${commandsLevel} level)...`).start();
-    const result = await installCommandsToMultipleAgents(installations, null, projectPath);
+    const cmdLocale = displayLanguageToLocale(manifest.options?.display_language);
+    const result = await installCommandsToMultipleAgents(installations, null, projectPath, cmdLocale);
     spinner.stop();
 
     if (result.success) {
@@ -1226,7 +1228,8 @@ async function handleCommandsConfiguration(manifest, projectPath, msgObj, common
 
     // Install Commands
     const spinner = ora(msgObj.installingCommands || 'Installing Commands...').start();
-    const result = await installCommandsToMultipleAgents(declinedCommandsWithSupport, null, projectPath);
+    const cmdLocale = displayLanguageToLocale(manifest.options?.display_language);
+    const result = await installCommandsToMultipleAgents(declinedCommandsWithSupport, null, projectPath, cmdLocale);
     spinner.stop();
 
     if (result.success) {
@@ -1260,7 +1263,8 @@ async function handleCommandsConfiguration(manifest, projectPath, msgObj, common
 
   // Install Commands
   const spinner = ora(msgObj.installingCommands || 'Installing Commands...').start();
-  const result = await installCommandsToMultipleAgents(selectedAgents, null, projectPath);
+  const cmdLocale = displayLanguageToLocale(manifest.options?.display_language);
+  const result = await installCommandsToMultipleAgents(selectedAgents, null, projectPath, cmdLocale);
   spinner.stop();
 
   if (result.success) {

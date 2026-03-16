@@ -5,8 +5,11 @@
  * (lowercase, used in CLI options) and directory names (mixed case,
  * used in file system paths).
  *
- * @version 1.0.0
+ * @version 1.1.0
  */
+
+import { existsSync } from 'fs';
+import { join } from 'path';
 
 /**
  * Map from display language code to locale directory name.
@@ -39,8 +42,32 @@ export function isLocalizedLocale(locale) {
   return locale && locale !== 'en';
 }
 
+/**
+ * Detect locale from installed standards files when manifest lacks display_language.
+ * Checks for locale-specific files (e.g., .standards/zh-tw.md) in the project.
+ * @param {string} projectPath - Project root path
+ * @returns {string|null} Detected locale directory name (e.g., 'zh-TW') or null
+ */
+export function detectLocaleFromStandards(projectPath) {
+  if (!projectPath) return null;
+
+  const standardsDir = join(projectPath, '.standards');
+  if (!existsSync(standardsDir)) return null;
+
+  for (const [displayLang, locale] of Object.entries(LOCALE_MAP)) {
+    if (displayLang === 'en') continue;
+    const localeFile = join(standardsDir, `${displayLang}.md`);
+    if (existsSync(localeFile)) {
+      return locale;
+    }
+  }
+
+  return null;
+}
+
 export default {
   displayLanguageToLocale,
   isLocalizedLocale,
+  detectLocaleFromStandards,
   LOCALE_MAP
 };

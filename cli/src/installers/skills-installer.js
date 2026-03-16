@@ -211,7 +211,8 @@ export async function installCommands(skillsConfig, projectPath, messages, resul
   const cmdResult = await installCommandsToMultipleAgents(
     skillsConfig.commandsInstallations,
     null, // Install all commands
-    projectPath
+    projectPath,
+    skillsConfig.locale || 'en'
   );
 
   // Initialize commands results array if not exists

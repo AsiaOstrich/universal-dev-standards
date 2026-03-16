@@ -26,7 +26,7 @@ import {
   cleanupDuplicateSkills,
   cleanupLegacyCommands
 } from '../utils/skills-installer.js';
-import { displayLanguageToLocale } from '../utils/locale.js';
+import { displayLanguageToLocale, isLocalizedLocale, detectLocaleFromStandards } from '../utils/locale.js';
 import {
   getAgentDisplayName,
   getAgentConfig,
@@ -158,6 +158,21 @@ function checkNewStandards(manifest) {
   }
 
   return { newStandards, count: newStandards.length };
+}
+
+/**
+ * Resolve locale from manifest with fallback detection.
+ * If manifest has display_language, use it. Otherwise detect from .standards/ files.
+ * @param {Object} manifest - Project manifest
+ * @param {string} projectPath - Project root path
+ * @returns {string} Locale directory name (e.g., 'zh-TW', 'en')
+ */
+function resolveLocale(manifest, projectPath) {
+  const fromManifest = displayLanguageToLocale(manifest.options?.display_language);
+  if (isLocalizedLocale(fromManifest)) {
+    return fromManifest;
+  }
+  return detectLocaleFromStandards(projectPath) || 'en';
 }
 
 /**
@@ -575,7 +590,7 @@ export async function updateCommand(options) {
         // Install Skills if user agreed
         if (installSkills.length > 0) {
           const skillSpinner = ora(msg.installingNewSkills || 'Installing Skills...').start();
-          const skillsLocale = displayLanguageToLocale(manifest.options?.display_language);
+          const skillsLocale = resolveLocale(manifest, projectPath);
           const skillResult = await installSkillsToMultipleAgents(installSkills, null, projectPath, skillsLocale);
 
           // Update manifest
@@ -605,7 +620,7 @@ export async function updateCommand(options) {
         // Update outdated Skills if user agreed
         if (updateSkills.length > 0) {
           const updateSpinner = ora(msg.updatingSkills || 'Updating Skills...').start();
-          const updateLocale = displayLanguageToLocale(manifest.options?.display_language);
+          const updateLocale = resolveLocale(manifest, projectPath);
           const updateResult = await installSkillsToMultipleAgents(updateSkills, null, projectPath, updateLocale);
 
           // Update manifest version
@@ -630,7 +645,8 @@ export async function updateCommand(options) {
         // Install Commands if user agreed
         if (installCommands.length > 0) {
           const cmdSpinner = ora(msg.installingNewCommands || 'Installing commands...').start();
-          const cmdResult = await installCommandsToMultipleAgents(installCommands, null, projectPath);
+          const cmdLocale = resolveLocale(manifest, projectPath);
+          const cmdResult = await installCommandsToMultipleAgents(installCommands, null, projectPath, cmdLocale);
 
           // Update manifest
           if (!manifest.commands) manifest.commands = {};
@@ -659,7 +675,8 @@ export async function updateCommand(options) {
         // Update outdated Commands if user agreed
         if (updateCommands.length > 0) {
           const updateCmdSpinner = ora(msg.updatingCommands || 'Updating Commands...').start();
-          const updateCmdResult = await installCommandsToMultipleAgents(updateCommands, null, projectPath);
+          const updateCmdLocale = resolveLocale(manifest, projectPath);
+          const updateCmdResult = await installCommandsToMultipleAgents(updateCommands, null, projectPath, updateCmdLocale);
 
           // Update manifest version
           if (!manifest.commands) manifest.commands = {};
@@ -1141,7 +1158,7 @@ async function updateSkillsOnly(projectPath, manifest) {
 
   const spinner = ora(msg.installingSkills || 'Installing Skills...').start();
 
-  const skillsLocaleForUpdate = displayLanguageToLocale(manifest.options?.display_language);
+  const skillsLocaleForUpdate = resolveLocale(manifest, projectPath);
   const result = await installSkillsToMultipleAgents(
     fileBasedInstallations,
     null, // Install all skills
@@ -1235,10 +1252,12 @@ async function updateCommandsOnly(projectPath, manifest) {
 
   const spinner = ora(msg.installingCommands || 'Installing commands...').start();
 
+  const commandsLocale = resolveLocale(manifest, projectPath);
   const result = await installCommandsToMultipleAgents(
     commandsInstallations,
     null, // Install all commands
-    projectPath
+    projectPath,
+    commandsLocale
   );
 
   // Build location summary
