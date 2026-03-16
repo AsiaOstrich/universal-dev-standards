@@ -36,7 +36,7 @@ npm install -g universal-dev-standards@alpha
 
 | Feature | Description |
 | :--- | :--- |
-| **32 Core Standards** | 10 new standards including Security, Performance, Accessibility |
+| **33 Core Standards** | 10 new standards including Security, Performance, Accessibility |
 | **26 Skills / 30 Commands** | New `/requirement`, `/security`, `/perf` commands |
 | **Developer Memory** | Persistent memory across sessions (`.standards/developer-memory.ai.yaml`) |
 | **Enhanced i18n** | Commit language preferences, improved zh-CN support |

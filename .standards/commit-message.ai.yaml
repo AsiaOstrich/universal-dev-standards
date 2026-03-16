@@ -106,6 +106,18 @@ standard:
           - "Closes #123"
           - "Fixes #456"
           - "Refs #789"
+    - id: spec-reference-footer
+      trigger: committing changes related to a specification
+      instruction: >
+        When a commit implements, relates to, or is tracked by a specification document,
+        add a "Refs: SPEC-XXX" line in the footer. This enables bidirectional traceability
+        between code changes and their design specs.
+      priority: recommended
+      examples:
+        good:
+          - "Refs: SPEC-011"
+          - "Refs: SPEC-003, SPEC-005"
+          - "Implements: SPEC-011#AC-2"
 
 physical_spec:
   type: custom_script

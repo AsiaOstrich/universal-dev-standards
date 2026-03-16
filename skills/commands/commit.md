@@ -14,7 +14,8 @@ Generate well-formatted commit messages following the Conventional Commits stand
 
 1. **Check status** - Run `git status` and `git diff --staged` to understand changes
 2. **Analyze changes** - Determine the type (feat, fix, refactor, etc.) and scope
-3. **Generate message** - Create a commit message following the format:
+3. **Spec tracking assessment** - Evaluate whether this change needs a spec (see below)
+4. **Generate message** - Create a commit message following the format:
    ```
    <type>(<scope>): <subject>
 
@@ -22,7 +23,27 @@ Generate well-formatted commit messages following the Conventional Commits stand
 
    <footer>
    ```
-4. **Confirm and commit** - Ask user to confirm before executing `git commit`
+5. **Confirm and commit** - Ask user to confirm before executing `git commit`
+
+## Spec Tracking Assessment | Spec 追蹤評估
+
+After analyzing the changes, evaluate whether a spec should be created or linked:
+
+| Condition | Suggestion | 建議 |
+|-----------|-----------|------|
+| Type is `feat` or `fix` | Suggest creating/linking a spec | 建議建立或關聯 spec |
+| >3 files modified | Suggest creating a spec | 建議建立 spec |
+| Public API signature changed | Strongly suggest a spec | 強烈建議建立 spec |
+| Type is `docs`, `style`, `chore`, `test` | No spec needed | 不需要 spec |
+
+**Assessment output | 評估輸出：**
+- 🟢 **No spec needed** — Skip for docs/style/chore/test changes
+- 🟡 **Consider a spec** — Moderate changes (feat/fix, ≤3 files)
+- 🔴 **Spec recommended** — Large changes (>3 files) or API changes
+
+If a spec exists or is created, add `Refs: SPEC-XXX` to the commit footer.
+
+The user can always accept or ignore the suggestion — this is advisory, not blocking.
 
 ## Commit Types | 提交類型
 

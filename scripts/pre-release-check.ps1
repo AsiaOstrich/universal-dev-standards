@@ -44,10 +44,10 @@ $CliDir = Join-Path $RootDir "cli"
 $Passed = 0
 $Failed = 0
 $Skipped = 0
-$Total = 15
+$Total = 16
 
 if ($SkipTests) {
-    $Total = 14
+    $Total = 15
 }
 
 # Function to run a check
@@ -208,16 +208,34 @@ try {
     # Step 14: Linting
     Run-Check -Step 14 -Name "Running linting" -Command "npm run lint --prefix `"$CliDir`""
 
-    # Step 15: Tests
+    # Step 15: Orphan Spec Detection
+    Write-Host "[15/$Total] " -ForegroundColor Cyan -NoNewline
+    Write-Host "Running orphan spec detection | 孤兒 Spec 偵測..."
+    try {
+        $orphanOutput = & "$ScriptDir\check-orphan-specs.ps1" 2>&1 | Out-String
+        if ($orphanOutput -match "orphan spec") {
+            Write-Host "      " -NoNewline
+            Write-Host "[!] Orphan specs detected (warning only)" -ForegroundColor Yellow
+        } else {
+            Write-Host "      " -NoNewline
+            Write-Host "[OK] No orphan specs" -ForegroundColor Green
+        }
+    } catch {
+        Write-Host "      " -NoNewline
+        Write-Host "[OK] No orphan specs (or script not found)" -ForegroundColor Green
+    }
+    $Passed++
+
+    # Step 16: Tests
     if ($SkipTests) {
-        Write-Host "[15/$Total] " -ForegroundColor Cyan -NoNewline
+        Write-Host "[16/$Total] " -ForegroundColor Cyan -NoNewline
         Write-Host "Running tests..."
         Write-Host "      " -NoNewline
         Write-Host "[SKIP] Skipped (-SkipTests flag)" -ForegroundColor Yellow
         $Skipped++
     }
     else {
-        Run-Check -Step 15 -Name "Running tests" -Command "npm test --prefix `"$CliDir`""
+        Run-Check -Step 16 -Name "Running tests" -Command "npm test --prefix `"$CliDir`""
     }
 
     # Show summary

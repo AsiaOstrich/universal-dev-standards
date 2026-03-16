@@ -6,7 +6,7 @@ This document defines the development standards for the Universal Development St
 
 Universal Development Standards is a language-agnostic, framework-agnostic documentation standards framework. It provides:
 
-- **Core Standards** (`core/`): 32 fundamental development standards
+- **Core Standards** (`core/`): 33 fundamental development standards
 - **AI Skills** (`skills/`): Claude Code skills for AI-assisted development
 - **CLI Tool** (`cli/`): Node.js CLI for adopting standards
 - **Integrations** (`integrations/`): Configurations for various AI tools
@@ -437,6 +437,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 | Any commit | Check-in Standards | [core/checkin-standards.md](core/checkin-standards.md) |
 | New feature design | Spec-Driven Development | [core/spec-driven-development.md](core/spec-driven-development.md) |
 | Adding/modifying Core↔Skill | /sdd + Sync Check | See "Core↔Skill Sync Rules" below |
+| Retroactive spec tracking | /sdd-retro | See "Spec Tracking" below |
 | Writing AI instructions | AI Instruction Standards | [core/ai-instruction-standards.md](core/ai-instruction-standards.md) |
 | Writing documentation | Documentation Writing | [core/documentation-writing-standards.md](core/documentation-writing-standards.md) |
 | Project architecture for AI | AI-Friendly Architecture | [core/ai-friendly-architecture.md](core/ai-friendly-architecture.md) |
@@ -541,6 +542,7 @@ After ANY modification, run:
 ./scripts/check-spec-sync.sh        # Core↔Skill sync
 ./scripts/check-scope-sync.sh       # Scope universality check
 ./scripts/check-docs-integrity.sh   # Documentation integrity
+./scripts/check-orphan-specs.sh     # Orphan spec detection
 cd cli && npm test && npm run lint
 ```
 
@@ -679,6 +681,46 @@ Expected output:
 ⚠ docs-generator (utility, no core standard required)
 ✓ All Skills synced with Core Standards
 ```
+
+### Spec Tracking / Spec 追蹤
+
+#### AI-Driven Spec Assessment at Commit Time / 提交時的 AI 驅動 Spec 評估
+
+The `/commit` command includes a spec tracking assessment step. After analyzing changes, the AI evaluates whether a specification should be created or linked:
+
+- **feat/fix** commits → suggest creating or linking a spec
+- **>3 files** modified → suggest creating a spec
+- **Public API** changes → strongly recommend a spec
+- **docs/style/chore/test** → no spec needed
+
+When a spec is linked, add `Refs: SPEC-XXX` to the commit footer.
+
+#### Retroactive Spec Tracking / 追溯 Spec 追蹤
+
+For changes that were committed without spec tracking (e.g., emergency hotfixes), use:
+
+```
+/sdd-retro              # Scan all untracked feat/fix commits
+/sdd-retro --last=10    # Scan last 10 commits
+```
+
+This generates lightweight retroactive specs in `docs/specs/retro/`.
+
+#### Orphan Spec Detection / 孤兒 Spec 偵測
+
+Specs stuck in non-terminal states (not Archived/Stable) are detected during pre-release checks:
+
+**macOS / Linux:**
+```bash
+./scripts/check-orphan-specs.sh [--verbose] [--strict]
+```
+
+**Windows PowerShell:**
+```powershell
+.\scripts\check-orphan-specs.ps1 [-Verbose] [-Strict]
+```
+
+This check is integrated into `pre-release-check.sh` as step 15 (warning only, non-blocking).
 
 ### Scope Universality System / Scope 通用性標記系統
 
@@ -829,15 +871,17 @@ When updating version, files must be synchronized based on release type:
 .\scripts\pre-release-check.ps1
 ```
 
-This runs 14 checks including:
+This runs 16 checks including:
 1. Git working directory status
 2. Version sync (`check-version-sync.sh`)
 3. Standards sync (`check-standards-sync.sh`)
 4. Translation sync (`check-translation-sync.sh`)
 5-11. CLI-docs, docs, AI agent, usage docs, spec, scope, commands sync checks
 12. Documentation integrity (`check-docs-integrity.sh`)
-13. Linting
-14. Tests
+13. Skill next steps sync (`check-skill-next-steps-sync.sh`)
+14. Linting
+15. Orphan spec detection (`check-orphan-specs.sh`)
+16. Tests
 
 #### Translation Sync (Stable Releases)
 
@@ -950,7 +994,7 @@ AI:
 
 ```
 universal-dev-standards/
-├── core/                  # Core standards (32 files)
+├── core/                  # Core standards (33 files)
 ├── skills/                # AI tool skills
 │   └── claude-code/       # Claude Code skills (26 skills)
 ├── cli/                   # Node.js CLI tool

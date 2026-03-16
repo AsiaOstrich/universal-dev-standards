@@ -62,10 +62,10 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=15
+TOTAL=16
 
 if [ "$SKIP_TESTS" = true ]; then
-    TOTAL=14
+    TOTAL=15
 fi
 
 # Function to run a check
@@ -205,13 +205,25 @@ run_check "13" "Running skill next steps sync check" "$SCRIPT_DIR/check-skill-ne
 # Step 14: Linting
 run_check "14" "Running linting" "npm run lint --prefix $CLI_DIR"
 
-# Step 15: Tests
+# Step 15: Orphan Spec Detection
+echo -e "${CYAN}[15/$TOTAL]${NC} Running orphan spec detection | 孤兒 Spec 偵測..."
+orphan_output=$("$SCRIPT_DIR/check-orphan-specs.sh" 2>&1)
+orphan_exit=$?
+if echo "$orphan_output" | grep -q "orphan spec"; then
+    echo -e "      ${YELLOW}⚠ Orphan specs detected (warning only)${NC}"
+    echo "$orphan_output" | grep -E "^\s*-" | sed 's/^/      /'
+else
+    echo -e "      ${GREEN}✓ No orphan specs${NC}"
+fi
+PASSED=$((PASSED + 1))
+
+# Step 16: Tests
 if [ "$SKIP_TESTS" = true ]; then
-    echo -e "${CYAN}[15/$TOTAL]${NC} Running tests..."
+    echo -e "${CYAN}[16/$TOTAL]${NC} Running tests..."
     echo -e "      ${YELLOW}⏭ Skipped (--skip-tests flag)${NC}"
     SKIPPED=$((SKIPPED + 1))
 else
-    run_check "15" "Running tests" "npm test --prefix $CLI_DIR"
+    run_check "16" "Running tests" "npm test --prefix $CLI_DIR"
 fi
 
 # Show summary

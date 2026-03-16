@@ -17,7 +17,7 @@ This document defines the complete maintenance workflow for the Universal Develo
 
 ```
 universal-dev-standards/
-├── core/                    ← PRIMARY SOURCE (32 standards)
+├── core/                    ← PRIMARY SOURCE (33 standards)
 ├── options/                 ← MD options (18 files)
 ├── ai/                      ← AI-optimized versions (52 YAML files)
 │   ├── standards/           ← 32 AI standards

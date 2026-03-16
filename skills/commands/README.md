@@ -38,6 +38,7 @@ Commands for development workflow automation.
 | [`/changelog`](./changelog.md) | Update CHANGELOG.md | 更新 CHANGELOG |
 | [`/requirement`](./requirement.md) | Write user stories and requirements | 撰寫需求文件 |
 | [`/sdd`](./sdd.md) | Create specification documents | 建立規格文件 |
+| [`/sdd-retro`](./sdd-retro.md) | Create retroactive specs for untracked commits | 為未追蹤 commits 建立追溯 spec |
 | [`/docs`](./docs.md) | Create/update documentation | 建立/更新文件 |
 | [`/coverage`](./coverage.md) | Analyze test coverage | 分析測試覆蓋率 |
 | [`/reverse-sdd`](./reverse-sdd.md) | Reverse engineer code to SDD spec | 反向工程成 SDD 規格 |

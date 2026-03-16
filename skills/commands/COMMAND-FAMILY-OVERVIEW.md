@@ -28,6 +28,7 @@ This document provides a comprehensive guide to the development methodology comm
 │  ────────────────────────────────────                                       │
 │  /sdd            → Full SDD lifecycle (create/review/approve/implement/     │
 │                    verify sub-commands)                                      │
+│  /sdd-retro      → Create retroactive specs for untracked commits           │
 │  /derive-all     → Generate BDD + TDD from spec (Forward Derivation)        │
 │  /derive-bdd     → Generate BDD scenarios only                              │
 │  /derive-tdd     → Generate TDD skeletons only                              │
@@ -83,6 +84,7 @@ SDD（規格驅動開發）針對 AI 輔助開發工作流程進行了優化。
 | `/sdd approve` | Approve specification (Phase 3) | SPEC file | Updated spec status |
 | `/sdd implement` | Track implementation (Phase 4) | SPEC file | Implementation checklist |
 | `/sdd verify` | Verify implementation (Phase 5) | SPEC file | `VERIFICATION-REPORT.md` |
+| `/sdd-retro` | Create retroactive specs | Git history | `RETRO-XXX.md` |
 | `/derive-all` | Full forward derivation | SPEC file | `.feature` + `.test.ts` |
 | `/derive-bdd` | BDD derivation only | SPEC file | `.feature` |
 | `/derive-tdd` | TDD derivation only | SPEC file | `.test.ts` |

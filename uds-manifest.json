@@ -3,7 +3,7 @@
   "version": "5.0.0-rc.1",
   "last_updated": "2026-02-12",
   "stats": {
-    "core_standards": 32,
+    "core_standards": 33,
     "skills": 29,
     "slash_commands": 30
   },
@@ -166,6 +166,11 @@
     {
       "id": "virtual-organization-standards",
       "category": "governance",
+      "level": 3
+    },
+    {
+      "id": "test-governance",
+      "category": "uncategorized",
       "level": 3
     }
   ],

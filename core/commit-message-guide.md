@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/commit-message-guide.md)
 
-**Version**: 1.2.3
+**Version**: 1.3.0
 **Last Updated**: 2025-12-24
 **Applicability**: All projects using Git version control
 **Scope**: universal
@@ -362,6 +362,35 @@ See also #999
 
 - `Closes`, `Fixes`, `Resolves`: Automatically closes the issue
 - `Refs`, `References`, `See also`: Links without closing
+
+### Spec References
+
+When a commit implements or relates to a specification document, reference it in the footer:
+
+```
+Refs: SPEC-XXX
+Implements: SPEC-XXX#AC-N
+```
+
+**Examples**:
+
+```
+feat(auth): Add OAuth2 login support
+
+Implement OAuth2 authentication flow.
+
+Refs: SPEC-042
+Closes #123
+```
+
+```
+fix(api): Handle null response in user endpoint
+
+Refs: SPEC-042, SPEC-015
+Fixes #456
+```
+
+This enables bidirectional traceability between code changes and their design specifications. The `/commit` command will suggest adding spec references when appropriate.
 
 ---
 
@@ -904,6 +933,7 @@ Closes #123
 
 | Version | Date       | Changes                                                                                                                                                                                                                                              |
 | ------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.3.0   | 2026-03-16 | Added: Spec reference footer convention (Refs: SPEC-XXX) |
 | 1.2.3   | 2025-12-24 | Added: Related Standards section |
 | 1.2.2   | 2025-12-16 | Added: Language selection guide with decision matrix and quick selection tips |
 | 1.2.1   | 2025-12-09 | Improve Option A/B/C format consistency: unify title style, add description text |

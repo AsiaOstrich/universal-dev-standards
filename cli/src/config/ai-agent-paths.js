@@ -469,6 +469,7 @@ export const AVAILABLE_COMMANDS = [
   // Specification and Requirements (Action Skills)
   // ═══════════════════════════════════════════════════════════════════════════
   { name: 'sdd', description: 'Spec-driven development guide' },
+  { name: 'sdd-retro', description: 'Create retroactive specs for untracked commits' },
   { name: 'requirement', description: 'Write requirements following INVEST' },
   { name: 'derive', description: 'Forward derivation (spec to BDD/TDD)' },
   { name: 'reverse', description: 'Reverse engineer code to SDD specs' },
