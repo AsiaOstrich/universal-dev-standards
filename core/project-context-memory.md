@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/project-context-memory.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-02-09
+**Version**: 1.1.0
+**Last Updated**: 2026-03-16
 **Applicability**: All software projects using AI assistants
 **Scope**: uds-specific
 
@@ -98,6 +98,7 @@ Do not throw raw exceptions in controllers; wrap them in `ApiError` class.
 | `glossary` | Ubiquitous Language / Domain Terms | "'User' refers to Admin; 'Customer' is the end-user" |
 | `constraint` | Hard technical limits or bans | "No usage of `lodash` (use native ES6+)" |
 | `workflow` | Process-specific rules | "Migrations must be generated via CLI, not manual SQL" |
+| `workflow-state` | Active workflow progress tracking | "Release v5.1.0 — currently in beta-testing phase" |
 
 ---
 
@@ -142,7 +143,66 @@ The AI must actively listen for "Consensus Moments" in the conversation.
 
 ---
 
-## 4. Comparison with Developer Memory
+## 4. Workflow State Tracking
+
+### 4.1 Purpose
+
+The `workflow-state` type captures the **current state** of an ongoing workflow, enabling AI assistants to resume interrupted work across sessions. Unlike the `workflow` type (which stores process rules), `workflow-state` tracks progress, blockers, and next steps for a specific in-flight workflow.
+
+### 4.2 Additional Schema Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `workflow` | string | Name of the workflow (e.g., `release-v5.1.0`) |
+| `phase` | string | Current step (e.g., `beta-testing`) |
+| `progress` | object | `{ completed: [], current: string, remaining: [], percentage: int }` |
+| `blockers` | list | Current blockers preventing progress |
+| `next_steps` | list | Ordered list of next actions |
+| `updated_at` | date | Last update timestamp (for staleness detection) |
+
+### 4.3 Example
+
+```markdown
+---
+id: "PRJ-2026-0042"
+type: workflow-state
+status: active
+workflow: "release-v5.1.0"
+phase: "beta-testing"
+progress:
+  completed: ["alpha-release", "internal-validation"]
+  current: "beta-testing"
+  remaining: ["stable-release", "changelog-finalize"]
+  percentage: 40
+blockers:
+  - "Waiting for CI fix on Windows tests"
+next_steps:
+  - "Fix Windows CI (#234)"
+  - "Collect beta feedback"
+  - "Prepare stable release notes"
+created_at: "2026-03-10"
+updated_at: "2026-03-16"
+scope: ["cli/**", "scripts/**"]
+triggers: ["release", "version", "publish"]
+---
+
+# Release v5.1.0 Workflow State
+
+## Current Phase: Beta Testing
+Beta v5.1.0-beta.1 published on 2026-03-14.
+```
+
+### 4.4 Proactive Behavior
+
+| Trigger | AI Action |
+|---------|-----------|
+| Session start | Scan for active `workflow-state` entries, surface summary |
+| `updated_at` > 7 days old | Flag as stale, ask to archive or resume |
+| All `remaining` steps completed | Suggest archiving the workflow state |
+
+---
+
+## 5. Comparison with Developer Memory
 
 | Feature | Developer Memory (`core/developer-memory.md`) | Project Context Memory (`core/project-context-memory.md`) |
 | :--- | :--- | :--- |
@@ -154,12 +214,12 @@ The AI must actively listen for "Consensus Moments" in the conversation.
 
 ---
 
-## 5. Architecture Decision
+## 6. Architecture Decision
 
-### 5.1 "Always-On" Protocol
+### 6.1 "Always-On" Protocol
 Like Developer Memory, Project Context is an **Always-On Protocol**. The AI does not need explicit commands to use it. It is part of the "Physics" of the agent's environment.
 
-### 5.2 Storage Strategy
+### 6.2 Storage Strategy
 We use **Split-File Storage** (one Markdown file per topic) rather than a single huge `GEMINI.md` or JSON file.
 *   **Reason 1**: Git-friendly diffs.
 *   **Reason 2**: Lower token usage (AI only reads relevant files based on `scope/triggers`).
@@ -171,6 +231,7 @@ We use **Split-File Storage** (one Markdown file per topic) rather than a single
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-03-16 | Add `workflow-state` type for cross-session state tracking |
 | 1.0.0 | 2026-02-09 | Initial standard definition |
 
 ---

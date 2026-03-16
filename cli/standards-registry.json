@@ -1238,6 +1238,18 @@
       "description": "System for capturing, retrieving, and enforcing project-specific context, architectural decisions, and domain knowledge"
     },
     {
+      "id": "context-aware-loading",
+      "name": "Context-Aware Standard Loading",
+      "nameZh": "上下文感知標準載入",
+      "source": {
+        "human": "core/context-aware-loading.md",
+        "ai": "ai/standards/context-aware-loading.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Protocol for AI tools to selectively load standards based on task context, reducing token usage and improving focus"
+    },
+    {
       "id": "project-discovery",
       "name": "Project Discovery",
       "nameZh": "專案現況評估",

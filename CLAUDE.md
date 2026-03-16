@@ -6,7 +6,7 @@ This document defines the development standards for the Universal Development St
 
 Universal Development Standards is a language-agnostic, framework-agnostic documentation standards framework. It provides:
 
-- **Core Standards** (`core/`): 33 fundamental development standards
+- **Core Standards** (`core/`): 34 fundamental development standards
 - **AI Skills** (`skills/`): Claude Code skills for AI-assisted development
 - **CLI Tool** (`cli/`): Node.js CLI for adopting standards
 - **Integrations** (`integrations/`): Configurations for various AI tools
@@ -441,6 +441,8 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 | Writing AI instructions | AI Instruction Standards | [core/ai-instruction-standards.md](core/ai-instruction-standards.md) |
 | Writing documentation | Documentation Writing | [core/documentation-writing-standards.md](core/documentation-writing-standards.md) |
 | Project architecture for AI | AI-Friendly Architecture | [core/ai-friendly-architecture.md](core/ai-friendly-architecture.md) |
+| Standard loading strategy | Context-Aware Loading | [core/context-aware-loading.md](core/context-aware-loading.md) |
+| Cross-session state | Project Context Memory | [core/project-context-memory.md](core/project-context-memory.md) |
 
 ---
 
@@ -469,7 +471,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 
 本專案採用 UDS 標準。所有規範位於 `.standards/`：
 
-### Core (40 standards)
+### Core (41 standards)
 - `anti-hallucination.ai.yaml` - anti-hallucination.ai.yaml
 - `ai-friendly-architecture.ai.yaml` - ai-friendly-architecture.ai.yaml
 - `commit-message.ai.yaml` - 提交訊息格式
@@ -510,6 +512,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 - `deployment-standards.ai.yaml` - deployment-standards.ai.yaml
 - `developer-memory.ai.yaml` - 開發者持久記憶
 - `project-context-memory.ai.yaml` - 專案情境記憶
+- `context-aware-loading.ai.yaml` - 上下文感知標準載入
 <!-- UDS:STANDARDS:END -->
 
 ---
@@ -962,7 +965,7 @@ AI:
 
 ```
 universal-dev-standards/
-├── core/                  # Core standards (33 files)
+├── core/                  # Core standards (34 files)
 ├── skills/                # AI tool skills
 │   └── claude-code/       # Claude Code skills (26 skills)
 ├── cli/                   # Node.js CLI tool

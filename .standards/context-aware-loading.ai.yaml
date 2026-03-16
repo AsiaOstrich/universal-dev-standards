@@ -1,0 +1,174 @@
+# Context-Aware Standard Loading - AI Optimized
+# Source: core/context-aware-loading.md
+
+standard:
+  id: context-aware-loading
+  name: Context-Aware Standard Loading
+  description: Protocol for AI tools to selectively load standards based on task context, reducing token usage and improving focus
+  guidelines:
+    - "Always load 'always-on' standards: anti-hallucination, commit-message, checkin-standards, project-context-memory, developer-memory"
+    - "Load 'on-demand' standards only when task context matches their activation triggers"
+    - "When in doubt, load the standard — false positives are better than missing context"
+    - "Standards without activation field default to always-on behavior"
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-16"
+    source: core/context-aware-loading.md
+    description: Protocol for AI tools to selectively load standards based on task context
+
+  activation:
+    domain: always-on
+    priority: always-on
+    triggers: []
+
+  domains:
+    always-on:
+      description: Standards loaded in every session regardless of task
+      standards:
+        - anti-hallucination
+        - commit-message
+        - checkin-standards
+        - project-context-memory
+        - developer-memory
+        - context-aware-loading
+
+    testing:
+      description: Standards for writing and managing tests
+      triggers:
+        - "write tests"
+        - "test coverage"
+        - "*.test.*"
+        - "*.spec.*"
+        - "/tdd"
+        - "/bdd"
+        - "/atdd"
+        - "/coverage"
+      standards:
+        - testing
+        - unit-testing
+        - integration-testing
+        - test-completeness-dimensions
+        - test-driven-development
+        - behavior-driven-development
+        - acceptance-test-driven-development
+
+    specification:
+      description: Standards for spec-driven development workflows
+      triggers:
+        - "/sdd"
+        - "/spec"
+        - "/derive"
+        - "/reverse"
+        - "/requirement"
+        - "docs/specs/"
+      standards:
+        - spec-driven-development
+        - forward-derivation-standards
+        - reverse-engineering-standards
+        - requirement-engineering
+
+    quality:
+      description: Standards for code review, refactoring, and quality assurance
+      triggers:
+        - "/review"
+        - "/refactor"
+        - "/check"
+        - "code review"
+        - "pull request"
+        - "security"
+        - "performance"
+      standards:
+        - code-review
+        - refactoring-standards
+        - security-standards
+        - performance-standards
+        - accessibility-standards
+
+    documentation:
+      description: Standards for writing documentation
+      triggers:
+        - "/docs"
+        - "/changelog"
+        - "/generate-docs"
+        - "README"
+        - "CHANGELOG"
+        - "write documentation"
+      standards:
+        - documentation-structure
+        - documentation-writing-standards
+        - ai-instruction-standards
+        - changelog
+
+    workflow:
+      description: Standards for git workflow and release management
+      triggers:
+        - "/release"
+        - "/commit"
+        - "branch"
+        - "merge"
+        - "release"
+        - "deploy"
+        - "version"
+      standards:
+        - git-workflow
+        - versioning
+        - deployment-standards
+
+    architecture:
+      description: Standards for project architecture and structure
+      triggers:
+        - "architecture"
+        - "project setup"
+        - "error handling"
+        - "logging"
+        - "project structure"
+      standards:
+        - ai-friendly-architecture
+        - project-structure
+        - error-codes
+        - logging
+
+  rules:
+    - id: always-on-loading
+      trigger: session start
+      instruction: >
+        At the beginning of every AI session, load all standards in the
+        'always-on' domain. These are non-negotiable and apply to every
+        interaction regardless of task context.
+      priority: required
+
+    - id: on-demand-activation
+      trigger: "user request contains trigger keywords or file patterns"
+      instruction: >
+        Parse the user's request for trigger keywords defined in each domain.
+        If a match is found, load all standards in that domain.
+        Multiple domains can be active simultaneously.
+        When in doubt about relevance, load the standard.
+      priority: required
+
+    - id: command-based-activation
+      trigger: "user invokes a slash command"
+      instruction: >
+        Map slash commands to domains:
+        /tdd, /bdd, /atdd, /coverage → testing
+        /sdd, /spec, /derive, /reverse, /requirement → specification
+        /review, /refactor, /check → quality
+        /docs, /changelog, /generate-docs → documentation
+        /release, /commit → workflow
+      priority: required
+
+    - id: backward-compatibility
+      trigger: "standard has no activation field"
+      instruction: >
+        Standards without an explicit 'activation' section are treated
+        as always-on for backward compatibility. This ensures no standard
+        is silently dropped when context-aware loading is adopted.
+      priority: required
+
+  architecture:
+    classification: always-on-protocol
+    note: >
+      This standard is itself always-on because it governs how other
+      standards are loaded. AI tools must read this standard first to
+      determine which other standards to load.

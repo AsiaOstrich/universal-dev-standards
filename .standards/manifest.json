@@ -49,8 +49,58 @@
     "templates/requirement-document-template.md",
     "ai/standards/deployment-standards.ai.yaml",
     "ai/standards/developer-memory.ai.yaml",
-    "ai/standards/project-context-memory.ai.yaml"
+    "ai/standards/project-context-memory.ai.yaml",
+    "ai/standards/context-aware-loading.ai.yaml"
   ],
+  "domains": {
+    "always-on": [
+      "ai/standards/anti-hallucination.ai.yaml",
+      "ai/standards/commit-message.ai.yaml",
+      "ai/standards/checkin-standards.ai.yaml",
+      "ai/standards/project-context-memory.ai.yaml",
+      "ai/standards/developer-memory.ai.yaml",
+      "ai/standards/context-aware-loading.ai.yaml"
+    ],
+    "testing": [
+      "ai/standards/testing.ai.yaml",
+      "ai/options/testing/unit-testing.ai.yaml",
+      "ai/options/testing/integration-testing.ai.yaml",
+      "ai/standards/test-completeness-dimensions.ai.yaml",
+      "ai/standards/test-driven-development.ai.yaml",
+      "ai/standards/behavior-driven-development.ai.yaml",
+      "ai/standards/acceptance-test-driven-development.ai.yaml"
+    ],
+    "specification": [
+      "ai/standards/spec-driven-development.ai.yaml",
+      "ai/standards/forward-derivation-standards.ai.yaml",
+      "ai/standards/reverse-engineering-standards.ai.yaml",
+      "ai/standards/requirement-engineering.ai.yaml"
+    ],
+    "quality": [
+      "ai/standards/code-review.ai.yaml",
+      "ai/standards/refactoring-standards.ai.yaml",
+      "ai/standards/security-standards.ai.yaml",
+      "ai/standards/performance-standards.ai.yaml",
+      "ai/standards/accessibility-standards.ai.yaml"
+    ],
+    "documentation": [
+      "ai/standards/documentation-structure.ai.yaml",
+      "ai/standards/documentation-writing-standards.ai.yaml",
+      "ai/standards/ai-instruction-standards.ai.yaml",
+      "ai/standards/changelog.ai.yaml"
+    ],
+    "workflow": [
+      "ai/standards/git-workflow.ai.yaml",
+      "ai/standards/versioning.ai.yaml",
+      "ai/standards/deployment-standards.ai.yaml"
+    ],
+    "architecture": [
+      "ai/standards/ai-friendly-architecture.ai.yaml",
+      "ai/standards/project-structure.ai.yaml",
+      "ai/standards/error-codes.ai.yaml",
+      "ai/standards/logging.ai.yaml"
+    ]
+  },
   "extensions": [],
   "integrations": [
     "GEMINI.md",
