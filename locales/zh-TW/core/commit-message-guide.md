@@ -1,8 +1,8 @@
 ---
 source: ../../../core/commit-message-guide.md
-source_version: 1.2.3
-translation_version: 1.2.3
-last_synced: 2025-12-25
+source_version: 1.3.0
+translation_version: 1.3.0
+last_synced: 2026-03-16
 status: current
 ---
 
@@ -347,6 +347,36 @@ See also #999
 
 - `Closes`、`Fixes`、`Resolves`: 自動關閉 issue
 - `Refs`、`References`、`See also`: 僅連結，不關閉
+
+### 自訂參考 Footer
+
+當 commit 關聯到規格文件、設計文件或外部追蹤系統時，在 footer 使用一致的前綴進行引用：
+
+```
+Refs: <PREFIX>-<ID>
+```
+
+**依專案類型的常見前綴**：
+
+| 前綴 | 使用情境 | 範例 |
+|------|---------|------|
+| `SPEC-` | 規格驅動開發 | `Refs: SPEC-042` |
+| `JIRA-` | Jira 工單 | `Refs: JIRA-1234` |
+| `FEATURE-` | 內部功能追蹤 | `Refs: FEATURE-001` |
+| `RFC-` | 提案文件 | `Refs: RFC-012` |
+
+**範例**：
+
+```
+feat(auth): Add OAuth2 login support
+
+Implement OAuth2 authentication flow.
+
+Refs: SPEC-042
+Closes #123
+```
+
+選擇符合專案追蹤系統的前綴並一致使用。
 
 ---
 
@@ -787,6 +817,7 @@ Closes #123
 
 | 版本  | 日期       | 變更                                                                       |
 | ----- | ---------- | -------------------------------------------------------------------------- |
+| 1.3.0 | 2026-03-16 | 新增自訂參考 Footer 慣例（Refs: PREFIX-ID）                                |
 | 1.2.3 | 2025-12-24 | 新增相關標準區段                                                           |
 | 1.2.2 | 2025-12-16 | 新增語言選擇指南，含決策矩陣和快速選擇提示                                 |
 | 1.2.1 | 2025-12-09 | 改善 Option A/B/C 格式一致性：統一標題風格、新增描述文字                   |

@@ -1,8 +1,8 @@
 ---
 source: ../../../core/commit-message-guide.md
-source_version: 1.2.3
-translation_version: 1.2.3
-last_synced: 2026-01-08
+source_version: 1.3.0
+translation_version: 1.3.0
+last_synced: 2026-03-16
 status: current
 ---
 
@@ -114,6 +114,25 @@ a different JSON structure. See migration guide.
 - [ ] 使用祈使句
 - [ ] 正文说明"为什么"
 - [ ] 引用相关 issue
+
+---
+
+## 自定义引用 Footer
+
+当 commit 关联到规格文档或外部追踪系统时，在 footer 使用一致的前缀：
+
+```
+Refs: <PREFIX>-<ID>
+```
+
+| 前缀 | 使用场景 | 示例 |
+|------|---------|------|
+| `SPEC-` | 规格驱动开发 | `Refs: SPEC-042` |
+| `JIRA-` | Jira 工单 | `Refs: JIRA-1234` |
+| `FEATURE-` | 内部功能追踪 | `Refs: FEATURE-001` |
+| `RFC-` | 提案文档 | `Refs: RFC-012` |
+
+选择符合项目追踪系统的前缀并一致使用。
 
 ---
 

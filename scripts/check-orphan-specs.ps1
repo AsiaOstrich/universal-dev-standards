@@ -37,14 +37,21 @@ $specFiles = Get-ChildItem -Path $SpecsDir -Filter "*.md" -Recurse | Where-Objec
 foreach ($specFile in $specFiles) {
     $TotalCount++
 
-    # Extract Status field
+    # Extract Status field — match blockquote/bold metadata or table format
+    # Avoids false positives from headings like "# Status Display"
     $content = Get-Content $specFile.FullName -Raw
-    $statusMatch = [regex]::Match($content, '(?i)\*?\*?Status\*?\*?\s*:?\s*(\w+)')
+    $status = "unknown"
 
-    if ($statusMatch.Success) {
-        $status = $statusMatch.Groups[1].Value
+    # Try blockquote/bold pattern: > **Status**: Value  or  **Status**: Value
+    $metaMatch = [regex]::Match($content, '(?im)^\s*>?\s*\*?\*?Status\*?\*?\s*:\s*(\w+)')
+    if ($metaMatch.Success) {
+        $status = $metaMatch.Groups[1].Value
     } else {
-        $status = "unknown"
+        # Try table pattern: | **Status** | Value |
+        $tableMatch = [regex]::Match($content, '(?im)^\s*\|.*[Ss]tatus.*\|\s*\*?\*?(\w+)')
+        if ($tableMatch.Success) {
+            $status = $tableMatch.Groups[1].Value
+        }
     }
 
     $statusLower = $status.ToLower()

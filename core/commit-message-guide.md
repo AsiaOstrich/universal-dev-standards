@@ -363,16 +363,24 @@ See also #999
 - `Closes`, `Fixes`, `Resolves`: Automatically closes the issue
 - `Refs`, `References`, `See also`: Links without closing
 
-### Spec References
+### Custom Reference Footers
 
-When a commit implements or relates to a specification document, reference it in the footer:
+When a commit relates to a specification, design document, or external tracking system, reference it in the footer using a consistent prefix:
 
 ```
-Refs: SPEC-XXX
-Implements: SPEC-XXX#AC-N
+Refs: <PREFIX>-<ID>
 ```
 
-**Examples**:
+**Common prefixes by project type**:
+
+| Prefix | Use Case | Example |
+|--------|----------|---------|
+| `SPEC-` | Spec-driven development | `Refs: SPEC-042` |
+| `JIRA-` | Jira tickets | `Refs: JIRA-1234` |
+| `FEATURE-` | Internal feature tracking | `Refs: FEATURE-001` |
+| `RFC-` | Request for Comments | `Refs: RFC-012` |
+
+**Example**:
 
 ```
 feat(auth): Add OAuth2 login support
@@ -383,14 +391,7 @@ Refs: SPEC-042
 Closes #123
 ```
 
-```
-fix(api): Handle null response in user endpoint
-
-Refs: SPEC-042, SPEC-015
-Fixes #456
-```
-
-This enables bidirectional traceability between code changes and their design specifications. The `/commit` command will suggest adding spec references when appropriate.
+Choose a prefix that matches your project's tracking system and use it consistently.
 
 ---
 

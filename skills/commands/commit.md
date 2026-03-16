@@ -27,23 +27,9 @@ Generate well-formatted commit messages following the Conventional Commits stand
 
 ## Spec Tracking Assessment | Spec 追蹤評估
 
-After analyzing the changes, evaluate whether a spec should be created or linked:
+For `feat`/`fix` commits, evaluate whether a spec should be created or linked. Suggest a spec when: many files changed (>3), public API signatures modified, or significant new functionality. Skip for `docs`/`style`/`chore`/`test` types.
 
-| Condition | Suggestion | 建議 |
-|-----------|-----------|------|
-| Type is `feat` or `fix` | Suggest creating/linking a spec | 建議建立或關聯 spec |
-| >3 files modified | Suggest creating a spec | 建議建立 spec |
-| Public API signature changed | Strongly suggest a spec | 強烈建議建立 spec |
-| Type is `docs`, `style`, `chore`, `test` | No spec needed | 不需要 spec |
-
-**Assessment output | 評估輸出：**
-- 🟢 **No spec needed** — Skip for docs/style/chore/test changes
-- 🟡 **Consider a spec** — Moderate changes (feat/fix, ≤3 files)
-- 🔴 **Spec recommended** — Large changes (>3 files) or API changes
-
-If a spec exists or is created, add `Refs: SPEC-XXX` to the commit footer.
-
-The user can always accept or ignore the suggestion — this is advisory, not blocking.
+If a spec is linked, add `Refs: SPEC-XXX` to the commit footer. This is advisory — the user can always ignore.
 
 ## Commit Types | 提交類型
 

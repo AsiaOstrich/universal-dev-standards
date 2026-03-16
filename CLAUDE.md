@@ -684,43 +684,11 @@ Expected output:
 
 ### Spec Tracking / Spec 追蹤
 
-#### AI-Driven Spec Assessment at Commit Time / 提交時的 AI 驅動 Spec 評估
+Three mechanisms ensure spec traceability:
 
-The `/commit` command includes a spec tracking assessment step. After analyzing changes, the AI evaluates whether a specification should be created or linked:
-
-- **feat/fix** commits → suggest creating or linking a spec
-- **>3 files** modified → suggest creating a spec
-- **Public API** changes → strongly recommend a spec
-- **docs/style/chore/test** → no spec needed
-
-When a spec is linked, add `Refs: SPEC-XXX` to the commit footer.
-
-#### Retroactive Spec Tracking / 追溯 Spec 追蹤
-
-For changes that were committed without spec tracking (e.g., emergency hotfixes), use:
-
-```
-/sdd-retro              # Scan all untracked feat/fix commits
-/sdd-retro --last=10    # Scan last 10 commits
-```
-
-This generates lightweight retroactive specs in `docs/specs/retro/`.
-
-#### Orphan Spec Detection / 孤兒 Spec 偵測
-
-Specs stuck in non-terminal states (not Archived/Stable) are detected during pre-release checks:
-
-**macOS / Linux:**
-```bash
-./scripts/check-orphan-specs.sh [--verbose] [--strict]
-```
-
-**Windows PowerShell:**
-```powershell
-.\scripts\check-orphan-specs.ps1 [-Verbose] [-Strict]
-```
-
-This check is integrated into `pre-release-check.sh` as step 15 (warning only, non-blocking).
+1. **`/commit` spec assessment** — For `feat`/`fix` commits, the AI suggests creating or linking a spec. Details in [`skills/commands/commit.md`](skills/commands/commit.md).
+2. **`/sdd-retro`** — Retroactively create specs for untracked commits (e.g., emergency hotfixes). Details in [`skills/commands/sdd-retro.md`](skills/commands/sdd-retro.md).
+3. **Orphan spec detection** — `check-orphan-specs.sh` flags specs stuck in non-terminal states. Integrated into `pre-release-check.sh` as step 15 (warning only).
 
 ### Scope Universality System / Scope 通用性標記系統
 

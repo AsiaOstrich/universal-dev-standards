@@ -37,11 +37,9 @@ These features are inspired by principles from GSD (state tracking), PAUL (no or
 | ID | Description | Priority |
 |----|-------------|----------|
 | REQ-001 | `/commit` evaluates spec need based on type, scale, and API impact | P0 |
-| REQ-002 | `Refs: SPEC-XXX` footer convention documented in commit-message standards | P0 |
-| REQ-003 | `/sdd-retro` scans git log for untracked feat/fix commits | P1 |
-| REQ-004 | `/sdd-retro` generates lightweight retroactive spec templates | P1 |
-| REQ-005 | `check-orphan-specs.sh` detects non-Archived/non-Stable specs | P1 |
-| REQ-006 | Orphan check integrated into `pre-release-check.sh` | P1 |
+| REQ-002 | Custom reference footer convention documented in commit-message standards | P0 |
+| REQ-003 | `/sdd-retro` scans git log and generates retroactive specs for untracked feat/fix commits | P1 |
+| REQ-004 | `check-orphan-specs.sh` detects non-Archived/non-Stable specs, integrated into pre-release check | P1 |
 
 ## 4. Acceptance Criteria
 
@@ -52,11 +50,11 @@ These features are inspired by principles from GSD (state tracking), PAUL (no or
 **Then** the AI outputs a spec tracking suggestion (create new / link existing / not needed)
 **And** the user can accept or ignore the suggestion
 
-### AC-2: Refs Footer Convention
+### AC-2: Custom Reference Footer Convention
 
 **Given** the commit-message standard
-**When** a commit relates to a spec
-**Then** the footer includes `Refs: SPEC-XXX` format
+**When** a commit relates to a spec or tracked document
+**Then** the footer includes `Refs: PREFIX-ID` format (e.g., `Refs: SPEC-XXX`)
 **And** this convention is documented in `commit-message-guide.md` and `.standards/commit-message.ai.yaml`
 
 ### AC-3: Retroactive Spec Command
@@ -79,52 +77,20 @@ These features are inspired by principles from GSD (state tracking), PAUL (no or
 **When** orphan specs exist
 **Then** orphan spec count is displayed as a warning (not a failure)
 
-## 5. Technical Design
-
-### 5.1 Commit Spec Assessment (in `/commit`)
-
-Add a step between "Analyze changes" and "Generate message" in `skills/commands/commit.md`:
-
-```
-Step 2.5: Spec Tracking Assessment
-- Check commit type: feat/fix → suggest spec
-- Check file count: >3 modified → suggest spec
-- Check for API changes: public function signature changes → strongly suggest
-- Output: recommendation (create / link / skip)
-- User decides: accept → add Refs footer; ignore → proceed without
-```
-
-### 5.2 `/sdd-retro` Command
-
-New slash command at `skills/commands/sdd-retro.md`:
-- Scans `git log --oneline` for feat/fix commits
-- Filters out commits already containing `Refs: SPEC-`
-- Groups by scope (from commit message)
-- Generates lightweight retroactive spec using simplified template
-- Writes to `docs/specs/retro/` subdirectory
-
-### 5.3 Orphan Spec Detection Script
-
-`scripts/check-orphan-specs.sh`:
-- Scans `docs/specs/**/*.md` for Status field
-- Reports specs where Status ∉ {Archived, Stable}
-- Outputs warning count
-- Exit code 0 (warning-only for pre-release)
-
-## 6. Files Changed
+## 5. Files Changed
 
 | File | Action | Description |
 |------|--------|-------------|
 | `skills/commands/commit.md` | Modify | Add spec tracking assessment step |
 | `skills/commands/sdd-retro.md` | Create | New retroactive spec command |
 | `.standards/commit-message.ai.yaml` | Modify | Add spec-reference-footer rule |
-| `core/commit-message-guide.md` | Modify | Document Refs: SPEC-XXX footer |
+| `core/commit-message-guide.md` | Modify | Document custom reference footer |
 | `scripts/check-orphan-specs.sh` | Create | Orphan spec detection (macOS/Linux) |
 | `scripts/check-orphan-specs.ps1` | Create | Orphan spec detection (Windows) |
 | `scripts/pre-release-check.sh` | Modify | Add orphan spec check |
 | `CLAUDE.md` | Modify | Update spec tracking documentation |
 
-## 7. Test Plan
+## 6. Test Plan
 
 - [ ] `/commit` with feat type shows spec suggestion
 - [ ] `/commit` with docs type does not show spec suggestion
