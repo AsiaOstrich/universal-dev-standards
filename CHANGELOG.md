@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.5] - 2026-03-16
+
+> **Release Candidate**: Fifth RC for v5.0.0 with context-aware loading, spec tracking, and 4-layer testing pyramid.
+
+### Added
+- **Context-Aware Loading**: New `core/context-aware-loading.md` standard — 7 domain categories with always-on/on-demand loading mechanism (SPEC-012)
+- **Workflow State Tracking**: `project-context-memory` adds `workflow-state` type for cross-session state persistence (SPEC-013)
+- **AI-Driven Spec Tracking**: `/commit` now assesses spec needs for `feat`/`fix` commits; new `/sdd-retro` command for retroactive spec creation (SPEC-011)
+- **Orphan Spec Detection**: `check-orphan-specs.sh/.ps1` detects specs stuck in non-terminal states (integrated into pre-release step 15)
+- **4-Layer Testing Pyramid**: Upgrade from 3-layer (70/20/10) to 4-layer (70/20/7/3) with System Tests (ST) tier
+- **Test Governance Standard**: New `test-governance` standard with quality goals, completion criteria, and environment management
+- **Test Templates**: Add `test-plan-template.md` and `test-case-template.md` (ISO 29119-3 inspired)
+
+### Fixed
+- **Command Locale Support**: `uds update` now installs slash commands using project locale settings, with `detectLocaleFromStandards()` fallback (#7)
+- **Dev-Workflow Registration**: Register `/dev-workflow` in `AVAILABLE_COMMANDS` and sync usage docs
+- **Bilingual Commit Body**: Upgrade `bilingual-body` rule from recommended to required with 5-step structure guide
+
+### Changed
+- **Spec Reference Footer**: Generalize commit `Spec References` to `Custom Reference Footers` supporting SPEC/JIRA/FEATURE/RFC prefixes
+- **SPEC-012 Cleanup**: Remove redundant `activation` fields, merge REQ-003/004, renumber ACs
+- **SPEC-011 Cleanup**: Remove duplicate technical design sections, consolidate 6 requirements to 4
+
 ## [5.0.0-rc.4] - 2026-03-05
 
 > **Release Candidate**: Fourth RC for v5.0.0 with new audit command, file placement guide, and skill inter-linking.
