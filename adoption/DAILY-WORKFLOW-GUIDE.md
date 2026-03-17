@@ -285,11 +285,12 @@ For significant new features requiring stakeholder acceptance:
     └─ Explicitly define "Out of Scope"
     💡 Command: /atdd
 
-2️⃣  SDD Phase: Write Technical Specification
+2️⃣  SDD Phase: Discuss & Write Technical Specification
+    ├─ Discuss: Capture gray areas, lock scope, build read_first list
     ├─ Write technical design document based on AC
     ├─ Technical review and approval
     └─ Output: SPEC-XXX document
-    💡 Command: /sdd
+    💡 Command: /sdd discuss → /sdd create
 
 3️⃣  BDD Phase: Write Behavior Specifications
     ├─ Discovery: Identify scenarios from AC

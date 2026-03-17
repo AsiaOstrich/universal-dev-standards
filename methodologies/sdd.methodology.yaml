@@ -6,7 +6,7 @@ $schema: "./methodology-schema.json"
 id: sdd
 name: Spec-Driven Development
 nameZh: 規格驅動開發
-version: 1.0.0
+version: 1.1.0
 description: Changes are planned, documented, and approved via specifications before implementation. Spec first, code second.
 descriptionZh: 變更在實作前透過規格進行規劃、記錄和核准。規格優先，程式碼其次。
 status: experimental
@@ -14,6 +14,98 @@ statusNote: "This methodology system will be redesigned in v4.0"
 statusNoteZh: "此方法論系統將在 v4.0 中重新設計"
 
 phases:
+  - id: discuss
+    name: Discuss
+    nameZh: 討論
+    description: Capture gray areas, lock scope, and establish canonical references before writing a spec
+    descriptionZh: 在撰寫規格前捕捉灰色地帶、鎖定範圍、建立必讀參考清單
+    duration: "15-30 minutes"
+    emoji: "\U0001F4AC"
+    checklist:
+      - id: gray-areas-captured
+        text: Ambiguous requirements identified and listed
+        textZh: 模糊需求已識別並列出
+        required: true
+      - id: scope-locked
+        text: Scope clearly defined (in-scope / out-of-scope)
+        textZh: 範圍明確定義（範圍內/範圍外）
+        required: true
+      - id: canonical-refs
+        text: Must-read code/doc references collected (read_first list)
+        textZh: 必讀的程式碼/文件參考已收集（read_first 清單）
+        required: true
+      - id: prior-decisions-checked
+        text: Checked .project-context/ for related prior decisions
+        textZh: 已檢查 .project-context/ 中的相關決策
+        required: true
+      - id: code-informed-questions
+        text: Questions are based on actual code, not guesses
+        textZh: 問題基於實際程式碼，非猜測
+        required: true
+    triggers:
+      entry:
+        - condition: new_feature_request
+        - condition: user_invokes_spec_command
+        - condition: change_proposal_needed
+      exit:
+        - condition: discuss_complete
+          nextPhase: proposal
+    guidance:
+      prompt: |
+        ## SDD Discuss Phase
+
+        Discussing: {{feature_description}}
+
+        **Goal**: Capture gray areas, lock scope, and build a read_first list
+        before writing any specification.
+
+        ### Checklist
+        {{checklist | format_checklist}}
+
+        ### Key Activities
+        1. **Identify Gray Areas**: What is unclear or ambiguous?
+        2. **Lock Scope**: What is in scope? What is explicitly deferred?
+        3. **Collect Canonical Refs**: Which files/docs must be read first?
+        4. **Check Prior Decisions**: What has already been decided in .project-context/?
+        5. **Ask Code-Informed Questions**: Read code before asking questions.
+
+        ### Scope Lock Rule
+        New features discovered during discussion are classified as **deferred**
+        and tracked separately. They do NOT expand the current scope.
+
+        ### Output
+        A `read_first` list and scope definition that will feed into the Proposal.
+
+        What aspects of this change need clarification?
+      promptZh: |
+        ## SDD 討論階段
+
+        討論：{{feature_description}}
+
+        **目標**：在撰寫任何規格前，捕捉灰色地帶、鎖定範圍、建立必讀清單。
+
+        ### 檢查清單
+        {{checklist | format_checklist}}
+
+        ### 核心活動
+        1. **識別灰色地帶**：什麼是不清楚或模糊的？
+        2. **鎖定範圍**：什麼在範圍內？什麼明確延後？
+        3. **收集必讀參考**：哪些檔案/文件必須先讀？
+        4. **檢查既有決策**：.project-context/ 中已有哪些決定？
+        5. **提出基於程式碼的問題**：先讀程式碼再提問。
+
+        ### 範圍鎖定規則
+        討論中發現的新功能歸類為**延後**，另行追蹤。不擴大當前範圍。
+
+        ### 產出
+        一份 `read_first` 清單和範圍定義，將作為提案的輸入。
+
+        這個變更有哪些方面需要釐清？
+    reminders:
+      - trigger: "time_elapsed > 30min"
+        message: "Discussion is taking long. Consider locking scope and moving to Proposal."
+        messageZh: "討論耗時較長。考慮鎖定範圍並進入提案階段。"
+
   - id: proposal
     name: Proposal
     nameZh: 提案
@@ -60,9 +152,8 @@ phases:
         required: false
     triggers:
       entry:
-        - condition: new_feature_request
-        - condition: user_invokes_spec_command
-        - condition: change_proposal_needed
+        - condition: discuss_complete
+          fromPhase: discuss
       exit:
         - condition: proposal_complete
           nextPhase: review
@@ -430,6 +521,28 @@ phases:
       - trigger: "verification_blocked > 1day"
         message: "Verification blocked. Check if implementation needs revision."
         messageZh: "驗證被阻擋。檢查實作是否需要修訂。"
+      - trigger: "verify_iteration >= 2"
+        message: |
+          Verification iteration {{verify_iteration}}/3.
+          If this iteration fails, the loop will be capped and human intervention required.
+        messageZh: |
+          驗證迭代 {{verify_iteration}}/3。
+          如果此次迭代失敗，迴圈將被限制並需要人工介入。
+      - trigger: "verify_iteration >= 3"
+        message: |
+          ⚠️ VERIFICATION LOOP CAP REACHED (3/3 iterations).
+          STOP and choose one of:
+          [1] Review spec for ambiguity — are AC unclear or contradictory?
+          [2] Rethink implementation — try a different approach
+          [3] Escalate — seek stakeholder guidance
+          Do NOT continue iterating without human decision.
+        messageZh: |
+          ⚠️ 驗證迴圈上限已達（3/3 次迭代）。
+          停止並選擇：
+          [1] 審查規格是否有歧義 — AC 是否不清楚或矛盾？
+          [2] 重新思考實作方案 — 嘗試不同方法
+          [3] 升級處理 — 尋求利害關係人指導
+          未經人工決策不要繼續迭代。
 
   - id: archive
     name: Archive
@@ -522,7 +635,7 @@ checkpoints:
     action: |
       Phase {{current_phase}} completed.
 
-      SDD Progress: {{current_phase_index}}/5 phases complete
+      SDD Progress: {{current_phase_index}}/6 phases complete
       Spec: {{spec_id}}
 
       [1] Continue to next phase  [2] View spec status  [3] Commit changes
@@ -532,7 +645,7 @@ checkpoints:
     actionZh: |
       階段 {{current_phase}} 完成。
 
-      SDD 進度：{{current_phase_index}}/5 個階段完成
+      SDD 進度：{{current_phase_index}}/6 個階段完成
       規格：{{spec_id}}
 
       [1] 繼續下一階段  [2] 檢視規格狀態  [3] 提交變更
@@ -561,6 +674,57 @@ checkpoints:
       [1] 為此變更建立規格
       [2] 標記為瑣碎變更（錯字、格式）
       [3] 標記為緊急修復（之後記錄）
+
+  - id: scope-change-interrupt
+    trigger: "scope_change_detected_during_implementation"
+    intensity: interrupt
+    action: |
+      ⚠️ SCOPE CHANGE DETECTED — Workflow Paused
+
+      A change outside the approved spec scope has been detected.
+      The workflow is paused until a human decision is made.
+
+      Current state has been saved to .workflow-state/.
+
+      Options:
+      [1] Update the spec to include the new scope
+      [2] Defer the new scope to a separate spec
+      [3] Reject the scope change and continue as planned
+    actionZh: |
+      ⚠️ 偵測到範圍變更 — 工作流已暫停
+
+      偵測到超出已核准規格範圍的變更。
+      工作流已暫停，等待人工決策。
+
+      當前狀態已保存到 .workflow-state/。
+
+      選項：
+      [1] 更新規格以包含新範圍
+      [2] 將新範圍延後到獨立規格
+      [3] 拒絕範圍變更，繼續原計畫
+
+  - id: verification-loop-cap
+    trigger: "verify_iteration >= 3"
+    intensity: strict
+    action: |
+      ⚠️ VERIFICATION LOOP CAP REACHED (3 iterations)
+
+      The verify phase has failed 3 times. Further iteration without
+      human intervention is not allowed.
+
+      Options:
+      [1] Review spec for ambiguity
+      [2] Rethink implementation approach
+      [3] Escalate to stakeholder
+    actionZh: |
+      ⚠️ 驗證迴圈上限已達（3 次迭代）
+
+      驗證階段已失敗 3 次。未經人工介入不允許繼續迭代。
+
+      選項：
+      [1] 審查規格是否有歧義
+      [2] 重新思考實作方案
+      [3] 升級處理至利害關係人
 
 commands:
   - name: sdd

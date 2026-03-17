@@ -144,12 +144,14 @@
 | `reverse-engineering-standards` | This standard defines the principles, workflows, a |
 | `security-standards` | This standard defines comprehensive security guide |
 | `spec-driven-development` | Spec-Driven Development (SDD) Standards |
+| `structured-task-definition` | Structured Task Definition Standards |
 | `test-completeness-dimensions` | This document defines a systematic framework for e |
 | `test-driven-development` | Test-Driven Development (TDD) Standards |
 | `test-governance` | Test Governance Standards |
 | `testing-standards` | This standard defines actionable testing rules and |
 | `versioning` | This standard defines how to version software rele |
 | `virtual-organization-standards` | This standard treats the AI ecosystem as a "Virtua |
+| `workflow-state-protocol` | Workflow State Protocol |
 
 ## 📜 腳本
 

@@ -42,7 +42,7 @@ principles:
 
   methodology_over_tooling:
     rule: SDD 是一種方法論，不綁定單一工具
-    universal_flow: 提案 -> 審查 -> 實作 -> 驗證 -> 歸檔
+    universal_flow: 討論 -> 提案 -> 審查 -> 實作 -> 驗證 -> 歸檔
 
   spec_first:
     rule: 沒有核准的規格不得進行功能性程式碼變更

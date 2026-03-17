@@ -1,0 +1,108 @@
+# Structured Task Definition - AI Optimized
+# Source: core/structured-task-definition.md
+
+id: structured-task-definition
+meta:
+  version: "1.0.0"
+  updated: "2026-03-17"
+  source: core/structured-task-definition.md
+  description: Standard structure for AI task definitions with 4 required fields
+
+principles:
+  grounded_execution:
+    rule: Every AI task must read specified files before acting
+    rationale: Prevents hallucination by establishing ground truth from actual code
+
+  concrete_actions:
+    rule: Task actions must specify exact files, locations, and operations
+    rationale: Eliminates vague instructions like "improve" or "enhance"
+
+  measurable_completion:
+    rule: Acceptance criteria must use Given/When/Then format
+    rationale: Every criterion is independently verifiable
+
+  executable_verification:
+    rule: Verification uses commands (grep, test, ls), not subjective judgment
+    rationale: Machine-verifiable outcomes eliminate ambiguity
+
+required_fields:
+  read_first:
+    description: Files that MUST be read before task execution
+    purpose: Establish ground truth, prevent hallucination
+    format: "List of {path, reason} entries"
+    rules:
+      - All listed files must exist
+      - Include implementation files AND their tests
+      - Include relevant spec documents (if SDD active)
+
+  action:
+    description: Concrete steps with exact file paths and operations
+    purpose: Remove all ambiguity about what to do
+    format: "List of {step, file, operation, location, description}"
+    operations: [add, modify, delete, move, rename]
+    rules:
+      - Each step specifies a single file
+      - Line numbers provide context (approximate OK)
+      - No step should be "do whatever seems right"
+
+  acceptance_criteria:
+    description: GWT-format completion conditions
+    purpose: Testable conditions with no room for "it seems to work"
+    format: "List of {id, given, when, then}"
+    rules:
+      - Use Given/When/Then format
+      - Each AC independently verifiable
+      - Include regression criteria
+      - Number for traceability (AC-1, AC-2)
+
+  verification:
+    description: Executable commands that verify completion
+    purpose: Machine-verifiable outcomes
+    format: "List of {command, expect}"
+    rules:
+      - Every AC has at least one verification command
+      - Prefer deterministic checks (grep, test, ls)
+      - Include test execution
+      - Failed verification = task not complete
+
+rules:
+  - id: task-must-have-read-first
+    trigger: creating AI task or sub-task
+    instruction: >
+      Every task must include a read_first field listing files to read
+      before execution. This establishes ground truth and prevents
+      hallucination about code structure or API signatures.
+    priority: required
+
+  - id: task-must-have-concrete-actions
+    trigger: defining task actions
+    instruction: >
+      Task actions must specify exact file paths, line locations,
+      and operations (add/modify/delete/move/rename). Vague instructions
+      like "improve error handling" or "add validation" are not acceptable.
+    priority: required
+
+  - id: task-must-have-verification
+    trigger: completing task definition
+    instruction: >
+      Every task must include verification commands that can objectively
+      confirm completion. Use grep, test commands, file existence checks,
+      or test suite execution — never subjective judgment like "looks good."
+    priority: required
+
+  - id: task-scope-matching
+    trigger: evaluating whether to apply full structure
+    instruction: >
+      Apply full 4-field structure for features, bug fixes, and refactoring.
+      Trivial changes (typos, formatting) may skip. Hotfixes need at minimum
+      read_first + verification.
+    priority: recommended
+
+quick_reference:
+  fields:
+    columns: [Field, Purpose, Anti-Pattern Prevented]
+    rows:
+      - [read_first, Establish ground truth, Anti-hallucination]
+      - [action, Concrete steps, Anti-ambiguity]
+      - [acceptance_criteria, GWT conditions, Anti-omission]
+      - [verification, Executable checks, Anti-subjectivity]

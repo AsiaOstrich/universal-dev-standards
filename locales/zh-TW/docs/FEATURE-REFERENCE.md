@@ -14,10 +14,10 @@
 3. [技能](#skills) (29)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
-6. [核心規範](#core-standards) (34)
+6. [核心規範](#core-standards) (36)
 7. [腳本](#scripts) (39)
 
-**Total Features: 154**
+**Total Features: 156**
 
 ---
 
@@ -276,12 +276,14 @@
 | `reverse-engineering-standards` | 1.0.0 | This standard defines the principles, workflows, and best practices for reverse  |
 | `security-standards` | 1.1.0 | This standard defines comprehensive security guidelines for software development |
 | `spec-driven-development` | 2.1.0 |  |
+| `structured-task-definition` | 1.0.0 |  |
 | `test-completeness-dimensions` | 1.1.0 | This document defines a systematic framework for evaluating test completeness. I |
 | `test-driven-development` | 1.2.0 |  |
 | `test-governance` | - |  |
 | `testing-standards` | 3.0.0 | This standard defines actionable testing rules and conventions for AI agents and |
 | `versioning` | 1.2.0 | This standard defines how to version software releases using Semantic Versioning |
 | `virtual-organization-standards` | 1.0.0 | This standard treats the AI ecosystem as a "Virtual Organization." It defines ho |
+| `workflow-state-protocol` | 1.0.0 |  |
 
 ---
 

@@ -25,7 +25,7 @@ SDD operates at different maturity levels: Spec-first (discard after completion)
 
 | Aspect | Description |
 |--------|-------------|
-| **Core Workflow** | Proposal → Review → Implementation → Verification → Archive |
+| **Core Workflow** | Discuss → Proposal → Review → Implementation → Verification → Archive |
 | **Key Principle** | Spec First, Code Second |
 | **AC Format** | Given/When/Then (GWT) — enables structured BDD derivation |
 | **Test Generation** | Forward Derivation (/derive-bdd, /derive-tdd, /derive-all) |

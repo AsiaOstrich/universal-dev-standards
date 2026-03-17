@@ -3,7 +3,7 @@
   "version": "5.0.0-rc.1",
   "last_updated": "2026-02-12",
   "stats": {
-    "core_standards": 34,
+    "core_standards": 36,
     "skills": 29,
     "slash_commands": 30
   },
@@ -175,6 +175,16 @@
     },
     {
       "id": "context-aware-loading",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "structured-task-definition",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "workflow-state-protocol",
       "category": "uncategorized",
       "level": 3
     }

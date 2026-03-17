@@ -13,8 +13,29 @@ Create, review, approve, implement, and verify specification documents — full 
 ## SDD Workflow | SDD 工作流程
 
 ```
-/sdd create ──► /sdd review ──► /sdd approve ──► /sdd implement ──► /sdd verify
+/sdd discuss ──► /sdd create ──► /sdd review ──► /sdd approve ──► /sdd implement ──► /sdd verify
 ```
+
+### Phase 0.5: Discuss — Capture Gray Areas | 捕捉灰色地帶
+
+Before writing a spec, conduct a structured discussion to resolve ambiguities.
+
+在撰寫規格前，進行結構化討論以解決模糊之處。
+
+**Discuss Checklist | 討論檢查清單：**
+- [ ] Gray areas identified and listed | 灰色地帶已識別並列出
+- [ ] Scope locked (in/out scope) | 範圍已鎖定（範圍內/外）
+- [ ] Canonical refs collected (read_first list) | 必讀參考已收集
+- [ ] Prior decisions checked (.project-context/) | 已檢查既有決策
+- [ ] Questions based on actual code, not guesses | 問題基於實際程式碼
+
+**Scope Lock Rule**: New features discovered during discussion are classified as **deferred** and tracked separately. They do NOT expand the current scope.
+
+**範圍鎖定規則**：討論中發現的新功能歸類為**延後**，另行追蹤。不擴大當前範圍。
+
+**Output**: A `read_first` list and scope definition that feed into the Create phase.
+
+**產出**：一份 `read_first` 清單和範圍定義，作為建立階段的輸入。
 
 ### Phase 1: Create — Write Spec | 撰寫規格
 
@@ -114,6 +135,35 @@ Ensure implementation matches spec, all tests pass, AC satisfied. Generate verif
 Major deviations must be recorded as `decision` type entries in `.project-context/`.
 
 重大偏差必須記錄為 `.project-context/` 中的 `decision` 類型條目。
+
+**Verification Loop Cap | 驗證迴圈上限：**
+
+The verify phase is capped at **3 iterations**. After 3 failed attempts, STOP and choose:
+
+驗證階段上限為 **3 次迭代**。3 次失敗後，停止並選擇：
+
+1. Review spec for ambiguity — are AC unclear? | 審查規格是否有歧義
+2. Rethink implementation — try a different approach | 重新思考實作方案
+3. Escalate — seek stakeholder guidance | 升級處理至利害關係人
+
+Iteration count is tracked in `.workflow-state/`.
+
+迭代次數記錄在 `.workflow-state/` 中。
+
+**Traceability Matrix (Recommended) | 追蹤矩陣（建議）：**
+
+Generate a REQ → AC → Test → Implementation → Commit traceability matrix:
+
+產生 REQ → AC → Test → Implementation → Commit 追蹤矩陣：
+
+```markdown
+| REQ-ID | AC | Test | Implementation | Commit |
+|--------|-----|------|----------------|--------|
+| REQ-001 | AC-1 | auth.test.js:15 | auth.js:42 | abc1234 |
+| REQ-002 | AC-2 | auth.test.js:30 | auth.js:67 | def5678 |
+```
+
+Empty cells should be marked `[INCOMPLETE]`. | 空欄位標記為 `[INCOMPLETE]`。
 
 ## Enhanced Workflow | 增強工作流程
 
@@ -246,6 +296,8 @@ Brief description of the feature.
 | Command | Purpose | 用途 |
 |---------|---------|------|
 | `/sdd` | Interactive spec creation wizard | 互動式規格建立精靈 |
+| `/sdd discuss` | Start discuss phase for a feature | 啟動功能討論階段 |
+| `/sdd discuss auth-flow` | Discuss specific feature | 討論特定功能 |
 | `/sdd auth-flow` | Create spec for specific feature | 為特定功能建立規格 |
 | `/sdd create auth-flow` | Explicit create phase | 明確指定建立階段 |
 | `/sdd review` | Review existing specs | 審查現有規格 |
@@ -262,12 +314,13 @@ Brief description of the feature.
 ## Typical SDD Workflow | 典型 SDD 工作流程
 
 ```bash
+/sdd discuss user-authentication      # Phase 0.5: Discuss gray areas
 /sdd user-authentication              # Phase 1: Create spec
 /sdd review specs/SPEC-001.md         # Phase 2: Review
 /sdd approve specs/SPEC-001.md        # Phase 3: Approve
 /derive-all specs/SPEC-001.md         # Generate test structures
 /sdd implement specs/SPEC-001.md      # Phase 4: Track implementation
-/sdd verify specs/SPEC-001.md         # Phase 5: Verify
+/sdd verify specs/SPEC-001.md         # Phase 5: Verify (max 3 iterations)
 ```
 
 ## Sync Checklist Template | 同步檢查清單範本

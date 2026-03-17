@@ -250,7 +250,7 @@ You can also configure methodology settings using:
 # Switch to spec-driven for architectural changes
 /methodology switch sdd
 
-# This activates the Proposal → Review → Implementation flow
+# This activates the Discuss → Proposal → Review → Implementation flow
 ```
 
 ---

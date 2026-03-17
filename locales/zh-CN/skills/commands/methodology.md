@@ -244,7 +244,7 @@ status: experimental
 # 切换到規格驅动以进行架構变更
 /methodology switch sdd
 
-# 这会啟动 提案 → 审查 → 实作 流程
+# 这会啟动 讨论 → 提案 → 审查 → 实作 流程
 ```
 
 ---

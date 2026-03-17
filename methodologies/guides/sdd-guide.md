@@ -211,24 +211,25 @@ Use these tags in spec documents to indicate scope:
 ## SDD Workflow
 
 ```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   Proposal   │───▶│    Review    │───▶│Implementation│
-└──────────────┘    └──────────────┘    └──────────────┘
-                                               │
-                                               ▼
-                    ┌──────────────┐    ┌──────────────┐
-                    │   Archive    │◀───│ Verification │
-                    └──────────────┘    └──────────────┘
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│   Discuss    │───▶│   Proposal   │───▶│    Review    │───▶│Implementation│
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+                                                                   │
+                                                                   ▼
+                                        ┌──────────────┐    ┌──────────────┐
+                                        │   Archive    │◀───│ Verification │
+                                        └──────────────┘    └──────────────┘
 ```
 
 ### Workflow Stages
 
 | Stage | Description | Artifacts |
 |-------|-------------|-----------|
+| **Discuss** | Capture gray areas, lock scope, build read_first list | Scope definition, canonical refs |
 | **Proposal** | Define what to change and why | `proposal.md` |
 | **Review** | Stakeholder approval | Review comments, approval record |
 | **Implementation** | Execute the approved spec | Code, tests, docs |
-| **Verification** | Confirm implementation matches spec | Test results, review |
+| **Verification** | Confirm implementation matches spec (max 3 iterations) | Test results, traceability matrix |
 | **Archive** | Close and archive the spec | Archived spec with links to commits/PRs |
 
 ---
@@ -303,7 +304,7 @@ Use these markers in documentation to indicate sync status:
 **Rule**: SDD is a methodology, not bound to a single tool. While OpenSpec is a common implementation, these standards apply to any SDD tool (e.g., Spec Kit).
 
 **Guidelines**:
-- **Universal Flow**: Proposal -> Review -> Implementation -> Verification -> Archive.
+- **Universal Flow**: Discuss -> Proposal -> Review -> Implementation -> Verification -> Archive.
 - **Tool Adaptation**: Adapt to the specific commands and patterns of the active SDD tool in the workspace.
 
 ---

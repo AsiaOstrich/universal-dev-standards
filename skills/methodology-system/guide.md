@@ -53,7 +53,7 @@ The Methodology System provides a unified framework for managing development met
 ### Supported Methodologies
 
 **System A: SDD (Spec-Driven Development)**
-- Proposal → Review → Forward Derivation → Implementation → Verification → Archive
+- Discuss → Proposal → Review → Forward Derivation → Implementation → Verification → Archive
 - AI-native workflow with spec as authoritative source
 
 **System B: Double-Loop TDD**

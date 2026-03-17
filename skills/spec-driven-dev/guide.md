@@ -25,24 +25,25 @@ This skill guides you through Spec-Driven Development (SDD), ensuring changes ar
 ### SDD Workflow
 
 ```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   Proposal   │───▶│    Review    │───▶│Implementation│
-└──────────────┘    └──────────────┘    └──────────────┘
-                                               │
-                                               ▼
-                    ┌──────────────┐    ┌──────────────┐
-                    │   Archive    │◀───│ Verification │
-                    └──────────────┘    └──────────────┘
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│   Discuss    │───▶│   Proposal   │───▶│    Review    │───▶│Implementation│
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+                                                                   │
+                                                                   ▼
+                                        ┌──────────────┐    ┌──────────────┐
+                                        │   Archive    │◀───│ Verification │
+                                        └──────────────┘    └──────────────┘
 ```
 
 ### Workflow Stages
 
 | Stage | Description | Output |
 |-------|-------------|--------|
+| **Discuss** | Capture gray areas, lock scope, build read_first list | Scope definition, canonical refs |
 | **Proposal** | Define what to change and why | `proposal.md` |
 | **Review** | Stakeholder approval | Approval record |
 | **Implementation** | Execute approved spec | Code, tests, docs |
-| **Verification** | Confirm implementation matches spec | Test results |
+| **Verification** | Confirm implementation matches spec (max 3 iterations) | Test results, traceability matrix |
 | **Archive** | Close and archive | Archived spec with links |
 
 ### Core Principles

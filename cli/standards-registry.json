@@ -924,6 +924,30 @@
       "description": "Test policy, completion criteria, and environment management standards (ISO 29119, Agile DoD)"
     },
     {
+      "id": "structured-task-definition",
+      "name": "Structured Task Definition",
+      "nameZh": "結構化任務定義",
+      "source": {
+        "human": "core/structured-task-definition.md",
+        "ai": "ai/standards/structured-task-definition.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Standard structure for AI task definitions with 4 required fields (read_first, action, acceptance_criteria, verification)"
+    },
+    {
+      "id": "workflow-state-protocol",
+      "name": "Workflow State Protocol",
+      "nameZh": "工作流狀態協議",
+      "source": {
+        "human": "core/workflow-state-protocol.md",
+        "ai": "ai/standards/workflow-state-protocol.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Protocol for persisting and restoring workflow state across AI sessions"
+    },
+    {
       "id": "testing",
       "name": "Testing Standards",
       "nameZh": "測試標準",

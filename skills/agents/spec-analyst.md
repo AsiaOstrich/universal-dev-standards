@@ -39,6 +39,38 @@ context-strategy:
   overlap: 500
   analysis-pattern: parallel
 
+# === AGENT SIGNATURES (DSPy-inspired) ===
+signatures:
+  forward-analysis:
+    description: Transform requirements into a specification document
+    inputs:
+      - name: feature_request
+        type: text
+        required: true
+      - name: codebase_context
+        type: file_list
+        required: false
+    outputs:
+      - name: spec_document
+        type: markdown
+        validation: "Contains Summary, Motivation, Acceptance Criteria sections"
+      - name: read_first_list
+        type: yaml_list
+        validation: "Each entry has path and reason fields"
+  reverse-analysis:
+    description: Extract specification from existing code
+    inputs:
+      - name: source_files
+        type: file_list
+        required: true
+    outputs:
+      - name: reverse_spec
+        type: markdown
+        validation: "Contains Discovered Behaviors, Business Rules, Gaps sections"
+      - name: certainty_report
+        type: table
+        validation: "Each item tagged [Confirmed], [Inferred], [Assumption], or [Unknown]"
+
 triggers:
   keywords:
     - specification

@@ -291,11 +291,12 @@ test('should reject email without domain', () => {
     └─ 明确定义「范围外」项目
     💡 命令：/atdd
 
-2️⃣  SDD 阶段：撰写技术规格
+2️⃣  SDD 阶段：讨论与撰写技术规格
+    ├─ 讨论：捕捉灰色地带、锁定范围、建立 read_first 清单
     ├─ 根据 AC 撰写技术设计文档
     ├─ 技术审查并获得批准
     └─ 输出：SPEC-XXX 文档
-    💡 命令：/sdd
+    💡 命令：/sdd discuss → /sdd create
 
 3️⃣  BDD 阶段：撰写行为规格
     ├─ Discovery：从 AC 识别场景

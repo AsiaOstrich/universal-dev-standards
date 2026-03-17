@@ -565,7 +565,7 @@ Before making changes that require specifications, check if SDD tools are presen
 
 ### SDD Workflow
 \`\`\`
-Proposal → Review → Implementation → Verification → Archive
+Discuss → Proposal → Review → Implementation → Verification → Archive
 \`\`\`
 
 ### Command Priority Examples

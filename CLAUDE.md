@@ -6,7 +6,7 @@ This document defines the development standards for the Universal Development St
 
 Universal Development Standards is a language-agnostic, framework-agnostic documentation standards framework. It provides:
 
-- **Core Standards** (`core/`): 34 fundamental development standards
+- **Core Standards** (`core/`): 36 fundamental development standards
 - **AI Skills** (`skills/`): Claude Code skills for AI-assisted development
 - **CLI Tool** (`cli/`): Node.js CLI for adopting standards
 - **Integrations** (`integrations/`): Configurations for various AI tools
@@ -471,7 +471,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 
 本專案採用 UDS 標準。所有規範位於 `.standards/`：
 
-### Core (42 standards)
+### Core (44 standards)
 - `anti-hallucination.ai.yaml` - anti-hallucination.ai.yaml
 - `ai-friendly-architecture.ai.yaml` - ai-friendly-architecture.ai.yaml
 - `commit-message.ai.yaml` - 提交訊息格式
@@ -514,6 +514,8 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 - `project-context-memory.ai.yaml` - 專案情境記憶
 - `context-aware-loading.ai.yaml` - context-aware-loading.ai.yaml
 - `test-governance.ai.yaml` - test-governance.ai.yaml
+- `structured-task-definition.ai.yaml` - 結構化任務定義
+- `workflow-state-protocol.ai.yaml` - 工作流狀態協議
 <!-- UDS:STANDARDS:END -->
 
 ---
@@ -966,7 +968,7 @@ AI:
 
 ```
 universal-dev-standards/
-├── core/                  # Core standards (34 files)
+├── core/                  # Core standards (36 files)
 ├── skills/                # AI tool skills
 │   └── claude-code/       # Claude Code skills (26 skills)
 ├── cli/                   # Node.js CLI tool

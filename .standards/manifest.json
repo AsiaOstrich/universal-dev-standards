@@ -51,7 +51,9 @@
     "ai/standards/developer-memory.ai.yaml",
     "ai/standards/project-context-memory.ai.yaml",
     "ai/standards/context-aware-loading.ai.yaml",
-    "ai/standards/test-governance.ai.yaml"
+    "ai/standards/test-governance.ai.yaml",
+    "ai/standards/structured-task-definition.ai.yaml",
+    "ai/standards/workflow-state-protocol.ai.yaml"
   ],
   "domains": {
     "always-on": [
@@ -75,7 +77,8 @@
       "ai/standards/spec-driven-development.ai.yaml",
       "ai/standards/forward-derivation-standards.ai.yaml",
       "ai/standards/reverse-engineering-standards.ai.yaml",
-      "ai/standards/requirement-engineering.ai.yaml"
+      "ai/standards/requirement-engineering.ai.yaml",
+      "ai/standards/structured-task-definition.ai.yaml"
     ],
     "quality": [
       "ai/standards/code-review.ai.yaml",
@@ -93,7 +96,8 @@
     "workflow": [
       "ai/standards/git-workflow.ai.yaml",
       "ai/standards/versioning.ai.yaml",
-      "ai/standards/deployment-standards.ai.yaml"
+      "ai/standards/deployment-standards.ai.yaml",
+      "ai/standards/workflow-state-protocol.ai.yaml"
     ],
     "architecture": [
       "ai/standards/ai-friendly-architecture.ai.yaml",

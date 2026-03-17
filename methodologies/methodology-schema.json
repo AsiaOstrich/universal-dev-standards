@@ -149,6 +149,11 @@
               "messageZh": { "type": "string" }
             }
           }
+        },
+        "wave": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Wave group number for parallel execution. Steps in the same wave are independent and can run concurrently. Waves execute sequentially (wave 1 completes before wave 2 starts)."
         }
       }
     },
@@ -207,9 +212,9 @@
         },
         "intensity": {
           "type": "string",
-          "enum": ["suggest", "warning", "strict"],
+          "enum": ["suggest", "warning", "strict", "interrupt"],
           "default": "suggest",
-          "description": "How strongly to enforce this checkpoint"
+          "description": "How strongly to enforce this checkpoint. 'interrupt' pauses the workflow and saves state to .workflow-state/"
         },
         "action": {
           "type": "string",

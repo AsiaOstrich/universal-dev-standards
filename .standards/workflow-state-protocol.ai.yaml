@@ -1,0 +1,121 @@
+# Workflow State Protocol - AI Optimized
+# Source: core/workflow-state-protocol.md
+
+id: workflow-state-protocol
+meta:
+  version: "1.0.0"
+  updated: "2026-03-17"
+  source: core/workflow-state-protocol.md
+  description: Protocol for persisting and restoring workflow state across AI sessions
+
+principles:
+  state_persistence:
+    rule: Multi-phase workflows must save state at phase transitions
+    rationale: Enables resumption after session boundaries without state loss
+
+  event_sourcing:
+    rule: Important decisions and transitions are logged in append-only event log
+    rationale: Provides audit trail and enables understanding of workflow history
+
+  session_independence:
+    rule: Each AI session should be able to resume any workflow from saved state
+    rationale: Context window limits make single-session completion unreliable
+
+state_file:
+  location: ".workflow-state/{workflow}-{id}.yaml"
+  required_fields:
+    - workflow      # Workflow type (sdd, feature-dev, etc.)
+    - spec_id       # Spec or task identifier
+    - current_phase # Active phase ID
+    - status        # in-progress | paused | blocked | completed | abandoned
+    - updated       # Last update timestamp (ISO 8601)
+    - phases_completed  # Ordered list of completed phase IDs
+  optional_fields:
+    - title
+    - iteration_count
+    - created
+    - artifacts
+    - progress_summary
+    - completed_steps
+    - next_steps
+    - open_questions
+    - decisions
+
+event_log:
+  location: ".workflow-state/{workflow}-{id}.log.yaml"
+  format: append-only YAML list
+  event_types:
+    - phase_enter    # Workflow enters a new phase
+    - phase_exit     # Workflow exits a phase
+    - checkpoint     # Notable milestone
+    - decision       # Important decision made
+    - error          # Error or failure
+    - interruption   # Workflow paused (HITL or context limit)
+    - resumption     # Workflow resumed from saved state
+  required_event_fields:
+    - timestamp
+    - event_type
+    - phase
+    - summary
+
+rules:
+  - id: state-save-on-phase-transition
+    trigger: workflow phase changes
+    instruction: >
+      When a workflow transitions between phases, update the state file
+      with new current_phase, add the completed phase to phases_completed,
+      and update the timestamp. Also append a phase_exit and phase_enter
+      event to the event log.
+    priority: required
+
+  - id: state-load-on-resume
+    trigger: session start or workflow command invocation
+    instruction: >
+      At session start, check .workflow-state/ for any files with
+      status 'in-progress' or 'paused'. If found, inform the user
+      of active workflows and offer to resume. When a workflow command
+      is invoked (e.g., /sdd implement SPEC-042), check for existing
+      state before starting fresh.
+    priority: required
+
+  - id: state-save-on-session-end
+    trigger: AI session ending with active workflow
+    instruction: >
+      Before ending a session during an active workflow, save current
+      progress to the state file. Update progress_summary, next_steps,
+      and open_questions to enable seamless resumption.
+    priority: required
+
+  - id: event-log-on-decision
+    trigger: important design or scope decision made
+    instruction: >
+      When a significant decision is made during a workflow (design choice,
+      scope change, technology selection), append a 'decision' event to the
+      event log with the decision summary and reasoning.
+    priority: recommended
+
+  - id: state-staleness-warning
+    trigger: loading state file older than 7 days
+    instruction: >
+      If a state file's 'updated' timestamp is more than 7 days old,
+      warn the user that the workflow state may be stale and suggest
+      reviewing it before continuing.
+    priority: recommended
+
+  - id: gitignore-workflow-state
+    trigger: creating .workflow-state/ directory
+    instruction: >
+      Recommend adding .workflow-state/ to .gitignore as workflow state
+      is session-specific. Exception: teams sharing state across developers
+      may version-control it but should clean up completed workflows.
+    priority: recommended
+
+quick_reference:
+  state_lifecycle:
+    columns: [Event, Action]
+    rows:
+      - [Phase transition, Update state file + append event log]
+      - [Important decision, Record in state decisions + event log]
+      - [Session ending, Save progress_summary and next_steps]
+      - [Session starting, Check .workflow-state/ for active workflows]
+      - [Workflow complete, Set status to completed]

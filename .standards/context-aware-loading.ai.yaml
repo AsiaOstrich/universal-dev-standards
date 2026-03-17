@@ -57,11 +57,16 @@ standard:
         - "/reverse"
         - "/requirement"
         - "docs/specs/"
+        - ".workflow-state/"
+        - "workflow state"
+        - "resume workflow"
       standards:
         - spec-driven-development
         - forward-derivation-standards
         - reverse-engineering-standards
         - requirement-engineering
+        - structured-task-definition
+        - workflow-state-protocol
 
     quality:
       description: Standards for code review, refactoring, and quality assurance
@@ -162,6 +167,29 @@ standard:
         When processing user requests, check both built-in domains AND custom domains
         for matching triggers. Load standards from all matching domains.
       priority: required
+
+    - id: context-budget-awareness
+      trigger: "context window usage approaching limits"
+      instruction: >
+        Monitor context window usage during long workflows:
+        - At 60% context: Warn user, suggest considering a new session
+        - At 80% context: Switch to summary mode — stop loading additional
+          on-demand standards, use summaries of previous outputs instead
+        When resuming a workflow in a new session, only load:
+        (1) always-on standards, (2) current phase standards,
+        (3) summary of previous phase outputs from .workflow-state/
+      priority: recommended
+
+    - id: context-inheritance-mode
+      trigger: "multi-phase workflow with phase transitions"
+      instruction: >
+        When transitioning between workflow phases, choose context inheritance:
+        - full: Pass all previous outputs (small workflows)
+        - selective: Pass only specified outputs (default for SDD)
+        - summary: Pass summarized version (long workflows, context pressure)
+        Default to 'selective' — each phase receives only the artifacts
+        it explicitly needs, not the entire conversation history.
+      priority: recommended
 
     - id: hook-based-enforcement
       trigger: "Claude Code hooks are configured for standard injection"

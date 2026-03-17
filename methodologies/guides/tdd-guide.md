@@ -47,7 +47,7 @@ TDD can be used **within** the SDD Implementation phase but is not part of the S
 ├──────────────────────────────────────────────────────────────┤
 │                                                              │
 │   SDD Workflow:                                              │
-│   Proposal → Review → [Implementation] → Verification        │
+│   Discuss → Proposal → Review → [Implementation] → Verify    │
 │                             ↑                                │
 │                     TDD can be used here                     │
 │                     (optional, not required)                 │

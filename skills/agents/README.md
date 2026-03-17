@@ -146,6 +146,70 @@ context-strategy:
   analysis-pattern: hierarchical
 ```
 
+### Agent Signatures (v1.2.0, DSPy-inspired)
+
+The optional `signatures` field defines structured input/output contracts for agent operations. This enables validation of agent outputs and clearer composition in workflows.
+
+```yaml
+---
+name: spec-analyst
+# ... other fields ...
+
+signatures:
+  forward-analysis:
+    description: Transform requirements into a specification document
+    inputs:
+      - name: feature_request
+        type: text
+        required: true
+        description: User's feature request or requirement description
+      - name: codebase_context
+        type: file_list
+        required: false
+        description: Relevant source files for context
+    outputs:
+      - name: spec_document
+        type: markdown
+        validation: "Contains Summary, Motivation, Acceptance Criteria sections"
+      - name: read_first_list
+        type: yaml_list
+        validation: "Each entry has path and reason fields"
+
+  reverse-analysis:
+    description: Extract specification from existing code
+    inputs:
+      - name: source_files
+        type: file_list
+        required: true
+    outputs:
+      - name: reverse_spec
+        type: markdown
+        validation: "Contains Discovered Behaviors, Business Rules, Gaps sections"
+      - name: certainty_report
+        type: table
+        validation: "Each item tagged [Confirmed], [Inferred], [Assumption], or [Unknown]"
+---
+```
+
+#### Signature Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `inputs[].name` | string | Input parameter name |
+| `inputs[].type` | string | `text`, `markdown`, `file_list`, `yaml_list`, `json` |
+| `inputs[].required` | boolean | Whether this input is mandatory |
+| `outputs[].name` | string | Output artifact name |
+| `outputs[].type` | string | Output format type |
+| `outputs[].validation` | string | Human-readable validation criteria |
+
+#### Benefits
+
+- **Composability**: Workflows can validate that step outputs match next step's expected inputs
+- **Documentation**: Signatures serve as API contracts for agent capabilities
+- **Validation**: Output validation criteria enable deterministic quality checks
+
+---
+
 ### Cross-Tool Execution Modes
 
 | AI Tool | Execution Mode | How It Works |
@@ -293,6 +357,7 @@ See [workflows/README.md](../workflows/README.md) for workflow documentation.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-03-17 | Added agent signatures (DSPy-inspired structured I/O contracts) |
 | 1.1.0 | 2026-01-21 | Added RLM-inspired context-strategy configuration |
 | 1.0.0 | 2026-01-20 | Initial release |
 
