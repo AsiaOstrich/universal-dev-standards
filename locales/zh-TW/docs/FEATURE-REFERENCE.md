@@ -1,7 +1,7 @@
 # UDS 功能參考手冊
 
 > Universal Development Standards - 完整功能文件
-> Auto-generated | Last updated: 2026-03-09
+> Auto-generated | Last updated: 2026-03-17
 
 **Language**: [English](../../../docs/FEATURE-REFERENCE.md) | 繁體中文 | [简体中文](../../zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -10,14 +10,14 @@
 ## 目錄
 
 1. [CLI 指令](#cli-commands) (9)
-2. [斜線命令](#slash-commands) (32)
+2. [斜線命令](#slash-commands) (33)
 3. [技能](#skills) (29)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
-6. [核心規範](#core-standards) (32)
-7. [腳本](#scripts) (37)
+6. [核心規範](#core-standards) (34)
+7. [腳本](#scripts) (39)
 
-**Total Features: 149**
+**Total Features: 154**
 
 ---
 
@@ -80,6 +80,7 @@
 | `--restore` | Restore all modified and missing files |
 | `--restore-missing` | Restore only missing files |
 | `--no-interactive` | Disable interactive mode |
+| `--ci` | CI mode: disable interactive prompts and set exit code on issues |
 | `--migrate` | Migrate legacy manifest to hash-based tracking |
 | `--offline` | Skip npm registry check for CLI updates |
 
@@ -176,6 +177,7 @@
 | `/reverse-tdd` | [UDS] Analyze BDD-TDD coverage gaps |
 | `/reverse` | [UDS] Reverse engineer code to Specs, BDD, or TDD coverage. |
 | `/review` | [UDS] Perform systematic code review with checklist |
+| `/sdd-retro` | [UDS] Create retroactive specs for untracked feat/fix commits |
 | `/sdd` | [UDS] Create or review specification documents for Spec-Driven Development |
 | `/tdd` | [UDS] Guide through Test-Driven Development workflow |
 | `/update` | [UDS] Update development standards to latest version |
@@ -256,7 +258,8 @@
 | `changelog-standards` | 1.0.2 | This standard defines how to write and maintain a CHANGELOG.md file to communica |
 | `checkin-standards` | 1.4.0 | This standard defines quality gates that MUST be passed before committing code t |
 | `code-review-checklist` | 1.3.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
-| `commit-message-guide` | 1.2.3 | Standardized commit messages improve code review efficiency, facilitate automate |
+| `commit-message-guide` | 1.3.0 | Standardized commit messages improve code review efficiency, facilitate automate |
+| `context-aware-loading` | 1.0.0 | This standard defines a protocol for AI tools to selectively load development st |
 | `deployment-standards` | 1.0.0 | This standard defines guidelines for safely deploying software to production, co |
 | `developer-memory` | 1.0.0 | This standard defines a structured system for capturing, retrieving, and surfaci |
 | `documentation-structure` | 1.4.0 | This standard defines a consistent documentation structure for software projects |
@@ -266,7 +269,7 @@
 | `git-workflow` | 1.4.0 | This standard defines Git branching strategies and workflows to ensure consisten |
 | `logging-standards` | 1.2.0 |  |
 | `performance-standards` | 1.1.0 | This standard defines comprehensive guidelines for software performance engineer |
-| `project-context-memory` | 1.0.0 | This standard defines a structured system for capturing, retrieving, and enforci |
+| `project-context-memory` | 1.1.0 | This standard defines a structured system for capturing, retrieving, and enforci |
 | `project-structure` | 1.2.0 | This standard defines conventions for project directory structure beyond documen |
 | `refactoring-standards` | 2.1.0 | This standard defines comprehensive guidelines for code refactoring, covering ev |
 | `requirement-engineering` | 1.0.0 |  |
@@ -275,6 +278,7 @@
 | `spec-driven-development` | 2.1.0 |  |
 | `test-completeness-dimensions` | 1.1.0 | This document defines a systematic framework for evaluating test completeness. I |
 | `test-driven-development` | 1.2.0 |  |
+| `test-governance` | - |  |
 | `testing-standards` | 3.0.0 | This standard defines actionable testing rules and conventions for AI agents and |
 | `versioning` | 1.2.0 | This standard defines how to version software releases using Semantic Versioning |
 | `virtual-organization-standards` | 1.0.0 | This standard treats the AI ecosystem as a "Virtual Organization." It defines ho |
@@ -296,6 +300,8 @@
 | `check-docs-integrity.sh` | Documentation Integrity Checker |
 | `check-docs-sync.ps1` | Check Docs Sync |
 | `check-docs-sync.sh` | Documentation Sync Checker |
+| `check-orphan-specs.ps1` | Check Orphan Specs |
+| `check-orphan-specs.sh` | Orphan Spec Detection Script |
 | `check-scope-sync.ps1` | Check Scope Sync |
 | `check-scope-sync.sh` | Scope Consistency Check Script |
 | `check-skill-next-steps-sync.ps1` | Check Skill Next Steps Sync |

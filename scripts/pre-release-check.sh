@@ -206,16 +206,29 @@ run_check "13" "Running skill next steps sync check" "$SCRIPT_DIR/check-skill-ne
 run_check "14" "Running linting" "npm run lint --prefix $CLI_DIR"
 
 # Step 15: Orphan Spec Detection
+# Mandatory Closure: stable releases enforce --strict (orphans = FAILED)
+# Alpha/Beta/RC releases keep warning-only behavior
 echo -e "${CYAN}[15/$TOTAL]${NC} Running orphan spec detection | 孤兒 Spec 偵測..."
-orphan_output=$("$SCRIPT_DIR/check-orphan-specs.sh" 2>&1)
+ORPHAN_STRICT=""
+CLI_VERSION=$(node -p "require('$CLI_DIR/package.json').version" 2>/dev/null || echo "0.0.0")
+if echo "$CLI_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+    ORPHAN_STRICT="--strict"
+    echo -e "      ${CYAN}Stable release detected (v$CLI_VERSION) — enforcing strict orphan check${NC}"
+fi
+orphan_output=$("$SCRIPT_DIR/check-orphan-specs.sh" $ORPHAN_STRICT 2>&1)
 orphan_exit=$?
-if echo "$orphan_output" | grep -q "orphan spec"; then
-    echo -e "      ${YELLOW}⚠ Orphan specs detected (warning only)${NC}"
+if [ $orphan_exit -ne 0 ] && [ -n "$ORPHAN_STRICT" ]; then
+    echo -e "      ${RED}✗ Orphan specs detected (strict mode — stable release)${NC}"
     echo "$orphan_output" | grep -E "^\s*-" | sed 's/^/      /'
+    FAILED=$((FAILED + 1))
+elif echo "$orphan_output" | grep -q "orphan spec"; then
+    echo -e "      ${YELLOW}⚠ Orphan specs detected (warning only — pre-release version)${NC}"
+    echo "$orphan_output" | grep -E "^\s*-" | sed 's/^/      /'
+    PASSED=$((PASSED + 1))
 else
     echo -e "      ${GREEN}✓ No orphan specs${NC}"
+    PASSED=$((PASSED + 1))
 fi
-PASSED=$((PASSED + 1))
 
 # Step 16: Tests
 if [ "$SKIP_TESTS" = true ]; then

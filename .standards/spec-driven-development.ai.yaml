@@ -137,6 +137,42 @@ rules:
     instruction: Archive spec with links to commits/PRs
     priority: required
 
+  - id: closure-integrity
+    trigger: preparing stable release
+    instruction: >
+      Before a stable release (version matching ^[0-9]+\.[0-9]+\.[0-9]+$),
+      ALL specs must be in a terminal state (Archived or Stable).
+      Non-terminal specs block stable releases.
+      Alpha/Beta/RC releases only warn about orphan specs.
+    priority: required
+
+  - id: ac-gwt-format
+    trigger: writing acceptance criteria
+    instruction: >
+      All new acceptance criteria MUST use Given/When/Then (GWT) format:
+      "Given [precondition], When [action], Then [expected outcome]".
+      This enables structured BDD derivation via /derive-bdd.
+      Existing specs are NOT required to retroactively adopt GWT format.
+    priority: required
+    examples:
+      good:
+        - "Given a logged-in user, When they click 'Export', Then a CSV file is downloaded"
+        - "Given an empty cart, When the user adds an item, Then the cart count shows 1"
+      bad:
+        - "User can export data"
+        - "The system should handle empty carts"
+
+  - id: deviation-tracking
+    trigger: completing /sdd verify phase
+    instruction: >
+      During verification, compare planned spec against actual implementation.
+      Document deviations in three categories:
+      - Added: functionality not in the original spec
+      - Modified: functionality that differs from spec
+      - Omitted: spec requirements not implemented
+      Major deviations must be recorded as 'decision' type entries in .project-context/.
+    priority: required
+
 best_practices:
   do:
     - Keep specs focused and atomic (one change per spec)

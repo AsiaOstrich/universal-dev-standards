@@ -42,6 +42,14 @@ phases:
         text: Acceptance criteria are defined and measurable
         textZh: 驗收條件已定義且可測量
         required: true
+      - id: ac-gwt-format
+        text: All acceptance criteria use Given/When/Then format
+        textZh: 所有驗收條件使用 Given/When/Then 格式
+        required: true
+      - id: orphan-check
+        text: Checked for existing orphan specs before creating new one
+        textZh: 建立新規格前已檢查現有孤兒規格
+        required: false
       - id: dependencies-listed
         text: Dependencies on other specs or systems listed
         textZh: 已列出對其他規格或系統的依賴
@@ -82,9 +90,9 @@ phases:
         ## Detailed Design
         Technical approach, affected components, data flow.
 
-        ## Acceptance Criteria
-        - [ ] Criterion 1
-        - [ ] Criterion 2
+        ## Acceptance Criteria (Given/When/Then)
+        - [ ] AC-1: Given [precondition], When [action], Then [expected outcome]
+        - [ ] AC-2: Given [precondition], When [action], Then [expected outcome]
 
         ## Dependencies
         List any dependencies on other specs or external systems.
@@ -122,9 +130,9 @@ phases:
         ## 詳細設計
         技術方法、受影響元件、資料流。
 
-        ## 驗收條件
-        - [ ] 條件 1
-        - [ ] 條件 2
+        ## 驗收條件（Given/When/Then 格式）
+        - [ ] AC-1: Given [前提條件], When [操作], Then [預期結果]
+        - [ ] AC-2: Given [前提條件], When [操作], Then [預期結果]
 
         ## 依賴
         列出對其他規格或外部系統的依賴。
@@ -257,6 +265,10 @@ phases:
         text: Spec ID referenced in commits/PR
         textZh: 提交/PR 中引用規格 ID
         required: true
+      - id: atomic-ac-commits
+        text: Each AC implemented in a separate commit (recommended; tightly coupled ACs may be combined)
+        textZh: 每個 AC 以獨立 commit 實作（建議；緊耦合 AC 可合併）
+        required: false
     triggers:
       entry:
         - condition: spec_approved
@@ -347,6 +359,10 @@ phases:
       - id: no-deviations
         text: No deviations from spec without documentation
         textZh: 沒有未記錄的規格偏差
+        required: true
+      - id: deviation-documented
+        text: Deviation report generated (Added/Modified/Omitted categories)
+        textZh: 偏差報告已生成（新增/修改/省略類別）
         required: true
       - id: documentation-updated
         text: Documentation updated if needed
@@ -510,6 +526,9 @@ checkpoints:
       Spec: {{spec_id}}
 
       [1] Continue to next phase  [2] View spec status  [3] Commit changes
+
+      💡 Context Hygiene: Consider starting a new session if this workflow
+      has been running for a while. Use workflow-state files to resume.
     actionZh: |
       階段 {{current_phase}} 完成。
 
@@ -517,6 +536,9 @@ checkpoints:
       規格：{{spec_id}}
 
       [1] 繼續下一階段  [2] 檢視規格狀態  [3] 提交變更
+
+      💡 上下文衛生：如果此工作流已執行一段時間，建議開啟新 session。
+      使用 workflow-state 檔案來恢復進度。
 
   - id: no-spec-warning
     trigger: "code_changes_without_spec"

@@ -102,7 +102,16 @@
       "ai/standards/logging.ai.yaml"
     ]
   },
-  "extensions": [],
+  "extensions": [
+    {
+      "type": "custom-domain",
+      "domain": "example-domain",
+      "description": "Example custom domain — replace or remove this entry with your own",
+      "triggers": ["example-keyword"],
+      "standards": [],
+      "_note": "Custom domains are additive only — they cannot override built-in domains"
+    }
+  ],
   "integrations": [
     "GEMINI.md",
     "CLAUDE.md"

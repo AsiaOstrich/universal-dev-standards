@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-03-09
+> Quick reference for all UDS features | Last updated: 2026-03-17
 
 **Language**: English | [繁體中文](../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../locales/zh-CN/docs/CHEATSHEET.md)
 
@@ -53,6 +53,7 @@
 | `/reverse-tdd` | [UDS] Analyze BDD-TDD coverage gaps |
 | `/reverse` | [UDS] Reverse engineer code to Specs, BDD, or TDD coverage. |
 | `/review` | [UDS] Perform systematic code review with checklist |
+| `/sdd-retro` | [UDS] Create retroactive specs for untracked feat/fix commits |
 | `/sdd` | [UDS] Create or review specification documents for Spec-Driven Development |
 | `/tdd` | [UDS] Guide through Test-Driven Development workflow |
 | `/update` | [UDS] Update development standards to latest version |
@@ -126,6 +127,7 @@
 | `checkin-standards` | This standard defines quality gates that MUST be p |
 | `code-review-checklist` | This standard provides a comprehensive checklist f |
 | `commit-message-guide` | Standardized commit messages improve code review e |
+| `context-aware-loading` | This standard defines a protocol for AI tools to s |
 | `deployment-standards` | This standard defines guidelines for safely deploy |
 | `developer-memory` | This standard defines a structured system for capt |
 | `documentation-structure` | This standard defines a consistent documentation s |
@@ -144,6 +146,7 @@
 | `spec-driven-development` | Spec-Driven Development (SDD) Standards |
 | `test-completeness-dimensions` | This document defines a systematic framework for e |
 | `test-driven-development` | Test-Driven Development (TDD) Standards |
+| `test-governance` | Test Governance Standards |
 | `testing-standards` | This standard defines actionable testing rules and |
 | `versioning` | This standard defines how to version software rele |
 | `virtual-organization-standards` | This standard treats the AI ecosystem as a "Virtua |
@@ -163,6 +166,8 @@
 | `check-docs-integrity.sh` | Documentation Integrity Checker |
 | `check-docs-sync.ps1` | Check Docs Sync |
 | `check-docs-sync.sh` | Documentation Sync Checker |
+| `check-orphan-specs.ps1` | Check Orphan Specs |
+| `check-orphan-specs.sh` | Orphan Spec Detection Script |
 | `check-scope-sync.ps1` | Check Scope Sync |
 | `check-scope-sync.sh` | Scope Consistency Check Script |
 | `check-skill-next-steps-sync.ps1` | Check Skill Next Steps Sync |

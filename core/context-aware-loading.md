@@ -95,23 +95,63 @@ Projects configure domain mappings in `manifest.json`:
 
 ---
 
-## 3. Implementation Guidelines
+## 3. Custom Domains
 
-### 3.1 For Standard Authors
+Projects can define custom domains in `manifest.json` using the `extensions` array. Custom domains are **additive only** — they cannot override built-in domains.
+
+### 3.1 Extension Format
+
+```json
+{
+  "extensions": [
+    {
+      "type": "custom-domain",
+      "domain": "ml-pipeline",
+      "description": "Standards for ML pipeline workflows",
+      "triggers": ["pipeline", "model training", "dataset", "*.pipeline.*"],
+      "standards": ["ai/standards/custom-ml-pipeline.ai.yaml"]
+    }
+  ]
+}
+```
+
+### 3.2 Custom Domain Rules
+
+| Rule | Description |
+|------|-------------|
+| **Additive only** | Custom domains cannot override or shadow built-in domains |
+| **Unique names** | Domain names must not conflict with built-in domain names |
+| **Standard paths** | Referenced standards must exist in the project |
+| **Trigger format** | Same format as built-in domain triggers (keywords, file patterns, commands) |
+
+### 3.3 Hook-Based Enforcement (Optional)
+
+For Claude Code users, a `UserPromptSubmit` hook can automatically inject relevant standards based on the user's prompt. The hook reads the prompt, matches it against manifest domain triggers (both built-in and custom), and outputs matching standard file paths as context.
+
+**Requirements:**
+- Hook execution must complete in < 500ms
+- Hook failures must not block the user's prompt
+- See `scripts/hooks/inject-standards.js` for reference implementation
+
+---
+
+## 4. Implementation Guidelines
+
+### 4.1 For Standard Authors
 
 - Register new standards in `manifest.json` under the appropriate domain
 - Choose `always-on` only for standards that genuinely apply to every interaction
 - Define specific, actionable triggers in the domain configuration (not vague keywords)
 - Assign each standard to exactly one domain
 
-### 3.2 For AI Tool Integrations
+### 4.2 For AI Tool Integrations
 
 - At session start, always load the `always-on` domain
 - Parse user's first message for trigger keywords before loading additional standards
 - When in doubt, load the standard — false positives are better than missing context
 - Cache domain membership for the session duration
 
-### 3.3 Backward Compatibility
+### 4.3 Backward Compatibility
 
 - Existing `manifest.json` without `domains` continues to work (all standards loaded)
 - The `domains` field is additive — it does not remove existing `standards` list behavior

@@ -113,6 +113,18 @@ standard:
     directory: ".project-context/"
     format: "Markdown (.md) with YAML Frontmatter"
 
+    - id: context-hygiene
+      trigger: "long SDD workflow spanning multiple phases"
+      instruction: >
+        For multi-phase SDD workflows, recommend starting a new AI session at
+        natural phase boundaries to prevent context rot:
+        - Boundary 1: After create + review (spec stabilized)
+        - Boundary 2: After implement (code complete, ready for verify)
+        - Boundary 3: After verify (ready for archive)
+        Use workflow-state files and .project-context/ to persist state across sessions.
+        This is a recommendation, not a hard requirement.
+      priority: recommended
+
   architecture:
     classification: always-on-protocol
     note: >

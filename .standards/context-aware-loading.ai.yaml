@@ -153,6 +153,27 @@ standard:
         /release, /commit → workflow
       priority: required
 
+    - id: custom-domain-loading
+      trigger: "manifest.json contains extensions with type 'custom-domain'"
+      instruction: >
+        Projects may define custom domains in manifest.json extensions array.
+        Format: {type: "custom-domain", domain: "name", triggers: [...], standards: [...]}.
+        Custom domains are additive only — they cannot override built-in domains.
+        When processing user requests, check both built-in domains AND custom domains
+        for matching triggers. Load standards from all matching domains.
+      priority: required
+
+    - id: hook-based-enforcement
+      trigger: "Claude Code hooks are configured for standard injection"
+      instruction: >
+        When a project configures a UserPromptSubmit hook that reads the user's prompt
+        and matches it against manifest domain triggers, the hook output should be
+        treated as additional context. The hook script reads the prompt from stdin,
+        compares against domain triggers in manifest.json, and outputs matching
+        standard file paths. Hook failures must not block the user's prompt.
+        Performance target: hook execution < 500ms.
+      priority: recommended
+
   architecture:
     classification: always-on-protocol
     note: >

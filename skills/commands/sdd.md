@@ -22,6 +22,10 @@ Define requirements, technical design, acceptance criteria, and test plan.
 
 定義需求、技術設計、驗收標準和測試計畫。
 
+**Orphan Check**: Before creating a new spec, check for existing orphan specs (non-terminal state). Consider closing or archiving them first.
+
+**孤兒檢查**：建立新規格前，檢查是否有未關閉的孤兒規格。考慮先關閉或歸檔它們。
+
 ### Phase 2: Review — Validate | 審查驗證
 
 Check for completeness, consistency, and feasibility with stakeholders.
@@ -59,12 +63,20 @@ Develop following the approved spec, referencing requirements and AC. Track prog
 - [ ] Unit test written | 單元測試已撰寫
 - [ ] Test passing | 測試通過
 
+**Atomic Commits per AC | 每 AC 一個 Commit：**
+
+Prefer one commit per acceptance criterion for better traceability. Tightly coupled ACs may be combined.
+
+建議每個驗收標準一個 commit 以提升追蹤性。緊耦合的 AC 可合併。
+
 **Suggested commit format | 建議 commit 格式：**
 ```
 feat(<scope>): implement AC-N — <description>
 
 Implements acceptance criteria AC-N from SPEC-XXX.
 See: docs/specs/SPEC-XXX.md#AC-N
+
+Refs: SPEC-XXX, AC-N
 ```
 
 ### Phase 5: Verify — Confirm | 驗證
@@ -85,7 +97,23 @@ Ensure implementation matches spec, all tests pass, AC satisfied. Generate verif
 | AC | Implementation | Test | Status |
 |----|---------------|------|--------|
 | AC-1 | src/auth.js:42 | tests/auth.test.js:15 | PASS |
+
+## Deviation Report | 偏差報告
+| Type | Description | Justification |
+|------|-------------|---------------|
+| Added | Rate limiting on login endpoint | Security requirement discovered during implementation |
+| Modified | AC-3 uses JWT instead of session tokens | Team decision (see PRJ-2026-0042) |
+| Omitted | AC-5 social login | Deferred to SPEC-XXX-v2 |
 ```
+
+**Deviation Categories | 偏差類別：**
+- **Added**: Functionality not in the original spec | 規格中未列出的功能
+- **Modified**: Functionality that differs from spec | 與規格不同的功能
+- **Omitted**: Spec requirements not implemented | 未實作的規格需求
+
+Major deviations must be recorded as `decision` type entries in `.project-context/`.
+
+重大偏差必須記錄為 `.project-context/` 中的 `decision` 類型條目。
 
 ## Enhanced Workflow | 增強工作流程
 
@@ -138,6 +166,47 @@ After implementation, verify all sync targets:
 | Implemented | Code complete | 已實作 |
 | Archived | Completed or deprecated | 已歸檔 |
 
+## Acceptance Criteria Format | 驗收標準格式
+
+All new acceptance criteria **MUST** use Given/When/Then (GWT) format:
+
+所有新的驗收標準**必須**使用 Given/When/Then (GWT) 格式：
+
+```
+Given [precondition],
+When [action],
+Then [expected outcome].
+```
+
+**Examples | 範例：**
+- `Given a logged-in user, When they click 'Export', Then a CSV file is downloaded`
+- `Given an empty cart, When the user adds an item, Then the cart count shows 1`
+
+**Benefits | 好處：**
+- Enables structured BDD derivation via `/derive-bdd` | 支援透過 `/derive-bdd` 進行結構化 BDD 推導
+- Reduces ambiguity in acceptance criteria | 減少驗收標準的模糊性
+- 1:1 mapping to test scenarios | 與測試場景一對一對應
+
+**Note**: Existing specs are NOT required to retroactively adopt GWT format.
+
+**注意**：現有規格不需要回溯更新為 GWT 格式。
+
+## Session Boundaries | Session 分界建議
+
+For long SDD workflows, consider starting a new AI session at natural phase boundaries to prevent context degradation:
+
+對於長時間的 SDD 工作流程，建議在自然階段邊界開啟新的 AI session 以防止上下文退化：
+
+| Boundary | Phases Before | Phases After |
+|----------|--------------|--------------|
+| 1 | Create + Review | Implement |
+| 2 | Implement | Verify |
+| 3 | Verify | Archive |
+
+Use `workflow-state` files and `.project-context/` to persist state across sessions. This is a recommendation, not a hard requirement.
+
+使用 `workflow-state` 檔案和 `.project-context/` 在 session 間持久化狀態。這是建議而非強制要求。
+
 ## Spec Document Structure | 規格文件結構
 
 ```markdown
@@ -159,6 +228,10 @@ Brief description of the feature.
 
 ### Database Changes
 [Schema changes]
+
+## Acceptance Criteria
+- AC-1: Given [precondition], When [action], Then [expected outcome]
+- AC-2: Given [precondition], When [action], Then [expected outcome]
 
 ## Test Plan
 - [ ] Unit tests for [component]

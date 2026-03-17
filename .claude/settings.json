@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/inject-standards.js\"",
+            "timeout": 5,
+            "statusMessage": "Loading relevant UDS standards..."
+          }
+        ]
+      }
+    ]
+  }
+}
