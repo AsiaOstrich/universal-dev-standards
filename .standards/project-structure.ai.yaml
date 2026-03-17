@@ -11,13 +11,10 @@ standard:
     - "Follow language-specific conventions for src/ structure"
     - "Place tests in tests/ or alongside source (language-dependent)"
     - "Group scripts in tools/ with subdirectories by purpose"
-    - "Place utility functions (stateless, generic) in utils/; layer-specific helpers in {layer}/helpers/"
-    - "Place tool/build configs at project root; app runtime configs in config/ or src/config/"
-    - "Separate generated code into src/generated/{type}/; never mix with hand-written source"
 
   meta:
-    version: "2.1.0"
-    updated: "2026-03-04"
+    version: "2.0.0"
+    updated: "2026-02-04"
     source: core/project-structure.md
     description: Conventions for project directory structure
 
@@ -107,18 +104,6 @@ standard:
       trigger: adding scripts
       instruction: Group scripts in tools/ with subdirectories by purpose
       priority: recommended
-    - id: source-code-organization
-      trigger: creating utility or helper files
-      instruction: "utils/ for stateless generic functions; helpers/ for layer-specific; shared/ for cross-module; lib/ for wrapped dependencies"
-      priority: recommended
-    - id: config-placement
-      trigger: adding configuration files
-      instruction: "Tool configs at root; app configs in config/ or src/config/; env vars in .env (gitignored); CI/CD in .github/workflows/"
-      priority: recommended
-    - id: generated-code
-      trigger: adding generated code
-      instruction: "Place in src/generated/{type}/; gitignore if reproducible; never edit generated files"
-      priority: required
 
 physical_spec:
   type: filesystem_schema

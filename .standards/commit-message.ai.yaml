@@ -106,18 +106,6 @@ standard:
           - "Closes #123"
           - "Fixes #456"
           - "Refs #789"
-    - id: custom-reference-footer
-      trigger: committing changes related to a specification or tracked document
-      instruction: >
-        When a commit relates to a specification or tracked document, add a
-        "Refs: PREFIX-ID" line in the footer using the project's tracking prefix
-        (e.g., SPEC-, JIRA-, FEATURE-, RFC-). This enables bidirectional traceability.
-      priority: recommended
-      examples:
-        good:
-          - "Refs: SPEC-011"
-          - "Refs: JIRA-1234"
-          - "Refs: FEATURE-001, SPEC-005"
 
 physical_spec:
   type: custom_script

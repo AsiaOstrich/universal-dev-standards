@@ -12,8 +12,8 @@ standard:
     - "Use identified paths and specific names (unlike Developer Memory)"
 
   meta:
-    version: "1.1.0"
-    updated: "2026-03-16"
+    version: "1.0.0"
+    updated: "2026-02-09"
     source: core/project-context-memory.md
     description: System for capturing, retrieving, and enforcing project-specific context, architectural decisions, and domain knowledge
 
@@ -25,7 +25,7 @@ standard:
         format: "PRJ-YYYY-NNNN"
       - field: type
         type: enum
-        values: [decision, convention, structure, glossary, constraint, workflow, workflow-state]
+        values: [decision, convention, structure, glossary, constraint, workflow]
       - field: status
         type: enum
         values: [active, proposed, deprecated]
@@ -42,25 +42,6 @@ standard:
       - "Context: What is the background?"
       - "Decision/Rule: What is the consensus?"
       - "Constraint: What is forbidden/required?"
-    workflow_state_fields:
-      - field: workflow
-        type: string
-        description: "Name of the workflow (e.g., 'release-v5.1.0')"
-      - field: phase
-        type: string
-        description: "Current step in the workflow (e.g., 'beta-testing')"
-      - field: progress
-        type: object
-        description: "{ completed: [], current: string, remaining: [], percentage: int }"
-      - field: blockers
-        type: list
-        description: "Current blockers preventing progress"
-      - field: next_steps
-        type: list
-        description: "Ordered list of next actions"
-      - field: updated_at
-        type: date
-        description: "Last update timestamp (for staleness detection)"
 
   operations:
     record:
@@ -127,32 +108,6 @@ standard:
         Save to .project-context/{slug}.md.
         Ensure filename is kebab-case (e.g., unified-error-handling.md).
       priority: required
-
-    - id: workflow-state-check
-      trigger: "session start"
-      instruction: >
-        At session start, scan .project-context/ for entries with type: workflow-state
-        and status: active. If found, surface a summary:
-        "Active workflow: [workflow] at phase [phase]. Resume?"
-        Show blockers and next_steps if present.
-      priority: required
-
-    - id: workflow-state-staleness
-      trigger: "workflow-state entry with updated_at > 7 days ago"
-      instruction: >
-        When scanning workflow-state entries, check updated_at field.
-        If older than 7 days, flag: "Stale workflow: [workflow] hasn't been
-        updated in N days. Archive or resume?"
-      priority: recommended
-
-    - id: workflow-state-completion
-      trigger: "workflow progress indicates completion"
-      instruction: >
-        When a workflow-state entry has progress.percentage = 100 or
-        all items in progress.remaining are empty, suggest archiving:
-        "Workflow [workflow] appears complete. Archive?"
-        Set status to 'deprecated' upon confirmation.
-      priority: recommended
 
   storage:
     directory: ".project-context/"
