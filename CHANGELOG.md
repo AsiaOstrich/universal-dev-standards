@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.10] - 2026-03-17
+
+> **Release Candidate**: Tenth RC for v5.0.0 with update command display fix, stale commandHashes cleanup, and E2E regression tests.
+
+### Fixed
+- **Options Display Path**: Fix `uds update` file list showing `.standards/unit-testing.ai.yaml` instead of `.standards/options/unit-testing.ai.yaml` — use `getStandardTargetDir()` for display
+- **Stale commandHashes Cleanup**: Fix `uds update --commands` not removing old commandHashes entries for renamed/deleted commands — add `replaceCommandHashesForUpdatedAgents()` to clean stale entries before merging
+
+### Added
+- **E2E Regression Tests**: Add 2 regression tests for `uds update` — options display path verification, stale commandHashes cleanup after commands update
+
 ## [5.0.0-rc.9] - 2026-03-17
 
 > **Release Candidate**: Ninth RC for v5.0.0 with E2E bug regression tests, options subdirectory fix, and pre-release workflow improvement.

@@ -402,6 +402,17 @@ async function executeCommandBatch(projectPath, commandActions, manifest) {
         );
 
         if (installResult.allFileHashes) {
+          // Clean up stale entries for agents being updated before merging
+          const updatedPrefixes = new Set(
+            Object.keys(installResult.allFileHashes).map(k => k.split('/')[0])
+          );
+          for (const prefix of updatedPrefixes) {
+            for (const key of Object.keys(manifest.commandHashes)) {
+              if (key.startsWith(prefix + '/')) {
+                delete manifest.commandHashes[key];
+              }
+            }
+          }
           Object.assign(manifest.commandHashes, installResult.allFileHashes);
         }
 

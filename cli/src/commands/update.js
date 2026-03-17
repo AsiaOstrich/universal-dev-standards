@@ -56,6 +56,24 @@ function getStandardTargetDir(sourcePath) {
 }
 
 /**
+ * Clean up stale commandHashes entries before merging new ones.
+ * Removes old entries for agents that are being updated.
+ */
+function replaceCommandHashesForUpdatedAgents(commandHashes, newHashes) {
+  const updatedPrefixes = new Set(
+    Object.keys(newHashes).map(k => k.split('/')[0])
+  );
+  for (const prefix of updatedPrefixes) {
+    for (const key of Object.keys(commandHashes)) {
+      if (key.startsWith(prefix + '/')) {
+        delete commandHashes[key];
+      }
+    }
+  }
+  Object.assign(commandHashes, newHashes);
+}
+
+/**
  * Compare two semantic versions
  * @param {string} v1 - First version (e.g., "3.4.0-beta.3")
  * @param {string} v2 - Second version (e.g., "3.3.0")
@@ -340,11 +358,15 @@ export async function updateCommand(options) {
   // List files to update
   console.log(chalk.gray(msg.filesToUpdate));
   for (const std of manifest.standards) {
-    console.log(chalk.gray(`  .standards/${std.split('/').pop()}`));
+    const fileName = std.split('/').pop();
+    const displayPath = getStandardTargetDir(std) + '/' + fileName;
+    console.log(chalk.gray(`  ${displayPath}`));
   }
   for (const ext of manifest.extensions) {
     if (typeof ext !== 'string') continue;
-    console.log(chalk.gray(`  .standards/${ext.split('/').pop()}`));
+    const fileName = ext.split('/').pop();
+    const displayPath = getStandardTargetDir(ext) + '/' + fileName;
+    console.log(chalk.gray(`  ${displayPath}`));
   }
   if (!options.standardsOnly) {
     for (const int of manifest.integrations) {
@@ -673,7 +695,7 @@ export async function updateCommand(options) {
           // Update command hashes for integrity tracking
           if (cmdResult.allFileHashes) {
             if (!manifest.commandHashes) manifest.commandHashes = {};
-            Object.assign(manifest.commandHashes, cmdResult.allFileHashes);
+            replaceCommandHashesForUpdatedAgents(manifest.commandHashes, cmdResult.allFileHashes);
           }
 
           if (cmdResult.totalErrors === 0) {
@@ -698,7 +720,7 @@ export async function updateCommand(options) {
           // Update command hashes for integrity tracking
           if (updateCmdResult.allFileHashes) {
             if (!manifest.commandHashes) manifest.commandHashes = {};
-            Object.assign(manifest.commandHashes, updateCmdResult.allFileHashes);
+            replaceCommandHashesForUpdatedAgents(manifest.commandHashes, updateCmdResult.allFileHashes);
           }
 
           if (updateCmdResult.totalErrors === 0) {
@@ -1310,7 +1332,7 @@ async function updateCommandsOnly(projectPath, manifest) {
   // Update command hashes for integrity tracking
   if (result.allFileHashes) {
     if (!manifest.commandHashes) manifest.commandHashes = {};
-    Object.assign(manifest.commandHashes, result.allFileHashes);
+    replaceCommandHashesForUpdatedAgents(manifest.commandHashes, result.allFileHashes);
   }
 
   writeManifest(manifest, projectPath);

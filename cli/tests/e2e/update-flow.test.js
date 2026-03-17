@@ -370,6 +370,76 @@ describe('E2E: uds update', () => {
       });
     });
 
+    it('should display options/ subdirectory in file list output', async () => {
+      // Bug: update showed .standards/unit-testing.ai.yaml instead of .standards/options/unit-testing.ai.yaml
+      await setupTestDir(testDir, {});
+      await runNonInteractive({}, testDir);
+
+      // Set manifest to older version so update shows file list
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      manifest.upstream.version = '0.0.1';
+      await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+
+      const result = await runCommand('update', { yes: true, offline: true }, testDir, 15000);
+
+      // Options standards should show with options/ prefix in the output
+      const showsOptionsPath = result.stdout.includes('.standards/options/');
+      expect(showsOptionsPath).toBe(true);
+
+      // Should NOT show options files without the options/ prefix
+      // e.g., should not show ".standards/english.ai.yaml" (without options/)
+      const lines = result.stdout.split('\n');
+      const optionsFileWithoutPrefix = lines.some(line =>
+        line.includes('.standards/english.ai.yaml') && !line.includes('.standards/options/english.ai.yaml')
+      );
+      expect(optionsFileWithoutPrefix).toBe(false);
+
+      recordScenarioResult('Options display path regression', {
+        steps: [
+          { step: 1, name: 'Shows .standards/options/ path', matched: showsOptionsPath },
+          { step: 2, name: 'No incorrect flat path', matched: !optionsFileWithoutPrefix }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should clean up stale commandHashes after commands update', async () => {
+      // Bug: Object.assign only added new entries, never removed renamed/deleted commands
+      await setupTestDir(testDir, {});
+      await runNonInteractive({}, testDir);
+
+      // Set up commands installation in manifest so --commands mode works
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      if (!manifest.commands) manifest.commands = {};
+      manifest.commands.installed = true;
+      manifest.commands.installations = [{ agent: 'gemini-cli', level: 'project' }];
+      if (!manifest.commandHashes) manifest.commandHashes = {};
+      // Inject a stale commandHash entry
+      manifest.commandHashes['gemini-cli/stale-removed-command.toml'] = {
+        hash: 'fake-hash-12345',
+        size: 100,
+        installedAt: '2025-01-01T00:00:00Z'
+      };
+      await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+
+      // Run update --commands to trigger commandHashes refresh
+      const result = await runCommand('update', { commands: true }, testDir, 15000);
+
+      // Read manifest again - stale entry should be removed
+      const updatedManifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      const staleRemoved = !updatedManifest.commandHashes?.['gemini-cli/stale-removed-command.toml'];
+      expect(staleRemoved).toBe(true);
+
+      recordScenarioResult('Stale commandHashes cleanup regression', {
+        steps: [
+          { step: 1, name: 'Stale entry removed from commandHashes', matched: staleRemoved }
+        ],
+        output: result.stdout
+      });
+    });
+
     it('should not show hash mismatch after update then check', async () => {
       // Bug: missing refreshIntegrationBlockHashes() caused false hash mismatch warnings
       await setupTestDir(testDir, {});
