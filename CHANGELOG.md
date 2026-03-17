@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **Auto Update Notification**: CLI commands (`init`, `list`, `add`, `config`) now display update notices with 24-hour throttling cache (`~/.uds/update-check.json`)
+- **AI Agent Version Check Rule**: New `version-check-on-uds-operation` rule in `context-aware-loading` — AI agents check npm for UDS updates on first slash command per conversation
+- **Documentation Standards Enhancement**: Diátaxis classification, LLM-friendly guidelines, ADR deep-dive, and quality metrics for documentation standards
+
+### Fixed
+- **Manifest Extensions Handling**: Fix crash when `manifest.extensions` contains non-string items
+
+### Changed
+- **Maintenance Docs Consolidation**: Merge `MAINTENANCE.md` into `OPERATION-WORKFLOW.md` and archive outdated files
+
 ## [5.0.0-rc.6] - 2026-03-17
 
 > **Release Candidate**: Sixth RC for v5.0.0 with 12 SDD/workflow improvements inspired by GSD, CrewAI, LangGraph, OpenHands, and DSPy.
