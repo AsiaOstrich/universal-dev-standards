@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.6] - 2026-03-17
+
+> **Release Candidate**: Sixth RC for v5.0.0 with 12 SDD/workflow improvements inspired by GSD, CrewAI, LangGraph, OpenHands, and DSPy.
+
+### Added
+- **Discuss Phase** (from GSD): New structured discussion stage before SDD proposal — captures gray areas, locks scope, builds `read_first` list
+- **Verification Loop Cap** (from GSD): SDD verify phase capped at 3 iterations; forced human intervention after cap reached
+- **Structured Task Definition** (new standard): 4 required fields (`read_first`, `action`, `acceptance_criteria`, `verification`) for AI task definitions
+- **Workflow State Protocol** (new standard): `.workflow-state/` directory with YAML state files and append-only event logs for cross-session persistence
+- **Wave-Based Execution** (from GSD): Optional `wave` field in methodology schema for parallel step grouping
+- **Validation Pipeline** (from CrewAI/DSPy): Two-layer validation (deterministic + semantic) with fail-fast principle
+- **Agent Signatures** (from DSPy): Optional `signatures` field for structured I/O contracts in agent definitions
+- **Traceability Matrix** (from GSD): REQ→AC→Test→Implementation→Commit mapping during SDD verify phase
+- **Context Budget Tracking** (from CrewAI/GSD): Context window awareness rules (60%/80% thresholds) in context-aware-loading
+- **HITL Interrupt** (from LangGraph): New `interrupt` checkpoint intensity that pauses workflow and saves state
+- **Agent Communication Protocol** (from LangGraph/CrewAI/GSD): Three-layer protocol (artifact passing, reducer patterns, context isolation)
+- **Trace Validation** (from DSPy): Intermediate step quality verification across SDD workflow phases
+
+### Changed
+- **SDD Workflow**: Updated from 5 phases to 6 phases (Discuss → Proposal → Review → Implementation → Verification → Archive)
+- **Core Standards Count**: Updated from 34 to 36 across all CLAUDE.md, GEMINI.md, and translations
+- **Standards Index**: Added `structured-task-definition` and `workflow-state-protocol` to manifest.json, standards-registry.json, CLAUDE.md, GEMINI.md
+
 ## [5.0.0-rc.5] - 2026-03-16
 
 > **Release Candidate**: Fifth RC for v5.0.0 with context-aware loading, spec tracking, and 4-layer testing pyramid.

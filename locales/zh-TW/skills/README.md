@@ -47,6 +47,7 @@ status: current
 | `project-discovery` | `/discover` | [UDS] 評估專案健康度與風險 |
 | `brainstorm-assistant` | `/brainstorm` | [UDS] 結構化 AI 輔助構想 |
 | `changelog-guide` | `/changelog` | [UDS] 生成變更日誌條目 |
+| `dev-workflow-guide` | `/dev-workflow` | [UDS] 將開發階段對應到 UDS 命令 |
 | `docs-generator` | `/docgen` | [UDS] 生成使用文件 |
 
 ## 靜態與動態規範
