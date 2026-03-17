@@ -15,6 +15,13 @@ export const messages = {
     checkboxHint: '(Space to select, A to toggle all, Enter to confirm)',
     listHint: '(Use arrow keys to select, Enter to confirm)',
 
+    // Update Notice
+    updateNotice: {
+      header: 'Update available',
+      command: 'npm update -g universal-dev-standards',
+      disableHint: 'Set UDS_NO_UPDATE_CHECK=1 to disable'
+    },
+
     // Sweep Command
     sweep: {
       title: 'Auto-Sweep: Code Cleanup',
@@ -1222,6 +1229,13 @@ export const messages = {
     checkboxHint: '（空格選擇、A 全選/取消、Enter 確認）',
     listHint: '（使用方向鍵選擇，Enter 確認）',
 
+    // 更新通知
+    updateNotice: {
+      header: '有新版本可用',
+      command: 'npm update -g universal-dev-standards',
+      disableHint: '設定 UDS_NO_UPDATE_CHECK=1 可關閉'
+    },
+
     // Sweep Command
     sweep: {
       title: '自動清理：程式碼整理',
@@ -2428,6 +2442,13 @@ export const messages = {
     advanced: '高级',
     checkboxHint: '（空格选择、A 全选/取消、Enter 确认）',
     listHint: '（使用方向键选择，Enter 确认）',
+
+    // 更新通知
+    updateNotice: {
+      header: '有新版本可用',
+      command: 'npm update -g universal-dev-standards',
+      disableHint: '设置 UDS_NO_UPDATE_CHECK=1 可关闭'
+    },
 
     // Sweep Command
     sweep: {

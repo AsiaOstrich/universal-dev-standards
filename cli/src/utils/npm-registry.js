@@ -13,7 +13,7 @@ const CACHE_TTL_MS = 60000; // 1 minute cache
  * @param {string} v2 - Second version (e.g., "3.3.0")
  * @returns {number} -1 if v1 < v2, 0 if equal, 1 if v1 > v2
  */
-function compareVersions(v1, v2) {
+export function compareVersions(v1, v2) {
   const parseVersion = (v) => {
     const [main, prerelease] = v.split('-');
     const [major, minor, patch] = main.split('.').map(Number);

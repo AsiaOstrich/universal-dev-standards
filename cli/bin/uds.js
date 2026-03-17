@@ -20,7 +20,8 @@ import { auditCommand } from '../src/commands/audit.js';
 import { uninstallCommand } from '../src/commands/uninstall.js';
 import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand, specArchiveCommand, specDeleteCommand } from '../src/commands/spec.js';
 import { startCommand, missionStatusCommand, missionPauseCommand, missionResumeCommand, missionCancelCommand, missionListCommand } from '../src/commands/start.js';
-import { setLanguage, setLanguageExplicit, detectLanguage } from '../src/i18n/messages.js';
+import { setLanguage, setLanguageExplicit, detectLanguage, t } from '../src/i18n/messages.js';
+import { maybeCheckForUpdates, formatUpdateNotice } from '../src/utils/update-checker.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -39,6 +40,19 @@ program
     } else {
       // Explicit setting: mark as explicitly set to prevent override
       setLanguageExplicit(uiLang);
+    }
+  })
+  .hook('postAction', async (thisCommand) => {
+    const cmd = thisCommand.name();
+    const notifyCommands = ['init', 'list', 'add', 'config'];
+    if (!notifyCommands.includes(cmd)) return;
+    try {
+      const result = await maybeCheckForUpdates(pkg.version);
+      if (result?.shouldNotify) {
+        console.log(formatUpdateNotice(result, t()));
+      }
+    } catch {
+      // Silent failure — update check should never break CLI
     }
   });
 

@@ -32,6 +32,7 @@ import {
 import { extractMarkedContent, getToolFilePath } from '../utils/integration-generator.js';
 import { getToolFormat } from '../core/constants.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
+import { writeUpdateCache } from '../utils/update-checker.js';
 import { StandardValidator } from '../utils/standard-validator.js';
 import { t, getLanguage, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 
@@ -1126,6 +1127,15 @@ async function checkCliVersion(bundledVersion) {
       includeBeta: bundledVersion.includes('-')
     });
     spinner.stop();
+
+    // Update cache for throttled checks in postAction hook
+    if (!result.offline) {
+      writeUpdateCache({
+        lastChecked: new Date().toISOString(),
+        latestVersion: result.latestStable || null,
+        latestBeta: result.latestBeta || null
+      });
+    }
 
     if (result.offline) {
       console.log(chalk.gray(`  ${msg.couldNotCheckUpdates}`));

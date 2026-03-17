@@ -29,6 +29,10 @@ export class ConfigManager {
       },
       'vibe-coding': {
         enabled: false
+      },
+      updateCheck: {
+        enabled: true,
+        intervalMs: 86400000  // 24 hours
       }
     };
 
