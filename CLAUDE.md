@@ -471,7 +471,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 
 本專案採用 UDS 標準。所有規範位於 `.standards/`：
 
-### Core (41 standards)
+### Core (42 standards)
 - `anti-hallucination.ai.yaml` - anti-hallucination.ai.yaml
 - `ai-friendly-architecture.ai.yaml` - ai-friendly-architecture.ai.yaml
 - `commit-message.ai.yaml` - 提交訊息格式
@@ -512,7 +512,8 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 - `deployment-standards.ai.yaml` - deployment-standards.ai.yaml
 - `developer-memory.ai.yaml` - 開發者持久記憶
 - `project-context-memory.ai.yaml` - 專案情境記憶
-- `context-aware-loading.ai.yaml` - 上下文感知標準載入
+- `context-aware-loading.ai.yaml` - context-aware-loading.ai.yaml
+- `test-governance.ai.yaml` - test-governance.ai.yaml
 <!-- UDS:STANDARDS:END -->
 
 ---
