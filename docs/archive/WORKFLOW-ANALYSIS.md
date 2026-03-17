@@ -263,7 +263,7 @@ These are the key transition points where one command's output feeds into anothe
 - [Workflow Prerequisites](../methodologies/workflow-prerequisites.yaml) — Machine-readable prerequisite definitions
 - [Prerequisite Check Protocol](../skills/methodology-system/prerequisite-check.md) — AI behavior for checking prerequisites
 - [Integrated Flow Guide](../skills/methodology-system/integrated-flow.md) — Detailed methodology system description
-- [Workflow Gaps](./WORKFLOW-GAPS.md) — Known gaps and planned improvements
+- [Workflow Gaps](./WORKFLOW-GAPS.md) — Known gaps and planned improvements (archived)
 
 ---
 

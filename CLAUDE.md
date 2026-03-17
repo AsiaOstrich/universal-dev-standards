@@ -447,6 +447,8 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 ---
 
 <!-- UDS:STANDARDS:START -->
+<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use 'npx uds install' or 'npx uds update' to modify. -->
+<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use 'npx uds install' or 'npx uds update' to modify. -->
 ## 提交訊息語言
 所有提交訊息必須使用**繁體中文**撰寫。
 格式：`<類型>(<範圍>): <主旨>`
@@ -514,8 +516,8 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 - `project-context-memory.ai.yaml` - 專案情境記憶
 - `context-aware-loading.ai.yaml` - context-aware-loading.ai.yaml
 - `test-governance.ai.yaml` - test-governance.ai.yaml
-- `structured-task-definition.ai.yaml` - 結構化任務定義
-- `workflow-state-protocol.ai.yaml` - 工作流狀態協議
+- `structured-task-definition.ai.yaml` - structured-task-definition.ai.yaml
+- `workflow-state-protocol.ai.yaml` - workflow-state-protocol.ai.yaml
 <!-- UDS:STANDARDS:END -->
 
 ---
@@ -552,67 +554,7 @@ After ANY modification, run:
 cd cli && npm test && npm run lint
 ```
 
-### AI Agent 同步檢查 SOP（專案內部作業）
-
-當 AI Agent 需要執行跨 AI Agent 同步檢查時，遵循以下步驟：
-
-#### 階段 1：探索分析
-
-1. 使用 Explore Agent 掃描 `integrations/` 目錄
-2. 識別所有 AI Agent 整合檔案
-3. 分析 Skills 與 Commands 分發狀態
-
-#### 階段 2：規則驗證
-
-檢查每個整合檔案是否包含以下核心規則：
-
-| 規則 ID | 名稱 | 嚴重性 | 說明 |
-|---------|------|--------|------|
-| AH-001 | Evidence-Based Analysis | ERROR | 必須先讀取檔案再分析 |
-| AH-002 | Source Attribution | ERROR | 必須標注來源 |
-| AH-003 | Certainty Classification | WARNING | 使用確定性標籤 |
-| AH-004 | Recommendation Required | WARNING | 提供推薦選項 |
-| SDD-001 | SDD Tool Detection | ERROR | 偵測 OpenSpec/Spec Kit |
-| SDD-002 | SDD Command Priority | WARNING | SDD 命令優先級 |
-| CMT-001 | Conventional Commits | WARNING | 提交格式 |
-
-#### 階段 3：報告生成
-
-輸出格式：
-- 同步狀況總覽（百分比）
-- 各 Agent 合規狀態表
-- 缺失規則清單
-- 修復建議
-
-#### 自動化腳本
-
-**macOS / Linux:**
-```bash
-./scripts/check-ai-agent-sync.sh --verbose
-```
-
-**Windows PowerShell:**
-```powershell
-.\scripts\check-ai-agent-sync.ps1 -Verbose
-```
-
-#### AI Agent 可重複執行的 Prompt 範本
-
-```
-請執行 UDS 專案的「跨 AI Agent 同步檢查」作業：
-
-1. 掃描 integrations/ 目錄下的所有整合檔案
-2. 驗證每個檔案是否包含以下核心規則：
-   - Anti-Hallucination (AH-001~004)
-   - SDD Priority (SDD-001~002)
-   - Commit Format (CMT-001)
-3. 生成同步狀況報告
-4. 列出需要修復的項目
-
-參考檔案：
-- docs/internal/AI-AGENT-SYNC-SOP.md
-- integrations/REGISTRY.json
-```
+> **AI Agent 同步檢查 SOP**: See [docs/internal/AI-AGENT-SYNC-SOP.md](docs/internal/AI-AGENT-SYNC-SOP.md) for the complete procedure.
 
 ### Core↔Skill Sync Rules (UDS-specific) / Core↔Skill 同步規則
 
@@ -750,7 +692,7 @@ All Core Standards and Skills are marked with a `scope` field indicating their u
 After modifying these UDS project files, verify cross-platform command sync:
 - Adoption guides (`adoption/`)
 - Skills installation instructions (`skills/*/README.md`)
-- Maintenance guides (`MAINTENANCE.md`, `ai/MAINTENANCE.md`)
+- Maintenance guides (`docs/OPERATION-WORKFLOW.md`, `ai/MAINTENANCE.md`)
 - Checklists (`adoption/checklists/`)
 
 #### Files Requiring Sync / 需要同步的檔案

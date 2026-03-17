@@ -280,7 +280,7 @@ description: |
 - [CLAUDE.md 範本](../../../templates/CLAUDE.md.template) - 可立即使用的靜態規則範本
 - [Claude Code Skills](../../../skills/README.md) - 技能安裝指南
 - [採用指南](ADOPTION-GUIDE.md) - 整體採用策略
-- [MAINTENANCE.md](../MAINTENANCE.md) - 如何新增/更新技能（維護者專用）
+- [OPERATION-WORKFLOW.md](../../../docs/OPERATION-WORKFLOW.md) - 如何新增/更新技能（維護者專用）
 
 ---
 

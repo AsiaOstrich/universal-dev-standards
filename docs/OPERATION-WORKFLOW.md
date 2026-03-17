@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/docs/OPERATION-WORKFLOW.md) | [简体中文](../locales/zh-CN/docs/OPERATION-WORKFLOW.md)
 
-**Version**: 1.3.0
-**Last Updated**: 2026-01-26
+**Version**: 2.0.0
+**Last Updated**: 2026-03-17
 
 This document provides a complete operation workflow for the Universal Development Standards (UDS) project, covering the entire process from core standards to file generation.
 
@@ -57,6 +57,36 @@ This document provides a complete operation workflow for the Universal Developme
 │   CLI generates: CLAUDE.md, .cursorrules, .windsurfrules, etc. │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+### 1.1.1 Complete Sync Hierarchy
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        PRIMARY SOURCE                                │
+│                         core/*.md                                    │
+└─────────────────────────────────────────────────────────────────────┘
+                                  │
+          ┌───────────────────────┼───────────────────────┐
+          ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   options/*.md  │    │ ai/standards/   │    │ skills/claude-  │
+│   (MD options)  │    │   *.ai.yaml     │    │   code/*/       │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+          │                       │                       │
+          ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│ locales/zh-TW/  │    │  ai/options/    │    │ locales/zh-TW/  │
+│   options/      │    │   *.ai.yaml     │    │   skills/       │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                │
+                                ▼
+                    ┌─────────────────┐
+                    │ locales/zh-TW/  │
+                    │   ai/           │
+                    └─────────────────┘
+```
+
+**Golden Rule**: Always update from top to bottom. Never modify downstream files without updating the source first.
 
 ### 1.2 File Relationship Summary
 
@@ -500,6 +530,64 @@ cli/
 | `check-install-scripts-sync.sh` | Check install scripts sync | `./scripts/check-install-scripts-sync.sh` |
 | `check-spec-sync.sh` | Check Core↔Skill sync | `./scripts/check-spec-sync.sh` |
 | `pre-release.sh` | Pre-release automation | `./scripts/pre-release.sh --version X.Y.Z` |
+
+### 7.1.1 Complete File Sync Map by Core Standard
+
+Each core standard has a dependency tree. When updating a core file, all downstream files must be updated.
+
+#### Simple Standards (No Options)
+
+| Core Standard | Downstream Files | Total |
+|---------------|------------------|-------|
+| acceptance-test-driven-development.md | ai/standards, skill, 2x locales | ~6 |
+| accessibility-standards.md | ai/standards, 2x locales | ~4 |
+| ai-agreement-standards.md | ai/standards, 2x locales | ~4 |
+| ai-friendly-architecture.md | ai/standards, skill, 2x locales | ~6 |
+| ai-instruction-standards.md | ai/standards, skill, 2x locales | ~6 |
+| anti-hallucination.md | ai/standards, skill, 2x locales | ~6 |
+| behavior-driven-development.md | ai/standards, skill, 2x locales | ~6 |
+| checkin-standards.md | ai/standards, skill, 2x locales | ~6 |
+| deployment-standards.md | ai/standards, 2x locales | ~4 |
+| developer-memory.md | ai/standards, 2x locales | ~4 |
+| documentation-writing-standards.md | ai/standards, skill, 2x locales | ~6 |
+| error-code-standards.md | ai/standards, skill, 2x locales | ~4 |
+| forward-derivation-standards.md | ai/standards, skill, 2x locales | ~6 |
+| logging-standards.md | ai/standards, skill, 2x locales | ~4 |
+| performance-standards.md | ai/standards, 2x locales | ~4 |
+| project-context-memory.md | ai/standards, skill, 2x locales | ~6 |
+| refactoring-standards.md | ai/standards, skill, 2x locales | ~6 |
+| requirement-engineering.md | ai/standards, skill, 2x locales | ~6 |
+| reverse-engineering-standards.md | ai/standards, skill, 2x locales | ~6 |
+| security-standards.md | ai/standards, 2x locales | ~4 |
+| spec-driven-development.md | ai/standards, skill, 2x locales | ~4 |
+| test-completeness-dimensions.md | ai/standards, skill, 2x locales | ~6 |
+| test-driven-development.md | ai/standards, skill, 2x locales | ~6 |
+| versioning.md | ai/standards, skill, 2x locales | ~8 |
+| virtual-organization-standards.md | ai/standards, 2x locales | ~4 |
+
+#### Medium Complexity (YAML Options Only)
+
+| Core Standard | Options | Downstream Files | Total |
+|---------------|---------|------------------|-------|
+| changelog-standards.md | 2 YAML | ai/standards, ai/options, skill, locales | ~12 |
+| code-review-checklist.md | 3 YAML | ai/standards, ai/options, skill, locales | ~14 |
+| documentation-structure.md | 3 YAML | ai/standards, ai/options, skill, locales | ~14 |
+
+#### High Complexity (MD + YAML Options)
+
+| Core Standard | MD Opts | YAML Opts | Total Files |
+|---------------|---------|-----------|-------------|
+| commit-message-guide.md | 3 | 3 | ~20 |
+| git-workflow.md | 6 | 6 | ~32 |
+
+#### Very High Complexity
+
+| Core Standard | MD Opts | YAML Opts | Total Files |
+|---------------|---------|-----------|-------------|
+| project-structure.md | 5 | 10 | ~38 |
+| testing-standards.md | 4 | 9 | ~34 |
+
+> **Dynamic vs Static Classification**: For guidance on whether a standard should become a Skill or be added to CLAUDE.md, see [STATIC-DYNAMIC-GUIDE.md](../adoption/STATIC-DYNAMIC-GUIDE.md).
 
 ### 7.2 Core↔Skill Sync Mechanism
 
@@ -1071,6 +1159,120 @@ git push origin main --tags
 # Verify after GitHub Release
 npm view universal-dev-standards dist-tags
 ```
+
+### 10.5 Complete Directory Reference
+
+#### core/ (Primary Source)
+
+| File | Version | Description |
+|------|---------|-------------|
+| acceptance-test-driven-development.md | 1.1.0 | ATDD methodology |
+| accessibility-standards.md | 1.0.0 | Accessibility guidelines |
+| ai-agreement-standards.md | 1.0.0 | Human-AI agreement protocol |
+| ai-friendly-architecture.md | 1.0.0 | AI-optimized design patterns |
+| ai-instruction-standards.md | 1.0.0 | Best practices for AI instructions |
+| anti-hallucination.md | 1.5.0 | AI behavior guidelines |
+| behavior-driven-development.md | 1.1.0 | BDD methodology |
+| changelog-standards.md | 1.0.2 | Changelog format rules |
+| checkin-standards.md | 1.4.0 | Code check-in checklist |
+| code-review-checklist.md | 1.3.0 | Code review guidelines |
+| commit-message-guide.md | 1.2.3 | Commit message format |
+| deployment-standards.md | 1.0.0 | Deployment guidelines |
+| developer-memory.md | 1.0.0 | Structured AI memory system |
+| documentation-structure.md | 1.3.0 | Doc organization |
+| documentation-writing-standards.md | 1.1.0 | Writing guidelines |
+| error-code-standards.md | 1.1.0 | Error code format |
+| forward-derivation-standards.md | 1.1.0 | Auto-derivation principles |
+| git-workflow.md | 1.4.0 | Git workflow patterns |
+| logging-standards.md | 1.2.0 | Logging guidelines |
+| performance-standards.md | 1.1.0 | Performance engineering |
+| project-context-memory.md | 1.0.0 | Context-aware memory system |
+| project-structure.md | 1.1.0 | Project organization |
+| refactoring-standards.md | 2.1.0 | Safe refactoring practices |
+| requirement-engineering.md | 1.0.0 | INVEST criteria & storytelling |
+| reverse-engineering-standards.md | 1.0.0 | Code-to-spec recovery |
+| security-standards.md | 1.1.0 | Security best practices |
+| spec-driven-development.md | 2.1.0 | SDD workflow |
+| test-completeness-dimensions.md | 1.1.0 | Testing dimensions |
+| test-driven-development.md | 1.2.0 | TDD workflow |
+| testing-standards.md | 3.0.0 | Testing guidelines |
+| versioning.md | 1.2.0 | Semantic versioning |
+| virtual-organization-standards.md | 1.0.0 | AI orchestration framework |
+
+**Total**: 32 files
+
+#### options/ (MD Options)
+
+| Category | Files | Related Standard |
+|----------|-------|------------------|
+| commit-message/ | 3 (english, traditional-chinese, bilingual) | commit-message-guide.md |
+| git-workflow/ | 6 (gitflow, github-flow, trunk-based, merge-commit, squash-merge, rebase-ff) | git-workflow.md |
+| project-structure/ | 5 (dotnet, nodejs, python, java, go) | project-structure.md |
+| testing/ | 4 (unit, integration, system, e2e) | testing-standards.md |
+
+**Total**: 18 files
+
+#### skills/ (Claude Code Skills)
+
+| Skill | Files | Related Core Standards |
+|-------|-------|------------------------|
+| ai-collaboration-standards/ | 3 | anti-hallucination.md |
+| ai-friendly-architecture/ | 2 | ai-friendly-architecture.md |
+| ai-instruction-standards/ | 2 | ai-instruction-standards.md |
+| atdd-assistant/ | 3 | acceptance-test-driven-development.md |
+| bdd-assistant/ | 3 | behavior-driven-development.md |
+| changelog-guide/ | 2 | changelog-standards.md |
+| checkin-assistant/ | 3 | checkin-standards.md |
+| code-review-assistant/ | 3 | code-review-checklist.md, checkin-standards.md |
+| commit-standards/ | 3 | commit-message-guide.md |
+| docs-generator/ | 2 | documentation-writing-standards.md |
+| documentation-guide/ | 3 | documentation-structure.md, documentation-writing-standards.md |
+| error-code-guide/ | 2 | error-code-standards.md |
+| forward-derivation/ | 3 | forward-derivation-standards.md |
+| git-workflow-guide/ | 3 | git-workflow.md |
+| logging-guide/ | 2 | logging-standards.md |
+| methodology-system/ | 3 | methodology-system (cross-standard) |
+| project-discovery/ | 2 | project-context-memory.md |
+| project-structure-guide/ | 2 | project-structure.md |
+| refactoring-assistant/ | 3 | refactoring-standards.md |
+| release-standards/ | 4 | changelog-standards.md, versioning.md |
+| requirement-assistant/ | 3 | requirement-engineering.md |
+| reverse-engineer/ | 3 | reverse-engineering-standards.md |
+| spec-driven-dev/ | 2 | spec-driven-development.md |
+| tdd-assistant/ | 3 | test-driven-development.md |
+| test-coverage-assistant/ | 2 | test-completeness-dimensions.md |
+| testing-guide/ | 2 | testing-standards.md |
+
+**Total**: 26 skill packages
+
+#### extensions/ (Language/Framework/Locale Extensions)
+
+| File | Version | Description |
+|------|---------|-------------|
+| languages/csharp-style.md | 1.0.1 | C# coding style guide |
+| languages/php-style.md | 1.0.0 | PHP 8.1+ coding style guide |
+| frameworks/fat-free-patterns.md | 1.0.0 | Fat-Free Framework patterns |
+| locales/zh-tw.md | 1.2.0 | Traditional Chinese locale guidelines |
+
+**Total**: 4 files (not part of core sync chain)
+
+### 10.6 File Count Summary
+
+| Directory | English | zh-TW | Total |
+|-----------|---------|-------|-------|
+| core/ | 32 | 32 | 64 |
+| options/ | 18 | 18 | 36 |
+| ai/standards/ | 32 | 32 | 64 |
+| ai/options/ | 36 | 36 | 72 |
+| extensions/ | 4 | 0 | 4 |
+| skills/ | 60 | 60 | 120 |
+| adoption/ | 5 | 5 | 10 |
+| templates/ | 4 | 4 | 8 |
+| integrations/ | 7 | 0 | 7 |
+| Root files | 6 | 3 | 9 |
+| **Total** | **204** | **190** | **394** |
+
+*Note: cli/ and scripts/ not included (not translated)*
 
 ---
 
