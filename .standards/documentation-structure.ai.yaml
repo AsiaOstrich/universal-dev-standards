@@ -3,10 +3,10 @@
 
 id: documentation-structure
 meta:
-  version: "1.3.0"
-  updated: "2025-12-29"
+  version: "1.4.0"
+  updated: "2026-03-17"
   source: core/documentation-structure.md
-  description: Consistent documentation structure for software projects
+  description: Consistent documentation structure for software projects (Diátaxis classification, LLM discovery, doc testing)
 
 options:
   documentation_style:
@@ -68,7 +68,70 @@ structure:
         purpose: Architecture diagrams
         formats: [".mmd", ".puml", ".drawio"]
 
+diataxis_classification:
+  types:
+    - id: tutorial
+      purpose: Learning-oriented
+      user_need: "I want to learn"
+      examples: [getting-started.md, first-project-walkthrough.md]
+    - id: how-to
+      purpose: Task-oriented
+      user_need: "I want to accomplish X"
+      examples: [deployment.md, migration.md, troubleshooting.md]
+    - id: reference
+      purpose: Information-oriented
+      user_need: "I need to look up Y"
+      examples: [api-reference.md, CHANGELOG.md, configuration.md]
+    - id: explanation
+      purpose: Understanding-oriented
+      user_need: "I want to understand why"
+      examples: [architecture.md, ADR/, design-rationale.md]
+
+llm_discovery:
+  files:
+    - name: llms.txt
+      location: project root
+      purpose: Structured index for LLM retrieval systems
+      when: Public projects or projects using AI tools
+    - name: llms-full.txt
+      location: project root
+      purpose: Full concatenated docs for complete context
+      when: Optional
+
+doc_testing:
+  layers:
+    - name: Link Validation
+      tools: [markdown-link-check, lychee]
+      ci_stage: pre-commit
+    - name: Code Sample Testing
+      tools: [doctest, custom scripts]
+      ci_stage: PR check
+    - name: Structure Validation
+      tools: [remark-lint, custom linter]
+      ci_stage: pre-commit
+    - name: Content Freshness
+      tools: [custom date-check script]
+      ci_stage: release
+    - name: Traceability
+      tools: [traceability matrix]
+      ci_stage: release
+
 rules:
+  - id: diataxis-classify
+    trigger: creating new documentation
+    instruction: Classify document as Tutorial, How-to, Reference, or Explanation and add Document Type header
+    priority: recommended
+
+  - id: llm-discovery
+    trigger: creating public project documentation
+    instruction: Consider adding llms.txt for LLM discoverability
+    priority: recommended
+
+  - id: doc-testing-links
+    trigger: adding documentation
+    instruction: Validate all links before committing
+    priority: required
+
   - id: root-uppercase
     trigger: creating root documentation
     instruction: Use UPPERCASE for root-level docs (README, CONTRIBUTING, CHANGELOG)

@@ -10,8 +10,8 @@ description: |
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/skills/documentation-guide/SKILL.md)
 
-**Version**: 2.0.0
-**Last Updated**: 2026-01-12
+**Version**: 2.1.0
+**Last Updated**: 2026-03-17
 **Applicability**: Claude Code Skills
 
 ---
@@ -79,6 +79,38 @@ quality:
     version: "Mark version and date at top"
     review: "Include docs in code review"
     periodic: "Review quarterly for staleness"
+
+# === DIÁTAXIS CLASSIFICATION ===
+diataxis:
+  tutorial: "Learning-oriented (getting-started.md)"
+  how_to: "Task-oriented (deployment.md, migration.md)"
+  reference: "Information-oriented (api-reference.md, CHANGELOG.md)"
+  explanation: "Understanding-oriented (architecture.md, ADR/)"
+  header: "Add **Document Type**: Tutorial | How-to | Reference | Explanation"
+
+# === LLM DISCOVERY ===
+llm_discovery:
+  llms_txt: "Structured index at project root for LLM retrieval"
+  llms_full_txt: "Optional full concatenated docs"
+  when: "Public projects, public APIs, projects using AI tools"
+
+# === QUALITY METRICS ===
+quality_metrics:
+  leading: ["Coverage ≥90%", "Freshness ≤90d", "Link Health 100%", "Example Validity 100%"]
+  lagging: ["Support ticket reduction", "Onboarding time", "Doc-related PR comments"]
+  tools: [markdown-link-check, lychee, remark-lint, vale, textstat]
+
+# === ADR ENHANCED ===
+adr_enhanced:
+  new_fields: [Date, Deciders, Drivers, "supersedes/superseded-by"]
+  lifecycle: "proposed → accepted → [deprecated | superseded]"
+  decision_matrix: "impact × reversibility → ADR required?"
+
+# === TRANSLATION-FRIENDLY ===
+translation_friendly:
+  rules: ["Complete sentences", "No idioms", "Consistent terminology", "Simple SVO", "Explicit references"]
+  glossary: "Maintain glossary.md for term consistency"
+  status_tracking: "YAML frontmatter with translation_status, source_version"
 ```
 
 ---
@@ -300,8 +332,16 @@ MIT
 ```markdown
 # ADR-001: [Decision Title]
 
-## Status
-Accepted
+**Date**: YYYY-MM-DD
+**Status**: proposed | accepted | deprecated | superseded
+**Deciders**: [List of people involved]
+**Supersedes**: ADR-NNN (if applicable)
+**Superseded by**: ADR-NNN (if applicable)
+
+## Drivers
+
+- [Key factor 1]
+- [Key factor 2]
 
 ## Context
 [Why this decision is needed...]
@@ -320,9 +360,18 @@ Accepted
 - Drawback 2
 
 ## Alternatives Considered
-1. Alternative A - Rejected because...
-2. Alternative B - Rejected because...
+
+### Alternative A: [Name]
+- **Pros**: ...
+- **Cons**: ...
+- **Rejected because**: ...
 ```
+
+**When to write ADR** (impact × reversibility):
+- **High impact + Hard to reverse** → ADR required
+- **High impact + Easy to reverse** → Optional
+- **Low impact + Hard to reverse** → Optional
+- **Low impact + Easy to reverse** → No ADR needed
 
 ---
 
@@ -404,6 +453,7 @@ For complete standards, see:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.1.0 | 2026-03-17 | Added: Diátaxis classification, LLM discovery, quality metrics, enhanced ADR template, translation-friendly writing |
 | 2.0.0 | 2026-01-12 | Added: Project type matrix, document templates, documentation pyramid |
 | 1.0.0 | 2025-12-24 | Initial release |
 

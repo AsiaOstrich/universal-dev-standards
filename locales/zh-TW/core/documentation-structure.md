@@ -1,8 +1,8 @@
 ---
 source: ../../../core/documentation-structure.md
-source_version: 1.4.0
-translation_version: 1.4.0
-last_synced: 2026-03-04
+source_version: 1.5.0
+translation_version: 1.5.0
+last_synced: 2026-03-17
 status: current
 ---
 
@@ -10,15 +10,107 @@ status: current
 
 > **語言**: [English](../../../core/documentation-structure.md) | 繁體中文
 
-**版本**: 1.4.0
-**最後更新**: 2026-03-04
+**版本**: 1.5.0
+**最後更新**: 2026-03-17
 **適用範圍**: 所有需要文件的軟體專案
+**範圍**: partial
+**業界標準**: 無（業界慣例）
+**參考**: [diataxis.fr](https://diataxis.fr/)
 
 ---
 
 ## 目的
 
 本標準定義軟體專案的一致文件結構，確保資訊的組織性、可發現性與可維護性。
+
+---
+
+## 文件分類（Diátaxis）
+
+所有文件應根據 [Diátaxis 框架](https://diataxis.fr/) 歸類為四種類型之一。此明確分類幫助讀者找到正確的文件，也幫助作者聚焦於正確的內容。
+
+### 四種文件類型
+
+| 類型 | 目的 | 使用者需求 | 導向 | 範例 |
+|------|------|-----------|------|------|
+| **教學 (Tutorial)** | 學習導向 | 「我想學習」 | 實作步驟 | 入門指南、第一個專案教學 |
+| **操作指南 (How-to)** | 任務導向 | 「我想完成 X」 | 實作步驟 | 部署指南、遷移檢查清單 |
+| **參考 (Reference)** | 資訊導向 | 「我需要查詢 Y」 | 理論知識 | API 參考、設定參數 |
+| **說明 (Explanation)** | 理解導向 | 「我想了解為什麼」 | 理論知識 | 架構概述、ADR、設計理由 |
+
+### 文件類型標頭
+
+在文件標頭加入 `Document Type` 欄位以明確分類：
+
+```markdown
+**Document Type**: Tutorial | How-to | Reference | Explanation
+```
+
+### 標準文件對應
+
+| 標準文件 | Diátaxis 類型 | 理由 |
+|---------|--------------|------|
+| README.md | Tutorial / How-to | 快速入門導向 |
+| getting-started.md | Tutorial | 逐步學習 |
+| ARCHITECTURE.md | Explanation | 理解系統設計 |
+| API Reference | Reference | 查詢端點 |
+| DEPLOYMENT.md | How-to | 任務：部署系統 |
+| MIGRATION.md | How-to | 任務：遷移系統 |
+| ADR/ | Explanation | 理解決策 |
+| troubleshooting.md | How-to | 任務：修復問題 |
+| CHANGELOG.md | Reference | 查詢變更歷史 |
+| 流程文件 | Reference / Explanation | 理解資料流程 |
+
+---
+
+## LLM 發現檔案
+
+發布文件供外部使用的專案應考慮提供 LLM 最佳化的發現檔案，類似於搜尋引擎的 `robots.txt`。
+
+### llms.txt 標準
+
+`llms.txt` 檔案（放置於專案或網站根目錄）為 LLM 檢索系統提供結構化索引。
+
+**格式**:
+
+```markdown
+# 專案名稱
+
+> 專案的簡短單行描述。
+
+## Documentation
+
+- [Getting Started](docs/getting-started.md): 新使用者教學
+- [API Reference](docs/api-reference.md): 完整 REST API 文件
+- [Architecture](docs/architecture.md): 系統設計與元件概述
+
+## Optional
+
+- [CHANGELOG](CHANGELOG.md): 版本歷史
+- [Contributing](CONTRIBUTING.md): 貢獻指南
+```
+
+### 何時建立 llms.txt
+
+| 情境 | 建立 llms.txt？ | 理由 |
+|------|:-----------------:|------|
+| 公開開源專案 | ✅ 是 | 幫助 AI 工具發現和索引文件 |
+| 有外部使用者的公開 API | ✅ 是 | 啟用 AI 輔助的 API 整合 |
+| 公司內部專案 | ⚪ 選擇性 | 如使用內部 AI 工具則有用 |
+| 私人/個人專案 | ❌ 否 | 無外部使用者 |
+
+### 放置位置
+
+```
+project-root/
+├── llms.txt                     # LLM 發現檔案
+├── llms-full.txt                # 選擇性：完整合併文件
+├── README.md
+└── docs/
+```
+
+- `llms.txt`：帶連結和描述的結構化索引
+- `llms-full.txt`（選擇性）：完整文件合併成單一檔案，供完整上下文擷取
 
 ---
 
@@ -1283,6 +1375,54 @@ graduated-to: path/to/formal-doc.md  # 若已畢業
 
 ---
 
+## 文件測試
+
+文件應系統性地測試，而非僅靠人工檢視。本節定義可測試的品質層級。
+
+### 測試層級
+
+| 層級 | 測試內容 | 工具 | CI 階段 |
+|------|---------|------|---------|
+| **連結驗證** | 所有內部/外部連結可解析 | markdown-link-check、lychee | Pre-commit / PR |
+| **程式碼範例測試** | 程式碼範例可編譯和執行 | doctest、mdx-js、自訂腳本 | PR 檢查 |
+| **結構驗證** | 必要章節存在、標題層級正確 | 自訂 linter、remark-lint | Pre-commit |
+| **內容時效性** | 文件在保留期限內有更新 | 自訂腳本（檢查最後更新日期） | Release |
+| **可追溯性** | 每個功能有文件，每份文件對應程式碼 | 追溯矩陣 | Release |
+
+### 程式碼範例驗證
+
+文件中的程式碼範例應進行驗證，以防止與實際實作脫節：
+
+**驗證方式**:
+
+| 方式 | 說明 | 最適用於 |
+|------|------|---------|
+| **擷取並執行** | 擷取程式碼區塊，在沙箱中執行 | CLI 範例、腳本 |
+| **從原始碼匯入** | 在文件中包含實際原始碼檔案 | API 使用範例 |
+| **快照比對** | 比對輸出與預期結果 | 指令輸出範例 |
+
+### 文件追溯矩陣
+
+追蹤功能、程式碼與文件之間的關係：
+
+```markdown
+| 功能 | 程式碼位置 | 文件 | 測試 | 狀態 |
+|------|-----------|------|------|------|
+| 使用者驗證 | src/auth/ | docs/api.md#auth | tests/auth.test.js | ✅ 最新 |
+| 匯出 CSV | src/export/ | docs/api.md#export | tests/export.test.js | ⚠️ 過時 |
+| Webhooks | src/webhooks/ | ❌ 缺少 | tests/webhooks.test.js | ❌ 未文件化 |
+```
+
+### CI/CD 整合
+
+| 階段 | 檢查項目 | 阻斷 |
+|------|---------|:----:|
+| **Pre-commit** | 連結檢查、結構 lint | ✅ 是 |
+| **PR 檢查** | 程式碼範例驗證、時效性 | ✅ 是 |
+| **Release** | 完整追溯稽核、所有層級 | ⚠️ 警告 |
+
+---
+
 ## 相關標準
 
 - [Documentation Writing Standards](documentation-writing-standards.md) - 文件撰寫規範
@@ -1296,6 +1436,7 @@ graduated-to: path/to/formal-doc.md  # 若已畢業
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.5.0 | 2026-03-17 | 新增：Diátaxis 文件分類、LLM 發現檔案（llms.txt）、文件測試標準（5 層測試、追溯矩陣、CI/CD 整合） |
 | 1.4.0 | 2026-03-04 | 新增：開發中間產物（docs/working/）目錄與生命週期管理、擴展文件類型矩陣 |
 | 1.3.0 | 2026-01-24 | Added: 規格文件標準與 specs/ 目錄結構 |
 | 1.2.2 | 2025-12-24 | Added: Related Standards section |

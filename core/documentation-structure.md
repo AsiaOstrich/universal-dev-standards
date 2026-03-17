@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/documentation-structure.md)
 
-**Version**: 1.4.0
-**Last Updated**: 2026-03-04
+**Version**: 1.5.0
+**Last Updated**: 2026-03-17
 **Applicability**: All software projects requiring documentation
 **Scope**: partial
 **Industry Standards**: None (Industry convention)
@@ -14,6 +14,95 @@
 ## Purpose
 
 This standard defines a consistent documentation structure for software projects, ensuring information is organized, discoverable, and maintainable.
+
+---
+
+## Documentation Classification (Diátaxis)
+
+All documentation should be classified into one of four types based on the [Diátaxis framework](https://diataxis.fr/). This explicit classification helps readers find the right document and helps writers focus on the correct content.
+
+### The Four Document Types
+
+| Type | Purpose | User Need | Orientation | Example |
+|------|---------|-----------|-------------|---------|
+| **Tutorial** | Learning-oriented | "I want to learn" | Practical steps | Getting started guide, first project walkthrough |
+| **How-to** | Task-oriented | "I want to accomplish X" | Practical steps | Deployment guide, migration checklist |
+| **Reference** | Information-oriented | "I need to look up Y" | Theoretical knowledge | API reference, configuration parameters |
+| **Explanation** | Understanding-oriented | "I want to understand why" | Theoretical knowledge | Architecture overview, ADR, design rationale |
+
+### Document Type Header
+
+Add a `Document Type` field to document headers for explicit classification:
+
+```markdown
+**Document Type**: Tutorial | How-to | Reference | Explanation
+```
+
+### Mapping to Standard Documents
+
+| Standard Document | Diátaxis Type | Rationale |
+|-------------------|---------------|-----------|
+| README.md | Tutorial / How-to | Quick start orientation |
+| getting-started.md | Tutorial | Step-by-step learning |
+| ARCHITECTURE.md | Explanation | Understanding system design |
+| API Reference | Reference | Looking up endpoints |
+| DEPLOYMENT.md | How-to | Task: deploy the system |
+| MIGRATION.md | How-to | Task: migrate the system |
+| ADR/ | Explanation | Understanding decisions |
+| troubleshooting.md | How-to | Task: fix a problem |
+| CHANGELOG.md | Reference | Looking up change history |
+| Flow documentation | Reference / Explanation | Understanding data flows |
+
+---
+
+## LLM Discovery Files
+
+Projects that publish documentation for external consumption should consider providing LLM-optimized discovery files, similar to `robots.txt` for search engines.
+
+### llms.txt Standard
+
+The `llms.txt` file (placed at the project or site root) provides a structured index for LLM-based retrieval systems.
+
+**Format**:
+
+```markdown
+# Project Name
+
+> Brief one-line description of the project.
+
+## Documentation
+
+- [Getting Started](docs/getting-started.md): Tutorial for new users
+- [API Reference](docs/api-reference.md): Complete REST API documentation
+- [Architecture](docs/architecture.md): System design and component overview
+
+## Optional
+
+- [CHANGELOG](CHANGELOG.md): Version history
+- [Contributing](CONTRIBUTING.md): Contribution guidelines
+```
+
+### When to Create llms.txt
+
+| Scenario | Create llms.txt? | Rationale |
+|----------|:-----------------:|-----------|
+| Public open source project | ✅ Yes | Helps AI tools discover and index docs |
+| Public API with external consumers | ✅ Yes | Enables AI-assisted API integration |
+| Internal company project | ⚪ Optional | Useful if using internal AI tools |
+| Private/personal project | ❌ No | No external consumers |
+
+### Placement
+
+```
+project-root/
+├── llms.txt                     # LLM discovery file
+├── llms-full.txt                # Optional: full concatenated docs
+├── README.md
+└── docs/
+```
+
+- `llms.txt`: Structured index with links and descriptions
+- `llms-full.txt` (optional): Full documentation concatenated into a single file for complete context ingestion
 
 ---
 
@@ -1278,6 +1367,62 @@ This matrix extends the Document Requirements Matrix above to include all docume
 
 ---
 
+## Documentation Testing
+
+Documentation should be tested systematically, not just reviewed manually. This section defines testable quality layers.
+
+### Testing Layers
+
+| Layer | What It Tests | Tools | CI Stage |
+|-------|---------------|-------|----------|
+| **Link Validation** | All internal/external links resolve | markdown-link-check, lychee | Pre-commit / PR |
+| **Code Sample Testing** | Code examples compile and run | doctest, mdx-js, custom scripts | PR check |
+| **Structure Validation** | Required sections present, heading hierarchy correct | Custom linter, remark-lint | Pre-commit |
+| **Content Freshness** | Documents updated within retention period | Custom script (check Last Updated date) | Release |
+| **Traceability** | Every feature has documentation, every doc maps to code | Traceability matrix | Release |
+
+### Code Sample Validation
+
+Code examples in documentation should be validated to prevent drift from actual implementation:
+
+```markdown
+<!-- doctest: lang=bash, skip=false -->
+```bash
+npm install your-package
+npm test
+```
+```
+
+**Validation Approaches**:
+
+| Approach | Description | Best For |
+|----------|-------------|----------|
+| **Extract and run** | Extract code blocks, execute in sandbox | CLI examples, scripts |
+| **Import from source** | Include actual source files in docs | API usage examples |
+| **Snapshot comparison** | Compare output against expected | Command output examples |
+
+### Documentation Traceability Matrix
+
+Track the relationship between features, code, and documentation:
+
+```markdown
+| Feature | Code Location | Documentation | Test | Status |
+|---------|---------------|---------------|------|--------|
+| User auth | src/auth/ | docs/api.md#auth | tests/auth.test.js | ✅ Current |
+| Export CSV | src/export/ | docs/api.md#export | tests/export.test.js | ⚠️ Stale |
+| Webhooks | src/webhooks/ | ❌ Missing | tests/webhooks.test.js | ❌ Undocumented |
+```
+
+### CI/CD Integration
+
+| Stage | Checks | Blocking |
+|-------|--------|:--------:|
+| **Pre-commit** | Link check, structure lint | ✅ Yes |
+| **PR check** | Code sample validation, freshness | ✅ Yes |
+| **Release** | Full traceability audit, all layers | ⚠️ Warning |
+
+---
+
 ## Related Standards
 
 - [Documentation Writing Standards](documentation-writing-standards.md)
@@ -1291,6 +1436,7 @@ This matrix extends the Document Requirements Matrix above to include all docume
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.5.0 | 2026-03-17 | Added: Diátaxis documentation classification, LLM Discovery Files (llms.txt), Documentation Testing standards (5-layer testing, traceability matrix, CI/CD integration) |
 | 1.4.0 | 2026-03-04 | Added: Development Artifacts (docs/working/) directory and lifecycle management, Expanded Document Types Matrix |
 | 1.3.0 | 2026-01-24 | Added: Specification documentation standards with specs/ directory structure |
 | 1.2.2 | 2025-12-24 | Added: Related Standards section |

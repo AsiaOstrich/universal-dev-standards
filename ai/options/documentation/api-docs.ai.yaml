@@ -4,8 +4,8 @@
 id: api-docs
 meta:
   parent: documentation-structure
-  version: "1.0.0"
-  description: API reference documentation standards
+  version: "1.1.0"
+  description: API reference documentation standards (enhanced automation)
 
 best_for:
   - REST APIs
@@ -144,6 +144,21 @@ example_endpoint_doc: |
   |------|-------------|
   | 400 | Invalid request body |
   | 409 | Email already exists |
+
+automation:
+  validation:
+    - name: Link check
+      tool: markdown-link-check
+      stage: pre-commit
+    - name: OpenAPI lint
+      tool: spectral
+      stage: PR check
+    - name: Example validation
+      tool: Custom script (extract + run code blocks)
+      stage: PR check
+  llm_discovery:
+    description: Include API endpoints in llms.txt for LLM-assisted integration
+    format: "- [Endpoint Group](docs/api.md#section): Description"
 
 tools:
   generators:

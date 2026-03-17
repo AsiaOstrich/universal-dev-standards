@@ -2,8 +2,8 @@
 
 > **English** | [繁體中文](../locales/zh-TW/core/documentation-writing-standards.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-24
+**Version**: 1.2.0
+**Last Updated**: 2026-03-17
 **Applicability**: All software projects (new, refactoring, migration, maintenance)
 **Scope**: partial
 **Industry Standards**: OpenAPI 3.1, AsyncAPI 2.6, JSON Schema 2020-12
@@ -363,25 +363,72 @@ Description of table purpose.
 | Section | Description | Required |
 |---------|-------------|----------|
 | Title | Decision name | Required |
+| Date | Decision date (YYYY-MM-DD) | Required |
 | Status | proposed/accepted/deprecated/superseded | Required |
+| Deciders | Who made or participated in the decision | Required |
 | Context | Why this decision is needed | Required |
 | Decision | Specific decision content | Required |
 | Consequences | Impact of decision (positive/negative) | Required |
+| Drivers | Key factors driving the decision | Recommended |
 | Alternatives | Other options considered | Recommended |
+| Related ADRs | Supersedes/superseded-by links | If applicable |
 
-**Template**:
+#### ADR Lifecycle
+
+ADRs follow a defined lifecycle with explicit state transitions:
+
+```
+proposed → accepted → [deprecated | superseded]
+```
+
+| Status | Meaning | Transition |
+|--------|---------|------------|
+| **proposed** | Under discussion, not yet decided | → accepted or withdrawn |
+| **accepted** | Decision is in effect | → deprecated or superseded |
+| **deprecated** | Decision is no longer relevant | Terminal state |
+| **superseded** | Replaced by a newer ADR | Must link to successor ADR |
+
+When an ADR is superseded, add a `superseded-by` field linking to the new ADR. The new ADR should include a `supersedes` field linking back.
+
+#### When to Write an ADR
+
+Use this decision matrix (impact × reversibility) to determine if an ADR is warranted:
+
+| | Low Impact | High Impact |
+|---|:---------:|:----------:|
+| **Easily Reversible** | ❌ No ADR needed | ⚪ Optional |
+| **Hard to Reverse** | ⚪ Optional | ✅ ADR required |
+
+**Examples of "ADR required" decisions**:
+- Choosing a database technology
+- Adopting a new framework or language
+- Defining API versioning strategy
+- Changing authentication mechanism
+- Major architectural pattern changes (monolith → microservices)
+
+#### ADR Template (Enhanced)
 
 ```markdown
 # ADR-001: [Decision Title]
 
-## Status
-Accepted
+**Date**: YYYY-MM-DD
+**Status**: proposed | accepted | deprecated | superseded
+**Deciders**: [List of people involved]
+**Supersedes**: ADR-NNN (if applicable)
+**Superseded by**: ADR-NNN (if applicable)
+
+## Drivers
+
+- [Key factor 1 driving this decision]
+- [Key factor 2]
 
 ## Context
-[Why this decision is needed...]
+
+[Why this decision is needed. Include technical, business, and organizational context.]
 
 ## Decision
-[Specific decision...]
+
+[Specific decision made. Be precise and unambiguous.]
 
 ## Consequences
 
@@ -394,8 +441,20 @@ Accepted
 - Drawback 2
 
 ## Alternatives Considered
-1. Alternative A - Rejected because...
-2. Alternative B - Rejected because...
+
+### Alternative A: [Name]
+- **Pros**: ...
+- **Cons**: ...
+- **Rejected because**: ...
+
+### Alternative B: [Name]
+- **Pros**: ...
+- **Cons**: ...
+- **Rejected because**: ...
+
+## References
+
+- [Related documentation or external resources]
 ```
 
 ---
@@ -498,6 +557,41 @@ curl -X POST https://api.example.com/v1/users \
 }
 ```
 ```
+
+### LLM-Optimized Writing Rules
+
+When writing documentation that will be consumed by LLMs (via RAG, context injection, or direct reading), follow these rules to maximize comprehension accuracy:
+
+| Rule | Description | Example |
+|------|-------------|---------|
+| **Short paragraphs** | Keep paragraphs to 3-5 lines | Break long explanations into multiple paragraphs |
+| **Consistent terminology** | Use the same term for the same concept throughout | Always "user" not sometimes "user" and sometimes "customer" |
+| **Language-tagged code** | Always specify language in fenced code blocks | ` ```javascript ` not ` ``` ` |
+| **Avoid pronoun ambiguity** | Use explicit nouns instead of "it", "this", "that" when referencing across paragraphs | "The auth service validates..." not "It validates..." |
+| **Context self-sufficiency** | Each H2 section should be understandable without reading prior sections | Include necessary context or cross-references |
+| **Explicit negation** | State what something is NOT when the distinction matters | "This endpoint creates users but does NOT send welcome emails" |
+
+### Document Chunking Guidelines
+
+For documents consumed by retrieval-augmented generation (RAG) systems, structure content to produce effective chunks:
+
+- **H2 sections ≤ 4K tokens** (~3000 words): Each H2 section should be a self-contained chunk
+- **One topic per H2**: Avoid mixing unrelated concepts in a single section
+- **Front-load summaries**: Start each section with a 1-2 sentence summary
+
+**Retrieval-Friendly Metadata** (optional YAML frontmatter):
+
+```yaml
+---
+title: User Authentication API
+scope: auth-service
+difficulty: intermediate
+tags: [authentication, API, OAuth2, JWT]
+last_validated: 2026-03-17
+---
+```
+
+These metadata fields help retrieval systems rank and filter documents for relevance.
 
 ### Writing for AI Code Generation
 
@@ -656,6 +750,58 @@ components:
 
 ---
 
+## Translation-Friendly Writing
+
+For projects that maintain multilingual documentation, follow these writing rules in source documents to improve translation quality and reduce translator effort.
+
+### Writing Rules
+
+| Rule | Description | Example |
+|------|-------------|---------|
+| **Complete sentences** | Avoid sentence fragments and telegraphic style | "The service restarts automatically." not "Auto-restart." |
+| **Avoid idioms and slang** | Use literal, internationally understood language | "Easy to use" not "A piece of cake" |
+| **Consistent terminology** | Create and follow a glossary for project terms | Always "deployment" not sometimes "deployment" and sometimes "release" |
+| **Simple sentence structure** | Prefer SVO (Subject-Verb-Object); avoid nested clauses | "The API returns JSON." not "The JSON that the API, when called correctly, returns..." |
+| **Explicit references** | Avoid ambiguous pronouns across sentences | "The server processes the request." not "It processes it." |
+
+### Glossary Template
+
+Maintain a `glossary.md` file for consistent terminology across translations:
+
+```markdown
+# Project Glossary
+
+| English Term | Definition | Translation Notes |
+|-------------|------------|-------------------|
+| deployment | The process of releasing software to production | 部署 (zh-TW) |
+| endpoint | A specific URL path in an API | 端點 (zh-TW) |
+| rollback | Reverting to a previous version | 回滾 (zh-TW) |
+```
+
+### Translation Status Frontmatter
+
+Track translation status in translated document headers:
+
+```yaml
+---
+translation_status: current | needs_update | in_progress
+source_version: 1.2.0
+source_hash: abc123
+translated_by: human | machine | machine+human-review
+last_synced: 2026-03-17
+---
+```
+
+| Field | Description |
+|-------|-------------|
+| `translation_status` | Whether the translation matches the current source |
+| `source_version` | Which version of the source document was translated |
+| `source_hash` | Git hash of the source file at translation time (for precise tracking) |
+| `translated_by` | Translation method for quality assessment |
+| `last_synced` | Date of last synchronization check |
+
+---
+
 ## Quality Standards
 
 ### Format Requirements
@@ -686,6 +832,38 @@ Before submitting documentation:
 - [ ] All links working
 - [ ] Examples are executable/accurate
 - [ ] Format follows standards
+
+### Documentation Quality Metrics
+
+Quantify documentation health with leading and lagging indicators.
+
+#### Leading Indicators (Proactive)
+
+| Metric | Target | How to Measure | Automation |
+|--------|--------|----------------|------------|
+| **Coverage** | ≥ 90% of public APIs documented | Count documented vs total endpoints | Custom script or API spec diff |
+| **Freshness** | All docs updated within 90 days | Check `Last Updated` date in headers | `find` + date comparison script |
+| **Link Health** | 100% valid links | Check all internal and external links | markdown-link-check, lychee |
+| **Example Validity** | 100% of code examples run successfully | Extract and execute code blocks | doctest, custom CI script |
+| **Structure Compliance** | All docs have required sections | Validate against section templates | remark-lint, custom linter |
+
+#### Lagging Indicators (Outcome)
+
+| Metric | Description | How to Measure |
+|--------|-------------|----------------|
+| **Support ticket reduction** | Fewer questions about documented features | Track support tickets tagged "documentation" |
+| **Onboarding time** | Time for new developers to submit first PR | Measure onboarding cohort averages |
+| **Doc-related PR comments** | Fewer review comments asking for documentation | Count PR review comments mentioning "docs" |
+
+#### Recommended Automation Tools
+
+| Tool | Purpose | Integration |
+|------|---------|-------------|
+| **markdown-link-check** | Validate links in Markdown files | Pre-commit hook, CI |
+| **lychee** | Fast link checker (Rust-based) | CI pipeline |
+| **remark-lint** | Markdown style and structure linting | Pre-commit hook |
+| **textstat** | Readability scoring (Flesch-Kincaid, etc.) | CI pipeline (advisory) |
+| **vale** | Prose linting (style, grammar, terminology) | Pre-commit hook, CI |
 
 ---
 
@@ -746,6 +924,7 @@ project-root/
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-03-17 | Added: Enhanced ADR template (lifecycle, decision matrix, supersedes links), LLM-optimized writing rules, document chunking guidelines, Translation-friendly writing standards, Documentation quality metrics (leading/lagging indicators) |
 | 1.1.0 | 2026-01-24 | Added: AI Collaboration Documentation section, Token-aware document design, API Documentation Standards (OpenAPI 3.1, AsyncAPI 2.6) |
 | 1.0.1 | 2025-12-24 | Added: Related Standards section |
 | 1.0.0 | 2025-12-10 | Initial documentation writing standards |

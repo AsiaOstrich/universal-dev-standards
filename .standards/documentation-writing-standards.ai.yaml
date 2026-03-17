@@ -3,10 +3,10 @@
 
 id: documentation-writing-standards
 meta:
-  version: "1.0.1"
-  updated: "2025-12-30"
+  version: "1.1.0"
+  updated: "2026-03-17"
   source: core/documentation-writing-standards.md
-  description: Documentation requirements based on project types
+  description: Documentation requirements based on project types (enhanced ADR, LLM writing, quality metrics, translation-friendly)
 
 project_types:
   new_project:
@@ -127,14 +127,85 @@ document_categories:
     naming: "NNN-kebab-case-title.md"
     required_sections:
       - Title
+      - Date (YYYY-MM-DD)
       - Status (proposed/accepted/deprecated/superseded)
+      - Deciders (who participated)
       - Context
       - Decision
       - Consequences
     recommended_sections:
+      - Drivers (key factors)
       - Alternatives Considered
+      - Related ADRs (supersedes/superseded-by)
+    lifecycle: "proposed → accepted → [deprecated | superseded]"
+    decision_matrix:
+      description: "When to write ADR (impact × reversibility)"
+      adr_required: "High impact + Hard to reverse"
+      optional: "High impact + Easy to reverse OR Low impact + Hard to reverse"
+      not_needed: "Low impact + Easy to reverse"
+
+llm_writing:
+  rules:
+    - Short paragraphs (3-5 lines)
+    - Consistent terminology throughout
+    - Always specify language in code blocks
+    - Avoid pronoun ambiguity across paragraphs
+    - Each H2 section should be context-self-sufficient
+    - State explicit negation when distinctions matter
+  chunking:
+    max_h2_size: "4K-8K tokens (~3000 words)"
+    principle: "One topic per H2, front-load summaries"
+  retrieval_metadata: [title, scope, difficulty, tags, last_validated]
+
+translation_friendly:
+  writing_rules:
+    - Complete sentences (avoid fragments)
+    - Avoid idioms and slang
+    - Consistent terminology (follow glossary)
+    - Simple SVO sentence structure
+    - Explicit references (avoid ambiguous pronouns)
+  glossary_file: glossary.md
+  translation_status_fields: [translation_status, source_version, source_hash, translated_by, last_synced]
+
+quality_metrics:
+  leading:
+    - name: Coverage
+      target: "≥90% public APIs documented"
+    - name: Freshness
+      target: "All docs updated within 90 days"
+    - name: Link Health
+      target: "100% valid links"
+    - name: Example Validity
+      target: "100% code examples run"
+    - name: Structure Compliance
+      target: "All docs have required sections"
+  lagging:
+    - Support ticket reduction
+    - Onboarding time
+    - Doc-related PR comments
+  tools: [markdown-link-check, lychee, remark-lint, textstat, vale]
 
 rules:
+  - id: llm-writing
+    trigger: writing documentation
+    instruction: Follow LLM-optimized writing rules (short paragraphs, consistent terms, context self-sufficiency)
+    priority: recommended
+
+  - id: translation-friendly
+    trigger: writing documentation for multilingual projects
+    instruction: Use complete sentences, avoid idioms, follow glossary, use simple sentence structure
+    priority: recommended
+
+  - id: quality-metrics
+    trigger: documentation review
+    instruction: Check documentation quality metrics (coverage, freshness, link health)
+    priority: recommended
+
+  - id: adr-enhanced
+    trigger: creating ADR
+    instruction: Include Date, Deciders, Drivers fields; use decision matrix (impact × reversibility) to decide if ADR is needed
+    priority: required
+
   - id: project-type-docs
     trigger: starting a project
     instruction: Identify project type and create required documents
