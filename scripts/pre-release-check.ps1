@@ -44,7 +44,7 @@ $CliDir = Join-Path $RootDir "cli"
 $Passed = 0
 $Failed = 0
 $Skipped = 0
-$Total = 16
+$Total = 17
 
 if ($SkipTests) {
     $Total = 15
@@ -226,16 +226,28 @@ try {
     }
     $Passed++
 
-    # Step 16: Tests
+    # Step 16: Unit Tests
     if ($SkipTests) {
         Write-Host "[16/$Total] " -ForegroundColor Cyan -NoNewline
-        Write-Host "Running tests..."
+        Write-Host "Running unit tests..."
         Write-Host "      " -NoNewline
         Write-Host "[SKIP] Skipped (-SkipTests flag)" -ForegroundColor Yellow
         $Skipped++
     }
     else {
-        Run-Check -Step 16 -Name "Running tests" -Command "npm test --prefix `"$CliDir`""
+        Run-Check -Step 16 -Name "Running unit tests | 單元測試" -Command "npm run test:unit --prefix `"$CliDir`""
+    }
+
+    # Step 17: E2E Tests (Bug Regression)
+    if ($SkipTests) {
+        Write-Host "[17/$Total] " -ForegroundColor Cyan -NoNewline
+        Write-Host "Running E2E tests..."
+        Write-Host "      " -NoNewline
+        Write-Host "[SKIP] Skipped (-SkipTests flag)" -ForegroundColor Yellow
+        $Skipped++
+    }
+    else {
+        Run-Check -Step 17 -Name "Running E2E tests | E2E 迴歸測試" -Command "npm run test:e2e --prefix `"$CliDir`""
     }
 
     # Show summary

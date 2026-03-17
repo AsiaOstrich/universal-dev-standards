@@ -787,7 +787,7 @@ When updating version, files must be synchronized based on release type:
 .\scripts\pre-release-check.ps1
 ```
 
-This runs 16 checks including:
+This runs 17 checks including:
 1. Git working directory status
 2. Version sync (`check-version-sync.sh`)
 3. Standards sync (`check-standards-sync.sh`)
@@ -797,7 +797,8 @@ This runs 16 checks including:
 13. Skill next steps sync (`check-skill-next-steps-sync.sh`)
 14. Linting
 15. Orphan spec detection (`check-orphan-specs.sh`)
-16. Tests
+16. Unit Tests
+17. E2E Tests (Bug Regression)
 
 #### Translation Sync (Stable Releases)
 

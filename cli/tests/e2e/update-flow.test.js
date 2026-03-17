@@ -273,6 +273,127 @@ describe('E2E: uds update', () => {
     });
   });
 
+  // ===== Bug Regression Tests =====
+  describe('Bug Regression Tests', () => {
+    it('should install options standards to correct subdirectory', async () => {
+      // Bug: options/ files were written to .standards/ instead of .standards/options/
+      await setupTestDir(testDir, {});
+      await runNonInteractive({}, testDir);
+
+      const result = await runCommand('update', { yes: true, offline: true }, testDir, 15000);
+
+      const optionsExists = await fileExists(join(testDir, '.standards/options/english.ai.yaml'));
+      expect(optionsExists).toBe(true);
+
+      // Double-check: uds check should not report options missing
+      const checkResult = await runCommand('check', { yes: true }, testDir, 15000);
+      expect(checkResult.stdout).not.toContain('options missing');
+
+      recordScenarioResult('Options subdirectory regression', {
+        steps: [
+          { step: 1, name: 'options/english.ai.yaml exists', matched: optionsExists },
+          { step: 2, name: 'check passes without options warning', matched: !checkResult.stdout.includes('options missing') }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should not crash when manifest.extensions contains non-string items', async () => {
+      // Bug: extensions with object items caused .endsWith() TypeError
+      await setupTestDir(testDir, {});
+      await runNonInteractive({}, testDir);
+
+      // Inject non-string extension into manifest
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      if (!manifest.extensions) manifest.extensions = [];
+      manifest.extensions.push({ name: 'custom-domain', type: 'object' });
+      await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+
+      const result = await runCommand('update', { yes: true, offline: true }, testDir, 15000);
+
+      expect(result.exitCode).not.toBe(-1);
+      expect(result.stderr || '').not.toContain('TypeError');
+
+      recordScenarioResult('Non-string extensions regression', {
+        steps: [
+          { step: 1, name: 'No crash (exitCode != -1)', matched: result.exitCode !== -1 },
+          { step: 2, name: 'No TypeError in stderr', matched: !(result.stderr || '').includes('TypeError') }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should not crash with null source standards', async () => {
+      // Bug: basename(null) caused TypeError
+      await setupTestDir(testDir, {});
+      await runNonInteractive({}, testDir);
+
+      const result = await runCommand('update', { yes: true, offline: true }, testDir, 15000);
+
+      expect(result.exitCode).toBe(0);
+      expect(result.stderr || '').not.toContain('TypeError');
+
+      recordScenarioResult('Null source regression', {
+        steps: [
+          { step: 1, name: 'Exit code 0', matched: result.exitCode === 0 },
+          { step: 2, name: 'No TypeError in stderr', matched: !(result.stderr || '').includes('TypeError') }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should preserve user custom content after integrations-only update', async () => {
+      // Bug: update overwrote user content outside UDS marker blocks
+      await setupTestDir(testDir, {});
+      await writeFile(join(testDir, '.cursorrules'), '# Cursor rules');
+      await runNonInteractive({}, testDir);
+
+      // Read generated .cursorrules and append user content after UDS block
+      const cursorrules = await readFile(join(testDir, '.cursorrules'), 'utf8');
+      const userContent = '\n# USER_CUSTOM_CONTENT_E2E_TEST\n';
+      await writeFile(join(testDir, '.cursorrules'), cursorrules + userContent);
+
+      // Run integrations-only update
+      const result = await runCommand('update', { integrationsOnly: true }, testDir, 15000);
+
+      // Verify user content is preserved
+      const updatedContent = await readFile(join(testDir, '.cursorrules'), 'utf8');
+      const preserved = updatedContent.includes('USER_CUSTOM_CONTENT_E2E_TEST');
+      expect(preserved).toBe(true);
+
+      recordScenarioResult('User content preservation regression', {
+        steps: [
+          { step: 1, name: 'User custom content preserved', matched: preserved }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should not show hash mismatch after update then check', async () => {
+      // Bug: missing refreshIntegrationBlockHashes() caused false hash mismatch warnings
+      await setupTestDir(testDir, {});
+      await writeFile(join(testDir, '.cursorrules'), '# Cursor rules');
+      await runNonInteractive({}, testDir);
+
+      // Run update
+      await runCommand('update', { yes: true, offline: true }, testDir, 15000);
+
+      // Run check
+      const checkResult = await runCommand('check', { yes: true }, testDir, 15000);
+
+      const noHashMismatch = !checkResult.stdout.includes('hash mismatch');
+      expect(noHashMismatch).toBe(true);
+
+      recordScenarioResult('Hash mismatch regression', {
+        steps: [
+          { step: 1, name: 'No hash mismatch warning', matched: noHashMismatch }
+        ],
+        output: checkResult.stdout
+      });
+    });
+  });
+
   // ===== UI Language Flag Tests =====
   describe('--ui-lang Flag', () => {
     it('should show English UI when --ui-lang en is set', async () => {

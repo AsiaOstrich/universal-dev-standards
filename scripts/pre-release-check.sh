@@ -68,7 +68,7 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=16
+TOTAL=17
 
 if [ "$SKIP_TESTS" = true ]; then
     TOTAL=15
@@ -236,13 +236,22 @@ else
     PASSED=$((PASSED + 1))
 fi
 
-# Step 16: Tests
+# Step 16: Unit Tests
 if [ "$SKIP_TESTS" = true ]; then
-    echo -e "${CYAN}[16/$TOTAL]${NC} Running tests..."
+    echo -e "${CYAN}[16/$TOTAL]${NC} Running unit tests..."
     echo -e "      ${YELLOW}⏭ Skipped (--skip-tests flag)${NC}"
     SKIPPED=$((SKIPPED + 1))
 else
-    run_check "16" "Running tests" "npm test --prefix $CLI_DIR"
+    run_check "16" "Running unit tests | 單元測試" "npm run test:unit --prefix $CLI_DIR"
+fi
+
+# Step 17: E2E Tests (Bug Regression)
+if [ "$SKIP_TESTS" = true ]; then
+    echo -e "${CYAN}[17/$TOTAL]${NC} Running E2E tests..."
+    echo -e "      ${YELLOW}⏭ Skipped (--skip-tests flag)${NC}"
+    SKIPPED=$((SKIPPED + 1))
+else
+    run_check "17" "Running E2E tests | E2E 迴歸測試" "npm run test:e2e --prefix $CLI_DIR"
 fi
 
 # Show summary
