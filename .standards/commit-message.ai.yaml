@@ -107,29 +107,6 @@ standard:
           - "Fixes #456"
           - "Refs #789"
 
-    - id: ac-level-granularity
-      trigger: implementing spec acceptance criteria
-      instruction: >
-        When implementing a spec, prefer one commit per acceptance criterion (AC).
-        Use footer format "Refs: SPEC-XXX, AC-N" to link commits to specific ACs.
-        Tightly coupled ACs may be combined in a single commit when splitting
-        would result in a broken intermediate state.
-      priority: recommended
-      examples:
-        good:
-          - |
-            feat(auth): implement login form validation
-
-            Implements AC-1 from SPEC-012: form validates email and password.
-
-            Refs: SPEC-012, AC-1
-          - |
-            feat(auth): add OAuth2 redirect flow
-
-            Implements AC-2 and AC-3 from SPEC-012 (tightly coupled).
-
-            Refs: SPEC-012, AC-2, AC-3
-
 physical_spec:
   type: custom_script
   validator:

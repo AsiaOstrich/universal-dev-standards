@@ -57,16 +57,11 @@ standard:
         - "/reverse"
         - "/requirement"
         - "docs/specs/"
-        - ".workflow-state/"
-        - "workflow state"
-        - "resume workflow"
       standards:
         - spec-driven-development
         - forward-derivation-standards
         - reverse-engineering-standards
         - requirement-engineering
-        - structured-task-definition
-        - workflow-state-protocol
 
     quality:
       description: Standards for code review, refactoring, and quality assurance
@@ -157,50 +152,6 @@ standard:
         /docs, /changelog, /generate-docs → documentation
         /release, /commit → workflow
       priority: required
-
-    - id: custom-domain-loading
-      trigger: "manifest.json contains extensions with type 'custom-domain'"
-      instruction: >
-        Projects may define custom domains in manifest.json extensions array.
-        Format: {type: "custom-domain", domain: "name", triggers: [...], standards: [...]}.
-        Custom domains are additive only — they cannot override built-in domains.
-        When processing user requests, check both built-in domains AND custom domains
-        for matching triggers. Load standards from all matching domains.
-      priority: required
-
-    - id: context-budget-awareness
-      trigger: "context window usage approaching limits"
-      instruction: >
-        Monitor context window usage during long workflows:
-        - At 60% context: Warn user, suggest considering a new session
-        - At 80% context: Switch to summary mode — stop loading additional
-          on-demand standards, use summaries of previous outputs instead
-        When resuming a workflow in a new session, only load:
-        (1) always-on standards, (2) current phase standards,
-        (3) summary of previous phase outputs from .workflow-state/
-      priority: recommended
-
-    - id: context-inheritance-mode
-      trigger: "multi-phase workflow with phase transitions"
-      instruction: >
-        When transitioning between workflow phases, choose context inheritance:
-        - full: Pass all previous outputs (small workflows)
-        - selective: Pass only specified outputs (default for SDD)
-        - summary: Pass summarized version (long workflows, context pressure)
-        Default to 'selective' — each phase receives only the artifacts
-        it explicitly needs, not the entire conversation history.
-      priority: recommended
-
-    - id: hook-based-enforcement
-      trigger: "Claude Code hooks are configured for standard injection"
-      instruction: >
-        When a project configures a UserPromptSubmit hook that reads the user's prompt
-        and matches it against manifest domain triggers, the hook output should be
-        treated as additional context. The hook script reads the prompt from stdin,
-        compares against domain triggers in manifest.json, and outputs matching
-        standard file paths. Hook failures must not block the user's prompt.
-        Performance target: hook execution < 500ms.
-      priority: recommended
 
   architecture:
     classification: always-on-protocol

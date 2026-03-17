@@ -10,10 +10,6 @@ meta:
 
 workflow:
   stages:
-    - stage: Discuss
-      description: Capture gray areas, lock scope, establish canonical refs
-      artifacts: read_first list, scope definition, gray area log
-
     - stage: Proposal
       description: Define what to change and why
       artifacts: proposal.md
@@ -45,7 +41,7 @@ principles:
 
   methodology_over_tooling:
     rule: SDD is a methodology, not bound to a single tool
-    universal_flow: Discuss -> Proposal -> Review -> Implementation -> Verification -> Archive
+    universal_flow: Proposal -> Review -> Implementation -> Verification -> Archive
 
   spec_first:
     rule: No functional code changes without approved specification
@@ -141,84 +137,6 @@ rules:
     instruction: Archive spec with links to commits/PRs
     priority: required
 
-  - id: closure-integrity
-    trigger: preparing stable release
-    instruction: >
-      Before a stable release (version matching ^[0-9]+\.[0-9]+\.[0-9]+$),
-      ALL specs must be in a terminal state (Archived or Stable).
-      Non-terminal specs block stable releases.
-      Alpha/Beta/RC releases only warn about orphan specs.
-    priority: required
-
-  - id: ac-gwt-format
-    trigger: writing acceptance criteria
-    instruction: >
-      All new acceptance criteria MUST use Given/When/Then (GWT) format:
-      "Given [precondition], When [action], Then [expected outcome]".
-      This enables structured BDD derivation via /derive-bdd.
-      Existing specs are NOT required to retroactively adopt GWT format.
-    priority: required
-    examples:
-      good:
-        - "Given a logged-in user, When they click 'Export', Then a CSV file is downloaded"
-        - "Given an empty cart, When the user adds an item, Then the cart count shows 1"
-      bad:
-        - "User can export data"
-        - "The system should handle empty carts"
-
-  - id: deviation-tracking
-    trigger: completing /sdd verify phase
-    instruction: >
-      During verification, compare planned spec against actual implementation.
-      Document deviations in three categories:
-      - Added: functionality not in the original spec
-      - Modified: functionality that differs from spec
-      - Omitted: spec requirements not implemented
-      Major deviations must be recorded as 'decision' type entries in .project-context/.
-    priority: required
-
-  - id: discuss-before-proposal
-    trigger: starting new spec
-    instruction: >
-      Before writing a proposal, conduct a Discuss phase to capture
-      gray areas, lock scope, and establish canonical refs (read_first list).
-      New features discovered during discussion are deferred, not added to scope.
-      Check .project-context/ for related prior decisions.
-    priority: required
-
-  - id: verification-loop-cap
-    trigger: verify phase iteration
-    instruction: >
-      Track the number of verify iterations per spec. After 3 failed
-      verification attempts, STOP and present three options:
-      (1) Review spec for ambiguity, (2) Rethink implementation approach,
-      (3) Escalate to stakeholder. Do NOT continue iterating without
-      human decision. Record iteration count in .workflow-state/.
-    priority: required
-
-  - id: traceability-matrix
-    trigger: completing /sdd verify phase
-    instruction: >
-      During verification, generate a traceability matrix mapping
-      REQ → AC → Test → Implementation → Commit. Empty cells should
-      be marked [INCOMPLETE]. This matrix serves as evidence that
-      all requirements are covered end-to-end.
-    priority: recommended
-    example: |
-      | REQ-ID | AC | Test | Implementation | Commit |
-      |--------|-----|------|----------------|--------|
-      | REQ-001 | AC-1 | auth.test.js:15 | auth.js:42 | abc1234 |
-
-  - id: trace-validation
-    trigger: completing SDD workflow
-    instruction: >
-      Validate the quality of intermediate steps, not just final output.
-      Check: (1) Discuss phase resolved all gray areas, (2) Proposal
-      covers all discussed requirements, (3) Review comments were addressed,
-      (4) Each commit references an AC. Produce a "Process Gaps" report
-      separate from "Implementation Gaps."
-    priority: recommended
-
 best_practices:
   do:
     - Keep specs focused and atomic (one change per spec)
@@ -236,11 +154,10 @@ quick_reference:
   workflow:
     columns: [Stage, Artifacts]
     rows:
-      - [Discuss, "read_first list, scope definition"]
       - [Proposal, proposal.md]
       - [Review, Comments/approval]
       - [Implementation, Code/tests/docs]
-      - [Verification, "Test results, traceability matrix"]
+      - [Verification, Test results]
       - [Archive, Archived spec]
 
   tools:

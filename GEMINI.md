@@ -145,6 +145,8 @@ Reference: `core/refactoring-standards.md`
 ---
 
 <!-- UDS:STANDARDS:START -->
+<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use 'npx uds install' or 'npx uds update' to modify. -->
+<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use 'npx uds install' or 'npx uds update' to modify. -->
 ## 提交訊息語言
 所有提交訊息必須使用**繁體中文**撰寫。
 格式：`<類型>(<範圍>): <主旨>`
@@ -212,6 +214,6 @@ Reference: `core/refactoring-standards.md`
 - `project-context-memory.ai.yaml` - 專案情境記憶
 - `context-aware-loading.ai.yaml` - context-aware-loading.ai.yaml
 - `test-governance.ai.yaml` - test-governance.ai.yaml
-- `structured-task-definition.ai.yaml` - 結構化任務定義
-- `workflow-state-protocol.ai.yaml` - 工作流狀態協議
+- `structured-task-definition.ai.yaml` - structured-task-definition.ai.yaml
+- `workflow-state-protocol.ai.yaml` - workflow-state-protocol.ai.yaml
 <!-- UDS:STANDARDS:END -->

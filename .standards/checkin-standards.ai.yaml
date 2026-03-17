@@ -142,19 +142,6 @@ standard:
       trigger: staging changes
       instruction: One commit does one thing - separate unrelated changes
       priority: required
-    - id: step-level-validation
-      trigger: completing a workflow step or task
-      instruction: >
-        Apply two-layer validation at each workflow step:
-        Layer 1 (Deterministic): File existence, test pass/fail, lint clean,
-        format correct. Always run first. If Layer 1 fails, stop immediately
-        and present fix options.
-        Layer 2 (Semantic): Quality assessment, consistency checks, naming
-        conventions. Only run after Layer 1 passes.
-        Fail-fast: deterministic failure stops the pipeline before semantic
-        checks waste time on fundamentally broken output.
-      priority: recommended
-
     - id: ai-wait-confirmation
       trigger: AI completing code changes
       instruction: AI must NOT auto-execute git add/commit/push, wait for explicit user approval

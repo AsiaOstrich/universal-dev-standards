@@ -1,6 +1,6 @@
 # Pre-release Versions | 預發布版本
 
-> **Language**: English | [繁體中文](../locales/zh-TW/README.md) | [简体中文](../locales/zh-CN/README.md)
+> **Language**: English + 繁體中文（本文件採用雙語嵌入）
 
 This document covers installing and using pre-release versions of UDS (Beta, RC, Alpha).
 
