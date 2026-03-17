@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **E2E Bug Regression Tests**: Add 5 regression test cases for `uds update` — options subdirectory, extensions type safety, null source, user content preservation, block hash sync
+- **Pre-release E2E Step**: Split pre-release check Step 16 into Unit Tests (Step 16) + E2E Tests (Step 17), total checks 16→17
+
+### Fixed
+- **Options Subdirectory**: Fix `uds update` installing options standards (e.g., `english.ai.yaml`) to `.standards/` instead of `.standards/options/` via new `getStandardTargetDir()` helper
+
+### Changed
+- **Skills Sync**: Sync documentation-guide to v2.1.0 (Diátaxis classification, LLM discovery, quality metrics), update methodology SDD phase, expand workflows documentation
+- **Gemini Sync**: Align Gemini commands/skills manifests to rc.8, expand `sdd.toml` command
+
 ## [5.0.0-rc.8] - 2026-03-17
 
 > **Release Candidate**: Eighth RC for v5.0.0 with Windows compatibility fix and CI stability improvement.
