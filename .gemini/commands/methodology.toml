@@ -240,7 +240,7 @@ status: experimental
 # 切換到規格驅動以進行架構變更
 /methodology switch sdd
 
-# 這會啟動 提案 → 審查 → 實作 流程
+# 這會啟動 討論 → 提案 → 審查 → 實作 流程
 ```
 
 ---

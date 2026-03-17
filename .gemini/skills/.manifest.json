@@ -1,8 +1,8 @@
 {
-  "version": "5.0.0-rc.5",
+  "version": "5.0.0-rc.8",
   "source": "universal-dev-standards",
   "agent": "gemini-cli",
   "level": "project",
   "locale": "zh-TW",
-  "installedDate": "2026-03-16"
+  "installedDate": "2026-03-17"
 }

@@ -2,7 +2,7 @@
   "version": "3.3.0",
   "upstream": {
     "repo": "AsiaOstrich/universal-dev-standards",
-    "version": "5.0.0-rc.6",
+    "version": "5.0.0-rc.8",
     "installed": "2026-03-17"
   },
   "level": 3,
@@ -152,7 +152,7 @@
     "installed": true,
     "location": null,
     "names": [],
-    "version": "5.0.0-rc.5",
+    "version": "5.0.0-rc.8",
     "installations": [
       {
         "agent": "claude-code",
@@ -189,7 +189,7 @@
       "tdd",
       "update"
     ],
-    "version": "5.0.0-rc.5",
+    "version": "5.0.0-rc.8",
     "installations": [
       {
         "agent": "gemini-cli",
@@ -210,67 +210,67 @@
     ".standards/anti-hallucination.ai.yaml": {
       "hash": "sha256:1a2e18d0726a329f689305b8f3813fb9896ec23286016843e8e66c660297cfe6",
       "size": 7369,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/ai-friendly-architecture.ai.yaml": {
       "hash": "sha256:43b8a7eccc5ae3026aa27d601bd0018142ffcde34130ab81175e5e28b6d2fe6a",
       "size": 5872,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/commit-message.ai.yaml": {
       "hash": "sha256:28d3c07bdb15a7ef27a046e088f03bc9752e24f39d940db43fffc77134907172",
       "size": 3640,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/options/english.ai.yaml": {
       "hash": "sha256:2c1f53cf847a8b874efa95e678a61744e25491cc491108e40ad2898dd9074ce8",
       "size": 2204,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/checkin-standards.ai.yaml": {
       "hash": "sha256:100c976741d0659f9898dec0e7a66272d6b59fc12347fc36334f6c4113198d45",
       "size": 5349,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/spec-driven-development.ai.yaml": {
-      "hash": "sha256:16e8e3bb6f086792b40cf1d9cbd9f68ccc9114d56d24555d4a6b818123dd2d4b",
-      "size": 4820,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "hash": "sha256:f2f6c6f57f58894ac03888d436ab493bfa71122d310202c41d0232709e79bca0",
+      "size": 4995,
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/code-review.ai.yaml": {
       "hash": "sha256:0a26401d32645a42367b8313868e3de466ba0833872438034ca39dee5e593cdf",
       "size": 4663,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/git-workflow.ai.yaml": {
       "hash": "sha256:a8587127cf1e4be81a165642edb79770cec1f83a02adc2fd4f16441a47bd7b2f",
       "size": 2878,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/options/github-flow.ai.yaml": {
       "hash": "sha256:2f50bfa98b8ca76d6153de32a00a15a52c4160a67cadcad9bc106ebc72134f30",
       "size": 2286,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/options/squash-merge.ai.yaml": {
       "hash": "sha256:61861d34c9148fe1eac2927d9354bbdc9622daa3658eeafb20889d0c970cac84",
       "size": 1361,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/versioning.ai.yaml": {
       "hash": "sha256:d53ff8d5bd083d5b0f106c50ecdd18801733f2966ccb2bfdbe20efc29fd42a4a",
       "size": 5672,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/changelog.ai.yaml": {
       "hash": "sha256:5e0165d3b916452694d208b43e5b87bea0e85b128959a3f057e04caa19d9fe9d",
       "size": 3311,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/testing.ai.yaml": {
-      "hash": "sha256:5b025ea2d90e5c1c329b099d2acb03ae48915650955aa133ed373b5d6bf9ba5d",
-      "size": 4293,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "hash": "sha256:be0049c88ddae797f01246c8a08b5201040f679fd8dd458443fdeaf544c219ab",
+      "size": 4472,
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/options/unit-testing.ai.yaml": {
       "hash": "sha256:f176b6dbdacacc6fbd3e43789697128a872a32e2562274d57eaf187642aeb03d",
@@ -283,243 +283,243 @@
       "installedAt": "2026-03-04T08:56:09.782Z"
     },
     ".standards/documentation-structure.ai.yaml": {
-      "hash": "sha256:38cd6f973a56185aa00e75c198ab0752f14a65c2b21954d448e2b59d6fe51bb7",
-      "size": 3554,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "hash": "sha256:b698b62ecc67a62b246ffc65a2ed5d39571042a252a41c095f001e607c1086b4",
+      "size": 5608,
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/documentation-writing-standards.ai.yaml": {
-      "hash": "sha256:a251f8fe360624dc1a5d00c2814a272f37e4f5d2cc5f2d4e1074c10e0ab18643",
-      "size": 5338,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "hash": "sha256:b0da9cdea77b27711412d46fae1c361d5e8e226d0555030c88f08a5d222985b2",
+      "size": 8076,
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/ai-instruction-standards.ai.yaml": {
       "hash": "sha256:169162e80cd01fe75f73a342812998d6a3fc154f3312085bdc4d602ba6981f2c",
       "size": 4270,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/project-structure.ai.yaml": {
       "hash": "sha256:f5c8119cfb4b9a6ac95207179d94ff974bbadc72376e4a2ffa4e886e11cfe97e",
       "size": 3536,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/error-codes.ai.yaml": {
       "hash": "sha256:e3254dbafb4ff7faf5d764173e3fa74f38c41958c88e8054efd188455b581b47",
       "size": 3542,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/logging.ai.yaml": {
       "hash": "sha256:3606762467c4d27a562ec96c2b521f92e4c8cf011b24820162152bb7b867e38b",
       "size": 2995,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/test-completeness-dimensions.ai.yaml": {
       "hash": "sha256:6db68c70983f4c727d5a543a2a43bef5ea5aaa47930e46b29c665148ca1394b9",
       "size": 7793,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/test-driven-development.ai.yaml": {
       "hash": "sha256:f09a8980cfbe669cd1dbfe684150af46f412c97ddbcad03db2bb2ed6686b655f",
       "size": 9558,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/behavior-driven-development.ai.yaml": {
       "hash": "sha256:a094a6ee31110ef4ae5030c94a7aeb701d9433fe1c1b1d1d26e9962550489711",
       "size": 9654,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/acceptance-test-driven-development.ai.yaml": {
       "hash": "sha256:dfdcd28c987fcd9edaaec96f6859522e2216638fb951b19b10b0633e696e2b12",
       "size": 10106,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/reverse-engineering-standards.ai.yaml": {
       "hash": "sha256:a45cdf0704003218e4012919311615f2c8722add8ca85fbff3565f6e0445d0e9",
       "size": 9356,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/forward-derivation-standards.ai.yaml": {
       "hash": "sha256:890f0ed60ad18dee3c925941320bf2aed68b9c6389e410d2b749553ea89107bd",
       "size": 13349,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/ai-agreement-standards.ai.yaml": {
       "hash": "sha256:6e5ed7f22f7267098ae1ff7dd236c7aa4bcc41a59d6bd4e58f150ac9fc25a048",
       "size": 620,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/virtual-organization-standards.ai.yaml": {
       "hash": "sha256:2f634b60db4ffe62a77b374d07bd788785cada6333ce2b6332409734fe073214",
       "size": 642,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/refactoring-standards.ai.yaml": {
       "hash": "sha256:5682bc00cd25319dc88d5bfb56170c35a8d1b1fe8fd9243d0093e037630542c7",
       "size": 15369,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/requirement-engineering.ai.yaml": {
       "hash": "sha256:3e0bdba2b78a9a39bf2cd77fe55b1204a8b880d1b65d404542c1e80676486367",
       "size": 6524,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/security-standards.ai.yaml": {
       "hash": "sha256:8802e9bbac456c06612102b655144a1f9d4483458bea9699952cdec22b7396bf",
       "size": 4261,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/performance-standards.ai.yaml": {
       "hash": "sha256:c1f879f2114275813f0a2fbbd034b4cda361dec840463f9e6adc370b08bb14b0",
       "size": 4563,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/accessibility-standards.ai.yaml": {
       "hash": "sha256:0ee788c5b64270d80e67a11a0b99937bf45338002c839a4b58fe46aed19a9db0",
       "size": 4310,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/requirement-checklist.md": {
-      "hash": "sha256:ff7f0c6418c210cd878bfc9313f58f2f19ff895e5c26f87e14105bd9c2b7635d",
-      "size": 11161,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "hash": "sha256:ce4263622590c79a4121a9c6c295db599ee1f5dc43c8cd40ebb2804704a0b750",
+      "size": 11176,
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/requirement-template.md": {
-      "hash": "sha256:d1c07834d81f3b2a23bc34e414d84d1bb40a9eb6826c4234868b23856fd8e2a2",
-      "size": 15112,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "hash": "sha256:444375156667a1470464b1f9f631412343e532f66e52fc423f35354129f830d9",
+      "size": 15118,
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/requirement-document-template.md": {
-      "hash": "sha256:2547fd4e412ae016d20536777cca309e3819b60a469ed38b5249fe7d2d343afe",
-      "size": 12731,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "hash": "sha256:7de0f7326335a0554e579f33d82a633e2ad931185a340634a524924499f65aa4",
+      "size": 12752,
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     "GEMINI.md": {
       "hash": "sha256:454c1b50ba75c63afc18906fe7ba217a188e12575d1c1b424629a1d648d3324c",
       "size": 8982,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/deployment-standards.ai.yaml": {
       "hash": "sha256:e9900792348882ab5627456b99610d13abbafde93dbcffc3bca0950ab169ffab",
       "size": 5516,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/developer-memory.ai.yaml": {
       "hash": "sha256:f8a0c0e3f25289684ef142ded38eaa02ab9d5164463f77e5ba1f0c8223dc4275",
       "size": 8004,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/project-context-memory.ai.yaml": {
       "hash": "sha256:1c739dd94b26a0fb62e64aade95298893e01ab1d7a4ed33d3e82c2b856f4c65c",
       "size": 4405,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     "CLAUDE.md": {
-      "hash": "sha256:c69662b5b16e204c80ed914b1c6789706ebe755350ddbdf87ab96c0e4294d77c",
-      "size": 36258,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "hash": "sha256:7488d0d62ff647e81b40ff614e082ff8ce4e4abffb7f1735bc34812be9c4090e",
+      "size": 34664,
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/context-aware-loading.ai.yaml": {
-      "hash": "sha256:96a8edc097cab6c26a2d834ea9e03aad0ab041f0fabe8840640d12b3eee2e723",
-      "size": 4983,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "hash": "sha256:be9d61007a21bb03be40011d2c2cc938a94bc6275ce2839076b22262d4ec0628",
+      "size": 5926,
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/test-governance.ai.yaml": {
       "hash": "sha256:c1f4a1c1fcaf0e93657f7bf148781918222000dc74318cf1fc6f24ad4aac1165",
       "size": 5291,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/structured-task-definition.ai.yaml": {
       "hash": "sha256:d0b34c199b45528307e03a96563815060f00180b07eb766b89f9ec5ec11ed247",
       "size": 4091,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     ".standards/workflow-state-protocol.ai.yaml": {
       "hash": "sha256:20768f79355f03b51477ccde1a5f2a072444cf95a2abf750f7061ec5b8bc7df1",
       "size": 4509,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     }
   },
   "skillHashes": {
     "claude-code/project/tdd-assistant/SKILL.md": {
       "hash": "sha256:f23dfaf6b08605bf0298bf95105e1e7e46c7c83f38ee889ed76db68b58a267d1",
       "size": 2667,
-      "installedAt": "2026-03-16T07:22:27.349Z"
+      "installedAt": "2026-03-17T09:25:26.566Z"
     },
     "claude-code/project/tdd-assistant/guide.md": {
       "hash": "sha256:ccbdb1a1e23a8f4b2bc6a2447c9d4b5013cb997d57cffb493370f3a40737ef96",
       "size": 10315,
-      "installedAt": "2026-03-16T07:22:27.349Z"
+      "installedAt": "2026-03-17T09:25:26.566Z"
     },
     "gemini-cli/project/tdd-assistant/SKILL.md": {
       "hash": "sha256:f23dfaf6b08605bf0298bf95105e1e7e46c7c83f38ee889ed76db68b58a267d1",
       "size": 2667,
-      "installedAt": "2026-03-16T07:22:27.368Z"
+      "installedAt": "2026-03-17T09:25:26.585Z"
     },
     "gemini-cli/project/tdd-assistant/guide.md": {
       "hash": "sha256:ccbdb1a1e23a8f4b2bc6a2447c9d4b5013cb997d57cffb493370f3a40737ef96",
       "size": 10315,
-      "installedAt": "2026-03-16T07:22:27.368Z"
+      "installedAt": "2026-03-17T09:25:26.585Z"
     }
   },
   "commandHashes": {
     "gemini-cli/atdd.toml": {
       "hash": "sha256:abf435bc25ecd4db588e4244774b701b6c2bc58e83bba2fc314c1e531d4c758e",
       "size": 5777,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/bdd.toml": {
       "hash": "sha256:4252e24ad86f80e8b6e502c0ba0f5a6af8b0f30dcd2ad9d6c0b6cd00e4d96854",
       "size": 4404,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/changelog.toml": {
       "hash": "sha256:8499b170f8990f0e91546cd1dba31066551198f8a722f30c973094418d9d8e9e",
       "size": 1923,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/check.toml": {
       "hash": "sha256:bf8d26363b035be703a84ee33aed87160fd1d9cf3b233121cdbaca70cbea8cca",
       "size": 6383,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/commit.toml": {
       "hash": "sha256:0cf41c36d43fc83937164eb3d9a6430d2fd9fd77cb8db6c771721423e4996eae",
       "size": 2052,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/config.toml": {
       "hash": "sha256:e9620f6e0b25e75f852f2dfff75699a7d12309eb1580aab5f30c356c44a867ed",
       "size": 7300,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/coverage.toml": {
       "hash": "sha256:145b18590463974f1bad882c5a2cc4279e0f0d0cb6f254757d275b74e8517532",
       "size": 2039,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/derive-all.toml": {
       "hash": "sha256:070a1961b38aef9fd93352631306aa47451d70028a1fdfaf41875c7ed09cadd1",
       "size": 1983,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/derive-atdd.toml": {
       "hash": "sha256:01b161b67219fd443811947c54dfef17037c891ecb8c2be6eb25427e60eaa219",
       "size": 1617,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/derive-bdd.toml": {
       "hash": "sha256:ea7be1bfab2b335dd7e3be0c9b7e205a4aaabe23cf3eaecb1acdbb77cb1c8934",
       "size": 1333,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/derive-tdd.toml": {
       "hash": "sha256:c6181a891241909228a9895591d2f44fa7569a9b24d5f183da6038244eec4512",
       "size": 1436,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/docs.toml": {
       "hash": "sha256:e9f155c0ed3c35233355bb3b0ef3bf0afefd79586adc42425d77d28a71bff826",
       "size": 1361,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/generate-docs.toml": {
       "hash": "sha256:af8fdc11a2e4928f31ea91dd3a5ca9aaae7e73b4859d6e30402b81fe14945be4",
@@ -529,32 +529,32 @@
     "gemini-cli/init.toml": {
       "hash": "sha256:e139daac2d4449a7858300daa524a4c359ad0dba6da9c01ade232cbf416f37a0",
       "size": 9979,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/methodology.toml": {
-      "hash": "sha256:d77c67dd54211213a035acf3d46b13ba191df19a5aa4b36fcdc176e3badf978a",
-      "size": 6158,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "hash": "sha256:20bef7076941d2d7b604a228fde301074ca397152c48682f0d7df2be508239ea",
+      "size": 6169,
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/refactor.toml": {
       "hash": "sha256:5d33b4701e841fdbbdfbcc7baadb20c6d0d8c790ab3bcc0d8a0a0ab91024c4ac",
       "size": 5377,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/release.toml": {
       "hash": "sha256:6bbe4f51bb380dd753f9bf5d31f1daa83f80c3345da99d97766cdbb1ee841a1e",
       "size": 1262,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/requirement.toml": {
       "hash": "sha256:a2d6da9de9196a062a9acf6a72f0c6444a2d63a52ce94b6f2c13a2402f15f76a",
       "size": 1830,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/reverse-bdd.toml": {
       "hash": "sha256:3283725d9efde6f276b207105df9e6123eb4a797a212f8c28d43b98dfd4f1e23",
       "size": 1451,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/reverse-spec.toml": {
       "hash": "sha256:32ff98f35885d0aec2e1f9fa7c684e12c882ca8ed33aefdf2e64e02f7a959059",
@@ -564,12 +564,12 @@
     "gemini-cli/reverse-tdd.toml": {
       "hash": "sha256:ce577fac9677c2ca94b142deb61f76370ee2a7097e719833c3be7ab1ee9acf9f",
       "size": 1503,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/review.toml": {
       "hash": "sha256:cef6e0d419860169852030fe692adc07e58f82c768eef805305337f78c00cd24",
       "size": 1727,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/spec.toml": {
       "hash": "sha256:e9e8b2f68be8e9cee6ea9da77f75f9eac19aa2df9de37868311cf3188240d9d2",
@@ -579,67 +579,67 @@
     "gemini-cli/tdd.toml": {
       "hash": "sha256:01f74cf4fbb1b68420e33f7cfc67b29bd86f5ca7248e7ddef57953a596518d5d",
       "size": 3123,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/update.toml": {
       "hash": "sha256:9d3093b9c25efcc51fc9e748d3ddc1ee22c7ec72bd1e98cd53f73a80501276f4",
       "size": 12842,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/brainstorm.toml": {
       "hash": "sha256:f4a51bfc006ed7bcd8d235f6e12497a1d86ff49480f388bc0affea475f65451a",
       "size": 2754,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/checkin.toml": {
       "hash": "sha256:c8b41f737c9348fd2198fd1d8ea68c56215763452f52133a8ebc82b8468ef9be",
       "size": 2029,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/derive.toml": {
       "hash": "sha256:cb9cfa47c58527e61c9dd0011251fbb834fee32ffe33fd339bd5397e9183fbc4",
       "size": 2410,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/dev-workflow.toml": {
       "hash": "sha256:5cadc0a1ce60fbd7da778428344c0a69c7f5a45aba8368f9bae85477a5c0e18a",
       "size": 2559,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/discover.toml": {
       "hash": "sha256:bcadb1a5190a0452d0aea95e7c9812c32fdec0af005825083a96fd7161637e3b",
       "size": 3156,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/docgen.toml": {
       "hash": "sha256:527fe11051e822fdf8ac4488a383db1a014c904199534f07d166d70582d44b1a",
       "size": 1842,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/guide.toml": {
       "hash": "sha256:aebd37bc63cde34318456ed906b0cae3e5acb1eeec799c01a7297d5e13f07566",
       "size": 1716,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/reverse-sdd.toml": {
       "hash": "sha256:200ffc452c58a80ec6aafa49e4f0704c89486e8bc262108e2e62d7ceb49e30a3",
       "size": 1646,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/reverse.toml": {
       "hash": "sha256:c0f6d86da7c1ff7285b310d866815a9d1061d6717f87eeac5b6990086bac4e74",
       "size": 1856,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/sdd.toml": {
-      "hash": "sha256:3b5efb071f8342773cf67fc4900853af14489f04fa418ff4ce95513597e74826",
-      "size": 6955,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "hash": "sha256:c0e1137ae4f6ac555a25a0e5bc907f04f3cac7406429f27a8551aa127987d303",
+      "size": 12514,
+      "installedAt": "2026-03-17T09:25:26.594Z"
     },
     "gemini-cli/sdd-retro.toml": {
       "hash": "sha256:c0c928e5f859262cd661da10a65c13fc179a7b040bea7c4fb55b74af26a7f67d",
       "size": 1410,
-      "installedAt": "2026-03-16T07:22:27.375Z"
+      "installedAt": "2026-03-17T09:25:26.594Z"
     }
   },
   "integrationBlockHashes": {
@@ -648,14 +648,14 @@
       "blockSize": 3994,
       "fullHash": "sha256:454c1b50ba75c63afc18906fe7ba217a188e12575d1c1b424629a1d648d3324c",
       "fullSize": 8982,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "installedAt": "2026-03-17T09:25:20.567Z"
     },
     "CLAUDE.md": {
       "blockHash": "sha256:0c24f8cb26278756dbd868d84adbd6446548ff3b43b06d4e2473ec19e2237884",
       "blockSize": 3994,
-      "fullHash": "sha256:c69662b5b16e204c80ed914b1c6789706ebe755350ddbdf87ab96c0e4294d77c",
-      "fullSize": 36258,
-      "installedAt": "2026-03-17T07:32:59.936Z"
+      "fullHash": "sha256:7488d0d62ff647e81b40ff614e082ff8ce4e4abffb7f1735bc34812be9c4090e",
+      "fullSize": 34664,
+      "installedAt": "2026-03-17T09:25:20.567Z"
     }
   }
 }

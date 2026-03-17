@@ -646,6 +646,50 @@ describe('Update Command', () => {
       expect(copyStandard).not.toHaveBeenCalledWith('ai/testing.ai.yaml', '.standards', '/test/project');
     });
 
+    it('should copy options standards to .standards/options directory', async () => {
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['ai/testing.ai.yaml', 'options/unit-testing.ai.yaml'],
+        extensions: [],
+        integrations: [],
+        format: 'ai',
+        skills: { installed: false }
+      });
+
+      getAllStandards.mockReturnValue([
+        { name: 'testing', category: 'reference', source: { ai: 'ai/testing.ai.yaml' } },
+        { name: 'unit-testing', category: 'reference', source: { ai: 'options/unit-testing.ai.yaml' } }
+      ]);
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // Regular standards go to .standards
+      expect(copyStandard).toHaveBeenCalledWith('ai/testing.ai.yaml', '.standards', '/test/project');
+      // Options standards go to .standards/options
+      expect(copyStandard).toHaveBeenCalledWith('options/unit-testing.ai.yaml', '.standards/options', '/test/project');
+    });
+
+    it('should install new options standards to .standards/options directory', async () => {
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['ai/testing.ai.yaml'],
+        extensions: [],
+        integrations: [],
+        format: 'ai',
+        skills: { installed: false }
+      });
+
+      getAllStandards.mockReturnValue([
+        { name: 'testing', category: 'reference', source: { ai: 'ai/testing.ai.yaml' } },
+        { name: 'unit-testing', category: 'reference', source: { ai: 'options/unit-testing.ai.yaml' } }
+      ]);
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // New options standard should go to .standards/options
+      expect(copyStandard).toHaveBeenCalledWith('options/unit-testing.ai.yaml', '.standards/options', '/test/project');
+    });
+
     it('should include both reference and skill categories as new standards', async () => {
       readManifest.mockReturnValue({
         upstream: { version: '2.0.0' },

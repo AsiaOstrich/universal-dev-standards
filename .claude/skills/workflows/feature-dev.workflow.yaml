@@ -5,7 +5,7 @@
 # through implementation and review.
 
 name: feature-dev
-version: 1.0.0
+version: 1.1.0
 description: |
   Standard feature development workflow from requirements to deployment.
   Use for typical feature work with balanced rigor and efficiency.
@@ -27,11 +27,13 @@ prerequisites:
   - Development environment ready
 
 steps:
+  # Wave 1: Independent analysis steps (can run in parallel)
   # Step 1: Requirements Analysis
   - id: analyze
     name: Analyze Requirements
     type: agent
     agent: spec-analyst
+    wave: 1
     description: |
       Analyze the feature request and clarify requirements.
       Identify acceptance criteria and potential challenges.
@@ -47,11 +49,13 @@ steps:
       - Questions clarified
       - Scope defined
 
+  # Wave 2: Depends on requirements analysis
   # Step 2: Architecture Design
   - id: design
     name: Design Architecture
     type: agent
     agent: code-architect
+    wave: 2
     description: |
       Design the technical architecture for the feature.
       Identify components, interfaces, and data flow.
@@ -72,6 +76,7 @@ steps:
     name: Plan Tests
     type: agent
     agent: test-specialist
+    wave: 2
     description: |
       Define testing strategy for the feature.
       Identify test cases at different levels.

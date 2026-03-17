@@ -47,6 +47,15 @@ import {
 } from '../reconciler/index.js';
 
 /**
+ * Determine the correct target directory for a standard file.
+ * Options standards (e.g., options/unit-testing.ai.yaml) go to .standards/options/,
+ * all others go to .standards/.
+ */
+function getStandardTargetDir(sourcePath) {
+  return sourcePath.includes('options/') ? '.standards/options' : '.standards';
+}
+
+/**
  * Compare two semantic versions
  * @param {string} v1 - First version (e.g., "3.4.0-beta.3")
  * @param {string} v2 - Second version (e.g., "3.3.0")
@@ -382,7 +391,7 @@ export async function updateCommand(options) {
 
   // Update standards
   for (const std of manifest.standards) {
-    const result = await copyStandard(std, '.standards', projectPath);
+    const result = await copyStandard(std, getStandardTargetDir(std), projectPath);
     if (result.success) {
       results.updated.push(std);
     } else {
@@ -428,7 +437,7 @@ export async function updateCommand(options) {
       let newCount = 0;
 
       for (const ns of newStandards) {
-        const result = await copyStandard(ns.source, '.standards', projectPath);
+        const result = await copyStandard(ns.source, getStandardTargetDir(ns.source), projectPath);
         if (result.success) {
           manifest.standards.push(ns.source);
           results.updated.push(ns.source);

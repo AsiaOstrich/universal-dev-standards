@@ -10,6 +10,10 @@ meta:
 
 workflow:
   stages:
+    - stage: Discuss
+      description: Capture gray areas, lock scope, establish canonical refs
+      artifacts: read_first list, scope definition, gray area log
+
     - stage: Proposal
       description: Define what to change and why
       artifacts: proposal.md
@@ -41,7 +45,7 @@ principles:
 
   methodology_over_tooling:
     rule: SDD is a methodology, not bound to a single tool
-    universal_flow: Proposal -> Review -> Implementation -> Verification -> Archive
+    universal_flow: Discuss -> Proposal -> Review -> Implementation -> Verification -> Archive
 
   spec_first:
     rule: No functional code changes without approved specification
