@@ -106,6 +106,7 @@ program
   .option('--restore', 'Restore all modified and missing files')
   .option('--restore-missing', 'Restore only missing files')
   .option('--no-interactive', 'Disable interactive mode')
+  .option('--ci', 'CI mode: disable interactive prompts and set exit code on issues')
   .option('--migrate', 'Migrate legacy manifest to hash-based tracking')
   .option('--offline', 'Skip npm registry check for CLI updates')
   .action(checkCommand);

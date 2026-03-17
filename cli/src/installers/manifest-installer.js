@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import { getRepositoryInfo } from '../utils/registry.js';
 import { writeManifest } from '../core/manifest.js';
+import { refreshIntegrationBlockHashes } from '../utils/hasher.js';
 import { t } from '../i18n/messages.js';
 import { getAgentDisplayName, getSkillsDirForAgent, getCommandsDirForAgent } from '../config/ai-agent-paths.js';
 
@@ -65,6 +66,9 @@ export function writeFinalManifest(config, results, projectPath) {
     commandHashes: results.commandHashes || {},
     integrationBlockHashes: results.integrationBlockHashes || {}
   };
+
+  // Recalculate block hashes from disk to ensure consistency
+  refreshIntegrationBlockHashes(manifest, projectPath);
 
   // Write file
   writeManifest(manifest, projectPath);

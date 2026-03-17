@@ -313,10 +313,11 @@ export async function checkCommand(options = {}) {
     return;
   }
 
-  // Interactive mode (default when issues detected)
+  // Interactive mode (default when issues detected, only in TTY)
   const hasIssues = fileStatus.modified.length > 0 ||
                     fileStatus.missing.length > 0;
-  if (hasIssues && !options.noInteractive) {
+  const isTTY = process.stdin.isTTY && process.stdout.isTTY;
+  if (hasIssues && !options.noInteractive && !options.ci && isTTY) {
     await interactiveMode(projectPath, manifest, fileStatus, msg);
   } else if (hasIssues) {
     // Non-interactive mode - just show suggestions
@@ -354,6 +355,10 @@ export async function checkCommand(options = {}) {
     console.log(chalk.green(msg.projectCompliant));
   } else {
     console.log(chalk.yellow(msg.issuesDetected));
+    // Set non-zero exit code in CI mode so pipelines detect failures
+    if (options.ci) {
+      process.exitCode = 1;
+    }
   }
 
   // Show hint if Skills/Commands are missing (check is read-only, no installation)

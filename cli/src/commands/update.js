@@ -6,7 +6,7 @@ import { existsSync, unlinkSync } from 'fs';
 import { join, basename } from 'path';
 import { readManifest, writeManifest, copyStandard, isInitialized } from '../utils/copier.js';
 import { getRepositoryInfo, getAllStandards, getStandardSource } from '../utils/registry.js';
-import { computeFileHash, scanForUntrackedFiles } from '../utils/hasher.js';
+import { computeFileHash, scanForUntrackedFiles, refreshIntegrationBlockHashes } from '../utils/hasher.js';
 import {
   writeIntegrationFile,
   getToolFilePath
@@ -554,6 +554,7 @@ export async function updateCommand(options) {
   manifest.version = '3.3.0';
   manifest.upstream.version = latestVersion;
   manifest.upstream.installed = new Date().toISOString().split('T')[0];
+  refreshIntegrationBlockHashes(manifest, projectPath);
   writeManifest(manifest, projectPath);
 
   // Summary
@@ -731,6 +732,7 @@ export async function updateCommand(options) {
           installCommands.length > 0 || updateCommands.length > 0 ||
           declinedSkills.length > 0 || declinedCommands.length > 0;
         if (hasChanges) {
+          refreshIntegrationBlockHashes(manifest, projectPath);
           writeManifest(manifest, projectPath);
         }
       } else {
@@ -937,6 +939,7 @@ async function updateIntegrationsOnly(projectPath, manifest) {
 
   // Update manifest
   manifest.version = '3.3.0';
+  refreshIntegrationBlockHashes(manifest, projectPath);
   writeManifest(manifest, projectPath);
 
   // Summary
@@ -1067,6 +1070,7 @@ async function syncIntegrationReferences(projectPath, manifest) {
   // Update manifest version and save
   if (updatedCount > 0) {
     manifest.version = '3.3.0';
+    refreshIntegrationBlockHashes(manifest, projectPath);
     writeManifest(manifest, projectPath);
   }
 

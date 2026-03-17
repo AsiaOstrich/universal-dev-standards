@@ -2905,7 +2905,10 @@ export function generateStandardsIndex(installedStandards, format, language = 'z
  */
 export function wrapWithMarkers(content, format) {
   const markers = UDS_MARKERS[format] || UDS_MARKERS.markdown;
-  return `${markers.start}\n${content}\n${markers.end}`;
+  const warning = format === 'plaintext'
+    ? '# WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use \'npx uds install\' or \'npx uds update\' to modify.'
+    : '<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use \'npx uds install\' or \'npx uds update\' to modify. -->';
+  return `${markers.start}\n${warning}\n${content}\n${markers.end}`;
 }
 
 /**

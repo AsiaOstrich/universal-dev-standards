@@ -397,3 +397,29 @@ export function compareDirectoryHashes(dirPath, storedHashes, baseKey = '') {
 
   return result;
 }
+
+/**
+ * Refresh all integrationBlockHashes in manifest by recalculating from disk
+ * Ensures manifest hashes always match actual file content
+ * @param {Object} manifest - Manifest object (mutated in place)
+ * @param {string} projectPath - Project root path
+ * @returns {Object} The updated manifest
+ */
+export function refreshIntegrationBlockHashes(manifest, projectPath) {
+  if (!manifest.integrationBlockHashes || Object.keys(manifest.integrationBlockHashes).length === 0) {
+    return manifest;
+  }
+
+  for (const [relativePath, stored] of Object.entries(manifest.integrationBlockHashes)) {
+    const fullPath = join(projectPath, relativePath);
+    const current = computeIntegrationBlockHash(fullPath);
+    if (current) {
+      manifest.integrationBlockHashes[relativePath] = {
+        ...current,
+        installedAt: stored.installedAt || new Date().toISOString()
+      };
+    }
+  }
+
+  return manifest;
+}
