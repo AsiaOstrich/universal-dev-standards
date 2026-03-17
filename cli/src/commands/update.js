@@ -334,6 +334,7 @@ export async function updateCommand(options) {
     console.log(chalk.gray(`  .standards/${std.split('/').pop()}`));
   }
   for (const ext of manifest.extensions) {
+    if (typeof ext !== 'string') continue;
     console.log(chalk.gray(`  .standards/${ext.split('/').pop()}`));
   }
   if (!options.standardsOnly) {
@@ -389,8 +390,9 @@ export async function updateCommand(options) {
     }
   }
 
-  // Update extensions
+  // Update extensions (skip non-string entries like custom-domain objects)
   for (const ext of manifest.extensions) {
+    if (typeof ext !== 'string') continue;
     const result = await copyStandard(ext, '.standards', projectPath);
     if (result.success) {
       results.updated.push(ext);
@@ -517,6 +519,7 @@ export async function updateCommand(options) {
 
   // Update hashes for extensions
   for (const ext of manifest.extensions) {
+    if (typeof ext !== 'string') continue;
     const fileName = basename(ext);
     const relativePath = join('.standards', fileName);
     const fullPath = join(projectPath, relativePath);

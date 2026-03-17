@@ -150,7 +150,7 @@ export class StandardValidator {
       // Combine standards and extensions arrays for searching
       const allFiles = [
         ...(Array.isArray(manifest.standards) ? manifest.standards : []),
-        ...(Array.isArray(manifest.extensions) ? manifest.extensions : [])
+        ...(Array.isArray(manifest.extensions) ? manifest.extensions.filter(e => typeof e === 'string') : [])
       ];
 
       for (const filePath of allFiles) {

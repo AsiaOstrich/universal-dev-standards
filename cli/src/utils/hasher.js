@@ -105,7 +105,7 @@ export function getFileStatusSummary(projectPath, manifest) {
         source: s,
         target: join('.standards', s.split('/').pop())
       })),
-      ...manifest.extensions.map(e => ({
+      ...manifest.extensions.filter(e => typeof e === 'string').map(e => ({
         source: e,
         target: join('.standards', e.split('/').pop())
       })),

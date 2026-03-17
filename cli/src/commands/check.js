@@ -118,8 +118,9 @@ function performFileIntegrityCheck(projectPath, manifest, msg) {
       }
     }
 
-    // Check extensions
+    // Check extensions (skip non-string entries like custom-domain objects)
     for (const ext of manifest.extensions) {
+      if (typeof ext !== 'string') continue;
       const filePath = join(projectPath, '.standards', ext.split('/').pop());
       if (existsSync(filePath)) {
         fileStatus.noHash.push(`.standards/${ext.split('/').pop()}`);
@@ -655,7 +656,7 @@ function removeFromManifest(manifest, relativePath) {
   // Remove from standards/extensions/integrations arrays
   const fileName = basename(relativePath);
   manifest.standards = manifest.standards.filter(s => !s.endsWith(fileName));
-  manifest.extensions = manifest.extensions.filter(e => !e.endsWith(fileName));
+  manifest.extensions = manifest.extensions.filter(e => typeof e !== 'string' || !e.endsWith(fileName));
   manifest.integrations = manifest.integrations.filter(i => i !== relativePath);
 }
 
@@ -674,7 +675,7 @@ function getSourcePathFromRelative(manifest, relativePath) {
 
   // Check extensions
   for (const ext of manifest.extensions) {
-    if (ext.endsWith(fileName)) {
+    if (typeof ext === 'string' && ext.endsWith(fileName)) {
       return ext;
     }
   }
@@ -724,6 +725,7 @@ async function migrateToHashBasedTracking(projectPath, manifest) {
 
   // Process extensions
   for (const ext of manifest.extensions) {
+    if (typeof ext !== 'string') continue;
     const fileName = basename(ext);
     const relativePath = join('.standards', fileName);
     const fullPath = join(projectPath, relativePath);
@@ -1467,7 +1469,7 @@ function getFileStatusCounts(manifest, projectPath) {
     // Legacy manifest - existence check only
     const allFiles = [
       ...manifest.standards.map(s => `.standards/${basename(s)}`),
-      ...manifest.extensions.map(e => `.standards/${basename(e)}`),
+      ...manifest.extensions.filter(e => typeof e === 'string').map(e => `.standards/${basename(e)}`),
       ...manifest.integrations
     ];
     for (const relativePath of allFiles) {
