@@ -1,66 +1,77 @@
 ---
+source: ../../../../skills/changelog-guide/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-10
+status: current
+description: |
+  根據 Keep a Changelog 格式產生和維護 CHANGELOG.md 條目。
+  使用時機：更新變更日誌、版本發布、記錄變更。
+  關鍵字：changelog, CHANGELOG.md, keep a changelog, 變更日誌, 版本紀錄。
 name: changelog
-scope: partial
-description: "[UDS] Generate and maintain CHANGELOG.md entries"
 allowed-tools: Read, Write, Grep, Bash(git log:*)
+scope: partial
 disable-model-invocation: true
 ---
 
-# Changelog Assistant | 變更日誌助手
+# 變更日誌助手
 
-Generate and maintain CHANGELOG.md entries following the Keep a Changelog format.
+> **語言**: [English](../../../../skills/changelog-guide/SKILL.md) | 繁體中文
 
 根據 Keep a Changelog 格式產生和維護 CHANGELOG.md 條目。
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Analyze git log** - Read commit history since last release using `git log`
-2. **Categorize changes** - Map commits to changelog categories
-3. **Generate entries** - Write user-friendly descriptions for each change
-4. **Update CHANGELOG.md** - Insert entries into the [Unreleased] or versioned section
+1. **分析 git log** - 使用 `git log` 讀取上次發布以來的提交歷史
+2. **分類變更** - 將提交對應到變更日誌分類
+3. **產生條目** - 為每個變更撰寫使用者友善的描述
+4. **更新 CHANGELOG.md** - 將條目插入 [Unreleased] 或版本區段
 
-## Change Categories | 變更分類
+## 變更分類
 
-| Category | When to Use | 使用時機 | Commit Types |
-|----------|-------------|---------|-------------|
-| **Added** | New features | 新功能 | `feat` |
-| **Changed** | Modifications to existing features | 修改既有功能 | `perf`, `BREAKING CHANGE` |
-| **Deprecated** | Features to be removed | 即將移除的功能 | -- |
-| **Removed** | Removed features | 已移除的功能 | `BREAKING CHANGE` |
-| **Fixed** | Bug fixes | 錯誤修復 | `fix` |
-| **Security** | Security patches | 安全性修補 | `security` |
+| 分類 | 使用時機 | When to Use | 對應提交類型 |
+|------|---------|-------------|-------------|
+| **Added** | 新功能 | New features | `feat` |
+| **Changed** | 修改既有功能 | Modifications to existing features | `perf`, `BREAKING CHANGE` |
+| **Deprecated** | 即將移除的功能 | Features to be removed | -- |
+| **Removed** | 已移除的功能 | Removed features | `BREAKING CHANGE` |
+| **Fixed** | 錯誤修復 | Bug fixes | `fix` |
+| **Security** | 安全性修補 | Security patches | `security` |
 
-## Entry Format | 條目格式
+## 條目格式
 
 ```markdown
 ## [Unreleased]
-
 ### Added
 - Add user dashboard with customizable widgets (#123)
-
 ### Changed
 - **BREAKING**: Change API response format from XML to JSON (#789)
-
 ### Fixed
 - Fix memory leak when processing large files (#456)
-
-### Security
-- Fix SQL injection vulnerability in search endpoint (CVE-2025-12345)
 ```
 
-### Writing Guidelines | 撰寫指南
+### 撰寫指南
 
-- Write for **users**, not developers | 為使用者而非開發者撰寫
-- Focus on **impact**, not implementation | 聚焦影響而非實作
-- Include issue/PR references | 附上 issue/PR 編號
-- Mark breaking changes with **BREAKING** prefix | 用 **BREAKING** 標記破壞性變更
+- 為**使用者**而非開發者撰寫 | Write for users, not developers
+- 聚焦**影響**而非實作 | Focus on impact, not implementation
+- 附上 issue/PR 編號 | Include issue/PR references
+- 用 **BREAKING** 標記破壞性變更 | Mark breaking changes with BREAKING prefix
 
-## Usage | 使用方式
+## 使用方式
 
-- `/changelog` - Analyze recent commits and generate changelog entries
-- Also available via `/release changelog [version]`
+- `/changelog` - 分析近期提交並產生變更日誌條目
+- 也可透過 `/release changelog [version]` 使用
 
-## Reference | 參考
+## 下一步引導
 
-- Detailed guide: [guide.md](./guide.md)
-- Core standard: [changelog-standards.md](../../core/changelog-standards.md)
+`/changelog` 完成後，AI 助手應建議：
+
+> **變更日誌已更新。建議下一步：**
+> - 執行 `/release` 開始發布流程
+> - 執行 `/commit` 提交日誌變更
+> - 審查日誌條目確保使用者導向語言
+
+## 參考
+
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[changelog-standards.md](../../../../core/changelog-standards.md)

@@ -1,202 +1,196 @@
 ---
-scope: partial
 description: |
-  System archeology — reverse engineer existing systems across Logic, Data, and Runtime dimensions.
-  Use when: analyzing legacy code, documenting undocumented systems, creating specs from existing implementations, understanding data models, baselining runtime environments.
-  Keywords: reverse engineering, legacy code, documentation, spec extraction, code archaeology, system archeology, data model, runtime baseline, 反向工程, 舊有程式碼, 規格提取, 系統考古.
+  將現有程式碼反向工程成 SDD 規格文件。
+  使用時機：分析舊有程式碼、為未文件化的系統撰寫文件、從現有實作提取規格。
+  關鍵字：reverse engineering, legacy code, documentation, spec extraction, code archaeology, 反向工程, 舊有程式碼, 規格提取。
+source: ../../../../skills/reverse-engineer/SKILL.md
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-01-25
+status: current
 ---
 
-# System Archeology Guide — Reverse Engineering across 3 Dimensions
+# 反向工程成 SDD 規格指南
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/reverse-engineer/SKILL.md)
+> **語言**: [English](../../../../skills/reverse-engineer/SKILL.md) | 繁體中文
 
-**Version**: 2.0.0
-**Last Updated**: 2026-02-12
-**Applicability**: Claude Code Skills
+**版本**: 1.1.0
+**最後更新**: 2026-01-19
+**適用範圍**: Claude Code Skills
 
-> **Core Standard**: This skill implements [Reverse Engineering Standards](../../core/reverse-engineering-standards.md). For comprehensive methodology documentation accessible by any AI tool, refer to the core standard.
+> **核心規範**：此技能實作[反向工程標準](../../core/reverse-engineering-standards.md)。任何 AI 工具皆可參考核心規範取得完整方法論文件。
 
 ---
 
-## Purpose
+## 目的
 
-This skill provides a **system archeology framework** for reverse engineering existing systems across three dimensions — **Logic**, **Data**, and **Runtime** — producing comprehensive SDD specification documents with strict Anti-Hallucination compliance.
+此技能引導您將現有程式碼反向工程成 SDD（規格驅動開發）規格文件，並嚴格遵循反幻覺標準。
 
-## Quick Reference
+## 快速參考
 
-### System Archeology Framework
+### 反向工程工作流程
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                   System Archeology Framework                      │
-├──────────────────────────────────────────────────────────────────┤
-│                                                                    │
-│  Dimension 1: DATA (/reverse data)                                │
-│      ├─ DB schemas, ORM models, migrations                       │
-│      ├─ Entity-relationship mapping                               │
-│      └─ Output: Data Model Spec                                   │
-│                                                                    │
-│  Dimension 2: RUNTIME (/reverse runtime)                          │
-│      ├─ Configs, env vars, feature flags                          │
-│      ├─ Docker/K8s topology, CI/CD pipelines                     │
-│      └─ Output: Runtime Baseline                                  │
-│                                                                    │
-│  Dimension 3: LOGIC (/reverse spec)                               │
-│      ├─ APIs, modules, data flows, tests                          │
-│      ├─ Enriched with Data + Runtime context                      │
-│      └─ Output: SPEC-XXX.md                                       │
-│                                                                    │
-│  /reverse (no subcommand) = All 3 dimensions → Full Report       │
-│                                                                    │
-│  Human Review:                                                     │
-│      ├─ Verify [Confirmed] / [Inferred] / [Unknown] labels       │
-│      ├─ Add Motivation, Risk Assessment, Business Context         │
-│      └─ Approve spec via /sdd                                     │
-│                                                                    │
-└──────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│              反向工程工作流程                                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1️⃣  程式碼分析（AI 自動化）                                    │
+│      ├─ 掃描程式碼結構、API、資料模型                           │
+│      ├─ 解析現有測試以提取驗收標準                              │
+│      └─ 生成初稿規格（帶不確定性標籤）                          │
+│                                                                 │
+│  2️⃣  人類輸入（必要）                                          │
+│      ├─ 撰寫動機（為什麼需要此功能）                            │
+│      ├─ 新增風險評估                                            │
+│      └─ 驗證相依性和商業背景                                    │
+│                                                                 │
+│  3️⃣  審查與確認                                                 │
+│      ├─ 與利害關係人討論                                        │
+│      └─ 確認 [已確認] / [推斷] / [未知] 標籤                    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### What Can vs Cannot Be Extracted
+### 可提取與不可提取的內容
 
-| Aspect | Extractable | Certainty | Notes |
-|--------|-------------|-----------|-------|
-| **API Endpoints** | ✅ Yes | [Confirmed] | Route definitions, HTTP methods |
-| **Data Models** | ✅ Yes | [Confirmed] | Types, interfaces, schemas |
-| **Function Signatures** | ✅ Yes | [Confirmed] | Parameters, return types |
-| **Test Cases** | ✅ Yes | [Confirmed] | → Acceptance Criteria |
-| **Dependencies** | ✅ Yes | [Confirmed] | Package references |
-| **Behavior Patterns** | ⚠️ Partial | [Inferred] | From code analysis |
-| **Motivation/Why** | ❌ No | [Unknown] | Needs human input |
-| **Business Context** | ❌ No | [Unknown] | Needs human input |
-| **Risk Assessment** | ❌ No | [Unknown] | Needs domain expertise |
-| **Trade-off Decisions** | ❌ No | [Unknown] | Historical context missing |
+| 面向 | 可提取 | 確定性 | 備註 |
+|------|--------|--------|------|
+| **API 端點** | ✅ 是 | [已確認] | 路由定義、HTTP 方法 |
+| **資料模型** | ✅ 是 | [已確認] | 類型、介面、結構描述 |
+| **函數簽名** | ✅ 是 | [已確認] | 參數、回傳類型 |
+| **測試案例** | ✅ 是 | [已確認] | → 驗收標準 |
+| **相依性** | ✅ 是 | [已確認] | 套件引用 |
+| **行為模式** | ⚠️ 部分 | [推斷] | 從程式碼分析推斷 |
+| **動機/為什麼** | ❌ 否 | [未知] | 需要人類輸入 |
+| **商業背景** | ❌ 否 | [未知] | 需要人類輸入 |
+| **風險評估** | ❌ 否 | [未知] | 需要領域專業知識 |
+| **權衡決策** | ❌ 否 | [未知] | 缺少歷史背景 |
 
-## Core Principles
+## 核心原則
 
-### 1. Anti-Hallucination Compliance
+### 1. 反幻覺合規
 
-**CRITICAL**: This skill MUST strictly follow [Anti-Hallucination Standards](../../core/anti-hallucination.md).
+**關鍵**：此技能必須嚴格遵循[反幻覺標準](../../core/anti-hallucination.md)。
 
-#### Certainty Labels (from Unified Tag System)
+#### 確定性標籤
 
-This skill uses **Certainty Tags** for analyzing existing code. See [Anti-Hallucination Standards](../../core/anti-hallucination.md#certainty-classification-tags) for the complete tag reference.
+| 標籤 | 使用時機 | 範例 |
+|------|----------|------|
+| `[已確認]` | 來自程式碼/測試的直接證據 | `src/api/users.ts:15` 的 API 端點 |
+| `[推斷]` | 從模式合理推斷 | 「根據建構函數模式，可能使用依賴注入」 |
+| `[未知]` | 無法從程式碼判斷 | 動機、商業需求 |
+| `[需確認]` | 需要人類驗證 | 設計意圖、邊界案例處理 |
 
-| Tag | Use When | Example |
-|-----|----------|---------|
-| `[Confirmed]` | Direct evidence from code/tests | API endpoint at `src/api/users.ts:15` |
-| `[Inferred]` | Logical deduction from patterns | "Likely uses dependency injection based on constructor pattern" |
-| `[Unknown]` | Cannot determine from code | Motivation, business requirements |
-| `[Need Confirmation]` | Requires human verification | Design intent, edge case handling |
+#### 來源標註
 
-#### Source Attribution
-
-Every extracted item MUST include source attribution:
+每個提取的項目必須包含來源標註：
 
 ```markdown
-## API Design
+## API 設計
 
-### User Authentication
-[Confirmed] POST /api/auth/login endpoint accepts email and password
-- [Source: Code] src/controllers/AuthController.ts:25-45
-- [Source: Code] src/routes/auth.ts:8
+### 使用者認證
+[已確認] POST /api/auth/login 端點接受電子郵件和密碼
+- [來源: 程式碼] src/controllers/AuthController.ts:25-45
+- [來源: 程式碼] src/routes/auth.ts:8
 
-### Session Management
-[Inferred] Sessions expire after 24 hours based on JWT expiry configuration
-- [Source: Code] src/config/auth.ts:12 - TOKEN_EXPIRY=86400
-- [Source: Knowledge] Standard JWT expiry interpretation (⚠️ Verify intent)
+### 工作階段管理
+[推斷] 根據 JWT 過期設定，工作階段在 24 小時後過期
+- [來源: 程式碼] src/config/auth.ts:12 - TOKEN_EXPIRY=86400
+- [來源: 知識] 標準 JWT 過期解釋（⚠️ 請驗證意圖）
 ```
 
-### 2. Progressive Disclosure
+### 2. 漸進式揭露
 
-Start with high-level architecture, then drill down:
+從高層級架構開始，然後深入：
 
-1. **System Overview**: Entry points, main components
-2. **Component Details**: Individual modules, their responsibilities
-3. **Implementation Specifics**: Algorithms, data flows
+1. **系統概覽**：進入點、主要元件
+2. **元件詳情**：個別模組及其職責
+3. **實作細節**：演算法、資料流程
 
-### 3. Test-to-Requirement Mapping
+### 3. 測試對應需求
 
-Extract acceptance criteria from tests:
+從測試提取驗收標準：
 
 ```javascript
-// Test file: src/tests/auth.test.ts
-describe('Authentication', () => {
-  it('should return 401 for invalid credentials', () => {...});
-  it('should issue JWT token on successful login', () => {...});
-  it('should refresh token before expiry', () => {...});
+// 測試檔案：src/tests/auth.test.ts
+describe('認證', () => {
+  it('應該對無效憑證回傳 401', () => {...});
+  it('應該在登入成功時發放 JWT 權杖', () => {...});
+  it('應該在過期前更新權杖', () => {...});
 });
 ```
 
-Becomes:
+轉換為：
 
 ```markdown
-## Acceptance Criteria
-[Inferred] From test analysis (src/tests/auth.test.ts):
-- [ ] Return 401 status code for invalid credentials
-- [ ] Issue JWT token on successful login
-- [ ] Support token refresh before expiry
+## 驗收標準
+[推斷] 從測試分析（src/tests/auth.test.ts）：
+- [ ] 對無效憑證回傳 401 狀態碼
+- [ ] 登入成功時發放 JWT 權杖
+- [ ] 支援過期前的權杖更新
 ```
 
-## Workflow Stages
+## 工作流程階段
 
-### Stage 1: Code Scanning
+### 階段 1：程式碼掃描
 
-**Input**: File path or directory
-**Output**: Code structure analysis
+**輸入**：檔案路徑或目錄
+**輸出**：程式碼結構分析
 
-**Actions**:
-1. Identify entry points (main functions, API routes, event handlers)
-2. Map module dependencies
-3. Extract type definitions and interfaces
-4. List configuration sources
+**動作**：
+1. 識別進入點（主函數、API 路由、事件處理器）
+2. 映射模組相依性
+3. 提取類型定義和介面
+4. 列出設定來源
 
-### Stage 2: Test Analysis
+### 階段 2：測試分析
 
-**Input**: Test files
-**Output**: Acceptance criteria candidates
+**輸入**：測試檔案
+**輸出**：驗收標準候選
 
-**Actions**:
-1. Parse test case names
-2. Extract Given-When-Then patterns (if BDD-style)
-3. Identify boundary conditions
-4. Note coverage gaps
+**動作**：
+1. 解析測試案例名稱
+2. 提取 Given-When-Then 模式（如為 BDD 風格）
+3. 識別邊界條件
+4. 記錄覆蓋率缺口
 
-### Stage 3: Gap Identification
+### 階段 3：缺口識別
 
-**Input**: Code + test analysis
-**Output**: List of unknowns requiring human input
+**輸入**：程式碼 + 測試分析
+**輸出**：需要人類輸入的未知項目清單
 
-**Required Human Input**:
-- [ ] Motivation: Why was this feature built?
-- [ ] User Story: Who uses this and for what purpose?
-- [ ] Risks: What could go wrong?
-- [ ] Trade-offs: Why this approach over alternatives?
-- [ ] Out of Scope: What was explicitly excluded?
+**必要人類輸入**：
+- [ ] 動機：為什麼要建立此功能？
+- [ ] 使用者故事：誰使用這個功能？用於什麼目的？
+- [ ] 風險：可能出什麼問題？
+- [ ] 權衡：為什麼選擇這個方法而非其他替代方案？
+- [ ] 範圍外：明確排除了什麼？
 
-### Stage 4: Spec Generation
+### 階段 4：規格生成
 
-**Input**: All analysis results
-**Output**: Draft specification document
+**輸入**：所有分析結果
+**輸出**：初稿規格文件
 
-**Template**: Use [reverse-spec-template.md](../../templates/reverse-spec-template.md)
+**範本**：使用 [reverse-spec-template.md](../../templates/reverse-spec-template.md)
 
-### Stage 5: Human Review
+### 階段 5：人類審查
 
-**Input**: Draft specification
-**Output**: Validated specification
+**輸入**：初稿規格
+**輸出**：經驗證的規格
 
-**Review Checklist**:
-- [ ] All `[Confirmed]` items verified accurate
-- [ ] All `[Inferred]` items validated or corrected
-- [ ] All `[Unknown]` items filled in by human
-- [ ] Source citations checked
-- [ ] Business context added
+**審查清單**：
+- [ ] 所有 `[已確認]` 項目驗證準確
+- [ ] 所有 `[推斷]` 項目經過驗證或修正
+- [ ] 所有 `[未知]` 項目由人類填寫
+- [ ] 來源引用已檢查
+- [ ] 商業背景已新增
 
-## Examples
+## 範例
 
-### Example 1: API Endpoint Extraction
+### 範例 1：API 端點提取
 
-**Input Code** (`src/controllers/UserController.ts`):
+**輸入程式碼**（`src/controllers/UserController.ts`）：
 ```typescript
 export class UserController {
   @Get('/users/:id')
@@ -207,315 +201,202 @@ export class UserController {
 }
 ```
 
-**Extracted Specification**:
+**提取的規格**：
 ```markdown
-## API Endpoints
+## API 端點
 
 ### GET /users/:id
-[Confirmed] Retrieves a user by ID
-- [Source: Code] src/controllers/UserController.ts:3-7
+[已確認] 依 ID 取得使用者
+- [來源: 程式碼] src/controllers/UserController.ts:3-7
 
-**Authorization**: [Confirmed] Requires 'admin' or 'user' role
-- [Source: Code] @Authorize decorator at line 4
+**授權**：[已確認] 需要 'admin' 或 'user' 角色
+- [來源: 程式碼] 第 4 行的 @Authorize 裝飾器
 
-**Parameters**:
-- `id` (path, required): User identifier [Confirmed]
+**參數**：
+- `id`（路徑，必要）：使用者識別碼 [已確認]
 
-**Response**: [Confirmed] Returns User object
-- [Source: Code] Return type at line 5
+**回應**：[已確認] 回傳 User 物件
+- [來源: 程式碼] 第 5 行的回傳類型
 
-**Error Handling**: [Unknown] Error responses not evident from code
+**錯誤處理**：[未知] 錯誤回應無法從程式碼中明確得知
 ```
 
-### Example 2: Test-to-Criteria Extraction
+### 範例 2：測試轉換為標準
 
-**Input Test** (`src/tests/cart.test.ts`):
+**輸入測試**（`src/tests/cart.test.ts`）：
 ```typescript
-describe('Shopping Cart', () => {
-  it('should add item to empty cart', () => {...});
-  it('should increment quantity for duplicate items', () => {...});
-  it('should not exceed maximum quantity of 99', () => {...});
-  it('should calculate total with tax', () => {...});
+describe('購物車', () => {
+  it('應該將商品加入空購物車', () => {...});
+  it('應該對重複商品增加數量', () => {...});
+  it('不應超過最大數量 99', () => {...});
+  it('應該計算含稅總額', () => {...});
 });
 ```
 
-**Extracted Acceptance Criteria**:
+**提取的驗收標準**：
 ```markdown
-## Acceptance Criteria
+## 驗收標準
 
-[Inferred] From test analysis (src/tests/cart.test.ts):
-- [ ] Can add item to empty cart (line 2)
-- [ ] Increments quantity for duplicate items (line 3)
-- [ ] Maximum quantity limit: 99 items (line 4)
-- [ ] Total calculation includes tax (line 5)
+[推斷] 從測試分析（src/tests/cart.test.ts）：
+- [ ] 可將商品加入空購物車（第 2 行）
+- [ ] 對重複商品增加數量（第 3 行）
+- [ ] 最大數量限制：99 件（第 4 行）
+- [ ] 總額計算包含稅金（第 5 行）
 
-[Unknown] Tax calculation rules not specified in tests
-[Need Confirmation] What happens when cart exceeds 99 items? (reject or cap?)
+[未知] 稅金計算規則未在測試中指定
+[需確認] 購物車超過 99 件時會發生什麼？（拒絕或限制？）
 ```
 
-## Integration with Other Skills
+## 與其他技能的整合
 
-### With /sdd (Spec-Driven Development)
+### 與 /sdd（規格驅動開發）
 
-1. Generate reverse-engineered spec using `/reverse-sdd`
-2. Review and fill in `[Unknown]` sections
-3. Use `/sdd review` to validate completeness
-4. Proceed with normal SDD workflow for enhancements
+1. 使用 `/reverse-sdd` 生成反向工程規格
+2. 審查並填寫 `[未知]` 區塊
+3. 使用 `/sdd review` 驗證完整性
+4. 繼續正常 SDD 工作流程進行增強
 
-### With /tdd (Test-Driven Development)
+### 與 /tdd（測試驅動開發）
 
-1. Extract existing test patterns
-2. Identify test coverage gaps
-3. Use `/tdd` to add missing tests
-4. Update spec with new acceptance criteria
+1. 提取現有測試模式
+2. 識別測試覆蓋率缺口
+3. 使用 `/tdd` 新增缺失的測試
+4. 用新的驗收標準更新規格
 
-### With /bdd (Behavior-Driven Development)
+### 與 /bdd（行為驅動開發）
 
-1. Convert extracted acceptance criteria to Gherkin format
-2. Use `/bdd` to formalize scenarios
-3. Validate scenarios with stakeholders
+1. 將提取的驗收標準轉換為 Gherkin 格式
+2. 使用 `/bdd` 正式化場景
+3. 與利害關係人驗證場景
 
-## Data Dimension Guide (`/reverse data`)
+## 完整反向工程管道
 
-### What to Scan
-
-| Source | What to Look For | Certainty |
-|--------|-----------------|-----------|
-| `schema.prisma` / `*.schema.*` | Models, fields, relations, enums | [Confirmed] |
-| `migrations/` / `*.migration.*` | Schema evolution history | [Confirmed] |
-| `models/` / `entities/` | ORM model definitions | [Confirmed] |
-| `knexfile.*` / `sequelize` config | DB connection, dialect | [Confirmed] |
-| `seeds/` / `fixtures/` | Test data, default values | [Confirmed] |
-| `docker-compose.yml` (db services) | DB engine, ports, volumes | [Confirmed] |
-| Code patterns (`.findBy`, `.save`) | Implicit relationships | [Inferred] |
-| No schema files found | Possible schemaless/NoSQL | [Unknown] |
-
-### Output Template: Data Model Spec
-
-```markdown
-# Data Model Spec — [Project Name]
-
-## Entities
-
-### User
-[Confirmed] Source: schema.prisma:5-15
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| id | UUID | PK, auto | — |
-| email | String | Unique, Not Null | — |
-| role | Enum(admin,user) | Default: user | — |
-
-### Order
-[Confirmed] Source: models/Order.ts:3-20
-...
-
-## Relationships
-[Confirmed] User 1:N Order (FK: order.userId → user.id)
-[Inferred] Order M:N Product (join table: order_items — from code pattern)
-
-## Migration History
-| Version | Date | Description | Source |
-|---------|------|-------------|--------|
-| 001 | 2024-03-01 | Initial schema | migrations/001_init.ts |
-| 002 | 2024-06-15 | Add role to user | migrations/002_add_role.ts |
-
-## Data Flow Paths
-- Write: API → Service → Repository → DB
-- Read: DB → Repository → Service → Serializer → API
-```
-
----
-
-## Runtime Dimension Guide (`/reverse runtime`)
-
-### What to Scan
-
-| Source | What to Look For | Certainty |
-|--------|-----------------|-----------|
-| `.env.example` / `.env.template` | Environment variable names | [Confirmed] |
-| `docker-compose.yml` | Services, ports, dependencies | [Confirmed] |
-| `Dockerfile` | Base image, build steps, exposed ports | [Confirmed] |
-| `k8s/` / Helm charts | Deployment topology | [Confirmed] |
-| CI/CD files (`.github/`, `.gitlab-ci.yml`) | Build/deploy pipeline | [Confirmed] |
-| Config files (`*.config.*`) | Feature flags, settings hierarchy | [Confirmed] |
-| Log files (patterns only) | Error patterns, log levels | [Inferred] |
-| Monitoring endpoints (`/health`, `/metrics`) | Observability surface | [Confirmed] |
-
-### Security Rules
-
-- **NEVER** output actual values from `.env`, secrets, API keys, or passwords
-- Only list variable **names** and infer their **purpose**
-- Mark any sensitive config as `[REDACTED]`
-
-### Output Template: Runtime Baseline
-
-```markdown
-# Runtime Baseline — [Project Name]
-
-## Environment Variables
-| Variable | Purpose | Required | Source |
-|----------|---------|----------|--------|
-| DATABASE_URL | DB connection string | Yes | .env.example:1 |
-| JWT_SECRET | Token signing key | Yes | .env.example:3 |
-| REDIS_URL | Cache connection | No | .env.example:5 |
-| FEATURE_NEW_UI | Feature flag | No | config/features.ts:12 |
-
-## External Dependencies
-| Service | Protocol | Purpose | Source |
-|---------|----------|---------|--------|
-| PostgreSQL 15 | TCP:5432 | Primary database | docker-compose.yml:8 |
-| Redis 7 | TCP:6379 | Session cache | docker-compose.yml:15 |
-| Stripe API | HTTPS | Payment processing | [Inferred] src/services/payment.ts:3 |
-
-## Deployment Topology
-[Confirmed] Source: docker-compose.yml
-- app (Node.js 20) → port 3000
-- db (PostgreSQL 15) → port 5432
-- redis (Redis 7) → port 6379
-
-## Health & Monitoring
-[Confirmed] GET /health → src/routes/health.ts:5
-[Inferred] No metrics endpoint found — consider adding /metrics
-
-## CI/CD Pipeline
-[Confirmed] Source: .github/workflows/ci.yml
-- Trigger: push to main, PR
-- Steps: lint → test → build → deploy
-```
-
----
-
-## Complete Reverse Engineering Pipeline
-
-The reverse engineering skill supports a complete SDD → BDD → TDD pipeline:
+反向工程技能支援完整的 SDD → BDD → TDD 管道：
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                   Complete Reverse Engineering Pipeline                   │
+│                        完整反向工程管道                                   │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│   Code + Tests                                                          │
+│   程式碼 + 測試                                                          │
 │        │                                                                │
 │        ▼                                                                │
-│   /reverse-sdd                                                         │
+│   /reverse-sdd                                                          │
 │        │                                                                │
-│        └─→ Generate SPEC-XXX with Acceptance Criteria                   │
+│        └─→ 生成 SPEC-XXX 含驗收標準                                      │
 │                │                                                        │
 │                ▼                                                        │
 │   /reverse-bdd                                                          │
 │        │                                                                │
-│        ├─→ AC → Gherkin scenario conversion                             │
-│        ├─→ Auto-transform bullet points to Given-When-Then              │
-│        └─→ Generate .feature files                                      │
+│        ├─→ AC → Gherkin 場景轉換                                         │
+│        ├─→ 條列式自動轉換為 Given-When-Then                              │
+│        └─→ 生成 .feature 檔案                                           │
 │                │                                                        │
 │                ▼                                                        │
 │   /reverse-tdd                                                          │
 │        │                                                                │
-│        ├─→ Analyze existing unit tests                                  │
-│        └─→ Generate coverage report with gaps                           │
+│        ├─→ 分析現有單元測試                                              │
+│        └─→ 生成覆蓋率報告與缺口                                          │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Pipeline Commands
+### 管道命令
 
-| Command | Input | Output | Purpose |
-|---------|-------|--------|---------|
-| `/reverse-sdd` | Code directory | SPEC-XXX.md | Extract requirements from code |
-| `/reverse-bdd` | SPEC file | .feature files | Convert AC to Gherkin scenarios |
-| `/reverse-tdd` | .feature files | Coverage report | Map scenarios to unit tests |
+| 命令 | 輸入 | 輸出 | 目的 |
+|------|------|------|------|
+| `/reverse-sdd` | 程式碼目錄 | SPEC-XXX.md | 從程式碼提取需求 |
+| `/reverse-bdd` | SPEC 檔案 | .feature 檔案 | 將 AC 轉換為 Gherkin 場景 |
+| `/reverse-tdd` | .feature 檔案 | 覆蓋率報告 | 映射場景到單元測試 |
 
-### Usage Example
+### 使用範例
 
 ```bash
-# Step 1: Reverse engineer code to SDD specification
+# 步驟 1：將程式碼反向工程成 SDD 規格
 /reverse-sdd src/auth/
 
-# Step 2: Transform acceptance criteria to BDD scenarios
+# 步驟 2：將驗收標準轉換為 BDD 場景
 /reverse-bdd specs/SPEC-AUTH.md
 
-# Step 3: Analyze test coverage against BDD scenarios
+# 步驟 3：分析 BDD 場景的測試覆蓋率
 /reverse-tdd features/auth.feature
 ```
 
-### Detailed Guides
+### 詳細指南
 
-- [BDD Extraction Workflow](./bdd-extraction.md) - Detailed guide for AC → Gherkin transformation
-- [TDD Analysis Workflow](./tdd-analysis.md) - Detailed guide for BDD → TDD coverage analysis
+- [BDD 提取工作流程](./bdd-extraction.md) - AC → Gherkin 轉換詳細指南
+- [TDD 分析工作流程](./tdd-analysis.md) - BDD → TDD 覆蓋率分析詳細指南
 
-## Anti-Patterns to Avoid
+## 應避免的反模式
 
-### ❌ Don't Do This
+### ❌ 不要這樣做
 
-1. **Fabricating Motivation**
-   - Wrong: "This feature was built to improve user experience"
-   - Right: "[Unknown] Motivation requires human input"
+1. **捏造動機**
+   - 錯誤：「此功能是為了改善使用者體驗而建立的」
+   - 正確：「[未知] 動機需要人類輸入」
 
-2. **Assuming Requirements**
-   - Wrong: "The system requires SSO support"
-   - Right: "[Need Confirmation] SSO configuration found in code - is this a requirement?"
+2. **假設需求**
+   - 錯誤：「系統需要 SSO 支援」
+   - 正確：「[需確認] 程式碼中發現 SSO 設定 - 這是需求嗎？」
 
-3. **Speculating About Unread Code**
-   - Wrong: "The PaymentService handles Stripe integration"
-   - Right: "[Unknown] PaymentService functionality - need to read src/services/PaymentService.ts"
+3. **推測未讀取的程式碼**
+   - 錯誤：「PaymentService 處理 Stripe 整合」
+   - 正確：「[未知] PaymentService 功能 - 需要讀取 src/services/PaymentService.ts」
 
-4. **Presenting Options Without Uncertainty**
-   - Wrong: "The code uses Redis for caching"
-   - Right: "[Confirmed] Redis client configured in src/config/cache.ts:5"
+4. **呈現選項時沒有不確定性標記**
+   - 錯誤：「程式碼使用 Redis 做快取」
+   - 正確：「[已確認] Redis 客戶端設定於 src/config/cache.ts:5」
 
-## Best Practices
+## 最佳實踐
 
-### Do's
+### 應該做的
 
-- ✅ Read all relevant files before making claims
-- ✅ Tag every statement with certainty level
-- ✅ Include source citations with file:line
-- ✅ Clearly list what needs human input
-- ✅ Preserve original code comments as context
+- ✅ 在提出聲明前讀取所有相關檔案
+- ✅ 為每個陳述標記確定性等級
+- ✅ 包含帶有 file:line 的來源引用
+- ✅ 清楚列出需要人類輸入的內容
+- ✅ 保留原始程式碼註解作為背景
 
-### Don'ts
+### 不應該做的
 
-- ❌ Assume motivation or business context
-- ❌ Present inferences as confirmed facts
-- ❌ Skip source attribution
-- ❌ Generate specs for unread code
-- ❌ Fill in `[Unknown]` sections without human input
-
----
-
-## Configuration Detection
-
-This skill auto-detects project configuration:
-
-1. Check for existing `specs/` directory
-2. Check for SDD tooling (OpenSpec, Spec Kit)
-3. Detect test framework for acceptance criteria extraction
-4. Identify code patterns (MVC, DDD, etc.)
+- ❌ 假設動機或商業背景
+- ❌ 將推斷呈現為已確認的事實
+- ❌ 跳過來源標註
+- ❌ 為未讀取的程式碼生成規格
+- ❌ 在沒有人類輸入的情況下填寫 `[未知]` 區塊
 
 ---
 
-## Related Standards
+## 設定偵測
 
-- [Reverse Engineering Standards](../../core/reverse-engineering-standards.md) - **Core methodology standard (primary reference)**
-- [Spec-Driven Development](../../core/spec-driven-development.md) - Output format and review process
-- [Anti-Hallucination Guidelines](../../core/anti-hallucination.md) - Evidence-based analysis requirements
-- [Code Review Checklist](../../core/code-review-checklist.md) - Review guidelines
+此技能會自動偵測專案設定：
 
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 2.0.0 | 2026-02-12 | Major: 3-dimension system archeology (Logic + Data + Runtime) |
-| 1.2.0 | 2026-01-25 | Added: Reference to Unified Tag System |
-| 1.1.0 | 2026-01-19 | Add BDD/TDD pipeline integration; Add core standard reference |
-| 1.0.0 | 2026-01-19 | Initial release |
+1. 檢查是否存在 `specs/` 目錄
+2. 檢查 SDD 工具（OpenSpec、Spec Kit）
+3. 偵測用於提取驗收標準的測試框架
+4. 識別程式碼模式（MVC、DDD 等）
 
 ---
 
-## License
+## 相關標準
 
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- [規格驅動開發](../../core/spec-driven-development.md)
+- [反幻覺指南](../../core/anti-hallucination.md)
+- [程式碼審查檢查清單](../../core/code-review-checklist.md)
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## 版本歷史
+
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.1.0 | 2026-01-19 | 新增 BDD/TDD 管道整合 |
+| 1.0.0 | 2026-01-19 | 初始發布 |
+
+---
+
+## 授權
+
+此技能採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權。
+
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

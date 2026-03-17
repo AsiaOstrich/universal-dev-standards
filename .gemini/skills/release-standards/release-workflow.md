@@ -1,195 +1,200 @@
-# Release Workflow Guide
+---
+source: ../../../../skills/release-standards/release-workflow.md
+source_version: 2.2.0
+translation_version: 2.2.0
+last_synced: 2026-01-26
+status: current
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/release-standards/release-workflow.md)
+# 發布流程指南
 
-**Version**: 2.2.0
-**Last Updated**: 2026-01-26
-**Applicability**: All software projects using semantic versioning
+> **Language**: [English](../../../../skills/release-standards/release-workflow.md) | 繁體中文
+
+**版本**: 2.2.0
+**最後更新**: 2026-01-26
+**適用範圍**: 所有使用語義化版本的軟體專案
 
 ---
 
-## Purpose
+## 目的
 
-This document provides a universal release workflow guide applicable to any software project. It covers version management, release types, and standard publishing workflows.
+本文件提供適用於任何軟體專案的通用發布流程指南。涵蓋版本管理、發布類型和標準發布流程。
 
-> **Note**: For project-specific configurations (additional version files, translation sync, custom verification scripts), define them in your project's `CLAUDE.md` file.
-
----
-
-## Release Types
-
-### 1. Beta Release (Testing Version)
-
-**When to use:**
-- Testing new features before stable release
-- Gathering feedback from early adopters
-- Validating bug fixes before production
-
-**Version pattern:** `X.Y.Z-beta.N` (e.g., `3.2.1-beta.1`)
-
-**npm tag:** `@beta`
+> **注意**：專案特有配置（額外的版本檔案、翻譯同步、自訂驗證腳本）請在專案的 `CLAUDE.md` 檔案中定義。
 
 ---
 
-### 2. Stable Release (Production Version)
+## 發布類型
 
-**When to use:**
-- All features tested and verified
-- Ready for production use
-- All tests passing
+### 1. Beta 發布（測試版本）
 
-**Version pattern:** `X.Y.Z` (e.g., `3.2.1`)
+**使用時機：**
+- 在穩定版發布前測試新功能
+- 向早期採用者收集回饋
+- 在生產環境前驗證錯誤修正
 
-**npm tag:** `@latest`
+**版本模式：** `X.Y.Z-beta.N`（例如：`3.2.1-beta.1`）
 
----
-
-### 3. Alpha Release (Early Testing)
-
-**When to use:**
-- Very early testing, unstable features
-- Internal team testing only
-
-**Version pattern:** `X.Y.Z-alpha.N` (e.g., `3.3.0-alpha.1`)
-
-**npm tag:** `@alpha`
+**npm 標籤：** `@beta`
 
 ---
 
-### 4. Release Candidate (Pre-release)
+### 2. 穩定發布（正式版本）
 
-**When to use:**
-- Final testing before stable release
-- No new features, only bug fixes
+**使用時機：**
+- 所有功能已測試並驗證
+- 準備好用於生產環境
+- 所有測試通過
 
-**Version pattern:** `X.Y.Z-rc.N` (e.g., `3.2.1-rc.1`)
+**版本模式：** `X.Y.Z`（例如：`3.2.1`）
 
-**npm tag:** `@rc`
+**npm 標籤：** `@latest`
 
 ---
 
-## Standard Release Workflow
+### 3. Alpha 發布（早期測試）
 
-> **Workflow Philosophy**: Version first, then validate. Update version before testing to ensure validation runs against the exact release version.
+**使用時機：**
+- 非常早期的測試，功能不穩定
+- 僅限內部團隊測試
 
-### Step 1: Prepare Release Branch
+**版本模式：** `X.Y.Z-alpha.N`（例如：`3.3.0-alpha.1`）
+
+**npm 標籤：** `@alpha`
+
+---
+
+### 4. 候選發布（預發布）
+
+**使用時機：**
+- 穩定版發布前的最終測試
+- 不包含新功能，僅錯誤修正
+
+**版本模式：** `X.Y.Z-rc.N`（例如：`3.2.1-rc.1`）
+
+**npm 標籤：** `@rc`
+
+---
+
+## 標準發布流程
+
+> **流程理念**：先給版號，再驗證。更新版本後再測試，確保驗證是針對確切的發布版本進行。
+
+### 步驟 1：準備發布分支
 
 ```bash
-# Ensure you're on the main branch and up to date
+# 確保在 main 分支並已更新
 git checkout main
 git pull origin main
 
-# Check git status (should be clean)
+# 檢查 git 狀態（應為乾淨狀態）
 git status
 ```
 
-### Step 2: Update Version
+### 步驟 2：更新版本
 
 ```bash
-# For npm projects
-npm version X.Y.Z --no-git-tag-version        # Stable
-npm version X.Y.Z-beta.N --no-git-tag-version # Beta
+# npm 專案
+npm version X.Y.Z --no-git-tag-version        # 穩定版
+npm version X.Y.Z-beta.N --no-git-tag-version # Beta 版
 
-# For other projects, update version file manually
-# Update all project-specific version files (see CLAUDE.md)
+# 其他專案，手動更新版本檔案
+# 更新所有專案特定的版本檔案（請參考 CLAUDE.md）
 ```
 
-### Step 3: Update CHANGELOG
+### 步驟 3：更新 CHANGELOG
 
-Update `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com/) format:
+依照 [Keep a Changelog](https://keepachangelog.com/) 格式更新 `CHANGELOG.md`：
 
 ```markdown
 ## [X.Y.Z] - YYYY-MM-DD
 
 ### Added
-- New feature descriptions
+- 新功能描述
 
 ### Changed
-- Change descriptions
+- 變更描述
 
 ### Fixed
-- Bug fix descriptions
+- 錯誤修正描述
 ```
 
-For beta releases, add a warning:
+Beta 發布時加入警告：
 
 ```markdown
 ## [X.Y.Z-beta.N] - YYYY-MM-DD
 
-> ⚠️ **Beta Release**: For testing. Install with `npm install <package>@beta`
+> ⚠️ **Beta 發布**：用於測試。使用 `npm install <package>@beta` 安裝
 ```
 
-### Step 4: Run All Tests
+### 步驟 4：執行所有測試
 
 ```bash
-# Run automated tests
-npm test  # or your project's test command
+# 執行自動化測試
+npm test  # 或專案的測試指令
 
-# Run linting
-npm run lint  # or your project's lint command
+# 執行程式碼檢查
+npm run lint  # 或專案的 lint 指令
 
-# Run pre-release checks (if available)
-./scripts/pre-release-check.sh  # or .\scripts\pre-release-check.ps1
+# 執行預發布檢查（如有）
+./scripts/pre-release-check.sh  # 或 .\scripts\pre-release-check.ps1
 ```
 
-### Step 5: Manual Verification
+### 步驟 5：手動驗證
 
-Before proceeding, manually verify:
+繼續前請手動驗證：
 
-- [ ] **Build verification**: Application builds successfully
-- [ ] **Smoke test**: Core functionality works as expected
-- [ ] **Version display**: Version number is displayed correctly
-- [ ] **For beta**: Known issues documented in CHANGELOG
+- [ ] **建置驗證**：應用程式成功建置
+- [ ] **冒煙測試**：核心功能如預期運作
+- [ ] **版本顯示**：版本號正確顯示
+- [ ] **Beta 版**：已知問題記錄於 CHANGELOG
 
-> ⚠️ **Stop here if any verification fails.** Fix issues before proceeding.
+> ⚠️ **若任何驗證失敗，請在此停止。** 先修復問題再繼續。
 
-### Step 6: Commit and Tag
+### 步驟 6：提交與標籤
 
 ```bash
-# Commit changes
+# 提交變更
 git add .
 git commit -m "chore(release): X.Y.Z"
 
-# Create and push tag
+# 建立並推送標籤
 git tag vX.Y.Z
 git push origin main --tags
 ```
 
-### Step 7: Create Release
+### 步驟 7：建立 Release
 
-Create a GitHub/GitLab release:
-- Tag: `vX.Y.Z`
-- Title: `vX.Y.Z - [Release Name]`
-- Mark as pre-release if beta/alpha/rc
-- Add release notes from CHANGELOG
+建立 GitHub/GitLab Release：
+- Tag：`vX.Y.Z`
+- 標題：`vX.Y.Z - [Release Name]`
+- 若為 beta/alpha/rc，標記為 pre-release
+- 從 CHANGELOG 加入發布說明
 
-### Step 8: Verify Publication
+### 步驟 8：驗證發布
 
 ```bash
-# For npm packages
+# npm 套件
 npm view <package-name> dist-tags
 
-# Test installation
+# 測試安裝
 npm install -g <package-name>@<version>
-
-# Verify version
-<command> --version  # Should show X.Y.Z
 ```
 
 ---
 
-## npm dist-tag Strategy
+## npm dist-tag 策略
 
-| Version Pattern | npm Tag | Install Command |
-|----------------|---------|-----------------|
+| 版本模式 | npm Tag | 安裝指令 |
+|---------|---------|---------|
 | `X.Y.Z` | `latest` | `npm install <package>` |
 | `X.Y.Z-beta.N` | `beta` | `npm install <package>@beta` |
 | `X.Y.Z-alpha.N` | `alpha` | `npm install <package>@alpha` |
 | `X.Y.Z-rc.N` | `rc` | `npm install <package>@rc` |
 
-### Automatic Tag Detection
+### 自動標籤偵測
 
-For CI/CD automation, detect version type using regex:
+用於 CI/CD 自動化，使用正則表達式偵測版本類型：
 
 ```bash
 VERSION=$(node -p "require('./package.json').version")
@@ -209,107 +214,107 @@ npm publish --tag $TAG
 
 ---
 
-## CHANGELOG Format
+## CHANGELOG 格式
 
-### Beta Release Format
+### Beta 發布格式
 
 ```markdown
 ## [X.Y.Z-beta.N] - YYYY-MM-DD
 
-> ⚠️ **Beta Release**: This is a beta version for testing.
+> ⚠️ **Beta 發布**：這是測試版本。
 
 ### Added
-- Feature description
+- 功能描述
 
 ### Fixed
-- Bug fix description
+- 錯誤修正描述
 ```
 
-### Stable Release Format
+### 穩定發布格式
 
 ```markdown
 ## [X.Y.Z] - YYYY-MM-DD
 
 ### Added
-- Feature description with details
+- 功能描述及詳情
 
 ### Changed
-- Change description
+- 變更描述
 
 ### Fixed
-- Bug fix description
+- 錯誤修正描述
 ```
 
 ---
 
-## Version Numbering Strategy
+## 版本編號策略
 
-Follow [Semantic Versioning](https://semver.org/):
+遵循[語義化版本](https://semver.org/)：
 
-| Change Type | Version Bump | Example |
-|-------------|--------------|---------|
-| Breaking changes | MAJOR | 2.9.5 → 3.0.0 |
-| New features (backward-compatible) | MINOR | 3.1.5 → 3.2.0 |
-| Bug fixes (backward-compatible) | PATCH | 3.2.0 → 3.2.1 |
-| Pre-release | Add suffix | 3.2.1 → 3.2.1-beta.1 |
+| 變更類型 | 版本遞增 | 範例 |
+|---------|---------|------|
+| 破壞性變更 | MAJOR | 2.9.5 → 3.0.0 |
+| 新功能（向後相容） | MINOR | 3.1.5 → 3.2.0 |
+| 錯誤修正（向後相容） | PATCH | 3.2.0 → 3.2.1 |
+| 預發布 | 新增後綴 | 3.2.1 → 3.2.1-beta.1 |
 
 ---
 
-## Troubleshooting
+## 疑難排解
 
-### Wrong npm Tag
+### npm Tag 錯誤
 
-If you published with the wrong tag:
+如果使用錯誤的標籤發布：
 
 ```bash
 npm dist-tag add <package>@<version> <correct-tag>
 ```
 
-### Need to Revert a Release
+### 需要撤回發布
 
 ```bash
-# Option 1: Deprecate
+# 選項 1：棄用
 npm deprecate <package>@<version> "Please use <new-version> instead"
 
-# Option 2: Unpublish (within 72 hours only)
+# 選項 2：取消發布（僅限 72 小時內）
 npm unpublish <package>@<version>
 
-# Option 3: Publish patch version
+# 選項 3：發布修補版本
 npm version patch
 ```
 
 ---
 
-## Pre-release Checklist
+## 預發布檢查清單
 
-### Universal Checks (All Releases)
+### 通用檢查（所有發布）
 
-- [ ] On correct branch (main for stable)
-- [ ] Git working directory clean
-- [ ] Version updated in all required files
-- [ ] CHANGELOG updated with release notes
-- [ ] All tests passing
-- [ ] Linting passing
-- [ ] Build successful
-- [ ] Core functionality works (smoke test)
+- [ ] 在正確的分支（穩定版用 main）
+- [ ] Git 工作目錄乾淨
+- [ ] 所有必要檔案的版本已更新
+- [ ] CHANGELOG 已更新發布說明
+- [ ] 所有測試通過
+- [ ] Linting 通過
+- [ ] 建置成功
+- [ ] 核心功能運作正常（冒煙測試）
 
-### Before Beta Release
+### Beta 發布前
 
-- [ ] Universal checks completed
-- [ ] Known issues documented in CHANGELOG
+- [ ] 通用檢查完成
+- [ ] 已知問題記錄於 CHANGELOG
 
-### Before Stable Release
+### 穩定發布前
 
-- [ ] Universal checks completed
-- [ ] Beta testing completed (if applicable)
-- [ ] No critical bugs
-- [ ] Migration guide created (if breaking changes)
+- [ ] 通用檢查完成
+- [ ] Beta 測試完成（如適用）
+- [ ] 無嚴重錯誤
+- [ ] 已建立遷移指南（如有破壞性變更）
 
 ---
 
-## Project-Specific Configuration
+## 專案特有配置
 
-For project-specific release requirements, define them in your `CLAUDE.md` file:
+專案特有的發布需求請在 `CLAUDE.md` 中定義：
 
 ```markdown
 ## Release Process (Project-Specific)
@@ -330,43 +335,43 @@ For project-specific release requirements, define them in your `CLAUDE.md` file:
 - Custom verification step 2
 ```
 
-This allows AI assistants to automatically apply project-specific rules when executing the `/release` command.
+這讓 AI 助手在執行 `/release` 指令時自動套用專案特有規則。
 
 ---
 
-## AI Assistant Guidelines
+## AI 助理指南
 
-When helping with releases:
+協助發布時：
 
-1. **Identify release type:** Ask if beta, alpha, rc, or stable
-2. **Run pre-release checks:** Tests, linting, git status
-3. **Check for project-specific rules:** Read `CLAUDE.md` for additional requirements
-4. **Update version:** Use appropriate version command
-5. **Update CHANGELOG:** Follow standard format
-6. **Create git tag:** Format `v{VERSION}`
-7. **Create release:** GitHub/GitLab release
-8. **Verify publication:** Check dist-tags and test installation
-
----
-
-## Related Documentation
-
-- [Semantic Versioning Guide](./semantic-versioning.md)
-- [Changelog Format](./changelog-format.md)
+1. **識別發布類型：** 詢問是 beta、alpha、rc 或穩定版
+2. **執行預發布檢查：** 測試、linting、git 狀態
+3. **檢查專案特有規則：** 閱讀 `CLAUDE.md` 取得額外需求
+4. **更新版本：** 使用適當的版本指令
+5. **更新 CHANGELOG：** 遵循標準格式
+6. **建立 git tag：** 格式 `v{VERSION}`
+7. **建立 release：** GitHub/GitLab release
+8. **驗證發布：** 檢查 dist-tags 並測試安裝
 
 ---
 
-## Version History
+## 相關文件
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 2.2.0 | 2026-01-26 | Simplify to universal Beta→Stable workflow; Alpha→Beta→Stable moved to project-specific |
-| 2.1.0 | 2026-01-26 | Adopt "version first" workflow: update version → test → verify → release |
-| 2.0.0 | 2026-01-14 | Refactor to universal guide, move project-specific content to CLAUDE.md |
-| 1.0.0 | 2026-01-02 | Initial release workflow guide |
+- [語義化版本指南](./semantic-versioning.md)
+- [Changelog 格式](./changelog-format.md)
 
 ---
 
-## License
+## 版本歷史
 
-This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 2.2.0 | 2026-01-26 | 簡化為通用 Beta→Stable 流程；Alpha→Beta→Stable 移至專案特定配置 |
+| 2.1.0 | 2026-01-26 | 採用「版號優先」流程：更新版號 → 測試 → 驗證 → 發布 |
+| 2.0.0 | 2026-01-14 | 重構為通用指南，專案特有內容移至 CLAUDE.md |
+| 1.0.0 | 2026-01-02 | 初始發布流程指南 |
+
+---
+
+## 授權
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。

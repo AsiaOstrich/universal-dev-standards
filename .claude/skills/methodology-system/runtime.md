@@ -1,262 +1,270 @@
-# Methodology Runtime Guide
+---
+source: ../../../../skills/methodology-system/runtime.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-12
+status: experimental
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/methodology-system/runtime.md)
+# 方法論執行時引導
+
+> **Language**: [English](../../../../skills/methodology-system/runtime.md) | 繁體中文
 
 > [!WARNING]
-> **Experimental Feature / 實驗性功能**
+> **實驗性功能 / Experimental Feature**
 >
-> This feature is under active development and may change significantly in v4.0.
 > 此功能正在積極開發中，可能在 v4.0 中有重大變更。
+> This feature is under active development and may change significantly in v4.0.
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-12
-
----
-
-## Overview
-
-This document defines how AI assistants should behave when a development methodology is active. It provides guidance for phase tracking, checkpoint handling, and user interaction.
+**版本**: 1.0.0
+**最後更新**: 2026-01-12
 
 ---
 
-## AI Behavior Specification
+## 概述
 
-### 1. Context Awareness
+本文件定義當開發方法論啟用時，AI 助手應如何行為。提供階段追蹤、檢查點處理和用戶互動的引導。
 
-When a methodology is active, the AI should:
+---
 
-- **Always know the current phase**
-- **Display phase indicator in responses**
-- **Suggest phase-appropriate actions**
+## AI 行為規格
 
-#### Phase Status Display
+### 1. 上下文感知
 
-Include methodology status at the start of relevant responses:
+當方法論啟用時，AI 應該：
+
+- **始終知道當前階段**
+- **在回應中顯示階段指示器**
+- **建議階段適當的行動**
+
+#### 階段狀態顯示
+
+在相關回應開頭包含方法論狀態：
 
 ```
 ┌────────────────────────────────────────────────┐
-│ 📋 Methodology: TDD                             │
-│ 📍 Phase: 🔴 RED (writing failing test)         │
-│ ⏱️  Duration: 3 minutes                         │
+│ 📋 方法論: TDD                                  │
+│ 📍 階段: 🔴 紅燈（撰寫失敗的測試）               │
+│ ⏱️  持續時間: 3 分鐘                            │
 └────────────────────────────────────────────────┘
 ```
 
-### 2. Proactive Guidance
+### 2. 主動引導
 
-Provide context-appropriate suggestions based on current phase:
+根據當前階段提供上下文適當的建議：
 
 ```markdown
-**Current Phase: 🔴 RED (TDD)**
+**當前階段: 🔴 紅燈 (TDD)**
 
-You're writing a failing test for: user login validation
+您正在為以下功能撰寫失敗的測試：用戶登入驗證
 
-**Next step**: Write a test that describes the expected behavior.
+**下一步**：撰寫描述預期行為的測試。
 
-Would you like me to:
-1. Generate a test skeleton
-2. Show TDD best practices for this scenario
-3. Continue with your manual approach
+您希望我：
+1. 產生測試骨架
+2. 展示此場景的 TDD 最佳實踐
+3. 繼續您的手動方式
 ```
 
-### 3. Phase Transition Detection
+### 3. 階段轉換偵測
 
-Monitor for conditions that indicate phase transitions:
+監控表示階段轉換的條件：
 
-| Signal | Transition |
-|--------|------------|
-| Test execution fails | RED → ready for GREEN |
-| All tests pass | GREEN → ready for REFACTOR |
-| User confirms refactor done | REFACTOR → next cycle or DONE |
-| Time elapsed exceeds phase duration | Display reminder |
-| Git commit detected | Reset phase timer |
+| 訊號 | 轉換 |
+|------|------|
+| 測試執行失敗 | 紅燈 → 準備進入綠燈 |
+| 所有測試通過 | 綠燈 → 準備重構 |
+| 用戶確認重構完成 | 重構 → 下一個週期或完成 |
+| 經過時間超過階段持續時間 | 顯示提醒 |
+| 偵測到 Git 提交 | 重置階段計時器 |
 
-### 4. Checkpoint Behavior
+### 4. 檢查點行為
 
-When checkpoint conditions are triggered, display checkpoint notification:
+當檢查點條件觸發時，顯示檢查點通知：
 
 ```
 ┌────────────────────────────────────────────────┐
-│ 🔔 Methodology Checkpoint                       │
+│ 🔔 方法論檢查點                                 │
 ├────────────────────────────────────────────────┤
-│ GREEN phase completed                          │
+│ 綠燈階段完成                                    │
 │                                                │
-│ Checklist Status:                              │
-│   ✅ Minimum code written                      │
-│   ✅ Test passes                               │
-│   ✅ All other tests pass                      │
-│   ⬜ (Optional) Consider edge cases            │
+│ 檢查清單狀態：                                  │
+│   ✅ 撰寫最少程式碼                            │
+│   ✅ 測試通過                                   │
+│   ✅ 所有其他測試通過                           │
+│   ⬜ （選填）考慮邊界情況                       │
 │                                                │
-│ Change Statistics:                             │
-│   - Files: 3                                   │
-│   - Added: 45 lines                            │
-│   - Deleted: 2 lines                           │
+│ 變更統計：                                      │
+│   - 檔案: 3                                     │
+│   - 新增: 45 行                                 │
+│   - 刪除: 2 行                                  │
 │                                                │
-│ Suggested commit:                              │
-│   test(auth): add email validation test        │
-│   feat(auth): implement email validation       │
+│ 建議提交：                                      │
+│   test(auth): 新增郵箱驗證測試                  │
+│   feat(auth): 實作郵箱驗證                      │
 │                                                │
-│ Options:                                       │
-│   [1] Commit now (show git commands)           │
-│   [2] Continue to REFACTOR phase               │
-│   [3] View detailed changes                    │
+│ 選項：                                          │
+│   [1] 立即提交（顯示 git 命令）                 │
+│   [2] 繼續到重構階段                            │
+│   [3] 檢視詳細變更                              │
 └────────────────────────────────────────────────┘
 ```
 
-### 5. Skip Tracking
+### 5. 跳過追蹤
 
-Track consecutive skips and warn appropriately:
+追蹤連續跳過並適當警告：
 
-| Skip Count | Action |
-|------------|--------|
-| 1-2 | No action, record skip |
-| 3 | Warning notification |
-| 4+ | Strong warning, recommend commit |
+| 跳過次數 | 行動 |
+|----------|------|
+| 1-2 | 無行動，記錄跳過 |
+| 3 | 警告通知 |
+| 4+ | 強烈警告，建議提交 |
 
-#### Skip Warning Display
+#### 跳過警告顯示
 
 ```
 ┌────────────────────────────────────────────────┐
-│ ⚠️ Skip Warning                                 │
+│ ⚠️ 跳過警告                                     │
 ├────────────────────────────────────────────────┤
-│ You have skipped check-in 3 times consecutively│
+│ 您已連續跳過簽入 3 次                           │
 │                                                │
-│ Current accumulated changes:                   │
-│   - Files: 8                                   │
-│   - Added: 320 lines                           │
-│   - Deleted: 45 lines                          │
+│ 當前累積變更：                                  │
+│   - 檔案: 8                                     │
+│   - 新增: 320 行                                │
+│   - 刪除: 45 行                                 │
 │                                                │
-│ Recommendation: Commit your changes now to     │
-│ avoid losing work and maintain atomic commits. │
+│ 建議：立即提交您的變更以避免遺失工作並維持      │
+│ 原子化提交。                                    │
 │                                                │
-│ [1] Commit now  [2] Skip anyway  [3] View diff │
+│ [1] 立即提交  [2] 仍然跳過  [3] 檢視差異        │
 └────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Methodology Detection
+## 方法論偵測
 
-### Automatic Detection
+### 自動偵測
 
-AI should detect methodology context from:
+AI 應從以下來源偵測方法論上下文：
 
-1. **Manifest Configuration**
+1. **Manifest 配置**
    ```json
    // .standards/manifest.json
    { "methodology": { "active": "tdd" } }
    ```
 
-2. **Keyword Detection**
-   - "Let's use TDD for this"
-   - "Write a failing test first"
-   - "Given-When-Then"
-   - "Create a spec for this change"
+2. **關鍵字偵測**
+   - 「讓我們用 TDD 來做這個」
+   - 「先寫一個失敗的測試」
+   - 「Given-When-Then」
+   - 「為這個變更建立規格」
 
-3. **Command Invocation**
-   - `/tdd`, `/bdd`, `/sdd`, `/atdd`
+3. **命令調用**
+   - `/tdd`、`/bdd`、`/sdd`、`/atdd`
    - `/methodology switch <id>`
 
-### Loading Methodology Definition
+### 載入方法論定義
 
 ```
-Methodology Loading Priority:
-1. Custom: .standards/methodologies/{id}.methodology.yaml
-2. Built-in: methodologies/{id}.methodology.yaml
-3. Fallback: Generic phase-less workflow
+方法論載入優先順序：
+1. 自訂: .standards/methodologies/{id}.methodology.yaml
+2. 內建: methodologies/{id}.methodology.yaml
+3. 備用: 通用無階段工作流
 ```
 
 ---
 
-## Checklist Management
+## 檢查清單管理
 
-### Display Format
+### 顯示格式
 
 ```markdown
-### Phase Checklist
+### 階段檢查清單
 
-**Required:**
-- [ ] Test describes expected behavior
-- [x] Test name is clear
-- [ ] Test follows AAA pattern
+**必須：**
+- [ ] 測試描述預期行為
+- [x] 測試名稱清晰
+- [ ] 測試遵循 AAA 模式
 
-**Optional:**
-- [ ] Consider edge cases
+**選填：**
+- [ ] 考慮邊界情況
 ```
 
-### Tracking
+### 追蹤
 
-- Update checklist items based on user actions and code analysis
-- Block phase transition if required items incomplete (strict mode)
-- Log completion for audit trail
+- 根據用戶行動和程式碼分析更新檢查清單項目
+- 嚴格模式下，必填項目未完成則阻止階段轉換
+- 記錄完成情況以供審計追蹤
 
 ---
 
-## Integration Points
+## 整合點
 
-### With Git
+### 與 Git
 
-- Detect commits to reset phase timers
-- Suggest commit messages based on methodology
-- Include spec/story references automatically
+- 偵測提交以重置階段計時器
+- 根據方法論建議提交訊息
+- 自動包含規格/故事參考
 
-### With Test Runner
+### 與測試執行器
 
-- Detect test pass/fail to trigger phase transitions
-- Report test coverage relevant to current phase
+- 偵測測試通過/失敗以觸發階段轉換
+- 報告與當前階段相關的測試覆蓋率
 
-### With Code Review
+### 與程式碼審查
 
-- Add methodology-specific review checks
-- Reference active methodology in PR description
-
----
-
-## Error Handling
-
-### Methodology Not Found
-
-```
-⚠️ Methodology 'custom-workflow' not found.
-
-Available methodologies:
-- tdd (built-in)
-- bdd (built-in)
-- sdd (built-in)
-- atdd (built-in)
-
-Use `/methodology list` to see all options.
-```
-
-### Invalid Phase Transition
-
-```
-⚠️ Cannot transition from RED to REFACTOR.
-
-TDD requires: RED → GREEN → REFACTOR
-
-Current phase: RED
-Valid next phases: GREEN
-
-Complete the RED phase checklist first.
-```
+- 添加方法論特定的審查檢查
+- 在 PR 描述中參考啟用的方法論
 
 ---
 
-## Performance Considerations
+## 錯誤處理
 
-- Cache methodology definitions after first load
-- Only reload when manifest changes
-- Minimize checkpoint frequency to avoid interruption
-- Batch git status checks
+### 找不到方法論
+
+```
+⚠️ 找不到方法論 'custom-workflow'。
+
+可用的方法論：
+- tdd（內建）
+- bdd（內建）
+- sdd（內建）
+- atdd（內建）
+
+使用 `/methodology list` 查看所有選項。
+```
+
+### 無效的階段轉換
+
+```
+⚠️ 無法從紅燈轉換到重構。
+
+TDD 要求：紅燈 → 綠燈 → 重構
+
+當前階段：紅燈
+有效的下一個階段：綠燈
+
+請先完成紅燈階段的檢查清單。
+```
 
 ---
 
-## Localization
+## 效能考量
 
-All user-facing text should use the appropriate language field:
+- 首次載入後快取方法論定義
+- 僅在 manifest 變更時重新載入
+- 最小化檢查點頻率以避免中斷
+- 批次處理 git 狀態檢查
+
+---
+
+## 本地化
+
+所有面向用戶的文字應使用適當的語言欄位：
 
 ```yaml
-# If user's locale is zh-TW
+# 如果用戶的地區設定是 zh-TW
 name: nameZh || name
 description: descriptionZh || description
 prompt: promptZh || prompt
@@ -264,26 +272,8 @@ prompt: promptZh || prompt
 
 ---
 
-## 6. Prerequisite Checking / 前置步驟檢查
+## 版本歷史
 
-Before executing any slash command, follow the prerequisite checking protocol
-defined in [`prerequisite-check.md`](./prerequisite-check.md).
-
-**Priority**: This check runs BEFORE phase tracking and methodology detection.
-
-**Integration with Phase Tracking**:
-- If user is in an active methodology session, use the methodology's phase
-  sequence as the primary prerequisite source
-- If no active methodology, use [`workflow-prerequisites.yaml`](../../methodologies/workflow-prerequisites.yaml) as fallback
-- If multiple workflows contain the command, only ONE needs to be satisfied
-
-**Reference**: See [`prerequisite-check.md`](./prerequisite-check.md) for the full algorithm, evidence detection rules, and user prompt templates.
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.1.0 | 2026-02-12 | Add §6 Prerequisite Checking integration |
-| 1.0.0 | 2026-01-12 | Initial runtime specification |
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-01-12 | 初始執行時規格 |

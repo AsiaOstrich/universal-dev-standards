@@ -1,63 +1,71 @@
-# TDD Workflow Guide
+---
+source: ../../../../skills/tdd-assistant/tdd-workflow.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-07
+status: current
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/tdd-assistant/tdd-workflow.md)
+# TDD 工作流程指南
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-07
+> **語言**: [English](../../../../skills/tdd-assistant/tdd-workflow.md) | 繁體中文
+
+**版本**: 1.0.0
+**最後更新**: 2026-01-07
 
 ---
 
-## Complete Workflow Diagram
+## 完整工作流程圖
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                        Complete TDD Workflow                                 │
+│                        完整 TDD 工作流程                                      │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  ┌───────────────┐                                                          │
-│  │ 1. Understand │  Read requirement/spec/user story                        │
-│  │   Requirement │  Identify acceptance criteria                            │
+│  │ 1. 理解需求   │  閱讀需求/spec/使用者故事                                 │
+│  │              │  識別驗收標準                                              │
 │  └───────┬───────┘                                                          │
 │          │                                                                  │
 │          ▼                                                                  │
 │  ┌───────────────┐                                                          │
-│  │ 2. List Test  │  Brainstorm test cases                                   │
-│  │    Cases      │  Happy path, edge cases, errors                          │
+│  │ 2. 列出測試   │  腦力激盪測試案例                                         │
+│  │    案例       │  快樂路徑、邊界情況、錯誤                                  │
 │  └───────┬───────┘                                                          │
 │          │                                                                  │
 │          ▼                                                                  │
 │  ┌───────────────┐                                                          │
-│  │ 3. Pick ONE   │  Start with simplest case                                │
-│  │    Test       │  (usually happy path)                                    │
+│  │ 3. 選擇一個   │  從最簡單的案例開始                                       │
+│  │    測試       │  （通常是快樂路徑）                                        │
 │  └───────┬───────┘                                                          │
 │          │                                                                  │
 │          ▼                                                                  │
 │  ┌───────────────┐                                                          │
-│  │  🔴 RED       │  Write failing test                                      │
-│  │  (1-5 min)    │  Verify it fails for right reason                        │
+│  │  🔴 紅色      │  撰寫失敗測試                                             │
+│  │  (1-5 分鐘)   │  驗證它因正確原因失敗                                     │
 │  └───────┬───────┘                                                          │
 │          │                                                                  │
 │          ▼                                                                  │
 │  ┌───────────────┐                                                          │
-│  │  🟢 GREEN     │  Write minimum code to pass                              │
-│  │  (1-10 min)   │  "Fake it" is OK                                         │
+│  │  🟢 綠色      │  撰寫最少程式碼讓它通過                                   │
+│  │  (1-10 分鐘)  │  「假裝」是可以的                                         │
 │  └───────┬───────┘                                                          │
 │          │                                                                  │
 │          ▼                                                                  │
 │  ┌───────────────┐                                                          │
-│  │  🔵 REFACTOR  │  Clean up code                                           │
-│  │  (5-15 min)   │  Keep tests green                                        │
+│  │  🔵 重構      │  清理程式碼                                               │
+│  │  (5-15 分鐘)  │  保持測試綠色                                             │
 │  └───────┬───────┘                                                          │
 │          │                                                                  │
 │          ▼                                                                  │
 │  ┌───────────────┐     ┌─────────────────┐                                  │
-│  │ More tests?   │─Yes─▶│ Return to       │                                  │
-│  │               │      │ Step 3          │                                  │
+│  │ 還有更多測試？│─是─▶│ 返回步驟 3      │                                   │
+│  │              │      │                │                                   │
 │  └───────┬───────┘      └─────────────────┘                                  │
-│          │ No                                                               │
+│          │ 否                                                               │
 │          ▼                                                                  │
 │  ┌───────────────┐                                                          │
-│  │    ✅ DONE    │  All acceptance criteria met                             │
+│  │    ✅ 完成    │  所有驗收標準達成                                         │
 │  └───────────────┘                                                          │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -65,595 +73,414 @@
 
 ---
 
-## Red Phase Deep Dive
+## 紅色階段深入解析
 
-### Goal
+### 目標
 
-Write a test that:
-- Describes expected behavior (not implementation)
-- Fails for the **right** reason
-- Has a clear, descriptive name
+撰寫一個測試：
+- 描述預期行為（非實作）
+- 因為**正確的原因**而失敗
+- 有清楚、描述性的名稱
 
-### Step-by-Step
+### 逐步說明
 
-1. **Choose what to test**
-   - Start with the simplest scenario
-   - Focus on ONE behavior
+1. **選擇要測試什麼**
+   - 從最簡單的場景開始
+   - 專注於「一個」行為
 
-2. **Write test structure**
+2. **撰寫測試結構**
    ```typescript
-   test('should [expected behavior] when [condition]', () => {
-     // Arrange - Set up test data
+   test('should [預期行為] when [條件]', () => {
+     // Arrange - 設置測試資料
 
-     // Act - Execute the behavior
+     // Act - 執行行為
 
-     // Assert - Verify the result
+     // Assert - 驗證結果
    });
    ```
 
-3. **Fill in the test**
-   - Arrange: Create test data and dependencies
-   - Act: Call the method/function being tested
-   - Assert: Verify the expected outcome
+3. **填寫測試**
+   - Arrange：建立測試資料和依賴
+   - Act：呼叫被測試的方法/函式
+   - Assert：驗證預期結果
 
-4. **Run the test**
-   - It should FAIL
-   - Verify the failure is for the right reason
+4. **執行測試**
+   - 它應該「失敗」
+   - 驗證失敗是因為正確的原因
 
-### Common Mistakes
+### 常見錯誤
 
-| Mistake | Example | Fix |
-|---------|---------|-----|
-| **Too many assertions** | Testing 5 things in one test | One behavior per test |
-| **Vague test name** | `test('works')` | `test('should return sum of two numbers')` |
-| **No assertion** | Missing `expect()` | Always assert expected outcome |
-| **Testing implementation** | Checking private method calls | Test observable behavior |
-| **Test already passes** | Test for existing behavior | Write for NEW behavior |
+| 錯誤 | 範例 | 修復 |
+|------|------|------|
+| **斷言太多** | 在一個測試中測試 5 件事 | 每個測試一個行為 |
+| **模糊的測試名稱** | `test('works')` | `test('should return sum of two numbers')` |
+| **無斷言** | 缺少 `expect()` | 始終斷言預期結果 |
+| **測試實作** | 檢查私有方法呼叫 | 測試可觀察的行為 |
+| **測試已經通過** | 測試現有行為 | 為「新」行為撰寫 |
 
-### Red Phase Checklist
+### 紅色階段檢查清單
 
 ```
-□ Test name clearly describes the behavior
-□ Test follows AAA pattern
-□ Test has exactly ONE assertion (or related group)
-□ Test FAILS when run
-□ Failure message is clear
-□ Failure is for the RIGHT reason (not syntax error)
+□ 測試名稱清楚描述行為
+□ 測試遵循 AAA 模式
+□ 測試只有「一個」斷言（或相關群組）
+□ 測試執行時「失敗」
+□ 失敗訊息清楚
+□ 失敗是因為「正確的原因」（非語法錯誤）
 ```
 
 ---
 
-## Green Phase Deep Dive
+## 綠色階段深入解析
 
-### Goal
+### 目標
 
-Write the **minimum** code to make the test pass.
+撰寫**最少**的程式碼讓測試通過。
 
-### Step-by-Step
+### 逐步說明
 
-1. **Analyze the failure**
-   - What does the test expect?
-   - What's the simplest way to provide it?
+1. **分析失敗**
+   - 測試期望什麼？
+   - 提供它的最簡單方式是什麼？
 
-2. **Write minimum code**
-   - Hardcoding is OK for first test
-   - Don't anticipate future requirements
+2. **撰寫最少程式碼**
+   - 對於第一個測試，硬編碼是可以的
+   - 不要預期未來的需求
 
-3. **Run the test**
-   - It should PASS
-   - All other tests should still pass
+3. **執行測試**
+   - 它應該「通過」
+   - 所有其他測試應該仍然通過
 
-### The "Fake It" Strategy
+### 「假裝」策略
 
-For the first test, it's perfectly fine to fake the implementation:
+對於第一個測試，假裝實現是完全可以的：
 
 ```typescript
-// Test: should return sum of 2 and 3
+// 測試：should return sum of 2 and 3
 test('should return sum of two numbers', () => {
   expect(add(2, 3)).toBe(5);
 });
 
-// First implementation (fake it!)
+// 第一個實現（假裝！）
 function add(a: number, b: number): number {
-  return 5; // Just return the expected value
+  return 5; // 只回傳預期值
 }
 ```
 
-Then add more tests to force generalization:
+然後新增更多測試來強制泛化：
 
 ```typescript
-// Second test forces real implementation
+// 第二個測試強制真正的實現
 test('should return sum of 1 and 1', () => {
   expect(add(1, 1)).toBe(2);
 });
 
-// Now we must generalize
+// 現在我們必須泛化
 function add(a: number, b: number): number {
   return a + b;
 }
 ```
 
-### Common Mistakes
-
-| Mistake | Example | Fix |
-|---------|---------|-----|
-| **Over-engineering** | Adding features not needed yet | Only code for current test |
-| **Optimizing early** | Performance tuning | Make it work first |
-| **Adding error handling** | Try-catch for untested cases | Only handle tested errors |
-| **Copying large code blocks** | From other projects | Write minimal code |
-
-### Green Phase Checklist
+### 綠色階段檢查清單
 
 ```
-□ Wrote MINIMUM code to pass
-□ Didn't add features not required by test
-□ Current test passes
-□ All other tests still pass
-□ No premature optimization
+□ 撰寫了「最少」程式碼讓測試通過
+□ 沒有新增測試不需要的功能
+□ 當前測試通過
+□ 所有其他測試仍然通過
+□ 沒有過早優化
 ```
 
 ---
 
-## Refactor Phase Deep Dive
+## 重構階段深入解析
 
-### Goal
+### 目標
 
-Improve code quality while keeping all tests green.
+在保持所有測試綠色的同時改善程式碼品質。
 
-### Step-by-Step
+### 逐步說明
 
-1. **Identify code smells**
-   - Duplication
-   - Long methods
-   - Poor names
-   - Complex conditionals
+1. **識別程式碼異味**
+   - 重複
+   - 過長方法
+   - 命名不佳
+   - 複雜條件
 
-2. **Choose ONE improvement**
-   - Don't try to fix everything at once
+2. **選擇「一個」改善**
+   - 不要試圖一次修復所有東西
 
-3. **Make the change**
-   - Small, incremental changes
+3. **進行變更**
+   - 小的、漸進的變更
 
-4. **Run tests immediately**
-   - If tests fail, revert immediately
+4. **立即執行測試**
+   - 如果測試失敗，立即復原
 
-5. **Repeat if needed**
+5. **如有需要重複**
 
-### Common Refactorings
+### 常見重構
 
-| Technique | When | Example |
-|-----------|------|---------|
-| **Extract Method** | Long method, repeated code | Pull 10 lines into `calculateTax()` |
-| **Rename** | Unclear names | `x` → `totalAmount` |
-| **Inline** | Unnecessary indirection | Remove wrapper function |
-| **Extract Variable** | Complex expression | `const isEligible = age >= 18 && hasId` |
-| **Replace Magic Number** | Hardcoded values | `7` → `DAYS_IN_WEEK` |
+| 技術 | 使用時機 | 範例 |
+|------|---------|------|
+| **提取方法** | 過長方法、重複程式碼 | 將 10 行提取到 `calculateTax()` |
+| **重新命名** | 不清楚的名稱 | `x` → `totalAmount` |
+| **內聯** | 不必要的間接 | 移除包裝函式 |
+| **提取變數** | 複雜表達式 | `const isEligible = age >= 18 && hasId` |
+| **取代魔術數字** | 硬編碼值 | `7` → `DAYS_IN_WEEK` |
 
-### Refactoring Safety Rules
-
-```
-1. Tests are GREEN before starting
-2. Make ONE change at a time
-3. Run tests after EVERY change
-4. If tests FAIL → REVERT immediately
-5. Never add new functionality while refactoring
-```
-
-### Common Mistakes
-
-| Mistake | Example | Fix |
-|---------|---------|-----|
-| **Skipping this phase** | Moving to next test immediately | Always look for improvements |
-| **Too many changes at once** | Refactoring 5 things | One change at a time |
-| **Adding functionality** | "While I'm here..." | Only clean up existing code |
-| **Not running tests** | Batch running at end | Run after every change |
-
-### Refactor Phase Checklist
+### 重構安全規則
 
 ```
-□ All tests GREEN before starting
-□ Identified specific improvement
-□ Made ONE small change
-□ Tests still GREEN
-□ Code is cleaner/simpler
-□ No new functionality added
-□ Repeated for other improvements
+1. 開始前測試是綠色
+2. 一次做「一個」變更
+3. 「每次」變更後執行測試
+4. 如果測試「失敗」→ 立即「復原」
+5. 重構時絕不新增功能
+```
+
+### 重構階段檢查清單
+
+```
+□ 開始前所有測試綠色
+□ 識別了具體的改善
+□ 做了「一個」小變更
+□ 測試仍然綠色
+□ 程式碼更乾淨/簡單
+□ 沒有新增功能
+□ 對其他改善重複
 ```
 
 ---
 
-## BDD Workflow
+## BDD 工作流程
 
-### Gherkin Syntax
+### Gherkin 語法
 
 ```gherkin
-Feature: [Feature name]
-  As a [role]
-  I want [goal]
-  So that [benefit]
+Feature: [功能名稱]
+  As a [角色]
+  I want [目標]
+  So that [好處]
 
   Background:
-    Given [common setup for all scenarios]
+    Given [所有場景的共同設置]
 
-  Scenario: [Scenario name]
-    Given [initial context]
-    And [more context]
-    When [action]
-    And [more actions]
-    Then [expected outcome]
-    And [more outcomes]
+  Scenario: [場景名稱]
+    Given [初始情境]
+    And [更多情境]
+    When [動作]
+    And [更多動作]
+    Then [預期結果]
+    And [更多結果]
 
-  Scenario Outline: [Parameterized scenario]
-    Given [context with <parameter>]
-    When [action]
-    Then [outcome with <expected>]
+  Scenario Outline: [參數化場景]
+    Given [帶有 <參數> 的情境]
+    When [動作]
+    Then [帶有 <預期> 的結果]
 
     Examples:
-      | parameter | expected |
-      | value1    | result1  |
-      | value2    | result2  |
+      | 參數   | 預期    |
+      | 值1    | 結果1   |
+      | 值2    | 結果2   |
 ```
 
-### BDD Workflow Steps
+### BDD 工作流程步驟
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        BDD Workflow                              │
+│                        BDD 工作流程                              │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  1. Discovery Session                                           │
-│     ├─ Developers, BA, QA, stakeholders together                │
-│     ├─ Discuss user stories                                     │
-│     └─ Identify acceptance criteria                             │
+│  1. 探索會議                                                     │
+│     ├─ 開發者、BA、QA、利益相關者一起                             │
+│     ├─ 討論使用者故事                                            │
+│     └─ 識別驗收標準                                              │
 │                                                                 │
-│  2. Formulation                                                 │
-│     ├─ Write scenarios in Gherkin                               │
-│     ├─ Each AC → one or more scenarios                          │
-│     └─ Review with team                                         │
+│  2. 制定                                                         │
+│     ├─ 用 Gherkin 撰寫場景                                       │
+│     ├─ 每個 AC → 一個或多個場景                                  │
+│     └─ 與團隊審查                                                │
 │                                                                 │
-│  3. Automation                                                  │
-│     ├─ Create step definitions                                  │
-│     ├─ Each step → code that executes the step                  │
-│     └─ Use TDD for step implementations                         │
+│  3. 自動化                                                       │
+│     ├─ 建立 step definitions                                    │
+│     ├─ 每個 step → 執行該步驟的程式碼                            │
+│     └─ 為 step 實現使用 TDD                                      │
 │                                                                 │
-│  4. Implementation                                              │
-│     ├─ Run scenarios (they fail - RED)                          │
-│     ├─ Implement feature code (GREEN)                           │
-│     └─ Refactor                                                 │
+│  4. 實現                                                         │
+│     ├─ 執行場景（它們失敗 - 紅色）                                │
+│     ├─ 實現功能程式碼（綠色）                                     │
+│     └─ 重構                                                      │
 │                                                                 │
-│  5. Living Documentation                                        │
-│     └─ Scenarios serve as always-up-to-date documentation       │
+│  5. 活文件                                                       │
+│     └─ 場景作為始終最新的文件                                     │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Step Definitions Example (JavaScript/Cucumber)
-
-```javascript
-const { Given, When, Then } = require('@cucumber/cucumber');
-
-Given('I have a shopping cart with {int} items', async function (count) {
-  this.cart = new ShoppingCart();
-  for (let i = 0; i < count; i++) {
-    this.cart.addItem({ name: `Item ${i}`, price: 10 });
-  }
-});
-
-When('I apply discount code {string}', async function (code) {
-  this.result = await this.cart.applyDiscount(code);
-});
-
-Then('the cart total should be {float}', function (expectedTotal) {
-  expect(this.cart.getTotal()).toBeCloseTo(expectedTotal, 2);
-});
-```
-
-### BDD Best Practices
-
-| Practice | Description |
-|----------|-------------|
-| **Declarative over Imperative** | Say WHAT, not HOW |
-| **Business Language** | Avoid technical jargon |
-| **Independent Scenarios** | Each scenario is self-contained |
-| **Minimal Steps** | 5-10 steps per scenario |
-| **Reusable Steps** | Write generic step definitions |
-
-```gherkin
-# ❌ Imperative (too detailed)
-Scenario: Login
-  Given I navigate to "http://example.com/login"
-  And I click on the username field
-  And I type "john@example.com"
-  And I click on the password field
-  And I type "secret123"
-  And I click the "Login" button
-  Then I see "Welcome John"
-
-# ✅ Declarative (behavior focused)
-Scenario: Successful login
-  Given I am on the login page
-  When I login with valid credentials
-  Then I should see my dashboard
-```
-
 ---
 
-## ATDD Workflow
+## ATDD 工作流程
 
-### Acceptance Criteria Format
+### 驗收標準格式
 
 ```markdown
-## User Story
+## 使用者故事
 
-**As a** [role]
-**I want** [feature]
-**So that** [benefit]
+**作為** [角色]
+**我想要** [功能]
+**以便** [好處]
 
-## Acceptance Criteria
+## 驗收標準
 
-### AC-1: [Criterion name]
-**Given** [precondition]
-**When** [action]
-**Then** [expected result]
+### AC-1：[標準名稱]
+**Given** [前置條件]
+**When** [動作]
+**Then** [預期結果]
 
-### AC-2: [Criterion name]
-**Given** [precondition]
-**When** [action]
-**Then** [expected result]
+### AC-2：[標準名稱]
+**Given** [前置條件]
+**When** [動作]
+**Then** [預期結果]
 
-## Out of Scope
-- [Things explicitly not included]
+## 不在範圍內
+- [明確不包含的事項]
 
-## Technical Notes
-- [Implementation hints, constraints]
+## 技術備註
+- [實現提示、約束]
 ```
 
-### ATDD Workflow Steps
+### ATDD 工作流程步驟
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        ATDD Workflow                             │
+│                        ATDD 工作流程                             │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  1. Specification Workshop                                      │
-│     ├─ Product Owner presents user story                        │
-│     ├─ Team asks clarifying questions                           │
-│     ├─ Define acceptance criteria together                      │
-│     └─ Write examples for each AC                               │
+│  1. 規格研討會                                                   │
+│     ├─ 產品負責人展示使用者故事                                   │
+│     ├─ 團隊提出澄清問題                                          │
+│     ├─ 一起定義驗收標準                                          │
+│     └─ 為每個 AC 撰寫範例                                        │
 │                                                                 │
-│  2. Distillation                                                │
-│     ├─ Convert examples to executable tests                     │
-│     ├─ Remove ambiguity                                         │
-│     └─ Get sign-off from Product Owner                          │
+│  2. 精煉                                                         │
+│     ├─ 將範例轉換為可執行測試                                     │
+│     ├─ 消除歧義                                                  │
+│     └─ 取得產品負責人簽核                                        │
 │                                                                 │
-│  3. Development                                                 │
-│     ├─ Acceptance tests are RED                                 │
-│     ├─ Use BDD for feature-level tests                          │
-│     ├─ Use TDD for unit-level tests                             │
-│     └─ Acceptance tests turn GREEN                              │
+│  3. 開發                                                         │
+│     ├─ 驗收測試是紅色                                            │
+│     ├─ 為功能層級測試使用 BDD                                    │
+│     ├─ 為單元層級測試使用 TDD                                    │
+│     └─ 驗收測試變成綠色                                          │
 │                                                                 │
-│  4. Demo                                                        │
-│     ├─ Show passing acceptance tests                            │
-│     ├─ Product Owner validates                                  │
-│     └─ Accept or refine criteria                                │
+│  4. 展示                                                         │
+│     ├─ 展示通過的驗收測試                                        │
+│     ├─ 產品負責人驗證                                            │
+│     └─ 接受或精煉標準                                            │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
-
-### Mapping AC to Tests
-
-| Acceptance Criteria | Test Level | Tool |
-|---------------------|------------|------|
-| User-facing behavior | Acceptance | FitNesse, Cucumber |
-| Feature behavior | BDD | Cucumber, SpecFlow |
-| Unit logic | TDD | Jest, xUnit |
-| API contract | Integration | Supertest, REST Assured |
 
 ---
 
-## Team Collaboration Patterns
+## 團隊協作模式
 
-### Pair Programming with TDD
+### 使用 TDD 的結對程式設計
 
-#### Ping-Pong Pattern
+#### 乒乓模式
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Ping-Pong TDD                                 │
+│                    乒乓 TDD                                      │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   Developer A                    Developer B                    │
-│   ───────────                    ───────────                    │
-│   1. Writes failing test ─────────────────────▶                 │
-│                          ◀───────────────────── 2. Makes it pass│
-│                          ◀───────────────────── 3. Writes test  │
-│   4. Makes it pass ───────────────────────────▶                 │
-│   5. Writes test ─────────────────────────────▶                 │
-│                          ◀───────────────────── 6. Makes it pass│
+│   開發者 A                       開發者 B                        │
+│   ─────────                      ─────────                       │
+│   1. 撰寫失敗測試 ──────────────────────▶                        │
+│                   ◀────────────────────── 2. 讓它通過            │
+│                   ◀────────────────────── 3. 撰寫測試            │
+│   4. 讓它通過 ────────────────────────────▶                      │
+│   5. 撰寫測試 ────────────────────────────▶                      │
+│                   ◀────────────────────── 6. 讓它通過            │
 │                                                                 │
-│   Either can refactor at any time                               │
+│   任一方都可以隨時重構                                            │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Benefits**:
-- Both engaged constantly
-- Knowledge sharing
-- Catches mistakes early
-
-#### Driver-Navigator Pattern
+#### 駕駛員-領航員模式
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Driver-Navigator TDD                          │
+│                    駕駛員-領航員 TDD                              │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   Driver (Keyboard)              Navigator (Thinking)           │
-│   ─────────────────              ───────────────────            │
-│   - Types code                   - Thinks about design          │
-│   - Focuses on syntax            - Considers test cases         │
-│   - Implements ideas             - Reviews for mistakes         │
-│   - Asks questions               - Suggests directions          │
+│   駕駛員（鍵盤）                 領航員（思考）                    │
+│   ─────────────                  ───────────────                 │
+│   - 打字程式碼                   - 思考設計                       │
+│   - 專注於語法                   - 考慮測試案例                   │
+│   - 實現想法                     - 檢查錯誤                       │
+│   - 提問                         - 建議方向                       │
 │                                                                 │
-│   Switch roles every 15-30 minutes                              │
+│   每 15-30 分鐘交換角色                                          │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
-
-**Benefits**:
-- Clear roles
-- Navigator can think strategically
-- Continuous review
-
-### Mob Programming with TDD
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Mob Programming TDD                           │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   Team (3-6 people)                                             │
-│   ─────────────────                                             │
-│   - One Driver (types)                                          │
-│   - Multiple Navigators (guide)                                 │
-│   - Rotate Driver every 5-10 minutes                            │
-│                                                                 │
-│   TDD Process:                                                  │
-│   1. Team discusses next test                                   │
-│   2. Driver writes test (navigators guide)                      │
-│   3. Team verifies test fails                                   │
-│   4. Team discusses implementation                              │
-│   5. Driver implements (navigators guide)                       │
-│   6. Rotate driver                                              │
-│   7. Next person refactors or writes next test                  │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**Benefits**:
-- Whole team alignment
-- Collective ownership
-- Real-time knowledge transfer
 
 ---
 
-## CI/CD Integration
+## CI/CD 整合
 
-### Pipeline Structure
+### 管線結構
 
 ```yaml
 stages:
-  - test:unit      # Fast (< 2 min)
-  - test:integration  # Medium (< 10 min)
-  - test:e2e       # Slow (< 30 min)
+  - test:unit        # 快速 (< 2 分鐘)
+  - test:integration # 中等 (< 10 分鐘)
+  - test:e2e         # 慢速 (< 30 分鐘)
   - coverage-check
   - deploy
 ```
 
-### Quality Gates
+### 品質門檻
 
-| Gate | Threshold | Action on Failure |
-|------|-----------|-------------------|
-| Unit test pass rate | 100% | Block merge |
-| Integration test pass rate | 100% | Block merge |
-| Code coverage | 80% | Warn / Block |
-| New code coverage | 90% | Warn |
-| Test execution time | < baseline | Warn |
+| 門檻 | 閾值 | 失敗時動作 |
+|------|------|-----------|
+| 單元測試通過率 | 100% | 阻止合併 |
+| 整合測試通過率 | 100% | 阻止合併 |
+| 程式碼覆蓋率 | 80% | 警告/阻止 |
+| 新程式碼覆蓋率 | 90% | 警告 |
+| 測試執行時間 | < 基準 | 警告 |
 
-### Example CI Configuration
+---
 
-```yaml
-# GitHub Actions
-name: TDD Pipeline
+## 快速決策指南
 
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
+### 要撰寫哪種測試？
 
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm ci
-      - run: npm run test:unit -- --coverage
-      - uses: codecov/codecov-action@v4
-
-  integration-tests:
-    needs: unit-tests
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: test
-    steps:
-      - uses: actions/checkout@v4
-      - run: npm run test:integration
-
-  e2e-tests:
-    needs: integration-tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: npm run test:e2e
 ```
-
-### Test Reporting
-
-```yaml
-# Add test reporting
-- name: Test Report
-  uses: dorny/test-reporter@v1
-  if: success() || failure()
-  with:
-    name: Test Results
-    path: reports/junit.xml
-    reporter: jest-junit
+你在實現什麼？
+│
+├─ 新功能
+│   └─ 從驗收標準開始 → BDD → TDD
+│
+├─ Bug 修復
+│   └─ 撰寫重現 bug 的失敗測試 → TDD
+│
+├─ 重構
+│   └─ 確保現有測試涵蓋行為 → 重構
+│
+├─ 效能改善
+│   └─ 撰寫效能測試 → 實現 → 驗證
+│
+└─ 新 API 端點
+    └─ 邏輯用 TDD + HTTP 用整合測試
 ```
 
 ---
 
-## Quick Decision Guide
+## 相關文件
 
-### Which Test to Write?
-
-```
-What are you implementing?
-│
-├─ New feature
-│   └─ Start with acceptance criteria → BDD → TDD
-│
-├─ Bug fix
-│   └─ Write failing test that reproduces bug → TDD
-│
-├─ Refactoring
-│   └─ Ensure existing tests cover behavior → Refactor
-│
-├─ Performance improvement
-│   └─ Write performance test → Implement → Verify
-│
-└─ New API endpoint
-    └─ TDD for logic + Integration test for HTTP
-```
-
-### Test Granularity
-
-```
-How specific should this test be?
-│
-├─ Testing public API → One test per behavior
-├─ Testing internal logic → Group related assertions
-└─ Testing edge cases → One test per edge case
-```
-
----
-
-## Related Documents
-
-- [SKILL.md](./SKILL.md) - TDD Assistant overview
-- [Language Examples](./language-examples.md) - Language-specific TDD
-- [TDD Core Standard](../../core/test-driven-development.md) - Full TDD standard
+- [SKILL.md](./SKILL.md) - TDD 助手概覽
+- [語言範例](./language-examples.md) - 語言特定 TDD
+- [TDD 核心標準](../../../../core/test-driven-development.md) - 完整 TDD 標準

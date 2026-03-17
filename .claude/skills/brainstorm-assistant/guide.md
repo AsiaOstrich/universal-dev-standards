@@ -1,505 +1,499 @@
 ---
-scope: universal
 description: |
-  Guide structured AI-assisted brainstorming before specification writing.
-  Use when: vague ideas, feature exploration, problem reframing, creative ideation.
-  Keywords: brainstorm, ideation, HMW, SCAMPER, Six Thinking Hats, 腦力激盪, 發想, 創意.
+  在撰寫規格前進行結構化 AI 輔助腦力激盪的詳細指南。
+  使用時機：需要完整了解腦力激盪流程、技法細節、評估矩陣。
+  關鍵字：brainstorm, guide, HMW, SCAMPER, Six Thinking Hats, 腦力激盪, 指南, 發想, 創意。
+source: ../../../../skills/brainstorm-assistant/guide.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-12
+status: current
 ---
 
-# Brainstorm Assistant Guide
+# 腦力激盪助手指南
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/brainstorm-assistant/guide.md)
+> **語言**: [English](../../../../skills/brainstorm-assistant/guide.md) | 繁體中文
 
-**Version**: 1.0.0
-**Last Updated**: 2026-02-12
-**Applicability**: All software projects
-**Scope**: universal
-**Type**: Utility Skill (no core standard)
+**版本**: 1.0.0
+**最後更新**: 2026-02-12
+**適用範圍**: 所有軟體專案
+**範疇**: universal
+**類型**: Utility Skill（無核心規範）
 
 ---
 
-## Purpose
+## 目的
 
-Most specification frameworks assume developers already have a clear idea. In practice, many features start as vague notions — "improve onboarding", "make it faster", "add social features". Jumping directly to specification writing without structured ideation leads to:
+多數規格框架假設開發者已有明確的想法。但實務上，許多功能始於模糊的概念——「改善入門流程」、「讓它更快」、「加入社群功能」。在沒有結構化發想的情況下直接撰寫規格會導致：
 
-- Narrow solutions that miss better alternatives
-- Specs that solve symptoms instead of root causes
-- Wasted effort on features that don't address real needs
+- 視野狹隘，錯過更好的替代方案
+- 規格解決的是表面症狀而非根本原因
+- 浪費精力在不符合真正需求的功能上
 
-This skill fills the ideation gap in the UDS workflow:
+本技能填補 UDS 工作流程中的發想缺口：
 
 ```
-/brainstorm → /requirement → /sdd → Implementation
+/brainstorm → /requirement → /sdd → 實作
      ▲              ▲          ▲
-  (NEW)          Existing   Existing
+   (新增)         既有        既有
 ```
 
 ---
 
-## Quick Reference
+## 快速參考
 
-### Workflow Overview
+### 工作流程總覽
 
 ```
 ┌────────────┐    ┌────────────┐    ┌────────────┐    ┌────────────┐
 │   FRAME    │───▶│  DIVERGE   │───▶│  CONVERGE  │───▶│   OUTPUT   │
-│ Define the │    │ Generate   │    │ Evaluate & │    │ Brainstorm │
-│ problem    │    │ ideas      │    │ prioritize │    │ Report     │
+│   定義問題  │    │   發散思考  │    │   收斂評估  │    │   輸出提案  │
 └────────────┘    └────────────┘    └────────────┘    └────────────┘
 ```
 
-### Phase Summary
+### 階段摘要
 
-| Phase | Goal | Key Techniques | Time |
-|-------|------|----------------|------|
-| **FRAME** | Define problem clearly | 5 Whys, HMW, Stakeholder Map | 10-15 min |
-| **DIVERGE** | Generate many ideas | HMW, SCAMPER, Six Thinking Hats | 15-20 min |
-| **CONVERGE** | Evaluate and rank | Evaluation Matrix, Dot Voting | 10-15 min |
-| **OUTPUT** | Actionable report | Brainstorm Report template | 5-10 min |
+| 階段 | 目標 | 主要技法 | 時間 |
+|------|------|----------|------|
+| **FRAME** | 清楚定義問題 | 5 Whys、HMW、利害關係人對應 | 10-15 分鐘 |
+| **DIVERGE** | 產生大量想法 | HMW、SCAMPER、六頂思考帽 | 15-20 分鐘 |
+| **CONVERGE** | 評估與排序 | 評估矩陣、點數投票 | 10-15 分鐘 |
+| **OUTPUT** | 可執行的報告 | 腦力激盪報告模板 | 5-10 分鐘 |
 
 ---
 
-## Phase 1: FRAME | 定義問題
+## 階段 1：FRAME | 定義問題
 
-> Goal: Ensure we're solving the right problem before generating solutions.
->
 > 目標：在產生解決方案之前，確保我們正在解決正確的問題。
 
-### Step 1.1: 5 Whys — Root Cause Analysis
+### 步驟 1.1：5 Whys — 根因分析
 
-Ask "Why?" repeatedly to dig beneath surface-level problems.
+反覆追問「為什麼？」以深入表面問題之下。
 
-**Template:**
-
-```
-Problem: [Initial problem statement]
-
-Why 1: Why does this problem exist?
-→ Because [reason 1]
-
-Why 2: Why does [reason 1] happen?
-→ Because [reason 2]
-
-Why 3: Why does [reason 2] happen?
-→ Because [reason 3]
-
-Why 4: Why does [reason 3] happen?
-→ Because [reason 4]
-
-Why 5: Why does [reason 4] happen?
-→ Because [root cause]
-
-Root Cause: [root cause]
-```
-
-**Example:**
+**模板：**
 
 ```
-Problem: Users abandon the checkout flow
+問題：[初始問題陳述]
 
-Why 1: Why do users abandon checkout?
-→ Because the process takes too long
+為什麼 1：為什麼會有這個問題？
+→ 因為 [原因 1]
 
-Why 2: Why does it take too long?
-→ Because there are 5 separate pages
+為什麼 2：為什麼會 [原因 1]？
+→ 因為 [原因 2]
 
-Why 3: Why are there 5 pages?
-→ Because each validation step has its own page
+為什麼 3：為什麼會 [原因 2]？
+→ 因為 [原因 3]
 
-Why 4: Why does each validation need a page?
-→ Because the original design assumed slow connections
+為什麼 4：為什麼會 [原因 3]？
+→ 因為 [原因 4]
 
-Why 5: Why does that assumption still hold?
-→ It doesn't — most users are on broadband now
+為什麼 5：為什麼會 [原因 4]？
+→ 因為 [根本原因]
 
-Root Cause: Outdated multi-page architecture designed for dial-up era
+根本原因：[根本原因]
 ```
 
-### Step 1.2: HMW — Problem Reframing
-
-Transform the root cause into opportunity-focused questions.
-
-**Format:** "How might we [verb] [desired outcome] for [stakeholder]?"
-
-**Rules:**
-- Broad enough to allow creative solutions
-- Specific enough to be actionable
-- Never include a solution in the question
-
-**Example HMW Questions:**
+**範例：**
 
 ```
-Root Cause: Outdated multi-page checkout architecture
+問題：使用者在結帳流程中放棄
 
-HMW 1: How might we reduce checkout steps without losing validation?
-HMW 2: How might we make the checkout feel instant?
-HMW 3: How might we validate data without interrupting the user flow?
+為什麼 1：為什麼使用者放棄結帳？
+→ 因為流程太耗時
+
+為什麼 2：為什麼太耗時？
+→ 因為有 5 個獨立頁面
+
+為什麼 3：為什麼有 5 個頁面？
+→ 因為每個驗證步驟都有獨立頁面
+
+為什麼 4：為什麼每個驗證都需要獨立頁面？
+→ 因為原始設計假設網路連線速度慢
+
+為什麼 5：為什麼那個假設仍然成立？
+→ 已經不成立了——大多數使用者現在都用寬頻
+
+根本原因：為撥號時代設計的過時多頁面架構
 ```
 
-### Step 1.3: Stakeholder Mapping
+### 步驟 1.2：HMW — 問題重構
 
-Identify who is affected and their needs.
+將根本原因轉化為以機會為導向的問題。
 
-| Stakeholder | Needs | Pain Points |
-|-------------|-------|-------------|
-| End users | Fast, simple checkout | Too many steps |
-| Business | High conversion rate | Cart abandonment |
-| Developers | Maintainable code | Complex page transitions |
+**格式：** 「我們如何能 [動詞] [期望結果] 給 [利害關係人]？」
 
-### Step 1.4: Codebase Context (if applicable)
+**規則：**
+- 足夠廣泛以容許創意解法
+- 足夠具體以可付諸行動
+- 問題中絕不包含解決方案
 
-When brainstorming for an existing project, gather context:
+**HMW 問題範例：**
 
-- **Read** `README.md`, `package.json` for project overview
-- **Grep** for related features, existing implementations
-- **Glob** for relevant file structures
+```
+根本原因：過時的多頁面結帳架構
 
-This grounds ideation in reality and prevents proposing ideas that conflict with existing architecture.
+HMW 1：我們如何能在不失去驗證的前提下減少結帳步驟？
+HMW 2：我們如何能讓結帳感覺是即時的？
+HMW 3：我們如何能在不中斷使用者流程的情況下驗證資料？
+```
+
+### 步驟 1.3：利害關係人對應
+
+識別誰受影響及其需求。
+
+| 利害關係人 | 需求 | 痛點 |
+|-----------|------|------|
+| 終端使用者 | 快速、簡單的結帳 | 步驟太多 |
+| 企業 | 高轉換率 | 購物車放棄率高 |
+| 開發人員 | 可維護的程式碼 | 複雜的頁面轉場 |
+
+### 步驟 1.4：程式碼庫脈絡（如適用）
+
+在為現有專案進行腦力激盪時，蒐集脈絡：
+
+- **讀取** `README.md`、`package.json` 了解專案概況
+- **搜尋** 相關功能、現有實作
+- **瀏覽** 相關檔案結構
+
+這讓發想能立足於現實，避免提出與現有架構衝突的想法。
 
 ---
 
-## Phase 2: DIVERGE | 發散思考
+## 階段 2：DIVERGE | 發散思考
 
-> Goal: Generate as many ideas as possible. Quantity over quality at this stage.
->
 > 目標：盡可能產生多個想法。此階段重量不重質。
 
-**Rules of Divergent Thinking:**
-1. Defer judgment — no idea is bad
-2. Go for quantity — aim for 10+ ideas
-3. Build on others — "Yes, and..."
-4. Encourage wild ideas — they often lead to practical breakthroughs
+**發散思考規則：**
+1. 延遲評判——沒有壞點子
+2. 追求數量——目標 10 個以上
+3. 借力使力——「是的，而且...」
+4. 鼓勵狂野的想法——它們常常引出實際的突破
 
-### Technique A: HMW Brainstorming (Default)
+### 技法 A：HMW 腦力激盪（預設）
 
-For each HMW question, generate 3-5 solution ideas.
+針對每個 HMW 問題，產生 3-5 個解決方案。
 
-**Template:**
-
-```
-HMW: How might we [question]?
-
-Ideas:
-1. [Idea] — [Brief explanation]
-2. [Idea] — [Brief explanation]
-3. [Idea] — [Brief explanation]
-4. [Idea] — [Brief explanation]
-5. [Idea] — [Brief explanation]
-```
-
-### Technique B: SCAMPER
-
-Apply 7 creative prompts to an existing feature or process. Best for improving what already exists.
-
-| Letter | Prompt | Question to Ask | Example |
-|--------|--------|-----------------|---------|
-| **S** | Substitute | What component can we replace? | Replace password auth with passkeys |
-| **C** | Combine | What can we merge together? | Combine login + signup into one flow |
-| **A** | Adapt | What can we borrow from elsewhere? | Adapt e-commerce one-click buy for SaaS |
-| **M** | Modify | What can we enlarge, minimize, or change? | Minimize form fields to email-only |
-| **P** | Put to other use | Can this serve a different purpose? | Use onboarding flow as feature tutorial |
-| **E** | Eliminate | What can we remove entirely? | Eliminate email verification step |
-| **R** | Reverse | What if we did the opposite? | Let users use first, register later |
-
-**Template:**
+**模板：**
 
 ```
-Feature being improved: [feature name]
+HMW：我們如何能 [問題]？
 
-S - Substitute:  [idea]
-C - Combine:     [idea]
-A - Adapt:       [idea]
-M - Modify:      [idea]
-P - Put to use:  [idea]
-E - Eliminate:   [idea]
-R - Reverse:     [idea]
+想法：
+1. [想法] — [簡要說明]
+2. [想法] — [簡要說明]
+3. [想法] — [簡要說明]
+4. [想法] — [簡要說明]
+5. [想法] — [簡要說明]
 ```
 
-### Technique C: Six Thinking Hats
+### 技法 B：SCAMPER
 
-Examine the problem from 6 distinct perspectives. Best when you need comprehensive analysis.
+對現有功能或流程套用 7 個創意提示。最適合改善已有的東西。
 
-| Hat | Color | Focus | Question |
-|-----|-------|-------|----------|
-| 1 | White | Facts & Data | What do we know? What data do we have? |
-| 2 | Red | Emotions & Intuition | What does our gut say? How do users feel? |
-| 3 | Black | Risks & Caution | What could go wrong? What are the risks? |
-| 4 | Yellow | Benefits & Optimism | What's the best case? What value does this add? |
-| 5 | Green | Creativity | What new ideas emerge? What if we...? |
-| 6 | Blue | Process & Summary | What's the big picture? What's our next step? |
+| 字母 | 提示 | 要問的問題 | 範例 |
+|------|------|-----------|------|
+| **S** | 替代 (Substitute) | 可以替換什麼元件？ | 用 passkey 取代密碼驗證 |
+| **C** | 結合 (Combine) | 可以合併什麼？ | 將登入+註冊合為一個流程 |
+| **A** | 調適 (Adapt) | 可以借用什麼？ | 將電商一鍵購買用於 SaaS |
+| **M** | 修改 (Modify) | 可以放大、縮小或改變什麼？ | 將表單欄位精簡至僅需 email |
+| **P** | 另作他用 (Put to other use) | 能用於其他目的嗎？ | 用入門流程作為功能教學 |
+| **E** | 刪除 (Eliminate) | 可以完全移除什麼？ | 刪除 email 驗證步驟 |
+| **R** | 反轉 (Reverse) | 如果反過來做呢？ | 讓使用者先用再註冊 |
 
-**Template:**
+**模板：**
 
 ```
-Topic: [topic]
+改善的功能：[功能名稱]
 
-White Hat (Facts):
-- [fact/data point]
+S - 替代：[想法]
+C - 結合：[想法]
+A - 調適：[想法]
+M - 修改：[想法]
+P - 另作他用：[想法]
+E - 刪除：[想法]
+R - 反轉：[想法]
+```
 
-Red Hat (Feelings):
-- [intuition/emotion]
+### 技法 C：六頂思考帽
 
-Black Hat (Risks):
-- [risk/concern]
+從 6 個不同角度檢視問題。最適合需要全面分析的時候。
 
-Yellow Hat (Benefits):
-- [opportunity/benefit]
+| 帽子 | 顏色 | 焦點 | 問題 |
+|------|------|------|------|
+| 1 | 白色 | 事實與資料 | 我們知道什麼？有什麼資料？ |
+| 2 | 紅色 | 情感與直覺 | 直覺怎麼說？使用者感受如何？ |
+| 3 | 黑色 | 風險與謹慎 | 什麼可能出錯？有什麼風險？ |
+| 4 | 黃色 | 好處與樂觀 | 最好的情況是什麼？這帶來什麼價值？ |
+| 5 | 綠色 | 創意 | 有什麼新想法？如果我們...？ |
+| 6 | 藍色 | 流程與總結 | 全貌是什麼？下一步是什麼？ |
 
-Green Hat (Ideas):
-- [creative idea]
+**模板：**
 
-Blue Hat (Summary):
-- [synthesis and next step]
+```
+主題：[主題]
+
+白帽（事實）：
+- [事實/數據]
+
+紅帽（感受）：
+- [直覺/情感]
+
+黑帽（風險）：
+- [風險/顧慮]
+
+黃帽（好處）：
+- [機會/效益]
+
+綠帽（創意）：
+- [創意想法]
+
+藍帽（總結）：
+- [綜合與下一步]
 ```
 
 ---
 
-## Phase 3: CONVERGE | 收斂評估
+## 階段 3：CONVERGE | 收斂評估
 
-> Goal: Evaluate ideas objectively and select the best ones to pursue.
->
 > 目標：客觀評估想法，選出最值得推進的方案。
 
-### Evaluation Matrix
+### 評估矩陣
 
-Score each idea on 4 criteria (1-5 scale):
+以 1-5 分對每個想法進行 4 項標準評分：
 
-| Criterion | Weight | Score Guide |
-|-----------|--------|-------------|
-| **Feasibility** | 30% | 5=trivial, 4=straightforward, 3=moderate, 2=hard, 1=near-impossible |
-| **Impact** | 30% | 5=transformative, 4=significant, 3=moderate, 2=minor, 1=negligible |
-| **Effort** | 20% | 5=hours, 4=days, 3=weeks, 2=months, 1=quarters (inverted: lower effort = higher score) |
-| **Alignment** | 20% | 5=core mission, 4=strategic, 3=relevant, 2=tangential, 1=off-mission |
+| 標準 | 權重 | 評分指南 |
+|------|------|----------|
+| **可行性** | 30% | 5=極簡單、4=直接、3=中等、2=困難、1=幾乎不可能 |
+| **影響力** | 30% | 5=革命性、4=顯著、3=中等、2=輕微、1=可忽略 |
+| **成本** | 20% | 5=數小時、4=數天、3=數週、2=數月、1=數季（反向：越低成本越高分） |
+| **一致性** | 20% | 5=核心使命、4=戰略性、3=相關、2=邊緣、1=偏離使命 |
 
-**Weighted Score Formula:**
+**加權分數公式：**
 
 ```
-Score = (Feasibility × 0.3) + (Impact × 0.3) + (Effort × 0.2) + (Alignment × 0.2)
+分數 = (可行性 × 0.3) + (影響力 × 0.3) + (成本 × 0.2) + (一致性 × 0.2)
 ```
 
-**Example:**
+**範例：**
 
-| # | Idea | Feasibility | Impact | Effort | Alignment | **Score** |
-|---|------|-------------|--------|--------|-----------|-----------|
-| 1 | Single-page checkout | 4 | 5 | 3 | 5 | **4.3** |
-| 2 | One-click buy | 3 | 4 | 2 | 4 | **3.3** |
-| 3 | Progressive form | 5 | 4 | 4 | 4 | **4.3** |
-| 4 | Guest checkout | 5 | 3 | 5 | 3 | **4.0** |
+| # | 想法 | 可行性 | 影響力 | 成本 | 一致性 | **分數** |
+|---|------|--------|--------|------|--------|----------|
+| 1 | 單頁結帳 | 4 | 5 | 3 | 5 | **4.3** |
+| 2 | 一鍵購買 | 3 | 4 | 2 | 4 | **3.3** |
+| 3 | 漸進式表單 | 5 | 4 | 4 | 4 | **4.3** |
+| 4 | 訪客結帳 | 5 | 3 | 5 | 3 | **4.0** |
 
-### Quick Prioritization: Dot Voting
+### 快速排序：點數投票
 
-When the evaluation matrix feels too heavy, use dot voting:
+當評估矩陣感覺太重時，使用點數投票：
 
-1. List all ideas
-2. Each participant gets 3 votes (dots)
-3. Vote on your top picks (can put multiple dots on one idea)
-4. Highest vote count wins
+1. 列出所有想法
+2. 每人 3 票（點）
+3. 投給你最看好的想法（可以把多票投在同一個想法上）
+4. 最高票數者勝出
 
 ---
 
-## Phase 4: OUTPUT | 輸出提案
+## 階段 4：OUTPUT | 輸出提案
 
-> Goal: Produce a structured report that feeds directly into `/requirement` or `/sdd`.
->
 > 目標：產生可直接輸入 `/requirement` 或 `/sdd` 的結構化報告。
 
-### Brainstorm Report Template
+### 腦力激盪報告模板
 
 ```markdown
-# Brainstorm Report: [Topic]
+# 腦力激盪報告：[主題]
 
-**Date**: YYYY-MM-DD
-**Participants**: [human, AI assistant]
-**Techniques Used**: [HMW, SCAMPER, etc.]
+**日期**: YYYY-MM-DD
+**參與者**: [人類, AI 助手]
+**使用技法**: [HMW, SCAMPER 等]
 
-## Problem Statement
+## 問題陳述
 
-[Refined problem statement from FRAME phase, including root cause from 5 Whys]
+[FRAME 階段精煉的問題陳述，包含 5 Whys 的根本原因]
 
-## HMW Questions
+## HMW 問題
 
-1. How might we ...?
-2. How might we ...?
-3. How might we ...?
+1. 我們如何能...？
+2. 我們如何能...？
+3. 我們如何能...？
 
-## Ideas Generated
+## 產生的想法
 
-| # | Idea | Source Technique | Feasibility | Impact | Effort | Alignment | Score |
-|---|------|-----------------|-------------|--------|--------|-----------|-------|
-| 1 | ...  | SCAMPER-R        | 4           | 5      | 3      | 5         | 4.3   |
-| 2 | ...  | HMW              | 3           | 4      | 2      | 4         | 3.3   |
-| 3 | ...  | Six Hats-Green   | 5           | 4      | 4      | 4         | 4.3   |
+| # | 想法 | 來源技法 | 可行性 | 影響力 | 成本 | 一致性 | 分數 |
+|---|------|----------|--------|--------|------|--------|------|
+| 1 | ...  | SCAMPER-R | 4     | 5      | 3    | 5      | 4.3  |
+| 2 | ...  | HMW       | 3     | 4      | 2    | 4      | 3.3  |
 
-## Top 3 Recommendations
+## 前 3 名推薦
 
-### 1. [Idea Name] (Score: X.X)
-- **Why**: [Reasoning]
-- **Key Benefit**: [Primary value]
-- **Main Risk**: [Primary concern]
-- **Estimated Scope**: [Small / Medium / Large]
+### 1. [想法名稱]（分數：X.X）
+- **原因**: [推薦理由]
+- **主要效益**: [首要價值]
+- **主要風險**: [首要顧慮]
+- **預估範圍**: [小 / 中 / 大]
 
-### 2. [Idea Name] (Score: X.X)
-- **Why**: [Reasoning]
-- **Key Benefit**: [Primary value]
-- **Main Risk**: [Primary concern]
-- **Estimated Scope**: [Small / Medium / Large]
+### 2. [想法名稱]（分數：X.X）
+- **原因**: [推薦理由]
+- **主要效益**: [首要價值]
+- **主要風險**: [首要顧慮]
+- **預估範圍**: [小 / 中 / 大]
 
-### 3. [Idea Name] (Score: X.X)
-- **Why**: [Reasoning]
-- **Key Benefit**: [Primary value]
-- **Main Risk**: [Primary concern]
-- **Estimated Scope**: [Small / Medium / Large]
+### 3. [想法名稱]（分數：X.X）
+- **原因**: [推薦理由]
+- **主要效益**: [首要價值]
+- **主要風險**: [首要顧慮]
+- **預估範圍**: [小 / 中 / 大]
 
-## Discarded Ideas (with reasons)
+## 淘汰的想法（附原因）
 
-| Idea | Reason for Discarding |
-|------|-----------------------|
-| ...  | Low feasibility (score: 1/5) |
+| 想法 | 淘汰原因 |
+|------|----------|
+| ...  | 可行性低（分數：1/5） |
 
-## Next Steps
+## 後續步驟
 
-- [ ] Proceed to `/requirement` with recommendation #1
-- [ ] Proceed to `/sdd` if requirements are already clear
-- [ ] Conduct follow-up brainstorm on [subtopic]
+- [ ] 以推薦 #1 進入 `/requirement`
+- [ ] 若需求已明確，直接進入 `/sdd`
+- [ ] 對 [子主題] 進行後續腦力激盪
 ```
 
 ---
 
-## Integration with UDS Workflow
+## 與 UDS 工作流程整合
 
-The Brainstorm Report maps directly to downstream tools:
+腦力激盪報告可直接對應到下游工具：
 
-### Mapping to `/requirement`
+### 對應至 `/requirement`
 
-| Brainstorm Report Section | `/requirement` Field |
-|---------------------------|---------------------|
-| Problem Statement | User Story context |
-| Top Recommendation | Feature description |
-| HMW Questions | Acceptance Criteria seeds |
-| Stakeholder Map | Stakeholder section |
-| Discarded Ideas | Out of Scope |
+| 腦力激盪報告章節 | `/requirement` 欄位 |
+|-----------------|---------------------|
+| 問題陳述 | User Story 脈絡 |
+| 首選推薦 | 功能描述 |
+| HMW 問題 | 驗收標準的種子 |
+| 利害關係人對應 | 利害關係人章節 |
+| 淘汰的想法 | 不在範圍內 |
 
-### Mapping to `/sdd`
+### 對應至 `/sdd`
 
-| Brainstorm Report Section | `/sdd` Field |
-|---------------------------|-------------|
-| Problem Statement | Summary / Motivation |
-| Top Recommendation | Proposed Solution |
-| Evaluation Matrix | Trade-offs / Alternatives Considered |
-| Risks (Black Hat) | Risks section |
-| Estimated Scope | Scope section |
-
----
-
-## Configuration Detection
-
-When invoked in a project directory, the brainstorm assistant will:
-
-1. **Check for existing specs** — Avoid brainstorming problems already specified
-2. **Read project README** — Understand project purpose and constraints
-3. **Scan recent issues/PRs** — Identify current pain points (if git repository)
-4. **Check tech stack** — Ground feasibility assessments in actual technology
+| 腦力激盪報告章節 | `/sdd` 欄位 |
+|-----------------|-------------|
+| 問題陳述 | 摘要 / 動機 |
+| 首選推薦 | 提議的解決方案 |
+| 評估矩陣 | 權衡 / 考慮過的替代方案 |
+| 風險（黑帽） | 風險章節 |
+| 預估範圍 | 範圍章節 |
 
 ---
 
-## Example Walkthrough
+## 設定偵測
 
-### Scenario: "We need to improve user retention"
+當在專案目錄中調用時，腦力激盪助手會：
 
-**FRAME:**
+1. **檢查現有規格** — 避免對已有規格的問題重複腦力激盪
+2. **讀取專案 README** — 了解專案目的與限制
+3. **掃描近期 issues/PR** — 識別當前痛點（如有 git 倉庫）
+4. **檢查技術棧** — 使可行性評估立足於實際技術
+
+---
+
+## 範例演練
+
+### 情境：「我們需要改善使用者留存率」
+
+**FRAME：**
 ```
-5 Whys:
-Problem: User retention is low (30-day retention at 15%)
+5 Whys：
+問題：使用者留存率低（30 天留存率 15%）
 
-Why 1: Users stop using the app after initial signup
-→ Because they don't discover key features
+為什麼 1：使用者在初始註冊後停止使用
+→ 因為他們沒有發現關鍵功能
 
-Why 2: Why don't they discover features?
-→ Because the onboarding only shows basic setup
+為什麼 2：為什麼沒有發現功能？
+→ 因為入門流程只展示基本設定
 
-Why 3: Why does onboarding only show basic setup?
-→ Because it was designed as a one-time wizard
+為什麼 3：為什麼入門只展示基本設定？
+→ 因為它被設計為一次性精靈
 
-Why 4: Why a one-time wizard?
-→ Because the team assumed users would explore on their own
+為什麼 4：為什麼是一次性精靈？
+→ 因為團隊假設使用者會自行探索
 
-Why 5: Why does that assumption fail?
-→ Because the app has 20+ features and no progressive disclosure
+為什麼 5：為什麼那個假設不成立？
+→ 因為應用有 20+ 功能但沒有漸進式揭露
 
-Root Cause: No progressive onboarding — users see everything or nothing
+根本原因：沒有漸進式入門——使用者看到全部或什麼都看不到
 
-HMW Questions:
-1. How might we guide users to discover features at the right moment?
-2. How might we make feature discovery feel natural, not forced?
-3. How might we celebrate user milestones to build engagement habits?
+HMW 問題：
+1. 我們如何能在適當時機引導使用者發現功能？
+2. 我們如何能讓功能發現感覺自然而非強迫？
+3. 我們如何能慶祝使用者里程碑以建立參與習慣？
 ```
 
-**DIVERGE (HMW + SCAMPER):**
+**DIVERGE（HMW + SCAMPER）：**
 
-| # | Idea | Technique |
-|---|------|-----------|
-| 1 | Contextual tooltips triggered by user behavior | HMW-1 |
-| 2 | Weekly "Did you know?" email with one feature | HMW-1 |
-| 3 | Achievement system with unlock badges | HMW-3 |
-| 4 | Replace wizard with progressive checklist | SCAMPER-S |
-| 5 | Combine onboarding with first real task | SCAMPER-C |
-| 6 | Adapt Duolingo's streak system | SCAMPER-A |
-| 7 | Minimize onboarding to 1 question: "What's your goal?" | SCAMPER-M |
-| 8 | Eliminate signup wall, let users try first | SCAMPER-E |
-| 9 | Reverse: let power users mentor new users | SCAMPER-R |
+| # | 想法 | 技法 |
+|---|------|------|
+| 1 | 基於使用者行為觸發的情境提示 | HMW-1 |
+| 2 | 每週「你知道嗎？」email 介紹一項功能 | HMW-1 |
+| 3 | 成就系統與解鎖徽章 | HMW-3 |
+| 4 | 用漸進式清單取代精靈 | SCAMPER-S |
+| 5 | 將入門與第一個實際任務結合 | SCAMPER-C |
+| 6 | 借鑑 Duolingo 的連續天數系統 | SCAMPER-A |
+| 7 | 將入門精簡為 1 個問題：「你的目標是什麼？」 | SCAMPER-M |
+| 8 | 取消註冊牆，讓使用者先試用 | SCAMPER-E |
+| 9 | 反轉：讓進階使用者指導新使用者 | SCAMPER-R |
 
-**CONVERGE:**
+**CONVERGE：**
 
-| # | Idea | Feasibility | Impact | Effort | Alignment | Score |
-|---|------|-------------|--------|--------|-----------|-------|
-| 7 | Goal-based onboarding | 5 | 5 | 4 | 5 | **4.8** |
-| 1 | Contextual tooltips | 4 | 4 | 3 | 5 | **4.0** |
-| 5 | Onboarding via real task | 3 | 5 | 2 | 5 | **3.8** |
+| # | 想法 | 可行性 | 影響力 | 成本 | 一致性 | 分數 |
+|---|------|--------|--------|------|--------|------|
+| 7 | 目標導向入門 | 5 | 5 | 4 | 5 | **4.8** |
+| 1 | 情境提示 | 4 | 4 | 3 | 5 | **4.0** |
+| 5 | 透過實際任務入門 | 3 | 5 | 2 | 5 | **3.8** |
 
-**OUTPUT:** Top recommendation is "Goal-based onboarding" → proceed to `/requirement`.
-
----
-
-## Best Practices
-
-### Do's
-
-- Start with FRAME — resist the urge to jump to solutions
-- Generate at least 10 ideas before evaluating any
-- Use codebase context to ground feasibility scores
-- Save the Brainstorm Report for future reference
-- Time-box each phase to maintain momentum
-
-### Don'ts
-
-- Don't evaluate during DIVERGE phase
-- Don't limit yourself to one technique — combine them
-- Don't skip the 5 Whys — surface-level problems lead to surface-level solutions
-- Don't brainstorm alone when stakeholders are available
-- Don't force all ideas through the same technique
+**OUTPUT：** 首選推薦是「目標導向入門」→ 進入 `/requirement`。
 
 ---
 
-## Related Standards
+## 最佳實踐
 
-| Standard | Relationship |
-|----------|-------------|
-| [Requirement Engineering](../../core/requirement-engineering.md) | Brainstorm output feeds requirement writing |
-| [Spec-Driven Development](../../core/spec-driven-development.md) | Brainstorm output feeds SDD proposals |
-| [Project Discovery](../project-discovery/SKILL.md) | Discovery provides context for brainstorming |
+### 應該做的
+
+- 從 FRAME 開始——抵抗直接跳到解決方案的衝動
+- 在評估任何想法之前，先產生至少 10 個
+- 利用程式碼庫脈絡為可行性評分提供依據
+- 保存腦力激盪報告以供日後參考
+- 為每個階段設定時間限制以維持動力
+
+### 不應該做的
+
+- 不要在 DIVERGE 階段進行評估
+- 不要只使用一種技法——結合使用
+- 不要跳過 5 Whys——表面問題會導致表面解決方案
+- 不要在利害關係人可參與時獨自腦力激盪
+- 不要強迫所有想法通過同一種技法
 
 ---
 
-## Version History
+## 相關規範
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-02-12 | Initial release |
+| 規範 | 關係 |
+|------|------|
+| [需求工程](../../../../core/requirement-engineering.md) | 腦力激盪輸出供需求撰寫使用 |
+| [規格驅動開發](../../../../core/spec-driven-development.md) | 腦力激盪輸出供 SDD 提案使用 |
+| [專案現況評估](../project-discovery/SKILL.md) | Discovery 為腦力激盪提供脈絡 |
 
 ---
 
-## License
+## 版本歷史
 
-This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-02-12 | 初始發布 |
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## 授權
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權釋出。
+
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

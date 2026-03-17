@@ -1,230 +1,226 @@
 ---
-scope: universal
+source: ../../../../skills/requirement-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-25
+status: current
 description: |
-  Guide requirement writing, user story creation, and feature specification.
-  Use when: writing requirements, user stories, issues, feature planning.
-  Keywords: requirement, user story, issue, feature, specification, 需求, 功能規劃, 規格.
+  引導需求撰寫、使用者故事建立與功能規格制定。
+  使用時機：撰寫需求、使用者故事、問題單、功能規劃。
+  關鍵字：requirement, user story, issue, feature, specification, 需求, 功能規劃, 規格。
 ---
 
-# Requirement Assistant
+# 需求助手
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/requirement-assistant/SKILL.md)
+> **語言**: [English](../../../../skills/requirement-assistant/SKILL.md) | 繁體中文
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-28
-**Applicability**: Claude Code Skills
-**Core Standard**: [Requirement Engineering Standards](../../core/requirement-engineering.md)
-
----
-
-## Purpose
-
-This skill provides guidance on writing clear, complete, and actionable requirements.
-
-## Quick Reference
-
-### User Story Format (INVEST)
-
-```
-As a [role],
-I want [feature],
-So that [benefit].
-```
-
-### INVEST Criteria
-
-| Criterion | Description | Question to Ask |
-|-----------|-------------|-----------------|
-| **I**ndependent | Can be delivered alone | Does this depend on other stories? |
-| **N**egotiable | Details can be discussed | Is this too prescriptive? |
-| **V**aluable | Provides user value | What problem does this solve? |
-| **E**stimable | Can estimate effort | Do we understand the scope? |
-| **S**mall | Fits in one sprint | Can we break this down? |
-| **T**estable | Has clear acceptance criteria | How do we know it's done? |
-
-### Requirement Priority Levels
-
-| Priority | Label | Description |
-|----------|-------|-------------|
-| P0 | Must Have | Critical for release |
-| P1 | Should Have | Important but not blocking |
-| P2 | Could Have | Nice to have |
-| P3 | Won't Have | Out of scope (this release) |
-
-## Detailed Guidelines
-
-For complete standards, see:
-- [Requirement Writing Guide](./requirement-writing.md)
-- [Requirement Checklist](./requirement-checklist.md)
-
-## Quick Templates
-
-### Simple Issue Template
-
-```markdown
-## Problem
-[What problem are we solving?]
-
-## Proposed Solution
-[How should we solve it?]
-
-## Acceptance Criteria
-- [ ] [Criterion 1]
-- [ ] [Criterion 2]
-- [ ] [Criterion 3]
-```
-
-### Feature Request Template
-
-```markdown
-## Summary
-[One-line description]
-
-## Motivation
-[Why is this needed? Who benefits?]
-
-## Detailed Description
-[Full description of the feature]
-
-## Acceptance Criteria
-- [ ] [Measurable criterion 1]
-- [ ] [Measurable criterion 2]
-
-## Out of Scope
-- [What this feature does NOT include]
-```
-
-### Bug Report Template
-
-```markdown
-## Description
-[Brief description of the bug]
-
-## Steps to Reproduce
-1. [Step 1]
-2. [Step 2]
-3. [Step 3]
-
-## Expected Behavior
-[What should happen]
-
-## Actual Behavior
-[What actually happens]
-
-## Environment
-- OS: [e.g., Windows 11]
-- Version: [e.g., v1.2.3]
-```
-
-## Acceptance Criteria Guidelines
-
-### Good Acceptance Criteria
-
-- **Specific**: Clear, unambiguous
-- **Measurable**: Can verify pass/fail
-- **Achievable**: Technically feasible
-- **Relevant**: Related to the requirement
-- **Testable**: Can write a test for it
-
-### Examples
-
-**Good**:
-```markdown
-- [ ] User can upload files up to 10MB
-- [ ] System responds within 500ms for 95th percentile
-- [ ] Error message displays when upload fails
-```
-
-**Bad**:
-```markdown
-- [ ] System should be fast  # Not measurable
-- [ ] Make it user-friendly  # Too vague
-- [ ] Fix the bug            # No specific criteria
-```
-
-## Requirement Completeness Checklist
-
-When writing requirements, ensure you cover:
-
-- [ ] **What**: Clear description of the feature
-- [ ] **Why**: Business value / problem solved
-- [ ] **Who**: Target users / personas
-- [ ] **When**: Priority / timeline
-- [ ] **How**: High-level approach (if known)
-- [ ] **Acceptance**: Criteria for completion
-- [ ] **Scope**: What's NOT included
+**版本**: 1.0.0
+**最後更新**: 2025-12-24
+**適用範圍**: Claude Code Skills
 
 ---
 
-## Configuration Detection
+## 目的
 
-This skill supports project-specific requirement templates.
+本 Skill 提供撰寫清晰、完整且可執行需求的指導。
 
-### Detection Order
+## 快速參考
 
-1. Check `CONTRIBUTING.md` for "Disabled Skills" section
-   - If this skill is listed, it is disabled for this project
-2. Check `CONTRIBUTING.md` for "Requirement Language" section
-3. Check for `.github/ISSUE_TEMPLATE/` directory
-4. Check for `docs/templates/` directory
-5. If not found, **default to English** and use default templates
+### 使用者故事格式（INVEST）
 
-### First-Time Setup
-
-If no templates found:
-
-1. Ask the user: "This project doesn't have requirement templates. Which language should I use? (English / 中文)"
-2. After user selection, suggest documenting in `CONTRIBUTING.md`:
-
-```markdown
-## Requirement Language
-
-This project uses **[chosen option]** for requirements and issues.
-<!-- Options: English | 中文 -->
+```
+作為 [角色]，
+我想要 [功能]，
+以便 [效益]。
 ```
 
-3. Suggest appropriate template based on project type
+### INVEST 原則
 
-### Configuration Example
+| 原則 | 說明 | 應該問的問題 |
+|------|------|--------------|
+| **I**ndependent（獨立性） | 可以單獨交付 | 這是否依賴其他故事？ |
+| **N**egotiable（可協商性） | 細節可以討論 | 這是否太過具體規定？ |
+| **V**aluable（有價值性） | 提供使用者價值 | 這解決了什麼問題？ |
+| **E**stimable（可估算性） | 可以估算工作量 | 我們了解範圍嗎？ |
+| **S**mall（小型化） | 適合在一個衝刺內完成 | 我們可以拆分這個嗎？ |
+| **T**estable（可測試性） | 有明確的驗收標準 | 我們如何知道完成了？ |
 
-In project's `CONTRIBUTING.md`:
+### 需求優先級
+
+| 優先級 | 標籤 | 說明 |
+|--------|------|------|
+| P0 | 必須有 | 發布的關鍵需求 |
+| P1 | 應該有 | 重要但不阻塞 |
+| P2 | 可以有 | 可有可無 |
+| P3 | 不會有 | 超出範圍（本次發布） |
+
+## 詳細指南
+
+完整標準請參考：
+- [需求撰寫指南](./requirement-writing.md)
+- [需求檢查清單](./requirement-checklist.md)
+
+## 快速範本
+
+### 簡單 Issue 範本
 
 ```markdown
-## Requirement Language
+## 問題
+[我們要解決什麼問題？]
 
-This project uses **English** for requirements and issues.
-<!-- Options: English | 中文 -->
+## 建議解決方案
+[我們應該如何解決？]
 
-### Issue Templates Location
+## 驗收標準
+- [ ] [標準 1]
+- [ ] [標準 2]
+- [ ] [標準 3]
+```
+
+### 功能需求範本
+
+```markdown
+## 摘要
+[一行描述]
+
+## 動機
+[為什麼需要這個？誰會受益？]
+
+## 詳細描述
+[功能的完整描述]
+
+## 驗收標準
+- [ ] [可衡量的標準 1]
+- [ ] [可衡量的標準 2]
+
+## 超出範圍
+- [這個功能不包含什麼]
+```
+
+### 錯誤回報範本
+
+```markdown
+## 描述
+[錯誤的簡要描述]
+
+## 重現步驟
+1. [步驟 1]
+2. [步驟 2]
+3. [步驟 3]
+
+## 預期行為
+[應該發生什麼]
+
+## 實際行為
+[實際發生什麼]
+
+## 環境
+- 作業系統：[例如：Windows 11]
+- 版本：[例如：v1.2.3]
+```
+
+## 驗收標準指南
+
+### 好的驗收標準
+
+- **具體的**：清晰、無歧義
+- **可衡量的**：可以驗證通過/失敗
+- **可實現的**：技術上可行
+- **相關的**：與需求相關
+- **可測試的**：可以為其編寫測試
+
+### 範例
+
+**好的範例**：
+```markdown
+- [ ] 使用者可以上傳最大 10MB 的檔案
+- [ ] 系統在第 95 百分位數內 500ms 內回應
+- [ ] 上傳失敗時顯示錯誤訊息
+```
+
+**不好的範例**：
+```markdown
+- [ ] 系統應該很快  # 無法衡量
+- [ ] 使其使用者友善  # 太模糊
+- [ ] 修復錯誤        # 沒有具體標準
+```
+
+## 需求完整性檢查清單
+
+撰寫需求時，確保涵蓋：
+
+- [ ] **什麼**：功能的清晰描述
+- [ ] **為什麼**：商業價值/解決的問題
+- [ ] **誰**：目標使用者/角色
+- [ ] **何時**：優先級/時間表
+- [ ] **如何**：高階方法（如果已知）
+- [ ] **驗收**：完成標準
+- [ ] **範圍**：不包含什麼
+
+---
+
+## 設定檢測
+
+此 Skill 支援專案特定的需求範本。
+
+### 檢測順序
+
+1. 檢查 `CONTRIBUTING.md` 中的「停用的 Skills」區段
+   - 如果此 Skill 在列表中，則此專案停用此 Skill
+2. 檢查 `CONTRIBUTING.md` 中的「需求語言」區段
+3. 檢查 `.github/ISSUE_TEMPLATE/` 目錄
+4. 檢查 `docs/templates/` 目錄
+5. 如果未找到，**預設使用英文**並使用預設範本
+
+### 首次設定
+
+如果未找到範本：
+
+1. 詢問使用者：「此專案沒有需求範本。我應該使用哪種語言？（English / 中文）」
+2. 使用者選擇後，建議在 `CONTRIBUTING.md` 中記錄：
+
+```markdown
+## 需求語言
+
+此專案使用 **[選擇的選項]** 撰寫需求和 issues。
+<!-- 選項：English | 中文 -->
+```
+
+3. 根據專案類型建議適當的範本
+
+### 設定範例
+
+在專案的 `CONTRIBUTING.md` 中：
+
+```markdown
+## 需求語言
+
+此專案使用 **English** 撰寫需求和 issues。
+<!-- 選項：English | 中文 -->
+
+### Issue 範本位置
 `.github/ISSUE_TEMPLATE/`
 ```
 
 ---
 
-## Related Standards
+## 相關標準
 
-**Core Standard (Theory & Deep Reference)**:
-- [Requirement Engineering Standards](../../core/requirement-engineering.md) - Complete theoretical foundation including IEEE 830, SWEBOK v4.0, ISO 25010
-
-**Related Standards**:
-- [Spec-Driven Development](../../core/spec-driven-development.md) - Specification workflow
-- [Behavior-Driven Development](../../core/behavior-driven-development.md) - Given-When-Then scenarios
-- [Acceptance Test-Driven Development](../../core/acceptance-test-driven-development.md) - ATDD workshops
-- [Checkin Standards](../../core/checkin-standards.md) - Code check-in requirements
+- [規格驅動開發](../../core/spec-driven-development.md)
+- [簽入標準](../../core/checkin-standards.md)
 
 ---
 
-## Version History
+## 版本歷史
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.1.0 | 2026-01-28 | Added: Core Standard reference to requirement-engineering.md, expanded Related Standards section |
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2025-12-24 | 新增：標準區段（目的、相關標準、版本歷史、授權） |
 
 ---
 
-## License
+## 授權
 
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

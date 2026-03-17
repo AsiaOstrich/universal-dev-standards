@@ -1,78 +1,80 @@
 ---
+source: ../../../../skills/refactoring-assistant/SKILL.md
+source_version: 2.0.0
+translation_version: 2.0.0
+last_synced: 2026-02-10
+status: current
+description: |
+  引導重構決策、推薦策略，並提供逐步執行工作流程。
+  使用時機：重構程式碼、評估重構 vs 重寫、處理遺留程式碼。
+  關鍵字：refactor, strategy, legacy, technical debt, 重構, 策略, 遺留程式碼, 技術債。
 name: refactor
-scope: universal
-description: "[UDS] Guide refactoring decisions and strategy selection"
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
+scope: universal
 argument-hint: "[file or module | 檔案或模組]"
 ---
 
-# Refactoring Assistant | 重構助手
+# 重構助手
 
-Guide refactoring decisions, recommend strategies, and provide step-by-step execution workflows.
+> **語言**: [English](../../../../skills/refactoring-assistant/SKILL.md) | 繁體中文
 
 引導重構決策、推薦策略，並提供逐步執行工作流程。
 
-## Usage | 使用方式
+## 使用方式
 
-| Command | Purpose | 用途 |
-|---------|---------|------|
-| `/refactor` | Start interactive refactoring guide | 啟動互動式重構引導 |
-| `/refactor decide` | Run refactor vs. rewrite decision tree | 執行重構 vs 重寫決策樹 |
-| `/refactor tactical` | Suggest tactical (daily) strategies | 建議戰術性（日常）策略 |
-| `/refactor strategic` | Guide strategic/architectural refactoring | 引導戰略性/架構重構 |
-| `/refactor legacy` | Legacy code safety strategies | 遺留程式碼安全策略 |
-| `/refactor debt` | Technical debt assessment | 技術債評估 |
+| 命令 | 用途 |
+|------|------|
+| `/refactor` | 啟動互動式重構引導 |
+| `/refactor decide` | 執行重構 vs 重寫決策樹 |
+| `/refactor tactical` | 建議戰術性（日常）策略 |
+| `/refactor strategic` | 引導戰略性/架構重構 |
+| `/refactor legacy` | 遺留程式碼安全策略 |
+| `/refactor debt` | 技術債評估 |
 
-## Strategy Quick Reference | 策略快速參考
+## 策略快速參考
 
-### Tactical Strategies (Daily) | 戰術性策略
+### 戰術性策略（日常）
 
-| Strategy | When to Use | 使用時機 |
-|----------|-------------|---------|
-| **Preparatory Refactoring** | Before adding a blocked feature | 新增被阻擋的功能之前 |
-| **Boy Scout Rule** | During any maintenance work | 任何維護工作中 |
-| **Red-Green-Refactor** | TDD development cycle | TDD 開發循環 |
+| 策略 | 使用時機 |
+|------|---------|
+| **準備式重構** | 新增被阻擋的功能之前 |
+| **童子軍法則** | 任何維護工作中 |
+| **紅-綠-重構** | TDD 開發循環 |
 
-### Strategic Strategies (Architectural) | 戰略性策略
+### 戰略性策略（架構）
 
-| Strategy | When to Use | 使用時機 |
-|----------|-------------|---------|
-| **Strangler Fig** | Replacing entire system gradually | 逐步替換整個系統 |
-| **Anti-Corruption Layer** | Integrating with legacy system | 與遺留系統整合 |
-| **Branch by Abstraction** | Shared code refactoring on trunk | 在主幹上重構共享程式碼 |
+| 策略 | 使用時機 |
+|------|---------|
+| **絞殺者無花果** | 逐步替換整個系統 |
+| **防腐層** | 與遺留系統整合 |
+| **抽象分支** | 在主幹上重構共享程式碼 |
 
-### Safety Strategies (Legacy) | 安全防護策略
+### 安全防護策略（遺留程式碼）
 
-| Strategy | When to Use | 使用時機 |
-|----------|-------------|---------|
-| **Characterization Tests** | Before any legacy refactoring | 任何遺留程式碼重構之前 |
-| **Scratch Refactoring** | Understanding black-box code | 理解黑盒程式碼 |
-| **Finding Seams** | Injecting test doubles into legacy | 在遺留程式碼中注入測試替身 |
+| 策略 | 使用時機 |
+|------|---------|
+| **特徵化測試** | 任何遺留程式碼重構之前 |
+| **草稿式重構** | 理解黑盒程式碼 |
+| **尋找接縫** | 在遺留程式碼中注入測試替身 |
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Assess** - Identify code to refactor, evaluate test coverage
-2. **Decide** - Run decision tree (refactor vs. rewrite) if needed
-3. **Select strategy** - Choose appropriate strategy based on scope and risk
-4. **Execute** - Follow step-by-step workflow with safety checks
-5. **Verify** - Run tests to confirm behavior is preserved
+1. **評估** - 識別要重構的程式碼，評估測試覆蓋率
+2. **決策** - 需要時執行決策樹（重構 vs 重寫）
+3. **選擇策略** - 根據範圍和風險選擇適當策略
+4. **執行** - 遵循逐步工作流程，包含安全檢查
+5. **驗證** - 執行測試以確認行為未被改變
 
-## Usage Examples | 使用範例
+## 下一步引導
 
-```
-User: /refactor src/legacy-auth/
-AI: Analyzing src/legacy-auth/...
-    Test coverage: 23% — recommending safety-first approach.
-    Suggested strategy: Characterization Tests + Preparatory Refactoring
-```
+`/refactor` 完成後，AI 助手應建議：
 
-```
-User: /refactor decide
-AI: Let me help you decide whether to refactor or rewrite.
-    Question 1: Is the code currently working in production? [Y/N]
-```
+> **重構完成。建議下一步：**
+> - 執行 `/checkin` 通過品質關卡
+> - 執行 `/coverage` 確認重構後覆蓋率不下降
+> - 執行 `/commit` 提交重構變更
 
-## Reference | 參考
+## 參考
 
-- Detailed guide: [guide.md](./guide.md)
-- Core standard: [refactoring-standards.md](../../core/refactoring-standards.md)
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[refactoring-standards.md](../../../../core/refactoring-standards.md)

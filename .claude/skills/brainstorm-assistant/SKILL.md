@@ -1,116 +1,123 @@
 ---
+source: ../../../../skills/brainstorm-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-12
+status: current
+description: |
+  在撰寫規格前進行結構化 AI 輔助腦力激盪。
+  使用時機：模糊構想、功能探索、問題重構、創意發想。
+  關鍵字：brainstorm, ideation, HMW, SCAMPER, 腦力激盪, 發想, 創意, 構想。
 name: brainstorm
-scope: universal
-description: "[UDS] Structured AI-assisted brainstorming before spec creation"
 allowed-tools: Read, Glob, Grep, Write
+scope: universal
 argument-hint: "[problem or feature idea | 問題或功能構想]"
 ---
 
-# Brainstorm Assistant | 腦力激盪助手
+# 腦力激盪助手
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/brainstorm-assistant/SKILL.md)
-
-Structured ideation before specification writing. Transform vague ideas into actionable feature proposals through guided brainstorming.
+> **語言**: [English](../../../../skills/brainstorm-assistant/SKILL.md) | 繁體中文
 
 在撰寫規格前進行結構化發想。透過引導式腦力激盪，將模糊構想轉化為可執行的功能提案。
 
-## Workflow | 工作流程
+## 工作流程
 
 ```
 FRAME ──► DIVERGE ──► CONVERGE ──► OUTPUT
 定義問題     發散思考       收斂評估       輸出提案
 ```
 
-### Phase 1: FRAME | 定義問題
-
-Define the problem space clearly before generating ideas.
+### 階段 1：FRAME | 定義問題
 
 在產生想法之前，先清楚定義問題空間。
 
-| Step | Action | 步驟 |
-|------|--------|------|
-| 1 | Clarify the problem with 5 Whys | 用 5 Whys 釐清問題 |
-| 2 | Reframe as "How Might We" (HMW) questions | 重構為 HMW 問題 |
-| 3 | Identify stakeholders and constraints | 識別利害關係人與限制 |
-| 4 | Gather context from codebase (if applicable) | 從程式碼庫蒐集脈絡 |
+| 步驟 | 動作 |
+|------|------|
+| 1 | 用 5 Whys 釐清問題根因 |
+| 2 | 重構為「How Might We」(HMW) 問題 |
+| 3 | 識別利害關係人與限制條件 |
+| 4 | 從程式碼庫蒐集脈絡（如適用） |
 
-### Phase 2: DIVERGE | 發散思考
-
-Generate as many ideas as possible without judgment.
+### 階段 2：DIVERGE | 發散思考
 
 不加評判地盡可能產生多個想法。
 
-| Technique | When to Use | 使用時機 |
-|-----------|-------------|----------|
-| **HMW Questions** | Default starting point | 預設起點 |
-| **SCAMPER** | Improving existing features | 改善現有功能 |
-| **Six Thinking Hats** | Need multiple perspectives | 需要多角度思考 |
+| 技法 | 使用時機 |
+|------|----------|
+| **HMW 問題** | 預設起點 |
+| **SCAMPER** | 改善現有功能 |
+| **六頂思考帽** | 需要多角度思考 |
 
-### Phase 3: CONVERGE | 收斂評估
-
-Evaluate and prioritize ideas using structured criteria.
+### 階段 3：CONVERGE | 收斂評估
 
 使用結構化標準評估與排序想法。
 
-| Criterion | Weight | 評估標準 |
-|-----------|--------|----------|
-| Feasibility | 30% | 技術可行性 |
-| Impact | 30% | 使用者影響力 |
-| Effort | 20% | 實作成本 |
-| Alignment | 20% | 目標一致性 |
+| 評估標準 | 權重 |
+|----------|------|
+| 技術可行性 | 30% |
+| 使用者影響力 | 30% |
+| 實作成本 | 20% |
+| 目標一致性 | 20% |
 
-### Phase 4: OUTPUT | 輸出提案
-
-Produce a Brainstorm Report ready for `/requirement` or `/sdd`.
+### 階段 4：OUTPUT | 輸出提案
 
 產生可直接對接 `/requirement` 或 `/sdd` 的腦力激盪報告。
 
-## Technique Quick Reference | 技法速覽
+## 技法速覽
 
-| Technique | Purpose | Steps | 用途 |
-|-----------|---------|-------|------|
-| **5 Whys** | Root cause analysis | Ask "Why?" 5 times | 根因分析 |
-| **HMW** | Problem reframing | "How might we [verb] [outcome]?" | 問題重構 |
-| **SCAMPER** | Idea modification | 7 prompts: Substitute, Combine, Adapt, Modify, Put to other use, Eliminate, Reverse | 創意改造 |
-| **Six Thinking Hats** | Multi-perspective | 6 modes: Facts, Emotions, Risks, Benefits, Creativity, Process | 多角度思考 |
-| **Dot Voting** | Quick prioritization | Each participant gets 3 votes | 快速排序 |
+| 技法 | 用途 | 步驟 |
+|------|------|------|
+| **5 Whys** | 根因分析 | 連問 5 次「為什麼？」 |
+| **HMW** | 問題重構 | 「我們如何能 [動詞] [成果]？」 |
+| **SCAMPER** | 創意改造 | 7 步驟：替代、結合、調適、修改、另作他用、刪除、反轉 |
+| **六頂思考帽** | 多角度思考 | 6 種模式：事實、情感、風險、好處、創意、流程 |
+| **點數投票** | 快速排序 | 每人 3 票，投給最看好的想法 |
 
-## Output Format | 輸出格式
+## 輸出格式
 
 ```markdown
-# Brainstorm Report: [Topic]
+# 腦力激盪報告：[主題]
 
-## Problem Statement
-[Refined problem from FRAME phase]
+## 問題陳述
+[FRAME 階段精煉的問題]
 
-## HMW Questions
-1. How might we ...?
-2. How might we ...?
-3. How might we ...?
+## HMW 問題
+1. 我們如何能...？
+2. 我們如何能...？
+3. 我們如何能...？
 
-## Ideas Generated
-| # | Idea | Source Technique | Feasibility | Impact | Score |
-|---|------|-----------------|-------------|--------|-------|
-| 1 | ...  | SCAMPER          | 4/5         | 5/5    | 4.3   |
-| 2 | ...  | HMW              | 3/5         | 4/5    | 3.5   |
+## 產生的想法
+| # | 想法 | 來源技法 | 可行性 | 影響力 | 分數 |
+|---|------|----------|--------|--------|------|
+| 1 | ...  | SCAMPER   | 4/5    | 5/5    | 4.3  |
+| 2 | ...  | HMW       | 3/5    | 4/5    | 3.5  |
 
-## Top 3 Recommendations
-1. **[Idea Name]** - [Why this is recommended]
-2. **[Idea Name]** - [Why this is recommended]
-3. **[Idea Name]** - [Why this is recommended]
+## 前 3 名推薦
+1. **[想法名稱]** — [推薦原因]
+2. **[想法名稱]** — [推薦原因]
+3. **[想法名稱]** — [推薦原因]
 
-## Next Steps
-- [ ] Proceed to `/requirement` with top idea
-- [ ] Proceed to `/sdd` if requirements are clear
-- [ ] Need further exploration of idea #N
+## 後續步驟
+- [ ] 以首選想法進入 `/requirement`
+- [ ] 若需求已明確，直接進入 `/sdd`
+- [ ] 需進一步探索想法 #N
 ```
 
-## Usage | 使用方式
+## 使用方式
 
-- `/brainstorm` - Start interactive brainstorming session
-- `/brainstorm "user retention"` - Brainstorm around a specific topic
-- `/brainstorm --technique scamper` - Use a specific technique
+- `/brainstorm` — 啟動互動式腦力激盪
+- `/brainstorm "用戶留存"` — 針對特定主題進行腦力激盪
+- `/brainstorm --technique scamper` — 使用特定技法
 
-## Reference | 參考
+## 下一步引導
 
-- Detailed guide: [guide.md](./guide.md)
+`/brainstorm` 完成後，AI 助手應建議：
+
+> **腦力激盪完成。建議下一步：**
+> - 執行 `/requirement` 將最佳構想轉為使用者故事
+> - 執行 `/sdd` 直接建立規格（若需求已明確）
+> - 針對特定構想進行更深入探索
+
+## 參考
+
+- 詳細指南：[guide.md](./guide.md)

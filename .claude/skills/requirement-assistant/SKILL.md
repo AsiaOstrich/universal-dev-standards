@@ -1,66 +1,80 @@
 ---
+source: ../../../../skills/requirement-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-10
+status: current
+description: |
+  撰寫結構良好的使用者故事和需求文件，遵循 INVEST 準則。
+  使用時機：撰寫需求、定義使用者故事、驗收條件。
+  關鍵字：requirement, user story, INVEST, acceptance criteria, 需求, 使用者故事, 驗收條件。
 name: requirement
-scope: universal
-description: "[UDS] Write user stories and requirements following INVEST criteria"
 allowed-tools: Read, Write, Grep
+scope: universal
 argument-hint: "[feature description | 功能描述]"
 ---
 
-# Requirement Assistant | 需求助手
+# 需求助手
 
-Write well-structured user stories and requirements following INVEST criteria.
+> **語言**: [English](../../../../skills/requirement-assistant/SKILL.md) | 繁體中文
 
 撰寫結構良好的使用者故事和需求文件，遵循 INVEST 準則。
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Understand context** - Gather feature information | 蒐集功能資訊
-2. **Identify stakeholders** - Who benefits from this feature? | 誰受益？
-3. **Write user story** - Follow the standard format | 遵循標準格式
-4. **Define acceptance criteria** - Specific, testable conditions | 定義可測試條件
-5. **Validate with INVEST** - Check quality criteria | 用 INVEST 驗證品質
+1. **理解情境** - 收集功能資訊
+2. **識別利害關係人** - 誰從這個功能受益？
+3. **撰寫使用者故事** - 遵循標準格式
+4. **定義驗收條件** - 具體、可測試的條件
+5. **以 INVEST 驗證** - 檢查品質準則
 
-## User Story Format | 使用者故事格式
+## 使用者故事格式
 
-```markdown
+```
 As a [role],
 I want [feature],
 So that [benefit].
 
 ### Acceptance Criteria
-
 - [ ] Given [context], when [action], then [result]
 - [ ] Given [context], when [action], then [result]
 ```
 
-## INVEST Criteria | INVEST 準則
+## INVEST 準則
 
-| Criterion | Description | 說明 |
-|-----------|-------------|------|
-| **I**ndependent | Can be developed separately | 可獨立開發 |
-| **N**egotiable | Details can be discussed | 可協商細節 |
-| **V**aluable | Delivers value to user | 提供使用者價值 |
-| **E**stimable | Can estimate effort | 可估算工作量 |
-| **S**mall | Fits in one sprint | 適合單一迭代 |
-| **T**estable | Has clear test criteria | 有明確測試標準 |
+| 準則 | 說明 | Criterion | Description |
+|------|------|-----------|-------------|
+| **I**ndependent | 可獨立開發 | Independent | Can be developed separately |
+| **N**egotiable | 可協商細節 | Negotiable | Details can be discussed |
+| **V**aluable | 提供使用者價值 | Valuable | Delivers value to user |
+| **E**stimable | 可估算工作量 | Estimable | Can estimate effort |
+| **S**mall | 適合單一迭代 | Small | Fits in one sprint |
+| **T**estable | 有明確測試標準 | Testable | Has clear test criteria |
 
-## Quality Checklist | 品質檢查清單
+## 品質檢查清單
 
-- [ ] User story follows "As a / I want / So that" format
-- [ ] At least 2 acceptance criteria defined
-- [ ] All 6 INVEST criteria satisfied
-- [ ] Edge cases and error scenarios considered
-- [ ] Out of scope items documented
+- [ ] 使用者故事遵循「As a / I want / So that」格式
+- [ ] 至少定義 2 個驗收條件
+- [ ] 滿足全部 6 個 INVEST 準則
+- [ ] 已考慮邊界案例和錯誤情境
+- [ ] 已記錄範圍外項目
 
-## Usage | 使用方式
+## 使用方式
 
-```
-/requirement                         - Interactive requirement wizard | 互動式需求精靈
-/requirement user login              - Write requirement for feature | 為功能撰寫需求
-/requirement "users can export data" - Based on description | 根據描述撰寫
-```
+- `/requirement` - 互動式需求撰寫精靈
+- `/requirement user login` - 為功能撰寫需求
+- `/requirement "users can export data"` - 根據描述撰寫需求
 
-## Reference | 參考
+## 下一步引導
 
-- Detailed guide: [guide.md](./guide.md)
-- Core standard: [requirement-engineering.md](../../core/requirement-engineering.md)
+`/requirement` 完成後，AI 助手應建議：
+
+> **需求文件已完成。建議下一步：**
+> - 執行 `/sdd` 建立規格文件
+> - 執行 `/atdd` 定義驗收測試
+> - 執行 `/brainstorm` 進一步探索需求空間
+
+## 參考
+
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[requirement-engineering.md](../../../../core/requirement-engineering.md)

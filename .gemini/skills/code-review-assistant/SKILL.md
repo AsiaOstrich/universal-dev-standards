@@ -1,53 +1,71 @@
 ---
+source: ../../../../skills/code-review-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-10
+status: current
+description: |
+  使用標準化檢查清單執行系統性程式碼審查。
+  使用時機：審查程式碼、PR 審查、程式碼品質檢查。
+  關鍵字：review, code review, PR, checklist, 審查, 程式碼, 品質。
 name: review
-scope: universal
-description: "[UDS] Perform systematic code review with checklist"
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
+scope: universal
 argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
 disable-model-invocation: true
 ---
 
-# Code Review Assistant | 程式碼審查助手
+# 程式碼審查助手
 
-Perform systematic code review using standardized checklists and comment prefixes.
+> **語言**: [English](../../../../skills/code-review-assistant/SKILL.md) | 繁體中文
 
-執行系統性的程式碼審查，使用標準化的檢查清單和評論前綴。
+使用標準化的檢查清單和評論前綴，執行系統性的程式碼審查。
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Identify changes** - Get diff of files to review via `git diff` or `git show`
-2. **Apply checklist** - Check each review category systematically
-3. **Generate report** - Output findings with standard comment prefixes
-4. **Summarize** - Provide overall assessment and recommended actions
+1. **識別變更** - 透過 `git diff` 或 `git show` 取得待審查檔案的差異
+2. **套用檢查清單** - 系統性地檢查每個審查類別
+3. **產生報告** - 使用標準評論前綴輸出發現
+4. **總結** - 提供整體評估和建議的後續行動
 
-## Review Categories | 審查類別
+## 審查類別
 
-1. **Functionality** - Does it work correctly? | 功能是否正確？
-2. **Design** - Is the architecture appropriate? | 架構是否合適？
-3. **Quality** - Is the code clean and maintainable? | 程式碼是否乾淨可維護？
-4. **Readability** - Is it easy to understand? | 是否容易理解？
-5. **Tests** - Is there adequate test coverage? | 測試覆蓋是否足夠？
-6. **Security** - Are there any vulnerabilities? | 是否有安全漏洞？
-7. **Performance** - Is it efficient? | 是否有效率？
-8. **Error Handling** - Are errors handled properly? | 錯誤處理是否妥當？
+1. **功能性** - 功能是否正確？ | Does it work correctly?
+2. **設計** - 架構是否合適？ | Is the architecture appropriate?
+3. **品質** - 程式碼是否乾淨可維護？ | Is the code clean and maintainable?
+4. **可讀性** - 是否容易理解？ | Is it easy to understand?
+5. **測試** - 測試覆蓋是否足夠？ | Is there adequate test coverage?
+6. **安全性** - 是否有安全漏洞？ | Are there any vulnerabilities?
+7. **效能** - 是否有效率？ | Is it efficient?
+8. **錯誤處理** - 錯誤處理是否妥當？ | Are errors handled properly?
 
-## Comment Prefixes | 評論前綴
+## 評論前綴
 
-| Prefix | Meaning | Action | 動作 |
-|--------|---------|--------|------|
-| **BLOCKING** | Must fix before merge | Required | 必須修復 |
-| **IMPORTANT** | Should fix | Recommended | 建議修復 |
-| **SUGGESTION** | Nice-to-have | Optional | 可選改善 |
-| **QUESTION** | Need clarification | Discuss | 需要討論 |
-| **NOTE** | Informational | FYI | 僅供參考 |
+| 前綴 | 意義 | 動作 | Action |
+|------|------|------|--------|
+| **BLOCKING** | 必須在合併前修復 | 必須修復 | Required |
+| **IMPORTANT** | 應該修復 | 建議修復 | Recommended |
+| **SUGGESTION** | 錦上添花 | 可選改善 | Optional |
+| **QUESTION** | 需要說明 | 需要討論 | Discuss |
+| **NOTE** | 資訊性 | 僅供參考 | FYI |
 
-## Usage | 使用方式
+## 使用方式
 
-- `/review` - Review all changes in current branch
-- `/review src/auth.js` - Review specific file
-- `/review feature/login` - Review specific branch
+- `/review` - 審查目前分支的所有變更
+- `/review src/auth.js` - 審查特定檔案
+- `/review feature/login` - 審查特定分支
 
-## Reference | 參考
+## 下一步引導
 
-- Detailed guide: [guide.md](./guide.md)
-- Core standard: [code-review-checklist.md](../../core/code-review-checklist.md)
+`/review` 完成後，AI 助手應建議：
+
+> **程式碼審查完成。建議下一步：**
+> - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/review`
+> - 全部通過 → 執行 `/checkin` 品質關卡
+> - 僅有 💡 SUGGESTION → 執行 `/commit` 提交變更
+> - 審查中發現規範不實用或缺失 → 執行 `/audit --report` 回報
+
+## 參考
+
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[code-review-checklist.md](../../../../core/code-review-checklist.md)

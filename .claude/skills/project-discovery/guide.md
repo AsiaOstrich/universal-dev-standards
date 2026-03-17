@@ -1,367 +1,371 @@
 ---
-scope: universal
 description: |
-  Assess project health, architecture, and risks before adding new features.
-  Use when: onboarding to legacy projects, starting new features on existing codebases, evaluating technical debt.
-  Keywords: discovery, assessment, audit, legacy, health check, technical debt, 現況評估, 風險分析, 技術債, 專案盤點.
+  在新增功能前評估專案健康度、架構與風險。
+  使用時機：接手舊專案、在現有程式碼上新增功能、評估技術債。
+  關鍵字：discovery, assessment, audit, legacy, health check, technical debt, 現況評估, 風險分析, 技術債, 專案盤點。
+source: ../../../../skills/project-discovery/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-09
+status: current
 ---
 
-# Project Discovery Guide
+# 專案現況評估指南
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/project-discovery/SKILL.md)
+> **語言**: [English](../../../../skills/project-discovery/SKILL.md) | 繁體中文
 
-**Version**: 1.0.0
-**Last Updated**: 2026-02-09
-**Applicability**: All AI coding assistants
+**版本**: 1.0.0
+**最後更新**: 2026-02-09
+**適用範圍**: 所有 AI 編碼助手
 
-> **Utility Skill**: This skill combines existing UDS core standards into a structured discovery workflow. No dedicated core standard is required.
+> **工具型技能**：此技能組合既有的 UDS 核心規範，建構結構化的現況評估流程。無需專屬的核心規範。
 
 ---
 
-## Purpose
+## 目的
 
-Before adding new features to an existing codebase, you need a clear picture of its current state. Phase 0 — Discovery — provides a systematic assessment of code health, architecture, documentation, dependencies, and risk so you can plan changes with confidence.
+在現有程式碼上新增功能前，你需要清楚了解其目前的狀態。Phase 0 — 現況評估 — 提供系統化的程式碼健康度、架構、文件、依賴和風險評估，讓你能有信心地規劃變更。
 
-This skill guides you through 6 assessment steps, each referencing existing UDS standards for methodology and quality gates.
+此技能引導你完成 6 個評估步驟，每個步驟均引用既有的 UDS 規範作為方法論和品質閘門。
 
-## Quick Reference
+## 快速參考
 
-### Phase 0 Discovery Workflow
+### Phase 0 現況評估工作流程
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                  Phase 0: Project Discovery                      │
+│                  Phase 0：專案現況評估                             │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  0.1  Code Health Check                                         │
-│       └─ Test coverage, lint issues, code smells                │
+│  0.1  程式碼健康度檢查                                            │
+│       └─ 測試覆蓋率、lint 問題、程式碼異味                        │
 │                                                                  │
-│  0.2  Architecture Understanding                                │
-│       └─ Entry points, module map, patterns                     │
+│  0.2  架構理解                                                    │
+│       └─ 進入點、模組地圖、架構模式                                │
 │                                                                  │
-│  0.3  Documentation Inventory                                   │
-│       └─ READMEs, ADRs, changelogs, inline docs                │
+│  0.3  文件盤點                                                    │
+│       └─ README、ADR、變更日誌、內嵌文件                          │
 │                                                                  │
-│  0.4  Code Review Snapshot                                      │
-│       └─ Sample audit of critical paths                         │
+│  0.4  程式碼審查快照                                               │
+│       └─ 關鍵路徑的抽樣稽核                                       │
 │                                                                  │
-│  0.5  Dependency & Security Check                               │
-│       └─ Outdated packages, known vulnerabilities               │
+│  0.5  依賴與安全檢查                                               │
+│       └─ 過期套件、已知漏洞                                       │
 │                                                                  │
-│  0.6  Impact Scope Analysis                                     │
-│       └─ Change propagation, risk matrix                        │
+│  0.6  影響範圍分析                                                 │
+│       └─ 變更傳播、風險矩陣                                       │
 │                                                                  │
 │  ──────────────────────────────────────────────────────────────  │
-│  Output: Discovery Report (go / no-go / conditional)            │
-│  Next:  /reverse → /sdd → implement                            │
+│  輸出：現況評估報告（通過 / 不通過 / 有條件通過）                  │
+│  下一步：/reverse → /sdd → 實作                                   │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Step Summary
+### 步驟總覽
 
-| Step | Focus | Key Output | UDS Standards Referenced |
-|------|-------|------------|------------------------|
-| 0.1 | Code Health | Test coverage %, lint score, code smell count | Testing, Reverse Engineering |
-| 0.2 | Architecture | Module dependency diagram, pattern identification | AI-Friendly Architecture, Reverse Engineering |
-| 0.3 | Documentation | Doc coverage matrix, staleness indicators | Documentation Structure, Changelog |
-| 0.4 | Code Review | Critical path audit, quality snapshot | Anti-Hallucination, Code Review Checklist |
-| 0.5 | Dependencies | Vulnerability report, outdated package list | Security, Check-in Standards |
-| 0.6 | Impact Scope | Risk matrix, change propagation map | Requirement Engineering |
+| 步驟 | 重點 | 主要產出 | 引用的 UDS 規範 |
+|------|------|----------|----------------|
+| 0.1 | 程式碼健康度 | 測試覆蓋率 %、lint 分數、程式碼異味數 | 測試標準、反向工程 |
+| 0.2 | 架構 | 模組依賴圖、架構模式識別 | AI 友善架構、反向工程 |
+| 0.3 | 文件 | 文件覆蓋矩陣、過期指標 | 文件結構、變更日誌 |
+| 0.4 | 程式碼審查 | 關鍵路徑稽核、品質快照 | 反幻覺、程式碼審查清單 |
+| 0.5 | 依賴 | 漏洞報告、過期套件清單 | 安全標準、簽入標準 |
+| 0.6 | 影響範圍 | 風險矩陣、變更傳播地圖 | 需求工程 |
 
-## Workflow Steps
+## 工作流程步驟
 
-### Step 0.1: Code Health Check
+### 步驟 0.1：程式碼健康度檢查
 
-**Goal**: Establish a baseline measurement of code quality.
+**目標**：建立程式碼品質的基準量測。
 
-**Actions**:
-1. Run existing test suite and record pass rate and coverage
-2. Run linter and count warnings/errors
-3. Identify code smells (long functions, deep nesting, duplicated logic)
-4. Check for dead code and unused exports
+**操作**：
+1. 執行現有測試套件並記錄通過率和覆蓋率
+2. 執行 linter 並統計警告/錯誤數
+3. 識別程式碼異味（過長函式、深層巢狀、重複邏輯）
+4. 檢查死碼和未使用的匯出
 
-**Output Format**:
+**輸出格式**：
 ```markdown
-## Code Health Summary
+## 程式碼健康度摘要
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| Test pass rate | 85/100 (85%) | ⚠️ Below target |
-| Test coverage | 42% | ❌ Low |
-| Lint errors | 23 | ⚠️ Needs attention |
-| Code smells | 7 major | ⚠️ Needs attention |
+| 指標 | 值 | 狀態 |
+|------|-----|------|
+| 測試通過率 | 85/100 (85%) | ⚠️ 低於目標 |
+| 測試覆蓋率 | 42% | ❌ 偏低 |
+| Lint 錯誤 | 23 | ⚠️ 需要關注 |
+| 程式碼異味 | 7 個主要 | ⚠️ 需要關注 |
 ```
 
-**Quality Gate**: If test pass rate < 70%, flag as high-risk before proceeding.
+**品質閘門**：若測試通過率 < 70%，標記為高風險後再繼續。
 
-**Referenced Standards**:
-- [Testing Standards](../../core/testing-standards.md)
-- [Reverse Engineering Standards](../../core/reverse-engineering-standards.md)
+**引用規範**：
+- [測試標準](../../core/testing-standards.md)
+- [反向工程標準](../../core/reverse-engineering-standards.md)
 
-### Step 0.2: Architecture Understanding
+### 步驟 0.2：架構理解
 
-**Goal**: Map the system structure and identify architectural patterns.
+**目標**：繪製系統結構並識別架構模式。
 
-**Actions**:
-1. Identify entry points (main files, API routes, event handlers)
-2. Map module/package dependencies
-3. Identify architectural pattern (MVC, DDD, microservices, monolith, etc.)
-4. Note any anti-patterns (circular dependencies, god modules)
-5. Assess AI-friendliness (clear boundaries, discoverable structure)
+**操作**：
+1. 識別進入點（主檔案、API 路由、事件處理器）
+2. 繪製模組/套件依賴關係
+3. 識別架構模式（MVC、DDD、微服務、單體式等）
+4. 標記反模式（循環依賴、神級模組）
+5. 評估 AI 友善度（清晰邊界、可發現性結構）
 
-**Output Format**:
+**輸出格式**：
 ```markdown
-## Architecture Overview
+## 架構概覽
 
-**Pattern**: [Confirmed] MVC with service layer
-**Entry Points**: src/index.ts, src/api/routes.ts
-**Module Count**: 24 modules across 6 packages
+**模式**: [Confirmed] MVC 含服務層
+**進入點**: src/index.ts, src/api/routes.ts
+**模組數**: 24 個模組橫跨 6 個套件
 
-### Dependency Map (simplified)
+### 依賴地圖（簡化版）
 routes → controllers → services → repositories → database
 
-### Concerns
-- [Confirmed] Circular dependency between UserService ↔ AuthService
-- [Inferred] Tight coupling in payment module
+### 問題
+- [Confirmed] UserService ↔ AuthService 之間存在循環依賴
+- [Inferred] 支付模組存在緊耦合
 ```
 
-**Quality Gate**: If no clear module boundaries exist, recommend architectural refactoring before feature work.
+**品質閘門**：若無清晰模組邊界，建議在功能開發前進行架構重構。
 
-**Referenced Standards**:
-- [AI-Friendly Architecture](../../core/ai-friendly-architecture.md)
-- [Reverse Engineering Standards](../../core/reverse-engineering-standards.md)
+**引用規範**：
+- [AI 友善架構](../../core/ai-friendly-architecture.md)
+- [反向工程標準](../../core/reverse-engineering-standards.md)
 
-### Step 0.3: Documentation Inventory
+### 步驟 0.3：文件盤點
 
-**Goal**: Assess documentation completeness and freshness.
+**目標**：評估文件完整性和新鮮度。
 
-**Actions**:
-1. Check for README, CONTRIBUTING, CHANGELOG
-2. Scan for architecture decision records (ADRs)
-3. Evaluate inline documentation (JSDoc, docstrings, comments)
-4. Check if docs match current code state
+**操作**：
+1. 檢查 README、CONTRIBUTING、CHANGELOG
+2. 掃描架構決策記錄（ADR）
+3. 評估內嵌文件（JSDoc、docstring、註解）
+4. 檢查文件是否與當前程式碼狀態一致
 
-**Output Format**:
+**輸出格式**：
 ```markdown
-## Documentation Inventory
+## 文件盤點
 
-| Document | Exists | Last Updated | Current |
-|----------|--------|-------------|---------|
-| README.md | ✅ | 2025-06-15 | ⚠️ Stale |
+| 文件 | 存在 | 最後更新 | 狀態 |
+|------|------|----------|------|
+| README.md | ✅ | 2025-06-15 | ⚠️ 過期 |
 | CHANGELOG.md | ❌ | — | — |
-| API docs | ✅ | 2025-09-01 | ✅ Current |
-| ADRs | ❌ | — | — |
-| Inline docs | ⚠️ Partial | — | — |
+| API 文件 | ✅ | 2025-09-01 | ✅ 最新 |
+| ADR | ❌ | — | — |
+| 內嵌文件 | ⚠️ 部分 | — | — |
 ```
 
-**Quality Gate**: If README is missing or severely outdated, recommend documentation update as prerequisite.
+**品質閘門**：若 README 遺失或嚴重過期，建議先更新文件。
 
-**Referenced Standards**:
-- [Documentation Structure](../../core/documentation-structure.md)
-- [Changelog Standards](../../core/changelog-standards.md)
+**引用規範**：
+- [文件結構](../../core/documentation-structure.md)
+- [變更日誌標準](../../core/changelog-standards.md)
 
-### Step 0.4: Code Review Snapshot
+### 步驟 0.4：程式碼審查快照
 
-**Goal**: Sample-audit critical code paths for quality and correctness.
+**目標**：對關鍵程式碼路徑進行抽樣品質稽核。
 
-**Actions**:
-1. Identify the 3-5 most critical code paths (auth, payment, data access, etc.)
-2. Review each path using the Code Review Checklist
-3. Apply Anti-Hallucination labels — only report what you have actually read
-4. Note any security concerns or error handling gaps
+**操作**：
+1. 識別 3-5 條最關鍵的程式碼路徑（認證、支付、資料存取等）
+2. 使用程式碼審查清單逐一檢視
+3. 套用反幻覺標籤 — 只報告你實際讀過的內容
+4. 標記任何安全疑慮或錯誤處理缺口
 
-**Output Format**:
+**輸出格式**：
 ```markdown
-## Code Review Snapshot
+## 程式碼審查快照
 
-### Critical Path: Authentication
-[Confirmed] Reviewed src/auth/login.ts, src/auth/middleware.ts
+### 關鍵路徑：認證
+[Confirmed] 已審查 src/auth/login.ts、src/auth/middleware.ts
 
-| Aspect | Rating | Notes |
-|--------|--------|-------|
-| Error handling | ⚠️ | Missing catch for token refresh failure |
-| Security | ✅ | bcrypt hashing, parameterized queries |
-| Readability | ✅ | Clear naming, reasonable function length |
+| 面向 | 評分 | 備註 |
+|------|------|------|
+| 錯誤處理 | ⚠️ | 缺少 token 更新失敗的 catch |
+| 安全性 | ✅ | bcrypt 雜湊、參數化查詢 |
+| 可讀性 | ✅ | 命名清晰、函式長度合理 |
 
-[Unknown] Token rotation policy — requires stakeholder input
+[Unknown] Token 輪換策略 — 需要利害關係人確認
 ```
 
-**Quality Gate**: Any ❌ security finding requires immediate attention before feature work.
+**品質閘門**：任何 ❌ 安全性發現必須在功能開發前立即處理。
 
-**Referenced Standards**:
-- [Anti-Hallucination Guidelines](../../core/anti-hallucination.md)
-- [Code Review Checklist](../../core/code-review-checklist.md)
+**引用規範**：
+- [反幻覺指南](../../core/anti-hallucination.md)
+- [程式碼審查清單](../../core/code-review-checklist.md)
 
-### Step 0.5: Dependency & Security Check
+### 步驟 0.5：依賴與安全檢查
 
-**Goal**: Identify vulnerable, outdated, or unnecessary dependencies.
+**目標**：識別有漏洞、過期或不必要的依賴。
 
-**Actions**:
-1. Run `npm audit` / `pip audit` / equivalent for the project's ecosystem
-2. List outdated packages with severity levels
-3. Check for known CVEs in dependencies
-4. Identify unused dependencies
+**操作**：
+1. 執行 `npm audit` / `pip audit` / 等效指令
+2. 列出過期套件及嚴重程度
+3. 檢查依賴中的已知 CVE
+4. 識別未使用的依賴
 
-**Output Format**:
+**輸出格式**：
 ```markdown
-## Dependency Report
+## 依賴報告
 
-| Category | Count | Severity |
-|----------|-------|----------|
-| Critical vulnerabilities | 1 | ❌ High |
-| High vulnerabilities | 3 | ⚠️ Medium |
-| Outdated (major) | 5 | ⚠️ |
-| Outdated (minor/patch) | 12 | ℹ️ |
-| Unused dependencies | 2 | ℹ️ |
+| 類別 | 數量 | 嚴重程度 |
+|------|------|----------|
+| 嚴重漏洞 | 1 | ❌ 高 |
+| 高風險漏洞 | 3 | ⚠️ 中 |
+| 過期（主要版本） | 5 | ⚠️ |
+| 過期（次要/修補） | 12 | ℹ️ |
+| 未使用依賴 | 2 | ℹ️ |
 ```
 
-**Quality Gate**: Any critical vulnerability must be patched before adding new features.
+**品質閘門**：任何嚴重漏洞必須在新增功能前修補。
 
-**Referenced Standards**:
-- [Security Standards](../../core/security-standards.md)
-- [Check-in Standards](../../core/checkin-standards.md)
+**引用規範**：
+- [安全標準](../../../../core/security-standards.md)
+- [簽入標準](../../core/checkin-standards.md)
 
-### Step 0.6: Impact Scope Analysis
+### 步驟 0.6：影響範圍分析
 
-**Goal**: Map how proposed changes would propagate through the system.
+**目標**：繪製提議變更在系統中的傳播方式並評估風險。
 
-**Actions**:
-1. Identify the feature area(s) to be modified
-2. Trace direct and transitive dependencies
-3. Assess blast radius (how many modules touched)
-4. Build a risk matrix (likelihood vs. impact)
+**操作**：
+1. 識別要修改的功能區域
+2. 追蹤直接和間接依賴
+3. 評估爆炸半徑（影響多少模組）
+4. 建構風險矩陣（可能性 vs. 影響）
 
-**Output Format**:
+**輸出格式**：
 ```markdown
-## Impact Analysis
+## 影響分析
 
-### Change Target: User profile module
+### 變更目標：使用者個人資料模組
 
-**Blast Radius**: 6 modules directly affected, 3 transitively
+**爆炸半徑**: 6 個模組直接受影響，3 個間接受影響
 
-### Risk Matrix
+### 風險矩陣
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| Break auth flow | Medium | High | Add integration tests |
-| Payment regression | Low | Critical | Manual QA before deploy |
-| API contract change | High | Medium | Version API endpoint |
+| 風險 | 可能性 | 影響 | 緩解措施 |
+|------|--------|------|----------|
+| 認證流程中斷 | 中 | 高 | 新增整合測試 |
+| 支付迴歸 | 低 | 嚴重 | 部署前手動 QA |
+| API 契約變更 | 高 | 中 | 為 API 端點加版本號 |
 ```
 
-**Quality Gate**: If blast radius exceeds 30% of total modules, recommend incremental approach.
+**品質閘門**：若爆炸半徑超過模組總數的 30%，建議採用漸進式方法。
 
-**Referenced Standards**:
-- [Requirement Engineering](../../core/requirement-engineering.md)
+**引用規範**：
+- [需求工程](../../../../core/requirement-engineering.md)
 
-## Discovery Report Template
+## 現況評估報告範本
 
-After completing all 6 steps, synthesize findings into a Discovery Report:
+完成全部 6 個步驟後，將發現彙整為現況評估報告：
 
 ```markdown
-# Discovery Report: [Project Name]
+# 現況評估報告：[專案名稱]
 
-**Date**: YYYY-MM-DD
-**Assessed by**: [AI / Human]
+**日期**: YYYY-MM-DD
+**評估者**: [AI / 人類]
 
-## Executive Summary
-[1-2 sentences: overall project health and readiness]
+## 執行摘要
+[1-2 句：整體專案健康度與準備程度]
 
-## Verdict: [GO / NO-GO / CONDITIONAL]
+## 判定：[通過 / 不通過 / 有條件通過]
 
-## Key Findings
+## 關鍵發現
 1. ...
 2. ...
 3. ...
 
-## Blockers (if any)
+## 阻塞項目（如有）
 - ...
 
-## Recommendations
+## 建議
 1. ...
 2. ...
 
-## Next Steps
-- [ ] /reverse (if legacy code needs SDD specs)
-- [ ] /sdd (for new feature specification)
-- [ ] Address blockers listed above
+## 後續步驟
+- [ ] /reverse（若舊程式碼需要 SDD 規格）
+- [ ] /sdd（為新功能撰寫規格）
+- [ ] 處理上述阻塞項目
 ```
 
-## Integration with Other Skills
+## 與其他技能的整合
 
-### With /reverse (Reverse Engineering)
+### 搭配 /reverse（反向工程）
 
-Use `/reverse` after discovery when:
-- Architecture is poorly documented
-- You need formal SDD specs for existing modules
-- Legacy code needs structured analysis before changes
+在以下情況下於現況評估後使用 `/reverse`：
+- 架構缺乏文件記錄
+- 需要為既有模組建立正式的 SDD 規格
+- 舊有程式碼需要結構化分析才能進行變更
 
-### With /sdd (Spec-Driven Development)
+### 搭配 /sdd（規格驅動開發）
 
-Use `/sdd` after discovery to:
-- Write specifications for new features informed by discovery findings
-- Reference the Discovery Report for risk assessment sections
+在現況評估後使用 `/sdd`：
+- 根據現況評估發現撰寫新功能規格
+- 在風險評估區段引用現況評估報告
 
-### With /review (Code Review)
+### 搭配 /review（程式碼審查）
 
-The Step 0.4 snapshot is a lightweight version of `/review`. Use full `/review` when:
-- Discovery finds significant quality concerns
-- A deeper audit is needed before planning changes
+步驟 0.4 的快照是 `/review` 的輕量版。在以下情況使用完整的 `/review`：
+- 現況評估發現重大品質疑慮
+- 規劃變更前需要更深入的稽核
 
-## Anti-Patterns to Avoid
+## 應避免的反模式
 
-### What NOT to Do
+### 不應該做的事
 
-1. **Skipping Discovery**
-   - Wrong: Jump straight into coding on an unfamiliar codebase
-   - Right: Run `/discover` first to understand what you're working with
+1. **跳過現況評估**
+   - 錯誤：直接在不熟悉的程式碼上開始編碼
+   - 正確：先執行 `/discover` 了解你正在處理的內容
 
-2. **Fabricating Metrics**
-   - Wrong: "Test coverage is probably around 60%"
-   - Right: "[Unknown] Test coverage — need to run test suite to measure"
+2. **捏造指標**
+   - 錯誤：「測試覆蓋率大概在 60% 左右」
+   - 正確：「[Unknown] 測試覆蓋率 — 需要執行測試套件才能量測」
 
-3. **Incomplete Assessment**
-   - Wrong: Only check code health, skip dependencies
-   - Right: Complete all 6 steps for a reliable picture
+3. **不完整的評估**
+   - 錯誤：只檢查程式碼健康度，跳過依賴
+   - 正確：完成全部 6 個步驟以獲得可靠的全貌
 
-4. **Ignoring Quality Gates**
-   - Wrong: Proceed despite critical vulnerabilities
-   - Right: Address blockers before adding complexity
+4. **忽視品質閘門**
+   - 錯誤：無視嚴重漏洞繼續進行
+   - 正確：在增加複雜度前先處理阻塞項目
 
-## Best Practices
+## 最佳實踐
 
-- Read all relevant code before making claims (Anti-Hallucination)
-- Use certainty labels: `[Confirmed]`, `[Inferred]`, `[Unknown]`
-- Include source citations with file:line references
-- Clearly separate facts from recommendations
-- Tailor depth to project size (small project = lighter assessment)
-
----
-
-## Related Standards
-
-- [Reverse Engineering Standards](../../core/reverse-engineering-standards.md) — Deep code analysis methodology
-- [Testing Standards](../../core/testing-standards.md) — Test coverage benchmarks
-- [Security Standards](../../core/security-standards.md) — Vulnerability assessment
-- [AI-Friendly Architecture](../../core/ai-friendly-architecture.md) — Architecture assessment criteria
-- [Documentation Structure](../../core/documentation-structure.md) — Documentation completeness
-- [Changelog Standards](../../core/changelog-standards.md) — Change tracking
-- [Anti-Hallucination Guidelines](../../core/anti-hallucination.md) — Evidence-based analysis
-- [Code Review Checklist](../../core/code-review-checklist.md) — Review methodology
-- [Check-in Standards](../../core/checkin-standards.md) — Quality gates
-- [Requirement Engineering](../../core/requirement-engineering.md) — Impact analysis
+- 在做出聲明前先閱讀所有相關程式碼（反幻覺）
+- 使用確定性標籤：`[Confirmed]`、`[Inferred]`、`[Unknown]`
+- 包含來源引用及 file:line 參考
+- 清楚區分事實與建議
+- 根據專案規模調整深度（小型專案 = 輕量評估）
 
 ---
 
-## Version History
+## 相關規範
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-02-09 | Initial release |
+- [反向工程標準](../../core/reverse-engineering-standards.md) — 深度程式碼分析方法論
+- [測試標準](../../core/testing-standards.md) — 測試覆蓋率基準
+- [安全標準](../../../../core/security-standards.md) — 漏洞評估
+- [AI 友善架構](../../core/ai-friendly-architecture.md) — 架構評估標準
+- [文件結構](../../core/documentation-structure.md) — 文件完整性
+- [變更日誌標準](../../core/changelog-standards.md) — 變更追蹤
+- [反幻覺指南](../../core/anti-hallucination.md) — 證據導向分析
+- [程式碼審查清單](../../core/code-review-checklist.md) — 審查方法論
+- [簽入標準](../../core/checkin-standards.md) — 品質閘門
+- [需求工程](../../../../core/requirement-engineering.md) — 影響分析
 
 ---
 
-## License
+## 版本歷史
 
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-02-09 | 初始發布 |
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## 授權
+
+此技能採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權。
+
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

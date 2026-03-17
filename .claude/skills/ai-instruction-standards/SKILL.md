@@ -1,33 +1,38 @@
 ---
+source: ../../../../skills/ai-instruction-standards/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-05
+status: current
 scope: partial
 description: |
-  Create and maintain AI instruction files (CLAUDE.md, .cursorrules, etc.) with proper structure.
-  Use when: creating AI instruction files, separating universal vs project-specific rules, configuring AI tools.
-  Keywords: CLAUDE.md, cursorrules, windsurfrules, clinerules, AI instructions, system prompt, 指令檔案, AI 設定.
+  建立和維護 AI 指令檔案（CLAUDE.md、.cursorrules 等）並採用適當結構。
+  使用時機：建立 AI 指令檔案、區分通用與專案特定規則、配置 AI 工具。
+  關鍵字：CLAUDE.md, cursorrules, windsurfrules, clinerules, AI instructions, system prompt, 指令檔案, AI 設定.
 ---
 
-# AI Instruction File Standards Guide
+# AI 指令檔案標準指南
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/ai-instruction-standards/SKILL.md)
+> **語言**: [English](../../../../skills/ai-instruction-standards/SKILL.md) | 繁體中文
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-25
-**Applicability**: Claude Code Skills
+**版本**: 1.0.0
+**最後更新**: 2026-01-25
+**適用範圍**: Claude Code Skills
 
 ---
 
-> **Core Standard**: This skill implements [AI Instruction File Standards](../../core/ai-instruction-standards.md). For comprehensive methodology documentation, refer to the core standard.
+> **核心標準**: 本技能實作 [AI 指令檔案標準](../../core/ai-instruction-standards.md)。完整方法論文件請參閱核心標準。
 
-## Purpose
+## 目的
 
-This skill helps create and maintain AI instruction files with proper separation between universal standards and project-specific configurations.
+本技能協助建立和維護 AI 指令檔案，適當區分通用標準與專案特定配置。
 
-## Quick Reference
+## 快速參考
 
-### Supported AI Tools
+### 支援的 AI 工具
 
-| AI Tool | Instruction File | Format |
-|---------|-----------------|--------|
+| AI 工具 | 指令檔案 | 格式 |
+|---------|----------|------|
 | Claude Code | `CLAUDE.md` | Markdown |
 | Cursor | `.cursorrules` | Markdown |
 | Windsurf | `.windsurfrules` | Markdown |
@@ -35,175 +40,175 @@ This skill helps create and maintain AI instruction files with proper separation
 | GitHub Copilot | `.github/copilot-instructions.md` | Markdown |
 | OpenCode | `.opencode/instructions.md` | Markdown |
 
-### Core Principle: Universal vs Project-Specific
+### 核心原則：通用 vs 專案特定
 
-| Type | Contains | Example |
-|------|----------|---------|
-| **Universal** | Generic rules | "Run tests before committing" |
-| **Project-Specific** | Concrete commands | "Run `npm test` before committing" |
+| 類型 | 包含內容 | 範例 |
+|------|----------|------|
+| **通用** | 通用規則 | 「提交前執行測試」 |
+| **專案特定** | 具體命令 | 「提交前執行 `npm test`」 |
 
-### Recommended Layout
+### 建議配置
 
 ```markdown
-# [Project Name] - AI Instructions
+# [專案名稱] - AI 指令
 
-## Universal Standards
-<!-- Rules applicable to ANY project -->
-- Commit message format
-- Code review checklist
-- Testing standards
-- Anti-hallucination rules
+## 通用標準
+<!-- 適用於任何專案的規則 -->
+- Commit 訊息格式
+- 程式碼審查清單
+- 測試標準
+- 反幻覺規則
 
 ---
 
-## Project-Specific Configuration
-<!-- Unique to THIS project -->
+## 專案特定配置
+<!-- 此專案獨有的設定 -->
 
-### Tech Stack
-[Your technologies here]
+### 技術棧
+[你的技術在此]
 
-### Quick Commands
-[Your build/test/deploy commands]
+### 快速命令
+[你的建置/測試/部署命令]
 
-### File Structure
-[Your project structure]
+### 檔案結構
+[你的專案結構]
 ```
 
-## Detailed Guidelines
+## 詳細指南
 
-For complete standards, see:
-- [AI Instruction File Standards](../../core/ai-instruction-standards.md)
+完整標準請參閱：
+- [AI 指令檔案標準](../../core/ai-instruction-standards.md)
 
-### AI-Optimized Format (Token-Efficient)
+### AI 優化格式（Token 效率）
 
-For AI assistants, use the YAML format file for reduced token usage:
-- Base standard: `ai/standards/ai-instruction-standards.ai.yaml`
+AI 助手可使用 YAML 格式檔案以減少 Token 使用：
+- 基礎標準：`ai/standards/ai-instruction-standards.ai.yaml`
 
-## Content Guidelines
+## 內容指南
 
-### Universal Content (Keep Generic)
+### 通用內容（保持通用）
 
-| Category | Good Examples |
-|----------|---------------|
-| **Commit Standards** | "Follow Conventional Commits format" |
-| **Code Review** | "Use BLOCKING, IMPORTANT, SUGGESTION prefixes" |
-| **Testing** | "Maintain 80% coverage minimum" |
-| **AI Behavior** | "Always read code before analyzing" |
+| 類別 | 良好範例 |
+|------|----------|
+| **提交標準** | 「遵循 Conventional Commits 格式」 |
+| **程式碼審查** | 「使用 BLOCKING、IMPORTANT、SUGGESTION 前綴」 |
+| **測試** | 「維持最低 80% 覆蓋率」 |
+| **AI 行為** | 「分析前務必先讀取程式碼」 |
 
-**Avoid in Universal Sections:**
-- Specific commands (`npm test`, `pytest`)
-- Hardcoded paths (`cli/src/`, `/var/www/`)
-- Version numbers (`Node.js 18`, `Python 3.11`)
-- Project names and URLs
+**通用區段應避免：**
+- 特定命令（`npm test`、`pytest`）
+- 固定路徑（`cli/src/`、`/var/www/`）
+- 版本號（`Node.js 18`、`Python 3.11`）
+- 專案名稱和 URL
 
-### Project-Specific Content
+### 專案特定內容
 
-| Category | Examples |
-|----------|----------|
-| **Tech Stack** | Node.js 18, React 18, PostgreSQL 15 |
-| **Commands** | `npm run lint`, `./scripts/deploy.sh` |
-| **File Structure** | `src/`, `cli/`, `tests/` |
-| **Team Conventions** | Traditional Chinese comments |
+| 類別 | 範例 |
+|------|------|
+| **技術棧** | Node.js 18、React 18、PostgreSQL 15 |
+| **命令** | `npm run lint`、`./scripts/deploy.sh` |
+| **檔案結構** | `src/`、`cli/`、`tests/` |
+| **團隊慣例** | 繁體中文註解 |
 
-## Labeling Convention
+## 標籤慣例
 
-### Option A: Section Headers
+### 選項 A：區段標題
 
 ```markdown
-## Universal Standards
-[universal content]
+## 通用標準
+[通用內容]
 
-## Project-Specific Configuration
-[project-specific content]
+## 專案特定配置
+[專案特定內容]
 ```
 
-### Option B: Inline Markers
+### 選項 B：行內標記
 
 ```markdown
-> ⚠️ **Project-Specific**: This section contains configuration unique to this project.
+> ⚠️ **專案特定**：本區段包含此專案獨有的配置。
 
-### Tech Stack
+### 技術棧
 ...
 ```
 
-### Option C: Comment Annotations
+### 選項 C：註解標註
 
 ```markdown
-<!-- UNIVERSAL: The following applies to all projects -->
-### Commit Message Format
+<!-- 通用：以下適用於所有專案 -->
+### Commit 訊息格式
 ...
 
-<!-- PROJECT-SPECIFIC: Customize for your project -->
-### Quick Commands
+<!-- 專案特定：為你的專案自訂 -->
+### 快速命令
 ...
 ```
 
-## Multi-Tool Configuration
+## 多工具配置
 
-When using multiple AI tools, maintain consistency:
+使用多個 AI 工具時，保持一致性：
 
 ```
 project/
-├── CLAUDE.md              # Claude Code instructions
-├── .cursorrules           # Cursor instructions (can import from CLAUDE.md)
-├── .windsurfrules         # Windsurf instructions
+├── CLAUDE.md              # Claude Code 指令
+├── .cursorrules           # Cursor 指令（可從 CLAUDE.md 匯入）
+├── .windsurfrules         # Windsurf 指令
 └── .github/
-    └── copilot-instructions.md  # Copilot instructions
+    └── copilot-instructions.md  # Copilot 指令
 ```
 
-**Best Practice**: Create a shared `docs/ai-standards.md` and reference it from each tool's file to avoid duplication.
+**最佳實踐**：建立共用的 `docs/ai-standards.md` 並從各工具檔案引用，避免重複。
 
-## Maintenance Checklist
+## 維護檢查清單
 
-Before committing changes to AI instruction files:
+提交 AI 指令檔案變更前：
 
-- [ ] Universal sections contain no project-specific paths, commands, or versions
-- [ ] Project-specific sections are clearly marked
-- [ ] Cross-references to standards documents are correct
-- [ ] Format matches existing sections
-
----
-
-## Configuration Detection
-
-This skill supports project-specific configuration.
-
-### Detection Order
-
-1. Check for existing `CLAUDE.md` or equivalent files
-2. Analyze content structure for universal/project-specific separation
-3. If not found, **suggest creating structured AI instruction file**
-
-### First-Time Setup
-
-If no AI instruction file found:
-
-1. Ask: "This project doesn't have an AI instruction file. Would you like to create one?"
-2. Determine project type and tech stack
-3. Generate template with appropriate sections
-4. Add to `.gitignore` if contains sensitive info
+- [ ] 通用區段不包含專案特定的路徑、命令或版本
+- [ ] 專案特定區段有明確標記
+- [ ] 標準文件的交叉引用正確
+- [ ] 格式與現有區段一致
 
 ---
 
-## Related Standards
+## 配置偵測
 
-- [AI Instruction File Standards](../../core/ai-instruction-standards.md) - Core standard
-- [Documentation Writing Standards](../../core/documentation-writing-standards.md) - Writing guidelines
-- [Anti-Hallucination Guidelines](../../core/anti-hallucination.md) - AI accuracy rules
-- [AI-Friendly Architecture](../../core/ai-friendly-architecture.md) - Context optimization
+本技能支援專案特定配置。
+
+### 偵測順序
+
+1. 檢查是否存在 `CLAUDE.md` 或等效檔案
+2. 分析內容結構是否區分通用/專案特定
+3. 若未找到，**建議建立結構化 AI 指令檔案**
+
+### 首次設定
+
+若未找到 AI 指令檔案：
+
+1. 詢問：「此專案沒有 AI 指令檔案。是否要建立一個？」
+2. 確定專案類型和技術棧
+3. 產生包含適當區段的範本
+4. 若包含敏感資訊，新增到 `.gitignore`
 
 ---
 
-## Version History
+## 相關標準
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-01-25 | Initial release |
+- [AI 指令檔案標準](../../core/ai-instruction-standards.md) - 核心標準
+- [文件撰寫標準](../../core/documentation-writing-standards.md) - 撰寫指南
+- [反幻覺規範](../../core/anti-hallucination.md) - AI 準確性規則
+- [AI 友善架構](../../core/ai-friendly-architecture.md) - 上下文優化
 
 ---
 
-## License
+## 版本歷史
 
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-01-25 | 初始發布 |
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## 授權
+
+本技能以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

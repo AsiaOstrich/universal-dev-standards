@@ -1,27 +1,35 @@
 ---
+source: ../../../../skills/docs-generator/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-10
+status: current
+description: |
+  從專案原始檔案產生使用文件（速查表、參考手冊、使用指南）。
+  使用時機：產生文件、建立速查表、產生參考手冊。
+  關鍵字：docgen, documentation, cheatsheet, reference, 文件產生, 速查表, 參考手冊。
 name: docgen
-scope: uds-specific
-description: "[UDS] Generate usage documentation from project sources"
 allowed-tools: Read, Write, Grep, Glob, Bash(*)
+scope: uds-specific
 argument-hint: "[config file | 設定檔]"
 disable-model-invocation: true
 ---
 
-# Documentation Generator | 文件產生器
+# 文件產生器
 
-Generate usage documentation (cheatsheets, references, guides) from project source files.
+> **語言**: [English](../../../../skills/docs-generator/SKILL.md) | 繁體中文
 
 從專案原始檔案產生使用文件（速查表、參考手冊、使用指南）。
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Read config** - Load `.usage-docs.yaml` (or specified config file)
-2. **Scan sources** - Read source files, commands, and skill definitions
-3. **Extract content** - Parse descriptions, options, examples from source
-4. **Generate docs** - Produce output in the configured format
-5. **Write output** - Save generated files to the configured output directory
+1. **讀取設定** - 載入 `.usage-docs.yaml`（或指定的設定檔）
+2. **掃描來源** - 讀取原始碼檔案、命令和技能定義
+3. **提取內容** - 從原始碼解析描述、選項、範例
+4. **產生文件** - 以設定的格式產生輸出
+5. **寫入輸出** - 將產生的檔案儲存到設定的輸出目錄
 
-## Config File Format | 設定檔格式
+## 設定檔格式
 
 ```yaml
 # .usage-docs.yaml
@@ -37,33 +45,29 @@ sources:
 language: [en, zh-TW]
 ```
 
-## Output Types | 輸出類型
+## 輸出類型
 
-| Type | Description | 說明 |
-|------|-------------|------|
-| **cheatsheet** | Quick reference card with commands and shortcuts | 速查表，列出命令與快捷方式 |
-| **reference** | Comprehensive feature reference with all options | 完整功能參考手冊含所有選項 |
-| **usage-guide** | Step-by-step usage guide for new users | 新手入門的逐步使用指南 |
+| 類型 | 說明 |
+|------|------|
+| **cheatsheet** | 速查表，包含命令和快捷鍵 |
+| **reference** | 完整功能參考手冊，包含所有選項 |
+| **usage-guide** | 新手入門使用指南 |
 
-## Usage | 使用方式
+## 使用方式
 
-- `/docgen` - Generate docs using default `.usage-docs.yaml`
-- `/docgen .usage-docs.yaml` - Generate docs from specified config file
-- `/docgen --format cheatsheet` - Generate cheatsheet only
+- `/docgen` - 使用預設的 `.usage-docs.yaml` 產生文件
+- `/docgen .usage-docs.yaml` - 從指定的設定檔產生文件
+- `/docgen --format cheatsheet` - 僅產生速查表
 
-## Generated Output Example | 產生範例
+## 下一步引導
 
-```markdown
-# UDS Command Cheatsheet
+`/docgen` 完成後，AI 助手應建議：
 
-| Command    | Description               |
-|------------|---------------------------|
-| /commit    | Generate commit message    |
-| /review    | Run code review            |
-| /sdd       | Create SDD specification   |
-| /discover  | Assess project health      |
-```
+> **文件已產生。建議下一步：**
+> - 審查產生的文件內容是否完整
+> - 執行 `/commit` 提交文件變更
+> - 執行 `/review` 審查文件品質
 
-## Reference | 參考
+## 參考
 
-- Detailed guide: [guide.md](./guide.md)
+- 詳細指南：[guide.md](./guide.md)

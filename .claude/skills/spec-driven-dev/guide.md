@@ -1,115 +1,107 @@
 ---
-scope: universal
 description: |
-  Guide Spec-Driven Development (SDD) workflow for planning changes before implementation.
-  Use when: creating specs, proposals, planning features, using OpenSpec or similar tools.
-  Keywords: spec, specification, SDD, proposal, openspec, design doc, 規格, 提案, 設計文件.
+  引導規格驅動開發 (SDD) 工作流程，在實作前規劃變更。
+  使用時機：建立規格、提案、規劃功能、使用 OpenSpec 或類似工具。
+  關鍵字：spec, specification, SDD, proposal, openspec, design doc, 規格, 提案, 設計文件。
+source: ../../../../skills/spec-driven-dev/SKILL.md
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-25
+status: current
 ---
 
-# Spec-Driven Development Guide
+# 規格驅動開發指南
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/spec-driven-dev/SKILL.md)
+> **語言**: [English](../../../../skills/spec-driven-dev/SKILL.md) | 繁體中文
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-26
-**Applicability**: Claude Code Skills
+**版本**: 1.0.0
+**最後更新**: 2025-12-30
+**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose
+## 目的
 
-This skill guides you through Spec-Driven Development (SDD), ensuring changes are planned, documented, and approved before implementation.
+此技能引導您完成規格驅動開發 (SDD)，確保變更在實作前經過規劃、記錄和批准。
 
-## Quick Reference
+## 快速參考
 
-### SDD Workflow
+### SDD 工作流程
 
 ```
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   Proposal   │───▶│    Review    │───▶│Implementation│
+│     提案     │───▶│     審查     │───▶│     實作     │
 └──────────────┘    └──────────────┘    └──────────────┘
                                                │
                                                ▼
                     ┌──────────────┐    ┌──────────────┐
-                    │   Archive    │◀───│ Verification │
+                    │     封存     │◀───│     驗證     │
                     └──────────────┘    └──────────────┘
 ```
 
-### Workflow Stages
+### 工作流程階段
 
-| Stage | Description | Output |
-|-------|-------------|--------|
-| **Proposal** | Define what to change and why | `proposal.md` |
-| **Review** | Stakeholder approval | Approval record |
-| **Implementation** | Execute approved spec | Code, tests, docs |
-| **Verification** | Confirm implementation matches spec | Test results |
-| **Archive** | Close and archive | Archived spec with links |
+| 階段 | 說明 | 產出 |
+|------|------|------|
+| **提案** | 定義變更內容與原因 | `proposal.md` |
+| **審查** | 利害關係人批准 | 批准記錄 |
+| **實作** | 執行已批准的規格 | 程式碼、測試、文件 |
+| **驗證** | 確認實作符合規格 | 測試結果 |
+| **封存** | 關閉並封存 | 封存的規格及連結 |
 
-### Core Principles
+### 核心原則
 
-| Principle | Description |
-|-----------|-------------|
-| **Evaluate First** | Assess scope and sync needs before creating spec |
-| **Spec First** | No functional changes without approved spec |
-| **Tool Priority** | Use SDD tool commands when available |
-| **Methodology > Tooling** | SDD works with any tool or manual process |
-| **Bidirectional Sync** | Changes propagate to all related artifacts |
+| 原則 | 說明 |
+|------|------|
+| **規格優先** | 沒有批准的規格就不能進行功能變更 |
+| **工具優先** | 有 SDD 工具時優先使用工具指令 |
+| **方法論 > 工具** | SDD 可搭配任何工具或手動流程運作 |
 
-### Pre-Spec Evaluation
+### 「規格優先」的例外情況
 
-Before creating a specification, answer these questions:
+- 緊急修復（先恢復服務，之後再補文件）
+- 瑣碎變更（錯字、註解、格式調整）
 
-| Question | Options | Result |
-|----------|---------|--------|
-| **Scope?** | Project-specific / Universal | Determines if Core Standard needed |
-| **Interactive?** | Yes / No | Determines if Skill needed |
-| **User-triggered?** | Yes / No | Determines if Command needed |
-
-### Exceptions to "Spec First"
-
-- Critical hotfixes (restore service immediately, document later)
-- Trivial changes (typos, comments, formatting)
-
-## Proposal Template
+## 提案範本
 
 ```markdown
-# [SPEC-ID] Feature Title
+# [SPEC-ID] 功能標題
 
-## Summary
-Brief description of the proposed change.
+## 摘要
+簡要描述提案的變更。
 
-## Motivation
-Why is this change needed? What problem does it solve?
+## 動機
+為什麼需要這個變更？解決什麼問題？
 
-## Detailed Design
-Technical approach, affected components, data flow.
+## 詳細設計
+技術方案、受影響的元件、資料流程。
 
-## Acceptance Criteria
-- [ ] Criterion 1
-- [ ] Criterion 2
+## 驗收標準
+- [ ] 標準 1
+- [ ] 標準 2
 
-## Dependencies
-List any dependencies on other specs or external systems.
+## 相依性
+列出對其他規格或外部系統的相依性。
 
-## Risks
-Potential risks and mitigation strategies.
+## 風險
+潛在風險及緩解策略。
 ```
 
-## Detailed Guidelines
+## 詳細指南
 
-For complete standards, see:
-- [Spec-Driven Development Standards](../../core/spec-driven-development.md)
+完整標準請參考：
+- [規格驅動開發標準](../../core/spec-driven-development.md)
 
-### AI-Optimized Format (Token-Efficient)
+### AI 優化格式（節省 Token）
 
-For AI assistants, use the YAML format files for reduced token usage:
-- Base standard: `ai/standards/spec-driven-development.ai.yaml`
+AI 助手可使用 YAML 格式檔案以減少 Token 使用量：
+- 基礎標準：`ai/standards/spec-driven-development.ai.yaml`
 
-## Integration with Other Standards
+## 與其他標準的整合
 
-### With Commit Messages
+### 與提交訊息整合
 
-Reference spec ID in commit messages:
+在提交訊息中引用規格 ID：
 
 ```
 feat(auth): implement login feature
@@ -119,162 +111,132 @@ Implements SPEC-001 login functionality with OAuth2 support.
 Refs: SPEC-001
 ```
 
-### With Check-in Standards
+### 與 Check-in 標準整合
 
-Before checking in code for a spec:
+為規格提交程式碼前：
 
-- [ ] Spec is approved
-- [ ] Implementation matches spec
-- [ ] Tests cover acceptance criteria
-- [ ] Spec ID referenced in PR
+- [ ] 規格已批准
+- [ ] 實作符合規格
+- [ ] 測試涵蓋驗收標準
+- [ ] PR 中引用規格 ID
 
-### With Code Review
+### 與程式碼審查整合
 
-Reviewers should verify:
+審查者應驗證：
 
-- [ ] Change matches approved spec
-- [ ] No scope creep beyond spec
-- [ ] Spec acceptance criteria met
+- [ ] 變更符合已批准的規格
+- [ ] 沒有超出規格的範圍擴張
+- [ ] 規格驗收標準已達成
 
-## Examples
+## 範例
 
-### ✅ Good Practices
-
-```markdown
-# SPEC-001 Add OAuth2 Login
-
-## Summary
-Add Google OAuth2 login to allow users to sign in with their Google accounts.
-
-## Motivation
-- Reduce friction for new users
-- Improve security by not storing passwords
-
-## Acceptance Criteria
-- [ ] Users can click "Sign in with Google" button
-- [ ] New users are automatically registered
-- [ ] Existing users are linked to Google account
-```
-
-### ❌ Bad Practices
+### ✅ 良好做法
 
 ```markdown
-# Add login
+# SPEC-001 新增 OAuth2 登入
 
-Adding login.
+## 摘要
+新增 Google OAuth2 登入，讓使用者可以用 Google 帳號登入。
+
+## 動機
+- 減少新使用者註冊的摩擦
+- 不儲存密碼以提升安全性
+
+## 驗收標準
+- [ ] 使用者可以點擊「使用 Google 登入」按鈕
+- [ ] 新使用者自動註冊
+- [ ] 現有使用者可連結 Google 帳號
 ```
-- Missing spec ID
-- No motivation
-- No acceptance criteria
 
-## Common SDD Tools
-
-| Tool | Description | Command Examples |
-|------|-------------|------------------|
-| **OpenSpec** | Specification management | `/openspec proposal`, `/openspec approve` |
-| **Spec Kit** | Lightweight spec tracking | `/spec create`, `/spec close` |
-| **Manual** | No tool, file-based | Create `specs/SPEC-XXX.md` manually |
-
-## Sync Verification
-
-After completing a spec, verify synchronization:
-
-### Sync Checklist
+### ❌ 不良做法
 
 ```markdown
-## Sync Status
+# 新增登入
 
-### Scope: [Universal|Project|Utility]
-
-- [ ] Core Standard: [Created|Updated|N/A]
-- [ ] Skill: [Created|Updated|N/A]
-- [ ] Command: [Created|Updated|N/A]
-- [ ] Translations: [Synced|Pending|N/A]
+新增登入功能。
 ```
+- 缺少規格 ID
+- 沒有動機說明
+- 沒有驗收標準
 
-### Sync Matrix
+## 常見 SDD 工具
 
-| Change Origin | Sync To |
-|---------------|---------|
-| Core Standard | → Skills, Commands, Translations |
-| Skill | → Core Standard, Commands, Translations |
-| Command | → Skill, Translations |
+| 工具 | 說明 | 指令範例 |
+|------|------|----------|
+| **OpenSpec** | 規格管理 | `/openspec proposal`, `/openspec approve` |
+| **Spec Kit** | 輕量規格追蹤 | `/spec create`, `/spec close` |
+| **手動** | 無工具，檔案式 | 手動建立 `specs/SPEC-XXX.md` |
 
-## Best Practices
+## 最佳實踐
 
-### Do's
+### 建議做法
 
-- ✅ Evaluate scope before creating spec
-- ✅ Keep specs focused and atomic (one change per spec)
-- ✅ Include clear acceptance criteria
-- ✅ Link specs to implementation PRs
-- ✅ Archive specs after completion
-- ✅ Verify sync status before closing
+- ✅ 保持規格專注且原子化（一個規格一個變更）
+- ✅ 包含清晰的驗收標準
+- ✅ 將規格連結到實作 PR
+- ✅ 完成後封存規格
 
-### Don'ts
+### 避免做法
 
-- ❌ Start coding before spec approval
-- ❌ Skip scope evaluation
-- ❌ Modify scope during implementation without updating spec
-- ❌ Leave specs in limbo (always close or archive)
-- ❌ Skip verification step
-- ❌ Forget to sync related artifacts
+- ❌ 在規格批准前開始寫程式
+- ❌ 實作期間修改範圍但不更新規格
+- ❌ 讓規格處於懸置狀態（務必關閉或封存）
+- ❌ 跳過驗證步驟
 
 ---
 
-## Configuration Detection
+## 設定偵測
 
-This skill supports project-specific configuration.
+此技能支援專案特定設定。
 
-### Detection Order
+### 偵測順序
 
-1. Check for SDD tool in workspace (OpenSpec, Spec Kit, etc.)
-2. Check `CONTRIBUTING.md` for spec workflow documentation
-3. If not found, **default to manual file-based workflow**
+1. 檢查工作區是否有 SDD 工具（OpenSpec、Spec Kit 等）
+2. 檢查 `CONTRIBUTING.md` 中的規格工作流程文件
+3. 若無找到，**預設使用手動檔案式工作流程**
 
-### First-Time Setup
+### 首次設定
 
-If no configuration found:
+若未找到設定：
 
-1. Ask the user: "This project hasn't configured SDD. Would you like to set up a specs directory?"
-2. Suggest documenting in `CONTRIBUTING.md`:
+1. 詢問使用者：「此專案尚未設定 SDD。您要設定 specs 目錄嗎？」
+2. 建議在 `CONTRIBUTING.md` 中記錄：
 
 ```markdown
-## Spec-Driven Development
+## 規格驅動開發
 
-We use Spec-Driven Development for all non-trivial changes.
+我們對所有非瑣碎的變更使用規格驅動開發。
 
-### Process
-1. Create proposal in `specs/` directory
-2. Get approval from team lead
-3. Implement and reference spec in PR
-4. Archive spec after merge
+### 流程
+1. 在 `specs/` 目錄建立提案
+2. 取得團隊負責人批准
+3. 實作並在 PR 中引用規格
+4. 合併後封存規格
 
-### Spec Template
-See `specs/TEMPLATE.md`
+### 規格範本
+請參考 `specs/TEMPLATE.md`
 ```
 
 ---
 
-## Related Standards
+## 相關標準
 
-- [Spec-Driven Development Standards](../../core/spec-driven-development.md)
-- [Commit Message Guide](../../core/commit-message-guide.md)
-- [Code Review Checklist](../../core/code-review-checklist.md)
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.1.0 | 2026-01-26 | Added: Pre-Spec Evaluation, Sync Verification, Sync Matrix, enhanced best practices |
-| 1.0.0 | 2025-12-30 | Initial release |
+- [規格驅動開發標準](../../core/spec-driven-development.md)
+- [提交訊息指南](../../core/commit-message-guide.md)
+- [程式碼審查檢查清單](../../core/code-review-checklist.md)
 
 ---
 
-## License
+## 版本歷史
 
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2025-12-30 | 初始發布 |
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## 授權
+
+此技能採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權。
+
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

@@ -1,40 +1,44 @@
 ---
+source: ../../../../skills/bdd-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-10
+status: current
+description: |
+  引導行為驅動開發（BDD）流程，使用 Given-When-Then 格式撰寫場景。
+  使用時機：定義行為場景、撰寫 Gherkin、三劍客會議、BDD 流程。
+  關鍵字：bdd, gherkin, given-when-then, scenario, feature, 行為驅動, 場景, 驗收。
 name: bdd
-scope: partial
-description: "[UDS] Guide through Behavior-Driven Development workflow"
 allowed-tools: Read, Write, Grep, Glob
+scope: partial
 argument-hint: "[feature or spec | 功能或規格]"
 ---
 
-# BDD Assistant | BDD 助手
+# BDD 助手
 
-Guide through the Behavior-Driven Development (BDD) workflow using Given-When-Then format.
+> **語言**: [English](../../../../skills/bdd-assistant/SKILL.md) | 繁體中文
 
 引導行為驅動開發（BDD）流程，使用 Given-When-Then 格式。
 
-## BDD Cycle | BDD 循環
+## BDD 循環
 
-```
 DISCOVERY ──► FORMULATION ──► AUTOMATION ──► LIVING DOCS
-    ^                                            │
-    └────────────────────────────────────────────┘
-```
 
-## Workflow | 工作流程
+## 工作流程
 
-### 1. DISCOVERY - Explore Behavior | 探索行為
-Discuss with stakeholders, identify examples and edge cases, understand the "why".
+### 1. DISCOVERY - 探索行為
+與利害關係人討論、識別範例和邊界案例、理解「為什麼」。
 
-### 2. FORMULATION - Write Scenarios | 制定場景
-Write Gherkin scenarios using ubiquitous language, make them concrete and specific.
+### 2. FORMULATION - 制定場景
+使用通用語言撰寫 Gherkin 場景，確保具體且明確。
 
-### 3. AUTOMATION - Implement Tests | 自動化測試
-Implement step definitions, write minimal code to pass, follow TDD within automation.
+### 3. AUTOMATION - 自動化測試
+實作步驟定義，撰寫最小化程式碼以通過測試，在自動化中遵循 TDD。
 
-### 4. LIVING DOCUMENTATION - Maintain | 活文件維護
-Keep scenarios current, use as shared documentation, review with stakeholders.
+### 4. LIVING DOCUMENTATION - 活文件維護
+保持場景為最新狀態，作為共享文件使用，與利害關係人定期審查。
 
-## Gherkin Format | Gherkin 格式
+## Gherkin 格式
 
 ```gherkin
 Feature: User Login
@@ -48,23 +52,30 @@ Feature: User Login
     Then I should see my dashboard
 ```
 
-## Three Amigos | 三劍客會議
+## 三劍客會議
 
-| Role | Focus | 角色 | 關注點 |
-|------|-------|------|--------|
-| **Business** | What & Why | 業務 | 什麼和為什麼 |
-| **Development** | How | 開發 | 如何實現 |
-| **Testing** | What if | 測試 | 假設情況 |
+| 角色 | 關注點 | Role | Focus |
+|------|--------|------|-------|
+| **業務** | 什麼和為什麼 | Business | What & Why |
+| **開發** | 如何實現 | Development | How |
+| **測試** | 假設情況 | Testing | What if |
 
-## Usage | 使用方式
+## 使用方式
 
-```
-/bdd                              - Start interactive BDD session | 啟動互動式 BDD 會話
-/bdd "user can reset password"    - BDD for specific feature | 針對特定功能
-/bdd login-feature.feature        - Work with existing feature file | 處理現有功能檔案
-```
+- `/bdd` - 啟動互動式 BDD 會話
+- `/bdd "user can reset password"` - 針對特定功能進行 BDD
+- `/bdd login-feature.feature` - 使用現有的 feature 檔案
 
-## Reference | 參考
+## 下一步引導
 
-- Detailed guide: [guide.md](./guide.md)
-- Core standard: [behavior-driven-development.md](../../core/behavior-driven-development.md)
+`/bdd` 完成後，AI 助手應建議：
+
+> **BDD 場景已定義。建議下一步：**
+> - 執行 `/tdd` 實作步驟定義
+> - 執行 `/checkin` 品質關卡（若功能完成）
+> - 與利害關係人審查場景確保業務正確性
+
+## 參考
+
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[behavior-driven-development.md](../../../../core/behavior-driven-development.md)

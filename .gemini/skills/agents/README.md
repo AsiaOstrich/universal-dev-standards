@@ -1,219 +1,195 @@
-# UDS Agents
+---
+source: ../../../../skills/agents/README.md
+source_version: 1.1.0
+translation_version: 1.0.0
+last_synced: 2026-02-05
+status: current
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/agents/README.md)
+# UDS 代理
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-21
-**Status**: Stable
+> **語言**: [English](../../../../skills/agents/README.md) | 繁體中文
+
+**版本**: 1.1.0
+**最後更新**: 2026-01-21
+**狀態**: 穩定
 
 ---
 
-## Overview
+## 概述
 
-UDS Agents are specialized AI subagents that can be orchestrated to handle complex development workflows. Unlike Skills (which provide context/knowledge), Agents are autonomous entities that can execute multi-step tasks.
+UDS 代理是專門的 AI 子代理，可以協調處理複雜的開發工作流程。與技能（提供上下文/知識）不同，代理是可以執行多步驟任務的自主實體。
 
-## AGENT.md Format Specification
+## AGENT.md 格式規格
 
-### Frontmatter Schema
+### Frontmatter 架構
 
 ```yaml
 ---
-# === REQUIRED FIELDS ===
-name: agent-name              # Unique identifier (kebab-case)
-version: 1.0.0                # Semantic version
-description: |                # Multi-line description for AI matching
-  Brief description of the agent's purpose.
-  Keywords: keyword1, keyword2, keyword3.
+# === 必填欄位 ===
+name: agent-name              # 唯一識別碼（kebab-case）
+version: 1.0.0                # 語義版本
+description: |                # 用於 AI 匹配的多行描述
+  代理目的的簡要描述。
+  關鍵字: keyword1, keyword2, keyword3.
 
-# === ROLE CONFIGURATION ===
+# === 角色配置 ===
 role: specialist              # orchestrator | specialist | reviewer
-expertise:                    # Domain expertise areas
+expertise:                    # 領域專長
   - system-design
   - api-design
   - database-modeling
 
-# === TOOL PERMISSIONS (Claude Code Task tool) ===
-# Specify which tools this agent can use
+# === 工具權限（Claude Code Task 工具）===
+# 指定此代理可以使用哪些工具
 allowed-tools:
-  - Read                      # File reading
-  - Glob                      # Pattern matching
-  - Grep                      # Content search
-  - Bash(git:*)               # Git commands only
-  - WebFetch                  # Web fetching
-  - WebSearch                 # Web search
-disallowed-tools:             # Explicitly blocked tools
-  - Write                     # No file writing
-  - Edit                      # No file editing
+  - Read                      # 檔案讀取
+  - Glob                      # 模式匹配
+  - Grep                      # 內容搜尋
+  - Bash(git:*)               # 僅 Git 命令
+  - WebFetch                  # 網頁抓取
+  - WebSearch                 # 網頁搜尋
+disallowed-tools:             # 明確封鎖的工具
+  - Write                     # 不可寫入檔案
+  - Edit                      # 不可編輯檔案
 
-# === SKILL DEPENDENCIES ===
-# Skills that provide context/knowledge to this agent
+# === 技能依賴 ===
+# 為此代理提供上下文/知識的技能
 skills:
-  - spec-driven-dev           # Skill name reference
+  - spec-driven-dev           # 技能名稱引用
   - testing-guide
 
-# === MODEL PREFERENCES (Claude Code only) ===
-model: claude-sonnet-4-20250514  # Preferred model
-temperature: 0.3              # Response creativity (0.0-1.0)
+# === 模型偏好（僅 Claude Code）===
+model: claude-sonnet-4-20250514  # 偏好模型
+temperature: 0.3              # 回應創造性（0.0-1.0）
 
-# === CONTEXT STRATEGY (RLM-inspired) ===
-# Configuration for handling large codebases and long contexts
+# === 上下文策略（RLM 啟發）===
+# 處理大型程式碼庫和長上下文的配置
 context-strategy:
   mode: adaptive              # full | chunked | adaptive
-  max-chunk-size: 50000       # Maximum tokens per chunk
-  overlap: 500                # Token overlap between chunks
+  max-chunk-size: 50000       # 每個區塊的最大 token 數
+  overlap: 500                # 區塊間的 token 重疊
   analysis-pattern: hierarchical  # hierarchical | parallel | sequential
 
-# === TRIGGER CONDITIONS ===
+# === 觸發條件 ===
 triggers:
-  keywords:                   # Auto-activate on these keywords
+  keywords:                   # 這些關鍵字自動啟動
     - architecture
     - system design
     - 架構設計
-  commands:                   # Slash commands that invoke this agent
+  commands:                   # 呼叫此代理的斜線命令
     - /architect
 ---
 ```
 
-### Role Types
+### 角色類型
 
-| Role | Description | Use Case |
-|------|-------------|----------|
-| `orchestrator` | Coordinates multiple agents | Complex workflows, feature development |
-| `specialist` | Deep expertise in specific domain | Architecture, testing, documentation |
-| `reviewer` | Evaluates and provides feedback | Code review, spec review, PR review |
+| 角色 | 描述 | 使用案例 |
+|------|------|---------|
+| `orchestrator` | 協調多個代理 | 複雜工作流程、功能開發 |
+| `specialist` | 特定領域的深度專業 | 架構、測試、文件 |
+| `reviewer` | 評估並提供回饋 | 程式碼審查、規格審查、PR 審查 |
 
-### Tool Permission Patterns
+### 工具權限模式
 
 ```yaml
-# Full tool access (default if not specified)
+# 完全工具存取（未指定時的預設）
 allowed-tools: [*]
 
-# Read-only agent
+# 唯讀代理
 allowed-tools: [Read, Glob, Grep]
 disallowed-tools: [Write, Edit, Bash]
 
-# Git-only bash access
+# 僅限 Git 的 bash 存取
 allowed-tools:
-  - Bash(git:*)     # Only git commands
-  - Bash(npm:test)  # Only npm test
+  - Bash(git:*)     # 僅 git 命令
+  - Bash(npm:test)  # 僅 npm test
 
-# Specific file patterns
+# 特定檔案模式
 allowed-tools:
-  - Write(*.md)     # Only markdown files
-  - Edit(src/**)    # Only src directory
+  - Write(*.md)     # 僅 markdown 檔案
+  - Edit(src/**)    # 僅 src 目錄
 ```
 
-### Context Strategy Configuration (RLM-inspired)
+### 上下文策略配置（RLM 啟發）
 
-The `context-strategy` section enables intelligent handling of large codebases and long contexts using RLM (Recursive Language Model) principles.
+`context-strategy` 區段使用 RLM（遞迴語言模型）原則實現對大型程式碼庫和長上下文的智慧處理。
 
-#### Mode Options
+#### 模式選項
 
-| Mode | Description | Use Case |
-|------|-------------|----------|
-| `full` | Load complete context at once | Small projects, documentation tasks |
-| `chunked` | Divide context into fixed-size chunks | Sequential code review, large file analysis |
-| `adaptive` | Dynamically adjust based on content structure | Complex analysis, architecture exploration |
+| 模式 | 描述 | 使用案例 |
+|------|------|---------|
+| `full` | 一次載入完整上下文 | 小專案、文件任務 |
+| `chunked` | 將上下文分成固定大小的區塊 | 順序程式碼審查、大型檔案分析 |
+| `adaptive` | 根據內容結構動態調整 | 複雜分析、架構探索 |
 
-#### Analysis Patterns
+#### 分析模式
 
-| Pattern | Description | Best For |
-|---------|-------------|----------|
-| `hierarchical` | Analyze high-level structure first, then drill down | Architecture analysis, system design |
-| `parallel` | Process multiple sections simultaneously | Independent module analysis, spec review |
-| `sequential` | Process sections in order, preserving context | Code review, step-by-step analysis |
+| 模式 | 描述 | 最適合 |
+|------|------|--------|
+| `hierarchical` | 先分析高層結構，然後深入細節 | 架構分析、系統設計 |
+| `parallel` | 同時處理多個區段 | 獨立模組分析、規格審查 |
+| `sequential` | 依序處理區段，保留上下文 | 程式碼審查、逐步分析 |
 
-#### Configuration Examples
+## 內建代理
 
-```yaml
-# For architecture analysis (need overview first)
-context-strategy:
-  mode: adaptive
-  max-chunk-size: 50000
-  overlap: 500
-  analysis-pattern: hierarchical
+| 代理 | 角色 | 描述 |
+|------|------|------|
+| [code-architect](../../../../skills/agents/code-architect.md) | specialist | 軟體架構和系統設計 |
+| [test-specialist](../../../../skills/agents/test-specialist.md) | specialist | 測試策略和測試實作 |
+| [reviewer](../../../../skills/agents/reviewer.md) | reviewer | 程式碼審查和品質評估 |
+| [doc-writer](../../../../skills/agents/doc-writer.md) | specialist | 文件和技術寫作 |
+| [spec-analyst](../../../../skills/agents/spec-analyst.md) | specialist | 規格分析和需求萃取 |
 
-# For code review (sequential processing)
-context-strategy:
-  mode: chunked
-  max-chunk-size: 30000
-  overlap: 200
-  analysis-pattern: sequential
+## 使用方式
 
-# For documentation (need full context)
-context-strategy:
-  mode: full
-  analysis-pattern: hierarchical
-```
-
-### Cross-Tool Execution Modes
-
-| AI Tool | Execution Mode | How It Works |
-|---------|---------------|--------------|
-| Claude Code | `task` | Uses Task tool to spawn independent subagent |
-| OpenCode | `task` | Similar Task tool support |
-| Cursor / Windsurf | `inline` | Injects AGENT.md as context prefix |
-| Copilot / Gemini | `inline` | Converts to prompt snippets |
-
-## Built-in Agents
-
-| Agent | Role | Description |
-|-------|------|-------------|
-| [code-architect](./code-architect.md) | specialist | Software architecture and system design |
-| [test-specialist](./test-specialist.md) | specialist | Testing strategy and test implementation |
-| [reviewer](./reviewer.md) | reviewer | Code review and quality assessment |
-| [doc-writer](./doc-writer.md) | specialist | Documentation and technical writing |
-| [spec-analyst](./spec-analyst.md) | specialist | Specification analysis and requirement extraction |
-
-## Usage
-
-### CLI Installation
+### CLI 安裝
 
 ```bash
-# List available agents
+# 列出可用的代理
 uds agent list
 
-# Install specific agent to project
+# 將特定代理安裝到專案
 uds agent install code-architect
 
-# Install all agents
+# 安裝所有代理
 uds agent install --all
 
-# Install to user directory (global)
+# 安裝到使用者目錄（全域）
 uds agent install code-architect --global
 ```
 
-### Direct Invocation in Claude Code
+### 在 Claude Code 中直接呼叫
 
 ```
-/architect [task description]
+/architect [任務描述]
 ```
 
-Or through natural language triggers:
+或透過自然語言觸發：
 
 ```
-Please help me design the architecture for a new authentication system.
+請幫我設計新認證系統的架構。
 ```
 
-## Creating Custom Agents
+## 建立自訂代理
 
-### 1. Create AGENT.md File
+### 1. 建立 AGENT.md 檔案
 
 ```bash
-# In your project
+# 在你的專案中
 mkdir -p .claude/agents
 touch .claude/agents/my-agent.md
 ```
 
-### 2. Define Frontmatter
+### 2. 定義 Frontmatter
 
 ```yaml
 ---
 name: my-custom-agent
 version: 1.0.0
 description: |
-  Custom agent for specific project needs.
-  Keywords: custom, specific, project.
+  針對特定專案需求的自訂代理。
+  關鍵字: custom, specific, project.
 
 role: specialist
 expertise: [domain-specific]
@@ -226,80 +202,80 @@ triggers:
 ---
 ```
 
-### 3. Write Agent Instructions
+### 3. 撰寫代理指令
 
 ```markdown
-# My Custom Agent
+# 我的自訂代理
 
-## Purpose
+## 目的
 
-Describe what this agent does.
+描述此代理的功能。
 
-## Workflow
+## 工作流程
 
-1. Step one
-2. Step two
-3. Step three
+1. 步驟一
+2. 步驟二
+3. 步驟三
 
-## Guidelines
+## 指南
 
-- Guideline 1
-- Guideline 2
+- 指南 1
+- 指南 2
 ```
 
-## Agent vs Skill Comparison
+## 代理 vs 技能比較
 
-| Aspect | Skill | Agent |
-|--------|-------|-------|
-| **Purpose** | Provide knowledge/context | Execute autonomous tasks |
-| **Execution** | Loaded as context | Spawned as subagent (or inline) |
-| **State** | Stateless | Can maintain task state |
-| **Tool Access** | None (context only) | Configurable permissions |
-| **Triggers** | Manual loading | Keywords, commands, workflows |
-| **Composition** | Referenced by agents | Can use skills as context |
+| 面向 | 技能 | 代理 |
+|------|------|------|
+| **目的** | 提供知識/上下文 | 執行自主任務 |
+| **執行** | 作為上下文載入 | 作為子代理產生（或內嵌） |
+| **狀態** | 無狀態 | 可維護任務狀態 |
+| **工具存取** | 無（僅上下文） | 可配置權限 |
+| **觸發** | 手動載入 | 關鍵字、命令、工作流程 |
+| **組合** | 由代理引用 | 可使用技能作為上下文 |
 
-## Integration with Workflows
+## 與工作流程整合
 
-Agents can be orchestrated through workflow definitions:
+代理可透過工作流程定義進行協調：
 
 ```yaml
 # workflows/feature-dev.workflow.yaml
 name: feature-development
 steps:
   - agent: spec-analyst
-    task: Analyze requirements
+    task: 分析需求
   - agent: code-architect
-    task: Design solution
+    task: 設計解決方案
   - agent: test-specialist
-    task: Define test strategy
-  - manual: Implementation
+    task: 定義測試策略
+  - manual: 實作
   - agent: reviewer
-    task: Code review
+    task: 程式碼審查
 ```
 
-See [workflows/README.md](../workflows/README.md) for workflow documentation.
+請參閱 [workflows/README.md](../../../../skills/workflows/README.md) 取得工作流程文件。
 
 ---
 
-## Related Resources
+## 相關資源
 
-- [Skills Documentation](../README.md)
-- [Workflows Documentation](../workflows/README.md)
-- [AI Agent Paths Configuration](../../cli/src/config/ai-agent-paths.js)
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.1.0 | 2026-01-21 | Added RLM-inspired context-strategy configuration |
-| 1.0.0 | 2026-01-20 | Initial release |
+- [技能文件](../README.md)
+- [工作流程文件](../../../../skills/workflows/README.md)
+- [AI 代理路徑配置](../../../../cli/src/config/ai-agent-paths.js)
 
 ---
 
-## License
+## 版本歷史
 
-This documentation is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.1.0 | 2026-01-21 | 新增 RLM 啟發的 context-strategy 配置 |
+| 1.0.0 | 2026-01-20 | 初始發布 |
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## 授權
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

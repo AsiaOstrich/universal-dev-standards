@@ -1,38 +1,46 @@
-# BDD Extraction Workflow Guide
+---
+source: ../../../../skills/reverse-engineer/bdd-extraction.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-19
+status: current
+---
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-19
+# BDD 提取工作流程指南
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/reverse-engineer/bdd-extraction.md)
+**版本**: 1.0.0
+**最後更新**: 2026-01-19
 
-This guide provides detailed workflows for extracting BDD (Behavior-Driven Development) scenarios from SDD specifications.
+> **語言**: [English](../../../../skills/reverse-engineer/bdd-extraction.md) | 繁體中文
+
+本指南提供從 SDD 規格中提取 BDD（行為驅動開發）場景的詳細工作流程。
 
 ---
 
-## Overview
+## 概覽
 
-BDD extraction transforms acceptance criteria from SDD specifications into executable Gherkin scenarios. This enables automated testing while maintaining traceability to requirements.
+BDD 提取將 SDD 規格中的驗收標準轉換為可執行的 Gherkin 場景。這實現了自動化測試，同時保持與需求的可追溯性。
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                     BDD Extraction Pipeline                              │
+│                        BDD 提取管道                                       │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  ┌───────────┐   ┌───────────┐   ┌───────────┐   ┌───────────┐        │
-│  │   SPEC    │──▶│    AC     │──▶│  Format   │──▶│ Transform │        │
-│  │   File    │   │  Section  │   │ Detection │   │ to Gherkin│        │
+│  │   SPEC    │──▶│    AC     │──▶│   格式    │──▶│  轉換為   │        │
+│  │   檔案    │   │   區塊    │   │   偵測    │   │  Gherkin  │        │
 │  └───────────┘   └───────────┘   └───────────┘   └─────┬─────┘        │
 │                                                        │               │
 │                                                        ▼               │
 │                       ┌───────────────────────────────────┐            │
-│                       │     Apply Certainty Labels        │            │
-│                       │  [Confirmed] [Inferred] [Assumed] │            │
+│                       │        套用確定性標籤             │            │
+│                       │  [已確認] [推斷] [假設]           │            │
 │                       └─────────────────┬─────────────────┘            │
 │                                         │                              │
 │                                         ▼                              │
 │  ┌───────────┐   ┌───────────┐   ┌───────────┐                        │
-│  │  Human    │◀──│  Feature  │◀──│   Tag     │                        │
-│  │  Review   │   │   File    │   │ Assignment│                        │
+│  │   人類    │◀──│  Feature  │◀──│   標籤    │                        │
+│  │   審查    │   │   檔案    │   │   分配    │                        │
 │  └───────────┘   └───────────┘   └───────────┘                        │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -40,209 +48,209 @@ BDD extraction transforms acceptance criteria from SDD specifications into execu
 
 ---
 
-## Phase 1: SPEC File Parsing
+## 階段 1：SPEC 檔案解析
 
-### 1.1 Locate Acceptance Criteria
+### 1.1 定位驗收標準
 
-Search for AC sections in the SPEC file:
+在 SPEC 檔案中搜尋 AC 區塊：
 
-| Section Name | Priority | Common Patterns |
-|--------------|----------|-----------------|
-| **Acceptance Criteria** | 1st | `## Acceptance Criteria`, `## AC` |
-| **Requirements** | 2nd | `## Requirements`, `## Functional Requirements` |
-| **Test Cases** | 3rd | `## Test Cases`, `## Validation` |
-| **User Stories** | 4th | `## User Stories` (extract AC from stories) |
+| 區塊名稱 | 優先順序 | 常見模式 |
+|----------|----------|----------|
+| **Acceptance Criteria** | 第一 | `## Acceptance Criteria`、`## AC` |
+| **Requirements** | 第二 | `## Requirements`、`## Functional Requirements` |
+| **Test Cases** | 第三 | `## Test Cases`、`## Validation` |
+| **User Stories** | 第四 | `## User Stories`（從故事中提取 AC） |
 
-### 1.2 Extract Context Information
+### 1.2 提取脈絡資訊
 
-Gather contextual data for feature file header:
+收集 Feature 檔案標頭的脈絡資料：
 
 ```markdown
-## Extracted Context
+## 提取的脈絡
 
-From SPEC-AUTH.md:
-- **Feature Name**: User Authentication
-- **Summary**: Secure login system with JWT tokens
-- **User Stories**:
-  - As a user, I want to log in securely
-  - As an admin, I want to manage user sessions
-- **Related Specs**: SPEC-SESSION, SPEC-TOKEN
+來自 SPEC-AUTH.md：
+- **功能名稱**：使用者認證
+- **摘要**：使用 JWT 令牌的安全登入系統
+- **使用者故事**：
+  - 作為使用者，我想要安全登入
+  - 作為管理員，我想要管理使用者工作階段
+- **相關規格**：SPEC-SESSION、SPEC-TOKEN
 ```
 
-### 1.3 Parse AC Content
+### 1.3 解析 AC 內容
 
-Identify individual acceptance criteria:
+識別個別驗收標準：
 
 ```markdown
-## Acceptance Criteria (from SPEC)
+## 驗收標準（來自 SPEC）
 
-### Format A: Bullet List
-- [ ] User can log in with email/password
-- [ ] System shows error for invalid credentials
-- [ ] Account locks after 5 failed attempts
+### 格式 A：條列清單
+- [ ] 使用者可以用 email/密碼登入
+- [ ] 系統對無效憑證顯示錯誤
+- [ ] 帳號在 5 次失敗嘗試後鎖定
 
-### Format B: Given-When-Then
-Given a registered user
-When they enter valid credentials
-Then they should be logged in successfully
+### 格式 B：Given-When-Then
+Given 一個已註冊的使用者
+When 他們輸入有效憑證
+Then 他們應該成功登入
 
-### Format C: Mixed
-- [ ] User can log in (Given-When-Then below)
-  - Given: User on login page
-  - When: Enter email and password
-  - Then: Redirected to dashboard
+### 格式 C：混合
+- [ ] 使用者可以登入（下方 Given-When-Then）
+  - Given：使用者在登入頁面
+  - When：輸入 email 和密碼
+  - Then：重新導向到儀表板
 ```
 
 ---
 
-## Phase 2: Format Detection
+## 階段 2：格式偵測
 
-### 2.1 Detection Algorithm
+### 2.1 偵測演算法
 
-Apply pattern matching to classify AC format:
+套用模式匹配來分類 AC 格式：
 
 ```
-Detection Rules:
+偵測規則：
 
-1. Given-When-Then Format:
-   - Contains keywords: "Given", "When", "Then"
-   - May include "And", "But"
-   - Label: [Confirmed] for direct conversion
+1. Given-When-Then 格式：
+   - 包含關鍵字："Given"、"When"、"Then"
+   - 可能包含 "And"、"But"
+   - 標籤：[已確認] 用於直接轉換
 
-2. Bullet Point Format:
-   - Starts with `- [ ]` or `- `
-   - No GWT keywords
-   - Label: [Inferred] after transformation
+2. 條列式格式：
+   - 以 `- [ ]` 或 `- ` 開頭的列表項目
+   - 沒有 GWT 關鍵字
+   - 標籤：[推斷] 轉換後
 
-3. Mixed Format:
-   - Contains both patterns
-   - Process each pattern type separately
+3. 混合格式：
+   - 包含兩種模式
+   - 分別處理每種模式類型
 
-4. Table Format:
-   - Acceptance criteria in markdown tables
-   - Extract "Expected Behavior" column
-   - Label: [Inferred]
+4. 表格格式：
+   - 在 markdown 表格中的驗收標準
+   - 提取「預期行為」欄位
+   - 標籤：[推斷]
 ```
 
-### 2.2 Format Classification Output
+### 2.2 格式分類輸出
 
 ```markdown
-## Format Analysis Report
+## 格式分析報告
 
-File: specs/SPEC-AUTH.md
-Lines analyzed: 42-78
+檔案：specs/SPEC-AUTH.md
+分析行數：42-78
 
-| Line Range | Format Detected | Action |
-|------------|-----------------|--------|
-| 42-48 | Given-When-Then | Direct conversion [Confirmed] |
-| 52-58 | Bullet Points | AI transformation [Inferred] |
-| 62-68 | Table Format | Extract & transform [Inferred] |
-| 72-78 | Mixed | Process separately |
+| 行範圍 | 偵測到的格式 | 動作 |
+|--------|--------------|------|
+| 42-48 | Given-When-Then | 直接轉換 [已確認] |
+| 52-58 | 條列式 | AI 轉換 [推斷] |
+| 62-68 | 表格格式 | 提取並轉換 [推斷] |
+| 72-78 | 混合 | 分別處理 |
 ```
 
 ---
 
-## Phase 3: Transformation Rules
+## 階段 3：轉換規則
 
-### 3.1 Bullet Point to Gherkin
+### 3.1 條列式轉換為 Gherkin
 
-Transform bullet points following these rules:
+遵循以下規則轉換條列式：
 
-#### Rule 1: Action Verb Extraction
+#### 規則 1：動作動詞提取
 
-| Bullet Pattern | Extracted Action | When Clause |
-|----------------|------------------|-------------|
-| "User can..." | "can" → capability | "使用者執行..." |
-| "System should..." | "should" → expectation | "系統應該..." |
-| "Must..." | "must" → requirement | "必須..." |
-| "Cannot..." | "cannot" → restriction | "不能..." |
+| 條列式模式 | 提取的動作 | When 子句 |
+|------------|------------|-----------|
+| "使用者可以..." | "可以" → 能力 | "使用者執行..." |
+| "系統應該..." | "應該" → 期望 | "系統應該..." |
+| "必須..." | "必須" → 要求 | "必須..." |
+| "不能..." | "不能" → 限制 | "不能..." |
 
-#### Rule 2: Given Clause Inference
+#### 規則 2：Given 子句推斷
 
-When preconditions are not explicit, infer based on context:
+當前置條件不明確時，根據脈絡推斷：
 
-| Scenario Type | Inferred Given | Certainty |
-|---------------|----------------|-----------|
-| Authentication | "使用者在登入頁面" | `[Assumption]` |
-| Cart Operations | "使用者有商品在購物車" | `[Assumption]` |
-| Profile Update | "使用者已登入" | `[Assumption]` |
-| Admin Actions | "管理員已登入" | `[Assumption]` |
-| API Calls | "API 服務正在運行" | `[Assumption]` |
+| 場景類型 | 推斷的 Given | 確定性 |
+|----------|--------------|--------|
+| 認證 | "使用者在登入頁面" | `[假設]` |
+| 購物車操作 | "使用者有商品在購物車" | `[假設]` |
+| 個人資料更新 | "使用者已登入" | `[假設]` |
+| 管理員操作 | "管理員已登入" | `[假設]` |
+| API 呼叫 | "API 服務正在運行" | `[假設]` |
 
-#### Rule 3: Then Clause Generation
+#### 規則 3：Then 子句生成
 
-| Action Type | Then Pattern | Example |
-|-------------|--------------|---------|
-| Navigation | "應該看到 {page}" | "應該看到首頁" |
-| Data | "應該顯示 {data}" | "應該顯示用戶資料" |
-| Error | "應該看到錯誤訊息" | "應該看到 '密碼錯誤'" |
-| State Change | "{entity} 狀態為 {state}" | "訂單狀態為已確認" |
+| 動作類型 | Then 模式 | 範例 |
+|----------|-----------|------|
+| 導航 | "應該看到 {頁面}" | "應該看到首頁" |
+| 資料 | "應該顯示 {資料}" | "應該顯示用戶資料" |
+| 錯誤 | "應該看到錯誤訊息" | "應該看到 '密碼錯誤'" |
+| 狀態變更 | "{實體} 狀態為 {狀態}" | "訂單狀態為已確認" |
 
-### 3.2 Transformation Examples
+### 3.2 轉換範例
 
-**Example 1: Simple Capability**
+**範例 1：簡單能力**
 
 ```markdown
-# Input (Bullet)
-- [ ] User can log in with email and password
+# 輸入（條列式）
+- [ ] 使用者可以用 email 和密碼登入
 
-# Output (Gherkin)
-Scenario: User can log in with email and password
-  Given 使用者在登入頁面  # [Assumption] Precondition inferred
+# 輸出（Gherkin）
+Scenario: 使用者可以用 email 和密碼登入
+  Given 使用者在登入頁面  # [假設] 前置條件推斷
   When 使用者輸入 email 和 password
-  Then 登入成功  # [Inferred] Success implied
-  # [Source: specs/SPEC-AUTH.md:45]
+  Then 登入成功  # [推斷] 隱含成功
+  # [來源: specs/SPEC-AUTH.md:45]
 ```
 
-**Example 2: Error Condition**
+**範例 2：錯誤條件**
 
 ```markdown
-# Input (Bullet)
-- [ ] System shows error for invalid password
+# 輸入（條列式）
+- [ ] 系統對無效密碼顯示錯誤
 
-# Output (Gherkin)
-Scenario: System shows error for invalid password
-  Given 使用者在登入頁面  # [Assumption]
-  And 使用者有已註冊的帳號  # [Assumption]
+# 輸出（Gherkin）
+Scenario: 系統對無效密碼顯示錯誤
+  Given 使用者在登入頁面  # [假設]
+  And 使用者有已註冊的帳號  # [假設]
   When 使用者輸入錯誤的密碼
-  Then 系統顯示錯誤訊息  # [Inferred]
-  # [Source: specs/SPEC-AUTH.md:48]
+  Then 系統顯示錯誤訊息  # [推斷]
+  # [來源: specs/SPEC-AUTH.md:48]
 ```
 
-**Example 3: Boundary Condition**
+**範例 3：邊界條件**
 
 ```markdown
-# Input (Bullet)
-- [ ] Account locks after 5 failed login attempts
+# 輸入（條列式）
+- [ ] 帳號在 5 次失敗登入嘗試後鎖定
 
-# Output (Gherkin)
-Scenario: Account locks after 5 failed login attempts
-  Given 使用者有已註冊的帳號  # [Assumption]
-  And 使用者已失敗登入 4 次  # [Inferred] Boundary setup
+# 輸出（Gherkin）
+Scenario: 帳號在 5 次失敗登入嘗試後鎖定
+  Given 使用者有已註冊的帳號  # [假設]
+  And 使用者已失敗登入 4 次  # [推斷] 邊界設置
   When 使用者第 5 次輸入錯誤密碼
-  Then 帳號應該被鎖定  # [Inferred]
-  And 使用者應該看到帳號鎖定訊息  # [Assumption] UX expectation
-  # [Source: specs/SPEC-AUTH.md:52]
+  Then 帳號應該被鎖定  # [推斷]
+  And 使用者應該看到帳號鎖定訊息  # [假設] UX 期望
+  # [來源: specs/SPEC-AUTH.md:52]
 ```
 
 ---
 
-## Phase 4: Feature File Generation
+## 階段 4：Feature 檔案生成
 
-### 4.1 File Structure
+### 4.1 檔案結構
 
 ```gherkin
 # ============================================================
-# Feature: [Name from SPEC Summary]
-# Source: [SPEC file path]
-# Generated: [YYYY-MM-DD HH:mm]
+# Feature: [來自 SPEC 摘要的名稱]
+# 來源: [SPEC 檔案路徑]
+# 生成時間: [YYYY-MM-DD HH:mm]
 #
-# Certainty Summary:
-#   - [Confirmed]: N scenarios (direct from GWT AC)
-#   - [Inferred]: M scenarios (transformed from bullets)
-#   - [Assumption]: K steps (inferred preconditions)
+# 確定性摘要：
+#   - [已確認]：N 個場景（直接來自 GWT AC）
+#   - [推斷]：M 個場景（從條列式轉換）
+#   - [假設]：K 個步驟（推斷的前置條件）
 #
-# Review Status: PENDING
+# 審查狀態：待定
 # ============================================================
 
 Feature: 使用者認證
@@ -251,11 +259,11 @@ Feature: 使用者認證
   So that I can access my account
 
   Background:
-    Given 系統已啟動  # [Confirmed] System requirement
-    And 資料庫連線正常  # [Confirmed]
+    Given 系統已啟動  # [已確認] 系統要求
+    And 資料庫連線正常  # [已確認]
 
   # ─────────────────────────────────────────
-  # Scenarios from GWT Format [Confirmed]
+  # 來自 GWT 格式的場景 [已確認]
   # ─────────────────────────────────────────
 
   @confirmed @automated
@@ -264,69 +272,69 @@ Feature: 使用者認證
     And 使用者有已註冊的帳號
     When 使用者輸入正確的 email 和密碼
     Then 使用者應該看到首頁
-    # [Source: specs/SPEC-AUTH.md:42-46] [Confirmed]
+    # [來源: specs/SPEC-AUTH.md:42-46] [已確認]
 
   # ─────────────────────────────────────────
-  # Scenarios Transformed from Bullets [Inferred]
+  # 從條列式轉換的場景 [推斷]
   # ─────────────────────────────────────────
 
   @needs-review @inferred
   Scenario: 登入失敗 - 密碼錯誤
-    Given 使用者在登入頁面  # [Assumption]
+    Given 使用者在登入頁面  # [假設]
     When 使用者輸入錯誤的密碼
-    Then 使用者應該看到錯誤訊息  # [Inferred]
-    # [Source: specs/SPEC-AUTH.md:48] [Inferred]
+    Then 使用者應該看到錯誤訊息  # [推斷]
+    # [來源: specs/SPEC-AUTH.md:48] [推斷]
 
   @needs-review @inferred @edge-case
   Scenario: 帳號鎖定 - 連續失敗 5 次
-    Given 使用者已失敗登入 4 次  # [Inferred]
+    Given 使用者已失敗登入 4 次  # [推斷]
     When 使用者第 5 次輸入錯誤密碼
-    Then 帳號應該被鎖定  # [Inferred]
-    # [Source: specs/SPEC-AUTH.md:52] [Inferred]
+    Then 帳號應該被鎖定  # [推斷]
+    # [來源: specs/SPEC-AUTH.md:52] [推斷]
 ```
 
-### 4.2 Tag System
+### 4.2 標籤系統
 
-| Tag | Meaning | Usage |
-|-----|---------|-------|
-| `@confirmed` | AC was already GWT format | Safe to automate |
-| `@inferred` | AC transformed from bullet | Needs review |
-| `@assumption` | Contains assumed steps | Verify with stakeholder |
-| `@needs-review` | Requires human validation | Don't automate yet |
-| `@edge-case` | Boundary condition | Priority for testing |
-| `@security` | Security-related | High priority |
-| `@manual` | Cannot be automated | Keep for documentation |
+| 標籤 | 意義 | 用途 |
+|------|------|------|
+| `@confirmed` | AC 原本就是 GWT 格式 | 可以安全自動化 |
+| `@inferred` | AC 從條列式轉換 | 需要審查 |
+| `@assumption` | 包含假設的步驟 | 與利害關係人驗證 |
+| `@needs-review` | 需要人類驗證 | 先不要自動化 |
+| `@edge-case` | 邊界條件 | 測試優先 |
+| `@security` | 安全相關 | 高優先級 |
+| `@manual` | 無法自動化 | 保留作為文件 |
 
-### 4.3 Source Attribution
+### 4.3 來源標註
 
-Every scenario MUST include source reference:
+每個場景必須包含來源參考：
 
 ```gherkin
-# Single source
-# [Source: specs/SPEC-AUTH.md:45]
+# 單一來源
+# [來源: specs/SPEC-AUTH.md:45]
 
-# Multiple sources
-# [Source: specs/SPEC-AUTH.md:45, specs/SPEC-SESSION.md:12]
+# 多個來源
+# [來源: specs/SPEC-AUTH.md:45, specs/SPEC-SESSION.md:12]
 
-# Inferred from context
-# [Source: specs/SPEC-AUTH.md:45] [Inferred from Summary section]
+# 從脈絡推斷
+# [來源: specs/SPEC-AUTH.md:45] [從摘要區塊推斷]
 ```
 
 ---
 
-## Phase 5: Scenario Outline Generation
+## 階段 5：場景大綱生成
 
-### 5.1 Identify Parameterizable Scenarios
+### 5.1 識別可參數化的場景
 
-Look for patterns that suggest parameterization:
+尋找建議參數化的模式：
 
 ```markdown
-# Multiple similar ACs:
-- [ ] User can log in with email
-- [ ] User can log in with username
-- [ ] User can log in with phone number
+# 多個相似的 AC：
+- [ ] 使用者可以用 email 登入
+- [ ] 使用者可以用使用者名稱登入
+- [ ] 使用者可以用電話號碼登入
 
-# Convert to Scenario Outline:
+# 轉換為 Scenario Outline：
 ```
 
 ```gherkin
@@ -339,22 +347,22 @@ Scenario Outline: 使用者可以用 <credential_type> 登入
   Examples:
     | credential_type | credential |
     | email | user@example.com |
-    | username | john_doe |
-    | phone number | 0912345678 |
-  # [Source: specs/SPEC-AUTH.md:45-47] [Inferred - combined similar ACs]
+    | 使用者名稱 | john_doe |
+    | 電話號碼 | 0912345678 |
+  # [來源: specs/SPEC-AUTH.md:45-47] [推斷 - 合併相似 AC]
 ```
 
-### 5.2 Example Table Extraction
+### 5.2 範例表格提取
 
-When SPEC contains data examples:
+當 SPEC 包含資料範例時：
 
 ```markdown
-# From SPEC:
-| Input | Expected Result |
-|-------|-----------------|
-| valid email | success |
-| invalid email | error |
-| empty email | validation error |
+# 來自 SPEC：
+| 輸入 | 預期結果 |
+|------|----------|
+| 有效 email | 成功 |
+| 無效 email | 錯誤 |
+| 空 email | 驗證錯誤 |
 ```
 
 ```gherkin
@@ -366,109 +374,109 @@ Scenario Outline: 登入驗證 - <scenario>
 
   Examples:
     | scenario | input | result |
-    | valid email | user@example.com | 登入成功 |
-    | invalid email | invalid | 錯誤訊息 |
-    | empty email | | 驗證錯誤 |
-  # [Source: specs/SPEC-AUTH.md:60-64] [Confirmed - from table]
+    | 有效 email | user@example.com | 登入成功 |
+    | 無效 email | invalid | 錯誤訊息 |
+    | 空 email | | 驗證錯誤 |
+  # [來源: specs/SPEC-AUTH.md:60-64] [已確認 - 來自表格]
 ```
 
 ---
 
-## Phase 6: Quality Checks
+## 階段 6：品質檢查
 
-### 6.1 Completeness Check
+### 6.1 完整性檢查
 
 ```markdown
-## BDD Extraction Quality Report
+## BDD 提取品質報告
 
-### Coverage Analysis
-| SPEC Section | ACs Found | Scenarios Generated | Coverage |
-|--------------|-----------|---------------------|----------|
-| Happy Path | 5 | 5 | 100% ✅ |
-| Error Handling | 8 | 7 | 87% ⚠️ |
-| Edge Cases | 3 | 2 | 67% ⚠️ |
+### 覆蓋分析
+| SPEC 區塊 | 找到的 AC | 生成的場景 | 覆蓋率 |
+|-----------|-----------|------------|--------|
+| 快樂路徑 | 5 | 5 | 100% ✅ |
+| 錯誤處理 | 8 | 7 | 87% ⚠️ |
+| 邊界情況 | 3 | 2 | 67% ⚠️ |
 
-### Missing Scenarios
-| AC | Reason | Action |
-|----|--------|--------|
-| "System logs all attempts" | Non-functional requirement | Add as Background |
-| "Session expires after 1hr" | Time-based behavior | Needs manual test |
+### 缺少的場景
+| AC | 原因 | 動作 |
+|----|------|------|
+| "系統記錄所有嘗試" | 非功能需求 | 新增為 Background |
+| "工作階段在 1 小時後過期" | 時間相關行為 | 需要手動測試 |
 ```
 
-### 6.2 Certainty Distribution
+### 6.2 確定性分布
 
 ```markdown
-### Certainty Summary
-| Level | Count | Percentage |
-|-------|-------|------------|
-| [Confirmed] | 8 | 40% |
-| [Inferred] | 10 | 50% |
-| [Assumption] | 2 | 10% |
+### 確定性摘要
+| 層級 | 數量 | 百分比 |
+|------|------|--------|
+| [已確認] | 8 | 40% |
+| [推斷] | 10 | 50% |
+| [假設] | 2 | 10% |
 
-### Review Priority
-1. 🔴 High: 2 scenarios with [Assumption] tags
-2. 🟡 Medium: 10 scenarios with [Inferred] tags
-3. 🟢 Low: 8 scenarios with [Confirmed] tags
+### 審查優先級
+1. 🔴 高：2 個帶有 [假設] 標籤的場景
+2. 🟡 中：10 個帶有 [推斷] 標籤的場景
+3. 🟢 低：8 個帶有 [已確認] 標籤的場景
 ```
 
 ---
 
-## Handling Challenges
+## 處理挑戰
 
-### Challenge 1: Ambiguous ACs
+### 挑戰 1：模糊的 AC
 
-When acceptance criteria are unclear:
+當驗收標準不明確時：
 
 ```markdown
-# Ambiguous AC:
-- [ ] User login should be secure
+# 模糊的 AC：
+- [ ] 使用者登入應該安全
 
-# Resolution:
+# 解決方案：
 Scenario: 使用者登入應該安全
-  # [Unknown] What does "secure" mean?
-  # Suggested interpretations:
-  # - HTTPS connection required?
-  # - Password not logged?
-  # - Session token encrypted?
+  # [未知] "安全" 是什麼意思？
+  # 建議的解讀：
+  # - 需要 HTTPS 連線？
+  # - 密碼不記錄？
+  # - 工作階段令牌加密？
 
-  # ACTION: Ask stakeholder to clarify
-  Given [NEEDS CLARIFICATION: security requirements]
+  # 動作：詢問利害關係人以澄清
+  Given [需要澄清：安全要求]
   When 使用者登入
-  Then [NEEDS CLARIFICATION: security verification]
-  # [Source: specs/SPEC-AUTH.md:45] [Unknown - needs clarification]
+  Then [需要澄清：安全驗證]
+  # [來源: specs/SPEC-AUTH.md:45] [未知 - 需要澄清]
 ```
 
-### Challenge 2: Implicit Requirements
+### 挑戰 2：隱含需求
 
-When requirements are implied but not stated:
+當需求被暗示但未陳述時：
 
 ```markdown
-# Explicit AC:
-- [ ] User can reset password
+# 明確的 AC：
+- [ ] 使用者可以重設密碼
 
-# Implicit requirements discovered:
+# 發現的隱含需求：
 Scenario: 使用者可以重設密碼
-  Given 使用者忘記密碼  # [Assumption] - trigger condition
-  And 使用者有有效的 email  # [Assumption] - prerequisite
+  Given 使用者忘記密碼  # [假設] - 觸發條件
+  And 使用者有有效的 email  # [假設] - 先決條件
   When 使用者請求重設密碼
-  Then 系統發送重設連結到 email  # [Assumption] - mechanism
-  And 連結在 24 小時後失效  # [Assumption] - security
-  # [Source: specs/SPEC-AUTH.md:55] [Inferred - multiple assumptions added]
+  Then 系統發送重設連結到 email  # [假設] - 機制
+  And 連結在 24 小時後失效  # [假設] - 安全
+  # [來源: specs/SPEC-AUTH.md:55] [推斷 - 新增多個假設]
 ```
 
-### Challenge 3: Technical vs User Scenarios
+### 挑戰 3：技術 vs 使用者場景
 
-Separate technical requirements:
+區分技術需求：
 
 ```gherkin
-# User-facing scenario
+# 面向使用者的場景
 @user-story
 Scenario: 使用者登入成功
   Given 使用者在登入頁面
   When 使用者輸入正確憑證
   Then 使用者看到首頁
 
-# Technical scenario (same AC, different perspective)
+# 技術場景（相同 AC，不同視角）
 @technical
 Scenario: 登入時系統生成 JWT Token
   Given 使用者提交有效憑證
@@ -476,58 +484,58 @@ Scenario: 登入時系統生成 JWT Token
   Then 系統生成 JWT Token
   And Token 包含使用者 ID
   And Token 設定 1 小時過期時間
-  # [Source: specs/SPEC-AUTH.md:42] [Inferred - technical implementation]
+  # [來源: specs/SPEC-AUTH.md:42] [推斷 - 技術實作]
 ```
 
 ---
 
-## Integration Points
+## 整合點
 
-### With /reverse-spec
+### 與 /reverse-spec
 
 ```
 /reverse-spec → SPEC-XXX.md → /reverse-bdd → feature.feature
 ```
 
-### With /bdd
+### 與 /bdd
 
-After extraction, use `/bdd` for:
-- Syntax validation
-- Step definition generation
-- Three Amigos review
+提取後，使用 `/bdd` 進行：
+- 語法驗證
+- Step 定義生成
+- 三方會談審查
 
-### With /reverse-tdd
+### 與 /reverse-tdd
 
 ```
-feature.feature → /reverse-tdd → coverage report
+feature.feature → /reverse-tdd → 覆蓋率報告
 ```
 
 ---
 
-## Output Files
+## 輸出檔案
 
-### Primary Output
+### 主要輸出
 
 ```
 features/
-├── auth.feature           # From SPEC-AUTH.md
-├── cart.feature           # From SPEC-CART.md
-└── checkout.feature       # From SPEC-CHECKOUT.md
+├── auth.feature           # 來自 SPEC-AUTH.md
+├── cart.feature           # 來自 SPEC-CART.md
+└── checkout.feature       # 來自 SPEC-CHECKOUT.md
 ```
 
-### Metadata Output
+### 中繼資料輸出
 
 ```
 features/.meta/
-├── extraction-report.md   # Summary of all extractions
-├── review-checklist.md    # Items needing human review
-└── certainty-matrix.md    # Certainty levels by scenario
+├── extraction-report.md   # 所有提取的摘要
+├── review-checklist.md    # 需要人類審查的項目
+└── certainty-matrix.md    # 按場景的確定性層級
 ```
 
 ---
 
-## Version History
+## 版本歷史
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-01-19 | Initial release |
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-01-19 | 初始版本 |

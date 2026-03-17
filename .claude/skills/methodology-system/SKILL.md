@@ -1,65 +1,72 @@
 ---
+source: ../../../../skills/methodology-system/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-10
+status: current
+description: |
+  管理當前專案的開發方法論，支援 SDD 和雙迴圈 TDD 兩個獨立系統。
+  使用時機：切換方法論、檢視當前階段、管理開發流程。
+  關鍵字：methodology, SDD, TDD, BDD, ATDD, 方法論, 開發流程。
 name: methodology
-scope: partial
-description: "[UDS] Manage development methodology workflow"
 allowed-tools: Read, Write, Grep, Glob
+scope: partial
 argument-hint: "[action] [argument]"
 ---
 
-# Methodology System | 方法論系統
+# 方法論系統
+
+> **語言**: [English](../../../../skills/methodology-system/SKILL.md) | 繁體中文
 
 > [!WARNING]
-> **Experimental Feature / 實驗性功能**
+> **實驗性功能**
 >
-> This feature is under active development and may change significantly in v4.0.
 > 此功能正在積極開發中，可能在 v4.0 中有重大變更。
-
-Manage the active development methodology for the current project with two independent systems.
 
 管理當前專案的開發方法論，支援兩個獨立系統。
 
-**Two Independent Systems / 兩個獨立系統：**
-- **System A: SDD** - Spec-Driven Development (AI-era, spec-first)
-- **System B: Double-Loop TDD** - BDD (outer) + TDD (inner) (traditional)
+**兩個獨立系統：**
+- **系統 A：SDD** - 規格驅動開發（AI 時代、規格優先）
+- **系統 B：雙迴圈 TDD** - BDD（外部迴圈）+ TDD（內部迴圈）（傳統）
 
-**Optional Input:** ATDD - Acceptance Test-Driven Development (feeds into either system)
+**可選輸入：** ATDD - 驗收測試驅動開發（可作為任一系統的輸入）
 
-## Actions | 動作
+## 動作
 
-| Action | Description | 說明 |
-|--------|-------------|------|
-| *(none)* / `status` | Show current phase and checklist | 顯示當前階段和檢查清單 |
-| `switch <id>` | Switch to different methodology | 切換到不同方法論 |
-| `phase [name]` | Show or change current phase | 顯示或變更當前階段 |
-| `checklist` | Show current phase checklist | 顯示當前階段檢查清單 |
-| `skip` | Skip current phase (with warning) | 跳過當前階段（會有警告） |
-| `list` | List available methodologies | 列出可用方法論 |
-| `create` | Create custom methodology | 建立自訂方法論 |
+| 動作 | 說明 |
+|------|------|
+| *(無)* / `status` | 顯示當前階段和檢查清單 |
+| `switch <id>` | 切換到不同方法論 |
+| `phase [name]` | 顯示或變更當前階段 |
+| `checklist` | 顯示當前階段檢查清單 |
+| `skip` | 跳過當前階段（會有警告） |
+| `list` | 列出可用方法論 |
+| `create` | 建立自訂方法論 |
 
-## Available Methodologies | 可用方法論
+## 可用方法論
 
-| System | ID | Workflow | 工作流程 |
-|--------|-----|---------|---------|
-| A: SDD | `sdd` | /sdd -> Review -> /derive-all -> Implementation | 規格優先 |
-| B: BDD | `bdd` | Discovery -> Formulation -> Automation | 外部迴圈 |
-| B: TDD | `tdd` | Red -> Green -> Refactor | 內部迴圈 |
-| Input | `atdd` | Workshop -> Examples -> Tests | 驗收測試驅動 |
+| 系統 | ID | 工作流程 |
+|------|-----|---------|
+| A：SDD | `sdd` | /sdd -> 審查 -> /derive-all -> 實作 |
+| B：BDD | `bdd` | 探索 -> 制定 -> 自動化 |
+| B：TDD | `tdd` | 紅 -> 綠 -> 重構 |
+| 輸入 | `atdd` | 工作坊 -> 範例 -> 測試 |
 
-## Usage Examples | 使用範例
+## 使用範例
 
-```bash
-/methodology                    # Show current status
-/methodology switch sdd         # Switch to Spec-Driven Development
-/methodology phase green        # Move to GREEN phase (TDD)
-/methodology checklist          # Show current phase checklist
-/methodology list               # List all available methodologies
-/methodology skip               # Skip current phase (with warning)
-/methodology create             # Start custom methodology wizard
+```
+/methodology                    # 顯示當前狀態
+/methodology switch sdd         # 切換到規格驅動開發
+/methodology phase green        # 移至 GREEN 階段（TDD）
+/methodology checklist          # 顯示當前階段檢查清單
+/methodology list               # 列出所有可用方法論
+/methodology skip               # 跳過當前階段（會有警告）
+/methodology create             # 啟動自訂方法論精靈
 ```
 
-## Configuration | 配置
+## 配置
 
-Methodology settings are stored in `.standards/manifest.json`:
+方法論設定儲存在 `.standards/manifest.json`：
 
 ```json
 {
@@ -70,6 +77,16 @@ Methodology settings are stored in `.standards/manifest.json`:
 }
 ```
 
-## Reference | 參考
+## 下一步引導
 
-- Detailed guide: [guide.md](./guide.md)
+`/methodology` 完成後，AI 助手應根據選擇的方法論建議：
+
+> **方法論已設定。建議下一步：**
+> - SDD 方法論 → 執行 `/sdd` 建立規格
+> - BDD 方法論 → 執行 `/bdd` 開始場景探索
+> - TDD 方法論 → 執行 `/tdd` 開始紅綠重構
+> - ATDD 方法論 → 執行 `/atdd` 定義驗收條件
+
+## 參考
+
+- 詳細指南：[guide.md](./guide.md)

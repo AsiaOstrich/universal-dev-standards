@@ -1,61 +1,69 @@
-# Testing Pyramid Guide
+---
+source: ../../../../skills/testing-guide/testing-pyramid.md
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2025-12-30
+status: current
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/testing-guide/testing-pyramid.md)
+# 測試金字塔指南
 
-**Version**: 1.1.0
-**Last Updated**: 2025-12-29
-**Applicability**: Claude Code Skills
+> **語言**: [English](../../../../skills/testing-guide/testing-pyramid.md) | 繁體中文
+
+**版本**: 1.1.0
+**最後更新**: 2025-12-29
+**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose
+## 目的
 
-This document provides detailed guidelines for the testing pyramid and test writing best practices. It supports both ISTQB and Industry Pyramid frameworks.
+本文件提供測試金字塔和測試撰寫最佳實踐的詳細指南，支援 ISTQB 和業界通行金字塔框架。
 
 ---
 
-## Framework Selection
+## 框架選擇
 
-| Framework | Levels | Best For |
+| 框架 | 層級 | 適用場景 |
 |-----------|--------|----------|
-| **ISTQB** | UT → IT/SIT → ST → AT/UAT | Enterprise, compliance, formal QA |
-| **Industry Pyramid** | UT (70%) → IT (20%) → E2E (10%) | Agile, DevOps, CI/CD |
+| **ISTQB** | UT → IT/SIT → ST → AT/UAT | 企業級、合規性、正式 QA |
+| **業界通行金字塔** | UT (70%) → IT (20%) → E2E (10%) | 敏捷、DevOps、CI/CD |
 
-**Note on Integration Testing abbreviation:**
-- **IT** (Integration Testing): Agile/DevOps communities
-- **SIT** (System Integration Testing): Enterprise/ISTQB contexts
-- Both refer to the same testing level
+**整合測試縮寫說明：**
+- **IT** (Integration Testing)：敏捷/DevOps 社群常用
+- **SIT** (System Integration Testing)：企業/ISTQB 環境常用
+- 兩者指的是相同的測試層級
 
 ---
 
-## Unit Testing (UT)
+## 單元測試 (UT)
 
-### Definition
+### 定義
 
-Tests individual functions, methods, or classes in isolation from external dependencies.
+在隔離外部相依的情況下，測試單一函式、方法或類別。
 
-### Characteristics
+### 特性
 
-- **Isolated**: No database, network, or file system access
-- **Fast**: Each test < 100ms
-- **Deterministic**: Same input always produces same output
+- **隔離**: 不存取資料庫、網路或檔案系統
+- **快速**: 每個測試 < 100ms
+- **確定性**: 相同輸入總是產生相同輸出
 
-### Scope
+### 範圍
 
 ```
-✅ Single function/method
-✅ Single class
-✅ Pure business logic
-✅ Data transformations
-✅ Validation rules
+✅ 單一函式/方法
+✅ 單一類別
+✅ 純粹商業邏輯
+✅ 資料轉換
+✅ 驗證規則
 
-❌ Database queries
-❌ External API calls
-❌ File I/O operations
-❌ Multi-class interactions
+❌ 資料庫查詢
+❌ 外部 API 呼叫
+❌ 檔案 I/O 操作
+❌ 多類別互動
 ```
 
-### Example
+### 範例
 
 ```typescript
 describe('UserValidator', () => {
@@ -79,52 +87,52 @@ describe('UserValidator', () => {
 
 ---
 
-## Integration Testing (IT/SIT)
+## 整合測試 (IT/SIT)
 
-### Definition
+### 定義
 
-Tests interactions between multiple components, modules, or external systems.
+測試多個元件、模組或外部系統之間的互動。
 
-**Abbreviation Note:**
-- **IT** (Integration Testing): Common in Agile/DevOps communities (Martin Fowler, Google)
-- **SIT** (System Integration Testing): Common in Enterprise/ISTQB contexts
-- Both terms refer to the same testing concept
+**縮寫說明：**
+- **IT** (Integration Testing)：敏捷/DevOps 社群常用（Martin Fowler、Google）
+- **SIT** (System Integration Testing)：企業/ISTQB 環境常用
+- 兩者指的是相同的測試概念
 
-### When Integration Tests Are Required
+### 何時必須有整合測試
 
-| Scenario | Reason |
+| 情境 | 原因 |
 |----------|--------|
-| Query predicates | Mocks cannot verify filter expressions |
-| Entity relationships | Verify foreign key correctness |
-| Composite keys | In-memory DB may differ from real DB |
-| Field mapping | DTO ↔ Entity transformations |
-| Pagination | Row ordering and counting |
-| Transactions | Rollback behavior |
+| 查詢述詞 | Mock 無法驗證過濾表達式 |
+| 實體關聯 | 驗證外鍵正確性 |
+| 複合主鍵 | 記憶體資料庫可能與真實資料庫不同 |
+| 欄位對應 | DTO ↔ Entity 轉換 |
+| 分頁 | 列排序和計數 |
+| 交易 | 回滾行為 |
 
-**Decision Rule**: If your unit test uses a wildcard matcher (`any()`, `It.IsAny<>`, `Arg.Any<>`) for a query/filter parameter, that functionality MUST have an integration test.
+**決策規則**: 如果單元測試對查詢/過濾參數使用萬用字元匹配器（`any()`、`It.IsAny<>`、`Arg.Any<>`），該功能必須有整合測試。
 
-### Characteristics
+### 特性
 
-- **Component Integration**: Tests module boundaries
-- **Real Dependencies**: Uses actual databases, APIs (often containerized)
-- **Slower**: Each test typically 1-10 seconds
+- **元件整合**: 測試模組邊界
+- **真實相依**: 使用實際資料庫、API（通常容器化）
+- **較慢**: 每個測試通常 1-10 秒
 
-### Scope
+### 範圍
 
 ```
-✅ Database CRUD operations
+✅ 資料庫 CRUD 操作
 ✅ Repository + Database
 ✅ Service + Repository
-✅ API endpoint + Service layer
-✅ Message queue producers/consumers
-✅ Cache read/write operations
+✅ API 端點 + Service 層
+✅ 訊息佇列生產者/消費者
+✅ 快取讀寫操作
 
-❌ Full user workflows
-❌ Cross-service communication
-❌ UI interactions
+❌ 完整使用者工作流程
+❌ 跨服務通訊
+❌ UI 互動
 ```
 
-### Example
+### 範例
 
 ```typescript
 describe('UserRepository Integration', () => {
@@ -154,71 +162,71 @@ describe('UserRepository Integration', () => {
 
 ---
 
-## System Testing (ST)
+## 系統測試 (ST)
 
-### Definition
+### 定義
 
-Tests the complete integrated system to verify it meets specified requirements.
+測試完整整合的系統，以驗證其符合指定需求。
 
-### Characteristics
+### 特性
 
-- **Complete System**: All components deployed and integrated
-- **Requirement-Based**: Tests against functional specifications
-- **Production-Like**: Uses environment similar to production
+- **完整系統**: 所有元件已部署並整合
+- **基於需求**: 針對功能規格進行測試
+- **類生產環境**: 使用類似生產環境的環境
 
-### Scope
+### 範圍
 
 ```
-✅ Complete API workflows
-✅ Cross-service transactions
-✅ Data flow through entire system
-✅ Security requirements
-✅ Performance under load
-✅ Error handling & recovery
+✅ 完整 API 工作流程
+✅ 跨服務交易
+✅ 整個系統的資料流
+✅ 安全需求
+✅ 負載下的效能
+✅ 錯誤處理與恢復
 
-❌ UI visual testing
-❌ User journey simulations
-❌ A/B testing scenarios
+❌ UI 視覺測試
+❌ 使用者旅程模擬
+❌ A/B 測試情境
 ```
 
-### Types
+### 類型
 
-| Type | Description |
+| 類型 | 描述 |
 |------|-------------|
-| Functional | Verify features work as specified |
-| Performance | Load, stress, scalability testing |
-| Security | Penetration, vulnerability scanning |
-| Reliability | Failover, recovery, stability |
+| 功能性 | 驗證功能按指定運作 |
+| 效能 | 負載、壓力、擴展性測試 |
+| 安全性 | 滲透、漏洞掃描 |
+| 可靠性 | 容錯移轉、恢復、穩定性 |
 
 ---
 
-## End-to-End Testing (E2E)
+## 端對端測試 (E2E)
 
-### Definition
+### 定義
 
-Tests complete user workflows from the user interface through all system layers.
+從使用者介面到所有系統層，測試完整的使用者工作流程。
 
-### Characteristics
+### 特性
 
-- **User Perspective**: Simulates real user interactions
-- **Full Stack**: UI → API → Database → External Services
-- **Slowest**: Each test typically 30 seconds to several minutes
+- **使用者視角**: 模擬真實使用者互動
+- **全堆疊**: UI → API → Database → External Services
+- **最慢**: 每個測試通常 30 秒到數分鐘
 
-### Scope
+### 範圍
 
 ```
-✅ Critical user journeys
-✅ Login/Authentication flows
-✅ Core business transactions
-✅ Cross-browser functionality
-✅ Smoke tests for deployments
+✅ 關鍵使用者旅程
+✅ 登入/驗證流程
+✅ 核心業務交易
+✅ 跨瀏覽器功能
+✅ 部署煙霧測試
 
-❌ Every possible user path
-❌ Edge cases (use UT/IT)
-❌ Performance benchmarking
+❌ 所有可能的使用者路徑
+❌ 邊緣案例（使用 UT/IT）
+❌ 效能基準測試
 ```
 
-### Example (Playwright)
+### 範例 (Playwright)
 
 ```typescript
 test.describe('User Registration Journey', () => {
@@ -249,11 +257,11 @@ test.describe('User Registration Journey', () => {
 
 ---
 
-## Test Environment Isolation
+## 測試環境隔離
 
-### Virtual Environments
+### 虛擬環境
 
-| Language | Tools | Lock File |
+| 語言 | 工具 | 鎖定檔案 |
 |----------|-------|----------|
 | Python | venv, poetry | requirements.txt, poetry.lock |
 | Node.js | nvm + npm | package-lock.json |
@@ -262,16 +270,16 @@ test.describe('User Registration Journey', () => {
 | .NET | dotnet SDK | packages.lock.json |
 | Go | go mod | go.sum |
 
-### Containerized Testing
+### 容器化測試
 
-| Test Level | Container Usage |
+| 測試層級 | 容器使用 |
 |------------|----------------|
-| UT | ❌ Not needed - use mocks |
-| IT | ✅ Testcontainers for DB, cache |
-| ST | ✅ Docker Compose for full env |
-| E2E | ✅ Full containerized stack |
+| UT | ❌ 不需要 - 使用 mock |
+| IT | ✅ 使用 Testcontainers 進行 DB、快取 |
+| ST | ✅ 使用 Docker Compose 進行完整環境 |
+| E2E | ✅ 完整容器化堆疊 |
 
-### Testcontainers Example
+### Testcontainers 範例
 
 ```typescript
 import { PostgreSqlContainer } from 'testcontainers';
@@ -296,59 +304,59 @@ describe('Database Integration', () => {
 
 ---
 
-## Mock Limitations
+## Mock 限制
 
-### Query Predicate Verification
+### 查詢述詞驗證
 
-When mocking repository methods that accept query predicates (e.g., lambda expressions, filter functions), using wildcard matchers like `any()` ignores the actual query logic, allowing incorrect queries to pass unit tests.
+當模擬接受查詢述詞（例如 lambda 表達式、過濾函式）的 repository 方法時，使用萬用字元匹配器（如 `any()`）會忽略實際的查詢邏輯，允許不正確的查詢通過單元測試。
 
 ```typescript
-// ❌ Jest mock ignores actual filter
+// ❌ Jest mock 忽略實際過濾器
 jest.spyOn(repo, 'findBy').mockResolvedValue(users);
 
-// ✓ Verify with integration test
+// ✓ 使用整合測試驗證
 ```
 
-**Rule of Thumb**: If your unit test mocks a method that accepts a query/filter/predicate parameter, you MUST have a corresponding integration test to verify the query logic.
+**經驗法則**: 如果單元測試模擬接受查詢/過濾/述詞參數的方法，您必須有相應的整合測試來驗證查詢邏輯。
 
 ---
 
-## Test Data Management
+## 測試資料管理
 
-### Principles
+### 原則
 
-1. **Isolation**: Each test manages its own data
-2. **Cleanup**: Tests clean up after themselves
-3. **Determinism**: Tests don't depend on shared state
-4. **Readability**: Test data clearly shows intent
+1. **隔離**: 每個測試管理自己的資料
+2. **清理**: 測試執行後清理
+3. **確定性**: 測試不依賴共享狀態
+4. **可讀性**: 測試資料清楚顯示意圖
 
-### Distinct Identifiers
+### 區分識別欄位
 
-When entities have both a surrogate key (auto-generated ID) and a business identifier (e.g., employee number, department code), test data MUST use different values for each.
+當實體同時具有代理鍵（自動產生的 ID）和業務識別碼（例如員工編號、部門代碼）時，測試資料必須對每個使用不同的值。
 
 ```typescript
-// ❌ Wrong: id equals businessCode - mapping errors go undetected
+// ❌ 錯誤: id 等於 businessCode - 對應錯誤無法檢測
 const dept = { id: 1, businessCode: 1 };
 
-// ✓ Correct: distinct values catch field mapping bugs
+// ✓ 正確: 不同的值可捕獲欄位對應錯誤
 const dept = { id: 1, businessCode: 1001 };
 ```
 
-### Composite Keys
+### 複合主鍵
 
-For entities with composite primary keys, ensure each record has a unique key combination.
+對於具有複合主鍵的實體，確保每筆記錄具有唯一的鍵組合。
 
 ```typescript
-// ❌ Key collision - same (id, timestamp) combination
+// ❌ 鍵衝突 - 相同的 (id, timestamp) 組合
 const record1 = { id: 0, timestamp: now };
-const record2 = { id: 0, timestamp: now };  // Conflict!
+const record2 = { id: 0, timestamp: now };  // 衝突！
 
-// ✓ Unique combinations
+// ✓ 唯一組合
 const record1 = { id: 0, timestamp: addSeconds(now, 1) };
 const record2 = { id: 0, timestamp: addSeconds(now, 2) };
 ```
 
-### Builder Pattern
+### 建造者模式
 
 ```typescript
 class UserBuilder {
@@ -383,58 +391,58 @@ const inactiveUser = new UserBuilder().inactive().build();
 
 ---
 
-## Quick Reference Card
+## 快速參考卡
 
-### Industry Pyramid (Recommended for Agile/DevOps)
-
-```
-┌──────────┬──────────────────────────────────────────┐
-│   UT     │ Single unit, isolated, mocked deps, < 100ms     │
-├──────────┼──────────────────────────────────────────┤
-│ IT/SIT   │ Component integration, real DB, 1-10 sec        │
-├──────────┼──────────────────────────────────────────┤
-│  E2E     │ User journeys, UI to DB, critical paths only    │
-└──────────┴──────────────────────────────────────────┘
-
-Ratio: UT 70% | IT 20% | E2E 10%
-```
-
-### ISTQB Framework (For Enterprise/Compliance)
+### 業界通行金字塔（適合敏捷/DevOps）
 
 ```
 ┌──────────┬──────────────────────────────────────────┐
-│   UT     │ Component testing, isolated units              │
+│   UT     │ 單一單元、隔離、模擬相依、< 100ms               │
 ├──────────┼──────────────────────────────────────────┤
-│ IT/SIT   │ Integration testing, component interactions    │
+│ IT/SIT   │ 元件整合、真實資料庫、1-10 秒                  │
 ├──────────┼──────────────────────────────────────────┤
-│   ST     │ System testing, requirement validation         │
+│  E2E     │ 使用者旅程、UI 到資料庫、僅關鍵路徑            │
+└──────────┴──────────────────────────────────────────┘
+
+比例: UT 70% | IT 20% | E2E 10%
+```
+
+### ISTQB 框架（適合企業/合規）
+
+```
+┌──────────┬──────────────────────────────────────────┐
+│   UT     │ 元件測試、隔離單元                            │
 ├──────────┼──────────────────────────────────────────┤
-│ AT/UAT   │ Acceptance testing, business validation        │
+│ IT/SIT   │ 整合測試、元件互動                            │
+├──────────┼──────────────────────────────────────────┤
+│   ST     │ 系統測試、需求驗證                            │
+├──────────┼──────────────────────────────────────────┤
+│ AT/UAT   │ 驗收測試、業務驗證                            │
 └──────────┴──────────────────────────────────────────┘
 ```
 
-**Mock Rule**: If UT mocks query params → IT is REQUIRED
+**Mock 規則**: 如果 UT 模擬查詢參數 → 必須有 IT
 
 ---
 
-## Related Standards
+## 相關標準
 
-- [Testing Standards](../../core/testing-standards.md)
-- [Code Review Checklist](../../core/code-review-checklist.md)
+- [測試標準](../../core/testing-standards.md)
+- [程式碼審查檢查清單](../../core/code-review-checklist.md)
 
 ---
 
-## Version History
+## 版本歷史
 
-| Version | Date | Changes |
+| 版本 | 日期 | 變更內容 |
 |---------|------|---------|
-| 1.1.0 | 2025-12-29 | Added: Framework Selection (ISTQB/Industry Pyramid), IT/SIT abbreviation note |
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+| 1.1.0 | 2025-12-29 | 新增：框架選擇（ISTQB/業界通行金字塔）、IT/SIT 縮寫說明 |
+| 1.0.0 | 2025-12-24 | 新增：標準區段（目的、相關標準、版本歷史、授權） |
 
 ---
 
-## License
+## 授權
 
-This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

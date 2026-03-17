@@ -1,181 +1,189 @@
-# Pre-Commit Checklist
+---
+source: ../../../../skills/code-review-assistant/checkin-checklist.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-25
+status: current
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/code-review-assistant/checkin-checklist.md)
+# Pre-Commit Checklist（提交前檢查清單）
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
-**Applicability**: Claude Code Skills
+> **語言**: [English](../../../../skills/code-review-assistant/checkin-checklist.md) | 繁體中文
+
+**版本**: 1.0.0
+**最後更新**: 2025-12-24
+**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose
+## 目的
 
-This document provides a checklist for developers to verify before committing code changes.
-
----
-
-## Mandatory Checks
-
-### 1. Build Verification
-
-- [ ] **Code compiles successfully**
-  - Zero build errors
-  - Zero build warnings (or documented exceptions)
-
-- [ ] **Dependencies are satisfied**
-  - All package dependencies installed
-  - Dependency versions locked
-  - No missing imports
+本文件提供開發者在提交程式碼變更前需要驗證的檢查清單。
 
 ---
 
-### 2. Test Verification
+## 必要檢查
 
-- [ ] **All existing tests pass**
-  - Unit tests: 100% pass rate
-  - Integration tests: 100% pass rate
+### 1. 建置驗證
 
-- [ ] **New code is tested**
-  - New features have corresponding tests
-  - Bug fixes include regression tests
+- [ ] **程式碼編譯成功**
+  - 零建置錯誤
+  - 零建置警告（或已記錄的例外情況）
 
-- [ ] **Test coverage maintained**
-  - Coverage percentage not decreased
-  - Critical paths tested
-
----
-
-### 3. Code Quality
-
-- [ ] **Follows coding standards**
-  - Naming conventions adhered to
-  - Code formatting consistent
-  - Comments present where needed
-
-- [ ] **No code smells**
-  - Methods ≤50 lines
-  - Nesting depth ≤3 levels
-  - Cyclomatic complexity ≤10
-  - No duplicated code blocks
-
-- [ ] **Security checked**
-  - No hardcoded secrets
-  - No SQL injection vulnerabilities
-  - No XSS vulnerabilities
-  - No insecure dependencies
+- [ ] **依賴套件已滿足**
+  - 所有套件依賴已安裝
+  - 依賴版本已鎖定
+  - 無缺少的 imports
 
 ---
 
-### 4. Documentation
+### 2. 測試驗證
 
-- [ ] **API documentation updated**
-  - Public APIs have doc comments
-  - Parameters explained
-  - Return values documented
+- [ ] **所有現有測試通過**
+  - 單元測試：100% 通過率
+  - 整合測試：100% 通過率
 
-- [ ] **README updated (if needed)**
-  - New features documented
-  - Breaking changes noted
+- [ ] **新程式碼已測試**
+  - 新功能有對應的測試
+  - Bug 修復包含回歸測試
 
-- [ ] **CHANGELOG updated (if applicable)**
-  - User-facing changes added to `[Unreleased]`
-  - Breaking changes marked
-
----
-
-### 5. Workflow Compliance
-
-- [ ] **Branch naming correct**
-  - Follows project convention (`feature/`, `fix/`)
-
-- [ ] **Commit message formatted**
-  - Follows conventional commits or project standard
-
-- [ ] **Synchronized with target branch**
-  - Merged latest changes from target branch
-  - No merge conflicts
+- [ ] **測試覆蓋率已維持**
+  - 覆蓋率百分比未降低
+  - 關鍵路徑已測試
 
 ---
 
-## Commit Timing Guidelines
+### 3. 程式碼品質
 
-### ✅ Appropriate Times to Commit
+- [ ] **遵循編碼標準**
+  - 遵守命名慣例
+  - 程式碼格式一致
+  - 需要時有註解
 
-1. **Completed Functional Unit**
-   - Feature fully implemented
-   - Tests written and passing
-   - Documentation updated
+- [ ] **無程式碼異味**
+  - 方法 ≤50 行
+  - 巢狀深度 ≤3 層
+  - 循環複雜度 ≤10
+  - 無重複程式碼區塊
 
-2. **Specific Bug Fixed**
-   - Bug reproduced and fixed
-   - Regression test added
-
-3. **Independent Refactor**
-   - Refactoring complete
-   - No functional changes
-   - All tests still pass
-
-4. **Runnable State**
-   - Code compiles without errors
-   - Application can run/start
-   - Core functionality not broken
-
-### ❌ Inappropriate Times to Commit
-
-1. **Build Failures**
-   - Compilation errors present
-   - Unresolved dependencies
-
-2. **Test Failures**
-   - One or more tests failing
-   - Tests not yet written for new code
-
-3. **Incomplete Features**
-   - Feature partially implemented
-   - Would break existing functionality
-
-4. **Experimental Code**
-   - TODO comments scattered
-   - Debugging code left in
-   - Commented-out code blocks
+- [ ] **安全性已檢查**
+  - 無硬編碼的密鑰
+  - 無 SQL 注入漏洞
+  - 無 XSS 漏洞
+  - 無不安全的依賴套件
 
 ---
 
-## Commit Granularity
+### 4. 文件
 
-### Ideal Commit Size
+- [ ] **API 文件已更新**
+  - 公開 API 有文件註解
+  - 參數已說明
+  - 回傳值已記錄
 
-| Metric | Recommended |
+- [ ] **README 已更新（如需要）**
+  - 新功能已記錄
+  - 重大變更已註記
+
+- [ ] **CHANGELOG 已更新（如適用）**
+  - 面向使用者的變更已加入 `[Unreleased]`
+  - 重大變更已標記
+
+---
+
+### 5. 工作流程合規性
+
+- [ ] **分支命名正確**
+  - 遵循專案慣例（`feature/`、`fix/`）
+
+- [ ] **提交訊息已格式化**
+  - 遵循 conventional commits 或專案標準
+
+- [ ] **與目標分支同步**
+  - 已合併目標分支的最新變更
+  - 無合併衝突
+
+---
+
+## 提交時機指南
+
+### ✅ 適當的提交時機
+
+1. **完成的功能單元**
+   - 功能完全實作
+   - 測試已撰寫並通過
+   - 文件已更新
+
+2. **特定 Bug 已修復**
+   - Bug 已重現並修復
+   - 已加入回歸測試
+
+3. **獨立的重構**
+   - 重構完成
+   - 無功能變更
+   - 所有測試仍通過
+
+4. **可執行狀態**
+   - 程式碼編譯無錯誤
+   - 應用程式可執行/啟動
+   - 核心功能未損壞
+
+### ❌ 不適當的提交時機
+
+1. **建置失敗**
+   - 存在編譯錯誤
+   - 未解決的依賴問題
+
+2. **測試失敗**
+   - 一個或多個測試失敗
+   - 新程式碼尚未撰寫測試
+
+3. **未完成的功能**
+   - 功能部分實作
+   - 會破壞現有功能
+
+4. **實驗性程式碼**
+   - 散佈 TODO 註解
+   - 遺留除錯程式碼
+   - 註解掉的程式碼區塊
+
+---
+
+## 提交粒度
+
+### 理想的提交大小
+
+| 指標 | 建議 |
 |--------|-------------|
-| File Count | 1-10 files |
-| Lines Changed | 50-300 lines |
-| Scope | Single concern |
+| 檔案數量 | 1-10 個檔案 |
+| 變更行數 | 50-300 行 |
+| 範圍 | 單一關注點 |
 
-### Splitting Principles
+### 拆分原則
 
-**Combine into one commit**:
-- Feature implementation + corresponding tests
-- Tightly related multi-file changes
+**合併為一個提交**：
+- 功能實作 + 對應的測試
+- 緊密相關的多檔案變更
 
-**Separate commits**:
-- Feature A + Feature B → separate
-- Refactoring + new feature → separate
-- Bug fix + incidental refactoring → separate
+**分開提交**：
+- 功能 A + 功能 B → 分開
+- 重構 + 新功能 → 分開
+- Bug 修復 + 附帶重構 → 分開
 
 ---
 
-## Special Scenarios
+## 特殊情境
 
-### Emergency Leave (WIP)
+### 緊急離開（WIP）
 
-**Option 1: Git Stash (Recommended)**
+**選項 1：Git Stash（推薦）**
 ```bash
 git stash save "WIP: description of incomplete work"
 # Resume later
 git stash pop
 ```
 
-**Option 2: WIP Branch**
+**選項 2：WIP 分支**
 ```bash
 git checkout -b wip/feature-temp
 git commit -m "WIP: progress save (do not merge)"
@@ -183,19 +191,19 @@ git commit -m "WIP: progress save (do not merge)"
 
 ### Hotfix
 
-1. Create hotfix branch from main
-2. Minimize changes (only fix the problem)
-3. Quick verification (ensure tests pass)
-4. Mark urgency in commit message:
+1. 從 main 建立 hotfix 分支
+2. 最小化變更（僅修復問題）
+3. 快速驗證（確保測試通過）
+4. 在提交訊息中標記緊急性：
    ```
    fix(module): [URGENT] fix critical issue
    ```
 
 ---
 
-## Common Violations
+## 常見違規
 
-### ❌ "WIP" Commits
+### ❌ "WIP" 提交
 
 ```
 git commit -m "WIP"
@@ -203,21 +211,21 @@ git commit -m "save work"
 git commit -m "trying stuff"
 ```
 
-**Solution**: Use `git stash` or squash before merging
+**解決方案**：使用 `git stash` 或在合併前 squash
 
-### ❌ Commented-Out Code
+### ❌ 註解掉的程式碼
 
-**Problem**: Clutters codebase, confuses future developers
+**問題**：使程式碼庫雜亂，混淆未來的開發者
 
-**Solution**: Delete it. Git history preserves old code.
+**解決方案**：刪除它。Git 歷史會保留舊程式碼。
 
-### ❌ Mixing Concerns
+### ❌ 混合關注點
 
 ```
 git commit -m "fix bug and refactor and add feature"
 ```
 
-**Solution**: Separate into multiple commits:
+**解決方案**：分開為多個提交：
 ```
 git commit -m "fix(module-a): resolve null pointer error"
 git commit -m "refactor(module-b): extract validation logic"
@@ -226,24 +234,24 @@ git commit -m "feat(module-c): add export feature"
 
 ---
 
-## Related Standards
+## 相關標準
 
-- [Checkin Standards](../../core/checkin-standards.md)
+- [Checkin Standards](../../../../core/checkin-standards.md)
 - [Code Review Checklist](./review-checklist.md)
-- [Commit Message Guide](../../core/commit-message-guide.md)
+- [Commit Message Guide](../../../../core/commit-message-guide.md)
 
 ---
 
-## Version History
+## 版本歷史
 
-| Version | Date | Changes |
+| 版本 | 日期 | 變更 |
 |---------|------|---------|
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+| 1.0.0 | 2025-12-24 | 新增：標準章節（目的、相關標準、版本歷史、授權） |
 
 ---
 
-## License
+## 授權
 
-This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+本文件依據 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

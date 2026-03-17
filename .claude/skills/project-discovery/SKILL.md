@@ -1,73 +1,81 @@
 ---
+source: ../../../../skills/project-discovery/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-10
+status: current
+description: |
+  在既有程式碼庫新增功能前的 Phase 0 評估，評估專案健康度、架構與風險。
+  使用時機：新增功能前、專案健康度檢查、風險評估。
+  關鍵字：discover, assessment, health, risk, 評估, 健康度, 風險, 架構。
 name: discover
-scope: universal
-description: "[UDS] Assess project health, architecture, and risks before adding features"
 allowed-tools: Read, Grep, Glob, Bash(npm test:*), Bash(npm audit:*), Bash(npm outdated:*)
+scope: universal
 argument-hint: "[feature area | 功能範圍]"
 disable-model-invocation: true
 ---
 
-# Project Discovery | 專案現況評估
+# 專案現況評估
 
-Phase 0 assessment before adding features to existing codebases. Evaluate project health, architecture, and risks.
+> **語言**: [English](../../../../skills/project-discovery/SKILL.md) | 繁體中文
 
 在既有程式碼庫新增功能前的 Phase 0 評估。評估專案健康度、架構與風險。
 
-## Assessment Dimensions | 評估維度
+## 評估維度
 
-| Dimension | What to Check | 檢查項目 |
-|-----------|--------------|----------|
-| **Architecture** | Module structure, dependency graph, entry points | 模組結構、相依圖、進入點 |
-| **Dependencies** | Outdated packages, known vulnerabilities, license risks | 過時套件、已知漏洞、授權風險 |
-| **Test Coverage** | Existing test suite, coverage gaps, test quality | 現有測試、覆蓋率缺口、測試品質 |
-| **Security** | `npm audit` findings, hardcoded secrets, exposed endpoints | 安全稽核、硬編碼密鑰、暴露端點 |
-| **Technical Debt** | TODOs, code duplication, complexity hotspots | TODO 標記、程式碼重複、複雜度熱點 |
+| 維度 | 檢查項目 |
+|------|----------|
+| **架構** | 模組結構、相依圖、進入點 |
+| **相依套件** | 過時套件、已知漏洞、授權風險 |
+| **測試覆蓋率** | 現有測試、覆蓋率缺口、測試品質 |
+| **安全性** | `npm audit` 結果、硬編碼密鑰、暴露端點 |
+| **技術債** | TODO 標記、程式碼重複、複雜度熱點 |
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Scan project** - Read package.json, directory structure, config files
-2. **Analyze architecture** - Map modules, dependencies, and data flow
-3. **Check dependencies** - Run `npm outdated`, `npm audit` for health signals
-4. **Assess risks** - Identify complexity hotspots, missing tests, security issues
-5. **Generate report** - Output health score with actionable recommendations
+1. **掃描專案** - 讀取 package.json、目錄結構、設定檔
+2. **分析架構** - 繪製模組、相依性和資料流圖
+3. **檢查相依套件** - 執行 `npm outdated`、`npm audit` 取得健康信號
+4. **評估風險** - 識別複雜度熱點、缺失測試、安全問題
+5. **產生報告** - 輸出健康分數與可執行的建議
 
-## Output Format | 輸出格式
+## 輸出格式
 
 ```
-Project Health Report
+專案健康報告
 =====================
-Overall Score: 7.2 / 10
+總分：7.2 / 10
 
-| Dimension       | Score | Status  | Key Finding            |
-|-----------------|-------|---------|------------------------|
-| Architecture    | 8/10  | Good    | Clean module boundaries |
-| Dependencies    | 6/10  | Warning | 5 outdated, 1 critical |
-| Test Coverage   | 7/10  | Fair    | 72% line coverage      |
-| Security        | 8/10  | Good    | No critical vulns      |
-| Technical Debt  | 6/10  | Warning | 23 TODOs, 3 hotspots   |
+| 維度           | 分數  | 狀態    | 主要發現                |
+|----------------|-------|---------|------------------------|
+| 架構           | 8/10  | 良好    | 模組邊界清晰            |
+| 相依套件       | 6/10  | 警告    | 5 個過時、1 個重大問題   |
+| 測試覆蓋率     | 7/10  | 尚可    | 72% 行覆蓋率            |
+| 安全性         | 8/10  | 良好    | 無重大漏洞              |
+| 技術債         | 6/10  | 警告    | 23 個 TODO、3 個熱點    |
 
-Recommendations:
-1. [HIGH] Update lodash to fix CVE-2024-XXXX
-2. [MED]  Add tests for src/payments/ (0% coverage)
-3. [LOW]  Resolve TODO backlog in src/utils/
+建議：
+1. [高] 更新 lodash 以修復 CVE-2024-XXXX
+2. [中] 為 src/payments/ 新增測試（0% 覆蓋率）
+3. [低] 解決 src/utils/ 中的 TODO 積壓
 ```
 
-## Usage | 使用方式
+## 使用方式
 
-- `/discover` - Full project health assessment
-- `/discover auth` - Focused assessment of auth-related modules
-- `/discover payments` - Assess risks before adding payment features
+- `/discover` - 完整專案健康度評估
+- `/discover auth` - 針對 auth 相關模組進行評估
+- `/discover payments` - 在新增支付功能前評估風險
 
-## Next Steps Guidance | 下一步引導
+## 下一步引導
 
-After `/discover` completes, the AI assistant should suggest based on the assessment:
+`/discover` 完成後，AI 助手應根據評估結果建議：
 
-> **根據評估結果，建議下一步 / Based on assessment, suggested next steps:**
-> - **New feature / 新功能** → `/sdd` to create a specification
-> - **Legacy code / 遺留程式碼** → `/reverse spec` to extract existing behavior
-> - **Refactoring / 重構** → `/refactor decide` to choose a strategy
-> - **Quick fix / 快速修復** → `/tdd` to write a targeted test and fix
+> **根據評估結果，建議下一步：**
+> - **新功能** → 執行 `/sdd` 建立規格
+> - **遺留程式碼** → 執行 `/reverse spec` 提取現有行為
+> - **重構** → 執行 `/refactor decide` 選擇策略
+> - **快速修復** → 執行 `/tdd` 撰寫針對性測試並修復
 
-## Reference | 參考
+## 參考
 
-- Detailed guide: [guide.md](./guide.md)
+- 詳細指南：[guide.md](./guide.md)

@@ -1,60 +1,76 @@
 ---
+source: ../../../../skills/commit-standards/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-10
+status: current
+description: |
+  根據 Conventional Commits 規範產生格式正確的 commit message。
+  使用時機：提交程式碼、撰寫 commit message、檢查提交格式。
+  關鍵字：commit, conventional commits, 提交, 訊息, feat, fix, refactor。
 name: commit
-scope: universal
-description: "[UDS] Generate commit messages following Conventional Commits standard"
 allowed-tools: Read, Grep, Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*)
+scope: universal
 argument-hint: "[description of changes | 變更描述]"
 disable-model-invocation: true
 ---
 
-# Commit Message Assistant | Commit Message 助手
+# Commit Message 助手
 
-Generate well-formatted commit messages following the Conventional Commits standard.
+> **語言**: [English](../../../../skills/commit-standards/SKILL.md) | 繁體中文
 
 根據 staged 的變更，產生符合 Conventional Commits 格式的 commit message。
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Check status** - Run `git status` and `git diff --staged` to understand changes
-2. **Analyze changes** - Determine the type (feat, fix, refactor, etc.) and scope
-3. **Generate message** - Create a commit message following the format below
-4. **Confirm and commit** - Ask user to confirm before executing `git commit`
+1. **檢查狀態** - 執行 `git status` 和 `git diff --staged` 了解變更內容
+2. **分析變更** - 判斷類型（feat、fix、refactor 等）和範圍
+3. **產生訊息** - 根據以下格式建立 commit message
+4. **確認並提交** - 在執行 `git commit` 前詢問使用者確認
 
-### Message Format | 訊息格式
+### 訊息格式
 
 ```
 <type>(<scope>): <subject>
-
 <body>
-
 <footer>
 ```
 
-## Commit Types | 提交類型
+## 提交類型
 
-| Type | When to Use | 使用時機 |
-|------|-------------|---------|
-| `feat` | New feature | 新功能 |
-| `fix` | Bug fix | 修復錯誤 |
-| `refactor` | Code refactoring | 重構（無功能變更） |
-| `docs` | Documentation | 文件更新 |
-| `style` | Formatting | 格式調整（無邏輯變更） |
-| `test` | Tests | 測試相關 |
-| `perf` | Performance | 效能優化 |
-| `chore` | Maintenance | 維護任務 |
+| 類型 | 使用時機 | When to Use |
+|------|---------|-------------|
+| `feat` | 新功能 | New feature |
+| `fix` | 修復錯誤 | Bug fix |
+| `refactor` | 重構（無功能變更） | Code refactoring |
+| `docs` | 文件更新 | Documentation |
+| `style` | 格式調整（無邏輯變更） | Formatting |
+| `test` | 測試相關 | Tests |
+| `perf` | 效能優化 | Performance |
+| `chore` | 維護任務 | Maintenance |
 
-## Rules | 規則
+## 規則
 
-- **Subject**: imperative mood, no period, first letter capitalized, ≤ 72 characters
-- **Body**: explain **WHY** the change was made, not just what changed
-- **Footer**: use `BREAKING CHANGE:` for breaking changes, `Fixes #123` for issue refs
+- **Subject**：祈使語氣、不加句號、首字母大寫、不超過 72 字元
+- **Body**：說明**為什麼**進行變更，而非僅描述變更了什麼
+- **Footer**：使用 `BREAKING CHANGE:` 標記破壞性變更，使用 `Fixes #123` 關聯 issue
 
-## Usage | 使用方式
+## 使用方式
 
-- `/commit` - Auto-analyze staged changes and suggest commit message
-- `/commit fix login bug` - Generate message based on provided description
+- `/commit` - 自動分析 staged 的變更並建議 commit message
+- `/commit fix login bug` - 根據提供的描述產生訊息
 
-## Reference | 參考
+## 下一步引導
 
-- Detailed guide: [guide.md](./guide.md)
-- Core standard: [commit-message-guide.md](../../core/commit-message-guide.md)
+`/commit` 完成後，AI 助手應建議：
+
+> **提交完成。建議下一步：**
+> - 執行 `/changelog` 更新變更日誌
+> - 執行 `git push` 推送到遠端
+> - 執行 `/release`（若準備發布）
+> - 發現重複模式或規範摩擦 → 執行 `/audit --report` 回報
+
+## 參考
+
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[commit-message-guide.md](../../../../core/commit-message-guide.md)

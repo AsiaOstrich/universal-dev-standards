@@ -1,359 +1,367 @@
-# Project Discovery Workflow Guide
+---
+source: ../../../../skills/project-discovery/workflow.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-09
+status: current
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/project-discovery/workflow.md)
+# 專案現況評估工作流程指南
 
-**Version**: 1.0.0
-**Last Updated**: 2026-02-09
+> **語言**: [English](../../../../skills/project-discovery/workflow.md) | 繁體中文
+
+**版本**: 1.0.0
+**最後更新**: 2026-02-09
 
 ---
 
-## Overview
+## 概覽
 
-This guide provides detailed execution instructions for each step of the Phase 0 Discovery workflow. Use this as a companion to the [Project Discovery SKILL](./SKILL.md).
+本指南提供 Phase 0 現況評估工作流程每個步驟的詳細執行說明。請搭配[專案現況評估技能](./SKILL.md)使用。
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                Phase 0: Discovery Pipeline                       │
+│                Phase 0：現況評估流程                               │
 │                                                                  │
-│  Input: Existing codebase + proposed feature area               │
+│  輸入：既有程式碼 + 預計功能區域                                  │
 │                                                                  │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐                      │
-│  │ 0.1 Code │→│ 0.2 Arch │→│ 0.3 Docs │                       │
-│  │  Health   │  │  Review  │  │ Inventory│                       │
+│  │ 0.1 程碼 │→│ 0.2 架構 │→│ 0.3 文件 │                       │
+│  │  健康度   │  │  審查    │  │  盤點    │                       │
 │  └──────────┘  └──────────┘  └──────────┘                      │
 │       │              │              │                             │
 │       ▼              ▼              ▼                             │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐                      │
-│  │ 0.4 Code │→│ 0.5 Deps │→│ 0.6 Impact│                      │
-│  │  Review   │  │ Security │  │  Scope   │                       │
+│  │ 0.4 程碼 │→│ 0.5 依賴 │→│ 0.6 影響 │                      │
+│  │  審查    │  │  安全    │  │  範圍    │                       │
 │  └──────────┘  └──────────┘  └──────────┘                      │
 │       │              │              │                             │
 │       └──────────────┴──────────────┘                            │
 │                      │                                           │
 │                      ▼                                           │
-│              Discovery Report                                    │
-│          (go / no-go / conditional)                              │
+│              現況評估報告                                         │
+│          （通過 / 不通過 / 有條件通過）                           │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Step 0.1: Code Health Check
+## 步驟 0.1：程式碼健康度檢查
 
-### Objective
+### 目標
 
-Establish a quantitative baseline of the codebase's current quality.
+建立程式碼目前品質的量化基準。
 
-### Procedure
+### 程序
 
-#### 0.1.1 Run Test Suite
+#### 0.1.1 執行測試套件
 
 ```bash
-# Example commands (adapt to your project)
+# 範例指令（依據你的專案調整）
 npm test                    # Node.js
 pytest --cov               # Python
 dotnet test                # .NET
 ./gradlew test             # Java/Kotlin
 ```
 
-Record:
-- Total tests, passed, failed, skipped
-- Coverage percentage (line, branch if available)
-- Execution time
+記錄：
+- 測試總數、通過、失敗、跳過
+- 覆蓋率百分比（行覆蓋、分支覆蓋若有的話）
+- 執行時間
 
-#### 0.1.2 Run Linter
+#### 0.1.2 執行 Linter
 
 ```bash
-# Example commands
+# 範例指令
 npm run lint               # ESLint
 flake8 .                   # Python
 dotnet format --verify-no-changes  # .NET
 ```
 
-Record:
-- Error count
-- Warning count
-- Most frequent rule violations
+記錄：
+- 錯誤數
+- 警告數
+- 最常違反的規則
 
-#### 0.1.3 Identify Code Smells
+#### 0.1.3 識別程式碼異味
 
-Look for:
-- Functions exceeding 50 lines
-- Files exceeding 500 lines
-- Nesting depth > 4 levels
-- Duplicated code blocks
-- God classes / modules with too many responsibilities
+尋找：
+- 超過 50 行的函式
+- 超過 500 行的檔案
+- 巢狀深度 > 4 層
+- 重複的程式碼區塊
+- 神級類別 / 職責過多的模組
 
-#### 0.1.4 Check Dead Code
+#### 0.1.4 檢查死碼
 
-- Unused exports
-- Unreachable code paths
-- Commented-out code blocks
-- Deprecated functions still present
+- 未使用的匯出
+- 不可達的程式碼路徑
+- 被註解掉的程式碼區塊
+- 仍存在的已棄用函式
 
-### Output Template
+### 輸出範本
 
 ```markdown
-### Step 0.1 Results: Code Health
+### 步驟 0.1 結果：程式碼健康度
 
-| Metric | Value | Threshold | Status |
-|--------|-------|-----------|--------|
-| Tests passing | X/Y | 100% | ✅/⚠️/❌ |
-| Test coverage | X% | ≥ 60% | ✅/⚠️/❌ |
-| Lint errors | X | 0 | ✅/⚠️/❌ |
-| Lint warnings | X | < 20 | ✅/⚠️/❌ |
-| Major code smells | X | < 5 | ✅/⚠️/❌ |
-| Dead code files | X | 0 | ✅/⚠️/❌ |
+| 指標 | 值 | 門檻 | 狀態 |
+|------|-----|------|------|
+| 測試通過 | X/Y | 100% | ✅/⚠️/❌ |
+| 測試覆蓋率 | X% | ≥ 60% | ✅/⚠️/❌ |
+| Lint 錯誤 | X | 0 | ✅/⚠️/❌ |
+| Lint 警告 | X | < 20 | ✅/⚠️/❌ |
+| 主要程式碼異味 | X | < 5 | ✅/⚠️/❌ |
+| 死碼檔案 | X | 0 | ✅/⚠️/❌ |
 
-**Health Score**: [Good / Needs Attention / Critical]
+**健康度分數**: [良好 / 需要關注 / 嚴重]
 ```
 
-### Quality Gate
+### 品質閘門
 
-| Condition | Action |
-|-----------|--------|
-| Test pass rate < 70% | ❌ Flag as high-risk. Recommend fixing tests first. |
-| Coverage < 30% | ⚠️ Recommend adding tests before new features. |
-| Critical lint errors | ⚠️ Address before proceeding. |
+| 條件 | 行動 |
+|------|------|
+| 測試通過率 < 70% | ❌ 標記為高風險。建議先修復測試。 |
+| 覆蓋率 < 30% | ⚠️ 建議在新增功能前先補測試。 |
+| 嚴重的 lint 錯誤 | ⚠️ 繼續前先處理。 |
 
-### Referenced Standards
+### 引用規範
 
-- [Testing Standards](../../core/testing-standards.md) — Coverage targets, test pyramid
-- [Reverse Engineering Standards](../../core/reverse-engineering-standards.md) — Code scanning methodology
+- [測試標準](../../core/testing-standards.md) — 覆蓋率目標、測試金字塔
+- [反向工程標準](../../core/reverse-engineering-standards.md) — 程式碼掃描方法論
 
 ---
 
-## Step 0.2: Architecture Understanding
+## 步驟 0.2：架構理解
 
-### Objective
+### 目標
 
-Map the system's structure, identify patterns, and assess maintainability.
+繪製系統結構、識別模式並評估可維護性。
 
-### Procedure
+### 程序
 
-#### 0.2.1 Identify Entry Points
+#### 0.2.1 識別進入點
 
-- Main application file (e.g., `index.ts`, `main.py`, `Program.cs`)
-- API route definitions
-- Event handlers / message consumers
-- Scheduled jobs / cron tasks
-- CLI entry points
+- 主應用程式檔案（如 `index.ts`、`main.py`、`Program.cs`）
+- API 路由定義
+- 事件處理器 / 訊息消費者
+- 排程任務 / cron 任務
+- CLI 進入點
 
-#### 0.2.2 Map Module Dependencies
+#### 0.2.2 繪製模組依賴
 
-Trace the dependency graph:
+追蹤依賴圖：
 ```
-entry point → routing → controllers → services → repositories → database
-                                    → external APIs
-                                    → message queues
+進入點 → 路由 → 控制器 → 服務 → 儲存庫 → 資料庫
+                              → 外部 API
+                              → 訊息佇列
 ```
 
-Look for:
-- Circular dependencies
-- Overly broad imports
-- Tight coupling between unrelated modules
+尋找：
+- 循環依賴
+- 過度廣泛的匯入
+- 不相關模組之間的緊耦合
 
-#### 0.2.3 Identify Architectural Pattern
+#### 0.2.3 識別架構模式
 
-| Pattern | Indicators |
-|---------|-----------|
-| MVC | controllers/, models/, views/ directories |
-| DDD | domain/, application/, infrastructure/ directories |
-| Microservices | Multiple service directories, API gateways |
-| Monolith | Single large application directory |
-| Hexagonal | ports/, adapters/ directories |
-| Event-Driven | Event handlers, message queues, pub/sub |
+| 模式 | 指標 |
+|------|------|
+| MVC | controllers/、models/、views/ 目錄 |
+| DDD | domain/、application/、infrastructure/ 目錄 |
+| 微服務 | 多個服務目錄、API 閘道 |
+| 單體式 | 單一大型應用程式目錄 |
+| 六角形架構 | ports/、adapters/ 目錄 |
+| 事件驅動 | 事件處理器、訊息佇列、發布/訂閱 |
 
-#### 0.2.4 Assess AI-Friendliness
+#### 0.2.4 評估 AI 友善度
 
-Check against [AI-Friendly Architecture](../../core/ai-friendly-architecture.md):
-- Clear module boundaries?
-- Discoverable project structure?
-- Consistent naming conventions?
-- Documented interfaces?
+對照 [AI 友善架構](../../core/ai-friendly-architecture.md) 檢查：
+- 模組邊界清晰嗎？
+- 專案結構可發現嗎？
+- 命名慣例一致嗎？
+- 介面有文件化嗎？
 
-### Output Template
+### 輸出範本
 
 ```markdown
-### Step 0.2 Results: Architecture
+### 步驟 0.2 結果：架構
 
-**Identified Pattern**: [Pattern name] [Confirmed/Inferred]
-**Module Count**: X modules across Y packages
-**Entry Points**: [list]
+**已識別模式**: [模式名稱] [Confirmed/Inferred]
+**模組數**: X 個模組橫跨 Y 個套件
+**進入點**: [清單]
 
-#### Dependency Overview
-[Simplified dependency diagram]
+#### 依賴概覽
+[簡化依賴圖]
 
-#### Concerns
-- [Confirmed/Inferred] [Description with source: file:line]
+#### 問題
+- [Confirmed/Inferred] [描述附來源：file:line]
 
-#### AI-Friendliness Score
-| Dimension | Rating | Notes |
-|-----------|--------|-------|
-| Discoverability | ✅/⚠️/❌ | ... |
-| Module boundaries | ✅/⚠️/❌ | ... |
-| Naming consistency | ✅/⚠️/❌ | ... |
-| Interface clarity | ✅/⚠️/❌ | ... |
+#### AI 友善度分數
+| 維度 | 評分 | 備註 |
+|------|------|------|
+| 可發現性 | ✅/⚠️/❌ | ... |
+| 模組邊界 | ✅/⚠️/❌ | ... |
+| 命名一致性 | ✅/⚠️/❌ | ... |
+| 介面清晰度 | ✅/⚠️/❌ | ... |
 ```
 
-### Quality Gate
+### 品質閘門
 
-| Condition | Action |
-|-----------|--------|
-| No clear module boundaries | ⚠️ Recommend architectural refactoring plan. |
-| Circular dependencies | ⚠️ Document and plan resolution. |
-| Unknown pattern | Flag as [Unknown] — requires stakeholder input. |
+| 條件 | 行動 |
+|------|------|
+| 無清晰模組邊界 | ⚠️ 建議制定架構重構計畫。 |
+| 循環依賴 | ⚠️ 記錄並規劃解決方案。 |
+| 無法辨識模式 | 標記為 [Unknown] — 需要利害關係人確認。 |
 
-### Referenced Standards
+### 引用規範
 
-- [AI-Friendly Architecture](../../core/ai-friendly-architecture.md)
-- [Reverse Engineering Standards](../../core/reverse-engineering-standards.md)
+- [AI 友善架構](../../core/ai-friendly-architecture.md)
+- [反向工程標準](../../core/reverse-engineering-standards.md)
 
 ---
 
-## Step 0.3: Documentation Inventory
+## 步驟 0.3：文件盤點
 
-### Objective
+### 目標
 
-Assess what documentation exists, its completeness, and freshness.
+評估現有文件、其完整性和新鮮度。
 
-### Procedure
+### 程序
 
-#### 0.3.1 Check Standard Documents
+#### 0.3.1 檢查標準文件
 
-| Document | Check |
-|----------|-------|
-| README.md | Exists? Setup instructions? Current? |
-| CONTRIBUTING.md | Exists? Covers workflow? |
-| CHANGELOG.md | Exists? Format? Last entry? |
-| LICENSE | Exists? Correct? |
-| API documentation | Exists? Auto-generated? Current? |
-| ADRs (Architecture Decision Records) | Exist? Organized? |
+| 文件 | 檢查項目 |
+|------|----------|
+| README.md | 存在？安裝說明？是否最新？ |
+| CONTRIBUTING.md | 存在？涵蓋工作流程？ |
+| CHANGELOG.md | 存在？格式？最後一筆？ |
+| LICENSE | 存在？正確？ |
+| API 文件 | 存在？自動生成？是否最新？ |
+| ADR（架構決策記錄） | 存在？有組織？ |
 
-#### 0.3.2 Evaluate Inline Documentation
+#### 0.3.2 評估內嵌文件
 
-- Function/method JSDoc/docstrings coverage
-- Module-level documentation
-- Complex algorithm explanations
-- TODO/FIXME/HACK comment count
+- 函式/方法 JSDoc/docstring 覆蓋率
+- 模組級文件
+- 複雜演算法說明
+- TODO/FIXME/HACK 註解數量
 
-#### 0.3.3 Assess Documentation Freshness
+#### 0.3.3 評估文件新鮮度
 
-Compare document dates against recent code changes:
-- If docs haven't been updated in 6+ months but code changed significantly → Stale
-- If docs reference removed features or old APIs → Outdated
+比較文件日期與近期程式碼變更：
+- 如果文件超過 6 個月未更新但程式碼有重大變更 → 過期
+- 如果文件引用已移除的功能或舊 API → 已過時
 
-### Output Template
+### 輸出範本
 
 ```markdown
-### Step 0.3 Results: Documentation
+### 步驟 0.3 結果：文件
 
-| Document | Exists | Last Updated | Status |
-|----------|--------|-------------|--------|
-| README.md | ✅/❌ | YYYY-MM-DD | ✅ Current / ⚠️ Stale / ❌ Missing |
+| 文件 | 存在 | 最後更新 | 狀態 |
+|------|------|----------|------|
+| README.md | ✅/❌ | YYYY-MM-DD | ✅ 最新 / ⚠️ 過期 / ❌ 遺失 |
 | CONTRIBUTING.md | ✅/❌ | ... | ... |
 | CHANGELOG.md | ✅/❌ | ... | ... |
-| API docs | ✅/❌ | ... | ... |
-| ADRs | ✅/❌ | ... | ... |
-| Inline docs | ⚠️ Partial | ... | ... |
+| API 文件 | ✅/❌ | ... | ... |
+| ADR | ✅/❌ | ... | ... |
+| 內嵌文件 | ⚠️ 部分 | ... | ... |
 
-**Documentation Score**: [Good / Needs Attention / Critical]
-**TODO/FIXME count**: X
+**文件分數**: [良好 / 需要關注 / 嚴重]
+**TODO/FIXME 數量**: X
 ```
 
-### Quality Gate
+### 品質閘門
 
-| Condition | Action |
-|-----------|--------|
-| No README | ❌ Create README before proceeding. |
-| Docs severely outdated (> 1 year) | ⚠️ Flag as documentation debt. |
-| No CHANGELOG | ⚠️ Recommend adding changelog tracking. |
+| 條件 | 行動 |
+|------|------|
+| 無 README | ❌ 繼續前先建立 README。 |
+| 文件嚴重過期（> 1 年） | ⚠️ 標記為文件債。 |
+| 無 CHANGELOG | ⚠️ 建議新增變更日誌追蹤。 |
 
-### Referenced Standards
+### 引用規範
 
-- [Documentation Structure](../../core/documentation-structure.md)
-- [Changelog Standards](../../core/changelog-standards.md)
+- [文件結構](../../core/documentation-structure.md)
+- [變更日誌標準](../../core/changelog-standards.md)
 
 ---
 
-## Step 0.4: Code Review Snapshot
+## 步驟 0.4：程式碼審查快照
 
-### Objective
+### 目標
 
-Perform a targeted quality audit of the most critical code paths.
+對最關鍵的程式碼路徑進行定向品質稽核。
 
-### Procedure
+### 程序
 
-#### 0.4.1 Identify Critical Paths
+#### 0.4.1 識別關鍵路徑
 
-Select 3-5 paths based on:
-- Business criticality (auth, payments, data access)
-- Complexity (most complex modules)
-- Change frequency (most modified files)
-- Relevance to planned feature work
+根據以下條件選擇 3-5 條路徑：
+- 業務關鍵度（認證、支付、資料存取）
+- 複雜度（最複雜的模組）
+- 變更頻率（最常修改的檔案）
+- 與計畫功能開發的相關性
 
-#### 0.4.2 Apply Code Review Checklist
+#### 0.4.2 套用程式碼審查清單
 
-For each critical path, evaluate:
+對每條關鍵路徑評估：
 
-| Category | Check |
-|----------|-------|
-| Functionality | Does it work correctly? Edge cases handled? |
-| Security | Input validation? SQL injection? XSS? Auth checks? |
-| Error handling | Try/catch? Graceful degradation? Error logging? |
-| Readability | Clear naming? Reasonable function length? |
-| Performance | Obvious bottlenecks? N+1 queries? Memory leaks? |
+| 類別 | 檢查項目 |
+|------|----------|
+| 功能 | 運作正確嗎？邊界情況已處理？ |
+| 安全性 | 輸入驗證？SQL 注入？XSS？認證檢查？ |
+| 錯誤處理 | try/catch？優雅降級？錯誤日誌？ |
+| 可讀性 | 命名清晰？函式長度合理？ |
+| 效能 | 明顯瓶頸？N+1 查詢？記憶體洩漏？ |
 
-#### 0.4.3 Apply Anti-Hallucination Labels
+#### 0.4.3 套用反幻覺標籤
 
-**CRITICAL**: Only report what you have actually read.
+**重要**：只報告你實際讀過的內容。
 
-- `[Confirmed]` — Directly verified in code
-- `[Inferred]` — Logical deduction from patterns
-- `[Unknown]` — Not verified, needs investigation
+- `[Confirmed]` — 從程式碼中直接驗證
+- `[Inferred]` — 從模式進行邏輯推斷
+- `[Unknown]` — 未驗證，需要調查
 
-### Output Template
+### 輸出範本
 
 ```markdown
-### Step 0.4 Results: Code Review Snapshot
+### 步驟 0.4 結果：程式碼審查快照
 
-#### Critical Path 1: [Name]
-[Confirmed] Reviewed: [file list with line ranges]
+#### 關鍵路徑 1：[名稱]
+[Confirmed] 已審查：[檔案清單附行號範圍]
 
-| Aspect | Rating | Notes |
-|--------|--------|-------|
-| Functionality | ✅/⚠️/❌ | ... |
-| Security | ✅/⚠️/❌ | ... |
-| Error handling | ✅/⚠️/❌ | ... |
-| Readability | ✅/⚠️/❌ | ... |
-| Performance | ✅/⚠️/❌ | ... |
+| 面向 | 評分 | 備註 |
+|------|------|------|
+| 功能 | ✅/⚠️/❌ | ... |
+| 安全性 | ✅/⚠️/❌ | ... |
+| 錯誤處理 | ✅/⚠️/❌ | ... |
+| 可讀性 | ✅/⚠️/❌ | ... |
+| 效能 | ✅/⚠️/❌ | ... |
 
-**Findings**: [list with certainty labels]
+**發現**: [附確定性標籤的清單]
 ```
 
-### Quality Gate
+### 品質閘門
 
-| Condition | Action |
-|-----------|--------|
-| Security vulnerability found | ❌ Must fix before adding features. |
-| Critical error handling gaps | ⚠️ Address before proceeding. |
+| 條件 | 行動 |
+|------|------|
+| 發現安全漏洞 | ❌ 必須在新增功能前修復。 |
+| 關鍵錯誤處理缺口 | ⚠️ 繼續前先處理。 |
 
-### Referenced Standards
+### 引用規範
 
-- [Anti-Hallucination Guidelines](../../core/anti-hallucination.md)
-- [Code Review Checklist](../../core/code-review-checklist.md)
+- [反幻覺指南](../../core/anti-hallucination.md)
+- [程式碼審查清單](../../core/code-review-checklist.md)
 
 ---
 
-## Step 0.5: Dependency & Security Check
+## 步驟 0.5：依賴與安全檢查
 
-### Objective
+### 目標
 
-Identify vulnerable, outdated, or unnecessary dependencies.
+識別有漏洞、過期或不必要的依賴。
 
-### Procedure
+### 程序
 
-#### 0.5.1 Run Security Audit
+#### 0.5.1 執行安全稽核
 
 ```bash
 # Node.js
@@ -370,7 +378,7 @@ dotnet list package --vulnerable
 govulncheck ./...
 ```
 
-#### 0.5.2 Check Outdated Packages
+#### 0.5.2 檢查過期套件
 
 ```bash
 # Node.js
@@ -383,7 +391,7 @@ pip list --outdated
 dotnet list package --outdated
 ```
 
-#### 0.5.3 Identify Unused Dependencies
+#### 0.5.3 識別未使用依賴
 
 ```bash
 # Node.js
@@ -393,174 +401,174 @@ npx depcheck
 pip-extra-reqs --requirements-file=requirements.txt .
 ```
 
-#### 0.5.4 Assess License Compliance
+#### 0.5.4 評估授權合規
 
-Check for incompatible licenses in dependency tree.
+檢查依賴樹中是否有不相容的授權。
 
-### Output Template
+### 輸出範本
 
 ```markdown
-### Step 0.5 Results: Dependencies
+### 步驟 0.5 結果：依賴
 
-| Category | Count | Details |
-|----------|-------|---------|
-| Critical vulnerabilities | X | [list CVE IDs] |
-| High vulnerabilities | X | ... |
-| Outdated (major version) | X | ... |
-| Outdated (minor/patch) | X | ... |
-| Unused dependencies | X | [list package names] |
-| License concerns | X | ... |
+| 類別 | 數量 | 詳情 |
+|------|------|------|
+| 嚴重漏洞 | X | [列出 CVE 編號] |
+| 高風險漏洞 | X | ... |
+| 過期（主要版本） | X | ... |
+| 過期（次要/修補） | X | ... |
+| 未使用依賴 | X | [列出套件名稱] |
+| 授權疑慮 | X | ... |
 
-**Security Score**: [Good / Needs Attention / Critical]
+**安全分數**: [良好 / 需要關注 / 嚴重]
 ```
 
-### Quality Gate
+### 品質閘門
 
-| Condition | Action |
-|-----------|--------|
-| Critical CVE | ❌ Must patch before adding features. |
-| > 5 high vulnerabilities | ⚠️ Plan remediation sprint. |
-| Unused dependencies | ℹ️ Clean up to reduce attack surface. |
+| 條件 | 行動 |
+|------|------|
+| 嚴重 CVE | ❌ 必須在新增功能前修補。 |
+| > 5 個高風險漏洞 | ⚠️ 規劃修復衝刺。 |
+| 未使用依賴 | ℹ️ 清理以降低攻擊面。 |
 
-### Referenced Standards
+### 引用規範
 
-- [Security Standards](../../core/security-standards.md)
-- [Check-in Standards](../../core/checkin-standards.md)
+- [安全標準](../../../../core/security-standards.md)
+- [簽入標準](../../core/checkin-standards.md)
 
 ---
 
-## Step 0.6: Impact Scope Analysis
+## 步驟 0.6：影響範圍分析
 
-### Objective
+### 目標
 
-Map how the proposed changes would propagate through the system and assess risk.
+繪製提議變更在系統中的傳播方式並評估風險。
 
-### Procedure
+### 程序
 
-#### 0.6.1 Define Change Target
+#### 0.6.1 定義變更目標
 
-Clearly state:
-- What feature area will be modified?
-- What modules will be directly touched?
-- What is the expected change type (add, modify, refactor)?
+明確陳述：
+- 要修改什麼功能區域？
+- 會直接觸及哪些模組？
+- 預期的變更類型是什麼（新增、修改、重構）？
 
-#### 0.6.2 Trace Dependencies
+#### 0.6.2 追蹤依賴
 
-For each directly modified module:
-1. List modules that import/depend on it
-2. List modules it imports/depends on
-3. Count total affected modules (direct + transitive)
+對每個直接修改的模組：
+1. 列出匯入/依賴它的模組
+2. 列出它匯入/依賴的模組
+3. 統計總影響模組數（直接 + 間接）
 
-#### 0.6.3 Build Risk Matrix
+#### 0.6.3 建構風險矩陣
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| [Description] | Low/Med/High | Low/Med/High/Critical | [Action] |
+| 風險 | 可能性 | 影響 | 緩解措施 |
+|------|--------|------|----------|
+| [描述] | 低/中/高 | 低/中/高/嚴重 | [行動] |
 
-Likelihood factors:
-- Code complexity of affected area
-- Test coverage of affected area
-- Number of modules touched
+可能性因素：
+- 受影響區域的程式碼複雜度
+- 受影響區域的測試覆蓋率
+- 觸及的模組數量
 
-Impact factors:
-- Business criticality of affected functionality
-- User-facing vs. internal
-- Data integrity implications
+影響因素：
+- 受影響功能的業務關鍵度
+- 面向使用者 vs. 內部
+- 資料完整性影響
 
-#### 0.6.4 Determine Verdict
+#### 0.6.4 決定判定
 
-| Blast Radius | Recommendation |
-|-------------|----------------|
-| < 10% of modules | ✅ GO — Low risk, proceed normally |
-| 10-30% of modules | ⚠️ CONDITIONAL — Add integration tests first |
-| > 30% of modules | ❌ NO-GO — Break into smaller changes |
+| 爆炸半徑 | 建議 |
+|----------|------|
+| < 10% 模組 | ✅ 通過 — 低風險，正常進行 |
+| 10-30% 模組 | ⚠️ 有條件通過 — 先新增整合測試 |
+| > 30% 模組 | ❌ 不通過 — 拆分為較小的變更 |
 
-### Output Template
+### 輸出範本
 
 ```markdown
-### Step 0.6 Results: Impact Scope
+### 步驟 0.6 結果：影響範圍
 
-**Change Target**: [Feature/module name]
-**Blast Radius**: X modules directly, Y transitively (Z% of total)
+**變更目標**: [功能/模組名稱]
+**爆炸半徑**: X 個模組直接，Y 個間接（佔總數的 Z%）
 
-#### Risk Matrix
+#### 風險矩陣
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
+| 風險 | 可能性 | 影響 | 緩解措施 |
+|------|--------|------|----------|
 | ... | ... | ... | ... |
 
-**Verdict**: [GO / CONDITIONAL / NO-GO]
-**Rationale**: [1-2 sentences]
+**判定**: [通過 / 有條件通過 / 不通過]
+**理由**: [1-2 句]
 ```
 
-### Referenced Standards
+### 引用規範
 
-- [Requirement Engineering](../../core/requirement-engineering.md)
+- [需求工程](../../../../core/requirement-engineering.md)
 
 ---
 
-## Synthesizing the Discovery Report
+## 彙整現況評估報告
 
-After completing all 6 steps, combine findings into a single report.
+完成全部 6 個步驟後，將發現合併為單一報告。
 
-### Report Structure
+### 報告結構
 
 ```markdown
-# Discovery Report: [Project Name]
+# 現況評估報告：[專案名稱]
 
-**Date**: YYYY-MM-DD
-**Assessed by**: [AI assistant / Developer name]
-**Scope**: [Feature area or full project]
+**日期**: YYYY-MM-DD
+**評估者**: [AI 助手 / 開發者姓名]
+**範圍**: [功能區域或完整專案]
 
-## Executive Summary
-[2-3 sentences: overall health, key risks, recommendation]
+## 執行摘要
+[2-3 句：整體健康度、主要風險、建議]
 
-## Verdict: [GO / NO-GO / CONDITIONAL]
+## 判定：[通過 / 不通過 / 有條件通過]
 
-## Scores Summary
+## 分數摘要
 
-| Area | Score | Critical Issues |
-|------|-------|----------------|
-| Code Health (0.1) | ✅/⚠️/❌ | X |
-| Architecture (0.2) | ✅/⚠️/❌ | X |
-| Documentation (0.3) | ✅/⚠️/❌ | X |
-| Code Quality (0.4) | ✅/⚠️/❌ | X |
-| Dependencies (0.5) | ✅/⚠️/❌ | X |
-| Impact Scope (0.6) | ✅/⚠️/❌ | X |
+| 區域 | 分數 | 嚴重問題數 |
+|------|------|-----------|
+| 程式碼健康度 (0.1) | ✅/⚠️/❌ | X |
+| 架構 (0.2) | ✅/⚠️/❌ | X |
+| 文件 (0.3) | ✅/⚠️/❌ | X |
+| 程式碼品質 (0.4) | ✅/⚠️/❌ | X |
+| 依賴 (0.5) | ✅/⚠️/❌ | X |
+| 影響範圍 (0.6) | ✅/⚠️/❌ | X |
 
-## Blockers
-[List any items that must be resolved before proceeding]
+## 阻塞項目
+[列出繼續前必須解決的項目]
 
-## Recommendations
-[Ordered by priority]
+## 建議
+[按優先順序排列]
 
-## Next Steps
-- [ ] Address blockers
-- [ ] /reverse — if legacy code needs SDD specs
-- [ ] /sdd — write specifications for new features
-- [ ] Begin implementation
+## 後續步驟
+- [ ] 處理阻塞項目
+- [ ] /reverse — 若舊程式碼需要 SDD 規格
+- [ ] /sdd — 為新功能撰寫規格
+- [ ] 開始實作
 ```
 
-### Verdict Decision Matrix
+### 判定決策矩陣
 
-| Blockers | High Risks | Verdict |
-|----------|-----------|---------|
-| 0 | 0-2 | ✅ GO |
-| 0 | 3+ | ⚠️ CONDITIONAL — address risks first |
-| 1+ | Any | ❌ NO-GO — resolve blockers |
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-02-09 | Initial release |
+| 阻塞項目 | 高風險 | 判定 |
+|----------|--------|------|
+| 0 | 0-2 | ✅ 通過 |
+| 0 | 3+ | ⚠️ 有條件通過 — 先處理風險 |
+| 1+ | 任意 | ❌ 不通過 — 解決阻塞項目 |
 
 ---
 
-## License
+## 版本歷史
 
-This guide is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-02-09 | 初始發布 |
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## 授權
+
+本指南採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權。
+
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

@@ -1,63 +1,78 @@
 ---
+source: ../../../../skills/test-coverage-assistant/SKILL.md
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-02-10
+status: current
+description: |
+  多維度分析測試覆蓋率並提供可執行的建議。
+  使用時機：分析覆蓋率、識別測試缺口、制定測試策略。
+  關鍵字：coverage, test, analysis, dimension, 覆蓋率, 測試, 分析, 維度。
 name: coverage
-scope: partial
-description: "[UDS] Analyze test coverage and provide recommendations"
 allowed-tools: Read, Grep, Glob, Bash(npm test:*)
+scope: partial
 argument-hint: "[file or module | 檔案或模組]"
 ---
 
-# Test Coverage Assistant | 測試覆蓋率助手
+# 測試覆蓋率助手
 
-Analyze test coverage across multiple dimensions and provide actionable recommendations.
+> **語言**: [English](../../../../skills/test-coverage-assistant/SKILL.md) | 繁體中文
 
 多維度分析測試覆蓋率並提供可執行的建議。
 
-## Coverage Dimensions | 覆蓋率維度
+## 覆蓋率維度
 
-| Dimension | What it Measures | 測量內容 |
-|-----------|------------------|----------|
-| **Line** | Lines of code executed | 執行的程式碼行數 |
-| **Branch** | Decision paths taken | 決策路徑覆蓋 |
-| **Function** | Functions called | 呼叫的函數 |
-| **Statement** | Statements executed | 執行的陳述式 |
+| 維度 | 測量內容 | Dimension | What it Measures |
+|------|----------|-----------|------------------|
+| **行覆蓋率** | 執行的程式碼行數 | Line | Lines of code executed |
+| **分支覆蓋率** | 決策路徑覆蓋 | Branch | Decision paths taken |
+| **函式覆蓋率** | 呼叫的函數 | Function | Functions called |
+| **陳述式覆蓋率** | 執行的陳述式 | Statement | Statements executed |
 
-## 8-Dimension Framework | 八維度框架
+## 八維度框架
 
-1. **Code Coverage** - Lines, branches, functions
-2. **Requirement Coverage** - All requirements have tests
-3. **Risk Coverage** - High-risk areas prioritized
-4. **Integration Coverage** - Component interaction paths
-5. **Edge Case Coverage** - Boundary conditions tested
-6. **Error Coverage** - Error handling paths verified
-7. **Permission Coverage** - Access control scenarios
-8. **AI Generation Quality** - AI-generated test effectiveness
+1. **程式碼覆蓋率** - 行、分支、函式
+2. **需求覆蓋率** - 所有需求都有對應測試
+3. **風險覆蓋率** - 高風險區域優先測試
+4. **整合覆蓋率** - 元件互動路徑
+5. **邊界案例覆蓋率** - 邊界條件測試
+6. **錯誤覆蓋率** - 錯誤處理路徑驗證
+7. **權限覆蓋率** - 存取控制場景
+8. **AI 生成品質** - AI 生成測試的有效性
 
-## Coverage Targets | 覆蓋率目標
+## 覆蓋率目標
 
-| Level | Coverage | Use Case | 適用場景 |
-|-------|----------|----------|----------|
-| Minimum | 60% | Legacy code | 遺留程式碼 |
-| Standard | 80% | Most projects | 大多數專案 |
-| High | 90% | Critical systems | 關鍵系統 |
-| Critical | 95%+ | Safety-critical | 安全關鍵 |
+| 等級 | 覆蓋率 | 適用場景 | Use Case |
+|------|--------|----------|----------|
+| 最低要求 | 60% | 遺留程式碼 | Legacy code |
+| 標準 | 80% | 大多數專案 | Most projects |
+| 高標準 | 90% | 關鍵系統 | Critical systems |
+| 嚴格 | 95%+ | 安全關鍵 | Safety-critical |
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Run coverage tool** - Generate coverage report | 產生覆蓋率報告
-2. **Analyze gaps** - Identify untested areas | 識別未測試區域
-3. **Prioritize** - Rank by risk and importance | 依風險排序
-4. **Recommend tests** - Suggest specific tests to add | 建議新增測試
-5. **Track progress** - Monitor coverage over time | 追蹤進度
+1. **執行覆蓋率工具** - 產生覆蓋率報告
+2. **分析缺口** - 識別未測試的區域
+3. **排定優先順序** - 依風險和重要性排序
+4. **建議測試** - 提出具體的測試建議
+5. **追蹤進度** - 持續監控覆蓋率變化
 
-## Usage | 使用方式
+## 使用方式
 
-```
-/coverage                   - Run full coverage analysis | 執行完整覆蓋率分析
-/coverage src/auth          - Analyze specific module | 分析特定模組
-/coverage --recommend       - Get test recommendations | 取得測試建議
-```
+- `/coverage` - 執行完整覆蓋率分析
+- `/coverage src/auth` - 分析特定模組
+- `/coverage --recommend` - 取得測試建議
 
-## Reference | 參考
+## 下一步引導
 
-- Detailed guide: [guide.md](./guide.md)
-- Core standard: [test-completeness-dimensions.md](../../core/test-completeness-dimensions.md)
+`/coverage` 完成後，AI 助手應建議：
+
+> **覆蓋率分析完成。建議下一步：**
+> - 覆蓋率不足 → 執行 `/tdd` 補齊測試
+> - 已達標 → 執行 `/checkin` 品質關卡
+> - 發現熱點 → 執行 `/refactor` 改善可測試性
+
+## 參考
+
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[test-completeness-dimensions.md](../../../../core/test-completeness-dimensions.md)

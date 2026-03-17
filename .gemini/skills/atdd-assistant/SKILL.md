@@ -1,57 +1,60 @@
 ---
+source: ../../../../skills/atdd-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-10
+status: current
+description: |
+  引導驗收測試驅動開發（ATDD）流程，用於定義和驗證使用者故事。
+  使用時機：定義驗收條件、使用者故事驗證、ATDD 流程。
+  關鍵字：atdd, acceptance, user story, INVEST, 驗收測試, 使用者故事, 驗收條件。
 name: atdd
-scope: partial
-description: "[UDS] Guide through Acceptance Test-Driven Development workflow"
 allowed-tools: Read, Write, Grep, Glob
+scope: partial
 argument-hint: "[feature or spec | 功能或規格]"
 ---
 
-# ATDD Assistant | ATDD 助手
+# ATDD 助手
 
-Guide through the Acceptance Test-Driven Development (ATDD) workflow for defining and validating user stories.
+> **語言**: [English](../../../../skills/atdd-assistant/SKILL.md) | 繁體中文
 
 引導驗收測試驅動開發（ATDD）流程，用於定義和驗證使用者故事。
 
-## ATDD Cycle | ATDD 循環
+## ATDD 循環
 
-```
 WORKSHOP ──► DISTILLATION ──► DEVELOPMENT ──► DEMO ──► DONE
-    ^                              │              │
-    └──────────────────────────────┴──────────────┘
-                  (Refinement needed)
+
+## 工作流程
+
+### 1. WORKSHOP - 定義驗收條件
+PO 提出使用者故事，團隊提出澄清問題，共同定義驗收條件。
+
+### 2. DISTILLATION - 轉換為測試
+將驗收條件轉換為可執行的測試格式，消除歧義，取得 PO 簽核。
+
+### 3. DEVELOPMENT - 實作
+執行驗收測試（初始應失敗），使用 BDD/TDD 進行實作，迭代直到全部通過。
+
+### 4. DEMO - 向利害關係人展示
+展示通過的驗收測試，示範可運作的功能，取得正式驗收。
+
+### 5. DONE - 完成
+PO 已驗收，程式碼已合併，故事已關閉。
+
+## INVEST 準則
+
+| 準則 | 說明 | Criterion | Description |
+|------|------|-----------|-------------|
+| **I**ndependent | 可獨立開發 | Independent | Can be developed separately |
+| **N**egotiable | 可協商細節 | Negotiable | Details can be discussed |
+| **V**aluable | 提供商業價值 | Valuable | Delivers business value |
+| **E**stimable | 可估算工作量 | Estimable | Can estimate effort |
+| **S**mall | 一個 Sprint 可完成 | Small | Fits in one sprint |
+| **T**estable | 有明確驗收條件 | Testable | Has clear acceptance criteria |
+
+## 使用者故事格式
+
 ```
-
-## Workflow | 工作流程
-
-### 1. WORKSHOP - Define AC | 定義驗收條件
-PO presents user story, team asks clarifying questions, define acceptance criteria together.
-
-### 2. DISTILLATION - Convert to Tests | 轉換為測試
-Convert AC to executable test format, remove ambiguity, get PO sign-off.
-
-### 3. DEVELOPMENT - Implement | 實作
-Run acceptance tests (should fail initially), use BDD/TDD for implementation, iterate until all pass.
-
-### 4. DEMO - Present | 向利害關係人展示
-Show passing acceptance tests, demonstrate working functionality, get formal acceptance.
-
-### 5. DONE - Complete | 完成
-PO accepted, code merged, story closed.
-
-## INVEST Criteria | INVEST 準則
-
-| Criterion | Description | 說明 |
-|-----------|-------------|------|
-| **I**ndependent | Can be developed separately | 可獨立開發 |
-| **N**egotiable | Details can be discussed | 可協商細節 |
-| **V**aluable | Delivers business value | 提供商業價值 |
-| **E**stimable | Can estimate effort | 可估算工作量 |
-| **S**mall | Fits in one sprint | 一個 Sprint 可完成 |
-| **T**estable | Has clear acceptance criteria | 有明確驗收條件 |
-
-## User Story Format | 使用者故事格式
-
-```markdown
 As a [role],
 I want [feature],
 So that [benefit].
@@ -60,15 +63,22 @@ So that [benefit].
 - Given [context], when [action], then [result]
 ```
 
-## Usage | 使用方式
+## 使用方式
 
-```
-/atdd                              - Start interactive ATDD session | 啟動互動式 ATDD 會話
-/atdd "user can reset password"    - ATDD for specific feature | 針對特定功能
-/atdd US-123                       - ATDD for existing user story | 處理現有使用者故事
-```
+- `/atdd` - 啟動互動式 ATDD 會話
+- `/atdd "user can reset password"` - 針對特定功能進行 ATDD
+- `/atdd US-123` - 針對現有使用者故事進行 ATDD
 
-## Reference | 參考
+## 下一步引導
 
-- Detailed guide: [guide.md](./guide.md)
-- Core standard: [acceptance-test-driven-development.md](../../core/acceptance-test-driven-development.md)
+`/atdd` 完成後，AI 助手應建議：
+
+> **驗收測試已定義。建議下一步：**
+> - 執行 `/sdd` 建立規格文件
+> - 執行 `/bdd` 將 AC 轉為 Gherkin 場景
+> - 執行 `/tdd` 直接實作驗收測試
+
+## 參考
+
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[acceptance-test-driven-development.md](../../../../core/acceptance-test-driven-development.md)

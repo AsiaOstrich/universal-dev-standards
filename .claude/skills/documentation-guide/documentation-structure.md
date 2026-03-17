@@ -1,45 +1,53 @@
-# Documentation Structure Reference
+---
+source: ../../../../skills/documentation-guide/documentation-structure.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-25
+status: current
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/documentation-guide/documentation-structure.md)
+# 文件結構參考
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
-**Applicability**: Claude Code Skills
+> **語言**: [English](../../../../skills/documentation-guide/documentation-structure.md) | 繁體中文
+
+**版本**: 1.0.0
+**最後更新**: 2025-12-24
+**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose
+## 目的
 
-This document provides reference for project documentation structure and file organization.
+本文件提供專案文件結構和檔案組織的參考指南。
 
 ---
 
-## Standard Project Structure
+## 標準專案結構
 
 ```
 project-root/
-├── README.md                    # Project overview (REQUIRED)
-├── CONTRIBUTING.md              # Contribution guidelines
-├── CHANGELOG.md                 # Version history
-├── LICENSE                      # License file
-├── docs/                        # Detailed documentation
-│   ├── index.md                 # Documentation index
-│   ├── getting-started.md       # Quick start guide
-│   ├── architecture.md          # System architecture
-│   ├── api-reference.md         # API documentation
-│   ├── deployment.md            # Deployment guide
-│   └── troubleshooting.md       # Common issues
-└── examples/                    # Code examples
+├── README.md                    # 專案概述（必需）
+├── CONTRIBUTING.md              # 貢獻指南
+├── CHANGELOG.md                 # 版本歷史
+├── LICENSE                      # 授權檔案
+├── docs/                        # 詳細文件
+│   ├── index.md                 # 文件索引
+│   ├── getting-started.md       # 快速入門指南
+│   ├── architecture.md          # 系統架構
+│   ├── api-reference.md         # API 文件
+│   ├── deployment.md            # 部署指南
+│   └── troubleshooting.md       # 常見問題
+└── examples/                    # 程式碼範例
     ├── basic-usage/
     └── README.md
 ```
 
 ---
 
-## Document Requirements by Project Type
+## 不同專案類型的文件需求
 
-| Document | New Project | Refactor | Migration | Maintenance |
-|----------|:-----------:|:--------:|:---------:|:-----------:|
+| 文件 | 新專案 | 重構 | 遷移 | 維護 |
+|------|:------:|:----:|:----:|:----:|
 | **README.md** | ✅ | ✅ | ✅ | ✅ |
 | **CONTRIBUTING.md** | ⚪ | ✅ | ✅ | ⚪ |
 | **CHANGELOG.md** | ✅ | ✅ | ✅ | ✅ |
@@ -48,30 +56,30 @@ project-root/
 | **docs/api-reference.md** | ⚪ | ✅ | ✅ | ⚪ |
 | **docs/deployment.md** | ✅ | ✅ | ✅ | ⚪ |
 
-**Legend**: ✅ Required | ⚪ Recommended | ❌ Not needed
+**圖例**: ✅ 必需 | ⚪ 建議 | ❌ 不需要
 
 ---
 
-## File Naming Conventions
+## 檔案命名慣例
 
-### Root Directory Files
+### 根目錄檔案
 
-Use **UPPERCASE** for GitHub/GitLab auto-recognition:
+使用**大寫**以便 GitHub/GitLab 自動識別：
 
-| File | Reason |
-|------|--------|
-| `README.md` | GitHub auto-displays on repo page |
-| `CONTRIBUTING.md` | GitHub auto-links in PR creation |
-| `CHANGELOG.md` | Keep a Changelog convention |
-| `LICENSE` | GitHub auto-detects license type |
-| `CODE_OF_CONDUCT.md` | GitHub community standard |
-| `SECURITY.md` | GitHub security advisory |
+| 檔案 | 原因 |
+|------|------|
+| `README.md` | GitHub 自動在倉庫頁面顯示 |
+| `CONTRIBUTING.md` | GitHub 在建立 PR 時自動連結 |
+| `CHANGELOG.md` | Keep a Changelog 慣例 |
+| `LICENSE` | GitHub 自動偵測授權類型 |
+| `CODE_OF_CONDUCT.md` | GitHub 社群標準 |
+| `SECURITY.md` | GitHub 安全性公告 |
 
-### docs/ Directory Files
+### docs/ 目錄檔案
 
-Use **lowercase-kebab-case** for URL friendliness:
+使用**小寫短橫線**以利 URL 友善性：
 
-✅ **Correct**:
+✅ **正確**：
 ```
 docs/
 ├── index.md
@@ -80,64 +88,64 @@ docs/
 └── user-guide.md
 ```
 
-❌ **Incorrect**:
+❌ **錯誤**：
 ```
 docs/
-├── INDEX.md           # Inconsistent casing
-├── GettingStarted.md  # PascalCase not URL-friendly
-├── API_Reference.md   # snake_case inconsistent
-└── User Guide.md      # Spaces cause URL issues
+├── INDEX.md           # 大小寫不一致
+├── GettingStarted.md  # PascalCase 不適合 URL
+├── API_Reference.md   # snake_case 不一致
+└── User Guide.md      # 空格會導致 URL 問題
 ```
 
 ---
 
-## Document Templates
+## 文件範本
 
-### README.md Template
+### README.md 範本
 
 ```markdown
 # Project Name
 
-Brief one-liner description.
+簡短的一行描述。
 
-## Features
+## 功能特色
 
-- Feature 1
-- Feature 2
-- Feature 3
+- 功能 1
+- 功能 2
+- 功能 3
 
-## Installation
+## 安裝
 
 ```bash
 npm install project-name
 ```
 
-## Quick Start
+## 快速入門
 
 ```javascript
 const lib = require('project-name');
 lib.doSomething();
 ```
 
-## Documentation
+## 文件
 
-See [docs/](docs/) for full documentation.
+完整文件請參閱 [docs/](docs/)。
 
-## Contributing
+## 貢獻
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+請參閱 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-## License
+## 授權
 
 [License Name](LICENSE)
 ```
 
-### CONTRIBUTING.md Template
+### CONTRIBUTING.md 範本
 
 ```markdown
-# Contributing Guidelines
+# 貢獻指南
 
-## Development Setup
+## 開發環境設定
 
 ```bash
 git clone https://github.com/org/repo
@@ -145,43 +153,43 @@ cd repo
 npm install
 ```
 
-## Workflow
+## 工作流程
 
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/my-feature`
-3. Commit changes following [commit standards](commit-message-format-link)
-4. Push branch: `git push origin feature/my-feature`
-5. Create pull request
+1. Fork 此倉庫
+2. 建立功能分支：`git checkout -b feature/my-feature`
+3. 遵循[提交標準](commit-message-format-link)提交變更
+4. 推送分支：`git push origin feature/my-feature`
+5. 建立 pull request
 
-## Coding Standards
+## 編碼標準
 
-- Follow project style guide
-- Run `npm run lint` before committing
-- Ensure tests pass: `npm test`
+- 遵循專案風格指南
+- 提交前執行 `npm run lint`
+- 確保測試通過：`npm test`
 
-## Code Review Process
+## 程式碼審查流程
 
-All submissions require review before merging.
+所有提交在合併前都需要審查。
 ```
 
-### CHANGELOG.md Template
+### CHANGELOG.md 範本
 
 ```markdown
 # Changelog
 
-All notable changes will be documented in this file.
+所有重要變更都將記錄在此檔案中。
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/).
+格式基於 [Keep a Changelog](https://keepachangelog.com/)。
 
 ## [Unreleased]
 
 ### Added
-- New feature
+- 新功能
 
 ## [1.0.0] - YYYY-MM-DD
 
 ### Added
-- Initial release
+- 初始發布
 
 [Unreleased]: https://github.com/org/repo/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/org/repo/releases/tag/v1.0.0
@@ -189,9 +197,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ---
 
-## docs/ Structure
+## docs/ 結構
 
-### index.md - Documentation Hub
+### index.md - 文件中心
 
 ```markdown
 # Documentation Index
@@ -213,108 +221,108 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - [Troubleshooting](troubleshooting.md)
 ```
 
-### getting-started.md Structure
+### getting-started.md 結構
 
-1. Prerequisites
-2. Installation
-3. Basic Configuration
-4. First Example
-5. Next Steps
+1. 先決條件
+2. 安裝
+3. 基本設定
+4. 第一個範例
+5. 下一步
 
-### architecture.md Structure
+### architecture.md 結構
 
-1. Overview
-2. System Components
-3. Data Flow
-4. Design Decisions
-5. Technology Stack
-6. Security Architecture
+1. 概述
+2. 系統元件
+3. 資料流
+4. 設計決策
+5. 技術堆疊
+6. 安全架構
 
-### api-reference.md Structure
+### api-reference.md 結構
 
-1. API Overview
-2. Authentication
-3. Endpoints (grouped by resource)
-4. Request/Response Examples
-5. Error Codes
-6. Rate Limiting
+1. API 概述
+2. 驗證
+3. 端點（依資源分組）
+4. 請求/回應範例
+5. 錯誤代碼
+6. 速率限制
 
-### deployment.md Structure
+### deployment.md 結構
 
-1. Prerequisites
-2. Environment Setup
-3. Configuration
-4. Deployment Steps
-5. Verification
-6. Rollback Procedure
-7. Monitoring
+1. 先決條件
+2. 環境設定
+3. 設定
+4. 部署步驟
+5. 驗證
+6. 回滾程序
+7. 監控
 
-### troubleshooting.md Structure
+### troubleshooting.md 結構
 
 ```markdown
 ## Problem: [Error Name]
 
-**Symptoms**:
-- Description of what user sees
+**症狀**:
+- 使用者看到的現象描述
 
-**Cause**:
-- Why this happens
+**原因**:
+- 發生此問題的原因
 
-**Solution**:
-- Step-by-step fix
+**解決方案**:
+- 逐步修復步驟
 
-**Prevention**:
-- How to avoid in future
+**預防**:
+- 未來如何避免
 ```
 
 ---
 
-## Documentation Quality Checklist
+## 文件品質檢查清單
 
-### Completeness
+### 完整性
 
-- [ ] Prerequisites listed
-- [ ] All steps documented
-- [ ] Expected outcomes described
-- [ ] Error scenarios covered
+- [ ] 列出先決條件
+- [ ] 記錄所有步驟
+- [ ] 描述預期結果
+- [ ] 涵蓋錯誤情境
 
-### Readability
+### 可讀性
 
-- [ ] Clear, concise language
-- [ ] Short paragraphs (≤5 sentences)
-- [ ] Code examples included
-- [ ] Screenshots/diagrams where helpful
+- [ ] 清晰、簡潔的語言
+- [ ] 簡短段落（≤5 句）
+- [ ] 包含程式碼範例
+- [ ] 適當使用截圖/圖表
 
-### Accuracy
+### 準確性
 
-- [ ] Code examples tested
-- [ ] Screenshots up-to-date
-- [ ] Version numbers correct
-- [ ] Links working
+- [ ] 測試過程式碼範例
+- [ ] 截圖是最新的
+- [ ] 版本號碼正確
+- [ ] 連結有效
 
-### Maintainability
+### 可維護性
 
-- [ ] Clear section headings
-- [ ] Logical organization
-- [ ] Easy to update
-- [ ] Version aligned with software
+- [ ] 清晰的章節標題
+- [ ] 邏輯性組織
+- [ ] 易於更新
+- [ ] 版本與軟體一致
 
 ---
 
-## Cross-Reference Guidelines
+## 交叉引用指南
 
-### When to Link
+### 何時連結
 
-| Situation | Action |
+| 情況 | 動作 |
 |-----------|--------|
-| Mentioning another doc | Add link |
-| Referencing API endpoint | Link to api-reference.md |
-| Discussing architecture | Link to architecture.md |
-| New document added | Update index.md |
+| 提及其他文件 | 新增連結 |
+| 引用 API 端點 | 連結到 api-reference.md |
+| 討論架構 | 連結到 architecture.md |
+| 新增文件 | 更新 index.md |
 
-### References Section
+### 參考文獻區段
 
-Every document should end with:
+每份文件都應該以此結尾：
 
 ```markdown
 ## References
@@ -326,24 +334,24 @@ Every document should end with:
 
 ---
 
-## Related Standards
+## 相關標準
 
-- [Documentation Structure](../../core/documentation-structure.md)
-- [Documentation Writing Standards](../../core/documentation-writing-standards.md)
+- [Documentation Structure](../../../../core/documentation-structure.md)
+- [Documentation Writing Standards](../../../../core/documentation-writing-standards.md)
 - [README Template](./readme-template.md)
 
 ---
 
-## Version History
+## 版本歷史
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2025-12-24 | 新增：標準章節 (目的、相關標準、版本歷史、授權) |
 
 ---
 
-## License
+## 授權
 
-This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

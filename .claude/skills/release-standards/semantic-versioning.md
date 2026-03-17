@@ -1,111 +1,119 @@
-# Semantic Versioning Guide
+---
+source: ../../../../skills/release-standards/semantic-versioning.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-25
+status: current
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/release-standards/semantic-versioning.md)
+# 語意化版本指南
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
-**Applicability**: Claude Code Skills
+> **語言**: [English](../../../../skills/release-standards/semantic-versioning.md) | 繁體中文
+
+**版本**: 1.0.0
+**最後更新**: 2025-12-24
+**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose
+## 目的
 
-This document provides guidelines for semantic versioning (SemVer) in software releases.
+本文件提供軟體發布中語意化版本控制（SemVer）的指南。
 
 ---
 
-## Format
+## 格式
 
 ```
 MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
 ```
 
-### Components
+### 組成部分
 
-| Component | Purpose | When to Increment |
+| 組成部分 | 用途 | 何時遞增 |
 |-----------|---------|-------------------|
-| **MAJOR** | Breaking changes | Incompatible API changes |
-| **MINOR** | New features | Backward-compatible functionality |
-| **PATCH** | Bug fixes | Backward-compatible bug fixes |
-| **PRERELEASE** | Pre-release identifier | Alpha, beta, rc versions |
-| **BUILD** | Build metadata | Build number, commit hash |
+| **MAJOR** | 重大變更 | 不相容的 API 變更 |
+| **MINOR** | 新功能 | 向後相容的功能性 |
+| **PATCH** | 錯誤修正 | 向後相容的錯誤修正 |
+| **PRERELEASE** | 預發布識別碼 | Alpha、beta、rc 版本 |
+| **BUILD** | 建置元資料 | 建置編號、提交雜湊值 |
 
 ---
 
-## MAJOR Version (X.0.0)
+## MAJOR 版本（X.0.0）
 
-**Increment when**:
-- Breaking API changes
-- Removing deprecated features
-- Major architecture changes
-- Incompatible behavior changes
+**遞增時機**:
+- 重大 API 變更
+- 移除已棄用的功能
+- 重大架構變更
+- 不相容的行為變更
 
-**Examples**:
+**範例**:
 ```
 1.9.5 → 2.0.0  # Remove deprecated API
 3.2.1 → 4.0.0  # Change return type of public method
 ```
 
-**Guidelines**:
-- Reset MINOR and PATCH to 0
-- Document migration guide
-- Provide deprecation warnings in previous MINOR versions
+**指南**:
+- 將 MINOR 和 PATCH 重置為 0
+- 撰寫遷移指南文件
+- 在先前的 MINOR 版本中提供棄用警告
 
 ---
 
-## MINOR Version (x.Y.0)
+## MINOR 版本（x.Y.0）
 
-**Increment when**:
-- Adding new features (backward-compatible)
-- Deprecating features (not removing)
-- Substantial internal improvements
-- New public APIs
+**遞增時機**:
+- 新增新功能（向後相容）
+- 棄用功能（不移除）
+- 實質的內部改進
+- 新的公開 API
 
-**Examples**:
+**範例**:
 ```
 2.3.5 → 2.4.0  # Add new API endpoint
 1.12.0 → 1.13.0  # Add optional parameter
 ```
 
-**Guidelines**:
-- Reset PATCH to 0
-- Existing functionality unchanged
-- New features are opt-in
+**指南**:
+- 將 PATCH 重置為 0
+- 現有功能保持不變
+- 新功能採用選擇性加入
 
 ---
 
-## PATCH Version (x.y.Z)
+## PATCH 版本（x.y.Z）
 
-**Increment when**:
-- Bug fixes (no new features)
-- Security patches
-- Documentation corrections
-- Internal refactoring (no API changes)
+**遞增時機**:
+- 錯誤修正（無新功能）
+- 安全性修補
+- 文件修正
+- 內部重構（無 API 變更）
 
-**Examples**:
+**範例**:
 ```
 3.1.2 → 3.1.3  # Fix null pointer exception
 2.0.0 → 2.0.1  # Security vulnerability patch
 ```
 
-**Guidelines**:
-- No new functionality
-- No API changes
-- Safe to update immediately
+**指南**:
+- 無新功能
+- 無 API 變更
+- 可立即安全更新
 
 ---
 
-## Pre-release Versions
+## 預發布版本
 
-### Identifiers
+### 識別碼
 
-| Identifier | Purpose | Stability | Audience |
+| 識別碼 | 用途 | 穩定性 | 目標受眾 |
 |------------|---------|-----------|----------|
-| `alpha` | Early testing | Unstable | Internal team |
-| `beta` | Feature complete | Mostly stable | Early adopters |
-| `rc` | Final testing | Stable | Beta testers |
+| `alpha` | 早期測試 | 不穩定 | 內部團隊 |
+| `beta` | 功能完整 | 大致穩定 | 早期採用者 |
+| `rc` | 最終測試 | 穩定 | Beta 測試者 |
 
-### Examples
+### 範例
 
 ```
 1.0.0-alpha.1       # First alpha release
@@ -116,7 +124,7 @@ MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
 1.0.0               # Stable release
 ```
 
-### Ordering
+### 排序
 
 ```
 1.0.0-alpha.1 < 1.0.0-alpha.2 < 1.0.0-beta.1 < 1.0.0-rc.1 < 1.0.0
@@ -124,9 +132,9 @@ MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
 
 ---
 
-## Build Metadata
+## 建置元資料
 
-### Examples
+### 範例
 
 ```
 1.0.0+20250112            # Date-based build
@@ -134,11 +142,11 @@ MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
 3.0.0+sha.5114f85         # Git commit hash
 ```
 
-**Note**: Build metadata does NOT affect version precedence.
+**注意**: 建置元資料不會影響版本優先順序。
 
 ---
 
-## Initial Development (0.x.x)
+## 初始開發（0.x.x）
 
 ```
 0.1.0  # Initial development release
@@ -147,15 +155,15 @@ MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
 1.0.0  # First stable release
 ```
 
-**Guidelines**:
-- Major version 0 indicates development phase
-- API may change frequently
-- Breaking changes allowed in MINOR versions
-- Move to 1.0.0 when API is stable
+**指南**:
+- 主版本 0 表示開發階段
+- API 可能經常變更
+- MINOR 版本允許重大變更
+- API 穩定時移至 1.0.0
 
 ---
 
-## Version Lifecycle Example
+## 版本生命週期範例
 
 ```
 Development Phase:
@@ -176,67 +184,67 @@ Next Major Release:
 
 ---
 
-## Git Tagging
+## Git 標籤
 
-### Creating Tags
+### 建立標籤
 
 ```bash
-# Annotated tag (recommended)
+# 附註標籤（建議）
 git tag -a v1.2.0 -m "Release version 1.2.0"
 
-# Push tag to remote
+# 推送標籤到遠端
 git push origin v1.2.0
 
-# Push all tags
+# 推送所有標籤
 git push origin --tags
 ```
 
-### Tag Naming Convention
+### 標籤命名慣例
 
 ```
-v1.0.0          ✅ Recommended (with 'v' prefix)
-1.0.0           ✅ Acceptable (without 'v')
-version-1.0.0   ❌ Avoid (too verbose)
-1.0             ❌ Avoid (incomplete version)
+v1.0.0          ✅ 建議（帶 'v' 前綴）
+1.0.0           ✅ 可接受（不帶 'v'）
+version-1.0.0   ❌ 避免（太冗長）
+1.0             ❌ 避免（不完整版本）
 ```
 
 ---
 
-## Dependency Version Ranges
+## 相依性版本範圍
 
 ### npm (package.json)
 
 ```json
 {
   "dependencies": {
-    "exact": "1.2.3",           // Exact version
+    "exact": "1.2.3",           // 確切版本
     "patch": "~1.2.3",          // >=1.2.3 <1.3.0
     "minor": "^1.2.3",          // >=1.2.3 <2.0.0
-    "range": ">=1.2.3 <2.0.0",  // Explicit range
-    "latest": "*"               // ❌ Avoid - any version
+    "range": ">=1.2.3 <2.0.0",  // 明確範圍
+    "latest": "*"               // ❌ 避免 - 任何版本
   }
 }
 ```
 
 ---
 
-## Related Standards
+## 相關標準
 
-- [Versioning Standards](../../core/versioning.md)
-- [Changelog Format Guide](./changelog-format.md)
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+- [版本控制標準](../../../../core/versioning.md)
+- [變更日誌格式指南](./changelog-format.md)
 
 ---
 
-## License
+## 版本歷史
 
-This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2025-12-24 | 新增：標準區段（目的、相關標準、版本歷史、授權） |
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## 授權
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

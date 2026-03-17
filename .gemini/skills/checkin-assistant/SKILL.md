@@ -1,52 +1,70 @@
 ---
+source: ../../../../skills/checkin-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-10
+status: current
+description: |
+  在提交程式碼前驗證品質關卡，確保程式碼庫穩定性。
+  使用時機：提交前檢查、品質驗證、pre-commit 檢查。
+  關鍵字：checkin, pre-commit, quality gate, 簽入, 品質關卡, 驗證。
 name: checkin
-scope: partial
-description: "[UDS] Pre-commit quality gates verification"
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git status:*), Bash(npm test:*), Bash(npm run lint:*)
+scope: partial
 disable-model-invocation: true
 ---
 
-# Check-in Assistant | 簽入助手
+# 簽入助手
 
-Verify pre-commit quality gates before committing code to ensure codebase stability.
+> **語言**: [English](../../../../skills/checkin-assistant/SKILL.md) | 繁體中文
 
 在提交程式碼前驗證品質關卡，確保程式碼庫的穩定性。
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Check git status** - Run `git status` and `git diff` to understand pending changes
-2. **Run tests** - Execute `npm test` (or project test command) to verify all tests pass
-3. **Run linting** - Execute `npm run lint` to check code style compliance
-4. **Verify quality gates** - Check each gate against the checklist below
-5. **Report results** - Present pass/fail summary and recommend next steps
+1. **檢查 git 狀態** - 執行 `git status` 和 `git diff` 了解待提交的變更
+2. **執行測試** - 執行 `npm test`（或專案測試指令）驗證所有測試通過
+3. **執行程式碼檢查** - 執行 `npm run lint` 檢查程式碼風格合規
+4. **驗證品質關卡** - 根據以下清單逐項檢查
+5. **報告結果** - 呈現通過/失敗摘要並建議後續步驟
 
-## Quality Gates | 品質關卡
+## 品質關卡
 
-| Gate | Check | 檢查項目 |
-|------|-------|---------|
-| **Build** | Code compiles with zero errors | 編譯零錯誤 |
-| **Tests** | All existing tests pass (100%) | 所有測試通過 |
-| **Coverage** | Test coverage not decreased | 覆蓋率未下降 |
-| **Code Quality** | Follows coding standards, no code smells | 符合編碼規範 |
-| **Security** | No hardcoded secrets or vulnerabilities | 無硬編碼密鑰 |
-| **Documentation** | API docs and CHANGELOG updated if needed | 文件已更新 |
-| **Workflow** | Branch naming and commit message correct | 分支和提交格式正確 |
+| 關卡 | 檢查項目 | Check |
+|------|---------|-------|
+| **建置** | 編譯零錯誤 | Code compiles with zero errors |
+| **測試** | 所有測試通過（100%） | All existing tests pass |
+| **覆蓋率** | 覆蓋率未下降 | Test coverage not decreased |
+| **程式碼品質** | 符合編碼規範、無程式碼異味 | Follows coding standards |
+| **安全性** | 無硬編碼密鑰或漏洞 | No hardcoded secrets |
+| **文件** | API 文件和 CHANGELOG 已更新 | Documentation updated |
+| **工作流程** | 分支命名和提交訊息格式正確 | Branch naming and commit correct |
 
-## Never Commit When | 禁止提交的情況
+## 禁止提交的情況
 
-- Build has errors | 建置有錯誤
-- Tests are failing | 測試失敗
-- Feature is incomplete and would break functionality | 功能不完整會破壞現有功能
-- Contains WIP/TODO in critical logic | 關鍵邏輯中有 WIP/TODO
-- Contains debugging code (console.log, print) | 包含除錯程式碼
-- Contains commented-out code blocks | 包含被註解的程式碼區塊
+- 建置有錯誤 | Build has errors
+- 測試失敗 | Tests are failing
+- 功能不完整會破壞現有功能 | Feature is incomplete and would break functionality
+- 關鍵邏輯中有 WIP/TODO | Contains WIP/TODO in critical logic
+- 包含除錯程式碼（console.log、print） | Contains debugging code
+- 包含被註解的程式碼區塊 | Contains commented-out code blocks
 
-## Usage | 使用方式
+## 使用方式
 
-- `/checkin` - Run full quality gate verification on current changes
-- After verification, proceed with `/commit` to create the commit message
+- `/checkin` - 對目前變更執行完整品質關卡驗證
+- 驗證通過後，使用 `/commit` 建立 commit message
 
-## Reference | 參考
+## 下一步引導
 
-- Detailed guide: [guide.md](./guide.md)
-- Core standard: [checkin-standards.md](../../core/checkin-standards.md)
+`/checkin` 完成後，AI 助手應建議：
+
+> **品質關卡驗證完成。建議下一步：**
+> - 全部通過 ✅ → 執行 `/commit` 提交變更
+> - 有失敗項目 ❌ → 修復問題後重新執行 `/checkin`
+> - 需要程式碼審查 → 執行 `/review` 進行自我審查
+> - UDS 安裝有異常 → 執行 `/audit` 診斷問題
+
+## 參考
+
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[checkin-standards.md](../../../../core/checkin-standards.md)

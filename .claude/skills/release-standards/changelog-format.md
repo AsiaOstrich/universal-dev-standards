@@ -1,20 +1,28 @@
-# Changelog Format Guide
+---
+source: ../../../../skills/release-standards/changelog-format.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-25
+status: current
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/release-standards/changelog-format.md)
+# 變更日誌格式指南
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
-**Applicability**: Claude Code Skills
+> **語言**: [English](../../../../skills/release-standards/changelog-format.md) | 繁體中文
+
+**版本**: 1.0.0
+**最後更新**: 2025-12-24
+**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose
+## 目的
 
-This document provides guidelines for writing and formatting changelog files.
+本文件提供撰寫和格式化變更日誌檔案的指南。
 
-This standard follows [Keep a Changelog](https://keepachangelog.com/) format.
+此標準遵循 [Keep a Changelog](https://keepachangelog.com/) 格式。
 
-## File Structure
+## 檔案結構
 
 ```markdown
 # Changelog
@@ -46,26 +54,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## Categories
+## 分類
 
-| Category | Usage | When to Use |
+| 分類 | 用途 | 何時使用 |
 |----------|-------|-------------|
-| **Added** | New features | New functionality for users |
-| **Changed** | Modifications | Changes in existing functionality |
-| **Deprecated** | Soon to be removed | Features to be removed |
-| **Removed** | Removed features | Features removed in this version |
-| **Fixed** | Bug fixes | Any bug fixes |
-| **Security** | Security patches | Vulnerability fixes |
+| **Added** | 新功能 | 為使用者提供的新功能 |
+| **Changed** | 修改 | 現有功能的變更 |
+| **Deprecated** | 即將移除 | 即將被移除的功能 |
+| **Removed** | 已移除功能 | 在此版本中移除的功能 |
+| **Fixed** | 錯誤修復 | 任何錯誤修復 |
+| **Security** | 安全性修補 | 漏洞修復 |
 
 ---
 
-## Version Header Format
+## 版本標題格式
 
 ```markdown
 ## [VERSION] - YYYY-MM-DD
 ```
 
-**Examples**:
+**範例**:
 ```markdown
 ## [2.0.0] - 2025-12-15
 ## [1.5.0-beta.1] - 2025-12-01
@@ -74,13 +82,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## Entry Format
+## 條目格式
 
 ```markdown
 - [Action verb] [what changed] ([reference])
 ```
 
-**Examples**:
+**範例**:
 ```markdown
 ### Added
 - Add user dashboard with customizable widgets (#123)
@@ -97,9 +105,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## Breaking Changes
+## 破壞性變更
 
-Mark breaking changes clearly with **BREAKING** prefix:
+使用 **BREAKING** 前綴清楚標記破壞性變更:
 
 ```markdown
 ### Changed
@@ -112,9 +120,9 @@ Mark breaking changes clearly with **BREAKING** prefix:
 
 ---
 
-## Security Advisories
+## 安全性公告
 
-Include severity and CVE if available:
+如果可用，請包含嚴重程度和 CVE:
 
 ```markdown
 ### Security
@@ -125,42 +133,42 @@ Include severity and CVE if available:
 
 ---
 
-## Commit to Changelog Mapping
+## 提交訊息與變更日誌對應
 
-| Commit Type | CHANGELOG Category | Notes |
+| 提交類型 | 變更日誌分類 | 備註 |
 |-------------|-------------------|-------|
-| `feat` | **Added** | New features |
-| `fix` | **Fixed** | Bug fixes |
-| `perf` | **Changed** | Performance improvements |
-| `refactor` | *(usually omit)* | Internal changes |
-| `docs` | *(usually omit)* | Documentation only |
-| `test` | *(usually omit)* | Test only |
-| `chore` | *(usually omit)* | Maintenance |
-| `BREAKING CHANGE` | **Changed** or **Removed** | With **BREAKING** prefix |
-| `security` | **Security** | Security patches |
-| `deprecate` | **Deprecated** | Deprecation notices |
+| `feat` | **Added** | 新功能 |
+| `fix` | **Fixed** | 錯誤修復 |
+| `perf` | **Changed** | 效能改善 |
+| `refactor` | *(通常省略)* | 內部變更 |
+| `docs` | *(通常省略)* | 僅文件 |
+| `test` | *(通常省略)* | 僅測試 |
+| `chore` | *(通常省略)* | 維護 |
+| `BREAKING CHANGE` | **Changed** 或 **Removed** | 使用 **BREAKING** 前綴 |
+| `security` | **Security** | 安全性修補 |
+| `deprecate` | **Deprecated** | 棄用通知 |
 
 ---
 
-## Exclusion Rules
+## 排除規則
 
-The following should **NOT** be recorded in CHANGELOG:
+以下項目**不應**記錄在變更日誌中:
 
-| Category | Examples | Reason |
+| 分類 | 範例 | 原因 |
 |----------|----------|--------|
-| Build outputs | `dist/`, `build/`, `bin/` | Generated files |
-| Dependencies | `node_modules/`, lock files | Auto-managed |
-| Local config | `.env`, `*.local.json` | Environment-specific |
-| IDE settings | `.vscode/`, `.idea/` | Developer preference |
-| Internal refactoring | Code style, variable names | No user impact |
+| 建置輸出 | `dist/`, `build/`, `bin/` | 產生的檔案 |
+| 相依套件 | `node_modules/`, lock files | 自動管理 |
+| 本地設定 | `.env`, `*.local.json` | 環境特定 |
+| IDE 設定 | `.vscode/`, `.idea/` | 開發者偏好 |
+| 內部重構 | 程式碼風格、變數名稱 | 無使用者影響 |
 
 ---
 
-## Writing Tips
+## 撰寫技巧
 
-### Write for Users, Not Developers
+### 為使用者撰寫，而非開發者
 
-| Good | Bad |
+| 良好範例 | 不良範例 |
 |------|-----|
 | Add dark mode theme option | Implement ThemeProvider with context |
 | Fix login timeout on slow networks | Fix race condition in AuthService |
@@ -168,9 +176,9 @@ The following should **NOT** be recorded in CHANGELOG:
 
 ---
 
-## Multi-Language Support
+## 多語言支援
 
-### Bilingual Entries
+### 雙語條目
 
 ```markdown
 ## [1.2.0] - 2025-12-15
@@ -188,7 +196,7 @@ The following should **NOT** be recorded in CHANGELOG:
 
 ---
 
-## Automation
+## 自動化
 
 ### conventional-changelog
 
@@ -217,23 +225,23 @@ conventional-changelog -p angular -i CHANGELOG.md -s
 
 ---
 
-## Related Standards
+## 相關標準
 
-- [Changelog Standards](../../core/changelog-standards.md)
+- [Changelog Standards](../../../../core/changelog-standards.md)
 - [Semantic Versioning Guide](./semantic-versioning.md)
 
 ---
 
-## Version History
+## 版本歷史
 
-| Version | Date | Changes |
+| 版本 | 日期 | 變更 |
 |---------|------|---------|
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+| 1.0.0 | 2025-12-24 | 新增: 標準章節 (目的、相關標準、版本歷史、授權條款) |
 
 ---
 
-## License
+## 授權條款
 
-This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+本文件依據 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

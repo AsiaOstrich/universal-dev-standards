@@ -1,20 +1,28 @@
-# Conventional Commits Guide
+---
+source: ../../../../skills/commit-standards/conventional-commits.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-25
+status: current
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/commit-standards/conventional-commits.md)
+# Conventional Commits 指南
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
-**Applicability**: Claude Code Skills
+> **語言**: [English](../../../../skills/commit-standards/conventional-commits.md) | 繁體中文
+
+**版本**: 1.0.0
+**最後更新**: 2025-12-24
+**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose
+## 目的
 
-This document provides detailed guidelines for writing conventional commit messages.
+本文件提供撰寫 conventional commit 訊息的詳細指南。
 
 ---
 
-## Format Structure
+## 格式結構
 
 ```
 <type>(<scope>): <subject>
@@ -24,100 +32,100 @@ This document provides detailed guidelines for writing conventional commit messa
 <footer>
 ```
 
-### Components
+### 組成元素
 
-| Component | Required | Description |
+| 元素 | 必填 | 說明 |
 |-----------|----------|-------------|
-| `type` | ✅ Yes | Type of change |
-| `scope` | Optional | Module/component affected |
-| `subject` | ✅ Yes | Brief description (≤72 chars) |
-| `body` | Recommended | Detailed explanation |
-| `footer` | Optional | Issue references, breaking changes |
+| `type` | ✅ 是 | 變更類型 |
+| `scope` | 選填 | 受影響的模組/元件 |
+| `subject` | ✅ 是 | 簡短描述（≤72 字元） |
+| `body` | 建議填寫 | 詳細說明 |
+| `footer` | 選填 | 議題引用、破壞性變更 |
 
 ---
 
-## Commit Types
+## Commit 類型
 
-### Primary Types
+### 主要類型
 
-| Type | When to Use | Example |
+| 類型 | 使用時機 | 範例 |
 |------|-------------|----------|
-| `feat` | New feature for the user | `feat(cart): Add quantity selector` |
-| `fix` | Bug fix for the user | `fix(login): Resolve password reset loop` |
-| `docs` | Documentation only | `docs(api): Add authentication examples` |
-| `refactor` | Code change without feature/fix | `refactor(utils): Simplify date formatting` |
+| `feat` | 為使用者新增功能 | `feat(cart): Add quantity selector` |
+| `fix` | 為使用者修復錯誤 | `fix(login): Resolve password reset loop` |
+| `docs` | 僅文件變更 | `docs(api): Add authentication examples` |
+| `refactor` | 程式碼變更但不涉及功能/修復 | `refactor(utils): Simplify date formatting` |
 
-### Secondary Types
+### 次要類型
 
-| Type | When to Use | Example |
+| 類型 | 使用時機 | 範例 |
 |------|-------------|----------|
-| `style` | Formatting, whitespace | `style: Apply prettier formatting` |
-| `test` | Adding/updating tests | `test(auth): Add login integration tests` |
-| `perf` | Performance improvement | `perf(query): Add database index` |
-| `build` | Build system, dependencies | `build(deps): Upgrade React to v18` |
-| `ci` | CI/CD pipeline | `ci: Add deploy workflow` |
-| `chore` | Maintenance tasks | `chore: Update .gitignore` |
-| `revert` | Revert commit | `revert: Revert "feat(auth): Add SSO"` |
-| `security` | Security fix | `security(auth): Fix XSS vulnerability` |
+| `style` | 格式化、空白字元 | `style: Apply prettier formatting` |
+| `test` | 新增/更新測試 | `test(auth): Add login integration tests` |
+| `perf` | 效能改進 | `perf(query): Add database index` |
+| `build` | 建置系統、依賴套件 | `build(deps): Upgrade React to v18` |
+| `ci` | CI/CD 流程 | `ci: Add deploy workflow` |
+| `chore` | 維護任務 | `chore: Update .gitignore` |
+| `revert` | 回復提交 | `revert: Revert "feat(auth): Add SSO"` |
+| `security` | 安全性修復 | `security(auth): Fix XSS vulnerability` |
 
 ---
 
-## Scope Guidelines
+## Scope 指南
 
-### Naming Rules
+### 命名規則
 
-1. **Use lowercase**: `auth`, not `Auth`
-2. **Use hyphen for multi-word**: `user-profile`, not `userProfile`
-3. **Keep it short**: 1-2 words maximum
+1. **使用小寫**: `auth`，而非 `Auth`
+2. **多個單字使用連字號**: `user-profile`，而非 `userProfile`
+3. **保持簡短**: 最多 1-2 個單字
 
-### Common Scopes
+### 常見 Scopes
 
-**By Layer**:
+**依層級**:
 - `api`, `ui`, `database`, `config`, `middleware`
 
-**By Feature**:
+**依功能**:
 - `auth`, `login`, `payment`, `notification`, `search`
 
-**By File Type**:
+**依檔案類型**:
 - `tests`, `docs`, `build`, `deps`
 
-**Special**:
-- `*`: Multiple scopes affected
-- (no scope): Global changes
+**特殊**:
+- `*`: 影響多個範圍
+- (無 scope): 全域變更
 
 ---
 
-## Subject Line Rules
+## Subject 行規則
 
-1. **Length**: ≤72 characters (50 ideal)
-2. **Tense**: Imperative mood
+1. **長度**: ≤72 字元（理想為 50）
+2. **時態**: 祈使語氣
    - ✅ "Add feature"
    - ❌ "Added feature"
-3. **Capitalization**: First letter capitalized
-4. **No period**: Don't end with period
-5. **Be specific**: Describe what changed
+3. **大小寫**: 首字母大寫
+4. **無句號**: 結尾不加句號
+5. **具體明確**: 描述變更內容
 
-### Examples
+### 範例
 
 ```
 ✅ feat(auth): Add OAuth2 Google login support
 ✅ fix(api): Resolve memory leak in session cache
 ✅ refactor(database): Extract query builder class
 
-❌ fixed bug                    # Vague, past tense
-❌ feat(auth): added login.     # Past tense, period
-❌ Update stuff                 # Too vague
+❌ fixed bug                    # 模糊、過去式
+❌ feat(auth): added login.     # 過去式、有句號
+❌ Update stuff                 # 太模糊
 ```
 
 ---
 
-## Body Guidelines
+## Body 指南
 
-Explain **WHY**, not **WHAT** (code shows what).
+說明**為什麼**，而非**做什麼**（程式碼已經展示做什麼）。
 
-### Templates
+### 範本
 
-**For Features**:
+**功能類**:
 ```
 Why this feature is needed:
 - Reason 1
@@ -128,7 +136,7 @@ What this implements:
 - Implementation detail 2
 ```
 
-**For Bug Fixes**:
+**錯誤修復類**:
 ```
 Why this occurred:
 - Root cause explanation
@@ -140,7 +148,7 @@ Testing:
 - How it was tested
 ```
 
-**For Refactoring**:
+**重構類**:
 ```
 Why this refactoring:
 - Motivation
@@ -154,19 +162,19 @@ Migration:
 
 ---
 
-## Footer Guidelines
+## Footer 指南
 
-### Issue References
+### 議題引用
 
 ```
-Closes #123     # Automatically closes issue
-Fixes #456      # Automatically closes issue
-Resolves #789   # Automatically closes issue
-Refs #101       # Links without closing
-See also #999   # Related reference
+Closes #123     # 自動關閉議題
+Fixes #456      # 自動關閉議題
+Resolves #789   # 自動關閉議題
+Refs #101       # 連結但不關閉
+See also #999   # 相關引用
 ```
 
-### Breaking Changes
+### 破壞性變更
 
 ```
 BREAKING CHANGE: <description>
@@ -178,7 +186,7 @@ Migration guide:
 
 ---
 
-## Complete Example
+## 完整範例
 
 ```
 feat(export): Add CSV export functionality for user data
@@ -205,9 +213,9 @@ Refs #234 (related compliance requirement)
 
 ---
 
-## Anti-Patterns
+## 反模式
 
-### ❌ Vague Messages
+### ❌ 模糊訊息
 
 ```
 fix: bug fix
@@ -215,42 +223,42 @@ refactor: code improvements
 update: changes
 ```
 
-### ❌ Mixing Multiple Concerns
+### ❌ 混合多個關注點
 
 ```
 feat: add login, fix bugs, refactor database
 ```
 
-**Fix**: Split into separate commits.
+**修正**: 拆分成個別提交。
 
-### ❌ Implementation Details in Subject
+### ❌ Subject 中包含實作細節
 
 ```
 fix: change line 45 from getUserById to getUserByEmail
 ```
 
-**Fix**: Focus on purpose, not implementation.
+**修正**: 著重於目的，而非實作。
 
 ---
 
-## Related Standards
+## 相關標準
 
-- [Commit Message Guide](../../core/commit-message-guide.md)
+- [Commit Message Guide](../../../../core/commit-message-guide.md)
 - [Language Options](./language-options.md)
-- [Git Workflow](../../core/git-workflow.md)
+- [Git Workflow](../../../../core/git-workflow.md)
 
 ---
 
-## Version History
+## 版本歷史
 
-| Version | Date | Changes |
+| 版本 | 日期 | 變更內容 |
 |---------|------|---------|
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+| 1.0.0 | 2025-12-24 | 新增: 標準章節（目的、相關標準、版本歷史、授權） |
 
 ---
 
-## License
+## 授權
 
-This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

@@ -1,157 +1,164 @@
 ---
-scope: partial
+source: ../../../../skills/tdd-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-07
+status: current
+---
+
+---
 description: |
   Guide developers through Test-Driven Development workflow.
   Use when: writing tests first, practicing TDD, red-green-refactor cycle, BDD scenarios.
   Keywords: TDD, test first, red green refactor, FIRST, BDD, ATDD, 測試驅動開發, 紅綠重構.
 ---
 
-# TDD Assistant
+# TDD 助手
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/tdd-assistant/SKILL.md)
+> **語言**: [English](../../../../skills/tdd-assistant/SKILL.md) | 繁體中文
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-07
-**Applicability**: Claude Code Skills
-
----
-
-## Purpose
-
-This skill guides developers through the Test-Driven Development workflow, helping them:
-- Write effective failing tests (Red phase)
-- Implement minimum code to pass tests (Green phase)
-- Refactor safely while keeping tests green (Refactor phase)
-- Identify and avoid common TDD anti-patterns
-- Integrate TDD with BDD and ATDD approaches
-- Apply TDD appropriately based on context
+**版本**: 1.0.0
+**最後更新**: 2026-01-07
+**適用範圍**: Claude Code Skills
 
 ---
 
-## Quick Reference
+## 目的
 
-### TDD Cycle Checklist
+此技能引導開發者完成測試驅動開發工作流程，協助他們：
+- 撰寫有效的失敗測試（紅色階段）
+- 實現最少程式碼讓測試通過（綠色階段）
+- 在保持測試綠色的同時安全重構（重構階段）
+- 識別並避免常見的 TDD 反模式
+- 整合 TDD 與 BDD 和 ATDD 方法
+- 根據情境適當地應用 TDD
+
+---
+
+## 快速參考
+
+### TDD 循環檢查清單
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  🔴 RED Phase                                                   │
-│  □ Test describes expected behavior, not implementation         │
-│  □ Test name clearly states what is being tested                │
-│  □ Test follows AAA pattern (Arrange-Act-Assert)                │
-│  □ Test fails for the RIGHT reason                              │
-│  □ Failure message is clear and actionable                      │
+│  🔴 紅色階段                                                     │
+│  □ 測試描述預期行為，而非實作                                     │
+│  □ 測試名稱清楚說明正在測試什麼                                   │
+│  □ 測試遵循 AAA 模式（Arrange-Act-Assert）                       │
+│  □ 測試因為「正確的原因」而失敗                                   │
+│  □ 失敗訊息清楚且可操作                                          │
 ├─────────────────────────────────────────────────────────────────┤
-│  🟢 GREEN Phase                                                 │
-│  □ Write MINIMUM code to pass the test                          │
-│  □ "Fake it" is acceptable (hardcode if needed)                 │
-│  □ Don't optimize or over-engineer                              │
-│  □ Test now passes                                              │
-│  □ All other tests still pass                                   │
+│  🟢 綠色階段                                                     │
+│  □ 撰寫「最少」程式碼讓測試通過                                   │
+│  □ 「假裝」是可以接受的（如有需要可硬編碼）                        │
+│  □ 不要優化或過度設計                                            │
+│  □ 測試現在通過                                                  │
+│  □ 所有其他測試仍然通過                                          │
 ├─────────────────────────────────────────────────────────────────┤
-│  🔵 REFACTOR Phase                                              │
-│  □ Remove duplication (DRY)                                     │
-│  □ Improve naming                                               │
-│  □ Extract methods if needed                                    │
-│  □ Run tests after EVERY change                                 │
-│  □ No new functionality added                                   │
-│  □ All tests still pass                                         │
+│  🔵 重構階段                                                     │
+│  □ 消除重複（DRY）                                               │
+│  □ 改善命名                                                      │
+│  □ 如有需要提取方法                                              │
+│  □ 「每次」變更後執行測試                                         │
+│  □ 沒有新增功能                                                  │
+│  □ 所有測試仍然通過                                              │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### FIRST Principles Quick Reference
+### FIRST 原則快速參考
 
-| Principle | Check | Common Violations |
-|-----------|-------|-------------------|
-| **F**ast | < 100ms per unit test | Database calls, file I/O, network |
-| **I**ndependent | No shared state | Static variables, execution order dependency |
-| **R**epeatable | Same result always | DateTime.Now, Random, external services |
-| **S**elf-validating | Clear pass/fail | Manual log checking, no assertions |
-| **T**imely | Test before code | Writing tests after implementation |
+| 原則 | 檢查 | 常見違規 |
+|------|------|---------|
+| **F**ast（快速） | 每個單元測試 < 100ms | 資料庫呼叫、檔案 I/O、網路 |
+| **I**ndependent（獨立） | 無共享狀態 | 靜態變數、執行順序依賴 |
+| **R**epeatable（可重複） | 結果總是相同 | DateTime.Now、Random、外部服務 |
+| **S**elf-validating（自我驗證） | 清楚的通過/失敗 | 手動檢查日誌、無斷言 |
+| **T**imely（及時） | 程式碼之前測試 | 實現後才寫測試 |
 
-### Anti-Pattern Quick Detection
+### 反模式快速偵測
 
-| Symptom | Likely Anti-Pattern | Quick Fix |
-|---------|---------------------|-----------|
-| Tests break on refactoring | Testing implementation details | Test behavior only |
-| Tests pass but bugs in prod | Over-mocking | Add integration tests |
-| Random test failures | Test interdependence | Isolate test state |
-| Slow test suite | Too many integration tests | Increase unit test ratio |
-| Team avoids writing tests | Complex test setup | Simplify with builders |
-
----
-
-## TDD vs BDD vs ATDD Quick Reference
-
-| Aspect | TDD | BDD | ATDD |
-|--------|-----|-----|------|
-| **Who writes** | Developers | Developers + BA + QA | All stakeholders |
-| **Language** | Code | Gherkin (Given-When-Then) | Business language |
-| **Level** | Unit/Component | Feature/Scenario | Acceptance |
-| **When** | During coding | Before coding | Before sprint |
-
-### When to Use Which
-
-```
-Is it a technical implementation detail?
-├─ Yes → TDD
-└─ No → Is there a business stakeholder?
-         ├─ Yes → Does stakeholder need to read/validate tests?
-         │        ├─ Yes → ATDD → BDD → TDD
-         │        └─ No → BDD → TDD
-         └─ No → TDD
-```
+| 症狀 | 可能的反模式 | 快速修復 |
+|------|-------------|---------|
+| 重構時測試失敗 | 測試實作細節 | 只測試行為 |
+| 測試通過但生產環境有 bug | 過度 mock | 新增整合測試 |
+| 隨機測試失敗 | 測試相依性 | 隔離測試狀態 |
+| 測試套件緩慢 | 整合測試太多 | 增加單元測試比例 |
+| 團隊迴避寫測試 | 測試設置複雜 | 用建構器簡化 |
 
 ---
 
-## Workflow Assistance
+## TDD vs BDD vs ATDD 快速參考
 
-### Red Phase Guidance
+| 面向 | TDD | BDD | ATDD |
+|------|-----|-----|------|
+| **誰撰寫** | 開發者 | 開發者 + BA + QA | 所有利益相關者 |
+| **語言** | 程式碼 | Gherkin（Given-When-Then） | 業務語言 |
+| **層級** | 單元/元件 | 功能/場景 | 驗收 |
+| **時機** | 編碼期間 | 編碼之前 | Sprint 之前 |
 
-When writing a failing test, ensure:
+### 何時使用哪個
 
-1. **Clear Intent**
+```
+是技術實作細節嗎？
+├─ 是 → TDD
+└─ 否 → 有業務利益相關者嗎？
+         ├─ 是 → 利益相關者需要閱讀/驗證測試嗎？
+         │        ├─ 是 → ATDD → BDD → TDD
+         │        └─ 否 → BDD → TDD
+         └─ 否 → TDD
+```
+
+---
+
+## 工作流協助
+
+### 紅色階段指導
+
+撰寫失敗測試時，確保：
+
+1. **清楚的意圖**
    ```typescript
-   // ❌ Vague
+   // ❌ 模糊
    test('it works', () => { ... });
 
-   // ✅ Clear
+   // ✅ 清楚
    test('should calculate discount when order total exceeds threshold', () => { ... });
    ```
 
-2. **Single Behavior**
+2. **單一行為**
    ```typescript
-   // ❌ Multiple behaviors
+   // ❌ 多個行為
    test('should validate and save user', () => { ... });
 
-   // ✅ Single behavior
+   // ✅ 單一行為
    test('should reject invalid email format', () => { ... });
    test('should save user with valid data', () => { ... });
    ```
 
-3. **Proper Assertions**
+3. **正確的斷言**
    ```typescript
-   // ❌ No assertion
+   // ❌ 無斷言
    test('should process order', () => {
      orderService.process(order);
-     // Missing assertion!
+     // 缺少斷言！
    });
 
-   // ✅ Clear assertion
+   // ✅ 清楚的斷言
    test('should mark order as processed', () => {
      const result = orderService.process(order);
      expect(result.status).toBe('processed');
    });
    ```
 
-### Green Phase Guidance
+### 綠色階段指導
 
-When making tests pass, remember:
+讓測試通過時，記住：
 
-1. **Minimum Implementation**
+1. **最少實現**
    ```typescript
-   // Test: should return "FizzBuzz" for numbers divisible by both 3 and 5
+   // 測試：should return "FizzBuzz" for numbers divisible by both 3 and 5
 
-   // ❌ Over-engineered first pass
+   // ❌ 過度設計的第一次實現
    function fizzBuzz(n: number): string {
      const divisibleBy3 = n % 3 === 0;
      const divisibleBy5 = n % 5 === 0;
@@ -161,224 +168,164 @@ When making tests pass, remember:
      return n.toString();
    }
 
-   // ✅ Minimum for current test (fake it!)
+   // ✅ 當前測試的最少實現（假裝！）
    function fizzBuzz(n: number): string {
-     return 'FizzBuzz'; // Just enough to pass THIS test
+     return 'FizzBuzz'; // 剛好足夠通過「這個」測試
    }
    ```
 
-2. **Progressive Generalization**
-   - First test: Hardcode the answer
-   - Second test: Add simple conditional
-   - Third test: Generalize the pattern
+2. **漸進式泛化**
+   - 第一個測試：硬編碼答案
+   - 第二個測試：新增簡單條件
+   - 第三個測試：泛化模式
 
-### Refactor Phase Guidance
+### 重構階段指導
 
-Safe refactoring checklist:
+安全重構檢查清單：
 
 ```
-Before:
-□ All tests are GREEN
-□ Understand what the code does
+之前：
+□ 所有測試都是綠色
+□ 理解程式碼在做什麼
 
-During (one at a time):
-□ Extract method → Run tests
-□ Rename → Run tests
-□ Remove duplication → Run tests
-□ Simplify conditional → Run tests
+期間（一次一個）：
+□ 提取方法 → 執行測試
+□ 重新命名 → 執行測試
+□ 消除重複 → 執行測試
+□ 簡化條件 → 執行測試
 
-After:
-□ All tests still GREEN
-□ Code is cleaner
-□ No new functionality
+之後：
+□ 所有測試仍然綠色
+□ 程式碼更乾淨
+□ 沒有新功能
 ```
 
 ---
 
-## Integration with SDD
+## 與 SDD 整合
 
-When working with Spec-Driven Development:
+使用規格驅動開發時：
 
-### Spec → Test Mapping
+### Spec → 測試映射
 
-| Spec Section | Test Type |
-|--------------|-----------|
-| Acceptance Criteria | Acceptance tests (ATDD/BDD) |
-| Business Rules | Unit tests (TDD) |
-| Edge Cases | Unit tests (TDD) |
-| Integration Points | Integration tests |
+| Spec 區段 | 測試類型 |
+|----------|---------|
+| 驗收標準 | 驗收測試（ATDD/BDD） |
+| 業務規則 | 單元測試（TDD） |
+| 邊界情況 | 單元測試（TDD） |
+| 整合點 | 整合測試 |
 
-### Workflow
+### 工作流程
 
 ```
-1. Read Spec (SPEC-XXX)
+1. 閱讀 Spec (SPEC-XXX)
    ↓
-2. Identify Acceptance Criteria
+2. 識別驗收標準
    ↓
-3. Write BDD scenarios (if applicable)
+3. 撰寫 BDD 場景（如適用）
    ↓
-4. For each scenario:
-   ├─ TDD: Red → Green → Refactor
-   └─ Mark AC as implemented
+4. 對每個場景：
+   ├─ TDD：紅 → 綠 → 重構
+   └─ 標記 AC 為已實現
    ↓
-5. All ACs implemented?
-   ├─ Yes → Mark Spec as complete
-   └─ No → Return to step 4
+5. 所有 AC 已實現？
+   ├─ 是 → 標記 Spec 為完成
+   └─ 否 → 返回步驟 4
 ```
 
-### Test File Reference
+### 測試文件參考
 
 ```typescript
 /**
- * Tests for SPEC-001: User Authentication
+ * SPEC-001：使用者驗證 的測試
  *
- * Acceptance Criteria:
- * - AC-1: User can login with valid credentials
- * - AC-2: Invalid password shows error
- * - AC-3: Account locks after 3 failed attempts
+ * 驗收標準：
+ * - AC-1：使用者可以用有效憑證登入
+ * - AC-2：無效密碼顯示錯誤
+ * - AC-3：3 次失敗嘗試後帳號鎖定
  */
-describe('User Authentication (SPEC-001)', () => {
-  // Tests organized by AC
+describe('使用者驗證 (SPEC-001)', () => {
+  // 依 AC 組織測試
 });
 ```
 
 ---
 
-## Configuration Detection
+## 配置偵測
 
-This skill supports project-specific configuration.
+此技能支援專案特定配置。
 
-### Detection Order
+### 偵測順序
 
-1. Check `CONTRIBUTING.md` for "Disabled Skills" section
-   - If this skill is listed, it is disabled for this project
-2. Check `CONTRIBUTING.md` for "TDD Standards" section
-3. Check for existing test patterns in the codebase
-4. If not found, **default to standard TDD practices**
+1. 檢查 `CONTRIBUTING.md` 的「Disabled Skills」區段
+   - 如果此技能在列表中，則對此專案停用
+2. 檢查 `CONTRIBUTING.md` 的「TDD Standards」區段
+3. 檢查程式碼庫中現有的測試模式
+4. 如果未找到，**預設使用標準 TDD 實踐**
 
-### First-Time Setup
+### 首次設置
 
-If no configuration found and context is unclear:
+如果未找到配置且情境不明確：
 
-1. Ask: "This project hasn't configured TDD preferences. Which approach do you prefer?"
-   - Pure TDD (Red-Green-Refactor)
-   - BDD-style TDD (Given-When-Then)
-   - ATDD with BDD and TDD
+1. 詢問：「此專案尚未配置 TDD 偏好。您偏好哪種方法？」
+   - 純 TDD（紅-綠-重構）
+   - BDD 風格 TDD（Given-When-Then）
+   - ATDD 搭配 BDD 和 TDD
 
-2. After selection, suggest documenting in `CONTRIBUTING.md`:
+2. 選擇後，建議在 `CONTRIBUTING.md` 中文件化：
 
 ```markdown
-## TDD Standards
+## TDD 標準
 
-### Preferred Approach
-- Primary: TDD (Red-Green-Refactor)
-- For features with business stakeholders: BDD
+### 偏好方法
+- 主要：TDD（紅-綠-重構）
+- 對於有業務利益相關者的功能：BDD
 
-### Test Naming Convention
-- Pattern: `should_[behavior]_when_[condition]`
-- Example: `should_return_error_when_email_invalid`
+### 測試命名慣例
+- 模式：`should_[行為]_when_[條件]`
+- 範例：`should_return_error_when_email_invalid`
 
-### Coverage Targets
-- Unit: 80%
-- Integration: 60%
+### 覆蓋率目標
+- 單元：80%
+- 整合：60%
 ```
 
 ---
 
-## Detailed Guidelines
+## 詳細指南
 
-For complete standards, see:
-- [TDD Core Standard](../../core/test-driven-development.md)
-- [TDD Workflow Guide](./tdd-workflow.md)
-- [Language Examples](./language-examples.md)
+完整標準請參閱：
+- [TDD 核心標準](../../../../core/test-driven-development.md)
+- [TDD 工作流程指南](./tdd-workflow.md)
+- [語言範例](./language-examples.md)
 
-For related testing standards:
-- [Testing Standards](../../core/testing-standards.md)
-- [Test Completeness Dimensions](../../core/test-completeness-dimensions.md)
-
----
-
-## Refactor Phase Deep Dive (YAML Compressed)
-
-```yaml
-# === TDD REFACTOR = SAFE SMALL REFACTORING ===
-refactor_phase:
-  scope: "Single method/class improvements"
-  duration: "5-15 minutes max"
-  prerequisite: "All tests GREEN"
-  rule: "No new functionality"
-
-techniques:
-  safe_refactorings:
-    - extract_method: "Long method → smaller methods"
-    - rename: "Improve naming clarity"
-    - inline_variable: "Remove unnecessary temp"
-    - replace_magic_number: "Constant with meaning"
-    - extract_class: "SRP violation fix"
-    - move_method: "Better cohesion"
-
-workflow:
-  steps:
-    1: "Confirm all tests GREEN"
-    2: "Make ONE small change"
-    3: "Run tests immediately"
-    4: "If RED → revert, try smaller step"
-    5: "If GREEN → commit, repeat"
-
-# === WHEN TO USE /refactor INSTEAD ===
-escalation:
-  use_tdd_refactor:
-    - "Improving code just written"
-    - "Single method/class cleanup"
-    - "Takes <15 minutes"
-  use_refactoring_assistant:
-    - "Legacy code modernization"
-    - "Refactor vs Rewrite decision"
-    - "Large-scale architectural change"
-    - "Technical debt management"
-    - "Strangler Fig pattern needed"
-
-# === REFACTOR ANTIPATTERNS ===
-antipatterns:
-  - name: "Refactoring without tests"
-    symptom: "No safety net"
-    fix: "Add characterization tests first"
-  - name: "Too large refactoring"
-    symptom: "Tests RED for hours"
-    fix: "Smaller steps, commit frequently"
-  - name: "Adding features while refactoring"
-    symptom: "Scope creep"
-    fix: "Separate commits: refactor then feature"
-  - name: "Refactoring everything"
-    symptom: "Perfectionism paralysis"
-    fix: "Only refactor code you're changing"
-```
+相關測試標準：
+- [測試標準](../../../../core/testing-standards.md)
+- [測試完整性維度](../../../../core/test-completeness-dimensions.md)
 
 ---
 
-## Related Standards
+## 相關標準
 
-- [Test-Driven Development](../../core/test-driven-development.md) - Core TDD standard
-- [Refactoring Standards](../../core/refactoring-standards.md) - Large-scale refactoring
-- [Testing Standards](../../core/testing-standards.md) - Testing framework
-- [Test Completeness Dimensions](../../core/test-completeness-dimensions.md) - 7 dimensions
-- [Spec-Driven Development](../../core/spec-driven-development.md) - SDD integration
-- [Testing Guide Skill](../testing-guide/SKILL.md) - Testing guide
-- [Test Coverage Assistant](../test-coverage-assistant/SKILL.md) - Coverage assistance
-- [Refactoring Assistant](../refactoring-assistant/SKILL.md) - Large-scale refactoring
+- [測試驅動開發](../../../../core/test-driven-development.md) - TDD 核心標準
+- [測試標準](../../../../core/testing-standards.md) - 測試框架
+- [測試完整性維度](../../../../core/test-completeness-dimensions.md) - 7 維度
+- [規格驅動開發](../../../../core/spec-driven-development.md) - SDD 整合
+- [測試指南技能](../testing-guide/SKILL.md) - 測試指南
+- [測試覆蓋率助手](../test-coverage-assistant/SKILL.md) - 覆蓋率協助
 
 ---
 
-## Version History
+## 版本歷史
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-01-07 | Initial release |
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-01-07 | 初始版本 |
 
 ---
 
-## License
+## 授權
 
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+此技能依據 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權釋出。
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

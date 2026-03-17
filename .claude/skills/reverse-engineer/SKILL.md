@@ -1,124 +1,81 @@
 ---
+source: ../../../../skills/reverse-engineer/SKILL.md
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-02-10
+status: current
+description: |
+  將現有程式碼反向工程為規格文件、BDD 場景或 TDD 覆蓋率報告。
+  使用時機：從程式碼提取規格、產生 Gherkin 場景、分析測試覆蓋率。
+  關鍵字：reverse engineering, spec, bdd, tdd, 反向工程, 規格, 覆蓋率。
 name: reverse
-scope: partial
-description: "[UDS] System archeology — reverse engineer code across Logic, Data, and Runtime dimensions"
 allowed-tools: Read, Grep, Glob, Bash(pg_dump:*), Bash(mysql:*), Bash(sqlite3:*), Bash(npm run:*), Bash(cat:*), Bash(docker:*)
+scope: partial
 argument-hint: "[spec|data|runtime|bdd|tdd] <input>"
 disable-model-invocation: true
 ---
 
-# Reverse Engineering Assistant | 反向工程助手
+# 反向工程助手
 
-System archeology framework: reverse engineer existing systems across three dimensions — **Logic**, **Data**, and **Runtime**.
+> **語言**: [English](../../../../skills/reverse-engineer/SKILL.md) | 繁體中文
 
-系統考古框架：從三個維度反向工程既有系統——**邏輯**、**資料**、**執行環境**。
+將現有程式碼反向工程為規格文件、BDD 場景或 TDD 覆蓋率報告。
 
-## Three Dimensions | 三大維度
+## 子命令
 
-```
-┌─────────────────────────────────────────────────────────┐
-│              System Archeology Framework                   │
-├──────────┬──────────────┬────────────────────────────────┤
-│  Logic   │     Data     │          Runtime               │
-│ (spec)   │    (data)    │         (runtime)              │
-├──────────┼──────────────┼────────────────────────────────┤
-│ APIs     │ DB Schemas   │ Logs & Error Patterns          │
-│ Modules  │ ORMs/Models  │ Config & Environment           │
-│ Flows    │ Migrations   │ Metrics & Performance          │
-│ Tests    │ Seed Data    │ Infra & Deployment             │
-└──────────┴──────────────┴────────────────────────────────┘
-```
+| 子命令 | 輸入 | 輸出 | 說明 |
+|--------|------|------|------|
+| `spec` | 程式碼檔案/目錄 | `SPEC-XXX.md` | 從程式碼提取規格 |
+| `bdd` | `SPEC-XXX.md` | `.feature` | 將 AC 轉為 Gherkin |
+| `tdd` | `.feature` | 覆蓋率報告 | 分析測試覆蓋率 |
 
-## Subcommands | 子命令
+## 工作流程
 
-| Subcommand | Dimension | Input | Output | 說明 |
-|------------|-----------|-------|--------|------|
-| *(none)* | All | Project root | Full Archeology Report | 三維度全面分析 |
-| `spec` | Logic | Code files/dirs | `SPEC-XXX.md` | 從程式碼提取規格 |
-| `data` | Data | DB schemas, ORMs, migrations | Data Model Spec | 分析資料模型與結構 |
-| `runtime` | Runtime | Logs, configs, metrics | Runtime Baseline | 分析執行環境基準 |
-| `bdd` | — | `SPEC-XXX.md` | `.feature` | 將 AC 轉為 Gherkin |
-| `tdd` | — | `.feature` | Coverage Report | 分析測試覆蓋率 |
+### spec：程式碼轉規格
 
-## Full Analysis Mode | 全面分析模式
+1. **掃描** - 讀取原始碼檔案，識別公開 API、資料流和業務邏輯
+2. **分類** - 將每個發現標記為 `[Confirmed]`、`[Inferred]` 或 `[Unknown]`
+3. **結構化** - 整理為 SDD 規格格式，包含驗收條件
+4. **引用來源** - 每個反向結果皆引用 `file:line` 來源參考
 
-When `/reverse` is invoked without a subcommand, execute all three dimensions sequentially:
+### bdd：規格轉 Gherkin
 
-1. **Data** → Scan schemas, ORMs, migrations
-2. **Runtime** → Analyze logs, configs, deployment
-3. **Logic (spec)** → Extract APIs, flows, tests → Generate SPEC
+1. **解析** - 讀取 SPEC-XXX.md 並提取驗收條件
+2. **轉換** - 將每個 AC 對應為一個 Gherkin Scenario（1:1 對應）
+3. **標記** - 加入 `@SPEC-XXX` 和 `@AC-N` 標籤以確保可追溯性
+4. **輸出** - 產生 `.feature` 檔案，包含 `# [Source: path:AC-N]` 註解
 
-Output: Integrated **System Archeology Report** combining all three dimensions.
+### tdd：Feature 轉覆蓋率報告
 
-## Dimension Details | 維度詳情
+1. **解析** - 讀取 `.feature` 檔案中的場景
+2. **搜尋** - 使用 Grep/Glob 尋找對應的測試檔案
+3. **對應** - 將場景與現有單元測試進行配對
+4. **報告** - 輸出覆蓋率矩陣（已覆蓋 / 缺失 / 部分覆蓋）
 
-### spec: Logic Dimension (既有)
+## 防幻覺規則
 
-1. **Scan** - Read source files and identify public APIs, data flows, and business logic
-2. **Classify** - Tag each finding as `[Confirmed]`, `[Inferred]`, or `[Unknown]`
-3. **Structure** - Organize into SDD spec format with Acceptance Criteria
-4. **Attribute** - Cite every reversed item with `file:line` source reference
+| 規則 | 要求 |
+|------|------|
+| **確定性標籤** | 所有發現須使用 `[Confirmed]`、`[Inferred]`、`[Unknown]` 標注 |
+| **來源引用** | 每項反向結果須引用 `file:line` 來源 |
+| **禁止捏造** | 不得捏造程式碼中不存在的 API 或行為 |
 
-### data: Data Dimension (新增)
+## 使用方式
 
-1. **Discover** - Find database schemas, ORM models, migration files, seed data
-2. **Map** - Build entity-relationship model from code evidence
-3. **Classify** - Tag relationships as `[Confirmed]` (FK constraints) or `[Inferred]` (code patterns)
-4. **Report** - Output data model spec with:
-   - Entity list with fields and types
-   - Relationship map (1:1, 1:N, M:N)
-   - Index and constraint inventory
-   - Migration history summary
-   - Data flow paths (write → read)
+- `/reverse spec src/auth/` - 從 auth 模組提取規格
+- `/reverse bdd specs/SPEC-AUTH.md` - 將規格 AC 轉為 Gherkin 場景
+- `/reverse tdd features/auth.feature` - 分析 feature 檔案的測試覆蓋率
 
-**Evidence sources**: `schema.prisma`, `*.migration.*`, `models/`, `entities/`, `knexfile.*`, `sequelize`, `typeorm`, SQL files, `docker-compose.yml` (DB services)
+## 下一步引導
 
-### runtime: Runtime Dimension (新增)
+`/reverse`（完整或 `spec`）完成後，AI 助手應建議：
 
-1. **Scan configs** - Environment variables, config files, feature flags
-2. **Analyze logs** - Log patterns, error frequency, log levels
-3. **Check infra** - Docker configs, CI/CD pipelines, deployment manifests
-4. **Baseline** - Output runtime baseline with:
-   - Environment variable inventory (names only, **never values/secrets**)
-   - Config file map and hierarchy
-   - External service dependencies (APIs, queues, caches)
-   - Deployment topology (containers, services)
-   - Health check and monitoring endpoints
+> **系統考古完成。建議下一步：**
+> - 執行 `/sdd` 審查並核准此規格
+> - 執行 `/derive` 從規格推導測試
+> - 審查規格中的 `[Inferred]` 和 `[Unknown]` 標記
 
-**Evidence sources**: `.env.example`, `docker-compose.yml`, `Dockerfile`, `*.config.*`, CI/CD files, `k8s/`, log files (patterns only)
+## 參考
 
-**Security**: NEVER output actual secret values. Only list variable names and describe their purpose.
-
-## Anti-Hallucination Rules | 防幻覺規則
-
-| Rule | Requirement | 要求 |
-|------|-------------|------|
-| **Certainty Tags** | Use `[Confirmed]`, `[Inferred]`, `[Unknown]` for all findings | 所有發現須標注確定性 |
-| **Source Attribution** | Cite `file:line` for every reversed item | 每項反向結果須引用來源 |
-| **No Fabrication** | Never invent APIs or behaviors not found in code | 不得捏造程式碼中不存在的 API 或行為 |
-| **No Secrets** | Never output secret values from configs or env files | 不得輸出設定檔或環境變數的密鑰值 |
-
-## Usage | 使用方式
-
-```
-/reverse                              - Full 3-dimension analysis | 三維度全面分析
-/reverse spec src/auth/               - Logic: extract spec | 邏輯：提取規格
-/reverse data                         - Data: analyze schemas & models | 資料：分析結構
-/reverse runtime                      - Runtime: analyze configs & infra | 執行環境：分析配置
-/reverse bdd specs/SPEC-AUTH.md       - Convert spec ACs to Gherkin
-/reverse tdd features/auth.feature    - Analyze test coverage
-```
-
-## Next Steps Guidance | 下一步引導
-
-After `/reverse` (full or `spec`) completes, the AI assistant should suggest:
-
-> **系統考古完成。建議下一步 / System archeology complete. Suggested next steps:**
-> - 執行 `/sdd` 審查並核准此規格 — Review and approve the generated spec
-> - 執行 `/derive` 從規格推導測試 — Derive tests from spec (requires approval first)
-> - 審查規格中的 `[Inferred]` 和 `[Unknown]` 標記 — Review uncertainty tags manually
-
-## Reference | 參考
-
-- Detailed guide: [guide.md](./guide.md)
-- Core standard: [reverse-engineering-standards.md](../../core/reverse-engineering-standards.md)
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[reverse-engineering-standards.md](../../../../core/reverse-engineering-standards.md)

@@ -1,84 +1,78 @@
 ---
+source: ../../../../skills/project-structure-guide/SKILL.md
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-03-04
+status: current
 scope: universal
-description: |
-  Guide for organizing project directories following language-specific best practices.
-  Use when: creating projects, reorganizing structure, adding modules, setting up builds.
-  Keywords: project, structure, directory, layout, gitignore, scaffold, 專案結構, 目錄.
 ---
 
-# Project Structure Guide
+# 專案結構指南
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/project-structure-guide/SKILL.md)
+> **Language**: [English](../../../../skills/project-structure-guide/SKILL.md) | 繁體中文
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-30
-**Applicability**: Claude Code Skills
+**版本**：1.1.0
+**最後更新**：2026-03-04
+**適用性**：Claude Code Skills
 
 ---
 
-## Purpose
+## 目的
 
-This skill provides guidance on structuring projects according to language and framework conventions. It helps create consistent, maintainable directory layouts.
+此技能提供根據語言和框架慣例建構專案的指引，協助建立一致、可維護的目錄佈局。
 
-# [Physical Binding]
-## Reality Check
-Before confirming the project structure is valid, you MUST:
-1. Run the validator: `uds check --standard project-structure`
-2. IF exit_code != 0:
-   - Read the error message (e.g., "Missing required directories").
-   - Report the violation to the user.
-   - Suggest specific commands (`mkdir ...`) to fix it.
-   - RETRY validation after fixes are applied.
+## 觸發時機
 
-## Trigger
+在以下情況使用此技能：
+- 建立新專案
+- 重組現有專案結構
+- 新增模組或功能
+- 設定建構配置
+- 建立 .gitignore 檔案
+- 決定檔案的放置位置（程式碼、文件、設定、資源）
+- 在 utils/、helpers/、shared/、lib/ 或 internal/ 之間做選擇
+- 放置開發中間產物（腦力激盪、RFC、POC、技術調查）
 
-Use this skill when:
-- Creating a new project
-- Reorganizing existing project structure
-- Adding new modules or features
-- Setting up build configuration
-- Creating .gitignore files
+## 支援的語言
 
-## Supported Languages
+| 語言 | 框架/模式 |
+|------|-----------|
+| Node.js | Express、NestJS、Next.js |
+| Python | Django、Flask、FastAPI |
+| Java | Spring Boot、Maven、Gradle |
+| .NET | ASP.NET Core、Console |
+| Go | 標準佈局、cmd/pkg |
+| Rust | Binary、Library、Workspace |
+| Kotlin | Gradle、Android、Multiplatform |
+| PHP | Laravel、Symfony、PSR-4 |
+| Ruby | Rails、Gem、Sinatra |
+| Swift | SPM、iOS App、Vapor |
 
-| Language | Frameworks/Patterns |
-|----------|---------------------|
-| Node.js | Express, NestJS, Next.js |
-| Python | Django, Flask, FastAPI |
-| Java | Spring Boot, Maven, Gradle |
-| .NET | ASP.NET Core, Console |
-| Go | Standard layout, cmd/pkg |
-| Rust | Binary, Library, Workspace |
-| Kotlin | Gradle, Android, Multiplatform |
-| PHP | Laravel, Symfony, PSR-4 |
-| Ruby | Rails, Gem, Sinatra |
-| Swift | SPM, iOS App, Vapor |
+## 常見結構模式
 
-## Common Structure Patterns
-
-### Standard Directories
+### 標準目錄
 
 ```
 project-root/
-├── src/              # Source code
-├── tests/            # Test files
-├── docs/             # Documentation
-├── tools/            # Build/deployment scripts
-├── examples/         # Usage examples
-├── config/           # Configuration files
-└── .github/          # GitHub configuration
+├── src/              # 原始碼
+├── tests/            # 測試檔案
+├── docs/             # 文件
+├── tools/            # 建構/部署腳本
+├── examples/         # 使用範例
+├── config/           # 配置檔案
+└── .github/          # GitHub 配置
 ```
 
-### Build Output (Always gitignore)
+### 建構輸出（始終 gitignore）
 
 ```
-dist/                 # Distribution output
-build/                # Compiled artifacts
-out/                  # Output directory
-bin/                  # Binary executables
+dist/                 # 發佈輸出
+build/                # 編譯產物
+out/                  # 輸出目錄
+bin/                  # 二進位執行檔
 ```
 
-## Language-Specific Guidelines
+## 語言特定指南
 
 ### Node.js
 
@@ -121,33 +115,38 @@ project/
 └── .gitignore
 ```
 
-## Quick Actions
+## 快速操作
 
-### Create Project Structure
+### 建立專案結構
 
-When asked to create a project:
-1. Ask for language/framework
-2. Generate appropriate directory structure
-3. Create essential config files
-4. Generate .gitignore
+當被要求建立專案時：
+1. 詢問語言/框架
+2. 生成適當的目錄結構
+3. 建立必要的配置檔案
+4. 生成 .gitignore
 
-### Review Structure
+### 審查結構
 
-When reviewing existing structure:
-1. Check language conventions
-2. Verify gitignore patterns
-3. Suggest improvements
-4. Identify misplaced files
+審查現有結構時：
+1. 檢查語言慣例
+2. 驗證 gitignore 模式
+3. 建議改進
+4. 識別放錯位置的檔案
 
-## Rules
+## 規則
 
-1. **Follow language conventions** - Each language has established patterns
-2. **Separate concerns** - Keep source, tests, docs separate
-3. **Gitignore build outputs** - Never commit dist/, build/, out/
-4. **Consistent naming** - Use language-appropriate casing
-5. **Config at root** - Place config files at project root
+1. **遵循語言慣例** - 每種語言都有既定模式
+2. **分離關注點** - 將原始碼、測試、文件分開
+3. **Gitignore 建構輸出** - 永不提交 dist/、build/、out/
+4. **一致命名** - 使用語言適當的命名風格
+5. **配置在根目錄** - 將配置檔案放在專案根目錄
+6. **辨析目錄術語** - utils/（無狀態、通用）、helpers/（層級綁定）、shared/（跨模組）、lib/（包裝依賴）
+7. **工作文件放 docs/working/** - 腦力激盪、RFC、POC、技術調查放在 docs/working/ 並進行生命週期管理
+8. **生成碼分離** - 放在 src/generated/{type}/，永不與手寫程式碼混合
 
-## Related Standards
+## 相關標準
 
-- [Core: Project Structure](../../core/project-structure.md)
-- [AI: Project Structure Options](../../ai/options/project-structure/)
+- [核心：專案結構](../../core/project-structure.md)
+- [核心：文件結構](../../core/documentation-structure.md)
+- [指南：檔案歸檔決策指南](../../core/guides/file-placement-guide.md)
+- [AI：專案結構選項](../../../../options/project-structure/)

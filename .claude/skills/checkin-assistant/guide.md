@@ -1,328 +1,332 @@
 ---
-scope: partial
+source: ../../../../skills/checkin-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-12
+status: current
 description: |
-  Guide pre-commit quality gates and check-in workflow.
-  Use when: committing code, preparing commits, quality gate verification.
-  Keywords: commit, checkin, pre-commit, quality gate, git add, 提交, 簽入, 品質關卡.
+  引導提交前品質關卡和簽入工作流程。
+  使用時機：提交程式碼、準備提交、品質關卡驗證。
+  關鍵字：commit, checkin, pre-commit, quality gate, git add, 提交, 簽入, 品質關卡.
 ---
 
-# Checkin Assistant
+# 簽入助手
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/checkin-assistant/SKILL.md)
+> **語言**：[English](../../../../skills/checkin-assistant/SKILL.md) | 繁體中文
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-12
-**Applicability**: Claude Code Skills
-
----
-
-## Purpose
-
-This skill guides developers through pre-commit quality gates, ensuring every commit maintains codebase stability and follows best practices.
-
-**Note**: This skill focuses on **when and how to commit**. For code review during PR, see [Code Review Assistant](../code-review-assistant/SKILL.md).
+**版本**：1.0.0
+**最後更新**：2026-01-12
+**適用範圍**：Claude Code Skills
 
 ---
 
-## Quick Reference (YAML Compressed)
+## 目的
+
+此技能引導開發人員完成提交前的品質關卡，確保每次提交都能維護程式碼庫的穩定性並遵循最佳實踐。
+
+**注意**：此技能專注於**何時以及如何提交**。有關 PR 期間的程式碼審查，請參閱[程式碼審查助手](../code-review-assistant/SKILL.md)。
+
+---
+
+## 快速參考（YAML 壓縮格式）
 
 ```yaml
-# === CORE PHILOSOPHY ===
-every_commit_should:
-  - "Be a complete logical unit of work"
-  - "Leave codebase in working state"
-  - "Be reversible without breaking functionality"
-  - "Contain its own tests (for new features)"
-  - "Be understandable to future developers"
+# === 核心理念 ===
+每次提交應該:
+  - "是一個完整的邏輯工作單元"
+  - "讓程式碼庫保持可運行狀態"
+  - "可以回滾而不破壞功能"
+  - "包含自己的測試（新功能）"
+  - "讓未來的開發者能夠理解"
 
-# === MANDATORY CHECKLIST ===
+# === 強制檢查清單 ===
 checklist:
-  build:
-    - "Code compiles (zero errors)"
-    - "Dependencies satisfied"
-    verify: "Run build command, exit code 0"
+  建置:
+    - "程式碼編譯成功（零錯誤）"
+    - "所有相依套件已滿足"
+    驗證: "執行建置指令，退出碼為 0"
 
-  tests:
-    - "All existing tests pass (100%)"
-    - "New code has tests"
-    - "Coverage not decreased"
-    verify: "Run test suite, check coverage"
+  測試:
+    - "所有現有測試通過（100%）"
+    - "新程式碼有對應測試"
+    - "覆蓋率沒有下降"
+    驗證: "執行測試套件，檢查覆蓋率"
 
-  quality:
-    - "Follows coding standards"
-    - "No code smells (methods≤50, nesting≤3, complexity≤10)"
-    - "No hardcoded secrets"
-    - "No security vulnerabilities"
-    verify: "Run linter, security scanner"
+  品質:
+    - "遵循編碼標準"
+    - "無程式碼異味（方法≤50行，巢狀≤3層，複雜度≤10）"
+    - "無寫死的密鑰"
+    - "無安全漏洞"
+    驗證: "執行 linter、安全掃描器"
 
-  docs:
-    - "API docs updated"
-    - "README updated (if needed)"
-    - "CHANGELOG updated (user-facing changes → [Unreleased])"
+  文件:
+    - "API 文件已更新"
+    - "README 已更新（如需要）"
+    - "CHANGELOG 已更新（使用者可見變更 → [Unreleased]）"
 
-  workflow:
-    - "Branch naming correct (feature/, fix/, docs/, chore/)"
-    - "Commit message formatted (conventional commits)"
-    - "Synced with target branch"
+  工作流程:
+    - "分支命名正確（feature/, fix/, docs/, chore/）"
+    - "提交訊息格式正確（conventional commits）"
+    - "已與目標分支同步"
 
-# === NEVER COMMIT WHEN ===
-blockers:
-  - "Build has errors"
-  - "Tests are failing"
-  - "Feature incomplete (would break functionality)"
-  - "Contains WIP/TODO in critical logic"
-  - "Contains debugging code (console.log, print)"
-  - "Contains commented-out code blocks"
+# === 絕不在以下情況提交 ===
+阻擋條件:
+  - "建置有錯誤"
+  - "測試失敗"
+  - "功能不完整（會破壞功能）"
+  - "關鍵邏輯中包含 WIP/TODO"
+  - "包含除錯程式碼（console.log, print）"
+  - "包含被註解的程式碼區塊"
 
-# === COMMIT TIMING ===
-good_times:
-  - completed_unit: "Feature fully implemented with tests"
-  - bug_fixed: "Bug fixed with regression test"
-  - independent_refactor: "Refactoring complete, all tests pass"
-  - runnable_state: "Code compiles, app can run"
+# === 提交時機 ===
+好的時機:
+  - 完成單元: "功能完整實作並附帶測試"
+  - 修復錯誤: "錯誤已修復並有迴歸測試"
+  - 獨立重構: "重構完成，所有測試通過"
+  - 可運行狀態: "程式碼編譯通過，應用程式可執行"
 
-bad_times:
-  - "Build failures"
-  - "Test failures"
-  - "Incomplete features"
-  - "Experimental code with scattered TODOs"
+不好的時機:
+  - "建置失敗"
+  - "測試失敗"
+  - "功能不完整"
+  - "實驗性程式碼散佈著 TODO"
 
-# === GRANULARITY ===
-ideal_commit:
-  files: "1-10 (split if >10)"
-  lines: "50-300"
-  scope: "Single concern"
+# === 粒度 ===
+理想提交:
+  檔案數: "1-10（超過 10 則考慮拆分）"
+  行數: "50-300"
+  範圍: "單一關注點"
 
-split_rules:
-  combine: ["feature + its tests", "tightly related multi-file changes"]
-  separate: ["Feature A + B", "refactor + new feature", "bugfix + incidental refactor"]
+拆分原則:
+  合併: ["功能 + 其測試", "緊密相關的多檔案變更"]
+  分開: ["功能 A + B", "重構 + 新功能", "錯誤修復 + 順便重構"]
 
-# === SPECIAL SCENARIOS ===
-emergency_leave:
-  recommended: "git stash save 'WIP: description'"
-  alternative: "Create wip/ branch"
-  prohibited: "Commit WIP directly on feature branch"
+# === 特殊情境 ===
+緊急離開:
+  建議: "git stash save 'WIP: 描述'"
+  替代方案: "建立 wip/ 分支"
+  禁止: "直接在功能分支上提交 WIP"
 
-experimental:
-  branch: "experiment/topic-name"
-  rules: "Free commits (no strict format)"
-  success: "Clean up, squash, merge to feature"
-  failure: "Document lessons, delete branch"
+實驗性開發:
+  分支: "experiment/主題名稱"
+  規則: "自由提交（無嚴格格式）"
+  成功: "清理、壓縮、合併到功能分支"
+  失敗: "記錄教訓、刪除分支"
 
-hotfix:
-  branch: "hotfix/issue-name from main"
-  rules: "Minimize changes, only fix the problem"
-  message: "fix(scope): [URGENT] description"
+緊急修復:
+  分支: "hotfix/問題名稱，從 main 分出"
+  規則: "最小化變更，只修復問題"
+  訊息: "fix(scope): [URGENT] 描述"
 ```
 
 ---
 
-## Checklist Visual Format
+## 檢查清單視覺格式
 
-Use this checklist before every commit:
+每次提交前使用此檢查清單：
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  📋 PRE-COMMIT CHECKLIST                                        │
+│  📋 提交前檢查清單                                               │
 ├─────────────────────────────────────────────────────────────────┤
-│  🔨 BUILD                                                       │
-│  □ Code compiles successfully (zero errors)                     │
-│  □ All dependencies satisfied                                   │
+│  🔨 建置                                                        │
+│  □ 程式碼編譯成功（零錯誤）                                      │
+│  □ 所有相依套件已滿足                                           │
 ├─────────────────────────────────────────────────────────────────┤
-│  🧪 TESTS                                                       │
-│  □ All existing tests pass (100%)                               │
-│  □ New code has corresponding tests                             │
-│  □ Test coverage not decreased                                  │
+│  🧪 測試                                                        │
+│  □ 所有現有測試通過（100%）                                      │
+│  □ 新程式碼有對應測試                                           │
+│  □ 測試覆蓋率沒有下降                                           │
 ├─────────────────────────────────────────────────────────────────┤
-│  ✨ CODE QUALITY                                                │
-│  □ Follows project coding standards                             │
-│  □ No hardcoded secrets or credentials                          │
-│  □ No security vulnerabilities                                  │
+│  ✨ 程式碼品質                                                   │
+│  □ 遵循專案編碼標準                                              │
+│  □ 無寫死的密鑰或憑證                                           │
+│  □ 無安全漏洞                                                   │
 ├─────────────────────────────────────────────────────────────────┤
-│  📝 DOCUMENTATION                                               │
-│  □ API documentation updated (if applicable)                    │
-│  □ CHANGELOG updated (user-facing changes)                      │
+│  📝 文件                                                        │
+│  □ API 文件已更新（如適用）                                      │
+│  □ CHANGELOG 已更新（使用者可見變更）                            │
 ├─────────────────────────────────────────────────────────────────┤
-│  🔄 WORKFLOW                                                    │
-│  □ Branch naming follows convention                             │
-│  □ Commit message follows conventional commits                  │
-│  □ Synced with target branch (no conflicts)                     │
+│  🔄 工作流程                                                     │
+│  □ 分支命名遵循規範                                              │
+│  □ 提交訊息遵循 conventional commits                             │
+│  □ 已與目標分支同步（無衝突）                                    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Check-in Trigger Points
+## 簽入觸發點
 
-### When to Prompt for Commit
+### 何時提示提交
 
-| Trigger | Condition | Reminder Level |
-|---------|-----------|----------------|
-| Phase Complete | Completed a development phase | Suggest |
-| Checkpoint | Reached defined checkpoint | Suggest |
-| Change Accumulation | Files ≥5 or lines ≥200 | Suggest |
-| Consecutive Skips | Skipped commit 3 times | Warning |
-| Work Complete | Uncommitted changes before finishing | Strongly Recommend |
+| 觸發條件 | 狀況 | 提醒強度 |
+|---------|------|----------|
+| 階段完成 | 完成一個開發階段 | 建議 |
+| 檢查點 | 達到定義的檢查點 | 建議 |
+| 變更累積 | 檔案 ≥5 或行數 ≥200 | 建議 |
+| 連續跳過 | 連續跳過提交 3 次 | 警告 |
+| 工作完成 | 完成前有未提交的變更 | 強烈建議 |
 
-### Reminder Format
+### 提醒格式
 
 ```
 ┌────────────────────────────────────────────────┐
-│ 🔔 Check-in Checkpoint                         │
+│ 🔔 簽入檢查點                                   │
 ├────────────────────────────────────────────────┤
-│ Phase 1 completed                              │
+│ 階段 1 已完成                                   │
 │                                                │
-│ Change Statistics:                             │
-│   - Files: 5                                   │
-│   - Added: 180 lines                           │
-│   - Deleted: 12 lines                          │
+│ 變更統計：                                      │
+│   - 檔案數：5                                   │
+│   - 新增：180 行                                │
+│   - 刪除：12 行                                 │
 │                                                │
-│ Test Status: ✅ Passed                         │
+│ 測試狀態：✅ 通過                               │
 │                                                │
-│ Suggested commit message:                      │
-│   feat(module): complete Phase 1 setup         │
+│ 建議的提交訊息：                                │
+│   feat(module): 完成階段 1 設定                 │
 │                                                │
-│ Options:                                       │
-│   [1] Commit now (will show git commands)      │
-│   [2] Commit later, continue to next phase     │
-│   [3] View detailed changes                    │
+│ 選項：                                          │
+│   [1] 現在提交（會顯示 git 指令）               │
+│   [2] 稍後提交，繼續下一階段                    │
+│   [3] 查看詳細變更                              │
 └────────────────────────────────────────────────┘
 ```
 
-### Skip Warning
+### 跳過警告
 
-After 3 consecutive skips:
+連續跳過 3 次後：
 
 ```
-⚠️ Warning: You have skipped check-in 3 times consecutively
-Current accumulated changes: 15 files, +520 lines
-Recommend committing soon to avoid changes becoming too large to review
+⚠️ 警告：您已連續跳過簽入 3 次
+目前累積變更：15 個檔案，+520 行
+建議盡快提交，避免變更過大難以審查
 ```
 
 ---
 
-## AI Assistant Workflow
+## AI 助手工作流程
 
-When AI completes code changes, follow this workflow:
+當 AI 完成程式碼變更時，遵循此工作流程：
 
-### Step 1: Evaluate Timing
-
-```
-✅ Complete: "Implemented user registration with validation, tests, and docs"
-⚠️ Incomplete: "Added registration form but backend validation pending"
-❌ Not Ready: "Started working on registration, several TODOs remain"
-```
-
-### Step 2: Run Checklist
+### 步驟 1：評估時機
 
 ```
-### Checklist Results
-
-✅ Build: npm run build succeeded
-✅ Code Quality: Follows project standards
-⚠️ Tests: Unit tests pass, integration tests need verification
-✅ Documentation: JSDoc comments added
-✅ Commit Message: Prepared following conventional commits
+✅ 完整："實作了使用者註冊，包含驗證、測試和文件"
+⚠️ 不完整："新增了註冊表單，但後端驗證尚未完成"
+❌ 未就緒："開始處理註冊功能，還有多個 TODO"
 ```
 
-### Step 3: Prompt User
+### 步驟 2：執行檢查清單
+
+```
+### 檢查清單結果
+
+✅ 建置：npm run build 成功
+✅ 程式碼品質：遵循專案標準
+⚠️ 測試：單元測試通過，整合測試需要驗證
+✅ 文件：已新增 JSDoc 註解
+✅ 提交訊息：已按照 conventional commits 格式準備
+```
+
+### 步驟 3：提示使用者
 
 ```markdown
-## Please Confirm Check-in
+## 請確認簽入
 
-Completed: [Brief description]
+已完成：[簡短描述]
 
-### Checklist Results
-✅ Build passes
-✅ Tests pass
-✅ Code quality verified
-✅ Documentation updated
+### 檢查清單結果
+✅ 建置通過
+✅ 測試通過
+✅ 程式碼品質已驗證
+✅ 文件已更新
 
-Suggested commit message:
+建議的提交訊息：
 ```
-feat(auth): add OAuth2 Google login support
+feat(auth): 新增 OAuth2 Google 登入支援
 
-- Implement OAuth2 flow with Google provider
-- Add user session management
-- Include unit tests for auth service
+- 實作 Google 提供者的 OAuth2 流程
+- 新增使用者工作階段管理
+- 包含 auth 服務的單元測試
 
 Refs #123
 ```
 
-Proceed with commit?
+是否繼續提交？
 ```
 
-### Step 4: Wait for Confirmation
+### 步驟 4：等待確認
 
-**AI MUST**:
-- ✅ Wait for explicit user approval
-- ✅ Provide clear checklist summary
-- ✅ Allow user to decline or request changes
+**AI 必須**：
+- ✅ 等待使用者明確同意
+- ✅ 提供清晰的檢查清單摘要
+- ✅ 允許使用者拒絕或要求修改
 
-**AI MUST NOT**:
-- ❌ Automatically execute `git add`
-- ❌ Automatically execute `git commit`
-- ❌ Automatically execute `git push`
+**AI 不得**：
+- ❌ 自動執行 `git add`
+- ❌ 自動執行 `git commit`
+- ❌ 自動執行 `git push`
 
 ---
 
-## Common Violations
+## 常見違規
 
-### ❌ WIP Commits
+### ❌ WIP 提交
 
 ```bash
-# Bad
+# 不好
 git commit -m "WIP"
 git commit -m "save work"
 
-# Solution: Use git stash
-git stash save "WIP: feature description"
+# 解決方案：使用 git stash
+git stash save "WIP: 功能描述"
 ```
 
-### ❌ Commented Code
+### ❌ 註解的程式碼
 
 ```javascript
-// Bad: Committing commented old code
+// 不好：提交被註解的舊程式碼
 // const oldValue = calculate(x);
 const newValue = calculateV2(x);
 
-// Solution: Delete commented code, rely on git history
+// 解決方案：刪除註解的程式碼，依賴 git 歷史
 const newValue = calculateV2(x);
 ```
 
-### ❌ Mixed Concerns
+### ❌ 混合關注點
 
 ```bash
-# Bad: One commit with multiple unrelated changes
+# 不好：一個提交包含多個不相關的變更
 git commit -m "fix bug and refactor and add feature"
 
-# Solution: Separate commits
-git commit -m "fix(module-a): resolve null pointer"
-git commit -m "refactor(module-b): extract validation"
-git commit -m "feat(module-c): add CSV export"
+# 解決方案：分開提交
+git commit -m "fix(module-a): 解決空指標問題"
+git commit -m "refactor(module-b): 提取驗證邏輯"
+git commit -m "feat(module-c): 新增 CSV 匯出"
 ```
 
 ---
 
-## Directory Hygiene
+## 目錄衛生
 
-Before committing, verify no unwanted files:
+提交前，驗證沒有不需要的檔案：
 
 ```bash
-# Check for IDE artifacts in staging
+# 檢查暫存區中的 IDE 產出物
 git diff --cached --name-only | grep -E '\.idea|\.vs/|\.DS_Store'
 
-# Check for abnormal directories
+# 檢查異常目錄
 git ls-files | grep -E '^\$'
 
-# Unstage unwanted files
+# 取消暫存不需要的檔案
 git reset HEAD <file>
 ```
 
-### Common Artifacts to Exclude
+### 常見應排除的產出物
 
-| Pattern | Source | Action |
-|---------|--------|--------|
+| 模式 | 來源 | 處理方式 |
+|------|------|----------|
 | `.idea/` | JetBrains | gitignore |
 | `.vs/` | Visual Studio | gitignore |
 | `.DS_Store` | macOS | gitignore |
@@ -330,73 +334,73 @@ git reset HEAD <file>
 
 ---
 
-## Configuration Detection
+## 配置偵測
 
-### Detection Order
+### 偵測順序
 
-1. Check `CONTRIBUTING.md` for "Disabled Skills" section
-2. Check `CONTRIBUTING.md` for "Check-in Standards" section
-3. Check for pre-commit hooks configuration
-4. If not found, **default to standard checklist**
+1. 檢查 `CONTRIBUTING.md` 的「Disabled Skills」區段
+2. 檢查 `CONTRIBUTING.md` 的「Check-in Standards」區段
+3. 檢查 pre-commit hooks 配置
+4. 如果都沒找到，**使用標準檢查清單**
 
-### First-Time Setup
+### 首次設定
 
-If no configuration found:
+如果沒有找到配置：
 
-1. Suggest documenting in `CONTRIBUTING.md`:
+1. 建議在 `CONTRIBUTING.md` 中記錄：
 
 ```markdown
-## Check-in Standards
+## 簽入標準
 
-### Build Commands
+### 建置指令
 ```bash
 npm run build
 ```
 
-### Test Commands
+### 測試指令
 ```bash
 npm test
 ```
 
-### Quality Commands
+### 品質指令
 ```bash
 npm run lint
 ```
 
-### Minimum Coverage
-- Line: 80%
-- Branch: 75%
+### 最低覆蓋率
+- 行覆蓋率：80%
+- 分支覆蓋率：75%
 ```
 
 ---
 
-## Detailed Guidelines
+## 詳細指南
 
-For complete standards, see:
-- [Checkin Standards](../../core/checkin-standards.md)
-
----
-
-## Related Standards
-
-- [Checkin Standards](../../core/checkin-standards.md) - Core standard
-- [Commit Message Guide](../../core/commit-message-guide.md) - Message format
-- [Code Review Checklist](../../core/code-review-checklist.md) - PR review
-- [Code Review Assistant](../code-review-assistant/SKILL.md) - Review skill
-- [Commit Standards Skill](../commit-standards/SKILL.md) - Commit message skill
+完整標準請參見：
+- [簽入標準](../../core/checkin-standards.md)
 
 ---
 
-## Version History
+## 相關標準
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-01-12 | Initial release |
+- [簽入標準](../../core/checkin-standards.md) - 核心標準
+- [提交訊息指南](../../core/commit-message-guide.md) - 訊息格式
+- [程式碼審查檢查清單](../../core/code-review-checklist.md) - PR 審查
+- [程式碼審查助手](../code-review-assistant/SKILL.md) - 審查技能
+- [提交標準技能](../commit-standards/SKILL.md) - 提交訊息技能
 
 ---
 
-## License
+## 版本歷史
 
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-01-12 | 初始發布 |
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## 授權
+
+此技能以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權釋出。
+
+**來源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
