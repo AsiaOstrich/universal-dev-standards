@@ -76,6 +76,8 @@ echo "0" > "$SKIPPED_FILE"
 # Cleanup on exit
 cleanup() {
     rm -f "$ERROR_FILE" "$WARNING_FILE" "$PASSED_FILE" "$SKIPPED_FILE"
+    # Clean up Windows /dev/null artifact
+    if [ -f "NULL" ]; then rm -f "NULL"; fi
 }
 trap cleanup EXIT
 

@@ -14,6 +14,12 @@
 #   --help         Show this help message
 #
 
+# Cross-platform /dev/null protection for Windows
+_cleanup_null_file() {
+  if [ -f "NULL" ]; then rm -f "NULL"; fi
+}
+trap _cleanup_null_file EXIT
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'

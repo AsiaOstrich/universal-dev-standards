@@ -10,6 +10,12 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
+# Cross-platform /dev/null protection for Windows
+_cleanup_null_file() {
+  if [ -f "NULL" ]; then rm -f "NULL"; fi
+}
+trap _cleanup_null_file EXIT
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'

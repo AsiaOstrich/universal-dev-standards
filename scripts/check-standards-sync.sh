@@ -42,6 +42,8 @@ echo "0" > "$WARNING_FILE"
 # Cleanup on exit
 cleanup() {
     rm -f "$ERROR_FILE" "$WARNING_FILE"
+    # Clean up Windows /dev/null artifact
+    if [ -f "NULL" ]; then rm -f "NULL"; fi
 }
 trap cleanup EXIT
 

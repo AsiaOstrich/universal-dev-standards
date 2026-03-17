@@ -47,3 +47,6 @@ cli/bundled/
 
 # Test certificate (generated, local only)
 cli/tests/reports/test-certificate.json
+
+# Windows /dev/null redirect artifact
+NULL
