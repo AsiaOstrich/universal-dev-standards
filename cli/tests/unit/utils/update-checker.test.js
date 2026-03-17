@@ -10,7 +10,8 @@ vi.mock('../../../src/utils/npm-registry.js', () => ({
   compareVersions: vi.fn()
 }));
 
-const UDS_DIR = '/home/user/.uds';
+const MOCK_HOME = '/home/user';
+const UDS_DIR = path.join(MOCK_HOME, '.uds');
 const CACHE_FILE = path.join(UDS_DIR, 'update-check.json');
 
 describe('update-checker', () => {
@@ -20,7 +21,7 @@ describe('update-checker', () => {
   beforeEach(async () => {
     vi.resetAllMocks();
     vi.resetModules();
-    os.homedir.mockReturnValue('/home/user');
+    os.homedir.mockReturnValue(MOCK_HOME);
 
     // Default env: TTY, not CI
     vi.stubGlobal('process', {

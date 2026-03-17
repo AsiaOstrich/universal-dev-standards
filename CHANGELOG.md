@@ -9,8 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.8] - 2026-03-17
+
+> **Release Candidate**: Eighth RC for v5.0.0 with Windows compatibility fix and CI stability improvement.
+
 ### Fixed
 - **Windows NULL File**: Fix `/dev/null` redirects creating literal `NULL` file on Windows — add EXIT trap cleanup to 12 scripts and `.gitignore` safety net
+- **Windows CI**: Fix `update-checker.test.js` path separator assertion failure on Windows by using `path.join` instead of hardcoded Unix paths
 
 ## [5.0.0-rc.7] - 2026-03-17
 
