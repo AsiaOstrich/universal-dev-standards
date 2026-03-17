@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.9] - 2026-03-17
+
+> **Release Candidate**: Ninth RC for v5.0.0 with E2E bug regression tests, options subdirectory fix, and pre-release workflow improvement.
+
 ### Added
 - **E2E Bug Regression Tests**: Add 5 regression test cases for `uds update` — options subdirectory, extensions type safety, null source, user content preservation, block hash sync
 - **Pre-release E2E Step**: Split pre-release check Step 16 into Unit Tests (Step 16) + E2E Tests (Step 17), total checks 16→17
