@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- **Windows NULL File**: Fix `/dev/null` redirects creating literal `NULL` file on Windows — add EXIT trap cleanup to 12 scripts and `.gitignore` safety net
+
 ## [5.0.0-rc.7] - 2026-03-17
 
 > **Release Candidate**: Seventh RC for v5.0.0 with auto update notification, documentation standards enhancement, and bug fixes.
