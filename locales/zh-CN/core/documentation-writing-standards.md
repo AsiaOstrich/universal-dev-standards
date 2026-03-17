@@ -1,8 +1,8 @@
 ---
 source: ../../../core/documentation-writing-standards.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-01-24
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-03-17
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > [English](../../../core/documentation-writing-standards.md) | **繁体中文**
 
-**版本**: 1.0.1
-**最后更新**: 2025-12-24
+**版本**: 1.2.0
+**最后更新**: 2026-03-17
 **适用范围**: 所有软体专案（新建、重构、迁移、维护）
 
 ---

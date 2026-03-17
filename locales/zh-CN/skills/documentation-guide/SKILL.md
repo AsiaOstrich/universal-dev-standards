@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/documentation-guide/SKILL.md
-source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-01-12
+source_version: 2.1.0
+translation_version: 2.1.0
+last_synced: 2026-03-17
 status: current
 description: |
   引導文件结构、内容需求和项目文件最佳实踐。
@@ -14,8 +14,8 @@ description: |
 
 > **语言**: [English](../../../../skills/documentation-guide/SKILL.md) | 简体中文
 
-**版本**: 2.0.0
-**最後更新**: 2026-01-12
+**版本**: 2.1.0
+**最後更新**: 2026-03-17
 **適用範圍**: Claude Code Skills
 
 ---

@@ -1,8 +1,8 @@
 ---
 source: ../../../core/documentation-structure.md
-source_version: 1.4.0
-translation_version: 1.4.0
-last_synced: 2026-03-04
+source_version: 1.5.0
+translation_version: 1.5.0
+last_synced: 2026-03-17
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 # 文档结构标准
 
-**版本**: 1.4.0
-**最后更新**: 2026-03-04
+**版本**: 1.5.0
+**最后更新**: 2026-03-17
 **适用范围**: 所有需要文档的软件项目
 
 ---

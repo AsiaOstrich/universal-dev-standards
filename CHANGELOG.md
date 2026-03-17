@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.7] - 2026-03-17
+
+> **Release Candidate**: Seventh RC for v5.0.0 with auto update notification, documentation standards enhancement, and bug fixes.
+
 ### Added
 - **Auto Update Notification**: CLI commands (`init`, `list`, `add`, `config`) now display update notices with 24-hour throttling cache (`~/.uds/update-check.json`)
 - **AI Agent Version Check Rule**: New `version-check-on-uds-operation` rule in `context-aware-loading` — AI agents check npm for UDS updates on first slash command per conversation

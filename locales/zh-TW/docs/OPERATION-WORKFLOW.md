@@ -1,9 +1,9 @@
 ---
 source: ../../../docs/OPERATION-WORKFLOW.md
-source_version: 1.3.0
-translation_version: 1.3.0
+source_version: 2.0.0
+translation_version: 2.0.0
 status: current
-last_updated: 2026-01-26
+last_updated: 2026-03-17
 translator: Claude
 ---
 
@@ -11,8 +11,8 @@ translator: Claude
 
 > **Language**: [English](../../../docs/OPERATION-WORKFLOW.md) | 繁體中文 | [简体中文](../../zh-CN/docs/OPERATION-WORKFLOW.md)
 
-**版本**: 1.3.0
-**最後更新**: 2026-01-26
+**版本**: 2.0.0
+**最後更新**: 2026-03-17
 
 本文件提供 Universal Development Standards (UDS) 專案的完整作業流程，涵蓋從核心規範到檔案生成的所有流程。
 

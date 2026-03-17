@@ -262,8 +262,8 @@
 | `context-aware-loading` | 1.0.0 | This standard defines a protocol for AI tools to selectively load development st |
 | `deployment-standards` | 1.0.0 | This standard defines guidelines for safely deploying software to production, co |
 | `developer-memory` | 1.0.0 | This standard defines a structured system for capturing, retrieving, and surfaci |
-| `documentation-structure` | 1.4.0 | This standard defines a consistent documentation structure for software projects |
-| `documentation-writing-standards` | 1.1.0 | This standard defines documentation requirements based on project types and prov |
+| `documentation-structure` | 1.5.0 | This standard defines a consistent documentation structure for software projects |
+| `documentation-writing-standards` | 1.2.0 | This standard defines documentation requirements based on project types and prov |
 | `error-code-standards` | 1.1.0 |  |
 | `forward-derivation-standards` | 1.1.0 | This standard defines the principles and workflows for Forward Derivation—automa |
 | `git-workflow` | 1.4.0 | This standard defines Git branching strategies and workflows to ensure consisten |
