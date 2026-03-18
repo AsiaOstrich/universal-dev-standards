@@ -1,7 +1,15 @@
+---
+source: ../../../core/forward-derivation-standards.md
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-03-18
+status: current
+---
+
 # 正向推演標準 | Forward Derivation Standards
 
-**版本**: 1.0.0
-**最後更新**: 2026-01-19
+**版本**: 1.2.0
+**最後更新**: 2026-03-18
 **適用範圍**: 所有使用規格驅動開發的專案
 
 > **語言**: [English](../../../core/forward-derivation-standards.md) | 繁體中文
@@ -363,6 +371,57 @@ spec-review → forward-derivation → discovery
 
 ---
 
+## Pipeline 整合
+
+### 自動 TDD 轉換
+
+當正向推演由自動化 Pipeline 觸發時（參見 [Pipeline 整合標準](pipeline-integration-standards.md)），以下規則適用於轉換至 TDD 循環：
+
+#### Auto-TDD 進入規則
+
+| 規則 | 說明 |
+|------|------|
+| **推演完整性** | 所有推演輸出（BDD、TDD、ATDD）必須在進入 TDD 前完成生成 |
+| **RED 狀態初始化** | Pipeline 在生成測試骨架後將 TDD 狀態設為 RED |
+| **測試骨架驗證** | 生成的測試檔案必須能編譯/解析無誤後才能進入 RED |
+| **AC 計數驗證** | 進入轉換前驗證輸出測試數量與 AC 數量匹配 |
+
+#### Pipeline Hooks
+
+推演步驟可透過 Pipeline 事件自動觸發：
+
+| Hook | 觸發條件 | 動作 |
+|------|---------|------|
+| `on-spec-approved` | Spec 狀態變更為「已批准」 | 啟動推演 Pipeline |
+| `on-derivation-complete` | 所有推演輸出已生成 | 轉換至 TDD RED 階段 |
+| `on-tdd-green` | 所有推演測試通過 | 觸發審查階段 |
+
+#### Auto-TDD 進入工作流程
+
+```
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│ Spec Approved│───▶│  Derive All  │───▶│ Verify Count │───▶│  TDD RED     │
+│ (hook)       │    │  BDD+TDD+ATDD│    │ AC = Tests   │    │  (auto-set)  │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+```
+
+1. **Spec 批准**：Pipeline 偵測到 Spec 批准（透過 hook 或輪詢）
+2. **完整推演**：Pipeline 以專案配置的語言/框架執行 `/derive-all`
+3. **計數驗證**：Pipeline 驗證輸出數量與 AC 數量匹配（反幻覺）
+4. **RED 狀態**：Pipeline 將 TDD 狀態設為 RED；測試骨架存在但 assertion 為 [TODO]
+
+#### 與 Pipeline 階段的整合
+
+正向推演對應 [Pipeline 整合標準](pipeline-integration-standards.md) 6 階段模型中的 **DERIVE** 階段：
+
+| Pipeline 階段 | 正向推演角色 |
+|--------------|------------|
+| SPEC | 輸入：已批准的規格 |
+| **DERIVE** | 執行：解析 AC → 生成 BDD/TDD/ATDD 輸出 |
+| BUILD | 輸出：測試骨架進入 TDD RED→GREEN 循環 |
+
+---
+
 ## 應避免的反模式
 
 ### 生成反模式
@@ -424,6 +483,7 @@ spec-review → forward-derivation → discovery
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.2.0 | 2026-03-18 | 新增：Pipeline 整合章節 — auto-TDD 轉換、pipeline hooks、auto-TDD 進入工作流程 |
 | 1.0.0 | 2026-01-19 | 初始發布 |
 
 ---

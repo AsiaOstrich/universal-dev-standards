@@ -473,7 +473,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 
 本專案採用 UDS 標準。所有規範位於 `.standards/`：
 
-### Core (44 standards)
+### Core (47 standards)
 - `anti-hallucination.ai.yaml` - anti-hallucination.ai.yaml
 - `ai-friendly-architecture.ai.yaml` - ai-friendly-architecture.ai.yaml
 - `commit-message.ai.yaml` - 提交訊息格式
@@ -518,6 +518,9 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 - `test-governance.ai.yaml` - test-governance.ai.yaml
 - `structured-task-definition.ai.yaml` - structured-task-definition.ai.yaml
 - `workflow-state-protocol.ai.yaml` - workflow-state-protocol.ai.yaml
+- `pipeline-integration-standards.ai.yaml` - Pipeline 整合標準
+- `acceptance-criteria-traceability.ai.yaml` - 驗收條件追蹤標準
+- `change-batching-standards.ai.yaml` - 變更批次合併標準
 <!-- UDS:STANDARDS:END -->
 
 ---

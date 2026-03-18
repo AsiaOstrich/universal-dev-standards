@@ -1,8 +1,8 @@
 ---
 source: ../../../core/checkin-standards.md
-source_version: 1.4.0
-translation_version: 1.4.0
-last_synced: 2026-01-16
+source_version: 1.5.0
+translation_version: 1.5.0
+last_synced: 2026-03-18
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../core/checkin-standards.md) | 繁體中文
 
-**版本**: 1.4.0
-**最後更新**: 2026-01-16
+**版本**: 1.5.0
+**最後更新**: 2026-03-18
 **適用範圍**: 所有使用版本控制的軟體專案
 
 ---
@@ -82,6 +82,11 @@ pip install -r requirements.txt && python -m py_compile src/**/*.py
 - [ ] **測試覆蓋率維持或提升**
   - Coverage percentage not decreased
   - Critical paths are tested
+
+- [ ] **AC 覆蓋率已驗證**（若使用規格驅動工作流程）
+  - 所有驗收條件（AC）都有對應的測試（參見 [驗收條件追蹤標準](acceptance-criteria-traceability.md)）
+  - AC 覆蓋率達到專案門檻（預設：簽入 80%）
+  - 先前已覆蓋的 AC 沒有退化為未覆蓋
 
 **專案特定測試指令**:
 ```bash
@@ -403,6 +408,7 @@ git status
 | 變更累積 | 檔案 ≥5 個 或 行數 ≥200 行 | 建議 |
 | 連續跳過 | 連續跳過簽入 3 次 | 警告 |
 | 工作完成 | 結束前有未 commit 變更 | 強烈建議 |
+| 批次閾值 | 暫存變更達到設定閾值 | 建議 |
 
 ### 提醒行為
 
@@ -434,6 +440,33 @@ git status
 │   [3] View detailed changes                    │
 └────────────────────────────────────────────────┘
 ```
+
+### 批次閾值觸發
+
+當使用自動化 Pipeline 搭配變更批次合併時（參見 [變更批次合併標準](change-batching-standards.md)）：
+
+- **計數閾值**：累積變更 ≥ 設定的 `maxChanges` 時觸發
+- **分數閾值**：累積變更分數 ≥ 設定的 `maxScore` 時觸發
+- **時間閾值**：最舊的暫存變更超過設定的 `maxAge` 時觸發
+- **行為**：批次閾值觸發簽入建議，而非自動提交（除非啟用 `autoCheckin`）
+
+### 自動簽入
+
+當 Pipeline 配置中啟用 `autoCheckin` 時（參見 [Pipeline 整合標準](pipeline-integration-standards.md)）：
+
+| 前提條件 | 必要 | 說明 |
+|---------|------|------|
+| 所有測試通過 | 是 | 完整測試套件通過，包含新測試 |
+| Lint 清潔 | 是 | 已變更檔案無 lint 錯誤 |
+| AC 覆蓋率達標 | 是 | AC 覆蓋率達到專案門檻 |
+| 無衝突 | 是 | 與目標分支可清潔合併 |
+| 批次已驗證 | 是（如啟用批次） | 批次中所有變更一起驗證 |
+
+**安全規則**：
+- 自動簽入不得推送到受保護的分支
+- 自動簽入必須建立正確的 commit message（不是「auto-commit」）
+- 自動簽入必須可稽核（記錄誰/什麼/何時）
+- 使用者永遠可以覆蓋為手動提交
 
 ### 跳過後的追蹤
 
@@ -958,6 +991,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 | 版本 | 日期 | 變更 |
 |---------|------|---------|
+| 1.5.0 | 2026-03-18 | 新增：AC 覆蓋率驗證、批次閾值觸發、自動簽入規則 |
 | 1.4.0 | 2026-01-16 | 新增：Bug 修復測試評估章節與決策矩陣 |
 | 1.3.0 | 2026-01-05 | 新增：SWEBOK v4.0 第 6 章（軟體配置管理）至參考資料 |
 | 1.2.5 | 2025-12-16 | Clarified: CHANGELOG update is for user-facing changes only, added to [Unreleased] section |
