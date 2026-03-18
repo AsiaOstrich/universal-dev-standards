@@ -464,6 +464,7 @@ export const AVAILABLE_COMMANDS = [
   { name: 'bdd', description: 'Guide BDD workflow (Gherkin, Given-When-Then)' },
   { name: 'atdd', description: 'Guide ATDD workflow (acceptance criteria)' },
   { name: 'coverage', description: 'Analyze test coverage (8 dimensions)' },
+  { name: 'ac-coverage', description: 'Generate AC traceability matrix and coverage report' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Specification and Requirements (Action Skills)

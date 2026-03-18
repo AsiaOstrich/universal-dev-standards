@@ -6,7 +6,7 @@ This document defines the development standards for the Universal Development St
 
 Universal Development Standards is a language-agnostic, framework-agnostic documentation standards framework. It provides:
 
-- **Core Standards** (`core/`): 36 fundamental development standards
+- **Core Standards** (`core/`): 41 fundamental development standards
 - **AI Skills** (`skills/`): Claude Code skills for AI-assisted development
 - **CLI Tool** (`cli/`): Node.js CLI for adopting standards
 - **Integrations** (`integrations/`): Configurations for various AI tools
@@ -916,7 +916,7 @@ AI:
 
 ```
 universal-dev-standards/
-├── core/                  # Core standards (36 files)
+├── core/                  # Core standards (41 files)
 ├── skills/                # AI tool skills
 │   └── claude-code/       # Claude Code skills (26 skills)
 ├── cli/                   # Node.js CLI tool

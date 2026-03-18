@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.12] - 2026-03-18
+
+> **Release Candidate**: Twelfth RC for v5.0.0 with new core standards and error codes enhancement.
+
+### Added
+- **API Design Standards** (`core/api-design-standards.md`): New universal standard covering REST, GraphQL, and gRPC API design principles, versioning strategies, pagination, authentication patterns, rate limiting, and RFC 7807 error responses (938 lines)
+- **Database Standards** (`core/database-standards.md`): New universal standard covering schema design, migration strategy, indexing, query optimization, transaction management, SQL vs NoSQL decision matrix, and sensitive data handling (828 lines)
+- **Error Codes v1.2 — API Error Serialization**: RFC 7807 Problem Details format, GraphQL/gRPC error handling patterns, retry and idempotency guidance (+225 lines)
+- **Commands README**: Added 9 missing commands and complete 34-command→skill/standard mapping table
+- **AC Coverage command** (`/ac-coverage`): AC traceability matrix and coverage report generation
+- **Retroactive Specs**: SPEC-STD-03 (API Design), SPEC-STD-04 (Database), SPEC-STD-05 (Error Codes v1.2)
+
+### Changed
+- **Logging YAML**: Synced to v1.2.0 with distributed-tracing and observability-pillars rules
+- **Standards count**: 47 → 49 core standards
+
 ## [5.0.0-rc.11] - 2026-03-18
 
 > **Release Candidate**: Eleventh RC for v5.0.0 with integrationConfigs fix and template reference path correction.

@@ -2,7 +2,7 @@
   "version": "3.3.0",
   "upstream": {
     "repo": "AsiaOstrich/universal-dev-standards",
-    "version": "5.0.0-rc.11",
+    "version": "5.0.0-rc.12",
     "installed": "2026-03-18"
   },
   "level": 3,
@@ -162,7 +162,7 @@
     "installed": true,
     "location": null,
     "names": [],
-    "version": "5.0.0-rc.11",
+    "version": "5.0.0-rc.12",
     "installations": [
       {
         "agent": "claude-code",
@@ -199,7 +199,7 @@
       "tdd",
       "update"
     ],
-    "version": "5.0.0-rc.11",
+    "version": "5.0.0-rc.12",
     "installations": [
       {
         "agent": "gemini-cli",
