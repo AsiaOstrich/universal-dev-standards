@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.11] - 2026-03-18
+
+> **Release Candidate**: Eleventh RC for v5.0.0 with integrationConfigs fix and template reference path correction.
+
+### Fixed
+- **Empty integrationConfigs**: Fix `installIntegrations()` not returning `manifestIntegrationConfigs`, causing `uds update --sync-refs` to fail with empty `integrationConfigs: {}`
+- **Stale Template References**: Replace 12 occurrences of `.standards/commit-message-guide.md` → `.standards/commit-message.ai.yaml` in integration generator templates and static integration files
+
 ## [5.0.0-rc.10] - 2026-03-17
 
 > **Release Candidate**: Tenth RC for v5.0.0 with update command display fix, stale commandHashes cleanup, and E2E regression tests.
