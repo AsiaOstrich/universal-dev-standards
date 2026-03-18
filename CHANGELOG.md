@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.13] - 2026-03-18
+
+> **Release Candidate**: Thirteenth RC for v5.0.0 with post-restore integration regeneration fix.
+
+### Fixed
+- **Post-restore Integration Regeneration**: Fix CLAUDE.md not being regenerated after restoring missing files during `uds update` — add `regenerateIntegrations()` call after post-update integrity check restore, covering both interactive and `--yes` modes
+
+### Changed
+- **Stats sync**: Update Core Standards count 36→41, AI Skills count 29→30 in README, locales, and uds-manifest.json
+
 ## [5.0.0-rc.12] - 2026-03-18
 
 > **Release Candidate**: Twelfth RC for v5.0.0 with new core standards and error codes enhancement.
