@@ -588,7 +588,7 @@ async function restoreFiles(projectPath, manifest, files) {
 /**
  * Restore a single file
  */
-async function restoreSingleFile(projectPath, manifest, relativePath, msg) {
+export async function restoreSingleFile(projectPath, manifest, relativePath, msg) {
   // Get msg if not passed (for backward compatibility)
   if (!msg) {
     msg = t().commands.check;
@@ -631,7 +631,7 @@ async function restoreSingleFile(projectPath, manifest, relativePath, msg) {
 /**
  * Update file hash in manifest
  */
-function updateFileHash(projectPath, manifest, relativePath) {
+export function updateFileHash(projectPath, manifest, relativePath) {
   const fullPath = join(projectPath, relativePath);
   const hashInfo = computeFileHash(fullPath);
   if (hashInfo) {
@@ -664,7 +664,7 @@ function removeFromManifest(manifest, relativePath) {
 /**
  * Get source path from relative path
  */
-function getSourcePathFromRelative(manifest, relativePath) {
+export function getSourcePathFromRelative(manifest, relativePath) {
   const fileName = basename(relativePath);
 
   // Check standards

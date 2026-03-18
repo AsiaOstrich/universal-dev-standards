@@ -1103,7 +1103,12 @@ export const messages = {
         duplicatesFound: 'Found duplicate installations:',
         duplicatesCleaned: 'Cleaned {count} duplicate installation(s)',
         legacyCleaned: 'Cleaned {count} legacy command file(s)',
-        noDuplicatesFound: 'No duplicate installations found'
+        noDuplicatesFound: 'No duplicate installations found',
+        // Post-update integrity check
+        missingAfterUpdate: '⚠ {count} file(s) still missing after update',
+        restoreMissingPrompt: 'Restore {count} missing file(s)?',
+        restoringMissing: 'Restoring missing files...',
+        restoredCount: 'Restored {restored}/{total} file(s)'
       },
 
       // configure command
@@ -2317,7 +2322,12 @@ export const messages = {
         duplicatesFound: '發現重複安裝：',
         duplicatesCleaned: '已清理 {count} 個重複安裝',
         legacyCleaned: '已清理 {count} 個舊版命令檔案',
-        noDuplicatesFound: '未發現重複安裝'
+        noDuplicatesFound: '未發現重複安裝',
+        // Post-update integrity check
+        missingAfterUpdate: '⚠ 更新後仍有 {count} 個檔案缺失',
+        restoreMissingPrompt: '是否批次還原 {count} 個缺失的檔案？',
+        restoringMissing: '正在還原缺失的檔案...',
+        restoredCount: '已還原 {restored}/{total} 個檔案'
       },
 
       // configure command
@@ -3460,7 +3470,12 @@ export const messages = {
         duplicatesFound: '发现重复安装：',
         duplicatesCleaned: '已清理 {count} 个重复安装',
         legacyCleaned: '已清理 {count} 个旧版命令文件',
-        noDuplicatesFound: '未发现重复安装'
+        noDuplicatesFound: '未发现重复安装',
+        // Post-update integrity check
+        missingAfterUpdate: '⚠ 更新后仍有 {count} 个文件缺失',
+        restoreMissingPrompt: '是否批量还原 {count} 个缺失的文件？',
+        restoringMissing: '正在还原缺失的文件...',
+        restoredCount: '已还原 {restored}/{total} 个文件'
       },
 
       // configure command

@@ -45,6 +45,7 @@ import {
   formatPlan,
   listBackups
 } from '../reconciler/index.js';
+import { restoreSingleFile } from './check.js';
 
 /**
  * Determine the correct target directory for a standard file.
@@ -591,6 +592,74 @@ export async function updateCommand(options) {
   refreshIntegrationBlockHashes(manifest, projectPath);
   writeManifest(manifest, projectPath);
 
+  // Post-update integrity check: detect and restore missing files
+  const allTrackedFiles = [];
+  for (const std of manifest.standards) {
+    const fileName = basename(std);
+    const relativePath = std.includes('options/')
+      ? join('.standards', 'options', fileName)
+      : join('.standards', fileName);
+    allTrackedFiles.push(relativePath);
+  }
+  for (const ext of manifest.extensions) {
+    if (typeof ext !== 'string') continue;
+    const fileName = basename(ext);
+    allTrackedFiles.push(join('.standards', fileName));
+  }
+  for (const int of (manifest.integrations || [])) {
+    allTrackedFiles.push(int);
+  }
+
+  const missingFiles = allTrackedFiles.filter(f => !existsSync(join(projectPath, f)));
+
+  if (missingFiles.length > 0) {
+    console.log();
+    console.log(chalk.yellow((msg.missingAfterUpdate || '⚠ {count} file(s) still missing after update').replace('{count}', missingFiles.length)));
+
+    let shouldRestore = false;
+    if (options.yes) {
+      shouldRestore = true;
+    } else {
+      const { restoreMissing } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'restoreMissing',
+          message: (msg.restoreMissingPrompt || 'Restore {count} missing file(s)?').replace('{count}', missingFiles.length),
+          default: true
+        }
+      ]);
+      shouldRestore = restoreMissing;
+    }
+
+    if (shouldRestore) {
+      const restoreSpinner = ora((msg.restoringMissing || 'Restoring missing files...')).start();
+      const checkMsg = t().commands.check;
+      let restoredCount = 0;
+
+      for (const relativePath of missingFiles) {
+        const success = await restoreSingleFile(projectPath, manifest, relativePath, checkMsg);
+        if (success) restoredCount++;
+      }
+
+      restoreSpinner.succeed(
+        (msg.restoredCount || 'Restored {restored}/{total} file(s)')
+          .replace('{restored}', restoredCount)
+          .replace('{total}', missingFiles.length)
+      );
+
+      // Re-write manifest with updated hashes from restored files
+      writeManifest(manifest, projectPath);
+
+      // Re-generate integration files if files were restored and AI tools are configured
+      // This ensures CLAUDE.md / AGENTS.md standards index reflects restored files
+      if (restoredCount > 0 && manifest.aiTools?.length > 0) {
+        regenerateIntegrations(projectPath, manifest);
+        refreshIntegrationBlockHashes(manifest, projectPath);
+        writeManifest(manifest, projectPath);
+      }
+    }
+  }
+
   // Summary
   console.log();
   console.log(chalk.green(msg.updateSuccess));
@@ -766,6 +835,15 @@ export async function updateCommand(options) {
           installCommands.length > 0 || updateCommands.length > 0 ||
           declinedSkills.length > 0 || declinedCommands.length > 0;
         if (hasChanges) {
+          // Re-run integration update if new skills were installed
+          // This ensures CLAUDE.md / AGENTS.md standards index is up-to-date
+          if (installSkills.length > 0 || updateSkills.length > 0) {
+            const regenResult = regenerateIntegrations(projectPath, manifest);
+            if (regenResult.updated.length > 0) {
+              console.log(chalk.green(`  ✓ ${msg.syncedIntegrations.replace('{count}', regenResult.updated.length)}`));
+            }
+          }
+
           refreshIntegrationBlockHashes(manifest, projectPath);
           writeManifest(manifest, projectPath);
         }

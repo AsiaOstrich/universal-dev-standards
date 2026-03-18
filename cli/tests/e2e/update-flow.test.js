@@ -440,6 +440,111 @@ describe('E2E: uds update', () => {
       });
     });
 
+    it('should auto-restore missing files after update with --yes', async () => {
+      // Regression: uds update did not restore missing .ai.yaml files
+      // Users had to run uds check and manually restore each file
+      await setupTestDir(testDir, {});
+      await runNonInteractive({}, testDir);
+
+      // Read manifest to find installed standards
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      const standardFiles = (manifest.standards || []).map(s => {
+        const fileName = s.split('/').pop();
+        return s.includes('options/')
+          ? join('.standards', 'options', fileName)
+          : join('.standards', fileName);
+      });
+
+      // Delete a few standard files to simulate missing files
+      const filesToDelete = standardFiles.slice(0, 3);
+      for (const relPath of filesToDelete) {
+        const fullPath = join(testDir, relPath);
+        if (await fileExists(fullPath)) {
+          const { unlink } = await import('fs/promises');
+          await unlink(fullPath);
+        }
+      }
+
+      // Verify files are actually deleted
+      for (const relPath of filesToDelete) {
+        const exists = await fileExists(join(testDir, relPath));
+        expect(exists).toBe(false);
+      }
+
+      // Set manifest to older version to trigger update
+      manifest.upstream.version = '0.0.1';
+      await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+
+      // Run update --yes → should auto-detect and restore missing files
+      const result = await runCommand('update', { yes: true, offline: true }, testDir, 15000);
+
+      // Verify missing files were restored
+      let allRestored = true;
+      for (const relPath of filesToDelete) {
+        const exists = await fileExists(join(testDir, relPath));
+        if (!exists) allRestored = false;
+      }
+      expect(allRestored).toBe(true);
+
+      // Update completed successfully
+      expect(result.exitCode).toBe(0);
+
+      // Verify CLAUDE.md includes all installed standards (post-restore integration regen)
+      const claudeExists = await fileExists(join(testDir, 'CLAUDE.md'));
+      let claudeIncludesAll = true;
+      if (claudeExists) {
+        const claudeContent = await readFile(join(testDir, 'CLAUDE.md'), 'utf8');
+        const updatedManifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+        const installedCount = (updatedManifest.standards || []).length;
+        const yamlEntries = (claudeContent.match(/\.ai\.yaml/g) || []).length;
+        claudeIncludesAll = yamlEntries >= installedCount;
+      }
+
+      recordScenarioResult('Auto-restore missing files regression', {
+        steps: [
+          { step: 1, name: 'All deleted files restored', matched: allRestored },
+          { step: 2, name: 'Update completed successfully', matched: result.exitCode === 0 },
+          { step: 3, name: 'CLAUDE.md includes all standards', matched: claudeIncludesAll }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should update CLAUDE.md standards index after installing new standards', async () => {
+      // Regression: CLAUDE.md showed stale standards count after update
+      await setupTestDir(testDir, {});
+      await writeFile(join(testDir, 'CLAUDE.md'), '# Project\n');
+      await runNonInteractive({}, testDir);
+
+      // Run update to ensure integrations are synced
+      const result = await runCommand('update', { yes: true, offline: true }, testDir, 15000);
+
+      // Read manifest to get installed standards count
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      const installedCount = (manifest.standards || []).length;
+
+      // If CLAUDE.md exists and has standards section, verify count matches
+      const claudeExists = await fileExists(join(testDir, 'CLAUDE.md'));
+      if (claudeExists && installedCount > 0) {
+        const claudeContent = await readFile(join(testDir, 'CLAUDE.md'), 'utf8');
+        // Count .ai.yaml entries in CLAUDE.md
+        const yamlEntries = (claudeContent.match(/\.ai\.yaml/g) || []).length;
+        // Should have at least as many entries as installed standards
+        // (some standards may have multiple mentions)
+        expect(yamlEntries).toBeGreaterThanOrEqual(installedCount);
+      }
+
+      recordScenarioResult('CLAUDE.md standards index update regression', {
+        steps: [
+          { step: 1, name: 'CLAUDE.md exists', matched: claudeExists },
+          { step: 2, name: 'Update completed', matched: result.exitCode === 0 }
+        ],
+        output: result.stdout
+      });
+    });
+
     it('should not show hash mismatch after update then check', async () => {
       // Bug: missing refreshIntegrationBlockHashes() caused false hash mismatch warnings
       await setupTestDir(testDir, {});

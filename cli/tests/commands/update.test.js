@@ -22,8 +22,24 @@ vi.mock('ora', () => ({
 }));
 
 // Use hoisted to define mock before vi.mock
-const { mockPrompt } = vi.hoisted(() => ({
-  mockPrompt: vi.fn(() => Promise.resolve({ confirmed: true }))
+const { mockPrompt, mockExistsSync } = vi.hoisted(() => ({
+  mockPrompt: vi.fn(() => Promise.resolve({ confirmed: true })),
+  mockExistsSync: vi.fn(() => true)
+}));
+
+vi.mock('fs', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    existsSync: mockExistsSync,
+    unlinkSync: vi.fn()
+  };
+});
+
+vi.mock('../../src/utils/hasher.js', () => ({
+  computeFileHash: vi.fn(() => ({ hash: 'abc123', algorithm: 'sha256' })),
+  scanForUntrackedFiles: vi.fn(() => []),
+  refreshIntegrationBlockHashes: vi.fn()
 }));
 
 vi.mock('inquirer', () => ({
@@ -98,9 +114,23 @@ vi.mock('../../src/utils/skills-installer.js', () => ({
   cleanupLegacyCommands: vi.fn(() => ({ cleaned: [], errors: [] }))
 }));
 
+vi.mock('../../src/utils/integration-generator.js', () => ({
+  writeIntegrationFile: vi.fn(() => ({ success: true, path: 'CLAUDE.md' })),
+  getToolFilePath: vi.fn(() => 'CLAUDE.md')
+}));
+
+vi.mock('../../src/commands/check.js', () => ({
+  restoreSingleFile: vi.fn(() => Promise.resolve(true)),
+  updateFileHash: vi.fn(),
+  getSourcePathFromRelative: vi.fn(() => 'core/test.md')
+}));
+
 import { updateCommand } from '../../src/commands/update.js';
 import { isInitialized, readManifest, writeManifest, copyStandard } from '../../src/utils/copier.js';
 import { getRepositoryInfo, getAllStandards } from '../../src/utils/registry.js';
+import { refreshIntegrationBlockHashes } from '../../src/utils/hasher.js';
+import { writeIntegrationFile } from '../../src/utils/integration-generator.js';
+import { restoreSingleFile } from '../../src/commands/check.js';
 
 describe('Update Command', () => {
   let consoleLogs = [];
@@ -118,6 +148,8 @@ describe('Update Command', () => {
     // Reset the mock before each test
     mockPrompt.mockReset();
     mockPrompt.mockResolvedValue({ confirmed: true });
+    mockExistsSync.mockReset();
+    mockExistsSync.mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -786,6 +818,146 @@ describe('Update Command', () => {
       expect(output).toContain('sdd.ai.yaml');
       // non-reference/non-skill category should be excluded
       expect(output).not.toContain('internal-tool.ai.yaml');
+    });
+  });
+
+  describe('post-update integrity check', () => {
+    it('should detect and auto-restore missing files in --yes mode', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.ai.yaml', 'core/commit.ai.yaml'],
+        extensions: [],
+        integrations: [],
+        skills: { installed: false }
+      });
+
+      // Mock existsSync: second file is missing
+      mockExistsSync.mockImplementation((filePath) => {
+        if (typeof filePath === 'string' && filePath.includes('commit.ai.yaml')) {
+          return false;
+        }
+        return true;
+      });
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('missing after update');
+      expect(restoreSingleFile).toHaveBeenCalled();
+      // writeManifest should be called at least twice (initial + after restore)
+      expect(writeManifest.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('should prompt user for batch restore in interactive mode', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.ai.yaml', 'core/missing.ai.yaml'],
+        extensions: [],
+        integrations: [],
+        skills: { installed: false }
+      });
+
+      mockExistsSync.mockImplementation((filePath) => {
+        if (typeof filePath === 'string' && filePath.includes('missing.ai.yaml')) {
+          return false;
+        }
+        return true;
+      });
+
+      // First prompt: confirm update, second prompt: confirm restore
+      mockPrompt
+        .mockResolvedValueOnce({ confirmed: true })
+        .mockResolvedValueOnce({ restoreMissing: true })
+        .mockResolvedValue({});
+
+      await expect(updateCommand({})).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('missing after update');
+      // Verify restore was offered (prompt was called at least twice)
+      expect(mockPrompt.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('should re-run integration generation after restoring missing files', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.ai.yaml', 'core/commit.ai.yaml'],
+        extensions: [],
+        integrations: [],
+        aiTools: ['claude-code'],
+        skills: { installed: false }
+      });
+
+      // Mock existsSync: second file is missing
+      mockExistsSync.mockImplementation((filePath) => {
+        if (typeof filePath === 'string' && filePath.includes('commit.ai.yaml')) {
+          return false;
+        }
+        return true;
+      });
+
+      // Clear call counts before test
+      writeIntegrationFile.mockClear();
+      refreshIntegrationBlockHashes.mockClear();
+      writeManifest.mockClear();
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // Integration should be regenerated after restore
+      expect(writeIntegrationFile).toHaveBeenCalled();
+      // refreshIntegrationBlockHashes called at least twice: initial + post-restore
+      expect(refreshIntegrationBlockHashes.mock.calls.length).toBeGreaterThanOrEqual(2);
+      // writeManifest called at least 3 times: initial + post-restore + post-regen
+      expect(writeManifest.mock.calls.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('should not re-run integration generation when no aiTools configured', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.ai.yaml', 'core/commit.ai.yaml'],
+        extensions: [],
+        integrations: [],
+        skills: { installed: false }
+        // No aiTools
+      });
+
+      mockExistsSync.mockImplementation((filePath) => {
+        if (typeof filePath === 'string' && filePath.includes('commit.ai.yaml')) {
+          return false;
+        }
+        return true;
+      });
+
+      writeIntegrationFile.mockClear();
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // Integration should NOT be regenerated (no aiTools)
+      expect(writeIntegrationFile).not.toHaveBeenCalled();
+    });
+
+    it('should skip restore when no files are missing', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.ai.yaml'],
+        extensions: [],
+        integrations: [],
+        skills: { installed: false }
+      });
+
+      // All files exist
+      mockExistsSync.mockReturnValue(true);
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).not.toContain('missing after update');
+      expect(restoreSingleFile).not.toHaveBeenCalled();
     });
   });
 });
