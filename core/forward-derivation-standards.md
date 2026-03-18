@@ -1,7 +1,7 @@
 # Forward Derivation Standards | 正向推演標準
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-25
+**Version**: 1.2.0
+**Last Updated**: 2026-03-18
 **Applicability**: All projects using Spec-Driven Development
 **Scope**: uds-specific
 **Industry Standards**: JSON Schema 2020-12

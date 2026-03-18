@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/checkin-standards.md)
 
-**Version**: 1.4.0
-**Last Updated**: 2026-01-16
+**Version**: 1.5.0
+**Last Updated**: 2026-03-18
 **Applicability**: All software projects using version control
 **Scope**: partial
 **Industry Standards**: SWEBOK v4.0 Chapter 6

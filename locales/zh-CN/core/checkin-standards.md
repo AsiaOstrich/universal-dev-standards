@@ -1,8 +1,8 @@
 ---
 source: ../../../core/checkin-standards.md
-source_version: 1.4.0
-translation_version: 1.4.0
-last_synced: 2026-01-16
+source_version: 1.5.0
+translation_version: 1.5.0
+last_synced: 2026-03-18
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **语言**: [English](../../../core/checkin-standards.md) | 繁体中文
 
-**版本**: 1.4.0
-**最后更新**: 2026-01-16
+**版本**: 1.5.0
+**最后更新**: 2026-03-18
 **适用范围**: 所有使用版本控制的软体专案
 
 ---
@@ -82,6 +82,11 @@ pip install -r requirements.txt && python -m py_compile src/**/*.py
 - [ ] **测试覆盖率维持或提升**
   - Coverage percentage not decreased
   - Critical paths are tested
+
+- [ ] **AC 覆盖率已验证**（如使用规格驱动工作流）
+  - 所有验收条件有对应测试（参见[验收条件追溯标准](acceptance-criteria-traceability.md)）
+  - AC 覆盖率达到专案阈值（预设：签入时 80%）
+  - 已覆盖的 AC 未退化为未覆盖
 
 **专案特定测试指令**:
 ```bash
@@ -403,6 +408,7 @@ git status
 | 变更累积 | 档案 ≥5 个 或 行数 ≥200 行 | 建议 |
 | 连续跳过 | 连续跳过签入 3 次 | 警告 |
 | 工作完成 | 结束前有未 commit 变更 | 强烈建议 |
+| 批次阈值 | 待处理变更达到配置阈值 | 建议 |
 
 ### 提醒行为
 
@@ -447,6 +453,33 @@ git status
    Recommend committing soon to avoid changes becoming too large to review
    ```
 3. **工作结束前** → If uncommitted changes exist, strongly recommend check-in
+
+### 批次阈值触发
+
+当使用自动化 Pipeline 与变更批次处理时（参见[变更批次合并标准](change-batching-standards.md)）：
+
+- **计数阈值**：累积变更数量 ≥ 配置的 `maxChanges` 时触发
+- **分数阈值**：累计变更分数 ≥ 配置的 `maxScore` 时触发
+- **时间阈值**：最旧的待处理变更超过配置的 `maxAge` 时触发
+- **行为**：批次阈值触发签入建议，而非自动提交（除非启用 `autoCheckin`）
+
+### 自动签入
+
+当 Pipeline 配置中启用 `autoCheckin` 时（参见 [Pipeline 整合标准](pipeline-integration-standards.md)）：
+
+| 前提条件 | 必须 | 说明 |
+|---------|------|------|
+| 所有测试通过 | 是 | 完整测试套件通过，包括新测试 |
+| Lint 通过 | 是 | 变更档案无 lint 错误 |
+| AC 覆盖率达标 | 是 | AC 覆盖率达到专案阈值 |
+| 无冲突 | 是 | 与目标分支可干净合并 |
+| 批次已验证 | 是（如启用批次） | 批次中所有变更已一并验证 |
+
+**安全规则**：
+- 自动签入**不得**推送到受保护的分支
+- 自动签入**必须**创建正式的 commit 讯息（非「auto-commit」）
+- 自动签入**必须**可稽核（记录 who/what/when）
+- 用户可随时以手动 commit 覆盖
 
 ---
 
@@ -958,6 +991,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 | 版本 | 日期 | 变更 |
 |---------|------|---------|
+| 1.5.0 | 2026-03-18 | 新增：AC 覆盖率验证、批次阈值触发、自动签入规则 |
 | 1.4.0 | 2026-01-16 | 新增：Bug 修复测试评估章节与决策矩阵 |
 | 1.3.0 | 2026-01-05 | 新增：SWEBOK v4.0 第 6 章（软体配置管理）至参考资料 |
 | 1.2.5 | 2025-12-16 | Clarified: CHANGELOG update is for user-facing changes only, added to [Unreleased] section |
@@ -976,6 +1010,10 @@ git commit -m "feat(module-c): add export to CSV feature"
 - [测试标准](testing-standards.md)（或使用 `/testing-guide` 技能）
 - [Commit 讯息规范](commit-message-guide.md)
 - [程序码审查清单](code-review-checklist.md)
+- [部署标准](deployment-standards.md) - 品质关卡与部署就绪性
+- [验收条件追溯标准](acceptance-criteria-traceability.md) - AC 覆盖率验证
+- [变更批次合并标准](change-batching-standards.md) - 批次阈值触发
+- [Pipeline 整合标准](pipeline-integration-standards.md) - 自动签入
 
 ---
 
