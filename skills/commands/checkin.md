@@ -30,6 +30,7 @@ Verify pre-commit quality gates before committing code to ensure codebase stabil
 | **Build** | Code compiles with zero errors | 編譯零錯誤 |
 | **Tests** | All existing tests pass (100%) | 所有測試通過 |
 | **Coverage** | Test coverage not decreased | 覆蓋率未下降 |
+| **AC Coverage** | AC-to-test coverage ≥ 80% ([`/ac-coverage`](./ac-coverage.md)) | AC 覆蓋率 ≥ 80% |
 | **Code Quality** | Follows coding standards, no code smells | 符合編碼規範 |
 | **Security** | No hardcoded secrets or vulnerabilities | 無硬編碼密鑰 |
 | **Documentation** | API docs and CHANGELOG updated if needed | 文件已更新 |
@@ -51,3 +52,5 @@ After verification passes, proceed with `/commit` to create the commit message.
 
 *   [Check-in Assistant Skill](../checkin-assistant/SKILL.md)
 *   [Core Standard](../../core/checkin-standards.md)
+*   [AC Coverage Command](./ac-coverage.md) — AC-to-test traceability analysis
+*   [AC Traceability Standard](../../core/acceptance-criteria-traceability.md)
