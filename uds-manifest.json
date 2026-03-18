@@ -3,8 +3,8 @@
   "version": "5.0.0-rc.1",
   "last_updated": "2026-02-12",
   "stats": {
-    "core_standards": 36,
-    "skills": 29,
+    "core_standards": 41,
+    "skills": 30,
     "slash_commands": 30
   },
   "standards": [
@@ -187,6 +187,31 @@
       "id": "workflow-state-protocol",
       "category": "uncategorized",
       "level": 3
+    },
+    {
+      "id": "acceptance-criteria-traceability",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "api-design-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "change-batching-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "database-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "pipeline-integration-standards",
+      "category": "uncategorized",
+      "level": 3
     }
   ],
   "skills": [
@@ -357,6 +382,11 @@
     },
     {
       "id": "dev-workflow-guide",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "ac-coverage-assistant",
       "command": "/guide",
       "category": "uncategorized"
     }
