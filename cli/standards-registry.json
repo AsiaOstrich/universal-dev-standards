@@ -1425,6 +1425,42 @@
       "description": "Template for writing comprehensive requirement documents"
     },
     {
+      "id": "pipeline-integration",
+      "name": "Pipeline Integration Standards",
+      "nameZh": "Pipeline 整合標準",
+      "source": {
+        "human": "core/pipeline-integration-standards.md",
+        "ai": "ai/standards/pipeline-integration-standards.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Configuration contract, stage model, and context classification for automated development pipelines"
+    },
+    {
+      "id": "acceptance-criteria-traceability",
+      "name": "Acceptance Criteria Traceability Standards",
+      "nameZh": "驗收條件追蹤標準",
+      "source": {
+        "human": "core/acceptance-criteria-traceability.md",
+        "ai": "ai/standards/acceptance-criteria-traceability.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "AC-to-test traceability matrix, coverage calculation, and spec generation quality rules"
+    },
+    {
+      "id": "change-batching",
+      "name": "Change Batching Standards",
+      "nameZh": "變更批次合併標準",
+      "source": {
+        "human": "core/change-batching-standards.md",
+        "ai": "ai/standards/change-batching-standards.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Pending changes state machine, threshold strategies, and atomicity guarantees for batch commits"
+    },
+    {
       "id": "migration-template",
       "name": "Migration Plan Template",
       "nameZh": "遷移計畫模板",

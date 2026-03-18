@@ -1,0 +1,195 @@
+# Change Batching Standards - AI Optimized
+# Source: core/change-batching-standards.md
+
+standard:
+  id: change-batching-standards
+  name: Change Batching Standards
+  description: Pending changes state machine, threshold strategies, and atomicity guarantees for batch commits
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-18"
+    source: core/change-batching-standards.md
+    references:
+      - "SWEBOK v4.0 Chapter 6 (Software Configuration Management)"
+      - "ISO/IEC 12207 (Configuration Management Process)"
+      - "Continuous Delivery (Jez Humble) — Small batch sizes"
+      - "Lean Software Development — Batch size optimization"
+
+  state_machine:
+    description: Pending changes lifecycle
+    states:
+      - state: PENDING
+        description: Change recorded, waiting for threshold
+      - state: READY
+        description: Threshold met, batch prepared for merge
+      - state: MERGED
+        description: Batch successfully committed
+      - state: FAILED
+        description: Merge attempt failed
+      - state: ARCHIVED
+        description: Post-commit record for audit
+
+    transitions:
+      - from: PENDING
+        to: PENDING
+        trigger: New change added
+        action: Increment counters, re-evaluate thresholds
+      - from: PENDING
+        to: READY
+        trigger: Threshold met
+        action: Prepare merge batch, run pre-merge validation
+      - from: READY
+        to: MERGED
+        trigger: Merge succeeds
+        action: Create commit, clear batch, archive
+      - from: READY
+        to: FAILED
+        trigger: Merge fails
+        action: Log failure, preserve changes
+      - from: FAILED
+        to: PENDING
+        trigger: Reset
+        action: Re-queue changes, clear failure state
+      - from: MERGED
+        to: ARCHIVED
+        trigger: Post-commit
+        action: Record batch metadata for audit
+
+  threshold_strategies:
+    strategies:
+      - name: count
+        parameter: maxChanges
+        default: 5
+        description: Merge after N individual changes accumulated
+
+      - name: score
+        parameter: maxScore
+        default: 10
+        description: Merge when cumulative change score >= M
+
+      - name: time
+        parameter: maxAge
+        default: "30m"
+        description: Merge when oldest pending change exceeds TTL
+
+      - name: manual
+        parameter: null
+        default: null
+        description: Merge only on explicit user request
+
+    change_scoring:
+      - type: trivial
+        score: 1
+        example: Typo fix, whitespace, comment update
+      - type: minor
+        score: 2
+        example: Single function change, variable rename
+      - type: standard
+        score: 3
+        example: New function, modified logic flow
+      - type: complex
+        score: 5
+        example: Multi-file change, API modification
+      - type: critical
+        score: 8
+        example: Schema change, breaking change
+
+    composite_rule: "Multiple thresholds combine with OR logic (first met triggers merge)"
+
+  merge_rules:
+    priority_order:
+      - Same-spec affinity — changes referencing same SPEC-ID merge first
+      - Same-file grouping — changes to same files merge together
+      - Dependency order — changes with dependencies merge in order
+      - Chronological — within same priority, merge by creation time
+
+    conflict_resolution:
+      - type: Same line, same file
+        strategy: Latest change wins
+        fallback: Manual resolution
+      - type: Overlapping functions
+        strategy: Semantic merge if possible
+        fallback: Manual resolution
+      - type: Dependency conflict
+        strategy: Resolve dependency first
+        fallback: Reject batch, split
+
+    pre_merge_validation:
+      - check: All tests pass
+        required: true
+      - check: No lint errors
+        required: true
+      - check: No conflicts
+        required: true
+      - check: AC coverage maintained
+        required: false
+        note: Recommended
+
+  atomicity:
+    principle: All-or-nothing
+    rules:
+      - Single commit — each merged batch produces exactly one commit
+      - No partial merge — any change failure rejects entire batch
+      - Rollback support — failed merges restore all changes to PENDING
+      - Isolation — batch merge does not affect changes outside batch
+
+  rollback:
+    on_failure:
+      - Log failure with batch details
+      - Return all changes to PENDING state
+      - Diagnose failing change(s)
+      - Options — fix and retry, remove failing change, split batch
+
+    triggers:
+      - trigger: Test failure
+        action: Reject entire batch
+        automatic: true
+      - trigger: Lint error
+        action: Reject entire batch
+        automatic: true
+      - trigger: Merge conflict
+        action: Reject and notify
+        automatic: true
+      - trigger: Build failure
+        action: Reject entire batch
+        automatic: true
+      - trigger: Manual rejection
+        action: Return to PENDING
+        automatic: false
+
+  rules:
+    - id: set-thresholds
+      trigger: configuring batch pipeline
+      instruction: Set explicit thresholds; do not accumulate changes indefinitely
+      priority: required
+
+    - id: group-by-spec
+      trigger: batching changes
+      instruction: Group changes by specification or feature for cohesive commits
+      priority: recommended
+
+    - id: validate-before-merge
+      trigger: batch reaches READY state
+      instruction: Run full validation (tests, lint, conflicts) before merging
+      priority: required
+
+    - id: atomic-commits
+      trigger: merging a batch
+      instruction: Enforce all-or-nothing — either all changes commit or none do
+      priority: required
+
+    - id: preserve-on-failure
+      trigger: batch merge fails
+      instruction: Return all changes to PENDING state; never lose changes
+      priority: required
+
+    - id: log-batch-decisions
+      trigger: any batch state transition
+      instruction: Log batch decisions (threshold met, merge result) for auditability
+      priority: recommended
+
+related_standards:
+  - checkin-standards.md
+  - pipeline-integration-standards.md
+  - commit-message-guide.md

@@ -3,8 +3,8 @@
 
 id: forward-derivation
 meta:
-  version: "1.0.0"
-  updated: "2026-01-19"
+  version: "1.2.0"
+  updated: "2026-03-18"
   source: core/forward-derivation-standards.md
   description: Standards for deriving BDD scenarios, TDD test skeletons, and ATDD acceptance tests from approved SDD specifications
 
@@ -410,6 +410,63 @@ quick_reference:
       - ["3 AC", "5 scenarios", "Yes - extra scenarios"]
       - ["3 AC", "2 scenarios", "Yes - missing scenarios"]
 
+  pipeline_integration:
+    description: Rules for automated pipeline triggering of forward derivation
+
+    auto_tdd_transition:
+      description: When derivation is triggered by pipeline, transition to TDD RED automatically
+      rules:
+        - All derivation outputs must be generated before entering TDD
+        - Pipeline sets TDD state to RED after generating test skeletons
+        - Generated test files must compile/parse without errors
+        - Output test count must match AC count
+
+    pipeline_hooks:
+      - hook: on-spec-approved
+        trigger: Spec status changes to approved
+        action: Start derivation pipeline
+      - hook: on-derivation-complete
+        trigger: All derivation outputs generated
+        action: Transition to TDD RED phase
+      - hook: on-tdd-green
+        trigger: All derived tests pass
+        action: Trigger review stage
+
+    auto_tdd_entry:
+      workflow:
+        - Spec approval detected (via hook or polling)
+        - Full derivation runs (/derive-all)
+        - Count verification (output count == AC count)
+        - TDD state set to RED (skeletons exist, assertions are TODO)
+
+    stage_mapping:
+      SPEC: "Input — approved specification"
+      DERIVE: "Execute — parse AC, generate BDD/TDD/ATDD outputs"
+      BUILD: "Output — test skeletons feed into TDD RED→GREEN cycle"
+
+  # Additional rules for pipeline integration
+  pipeline_rules:
+    - id: auto-derive-on-approval
+      trigger: spec approved in automated pipeline
+      instruction: >
+        If autoDerive toggle is ON, automatically run full derivation pipeline.
+        Verify all outputs before transitioning to next stage.
+      priority: recommended
+
+    - id: auto-tdd-entry
+      trigger: derivation complete in automated pipeline
+      instruction: >
+        If autoTDD toggle is ON, set TDD state to RED after derivation.
+        Ensure test skeletons compile and count matches AC count.
+      priority: recommended
+
+    - id: verify-before-transition
+      trigger: transitioning from DERIVE to BUILD stage
+      instruction: >
+        Verify 1:1 AC mapping, test skeleton compilation, and source attribution
+        before allowing transition to BUILD stage.
+      priority: required
+
 related_standards:
   - reverse-engineering-standards.md
   - spec-driven-development.md
@@ -417,3 +474,5 @@ related_standards:
   - test-driven-development.md
   - acceptance-test-driven-development.md
   - anti-hallucination.md
+  - pipeline-integration-standards.md
+  - acceptance-criteria-traceability.md

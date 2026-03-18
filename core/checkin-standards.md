@@ -78,6 +78,11 @@ pip install -r requirements.txt && python -m py_compile src/**/*.py
   - Coverage percentage not decreased
   - Critical paths are tested
 
+- [ ] **AC coverage verified** (if using specification-driven workflow)
+  - All Acceptance Criteria have corresponding tests (see [Acceptance Criteria Traceability](acceptance-criteria-traceability.md))
+  - AC coverage meets project threshold (default: 80% for check-in)
+  - No previously covered AC regressed to uncovered
+
 **Project-Specific Test Commands**:
 ```bash
 # Example: .NET project
@@ -398,6 +403,7 @@ During development workflow execution, the following events should trigger check
 | Change Accumulation | Files ≥5 or lines ≥200 | Suggest |
 | Consecutive Skips | Skipped check-in 3 times | Warning |
 | Work Complete | Uncommitted changes before finishing | Strongly Recommend |
+| Batch Threshold | Pending changes reach configured threshold | Suggest |
 
 ### Reminder Behavior
 
@@ -429,6 +435,33 @@ During development workflow execution, the following events should trigger check
 │   [3] View detailed changes                    │
 └────────────────────────────────────────────────┘
 ```
+
+### Batch Threshold Trigger
+
+When using automated pipelines with change batching (see [Change Batching Standards](change-batching-standards.md)):
+
+- **Count threshold**: Trigger when accumulated changes ≥ configured `maxChanges`
+- **Score threshold**: Trigger when cumulative change score ≥ configured `maxScore`
+- **Time threshold**: Trigger when oldest pending change exceeds configured `maxAge`
+- **Behavior**: Batch threshold triggers a check-in suggestion, not automatic commit (unless `autoCheckin` is enabled)
+
+### Automated Check-in
+
+When `autoCheckin` is enabled in pipeline configuration (see [Pipeline Integration Standards](pipeline-integration-standards.md)):
+
+| Precondition | Required | Description |
+|-------------|----------|-------------|
+| All tests pass | Yes | Full test suite passes including new tests |
+| Lint clean | Yes | No lint errors in changed files |
+| AC coverage met | Yes | AC coverage meets project threshold |
+| No conflicts | Yes | Clean merge with target branch |
+| Batch validated | Yes (if batching) | All changes in batch validated together |
+
+**Safety Rules**:
+- Automated check-in MUST NOT push to protected branches
+- Automated check-in MUST create a proper commit message (not "auto-commit")
+- Automated check-in MUST be auditable (log who/what/when)
+- Users can always override with manual commit
 
 ### Skip Tracking
 
@@ -953,6 +986,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.5.0 | 2026-03-18 | Added: AC coverage verification, batch threshold trigger, automated check-in rules |
 | 1.4.0 | 2026-01-16 | Added: Bug Fix Testing Evaluation section with decision matrix |
 | 1.3.0 | 2026-01-05 | Added: SWEBOK v4.0 Chapter 6 (Software Configuration Management) to References |
 | 1.2.5 | 2025-12-16 | Clarified: CHANGELOG update is for user-facing changes only, added to [Unreleased] section |
@@ -972,6 +1006,9 @@ git commit -m "feat(module-c): add export to CSV feature"
 - [Commit Message Guide](commit-message-guide.md)
 - [Code Review Checklist](code-review-checklist.md)
 - [Deployment Standards](deployment-standards.md) - Quality gates feed into deployment readiness
+- [Acceptance Criteria Traceability](acceptance-criteria-traceability.md) - AC coverage verification
+- [Change Batching Standards](change-batching-standards.md) - Batch threshold triggers
+- [Pipeline Integration Standards](pipeline-integration-standards.md) - Automated check-in
 
 ---
 

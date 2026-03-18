@@ -1,0 +1,184 @@
+# Pipeline Integration Standards - AI Optimized
+# Source: core/pipeline-integration-standards.md
+
+standard:
+  id: pipeline-integration
+  name: Pipeline Integration
+  description: Configuration contract, stage model, and context classification for automated development pipelines
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-18"
+    source: core/pipeline-integration-standards.md
+    references:
+      - "ISO/IEC 12207 (Software Lifecycle Processes)"
+      - "ISO/IEC 15504 SPICE (Process Assessment)"
+      - "Continuous Delivery (Jez Humble)"
+      - "DORA Metrics"
+
+  configuration_contract:
+    description: >
+      Projects using automated pipelines declare pipeline preferences via standard toggles.
+      All toggles default to OFF (manual mode).
+
+    toggles:
+      - name: autoSpecGeneration
+        type: boolean
+        default: false
+        description: Automatically generate SDD specs from PRD/user stories
+        when_on: Pipeline generates spec draft, submits for review
+        when_off: Manual spec creation required
+
+      - name: autoDerive
+        type: boolean
+        default: false
+        description: Automatically derive BDD/TDD/ATDD from approved specs
+        when_on: Pipeline runs derivation after spec approval
+        when_off: Manual derivation via commands
+
+      - name: autoTDD
+        type: boolean
+        default: false
+        description: Automatically enter TDD RED phase after derivation
+        when_on: Pipeline sets RED state and creates test skeleton
+        when_off: Developer manually enters TDD
+
+      - name: autoCheckin
+        type: boolean
+        default: false
+        description: Automatically commit when all quality gates pass
+        when_on: Pipeline commits after all gates pass
+        when_off: Developer manually commits
+
+      - name: autoBatch
+        type: boolean
+        default: false
+        description: Automatically batch pending changes before commit
+        when_on: Pipeline accumulates changes and merges at threshold
+        when_off: Each change committed individually
+
+    reading_rules:
+      - Fail-safe defaults — all toggles default to OFF
+      - Explicit declaration — never assume toggle state without reading config
+      - Runtime override — CLI flags may override file-based config
+      - Validation — validate configuration values before execution
+
+  pipeline_stages:
+    description: Standard 6-stage pipeline model
+    stages:
+      - stage: PLAN
+        input: PRD, user stories, requirements
+        output: Structured requirements document
+        gate: Requirements reviewed
+
+      - stage: SPEC
+        input: Requirements
+        output: SDD specification with AC
+        gate: Spec approved
+
+      - stage: DERIVE
+        input: Approved spec
+        output: BDD scenarios, TDD skeletons, ATDD tables
+        gate: 1:1 AC mapping verified
+
+      - stage: BUILD
+        input: Test skeletons + spec
+        output: Implementation code
+        gate: Tests pass (RED→GREEN)
+
+      - stage: REVIEW
+        input: Implementation + tests
+        output: Review feedback
+        gate: Review approved
+
+      - stage: CHECKIN
+        input: Approved changes
+        output: Committed code
+        gate: All quality gates pass
+
+  context_classification:
+    types:
+      - type: greenfield
+        description: New project or feature with no existing code
+        scenario: Starting a new module, service, or product
+        strategy:
+          plan: Full requirements
+          spec: Complete SDD
+          derive: Full derivation
+          build: TDD from scratch
+          review: Full review
+          checkin: Standard checkin
+
+      - type: brownfield
+        description: Existing codebase requiring modification
+        scenario: Adding features to legacy code, refactoring
+        strategy:
+          plan: Impact analysis first
+          spec: Delta SDD (changes only)
+          derive: Targeted derivation
+          build: Modify existing + new tests
+          review: Focused review on changes
+          checkin: Standard checkin
+
+      - type: adhoc
+        description: Small, isolated changes
+        scenario: Bug fixes, configuration changes, hotfixes
+        strategy:
+          plan: Quick assessment
+          spec: Optional (for significant changes)
+          derive: Skip (unless complex)
+          build: Direct fix
+          review: Quick review
+          checkin: Standard checkin
+
+    detection_signals:
+      - signal: file_count
+        greenfield: 0 or minimal files
+        brownfield: Established codebase
+        adhoc: N/A
+      - signal: change_scope
+        greenfield: New directory/module
+        brownfield: Modifications to existing files
+        adhoc: 1-3 files changed
+      - signal: test_coverage
+        greenfield: No existing tests
+        brownfield: Existing test suite
+        adhoc: Existing tests cover area
+
+  rules:
+    - id: read-config-first
+      trigger: starting pipeline execution
+      instruction: Read all toggles from configuration before executing any stage
+      priority: required
+
+    - id: fail-safe-defaults
+      trigger: toggle not found in configuration
+      instruction: Default all unset toggles to OFF (manual mode)
+      priority: required
+
+    - id: enforce-stage-gates
+      trigger: completing a pipeline stage
+      instruction: Verify quality gate passes before progressing to next stage
+      priority: required
+
+    - id: context-awareness
+      trigger: starting pipeline execution
+      instruction: Detect or read context type and adapt stage strategy accordingly
+      priority: required
+
+    - id: log-decisions
+      trigger: skipping or executing a stage
+      instruction: Log which stages were executed, skipped, and why
+      priority: recommended
+
+    - id: validate-config
+      trigger: reading configuration
+      instruction: Validate toggle types (boolean), context enum, and unknown keys
+      priority: required
+
+related_standards:
+  - spec-driven-development.md
+  - forward-derivation-standards.md
+  - checkin-standards.md
+  - change-batching-standards.md
+  - acceptance-criteria-traceability.md

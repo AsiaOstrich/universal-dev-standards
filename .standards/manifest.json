@@ -53,7 +53,10 @@
     "ai/standards/context-aware-loading.ai.yaml",
     "ai/standards/test-governance.ai.yaml",
     "ai/standards/structured-task-definition.ai.yaml",
-    "ai/standards/workflow-state-protocol.ai.yaml"
+    "ai/standards/workflow-state-protocol.ai.yaml",
+    "ai/standards/pipeline-integration-standards.ai.yaml",
+    "ai/standards/acceptance-criteria-traceability.ai.yaml",
+    "ai/standards/change-batching-standards.ai.yaml"
   ],
   "domains": {
     "always-on": [
@@ -78,7 +81,8 @@
       "ai/standards/forward-derivation-standards.ai.yaml",
       "ai/standards/reverse-engineering-standards.ai.yaml",
       "ai/standards/requirement-engineering.ai.yaml",
-      "ai/standards/structured-task-definition.ai.yaml"
+      "ai/standards/structured-task-definition.ai.yaml",
+      "ai/standards/acceptance-criteria-traceability.ai.yaml"
     ],
     "quality": [
       "ai/standards/code-review.ai.yaml",
@@ -97,7 +101,9 @@
       "ai/standards/git-workflow.ai.yaml",
       "ai/standards/versioning.ai.yaml",
       "ai/standards/deployment-standards.ai.yaml",
-      "ai/standards/workflow-state-protocol.ai.yaml"
+      "ai/standards/workflow-state-protocol.ai.yaml",
+      "ai/standards/pipeline-integration-standards.ai.yaml",
+      "ai/standards/change-batching-standards.ai.yaml"
     ],
     "architecture": [
       "ai/standards/ai-friendly-architecture.ai.yaml",

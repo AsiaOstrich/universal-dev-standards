@@ -525,6 +525,57 @@ spec-review → forward-derivation → discovery
 
 ---
 
+## Pipeline Integration
+
+### Automated TDD Transition
+
+When forward derivation is triggered by an automated pipeline (see [Pipeline Integration Standards](pipeline-integration-standards.md)), the following rules apply for transitioning into the TDD cycle:
+
+#### Auto-TDD Entry Rules
+
+| Rule | Description |
+|------|-------------|
+| **Derivation completeness** | All derivation outputs (BDD, TDD, ATDD) must be generated before entering TDD |
+| **RED state initialization** | Pipeline sets TDD state to RED after generating test skeletons |
+| **Test skeleton validation** | Generated test files must compile/parse without errors before entering RED |
+| **AC count verification** | Verify output test count matches AC count before transitioning |
+
+#### Pipeline Hooks
+
+Derivation steps can be automatically triggered by pipeline events:
+
+| Hook | Trigger | Action |
+|------|---------|--------|
+| `on-spec-approved` | Spec status changes to "approved" | Start derivation pipeline |
+| `on-derivation-complete` | All derivation outputs generated | Transition to TDD RED phase |
+| `on-tdd-green` | All derived tests pass | Trigger review stage |
+
+#### Auto-TDD Entry Workflow
+
+```
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│ Spec Approved│───▶│  Derive All  │───▶│ Verify Count │───▶│  TDD RED     │
+│ (hook)       │    │  BDD+TDD+ATDD│    │ AC = Tests   │    │  (auto-set)  │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+```
+
+1. **Spec Approval**: Pipeline detects spec approval (via hook or polling)
+2. **Full Derivation**: Pipeline runs `/derive-all` with project-configured language/framework
+3. **Count Verification**: Pipeline verifies output count matches AC count (anti-hallucination)
+4. **RED State**: Pipeline sets TDD state to RED; test skeletons exist but assertions are [TODO]
+
+#### Integration with Pipeline Stages
+
+Forward derivation maps to the **DERIVE** stage in the [Pipeline Integration Standards](pipeline-integration-standards.md) 6-stage model:
+
+| Pipeline Stage | Forward Derivation Role |
+|---------------|------------------------|
+| SPEC | Input: approved specification |
+| **DERIVE** | Execute: parse AC → generate BDD/TDD/ATDD outputs |
+| BUILD | Output: test skeletons feed into TDD RED→GREEN cycle |
+
+---
+
 ## Anti-Patterns to Avoid
 
 ### Generation Anti-Patterns
@@ -626,6 +677,7 @@ spec-review → forward-derivation → discovery
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-03-18 | Added: Pipeline Integration section — auto-TDD transition, pipeline hooks, auto-TDD entry workflow |
 | 1.1.0 | 2026-01-25 | Added: Contract output (contract.json), Schema output (schema.json), /derive-contracts command for verification artifact generation |
 | 1.0.0 | 2026-01-19 | Initial release |
 

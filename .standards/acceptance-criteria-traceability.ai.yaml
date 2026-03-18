@@ -1,0 +1,178 @@
+# Acceptance Criteria Traceability Standards - AI Optimized
+# Source: core/acceptance-criteria-traceability.md
+
+standard:
+  id: acceptance-criteria-traceability
+  name: Acceptance Criteria Traceability
+  description: AC-to-test traceability matrix, coverage calculation, and spec generation quality rules
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-18"
+    source: core/acceptance-criteria-traceability.md
+    references:
+      - "ISO/IEC/IEEE 29119-3 (Test Documentation — Traceability Matrix)"
+      - "IEEE 830 (Software Requirements Specification — Traceability)"
+      - "ISTQB Foundation (Requirements-based testing)"
+      - "INVEST Principles (Acceptance criteria quality)"
+
+  traceability_matrix:
+    description: Standard format for tracking AC to test relationships
+    fields:
+      - name: AC-ID
+        required: true
+        description: Unique identifier from specification (e.g., AC-1)
+      - name: Test File
+        required: conditionally
+        description: Path to test file (required if covered)
+      - name: Test Name
+        required: conditionally
+        description: Name of test case or describe block (required if covered)
+      - name: Status
+        required: true
+        description: "Coverage status: covered, partial, uncovered"
+      - name: Notes
+        required: false
+        description: Additional context (blockers, dependencies)
+
+    linking_convention:
+      description: Tests must reference source AC using standard annotations
+      annotations:
+        - "@AC AC-N — in test name or comment"
+        - "@SPEC SPEC-XXX — in test name or comment"
+        - "describe('AC-N: description') — in test structure"
+
+  coverage_status:
+    definitions:
+      - status: covered
+        symbol: "✅"
+        definition: AC is fully tested
+        criteria: All conditions in AC have corresponding test assertions
+
+      - status: partial
+        symbol: "⚠️"
+        definition: AC is partially tested
+        criteria: Some conditions tested, but edge cases or paths missing
+
+      - status: uncovered
+        symbol: "❌"
+        definition: AC has no tests
+        criteria: No test case references this AC
+
+    calculation:
+      formula: "AC Coverage % = (covered_count + partial_count × 0.5) / total_ac_count × 100"
+      note: Partial counts as 0.5 for coverage calculation
+
+  quality_thresholds:
+    defaults:
+      - name: Minimum AC Coverage
+        value: 100
+        enforcement: Required for production release
+      - name: Minimum for Check-in
+        value: 80
+        enforcement: Required for feature branch merge
+      - name: Warning Level
+        value: 60
+        enforcement: Triggers coverage warning
+
+    configurable: true
+    config_example:
+      acCoverage:
+        minimum: 100
+        checkinMinimum: 80
+        warningLevel: 60
+        partialWeight: 0.5
+
+  spec_generation_quality:
+    description: Rules for automatically generating specifications from PRD/user stories
+    ac_quality_criteria:
+      - criterion: Specific
+        description: AC describes concrete, observable behavior
+        validation: No vague terms like "should work well"
+
+      - criterion: Measurable
+        description: AC has quantifiable or verifiable outcome
+        validation: Contains expected values, states, or behaviors
+
+      - criterion: Achievable
+        description: AC is technically feasible
+        validation: References known APIs, data, or capabilities
+
+      - criterion: Relevant
+        description: AC relates to feature purpose
+        validation: Maps to user need or business requirement
+
+      - criterion: Testable
+        description: AC can be verified by a test
+        validation: Can be expressed as Given-When-Then
+
+    io_contract:
+      input_types:
+        - type: PRD
+          required_fields: Title, Description, User Stories
+        - type: User Story
+          required_fields: As a / I want / So that
+        - type: Feature Brief
+          required_fields: Feature name, Goals, Constraints
+
+      output_requirements:
+        - section: SPEC ID
+          required: true
+        - section: Title
+          required: true
+        - section: Description
+          required: true
+        - section: Acceptance Criteria
+          required: true
+          format: Numbered list (AC-1, AC-2, ...)
+        - section: AC Format
+          required: true
+          format: Given-When-Then or structured bullet
+        - section: Testability Flag
+          required: true
+          format: Each AC marked as testable/not-testable
+
+      validation_rules:
+        - "AC count >= 1"
+        - "No duplicate AC descriptions"
+        - "Happy path + at least 1 error/edge case"
+        - "100% of AC must be testable"
+        - "Each AC links back to source requirement"
+
+  rules:
+    - id: annotate-tests
+      trigger: writing tests for a specification
+      instruction: Always annotate tests with AC-ID and SPEC-ID using standard annotations
+      priority: required
+
+    - id: honest-status
+      trigger: reporting AC coverage
+      instruction: Use honest status classification (covered/partial/uncovered); never inflate coverage
+      priority: required
+
+    - id: track-all-ac
+      trigger: creating traceability matrix
+      instruction: Include ALL AC from specification, even uncovered ones
+      priority: required
+
+    - id: testable-ac
+      trigger: generating or reviewing specifications
+      instruction: Ensure all AC are testable; flag non-testable AC for revision
+      priority: required
+
+    - id: coverage-gate
+      trigger: before check-in or merge
+      instruction: Verify AC coverage meets project threshold before allowing commit
+      priority: recommended
+
+    - id: spec-quality
+      trigger: generating specifications automatically
+      instruction: Validate generated AC against SMART criteria and testability
+      priority: required
+
+related_standards:
+  - forward-derivation-standards.md
+  - spec-driven-development.md
+  - testing-standards.md
+  - checkin-standards.md
+  - test-governance.md
