@@ -72,7 +72,7 @@ Reference: `.standards/anti-hallucination.md` (or `core/anti-hallucination.md`)
 ## Documentation & Commits
 
 1. **Commit Messages**: 
-   - Follow the pattern defined in `.standards/commit-message-guide.md`.
+   - Follow the pattern defined in `.standards/commit-message.ai.yaml`.
    - Default types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`.
    - Example: `feat(auth): add login support`
 

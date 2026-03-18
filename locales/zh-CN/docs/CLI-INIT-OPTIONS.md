@@ -728,7 +728,7 @@ You are an AI assistant that prioritizes accuracy over confidence...
 ---
 
 ## Commit Message Standards
-Reference: .standards/commit-message-guide.md
+Reference: .standards/commit-message.ai.yaml
 
 ### Format Structure
 <type>(<scope>): <subject>

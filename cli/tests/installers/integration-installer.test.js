@@ -80,7 +80,8 @@ describe('integration-installer', () => {
       expect(result).toEqual({
         integrations: [],
         errors: [],
-        integrationBlockHashes: {}
+        integrationBlockHashes: {},
+        manifestIntegrationConfigs: {}
       });
       expect(ora).not.toHaveBeenCalled();
     });
@@ -149,7 +150,89 @@ describe('integration-installer', () => {
         installedAt: expect.any(String)
       });
 
+      // Verify manifestIntegrationConfigs populated for each successful tool
+      expect(result.manifestIntegrationConfigs).toHaveProperty('.cursorrules');
+      expect(result.manifestIntegrationConfigs).toHaveProperty('.windsurfrules');
+      expect(result.manifestIntegrationConfigs).toHaveProperty('.clinerules');
+      expect(result.manifestIntegrationConfigs['.cursorrules']).toMatchObject({
+        tool: 'cursor',
+        categories: ['anti-hallucination'],
+        language: 'en',
+        installedStandards: ['anti-hallucination.ai.yaml', 'commit-message.ai.yaml', 'testing.ai.yaml'],
+        contentMode: 'index',
+        level: 3,
+        commitLanguage: 'english'
+      });
+
       expect(mockSpinner.succeed).toHaveBeenCalledWith('Generated 3 integration file(s)');
+    });
+
+    it('should_populate_manifestIntegrationConfigs_with_correct_fields', async () => {
+      // Arrange - Single tool to verify all fields
+      const config = {
+        integrations: ['cursor'],
+        integrationConfigs: {
+          cursor: { categories: ['anti-hallucination', 'commit-standards'] }
+        },
+        installedStandards: ['anti-hallucination.ai.yaml', 'commit-message.ai.yaml'],
+        contentMode: 'full',
+        level: 3,
+        commonLanguage: 'zh-tw',
+        commitLanguage: 'traditional-chinese'
+      };
+
+      getToolFilePath.mockReturnValue('.cursorrules');
+      writeIntegrationFile.mockReturnValue({
+        success: true,
+        path: '.cursorrules',
+        blockHashInfo: { hash: 'abc', startLine: 1, endLine: 5 }
+      });
+
+      // Act
+      const result = await installIntegrations(config, mockProjectPath);
+
+      // Assert - manifestIntegrationConfigs has all required fields
+      const ic = result.manifestIntegrationConfigs['.cursorrules'];
+      expect(ic).toBeDefined();
+      expect(ic.tool).toBe('cursor');
+      expect(ic.categories).toEqual(['anti-hallucination', 'commit-standards']);
+      expect(ic.language).toBe('zh-tw');
+      expect(ic.installedStandards).toEqual(['anti-hallucination.ai.yaml', 'commit-message.ai.yaml']);
+      expect(ic.contentMode).toBe('full');
+      expect(ic.level).toBe(3);
+      expect(ic.commitLanguage).toBe('traditional-chinese');
+      // installedStandards should be a copy, not a reference
+      expect(ic.installedStandards).not.toBe(config.installedStandards);
+    });
+
+    it('should_not_populate_manifestIntegrationConfigs_for_legacy_fallback', async () => {
+      // Arrange - Generator fails, falls back to legacy copy
+      const config = {
+        integrations: ['cursor'],
+        integrationConfigs: {},
+        installedStandards: ['commit-message.ai.yaml'],
+        contentMode: 'minimal',
+        level: 2,
+        commonLanguage: 'en',
+        commitLanguage: 'english'
+      };
+
+      getToolFilePath.mockReturnValue('.cursorrules');
+      writeIntegrationFile.mockReturnValue({
+        success: false,
+        error: 'Template not found'
+      });
+      copyIntegration.mockResolvedValue({
+        success: true,
+        path: '.cursorrules'
+      });
+
+      // Act
+      const result = await installIntegrations(config, mockProjectPath);
+
+      // Assert - Legacy fallback should NOT populate manifestIntegrationConfigs
+      expect(result.integrations).toEqual(['.cursorrules']);
+      expect(result.manifestIntegrationConfigs).toEqual({});
     });
 
     it('should_handle_shared_files_correctly_when_multiple_tools_use_same_target', async () => {

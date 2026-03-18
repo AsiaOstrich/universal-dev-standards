@@ -43,7 +43,7 @@ Some content here.`;
 Reference: .standards/anti-hallucination.md
 
 ## Section 2
-Reference: .standards/commit-message-guide.md
+Reference: .standards/commit-message.ai.yaml
 
 ## Section 3
 Reference: .standards/code-review-checklist.md`;
@@ -52,7 +52,7 @@ Reference: .standards/code-review-checklist.md`;
 
       expect(refs).toHaveLength(3);
       expect(refs).toContain('anti-hallucination.md');
-      expect(refs).toContain('commit-message-guide.md');
+      expect(refs).toContain('commit-message.ai.yaml');
       expect(refs).toContain('code-review-checklist.md');
     });
 
@@ -85,18 +85,18 @@ Just regular content.`;
 Reference: .standards/anti-hallucination.md
 
 ## 中文區塊
-參考: .standards/commit-message-guide.md`;
+參考: .standards/commit-message.ai.yaml`;
 
       const refs = parseReferences(content);
 
       expect(refs).toHaveLength(2);
       expect(refs).toContain('anti-hallucination.md');
-      expect(refs).toContain('commit-message-guide.md');
+      expect(refs).toContain('commit-message.ai.yaml');
     });
 
     it('should handle case-insensitive Reference keyword', () => {
       const content = `REFERENCE: .standards/anti-hallucination.md
-reference: .standards/commit-message-guide.md`;
+reference: .standards/commit-message.ai.yaml`;
 
       const refs = parseReferences(content);
 

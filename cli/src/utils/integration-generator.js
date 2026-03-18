@@ -236,7 +236,7 @@ function generateCommitStandardsContent(commitLanguage, detailLevel = 'standard'
 
     if (commitLanguage === 'traditional-chinese') {
       return `## 提交訊息標準
-參考: .standards/commit-message-guide.md, .standards/options/traditional-chinese.ai.yaml
+參考: .standards/commit-message.ai.yaml, .standards/options/traditional-chinese.ai.yaml
 
 ### 格式
 \`\`\`
@@ -256,7 +256,7 @@ ${typesTable}
 - 本文: 說明做了什麼及為什麼，而非如何做`;
     } else if (commitLanguage === 'bilingual') {
       return `## Commit Message Standards | 提交訊息標準
-Reference: .standards/commit-message-guide.md, .standards/options/bilingual.ai.yaml
+Reference: .standards/commit-message.ai.yaml, .standards/options/bilingual.ai.yaml
 
 ### Format | 格式
 \`\`\`
@@ -279,7 +279,7 @@ ${typesTable}
 - NEVER mix languages in one paragraph | 禁止同段落混合語言`;
     } else if (commitLanguage === 'bilingual-zhcn') {
       return `## Commit Message Standards | 提交消息标准
-Reference: .standards/commit-message-guide.md, .standards/options/bilingual.ai.yaml
+Reference: .standards/commit-message.ai.yaml, .standards/options/bilingual.ai.yaml
 
 ### Format | 格式
 \`\`\`
@@ -302,7 +302,7 @@ ${typesTable}
 - NEVER mix languages in one paragraph | 禁止同段落混合语言`;
     } else {
       return `## Commit Message Standards
-Reference: .standards/commit-message-guide.md
+Reference: .standards/commit-message.ai.yaml
 
 ### Format
 \`\`\`
@@ -328,7 +328,7 @@ ${typesTable}
 
   if (commitLanguage === 'traditional-chinese') {
     return `## 提交訊息標準
-參考: .standards/commit-message-guide.md, .standards/options/traditional-chinese.ai.yaml
+參考: .standards/commit-message.ai.yaml, .standards/options/traditional-chinese.ai.yaml
 
 ### 格式結構
 \`\`\`
@@ -361,7 +361,7 @@ ${typesTable}
 - 共同作者: \`Co-authored-by: Name <email>\``;
   } else if (commitLanguage === 'bilingual') {
     return `## Commit Message Standards | 提交訊息標準
-Reference: .standards/commit-message-guide.md, .standards/options/bilingual.ai.yaml
+Reference: .standards/commit-message.ai.yaml, .standards/options/bilingual.ai.yaml
 
 ### Format Structure | 格式結構
 \`\`\`
@@ -415,7 +415,7 @@ Closes #123
 - Co-authors: \`Co-authored-by: Name <email>\``;
   } else if (commitLanguage === 'bilingual-zhcn') {
     return `## Commit Message Standards | 提交消息标准
-Reference: .standards/commit-message-guide.md, .standards/options/bilingual.ai.yaml
+Reference: .standards/commit-message.ai.yaml, .standards/options/bilingual.ai.yaml
 
 ### Format Structure | 格式结构
 \`\`\`
@@ -469,7 +469,7 @@ Closes #123
 - Co-authors: \`Co-authored-by: Name <email>\``;
   } else {
     return `## Commit Message Standards
-Reference: .standards/commit-message-guide.md
+Reference: .standards/commit-message.ai.yaml
 
 ### Format Structure
 \`\`\`
@@ -772,7 +772,7 @@ If you realize you made an incorrect statement:
     },
     standard: {
       en: `## Commit Message Standards
-Reference: .standards/commit-message-guide.md
+Reference: .standards/commit-message.ai.yaml
 
 ### Format
 \`\`\`
@@ -797,7 +797,7 @@ Reference: .standards/commit-message-guide.md
 - Use imperative mood: "add" not "added"
 - Body: explain what and why, not how`,
       'zh-tw': `## 提交訊息標準
-參考: .standards/commit-message-guide.md
+參考: .standards/commit-message.ai.yaml
 
 ### 格式
 \`\`\`
@@ -824,7 +824,7 @@ Reference: .standards/commit-message-guide.md
     },
     comprehensive: {
       en: `## Commit Message Standards
-Reference: .standards/commit-message-guide.md
+Reference: .standards/commit-message.ai.yaml
 
 ### Format Structure
 \`\`\`
@@ -864,7 +864,7 @@ Reference: .standards/commit-message-guide.md
 - Issue references: \`Fixes #123\`, \`Closes #456\`
 - Co-authors: \`Co-authored-by: Name <email>\``,
       'zh-tw': `## 提交訊息標準
-參考: .standards/commit-message-guide.md
+參考: .standards/commit-message.ai.yaml
 
 ### 格式結構
 \`\`\`

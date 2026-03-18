@@ -43,7 +43,7 @@ status: current
 
 ## 2. Commit 訊息規範
 
-參考：`.standards/commit-message-guide.md`
+參考：`.standards/commit-message.ai.yaml`
 
 ### 格式
 

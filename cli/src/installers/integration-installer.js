@@ -83,7 +83,8 @@ export async function installIntegrations(config, projectPath) {
   const results = {
     integrations: [],
     errors: [],
-    integrationBlockHashes: {}
+    integrationBlockHashes: {},
+    manifestIntegrationConfigs: {}
   };
 
   // Early return if no integrations to install
@@ -136,6 +137,17 @@ export async function installIntegrations(config, projectPath) {
           installedAt: new Date().toISOString()
         };
       }
+
+      // Collect integration config for manifest (enables sync-refs regeneration)
+      results.manifestIntegrationConfigs[result.path] = {
+        tool: enhancedConfig.tool,
+        categories: enhancedConfig.categories,
+        language: enhancedConfig.language,
+        installedStandards: [...enhancedConfig.installedStandards],
+        contentMode: enhancedConfig.contentMode,
+        level: enhancedConfig.level,
+        commitLanguage: enhancedConfig.commitLanguage,
+      };
     } else {
       // Fall back to legacy static file copy
       const mapping = INTEGRATION_MAPPINGS[tool];

@@ -45,7 +45,7 @@ Reference: `.standards/anti-hallucination.md`
 
 ## 2. Commit Message Standards
 
-Reference: `.standards/commit-message-guide.md`
+Reference: `.standards/commit-message.ai.yaml`
 
 ### Format
 
