@@ -3,8 +3,8 @@
 
 id: error-codes
 meta:
-  version: "1.1.0"
-  updated: "2026-01-05"
+  version: "1.2.0"
+  updated: "2026-03-18"
   source: core/error-code-standards.md
   description: Error code format, categories, and management
 
@@ -119,6 +119,41 @@ rules:
   - id: centralize-registry
     trigger: managing error codes
     instruction: Maintain centralized error code registry
+    priority: recommended
+
+  - id: rfc7807-format
+    trigger: designing HTTP API error responses
+    instruction: |
+      Use RFC 7807 Problem Details format:
+      Required: type, title, status, detail, instance
+      Extension: code, errors[], requestId, timestamp
+    priority: recommended
+
+  - id: graphql-errors
+    trigger: handling GraphQL errors
+    instruction: |
+      Map error codes to extensions field:
+      - extensions.code: Application error code
+      - extensions.category: VALIDATION/BUSINESS_RULE/AUTHENTICATION/AUTHORIZATION/INTERNAL
+    priority: recommended
+
+  - id: grpc-mapping
+    trigger: handling gRPC errors
+    instruction: |
+      Map categories to gRPC status:
+      - VAL → INVALID_ARGUMENT (3)
+      - BIZ → FAILED_PRECONDITION (9)
+      - AUTH → UNAUTHENTICATED (16) / PERMISSION_DENIED (7)
+      - SYS → INTERNAL (13)
+      - NET → UNAVAILABLE (14)
+    priority: recommended
+
+  - id: retry-guidance
+    trigger: defining error retry behavior
+    instruction: |
+      Retryable: NET, AUTH token errors (200-299), SYS (maybe)
+      Not retryable: VAL, BIZ, AUTH credentials (001-099)
+      Use Idempotency-Key for non-idempotent POST operations
     priority: recommended
 
 quick_reference:

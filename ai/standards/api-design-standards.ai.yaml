@@ -1,0 +1,192 @@
+# API Design Standards - AI Optimized
+# Source: core/api-design-standards.md
+
+standard:
+  id: api-design
+  name: API Design Standards
+  description: Comprehensive API design guidelines for REST, GraphQL, and gRPC
+  guidelines:
+    - "Use nouns (plural, kebab-case) for resource URLs"
+    - "Follow RFC 7807 Problem Details for error responses"
+    - "Use cursor-based pagination for large datasets"
+    - "Version APIs via URL path (/v1/)"
+    - "Always require HTTPS"
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-18"
+    source: core/api-design-standards.md
+    description: Comprehensive API design guidelines for REST, GraphQL, and gRPC
+
+  rest_principles:
+    resource_naming:
+      use_nouns: true
+      use_plural: true
+      case: kebab-case
+      max_nesting: 2
+      examples:
+        correct: ["/users", "/user-profiles", "/users/123/orders"]
+        incorrect: ["/getUsers", "/user_profiles", "/users/123/orders/456/items/789"]
+    http_verbs:
+      GET: {purpose: "Retrieve", body: false, idempotent: true, safe: true}
+      POST: {purpose: "Create", body: true, idempotent: false, safe: false}
+      PUT: {purpose: "Full replace", body: true, idempotent: true, safe: false}
+      PATCH: {purpose: "Partial update", body: true, idempotent: false, safe: false}
+      DELETE: {purpose: "Remove", body: optional, idempotent: true, safe: false}
+    status_codes:
+      success:
+        200: "OK — GET, PUT, PATCH success"
+        201: "Created — POST success (include Location header)"
+        202: "Accepted — async processing"
+        204: "No Content — DELETE success"
+      client_error:
+        400: "Bad Request — malformed request"
+        401: "Unauthorized — missing/invalid auth"
+        403: "Forbidden — insufficient permissions"
+        404: "Not Found — resource does not exist"
+        409: "Conflict — state conflict"
+        422: "Unprocessable Entity — validation error"
+        429: "Too Many Requests — rate limited"
+      server_error:
+        500: "Internal Server Error"
+        502: "Bad Gateway"
+        503: "Service Unavailable"
+        504: "Gateway Timeout"
+
+  versioning_strategies:
+    recommended: url_path
+    options:
+      url_path: {example: "/v1/users", pros: "explicit, cacheable", cons: "URL pollution"}
+      header: {example: "Accept-Version: v1", pros: "clean URLs", cons: "hidden, harder to test"}
+      query_param: {example: "?v=1", pros: "easy to add", cons: "caching issues"}
+    lifecycle:
+      current: "Full support, new features"
+      supported: "6-12 months, bug/security fixes only"
+      deprecated: "3-6 months notice, sunset header"
+      retired: "Return 410 Gone"
+
+  pagination:
+    strategies:
+      offset: {best_for: "Simple lists, UI page numbers", default_limit: 20, max_limit: 100}
+      cursor: {best_for: "Real-time feeds, large datasets", consistent: true}
+      keyset: {best_for: "Sorted large datasets", performant: true}
+    standard_fields:
+      offset: [page, limit, totalCount, totalPages]
+      cursor: [limit, cursor, hasMore]
+
+  authentication:
+    methods:
+      api_key: {use_case: "Server-to-server", complexity: low, security: medium}
+      oauth2: {use_case: "Third-party access", complexity: high, security: high}
+      jwt_bearer: {use_case: "Stateless auth, microservices", complexity: medium, security: high}
+      mtls: {use_case: "Service mesh, zero-trust", complexity: high, security: very_high}
+    jwt_rules:
+      algorithm: "RS256 or ES256 (asymmetric)"
+      access_token_ttl: "15 min max"
+      refresh_token_ttl: "7-30 days"
+      never: [sensitive_data_in_payload, symmetric_for_multi_party]
+
+  rate_limiting:
+    headers:
+      - "X-RateLimit-Limit: max requests in window"
+      - "X-RateLimit-Remaining: requests left"
+      - "X-RateLimit-Reset: unix timestamp of reset"
+      - "Retry-After: seconds to wait (on 429)"
+    tiers:
+      free: "100/hour"
+      basic: "1,000/hour"
+      pro: "10,000/hour"
+      enterprise: "custom"
+    strategies: [fixed_window, sliding_window, token_bucket, leaky_bucket]
+
+  error_format:
+    standard: "RFC 7807 Problem Details"
+    required_fields:
+      type: "URI reference to error documentation"
+      title: "Short, human-readable summary"
+      status: "HTTP status code"
+      detail: "Specific explanation of this occurrence"
+    optional_fields:
+      instance: "URI of the request"
+      errors: "Array of field-level validation errors"
+      traceId: "Request trace identifier"
+
+  filtering_sorting:
+    filtering:
+      simple: "?status=active"
+      bracket: "?filter[status]=active"
+      range: "?filter[created_at][gte]=2026-01-01"
+    sorting:
+      ascending: "?sort=created_at"
+      descending: "?sort=-created_at"
+      multiple: "?sort=-created_at,last_name"
+    field_selection: "?fields=id,name,email"
+
+  graphql:
+    naming:
+      types: PascalCase
+      fields: camelCase
+      enums: SCREAMING_SNAKE_CASE
+      mutations: "verb + noun (createUser)"
+      input_types: "action + noun + Input"
+      payload_types: "action + noun + Payload"
+    pagination: "Relay connections (edges, nodes, pageInfo)"
+    errors: "Return userErrors in payload, not top-level errors"
+
+  grpc:
+    package: "company.service.version"
+    service_naming: "PascalCase + Service suffix"
+    rpc_methods: "PascalCase verb + noun"
+    field_naming: snake_case
+    error_mapping:
+      INVALID_ARGUMENT: 400
+      UNAUTHENTICATED: 401
+      PERMISSION_DENIED: 403
+      NOT_FOUND: 404
+      ALREADY_EXISTS: 409
+      RESOURCE_EXHAUSTED: 429
+      INTERNAL: 500
+
+rules:
+  - id: REST-001
+    rule: "Use plural nouns in kebab-case for resource URLs; never use verbs"
+    severity: error
+  - id: REST-002
+    rule: "Return correct HTTP status codes; 201 for creation, 204 for deletion, 422 for validation errors"
+    severity: error
+  - id: REST-003
+    rule: "Use RFC 7807 Problem Details format for all error responses"
+    severity: error
+  - id: REST-004
+    rule: "Version APIs via URL path (/v1/) and maintain version lifecycle (current → deprecated → retired)"
+    severity: warning
+  - id: REST-005
+    rule: "Include rate limiting headers (X-RateLimit-Limit, Remaining, Reset) on all responses"
+    severity: warning
+  - id: REST-006
+    rule: "Use cursor-based pagination for large or real-time datasets; offset-based for simple lists"
+    severity: info
+  - id: REST-007
+    rule: "Require HTTPS for all API endpoints; TLS 1.2 minimum, TLS 1.3 preferred"
+    severity: error
+  - id: REST-008
+    rule: "Document every endpoint with OpenAPI 3.x including parameters, request/response examples, and auth"
+    severity: warning
+
+quick_reference:
+  url_pattern: "[VERB] https://api.{domain}/v{N}/{resources}/{id}"
+  response_success: "{ data, meta, links }"
+  response_error: "{ type, title, status, detail, errors, traceId }"
+  verb_cheat_sheet:
+    list: "GET /users → 200"
+    read: "GET /users/123 → 200"
+    create: "POST /users → 201"
+    update_full: "PUT /users/123 → 200"
+    update_partial: "PATCH /users/123 → 200"
+    delete: "DELETE /users/123 → 204"
+
+physical_spec:
+  type: custom_script
+  validator:
+    command: "test -f openapi.yaml || test -f openapi.json || test -f swagger.yaml || test -f swagger.json || test -f docs/api.yaml"
+    rule: "api_spec_exists"

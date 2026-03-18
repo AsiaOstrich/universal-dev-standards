@@ -1,0 +1,220 @@
+# Database Standards - AI Optimized
+# Source: core/database-standards.md
+
+standard:
+  id: database
+  name: Database Standards
+  description: Schema design, indexing, migrations, query optimization, transactions, and data integrity
+  guidelines:
+    - "Data integrity enforced at database level, not only application code"
+    - "Schema as code: version-controlled, reproducible migrations"
+    - "Measure before tuning: use EXPLAIN plans before optimizing"
+    - "Backward-compatible schema changes during deployment windows"
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-18"
+    source: core/database-standards.md
+    description: Schema design, indexing, migrations, query optimization, transactions, and data integrity
+
+  principles:
+    core:
+      - data_integrity_first: "Constraints and referential integrity at DB level"
+      - schema_as_code: "Version-controlled, reproducible migration scripts"
+      - least_privilege: "Minimum permissions for each database account"
+      - measure_before_tuning: "EXPLAIN plans and metrics before optimizing"
+      - defense_in_depth: "Encryption, masking, access controls at multiple layers"
+      - backward_compatibility: "Schema changes maintain compat during deployments"
+
+schema_design:
+  naming:
+    tables: "snake_case, singular (user_account, order_item)"
+    columns: "snake_case (first_name, created_at)"
+    primary_keys: "id"
+    foreign_keys: "<referenced_table>_id"
+    booleans: "is_ or has_ prefix (is_active, has_verified_email)"
+    timestamps: "_at suffix (created_at, updated_at, deleted_at)"
+    indexes: "idx_<table>_<columns>"
+    unique_constraints: "uq_<table>_<columns>"
+  normalization:
+    target: "3NF for transactional systems"
+    1NF: "Atomic values only, no repeating groups"
+    2NF: "1NF + no partial dependencies on composite keys"
+    3NF: "2NF + no transitive dependencies"
+  denormalization:
+    when_to_use:
+      - "Read-heavy workloads (>90% reads)"
+      - "Eventual consistency acceptable"
+      - "Joins cause unacceptable latency"
+    requirements:
+      - "Document source of truth and sync mechanism"
+      - "Implement consistency checks"
+  data_types:
+    monetary: "DECIMAL(19,4) or NUMERIC — never FLOAT/DOUBLE"
+    timestamps: "TIMESTAMPTZ (with timezone)"
+    booleans: "BOOLEAN — not INT(0/1) or CHAR('Y'/'N')"
+    json: "JSONB (PostgreSQL) or native JSON — not TEXT"
+  uuid_vs_auto_increment:
+    auto_increment: "Internal-only IDs, single-database systems"
+    uuid: "Distributed systems, publicly exposed IDs, UUIDv7 preferred"
+
+indexing:
+  create_when:
+    - "Column in frequent WHERE clauses"
+    - "Column used in JOIN conditions"
+    - "Column used in ORDER BY or GROUP BY"
+    - "Unique constraint needed"
+  avoid_when:
+    - "Table < 1,000 rows"
+    - "Very low cardinality column"
+    - "Write-heavy table with rare reads"
+    - "Already > 8 indexes per table"
+  composite_order: "equality first → IN next → range last → ORDER BY last"
+  covering_indexes: "Include all query columns to enable index-only scans"
+  partial_indexes: "Index subset of rows to reduce size (WHERE clause on CREATE INDEX)"
+  anti_patterns:
+    - "Over-indexing: slows writes, audit quarterly"
+    - "Unused indexes: monitor pg_stat_user_indexes"
+    - "Duplicate indexes: (a,b) covers queries on (a)"
+    - "Function on indexed column: use expression index"
+    - "Missing FK index: always index foreign key columns"
+
+migration:
+  naming: "YYYYMMDDHHMMSS_description.sql"
+  principles:
+    - "Version-controlled alongside application code"
+    - "Sequential, deterministic execution order"
+    - "Idempotent: running twice produces same result"
+    - "Tested against production-like data volumes"
+  zero_downtime:
+    pattern: "Expand-Contract"
+    phase_1: "Expand — add nullable column, no constraints"
+    phase_2: "Migrate — backfill data, dual-write"
+    phase_3: "Contract — add constraints, drop old column"
+  rollback:
+    reversible: "Use for non-destructive changes (add column, add index)"
+    forward_only: "Use for destructive changes (drop column, drop table)"
+    critical_rule: "Never drop columns in same deployment that stops writing"
+
+query_practices:
+  n_plus_1: "Use JOINs or batch loading instead of per-row queries"
+  explain_plan: "EXPLAIN ANALYZE for queries > 100ms or > 100 calls/min"
+  pagination:
+    offset: "Simple, supports random access — avoid for large datasets"
+    keyset: "Consistent performance — preferred for APIs and large datasets"
+  anti_patterns:
+    - "SELECT * — list specific columns"
+    - "String concatenation — use parameterized queries"
+    - "NOT IN with NULLs — use NOT EXISTS"
+    - "LIKE '%prefix' — use full-text search"
+    - "Implicit type casting — cast explicitly"
+
+transactions:
+  acid:
+    atomicity: "All operations succeed or all fail"
+    consistency: "DB moves from one valid state to another"
+    isolation: "Concurrent transactions don't interfere"
+    durability: "Committed data survives system failure"
+  isolation_levels:
+    read_uncommitted: {dirty_read: possible, use_case: "Never recommended"}
+    read_committed: {dirty_read: prevented, use_case: "Default; general-purpose"}
+    repeatable_read: {dirty_read: prevented, phantom: possible, use_case: "Financial reports"}
+    serializable: {dirty_read: prevented, phantom: prevented, use_case: "Money transfers, bookings"}
+  default_level: "Read Committed"
+  deadlock_prevention:
+    - "Consistent lock ordering across transactions"
+    - "Keep transactions short"
+    - "Set lock_timeout to fail fast"
+    - "Implement retry with exponential backoff"
+  locking:
+    optimistic: "Version column check — low-conflict environments"
+    pessimistic: "SELECT FOR UPDATE — high-conflict environments"
+
+nosql_decision:
+  relational: "Structured data, complex joins, ACID — PostgreSQL, MySQL"
+  document: "Semi-structured, flexible schema — MongoDB, CouchDB"
+  key_value: "Simple lookups, caching, sessions — Redis, Memcached"
+  graph: "Relationship traversals — Neo4j, Amazon Neptune"
+  polyglot: "Use multiple database types for different workloads"
+
+connection_management:
+  pooling: required
+  defaults:
+    min_pool: "2-5"
+    max_pool: "10-20"
+    connection_timeout: "5 seconds"
+    idle_timeout: "10 minutes"
+    max_lifetime: "30 minutes"
+  formula: "pool_size = (core_count * 2) + effective_spindle_count"
+  warning: "More connections is NOT better — causes contention"
+
+sensitive_data:
+  classification:
+    public: "No special handling"
+    internal: "Access control"
+    confidential: "Encryption at rest, access logging"
+    restricted: "Column encryption, masking, strict audit"
+  pii_requirements:
+    - "Encrypt PII at rest and in transit"
+    - "Mask data in non-production environments"
+    - "Define retention policies"
+    - "Support GDPR data subject requests"
+    - "Log all PII access"
+  audit_logging: "Trigger-based audit log with old/new values, user, timestamp"
+
+backup:
+  strategies:
+    full: "Complete copy — slowest backup, fastest restore"
+    incremental: "Changes since last backup — fastest backup, slowest restore"
+    differential: "Changes since last full — medium speed"
+  rpo_rto:
+    critical: {rpo: "<1 min", rto: "<15 min", strategy: "Sync replication + WAL"}
+    important: {rpo: "<1 hour", rto: "<1 hour", strategy: "Streaming replication + hourly WAL"}
+    standard: {rpo: "<24 hours", rto: "<4 hours", strategy: "Daily full + hourly incremental"}
+  testing: "Restore test monthly, verify integrity, measure actual RTO"
+
+rules:
+  - id: DB-SCHEMA-001
+    rule: "Enforce data constraints at database level, not only in application code"
+    severity: error
+  - id: DB-INDEX-001
+    rule: "Always index foreign key columns"
+    severity: error
+  - id: DB-QUERY-001
+    rule: "Use parameterized queries; never concatenate user input into SQL"
+    severity: error
+  - id: DB-QUERY-002
+    rule: "Use EXPLAIN ANALYZE for queries with execution time > 100ms"
+    severity: warning
+  - id: DB-MIGRATION-001
+    rule: "All schema changes via version-controlled migration scripts"
+    severity: error
+  - id: DB-MIGRATION-002
+    rule: "Use expand-contract pattern for zero-downtime schema changes"
+    severity: warning
+  - id: DB-CONN-001
+    rule: "Always use connection pooling; never create per-request connections"
+    severity: error
+  - id: DB-DATA-001
+    rule: "Encrypt PII at rest and in transit; log all PII access"
+    severity: error
+
+quick_reference:
+  schema:
+    - "snake_case for all identifiers"
+    - "Singular table names"
+    - "_id suffix for foreign keys"
+    - "Always have id, created_at, updated_at"
+    - "Normalize to 3NF, denormalize with documented reasoning"
+  queries:
+    - "Parameterized queries always"
+    - "List specific columns, not SELECT *"
+    - "EXPLAIN ANALYZE before optimizing"
+    - "Keyset pagination for large datasets"
+    - "Batch operations to prevent N+1"
+  operations:
+    - "Connection pooling required"
+    - "Version-control all migrations"
+    - "Test migrations with production-like data"
+    - "Monitor slow queries, connections, cache hit ratio"
+    - "Test backup restoration monthly"

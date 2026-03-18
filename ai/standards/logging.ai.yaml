@@ -3,8 +3,8 @@
 
 id: logging
 meta:
-  version: "1.1.0"
-  updated: "2026-01-05"
+  version: "1.2.0"
+  updated: "2026-03-18"
   source: core/logging-standards.md
   description: Logging levels, structured logging, and best practices
 
@@ -98,6 +98,25 @@ rules:
   - id: async-logging
     trigger: production deployment
     instruction: Use async/buffered logging for performance
+    priority: recommended
+
+  - id: distributed-tracing
+    trigger: logging in distributed systems
+    instruction: |
+      Include OpenTelemetry trace context:
+      - trace_id and span_id in every log entry
+      - W3C Trace Context propagation (traceparent header)
+      - Correlate logs with metrics and traces
+    priority: recommended
+
+  - id: observability-pillars
+    trigger: designing observability strategy
+    instruction: |
+      Three pillars: Logs, Metrics, Traces
+      - Logs: Discrete events with context
+      - Metrics: Aggregated measurements (counters, gauges, histograms)
+      - Traces: Request flow across services
+      Correlate all three via trace_id/span_id
     priority: recommended
 
 quick_reference:

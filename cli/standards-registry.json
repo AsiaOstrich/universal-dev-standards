@@ -772,6 +772,30 @@
       "description": "Safe deployment strategies, feature flags, rollback, environment parity, and DORA metrics"
     },
     {
+      "id": "api-design-standards",
+      "name": "API Design Standards",
+      "nameZh": "API 設計標準",
+      "source": {
+        "human": "core/api-design-standards.md",
+        "ai": "ai/standards/api-design-standards.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "REST, GraphQL, and gRPC API design principles, versioning, pagination, authentication, and error handling"
+    },
+    {
+      "id": "database-standards",
+      "name": "Database Standards",
+      "nameZh": "資料庫標準",
+      "source": {
+        "human": "core/database-standards.md",
+        "ai": "ai/standards/database-standards.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Schema design, migration strategy, indexing, query optimization, and data integrity"
+    },
+    {
       "id": "spec-driven-development",
       "name": "Spec-Driven Development",
       "nameZh": "規格驅動開發",

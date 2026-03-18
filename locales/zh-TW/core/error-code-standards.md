@@ -1,14 +1,14 @@
 ---
 source: ../../../core/error-code-standards.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-01-05
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-03-18
 status: current
 ---
 
 # 錯誤碼標準
 
-> 版本: 1.1.0 | 最後更新: 2026-01-05
+> 版本: 1.2.0 | 最後更新: 2026-03-18
 
 ## 概述
 
@@ -284,6 +284,228 @@ function validateEmail(email: string) {
 }
 ```
 
+## API 錯誤序列化
+
+### RFC 7807 / RFC 9457 Problem Details
+
+HTTP API 應使用 [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) Problem Details 格式作為標準錯誤封裝：
+
+```json
+{
+  "type": "https://api.example.com/errors/auth-val-001",
+  "title": "Validation Error",
+  "status": 400,
+  "detail": "Email field is required for registration",
+  "instance": "/api/register",
+  "code": "AUTH_VAL_001",
+  "errors": [
+    {
+      "field": "email",
+      "message": "Email is required",
+      "code": "AUTH_VAL_001"
+    }
+  ],
+  "requestId": "req_abc123",
+  "timestamp": "2026-03-18T10:30:00Z"
+}
+```
+
+**必要欄位（RFC 7807）：**
+
+| 欄位 | 型別 | 描述 |
+|------|------|------|
+| `type` | URI | 錯誤文件參考連結 |
+| `title` | string | 簡短的人類可讀摘要 |
+| `status` | integer | HTTP 狀態碼 |
+| `detail` | string | 人類可讀的詳細說明 |
+| `instance` | string | 引發錯誤的請求 URI |
+
+**擴充欄位（建議）：**
+
+| 欄位 | 型別 | 描述 |
+|------|------|------|
+| `code` | string | 應用程式錯誤碼（PREFIX_CATEGORY_NUMBER） |
+| `errors` | array | 欄位層級的詳細錯誤 |
+| `requestId` | string | 用於追蹤的關聯 ID |
+| `timestamp` | string | ISO 8601 時間戳 |
+
+### REST JSON 錯誤回應
+
+結合內部錯誤碼與 RFC 7807 的標準 REST 錯誤回應：
+
+```json
+// 單一錯誤
+{
+  "type": "https://api.example.com/errors/validation",
+  "title": "Validation Error",
+  "status": 400,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "code": "AUTH_VAL_001",
+      "field": "email",
+      "message": "Email is required",
+      "pointer": "/data/attributes/email"
+    }
+  ]
+}
+
+// 多重錯誤
+{
+  "type": "https://api.example.com/errors/validation",
+  "title": "Validation Error",
+  "status": 400,
+  "detail": "Multiple validation errors occurred",
+  "errors": [
+    {
+      "code": "AUTH_VAL_001",
+      "field": "email",
+      "message": "Email is required",
+      "pointer": "/data/attributes/email"
+    },
+    {
+      "code": "AUTH_VAL_201",
+      "field": "password",
+      "message": "Password must be at least 8 characters",
+      "pointer": "/data/attributes/password"
+    }
+  ]
+}
+```
+
+### GraphQL 錯誤處理
+
+GraphQL 使用不同的錯誤模型。將應用程式錯誤碼映射到 `extensions` 欄位：
+
+```json
+{
+  "data": null,
+  "errors": [
+    {
+      "message": "Email is required",
+      "locations": [{ "line": 2, "column": 3 }],
+      "path": ["createUser"],
+      "extensions": {
+        "code": "AUTH_VAL_001",
+        "category": "VALIDATION",
+        "field": "email",
+        "httpStatus": 400,
+        "timestamp": "2026-03-18T10:30:00Z"
+      }
+    }
+  ]
+}
+```
+
+**GraphQL 錯誤類別：**
+
+| 類別 | 對應 | 用途 |
+|------|------|------|
+| `VALIDATION` | VAL | 輸入驗證失敗 |
+| `BUSINESS_RULE` | BIZ | 業務邏輯違反 |
+| `AUTHENTICATION` | AUTH (001-099) | 身份驗證失敗 |
+| `AUTHORIZATION` | AUTH (100-199) | 權限失敗 |
+| `INTERNAL` | SYS | 伺服器端錯誤 |
+| `NETWORK` | NET | 上游服務失敗 |
+
+### gRPC 錯誤處理
+
+將應用程式錯誤碼映射到 gRPC 狀態碼，並透過 metadata 傳遞詳細資訊：
+
+```protobuf
+// 錯誤詳情訊息
+message ErrorDetail {
+  string code = 1;          // "AUTH_VAL_001"
+  string message = 2;       // 人類可讀訊息
+  string field = 3;         // 受影響的欄位
+  string documentation = 4; // 錯誤文件連結
+}
+```
+
+**gRPC 狀態碼對應：**
+
+| 類別 | gRPC 狀態 | 代碼 |
+|------|----------|------|
+| VAL | `INVALID_ARGUMENT` | 3 |
+| BIZ | `FAILED_PRECONDITION` | 9 |
+| AUTH (001-099) | `UNAUTHENTICATED` | 16 |
+| AUTH (100-199) | `PERMISSION_DENIED` | 7 |
+| SYS | `INTERNAL` | 13 |
+| NET | `UNAVAILABLE` | 14 |
+
+```go
+// Go 範例
+import "google.golang.org/grpc/status"
+import "google.golang.org/grpc/codes"
+
+st := status.New(codes.InvalidArgument, "Validation failed")
+st, _ = st.WithDetails(&errdetails.BadRequest{
+    FieldViolations: []*errdetails.BadRequest_FieldViolation{
+        {Field: "email", Description: "AUTH_VAL_001: Email is required"},
+    },
+})
+return st.Err()
+```
+
+## 重試與冪等性
+
+### 重試指導
+
+| 類別 | 可重試 | 策略 |
+|------|--------|------|
+| VAL | 否 | 修正輸入後重新提交 |
+| BIZ | 否 | 解決業務條件 |
+| AUTH (001-099) | 否 | 重新驗證身份 |
+| AUTH (200-299) | 是 | 重新整理令牌後重試 |
+| SYS | 視情況 | 指數退避重試 |
+| NET | 是 | 指數退避重試 |
+
+### 重試回應標頭
+
+```http
+HTTP/1.1 503 Service Unavailable
+Retry-After: 30
+X-RateLimit-Reset: 1679961600
+```
+
+在錯誤回應中包含重試指導：
+
+```json
+{
+  "type": "https://api.example.com/errors/rate-limit",
+  "title": "Rate Limit Exceeded",
+  "status": 429,
+  "detail": "Too many requests",
+  "code": "API_NET_429",
+  "retryable": true,
+  "retryAfter": 30
+}
+```
+
+### 冪等性金鑰
+
+對於非冪等操作（POST），要求 `Idempotency-Key` 標頭：
+
+```http
+POST /api/payments HTTP/1.1
+Idempotency-Key: key_abc123def456
+Content-Type: application/json
+
+{"amount": 100, "currency": "USD"}
+```
+
+**冪等性規則：**
+
+| 動詞 | 冪等 | 需要金鑰 |
+|------|------|---------|
+| GET | 是 | 否 |
+| PUT | 是 | 否 |
+| DELETE | 是 | 否 |
+| PATCH | 否 | 建議 |
+| POST | 否 | 關鍵操作必須 |
+
+---
+
 ## 文件需求
 
 ### 錯誤碼文件
@@ -365,6 +587,7 @@ AUTH_VAL_001
 
 | 版本 | 日期 | 變更 |
 |-----|------|------|
+| 1.2.0 | 2026-03-18 | 新增：API 錯誤序列化（RFC 7807 Problem Details、REST、GraphQL、gRPC）、重試與冪等性指導 |
 | 1.1.0 | 2026-01-05 | 新增：參考標準章節，包含 RFC 7807、RFC 9457、HTTP 狀態碼和 Microsoft REST API 指南 |
 | 1.0.0 | 2025-12-30 | 初始錯誤碼標準 |
 
@@ -376,6 +599,9 @@ AUTH_VAL_001
 - [RFC 9457 - HTTP API 問題詳情](https://datatracker.ietf.org/doc/html/rfc9457) - RFC 7807 更新版 (2023)
 - [HTTP 狀態碼 (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) - HTTP 狀態碼參考
 - [Microsoft REST API 指南 - 錯誤處理](https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md#handling-errors) - 業界最佳實踐
+- [GraphQL 規範 - 錯誤](https://spec.graphql.org/October2021/#sec-Errors) - GraphQL 錯誤格式規範
+- [gRPC 狀態碼](https://grpc.github.io/grpc/core/md_doc_statuscodes.html) - gRPC 錯誤處理參考
+- [Google API 設計指南 - 錯誤](https://cloud.google.com/apis/design/errors) - Google API 錯誤設計模式
 
 ---
 

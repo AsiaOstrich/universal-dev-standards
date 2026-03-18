@@ -56,7 +56,9 @@
     "ai/standards/workflow-state-protocol.ai.yaml",
     "ai/standards/pipeline-integration-standards.ai.yaml",
     "ai/standards/acceptance-criteria-traceability.ai.yaml",
-    "ai/standards/change-batching-standards.ai.yaml"
+    "ai/standards/change-batching-standards.ai.yaml",
+    "ai/standards/api-design-standards.ai.yaml",
+    "ai/standards/database-standards.ai.yaml"
   ],
   "domains": {
     "always-on": [
@@ -109,7 +111,9 @@
       "ai/standards/ai-friendly-architecture.ai.yaml",
       "ai/standards/project-structure.ai.yaml",
       "ai/standards/error-codes.ai.yaml",
-      "ai/standards/logging.ai.yaml"
+      "ai/standards/logging.ai.yaml",
+      "ai/standards/api-design-standards.ai.yaml",
+      "ai/standards/database-standards.ai.yaml"
     ]
   },
   "extensions": [

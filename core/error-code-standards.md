@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/error-code-standards.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-05
+**Version**: 1.2.0
+**Last Updated**: 2026-03-18
 **Applicability**: All software projects
 **Scope**: universal
 **Industry Standards**: RFC 7807, RFC 9457
@@ -285,6 +285,228 @@ function validateEmail(email: string) {
 }
 ```
 
+## API Error Serialization
+
+### RFC 7807 / RFC 9457 Problem Details
+
+For HTTP APIs, use the [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) Problem Details format as the standard error envelope:
+
+```json
+{
+  "type": "https://api.example.com/errors/auth-val-001",
+  "title": "Validation Error",
+  "status": 400,
+  "detail": "Email field is required for registration",
+  "instance": "/api/register",
+  "code": "AUTH_VAL_001",
+  "errors": [
+    {
+      "field": "email",
+      "message": "Email is required",
+      "code": "AUTH_VAL_001"
+    }
+  ],
+  "requestId": "req_abc123",
+  "timestamp": "2026-03-18T10:30:00Z"
+}
+```
+
+**Required Fields (RFC 7807):**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `type` | URI | Reference to error documentation |
+| `title` | string | Short, human-readable summary |
+| `status` | integer | HTTP status code |
+| `detail` | string | Human-readable explanation |
+| `instance` | string | URI of the request that caused the error |
+
+**Extension Fields (Recommended):**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `code` | string | Application error code (PREFIX_CATEGORY_NUMBER) |
+| `errors` | array | Detailed field-level errors |
+| `requestId` | string | Correlation ID for tracing |
+| `timestamp` | string | ISO 8601 timestamp |
+
+### REST JSON Error Response
+
+Standard REST error response combining internal error codes with RFC 7807:
+
+```json
+// Single error
+{
+  "type": "https://api.example.com/errors/validation",
+  "title": "Validation Error",
+  "status": 400,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "code": "AUTH_VAL_001",
+      "field": "email",
+      "message": "Email is required",
+      "pointer": "/data/attributes/email"
+    }
+  ]
+}
+
+// Multiple errors
+{
+  "type": "https://api.example.com/errors/validation",
+  "title": "Validation Error",
+  "status": 400,
+  "detail": "Multiple validation errors occurred",
+  "errors": [
+    {
+      "code": "AUTH_VAL_001",
+      "field": "email",
+      "message": "Email is required",
+      "pointer": "/data/attributes/email"
+    },
+    {
+      "code": "AUTH_VAL_201",
+      "field": "password",
+      "message": "Password must be at least 8 characters",
+      "pointer": "/data/attributes/password"
+    }
+  ]
+}
+```
+
+### GraphQL Error Handling
+
+GraphQL uses a different error model. Map application error codes into the `extensions` field:
+
+```json
+{
+  "data": null,
+  "errors": [
+    {
+      "message": "Email is required",
+      "locations": [{ "line": 2, "column": 3 }],
+      "path": ["createUser"],
+      "extensions": {
+        "code": "AUTH_VAL_001",
+        "category": "VALIDATION",
+        "field": "email",
+        "httpStatus": 400,
+        "timestamp": "2026-03-18T10:30:00Z"
+      }
+    }
+  ]
+}
+```
+
+**GraphQL Error Categories:**
+
+| Category | Maps To | Use For |
+|----------|---------|---------|
+| `VALIDATION` | VAL | Input validation failures |
+| `BUSINESS_RULE` | BIZ | Business logic violations |
+| `AUTHENTICATION` | AUTH (001-099) | Authentication failures |
+| `AUTHORIZATION` | AUTH (100-199) | Permission failures |
+| `INTERNAL` | SYS | Server-side errors |
+| `NETWORK` | NET | Upstream service failures |
+
+### gRPC Error Handling
+
+Map application error codes to gRPC status codes and include details via metadata:
+
+```protobuf
+// Error detail message
+message ErrorDetail {
+  string code = 1;          // "AUTH_VAL_001"
+  string message = 2;       // Human-readable message
+  string field = 3;         // Affected field
+  string documentation = 4; // Link to error docs
+}
+```
+
+**gRPC Status Code Mapping:**
+
+| Category | gRPC Status | Code |
+|----------|-------------|------|
+| VAL | `INVALID_ARGUMENT` | 3 |
+| BIZ | `FAILED_PRECONDITION` | 9 |
+| AUTH (001-099) | `UNAUTHENTICATED` | 16 |
+| AUTH (100-199) | `PERMISSION_DENIED` | 7 |
+| SYS | `INTERNAL` | 13 |
+| NET | `UNAVAILABLE` | 14 |
+
+```go
+// Go example
+import "google.golang.org/grpc/status"
+import "google.golang.org/grpc/codes"
+
+st := status.New(codes.InvalidArgument, "Validation failed")
+st, _ = st.WithDetails(&errdetails.BadRequest{
+    FieldViolations: []*errdetails.BadRequest_FieldViolation{
+        {Field: "email", Description: "AUTH_VAL_001: Email is required"},
+    },
+})
+return st.Err()
+```
+
+## Retry and Idempotency
+
+### Retry Guidance
+
+| Category | Retryable | Strategy |
+|----------|-----------|----------|
+| VAL | No | Fix input and resubmit |
+| BIZ | No | Resolve business condition |
+| AUTH (001-099) | No | Re-authenticate |
+| AUTH (200-299) | Yes | Refresh token, then retry |
+| SYS | Maybe | Retry with exponential backoff |
+| NET | Yes | Retry with exponential backoff |
+
+### Retry Response Headers
+
+```http
+HTTP/1.1 503 Service Unavailable
+Retry-After: 30
+X-RateLimit-Reset: 1679961600
+```
+
+Include retry guidance in error responses:
+
+```json
+{
+  "type": "https://api.example.com/errors/rate-limit",
+  "title": "Rate Limit Exceeded",
+  "status": 429,
+  "detail": "Too many requests",
+  "code": "API_NET_429",
+  "retryable": true,
+  "retryAfter": 30
+}
+```
+
+### Idempotency Keys
+
+For non-idempotent operations (POST), require `Idempotency-Key` header:
+
+```http
+POST /api/payments HTTP/1.1
+Idempotency-Key: key_abc123def456
+Content-Type: application/json
+
+{"amount": 100, "currency": "USD"}
+```
+
+**Idempotency Rules:**
+
+| Verb | Idempotent | Key Required |
+|------|-----------|-------------|
+| GET | Yes | No |
+| PUT | Yes | No |
+| DELETE | Yes | No |
+| PATCH | No | Recommended |
+| POST | No | Required for critical operations |
+
+---
+
 ## Documentation Requirements
 
 ### Error Code Documentation
@@ -366,6 +588,7 @@ AUTH_VAL_001
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-03-18 | Added: API Error Serialization (RFC 7807 Problem Details, REST, GraphQL, gRPC), Retry and Idempotency guidance |
 | 1.1.0 | 2026-01-05 | Added: References section with RFC 7807, RFC 9457, HTTP status codes, and Microsoft REST API Guidelines |
 | 1.0.0 | 2025-12-30 | Initial error code standards |
 
@@ -377,6 +600,9 @@ AUTH_VAL_001
 - [RFC 9457 - Problem Details for HTTP APIs](https://datatracker.ietf.org/doc/html/rfc9457) - Updated RFC 7807 (2023)
 - [HTTP Status Codes (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) - HTTP status code reference
 - [Microsoft REST API Guidelines - Errors](https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md#handling-errors) - Industry best practices
+- [GraphQL Spec - Errors](https://spec.graphql.org/October2021/#sec-Errors) - GraphQL error format specification
+- [gRPC Status Codes](https://grpc.github.io/grpc/core/md_doc_statuscodes.html) - gRPC error handling reference
+- [Google API Design Guide - Errors](https://cloud.google.com/apis/design/errors) - Google's API error design patterns
 
 ---
 

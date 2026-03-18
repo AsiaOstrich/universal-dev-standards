@@ -41,6 +41,15 @@ Commands for development workflow automation.
 | [`/sdd-retro`](./sdd-retro.md) | Create retroactive specs for untracked commits | 為未追蹤 commits 建立追溯 spec |
 | [`/docs`](./docs.md) | Create/update documentation | 建立/更新文件 |
 | [`/coverage`](./coverage.md) | Analyze test coverage | 分析測試覆蓋率 |
+| [`/ac-coverage`](./ac-coverage.md) | Generate AC traceability matrix and coverage report | AC 追蹤矩陣與覆蓋率報告 |
+| [`/refactor`](./refactor.md) | Guide refactoring decisions and strategy selection | 重構決策與策略選擇 |
+| [`/checkin`](./checkin.md) | Pre-commit quality gates verification | 提交前品質閘門驗證 |
+| [`/docgen`](./docgen.md) | Generate usage documentation from project sources | 從專案原始碼產生使用文件 |
+| [`/discover`](./discover.md) | Assess project health, architecture, and risks | 評估專案健康度、架構與風險 |
+| [`/dev-workflow`](./dev-workflow.md) | Map development phases to UDS commands | 開發階段對應 UDS 指令 |
+| [`/guide`](./guide.md) | Access UDS guides and references | 存取 UDS 指南與參考 |
+| [`/reverse`](./reverse.md) | Reverse engineer code to Specs, BDD, or TDD | 反向工程成規格、BDD 或 TDD |
+| [`/derive`](./derive.md) | Derive BDD/TDD/ATDD from specifications | 從規格推演 BDD/TDD/ATDD |
 | [`/reverse-sdd`](./reverse-sdd.md) | Reverse engineer code to SDD spec | 反向工程成 SDD 規格 |
 | [`/reverse-bdd`](./reverse-bdd.md) | Transform SDD AC to BDD scenarios | SDD AC 轉換為 BDD 場景 |
 | [`/reverse-tdd`](./reverse-tdd.md) | Analyze BDD-TDD coverage | BDD-TDD 覆蓋率分析 |
@@ -59,6 +68,45 @@ Commands for development methodology workflows.
 | [`/tdd`](./tdd.md) | Test-Driven Development workflow | TDD 開發流程 |
 | [`/bdd`](./bdd.md) | Behavior-Driven Development workflow | BDD 開發流程 |
 | [`/atdd`](./atdd.md) | Acceptance Test-Driven Development workflow | ATDD 驗收流程 |
+
+## Command → Skill / Standard Mapping | 指令→技能/標準對照表
+
+| Command | Skill | Core Standard | Category |
+|---------|-------|---------------|----------|
+| `/init` | — | — | Standards Management |
+| `/update` | — | — | Standards Management |
+| `/check` | — | — | Standards Management |
+| `/config` | — | — | Standards Management |
+| `/commit` | commit-standards | `commit-message-guide.md` | Development Workflow |
+| `/review` | code-review | `code-review-checklist.md` | Development Workflow |
+| `/checkin` | — | `checkin-standards.md` | Development Workflow |
+| `/release` | release-standards | `versioning.md` | Development Workflow |
+| `/changelog` | — | `changelog-standards.md` | Development Workflow |
+| `/requirement` | — | `requirement-engineering.md` | Development Workflow |
+| `/sdd` | spec-driven-development | `spec-driven-development.md` | Development Workflow |
+| `/sdd-retro` | — | `spec-driven-development.md` | Development Workflow |
+| `/brainstorm` | — | — | Development Workflow |
+| `/docs` | documentation | `documentation-writing-standards.md` | Development Workflow |
+| `/docgen` | — | `documentation-writing-standards.md` | Development Workflow |
+| `/coverage` | testing-guide | `testing-standards.md` | Development Workflow |
+| `/ac-coverage` | — | `acceptance-criteria-traceability.md` | Development Workflow |
+| `/refactor` | refactoring | `refactoring-standards.md` | Development Workflow |
+| `/discover` | — | — | Development Workflow |
+| `/dev-workflow` | — | — | Development Workflow |
+| `/guide` | — | — | Development Workflow |
+| `/derive` | — | `forward-derivation-standards.md` | Methodology |
+| `/derive-bdd` | — | `behavior-driven-development.md` | Methodology |
+| `/derive-tdd` | — | `test-driven-development.md` | Methodology |
+| `/derive-atdd` | — | `acceptance-test-driven-development.md` | Methodology |
+| `/derive-all` | — | — | Methodology |
+| `/reverse` | — | `reverse-engineering-standards.md` | Methodology |
+| `/reverse-sdd` | — | `reverse-engineering-standards.md` | Methodology |
+| `/reverse-bdd` | — | `reverse-engineering-standards.md` | Methodology |
+| `/reverse-tdd` | — | `reverse-engineering-standards.md` | Methodology |
+| `/methodology` | — | — | Methodology |
+| `/tdd` | — | `test-driven-development.md` | Methodology |
+| `/bdd` | — | `behavior-driven-development.md` | Methodology |
+| `/atdd` | — | `acceptance-test-driven-development.md` | Methodology |
 
 ## Commands vs Skills | 命令與技能
 
