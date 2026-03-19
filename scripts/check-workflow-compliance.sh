@@ -7,7 +7,15 @@
 # Usage: ./scripts/check-workflow-compliance.sh
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-WORKFLOW_STATE_DIR="$REPO_ROOT/.workflow-state"
+# Check both possible workflow state locations
+# .workflow-state/ (workflow-state-protocol standard)
+# .standards/workflow-state/ (CLI WorkflowStateManager)
+WORKFLOW_STATE_DIR=""
+if [ -d "$REPO_ROOT/.workflow-state" ]; then
+  WORKFLOW_STATE_DIR="$REPO_ROOT/.workflow-state"
+elif [ -d "$REPO_ROOT/.standards/workflow-state" ]; then
+  WORKFLOW_STATE_DIR="$REPO_ROOT/.standards/workflow-state"
+fi
 SPECS_DIR="$REPO_ROOT/docs/specs"
 WARNINGS=0
 
@@ -18,7 +26,7 @@ warn() {
 
 # --- Check 1: Active workflows ---
 # If there are active workflow state files, remind the developer
-if [ -d "$WORKFLOW_STATE_DIR" ]; then
+if [ -n "$WORKFLOW_STATE_DIR" ] && [ -d "$WORKFLOW_STATE_DIR" ]; then
   ACTIVE_WORKFLOWS=$(find "$WORKFLOW_STATE_DIR" -name "*.yaml" -o -name "*.json" 2>/dev/null | head -5)
   if [ -n "$ACTIVE_WORKFLOWS" ]; then
     echo "[Workflow] Active workflows detected:"
@@ -58,7 +66,7 @@ if [ "$STAGED_COUNT" -gt 3 ] || [ "$NEW_FILES" -gt 0 ]; then
 fi
 
 # --- Check 3: Stale workflow states ---
-if [ -d "$WORKFLOW_STATE_DIR" ]; then
+if [ -n "$WORKFLOW_STATE_DIR" ] && [ -d "$WORKFLOW_STATE_DIR" ]; then
   STALE_THRESHOLD=$((7 * 24 * 60 * 60))  # 7 days in seconds
   NOW=$(date +%s)
 
