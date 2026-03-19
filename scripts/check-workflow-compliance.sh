@@ -34,11 +34,18 @@ fi
 # --- Check 2: feat/fix commits without spec reference ---
 # Read the staged commit message (if available via $1 in commit-msg hook)
 # In pre-commit context, check staged file count for significant changes
-STAGED_FILES=$(git diff --cached --name-only 2>/dev/null)
-STAGED_COUNT=$(echo "$STAGED_FILES" | grep -c "." 2>/dev/null || echo "0")
+STAGED_FILES=$(git diff --cached --name-only 2>/dev/null || true)
+STAGED_COUNT=0
+if [ -n "$STAGED_FILES" ]; then
+  STAGED_COUNT=$(echo "$STAGED_FILES" | wc -l | tr -d ' ')
+fi
 
 # Check if this looks like a feat/fix (new files, significant changes)
-NEW_FILES=$(git diff --cached --name-only --diff-filter=A 2>/dev/null | grep -c "." 2>/dev/null || echo "0")
+NEW_FILES_LIST=$(git diff --cached --name-only --diff-filter=A 2>/dev/null || true)
+NEW_FILES=0
+if [ -n "$NEW_FILES_LIST" ]; then
+  NEW_FILES=$(echo "$NEW_FILES_LIST" | wc -l | tr -d ' ')
+fi
 
 if [ "$STAGED_COUNT" -gt 3 ] || [ "$NEW_FILES" -gt 0 ]; then
   # Check if any specs exist
