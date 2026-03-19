@@ -161,6 +161,28 @@ if (Test-Path $MarketplaceJson) {
 
 Write-Host ""
 Write-Host "----------------------------------------"
+Write-Host "Checking uds-manifest.json..."
+Write-Host "----------------------------------------"
+Write-Host ""
+
+$ManifestJson = Join-Path $RootDir "uds-manifest.json"
+if (Test-Path $ManifestJson) {
+    $manifestContent = Get-Content $ManifestJson -Raw | ConvertFrom-Json
+    $manifestVersion = $manifestContent.version
+    if ($manifestVersion -eq $packageVersion) {
+        Write-Host "[OK]     " -ForegroundColor Green -NoNewline
+        Write-Host "uds-manifest.json version: $manifestVersion"
+    } else {
+        Write-Host "[MISMATCH] " -ForegroundColor Red -NoNewline
+        Write-Host "uds-manifest.json version: $manifestVersion (expected: $packageVersion)"
+        $errors++
+    }
+} else {
+    Write-Host "[SKIP]  uds-manifest.json not found" -ForegroundColor Yellow
+}
+
+Write-Host ""
+Write-Host "----------------------------------------"
 Write-Host "Checking README files..."
 Write-Host "----------------------------------------"
 Write-Host ""
@@ -183,19 +205,18 @@ foreach ($check in $readmeChecks) {
             $readmeVersion = ""
         }
 
-        if ($isPrerelease) {
-            if ($readmeVersion -match "-(alpha|beta|rc)\.") {
-                Write-Host "[WARN]  $($check.Path) version: $readmeVersion (should be stable, not pre-release)" -ForegroundColor Yellow
-            } else {
-                Write-Host "[OK]     $($check.Path) version: $readmeVersion (stable - correct for pre-release)" -ForegroundColor Green
-            }
+        # Strip trailing " (Pre-release)" label for comparison
+        $readmeVersionClean = $readmeVersion -replace '\s*\(Pre-release\)$', ''
+
+        # README must always match package.json (docs:sync auto-updates)
+        if ($readmeVersionClean -eq $packageVersion) {
+            Write-Host "[OK]     " -ForegroundColor Green -NoNewline
+            Write-Host "$($check.Path) version: $readmeVersion"
         } else {
-            if ($readmeVersion -eq $packageVersion) {
-                Write-Host "[OK]     $($check.Path) version: $readmeVersion" -ForegroundColor Green
-            } else {
-                Write-Host "[MISMATCH] $($check.Path) version: $readmeVersion (expected: $packageVersion)" -ForegroundColor Red
-                $errors++
-            }
+            Write-Host "[MISMATCH] " -ForegroundColor Red -NoNewline
+            Write-Host "$($check.Path) version: $readmeVersion (expected: $packageVersion)"
+            Write-Host "           Run 'npm run docs:sync' to fix automatically" -ForegroundColor Yellow
+            $errors++
         }
     } else {
         Write-Host "[SKIP]  $($check.Path) not found" -ForegroundColor Yellow
@@ -211,8 +232,9 @@ Write-Host ""
 if ($errors -gt 0) {
     Write-Host "Found $errors version mismatch(es)!" -ForegroundColor Red
     Write-Host ""
-    Write-Host "To fix, update the version numbers in:"
-    Write-Host "  $RegistryJson"
+    Write-Host "To fix:"
+    Write-Host "  1. Run 'npm run docs:sync' to auto-fix README and manifest versions"
+    Write-Host "  2. Manually update: $RegistryJson"
     Write-Host ""
     Write-Host "All version fields should match package.json: $packageVersion"
     Write-Host ""

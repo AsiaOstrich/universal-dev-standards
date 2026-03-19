@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.join(__dirname, '..');
 
 const manifestPath = path.join(ROOT_DIR, 'uds-manifest.json');
+const packageJsonPath = path.join(ROOT_DIR, 'cli', 'package.json');
 const coreDir = path.join(ROOT_DIR, 'core');
 const skillsDir = path.join(ROOT_DIR, 'skills');
 
@@ -19,6 +20,14 @@ async function syncManifest() {
   }
 
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+
+  // 0. Sync version from package.json
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  const oldVersion = manifest.version;
+  manifest.version = packageJson.version;
+  if (oldVersion !== packageJson.version) {
+    console.log(`📦 Version synced: ${oldVersion} → ${packageJson.version}`);
+  }
 
   // 1. Sync Core Standards
   const coreFiles = fs.readdirSync(coreDir)

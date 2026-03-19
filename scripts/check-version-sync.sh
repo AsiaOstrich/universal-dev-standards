@@ -26,6 +26,7 @@ PACKAGE_JSON="$CLI_DIR/package.json"
 REGISTRY_JSON="$CLI_DIR/standards-registry.json"
 PLUGIN_JSON="$ROOT_DIR/.claude-plugin/plugin.json"
 MARKETPLACE_JSON="$ROOT_DIR/.claude-plugin/marketplace.json"
+MANIFEST_JSON="$ROOT_DIR/uds-manifest.json"
 
 echo ""
 echo "=========================================="
@@ -155,6 +156,24 @@ fi
 
 echo ""
 echo "----------------------------------------"
+echo "Checking uds-manifest.json..."
+echo "----------------------------------------"
+echo ""
+
+if [ -f "$MANIFEST_JSON" ]; then
+    MANIFEST_VERSION=$(grep '"version"' "$MANIFEST_JSON" | head -1 | sed 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+    if [ "$MANIFEST_VERSION" = "$PACKAGE_VERSION" ]; then
+        echo -e "${GREEN}[OK]${NC}     uds-manifest.json version: $MANIFEST_VERSION"
+    else
+        echo -e "${RED}[MISMATCH]${NC} uds-manifest.json version: $MANIFEST_VERSION (expected: $PACKAGE_VERSION)"
+        ERRORS=$((ERRORS + 1))
+    fi
+else
+    echo -e "${YELLOW}[SKIP]${NC}  uds-manifest.json not found"
+fi
+
+echo ""
+echo "----------------------------------------"
 echo "Checking README files..."
 echo "----------------------------------------"
 echo ""
@@ -174,21 +193,16 @@ for readme_info in "${README_FILES[@]}"; do
         # Extract version from **Version**: X.Y.Z or **版本**: X.Y.Z pattern
         README_VERSION=$(grep -E "\*\*${version_label}\*\*:" "$readme_full" | head -1 | sed "s/.*\*\*${version_label}\*\*:[[:space:]]*//" | sed 's/[[:space:]]*|.*//' | sed 's/[[:space:]]*$//')
 
-        if [ "$IS_PRERELEASE" = true ]; then
-            # For pre-release, README should keep a stable version (not match)
-            if [[ "$README_VERSION" =~ -(alpha|beta|rc)\. ]]; then
-                echo -e "${YELLOW}[WARN]${NC}  $readme_path version: $README_VERSION (should be stable, not pre-release)"
-            else
-                echo -e "${GREEN}[OK]${NC}     $readme_path version: $README_VERSION (stable - correct for pre-release)"
-            fi
+        # Strip trailing " (Pre-release)" label for comparison
+        README_VERSION_CLEAN=$(echo "$README_VERSION" | sed 's/ *(Pre-release)$//')
+
+        # README must always match package.json (docs:sync auto-updates)
+        if [ "$README_VERSION_CLEAN" = "$PACKAGE_VERSION" ]; then
+            echo -e "${GREEN}[OK]${NC}     $readme_path version: $README_VERSION"
         else
-            # For stable release, must match package.json
-            if [ "$README_VERSION" = "$PACKAGE_VERSION" ]; then
-                echo -e "${GREEN}[OK]${NC}     $readme_path version: $README_VERSION"
-            else
-                echo -e "${RED}[MISMATCH]${NC} $readme_path version: $README_VERSION (expected: $PACKAGE_VERSION)"
-                ERRORS=$((ERRORS + 1))
-            fi
+            echo -e "${RED}[MISMATCH]${NC} $readme_path version: $README_VERSION (expected: $PACKAGE_VERSION)"
+            echo -e "           ${YELLOW}Run 'npm run docs:sync' to fix automatically${NC}"
+            ERRORS=$((ERRORS + 1))
         fi
     else
         echo -e "${YELLOW}[SKIP]${NC}  $readme_path not found"
@@ -204,8 +218,9 @@ echo ""
 if [ $ERRORS -gt 0 ]; then
     echo -e "${RED}Found $ERRORS version mismatch(es)!${NC}"
     echo ""
-    echo "To fix, update the version numbers in:"
-    echo "  $REGISTRY_JSON"
+    echo "To fix:"
+    echo "  1. Run 'npm run docs:sync' to auto-fix README and manifest versions"
+    echo "  2. Manually update: $REGISTRY_JSON"
     echo ""
     echo "All version fields should match package.json: $PACKAGE_VERSION"
     echo ""
