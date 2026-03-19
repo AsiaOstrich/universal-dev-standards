@@ -585,6 +585,28 @@ export async function updateCommand(options) {
     }
   }
 
+  // Migrate test_levels: upgrade old 2-level default to full 4-level default
+  // Only for projects initialized before v5.0.0 (pre-5.0 used 2-level default)
+  // Use upstream.version (the version at which standards were last installed)
+  // Compare against 4.999.999 so that 5.0.0-alpha/beta/rc are treated as v5+
+  const installedVersion = currentVersion || '0.0.0';
+  const isPreV5 = compareVersions(installedVersion, '4.999.999') <= 0;
+  if (isPreV5) {
+    const ALL_TEST_LEVELS = ['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing'];
+    const currentLevels = manifest.options?.test_levels || [];
+    const isOldDefault = currentLevels.length === 2 &&
+      currentLevels.includes('unit-testing') &&
+      currentLevels.includes('integration-testing') &&
+      !currentLevels.includes('system-testing') &&
+      !currentLevels.includes('e2e-testing');
+    if (isOldDefault) {
+      manifest.options = manifest.options || {};
+      manifest.options.test_levels = ALL_TEST_LEVELS;
+      console.log();
+      console.log(chalk.cyan(msg.testLevelsMigrated || 'ℹ Test levels updated: 2 → 4 (added system-testing, e2e-testing)'));
+    }
+  }
+
   // Update manifest
   manifest.version = '3.3.0';
   manifest.upstream.version = latestVersion;

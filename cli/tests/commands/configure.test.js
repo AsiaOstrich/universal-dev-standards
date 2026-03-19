@@ -129,7 +129,7 @@ import { configureCommand } from '../../src/commands/configure.js';
 import { configCommand, runProjectConfiguration } from '../../src/commands/config.js';
 import { regenerateIntegrations } from '../../src/commands/update.js';
 import { isInitialized, readManifest, writeManifest } from '../../src/utils/copier.js';
-import { promptConfirm, promptDisplayLanguage } from '../../src/prompts/init.js';
+import { promptConfirm, promptDisplayLanguage, promptCommitLanguage } from '../../src/prompts/init.js';
 import { config } from '../../src/utils/config-manager.js';
 
 describe('Configure Command', () => {
@@ -381,116 +381,112 @@ describe('Configure Command', () => {
   });
 
   describe('Display Language', () => {
-      it('should include display_language choice in preferences submenu', async () => {
-        const inquirer = await import('inquirer');
-        // First prompt: preferences menu → choose display_language
-        // handleConfigInit shows preferences submenu
-        inquirer.default.prompt
-          .mockResolvedValueOnce({ initType: 'display_language' });
+    it('should include display_language choice in limited menu when not initialized', async () => {
+      const inquirer = await import('inquirer');
+      // handleLimitedConfig shows limited menu with display_language
+      inquirer.default.prompt
+        .mockResolvedValueOnce({ initType: 'display_language' });
 
-        // promptDisplayLanguage returns same lang → no change
-        promptDisplayLanguage.mockResolvedValue('en');
-        isInitialized.mockReturnValue(false);
+      // promptDisplayLanguage returns same lang → no change
+      promptDisplayLanguage.mockResolvedValue('en');
+      isInitialized.mockReturnValue(false);
 
-        await configCommand(undefined, null, null, { vibeMode: false });
+      await configCommand(undefined, null, null, { vibeMode: false });
 
-        // Verify the preferences submenu was shown (via handleConfigInit)
-        // The first prompt call should have display_language as a choice
-        const firstCall = inquirer.default.prompt.mock.calls[0];
-        // This is the menu prompt from configCommand (not handleConfigInit)
-        // We need to pick preferences first, then check submenu
-      });
-
-      it('should save to manifest when project initialized and language changed', async () => {
-        const inquirer = await import('inquirer');
-        isInitialized.mockReturnValue(true);
-        readManifest.mockReturnValue({
-          format: 'human',
-          level: 2,
-          contentMode: 'minimal',
-          aiTools: [],
-          options: { display_language: 'en' }
-        });
-
-        // Main menu → preferences
-        inquirer.default.prompt
-          .mockResolvedValueOnce({ menuChoice: 'preferences' })
-          .mockResolvedValueOnce({ initType: 'display_language' });
-
-        promptDisplayLanguage.mockResolvedValue('zh-tw');
-
-        await configCommand(undefined, null, null, {});
-
-        expect(writeManifest).toHaveBeenCalled();
-        const manifestArg = writeManifest.mock.calls[0][0];
-        expect(manifestArg.options.display_language).toBe('zh-tw');
-      });
-
-      it('should not write manifest when language unchanged', async () => {
-        const inquirer = await import('inquirer');
-        isInitialized.mockReturnValue(true);
-        readManifest.mockReturnValue({
-          format: 'human',
-          level: 2,
-          contentMode: 'minimal',
-          aiTools: [],
-          options: { display_language: 'en' }
-        });
-
-        inquirer.default.prompt
-          .mockResolvedValueOnce({ menuChoice: 'preferences' })
-          .mockResolvedValueOnce({ initType: 'display_language' });
-
-        promptDisplayLanguage.mockResolvedValue('en');
-
-        await configCommand(undefined, null, null, {});
-
-        expect(writeManifest).not.toHaveBeenCalled();
-        const output = consoleLogs.join('\n');
-        expect(output).toContain('unchanged');
-      });
-
-      it('should show error when project not initialized', async () => {
-        const inquirer = await import('inquirer');
-        isInitialized.mockReturnValue(false);
-
-        inquirer.default.prompt
-          .mockResolvedValueOnce({ menuChoice: 'preferences' })
-          .mockResolvedValueOnce({ initType: 'display_language' });
-
-        promptDisplayLanguage.mockResolvedValue('zh-cn');
-
-        await configCommand(undefined, null, null, {});
-
-        const output = consoleLogs.join('\n');
-        expect(output).toContain('not initialized');
-      });
-
-      it('should offer integration regeneration when AI tools configured', async () => {
-        const inquirer = await import('inquirer');
-        isInitialized.mockReturnValue(true);
-        readManifest.mockReturnValue({
-          format: 'human',
-          level: 2,
-          contentMode: 'minimal',
-          aiTools: ['claude-code'],
-          options: { display_language: 'en' }
-        });
-
-        inquirer.default.prompt
-          .mockResolvedValueOnce({ menuChoice: 'preferences' })
-          .mockResolvedValueOnce({ initType: 'display_language' })
-          .mockResolvedValueOnce({ confirm: false }); // decline regeneration
-
-        promptDisplayLanguage.mockResolvedValue('zh-tw');
-
-        await configCommand(undefined, null, null, {});
-
-        // Should have prompted for regeneration (3rd prompt call)
-        expect(inquirer.default.prompt).toHaveBeenCalledTimes(3);
-        expect(writeManifest).toHaveBeenCalled();
-      });
+      // Verify limited menu was shown with display_language as a choice
+      const firstCall = inquirer.default.prompt.mock.calls[0][0][0];
+      const choiceValues = firstCall.choices.map(c => c.value).filter(v => v !== undefined);
+      expect(choiceValues).toContain('display_language');
     });
+
+    it('should save to manifest when project initialized and language changed via flat menu', async () => {
+      const inquirer = await import('inquirer');
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        format: 'human',
+        level: 2,
+        contentMode: 'minimal',
+        aiTools: [],
+        options: { display_language: 'en', commit_language: 'english' }
+      });
+
+      // Flat menu → choose display_language → handleDisplayLanguageChange runs
+      inquirer.default.prompt
+        .mockResolvedValueOnce({ type: 'display_language' });
+
+      promptDisplayLanguage.mockResolvedValue('zh-tw');
+      promptCommitLanguage.mockResolvedValue('bilingual');
+
+      await expect(configCommand(undefined, null, null, {})).rejects.toThrow('process.exit called');
+
+      expect(writeManifest).toHaveBeenCalled();
+      const manifestArg = writeManifest.mock.calls[0][0];
+      expect(manifestArg.options.display_language).toBe('zh-tw');
+    });
+
+    it('should not write manifest when language unchanged', async () => {
+      const inquirer = await import('inquirer');
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        format: 'human',
+        level: 2,
+        contentMode: 'minimal',
+        aiTools: [],
+        options: { display_language: 'en' }
+      });
+
+      // Flat menu → display_language
+      inquirer.default.prompt
+        .mockResolvedValueOnce({ type: 'display_language' });
+
+      promptDisplayLanguage.mockResolvedValue('en');
+
+      await expect(configCommand(undefined, null, null, {})).rejects.toThrow('process.exit called');
+
+      expect(writeManifest).not.toHaveBeenCalled();
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('unchanged');
+    });
+
+    it('should save to global config when project not initialized and language changed', async () => {
+      const inquirer = await import('inquirer');
+      isInitialized.mockReturnValue(false);
+
+      inquirer.default.prompt
+        .mockResolvedValueOnce({ initType: 'display_language' });
+
+      promptDisplayLanguage.mockResolvedValue('zh-cn');
+
+      await configCommand(undefined, null, null, {});
+
+      // Should save to global config
+      expect(config.set).toHaveBeenCalledWith('ui.language', 'zh-cn', 'global');
+    });
+
+    it('should offer integration regeneration when AI tools configured', async () => {
+      const inquirer = await import('inquirer');
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        format: 'human',
+        level: 2,
+        contentMode: 'minimal',
+        aiTools: ['claude-code'],
+        options: { display_language: 'en', commit_language: 'english' }
+      });
+
+      // Flat menu → display_language
+      inquirer.default.prompt
+        .mockResolvedValueOnce({ type: 'display_language' })
+        .mockResolvedValueOnce({ confirm: false }); // decline regeneration
+
+      promptDisplayLanguage.mockResolvedValue('zh-tw');
+      promptCommitLanguage.mockResolvedValue('bilingual');
+
+      await expect(configCommand(undefined, null, null, {})).rejects.toThrow('process.exit called');
+
+      expect(writeManifest).toHaveBeenCalled();
+    });
+  });
 
   describe('configCommand (unified entry)', () => {
     it('should show JSON config with "list" action', async () => {
@@ -500,13 +496,20 @@ describe('Configure Command', () => {
       expect(output).toContain('Current Configuration');
     });
 
-    it('should show interactive menu when called with no action and no --type', async () => {
+    it('should route to flat menu (runProjectConfiguration) when initialized with no action', async () => {
       const inquirer = await import('inquirer');
       isInitialized.mockReturnValue(true);
-      // First prompt: unified menu → choose 'show'
-      inquirer.default.prompt.mockResolvedValueOnce({ menuChoice: 'show' });
+      readManifest.mockReturnValue({
+        format: 'human',
+        level: 2,
+        contentMode: 'minimal',
+        aiTools: [],
+        options: {}
+      });
+      // Flat menu → choose 'show' to exit
+      inquirer.default.prompt.mockResolvedValueOnce({ type: 'show' });
 
-      await configCommand(undefined, null, null, {});
+      await expect(configCommand(undefined, null, null, {})).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Current Configuration');
@@ -529,34 +532,74 @@ describe('Configure Command', () => {
       expect(output).toContain('Configuration updated successfully');
     });
 
-    it('should show project settings option only when initialized', async () => {
+    it('should show limited menu when not initialized', async () => {
       const inquirer = await import('inquirer');
       isInitialized.mockReturnValue(false);
-      inquirer.default.prompt.mockResolvedValueOnce({ menuChoice: 'show' });
+      // Limited menu → choose 'show'
+      inquirer.default.prompt.mockResolvedValueOnce({ initType: 'show' });
 
       await configCommand(undefined, null, null, {});
 
-      // Verify prompt was called with choices that do NOT include project settings
+      // Verify limited menu was shown (has display_language, vibe, show — no project choices)
       const promptCall = inquirer.default.prompt.mock.calls[0][0][0];
-      const choiceValues = promptCall.choices.map(c => c.value);
-      expect(choiceValues).not.toContain('project');
-      expect(choiceValues).toContain('preferences');
+      const choiceValues = promptCall.choices.map(c => c.value).filter(v => v !== undefined);
+      expect(choiceValues).toContain('display_language');
+      expect(choiceValues).toContain('vibe');
       expect(choiceValues).toContain('show');
+      expect(choiceValues).not.toContain('format');
+      expect(choiceValues).not.toContain('workflow');
     });
 
-    it('should include project settings option when initialized', async () => {
+    it('should show flat menu without advanced options when initialized (no -E)', async () => {
       const inquirer = await import('inquirer');
       isInitialized.mockReturnValue(true);
-      inquirer.default.prompt.mockResolvedValueOnce({ menuChoice: 'show' });
+      readManifest.mockReturnValue({
+        format: 'human',
+        level: 2,
+        contentMode: 'minimal',
+        aiTools: [],
+        options: {}
+      });
+      // Flat menu → choose 'show'
+      inquirer.default.prompt.mockResolvedValueOnce({ type: 'show' });
 
-      await configCommand(undefined, null, null, {});
+      await expect(configCommand(undefined, null, null, {})).rejects.toThrow('process.exit called');
 
-      // Verify prompt was called with choices that include project settings
+      // Verify flat menu contains standard options but hides advanced ones
       const promptCall = inquirer.default.prompt.mock.calls[0][0][0];
-      const choiceValues = promptCall.choices.map(c => c.value);
-      expect(choiceValues).toContain('project');
-      expect(choiceValues).toContain('preferences');
+      const choiceValues = promptCall.choices.map(c => c.value).filter(v => v !== undefined);
+      expect(choiceValues).toContain('display_language');
+      expect(choiceValues).toContain('workflow');
+      expect(choiceValues).toContain('ai_tools');
+      expect(choiceValues).toContain('vibe_coding');
       expect(choiceValues).toContain('show');
+      expect(choiceValues).toContain('all');
+      // Advanced options hidden without -E
+      expect(choiceValues).not.toContain('format');
+      expect(choiceValues).not.toContain('merge_strategy');
+      expect(choiceValues).not.toContain('content_mode');
+    });
+
+    it('should show advanced options in flat menu with -E flag', async () => {
+      const inquirer = await import('inquirer');
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        format: 'human',
+        level: 2,
+        contentMode: 'minimal',
+        aiTools: [],
+        options: {}
+      });
+      inquirer.default.prompt.mockResolvedValueOnce({ type: 'show' });
+
+      await expect(configCommand(undefined, null, null, { experimental: true })).rejects.toThrow('process.exit called');
+
+      const promptCall = inquirer.default.prompt.mock.calls[0][0][0];
+      const choiceValues = promptCall.choices.map(c => c.value).filter(v => v !== undefined);
+      expect(choiceValues).toContain('format');
+      expect(choiceValues).toContain('merge_strategy');
+      expect(choiceValues).toContain('content_mode');
+      expect(choiceValues).toContain('methodology');
     });
   });
 });

@@ -261,7 +261,7 @@ describe('Init Command Interactive', () => {
       allFileHashes: {}
     });
 
-    await initCommand({});
+    await initCommand({ experimental: true });
 
     expect(manifest.writeManifest).toHaveBeenCalled();
     const manifestCall = vi.mocked(manifest.writeManifest).mock.calls[0][0];

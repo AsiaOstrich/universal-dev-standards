@@ -159,12 +159,17 @@ export async function runInitFlow(options, detected, projectPath) {
   }
 
   // === STEP 6: Standards Format ===
+  // Default to 'ai'; only prompt when --experimental flag is used
   if (!format) {
-    format = await promptFormat();
+    if (options.experimental) {
+      format = await promptFormat();
+    } else {
+      format = 'ai';
+    }
   }
 
   // === STEP 7: Standard Options ===
-  standardOptions = await promptStandardOptions(3, displayLanguage);
+  standardOptions = await promptStandardOptions(3, displayLanguage, { experimental: options.experimental });
 
   // === STEP 8: Language Extensions ===
   if (!languages) {
@@ -203,8 +208,9 @@ export async function runInitFlow(options, detected, projectPath) {
   skillsConfig.integrationConfigs = integrationConfigs;
 
   // === STEP 11: Content Mode ===
-  let contentMode = 'minimal';
-  if (aiTools.length > 0) {
+  // Default to 'index'; only prompt when --experimental flag is used
+  let contentMode = 'index';
+  if (aiTools.length > 0 && options.experimental) {
     contentMode = await promptContentMode();
   }
   skillsConfig.contentMode = contentMode;

@@ -148,10 +148,21 @@ export async function configCommand(action, key, value, options) {
     return;
   }
 
-  // Handle 'init' action
+  // Handle 'init' action — backward compatible
   if (action === 'init') {
-    await handleConfigInit(options);
-    return;
+    if (options.vibeMode) {
+      await initVibeMode(options);
+      return;
+    }
+    // Treat as no-action: route to flat menu or limited menu
+    const projectPath = process.cwd();
+    const initialized = isInitialized(projectPath);
+    if (initialized) {
+      return runProjectConfiguration(options);
+    } else {
+      await handleLimitedConfig(options);
+      return;
+    }
   }
 
   // No action: check for --type (direct project configuration) or show interactive menu
@@ -168,80 +179,38 @@ export async function configCommand(action, key, value, options) {
       return;
     }
 
-    // No arguments at all: show unified interactive menu
+    // No arguments at all: route based on initialization state
     const projectPath = process.cwd();
     const initialized = isInitialized(projectPath);
 
-    // Set language from manifest (same pattern as runProjectConfiguration)
-    if (initialized && !isLanguageExplicitlySet()) {
-      const manifest = readManifest(projectPath);
-      if (manifest) {
-        const uiLang = manifest.options?.display_language || 'en';
-        setLanguage(uiLang);
-      }
-    }
-
-    const menuChoices = [];
-
     if (initialized) {
-      menuChoices.push({
-        name: t('config.menuProjectSettings', 'Project settings (level, AI tools, Skills, format, workflow...)'),
-        value: 'project'
-      });
-    }
-
-    menuChoices.push({
-      name: t('config.menuPreferences', 'Preferences (UI language, HITL threshold, Vibe Coding)'),
-      value: 'preferences'
-    });
-
-    menuChoices.push({
-      name: t('config.menuShowConfig', 'Show current configuration (JSON)'),
-      value: 'show'
-    });
-
-    const { menuChoice } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'menuChoice',
-        message: t('config.menuQuestion', 'What would you like to configure?'),
-        choices: menuChoices
-      }
-    ]);
-
-    if (menuChoice === 'project') {
       return runProjectConfiguration(options);
-    } else if (menuChoice === 'preferences') {
-      await handleConfigInit(options);
-      return;
-    } else if (menuChoice === 'show') {
-      console.log(chalk.bold('Current Configuration:'));
-      console.log(JSON.stringify(currentConfig, null, 2));
+    } else {
+      await handleLimitedConfig(options);
       return;
     }
-
-    return;
   }
 
   console.error(chalk.red(`Unknown action: ${action}`));
 }
 
 /**
- * Handle config init with optional --vibe-mode
+ * Handle limited config menu when project is not initialized.
+ * Shows only: Display Language (global), Vibe Coding, Show config.
  * @param {Object} options - Command options
  */
-async function handleConfigInit(options) {
-  console.log('');
-  console.log(chalk.bold(t('config.initTitle', 'UDS Configuration Setup')));
-  console.log('');
-
-  // Check for --vibe-mode flag
-  if (options.vibeMode) {
-    await initVibeMode(options);
-    return;
+async function handleLimitedConfig(options) {
+  // Set language from global config if available
+  if (!isLanguageExplicitlySet()) {
+    const globalLang = config.get('ui.language') || 'en';
+    setLanguage(globalLang);
   }
 
-  // Default init: show menu
+  console.log('');
+  console.log(chalk.bold(t('config.initTitle', 'UDS Configuration Setup')));
+  console.log(chalk.gray(t('config.notInitializedHint', 'Project not initialized. Run `uds init` for full configuration.')));
+  console.log('');
+
   const { initType } = await inquirer.prompt([
     {
       type: 'list',
@@ -257,12 +226,8 @@ async function handleConfigInit(options) {
           value: 'vibe'
         },
         {
-          name: t('config.missionMode', 'Mission Mode - For goal-oriented development'),
-          value: 'mission'
-        },
-        {
-          name: t('config.customMode', 'Custom - Set individual options'),
-          value: 'custom'
+          name: t('config.menuShowConfig', 'Show current configuration (JSON)'),
+          value: 'show'
         }
       ]
     }
@@ -273,16 +238,21 @@ async function handleConfigInit(options) {
     return;
   } else if (initType === 'vibe') {
     await initVibeMode(options);
-  } else if (initType === 'mission') {
-    console.log(chalk.yellow(t('config.missionComingSoon', 'Mission mode setup coming soon!')));
-    console.log(chalk.gray(t('config.useStartCommand', 'For now, use: uds start <mission-type> <intent>')));
-  } else {
-    console.log(chalk.gray(t('config.customHint', 'Use: uds config set <key> <value>')));
+  } else if (initType === 'show') {
+    const currentConfig = config.init();
+    console.log(chalk.bold('Current Configuration:'));
+    console.log(JSON.stringify(currentConfig, null, 2));
   }
 }
 
 /**
- * Handle display language change
+ * Handle display language change with cascade:
+ * 1. Update manifest + setLanguage
+ * 2. Auto-prompt commit_language
+ * 3. If skills/commands installed → confirm reinstall with new locale
+ * 4. If AI tools → confirm regenerate integrations
+ * 5. Copy commit_language option file if changed
+ * 6. Write manifest once at end
  */
 async function handleDisplayLanguageChange() {
   const projectPath = process.cwd();
@@ -306,37 +276,91 @@ async function handleDisplayLanguageChange() {
     return;
   }
 
+  // Save to global config regardless of initialization
+  config.set('ui.language', newLang, 'global');
+
   if (!initialized) {
-    const common = getMessages().commands.common;
-    console.log(chalk.red(common.notInitialized));
-    console.log(chalk.gray(`  ${common.runInit}`));
+    // Not initialized: save to global config only
+    setLanguage(newLang);
+    console.log(chalk.green(t('config.languageUpdated', 'Display language updated!')));
     return;
   }
 
   const manifest = readManifest(projectPath);
-  if (manifest) {
-    manifest.options = manifest.options || {};
-    manifest.options.display_language = newLang;
-    writeManifest(manifest, projectPath);
-    console.log(chalk.green(t('config.languageUpdated', 'Display language updated!')));
+  if (!manifest) return;
 
-    // Offer to regenerate integrations if AI tools are configured
-    if (manifest.aiTools?.length > 0) {
-      const { confirm } = await inquirer.prompt([{
-        type: 'confirm',
-        name: 'confirm',
-        message: t('config.regenerateForLanguage', 'Regenerate AI tool integrations with new language?'),
-        default: true
-      }]);
+  // Update manifest display_language and switch UI
+  manifest.options = manifest.options || {};
+  manifest.options.display_language = newLang;
+  setLanguage(newLang);
 
-      if (confirm) {
-        const spinner = (await import('ora')).default(t('config.applyingPreset', 'Applying...')).start();
-        regenerateIntegrations(projectPath, manifest);
-        writeManifest(manifest, projectPath);
-        spinner.succeed(t('config.languageUpdated', 'Display language updated!'));
+  // Cascade 1: Auto-prompt commit_language
+  const oldCommitLang = manifest.options.commit_language;
+  const newCommitLang = await promptCommitLanguage(newLang);
+  manifest.options.commit_language = newCommitLang;
+
+  // Copy commit_language option file if changed
+  if (newCommitLang !== oldCommitLang) {
+    const standards = getAllStandards();
+    const formatsToUse = manifest.format === 'both' ? ['ai', 'human'] : [manifest.format || 'human'];
+    for (const std of standards) {
+      if (std.id === 'commit-message' && std.options) {
+        for (const targetFormat of formatsToUse) {
+          const option = findOption(std, 'commit_language', newCommitLang);
+          if (option) {
+            const sourcePath = getOptionSource(option, targetFormat);
+            await copyStandard(sourcePath, '.standards/options', projectPath);
+          }
+        }
       }
     }
   }
+
+  // Cascade 2: Reinstall skills/commands with new locale if installed
+  const hasSkillInstalls = manifest.skills?.installations?.length > 0;
+  const hasCommandInstalls = manifest.commands?.installations?.length > 0;
+  if (hasSkillInstalls || hasCommandInstalls) {
+    const { confirm } = await inquirer.prompt([{
+      type: 'confirm',
+      name: 'confirm',
+      message: t('config.reinstallWithNewLocale', 'Reinstall Skills/Commands with new language?'),
+      default: true
+    }]);
+
+    if (confirm) {
+      const cmdLocale = displayLanguageToLocale(newLang);
+      if (hasSkillInstalls) {
+        const spinner = ora(t('config.reinstallingSkills', 'Reinstalling Skills...')).start();
+        await installSkillsToMultipleAgents(manifest.skills.installations, null, projectPath);
+        spinner.succeed(t('config.skillsReinstalled', 'Skills reinstalled'));
+      }
+      if (hasCommandInstalls) {
+        const spinner = ora(t('config.reinstallingCommands', 'Reinstalling Commands...')).start();
+        await installCommandsToMultipleAgents(manifest.commands.installations, null, projectPath, cmdLocale);
+        spinner.succeed(t('config.commandsReinstalled', 'Commands reinstalled'));
+      }
+    }
+  }
+
+  // Cascade 3: Regenerate integrations if AI tools configured
+  if (manifest.aiTools?.length > 0) {
+    const { confirm } = await inquirer.prompt([{
+      type: 'confirm',
+      name: 'confirm',
+      message: t('config.regenerateForLanguage', 'Regenerate AI tool integrations with new language?'),
+      default: true
+    }]);
+
+    if (confirm) {
+      const spinner = ora(t('config.applyingPreset', 'Applying...')).start();
+      regenerateIntegrations(projectPath, manifest);
+      spinner.succeed(t('config.integrationsRegenerated', 'Integrations regenerated'));
+    }
+  }
+
+  // Single write at the end
+  writeManifest(manifest, projectPath);
+  console.log(chalk.green(t('config.languageUpdated', 'Display language updated!')));
 }
 
 /**
@@ -453,6 +477,9 @@ export async function runProjectConfiguration(options) {
 
   console.log();
   console.log(chalk.cyan(msgObj.currentConfig));
+  const langNames = { en: 'English', 'zh-tw': '繁體中文', 'zh-cn': '简体中文' };
+  const displayLang = manifest.options?.display_language || 'en';
+  console.log(chalk.gray(`  ${t('config.displayLanguageLabel', 'Display Language')}: ${langNames[displayLang] || displayLang}`));
   console.log(chalk.gray(`  ${common.format}: ${manifest.format || 'human'}`));
   console.log(chalk.gray(`  ${common.contentMode}: ${manifest.contentMode || 'minimal'}`));
   console.log(chalk.gray(`  ${common.aiTools}: ${manifest.aiTools?.length > 0 ? manifest.aiTools.join(', ') : common.none}`));
@@ -482,31 +509,49 @@ export async function runProjectConfiguration(options) {
   if (!configType) {
     const inq = await import('inquirer');
 
-    // Build choices array - methodology only shown with -E flag
+    // Build flat menu matching init step order
     const baseChoices = [
-      { name: msgObj.optionFormat, value: 'format' },
-      { name: msgObj.optionWorkflow, value: 'workflow' },
-      { name: msgObj.optionMergeStrategy, value: 'merge_strategy' },
-      { name: msgObj.optionCommitLanguage, value: 'commit_language' },
-      { name: msgObj.optionTestLevels, value: 'test_levels' },
+      { name: t('config.displayLanguageOption', 'Display Language - Change UI language'), value: 'display_language' },
       new inq.default.Separator(),
       { name: chalk.cyan(msgObj.optionAITools), value: 'ai_tools' },
       { name: chalk.cyan(msgObj.optionSkills || 'Manage Skills installations'), value: 'skills' },
       { name: chalk.cyan(msgObj.optionCommands || 'Manage Commands installations'), value: 'commands' },
-      new inq.default.Separator(),
-      { name: chalk.cyan(msgObj.optionContentMode), value: 'content_mode' }
+      new inq.default.Separator()
     ];
 
-    // Only add methodology option when -E flag is used
+    // Format, Merge Strategy, Content Mode: only show with -E flag (advanced)
+    if (options.experimental) {
+      baseChoices.push({ name: `${msgObj.optionFormat} ${chalk.yellow(msgObj.experimental)}`, value: 'format' });
+    }
+
+    baseChoices.push(
+      { name: msgObj.optionWorkflow, value: 'workflow' }
+    );
+
+    if (options.experimental) {
+      baseChoices.push({ name: `${msgObj.optionMergeStrategy} ${chalk.yellow(msgObj.experimental)}`, value: 'merge_strategy' });
+    }
+
+    baseChoices.push(
+      { name: msgObj.optionCommitLanguage, value: 'commit_language' }
+    );
+
+    // Test Levels, Content Mode and Methodology: only with -E flag (advanced)
     if (options.experimental) {
       baseChoices.push(
+        { name: `${msgObj.optionTestLevels} ${chalk.yellow(msgObj.experimental)}`, value: 'test_levels' },
+        new inq.default.Separator(),
+        { name: `${chalk.cyan(msgObj.optionContentMode)} ${chalk.yellow(msgObj.experimental)}`, value: 'content_mode' },
         { name: `${chalk.cyan(msgObj.optionMethodology)} ${chalk.yellow(msgObj.experimental)}`, value: 'methodology' }
       );
     }
 
     baseChoices.push(
       new inq.default.Separator(),
-      { name: msgObj.optionAll, value: 'all' }
+      { name: t('config.vibeMode', 'Vibe Coding Mode'), value: 'vibe_coding' },
+      new inq.default.Separator(),
+      { name: msgObj.optionAll, value: 'all' },
+      { name: t('config.menuShowConfig', 'Show current configuration (JSON)'), value: 'show' }
     );
 
     const { type } = await inq.default.prompt([
@@ -518,6 +563,26 @@ export async function runProjectConfiguration(options) {
       }
     ]);
     configType = type;
+  }
+
+  // Handle display_language (flat menu item)
+  if (configType === 'display_language') {
+    await handleDisplayLanguageChange();
+    process.exit(0);
+  }
+
+  // Handle vibe_coding (flat menu item)
+  if (configType === 'vibe_coding') {
+    await initVibeMode(options);
+    process.exit(0);
+  }
+
+  // Handle show (flat menu item)
+  if (configType === 'show') {
+    const currentConfig = config.init();
+    console.log(chalk.bold('Current Configuration:'));
+    console.log(JSON.stringify(currentConfig, null, 2));
+    process.exit(0);
   }
 
   // Collect new options
@@ -585,8 +650,26 @@ export async function runProjectConfiguration(options) {
     newMethodology = await promptMethodology();
   }
 
+  // For 'all': prompt display_language first, then format and the rest
+  let allDisplayLanguageChanged = false;
+  if (configType === 'all') {
+    const oldDisplayLang = manifest.options?.display_language || 'en';
+    const newDisplayLang = await promptDisplayLanguage();
+    if (newDisplayLang !== oldDisplayLang) {
+      newOptions.display_language = newDisplayLang;
+      manifest.options = manifest.options || {};
+      manifest.options.display_language = newDisplayLang;
+      setLanguage(newDisplayLang);
+      config.set('ui.language', newDisplayLang, 'global');
+      allDisplayLanguageChanged = true;
+    } else {
+      newOptions.display_language = oldDisplayLang;
+    }
+  }
+
   // Handle traditional options
-  if (configType === 'all' || configType === 'format') {
+  // Format: only prompt with -E or direct --type format (advanced setting)
+  if (configType === 'format' || (configType === 'all' && options.experimental)) {
     newFormat = await promptFormat();
   }
 
@@ -594,7 +677,8 @@ export async function runProjectConfiguration(options) {
     newOptions.workflow = await promptGitWorkflow();
   }
 
-  if (configType === 'all' || configType === 'merge_strategy') {
+  // Merge strategy: only prompt with -E or direct --type merge_strategy (advanced setting)
+  if (configType === 'merge_strategy' || (configType === 'all' && options.experimental)) {
     newOptions.merge_strategy = await promptMergeStrategy();
   }
 
@@ -603,8 +687,22 @@ export async function runProjectConfiguration(options) {
     newOptions.commit_language = await promptCommitLanguage(displayLanguage);
   }
 
-  if (configType === 'all' || configType === 'test_levels') {
+  // Test levels: only prompt with -E or direct --type test_levels (advanced setting)
+  if (configType === 'test_levels' || (configType === 'all' && options.experimental)) {
     newOptions.test_levels = await promptTestLevels();
+  }
+
+  // Content mode: only prompt with -E or direct --type content_mode (advanced setting)
+  if (configType === 'content_mode') {
+    newContentMode = await promptContentModeChange(manifest.contentMode || 'minimal');
+    if (newContentMode !== manifest.contentMode) {
+      needsIntegrationRegeneration = true;
+    }
+  } else if (configType === 'all' && options.experimental) {
+    newContentMode = await promptContentModeChange(manifest.contentMode || 'minimal');
+    if (newContentMode !== manifest.contentMode) {
+      needsIntegrationRegeneration = true;
+    }
   }
 
   // Show changes
@@ -840,6 +938,25 @@ export async function runProjectConfiguration(options) {
         }
       } else {
         console.log(chalk.gray(msgObj.runUpdateLater));
+      }
+    }
+  }
+
+  // For 'all' flow: if display_language changed, reinstall skills/commands with new locale
+  if (configType === 'all' && allDisplayLanguageChanged) {
+    const hasSkillInstalls = manifest.skills?.installations?.length > 0;
+    const hasCommandInstalls = manifest.commands?.installations?.length > 0;
+    if (hasSkillInstalls || hasCommandInstalls) {
+      const cmdLocale = displayLanguageToLocale(newOptions.display_language);
+      if (hasSkillInstalls) {
+        const skillSpinner = ora(t('config.reinstallingSkills', 'Reinstalling Skills...')).start();
+        await installSkillsToMultipleAgents(manifest.skills.installations, null, projectPath);
+        skillSpinner.succeed(t('config.skillsReinstalled', 'Skills reinstalled'));
+      }
+      if (hasCommandInstalls) {
+        const cmdSpinner = ora(t('config.reinstallingCommands', 'Reinstalling Commands...')).start();
+        await installCommandsToMultipleAgents(manifest.commands.installations, null, projectPath, cmdLocale);
+        cmdSpinner.succeed(t('config.commandsReinstalled', 'Commands reinstalled'));
       }
     }
   }

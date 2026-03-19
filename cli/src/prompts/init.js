@@ -822,13 +822,18 @@ export async function promptTestLevels() {
  * @param {string} displayLanguage - Display language for bilingual commit option filtering
  * @returns {Promise<Object>} Selected options
  */
-export async function promptStandardOptions(level, displayLanguage = 'en') {
+export async function promptStandardOptions(level, displayLanguage = 'en', opts = {}) {
   const options = {};
 
   // Git workflow options (level 2+)
   if (level >= 2) {
     options.workflow = await promptGitWorkflow();
-    options.merge_strategy = await promptMergeStrategy();
+    // Merge strategy: default to 'squash'; only prompt with --experimental
+    if (opts.experimental) {
+      options.merge_strategy = await promptMergeStrategy();
+    } else {
+      options.merge_strategy = 'squash';
+    }
   }
 
   // Commit message options (level 1+)
@@ -836,8 +841,13 @@ export async function promptStandardOptions(level, displayLanguage = 'en') {
   options.commit_language = await promptCommitLanguage(displayLanguage);
 
   // Testing options (level 2+)
+  // Default to all 4 levels; only prompt with --experimental
   if (level >= 2) {
-    options.test_levels = await promptTestLevels();
+    if (opts.experimental) {
+      options.test_levels = await promptTestLevels();
+    } else {
+      options.test_levels = ['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing'];
+    }
   }
 
   return options;

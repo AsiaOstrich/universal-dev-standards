@@ -545,6 +545,71 @@ describe('E2E: uds update', () => {
       });
     });
 
+    it('should migrate test_levels from 2 to 4 when upstream.version < 5.0.0', async () => {
+      // Pre-v5 projects had 2-level default; update should auto-migrate to 4 levels
+      await setupTestDir(testDir, {});
+      await runNonInteractive({}, testDir);
+
+      // Simulate a pre-v5 manifest with old 2-level default
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      manifest.upstream.version = '4.2.0'; // Pre-v5 → triggers migration
+      manifest.options.test_levels = ['unit-testing', 'integration-testing'];
+      await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+
+      const result = await runCommand('update', { yes: true, offline: true }, testDir, 15000);
+
+      // Verify migration message shown
+      const hasMigrationMsg = result.stdout.includes('test_levels') ||
+                              result.stdout.includes('Test levels') ||
+                              result.stdout.includes('2 → 4') ||
+                              result.stdout.includes('system-testing');
+      expect(hasMigrationMsg).toBe(true);
+
+      // Verify manifest updated to 4 levels
+      const updatedManifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      expect(updatedManifest.options.test_levels).toEqual([
+        'unit-testing', 'integration-testing', 'system-testing', 'e2e-testing'
+      ]);
+
+      recordScenarioResult('Test levels migration pre-v5', {
+        steps: [
+          { step: 1, name: 'Migration message shown', matched: hasMigrationMsg },
+          { step: 2, name: 'test_levels upgraded to 4', matched: updatedManifest.options.test_levels.length === 4 }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should NOT migrate test_levels when upstream.version >= 5.0.0', async () => {
+      // v5+ projects already default to 4 levels; 2-level means user explicitly chose it
+      await setupTestDir(testDir, {});
+      await runNonInteractive({}, testDir);
+
+      // Simulate a v5 manifest with user-chosen 2 levels
+      // upstream.version = 5.0.0-rc.1 (v5+ but < latest, so update triggers)
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      manifest.upstream.version = '5.0.0-rc.1'; // v5+ → no migration
+      manifest.options.test_levels = ['unit-testing', 'integration-testing'];
+      await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+
+      const result = await runCommand('update', { yes: true, offline: true }, testDir, 15000);
+
+      // Verify test_levels NOT changed (user's explicit choice preserved)
+      const updatedManifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      expect(updatedManifest.options.test_levels).toEqual([
+        'unit-testing', 'integration-testing'
+      ]);
+
+      recordScenarioResult('Test levels no migration v5+', {
+        steps: [
+          { step: 1, name: 'test_levels unchanged at 2', matched: updatedManifest.options.test_levels.length === 2 }
+        ],
+        output: result.stdout
+      });
+    });
+
     it('should not show hash mismatch after update then check', async () => {
       // Bug: missing refreshIntegrationBlockHashes() caused false hash mismatch warnings
       await setupTestDir(testDir, {});

@@ -356,7 +356,7 @@ describe('Init Command', () => {
         workflow: 'github-flow',
         merge_strategy: 'squash',
         commit_language: 'english',
-        test_levels: ['unit-testing', 'integration-testing']
+        test_levels: ['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing']
       });
     });
 

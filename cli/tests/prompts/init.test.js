@@ -429,19 +429,32 @@ describe('Init Prompts', () => {
       expect(result).toHaveProperty('commit_language');
     });
 
-    it('should return more options for level 2+', async () => {
+    it('should return more options for level 2+ with experimental', async () => {
       mockPrompt
         .mockResolvedValueOnce({ workflow: 'github-flow' })
         .mockResolvedValueOnce({ strategy: 'squash' })
         .mockResolvedValueOnce({ language: 'english' })
         .mockResolvedValueOnce({ levels: ['unit-testing'] });
 
-      const result = await promptStandardOptions(2);
+      const result = await promptStandardOptions(2, 'en', { experimental: true });
 
       expect(result).toHaveProperty('workflow');
       expect(result).toHaveProperty('merge_strategy');
       expect(result).toHaveProperty('commit_language');
       expect(result).toHaveProperty('test_levels');
+    });
+
+    it('should default merge_strategy and test_levels without experimental', async () => {
+      mockPrompt
+        .mockResolvedValueOnce({ workflow: 'github-flow' })
+        .mockResolvedValueOnce({ language: 'english' });
+
+      const result = await promptStandardOptions(2);
+
+      expect(result.workflow).toBe('github-flow');
+      expect(result.merge_strategy).toBe('squash');
+      expect(result.commit_language).toBe('english');
+      expect(result.test_levels).toEqual(['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing']);
     });
 
     it('should pass displayLanguage to promptCommitLanguage', async () => {
