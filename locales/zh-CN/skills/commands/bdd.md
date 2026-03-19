@@ -7,7 +7,7 @@ status: experimental
 ---
 
 ---
-description: 引導行为驅动开发流程 | Guide through Behavior-Driven Development workflow
+description: [UDS] Guide through Behavior-Driven Development workflow
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
 argument-hint: "[要实作的行为或場景 | behavior or scenario to implement]"
 status: experimental

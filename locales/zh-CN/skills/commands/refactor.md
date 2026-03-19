@@ -4,7 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-21
 status: current
-description: 引导重构决策与策略选择
+description: [UDS] Guide refactoring decisions and strategy selection
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
 argument-hint: "[scope: tactical | strategic | legacy | decide | debt]"
 status: stable

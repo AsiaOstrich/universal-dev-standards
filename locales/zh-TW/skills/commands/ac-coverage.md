@@ -6,7 +6,7 @@ last_synced: 2026-03-18
 ---
 
 ---
-description: 產生 AC 追蹤矩陣與覆蓋率報告 | Generate AC-to-test traceability matrix and coverage report
+description: "[UDS] Generate AC-to-test traceability matrix and coverage report"
 allowed-tools: Read, Grep, Glob
 argument-hint: "[規格檔案路徑 | spec file path]"
 ---
