@@ -13,6 +13,11 @@ const readmeFiles = [
   path.join(ROOT_DIR, 'locales/zh-TW/README.md'),
   path.join(ROOT_DIR, 'locales/zh-CN/README.md')
 ];
+const securityFiles = [
+  path.join(ROOT_DIR, 'SECURITY.md'),
+  path.join(ROOT_DIR, 'locales/zh-TW/SECURITY.md'),
+  path.join(ROOT_DIR, 'locales/zh-CN/SECURITY.md')
+];
 
 function generateStatsTable(manifest, lang = 'en') {
   const t = {
@@ -70,13 +75,59 @@ function syncReadmeVersions(version) {
   });
 }
 
+function syncSecurityVersions(version, stableVersion) {
+  console.log('🔒 Syncing SECURITY.md supported versions...');
+  const isPrerelease = version.includes('-');
+
+  const tables = {
+    en: isPrerelease
+      ? `| Version | Supported | 支援狀態 |\n|---------|-----------|--------|\n| ${version} | ✅ Pre-release | 預發布版本 |\n| ${stableVersion} | ✅ Latest stable | 最新正式版 |\n| < ${stableVersion.split('.')[0]}.0.0 | ❌ End of life | 已終止支援 |`
+      : `| Version | Supported | 支援狀態 |\n|---------|-----------|--------|\n| ${version} | ✅ Latest stable | 最新正式版 |\n| < ${version.split('.')[0]}.0.0 | ❌ End of life | 已終止支援 |`,
+    zh: isPrerelease
+      ? `| 版本 | 支援狀態 |\n|------|--------|\n| ${version} | ✅ 預發布版本 |\n| ${stableVersion} | ✅ 最新正式版 |\n| < ${stableVersion.split('.')[0]}.0.0 | ❌ 已終止支援 |`
+      : `| 版本 | 支援狀態 |\n|------|--------|\n| ${version} | ✅ 最新正式版 |\n| < ${version.split('.')[0]}.0.0 | ❌ 已終止支援 |`,
+    cn: isPrerelease
+      ? `| 版本 | 支持状态 |\n|------|--------|\n| ${version} | ✅ 预发布版本 |\n| ${stableVersion} | ✅ 最新正式版 |\n| < ${stableVersion.split('.')[0]}.0.0 | ❌ 已终止支持 |`
+      : `| 版本 | 支持状态 |\n|------|--------|\n| ${version} | ✅ 最新正式版 |\n| < ${version.split('.')[0]}.0.0 | ❌ 已终止支持 |`
+  };
+
+  const regex = /<!-- UDS_SUPPORTED_VERSIONS_START -->[\s\S]*?<!-- UDS_SUPPORTED_VERSIONS_END -->/g;
+
+  securityFiles.forEach(filePath => {
+    if (!fs.existsSync(filePath)) return;
+    let content = fs.readFileSync(filePath, 'utf8');
+    const relPath = path.relative(ROOT_DIR, filePath);
+    let lang = 'en';
+    if (filePath.includes('zh-TW')) lang = 'zh';
+    if (filePath.includes('zh-CN')) lang = 'cn';
+
+    if (regex.test(content)) {
+      regex.lastIndex = 0;
+      content = content.replace(regex, `<!-- UDS_SUPPORTED_VERSIONS_START -->\n${tables[lang]}\n<!-- UDS_SUPPORTED_VERSIONS_END -->`);
+      fs.writeFileSync(filePath, content);
+      console.log(`✅ Security versions synced in: ${relPath}`);
+    }
+  });
+}
+
 async function injectDocs() {
   console.log('📝 Injecting data into documentation...');
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
+  // Read stable version from plugin.json (marketplace = latest stable)
+  const pluginJsonPath = path.join(ROOT_DIR, '.claude-plugin', 'plugin.json');
+  let stableVersion = packageJson.version;
+  if (fs.existsSync(pluginJsonPath)) {
+    const pluginJson = JSON.parse(fs.readFileSync(pluginJsonPath, 'utf8'));
+    stableVersion = pluginJson.version;
+  }
+
   // Sync README version lines from package.json
   syncReadmeVersions(packageJson.version);
+
+  // Sync SECURITY.md supported versions table
+  syncSecurityVersions(packageJson.version, stableVersion);
 
   readmeFiles.forEach(filePath => {
     if (!fs.existsSync(filePath)) return;
