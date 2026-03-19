@@ -95,6 +95,32 @@ Before finishing, verify work against `core/checkin-standards.md`:
 
 ---
 
+## Workflow Enforcement Gates
+
+**CRITICAL**: Before executing any workflow phase command, you MUST check prerequisites.
+
+### Session Start Protocol
+At session start, check for active workflows: `ls .workflow-state/*.yaml 2>/dev/null`
+If active workflows found → inform user and offer to resume.
+
+### Phase Gates
+
+| Workflow | Phase | Prerequisite | On Failure |
+|---------|-------|-------------|------------|
+| SDD | implement | Spec status = Approved | → `/sdd approve` |
+| SDD | verify | All ACs have code + tests | → `/sdd implement` |
+| TDD | GREEN | Failing test exists | → Stay in RED |
+| TDD | REFACTOR | All tests passing | → Stay in GREEN |
+| BDD | AUTOMATION | `.feature` file exists | → FORMULATION |
+| Commit | feat/fix | Check active specs | → Suggest `Refs: SPEC-XXX` |
+
+**NEVER** write implementation code before a failing test exists (TDD).
+**NEVER** write step definitions before `.feature` files exist (BDD).
+
+Reference: `.standards/workflow-enforcement.ai.yaml`
+
+---
+
 ## Code Review Standards
 
 Reference: `core/code-review-checklist.md`

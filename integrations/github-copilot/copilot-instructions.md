@@ -108,7 +108,33 @@ Reference: `.standards/code-review-checklist.md`
 
 ---
 
-## 4. Test-Driven Development (TDD)
+## 4. Workflow Enforcement Gates
+
+**CRITICAL**: Before executing any workflow phase command, you MUST check prerequisites.
+
+### Session Start Protocol
+At session start, check for active workflows: `ls .workflow-state/*.yaml 2>/dev/null`
+If active workflows found → inform user and offer to resume.
+
+### Phase Gates
+
+| Workflow | Phase | Prerequisite | On Failure |
+|---------|-------|-------------|------------|
+| SDD | implement | Spec status = Approved | → `/sdd approve` |
+| SDD | verify | All ACs have code + tests | → `/sdd implement` |
+| TDD | GREEN | Failing test exists | → Stay in RED |
+| TDD | REFACTOR | All tests passing | → Stay in GREEN |
+| BDD | AUTOMATION | `.feature` file exists | → FORMULATION |
+| Commit | feat/fix | Check active specs | → Suggest `Refs: SPEC-XXX` |
+
+**NEVER** write implementation code before a failing test exists (TDD).
+**NEVER** write step definitions before `.feature` files exist (BDD).
+
+Reference: `.standards/workflow-enforcement.ai.yaml`
+
+---
+
+## 5. Test-Driven Development (TDD)
 
 Reference: `.standards/test-driven-development.md`
 
@@ -136,7 +162,7 @@ Reference: `.standards/test-driven-development.md`
 
 ---
 
-## 5. Test Coverage: 8 Dimensions
+## 6. Test Coverage: 8 Dimensions
 
 Reference: `.standards/test-completeness-dimensions.md`
 
@@ -167,7 +193,7 @@ Reference: `.standards/test-completeness-dimensions.md`
 
 ---
 
-## 6. Pre-Commit Checklist
+## 7. Pre-Commit Checklist
 
 Reference: `.standards/checkin-standards.md`
 
@@ -198,7 +224,7 @@ Reference: `.standards/checkin-standards.md`
 
 ---
 
-## 7. Requirement Writing (INVEST)
+## 8. Requirement Writing (INVEST)
 
 Reference: `.standards/requirement-writing.md`
 
@@ -232,7 +258,7 @@ Good: Specific, Measurable, Testable
 
 ---
 
-## 8. Spec-Driven Development (SDD) Priority
+## 9. Spec-Driven Development (SDD) Priority
 
 **Rule**: When an SDD tool (OpenSpec, Spec Kit, etc.) is integrated, prioritize using its commands over manual file editing.
 

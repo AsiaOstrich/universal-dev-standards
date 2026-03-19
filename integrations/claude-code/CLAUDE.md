@@ -73,6 +73,38 @@ Verify work against `core/code-review-checklist.md` before finishing tasks.
 2. **實作**：撰寫程式碼或文件。
 3. **驗證**：執行 `uds check --standard <id>`（或依賴 pre-commit hook）確保合規。
 
+### 6. Workflow Enforcement Gates / 工作流程強制閘門
+
+**CRITICAL**: Before executing any workflow phase command, you MUST check prerequisites:
+
+**關鍵規則**：在執行任何工作流程階段命令前，你必須檢查前置條件：
+
+#### SDD Phase Gates / SDD 階段閘門
+- `/sdd implement` → Check: spec exists AND status = Approved. If not → guide to `/sdd approve`
+- `/sdd verify` → Check: implementation exists, all ACs have code + tests. If not → guide to `/sdd implement`
+
+#### TDD Phase Gates / TDD 階段閘門
+- GREEN phase → Check: at least one failing test exists. If not → stay in RED phase
+- REFACTOR phase → Check: all tests passing. If not → stay in GREEN phase
+- **NEVER write implementation code before a failing test exists**
+
+#### BDD Phase Gates / BDD 階段閘門
+- FORMULATION → Check: concrete examples from discovery exist
+- AUTOMATION → Check: `.feature` file with Gherkin scenarios exists
+- **NEVER write step definitions before `.feature` files exist**
+
+#### Commit Gates / 提交閘門
+- For `feat`/`fix` commits: check `docs/specs/` for active specs → suggest `Refs: SPEC-XXX`
+
+#### Session Start Protocol / Session 啟動協議
+At the start of each session, check for active workflows:
+```bash
+ls .workflow-state/*.yaml 2>/dev/null
+```
+If active workflows found → inform user and offer to resume.
+
+Reference: `core/workflow-enforcement.md`, `.standards/workflow-enforcement.ai.yaml`
+
 ---
 
 ## Quick Commands / 快速指令

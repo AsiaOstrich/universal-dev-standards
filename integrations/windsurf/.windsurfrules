@@ -78,6 +78,34 @@ Reference: `.standards/anti-hallucination.md` (or `core/anti-hallucination.md`)
 2. **Check-in Quality**:
    - Before suggesting "I'm done", verify work against `.standards/checkin-standards.md`.
 
+## Workflow Enforcement Gates
+## 工作流程強制閘門
+
+**CRITICAL**: Before executing any workflow phase command, you MUST check prerequisites.
+**關鍵規則**：在執行任何工作流程階段命令前，你必須檢查前置條件。
+
+### Session Start Protocol / Session 啟動協議
+At session start, check for active workflows: `ls .workflow-state/*.yaml 2>/dev/null`
+If active workflows found → inform user and offer to resume.
+
+### Phase Gates / 階段閘門
+
+| Workflow | Phase | Prerequisite | On Failure |
+|---------|-------|-------------|------------|
+| SDD | implement | Spec status = Approved | → `/sdd approve` |
+| SDD | verify | All ACs have code + tests | → `/sdd implement` |
+| TDD | GREEN | Failing test exists | → Stay in RED |
+| TDD | REFACTOR | All tests passing | → Stay in GREEN |
+| BDD | AUTOMATION | `.feature` file exists | → FORMULATION |
+| Commit | feat/fix | Check active specs | → Suggest `Refs: SPEC-XXX` |
+
+**NEVER** write implementation code before a failing test exists (TDD).
+**NEVER** write step definitions before `.feature` files exist (BDD).
+
+Reference: `.standards/workflow-enforcement.ai.yaml`
+
+---
+
 ## Refactoring Standards
 ## 重構標準
 

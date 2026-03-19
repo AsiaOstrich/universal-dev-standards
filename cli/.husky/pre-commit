@@ -47,6 +47,11 @@ if [ -n "$STAGED_CLI" ] || [ -n "$STAGED_DOCS" ]; then
     fi
 fi
 
+# Workflow compliance check (WARNING only, never blocks)
+if [ -f "$REPO_ROOT/scripts/check-workflow-compliance.sh" ]; then
+    "$REPO_ROOT/scripts/check-workflow-compliance.sh"
+fi
+
 # Navigate to cli directory for npm commands
 cd "$REPO_ROOT/cli"
 

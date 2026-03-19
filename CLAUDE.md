@@ -460,6 +460,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 |------|----------|------|
 | Writing commits | [commit-message.ai.yaml](.standards/commit-message.ai.yaml) | Every commit |
 | Project context | [project-context-memory.ai.yaml](.standards/project-context-memory.ai.yaml) | Planning & Coding |
+| Workflow gates | [workflow-enforcement.ai.yaml](.standards/workflow-enforcement.ai.yaml) | Before any workflow phase |
 
 **SHOULD follow** (相關任務時參考):
 | Task | Standard | When |
@@ -473,7 +474,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 
 本專案採用 UDS 標準。所有規範位於 `.standards/`：
 
-### Core (49 standards)
+### Core (50 standards)
 - `anti-hallucination.ai.yaml` - anti-hallucination.ai.yaml
 - `ai-friendly-architecture.ai.yaml` - ai-friendly-architecture.ai.yaml
 - `commit-message.ai.yaml` - 提交訊息格式
@@ -518,6 +519,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 - `test-governance.ai.yaml` - test-governance.ai.yaml
 - `structured-task-definition.ai.yaml` - structured-task-definition.ai.yaml
 - `workflow-state-protocol.ai.yaml` - workflow-state-protocol.ai.yaml
+- `workflow-enforcement.ai.yaml` - 工作流程強制執行
 - `pipeline-integration-standards.ai.yaml` - pipeline-integration-standards.ai.yaml
 - `acceptance-criteria-traceability.ai.yaml` - acceptance-criteria-traceability.ai.yaml
 - `change-batching-standards.ai.yaml` - change-batching-standards.ai.yaml

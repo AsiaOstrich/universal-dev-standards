@@ -17,6 +17,43 @@ Guide through the Behavior-Driven Development (BDD) workflow using Given-When-Th
 
 引導行為驅動開發（BDD）流程，使用 Given-When-Then 格式。
 
+## Pre-Flight Checks | 前置檢查
+
+Before executing BDD phases, the AI assistant MUST verify prerequisites. If a check fails, STOP and guide the user.
+
+在執行 BDD 階段前，AI 助手必須驗證前置條件。如果檢查失敗，停止並引導使用者。
+
+### Phase Gate Matrix | 階段閘門矩陣
+
+| Target Phase | Pre-Flight Check | On Failure |
+|-------------|-----------------|------------|
+| `DISCOVERY` | 1. Feature/behavior clearly identified | → Ask user to describe the desired behavior |
+| | 2. If SDD project: spec exists | → Guide to `/sdd` |
+| `FORMULATION` | 1. Discovery output exists (examples, edge cases) | → Guide back to DISCOVERY |
+| | 2. At least one concrete example collected | → Collect examples first |
+| `AUTOMATION` | 1. `.feature` file exists with scenarios | → Guide to FORMULATION |
+| | 2. Scenarios follow Given-When-Then format | → Fix scenario format |
+| `LIVING DOCS` | 1. Step definitions implemented | → Guide to AUTOMATION |
+| | 2. All scenarios passing | → Fix failing scenarios first |
+
+### Feature-Before-Step Enforcement | 功能檔優先強制
+
+```
+🔍 DISCOVERY: Collect examples → identify edge cases
+   ↓ (only proceed with concrete examples)
+📝 FORMULATION: Write .feature file → Given/When/Then
+   ↓ (only proceed with valid Gherkin scenarios)
+🤖 AUTOMATION: Implement step definitions → run
+   ↓ (only proceed when all scenarios pass)
+📚 LIVING DOCS: Maintain and share
+```
+
+**Critical Rule**: The AI MUST NOT write step definitions before `.feature` files with Gherkin scenarios exist. Discovery must produce concrete examples before formulation begins.
+
+**關鍵規則**：AI 不得在 `.feature` 檔案存在前撰寫步驟定義。探索階段必須產出具體範例才能進入制定階段。
+
+---
+
 ## Methodology Integration | 方法論整合
 
 When `/bdd` is invoked:

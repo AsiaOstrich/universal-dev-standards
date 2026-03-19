@@ -47,7 +47,8 @@ const STANDARD_TASK_MAPPING = {
   'test-completeness-dimensions.md': { task: 'Test coverage', when: 'When evaluating tests', priority: 'SHOULD' },
   'git-workflow.ai.yaml': { task: 'Git workflow', when: 'Branch/merge decisions', priority: 'SHOULD' },
   'developer-memory.ai.yaml': { task: 'Developer memory', when: 'Always (protocol)', priority: 'SHOULD' },
-  'project-context-memory.ai.yaml': { task: 'Project context', when: 'Planning & Coding', priority: 'MUST' }
+  'project-context-memory.ai.yaml': { task: 'Project context', when: 'Planning & Coding', priority: 'MUST' },
+  'workflow-enforcement.ai.yaml': { task: 'Workflow gates', when: 'Before any workflow phase', priority: 'MUST' }
 };
 
 /**
@@ -68,7 +69,8 @@ const STANDARD_DESCRIPTIONS = {
   'git-workflow.ai.yaml': 'Git 工作流程',
   'developer-memory.ai.yaml': '開發者持久記憶',
   'project-context-memory.ai.yaml': '專案情境記憶',
-  'zh-tw.md': '繁體中文本地化'
+  'zh-tw.md': '繁體中文本地化',
+  'workflow-enforcement.ai.yaml': '工作流程強制執行'
 };
 
 /**
@@ -2487,6 +2489,89 @@ function generateCommitLanguageDirective(commitLanguage, language) {
 }
 
 /**
+ * Generate workflow enforcement gate content for integration files
+ * @param {string} language - Language: 'en', 'zh-tw', 'zh-cn', or 'bilingual'
+ * @returns {string} Generated workflow gate instructions
+ */
+function generateWorkflowGateContent(language) {
+  const sections = [];
+
+  if (language === 'zh-tw' || language === 'bilingual') {
+    sections.push('## Workflow Enforcement Gates / 工作流程強制閘門');
+    sections.push('');
+    sections.push('**CRITICAL**: Before executing any workflow phase command, you MUST check prerequisites.');
+    sections.push('**關鍵規則**：在執行任何工作流程階段命令前，你必須檢查前置條件。');
+    sections.push('');
+    sections.push('### Session Start Protocol / Session 啟動協議');
+    sections.push('At session start, check for active workflows:');
+    sections.push('```bash');
+    sections.push('ls .workflow-state/*.yaml 2>/dev/null');
+    sections.push('```');
+    sections.push('If active workflows found → inform user and offer to resume.');
+    sections.push('');
+    sections.push('### Phase Gates / 階段閘門');
+    sections.push('| Workflow | Phase | Prerequisite | On Failure |');
+    sections.push('|---------|-------|-------------|------------|');
+    sections.push('| SDD | implement | Spec status = Approved | → `/sdd approve` |');
+    sections.push('| SDD | verify | All ACs have code + tests | → `/sdd implement` |');
+    sections.push('| TDD | GREEN | Failing test exists | → Stay in RED |');
+    sections.push('| TDD | REFACTOR | All tests passing | → Stay in GREEN |');
+    sections.push('| BDD | AUTOMATION | `.feature` file exists | → FORMULATION |');
+    sections.push('| Commit | feat/fix | Check active specs | → Suggest `Refs: SPEC-XXX` |');
+    sections.push('');
+    sections.push('Reference: `.standards/workflow-enforcement.ai.yaml`');
+  } else if (language === 'zh-cn') {
+    sections.push('## 工作流程强制闸门');
+    sections.push('');
+    sections.push('**关键规则**：在执行任何工作流程阶段命令前，你必须检查前置条件。');
+    sections.push('');
+    sections.push('### Session 启动协议');
+    sections.push('每次 Session 开始时，检查活跃的工作流：');
+    sections.push('```bash');
+    sections.push('ls .workflow-state/*.yaml 2>/dev/null');
+    sections.push('```');
+    sections.push('如发现活跃工作流 → 通知用户并建议恢复。');
+    sections.push('');
+    sections.push('### 阶段闸门');
+    sections.push('| 工作流 | 阶段 | 前置条件 | 失败时 |');
+    sections.push('|--------|------|---------|--------|');
+    sections.push('| SDD | implement | Spec 状态 = Approved | → `/sdd approve` |');
+    sections.push('| SDD | verify | 所有 AC 有代码和测试 | → `/sdd implement` |');
+    sections.push('| TDD | GREEN | 存在失败的测试 | → 留在 RED |');
+    sections.push('| TDD | REFACTOR | 所有测试通过 | → 留在 GREEN |');
+    sections.push('| BDD | AUTOMATION | `.feature` 文件存在 | → FORMULATION |');
+    sections.push('| Commit | feat/fix | 检查活跃 spec | → 建议 `Refs: SPEC-XXX` |');
+    sections.push('');
+    sections.push('参考: `.standards/workflow-enforcement.ai.yaml`');
+  } else {
+    sections.push('## Workflow Enforcement Gates');
+    sections.push('');
+    sections.push('**CRITICAL**: Before executing any workflow phase command, you MUST check prerequisites.');
+    sections.push('');
+    sections.push('### Session Start Protocol');
+    sections.push('At session start, check for active workflows:');
+    sections.push('```bash');
+    sections.push('ls .workflow-state/*.yaml 2>/dev/null');
+    sections.push('```');
+    sections.push('If active workflows found → inform user and offer to resume.');
+    sections.push('');
+    sections.push('### Phase Gates');
+    sections.push('| Workflow | Phase | Prerequisite | On Failure |');
+    sections.push('|---------|-------|-------------|------------|');
+    sections.push('| SDD | implement | Spec status = Approved | → `/sdd approve` |');
+    sections.push('| SDD | verify | All ACs have code + tests | → `/sdd implement` |');
+    sections.push('| TDD | GREEN | Failing test exists | → Stay in RED |');
+    sections.push('| TDD | REFACTOR | All tests passing | → Stay in GREEN |');
+    sections.push('| BDD | AUTOMATION | `.feature` file exists | → FORMULATION |');
+    sections.push('| Commit | feat/fix | Check active specs | → Suggest `Refs: SPEC-XXX` |');
+    sections.push('');
+    sections.push('Reference: `.standards/workflow-enforcement.ai.yaml`');
+  }
+
+  return sections.join('\n');
+}
+
+/**
  * Generate integration file content
  * @param {Object} config - Integration configuration
  * @returns {string} Generated content
@@ -2587,6 +2672,13 @@ export function generateIntegrationContent(config) {
     // Wrap with markers for future updates
     const markedContent = wrapWithMarkers(standardsContent, format);
     sections.push(markedContent);
+    sections.push('\n---\n');
+  }
+
+  // Add workflow enforcement gates if workflow-enforcement standard is installed
+  if (installedStandards.some(s => basename(s) === 'workflow-enforcement.ai.yaml')) {
+    const workflowGateContent = generateWorkflowGateContent(language);
+    sections.push(workflowGateContent);
     sections.push('\n---\n');
   }
 

@@ -10,6 +10,52 @@ Create, review, approve, implement, and verify specification documents — full 
 
 建立、審查、核准、實作和驗證規格文件 — 完整 SDD 生命週期管理。
 
+## Pre-Flight Checks | 前置檢查
+
+Before executing ANY SDD phase, the AI assistant MUST run the applicable checks below. If a check fails, STOP and guide the user to the correct phase.
+
+在執行任何 SDD 階段前，AI 助手必須執行以下適用的檢查。如果檢查失敗，停止並引導使用者到正確的階段。
+
+### Phase Gate Matrix | 階段閘門矩陣
+
+| Target Phase | Pre-Flight Check | On Failure |
+|-------------|-----------------|------------|
+| `discuss` | None (entry point) | — |
+| `create` | `ls docs/specs/` → check for existing orphan specs | Warn, offer to close orphans first |
+| `review` | Spec file exists AND status = `Draft` | → Guide to `/sdd create` |
+| `approve` | Spec file exists AND status = `Review` | → Guide to `/sdd review` |
+| `implement` | 1. `ls docs/specs/SPEC-*.md` → at least one spec exists | → Guide to `/sdd create` |
+| | 2. Spec status = `Approved` (check `status:` field in spec) | → Guide to `/sdd approve` |
+| | 3. Check `.workflow-state/` for active SDD state | Resume if exists |
+| `verify` | 1. Spec status = `Implemented` or has implementation commits | → Guide to `/sdd implement` |
+| | 2. All AC have code + test references | → List incomplete ACs |
+
+### Check Commands | 檢查指令
+
+```bash
+# Check for existing specs
+ls docs/specs/SPEC-*.md 2>/dev/null
+
+# Check spec status (grep the status field)
+grep -m1 "^status:" docs/specs/SPEC-XXX.md
+
+# Check for active workflow state
+ls .workflow-state/sdd-*.yaml 2>/dev/null
+
+# Check AC implementation status
+grep -E "^- \[(x|X)\]" docs/specs/SPEC-XXX.md
+```
+
+### Enforcement Behavior | 執行行為
+
+- **Mode: `enforce`** (default) — Block phase transition, show guidance
+- **Mode: `suggest`** — Show warning but allow override
+- **Mode: `off`** — No checks
+
+Check project config: `.uds/config.yaml` → `workflow.enforcement_mode`
+
+---
+
 ## SDD Workflow | SDD 工作流程
 
 ```

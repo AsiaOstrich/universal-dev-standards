@@ -972,6 +972,18 @@
       "description": "Protocol for persisting and restoring workflow state across AI sessions"
     },
     {
+      "id": "workflow-enforcement",
+      "name": "Workflow Enforcement",
+      "nameZh": "工作流程強制執行",
+      "source": {
+        "human": "core/workflow-enforcement.md",
+        "ai": "ai/standards/workflow-enforcement.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Machine-enforceable workflow gates that prevent phase skipping in SDD/TDD/BDD methodologies"
+    },
+    {
       "id": "testing",
       "name": "Testing Standards",
       "nameZh": "測試標準",

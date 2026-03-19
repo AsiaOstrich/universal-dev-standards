@@ -17,6 +17,39 @@ Guide through the Test-Driven Development (TDD) workflow: Red-Green-Refactor.
 
 引導測試驅動開發（TDD）流程：紅-綠-重構。
 
+## Pre-Flight Checks | 前置檢查
+
+Before executing TDD phases, the AI assistant MUST verify prerequisites. If a check fails, STOP and guide the user.
+
+在執行 TDD 階段前，AI 助手必須驗證前置條件。如果檢查失敗，停止並引導使用者。
+
+### Phase Gate Matrix | 階段閘門矩陣
+
+| Target Phase | Pre-Flight Check | On Failure |
+|-------------|-----------------|------------|
+| `RED` | 1. Feature/function clearly defined | → Ask user to describe the behavior |
+| | 2. If SDD project: spec exists and is Approved | → Guide to `/sdd` |
+| `GREEN` | 1. At least one failing test exists | → Guide back to RED phase |
+| | 2. Run tests → confirm failure (not error) | → Fix test syntax/setup first |
+| `REFACTOR` | 1. All tests passing (GREEN confirmed) | → Stay in GREEN phase |
+| | 2. No failing tests from previous RED cycle | → Complete GREEN first |
+
+### Red-Before-Green Enforcement | 紅燈優先強制
+
+```
+🔴 RED: Write test → run → MUST fail
+   ↓ (only proceed if test fails with expected assertion failure)
+🟢 GREEN: Write minimal code → run → MUST pass
+   ↓ (only proceed if ALL tests pass)
+🔵 REFACTOR: Clean up → run → MUST still pass
+```
+
+**Critical Rule**: The AI MUST NOT write implementation code before a failing test exists. If the user asks to "just write the code", remind them of the TDD contract and offer to write the test first.
+
+**關鍵規則**：AI 不得在失敗測試存在之前撰寫實作程式碼。如果使用者要求「直接寫程式碼」，提醒 TDD 契約並建議先寫測試。
+
+---
+
 ## Methodology Integration | 方法論整合
 
 When `/tdd` is invoked:

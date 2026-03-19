@@ -64,6 +64,26 @@ After deployment, create separate PR to:
 - Use `openspec archive <change-id> --skip-specs --yes` for tooling-only changes (always pass the change ID explicitly)
 - Run `openspec validate --strict` to confirm the archived change passes checks
 
+## Workflow Enforcement Gates
+
+**CRITICAL**: Before executing any workflow phase, you MUST check prerequisites.
+
+### Phase Gates
+
+| Phase | Prerequisite | On Failure |
+|-------|-------------|------------|
+| Stage 2 (Implement) | Proposal approved | → Share proposal for review first |
+| Stage 3 (Archive) | All tasks completed | → Complete remaining tasks |
+| Commit (feat/fix) | Check active changes | → Suggest change-id reference |
+
+### Session Start Protocol
+At session start, check for active changes: `openspec list`
+If active changes found → inform user and offer to resume.
+
+Reference: `.standards/workflow-enforcement.ai.yaml`
+
+---
+
 ## Before Any Task
 
 **Context Checklist:**

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Universal Development Standards - Commit-msg Hook
+# Provides advisory suggestions, never blocks commits
+
+# Get repository root
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+# Spec reference suggestion (WARNING only, never blocks)
+if [ -f "$REPO_ROOT/scripts/check-commit-spec-reference.sh" ]; then
+    "$REPO_ROOT/scripts/check-commit-spec-reference.sh" "$1"
+fi

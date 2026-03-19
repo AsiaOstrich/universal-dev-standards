@@ -76,6 +76,26 @@ When Spec Kit is available, prioritize using these commands:
 
 ---
 
+## Workflow Enforcement Gates
+
+**CRITICAL**: Before executing any workflow phase, you MUST check prerequisites.
+
+### Phase Gates
+
+| Phase | Prerequisite | On Failure |
+|-------|-------------|------------|
+| Implementation | Spec status = Approved | → `/sdd approve` first |
+| Verification | All ACs have code + tests | → Complete implementation first |
+| Commit (feat/fix) | Check active specs | → Suggest `Refs: SPEC-XXX` |
+
+### Session Start Protocol
+At session start, check for active workflows: `/sdd list` or `ls .workflow-state/*.yaml 2>/dev/null`
+If active workflows found → inform user and offer to resume.
+
+Reference: `.standards/workflow-enforcement.ai.yaml`
+
+---
+
 ## Before Any Task
 
 **Context Checklist**:

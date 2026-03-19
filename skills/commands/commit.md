@@ -10,6 +10,35 @@ Generate well-formatted commit messages following the Conventional Commits stand
 
 根據 staged 的變更，產生符合 Conventional Commits 格式的 commit message。
 
+## Pre-Flight Checks | 前置檢查
+
+Before generating a commit, the AI assistant MUST run these checks:
+
+在產生 commit 前，AI 助手必須執行以下檢查：
+
+| Check | Command | On Failure |
+|-------|---------|------------|
+| Staged changes exist | `git diff --cached --stat` | → Guide user to `git add` |
+| No merge conflicts | `grep -r "<<<<<<< " --include="*.{js,ts,md,yaml}" .` | → Resolve conflicts first |
+| Tests pass (if feat/fix) | `cd cli && npm run test:unit` (or project test cmd) | → Fix tests before committing |
+| Spec reference (feat/fix) | Check `docs/specs/SPEC-*.md` for active specs | → Suggest `Refs: SPEC-XXX` in footer |
+
+### Spec Tracking Gate | Spec 追蹤閘門
+
+For `feat` and `fix` type commits:
+1. **Check**: `ls docs/specs/SPEC-*.md 2>/dev/null` — any active specs?
+2. **If specs exist**: Suggest adding `Refs: SPEC-XXX` to commit footer
+3. **If no specs and change is significant** (>3 files or new API): Suggest creating a spec via `/sdd`
+4. **Mode**: This is advisory (non-blocking) — user can always proceed without a spec reference
+
+對於 `feat` 和 `fix` 類型的提交：
+1. **檢查**：是否有活躍的規格？
+2. **如果有規格**：建議在 footer 加入 `Refs: SPEC-XXX`
+3. **如果沒有規格且變更顯著**：建議透過 `/sdd` 建立規格
+4. **模式**：這是建議性的（非阻斷）— 使用者可以不引用規格
+
+---
+
 ## Workflow | 工作流程
 
 1. **Check status** - Run `git status` and `git diff --staged` to understand changes

@@ -1,0 +1,253 @@
+# Workflow Enforcement Standards - AI Optimized
+# Source: core/workflow-enforcement.md
+
+id: workflow-enforcement
+meta:
+  version: "1.0.0"
+  updated: "2026-03-19"
+  source: core/workflow-enforcement.md
+  description: Machine-enforceable workflow gates that prevent phase skipping in development methodologies
+
+enforcement_modes:
+  enforce:
+    description: Block phase transition, show guidance to correct phase
+    behavior: AI refuses to proceed and explains which prerequisite is missing
+    default: true
+
+  suggest:
+    description: Show warning but allow override with user confirmation
+    behavior: AI warns about skipped prerequisites but proceeds if user insists
+
+  off:
+    description: No enforcement checks
+    behavior: AI follows workflow steps without gate checks
+
+config_location: ".uds/config.yaml"
+config_key: "workflow.enforcement_mode"
+
+gates:
+  sdd:
+    description: Spec-Driven Development phase gates
+    phases:
+      - phase: discuss
+        prerequisites: []
+        note: Entry point, no prerequisites
+
+      - phase: create
+        prerequisites:
+          - check: orphan_specs
+            command: "ls docs/specs/SPEC-*.md 2>/dev/null"
+            condition: warn_if_non_terminal_specs_exist
+            on_fail: warn_and_offer_cleanup
+            blocking: false
+
+      - phase: review
+        prerequisites:
+          - check: spec_exists
+            command: "ls docs/specs/SPEC-*.md"
+            condition: at_least_one_spec_exists
+            on_fail: guide_to_create
+            blocking: true
+          - check: spec_status_draft
+            command: "grep -m1 '^status:' docs/specs/SPEC-XXX.md"
+            condition: status_is_draft
+            on_fail: guide_to_create
+            blocking: true
+
+      - phase: approve
+        prerequisites:
+          - check: spec_in_review
+            condition: status_is_review
+            on_fail: guide_to_review
+            blocking: true
+          - check: review_comments_addressed
+            condition: no_unresolved_comments
+            on_fail: guide_to_resolve_comments
+            blocking: true
+
+      - phase: implement
+        prerequisites:
+          - check: spec_exists
+            command: "ls docs/specs/SPEC-*.md"
+            condition: at_least_one_spec_exists
+            on_fail: guide_to_create
+            blocking: true
+          - check: spec_approved
+            condition: status_is_approved
+            on_fail: guide_to_approve
+            blocking: true
+          - check: workflow_state
+            command: "ls .workflow-state/sdd-*.yaml 2>/dev/null"
+            condition: check_for_resumable_state
+            on_fail: start_fresh
+            blocking: false
+
+      - phase: verify
+        prerequisites:
+          - check: implementation_exists
+            condition: spec_has_implementation_commits
+            on_fail: guide_to_implement
+            blocking: true
+          - check: ac_coverage
+            condition: all_ac_have_code_and_tests
+            on_fail: list_incomplete_acs
+            blocking: true
+
+  tdd:
+    description: Test-Driven Development phase gates
+    phases:
+      - phase: red
+        prerequisites:
+          - check: feature_defined
+            condition: user_has_described_behavior
+            on_fail: ask_for_behavior_description
+            blocking: true
+          - check: sdd_spec_if_applicable
+            condition: if_sdd_project_spec_exists_and_approved
+            on_fail: guide_to_sdd
+            blocking: false
+
+      - phase: green
+        prerequisites:
+          - check: failing_test_exists
+            command: "npm test 2>&1 | grep -E 'FAIL|failing'"
+            condition: at_least_one_test_failing
+            on_fail: guide_to_red_phase
+            blocking: true
+
+      - phase: refactor
+        prerequisites:
+          - check: all_tests_passing
+            command: "npm test"
+            condition: zero_test_failures
+            on_fail: guide_to_green_phase
+            blocking: true
+
+  bdd:
+    description: Behavior-Driven Development phase gates
+    phases:
+      - phase: discovery
+        prerequisites:
+          - check: behavior_identified
+            condition: user_has_identified_behavior
+            on_fail: ask_for_behavior
+            blocking: true
+
+      - phase: formulation
+        prerequisites:
+          - check: examples_collected
+            condition: discovery_produced_examples
+            on_fail: guide_to_discovery
+            blocking: true
+
+      - phase: automation
+        prerequisites:
+          - check: feature_file_exists
+            command: "ls tests/features/*.feature 2>/dev/null"
+            condition: at_least_one_feature_file
+            on_fail: guide_to_formulation
+            blocking: true
+          - check: gherkin_format
+            condition: scenarios_use_given_when_then
+            on_fail: fix_scenario_format
+            blocking: true
+
+      - phase: living_docs
+        prerequisites:
+          - check: steps_implemented
+            condition: step_definitions_exist
+            on_fail: guide_to_automation
+            blocking: true
+          - check: scenarios_passing
+            condition: all_scenarios_pass
+            on_fail: fix_failing_scenarios
+            blocking: true
+
+  commit:
+    description: Commit workflow gates
+    phases:
+      - phase: commit
+        prerequisites:
+          - check: staged_changes
+            command: "git diff --cached --stat"
+            condition: has_staged_changes
+            on_fail: guide_to_git_add
+            blocking: true
+          - check: no_merge_conflicts
+            condition: no_conflict_markers_in_staged
+            on_fail: resolve_conflicts
+            blocking: true
+          - check: tests_pass
+            condition: tests_passing_for_feat_fix
+            on_fail: fix_tests
+            blocking: true
+          - check: spec_reference
+            condition: feat_fix_should_reference_spec
+            on_fail: suggest_spec_reference
+            blocking: false
+
+rules:
+  - id: enforce-phase-order
+    trigger: AI assistant receives a workflow phase command
+    instruction: >
+      Before executing any workflow phase (SDD, TDD, BDD), check the
+      phase gate prerequisites defined in this standard. If any blocking
+      prerequisite fails, STOP execution, explain what is missing, and
+      guide the user to the correct prerequisite phase. Non-blocking
+      prerequisites generate warnings but allow proceeding.
+    priority: required
+
+  - id: respect-enforcement-mode
+    trigger: checking workflow gates
+    instruction: >
+      Read the project's enforcement mode from .uds/config.yaml
+      (workflow.enforcement_mode). If 'enforce' (default), block on
+      failed prerequisites. If 'suggest', warn but allow override.
+      If 'off', skip all checks.
+    priority: required
+
+  - id: guide-dont-block
+    trigger: prerequisite check fails
+    instruction: >
+      When a prerequisite fails, provide actionable guidance:
+      1. Explain WHAT is missing (e.g., "No approved spec found")
+      2. Explain WHY it matters (e.g., "SDD requires approved specs before implementation")
+      3. Show HOW to fix it (e.g., "Run /sdd approve SPEC-XXX.md first")
+      Never just say "blocked" — always provide the path forward.
+    priority: required
+
+  - id: resume-existing-workflow
+    trigger: workflow command invoked with existing state
+    instruction: >
+      Before starting a fresh workflow, check .workflow-state/ for
+      existing state files. If an active workflow exists for the same
+      spec or feature, offer to resume instead of starting fresh.
+    priority: required
+
+  - id: feat-commit-spec-suggestion
+    trigger: committing a feat or fix type change
+    instruction: >
+      When generating a feat or fix commit message, check if active
+      specs exist in docs/specs/. If yes, suggest adding Refs: SPEC-XXX
+      to the commit footer. If no specs exist and the change is
+      significant (>3 files changed or new API), suggest creating a
+      spec via /sdd. This is advisory, not blocking.
+    priority: recommended
+
+quick_reference:
+  enforcement_modes:
+    columns: [Mode, Behavior, Config Value]
+    rows:
+      - [Enforce, "Block + Guide", "enforce"]
+      - [Suggest, "Warn + Allow", "suggest"]
+      - [Off, "No checks", "off"]
+
+  phase_gates:
+    columns: [Workflow, Phase, Key Prerequisite]
+    rows:
+      - [SDD, implement, "Spec must be Approved"]
+      - [SDD, verify, "All ACs must have code + tests"]
+      - [TDD, green, "At least one failing test"]
+      - [TDD, refactor, "All tests passing"]
+      - [BDD, automation, ".feature file must exist"]
+      - [Commit, feat/fix, "Suggest spec reference"]
