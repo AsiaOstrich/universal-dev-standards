@@ -1,84 +1,88 @@
 ---
-scope: uds-specific
 description: |
-  Generate usage documentation from project sources.
-  Use when: "generate docs", "create cheatsheet", "usage guide", "feature reference", "list all features"
-  Keywords: documentation, usage, reference, cheatsheet, features, 功能文件, 速查表, 使用說明
+  從專案來源產生使用說明文件。
+  使用時機：「產生文件」、「建立速查表」、「使用指南」、「功能參考」、「列出所有功能」
+  關鍵字：documentation, usage, reference, cheatsheet, features, 功能文件, 速查表, 使用說明
+source: ../../../../skills/docs-generator/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-26
+status: current
 ---
 
-# Documentation Generator Skill
+# 文件產生器技能
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/docs-generator/SKILL.md)
+> **Language**: [English](../../../../skills/docs-generator/SKILL.md) | 繁體中文
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-26
-**Applicability**: Claude Code Skills
+**版本**: 1.0.0
+**最後更新**: 2026-01-26
+**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose
+## 用途
 
-Automatically generate comprehensive usage documentation from project source files. This skill creates:
+自動從專案來源檔案產生完整的使用說明文件。此技能會建立：
 
-1. **FEATURE-REFERENCE.md**: Complete feature documentation with all details
-2. **CHEATSHEET.md**: Single-page quick reference table
+1. **FEATURE-REFERENCE.md**：包含所有細節的完整功能文件
+2. **CHEATSHEET.md**：單頁速查表
 
-Supports multiple languages (English, Traditional Chinese, Simplified Chinese) and scans various sources:
-- CLI commands
-- Slash commands
-- Skills
-- Agents
-- Workflows
-- Core standards
-- Scripts
+支援多語言（英文、繁體中文、簡體中文），並掃描各種來源：
+- CLI 指令
+- 斜線命令
+- 技能
+- 代理
+- 工作流程
+- 核心規範
+- 腳本
 
-## Quick Reference
+## 快速參考
 
-### Generate All Documentation
+### 產生所有文件
 
 ```bash
 node scripts/generate-usage-docs.mjs
 ```
 
-### Generate Specific Language
+### 產生特定語言
 
 ```bash
-node scripts/generate-usage-docs.mjs --lang=en       # English only
-node scripts/generate-usage-docs.mjs --lang=zh-TW    # Traditional Chinese
-node scripts/generate-usage-docs.mjs --lang=zh-CN    # Simplified Chinese
+node scripts/generate-usage-docs.mjs --lang=en       # 僅英文
+node scripts/generate-usage-docs.mjs --lang=zh-TW    # 繁體中文
+node scripts/generate-usage-docs.mjs --lang=zh-CN    # 簡體中文
 ```
 
-### Generate Specific Format
+### 產生特定格式
 
 ```bash
-node scripts/generate-usage-docs.mjs --cheatsheet    # Cheatsheet only
-node scripts/generate-usage-docs.mjs --reference     # Reference only
+node scripts/generate-usage-docs.mjs --cheatsheet    # 僅速查表
+node scripts/generate-usage-docs.mjs --reference     # 僅參考手冊
 ```
 
-### Check Sync Status
+### 檢查同步狀態
 
 ```bash
-# Check if docs need update
+# 檢查文件是否需要更新
 node scripts/generate-usage-docs.mjs --check
 
-# Or use sync check script
-./scripts/check-usage-docs-sync.sh         # Check
-./scripts/check-usage-docs-sync.sh --fix   # Fix if needed
+# 或使用同步檢查腳本
+./scripts/check-usage-docs-sync.sh         # 檢查
+./scripts/check-usage-docs-sync.sh --fix   # 需要時修復
 ```
 
-## Configuration
+## 配置
 
-The generator uses `.usage-docs.yaml` in project root to define:
+產生器使用專案根目錄的 `.usage-docs.yaml` 來定義：
 
-- **Output paths**: Where to generate documents
-- **Languages**: Which languages to generate
-- **Sources**: What to scan (CLI, skills, commands, etc.)
-- **Templates**: Document structure templates
+- **輸出路徑**：文件產生位置
+- **語言**：要產生的語言版本
+- **來源**：要掃描的內容（CLI、技能、命令等）
+- **範本**：文件結構範本
 
-### Configuration Example (Multi-language)
+### 配置範例（多語言）
 
 ```yaml
-# .usage-docs.yaml - Full UDS configuration
+# .usage-docs.yaml - 完整 UDS 配置
 version: "1.0"
 output:
   directory: "docs/"
@@ -99,12 +103,12 @@ sources:
     pattern: "**/SKILL.md"
 ```
 
-### Single-Language Project
+### 單語言專案
 
-For projects that only need English documentation:
+僅需要英文文件的專案：
 
 ```yaml
-# .usage-docs.yaml - English only
+# .usage-docs.yaml - 僅英文
 version: "1.0"
 output:
   directory: "docs/"
@@ -120,12 +124,12 @@ sources:
     entry: "src/cli.js"
 ```
 
-### Custom Language Configuration
+### 自訂語言配置
 
-For projects with different language requirements (e.g., English + Japanese):
+不同語言需求的專案（例如：英文 + 日文）：
 
 ```yaml
-# .usage-docs.yaml - English + Japanese
+# .usage-docs.yaml - 英文 + 日文
 version: "1.0"
 output:
   directory: "docs/"
@@ -148,111 +152,111 @@ templates:
       ja: "チートシート"
 ```
 
-### Configuration Fallback Behavior
+### 配置 Fallback 行為
 
-The generator implements smart fallback for titles and paths:
+產生器實作智慧 fallback 機制處理標題和路徑：
 
-| Priority | Source | Description |
-|----------|--------|-------------|
-| 1 | `config[lang]` | Configured value for specific language |
-| 2 | `config.en` | English fallback from config |
-| 3 | Built-in default | Hardcoded default for supported languages |
+| 優先順序 | 來源 | 說明 |
+|----------|------|------|
+| 1 | `config[lang]` | 特定語言的配置值 |
+| 2 | `config.en` | 配置中的英文 fallback |
+| 3 | 內建預設值 | 支援語言的硬編碼預設值 |
 
-**Supported built-in languages**: `en`, `zh-TW`, `zh-CN`
+**內建支援的語言**：`en`、`zh-TW`、`zh-CN`
 
-For unsupported languages, you must provide custom titles in the `templates` section.
+對於不支援的語言，您必須在 `templates` 區塊中提供自訂標題。
 
-## Output Files
+## 輸出檔案
 
-| Language | FEATURE-REFERENCE | CHEATSHEET |
-|----------|-------------------|------------|
+| 語言 | FEATURE-REFERENCE | CHEATSHEET |
+|------|-------------------|------------|
 | English | `docs/FEATURE-REFERENCE.md` | `docs/CHEATSHEET.md` |
 | 繁體中文 | `locales/zh-TW/docs/FEATURE-REFERENCE.md` | `locales/zh-TW/docs/CHEATSHEET.md` |
 | 简体中文 | `locales/zh-CN/docs/FEATURE-REFERENCE.md` | `locales/zh-CN/docs/CHEATSHEET.md` |
 
-## Integration with Pre-Release Check
+## 整合到發布前檢查
 
-Add usage docs sync check to `pre-release-check.sh`:
+將使用說明文件同步檢查加入 `pre-release-check.sh`：
 
 ```bash
-# Check usage docs sync
+# 檢查使用說明文件同步
 echo "Checking usage documentation sync..."
 ./scripts/check-usage-docs-sync.sh
 ```
 
-## Workflow
+## 工作流程
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Documentation Generator               │
+│                      文件產生器                          │
 ├─────────────────────────────────────────────────────────┤
 │                                                          │
-│  1. Load Configuration (.usage-docs.yaml)               │
+│  1. 載入配置 (.usage-docs.yaml)                         │
 │           │                                              │
 │           ▼                                              │
-│  2. Scan Sources                                         │
-│     ├─ CLI commands (uds.js)                            │
-│     ├─ Skills (SKILL.md files)                          │
-│     ├─ Commands (slash commands)                        │
-│     ├─ Agents (agent definitions)                       │
-│     ├─ Workflows (workflow files)                       │
-│     ├─ Core standards (core/*.md)                       │
-│     └─ Scripts (scripts/*.sh)                           │
+│  2. 掃描來源                                             │
+│     ├─ CLI 指令 (uds.js)                                │
+│     ├─ 技能 (SKILL.md 檔案)                             │
+│     ├─ 命令 (斜線命令)                                   │
+│     ├─ 代理 (代理定義)                                   │
+│     ├─ 工作流程 (工作流程檔案)                           │
+│     ├─ 核心規範 (core/*.md)                             │
+│     └─ 腳本 (scripts/*.sh)                              │
 │           │                                              │
 │           ▼                                              │
-│  3. Generate Documents                                   │
-│     ├─ FEATURE-REFERENCE.md (detailed)                  │
-│     └─ CHEATSHEET.md (quick reference)                  │
+│  3. 產生文件                                             │
+│     ├─ FEATURE-REFERENCE.md（詳細版）                   │
+│     └─ CHEATSHEET.md（速查表）                          │
 │           │                                              │
 │           ▼                                              │
-│  4. Output for Each Language                             │
-│     ├─ English (docs/)                                   │
-│     ├─ zh-TW (locales/zh-TW/docs/)                      │
-│     └─ zh-CN (locales/zh-CN/docs/)                      │
+│  4. 輸出各語言版本                                       │
+│     ├─ 英文 (docs/)                                      │
+│     ├─ 繁體中文 (locales/zh-TW/docs/)                   │
+│     └─ 簡體中文 (locales/zh-CN/docs/)                   │
 │                                                          │
 └─────────────────────────────────────────────────────────┘
 ```
 
-## Extending for Other Projects
+## 在其他專案使用
 
-This skill is designed to be reusable. To use in your project:
+此技能設計為可重用。在你的專案中使用：
 
-1. **Copy the configuration template**:
+1. **複製配置範本**：
    ```bash
    cp .usage-docs.yaml your-project/.usage-docs.yaml
    ```
 
-2. **Modify for your project structure**:
-   - Update source directories
-   - Adjust patterns for your file naming
-   - Configure output paths
+2. **修改為你的專案結構**：
+   - 更新來源目錄
+   - 調整檔案命名模式
+   - 配置輸出路徑
 
-3. **Copy the generator script**:
+3. **複製產生器腳本**：
    ```bash
    cp scripts/generate-usage-docs.mjs your-project/scripts/
    ```
 
-4. **Run the generator**:
+4. **執行產生器**：
    ```bash
    node scripts/generate-usage-docs.mjs
    ```
 
-## Related Standards
+## 相關規範
 
-- [Documentation Writing Standards](../../core/documentation-writing-standards.md)
-- [Documentation Structure](../../core/documentation-structure.md)
-- [AI-Friendly Architecture](../../core/ai-friendly-architecture.md)
+- [文件撰寫規範](../../../../core/documentation-writing-standards.md)
+- [文件結構規範](../../../../core/documentation-structure.md)
+- [AI 友善架構](../../../../core/ai-friendly-architecture.md)
 
-## Version History
+## 版本歷史
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-01-26 | Initial release with multi-language support |
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-01-26 | 初始發布，支援多語言 |
 
 ---
 
-## License
+## 授權
 
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+此技能以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權釋出。
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

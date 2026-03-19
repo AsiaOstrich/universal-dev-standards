@@ -1,405 +1,413 @@
-# Acceptance Criteria Writing Guide
+---
+source: ../../../../skills/atdd-assistant/acceptance-criteria-guide.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-05
+status: current
+---
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-19
+# 驗收標準撰寫指南
+
+**版本**: 1.0.0
+**最後更新**: 2026-01-19
 
 ---
 
-## Overview
+## 概述
 
-Acceptance Criteria (AC) define the conditions that must be met for a user story to be considered complete. Well-written AC ensure shared understanding and enable automated testing.
-
----
-
-## INVEST Criteria for User Stories
-
-Before writing acceptance criteria, ensure the user story follows INVEST:
-
-| Principle | Description | Questions to Ask |
-|-----------|-------------|------------------|
-| **I**ndependent | Can be developed without depending on other stories | "Does this require another story to be done first?" |
-| **N**egotiable | Details can be discussed, not a contract | "Is the scope flexible?" |
-| **V**aluable | Delivers value to the user or business | "Why does this matter?" |
-| **E**stimable | Can be estimated by the team | "Do we understand what's needed?" |
-| **S**mall | Small enough to fit in one sprint | "Can we complete this in < 1 week?" |
-| **T**estable | Can be verified through testing | "How do we know it's done?" |
+驗收標準（AC）定義用戶故事被視為完成必須滿足的條件。良好撰寫的 AC 確保共同理解並啟用自動化測試。
 
 ---
 
-## Acceptance Criteria Format
+## 用戶故事的 INVEST 準則
 
-### Given-When-Then (Recommended)
+撰寫驗收標準前，確保用戶故事遵循 INVEST：
+
+| 原則 | 描述 | 要問的問題 |
+|------|------|----------|
+| **I**ndependent 獨立 | 可以不依賴其他故事開發 | 「這需要先完成另一個故事嗎？」 |
+| **N**egotiable 可協商 | 細節可以討論，非合約 | 「範圍有彈性嗎？」 |
+| **V**aluable 有價值 | 傳遞價值給使用者或企業 | 「為什麼這很重要？」 |
+| **E**stimable 可估算 | 團隊可以估算 | 「我們理解需要什麼嗎？」 |
+| **S**mall 小 | 小到可以在一個 Sprint 內完成 | 「我們可以在 < 1 週內完成嗎？」 |
+| **T**estable 可測試 | 可以通過測試驗證 | 「我們怎麼知道它完成了？」 |
+
+---
+
+## 驗收標準格式
+
+### Given-When-Then（推薦）
 
 ```markdown
-### AC-1: [Criterion name]
-**Given** [precondition / initial context]
-**And** [additional precondition]
-**When** [action / event]
-**And** [additional action]
-**Then** [expected outcome]
-**And** [additional expected outcome]
-**But** [exception to expected outcome]
+### AC-1: [標準名稱]
+**Given** [前置條件 / 初始情境]
+**And** [額外前置條件]
+**When** [動作 / 事件]
+**And** [額外動作]
+**Then** [預期結果]
+**And** [額外預期結果]
+**But** [預期結果的例外]
 ```
 
-### Example
+### 範例
 
 ```markdown
-### AC-1: Successful login with valid credentials
-**Given** I am on the login page
-**And** I have a registered account
-**When** I enter my email "user@example.com"
-**And** I enter my password "correctpassword"
-**And** I click the login button
-**Then** I should be redirected to the dashboard
-**And** I should see a welcome message with my name
-```
-
----
-
-## Complete User Story Template
-
-```markdown
-## User Story: [US-XXX] [Title]
-
-**As a** [role/persona]
-**I want** [feature/capability]
-**So that** [benefit/value]
-
----
-
-## Acceptance Criteria
-
-### AC-1: [Happy path - main success scenario]
-**Given** [precondition]
-**When** [action]
-**Then** [expected result]
-
-### AC-2: [Alternative path]
-**Given** [different precondition]
-**When** [action]
-**Then** [different expected result]
-
-### AC-3: [Error handling]
-**Given** [precondition]
-**When** [invalid action]
-**Then** [error handling / recovery]
-
-### AC-4: [Edge case]
-**Given** [edge condition]
-**When** [action]
-**Then** [appropriate behavior]
-
----
-
-## Out of Scope
-- [Feature explicitly not included]
-- [Enhancement deferred to future]
-- [Variation not covered]
-
----
-
-## Technical Notes
-- [Implementation constraint]
-- [Dependency]
-- [Performance requirement]
-- [Security consideration]
-
----
-
-## Open Questions
-- [ ] [Question needing clarification]
-- [ ] [Assumption to validate]
-
----
-
-## Metadata
-- **Priority**: [High/Medium/Low]
-- **Estimate**: [Story points]
-- **Sprint**: [Sprint number]
-- **Related Spec**: [SPEC-XXX if applicable]
+### AC-1: 使用有效憑證成功登入
+**Given** 我在登入頁面
+**And** 我有一個已註冊帳號
+**When** 我輸入我的電子郵件 "user@example.com"
+**And** 我輸入我的密碼 "correctpassword"
+**And** 我點擊登入按鈕
+**Then** 我應該被重新導向到儀表板
+**And** 我應該看到帶有我名字的歡迎訊息
 ```
 
 ---
 
-## Writing Good Acceptance Criteria
-
-### DO's and DON'Ts
-
-| DO | DON'T |
-|----|-------|
-| Write from user's perspective | Write from system's perspective |
-| Use business language | Use technical jargon |
-| Be specific and concrete | Be vague or abstract |
-| Include measurable outcomes | Use subjective terms |
-| Keep criteria independent | Create interdependencies |
-| Cover happy path AND edge cases | Only cover happy path |
-
-### Good vs Bad Examples
+## 完整用戶故事範本
 
 ```markdown
-# ❌ BAD: Vague and untestable
-AC-1: User can easily reset password
-AC-2: System sends email quickly
-AC-3: Experience is user-friendly
+## 用戶故事: [US-XXX] [標題]
 
-# ✅ GOOD: Specific and testable
-AC-1: Password reset request
-Given I am on the login page
-And I have a registered account with email "user@example.com"
-When I click "Forgot Password"
-And I enter my email "user@example.com"
-Then I should see "Reset link sent to your email"
-And I should receive an email within 5 minutes
-And the email should contain a reset link valid for 24 hours
+**身為** [角色/人物]
+**我想要** [功能/能力]
+**以便** [好處/價值]
 
-# ❌ BAD: Technical jargon
-AC-1: POST /api/auth/reset returns 202
-AC-2: Redis queue processes within SLA
-AC-3: SendGrid webhook confirmed
+---
 
-# ✅ GOOD: Business language
-AC-1: Reset email delivery
-Given I have requested a password reset
-When the system processes my request
-Then I should receive an email within 5 minutes
-And the email should come from "noreply@example.com"
+## 驗收標準
+
+### AC-1: [Happy path - 主要成功情境]
+**Given** [前置條件]
+**When** [動作]
+**Then** [預期結果]
+
+### AC-2: [替代路徑]
+**Given** [不同前置條件]
+**When** [動作]
+**Then** [不同預期結果]
+
+### AC-3: [錯誤處理]
+**Given** [前置條件]
+**When** [無效動作]
+**Then** [錯誤處理 / 復原]
+
+### AC-4: [邊界案例]
+**Given** [邊界條件]
+**When** [動作]
+**Then** [適當行為]
+
+---
+
+## 範圍外
+- [明確不包含的功能]
+- [延後至未來的增強]
+- [未涵蓋的變體]
+
+---
+
+## 技術備註
+- [實作限制]
+- [依賴]
+- [效能需求]
+- [安全考量]
+
+---
+
+## 開放問題
+- [ ] [需要澄清的問題]
+- [ ] [需要驗證的假設]
+
+---
+
+## 元資料
+- **優先級**: [高/中/低]
+- **估算**: [故事點數]
+- **Sprint**: [Sprint 編號]
+- **相關規格**: [SPEC-XXX 如適用]
 ```
 
 ---
 
-## Categories of Acceptance Criteria
+## 撰寫良好的驗收標準
+
+### DO's 和 DON'Ts
+
+| 應該做 | 不應該做 |
+|--------|---------|
+| 從使用者角度撰寫 | 從系統角度撰寫 |
+| 使用商業語言 | 使用技術術語 |
+| 具體且明確 | 模糊或抽象 |
+| 包含可衡量的結果 | 使用主觀用語 |
+| 保持標準獨立 | 建立相互依賴 |
+| 涵蓋 happy path 和邊界案例 | 只涵蓋 happy path |
+
+### 好與壞的範例
+
+```markdown
+# ❌ 壞：模糊且不可測試
+AC-1: 使用者可以輕鬆重設密碼
+AC-2: 系統快速發送電子郵件
+AC-3: 體驗對使用者友善
+
+# ✅ 好：具體且可測試
+AC-1: 密碼重設請求
+Given 我在登入頁面
+And 我有一個電子郵件為 "user@example.com" 的註冊帳號
+When 我點擊「忘記密碼」
+And 我輸入我的電子郵件 "user@example.com"
+Then 我應該看到「重設連結已寄至您的電子郵件」
+And 我應該在 5 分鐘內收到電子郵件
+And 電子郵件應該包含 24 小時有效的重設連結
+
+# ❌ 壞：技術術語
+AC-1: POST /api/auth/reset 回傳 202
+AC-2: Redis 佇列在 SLA 內處理
+AC-3: SendGrid webhook 已確認
+
+# ✅ 好：商業語言
+AC-1: 重設電子郵件送達
+Given 我已請求密碼重設
+When 系統處理我的請求
+Then 我應該在 5 分鐘內收到電子郵件
+And 電子郵件應該來自 "noreply@example.com"
+```
+
+---
+
+## 驗收標準類別
 
 ### 1. Happy Path
 
-The main success scenario - what happens when everything works correctly.
+主要成功情境 - 一切正常運作時會發生什麼。
 
 ```markdown
-### AC-1: Successful checkout
-Given I have items in my cart
-And I have a valid payment method
-When I complete the checkout process
-Then my order should be confirmed
-And I should receive a confirmation email
+### AC-1: 成功結帳
+Given 我的購物車有商品
+And 我有有效的付款方式
+When 我完成結帳流程
+Then 我的訂單應該被確認
+And 我應該收到確認電子郵件
 ```
 
-### 2. Error Handling
+### 2. 錯誤處理
 
-What happens when things go wrong.
+當事情出錯時會發生什麼。
 
 ```markdown
-### AC-2: Payment declined
-Given I have items in my cart
-When I attempt checkout with an invalid card
-Then I should see "Payment declined"
-And my cart should still contain my items
-And no order should be created
+### AC-2: 付款被拒絕
+Given 我的購物車有商品
+When 我嘗試使用無效的卡片結帳
+Then 我應該看到「付款被拒絕」
+And 我的購物車仍應該包含我的商品
+And 不應該建立訂單
 ```
 
-### 3. Edge Cases
+### 3. 邊界案例
 
-Boundary conditions and unusual scenarios.
+邊界條件和不尋常的情境。
 
 ```markdown
-### AC-3: Cart with maximum items
-Given my cart has 100 items (maximum allowed)
-When I try to add another item
-Then I should see "Cart is full"
-And the item should not be added
+### AC-3: 購物車商品達到上限
+Given 我的購物車有 100 件商品（允許的最大數量）
+When 我嘗試新增另一件商品
+Then 我應該看到「購物車已滿」
+And 該商品不應該被新增
 ```
 
-### 4. Authorization
+### 4. 授權
 
-Who can do what.
+誰可以做什麼。
 
 ```markdown
-### AC-4: Admin-only access
-Given I am logged in as a regular user
-When I try to access the admin panel
-Then I should see "Access denied"
-And I should be redirected to the home page
+### AC-4: 僅限管理員存取
+Given 我以一般使用者身份登入
+When 我嘗試存取管理面板
+Then 我應該看到「存取被拒絕」
+And 我應該被重新導向到首頁
 ```
 
-### 5. Validation
+### 5. 驗證
 
-Data and input validation.
+資料和輸入驗證。
 
 ```markdown
-### AC-5: Email format validation
-Given I am on the registration form
-When I enter an invalid email format "not-an-email"
-Then I should see "Please enter a valid email address"
-And the form should not be submitted
+### AC-5: 電子郵件格式驗證
+Given 我在註冊表單上
+When 我輸入無效的電子郵件格式 "not-an-email"
+Then 我應該看到「請輸入有效的電子郵件地址」
+And 表單不應該被提交
 ```
 
-### 6. Performance (if applicable)
+### 6. 效能（如適用）
 
-Non-functional requirements.
+非功能性需求。
 
 ```markdown
-### AC-6: Search response time
-Given I am on the search page
-When I search for "laptop"
-Then results should appear within 2 seconds
-And at least 10 results should be shown
+### AC-6: 搜尋回應時間
+Given 我在搜尋頁面
+When 我搜尋「筆電」
+Then 結果應該在 2 秒內顯示
+And 應該顯示至少 10 個結果
 ```
 
 ---
 
-## Acceptance Criteria Checklist
+## 驗收標準檢查清單
 
-Before finalizing AC, verify:
+完成 AC 前，驗證：
 
 ```
-Clarity
-□ Can a new team member understand it?
-□ Is it free of technical jargon?
-□ Is it specific enough to implement?
+清晰度
+□ 新團隊成員能理解嗎？
+□ 沒有技術術語嗎？
+□ 足夠具體可以實作嗎？
 
-Testability
-□ Can it be automated?
-□ Are outcomes measurable?
-□ Is there a clear pass/fail criteria?
+可測試性
+□ 可以自動化嗎？
+□ 結果可衡量嗎？
+□ 有明確的通過/失敗標準嗎？
 
-Completeness
-□ Happy path covered?
-□ Error scenarios covered?
-□ Edge cases considered?
-□ Security implications addressed?
+完整性
+□ Happy path 涵蓋了嗎？
+□ 錯誤情境涵蓋了嗎？
+□ 邊界案例考慮了嗎？
+□ 安全影響處理了嗎？
 
-Independence
-□ Can it be tested in isolation?
-□ No dependency on other AC?
-□ No assumptions about test order?
+獨立性
+□ 可以獨立測試嗎？
+□ 沒有依賴其他 AC 嗎？
+□ 沒有假設測試順序嗎？
 
-Business Value
-□ Does it deliver user value?
-□ Can PO explain why it matters?
-□ Is it aligned with business goals?
-```
-
----
-
-## AC Anti-Patterns
-
-| Anti-Pattern | Example | Problem | Fix |
-|--------------|---------|---------|-----|
-| **Vague** | "System should be fast" | Not measurable | "Response time < 2 seconds" |
-| **Technical** | "API returns 200 OK" | Business can't validate | "User sees success message" |
-| **Compound** | "User can create, edit, and delete" | Too many behaviors | Split into separate AC |
-| **Missing Given** | "When I click submit, order is created" | No context | Add Given clause |
-| **Missing Then** | "Given I'm logged in, When I click logout" | No verification | Add Then clause |
-| **Dependent** | "Given AC-1 passed..." | Not independent | Self-contained setup |
-
----
-
-## Examples by Feature Type
-
-### User Authentication
-
-```markdown
-## User Story: User Login
-
-**As a** registered user
-**I want** to log in to my account
-**So that** I can access my personalized content
-
-### AC-1: Successful login
-Given I am on the login page
-And I have a registered account with email "user@example.com"
-When I enter my email "user@example.com"
-And I enter my correct password
-And I click the login button
-Then I should be redirected to my dashboard
-And I should see "Welcome back, [username]"
-
-### AC-2: Failed login with wrong password
-Given I am on the login page
-When I enter my email "user@example.com"
-And I enter an incorrect password
-And I click the login button
-Then I should see "Invalid email or password"
-And I should remain on the login page
-And the password field should be cleared
-
-### AC-3: Account lockout
-Given I have failed login 3 times
-When I attempt to login again
-Then I should see "Account temporarily locked"
-And I should be offered a password reset option
-And I should not be able to login for 15 minutes
-```
-
-### E-commerce Checkout
-
-```markdown
-## User Story: Apply Discount Code
-
-**As a** customer
-**I want** to apply a discount code to my order
-**So that** I can save money on my purchase
-
-### AC-1: Valid percentage discount
-Given I have items in my cart totaling $100
-When I apply discount code "SAVE10"
-Then my total should be reduced to $90
-And I should see "10% discount applied"
-
-### AC-2: Valid fixed amount discount
-Given I have items in my cart totaling $100
-When I apply discount code "FLAT5"
-Then my total should be reduced to $95
-And I should see "$5 discount applied"
-
-### AC-3: Expired discount code
-Given I have items in my cart
-When I apply discount code "EXPIRED2023"
-Then I should see "This code has expired"
-And my total should remain unchanged
-
-### AC-4: Minimum purchase requirement
-Given my cart total is $30
-When I apply discount code "MIN50" (requires $50 minimum)
-Then I should see "Minimum purchase of $50 required"
-And my total should remain unchanged
-
-### AC-5: One code per order
-Given I have already applied code "SAVE10"
-When I try to apply another code "SAVE20"
-Then I should see "Only one discount code per order"
-And my original discount should remain
+商業價值
+□ 傳遞使用者價值嗎？
+□ PO 能解釋為什麼重要嗎？
+□ 與商業目標一致嗎？
 ```
 
 ---
 
-## Mapping AC to Tests
+## AC 反模式
 
-### From AC to Gherkin
+| 反模式 | 範例 | 問題 | 修復 |
+|--------|------|------|------|
+| **模糊** | 「系統應該快」 | 不可衡量 | 「回應時間 < 2 秒」 |
+| **技術性** | 「API 回傳 200 OK」 | 商業無法驗證 | 「使用者看到成功訊息」 |
+| **複合** | 「使用者可以建立、編輯和刪除」 | 太多行為 | 拆分為獨立 AC |
+| **缺少 Given** | 「當我點擊提交，訂單建立」 | 沒有情境 | 新增 Given 子句 |
+| **缺少 Then** | 「假設我已登入，當我點擊登出」 | 沒有驗證 | 新增 Then 子句 |
+| **相依** | 「假設 AC-1 通過...」 | 不獨立 | 自包含設定 |
+
+---
+
+## 各功能類型範例
+
+### 使用者認證
 
 ```markdown
-### AC-1: Successful password reset
-**Given** I have a registered account
-**When** I request a password reset
-**And** I click the link in the email
-**And** I enter a new valid password
-**Then** my password should be changed
-**And** I should be able to login with the new password
+## 用戶故事: 使用者登入
+
+**身為** 註冊使用者
+**我想要** 登入我的帳號
+**以便** 我可以存取我的個人化內容
+
+### AC-1: 成功登入
+Given 我在登入頁面
+And 我有一個電子郵件為 "user@example.com" 的註冊帳號
+When 我輸入我的電子郵件 "user@example.com"
+And 我輸入我正確的密碼
+And 我點擊登入按鈕
+Then 我應該被重新導向到我的儀表板
+And 我應該看到「歡迎回來，[使用者名稱]」
+
+### AC-2: 密碼錯誤登入失敗
+Given 我在登入頁面
+When 我輸入我的電子郵件 "user@example.com"
+And 我輸入錯誤的密碼
+And 我點擊登入按鈕
+Then 我應該看到「電子郵件或密碼無效」
+And 我應該停留在登入頁面
+And 密碼欄位應該被清空
+
+### AC-3: 帳號鎖定
+Given 我已失敗登入 3 次
+When 我嘗試再次登入
+Then 我應該看到「帳號暫時鎖定」
+And 我應該可以選擇密碼重設
+And 我應該在 15 分鐘內無法登入
 ```
 
-Becomes:
+### 電子商務結帳
+
+```markdown
+## 用戶故事: 套用折扣碼
+
+**身為** 客戶
+**我想要** 在我的訂單套用折扣碼
+**以便** 我可以在購買時省錢
+
+### AC-1: 有效的百分比折扣
+Given 我的購物車商品總計 $100
+When 我套用折扣碼 "SAVE10"
+Then 我的總計應該減少到 $90
+And 我應該看到「已套用 10% 折扣」
+
+### AC-2: 有效的固定金額折扣
+Given 我的購物車商品總計 $100
+When 我套用折扣碼 "FLAT5"
+Then 我的總計應該減少到 $95
+And 我應該看到「已套用 $5 折扣」
+
+### AC-3: 過期的折扣碼
+Given 我的購物車有商品
+When 我套用折扣碼 "EXPIRED2023"
+Then 我應該看到「此折扣碼已過期」
+And 我的總計應該保持不變
+
+### AC-4: 最低購買要求
+Given 我的購物車總計 $30
+When 我套用折扣碼 "MIN50"（需要最低 $50）
+Then 我應該看到「需要最低購買 $50」
+And 我的總計應該保持不變
+
+### AC-5: 每筆訂單一個折扣碼
+Given 我已套用折扣碼 "SAVE10"
+When 我嘗試套用另一個折扣碼 "SAVE20"
+Then 我應該看到「每筆訂單只能使用一個折扣碼」
+And 我原本的折扣應該保留
+```
+
+---
+
+## 將 AC 對應到測試
+
+### 從 AC 到 Gherkin
+
+```markdown
+### AC-1: 成功的密碼重設
+**Given** 我有一個註冊帳號
+**When** 我請求密碼重設
+**And** 我點擊電子郵件中的連結
+**And** 我輸入新的有效密碼
+**Then** 我的密碼應該被更改
+**And** 我應該能用新密碼登入
+```
+
+變成：
 
 ```gherkin
 @AC-1
-Scenario: Successful password reset
-  Given I have a registered account with email "user@example.com"
-  When I request a password reset for "user@example.com"
-  And I click the reset link from the email
-  And I enter new password "NewSecureP@ss123"
-  And I confirm the new password
-  Then I should see "Password successfully changed"
-  And I should be able to login with "NewSecureP@ss123"
+Scenario: 成功的密碼重設
+  Given 我有一個電子郵件為 "user@example.com" 的註冊帳號
+  When 我為 "user@example.com" 請求密碼重設
+  And 我點擊電子郵件中的重設連結
+  And 我輸入新密碼 "NewSecureP@ss123"
+  And 我確認新密碼
+  Then 我應該看到「密碼已成功更改」
+  And 我應該能用 "NewSecureP@ss123" 登入
 ```
 
-### From AC to FitNesse
+### 從 AC 到 FitNesse
 
 ```
 !|Password Reset|
@@ -412,9 +420,9 @@ Scenario: Successful password reset
 
 ---
 
-## Related Resources
+## 相關資源
 
-- [ATDD Workflow Guide](./atdd-workflow.md)
-- [ATDD Core Standard](../../core/acceptance-test-driven-development.md)
-- [Gherkin Guide](../bdd-assistant/gherkin-guide.md)
-- [Requirement Assistant](../requirement-assistant/SKILL.md)
+- [ATDD 工作流程指南](./atdd-workflow.md)
+- [ATDD 核心標準](../../../../core/acceptance-test-driven-development.md)
+- [Gherkin 指南](../bdd-assistant/gherkin-guide.md)
+- [需求助手](../requirement-assistant/SKILL.md)

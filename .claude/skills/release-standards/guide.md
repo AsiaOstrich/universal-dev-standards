@@ -1,30 +1,32 @@
 ---
-scope: universal
+source: ../../../../skills/release-standards/SKILL.md
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-02
+status: current
 description: |
-  Semantic versioning and changelog formatting for software releases.
-  Use when: preparing releases, updating version numbers, writing changelogs.
-  Keywords: version, release, changelog, semver, major, minor, patch, 版本, 發布, 變更日誌.
+  語意化版本控制和變更日誌格式化的軟體發布標準。
+  使用時機：準備發布、更新版本號、撰寫變更日誌。
+  關鍵字：version, release, changelog, semver, major, minor, patch, 版本, 發布, 變更日誌。
 ---
 
-# Release Standards
+# 發布標準
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/release-standards/SKILL.md)
+> **語言**: [English](../../../../skills/release-standards/SKILL.md) | 繁體中文
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-02
-**Applicability**: Claude Code Skills
+**版本**: 1.1.0
+**最後更新**: 2026-01-02
+**適用範圍**: Claude Code Skills
 
 ---
 
-> **Core Standard**: This skill implements [Versioning](../../core/versioning.md). For comprehensive methodology documentation, refer to the core standard.
+## 目的
 
-## Purpose
+本技能提供語意化版本控制和變更日誌格式化標準。
 
-This skill provides semantic versioning and changelog formatting standards.
+## 快速參考
 
-## Quick Reference
-
-### Semantic Versioning Format
+### 語意化版本格式
 
 ```
 MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
@@ -35,46 +37,41 @@ Examples:
 3.2.0-beta.2+20250112
 ```
 
-### Version Incrementing Rules
+### 版本遞增規則
 
-| Component | When to Increment | Example |
+| 組成部分 | 何時遞增 | 範例 |
 |-----------|-------------------|----------|
-| **MAJOR** | Breaking changes | 1.9.5 → 2.0.0 |
-| **MINOR** | New features (backward-compatible) | 2.3.5 → 2.4.0 |
-| **PATCH** | Bug fixes (backward-compatible) | 3.1.2 → 3.1.3 |
+| **MAJOR** | 重大變更 | 1.9.5 → 2.0.0 |
+| **MINOR** | 新功能（向後相容） | 2.3.5 → 2.4.0 |
+| **PATCH** | 錯誤修復（向後相容） | 3.1.2 → 3.1.3 |
 
-### Pre-release Identifiers
+### 預發布識別符
 
-| Identifier | Stability | Audience |
+| 識別符 | 穩定性 | 目標受眾 |
 |------------|-----------|----------|
-| `alpha` | Unstable | Internal team |
-| `beta` | Mostly stable | Early adopters |
-| `rc` | Stable | Beta testers |
+| `alpha` | 不穩定 | 內部團隊 |
+| `beta` | 大致穩定 | 早期採用者 |
+| `rc` | 穩定 | Beta 測試者 |
 
-### CHANGELOG Categories
+### CHANGELOG 分類
 
-| Category | Usage |
+| 分類 | 用途 |
 |----------|-------|
-| **Added** | New features |
-| **Changed** | Changes in existing functionality |
-| **Deprecated** | Soon to be removed |
-| **Removed** | Removed features |
-| **Fixed** | Bug fixes |
-| **Security** | Vulnerability fixes |
+| **Added** | 新功能 |
+| **Changed** | 現有功能的變更 |
+| **Deprecated** | 即將移除的功能 |
+| **Removed** | 已移除的功能 |
+| **Fixed** | 錯誤修復 |
+| **Security** | 安全性漏洞修復 |
 
-## Detailed Guidelines
+## 詳細指南
 
-For complete standards, see:
-- [Semantic Versioning Guide](./semantic-versioning.md)
-- [Changelog Format](./changelog-format.md)
-- [Release Workflow Guide](./release-workflow.md) - Complete release process for this project
+完整標準請參閱：
+- [語意化版本控制指南](./semantic-versioning.md)
+- [變更日誌格式](./changelog-format.md)
+- [發布流程指南](./release-workflow.md) - 本專案完整發布流程
 
-### AI-Optimized Format (Token-Efficient)
-
-For AI assistants, use the YAML format file for reduced token usage:
-- Changelog: `ai/standards/changelog.ai.yaml`
-
-## CHANGELOG Entry Format
+## CHANGELOG 條目格式
 
 ```markdown
 ## [VERSION] - YYYY-MM-DD
@@ -92,16 +89,16 @@ For AI assistants, use the YAML format file for reduced token usage:
 - Fix SQL injection vulnerability (CVE-2025-12345)
 ```
 
-## Breaking Changes
+## 重大變更
 
-Mark breaking changes with **BREAKING** prefix:
+使用 **BREAKING** 前綴標記重大變更：
 
 ```markdown
 ### Changed
 - **BREAKING**: Remove deprecated `getUserById()`, use `getUser()` instead
 ```
 
-## Git Tagging
+## Git 標籤
 
 ```bash
 # Create annotated tag (recommended)
@@ -111,7 +108,7 @@ git tag -a v1.2.0 -m "Release version 1.2.0"
 git push origin v1.2.0
 ```
 
-## Version Ordering
+## 版本排序
 
 ```
 1.0.0-alpha.1 < 1.0.0-alpha.2 < 1.0.0-beta.1 < 1.0.0-rc.1 < 1.0.0
@@ -119,23 +116,23 @@ git push origin v1.2.0
 
 ---
 
-## Configuration Detection
+## 配置檢測
 
-This skill supports project-specific configuration.
+本技能支援專案特定配置。
 
-### Detection Order
+### 檢測順序
 
-1. Check `CONTRIBUTING.md` for "Disabled Skills" section
-   - If this skill is listed, it is disabled for this project
-2. Check `CONTRIBUTING.md` for "Release Standards" section
-3. If not found, **default to Semantic Versioning and Keep a Changelog format**
+1. 檢查 `CONTRIBUTING.md` 中的「Disabled Skills」段落
+   - 如果列出此技能，則該專案停用此技能
+2. 檢查 `CONTRIBUTING.md` 中的「Release Standards」段落
+3. 如果未找到，**預設使用語意化版本控制和 Keep a Changelog 格式**
 
-### First-Time Setup
+### 首次設定
 
-If no configuration found and context is unclear:
+如果未找到配置且上下文不明確：
 
-1. Ask the user: "This project hasn't configured release standards. Would you like to use Semantic Versioning?"
-2. After user selection, suggest documenting in `CONTRIBUTING.md`:
+1. 詢問使用者：「此專案尚未配置發布標準。您想使用語意化版本控制嗎？」
+2. 使用者選擇後，建議在 `CONTRIBUTING.md` 中記錄：
 
 ```markdown
 ## Release Standards
@@ -147,9 +144,9 @@ This project uses **Semantic Versioning** (MAJOR.MINOR.PATCH).
 This project follows **Keep a Changelog** format.
 ```
 
-### Configuration Example
+### 配置範例
 
-In project's `CONTRIBUTING.md`:
+在專案的 `CONTRIBUTING.md` 中：
 
 ```markdown
 ## Release Standards
@@ -169,25 +166,25 @@ This project follows **Keep a Changelog** format.
 
 ---
 
-## Related Standards
+## 相關標準
 
-- [Versioning](../../core/versioning.md) - Core semantic versioning standard
-- [Changelog Standards](../../core/changelog-standards.md) - Keep a Changelog format
-- [Git Workflow](../../core/git-workflow.md) - Git tagging and release branches
+- [版本控制](../../core/versioning.md)
+- [變更日誌標準](../../core/changelog-standards.md)
+- [Git 工作流程](../../core/git-workflow.md)
 
 ---
 
-## Version History
+## 版本歷史
 
-| Version | Date | Changes |
+| 版本 | 日期 | 變更內容 |
 |---------|------|---------|
-| 1.1.0 | 2026-01-02 | Added: Release Workflow Guide with complete release process |
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+| 1.1.0 | 2026-01-02 | 新增：發布流程指南，包含完整發布流程 |
+| 1.0.0 | 2025-12-24 | 新增：標準段落（目的、相關標準、版本歷史、授權條款） |
 
 ---
 
-## License
+## 授權條款
 
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+本技能依據 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

@@ -1,15 +1,23 @@
-# TDD Language Examples
+---
+source: ../../../../skills/tdd-assistant/language-examples.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-07
+status: current
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/tdd-assistant/language-examples.md)
+# TDD 語言範例
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-07
+> **語言**: [English](../../../../skills/tdd-assistant/language-examples.md) | 繁體中文
+
+**版本**: 1.0.0
+**最後更新**: 2026-01-07
 
 ---
 
-## Overview
+## 概覽
 
-This document provides complete TDD examples in six major programming languages:
+本文件提供六種主流程式語言的完整 TDD 範例：
 
 1. [JavaScript/TypeScript](#javascripttypescript)
 2. [Python](#python)
@@ -18,19 +26,19 @@ This document provides complete TDD examples in six major programming languages:
 5. [Java](#java)
 6. [Ruby](#ruby)
 
-Each section includes:
-- Complete Red-Green-Refactor example
-- Test framework setup
-- Mock/Stub usage
-- BDD example (where applicable)
+每個區段包含：
+- 完整的紅-綠-重構範例
+- 測試框架設置
+- Mock/Stub 使用
+- BDD 範例（如適用）
 
 ---
 
 ## JavaScript/TypeScript
 
-### Test Framework: Jest/Vitest
+### 測試框架：Jest/Vitest
 
-#### Setup
+#### 設置
 
 ```bash
 # Jest
@@ -40,20 +48,9 @@ npm install --save-dev jest @types/jest ts-jest
 npm install --save-dev vitest
 ```
 
-```json
-// package.json
-{
-  "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
-  }
-}
-```
+#### 完整 TDD 範例：購物車
 
-#### Complete TDD Example: Shopping Cart
-
-**Step 1: RED - Write failing test**
+**步驟 1：紅色 - 撰寫失敗測試**
 
 ```typescript
 // cart.test.ts
@@ -62,35 +59,35 @@ import { ShoppingCart } from './cart';
 describe('ShoppingCart', () => {
   describe('calculateTotal', () => {
     test('should return 0 for empty cart', () => {
-      // Arrange
+      // Arrange（準備）
       const cart = new ShoppingCart();
 
-      // Act
+      // Act（執行）
       const total = cart.calculateTotal();
 
-      // Assert
+      // Assert（斷言）
       expect(total).toBe(0);
     });
   });
 });
 ```
 
-Run test - it fails because `ShoppingCart` doesn't exist.
+執行測試 - 它失敗因為 `ShoppingCart` 不存在。
 
-**Step 2: GREEN - Minimum implementation**
+**步驟 2：綠色 - 最少實現**
 
 ```typescript
 // cart.ts
 export class ShoppingCart {
   calculateTotal(): number {
-    return 0; // Fake it!
+    return 0; // 假裝！
   }
 }
 ```
 
-Test passes.
+測試通過。
 
-**Step 3: RED - Add next test**
+**步驟 3：紅色 - 新增下一個測試**
 
 ```typescript
 test('should return sum of item prices', () => {
@@ -104,7 +101,7 @@ test('should return sum of item prices', () => {
 });
 ```
 
-**Step 4: GREEN - Implement**
+**步驟 4：綠色 - 實現**
 
 ```typescript
 export class ShoppingCart {
@@ -120,44 +117,7 @@ export class ShoppingCart {
 }
 ```
 
-**Step 5: RED - Test with discount**
-
-```typescript
-test('should apply percentage discount', () => {
-  const cart = new ShoppingCart();
-  cart.addItem({ name: 'Widget', price: 100 });
-  cart.applyDiscount(20); // 20% off
-
-  const total = cart.calculateTotal();
-
-  expect(total).toBe(80);
-});
-```
-
-**Step 6: GREEN & REFACTOR**
-
-```typescript
-export class ShoppingCart {
-  private items: Array<{ name: string; price: number }> = [];
-  private discountPercent = 0;
-
-  addItem(item: { name: string; price: number }): void {
-    this.items.push(item);
-  }
-
-  applyDiscount(percent: number): void {
-    this.discountPercent = percent;
-  }
-
-  calculateTotal(): number {
-    const subtotal = this.items.reduce((sum, item) => sum + item.price, 0);
-    const discount = subtotal * (this.discountPercent / 100);
-    return subtotal - discount;
-  }
-}
-```
-
-#### Mocking Example
+#### Mock 範例
 
 ```typescript
 // orderService.test.ts
@@ -167,20 +127,15 @@ import { PaymentGateway } from './paymentGateway';
 jest.mock('./paymentGateway');
 
 describe('OrderService', () => {
-  let orderService: OrderService;
-  let mockPaymentGateway: jest.Mocked<PaymentGateway>;
-
-  beforeEach(() => {
-    mockPaymentGateway = new PaymentGateway() as jest.Mocked<PaymentGateway>;
-    orderService = new OrderService(mockPaymentGateway);
-  });
-
   test('should process payment and return order confirmation', async () => {
     // Arrange
+    const mockPaymentGateway = new PaymentGateway() as jest.Mocked<PaymentGateway>;
     mockPaymentGateway.charge.mockResolvedValue({
       success: true,
       transactionId: 'TXN123'
     });
+
+    const orderService = new OrderService(mockPaymentGateway);
 
     // Act
     const result = await orderService.checkout({
@@ -190,50 +145,8 @@ describe('OrderService', () => {
 
     // Assert
     expect(result.confirmed).toBe(true);
-    expect(result.transactionId).toBe('TXN123');
     expect(mockPaymentGateway.charge).toHaveBeenCalledWith(100, '4111111111111111');
   });
-});
-```
-
-#### BDD with Cucumber.js
-
-```gherkin
-# features/shopping_cart.feature
-Feature: Shopping Cart
-  As a customer
-  I want to add items to my cart
-  So that I can purchase them
-
-  Scenario: Add item to empty cart
-    Given I have an empty shopping cart
-    When I add a "Widget" priced at $10
-    Then the cart total should be $10
-
-  Scenario: Apply discount code
-    Given I have a cart with items totaling $100
-    When I apply discount code "SAVE20"
-    Then the cart total should be $80
-```
-
-```typescript
-// features/step_definitions/cart_steps.ts
-import { Given, When, Then } from '@cucumber/cucumber';
-import { expect } from 'chai';
-import { ShoppingCart } from '../src/cart';
-
-let cart: ShoppingCart;
-
-Given('I have an empty shopping cart', function () {
-  cart = new ShoppingCart();
-});
-
-When('I add a {string} priced at ${int}', function (name: string, price: number) {
-  cart.addItem({ name, price });
-});
-
-Then('the cart total should be ${int}', function (expected: number) {
-  expect(cart.calculateTotal()).to.equal(expected);
 });
 ```
 
@@ -241,26 +154,17 @@ Then('the cart total should be ${int}', function (expected: number) {
 
 ## Python
 
-### Test Framework: pytest
+### 測試框架：pytest
 
-#### Setup
+#### 設置
 
 ```bash
 pip install pytest pytest-cov pytest-mock
 ```
 
-```ini
-# pytest.ini
-[pytest]
-testpaths = tests
-python_files = test_*.py
-python_functions = test_*
-addopts = -v --tb=short
-```
+#### 完整 TDD 範例：計算機
 
-#### Complete TDD Example: Calculator
-
-**Step 1: RED**
+**步驟 1：紅色**
 
 ```python
 # tests/test_calculator.py
@@ -269,26 +173,26 @@ from calculator import Calculator
 
 class TestCalculator:
     def test_add_two_positive_numbers(self):
-        # Arrange
+        # Arrange（準備）
         calc = Calculator()
 
-        # Act
+        # Act（執行）
         result = calc.add(2, 3)
 
-        # Assert
+        # Assert（斷言）
         assert result == 5
 ```
 
-**Step 2: GREEN**
+**步驟 2：綠色**
 
 ```python
 # calculator.py
 class Calculator:
     def add(self, a: float, b: float) -> float:
-        return 5  # Fake it!
+        return 5  # 假裝！
 ```
 
-**Step 3: RED - Force generalization**
+**步驟 3：紅色 - 強制泛化**
 
 ```python
 def test_add_different_numbers(self):
@@ -297,7 +201,7 @@ def test_add_different_numbers(self):
     assert result == 30
 ```
 
-**Step 4: GREEN - Implement**
+**步驟 4：綠色 - 實現**
 
 ```python
 class Calculator:
@@ -305,41 +209,10 @@ class Calculator:
         return a + b
 ```
 
-**Step 5: RED - Add more operations**
-
-```python
-def test_subtract_returns_difference(self):
-    calc = Calculator()
-    result = calc.subtract(10, 3)
-    assert result == 7
-
-def test_divide_by_zero_raises_error(self):
-    calc = Calculator()
-    with pytest.raises(ValueError, match="Cannot divide by zero"):
-        calc.divide(10, 0)
-```
-
-**Step 6: GREEN & REFACTOR**
-
-```python
-class Calculator:
-    def add(self, a: float, b: float) -> float:
-        return a + b
-
-    def subtract(self, a: float, b: float) -> float:
-        return a - b
-
-    def divide(self, a: float, b: float) -> float:
-        if b == 0:
-            raise ValueError("Cannot divide by zero")
-        return a / b
-```
-
-#### Mocking Example
+#### Mock 範例
 
 ```python
 # tests/test_user_service.py
-import pytest
 from unittest.mock import Mock, patch
 from user_service import UserService
 
@@ -360,72 +233,15 @@ class TestUserService:
             subject="Welcome!",
             body="Hello John, welcome to our service!"
         )
-
-    def test_get_user_returns_user_from_repository(self):
-        # Arrange
-        mock_repo = Mock()
-        mock_repo.find_by_id.return_value = {"id": 1, "name": "John"}
-        service = UserService(repository=mock_repo)
-
-        # Act
-        user = service.get_user(1)
-
-        # Assert
-        assert user["name"] == "John"
-        mock_repo.find_by_id.assert_called_once_with(1)
-```
-
-#### BDD with Behave
-
-```gherkin
-# features/calculator.feature
-Feature: Calculator
-  As a user
-  I want to perform calculations
-  So that I can solve math problems
-
-  Scenario: Add two numbers
-    Given I have a calculator
-    When I add 5 and 3
-    Then the result should be 8
-
-  Scenario Outline: Multiple additions
-    Given I have a calculator
-    When I add <a> and <b>
-    Then the result should be <result>
-
-    Examples:
-      | a  | b  | result |
-      | 1  | 1  | 2      |
-      | 10 | 20 | 30     |
-      | -5 | 5  | 0      |
-```
-
-```python
-# features/steps/calculator_steps.py
-from behave import given, when, then
-from calculator import Calculator
-
-@given('I have a calculator')
-def step_impl(context):
-    context.calculator = Calculator()
-
-@when('I add {a:d} and {b:d}')
-def step_impl(context, a, b):
-    context.result = context.calculator.add(a, b)
-
-@then('the result should be {expected:d}')
-def step_impl(context, expected):
-    assert context.result == expected
 ```
 
 ---
 
 ## C#
 
-### Test Framework: xUnit
+### 測試框架：xUnit
 
-#### Setup
+#### 設置
 
 ```bash
 dotnet add package xunit
@@ -434,9 +250,9 @@ dotnet add package Moq
 dotnet add package FluentAssertions
 ```
 
-#### Complete TDD Example: Order Processor
+#### 完整 TDD 範例：訂單處理器
 
-**Step 1: RED**
+**步驟 1：紅色**
 
 ```csharp
 // OrderProcessorTests.cs
@@ -448,20 +264,20 @@ public class OrderProcessorTests
     [Fact]
     public void ProcessOrder_WithValidOrder_ReturnsSuccess()
     {
-        // Arrange
+        // Arrange（準備）
         var processor = new OrderProcessor();
         var order = new Order { Id = 1, Amount = 100 };
 
-        // Act
+        // Act（執行）
         var result = processor.Process(order);
 
-        // Assert
+        // Assert（斷言）
         result.IsSuccess.Should().BeTrue();
     }
 }
 ```
 
-**Step 2: GREEN**
+**步驟 2：綠色**
 
 ```csharp
 // OrderProcessor.cs
@@ -469,74 +285,15 @@ public class OrderProcessor
 {
     public ProcessResult Process(Order order)
     {
-        return new ProcessResult { IsSuccess = true }; // Fake it!
+        return new ProcessResult { IsSuccess = true }; // 假裝！
     }
 }
-
-public class Order
-{
-    public int Id { get; set; }
-    public decimal Amount { get; set; }
-}
-
-public class ProcessResult
-{
-    public bool IsSuccess { get; set; }
-    public string? ErrorMessage { get; set; }
-}
 ```
 
-**Step 3: RED - Add validation**
-
-```csharp
-[Fact]
-public void ProcessOrder_WithZeroAmount_ReturnsFailure()
-{
-    var processor = new OrderProcessor();
-    var order = new Order { Id = 1, Amount = 0 };
-
-    var result = processor.Process(order);
-
-    result.IsSuccess.Should().BeFalse();
-    result.ErrorMessage.Should().Be("Order amount must be greater than zero");
-}
-```
-
-**Step 4: GREEN & REFACTOR**
-
-```csharp
-public class OrderProcessor
-{
-    public ProcessResult Process(Order order)
-    {
-        if (order.Amount <= 0)
-        {
-            return ProcessResult.Failure("Order amount must be greater than zero");
-        }
-
-        return ProcessResult.Success();
-    }
-}
-
-public class ProcessResult
-{
-    public bool IsSuccess { get; private set; }
-    public string? ErrorMessage { get; private set; }
-
-    public static ProcessResult Success() =>
-        new() { IsSuccess = true };
-
-    public static ProcessResult Failure(string message) =>
-        new() { IsSuccess = false, ErrorMessage = message };
-}
-```
-
-#### Mocking Example with Moq
+#### Moq 範例
 
 ```csharp
 using Moq;
-using Xunit;
-using FluentAssertions;
 
 public class PaymentServiceTests
 {
@@ -545,87 +302,18 @@ public class PaymentServiceTests
     {
         // Arrange
         var mockGateway = new Mock<IPaymentGateway>();
-        var mockEmailService = new Mock<IEmailService>();
-
         mockGateway
             .Setup(g => g.ChargeAsync(It.IsAny<decimal>(), It.IsAny<string>()))
             .ReturnsAsync(new ChargeResult { TransactionId = "TXN123" });
 
-        var service = new PaymentService(mockGateway.Object, mockEmailService.Object);
+        var service = new PaymentService(mockGateway.Object);
 
         // Act
-        var result = await service.ProcessPaymentAsync(100, "4111111111111111", "user@example.com");
+        var result = await service.ProcessPaymentAsync(100, "4111111111111111");
 
         // Assert
         result.TransactionId.Should().Be("TXN123");
-
-        mockGateway.Verify(
-            g => g.ChargeAsync(100, "4111111111111111"),
-            Times.Once);
-
-        mockEmailService.Verify(
-            e => e.SendReceiptAsync("user@example.com", It.Is<Receipt>(r => r.TransactionId == "TXN123")),
-            Times.Once);
-    }
-}
-```
-
-#### BDD with SpecFlow
-
-```gherkin
-# Features/OrderProcessing.feature
-Feature: Order Processing
-  As an e-commerce system
-  I want to process customer orders
-  So that customers can receive their products
-
-  Scenario: Process valid order
-    Given I have an order with amount $100
-    When I process the order
-    Then the order should be marked as processed
-    And a confirmation email should be sent
-
-  Scenario: Reject order with zero amount
-    Given I have an order with amount $0
-    When I process the order
-    Then the order should be rejected
-    And the error message should be "Order amount must be greater than zero"
-```
-
-```csharp
-// StepDefinitions/OrderProcessingSteps.cs
-using TechTalk.SpecFlow;
-using FluentAssertions;
-
-[Binding]
-public class OrderProcessingSteps
-{
-    private Order _order;
-    private ProcessResult _result;
-    private readonly OrderProcessor _processor = new();
-
-    [Given(@"I have an order with amount \$(.*)")]
-    public void GivenIHaveAnOrderWithAmount(decimal amount)
-    {
-        _order = new Order { Id = 1, Amount = amount };
-    }
-
-    [When(@"I process the order")]
-    public void WhenIProcessTheOrder()
-    {
-        _result = _processor.Process(_order);
-    }
-
-    [Then(@"the order should be marked as processed")]
-    public void ThenTheOrderShouldBeMarkedAsProcessed()
-    {
-        _result.IsSuccess.Should().BeTrue();
-    }
-
-    [Then(@"the error message should be ""(.*)""")]
-    public void ThenTheErrorMessageShouldBe(string expectedMessage)
-    {
-        _result.ErrorMessage.Should().Be(expectedMessage);
+        mockGateway.Verify(g => g.ChargeAsync(100, "4111111111111111"), Times.Once);
     }
 }
 ```
@@ -634,17 +322,17 @@ public class OrderProcessingSteps
 
 ## Go
 
-### Test Framework: testing + testify
+### 測試框架：testing + testify
 
-#### Setup
+#### 設置
 
 ```bash
 go get github.com/stretchr/testify
 ```
 
-#### Complete TDD Example: User Repository
+#### 完整 TDD 範例：使用者儲存庫
 
-**Step 1: RED**
+**步驟 1：紅色**
 
 ```go
 // user_repository_test.go
@@ -656,40 +344,31 @@ import (
 )
 
 func TestUserRepository_FindById_ReturnsUser(t *testing.T) {
-    // Arrange
+    // Arrange（準備）
     repo := NewUserRepository()
     repo.Save(&User{ID: 1, Name: "John"})
 
-    // Act
+    // Act（執行）
     user, err := repo.FindById(1)
 
-    // Assert
+    // Assert（斷言）
     assert.NoError(t, err)
     assert.Equal(t, "John", user.Name)
 }
 ```
 
-**Step 2: GREEN**
+**步驟 2：綠色**
 
 ```go
 // user_repository.go
 package repository
-
-import "errors"
-
-type User struct {
-    ID   int
-    Name string
-}
 
 type UserRepository struct {
     users map[int]*User
 }
 
 func NewUserRepository() *UserRepository {
-    return &UserRepository{
-        users: make(map[int]*User),
-    }
+    return &UserRepository{users: make(map[int]*User)}
 }
 
 func (r *UserRepository) Save(user *User) {
@@ -705,20 +384,7 @@ func (r *UserRepository) FindById(id int) (*User, error) {
 }
 ```
 
-**Step 3: RED - Error case**
-
-```go
-func TestUserRepository_FindById_ReturnsErrorWhenNotFound(t *testing.T) {
-    repo := NewUserRepository()
-
-    user, err := repo.FindById(999)
-
-    assert.Nil(t, user)
-    assert.EqualError(t, err, "user not found")
-}
-```
-
-#### Table-Driven Tests (Go Idiom)
+#### 表格驅動測試（Go 慣例）
 
 ```go
 func TestUserRepository_Save(t *testing.T) {
@@ -753,51 +419,13 @@ func TestUserRepository_Save(t *testing.T) {
 }
 ```
 
-#### Mocking with testify/mock
-
-```go
-// email_service_test.go
-package service
-
-import (
-    "testing"
-    "github.com/stretchr/testify/assert"
-    "github.com/stretchr/testify/mock"
-)
-
-// Mock
-type MockEmailSender struct {
-    mock.Mock
-}
-
-func (m *MockEmailSender) Send(to, subject, body string) error {
-    args := m.Called(to, subject, body)
-    return args.Error(0)
-}
-
-func TestNotificationService_SendWelcome(t *testing.T) {
-    // Arrange
-    mockSender := new(MockEmailSender)
-    mockSender.On("Send", "user@example.com", "Welcome!", mock.Anything).Return(nil)
-
-    service := NewNotificationService(mockSender)
-
-    // Act
-    err := service.SendWelcome("user@example.com")
-
-    // Assert
-    assert.NoError(t, err)
-    mockSender.AssertExpectations(t)
-}
-```
-
 ---
 
 ## Java
 
-### Test Framework: JUnit 5 + Mockito
+### 測試框架：JUnit 5 + Mockito
 
-#### Setup (Maven)
+#### 設置 (Maven)
 
 ```xml
 <dependencies>
@@ -813,18 +441,12 @@ func TestNotificationService_SendWelcome(t *testing.T) {
         <version>5.5.0</version>
         <scope>test</scope>
     </dependency>
-    <dependency>
-        <groupId>org.assertj</groupId>
-        <artifactId>assertj-core</artifactId>
-        <version>3.24.2</version>
-        <scope>test</scope>
-    </dependency>
 </dependencies>
 ```
 
-#### Complete TDD Example: Account Service
+#### 完整 TDD 範例：帳戶服務
 
-**Step 1: RED**
+**步驟 1：紅色**
 
 ```java
 // AccountServiceTest.java
@@ -835,20 +457,20 @@ class AccountServiceTest {
 
     @Test
     void deposit_withPositiveAmount_increasesBalance() {
-        // Arrange
+        // Arrange（準備）
         AccountService service = new AccountService();
         Account account = new Account(100.0);
 
-        // Act
+        // Act（執行）
         service.deposit(account, 50.0);
 
-        // Assert
+        // Assert（斷言）
         assertThat(account.getBalance()).isEqualTo(150.0);
     }
 }
 ```
 
-**Step 2: GREEN**
+**步驟 2：綠色**
 
 ```java
 // AccountService.java
@@ -857,172 +479,33 @@ public class AccountService {
         account.setBalance(account.getBalance() + amount);
     }
 }
-
-// Account.java
-public class Account {
-    private double balance;
-
-    public Account(double initialBalance) {
-        this.balance = initialBalance;
-    }
-
-    public double getBalance() { return balance; }
-    public void setBalance(double balance) { this.balance = balance; }
-}
 ```
 
-**Step 3: RED - Validation**
+#### Mockito 範例
 
 ```java
-@Test
-void deposit_withNegativeAmount_throwsException() {
-    AccountService service = new AccountService();
-    Account account = new Account(100.0);
-
-    assertThatThrownBy(() -> service.deposit(account, -50.0))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Deposit amount must be positive");
-}
-
-@Test
-void withdraw_withInsufficientFunds_throwsException() {
-    AccountService service = new AccountService();
-    Account account = new Account(100.0);
-
-    assertThatThrownBy(() -> service.withdraw(account, 150.0))
-        .isInstanceOf(InsufficientFundsException.class)
-        .hasMessage("Insufficient funds");
-}
-```
-
-**Step 4: GREEN & REFACTOR**
-
-```java
-public class AccountService {
-
-    public void deposit(Account account, double amount) {
-        validatePositiveAmount(amount, "Deposit");
-        account.setBalance(account.getBalance() + amount);
-    }
-
-    public void withdraw(Account account, double amount) {
-        validatePositiveAmount(amount, "Withdrawal");
-        if (account.getBalance() < amount) {
-            throw new InsufficientFundsException("Insufficient funds");
-        }
-        account.setBalance(account.getBalance() - amount);
-    }
-
-    private void validatePositiveAmount(double amount, String operation) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException(operation + " amount must be positive");
-        }
-    }
-}
-```
-
-#### Mocking with Mockito
-
-```java
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.*;
-import static org.assertj.core.api.Assertions.*;
-
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
     @Mock
     private PaymentGateway paymentGateway;
 
-    @Mock
-    private InventoryService inventoryService;
-
     @InjectMocks
     private OrderService orderService;
 
     @Test
-    void placeOrder_withValidOrder_processesPaymentAndUpdatesInventory() {
+    void placeOrder_withValidOrder_processesPayment() {
         // Arrange
         Order order = new Order("PROD-1", 2, 50.0);
-        when(inventoryService.checkStock("PROD-1")).thenReturn(10);
-        when(paymentGateway.charge(100.0)).thenReturn(new PaymentResult("TXN-123", true));
+        when(paymentGateway.charge(100.0))
+            .thenReturn(new PaymentResult("TXN-123", true));
 
         // Act
         OrderResult result = orderService.placeOrder(order);
 
         // Assert
         assertThat(result.isSuccess()).isTrue();
-        assertThat(result.getTransactionId()).isEqualTo("TXN-123");
-
-        verify(inventoryService).checkStock("PROD-1");
-        verify(inventoryService).reserve("PROD-1", 2);
         verify(paymentGateway).charge(100.0);
-    }
-}
-```
-
-#### BDD with Cucumber-JVM
-
-```gherkin
-# src/test/resources/features/account.feature
-Feature: Account Management
-  As a bank customer
-  I want to manage my account balance
-  So that I can track my finances
-
-  Scenario: Deposit money
-    Given I have an account with balance $100
-    When I deposit $50
-    Then my balance should be $150
-
-  Scenario: Withdraw with insufficient funds
-    Given I have an account with balance $100
-    When I try to withdraw $150
-    Then I should see an error "Insufficient funds"
-    And my balance should be $100
-```
-
-```java
-// StepDefinitions.java
-import io.cucumber.java.en.*;
-import static org.assertj.core.api.Assertions.*;
-
-public class AccountStepDefinitions {
-    private Account account;
-    private AccountService service = new AccountService();
-    private Exception caughtException;
-
-    @Given("I have an account with balance ${double}")
-    public void iHaveAccountWithBalance(double balance) {
-        account = new Account(balance);
-    }
-
-    @When("I deposit ${double}")
-    public void iDeposit(double amount) {
-        service.deposit(account, amount);
-    }
-
-    @When("I try to withdraw ${double}")
-    public void iTryToWithdraw(double amount) {
-        try {
-            service.withdraw(account, amount);
-        } catch (Exception e) {
-            caughtException = e;
-        }
-    }
-
-    @Then("my balance should be ${double}")
-    public void myBalanceShouldBe(double expected) {
-        assertThat(account.getBalance()).isEqualTo(expected);
-    }
-
-    @Then("I should see an error {string}")
-    public void iShouldSeeAnError(String message) {
-        assertThat(caughtException).hasMessage(message);
     }
 }
 ```
@@ -1031,9 +514,9 @@ public class AccountStepDefinitions {
 
 ## Ruby
 
-### Test Framework: RSpec
+### 測試框架：RSpec
 
-#### Setup
+#### 設置
 
 ```ruby
 # Gemfile
@@ -1043,14 +526,9 @@ group :test do
 end
 ```
 
-```bash
-bundle install
-rspec --init
-```
+#### 完整 TDD 範例：購物車
 
-#### Complete TDD Example: Shopping Cart
-
-**Step 1: RED**
+**步驟 1：紅色**
 
 ```ruby
 # spec/shopping_cart_spec.rb
@@ -1067,32 +545,30 @@ RSpec.describe ShoppingCart do
 end
 ```
 
-**Step 2: GREEN**
+**步驟 2：綠色**
 
 ```ruby
 # lib/shopping_cart.rb
 class ShoppingCart
   def total
-    0 # Fake it!
+    0 # 假裝！
   end
 end
 ```
 
-**Step 3: RED - Add items**
+**步驟 3：紅色 - 新增商品**
 
 ```ruby
-describe '#total' do
-  it 'returns sum of item prices' do
-    cart = ShoppingCart.new
-    cart.add_item(name: 'Widget', price: 10)
-    cart.add_item(name: 'Gadget', price: 20)
+it 'returns sum of item prices' do
+  cart = ShoppingCart.new
+  cart.add_item(name: 'Widget', price: 10)
+  cart.add_item(name: 'Gadget', price: 20)
 
-    expect(cart.total).to eq(30)
-  end
+  expect(cart.total).to eq(30)
 end
 ```
 
-**Step 4: GREEN & REFACTOR**
+**步驟 4：綠色與重構**
 
 ```ruby
 class ShoppingCart
@@ -1110,49 +586,9 @@ class ShoppingCart
 end
 ```
 
-**Step 5: RED - Discount**
+#### RSpec Mock 範例
 
 ```ruby
-describe '#apply_discount' do
-  it 'reduces total by percentage' do
-    cart = ShoppingCart.new
-    cart.add_item(name: 'Widget', price: 100)
-    cart.apply_discount(20) # 20% off
-
-    expect(cart.total).to eq(80)
-  end
-end
-```
-
-**Step 6: GREEN**
-
-```ruby
-class ShoppingCart
-  def initialize
-    @items = []
-    @discount_percent = 0
-  end
-
-  def add_item(item)
-    @items << item
-  end
-
-  def apply_discount(percent)
-    @discount_percent = percent
-  end
-
-  def total
-    subtotal = @items.sum { |item| item[:price] }
-    discount = subtotal * (@discount_percent / 100.0)
-    subtotal - discount
-  end
-end
-```
-
-#### RSpec Mocking
-
-```ruby
-# spec/order_service_spec.rb
 RSpec.describe OrderService do
   describe '#process' do
     it 'charges payment and sends confirmation' do
@@ -1170,96 +606,23 @@ RSpec.describe OrderService do
         email_service: email_service
       )
 
-      order = Order.new(amount: 100, email: 'user@example.com')
-
       # Act
-      result = service.process(order)
+      result = service.process(Order.new(amount: 100, email: 'user@example.com'))
 
       # Assert
       expect(result.success?).to be true
       expect(payment_gateway).to have_received(:charge).with(100)
-      expect(email_service).to have_received(:send_confirmation)
-        .with('user@example.com', hash_including(transaction_id: 'TXN123'))
     end
   end
 end
 ```
 
-#### BDD with RSpec (Native)
-
-RSpec has built-in BDD-style syntax:
-
-```ruby
-# spec/features/shopping_cart_spec.rb
-RSpec.feature 'Shopping Cart', type: :feature do
-  scenario 'User adds items to cart' do
-    # Given
-    cart = ShoppingCart.new
-
-    # When
-    cart.add_item(name: 'Widget', price: 10)
-    cart.add_item(name: 'Gadget', price: 20)
-
-    # Then
-    expect(cart.total).to eq(30)
-    expect(cart.item_count).to eq(2)
-  end
-
-  scenario 'User applies discount code' do
-    # Given
-    cart = ShoppingCart.new
-    cart.add_item(name: 'Widget', price: 100)
-
-    # When
-    cart.apply_discount(20)
-
-    # Then
-    expect(cart.total).to eq(80)
-  end
-end
-```
-
-#### BDD with Cucumber
-
-```gherkin
-# features/shopping_cart.feature
-Feature: Shopping Cart
-  As a customer
-  I want to manage my shopping cart
-  So that I can purchase products
-
-  Scenario: Add item to cart
-    Given I have an empty cart
-    When I add a "Widget" priced at $10
-    Then my cart total should be $10
-
-  Scenario: Apply discount
-    Given I have a cart with total $100
-    When I apply a 20% discount
-    Then my cart total should be $80
-```
-
-```ruby
-# features/step_definitions/cart_steps.rb
-Given('I have an empty cart') do
-  @cart = ShoppingCart.new
-end
-
-When('I add a {string} priced at ${int}') do |name, price|
-  @cart.add_item(name: name, price: price)
-end
-
-Then('my cart total should be ${int}') do |expected|
-  expect(@cart.total).to eq(expected)
-end
-```
-
 ---
 
-## Framework Comparison Summary
+## 框架比較摘要
 
-| Language | Unit Test | Mock | BDD | Watch Mode |
-|----------|-----------|------|-----|------------|
+| 語言 | 單元測試 | Mock | BDD | Watch 模式 |
+|------|---------|------|-----|-----------|
 | **JavaScript** | Jest/Vitest | jest.mock | Cucumber.js | `--watch` |
 | **Python** | pytest | unittest.mock | Behave | pytest-watch |
 | **C#** | xUnit/NUnit | Moq | SpecFlow | dotnet watch |
@@ -1269,8 +632,8 @@ end
 
 ---
 
-## Related Documents
+## 相關文件
 
-- [SKILL.md](./SKILL.md) - TDD Assistant overview
-- [TDD Workflow](./tdd-workflow.md) - Detailed workflow guide
-- [TDD Core Standard](../../core/test-driven-development.md) - Full TDD standard
+- [SKILL.md](./SKILL.md) - TDD 助手概覽
+- [TDD 工作流程](./tdd-workflow.md) - 詳細工作流程指南
+- [TDD 核心標準](../../../../core/test-driven-development.md) - 完整 TDD 標準

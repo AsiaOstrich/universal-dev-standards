@@ -1,149 +1,156 @@
-# Create Custom Methodology Guide
+---
+source: ../../../../skills/methodology-system/create-methodology.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-12
+status: experimental
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/methodology-system/create-methodology.md)
+# 建立自訂方法論指南
+
+> **Language**: [English](../../../../skills/methodology-system/create-methodology.md) | 繁體中文
 
 > [!WARNING]
-> **Experimental Feature / 實驗性功能**
+> **實驗性功能 / Experimental Feature**
 >
-> This feature is under active development and may change significantly in v4.0.
 > 此功能正在積極開發中，可能在 v4.0 中有重大變更。
+> This feature is under active development and may change significantly in v4.0.
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-12
-
----
-
-## Overview
-
-This guide helps you create custom development methodologies for your team or project. Custom methodologies are stored in `.standards/methodologies/` and follow the same YAML schema as built-in methodologies.
+**版本**: 1.0.0
+**最後更新**: 2026-01-12
 
 ---
 
-## Interactive Creation Wizard
+## 概述
 
-Use `/methodology create` to start the interactive wizard:
+本指南幫助您為團隊或專案建立自訂開發方法論。自訂方法論儲存在 `.standards/methodologies/` 目錄中，並遵循與內建方法論相同的 YAML 結構。
 
-### Step 1: Basic Information
+---
+
+## 互動式建立精靈
+
+使用 `/methodology create` 啟動互動式精靈：
+
+### 步驟 1：基本資訊
 
 ```
 ╔════════════════════════════════════════════════╗
-║         Create Custom Methodology              ║
+║         建立自訂方法論                          ║
 ╠════════════════════════════════════════════════╣
 ║                                                ║
-║  What is the name of your methodology?         ║
-║  > My Team Workflow                            ║
+║  您的方法論名稱是什麼？                         ║
+║  > 我的團隊工作流                               ║
 ║                                                ║
-║  Brief description:                            ║
-║  > Our iterative development process with      ║
-║  > planning and review phases                  ║
+║  簡短描述：                                     ║
+║  > 我們團隊的迭代開發流程，包含規劃和審查階段   ║
 ║                                                ║
-║  ID (auto-generated): my-team-workflow         ║
+║  ID（自動產生）: my-team-workflow               ║
 ║                                                ║
 ╚════════════════════════════════════════════════╝
 ```
 
-### Step 2: Define Phases
+### 步驟 2：定義階段
 
 ```
 ╔════════════════════════════════════════════════╗
-║         Define Phases (1/?)                    ║
+║         定義階段 (1/?)                          ║
 ╠════════════════════════════════════════════════╣
 ║                                                ║
-║  Phase 1:                                      ║
+║  階段 1：                                       ║
 ║  ─────────────────────────────────────         ║
-║  Name: Planning                                ║
-║  Description: Plan the approach                ║
-║  Duration estimate: 15-30 minutes              ║
-║  Emoji: 📋                                     ║
+║  名稱：規劃                                     ║
+║  描述：規劃實作方法                             ║
+║  預估時間：15-30 分鐘                           ║
+║  表情符號：📋                                   ║
 ║                                                ║
-║  Checklist items (one per line):               ║
-║  Prefix with * for required items              ║
+║  檢查清單項目（每行一項）：                     ║
+║  在必填項目前加上 *                             ║
 ║  ─────────────────────────────────────         ║
-║  * Requirements understood                     ║
-║  * Design approach reviewed                    ║
-║  Dependencies identified                       ║
+║  * 需求已理解                                   ║
+║  * 設計方法已審查                               ║
+║  相依性已識別                                   ║
 ║                                                ║
-║  What triggers exit from this phase?           ║
-║  > User confirms planning complete             ║
+║  什麼觸發離開此階段？                           ║
+║  > 用戶確認規劃完成                             ║
 ║                                                ║
-║  Next phase after exit?                        ║
-║  > Implementation                              ║
+║  離開後的下一個階段？                           ║
+║  > 實作                                         ║
 ║                                                ║
-║  [Add another phase] [Done with phases]        ║
+║  [新增另一個階段] [階段定義完成]                ║
 ║                                                ║
 ╚════════════════════════════════════════════════╝
 ```
 
-### Step 3: Configure Checkpoints
+### 步驟 3：配置檢查點
 
 ```
 ╔════════════════════════════════════════════════╗
-║         Configure Checkpoints                  ║
+║         配置檢查點                              ║
 ╠════════════════════════════════════════════════╣
 ║                                                ║
-║  Select checkpoint reminders:                  ║
+║  選擇檢查點提醒：                               ║
 ║  ─────────────────────────────────────         ║
-║  [x] Remind at phase transitions               ║
-║  [x] Warn after 3 skipped check-ins            ║
-║  [ ] Remind after 200+ lines changed           ║
-║  [ ] Remind after 30 minutes without commit    ║
+║  [x] 在階段轉換時提醒                           ║
+║  [x] 跳過 3 次簽入後警告                        ║
+║  [ ] 變更超過 200 行後提醒                      ║
+║  [ ] 30 分鐘沒有提交後提醒                      ║
 ║                                                ║
-║  Reminder intensity:                           ║
-║  ( ) Suggest - gentle reminders                ║
-║  (•) Warning - more prominent                  ║
-║  ( ) Strict - block until addressed            ║
+║  提醒強度：                                     ║
+║  ( ) 建議 - 溫和提醒                            ║
+║  (•) 警告 - 更明顯                              ║
+║  ( ) 嚴格 - 阻止直到處理                        ║
 ║                                                ║
 ╚════════════════════════════════════════════════╝
 ```
 
-### Step 4: Review and Save
+### 步驟 4：審查並儲存
 
 ```
 ╔════════════════════════════════════════════════╗
-║         Review Methodology                     ║
+║         審查方法論                              ║
 ╠════════════════════════════════════════════════╣
 ║                                                ║
-║  Name: My Team Workflow                        ║
-║  ID: my-team-workflow                          ║
+║  名稱：我的團隊工作流                           ║
+║  ID：my-team-workflow                           ║
 ║                                                ║
-║  Phases:                                       ║
+║  階段：                                         ║
 ║  ─────────────────────────────────────         ║
-║  1. 📋 Planning                                ║
-║     └─ Checklist: 3 items (2 required)         ║
-║  2. 💻 Implementation                          ║
-║     └─ Checklist: 4 items (3 required)         ║
-║  3. 👀 Review                                  ║
-║     └─ Checklist: 3 items (2 required)         ║
+║  1. 📋 規劃                                     ║
+║     └─ 檢查清單：3 項（2 項必填）               ║
+║  2. 💻 實作                                     ║
+║     └─ 檢查清單：4 項（3 項必填）               ║
+║  3. 👀 審查                                     ║
+║     └─ 檢查清單：3 項（2 項必填）               ║
 ║                                                ║
-║  Checkpoints: 2 active                         ║
-║  Intensity: Warning                            ║
+║  檢查點：2 個啟用                               ║
+║  強度：警告                                     ║
 ║                                                ║
-║  [Save] [Edit] [Cancel]                        ║
+║  [儲存] [編輯] [取消]                           ║
 ║                                                ║
 ╚════════════════════════════════════════════════╝
 
-Methodology created!
+方法論已建立！
 
-Saved to: .standards/methodologies/my-team-workflow.methodology.yaml
+儲存到：.standards/methodologies/my-team-workflow.methodology.yaml
 
-To activate: /methodology switch my-team-workflow
+啟用：/methodology switch my-team-workflow
 ```
 
 ---
 
-## Manual Creation
+## 手動建立
 
-You can also create a methodology file manually:
+您也可以手動建立方法論檔案：
 
-### 1. Create the Directory
+### 1. 建立目錄
 
 ```bash
 mkdir -p .standards/methodologies
 ```
 
-### 2. Create the YAML File
+### 2. 建立 YAML 檔案
 
-Create `.standards/methodologies/my-workflow.methodology.yaml`:
+建立 `.standards/methodologies/my-workflow.methodology.yaml`：
 
 ```yaml
 $schema: "https://raw.githubusercontent.com/anthropics/universal-dev-standards/main/methodologies/methodology-schema.json"
@@ -165,286 +172,179 @@ phases:
         text: Requirements are clearly understood
         textZh: 需求已清楚理解
         required: true
-      - id: design-reviewed
-        text: Design approach reviewed with team
-        textZh: 設計方法已與團隊審查
-        required: false
     triggers:
-      entry:
-        - condition: feature_start
       exit:
         - condition: user_confirms_plan_complete
           nextPhase: implement
-    guidance:
-      prompt: |
-        ## Planning Phase
-
-        Before implementation, ensure:
-        {{ checklist | format_checklist }}
-
-  - id: implement
-    name: Implementation
-    nameZh: 實作
-    description: Write the code
-    duration: "Variable"
-    emoji: "💻"
-    checklist:
-      - id: follows-patterns
-        text: Code follows team patterns
-        required: true
-      - id: tests-written
-        text: Tests written alongside code
-        required: true
-    triggers:
-      entry:
-        - condition: plan_complete
-      exit:
-        - condition: implementation_complete
-          nextPhase: review
-    guidance:
-      prompt: |
-        ## Implementation Phase
-
-        Writing code for: {{feature_description}}
-
-        {{ checklist | format_checklist }}
-
-  - id: review
-    name: Review
-    nameZh: 審查
-    description: Self-review and prepare for PR
-    duration: "15-30 minutes"
-    emoji: "👀"
-    checklist:
-      - id: self-reviewed
-        text: Code self-reviewed
-        required: true
-      - id: tests-pass
-        text: All tests pass
-        required: true
-      - id: docs-updated
-        text: Documentation updated
-        required: false
-    triggers:
-      entry:
-        - condition: implementation_complete
-      exit:
-        - condition: ready_for_pr
-          nextPhase: done
-
-  - id: done
-    name: Done
-    nameZh: 完成
-    description: Ready for PR
-    emoji: "✅"
-    checklist: []
-    triggers:
-      entry:
-        - condition: ready_for_pr
-      exit: []
-
-checkpoints:
-  - id: phase-complete
-    trigger: phase_transition
-    intensity: suggest
-    action: "Phase complete. Consider committing."
-
-commands:
-  - name: workflow
-    description: Start team workflow
-    usage: "/workflow [feature]"
-    action: start_workflow
-
-aiGuidance:
-  autoDetect: true
-  proactiveReminders: true
-  contextKeywords:
-    - "team workflow"
-    - "our process"
 ```
 
-### 3. Activate the Methodology
+### 3. 啟用方法論
 
 ```bash
 /methodology switch my-workflow
 ```
 
-Or update manifest manually:
+---
 
-```json
-// .standards/manifest.json
-{
-  "methodology": {
-    "active": "my-workflow"
-  }
-}
-```
+## Schema 參考
+
+### 必填欄位
+
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| `id` | string | 唯一識別碼（小寫、連字號） |
+| `name` | string | 顯示名稱 |
+| `version` | string | 語意化版本 |
+| `phases` | array | 至少一個階段 |
+
+### 階段欄位
+
+| 欄位 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| `id` | string | 是 | 階段識別碼 |
+| `name` | string | 是 | 顯示名稱 |
+| `description` | string | 是 | 此階段的說明 |
+| `checklist` | array | 否 | 驗證項目 |
+| `triggers` | object | 否 | 進入/離開條件 |
+| `guidance` | object | 否 | AI 提示 |
+| `duration` | string | 否 | 預估時間 |
+| `emoji` | string | 否 | 視覺指示器 |
 
 ---
 
-## Schema Reference
+## 最佳實踐
 
-### Required Fields
+### 1. 保持階段專注
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | string | Unique identifier (lowercase, hyphens) |
-| `name` | string | Display name |
-| `version` | string | Semantic version |
-| `phases` | array | At least one phase required |
+每個階段應有明確、單一的目的。如果一個階段有超過 5-6 個檢查項目，考慮拆分。
 
-### Phase Fields
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | Yes | Phase identifier |
-| `name` | string | Yes | Display name |
-| `description` | string | Yes | What happens in this phase |
-| `checklist` | array | No | Items to verify |
-| `triggers` | object | No | Entry/exit conditions |
-| `guidance` | object | No | AI prompts |
-| `duration` | string | No | Estimated duration |
-| `emoji` | string | No | Visual indicator |
-
-### Checklist Item Fields
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | Yes | Item identifier |
-| `text` | string | Yes | Item description |
-| `required` | boolean | No | Must complete to proceed |
-| `textZh` | string | No | Chinese translation |
-
-### Trigger Fields
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `condition` | string | Trigger condition |
-| `fromPhase` | string | Required previous phase |
-| `nextPhase` | string | Target phase after trigger |
-
----
-
-## Best Practices
-
-### 1. Keep Phases Focused
-
-Each phase should have a clear, single purpose. If a phase has more than 5-6 checklist items, consider splitting it.
-
-### 2. Use Meaningful IDs
+### 2. 使用有意義的 ID
 
 ```yaml
-# Good
+# 好的
 id: code-review
 id: integration-test
 
-# Avoid
+# 避免
 id: phase1
 id: step-a
 ```
 
-### 3. Make Checklists Actionable
+### 3. 使檢查清單可操作
 
 ```yaml
-# Good
-text: Tests cover edge cases
-text: Error handling implemented
+# 好的
+text: 測試涵蓋邊界情況
+text: 錯誤處理已實作
 
-# Avoid
-text: Code is good
-text: Everything works
+# 避免
+text: 程式碼很好
+text: 一切正常
 ```
 
-### 4. Provide Helpful Guidance
+### 4. 提供有幫助的引導
 
-Include practical tips in your phase guidance:
+在階段引導中包含實用提示：
 
 ```yaml
 guidance:
   prompt: |
-    ## Review Phase
+    ## 審查階段
 
-    Focus areas:
-    - Security vulnerabilities
-    - Performance implications
-    - API contract changes
+    重點領域：
+    - 安全漏洞
+    - 效能影響
+    - API 契約變更
 
     {{ checklist | format_checklist }}
 ```
 
-### 5. Consider Localization
+### 5. 考慮本地化
 
-Always provide `nameZh`, `textZh`, `promptZh` for bilingual teams.
+始終為雙語團隊提供 `nameZh`、`textZh`、`promptZh`。
 
 ---
 
-## Examples
+## 範例
 
-### Hotfix Workflow
+### 熱修復工作流
 
 ```yaml
 id: hotfix
 name: Hotfix Workflow
+nameZh: 熱修復工作流
 phases:
   - id: reproduce
     name: Reproduce Issue
+    nameZh: 重現問題
     checklist:
       - id: issue-reproduced
         text: Issue reproduced locally
+        textZh: 問題已在本地重現
         required: true
   - id: fix
     name: Apply Fix
+    nameZh: 應用修復
     checklist:
       - id: minimal-fix
         text: Fix is minimal and targeted
+        textZh: 修復是最小且針對性的
         required: true
   - id: verify
     name: Verify Fix
+    nameZh: 驗證修復
     checklist:
       - id: issue-resolved
         text: Original issue is resolved
-        required: true
-      - id: no-regression
-        text: No regressions introduced
+        textZh: 原始問題已解決
         required: true
 ```
 
-### Feature Flag Workflow
+### 功能旗標工作流
 
 ```yaml
 id: feature-flag
 name: Feature Flag Development
+nameZh: 功能旗標開發
 phases:
   - id: design-flag
     name: Design Flag
+    nameZh: 設計旗標
     checklist:
       - id: flag-named
         text: Flag has descriptive name
+        textZh: 旗標有描述性名稱
         required: true
   - id: implement-behind-flag
     name: Implement Behind Flag
+    nameZh: 在旗標後實作
     checklist:
       - id: default-off
         text: Flag defaults to off
+        textZh: 旗標預設為關閉
         required: true
   - id: gradual-rollout
     name: Gradual Rollout
+    nameZh: 漸進式推出
     checklist:
       - id: metrics-monitored
         text: Metrics being monitored
+        textZh: 正在監控指標
         required: true
   - id: cleanup
     name: Cleanup
+    nameZh: 清理
     checklist:
       - id: flag-removed
         text: Flag code removed after full rollout
+        textZh: 完全推出後移除旗標程式碼
         required: true
 ```
 
 ---
 
-## Version History
+## 版本歷史
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-01-12 | Initial creation guide |
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-01-12 | 初始建立指南 |

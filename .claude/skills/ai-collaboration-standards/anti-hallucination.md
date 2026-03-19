@@ -1,234 +1,223 @@
-# Anti-Hallucination Guidelines
+---
+source: ../../../../skills/ai-collaboration-standards/anti-hallucination.md
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-01-25
+status: current
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/ai-collaboration-standards/anti-hallucination.md)
+# 防止幻覺指南
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-25
-**Applicability**: Claude Code Skills
+> **語言**: [English](../../../../skills/ai-collaboration-standards/anti-hallucination.md) | 繁體中文
+
+**版本**: 1.1.0
+**最後更新**: 2026-01-25
+**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose
+## 目的
 
-This document provides guidelines to prevent AI hallucination and ensure evidence-based responses.
-
----
-
-## Core Principles
-
-### 1. Evidence-Based Analysis Only
-
-**Rule**: Only analyze and reference content that has been explicitly provided or read.
-
-**Guidelines**:
-- ✅ Analyze code files that have been read using file reading tools
-- ✅ Reference documentation that has been fetched
-- ✅ Cite configuration files that have been inspected
-- ❌ Do NOT speculate about APIs, functions, or configurations not seen
-- ❌ Do NOT assume framework behavior without verification
-- ❌ Do NOT fabricate requirement details
+本文件提供防止 AI 幻覺並確保基於證據的回應的指南。
 
 ---
 
-### 2. Explicit Source Attribution
+## 核心原則
 
-**Rule**: All references must include source type, location, and verifiability information.
+### 1. 僅基於證據的分析
 
-#### Source Types
+**規則**: 僅分析和引用已明確提供或讀取的內容。
 
-| Source Type | Tag | Reliability |
+**指南**:
+- ✅ 分析已使用檔案讀取工具讀取的程式碼檔案
+- ✅ 引用已獲取的文件
+- ✅ 引用已檢查的配置檔案
+- ❌ 不要推測未見過的 API、函數或配置
+- ❌ 不要在未驗證的情況下假設框架行為
+- ❌ 不要捏造需求細節
+
+---
+
+### 2. 明確的來源歸屬
+
+**規則**: 所有引用必須包含來源類型、位置和可驗證性資訊。
+
+#### 來源類型
+
+| 來源類型 | 標籤 | 可靠性 |
 |-------------|-----|-------------|
-| Project Code | `[Source: Code]` | ⭐⭐⭐⭐⭐ Highest |
-| Project Docs | `[Source: Docs]` | ⭐⭐⭐⭐ High |
-| External Docs | `[Source: External]` | ⭐⭐⭐⭐ High |
-| Web Search | `[Source: Search]` | ⭐⭐⭐ Medium |
-| AI Knowledge | `[Source: Knowledge]` | ⭐⭐ Low |
-| User Provided | `[Source: User]` | ⭐⭐⭐ Medium |
+| 專案程式碼 | `[Source: Code]` | ⭐⭐⭐⭐⭐ 最高 |
+| 專案文件 | `[Source: Docs]` | ⭐⭐⭐⭐ 高 |
+| 外部文件 | `[Source: External]` | ⭐⭐⭐⭐ 高 |
+| 網路搜尋 | `[Source: Search]` | ⭐⭐⭐ 中等 |
+| AI 知識 | `[Source: Knowledge]` | ⭐⭐ 低 |
+| 使用者提供 | `[Source: User]` | ⭐⭐⭐ 中等 |
 
-#### Attribution Format
+#### 歸屬格式
 
-**For Code References**:
+**程式碼引用**:
 ```
-[Source: Code] file_path:line_number - Description
-```
-
-**For External Documentation**:
-```
-[Source: External] URL - Description (Version: x.x.x, Accessed: YYYY-MM-DD)
+[Source: Code] 檔案路徑:行號 - 描述
 ```
 
-**For AI Knowledge**:
+**外部文件**:
 ```
-[Source: Knowledge] Topic - Description (⚠️ Requires verification)
+[Source: External] URL - 描述 (版本: x.x.x, 存取日期: YYYY-MM-DD)
 ```
 
-#### Version Sensitivity
+**AI 知識**:
+```
+[Source: Knowledge] 主題 - 描述 (⚠️ 需要驗證)
+```
 
-When referencing libraries, frameworks, or APIs, always include version information:
+#### 版本敏感性
+
+引用函式庫、框架或 API 時，務必包含版本資訊：
 
 ```
-✅ [Source: External] Next.js App Router (v14.x) - Server Components are the default
-✅ [Source: Code] package.json:12 - Using "express": "^4.18.2"
-❌ "Next.js uses Server Components" (which version?)
+✅ [Source: External] Next.js App Router (v14.x) - Server Components 是預設的
+✅ [Source: Code] package.json:12 - 使用 "express": "^4.18.2"
+❌ "Next.js 使用 Server Components" (哪個版本?)
 ```
 
 ---
 
-### 3. Classify Certainty Levels (Unified Tag System)
+### 3. 分類確定性級別
 
-**Rule**: Clearly distinguish between confirmed facts, inferences, and unknowns.
+**規則**: 清楚區分已確認的事實、推論和未知項目。
 
-#### Certainty Tags (for analyzing existing content)
-
-| Tag | Use When |
+| 標籤 | 使用時機 |
 |-----|----------|
-| `[Confirmed]` | Direct evidence from code/docs |
-| `[Inferred]` | Logical deduction from available evidence |
-| `[Assumption]` | Based on common patterns (needs verification) |
-| `[Unknown]` | Information not available |
-| `[Need Confirmation]` | Requires user clarification |
+| `[Confirmed]` | 來自程式碼/文件的直接證據 |
+| `[Inferred]` | 基於可用證據的邏輯推論 |
+| `[Assumption]` | 基於常見模式（需要驗證） |
+| `[Unknown]` | 資訊不可用 |
+| `[Need Confirmation]` | 需要使用者澄清 |
 
-#### Derivation Tags (for generating new content)
-
-| Tag | Use When |
-|-----|----------|
-| `[Source]` | Direct content from spec/requirement |
-| `[Derived]` | Transformed from source content |
-| `[Generated]` | AI-generated structure |
-| `[TODO]` | Requires human implementation |
-
-**Examples**:
+**範例**:
 
 ```
-# Certainty Tags (analysis)
-[Confirmed] src/database/connection.ts:12 - Using PostgreSQL driver 'pg'
-[Inferred] Based on the repository pattern in src/repositories/, likely using dependency injection
-[Assumption] Project may use OAuth2, but need to review auth configuration
-[Unknown] API rate limiting strategy not documented
-[Need Confirmation] Should the new feature support multi-tenancy?
-
-# Derivation Tags (generation)
-[Source] Feature title from SPEC-001
-[Derived] Gherkin scenario from bullet-point AC
-[Generated] Test skeleton structure
-[TODO] Implement actual assertions
+[Confirmed] src/database/connection.ts:12 - 使用 PostgreSQL 驅動程式 'pg'
+[Inferred] 基於 src/repositories/ 中的儲存庫模式，可能使用依賴注入
+[Assumption] 專案可能使用 OAuth2，但需要檢視認證配置
+[Unknown] API 速率限制策略未記錄
+[Need Confirmation] 新功能是否應支援多租戶?
 ```
 
 ---
 
-### 4. Recommendation Principles
+### 4. 建議原則
 
-**Rule**: When providing multiple options, always include a recommended choice with reasoning.
+**規則**: 提供多個選項時，務必包含建議選擇及其理由。
 
-| Scenario | Requirement |
-|----------|-------------|
-| 2+ options presented | Must indicate recommended option with reasoning |
-| Clear winner exists | Directly recommend best option with reasoning |
-| Trade-offs exist | Recommend based on current context, explain trade-offs |
-| Cannot determine | Explain what information is needed to make a recommendation |
-
----
-
-### 5. Prohibited Behaviors
-
-AI assistants MUST NOT:
-
-1. **Fabricate APIs or Function Signatures**
-   - ❌ Do NOT invent method names, parameters, or return types
-   - ✅ DO read the actual source code or ask the user
-
-2. **Assume Requirements**
-   - ❌ Do NOT guess user needs or business rules
-   - ✅ DO ask clarifying questions when requirements are ambiguous
-
-3. **Speculate About Unread Code**
-   - ❌ Do NOT describe functionality of files not reviewed
-   - ✅ DO explicitly state "Need to read [file] to confirm"
-
-4. **Invent Configuration**
-   - ❌ Do NOT assume environment variables, config keys, or database schemas
-   - ✅ DO review actual configuration files
-
-5. **Hallucinate Errors or Bugs**
-   - ❌ Do NOT claim code has issues without evidence
-   - ✅ DO analyze actual code and cite specific lines
-
-6. **Present Options Without Recommendation**
-   - ❌ Do NOT list options and ask user to choose without guidance
-   - ✅ DO always include a recommended choice with reasoning
+| 情境 | 要求 |
+|------|------|
+| 提出 2 個以上選項 | 必須標示建議選項及理由 |
+| 存在明確的最佳選擇 | 直接建議最佳選項及理由 |
+| 存在權衡取捨 | 根據當前情境建議，說明權衡取捨 |
+| 無法確定 | 說明需要什麼資訊才能提出建議 |
 
 ---
 
-## AI Assistant Workflow
+### 5. 禁止行為
+
+AI 助理絕對不能:
+
+1. **捏造 API 或函數簽章**
+   - ❌ 不要捏造方法名稱、參數或返回類型
+   - ✅ 要讀取實際原始碼或詢問使用者
+
+2. **假設需求**
+   - ❌ 不要猜測使用者需求或業務規則
+   - ✅ 當需求模糊時要提出澄清問題
+
+3. **推測未讀取的程式碼**
+   - ❌ 不要描述未檢視檔案的功能
+   - ✅ 要明確說明「需要讀取 [檔案] 以確認」
+
+4. **捏造配置**
+   - ❌ 不要假設環境變數、配置鍵或資料庫架構
+   - ✅ 要檢視實際的配置檔案
+
+5. **幻想錯誤或 Bug**
+   - ❌ 不要在沒有證據的情況下聲稱程式碼有問題
+   - ✅ 要分析實際程式碼並引用特定行
+
+6. **提出選項但不給建議**
+   - ❌ 不要只列出選項並要求使用者選擇而不提供指引
+   - ✅ 務必包含建議選擇及理由
+
+---
+
+## AI 助理工作流程
 
 ```
 ┌─────────────────────────────────┐
-│  User Request Received          │
+│  收到使用者請求                    │
 └─────────────┬───────────────────┘
               │
               ▼
 ┌─────────────────────────────────┐
-│  Identify Information Needed    │
-│  - Code files?                  │
-│  - Configuration?               │
-│  - Requirements?                │
+│  識別所需資訊                      │
+│  - 程式碼檔案?                     │
+│  - 配置?                          │
+│  - 需求?                          │
 └─────────────┬───────────────────┘
               │
               ▼
          ┌────┴────┐
-         │ Available? │
+         │ 可用? │
          └────┬────┘
               │
       ┌───────┴───────┐
       │               │
-     YES              NO
+     是              否
       │               │
       ▼               ▼
 ┌──────────┐   ┌─────────────┐
-│  Read/   │   │  Ask User   │
-│  Analyze │   │  for Info   │
+│  讀取/   │   │  向使用者   │
+│  分析    │   │  詢問資訊   │
 └────┬─────┘   └──────┬──────┘
      │                │
      ▼                ▼
 ┌─────────────────────────────────┐
-│  Tag Response with:             │
-│  - [Confirmed] for facts        │
-│  - [Inferred] for deductions    │
-│  - [Need Confirmation] for gaps │
+│  標記回應:                        │
+│  - [Confirmed] 用於事實           │
+│  - [Inferred] 用於推論            │
+│  - [Need Confirmation] 用於缺口   │
 └─────────────┬───────────────────┘
               │
               ▼
 ┌─────────────────────────────────┐
-│  Cite Sources (file:line)       │
+│  引用來源 (檔案:行號)              │
 └─────────────┬───────────────────┘
               │
               ▼
 ┌─────────────────────────────────┐
-│  Include Recommendation         │
-│  (if presenting options)        │
+│  包含建議                         │
+│  (如果提出選項)                    │
 └─────────────────────────────────┘
 ```
 
 ---
 
-## Related Standards
+## 相關標準
 
-- [Anti-Hallucination Standards](../../core/anti-hallucination.md)
-- [Certainty Labels Reference](./certainty-labels.md)
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.1.0 | 2026-01-25 | Added: Unified Tag System with Certainty and Derivation tags |
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+- [防止幻覺標準](../../core/anti-hallucination.md)
+- [確定性標籤參考](./certainty-labels.md)
 
 ---
 
-## License
+## 版本歷史
 
-This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2025-12-24 | 新增: 標準章節（目的、相關標準、版本歷史、授權） |
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## 授權
+
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權釋出。
+
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

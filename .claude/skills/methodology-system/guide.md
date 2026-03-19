@@ -1,144 +1,71 @@
 ---
-scope: partial
-description: |
-  Manage and guide developers through active development methodology workflows.
-  Use when: TDD, BDD, SDD, ATDD, or custom methodology workflows are needed.
-  Keywords: methodology, workflow, TDD, BDD, SDD, ATDD, phase, checkpoint, development process.
+source: ../../../../skills/methodology-system/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-12
 status: experimental
 ---
 
+# 方法論系統 Skill
+
+> **Language**: [English](../../../../skills/methodology-system/SKILL.md) | 繁體中文
+
 > [!WARNING]
-> **Experimental Feature / 實驗性功能**
+> **實驗性功能 / Experimental Feature**
 >
-> This feature is under active development and may change significantly in v4.0.
 > 此功能正在積極開發中，可能在 v4.0 中有重大變更。
+> This feature is under active development and may change significantly in v4.0.
 
-# Methodology System Skill
-
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/methodology-system/SKILL.md)
-
-**Version**: 2.0.0
-**Last Updated**: 2026-01-25
+**版本**: 1.0.0
+**最後更新**: 2026-01-12
 
 ---
 
-## Overview
+## 概述
 
-The Methodology System provides a unified framework for managing development methodologies in projects that adopt Universal Development Standards.
-
-### Two Independent Systems
-
-```
-┌────────────────────────────────────────────────────────────────────────────┐
-│                  Two Independent Methodology Systems                         │
-├────────────────────────────────────────────────────────────────────────────┤
-│                                                                            │
-│  System A: SDD (AI-Era Methodology)                                        │
-│  ─────────────────────────────────────                                     │
-│  /sdd → Review → /derive-all → Implementation → Verification               │
-│  Best for: New projects, AI-assisted development, greenfield features     │
-│                                                                            │
-│  System B: Double-Loop TDD (Traditional)                                   │
-│  ─────────────────────────────────────                                     │
-│  /bdd (Outer Loop) → /tdd (Inner Loop) → Demo                              │
-│  Best for: Legacy systems, manual development, established codebases      │
-│                                                                            │
-│  Optional Input: ATDD Workshop                                             │
-│  ─────────────────────────────────────                                     │
-│  Stakeholder collaboration that feeds into EITHER system                   │
-│                                                                            │
-└────────────────────────────────────────────────────────────────────────────┘
-```
-
-### Supported Methodologies
-
-**System A: SDD (Spec-Driven Development)**
-- Proposal → Review → Forward Derivation → Implementation → Verification → Archive
-- AI-native workflow with spec as authoritative source
-
-**System B: Double-Loop TDD**
-- **BDD** (Outer Loop) - Discovery → Formulation → Automation
-- **TDD** (Inner Loop) - Red → Green → Refactor
-
-**Optional Input**
-- **ATDD** - Acceptance Test-Driven Development workshop (feeds into either system)
-
-**Custom** - User-defined methodologies
+方法論系統讓採用此規範的專案能夠選擇、配置並遵循特定的開發方法論。內建支援 TDD、BDD、SDD 和 ATDD，並可建立自訂方法論。
 
 ---
 
-## Features
+## 功能
 
-### 1. Phase-Aware Guidance
+### 核心功能
 
-AI automatically tracks the current phase and provides context-appropriate guidance:
+1. **方法論選擇** - 從內建方法論中選擇或建立自訂方法論
+2. **階段追蹤** - 追蹤當前開發階段，提供階段特定的引導
+3. **檢查點系統** - 在關鍵時刻自動提醒和驗證
+4. **檢查清單** - 每個階段都有必須完成的檢查項目
+5. **AI 引導** - 根據當前階段提供上下文感知的 AI 引導
 
-```
-┌─────────────────────────────────────────────┐
-│ 📋 Current Methodology: TDD                  │
-│ 📍 Current Phase: 🔴 RED (1-5 min)           │
-│                                             │
-│ Checklist:                                  │
-│   ✅ Test describes behavior                │
-│   ✅ Test name is clear                     │
-│   ⬜ Test follows AAA pattern               │
-│   ⬜ Test fails when run                    │
-│                                             │
-│ Next: Write the test following AAA pattern  │
-└─────────────────────────────────────────────┘
-```
+### 內建方法論
 
-### 2. Checkpoint Reminders
-
-Automatic reminders based on methodology triggers:
-
-- **Phase Transition**: Suggest commit when phase completes
-- **Accumulation Warning**: Warn when changes exceed threshold
-- **Skip Warning**: Alert after consecutive skipped check-ins
-
-### 3. Methodology Switching
-
-Switch between methodologies as project needs change:
-
-```
-/methodology switch bdd
-```
-
-### 4. Custom Methodology Support
-
-Define team-specific workflows in `.standards/methodologies/`:
-
-```yaml
-id: my-team-workflow
-name: My Team Workflow
-phases:
-  - id: plan
-    name: Planning
-    checklist:
-      - id: requirements-clear
-        text: Requirements understood
-        required: true
-```
+| 方法論 | 說明 | 階段 |
+|--------|------|------|
+| **TDD** | 測試驅動開發 | 紅燈 → 綠燈 → 重構 |
+| **BDD** | 行為驅動開發 | 探索 → 制定 → 自動化 → 活文件 |
+| **SDD** | 規格驅動開發 | 提案 → 審查 → 實作 → 驗證 → 歸檔 |
+| **ATDD** | 驗收測試驅動開發 | 工作坊 → 提煉 → 開發 → 展示 |
 
 ---
 
-## Commands
+## 命令
 
-| Command | Description |
-|---------|-------------|
-| `/methodology` | Show current methodology status |
-| `/methodology switch <id>` | Switch to different methodology |
-| `/methodology phase [phase]` | Show or change current phase |
-| `/methodology checklist` | Show current phase checklist |
-| `/methodology skip` | Skip current phase (with warning) |
-| `/methodology list` | List available methodologies |
-| `/methodology create` | Create custom methodology |
+| 命令 | 說明 |
+|------|------|
+| `/methodology` | 顯示當前方法論狀態 |
+| `/methodology status` | 顯示當前階段和檢查清單 |
+| `/methodology switch <id>` | 切換到不同方法論 |
+| `/methodology phase [name]` | 顯示或變更當前階段 |
+| `/methodology checklist` | 顯示當前階段檢查清單 |
+| `/methodology skip` | 跳過當前階段（會有警告） |
+| `/methodology list` | 列出可用方法論 |
+| `/methodology create` | 建立自訂方法論 |
 
 ---
 
-## Configuration
+## 配置
 
-Methodology configuration is stored in `.standards/manifest.json`:
+在 `.standards/manifest.json` 中配置方法論：
 
 ```json
 {
@@ -146,105 +73,59 @@ Methodology configuration is stored in `.standards/manifest.json`:
     "active": "tdd",
     "available": ["tdd", "bdd", "sdd", "atdd"],
     "config": {
-      "tdd": {
-        "checkpointsEnabled": true,
-        "reminderIntensity": "suggest",
-        "skipLimit": 3
-      }
+      "checkpointsEnabled": true,
+      "reminderIntensity": "suggest",
+      "skipLimit": 3
     }
   }
 }
 ```
 
-### Configuration Options
+### 配置選項
 
-| Option | Values | Description |
-|--------|--------|-------------|
-| `active` | methodology id | Currently active methodology |
-| `checkpointsEnabled` | `true`/`false` | Enable checkpoint reminders |
-| `reminderIntensity` | `suggest`/`warning`/`strict` | How strongly to enforce checkpoints |
-| `skipLimit` | number | Consecutive skips before warning |
-
----
-
-## AI Behavior
-
-### Detection
-
-1. Check `.standards/manifest.json` for `methodology.active`
-2. Load methodology definition from:
-   - Built-in: `methodologies/{id}.methodology.yaml`
-   - Custom: `.standards/methodologies/{id}.methodology.yaml`
-
-### Phase Tracking
-
-- Track current phase based on trigger conditions
-- Update phase when exit conditions are met
-- Provide phase-specific guidance and checklist
-
-### Context Keywords
-
-AI will automatically activate methodology context when these keywords are detected:
-
-| System | Methodology | Keywords |
-|--------|-------------|----------|
-| A: SDD | SDD | specification, spec first, proposal, derive tests, forward derivation |
-| B: Double-Loop | BDD (outer) | given when then, gherkin, cucumber, scenario, discovery |
-| B: Double-Loop | TDD (inner) | test first, red green refactor, failing test |
-| Input | ATDD | acceptance test, user story, product owner, workshop |
+| 選項 | 類型 | 預設值 | 說明 |
+|------|------|--------|------|
+| `active` | string | null | 當前啟用的方法論 ID |
+| `available` | string[] | all | 可用的方法論清單 |
+| `checkpointsEnabled` | boolean | true | 是否啟用檢查點提醒 |
+| `reminderIntensity` | string | "suggest" | 提醒強度：suggest、warn、block |
+| `skipLimit` | number | 3 | 連續跳過幾次後顯示警告 |
 
 ---
 
-## Integration with Other Standards
+## AI 行為
 
-### Check-in Standards
+當方法論啟用時，AI 會：
 
-When a phase completes, the methodology system integrates with `checkin-standards.md`:
-
-```
-Phase GREEN completed.
-
-Changes:
-- Files: 3
-- Lines: +45 / -2
-
-Suggested commit:
-  test(auth): add login validation test
-  feat(auth): implement login validation
-
-[1] Commit now  [2] Continue working  [3] View changes
-```
-
-### Code Review
-
-Additional review checks are added based on active methodology:
-
-- **TDD**: Tests follow naming conventions, single behavior per test
-- **BDD**: Declarative style, reusable steps
-- **SDD**: Change matches spec, no scope creep
-- **ATDD**: All acceptance criteria have tests
+1. **顯示階段指示器** - 使用表情符號標示當前階段（如 🔴 RED）
+2. **提供階段引導** - 根據當前階段建議適當的行動
+3. **追蹤檢查清單** - 自動追蹤和更新檢查項目狀態
+4. **顯示檢查點** - 在階段轉換或大量變更時提醒用戶
+5. **建議提交** - 根據變更累積量建議適當的提交時機
 
 ---
 
-## Related Skills
+## 自訂方法論
 
-- [TDD Assistant](../tdd-assistant/SKILL.md) - Detailed TDD guidance
-- [Spec-Driven Dev](../spec-driven-dev/SKILL.md) - SDD workflow
-- [Code Review Assistant](../code-review-assistant/SKILL.md) - Review integration
+可以建立自訂方法論來符合團隊需求：
 
----
+1. 使用 `/methodology create` 啟動互動式建立精靈
+2. 或手動在 `.standards/methodologies/` 建立 YAML 檔案
 
-## Files
-
-- [integrated-flow.md](./integrated-flow.md) - Complete workflow guide for both systems
-- [runtime.md](./runtime.md) - AI behavior and runtime guide
-- [create-methodology.md](./create-methodology.md) - Custom methodology creation wizard
+詳見 [建立自訂方法論](create-methodology.md)。
 
 ---
 
-## Version History
+## 相關文件
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 2.0.0 | 2026-01-25 | Refactor to two independent systems architecture |
-| 1.0.0 | 2026-01-12 | Initial methodology system |
+- [命令文檔](../commands/methodology.md) - `/methodology` 命令詳細文檔
+- [執行時引導](runtime.md) - AI 行為規格
+- [建立自訂方法論](create-methodology.md) - 建立指南
+
+---
+
+## 版本歷史
+
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-01-12 | 初始方法論系統 |

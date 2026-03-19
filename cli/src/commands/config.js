@@ -331,7 +331,7 @@ async function handleDisplayLanguageChange() {
       const cmdLocale = displayLanguageToLocale(newLang);
       if (hasSkillInstalls) {
         const spinner = ora(t('config.reinstallingSkills', 'Reinstalling Skills...')).start();
-        await installSkillsToMultipleAgents(manifest.skills.installations, null, projectPath);
+        await installSkillsToMultipleAgents(manifest.skills.installations, null, projectPath, cmdLocale);
         spinner.succeed(t('config.skillsReinstalled', 'Skills reinstalled'));
       }
       if (hasCommandInstalls) {
@@ -950,7 +950,7 @@ export async function runProjectConfiguration(options) {
       const cmdLocale = displayLanguageToLocale(newOptions.display_language);
       if (hasSkillInstalls) {
         const skillSpinner = ora(t('config.reinstallingSkills', 'Reinstalling Skills...')).start();
-        await installSkillsToMultipleAgents(manifest.skills.installations, null, projectPath);
+        await installSkillsToMultipleAgents(manifest.skills.installations, null, projectPath, cmdLocale);
         skillSpinner.succeed(t('config.skillsReinstalled', 'Skills reinstalled'));
       }
       if (hasCommandInstalls) {

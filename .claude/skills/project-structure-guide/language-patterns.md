@@ -1,6 +1,14 @@
-# Language-Specific Project Patterns
+---
+source: ../../../../skills/project-structure-guide/language-patterns.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-30
+status: current
+---
 
-Quick reference for project structures by language.
+# 語言特定專案模式
+
+各語言專案結構快速參考。
 
 ## Node.js / TypeScript
 
@@ -30,7 +38,7 @@ project/
 
 ```
 project/
-├── app/                  # App Router (Next.js 13+)
+├── app/                  # App Router（Next.js 13+）
 │   ├── layout.tsx
 │   ├── page.tsx
 │   └── api/
@@ -81,7 +89,7 @@ project/
 
 ## Go
 
-### Standard Layout
+### 標準佈局
 
 ```
 project/
@@ -103,7 +111,7 @@ project/
 
 ## Rust
 
-### Binary Application
+### Binary 應用程式
 
 ```
 project/
@@ -201,7 +209,7 @@ project/
 
 ## Swift
 
-### iOS App (SwiftUI)
+### iOS App（SwiftUI）
 
 ```
 project/
@@ -227,18 +235,18 @@ project/
 └── README.md
 ```
 
-## Gitignore Essentials
+## Gitignore 必要項目
 
-### Universal
+### 通用
 
 ```gitignore
-# Build outputs
+# 建構輸出
 dist/
 build/
 out/
 bin/
 
-# Environment
+# 環境
 .env
 .env.*
 
@@ -247,17 +255,17 @@ bin/
 .vscode/
 *.swp
 
-# OS
+# 作業系統
 .DS_Store
 Thumbs.db
 ```
 
-### Language-Specific
+### 語言特定
 
-| Language | Patterns |
-|----------|----------|
-| Node.js | node_modules/, *.log |
-| Python | __pycache__/, *.pyc, .venv/ |
-| Go | vendor/ (if not using modules) |
-| Rust | target/, Cargo.lock (for libraries) |
-| Java/.NET | *.class, bin/, obj/ |
+| 語言 | 模式 |
+|------|------|
+| Node.js | node_modules/、*.log |
+| Python | __pycache__/、*.pyc、.venv/ |
+| Go | vendor/（如不使用 modules） |
+| Rust | target/、Cargo.lock（函式庫） |
+| Java/.NET | *.class、bin/、obj/ |

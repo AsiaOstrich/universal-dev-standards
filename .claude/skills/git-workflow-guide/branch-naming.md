@@ -1,20 +1,28 @@
-# Branch Naming Reference
+---
+source: ../../../../skills/git-workflow-guide/branch-naming.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2025-12-25
+status: current
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/git-workflow-guide/branch-naming.md)
+# 分支命名參考
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-24
-**Applicability**: Claude Code Skills
+> **語言**: [English](../../../../skills/git-workflow-guide/branch-naming.md) | 繁體中文
+
+**版本**: 1.0.0
+**最後更新**: 2025-12-24
+**適用範圍**: Claude Code Skills
 
 ---
 
-## Purpose
+## 目的
 
-This document provides reference for Git branch naming conventions and rules.
+本文件提供 Git 分支命名慣例和規則的參考指南。
 
 ---
 
-## Standard Format
+## 標準格式
 
 ```
 <type>/<short-description>
@@ -22,108 +30,108 @@ This document provides reference for Git branch naming conventions and rules.
 
 ---
 
-## Branch Types
+## 分支類型
 
-### Feature Branches
+### 功能分支
 
-| Type | Usage | Example |
+| 類型 | 用途 | 範例 |
+|------|------|------|
+| `feature/` | 新功能 | `feature/oauth-login` |
+| `feat/` | 簡寫形式 | `feat/user-dashboard` |
+
+### 修復分支
+
+| 類型 | 用途 | 範例 |
 |------|-------|---------|
-| `feature/` | New functionality | `feature/oauth-login` |
-| `feat/` | Short form | `feat/user-dashboard` |
+| `fix/` | 錯誤修復 | `fix/memory-leak` |
+| `bugfix/` | 替代形式 | `bugfix/login-error` |
+| `hotfix/` | 緊急正式環境修復 | `hotfix/security-patch` |
 
-### Fix Branches
+### 其他類型
 
-| Type | Usage | Example |
+| 類型 | 用途 | 範例 |
 |------|-------|---------|
-| `fix/` | Bug fixes | `fix/memory-leak` |
-| `bugfix/` | Alternative form | `bugfix/login-error` |
-| `hotfix/` | Urgent production fixes | `hotfix/security-patch` |
-
-### Other Types
-
-| Type | Usage | Example |
-|------|-------|---------|
-| `refactor/` | Code refactoring | `refactor/extract-service` |
-| `docs/` | Documentation only | `docs/api-reference` |
-| `test/` | Test additions | `test/integration-tests` |
-| `chore/` | Maintenance tasks | `chore/update-deps` |
-| `perf/` | Performance | `perf/optimize-query` |
-| `style/` | Formatting | `style/code-format` |
-| `ci/` | CI/CD changes | `ci/add-coverage` |
-| `release/` | Release preparation | `release/v1.2.0` |
+| `refactor/` | 程式碼重構 | `refactor/extract-service` |
+| `docs/` | 僅文件更新 | `docs/api-reference` |
+| `test/` | 測試新增 | `test/integration-tests` |
+| `chore/` | 維護任務 | `chore/update-deps` |
+| `perf/` | 效能改善 | `perf/optimize-query` |
+| `style/` | 格式調整 | `style/code-format` |
+| `ci/` | CI/CD 變更 | `ci/add-coverage` |
+| `release/` | 發布準備 | `release/v1.2.0` |
 
 ---
 
-## Naming Rules
+## 命名規則
 
-### Do
+### 應該做的事
 
-1. **Use lowercase**
+1. **使用小寫**
    ```bash
-   feature/user-auth    # ✅ Good
-   Feature/User-Auth    # ❌ Bad
+   feature/user-auth    # ✅ 良好
+   Feature/User-Auth    # ❌ 不好
    ```
 
-2. **Use hyphens for spaces**
+2. **使用連字號分隔空格**
    ```bash
-   feature/oauth-login  # ✅ Good
-   feature/oauth_login  # ❌ Bad (underscores)
-   feature/oauthlogin   # ❌ Bad (no separator)
+   feature/oauth-login  # ✅ 良好
+   feature/oauth_login  # ❌ 不好（底線）
+   feature/oauthlogin   # ❌ 不好（無分隔符號）
    ```
 
-3. **Be descriptive but concise**
+3. **具描述性但簡潔**
    ```bash
-   feature/add-user-authentication  # ✅ Good
-   feature/auth                     # ⚠️ Too vague
-   feature/add-new-user-authentication-with-oauth2-and-jwt  # ❌ Too long
+   feature/add-user-authentication  # ✅ 良好
+   feature/auth                     # ⚠️ 太模糊
+   feature/add-new-user-authentication-with-oauth2-and-jwt  # ❌ 太長
    ```
 
-4. **Include issue number (optional)**
+4. **包含問題編號（選擇性）**
    ```bash
-   feature/123-oauth-login   # ✅ Good
-   feature/GH-123-oauth      # ✅ Good (GitHub issue)
-   feature/JIRA-456-payment  # ✅ Good (Jira ticket)
+   feature/123-oauth-login   # ✅ 良好
+   feature/GH-123-oauth      # ✅ 良好（GitHub issue）
+   feature/JIRA-456-payment  # ✅ 良好（Jira ticket）
    ```
 
-### Don't
+### 不應該做的事
 
-1. **Don't use only issue numbers**
+1. **不要只使用問題編號**
    ```bash
-   feature/123       # ❌ Not descriptive
-   fix/456           # ❌ What does it fix?
+   feature/123       # ❌ 不具描述性
+   fix/456           # ❌ 修復什麼？
    ```
 
-2. **Don't use special characters**
+2. **不要使用特殊字元**
    ```bash
-   feature/oauth@login  # ❌ @ not allowed
-   feature/auth#123     # ❌ # not allowed
+   feature/oauth@login  # ❌ 不允許 @
+   feature/auth#123     # ❌ 不允許 #
    ```
 
-3. **Don't use spaces**
+3. **不要使用空格**
    ```bash
-   feature/oauth login  # ❌ Spaces not allowed
+   feature/oauth login  # ❌ 不允許空格
    ```
 
 ---
 
-## Examples
+## 範例
 
-### Good Examples
+### 良好範例
 
 ```bash
-# Feature branches
+# 功能分支
 feature/user-authentication
 feature/oauth2-google-login
 feature/123-add-payment-gateway
 feat/dashboard-analytics
 
-# Fix branches
+# 修復分支
 fix/null-pointer-payment
 fix/memory-leak-session-cache
 bugfix/login-redirect-loop
 hotfix/critical-data-loss
 
-# Other branches
+# 其他分支
 refactor/database-connection-pool
 docs/update-installation-guide
 test/add-integration-tests
@@ -132,81 +140,81 @@ perf/optimize-database-queries
 release/v1.2.0
 ```
 
-### Bad Examples
+### 不良範例
 
 ```bash
-# ❌ Not descriptive
+# ❌ 不具描述性
 feature/123
 fix/bug
 update
 
-# ❌ Wrong case
+# ❌ 錯誤的大小寫
 Feature/OAuth-Login
 FIX/Memory-Leak
 HOTFIX/security
 
-# ❌ Wrong separators
+# ❌ 錯誤的分隔符號
 feature/oauth_login
 feature/oauth.login
 feature/oauth login
 
-# ❌ No type prefix
+# ❌ 無類型前綴
 oauth-login
 user-authentication
 memory-leak-fix
 
-# ❌ Too vague
+# ❌ 太模糊
 feature/update
 fix/issue
 chore/stuff
 
-# ❌ Too long
+# ❌ 太長
 feature/add-new-user-authentication-system-with-oauth2-jwt-and-session-management
 ```
 
 ---
 
-## Quick Validation
+## 快速驗證
 
-Before pushing, check your branch name:
+推送前，檢查您的分支名稱：
 
 ```bash
-# Check current branch name
+# 檢查目前分支名稱
 git branch --show-current
 
-# Validate format (should match pattern)
+# 驗證格式（應符合模式）
 # <type>/<description>
 # - type: feature, fix, bugfix, hotfix, refactor, docs, test, chore, perf, style, ci, release
-# - description: lowercase, hyphen-separated, descriptive
+# - description: 小寫、連字號分隔、具描述性
 ```
 
-### Validation Checklist
+### 驗證檢查清單
 
-- [ ] Starts with valid type prefix (`feature/`, `fix/`, etc.)
-- [ ] All lowercase
-- [ ] Uses hyphens (not underscores or spaces)
-- [ ] Descriptive but concise (3-5 words ideal)
-- [ ] No special characters (@, #, $, etc.)
-
----
-
-## Related Standards
-
-- [Git Workflow Strategies](./git-workflow.md)
-- [Git Workflow](../../core/git-workflow.md)
+- [ ] 以有效的類型前綴開頭（`feature/`、`fix/` 等）
+- [ ] 全部小寫
+- [ ] 使用連字號（非底線或空格）
+- [ ] 具描述性但簡潔（理想為 3-5 個單字）
+- [ ] 無特殊字元（@、#、$ 等）
 
 ---
 
-## Version History
+## 相關標準
 
-| Version | Date | Changes |
+- [Git 工作流程策略](./git-workflow.md)
+- [Git 工作流程](../../../../core/git-workflow.md)
+
+---
+
+## 版本歷史
+
+| 版本 | 日期 | 變更 |
 |---------|------|---------|
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+| 1.0.0 | 2025-12-24 | 新增：標準章節（目的、相關標準、版本歷史、授權條款） |
 
 ---
 
-## License
+## 授權條款
 
-This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+本文件採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

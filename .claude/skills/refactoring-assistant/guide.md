@@ -1,303 +1,307 @@
 ---
-scope: universal
+source: ../../../../skills/refactoring-assistant/SKILL.md
+source_version: 2.0.0
+translation_version: 2.0.0
+last_synced: 2026-01-21
+status: current
 description: |
-  Guide refactoring decisions and large-scale code improvements.
-  Use when: refactoring code, legacy modernization, technical debt, rewrite decisions.
-  Keywords: refactor, rewrite, legacy, strangler, technical debt, 重構, 重寫, 技術債.
+  引導重構決策和大規模程式碼改進。
+  使用時機：重構程式碼、遺留系統現代化、技術債、重寫決策。
+  關鍵字：refactor, rewrite, legacy, strangler, technical debt, 重構, 重寫, 技術債.
 ---
 
-# Refactoring Assistant
+# 重構助手
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/refactoring-assistant/SKILL.md)
+> **語言**: [English](../../../../skills/refactoring-assistant/SKILL.md) | 繁體中文
 
-**Version**: 2.0.0
-**Last Updated**: 2026-01-21
-**Applicability**: Claude Code Skills
-
----
-
-## Purpose
-
-This skill provides decision frameworks for refactoring vs rewriting, large-scale refactoring patterns, and technical debt management. Strategies are organized into three tiers: Tactical (daily), Strategic (architectural), and Safety (legacy code).
+**版本**: 2.0.0
+**最後更新**: 2026-01-21
+**適用範圍**: Claude Code Skills
 
 ---
 
-## Quick Reference (YAML Compressed)
+## 目的
+
+本技能提供重構與重寫的決策框架、大規模重構模式，以及技術債管理。策略分為三個層級：戰術性（日常）、戰略性（架構）、安全防護（遺留程式碼）。
+
+---
+
+## 快速參考（YAML 壓縮格式）
 
 ```yaml
-# === DECISION: Refactor vs Rewrite ===
+# === 決策：重構 vs 重寫 ===
 decision_tree:
-  - q: "Code in production?"
-    n: "→ Consider rewrite (lower risk)"
+  - q: "程式碼在生產環境運行？"
+    n: "→ 考慮重寫（風險較低）"
     y: next
-  - q: "Understand what code does?"
-    n: "→ Characterization tests first"
+  - q: "了解程式碼的功能？"
+    n: "→ 先寫特徵測試"
     y: next
-  - q: "Test coverage >60%?"
-    n: "→ Add tests first"
+  - q: "測試覆蓋率 >60%？"
+    n: "→ 先補測試"
     y: next
-  - q: "Core architecture salvageable?"
-    n: "→ Strangler Fig pattern"
-    y: "→ Incremental Refactoring ✓"
+  - q: "核心架構可修復？"
+    n: "→ Strangler Fig 模式"
+    y: "→ 增量重構 ✓"
 
 comparison_matrix:
-  favor_refactor: [large_codebase, good_tests, business_critical, team_knows_code, sound_arch, tight_deadline, low_risk]
-  favor_rewrite: [small_isolated, no_tests, can_tolerate_downtime, no_knowledge, flawed_arch, flexible_time, higher_risk]
+  favor_refactor: [大型程式庫, 良好測試, 業務關鍵, 團隊熟悉, 架構健全, 時間緊迫, 低風險]
+  favor_rewrite: [小型獨立, 無測試, 可容忍停機, 無人熟悉, 架構有缺陷, 時間充裕, 較高風險]
 
-# === WARNING: Second-System Effect ===
+# === 警告：第二系統效應 ===
 rewrite_antipatterns:
-  - "Adding features not in original"
-  - "Over-abstracting for future flexibility"
-  - "Ignoring lessons from existing system"
-quote: "The second system is the most dangerous system a person ever designs. — Fred Brooks"
+  - "加入原本沒有的功能"
+  - "為未來彈性過度抽象"
+  - "忽略現有系統的經驗教訓"
+quote: "第二個系統是一個人設計過最危險的系統。— Fred Brooks"
 
-# === TACTICAL: Daily Refactoring Strategies ===
+# === 戰術性策略：日常重構 ===
 tactical:
   preparatory_refactoring:
-    definition: "Restructure code to make upcoming change easier"
-    quote: "First make the change easy (this might be hard), then make the easy change. — Kent Beck"
-    when: [feature_blocked, reduce_friction, upcoming_changes]
+    definition: "在新增功能前調整結構，讓改變更容易"
+    quote: "先把改變變容易（這可能很難），然後再做那個容易的改變。— Kent Beck"
+    when: [功能被阻擋, 降低阻力, 即將變更]
     workflow:
-      1: "Identify the change you want to make"
-      2: "Identify what makes this change difficult"
-      3: "Refactor to make the change easy"
-      4: "Make the (now easy) change"
+      1: "識別要做的改變"
+      2: "識別是什麼讓改變困難"
+      3: "重構以讓改變變容易"
+      4: "做那個（現在變容易的）改變"
     principles:
-      - "Preparatory refactoring is separate commit from feature"
-      - "Each step maintains passing tests"
-      - "Don't combine refactoring with feature work"
+      - "預備性重構與功能分開提交"
+      - "每一步都維持測試通過"
+      - "不要混合重構與功能工作"
 
   boy_scout_rule:
-    definition: "Leave code cleaner than you found it (opportunistic refactoring)"
-    quote: "Leave the campground cleaner than you found it. — Robert C. Martin"
-    when: [any_maintenance, bug_fixes, feature_additions, fighting_entropy]
+    definition: "離開時讓程式碼比來時更乾淨（機會主義重構）"
+    quote: "離開營地時，讓它比你來的時候更乾淨。— Robert C. Martin"
+    when: [任何維護, Bug修復, 功能新增, 對抗熵]
     guidelines:
-      - "Only small improvements (minutes, not hours)"
-      - "Don't change behavior"
-      - "Don't break existing tests"
-      - "Keep scope within current task"
+      - "只做小改進（分鐘，不是小時）"
+      - "不改變行為"
+      - "不破壞現有測試"
+      - "保持範圍在當前任務內"
     examples:
-      - "Rename confusingly-named variable"
-      - "Extract lines into well-named method"
-      - "Remove dead code"
-      - "Add clarifying comment"
+      - "重新命名令人困惑的變數"
+      - "將幾行程式碼提取為命名良好的方法"
+      - "移除死程式碼"
+      - "加入澄清註解"
     antipatterns:
-      - "Turning bug fix into major refactoring"
-      - "Refactoring unrelated code"
-      - "Changes without test coverage"
-      - "Scope creep beyond original task"
+      - "把 Bug 修復變成大重構"
+      - "重構不相關的程式碼"
+      - "沒有測試覆蓋就修改"
+      - "範圍蔓延超出原始任務"
 
   red_green_refactor:
-    definition: "TDD refactoring phase"
-    duration: "5-15 min per cycle"
-    scope: "single method/class"
-    techniques: [extract_method, rename, inline_var, replace_magic_number]
-    reference: "→ See TDD Standards"
+    definition: "TDD 重構階段"
+    duration: "每循環 5-15 分鐘"
+    scope: "單一方法/類別"
+    techniques: [提取方法, 重新命名, 內聯變數, 替換魔術數字]
+    reference: "→ 見 TDD 標準"
 
-# === STRATEGIC: Architectural Refactoring ===
+# === 戰略性策略：架構重構 ===
 strategic:
   strangler_fig:
-    definition: "Gradually replace legacy by routing to new system"
-    origin: "Named after strangler fig trees"
+    definition: "逐步將功能路由到新系統，漸進替換舊系統"
+    origin: "命名自絞殺榕樹"
     phases:
-      1_intercept: "Request → Facade → Legacy(100%)"
-      2_migrate: "Request → Facade → [New(Feature), Legacy(Rest)]"
-      3_complete: "Request → New(100%) [Legacy decommissioned]"
+      1_攔截: "請求 → 門面 → 舊系統(100%)"
+      2_遷移: "請求 → 門面 → [新系統(功能), 舊系統(其餘)]"
+      3_完成: "請求 → 新系統(100%) [舊系統下線]"
     checklist:
-      - "Identify interception point"
-      - "Create event capture layer"
-      - "Implement first feature in new"
-      - "Route traffic incrementally"
-      - "Monitor and compare"
-      - "Decommission legacy"
+      - "識別攔截點"
+      - "建立事件捕獲層"
+      - "在新系統實作第一個功能"
+      - "漸進式路由流量"
+      - "監控並比較"
+      - "下線舊系統"
 
   anti_corruption_layer:
-    definition: "Translation layer preventing legacy model from polluting new system"
-    origin: "Eric Evans, Domain-Driven Design (2003)"
+    definition: "防止遺留模型污染新系統的翻譯層"
+    origin: "Eric Evans, 領域驅動設計 (2003)"
     when:
-      - "New and legacy must coexist and interact"
-      - "Legacy has chaotic domain model"
-      - "Protecting new system's Bounded Context"
+      - "新舊系統必須共存並互動"
+      - "遺留系統有混亂的領域模型"
+      - "保護新系統的限界上下文"
     components:
-      facade: "Simplifies complex legacy interfaces"
-      adapter: "Converts legacy data to new domain model"
-      translator: "Maps legacy terminology to ubiquitous language"
+      facade: "簡化複雜的遺留介面"
+      adapter: "將遺留資料轉換為新領域模型"
+      translator: "映射遺留術語到通用語言"
     checklist:
-      - "Define clear ACL interface"
-      - "Map legacy entities to new model"
-      - "Handle data format conversions"
-      - "Implement error translation"
-      - "Add logging for debugging"
-      - "Test ACL isolation thoroughly"
+      - "定義清晰的 ACL 介面"
+      - "映射遺留實體到新模型"
+      - "處理資料格式轉換"
+      - "實作錯誤翻譯"
+      - "加入日誌以便除錯"
+      - "徹底測試 ACL 隔離性"
     vs_strangler:
-      strangler: "Goal is to replace legacy"
-      acl: "Goal is to coexist with legacy"
+      strangler: "目標是取代遺留"
+      acl: "目標是與遺留共存"
 
   branch_by_abstraction:
     steps:
-      1: "Client → Abstraction(interface) → OldImpl"
-      2: "Client → Abstraction → [OldImpl, NewImpl(toggled)]"
-      3: "Client → NewImpl [OldImpl removed]"
-    principles: [all_changes_on_trunk, feature_toggles, coexist_during_transition]
+      1: "客戶端 → 抽象(介面) → 舊實作"
+      2: "客戶端 → 抽象 → [舊實作, 新實作(切換)]"
+      3: "客戶端 → 新實作 [舊實作已移除]"
+    principles: [所有變更在主幹, 功能開關, 過渡期共存]
 
   parallel_change:
     aka: "Expand-Migrate-Contract"
     phases:
-      expand: "Add new alongside old, new code uses new, old still works"
-      migrate: "Update all clients to new, verify, data migration"
-      contract: "Remove old, clean up, update docs"
+      expand: "新增新的在舊的旁邊，新程式碼用新的，舊的仍運作"
+      migrate: "更新所有客戶端用新的，驗證，資料遷移"
+      contract: "移除舊的，清理，更新文件"
 
-# === SAFETY: Legacy Code Strategies ===
+# === 安全策略：遺留程式碼 ===
 safety:
   legacy:
-    definition: "Code without tests (regardless of age)"
-    dilemma: "Need tests to change safely → Need to change to add tests"
-    solution: "Safe techniques to add tests first"
+    definition: "沒有測試的程式碼（不論年齡）"
+    dilemma: "安全修改需要測試 → 加測試需要修改程式碼"
+    solution: "使用安全技術先加測試"
 
   characterization_tests:
-    purpose: "Capture existing behavior (not verify correctness)"
+    purpose: "捕捉現有行為（非驗證正確性）"
     process:
-      1: "Call code to understand"
-      2: "Write assertion expected to FAIL"
-      3: "Run, see actual result"
-      4: "Update assertion to match actual"
-      5: "Repeat until behavior covered"
-    principle: "Document what code DOES, not what it SHOULD do"
+      1: "呼叫要理解的程式碼"
+      2: "寫預期會失敗的斷言"
+      3: "執行，觀察實際結果"
+      4: "更新斷言以匹配實際行為"
+      5: "重複直到涵蓋需要修改的行為"
+    principle: "記錄程式碼做什麼，而非應該做什麼"
 
   scratch_refactoring:
-    definition: "Refactor to understand, discard all changes"
+    definition: "為了理解而重構，捨棄所有變更"
     workflow:
-      1: "Create scratch branch (or git stash)"
-      2: "Aggressively refactor to understand"
-      3: "Take notes on learnings"
-      4: "Discard changes (git reset --hard)"
-      5: "Apply learnings to write characterization tests"
-    when: [code_too_complex, no_docs, need_mental_model_fast]
-    principle: "Goal is understanding, not clean code"
+      1: "建立探針分支（或 git stash）"
+      2: "大膽重構以理解"
+      3: "記錄學到的內容"
+      4: "捨棄變更（git reset --hard）"
+      5: "應用學習撰寫特徵測試"
+    when: [程式碼太複雜, 無文件, 需要快速建立心智模型]
+    principle: "目標是理解，不是整潔程式碼"
 
   seams:
-    definition: "Place to alter behavior without editing code"
-    object: "Override via polymorphism (inject test double)"
-    preprocessing: "Compile-time substitution (macros)"
-    link: "Replace at link time (DI, module replacement)"
+    definition: "可以在不編輯程式碼的情況下改變行為的地方"
+    object: "透過多型覆寫（注入測試替身）"
+    preprocessing: "編譯時替換（巨集）"
+    link: "連結時替換（DI，模組替換）"
 
   sprout_wrap:
-    sprout_method: "New logic → create new method, call from old"
-    sprout_class: "New logic evolves independently → new class"
-    wrap_method: "Add before/after → rename original, create wrapper"
-    wrap_class: "Decorate existing → decorator pattern"
-    principle: "New code uses TDD; legacy untouched until tested"
+    sprout_method: "新邏輯 → 建立新方法，從舊的呼叫"
+    sprout_class: "新邏輯獨立演進 → 新類別"
+    wrap_method: "加入前後行為 → 重命名原方法，建立包裝器"
+    wrap_class: "裝飾現有 → 裝飾者模式"
+    principle: "新程式碼用 TDD；遺留程式碼在測試前保持不動"
 
-# === DATABASE: Refactoring ===
+# === 資料庫：重構 ===
 db_expand_contract:
-  expand: "Add new column/table, app writes BOTH, safe to rollback"
-  migrate: "Copy data, verify consistency, app reads from new"
-  contract: "Confirm old unused, remove old, cleanup dual-write"
+  expand: "新增新欄位/表，應用程式同時寫入，可安全回滾"
+  migrate: "複製資料，驗證一致性，應用程式從新的讀取"
+  contract: "確認舊的未使用，移除舊的，清理雙寫"
 
 db_scenarios:
-  rename_column: {strategy: "add→migrate→drop", risk: medium}
-  split_table: {strategy: "new+FK→migrate→adjust", risk: high}
-  merge_tables: {strategy: "new→merge→switch", risk: high}
-  change_datatype: {strategy: "new_col→convert→switch", risk: medium}
-  add_not_null: {strategy: "fill_defaults→add_constraint", risk: low}
+  rename_column: {strategy: "新增→遷移→刪除", risk: 中}
+  split_table: {strategy: "新表+外鍵→遷移→調整", risk: 高}
+  merge_tables: {strategy: "新表→合併→切換", risk: 高}
+  change_datatype: {strategy: "新欄位→轉換→切換", risk: 中}
+  add_not_null: {strategy: "填預設→加約束", risk: 低}
 
-# === WORKFLOW: Safe Refactoring ===
-before: [define_success_criteria, "coverage>80%", clean_working_dir, create_branch, communicate]
-during: [one_small_change, test_after_every_change, revert_if_fail, commit_frequently, no_new_functionality]
-after: [all_tests_pass, measurably_better, docs_updated, team_reviewed, no_new_functionality]
+# === 工作流程：安全重構 ===
+before: [定義成功標準, "覆蓋率>80%", 乾淨工作目錄, 建立分支, 與團隊溝通]
+during: [一次一個小變更, 每次變更後測試, 失敗就復原, 頻繁提交, 不加新功能]
+after: [所有測試通過, 可衡量地更好, 文件已更新, 團隊已審查, 沒有新功能]
 
-# === METRICS ===
+# === 指標 ===
 code_quality:
-  cyclomatic_complexity: "<10/function"
-  cognitive_complexity: "lower=better"
-  coupling: "reduce"
-  cohesion: "increase"
+  cyclomatic_complexity: "每函式<10"
+  cognitive_complexity: "越低越好"
+  coupling: "降低"
+  cohesion: "提高"
   duplication: "<3%"
 
 test_quality:
-  coverage: "≥80%, don't decrease"
-  speed: "faster after refactoring"
-  flaky_count: "decrease"
+  coverage: "≥80%，不降低"
+  speed: "重構後更快"
+  flaky_count: "降低"
 
-# === TECHNICAL DEBT ===
+# === 技術債管理 ===
 quadrant: # Martin Fowler
-  prudent_deliberate: "We know this is debt"
-  reckless_deliberate: "No time for design"
-  prudent_inadvertent: "Now we know how we should have done it"
-  reckless_inadvertent: "What's layering?"
+  prudent_deliberate: "我們知道這是債務"
+  reckless_deliberate: "沒時間做設計"
+  prudent_inadvertent: "現在知道應該怎麼做了"
+  reckless_inadvertent: "什麼是分層？"
 
 priority:
-  high: {criteria: "blocks dev, frequent bugs", action: "address immediately"}
-  medium: {criteria: "slows dev, increases complexity", action: "plan next sprint"}
-  low: {criteria: "minor annoyance, isolated", action: "address opportunistically"}
+  high: {criteria: "阻塞開發，頻繁出錯", action: "立即處理"}
+  medium: {criteria: "拖慢開發，增加複雜度", action: "規劃到下個迭代"}
+  low: {criteria: "小麻煩，影響局部", action: "有機會就處理"}
 
 tracking:
-  fields: [description, impact, estimated_effort, risk_if_ignored, related_code]
+  fields: [描述, 影響, 估計工作量, 忽視風險, 相關程式碼]
 
-# === DECISION MATRIX SUMMARY ===
+# === 決策矩陣摘要 ===
 decision_matrix:
-  - {strategy: "Preparatory Refactoring", scale: "Small", risk: "Low", use: "Reduce friction before feature work"}
-  - {strategy: "Boy Scout Rule", scale: "Very Small", risk: "Low", use: "Continuous debt repayment"}
-  - {strategy: "Red-Green-Refactor", scale: "Small", risk: "Low", use: "TDD development cycle"}
-  - {strategy: "Strangler Fig", scale: "Large", risk: "Medium", use: "System replacement"}
-  - {strategy: "Anti-Corruption Layer", scale: "Medium", risk: "Low", use: "New-legacy coexistence"}
-  - {strategy: "Branch by Abstraction", scale: "Large", risk: "Medium", use: "Trunk refactoring"}
-  - {strategy: "Parallel Change", scale: "Medium", risk: "Low", use: "Interface/schema migration"}
-  - {strategy: "Characterization Tests", scale: "—", risk: "—", use: "Prerequisite for legacy refactoring"}
-  - {strategy: "Scratch Refactoring", scale: "Small", risk: "Low", use: "Understanding black-box code"}
+  - {strategy: "預備性重構", scale: "小", risk: "低", use: "降低功能開發阻力"}
+  - {strategy: "童子軍規則", scale: "極小", risk: "低", use: "持續償債"}
+  - {strategy: "紅-綠-重構", scale: "小", risk: "低", use: "TDD 開發循環"}
+  - {strategy: "絞殺榕", scale: "大", risk: "中", use: "系統汰換"}
+  - {strategy: "防腐層", scale: "中", risk: "低", use: "新舊共存"}
+  - {strategy: "抽象分支", scale: "大", risk: "中", use: "主幹重構"}
+  - {strategy: "平行變更", scale: "中", risk: "低", use: "介面/Schema 遷移"}
+  - {strategy: "特徵測試", scale: "—", risk: "—", use: "遺留重構的前置條件"}
+  - {strategy: "探針式重構", scale: "小", risk: "低", use: "理解黑盒程式碼"}
 
-# === STRATEGY SELECTION ===
+# === 策略選擇 ===
 selection_guide:
-  feature_blocked_by_messy_code: "Preparatory Refactoring"
-  touching_code_during_bug_fix: "Boy Scout Rule"
-  writing_new_code_with_tdd: "Red-Green-Refactor"
-  replacing_entire_legacy_system: "Strangler Fig"
-  integrating_without_pollution: "Anti-Corruption Layer"
-  refactoring_shared_code_on_trunk: "Branch by Abstraction"
-  changing_widely_used_interface: "Parallel Change"
-  working_with_untested_legacy: "Characterization Tests + Scratch Refactoring FIRST"
+  功能被混亂程式碼阻擋: "預備性重構"
+  在Bug修復中接觸程式碼: "童子軍規則"
+  用TDD寫新程式碼: "紅-綠-重構"
+  取代整個遺留系統: "絞殺榕"
+  整合遺留不被污染: "防腐層"
+  在主幹重構共享程式碼: "抽象分支"
+  變更廣泛使用的介面: "平行變更"
+  處理未測試的遺留: "特徵測試 + 探針式重構 先做"
 ```
 
 ---
 
-## Configuration Detection
+## 配置偵測
 
-### Detection Order
+### 偵測順序
 
-1. Check `CONTRIBUTING.md` for "Disabled Skills" section
-2. Check `CONTRIBUTING.md` for "Refactoring Standards" section
-3. If not found, **default to standard refactoring practices**
-
----
-
-## Detailed Guidelines
-
-For complete standards, see:
-- [Refactoring Standards](../../core/refactoring-standards.md)
+1. 檢查 `CONTRIBUTING.md` 中的「停用技能」區段
+2. 檢查 `CONTRIBUTING.md` 中的「重構標準」區段
+3. 如果未找到，**預設使用標準重構實踐**
 
 ---
 
-## Related Standards
+## 詳細指南
 
-- [Refactoring Standards](../../core/refactoring-standards.md) - Core standard
-- [Test-Driven Development](../../core/test-driven-development.md) - TDD refactor phase
-- [Code Review Checklist](../../core/code-review-checklist.md) - Refactoring PR review
-- [Checkin Standards](../../core/checkin-standards.md) - Pre-commit requirements
-- [TDD Assistant](../tdd-assistant/SKILL.md) - TDD workflow
+完整標準請參閱：
+- [重構標準](../../core/refactoring-standards.md)
 
 ---
 
-## Version History
+## 相關標準
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 2.0.0 | 2026-01-21 | Added tactical strategies (Preparatory Refactoring, Boy Scout Rule), Anti-Corruption Layer, Decision Matrix Summary. Reorganized into Tactical/Strategic/Safety tiers. |
-| 1.0.0 | 2026-01-12 | Initial release |
+- [重構標準](../../core/refactoring-standards.md) - 核心標準
+- [測試驅動開發](../../core/test-driven-development.md) - TDD 重構階段
+- [程式碼審查檢查清單](../../core/code-review-checklist.md) - 重構 PR 審查
+- [簽入標準](../../core/checkin-standards.md) - 提交前要求
+- [TDD 助手](../tdd-assistant/SKILL.md) - TDD 工作流程
 
 ---
 
-## License
+## 版本歷史
 
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 2.0.0 | 2026-01-21 | 新增戰術性策略（預備性重構、童子軍規則）、防腐層、決策矩陣摘要。重組為戰術性/戰略性/安全防護三層。 |
+| 1.0.0 | 2026-01-12 | 初始發布 |
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## 授權
+
+本技能以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

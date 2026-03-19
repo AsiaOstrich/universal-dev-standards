@@ -1,38 +1,46 @@
-# TDD Analysis Workflow Guide
+---
+source: ../../../../skills/reverse-engineer/tdd-analysis.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-01-19
+status: current
+---
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-19
+# TDD 分析工作流程指南
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/reverse-engineer/tdd-analysis.md)
+**版本**: 1.0.0
+**最後更新**: 2026-01-19
 
-This guide provides detailed workflows for analyzing test coverage against BDD scenarios and identifying gaps.
+> **語言**: [English](../../../../skills/reverse-engineer/tdd-analysis.md) | 繁體中文
+
+本指南提供針對 BDD 場景分析測試覆蓋率並識別缺口的詳細工作流程。
 
 ---
 
-## Overview
+## 概覽
 
-TDD analysis maps BDD scenarios to existing unit tests, calculating coverage and identifying gaps. This ensures acceptance criteria are verified at the unit test level.
+TDD 分析將 BDD 場景映射到現有的單元測試，計算覆蓋率並識別缺口。這確保驗收標準在單元測試層級得到驗證。
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                     TDD Analysis Pipeline                                │
+│                        TDD 分析管道                                       │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  ┌───────────┐   ┌───────────┐   ┌───────────┐   ┌───────────┐        │
-│  │  Feature  │──▶│   Parse   │──▶│   Scan    │──▶│   Match   │        │
-│  │  Files    │   │ Scenarios │   │   Tests   │   │ Algorithm │        │
+│  │  Feature  │──▶│   解析    │──▶│   掃描    │──▶│   匹配    │        │
+│  │   檔案    │   │   場景    │   │   測試    │   │   演算法  │        │
 │  └───────────┘   └───────────┘   └───────────┘   └─────┬─────┘        │
 │                                                        │               │
 │                                                        ▼               │
 │                       ┌───────────────────────────────────┐            │
-│                       │      Calculate Confidence         │            │
-│                       │   [Confirmed] [Inferred] [None]   │            │
+│                       │         計算信心度               │            │
+│                       │   [已確認] [推斷] [無]           │            │
 │                       └─────────────────┬─────────────────┘            │
 │                                         │                              │
 │                                         ▼                              │
 │  ┌───────────┐   ┌───────────┐   ┌───────────┐                        │
-│  │   Action  │◀──│  Coverage │◀──│   Gap     │                        │
-│  │   Items   │   │   Report  │   │ Analysis  │                        │
+│  │   動作    │◀──│  覆蓋率   │◀──│   缺口    │                        │
+│  │   項目    │   │   報告    │   │   分析    │                        │
 │  └───────────┘   └───────────┘   └───────────┘                        │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -40,35 +48,35 @@ TDD analysis maps BDD scenarios to existing unit tests, calculating coverage and
 
 ---
 
-## Phase 1: Scenario Parsing
+## 階段 1：場景解析
 
-### 1.1 Extract Scenarios from Feature Files
+### 1.1 從 Feature 檔案提取場景
 
-Parse Gherkin scenarios into analyzable structures:
+將 Gherkin 場景解析為可分析的結構：
 
 ```markdown
-## Parsed Scenarios
+## 已解析的場景
 
 ### features/auth.feature
 
-| ID | Scenario Name | Steps | Tags |
-|----|---------------|-------|------|
+| ID | 場景名稱 | 步驟數 | 標籤 |
+|----|----------|--------|------|
 | S1 | 成功登入 | 4 | @confirmed |
 | S2 | 登入失敗-密碼錯誤 | 3 | @inferred |
 | S3 | 帳號鎖定 | 4 | @edge-case |
 
-### Extracted Keywords
+### 提取的關鍵字
 
-| Scenario | Keywords | Domain |
-|----------|----------|--------|
+| 場景 | 關鍵字 | 領域 |
+|------|--------|------|
 | S1: 成功登入 | login, success, credentials | auth |
 | S2: 登入失敗 | login, failure, password, error | auth |
 | S3: 帳號鎖定 | account, lock, attempts, security | auth |
 ```
 
-### 1.2 Build Scenario Index
+### 1.2 建立場景索引
 
-Create searchable index for matching:
+建立可搜尋的索引用於匹配：
 
 ```json
 {
@@ -92,38 +100,38 @@ Create searchable index for matching:
 
 ---
 
-## Phase 2: Test File Scanning
+## 階段 2：測試檔案掃描
 
-### 2.1 Detect Test Framework
+### 2.1 偵測測試框架
 
-Identify testing framework from project:
+從專案識別測試框架：
 
-| Indicator | Framework | Language |
-|-----------|-----------|----------|
+| 指標 | 框架 | 語言 |
+|------|------|------|
 | `jest.config.js` | Jest | JS/TS |
 | `vitest.config.ts` | Vitest | JS/TS |
-| `pytest.ini`, `pyproject.toml` | pytest | Python |
+| `pytest.ini`、`pyproject.toml` | pytest | Python |
 | `pom.xml` with JUnit | JUnit | Java |
 | `*_test.go` | Go testing | Go |
 | `Cargo.toml` with test | Rust testing | Rust |
 
-### 2.2 Scan Test Files
+### 2.2 掃描測試檔案
 
-Locate and parse test files:
+定位並解析測試檔案：
 
 ```markdown
-## Test File Discovery
+## 測試檔案發現
 
-### Detected Framework: Vitest
+### 偵測到的框架：Vitest
 
-### Files Found
-| Path | Tests | Domain (Inferred) |
-|------|-------|-------------------|
+### 找到的檔案
+| 路徑 | 測試數 | 領域（推斷） |
+|------|--------|--------------|
 | tests/auth.test.ts | 12 | auth |
 | tests/cart.test.ts | 8 | cart |
 | tests/checkout.test.ts | 15 | checkout |
 
-### Test Structure Analysis
+### 測試結構分析
 
 #### tests/auth.test.ts
 ```typescript
@@ -139,9 +147,9 @@ describe('AuthService', () => {
 });
 ```
 
-### Extracted Test Index
-| Test ID | Test Name | Keywords | Path |
-|---------|-----------|----------|------|
+### 提取的測試索引
+| 測試 ID | 測試名稱 | 關鍵字 | 路徑 |
+|---------|----------|--------|------|
 | T1 | should return token for valid credentials | token, valid, credentials | auth.test.ts:5 |
 | T2 | should throw error for invalid password | error, invalid, password | auth.test.ts:12 |
 | T3 | should lock account after 5 attempts | lock, account, attempts | auth.test.ts:20 |
@@ -149,46 +157,46 @@ describe('AuthService', () => {
 
 ---
 
-## Phase 3: Matching Algorithm
+## 階段 3：匹配演算法
 
-### 3.1 Matching Strategies
+### 3.1 匹配策略
 
-Apply multiple strategies and combine scores:
+套用多個策略並合併分數：
 
-#### Strategy 1: Name Similarity (Weight: 40%)
+#### 策略 1：名稱相似度（權重：40%）
 
-Compare scenario name with test name:
+比較場景名稱與測試名稱：
 
 ```
-Scenario: 成功登入 (keywords: 成功, 登入)
-Test: should return token for valid credentials
+場景: 成功登入 (關鍵字: 成功, 登入)
+測試: should return token for valid credentials
 
-Translation mapping:
+翻譯映射:
 - 成功 → success, valid
 - 登入 → login, credentials
 
-Similarity calculation:
-- "valid" matches "成功" translation → +20%
-- "credentials" matches "登入" context → +15%
-- Name similarity score: 35%
+相似度計算:
+- "valid" 匹配 "成功" 翻譯 → +20%
+- "credentials" 匹配 "登入" 脈絡 → +15%
+- 名稱相似度分數: 35%
 ```
 
-#### Strategy 2: Keyword Overlap (Weight: 30%)
+#### 策略 2：關鍵字重疊（權重：30%）
 
-Match extracted keywords:
+匹配提取的關鍵字：
 
 ```
-Scenario Keywords: [login, success, credentials, user, password]
-Test Keywords: [token, valid, credentials, return]
+場景關鍵字: [login, success, credentials, user, password]
+測試關鍵字: [token, valid, credentials, return]
 
-Overlap: [credentials]
-Overlap score: 1/5 = 20%
-Weighted: 20% × 0.30 = 6%
+重疊: [credentials]
+重疊分數: 1/5 = 20%
+加權: 20% × 0.30 = 6%
 ```
 
-#### Strategy 3: Step-Assertion Mapping (Weight: 20%)
+#### 策略 3：步驟-斷言映射（權重：20%）
 
-Match Then steps to test assertions:
+匹配 Then 步驟到測試斷言：
 
 ```gherkin
 Then 使用者應該看到首頁
@@ -199,115 +207,115 @@ expect(response.redirect).toBe('/home');
 expect(response.status).toBe(200);
 ```
 
-Assertion analysis:
-- "/home" suggests homepage → matches "首頁"
-- Status 200 suggests success → matches scenario intent
-- Step-assertion score: 70%
-- Weighted: 70% × 0.20 = 14%
+斷言分析:
+- "/home" 建議首頁 → 匹配 "首頁"
+- 狀態 200 建議成功 → 匹配場景意圖
+- 步驟-斷言分數: 70%
+- 加權: 70% × 0.20 = 14%
 
-#### Strategy 4: File Proximity (Weight: 10%)
+#### 策略 4：檔案鄰近度（權重：10%）
 
-Test file in same domain:
+測試檔案在相同領域：
 
 ```
-Scenario domain: auth
-Test file: tests/auth.test.ts
+場景領域: auth
+測試檔案: tests/auth.test.ts
 
-Domain match: ✅
-Proximity score: 100%
-Weighted: 100% × 0.10 = 10%
+領域匹配: ✅
+鄰近度分數: 100%
+加權: 100% × 0.10 = 10%
 ```
 
-### 3.2 Confidence Calculation
+### 3.2 信心度計算
 
-Combine weighted scores:
+合併加權分數：
 
 ```markdown
-## Matching Result: S1 → T1
+## 匹配結果: S1 → T1
 
-| Strategy | Score | Weight | Weighted |
-|----------|-------|--------|----------|
-| Name Similarity | 35% | 0.40 | 14% |
-| Keyword Overlap | 20% | 0.30 | 6% |
-| Step-Assertion | 70% | 0.20 | 14% |
-| File Proximity | 100% | 0.10 | 10% |
-| **Total** | - | - | **44%** |
+| 策略 | 分數 | 權重 | 加權 |
+|------|------|------|------|
+| 名稱相似度 | 35% | 0.40 | 14% |
+| 關鍵字重疊 | 20% | 0.30 | 6% |
+| 步驟-斷言 | 70% | 0.20 | 14% |
+| 檔案鄰近度 | 100% | 0.10 | 10% |
+| **總計** | - | - | **44%** |
 
-Confidence Level: [Inferred] (Medium)
+信心度等級: [推斷] (中等)
 ```
 
-### 3.3 Confidence Thresholds
+### 3.3 信心度門檻
 
-| Total Score | Confidence Level | Label |
-|-------------|------------------|-------|
-| 85-100% | High | `[Confirmed]` |
-| 60-84% | Medium-High | `[Inferred]` (High) |
-| 40-59% | Medium | `[Inferred]` (Medium) |
-| 20-39% | Low | `[Inferred]` (Low) |
-| 0-19% | None | `[Unknown]` |
+| 總分 | 信心度等級 | 標籤 |
+|------|------------|------|
+| 85-100% | 高 | `[已確認]` |
+| 60-84% | 中高 | `[推斷]` (高) |
+| 40-59% | 中等 | `[推斷]` (中) |
+| 20-39% | 低 | `[推斷]` (低) |
+| 0-19% | 無 | `[未知]` |
 
 ---
 
-## Phase 4: Gap Analysis
+## 階段 4：缺口分析
 
-### 4.1 Identify Missing Coverage
+### 4.1 識別缺少的覆蓋
 
-List scenarios without matching tests:
+列出沒有匹配測試的場景：
 
 ```markdown
-## Coverage Gap Analysis
+## 覆蓋缺口分析
 
-### ❌ No Test Coverage
+### ❌ 無測試覆蓋
 
-| Scenario | Feature | Priority | Gap Reason |
-|----------|---------|----------|------------|
-| 帳號鎖定 | auth.feature:45 | 🔴 High | No matching test found |
-| 購物車上限 | cart.feature:32 | 🟡 Medium | Partial match only |
+| 場景 | 功能 | 優先級 | 缺口原因 |
+|------|------|--------|----------|
+| 帳號鎖定 | auth.feature:45 | 🔴 高 | 找不到匹配的測試 |
+| 購物車上限 | cart.feature:32 | 🟡 中 | 僅部分匹配 |
 
-### Gap Classification
+### 缺口分類
 
-| Type | Count | Examples |
-|------|-------|----------|
-| No tests at all | 2 | 帳號鎖定, 購物車上限 |
-| Missing edge cases | 3 | 空購物車, 無效 email, 逾時 |
-| Missing error handling | 4 | 登入錯誤, 付款失敗 |
+| 類型 | 數量 | 範例 |
+|------|------|------|
+| 完全沒有測試 | 2 | 帳號鎖定, 購物車上限 |
+| 缺少邊界情況 | 3 | 空購物車, 無效 email, 逾時 |
+| 缺少錯誤處理 | 4 | 登入錯誤, 付款失敗 |
 ```
 
-### 4.2 Priority Assignment
+### 4.2 優先級分配
 
-Determine test priority based on:
+根據以下因素決定測試優先級：
 
 ```markdown
-## Priority Calculation
+## 優先級計算
 
-| Factor | Weight | High | Medium | Low |
-|--------|--------|------|--------|-----|
-| Security impact | 30% | Auth, payment | User data | Display |
-| User frequency | 25% | Core flow | Common | Rare |
-| Business risk | 25% | Revenue | Retention | Minor |
-| Complexity | 20% | High logic | Moderate | Simple |
+| 因素 | 權重 | 高 | 中 | 低 |
+|------|------|------|------|------|
+| 安全影響 | 30% | 認證, 付款 | 用戶資料 | 顯示 |
+| 用戶頻率 | 25% | 核心流程 | 常見 | 罕見 |
+| 商業風險 | 25% | 營收 | 留存 | 次要 |
+| 複雜度 | 20% | 高邏輯 | 中等 | 簡單 |
 
-### Priority Results
+### 優先級結果
 
-| Scenario | Security | Frequency | Risk | Complexity | Total | Priority |
-|----------|----------|-----------|------|------------|-------|----------|
-| 帳號鎖定 | 90% | 20% | 80% | 60% | 62.5% | 🔴 High |
-| 購物車上限 | 30% | 60% | 40% | 40% | 42.5% | 🟡 Medium |
+| 場景 | 安全 | 頻率 | 風險 | 複雜度 | 總計 | 優先級 |
+|------|------|------|------|--------|------|--------|
+| 帳號鎖定 | 90% | 20% | 80% | 60% | 62.5% | 🔴 高 |
+| 購物車上限 | 30% | 60% | 40% | 40% | 42.5% | 🟡 中 |
 ```
 
-### 4.3 Test Suggestions
+### 4.3 測試建議
 
-Generate actionable test suggestions:
+生成可執行的測試建議：
 
 ```markdown
-## Suggested Tests
+## 建議的測試
 
-### 🔴 High Priority
+### 🔴 高優先級
 
-#### 1. Account Lockout Test
-**Scenario**: 帳號鎖定
-**Suggested File**: tests/auth.test.ts
-**Suggested Test**:
+#### 1. 帳號鎖定測試
+**場景**：帳號鎖定
+**建議檔案**：tests/auth.test.ts
+**建議測試**：
 ```typescript
 describe('AuthService', () => {
   describe('account lockout', () => {
@@ -315,7 +323,7 @@ describe('AuthService', () => {
       // Arrange
       const user = await createTestUser();
 
-      // Act - 5 failed attempts
+      // Act - 5 次失敗嘗試
       for (let i = 0; i < 5; i++) {
         await authService.login(user.email, 'wrong-password');
       }
@@ -332,120 +340,120 @@ describe('AuthService', () => {
 });
 ```
 
-**Covers**: S3 (帳號鎖定) from auth.feature:45
-**Priority**: 🔴 High (Security critical)
+**涵蓋**：S3 (帳號鎖定) 來自 auth.feature:45
+**優先級**：🔴 高 (安全關鍵)
 ```
 
 ---
 
-## Phase 5: Coverage Report Generation
+## 階段 5：覆蓋率報告生成
 
-### 5.1 Report Structure
+### 5.1 報告結構
 
 ```markdown
-# BDD → TDD Coverage Report
+# BDD → TDD 覆蓋率報告
 
-> Generated: 2026-01-19 14:30
-> Feature Files: 3 analyzed
-> Test Files: 5 scanned
-> Matching Algorithm: v1.0
+> 生成時間: 2026-01-19 14:30
+> Feature 檔案: 3 個已分析
+> 測試檔案: 5 個已掃描
+> 匹配演算法: v1.0
 
 ---
 
-## 📊 Executive Summary
+## 📊 執行摘要
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| Total Scenarios | 18 | - |
-| Covered [Confirmed] | 10 (56%) | ✅ |
-| Covered [Inferred] | 5 (28%) | ⚠️ |
-| No Coverage | 3 (17%) | ❌ |
-| **Effective Coverage** | **83%** | - |
+| 指標 | 值 | 狀態 |
+|------|------|------|
+| 總場景數 | 18 | - |
+| 覆蓋 [已確認] | 10 (56%) | ✅ |
+| 覆蓋 [推斷] | 5 (28%) | ⚠️ |
+| 無覆蓋 | 3 (17%) | ❌ |
+| **有效覆蓋率** | **83%** | - |
 
-### Trend (if historical data available)
-| Date | Coverage |
-|------|----------|
+### 趨勢（如有歷史資料）
+| 日期 | 覆蓋率 |
+|------|--------|
 | 2026-01-12 | 75% |
 | 2026-01-19 | 83% ↑ |
 
 ---
 
-## 📈 Coverage by Feature
+## 📈 依功能覆蓋率
 
-| Feature | Scenarios | Covered | Rate |
-|---------|-----------|---------|------|
+| 功能 | 場景數 | 已覆蓋 | 覆蓋率 |
+|------|--------|--------|--------|
 | auth.feature | 8 | 7 | 88% ✅ |
 | cart.feature | 6 | 5 | 83% ✅ |
 | checkout.feature | 4 | 3 | 75% ⚠️ |
 
 ---
 
-## ✅ Covered Scenarios
+## ✅ 已覆蓋場景
 
-### [Confirmed] Direct Matches (56%)
+### [已確認] 直接匹配 (56%)
 
-| BDD Scenario | Unit Test | Confidence | Source |
-|--------------|-----------|------------|--------|
+| BDD 場景 | 單元測試 | 信心度 | 來源 |
+|----------|----------|--------|------|
 | 成功登入 | test_login_success | 92% | auth.test.ts:25 |
 | 登入失敗-密碼錯誤 | test_login_invalid_pwd | 88% | auth.test.ts:45 |
 | 新增商品到購物車 | test_add_to_cart | 95% | cart.test.ts:12 |
 
-### [Inferred] Probable Matches (28%)
+### [推斷] 可能匹配 (28%)
 
-| BDD Scenario | Unit Test | Confidence | Needs Review |
-|--------------|-----------|------------|--------------|
-| 更新購物車數量 | test_update_quantity | 65% | ⚠️ Verify |
-| 移除購物車商品 | test_remove_item | 58% | ⚠️ Verify |
+| BDD 場景 | 單元測試 | 信心度 | 需要審查 |
+|----------|----------|--------|----------|
+| 更新購物車數量 | test_update_quantity | 65% | ⚠️ 驗證 |
+| 移除購物車商品 | test_remove_item | 58% | ⚠️ 驗證 |
 
-> ⚠️ [Inferred] items should be reviewed by a developer
-
----
-
-## ❌ Missing Coverage (17%)
-
-### High Priority 🔴
-
-| Scenario | Source | Suggested Test | Reason |
-|----------|--------|----------------|--------|
-| 帳號鎖定 | auth.feature:45 | test_account_lockout | Security critical |
-
-### Medium Priority 🟡
-
-| Scenario | Source | Suggested Test | Reason |
-|----------|--------|----------------|--------|
-| 購物車超過上限 | cart.feature:32 | test_cart_max_limit | Boundary condition |
-| 結帳逾時處理 | checkout.feature:78 | test_checkout_timeout | Error handling |
+> ⚠️ [推斷] 項目應由開發人員審查
 
 ---
 
-## 📋 Recommended Actions
+## ❌ 缺少覆蓋 (17%)
 
-### Immediate (This Sprint)
-1. [ ] Add `test_account_lockout` to auth.test.ts
-   - Security-critical functionality
-   - Estimated effort: 2 hours
+### 高優先級 🔴
 
-### Next Sprint
-2. [ ] Verify [Inferred] test mappings with domain experts
-3. [ ] Add boundary tests for cart limits
-4. [ ] Add timeout handling tests
+| 場景 | 來源 | 建議測試 | 原因 |
+|------|------|----------|------|
+| 帳號鎖定 | auth.feature:45 | test_account_lockout | 安全關鍵 |
 
-### Backlog
-5. [ ] Improve test naming for better auto-matching
-6. [ ] Add integration tests for complex flows
+### 中優先級 🟡
+
+| 場景 | 來源 | 建議測試 | 原因 |
+|------|------|----------|------|
+| 購物車超過上限 | cart.feature:32 | test_cart_max_limit | 邊界條件 |
+| 結帳逾時處理 | checkout.feature:78 | test_checkout_timeout | 錯誤處理 |
 
 ---
 
-## 🔗 Traceability Matrix
+## 📋 建議動作
+
+### 立即（本 Sprint）
+1. [ ] 新增 `test_account_lockout` 到 auth.test.ts
+   - 安全關鍵功能
+   - 估計工作量：2 小時
+
+### 下個 Sprint
+2. [ ] 與領域專家驗證 [推斷] 測試映射
+3. [ ] 新增購物車上限的邊界測試
+4. [ ] 新增逾時處理測試
+
+### 待辦清單
+5. [ ] 改善測試命名以利更好的自動匹配
+6. [ ] 為複雜流程新增整合測試
+
+---
+
+## 🔗 可追溯性矩陣
 
 | SPEC → BDD → TDD |
 |------------------|
 | SPEC-AUTH.md:42 → auth.feature:12 (成功登入) → auth.test.ts:25 ✅ |
 | SPEC-AUTH.md:48 → auth.feature:24 (登入失敗) → auth.test.ts:45 ✅ |
-| SPEC-AUTH.md:52 → auth.feature:45 (帳號鎖定) → ❌ Missing |
+| SPEC-AUTH.md:52 → auth.feature:45 (帳號鎖定) → ❌ 缺少 |
 ```
 
-### 5.2 Machine-Readable Output
+### 5.2 機器可讀輸出
 
 ```json
 {
@@ -498,71 +506,71 @@ describe('AuthService', () => {
 
 ---
 
-## Phase 6: Action Item Generation
+## 階段 6：動作項目生成
 
-### 6.1 Sprint-Ready Tasks
+### 6.1 Sprint 就緒任務
 
-Generate actionable tasks:
+生成可執行的任務：
 
 ```markdown
-## Sprint Tasks Generated
+## 生成的 Sprint 任務
 
-### Task 1: Add Account Lockout Test
-- **Type**: Unit Test
-- **File**: tests/auth.test.ts
-- **Covers**: S3 (帳號鎖定)
-- **Priority**: 🔴 High
-- **Estimate**: 2 hours
-- **Acceptance Criteria**:
-  - [ ] Test locks account after 5 failed attempts
-  - [ ] Test resets count after successful login
-  - [ ] Test lockout duration (if applicable)
+### 任務 1：新增帳號鎖定測試
+- **類型**：單元測試
+- **檔案**：tests/auth.test.ts
+- **涵蓋**：S3 (帳號鎖定)
+- **優先級**：🔴 高
+- **估計**：2 小時
+- **驗收標準**：
+  - [ ] 測試 5 次失敗嘗試後鎖定帳號
+  - [ ] 測試成功登入後重設計數
+  - [ ] 測試鎖定持續時間（如適用）
 
-### Task 2: Verify Cart Update Test
-- **Type**: Review
-- **Action**: Confirm test_update_quantity covers BDD scenario
-- **Priority**: 🟡 Medium
-- **Estimate**: 30 minutes
+### 任務 2：驗證購物車更新測試
+- **類型**：審查
+- **動作**：確認 test_update_quantity 涵蓋 BDD 場景
+- **優先級**：🟡 中
+- **估計**：30 分鐘
 ```
 
-### 6.2 Integration with Issue Trackers
+### 6.2 與問題追蹤器整合
 
 ```markdown
-## GitHub Issues (Draft)
+## GitHub Issues（草稿）
 
 ### Issue 1
-**Title**: Add unit test for account lockout functionality
-**Labels**: test, security, high-priority
-**Body**:
-BDD Scenario `帳號鎖定` (auth.feature:45) lacks unit test coverage.
+**標題**：為帳號鎖定功能新增單元測試
+**標籤**：test, security, high-priority
+**內容**：
+BDD 場景 `帳號鎖定` (auth.feature:45) 缺少單元測試覆蓋。
 
-**Acceptance Criteria**:
-- [ ] Add test_account_lockout to auth.test.ts
-- [ ] Cover 5 failed attempts → lock
-- [ ] Cover lockout reset on success
+**驗收標準**：
+- [ ] 新增 test_account_lockout 到 auth.test.ts
+- [ ] 涵蓋 5 次失敗嘗試 → 鎖定
+- [ ] 涵蓋成功後鎖定重設
 
-**Reference**: SPEC-AUTH.md:52, BDD coverage report 2026-01-19
+**參考**：SPEC-AUTH.md:52, BDD 覆蓋率報告 2026-01-19
 ```
 
 ---
 
-## Handling Challenges
+## 處理挑戰
 
-### Challenge 1: Different Test Naming Conventions
+### 挑戰 1：不同的測試命名慣例
 
 ```markdown
-# Problem
-Scenario: 使用者可以登入
-Test: it('verifies authentication flow')
+# 問題
+場景: 使用者可以登入
+測試: it('verifies authentication flow')
 
-# Solution
-1. Extract semantic keywords from both
-2. Use translation mapping for multi-language
-3. Reduce confidence but still match
-4. Flag for human review
+# 解決方案
+1. 從兩者提取語意關鍵字
+2. 對多語言使用翻譯映射
+3. 降低信心度但仍然匹配
+4. 標記供人類審查
 ```
 
-### Challenge 2: Table-Driven Tests
+### 挑戰 2：表格驅動測試
 
 ```typescript
 test.each([
@@ -572,32 +580,32 @@ test.each([
 ```
 
 ```markdown
-# Analysis
-Single test covers multiple scenarios:
-- 成功登入 → table row 'valid'
-- 登入失敗 → table row 'invalid'
+# 分析
+單一測試涵蓋多個場景：
+- 成功登入 → 表格行 'valid'
+- 登入失敗 → 表格行 'invalid'
 
-Mark both scenarios as [Inferred] with shared test reference
+將兩個場景標記為 [推斷]，引用共用測試
 ```
 
-### Challenge 3: Integration vs Unit Tests
+### 挑戰 3：整合 vs 單元測試
 
 ```markdown
-# Classification
-| Test Type | Coverage Type | Weight |
-|-----------|---------------|--------|
-| Unit Test | Direct | 100% |
-| Integration | Partial | 50% |
-| E2E | Indirect | 25% |
+# 分類
+| 測試類型 | 覆蓋類型 | 權重 |
+|----------|----------|------|
+| 單元測試 | 直接 | 100% |
+| 整合測試 | 部分 | 50% |
+| E2E | 間接 | 25% |
 
-# Report separately but combine for overall coverage
+# 分別報告但合併計算總覆蓋率
 ```
 
 ---
 
-## CI/CD Integration
+## CI/CD 整合
 
-### GitHub Actions Example
+### GitHub Actions 範例
 
 ```yaml
 name: BDD Coverage Check
@@ -631,14 +639,14 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## BDD Coverage Report\n\nCoverage: ${(coverage.summary.effectiveCoverage * 100).toFixed(1)}%`
+              body: `## BDD 覆蓋率報告\n\n覆蓋率: ${(coverage.summary.effectiveCoverage * 100).toFixed(1)}%`
             });
 ```
 
 ---
 
-## Version History
+## 版本歷史
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-01-19 | Initial release |
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-01-19 | 初始版本 |

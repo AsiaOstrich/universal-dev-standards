@@ -1,280 +1,288 @@
-# BDD Workflow Guide
+---
+source: ../../../../skills/bdd-assistant/bdd-workflow.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-02-05
+status: current
+---
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-19
+# BDD 工作流程指南
+
+**版本**: 1.0.0
+**最後更新**: 2026-01-19
 
 ---
 
-## Discovery-Formulation-Automation Cycle
+## 探索-制定-自動化循環
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                     BDD Discovery-Formulation-Automation                     │
+│                     BDD 探索-制定-自動化                                      │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │      ┌───────────┐       ┌─────────────┐       ┌────────────┐              │
-│      │ 🔍 DISCOVERY│─────▶│📝 FORMULATION│─────▶│⚙️ AUTOMATION│             │
+│      │ 🔍 探索   │─────▶│📝 制定       │─────▶│⚙️ 自動化    │             │
 │      └───────────┘       └─────────────┘       └────────────┘              │
 │           ▲                                          │                      │
 │           │                                          │                      │
 │           └──────────────────────────────────────────┘                      │
-│                     (New behaviors discovered)                              │
+│                     （發現新行為）                                           │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Phase 1: Discovery
+## 階段 1：探索
 
-### Purpose
+### 目的
 
-Collaboratively explore requirements and identify concrete examples.
+協作探索需求並識別具體範例。
 
-### Duration
+### 時間
 
-30-60 minutes
+30-60 分鐘
 
-### Participants
+### 參與者
 
-- Product Owner / Business Analyst
-- Developer(s)
-- QA / Tester
+- 產品負責人 / 商業分析師
+- 開發人員
+- QA / 測試人員
 
-### Activities
+### 活動
 
-1. **Story Introduction** (5 min)
-   - PO presents the user story
-   - Explains business value and context
+1. **故事介紹** (5 分鐘)
+   - PO 說明用戶故事
+   - 解釋商業價值和背景
 
-2. **Clarifying Questions** (10 min)
-   - Team asks questions
-   - Identify assumptions
+2. **澄清問題** (10 分鐘)
+   - 團隊提問
+   - 識別假設
 
-3. **Example Mapping** (20 min)
+3. **Example Mapping** (20 分鐘)
    ```
-   🟡 [User Story]
+   🟡 [用戶故事]
         │
-        ├─ 🔵 Rule 1
-        │      ├─ 🟢 Example 1.1
-        │      └─ 🟢 Example 1.2
+        ├─ 🔵 規則 1
+        │      ├─ 🟢 範例 1.1
+        │      └─ 🟢 範例 1.2
         │
-        ├─ 🔵 Rule 2
-        │      └─ 🟢 Example 2.1
+        ├─ 🔵 規則 2
+        │      └─ 🟢 範例 2.1
         │
-        └─ 🔴 Question: Need clarification
+        └─ 🔴 問題: 需要澄清
    ```
 
-4. **Edge Case Identification** (10 min)
-   - What could go wrong?
-   - Boundary conditions
-   - Error scenarios
+4. **邊界案例識別** (10 分鐘)
+   - 可能出什麼錯？
+   - 邊界條件
+   - 錯誤情境
 
-5. **Wrap-up** (5 min)
-   - Summarize examples
-   - Note open questions
-   - Schedule next steps
+5. **總結** (5 分鐘)
+   - 總結範例
+   - 記錄開放問題
+   - 安排後續步驟
 
-### Outputs
+### 輸出
 
-- List of concrete examples
-- Business rules identified
-- Questions to follow up
-- Rough estimate feasibility
+- 具體範例清單
+- 已識別的商業規則
+- 待追蹤的問題
+- 粗略的可行性估算
 
-### Checklist
+### 檢查清單
 
 ```
-□ Stakeholders present (Business, Dev, QA)
-□ User story discussed and understood
-□ Concrete examples collected
-□ Edge cases identified
-□ All clarifying questions answered or noted
-□ Agreement on scope
+□ 利害關係人出席（商業、Dev、QA）
+□ 用戶故事已討論並理解
+□ 具體範例已收集
+□ 邊界案例已識別
+□ 所有澄清問題已回答或記錄
+□ 範圍已達成共識
 ```
 
 ---
 
-## Phase 2: Formulation
+## 階段 2：制定
 
-### Purpose
+### 目的
 
-Convert examples from Discovery into executable Gherkin scenarios.
+將探索的範例轉換為可執行的 Gherkin 場景。
 
-### Duration
+### 時間
 
-15-30 minutes
+15-30 分鐘
 
-### Participants
+### 參與者
 
-- Developer(s)
-- QA / Tester
-- (Optional) Product Owner for review
+- 開發人員
+- QA / 測試人員
+- （選擇性）產品負責人審查
 
-### Activities
+### 活動
 
-1. **Example Review** (5 min)
-   - Review examples from Discovery
-   - Confirm understanding
+1. **範例審查** (5 分鐘)
+   - 審查探索的範例
+   - 確認理解
 
-2. **Scenario Writing** (15 min)
-   - Convert each example to Gherkin
-   - Use declarative style
-   - Apply ubiquitous language
+2. **場景撰寫** (15 分鐘)
+   - 將每個範例轉換為 Gherkin
+   - 使用宣告式風格
+   - 應用通用語言
 
-3. **Review & Refine** (10 min)
-   - Team reviews scenarios
-   - Check for declarative style
-   - Ensure business readability
+3. **審查與精煉** (10 分鐘)
+   - 團隊審查場景
+   - 檢查宣告式風格
+   - 確保商業可讀性
 
-### Gherkin Style Guide
+### Gherkin 風格指南
 
-**DO:**
+**應該：**
 ```gherkin
-# Declarative - describes WHAT, not HOW
-Scenario: Successful login with valid credentials
-  Given I am a registered user
-  When I login with valid credentials
-  Then I should see my dashboard
+# 宣告式 - 描述 WHAT，不是 HOW
+Scenario: 使用有效憑證成功登入
+  Given 我是註冊使用者
+  When 我使用有效憑證登入
+  Then 我應該看到我的儀表板
 ```
 
-**DON'T:**
+**不應該：**
 ```gherkin
-# Imperative - describes HOW
-Scenario: Login
-  Given I navigate to "/login"
-  And I click on "#email" field
-  And I type "user@example.com"
-  And I click on "#password" field
-  And I type "password123"
-  And I click the "#submit" button
-  Then I should see text "Dashboard"
+# 命令式 - 描述 HOW
+Scenario: 登入
+  Given 我導航到 "/login"
+  And 我點擊 "#email" 欄位
+  And 我輸入 "user@example.com"
+  And 我點擊 "#password" 欄位
+  And 我輸入 "password123"
+  And 我點擊 "#submit" 按鈕
+  Then 我應該看到文字 "Dashboard"
 ```
 
-### Scenario Structure
+### 場景結構
 
 ```gherkin
-Feature: [Feature name]
-  As a [role]
-  I want [feature]
-  So that [benefit]
+Feature: [功能名稱]
+  As a [角色]
+  I want [功能]
+  So that [好處]
 
   Background:
-    Given [common preconditions]
+    Given [共同前置條件]
 
-  Scenario: [Descriptive name]
-    Given [initial context]
-    And [additional context]
-    When [action]
-    Then [expected outcome]
-    And [additional outcome]
+  Scenario: [描述性名稱]
+    Given [初始情境]
+    And [額外情境]
+    When [動作]
+    Then [預期結果]
+    And [額外結果]
 ```
 
-### Outputs
+### 輸出
 
-- Feature file(s) with Gherkin scenarios
-- Tag organization (@critical, @smoke, etc.)
-- Ready for automation
+- 含 Gherkin 場景的 Feature 檔案
+- Tag 組織（@critical、@smoke 等）
+- 準備自動化
 
-### Checklist
+### 檢查清單
 
 ```
-□ Scenarios use correct Gherkin syntax
-□ Scenarios are declarative (WHAT, not HOW)
-□ Business language used (no technical jargon)
-□ Each scenario is independent
-□ Scenarios have 5-10 steps max
-□ Scenarios reviewed by team
-□ Feature file committed to repository
+□ 場景使用正確的 Gherkin 語法
+□ 場景是宣告式的（WHAT，不是 HOW）
+□ 使用商業語言（無技術術語）
+□ 每個場景獨立
+□ 場景最多 5-10 個步驟
+□ 場景已由團隊審查
+□ Feature 檔案已提交到儲存庫
 ```
 
 ---
 
-## Phase 3: Automation
+## 階段 3：自動化
 
-### Purpose
+### 目的
 
-Implement step definitions and feature code to make scenarios pass.
+實作步驟定義和功能程式碼使場景通過。
 
-### Duration
+### 時間
 
-Variable (depends on feature complexity)
+可變（取決於功能複雜度）
 
-### Participants
+### 參與者
 
-- Developer(s)
-- QA / Tester (for complex step definitions)
+- 開發人員
+- QA / 測試人員（複雜的步驟定義）
 
-### Activities
+### 活動
 
-1. **Run Scenarios** (Initial RED)
-   - All scenarios should fail
-   - Confirms scenarios are executable
-   - Identifies missing step definitions
+1. **執行場景**（初始 RED）
+   - 所有場景應該失敗
+   - 確認場景可執行
+   - 識別缺少的步驟定義
 
-2. **Write Step Definitions**
-   - Implement each step
-   - Make them reusable
-   - Use parameterization
+2. **撰寫步驟定義**
+   - 實作每個步驟
+   - 使其可重用
+   - 使用參數化
 
-3. **Implement Feature Code** (using TDD)
+3. **實作功能程式碼**（使用 TDD）
    ```
-   For each failing scenario:
+   對於每個失敗的場景：
    │
-   ├─▶ Identify needed components
+   ├─▶ 識別需要的元件
    │
-   └─▶ TDD Cycle for each component:
-        🔴 Write failing unit test
-        🟢 Implement minimal code
-        🔵 Refactor
+   └─▶ 對於每個元件的 TDD 循環：
+        🔴 撰寫失敗的單元測試
+        🟢 實作最小程式碼
+        🔵 重構
         │
-        └─▶ Run BDD scenario (still failing?)
-             ├─ Yes → Continue TDD
-             └─ No → Move to next scenario
+        └─▶ 執行 BDD 場景（還在失敗？）
+             ├─ 是 → 繼續 TDD
+             └─ 否 → 移到下一個場景
    ```
 
-4. **Refactor**
-   - Clean up code
-   - Remove duplication
-   - Improve naming
+4. **重構**
+   - 清理程式碼
+   - 移除重複
+   - 改善命名
 
-### Step Definition Example
+### 步驟定義範例
 
 ```typescript
-// TypeScript/Cucumber.js example
+// TypeScript/Cucumber.js 範例
 import { Given, When, Then } from '@cucumber/cucumber';
 import { expect } from 'chai';
 
-Given('I am a registered user', async function () {
+Given('我是註冊使用者', async function () {
   this.user = await createTestUser();
 });
 
-When('I login with valid credentials', async function () {
+When('我使用有效憑證登入', async function () {
   await this.loginPage.login(this.user.email, this.user.password);
 });
 
-Then('I should see my dashboard', async function () {
+Then('我應該看到我的儀表板', async function () {
   expect(await this.dashboardPage.isVisible()).to.be.true;
 });
 ```
 
-### BDD + TDD Integration
+### BDD + TDD 整合
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    BDD + TDD Integration                         │
+│                    BDD + TDD 整合                                │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   BDD Layer (Feature Level)                                     │
+│   BDD 層（功能層級）                                             │
 │   ┌─────────────────────────────────────────────────────┐       │
-│   │  Scenario: Checkout with discount                    │      │
-│   │    Given items in cart totaling $100                 │      │
-│   │    When I apply discount code "SAVE20"               │      │
-│   │    Then my total should be $80                       │      │
+│   │  Scenario: 使用折扣結帳                              │      │
+│   │    Given 購物車商品總計 $100                        │      │
+│   │    When 我套用折扣碼 "SAVE20"                       │      │
+│   │    Then 我的總計應該是 $80                          │      │
 │   └─────────────────────────────────────────────────────┘       │
 │                          │                                      │
 │                          ▼                                      │
-│   TDD Layer (Unit Level)                                        │
+│   TDD 層（單元層級）                                             │
 │   ┌─────────────────────────────────────────────────────┐       │
 │   │  test_cart_calculates_total()                        │      │
 │   │  test_discount_code_validates()                      │      │
@@ -285,114 +293,114 @@ Then('I should see my dashboard', async function () {
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Outputs
+### 輸出
 
-- Working step definitions
-- Passing scenarios
-- Unit tests for implementation
-- Refactored, clean code
+- 運作中的步驟定義
+- 通過的場景
+- 實作的單元測試
+- 重構、整潔的程式碼
 
-### Checklist
+### 檢查清單
 
 ```
-□ Step definitions created for all steps
-□ Step definitions are reusable
-□ Scenarios initially failed (RED)
-□ TDD used for unit implementations
-□ All scenarios now pass (GREEN)
-□ Code refactored and clean
-□ Living documentation generated
+□ 所有步驟已建立步驟定義
+□ 步驟定義可重用
+□ 場景初始失敗（RED）
+□ TDD 用於單元實作
+□ 所有場景現在通過（GREEN）
+□ 程式碼重構且整潔
+□ 活文件已產生
 ```
 
 ---
 
-## Complete Workflow Example
+## 完整工作流程範例
 
-### User Story
+### 用戶故事
 
-> As a customer, I want to apply a discount code to my cart, so that I can save money on my purchase.
+> 身為客戶，我想要在購物車套用折扣碼，以便在購買時省錢。
 
-### Discovery Session
+### 探索會議
 
-**Example Mapping Result:**
+**Example Mapping 結果：**
 ```
-🟡 User Story: Apply discount code
+🟡 用戶故事: 套用折扣碼
 
-🔵 Rule 1: Valid codes apply discount
-   🟢 Example: Code "SAVE10" gives 10% off
-   🟢 Example: Code "FLAT5" gives $5 off
+🔵 規則 1: 有效碼套用折扣
+   🟢 範例: 碼 "SAVE10" 給 10% 折扣
+   🟢 範例: 碼 "FLAT5" 給 $5 折扣
 
-🔵 Rule 2: Invalid codes show error
-   🟢 Example: Expired code shows "Code expired"
-   🟢 Example: Non-existent code shows "Invalid code"
+🔵 規則 2: 無效碼顯示錯誤
+   🟢 範例: 過期碼顯示「碼已過期」
+   🟢 範例: 不存在的碼顯示「無效碼」
 
-🔵 Rule 3: Some codes have minimum requirements
-   🟢 Example: "MIN50" requires $50 minimum purchase
+🔵 規則 3: 某些碼有最低要求
+   🟢 範例: "MIN50" 需要最低 $50 購買
 
-🔴 Question: Can codes be combined?
-   → Answer: No, one code per order
+🔴 問題: 碼可以組合嗎？
+   → 答案: 不行，每筆訂單一個碼
 ```
 
-### Formulation Result
+### 制定結果
 
 ```gherkin
-Feature: Discount Code Application
-  As a customer
-  I want to apply a discount code to my cart
-  So that I can save money on my purchase
+Feature: 折扣碼套用
+  As a 客戶
+  I want 在購物車套用折扣碼
+  So that 我可以在購買時省錢
 
   Background:
-    Given I have items in my cart
+    Given 我的購物車有商品
 
-  Scenario: Apply percentage discount code
-    Given my cart total is $100
-    When I apply discount code "SAVE10"
-    Then my total should be $90
-    And I should see "10% discount applied"
+  Scenario: 套用百分比折扣碼
+    Given 我的購物車總計 $100
+    When 我套用折扣碼 "SAVE10"
+    Then 我的總計應該是 $90
+    And 我應該看到「已套用 10% 折扣」
 
-  Scenario: Apply flat amount discount code
-    Given my cart total is $100
-    When I apply discount code "FLAT5"
-    Then my total should be $95
-    And I should see "$5 discount applied"
+  Scenario: 套用固定金額折扣碼
+    Given 我的購物車總計 $100
+    When 我套用折扣碼 "FLAT5"
+    Then 我的總計應該是 $95
+    And 我應該看到「已套用 $5 折扣」
 
-  Scenario: Reject expired discount code
-    When I apply discount code "EXPIRED2023"
-    Then I should see error "This code has expired"
-    And my total should remain unchanged
+  Scenario: 拒絕過期折扣碼
+    When 我套用折扣碼 "EXPIRED2023"
+    Then 我應該看到錯誤「此碼已過期」
+    And 我的總計應該保持不變
 
-  Scenario: Reject code below minimum purchase
-    Given my cart total is $30
-    When I apply discount code "MIN50"
-    Then I should see error "Minimum purchase of $50 required"
-    And my total should remain unchanged
+  Scenario: 拒絕低於最低購買的碼
+    Given 我的購物車總計 $30
+    When 我套用折扣碼 "MIN50"
+    Then 我應該看到錯誤「需要最低購買 $50」
+    And 我的總計應該保持不變
 ```
 
-### Automation Result
+### 自動化結果
 
 ```typescript
-// Step definitions
-Given('my cart total is ${int}', async function (total) {
+// 步驟定義
+Given('我的購物車總計 ${int}', async function (total) {
   await this.cart.setTotal(total);
 });
 
-When('I apply discount code {string}', async function (code) {
+When('我套用折扣碼 {string}', async function (code) {
   this.result = await this.cart.applyDiscount(code);
 });
 
-Then('my total should be ${int}', async function (expected) {
+Then('我的總計應該是 ${int}', async function (expected) {
   expect(await this.cart.getTotal()).to.equal(expected);
 });
 
-Then('I should see error {string}', async function (message) {
+Then('我應該看到錯誤 {string}', async function (message) {
   expect(this.result.error).to.equal(message);
 });
 ```
 
 ---
 
-## Related Resources
+## 相關資源
 
-- [Gherkin Quick Reference](./gherkin-guide.md)
-- [BDD Core Standard](../../core/behavior-driven-development.md)
-- [TDD Workflow](../tdd-assistant/tdd-workflow.md)
+- [Gherkin 快速參考](./gherkin-guide.md)
+- [BDD 核心標準](../../../../core/behavior-driven-development.md)
+- [TDD 工作流程](../tdd-assistant/tdd-workflow.md)
