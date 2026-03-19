@@ -55,8 +55,20 @@ Analyze test coverage across multiple dimensions and provide actionable recommen
 - `/coverage src/auth` - Analyze specific module
 - `/coverage --recommend` - Get test recommendations
 
+## AC Coverage (Requirement-Level) | AC 覆蓋率（需求層級）
+
+This command (`/coverage`) analyzes **code-level** coverage (line/branch/function). For **requirement-level** coverage — tracking which Acceptance Criteria have corresponding tests — use [`/ac-coverage`](./ac-coverage.md).
+
+本命令（`/coverage`）分析**程式碼層級**覆蓋率。若需**需求層級**覆蓋率 — 追蹤哪些 AC 有對應測試 — 請使用 [`/ac-coverage`](./ac-coverage.md)。
+
+| | `/coverage` | `/ac-coverage` |
+|-|-------------|----------------|
+| **Level** | Code (line/branch/function) | Requirements (AC-to-test) |
+| **Question** | "How much code is tested?" | "Which AC have tests?" |
+
 ## Reference | 參考
 
 - Full standard: [test-coverage-assistant](../test-coverage-assistant/SKILL.md)
 - Core guide: [testing-standards](../../core/testing-standards.md)
+- AC coverage: [/ac-coverage](./ac-coverage.md) — requirement-level traceability
 """

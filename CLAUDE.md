@@ -518,11 +518,11 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 - `test-governance.ai.yaml` - test-governance.ai.yaml
 - `structured-task-definition.ai.yaml` - structured-task-definition.ai.yaml
 - `workflow-state-protocol.ai.yaml` - workflow-state-protocol.ai.yaml
-- `pipeline-integration-standards.ai.yaml` - Pipeline 整合標準
-- `acceptance-criteria-traceability.ai.yaml` - 驗收條件追蹤標準
-- `change-batching-standards.ai.yaml` - 變更批次合併標準
-- `api-design-standards.ai.yaml` - API 設計標準
-- `database-standards.ai.yaml` - 資料庫標準
+- `pipeline-integration-standards.ai.yaml` - pipeline-integration-standards.ai.yaml
+- `acceptance-criteria-traceability.ai.yaml` - acceptance-criteria-traceability.ai.yaml
+- `change-batching-standards.ai.yaml` - change-batching-standards.ai.yaml
+- `api-design-standards.ai.yaml` - api-design-standards.ai.yaml
+- `database-standards.ai.yaml` - database-standards.ai.yaml
 <!-- UDS:STANDARDS:END -->
 
 ---

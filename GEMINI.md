@@ -171,7 +171,7 @@ Reference: `core/refactoring-standards.md`
 
 本專案採用 UDS 標準。所有規範位於 `.standards/`：
 
-### Core (44 standards)
+### Core (49 standards)
 - `anti-hallucination.ai.yaml` - anti-hallucination.ai.yaml
 - `ai-friendly-architecture.ai.yaml` - ai-friendly-architecture.ai.yaml
 - `commit-message.ai.yaml` - 提交訊息格式
@@ -216,4 +216,9 @@ Reference: `core/refactoring-standards.md`
 - `test-governance.ai.yaml` - test-governance.ai.yaml
 - `structured-task-definition.ai.yaml` - structured-task-definition.ai.yaml
 - `workflow-state-protocol.ai.yaml` - workflow-state-protocol.ai.yaml
+- `pipeline-integration-standards.ai.yaml` - pipeline-integration-standards.ai.yaml
+- `acceptance-criteria-traceability.ai.yaml` - acceptance-criteria-traceability.ai.yaml
+- `change-batching-standards.ai.yaml` - change-batching-standards.ai.yaml
+- `api-design-standards.ai.yaml` - api-design-standards.ai.yaml
+- `database-standards.ai.yaml` - database-standards.ai.yaml
 <!-- UDS:STANDARDS:END -->

@@ -40,7 +40,6 @@ standard:
         - Bug fixes include regression tests
         - Edge cases are covered
         - Test coverage maintained or improved
-        - AC coverage verified (if using spec-driven workflow, see acceptance-criteria-traceability)
     code_quality:
       items:
         - Follows coding standards
@@ -101,10 +100,6 @@ standard:
     - trigger: Work complete
       condition: Uncommitted changes before finishing
       intensity: Strongly recommend
-    - trigger: Batch threshold
-      condition: Pending changes reach configured threshold (count, score, or time)
-      intensity: Suggest
-      reference: change-batching-standards
 
   special_scenarios:
     emergency_leave:
@@ -152,21 +147,6 @@ standard:
       instruction: AI must NOT auto-execute git add/commit/push, wait for explicit user approval
       priority: required
 
-    - id: ac-coverage-gate
-      trigger: committing spec-driven feature
-      instruction: >
-        Verify AC coverage meets project threshold before allowing commit.
-        Default threshold: 80% for check-in, 100% for release.
-      priority: recommended
-
-    - id: automated-checkin-safety
-      trigger: automated pipeline performing check-in
-      instruction: >
-        Automated check-in must pass all quality gates (tests, lint, AC coverage, no conflicts).
-        Must not push to protected branches. Must create proper commit messages.
-        Must be auditable (log who/what/when).
-      priority: required
-
 physical_spec:
   type: custom_script
   validator:
@@ -176,18 +156,3 @@ physical_spec:
       (npm test --if-present || echo "ℹ️ No test script") && 
       (test -f CHANGELOG.md || echo "ℹ️ No CHANGELOG.md")
     rule: "checkin_gates_passed"
-
-  automated_checkin:
-    description: Rules for automated check-in via pipeline
-    preconditions:
-      - All tests pass (full suite)
-      - Lint clean (no errors)
-      - AC coverage meets threshold
-      - No merge conflicts
-      - Batch validated (if batching enabled)
-    safety_rules:
-      - Must not push to protected branches
-      - Must create proper commit message (not "auto-commit")
-      - Must be auditable (log who/what/when)
-      - Users can always override with manual commit
-    reference: pipeline-integration-standards

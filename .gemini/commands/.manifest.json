@@ -1,9 +1,10 @@
 {
-  "version": "5.0.0-rc.11",
+  "version": "5.0.0-rc.13",
   "source": "universal-dev-standards",
   "agent": "gemini-cli",
   "level": "project",
   "commands": [
+    "ac-coverage",
     "atdd",
     "bdd",
     "brainstorm",
@@ -38,5 +39,5 @@
     "tdd",
     "update"
   ],
-  "installedDate": "2026-03-18"
+  "installedDate": "2026-03-19"
 }

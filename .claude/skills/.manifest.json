@@ -1,8 +1,8 @@
 {
-  "version": "5.0.0-rc.11",
+  "version": "5.0.0-rc.13",
   "source": "universal-dev-standards",
   "agent": "claude-code",
   "level": "project",
   "locale": "zh-TW",
-  "installedDate": "2026-03-18"
+  "installedDate": "2026-03-19"
 }
