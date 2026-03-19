@@ -581,30 +581,60 @@ describe('E2E: uds update', () => {
       });
     });
 
-    it('should NOT migrate test_levels when upstream.version >= 5.0.0', async () => {
-      // v5+ projects already default to 4 levels; 2-level means user explicitly chose it
+    it('should also migrate test_levels for 5.0.0-rc (pre-release < 5.0.0 stable)', async () => {
+      // 5.0.0-rc.x is still < 5.0.0 in semver, so should also be migrated
       await setupTestDir(testDir, {});
       await runNonInteractive({}, testDir);
 
-      // Simulate a v5 manifest with user-chosen 2 levels
-      // upstream.version = 5.0.0-rc.1 (v5+ but < latest, so update triggers)
       const manifestPath = join(testDir, '.standards/manifest.json');
       const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-      manifest.upstream.version = '5.0.0-rc.1'; // v5+ → no migration
+      manifest.upstream.version = '5.0.0-rc.1'; // pre-release < 5.0.0 → triggers migration
       manifest.options.test_levels = ['unit-testing', 'integration-testing'];
       await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
 
       const result = await runCommand('update', { yes: true, offline: true }, testDir, 15000);
 
-      // Verify test_levels NOT changed (user's explicit choice preserved)
+      // Verify manifest migrated to 4 levels
       const updatedManifest = JSON.parse(await readFile(manifestPath, 'utf8'));
       expect(updatedManifest.options.test_levels).toEqual([
-        'unit-testing', 'integration-testing'
+        'unit-testing', 'integration-testing', 'system-testing', 'e2e-testing'
       ]);
 
-      recordScenarioResult('Test levels no migration v5+', {
+      recordScenarioResult('Test levels migration for rc pre-release', {
         steps: [
-          { step: 1, name: 'test_levels unchanged at 2', matched: updatedManifest.options.test_levels.length === 2 }
+          { step: 1, name: 'test_levels upgraded to 4', matched: updatedManifest.options.test_levels.length === 4 }
+        ],
+        output: result.stdout
+      });
+    });
+
+    it('should NOT migrate test_levels when already 4 levels', async () => {
+      // Projects already at 4 levels should not be touched
+      await setupTestDir(testDir, {});
+      await runNonInteractive({}, testDir);
+
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      manifest.upstream.version = '4.2.0'; // pre-v5
+      manifest.options.test_levels = ['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing'];
+      await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+
+      const result = await runCommand('update', { yes: true, offline: true }, testDir, 15000);
+
+      // Verify test_levels unchanged (already 4)
+      const updatedManifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      expect(updatedManifest.options.test_levels).toEqual([
+        'unit-testing', 'integration-testing', 'system-testing', 'e2e-testing'
+      ]);
+
+      // No migration message shown
+      const noMigrationMsg = !result.stdout.includes('2 → 4');
+      expect(noMigrationMsg).toBe(true);
+
+      recordScenarioResult('Test levels no migration when already 4', {
+        steps: [
+          { step: 1, name: 'test_levels stays at 4', matched: updatedManifest.options.test_levels.length === 4 },
+          { step: 2, name: 'No migration message', matched: noMigrationMsg }
         ],
         output: result.stdout
       });

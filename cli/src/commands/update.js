@@ -586,11 +586,10 @@ export async function updateCommand(options) {
   }
 
   // Migrate test_levels: upgrade old 2-level default to full 4-level default
-  // Only for projects initialized before v5.0.0 (pre-5.0 used 2-level default)
-  // Use upstream.version (the version at which standards were last installed)
-  // Compare against 4.999.999 so that 5.0.0-alpha/beta/rc are treated as v5+
+  // Only for projects installed before v5.0.0 stable (pre-5.0 used 2-level default)
+  // 5.0.0-alpha/beta/rc are also < 5.0.0 in semver, so they get migrated too
   const installedVersion = currentVersion || '0.0.0';
-  const isPreV5 = compareVersions(installedVersion, '4.999.999') <= 0;
+  const isPreV5 = compareVersions(installedVersion, '5.0.0') < 0;
   if (isPreV5) {
     const ALL_TEST_LEVELS = ['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing'];
     const currentLevels = manifest.options?.test_levels || [];
