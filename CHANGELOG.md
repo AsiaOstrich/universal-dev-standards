@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.14] - 2026-03-19
+
+> **Release Candidate**: Fourteenth RC for v5.0.0 with workflow enforcement architecture, i18n completeness, and DX improvements.
+
+### Added
+- **Workflow Enforcement Architecture** (SPEC-014): Four-layer enforcement system that transforms UDS workflows from documentation to execution
+  - **P0 — AI-Level**: Pre-Flight Checks in `/sdd`, `/tdd`, `/bdd`, `/commit` skills; new `workflow-enforcement.ai.yaml` standard; all 11 AI agent integration templates updated
+  - **P1 — CLI-Level**: `WorkflowGate` phase transition validator; `workflow-definitions.js` SDD/TDD/BDD phase graphs; session start workflow report
+  - **P2 — Git-Level**: `check-workflow-compliance.sh` pre-commit warning (non-blocking); `check-commit-spec-reference.sh` commit-msg spec suggestion; new `commit-msg` husky hook
+  - **P3 — DX-Level**: `uds check` workflow status display (summary + full mode); `/dev-workflow` context-aware start with phase→command mapping; `pre-release-check.sh` step 16 workflow compliance
+- **Core Standard**: `core/workflow-enforcement.md` — machine-enforceable workflow gates with 3 enforcement modes (enforce/suggest/off)
+- **i18n — Commands Translation Completeness**: 30 zh-TW + 31 zh-CN slash command translations; `check-translation-sync.sh` now verifies commands translation completeness
+- **AC Coverage Assistant** skill and SPEC-AC-COVERAGE
+- **Traditional Chinese commit type options** (`.standards/options/traditional-chinese.ai.yaml`)
+
+### Fixed
+- **Language Switch Bug**: `installSkillsToMultipleAgents` missing `locale` parameter in `config.js` — skills always installed in English regardless of language setting (affects both single-language and 'all' config flows)
+- **i18n Description Prefix**: 7 translated command files missing `[UDS]` prefix in YAML frontmatter description field
+- **Workflow Compliance Script**: Integer comparison error (`grep -c` multi-line output); dual path detection for `.workflow-state/` and `.standards/workflow-state/`
+- **test_levels Migration**: Cover 5.0.0 pre-release versions in migration check
+
+### Changed
+- **Config Menu**: Flattened config menu, advanced settings hidden, test_levels migration
+- **Pre-release Checks**: 17 → 18 steps (added workflow compliance check)
+- **Standards Count**: 49 → 50 core standards (added workflow-enforcement)
+- **Skills**: Regenerated as English locale baseline
+
 ## [5.0.0-rc.13] - 2026-03-18
 
 > **Release Candidate**: Thirteenth RC for v5.0.0 with post-restore integration regeneration fix.

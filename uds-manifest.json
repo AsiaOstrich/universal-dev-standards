@@ -3,7 +3,7 @@
   "version": "5.0.0-rc.1",
   "last_updated": "2026-02-12",
   "stats": {
-    "core_standards": 41,
+    "core_standards": 42,
     "skills": 30,
     "slash_commands": 30
   },
@@ -210,6 +210,11 @@
     },
     {
       "id": "pipeline-integration-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "workflow-enforcement",
       "category": "uncategorized",
       "level": 3
     }
