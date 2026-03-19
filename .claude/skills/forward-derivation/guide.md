@@ -1,175 +1,213 @@
 ---
 scope: partial
 description: |
-  從已批准的 SDD 規格推演 BDD 場景和 TDD 測試骨架。
-  ATDD 驗收測試表為可選輸出，用於特殊需求。
-  使用時機：規格已批准、開始 BDD/TDD 實作、生成測試結構。
-  關鍵字：forward derivation, spec to test, BDD generation, TDD skeleton, test derivation, 正向推演, 規格轉測試, 測試生成。
-source: ../../../../skills/forward-derivation/SKILL.md
-source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-01-25
-status: current
+  Derive BDD scenarios and TDD test skeletons from approved SDD specifications.
+  ATDD acceptance test tables are optional output for specialized needs.
+  Use when: spec is approved, starting BDD/TDD implementation, generating test structures.
+  Keywords: forward derivation, spec to test, BDD generation, TDD skeleton, test derivation, 正向推演, 規格轉測試, 測試生成.
 ---
 
-# 正向推演指南
+# Forward Derivation Guide
 
-> **語言**: [English](../../../../skills/forward-derivation/SKILL.md) | 繁體中文
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/forward-derivation/SKILL.md)
 
-**版本**: 2.0.0
-**最後更新**: 2026-01-25
-**適用範圍**: Claude Code Skills
+**Version**: 2.0.0
+**Last Updated**: 2026-01-25
+**Applicability**: Claude Code Skills
 
-> **核心規範**：此技能實作[正向推演標準](../../core/forward-derivation-standards.md)。任何 AI 工具皆可參考核心規範取得完整方法論文件。
+> **Core Standard**: This skill implements [Forward Derivation Standards](../../core/forward-derivation-standards.md). For comprehensive methodology documentation accessible by any AI tool, refer to the core standard.
 
 ---
 
-## 目的
+## Purpose
 
-此技能引導您從已批准的 SDD 規格推演 BDD 場景和 TDD 測試骨架，並嚴格遵循反幻覺標準。
+This skill guides you through deriving BDD scenarios and TDD test skeletons from approved SDD specifications, with strict adherence to Anti-Hallucination standards.
 
-> **注意**: ATDD 測試表為可選項，可透過 `/derive-atdd` 取得。BDD 場景本身已作為可執行驗收測試，使 ATDD 表對大多數用例變得多餘。
+> **Note**: ATDD test tables are optional and available via `/derive-atdd`. BDD scenarios already serve as executable acceptance tests, making ATDD tables redundant for most use cases.
 
-正向推演是[反向工程](../reverse-engineer/SKILL.md)的對稱對應：
-- **反向工程**：程式碼 → 規格
-- **正向推演**：規格 → 測試
+Forward Derivation is the symmetrical counterpart to [Reverse Engineering](../reverse-engineer/SKILL.md):
+- **Reverse Engineering**: Code → Specification
+- **Forward Derivation**: Specification → Tests
 
-## 快速參考
+## Quick Reference
 
-### 正向推演工作流程
+### Forward Derivation Workflow
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      正向推演工作流程                             │
+│              Forward Derivation Workflow                         │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  1️⃣  SPEC 解析（AI 自動化）                                    │
-│      ├─ 讀取已批准的規格                                        │
-│      ├─ 提取驗收條件（GWT 或條列式）                            │
-│      └─ 驗證 SPEC 結構和完整性                                  │
+│  1️⃣  SPEC Parsing (AI Automated)                               │
+│      ├─ Read approved specification                             │
+│      ├─ Extract Acceptance Criteria (GWT or bullet)             │
+│      └─ Validate SPEC structure and completeness                │
 │                                                                 │
-│  2️⃣  推演（AI 自動化）                                         │
-│      ├─ AC → BDD Gherkin 場景                                  │
-│      ├─ AC → TDD 測試骨架（帶 TODO）                           │
-│      └─ AC → ATDD 驗收測試表格                                 │
+│  2️⃣  Derivation (AI Automated)                                 │
+│      ├─ AC → BDD Gherkin scenarios                             │
+│      ├─ AC → TDD test skeletons with TODOs                     │
+│      └─ (Optional) AC → ATDD acceptance test tables            │
 │                                                                 │
-│  3️⃣  人類審查（必要）                                          │
-│      ├─ 驗證生成的場景符合 AC 意圖                              │
-│      ├─ 填寫 [TODO] 區塊                                       │
-│      └─ 如需要精煉步驟定義                                      │
+│  3️⃣  Human Review (Required)                                   │
+│      ├─ Verify generated scenarios match AC intent              │
+│      ├─ Fill in [TODO] sections                                │
+│      └─ Refine step definitions if needed                      │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 命令概覽
+### Commands Overview
 
-| 命令 | 輸入 | 輸出 | 目的 |
-|------|------|------|------|
-| `/derive-bdd` | SPEC-XXX.md | .feature | AC → Gherkin 場景 |
-| `/derive-tdd` | SPEC-XXX.md | .test.ts | AC → 測試骨架 |
-| `/derive-atdd` | SPEC-XXX.md | acceptance.md | AC → 驗收測試表格 |
-| `/derive-all` | SPEC-XXX.md | 以上全部 | 完整推演管道 |
+| Command | Input | Output | Purpose |
+|---------|-------|--------|---------|
+| `/derive-bdd` | SPEC-XXX.md | .feature | AC → Gherkin scenarios |
+| `/derive-tdd` | SPEC-XXX.md | .test.ts | AC → Test skeletons |
+| `/derive-all` | SPEC-XXX.md | .feature + .test.ts | Full derivation pipeline |
+| `/derive-atdd` | SPEC-XXX.md | acceptance.md | AC → Acceptance test tables (optional) |
 
-## 核心原則
+## Core Principles
 
-### 1. 規格限定生成
+### 1. Spec-Bounded Generation
 
-**關鍵**：只推演規格中存在的內容。不添加 AC 未明確定義的場景、測試或功能。
+**CRITICAL**: Only derive content that exists in the specification. Never add scenarios, tests, or features beyond what the Acceptance Criteria explicitly define.
 
 ```
-# 反幻覺規則
-輸入：SPEC 有 N 個驗收條件
-輸出：恰好 N 個場景（BDD）
-      恰好 N 個測試群組（TDD）
-      恰好 N 個驗收測試（ATDD）
+# Anti-Hallucination Rule
+Input:  SPEC with N Acceptance Criteria
+Output: Exactly N scenarios (BDD)
+        Exactly N test groups (TDD)
+        Exactly N acceptance tests (ATDD, if requested)
 
-若任何輸出數量 ≠ 輸入數量 → 違規
+If output count ≠ input count → VIOLATION
 ```
 
-### 2. 來源標註
+### 2. Source Attribution
 
-每個生成項目必須包含可追溯性：
+Every generated item MUST include traceability:
 
 ```gherkin
 # Generated from: specs/SPEC-001.md
 # AC: AC-1
 
 @SPEC-001 @AC-1
-Scenario: 使用者以有效憑證登入
+Scenario: User login with valid credentials
 ```
 
-### 3. 確定性標籤
+### 3. Derivation Tags (from Unified Tag System)
 
-| 標籤 | 使用時機 | 範例 |
-|------|----------|------|
-| `[來源]` | 直接來自 SPEC 的內容 | 功能標題、AC 文字 |
-| `[推演]` | 從 SPEC 內容轉換 | 從條列 AC 推演的 GWT |
-| `[生成]` | AI 生成的結構 | 測試骨架 |
-| `[TODO]` | 需要人類實作 | 斷言、步驟定義 |
+This skill uses **Derivation Tags** for generating new content from specifications. See [Anti-Hallucination Standards](../../core/anti-hallucination.md#certainty-classification-tags) for the complete tag reference.
 
-## 工作流程階段
+| Tag | Use When | Example |
+|-----|----------|---------|
+| `[Source]` | Direct content from SPEC | Feature title, AC text |
+| `[Derived]` | Transformed from SPEC content | GWT from bullet AC |
+| `[Generated]` | AI-generated structure | Test skeleton |
+| `[TODO]` | Requires human implementation | Assertions, step definitions |
 
-### 階段 1：SPEC 解析
+## Workflow Stages
 
-**輸入**：已批准的規格檔案
-**輸出**：結構化的驗收條件列表
+### Stage 1: SPEC Parsing
 
-**動作**：
-1. 讀取規格檔案
-2. 識別驗收條件區塊
-3. 解析 AC 格式（Given-When-Then 或條列式）
-4. 驗證 AC 完整性
+**Input**: Approved specification file
+**Output**: Structured Acceptance Criteria list
 
-**驗證清單**：
-- [ ] SPEC 狀態為「已批准」或「就緒」
-- [ ] 驗收條件區塊存在
-- [ ] 每個 AC 有唯一識別碼（AC-1、AC-2 等）
-- [ ] AC 格式可解析（GWT 或條列式）
+**Actions**:
+1. Read specification file
+2. Identify Acceptance Criteria section
+3. Parse AC format (Given-When-Then or Bullet)
+4. Validate AC completeness
 
-### 階段 2：BDD 推演
+**Validation Checklist**:
+- [ ] SPEC status is "Approved" or "Ready"
+- [ ] Acceptance Criteria section exists
+- [ ] Each AC has unique identifier (AC-1, AC-2, etc.)
+- [ ] AC format is parseable (GWT or bullet)
 
-**輸入**：已解析的驗收條件
-**輸出**：Gherkin .feature 檔案
+### Stage 2: BDD Derivation
 
-**轉換規則**：
+**Input**: Parsed Acceptance Criteria
+**Output**: Gherkin .feature file
 
-| AC 格式 | 轉換 |
-|---------|------|
-| Given-When-Then | 直接對應到 Gherkin |
-| 條列式 | 使用 GWT 模式匹配轉換 |
-| 勾選清單 | 條件 → Given、動作 → When、結果 → Then |
+**Transformation Rules**:
 
-### 階段 3：TDD 推演
+| AC Format | Transformation |
+|-----------|----------------|
+| Given-When-Then | Direct mapping to Gherkin |
+| Bullet points | Convert using GWT pattern matching |
+| Checklist | Convert conditions → Given, actions → When, outcomes → Then |
 
-**輸入**：已解析的驗收條件
-**輸出**：測試骨架檔案
+**Example**:
+```markdown
+# Input AC (Bullet)
+- [ ] User can login with email and password
+- [ ] Login shows error for invalid credentials
+```
 
-**參數**：
-| 參數 | 選項 | 預設值 |
-|------|------|--------|
+```gherkin
+# Output BDD
+@SPEC-001 @AC-1
+Scenario: User login with email and password
+  Given a user with valid credentials
+  When the user submits login form
+  Then the user is logged in successfully
+
+@SPEC-001 @AC-2
+Scenario: Login shows error for invalid credentials
+  Given a user with invalid credentials
+  When the user submits login form
+  Then an error message is displayed
+```
+
+### Stage 3: TDD Derivation
+
+**Input**: Parsed Acceptance Criteria
+**Output**: Test skeleton file
+
+**Actions**:
+1. Create describe block for SPEC
+2. Create describe block per AC
+3. Generate it blocks with descriptive names
+4. Add AAA structure with TODO comments
+5. Include placeholder assertions
+
+**Parameters**:
+| Parameter | Options | Default |
+|-----------|---------|---------|
 | `--lang` | typescript, javascript, python, java, go | typescript |
 | `--framework` | vitest, jest, pytest, junit, go-test | vitest |
 
-### 階段 4：ATDD 推演
+### Stage 4: ATDD Derivation (Optional)
 
-**輸入**：已解析的驗收條件
-**輸出**：驗收測試表格文件
+> **Note**: ATDD test tables are optional. BDD scenarios already serve as executable acceptance tests. Use ATDD tables only when:
+> - Manual testing workflows are required
+> - Stakeholders prefer tabular test documentation
+> - Regulatory compliance requires specific test evidence format
 
-### 階段 5：人類審查
+**Input**: Parsed Acceptance Criteria
+**Output**: Acceptance test table document
 
-**輸入**：生成的檔案
-**輸出**：審查和精煉的檔案
+**Actions**:
+1. Create test table per AC
+2. Generate step-by-step action columns
+3. Add expected result columns
+4. Include Pass/Fail checkboxes
+5. Add tester sign-off section
 
-**審查清單**：
-- [ ] 生成的場景符合 AC 意圖
-- [ ] 沒有超出 AC 數量的額外場景
-- [ ] 來源標註正確
-- [ ] [TODO] 區塊已識別供實作
-- [ ] 步驟語言為業務層級（非技術層級）
+### Stage 5: Human Review
 
-## 輸出格式
+**Input**: Generated files
+**Output**: Reviewed and refined files
 
-### BDD Feature 檔案
+**Review Checklist**:
+- [ ] Generated scenarios match AC intent
+- [ ] No extra scenarios beyond AC count
+- [ ] Source attribution is correct
+- [ ] [TODO] sections identified for implementation
+- [ ] Step language is business-level (not technical)
+
+## Output Formats
+
+### BDD Feature File
 
 ```gherkin
 # Generated from: specs/SPEC-001.md
@@ -177,118 +215,135 @@ Scenario: 使用者以有效憑證登入
 # Generated at: 2026-01-19T10:00:00Z
 
 @SPEC-001
-Feature: 使用者認證
-  [來源] 來自 SPEC-001 摘要
+Feature: User Authentication
+  [Source] From SPEC-001 Summary
 
   @AC-1 @happy-path
-  Scenario: 使用者以有效憑證登入
-    # [來源] 來自 SPEC-001 AC-1
-    Given 已註冊的使用者有有效憑證
-    When 使用者提交登入表單
-    Then 使用者被導向儀表板
+  Scenario: User login with valid credentials
+    # [Source] From SPEC-001 AC-1
+    Given a registered user with valid credentials
+    When the user submits login form
+    Then the user is redirected to dashboard
 
   @AC-2 @error-handling
-  Scenario: 無效憑證登入失敗
-    # [來源] 來自 SPEC-001 AC-2
-    Given 使用者有無效憑證
-    When 使用者提交登入表單
-    Then 顯示錯誤訊息
+  Scenario: Login fails with invalid credentials
+    # [Source] From SPEC-001 AC-2
+    Given a user with invalid credentials
+    When the user submits login form
+    Then an error message is displayed
 ```
 
-### TDD 測試骨架
+### TDD Test Skeleton
 
 ```typescript
 /**
- * Tests for SPEC-001: 使用者認證
+ * Tests for SPEC-001: User Authentication
  * Generated from: specs/SPEC-001.md
  * Generated at: 2026-01-19T10:00:00Z
  * AC Coverage: AC-1, AC-2
  */
 
-describe('SPEC-001: 使用者認證', () => {
-  describe('AC-1: 使用者以有效憑證登入', () => {
+describe('SPEC-001: User Authentication', () => {
+  describe('AC-1: User login with valid credentials', () => {
     it('should redirect to dashboard on successful login', async () => {
       // Arrange
-      // [TODO] 設定已註冊使用者和有效憑證
+      // [TODO] Set up registered user with valid credentials
 
       // Act
-      // [TODO] 提交登入表單
+      // [TODO] Submit login form
 
       // Assert
-      // [TODO] 驗證導向儀表板
+      // [TODO] Verify redirect to dashboard
+      expect(true).toBe(true); // Placeholder
+    });
+  });
+
+  describe('AC-2: Login fails with invalid credentials', () => {
+    it('should display error message', async () => {
+      // Arrange
+      // [TODO] Set up user with invalid credentials
+
+      // Act
+      // [TODO] Submit login form
+
+      // Assert
+      // [TODO] Verify error message is displayed
       expect(true).toBe(true); // Placeholder
     });
   });
 });
 ```
 
-### ATDD 驗收測試表格
+### ATDD Acceptance Test Table (Optional)
+
+> Generated via `/derive-atdd` when ATDD test tables are needed.
 
 ```markdown
-# SPEC-001 驗收測試
+# SPEC-001 Acceptance Tests
 
-**規格**: SPEC-001
-**生成時間**: 2026-01-19
-**狀態**: 待審查
+**Specification**: SPEC-001
+**Generated**: 2026-01-19
+**Status**: Pending
 
-## AT-001: 使用者以有效憑證登入
-**來源**: AC-1
+## AT-001: User login with valid credentials
+**Source**: AC-1
 
-| 步驟 | 動作 | 預期結果 | 通過/失敗 |
-|------|------|----------|-----------|
-| 1 | 導航到登入頁面 | 顯示登入表單 | [ ] |
-| 2 | 輸入有效憑證 | 欄位接受輸入 | [ ] |
-| 3 | 點擊登入 | 表單已提交 | [ ] |
-| 4 | 驗證導向 | 顯示儀表板 | [ ] |
+| Step | Action | Expected | Pass/Fail |
+|------|--------|----------|-----------|
+| 1 | Navigate to login page | Login form displayed | [ ] |
+| 2 | Enter valid credentials | Fields accept input | [ ] |
+| 3 | Click Login | Form submitted | [ ] |
+| 4 | Verify redirect | Dashboard displayed | [ ] |
 
-**測試人員**: _______________
-**日期**: _______________
-**結果**: [ ] 通過 / [ ] 失敗
+**Tester**: _______________
+**Date**: _______________
+**Result**: [ ] Pass / [ ] Fail
 ```
 
-## 與其他技能的整合
+## Integration with Other Skills
 
-### 與 /sdd（規格驅動開發）
+### With /sdd (Spec-Driven Development)
 
-1. 使用 `/sdd` 工作流程完成 SPEC
-2. 透過審查獲得 SPEC 批准
-3. 執行 `/derive-all` 生成測試結構
-4. 在 BDD/TDD 工作流程中使用生成的輸出
+1. Complete SPEC using `/sdd` workflow
+2. Get SPEC approved through review
+3. Run `/derive-all` to generate test structures
+4. Use generated outputs in BDD/TDD workflows
 
-### 與 /bdd（行為驅動開發）
+### With /bdd (Behavior-Driven Development)
 
-1. 使用 `/derive-bdd` 生成 BDD 場景
-2. 與利害關係人審查和精煉場景
-3. 使用 `/bdd` 繼續 BDD 制定
-4. 實作步驟定義
+1. Generate BDD scenarios using `/derive-bdd`
+2. Review and refine scenarios with stakeholders
+3. Continue with BDD formulation using `/bdd`
+4. Implement step definitions
 
-### 與 /tdd（測試驅動開發）
+### With /tdd (Test-Driven Development)
 
-1. 使用 `/derive-tdd` 生成 TDD 骨架
-2. 填寫 [TODO] 區塊的實際斷言
-3. 以生成的測試結構進入 TDD 紅燈階段
-4. 實作程式碼使測試通過
+1. Generate TDD skeletons using `/derive-tdd`
+2. Fill in [TODO] sections with actual assertions
+3. Enter TDD Red phase with generated test structure
+4. Implement code to make tests pass
 
-### 與整合流程
+### With Integrated Flow
 
-正向推演適合整合流程方法論：
+Forward Derivation fits in the Integrated Flow methodology:
 
 ```
-spec-review (已批准) → forward-derivation → discovery (BDD)
+spec-review (approved) → forward-derivation → discovery (BDD)
                               │
-                              ├─→ .feature 檔案供 BDD
-                              ├─→ .test.ts 骨架供 TDD
-                              └─→ acceptance.md 供 ATDD
+                              ├─→ .feature files for BDD
+                              └─→ .test.ts skeletons for TDD
+
+Optional: /derive-atdd → acceptance.md for manual testing
 ```
 
-## 完整推演管道
+## Complete Derivation Pipeline
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                         完整正向推演管道                                   │
+│                    Complete Forward Derivation Pipeline                   │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│   已批准 SPEC                                                            │
+│   Approved SPEC                                                         │
 │        │                                                                │
 │        ▼                                                                │
 │   /derive-all specs/SPEC-XXX.md                                        │
@@ -296,120 +351,120 @@ spec-review (已批准) → forward-derivation → discovery (BDD)
 │        ├─→ /derive-bdd                                                  │
 │        │    └─→ features/SPEC-XXX.feature                              │
 │        │                                                                │
-│        ├─→ /derive-tdd                                                  │
-│        │    └─→ tests/SPEC-XXX.test.ts                                 │
-│        │                                                                │
-│        └─→ /derive-atdd                                                 │
-│             └─→ acceptance/SPEC-XXX-acceptance.md                      │
+│        └─→ /derive-tdd                                                  │
+│             └─→ tests/SPEC-XXX.test.ts                                 │
 │                                                                         │
-│   人類審查                                                               │
+│   Optional: /derive-atdd specs/SPEC-XXX.md                              │
+│        └─→ acceptance/SPEC-XXX-acceptance.md                           │
+│                                                                         │
+│   Human Review                                                          │
 │        │                                                                │
-│        ├─→ 驗證 1:1 AC 對應                                             │
-│        ├─→ 填寫 [TODO] 區塊                                             │
-│        └─→ 精煉步驟定義                                                  │
+│        ├─→ Verify 1:1 AC mapping                                       │
+│        ├─→ Fill [TODO] sections                                        │
+│        └─→ Refine step definitions                                     │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 使用範例
+### Usage Examples
 
 ```bash
-# 生成 BDD 場景
+# Generate BDD scenarios
 /derive-bdd specs/SPEC-001.md
 
-# 使用 Python/pytest 生成 TDD 骨架
+# Generate TDD skeleton with Python/pytest
 /derive-tdd specs/SPEC-001.md --lang python --framework pytest
 
-# 生成所有測試結構
+# Generate all test structures
 /derive-all specs/SPEC-001.md
 
-# 預覽不建立檔案
+# Preview without creating files
 /derive-all specs/SPEC-001.md --dry-run
 
-# 指定輸出目錄
+# Specify output directory
 /derive-all specs/SPEC-001.md --output-dir ./generated
 ```
 
-## 應避免的反模式
+## Anti-Patterns to Avoid
 
-### ❌ 不要這樣做
+### ❌ Don't Do This
 
-1. **添加額外場景**
-   - 錯誤：SPEC 有 3 個 AC，生成 5 個場景
-   - 正確：SPEC 有 3 個 AC，恰好生成 3 個場景
+1. **Adding Extra Scenarios**
+   - Wrong: SPEC has 3 AC, generated 5 scenarios
+   - Right: SPEC has 3 AC, generated exactly 3 scenarios
 
-2. **從草稿 SPEC 推演**
-   - 錯誤：對未批准的規格執行 `/derive-all`
-   - 正確：只從已批准的規格推演
+2. **Deriving from Draft SPEC**
+   - Wrong: Running `/derive-all` on unapproved spec
+   - Right: Only derive from approved specifications
 
-3. **跳過來源標註**
-   - 錯誤：沒有 @SPEC-XXX 標籤的場景
-   - 正確：每個場景標記來源 SPEC 和 AC
+3. **Skipping Source Attribution**
+   - Wrong: Scenario without @SPEC-XXX tag
+   - Right: Every scenario tagged with source SPEC and AC
 
-4. **過度指定技術細節**
-   - 錯誤：`Given 使用 PostgreSQL 驅動程式建立資料庫連線`
-   - 正確：`Given 系統中存在使用者資料`
+4. **Over-Specifying Technical Details**
+   - Wrong: `Given database connection is established using PostgreSQL driver`
+   - Right: `Given user data exists in the system`
 
-5. **將骨架視為完整**
-   - 錯誤：不填寫 [TODO] 就使用生成的測試
-   - 正確：執行測試前填寫所有 [TODO] 區塊
+5. **Treating Skeletons as Complete**
+   - Wrong: Using generated tests without filling [TODO]
+   - Right: Fill all [TODO] sections before running tests
 
-## 最佳實踐
+## Best Practices
 
-### 應該做的
+### Do's
 
-- ✅ 只從已批准的規格推演
-- ✅ 維持嚴格的 1:1 AC 到輸出對應
-- ✅ 在所有輸出中包含來源標註
-- ✅ 使用 [TODO] 標記實作區塊
-- ✅ 與利害關係人審查生成的輸出
-- ✅ 保持步驟語言在業務層級
+- ✅ Only derive from approved specifications
+- ✅ Maintain strict 1:1 AC to output mapping
+- ✅ Include source attribution in all outputs
+- ✅ Use [TODO] markers for implementation sections
+- ✅ Review generated outputs with stakeholders
+- ✅ Keep step language at business level
 
-### 不應該做的
+### Don'ts
 
-- ❌ 添加 AC 未定義的場景
-- ❌ 從草稿或未批准的規格推演
-- ❌ 跳過對生成輸出的人類審查
-- ❌ 將生成的骨架視為完整測試
-- ❌ 移除來源標註註解
-- ❌ 過度指定實作細節
-
----
-
-## 設定偵測
-
-此技能會自動偵測專案設定：
-
-1. 檢查現有的 `specs/` 目錄結構
-2. 從 package.json/pyproject.toml 偵測測試框架
-3. 識別偏好的輸出目錄
-4. 設定語言特定範本
+- ❌ Add scenarios beyond what AC defines
+- ❌ Derive from draft or unapproved specs
+- ❌ Skip human review of generated outputs
+- ❌ Treat generated skeletons as complete tests
+- ❌ Remove source attribution comments
+- ❌ Over-specify implementation details
 
 ---
 
-## 相關規範
+## Configuration Detection
 
-- [正向推演標準](../../core/forward-derivation-standards.md) - **核心方法論規範（主要參考）**
-- [反向工程標準](../../core/reverse-engineering-standards.md) - 對稱對應
-- [規格驅動開發](../../core/spec-driven-development.md) - 輸入規格格式
-- [行為驅動開發](../../../../core/behavior-driven-development.md) - BDD 輸出格式
-- [測試驅動開發](../../core/test-driven-development.md) - TDD 輸出用法
-- [反幻覺指南](../../core/anti-hallucination.md) - 生成合規
+This skill auto-detects project configuration:
 
----
-
-## 版本歷史
-
-| 版本 | 日期 | 變更 |
-|------|------|------|
-| 2.0.0 | 2026-01-25 | ATDD 從必需改為可選輸出；/derive-all 現在只輸出 BDD + TDD |
-| 1.1.0 | 2026-01-25 | 新增：統一標籤系統參考 |
-| 1.0.0 | 2026-01-19 | 初始發布 |
+1. Check for existing `specs/` directory structure
+2. Detect test framework from package.json/pyproject.toml
+3. Identify preferred output directories
+4. Configure language-specific templates
 
 ---
 
-## 授權
+## Related Standards
 
-此技能採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權。
+- [Forward Derivation Standards](../../core/forward-derivation-standards.md) - **Core methodology standard (primary reference)**
+- [Reverse Engineering Standards](../../core/reverse-engineering-standards.md) - Symmetrical counterpart
+- [Spec-Driven Development](../../core/spec-driven-development.md) - Input specification format
+- [Behavior-Driven Development](../../core/behavior-driven-development.md) - BDD output format
+- [Test-Driven Development](../../core/test-driven-development.md) - TDD output usage
+- [Anti-Hallucination Guidelines](../../core/anti-hallucination.md) - Generation compliance
 
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 2.0.0 | 2026-01-25 | ATDD changed from required to optional output; /derive-all now outputs BDD + TDD only |
+| 1.1.0 | 2026-01-25 | Added: Reference to Unified Tag System |
+| 1.0.0 | 2026-01-19 | Initial release |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

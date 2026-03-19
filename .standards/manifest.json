@@ -1,5 +1,5 @@
 {
-  "version": "3.3.0",
+  "version": "3.2.0",
   "upstream": {
     "repo": "AsiaOstrich/universal-dev-standards",
     "version": "5.0.0-rc.13",
@@ -214,7 +214,12 @@
       "bdd",
       "sdd",
       "atdd"
-    ]
+    ],
+    "config": {
+      "checkpointsEnabled": true,
+      "reminderIntensity": "suggest",
+      "skipLimit": 3
+    }
   },
   "fileHashes": {
     ".standards/anti-hallucination.ai.yaml": {
@@ -405,7 +410,7 @@
     "GEMINI.md": {
       "hash": "sha256:b1cb231af0764e2f0f9dad573a21f6bc247dfea987b3c6d071b4b4997e4f6c4c",
       "size": 9352,
-      "installedAt": "2026-03-19T01:44:24.476Z"
+      "installedAt": "2026-03-19T02:47:16.621Z"
     },
     ".standards/deployment-standards.ai.yaml": {
       "hash": "sha256:e9900792348882ab5627456b99610d13abbafde93dbcffc3bca0950ab169ffab",
@@ -425,7 +430,7 @@
     "CLAUDE.md": {
       "hash": "sha256:40b3505717a9f6f58c71d242ae24322997047d4ad246b0a3fa3db9d583efca1a",
       "size": 35070,
-      "installedAt": "2026-03-19T01:44:24.476Z"
+      "installedAt": "2026-03-19T02:47:16.621Z"
     },
     ".standards/context-aware-loading.ai.yaml": {
       "hash": "sha256:be9d61007a21bb03be40011d2c2cc938a94bc6275ce2839076b22262d4ec0628",
@@ -673,14 +678,14 @@
       "blockSize": 4364,
       "fullHash": "sha256:b1cb231af0764e2f0f9dad573a21f6bc247dfea987b3c6d071b4b4997e4f6c4c",
       "fullSize": 9352,
-      "installedAt": "2026-03-19T01:44:24.476Z"
+      "installedAt": "2026-03-19T02:47:16.621Z"
     },
     "CLAUDE.md": {
       "blockHash": "sha256:88ef4b6f61fc8231ee40cb033085a7572ee0757c9ddde4a50740d8b89ba536cc",
       "blockSize": 4364,
       "fullHash": "sha256:40b3505717a9f6f58c71d242ae24322997047d4ad246b0a3fa3db9d583efca1a",
       "fullSize": 35070,
-      "installedAt": "2026-03-19T01:44:24.476Z"
+      "installedAt": "2026-03-19T02:47:16.621Z"
     }
   }
 }

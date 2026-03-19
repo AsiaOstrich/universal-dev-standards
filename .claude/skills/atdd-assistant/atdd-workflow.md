@@ -1,36 +1,28 @@
----
-source: ../../../../skills/atdd-assistant/atdd-workflow.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-05
-status: current
----
+# ATDD Workflow Guide
 
-# ATDD 工作流程指南
-
-**版本**: 1.0.0
-**最後更新**: 2026-01-19
+**Version**: 1.0.0
+**Last Updated**: 2026-01-19
 
 ---
 
-## ATDD 循環概覽
+## ATDD Cycle Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                           ATDD 工作流程                                       │
+│                           ATDD Workflow                                      │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐                 │
-│   │ 🤝 研討會    │───▶│ 🧪 精煉      │───▶│ 💻 開發      │                 │
+│   │ 🤝 WORKSHOP  │───▶│ 🧪 DISTILL   │───▶│ 💻 DEVELOP   │                 │
 │   └──────────────┘    └──────────────┘    └──────────────┘                 │
 │          │                                       │                          │
 │          │                                       ▼                          │
 │          │                               ┌──────────────┐                   │
-│          │                               │ 🎬 展示      │                   │
+│          │                               │ 🎬 DEMO      │                   │
 │          │                               └──────────────┘                   │
 │          │                                       │                          │
 │          │            ┌──────────────┐           │                          │
-│          └───────────▶│ ✅ 完成      │◀──────────┘                          │
+│          └───────────▶│ ✅ DONE      │◀──────────┘                          │
 │                       └──────────────┘                                      │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -38,447 +30,544 @@ status: current
 
 ---
 
-## 階段 1：規格研討會
+## Phase 1: Specification Workshop
 
-### 目的
+### Purpose
 
-協作定義「完成」的樣貌，包含具體的驗收標準。
+Collaboratively define what "done" looks like with concrete acceptance criteria.
 
-### 時間
+### Duration
 
-30-60 分鐘
+30-60 minutes
 
-### 參與者
+### Participants
 
-- 產品負責人（必要）
-- 開發人員（必要）
-- QA/測試人員（必要）
-- 利害關係人（選擇性）
+- Product Owner (Required)
+- Developer(s) (Required)
+- QA/Tester (Required)
+- Stakeholders (Optional)
 
-### 議程
+### Agenda
 
-| 時間 | 活動 | 主持 |
-|------|------|------|
-| 0-5 分鐘 | 故事說明 | PO |
-| 5-15 分鐘 | 澄清問題 | 全員 |
-| 15-35 分鐘 | AC 定義 | 全員 |
-| 35-45 分鐘 | 範圍外 | 全員 |
-| 45-55 分鐘 | 技術備註 | Dev |
-| 55-60 分鐘 | 總結 | 全員 |
+| Time | Activity | Lead |
+|------|----------|------|
+| 0-5 min | Story Presentation | PO |
+| 5-15 min | Clarifying Questions | All |
+| 15-35 min | AC Definition | All |
+| 35-45 min | Out of Scope | All |
+| 45-55 min | Technical Notes | Dev |
+| 55-60 min | Wrap-up | All |
 
-### 研討會流程
+### Workshop Flow
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│              規格研討會流程                                       │
+│              Specification Workshop Flow                         │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  1. 故事說明 (5 分鐘)                                            │
-│     └─▶ PO 解釋用戶故事、商業價值、背景                          │
+│  1. STORY PRESENTATION (5 min)                                  │
+│     └─▶ PO explains user story, business value, context         │
 │                                                                 │
-│  2. 澄清問題 (10 分鐘)                                           │
-│     ├─▶ 商業：「價值是什麼？」「優先級？」                       │
-│     ├─▶ Dev：「影響？」「依賴？」「效能？」                      │
-│     └─▶ QA：「可能出什麼錯？」「邊界案例？」                     │
+│  2. CLARIFYING QUESTIONS (10 min)                               │
+│     ├─▶ Business: "What's the value?", "Priority?"              │
+│     ├─▶ Dev: "Impact?", "Dependencies?", "Performance?"         │
+│     └─▶ QA: "What could go wrong?", "Edge cases?"               │
 │                                                                 │
-│  3. 驗收標準定義 (20 分鐘)                                       │
-│     ├─▶ 定義 happy path AC                                      │
-│     ├─▶ 定義錯誤/邊界案例 AC                                    │
-│     └─▶ 使用 Given-When-Then 格式                               │
+│  3. ACCEPTANCE CRITERIA DEFINITION (20 min)                     │
+│     ├─▶ Define happy path AC                                    │
+│     ├─▶ Define error/edge case AC                               │
+│     └─▶ Use Given-When-Then format                              │
 │                                                                 │
-│  4. 範圍外 (10 分鐘)                                             │
-│     └─▶ 明確列出不包含的內容                                    │
+│  4. OUT OF SCOPE (10 min)                                       │
+│     └─▶ Explicitly list what is NOT included                    │
 │                                                                 │
-│  5. 技術備註 (5 分鐘)                                            │
-│     └─▶ 實作提示、限制、依賴                                    │
+│  5. TECHNICAL NOTES (5 min)                                     │
+│     └─▶ Implementation hints, constraints, dependencies         │
 │                                                                 │
-│  6. 總結 (5 分鐘)                                                │
-│     ├─▶ 審查所有 AC                                             │
-│     ├─▶ 確認 PO 理解                                            │
-│     └─▶ 安排精煉會議                                            │
+│  6. WRAP-UP (5 min)                                             │
+│     ├─▶ Review all AC                                           │
+│     ├─▶ Confirm PO understanding                                │
+│     └─▶ Schedule distillation session                           │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 各角色問題
+### Questions by Role
 
-| 角色 | 焦點 | 問題 |
-|------|------|------|
-| **商業** | What & Why | 商業價值是什麼？使用者是誰？這解決什麼問題？優先級？ |
-| **開發** | How | 影響哪些系統？有依賴嗎？效能考量？現有資料影響？ |
-| **測試** | What if | 可能出什麼錯？邊界案例是什麼？如何驗證成功？安全考量？ |
+| Role | Focus | Questions |
+|------|-------|-----------|
+| **Business** | What & Why | What's the business value? Who are the users? What problem does this solve? What's the priority? |
+| **Development** | How | What systems are affected? Are there dependencies? Performance concerns? Existing data impact? |
+| **Testing** | What if | What could go wrong? What are the edge cases? How do we verify success? Security concerns? |
 
-### 輸出範本
+### Output Template
 
 ```markdown
-## 用戶故事: [US-XXX] [標題]
+## User Story: [US-XXX] [Title]
 
-**研討會日期**: [日期]
-**參與者**: [姓名]
+**Workshop Date**: [Date]
+**Participants**: [Names]
 
-**身為** [角色]
-**我想要** [功能]
-**以便** [好處]
+**As a** [role]
+**I want** [feature]
+**So that** [benefit]
 
-## 驗收標準
+## Acceptance Criteria
 
-### AC-1: [Happy path 描述]
-**Given** [前置條件]
-**When** [動作]
-**Then** [預期結果]
+### AC-1: [Happy path description]
+**Given** [precondition]
+**When** [action]
+**Then** [expected result]
 
-### AC-2: [錯誤情境]
-**Given** [前置條件]
-**When** [無效動作]
-**Then** [錯誤處理]
+### AC-2: [Error scenario]
+**Given** [precondition]
+**When** [invalid action]
+**Then** [error handling]
 
-### AC-3: [邊界案例]
-**Given** [邊界條件]
-**When** [動作]
-**Then** [適當結果]
+### AC-3: [Edge case]
+**Given** [edge condition]
+**When** [action]
+**Then** [appropriate result]
 
-## 範圍外
-- [功能 1 - 延後至未來 Sprint]
-- [功能 2 - MVP 之外]
+## Out of Scope
+- [Feature 1 - deferred to future sprint]
+- [Feature 2 - out of MVP]
 
-## 技術備註
-- [限制 1]
-- [依賴資訊]
-- [效能需求]
+## Technical Notes
+- [Constraint 1]
+- [Dependency information]
+- [Performance requirement]
 
-## 開放問題
-- [ ] [問題 1 - 指派給: @person]
-- [ ] [問題 2 - 需要 PO 澄清]
+## Open Questions
+- [ ] [Question 1 - assigned to: @person]
+- [ ] [Question 2 - need PO clarification]
 ```
 
-### 檢查清單
+### Checklist
 
 ```
-□ 產品負責人出席
-□ 開發人員出席
-□ QA/測試人員出席
-□ 用戶故事已說明商業價值
-□ 所有澄清問題已回答（或記錄）
-□ 驗收標準使用 Given-When-Then 格式
-□ Happy path 已涵蓋
-□ 錯誤情境已涵蓋
-□ 邊界案例已涵蓋
-□ 範圍外已明確記錄
-□ 技術備註已新增
-□ 所有參與者同意範圍
+□ Product Owner present
+□ Developer(s) present
+□ QA/Tester present
+□ User story explained with business value
+□ All clarifying questions answered (or noted)
+□ Acceptance criteria in Given-When-Then format
+□ Happy path covered
+□ Error scenarios covered
+□ Edge cases covered
+□ Out of scope explicitly documented
+□ Technical notes added
+□ All participants agree on scope
 ```
 
 ---
 
-## 階段 2：精煉
+## Phase 2: Distillation
 
-### 目的
+### Purpose
 
-將驗收標準轉換為可執行、可自動化的測試。
+Convert acceptance criteria into executable, automatable tests.
 
-### 時間
+### Duration
 
-30-60 分鐘
+30-60 minutes
 
-### 參與者
+### Participants
 
-- 開發人員（必要）
-- QA/測試人員（必要）
-- 產品負責人（簽核）
+- Developer(s) (Required)
+- QA/Tester (Required)
+- Product Owner (For sign-off)
 
-### 步驟
+### Steps
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│              精煉流程                                            │
+│              Distillation Process                                │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  1. 審查驗收標準                                                 │
-│     對於每個 AC：                                                │
-│     □ 是否明確無歧義？                                          │
-│     □ 可以自動化嗎？                                            │
-│     □ 是否驗證商業價值？                                        │
-│     → 精煉任何不清楚的標準                                      │
+│  1. REVIEW ACCEPTANCE CRITERIA                                  │
+│     For each AC:                                                │
+│     □ Is it unambiguous?                                        │
+│     □ Can it be automated?                                      │
+│     □ Does it verify business value?                            │
+│     → Refine any unclear criteria                               │
 │                                                                 │
-│  2. 選擇測試格式                                                 │
+│  2. CHOOSE TEST FORMAT                                          │
 │     │                                                           │
 │     ├─ Gherkin → Cucumber, SpecFlow, Behave                     │
-│     ├─ Wiki 表格 → FitNesse, Slim                               │
-│     ├─ 關鍵字 → Robot Framework                                 │
-│     └─ 程式碼 → xUnit 使用描述性名稱                            │
+│     ├─ Wiki Tables → FitNesse, Slim                             │
+│     ├─ Keywords → Robot Framework                               │
+│     └─ Code → xUnit with descriptive names                      │
 │                                                                 │
-│  3. 撰寫可執行測試                                               │
+│  3. WRITE EXECUTABLE TESTS                                      │
 │     │                                                           │
-│     ├─ 每個驗收標準一個測試                                     │
-│     ├─ 包含 setup/teardown                                      │
-│     └─ 確保測試獨立                                             │
+│     ├─ One test per acceptance criterion                        │
+│     ├─ Include setup/teardown                                   │
+│     └─ Ensure tests are independent                             │
 │                                                                 │
-│  4. PO 簽核                                                      │
+│  4. PO SIGN-OFF                                                 │
 │     │                                                           │
-│     ├─ PO 審查測試規格                                          │
-│     ├─ 確認測試代表需求                                         │
-│     └─ 開發開始前簽核                                           │
+│     ├─ PO reviews test specifications                           │
+│     ├─ Confirms tests represent requirements                    │
+│     └─ Signs off before development starts                      │
 │                                                                 │
-│  5. 執行測試（應該失敗）                                         │
+│  5. RUN TESTS (SHOULD FAIL)                                     │
 │     │                                                           │
-│     └─ 所有測試初始失敗（RED 狀態）                             │
+│     └─ All tests fail initially (RED state)                     │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 測試格式比較
+### Test Format Comparison
 
-| 格式 | 工具範例 | 商業可讀性 | 最適合 |
-|------|---------|----------|--------|
-| **Gherkin** | Cucumber, SpecFlow | ★★★★★ | 行為情境 |
-| **Wiki 表格** | FitNesse | ★★★★☆ | 資料驅動測試 |
-| **關鍵字** | Robot Framework | ★★★★☆ | 複雜工作流程 |
-| **程式碼** | xUnit, pytest | ★★☆☆☆ | 技術團隊 |
+| Format | Tool Examples | Business Readable | Best For |
+|--------|--------------|-------------------|----------|
+| **Gherkin** | Cucumber, SpecFlow | ★★★★★ | Behavior scenarios |
+| **Wiki Tables** | FitNesse | ★★★★☆ | Data-driven tests |
+| **Keywords** | Robot Framework | ★★★★☆ | Complex workflows |
+| **Code** | xUnit, pytest | ★★☆☆☆ | Technical teams |
 
-### Gherkin 範例
+### Gherkin Example
 
 ```gherkin
-# 檔案: features/password-reset.feature
-# 故事: US-123 - 密碼重設
+# File: features/password-reset.feature
+# Story: US-123 - Password Reset
 
 @US-123
-Feature: 密碼重設
-  身為註冊使用者
-  我想要透過電子郵件重設密碼
-  以便我忘記密碼時能重新存取
+Feature: Password Reset
+  As a registered user
+  I want to reset my password via email
+  So that I can regain access if I forget my password
 
   @AC-1 @happy-path
-  Scenario: 請求密碼重設
-    Given 我在登入頁面
-    And 我有一個電子郵件為 "user@example.com" 的註冊帳號
-    When 我點擊「忘記密碼」
-    And 我輸入我的電子郵件 "user@example.com"
-    Then 我應該看到「重設連結已寄至您的電子郵件」
-    And 我應該在 5 分鐘內收到電子郵件
+  Scenario: Request password reset
+    Given I am on the login page
+    And I have a registered account with email "user@example.com"
+    When I click "Forgot Password"
+    And I enter my email "user@example.com"
+    Then I should see "Reset link sent to your email"
+    And I should receive an email within 5 minutes
 
   @AC-2 @error-handling
-  Scenario: 重設連結 24 小時後過期
-    Given 我已請求密碼重設
-    When 我在 24 小時後點擊重設連結
-    Then 我應該看到「此連結已過期」
-    And 我應該可以請求新的連結
+  Scenario: Reset link expires after 24 hours
+    Given I have requested a password reset
+    When I click the reset link after 24 hours
+    Then I should see "This link has expired"
+    And I should be offered to request a new link
 
   @AC-3 @security
-  Scenario: 未註冊電子郵件顯示通用訊息
-    Given 我在密碼重設頁面
-    When 我輸入未註冊的電子郵件
-    Then 我應該看到「重設連結已寄至您的電子郵件」
-    But 實際上不應該寄出電子郵件
+  Scenario: Unregistered email shows generic message
+    Given I am on the password reset page
+    When I enter an unregistered email
+    Then I should see "Reset link sent to your email"
+    But no email should actually be sent
 ```
 
-### 檢查清單
+### Checklist
 
 ```
-□ 所有 AC 已審查清晰度
-□ 模糊的標準已澄清
-□ 測試格式已選擇
-□ 所有 AC 已撰寫可執行測試
-□ 測試是獨立的
-□ PO 已審查並簽核
-□ 測試執行並失敗（RED）
+□ All AC reviewed for clarity
+□ Ambiguous criteria clarified
+□ Test format chosen
+□ Executable tests written for all AC
+□ Tests are independent
+□ PO reviewed and signed off
+□ Tests run and fail (RED)
 ```
 
 ---
 
-## 階段 3：開發
+## Phase 3: Development
 
-### 目的
+### Purpose
 
-由驗收測試驅動，實作功能。
+Implement the feature, driven by the acceptance tests.
 
-### 時間
+### Duration
 
-可變（取決於複雜度）
+Variable (depends on complexity)
 
-### 參與者
+### Participants
 
-- 開發人員（主要）
-- QA/測試人員（支援）
+- Developer(s) (Primary)
+- QA/Tester (Support)
 
-### 開發流程
+### Development Flow
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                        ATDD 開發流程                                          │
+│                        ATDD Development Flow                                 │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│   驗收測試（RED - 全部失敗）                                                 │
+│   Acceptance Tests (RED - All failing)                                      │
 │        │                                                                    │
 │        ▼                                                                    │
 │   ┌─────────────────────────────────────────┐                               │
-│   │ 對於每個驗收測試：                       │                               │
+│   │ For each Acceptance Test:               │                               │
 │   │                                         │                               │
-│   │   1. 識別需要的元件                     │                               │
+│   │   1. Identify needed components         │                               │
 │   │        │                                │                               │
 │   │        ▼                                │                               │
 │   │   ┌─────────────────────────────┐       │                               │
-│   │   │ TDD 循環（對於每個單元）     │       │                               │
-│   │   │  🔴 撰寫失敗的單元測試      │       │                               │
-│   │   │  🟢 實作最小程式碼          │       │                               │
-│   │   │  🔵 重構                    │       │                               │
+│   │   │ TDD Cycle (for each unit)   │       │                               │
+│   │   │  🔴 Write failing unit test │       │                               │
+│   │   │  🟢 Implement minimal code  │       │                               │
+│   │   │  🔵 Refactor                │       │                               │
 │   │   └─────────────┬───────────────┘       │                               │
 │   │                 │                       │                               │
 │   │                 ▼                       │                               │
-│   │   執行驗收測試                          │                               │
+│   │   Run Acceptance Test                   │                               │
 │   │        │                                │                               │
-│   │        ├─ 仍然失敗？→ 更多 TDD          │                               │
+│   │        ├─ Still failing? → More TDD     │                               │
 │   │        │                                │                               │
-│   │        └─ 通過？→ 下一個 AT             │                               │
+│   │        └─ Passing? → Next AT            │                               │
 │   │                                         │                               │
 │   └─────────────────────────────────────────┘                               │
 │        │                                                                    │
 │        ▼                                                                    │
-│   所有驗收測試（GREEN - 全部通過）                                           │
+│   All Acceptance Tests (GREEN - All passing)                                │
 │        │                                                                    │
 │        ▼                                                                    │
-│   重構（保持測試綠燈）                                                       │
+│   Refactor (keeping tests green)                                            │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### ATDD + BDD + TDD 整合
+### ATDD + BDD + TDD Integration
 
 ```
-層級               焦點                   參與者
+Level              Focus                   Participants
 ─────              ─────                   ────────────
-ATDD               驗收標準               PO + Dev + QA
-  │                （什麼是完成？）
+ATDD               Acceptance Criteria     PO + Dev + QA
+  │                (What is done?)
   │
   ▼
-BDD                行為情境               Dev + QA + BA
-  │                （如何運作？）
+BDD                Behavior Scenarios      Dev + QA + BA
+  │                (How it behaves?)
   │
   ▼
-TDD                單元實作               開發人員
-                   （怎麼實現？）
+TDD                Unit Implementation     Developers
+                   (How it works?)
 ```
 
-### 檢查清單
+### Checklist
 
 ```
-□ 驗收測試初始失敗（RED）
-□ BDD 情境已撰寫
-□ TDD 用於單元實作
-□ 逐步進展被追蹤
-□ 所有驗收測試通過（GREEN）
-□ 程式碼重構且整潔
-□ 程式碼已審查
-□ 準備展示
+□ Acceptance tests fail initially (RED)
+□ BDD scenarios written for features
+□ TDD used for unit implementations
+□ Incremental progress tracked
+□ All acceptance tests pass (GREEN)
+□ Code refactored and clean
+□ Code reviewed
+□ Ready for demo
 ```
 
 ---
 
-## 階段 4：展示
+## Phase 4: Demo
 
-### 目的
+### Purpose
 
-向利害關係人展示完成的功能並獲得正式驗收。
+Demonstrate the completed feature to stakeholders and get formal acceptance.
 
-### 時間
+### Duration
 
-15-30 分鐘
+15-30 minutes
 
-### 參與者
+### Participants
 
-- 產品負責人（必要）
-- 開發人員（必要）
-- QA/測試人員（必要）
-- 利害關係人（視需要）
+- Product Owner (Required)
+- Developer(s) (Required)
+- QA/Tester (Required)
+- Stakeholders (As needed)
 
-### 展示結構
+### Demo Structure
 
-| 時間 | 活動 | 主持 |
-|------|------|------|
-| 0-1 分鐘 | 背景 | Dev |
-| 1-3 分鐘 | 展示測試 | QA |
-| 3-13 分鐘 | 功能展示 | Dev |
-| 13-20 分鐘 | 回饋與問答 | PO |
-| 20-25 分鐘 | 決策 | PO |
+| Time | Activity | Lead |
+|------|----------|------|
+| 0-1 min | Context | Dev |
+| 1-3 min | Show Tests | QA |
+| 3-13 min | Feature Demo | Dev |
+| 13-20 min | Feedback & Q&A | PO |
+| 20-25 min | Decision | PO |
 
-### 展示流程
+### Demo Flow
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        展示結構                                   │
+│                        Demo Structure                            │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  1. 背景 (1 分鐘)                                                │
-│     ├─ 提醒利害關係人用戶故事                                   │
-│     └─ 展示驗收標準                                             │
+│  1. CONTEXT (1 min)                                             │
+│     ├─ Remind stakeholders of user story                        │
+│     └─ Show acceptance criteria                                 │
 │                                                                 │
-│  2. 展示測試 (2 分鐘)                                            │
-│     ├─ 現場執行驗收測試                                         │
-│     └─ 展示全部通過                                             │
+│  2. SHOW TESTS (2 min)                                          │
+│     ├─ Run acceptance tests live                                │
+│     └─ Show all passing                                         │
 │                                                                 │
-│  3. 功能展示 (5-10 分鐘)                                         │
-│     ├─ 逐一展示每個驗收標準                                     │
-│     ├─ 展示運作中的功能                                         │
-│     └─ 展示已測試的邊界案例                                     │
+│  3. FEATURE DEMO (5-10 min)                                     │
+│     ├─ Walk through each acceptance criterion                   │
+│     ├─ Show working functionality                               │
+│     └─ Demonstrate edge cases if tested                         │
 │                                                                 │
-│  4. 回饋與問答 (5 分鐘)                                          │
-│     ├─ 收集回饋                                                 │
-│     ├─ 澄清任何問題                                             │
-│     └─ 記錄任何新需求                                           │
+│  4. FEEDBACK & Q&A (5 min)                                      │
+│     ├─ Gather feedback                                          │
+│     ├─ Clarify any questions                                    │
+│     └─ Note any new requirements                                │
 │                                                                 │
-│  5. 決策 (5 分鐘)                                                │
+│  5. DECISION (5 min)                                            │
 │     │                                                           │
-│     ├─ ✅ 接受                                                  │
-│     │     故事完成，準備合併                                    │
+│     ├─ ✅ ACCEPTED                                              │
+│     │     Story complete, ready to merge                        │
 │     │                                                           │
-│     ├─ 🔄 需要精煉                                              │
-│     │     帶著新學習返回研討會                                  │
+│     ├─ 🔄 REFINEMENT NEEDED                                     │
+│     │     Return to workshop with new learnings                 │
 │     │                                                           │
-│     └─ ❌ 未接受                                                │
-│           識別差距，迭代                                        │
+│     └─ ❌ NOT ACCEPTED                                          │
+│           Identify gaps, iterate                                │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 檢查清單
+### Checklist
 
 ```
-□ 展示環境已準備
-□ 測試資料就緒
-□ 所有驗收測試通過
-□ 利害關係人已通知並出席
-□ 展示成功完成
-□ PO 決策已記錄
-□ 後續步驟已記錄
+□ Demo environment prepared
+□ Test data ready
+□ All acceptance tests passing
+□ Stakeholders notified and present
+□ Demo completed successfully
+□ PO decision recorded
+□ Next steps documented
 ```
 
 ---
 
-## 階段 5：完成
+## Phase 5: Done
 
-### 完成的定義
+### Definition of Done
 
 ```
-□ 所有驗收測試通過
-□ 產品負責人已接受
-□ 程式碼已審查並核准
-□ 程式碼已合併至主分支
-□ 文件已更新
-□ 準備發布
+□ All acceptance tests pass
+□ Product Owner accepted
+□ Code reviewed and approved
+□ Code merged to main branch
+□ Documentation updated
+□ Ready for release
 ```
 
-### 驗收後
+### Post-Acceptance
 
-1. **合併程式碼**至主分支
-2. **更新文件**（如需要）
-3. **關閉故事**在追蹤系統中
-4. **分享學習**給團隊
-5. **規劃下一個故事**
+1. **Merge code** to main branch
+2. **Update documentation** if needed
+3. **Close story** in tracking system
+4. **Share learnings** with team
+5. **Plan next story**
 
 ---
 
-## 相關資源
+## Complete Example
 
-- [驗收標準撰寫指南](./acceptance-criteria-guide.md)
-- [ATDD 核心標準](../../../../core/acceptance-test-driven-development.md)
-- [BDD 工作流程](../bdd-assistant/bdd-workflow.md)
-- [TDD 工作流程](../tdd-assistant/tdd-workflow.md)
+### User Story
+
+> **US-456**: As a customer, I want to receive order confirmation via email, so that I have a record of my purchase.
+
+### Workshop Output
+
+```markdown
+## User Story: [US-456] Order Confirmation Email
+
+**Workshop Date**: 2026-01-19
+**Participants**: Alice (PO), Bob (Dev), Carol (QA)
+
+**As a** customer
+**I want** to receive order confirmation via email
+**So that** I have a record of my purchase
+
+## Acceptance Criteria
+
+### AC-1: Email sent on successful order
+**Given** I am a logged-in customer
+**And** I have completed a purchase
+**When** my payment is processed successfully
+**Then** I should receive a confirmation email within 5 minutes
+**And** the email should contain my order number
+
+### AC-2: Email contains order details
+**Given** I have received a confirmation email
+**Then** it should contain:
+- Order number
+- List of items purchased
+- Total amount paid
+- Shipping address
+- Estimated delivery date
+
+### AC-3: Guest checkout email
+**Given** I completed checkout as a guest
+**When** my order is confirmed
+**Then** I should receive confirmation at the email I provided
+**And** the email should include a link to track my order
+
+## Out of Scope
+- SMS notification
+- Push notification
+- PDF attachment of receipt
+- Multiple email templates for different countries
+
+## Technical Notes
+- Use existing email service (SendGrid)
+- Queue emails for reliability
+- Include unsubscribe link (legal requirement)
+```
+
+### Distilled Tests (Gherkin)
+
+```gherkin
+@US-456
+Feature: Order Confirmation Email
+
+  Background:
+    Given the email service is configured
+
+  @AC-1
+  Scenario: Email sent on successful order
+    Given I am logged in as "customer@example.com"
+    And I have items in my cart
+    When I complete checkout with valid payment
+    Then I should receive an email at "customer@example.com"
+    And the email should be received within 5 minutes
+    And the email should contain my order number
+
+  @AC-2
+  Scenario: Email contains complete order details
+    Given I have completed an order with:
+      | item       | quantity | price |
+      | Widget A   | 2        | $10   |
+      | Widget B   | 1        | $25   |
+    And my shipping address is "123 Main St, City, 12345"
+    When I receive the confirmation email
+    Then it should contain the order number
+    And it should list all items and quantities
+    And it should show total "$45"
+    And it should show my shipping address
+    And it should show estimated delivery date
+
+  @AC-3
+  Scenario: Guest checkout receives email
+    Given I am not logged in
+    And I complete checkout as guest with email "guest@example.com"
+    When my order is confirmed
+    Then I should receive confirmation at "guest@example.com"
+    And the email should include a tracking link
+```
+
+---
+
+## Related Resources
+
+- [Acceptance Criteria Guide](./acceptance-criteria-guide.md)
+- [ATDD Core Standard](../../core/acceptance-test-driven-development.md)
+- [BDD Workflow](../bdd-assistant/bdd-workflow.md)
+- [TDD Workflow](../tdd-assistant/tdd-workflow.md)

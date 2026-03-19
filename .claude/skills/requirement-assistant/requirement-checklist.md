@@ -1,325 +1,317 @@
----
-source: ../../../../skills/requirement-assistant/requirement-checklist.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
-status: current
----
+# Requirement Completeness Checklist
 
-# 需求完整性檢查清單
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/requirement-assistant/requirement-checklist.md)
 
-> **語言**: [English](../../../../skills/requirement-assistant/requirement-checklist.md) | 繁體中文
-
-**版本**: 1.0.0
-**最後更新**: 2025-12-24
-**適用範圍**: Claude Code Skills
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
 
 ---
 
-## 目的
+## Purpose
 
-本文件提供用於驗證需求完整性和品質的檢查清單。
+This document provides checklists for verifying requirement completeness and quality.
 
 ---
 
-## 快速檢查清單
+## Quick Checklist
 
-在提交任何需求之前，請驗證以下要點:
+Before submitting any requirement, verify these essentials:
 
-| 項目 | 勾選 | 問題 |
+| Item | Check | Question |
 |------|:-----:|----------|
-| 問題 | [ ] | 我們要解決什麼問題？ |
-| 使用者 | [ ] | 誰會從中受益？ |
-| 價值 | [ ] | 為什麼這很重要？ |
-| 範圍 | [ ] | 包含和排除什麼？ |
-| 標準 | [ ] | 我們如何知道已完成？ |
-| 優先級 | [ ] | 這有多緊急？ |
+| Problem | [ ] | What problem are we solving? |
+| Users | [ ] | Who benefits from this? |
+| Value | [ ] | Why is this important? |
+| Scope | [ ] | What's included and excluded? |
+| Criteria | [ ] | How do we know it's done? |
+| Priority | [ ] | How urgent is this? |
 
 ---
 
-## 按需求類型的詳細檢查清單
+## Detailed Checklist by Requirement Type
 
-### 功能需求檢查清單
+### Feature Request Checklist
 
-#### 1. 問題定義
+#### 1. Problem Definition
 
-- [ ] 問題陳述清楚
-- [ ] 識別目前的痛點
-- [ ] 量化影響（如可能）
-- [ ] 了解根本原因
+- [ ] Problem is clearly stated
+- [ ] Current pain points identified
+- [ ] Impact quantified (if possible)
+- [ ] Root cause understood
 
-#### 2. 使用者情境
+#### 2. User Context
 
-- [ ] 識別目標使用者/角色
-- [ ] 描述使用者目標
-- [ ] 記錄目前的替代方案
-- [ ] 繪製使用者旅程（如複雜）
+- [ ] Target users/personas identified
+- [ ] User goals described
+- [ ] Current workarounds documented
+- [ ] User journey mapped (if complex)
 
-#### 3. 解決方案描述
+#### 3. Solution Description
 
-- [ ] 描述功能（非實作）
-- [ ] 概述使用者互動
-- [ ] 陳述預期結果
-- [ ] 定義成功指標
+- [ ] Feature described (not implementation)
+- [ ] User interactions outlined
+- [ ] Expected outcomes stated
+- [ ] Success metrics defined
 
-#### 4. 驗收標準
+#### 4. Acceptance Criteria
 
-- [ ] 所有標準都可測試
-- [ ] 涵蓋正常路徑
-- [ ] 定義錯誤情境
-- [ ] 考慮邊界情況
-- [ ] 效能標準（如適用）
+- [ ] All criteria are testable
+- [ ] Happy path covered
+- [ ] Error scenarios defined
+- [ ] Edge cases considered
+- [ ] Performance criteria (if applicable)
 
-#### 5. 範圍定義
+#### 5. Scope Definition
 
-- [ ] 列出範圍內項目
-- [ ] 列出範圍外項目
-- [ ] 注明未來考慮事項
-- [ ] 識別依賴關係
+- [ ] In-scope items listed
+- [ ] Out-of-scope items listed
+- [ ] Future considerations noted
+- [ ] Dependencies identified
 
-#### 6. 優先級與時間表
+#### 6. Priority & Timeline
 
-- [ ] 分配優先級（P0-P3 或 MoSCoW）
-- [ ] 提供業務理由
-- [ ] 注明截止日期（如有）
-- [ ] 識別發布目標
-
----
-
-### 錯誤報告檢查清單
-
-#### 1. 描述
-
-- [ ] 標題清晰且具體
-- [ ] 描述簡潔
-- [ ] 陳述影響/嚴重性
-
-#### 2. 重現
-
-- [ ] 步驟已編號
-- [ ] 步驟可重現
-- [ ] 列出先決條件
-- [ ] 提供測試資料（如需要）
-
-#### 3. 行為
-
-- [ ] 描述預期行為
-- [ ] 描述實際行為
-- [ ] 差異清楚
-
-#### 4. 證據
-
-- [ ] 附加截圖（如 UI）
-- [ ] 包含錯誤日誌（如可用）
-- [ ] 提供堆疊追蹤（如崩潰）
-
-#### 5. 環境
-
-- [ ] 作業系統和版本
-- [ ] 瀏覽器和版本（如網頁）
-- [ ] 應用程式版本
-- [ ] 相關配置
-
-#### 6. 分類
-
-- [ ] 分配嚴重性
-- [ ] 分配優先級
-- [ ] 識別元件/區域
-- [ ] 連結相關問題
+- [ ] Priority assigned (P0-P3 or MoSCoW)
+- [ ] Business justification provided
+- [ ] Deadline noted (if any)
+- [ ] Release target identified
 
 ---
 
-### 技術任務檢查清單
+### Bug Report Checklist
 
-#### 1. 情境
+#### 1. Description
 
-- [ ] 為什麼需要這個？
-- [ ] 它解決什麼問題？
-- [ ] 什麼觸發了這個任務？
+- [ ] Title is clear and specific
+- [ ] Description is concise
+- [ ] Impact/severity stated
 
-#### 2. 技術細節
+#### 2. Reproduction
 
-- [ ] 描述方法
-- [ ] 列出受影響的元件
-- [ ] 注明資料庫變更
-- [ ] 注明 API 變更
+- [ ] Steps are numbered
+- [ ] Steps are reproducible
+- [ ] Prerequisites listed
+- [ ] Test data provided (if needed)
 
-#### 3. 範圍
+#### 3. Behavior
 
-- [ ] 將變更什麼？
-- [ ] 將不會變更什麼？
-- [ ] 處理向後相容性
+- [ ] Expected behavior described
+- [ ] Actual behavior described
+- [ ] Difference is clear
 
-#### 4. 標準
+#### 4. Evidence
 
-- [ ] 完成定義清楚
-- [ ] 定義測試需求
-- [ ] 識別文件需求
+- [ ] Screenshots attached (if UI)
+- [ ] Error logs included (if available)
+- [ ] Stack trace provided (if crash)
 
-#### 5. 風險
+#### 5. Environment
 
-- [ ] 識別技術風險
-- [ ] 注明緩解策略
-- [ ] 回滾計畫（如部署）
+- [ ] OS and version
+- [ ] Browser and version (if web)
+- [ ] App version
+- [ ] Relevant configuration
 
----
+#### 6. Classification
 
-## INVEST 驗證
-
-使用此方法驗證使用者故事:
-
-### Independent（獨立）
-
-- [ ] 可以在沒有其他故事的情況下交付
-- [ ] 沒有阻塞依賴關係
-- [ ] 可以自由排定優先級
-
-**如果否**: 考慮與依賴故事合併或重新定義範圍。
-
-### Negotiable（可協商）
-
-- [ ] 實作細節未鎖定
-- [ ] 有技術討論空間
-- [ ] 專注於「做什麼」，而非「如何做」
-
-**如果否**: 移除實作細節，專注於結果。
-
-### Valuable（有價值）
-
-- [ ] 為使用者/利害關係人提供價值
-- [ ] 解決真實問題
-- [ ] 好處清楚
-
-**如果否**: 重新考慮是否應該執行。
-
-### Estimable（可估計）
-
-- [ ] 團隊可以估計工作量
-- [ ] 了解範圍
-- [ ] 沒有重大未知數
-
-**如果否**: 首先需要探索/研究任務。
-
-### Small（小型）
-
-- [ ] 可以在一個 sprint 內完成
-- [ ] 通常 1-5 天的工作量
-- [ ] 單一連貫的工作部分
-
-**如果否**: 拆分成更小的故事。
-
-### Testable（可測試）
-
-- [ ] 清楚的驗收標準
-- [ ] 可以編寫自動化測試
-- [ ] 完成定義明確
-
-**如果否**: 添加具體、可衡量的標準。
+- [ ] Severity assigned
+- [ ] Priority assigned
+- [ ] Component/area identified
+- [ ] Related issues linked
 
 ---
 
-## 驗收標準品質檢查
+### Technical Task Checklist
 
-對於每個驗收標準:
+#### 1. Context
 
-| 品質 | 勾選 | 範例 |
+- [ ] Why is this needed?
+- [ ] What problem does it solve?
+- [ ] What triggered this task?
+
+#### 2. Technical Details
+
+- [ ] Approach described
+- [ ] Affected components listed
+- [ ] Database changes noted
+- [ ] API changes noted
+
+#### 3. Scope
+
+- [ ] What will be changed?
+- [ ] What will NOT be changed?
+- [ ] Backward compatibility addressed
+
+#### 4. Criteria
+
+- [ ] Definition of done clear
+- [ ] Testing requirements defined
+- [ ] Documentation needs identified
+
+#### 5. Risks
+
+- [ ] Technical risks identified
+- [ ] Mitigation strategies noted
+- [ ] Rollback plan (if deployment)
+
+---
+
+## INVEST Validation
+
+Use this to validate user stories:
+
+### Independent
+
+- [ ] Can be delivered without other stories
+- [ ] No blocking dependencies
+- [ ] Can be prioritized freely
+
+**If NO**: Consider combining with dependent story or redefining scope.
+
+### Negotiable
+
+- [ ] Implementation details not locked in
+- [ ] Room for technical discussion
+- [ ] Focus on WHAT, not HOW
+
+**If NO**: Remove implementation specifics, focus on outcome.
+
+### Valuable
+
+- [ ] Delivers value to user/stakeholder
+- [ ] Solves a real problem
+- [ ] Benefit is clear
+
+**If NO**: Reconsider if this should be done at all.
+
+### Estimable
+
+- [ ] Team can estimate effort
+- [ ] Scope is understood
+- [ ] No major unknowns
+
+**If NO**: Spike/research task needed first.
+
+### Small
+
+- [ ] Can complete in one sprint
+- [ ] Typically 1-5 days effort
+- [ ] Single coherent piece of work
+
+**If NO**: Break into smaller stories.
+
+### Testable
+
+- [ ] Clear acceptance criteria
+- [ ] Can write automated tests
+- [ ] Definition of done is unambiguous
+
+**If NO**: Add specific, measurable criteria.
+
+---
+
+## Acceptance Criteria Quality Check
+
+For each acceptance criterion:
+
+| Quality | Check | Example |
 |---------|:-----:|---------|
-| 具體 | [ ] | "登入按鈕為藍色 (#007bff)" 而非 "按鈕看起來不錯" |
-| 可衡量 | [ ] | "回應 < 200ms" 而非 "快速回應" |
-| 可達成 | [ ] | 技術上可行 |
-| 相關 | [ ] | 與需求相關 |
-| 可測試 | [ ] | 可以編寫測試案例 |
+| Specific | [ ] | "Login button is blue (#007bff)" not "Button looks good" |
+| Measurable | [ ] | "Response < 200ms" not "Fast response" |
+| Achievable | [ ] | Technically feasible |
+| Relevant | [ ] | Related to the requirement |
+| Testable | [ ] | Can write a test case |
 
-### 常見問題
+### Common Issues
 
-| 問題 | 不良範例 | 良好範例 |
+| Issue | Bad Example | Good Example |
 |-------|-------------|--------------|
-| 過於模糊 | "系統運作良好" | "系統在 500ms 內回傳 200 OK" |
-| 主觀 | "UI 使用者友善" | "使用者可以在 3 次點擊內完成結帳" |
-| 缺少邊界情況 | "使用者可以上傳檔案" | "使用者可以上傳 1-10MB 檔案；較大檔案顯示錯誤" |
-| 實作細節 | "使用 Redis 快取" | "儀表板在 1 秒內載入" |
+| Too vague | "System works well" | "System returns 200 OK within 500ms" |
+| Subjective | "UI is user-friendly" | "User can complete checkout in 3 clicks" |
+| Missing edge cases | "User can upload file" | "User can upload 1-10MB files; error shown for larger files" |
+| Implementation detail | "Use Redis cache" | "Dashboard loads in under 1 second" |
 
 ---
 
-## 最終審查檢查清單
+## Final Review Checklist
 
-在提交開發之前：
+Before submitting for development:
 
-### 內容品質
+### Content Quality
 
-- [ ] 標題清楚且具描述性
-- [ ] 描述完整
-- [ ] 沒有模糊的語言
-- [ ] 沒有未陳述的假設
-- [ ] 技術術語已解釋
+- [ ] Title is clear and descriptive
+- [ ] Description is complete
+- [ ] No ambiguous language
+- [ ] No assumptions unstated
+- [ ] Technical jargon explained
 
-### 完整性
+### Completeness
 
-- [ ] 所有必填欄位已填寫
-- [ ] 驗收標準已定義
-- [ ] 範圍邊界清楚
-- [ ] 依賴項已列出
-- [ ] 優先級已分配
+- [ ] All required fields filled
+- [ ] Acceptance criteria defined
+- [ ] Scope boundaries clear
+- [ ] Dependencies listed
+- [ ] Priority assigned
 
-### 一致性
+### Consistency
 
-- [ ] 遵循團隊範本
-- [ ] 一致的術語
-- [ ] 已連結到相關項目
-- [ ] 標籤正確應用
+- [ ] Follows team templates
+- [ ] Consistent terminology
+- [ ] Linked to related items
+- [ ] Labels applied correctly
 
-### 準備開發
+### Ready for Development
 
-- [ ] 團隊可以估算工作量
-- [ ] 沒有阻塞的問題
-- [ ] 利害關係人批准（如果需要）
-- [ ] 設計資產已準備（如果是 UI）
+- [ ] Team can estimate effort
+- [ ] No blocking questions
+- [ ] Stakeholder approval (if needed)
+- [ ] Design assets ready (if UI)
 
 ---
 
-## 檢查結果
+## Checklist Results
 
-**需求標題**：___________________________
+**Requirement Title**: ___________________________
 
-**檢查者**：___________________________
+**Checked By**: ___________________________
 
-**日期**：___________________________
+**Date**: ___________________________
 
-| 區段 | 完成 | 備註 |
-|------|:----:|------|
-| 問題定義 | [ ] | |
-| 使用者情境 | [ ] | |
-| 解決方案描述 | [ ] | |
-| 驗收標準 | [ ] | |
-| 範圍定義 | [ ] | |
-| 優先級 | [ ] | |
-| INVEST 驗證 | [ ] | |
+| Section | Complete | Notes |
+|---------|:--------:|-------|
+| Problem Definition | [ ] | |
+| User Context | [ ] | |
+| Solution Description | [ ] | |
+| Acceptance Criteria | [ ] | |
+| Scope Definition | [ ] | |
+| Priority | [ ] | |
+| INVEST Validation | [ ] | |
 
-**準備開發**：[ ] 是  [ ] 否
+**Ready for Development**: [ ] Yes  [ ] No
 
-**行動項目**：
+**Action Items**:
 - ___________________________
 - ___________________________
 
 ---
 
-## 相關標準
+## Related Standards
 
-- [需求撰寫指南](./requirement-writing.md)
-- [規格驅動開發](../../core/spec-driven-development.md)
-
----
-
-## 版本歷史
-
-| 版本 | 日期 | 變更 |
-|------|------|------|
-| 1.0.0 | 2025-12-24 | 新增：標準區段（目的、相關標準、版本歷史、授權） |
+- [Requirement Writing Guide](./requirement-writing.md)
+- [Spec-Driven Development](../../core/spec-driven-development.md)
 
 ---
 
-## 授權
+## Version History
 
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
 
-**來源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## License
+
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

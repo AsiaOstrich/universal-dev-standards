@@ -1,111 +1,180 @@
 ---
-source: ../../../../skills/code-review-assistant/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
-status: current
+scope: universal
 description: |
-  系統化的程式碼審查檢查清單和提交前品質關卡。
-  使用時機：審查 pull request、檢查程式碼品質、提交程式碼前。
-  關鍵字：review, PR, pull request, checklist, quality, commit, 審查, 檢查, 簽入。
+  Systematic code review checklist and pre-commit quality gates for PRs.
+  Use when: reviewing pull requests, checking code quality, before committing code.
+  Keywords: review, PR, pull request, checklist, quality, commit, 審查, 檢查, 簽入.
 ---
 
-# 程式碼審查助理
+# Code Review Assistant
 
-> **語言**: [English](../../../../skills/code-review-assistant/SKILL.md) | 繁體中文
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/code-review-assistant/SKILL.md)
 
-**版本**: 1.0.0
-**最後更新**: 2025-12-24
-**適用範圍**: Claude Code Skills
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
 
 ---
 
-## 目的
+> **Core Standard**: This skill implements [Code Review Checklist](../../core/code-review-checklist.md). For comprehensive methodology documentation, refer to the core standard.
 
-此技能提供系統化的程式碼審查和提交前驗證檢查清單。
+## Purpose
 
-## 快速參考
+This skill provides systematic checklists for code review and pre-commit verification.
 
-### 註解前綴
+## Quick Reference
 
-| 前綴 | 意義 | 需要採取的行動 |
+### Comment Prefixes
+
+| Prefix | Meaning | Action Required |
 |--------|---------|------------------|
-| **❗ BLOCKING** | 合併前必須修正 | 🔴 必要 |
-| **⚠️ IMPORTANT** | 應該修正，但不阻擋合併 | 🟡 建議 |
-| **💡 SUGGESTION** | 可改進之處 | 🟢 選擇性 |
-| **❓ QUESTION** | 需要釐清 | 🔵 討論 |
-| **📝 NOTE** | 資訊性質，無需行動 | ⚪ 資訊 |
+| **❗ BLOCKING** | Must fix before merge | 🔴 Required |
+| **⚠️ IMPORTANT** | Should fix, but not blocking | 🟡 Recommended |
+| **💡 SUGGESTION** | Nice-to-have improvement | 🟢 Optional |
+| **❓ QUESTION** | Need clarification | 🔵 Discuss |
+| **📝 NOTE** | Informational, no action | ⚪ Informational |
 
-### 審查檢查清單類別
+### Review Checklist Categories
 
-1. **功能性** - 是否正常運作？
-2. **設計** - 架構是否正確？
-3. **品質** - 程式碼是否乾淨？
-4. **可讀性** - 是否容易理解？
-5. **測試** - 涵蓋率是否足夠？
-6. **安全性** - 是否有漏洞？
-7. **效能** - 是否高效？
-8. **錯誤處理** - 是否妥善處理？
-9. **文件** - 是否更新？
-10. **依賴項** - 是否必要？
+1. **Functionality** - Does it work?
+2. **Design** - Right architecture?
+3. **Quality** - Clean code?
+4. **Readability** - Easy to understand?
+5. **Tests** - Adequate coverage?
+6. **Security** - No vulnerabilities?
+7. **Performance** - Efficient?
+8. **Errors** - Properly handled?
+9. **Docs** - Updated?
+10. **Dependencies** - Necessary?
 
-### 提交前檢查清單
+### Pre-Commit Checklist
 
-- [ ] 建置成功（零錯誤、零警告）
-- [ ] 所有測試通過
-- [ ] 程式碼符合專案標準
-- [ ] 無安全漏洞
-- [ ] 文件已更新
-- [ ] 分支已與目標同步
+- [ ] Build succeeds (zero errors, zero warnings)
+- [ ] All tests pass
+- [ ] Code follows project standards
+- [ ] No security vulnerabilities
+- [ ] Documentation updated
+- [ ] Branch synced with target
 
-## 詳細指南
+## Detailed Guidelines
 
-完整標準請參閱：
-- [審查檢查清單](./review-checklist.md)
-- [提交前檢查清單](./checkin-checklist.md)
+For complete standards, see:
+- [Review Checklist](./review-checklist.md)
+- [Pre-Commit Checklist](./checkin-checklist.md)
 
-## 審查註解範例
+### AI-Optimized Format (Token-Efficient)
+
+For AI assistants, use the YAML format file for reduced token usage:
+- Base standard: `ai/standards/code-review.ai.yaml`
+
+## Example Review Comments
 
 ```markdown
-❗ BLOCKING: 此處有潛在的 SQL injection 漏洞。
-請使用參數化查詢而非字串串接。
+❗ BLOCKING: Potential SQL injection vulnerability here.
+Please use parameterized queries instead of string concatenation.
 
-⚠️ IMPORTANT: 此方法做太多事情了（120 行）。
-考慮將驗證邏輯提取到獨立方法。
+⚠️ IMPORTANT: This method is doing too much (120 lines).
+Consider extracting validation logic to a separate method.
 
-💡 SUGGESTION: 考慮在此使用 Map 而非陣列以達到 O(1) 查找。
+💡 SUGGESTION: Consider using a Map here instead of an array for O(1) lookup.
 
-❓ QUESTION: 為什麼這裡使用 setTimeout 而不是 async/await？
+❓ QUESTION: Why are we using setTimeout here instead of async/await?
 
-📝 NOTE: 這是個聰明的解決方案！很好地運用了 reduce。
+📝 NOTE: This is a clever solution! Nice use of reduce here.
 ```
 
-## 核心原則
+## Core Principles
 
-1. **保持尊重** - 審查程式碼，而非審查人
-2. **保持徹底** - 檢查功能性，而非僅檢查語法
-3. **保持及時** - 在 24 小時內完成審查
-4. **保持清晰** - 解釋「為什麼」，而非僅「是什麼」
+1. **Be Respectful** - Review code, not the person
+2. **Be Thorough** - Check functionality, not just syntax
+3. **Be Timely** - Review within 24 hours
+4. **Be Clear** - Explain WHY, not just WHAT
 
 ---
 
-## 配置偵測
+## Checkin Quality Gates (YAML Compressed)
 
-此技能支援專案特定配置。
+```yaml
+# === MANDATORY CHECKLIST ===
+build:
+  - code_compiles: "zero errors, zero warnings"
+  - dependencies: "all installed, versions locked"
+  verify: "run build locally, exit code 0"
 
-### 偵測順序
+test:
+  - existing_pass: "100% pass rate (unit/integration/e2e)"
+  - new_code_tested: "features→tests, bugfix→regression"
+  - coverage: "not decreased, critical paths tested"
+  verify: "run all suites, review coverage report"
 
-1. 檢查 `CONTRIBUTING.md` 的「Disabled Skills」區段
-   - 如果此技能被列出，則在此專案中停用
-2. 檢查 `CONTRIBUTING.md` 的「Code Review Language」區段
-3. 若未找到，**預設使用英文**
+quality:
+  - standards: "naming, formatting, comments"
+  - no_smells: "methods≤50 lines, nesting≤3, complexity≤10, no duplication"
+  - security: "no hardcoded secrets, no SQLi, no XSS, no insecure deps"
+  verify: "run linter, static analysis, security scanner"
 
-### 首次設定
+docs:
+  - api_docs: "public APIs documented"
+  - readme: "updated if needed"
+  - changelog: "user-facing changes → [Unreleased]"
 
-如果未找到配置且情境不明確：
+workflow:
+  - branch_naming: "feature/, fix/, docs/, chore/"
+  - commit_message: "conventional commits format"
+  - synced: "merged/rebased with target branch"
 
-1. 詢問使用者：「此專案尚未配置程式碼審查語言。您想使用哪個選項？（English / 中文）」
-2. 使用者選擇後，建議在 `CONTRIBUTING.md` 中記錄：
+# === NEVER COMMIT WHEN ===
+blockers:
+  - "Build has errors"
+  - "Tests failing"
+  - "Feature incomplete (would break functionality)"
+  - "Contains WIP/TODO in critical logic"
+  - "Contains debugging code (console.log, print)"
+  - "Contains commented-out code blocks"
+
+# === COMMIT TIMING ===
+good_times:
+  - "Completed functional unit"
+  - "Specific bug fixed with regression test"
+  - "Independent refactor (all tests pass)"
+  - "Runnable state"
+
+bad_times:
+  - "Build failures"
+  - "Test failures"
+  - "Incomplete features"
+  - "Experimental code with TODOs"
+
+# === GRANULARITY ===
+ideal_size:
+  files: "1-10 (split if >10)"
+  lines: "50-300"
+  scope: "single concern"
+
+split_principle:
+  combine: ["feature + its tests", "tightly related multi-file"]
+  separate: ["Feature A + Feature B", "refactor + new feature", "bugfix + incidental refactor"]
+```
+
+---
+
+## Configuration Detection
+
+This skill supports project-specific configuration.
+
+### Detection Order
+
+1. Check `CONTRIBUTING.md` for "Disabled Skills" section
+   - If this skill is listed, it is disabled for this project
+2. Check `CONTRIBUTING.md` for "Code Review Language" section
+3. If not found, **default to English**
+
+### First-Time Setup
+
+If no configuration found and context is unclear:
+
+1. Ask the user: "This project hasn't configured code review language. Which option would you like? (English / 中文)"
+2. After user selection, suggest documenting in `CONTRIBUTING.md`:
 
 ```markdown
 ## Code Review Language
@@ -114,9 +183,9 @@ This project uses **[chosen option]** for code review comments.
 <!-- Options: English | 中文 -->
 ```
 
-### 配置範例
+### Configuration Example
 
-在專案的 `CONTRIBUTING.md` 中：
+In project's `CONTRIBUTING.md`:
 
 ```markdown
 ## Code Review Language
@@ -130,24 +199,24 @@ BLOCKING, IMPORTANT, SUGGESTION, QUESTION, NOTE
 
 ---
 
-## 相關標準
+## Related Standards
 
-- [Code Review Checklist](../../core/code-review-checklist.md)
-- [Checkin Standards](../../core/checkin-standards.md)
-- [Testing Standards](../../core/testing-standards.md)
+- [Code Review Checklist](../../core/code-review-checklist.md) - Core code review standard
+- [Checkin Standards](../../core/checkin-standards.md) - Pre-commit quality gates
+- [Testing Standards](../../core/testing-standards.md) - Testing requirements
 
 ---
 
-## 版本歷史
+## Version History
 
-| 版本 | 日期 | 變更內容 |
+| Version | Date | Changes |
 |---------|------|---------|
-| 1.0.0 | 2025-12-24 | 新增：標準區段（目的、相關標準、版本歷史、授權） |
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
 
 ---
 
-## 授權
+## License
 
-此技能依據 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權釋出。
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

@@ -67,7 +67,7 @@ When issues are detected (modified/missing files), CLI automatically enters inte
 
 ```
 ──────────────────────────────────────────────────
-⚠ Modified: .standards/commit-message.ai.yaml
+⚠ Modified: .standards/commit-message-guide.md
 
 ? What would you like to do?
 ❯ View diff

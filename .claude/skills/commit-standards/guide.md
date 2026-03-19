@@ -1,32 +1,40 @@
 ---
-source: ../../../../skills/commit-standards/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
-status: current
+scope: universal
 description: |
-  遵循約定式提交標準格式化提交訊息。
-  使用時機：撰寫提交訊息、git commit、檢視提交歷史。
-  關鍵字：commit、git、message、conventional、feat、fix、refactor。
+  Format commit messages following conventional commits standard.
+  Use when: writing commit messages, git commit, reviewing commit history.
+  Keywords: commit, git, message, conventional, feat, fix, refactor.
 ---
 
-# 提交訊息標準
+# Commit Message Standards
 
-> **語言**: [English](../../../../skills/commit-standards/SKILL.md) | 繁體中文
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/commit-standards/SKILL.md)
 
-**版本**: 1.0.0
-**最後更新**: 2025-12-24
-**適用範圍**: Claude Code Skills
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
 
 ---
 
-## 目的
+> **Core Standard**: This skill implements [Commit Message Guide](../../core/commit-message-guide.md). For comprehensive methodology documentation, refer to the core standard.
 
-此技能確保遵循約定式提交標準，撰寫一致且有意義的提交訊息。
+## Purpose
 
-## 快速參考
+This skill ensures consistent, meaningful commit messages following conventional commits.
 
-### 基本格式
+# [Physical Binding]
+## Reality Check
+Before submitting the commit message, you MUST:
+1. Verify Environment: Run `uds check --standard commit-message` to ensure `commitlint` is configured.
+2. Verify Content: Run `echo "{message}" | npx commitlint` to validate the generated message.
+3. IF exit_code != 0:
+   - Read the error message.
+   - REVISE the message.
+   - RETRY validation until it passes.
+
+## Quick Reference
+
+### Basic Format
 
 ```
 <type>(<scope>): <subject>
@@ -36,39 +44,48 @@ description: |
 <footer>
 ```
 
-### 提交類型
+### Commit Types
 
-| English | 使用時機 |
-|---------|----------|
-| `feat` | 新功能 |
-| `fix` | 錯誤修正 |
-| `refactor` | 程式碼重構（無功能變更） |
-| `docs` | 僅文件變更 |
-| `style` | 格式調整（無程式碼邏輯變更） |
-| `test` | 新增或更新測試 |
-| `perf` | 效能改善 |
-| `build` | 建置系統或依賴項目 |
-| `ci` | CI/CD 流程變更 |
-| `chore` | 維護任務 |
-| `revert` | 還原先前的提交 |
-| `security` | 安全漏洞修正 |
+| English | When to Use |
+|---------|-------------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `refactor` | Code refactoring (no functional change) |
+| `docs` | Documentation only |
+| `style` | Formatting (no code logic change) |
+| `test` | Adding or updating tests |
+| `perf` | Performance improvement |
+| `build` | Build system or dependencies |
+| `ci` | CI/CD pipeline changes |
+| `chore` | Maintenance tasks |
+| `revert` | Revert previous commit |
+| `security` | Security vulnerability fix |
 
-### 主旨行規則
+### Subject Line Rules
 
-1. **長度**: ≤72 字元（50 為理想）
-2. **時態**: 祈使語氣（使用 "Add feature" 而非 "Added feature"）
-3. **大小寫**: 首字母大寫
-4. **無句點**: 結尾不加句點
+1. **Length**: ≤72 characters (50 ideal)
+2. **Tense**: Imperative mood ("Add feature" not "Added feature")
+3. **Capitalization**: First letter capitalized
+4. **No period**: Don't end with a period
 
-## 詳細指南
+## Detailed Guidelines
 
-完整標準請參考：
-- [約定式提交指南](./conventional-commits.md)
-- [語言選項](./language-options.md)
+For complete standards, see:
+- [Conventional Commits Guide](./conventional-commits.md)
+- [Language Options](./language-options.md)
 
-## 範例
+### AI-Optimized Format (Token-Efficient)
 
-### ✅ 良好範例
+For AI assistants, use the YAML format files for reduced token usage:
+- Base standard: `ai/standards/commit-message.ai.yaml`
+- Language options:
+  - English: `ai/options/commit-message/english.ai.yaml`
+  - Traditional Chinese: `ai/options/commit-message/traditional-chinese.ai.yaml`
+  - Bilingual: `ai/options/commit-message/bilingual.ai.yaml`
+
+## Examples
+
+### ✅ Good Examples
 
 ```
 feat(auth): Add OAuth2 Google login support
@@ -77,18 +94,18 @@ refactor(database): Extract query builder to separate class
 docs(readme): Update installation instructions for Node 20
 ```
 
-### ❌ 不良範例
+### ❌ Bad Examples
 
 ```
-fixed bug                    # 太模糊，無範圍
-feat(auth): added google login  # 過去式
-Update stuff.                # 有句點，模糊
-WIP                          # 不具描述性
+fixed bug                    # Too vague, no scope
+feat(auth): added google login  # Past tense
+Update stuff.                # Period, vague
+WIP                          # Not descriptive
 ```
 
-## 主體內容指南
+## Body Guidelines
 
-使用主體內容說明變更的**原因（WHY）**：
+Use the body to explain **WHY** the change was made:
 
 ```
 fix(api): Resolve race condition in concurrent user updates
@@ -104,9 +121,9 @@ What this fix does:
 Fixes #789
 ```
 
-## 破壞性變更
+## Breaking Changes
 
-務必在頁腳記錄破壞性變更：
+Always document breaking changes in footer:
 
 ```
 feat(api): Change user endpoint response format
@@ -118,32 +135,96 @@ Migration guide:
 2. Use created_at instead of createdAt
 ```
 
-## 議題參照
+## Issue References
 
 ```
-Closes #123    # 自動關閉議題
-Fixes #456     # 自動關閉議題
-Refs #789      # 連結但不關閉
+Closes #123    # Automatically closes issue
+Fixes #456     # Automatically closes issue
+Refs #789      # Links without closing
 ```
 
 ---
 
-## 配置檢測
+## Language Selection Decision (YAML Compressed)
 
-此技能支援專案特定的語言配置。
+```yaml
+# === LANGUAGE DECISION MATRIX ===
+decision_tree:
+  - q: "Open source project?"
+    y: "→ English (international contributors)"
+    n: next
+  - q: "International/distributed team?"
+    y: "→ English (common language)"
+    n: next
+  - q: "Single-language team?"
+    y: "→ Team's primary language OR English"
+    n: "→ Bilingual (subject:EN, body:local)"
 
-### 檢測順序
+recommendation_matrix:
+  open_source: {lang: English, reason: "international contributors"}
+  international_team: {lang: English, reason: "common language"}
+  local_team_EN: {lang: English, reason: "tool compatibility, career mobility"}
+  local_team_ZH: {lang: "繁體中文", reason: "clarity, team preference"}
+  mixed: {lang: Bilingual, reason: "best of both worlds"}
 
-1. 檢查 `CONTRIBUTING.md` 中的「Commit Message Language」區段
-2. 若找到，使用指定的選項（English / Traditional Chinese / Bilingual）
-3. 若未找到，**預設使用 English** 以獲得最大工具相容性
+# === TOOL COMPATIBILITY ===
+tool_support:
+  full_unicode:
+    - GitHub/GitLab/Bitbucket
+    - VS Code/JetBrains
+    - SourceTree/GitKraken
+  potential_issues:
+    - "Some CI/CD log viewers"
+    - "Legacy terminal encodings"
+    - "Email notifications (rare)"
 
-### 首次設定
+# === FORMAT BY LANGUAGE ===
+english:
+  types: [feat, fix, refactor, docs, style, test, perf, build, ci, chore, revert, security]
+  example: "feat(auth): add OAuth2 Google login support"
 
-若未找到配置且情境不明確：
+traditional_chinese:
+  types: [功能, 修復, 重構, 文件, 樣式, 測試, 效能, 建置, CI, 雜項, 回退, 安全]
+  example: "功能(認證): 新增 OAuth2 Google 登入支援"
 
-1. 詢問使用者：「此專案尚未配置提交訊息語言偏好。您想使用哪個選項？（English / 中文 / Bilingual）」
-2. 使用者選擇後，建議記錄於 `CONTRIBUTING.md`：
+bilingual:
+  format: "type(scope): English subject. 中文主旨.\n\nEnglish body\n\n中文 body\n\nfooter"
+  example: |
+    feat(auth): Add OAuth2 Google login support. 新增 OAuth2 Google 登入支援.
+
+    Implement Google OAuth2 authentication flow for user login.
+
+    - Add Google OAuth2 SDK integration
+    - Create callback endpoint for OAuth flow
+    - Store refresh tokens securely
+
+    實作 Google OAuth2 認證流程供使用者登入。
+
+    - 整合 Google OAuth2 SDK
+    - 建立 OAuth 流程回呼端點
+    - 安全儲存更新權杖
+
+    Closes #123
+```
+
+---
+
+## Configuration Detection
+
+This skill supports project-specific language configuration.
+
+### Detection Order
+
+1. Check `CONTRIBUTING.md` for "Commit Message Language" section
+2. If found, use the specified option (English / Traditional Chinese / Bilingual)
+3. If not found, **default to English** for maximum tool compatibility
+
+### First-Time Setup
+
+If no configuration found and context is unclear:
+
+1. Ask the user: "This project hasn't configured commit message language preference. Which option would you like to use? (English / 中文 / Bilingual)"
+2. After user selection, suggest documenting in `CONTRIBUTING.md`:
 
 ```markdown
 ## Commit Message Language
@@ -152,9 +233,9 @@ This project uses **[chosen option]** commit types.
 <!-- Options: English | Traditional Chinese | Bilingual -->
 ```
 
-### 配置範例
+### Configuration Example
 
-在專案的 `CONTRIBUTING.md` 中：
+In project's `CONTRIBUTING.md`:
 
 ```markdown
 ## Commit Message Language
@@ -167,24 +248,24 @@ feat, fix, refactor, docs, style, test, perf, build, ci, chore, revert, security
 
 ---
 
-## 相關標準
+## Related Standards
 
-- [提交訊息指南](../../../../core/commit-message-guide.md)
-- [Git 工作流程](../../../../core/git-workflow.md)
-- [變更日誌標準](../../../../core/changelog-standards.md)
-
----
-
-## 版本歷史
-
-| 版本 | 日期 | 變更內容 |
-|------|------|----------|
-| 1.0.0 | 2025-12-24 | 新增：標準區段（目的、相關標準、版本歷史、授權） |
+- [Commit Message Guide](../../core/commit-message-guide.md)
+- [Git Workflow](../../core/git-workflow.md)
+- [Changelog Standards](../../core/changelog-standards.md)
 
 ---
 
-## 授權
+## Version History
 
-此技能以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 釋出。
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
 
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

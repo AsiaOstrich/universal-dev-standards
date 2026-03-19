@@ -1,30 +1,22 @@
----
-source: ../../../../skills/requirement-assistant/requirement-writing.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
-status: current
----
+# Requirement Writing Guide
 
-# 需求撰寫指南
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/requirement-assistant/requirement-writing.md)
 
-> **語言**: [English](../../../../skills/requirement-assistant/requirement-writing.md) | 繁體中文
-
-**版本**: 1.0.0
-**最後更新**: 2025-12-24
-**適用範圍**: Claude Code Skills
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
 
 ---
 
-## 目的
+## Purpose
 
-本文件提供撰寫清晰有效需求的完整指南。
+This document provides comprehensive guidelines for writing clear and effective requirements.
 
 ---
 
-## 使用者故事格式
+## User Story Format
 
-### 標準範本
+### Standard Template
 
 ```
 As a [user role],
@@ -32,80 +24,80 @@ I want [goal/feature],
 So that [benefit/value].
 ```
 
-### 範例
+### Examples
 
-**良好**:
+**Good**:
 ```
 As a registered user,
 I want to reset my password via email,
 So that I can regain access to my account if I forget my password.
 ```
 
-**不良**:
+**Bad**:
 ```
 Users should be able to reset passwords.
-(缺少：誰、為什麼、驗收標準)
+(Missing: who, why, acceptance criteria)
 ```
 
 ---
 
-## INVEST 原則
+## INVEST Criteria
 
-### I - 獨立性（Independent）
+### I - Independent
 
-- 故事可以獨立開發和交付
-- 對其他故事的依賴最小
-- 可以靈活地排定優先級和排程
+- Story can be developed and delivered independently
+- Minimal dependencies on other stories
+- Can be prioritized and scheduled flexibly
 
-**測試**：「我們可以在不完成另一個故事的情況下交付這個嗎？」
+**Test**: "Can we deliver this without finishing another story first?"
 
-### N - 可協商性（Negotiable）
+### N - Negotiable
 
-- 細節不是一成不變的
-- 是對話的起點，而不是合約
-- 實作方法可以討論
+- Details are not locked in stone
+- Conversation starter, not a contract
+- Implementation approach can be discussed
 
-**測試**：「有技術討論的空間嗎？」
+**Test**: "Is there room for technical discussion?"
 
-### V - 有價值性（Valuable）
+### V - Valuable
 
-- 為使用者或利害關係人提供價值
-- 解決實際問題
-- 有助於商業目標
+- Delivers value to users or stakeholders
+- Solves a real problem
+- Contributes to business goals
 
-**測試**：「這解決了什麼問題？誰會受益？」
+**Test**: "What problem does this solve? Who benefits?"
 
-### E - 可估算性（Estimable）
+### E - Estimable
 
-- 團隊可以估算工作量
-- 範圍理解得足夠充分
-- 沒有重大的未知因素
+- Team can estimate the effort
+- Scope is understood well enough
+- No major unknowns
 
-**測試**：「我們可以給出粗略估算嗎？」
+**Test**: "Can we give a rough estimate?"
 
-### S - 小型化（Small）
+### S - Small
 
-- 可以在一個衝刺內完成
-- 通常 1-5 天的工作
-- 如果更大，拆分成更小的故事
+- Can be completed in one sprint
+- Typically 1-5 days of work
+- If larger, break into smaller stories
 
-**測試**：「我們可以在一個衝刺內完成這個嗎？」
+**Test**: "Can we finish this in one sprint?"
 
-### T - 可測試性（Testable）
+### T - Testable
 
-- 驗收標準清楚
-- 可以編寫自動化測試
-- 完成的定義清楚
+- Clear acceptance criteria
+- Can write automated tests
+- Definition of done is clear
 
-**測試**：「我們如何知道這完成了？」
+**Test**: "How do we know this is done?"
 
 ---
 
-## 驗收標準
+## Acceptance Criteria
 
-### 格式選項
+### Format Options
 
-#### Given-When-Then (BDD 風格)
+#### Given-When-Then (BDD Style)
 
 ```gherkin
 Given [precondition]
@@ -113,14 +105,14 @@ When [action]
 Then [expected result]
 ```
 
-**範例**:
+**Example**:
 ```gherkin
 Given I am on the login page
 When I enter valid credentials and click login
 Then I should be redirected to the dashboard
 ```
 
-#### Checkbox 風格
+#### Checkbox Style
 
 ```markdown
 - [ ] User can upload files up to 10MB
@@ -129,31 +121,31 @@ Then I should be redirected to the dashboard
 - [ ] Error message shown if upload fails
 ```
 
-### 撰寫良好的驗收標準
+### Writing Good Acceptance Criteria
 
-| 品質 | 良好 | 不良 |
+| Quality | Good | Bad |
 |---------|------|-----|
-| **具體** | "Error message displays within 2 seconds" | "Error handling works" |
-| **可衡量** | "Response time < 500ms" | "System is fast" |
-| **可測試** | "User sees confirmation modal" | "User experience is good" |
-| **完整** | 列出所有情境 | 缺少邊界情況 |
+| **Specific** | "Error message displays within 2 seconds" | "Error handling works" |
+| **Measurable** | "Response time < 500ms" | "System is fast" |
+| **Testable** | "User sees confirmation modal" | "User experience is good" |
+| **Complete** | Lists all scenarios | Missing edge cases |
 
-### 檢查清單
+### Checklist
 
-- [ ] 涵蓋所有正常路徑情境
-- [ ] 錯誤情境已定義
-- [ ] 邊緣案例已考慮
-- [ ] 效能標準（如果適用）
-- [ ] 安全需求（如果適用）
-- [ ] 無障礙需求（如果適用）
+- [ ] All happy path scenarios covered
+- [ ] Error scenarios defined
+- [ ] Edge cases considered
+- [ ] Performance criteria (if applicable)
+- [ ] Security requirements (if applicable)
+- [ ] Accessibility requirements (if applicable)
 
 ---
 
-## 需求類型
+## Requirement Types
 
-### 功能性需求 (FR)
+### Functional Requirements (FR)
 
-**系統應該做什麼**
+**What the system should DO**
 
 ```markdown
 ### FR1: User Registration
@@ -167,70 +159,70 @@ Then I should be redirected to the dashboard
 - [ ] Duplicate email prevention
 ```
 
-### 非功能性需求 (NFR)
+### Non-Functional Requirements (NFR)
 
-**系統應該如何表現**
+**How the system should BEHAVE**
 
-| 類別 | 範例 |
+| Category | Example |
 |----------|---------|
-| **效能** | Response time < 200ms for 95th percentile |
-| **擴展性** | Support 10,000 concurrent users |
-| **安全性** | All data encrypted in transit (TLS 1.3) |
-| **可用性** | 99.9% uptime |
-| **易用性** | WCAG 2.1 AA compliance |
+| **Performance** | Response time < 200ms for 95th percentile |
+| **Scalability** | Support 10,000 concurrent users |
+| **Security** | All data encrypted in transit (TLS 1.3) |
+| **Availability** | 99.9% uptime |
+| **Usability** | WCAG 2.1 AA compliance |
 
 ---
 
-## 優先順序框架
+## Priority Frameworks
 
-### MoSCoW 方法
+### MoSCoW Method
 
-| 優先順序 | 意義 | 說明 |
+| Priority | Meaning | Description |
 |----------|---------|-------------|
-| **M**ust Have (必須有) | 關鍵 | 沒有就無法發布 |
-| **S**hould Have (應該有) | 重要 | 高價值但不阻塞 |
-| **C**ould Have (可以有) | 理想 | 最好有，優先順序較低 |
-| **W**on't Have (不會有) | 不在範圍內 | 此版本不包含 |
+| **M**ust Have | Critical | Release cannot proceed without |
+| **S**hould Have | Important | High value but not blocking |
+| **C**ould Have | Desirable | Nice to have, lower priority |
+| **W**on't Have | Out of scope | Not this release |
 
-### 數字優先順序 (P0-P3)
+### Numbered Priority (P0-P3)
 
-| 等級 | 標籤 | 說明 | 範例 |
+| Level | Label | Description | Example |
 |-------|-------|-------------|---------|
-| P0 | Critical | 阻礙性問題 | 安全漏洞 |
-| P1 | High | 必須儘快修復 | 核心功能 bug |
-| P2 | Medium | 應該修復 | UX 改進 |
-| P3 | Low | 最好有 | 次要增強 |
+| P0 | Critical | Showstopper | Security vulnerability |
+| P1 | High | Must fix soon | Core feature bug |
+| P2 | Medium | Should fix | UX improvement |
+| P3 | Low | Nice to have | Minor enhancement |
 
 ---
 
-## 問題範本
+## Issue Templates
 
-### 功能請求
+### Feature Request
 
 ```markdown
 ## Summary
-[功能的一行描述]
+[One-line description of the feature]
 
 ## Motivation
 ### Problem Statement
-[這解決了什麼問題？]
+[What problem does this solve?]
 
 ### User Impact
-[誰受到影響以及如何影響？]
+[Who is affected and how?]
 
 ## Detailed Description
-[請求功能的完整描述]
+[Full description of the requested feature]
 
 ## Acceptance Criteria
-- [ ] [標準 1]
-- [ ] [標準 2]
-- [ ] [標準 3]
+- [ ] [Criterion 1]
+- [ ] [Criterion 2]
+- [ ] [Criterion 3]
 
 ## Design Considerations
-[任何技術考量或限制]
+[Any technical considerations or constraints]
 
 ## Out of Scope
-- [此功能不包含什麼]
+- [What this feature does NOT include]
 
 ## Priority
 - [ ] P0 - Critical
@@ -239,30 +231,30 @@ Then I should be redirected to the dashboard
 - [ ] P3 - Low
 ```
 
-### Bug 報告
+### Bug Report
 
 ```markdown
 ## Description
-[清晰、簡潔的 bug 描述]
+[Clear, concise description of the bug]
 
 ## Steps to Reproduce
-1. [第一步]
-2. [第二步]
-3. [第三步]
+1. [First step]
+2. [Second step]
+3. [Third step]
 
 ## Expected Behavior
-[應該發生什麼]
+[What should happen]
 
 ## Actual Behavior
-[實際發生什麼]
+[What actually happens]
 
 ## Screenshots/Logs
-[如適用]
+[If applicable]
 
 ## Environment
-- OS: [例如 Windows 11, macOS 14]
-- Browser: [例如 Chrome 120]
-- Version: [例如 v1.2.3]
+- OS: [e.g., Windows 11, macOS 14]
+- Browser: [e.g., Chrome 120]
+- Version: [e.g., v1.2.3]
 
 ## Severity
 - [ ] Critical - System unusable
@@ -271,129 +263,129 @@ Then I should be redirected to the dashboard
 - [ ] Low - Cosmetic issue
 ```
 
-### 技術任務
+### Technical Task
 
 ```markdown
 ## Summary
-[一行描述]
+[One-line description]
 
 ## Background
-[為什麼需要這個？背景。]
+[Why is this needed? Context.]
 
 ## Technical Details
-[實作細節、方法]
+[Implementation details, approach]
 
 ## Acceptance Criteria
-- [ ] [技術標準 1]
-- [ ] [技術標準 2]
+- [ ] [Technical criterion 1]
+- [ ] [Technical criterion 2]
 
 ## Dependencies
-- [列出任何依賴項]
+- [List any dependencies]
 
 ## Risks
-- [列出任何風險或顧慮]
+- [List any risks or concerns]
 ```
 
 ---
 
-## 常見錯誤
+## Common Mistakes
 
-### 過於模糊
+### Too Vague
 
-❌ **不好的範例**：
+❌ **Bad**:
 ```
-使系統更快。
-```
-
-✅ **好的範例**：
-```
-將 /users 端點的 API 回應時間減少到 200ms 以下。
+Make the system faster.
 ```
 
-### 解決方案而非問題
-
-❌ **不好的範例**：
+✅ **Good**:
 ```
-新增 Redis 快取。
+Reduce API response time to under 200ms for the /users endpoint.
 ```
 
-✅ **好的範例**：
+### Solution Instead of Problem
+
+❌ **Bad**:
 ```
-將儀表板載入時間從 5 秒改善到 1 秒以下。
-（Redis 快取可能是一個解決方案，但讓團隊決定）
+Add a Redis cache.
 ```
 
-### 缺少驗收標準
-
-❌ **不好的範例**：
+✅ **Good**:
 ```
-實作使用者身份驗證。
-```
-
-✅ **好的範例**：
-```
-實作使用者身份驗證。
-
-驗收標準：
-- [ ] 使用者可以使用電子郵件/密碼註冊
-- [ ] 使用者可以使用憑證登入
-- [ ] 使用者可以透過電子郵件重設密碼
-- [ ] 閒置 24 小時後工作階段過期
-- [ ] 每小時登入失敗嘗試限制為 5 次
+Improve dashboard load time from 5s to under 1s.
+(Redis cache may be one solution, but let team decide)
 ```
 
-### 範圍過大
+### Missing Acceptance Criteria
 
-❌ **不好的範例**：
+❌ **Bad**:
 ```
-建立整個電子商務平台。
+Implement user authentication.
 ```
 
-✅ **好的範例**：
+✅ **Good**:
 ```
-Epic：電子商務平台
+Implement user authentication.
 
-故事 1：使用者可以瀏覽產品目錄
-故事 2：使用者可以將商品加入購物車
-故事 3：使用者可以使用信用卡結帳
-故事 4：管理員可以管理庫存
+Acceptance Criteria:
+- [ ] Users can register with email/password
+- [ ] Users can log in with credentials
+- [ ] Users can reset password via email
+- [ ] Session expires after 24 hours of inactivity
+- [ ] Failed login attempts limited to 5 per hour
+```
+
+### Too Large
+
+❌ **Bad**:
+```
+Build the entire e-commerce platform.
+```
+
+✅ **Good**:
+```
+Epic: E-commerce Platform
+
+Story 1: User can browse product catalog
+Story 2: User can add items to cart
+Story 3: User can checkout with credit card
+Story 4: Admin can manage inventory
 ```
 
 ---
 
-## 需求審查檢查清單
+## Requirement Review Checklist
 
-在提交需求之前：
+Before submitting a requirement:
 
-- [ ] 問題陳述清楚
-- [ ] 目標使用者/角色已識別
-- [ ] 驗收標準已定義
-- [ ] 優先級已分配
-- [ ] 範圍邊界清楚
-- [ ] 依賴項已識別
-- [ ] 遵循 INVEST 原則
-- [ ] 可測試且可衡量
-- [ ] 沒有實作細節（除非必要）
-
----
-
-## 相關標準
-
-- [需求完整性檢查清單](./requirement-checklist.md)
-- [規格驅動開發](../../core/spec-driven-development.md)
+- [ ] Clear problem statement
+- [ ] Target user/persona identified
+- [ ] Acceptance criteria defined
+- [ ] Priority assigned
+- [ ] Scope boundaries clear
+- [ ] Dependencies identified
+- [ ] Follows INVEST principles
+- [ ] Testable and measurable
+- [ ] No implementation details (unless necessary)
 
 ---
 
-## 版本歷史
+## Related Standards
 
-| 版本 | 日期 | 變更 |
-|------|------|------|
-| 1.0.0 | 2025-12-24 | 新增：標準區段（目的、相關標準、版本歷史、授權） |
+- [Requirement Completeness Checklist](./requirement-checklist.md)
+- [Spec-Driven Development](../../core/spec-driven-development.md)
 
 ---
 
-## 授權
+## Version History
 
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
 
-**來源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## License
+
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

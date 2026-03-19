@@ -4,7 +4,6 @@
   "agent": "gemini-cli",
   "level": "project",
   "commands": [
-    "ac-coverage",
     "atdd",
     "bdd",
     "brainstorm",
@@ -34,7 +33,6 @@
     "reverse-tdd",
     "reverse",
     "review",
-    "sdd-retro",
     "sdd",
     "tdd",
     "update"

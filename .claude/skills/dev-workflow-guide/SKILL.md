@@ -139,16 +139,6 @@ The skill reads from [workflow-phases.md](./workflow-phases.md) for detailed pha
 2. **階段參數**：顯示該階段的詳細指引，包含所有相關指令與範例
 3. **場景參數**：顯示該場景的推薦逐步工作流程
 
-## Next Steps Guidance | 下一步引導
-
-After `/dev-workflow` completes, the AI assistant should suggest based on user's situation:
-
-> **工作流程已顯示。建議下一步 / Workflow displayed. Suggested next steps:**
-> - 新功能開發 → 執行 `/brainstorm` 探索想法 — New feature → Run `/brainstorm` to explore ideas
-> - 修復錯誤 → 執行 `/discover` 評估受影響區域 — Bug fix → Run `/discover` to assess affected area
-> - 重構程式碼 → 執行 `/discover` 評估健康度 — Refactoring → Run `/discover` to assess health
-> - 遺留系統 → 執行 `/reverse` 進行系統考古 — Legacy system → Run `/reverse` for system archeology
-
 ## References | 參考
 
 - [Detailed Phase Guide](./workflow-phases.md) - Complete phase-by-phase reference

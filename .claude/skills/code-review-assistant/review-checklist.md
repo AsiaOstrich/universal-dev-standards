@@ -1,208 +1,200 @@
----
-source: ../../../../skills/code-review-assistant/review-checklist.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
-status: current
----
+# Code Review Checklist
 
-# 程式碼審查檢查清單
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/code-review-assistant/review-checklist.md)
 
-> **語言**: [English](../../../../skills/code-review-assistant/review-checklist.md) | 繁體中文
-
-**版本**: 1.0.0
-**最後更新**: 2025-12-24
-**適用範圍**: Claude Code Skills
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
 
 ---
 
-## 目的
+## Purpose
 
-本文件提供全面的程式碼審查檢查清單，以確保程式碼品質和標準合規性。
-
----
-
-## 1. 功能性
-
-- [ ] **程式碼執行預期功能**
-  - 已驗證需求/規格對齊
-  - 滿足驗收標準
-  - 處理邊界情況
-
-- [ ] **無明顯錯誤**
-  - 存在 null/undefined 檢查
-  - 檢查陣列邊界
-  - 處理錯誤條件
-
-- [ ] **邏輯正確**
-  - 條件合理
-  - 迴圈正確終止
-  - 計算準確
+This document provides a comprehensive checklist for code review to ensure code quality and standards compliance.
 
 ---
 
-## 2. 設計與架構
+## 1. Functionality
 
-- [ ] **遵循專案架構**
-  - 尊重分層
-  - 維持關注點分離
-  - 依賴方向正確
+- [ ] **Code does what it's supposed to do**
+  - Requirement/spec alignment verified
+  - Acceptance criteria met
+  - Edge cases handled
 
-- [ ] **使用適當的設計模式**
-  - 無過度設計
-  - 無設計不足
-  - 正確應用模式
+- [ ] **No obvious bugs**
+  - Null/undefined checks present
+  - Array bounds checked
+  - Error conditions handled
 
-- [ ] **程式碼放置在正確位置**
-  - 檔案邏輯組織
-  - 相關程式碼集中放置
-
----
-
-## 3. 程式碼品質
-
-- [ ] **遵循編碼標準**
-  - 遵守命名慣例
-  - 格式一致
-  - 遵循樣式指南
-
-- [ ] **無程式碼異味**
-  - 方法 ≤50 行
-  - 類別具有單一職責
-  - 圈複雜度 ≤10
-  - 無深層巢狀條件（≤3 層）
-
-- [ ] **應用 DRY 原則**
-  - 無重複程式碼區塊
-  - 提取共用邏輯
+- [ ] **Logic is correct**
+  - Conditions make sense
+  - Loops terminate properly
+  - Calculations are accurate
 
 ---
 
-## 4. 可讀性
+## 2. Design & Architecture
 
-- [ ] **程式碼易於理解**
-  - 變數名稱具描述性
-  - 函式名稱揭示意圖
-  - 邏輯自然流暢
+- [ ] **Follows project architecture**
+  - Layering respected
+  - Separation of concerns maintained
+  - Dependency direction correct
 
-- [ ] **註解有幫助**
-  - 解釋複雜邏輯
-  - 記錄為什麼（WHY），而非什麼（WHAT）
-  - 無被註解掉的程式碼
+- [ ] **Appropriate design patterns used**
+  - Not over-engineered
+  - Not under-engineered
+  - Patterns applied correctly
 
----
-
-## 5. 測試
-
-- [ ] **存在測試**
-  - 新程式碼有測試
-  - 測試涵蓋正常路徑
-  - 測試涵蓋錯誤情況
-  - 測試邊界情況
-
-- [ ] **測試品質良好**
-  - 測試可讀
-  - 測試名稱描述場景
-  - 斷言清晰
-  - 無不穩定測試
-
-- [ ] **維持測試覆蓋率**
-  - 覆蓋率未降低
-  - 涵蓋關鍵路徑
+- [ ] **Code is in the right place**
+  - Files organized logically
+  - Related code grouped together
 
 ---
 
-## 6. 安全性
+## 3. Code Quality
 
-- [ ] **無安全漏洞**
-  - 無 SQL 注入風險
-  - 無 XSS 漏洞
-  - 無硬編碼密鑰
-  - 無不安全的依賴
+- [ ] **Follows coding standards**
+  - Naming conventions adhered to
+  - Formatting consistent
+  - Style guide followed
 
-- [ ] **存在輸入驗證**
-  - 清理使用者輸入
-  - 執行型別檢查
-  - 強制執行大小限制
+- [ ] **No code smells**
+  - Methods ≤50 lines
+  - Classes have single responsibility
+  - Cyclomatic complexity ≤10
+  - No deeply nested conditionals (≤3 levels)
 
-- [ ] **身份驗證/授權正確**
-  - 適當的身份驗證檢查
-  - 強制執行基於角色的存取
-  - 保護敏感資料
-
----
-
-## 7. 效能
-
-- [ ] **無明顯效能問題**
-  - 無 N+1 查詢
-  - 無不必要的迴圈
-  - 熱路徑中無阻塞操作
-
-- [ ] **使用高效演算法**
-  - 考慮複雜度
-  - 適當的資料結構
-  - 有益處時使用快取
-
-- [ ] **資源管理適當**
-  - 關閉連線
-  - 防止記憶體洩漏
-  - 釋放檔案控制代碼
+- [ ] **DRY principle applied**
+  - No duplicated code blocks
+  - Common logic extracted
 
 ---
 
-## 8. 錯誤處理
+## 4. Readability
 
-- [ ] **適當處理錯誤**
-  - 存在 try-catch 區塊
-  - 捕獲特定例外
-  - 避免通用捕獲
+- [ ] **Code is easy to understand**
+  - Variable names are descriptive
+  - Function names reveal intent
+  - Logic flows naturally
 
-- [ ] **錯誤訊息有幫助**
-  - 訊息具描述性
-  - 包含可操作資訊
-  - 無暴露敏感資料
-
-- [ ] **日誌記錄充分**
-  - 記錄錯誤與上下文
-  - 日誌層級適當
-  - 無過度日誌記錄
+- [ ] **Comments are helpful**
+  - Complex logic explained
+  - WHY documented, not WHAT
+  - No commented-out code
 
 ---
 
-## 9. 文件
+## 5. Testing
 
-- [ ] **存在 API 文件**
-  - 記錄公開方法
-  - 解釋參數
-  - 描述回傳值
-  - 記錄例外
+- [ ] **Tests are present**
+  - New code has tests
+  - Tests cover happy path
+  - Tests cover error cases
+  - Edge cases tested
 
-- [ ] **如需要則更新 README**
-  - 記錄新功能
-  - 更新安裝說明
+- [ ] **Tests are good quality**
+  - Tests are readable
+  - Test names describe scenarios
+  - Assertions are clear
+  - No flaky tests
 
-- [ ] **更新 CHANGELOG（如適用）**
-  - 將面向使用者的變更加入 `[Unreleased]`
-  - 以 **BREAKING** 標記破壞性變更
-
----
-
-## 10. 依賴
-
-- [ ] **依賴有正當理由**
-  - 新依賴必要
-  - 授權相容
-  - 無安全漏洞
-  - 積極維護
-
-- [ ] **依賴版本已鎖定**
-  - 指定確切版本
-  - 更新鎖定檔案
+- [ ] **Test coverage maintained**
+  - Coverage not decreased
+  - Critical paths covered
 
 ---
 
-## 快速參考卡
+## 6. Security
+
+- [ ] **No security vulnerabilities**
+  - No SQL injection risks
+  - No XSS vulnerabilities
+  - No hardcoded secrets
+  - No insecure dependencies
+
+- [ ] **Input validation present**
+  - User input sanitized
+  - Type checking performed
+  - Size limits enforced
+
+- [ ] **Auth/Authorization correct**
+  - Proper auth checks
+  - Role-based access enforced
+  - Sensitive data protected
+
+---
+
+## 7. Performance
+
+- [ ] **No obvious performance issues**
+  - No N+1 queries
+  - No unnecessary loops
+  - No blocking operations in hot paths
+
+- [ ] **Efficient algorithms used**
+  - Complexity considered
+  - Appropriate data structures
+  - Caching where beneficial
+
+- [ ] **Resource management proper**
+  - Connections closed
+  - Memory leaks prevented
+  - File handles released
+
+---
+
+## 8. Error Handling
+
+- [ ] **Errors handled appropriately**
+  - Try-catch blocks present
+  - Specific exceptions caught
+  - Generic catch avoided
+
+- [ ] **Error messages helpful**
+  - Messages are descriptive
+  - Actionable information included
+  - No sensitive data exposed
+
+- [ ] **Logging is adequate**
+  - Errors logged with context
+  - Log levels appropriate
+  - No excessive logging
+
+---
+
+## 9. Documentation
+
+- [ ] **API documentation present**
+  - Public methods documented
+  - Parameters explained
+  - Return values described
+  - Exceptions documented
+
+- [ ] **README updated if needed**
+  - New features documented
+  - Setup instructions current
+
+- [ ] **CHANGELOG updated (if applicable)**
+  - User-facing changes added to `[Unreleased]`
+  - Breaking changes marked with **BREAKING**
+
+---
+
+## 10. Dependencies
+
+- [ ] **Dependencies justified**
+  - New dependencies necessary
+  - License compatible
+  - No security vulnerabilities
+  - Actively maintained
+
+- [ ] **Dependency versions locked**
+  - Exact versions specified
+  - Lock file updated
+
+---
+
+## Quick Reference Card
 
 ```
 ┌─────────────────────────────────────────┐
@@ -223,24 +215,24 @@ status: current
 
 ---
 
-## 相關標準
+## Related Standards
 
-- [Code Review Checklist](../../../../core/code-review-checklist.md)
-- [Checkin Standards](../../../../core/checkin-standards.md)
+- [Code Review Checklist](../../core/code-review-checklist.md)
+- [Checkin Standards](../../core/checkin-standards.md)
 - [Pre-Commit Checklist](./checkin-checklist.md)
 
 ---
 
-## 版本歷史
+## Version History
 
-| 版本 | 日期 | 變更 |
+| Version | Date | Changes |
 |---------|------|---------|
-| 1.0.0 | 2025-12-24 | 新增：標準章節（目的、相關標準、版本歷史、授權） |
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
 
 ---
 
-## 授權
+## License
 
-本文件依 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 發布。
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

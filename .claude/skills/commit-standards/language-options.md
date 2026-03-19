@@ -1,59 +1,51 @@
----
-source: ../../../../skills/commit-standards/language-options.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
-status: current
----
+# Commit Message Language Options
 
-# Commit Message 語言選項
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/commit-standards/language-options.md)
 
-> **語言**: [English](../../../../skills/commit-standards/language-options.md) | 繁體中文
-
-**版本**: 1.0.0
-**最後更新**: 2025-12-24
-**適用範圍**: Claude Code Skills
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
 
 ---
 
-## 目的
+## Purpose
 
-本文件提供 commit message 類型的語言選項（英文、繁體中文或雙語）。
+This document provides language options for commit message types (English, Traditional Chinese, or Bilingual).
 
 ---
 
-## 選項 A：英文（國際化）
+## Option A: English (International)
 
-適用於國際團隊和最大化工具相容性。
+Use for international teams and maximum tool compatibility.
 
-| 類型 | 使用時機 |
-|------|----------|
-| `feat` | 新功能 |
-| `fix` | Bug 修復 |
-| `refactor` | 程式碼重構 |
-| `docs` | 文件更新 |
-| `style` | 格式化 |
-| `test` | 測試 |
-| `perf` | 效能改進 |
-| `build` | 建置系統 |
-| `ci` | CI/CD 變更 |
-| `chore` | 維護任務 |
-| `revert` | 回退提交 |
-| `security` | 安全修復 |
+| Type | When to Use |
+|------|-------------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `refactor` | Code refactoring |
+| `docs` | Documentation |
+| `style` | Formatting |
+| `test` | Tests |
+| `perf` | Performance |
+| `build` | Build system |
+| `ci` | CI/CD changes |
+| `chore` | Maintenance |
+| `revert` | Revert commit |
+| `security` | Security fix |
 
-**範例**:
+**Example**:
 ```
 feat(auth): Add OAuth2 Google login support
 ```
 
 ---
 
-## 選項 B：繁體中文（台灣團隊）
+## Option B: Traditional Chinese (台灣團隊)
 
-適用於偏好使用母語的本地團隊。
+Use for local teams preferring native language.
 
 | 類型 | 使用時機 | English |
-|------|----------|------|
+|------|----------|----------|
 | `新增` | 新功能 | feat |
 | `修正` | Bug 修復 | fix |
 | `重構` | 重構 | refactor |
@@ -67,18 +59,18 @@ feat(auth): Add OAuth2 Google login support
 | `回退` | 回退提交 | revert |
 | `安全` | 安全修復 | security |
 
-**範例**:
+**Example**:
 ```
 新增(認證): 實作 OAuth2 Google 登入支援
 ```
 
 ---
 
-## 選項 C：雙語模式（雙語對照）
+## Option C: Bilingual Mode (雙語對照)
 
-使用英文 `type`/`scope` 以獲得工具相容性，搭配雙語 subject/body。
+Use English `type`/`scope` for tool compatibility, with bilingual subject/body.
 
-**格式**:
+**Format**:
 ```
 <type>(<scope>): <English subject>. <中文主旨>。
 
@@ -89,7 +81,7 @@ feat(auth): Add OAuth2 Google login support
 <footer>
 ```
 
-**範例**:
+**Example**:
 ```
 feat(auth): Add OAuth2 Google login support. 新增 OAuth2 Google 登入支援。
 
@@ -110,63 +102,63 @@ Closes #123
 
 ---
 
-## 語言選擇指南
+## Language Selection Guide
 
-| 因素 | English | 中文 | Bilingual |
+| Factor | English | 中文 | Bilingual |
 |--------|---------|------|----------|
-| **團隊** | 國際化 | 本地 | 混合 |
-| **工具相容性** | ✅ 最佳 | ⚠️ 有限 | ✅ 良好 |
-| **Changelog 自動化** | ✅ 完整 | ⚠️ 需客製化 | ✅ 支援 |
-| **開源專案** | ✅ 推薦 | ❌ 不推薦 | ✅ 良好 |
+| **Team** | International | Local | Mixed |
+| **Tool compatibility** | ✅ Best | ⚠️ Limited | ✅ Good |
+| **Changelog automation** | ✅ Full | ⚠️ Custom | ✅ Supported |
+| **Open source** | ✅ Recommended | ❌ Not recommended | ✅ Good |
 
-### 快速選擇
+### Quick Selection
 
-- **開源專案** → English（選項 A）
-- **本地團隊、內部專案** → 中文（選項 B）
-- **本地團隊但有國際協作** → Bilingual（選項 C）
+- **Open source project** → English (Option A)
+- **Local team, internal project** → 中文 (Option B)
+- **Local team with international collaboration** → Bilingual (Option C)
 
-**重要**: 一旦選定，請保持一致。不要混用語言。
+**Important**: Once chosen, use consistently. Do not mix languages.
 
 ---
 
-## 專案配置
+## Project Configuration
 
-在 `CONTRIBUTING.md` 中記錄你的選擇：
+Document your choice in `CONTRIBUTING.md`:
 
 ```markdown
-## Commit Message 語言
+## Commit Message Language
 
-本專案使用 **[English / Traditional Chinese / Bilingual]** commit 類型。
+This project uses **[English / Traditional Chinese / Bilingual]** commit types.
 
-### 允許的類型
-[根據你的選擇列出類型]
+### Allowed Types
+[List types based on your choice]
 
-### 允許的範圍
-- auth: 認證模組
-- api: API 層
-- ui: 使用者介面
-[新增專案特定的範圍]
+### Allowed Scopes
+- auth: Authentication module
+- api: API layer
+- ui: User interface
+[Add project-specific scopes]
 ```
 
 ---
 
-## 相關標準
+## Related Standards
 
-- [Commit Message Guide](../../../../core/commit-message-guide.md)
+- [Commit Message Guide](../../core/commit-message-guide.md)
 - [Conventional Commits Guide](./conventional-commits.md)
 
 ---
 
-## 版本歷史
+## Version History
 
-| 版本 | 日期 | 變更 |
+| Version | Date | Changes |
 |---------|------|---------|
-| 1.0.0 | 2025-12-24 | 新增：標準章節（目的、相關標準、版本歷史、授權） |
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
 
 ---
 
-## 授權
+## License
 
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

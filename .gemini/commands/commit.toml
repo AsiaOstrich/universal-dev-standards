@@ -16,8 +16,7 @@ Generate well-formatted commit messages following the Conventional Commits stand
 
 1. **Check status** - Run `git status` and `git diff --staged` to understand changes
 2. **Analyze changes** - Determine the type (feat, fix, refactor, etc.) and scope
-3. **Spec tracking assessment** - Evaluate whether this change needs a spec (see below)
-4. **Generate message** - Create a commit message following the format:
+3. **Generate message** - Create a commit message following the format:
    ```
    <type>(<scope>): <subject>
 
@@ -25,13 +24,7 @@ Generate well-formatted commit messages following the Conventional Commits stand
 
    <footer>
    ```
-5. **Confirm and commit** - Ask user to confirm before executing `git commit`
-
-## Spec Tracking Assessment | Spec 追蹤評估
-
-For `feat`/`fix` commits, evaluate whether a spec should be created or linked. Suggest a spec when: many files changed (>3), public API signatures modified, or significant new functionality. Skip for `docs`/`style`/`chore`/`test` types.
-
-If a spec is linked, add `Refs: SPEC-XXX` to the commit footer. This is advisory — the user can always ignore.
+4. **Confirm and commit** - Ask user to confirm before executing `git commit`
 
 ## Commit Types | 提交類型
 

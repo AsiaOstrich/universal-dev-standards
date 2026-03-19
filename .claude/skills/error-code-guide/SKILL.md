@@ -1,82 +1,78 @@
 ---
-name: errors
-description: |
-  設計一致的錯誤碼，遵循 PREFIX_CATEGORY_NUMBER 格式。
-  使用時機：定義錯誤碼、建立錯誤處理、設計 API。
-  關鍵字：error code, error handling, error format, API errors, 錯誤碼, 錯誤處理。
-source: ../../../../skills/error-code-guide/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-08
-status: current
 scope: universal
+description: |
+  Design consistent error codes following the PREFIX_CATEGORY_NUMBER format.
+  Use when: defining error codes, creating error handling, designing APIs.
+  Keywords: error code, error handling, error format, API errors, 錯誤碼, 錯誤處理.
 ---
 
-# 錯誤碼指南
+# Error Code Guide
 
-> **語言**: [English](../../../../skills/error-code-guide/SKILL.md) | 繁體中文
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/error-code-guide/SKILL.md)
 
-**版本**: 1.0.0
-**最後更新**: 2025-12-30
-**適用範圍**: Claude Code Skills
+**Version**: 1.0.0
+**Last Updated**: 2025-12-30
+**Applicability**: Claude Code Skills
 
 ---
 
-## 目的
+> **Core Standard**: This skill implements [Error Code Standards](../../core/error-code-standards.md). For comprehensive methodology documentation, refer to the core standard.
 
-此技能幫助設計一致的錯誤碼，遵循標準格式，實現更好的除錯、監控和使用者體驗。
+## Purpose
 
-## 快速參考
+This skill helps design consistent error codes following the standard format, enabling better debugging, monitoring, and user experience.
 
-### 錯誤碼格式
+## Quick Reference
 
-```
-<前綴>_<類別>_<編號>
-```
-
-| 元素 | 說明 | 範例 |
-|------|------|------|
-| 前綴 (PREFIX) | 應用/服務識別碼 | AUTH, PAY, USR |
-| 類別 (CATEGORY) | 錯誤類別 | VAL, SYS, BIZ |
-| 編號 (NUMBER) | 唯一數字識別碼 | 001, 100, 404 |
-
-### 範例
+### Error Code Format
 
 ```
-AUTH_VAL_001    → 認證驗證錯誤
-PAY_SYS_503     → 付款系統無法使用
-USR_BIZ_100     → 使用者商業規則違規
-API_NET_408     → API 網路逾時
+<PREFIX>_<CATEGORY>_<NUMBER>
 ```
 
-### 錯誤類別
+| Component | Description | Example |
+|-----------|-------------|---------|
+| PREFIX | Application/service identifier | AUTH, PAY, USR |
+| CATEGORY | Error category | VAL, SYS, BIZ |
+| NUMBER | Unique numeric identifier | 001, 100, 404 |
 
-| 類別 | 全名 | 說明 | HTTP 狀態碼 |
-|------|------|------|-------------|
-| **VAL** | Validation | 客戶端輸入驗證失敗 | 400 |
-| **BIZ** | Business | 商業規則違規 | 422 |
-| **SYS** | System | 內部系統錯誤 | 500 |
-| **NET** | Network | 通訊錯誤 | 502/503/504 |
-| **AUTH** | Auth | 安全相關錯誤 | 401/403 |
+### Examples
 
-### 類別編號範圍
+```
+AUTH_VAL_001    → Authentication validation error
+PAY_SYS_503     → Payment system unavailable
+USR_BIZ_100     → User business rule violation
+API_NET_408     → API network timeout
+```
 
-| 範圍 | 說明 | 範例 |
-|------|------|------|
-| *_VAL_001-099 | 欄位驗證 | 缺少必填欄位 |
-| *_VAL_100-199 | 格式驗證 | 電子郵件格式無效 |
-| *_VAL_200-299 | 約束驗證 | 密碼太短 |
-| *_BIZ_001-099 | 狀態違規 | 訂單已取消 |
-| *_BIZ_100-199 | 規則違規 | 超過 30 天無法退貨 |
-| *_BIZ_200-299 | 限制違規 | 超過每日限制 |
-| *_AUTH_001-099 | 認證 | 帳號密碼錯誤 |
-| *_AUTH_100-199 | 授權 | 權限不足 |
-| *_AUTH_200-299 | Token/Session | Token 已過期 |
+### Error Categories
 
-## HTTP 狀態碼對應
+| Category | Full Name | Description | HTTP Status |
+|----------|-----------|-------------|-------------|
+| **VAL** | Validation | Client input validation failures | 400 |
+| **BIZ** | Business | Business rule violations | 422 |
+| **SYS** | System | Internal system failures | 500 |
+| **NET** | Network | Communication failures | 502/503/504 |
+| **AUTH** | Auth | Security-related errors | 401/403 |
 
-| 類別 | HTTP 狀態碼 | 說明 |
-|------|-------------|------|
+### Category Code Ranges
+
+| Range | Description | Example |
+|-------|-------------|---------|
+| *_VAL_001-099 | Field validation | Missing required field |
+| *_VAL_100-199 | Format validation | Invalid email format |
+| *_VAL_200-299 | Constraint validation | Password too short |
+| *_BIZ_001-099 | State violations | Order already cancelled |
+| *_BIZ_100-199 | Rule violations | Cannot return after 30 days |
+| *_BIZ_200-299 | Limit violations | Daily limit exceeded |
+| *_AUTH_001-099 | Authentication | Invalid credentials |
+| *_AUTH_100-199 | Authorization | Insufficient permissions |
+| *_AUTH_200-299 | Token/session | Token expired |
+
+## HTTP Status Code Mapping
+
+| Category | HTTP Status | Description |
+|----------|-------------|-------------|
 | VAL | 400 | Bad Request |
 | BIZ | 422 | Unprocessable Entity |
 | AUTH (001-099) | 401 | Unauthorized |
@@ -84,33 +80,33 @@ API_NET_408     → API 網路逾時
 | SYS | 500 | Internal Server Error |
 | NET | 502/503/504 | Gateway errors |
 
-## 詳細指南
+## Detailed Guidelines
 
-完整標準請參考：
-- [錯誤碼標準](../../core/error-code-standards.md)
+For complete standards, see:
+- [Error Code Standards](../../core/error-code-standards.md)
 
-### AI 優化格式（節省 Token）
+### AI-Optimized Format (Token-Efficient)
 
-AI 助手可使用 YAML 格式檔案以減少 Token 使用量：
-- 基礎標準：`ai/standards/error-codes.ai.yaml`
+For AI assistants, use the YAML format files for reduced token usage:
+- Base standard: `ai/standards/error-codes.ai.yaml`
 
-## 錯誤回應格式
+## Error Response Format
 
-### 單一錯誤
+### Single Error
 
 ```json
 {
   "success": false,
   "error": {
     "code": "AUTH_VAL_001",
-    "message": "電子郵件為必填欄位",
+    "message": "Email is required",
     "field": "email",
     "requestId": "req_abc123"
   }
 }
 ```
 
-### 多個錯誤
+### Multiple Errors
 
 ```json
 {
@@ -118,12 +114,12 @@ AI 助手可使用 YAML 格式檔案以減少 Token 使用量：
   "errors": [
     {
       "code": "AUTH_VAL_001",
-      "message": "電子郵件為必填欄位",
+      "message": "Email is required",
       "field": "email"
     },
     {
       "code": "AUTH_VAL_201",
-      "message": "密碼至少需要 8 個字元",
+      "message": "Password must be at least 8 characters",
       "field": "password"
     }
   ],
@@ -131,37 +127,37 @@ AI 助手可使用 YAML 格式檔案以減少 Token 使用量：
 }
 ```
 
-## 內部錯誤物件
+## Internal Error Object
 
 ```typescript
 interface ApplicationError {
-  // 核心欄位
+  // Core fields
   code: string;          // "AUTH_VAL_001"
-  message: string;       // 技術訊息（用於日誌）
+  message: string;       // Technical message for logs
 
-  // 使用者介面
-  userMessage: string;   // 本地化使用者訊息
-  userMessageKey: string; // i18n 鍵值: "error.auth.val.001"
+  // User-facing
+  userMessage: string;   // Localized user message
+  userMessageKey: string; // i18n key: "error.auth.val.001"
 
-  // 上下文
-  field?: string;        // 相關欄位: "email"
-  details?: object;      // 附加資訊
+  // Context
+  field?: string;        // Affected field: "email"
+  details?: object;      // Additional context
 
-  // 除錯
+  // Debugging
   timestamp: string;     // ISO 8601
-  requestId: string;     // 關聯 ID
+  requestId: string;     // Correlation ID
 }
 ```
 
-## 國際化 (i18n)
+## Internationalization (i18n)
 
-### 訊息鍵值格式
+### Message Key Format
 
 ```
-error.<前綴>.<類別>.<編號>
+error.<prefix>.<category>.<number>
 ```
 
-### 翻譯檔案範例
+### Example Translation Files
 
 ```yaml
 # en.yaml
@@ -183,56 +179,56 @@ error:
       001: "帳號或密碼錯誤"
 ```
 
-## 範例
+## Examples
 
-### ✅ 良好的錯誤碼
-
-```javascript
-AUTH_VAL_001  // 缺少必填欄位: email
-AUTH_VAL_101  // 電子郵件格式無效
-ORDER_BIZ_001 // 訂單已取消
-ORDER_BIZ_201 // 超過每日購買限制
-DB_SYS_001    // 資料庫查詢失敗
-SEC_AUTH_001  // 帳號密碼錯誤
-SEC_AUTH_201  // Token 已過期
-```
-
-### ❌ 不良的錯誤碼
+### ✅ Good Error Codes
 
 ```javascript
-ERR_001       // 太模糊，沒有前綴或類別
-INVALID       // 不具描述性
-error         // 不是錯誤碼
-AUTH_ERROR    // 缺少編號
+AUTH_VAL_001  // Missing required field: email
+AUTH_VAL_101  // Invalid email format
+ORDER_BIZ_001 // Order already cancelled
+ORDER_BIZ_201 // Daily purchase limit exceeded
+DB_SYS_001    // Database query failed
+SEC_AUTH_001  // Invalid credentials
+SEC_AUTH_201  // Token expired
 ```
 
-## 檢查清單
+### ❌ Bad Error Codes
 
-- [ ] 每個錯誤有唯一代碼
-- [ ] 類別符合錯誤類型
-- [ ] 使用者訊息已本地化
-- [ ] HTTP 狀態碼正確
-- [ ] 錯誤已記錄文件
-- [ ] 代碼已加入註冊表
+```javascript
+ERR_001       // Too vague, no prefix or category
+INVALID       // Not descriptive
+error         // Not a code
+AUTH_ERROR    // Missing number
+```
+
+## Checklist
+
+- [ ] Unique code for each error
+- [ ] Category matches error type
+- [ ] User message is localized
+- [ ] HTTP status is correct
+- [ ] Error is documented
+- [ ] Code is in registry
 
 ---
 
-## 設定偵測
+## Configuration Detection
 
-此技能支援專案特定設定。
+This skill supports project-specific configuration.
 
-### 偵測順序
+### Detection Order
 
-1. 檢查程式碼庫中現有的錯誤碼模式
-2. 檢查 `CONTRIBUTING.md` 中的錯誤碼指南
-3. 若無找到，**預設使用 PREFIX_CATEGORY_NUMBER 格式**
+1. Check for existing error code patterns in codebase
+2. Check `CONTRIBUTING.md` for error code guidelines
+3. If not found, **default to PREFIX_CATEGORY_NUMBER format**
 
-### 首次設定
+### First-Time Setup
 
-若未找到錯誤碼標準：
+If no error code standard found:
 
-1. 建議：「此專案尚未設定錯誤碼標準。您要建立錯誤碼註冊表嗎？」
-2. 建議建立 `errors/registry.ts`：
+1. Suggest: "This project hasn't configured error code standards. Would you like to set up an error code registry?"
+2. Suggest creating `errors/registry.ts`:
 
 ```typescript
 export const ErrorCodes = {
@@ -240,31 +236,31 @@ export const ErrorCodes = {
     code: 'AUTH_VAL_001',
     httpStatus: 400,
     messageKey: 'error.auth.val.001',
-    description: '電子郵件欄位為必填',
+    description: 'Email field is required',
   },
-  // ... 更多錯誤碼
+  // ... more codes
 } as const;
 ```
 
 ---
 
-## 相關標準
+## Related Standards
 
-- [錯誤碼標準](../../core/error-code-standards.md)
-- [日誌標準](../../core/logging-standards.md)
-
----
-
-## 版本歷史
-
-| 版本 | 日期 | 變更 |
-|------|------|------|
-| 1.0.0 | 2025-12-30 | 初始發布 |
+- [Error Code Standards](../../core/error-code-standards.md)
+- [Logging Standards](../../core/logging-standards.md)
 
 ---
 
-## 授權
+## Version History
 
-此技能採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權。
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-30 | Initial release |
 
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

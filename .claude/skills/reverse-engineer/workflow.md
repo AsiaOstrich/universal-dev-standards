@@ -1,54 +1,46 @@
----
-source: ../../../../skills/reverse-engineer/workflow.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-19
-status: current
----
+# Reverse Engineering Workflow Guide
 
-# 反向工程工作流程指南
+**Version**: 1.0.0
+**Last Updated**: 2026-01-19
 
-**版本**: 1.0.0
-**最後更新**: 2026-01-19
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/reverse-engineer/workflow.md)
 
-> **語言**: [English](../../../../skills/reverse-engineer/workflow.md) | 繁體中文
-
-本指南提供將程式碼反向工程成 SDD 規格的詳細工作流程。
+This guide provides detailed workflows for reverse engineering code into SDD specifications.
 
 ---
 
-## 概覽
+## Overview
 
-反向工程將現有實作轉換為結構化的規格文件。與正向工程（規格 → 程式碼）不同，反向工程從程式碼中提取知識，同時承認這種方法的固有限制。
+Reverse engineering transforms existing implementations into structured specification documents. Unlike forward engineering (spec → code), reverse engineering extracts knowledge from code while acknowledging the inherent limitations of this approach.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                        反向工程管道                                       │
+│                     Reverse Engineering Pipeline                         │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  ┌───────────┐   ┌───────────┐   ┌───────────┐   ┌───────────┐        │
-│  │  程式碼   │──▶│   測試    │──▶│   設定    │──▶│   文件    │        │
-│  │   分析    │   │   分析    │   │   分析    │   │   分析    │        │
+│  │   Code    │──▶│   Tests   │──▶│  Config   │──▶│   Docs    │        │
+│  │  Analysis │   │  Analysis │   │  Analysis │   │  Analysis │        │
 │  └─────┬─────┘   └─────┬─────┘   └─────┬─────┘   └─────┬─────┘        │
 │        │               │               │               │               │
 │        └───────────────┴───────────────┴───────────────┘               │
 │                               │                                         │
 │                               ▼                                         │
 │                    ┌───────────────────┐                               │
-│                    │    初稿規格       │                               │
-│                    │    帶有標籤       │                               │
+│                    │   Draft Spec      │                               │
+│                    │   with Labels     │                               │
 │                    └─────────┬─────────┘                               │
 │                              │                                         │
 │                              ▼                                         │
 │                    ┌───────────────────┐                               │
-│                    │    人類審查       │                               │
-│                    │    與完成        │                               │
+│                    │   Human Review    │                               │
+│                    │   & Completion    │                               │
 │                    └─────────┬─────────┘                               │
 │                              │                                         │
 │                              ▼                                         │
 │                    ┌───────────────────┐                               │
-│                    │   最終規格        │                               │
-│                    │    文件          │                               │
+│                    │  Final Spec       │                               │
+│                    │  Document         │                               │
 │                    └───────────────────┘                               │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -56,369 +48,369 @@ status: current
 
 ---
 
-## 階段 1：程式碼掃描
+## Phase 1: Code Scanning
 
-### 1.1 識別進入點
+### 1.1 Identify Entry Points
 
-掃描應用程式進入點：
+Scan for application entry points:
 
-| 進入點類型 | 常見模式 | 要檢查的檔案 |
-|------------|----------|-------------|
-| **API 路由** | Express 路由、FastAPI 端點 | `routes/`、`controllers/`、`api/` |
-| **主函數** | `main()`、`__main__`、`index.ts` | 根目錄檔案、`src/index.*` |
-| **事件處理器** | 訊息佇列、webhooks | `handlers/`、`events/`、`listeners/` |
-| **CLI 命令** | 參數解析器、命令定義 | `commands/`、`cli/`、`bin/` |
-| **排程任務** | Cron 任務、背景任務 | `jobs/`、`tasks/`、`workers/` |
+| Entry Point Type | Common Patterns | Files to Check |
+|------------------|-----------------|----------------|
+| **API Routes** | Express routes, FastAPI endpoints | `routes/`, `controllers/`, `api/` |
+| **Main Functions** | `main()`, `__main__`, `index.ts` | Root files, `src/index.*` |
+| **Event Handlers** | Message queues, webhooks | `handlers/`, `events/`, `listeners/` |
+| **CLI Commands** | Argument parsers, command definitions | `commands/`, `cli/`, `bin/` |
+| **Scheduled Jobs** | Cron jobs, background tasks | `jobs/`, `tasks/`, `workers/` |
 
-### 1.2 映射模組結構
+### 1.2 Map Module Structure
 
-建立相依性圖：
+Create a dependency graph:
 
 ```
 src/
-├── controllers/        # 進入點
-│   ├── UserController.ts  → 相依於 → UserService, UserDTO
-│   └── AuthController.ts  → 相依於 → AuthService, TokenService
-├── services/          # 商業邏輯
-│   ├── UserService.ts     → 相依於 → UserRepository
-│   └── AuthService.ts     → 相依於 → UserService, TokenService
-├── repositories/      # 資料存取
-│   └── UserRepository.ts  → 相依於 → Database, User 實體
-└── models/            # 資料結構
-    └── User.ts            → 無相依性
+├── controllers/        # Entry points
+│   ├── UserController.ts  → depends on → UserService, UserDTO
+│   └── AuthController.ts  → depends on → AuthService, TokenService
+├── services/          # Business logic
+│   ├── UserService.ts     → depends on → UserRepository
+│   └── AuthService.ts     → depends on → UserService, TokenService
+├── repositories/      # Data access
+│   └── UserRepository.ts  → depends on → Database, User entity
+└── models/            # Data structures
+    └── User.ts            → no dependencies
 ```
 
-### 1.3 提取類型定義
+### 1.3 Extract Type Definitions
 
-記錄所有資料結構：
+Document all data structures:
 
 ```markdown
-## 資料模型
+## Data Models
 
-### 使用者實體
-[已確認] 使用者資料模型定義於 src/models/User.ts:5-25
-- [來源: 程式碼] src/models/User.ts:5-25
+### User Entity
+[Confirmed] User data model defined at src/models/User.ts:5-25
+- [Source: Code] src/models/User.ts:5-25
 
-| 欄位 | 類型 | 必要 | 備註 |
-|------|------|------|------|
-| id | string (UUID) | 是 | 主鍵 |
-| email | string | 是 | 唯一約束 |
-| password | string | 是 | 使用 BCrypt 雜湊 |
-| createdAt | Date | 是 | 自動生成 |
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| id | string (UUID) | Yes | Primary key |
+| email | string | Yes | Unique constraint |
+| password | string | Yes | Hashed with BCrypt |
+| createdAt | Date | Yes | Auto-generated |
 
-[推斷] 根據欄位名稱和驗證，密碼似乎有做雜湊處理
-[需確認] 使用什麼雜湊演算法？
+[Inferred] Password appears to be hashed based on field name and validation
+[Need Confirmation] What hashing algorithm is used?
 ```
 
-### 1.4 設定發現
+### 1.4 Configuration Discovery
 
-識別設定來源：
+Identify configuration sources:
 
 ```markdown
-## 設定
+## Configuration
 
-### 環境變數
-[已確認] 發現於 src/config/env.ts:1-30
-- [來源: 程式碼] src/config/env.ts
+### Environment Variables
+[Confirmed] Found in src/config/env.ts:1-30
+- [Source: Code] src/config/env.ts
 
-| 變數 | 預設值 | 必要 | 用途 |
-|------|--------|------|------|
-| DATABASE_URL | - | 是 | PostgreSQL 連線 |
-| JWT_SECRET | - | 是 | 權杖簽名 |
-| NODE_ENV | development | 否 | 環境模式 |
+| Variable | Default | Required | Purpose |
+|----------|---------|----------|---------|
+| DATABASE_URL | - | Yes | PostgreSQL connection |
+| JWT_SECRET | - | Yes | Token signing |
+| NODE_ENV | development | No | Environment mode |
 
-### 應用程式設定
-[已確認] 發現於 src/config/app.ts:1-20
-- [來源: 程式碼] src/config/app.ts
+### Application Settings
+[Confirmed] Found in src/config/app.ts:1-20
+- [Source: Code] src/config/app.ts
 
-| 設定 | 值 | 備註 |
-|------|-----|------|
-| sessionTimeout | 3600 | 1 小時（秒） |
-| maxLoginAttempts | 5 | [未知] 達到 5 次後會發生什麼？ |
+| Setting | Value | Notes |
+|---------|-------|-------|
+| sessionTimeout | 3600 | 1 hour in seconds |
+| maxLoginAttempts | 5 | [Unknown] What happens after 5 attempts? |
 ```
 
 ---
 
-## 階段 2：測試分析
+## Phase 2: Test Analysis
 
-### 2.1 解析測試結構
+### 2.1 Parse Test Structure
 
-提取測試組織：
+Extract test organization:
 
 ```markdown
-## 測試覆蓋率分析
+## Test Coverage Analysis
 
-### 已掃描的測試檔案
-- src/tests/unit/UserService.test.ts（15 個測試）
-- src/tests/unit/AuthService.test.ts（12 個測試）
-- src/tests/integration/api.test.ts（8 個測試）
-- src/tests/e2e/login.spec.ts（5 個測試）
+### Test Files Scanned
+- src/tests/unit/UserService.test.ts (15 tests)
+- src/tests/unit/AuthService.test.ts (12 tests)
+- src/tests/integration/api.test.ts (8 tests)
+- src/tests/e2e/login.spec.ts (5 tests)
 
-### 按模組覆蓋率
-| 模組 | 單元測試 | 整合測試 | E2E |
-|------|----------|----------|-----|
+### Coverage by Module
+| Module | Unit Tests | Integration | E2E |
+|--------|------------|-------------|-----|
 | UserService | 15 ✅ | 3 | 2 |
 | AuthService | 12 ✅ | 5 | 3 |
 | PaymentService | 0 ⚠️ | 0 | 0 |
 ```
 
-### 2.2 提取驗收標準
+### 2.2 Extract Acceptance Criteria
 
-將測試案例轉換為標準：
+Transform test cases into criteria:
 
-**從單元測試**：
+**From Unit Test**:
 ```typescript
 // src/tests/unit/UserService.test.ts
 describe('UserService', () => {
   describe('createUser', () => {
-    it('應該使用有效電子郵件建立使用者', async () => {...});
-    it('應該拒絕重複的電子郵件', async () => {...});
-    it('應該在儲存前雜湊密碼', async () => {...});
+    it('should create user with valid email', async () => {...});
+    it('should reject duplicate email', async () => {...});
+    it('should hash password before saving', async () => {...});
   });
 });
 ```
 
-**轉換為驗收標準**：
+**To Acceptance Criteria**:
 ```markdown
-## 驗收標準
+## Acceptance Criteria
 
-### 使用者建立
-[推斷] 從測試於 src/tests/unit/UserService.test.ts:5-20
+### User Creation
+[Inferred] From tests at src/tests/unit/UserService.test.ts:5-20
 
-**正常路徑**：
-- [ ] 使用有效電子郵件地址建立使用者
-- [ ] 儲存到資料庫前雜湊密碼
+**Happy Path**:
+- [ ] Create user with valid email address
+- [ ] Hash password before saving to database
 
-**錯誤處理**：
-- [ ] 以適當錯誤拒絕重複的電子郵件
+**Error Handling**:
+- [ ] Reject duplicate email with appropriate error
 
-[未知] 什麼構成「有效」的電子郵件？（驗證規則不在測試中）
-[需確認] 重複電子郵件的錯誤訊息/代碼是什麼？
+[Unknown] What constitutes a "valid" email? (validation rules not in test)
+[Need Confirmation] What error message/code for duplicate email?
 ```
 
-### 2.3 識別覆蓋率缺口
+### 2.3 Identify Coverage Gaps
 
-記錄缺失的測試覆蓋率：
+Note missing test coverage:
 
 ```markdown
-## 測試覆蓋率缺口
+## Test Coverage Gaps
 
-### 關鍵缺口（未發現測試）
-| 功能 | 風險等級 | 建議 |
-|------|----------|------|
-| PaymentService | 🔴 高 | 變更前新增測試 |
-| AuthController 中的錯誤處理 | 🟡 中 | 新增邊界案例測試 |
+### Critical Gaps (No Tests Found)
+| Feature | Risk Level | Recommendation |
+|---------|------------|----------------|
+| PaymentService | 🔴 High | Add tests before changes |
+| Error handling in AuthController | 🟡 Medium | Add edge case tests |
 
-### 部分覆蓋
-| 功能 | 已覆蓋 | 缺失 |
-|------|--------|------|
-| 使用者 CRUD | 建立、讀取 | 更新、刪除 |
-| 認證 | 登入 | 登出、更新 |
+### Partial Coverage
+| Feature | Covered | Missing |
+|---------|---------|---------|
+| User CRUD | Create, Read | Update, Delete |
+| Authentication | Login | Logout, Refresh |
 
-[未知] 這些是刻意排除還是遺漏？
+[Unknown] Are these intentional exclusions or oversights?
 ```
 
 ---
 
-## 階段 3：缺口識別
+## Phase 3: Gap Identification
 
-### 3.1 分類未知項目
+### 3.1 Categorize Unknowns
 
-建立結構化的缺口清單：
+Create a structured list of gaps:
 
 ```markdown
-## 需要人類輸入的資訊缺口
+## Information Gaps Requiring Human Input
 
-### 類別：商業背景
-| 問題 | 影響 | 誰能回答 |
-|------|------|---------|
-| 為什麼為此應用程式實作 OAuth？ | 設計理解 | 產品負責人 |
-| 此功能解決什麼使用者問題？ | 動機區塊 | 產品負責人 |
-| 目標使用者人物誌是什麼？ | 使用者故事 | UX/產品 |
+### Category: Business Context
+| Question | Impact | Who Can Answer |
+|----------|--------|----------------|
+| Why was OAuth implemented for this app? | Design understanding | Product Owner |
+| What user problems does this feature solve? | Motivation section | Product Owner |
+| What is the target user persona? | User Story | UX/Product |
 
-### 類別：技術決策
-| 問題 | 影響 | 誰能回答 |
-|------|------|---------|
-| 為什麼密碼用 BCrypt 而不是 Argon2？ | 安全性評估 | 原始開發者 |
-| 為什麼用 PostgreSQL 而不是 MongoDB？ | 架構理解 | 技術主管 |
-| 是什麼驅動了微服務的決定？ | 設計理由 | 架構師 |
+### Category: Technical Decisions
+| Question | Impact | Who Can Answer |
+|----------|--------|----------------|
+| Why BCrypt over Argon2 for passwords? | Security assessment | Original Developer |
+| Why PostgreSQL over MongoDB? | Architecture understanding | Tech Lead |
+| What drove the microservices decision? | Design rationale | Architect |
 
-### 類別：風險評估
-| 問題 | 影響 | 誰能回答 |
-|------|------|---------|
-| 支付的故障模式是什麼？ | 風險文件 | 領域專家 |
-| 資料保留要求？ | 合規 | 法務/合規 |
-| 安全威脅模型？ | 安全區塊 | 安全團隊 |
+### Category: Risk Assessment
+| Question | Impact | Who Can Answer |
+|----------|--------|----------------|
+| What are the failure modes for payment? | Risk documentation | Domain Expert |
+| Data retention requirements? | Compliance | Legal/Compliance |
+| Security threat model? | Security section | Security Team |
 ```
 
-### 3.2 標記信心等級
+### 3.2 Mark Confidence Levels
 
-為每個提取的項目分配信心度：
+Assign confidence to each extracted item:
 
-| 信心度 | 標籤 | 所需證據 |
-|--------|------|---------|
-| 100% | `[已確認]` | 直接程式碼引用帶行號 |
-| 70-99% | `[推斷]` | 基於模式的推斷 + 推理 |
-| 30-69% | `[假設]` | 常見做法，需要驗證 |
-| 0-29% | `[未知]` | 無法從程式碼判斷 |
+| Confidence | Label | Evidence Required |
+|------------|-------|-------------------|
+| 100% | `[Confirmed]` | Direct code reference with line numbers |
+| 70-99% | `[Inferred]` | Pattern-based deduction + reasoning |
+| 30-69% | `[Assumption]` | Common practice, needs verification |
+| 0-29% | `[Unknown]` | Cannot determine from code |
 
 ---
 
-## 階段 4：規格生成
+## Phase 4: Spec Generation
 
-### 4.1 使用範本
+### 4.1 Use Template
 
-套用 [reverse-spec-template.md](../../templates/reverse-spec-template.md)：
+Apply the [reverse-spec-template.md](../../templates/reverse-spec-template.md):
 
 ```markdown
-# [SPEC-XXX] 功能名稱（反向工程）
+# [SPEC-XXX] Feature Name (Reverse Engineered)
 
-> ⚠️ 此規格由現有程式碼反向工程而來
-> 最後分析日期：YYYY-MM-DD
-> 來源：path/to/analyzed/code
+> ⚠️ This spec was reverse engineered from existing code
+> Last analyzed: YYYY-MM-DD
+> Source: path/to/analyzed/code
 
-## 摘要
-[已確認] {從程式碼分析提取的摘要}
-- [來源: 程式碼] {primary_file}:{lines}
+## Summary
+[Confirmed] {Summary extracted from code analysis}
+- [Source: Code] {primary_file}:{lines}
 
-## 動機
-[未知] 需要人類輸入
-- 為什麼要建立此功能？
-- 它解決什麼問題？
-- 誰請求了此功能？
+## Motivation
+[Unknown] Requires human input
+- Why was this feature built?
+- What problem does it solve?
+- Who requested this feature?
 
-## 詳細設計
+## Detailed Design
 ...
 ```
 
-### 4.2 逐區塊指南
+### 4.2 Section-by-Section Guide
 
-| 區塊 | 來源 | 確定性 |
-|------|------|--------|
-| 摘要 | 程式碼結構 + 進入點 | [已確認] |
-| 動機 | 無法從程式碼提取 | [未知] |
-| 詳細設計 | 程式碼 + 架構分析 | [已確認/推斷] |
-| 驗收標準 | 測試檔案 | [推斷] |
-| 相依性 | package.json、imports | [已確認] |
-| 風險 | 無法判斷 | [未知] |
-| 範圍外 | 無法判斷 | [未知] |
+| Section | Source | Confidence |
+|---------|--------|------------|
+| Summary | Code structure + entry points | [Confirmed] |
+| Motivation | Cannot extract from code | [Unknown] |
+| Detailed Design | Code + architecture analysis | [Confirmed/Inferred] |
+| Acceptance Criteria | Test files | [Inferred] |
+| Dependencies | package.json, imports | [Confirmed] |
+| Risks | Cannot determine | [Unknown] |
+| Out of Scope | Cannot determine | [Unknown] |
 
 ---
 
-## 階段 5：人類審查
+## Phase 5: Human Review
 
-### 5.1 審查清單
+### 5.1 Review Checklist
 
 ```markdown
-## 人類審查清單
+## Human Review Checklist
 
-### 準確性驗證
-- [ ] 所有 `[已確認]` 項目已對照實際程式碼驗證
-- [ ] 來源引用正確（file:line）
-- [ ] 沒有捏造的 API 或設定
+### Accuracy Verification
+- [ ] All `[Confirmed]` items verified against actual code
+- [ ] Source citations are correct (file:line)
+- [ ] No fabricated APIs or configurations
 
-### 推斷驗證
-- [ ] 所有 `[推斷]` 項目已審查準確性
-- [ ] 不正確的推斷已更正或移除
-- [ ] 已考慮邊界案例
+### Inference Validation
+- [ ] All `[Inferred]` items reviewed for accuracy
+- [ ] Incorrect inferences corrected or removed
+- [ ] Edge cases considered
 
-### 缺口完成
-- [ ] 動機區塊已填寫
-- [ ] 風險評估已新增
-- [ ] 使用者故事已記錄
-- [ ] 權衡決策已記錄
+### Gap Completion
+- [ ] Motivation section filled in
+- [ ] Risk assessment added
+- [ ] User stories documented
+- [ ] Trade-off decisions recorded
 
-### 最終驗證
-- [ ] 原始開發者已審查（如果可用）
-- [ ] 已取得利害關係人簽核
-- [ ] 所有 `[未知]` 標籤已解決或確認
+### Final Verification
+- [ ] Spec reviewed by original developer (if available)
+- [ ] Stakeholder sign-off obtained
+- [ ] All `[Unknown]` labels resolved or acknowledged
 ```
 
-### 5.2 利害關係人審查範本
+### 5.2 Stakeholder Review Template
 
 ```markdown
-## 審查請求
+## Review Request
 
-**規格**: [SPEC-XXX] 功能名稱
-**生成日期**: YYYY-MM-DD
-**審查截止日期**: YYYY-MM-DD
+**Spec**: [SPEC-XXX] Feature Name
+**Generated**: YYYY-MM-DD
+**Review Due**: YYYY-MM-DD
 
-### 給利害關係人的問題
+### Questions for Stakeholders
 
-1. **給產品負責人**：
-   - 記錄的行為正確嗎？
-   - 原始動機是什麼？
-   - 有未記錄的需求嗎？
+1. **For Product Owner**:
+   - Is the documented behavior correct?
+   - What was the original motivation?
+   - Are there undocumented requirements?
 
-2. **給原始開發者**：
-   - 技術推斷準確嗎？
-   - 做了什麼權衡？
-   - 有已知問題或技術債嗎？
+2. **For Original Developer**:
+   - Are the technical inferences accurate?
+   - What trade-offs were made?
+   - Are there known issues or tech debt?
 
-3. **給領域專家**：
-   - 商業規則完整嗎？
-   - 應記錄什麼風險？
-   - 存在什麼邊界案例？
+3. **For Domain Expert**:
+   - Are the business rules complete?
+   - What risks should be documented?
+   - What edge cases exist?
 ```
 
 ---
 
-## 處理舊有程式碼挑戰
+## Handling Legacy Code Challenges
 
-### 挑戰 1：沒有測試
+### Challenge 1: No Tests
 
-當測試不存在時：
+When tests don't exist:
 
-1. 清楚記錄缺口
-2. 從程式碼註解推斷行為（如果有）
-3. 將所有驗收標準標記為 `[假設]`
-4. 建議將撰寫測試作為下一步
+1. Document the gap clearly
+2. Infer behavior from code comments (if any)
+3. Mark all acceptance criteria as `[Assumption]`
+4. Recommend writing tests as next step
 
-### 挑戰 2：沒有註解
+### Challenge 2: No Comments
 
-當文件不存在時：
+When documentation is absent:
 
-1. 使用有意義的名稱作為提示
-2. 追蹤資料流以理解
-3. 將理解標記為 `[推斷]`
-4. 優先進行人類審查
+1. Use meaningful names as hints
+2. Trace data flow for understanding
+3. Mark understanding as `[Inferred]`
+4. Prioritize human review
 
-### 挑戰 3：義大利麵程式碼
+### Challenge 3: Spaghetti Code
 
-當結構不清楚時：
+When structure is unclear:
 
-1. 專注於輸入/輸出邊界
-2. 記錄可觀察的行為
-3. 將內部邏輯標記為 `[未知]`
-4. 建議在詳細規格前進行重構
+1. Focus on input/output boundaries
+2. Document observable behavior
+3. Mark internal logic as `[Unknown]`
+4. Suggest refactoring before detailed spec
 
-### 挑戰 4：多個實作
+### Challenge 4: Multiple Implementations
 
-當程式碼有變體時：
+When code has variants:
 
-1. 記錄發現的所有變體
-2. 記錄哪個看起來是目前的
-3. 標記為 `[需確認]`
-4. 詢問哪個是標準版本
-
----
-
-## 品質關卡
-
-在完成反向工程規格之前：
-
-| 關卡 | 要求 | 檢查 |
-|------|------|------|
-| **來源標註** | 每個聲明都有 file:line | ✅/❌ |
-| **確定性標籤** | 每個陳述都有標籤 | ✅/❌ |
-| **無捏造** | 沒有發明的 API/設定 | ✅/❌ |
-| **缺口記錄** | 所有未知項目已列出 | ✅/❌ |
-| **人類審查** | 利害關係人已審查 | ✅/❌ |
+1. Document all variants found
+2. Note which appears to be current
+3. Mark as `[Need Confirmation]`
+4. Ask which is canonical
 
 ---
 
-## 版本歷史
+## Quality Gates
 
-| 版本 | 日期 | 變更 |
-|------|------|------|
-| 1.0.0 | 2026-01-19 | 初始發布 |
+Before finalizing a reverse-engineered spec:
+
+| Gate | Requirement | Check |
+|------|-------------|-------|
+| **Source Attribution** | Every claim has file:line | ✅/❌ |
+| **Certainty Labels** | Every statement is labeled | ✅/❌ |
+| **No Fabrication** | No invented APIs/configs | ✅/❌ |
+| **Gap Documentation** | All unknowns listed | ✅/❌ |
+| **Human Review** | Stakeholder has reviewed | ✅/❌ |
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2026-01-19 | Initial release |

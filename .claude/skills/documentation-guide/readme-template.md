@@ -1,58 +1,50 @@
----
-source: ../../../../skills/documentation-guide/readme-template.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
-status: current
----
+# README Template & Best Practices
 
-# README 範本與最佳實踐
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/documentation-guide/readme-template.md)
 
-> **語言**: [English](../../../../skills/documentation-guide/readme-template.md) | 繁體中文
-
-**版本**: 1.0.0
-**最後更新**: 2025-12-24
-**適用範圍**: Claude Code Skills
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
 
 ---
 
-## 目的
+## Purpose
 
-本文件提供撰寫 README 檔案的範本和最佳實踐。
+This document provides templates and best practices for writing README files.
 
 ---
 
-## README 章節參考
+## README Sections Reference
 
-### 必要章節（最小需求）
+### Essential Sections (Minimum)
 
-| 章節 | 目的 | 必要 |
+| Section | Purpose | Required |
 |---------|---------|:--------:|
-| 專案名稱 | 識別 | ✅ |
-| 描述 | 功能說明 | ✅ |
-| 安裝 | 安裝方式 | ✅ |
-| 使用 | 使用方式 | ✅ |
-| 授權 | 法律條款 | ✅ |
+| Project Name | Identity | ✅ |
+| Description | What it does | ✅ |
+| Installation | How to install | ✅ |
+| Usage | How to use | ✅ |
+| License | Legal terms | ✅ |
 
-### 建議章節
+### Recommended Sections
 
-| 章節 | 目的 | 何時包含 |
+| Section | Purpose | When to Include |
 |---------|---------|-----------------|
-| Badges | 狀態指標 | CI、npm、覆蓋率 |
-| 功能 | 主要能力 | 多功能專案 |
-| 快速開始 | 快速上手 | 複雜設定 |
-| API 參考 | 技術文件 | 函式庫/API |
-| 配置 | 設定選項 | 可配置工具 |
-| 貢獻 | 如何協助 | 開源專案 |
-| 變更記錄 | 版本歷程 | 版本化專案 |
-| FAQ | 常見問題 | 面向使用者的專案 |
-| 致謝 | 感謝名單 | 社群專案 |
+| Badges | Status indicators | CI, npm, coverage |
+| Features | Key capabilities | Multi-feature projects |
+| Quick Start | Fast onboarding | Complex setup |
+| API Reference | Technical docs | Libraries/APIs |
+| Configuration | Setup options | Configurable tools |
+| Contributing | How to help | Open source |
+| Changelog | Version history | Versioned projects |
+| FAQ | Common questions | User-facing projects |
+| Acknowledgments | Credits | Community projects |
 
 ---
 
-## README 範本
+## README Templates
 
-### 最小 README
+### Minimal README
 
 ```markdown
 # Project Name
@@ -77,7 +69,7 @@ lib.doSomething();
 MIT
 ```
 
-### 標準 README
+### Standard README
 
 ```markdown
 # Project Name
@@ -121,7 +113,7 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
 MIT - see [LICENSE](LICENSE)
 ```
 
-### 完整 README
+### Full README
 
 ```markdown
 # Project Name
@@ -238,18 +230,18 @@ MIT - see [LICENSE](LICENSE) for details.
 
 ---
 
-## 章節細節
+## Section Details
 
-### 專案名稱與描述
+### Project Name & Description
 
-**良好**:
+**Good**:
 ```markdown
 # FastJSON
 
 A blazing-fast JSON parser for Node.js with streaming support.
 ```
 
-**不良**:
+**Bad**:
 ```markdown
 # my-project
 
@@ -258,7 +250,7 @@ This is a project.
 
 ### Badges
 
-常見徽章：
+Common badges:
 ```markdown
 [![CI](https://github.com/org/repo/actions/workflows/ci.yml/badge.svg)](https://github.com/org/repo/actions)
 [![npm](https://img.shields.io/npm/v/package.svg)](https://www.npmjs.com/package/package)
@@ -266,9 +258,9 @@ This is a project.
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ```
 
-### 安裝
+### Installation
 
-如果適用，包含多個套件管理器：
+Include multiple package managers if applicable:
 
 ```markdown
 ## Installation
@@ -284,9 +276,9 @@ yarn add package-name
 ```
 ```
 
-### 使用範例
+### Usage Examples
 
-**良好** - 展示真實使用案例：
+**Good** - Shows real use case:
 ```markdown
 ## Usage
 
@@ -302,7 +294,7 @@ const strictData = parseJSON('./data.json', { strict: true });
 ```
 ```
 
-**不良** - 過於抽象：
+**Bad** - Too abstract:
 ```markdown
 ## Usage
 
@@ -312,7 +304,7 @@ lib.func();
 ```
 ```
 
-### 配置表格
+### Configuration Table
 
 ```markdown
 ## Configuration
@@ -326,9 +318,9 @@ lib.func();
 
 ---
 
-## 常見錯誤
+## Common Mistakes
 
-### ❌ 過於模糊
+### ❌ Too Vague
 
 ```markdown
 # Project
@@ -344,7 +336,7 @@ Install it.
 Use it.
 ```
 
-### ❌ 沒有範例
+### ❌ No Examples
 
 ```markdown
 # JSON Parser
@@ -354,59 +346,59 @@ A JSON parser library.
 See API docs for usage.
 ```
 
-### ❌ 資訊過時
+### ❌ Outdated Information
 
 ```markdown
 ## Requirements
 
-- Node.js 8+  ← 過時
-- npm 5+      ← 過時
+- Node.js 8+  ← Outdated
+- npm 5+      ← Outdated
 
 ## Installation
 
 ```bash
-npm install old-package-name  ← 錯誤的套件名稱
+npm install old-package-name  ← Wrong package name
 ```
 ```
 
-### ❌ 連結失效
+### ❌ Broken Links
 
 ```markdown
-See [documentation](docs/old-path.md) for more info.  ← 連結不存在
+See [documentation](docs/old-path.md) for more info.  ← Link doesn't exist
 ```
 
 ---
 
-## README 品質檢查清單
+## README Quality Checklist
 
-- [ ] 專案名稱清楚說明
-- [ ] 用 1-2 句話解釋目的
-- [ ] 安裝說明完整
-- [ ] 使用範例確實可運作
-- [ ] 所有連結都已驗證有效
-- [ ] 版本需求準確
-- [ ] 授權清楚說明
-- [ ] 提供聯絡/支援資訊（面向使用者的專案）
+- [ ] Project name clearly stated
+- [ ] Purpose explained in 1-2 sentences
+- [ ] Installation instructions complete
+- [ ] Usage example actually works
+- [ ] All links verified working
+- [ ] Version requirements accurate
+- [ ] License clearly stated
+- [ ] Contact/support info provided (for user-facing projects)
 
 ---
 
-## 相關標準
+## Related Standards
 
 - [Documentation Structure Reference](./documentation-structure.md)
 - [Documentation Writing Standards](../../core/documentation-writing-standards.md)
 
 ---
 
-## 版本歷史
+## Version History
 
-| 版本 | 日期 | 變更 |
+| Version | Date | Changes |
 |---------|------|---------|
-| 1.0.0 | 2025-12-24 | 新增：標準章節（目的、相關標準、版本歷史、授權） |
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
 
 ---
 
-## 授權
+## License
 
-本文件採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權。
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

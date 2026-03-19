@@ -1,56 +1,48 @@
----
-source: ../../../../skills/bdd-assistant/gherkin-guide.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-05
-status: current
----
+# Gherkin Quick Reference Guide
 
-# Gherkin 快速參考指南
-
-**版本**: 1.0.0
-**最後更新**: 2026-01-19
+**Version**: 1.0.0
+**Last Updated**: 2026-01-19
 
 ---
 
-## 概述
+## Overview
 
-Gherkin 是一種商業可讀、領域特定的語言，用於描述軟體行為而不詳述該行為如何實作。
+Gherkin is a Business Readable, Domain Specific Language for describing software behavior without detailing how that behavior is implemented.
 
 ---
 
-## 關鍵字
+## Keywords
 
 ### Feature
 
-相關場景的容器。
+Container for related scenarios.
 
 ```gherkin
-Feature: 購物車
-  As a 客戶
-  I want 管理我的購物車
-  So that 我可以購買我想要的產品
+Feature: Shopping Cart
+  As a customer
+  I want to manage my shopping cart
+  So that I can purchase products I want
 ```
 
 ### Scenario
 
-描述特定行為的單一測試案例。
+Single test case describing a specific behavior.
 
 ```gherkin
-Scenario: 新增商品到空購物車
-  Given 我有一個空的購物車
-  When 我新增「Widget」到我的購物車
-  Then 我的購物車應該包含 1 個商品
+Scenario: Add item to empty cart
+  Given I have an empty cart
+  When I add "Widget" to my cart
+  Then my cart should contain 1 item
 ```
 
 ### Given
 
-設定初始情境或狀態。
+Set up initial context or state.
 
 ```gherkin
-Given 我以 "admin@example.com" 登入
-Given 我的購物車有 3 個商品
-Given 存在以下使用者:
+Given I am logged in as "admin@example.com"
+Given I have 3 items in my cart
+Given the following users exist:
   | email            | role  |
   | user@example.com | user  |
   | admin@example.com| admin |
@@ -58,68 +50,68 @@ Given 存在以下使用者:
 
 ### When
 
-觸發動作或事件。
+Trigger an action or event.
 
 ```gherkin
-When 我點擊「提交」按鈕
-When 我搜尋「筆電」
-When 我新增「Widget」到我的購物車
+When I click the "Submit" button
+When I search for "laptop"
+When I add "Widget" to my cart
 ```
 
 ### Then
 
-斷言預期結果。
+Assert expected outcomes.
 
 ```gherkin
-Then 我應該看到「訂單已確認」
-Then 我的購物車總計應該是 $99.99
-Then 我應該收到確認電子郵件
+Then I should see "Order confirmed"
+Then my cart total should be $99.99
+Then I should receive a confirmation email
 ```
 
 ### And / But
 
-延續前一個關鍵字。
+Continue the previous keyword.
 
 ```gherkin
-Scenario: 使用有效憑證登入
-  Given 我在登入頁面
-  And 我有一個註冊帳號
-  When 我輸入我的電子郵件
-  And 我輸入我的密碼
-  And 我點擊登入
-  Then 我應該看到我的儀表板
-  And 我應該看到歡迎訊息
-  But 我不應該看到登入表單
+Scenario: Login with valid credentials
+  Given I am on the login page
+  And I have a registered account
+  When I enter my email
+  And I enter my password
+  And I click login
+  Then I should see my dashboard
+  And I should see a welcome message
+  But I should not see the login form
 ```
 
 ### Background
 
-功能中所有場景的共同設定。
+Common setup for all scenarios in a feature.
 
 ```gherkin
-Feature: 使用者個人資料
+Feature: User Profile
   Background:
-    Given 我已登入
-    And 我在我的個人資料頁面
+    Given I am logged in
+    And I am on my profile page
 
-  Scenario: 更新顯示名稱
-    When 我將顯示名稱改為「新名稱」
-    Then 我的顯示名稱應該是「新名稱」
+  Scenario: Update display name
+    When I change my display name to "NewName"
+    Then my display name should be "NewName"
 
-  Scenario: 更新電子郵件
-    When 我將電子郵件改為 "new@example.com"
-    Then 我的電子郵件應該是 "new@example.com"
+  Scenario: Update email
+    When I change my email to "new@example.com"
+    Then my email should be "new@example.com"
 ```
 
 ### Scenario Outline
 
-帶多組資料的範本。
+Template with multiple data sets.
 
 ```gherkin
-Scenario Outline: 計算折扣
-  Given 我的購物車總計 <cart_total>
-  When 我套用折扣碼 "<code>"
-  Then 我的總計應該是 <final_total>
+Scenario Outline: Calculate discount
+  Given my cart total is <cart_total>
+  When I apply discount code "<code>"
+  Then my total should be <final_total>
 
   Examples:
     | cart_total | code    | final_total |
@@ -130,20 +122,20 @@ Scenario Outline: 計算折扣
 
 ---
 
-## 資料表格
+## Data Tables
 
-### 雜湊表格（具名欄位）
+### Hash Table (Named Columns)
 
 ```gherkin
-Given 存在以下使用者:
+Given the following users exist:
   | name  | email            | role  |
   | John  | john@example.com | admin |
   | Jane  | jane@example.com | user  |
 ```
 
 ```typescript
-// 步驟定義
-Given('存在以下使用者:', async function (dataTable) {
+// Step definition
+Given('the following users exist:', async function (dataTable) {
   const users = dataTable.hashes();
   // users = [
   //   { name: 'John', email: 'john@example.com', role: 'admin' },
@@ -155,27 +147,27 @@ Given('存在以下使用者:', async function (dataTable) {
 });
 ```
 
-### 原始表格（無標題）
+### Raw Table (No Headers)
 
 ```gherkin
-Given 我有以下商品:
+Given I have the following items:
   | Widget A |
   | Widget B |
   | Widget C |
 ```
 
 ```typescript
-// 步驟定義
-Given('我有以下商品:', async function (dataTable) {
+// Step definition
+Given('I have the following items:', async function (dataTable) {
   const items = dataTable.raw().flat();
   // items = ['Widget A', 'Widget B', 'Widget C']
 });
 ```
 
-### 列陣列
+### Row Arrays
 
 ```gherkin
-Given 這些價格等級:
+Given these price tiers:
   | tier     | min | max  | discount |
   | Bronze   | 0   | 99   | 0%       |
   | Silver   | 100 | 499  | 5%       |
@@ -183,8 +175,8 @@ Given 這些價格等級:
 ```
 
 ```typescript
-// 步驟定義
-Given('這些價格等級:', async function (dataTable) {
+// Step definition
+Given('these price tiers:', async function (dataTable) {
   const rows = dataTable.rows();
   // rows = [
   //   ['Bronze', '0', '99', '0%'],
@@ -198,87 +190,87 @@ Given('這些價格等級:', async function (dataTable) {
 
 ## Doc Strings
 
-用於多行文字內容。
+For multi-line text content.
 
 ```gherkin
-Scenario: 建立文章
-  Given 我在新文章頁面
-  When 我輸入以下內容:
+Scenario: Create article
+  Given I am on the new article page
+  When I enter the following content:
     """
-    # 歡迎
+    # Welcome
 
-    這是文章內容。
+    This is the article body.
 
-    - 要點 1
-    - 要點 2
+    - Point 1
+    - Point 2
     """
-  And 我點擊發布
-  Then 文章應該被建立
+  And I click publish
+  Then the article should be created
 ```
 
 ---
 
 ## Tags
 
-組織和篩選場景。
+Organize and filter scenarios.
 
-### 常用 Tags
+### Common Tags
 
 ```gherkin
 @smoke @critical
-Feature: 使用者認證
+Feature: User Authentication
 
   @happy-path
-  Scenario: 成功登入
+  Scenario: Successful login
     ...
 
   @error-handling
-  Scenario: 失敗登入
+  Scenario: Failed login
     ...
 
   @wip
-  Scenario: 雙因素認證
+  Scenario: Two-factor authentication
     ...
 
   @slow @integration
-  Scenario: SSO 登入
+  Scenario: SSO login
     ...
 ```
 
-### Tag 類別
+### Tag Categories
 
-| Tag | 用途 |
-|-----|------|
-| `@smoke` | 快速健全性測試 |
-| `@critical` | 高優先級功能 |
-| `@wip` | 進行中的工作 |
-| `@slow` | 長時間執行的測試 |
-| `@manual` | 需要手動驗證 |
-| `@skip` | 暫時禁用 |
-| `@integration` | 整合測試 |
-| `@api` | API 層級測試 |
-| `@ui` | UI 層級測試 |
+| Tag | Purpose |
+|-----|---------|
+| `@smoke` | Quick sanity tests |
+| `@critical` | High-priority features |
+| `@wip` | Work in progress |
+| `@slow` | Long-running tests |
+| `@manual` | Requires manual verification |
+| `@skip` | Temporarily disabled |
+| `@integration` | Integration tests |
+| `@api` | API-level tests |
+| `@ui` | UI-level tests |
 
-### 使用 Tags 執行
+### Running with Tags
 
 ```bash
-# 只執行 smoke 測試
+# Run only smoke tests
 cucumber --tags @smoke
 
-# 執行 critical 但不執行 slow 測試
+# Run critical but not slow tests
 cucumber --tags "@critical and not @slow"
 
-# 執行 smoke 或 critical 測試
+# Run smoke or critical tests
 cucumber --tags "@smoke or @critical"
 ```
 
 ---
 
-## 本地化
+## Localization
 
-Gherkin 支援多種語言。
+Gherkin supports multiple languages.
 
-### 英文（預設）
+### English (Default)
 
 ```gherkin
 Feature: Shopping Cart
@@ -288,7 +280,7 @@ Feature: Shopping Cart
     Then my cart should have 1 item
 ```
 
-### 繁體中文 (zh-TW)
+### Traditional Chinese (zh-TW)
 
 ```gherkin
 # language: zh-TW
@@ -299,7 +291,7 @@ Feature: Shopping Cart
     那麼 我的購物車應該有 1 個商品
 ```
 
-### 簡體中文 (zh-CN)
+### Simplified Chinese (zh-CN)
 
 ```gherkin
 # language: zh-CN
@@ -310,7 +302,7 @@ Feature: Shopping Cart
     那么 我的购物车应该有 1 个商品
 ```
 
-### 日文 (ja)
+### Japanese (ja)
 
 ```gherkin
 # language: ja
@@ -323,119 +315,119 @@ Feature: Shopping Cart
 
 ---
 
-## 最佳實踐
+## Best Practices
 
-### 應該
+### DO
 
 ```gherkin
-# ✅ 宣告式 - 描述行為
-Scenario: 成功結帳
-  Given 我的購物車有商品
-  And 我已登入
-  When 我使用有效付款完成結帳
-  Then 我的訂單應該被確認
+# ✅ Declarative - describes behavior
+Scenario: Successful checkout
+  Given I have items in my cart
+  And I am logged in
+  When I complete checkout with valid payment
+  Then my order should be confirmed
 
-# ✅ 商業語言
-Scenario: 套用會員折扣
-  Given 我是金卡會員
-  And 我的購物車總計 $100
-  When 我進入結帳
-  Then 我應該獲得 15% 折扣
+# ✅ Business language
+Scenario: Apply loyalty discount
+  Given I am a gold member
+  And my cart total is $100
+  When I proceed to checkout
+  Then I should receive a 15% discount
 
-# ✅ 獨立場景
-# 每個場景設定自己的情境
-Scenario: 新使用者註冊
-  Given 我是新訪客
-  When 我使用有效資訊註冊
-  Then 我應該擁有一個帳號
+# ✅ Independent scenarios
+# Each scenario sets up its own context
+Scenario: New user registration
+  Given I am a new visitor
+  When I register with valid details
+  Then I should have an account
 ```
 
-### 不應該
+### DON'T
 
 ```gherkin
-# ❌ 命令式 - 太技術
-Scenario: 登入
-  Given 我導航到 "/login"
-  And 我輸入 "user@example.com" 到 "#email"
-  And 我輸入 "password" 到 "#password"
-  And 我點擊 "#submit"
-  Then 我應該看到元素 ".dashboard"
+# ❌ Imperative - too technical
+Scenario: Login
+  Given I navigate to "/login"
+  And I type "user@example.com" into "#email"
+  And I type "password" into "#password"
+  And I click "#submit"
+  Then I should see element ".dashboard"
 
-# ❌ 技術術語
-Scenario: API 認證
-  Given 我 POST 到 "/api/auth" 帶 JSON payload
-  Then 回應碼應該是 200
-  And 回應應該包含 "token"
+# ❌ Technical jargon
+Scenario: API authentication
+  Given I POST to "/api/auth" with JSON payload
+  Then the response code should be 200
+  And the response should contain "token"
 
-# ❌ 相依場景
-Scenario: 步驟 1 - 建立使用者
+# ❌ Dependent scenarios
+Scenario: Step 1 - Create user
   ...
-Scenario: 步驟 2 - 以上面建立的使用者登入
-  # 這依賴於 Scenario 1 先執行！
+Scenario: Step 2 - Login as user created above
+  # This depends on Scenario 1 running first!
 ```
 
 ---
 
-## 常見模式
+## Common Patterns
 
-### Page Object 整合
+### Page Object Integration
 
 ```gherkin
-# 場景引用頁面，不是元素
-Scenario: 導航到結帳
-  Given 我在購物車頁面
-  When 我點擊進入結帳
-  Then 我應該在結帳頁面
+# Scenario references pages, not elements
+Scenario: Navigate to checkout
+  Given I am on the cart page
+  When I click proceed to checkout
+  Then I should be on the checkout page
 ```
 
-### 資料驅動測試
+### Data-Driven Testing
 
 ```gherkin
-Scenario Outline: 驗證電子郵件格式
-  When 我以電子郵件 "<email>" 註冊
-  Then 我應該看到 "<message>"
+Scenario Outline: Validate email format
+  When I register with email "<email>"
+  Then I should see "<message>"
 
   Examples:
     | email           | message         |
-    | valid@test.com  | 成功            |
-    | invalid         | 無效電子郵件    |
-    | @test.com       | 無效電子郵件    |
-    |                 | 需要電子郵件    |
+    | valid@test.com  | Success         |
+    | invalid         | Invalid email   |
+    | @test.com       | Invalid email   |
+    |                 | Email required  |
 ```
 
-### Hooks（非 Gherkin）
+### Hooks (Non-Gherkin)
 
 ```typescript
-// 在步驟定義中
+// In step definitions
 import { Before, After, BeforeAll, AfterAll } from '@cucumber/cucumber';
 
 BeforeAll(async function () {
-  // 所有場景前設定一次
+  // Setup once before all scenarios
   await database.connect();
 });
 
 Before(async function () {
-  // 每個場景前設定
+  // Setup before each scenario
   await database.beginTransaction();
 });
 
 After(async function () {
-  // 每個場景後清理
+  // Cleanup after each scenario
   await database.rollback();
 });
 
 AfterAll(async function () {
-  // 所有場景後清理一次
+  // Cleanup once after all scenarios
   await database.disconnect();
 });
 ```
 
 ---
 
-## 各語言工具
+## Tools by Language
 
-| 語言 | 工具 | 套件 |
-|------|------|------|
+| Language | Tool | Package |
+|----------|------|---------|
 | JavaScript | Cucumber.js | `@cucumber/cucumber` |
 | TypeScript | Cucumber.js | `@cucumber/cucumber` |
 | Python | Behave | `behave` |
@@ -447,8 +439,8 @@ AfterAll(async function () {
 
 ---
 
-## 相關資源
+## Related Resources
 
-- [BDD 工作流程指南](./bdd-workflow.md)
-- [BDD 核心標準](../../../../core/behavior-driven-development.md)
-- [官方 Gherkin 參考](https://cucumber.io/docs/gherkin/reference/)
+- [BDD Workflow Guide](./bdd-workflow.md)
+- [BDD Core Standard](../../core/behavior-driven-development.md)
+- [Official Gherkin Reference](https://cucumber.io/docs/gherkin/reference/)

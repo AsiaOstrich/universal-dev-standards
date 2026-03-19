@@ -3,6 +3,6 @@
   "source": "universal-dev-standards",
   "agent": "claude-code",
   "level": "project",
-  "locale": "zh-TW",
+  "locale": "en",
   "installedDate": "2026-03-19"
 }
