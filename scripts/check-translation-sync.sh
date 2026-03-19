@@ -189,10 +189,45 @@ check_locale() {
 
     done < <(find "$LOCALE_DIR" -name "*.md" -type f | sort)
 
+    # Check skills/commands translation completeness
+    local COMMANDS_SOURCE_DIR="$ROOT_DIR/skills/commands"
+    local COMMANDS_LOCALE_DIR="$LOCALE_DIR/skills/commands"
+    local COMMANDS_MISSING=0
+    local COMMANDS_TOTAL=0
+
+    if [ -d "$COMMANDS_SOURCE_DIR" ]; then
+        echo ""
+        echo -e "  ${BLUE}Commands Translation Completeness:${NC}"
+
+        for source_cmd in "$COMMANDS_SOURCE_DIR"/*.md; do
+            [ -f "$source_cmd" ] || continue
+            local cmd_name=$(basename "$source_cmd")
+            # Skip non-command files
+            case "$cmd_name" in
+                COMMAND-FAMILY-OVERVIEW.md|README.md) continue ;;
+            esac
+            COMMANDS_TOTAL=$((COMMANDS_TOTAL + 1))
+            if [ ! -f "$COMMANDS_LOCALE_DIR/$cmd_name" ]; then
+                echo -e "    ${RED}[MISSING]${NC} skills/commands/$cmd_name"
+                COMMANDS_MISSING=$((COMMANDS_MISSING + 1))
+            fi
+        done
+
+        if [ $COMMANDS_MISSING -eq 0 ]; then
+            echo -e "    ${GREEN}✓ All $COMMANDS_TOTAL commands have translations${NC}"
+        else
+            echo -e "    ${RED}✗ $COMMANDS_MISSING/$COMMANDS_TOTAL commands missing translations${NC}"
+            OUTDATED=$((OUTDATED + COMMANDS_MISSING))
+        fi
+    fi
+
     # Locale summary
     echo ""
     echo -e "  ${BLUE}$LOCALE Summary:${NC}"
     echo -e "    Total: $TOTAL | Current: ${GREEN}$CURRENT${NC} | Outdated: ${RED}$OUTDATED${NC} | Missing: ${RED}$MISSING_SOURCE${NC}"
+    if [ $COMMANDS_MISSING -gt 0 ]; then
+        echo -e "    Commands missing: ${RED}$COMMANDS_MISSING${NC}"
+    fi
     echo ""
 
     # Update global counters
