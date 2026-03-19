@@ -34,6 +34,7 @@ import { getToolFormat } from '../core/constants.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
 import { writeUpdateCache } from '../utils/update-checker.js';
 import { StandardValidator } from '../utils/standard-validator.js';
+import { WorkflowGate } from '../utils/workflow-gate.js';
 import { t, getLanguage, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 
 /**
@@ -349,6 +350,9 @@ export async function checkCommand(options = {}) {
 
   // Coverage report
   displayCoverageReport(manifest, msg, common, projectPath);
+
+  // Workflow status
+  displayWorkflowStatus(projectPath);
 
   // Final status
   const allGood = fileStatus.missing.length === 0 &&
@@ -1445,6 +1449,12 @@ async function displaySummary(projectPath, _options = {}) {
     console.log(`  ${summaryMsg.commands || 'Commands'}: ${commandsStatus}`);
   }
 
+  // === Row 6: Workflow Status ===
+  const workflowStatus = getWorkflowStatusSummary(projectPath);
+  if (workflowStatus) {
+    console.log(`  ${summaryMsg.workflow || 'Workflow'}: ${workflowStatus}`);
+  }
+
   console.log(chalk.gray('─'.repeat(50)));
   console.log();
 }
@@ -1568,4 +1578,72 @@ function getCommandsStatusSummary(manifest, projectPath) {
   }
 
   return parts.length > 0 ? parts.join(' | ') : null;
+}
+
+/**
+ * Get workflow status summary string (for --summary mode)
+ * @param {string} projectPath - Project root path
+ * @returns {string|null} Formatted workflow status or null if no active workflows
+ */
+function getWorkflowStatusSummary(projectPath) {
+  try {
+    const gate = new WorkflowGate(projectPath);
+    const active = gate.listActiveWorkflows();
+
+    if (active.length === 0) {
+      return chalk.green('No active workflows ✓');
+    }
+
+    const parts = active.map(wf => {
+      const progress = wf.progress
+        ? `${wf.progress.percentage}%`
+        : '';
+      return chalk.yellow(`${wf.workflowName}:${wf.currentStep || '?'} ${progress}`);
+    });
+
+    return parts.join(' | ') + chalk.yellow(` (${active.length} active)`);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Display workflow status in full check mode
+ * @param {string} projectPath - Project root path
+ */
+function displayWorkflowStatus(projectPath) {
+  try {
+    const gate = new WorkflowGate(projectPath);
+    const active = gate.listActiveWorkflows();
+
+    if (active.length === 0) return;
+
+    console.log(chalk.cyan('Workflow Status | 工作流程狀態'));
+    console.log();
+
+    for (const wf of active) {
+      const progress = wf.progress
+        ? `${wf.progress.completed}/${wf.progress.total} (${wf.progress.percentage}%)`
+        : 'unknown';
+      const statusColor = wf.status === 'paused' ? chalk.yellow : chalk.blue;
+
+      console.log(`  ${statusColor('●')} ${chalk.bold(wf.workflowName)} — ${wf.status}`);
+      console.log(chalk.gray(`    Step: ${wf.currentStep || 'N/A'} | Progress: ${progress}`));
+
+      // Staleness warning
+      if (wf.updatedAt) {
+        const updatedDate = new Date(wf.updatedAt);
+        const daysSince = Math.floor((Date.now() - updatedDate.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysSince > 7) {
+          console.log(chalk.yellow(`    ⚠ Stale: last updated ${daysSince} days ago`));
+        } else {
+          console.log(chalk.gray(`    Updated: ${wf.updatedAt}`));
+        }
+      }
+    }
+
+    console.log();
+  } catch {
+    // Silently skip if workflow gate not available
+  }
 }

@@ -10,6 +10,54 @@ Map your current development phase to UDS commands. Get guidance on which tools 
 
 將你目前的開發階段對應到 UDS 指令。了解在每個階段應該使用哪些工具。
 
+## Context-Aware Start | 情境感知啟動
+
+When `/dev-workflow` is invoked, the AI assistant MUST first check the project's workflow state:
+
+當調用 `/dev-workflow` 時，AI 助手必須先檢查專案的工作流程狀態：
+
+### Step 1: Check Active Workflows | 檢查進行中的工作流程
+
+```bash
+ls .workflow-state/*.yaml .workflow-state/*.json 2>/dev/null
+```
+
+**If active workflows found | 如果有進行中的工作流程：**
+
+1. Display active workflow summary (name, phase, progress)
+2. Suggest resuming: "You have an active **{workflow}** at phase **{phase}**. Resume with `/{command}`?"
+3. Show the appropriate next command based on current phase
+
+**Phase → Next Command Mapping | 階段 → 下一步指令對應：**
+
+| Workflow | Current Phase | Suggested Next Command |
+|----------|--------------|----------------------|
+| SDD | discuss | `/sdd create` |
+| SDD | create | `/sdd review` |
+| SDD | review | `/sdd approve` |
+| SDD | approve | `/sdd implement` |
+| SDD | implement | `/sdd verify` |
+| TDD | red | Write failing test, then run tests |
+| TDD | green | Write minimal code to pass |
+| TDD | refactor | Clean up, then `/tdd` for next cycle |
+| BDD | discovery | `/bdd` to formulate scenarios |
+| BDD | formulation | Write `.feature` file |
+| BDD | automation | Implement step definitions |
+
+**If no active workflows | 如果沒有進行中的工作流程：**
+
+Proceed to show the standard phase overview below.
+
+### Step 2: Check for Active Specs | 檢查活躍規格
+
+```bash
+ls docs/specs/SPEC-*.md 2>/dev/null
+```
+
+If active specs exist, highlight them and suggest the appropriate workflow phase.
+
+---
+
 ## Usage | 用法
 
 ```bash

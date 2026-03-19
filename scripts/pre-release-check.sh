@@ -68,10 +68,10 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=17
+TOTAL=18
 
 if [ "$SKIP_TESTS" = true ]; then
-    TOTAL=15
+    TOTAL=16
 fi
 
 # Function to run a check
@@ -236,22 +236,39 @@ else
     PASSED=$((PASSED + 1))
 fi
 
-# Step 16: Unit Tests
-if [ "$SKIP_TESTS" = true ]; then
-    echo -e "${CYAN}[16/$TOTAL]${NC} Running unit tests..."
-    echo -e "      ${YELLOW}⏭ Skipped (--skip-tests flag)${NC}"
-    SKIPPED=$((SKIPPED + 1))
+# Step 16: Workflow Compliance (warning only)
+echo -e "${CYAN}[16/$TOTAL]${NC} Running workflow compliance check | 工作流程合規檢查..."
+if [ -f "$SCRIPT_DIR/check-workflow-compliance.sh" ]; then
+    wf_output=$("$SCRIPT_DIR/check-workflow-compliance.sh" 2>&1)
+    wf_warnings=$(echo "$wf_output" | grep -c "⚠️" 2>/dev/null || echo "0")
+    if [ "$wf_warnings" -gt 0 ]; then
+        echo -e "      ${YELLOW}⚠ $wf_warnings workflow warning(s) (advisory only)${NC}"
+        echo "$wf_output" | grep "⚠️\|Active workflows\|→" | sed 's/^/      /'
+    else
+        echo -e "      ${GREEN}✓ No workflow compliance issues${NC}"
+    fi
+    PASSED=$((PASSED + 1))
 else
-    run_check "16" "Running unit tests | 單元測試" "npm run test:unit --prefix $CLI_DIR"
+    echo -e "      ${YELLOW}⏭ check-workflow-compliance.sh not found${NC}"
+    SKIPPED=$((SKIPPED + 1))
 fi
 
-# Step 17: E2E Tests (Bug Regression)
+# Step 17: Unit Tests
 if [ "$SKIP_TESTS" = true ]; then
-    echo -e "${CYAN}[17/$TOTAL]${NC} Running E2E tests..."
+    echo -e "${CYAN}[17/$TOTAL]${NC} Running unit tests..."
     echo -e "      ${YELLOW}⏭ Skipped (--skip-tests flag)${NC}"
     SKIPPED=$((SKIPPED + 1))
 else
-    run_check "17" "Running E2E tests | E2E 迴歸測試" "npm run test:e2e --prefix $CLI_DIR"
+    run_check "17" "Running unit tests | 單元測試" "npm run test:unit --prefix $CLI_DIR"
+fi
+
+# Step 18: E2E Tests (Bug Regression)
+if [ "$SKIP_TESTS" = true ]; then
+    echo -e "${CYAN}[18/$TOTAL]${NC} Running E2E tests..."
+    echo -e "      ${YELLOW}⏭ Skipped (--skip-tests flag)${NC}"
+    SKIPPED=$((SKIPPED + 1))
+else
+    run_check "18" "Running E2E tests | E2E 迴歸測試" "npm run test:e2e --prefix $CLI_DIR"
 fi
 
 # Show summary
