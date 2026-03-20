@@ -6,7 +6,7 @@ This document defines the development standards for the Universal Development St
 
 Universal Development Standards is a language-agnostic, framework-agnostic development standards framework. It provides:
 
-- **Core Standards** (`core/`): 50 fundamental development standards
+- **Core Standards** (`core/`): 48 fundamental development standards
 - **AI Skills** (`skills/`): Claude Code skills for AI-assisted development
 - **CLI Tool** (`cli/`): Node.js CLI for adopting standards
 - **Integrations** (`integrations/`): Configurations for various AI tools
@@ -457,7 +457,7 @@ UDS (標準定義) ──→ DevAP (編排執行) ──→ VibeOps (全生命�
 
 ### UDS 的角色
 
-1. **標準來源**：UDS 定義的 50 項標準被 DevAP 和 VibeOps 消費
+1. **標準來源**：UDS 定義的 48 項標準被 DevAP 和 VibeOps 消費
 2. **工具無關**：UDS 支援 9 種 AI 工具，DevAP/VibeOps 只是消費者之一
 3. **授權隔離**：UDS 的 MIT + CC BY 4.0 授權不受消費者的 AGPL/Apache 影響
 
@@ -505,7 +505,7 @@ UDS (標準定義) ──→ DevAP (編排執行) ──→ VibeOps (全生命�
 
 本專案採用 UDS 標準。所有規範位於 `.standards/`：
 
-### Core (50 standards)
+### Core (48 standards)
 - `anti-hallucination.ai.yaml` - anti-hallucination.ai.yaml
 - `ai-friendly-architecture.ai.yaml` - ai-friendly-architecture.ai.yaml
 - `commit-message.ai.yaml` - 提交訊息格式
@@ -949,7 +949,7 @@ AI:
 
 ```
 universal-dev-standards/
-├── core/                  # Core standards (50 files)
+├── core/                  # Core standards (48 files)
 ├── skills/                # AI tool skills
 │   └── claude-code/       # Claude Code skills (26 skills)
 ├── cli/                   # Node.js CLI tool
