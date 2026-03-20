@@ -1,7 +1,7 @@
 # UDS Feature Reference
 
 > Universal Development Standards - Complete Feature Documentation
-> Auto-generated | Last updated: 2026-03-17
+> Auto-generated | Last updated: 2026-03-20
 
 **Language**: English | [繁體中文](../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -10,14 +10,14 @@
 ## Table of Contents
 
 1. [CLI Commands](#cli-commands) (9)
-2. [Slash Commands](#slash-commands) (33)
-3. [Skills](#skills) (29)
+2. [Slash Commands](#slash-commands) (34)
+3. [Skills](#skills) (30)
 4. [Agents](#agents) (5)
 5. [Workflows](#workflows) (5)
-6. [Core Standards](#core-standards) (36)
-7. [Scripts](#scripts) (39)
+6. [Core Standards](#core-standards) (48)
+7. [Scripts](#scripts) (41)
 
-**Total Features: 156**
+**Total Features: 172**
 
 ---
 
@@ -50,6 +50,8 @@
 | `--locale` | Locale extension (zh-tw) |
 | `--skills-location` | Skills location (marketplace, user, project, none) [default: marketplace] |
 | `--content-mode` | Content mode for integration files (minimal, index, full) [default: index] |
+| `--agents-md` | Generate AGENTS.md universal summary |
+| `--no-agents-md` | Skip AGENTS.md generation |
 | `-y, --yes` | Use defaults, skip interactive prompts |
 | `-E, --experimental` | Enable experimental features (methodology) |
 
@@ -148,6 +150,7 @@
 
 | Command | Description |
 |---------|-------------|
+| `/ac-coverage` | "[UDS] Generate AC-to-test traceability matrix and coverage report" |
 | `/atdd` | [UDS] Guide through Acceptance Test-Driven Development workflow |
 | `/bdd` | [UDS] Guide through Behavior-Driven Development workflow |
 | `/brainstorm` | "[UDS] Structured AI-assisted brainstorming before spec creation" |
@@ -188,6 +191,7 @@
 
 | Skill | Description |
 |-------|-------------|
+| `ac-coverage-assistant` | "[UDS] Analyze AC-to-test traceability and coverage" |
 | `ai-collaboration-standards` | Prevent AI hallucination and ensure evidence-based responses when analyzing code or making suggestions. |
 | `ai-friendly-architecture` | Design AI-friendly architecture with explicit patterns, layered documentation, and semantic boundaries. |
 | `ai-instruction-standards` | Create and maintain AI instruction files (CLAUDE.md, .cursorrules, etc.) with proper structure. |
@@ -248,27 +252,36 @@
 
 | Standard | Version | Description |
 |----------|---------|-------------|
+| `acceptance-criteria-traceability` | - |  |
 | `acceptance-test-driven-development` | 1.1.0 |  |
 | `accessibility-standards` | 1.0.0 | This standard defines comprehensive guidelines for creating accessible software  |
+| `agent-dispatch` | 1.0.0 | Define standards for dispatching AI sub-agents in parallel, coordinating their w |
 | `ai-agreement-standards` | 1.0.0 | This standard formalizes the interaction between Human (Acquirer) and AI (Suppli |
 | `ai-friendly-architecture` | 1.0.0 | This standard defines architecture and documentation practices that maximize the |
 | `ai-instruction-standards` | 1.0.0 | This standard defines best practices for creating and maintaining AI instruction |
 | `anti-hallucination` | 1.5.0 | This standard defines strict guidelines for AI assistants to prevent hallucinati |
+| `api-design-standards` | 1.0.0 | This standard defines comprehensive guidelines for designing, building, and main |
 | `behavior-driven-development` | 1.1.0 |  |
+| `branch-completion` | 1.0.0 | Define a standardized workflow for completing development branches, including pr |
+| `change-batching-standards` | - |  |
 | `changelog-standards` | 1.0.2 | This standard defines how to write and maintain a CHANGELOG.md file to communica |
-| `checkin-standards` | 1.4.0 | This standard defines quality gates that MUST be passed before committing code t |
+| `checkin-standards` | 1.5.0 | This standard defines quality gates that MUST be passed before committing code t |
 | `code-review-checklist` | 1.3.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
 | `commit-message-guide` | 1.3.0 | Standardized commit messages improve code review efficiency, facilitate automate |
 | `context-aware-loading` | 1.0.0 | This standard defines a protocol for AI tools to selectively load development st |
+| `database-standards` | 1.0.0 | This standard defines guidelines for database design, querying, migration, and o |
 | `deployment-standards` | 1.0.0 | This standard defines guidelines for safely deploying software to production, co |
 | `developer-memory` | 1.0.0 | This standard defines a structured system for capturing, retrieving, and surfaci |
 | `documentation-structure` | 1.5.0 | This standard defines a consistent documentation structure for software projects |
 | `documentation-writing-standards` | 1.2.0 | This standard defines documentation requirements based on project types and prov |
-| `error-code-standards` | 1.1.0 |  |
-| `forward-derivation-standards` | 1.1.0 | This standard defines the principles and workflows for Forward Derivation—automa |
+| `error-code-standards` | 1.2.0 |  |
+| `forward-derivation-standards` | 1.2.0 | This standard defines the principles and workflows for Forward Derivation—automa |
 | `git-workflow` | 1.4.0 | This standard defines Git branching strategies and workflows to ensure consisten |
+| `git-worktree` | 1.0.0 | Define a lifecycle for using Git worktrees to isolate development work, ensuring |
 | `logging-standards` | 1.2.0 |  |
+| `model-selection` | 1.0.0 | Define a cost-effective strategy for selecting AI model tiers based on task comp |
 | `performance-standards` | 1.1.0 | This standard defines comprehensive guidelines for software performance engineer |
+| `pipeline-integration-standards` | - |  |
 | `project-context-memory` | 1.1.0 | This standard defines a structured system for capturing, retrieving, and enforci |
 | `project-structure` | 1.2.0 | This standard defines conventions for project directory structure beyond documen |
 | `refactoring-standards` | 2.1.0 | This standard defines comprehensive guidelines for code refactoring, covering ev |
@@ -277,12 +290,15 @@
 | `security-standards` | 1.1.0 | This standard defines comprehensive security guidelines for software development |
 | `spec-driven-development` | 2.1.0 |  |
 | `structured-task-definition` | 1.0.0 |  |
+| `systematic-debugging` | 1.0.0 | Define a structured, four-phase debugging workflow that prevents the common anti |
 | `test-completeness-dimensions` | 1.1.0 | This document defines a systematic framework for evaluating test completeness. I |
 | `test-driven-development` | 1.2.0 |  |
 | `test-governance` | - |  |
 | `testing-standards` | 3.0.0 | This standard defines actionable testing rules and conventions for AI agents and |
+| `verification-evidence` | 1.0.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
 | `versioning` | 1.2.0 | This standard defines how to version software releases using Semantic Versioning |
 | `virtual-organization-standards` | 1.0.0 | This standard treats the AI ecosystem as a "Virtual Organization." It defines ho |
+| `workflow-enforcement` | - |  |
 | `workflow-state-protocol` | 1.0.0 |  |
 
 ---
@@ -298,6 +314,7 @@
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |
 | `check-commands-sync.ps1` | Check Commands Sync |
 | `check-commands-sync.sh` | Commands Sync Checker |
+| `check-commit-spec-reference.sh` | Commit-msg Spec Reference Suggestion — WARNING ONLY (non-blocking) |
 | `check-docs-integrity.ps1` | Check Docs Integrity |
 | `check-docs-integrity.sh` | Documentation Integrity Checker |
 | `check-docs-sync.ps1` | Check Docs Sync |
@@ -320,6 +337,7 @@
 | `check-usage-docs-sync.sh` | check-usage-docs-sync.sh |
 | `check-version-sync.ps1` | Check Version Sync |
 | `check-version-sync.sh` | Version Sync Checker |
+| `check-workflow-compliance.sh` | Workflow Compliance Check — WARNING ONLY (non-blocking) |
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |

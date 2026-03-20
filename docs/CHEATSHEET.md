@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-03-17
+> Quick reference for all UDS features | Last updated: 2026-03-20
 
 **Language**: English | [繁體中文](../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../locales/zh-CN/docs/CHEATSHEET.md)
 
@@ -24,6 +24,7 @@
 
 | Command | Description |
 |---------|-------------|
+| `/ac-coverage` | "[UDS] Generate AC-to-test traceability matrix and coverage report" |
 | `/atdd` | [UDS] Guide through Acceptance Test-Driven Development workflow |
 | `/bdd` | [UDS] Guide through Behavior-Driven Development workflow |
 | `/brainstorm` | "[UDS] Structured AI-assisted brainstorming before spec creation" |
@@ -62,6 +63,7 @@
 
 | Skill | Description |
 |-------|-------------|
+| `ac-coverage-assistant` | "[UDS] Analyze AC-to-test traceability and coverage" |
 | `ai-collaboration-standards` | Prevent AI hallucination and ensure evidence-based responses |
 | `ai-friendly-architecture` | Design AI-friendly architecture with explicit patterns, laye |
 | `ai-instruction-standards` | Create and maintain AI instruction files (CLAUDE.md, .cursor |
@@ -116,18 +118,24 @@
 
 | Standard | Description |
 |----------|-------------|
+| `acceptance-criteria-traceability` | Acceptance Criteria Traceability Standards |
 | `acceptance-test-driven-development` | Acceptance Test-Driven Development (ATDD) Standards |
 | `accessibility-standards` | This standard defines comprehensive guidelines for |
+| `agent-dispatch` | Define standards for dispatching AI sub-agents in  |
 | `ai-agreement-standards` | This standard formalizes the interaction between H |
 | `ai-friendly-architecture` | This standard defines architecture and documentati |
 | `ai-instruction-standards` | This standard defines best practices for creating  |
 | `anti-hallucination` | This standard defines strict guidelines for AI ass |
+| `api-design-standards` | This standard defines comprehensive guidelines for |
 | `behavior-driven-development` | Behavior-Driven Development (BDD) Standards |
+| `branch-completion` | Define a standardized workflow for completing deve |
+| `change-batching-standards` | Change Batching Standards |
 | `changelog-standards` | This standard defines how to write and maintain a  |
 | `checkin-standards` | This standard defines quality gates that MUST be p |
 | `code-review-checklist` | This standard provides a comprehensive checklist f |
 | `commit-message-guide` | Standardized commit messages improve code review e |
 | `context-aware-loading` | This standard defines a protocol for AI tools to s |
+| `database-standards` | This standard defines guidelines for database desi |
 | `deployment-standards` | This standard defines guidelines for safely deploy |
 | `developer-memory` | This standard defines a structured system for capt |
 | `documentation-structure` | This standard defines a consistent documentation s |
@@ -135,8 +143,11 @@
 | `error-code-standards` | Error Code Standards |
 | `forward-derivation-standards` | This standard defines the principles and workflows |
 | `git-workflow` | This standard defines Git branching strategies and |
+| `git-worktree` | Define a lifecycle for using Git worktrees to isol |
 | `logging-standards` | Logging Standards |
+| `model-selection` | Define a cost-effective strategy for selecting AI  |
 | `performance-standards` | This standard defines comprehensive guidelines for |
+| `pipeline-integration-standards` | Pipeline Integration Standards |
 | `project-context-memory` | This standard defines a structured system for capt |
 | `project-structure` | This standard defines conventions for project dire |
 | `refactoring-standards` | This standard defines comprehensive guidelines for |
@@ -145,12 +156,15 @@
 | `security-standards` | This standard defines comprehensive security guide |
 | `spec-driven-development` | Spec-Driven Development (SDD) Standards |
 | `structured-task-definition` | Structured Task Definition Standards |
+| `systematic-debugging` | Define a structured, four-phase debugging workflow |
 | `test-completeness-dimensions` | This document defines a systematic framework for e |
 | `test-driven-development` | Test-Driven Development (TDD) Standards |
 | `test-governance` | Test Governance Standards |
 | `testing-standards` | This standard defines actionable testing rules and |
+| `verification-evidence` | Establish an "Iron Law" that no task can be claime |
 | `versioning` | This standard defines how to version software rele |
 | `virtual-organization-standards` | This standard treats the AI ecosystem as a "Virtua |
+| `workflow-enforcement` | Workflow Enforcement Standards |
 | `workflow-state-protocol` | Workflow State Protocol |
 
 ## 📜 Scripts
@@ -164,6 +178,7 @@
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |
 | `check-commands-sync.ps1` | Check Commands Sync |
 | `check-commands-sync.sh` | Commands Sync Checker |
+| `check-commit-spec-reference.sh` | Commit-msg Spec Reference Suggestion — WARNING ONL |
 | `check-docs-integrity.ps1` | Check Docs Integrity |
 | `check-docs-integrity.sh` | Documentation Integrity Checker |
 | `check-docs-sync.ps1` | Check Docs Sync |
@@ -186,6 +201,7 @@
 | `check-usage-docs-sync.sh` | check-usage-docs-sync.sh |
 | `check-version-sync.ps1` | Check Version Sync |
 | `check-version-sync.sh` | Version Sync Checker |
+| `check-workflow-compliance.sh` | Workflow Compliance Check — WARNING ONLY (non-bloc |
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
