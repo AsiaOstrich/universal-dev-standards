@@ -1,0 +1,73 @@
+# Systematic Debugging Workflow - AI Optimized
+# Source: core/systematic-debugging.md
+# Inspired by Superpowers systematic-debugging (MIT)
+
+standard:
+  id: systematic-debugging
+  name: Systematic Debugging Workflow
+  description: 系統化除錯工作流，借鑑 Superpowers 四階段法
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-20"
+    source: core/systematic-debugging.md
+    description: 系統化除錯工作流標準
+    inspired_by: superpowers/systematic-debugging
+
+  guidelines:
+    - "遵循四階段鐵律：Root Cause → Pattern Analysis → Hypothesis Testing → Fix Implementation"
+    - "禁止跳過根因分析直接修復"
+    - "連續 3 次修復失敗必須質疑架構設計（3-Strike Rule）"
+    - "在元件邊界加診斷觀測定位故障層"
+    - "從錯誤症狀反向追蹤到源頭（backward tracing）"
+
+  phases:
+    - name: root_cause
+      description: "根因調查 — 分析錯誤訊息 + 變更追蹤"
+      actions:
+        - "仔細閱讀錯誤訊息，定位精確出錯位置"
+        - "追蹤最近變更記錄（git log / git diff）"
+        - "在元件邊界加 console.log / 斷點觀測"
+        - "記錄觀測結果，形成初步假設"
+    - name: pattern_analysis
+      description: "模式分析 — 比對同類成功案例"
+      actions:
+        - "搜尋類似功能的成功實作"
+        - "比對差異點"
+        - "檢查是否遺漏前置條件"
+    - name: hypothesis_testing
+      description: "假設測試 — 最小化修改驗證"
+      actions:
+        - "用最小化修改驗證假設"
+        - "每次只改一個變數"
+        - "記錄每次嘗試的假設與結果"
+    - name: fix_implementation
+      description: "修復實作 — 確認根因後再修復"
+      actions:
+        - "確認根因後才實作修復"
+        - "修復後執行完整測試"
+        - "確認不引入新問題"
+
+  rules:
+    - id: SD-001
+      trigger: "連續修復失敗 3 次"
+      action: "停止猜測，質疑架構設計"
+      priority: critical
+    - id: SD-002
+      trigger: "出現 'quick fix'、'just try'、'should work now' 等字眼"
+      action: "停止，回到 Phase 1 根因分析"
+      priority: high
+    - id: SD-003
+      trigger: "多元件交互錯誤"
+      action: "在每個元件邊界加診斷觀測"
+      priority: medium
+
+physical_spec:
+  type: checklist
+  validator:
+    type: ai_review
+    rule: "檢查除錯過程是否遵循四階段工作流：root_cause → pattern_analysis → hypothesis_testing → fix_implementation"
+  checks:
+    - "根因分析是否在修復嘗試之前完成"
+    - "是否記錄每次假設與驗證結果"
+    - "連續失敗 3 次是否觸發架構審查"

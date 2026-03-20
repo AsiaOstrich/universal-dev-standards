@@ -1,0 +1,77 @@
+# Git Worktree Isolation - AI Optimized
+# Source: core/git-worktree.md
+# Inspired by Superpowers using-git-worktrees (MIT)
+
+standard:
+  id: git-worktree
+  name: Git Worktree Isolation
+  description: Git Worktree 隔離開發標準
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-20"
+    source: core/git-worktree.md
+    description: Git Worktree 隔離開發與生命週期管理標準
+    inspired_by: superpowers/using-git-worktrees
+
+  guidelines:
+    - "worktree 目錄必須在 .gitignore 中"
+    - "建立後跑基準測試確認環境乾淨"
+    - "完成後先合併再清理"
+    - "異常退出時確保 cleanup 被執行"
+
+  lifecycle:
+    - phase: setup
+      steps:
+        - "選擇 worktree 目錄位置（優先順序：existing → .devap/worktrees → 詢問使用者）"
+        - "執行 git check-ignore 確認目錄被忽略"
+        - "建立 worktree + 新分支"
+        - "安裝依賴（若需要）"
+    - phase: baseline
+      steps:
+        - "在 worktree 中跑基準測試"
+        - "確認測試全過（環境乾淨）"
+        - "若測試失敗，中止並報告"
+    - phase: execute
+      steps:
+        - "在隔離的 worktree 中執行任務"
+        - "任務完成後驗證"
+    - phase: merge
+      steps:
+        - "確認所有測試通過"
+        - "合併分支回主分支（--no-ff）"
+        - "處理可能的合併衝突"
+    - phase: cleanup
+      steps:
+        - "移除 worktree（git worktree remove）"
+        - "刪除分支（git branch -d）"
+        - "prune 殘留 worktree（git worktree prune）"
+
+  rules:
+    - id: GW-001
+      trigger: "worktree 目錄不在 .gitignore 中"
+      action: "自動加入 .gitignore"
+      priority: critical
+    - id: GW-002
+      trigger: "基準測試失敗"
+      action: "中止任務，報告環境問題"
+      priority: high
+    - id: GW-003
+      trigger: "異常退出"
+      action: "確保 cleanup 被執行"
+      priority: high
+    - id: GW-004
+      trigger: "合併/刪除後殘留 worktree"
+      action: "prune 殘留 worktree 引用"
+      priority: medium
+
+physical_spec:
+  type: checklist
+  validator:
+    type: ai_review
+    rule: "檢查 worktree 使用是否遵循完整生命週期：setup → baseline → execute → merge → cleanup"
+  checks:
+    - "worktree 目錄是否在 .gitignore 中"
+    - "是否執行基準測試確認環境乾淨"
+    - "完成後是否執行 cleanup"
+    - "異常退出時是否有 cleanup 機制"

@@ -1,0 +1,69 @@
+# Agent Dispatch & Parallel Coordination - AI Optimized
+# Source: core/agent-dispatch.md
+# Inspired by Superpowers dispatching-parallel-agents + subagent-driven-development (MIT)
+
+standard:
+  id: agent-dispatch
+  name: Agent Dispatch & Parallel Coordination
+  description: 子代理派遣與並行協調標準
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-20"
+    source: core/agent-dispatch.md
+    description: 子代理派遣、並行協調與狀態回報標準
+    inspired_by: superpowers/subagent-driven-development
+
+  guidelines:
+    - "派遣前必須識別獨立域（無共享狀態 → 可並行）"
+    - "每個代理的 prompt 必須 Focused（單一問題域）、Self-contained（完整上下文）、Specific output（明確回報格式）"
+    - "代理必須回報明確狀態：DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED"
+    - "並行代理返回後必須檢查檔案衝突"
+    - "所有代理完成後必須跑完整測試套件驗證整合"
+
+  status_protocol:
+    - status: DONE
+      description: "任務完成，無問題"
+      orchestrator_action: "繼續後續任務"
+    - status: DONE_WITH_CONCERNS
+      description: "任務完成，但有疑慮需記錄"
+      orchestrator_action: "記錄 concerns 到報告，繼續後續任務"
+    - status: NEEDS_CONTEXT
+      description: "需要更多上下文才能完成"
+      orchestrator_action: "注入額外 context，重新派遣（不計為 retry）"
+    - status: BLOCKED
+      description: "無法完成，需要人工介入或升級處理"
+      orchestrator_action: "嘗試升級模型或拆分任務"
+
+  prompt_structure:
+    - principle: Focused
+      description: "每個代理只處理單一問題域"
+    - principle: Self-contained
+      description: "prompt 包含完整執行所需的上下文"
+    - principle: Specific_output
+      description: "明確定義期望的回報格式"
+
+  rules:
+    - id: AD-001
+      trigger: "多個代理編輯相同檔案"
+      action: "標記衝突，需要人工或自動合併"
+      priority: critical
+    - id: AD-002
+      trigger: "代理回報 BLOCKED"
+      action: "嘗試升級模型等級再試一次"
+      priority: high
+    - id: AD-003
+      trigger: "所有並行代理完成"
+      action: "跑完整測試套件驗證整合"
+      priority: high
+
+physical_spec:
+  type: checklist
+  validator:
+    type: ai_review
+    rule: "檢查代理派遣是否遵循獨立域識別、prompt 三原則、狀態協定"
+  checks:
+    - "並行代理是否在獨立域上工作（無共享檔案）"
+    - "代理 prompt 是否包含完整上下文"
+    - "代理是否回報標準化狀態碼"
+    - "並行完成後是否執行整合測試"

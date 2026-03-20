@@ -1,0 +1,81 @@
+# AI Model Selection Strategy - AI Optimized
+# Source: core/model-selection.md
+# Inspired by Superpowers subagent-driven-development model selection (MIT)
+
+standard:
+  id: model-selection
+  name: AI Model Selection Strategy
+  description: AI 模型分級選擇策略
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-20"
+    source: core/model-selection.md
+    description: 三層模型分級選擇標準
+    inspired_by: superpowers/subagent-driven-development
+
+  guidelines:
+    - "使用最便宜能勝任的模型（成本效益原則）"
+    - "根據任務複雜度信號選擇模型等級"
+    - "BLOCKED 狀態時考慮升級模型再試"
+
+  tiers:
+    - id: fast
+      description: "機械性實作 — 單一檔案、明確 spec、無需判斷"
+      signals:
+        - "修改單一檔案"
+        - "spec 完全明確，無歧義"
+        - "不需要設計判斷"
+        - "模式化的重複工作"
+      examples:
+        - "更新 package.json 版本號"
+        - "新增一個 export"
+        - "修正 typo"
+    - id: standard
+      description: "整合性實作 — 多檔案、需要判斷力"
+      signals:
+        - "修改 2-5 個檔案"
+        - "需要理解模組間關係"
+        - "需要一定設計判斷"
+      examples:
+        - "新增一個 API endpoint（含 route + handler + test）"
+        - "重構一個模組的內部結構"
+    - id: capable
+      description: "架構性工作 — 設計、審查、除錯"
+      signals:
+        - "修改 5+ 個檔案"
+        - "需要架構決策"
+        - "跨模組協調"
+        - "除錯複雜問題"
+      examples:
+        - "設計新的子系統架構"
+        - "審查大型 PR"
+        - "診斷跨服務的效能問題"
+
+  rules:
+    - id: MS-001
+      trigger: "BLOCKED 狀態且當前為 fast"
+      action: "升級至 standard 再試"
+      priority: high
+    - id: MS-002
+      trigger: "BLOCKED 狀態且當前為 standard"
+      action: "升級至 capable 再試"
+      priority: high
+    - id: MS-003
+      trigger: "BLOCKED 狀態且當前為 capable"
+      action: "標記為需要人工介入"
+      priority: critical
+    - id: MS-004
+      trigger: "任務需求不明確"
+      action: "從 standard 或更高層級開始"
+      priority: medium
+
+physical_spec:
+  type: checklist
+  validator:
+    type: ai_review
+    rule: "檢查模型選擇是否基於任務複雜度信號，而非固定使用最高等級"
+  checks:
+    - "是否根據複雜度信號選擇模型等級"
+    - "BLOCKED 時是否嘗試升級而非直接失敗"
+    - "簡單任務是否避免使用過高等級模型"
