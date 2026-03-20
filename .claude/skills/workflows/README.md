@@ -260,6 +260,146 @@ steps:
 | **State** | Tracks progress across steps | Single task state | Stateless |
 | **User Involvement** | Can include manual steps | Minimal | None |
 
+## Wave-Based Parallel Execution (v1.2.0)
+
+Steps within a workflow can be grouped into **waves** for parallel execution. Steps in the same wave are independent and can be executed concurrently by different sub-agents. Waves execute sequentially — all steps in wave N must complete before wave N+1 starts.
+
+### Wave Configuration
+
+```yaml
+steps:
+  # Wave 1: Independent analysis steps (run in parallel)
+  - id: analyze-requirements
+    name: Analyze Requirements
+    type: agent
+    agent: spec-analyst
+    wave: 1
+    outputs: [requirements_analysis]
+
+  - id: analyze-architecture
+    name: Analyze Architecture
+    type: agent
+    agent: code-architect
+    wave: 1
+    outputs: [architecture_analysis]
+
+  # Wave 2: Depends on wave 1 outputs (barrier point)
+  - id: design
+    name: Design Solution
+    type: agent
+    agent: code-architect
+    wave: 2
+    inputs: [requirements_analysis, architecture_analysis]
+    outputs: [design_doc]
+
+  # Manual steps are automatic barrier points
+  - id: review
+    name: Review Design
+    type: manual
+    wave: 3
+```
+
+### Wave Rules
+
+| Rule | Description |
+|------|-------------|
+| **Independence** | Steps in the same wave must not depend on each other |
+| **Barrier** | All steps in wave N must complete before wave N+1 starts |
+| **Manual barrier** | `manual` type steps are automatic barrier points |
+| **Optional field** | The `wave` field is optional; without it, steps execute sequentially |
+| **Backward compatible** | Workflows without wave fields work as before |
+
+---
+
+## Step Validation Pipeline (v1.2.0)
+
+Each workflow step can include two layers of validation, inspired by CrewAI's validation pipeline and DSPy's metric functions.
+
+### Two-Layer Validation
+
+```yaml
+steps:
+  - id: generate-spec
+    name: Generate Specification
+    type: agent
+    agent: spec-analyst
+    outputs: [spec_document]
+    validation:
+      # Layer 1: Deterministic (always runs first)
+      deterministic:
+        - check: file_exists
+          path: "docs/specs/{{spec_id}}.md"
+        - check: contains_sections
+          sections: [Summary, Motivation, "Acceptance Criteria"]
+        - check: ac_format
+          pattern: "Given .+, When .+, Then .+"
+
+      # Layer 2: Semantic (only runs if Layer 1 passes)
+      semantic:
+        - check: consistency
+          description: AC covers all requirements mentioned in Motivation
+        - check: completeness
+          description: No TODO or placeholder sections remain
+```
+
+### Validation Rules
+
+| Layer | Type | When to Run | On Failure |
+|-------|------|-------------|------------|
+| **Layer 1** | Deterministic | Always first | Stop immediately, show fix options |
+| **Layer 2** | Semantic | After Layer 1 passes | Warn, suggest improvements |
+
+**Fail-fast principle**: If deterministic validation fails, semantic checks are skipped entirely. This prevents wasting time on quality assessment of fundamentally broken output.
+
+---
+
+## Agent Communication Protocol (v1.2.0)
+
+Defines how agents exchange data within a workflow.
+
+### Three Communication Layers
+
+| Layer | Mechanism | Description |
+|-------|-----------|-------------|
+| **Artifact passing** | File-based | Steps produce files as output; downstream steps read via file paths |
+| **Reducer patterns** | append / replace / merge | How multiple outputs are combined |
+| **Context isolation** | Clean start per step | Each agent step starts with clean context, receives only specified inputs |
+
+### Reducer Patterns
+
+```yaml
+steps:
+  - id: collect-reviews
+    type: parallel-agents
+    agent: reviewer
+    foreach: ${modules}
+    outputs: [review_results]
+    reducer: append        # Collect all results into array
+
+  - id: merge-configs
+    type: agent
+    agent: code-architect
+    inputs: [review_results]
+    reducer: merge         # Deep merge results into single object
+```
+
+| Pattern | Description | Use Case |
+|---------|-------------|----------|
+| `append` | Collect all results into an ordered list | Parallel reviews, multi-module analysis |
+| `replace` | Later output overwrites earlier | Config overrides, latest-wins |
+| `merge` | Deep merge results into single object | Combining partial analyses |
+
+### Context Isolation
+
+Each agent step starts with a **clean context** containing only:
+1. The step's declared `inputs` (from previous step outputs)
+2. The agent's skills (from AGENT.md `skills` field)
+3. The workflow's shared `prerequisites`
+
+This prevents context pollution and ensures reproducible agent behavior.
+
+---
+
 ## Best Practices
 
 ### Do's
@@ -291,6 +431,7 @@ steps:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-03-17 | Added wave-based parallel execution, step validation pipeline, agent communication protocol |
 | 1.1.0 | 2026-01-21 | Added RLM context configuration, parallel-agents step type, large-codebase-analysis workflow |
 | 1.0.0 | 2026-01-20 | Initial release |
 
