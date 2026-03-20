@@ -4,9 +4,9 @@ This document defines the development standards for the Universal Development St
 
 ## Project Overview
 
-Universal Development Standards is a language-agnostic, framework-agnostic documentation standards framework. It provides:
+Universal Development Standards is a language-agnostic, framework-agnostic development standards framework. It provides:
 
-- **Core Standards** (`core/`): 41 fundamental development standards
+- **Core Standards** (`core/`): 50 fundamental development standards
 - **AI Skills** (`skills/`): Claude Code skills for AI-assisted development
 - **CLI Tool** (`cli/`): Node.js CLI for adopting standards
 - **Integrations** (`integrations/`): Configurations for various AI tools
@@ -446,6 +446,37 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 
 ---
 
+## 跨產品整合策略
+
+UDS 在 AsiaOstrich 三層產品架構中定位為**標準定義層**：
+
+```
+UDS (標準定義) ──→ DevAP (編排執行) ──→ VibeOps (全生命週期)
+  MIT + CC BY 4.0     Apache-2.0          AGPL-3.0-only
+```
+
+### UDS 的角色
+
+1. **標準來源**：UDS 定義的 50 項標準被 DevAP 和 VibeOps 消費
+2. **工具無關**：UDS 支援 9 種 AI 工具，DevAP/VibeOps 只是消費者之一
+3. **授權隔離**：UDS 的 MIT + CC BY 4.0 授權不受消費者的 AGPL/Apache 影響
+
+### 標準如何流向 DevAP / VibeOps
+
+| 流向 | 機制 | 說明 |
+|------|------|------|
+| UDS → DevAP | `.standards/` copy-once | DevAP 透過 `uds init` 安裝標準，QualityGate 讀取 |
+| UDS → VibeOps | `.standards/` copy-once | VibeOps 透過 `uds init` 安裝標準，Agent prompt 引用 |
+| UDS → DevAP → VibeOps | TestPolicy bridge | UDS test-governance → DevAP TestPolicy → VibeOps Builder TDD |
+
+### 對 UDS 開發的影響
+
+- 新增/修改標準時，需考慮 DevAP 和 VibeOps 的消費場景
+- test-governance.ai.yaml 的 TestPolicy 格式需與 DevAP types.ts 對齊
+- 標準的 scope 標記（universal/partial/uds-specific）影響可攜性
+
+---
+
 <!-- UDS:STANDARDS:START -->
 <!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use 'npx uds install' or 'npx uds update' to modify. -->
 <!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use 'npx uds install' or 'npx uds update' to modify. -->
@@ -460,6 +491,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 |------|----------|------|
 | Writing commits | [commit-message.ai.yaml](.standards/commit-message.ai.yaml) | Every commit |
 | Project context | [project-context-memory.ai.yaml](.standards/project-context-memory.ai.yaml) | Planning & Coding |
+| Workflow gates | [workflow-enforcement.ai.yaml](.standards/workflow-enforcement.ai.yaml) | Before any workflow phase |
 
 **SHOULD follow** (相關任務時參考):
 | Task | Standard | When |
@@ -473,7 +505,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 
 本專案採用 UDS 標準。所有規範位於 `.standards/`：
 
-### Core (49 standards)
+### Core (50 standards)
 - `anti-hallucination.ai.yaml` - anti-hallucination.ai.yaml
 - `ai-friendly-architecture.ai.yaml` - ai-friendly-architecture.ai.yaml
 - `commit-message.ai.yaml` - 提交訊息格式
@@ -523,6 +555,7 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 - `change-batching-standards.ai.yaml` - change-batching-standards.ai.yaml
 - `api-design-standards.ai.yaml` - api-design-standards.ai.yaml
 - `database-standards.ai.yaml` - database-standards.ai.yaml
+- `workflow-enforcement.ai.yaml` - 工作流程強制執行
 <!-- UDS:STANDARDS:END -->
 
 ---
@@ -916,7 +949,7 @@ AI:
 
 ```
 universal-dev-standards/
-├── core/                  # Core standards (41 files)
+├── core/                  # Core standards (50 files)
 ├── skills/                # AI tool skills
 │   └── claude-code/       # Claude Code skills (26 skills)
 ├── cli/                   # Node.js CLI tool
