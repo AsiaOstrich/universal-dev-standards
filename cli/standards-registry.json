@@ -1505,6 +1505,78 @@
       "skillName": null,
       "description": "Template for planning technology migrations",
       "applicability": "Migration projects"
+    },
+    {
+      "id": "systematic-debugging",
+      "name": "Systematic Debugging Workflow",
+      "nameZh": "系統化除錯工作流",
+      "source": {
+        "human": "core/systematic-debugging.md",
+        "ai": "ai/standards/systematic-debugging.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": null,
+      "description": "Four-phase debugging workflow (Root Cause → Pattern Analysis → Hypothesis Testing → Fix) with 3-Strike Rule"
+    },
+    {
+      "id": "agent-dispatch",
+      "name": "Agent Dispatch & Parallel Coordination",
+      "nameZh": "子代理派遣與並行協調",
+      "source": {
+        "human": "core/agent-dispatch.md",
+        "ai": "ai/standards/agent-dispatch.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": null,
+      "description": "Sub-agent dispatch, parallel coordination, and status protocol (DONE/DONE_WITH_CONCERNS/NEEDS_CONTEXT/BLOCKED)"
+    },
+    {
+      "id": "model-selection",
+      "name": "AI Model Selection Strategy",
+      "nameZh": "AI 模型分級選擇策略",
+      "source": {
+        "human": "core/model-selection.md",
+        "ai": "ai/standards/model-selection.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": null,
+      "description": "Three-tier model selection strategy (fast/standard/capable) with cost-effective escalation"
+    },
+    {
+      "id": "git-worktree",
+      "name": "Git Worktree Isolation",
+      "nameZh": "Git Worktree 隔離開發",
+      "source": {
+        "human": "core/git-worktree.md",
+        "ai": "ai/standards/git-worktree.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Git worktree lifecycle management: setup → baseline → execute → merge → cleanup"
+    },
+    {
+      "id": "branch-completion",
+      "name": "Branch Completion Workflow",
+      "nameZh": "分支完成工作流",
+      "source": {
+        "human": "core/branch-completion.md",
+        "ai": "ai/standards/branch-completion.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Branch completion workflow with 4 options (merge/PR/keep/discard) and prerequisite checks"
+    },
+    {
+      "id": "verification-evidence",
+      "name": "Verification Evidence Standard",
+      "nameZh": "驗證證據標準",
+      "source": {
+        "human": "core/verification-evidence.md",
+        "ai": "ai/standards/verification-evidence.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": null,
+      "description": "Iron Law: no verification evidence = no completion claim. RED-GREEN cycle for bug fixes"
     }
   ]
 }
