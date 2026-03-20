@@ -3,7 +3,7 @@
   "version": "5.0.0-rc.14",
   "last_updated": "2026-02-12",
   "stats": {
-    "core_standards": 42,
+    "core_standards": 48,
     "skills": 30,
     "slash_commands": 30
   },
@@ -215,6 +215,36 @@
     },
     {
       "id": "workflow-enforcement",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "agent-dispatch",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "branch-completion",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "git-worktree",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "model-selection",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "systematic-debugging",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "verification-evidence",
       "category": "uncategorized",
       "level": 3
     }
