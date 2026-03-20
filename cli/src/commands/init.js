@@ -11,7 +11,7 @@ import { detectAll } from '../utils/detector.js';
 import { promptConfirm } from '../prompts/init.js';
 import { runInitFlow } from '../flows/init-flow.js';
 import { installStandards } from '../installers/standards-installer.js';
-import { installIntegrations } from '../installers/integration-installer.js';
+import { installIntegrations, generateUniversalAgentsMd } from '../installers/integration-installer.js';
 import { installSkills, installCommands } from '../installers/skills-installer.js';
 import { writeFinalManifest } from '../installers/manifest-installer.js';
 import {
@@ -93,6 +93,18 @@ export async function initCommand(options) {
 
   // 2. Install Integrations
   const integrationResults = await installIntegrations(config, projectPath);
+
+  // 2.5. Generate universal AGENTS.md if requested
+  const agentsMdResult = await generateUniversalAgentsMd(config, integrationResults, projectPath);
+  if (agentsMdResult.path) {
+    integrationResults.integrations.push(agentsMdResult.path);
+    if (agentsMdResult.blockHashInfo) {
+      integrationResults.integrationBlockHashes[agentsMdResult.path] = {
+        ...agentsMdResult.blockHashInfo,
+        installedAt: new Date().toISOString()
+      };
+    }
+  }
 
   // 3. Install Skills & Commands
   const skillsResults = {
@@ -289,6 +301,13 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
 
   skillsConfig.locale = displayLanguageToLocale(displayLanguage);
 
+  // AGENTS.md: default to true in --yes mode unless codex/opencode selected or --no-agents-md
+  // When codex/opencode is selected, they already generate AGENTS.md — no need for universal output
+  const hasAgentsMdTool = aiToolsNormalized.includes('codex') || aiToolsNormalized.includes('opencode');
+  const generateAgentsMd = hasAgentsMdTool
+    ? false // codex/opencode handles AGENTS.md, skip universal output
+    : (options.agentsMd !== undefined ? !!options.agentsMd : true);
+
   return {
     languages: options.lang ? [options.lang] : Object.keys(detected.languages).filter(k => detected.languages[k]),
     frameworks: options.framework ? [options.framework] : Object.keys(detected.frameworks).filter(k => detected.frameworks[k]),
@@ -304,7 +323,8 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     aiTools: aiToolsNormalized,
     integrations: [...aiToolsNormalized],
     contentMode: skillsConfig.contentMode || 'minimal',
-    methodology: null
+    methodology: null,
+    generateAgentsMd
   };
 }
 

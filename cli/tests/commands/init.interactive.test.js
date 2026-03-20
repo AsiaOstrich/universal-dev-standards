@@ -160,6 +160,7 @@ describe('Init Command Interactive', () => {
     vi.mocked(prompts.promptDisplayLanguage).mockResolvedValue('en');
     vi.mocked(prompts.promptAITools).mockResolvedValue(['claude-code']);
     vi.mocked(prompts.handleAgentsMdSharing).mockImplementation((tools) => tools);
+    vi.mocked(prompts.promptAgentsMd).mockResolvedValue(false);
     vi.mocked(prompts.promptSkillsInstallLocation).mockResolvedValue([
       { agent: 'claude-code', level: 'marketplace' }
     ]);
@@ -185,6 +186,7 @@ describe('Init Command Interactive', () => {
     // Mock Integration Generator
     vi.mocked(integrationGenerator.writeIntegrationFile).mockReturnValue({ success: true, path: 'MOCK' });
     vi.mocked(integrationGenerator.integrationFileExists).mockReturnValue(false);
+    vi.mocked(integrationGenerator.writeAgentsMdSummary).mockReturnValue({ success: true, path: 'AGENTS.md', blockHashInfo: null });
 
     // Mock Hasher
     vi.mocked(hasher.computeFileHash).mockReturnValue({ hash: 'abc', size: 123 });
@@ -220,6 +222,7 @@ describe('Init Command Interactive', () => {
     vi.mocked(prompts.promptDisplayLanguage).mockResolvedValue('en');
     vi.mocked(prompts.promptAITools).mockResolvedValue(['claude-code', 'cursor', 'windsurf']);
     vi.mocked(prompts.handleAgentsMdSharing).mockImplementation((tools) => tools);
+    vi.mocked(prompts.promptAgentsMd).mockResolvedValue(false);
     vi.mocked(prompts.promptSkillsInstallLocation).mockResolvedValue([
       { agent: 'claude-code', level: 'project' },
       { agent: 'cursor', level: 'user' }

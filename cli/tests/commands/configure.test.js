@@ -70,6 +70,7 @@ vi.mock('../../src/prompts/init.js', () => ({
   promptContentModeChange: vi.fn((current) => current),
   promptMethodology: vi.fn(() => null),
   handleAgentsMdSharing: vi.fn((tools) => tools),
+  promptAgentsMd: vi.fn(() => false),
   promptSkillsInstallLocation: vi.fn(() => []),
   promptCommandsInstallation: vi.fn(() => []),
   promptDisplayLanguage: vi.fn(() => 'zh-tw')

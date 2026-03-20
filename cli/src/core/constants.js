@@ -331,6 +331,12 @@ export const DEFAULTS = {
 };
 
 /**
+ * AGENTS.md universal output flag
+ * When true, AGENTS.md is generated as a universal summary regardless of tool selection
+ */
+export const AGENTS_MD_UNIVERSAL = 'agents-md-universal';
+
+/**
  * Feature flags (for experimental features)
  */
 export const FEATURE_FLAGS = {

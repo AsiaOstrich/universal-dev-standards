@@ -130,7 +130,8 @@ vi.mock('../../src/prompts/init.js', () => ({
   promptContentMode: vi.fn(() => 'index'),
   promptMethodology: vi.fn(() => null),
   promptCommandsInstallation: vi.fn(() => []),
-  handleAgentsMdSharing: vi.fn((tools) => tools)
+  handleAgentsMdSharing: vi.fn((tools) => tools),
+  promptAgentsMd: vi.fn(() => false)
 }));
 
 vi.mock('../../src/prompts/integrations.js', () => ({
@@ -143,6 +144,7 @@ vi.mock('../../src/prompts/integrations.js', () => ({
 vi.mock('../../src/utils/integration-generator.js', () => ({
   writeIntegrationFile: vi.fn(() => ({ success: true, path: '/test/.cursorrules' })),
   integrationFileExists: vi.fn(() => false),
+  writeAgentsMdSummary: vi.fn(() => ({ success: true, path: 'AGENTS.md', blockHashInfo: null })),
   getToolFilePath: vi.fn((tool) => {
     const files = {
       cursor: '.cursorrules',

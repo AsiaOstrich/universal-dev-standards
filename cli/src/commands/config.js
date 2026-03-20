@@ -27,6 +27,7 @@ import {
   promptManageAITools,
   promptContentModeChange,
   handleAgentsMdSharing,
+  promptAgentsMd,
   promptMethodology,
   promptSkillsInstallLocation,
   promptCommandsInstallation,
@@ -601,6 +602,15 @@ export async function runProjectConfiguration(options) {
       const toolsWithSharing = handleAgentsMdSharing(result.tools);
       newAITools = [...new Set([...newAITools, ...toolsWithSharing])];
       needsIntegrationRegeneration = true;
+
+      // Prompt for AGENTS.md universal output if no codex/opencode in final set
+      const hasAgentsMdTool = newAITools.includes('codex') || newAITools.includes('opencode');
+      if (!hasAgentsMdTool && !manifest.generateAgentsMd) {
+        const wantAgentsMd = await promptAgentsMd(newAITools);
+        if (wantAgentsMd) {
+          manifest.generateAgentsMd = true;
+        }
+      }
     } else if (result.action === 'remove' && result.tools.length > 0) {
       newAITools = newAITools.filter(tool => !result.tools.includes(tool));
 
