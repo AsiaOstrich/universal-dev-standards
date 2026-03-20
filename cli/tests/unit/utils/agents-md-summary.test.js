@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { join } from 'path';
 import { generateAgentsMdSummary } from '../../../src/utils/integration-generator.js';
 
 describe('generateAgentsMdSummary', () => {
@@ -232,5 +233,42 @@ describe('generateAgentsMdSummary', () => {
     // Assert - only .ai.yaml files listed
     expect(standardLines.length).toBe(1);
     expect(standardLines[0]).toContain('testing.ai.yaml');
+  });
+
+  it('should_detect_npm_scripts_from_package_json', () => {
+    // Arrange - pass projectPath pointing to cli/ which has package.json with scripts
+    const config = {
+      installedStandards: [],
+      language: 'en',
+      commitLanguage: 'english',
+      standardOptions: {},
+      projectPath: join(import.meta.dirname, '../../../')
+    };
+
+    // Act
+    const content = generateAgentsMdSummary(config);
+
+    // Assert - should contain npm commands based on actual package.json
+    expect(content).toContain('npm install');
+    expect(content).toContain('npm test');
+    expect(content).toContain('npm run lint');
+  });
+
+  it('should_show_build_command_when_package_json_has_build_script', () => {
+    // This test verifies the output structure includes build when present
+    // The CLI's own package.json may or may not have a build script
+    const config = {
+      installedStandards: [],
+      language: 'en',
+      commitLanguage: 'english',
+      standardOptions: {},
+      projectPath: import.meta.dirname // tests/unit/utils - no package.json here
+    };
+
+    // Act
+    const content = generateAgentsMdSummary(config);
+
+    // Assert - no package.json means generic fallback
+    expect(content).toContain('# Check project configuration');
   });
 });

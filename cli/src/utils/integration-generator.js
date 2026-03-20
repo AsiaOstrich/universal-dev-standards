@@ -3080,9 +3080,29 @@ function detectBuildCommands(projectPath) {
   const hasFile = (name) => existsSync(join(projectPath, name));
 
   if (hasFile('package.json')) {
-    commands.push('npm install      # Install dependencies');
-    commands.push('npm test         # Run tests');
-    commands.push('npm run lint     # Check code style');
+    // Read package.json scripts for accurate commands
+    try {
+      const pkg = JSON.parse(readFileSync(join(projectPath, 'package.json'), 'utf-8'));
+      const scripts = pkg.scripts || {};
+      commands.push('npm install      # Install dependencies');
+      if (scripts.build) {
+        commands.push('npm run build    # Build project');
+      }
+      if (scripts.test) {
+        commands.push('npm test         # Run tests');
+      }
+      if (scripts.lint) {
+        commands.push('npm run lint     # Check code style');
+      }
+      // Fallback if no test/lint scripts found
+      if (!scripts.test && !scripts.lint && !scripts.build) {
+        commands.push('# See package.json "scripts" for available commands');
+      }
+    } catch {
+      commands.push('npm install      # Install dependencies');
+      commands.push('npm test         # Run tests');
+      commands.push('npm run lint     # Check code style');
+    }
   } else if (hasFile('pyproject.toml') || hasFile('setup.py')) {
     commands.push('pip install -e .   # Install in development mode');
     commands.push('pytest             # Run tests');
