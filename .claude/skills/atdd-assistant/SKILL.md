@@ -69,6 +69,15 @@ So that [benefit].
 - `/atdd "user can reset password"` - 針對特定功能進行 ATDD
 - `/atdd US-123` - 針對現有使用者故事進行 ATDD
 
+## 下一步引導
+
+`/atdd` 完成後，AI 助手應建議：
+
+> **驗收測試已定義。建議下一步：**
+> - 執行 `/sdd` 建立規格文件
+> - 執行 `/bdd` 將 AC 轉為 Gherkin 場景
+> - 執行 `/tdd` 直接實作驗收測試
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)

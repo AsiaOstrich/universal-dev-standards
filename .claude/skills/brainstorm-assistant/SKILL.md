@@ -109,6 +109,15 @@ FRAME ──► DIVERGE ──► CONVERGE ──► OUTPUT
 - `/brainstorm "用戶留存"` — 針對特定主題進行腦力激盪
 - `/brainstorm --technique scamper` — 使用特定技法
 
+## 下一步引導
+
+`/brainstorm` 完成後，AI 助手應建議：
+
+> **腦力激盪完成。建議下一步：**
+> - 執行 `/requirement` 將最佳構想轉為使用者故事
+> - 執行 `/sdd` 直接建立規格（若需求已明確）
+> - 針對特定構想進行更深入探索
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)

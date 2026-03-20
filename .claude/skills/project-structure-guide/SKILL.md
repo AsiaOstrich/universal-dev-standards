@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/project-structure-guide/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-30
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-03-04
 status: current
 scope: universal
 ---
@@ -11,8 +11,8 @@ scope: universal
 
 > **Language**: [English](../../../../skills/project-structure-guide/SKILL.md) | 繁體中文
 
-**版本**：1.0.0
-**最後更新**：2025-12-30
+**版本**：1.1.0
+**最後更新**：2026-03-04
 **適用性**：Claude Code Skills
 
 ---
@@ -29,6 +29,9 @@ scope: universal
 - 新增模組或功能
 - 設定建構配置
 - 建立 .gitignore 檔案
+- 決定檔案的放置位置（程式碼、文件、設定、資源）
+- 在 utils/、helpers/、shared/、lib/ 或 internal/ 之間做選擇
+- 放置開發中間產物（腦力激盪、RFC、POC、技術調查）
 
 ## 支援的語言
 
@@ -137,8 +140,13 @@ project/
 3. **Gitignore 建構輸出** - 永不提交 dist/、build/、out/
 4. **一致命名** - 使用語言適當的命名風格
 5. **配置在根目錄** - 將配置檔案放在專案根目錄
+6. **辨析目錄術語** - utils/（無狀態、通用）、helpers/（層級綁定）、shared/（跨模組）、lib/（包裝依賴）
+7. **工作文件放 docs/working/** - 腦力激盪、RFC、POC、技術調查放在 docs/working/ 並進行生命週期管理
+8. **生成碼分離** - 放在 src/generated/{type}/，永不與手寫程式碼混合
 
 ## 相關標準
 
 - [核心：專案結構](../../core/project-structure.md)
+- [核心：文件結構](../../core/documentation-structure.md)
+- [指南：檔案歸檔決策指南](../../core/guides/file-placement-guide.md)
 - [AI：專案結構選項](../../../../options/project-structure/)

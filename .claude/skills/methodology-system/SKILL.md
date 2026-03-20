@@ -77,6 +77,16 @@ argument-hint: "[action] [argument]"
 }
 ```
 
+## 下一步引導
+
+`/methodology` 完成後，AI 助手應根據選擇的方法論建議：
+
+> **方法論已設定。建議下一步：**
+> - SDD 方法論 → 執行 `/sdd` 建立規格
+> - BDD 方法論 → 執行 `/bdd` 開始場景探索
+> - TDD 方法論 → 執行 `/tdd` 開始紅綠重構
+> - ATDD 方法論 → 執行 `/atdd` 定義驗收條件
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)

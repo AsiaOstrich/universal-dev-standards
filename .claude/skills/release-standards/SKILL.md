@@ -63,6 +63,15 @@ disable-model-invocation: true
 - `/release finish 1.2.0` - 完成並標籤 v1.2.0
 - `/release check` - 執行發布前驗證
 
+## 下一步引導
+
+`/release` 完成後，AI 助手應建議：
+
+> **發布流程完成。建議下一步：**
+> - 驗證 npm 發布狀態 `npm view <pkg> dist-tags`
+> - 建立 GitHub Release 並撰寫發布說明
+> - 通知利害關係人新版本已發布
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)

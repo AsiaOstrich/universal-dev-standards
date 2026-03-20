@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/documentation-guide/SKILL.md
-source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-01-12
+source_version: 2.1.0
+translation_version: 2.1.0
+last_synced: 2026-03-17
 status: current
 description: |
   引導文件結構、內容需求和專案文件最佳實踐。
@@ -15,8 +15,8 @@ scope: universal
 
 > **語言**: [English](../../../../skills/documentation-guide/SKILL.md) | 繁體中文
 
-**版本**: 2.0.0
-**最後更新**: 2026-01-12
+**版本**: 2.1.0
+**最後更新**: 2026-03-17
 **適用範圍**: Claude Code Skills
 
 ---
@@ -409,6 +409,7 @@ MIT
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 2.1.0 | 2026-03-17 | 新增：Diátaxis 分類、LLM 發現、品質指標、增強版 ADR 範本、翻譯友善寫作 |
 | 2.0.0 | 2026-01-12 | 新增：專案類型矩陣、文件範本、文件金字塔 |
 | 1.0.0 | 2025-12-24 | 初始版本 |
 

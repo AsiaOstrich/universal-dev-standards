@@ -66,6 +66,15 @@ disable-model-invocation: true
 - `/reverse bdd specs/SPEC-AUTH.md` - 將規格 AC 轉為 Gherkin 場景
 - `/reverse tdd features/auth.feature` - 分析 feature 檔案的測試覆蓋率
 
+## 下一步引導
+
+`/reverse`（完整或 `spec`）完成後，AI 助手應建議：
+
+> **系統考古完成。建議下一步：**
+> - 執行 `/sdd` 審查並核准此規格
+> - 執行 `/derive` 從規格推導測試
+> - 審查規格中的 `[Inferred]` 和 `[Unknown]` 標記
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)

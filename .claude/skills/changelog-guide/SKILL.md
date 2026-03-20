@@ -62,6 +62,15 @@ disable-model-invocation: true
 - `/changelog` - 分析近期提交並產生變更日誌條目
 - 也可透過 `/release changelog [version]` 使用
 
+## 下一步引導
+
+`/changelog` 完成後，AI 助手應建議：
+
+> **變更日誌已更新。建議下一步：**
+> - 執行 `/release` 開始發布流程
+> - 執行 `/commit` 提交日誌變更
+> - 審查日誌條目確保使用者導向語言
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)

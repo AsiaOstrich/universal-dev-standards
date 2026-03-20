@@ -73,6 +73,17 @@ Brief description.
 - `/sdd review` - 審查現有規格
 - `/sdd --sync-check` - 檢查同步狀態
 
+## 下一步引導
+
+`/sdd` 完成後，AI 助手應建議：
+
+> **規格文件已建立。建議下一步：**
+> - 執行 `/derive` 從規格推導測試工件
+> - 執行 `/derive bdd` 僅推導 BDD 場景
+> - 執行 `/derive tdd` 僅推導 TDD 骨架
+> - 審查 AC 完整性，確保所有驗收條件可測試
+> - 檢查 UDS 規範覆蓋率 → 執行 `/audit --patterns`
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)
