@@ -1,0 +1,11 @@
+hitl:
+  threshold: 4
+vibe-coding:
+  enabled: true
+  micro-specs:
+    require-confirmation: false
+  auto-sweep:
+    enabled: true
+    trigger: session-end
+  standards-injection:
+    mode: soft

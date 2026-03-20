@@ -6,9 +6,9 @@ This document defines the development standards and context for the Universal De
 
 ## Project Overview
 
-Universal Development Standards is a language-agnostic, framework-agnostic documentation standards framework. It provides:
+Universal Development Standards is a language-agnostic, framework-agnostic development standards framework. It provides:
 
-- **Core Standards** (`core/`): 36 fundamental development standards
+- **Core Standards** (`core/`): 50 fundamental development standards
 - **AI Skills** (`skills/`): AI skills for assisted development
 - **CLI Tool** (`cli/`): Node.js CLI for adopting standards
 - **Integrations** (`integrations/`): Configurations for various AI tools
@@ -158,6 +158,7 @@ Reference: `core/refactoring-standards.md`
 |------|----------|------|
 | Writing commits | [commit-message.ai.yaml](.standards/commit-message.ai.yaml) | Every commit |
 | Project context | [project-context-memory.ai.yaml](.standards/project-context-memory.ai.yaml) | Planning & Coding |
+| Workflow gates | [workflow-enforcement.ai.yaml](.standards/workflow-enforcement.ai.yaml) | Before any workflow phase |
 
 **SHOULD follow** (相關任務時參考):
 | Task | Standard | When |
@@ -171,7 +172,7 @@ Reference: `core/refactoring-standards.md`
 
 本專案採用 UDS 標準。所有規範位於 `.standards/`：
 
-### Core (49 standards)
+### Core (50 standards)
 - `anti-hallucination.ai.yaml` - anti-hallucination.ai.yaml
 - `ai-friendly-architecture.ai.yaml` - ai-friendly-architecture.ai.yaml
 - `commit-message.ai.yaml` - 提交訊息格式
@@ -221,4 +222,5 @@ Reference: `core/refactoring-standards.md`
 - `change-batching-standards.ai.yaml` - change-batching-standards.ai.yaml
 - `api-design-standards.ai.yaml` - api-design-standards.ai.yaml
 - `database-standards.ai.yaml` - database-standards.ai.yaml
+- `workflow-enforcement.ai.yaml` - 工作流程強制執行
 <!-- UDS:STANDARDS:END -->
