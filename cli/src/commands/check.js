@@ -345,6 +345,9 @@ export async function checkCommand(options = {}) {
   // Integration files check
   checkIntegrationFiles(manifest, projectPath, msg);
 
+  // Universal AGENTS.md sync check
+  checkAgentsMdSync(manifest, projectPath, msg);
+
   // Skills status
   const { missingSkills, missingCommands } = displaySkillsStatus(manifest, projectPath, msg);
 
@@ -1038,6 +1041,70 @@ function checkIntegrationFiles(manifest, projectPath, msg) {
     console.log(chalk.yellow(`  ${msg.toFixIntegration}`));
     console.log(chalk.gray(`    ${msg.runUpdateToSync}`));
     console.log(chalk.gray(`    ${msg.runConfigureTools}`));
+  }
+
+  console.log();
+}
+
+/**
+ * Check universal AGENTS.md sync with installed standards
+ * Verifies the standards listed in AGENTS.md match the manifest
+ */
+function checkAgentsMdSync(manifest, projectPath, msg) {
+  // Skip if generateAgentsMd is not enabled
+  if (!manifest.generateAgentsMd) {
+    return;
+  }
+
+  // Skip if codex/opencode already handles AGENTS.md
+  const hasAgentsMdTool = (manifest.aiTools || []).some(t => t === 'codex' || t === 'opencode');
+  if (hasAgentsMdTool) {
+    return;
+  }
+
+  const agentsMdPath = join(projectPath, 'AGENTS.md');
+
+  console.log(chalk.cyan(msg.agentsMdSyncCheck || 'AGENTS.md Standards Sync'));
+
+  if (!existsSync(agentsMdPath)) {
+    console.log(chalk.red(`  ✗ AGENTS.md ${msg.missing || 'missing'}`));
+    console.log(chalk.gray(`    ${msg.runUpdateToRestore || 'Run "uds update" to restore'}`));
+    console.log();
+    return;
+  }
+
+  const content = readFileSync(agentsMdPath, 'utf-8');
+  const installedStandards = (manifest.standards || []).map(s => basename(s));
+
+  // Check standards listed in AGENTS.md vs manifest
+  const aiYamlStandards = installedStandards.filter(s => s.endsWith('.ai.yaml'));
+  let listedCount = 0;
+  let missingFromAgentsMd = [];
+
+  for (const std of aiYamlStandards) {
+    if (content.includes(std)) {
+      listedCount++;
+    } else {
+      missingFromAgentsMd.push(std);
+    }
+  }
+
+  if (missingFromAgentsMd.length === 0) {
+    console.log(chalk.green(`  ✓ AGENTS.md ${msg.standardsSynced || 'standards synced'} (${listedCount}/${aiYamlStandards.length})`));
+  } else {
+    console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.standardsOutOfSync || 'standards out of sync'} (${listedCount}/${aiYamlStandards.length})`));
+    if (missingFromAgentsMd.length <= 5) {
+      console.log(chalk.gray(`    ${msg.missingInAgentsMd || 'Missing'}: ${missingFromAgentsMd.join(', ')}`));
+    } else {
+      console.log(chalk.gray(`    ${msg.missingInAgentsMd || 'Missing'}: ${missingFromAgentsMd.slice(0, 5).join(', ')}... (+${missingFromAgentsMd.length - 5})`));
+    }
+    console.log(chalk.gray(`    ${msg.runUpdateToSync || 'Run "uds update" to sync'}`));
+  }
+
+  // Check line count
+  const lineCount = content.split('\n').length;
+  if (lineCount > 150) {
+    console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.exceedsLineLimit || 'exceeds 150 line limit'} (${lineCount} lines)`));
   }
 
   console.log();
