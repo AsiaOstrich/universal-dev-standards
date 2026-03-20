@@ -1148,6 +1148,43 @@ export async function promptContentMode() {
 }
 
 /**
+ * Prompt for universal AGENTS.md generation
+ * Shown when user has NOT selected codex/opencode (which already generate AGENTS.md)
+ *
+ * @param {string[]} selectedTools - Selected AI tools
+ * @returns {Promise<boolean>} True if user wants AGENTS.md generated
+ */
+export async function promptAgentsMd(selectedTools) {
+  const hasCodex = selectedTools.includes('codex');
+  const hasOpencode = selectedTools.includes('opencode');
+
+  // Skip if codex/opencode already selected (they generate AGENTS.md)
+  if (hasCodex || hasOpencode) {
+    return false;
+  }
+
+  const msg = t().agentsMdPrompt || {};
+
+  console.log();
+  console.log(chalk.cyan(msg.title || 'AGENTS.md (Universal Standard)'));
+  console.log(chalk.gray(`  ${msg.description || 'AGENTS.md is an open standard supported by 60K+ projects.'}`));
+  console.log(chalk.gray(`  ${msg.description2 || 'Generating it allows Copilot, Jules, Codex, and other tools to read your project standards.'}`));
+  console.log();
+
+  const { generate } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'generate',
+      message: msg.question || 'Generate AGENTS.md as a universal standards summary?',
+      suffix: ' ',
+      default: true
+    }
+  ]);
+
+  return generate;
+}
+
+/**
  * Handle AGENTS.md sharing notification
  * When both Codex and OpenCode are selected, inform user they share the same file
  * @param {string[]} selectedTools - List of selected AI tools

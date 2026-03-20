@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { installIntegrations, generateClaudeMd, INTEGRATION_MAPPINGS } from '../../src/installers/integration-installer.js';
+import { installIntegrations, generateClaudeMd, generateUniversalAgentsMd, INTEGRATION_MAPPINGS } from '../../src/installers/integration-installer.js';
 
 // Mock dependencies
 vi.mock('ora', () => ({
@@ -14,7 +14,8 @@ vi.mock('ora', () => ({
 vi.mock('../../src/utils/integration-generator.js', () => ({
   writeIntegrationFile: vi.fn(),
   integrationFileExists: vi.fn(),
-  getToolFilePath: vi.fn()
+  getToolFilePath: vi.fn(),
+  writeAgentsMdSummary: vi.fn()
 }));
 
 vi.mock('../../src/utils/copier.js', () => ({
@@ -30,7 +31,10 @@ vi.mock('../../src/i18n/messages.js', () => ({
         failedToGenerateIntegrations: 'Failed to generate integration files',
         generatingClaudeMd: 'Generating CLAUDE.md...',
         generatedClaudeMd: 'Generated CLAUDE.md',
-        couldNotGenerateClaudeMd: 'Could not generate CLAUDE.md'
+        couldNotGenerateClaudeMd: 'Could not generate CLAUDE.md',
+        generatingAgentsMd: 'Generating AGENTS.md...',
+        generatedAgentsMd: 'Generated AGENTS.md',
+        couldNotGenerateAgentsMd: 'Could not generate AGENTS.md'
       }
     }
   }))
@@ -38,7 +42,7 @@ vi.mock('../../src/i18n/messages.js', () => ({
 
 // Import mocked modules
 import ora from 'ora';
-import { writeIntegrationFile, integrationFileExists, getToolFilePath } from '../../src/utils/integration-generator.js';
+import { writeIntegrationFile, integrationFileExists, getToolFilePath, writeAgentsMdSummary } from '../../src/utils/integration-generator.js';
 import { copyIntegration } from '../../src/utils/copier.js';
 
 describe('integration-installer', () => {
@@ -951,6 +955,135 @@ describe('integration-installer', () => {
         source: 'integrations/opencode/AGENTS.md',
         target: 'AGENTS.md'
       });
+    });
+  });
+
+  describe('generateUniversalAgentsMd', () => {
+    let mockSpinner;
+
+    beforeEach(() => {
+      vi.clearAllMocks();
+      mockSpinner = {
+        start: vi.fn().mockReturnThis(),
+        succeed: vi.fn().mockReturnThis(),
+        warn: vi.fn().mockReturnThis(),
+        fail: vi.fn().mockReturnThis()
+      };
+      ora.mockReturnValue(mockSpinner);
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('should_skip_when_generateAgentsMd_is_false', async () => {
+      // Arrange
+      const config = { generateAgentsMd: false };
+      const integrationResults = { integrations: [] };
+
+      // Act
+      const result = await generateUniversalAgentsMd(config, integrationResults, '/test');
+
+      // Assert
+      expect(result.path).toBeNull();
+      expect(writeAgentsMdSummary).not.toHaveBeenCalled();
+    });
+
+    it('should_skip_when_agents_md_already_generated_by_codex', async () => {
+      // Arrange
+      const config = { generateAgentsMd: true, aiTools: ['codex'] };
+      const integrationResults = { integrations: ['AGENTS.md'] };
+
+      // Act
+      const result = await generateUniversalAgentsMd(config, integrationResults, '/test');
+
+      // Assert
+      expect(result.path).toBeNull();
+      expect(writeAgentsMdSummary).not.toHaveBeenCalled();
+    });
+
+    it('should_generate_when_enabled_and_no_codex_opencode', async () => {
+      // Arrange
+      const config = {
+        generateAgentsMd: true,
+        aiTools: ['claude-code', 'cursor'],
+        installedStandards: ['testing.ai.yaml'],
+        displayLanguage: 'en',
+        standardOptions: { workflow: 'github-flow' }
+      };
+      const integrationResults = { integrations: ['CLAUDE.md', '.cursorrules'] };
+
+      writeAgentsMdSummary.mockReturnValue({
+        success: true,
+        path: 'AGENTS.md',
+        blockHashInfo: { hash: 'abc123' }
+      });
+
+      // Act
+      const result = await generateUniversalAgentsMd(config, integrationResults, '/test');
+
+      // Assert
+      expect(result.path).toBe('AGENTS.md');
+      expect(writeAgentsMdSummary).toHaveBeenCalledTimes(1);
+      expect(mockSpinner.succeed).toHaveBeenCalled();
+    });
+
+    it('should_handle_generation_failure_gracefully', async () => {
+      // Arrange
+      const config = {
+        generateAgentsMd: true,
+        aiTools: ['cursor'],
+        installedStandards: []
+      };
+      const integrationResults = { integrations: ['.cursorrules'] };
+
+      writeAgentsMdSummary.mockReturnValue({
+        success: false,
+        error: 'Write failed'
+      });
+
+      // Act
+      const result = await generateUniversalAgentsMd(config, integrationResults, '/test');
+
+      // Assert
+      expect(result.path).toBeNull();
+      expect(result.error).toBe('Write failed');
+      expect(mockSpinner.warn).toHaveBeenCalled();
+    });
+
+    it('should_pass_correct_config_to_writeAgentsMdSummary', async () => {
+      // Arrange
+      const config = {
+        generateAgentsMd: true,
+        aiTools: ['cursor'],
+        installedStandards: ['commit-message.ai.yaml', 'testing.ai.yaml'],
+        displayLanguage: 'zh-tw',
+        standardOptions: {
+          commit_language: 'traditional-chinese',
+          workflow: 'gitflow'
+        }
+      };
+      const integrationResults = { integrations: ['.cursorrules'] };
+
+      writeAgentsMdSummary.mockReturnValue({
+        success: true,
+        path: 'AGENTS.md',
+        blockHashInfo: null
+      });
+
+      // Act
+      await generateUniversalAgentsMd(config, integrationResults, '/test');
+
+      // Assert
+      expect(writeAgentsMdSummary).toHaveBeenCalledWith(
+        expect.objectContaining({
+          installedStandards: ['commit-message.ai.yaml', 'testing.ai.yaml'],
+          language: 'zh-tw',
+          commitLanguage: 'traditional-chinese',
+          standardOptions: expect.objectContaining({ workflow: 'gitflow' })
+        }),
+        '/test'
+      );
     });
   });
 });

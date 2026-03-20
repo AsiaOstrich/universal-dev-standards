@@ -11,7 +11,8 @@ import {
   promptContentMode,
   promptMethodology,
   promptCommandsInstallation,
-  handleAgentsMdSharing
+  handleAgentsMdSharing,
+  promptAgentsMd
 } from '../prompts/init.js';
 import {
   promptIntegrationConfig
@@ -83,6 +84,15 @@ export async function runInitFlow(options, detected, projectPath) {
 
   // === STEP 3: Handle AGENTS.md sharing ===
   aiTools = handleAgentsMdSharing(aiTools);
+
+  // === STEP 3.5: AGENTS.md universal output ===
+  let generateAgentsMd = false;
+  if (!options.agentsMd && options.agentsMd !== false) {
+    // No explicit flag — prompt user (only if codex/opencode not selected)
+    generateAgentsMd = await promptAgentsMd(aiTools);
+  } else {
+    generateAgentsMd = !!options.agentsMd;
+  }
 
   const skillsSupportedTools = aiTools.filter(tool => {
     const config = getAgentConfig(tool);
@@ -232,6 +242,7 @@ export async function runInitFlow(options, detected, projectPath) {
     skillsConfig,
     aiTools,
     integrations,
-    contentMode
+    contentMode,
+    generateAgentsMd
   };
 }

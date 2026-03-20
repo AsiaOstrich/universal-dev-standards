@@ -864,6 +864,8 @@ uds init --experimental
 |------|----------|------|
 | 非互動模式 | `-y, --yes` | 跳過互動提示，使用預設值 |
 | 實驗性功能 | `-E, --experimental` | 啟用實驗性功能（開發方法論選擇） |
+| AGENTS.md | `--agents-md` | 生成 AGENTS.md 通用摘要（預設：未選 codex/opencode 時自動生成） |
+| 不生成 AGENTS.md | `--no-agents-md` | 跳過 AGENTS.md 生成 |
 | 模式（已棄用） | `-m, --mode` | 安裝模式（skills, full）- 請改用 `--skills-location` |
 
 ### 完整 CLI 範例
@@ -887,6 +889,12 @@ uds init -y \
 
 # 企業級完整設定
 uds init -y --content-mode full
+
+# 生成 AGENTS.md 通用摘要（--yes 模式預設生成）
+uds init -y --agents-md
+
+# 跳過 AGENTS.md 生成
+uds init -y --no-agents-md
 
 # 繁體中文團隊
 uds init -y --commit-lang traditional-chinese --locale zh-tw

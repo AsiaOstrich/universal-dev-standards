@@ -338,6 +338,14 @@ export const messages = {
       }
     },
 
+    // AGENTS.md Universal Output
+    agentsMdPrompt: {
+      title: 'AGENTS.md (Universal Standard)',
+      description: 'AGENTS.md is an open standard (AAIF) supported by 60K+ open source projects.',
+      description2: 'Generating it allows Copilot, Jules, Codex, and other tools to auto-read your project standards.',
+      question: 'Generate AGENTS.md as a universal standards summary?'
+    },
+
     // AI Tools Selection
     aiTools: {
       title: 'AI Development Tools',
@@ -961,6 +969,9 @@ export const messages = {
         generatingClaudeMd: 'Generating CLAUDE.md...',
         generatedClaudeMd: 'Generated CLAUDE.md',
         couldNotGenerateClaudeMd: 'Could not generate CLAUDE.md',
+        generatingAgentsMd: 'Generating AGENTS.md (universal summary)...',
+        generatedAgentsMd: 'Generated AGENTS.md (universal summary)',
+        couldNotGenerateAgentsMd: 'Could not generate AGENTS.md',
         installingSkills: 'Installing Claude Code Skills...',
         installedSkills: 'Installed {count} Skills to {locations}',
         installedSkillsWithErrors: 'Installed {count} Skills with {errors} errors',
@@ -1555,6 +1566,14 @@ export const messages = {
         full: '  → 所有規則直接嵌入，AI 合規率最高',
         minimal: '  → AI 需主動讀取規範，建議搭配 Skills'
       }
+    },
+
+    // AGENTS.md 通用輸出
+    agentsMdPrompt: {
+      title: 'AGENTS.md（通用標準）',
+      description: 'AGENTS.md 是 AAIF 管理的開放標準，60K+ 開源專案採用。',
+      description2: '生成後，Copilot、Jules、Codex 等工具可自動讀取您的專案標準。',
+      question: '是否生成 AGENTS.md 作為通用標準摘要？'
     },
 
     // AI Tools Selection
@@ -2180,6 +2199,9 @@ export const messages = {
         generatingClaudeMd: '產生 CLAUDE.md 中...',
         generatedClaudeMd: '已產生 CLAUDE.md',
         couldNotGenerateClaudeMd: '無法產生 CLAUDE.md',
+        generatingAgentsMd: '產生 AGENTS.md（通用摘要）中...',
+        generatedAgentsMd: '已產生 AGENTS.md（通用摘要）',
+        couldNotGenerateAgentsMd: '無法產生 AGENTS.md',
         installingSkills: '安裝 Claude Code Skills 中...',
         installedSkills: '已安裝 {count} 個 Skills 到 {locations}',
         installedSkillsWithErrors: '已安裝 {count} 個 Skills，有 {errors} 個錯誤',
@@ -2776,6 +2798,14 @@ export const messages = {
       }
     },
 
+    // AGENTS.md 通用输出
+    agentsMdPrompt: {
+      title: 'AGENTS.md（通用标准）',
+      description: 'AGENTS.md 是 AAIF 管理的开放标准，60K+ 开源项目采用。',
+      description2: '生成后，Copilot、Jules、Codex 等工具可自动读取您的项目标准。',
+      question: '是否生成 AGENTS.md 作为通用标准摘要？'
+    },
+
     // AI Tools Selection
     aiTools: {
       title: 'AI 开发工具',
@@ -3145,6 +3175,9 @@ export const messages = {
         generatingClaudeMd: '正在生成 CLAUDE.md...',
         generatedClaudeMd: '已生成 CLAUDE.md',
         couldNotGenerateClaudeMd: '无法生成 CLAUDE.md',
+        generatingAgentsMd: '正在生成 AGENTS.md（通用摘要）...',
+        generatedAgentsMd: '已生成 AGENTS.md（通用摘要）',
+        couldNotGenerateAgentsMd: '无法生成 AGENTS.md',
         installingSkills: '正在安装 Claude Code Skills...',
         installedSkills: '已安装 {count} 个 Skills 到 {locations}',
         installedSkillsWithErrors: '已安装 {count} 个 Skills，有 {errors} 个错误',

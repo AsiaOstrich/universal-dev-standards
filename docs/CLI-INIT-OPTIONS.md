@@ -858,6 +858,8 @@ uds init --experimental
 |------|---------------|-------------|
 | Non-interactive | `-y, --yes` | Skip interactive prompts, use default values |
 | Experimental | `-E, --experimental` | Enable experimental features (methodology selection) |
+| AGENTS.md | `--agents-md` | Generate AGENTS.md universal summary (default: yes if no codex/opencode) |
+| No AGENTS.md | `--no-agents-md` | Skip AGENTS.md generation |
 | UI Language | `--ui-lang` | UI language for prompts (`en`, `zh-tw`, `auto`) - default: `auto` |
 | Mode (deprecated) | `-m, --mode` | Installation mode (skills, full) - use `--skills-location` instead |
 | Force overwrite | `-f, --force` | Overwrite existing configuration (used by `uds ai-context init`) |
@@ -883,6 +885,12 @@ uds init -y \
 
 # Enterprise full setup
 uds init -y --content-mode full
+
+# Generate AGENTS.md universal summary (default in --yes mode)
+uds init -y --agents-md
+
+# Skip AGENTS.md generation
+uds init -y --no-agents-md
 
 # Traditional Chinese team
 uds init -y --commit-lang traditional-chinese --locale zh-tw

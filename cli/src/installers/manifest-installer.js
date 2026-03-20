@@ -37,6 +37,7 @@ export function writeFinalManifest(config, results, projectPath) {
       commit_language: config.standardOptions?.commit_language || null,
       test_levels: config.standardOptions?.test_levels || []
     },
+    generateAgentsMd: config.generateAgentsMd || false,
     aiTools: config.aiTools || [],
     skills: {
       installed: config.skillsConfig?.installed || false,
