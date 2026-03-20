@@ -36,3 +36,35 @@ Refine the Integration Configuration UX by improving prompt clarity, removing En
 - Run `uds init` -> Select "Custom" integration.
 - Verify suffix is gone.
 - Verify summary shows "Integration Config: Custom" and "Rule Categories: ...".
+
+## 5. DevAP / VibeOps 整合模式（Future）
+
+### 5.1 安裝差異
+
+`uds init` 已支援不同 AI 工具的設定。未來可透過 `--target` 參數進一步區分消費者：
+
+| 指令 | 行為 | 安裝內容 |
+|------|------|----------|
+| `uds init` | 預設安裝（偵測 AI 工具） | .standards/ + AI 工具設定 |
+| `uds init --target devap` | DevAP 消費者模式 | .standards/ + DevAP TestPolicy 對齊檢查 |
+| `uds init --target vibeops` | VibeOps 消費者模式 | .standards/ + VibeOps Agent prompt 引用 |
+
+### 5.2 差異化行為
+
+**DevAP 模式**（`--target devap`）：
+- 安裝核心標準（同預設）
+- 額外安裝 `test-governance.ai.yaml`（DevAP TestPolicy 依賴）
+- 生成 `.standards/options/testing/` 完整目錄
+- 檢查 `specs/test-policy-schema.json` 與 UDS 標準的一致性
+
+**VibeOps 模式**（`--target vibeops`）：
+- 安裝核心標準（同預設）
+- 額外確認 Agent prompt 引用的標準都已安裝
+- 生成 `.standards/options/` 完整目錄（含 testing、workflow）
+- 設定 CLAUDE.md 的 UDS 規範引用區塊
+
+### 5.3 實作考量
+
+- `--target` 為可選參數，預設行為不變
+- 目標設定儲存在 `.uds/config.json` 的 `target` 欄位
+- 未來可擴展更多 target（如 `--target cursor`、`--target gemini`）

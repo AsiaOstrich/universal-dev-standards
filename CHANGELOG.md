@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- 跨產品整合策略文件：README.md 生態定位、CLAUDE.md 標準流向說明
+- SPEC-008 新增 DevAP / VibeOps CLI 整合模式規劃（`--target devap/vibeops`）
+
 ## [5.0.0-rc.14] - 2026-03-19
 
 > **Release Candidate**: Fourteenth RC for v5.0.0 with workflow enforcement architecture, i18n completeness, and DX improvements.

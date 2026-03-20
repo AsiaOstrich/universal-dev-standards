@@ -8,7 +8,7 @@
 
 **Version**: 5.0.0-rc.14 (Pre-release) | **Released**: 2026-03-19 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
-Language-agnostic, framework-agnostic documentation standards for software projects. Ensure consistency, quality, and maintainability across diverse technology stacks with AI-native workflows.
+Language-agnostic, framework-agnostic development standards for software projects. Ensure consistency, quality, and maintainability across diverse technology stacks with AI-native workflows.
 
 ---
 
@@ -55,7 +55,7 @@ npx universal-dev-standards init
 <!-- UDS_STATS_TABLE_START -->
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Core Standards** | 42 | Universal development guidelines |
+| **Core Standards** | 50 | Universal development guidelines |
 | **AI Skills** | 30 | Interactive skills |
 | **Slash Commands** | 30 | Quick actions |
 | **CLI Commands** | 6 | list, init, configure, check, update, skills |
@@ -142,6 +142,28 @@ Use `uds config` to manage your preferences:
 3. **Extend Standards**: Contribute language/framework extensions.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+---
+
+## 🌐 Ecosystem
+
+UDS is the **standards definition layer** in the AsiaOstrich three-layer product architecture:
+
+```
+UDS (What to do) → DevAP (How agents do it) → VibeOps (Full lifecycle)
+```
+
+| Layer | Product | Role | License |
+|-------|---------|------|---------|
+| Standards | **UDS** | Development methodology framework | MIT + CC BY 4.0 |
+| Orchestration | [DevAP](https://github.com/AsiaOstrich/dev-autopilot) | Agent-agnostic orchestration engine | Apache-2.0 |
+| Lifecycle | [VibeOps](https://github.com/AsiaOstrich/vibeops360) | AI-driven software factory | AGPL-3.0-only |
+
+- **UDS** defines development standards → consumed by DevAP (quality gates) and VibeOps (agent pipeline)
+- **DevAP** orchestrates AI agents using UDS standards → VibeOps is one of its consumers
+- **VibeOps** provides full software lifecycle → integrates UDS via `uds init` (copy-once)
+
+UDS remains **tool-agnostic**: it supports Claude Code, OpenCode, Gemini CLI, Cursor, Cline, and Windsurf. DevAP and VibeOps are consumers, not requirements.
 
 ---
 
