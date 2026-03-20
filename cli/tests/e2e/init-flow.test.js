@@ -622,6 +622,8 @@ describe('E2E: uds init', () => {
         '\r',
         // AI Tools: select first option (Claude Code), space to toggle, enter to confirm
         { type: 'checkbox', selections: [{ toggle: true }] },
+        // AGENTS.md prompt: Yes (default)
+        '\r',
         // Skills Location: first option (Plugin Marketplace), enter to select
         '\r',
         // Commands Installation: accept pre-selected defaults
@@ -690,6 +692,8 @@ describe('E2E: uds init', () => {
           { down: true },
           { toggle: true }   // Cursor
         ] },
+        // AGENTS.md prompt: Yes (default)
+        '\r',
         // Skills Location: first option (Plugin Marketplace)
         '\r',
         // Commands Installation: accept defaults
@@ -741,6 +745,8 @@ describe('E2E: uds init', () => {
         '\r',
         // AI Tools: Claude Code
         { type: 'checkbox', selections: [{ toggle: true }] },
+        // AGENTS.md prompt: Yes (default)
+        '\r',
         // Skills Location: Plugin Marketplace
         '\r',
         // Commands: accept defaults
