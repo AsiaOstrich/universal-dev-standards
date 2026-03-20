@@ -728,15 +728,13 @@ describe('E2E: uds init', () => {
       // Verify at least some steps were captured
       expect(result.stepOutputs.length).toBeGreaterThan(0);
 
-      // If completed successfully, check manifest for at least one AI tool
-      // Note: checkbox multi-select timing is inherently flaky in CI
-      // (the cli-runner toggles each selection with space, so down-movement
-      //  also triggers a toggle, potentially deselecting the first item)
+      // If completed successfully, check manifest for multiple tools
       if (result.exitCode === 0 && await fileExists(join(testDir, '.standards/manifest.json'))) {
         const manifestContent = await readFile(join(testDir, '.standards/manifest.json'), 'utf8');
         const manifest = JSON.parse(manifestContent);
-        // Should contain at least one AI tool (cursor or claude-code)
-        expect(manifest.aiTools.length).toBeGreaterThan(0);
+        // Should contain both claude-code and cursor
+        expect(manifest.aiTools).toContain('claude-code');
+        expect(manifest.aiTools).toContain('cursor');
       }
     }, 120000);
 

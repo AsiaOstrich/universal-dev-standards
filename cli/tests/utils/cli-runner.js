@@ -219,10 +219,14 @@ export async function runInteractive(inputs, cliOptions = {}, workDir, timeout =
           // For checkbox/multi-select, send space to select then enter
           if (input.type === 'checkbox') {
             for (const selection of input.selections || []) {
-              proc.stdin.write(' '); // Space to toggle
-              // Arrow down for next option if needed
+              if (selection.toggle) {
+                proc.stdin.write(' '); // Space to toggle current item
+              }
               if (selection.down) {
-                proc.stdin.write('\x1B[B'); // Arrow down
+                proc.stdin.write('\x1B[B'); // Arrow down to next item
+              }
+              if (selection.up) {
+                proc.stdin.write('\x1B[A'); // Arrow up to previous item
               }
             }
             proc.stdin.write('\r'); // Enter to confirm
