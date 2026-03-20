@@ -3,7 +3,7 @@ description = "methodology command"
 
 prompt = """
 ---
-description: 管理開發方法論工作流 | Manage development methodology workflow
+description: [UDS] Manage development methodology workflow
 allowed-tools: Read, Write, Glob, Grep, Bash(git:*)
 argument-hint: "[action] [argument]"
 status: experimental
@@ -240,7 +240,7 @@ status: experimental
 # 切換到規格驅動以進行架構變更
 /methodology switch sdd
 
-# 這會啟動 提案 → 審查 → 實作 流程
+# 這會啟動 討論 → 提案 → 審查 → 實作 流程
 ```
 
 ---

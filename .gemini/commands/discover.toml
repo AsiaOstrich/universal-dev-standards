@@ -1,51 +1,53 @@
 # discover command - converted from UDS
-description = "\"[UDS] Assess project health, architecture, and risks before adding features\""
+description = "discover command"
 
 prompt = """
+---
+name: discover
+description: "[UDS] Assess project health, architecture, and risks before adding features"
+argument-hint: "[feature area | 功能範圍]"
+---
 
-## Arguments
-User provided: {{args}}
+# 專案現況評估
 
-# Project Discovery | 專案現況評估
-
-Phase 0 assessment before adding features to existing codebases. Evaluate project health, architecture, and risks.
+> **Language**: [English](../../../../skills/commands/discover.md) | 繁體中文
 
 在既有程式碼庫新增功能前的 Phase 0 評估。評估專案健康度、架構與風險。
 
-## Usage | 用法
+## 用法
 
 ```bash
 /discover [feature area]
 ```
 
-## Assessment Dimensions | 評估維度
+## 評估維度
 
-| Dimension | What to Check | 檢查項目 |
-|-----------|--------------|----------|
-| **Architecture** | Module structure, dependency graph, entry points | 模組結構、相依圖、進入點 |
-| **Dependencies** | Outdated packages, known vulnerabilities, license risks | 過時套件、已知漏洞、授權風險 |
-| **Test Coverage** | Existing test suite, coverage gaps, test quality | 現有測試、覆蓋率缺口、測試品質 |
-| **Security** | `npm audit` findings, hardcoded secrets, exposed endpoints | 安全稽核、硬編碼密鑰、暴露端點 |
-| **Technical Debt** | TODOs, code duplication, complexity hotspots | TODO 標記、程式碼重複、複雜度熱點 |
+| 維度 | 檢查項目 |
+|------|----------|
+| **架構** | 模組結構、相依圖、進入點 |
+| **相依性** | 過時套件、已知漏洞、授權風險 |
+| **測試覆蓋率** | 現有測試、覆蓋率缺口、測試品質 |
+| **安全性** | `npm audit` 結果、硬編碼密鑰、暴露端點 |
+| **技術債** | TODO 標記、程式碼重複、複雜度熱點 |
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Scan project** - Read package.json, directory structure, config files
-2. **Analyze architecture** - Map modules, dependencies, and data flow
-3. **Check dependencies** - Run `npm outdated`, `npm audit` for health signals
-4. **Assess risks** - Identify complexity hotspots, missing tests, security issues
-5. **Generate report** - Output health score with actionable recommendations
-6. **Decide next step** - GO / NO-GO / CONDITIONAL based on findings
+1. **掃描專案** - 讀取 package.json、目錄結構、設定檔
+2. **分析架構** - 繪製模組、相依性和資料流
+3. **檢查相依性** - 執行 `npm outdated`、`npm audit` 取得健康信號
+4. **評估風險** - 識別複雜度熱點、缺失測試、安全問題
+5. **產生報告** - 輸出健康分數與可執行的建議
+6. **決定下一步** - 根據發現結果判定 GO / NO-GO / CONDITIONAL
 
-## Examples | 範例
+## 範例
 
 ```bash
-/discover                # Full project health assessment
-/discover auth           # Focused assessment of auth-related modules
-/discover payments       # Assess risks before adding payment features
+/discover                # 完整專案健康評估
+/discover auth           # 聚焦評估 auth 相關模組
+/discover payments       # 在新增支付功能前評估風險
 ```
 
-## Output Format | 輸出格式
+## 輸出格式
 
 ```
 Project Health Report
@@ -67,17 +69,17 @@ Recommendations:
 3. [LOW]  Resolve TODO backlog in src/utils/
 ```
 
-## Next Steps | 後續步驟
+## 後續步驟
 
-After discovery, the typical brownfield workflow is:
+完成評估後，典型的 brownfield 工作流程為：
 
-1. `/discover` - Assess project health (this command)
-2. `/reverse spec` - Reverse engineer existing code to specs
-3. `/sdd` - Write specification for new features
-4. `/tdd` or `/bdd` - Implement with test protection
+1. `/discover` - 評估專案健康度（本指令）
+2. `/reverse spec` - 逆向工程現有程式碼為規格
+3. `/sdd` - 為新功能撰寫規格
+4. `/tdd` 或 `/bdd` - 在測試保護下實作
 
-## References | 參考
+## 參考
 
-*   [Project Discovery Skill](../project-discovery/SKILL.md)
-*   [Reverse Engineering Standards](../../core/reverse-engineering-standards.md)
+*   [專案探索技能](../project-discovery/SKILL.md)
+*   [逆向工程標準](../../core/reverse-engineering-standards.md)
 """

@@ -1,53 +1,55 @@
 # review command - converted from UDS
-description = "[UDS] Perform systematic code review with checklist"
+description = "review command"
 
 prompt = """
+---
+description: [UDS] Perform systematic code review with checklist
+allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
+argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
+---
 
-## Arguments
-User provided: {{args}}
+# 程式碼審查助手
 
-# Code Review Assistant | 程式碼審查助手
-
-Perform systematic code review using standardized checklists and comment prefixes.
+> **Language**: [English](../../../../skills/commands/review.md) | 繁體中文
 
 執行系統性的程式碼審查，使用標準化的檢查清單和評論前綴。
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Identify changes** - Get diff of files to review
-2. **Apply checklist** - Check each category systematically
-3. **Generate report** - Output findings with standard prefixes
-4. **Summarize** - Provide overall assessment
+1. **識別變更** - 取得要審查的檔案 diff
+2. **套用檢查清單** - 系統性地檢查每個類別
+3. **產生報告** - 使用標準前綴輸出發現
+4. **總結** - 提供整體評估
 
-## Review Categories | 審查類別
+## 審查類別
 
-1. **Functionality** - Does it work correctly?
-2. **Design** - Is the architecture appropriate?
-3. **Quality** - Is the code clean and maintainable?
-4. **Readability** - Is it easy to understand?
-5. **Tests** - Is there adequate test coverage?
-6. **Security** - Are there any vulnerabilities?
-7. **Performance** - Is it efficient?
-8. **Error Handling** - Are errors handled properly?
+1. **功能性** - 是否正確運作？
+2. **設計** - 架構是否適當？
+3. **品質** - 程式碼是否乾淨且可維護？
+4. **可讀性** - 是否容易理解？
+5. **測試** - 測試覆蓋率是否足夠？
+6. **安全性** - 是否有弱點？
+7. **效能** - 是否有效率？
+8. **錯誤處理** - 錯誤是否有正確處理？
 
-## Comment Prefixes | 評論前綴
+## 評論前綴
 
-| Prefix | Meaning | Action |
-|--------|---------|--------|
-| **BLOCKING** | Must fix before merge | Required |
-| **IMPORTANT** | Should fix | Recommended |
-| **SUGGESTION** | Nice-to-have | Optional |
-| **QUESTION** | Need clarification | Discuss |
-| **NOTE** | Informational | FYI |
+| 前綴 | 意義 | 動作 |
+|------|------|------|
+| **BLOCKING** | 合併前必須修復 | 必要 |
+| **IMPORTANT** | 應該修復 | 建議 |
+| **SUGGESTION** | 錦上添花 | 可選 |
+| **QUESTION** | 需要釐清 | 討論 |
+| **NOTE** | 資訊性質 | 供參考 |
 
-## Usage | 使用方式
+## 使用方式
 
-- `/review` - Review all changes in current branch
-- `/review src/auth.js` - Review specific file
-- `/review feature/login` - Review specific branch
+- `/review` - 審查目前分支的所有變更
+- `/review src/auth.js` - 審查特定檔案
+- `/review feature/login` - 審查特定分支
 
-## Reference | 參考
+## 參考
 
-- Full standard: [code-review-assistant](../code-review-assistant/SKILL.md)
-- Core guide: [code-review-checklist](../../core/code-review-checklist.md)
+- 完整標準：[code-review-assistant](../code-review-assistant/SKILL.md)
+- 核心指南：[code-review-checklist](../../core/code-review-checklist.md)
 """

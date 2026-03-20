@@ -1,26 +1,24 @@
 # update command - converted from UDS
-description = "[UDS] Update development standards to latest version"
+description = "update command"
 
 prompt = """
+---
+description: [UDS] Update development standards to latest version
+allowed-tools: Read, Bash(uds update:*), Bash(uds check:*), Bash(uds configure:*), Bash(npx:*), Bash(cat .standards/*), Bash(ls .claude/*), Bash(ls .opencode/*), Bash(ls .github/*)
+argument-hint: "[--yes] [--offline] [--beta]"
+---
 
-## Arguments
-User provided: {{args}}
+# 更新標準
 
-# Update Standards | 更新標準
-
-Update Universal Development Standards to the latest version.
+> **Language**: [English](../../../../skills/commands/update.md) | 繁體中文
 
 將 Universal Development Standards 更新至最新版本。
 
-## Interactive Mode (Default) | 互動模式（預設）
-
-When invoked without `--yes`, use AskUserQuestion to confirm update preferences.
+## 互動模式（預設）
 
 當不帶 `--yes` 執行時，使用 AskUserQuestion 確認更新偏好。
 
-### Step 1: Check Current Status | 步驟 1：檢查目前狀態
-
-First, run `uds check --summary` to show compact installation status.
+### 步驟 1：檢查目前狀態
 
 首先，執行 `uds check --summary` 顯示精簡安裝狀態。
 
@@ -28,327 +26,299 @@ First, run `uds check --summary` to show compact installation status.
 uds check --summary
 ```
 
-This shows: version (with update indicator), level, files status, Skills status, and Commands status.
+顯示：版本（含更新指示器）、等級、檔案狀態、Skills 狀態和 Commands 狀態。
 
-### Step 2: Ask Update Preferences | 步驟 2：詢問更新偏好
+### 步驟 2：詢問更新偏好
 
-If updates are available, use AskUserQuestion with options based on version type.
+如果有可用更新，根據版本類型顯示對應選項。
 
-根據可用更新的版本類型顯示對應選項。
-
-#### Pre-release Version Types | Pre-release 版本類型
-
-Pre-release versions are sorted by stability (ascending):
+#### Pre-release 版本類型
 
 Pre-release 版本按穩定度排序（由低到高）：
 
-| Type | Stability | Description | 說明 |
-|------|-----------|-------------|------|
-| alpha | 🔴 Early | Features may be incomplete, for internal testing | 功能可能不完整，供內部測試 |
-| beta | 🟡 Testing | Features complete, may have bugs, for early adopters | 功能大致完成，可能有 bug，供早期採用者 |
-| rc | 🟢 Near-stable | Release candidate, close to stable, for beta testers | 候選發布版，接近正式版，供 beta 測試者 |
+| 類型 | 穩定度 | 說明 |
+|------|--------|------|
+| alpha | 🔴 早期 | 功能可能不完整，供內部測試 |
+| beta | 🟡 測試中 | 功能大致完成，可能有 bug，供早期採用者 |
+| rc | 🟢 接近穩定 | 候選發布版，接近正式版，供 beta 測試者 |
 
-Version comparison: `alpha < beta < rc < stable`
+版本比較：`alpha < beta < rc < stable`
 
-For detailed versioning standards, see [core/versioning.md](../../core/versioning.md).
+詳細版本規範請參見 [core/versioning.md](../../core/versioning.md)。
 
-#### Update Options | 更新選項
+#### 更新選項
 
-**If stable version available (e.g., 3.5.1):**
+**如果有穩定版本可用（例如 3.5.1）：**
 
-| Option | Description |
-|--------|-------------|
-| **Update Now** | Update standards to latest stable version X.Y.Z (Recommended) |
-| **Check Beta** | Check for beta version updates |
-| **Skip** | Don't update at this time |
+| 選項 | 說明 |
+|------|------|
+| **立即更新** | 更新標準至最新穩定版本 X.Y.Z（建議） |
+| **檢查 Beta** | 檢查 beta 版本更新 |
+| **跳過** | 暫不更新 |
 
-**If only pre-release version available, show specific type:**
+**如果僅有 pre-release 版本可用，顯示特定類型：**
 
-Detect the version type from `uds check` output and display the specific type name:
+從 `uds check` 輸出偵測版本類型並顯示特定類型名稱：
 
-| Detected Type | Option Label | Description |
-|---------------|--------------|-------------|
-| `X.Y.Z-alpha.N` | **Update to Alpha** | Update to alpha version X.Y.Z-alpha.N (🔴 Early testing) |
-| `X.Y.Z-beta.N` | **Update to Beta** | Update to beta version X.Y.Z-beta.N (🟡 Feature complete) |
-| `X.Y.Z-rc.N` | **Update to RC** | Update to RC version X.Y.Z-rc.N (🟢 Near-stable) |
+| 偵測到的類型 | 選項標籤 | 說明 |
+|-------------|---------|------|
+| `X.Y.Z-alpha.N` | **更新至 Alpha** | 更新至 alpha 版本 X.Y.Z-alpha.N（🔴 早期測試） |
+| `X.Y.Z-beta.N` | **更新至 Beta** | 更新至 beta 版本 X.Y.Z-beta.N（🟡 功能大致完成） |
+| `X.Y.Z-rc.N` | **更新至 RC** | 更新至 RC 版本 X.Y.Z-rc.N（🟢 接近穩定） |
 
-Always include **Skip** option: Don't update at this time.
+一律包含**跳過**選項：暫不更新。
 
-**Example AskUserQuestion for beta version:**
-- Question: "有新的 beta 版本可用：3.5.1-beta.3 → 3.5.1-beta.15。您想如何處理？"
-- Option 1: "更新至 Beta (建議)" - "更新標準至 3.5.1-beta.15 版本（🟡 功能大致完成）"
-- Option 2: "暫時跳過" - "目前不進行更新，維持現有版本"
+**Beta 版本的 AskUserQuestion 範例：**
+- 問題："有新的 beta 版本可用：3.5.1-beta.3 → 3.5.1-beta.15。您想如何處理？"
+- 選項 1："更新至 Beta (建議)" - "更新標準至 3.5.1-beta.15 版本（🟡 功能大致完成）"
+- 選項 2："暫時跳過" - "目前不進行更新，維持現有版本"
 
-### Step 3: Execute Update | 步驟 3：執行更新
+### 步驟 3：執行更新
 
-**If Update Now selected:**
+**如果選擇立即更新：**
 ```bash
 uds update --yes
 ```
 
-**If Check Beta selected:**
+**如果選擇檢查 Beta：**
 ```bash
 uds update --beta --yes
 ```
 
-### Step 4: Check Skills/Commands Status | 步驟 4：檢查 Skills/Commands 狀態
-
-After update completes, check for missing or outdated Skills/Commands using multi-stage AskUserQuestion.
+### 步驟 4：檢查 Skills/Commands 狀態
 
 更新完成後，使用多階段 AskUserQuestion 檢查缺少或過時的 Skills/Commands。
 
-**Important:** Since AskUserQuestion has limited options (max 4), we use a multi-stage approach to handle different AI tools and installation preferences.
-
 **重要：** 由於 AskUserQuestion 選項有限（最多 4 個），使用多階段方式處理不同 AI 工具和安裝偏好。
 
-#### Step 4a: Detect Missing Skills | 步驟 4a：偵測缺少的 Skills
-
-First, read the manifest to identify configured AI tools and their Skills status:
+#### 步驟 4a：偵測缺少的 Skills
 
 首先讀取 manifest 來識別已配置的 AI 工具及其 Skills 狀態：
 
 ```bash
-# Read manifest to get configured AI tools
+# 讀取 manifest 取得已配置的 AI 工具
 cat .standards/manifest.json
-# Check existing Skills installations
+# 檢查現有的 Skills 安裝
 ls .claude/skills/ 2>/dev/null || echo "Not installed"
 ls .opencode/skill/ 2>/dev/null || echo "Not installed"
 ```
 
-For each configured AI tool that supports Skills, check if Skills are installed.
+針對每個支援 Skills 的已配置 AI 工具，檢查 Skills 是否已安裝。
 
-#### Step 4b/4c: Ask Skills Installation (Combined) | 步驟 4b/4c：詢問 Skills 安裝（整合）
-
-If any configured AI tools are missing Skills, use **Smart Grouping** strategy.
+#### 步驟 4b/4c：詢問 Skills 安裝（整合）
 
 如果有已配置的 AI 工具缺少 Skills，使用**智能分組**策略。
 
-**IMPORTANT: AskUserQuestion has a 4-option limit.** Use smart grouping to handle this.
-
 **重要：AskUserQuestion 最多只能有 4 個選項。** 使用智能分組來處理。
 
-**Step 4b-1: Check Marketplace Status (Claude Code only)**
+**步驟 4b-1：檢查 Marketplace 狀態（僅 Claude Code）**
 
-First, check if Plugin Marketplace is already installed:
+首先檢查 Plugin Marketplace 是否已安裝：
 ```bash
 ls ~/.claude/plugins/universal-dev-standards@asia-ostrich 2>/dev/null && echo "Marketplace installed"
 ```
 
-- If Marketplace IS installed → Show "Claude Code: ✓ 已透過 Marketplace 安裝" and skip Claude Code options
-- If Marketplace NOT installed → Include Marketplace option
+- 如果 Marketplace 已安裝 → 顯示 "Claude Code: ✓ 已透過 Marketplace 安裝" 並跳過 Claude Code 選項
+- 如果 Marketplace 未安裝 → 包含 Marketplace 選項
 
-**Step 4b-2: Apply Smart Grouping Strategy**
+**步驟 4b-2：套用智能分組策略**
 
-#### Strategy A: 1-2 Tools → Combined Question | 策略 A：1-2 個工具 → 合併詢問
+#### 策略 A：1-2 個工具 → 合併詢問
 
-**Example (Claude Code only, Marketplace not installed):**
+**範例（僅 Claude Code，Marketplace 未安裝）：**
 ```
-Question: "Skills 要安裝到哪裡？"
-Options:
+問題："Skills 要安裝到哪裡？"
+選項：
 1. Plugin Marketplace (建議) - 自動更新，易於管理
 2. User Level (~/.claude/skills/) - 所有專案共用
 3. Project Level (.claude/skills/) - 僅此專案
 4. 跳過 - 不安裝 Skills
 ```
 
-**Example (OpenCode + Copilot, Claude Code already via Marketplace):**
+**範例（OpenCode + Copilot，Claude Code 已透過 Marketplace 安裝）：**
 ```
-Question: "Skills 要安裝到哪裡？（Claude Code: ✓ 已透過 Marketplace 安裝）"
-Options:
+問題："Skills 要安裝到哪裡？（Claude Code: ✓ 已透過 Marketplace 安裝）"
+選項：
 1. 全部 User Level - 所有專案共用
 2. 全部 Project Level (建議) - 僅此專案
 3. 跳過 - 不安裝額外 Skills
 ```
 
-#### Strategy B: 3+ Tools → Two-Stage Question | 策略 B：3+ 個工具 → 兩階段詢問
+#### 策略 B：3+ 個工具 → 兩階段詢問
 
-**Stage 1: Ask unified or individual**
+**第一階段：詢問統一或個別**
 ```
-Question: "有多個 AI 工具需要安裝 Skills，安裝層級要如何設定？"
-Options:
+問題："有多個 AI 工具需要安裝 Skills，安裝層級要如何設定？"
+選項：
 1. 統一層級 (建議) - 所有工具使用相同層級
 2. 個別設定 - 為每個工具分別選擇層級
 3. 跳過 - 不安裝 Skills
 ```
 
-**Stage 2a: If unified → ask level once**
+**第二階段 a：若統一 → 詢問層級一次**
 ```
-Question: "所有 Skills 要安裝到哪個層級？"
-Options:
+問題："所有 Skills 要安裝到哪個層級？"
+選項：
 1. User Level - 所有專案共用
 2. Project Level (建議) - 僅此專案
 ```
 
-**Stage 2b: If individual → per-tool questions**
+**第二階段 b：若個別 → 逐工具詢問**
 
-**Execute installation:**
+**執行安裝：**
 ```bash
 uds configure --type skills --ai-tool opencode --skills-location project
 uds configure --type skills --ai-tool cursor --skills-location user
 ```
 
-**Note:** If user selects unified level, the `--skills-location` option is used. If individual, run without the option to trigger interactive prompt.
-
 **注意：** 如果用戶選擇統一層級，使用 `--skills-location` 選項。如果選擇個別設定，不帶此選項執行以觸發互動提示。
 
-#### Step 4d: Detect Missing Commands | 步驟 4d：偵測缺少的 Commands
-
-Check for configured AI tools that support Commands but don't have them installed:
+#### 步驟 4d：偵測缺少的 Commands
 
 檢查已配置但尚未安裝 Commands 的 AI 工具：
 
 ```bash
-# Check existing Commands installations
+# 檢查現有的 Commands 安裝
 ls .opencode/commands/ 2>/dev/null || echo "Not installed"
 ls .github/commands/ 2>/dev/null || echo "Not installed"
 ```
 
-**Note:** Not all AI tools support Commands. Tools that support Commands:
+**注意：** 並非所有 AI 工具都支援 Commands。支援 Commands 的工具：
 - OpenCode (.opencode/commands/)
 - GitHub Copilot (.github/commands/)
 - Roo Code (.roo/commands/)
 - Gemini CLI (.gemini/commands/)
 
-#### Step 4e: Ask Commands Installation | 步驟 4e：詢問 Commands 安裝
-
-If any configured AI tools are missing Commands, use **Smart Grouping** strategy.
+#### 步驟 4e：詢問 Commands 安裝
 
 如果有已配置的 AI 工具缺少 Commands，使用**智能分組**策略。
 
-**IMPORTANT: AskUserQuestion has a 4-option limit.** Use smart grouping to handle this.
-
 **重要：AskUserQuestion 最多只能有 4 個選項。** 使用智能分組來處理。
 
-#### Strategy A: 1-2 Tools → Combined Question | 策略 A：1-2 個工具 → 合併詢問
+#### 策略 A：1-2 個工具 → 合併詢問
 
-**Example (OpenCode only):**
+**範例（僅 OpenCode）：**
 ```
-Question: "Commands 要安裝到哪裡？"
-Options:
+問題："Commands 要安裝到哪裡？"
+選項：
 1. User Level (~/.config/opencode/command/) - 所有專案共用
 2. Project Level (.opencode/command/) - 僅此專案 (建議)
 3. 跳過 - 使用 Skills 即可
 ```
 
-**Example (OpenCode + Copilot):**
+**範例（OpenCode + Copilot）：**
 ```
-Question: "Commands 要安裝到哪裡？"
-Options:
+問題："Commands 要安裝到哪裡？"
+選項：
 1. 全部 User Level - 所有專案共用
 2. 全部 Project Level (建議) - 僅此專案
 3. 跳過 - 使用 Skills 即可
 ```
 
-#### Strategy B: 3+ Tools → Two-Stage Question | 策略 B：3+ 個工具 → 兩階段詢問
+#### 策略 B：3+ 個工具 → 兩階段詢問
 
-**Stage 1: Ask unified or individual**
+**第一階段：詢問統一或個別**
 ```
-Question: "有多個 AI 工具需要安裝 Commands，安裝層級要如何設定？"
-Options:
+問題："有多個 AI 工具需要安裝 Commands，安裝層級要如何設定？"
+選項：
 1. 統一層級 (建議) - 所有工具使用相同層級
 2. 個別設定 - 為每個工具分別選擇層級
 3. 跳過 - 不安裝 Commands
 ```
 
-**Stage 2a: If unified → ask level once**
+**第二階段 a：若統一 → 詢問層級一次**
 ```
-Question: "所有 Commands 要安裝到哪個層級？"
-Options:
+問題："所有 Commands 要安裝到哪個層級？"
+選項：
 1. User Level - 所有專案共用
 2. Project Level (建議) - 僅此專案
 ```
 
-**Stage 2b: If individual → per-tool questions**
+**第二階段 b：若個別 → 逐工具詢問**
 
-**Execute installation:**
+**執行安裝：**
 ```bash
-# CLI will prompt for installation level
+# CLI 會互動詢問安裝層級
 uds configure --type commands --ai-tool opencode
 uds configure --type commands --ai-tool copilot
 ```
 
-**Note:** The CLI will interactively prompt for installation level (project or user) when `--ai-tool` is specified.
-
 **注意：** 指定 `--ai-tool` 時，CLI 會互動詢問安裝層級（project 或 user）。
 
-#### Declined Features Handling | 拒絕功能處理
-
-**Important:** The CLI tracks user's declined choices in `manifest.declinedFeatures`.
+#### 拒絕功能處理
 
 **重要：** CLI 會在 `manifest.declinedFeatures` 中追蹤用戶拒絕的選項。
 
-- Tools that user previously declined will NOT be shown in subsequent prompts
-- Users can reinstall declined features via `/config skills` or `/config commands`
-- Declining is remembered per-tool (e.g., declining Skills for OpenCode doesn't affect Claude Code)
+- 用戶之前拒絕的工具不會在後續提示中顯示
+- 可透過 `/config skills` 或 `/config commands` 重新安裝
+- 拒絕是按工具記錄的（例如拒絕 OpenCode 的 Skills 不影響 Claude Code）
 
-用戶之前拒絕的工具不會在後續提示中顯示。可透過 `/config skills` 或 `/config commands` 重新安裝。
+### 步驟 5：說明結果
 
-### Step 5: Explain Results | 步驟 5：說明結果
+所有操作完成後，說明：
+1. 已更新的內容（標準版本、檔案數量）
+2. Skills/Commands 安裝結果
+3. 遇到的任何錯誤
+4. 後續步驟（若安裝了 Skills 則重新啟動 AI 工具）
 
-After all operations complete, explain:
-1. What was updated (standards version, file count)
-2. Skills/Commands installation results
-3. Any errors encountered
-4. Next steps (restart AI tool if Skills were installed)
+## 快速模式
 
-## Quick Mode | 快速模式
-
-When invoked with `--yes` or specific options, skip interactive questions:
+帶 `--yes` 或特定選項執行時，跳過互動問題：
 
 ```bash
-/update --yes           # Update without confirmation
-/update --beta --yes    # Update to beta version
-/update --offline       # Skip npm registry check
-/update --skills        # Update Skills only
-/update --commands      # Update Commands only
+/update --yes           # 不確認直接更新
+/update --beta --yes    # 更新至 beta 版本
+/update --offline       # 跳過 npm registry 檢查
+/update --skills        # 僅更新 Skills
+/update --commands      # 僅更新 Commands
 ```
 
-**Note:** In `--yes` mode, CLI shows hints about available Skills/Commands but does NOT auto-install them (conservative behavior).
+**注意：** 在 `--yes` 模式下，CLI 會顯示可用 Skills/Commands 的提示，但不會自動安裝（保守行為）。
 
-## Options Reference | 選項參考
+## 選項參考
 
-| Option | Description | 說明 |
-|--------|-------------|------|
-| `--yes`, `-y` | Skip confirmation prompt | 跳過確認提示 |
-| `--offline` | Skip npm registry check | 跳過 npm registry 檢查 |
-| `--beta` | Check for beta version updates | 檢查 beta 版本更新 |
-| `--skills` | Update Skills only | 僅更新 Skills |
-| `--commands` | Update Commands only | 僅更新 Commands |
-| `--integrations-only` | Regenerate integration files only | 僅重新產生整合檔案 |
-| `--sync-refs` | Sync integration file references | 同步整合檔案參考 |
-| `--standards-only` | Update standards without integrations | 僅更新標準，不更新整合 |
+| 選項 | 說明 |
+|------|------|
+| `--yes`, `-y` | 跳過確認提示 |
+| `--offline` | 跳過 npm registry 檢查 |
+| `--beta` | 檢查 beta 版本更新 |
+| `--skills` | 僅更新 Skills |
+| `--commands` | 僅更新 Commands |
+| `--integrations-only` | 僅重新產生整合檔案 |
+| `--sync-refs` | 同步整合檔案參考 |
+| `--standards-only` | 僅更新標準，不更新整合 |
 
-## What Gets Updated | 更新內容
+## 更新內容
 
-- Standard files in `.standards/` directory
-- Extension files (language, framework, locale)
-- Integration files (`.cursorrules`, `CLAUDE.md`, etc.)
-- Version info in `manifest.json`
+- `.standards/` 目錄中的標準檔案
+- 擴充檔案（語言、框架、地區）
+- 整合檔案（`.cursorrules`、`CLAUDE.md` 等）
+- `manifest.json` 中的版本資訊
 
-## Skills Update | Skills 更新
+## Skills 更新
 
-Skills are managed separately:
+Skills 單獨管理：
 
-| Installation | Update Method | 更新方法 |
-|--------------|---------------|----------|
-| Plugin Marketplace | Auto-updates on Claude Code restart | 重啟 Claude Code 自動更新 |
-| User-level | `cd ~/.claude/skills && git pull` | 手動更新 |
-| Project-level | `cd .claude/skills && git pull` | 手動更新 |
+| 安裝方式 | 更新方法 |
+|---------|---------|
+| Plugin Marketplace | 重啟 Claude Code 自動更新 |
+| User-level | `cd ~/.claude/skills && git pull` |
+| Project-level | `cd .claude/skills && git pull` |
 
-## Troubleshooting | 疑難排解
+## 疑難排解
 
 **"Standards not initialized"**
-- Run `/init` first to initialize standards
+- 先執行 `/init` 初始化標準
 
 **"Already up to date"**
-- No action needed; standards are current
+- 無需操作；標準已是最新
 
 **"Skills previously declined"**
-- Run `/config skills` to reinstall declined Skills
+- 執行 `/config skills` 重新安裝已拒絕的 Skills
 
-## Reference | 參考
+## 參考
 
-- CLI documentation: `uds update --help`
-- Check command: [/check](./check.md)
-- Config command: [/config](./config.md)
+- CLI 文件：`uds update --help`
+- 檢查指令：[/check](./check.md)
+- 配置指令：[/config](./config.md)
 """

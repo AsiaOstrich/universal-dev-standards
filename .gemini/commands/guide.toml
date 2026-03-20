@@ -1,44 +1,49 @@
 # guide command - converted from UDS
-description = "[UDS] Access Universal Development Standards guides and references."
+description = "guide command"
 
 prompt = """
-# /guide Command
+---
+name: guide
+description: [UDS] Access Universal Development Standards guides and references.
+---
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/commands/guide.md)
+# /guide 命令
 
-The `/guide` command is the central entry point for accessing all Universal Development Standards reference materials and guidelines.
+> **Language**: [English](../../../../skills/commands/guide.md) | 繁體中文
 
-## Usage
+`/guide` 命令是存取所有 Universal Development Standards 參考資料和指南的中央入口。
+
+## 用法
 
 ```bash
 /guide [topic]
 ```
 
-## Available Topics
+## 可用主題
 
-| Topic | Description | Source |
-|-------|-------------|--------|
-| `git` | Git workflow & branching strategies | `skills/git-workflow-guide/` |
-| `testing` | Testing pyramid & strategy | `skills/testing-guide/` |
-| `errors` | Error code design standards | `skills/error-code-guide/` |
-| `logging` | Structured logging standards | `skills/logging-guide/` |
-| `structure` | Project structure conventions | `skills/project-structure-guide/` |
-| `ai-arch` | AI-friendly architecture | `skills/ai-friendly-architecture/` |
-| `ai-collab` | AI collaboration & anti-hallucination | `skills/ai-collaboration-standards/` |
-| `ai-instruct` | AI instruction file standards | `skills/ai-instruction-standards/` |
+| 主題 | 說明 | 來源 |
+|------|------|------|
+| `git` | Git 工作流程與分支策略 | `skills/git-workflow-guide/` |
+| `testing` | 測試金字塔與策略 | `skills/testing-guide/` |
+| `errors` | 錯誤碼設計標準 | `skills/error-code-guide/` |
+| `logging` | 結構化日誌標準 | `skills/logging-guide/` |
+| `structure` | 專案結構慣例 | `skills/project-structure-guide/` |
+| `ai-arch` | AI 友善架構 | `skills/ai-friendly-architecture/` |
+| `ai-collab` | AI 協作與反幻覺 | `skills/ai-collaboration-standards/` |
+| `ai-instruct` | AI 指令檔案標準 | `skills/ai-instruction-standards/` |
 
-## Examples
+## 範例
 
-- `/guide git` - Show Git branching and naming conventions
-- `/guide testing` - Show testing pyramid and best practices
-- `/guide structure` - Show recommended project folder structure
-- `/guide` - List all available guides
+- `/guide git` - 顯示 Git 分支與命名慣例
+- `/guide testing` - 顯示測試金字塔與最佳實踐
+- `/guide structure` - 顯示建議的專案目錄結構
+- `/guide` - 列出所有可用指南
 
-## Implementation Note for AI
+## AI 實作注意事項
 
-When the user invokes `/guide [topic]`:
-1.  Identify the requested topic.
-2.  Read the corresponding standard/skill file (e.g., `skills/git-workflow-guide/SKILL.md`).
-3.  Summarize or present the key information from that file to the user.
-4.  If the topic is missing or invalid, list the available topics.
+當使用者調用 `/guide [topic]` 時：
+1.  識別請求的主題。
+2.  讀取對應的標準/技能檔案（例如 `skills/git-workflow-guide/SKILL.md`）。
+3.  向使用者摘要或呈現該檔案的關鍵資訊。
+4.  如果主題缺失或無效，列出可用的主題清單。
 """

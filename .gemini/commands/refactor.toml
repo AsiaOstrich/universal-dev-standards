@@ -1,5 +1,5 @@
 # refactor command - converted from UDS
-description = "引導重構決策與策略選擇"
+description = "[UDS] Guide refactoring decisions and strategy selection"
 
 prompt = """
 

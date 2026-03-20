@@ -1,29 +1,31 @@
 # reverse-bdd command - converted from UDS
-description = "[UDS] Transform SDD acceptance criteria to BDD scenarios"
+description = "reverse-bdd command"
 
 prompt = """
+---
+description: [UDS] Transform SDD acceptance criteria to BDD scenarios
+allowed-tools: Read, Grep, Glob, Write
+argument-hint: "[spec file or source directory | 規格檔案或原始碼目錄]"
+---
 
-## Arguments
-User provided: {{args}}
+# /reverse-bdd — 擷取 BDD 場景
 
-# /reverse-bdd — Extract BDD Scenarios | 擷取 BDD 場景
-
-Transform existing code or SDD acceptance criteria into BDD Gherkin scenarios.
+> **Language**: [English](../../../../skills/commands/reverse-bdd.md) | 繁體中文
 
 將現有程式碼或 SDD 驗收條件轉換為 BDD Gherkin 場景。
 
-## Workflow | 工作流程
+## 工作流程
 
 ```
 Source/Spec ──► Analyze Behaviors ──► Generate .feature ──► Review
 ```
 
-1. **Analyze** source code or spec for behavioral patterns
-2. **Extract** implicit Given-When-Then flows
-3. **Generate** Gherkin `.feature` file
-4. **Tag** with certainty labels: `[Confirmed]`, `[Inferred]`
+1. **分析**原始碼或規格中的行為模式
+2. **擷取**隱含的 Given-When-Then 流程
+3. **產生** Gherkin `.feature` 檔案
+4. **標記**確定性標籤：`[Confirmed]`、`[Inferred]`
 
-## Output Format | 輸出格式
+## 輸出格式
 
 ```gherkin
 # [Source: src/auth/login.js:45]
@@ -36,15 +38,15 @@ Feature: User Login [Inferred]
     Then they receive an auth token
 ```
 
-## Usage | 使用方式
+## 使用方式
 
-| Command | Purpose | 用途 |
-|---------|---------|------|
-| `/reverse-bdd src/auth/` | Extract BDD from auth module | 從 auth 模組擷取 BDD |
-| `/reverse-bdd specs/SPEC-001.md` | Convert spec AC to BDD | 將規格 AC 轉為 BDD |
+| 指令 | 用途 |
+|------|------|
+| `/reverse-bdd src/auth/` | 從 auth 模組擷取 BDD |
+| `/reverse-bdd specs/SPEC-001.md` | 將規格 AC 轉為 BDD |
 
-## Reference | 參考
+## 參考
 
-- Parent command: [/reverse](../reverse-engineer/SKILL.md)
-- Core standard: [reverse-engineering-standards.md](../../core/reverse-engineering-standards.md)
+- 上層指令：[/reverse](../reverse-engineer/SKILL.md)
+- 核心規範：[reverse-engineering-standards.md](../../core/reverse-engineering-standards.md)
 """

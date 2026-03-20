@@ -1,38 +1,45 @@
 # changelog command - converted from UDS
-description = "\"[UDS] Generate and maintain CHANGELOG.md entries\""
+description = "changelog command"
 
 prompt = """
-# Changelog Assistant | 變更日誌助手
+---
+name: changelog
+description: "[UDS] Generate and maintain CHANGELOG.md entries"
+---
 
-Generate and maintain CHANGELOG.md entries following the Keep a Changelog format.
+# 變更日誌助手
+
+> **Language**: [English](../../../../skills/commands/changelog.md) | 繁體中文
 
 根據 Keep a Changelog 格式產生和維護 CHANGELOG.md 條目。
 
-## Usage | 用法
+---
+
+## 用法
 
 ```bash
 /changelog
 ```
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Analyze git log** - Read commit history since last release using `git log`
-2. **Categorize changes** - Map commits to changelog categories
-3. **Generate entries** - Write user-friendly descriptions for each change
-4. **Update CHANGELOG.md** - Insert entries into the [Unreleased] or versioned section
+1. **分析 git log** - 使用 `git log` 讀取自上次發布以來的提交歷史
+2. **分類變更** - 將提交映射到變更日誌分類
+3. **產生條目** - 為每個變更撰寫面向使用者的描述
+4. **更新 CHANGELOG.md** - 將條目插入 [Unreleased] 或版本化區段
 
-## Change Categories | 變更分類
+## 變更分類
 
-| Category | When to Use | 使用時機 | Commit Types |
-|----------|-------------|---------|-------------|
-| **Added** | New features | 新功能 | `feat` |
-| **Changed** | Modifications to existing features | 修改既有功能 | `perf`, `BREAKING CHANGE` |
-| **Deprecated** | Features to be removed | 即將移除的功能 | -- |
-| **Removed** | Removed features | 已移除的功能 | `BREAKING CHANGE` |
-| **Fixed** | Bug fixes | 錯誤修復 | `fix` |
-| **Security** | Security patches | 安全性修補 | `security` |
+| 分類 | 使用時機 | 對應 Commit 類型 |
+|------|---------|-----------------|
+| **Added** | 新功能 | `feat` |
+| **Changed** | 修改既有功能 | `perf`, `BREAKING CHANGE` |
+| **Deprecated** | 即將移除的功能 | -- |
+| **Removed** | 已移除的功能 | `BREAKING CHANGE` |
+| **Fixed** | 錯誤修復 | `fix` |
+| **Security** | 安全性修補 | `security` |
 
-## Entry Format | 條目格式
+## 條目格式
 
 ```markdown
 ## [Unreleased]
@@ -44,14 +51,14 @@ Generate and maintain CHANGELOG.md entries following the Keep a Changelog format
 - Fix memory leak when processing large files (#456)
 ```
 
-### Writing Guidelines | 撰寫指南
+### 撰寫指南
 
-- Write for **users**, not developers | 為使用者而非開發者撰寫
-- Focus on **impact**, not implementation | 聚焦影響而非實作
-- Include issue/PR references | 附上 issue/PR 編號
-- Mark breaking changes with **BREAKING** prefix | 用 **BREAKING** 標記破壞性變更
+- 為**使用者**而非開發者撰寫
+- 聚焦**影響**而非實作
+- 附上 issue/PR 編號
+- 用 **BREAKING** 標記破壞性變更
 
-## References | 參考
+## 參考
 
 *   [Changelog Guide Skill](../changelog-guide/SKILL.md)
 *   [Core Standard](../../core/changelog-standards.md)

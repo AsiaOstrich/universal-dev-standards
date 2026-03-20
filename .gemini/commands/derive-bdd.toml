@@ -1,29 +1,31 @@
 # derive-bdd command - converted from UDS
-description = "[UDS] Derive BDD Gherkin scenarios from SDD specification"
+description = "derive-bdd command"
 
 prompt = """
+---
+description: [UDS] Derive BDD Gherkin scenarios from SDD specification
+allowed-tools: Read, Write, Grep, Glob
+argument-hint: "[spec file path | 規格檔案路徑]"
+---
 
-## Arguments
-User provided: {{args}}
+# 推演 BDD 場景
 
-# /derive-bdd — Derive BDD Scenarios | 推演 BDD 場景
-
-Derive Gherkin `.feature` files from an approved SDD specification document.
+> **Language**: [English](../../../../skills/commands/derive-bdd.md) | 繁體中文
 
 從已核准的 SDD 規格文件推演 Gherkin `.feature` 檔案。
 
-## Workflow | 工作流程
+## 工作流程
 
 ```
 SPEC-XXX.md ──► Parse AC ──► Generate .feature ──► Review
 ```
 
-1. **Read** the SDD spec and extract acceptance criteria
-2. **Map** each AC to a Gherkin Scenario (1:1)
-3. **Generate** `.feature` file with `@SPEC-XXX` and `@AC-N` tags
-4. **Output** derivation summary
+1. **讀取** SDD 規格並萃取驗收條件
+2. **對應** 每個 AC 到一個 Gherkin Scenario（1:1）
+3. **產生** `.feature` 檔案，包含 `@SPEC-XXX` 和 `@AC-N` 標籤
+4. **輸出** 推演摘要
 
-## Output Format | 輸出格式
+## 輸出格式
 
 ```gherkin
 @SPEC-001
@@ -36,15 +38,15 @@ Feature: [Feature Name]
     Then [expected result]
 ```
 
-## Usage | 使用方式
+## 使用方式
 
-| Command | Purpose | 用途 |
-|---------|---------|------|
-| `/derive-bdd specs/SPEC-001.md` | Derive BDD from specific spec | 從特定規格推演 BDD |
-| `/derive-bdd` | Interactive — ask for spec file | 互動式 — 詢問規格檔案 |
+| 指令 | 用途 |
+|------|------|
+| `/derive-bdd specs/SPEC-001.md` | 從特定規格推演 BDD |
+| `/derive-bdd` | 互動式 — 詢問規格檔案 |
 
-## Reference | 參考
+## 參考
 
-- Parent command: [/derive](../forward-derivation/SKILL.md)
-- Core standard: [forward-derivation-standards.md](../../core/forward-derivation-standards.md)
+- 父指令：[/derive](../forward-derivation/SKILL.md)
+- 核心規範：[forward-derivation-standards.md](../../core/forward-derivation-standards.md)
 """

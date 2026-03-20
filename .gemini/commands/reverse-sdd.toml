@@ -1,30 +1,32 @@
 # reverse-sdd command - converted from UDS
-description = "[UDS] Reverse engineer code into SDD specification document"
+description = "reverse-sdd command"
 
 prompt = """
+---
+description: [UDS] Reverse engineer code into SDD specification document
+allowed-tools: Read, Grep, Glob, Write
+argument-hint: "[source file or directory | 原始檔案或目錄]"
+---
 
-## Arguments
-User provided: {{args}}
+# /reverse-sdd — 反向工程為 SDD 規格
 
-# /reverse-sdd — Reverse Engineer to SDD Spec | 反向工程為 SDD 規格
-
-Reverse engineer existing code into a structured SDD specification document.
+> **Language**: [English](../../../../skills/commands/reverse-sdd.md) | 繁體中文
 
 將現有程式碼反向工程為結構化的 SDD 規格文件。
 
-## Workflow | 工作流程
+## 工作流程
 
 ```
 Source Code ──► Analyze ──► Extract Requirements ──► Generate SPEC-XXX.md
 ```
 
-1. **Scan** source code structure and dependencies
-2. **Extract** implicit requirements, API contracts, business rules
-3. **Classify** certainty of each finding: `[Confirmed]`, `[Inferred]`, `[Assumption]`
-4. **Generate** SDD-compliant specification document
-5. **Review** generated spec for accuracy
+1. **掃描**原始碼結構和相依性
+2. **擷取**隱含的需求、API 合約、商業邏輯
+3. **分類**每項發現的確定性：`[Confirmed]`、`[Inferred]`、`[Assumption]`
+4. **產生**符合 SDD 規範的規格文件
+5. **審查**產生的規格以確認準確性
 
-## Output Format | 輸出格式
+## 輸出格式
 
 ```markdown
 # [SPEC-XXX] Feature: [Reverse-Engineered Name]
@@ -40,15 +42,15 @@ Source Code ──► Analyze ──► Extract Requirements ──► Generate 
 - AC-1: [Confirmed] Given valid credentials, when login, then session created
 ```
 
-## Usage | 使用方式
+## 使用方式
 
-| Command | Purpose | 用途 |
-|---------|---------|------|
-| `/reverse-sdd src/auth/` | Reverse engineer auth module | 反向工程 auth 模組 |
-| `/reverse-sdd` | Interactive — ask for target | 互動式 — 詢問目標 |
+| 指令 | 用途 |
+|------|------|
+| `/reverse-sdd src/auth/` | 反向工程 auth 模組 |
+| `/reverse-sdd` | 互動式 — 詢問目標 |
 
-## Reference | 參考
+## 參考
 
-- Parent command: [/reverse](../reverse-engineer/SKILL.md)
-- Core standard: [reverse-engineering-standards.md](../../core/reverse-engineering-standards.md)
+- 上層指令：[/reverse](../reverse-engineer/SKILL.md)
+- 核心規範：[reverse-engineering-standards.md](../../core/reverse-engineering-standards.md)
 """

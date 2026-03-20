@@ -1,53 +1,63 @@
 # checkin command - converted from UDS
-description = "\"[UDS] Pre-commit quality gates verification\""
+description = "checkin command"
 
 prompt = """
-# Check-in Assistant | 簽入助手
+---
+name: checkin
+description: "[UDS] Pre-commit quality gates verification"
+---
 
-Verify pre-commit quality gates before committing code to ensure codebase stability.
+# 簽入助手
+
+> **Language**: [English](../../../../skills/commands/checkin.md) | 繁體中文
 
 在提交程式碼前驗證品質關卡，確保程式碼庫的穩定性。
 
-## Usage | 用法
+---
+
+## 用法
 
 ```bash
 /checkin
 ```
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Check git status** - Run `git status` and `git diff` to understand pending changes
-2. **Run tests** - Execute `npm test` (or project test command) to verify all tests pass
-3. **Run linting** - Execute `npm run lint` to check code style compliance
-4. **Verify quality gates** - Check each gate against the checklist below
-5. **Report results** - Present pass/fail summary and recommend next steps
+1. **檢查 git 狀態** - 執行 `git status` 和 `git diff` 了解待處理的變更
+2. **執行測試** - 執行 `npm test`（或專案測試指令）驗證所有測試通過
+3. **執行程式碼檢查** - 執行 `npm run lint` 檢查程式碼風格合規
+4. **驗證品質關卡** - 對照以下檢查清單逐項確認
+5. **報告結果** - 呈現通過/失敗摘要並建議後續步驟
 
-## Quality Gates | 品質關卡
+## 品質關卡
 
-| Gate | Check | 檢查項目 |
-|------|-------|---------|
-| **Build** | Code compiles with zero errors | 編譯零錯誤 |
-| **Tests** | All existing tests pass (100%) | 所有測試通過 |
-| **Coverage** | Test coverage not decreased | 覆蓋率未下降 |
-| **Code Quality** | Follows coding standards, no code smells | 符合編碼規範 |
-| **Security** | No hardcoded secrets or vulnerabilities | 無硬編碼密鑰 |
-| **Documentation** | API docs and CHANGELOG updated if needed | 文件已更新 |
-| **Workflow** | Branch naming and commit message correct | 分支和提交格式正確 |
+| 關卡 | 檢查項目 |
+|------|---------|
+| **Build** | 編譯零錯誤 |
+| **Tests** | 所有測試通過（100%）|
+| **Coverage** | 覆蓋率未下降 |
+| **AC Coverage** | AC 覆蓋率 ≥ 80%（[`/ac-coverage`](./ac-coverage.md)）|
+| **Code Quality** | 符合編碼規範，無 code smell |
+| **Security** | 無硬編碼密鑰或漏洞 |
+| **Documentation** | 如有需要，API 文件和 CHANGELOG 已更新 |
+| **Workflow** | 分支命名和 commit message 格式正確 |
 
-## Never Commit When | 禁止提交的情況
+## 禁止提交的情況
 
-- Build has errors | 建置有錯誤
-- Tests are failing | 測試失敗
-- Feature is incomplete and would break functionality | 功能不完整會破壞現有功能
-- Contains debugging code (console.log, print) | 包含除錯程式碼
-- Contains commented-out code blocks | 包含被註解的程式碼區塊
+- 建置有錯誤
+- 測試失敗
+- 功能不完整會破壞現有功能
+- 包含除錯程式碼（console.log、print）
+- 包含被註解的程式碼區塊
 
-## Next Steps | 後續步驟
+## 後續步驟
 
-After verification passes, proceed with `/commit` to create the commit message.
+驗證通過後，使用 `/commit` 建立 commit message。
 
-## References | 參考
+## 參考
 
 *   [Check-in Assistant Skill](../checkin-assistant/SKILL.md)
 *   [Core Standard](../../core/checkin-standards.md)
+*   [AC Coverage 命令](./ac-coverage.md) — AC 對測試的追溯分析
+*   [AC 追溯標準](../../core/acceptance-criteria-traceability.md)
 """

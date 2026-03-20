@@ -1,62 +1,64 @@
 # docs command - converted from UDS
-description = "[UDS] Manage, guide, and generate documentation."
+description = "docs command"
 
 prompt = """
+---
+name: docs
+description: [UDS] Manage, guide, and generate documentation.
+argument-hint: "[generate|readme|api] [options]"
+---
 
-## Arguments
-User provided: {{args}}
+# /docs 命令
 
-# /docs Command | /docs 命令
-
-Manage, write, and generate project documentation.
+> **Language**: [English](../../../../skills/commands/docs.md) | 繁體中文
 
 管理、撰寫和生成專案文件。
 
-## Usage | 用法
+## 用法
 
 ```bash
 /docs [subcommand] [options]
 ```
 
-### Subcommands | 子命令
+### 子命令
 
-| Subcommand | Description |
-|------------|-------------|
-| `generate` | Generate documentation artifacts (cheatsheets, reference) |
-| `readme` | Audit and update README.md |
-| `api` | Generate API documentation from code |
-| `structure` | Check documentation folder structure |
-| `(none)` | Show documentation guide/status |
+| 子命令 | 說明 |
+|--------|------|
+| `generate` | 產生文件工件（速查表、參考手冊） |
+| `readme` | 稽核並更新 README.md |
+| `api` | 從程式碼產生 API 文件 |
+| `structure` | 檢查文件目錄結構 |
+| `（無）` | 顯示文件指南/狀態 |
 
-### Generate Options
+### Generate 選項
 
-Used with `/docs generate`:
+搭配 `/docs generate` 使用：
 
-| Option | Description |
-|--------|-------------|
-| `--lang <lang>` | Language (`en`, `zh-TW`, `zh-CN`) |
-| `--cheatsheet` | Generate cheatsheet only |
-| `--reference` | Generate feature reference only |
-| `--check` | Check if docs are out of sync |
+| 選項 | 說明 |
+|------|------|
+| `--lang <lang>` | 語言（`en`、`zh-TW`、`zh-CN`） |
+| `--cheatsheet` | 僅產生速查表 |
+| `--reference` | 僅產生功能參考手冊 |
+| `--check` | 檢查文件是否不同步 |
 
-## Examples | 範例
+## 範例
 
 ```bash
-# Generate all docs
+# 產生所有文件
 /docs generate
 
-# Generate Traditional Chinese docs
+# 產生繁體中文文件
 /docs generate --lang zh-TW
 
-# Update README
+# 更新 README
 /docs readme
 
-# Check doc structure
+# 檢查文件結構
 /docs structure
 ```
 
-## References | 參考
+## 參考
 
-*   [Documentation Guide Skill](../documentation-guide/SKILL.md)
-*   [Core Standard](../../core/documentation-writing-standards.md)
+*   [文件指南技能](../documentation-guide/SKILL.md)
+*   [核心規範](../../core/documentation-writing-standards.md)
 """
