@@ -194,11 +194,11 @@ dotnet list package --vulnerable
   - Breaking changes noted
   - Setup instructions current
 
-- [ ] **CHANGELOG updated (if applicable)**
-  - For user-facing changes: entry added to `[Unreleased]` section
+- [ ] **CHANGELOG updated (pre-release only)**
+  - CHANGELOG is updated during release preparation, not per commit
+  - For user-facing changes: entry added to `[Unreleased]` section before release
   - Breaking changes marked with **BREAKING** prefix
-  - Follow exclusion rules in [versioning.md](versioning.md) and [changelog-standards.md](changelog-standards.md)
-  - Note: Internal refactoring, test-only, docs-only changes typically don't need CHANGELOG entries
+  - See [changelog-standards.md](changelog-standards.md) for timing per workflow
 
 **Documentation Formats**:
 ```

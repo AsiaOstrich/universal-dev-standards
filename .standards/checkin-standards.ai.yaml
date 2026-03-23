@@ -9,7 +9,7 @@ standard:
     - "Build verification: code compiles, dependencies installed"
     - "Test verification: all tests pass, new code covered"
     - "Code quality: no lint errors, no secrets"
-    - "Documentation: docs updated, CHANGELOG updated"
+    - "Documentation: docs updated; CHANGELOG updated at pre-release only"
 
   meta:
     version: "2.0.0"
@@ -53,7 +53,7 @@ standard:
       items:
         - API documentation updated
         - README updated (if needed)
-        - CHANGELOG updated (for user-facing changes to [Unreleased] section)
+        - CHANGELOG updated during pre-release (not per commit)
     workflow_compliance:
       items:
         - Branch naming correct

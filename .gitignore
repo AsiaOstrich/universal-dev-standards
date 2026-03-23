@@ -51,5 +51,8 @@ cli/bundled/
 # Test certificate (generated, local only)
 cli/tests/reports/test-certificate.json
 
+# Internal confidential documents (competitive analysis, etc.)
+docs/internal/confidential/
+
 # Windows /dev/null redirect artifact
 NULL

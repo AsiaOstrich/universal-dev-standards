@@ -292,7 +292,7 @@ Before EVERY commit, verify:
 
 4. **Documentation**
    - [ ] API documentation updated (if applicable)
-   - [ ] CHANGELOG updated for user-facing changes (follow [changelog-standards.md](core/changelog-standards.md))
+   - [ ] CHANGELOG updated at pre-release only, not per commit (follow [changelog-standards.md](core/changelog-standards.md))
 
 5. **Workflow Compliance**
    - [ ] Branch naming correct (`feature/`, `fix/`, `docs/`, `chore/`)

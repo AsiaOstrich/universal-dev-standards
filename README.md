@@ -174,6 +174,23 @@ UDS remains **tool-agnostic**: it supports Claude Code, OpenCode, Gemini CLI, Cu
 | **Documentation** | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | **CLI Tool** | [MIT](cli/LICENSE) |
 
+## Acknowledgments
+
+UDS draws architectural inspiration from these outstanding open-source projects:
+
+| Project | Inspiration | License |
+|---------|------------|---------|
+| [Superpowers](https://github.com/obra/superpowers) | Systematic debugging, agent dispatch, verification evidence | MIT |
+| [GSD](https://github.com/gsd-build/get-shit-done) | Structured task definition, traceability matrix, verification loop cap | MIT |
+| [PAUL](https://github.com/ChristopherKahler/paul) | Plan-Apply-Unify loop, acceptance-driven development | MIT |
+| [CARL](https://github.com/ChristopherKahler/carl) | Context-aware loading, dynamic rule injection | MIT |
+| [CrewAI](https://github.com/crewAIInc/crewAI) | Multi-agent communication protocol, context budget tracking | MIT |
+| [LangGraph](https://github.com/langchain-ai/langgraph) | Workflow state protocol, HITL interrupt checkpoints | MIT |
+| [OpenHands](https://github.com/All-Hands-AI/OpenHands) | Event sourcing, action-observation stream patterns | MIT |
+| [DSPy](https://github.com/stanfordnlp/dspy) | Agent signatures, structured I/O contracts | MIT |
+
+> **Note**: UDS adopts concepts and methodologies only — no source code from these projects is included.
+
 ---
 
 **Maintained with ❤️ by the open-source community**
