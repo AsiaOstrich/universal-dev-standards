@@ -5,11 +5,7 @@ translation_version: 1.2.0
 last_synced: 2026-02-10
 status: current
 name: testing
-description: |
-  Testing pyramid and test writing standards for UT/IT/ST/E2E.
-  Supports ISTQB and Industry Pyramid frameworks.
-  Use when: writing tests, discussing test coverage, test strategy, or test naming.
-  Keywords: test, unit, integration, e2e, coverage, mock, ISTQB, SIT, 測試, 單元, 整合, 端對端.
+description: "[UDS] 測試金字塔與 UT/IT/ST/E2E 測試撰寫標準"
 scope: uds-specific
 ---
 

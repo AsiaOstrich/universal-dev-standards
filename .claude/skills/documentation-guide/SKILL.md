@@ -4,10 +4,7 @@ source_version: 2.1.0
 translation_version: 2.1.0
 last_synced: 2026-03-17
 status: current
-description: |
-  引導文件結構、內容需求和專案文件最佳實踐。
-  使用時機：建立 README、文件、docs 目錄、專案設定、技術文件。
-  關鍵字：README, docs, documentation, CONTRIBUTING, CHANGELOG, ARCHITECTURE, API docs, 文件, 說明文件, 技術文件.
+description: "[UDS] 引導文件結構、內容需求和專案文件最佳實踐"
 scope: universal
 ---
 

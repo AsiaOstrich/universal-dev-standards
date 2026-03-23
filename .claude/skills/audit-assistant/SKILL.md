@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-03-04
 status: current
-description: |
-  UDS 健康檢查與回饋系統。診斷安裝完整性、偵測開發模式、識別摩擦點。
-  使用時機：檢查 UDS 安裝、回報問題、發現規範化機會。
-  關鍵字：audit, health, pattern, friction, feedback, 審計, 健康, 模式, 摩擦, 回饋。
+description: "[UDS] UDS 健康檢查與回饋系統，診斷安裝完整性與偵測開發模式"
 name: audit
 allowed-tools: Read, Grep, Glob, Bash(git log, uds audit)
 scope: universal

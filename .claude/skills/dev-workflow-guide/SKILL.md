@@ -1,7 +1,7 @@
 ---
 name: dev-workflow
 scope: universal
-description: "[UDS] Guide for mapping software development phases to UDS commands and features"
+description: "[UDS] 將軟體開發階段對應到正確的 UDS 指令與技能"
 allowed-tools: Read, Grep, Glob
 argument-hint: "[phase name | scenario | 階段名稱 | 場景]"
 ---

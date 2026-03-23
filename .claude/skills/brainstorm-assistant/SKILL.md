@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-12
 status: current
-description: |
-  在撰寫規格前進行結構化 AI 輔助腦力激盪。
-  使用時機：模糊構想、功能探索、問題重構、創意發想。
-  關鍵字：brainstorm, ideation, HMW, SCAMPER, 腦力激盪, 發想, 創意, 構想。
+description: "[UDS] 在撰寫規格前進行結構化 AI 輔助腦力激盪"
 name: brainstorm
 allowed-tools: Read, Glob, Grep, Write
 scope: universal

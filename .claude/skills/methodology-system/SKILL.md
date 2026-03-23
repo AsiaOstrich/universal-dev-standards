@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  管理當前專案的開發方法論，支援 SDD 和雙迴圈 TDD 兩個獨立系統。
-  使用時機：切換方法論、檢視當前階段、管理開發流程。
-  關鍵字：methodology, SDD, TDD, BDD, ATDD, 方法論, 開發流程。
+description: "[UDS] 管理當前專案的開發方法論，支援 SDD 和雙迴圈 TDD 兩個獨立系統"
 name: methodology
 allowed-tools: Read, Write, Grep, Glob
 scope: partial

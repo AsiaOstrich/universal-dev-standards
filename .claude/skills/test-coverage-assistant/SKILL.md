@@ -4,10 +4,7 @@ source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-02-10
 status: current
-description: |
-  多維度分析測試覆蓋率並提供可執行的建議。
-  使用時機：分析覆蓋率、識別測試缺口、制定測試策略。
-  關鍵字：coverage, test, analysis, dimension, 覆蓋率, 測試, 分析, 維度。
+description: "[UDS] 多維度分析測試覆蓋率並提供可執行的建議"
 name: coverage
 allowed-tools: Read, Grep, Glob, Bash(npm test:*)
 scope: partial

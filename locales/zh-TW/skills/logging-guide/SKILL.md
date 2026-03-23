@@ -1,9 +1,6 @@
 ---
 name: logging
-description: |
-  實作結構化日誌，包含正確的日誌層級和敏感資料處理。
-  使用時機：新增日誌、除錯、設定可觀測性。
-  關鍵字：logging, log level, structured logging, observability, 日誌, 記錄, 結構化日誌。
+description: "[UDS] 實作結構化日誌，包含正確的日誌層級和敏感資料處理"
 source: ../../../../skills/logging-guide/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0

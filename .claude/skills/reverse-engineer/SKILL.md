@@ -4,10 +4,7 @@ source_version: 1.2.0
 translation_version: 1.2.0
 last_synced: 2026-02-10
 status: current
-description: |
-  將現有程式碼反向工程為規格文件、BDD 場景或 TDD 覆蓋率報告。
-  使用時機：從程式碼提取規格、產生 Gherkin 場景、分析測試覆蓋率。
-  關鍵字：reverse engineering, spec, bdd, tdd, 反向工程, 規格, 覆蓋率。
+description: "[UDS] 將現有程式碼反向工程為規格文件、BDD 場景或 TDD 覆蓋率報告"
 name: reverse
 allowed-tools: Read, Grep, Glob, Bash(pg_dump:*), Bash(mysql:*), Bash(sqlite3:*), Bash(npm run:*), Bash(cat:*), Bash(docker:*)
 scope: partial

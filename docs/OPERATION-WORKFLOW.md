@@ -1015,6 +1015,7 @@ Include this table in README.md:
 - [ ] Version sync check passes (`./scripts/check-version-sync.sh`)
 - [ ] CHANGELOG.md is updated
 - [ ] Git working directory is clean
+- [ ] Skill descriptions are single-line with `[UDS]` prefix (check `.claude/skills/*/SKILL.md` and `locales/zh-TW/skills/*/SKILL.md`)
 
 **Version Files Checklist (6 files):**
 - [ ] `cli/package.json` - `"version": "X.Y.Z"`

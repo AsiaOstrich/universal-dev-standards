@@ -4,10 +4,7 @@ source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-02-10
 status: current
-description: |
-  在撰寫程式碼前，建立、審查和管理規格文件。
-  使用時機：建立規格、審查設計、規格驅動開發流程。
-  關鍵字：spec, specification, SDD, design, review, 規格, 設計, 審查, 驗證。
+description: "[UDS] 在撰寫程式碼前，建立、審查和管理規格文件"
 ---
 
 # 規格驅動開發助手

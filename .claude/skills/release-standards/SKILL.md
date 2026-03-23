@@ -4,10 +4,7 @@ source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-02-10
 status: current
-description: |
-  引導遵循語義化版本和變更日誌最佳實踐的發布流程。
-  使用時機：版本發布、版本管理、變更日誌更新。
-  關鍵字：release, version, semver, changelog, 發布, 版本, 語義化。
+description: "[UDS] 引導遵循語義化版本和變更日誌最佳實踐的發布流程"
 name: release
 allowed-tools: Read, Write, Grep, Bash(git:*), Bash(npm version:*)
 scope: universal

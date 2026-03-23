@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  在既有程式碼庫新增功能前的 Phase 0 評估，評估專案健康度、架構與風險。
-  使用時機：新增功能前、專案健康度檢查、風險評估。
-  關鍵字：discover, assessment, health, risk, 評估, 健康度, 風險, 架構。
+description: "[UDS] 在既有程式碼庫新增功能前的 Phase 0 評估，評估專案健康度與風險"
 name: discover
 allowed-tools: Read, Grep, Glob, Bash(npm test:*), Bash(npm audit:*), Bash(npm outdated:*)
 scope: universal

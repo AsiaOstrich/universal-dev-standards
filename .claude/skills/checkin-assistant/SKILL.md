@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  在提交程式碼前驗證品質關卡，確保程式碼庫穩定性。
-  使用時機：提交前檢查、品質驗證、pre-commit 檢查。
-  關鍵字：checkin, pre-commit, quality gate, 簽入, 品質關卡, 驗證。
+description: "[UDS] 在提交程式碼前驗證品質關卡，確保程式碼庫穩定性"
 name: checkin
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git status:*), Bash(npm test:*), Bash(npm run lint:*)
 scope: partial

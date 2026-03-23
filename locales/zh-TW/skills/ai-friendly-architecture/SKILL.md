@@ -5,10 +5,7 @@ translation_version: 1.0.0
 last_synced: 2026-02-05
 status: current
 scope: uds-specific
-description: |
-  設計 AI 友善架構，包含明確模式、分層文件和語義邊界。
-  使用時機：為 AI 協作規劃專案結構、優化程式碼庫以利 AI 分析、設定 AI 上下文。
-  關鍵字：architecture, AI-friendly, context, modules, documentation layers, .ai-context.yaml, 架構, AI 友善, 上下文.
+description: "[UDS] 設計 AI 友善架構，包含明確模式、分層文件和語義邊界"
 ---
 
 # AI 友善架構指南

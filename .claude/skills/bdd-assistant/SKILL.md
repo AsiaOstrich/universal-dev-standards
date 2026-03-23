@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  引導行為驅動開發（BDD）流程，使用 Given-When-Then 格式撰寫場景。
-  使用時機：定義行為場景、撰寫 Gherkin、三劍客會議、BDD 流程。
-  關鍵字：bdd, gherkin, given-when-then, scenario, feature, 行為驅動, 場景, 驗收。
+description: "[UDS] 引導行為驅動開發（BDD）流程，使用 Given-When-Then 格式撰寫場景"
 name: bdd
 allowed-tools: Read, Write, Grep, Glob
 scope: partial

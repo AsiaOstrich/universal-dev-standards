@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  從專案原始檔案產生使用文件（速查表、參考手冊、使用指南）。
-  使用時機：產生文件、建立速查表、產生參考手冊。
-  關鍵字：docgen, documentation, cheatsheet, reference, 文件產生, 速查表, 參考手冊。
+description: "[UDS] 從專案原始檔案產生使用文件（速查表、參考手冊、使用指南）"
 name: docgen
 allowed-tools: Read, Write, Grep, Glob, Bash(*)
 scope: uds-specific
