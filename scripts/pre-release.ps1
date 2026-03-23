@@ -126,7 +126,8 @@ $VersionFiles = @(
     ".claude-plugin/plugin.json",
     ".claude-plugin/marketplace.json",
     "cli/standards-registry.json",
-    "README.md"
+    "README.md",
+    "uds-manifest.json"
 )
 
 foreach ($file in $VersionFiles) {
@@ -178,34 +179,41 @@ if (-not $DryRun) {
         Write-Host "[UPDATED] cli/standards-registry.json" -ForegroundColor Green
     }
 
-    # Update README files (only for stable releases)
-    if ($ReleaseType -eq "stable") {
-        # EN README.md
-        if (Test-Path "README.md") {
-            $content = Get-Content "README.md" -Raw
-            $content = $content -replace '\*\*Version\*\*: [^|]*', "**Version**: $Version "
-            $content = $content -replace '\*\*Released\*\*: \d{4}-\d{2}-\d{2}', "**Released**: $Today"
-            Set-Content "README.md" -Value $content -NoNewline
-            Write-Host "[UPDATED] README.md" -ForegroundColor Green
-        }
+    # Update uds-manifest.json
+    if (Test-Path "uds-manifest.json") {
+        $content = Get-Content "uds-manifest.json" -Raw
+        $content = $content -replace '"version": "[^"]*"', "`"version`": `"$Version`""
+        $content = $content -replace '"last_updated": "[^"]*"', "`"last_updated`": `"$Today`""
+        Set-Content "uds-manifest.json" -Value $content -NoNewline
+        Write-Host "[UPDATED] uds-manifest.json" -ForegroundColor Green
+    }
 
-        # zh-TW README.md
-        if (Test-Path "locales/zh-TW/README.md") {
-            $content = Get-Content "locales/zh-TW/README.md" -Raw
-            $content = $content -replace '\*\*版本\*\*: [^|]*', "**版本**: $Version "
-            $content = $content -replace '\*\*發布日期\*\*: \d{4}-\d{2}-\d{2}', "**發布日期**: $Today"
-            Set-Content "locales/zh-TW/README.md" -Value $content -NoNewline
-            Write-Host "[UPDATED] locales/zh-TW/README.md" -ForegroundColor Green
-        }
+    # Update README files (all release types - check-version-sync.sh validates these)
+    # EN README.md
+    if (Test-Path "README.md") {
+        $content = Get-Content "README.md" -Raw
+        $content = $content -replace '\*\*Version\*\*: [^|]*', "**Version**: $Version "
+        $content = $content -replace '\*\*Released\*\*: \d{4}-\d{2}-\d{2}', "**Released**: $Today"
+        Set-Content "README.md" -Value $content -NoNewline
+        Write-Host "[UPDATED] README.md" -ForegroundColor Green
+    }
 
-        # zh-CN README.md
-        if (Test-Path "locales/zh-CN/README.md") {
-            $content = Get-Content "locales/zh-CN/README.md" -Raw
-            $content = $content -replace '\*\*版本\*\*: [^|]*', "**版本**: $Version "
-            $content = $content -replace '\*\*发布日期\*\*: \d{4}-\d{2}-\d{2}', "**发布日期**: $Today"
-            Set-Content "locales/zh-CN/README.md" -Value $content -NoNewline
-            Write-Host "[UPDATED] locales/zh-CN/README.md" -ForegroundColor Green
-        }
+    # zh-TW README.md
+    if (Test-Path "locales/zh-TW/README.md") {
+        $content = Get-Content "locales/zh-TW/README.md" -Raw
+        $content = $content -replace '\*\*版本\*\*: [^|]*', "**版本**: $Version "
+        $content = $content -replace '\*\*發布日期\*\*: \d{4}-\d{2}-\d{2}', "**發布日期**: $Today"
+        Set-Content "locales/zh-TW/README.md" -Value $content -NoNewline
+        Write-Host "[UPDATED] locales/zh-TW/README.md" -ForegroundColor Green
+    }
+
+    # zh-CN README.md
+    if (Test-Path "locales/zh-CN/README.md") {
+        $content = Get-Content "locales/zh-CN/README.md" -Raw
+        $content = $content -replace '\*\*版本\*\*: [^|]*', "**版本**: $Version "
+        $content = $content -replace '\*\*发布日期\*\*: \d{4}-\d{2}-\d{2}', "**发布日期**: $Today"
+        Set-Content "locales/zh-CN/README.md" -Value $content -NoNewline
+        Write-Host "[UPDATED] locales/zh-CN/README.md" -ForegroundColor Green
     }
 }
 

@@ -1017,12 +1017,15 @@ Include this table in README.md:
 - [ ] Git working directory is clean
 - [ ] Skill descriptions are single-line with `[UDS]` prefix (check `.claude/skills/*/SKILL.md` and `locales/zh-TW/skills/*/SKILL.md`)
 
-**Version Files Checklist (6 files):**
+**Version Files Checklist (8 files):**
 - [ ] `cli/package.json` - `"version": "X.Y.Z"`
-- [ ] `.claude-plugin/plugin.json` - `"version": "X.Y.Z"`
-- [ ] `.claude-plugin/marketplace.json` - `"version": "X.Y.Z"`
+- [ ] `.claude-plugin/plugin.json` - `"version": "X.Y.Z"` (stable only)
+- [ ] `.claude-plugin/marketplace.json` - `"version": "X.Y.Z"` (stable only)
 - [ ] `cli/standards-registry.json` - 3 locations
-- [ ] `README.md` - `**Version**:` (stable releases only)
+- [ ] `uds-manifest.json` - `"version": "X.Y.Z"`
+- [ ] `README.md` - `**Version**:`
+- [ ] `locales/zh-TW/README.md` - `**版本**:`
+- [ ] `locales/zh-CN/README.md` - `**版本**:`
 
 ### 9.2 Version Types and npm Tags
 

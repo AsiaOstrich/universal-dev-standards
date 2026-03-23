@@ -155,6 +155,7 @@ VERSION_FILES=(
     ".claude-plugin/marketplace.json"
     "cli/standards-registry.json"
     "README.md"
+    "uds-manifest.json"
 )
 
 for file in "${VERSION_FILES[@]}"; do
@@ -202,38 +203,47 @@ if [ "$DRY_RUN" = false ]; then
         echo -e "${GREEN}[UPDATED]${NC} cli/standards-registry.json"
     fi
 
-    # Update README files (only for stable releases)
-    if [ "$RELEASE_TYPE" = "stable" ]; then
-        # EN README.md
-        if [ -f "README.md" ]; then
-            sed -i.bak \
-                -e "s/\*\*Version\*\*: [^|]*/\*\*Version\*\*: $VERSION /" \
-                -e "s/\*\*Released\*\*: [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/\*\*Released\*\*: $TODAY/" \
-                README.md
-            rm -f README.md.bak
-            echo -e "${GREEN}[UPDATED]${NC} README.md"
-        fi
-
-        # zh-TW README.md
-        if [ -f "locales/zh-TW/README.md" ]; then
-            sed -i.bak \
-                -e "s/\*\*版本\*\*: [^|]*/\*\*版本\*\*: $VERSION /" \
-                -e "s/\*\*發布日期\*\*: [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/\*\*發布日期\*\*: $TODAY/" \
-                locales/zh-TW/README.md
-            rm -f locales/zh-TW/README.md.bak
-            echo -e "${GREEN}[UPDATED]${NC} locales/zh-TW/README.md"
-        fi
-
-        # zh-CN README.md
-        if [ -f "locales/zh-CN/README.md" ]; then
-            sed -i.bak \
-                -e "s/\*\*版本\*\*: [^|]*/\*\*版本\*\*: $VERSION /" \
-                -e "s/\*\*发布日期\*\*: [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/\*\*发布日期\*\*: $TODAY/" \
-                locales/zh-CN/README.md
-            rm -f locales/zh-CN/README.md.bak
-            echo -e "${GREEN}[UPDATED]${NC} locales/zh-CN/README.md"
-        fi
+    # Update uds-manifest.json
+    if [ -f "uds-manifest.json" ]; then
+        sed -i.bak \
+            -e "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" \
+            -e "s/\"last_updated\": \"[^\"]*\"/\"last_updated\": \"$TODAY\"/" \
+            uds-manifest.json
+        rm -f uds-manifest.json.bak
+        echo -e "${GREEN}[UPDATED]${NC} uds-manifest.json"
     fi
+
+    # Update README files (all release types - check-version-sync.sh validates these)
+    # EN README.md
+    if [ -f "README.md" ]; then
+        sed -i.bak \
+            -e "s/\*\*Version\*\*: [^|]*/\*\*Version\*\*: $VERSION /" \
+            -e "s/\*\*Released\*\*: [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/\*\*Released\*\*: $TODAY/" \
+            README.md
+        rm -f README.md.bak
+        echo -e "${GREEN}[UPDATED]${NC} README.md"
+    fi
+
+    # zh-TW README.md
+    if [ -f "locales/zh-TW/README.md" ]; then
+        sed -i.bak \
+            -e "s/\*\*版本\*\*: [^|]*/\*\*版本\*\*: $VERSION /" \
+            -e "s/\*\*發布日期\*\*: [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/\*\*發布日期\*\*: $TODAY/" \
+            locales/zh-TW/README.md
+        rm -f locales/zh-TW/README.md.bak
+        echo -e "${GREEN}[UPDATED]${NC} locales/zh-TW/README.md"
+    fi
+
+    # zh-CN README.md
+    if [ -f "locales/zh-CN/README.md" ]; then
+        sed -i.bak \
+            -e "s/\*\*版本\*\*: [^|]*/\*\*版本\*\*: $VERSION /" \
+            -e "s/\*\*发布日期\*\*: [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/\*\*发布日期\*\*: $TODAY/" \
+            locales/zh-CN/README.md
+        rm -f locales/zh-CN/README.md.bak
+        echo -e "${GREEN}[UPDATED]${NC} locales/zh-CN/README.md"
+    fi
+
 fi
 
 echo ""
