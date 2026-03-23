@@ -749,6 +749,17 @@ export async function updateCommand(options) {
             ...installSkills
           ];
 
+          // Derive location from installations if not set
+          if (!manifest.skills.location) {
+            const levels = manifest.skills.installations.map(s => s.level).filter(Boolean);
+            const uniqueLevels = [...new Set(levels)];
+            if (uniqueLevels.length === 1) {
+              manifest.skills.location = uniqueLevels[0];
+            } else if (uniqueLevels.length > 1) {
+              manifest.skills.location = 'multiple';
+            }
+          }
+
           // Update skill hashes for integrity tracking
           if (skillResult.allFileHashes) {
             if (!manifest.skillHashes) manifest.skillHashes = {};
@@ -773,6 +784,17 @@ export async function updateCommand(options) {
           // Update manifest version
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.version = repoInfo.skills.version;
+
+          // Derive location from installations if not set
+          if (!manifest.skills.location && manifest.skills.installations?.length > 0) {
+            const levels = manifest.skills.installations.map(s => s.level).filter(Boolean);
+            const uniqueLevels = [...new Set(levels)];
+            if (uniqueLevels.length === 1) {
+              manifest.skills.location = uniqueLevels[0];
+            } else if (uniqueLevels.length > 1) {
+              manifest.skills.location = 'multiple';
+            }
+          }
 
           // Update skill hashes for integrity tracking
           if (updateResult.allFileHashes) {
@@ -947,8 +969,34 @@ export async function updateCommand(options) {
       console.log(chalk.gray(`  ${msg.skillsLatest}: ${skillsVersion}`));
       console.log();
 
-      // Check installation location to provide appropriate update instructions
-      const location = manifest.skills.location || 'unknown';
+      // Determine installation location using multiple sources
+      let location = manifest.skills.location;
+
+      // Derive from installations array if location not set
+      if (!location && manifest.skills.installations?.length > 0) {
+        const hasMarketplace = manifest.skills.installations.some(
+          inst => inst.level === 'marketplace' || inst.agent === 'marketplace'
+        );
+        if (hasMarketplace) {
+          location = 'marketplace';
+        } else {
+          const levels = manifest.skills.installations.map(inst => inst.level).filter(Boolean);
+          const uniqueLevels = [...new Set(levels)];
+          location = uniqueLevels.length === 1 ? uniqueLevels[0] : (uniqueLevels.length > 1 ? 'project' : null);
+        }
+      }
+
+      // Fall back to file-system detection if still unknown
+      if (!location) {
+        for (const tool of (manifest.aiTools || [])) {
+          const projInfo = getInstalledSkillsInfoForAgent(tool, 'project', projectPath);
+          const usrInfo = getInstalledSkillsInfoForAgent(tool, 'user');
+          if (projInfo?.installed) { location = 'project'; break; }
+          if (usrInfo?.installed) { location = 'user'; break; }
+        }
+      }
+
+      location = location || 'unknown';
 
       if (location === 'marketplace') {
         console.log(chalk.gray(`  ${msg.updateViaMarketplace}`));
@@ -1583,16 +1631,16 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = fa
         const installedInfo = userInfo || projectInfo;
         const installedVersion = installedInfo?.version;
 
-        // Skip marketplace (auto-updates) and unknown versions
-        if (!usingMarketplace && installedVersion && installedVersion !== latestSkillsVersion) {
+        // Skip marketplace (auto-updates); treat unknown versions as outdated
+        if (!usingMarketplace && (!installedVersion || installedVersion !== latestSkillsVersion)) {
           if (debug) {
-            console.log(chalk.yellow(`    ✓ Added to outdatedSkills (${installedVersion} → ${latestSkillsVersion})`));
+            console.log(chalk.yellow(`    ✓ Added to outdatedSkills (${installedVersion || 'unknown'} → ${latestSkillsVersion})`));
           }
           outdatedSkills.push({
             agent: tool,
             displayName: getAgentDisplayName(tool),
             paths: config.skills,
-            currentVersion: installedVersion,
+            currentVersion: installedVersion || 'unknown',
             latestVersion: latestSkillsVersion,
             level: userInfo?.installed ? 'user' : 'project',
             path: installedInfo?.path
@@ -1647,16 +1695,16 @@ function checkNewFeatures(projectPath, manifest, latestSkillsVersion, debug = fa
           console.log(chalk.gray(`      latestSkillsVersion: ${latestSkillsVersion}`));
         }
 
-        // Check if version differs from latest
-        if (installedCmdVersion && installedCmdVersion !== latestSkillsVersion) {
+        // Check if version differs from latest; treat unknown versions as outdated
+        if (!installedCmdVersion || installedCmdVersion !== latestSkillsVersion) {
           if (debug) {
-            console.log(chalk.yellow(`    ✓ Added to outdatedCommands (${installedCmdVersion} → ${latestSkillsVersion})`));
+            console.log(chalk.yellow(`    ✓ Added to outdatedCommands (${installedCmdVersion || 'unknown'} → ${latestSkillsVersion})`));
           }
           outdatedCommands.push({
             agent: tool,
             displayName: getAgentDisplayName(tool),
             paths: config.commands,
-            currentVersion: installedCmdVersion,
+            currentVersion: installedCmdVersion || 'unknown',
             latestVersion: latestSkillsVersion,
             level: userCmdInfo?.installed ? 'user' : 'project',
             path: installedCmdInfo?.path

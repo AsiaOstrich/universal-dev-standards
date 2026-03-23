@@ -131,6 +131,7 @@ import { getRepositoryInfo, getAllStandards } from '../../src/utils/registry.js'
 import { refreshIntegrationBlockHashes } from '../../src/utils/hasher.js';
 import { writeIntegrationFile } from '../../src/utils/integration-generator.js';
 import { restoreSingleFile } from '../../src/commands/check.js';
+import { getInstalledSkillsInfoForAgent } from '../../src/utils/skills-installer.js';
 
 describe('Update Command', () => {
   let consoleLogs = [];
@@ -958,6 +959,68 @@ describe('Update Command', () => {
       const output = consoleLogs.join('\n');
       expect(output).not.toContain('missing after update');
       expect(restoreSingleFile).not.toHaveBeenCalled();
+    });
+
+    it('should derive skills location from installations when reminder triggers', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: [],
+        extensions: [],
+        integrations: [],
+        aiTools: ['claude-code'],
+        skills: {
+          installed: true,
+          version: '0.9.0',
+          // location is NOT set (legacy manifest)
+          installations: [{ agent: 'claude-code', level: 'project' }]
+        }
+      });
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.0.0' },
+        skills: { version: '1.0.0' }
+      });
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      // Should show project-level update instructions (not legacy/unknown)
+      expect(output).toContain('Skills update available');
+      // Should contain manual update hint for project level
+      expect(output).toContain('.claude/skills/universal-dev-standards');
+    });
+
+    it('should fall back to file-system detection when location and installations are missing', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: [],
+        extensions: [],
+        integrations: [],
+        aiTools: ['claude-code'],
+        skills: {
+          installed: true,
+          version: '0.9.0'
+          // No location, no installations
+        }
+      });
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.0.0' },
+        skills: { version: '1.0.0' }
+      });
+
+      // File-system detection: skills exist at project level
+      getInstalledSkillsInfoForAgent.mockImplementation((agent, level) => {
+        if (level === 'project') return { installed: true, version: null };
+        return null;
+      });
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('Skills update available');
+      // Should detect project level via file system and show project-level instructions
+      expect(output).toContain('.claude/skills/universal-dev-standards');
     });
   });
 });
