@@ -9,7 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.15] - 2026-03-23
+
+> **Release Candidate**: Fifteenth RC for v5.0.0 with Skills version detection fix, skill description standardization, and CHANGELOG timing correction.
+
+### Fixed
+- **Skills version detection** (SPEC-015): `checkNewFeatures()` now treats null `installedVersion` as outdated instead of skipping the check
+- **Skills location derivation**: `manifest.skills.location` is now derived from `installations` array during update, preventing legacy/unknown fallback
+- **Reminder multi-source detection**: Skills update reminder uses installations → location → file-system detection chain
+- **Commands version detection**: Same null version fix applied to Commands outdated check
+- **CHANGELOG timing** (SPEC-016): `checkin-standards.md` now correctly states CHANGELOG is updated at pre-release only, not per commit — aligned with `changelog-standards.md`
+
+### Changed
+- **Skill descriptions standardized**: All 30 installed skill descriptions unified to single-line `[UDS]` prefix format (Chinese translation)
+- **zh-TW skill translations**: 26 locale source files synchronized with same format
+- `/dev-workflow` description translated to Traditional Chinese
+
 ### Added
+- **README Acknowledgments**: Added attribution section for 8 open-source inspiration sources (Superpowers, GSD, PAUL, CARL, CrewAI, LangGraph, OpenHands, DSPy)
+- **Pre-release checklist**: Added skill description format check to `OPERATION-WORKFLOW.md` §9.1
+- **Retroactive specs**: SPEC-015 (update skills version detection) and SPEC-016 (CHANGELOG timing correction)
+- **Internal confidential docs directory**: `docs/internal/confidential/` excluded via `.gitignore`
 - 跨產品整合策略文件：README.md 生態定位、CLAUDE.md 標準流向說明
 - SPEC-008 新增 DevAP / VibeOps CLI 整合模式規劃（`--target devap/vibeops`）
 
