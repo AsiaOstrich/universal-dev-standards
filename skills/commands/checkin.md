@@ -48,6 +48,49 @@ Verify pre-commit quality gates before committing code to ensure codebase stabil
 
 After verification passes, proceed with `/commit` to create the commit message.
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/checkin` | 自動執行所有品質關卡檢查 |
+
+### Interaction Script | 互動腳本
+
+1. 執行 `git status` 確認有待提交的變更
+2. 依序檢查每個品質關卡：
+   - Build → Tests → Coverage → Code Quality → Security → Documentation → Workflow
+3. 為每個關卡標記 ✅ PASS / ❌ FAIL
+4. 生成摘要報告
+
+**Decision: 測試指令偵測**
+- IF 專案有 `package.json` → 使用 `npm test`
+- IF 專案有 `pyproject.toml` → 使用 `pytest`
+- IF 無法偵測 → 詢問使用者
+
+**Decision: 檢查結果**
+- IF 全部通過 → 建議執行 `/commit`
+- IF 有 FAIL → 列出失敗項目和修復建議，不建議 commit
+
+🛑 **STOP**: 報告展示後等待使用者決定（修復 or 強制 commit）
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 品質報告展示後 | 使用者決定修復或 commit |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 無待提交變更 | 告知無變更可檢查 |
+| 測試指令執行失敗 | 報告錯誤，建議檢查測試環境 |
+| lint 工具未安裝 | 跳過該關卡，標記 ⚠️ SKIP |
+
 ## References | 參考
 
 *   [Check-in Assistant Skill](../checkin-assistant/SKILL.md)

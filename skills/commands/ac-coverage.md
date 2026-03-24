@@ -86,6 +86,47 @@ After `/ac-coverage` completes, the AI assistant should suggest:
 > - 有未覆蓋 AC → 執行 `/derive-tdd` 補齊測試 — Uncovered AC found → Run `/derive-tdd` to add tests
 > - 有部分覆蓋 AC → 檢查缺少的邊界情況 — Partial AC → Review missing edge cases
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/ac-coverage` | 列出可用的 spec 檔案供選擇 |
+| `/ac-coverage <spec-file>` | 直接分析指定 spec 的 AC 覆蓋率 |
+| `/ac-coverage <spec-file> --threshold N` | 使用自訂門檻 |
+
+### Interaction Script | 互動腳本
+
+1. 讀取 spec 檔案，擷取所有 AC
+2. 掃描測試檔案中的 `@AC` 和 `@SPEC` 註解
+3. 建立 AC → Test 追蹤矩陣
+4. 計算覆蓋率
+5. 生成報告
+
+**Decision: 覆蓋率結果**
+- IF 覆蓋率 ≥ 門檻 → 標記 ✅，建議 `/checkin`
+- IF 有未覆蓋 AC → 列出並建議 `/derive-tdd` 補測試
+- IF 有部分覆蓋 AC → 建議檢查缺少的邊界情況
+
+🛑 **STOP**: 報告展示後等待使用者決定下一步
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 報告展示後 | 使用者決定補測試或繼續 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| Spec 檔案不存在 | 列出可用的 spec 檔案 |
+| Spec 無 AC 定義 | 告知並引導修改 spec |
+| 測試檔案無 `@AC` 註解 | 嘗試以命名慣例匹配，標記 `[Inferred]` |
+
 ## References | 參考
 
 - [AC Coverage Assistant Skill](../ac-coverage-assistant/SKILL.md)

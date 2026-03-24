@@ -166,6 +166,57 @@ This command integrates with:
 - **方法論系統** 追蹤重構進度
 - **TDD 助手** 用於紅-綠-重構循環
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/refactor` | 詢問重構目標和情境，引導選擇策略 |
+| `/refactor decide` | 直接執行重構 vs 重寫決策樹 |
+| `/refactor tactical` | 列出戰術性策略，詢問情境後推薦 |
+| `/refactor strategic` | 引導架構級重構規劃 |
+| `/refactor legacy` | 執行遺留程式碼安全策略引導 |
+| `/refactor debt` | 執行技術債評估 |
+
+### Interaction Script | 互動腳本
+
+#### `/refactor`（無子命令）
+1. 詢問重構情境（日常開發 / 架構變更 / 遺留程式碼）
+2. 依回答分派到 tactical / strategic / legacy
+
+#### `/refactor decide`
+1. 逐一提出決策樹問題（4 題）
+2. 等使用者回答每一題
+3. 根據答案路徑給出建議（重構 / 重寫 / 先加測試）
+
+🛑 **STOP**: 決策結果展示後等待使用者確認方向
+
+#### `/refactor tactical` / `strategic` / `legacy`
+1. 評估當前程式碼狀態（測試覆蓋率、複雜度）
+2. 推薦適合的策略
+3. 提供步驟式執行指引
+
+🛑 **STOP**: 策略推薦後等待使用者選擇，再提供執行引導
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 決策樹結果後 | 確認重構方向 |
+| 策略推薦後 | 選擇策略 |
+| 重構計畫制定後 | 確認開始執行 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 測試覆蓋率無法取得 | 建議先執行 `/coverage`，或詢問使用者估計 |
+| 重構範圍過大 | 建議分階段進行，先從最高風險區域開始 |
+| 無子命令且無法判斷情境 | 預設引導到 decide 決策樹 |
+
 ## Reference | 參考
 
 - [Refactoring Standards](../../core/refactoring-standards.md) - Core standard

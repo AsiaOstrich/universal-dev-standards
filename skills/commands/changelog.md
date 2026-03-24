@@ -52,6 +52,40 @@ Generate and maintain CHANGELOG.md entries following the Keep a Changelog format
 - Include issue/PR references | 附上 issue/PR 編號
 - Mark breaking changes with **BREAKING** prefix | 用 **BREAKING** 標記破壞性變更
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/changelog` | 分析 git log 自上次 release 以來的 commits，生成 changelog 條目 |
+
+### Interaction Script | 互動腳本
+
+1. 找到最近的 git tag（上次 release）
+2. 讀取從上次 tag 至今的所有 commits
+3. 依類型分類（Added / Changed / Fixed / Security 等）
+4. 轉寫為使用者導向的描述（非開發者語言）
+5. 展示生成的 changelog 條目
+
+🛑 **STOP**: 展示條目後等待使用者確認更新 CHANGELOG.md
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| Changelog 條目展示後 | 確認內容正確並寫入 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 無 git tag（首次 release） | 分析所有 commits |
+| CHANGELOG.md 不存在 | 建立新檔案 |
+| Commit message 格式不規範 | 盡力分類，標記 `[Manual Review]` |
+
 ## References | 參考
 
 *   [Changelog Guide Skill](../changelog-guide/SKILL.md)

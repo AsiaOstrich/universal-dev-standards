@@ -64,6 +64,47 @@ This command (`/coverage`) analyzes **code-level** coverage (line/branch/functio
 | **Level** | Code (line/branch/function) | Requirements (AC-to-test) |
 | **Question** | "How much code is tested?" | "Which AC have tests?" |
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/coverage` | 偵測測試框架，執行全專案覆蓋率分析 |
+| `/coverage <path>` | 僅分析指定模組/路徑 |
+| `/coverage --recommend` | 分析後重點輸出測試建議 |
+
+### Interaction Script | 互動腳本
+
+1. 偵測專案測試框架和覆蓋率工具
+2. 執行覆蓋率報告
+3. 解析結果，識別低覆蓋率區域
+4. 依風險和重要性排序
+5. 提出具體測試建議
+
+**Decision: 覆蓋率結果**
+- IF 覆蓋率 ≥ 目標 → 展示摘要，標記 ✅
+- IF 覆蓋率 < 目標但 ≥ 60% → 展示差距，建議優先補測試的區域
+- IF 覆蓋率 < 60% → 警告，建議系統性補強計畫
+
+🛑 **STOP**: 報告展示後等待使用者決定是否補寫測試
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 覆蓋率報告展示後 | 使用者決定是否補測試 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 無測試框架 | 詢問使用者選擇框架 |
+| 覆蓋率工具執行失敗 | 報告錯誤，建議手動檢查配置 |
+| 指定路徑不存在 | 列出可用路徑 |
+
 ## Reference | 參考
 
 - Full standard: [test-coverage-assistant](../test-coverage-assistant/SKILL.md)

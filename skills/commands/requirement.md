@@ -48,6 +48,44 @@ So that [benefit].
 - `/requirement user login` - Write requirement for specific feature
 - `/requirement "users can export data"` - Based on description
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/requirement` | 詢問使用者要定義的功能，開始互動式需求撰寫 |
+| `/requirement <feature>` | 以指定功能為目標，開始收集資訊 |
+| `/requirement "description"` | 從描述中提取需求，生成使用者故事 |
+
+### Interaction Script | 互動腳本
+
+1. 收集功能描述和使用者角色
+2. 引導定義 As a / I want / So that
+3. 引導定義 Acceptance Criteria（GWT 格式）
+4. 以 INVEST 準則逐項驗證
+
+**Decision: INVEST 驗證結果**
+- IF 全部通過 → 展示完整需求文件
+- IF 有項目未通過 → 指出哪些未通過，建議修改方式
+
+🛑 **STOP**: 展示需求文件後等待使用者確認寫入
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 需求文件生成後 | 確認內容正確並寫入 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 使用者描述過於模糊 | 提出具體問題釐清範圍 |
+| AC 無法用 GWT 格式表達 | 協助轉換，展示轉換建議 |
+
 ## Reference | 參考
 
 - Full standard: [requirement-assistant](../requirement-assistant/SKILL.md)

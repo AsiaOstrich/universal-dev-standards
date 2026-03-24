@@ -108,6 +108,43 @@ If active specs exist, highlight them and suggest the appropriate workflow phase
 /discover → /reverse → /coverage → /refactor → /checkin → /commit
 ```
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/dev-workflow` | 先檢查 `.workflow-state/`，有活躍工作流程則顯示狀態，否則展示全階段總覽 |
+| `/dev-workflow <phase>` | 展示指定階段的詳細指令和說明 |
+| `/dev-workflow <scenario>` | 展示指定場景的推薦工作流程（new-feature / bug-fix / refactoring） |
+
+### Interaction Script | 互動腳本
+
+1. 檢查 `.workflow-state/` 和 `docs/specs/` 的活躍狀態
+2. 依據結果決定展示內容
+
+**Decision: 活躍工作流程**
+- IF 有進行中的 workflow → 顯示狀態摘要，建議 resume 命令
+- IF 有活躍 spec → 提示 spec 進度，建議下一步
+- ELSE → 展示完整階段總覽或指定內容
+
+**Decision: 場景模式**
+- IF 指定場景（new-feature / bug-fix / refactoring） → 展示該場景的推薦命令序列
+- ELSE → 展示總覽表
+
+### Stop Points | 停止點
+
+此命令為純查詢/導引，無需停止點。
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 指定的 phase/scenario 不存在 | 列出可用的 phase 和 scenario |
+| `.workflow-state/` 目錄不存在 | 跳過活躍工作流程檢查，直接展示總覽 |
+
 ## References | 參考
 
 - [Development Workflow Skill](../dev-workflow-guide/SKILL.md)

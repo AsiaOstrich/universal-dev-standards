@@ -46,6 +46,44 @@ SPEC-XXX.md ──► /derive-bdd ──► /derive-tdd ──► [/derive-atdd]
 # Step 4: Implement — fill [TODO] markers
 ```
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/derive-all` | 列出 status=Approved 的 spec 供選擇 |
+| `/derive-all <spec-file>` | 直接對指定 spec 執行完整推演 |
+
+### Interaction Script | 互動腳本
+
+1. 讀取並驗證 spec（status = Approved）
+2. 依序執行：`/derive-bdd` → `/derive-tdd` → 詢問是否需要 `/derive-atdd`
+
+**Decision: ATDD 推演**
+- IF 使用者要求 → 執行 `/derive-atdd`
+- ELSE → 跳過 ATDD
+
+3. 生成 `DERIVATION-REPORT.md` 彙總所有輸出
+4. 展示報告摘要
+
+🛑 **STOP**: 展示所有生成檔案清單後等待使用者確認寫入
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 所有推演完成後 | 確認寫入所有檔案 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| Spec status ≠ Approved | 引導到 `/sdd approve` |
+| 子命令推演失敗 | 報告哪個推演失敗，已成功的仍保留，詢問是否繼續 |
+
 ## Reference | 參考
 
 - Parent command: [/derive](../forward-derivation/SKILL.md)

@@ -33,6 +33,52 @@ Create lightweight specification documents for past changes that were committed 
 /sdd-retro --last=10
 ```
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/sdd-retro` | 掃描所有 feat/fix commits（無 `Refs:` footer），顯示摘要 |
+| `/sdd-retro --since=<date>` | 僅掃描指定日期後的 commits |
+| `/sdd-retro --last=<N>` | 僅掃描最近 N 筆 commits |
+
+### Interaction Script | 互動腳本
+
+1. 執行 `git log` 掃描符合條件的 commits
+2. 過濾已有 `Refs: SPEC-` 的 commits
+3. 依 scope 分群相關 commits
+
+**Decision: 掃描結果**
+- IF 無未追蹤的 commits → 告知使用者「所有 feat/fix commits 都已追蹤」，結束
+- IF 有未追蹤的 commits → 顯示分群清單，問使用者要為哪些群組建立 retro spec
+- ELSE → 顯示清單供選擇
+
+4. 為使用者選定的群組生成 retro spec（使用 SDD 格式，status: Archived）
+5. 展示生成的 spec 內容
+
+🛑 **STOP**: 展示 spec 內容後等待使用者確認寫入檔案
+
+6. 寫入 `docs/specs/` 並建議更新原 commits 的 footer（如有需要）
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 掃描結果展示後 | 使用者選擇要追蹤哪些群組 |
+| Spec 內容生成後 | 確認寫入檔案 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 不在 git 倉庫中 | 告知使用者需要在 git 倉庫中執行 |
+| git log 無結果 | 告知無符合條件的 commits |
+| `docs/specs/` 目錄不存在 | 自動建立目錄 |
+| commit message 格式不符合 Conventional Commits | 標記為 `[Unknown]` scope，仍嘗試分析 |
+
 ## Reference | 參考
 
 - SDD workflow: [sdd command](sdd.md)

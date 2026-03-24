@@ -155,6 +155,75 @@ ATDD Level (Business Acceptance)
 - [ ] Tests shown passing
 - [ ] PO formally accepts
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/atdd` | 詢問使用者故事，進入 🤝 WORKSHOP |
+| `/atdd "user story"` | 以指定故事為目標，進入 🤝 WORKSHOP |
+| `/atdd <story-id>` | 載入現有故事，判斷進入哪個階段 |
+
+### Interaction Script | 互動腳本
+
+#### 🤝 WORKSHOP Phase
+
+1. 請使用者描述使用者故事（As a / I want / So that）
+2. 引導定義驗收條件（Given-When-Then）
+3. 記錄 Out of Scope 項目
+
+**Decision: PO 角色**
+- IF 使用者是 PO → 直接收集 AC
+- IF 使用者是開發者 → AI 模擬 PO 視角提出質疑和補充
+- ELSE → 建議邀請 PO 參與，或由 AI 輔助
+
+🛑 **STOP**: AC 定義完成後展示使用者故事文件，等待確認
+
+#### 🧪 DISTILLATION Phase
+
+1. 將 AC 轉換為可執行的測試格式
+2. 消除歧義
+3. 展示可執行測試
+
+🛑 **STOP**: 展示測試後等待使用者（或 PO）簽核
+
+#### 💻 DEVELOPMENT Phase
+
+1. 執行驗收測試（預期失敗）
+2. 使用 BDD/TDD 實作功能
+3. 迭代直到所有測試通過
+
+🛑 **STOP**: 所有測試通過後等待使用者確認進入 DEMO
+
+#### 🎬 DEMO Phase
+
+1. 展示通過的測試結果
+2. 展示可運作的功能
+3. 等待 PO 正式驗收
+
+🛑 **STOP**: 等待使用者確認 PO 已驗收
+
+### Stop Points | 停止點
+
+| Phase | Stop Point | 等待內容 |
+|-------|-----------|---------|
+| WORKSHOP | AC 定義後 | 確認使用者故事 |
+| DISTILLATION | 測試轉換後 | PO 簽核 |
+| DEVELOPMENT | 所有測試通過後 | 確認進入 DEMO |
+| DEMO | 功能展示後 | PO 正式驗收 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 使用者故事不符合 INVEST 準則 | 指出哪些準則未滿足，建議修改 |
+| PO 不在場 | AI 模擬 PO 視角提問，標記 `[Needs PO Confirmation]` |
+| 驗收測試無法自動化 | 建議手動測試替代方案，產出測試檢查清單 |
+| DEVELOPMENT 階段反覆失敗 | 回到 WORKSHOP 重新審視 AC 是否合理 |
+
 ## Reference | 參考
 
 - Core Standard: [acceptance-test-driven-development.md](../../core/acceptance-test-driven-development.md)

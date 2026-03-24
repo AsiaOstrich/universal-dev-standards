@@ -43,6 +43,39 @@ SPEC-XXX.md ──► Parse AC ──► Generate acceptance.md ──► Review
 
 > **Note**: BDD scenarios already serve as executable acceptance tests. `/derive-atdd` is for specialized manual testing workflows.
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/derive-atdd` | 列出 status=Approved 的 spec 供選擇 |
+| `/derive-atdd <spec-file>` | 直接從指定 spec 推演 ATDD 表格 |
+
+### Interaction Script | 互動腳本
+
+1. 讀取 spec，擷取所有 AC
+2. 將每個 AC 映射為驗收測試表格（Given-When-Then 欄位）
+3. 為每個 AC 生成多筆測試資料（正向 + 反向 + 邊界值）
+4. 展示生成的 `acceptance.md` 內容
+
+🛑 **STOP**: 展示表格後等待使用者確認寫入
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 驗收測試表格生成後 | 確認內容正確並寫入 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| AC 缺乏具體的輸入/輸出描述 | 標記 `[TODO: needs test data]`，繼續其餘 AC |
+| Spec 無 AC | 告知並引導修改 spec |
+
 ## Reference | 參考
 
 - Parent command: [/derive](../forward-derivation/SKILL.md)

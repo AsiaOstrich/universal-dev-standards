@@ -173,6 +173,70 @@ BDD works best with collaboration:
 - [ ] Documentation is accessible
 - [ ] Stakeholders can read and understand
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/bdd` | 詢問要探索的行為，進入 🔍 DISCOVERY |
+| `/bdd "feature description"` | 以指定功能為目標，進入 🔍 DISCOVERY |
+| `/bdd <feature-file>` | 載入現有 `.feature` 檔案，判斷進入哪個階段 |
+
+### Interaction Script | 互動腳本
+
+#### 🔍 DISCOVERY Phase
+
+1. 與使用者討論功能行為
+2. 收集具體範例和邊界案例
+3. 以 Three Amigos 視角提問（Business / Dev / Testing）
+
+🛑 **STOP**: 收集足夠範例後展示摘要，等待確認進入 FORMULATION
+
+#### 📝 FORMULATION Phase
+
+1. 將範例轉為 Gherkin 場景（Given-When-Then）
+2. 使用領域語言（ubiquitous language）
+3. 展示生成的 `.feature` 內容
+
+**Decision: 場景品質**
+- IF 場景包含實作細節 → 自動抽離，改用業務語言
+- IF 場景過於模糊 → 要求更具體的範例
+
+🛑 **STOP**: 展示 `.feature` 後等待使用者確認寫入
+
+#### 🤖 AUTOMATION Phase
+
+1. 為每個場景實作 step definitions
+2. 執行場景，確認結果
+3. 場景內部使用 TDD 循環實作
+
+🛑 **STOP**: 所有場景通過後等待使用者確認
+
+#### 📚 LIVING DOCS Phase
+
+1. 確認所有場景是最新狀態
+2. 建議文件可分享給利害關係人
+
+### Stop Points | 停止點
+
+| Phase | Stop Point | 等待內容 |
+|-------|-----------|---------|
+| DISCOVERY | 範例收集完成後 | 確認進入 FORMULATION |
+| FORMULATION | `.feature` 生成後 | 確認寫入 |
+| AUTOMATION | 所有場景通過後 | 確認進入 LIVING DOCS |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 使用者要求跳過 DISCOVERY 直接寫場景 | 提醒需要具體範例，但允許 override |
+| `.feature` 語法無效 | 自動修正 Gherkin 語法 |
+| Step definition 實作失敗 | 報告哪個 step 失敗，嘗試修復，3 次後 STOP |
+| 無 BDD 測試框架（Cucumber 等） | 建議安裝，或改用 TDD 方式實作場景邏輯 |
+
 ## Reference | 參考
 
 - Methodology: [bdd.methodology.yaml](../../methodologies/bdd.methodology.yaml)

@@ -66,6 +66,51 @@ Generate derived artifacts (BDD scenarios, TDD skeletons, ATDD tables) from appr
 /derive atdd specs/SPEC-001.md
 ```
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/derive` | 列出 `docs/specs/` 中 status=Approved 的 spec，問使用者選擇 spec 和子命令 |
+| `/derive <subcommand> <spec-file>` | 直接對指定 spec 執行指定子命令 |
+| `/derive <subcommand>` | 執行指定子命令，列出可用 spec 供選擇 |
+| `/derive <spec-file>` | 對指定 spec 執行 `all`（預設子命令） |
+
+### Interaction Script | 互動腳本
+
+1. 讀取 spec 檔案，驗證 status = Approved
+2. 擷取所有 AC，確認使用 GWT 格式
+
+**Decision: AC 格式**
+- IF AC 使用 GWT 格式 → 直接推演
+- IF AC 不是 GWT 格式 → 嘗試轉換，標記 `[Derived]`，展示轉換結果供確認
+- IF AC 無法轉換 → 🛑 STOP，請使用者先修改 spec 中的 AC 格式
+
+3. 依子命令分派到 `/derive-bdd`、`/derive-tdd`、`/derive-atdd`
+4. 驗證 1:1 對應（每個 AC 恰好一個測試/場景）
+5. 展示推演摘要
+
+🛑 **STOP**: 展示生成的測試工件後等待使用者確認寫入
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| AC 格式轉換後 | 確認轉換結果 |
+| 測試工件生成後 | 確認寫入檔案 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| Spec status ≠ Approved | 告知當前 status，引導到 `/sdd approve` |
+| Spec 檔案不存在 | 列出可用 spec，或引導到 `/sdd create` |
+| AC 數量為 0 | 告知 spec 無 AC，引導修改 spec |
+| 1:1 對應驗證失敗 | 列出不對應項目，停止並報告 |
+
 ## References | 參考
 
 *   [Forward Derivation Standard](../forward-derivation/SKILL.md)
