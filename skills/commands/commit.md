@@ -78,6 +78,56 @@ If a spec is linked, add `Refs: SPEC-XXX` to the commit footer. This is advisory
 - `/commit` - Auto-analyze changes and suggest commit message
 - `/commit fix login bug` - Generate message based on provided description
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action | AI 行為 |
+|-------|-----------|--------|
+| `/commit` | 執行 Pre-Flight Checks → 分析 staged 變更 → 產生 commit message → 等待確認 | Run checks, analyze, generate, confirm |
+| `/commit <description>` | 以描述為基礎，結合 staged diff 產生 commit message → 等待確認 | Use description + diff to generate message |
+
+### Interaction Script | 互動腳本
+
+1. 執行 `git diff --cached --stat` 確認有 staged 變更
+2. 執行 `git status` 和 `git diff --staged` 了解變更內容
+3. 判斷 commit 類型（feat/fix/refactor/docs/...）和範圍
+
+**Decision: Pre-Flight Check 結果**
+- IF 無 staged 變更 → 引導使用者 `git add`，停止
+- IF 有合併衝突標記 → 提示先解決衝突，停止
+- IF 類型為 feat/fix → 執行測試 + Spec 追蹤評估
+
+4. 產生 commit message（subject + body + footer）
+5. 展示完整 message 供使用者確認
+
+**Decision: Spec 追蹤（僅 feat/fix）**
+- IF 有活躍 spec → 建議在 footer 加 `Refs: SPEC-XXX`
+- IF 無 spec 且變更顯著（>3 檔案或新 API） → 建議 `/sdd`
+- 此為建議性（non-blocking），使用者可忽略
+
+🛑 **STOP**: 展示 commit message 後等待使用者確認或修改
+
+6. 使用者確認後執行 `git commit`
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| Pre-Flight 失敗 | 使用者修復問題後重新執行 |
+| Message 展示後 | 確認 message 正確，或要求修改 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 無 staged 變更 | 顯示 `git add` 指引，不嘗試 commit |
+| 合併衝突存在 | 提示解決衝突，列出衝突檔案 |
+| 測試失敗（feat/fix） | 顯示失敗摘要，建議修復後再 commit |
+| commit 執行失敗 | 顯示 git 錯誤訊息，不重試 |
+
 ## Reference | 參考
 
 - Full standard: [commit-standards](../commit-standards/SKILL.md)

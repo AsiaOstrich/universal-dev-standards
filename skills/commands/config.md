@@ -206,6 +206,54 @@ CLI 在 `manifest.declinedFeatures` 中追蹤拒絕的 Skills/Commands：
 | `--yes`, `-y` | Skip confirmation prompt | 跳過確認提示 |
 | `-E`, `--experimental` | Enable experimental features | 啟用實驗性功能 |
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action | AI 行為 |
+|-------|-----------|--------|
+| `/config` | 顯示目前狀態 → 詢問配置類型 → 執行 | Show status, ask type, execute |
+| `/config <type>` | 直接執行指定類型配置（如 `skills`、`ai_tools`） | Execute specific config type |
+| `/config --ai-tool <tool>` | 非互動式為特定工具安裝 Skills/Commands | Non-interactive install for tool |
+
+### Interaction Script | 互動腳本
+
+1. 執行 `uds check --summary` 顯示目前狀態
+
+**Decision: 有無指定 type**
+- IF 指定了 type → 直接執行 `uds configure --type <type>`
+- IF 指定了 `--ai-tool` → 非互動式執行安裝
+- ELSE → 進入互動流程
+
+2. 詢問配置類型（AskUserQuestion）：
+   - Basic Options / AI Tools / Skills / Commands / Advanced / All
+
+3. 根據選擇執行對應 CLI 命令
+
+**Decision: Skills/Commands 配置**
+- IF 選擇 Skills → 顯示安裝狀態 + 拒絕狀態 → 動作選單
+- IF 選擇 Commands → 同上流程
+
+🛑 **STOP**: 顯示目前狀態後等待使用者選擇配置類型
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 狀態顯示後 | 使用者選擇要配置的類型 |
+| Skills/Commands 動作選單 | 使用者選擇安裝/更新/重新安裝 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 標準未初始化 | 提示先執行 `/init` |
+| 無效的 config type | 列出可用類型供選擇 |
+| 指定的 AI tool 不支援 | 列出支援的工具清單 |
+| 之前拒絕的 Skills/Commands | 提示可透過此命令重新安裝 |
+
 ## Reference | 參考
 
 - CLI documentation: `uds configure --help`

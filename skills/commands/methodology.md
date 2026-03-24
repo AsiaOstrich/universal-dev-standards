@@ -268,6 +268,78 @@ You can also configure methodology settings using:
 
 ---
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action | AI 行為 |
+|-------|-----------|--------|
+| `/methodology` | 顯示當前方法論狀態和 checklist | Show current status |
+| `/methodology status` | 同上 | Same as above |
+| `/methodology switch <id>` | 檢查未提交變更 → 切換方法論 | Check uncommitted → switch |
+| `/methodology phase` | 顯示當前階段 | Show current phase |
+| `/methodology phase <name>` | 移動到指定階段 | Move to specified phase |
+| `/methodology checklist` | 顯示當前階段的 checklist | Show phase checklist |
+| `/methodology skip` | 跳過當前階段（含警告） | Skip phase with warning |
+| `/methodology list` | 列出所有可用方法論 | List available methodologies |
+| `/methodology create` | 啟動自訂方法論建立精靈 | Start creation wizard |
+
+### Interaction Script | 互動腳本
+
+#### Status / Checklist
+
+1. 讀取 `.standards/manifest.json` 中的 methodology 配置
+2. 顯示狀態面板（方法論、階段、checklist 進度）
+
+#### Switch
+
+1. 檢查是否有未提交變更（`git status`）
+
+**Decision: 未提交變更**
+- IF 有未提交變更 → 顯示警告，提供 4 選項：Commit first / Stash / Switch anyway / Cancel
+- IF 無變更 → 直接切換
+
+🛑 **STOP**: 有未提交變更時等待使用者選擇處理方式
+
+2. 更新 manifest 中的 active methodology
+3. 顯示切換結果和新方法論的第一個階段
+
+#### Skip
+
+1. 檢查當前 checklist 未完成項目
+2. 顯示警告（含已跳過次數）
+
+🛑 **STOP**: 顯示跳過警告後等待使用者確認
+
+**Decision: 跳過限制**
+- IF 已達跳過上限（skipLimit） → 強制顯示嚴重警告
+- ELSE → 記錄跳過，進入下一階段
+
+#### Create
+
+1. 啟動互動式精靈，引導使用者定義自訂方法論
+
+🛑 **STOP**: 定義完成後展示方法論結構，等待確認寫入
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| Switch 有未提交變更 | 使用者選擇處理方式 |
+| Skip 確認 | 使用者確認跳過 |
+| Create 完成 | 使用者確認寫入自訂方法論 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 方法論未啟用 | 提示執行 `/methodology switch <id>` |
+| 指定的方法論不存在 | 列出可用方法論（`/methodology list`） |
+| 指定的階段在當前方法論中不存在 | 列出可用階段 |
+| manifest 無 methodology 配置 | 提示透過 `/config methodology` 啟用 |
+
 ## Reference | 參考
 
 - [Methodology System Skill](../methodology-system/SKILL.md) - Full skill documentation

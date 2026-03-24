@@ -596,6 +596,7 @@ After ANY modification, run:
 ./scripts/check-scope-sync.sh       # Scope universality check
 ./scripts/check-docs-integrity.sh   # Documentation integrity
 ./scripts/check-orphan-specs.sh     # Orphan spec detection
+./scripts/check-ai-behavior-sync.sh # AI Agent Behavior coverage
 cd cli && npm test && npm run lint
 ```
 
@@ -835,7 +836,7 @@ When updating version, files must be synchronized based on release type:
 .\scripts\pre-release-check.ps1
 ```
 
-This runs 17 checks including:
+This runs 19 checks including:
 1. Git working directory status
 2. Version sync (`check-version-sync.sh`)
 3. Standards sync (`check-standards-sync.sh`)
@@ -845,8 +846,10 @@ This runs 17 checks including:
 13. Skill next steps sync (`check-skill-next-steps-sync.sh`)
 14. Linting
 15. Orphan spec detection (`check-orphan-specs.sh`)
-16. Unit Tests
-17. E2E Tests (Bug Regression)
+16. AI Agent Behavior coverage (`check-ai-behavior-sync.sh`)
+17. Workflow compliance
+18. Unit Tests
+19. E2E Tests (Bug Regression)
 
 #### Translation Sync (Stable Releases)
 

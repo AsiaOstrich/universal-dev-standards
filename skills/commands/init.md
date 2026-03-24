@@ -280,6 +280,61 @@ See `uds init --help` for all options.
 - Commands (for supported AI tools)
 - `manifest.json` for tracking installation
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action | AI 行為 |
+|-------|-----------|--------|
+| `/init` | 進入互動模式，逐步詢問 13 個配置問題 | Enter interactive mode, 13-step configuration |
+| `/init --yes` | 使用所有預設值直接執行 | Execute with all defaults |
+| `/init --level N` | 設定採用層級，其餘進入互動或搭配 `--yes` | Set level, rest interactive or defaults |
+| `/init --level N --yes` | 指定層級 + 所有預設值直接執行 | Specified level + all defaults |
+
+### Interaction Script | 互動腳本
+
+**Decision: 互動 vs 快速模式**
+- IF `--yes` 存在 → 使用預設值直接執行，跳過所有 AskUserQuestion
+- ELSE → 進入 13 步驟互動流程
+
+#### 互動流程（13 步驟）
+
+1. **偵測專案** — 自動偵測語言、框架、AI 工具
+2. **AI 工具選擇** — 多選，預選偵測到的工具
+3. **Skills 安裝** — Smart Grouping（1-2 工具合併 / 3+ 工具兩階段）
+4. **Commands 安裝** — Smart Grouping（同上策略）
+5. **標準範圍** — Lean（建議）或 Complete
+6. **採用層級** — Level 1/2/3
+7. **標準格式** — AI / Human / Both
+8. **標準選項** — Git Workflow、Merge Strategy、Commit Language、Test Levels
+9. **語言擴展** — 偵測到語言時詢問
+10. **框架擴展** — 偵測到框架時詢問
+11. **地區設定** — English / Traditional Chinese
+12. **內容模式** — Standard / Full Embed / Minimal
+13. **確認並執行** — 展示摘要，確認後一次執行所有安裝
+
+**IMPORTANT**: AskUserQuestion 最多 4 個選項。3+ 工具時必須使用 Smart Grouping 兩階段策略。
+
+🛑 **STOP**: Step 13 展示配置摘要後等待使用者確認再執行安裝
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 配置摘要展示後 | 確認安裝或修改配置 |
+| 偵測到已有 `.standards/` | 詢問是否覆寫或跳過 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 已有 `.standards/` 目錄 | 提示使用 `/update` 更新，或確認覆寫 |
+| 無法偵測專案語言 | 跳過語言擴展步驟，繼續流程 |
+| npm/npx 不可用 | 提示安裝 Node.js >= 18 |
+| AskUserQuestion 超過 4 選項 | 使用 Smart Grouping 拆分為多階段 |
+
 ## Reference | 參考
 
 - CLI documentation: `uds init --help`

@@ -210,6 +210,57 @@ Shows standards coverage:
 /check --migrate        # Upgrade manifest format
 ```
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action | AI 行為 |
+|-------|-----------|--------|
+| `/check` | 執行 `uds check`，偵測問題時進入互動修復模式 | Run full check, enter interactive mode on issues |
+| `/check --summary` | 執行 `uds check --summary`，顯示精簡狀態 | Show compact status |
+| `/check --restore` | 執行 `uds check --restore`，還原所有修改/遺失檔案 | Restore all files |
+| `/check --offline` | 執行 `uds check --offline`，跳過 npm registry 檢查 | Skip network check |
+| `/check --migrate` | 執行 `uds check --migrate`，升級 manifest 格式 | Migrate legacy manifest |
+
+### Interaction Script | 互動腳本
+
+1. 執行 `uds check` 並解析輸出
+2. 展示狀態摘要（版本、層級、檔案、Skills、Commands）
+
+**Decision: 檢查結果**
+- IF 全部正常 → 顯示綠色摘要，結束
+- IF 有修改/遺失檔案 → 進入互動修復迴圈
+
+3. 互動修復迴圈（每個問題檔案）：
+
+**Decision: 檔案已修改**
+- 使用者可選：View diff → Restore original → Keep current → Skip
+
+**Decision: 檔案遺失**
+- 使用者可選：Restore → Remove from tracking → Skip
+
+🛑 **STOP**: 每個問題檔案逐一詢問使用者處理方式
+
+4. 所有檔案處理完畢，顯示最終狀態
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 每個問題檔案 | 使用者選擇處理方式 |
+| restore 操作前 | 確認還原（批次模式除外） |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 標準未初始化 | 提示執行 `/init` |
+| npm registry 無法連線 | 建議加 `--offline` 重試 |
+| manifest 格式過舊 | 建議執行 `--migrate` |
+| Skills 未安裝 | 建議執行 `/update` 或 `/config skills` |
+
 ## Reference | 參考
 
 - CLI documentation: `uds check --help`

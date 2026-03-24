@@ -344,6 +344,67 @@ Skills are managed separately:
 **"Skills previously declined"**
 - Run `/config skills` to reinstall declined Skills
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action | AI 行為 |
+|-------|-----------|--------|
+| `/update` | 檢查狀態 → 詢問更新偏好 → 執行 → 檢查 Skills/Commands | Check, ask, execute, post-check |
+| `/update --yes` | 跳過確認直接更新（不自動安裝 Skills） | Update without confirmation |
+| `/update --beta` | 檢查 beta 版本更新 | Check beta updates |
+| `/update --skills` | 僅更新 Skills | Update Skills only |
+| `/update --commands` | 僅更新 Commands | Update Commands only |
+| `/update --offline` | 跳過 npm registry 檢查 | Skip network check |
+
+### Interaction Script | 互動腳本
+
+1. 執行 `uds check --summary` 顯示目前狀態
+
+**Decision: 有無可用更新**
+- IF 已是最新 → 顯示「Already up to date」，跳至 Step 4 檢查 Skills/Commands
+- IF 有更新 → 進入 Step 2
+
+2. 詢問更新偏好（AskUserQuestion）
+
+**Decision: 版本類型**
+- IF stable 可用 → 選項：Update Now（建議）/ Check Beta / Skip
+- IF 僅 pre-release → 顯示具體類型：Update to Alpha/Beta/RC / Skip
+
+🛑 **STOP**: 展示版本資訊後等待使用者選擇
+
+3. 執行更新 `uds update --yes` 或 `uds update --beta --yes`
+
+4. 檢查 Skills/Commands 狀態（Smart Grouping 策略）
+   - 偵測缺少的 Skills → 使用 Smart Grouping 詢問安裝
+   - 偵測缺少的 Commands → 使用 Smart Grouping 詢問安裝
+   - 已拒絕的工具不再顯示
+
+**IMPORTANT**: AskUserQuestion 最多 4 個選項。3+ 工具時必須使用兩階段策略。
+
+🛑 **STOP**: 每個 Skills/Commands 安裝決策點等待使用者選擇
+
+5. 說明結果（更新內容、安裝結果、下一步）
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 更新偏好選擇 | 使用者選擇更新版本或跳過 |
+| Skills 安裝詢問 | 使用者選擇安裝位置或跳過 |
+| Commands 安裝詢問 | 使用者選擇安裝位置或跳過 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 標準未初始化 | 提示執行 `/init` |
+| npm registry 無法連線 | 建議加 `--offline`，或稍後重試 |
+| 更新失敗（寫入錯誤） | 顯示錯誤，建議檢查檔案權限 |
+| Skills 之前被拒絕 | 不再詢問，提示可透過 `/config skills` 重新安裝 |
+
 ## Reference | 參考
 
 - CLI documentation: `uds update --help`
