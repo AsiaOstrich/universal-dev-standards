@@ -56,6 +56,41 @@ sources:
 language: [en, zh-TW]
 ```
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/docgen` | 尋找預設配置檔 `.usage-docs.yaml`，找到則使用，否則詢問 |
+| `/docgen <config>` | 使用指定配置檔 |
+| `/docgen --format <type>` | 僅生成指定格式（cheatsheet / reference / usage-guide） |
+
+### Interaction Script | 互動腳本
+
+1. 載入配置檔，解析來源和輸出設定
+2. 掃描來源檔案，擷取描述、選項、範例
+3. 依配置格式生成文件
+4. 展示生成的檔案清單和預覽
+
+🛑 **STOP**: 展示生成結果後等待使用者確認寫入
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 文件生成後 | 確認內容正確並寫入 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 配置檔不存在 | 建議建立 `.usage-docs.yaml`，提供模板 |
+| 來源目錄為空 | 告知無內容可擷取，列出已掃描的路徑 |
+| 輸出目錄不存在 | 自動建立目錄 |
+
 ## References | 參考
 
 *   [Docs Generator Skill](../docs-generator/SKILL.md)

@@ -74,6 +74,45 @@ After discovery, the typical brownfield workflow is:
 3. `/sdd` - Write specification for new features
 4. `/tdd` or `/bdd` - Implement with test protection
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action |
+|-------|-----------|
+| `/discover` | 執行全專案健康評估（所有 5 個維度） |
+| `/discover <area>` | 聚焦評估指定功能區域的相關模組 |
+
+### Interaction Script | 互動腳本
+
+1. 掃描專案結構（package.json、目錄結構、配置檔）
+2. 逐維度分析（Architecture → Dependencies → Test Coverage → Security → Technical Debt）
+3. 計算各維度分數和整體分數
+4. 生成健康報告
+
+**Decision: 整體評估**
+- IF 有 Critical 級問題 → 判定 NO-GO，列出必須修復項目
+- IF 有 Warning 級問題 → 判定 CONDITIONAL，列出建議修復項目
+- IF 全部 Good → 判定 GO，建議進入下一步
+
+🛑 **STOP**: 報告展示後等待使用者決定（GO / NO-GO / CONDITIONAL）
+
+### Stop Points | 停止點
+
+| Stop Point | 等待內容 |
+|-----------|---------|
+| 健康報告展示後 | 使用者決定是否繼續開發 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 無 package.json 或專案配置 | 仍執行可用的維度分析，標記不可用的維度為 N/A |
+| 指定的功能區域不存在 | 列出可用的模組/目錄供選擇 |
+| npm audit 無法執行 | 跳過相依安全檢查，標記為 SKIP |
+
 ## References | 參考
 
 *   [Project Discovery Skill](../project-discovery/SKILL.md)

@@ -66,6 +66,8 @@ SPEC-XXX.md ──► /derive-bdd ──► /derive-tdd ──► [/derive-atdd]
 - IF 使用者要求 → 執行 `/derive-atdd`
 - ELSE → 跳過 ATDD
 
+🛑 **STOP**: BDD + TDD 推演完成後，詢問是否需要 ATDD 推演
+
 3. 生成 `DERIVATION-REPORT.md` 彙總所有輸出
 4. 展示報告摘要
 

@@ -68,17 +68,26 @@ Updates `CHANGELOG.md` by:
 #### `/release start`
 1. 確認版本號和類型
 2. 執行預發布檢查（tests、lint、git status）
+
+🛑 **STOP**: 預發布檢查結果展示後等待確認
+
 3. 更新版本檔案
+
+🛑 **STOP**: 版本檔案更新後展示變更，等待確認
+
 4. 更新 CHANGELOG.md
 
-🛑 **STOP**: 每步完成後展示結果，等待確認
+🛑 **STOP**: CHANGELOG 更新後展示內容，等待確認
 
 #### `/release finish`
 1. 確認所有檢查通過
 2. 建立 git tag
+
+🛑 **STOP**: git tag 建立前等待確認
+
 3. 展示 commit 和 push 命令
 
-🛑 **STOP**: tag 建立前等待確認；push 前等待確認
+🛑 **STOP**: git push 前等待確認
 
 #### `/release check`
 1. 執行所有預發布檢查腳本

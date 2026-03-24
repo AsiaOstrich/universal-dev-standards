@@ -56,6 +56,8 @@ Create lightweight specification documents for past changes that were committed 
 - IF 有未追蹤的 commits → 顯示分群清單，問使用者要為哪些群組建立 retro spec
 - ELSE → 顯示清單供選擇
 
+🛑 **STOP**: 掃描結果展示後等待使用者選擇要追蹤的群組
+
 4. 為使用者選定的群組生成 retro spec（使用 SDD 格式，status: Archived）
 5. 展示生成的 spec 內容
 

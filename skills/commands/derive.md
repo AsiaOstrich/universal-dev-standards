@@ -86,8 +86,10 @@ Generate derived artifacts (BDD scenarios, TDD skeletons, ATDD tables) from appr
 
 **Decision: AC 格式**
 - IF AC 使用 GWT 格式 → 直接推演
-- IF AC 不是 GWT 格式 → 嘗試轉換，標記 `[Derived]`，展示轉換結果供確認
+- IF AC 不是 GWT 格式 → 嘗試轉換，標記 `[Derived]`，展示轉換結果
 - IF AC 無法轉換 → 🛑 STOP，請使用者先修改 spec 中的 AC 格式
+
+🛑 **STOP**: AC 格式轉換後展示結果，等待使用者確認轉換正確再繼續
 
 3. 依子命令分派到 `/derive-bdd`、`/derive-tdd`、`/derive-atdd`
 4. 驗證 1:1 對應（每個 AC 恰好一個測試/場景）
