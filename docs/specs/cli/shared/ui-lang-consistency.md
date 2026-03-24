@@ -1,5 +1,7 @@
 # Feature: UI Language Consistency Across All Commands
 
+**Status**: Archived
+
 ## Overview | 概述
 
 Ensure all UDS CLI commands display output in the language corresponding to the project's `commit_language` setting, unless explicitly overridden with the `--ui-lang` flag.

@@ -1,6 +1,6 @@
 # SPEC-009: Architecture Redesign - Integration Driven
 
-> **Status**: Draft
+> **Status**: Archived
 > **Author**: Architect Agent
 > **Date**: 2026-01-30
 

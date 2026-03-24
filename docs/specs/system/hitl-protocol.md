@@ -1,7 +1,7 @@
 # [SPEC-HITL-01] Human-in-the-Loop Protocol / 人機協作協議
 
 **Priority**: P1
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-HITL-001
 **Dependencies**: [SPEC-CONFIG-01 Configuration System]

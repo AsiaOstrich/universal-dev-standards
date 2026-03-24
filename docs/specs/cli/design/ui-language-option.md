@@ -3,7 +3,7 @@
 **Feature ID**: CLI-LANG-001
 **Version**: 1.0.0
 **Last Updated**: 2026-01-19
-**Status**: Implemented
+**Status**: Archived
 
 ## Overview / 概述
 

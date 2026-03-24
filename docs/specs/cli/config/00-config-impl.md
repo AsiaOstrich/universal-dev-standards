@@ -1,6 +1,6 @@
 # [SPEC-CONFIG-IMPL] Configuration System Implementation / 配置系統實作規格
 
-**Status**: Draft
+**Status**: Archived
 **Target Component**: CLI Core Config Module
 
 ---

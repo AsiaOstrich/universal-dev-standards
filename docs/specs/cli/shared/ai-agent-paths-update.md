@@ -2,7 +2,7 @@
 
 **Version**: 1.0.0
 **Last Updated**: 2026-01-24
-**Status**: Approved
+**Status**: Archived
 **Spec ID**: SHARED-07
 **Parent Spec**: SHARED-06
 

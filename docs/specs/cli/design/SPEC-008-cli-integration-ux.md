@@ -1,6 +1,6 @@
 # SPEC-008: CLI Integration UX Refinement
 
-> **Status**: Draft
+> **Status**: Archived
 > **Author**: Architect Agent
 > **Date**: 2026-01-30
 

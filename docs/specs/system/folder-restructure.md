@@ -1,7 +1,7 @@
 # [SPEC-RESTRUCTURE-01] Folder Restructure / 資料夾重構
 
 **Priority**: P2
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-RESTRUCTURE-001
 **Dependencies**: [SPEC-UPGRADE-00 UDS Upgrade Command]

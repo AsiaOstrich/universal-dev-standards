@@ -2,7 +2,7 @@
 
 **Version**: 1.0.0
 **Last Updated**: 2026-01-25
-**Status**: Approved
+**Status**: Archived
 **Spec ID**: PUBLISH-00
 
 ---

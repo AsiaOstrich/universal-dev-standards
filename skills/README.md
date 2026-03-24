@@ -47,6 +47,17 @@ These skills provide standard guidance and workflows. They can be accessed via s
 | `changelog-guide` | `/changelog` | [UDS] Generate changelog entries |
 | `dev-workflow-guide` | `/dev-workflow` | [UDS] Map development phases to UDS commands |
 | `docs-generator` | `/docgen` | [UDS] Generate usage documentation |
+| `security-assistant` | `/security` | [UDS] Security review and vulnerability assessment |
+| `security-scan-assistant` | `/scan` | [UDS] Automated security scanning and dependency audit |
+| `api-design-assistant` | `/api-design` | [UDS] API design (REST, GraphQL, gRPC) |
+| `database-assistant` | `/database` | [UDS] Database design, migration, query optimization |
+| `ci-cd-assistant` | `/ci-cd` | [UDS] CI/CD pipeline design and optimization |
+| `incident-response-assistant` | `/incident` | [UDS] Incident response and post-mortem |
+| `pr-automation-assistant` | `/pr` | [UDS] Pull request creation and review automation |
+| `metrics-dashboard-assistant` | `/metrics` | [UDS] Development metrics and project health |
+| `durable-execution-assistant` | `/durable` | [UDS] Workflow fault recovery and rollback |
+| `migration-assistant` | `/migrate` | [UDS] Code migration and framework upgrades |
+| `audit-assistant` | `/audit` | [UDS] Standards compliance audit |
 
 > **Note**: For reference guides (e.g., Git Workflow, Logging, Error Codes), use the `/guide` command.
 

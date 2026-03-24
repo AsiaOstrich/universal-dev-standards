@@ -1,6 +1,6 @@
 # SPEC-013: Workflow State Tracking
 
-> **Status**: Approved
+> **Status**: Archived
 > **Author**: AI Assistant
 > **Date**: 2026-03-16
 > **Type**: Enhancement

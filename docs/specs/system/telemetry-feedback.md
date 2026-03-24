@@ -1,7 +1,7 @@
 # [SPEC-TELEMETRY-01] Telemetry & Feedback Loop / 遙測與回饋循環
 
 **Priority**: P2
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-TELEMETRY-001
 **Dependencies**: [SPEC-CASCADE-01 Cascading Config]

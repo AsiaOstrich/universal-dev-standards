@@ -1,7 +1,7 @@
 # [SPEC-ROLLBACK-01] Workflow Rollback System / 工作流程回溯系統
 
 **Priority**: P1
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-ROLLBACK-001
 **Dependencies**: [CLI-AGENT-001 Agents & Workflows System]

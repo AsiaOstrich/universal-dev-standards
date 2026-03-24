@@ -4,7 +4,7 @@
 **Feature ID**: CORE-DEPLOY-001
 **Version**: 1.0.0
 **Last Updated**: 2026-02-09
-**Status**: Approved
+**Status**: Archived
 
 > **Language**: English | [繁體中文](#chinese-version)
 

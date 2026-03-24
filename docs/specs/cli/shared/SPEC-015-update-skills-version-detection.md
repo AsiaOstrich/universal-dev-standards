@@ -1,6 +1,6 @@
 # SPEC-015: Update Command Skills Version Detection Fix
 
-> **Status**: Implemented
+> **Status**: Archived
 > **Author**: AI Assistant
 > **Date**: 2026-03-23
 > **Type**: Bug Fix

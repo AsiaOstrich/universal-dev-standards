@@ -1,6 +1,6 @@
 # SPEC-003: CLI Prompt Internationalization Cleanup
 
-> **Status**: Implemented
+> **Status**: Archived
 > **Author**: Architect Agent
 > **Date**: 2026-01-30
 > **Implemented**: 2026-01-30

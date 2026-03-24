@@ -6,9 +6,8 @@
 <!-- UDS_SUPPORTED_VERSIONS_START -->
 | Version | Supported | 支援狀態 |
 |---------|-----------|--------|
-| 5.0.0-rc.16 | ✅ Pre-release | 預發布版本 |
-| 4.2.0 | ✅ Latest stable | 最新正式版 |
-| < 4.0.0 | ❌ End of life | 已終止支援 |
+| 5.0.0 | ✅ Latest stable | 最新正式版 |
+| < 5.0.0 | ❌ End of life | 已終止支援 |
 <!-- UDS_SUPPORTED_VERSIONS_END -->
 
 > **Note**: Only the latest stable release and the current pre-release branch receive security updates.

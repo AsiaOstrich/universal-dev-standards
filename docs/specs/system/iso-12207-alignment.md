@@ -1,7 +1,7 @@
 # System Spec: ISO/IEC 12207 Alignment for Vibe Coding
 
 **Version**: 1.0.0
-**Status**: Draft
+**Status**: Archived
 **Spec ID**: SYS-ISO-12207
 
 ## 1. Overview

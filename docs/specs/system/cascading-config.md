@@ -1,7 +1,7 @@
 # [SPEC-CASCADE-01] Cascading Configuration System / 層疊式配置系統
 
 **Priority**: P1
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-CONFIG-001
 **Dependencies**: None

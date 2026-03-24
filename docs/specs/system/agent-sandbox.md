@@ -1,7 +1,7 @@
 # [SPEC-SANDBOX-01] Agent Sandbox Environment / 代理沙盒環境
 
 **Priority**: P1
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-SANDBOX-001
 **Dependencies**: [CLI-AGENT-001 Agents & Workflows System, SPEC-HITL-01 HITL Protocol]

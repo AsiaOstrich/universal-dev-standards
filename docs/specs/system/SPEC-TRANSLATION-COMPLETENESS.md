@@ -1,7 +1,7 @@
 # [SPEC-TRANSLATION-COMPLETENESS] Translation Completeness Check Enhancement
 
 **Priority**: P1
-**Status**: Implemented
+**Status**: Archived
 **Last Updated**: 2026-03-24
 **Feature ID**: SYS-TRANS-001
 **Dependencies**: scripts/check-translation-sync.sh, scripts/pre-release-check.sh

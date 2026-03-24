@@ -1,7 +1,7 @@
 # [SPEC-AGENT-CREATE-01] Custom Agent Creation / 自訂代理建立
 
 **Priority**: P1
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-AGENT-CREATE-001
 **Dependencies**: [CLI-AGENT-001 Agents & Workflows System]

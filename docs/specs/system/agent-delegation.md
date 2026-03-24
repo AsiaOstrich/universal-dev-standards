@@ -1,5 +1,7 @@
 # SPEC: Real Agent Delegation Implementation
 
+**Status**: Archived
+
 | Metadata | Value |
 | :--- | :--- |
 | **Title** | Real Agent Delegation: Moving Beyond Simulation |

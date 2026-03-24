@@ -3,7 +3,7 @@
 **Feature ID**: CORE-DERIVE-001
 **Version**: 1.0.0
 **Last Updated**: 2026-01-19
-**Status**: Approved
+**Status**: Archived
 
 ---
 
@@ -247,7 +247,7 @@ describe('SPEC-001: [Title]', () => {
 
 **Spec**: SPEC-001
 **Generated**: 2026-01-19
-**Status**: Pending
+**Status**: Archived
 
 ---
 

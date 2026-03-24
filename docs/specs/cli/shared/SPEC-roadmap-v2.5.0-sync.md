@@ -1,6 +1,6 @@
 # SPEC-roadmap-v2.5.0-sync: AI Agent Roadmap v2.5.0 Code Sync
 
-> **Status**: Implemented
+> **Status**: Archived
 > **Author**: Architect Agent
 > **Date**: 2026-02-09
 > **Implemented**: 2026-02-09

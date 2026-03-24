@@ -1,5 +1,7 @@
 # [SPEC-STD-07] Feature: AI Command Behavior Standards
 
+**Status**: Archived
+
 > **Language**: English | 繁體中文
 
 ## Metadata

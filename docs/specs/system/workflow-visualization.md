@@ -1,7 +1,7 @@
 # [SPEC-VIZ-01] Workflow Visualization / 工作流程視覺化
 
 **Priority**: P2
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-VIZ-001
 **Dependencies**: [CLI-AGENT-001 Agents & Workflows System]

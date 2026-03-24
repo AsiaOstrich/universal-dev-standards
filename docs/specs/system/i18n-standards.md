@@ -1,7 +1,7 @@
 # [SPEC-I18N-01] Internationalization Standards / 國際化規範
 
 **Priority**: P1
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-I18N-001
 **Dependencies**: [SPEC-CASCADE-01 Cascading Config]

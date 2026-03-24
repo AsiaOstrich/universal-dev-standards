@@ -1,5 +1,7 @@
 # [SPEC-STD-05] Error Code Standards v1.2 — API 錯誤序列化補強
 
+**Status**: Archived
+
 ## Status: Implemented
 ## Created: 2026-03-18 (retroactive)
 ## Implemented: 2026-03-18

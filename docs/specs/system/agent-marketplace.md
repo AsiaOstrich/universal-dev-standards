@@ -1,7 +1,7 @@
 # [SPEC-MARKET-01] Agent Marketplace / 代理市場
 
 **Priority**: P2
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-MARKET-001
 **Dependencies**: [SPEC-AGENT-CREATE-01 Custom Agent Creation, SPEC-SANDBOX-01 Agent Sandbox]

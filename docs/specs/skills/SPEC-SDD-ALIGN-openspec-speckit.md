@@ -1,6 +1,6 @@
 # SPEC-SDD-ALIGN: /sdd Skill 功能對齊 OpenSpec + Spec Kit
 
-**Status**: Implemented
+**Status**: Archived
 **Created**: 2026-03-23 (retroactive)
 **Implemented**: 2026-03-23
 

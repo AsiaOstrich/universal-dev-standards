@@ -1,7 +1,7 @@
 # [SPEC-VIBE-01] Vibe Coding Integration / Vibe Coding 整合
 
 **Priority**: P0
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-VIBE-001
 **Dependencies**: [SPEC-HITL-01 HITL Protocol, SPEC-CASCADE-01 Cascading Config]

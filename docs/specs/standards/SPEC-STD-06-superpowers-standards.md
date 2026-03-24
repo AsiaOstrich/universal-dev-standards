@@ -1,6 +1,6 @@
 # SPEC-STD-06: Superpowers-Inspired Standards
 
-> **Status**: Implemented
+> **Status**: Archived
 > **Author**: AI Assistant
 > **Date**: 2026-03-20
 > **Type**: Feature

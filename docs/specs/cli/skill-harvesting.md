@@ -1,6 +1,6 @@
 # Specification: Skill Harvester (UDS Skill Creation Tool)
 
-> **Status**: Draft
+> **Status**: Archived
 > **Feature**: `uds skill new` (Skill Harvester)
 > **Goal**: Democratize skill creation by converting unstructured knowledge into standardized UDS Skills.
 

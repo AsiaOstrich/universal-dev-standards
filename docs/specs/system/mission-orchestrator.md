@@ -1,7 +1,7 @@
 # [SPEC-MISSION-01] Mission Orchestrator System / 任務編排系統
 
 **Priority**: P2 (Roadmap)
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-MISSION-001
 **Dependencies**: [SPEC-CONFIG-01, SPEC-VIBE-01]

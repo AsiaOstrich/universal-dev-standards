@@ -1,7 +1,7 @@
 # [SPEC-NEW-INTEGRATIONS-BATCH-01] New AI Tool Integrations: Aider and Continue.dev
 
 **Priority**: P2
-**Status**: Implemented
+**Status**: Archived
 **Last Updated**: 2026-03-24
 **Feature ID**: INT-BATCH-001
 **Dependencies**: integrations/REGISTRY.json

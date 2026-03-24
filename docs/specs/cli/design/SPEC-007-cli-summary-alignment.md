@@ -1,6 +1,6 @@
 # SPEC-007: CLI Summary Alignment & Defaults
 
-> **Status**: Draft
+> **Status**: Archived
 > **Author**: Architect Agent
 > **Date**: 2026-01-30
 

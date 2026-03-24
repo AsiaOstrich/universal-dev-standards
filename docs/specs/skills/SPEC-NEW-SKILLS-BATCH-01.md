@@ -1,7 +1,7 @@
 # [SPEC-NEW-SKILLS-BATCH-01] New Skills Batch: Security, API Design, Database, CI/CD, Incident, PR, Scan, Metrics, Durable, Migration
 
 **Priority**: P1
-**Status**: Implemented
+**Status**: Archived
 **Last Updated**: 2026-03-24
 **Feature ID**: SKILL-BATCH-001
 **Dependencies**: Corresponding core standards (security-standards.md, api-design-standards.md, database-standards.md, pipeline-integration-standards.md, deployment-standards.md)

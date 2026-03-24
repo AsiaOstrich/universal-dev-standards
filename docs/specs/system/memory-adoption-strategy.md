@@ -1,5 +1,7 @@
 # Memory Adoption Strategy
 
+**Status**: Archived
+
 > **Language**: English | [繁體中文](../../../locales/zh-TW/docs/specs/system/memory-adoption-strategy.md)
 
 This document provides strategic guidance for adopting Universal Development Standards (UDS) memory systems across different team sizes and operational models. It helps users decide how to structure their **Project Context Memory (PCM)** and **Developer Persistent Memory (DPM)** for maximum effectiveness.

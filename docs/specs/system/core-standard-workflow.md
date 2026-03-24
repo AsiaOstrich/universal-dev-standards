@@ -4,7 +4,7 @@
 **Feature ID**: WORKFLOW-001
 **Version**: 1.0.0
 **Last Updated**: 2026-01-19
-**Status**: Approved
+**Status**: Archived
 
 > **Language**: English | [繁體中文](#chinese-version)
 

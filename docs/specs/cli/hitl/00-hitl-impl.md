@@ -1,6 +1,6 @@
 # [SPEC-HITL-IMPL] HITL System Implementation / HITL 系統實作規格
 
-**Status**: Draft
+**Status**: Archived
 **Target Component**: CLI Core HITL Module
 
 ---

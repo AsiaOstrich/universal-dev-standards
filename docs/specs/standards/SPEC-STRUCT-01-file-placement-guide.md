@@ -1,7 +1,7 @@
 # [SPEC-STRUCT-01] File Placement Decision Guide | 檔案歸檔決策指南
 
 **Priority**: P1
-**Status**: Draft
+**Status**: Archived
 **Created**: 2026-03-04
 **Last Updated**: 2026-03-04
 **Feature ID**: STD-STRUCT-001

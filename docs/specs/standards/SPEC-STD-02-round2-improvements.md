@@ -1,5 +1,7 @@
 # [SPEC-STD-02] 第二輪 SDD/工作流改進（12 項）
 
+**Status**: Archived
+
 ## Status: Implemented
 ## Created: 2026-03-17 (retroactive)
 ## Implemented: 2026-03-17

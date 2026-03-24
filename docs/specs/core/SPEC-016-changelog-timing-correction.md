@@ -1,6 +1,6 @@
 # SPEC-016: CHANGELOG Update Timing Correction
 
-> **Status**: Implemented
+> **Status**: Archived
 > **Author**: AI Assistant
 > **Date**: 2026-03-23
 > **Type**: Enhancement

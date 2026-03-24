@@ -1,7 +1,7 @@
 # [SPEC-RULES-00] Rules Command Overview / Rules 命令概覽
 
 **Priority**: P1
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: CLI-RULES-001
 **Dependencies**: [SPEC-CASCADE-01 Cascading Config]

@@ -1,6 +1,6 @@
 # SPEC-011: Retroactive Spec Tracking & Orphan Detection
 
-> **Status**: Approved
+> **Status**: Archived
 > **Author**: AI Assistant
 > **Date**: 2026-03-16
 > **Type**: Enhancement

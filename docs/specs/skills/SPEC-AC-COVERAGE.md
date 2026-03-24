@@ -1,7 +1,7 @@
 # [SPEC-AC-COVERAGE] AC Coverage Command / AC 覆蓋率命令
 
 **Priority**: P1
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-03-18
 **Feature ID**: SKILL-AC-COV-001
 **Dependencies**: [acceptance-criteria-traceability.md](../../../core/acceptance-criteria-traceability.md)

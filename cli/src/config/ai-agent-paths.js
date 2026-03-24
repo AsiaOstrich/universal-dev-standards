@@ -507,6 +507,21 @@ export const AVAILABLE_COMMANDS = [
   { name: 'dev-workflow', description: 'Guide for mapping development phases to UDS commands' },
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // Operations and Infrastructure (Action Skills)
+  // ═══════════════════════════════════════════════════════════════════════════
+  { name: 'security', description: 'Security review and vulnerability assessment' },
+  { name: 'scan', description: 'Automated security scanning and dependency audit' },
+  { name: 'api-design', description: 'API design following REST, GraphQL, gRPC best practices' },
+  { name: 'database', description: 'Database design, migration planning, and query optimization' },
+  { name: 'ci-cd', description: 'CI/CD pipeline design, configuration, and optimization' },
+  { name: 'incident', description: 'Incident response, root cause analysis, and post-mortem' },
+  { name: 'pr', description: 'Pull request creation, review automation, and merge strategy' },
+  { name: 'metrics', description: 'Development metrics, code quality indicators, and project health' },
+  { name: 'durable', description: 'Workflow fault recovery with checkpoints, retries, and rollback' },
+  { name: 'migrate', description: 'Code migration, framework upgrades, and tech modernization' },
+  { name: 'audit', description: 'Audit standards compliance and generate reports' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // CLI Management (Commands-only, UDS CLI specific)
   // ═══════════════════════════════════════════════════════════════════════════
   { name: 'init', description: 'Initialize UDS standards in project' },

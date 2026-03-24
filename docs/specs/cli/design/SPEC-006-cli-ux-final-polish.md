@@ -1,6 +1,6 @@
 # SPEC-006: CLI UX Final Polish
 
-> **Status**: Implemented
+> **Status**: Archived
 > **Author**: Architect Agent
 > **Date**: 2026-01-30
 > **Implemented**: 2026-01-30

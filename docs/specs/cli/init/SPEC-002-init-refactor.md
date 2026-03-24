@@ -1,6 +1,6 @@
 # SPEC-002: Init Command Refactoring (Decoupling UI from Logic)
 
-> **Status**: Implemented
+> **Status**: Archived
 > **Author**: Architect Agent (Claude 4.5 Sonnet)
 > **Date**: 2026-01-30
 

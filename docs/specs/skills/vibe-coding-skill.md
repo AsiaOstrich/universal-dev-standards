@@ -1,7 +1,7 @@
 # [SPEC-SKILL-01] Vibe Coding Skill Definition / Vibe Coding 技能定義
 
 **Priority**: P1
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SKILL-VIBE-001
 **Dependencies**: [SPEC-VIBE-01 Vibe Coding Integration]

@@ -1,11 +1,13 @@
 # [SPEC-DEV-WORKFLOW-UPDATE] Feature: Dev Workflow 命令更新 — 納入 11 個新命令
 
+**Status**: Archived
+
 ## Metadata
 
 ```yaml
 spec-id: SPEC-DEV-WORKFLOW-UPDATE
 title: Dev Workflow 命令更新
-status: Approved
+status: Archived
 created: 2026-03-24
 approved-date: 2026-03-24
 approved-by: alberthsu

@@ -1,7 +1,7 @@
 # [SPEC-API-01] Skills as a Service / 技能即服務
 
 **Priority**: P2
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-API-001
 **Dependencies**: None

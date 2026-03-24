@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0] - 2026-03-25
+
+> **Stable Release**: First stable release of v5.0.0 — AI Command Behavior 標準、44 個指令完整覆蓋、19 步 pre-release 檢查。
+
+### Added
+- **AI Command Behavior 標準** (`core/ai-command-behavior.md`): 定義 AI Agent 在指令定義檔中的運行時行為結構（Entry Router、Interaction Script、Stop Points、Error Handling）
+- **44 個指令完整覆蓋 AI Agent Behavior**: 為所有多步驟指令補齊行為定義，包含最後 6 個遺漏的指令（commit、init、config、methodology、update、check）
+- **11 個新斜線命令**: `/security`、`/api-design`、`/database`、`/ci-cd`、`/incident`、`/pr`、`/scan`、`/metrics`、`/durable`、`/migrate`、`/audit`（命令總數 34→45）
+- **AI Agent Behavior 覆蓋率檢查**: `check-ai-behavior-sync.sh` 腳本，整合至 pre-release-check.sh（Step 16，總步驟 17→19）
+- **使用者手冊與入門教學簡報** (`docs/manual/`)
+- ai-command-behavior 標準的 zh-TW 和 zh-CN 翻譯
+
+### Changed
+- **dev-workflow 技能更新**: 納入 11 個新命令與 2 個新場景
+- **24 個互動式 SKILL.md 加入 AI Agent Behavior 引用**
+- **.claude/skills SKILL.md 本地化**: 6 個 SKILL.md 轉為純繁中版本，加入 source/translation frontmatter
+- 移除 SKILL.md 中冗餘的跨技能比較表
+
+### Fixed
+- **testing-standards 重構**: 以覆蓋率為核心指標重構測試標準
+- **3 個命令 AI 行為定義補強**: 修復 4 個停止點標記
+- **/commit next steps**: 修正不當建議每次更新 CHANGELOG
+
 ## [5.0.0-rc.16] - 2026-03-24
 
 > **Release Candidate**: Sixteenth RC for v5.0.0 with 10 new skills, feature gap analysis, Windows path bug fix, translation completeness enforcement, and AI tool integration expansion.

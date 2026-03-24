@@ -1,5 +1,7 @@
 # [SPEC-STD-04] Database Standards — 新增核心標準
 
+**Status**: Archived
+
 ## Status: Implemented
 ## Created: 2026-03-18 (retroactive)
 ## Implemented: 2026-03-18

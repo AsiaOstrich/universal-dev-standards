@@ -1,6 +1,6 @@
 # SPEC-014: Workflow Enforcement Gates
 
-> **Status**: Implemented
+> **Status**: Archived
 > **Author**: AI Assistant
 > **Date**: 2026-03-19
 > **Type**: Feature

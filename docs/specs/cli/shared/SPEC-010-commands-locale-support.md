@@ -1,6 +1,6 @@
 # SPEC-010: Commands Installation Locale Support
 
-> **Status**: Draft
+> **Status**: Archived
 > **Author**: AI Assistant
 > **Date**: 2026-03-16
 > **Issue**: [#7](https://github.com/AsiaOstrich/universal-dev-standards/issues/7)

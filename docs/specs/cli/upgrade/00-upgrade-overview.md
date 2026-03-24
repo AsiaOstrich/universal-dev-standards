@@ -1,7 +1,7 @@
 # [SPEC-UPGRADE-00] UDS Upgrade Command / UDS 升級命令
 
 **Priority**: P0
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: CLI-UPGRADE-001
 **Dependencies**: [SPEC-SHARED-08 i18n-system, SPEC-SHARED-09 error-handling]

@@ -1,6 +1,6 @@
 # SPEC-CLI-AGENTS-MD: AGENTS.md 通用輸出整合
 
-> **Status**: Implemented
+> **Status**: Archived
 > **Author**: AI Assistant (Claude Opus 4.6)
 > **Date**: 2026-03-20
 > **PR**: #38

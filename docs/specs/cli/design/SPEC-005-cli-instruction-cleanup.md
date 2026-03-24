@@ -1,6 +1,6 @@
 # SPEC-005: CLI Instruction Cleanup
 
-> **Status**: Draft
+> **Status**: Archived
 > **Author**: Architect Agent
 > **Date**: 2026-01-30
 

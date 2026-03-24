@@ -1,7 +1,7 @@
 # [SPEC-HEAL-01] Self-Healing CLI / 自動修正 CLI
 
 **Priority**: P1
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-HEAL-001
 **Dependencies**: [SPEC-RULES-00 Rules Command]

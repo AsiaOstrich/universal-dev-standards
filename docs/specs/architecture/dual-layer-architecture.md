@@ -1,5 +1,7 @@
 # SPEC-001: UDS Dual-Layer Architecture (Standard-World-Model)
 
+**Status**: Archived
+
 | Metadata | Value |
 | :--- | :--- |
 | **Title** | **Dual-Layer Architecture: Physical Constraints & Imagination Guidance** |

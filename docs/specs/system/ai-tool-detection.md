@@ -1,7 +1,7 @@
 # [SPEC-DETECT-01] AI Tool Auto-Detection / AI 工具自動偵測
 
 **Priority**: P2
-**Status**: Draft
+**Status**: Archived
 **Last Updated**: 2026-01-28
 **Feature ID**: SYS-DETECT-001
 **Dependencies**: [SPEC-CASCADE-01 Cascading Config]
