@@ -40,7 +40,7 @@ Universal Development Standards is a **language-agnostic, framework-agnostic** d
 |----------|-------|-------------|
 | **Core Standards** | 48 | Universal development guidelines (Markdown) |
 | **AI Skills** | 40 | Interactive skills (YAML) |
-| **Slash Commands** | 30 | Quick actions for daily development |
+| **Slash Commands** | 45 | Quick actions for daily development |
 | **CLI Commands** | 6 | Command-line tools |
 
 **Three defining characteristics:**

@@ -43,9 +43,20 @@ Commands for development workflow automation.
 | [`/coverage`](./coverage.md) | Analyze test coverage | 分析測試覆蓋率 |
 | [`/ac-coverage`](./ac-coverage.md) | Generate AC traceability matrix and coverage report | AC 追蹤矩陣與覆蓋率報告 |
 | [`/refactor`](./refactor.md) | Guide refactoring decisions and strategy selection | 重構決策與策略選擇 |
+| [`/pr`](./pr.md) | Guide PR creation, review and merge | PR 建立、審查與合併 |
 | [`/checkin`](./checkin.md) | Pre-commit quality gates verification | 提交前品質閘門驗證 |
+| [`/incident`](./incident.md) | Guide incident response and post-mortem | 事故回應與事後檢討 |
+| [`/metrics`](./metrics.md) | Track development metrics and project health | 追蹤開發指標與專案健康 |
+| [`/migrate`](./migrate.md) | Guide code migration and framework upgrades | 程式碼遷移與框架升級 |
+| [`/audit`](./audit.md) | UDS health check and feedback system | UDS 健康檢查與回饋 |
 | [`/docgen`](./docgen.md) | Generate usage documentation from project sources | 從專案原始碼產生使用文件 |
 | [`/discover`](./discover.md) | Assess project health, architecture, and risks | 評估專案健康度、架構與風險 |
+| [`/api-design`](./api-design.md) | Guide API design (REST, GraphQL, gRPC) | API 設計引導 |
+| [`/ci-cd`](./ci-cd.md) | Guide CI/CD pipeline design and optimization | CI/CD 管線設計與優化 |
+| [`/database`](./database.md) | Guide database design and migration | 資料庫設計與遷移 |
+| [`/security`](./security.md) | Guide security review (OWASP) | 安全審查（OWASP） |
+| [`/scan`](./scan.md) | Automated security scanning | 自動化安全掃描 |
+| [`/durable`](./durable.md) | Guide workflow failure recovery | 工作流程故障恢復 |
 | [`/dev-workflow`](./dev-workflow.md) | Map development phases to UDS commands | 開發階段對應 UDS 指令 |
 | [`/guide`](./guide.md) | Access UDS guides and references | 存取 UDS 指南與參考 |
 | [`/reverse`](./reverse.md) | Reverse engineer code to Specs, BDD, or TDD | 反向工程成規格、BDD 或 TDD |
@@ -94,6 +105,17 @@ Commands for development methodology workflows.
 | `/discover` | — | — | Development Workflow |
 | `/dev-workflow` | — | — | Development Workflow |
 | `/guide` | — | — | Development Workflow |
+| `/api-design` | api-design-assistant | `api-design-standards.md` | Development Workflow |
+| `/ci-cd` | ci-cd-assistant | — | Development Workflow |
+| `/database` | database-assistant | `database-standards.md` | Development Workflow |
+| `/incident` | incident-response-assistant | — | Development Workflow |
+| `/metrics` | metrics-dashboard-assistant | — | Development Workflow |
+| `/migrate` | migration-assistant | — | Development Workflow |
+| `/pr` | pr-automation-assistant | — | Development Workflow |
+| `/security` | security-assistant | `security-standards.md` | Development Workflow |
+| `/scan` | security-scan-assistant | — | Development Workflow |
+| `/audit` | audit-assistant | — | Development Workflow |
+| `/durable` | durable-execution-assistant | — | Development Workflow |
 | `/derive` | — | `forward-derivation-standards.md` | Methodology |
 | `/derive-bdd` | — | `behavior-driven-development.md` | Methodology |
 | `/derive-tdd` | — | `test-driven-development.md` | Methodology |

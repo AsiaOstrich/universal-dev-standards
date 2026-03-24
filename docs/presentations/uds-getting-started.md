@@ -35,7 +35,7 @@ Version 5.0.0-rc.16 | 2026
 |------|------|------|
 | **Core Standards** | 48 | 通用開發準則（Markdown） |
 | **AI Skills** | 40 | 互動式技能（YAML） |
-| **Slash Commands** | 30 | 快速操作指令 |
+| **Slash Commands** | 45 | 快速操作指令 |
 | **CLI Commands** | 6 | 命令列工具 |
 
 **三大特性：**

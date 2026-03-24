@@ -47,7 +47,7 @@ Universal Development Standards 是一套為 AI 時代設計的**語言無關、
 |------|------|------|
 | **Core Standards** | 48 | 通用開發準則（Markdown） |
 | **AI Skills** | 40 | 互動式技能（YAML） |
-| **Slash Commands** | 30 | 日常開發快速操作指令 |
+| **Slash Commands** | 45 | 日常開發快速操作指令 |
 | **CLI Commands** | 6 | 命令列工具 |
 
 **三大特性：**

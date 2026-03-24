@@ -10,14 +10,14 @@
 ## Table of Contents
 
 1. [CLI Commands](#cli-commands) (9)
-2. [Slash Commands](#slash-commands) (34)
+2. [Slash Commands](#slash-commands) (45)
 3. [Skills](#skills) (40)
 4. [Agents](#agents) (5)
 5. [Workflows](#workflows) (5)
 6. [Core Standards](#core-standards) (48)
 7. [Scripts](#scripts) (41)
 
-**Total Features: 182**
+**Total Features: 193**
 
 ---
 
@@ -151,15 +151,19 @@
 | Command | Description |
 |---------|-------------|
 | `/ac-coverage` | "[UDS] Generate AC-to-test traceability matrix and coverage report" |
+| `/api-design` | "[UDS] Guide API design following REST, GraphQL and gRPC best practices" |
 | `/atdd` | [UDS] Guide through Acceptance Test-Driven Development workflow |
+| `/audit` | "[UDS] UDS health check and feedback system" |
 | `/bdd` | [UDS] Guide through Behavior-Driven Development workflow |
 | `/brainstorm` | "[UDS] Structured AI-assisted brainstorming before spec creation" |
 | `/changelog` | "[UDS] Generate and maintain CHANGELOG.md entries" |
 | `/check` | [UDS] Verify standards adoption status |
 | `/checkin` | "[UDS] Pre-commit quality gates verification" |
+| `/ci-cd` | "[UDS] Guide CI/CD pipeline design, configuration and optimization" |
 | `/commit` | [UDS] Generate commit messages following Conventional Commits standard |
 | `/config` | [UDS] Configure project development standards |
 | `/coverage` | [UDS] Analyze test coverage and provide recommendations |
+| `/database` | "[UDS] Guide database design, migration planning and query optimization" |
 | `/derive-all` | [UDS] Derive all test structures (BDD, TDD, ATDD) from SDD specification |
 | `/derive-atdd` | [UDS] Derive ATDD acceptance tests from SDD specification |
 | `/derive-bdd` | [UDS] Derive BDD Gherkin scenarios from SDD specification |
@@ -169,9 +173,14 @@
 | `/discover` | "[UDS] Assess project health, architecture, and risks before adding features" |
 | `/docgen` | "[UDS] Generate usage documentation from project sources" |
 | `/docs` | [UDS] Manage, guide, and generate documentation. |
+| `/durable` | "[UDS] Guide workflow failure recovery with checkpoints, retries and rollback strategies" |
 | `/guide` | [UDS] Access Universal Development Standards guides and references. |
+| `/incident` | "[UDS] Guide incident response, root cause analysis and post-mortem documentation" |
 | `/init` | [UDS] Initialize development standards in current project |
+| `/metrics` | "[UDS] Track development metrics, code quality indicators and project health" |
 | `/methodology` | [UDS] Manage development methodology workflow |
+| `/migrate` | "[UDS] Guide code migration, framework upgrades and technology modernization" |
+| `/pr` | "[UDS] Guide Pull Request creation, review automation and merge strategies" |
 | `/refactor` | [UDS] Guide refactoring decisions and strategy selection |
 | `/release` | [UDS] Manage release process and changelogs. |
 | `/requirement` | [UDS] Write user stories and requirements following INVEST criteria |
@@ -180,8 +189,10 @@
 | `/reverse-tdd` | [UDS] Analyze BDD-TDD coverage gaps |
 | `/reverse` | [UDS] Reverse engineer code to Specs, BDD, or TDD coverage. |
 | `/review` | [UDS] Perform systematic code review with checklist |
+| `/scan` | "[UDS] Guide automated security scanning, dependency auditing and secret detection" |
 | `/sdd-retro` | [UDS] Create retroactive specs for untracked feat/fix commits |
 | `/sdd` | [UDS] Create or review specification documents for Spec-Driven Development |
+| `/security` | "[UDS] Guide security review and vulnerability assessment following OWASP standards" |
 | `/tdd` | [UDS] Guide through Test-Driven Development workflow |
 | `/update` | [UDS] Update development standards to latest version |
 

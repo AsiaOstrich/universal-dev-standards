@@ -10,7 +10,7 @@
 ## 目录
 
 1. [CLI 指令](#cli-commands) (9)
-2. [斜线命令](#slash-commands) (34)
+2. [斜线命令](#slash-commands) (45)
 3. [技能](#skills) (40)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
