@@ -6,7 +6,7 @@
 
 > **語言**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
 
-**版本**: 5.0.0-rc.16 (Pre-release) | **發布日期**: 2026-03-24 | **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
+**版本**: 5.0.0-rc.17 (Pre-release) | **發布日期**: 2026-03-24 | **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 
 語言無關、框架無關的軟體專案文件標準。透過 AI 原生工作流，確保不同技術堆疊之間的一致性、品質和可維護性。
 
@@ -55,9 +55,9 @@ npx universal-dev-standards init
 <!-- UDS_STATS_TABLE_START -->
 | 類別 | 數量 | 說明 |
 |----------|-------|-------------|
-| **核心標準** | 48 | 通用開發準則 |
+| **核心標準** | 49 | 通用開發準則 |
 | **AI Skills** | 40 | 互動式技能 |
-| **斜線命令** | 30 | 快速操作 |
+| **斜線命令** | 45 | 快速操作 |
 | **CLI 指令** | 6 | list, init, configure, check, update, skills |
 <!-- UDS_STATS_TABLE_END -->
 

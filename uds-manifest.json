@@ -1,9 +1,9 @@
 {
   "project": "Universal Development Standards",
-  "version": "5.0.0-rc.16",
+  "version": "5.0.0-rc.17",
   "last_updated": "2026-03-24",
   "stats": {
-    "core_standards": 48,
+    "core_standards": 49,
     "skills": 40,
     "slash_commands": 45
   },
@@ -245,6 +245,11 @@
     },
     {
       "id": "verification-evidence",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "ai-command-behavior",
       "category": "uncategorized",
       "level": 3
     }
