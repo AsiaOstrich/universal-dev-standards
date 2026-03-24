@@ -1199,6 +1199,17 @@
       "description": "Protocols for establishing service-level agreements and context contracts between AI agents"
     },
     {
+      "id": "ai-command-behavior",
+      "name": "AI Command Behavior Standards",
+      "nameZh": "AI 命令行為標準",
+      "source": {
+        "human": "core/ai-command-behavior.md",
+        "ai": "ai/standards/ai-command-behavior.ai.yaml"
+      },
+      "category": "reference",
+      "description": "Standard structure for specifying AI Agent runtime behavior in command/skill definition files"
+    },
+    {
       "id": "virtual-organization",
       "name": "Virtual Organization Standards",
       "nameZh": "虛擬組織標準",

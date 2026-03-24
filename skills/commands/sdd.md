@@ -56,6 +56,180 @@ Check project config: `.uds/config.yaml` → `workflow.enforcement_mode`
 
 ---
 
+## AI Agent Behavior | AI 代理行為
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| Input | AI Action | AI 行為 |
+|-------|-----------|--------|
+| `/sdd` | 1. 檢查 `docs/specs/` 是否有進行中的 spec 2. **有進行中的 spec** → 顯示狀態摘要，問使用者要繼續哪個還是新建 3. **無進行中的 spec** → 問使用者想做什麼功能，進入 discuss | Check for in-progress specs; show status or start discuss |
+| `/sdd <feature-name>` | 進入 **discuss** 階段（以 feature-name 為主題） | Enter discuss phase for feature |
+| `/sdd <phase>` | 進入指定 phase，執行 Pre-Flight Check。無指定 spec 時，列出該 phase 可操作的 spec 清單 | Enter specified phase, list eligible specs |
+| `/sdd <phase> <spec-file>` | 進入指定 phase，對指定 spec 執行 Pre-Flight Check 後開始 | Enter phase for specific spec |
+| `/sdd --evaluate` | 僅執行 Scope Evaluation（Phase 0），輸出範圍評估結果 | Run scope evaluation only |
+| `/sdd --sync-check` | 僅執行同步檢查，輸出同步狀態 | Run sync check only |
+
+### Interaction Script | 互動腳本
+
+#### Phase 0.5: Discuss
+
+1. 讀取相關程式碼和文件，建立對現狀的理解
+2. 列出識別到的灰色地帶（ambiguities），以編號問題呈現
+3. 逐一與使用者討論，收斂答案
+4. 鎖定範圍（In Scope / Out of Scope / Deferred）
+
+**Decision: 灰色地帶解決程度**
+- IF 所有問題都有明確答案 → 輸出 scope summary，建議進入 create
+- IF 仍有未解問題 → 列出剩餘問題，問使用者是否接受風險繼續
+- IF 使用者說「先這樣」 → 記錄未解問題為 `[OPEN]`，允許進入 create
+
+**Output format | 產出格式：**
+```markdown
+### Discuss Summary
+**Feature**: [name]
+**In Scope**: [list]
+**Out of Scope**: [list]
+**Deferred**: [list]
+**Open Questions**: [list or "None"]
+**read_first**: [file list]
+```
+
+🛑 **STOP**: 顯示 Discuss Summary 後等待使用者確認進入 create
+
+#### Phase 1: Create
+
+1. 基於 discuss 結論和 read_first 檔案，撰寫完整 spec
+2. 使用 Spec Document Structure 模板
+3. 所有 AC 使用 Given/When/Then 格式
+4. 為 spec 指定 ID（查看 `docs/specs/` 目錄決定下一個編號）
+5. 撰寫 Test Plan
+
+**Decision: Spec 放置位置**
+- IF 是 CLI 相關 → `docs/specs/cli/`
+- IF 是 Core Standard 相關 → `docs/specs/standards/`
+- IF 是 Skill 相關 → `docs/specs/skills/`
+- IF 是架構相關 → `docs/specs/architecture/`
+- IF 是跨元件 → `docs/specs/system/`
+- ELSE → `docs/specs/`
+
+🛑 **STOP**: 撰寫完 spec 後展示內容，等待使用者確認再寫入檔案
+
+#### Phase 2: Review
+
+1. 讀取指定 spec 檔案
+2. 逐項檢查以下維度：
+
+| 檢查維度 | 檢查內容 |
+|----------|---------|
+| Requirements 完整性 | 所有 REQ 都有 Scenario |
+| AC 可測試性 | 每個 AC 都是 Given/When/Then 格式 |
+| AC 覆蓋率 | 每個 REQ 至少有一個 AC 對應 |
+| Technical Design 可行性 | 設計不依賴不存在的 API/工具 |
+| Test Plan 對應 | Test Plan 涵蓋所有 AC |
+| 範圍一致性 | 沒有超出 discuss 鎖定的範圍 |
+| 無歧義 | 沒有模糊用語（「等等」「適當地」） |
+
+3. 輸出 Review 結果表格
+4. 更新 spec status 為 `Review`
+
+**Decision: Review 結果**
+- IF 全部通過 → 建議進入 approve
+- IF 有 blocking issue → 列出問題，建議修改後重新 review
+- IF 只有 suggestion → 列出建議，使用者可選擇修改或直接 approve
+
+🛑 **STOP**: 顯示 review 結果後等待使用者決定
+
+#### Phase 3: Approve
+
+1. 讀取 spec，確認 status = `Review`
+2. 逐項展示 Approval Checklist（5 項），標記通過/未通過
+3. 等待使用者確認核准
+
+**Decision: Approval 結果**
+- IF 使用者確認核准 → 更新 spec metadata（status, approved-date, approved-by）
+- IF 使用者拒絕 → 記錄原因，建議回到 review 或 create
+
+🛑 **STOP**: 展示 checklist 結果後等待使用者明確說「核准」或「approved」
+
+#### Phase 4: Implement
+
+1. 讀取 approved spec，列出所有 AC
+2. 產出實作計畫：每個 AC 要改哪些檔案、預估複雜度
+3. 等待使用者確認計畫
+
+🛑 **STOP**: 顯示實作計畫後等待使用者確認
+
+4. 逐 AC 實作：
+   a. 撰寫程式碼
+   b. 撰寫對應測試
+   c. 執行測試確認通過
+   d. 更新 spec 中的 AC checkbox
+
+**Decision: Commit 節奏**
+- IF AC 之間相互獨立 → 每完成一個 AC 就提示可以 commit
+- IF AC 之間緊耦合 → 合併完成後一起提示 commit
+- 不自動執行 git commit — 僅提示使用者
+
+**Decision: 測試失敗**
+- IF 測試失敗 → 修復後重新測試，最多重試 3 次
+- IF 3 次仍失敗 → 🛑 STOP，報告問題，等待使用者指導
+
+🛑 **STOP**: 每個獨立 AC 完成後暫停，展示進度，等待使用者確認繼續
+
+#### Phase 5: Verify
+
+1. 讀取 spec，列出所有 AC
+2. 對每個 AC 收集證據：
+   - 程式碼位置（file:line）
+   - 測試位置（file:line）
+   - 測試結果（執行測試）
+3. 檢查是否有偏差（Added / Modified / Omitted）
+4. 產生 Verification Report
+
+**Decision: 驗證結果**
+- IF 全部 PASS → 更新 spec status 為 `Implemented`，建議歸檔
+- IF 有 FAIL → 列出失敗項目，建議回到 implement 修復
+- IF 迭代次數 ≥ 3 → 🛑 STOP，強制升級（review spec / rethink / escalate）
+
+🛑 **STOP**: 顯示 Verification Report 後等待使用者決定下一步
+
+#### Phase 6: Archive
+
+1. 確認 spec status = `Implemented` 且 verify 通過
+2. 連結相關 commit/PR
+3. 更新 spec status 為 `Archived`
+
+🛑 **STOP**: 確認歸檔前等待使用者確認
+
+### Stop Points Summary | 停止點總覽
+
+| Phase | Stop Point | 等待內容 |
+|-------|-----------|---------|
+| discuss | Discuss Summary 輸出後 | 確認進入 create |
+| create | Spec 撰寫完成後 | 確認寫入檔案 |
+| review | Review 結果輸出後 | 決定修改或進入 approve |
+| approve | Checklist 展示後 | 明確核准 |
+| implement | 實作計畫展示後 | 確認開始實作 |
+| implement | 每個獨立 AC 完成後 | 確認繼續下一個 |
+| verify | Verification Report 輸出後 | 決定歸檔或修復 |
+| archive | 歸檔前 | 確認歸檔 |
+
+### Error Handling | 錯誤處理
+
+| Error Condition | AI Action | AI 行為 |
+|-----------------|-----------|--------|
+| Pre-Flight Check 失敗 | 說明哪個條件未滿足，引導到正確的 phase | State failure, guide to correct phase |
+| Spec 檔案不存在 | 列出可用的 spec 檔案，或建議 `/sdd create` | List available specs or suggest create |
+| Spec status 不符合目標 phase | 顯示當前 status，說明需要先完成哪個 phase | Show current status, explain required phase |
+| `docs/specs/` 目錄不存在 | 自動建立目錄，繼續流程 | Create directory automatically |
+| 使用者提供的 feature name 與現有 spec 重複 | 顯示現有 spec，問使用者是要繼續還是新建 | Show existing spec, ask continue or create new |
+| 實作中測試反覆失敗（>3 次） | 停止自動修復，報告問題，等待使用者指導 | Stop auto-fix, report issue, wait for guidance |
+| 非預期狀態（無法判斷正確行為） | 停止並詢問使用者，不猜測 | Stop and ask, never guess |
+
+---
+
 ## SDD Workflow | SDD 工作流程
 
 ```
