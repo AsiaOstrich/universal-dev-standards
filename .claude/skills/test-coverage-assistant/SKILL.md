@@ -17,8 +17,6 @@ argument-hint: "[file or module | 檔案或模組]"
 
 多維度分析測試覆蓋率並提供可執行的建議。
 
-> **相關**：如需需求層級覆蓋率（哪些 AC 有對應測試？），請改用 `/ac-coverage`。此技能（`/coverage`）專注於程式碼層級覆蓋率。
-
 ## 覆蓋率維度
 
 | 維度 | 測量內容 | Dimension | What it Measures |

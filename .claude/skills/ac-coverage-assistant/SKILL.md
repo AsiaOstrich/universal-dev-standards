@@ -1,52 +1,57 @@
 ---
+source: ../../../../skills/ac-coverage-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-03-24
+status: current
+description: "[UDS] 分析 AC 與測試的追蹤關係及覆蓋率"
 name: ac-coverage
-scope: universal
-description: "[UDS] Analyze AC-to-test traceability and coverage"
 allowed-tools: Read, Grep, Glob
+scope: universal
 argument-hint: "[spec file path | 規格檔案路徑]"
 ---
 
-# AC Coverage Assistant | AC 覆蓋率助手
+# AC 覆蓋率助手
 
-Analyze Acceptance Criteria (AC) to test traceability and generate coverage reports.
+> **語言**: [English](../../../../skills/ac-coverage-assistant/SKILL.md) | 繁體中文
 
 分析驗收條件（AC）與測試之間的追蹤關係，並產生覆蓋率報告。
 
-## What This Does vs `/coverage` | 與 `/coverage` 的區別
+## 與 `/coverage` 的區別
 
-| Aspect | `/coverage` | `/ac-coverage` |
-|--------|-------------|----------------|
-| **Scope** | Code-level (line/branch/function) | Requirement-level (AC-to-test) |
-| **Input** | Source code + test runner | SPEC file + test annotations |
-| **Question** | "How much code is tested?" | "Which AC have tests?" |
-| **Output** | Coverage percentages | Traceability matrix + gap report |
+| 面向 | `/coverage` | `/ac-coverage` |
+|------|-------------|----------------|
+| **範圍** | 程式碼層級（行/分支/函式） | 需求層級（AC 對測試） |
+| **輸入** | 原始碼 + 測試執行器 | SPEC 檔案 + 測試標註 |
+| **問題** | 「有多少程式碼被測試？」 | 「哪些 AC 有測試？」 |
+| **輸出** | 覆蓋率百分比 | 追蹤矩陣 + 缺口報告 |
 
-## Workflow | 工作流程
+## 工作流程
 
-1. **Parse SPEC** — Extract AC definitions (AC-1, AC-2, ...) from the specification file
-2. **Scan Tests** — Search test files for `@AC` and `@SPEC` annotations using standard linking conventions
-3. **Build Matrix** — Map each AC to its test references (file, test name, line)
-4. **Classify Status** — Mark each AC as ✅ covered, ⚠️ partial, or ❌ uncovered
-5. **Calculate Coverage** — Apply formula: `Coverage % = (covered + partial × 0.5) / total × 100`
-6. **Generate Report** — Output standardized Markdown report
+1. **解析 SPEC** — 從規格檔案中擷取 AC 定義（AC-1、AC-2、...）
+2. **掃描測試** — 使用標準連結慣例搜尋測試檔案中的 `@AC` 和 `@SPEC` 標註
+3. **建立矩陣** — 將每個 AC 對應到其測試參考（檔案、測試名稱、行號）
+4. **分類狀態** — 將每個 AC 標記為 ✅ 已覆蓋、⚠️ 部分覆蓋 或 ❌ 未覆蓋
+5. **計算覆蓋率** — 套用公式：`覆蓋率 % = (已覆蓋 + 部分 × 0.5) / 總計 × 100`
+6. **產生報告** — 輸出標準化 Markdown 報告
 
-## Linking Convention | 標註慣例
+## 標註慣例
 
-Tests MUST reference their source AC using standard annotations:
+測試必須使用標準標註來參考其來源 AC：
 
 ```typescript
 // TypeScript/JavaScript
-describe('AC-1: User login with valid credentials', () => {
+describe('AC-1: 使用有效憑證登入', () => {
   // @AC AC-1
   // @SPEC SPEC-001
-  it('should redirect to dashboard on successful login', () => { ... });
+  it('成功登入後應重導至儀表板', () => { ... });
 });
 ```
 
 ```python
 # Python
 class TestAC1_UserLogin:
-    """AC-1: User login with valid credentials
+    """AC-1: 使用有效憑證登入
     @AC AC-1
     @SPEC SPEC-001
     """
@@ -56,65 +61,71 @@ class TestAC1_UserLogin:
 ```gherkin
 # BDD Feature
 @SPEC-001 @AC-1
-Scenario: User login with valid credentials
+Scenario: 使用有效憑證登入
 ```
 
-## Coverage Thresholds | 覆蓋率門檻
+## 覆蓋率門檻
 
-| Threshold | Default Value | Enforcement |
-|-----------|---------------|-------------|
-| **Check-in** | 80% | Required for feature branch merge |
-| **Release** | 100% | Required for production release |
-| **Warning** | 60% | Triggers coverage warning |
+| 門檻 | 預設值 | 強制執行 |
+|------|--------|----------|
+| **提交時** | 80% | 功能分支合併必要條件 |
+| **發布時** | 100% | 正式發布必要條件 |
+| **警告** | 60% | 觸發覆蓋率警告 |
 
-Thresholds are configurable via `--threshold` parameter or project configuration.
+門檻可透過 `--threshold` 參數或專案設定進行配置。
 
-## Report Format | 報告格式
+## 報告格式
 
-The generated report follows the standard format from `core/acceptance-criteria-traceability.md`:
+產生的報告遵循 `core/acceptance-criteria-traceability.md` 中的標準格式：
 
 ```markdown
-# AC Coverage Report
+# AC 覆蓋率報告
 
-**Specification**: SPEC-001 — Feature Name
-**Generated**: 2026-03-18
-**Coverage**: 75% (6/8 AC)
+**規格**: SPEC-001 — 功能名稱
+**產生日期**: 2026-03-24
+**覆蓋率**: 75% (6/8 AC)
 
-## Summary
+## 摘要
 
-| Status | Count | Percentage |
-|--------|-------|------------|
-| ✅ Covered | 5 | 62.5% |
-| ⚠️ Partial | 2 | 25.0% |
-| ❌ Uncovered | 1 | 12.5% |
+| 狀態 | 數量 | 百分比 |
+|------|------|--------|
+| ✅ 已覆蓋 | 5 | 62.5% |
+| ⚠️ 部分覆蓋 | 2 | 25.0% |
+| ❌ 未覆蓋 | 1 | 12.5% |
 
-## Traceability Matrix
+## 追蹤矩陣
 
-| AC-ID | Description | Status | Test Reference |
-|-------|-------------|--------|----------------|
-| AC-1 | Login with valid credentials | ✅ | auth.test.ts:15 |
-| AC-2 | Reject invalid credentials | ✅ | auth.test.ts:32 |
-| ...   | ...                        | ... | ... |
+| AC-ID | 描述 | 狀態 | 測試參考 |
+|-------|------|------|----------|
+| AC-1 | 使用有效憑證登入 | ✅ | auth.test.ts:15 |
+| AC-2 | 拒絕無效憑證 | ✅ | auth.test.ts:32 |
+| ...   | ...            | ... | ... |
 
-## Gaps
-- **AC-8**: Social login — Blocked by OAuth sandbox
+## 缺口
 
-## Action Items
-1. [ ] AC-8: Set up OAuth sandbox (ETA: TBD)
+- **AC-8**: 社群登入 — 受 OAuth 沙盒環境限制
+
+## 待辦事項
+
+1. [ ] AC-8: 建立 OAuth 沙盒環境（預計完成：待定）
 ```
 
-## Next Steps Guidance | 下一步引導
+## 使用方式
 
-After `/ac-coverage` completes, the AI assistant should suggest:
+- `/ac-coverage` - 分析當前專案的 AC 覆蓋率
+- `/ac-coverage path/to/SPEC.md` - 分析特定規格檔案的 AC 覆蓋率
 
-> **AC 覆蓋率分析完成。建議下一步 / AC coverage analysis complete. Suggested next steps:**
-> - 覆蓋率達標 → 執行 `/checkin` 品質關卡 — Coverage meets threshold → Run `/checkin` quality gates
-> - 有未覆蓋 AC → 執行 `/derive-tdd` 補齊測試 — Uncovered AC found → Run `/derive-tdd` to add tests
-> - 有部分覆蓋 AC → 檢查缺少的邊界情況 — Partial AC → Review missing edge cases
+## 下一步引導
 
-## Reference | 參考
+`/ac-coverage` 完成後，AI 助手應建議：
 
-- Core standard: [acceptance-criteria-traceability.md](../../core/acceptance-criteria-traceability.md)
-- SPEC: [SPEC-AC-COVERAGE.md](../../docs/specs/skills/SPEC-AC-COVERAGE.md)
-- Related: [test-coverage-assistant](../test-coverage-assistant/SKILL.md) (code-level coverage)
-- Related: [checkin-assistant](../checkin-assistant/SKILL.md) (quality gates)
+> **AC 覆蓋率分析完成。建議下一步：**
+> - 覆蓋率達標 → 執行 `/checkin` 通過品質關卡
+> - 有未覆蓋 AC → 執行 `/derive-tdd` 補齊測試
+> - 有部分覆蓋 AC → 檢查缺少的邊界情況
+
+## 參考
+
+- 核心規範：[acceptance-criteria-traceability.md](../../../../core/acceptance-criteria-traceability.md)
+- 相關：[test-coverage-assistant](../test-coverage-assistant/SKILL.md)（程式碼層級覆蓋率）
+- 相關：[checkin-assistant](../checkin-assistant/SKILL.md)（品質關卡）
