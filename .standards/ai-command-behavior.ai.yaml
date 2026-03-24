@@ -1,0 +1,45 @@
+# AI Command Behavior Standards (AI-Optimized)
+# Source: core/ai-command-behavior.md
+
+id: ai-command-behavior
+meta:
+  version: "1.0.0"
+  updated: "2026-03-24"
+  source: core/ai-command-behavior.md
+  description: Standard structure for specifying AI Agent runtime behavior in command/skill definition files
+
+rules:
+  - id: behavior-section
+    trigger: creating or modifying command definition files
+    instruction: Include an "AI Agent Behavior" section with four subsections - Entry Router, Interaction Script, Stop Points, Error Handling
+    priority: recommended
+
+  - id: entry-router
+    trigger: command supports multiple invocation patterns
+    instruction: Define a decision table mapping each invocation pattern to a specific AI action. The "no arguments" case MUST always be defined
+    priority: required
+
+  - id: interaction-script
+    trigger: command requires multi-step AI interaction
+    instruction: Use mixed granularity - precise IF/THEN for decision points, numbered lists for general steps
+    priority: recommended
+
+  - id: stop-points
+    trigger: command involves file writes, irreversible operations, or phase completions
+    instruction: Mark explicit stop points with 🛑 STOP markers. Never rely on AI judgment for when to pause
+    priority: required
+
+  - id: error-handling
+    trigger: command has prerequisites or can encounter unexpected states
+    instruction: Define error conditions and AI actions. Never silently skip failures. Stop and ask when uncertain
+    priority: required
+
+  - id: applicability
+    trigger: evaluating whether a command needs behavior definition
+    instruction: Multi-phase workflows and multi-invocation commands require full definition. Single-action and pure-query commands do not
+    priority: recommended
+
+related_standards:
+  - ai-instruction-standards
+  - ai-agreement-standards
+  - anti-hallucination
