@@ -5,10 +5,7 @@ translation_version: 1.0.0
 last_synced: 2025-12-25
 status: current
 name: git-flow
-description: |
-  指導 Git 分支策略、分支命名與合併操作。
-  使用時機：建立分支、合併、Pull Request、Git 工作流程問題。
-  關鍵字：branch, merge, PR, pull request, GitFlow, GitHub Flow, 分支, 合併, 工作流程。
+description: "[UDS] 指導 Git 分支策略、分支命名與合併操作"
 scope: universal
 ---
 

@@ -4,10 +4,7 @@ source_version: 2.0.0
 translation_version: 2.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  從已批准的 SDD 規格生成衍生工件（BDD 場景、TDD 骨架、ATDD 表格）。
-  使用時機：從規格推導測試、產生 BDD/TDD/ATDD 工件。
-  關鍵字：derive, forward, BDD, TDD, ATDD, spec, 推演, 衍生, 規格, 場景。
+description: "[UDS] 從已批准的 SDD 規格生成衍生工件（BDD/TDD/ATDD）"
 name: derive
 allowed-tools: Read, Write, Grep, Glob
 scope: partial

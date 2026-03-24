@@ -12,11 +12,54 @@ Create, review, and manage specification documents before writing code.
 
 在撰寫程式碼前，建立、審查和管理規格文件。
 
+## When to Use `/sdd` vs `uds spec` | 何時使用
+
+| Scenario | `/sdd` | `uds spec` |
+|----------|--------|------------|
+| Formal feature development with review cycle | ✅ | ❌ |
+| Full spec lifecycle (Draft → Archived) | ✅ | ❌ |
+| Quick prototyping / Vibe coding | ❌ | ✅ |
+| Small incremental changes | ❌ | ✅ |
+| Stakeholder sign-off required | ✅ | ❌ |
+| Micro-spec from natural language intent | ❌ | ✅ |
+
+> **`/sdd`** = Full specification lifecycle for formal development
+> **`uds spec`** = Lightweight micro-specs for rapid iteration
+>
+> **`/sdd`** = 正式開發的完整規格生命週期
+> **`uds spec`** = 快速迭代的輕量微規格
+
+## TL;DR Quick Checklist | 快速檢查清單
+
+- Search existing specs: look in `specs/`, `docs/specs/`, or project spec directory
+- Decide scope: new feature vs modify existing capability
+- Pick a unique spec ID: `SPEC-NNN` or kebab-case change ID
+- Write proposal with clear AC (Given/When/Then format)
+- Get approval before implementation begins
+- Implement tasks sequentially, verify against spec
+- Archive spec after completion
+
+## Decision Tree | 決策樹
+
+```
+New request? | 新需求？
+├─ Bug fix restoring spec behavior? → Fix directly | 直接修復
+├─ Typo/format/comment? → Fix directly | 直接修復
+├─ Dependency update (non-breaking)? → Fix directly | 直接修復
+├─ New feature/capability? → Create proposal | 建立提案
+├─ Breaking change? → Create proposal | 建立提案
+├─ Architecture change? → Create proposal | 建立提案
+└─ Unclear? → Create proposal (safer) | 建立提案（較安全）
+```
+
 ## Workflow | 工作流程
 
 ```
-CREATE ──► REVIEW ──► APPROVE ──► IMPLEMENT ──► VERIFY
+DISCUSS ──► CREATE ──► REVIEW ──► APPROVE ──► IMPLEMENT ──► VERIFY ──► ARCHIVE
 ```
+
+### 0. Discuss - Clarify Scope | 釐清範圍
+Capture gray areas, establish governing principles, resolve ambiguities before writing spec.
 
 ### 1. Create - Write Spec | 撰寫規格
 Define requirements, technical design, acceptance criteria, and test plan.
@@ -33,6 +76,9 @@ Develop following the approved spec, referencing requirements and AC.
 ### 5. Verify - Confirm | 驗證
 Ensure implementation matches spec, all tests pass, AC satisfied.
 
+### 6. Archive - Close | 歸檔
+Archive completed spec with links to commits/PRs.
+
 ## Spec States | 規格狀態
 
 | State | Description | 說明 |
@@ -46,13 +92,22 @@ Ensure implementation matches spec, all tests pass, AC satisfied.
 ## Spec Structure | 規格結構
 
 ```markdown
-# Feature: [Name]
+# [SPEC-ID] Feature: [Name]
 
 ## Overview
-Brief description.
+Brief description of the proposed change.
+
+## Motivation
+Why is this change needed? What problem does it solve?
 
 ## Requirements
-- REQ-001: [Description]
+### Requirement: [Name]
+The system SHALL [behavior description].
+
+#### Scenario: [Success case]
+- **GIVEN** [initial context]
+- **WHEN** [action performed]
+- **THEN** [expected result]
 
 ## Acceptance Criteria
 - AC-1: Given [context], when [action], then [result]
@@ -64,6 +119,24 @@ Brief description.
 - [ ] Unit tests for [component]
 - [ ] Integration tests for [flow]
 ```
+
+### Scenario Formatting Rules | 場景格式規則
+
+- Use `#### Scenario:` (h4 header) for each scenario
+- Every requirement MUST have at least one scenario
+- Use **GIVEN/WHEN/THEN** format for structured behavior
+- Use **SHALL/MUST** for normative requirements, **SHOULD** for recommendations
+
+## Delta Operations | 變更操作
+
+When modifying existing specs, use delta sections:
+
+| Operation | Description | 說明 |
+|-----------|-------------|------|
+| `## ADDED Requirements` | New capabilities | 新增功能 |
+| `## MODIFIED Requirements` | Changed behavior | 修改行為 |
+| `## REMOVED Requirements` | Deprecated features | 移除功能 |
+| `## RENAMED Requirements` | Name changes | 重新命名 |
 
 ## Usage | 使用方式
 

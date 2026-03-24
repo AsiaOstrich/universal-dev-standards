@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  撰寫結構良好的使用者故事和需求文件，遵循 INVEST 準則。
-  使用時機：撰寫需求、定義使用者故事、驗收條件。
-  關鍵字：requirement, user story, INVEST, acceptance criteria, 需求, 使用者故事, 驗收條件。
+description: "[UDS] 撰寫結構良好的使用者故事和需求文件，遵循 INVEST 準則"
 name: requirement
 allowed-tools: Read, Write, Grep
 scope: universal

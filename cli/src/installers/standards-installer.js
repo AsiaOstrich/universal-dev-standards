@@ -161,10 +161,11 @@ export async function installStandards(config, projectPath) {
 
   // Helper to compute and store hash
   const addFileHash = (relativePath) => {
-    const fullPath = join(projectPath, relativePath);
+    const normalizedPath = relativePath.replace(/\\/g, '/');
+    const fullPath = join(projectPath, normalizedPath);
     const hashInfo = computeFileHash(fullPath);
     if (hashInfo) {
-      results.fileHashes[relativePath] = {
+      results.fileHashes[normalizedPath] = {
         ...hashInfo,
         installedAt: now
       };

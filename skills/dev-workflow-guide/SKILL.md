@@ -14,6 +14,10 @@ Map your current software development phase to the right UDS commands and skills
 
 將你目前的軟體開發階段對應到正確的 UDS 指令與技能。即時了解在開發的每個階段應該使用哪些工具。
 
+> **Related**: To choose or switch between development methodologies (SDD, BDD, TDD), use `/methodology` instead.
+>
+> **相關**：如需選擇或切換開發方法論（SDD、BDD、TDD），請改用 `/methodology`。
+
 ## Software Development Phases Overview | 軟體開發階段總覽
 
 ```

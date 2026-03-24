@@ -1,0 +1,82 @@
+# Branch Completion Workflow - AI Optimized
+# Source: core/branch-completion.md
+# Inspired by Superpowers finishing-a-development-branch (MIT)
+
+standard:
+  id: branch-completion
+  name: Branch Completion Workflow
+  description: 分支完成工作流標準
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-20"
+    source: core/branch-completion.md
+    description: 分支完成決策與清理標準
+    inspired_by: superpowers/finishing-a-development-branch
+
+  guidelines:
+    - "測試全過才能談完成"
+    - "提供 4 個完成選項讓使用者選擇"
+    - "Discard 需要明確確認，防止誤刪"
+    - "Worktree 對應分支完成後必須清理"
+
+  prerequisites:
+    - "所有測試通過"
+    - "lint 通過"
+    - "type check 通過"
+    - "無未提交的變更"
+
+  options:
+    - id: merge_locally
+      description: "合併到目標分支"
+      steps:
+        - "git checkout <target>"
+        - "git merge --no-ff <branch>"
+        - "刪除分支"
+        - "清理 worktree（若有）"
+    - id: create_pr
+      description: "建立 Pull Request"
+      steps:
+        - "推送分支到 remote"
+        - "建立 PR（含描述與測試計畫）"
+        - "等待審查"
+    - id: keep_as_is
+      description: "保持現狀不動"
+      steps:
+        - "記錄分支狀態"
+        - "提醒使用者稍後處理"
+    - id: discard
+      description: "丟棄所有變更"
+      steps:
+        - "要求使用者明確確認（輸入分支名稱）"
+        - "刪除分支（git branch -D）"
+        - "清理 worktree（若有）"
+
+  rules:
+    - id: BC-001
+      trigger: "使用者選擇 discard"
+      action: "要求輸入分支名稱確認，防止誤刪"
+      priority: critical
+    - id: BC-002
+      trigger: "分支有 worktree"
+      action: "完成後自動清理 worktree"
+      priority: high
+    - id: BC-003
+      trigger: "前置條件未滿足"
+      action: "阻止完成，顯示失敗的檢查項目"
+      priority: high
+    - id: BC-004
+      trigger: "分支閒置超過 14 天"
+      action: "通知使用者完成或丟棄"
+      priority: medium
+
+physical_spec:
+  type: checklist
+  validator:
+    type: ai_review
+    rule: "檢查分支完成是否遵循前置條件檢查和四選項流程"
+  checks:
+    - "完成前是否通過所有前置條件（測試、lint、type check）"
+    - "是否提供完成選項供使用者選擇"
+    - "Discard 操作是否要求明確確認"
+    - "關聯的 worktree 是否被清理"

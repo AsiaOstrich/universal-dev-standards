@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0-rc.16] - 2026-03-24
+
+> **Release Candidate**: Sixteenth RC for v5.0.0 with 10 new skills, feature gap analysis, Windows path bug fix, translation completeness enforcement, and AI tool integration expansion.
+
+### Added
+- **10 new skills**: `/security`, `/api-design`, `/database`, `/ci-cd`, `/incident`, `/pr`, `/scan`, `/metrics`, `/durable`, `/migrate` — each with 5 platform files (canonical + Claude + Gemini + zh-TW + zh-CN)
+- **2 new AI tool integrations**: Aider and Continue.dev (AGENTS.md + README.md + REGISTRY.json)
+- **Translation completeness check**: `check-translation-sync.sh` now detects missing skill and core standard translations (not just outdated ones)
+- **40 missing translations**: Backfilled zh-TW (20 files) and zh-CN (20 files) for previously untranslated skills and core standards
+- **Skill disambiguation sections**: `/methodology` vs `/dev-workflow`, `/spec` vs `/sdd`, `/coverage` vs `/ac-coverage` comparison tables
+- **AI Skills Hierarchy**: Three-layer system documentation in `/ai-collaboration`, `/ai-instruction-standards`, `/ai-friendly-architecture`
+- **Testing Skills Navigator**: Decision tree in `/testing` for navigating 6 testing-related skills
+- **Retroactive specs**: SPEC-NEW-SKILLS-BATCH-01, SPEC-TRANSLATION-COMPLETENESS, SPEC-NEW-INTEGRATIONS-BATCH-01
+
+### Fixed
+- **Windows path separator bug**: `manifest.fileHashes` keys now normalized to forward slashes (`/`) on all platforms — fixes duplicate file display and false "modified" detection after `uds update` on Windows
+  - Fixed in: `update.js` (4 locations), `check.js` (3 locations), `standards-installer.js` (1 location), `manifest-migrator.js` (1 location)
+
+### Changed
+- **CLI descriptions clarified**: `uds check` vs `uds audit`, `uds spec` descriptions updated to cross-reference related commands
+- **UDS skill count**: 30 → 40 skills
+- **AI tool integrations**: 12 → 14 tools
+
 ## [5.0.0-rc.15] - 2026-03-23
 
 > **Release Candidate**: Fifteenth RC for v5.0.0 with Skills version detection fix, skill description standardization, and CHANGELOG timing correction.

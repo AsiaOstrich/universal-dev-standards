@@ -1,10 +1,10 @@
 {
   "project": "Universal Development Standards",
-  "version": "5.0.0-rc.15",
-  "last_updated": "2026-03-23",
+  "version": "5.0.0-rc.16",
+  "last_updated": "2026-03-24",
   "stats": {
     "core_standards": 48,
-    "skills": 30,
+    "skills": 40,
     "slash_commands": 30
   },
   "standards": [
@@ -422,6 +422,56 @@
     },
     {
       "id": "ac-coverage-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "api-design-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "ci-cd-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "database-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "durable-execution-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "incident-response-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "metrics-dashboard-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "migration-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "pr-automation-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "security-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "security-scan-assistant",
       "command": "/guide",
       "category": "uncategorized"
     }

@@ -221,12 +221,75 @@ check_locale() {
         fi
     fi
 
+    # Check skills SKILL.md translation completeness
+    local SKILLS_SOURCE_DIR="$ROOT_DIR/skills"
+    local SKILLS_LOCALE_DIR="$LOCALE_DIR/skills"
+    local SKILLS_MISSING=0
+    local SKILLS_TOTAL=0
+
+    echo ""
+    echo -e "  ${BLUE}Skills Translation Completeness:${NC}"
+
+    for skill_dir in "$SKILLS_SOURCE_DIR"/*/; do
+        [ -d "$skill_dir" ] || continue
+        local skill_name=$(basename "$skill_dir")
+        # Skip non-skill directories
+        case "$skill_name" in
+            commands|workflows|agents|tools) continue ;;
+        esac
+        [ -f "$skill_dir/SKILL.md" ] || continue
+        SKILLS_TOTAL=$((SKILLS_TOTAL + 1))
+        if [ ! -f "$SKILLS_LOCALE_DIR/$skill_name/SKILL.md" ]; then
+            echo -e "    ${RED}[MISSING]${NC} skills/$skill_name/SKILL.md"
+            SKILLS_MISSING=$((SKILLS_MISSING + 1))
+        fi
+    done
+
+    if [ $SKILLS_MISSING -eq 0 ]; then
+        echo -e "    ${GREEN}✓ All $SKILLS_TOTAL skills have translations${NC}"
+    else
+        echo -e "    ${RED}✗ $SKILLS_MISSING/$SKILLS_TOTAL skills missing translations${NC}"
+        OUTDATED=$((OUTDATED + SKILLS_MISSING))
+    fi
+
+    # Check core standards translation completeness
+    local CORE_SOURCE_DIR="$ROOT_DIR/core"
+    local CORE_LOCALE_DIR="$LOCALE_DIR/core"
+    local CORE_MISSING=0
+    local CORE_TOTAL=0
+
+    echo ""
+    echo -e "  ${BLUE}Core Standards Translation Completeness:${NC}"
+
+    for core_file in "$CORE_SOURCE_DIR"/*.md; do
+        [ -f "$core_file" ] || continue
+        local core_name=$(basename "$core_file")
+        CORE_TOTAL=$((CORE_TOTAL + 1))
+        if [ ! -f "$CORE_LOCALE_DIR/$core_name" ]; then
+            echo -e "    ${RED}[MISSING]${NC} core/$core_name"
+            CORE_MISSING=$((CORE_MISSING + 1))
+        fi
+    done
+
+    if [ $CORE_MISSING -eq 0 ]; then
+        echo -e "    ${GREEN}✓ All $CORE_TOTAL core standards have translations${NC}"
+    else
+        echo -e "    ${RED}✗ $CORE_MISSING/$CORE_TOTAL core standards missing translations${NC}"
+        OUTDATED=$((OUTDATED + CORE_MISSING))
+    fi
+
     # Locale summary
     echo ""
     echo -e "  ${BLUE}$LOCALE Summary:${NC}"
     echo -e "    Total: $TOTAL | Current: ${GREEN}$CURRENT${NC} | Outdated: ${RED}$OUTDATED${NC} | Missing: ${RED}$MISSING_SOURCE${NC}"
     if [ $COMMANDS_MISSING -gt 0 ]; then
         echo -e "    Commands missing: ${RED}$COMMANDS_MISSING${NC}"
+    fi
+    if [ $SKILLS_MISSING -gt 0 ]; then
+        echo -e "    Skills missing: ${RED}$SKILLS_MISSING${NC}"
+    fi
+    if [ $CORE_MISSING -gt 0 ]; then
+        echo -e "    Core standards missing: ${RED}$CORE_MISSING${NC}"
     fi
     echo ""
 

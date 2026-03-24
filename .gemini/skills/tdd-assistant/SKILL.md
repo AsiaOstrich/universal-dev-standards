@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  引導測試驅動開發（TDD）流程：紅-綠-重構。
-  使用時機：TDD 開發、撰寫測試先行的程式碼、學習 TDD。
-  關鍵字：TDD, test-driven, red-green-refactor, 測試驅動, 紅綠重構。
+description: "[UDS] 引導測試驅動開發（TDD）流程：紅-綠-重構"
 name: tdd
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx vitest:*)
 scope: partial

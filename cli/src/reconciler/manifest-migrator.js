@@ -101,9 +101,9 @@ export function backfillFileHashes(projectPath, manifest) {
 
   // Backfill standard file hashes
   for (const standardPath of (updated.standards || [])) {
-    const relativePath = standardPath.startsWith('.standards/')
+    const relativePath = (standardPath.startsWith('.standards/')
       ? standardPath
-      : `.standards/${standardPath}`;
+      : `.standards/${standardPath}`).replace(/\\/g, '/');
     const absPath = join(projectPath, relativePath);
 
     if (!updated.fileHashes[relativePath] && existsSync(absPath)) {

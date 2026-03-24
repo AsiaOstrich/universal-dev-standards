@@ -5,10 +5,7 @@ translation_version: 1.0.0
 last_synced: 2026-02-05
 status: current
 scope: partial
-description: |
-  建立和維護 AI 指令檔案（CLAUDE.md、.cursorrules 等）並採用適當結構。
-  使用時機：建立 AI 指令檔案、區分通用與專案特定規則、配置 AI 工具。
-  關鍵字：CLAUDE.md, cursorrules, windsurfrules, clinerules, AI instructions, system prompt, 指令檔案, AI 設定.
+description: "[UDS] 建立和維護 AI 指令檔案（CLAUDE.md、.cursorrules 等）並採用適當結構"
 ---
 
 # AI 指令檔案標準指南
@@ -22,6 +19,16 @@ description: |
 ---
 
 > **核心標準**: 本技能實作 [AI 指令檔案標準](../../core/ai-instruction-standards.md)。完整方法論文件請參閱核心標準。
+
+## AI 技能層級
+
+此技能是三層 AI 協作系統的一部分：
+
+| 層級 | 技能 | 回答的問題 |
+|------|------|-----------|
+| **行為層**（即時） | `/ai-collaboration` | 「AI 如何準確回應？」 |
+| **配置層**（會話） | `/ai-instruction-standards`（此技能） | 「CLAUDE.md 該寫什麼？」 |
+| **架構層**（長期） | `/ai-friendly-architecture` | 「如何讓專案對 AI 友善？」 |
 
 ## 目的
 

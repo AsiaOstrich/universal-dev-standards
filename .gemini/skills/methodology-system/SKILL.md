@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  管理當前專案的開發方法論，支援 SDD 和雙迴圈 TDD 兩個獨立系統。
-  使用時機：切換方法論、檢視當前階段、管理開發流程。
-  關鍵字：methodology, SDD, TDD, BDD, ATDD, 方法論, 開發流程。
+description: "[UDS] 管理當前專案的開發方法論，支援 SDD 和雙迴圈 TDD 兩個獨立系統"
 name: methodology
 allowed-tools: Read, Write, Grep, Glob
 scope: partial
@@ -23,7 +20,20 @@ argument-hint: "[action] [argument]"
 >
 > 此功能正在積極開發中，可能在 v4.0 中有重大變更。
 
-管理當前專案的開發方法論，支援兩個獨立系統。
+選擇並管理當前專案的開發方法論。此技能專注於**選擇使用哪種方法論**（SDD、BDD、TDD）並追蹤所選方法論內的階段進度。
+
+> **相關**：如需查詢開發階段對應的 UDS 指令，請改用 `/dev-workflow`。
+
+### 何時使用 `/methodology` vs `/dev-workflow`
+
+| 場景 | `/methodology` | `/dev-workflow` |
+|------|---------------|-----------------|
+| 選擇 SDD vs BDD vs TDD | ✅ | ❌ |
+| 切換方法論 | ✅ | ❌ |
+| 追蹤當前階段進度 | ✅ | ❌ |
+| 查詢任務對應的 UDS 指令 | ❌ | ✅ |
+| 取得新功能/修 Bug 的逐步流程 | ❌ | ✅ |
+| 瀏覽 8 個開發階段 | ❌ | ✅ |
 
 **兩個獨立系統：**
 - **系統 A：SDD** - 規格驅動開發（AI 時代、規格優先）

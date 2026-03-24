@@ -1,5 +1,5 @@
 {
-  "version": "5.0.0-rc.14",
+  "version": "5.0.0-rc.15",
   "source": "universal-dev-standards",
   "agent": "gemini-cli",
   "level": "project",
@@ -39,5 +39,5 @@
     "tdd",
     "update"
   ],
-  "installedDate": "2026-03-20"
+  "installedDate": "2026-03-23"
 }

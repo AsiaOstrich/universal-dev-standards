@@ -12,6 +12,10 @@ Analyze test coverage across multiple dimensions and provide actionable recommen
 
 多維度分析測試覆蓋率並提供可執行的建議。
 
+> **Related**: For requirement-level coverage (which AC have tests?), use `/ac-coverage` instead. This skill (`/coverage`) focuses on code-level coverage (lines, branches, functions).
+>
+> **相關**：如需需求層級覆蓋率（哪些 AC 有對應測試？），請改用 `/ac-coverage`。此技能（`/coverage`）專注於程式碼層級覆蓋率。
+
 ## Coverage Dimensions | 覆蓋率維度
 
 | Dimension | What it Measures | 測量內容 |

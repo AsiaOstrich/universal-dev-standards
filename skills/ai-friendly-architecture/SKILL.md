@@ -18,6 +18,16 @@ description: |
 
 > **Core Standard**: This skill implements [AI-Friendly Architecture](../../core/ai-friendly-architecture.md). For comprehensive methodology documentation, refer to the core standard.
 
+## AI Skills Hierarchy | AI 技能層級
+
+This skill is part of a three-layer AI collaboration system:
+
+| Layer | Skill | Question it Answers | 回答的問題 |
+|-------|-------|-------------------|-----------|
+| **Behavior** (Immediate) | `/ai-collaboration` | "How should AI respond accurately?" | 「AI 如何準確回應？」 |
+| **Configuration** (Session) | `/ai-instruction-standards` | "What to write in CLAUDE.md?" | 「CLAUDE.md 該寫什麼？」 |
+| **Architecture** (Long-term) | `/ai-friendly-architecture` (this) | "How to structure code for AI?" | 「如何讓專案對 AI 友善？」 |
+
 ## Purpose
 
 This skill helps design project architecture that maximizes AI collaboration effectiveness through explicit patterns, layered documentation, and semantic boundaries.

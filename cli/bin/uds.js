@@ -114,7 +114,7 @@ program
 
 program
   .command('check')
-  .description('Check adoption status of current project')
+  .description('Check file integrity and adoption status (quick validation). For deep health diagnosis, use "uds audit"')
   .option('-s, --standard <id>', 'Validate against a specific standard physical spec')
   .option('--json', 'Output result in JSON format')
   .option('--summary', 'Show compact status summary (for use by other commands)')
@@ -174,7 +174,7 @@ program
 
 program
   .command('audit')
-  .description('Audit UDS installation and collect feedback')
+  .description('Deep health diagnosis with pattern detection and feedback (strategic). For quick file check, use "uds check"')
   .option('--health', 'Health check only')
   .option('--patterns', 'Pattern detection only')
   .option('--friction', 'Friction detection only')
@@ -199,7 +199,7 @@ program
 // Spec command with subcommands (Vibe Coding)
 const specCommand = program
   .command('spec')
-  .description('Manage micro-specs for vibe coding');
+  .description('Manage lightweight micro-specs for vibe coding. For full spec lifecycle with review, use "/sdd"');
 
 specCommand
   .command('create <intent>')

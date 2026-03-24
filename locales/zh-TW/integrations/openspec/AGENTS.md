@@ -1,8 +1,8 @@
 ---
 source: ../../../../integrations/openspec/AGENTS.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-13
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-03-23
 status: current
 ---
 
@@ -100,11 +100,25 @@ openspec list                  # 列出活躍變更
 openspec list --specs          # 列出規格
 openspec show [item]           # 顯示變更或規格
 openspec validate [item]       # 驗證變更或規格
-openspec archive <change-id> [--yes|-y]   # 部署後封存（添加 --yes 用於非互動執行）
+openspec archive <change-id> [--yes|-y]   # 部署後封存
+
+# 瀏覽與狀態
+openspec view                  # 互動式儀表板
+openspec status                # 顯示產物完成進度
+openspec instructions          # 取得建立產物的增強指引
+openspec templates             # 顯示已解析的範本路徑
+
+# Schema 管理
+openspec schemas               # 列出可用的工作流程 schema
+openspec schema init           # 初始化新 schema
+openspec schema fork           # 分叉現有 schema
+openspec schema validate       # 驗證 schema
+openspec schema which          # 顯示使用中的 schema
 
 # 專案管理
 openspec init [path]           # 初始化 OpenSpec
 openspec update [path]         # 更新指令檔案
+openspec config                # 管理設定
 
 # 互動模式
 openspec show                  # 提示選擇
@@ -113,6 +127,10 @@ openspec validate              # 批量驗證模式
 # 除錯
 openspec show [change] --json --deltas-only
 openspec validate [change] --strict
+
+# 工具
+openspec completion            # Shell 整合支援
+openspec feedback              # 透過 GitHub 提交回饋
 ```
 
 ### 指令標誌
@@ -123,6 +141,13 @@ openspec validate [change] --strict
 - `--no-interactive` - 停用提示
 - `--skip-specs` - 封存時不更新規格
 - `--yes`/`-y` - 跳過確認提示（非互動封存）
+- `--no-validate` - 封存時不執行驗證
+- `--sort` - 列表輸出排序
+- `--profile` - 指定初始化設定檔
+- `--requirements` / `--no-scenarios` / `-r` - 過濾 show 輸出
+- `--all` / `--changes` / `--specs` - 過濾驗證範圍
+- `--concurrency` - 平行驗證並發數
+- `--schema` - 指定 status/instructions/templates 的 schema
 
 ## 目錄結構
 

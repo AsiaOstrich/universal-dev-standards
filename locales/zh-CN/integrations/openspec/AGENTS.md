@@ -1,8 +1,8 @@
 ---
 source: ../../../../integrations/openspec/AGENTS.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-13
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-03-23
 status: current
 ---
 
@@ -100,11 +100,25 @@ openspec list                  # 列出活跃变更
 openspec list --specs          # 列出规格
 openspec show [item]           # 显示变更或规格
 openspec validate [item]       # 验证变更或规格
-openspec archive <change-id> [--yes|-y]   # 部署后归档（添加 --yes 用于非交互执行）
+openspec archive <change-id> [--yes|-y]   # 部署后归档
+
+# 浏览与状态
+openspec view                  # 交互式仪表板
+openspec status                # 显示产物完成进度
+openspec instructions          # 获取创建产物的增强指引
+openspec templates             # 显示已解析的模板路径
+
+# Schema 管理
+openspec schemas               # 列出可用的工作流程 schema
+openspec schema init           # 初始化新 schema
+openspec schema fork           # 分叉现有 schema
+openspec schema validate       # 验证 schema
+openspec schema which          # 显示使用中的 schema
 
 # 项目管理
 openspec init [path]           # 初始化 OpenSpec
 openspec update [path]         # 更新指令文件
+openspec config                # 管理设置
 
 # 交互模式
 openspec show                  # 提示选择
@@ -113,6 +127,10 @@ openspec validate              # 批量验证模式
 # 调试
 openspec show [change] --json --deltas-only
 openspec validate [change] --strict
+
+# 工具
+openspec completion            # Shell 集成支持
+openspec feedback              # 通过 GitHub 提交反馈
 ```
 
 ### 指令标志
@@ -123,6 +141,13 @@ openspec validate [change] --strict
 - `--no-interactive` - 禁用提示
 - `--skip-specs` - 归档时不更新规格
 - `--yes`/`-y` - 跳过确认提示（非交互归档）
+- `--no-validate` - 归档时不执行验证
+- `--sort` - 列表输出排序
+- `--profile` - 指定初始化配置文件
+- `--requirements` / `--no-scenarios` / `-r` - 过滤 show 输出
+- `--all` / `--changes` / `--specs` - 过滤验证范围
+- `--concurrency` - 并行验证并发数
+- `--schema` - 指定 status/instructions/templates 的 schema
 
 ## 目录结构
 

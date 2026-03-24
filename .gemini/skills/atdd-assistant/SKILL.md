@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  引導驗收測試驅動開發（ATDD）流程，用於定義和驗證使用者故事。
-  使用時機：定義驗收條件、使用者故事驗證、ATDD 流程。
-  關鍵字：atdd, acceptance, user story, INVEST, 驗收測試, 使用者故事, 驗收條件。
+description: "[UDS] 引導驗收測試驅動開發（ATDD）流程，用於定義和驗證使用者故事"
 name: atdd
 allowed-tools: Read, Write, Grep, Glob
 scope: partial

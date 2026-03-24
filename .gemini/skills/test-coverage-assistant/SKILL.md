@@ -4,10 +4,7 @@ source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-02-10
 status: current
-description: |
-  多維度分析測試覆蓋率並提供可執行的建議。
-  使用時機：分析覆蓋率、識別測試缺口、制定測試策略。
-  關鍵字：coverage, test, analysis, dimension, 覆蓋率, 測試, 分析, 維度。
+description: "[UDS] 多維度分析測試覆蓋率並提供可執行的建議"
 name: coverage
 allowed-tools: Read, Grep, Glob, Bash(npm test:*)
 scope: partial
@@ -19,6 +16,8 @@ argument-hint: "[file or module | 檔案或模組]"
 > **語言**: [English](../../../../skills/test-coverage-assistant/SKILL.md) | 繁體中文
 
 多維度分析測試覆蓋率並提供可執行的建議。
+
+> **相關**：如需需求層級覆蓋率（哪些 AC 有對應測試？），請改用 `/ac-coverage`。此技能（`/coverage`）專注於程式碼層級覆蓋率。
 
 ## 覆蓋率維度
 

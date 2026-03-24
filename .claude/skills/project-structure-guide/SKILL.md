@@ -5,7 +5,6 @@ translation_version: 1.1.0
 last_synced: 2026-03-04
 status: current
 scope: universal
-description: "[UDS] 專案結構指南"
 ---
 
 # 專案結構指南

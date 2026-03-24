@@ -639,13 +639,14 @@ export async function restoreSingleFile(projectPath, manifest, relativePath, msg
  * Update file hash in manifest
  */
 export function updateFileHash(projectPath, manifest, relativePath) {
-  const fullPath = join(projectPath, relativePath);
+  const normalizedPath = relativePath.replace(/\\/g, '/');
+  const fullPath = join(projectPath, normalizedPath);
   const hashInfo = computeFileHash(fullPath);
   if (hashInfo) {
     if (!manifest.fileHashes) {
       manifest.fileHashes = {};
     }
-    manifest.fileHashes[relativePath] = {
+    manifest.fileHashes[normalizedPath] = {
       ...hashInfo,
       installedAt: new Date().toISOString()
     };
@@ -719,9 +720,9 @@ async function migrateToHashBasedTracking(projectPath, manifest) {
   // Process standards
   for (const std of manifest.standards) {
     const fileName = basename(std);
-    const relativePath = std.includes('options/')
+    const relativePath = (std.includes('options/')
       ? join('.standards', 'options', fileName)
-      : join('.standards', fileName);
+      : join('.standards', fileName)).replace(/\\/g, '/');
     const fullPath = join(projectPath, relativePath);
 
     const hashInfo = computeFileHash(fullPath);
@@ -735,7 +736,7 @@ async function migrateToHashBasedTracking(projectPath, manifest) {
   for (const ext of manifest.extensions) {
     if (typeof ext !== 'string') continue;
     const fileName = basename(ext);
-    const relativePath = join('.standards', fileName);
+    const relativePath = join('.standards', fileName).replace(/\\/g, '/');
     const fullPath = join(projectPath, relativePath);
 
     const hashInfo = computeFileHash(fullPath);

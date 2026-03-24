@@ -561,9 +561,9 @@ export async function updateCommand(options) {
   // Update hashes for standards
   for (const std of manifest.standards) {
     const fileName = basename(std);
-    const relativePath = std.includes('options/')
+    const relativePath = (std.includes('options/')
       ? join('.standards', 'options', fileName)
-      : join('.standards', fileName);
+      : join('.standards', fileName)).replace(/\\/g, '/');
     const fullPath = join(projectPath, relativePath);
     const hashInfo = computeFileHash(fullPath);
     if (hashInfo) {
@@ -575,7 +575,7 @@ export async function updateCommand(options) {
   for (const ext of manifest.extensions) {
     if (typeof ext !== 'string') continue;
     const fileName = basename(ext);
-    const relativePath = join('.standards', fileName);
+    const relativePath = join('.standards', fileName).replace(/\\/g, '/');
     const fullPath = join(projectPath, relativePath);
     const hashInfo = computeFileHash(fullPath);
     if (hashInfo) {
@@ -1091,13 +1091,15 @@ export function regenerateIntegrations(projectPath, manifest) {
         if (!manifest.fileHashes) {
           manifest.fileHashes = {};
         }
-        manifest.fileHashes[result.path] = { ...hashInfo, installedAt: now };
+        const normalizedPath = result.path.replace(/\\/g, '/');
+        manifest.fileHashes[normalizedPath] = { ...hashInfo, installedAt: now };
       }
 
       // Track integration block hash for UDS content integrity
       if (result.blockHashInfo) {
         if (!manifest.integrationBlockHashes) manifest.integrationBlockHashes = {};
-        manifest.integrationBlockHashes[result.path] = {
+        const normalizedBlockPath = result.path.replace(/\\/g, '/');
+        manifest.integrationBlockHashes[normalizedBlockPath] = {
           ...result.blockHashInfo,
           installedAt: now
         };
@@ -1273,13 +1275,15 @@ async function syncIntegrationReferences(projectPath, manifest) {
         if (!manifest.fileHashes) {
           manifest.fileHashes = {};
         }
-        manifest.fileHashes[integrationPath] = { ...hashInfo, installedAt: now };
+        const normalizedIntPath = integrationPath.replace(/\\/g, '/');
+        manifest.fileHashes[normalizedIntPath] = { ...hashInfo, installedAt: now };
       }
 
       // Track integration block hash for UDS content integrity
       if (result.blockHashInfo) {
         if (!manifest.integrationBlockHashes) manifest.integrationBlockHashes = {};
-        manifest.integrationBlockHashes[integrationPath] = {
+        const normalizedIntBlockPath = integrationPath.replace(/\\/g, '/');
+        manifest.integrationBlockHashes[normalizedIntBlockPath] = {
           ...result.blockHashInfo,
           installedAt: now
         };

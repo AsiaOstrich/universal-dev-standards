@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/openspec/AGENTS.md) | [简体中文](../../locales/zh-CN/integrations/openspec/AGENTS.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-30
+**Version**: 1.1.0
+**Last Updated**: 2026-03-23
 
 Instructions for AI coding assistants using OpenSpec for spec-driven development.
 
@@ -117,11 +117,25 @@ openspec list                  # List active changes
 openspec list --specs          # List specifications
 openspec show [item]           # Display change or spec
 openspec validate [item]       # Validate changes or specs
-openspec archive <change-id> [--yes|-y]   # Archive after deployment (add --yes for non-interactive runs)
+openspec archive <change-id> [--yes|-y]   # Archive after deployment
+
+# Browsing & status
+openspec view                  # Interactive dashboard for exploring artifacts
+openspec status                # Show artifact completion progress
+openspec instructions          # Get enriched guidance for creating artifacts
+openspec templates             # Display resolved template file paths
+
+# Schema management
+openspec schemas               # List available workflow schemas
+openspec schema init           # Initialize a new schema
+openspec schema fork           # Fork an existing schema
+openspec schema validate       # Validate schema
+openspec schema which          # Show which schema is in use
 
 # Project management
 openspec init [path]           # Initialize OpenSpec
 openspec update [path]         # Update instruction files
+openspec config                # Manage settings
 
 # Interactive mode
 openspec show                  # Prompts for selection
@@ -130,6 +144,10 @@ openspec validate              # Bulk validation mode
 # Debugging
 openspec show [change] --json --deltas-only
 openspec validate [change] --strict
+
+# Utility
+openspec completion            # Shell integration support
+openspec feedback              # Submit feedback via GitHub
 ```
 
 ### Command Flags
@@ -140,6 +158,13 @@ openspec validate [change] --strict
 - `--no-interactive` - Disable prompts
 - `--skip-specs` - Archive without spec updates
 - `--yes`/`-y` - Skip confirmation prompts (non-interactive archive)
+- `--no-validate` - Archive without running validation
+- `--sort` - Sort order for list output
+- `--profile` - Specify profile for init
+- `--requirements` / `--no-scenarios` / `-r` - Filter show output
+- `--all` / `--changes` / `--specs` - Filter validate scope
+- `--concurrency` - Parallel validation concurrency
+- `--schema` - Specify schema for status/instructions/templates
 
 ## Directory Structure
 

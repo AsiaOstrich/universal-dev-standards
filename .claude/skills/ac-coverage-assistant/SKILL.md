@@ -1,7 +1,7 @@
 ---
 name: ac-coverage
 scope: universal
-description: "[UDS] 分析 AC 到測試的可追蹤性與覆蓋率"
+description: "[UDS] Analyze AC-to-test traceability and coverage"
 allowed-tools: Read, Grep, Glob
 argument-hint: "[spec file path | 規格檔案路徑]"
 ---

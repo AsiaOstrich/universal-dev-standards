@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/spec-kit/AGENTS.md) | [简体中文](../../locales/zh-CN/integrations/spec-kit/AGENTS.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-30
+**Version**: 1.1.0
+**Last Updated**: 2026-03-23
 
 Instructions for AI coding assistants using Spec Kit for spec-driven development.
 
@@ -29,16 +29,39 @@ You are required to follow the **Spec-Driven Development (SDD)** methodology whe
 
 ## Spec Kit Commands
 
-When Spec Kit is available, prioritize using these commands:
+### CLI Commands
 
 | Command | Description |
 |---------|-------------|
-| `/sdd create <title>` | Create a new specification |
-| `/sdd list` | List all active specifications |
-| `/sdd show <id>` | Display specification details |
-| `/sdd approve <id>` | Mark specification as approved |
-| `/sdd close <id>` | Close completed specification |
-| `/sdd archive <id>` | Archive specification |
+| `specify init <project-name>` | Initialize a new SDD project |
+| `specify check` | Verify installed tools (git, AI agents) |
+
+**Init Options:**
+
+| Flag | Description |
+|------|-------------|
+| `--ai <agent>` | Select AI assistant (claude, gemini, copilot, cursor-agent, windsurf, etc.) |
+| `--ai-skills` | Install as agent skills instead of slash commands |
+| `--here` | Initialize in current directory |
+| `--force` | Skip confirmation when merging |
+| `--script ps` | PowerShell scripts (Windows/cross-platform) |
+| `--no-git` | Skip git repository initialization |
+| `--debug` | Enable detailed output |
+| `--branch-numbering timestamp` | Use timestamp-based branch names |
+
+### Slash Commands (Workflow)
+
+When Spec Kit is available, use these slash commands for the SDD workflow:
+
+| Command | Stage | Description |
+|---------|-------|-------------|
+| `/constitution` | Setup | Establish project governing principles |
+| `/specify` | Proposal | Define requirements and user stories |
+| `/clarify` | Discuss | Resolve specification ambiguities with structured questions |
+| `/plan` | Design | Create technical implementation plans |
+| `/tasks` | Planning | Generate actionable task breakdowns |
+| `/analyze` | Review | Check cross-artifact consistency |
+| `/implement` | Implementation | Execute tasks to build features |
 
 ### Command Priority
 
@@ -55,24 +78,29 @@ When Spec Kit is available, prioritize using these commands:
 
 ```
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   Proposal   │───▶│    Review    │───▶│Implementation│
+│ Constitution │───▶│   Specify    │───▶│   Clarify    │
 └──────────────┘    └──────────────┘    └──────────────┘
                                                │
-                                               ▼
-                    ┌──────────────┐    ┌──────────────┐
-                    │   Archive    │◀───│ Verification │
+                    ┌──────────────┐    ┌───────▼──────┐
+                    │  Implement   │◀───│  Plan/Tasks  │
                     └──────────────┘    └──────────────┘
+                           │
+                    ┌──────▼───────┐
+                    │   Analyze    │
+                    └──────────────┘
 ```
 
 ### Workflow Stages
 
-| Stage | Description | Action |
-|-------|-------------|--------|
-| **Proposal** | Define what to change and why | `/sdd create` |
-| **Review** | Stakeholder approval | `/sdd approve` |
-| **Implementation** | Execute the approved spec | Code changes |
-| **Verification** | Confirm implementation matches spec | Testing |
-| **Archive** | Close and archive the spec | `/sdd close` |
+| Stage | Description | Command |
+|-------|-------------|---------|
+| **Constitution** | Define project governing principles | `/constitution` |
+| **Specify** | Define requirements and user stories | `/specify` |
+| **Clarify** | Resolve ambiguities with structured questions | `/clarify` |
+| **Plan** | Create technical implementation plans | `/plan` |
+| **Tasks** | Generate actionable task breakdowns | `/tasks` |
+| **Implement** | Execute tasks to build features | `/implement` |
+| **Analyze** | Check consistency across artifacts | `/analyze` |
 
 ---
 
@@ -84,12 +112,13 @@ When Spec Kit is available, prioritize using these commands:
 
 | Phase | Prerequisite | On Failure |
 |-------|-------------|------------|
-| Implementation | Spec status = Approved | → `/sdd approve` first |
-| Verification | All ACs have code + tests | → Complete implementation first |
+| Specify | Constitution established (if first time) | → `/constitution` first |
+| Plan | Requirements defined via `/specify` | → `/specify` first |
+| Implement | Plan approved, tasks generated | → `/plan` then `/tasks` first |
 | Commit (feat/fix) | Check active specs | → Suggest `Refs: SPEC-XXX` |
 
 ### Session Start Protocol
-At session start, check for active workflows: `/sdd list` or `ls .workflow-state/*.yaml 2>/dev/null`
+At session start, check for active workflows: look for `.specify/` directory or active spec files.
 If active workflows found → inform user and offer to resume.
 
 Reference: `.standards/workflow-enforcement.ai.yaml`
@@ -99,7 +128,7 @@ Reference: `.standards/workflow-enforcement.ai.yaml`
 ## Before Any Task
 
 **Context Checklist**:
-- [ ] Check for active specifications: `/sdd list`
+- [ ] Check for active specifications: look for `.specify/` directory
 - [ ] Review relevant specs before making changes
 - [ ] Verify no conflicting specs exist
 - [ ] Create spec if change is non-trivial
@@ -109,6 +138,20 @@ Reference: `.standards/workflow-enforcement.ai.yaml`
 - Typos, formatting, comments
 - Dependency updates (non-breaking)
 - Configuration changes
+
+---
+
+## Directory Structure
+
+```
+.specify/
+├── templates/                    # Core spec-kit templates
+├── extensions/
+│   └── <ext-id>/templates/      # Extension templates
+├── presets/
+│   └── <preset-id>/templates/   # Preset customizations
+└── templates/overrides/          # Project-local overrides (highest priority)
+```
 
 ---
 
@@ -141,7 +184,7 @@ Potential risks and mitigation strategies.
 
 ---
 
-## Integration with Universal Doc Standards
+## Integration with Universal Dev Standards
 
 ### Commit Messages
 
@@ -170,13 +213,14 @@ Reviewers should verify:
 - Keep specs focused and atomic (one change per spec)
 - Include clear acceptance criteria
 - Link specs to implementation PRs
+- Use `/analyze` to verify consistency
 - Archive specs after completion
 
 ### Don'ts
 - Start coding before spec approval
 - Modify scope during implementation without updating spec
 - Leave specs in limbo (always close or archive)
-- Skip verification step
+- Skip the `/clarify` step when requirements are ambiguous
 
 ---
 
@@ -192,6 +236,7 @@ Reviewers should verify:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-03-23 | Updated to reflect Spec Kit v0.4.0 actual CLI commands and slash commands |
 | 1.0.0 | 2025-12-30 | Initial Spec Kit integration |
 
 ---

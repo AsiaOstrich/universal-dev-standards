@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  根據 Conventional Commits 規範產生格式正確的 commit message。
-  使用時機：提交程式碼、撰寫 commit message、檢查提交格式。
-  關鍵字：commit, conventional commits, 提交, 訊息, feat, fix, refactor。
+description: "[UDS] 根據 Conventional Commits 規範產生格式正確的 commit message"
 name: commit
 allowed-tools: Read, Grep, Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*)
 scope: universal

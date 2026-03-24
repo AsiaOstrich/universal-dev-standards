@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  使用標準化檢查清單執行系統性程式碼審查。
-  使用時機：審查程式碼、PR 審查、程式碼品質檢查。
-  關鍵字：review, code review, PR, checklist, 審查, 程式碼, 品質。
+description: "[UDS] 使用標準化檢查清單執行系統性程式碼審查"
 name: review
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
 scope: universal

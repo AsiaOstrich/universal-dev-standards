@@ -18,6 +18,16 @@ description: |
 
 > **Core Standard**: This skill implements [AI Instruction File Standards](../../core/ai-instruction-standards.md). For comprehensive methodology documentation, refer to the core standard.
 
+## AI Skills Hierarchy | AI 技能層級
+
+This skill is part of a three-layer AI collaboration system:
+
+| Layer | Skill | Question it Answers | 回答的問題 |
+|-------|-------|-------------------|-----------|
+| **Behavior** (Immediate) | `/ai-collaboration` | "How should AI respond accurately?" | 「AI 如何準確回應？」 |
+| **Configuration** (Session) | `/ai-instruction-standards` (this) | "What to write in CLAUDE.md?" | 「CLAUDE.md 該寫什麼？」 |
+| **Architecture** (Long-term) | `/ai-friendly-architecture` | "How to structure code for AI?" | 「如何讓專案對 AI 友善？」 |
+
 ## Purpose
 
 This skill helps create and maintain AI instruction files with proper separation between universal standards and project-specific configurations.

@@ -1,7 +1,7 @@
 # UDS 功能參考手冊
 
 > Universal Development Standards - 完整功能文件
-> Auto-generated | Last updated: 2026-03-20
+> Auto-generated | Last updated: 2026-03-24
 
 **Language**: [English](../../../docs/FEATURE-REFERENCE.md) | 繁體中文 | [简体中文](../../zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -11,13 +11,13 @@
 
 1. [CLI 指令](#cli-commands) (9)
 2. [斜線命令](#slash-commands) (34)
-3. [技能](#skills) (30)
+3. [技能](#skills) (40)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
 6. [核心規範](#core-standards) (48)
 7. [腳本](#scripts) (41)
 
-**Total Features: 172**
+**Total Features: 182**
 
 ---
 
@@ -195,28 +195,38 @@
 | `ai-collaboration-standards` | Prevent AI hallucination and ensure evidence-based responses when analyzing code or making suggestions. |
 | `ai-friendly-architecture` | Design AI-friendly architecture with explicit patterns, layered documentation, and semantic boundaries. |
 | `ai-instruction-standards` | Create and maintain AI instruction files (CLAUDE.md, .cursorrules, etc.) with proper structure. |
+| `api-design-assistant` | Guide API design following REST, GraphQL, and gRPC best practices. |
 | `atdd-assistant` | "[UDS] Guide through Acceptance Test-Driven Development workflow" |
 | `audit-assistant` | "[UDS] UDS Health & Feedback System \| UDS 健康檢查與回饋系統" |
 | `bdd-assistant` | "[UDS] Guide through Behavior-Driven Development workflow" |
 | `brainstorm-assistant` | "[UDS] Structured AI-assisted brainstorming before spec creation" |
 | `changelog-guide` | "[UDS] Generate and maintain CHANGELOG.md entries" |
 | `checkin-assistant` | "[UDS] Pre-commit quality gates verification" |
+| `ci-cd-assistant` | Guide CI/CD pipeline design, configuration, and optimization. |
 | `code-review-assistant` | "[UDS] Perform systematic code review with checklist" |
 | `commit-standards` | "[UDS] Generate commit messages following Conventional Commits standard" |
+| `database-assistant` | Guide database design, migration, and query optimization. |
 | `dev-workflow-guide` | "[UDS] Guide for mapping software development phases to UDS commands and features" |
 | `docs-generator` | "[UDS] Generate usage documentation from project sources" |
 | `documentation-guide` | Guide documentation structure, content requirements, and project documentation best practices. |
+| `durable-execution-assistant` | "[UDS] Guide workflow failure recovery with checkpoints, retries, and rollback" |
 | `error-code-guide` | Design consistent error codes following the PREFIX_CATEGORY_NUMBER format. |
 | `forward-derivation` | "[UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications" |
 | `git-workflow-guide` | Guide Git branching strategies, branch naming, and merge operations. |
+| `incident-response-assistant` | Guide incident response, root cause analysis, and post-mortem documentation. |
 | `logging-guide` | Implement structured logging with proper log levels and sensitive data handling. |
 | `methodology-system` | "[UDS] Manage development methodology workflow" |
+| `metrics-dashboard-assistant` | "[UDS] Track development metrics, code quality indicators, and project health" |
+| `migration-assistant` | "[UDS] Guide code migration, framework upgrades, and technology modernization" |
+| `pr-automation-assistant` | Guide pull request creation, review automation, and merge strategies. |
 | `project-discovery` | "[UDS] Assess project health, architecture, and risks before adding features" |
 | `project-structure-guide` | Guide for organizing project directories following language-specific best practices. |
 | `refactoring-assistant` | "[UDS] Guide refactoring decisions and strategy selection" |
 | `release-standards` | "[UDS] Guide release process and changelogs" |
 | `requirement-assistant` | "[UDS] Write user stories and requirements following INVEST criteria" |
 | `reverse-engineer` | "[UDS] System archeology — reverse engineer code across Logic, Data, and Runtime dimensions" |
+| `security-assistant` | Guide security review and vulnerability assessment following OWASP standards. |
+| `security-scan-assistant` | Guide automated security scanning, dependency auditing, and secret detection. |
 | `spec-driven-dev` | "[UDS] Create or review specification documents for Spec-Driven Development" |
 | `tdd-assistant` | "[UDS] Guide through Test-Driven Development workflow" |
 | `test-coverage-assistant` | "[UDS] Analyze test coverage and provide recommendations" |

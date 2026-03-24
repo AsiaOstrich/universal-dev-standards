@@ -5,11 +5,7 @@ translation_version: 1.2.0
 last_synced: 2026-02-10
 status: current
 name: testing
-description: |
-  Testing pyramid and test writing standards for UT/IT/ST/E2E.
-  Supports ISTQB and Industry Pyramid frameworks.
-  Use when: writing tests, discussing test coverage, test strategy, or test naming.
-  Keywords: test, unit, integration, e2e, coverage, mock, ISTQB, SIT, 測試, 單元, 整合, 端對端.
+description: "[UDS] 測試金字塔與 UT/IT/ST/E2E 測試撰寫標準"
 scope: uds-specific
 ---
 
@@ -26,6 +22,29 @@ scope: uds-specific
 ## 目的
 
 本 Skill 提供測試金字塔標準和系統化測試的最佳實踐，支援 ISTQB 和業界通行金字塔框架。
+
+## 測試技能導航
+
+UDS 提供 6 個測試相關技能，使用以下決策樹找到適合的：
+
+```
+你想做什麼？
+├── 測量程式碼覆蓋率（行/分支/函數）    → /coverage
+├── 追蹤需求是否有對應測試（AC 可追蹤性） → /ac-coverage
+├── 用 TDD 開發（紅-綠-重構）           → /tdd
+├── 撰寫 BDD 場景（Given-When-Then）    → /bdd
+├── 與利害關係人定義驗收測試              → /atdd
+└── 了解測試標準與最佳實踐               → /testing（此技能）
+```
+
+| 技能 | 焦點 |
+|------|------|
+| `/testing` | 測試標準與最佳實踐參考 |
+| `/coverage` | 程式碼層級覆蓋率分析 |
+| `/ac-coverage` | 需求層級 AC 可追蹤性 |
+| `/tdd` | 紅-綠-重構開發循環 |
+| `/bdd` | Given-When-Then 行為場景 |
+| `/atdd` | 與利害關係人定義驗收條件 |
 
 ## 框架選擇
 

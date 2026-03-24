@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-03-20
+> Quick reference for all UDS features | Last updated: 2026-03-24
 
 **Language**: English | [繁體中文](../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../locales/zh-CN/docs/CHEATSHEET.md)
 
@@ -67,28 +67,38 @@
 | `ai-collaboration-standards` | Prevent AI hallucination and ensure evidence-based responses |
 | `ai-friendly-architecture` | Design AI-friendly architecture with explicit patterns, laye |
 | `ai-instruction-standards` | Create and maintain AI instruction files (CLAUDE.md, .cursor |
+| `api-design-assistant` | Guide API design following REST, GraphQL, and gRPC best prac |
 | `atdd-assistant` | "[UDS] Guide through Acceptance Test-Driven Development work |
 | `audit-assistant` | "[UDS] UDS Health & Feedback System \| UDS 健康檢查與回饋系統" |
 | `bdd-assistant` | "[UDS] Guide through Behavior-Driven Development workflow" |
 | `brainstorm-assistant` | "[UDS] Structured AI-assisted brainstorming before spec crea |
 | `changelog-guide` | "[UDS] Generate and maintain CHANGELOG.md entries" |
 | `checkin-assistant` | "[UDS] Pre-commit quality gates verification" |
+| `ci-cd-assistant` | Guide CI/CD pipeline design, configuration, and optimization |
 | `code-review-assistant` | "[UDS] Perform systematic code review with checklist" |
 | `commit-standards` | "[UDS] Generate commit messages following Conventional Commi |
+| `database-assistant` | Guide database design, migration, and query optimization. |
 | `dev-workflow-guide` | "[UDS] Guide for mapping software development phases to UDS  |
 | `docs-generator` | "[UDS] Generate usage documentation from project sources" |
 | `documentation-guide` | Guide documentation structure, content requirements, and pro |
+| `durable-execution-assistant` | "[UDS] Guide workflow failure recovery with checkpoints, ret |
 | `error-code-guide` | Design consistent error codes following the PREFIX_CATEGORY_ |
 | `forward-derivation` | "[UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables f |
 | `git-workflow-guide` | Guide Git branching strategies, branch naming, and merge ope |
+| `incident-response-assistant` | Guide incident response, root cause analysis, and post-morte |
 | `logging-guide` | Implement structured logging with proper log levels and sens |
 | `methodology-system` | "[UDS] Manage development methodology workflow" |
+| `metrics-dashboard-assistant` | "[UDS] Track development metrics, code quality indicators, a |
+| `migration-assistant` | "[UDS] Guide code migration, framework upgrades, and technol |
+| `pr-automation-assistant` | Guide pull request creation, review automation, and merge st |
 | `project-discovery` | "[UDS] Assess project health, architecture, and risks before |
 | `project-structure-guide` | Guide for organizing project directories following language- |
 | `refactoring-assistant` | "[UDS] Guide refactoring decisions and strategy selection" |
 | `release-standards` | "[UDS] Guide release process and changelogs" |
 | `requirement-assistant` | "[UDS] Write user stories and requirements following INVEST  |
 | `reverse-engineer` | "[UDS] System archeology — reverse engineer code across Logi |
+| `security-assistant` | Guide security review and vulnerability assessment following |
+| `security-scan-assistant` | Guide automated security scanning, dependency auditing, and  |
 | `spec-driven-dev` | "[UDS] Create or review specification documents for Spec-Dri |
 | `tdd-assistant` | "[UDS] Guide through Test-Driven Development workflow" |
 | `test-coverage-assistant` | "[UDS] Analyze test coverage and provide recommendations" |

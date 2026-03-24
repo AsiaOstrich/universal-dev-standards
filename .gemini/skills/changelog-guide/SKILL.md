@@ -4,10 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  根據 Keep a Changelog 格式產生和維護 CHANGELOG.md 條目。
-  使用時機：更新變更日誌、版本發布、記錄變更。
-  關鍵字：changelog, CHANGELOG.md, keep a changelog, 變更日誌, 版本紀錄。
+description: "[UDS] 根據 Keep a Changelog 格式產生和維護 CHANGELOG.md 條目"
 name: changelog
 allowed-tools: Read, Write, Grep, Bash(git log:*)
 scope: partial

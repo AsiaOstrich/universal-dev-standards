@@ -1,7 +1,7 @@
 ---
 name: dev-workflow
 scope: universal
-description: "[UDS] 將軟體開發階段對應到正確的 UDS 指令與技能"
+description: "[UDS] Guide for mapping software development phases to UDS commands and features"
 allowed-tools: Read, Grep, Glob
 argument-hint: "[phase name | scenario | 階段名稱 | 場景]"
 ---
@@ -13,6 +13,10 @@ argument-hint: "[phase name | scenario | 階段名稱 | 場景]"
 Map your current software development phase to the right UDS commands and skills. Get instant guidance on which tools to use at each stage of development.
 
 將你目前的軟體開發階段對應到正確的 UDS 指令與技能。即時了解在開發的每個階段應該使用哪些工具。
+
+> **Related**: To choose or switch between development methodologies (SDD, BDD, TDD), use `/methodology` instead.
+>
+> **相關**：如需選擇或切換開發方法論（SDD、BDD、TDD），請改用 `/methodology`。
 
 ## Software Development Phases Overview | 軟體開發階段總覽
 

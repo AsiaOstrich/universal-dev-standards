@@ -16,6 +16,16 @@ description: |
 
 ---
 
+## AI Skills Hierarchy | AI 技能層級
+
+This skill is part of a three-layer AI collaboration system:
+
+| Layer | Skill | Question it Answers | 回答的問題 |
+|-------|-------|-------------------|-----------|
+| **Behavior** (Immediate) | `/ai-collaboration` (this) | "How should AI respond accurately?" | 「AI 如何準確回應？」 |
+| **Configuration** (Session) | `/ai-instruction-standards` | "What to write in CLAUDE.md?" | 「CLAUDE.md 該寫什麼？」 |
+| **Architecture** (Long-term) | `/ai-friendly-architecture` | "How to structure code for AI?" | 「如何讓專案對 AI 友善？」 |
+
 ## Purpose
 
 This skill ensures AI assistants provide accurate, evidence-based responses without hallucination.

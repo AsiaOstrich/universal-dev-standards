@@ -14,9 +14,24 @@ argument-hint: "[action] [argument]"
 > This feature is under active development and may change significantly in v4.0.
 > 此功能正在積極開發中，可能在 v4.0 中有重大變更。
 
-Manage the active development methodology for the current project with two independent systems.
+Select and manage the active development methodology for the current project. This skill focuses on **choosing which methodology to use** (SDD, BDD, TDD) and tracking phase progress within the chosen methodology.
 
-管理當前專案的開發方法論，支援兩個獨立系統。
+選擇並管理當前專案的開發方法論。此技能專注於**選擇使用哪種方法論**（SDD、BDD、TDD）並追蹤所選方法論內的階段進度。
+
+> **Related**: For navigating development phases and finding the right UDS command at each stage, use `/dev-workflow` instead.
+>
+> **相關**：如需查詢開發階段對應的 UDS 指令，請改用 `/dev-workflow`。
+
+### When to Use `/methodology` vs `/dev-workflow` | 何時使用
+
+| Scenario | `/methodology` | `/dev-workflow` |
+|----------|---------------|-----------------|
+| Choose SDD vs BDD vs TDD | ✅ | ❌ |
+| Switch between methodologies | ✅ | ❌ |
+| Track current phase progress | ✅ | ❌ |
+| Find the right UDS command for a task | ❌ | ✅ |
+| Get step-by-step workflow for new feature / bug fix | ❌ | ✅ |
+| Navigate 8 development phases | ❌ | ✅ |
 
 **Two Independent Systems / 兩個獨立系統：**
 - **System A: SDD** - Spec-Driven Development (AI-era, spec-first)

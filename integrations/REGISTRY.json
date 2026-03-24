@@ -117,6 +117,32 @@
       "supportsAgents": false,
       "supportsWorkflows": false
     },
+    "aider": {
+      "name": "Aider",
+      "tier": "partial",
+      "integrationFiles": [
+        "integrations/aider/AGENTS.md"
+      ],
+      "instructionFile": "integrations/aider/AGENTS.md",
+      "rulesLocation": "integrations/aider/",
+      "supportsSkills": false,
+      "supportsAgents": true,
+      "supportsWorkflows": false,
+      "note": "AI pair programming in terminal; loads AGENTS.md via --read flag"
+    },
+    "continue-dev": {
+      "name": "Continue.dev",
+      "tier": "partial",
+      "integrationFiles": [
+        "integrations/continue-dev/AGENTS.md"
+      ],
+      "instructionFile": "integrations/continue-dev/AGENTS.md",
+      "rulesLocation": "integrations/continue-dev/",
+      "supportsSkills": false,
+      "supportsAgents": true,
+      "supportsWorkflows": false,
+      "note": "VS Code/JetBrains AI extension; loads via context providers"
+    },
     "roo-code": {
       "name": "Roo Code",
       "tier": "planned",

@@ -4,10 +4,7 @@ source_version: 2.0.0
 translation_version: 2.0.0
 last_synced: 2026-02-10
 status: current
-description: |
-  引導重構決策、推薦策略，並提供逐步執行工作流程。
-  使用時機：重構程式碼、評估重構 vs 重寫、處理遺留程式碼。
-  關鍵字：refactor, strategy, legacy, technical debt, 重構, 策略, 遺留程式碼, 技術債。
+description: "[UDS] 引導重構決策、推薦策略，並提供逐步執行工作流程"
 name: refactor
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
 scope: universal

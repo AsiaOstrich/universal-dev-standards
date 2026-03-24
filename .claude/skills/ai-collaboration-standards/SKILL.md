@@ -5,7 +5,6 @@ translation_version: 1.1.0
 last_synced: 2026-01-25
 status: current
 scope: universal
-description: "[UDS] AI 協作標準"
 ---
 
 # AI 協作標準
@@ -17,6 +16,16 @@ description: "[UDS] AI 協作標準"
 **適用範圍**: Claude Code Skills
 
 ---
+
+## AI 技能層級
+
+此技能是三層 AI 協作系統的一部分：
+
+| 層級 | 技能 | 回答的問題 |
+|------|------|-----------|
+| **行為層**（即時） | `/ai-collaboration`（此技能） | 「AI 如何準確回應？」 |
+| **配置層**（會話） | `/ai-instruction-standards` | 「CLAUDE.md 該寫什麼？」 |
+| **架構層**（長期） | `/ai-friendly-architecture` | 「如何讓專案對 AI 友善？」 |
 
 ## 目的
 
