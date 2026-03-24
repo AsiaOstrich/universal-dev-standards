@@ -32,13 +32,13 @@ V. Release ──► VI. Documentation ──► VII. Standards ──► VIII. 
 
 | Phase | UDS Commands | Purpose | 用途 |
 |-------|-------------|---------|------|
-| **I. Planning & Design** | `/brainstorm` `/requirement` `/sdd` `/reverse` | Requirements, specs, reverse engineering | 需求、規格、逆向工程 |
-| **II. Test-Driven Development** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` | Design tests before code | 先寫測試再寫程式 |
-| **III. Implementation** | `/refactor` `/reverse` | Write and improve code | 撰寫與改善程式碼 |
-| **IV. Quality Gates** | `/checkin` `/review` | Pre-commit and code review | 提交前檢查與程式碼審查 |
-| **V. Release & Commit** | `/commit` `/changelog` `/release` | Version, commit, publish | 版本、提交、發布 |
-| **VI. Documentation** | `/docs` `/docgen` `/struct` | Docs and project structure | 文件與專案結構 |
-| **VII. Tools & Standards** | `/discover` `/testing` `/guide` `/git` | Reference guides | 參考指南 |
+| **I. Planning & Design** | `/brainstorm` `/requirement` `/sdd` `/reverse` `/api-design` `/database` | Requirements, specs, API/DB design | 需求、規格、API/DB 設計 |
+| **II. Test-Driven Development** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` `/ac-coverage` | Design tests before code | 先寫測試再寫程式 |
+| **III. Implementation** | `/refactor` `/reverse` `/migrate` `/durable` | Write, improve, and migrate code | 撰寫、改善與遷移程式碼 |
+| **IV. Quality Gates** | `/checkin` `/review` `/security` `/scan` `/incident` | Quality, security, incident response | 品質、安全、事故回應 |
+| **V. Release & Commit** | `/commit` `/changelog` `/release` `/pr` `/ci-cd` | Version, commit, PR, CI/CD | 版本、提交、PR、CI/CD |
+| **VI. Documentation** | `/docs` `/docgen` | Docs and project structure | 文件與專案結構 |
+| **VII. Tools & Standards** | `/discover` `/guide` `/metrics` `/audit` | Reference guides, metrics, audit | 參考指南、指標、審計 |
 | **VIII. Advanced Analysis** | `/methodology` | Cross-methodology workflows | 跨方法論工作流程 |
 
 ## Common Scenarios | 常見場景
@@ -100,6 +100,42 @@ Recommended flow for code refactoring:
 | 5 | `/checkin` | Verify quality gates | 驗證品質關卡 |
 | 6 | `/commit` | Create conventional commit | 建立規範化提交 |
 
+### Scenario 4: Security Review | 安全審查
+
+Recommended flow for security review and vulnerability remediation:
+
+安全審查與漏洞修復的推薦流程：
+
+```
+/scan → /security → /checkin → /commit
+```
+
+| Step | Command | What to Do | 做什麼 |
+|------|---------|-----------|--------|
+| 1 | `/scan` | Run automated security scans (deps, secrets) | 執行自動化安全掃描 |
+| 2 | `/security` | Deep security review (OWASP) | 深入安全審查 |
+| 3 | `/checkin` | Verify quality gates | 驗證品質關卡 |
+| 4 | `/commit` | Create conventional commit | 建立規範化提交 |
+
+### Scenario 5: API Design & Implementation | API 設計與實作
+
+Recommended flow for designing and implementing APIs:
+
+API 設計與實作的推薦流程：
+
+```
+/brainstorm → /api-design → /sdd → /derive → /tdd → /pr
+```
+
+| Step | Command | What to Do | 做什麼 |
+|------|---------|-----------|--------|
+| 1 | `/brainstorm` | Explore API approaches | 探索 API 方案 |
+| 2 | `/api-design` | Design endpoints and schemas | 設計端點與 schema |
+| 3 | `/sdd` | Create specification document | 建立規格文件 |
+| 4 | `/derive` | Generate test skeletons | 產生測試骨架 |
+| 5 | `/tdd` | Implement with tests | 搭配測試實作 |
+| 6 | `/pr` | Create pull request | 建立 Pull Request |
+
 ## Usage | 使用方式
 
 ```bash
@@ -126,6 +162,8 @@ Recommended flow for code refactoring:
 | `new-feature` | Scenario: New feature workflow | 場景：新功能開發 |
 | `bug-fix` | Scenario: Bug fix workflow | 場景：修復錯誤 |
 | `refactoring` | Scenario: Refactoring workflow | 場景：重構 |
+| `security` | Scenario: Security review workflow | 場景：安全審查 |
+| `api` | Scenario: API design workflow | 場景：API 設計 |
 
 ## Workflow Behavior | 工作流程行為
 
@@ -152,6 +190,9 @@ After `/dev-workflow` completes, the AI assistant should suggest based on user's
 > - 修復錯誤 → 執行 `/discover` 評估受影響區域 — Bug fix → Run `/discover` to assess affected area
 > - 重構程式碼 → 執行 `/discover` 評估健康度 — Refactoring → Run `/discover` to assess health
 > - 遺留系統 → 執行 `/reverse` 進行系統考古 — Legacy system → Run `/reverse` for system archeology
+> - 安全審查 → 執行 `/scan` 掃描漏洞 — Security review → Run `/scan` to find vulnerabilities
+> - API 開發 → 執行 `/api-design` 設計端點 — API development → Run `/api-design` to design endpoints
+> - 事故回應 → 執行 `/incident` 啟動回應流程 — Incident → Run `/incident` to start response
 
 ## References | 參考
 
@@ -166,6 +207,7 @@ After `/dev-workflow` completes, the AI assistant should suggest based on user's
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-03-24 | Add 11 new commands, 2 new scenarios (Security Review, API Design) |
 | 1.0.0 | 2026-03-04 | Initial: 8 development phases, 3 scenarios, phase-based navigation |
 
 ---

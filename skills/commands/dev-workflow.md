@@ -79,13 +79,13 @@ If active specs exist, highlight them and suggest the appropriate workflow phase
 
 | Phase | UDS Commands | 用途 |
 |-------|-------------|------|
-| **I. Planning** | `/brainstorm` `/requirement` `/sdd` `/reverse` | 需求、規格、逆向工程 |
-| **II. Testing** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` | 先寫測試再寫程式 |
-| **III. Implementation** | `/refactor` `/reverse` | 撰寫與改善程式碼 |
-| **IV. Quality** | `/checkin` `/review` | 提交前檢查與審查 |
-| **V. Release** | `/commit` `/changelog` `/release` | 版本、提交、發布 |
-| **VI. Docs** | `/docs` `/docgen` `/struct` | 文件與專案結構 |
-| **VII. Standards** | `/discover` `/guide` | 參考指南 |
+| **I. Planning** | `/brainstorm` `/requirement` `/sdd` `/reverse` `/api-design` `/database` | 需求、規格、API/DB 設計 |
+| **II. Testing** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` `/ac-coverage` | 先寫測試再寫程式 |
+| **III. Implementation** | `/refactor` `/reverse` `/migrate` `/durable` | 撰寫、改善與遷移程式碼 |
+| **IV. Quality** | `/checkin` `/review` `/security` `/scan` `/incident` | 品質、安全、事故回應 |
+| **V. Release** | `/commit` `/changelog` `/release` `/pr` `/ci-cd` | 版本、提交、PR、CI/CD |
+| **VI. Docs** | `/docs` `/docgen` | 文件與專案結構 |
+| **VII. Standards** | `/discover` `/guide` `/metrics` `/audit` | 參考指南、指標、審計 |
 | **VIII. Advanced** | `/methodology` | 跨方法論工作流程 |
 
 ## Common Scenarios | 常見場景
@@ -106,6 +106,18 @@ If active specs exist, highlight them and suggest the appropriate workflow phase
 
 ```
 /discover → /reverse → /coverage → /refactor → /checkin → /commit
+```
+
+### Security Review | 安全審查
+
+```
+/scan → /security → /checkin → /commit
+```
+
+### API Design | API 設計
+
+```
+/brainstorm → /api-design → /sdd → /derive → /tdd → /pr
 ```
 
 ## AI Agent Behavior | AI 代理行為

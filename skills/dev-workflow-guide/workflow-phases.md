@@ -18,6 +18,8 @@
 | `/requirement` | Write user stories (INVEST) | Defining what to build | 定義要建立什麼 |
 | `/sdd` | Create specification document | Before implementation | 實作前 |
 | `/reverse` | Reverse engineer existing code | Understanding brownfield codebase | 理解既有程式碼 |
+| `/api-design` | Design APIs (REST, GraphQL, gRPC) | Designing new API endpoints | 設計新 API 端點 |
+| `/database` | Database design and migration | Schema design, migration planning | Schema 設計、遷移規劃 |
 
 ### Typical Flow | 典型流程
 
@@ -32,6 +34,8 @@ Idea → /brainstorm → /requirement → /sdd → Ready for Phase II
 - **`/requirement`**: You know what to build but need formal user stories. Outputs INVEST-compliant stories with acceptance criteria.
 - **`/sdd`**: You have requirements and need a technical specification. Creates a structured spec document with API design, data models, and acceptance criteria.
 - **`/reverse`**: You need to understand existing code before modifying it. Generates specs, BDD scenarios, or TDD coverage maps from existing code.
+- **`/api-design`**: You need to design API endpoints following REST, GraphQL, or gRPC best practices. Guides you through DEFINE→DESIGN→VALIDATE→DOCUMENT.
+- **`/database`**: You need to design a database schema, plan a migration, or optimize queries. Guides through PLAN→WRITE→TEST→DEPLOY→VERIFY.
 
 ---
 
@@ -85,11 +89,15 @@ SDD 規格 → /derive → /bdd → /tdd → 測試就緒
 |---------|---------|-------------|----------|
 | `/refactor` | Refactoring guidance | Improving code structure | 改善程式碼結構 |
 | `/reverse` | Reverse engineer code | Understanding code before changes | 修改前理解程式碼 |
+| `/migrate` | Code migration guidance | Framework upgrades, tech modernization | 框架升級、技術現代化 |
+| `/durable` | Failure recovery patterns | Checkpoints, retries, rollback | 檢查點、重試、回滾 |
 
 ### When to Use Each | 各指令適用場景
 
 - **`/refactor`**: Code works but needs structural improvement. Guides you through extract method, rename, move, and other refactoring patterns with safety checks.
 - **`/reverse`**: You're working in unfamiliar code and need to understand data flow, runtime behavior, or module boundaries before making changes.
+- **`/migrate`**: You need to upgrade a framework (e.g., Vue 2→3), modernize dependencies, or move to a new tech stack. Guides through ASSESS→PLAN→PREPARE→MIGRATE→VERIFY→CLEANUP.
+- **`/durable`**: Your workflow has failure points that need resilience. Helps design checkpoint, retry, and rollback strategies for long-running operations.
 
 ---
 
@@ -103,6 +111,9 @@ SDD 規格 → /derive → /bdd → /tdd → 測試就緒
 |---------|---------|-------------|----------|
 | `/checkin` | Pre-commit verification | Before every commit | 每次提交前 |
 | `/review` | Systematic code review | Before merging PRs | 合併 PR 前 |
+| `/security` | Security review (OWASP) | Auditing for vulnerabilities | 審計漏洞 |
+| `/scan` | Automated security scanning | Dependency audit, secret detection | 相依掃描、機密偵測 |
+| `/incident` | Incident response | Production issues, post-mortems | 生產事故、事後檢討 |
 
 ### Checkin Verification | 提交前驗證
 
@@ -140,6 +151,8 @@ SDD 規格 → /derive → /bdd → /tdd → 測試就緒
 | `/commit` | Conventional Commits format | Creating each commit | 建立每次提交 |
 | `/changelog` | Generate changelog entries | Before releases | 發布前 |
 | `/release` | Release process management | Publishing versions | 發布版本 |
+| `/pr` | Pull request automation | Creating and reviewing PRs | 建立與審查 PR |
+| `/ci-cd` | CI/CD pipeline guidance | Designing/optimizing pipelines | 設計/優化管線 |
 
 ### Commit Message Format | 提交訊息格式
 
@@ -190,6 +203,8 @@ Types: `feat`, `fix`, `docs`, `chore`, `test`, `refactor`, `style`
 | Command | Purpose | When to Use | 使用時機 |
 |---------|---------|-------------|----------|
 | `/discover` | Project health assessment | Before major changes | 重大變更前 |
+| `/metrics` | Development metrics tracking | Monitoring project health | 監控專案健康 |
+| `/audit` | UDS health check | Checking standards adoption | 檢查標準採用 |
 | `/guide` | Access all UDS guides | Looking up standards | 查找標準 |
 | `/guide testing` | Testing standards | Setting up tests | 設定測試 |
 | `/guide error-codes` | Error code standards | Designing error codes | 設計錯誤碼 |
@@ -237,13 +252,22 @@ Start here | 從這裡開始
 │
 ├─ "I have a vague idea"          → /brainstorm
 ├─ "I know what to build"         → /requirement → /sdd
+├─ "I need to design an API"      → /api-design
+├─ "I need to design a database"  → /database
 ├─ "I have a spec, need tests"    → /derive
 ├─ "I'm writing tests"            → /tdd or /bdd
 ├─ "I'm writing code"             → (just code, or /refactor)
+├─ "I need to migrate/upgrade"    → /migrate
 ├─ "I'm done coding"              → /checkin → /commit
 ├─ "I need to review code"        → /review
+├─ "I need a security check"      → /scan → /security
+├─ "There's a production issue"   → /incident
+├─ "I need to create a PR"        → /pr
 ├─ "I'm preparing a release"      → /changelog → /release
+├─ "I need to set up CI/CD"       → /ci-cd
 ├─ "I need to understand code"    → /reverse or /discover
+├─ "I want project metrics"       → /metrics
 ├─ "I need a reference guide"     → /guide [topic]
+├─ "I need to audit standards"    → /audit
 └─ "I need a complex workflow"    → /methodology
 ```
