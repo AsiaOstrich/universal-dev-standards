@@ -60,3 +60,10 @@ After `/checkin` completes, the AI assistant should suggest:
 
 - Detailed guide: [guide.md](./guide.md)
 - Core standard: [checkin-standards.md](../../core/checkin-standards.md)
+
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/checkin`](../commands/checkin.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/checkin`](../commands/checkin.md#ai-agent-behavior--ai-代理行為)

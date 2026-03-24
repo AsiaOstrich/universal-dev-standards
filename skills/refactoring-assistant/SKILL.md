@@ -85,3 +85,10 @@ After `/refactor` completes, the AI assistant should suggest:
 
 - Detailed guide: [guide.md](./guide.md)
 - Core standard: [refactoring-standards.md](../../core/refactoring-standards.md)
+
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/refactor`](../commands/refactor.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/refactor`](../commands/refactor.md#ai-agent-behavior--ai-代理行為)

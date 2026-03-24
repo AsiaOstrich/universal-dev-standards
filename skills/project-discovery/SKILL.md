@@ -71,3 +71,10 @@ After `/discover` completes, the AI assistant should suggest based on the assess
 ## Reference | 參考
 
 - Detailed guide: [guide.md](./guide.md)
+
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/discover`](../commands/discover.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/discover`](../commands/discover.md#ai-agent-behavior--ai-代理行為)

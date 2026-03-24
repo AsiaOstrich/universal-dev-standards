@@ -81,3 +81,10 @@ After `/atdd` completes, the AI assistant should suggest:
 
 - Detailed guide: [guide.md](./guide.md)
 - Core standard: [acceptance-test-driven-development.md](../../core/acceptance-test-driven-development.md)
+
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/atdd`](../commands/atdd.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/atdd`](../commands/atdd.md#ai-agent-behavior--ai-代理行為)

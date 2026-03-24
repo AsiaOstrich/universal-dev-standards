@@ -122,3 +122,10 @@ After `/reverse` (full or `spec`) completes, the AI assistant should suggest:
 
 - Detailed guide: [guide.md](./guide.md)
 - Core standard: [reverse-engineering-standards.md](../../core/reverse-engineering-standards.md)
+
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/reverse`](../commands/reverse.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/reverse`](../commands/reverse.md#ai-agent-behavior--ai-代理行為)

@@ -120,6 +120,13 @@ After `/incident` completes, the AI assistant should suggest:
 |---------|------|---------|----------|
 | 1.0.0 | 2026-03-24 | Initial release | 初始版本 |
 
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/incident`](../commands/incident.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/incident`](../commands/incident.md#ai-agent-behavior--ai-代理行為)
+
 ## License | 授權
 
 CC BY 4.0 — Documentation content

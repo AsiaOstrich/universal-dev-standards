@@ -118,3 +118,10 @@ After `/ac-coverage` completes, the AI assistant should suggest:
 - SPEC: [SPEC-AC-COVERAGE.md](../../docs/specs/skills/SPEC-AC-COVERAGE.md)
 - Related: [test-coverage-assistant](../test-coverage-assistant/SKILL.md) (code-level coverage)
 - Related: [checkin-assistant](../checkin-assistant/SKILL.md) (quality gates)
+
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/ac-coverage`](../commands/ac-coverage.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/ac-coverage`](../commands/ac-coverage.md#ai-agent-behavior--ai-代理行為)

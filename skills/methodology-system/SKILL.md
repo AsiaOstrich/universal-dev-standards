@@ -98,3 +98,10 @@ After `/methodology` completes, the AI assistant should suggest based on the sel
 ## Reference | 參考
 
 - Detailed guide: [guide.md](./guide.md)
+
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/methodology`](../commands/methodology.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/methodology`](../commands/methodology.md#ai-agent-behavior--ai-代理行為)
