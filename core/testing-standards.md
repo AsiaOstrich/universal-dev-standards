@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/testing-standards.md)
 
-**Version**: 3.0.0
-**Last Updated**: 2026-01-29
+**Version**: 3.1.0
+**Last Updated**: 2026-03-24
 **Applicability**: All software projects
 **Scope**: universal
 **Industry Standards**: ISTQB CTFL v4.0, ISO/IEC/IEEE 29119
@@ -38,40 +38,62 @@ This standard defines actionable testing rules and conventions for AI agents and
 
 ---
 
+## Coverage Targets (Primary Metric)
+
+> **Coverage is the primary metric for test quality.** Higher coverage means more code is protected by tests.
+> **覆蓋率是測試品質的主要指標。** 更高的覆蓋率代表更多程式碼受到測試保護。
+
+| Metric | Minimum | Standard | Ideal |
+|--------|---------|----------|-------|
+| **Line Coverage** | 80% | 90% | 95%+ |
+| **Branch Coverage** | 70% | 85% | 90%+ |
+| **Function Coverage** | 85% | 95% | 100% |
+| **Mutation Score** | — | 80% | 90%+ (critical code) |
+
+**Level definitions:**
+- **Minimum**: Baseline for all projects — below this is a quality risk
+- **Standard**: Target for most projects — achievable with disciplined testing
+- **Ideal**: Target for critical systems and core business logic — strive for 100% where practical
+
+> **Practical guidance**: 100% coverage is the ideal goal. In practice, diminishing returns appear around 95%+ for line coverage. Focus the last 5% on critical paths (authentication, payment, data integrity) rather than generated code or trivial getters/setters.
+
+---
+
+## Coverage vs Ratio — Key Distinction
+
+> **AI agents and developers: do NOT confuse these two concepts.**
+
+| Concept | Meaning | Importance |
+|---------|---------|------------|
+| **Coverage（覆蓋率）** | Percentage of code executed by tests | **Primary metric** — measures protection |
+| **Ratio（佔比）** | Distribution of test count across levels | Reference only — affects execution time |
+
+**Coverage** answers: "How much of my code is tested?"
+**Ratio** answers: "What proportion of my tests are unit vs integration vs E2E?"
+
+---
+
 ## Testing Framework Selection
 
 | Framework | Levels | Best For |
 |-----------|--------|----------|
 | **ISTQB** | UT → IT/SIT → ST → AT/UAT | Enterprise, compliance, formal QA |
-| **Industry Pyramid** | UT (70%) → IT (20%) → ST (7%) → E2E (3%) | Agile, DevOps, CI/CD |
+| **Industry Pyramid** | UT → IT → ST → E2E | Agile, DevOps, CI/CD |
 
 ---
 
-## Testing Pyramid (Default Ratios)
+## Testing Pyramid (Test Count Ratio — Reference Only)
 
-```
-                ┌───────┐
-                │  E2E  │  ←  3% (Slow, expensive)
-               ─┴───────┴─
-              ┌───────────┐
-              │    ST     │  ←  7% (System Testing)
-             ─┴───────────┴─
-            ┌─────────────┐
-            │     IT      │  ← 20% (Integration Testing)
-           ─┴─────────────┴─
-          ┌─────────────────┐
-          │       UT        │  ← 70% (Unit Testing - Foundation)
-          └─────────────────┘
-```
+> **Note**: These are test **count** ratios (how many tests at each level), NOT coverage targets. See [Coverage Targets](#coverage-targets-primary-metric) above for coverage requirements.
 
-> **Note**: The 70/20/7/3 ratio is an empirical recommendation (Mike Cohn), not a mandatory standard.
+| Level | Test Count Ratio | Execution Time Target |
+|-------|-----------------|----------------------|
+| Unit Testing (UT) | ~70% of tests | < 10 min total |
+| Integration Testing (IT) | ~20% of tests | < 30 min total |
+| System Testing (ST) | ~7% of tests | < 1 hour total |
+| E2E Testing | ~3% of tests | < 2 hours total |
 
-| Level | Percentage | Execution Time Target |
-|-------|------------|----------------------|
-| Unit Testing (UT) | 70% | < 10 min total |
-| Integration Testing (IT) | 20% | < 30 min total |
-| System Testing (ST) | 7% | < 1 hour total |
-| E2E Testing | 3% | < 2 hours total |
+> The 70/20/7/3 ratio is an empirical recommendation (Mike Cohn). It optimizes for fast feedback — most tests run quickly (UT), fewer tests run slowly (E2E).
 
 ---
 
@@ -110,11 +132,7 @@ This standard defines actionable testing rules and conventions for AI agents and
 
 #### Coverage Thresholds
 
-| Metric | Minimum | Recommended |
-|--------|---------|-------------|
-| Line Coverage | 70% | 85% |
-| Branch Coverage | 60% | 80% |
-| Function Coverage | 80% | 90% |
+> See [Coverage Targets](#coverage-targets-primary-metric) at the top of this document for the authoritative coverage requirements.
 
 ---
 
@@ -429,15 +447,6 @@ tests/
 
 ---
 
-## Coverage Targets Summary
-
-| Metric | Minimum | Recommended |
-|--------|---------|-------------|
-| Line | 70% | 85% |
-| Branch | 60% | 80% |
-| Function | 80% | 90% |
-| Mutation Score | - | >= 80% (critical code) |
-
 ---
 
 ## Related Standards
@@ -456,6 +465,7 @@ tests/
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.1.0 | 2026-03-24 | **Coverage-first restructure**: Elevated Coverage Targets to primary position, raised thresholds (Line 80/90/95+, Branch 70/85/90+, Function 85/95/100), added Coverage vs Ratio distinction, demoted Testing Pyramid to reference-only |
 | 3.0.0 | 2026-01-29 | **Major refactor**: Split into Rules (this file) and Theory (testing-theory.md). Reduced from 141KB/3185 lines to ~12KB/350 lines. All educational content moved to skills/testing-guide/testing-theory.md. Rules-only format optimized for AI agent consumption. |
 | 2.2.0 | 2026-01-20 | Added Test Documentation Structure section |
 | 2.1.0 | 2026-01-05 | Added SWEBOK v4.0 reference, Testing Fundamentals, Test-Related Measures |
