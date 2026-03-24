@@ -559,6 +559,8 @@ FILE_PAIRS=(
     "docs/CHEATSHEET.md|locales/zh-CN/docs/CHEATSHEET.md"
     "docs/FEATURE-REFERENCE.md|locales/zh-TW/docs/FEATURE-REFERENCE.md"
     "docs/FEATURE-REFERENCE.md|locales/zh-CN/docs/FEATURE-REFERENCE.md"
+    "docs/USER-MANUAL.md|locales/zh-TW/docs/USER-MANUAL.md"
+    "docs/USER-MANUAL.md|locales/zh-CN/docs/USER-MANUAL.md"
 )
 
 for pair in "${FILE_PAIRS[@]}"; do
