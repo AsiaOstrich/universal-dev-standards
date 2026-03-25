@@ -2,7 +2,7 @@
 
 > **Language**: English | 繁體中文
 
-**Status**: Draft
+**Status**: Implemented
 **Author**: Albert
 **Created**: 2026-03-25
 **Spec Type**: System Design
@@ -323,12 +323,43 @@ deployments:
 
 ---
 
-## Open Questions | 待討論
+## Resolved Questions | 已解決問題
 
-1. **`deployments.yaml` 是否應納入 Git 追蹤？** — 部署紀錄可能包含環境資訊，是否適合 commit 到 repo？或應該用 `.gitignore` 排除？
-2. **混合模式的具體行為**：同一專案可能有些模組走 CI/CD、有些走手動，如何處理？
-3. **`promote` 是否應自動重新打包？** — 或只更新版本檔案，由使用者自行打包？
-4. **Build Manifest 的 checksum 來源**：由 UDS 計算還是由使用者的 build 腳本提供？
+### 1. `deployments.yaml` 是否應納入 Git 追蹤？
+
+**決議**：**預設納入 Git 追蹤**。
+
+- 部署紀錄是版本生命週期的一部分，應具備可追溯性
+- 紀錄中不包含敏感資訊（僅版本號、環境名稱、日期、部署者名稱）
+- 若專案有特殊安全需求，使用者可自行加入 `.gitignore`
+- `build-manifest.json` 也一併納入追蹤，因為它是產物溯源的依據
+
+### 2. 混合模式的具體行為
+
+**決議**：**混合模式為「整體專案層級」，非模組層級**。
+
+- 混合模式意指：CI 負責建置產物（打包），但部署是手動的
+- 不支援同一專案內「某模組 CI/CD、某模組手動」的場景
+- 若有多模組需求，建議各模組獨立設定自己的 `release-config.yaml`
+- `/release` 執行時會詢問此次使用哪種流程（CI/CD 或手動）
+
+### 3. `promote` 是否應自動重新打包？
+
+**決議**：**不自動打包，僅更新版本檔案並提示使用者**。
+
+- 打包流程因專案而異（make、gradle、docker build 等），UDS 不應假設
+- `promote` 只負責：更新版本號、建立 Git tag、記錄晉升來源
+- 輸出中會提示使用者後續步驟（重新打包、部署）
+- 未來可透過 hook 機制讓使用者自訂打包腳本
+
+### 4. Build Manifest 的 checksum 來源
+
+**決議**：**由使用者的 build 腳本提供，UDS 不計算**。
+
+- `uds release manifest --checksum <hash>` 接受外部提供的 checksum
+- 若未提供，`checksum.package` 設為 `null`（不強制）
+- 理由：checksum 應由實際打包工具計算（確保涵蓋完整產物），UDS 不知道哪些檔案構成「產物」
+- 驗證時（`uds release verify`）僅檢查 commit hash 一致性，不驗證 checksum
 
 ---
 

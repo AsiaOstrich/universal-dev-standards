@@ -59,6 +59,7 @@ High-level designs for cross-cutting concerns (Agents, Workflows, Derivation).
 | [forward-derivation.md](system/forward-derivation.md) | Forward Derivation Methodology | Approved |
 | [core-standard-workflow.md](system/core-standard-workflow.md) | Core Standard Creation Workflow | Approved |
 | [SPEC-AUDIT-01-standards-audit.md](system/SPEC-AUDIT-01-standards-audit.md) | UDS Health & Feedback System — UDS 健康檢查與回饋系統 | Approved |
+| [SPEC-RELEASE-01-manual-deployment-mode.md](system/SPEC-RELEASE-01-manual-deployment-mode.md) | Manual Deployment Release Mode — 手動打包部署 Release 模式 | Implemented |
 | ... | (See system/ directory for full list) | |
 
 ---
