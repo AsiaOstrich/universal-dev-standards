@@ -44,10 +44,13 @@ async function printUpdateNoticeIfAvailable() {
 program
   .name('uds')
   .description('CLI tool for adopting Universal Development Standards')
-  .option('-V, --version', 'output the version number')
-  .on('option:version', () => {
-    console.log(pkg.version);
-    printUpdateNoticeIfAvailable().finally(() => process.exit(0));
+  .version(pkg.version)
+  .configureOutput({
+    outputVersion: (str) => {
+      process.stdout.write(str);
+      // Intercept version output to append update notice before exit
+      printUpdateNoticeIfAvailable().finally(() => process.exit(0));
+    }
   })
   .option('--ui-lang <lang>', 'UI language (en, zh-tw, auto) [default: auto]')
   .hook('preAction', (thisCommand) => {
