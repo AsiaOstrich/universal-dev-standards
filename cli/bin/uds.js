@@ -21,15 +21,34 @@ import { uninstallCommand } from '../src/commands/uninstall.js';
 import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand, specArchiveCommand, specDeleteCommand } from '../src/commands/spec.js';
 import { startCommand, missionStatusCommand, missionPauseCommand, missionResumeCommand, missionCancelCommand, missionListCommand } from '../src/commands/start.js';
 import { setLanguage, setLanguageExplicit, detectLanguage, t } from '../src/i18n/messages.js';
-import { maybeCheckForUpdates, formatUpdateNotice } from '../src/utils/update-checker.js';
+import { maybeCheckForUpdates, formatUpdateNotice, shouldCheckUpdateForCommand } from '../src/utils/update-checker.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
 
+/**
+ * Perform update check and print notice if a newer version is available.
+ * Resolves silently on error so it never breaks CLI flow.
+ */
+async function printUpdateNoticeIfAvailable() {
+  try {
+    const result = await maybeCheckForUpdates(pkg.version);
+    if (result?.shouldNotify) {
+      console.log(formatUpdateNotice(result, t()));
+    }
+  } catch {
+    // Silent failure — update check should never break CLI
+  }
+}
+
 program
   .name('uds')
   .description('CLI tool for adopting Universal Development Standards')
-  .version(pkg.version)
+  .option('-V, --version', 'output the version number')
+  .on('option:version', () => {
+    console.log(pkg.version);
+    printUpdateNoticeIfAvailable().finally(() => process.exit(0));
+  })
   .option('--ui-lang <lang>', 'UI language (en, zh-tw, auto) [default: auto]')
   .hook('preAction', (thisCommand) => {
     const opts = thisCommand.opts();
@@ -44,16 +63,8 @@ program
   })
   .hook('postAction', async (thisCommand) => {
     const cmd = thisCommand.name();
-    const notifyCommands = ['init', 'list', 'add', 'config'];
-    if (!notifyCommands.includes(cmd)) return;
-    try {
-      const result = await maybeCheckForUpdates(pkg.version);
-      if (result?.shouldNotify) {
-        console.log(formatUpdateNotice(result, t()));
-      }
-    } catch {
-      // Silent failure — update check should never break CLI
-    }
+    if (!shouldCheckUpdateForCommand(cmd)) return;
+    await printUpdateNoticeIfAvailable();
   });
 
 program

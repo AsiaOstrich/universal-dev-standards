@@ -154,11 +154,12 @@ standard:
       priority: required
 
     - id: version-check-on-uds-operation
-      trigger: "user invokes a UDS slash command or UDS-related operation"
+      trigger: "user invokes a UDS slash command, Skill, or UDS-related operation"
       instruction: >
         When the user invokes a UDS-related slash command (/commit, /sdd,
-        /review, /release, /tdd, /bdd, /docs, /changelog, etc.) for the
-        FIRST TIME in the current conversation, check for UDS updates:
+        /review, /release, /tdd, /bdd, /docs, /changelog, etc.) or uses
+        a UDS Skill for the FIRST TIME in the current conversation,
+        check for UDS updates:
 
         1. Read .standards/manifest.json → extract upstream.version
         2. Run: npm view universal-dev-standards dist-tags --json
@@ -168,7 +169,7 @@ standard:
         5. If versions match or npm is unreachable, skip silently
         6. Only check ONCE per conversation — do not repeat on subsequent
            UDS operations in the same session
-      priority: optional
+      priority: required
 
   architecture:
     classification: always-on-protocol

@@ -232,6 +232,54 @@ describe('update-checker', () => {
     });
   });
 
+  // [SPEC-CLI-UPDATE-NOTIFY] AC-2: 黑名單策略
+  describe('shouldCheckUpdateForCommand', () => {
+    let shouldCheckUpdateForCommand;
+
+    beforeEach(async () => {
+      const mod = await import('../../../src/utils/update-checker.js');
+      shouldCheckUpdateForCommand = mod.shouldCheckUpdateForCommand;
+    });
+
+    // [Derived] AC-2: 黑名單指令不觸發更新檢查
+    it('should return false for "update" command', () => {
+      expect(shouldCheckUpdateForCommand('update')).toBe(false);
+    });
+
+    it('should return false for "simulate" command', () => {
+      expect(shouldCheckUpdateForCommand('simulate')).toBe(false);
+    });
+
+    it('should return false for "fix" command', () => {
+      expect(shouldCheckUpdateForCommand('fix')).toBe(false);
+    });
+
+    // [Derived] AC-2: 非黑名單指令觸發更新檢查
+    it('should return true for "check" command', () => {
+      expect(shouldCheckUpdateForCommand('check')).toBe(true);
+    });
+
+    it('should return true for "init" command', () => {
+      expect(shouldCheckUpdateForCommand('init')).toBe(true);
+    });
+
+    it('should return true for "list" command', () => {
+      expect(shouldCheckUpdateForCommand('list')).toBe(true);
+    });
+
+    it('should return true for "config" command', () => {
+      expect(shouldCheckUpdateForCommand('config')).toBe(true);
+    });
+
+    it('should return true for "audit" command', () => {
+      expect(shouldCheckUpdateForCommand('audit')).toBe(true);
+    });
+
+    it('should return true for "skills" command', () => {
+      expect(shouldCheckUpdateForCommand('skills')).toBe(true);
+    });
+  });
+
   describe('formatUpdateNotice', () => {
     it('should format notice with default messages', () => {
       const result = { currentVersion: '5.0.0', latestVersion: '5.1.0' };
@@ -256,6 +304,32 @@ describe('update-checker', () => {
       expect(notice).toContain('有新版本可用');
       expect(notice).toContain('5.0.0');
       expect(notice).toContain('5.1.0');
+    });
+  });
+
+  // [SPEC-CLI-UPDATE-NOTIFY] AC-9: version-check-on-uds-operation priority 為 required
+  describe('AI Agent version-check-on-uds-operation rule', () => {
+    it('should have priority "required" in ai/standards/context-aware-loading.ai.yaml', async () => {
+      const { readFileSync: realReadFileSync } = await vi.importActual('fs');
+      const { resolve } = await import('path');
+      const yamlPath = resolve(import.meta.dirname, '../../../../ai/standards/context-aware-loading.ai.yaml');
+      const content = realReadFileSync(yamlPath, 'utf8');
+
+      // Find the version-check-on-uds-operation block and verify priority
+      const ruleMatch = content.match(/id:\s*version-check-on-uds-operation[\s\S]*?priority:\s*(\w+)/);
+      expect(ruleMatch).not.toBeNull();
+      expect(ruleMatch[1]).toBe('required');
+    });
+
+    it('should have priority "required" in .standards/context-aware-loading.ai.yaml', async () => {
+      const { readFileSync: realReadFileSync } = await vi.importActual('fs');
+      const { resolve } = await import('path');
+      const yamlPath = resolve(import.meta.dirname, '../../../../.standards/context-aware-loading.ai.yaml');
+      const content = realReadFileSync(yamlPath, 'utf8');
+
+      const ruleMatch = content.match(/id:\s*version-check-on-uds-operation[\s\S]*?priority:\s*(\w+)/);
+      expect(ruleMatch).not.toBeNull();
+      expect(ruleMatch[1]).toBe('required');
     });
   });
 });

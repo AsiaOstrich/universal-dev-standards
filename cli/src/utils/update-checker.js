@@ -112,6 +112,23 @@ export async function maybeCheckForUpdates(currentVersion, options = {}) {
 }
 
 /**
+ * Commands that should skip update check (blacklist strategy)
+ * - update: already checks for updates itself
+ * - simulate: predictive validation, needs fast response
+ * - fix: auto-fix, needs fast response
+ */
+const SKIP_UPDATE_CHECK_COMMANDS = ['update', 'simulate', 'fix'];
+
+/**
+ * Determine if a command should trigger update check
+ * @param {string} cmdName - Command name
+ * @returns {boolean} true if update check should run
+ */
+export function shouldCheckUpdateForCommand(cmdName) {
+  return !SKIP_UPDATE_CHECK_COMMANDS.includes(cmdName);
+}
+
+/**
  * Format update notice with box drawing characters
  * @param {Object} result - Result from maybeCheckForUpdates
  * @param {Object} messages - i18n messages from t()
