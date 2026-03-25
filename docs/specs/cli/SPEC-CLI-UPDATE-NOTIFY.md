@@ -1,6 +1,6 @@
 # [SPEC-CLI-UPDATE-NOTIFY] Feature: 改善版本更新通知觸發範圍
 
-**Status**: Implemented
+**Status**: Archived
 **Created**: 2026-03-25
 **Author**: AI-assisted
 

@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- **版本更新通知觸發範圍** (SPEC-CLI-UPDATE-NOTIFY): `uds --version` 現在會檢查並顯示新版本提示；`postAction` 從白名單（僅 4 指令）改為黑名單策略（排除 `update`/`simulate`/`fix`），大幅擴大觸發範圍
+- **`--version` 實作方式**: 使用 `configureOutput({ outputVersion })` 攔截版本輸出，避免 Commander.js 的 `.option()` 覆寫導致 help 訊息洩漏
+
+### Changed
+- **version-check-on-uds-operation 規則**: `context-aware-loading.ai.yaml` 中 priority 從 `optional` 提升為 `required`，AI agent 首次使用斜線命令/Skills 時必須檢查版本
+
+### Dependencies
+- bump glob 13.0.1 → 13.0.6 (patch, devDependency)
+- bump ora 8.2.0 → 9.3.0 (major, Node 20 required)
+- bump lint-staged 15.5.2 → 16.4.0 (major, devDependency)
+
 ## [5.0.0] - 2026-03-25
 
 > **Stable Release**: First stable release of v5.0.0 — AI Command Behavior 標準、44 個指令完整覆蓋、19 步 pre-release 檢查。
