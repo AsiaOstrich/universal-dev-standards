@@ -56,7 +56,7 @@ disable-model-invocation: true
 `/checkin` 完成後，AI 助手應建議：
 
 > **品質關卡驗證完成。建議下一步：**
-> - 全部通過 ✅ → 執行 `/commit` 提交變更 ⭐ **推薦**
+> - 全部通過 ✅ → 執行 `/commit` 提交變更
 > - 有失敗項目 ❌ → 修復問題後重新執行 `/checkin`
 > - 需要程式碼審查 → 執行 `/review` 進行自我審查
 > - UDS 安裝有異常 → 執行 `/audit` 診斷問題

@@ -91,7 +91,7 @@ DEFINE ──► DESIGN ──► VALIDATE ──► DOCUMENT
 `/api-design` 完成後，AI 助手應建議：
 
 > **API 設計完成。建議下一步：**
-> - 執行 `/sdd` 建立正式規格文件 ⭐ **推薦** — 將設計轉為可追蹤的規格
+> - 執行 `/sdd` 建立正式規格文件
 > - 執行 `/testing` 規劃 API 測試策略
 > - 執行 `/docs` 產生 API 文件
 > - 審查安全性 → 執行 `/security`

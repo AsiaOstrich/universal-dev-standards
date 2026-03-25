@@ -187,17 +187,6 @@ project/
 
 ---
 
-## 下一步引導
-
-`/ai-instructions` 完成後，AI 助手應建議：
-
-> **AI 指令檔案標準已掌握。建議下一步：**
-> - 建立或更新專案的 `CLAUDE.md`（或對應的 AI 指令檔案） ⭐ **推薦** — 立即將標準應用到專案中
-> - 執行 `/ai-friendly-architecture` 從架構層面優化 AI 協作 — 配合指令檔案提升 AI 理解力
-> - 執行 `/ai-collaboration` 複習 AI 行為準則 — 確保指令檔案中的規則與行為標準一致
-
----
-
 ## 相關標準
 
 - [AI 指令檔案標準](../../core/ai-instruction-standards.md) - 核心標準

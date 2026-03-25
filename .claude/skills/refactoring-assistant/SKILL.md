@@ -67,7 +67,7 @@ argument-hint: "[file or module | 檔案或模組]"
 `/refactor` 完成後，AI 助手應建議：
 
 > **重構完成。建議下一步：**
-> - 執行 `/checkin` 通過品質關卡 ⭐ **推薦** — 確保重構後品質不下降
+> - 執行 `/checkin` 通過品質關卡
 > - 執行 `/coverage` 確認重構後覆蓋率不下降
 > - 執行 `/commit` 提交重構變更
 

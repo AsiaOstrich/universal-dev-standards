@@ -64,7 +64,7 @@ disable-model-invocation: true
 `/changelog` 完成後，AI 助手應建議：
 
 > **變更日誌已更新。建議下一步：**
-> - 執行 `/release` 開始發布流程 ⭐ **推薦** — 完成發布準備
+> - 執行 `/release` 開始發布流程
 > - 執行 `/commit` 提交日誌變更
 > - 審查日誌條目確保使用者導向語言
 

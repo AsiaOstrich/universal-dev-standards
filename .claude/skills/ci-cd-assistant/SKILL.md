@@ -72,7 +72,7 @@ BUILD ──► TEST ──► ANALYZE ──► DEPLOY ──► VERIFY
 `/ci-cd` 完成後，AI 助手應建議：
 
 > **管線指引已提供。建議下一步：**
-> - 執行 `/deploy` 設定部署策略 ⭐ **推薦** — 完成從管線到部署的銜接
+> - 執行 `/deploy` 設定部署策略
 > - 執行 `/security` 檢查管線安全
 > - 執行 `/testing` 設計測試策略
 > - 執行 `/commit` 建立規範化提交

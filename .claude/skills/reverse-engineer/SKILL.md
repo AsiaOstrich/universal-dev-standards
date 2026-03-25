@@ -68,7 +68,7 @@ disable-model-invocation: true
 `/reverse`（完整或 `spec`）完成後，AI 助手應建議：
 
 > **系統考古完成。建議下一步：**
-> - 執行 `/sdd` 審查並核准此規格 ⭐ **推薦** — 正式化考古產出的規格
+> - 執行 `/sdd` 審查並核准此規格
 > - 執行 `/derive` 從規格推導測試
 > - 審查規格中的 `[Inferred]` 和 `[Unknown]` 標記
 

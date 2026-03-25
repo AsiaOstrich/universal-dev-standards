@@ -89,7 +89,7 @@ PLAN ──► WRITE ──► TEST ──► DEPLOY ──► VERIFY
 
 > **資料庫設計完成。建議下一步：**
 > - 執行 `/security` 檢查資料保護措施
-> - 執行 `/testing` 規劃資料庫測試策略 ⭐ **推薦** — 驗證資料完整性與查詢正確性
+> - 執行 `/testing` 規劃資料庫測試策略
 > - 執行 `/checkin` 確認遷移符合提交規範
 > - 產生 API 端點 → 執行 `/api-design`
 

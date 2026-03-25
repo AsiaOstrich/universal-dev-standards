@@ -104,7 +104,7 @@ uds audit --report --dry-run
 
 | 發現 | 建議動作 |
 |------|---------|
-| 健康 ERROR ⭐ **推薦** | 執行 `uds init` 或 `uds check --restore` |
+| 健康 ERROR | 執行 `uds init` 或 `uds check --restore` |
 | 偵測到模式 | 考慮透過 `--report` 請求新標準 |
 | 已修改標準 | 檢視標準是否需要更多彈性 |
 | 未使用標準 | 考慮以 `uds uninstall` 移除 |

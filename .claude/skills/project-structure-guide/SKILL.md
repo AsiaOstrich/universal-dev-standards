@@ -144,17 +144,6 @@ project/
 7. **工作文件放 docs/working/** - 腦力激盪、RFC、POC、技術調查放在 docs/working/ 並進行生命週期管理
 8. **生成碼分離** - 放在 src/generated/{type}/，永不與手寫程式碼混合
 
-## 下一步引導
-
-`/project-structure` 完成後，AI 助手應建議：
-
-> **專案結構已建立或審查完成。建議下一步：**
-> - 執行 `/sdd` 開始規格驅動開發，將專案結構納入正式規格 ⭐ **推薦** — 確保結構決策有規格追蹤
-> - 執行 `/docs` 產生專案文件（README、ARCHITECTURE.md 等） — 讓結構決策有文件記錄
-> - 執行 `/ai-friendly-architecture` 設定 AI 上下文配置 — 讓 AI 助手更好地理解專案結構
-
----
-
 ## 相關標準
 
 - [核心：專案結構](../../core/project-structure.md)
