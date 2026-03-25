@@ -153,6 +153,17 @@ This project uses **English** certainty tags.
 
 ---
 
+## 下一步引導
+
+`/ai-collaboration` 完成後，AI 助手應建議：
+
+> **AI 協作行為規範已掌握。建議下一步：**
+> - 執行 `/ai-instructions` 建立或更新 CLAUDE.md 等 AI 指令檔案 ⭐ **推薦** — 將協作標準寫入專案配置
+> - 執行 `/ai-friendly-architecture` 設計 AI 友善架構 — 從長期架構層面優化 AI 協作
+> - 執行 `/review` 運用確定性標籤進行程式碼審查 — 實踐基於證據的分析
+
+---
+
 ## 相關標準
 
 - [防幻覺標準](../../core/anti-hallucination.md)

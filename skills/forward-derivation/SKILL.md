@@ -61,7 +61,7 @@ Generate derived artifacts (BDD scenarios, TDD skeletons, ATDD tables) from appr
 After `/derive` completes, the AI assistant should suggest:
 
 > **測試工件已產生。建議下一步 / Test artifacts generated. Suggested next steps:**
-> - 執行 `/tdd` 開始紅綠重構循環 — Start Red-Green-Refactor cycle
+> - 執行 `/tdd` 開始紅綠重構循環 ⭐ **Recommended / 推薦** — Start Red-Green-Refactor cycle
 > - 執行 `/bdd` 細化 Gherkin 場景 — Refine Gherkin scenarios
 > - 檢查產生的 `[TODO]` 標記並補齊實作 — Review `[TODO]` markers and fill in implementations
 

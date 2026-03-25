@@ -80,7 +80,7 @@ CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
 `/pr` 完成後，AI 助手應建議：
 
 > **PR 操作完成。建議下一步：**
-> - 執行 `/review` 進行詳細程式碼審查
+> - 執行 `/review` 進行詳細程式碼審查 ⭐ **推薦** — 確保程式碼品質達標
 > - 執行 `/commit` 修正審查發現的問題
 > - 執行 `/changelog` 更新變更日誌
 > - 檢查 CI 狀態 → `gh pr checks`

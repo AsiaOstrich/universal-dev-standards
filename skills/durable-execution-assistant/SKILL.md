@@ -95,7 +95,7 @@ AI: Analyzing deploy-pipeline for durability...
 After `/durable` completes, the AI assistant should suggest:
 
 > **持久性分析完成。建議下一步 / Durability analysis complete. Suggested next steps:**
-> - 執行 `/methodology` 選擇適合的開發方法論 — Choose suitable methodology
+> - 執行 `/methodology` 選擇適合的開發方法論 ⭐ **Recommended / 推薦** — Choose suitable methodology
 > - 執行 `/commit` 提交持久化設計變更 — Commit durability design changes
 
 ## Version History | 版本歷史

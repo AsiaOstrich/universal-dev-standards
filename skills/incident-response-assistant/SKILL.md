@@ -104,7 +104,7 @@ Next update: [Time]
 After `/incident` completes, the AI assistant should suggest:
 
 > **事故回應指引已提供。建議下一步 / Incident response guidance provided. Suggested next steps:**
-> - 提交修復 → 執行 `/commit` 建立修復提交 — Create fix commit
+> - 提交修復 → 執行 `/commit` 建立修復提交 ⭐ **Recommended / 推薦** — Create fix commit
 > - 程式碼審查 → 執行 `/review` 審查修復變更 — Review fix changes
 > - 記錄學習 → 執行 `/docs` 更新文件 — Document learnings
 > - 安全審查 → 執行 `/security` 檢查安全影響 — Check security impact

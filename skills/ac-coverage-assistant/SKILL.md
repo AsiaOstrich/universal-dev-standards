@@ -109,7 +109,7 @@ After `/ac-coverage` completes, the AI assistant should suggest:
 
 > **AC 覆蓋率分析完成。建議下一步 / AC coverage analysis complete. Suggested next steps:**
 > - 覆蓋率達標 → 執行 `/checkin` 品質關卡 — Coverage meets threshold → Run `/checkin` quality gates
-> - 有未覆蓋 AC → 執行 `/derive-tdd` 補齊測試 — Uncovered AC found → Run `/derive-tdd` to add tests
+> - 有未覆蓋 AC → 執行 `/derive-tdd` 補齊測試 ⭐ **Recommended / 推薦** — Uncovered AC found → Run `/derive-tdd` to add tests
 > - 有部分覆蓋 AC → 檢查缺少的邊界情況 — Partial AC → Review missing edge cases
 
 ## Reference | 參考

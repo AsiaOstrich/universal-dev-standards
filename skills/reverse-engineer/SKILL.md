@@ -114,7 +114,7 @@ Output: Integrated **System Archeology Report** combining all three dimensions.
 After `/reverse` (full or `spec`) completes, the AI assistant should suggest:
 
 > **系統考古完成。建議下一步 / System archeology complete. Suggested next steps:**
-> - 執行 `/sdd` 審查並核准此規格 — Review and approve the generated spec
+> - 執行 `/sdd` 審查並核准此規格 ⭐ **Recommended / 推薦** — Review and approve the generated spec
 > - 執行 `/derive` 從規格推導測試 — Derive tests from spec (requires approval first)
 > - 審查規格中的 `[Inferred]` 和 `[Unknown]` 標記 — Review uncertainty tags manually
 

@@ -320,6 +320,17 @@ In project's `CONTRIBUTING.md`:
 
 ---
 
+## Next Steps Guidance | 下一步引導
+
+After `/testing` completes, the AI assistant should suggest:
+
+> **測試標準與最佳實踐已掌握。建議下一步 / Testing standards and best practices understood. Suggested next steps:**
+> - 執行 `/tdd` 開始測試驅動開發（紅-綠-重構循環） ⭐ **Recommended / 推薦** — 將測試知識立即轉化為實踐 / Turn testing knowledge into practice immediately
+> - 執行 `/coverage` 分析目前程式碼覆蓋率 — 找出測試缺口 / Identify testing gaps
+> - 執行 `/bdd` 撰寫行為驅動的 Given-When-Then 場景 — 從使用者角度定義測試 / Define tests from user perspective
+
+---
+
 ## Related Standards
 
 - [Testing Standards](../../core/testing-standards.md) - Actionable rules

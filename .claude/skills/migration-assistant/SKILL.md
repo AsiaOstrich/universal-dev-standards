@@ -70,7 +70,7 @@ argument-hint: "[migration target or framework | 遷移目標或框架]"
 
 > **遷移分析完成。建議下一步：**
 > - 執行 `/reverse` 深入理解現有程式碼
-> - 執行 `/testing` 確保遷移後測試通過
+> - 執行 `/testing` 確保遷移後測試通過 ⭐ **推薦** — 驗證遷移未破壞功能
 > - 執行 `/commit` 提交遷移變更
 
 ## 參考

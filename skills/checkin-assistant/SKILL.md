@@ -51,7 +51,7 @@ Verify pre-commit quality gates before committing code to ensure codebase stabil
 After `/checkin` completes, the AI assistant should suggest:
 
 > **品質關卡驗證完成。建議下一步 / Quality gate verification complete. Suggested next steps:**
-> - 全部通過 ✅ → 執行 `/commit` 提交變更 — All passed → Run `/commit` to commit
+> - 全部通過 ✅ → 執行 `/commit` 提交變更 ⭐ **Recommended / 推薦** — All passed → Run `/commit` to commit
 > - 有失敗項目 ❌ → 修復問題後重新執行 `/checkin` — Failures found → Fix then re-run `/checkin`
 > - 需要程式碼審查 → 執行 `/review` 進行自我審查 — Need review → Run `/review` for self-review
 > - UDS 安裝有異常 → 執行 `/audit` 診斷問題 — UDS issues detected → Run `/audit` to diagnose

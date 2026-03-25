@@ -70,7 +70,7 @@ SCOPE ──► SCAN ──► ANALYZE ──► REPORT
 `/security` 完成後，AI 助手應建議：
 
 > **安全審查完成。建議下一步：**
-> - 執行 `/checkin` 確認修復符合提交規範
+> - 執行 `/checkin` 確認修復符合提交規範 ⭐ **推薦** — 確保修復通過品質關卡
 > - 執行 `/review` 進行程式碼審查
 > - 執行 `/commit` 提交安全修復
 > - 檢查相依套件更新 → `npm audit` 或 `pip audit`

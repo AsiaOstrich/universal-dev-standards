@@ -70,7 +70,7 @@ After `/docgen` completes, the AI assistant should suggest:
 
 > **文件已產生。建議下一步 / Documentation generated. Suggested next steps:**
 > - 審查產生的文件內容是否完整 — Review generated content for completeness
-> - 執行 `/commit` 提交文件變更 — Commit documentation changes
+> - 執行 `/commit` 提交文件變更 ⭐ **Recommended / 推薦** — Commit documentation changes
 > - 執行 `/review` 審查文件品質 — Review documentation quality
 
 ## Reference | 參考

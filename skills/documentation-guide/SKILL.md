@@ -440,6 +440,17 @@ For complete standards, see:
 
 ---
 
+## Next Steps Guidance | 下一步引導
+
+After `/docs-guide` completes, the AI assistant should suggest:
+
+> **文件結構與需求已釐清。建議下一步 / Documentation structure and requirements clarified. Suggested next steps:**
+> - 執行 `/docs` 根據指南直接產生專案文件 ⭐ **Recommended / 推薦** — 立即將文件指南化為行動 / Turn documentation guidelines into action immediately
+> - 執行 `/changelog` 建立或更新 CHANGELOG.md — 確保變更歷史完整 / Ensure change history is complete
+> - 執行 `/sdd` 將文件需求納入規格驅動開發 — 確保文件與功能同步 / Ensure docs stay in sync with features
+
+---
+
 ## Related Standards
 
 - [Documentation Writing Standards](../../core/documentation-writing-standards.md) - Content requirements

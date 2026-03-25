@@ -63,6 +63,6 @@ argument-hint: "[metric type or module | 指標類型或模組]"
 `/metrics` 完成後，AI 助手應建議：
 
 > **指標分析完成。建議下一步：**
-> - 執行 `/refactor` 處理高複雜度模組
+> - 執行 `/refactor` 處理高複雜度模組 ⭐ **推薦** — 優先改善最大風險區域
 > - 執行 `/coverage` 改善低覆蓋率區域
 > - 執行 `/audit` 檢視安全與依賴問題

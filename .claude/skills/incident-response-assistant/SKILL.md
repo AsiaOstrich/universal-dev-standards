@@ -97,7 +97,7 @@ DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORT
 `/incident` 完成後，AI 助手應建議：
 
 > **事故回應指引已提供。建議下一步：**
-> - 執行 `/commit` 建立修復提交
+> - 執行 `/commit` 建立修復提交 ⭐ **推薦** — 記錄修復變更
 > - 執行 `/review` 審查修復變更
 > - 執行 `/docs` 更新文件
 > - 執行 `/security` 檢查安全影響

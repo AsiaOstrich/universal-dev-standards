@@ -152,7 +152,7 @@ When modifying existing specs, use delta sections:
 After `/sdd` completes, the AI assistant should suggest:
 
 > **規格文件已建立。建議下一步 / Specification document created. Suggested next steps:**
-> - 執行 `/derive` 從規格推導測試工件 — Derive test artifacts from spec
+> - 執行 `/derive` 從規格推導測試工件 ⭐ **Recommended / 推薦** — Derive test artifacts from spec
 > - 執行 `/derive bdd` 僅推導 BDD 場景 — Derive BDD scenarios only
 > - 執行 `/derive tdd` 僅推導 TDD 骨架 — Derive TDD skeletons only
 > - 審查 AC 完整性，確保所有驗收條件可測試 — Review AC completeness

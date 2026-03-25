@@ -193,6 +193,17 @@ git push origin feature/my-feature
 
 ---
 
+## 下一步引導
+
+`/git-flow` 完成後，AI 助手應建議：
+
+> **Git 工作流程已設定。建議下一步：**
+> - 執行 `git checkout -b feature/<描述>` 建立功能分支開始開發 ⭐ **推薦** — 立即套用所選的分支策略
+> - 執行 `/commit` 學習提交訊息規範 — 確保提交訊息格式一致
+> - 執行 `/checkin` 了解簽入品質門檻 — 在提交前確保程式碼品質
+
+---
+
 ## 相關標準
 
 - [Git 工作流程](../../core/git-workflow.md)

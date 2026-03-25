@@ -86,7 +86,7 @@ CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
 After `/pr` completes, the AI assistant should suggest:
 
 > **PR 操作完成。建議下一步 / PR operation complete. Suggested next steps:**
-> - 執行 `/review` 進行詳細程式碼審查 — Run detailed code review
+> - 執行 `/review` 進行詳細程式碼審查 ⭐ **Recommended / 推薦** — Run detailed code review
 > - 執行 `/commit` 修正審查發現的問題 — Fix issues found in review
 > - 執行 `/changelog` 更新變更日誌 — Update changelog
 > - 檢查 CI 狀態 → `gh pr checks` — Check CI status

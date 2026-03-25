@@ -111,7 +111,7 @@ After running audit:
 
 | Finding | Action | 建議動作 |
 |---------|--------|---------|
-| Health ERROR | Run `uds init` or `uds check --restore` | 執行修復指令 |
+| Health ERROR ⭐ **Recommended / 推薦** | Run `uds init` or `uds check --restore` | 執行修復指令 |
 | Pattern detected | Consider requesting new standard via `--report` | 考慮透過 `--report` 請求新標準 |
 | Modified standard | Review if standard needs more flexibility | 檢視標準是否需要更多彈性 |
 | Unused standard | Consider removing with `uds uninstall` | 考慮移除未使用標準 |

@@ -114,7 +114,7 @@ When `commit_language` is `traditional-chinese`, use Chinese types and body:
 After `/commit` completes, the AI assistant should suggest:
 
 > **提交完成。建議下一步 / Commit complete. Suggested next steps:**
-> - 執行 `git push` 推送到遠端 — Push to remote
+> - 執行 `git push` 推送到遠端 ⭐ **Recommended / 推薦** — Push to remote
 > - 準備發布時 → 執行 `/changelog` + `/release` — When preparing a release → Run `/changelog` + `/release`
 > - 發現重複模式或規範摩擦 → 執行 `/audit --report` 回報 — Patterns or friction detected → Run `/audit --report` to submit feedback
 

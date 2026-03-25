@@ -73,7 +73,7 @@ So that [benefit].
 After `/atdd` completes, the AI assistant should suggest:
 
 > **驗收測試已定義。建議下一步 / Acceptance tests defined. Suggested next steps:**
-> - 執行 `/sdd` 建立規格文件 — Create a specification document
+> - 執行 `/sdd` 建立規格文件 ⭐ **Recommended / 推薦** — Create a specification document
 > - 執行 `/bdd` 將 AC 轉為 Gherkin 場景 — Convert AC to Gherkin scenarios
 > - 執行 `/tdd` 直接實作驗收測試 — Implement acceptance tests directly
 

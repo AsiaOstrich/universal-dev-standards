@@ -138,7 +138,7 @@ DISCUSS ──► CREATE ──► REVIEW ──► APPROVE ──► IMPLEMENT 
 `/sdd` 完成後，AI 助手應建議：
 
 > **規格文件已建立。建議下一步：**
-> - 執行 `/derive` 從規格推導測試工件
+> - 執行 `/derive` 從規格推導測試工件 ⭐ **推薦** — 自動產生 BDD/TDD 工件
 > - 執行 `/derive bdd` 僅推導 BDD 場景
 > - 執行 `/derive tdd` 僅推導 TDD 骨架
 > - 審查 AC 完整性，確保所有驗收條件可測試

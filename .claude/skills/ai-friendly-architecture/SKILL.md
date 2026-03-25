@@ -194,6 +194,17 @@ documentation:
 
 ---
 
+## 下一步引導
+
+`/ai-friendly-architecture` 完成後，AI 助手應建議：
+
+> **AI 友善架構指南已掌握。建議下一步：**
+> - 執行 `/sdd` 將 AI 友善架構設計納入正式規格 ⭐ **推薦** — 確保架構決策有規格追蹤
+> - 建立 `.ai-context.yaml` 和 `QUICK-REF.md` — 立即實作 AI 友善結構
+> - 執行 `/ai-instructions` 更新 CLAUDE.md 以反映架構配置 — 讓 AI 指令檔案與架構保持同步
+
+---
+
 ## 相關標準
 
 - [AI 友善架構](../../core/ai-friendly-architecture.md) - 核心架構標準

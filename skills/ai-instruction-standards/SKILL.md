@@ -195,6 +195,17 @@ If no AI instruction file found:
 
 ---
 
+## Next Steps Guidance | 下一步引導
+
+After `/ai-instructions` completes, the AI assistant should suggest:
+
+> **AI 指令檔案標準已掌握。建議下一步 / AI instruction file standards understood. Suggested next steps:**
+> - 建立或更新專案的 `CLAUDE.md`（或對應的 AI 指令檔案） ⭐ **Recommended / 推薦** — 立即將標準應用到專案中 / Apply standards to the project immediately
+> - 執行 `/ai-friendly-architecture` 從架構層面優化 AI 協作 — 配合指令檔案提升 AI 理解力 / Enhance AI understanding alongside instruction files
+> - 執行 `/ai-collaboration` 複習 AI 行為準則 — 確保指令檔案中的規則與行為標準一致 / Ensure instruction file rules align with behavior standards
+
+---
+
 ## Related Standards
 
 - [AI Instruction File Standards](../../core/ai-instruction-standards.md) - Core standard

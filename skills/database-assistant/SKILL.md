@@ -99,7 +99,7 @@ After `/database` completes, the AI assistant should suggest:
 
 > **資料庫設計完成。建議下一步 / Database design complete. Suggested next steps:**
 > - 執行 `/security` 檢查資料保護措施 — Check data protection measures
-> - 執行 `/testing` 規劃資料庫測試策略 — Plan database testing strategy
+> - 執行 `/testing` 規劃資料庫測試策略 ⭐ **Recommended / 推薦** — Plan database testing strategy
 > - 執行 `/checkin` 確認遷移符合提交規範 — Verify migrations meet check-in standards
 > - 產生 API 端點 → 執行 `/api-design` — Generate API endpoints → Run `/api-design`
 

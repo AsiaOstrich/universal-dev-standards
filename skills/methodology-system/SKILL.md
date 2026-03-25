@@ -90,7 +90,7 @@ Methodology settings are stored in `.standards/manifest.json`:
 After `/methodology` completes, the AI assistant should suggest based on the selected methodology:
 
 > **方法論已設定。建議下一步 / Methodology configured. Suggested next steps:**
-> - SDD 方法論 → 執行 `/sdd` 建立規格 — SDD → Run `/sdd` to create spec
+> - SDD 方法論 → 執行 `/sdd` 建立規格 ⭐ **Recommended / 推薦** — SDD → Run `/sdd` to create spec
 > - BDD 方法論 → 執行 `/bdd` 開始場景探索 — BDD → Run `/bdd` to start discovery
 > - TDD 方法論 → 執行 `/tdd` 開始紅綠重構 — TDD → Run `/tdd` to start Red-Green-Refactor
 > - ATDD 方法論 → 執行 `/atdd` 定義驗收條件 — ATDD → Run `/atdd` to define AC

@@ -94,7 +94,7 @@ After `/migrate` completes, the AI assistant should suggest:
 
 > **遷移分析完成。建議下一步 / Migration analysis complete. Suggested next steps:**
 > - 執行 `/reverse` 深入理解現有程式碼 — Understand current codebase
-> - 執行 `/testing` 確保遷移後測試通過 — Verify post-migration tests
+> - 執行 `/testing` 確保遷移後測試通過 ⭐ **Recommended / 推薦** — Verify post-migration tests
 > - 執行 `/commit` 提交遷移變更 — Commit migration changes
 
 ## Reference | 參考

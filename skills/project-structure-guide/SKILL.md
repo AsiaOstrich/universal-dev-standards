@@ -153,6 +153,17 @@ When reviewing existing structure:
 7. **Working docs in docs/working/** - Brainstorms, RFCs, POCs, investigations go in docs/working/ with lifecycle management
 8. **Generated code separated** - Place in src/generated/{type}/, never mix with hand-written code
 
+## Next Steps Guidance | 下一步引導
+
+After `/project-structure` completes, the AI assistant should suggest:
+
+> **專案結構已建立或審查完成。建議下一步 / Project structure created or reviewed. Suggested next steps:**
+> - 執行 `/sdd` 開始規格驅動開發，將專案結構納入正式規格 ⭐ **Recommended / 推薦** — 確保結構決策有規格追蹤 / Ensures structure decisions are tracked in specs
+> - 執行 `/docs` 產生專案文件（README、ARCHITECTURE.md 等） — 讓結構決策有文件記錄 / Document structure decisions
+> - 執行 `/ai-friendly-architecture` 設定 AI 上下文配置 — 讓 AI 助手更好地理解專案結構 / Help AI assistants understand the project structure
+
+---
+
 ## Related Standards
 
 - [Core: Project Structure](../../core/project-structure.md)

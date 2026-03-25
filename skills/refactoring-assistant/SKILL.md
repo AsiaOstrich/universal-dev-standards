@@ -77,7 +77,7 @@ AI: Let me help you decide whether to refactor or rewrite.
 After `/refactor` completes, the AI assistant should suggest:
 
 > **重構完成。建議下一步 / Refactoring complete. Suggested next steps:**
-> - 執行 `/checkin` 通過品質關卡 — Pass quality gates
+> - 執行 `/checkin` 通過品質關卡 ⭐ **Recommended / 推薦** — Pass quality gates
 > - 執行 `/coverage` 確認重構後覆蓋率不下降 — Verify coverage not decreased
 > - 執行 `/commit` 提交重構變更 — Commit the refactoring changes
 

@@ -76,7 +76,7 @@ BUILD ──► TEST ──► ANALYZE ──► DEPLOY ──► VERIFY
 After `/ci-cd` completes, the AI assistant should suggest:
 
 > **管線指引已提供。建議下一步 / Pipeline guidance provided. Suggested next steps:**
-> - 部署配置 → 執行 `/deploy` 設定部署策略 — Configure deployment strategy
+> - 部署配置 → 執行 `/deploy` 設定部署策略 ⭐ **Recommended / 推薦** — Configure deployment strategy
 > - 安全掃描 → 執行 `/security` 檢查管線安全 — Check pipeline security
 > - 測試設計 → 執行 `/testing` 設計測試策略 — Design test strategy
 > - 提交規範 → 執行 `/commit` 建立規範化提交 — Create conventional commit

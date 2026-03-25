@@ -63,7 +63,7 @@ SCAN ──► TRIAGE ──► PRIORITIZE ──► FIX ──► VERIFY
 `/scan` 完成後，AI 助手應建議：
 
 > **掃描完成。建議下一步：**
-> - 執行 `/security` 深入安全審查
+> - 執行 `/security` 深入安全審查 ⭐ **推薦** — 深入分析掃描發現的問題
 > - 執行 `/checkin` 確認修復符合提交規範
 > - 執行 `/commit` 提交安全修復
 > - 更新相依套件 → `npm update` 或 `pip install --upgrade`

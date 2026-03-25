@@ -78,7 +78,7 @@ Produce actionable findings with remediation recommendations.
 After `/security` completes, the AI assistant should suggest:
 
 > **安全審查完成。建議下一步 / Security review complete. Suggested next steps:**
-> - 執行 `/checkin` 確認修復符合提交規範 — Verify fixes meet check-in standards
+> - 執行 `/checkin` 確認修復符合提交規範 ⭐ **Recommended / 推薦** — Verify fixes meet check-in standards
 > - 執行 `/review` 進行程式碼審查 — Run code review on security fixes
 > - 執行 `/commit` 提交安全修復 — Commit security fixes
 > - 檢查相依套件更新 → `npm audit` 或 `pip audit` — Check dependency updates

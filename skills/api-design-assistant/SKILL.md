@@ -99,7 +99,7 @@ Produce OpenAPI/Swagger specs or GraphQL schema documentation.
 After `/api-design` completes, the AI assistant should suggest:
 
 > **API 設計完成。建議下一步 / API design complete. Suggested next steps:**
-> - 執行 `/sdd` 建立正式規格文件 — Create formal specification
+> - 執行 `/sdd` 建立正式規格文件 ⭐ **Recommended / 推薦** — Create formal specification
 > - 執行 `/testing` 規劃 API 測試策略 — Plan API testing strategy
 > - 執行 `/docs` 產生 API 文件 — Generate API documentation
 > - 審查安全性 → 執行 `/security` — Review security → Run `/security`

@@ -63,7 +63,7 @@ Recommendations:
 After `/discover` completes, the AI assistant should suggest based on the assessment:
 
 > **根據評估結果，建議下一步 / Based on assessment, suggested next steps:**
-> - **New feature / 新功能** → `/sdd` to create a specification
+> - **New feature / 新功能** → `/sdd` to create a specification ⭐ **Recommended / 推薦**
 > - **Legacy code / 遺留程式碼** → `/reverse spec` to extract existing behavior
 > - **Refactoring / 重構** → `/refactor decide` to choose a strategy
 > - **Quick fix / 快速修復** → `/tdd` to write a targeted test and fix

@@ -69,7 +69,7 @@ SCAN ──► TRIAGE ──► PRIORITIZE ──► FIX ──► VERIFY
 After `/scan` completes, the AI assistant should suggest:
 
 > **掃描完成。建議下一步 / Scan complete. Suggested next steps:**
-> - 執行 `/security` 深入安全審查 — Run deep security review
+> - 執行 `/security` 深入安全審查 ⭐ **Recommended / 推薦** — Run deep security review
 > - 執行 `/checkin` 確認修復符合提交規範 — Verify fixes meet check-in standards
 > - 執行 `/commit` 提交安全修復 — Commit security fixes
 > - 更新相依套件 → `npm update` 或 `pip install --upgrade` — Update dependencies

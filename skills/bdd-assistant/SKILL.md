@@ -69,7 +69,7 @@ Feature: User Login
 After `/bdd` completes, the AI assistant should suggest:
 
 > **BDD 場景已定義。建議下一步 / BDD scenarios defined. Suggested next steps:**
-> - 執行 `/tdd` 實作步驟定義 — Implement step definitions
+> - 執行 `/tdd` 實作步驟定義 ⭐ **Recommended / 推薦** — Implement step definitions
 > - 執行 `/checkin` 品質關卡（若功能完成）— Quality gates (if feature complete)
 > - 與利害關係人審查場景確保業務正確性 — Review scenarios with stakeholders
 

@@ -87,7 +87,7 @@ AI: Technical Debt Summary:
 After `/metrics` completes, the AI assistant should suggest:
 
 > **指標分析完成。建議下一步 / Metrics analysis complete. Suggested next steps:**
-> - 執行 `/refactor` 處理高複雜度模組 — Address high-complexity modules
+> - 執行 `/refactor` 處理高複雜度模組 ⭐ **Recommended / 推薦** — Address high-complexity modules
 > - 執行 `/coverage` 改善低覆蓋率區域 — Improve low-coverage areas
 > - 執行 `/audit` 檢視安全與依賴問題 — Review security & dependency issues
 

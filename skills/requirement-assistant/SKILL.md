@@ -65,7 +65,7 @@ So that [benefit].
 After `/requirement` completes, the AI assistant should suggest:
 
 > **需求文件已完成。建議下一步 / Requirement document complete. Suggested next steps:**
-> - 執行 `/sdd` 建立規格文件 — Create a specification document
+> - 執行 `/sdd` 建立規格文件 ⭐ **Recommended / 推薦** — Create a specification document
 > - 執行 `/atdd` 定義驗收測試 — Define acceptance tests
 > - 執行 `/brainstorm` 進一步探索需求空間 — Explore the requirement space further
 

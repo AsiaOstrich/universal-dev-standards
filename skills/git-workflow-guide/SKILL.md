@@ -205,6 +205,17 @@ Example: `feature/oauth-login`, `fix/memory-leak`
 
 ---
 
+## Next Steps Guidance | 下一步引導
+
+After `/git-flow` completes, the AI assistant should suggest:
+
+> **Git 工作流程已設定。建議下一步 / Git workflow configured. Suggested next steps:**
+> - 執行 `git checkout -b feature/<描述>` 建立功能分支開始開發 ⭐ **Recommended / 推薦** — 立即套用所選的分支策略 / Apply the chosen branching strategy immediately
+> - 執行 `/commit` 學習提交訊息規範 — 確保提交訊息格式一致 / Ensure consistent commit message format
+> - 執行 `/checkin` 了解簽入品質門檻 — 在提交前確保程式碼品質 / Ensure code quality before commits
+
+---
+
 ## Related Standards
 
 - [Git Workflow](../../core/git-workflow.md) - Core Git workflow standard

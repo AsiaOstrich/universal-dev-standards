@@ -117,7 +117,7 @@ After `/brainstorm` completes, the AI assistant should suggest:
 
 > **腦力激盪完成。建議下一步 / Brainstorming complete. Suggested next steps:**
 > - 執行 `/requirement` 將最佳構想轉為使用者故事 — Convert top idea to user stories
-> - 執行 `/sdd` 直接建立規格（若需求已明確）— Create spec directly (if requirements are clear)
+> - 執行 `/sdd` 直接建立規格（若需求已明確）⭐ **Recommended / 推薦** — Create spec directly (if requirements are clear)
 > - 針對特定構想進行更深入探索 — Explore a specific idea further
 
 ## Reference | 參考
