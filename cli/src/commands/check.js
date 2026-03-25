@@ -667,6 +667,16 @@ function removeFromManifest(manifest, relativePath) {
   manifest.standards = manifest.standards.filter(s => !s.endsWith(fileName));
   manifest.extensions = manifest.extensions.filter(e => typeof e !== 'string' || !e.endsWith(fileName));
   manifest.integrations = manifest.integrations.filter(i => i !== relativePath);
+
+  // Remove from integrationBlockHashes
+  if (manifest.integrationBlockHashes && manifest.integrationBlockHashes[relativePath]) {
+    delete manifest.integrationBlockHashes[relativePath];
+  }
+
+  // Remove from integrationConfigs
+  if (manifest.integrationConfigs && manifest.integrationConfigs[relativePath]) {
+    delete manifest.integrationConfigs[relativePath];
+  }
 }
 
 /**
