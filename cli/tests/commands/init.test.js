@@ -131,7 +131,8 @@ vi.mock('../../src/prompts/init.js', () => ({
   promptMethodology: vi.fn(() => null),
   promptCommandsInstallation: vi.fn(() => []),
   handleAgentsMdSharing: vi.fn((tools) => tools),
-  promptAgentsMd: vi.fn(() => false)
+  promptAgentsMd: vi.fn(() => false),
+  promptReleaseMode: vi.fn(() => 'ci-cd')
 }));
 
 vi.mock('../../src/prompts/integrations.js', () => ({
@@ -358,7 +359,8 @@ describe('Init Command', () => {
         workflow: 'github-flow',
         merge_strategy: 'squash',
         commit_language: 'english',
-        test_levels: ['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing']
+        test_levels: ['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing'],
+        release_mode: 'ci-cd'
       });
     });
 

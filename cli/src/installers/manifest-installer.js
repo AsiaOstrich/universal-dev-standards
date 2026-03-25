@@ -35,7 +35,8 @@ export function writeFinalManifest(config, results, projectPath) {
       workflow: config.standardOptions?.workflow || null,
       merge_strategy: config.standardOptions?.merge_strategy || null,
       commit_language: config.standardOptions?.commit_language || null,
-      test_levels: config.standardOptions?.test_levels || []
+      test_levels: config.standardOptions?.test_levels || [],
+      release_mode: config.releaseMode || 'ci-cd'
     },
     generateAgentsMd: config.generateAgentsMd || false,
     aiTools: config.aiTools || [],

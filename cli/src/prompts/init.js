@@ -644,6 +644,58 @@ export async function promptGitWorkflow() {
 }
 
 /**
+ * Prompt for release mode
+ *
+ * Release modes determine how versions are published:
+ * - ci-cd: Automatic publishing via CI/CD pipeline
+ * - manual: Manual packaging and deployment with RC workflow
+ * - hybrid: CI builds artifact, manual deployment
+ *
+ * @returns {Promise<string>} Selected release mode ID
+ */
+export async function promptReleaseMode() {
+  const msg = t().releaseMode;
+
+  console.log();
+  console.log(chalk.cyan(msg.title));
+  console.log(chalk.gray(`  ${msg.description}`));
+  console.log();
+
+  const { mode } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'mode',
+      message: msg.question,
+      suffix: ' ',
+      choices: [
+        {
+          name: `${chalk.green('CI/CD')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices['ci-cd']}`,
+          value: 'ci-cd'
+        },
+        {
+          name: `${chalk.blue('Manual')} - ${msg.choices.manual}`,
+          value: 'manual'
+        },
+        {
+          name: `${chalk.yellow('Hybrid')} - ${msg.choices.hybrid}`,
+          value: 'hybrid'
+        }
+      ],
+      default: 'ci-cd'
+    }
+  ]);
+
+  // Show mode details
+  console.log();
+  for (const line of msg.details[mode]) {
+    console.log(chalk.gray(line));
+  }
+  console.log();
+
+  return mode;
+}
+
+/**
  * Prompt for merge strategy
  *
  * Merge strategies affect git history:

@@ -21,6 +21,7 @@ import {
   getAgentDisplayName
 } from '../utils/github.js';
 import { displayLanguageToLocale } from '../utils/locale.js';
+import { generateReleaseConfig, RELEASE_MODE_LABELS } from '../utils/release-config.js';
 
 /**
  * Init command - initialize standards in current project
@@ -90,6 +91,16 @@ export async function initCommand(options) {
   // 1. Install Standards
   const standardsResults = await installStandards(config, projectPath);
   config.installedStandards = standardsResults.standards.map(s => basename(s));
+
+  // 1.5. Generate release-config.yaml if non-default mode selected
+  if (config.releaseMode && config.releaseMode !== 'ci-cd') {
+    const releaseConfigData = generateReleaseConfig(config.releaseMode);
+    const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
+    const yaml = (await import('js-yaml')).default;
+    mkdirSync(join(projectPath, '.standards'), { recursive: true });
+    writeFileSync(releaseConfigPath, yaml.dump(releaseConfigData), 'utf-8');
+    console.log(chalk.green(`  ✓ release-config.yaml (${config.releaseMode})`));
+  }
 
   // 2. Install Integrations
   const integrationResults = await installIntegrations(config, projectPath);
@@ -324,7 +335,8 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     integrations: [...aiToolsNormalized],
     contentMode: skillsConfig.contentMode || 'minimal',
     methodology: null,
-    generateAgentsMd
+    generateAgentsMd,
+    releaseMode: options.releaseMode || 'ci-cd'
   };
 }
 
@@ -396,6 +408,10 @@ function displaySummary(config, msg, common) {
   // 5. Standard Options (STEP 7) - use labels for human-readable values
   if (config.standardOptions.workflow) {
     console.log(chalk.gray(`  ${msg.gitWorkflow}: ${getValueLabel('gitWorkflow', config.standardOptions.workflow)}`));
+  }
+  if (config.releaseMode) {
+    const releaseModeLabels = RELEASE_MODE_LABELS;
+    console.log(chalk.gray(`  ${msg.releaseMode || 'Release Mode'}: ${releaseModeLabels[config.releaseMode] || config.releaseMode}`));
   }
   if (config.standardOptions.merge_strategy) {
     console.log(chalk.gray(`  ${msg.mergeStrategy}: ${getValueLabel('mergeStrategy', config.standardOptions.merge_strategy)}`));

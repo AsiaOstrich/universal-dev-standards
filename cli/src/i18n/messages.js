@@ -269,6 +269,32 @@ export const messages = {
       }
     },
 
+    // Release Mode
+    releaseMode: {
+      title: 'Release Mode:',
+      description: 'Choose release mode, affects how versions are published',
+      question: 'Select release mode:',
+      choices: {
+        'ci-cd': 'CI/CD automatic publishing (GitHub Actions, GitLab CI, etc.)',
+        manual: 'Manual packaging and deployment (RC workflow)',
+        hybrid: 'CI builds + manual deployment'
+      },
+      details: {
+        'ci-cd': [
+          '  → Automatic: push tag → CI builds → publishes',
+          '  → Best for: open source, npm/PyPI packages, SaaS'
+        ],
+        manual: [
+          '  → Package → deploy to staging → test → promote to production',
+          '  → Best for: on-premise, air-gapped environments, manual QA'
+        ],
+        hybrid: [
+          '  → CI builds artifact, but deployment is manual',
+          '  → Best for: regulated industries, multi-stage approval'
+        ]
+      }
+    },
+
     // Merge Strategy
     mergeStrategy: {
       title: 'Merge Strategy:',
@@ -953,6 +979,7 @@ export const messages = {
         integrationConfigLabel: 'Integration Config',
         ruleCategoriesLabel: 'Rule Categories',
         gitWorkflow: 'Git Workflow',
+        releaseMode: 'Release Mode',
         mergeStrategy: 'Merge Strategy',
         commitLanguage: 'Commit Language',
         testLevels: 'Test Levels',
@@ -1137,10 +1164,12 @@ export const messages = {
         optionLevel: 'Adoption Level - Change Level 1/2/3',
         optionContentMode: 'Content Mode - Change full/index/minimal',
         optionMethodology: 'Methodology - Change development methodology',
+        optionReleaseMode: 'Release Mode - CI/CD, Manual, or Hybrid',
         optionAll: 'All Options',
         experimental: '[Experimental]',
         // Labels
         gitWorkflow: 'Git Workflow',
+        releaseMode: 'Release Mode',
         mergeStrategy: 'Merge Strategy',
         commitLanguage: 'Commit Language',
         testLevels: 'Test Levels',
@@ -1495,6 +1524,32 @@ export const messages = {
         'trunk-based': [
           '  → 主要在 main 開發，用 feature flags 控制功能',
           '  → 適合：成熟 CI/CD、高頻部署、資深團隊'
+        ]
+      }
+    },
+
+    // Release Mode
+    releaseMode: {
+      title: '發布模式:',
+      description: '選擇發布模式，影響版本如何發布',
+      question: '選擇發布模式：',
+      choices: {
+        'ci-cd': 'CI/CD 自動發布（GitHub Actions、GitLab CI 等）',
+        manual: '手動打包部署（RC 工作流程）',
+        hybrid: 'CI 建置 + 手動部署'
+      },
+      details: {
+        'ci-cd': [
+          '  → 自動化：推送 tag → CI 建置 → 發布',
+          '  → 適合：開源專案、npm/PyPI 套件、SaaS'
+        ],
+        manual: [
+          '  → 打包 → 部署到測試機 → 測試 → 晉升到正式機',
+          '  → 適合：地端部署、隔離環境、手動 QA'
+        ],
+        hybrid: [
+          '  → CI 建置產物，但部署是手動的',
+          '  → 適合：受監管產業、多階段審核'
         ]
       }
     },
@@ -2183,6 +2238,7 @@ export const messages = {
         integrationConfigLabel: '整合設定',
         ruleCategoriesLabel: '規則類別',
         gitWorkflow: 'Git 工作流程',
+        releaseMode: '發布模式',
         mergeStrategy: '合併策略',
         commitLanguage: '提交訊息語言',
         testLevels: '測試層級',
@@ -2367,10 +2423,12 @@ export const messages = {
         optionLevel: '採用等級 - 變更等級 1/2/3',
         optionContentMode: '內容模式 - 變更 full/index/minimal',
         optionMethodology: '方法論 - 變更開發方法論',
+        optionReleaseMode: '發布模式 - CI/CD、手動或混合',
         optionAll: '全部選項',
         experimental: '[實驗性]',
         // Labels
         gitWorkflow: 'Git 工作流程',
+        releaseMode: '發布模式',
         mergeStrategy: '合併策略',
         commitLanguage: '提交訊息語言',
         testLevels: '測試層級',
@@ -2725,6 +2783,32 @@ export const messages = {
         'trunk-based': [
           '  → 主要在 main 开发，用 feature flags 控制功能',
           '  → 适合：成熟 CI/CD、高频部署、资深团队'
+        ]
+      }
+    },
+
+    // Release Mode
+    releaseMode: {
+      title: '发布模式:',
+      description: '选择发布模式，影响版本如何发布',
+      question: '选择发布模式：',
+      choices: {
+        'ci-cd': 'CI/CD 自动发布（GitHub Actions、GitLab CI 等）',
+        manual: '手动打包部署（RC 工作流程）',
+        hybrid: 'CI 构建 + 手动部署'
+      },
+      details: {
+        'ci-cd': [
+          '  → 自动化：推送 tag → CI 构建 → 发布',
+          '  → 适合：开源项目、npm/PyPI 包、SaaS'
+        ],
+        manual: [
+          '  → 打包 → 部署到测试机 → 测试 → 晋升到正式机',
+          '  → 适合：本地部署、隔离环境、手动 QA'
+        ],
+        hybrid: [
+          '  → CI 构建产物，但部署是手动的',
+          '  → 适合：受监管行业、多阶段审批'
         ]
       }
     },
@@ -3159,6 +3243,7 @@ export const messages = {
         integrationConfigLabel: '集成配置',
         ruleCategoriesLabel: '规则类别',
         gitWorkflow: 'Git 工作流',
+        releaseMode: '发布模式',
         mergeStrategy: '合并策略',
         commitLanguage: '提交消息语言',
         testLevels: '测试级别',
@@ -3526,10 +3611,12 @@ export const messages = {
         optionLevel: '采用级别 - 更改级别 1/2/3',
         optionContentMode: '内容模式 - 更改 full/index/minimal',
         optionMethodology: '方法论 - 更改开发方法论',
+        optionReleaseMode: '发布模式 - CI/CD、手动或混合',
         optionAll: '所有选项',
         experimental: '[实验性]',
         // Labels
         gitWorkflow: 'Git 工作流',
+        releaseMode: '发布模式',
         mergeStrategy: '合并策略',
         commitLanguage: 'Commit 消息语言',
         testLevels: '测试级别',

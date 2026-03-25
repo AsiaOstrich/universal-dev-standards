@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import ora from 'ora';
-import { unlinkSync, existsSync } from 'fs';
+import { unlinkSync, existsSync, writeFileSync, mkdirSync } from 'fs';
 import { join, basename } from 'path';
 import { config } from '../utils/config-manager.js';
 import { msg, t as getMessages, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
@@ -492,6 +492,10 @@ export async function runProjectConfiguration(options) {
     if (manifest.options.workflow) {
       console.log(chalk.gray(`  ${msgObj.gitWorkflow}: ${manifest.options.workflow}`));
     }
+    if (manifest.options.release_mode) {
+      const { RELEASE_MODE_LABELS: releaseModeLabels } = await import('../utils/release-config.js');
+      console.log(chalk.gray(`  ${msgObj.releaseMode || 'Release Mode'}: ${releaseModeLabels[manifest.options.release_mode] || manifest.options.release_mode}`));
+    }
     if (manifest.options.merge_strategy) {
       console.log(chalk.gray(`  ${msgObj.mergeStrategy}: ${manifest.options.merge_strategy}`));
     }
@@ -526,7 +530,8 @@ export async function runProjectConfiguration(options) {
     }
 
     baseChoices.push(
-      { name: msgObj.optionWorkflow, value: 'workflow' }
+      { name: msgObj.optionWorkflow, value: 'workflow' },
+      { name: msgObj.optionReleaseMode || 'Release Mode', value: 'release_mode' }
     );
 
     if (options.experimental) {
@@ -687,6 +692,11 @@ export async function runProjectConfiguration(options) {
     newOptions.workflow = await promptGitWorkflow();
   }
 
+  if (configType === 'all' || configType === 'release_mode') {
+    const { promptReleaseMode } = await import('../prompts/init.js');
+    newOptions.release_mode = await promptReleaseMode();
+  }
+
   // Merge strategy: only prompt with -E or direct --type merge_strategy (advanced setting)
   if (configType === 'merge_strategy' || (configType === 'all' && options.experimental)) {
     newOptions.merge_strategy = await promptMergeStrategy();
@@ -726,6 +736,10 @@ export async function runProjectConfiguration(options) {
   }
   if (newOptions.workflow) {
     console.log(chalk.gray(`  ${msgObj.gitWorkflow}: ${newOptions.workflow}`));
+  }
+  if (newOptions.release_mode) {
+    const releaseModeLabels = { 'ci-cd': 'CI/CD', manual: 'Manual (RC)', hybrid: 'Hybrid' };
+    console.log(chalk.gray(`  ${msgObj.releaseMode || 'Release Mode'}: ${releaseModeLabels[newOptions.release_mode] || newOptions.release_mode}`));
   }
   if (newOptions.merge_strategy) {
     console.log(chalk.gray(`  ${msgObj.mergeStrategy}: ${newOptions.merge_strategy}`));
@@ -875,6 +889,25 @@ export async function runProjectConfiguration(options) {
   }
 
   writeManifest(manifest, projectPath);
+
+  // Generate or remove release-config.yaml based on release mode
+  if (newOptions.release_mode && newOptions.release_mode !== 'ci-cd') {
+    const { generateReleaseConfig } = await import('../utils/release-config.js');
+    const yaml = (await import('js-yaml')).default;
+    const releaseConfigData = generateReleaseConfig(newOptions.release_mode);
+    const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
+    mkdirSync(join(projectPath, '.standards'), { recursive: true });
+    writeFileSync(releaseConfigPath, yaml.dump(releaseConfigData), 'utf-8');
+  } else if (newOptions.release_mode === 'ci-cd') {
+    const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
+    try {
+      if (existsSync(releaseConfigPath)) {
+        unlinkSync(releaseConfigPath);
+      }
+    } catch {
+      // Ignore deletion errors — file may already be removed
+    }
+  }
 
   spinner.succeed(msgObj.configUpdated);
 
