@@ -55,13 +55,17 @@ Updates `CHANGELOG.md` by:
 
 ### Entry Router | 進入路由
 
-| Input | AI Action |
-|-------|-----------|
-| `/release` | 詢問版本號和發布類型（alpha/beta/rc/stable） |
-| `/release start <version>` | 開始指定版本的發布流程 |
-| `/release finish <version>` | 完成發布（tag、merge） |
-| `/release changelog <version>` | 更新 CHANGELOG.md |
-| `/release check` | 執行預發布檢查 |
+| Input | Mode | AI Action |
+|-------|------|-----------|
+| `/release` | All | 讀取 release mode，根據模式引導對應流程 |
+| `/release start <version>` | All | 開始指定版本的發布流程 |
+| `/release finish <version>` | CI/CD | 完成發布（tag、merge） |
+| `/release promote <version>` | Manual/Hybrid | RC → Stable 晉升 |
+| `/release deploy <env>` | Manual/Hybrid | 記錄部署紀錄 |
+| `/release manifest` | Manual/Hybrid | 產生 build-manifest.json |
+| `/release verify` | Manual/Hybrid | 驗證 manifest 一致性 |
+| `/release changelog <version>` | All | 更新 CHANGELOG.md |
+| `/release check` | All | 執行預發布檢查 |
 
 ### Interaction Script | 互動腳本
 
@@ -88,6 +92,22 @@ Updates `CHANGELOG.md` by:
 3. 展示 commit 和 push 命令
 
 🛑 **STOP**: git push 前等待確認
+
+#### `/release promote` (Manual/Hybrid only)
+1. 確認目前 RC 版本和目標 stable 版本
+2. 驗證同一 commit
+
+🛑 **STOP**: 展示晉升計畫，等待確認
+
+3. 更新版本檔案為 stable
+4. 建立 Git tag
+5. 記錄 promoted_from
+
+#### `/release deploy` (Manual/Hybrid only)
+1. 記錄部署紀錄到 deployments.yaml
+2. 若部署到 production 且 staging 未通過，顯示警告
+
+🛑 **STOP**: production 部署警告時等待確認
 
 #### `/release check`
 1. 執行所有預發布檢查腳本

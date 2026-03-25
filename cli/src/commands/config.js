@@ -492,6 +492,10 @@ export async function runProjectConfiguration(options) {
     if (manifest.options.workflow) {
       console.log(chalk.gray(`  ${msgObj.gitWorkflow}: ${manifest.options.workflow}`));
     }
+    if (manifest.options.release_mode) {
+      const releaseModeLabels = { 'ci-cd': 'CI/CD', manual: 'Manual (RC)', hybrid: 'Hybrid' };
+      console.log(chalk.gray(`  ${msgObj.releaseMode || 'Release Mode'}: ${releaseModeLabels[manifest.options.release_mode] || manifest.options.release_mode}`));
+    }
     if (manifest.options.merge_strategy) {
       console.log(chalk.gray(`  ${msgObj.mergeStrategy}: ${manifest.options.merge_strategy}`));
     }
@@ -526,7 +530,8 @@ export async function runProjectConfiguration(options) {
     }
 
     baseChoices.push(
-      { name: msgObj.optionWorkflow, value: 'workflow' }
+      { name: msgObj.optionWorkflow, value: 'workflow' },
+      { name: msgObj.optionReleaseMode || 'Release Mode', value: 'release_mode' }
     );
 
     if (options.experimental) {
@@ -687,6 +692,11 @@ export async function runProjectConfiguration(options) {
     newOptions.workflow = await promptGitWorkflow();
   }
 
+  if (configType === 'all' || configType === 'release_mode') {
+    const { promptReleaseMode } = await import('../prompts/init.js');
+    newOptions.release_mode = await promptReleaseMode();
+  }
+
   // Merge strategy: only prompt with -E or direct --type merge_strategy (advanced setting)
   if (configType === 'merge_strategy' || (configType === 'all' && options.experimental)) {
     newOptions.merge_strategy = await promptMergeStrategy();
@@ -726,6 +736,10 @@ export async function runProjectConfiguration(options) {
   }
   if (newOptions.workflow) {
     console.log(chalk.gray(`  ${msgObj.gitWorkflow}: ${newOptions.workflow}`));
+  }
+  if (newOptions.release_mode) {
+    const releaseModeLabels = { 'ci-cd': 'CI/CD', manual: 'Manual (RC)', hybrid: 'Hybrid' };
+    console.log(chalk.gray(`  ${msgObj.releaseMode || 'Release Mode'}: ${releaseModeLabels[newOptions.release_mode] || newOptions.release_mode}`));
   }
   if (newOptions.merge_strategy) {
     console.log(chalk.gray(`  ${msgObj.mergeStrategy}: ${newOptions.merge_strategy}`));
@@ -875,6 +889,23 @@ export async function runProjectConfiguration(options) {
   }
 
   writeManifest(manifest, projectPath);
+
+  // Generate or remove release-config.yaml based on release mode
+  if (newOptions.release_mode && newOptions.release_mode !== 'ci-cd') {
+    const { generateReleaseConfig } = await import('../utils/release-config.js');
+    const yaml = (await import('js-yaml')).default;
+    const { writeFileSync, mkdirSync } = await import('fs');
+    const releaseConfigData = generateReleaseConfig(newOptions.release_mode);
+    const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
+    mkdirSync(join(projectPath, '.standards'), { recursive: true });
+    writeFileSync(releaseConfigPath, yaml.dump(releaseConfigData), 'utf-8');
+  } else if (newOptions.release_mode === 'ci-cd') {
+    // Remove release-config.yaml if switching back to ci-cd
+    const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
+    if (existsSync(releaseConfigPath)) {
+      unlinkSync(releaseConfigPath);
+    }
+  }
 
   spinner.succeed(msgObj.configUpdated);
 

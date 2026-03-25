@@ -12,7 +12,8 @@ import {
   promptMethodology,
   promptCommandsInstallation,
   handleAgentsMdSharing,
-  promptAgentsMd
+  promptAgentsMd,
+  promptReleaseMode
 } from '../prompts/init.js';
 import {
   promptIntegrationConfig
@@ -181,6 +182,10 @@ export async function runInitFlow(options, detected, projectPath) {
   // === STEP 7: Standard Options ===
   standardOptions = await promptStandardOptions(3, displayLanguage, { experimental: options.experimental });
 
+  // === STEP 7.5: Release Mode ===
+  let releaseMode = 'ci-cd';
+  releaseMode = await promptReleaseMode();
+
   // === STEP 8: Language Extensions ===
   if (!languages) {
     languages = await promptLanguage(detected.languages) || [];
@@ -243,6 +248,7 @@ export async function runInitFlow(options, detected, projectPath) {
     aiTools,
     integrations,
     contentMode,
-    generateAgentsMd
+    generateAgentsMd,
+    releaseMode
   };
 }

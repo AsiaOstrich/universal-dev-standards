@@ -20,6 +20,7 @@ import { auditCommand } from '../src/commands/audit.js';
 import { uninstallCommand } from '../src/commands/uninstall.js';
 import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand, specArchiveCommand, specDeleteCommand } from '../src/commands/spec.js';
 import { startCommand, missionStatusCommand, missionPauseCommand, missionResumeCommand, missionCancelCommand, missionListCommand } from '../src/commands/start.js';
+import { releaseCommand } from '../src/commands/release.js';
 import { setLanguage, setLanguageExplicit, detectLanguage, t } from '../src/i18n/messages.js';
 import { maybeCheckForUpdates, formatUpdateNotice, shouldCheckUpdateForCommand } from '../src/utils/update-checker.js';
 
@@ -209,6 +210,14 @@ program
   .option('--dry-run', 'Preview mode, no files modified')
   .option('-y, --yes', 'Skip confirmation prompts')
   .action(uninstallCommand);
+
+// Release command with subcommands (Manual Deployment Mode)
+program
+  .command('release [subcommand] [args]')
+  .description('Manage release process (promote, deploy, manifest, verify)')
+  .option('--result <result>', 'Test result for deploy command (passed/failed)')
+  .option('--checksum <hash>', 'Package checksum for manifest command')
+  .action(releaseCommand);
 
 // Spec command with subcommands (Vibe Coding)
 const specCommand = program

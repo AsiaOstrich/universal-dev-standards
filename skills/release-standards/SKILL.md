@@ -16,12 +16,26 @@ Guide the release process following Semantic Versioning and changelog best pract
 
 ## Subcommands | 子命令
 
-| Subcommand | Description | 說明 |
-|------------|-------------|------|
-| `start` | Start a release branch/process | 開始發布流程 |
-| `finish` | Finalize release (tag, merge) | 完成發布（標籤、合併） |
-| `changelog` | Generate or update CHANGELOG.md | 產生或更新變更日誌 |
-| `check` | Run pre-release verification | 執行發布前檢查 |
+| Subcommand | Mode | Description | 說明 |
+|------------|------|-------------|------|
+| `start` | All | Start a release branch/process | 開始發布流程 |
+| `finish` | CI/CD | Finalize release (tag, merge) | 完成發布（標籤、合併） |
+| `promote` | Manual/Hybrid | Promote RC to Stable | RC → Stable 晉升 |
+| `deploy` | Manual/Hybrid | Record deployment to environment | 記錄部署紀錄 |
+| `manifest` | Manual/Hybrid | Generate build-manifest.json | 產生打包資訊清單 |
+| `verify` | Manual/Hybrid | Verify manifest consistency | 驗證清單一致性 |
+| `changelog` | All | Generate or update CHANGELOG.md | 產生或更新變更日誌 |
+| `check` | All | Run pre-release verification | 執行發布前檢查 |
+
+## Release Modes | 發布模式
+
+Configure via `uds init` or `uds config --type release_mode`:
+
+| Mode | Description | 說明 |
+|------|-------------|------|
+| `ci-cd` | Automatic publishing via CI/CD pipeline (default) | CI/CD 自動發布（預設） |
+| `manual` | Manual packaging + RC workflow | 手動打包 + RC 工作流程 |
+| `hybrid` | CI builds artifact + manual deployment | CI 建置 + 手動部署 |
 
 ## Version Types | 版本類型
 
@@ -51,10 +65,20 @@ Guide the release process following Semantic Versioning and changelog best pract
 
 ## Usage | 使用方式
 
+### CI/CD Mode (default)
 - `/release start 1.2.0` - Start release process for v1.2.0
 - `/release changelog 1.2.0` - Update CHANGELOG for v1.2.0
 - `/release finish 1.2.0` - Finalize and tag v1.2.0
 - `/release check` - Run pre-release verification
+
+### Manual Mode (RC workflow)
+- `/release start 1.2.0-rc.1` - Create RC version
+- `uds release manifest` - Generate build-manifest.json
+- `uds release deploy staging` - Record staging deployment
+- `uds release deploy staging --result passed` - Record test result
+- `/release promote 1.2.0` - Promote RC to stable
+- `uds release deploy production` - Record production deployment
+- `uds release verify` - Verify manifest consistency
 
 ## Next Steps Guidance | 下一步引導
 
