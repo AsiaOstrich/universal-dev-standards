@@ -9,12 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.1.0-beta.1] - 2026-03-25
+
+> **Beta Release**: 手動打包部署 Release 模式、AI 回應導航標準。供早期使用者測試。
+
+### Added
+- **手動打包部署 Release 模式** (SPEC-RELEASE-01): 為未使用 CI/CD 的專案新增 RC 制版本管理流程
+  - `uds release promote` — RC → Stable 版本晉升
+  - `uds release deploy` — 記錄部署紀錄到 deployments.yaml
+  - `uds release manifest` — 產生 build-manifest.json
+  - `uds release verify` — 驗證 manifest 與 Git 狀態一致性
+  - `uds init` 新增發布模式選擇（ci-cd / manual / hybrid）
+  - `uds config --type release_mode` 支援模式切換
+  - 4 個核心工具模組：version-promote、release-config、build-manifest、deployment-tracker
+  - 87 個新增測試（70 單元 + 17 整合）
+- **AI 回應導航標準** (SPEC-STD-08): 統一 AI 助手回應結尾的下一步引導格式
+
 ### Fixed
 - **版本更新通知觸發範圍** (SPEC-CLI-UPDATE-NOTIFY): `uds --version` 現在會檢查並顯示新版本提示；`postAction` 從白名單（僅 4 指令）改為黑名單策略（排除 `update`/`simulate`/`fix`），大幅擴大觸發範圍
 - **`--version` 實作方式**: 使用 `configureOutput({ outputVersion })` 攔截版本輸出，避免 Commander.js 的 `.option()` 覆寫導致 help 訊息洩漏
 
 ### Changed
 - **version-check-on-uds-operation 規則**: `context-aware-loading.ai.yaml` 中 priority 從 `optional` 提升為 `required`，AI agent 首次使用斜線命令/Skills 時必須檢查版本
+- **Release Standards Skill**: 新增手動模式文件和 AI Agent 行為定義
+- **/release 命令**: 新增 promote、deploy、manifest、verify 子命令路由
 
 ### Dependencies
 - bump glob 13.0.1 → 13.0.6 (patch, devDependency)
