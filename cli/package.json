@@ -62,7 +62,7 @@
     "commander": "^12.1.0",
     "inquirer": "^9.2.12",
     "js-yaml": "^4.1.0",
-    "ora": "^8.0.1"
+    "ora": "^9.3.0"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.16",
