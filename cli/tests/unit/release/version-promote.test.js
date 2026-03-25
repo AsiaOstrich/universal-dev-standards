@@ -34,6 +34,13 @@ describe('version-promote', () => {
       expect(parsed.preReleaseNumber).toBe(1);
     });
 
+    it('should parse v-prefixed RC version', () => {
+      const parsed = parseRCVersion('v1.2.0-rc.1');
+      expect(parsed.major).toBe(1);
+      expect(parsed.preRelease).toBe('rc');
+      expect(parsed.preReleaseNumber).toBe(1);
+    });
+
     it('should parse RC with high iteration number', () => {
       // Arrange
       const version = '3.10.5-rc.15';

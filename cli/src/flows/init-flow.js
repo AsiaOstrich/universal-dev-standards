@@ -183,8 +183,7 @@ export async function runInitFlow(options, detected, projectPath) {
   standardOptions = await promptStandardOptions(3, displayLanguage, { experimental: options.experimental });
 
   // === STEP 7.5: Release Mode ===
-  let releaseMode = 'ci-cd';
-  releaseMode = await promptReleaseMode();
+  const releaseMode = await promptReleaseMode();
 
   // === STEP 8: Language Extensions ===
   if (!languages) {

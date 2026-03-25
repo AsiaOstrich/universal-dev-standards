@@ -4,7 +4,7 @@
  * AC-2: RC Version Lifecycle, AC-3: RC Promotion to Stable
  */
 
-const RC_VERSION_REGEX = /^(\d+)\.(\d+)\.(\d+)-rc\.(\d+)$/;
+const RC_VERSION_REGEX = /^v?(\d+)\.(\d+)\.(\d+)-rc\.(\d+)$/;
 const SEMVER_REGEX = /^v?(\d+)\.(\d+)\.(\d+)(-[a-zA-Z]+\.\d+)?$/;
 
 /**

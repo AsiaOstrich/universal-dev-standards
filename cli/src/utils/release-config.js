@@ -6,6 +6,8 @@
 
 export const VALID_MODES = ['ci-cd', 'manual', 'hybrid'];
 
+export const RELEASE_MODE_LABELS = { 'ci-cd': 'CI/CD', manual: 'Manual (RC)', hybrid: 'Hybrid' };
+
 const MANUAL_MODES = ['manual', 'hybrid'];
 
 /**
@@ -17,17 +19,18 @@ export function parseReleaseConfig(raw) {
     return getDefaultConfig();
   }
 
-  const mode = release.mode;
-  if (mode && !VALID_MODES.includes(mode)) {
-    throw new Error(`Invalid release mode: "${mode}". Valid modes: ${VALID_MODES.join(', ')}`);
+  const rawMode = release.mode;
+  if (rawMode && !VALID_MODES.includes(rawMode)) {
+    throw new Error(`Invalid release mode: "${rawMode}". Valid modes: ${VALID_MODES.join(', ')}`);
   }
+  const resolvedMode = rawMode || 'ci-cd';
 
   return {
-    mode: mode || 'ci-cd',
+    mode: resolvedMode,
     versioning: release.versioning || 'semver',
-    preReleaseTag: release.pre_release_tag || (MANUAL_MODES.includes(mode) ? 'rc' : undefined),
+    preReleaseTag: release.pre_release_tag || (MANUAL_MODES.includes(resolvedMode) ? 'rc' : undefined),
     environments: release.environments || [],
-    manifest: release.manual?.manifest ?? MANUAL_MODES.includes(mode),
+    manifest: release.manual?.manifest ?? MANUAL_MODES.includes(resolvedMode),
     manifestPath: release.manual?.manifest_path || 'build-manifest.json',
     deploymentLog: release.manual?.deployment_log || 'deployments.yaml',
   };

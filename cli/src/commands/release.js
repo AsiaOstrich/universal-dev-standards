@@ -29,7 +29,8 @@ function loadReleaseConfig(projectPath) {
   }
   try {
     return yaml.load(readFileSync(configPath, 'utf-8'));
-  } catch {
+  } catch (err) {
+    console.log(chalk.yellow(`⚠ release-config.yaml 解析失敗: ${err.message}`));
     return null;
   }
 }
@@ -161,8 +162,7 @@ export async function releaseCommand(subcommand, args, options) {
  * /release promote <version>
  * Promote RC to stable version
  */
-async function handlePromote(args, projectPath) {
-  const targetVersion = args;
+async function handlePromote(targetVersion, projectPath) {
 
   if (!targetVersion) {
     console.log(chalk.red('請指定目標 stable 版本號。'));
@@ -211,8 +211,7 @@ async function handlePromote(args, projectPath) {
 /**
  * /release deploy <environment> [--result <result>]
  */
-async function handleDeploy(args, options, projectPath) {
-  const environment = args;
+async function handleDeploy(environment, options, projectPath) {
 
   if (!environment) {
     console.log(chalk.red('請指定部署環境。'));
@@ -227,11 +226,15 @@ async function handleDeploy(args, options, projectPath) {
 
   // If --result flag: update existing deployment
   if (options.result) {
-    const updated = updateDeploymentResult(deployments, {
+    const { deployments: updated, updatedCount } = updateDeploymentResult(deployments, {
       version: currentVersion,
       environment,
       result: options.result,
     });
+    if (updatedCount === 0) {
+      console.log(chalk.yellow(`⚠ 找不到 ${currentVersion} 在 ${environment} 的部署紀錄`));
+      return;
+    }
     saveDeployments(projectPath, updated);
     console.log(chalk.green(`✓ 已更新 ${currentVersion} 在 ${environment} 的結果: ${options.result}`));
     return;
@@ -278,8 +281,8 @@ async function handleDeploy(args, options, projectPath) {
 /**
  * /release manifest [--checksum <hash>]
  */
-async function handleManifest(args, options, projectPath) {
-  const version = getPackageVersion(projectPath) || args || 'unknown';
+async function handleManifest(versionArg, options, projectPath) {
+  const version = getPackageVersion(projectPath) || versionArg || 'unknown';
   const commit = getGitCommit();
   const branch = getGitBranch();
   const builder = getGitUser();
@@ -315,7 +318,13 @@ async function handleVerify(projectPath) {
     return;
   }
 
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+  let manifest;
+  try {
+    manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+  } catch {
+    console.log(chalk.red('build-manifest.json 格式不正確'));
+    return;
+  }
   const currentCommit = getGitCommit();
 
   const result = verifyManifest(manifest, currentCommit);

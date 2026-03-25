@@ -21,7 +21,7 @@ import {
   getAgentDisplayName
 } from '../utils/github.js';
 import { displayLanguageToLocale } from '../utils/locale.js';
-import { generateReleaseConfig } from '../utils/release-config.js';
+import { generateReleaseConfig, RELEASE_MODE_LABELS } from '../utils/release-config.js';
 
 /**
  * Init command - initialize standards in current project
@@ -410,7 +410,7 @@ function displaySummary(config, msg, common) {
     console.log(chalk.gray(`  ${msg.gitWorkflow}: ${getValueLabel('gitWorkflow', config.standardOptions.workflow)}`));
   }
   if (config.releaseMode) {
-    const releaseModeLabels = { 'ci-cd': 'CI/CD', manual: 'Manual (RC)', hybrid: 'Hybrid' };
+    const releaseModeLabels = RELEASE_MODE_LABELS;
     console.log(chalk.gray(`  ${msg.releaseMode || 'Release Mode'}: ${releaseModeLabels[config.releaseMode] || config.releaseMode}`));
   }
   if (config.standardOptions.merge_strategy) {

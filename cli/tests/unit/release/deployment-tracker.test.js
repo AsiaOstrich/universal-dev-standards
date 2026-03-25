@@ -88,7 +88,7 @@ describe('deployment-tracker', () => {
       ];
 
       // Act
-      const updated = updateDeploymentResult(deployments, {
+      const { deployments: updated, updatedCount } = updateDeploymentResult(deployments, {
         version: '1.2.0-rc.1',
         environment: 'staging',
         result: 'passed',
@@ -96,6 +96,7 @@ describe('deployment-tracker', () => {
 
       // Assert
       expect(updated[0].result).toBe('passed');
+      expect(updatedCount).toBe(1);
     });
 
     it('should not modify other deployments', () => {
@@ -106,7 +107,7 @@ describe('deployment-tracker', () => {
       ];
 
       // Act
-      const updated = updateDeploymentResult(deployments, {
+      const { deployments: updated, updatedCount } = updateDeploymentResult(deployments, {
         version: '1.2.0-rc.1',
         environment: 'staging',
         result: 'passed',
@@ -115,16 +116,17 @@ describe('deployment-tracker', () => {
       // Assert
       expect(updated[0].result).toBe('deployed'); // unchanged
       expect(updated[1].result).toBe('passed');
+      expect(updatedCount).toBe(1);
     });
 
-    it('should return deployments unchanged if no match found', () => {
+    it('should return updatedCount 0 if no match found', () => {
       // Arrange
       const deployments = [
         { version: '1.0.0', environment: 'staging', result: null },
       ];
 
       // Act
-      const updated = updateDeploymentResult(deployments, {
+      const { deployments: updated, updatedCount } = updateDeploymentResult(deployments, {
         version: '2.0.0',
         environment: 'staging',
         result: 'passed',
@@ -132,6 +134,21 @@ describe('deployment-tracker', () => {
 
       // Assert
       expect(updated[0].result).toBeNull();
+      expect(updatedCount).toBe(0);
+    });
+
+    it('should warn when different version staging passed but target version not', () => {
+      // Arrange — version 1.1.0-rc.1 passed staging, but deploying 1.2.0
+      const deployments = [
+        { version: '1.1.0-rc.1', environment: 'staging', result: 'passed' },
+      ];
+      const target = { version: '1.2.0', environment: 'production' };
+
+      // Act
+      const warnings = checkDeploymentReadiness(deployments, target);
+
+      // Assert
+      expect(warnings.length).toBeGreaterThan(0);
     });
   });
 

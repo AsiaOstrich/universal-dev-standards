@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import ora from 'ora';
-import { unlinkSync, existsSync } from 'fs';
+import { unlinkSync, existsSync, writeFileSync, mkdirSync } from 'fs';
 import { join, basename } from 'path';
 import { config } from '../utils/config-manager.js';
 import { msg, t as getMessages, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
@@ -493,7 +493,7 @@ export async function runProjectConfiguration(options) {
       console.log(chalk.gray(`  ${msgObj.gitWorkflow}: ${manifest.options.workflow}`));
     }
     if (manifest.options.release_mode) {
-      const releaseModeLabels = { 'ci-cd': 'CI/CD', manual: 'Manual (RC)', hybrid: 'Hybrid' };
+      const { RELEASE_MODE_LABELS: releaseModeLabels } = await import('../utils/release-config.js');
       console.log(chalk.gray(`  ${msgObj.releaseMode || 'Release Mode'}: ${releaseModeLabels[manifest.options.release_mode] || manifest.options.release_mode}`));
     }
     if (manifest.options.merge_strategy) {
@@ -894,16 +894,18 @@ export async function runProjectConfiguration(options) {
   if (newOptions.release_mode && newOptions.release_mode !== 'ci-cd') {
     const { generateReleaseConfig } = await import('../utils/release-config.js');
     const yaml = (await import('js-yaml')).default;
-    const { writeFileSync, mkdirSync } = await import('fs');
     const releaseConfigData = generateReleaseConfig(newOptions.release_mode);
     const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
     mkdirSync(join(projectPath, '.standards'), { recursive: true });
     writeFileSync(releaseConfigPath, yaml.dump(releaseConfigData), 'utf-8');
   } else if (newOptions.release_mode === 'ci-cd') {
-    // Remove release-config.yaml if switching back to ci-cd
     const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
-    if (existsSync(releaseConfigPath)) {
-      unlinkSync(releaseConfigPath);
+    try {
+      if (existsSync(releaseConfigPath)) {
+        unlinkSync(releaseConfigPath);
+      }
+    } catch {
+      // Ignore deletion errors — file may already be removed
     }
   }
 

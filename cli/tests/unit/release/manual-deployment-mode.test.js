@@ -111,8 +111,9 @@ describe('SPEC-RELEASE-01: Manual Deployment Release Mode (Integration)', () => 
 
     it('should update test result', () => {
       const deployments = [{ version: '1.2.0-rc.1', environment: 'staging', result: null }];
-      const updated = updateDeploymentResult(deployments, { version: '1.2.0-rc.1', environment: 'staging', result: 'passed' });
+      const { deployments: updated, updatedCount } = updateDeploymentResult(deployments, { version: '1.2.0-rc.1', environment: 'staging', result: 'passed' });
       expect(updated[0].result).toBe('passed');
+      expect(updatedCount).toBe(1);
     });
   });
 
