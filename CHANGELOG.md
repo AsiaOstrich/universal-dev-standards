@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.1.0-beta.2] - 2026-03-25
+
+> **Beta Release**: `output_language` 統一語言設定、文件生態系閉環。供早期使用者測試。
+
 ### Added
 - **文件生態系閉環** (SPEC-DOCS-01): 新增 `/docs impact` 和 `/docs translate` 子命令
   - `/docs impact` — 主動分析程式碼變更對文件的影響，附建議命令
