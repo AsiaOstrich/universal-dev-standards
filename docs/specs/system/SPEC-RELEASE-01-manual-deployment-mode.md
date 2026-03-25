@@ -2,7 +2,7 @@
 
 > **Language**: English | 繁體中文
 
-**Status**: Implemented
+**Status**: Archived
 **Author**: Albert
 **Created**: 2026-03-25
 **Spec Type**: System Design
