@@ -96,6 +96,24 @@ Reference: `.standards/workflow-enforcement.ai.yaml`
 
 ---
 
+## AI Response Navigation / AI 回應導航
+
+**Rule**: Every substantive AI response MUST end with a Navigation Footer suggesting next steps.
+**規則**：每個實質性的 AI 回應結尾必須包含導航區塊，建議下一步行動。
+
+**Key behaviors / 關鍵行為**:
+- Append navigation suggestions after completing tasks, providing analysis, asking questions, or reporting errors
+- Mark the recommended option with ⭐ when providing multiple choices
+- Use contextual templates (task completed, user question, error/failure, in progress, informational reply)
+- Adapt option count to context (1-5, never exceed 5)
+- Prefer slash commands in suggestions when applicable
+
+**豁免 / Exemption**: Ultra-short confirmations ("OK", "Done") may omit navigation.
+
+Reference: `.standards/ai-response-navigation.ai.yaml` (or `core/ai-response-navigation.md`)
+
+---
+
 ## Documentation & Commits
 ## 文件與提交
 
