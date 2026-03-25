@@ -1210,6 +1210,17 @@
       "description": "Standard structure for specifying AI Agent runtime behavior in command/skill definition files"
     },
     {
+      "id": "ai-response-navigation",
+      "name": "AI Response Navigation Standards",
+      "nameZh": "AI 回應導航標準",
+      "source": {
+        "human": "core/ai-response-navigation.md",
+        "ai": "ai/standards/ai-response-navigation.ai.yaml"
+      },
+      "category": "reference",
+      "description": "Every substantive AI response must include contextual next-step suggestions with recommended options"
+    },
+    {
       "id": "virtual-organization",
       "name": "Virtual Organization Standards",
       "nameZh": "虛擬組織標準",

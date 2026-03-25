@@ -1,0 +1,70 @@
+# AI Response Navigation Standards (AI-Optimized)
+# Source: core/ai-response-navigation.md
+
+id: ai-response-navigation
+meta:
+  version: "1.0.0"
+  updated: "2026-03-25"
+  source: core/ai-response-navigation.md
+  description: Every substantive AI response must include contextual next-step suggestions with recommended options
+
+rules:
+  - id: navigation-footer
+    trigger: completing any substantive AI response (task completion, analysis, question, error report, code change)
+    instruction: >
+      Append a Navigation Footer at the end of every logical response unit using Markdown blockquote (>).
+      Exempt ultra-short confirmations like "OK", "Done", "Got it" that are not independent logical units.
+    priority: required
+
+  - id: recommendation-marking
+    trigger: providing 2 or more next-step options
+    instruction: >
+      Mark the recommended option with ⭐ **Recommended** (or localized equivalent like ⭐ **推薦**).
+      Append the reason after " — ". If no option is clearly better, describe each option's use case instead.
+      If only one reasonable next step exists, suggest it directly without marking.
+    priority: required
+
+  - id: contextual-templates
+    trigger: generating a Navigation Footer
+    instruction: >
+      Select the template based on response type:
+      - Task completed → title "Suggested next steps" / "建議下一步", 2-3 options
+      - User question → title "Please choose" / "請選擇", 2-5 options with (A)(B)(C) labels
+      - Error/failure → title "Suggested resolution" / "建議修復方向", 1-3 options
+      - In progress → title "Progress: [N/M]. Next" / "目前進度：[N/M]。下一步", 1-2 options
+      - Informational reply → title "Suggested next steps" / "建議下一步", 1-3 options
+    priority: required
+
+  - id: adaptive-quantity
+    trigger: deciding how many options to include in Navigation Footer
+    instruction: >
+      Adjust option count based on context complexity. Minimum 1, maximum 5.
+      Task completed: 2-3. User question: 2-5. Error: 1-3. In progress: 1-2. Info reply: 1-3.
+      Never exceed 5 options — prune to the most relevant ones.
+    priority: required
+
+  - id: slash-command-preference
+    trigger: a next-step suggestion corresponds to a known slash command
+    instruction: >
+      Reference the command using `/command` format so users can copy and execute directly.
+      For steps without corresponding commands, use natural language descriptions.
+    priority: recommended
+
+  - id: tool-agnostic
+    trigger: implementing navigation behavior in any AI tool
+    instruction: >
+      This standard applies to all UDS-supported AI tools (Claude Code, Cursor, Windsurf, Copilot, etc.).
+      Behavioral rules are consistent across tools; rendering format may adapt to tool UI capabilities.
+    priority: required
+
+  - id: skill-next-steps-unification
+    trigger: creating or modifying a skill's "Next Steps Guidance" section
+    instruction: >
+      Align the format with this standard's templates. Keep skill-specific contextual recommendations
+      but ensure format consistency — use blockquote, recommendation marking, and appropriate template.
+    priority: recommended
+
+related_standards:
+  - ai-command-behavior
+  - ai-instruction-standards
+  - ai-agreement-standards
