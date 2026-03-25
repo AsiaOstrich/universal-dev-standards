@@ -344,7 +344,7 @@ public class UserService
 
 ---
 
-## Commit Message Language | Commit 訊息語言
+## Output Language | 產出語言
 
 ### Commit Types in Traditional Chinese | 繁體中文 Commit 類型
 

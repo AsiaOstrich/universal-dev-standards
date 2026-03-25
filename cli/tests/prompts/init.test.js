@@ -51,7 +51,7 @@ import {
   promptFormat,
   promptGitWorkflow,
   promptMergeStrategy,
-  promptCommitLanguage,
+  promptOutputLanguage,
   promptTestLevels,
   promptStandardOptions,
   promptInstallMode,
@@ -367,11 +367,11 @@ describe('Init Prompts', () => {
     });
   });
 
-  describe('promptCommitLanguage', () => {
+  describe('promptOutputLanguage', () => {
     it('should return english', async () => {
       mockPrompt.mockResolvedValue({ language: 'english' });
 
-      const result = await promptCommitLanguage();
+      const result = await promptOutputLanguage();
 
       expect(result).toBe('english');
     });
@@ -379,7 +379,7 @@ describe('Init Prompts', () => {
     it('should return bilingual when displayLanguage is zh-tw', async () => {
       mockPrompt.mockResolvedValue({ language: 'bilingual' });
 
-      const result = await promptCommitLanguage('zh-tw');
+      const result = await promptOutputLanguage('zh-tw');
 
       expect(result).toBe('bilingual');
     });
@@ -387,7 +387,7 @@ describe('Init Prompts', () => {
     it('should return bilingual when displayLanguage is zh-cn', async () => {
       mockPrompt.mockResolvedValue({ language: 'bilingual' });
 
-      const result = await promptCommitLanguage('zh-cn');
+      const result = await promptOutputLanguage('zh-cn');
 
       expect(result).toBe('bilingual');
     });
@@ -395,7 +395,7 @@ describe('Init Prompts', () => {
     it('should work with default displayLanguage (en)', async () => {
       mockPrompt.mockResolvedValue({ language: 'traditional-chinese' });
 
-      const result = await promptCommitLanguage();
+      const result = await promptOutputLanguage();
 
       expect(result).toBe('traditional-chinese');
     });
@@ -404,7 +404,7 @@ describe('Init Prompts', () => {
       mockPrompt.mockResolvedValue({ language: 'english' });
 
       // Should not throw when displayLanguage is provided
-      const result = await promptCommitLanguage('en');
+      const result = await promptOutputLanguage('en');
 
       expect(result).toBe('english');
     });
@@ -426,7 +426,7 @@ describe('Init Prompts', () => {
 
       const result = await promptStandardOptions(1);
 
-      expect(result).toHaveProperty('commit_language');
+      expect(result).toHaveProperty('output_language');
     });
 
     it('should return more options for level 2+ with experimental', async () => {
@@ -440,7 +440,7 @@ describe('Init Prompts', () => {
 
       expect(result).toHaveProperty('workflow');
       expect(result).toHaveProperty('merge_strategy');
-      expect(result).toHaveProperty('commit_language');
+      expect(result).toHaveProperty('output_language');
       expect(result).toHaveProperty('test_levels');
     });
 
@@ -453,16 +453,16 @@ describe('Init Prompts', () => {
 
       expect(result.workflow).toBe('github-flow');
       expect(result.merge_strategy).toBe('squash');
-      expect(result.commit_language).toBe('english');
+      expect(result.output_language).toBe('english');
       expect(result.test_levels).toEqual(['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing']);
     });
 
-    it('should pass displayLanguage to promptCommitLanguage', async () => {
+    it('should pass displayLanguage to promptOutputLanguage', async () => {
       mockPrompt.mockResolvedValue({ language: 'bilingual' });
 
       const result = await promptStandardOptions(1, 'zh-cn');
 
-      expect(result.commit_language).toBe('bilingual');
+      expect(result.output_language).toBe('bilingual');
     });
 
     it('should use default displayLanguage when not provided', async () => {
@@ -470,7 +470,7 @@ describe('Init Prompts', () => {
 
       const result = await promptStandardOptions(1);
 
-      expect(result.commit_language).toBe('english');
+      expect(result.output_language).toBe('english');
     });
   });
 

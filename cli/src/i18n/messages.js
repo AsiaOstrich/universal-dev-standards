@@ -453,11 +453,11 @@ export const messages = {
       }
     },
 
-    // Commit Message Language
-    commitLanguage: {
-      title: 'Commit Message Language:',
-      description: 'What language for commit messages?',
-      question: 'Select commit message language:',
+    // Output Language
+    outputLanguage: {
+      title: 'Output Language:',
+      description: 'What language for AI output?',
+      question: 'Select output language:',
       choices: {
         english: 'Standard international format',
         chinese: 'For Chinese-speaking teams',
@@ -981,7 +981,7 @@ export const messages = {
         gitWorkflow: 'Git Workflow',
         releaseMode: 'Release Mode',
         mergeStrategy: 'Merge Strategy',
-        commitLanguage: 'Commit Language',
+        outputLanguage: 'Output Language',
         testLevels: 'Test Levels',
         // Prompts
         proceedInstall: 'Proceed with installation?',
@@ -1158,7 +1158,7 @@ export const messages = {
         optionFormat: 'Format (AI/Human)',
         optionWorkflow: 'Git Workflow Strategy',
         optionMergeStrategy: 'Merge Strategy',
-        optionCommitLanguage: 'Commit Message Language',
+        optionOutputLanguage: 'Output Language',
         optionTestLevels: 'Test Levels',
         optionAITools: 'AI Tools - Add/Remove AI integrations',
         optionLevel: 'Adoption Level - Change Level 1/2/3',
@@ -1171,7 +1171,7 @@ export const messages = {
         gitWorkflow: 'Git Workflow',
         releaseMode: 'Release Mode',
         mergeStrategy: 'Merge Strategy',
-        commitLanguage: 'Commit Language',
+        outputLanguage: 'Output Language',
         testLevels: 'Test Levels',
         // Spinners
         removingIntegrations: 'Removing integration files...',
@@ -1712,11 +1712,11 @@ export const messages = {
       }
     },
 
-    // Commit Message Language
-    commitLanguage: {
-      title: 'Commit 訊息語言:',
-      description: '選擇 commit 訊息的語言',
-      question: '選擇 commit 訊息語言：',
+    // Output Language
+    outputLanguage: {
+      title: '產出語言:',
+      description: '選擇 AI 產出的語言',
+      question: '選擇產出語言：',
       choices: {
         english: '標準國際格式',
         chinese: '適合中文團隊',
@@ -2240,7 +2240,7 @@ export const messages = {
         gitWorkflow: 'Git 工作流程',
         releaseMode: '發布模式',
         mergeStrategy: '合併策略',
-        commitLanguage: '提交訊息語言',
+        outputLanguage: '產出語言',
         testLevels: '測試層級',
         // Prompts
         proceedInstall: '繼續安裝？',
@@ -2417,7 +2417,7 @@ export const messages = {
         optionFormat: '格式（AI/Human）',
         optionWorkflow: 'Git 工作流程策略',
         optionMergeStrategy: '合併策略',
-        optionCommitLanguage: '提交訊息語言',
+        optionOutputLanguage: '產出語言',
         optionTestLevels: '測試層級',
         optionAITools: 'AI 工具 - 新增/移除 AI 整合',
         optionLevel: '採用等級 - 變更等級 1/2/3',
@@ -2430,7 +2430,7 @@ export const messages = {
         gitWorkflow: 'Git 工作流程',
         releaseMode: '發布模式',
         mergeStrategy: '合併策略',
-        commitLanguage: '提交訊息語言',
+        outputLanguage: '產出語言',
         testLevels: '測試層級',
         // Spinners
         removingIntegrations: '移除整合檔案...',
@@ -2971,11 +2971,11 @@ export const messages = {
       }
     },
 
-    // Commit Message Language
-    commitLanguage: {
-      title: 'Commit 消息语言:',
-      description: '选择 commit 消息的语言',
-      question: '选择 commit 消息语言：',
+    // Output Language
+    outputLanguage: {
+      title: '产出语言:',
+      description: '选择 AI 产出的语言',
+      question: '选择产出语言：',
       choices: {
         english: '标准国际格式',
         chinese: '适合中文团队',
@@ -3245,7 +3245,7 @@ export const messages = {
         gitWorkflow: 'Git 工作流',
         releaseMode: '发布模式',
         mergeStrategy: '合并策略',
-        commitLanguage: '提交消息语言',
+        outputLanguage: '产出语言',
         testLevels: '测试级别',
         // Prompts
         proceedInstall: '继续安装？',
@@ -3605,7 +3605,7 @@ export const messages = {
         optionFormat: '格式（AI/人工）',
         optionWorkflow: 'Git 工作流策略',
         optionMergeStrategy: '合并策略',
-        optionCommitLanguage: 'Commit 消息语言',
+        optionOutputLanguage: '产出语言',
         optionTestLevels: '测试级别',
         optionAITools: 'AI 工具 - 添加/删除 AI 集成',
         optionLevel: '采用级别 - 更改级别 1/2/3',
@@ -3618,7 +3618,7 @@ export const messages = {
         gitWorkflow: 'Git 工作流',
         releaseMode: '发布模式',
         mergeStrategy: '合并策略',
-        commitLanguage: 'Commit 消息语言',
+        outputLanguage: '产出语言',
         testLevels: '测试级别',
         // Spinners
         removingIntegrations: '正在移除集成文件...',

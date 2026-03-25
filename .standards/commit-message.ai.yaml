@@ -53,8 +53,10 @@ standard:
         select: bilingual
 
   options:
-    commit_language:
+    output_language:
       default: english
+      deprecated_aliases: [commit_language]
+      shared_with: documentation-writing-standards
       choices:
         - id: english
           file: options/commit-message/english.ai.yaml

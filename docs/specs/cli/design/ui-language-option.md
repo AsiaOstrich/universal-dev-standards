@@ -51,13 +51,13 @@ Language is determined by the following priority (highest to lowest):
 
 1. **Command line `--ui-lang` flag** - User's explicit choice
 2. **Environment variables** (`LANG`, `LC_ALL`, `LC_MESSAGES`) - When `--ui-lang` is `auto`
-3. **Project manifest `commit_language`** - Only when `--ui-lang` is not explicitly set
+3. **Project manifest `output_language`** - Only when `--ui-lang` is not explicitly set
 
 語言優先順序（由高到低）：
 
 1. **命令列 `--ui-lang` 旗標** - 使用者明確選擇
 2. **環境變數** (`LANG`, `LC_ALL`, `LC_MESSAGES`) - 當 `--ui-lang` 為 `auto` 時
-3. **專案 manifest 的 `commit_language`** - 僅當未明確設定 `--ui-lang` 時
+3. **專案 manifest 的 `output_language`** - 僅當未明確設定 `--ui-lang` 時
 
 ## Affected Commands / 影響範圍
 
@@ -146,7 +146,7 @@ User runs: uds config --ui-lang en
 ### TC-001: Explicit English overrides manifest
 
 ```bash
-# Setup: Project has commit_language: traditional-chinese
+# Setup: Project has output_language: traditional-chinese
 # Command:
 uds config --ui-lang en
 # Expected: CLI displays in English
@@ -172,7 +172,7 @@ uds list
 ### TC-004: Auto-detect falls back to manifest
 
 ```bash
-# Setup: LANG=en_US.UTF-8, manifest has commit_language: traditional-chinese
+# Setup: LANG=en_US.UTF-8, manifest has output_language: traditional-chinese
 # Command:
 uds config
 # Expected: CLI displays in Traditional Chinese (from manifest)

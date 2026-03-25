@@ -118,7 +118,7 @@ uds configure --type commands --ai-tool copilot
 | `format` | AI/人类文档格式 |
 | `workflow` | Git 工作流程策略 |
 | `merge_strategy` | 合并策略 |
-| `commit_language` | 提交消息语言 |
+| `output_language` | 产出语言 |
 | `test_levels` | 测试层级 |
 | `methodology` | 开发方法论（实验性，需要 -E） |
 | `all` | 配置所有选项 |

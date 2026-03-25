@@ -36,7 +36,7 @@ interface InitConfig {
   format: 'ai' | 'human' | 'both';
   standardsScope: 'minimal' | 'full';
   contentMode: 'minimal' | 'index' | 'full';
-  standardOptions: { workflow, merge_strategy, commit_language, test_levels };
+  standardOptions: { workflow, merge_strategy, output_language, test_levels };
   languages: string[];
   frameworks: string[];
   aiTools: string[];

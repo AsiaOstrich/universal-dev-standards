@@ -428,7 +428,7 @@ describe('E2E: uds init', () => {
       expect(manifest.options).toBeDefined();
       expect(manifest.options.workflow).toBe('github-flow');
       expect(manifest.options.merge_strategy).toBe('squash');
-      expect(manifest.options.commit_language).toBe('english');
+      expect(manifest.options.output_language).toBe('english');
       expect(manifest.options.test_levels).toContain('unit-testing');
     });
 
@@ -636,7 +636,7 @@ describe('E2E: uds init', () => {
         '\r',
         // Merge Strategy: first option (Squash), enter
         '\r',
-        // Commit Language: first option (English), enter
+        // Output Language: first option (English), enter
         '\r',
         // Test Levels: accept defaults (Unit + Integration pre-selected), enter
         '\r',

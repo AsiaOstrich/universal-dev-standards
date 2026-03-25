@@ -34,7 +34,7 @@ export function writeFinalManifest(config, results, projectPath) {
       display_language: config.displayLanguage || 'en',
       workflow: config.standardOptions?.workflow || null,
       merge_strategy: config.standardOptions?.merge_strategy || null,
-      commit_language: config.standardOptions?.commit_language || null,
+      output_language: config.standardOptions?.output_language || config.standardOptions?.commit_language || null,
       test_levels: config.standardOptions?.test_levels || [],
       release_mode: config.releaseMode || 'ci-cd'
     },

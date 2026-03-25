@@ -134,7 +134,7 @@ Refs #789      # 連結但不關閉
 
 ### 檢測順序
 
-1. 檢查 `CONTRIBUTING.md` 中的「Commit Message Language」區段
+1. 檢查 `CONTRIBUTING.md` 中的「Output Language」區段
 2. 若找到，使用指定的選項（English / Traditional Chinese / Bilingual）
 3. 若未找到，**預設使用 English** 以獲得最大工具相容性
 
@@ -142,11 +142,11 @@ Refs #789      # 連結但不關閉
 
 若未找到配置且情境不明確：
 
-1. 詢問使用者：「此專案尚未配置提交訊息語言偏好。您想使用哪個選項？（English / 中文 / Bilingual）」
+1. 詢問使用者：「此專案尚未配置產出語言偏好。您想使用哪個選項？（English / 中文 / Bilingual）」
 2. 使用者選擇後，建議記錄於 `CONTRIBUTING.md`：
 
 ```markdown
-## Commit Message Language
+## Output Language
 
 This project uses **[chosen option]** commit types.
 <!-- Options: English | Traditional Chinese | Bilingual -->
@@ -157,7 +157,7 @@ This project uses **[chosen option]** commit types.
 在專案的 `CONTRIBUTING.md` 中：
 
 ```markdown
-## Commit Message Language
+## Output Language
 
 This project uses **English** commit types.
 

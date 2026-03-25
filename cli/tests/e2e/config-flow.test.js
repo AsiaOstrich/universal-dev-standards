@@ -198,13 +198,13 @@ describe('E2E: uds config', () => {
 
       expect(manifest.options.workflow).toBe('github-flow');
       expect(manifest.options.merge_strategy).toBe('squash');
-      expect(manifest.options.commit_language).toBe('english');
+      expect(manifest.options.output_language).toBe('english');
 
       recordScenarioResult('Options preserved', {
         steps: [
           { step: 1, name: 'Workflow', matched: manifest.options.workflow === 'github-flow' },
           { step: 2, name: 'Merge strategy', matched: manifest.options.merge_strategy === 'squash' },
-          { step: 3, name: 'Commit language', matched: manifest.options.commit_language === 'english' }
+          { step: 3, name: 'Output language', matched: manifest.options.output_language === 'english' }
         ],
         output: JSON.stringify(manifest.options, null, 2)
       });
@@ -287,7 +287,7 @@ describe('E2E: uds config', () => {
       // Verify manifest has traditional-chinese
       const manifestPath = join(testDir, '.standards/manifest.json');
       const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-      expect(manifest.options.commit_language).toBe('traditional-chinese');
+      expect(manifest.options.output_language).toBe('traditional-chinese');
 
       // Run config with --ui-lang en (global option)
       const result = await runCommand('config', { yes: true }, testDir, 5000, { uiLang: 'en' });
@@ -317,7 +317,7 @@ describe('E2E: uds config', () => {
       // Verify manifest has english
       const manifestPath = join(testDir, '.standards/manifest.json');
       const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-      expect(manifest.options.commit_language).toBe('english');
+      expect(manifest.options.output_language).toBe('english');
 
       // Run config with --ui-lang zh-tw (global option)
       const result = await runCommand('config', { yes: true }, testDir, 5000, { uiLang: 'zh-tw' });

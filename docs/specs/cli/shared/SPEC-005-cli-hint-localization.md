@@ -53,7 +53,7 @@ Added `listHint` translation strings to all three locales at the root level (sam
 | `promptFormat` | List | Added suffix, listHint display |
 | `promptGitWorkflow` | List | Added suffix, listHint display |
 | `promptMergeStrategy` | List | Added suffix, listHint display |
-| `promptCommitLanguage` | List | Added suffix, listHint display |
+| `promptOutputLanguage` | List | Added suffix, listHint display |
 | `promptTestLevels` | Checkbox | Added instructions:false, checkboxHint display |
 | `promptLevel` | List | Added suffix, listHint display |
 | `promptLanguage` | Checkbox | Added instructions:false, checkboxHint display |

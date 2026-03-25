@@ -270,7 +270,7 @@ interface Manifest {
   options: {
     workflow?: string;
     merge_strategy?: string;
-    commit_language?: string;
+    output_language?: string;
     test_levels?: string[];
   };
 

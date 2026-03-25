@@ -81,7 +81,7 @@ uds init --level 2 --lang php --locale zh-tw
 - `--content-mode <mode>` - Integration file content mode | 整合檔案內容模式 (minimal, index, full)
 - `--workflow <strategy>` - Git workflow strategy | Git 工作流程 (github-flow, gitflow, trunk-based)
 - `--merge-strategy <strategy>` - Merge strategy | 合併策略 (squash, merge-commit, rebase-ff)
-- `--commit-lang <lang>` - Commit message language | 提交訊息語言 (english, traditional-chinese, bilingual)
+- `--output-lang <lang>` - Output language | 產出語言 (english, traditional-chinese, bilingual)
 - `--test-levels <levels>` - Test levels (comma-separated) | 測試層級 (unit,integration,system,e2e)
 - `--lang <language>` - Language extension | 語言延伸 (csharp, php)
 - `--framework <name>` - Framework extension | 框架延伸 (fat-free)

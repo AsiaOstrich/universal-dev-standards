@@ -44,7 +44,7 @@ decision:
       select: bilingual
 
 options:
-  commit_language:
+  output_language:
     default: english
     choices:
       - id: english

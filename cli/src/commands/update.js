@@ -484,9 +484,9 @@ export async function updateCommand(options) {
 
     // Determine language setting
     let commonLanguage = 'en';
-    if (manifest.options?.commit_language === 'bilingual') {
+    if ((manifest.options?.output_language || manifest.options?.commit_language) === 'bilingual') {
       commonLanguage = 'bilingual';
-    } else if (manifest.options?.commit_language === 'traditional-chinese') {
+    } else if ((manifest.options?.output_language || manifest.options?.commit_language) === 'traditional-chinese') {
       commonLanguage = 'zh-tw';
     }
 
@@ -506,8 +506,8 @@ export async function updateCommand(options) {
         language: commonLanguage,
         installedStandards: installedStandardsList,
         contentMode: manifest.contentMode || 'minimal',
-        // Pass commit_language for dynamic commit standards generation
-        commitLanguage: manifest.options?.commit_language || 'english'
+        // Pass output_language for dynamic commit standards generation
+        outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english'
       };
 
       const result = writeIntegrationFile(tool, toolConfig, projectPath);
@@ -533,7 +533,7 @@ export async function updateCommand(options) {
       const summaryConfig = {
         installedStandards: installedStandardsList,
         language: manifest.options?.display_language || 'en',
-        commitLanguage: manifest.options?.commit_language || 'english',
+        outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english',
         standardOptions: manifest.options || {}
       };
       const agentsMdResult = writeAgentsMdSummary(summaryConfig, projectPath);
@@ -1048,9 +1048,9 @@ export function regenerateIntegrations(projectPath, manifest) {
 
   // Determine language setting
   let commonLanguage = 'en';
-  if (manifest.options?.commit_language === 'bilingual') {
+  if ((manifest.options?.output_language || manifest.options?.commit_language) === 'bilingual') {
     commonLanguage = 'bilingual';
-  } else if (manifest.options?.commit_language === 'traditional-chinese') {
+  } else if ((manifest.options?.output_language || manifest.options?.commit_language) === 'traditional-chinese') {
     commonLanguage = 'zh-tw';
   }
 
@@ -1075,8 +1075,8 @@ export function regenerateIntegrations(projectPath, manifest) {
       language: commonLanguage,
       installedStandards: installedStandardsList,
       contentMode: manifest.contentMode || 'minimal',
-      // Pass commit_language for dynamic commit standards generation
-      commitLanguage: manifest.options?.commit_language || 'english'
+      // Pass output_language for dynamic commit standards generation
+      outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english'
     };
 
     const result = writeIntegrationFile(tool, toolConfig, projectPath);
@@ -1114,7 +1114,7 @@ export function regenerateIntegrations(projectPath, manifest) {
     const summaryConfig = {
       installedStandards: installedStandardsList,
       language: manifest.options?.display_language || 'en',
-      commitLanguage: manifest.options?.commit_language || 'english',
+      outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english',
       standardOptions: manifest.options || {}
     };
     const agentsMdResult = writeAgentsMdSummary(summaryConfig, projectPath);
@@ -1253,8 +1253,8 @@ async function syncIntegrationReferences(projectPath, manifest) {
       ...config,
       tool: toolName,
       categories: expectedCategories,
-      // Pass commit_language for dynamic commit standards generation
-      commitLanguage: manifest.options?.commit_language || config.commitLanguage || 'english'
+      // Pass output_language for dynamic commit standards generation
+      outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || config.outputLanguage || config.commitLanguage || 'english'
     };
 
     const result = writeIntegrationFile(toolName, newConfig, projectPath);

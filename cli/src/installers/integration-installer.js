@@ -58,7 +58,7 @@ export const INTEGRATION_MAPPINGS = {
  * @param {string} config.contentMode - Content mode ('minimal', 'index', 'full')
  * @param {number} config.level - Adoption level (1-3)
  * @param {string} config.commonLanguage - Language setting ('en', 'zh-tw', 'zh-cn', 'bilingual')
- * @param {string} config.commitLanguage - Commit message language preference
+ * @param {string} config.outputLanguage - Output language preference
  * @param {string} projectPath - Absolute path to the project directory
  * @returns {Promise<Object>} Installation results
  * @returns {Array<string>} .integrations - List of successfully installed integration file paths
@@ -76,7 +76,7 @@ export async function installIntegrations(config, projectPath) {
   // Resolve parameters (support both naming conventions from different callers)
   const integrationConfigs = config.integrationConfigs || config.skillsConfig?.integrationConfigs || {};
   const commonLanguage = config.commonLanguage || config.displayLanguage || 'en';
-  const commitLanguage = config.commitLanguage || config.standardOptions?.commit_language || 'english';
+  const outputLanguage = config.outputLanguage || config.commitLanguage || config.standardOptions?.output_language || config.standardOptions?.commit_language || 'english';
 
   const msg = t().commands.init;
 
@@ -121,8 +121,8 @@ export async function installIntegrations(config, projectPath) {
       installedStandards,
       contentMode,
       level,
-      // Pass commit_language for dynamic commit standards generation
-      commitLanguage
+      // Pass output_language for dynamic commit standards generation
+      outputLanguage
     };
 
     // Use dynamic generator
@@ -147,7 +147,7 @@ export async function installIntegrations(config, projectPath) {
         installedStandards: [...enhancedConfig.installedStandards],
         contentMode: enhancedConfig.contentMode,
         level: enhancedConfig.level,
-        commitLanguage: enhancedConfig.commitLanguage,
+        outputLanguage: enhancedConfig.outputLanguage,
       };
     } else {
       // Fall back to legacy static file copy
@@ -191,7 +191,7 @@ export async function installIntegrations(config, projectPath) {
  * @param {string} config.contentMode - Content mode ('minimal', 'index', 'full')
  * @param {number} config.level - Adoption level (1-3)
  * @param {string} config.commonLanguage - Language setting ('en', 'zh-tw', 'zh-cn', 'bilingual')
- * @param {string} config.commitLanguage - Commit message language preference
+ * @param {string} config.outputLanguage - Output language preference
  * @param {string} projectPath - Absolute path to the project directory
  * @returns {Promise<Object>} Generation results
  * @returns {string|null} .path - Path to CLAUDE.md if generated, null if skipped
@@ -207,7 +207,7 @@ export async function generateClaudeMd(config, projectPath) {
 
   // Resolve parameters (support both naming conventions from different callers)
   const commonLanguage = config.commonLanguage || config.displayLanguage || 'en';
-  const commitLanguage = config.commitLanguage || config.standardOptions?.commit_language || 'english';
+  const outputLanguage = config.outputLanguage || config.commitLanguage || config.standardOptions?.output_language || config.standardOptions?.commit_language || 'english';
 
   const msg = t().commands.init;
 
@@ -235,8 +235,8 @@ export async function generateClaudeMd(config, projectPath) {
     installedStandards,
     contentMode,
     level,
-    // Pass commit_language for dynamic commit standards generation
-    commitLanguage
+    // Pass output_language for dynamic commit standards generation
+    outputLanguage
   };
 
   const result = writeIntegrationFile('claude-code', claudeConfig, projectPath);
@@ -278,15 +278,15 @@ export async function generateUniversalAgentsMd(config, integrationResults, proj
   const msg = t().commands.init;
   const spinner = ora(msg.generatingAgentsMd || 'Generating AGENTS.md...').start();
 
-  const commitLanguage = config.commitLanguage ||
-    config.standardOptions?.commit_language ||
-    config.skillsConfig?.commitLanguage ||
+  const outputLanguage = config.outputLanguage || config.commitLanguage ||
+    config.standardOptions?.output_language || config.standardOptions?.commit_language ||
+    config.skillsConfig?.outputLanguage || config.skillsConfig?.commitLanguage ||
     'english';
 
   const summaryConfig = {
     installedStandards: config.installedStandards || [],
     language: config.displayLanguage || config.commonLanguage || 'en',
-    commitLanguage,
+    outputLanguage,
     standardOptions: config.standardOptions || {}
   };
 

@@ -244,7 +244,7 @@ describe('List Command', () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue({
         options: {
-          commit_language: 'traditional-chinese'
+          output_language: 'traditional-chinese'
         }
       });
 
@@ -257,7 +257,7 @@ describe('List Command', () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue({
         options: {
-          commit_language: 'simplified-chinese'
+          output_language: 'simplified-chinese'
         }
       });
 
@@ -270,7 +270,7 @@ describe('List Command', () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue({
         options: {
-          commit_language: 'english'
+          output_language: 'english'
         }
       });
 
@@ -283,7 +283,7 @@ describe('List Command', () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue({
         options: {
-          commit_language: 'bilingual'
+          output_language: 'bilingual'
         }
       });
 
@@ -296,7 +296,7 @@ describe('List Command', () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue({
         options: {
-          commit_language: 'unknown-language'
+          output_language: 'unknown-language'
         }
       });
 
@@ -312,7 +312,7 @@ describe('List Command', () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue({
         options: {
-          commit_language: 'traditional-chinese'
+          output_language: 'traditional-chinese'
         }
       });
 
@@ -330,7 +330,7 @@ describe('List Command', () => {
       expect(setLanguage).not.toHaveBeenCalled();
     });
 
-    it('should handle manifest without commit_language', () => {
+    it('should handle manifest without output_language', () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue({
         options: {}

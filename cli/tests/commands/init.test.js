@@ -358,7 +358,7 @@ describe('Init Command', () => {
         display_language: 'en',
         workflow: 'github-flow',
         merge_strategy: 'squash',
-        commit_language: 'english',
+        output_language: 'english',
         test_levels: ['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing'],
         release_mode: 'ci-cd'
       });
@@ -410,7 +410,7 @@ describe('Init Command', () => {
         yes: true,
         workflow: 'gitflow',
         mergeStrategy: 'merge-commit',
-        commitLang: 'traditional-chinese',
+        outputLang: 'traditional-chinese',
         testLevels: 'unit-testing,e2e-testing'
       })).rejects.toThrow('process.exit called');
 
@@ -420,7 +420,7 @@ describe('Init Command', () => {
 
       expect(manifestArg.options.workflow).toBe('gitflow');
       expect(manifestArg.options.merge_strategy).toBe('merge-commit');
-      expect(manifestArg.options.commit_language).toBe('traditional-chinese');
+      expect(manifestArg.options.output_language).toBe('traditional-chinese');
       expect(manifestArg.options.test_levels).toEqual(['unit-testing', 'e2e-testing']);
     });
 

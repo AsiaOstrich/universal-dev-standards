@@ -150,7 +150,7 @@
     "display_language": "zh-tw",
     "workflow": "github-flow",
     "merge_strategy": "squash",
-    "commit_language": "traditional-chinese",
+    "output_language": "traditional-chinese",
     "test_levels": [
       "unit-testing",
       "integration-testing",

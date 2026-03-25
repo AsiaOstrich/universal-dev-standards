@@ -327,7 +327,7 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     standardOptions: {
       workflow: options.workflow || 'github-flow',
       merge_strategy: options.mergeStrategy || 'squash',
-      commit_language: options.commitLang || 'english',
+      output_language: options.outputLang || 'english',
       test_levels: options.testLevels ? options.testLevels.split(',') : ['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing']
     },
     skillsConfig,
@@ -416,8 +416,8 @@ function displaySummary(config, msg, common) {
   if (config.standardOptions.merge_strategy) {
     console.log(chalk.gray(`  ${msg.mergeStrategy}: ${getValueLabel('mergeStrategy', config.standardOptions.merge_strategy)}`));
   }
-  if (config.standardOptions.commit_language) {
-    console.log(chalk.gray(`  ${msg.commitLanguage}: ${getValueLabel('commitLanguage', config.standardOptions.commit_language)}`));
+  if (config.standardOptions.output_language) {
+    console.log(chalk.gray(`  ${msg.outputLanguage}: ${getValueLabel('outputLanguage', config.standardOptions.output_language)}`));
   }
   if (config.standardOptions.test_levels?.length > 0) {
     const testLabels = config.standardOptions.test_levels.map(level => getValueLabel('testLevels', level));

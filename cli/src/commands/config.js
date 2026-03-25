@@ -21,7 +21,7 @@ import {
   promptFormat,
   promptGitWorkflow,
   promptMergeStrategy,
-  promptCommitLanguage,
+  promptOutputLanguage,
   promptTestLevels,
   promptConfirm,
   promptManageAITools,
@@ -249,10 +249,10 @@ async function handleLimitedConfig(options) {
 /**
  * Handle display language change with cascade:
  * 1. Update manifest + setLanguage
- * 2. Auto-prompt commit_language
+ * 2. Auto-prompt output_language
  * 3. If skills/commands installed → confirm reinstall with new locale
  * 4. If AI tools → confirm regenerate integrations
- * 5. Copy commit_language option file if changed
+ * 5. Copy output_language option file if changed
  * 6. Write manifest once at end
  */
 async function handleDisplayLanguageChange() {
@@ -295,19 +295,19 @@ async function handleDisplayLanguageChange() {
   manifest.options.display_language = newLang;
   setLanguage(newLang);
 
-  // Cascade 1: Auto-prompt commit_language
-  const oldCommitLang = manifest.options.commit_language;
-  const newCommitLang = await promptCommitLanguage(newLang);
-  manifest.options.commit_language = newCommitLang;
+  // Cascade 1: Auto-prompt output_language
+  const oldOutputLang = manifest.options.output_language;
+  const newOutputLang = await promptOutputLanguage(newLang);
+  manifest.options.output_language = newOutputLang;
 
-  // Copy commit_language option file if changed
-  if (newCommitLang !== oldCommitLang) {
+  // Copy output_language option file if changed
+  if (newOutputLang !== oldOutputLang) {
     const standards = getAllStandards();
     const formatsToUse = manifest.format === 'both' ? ['ai', 'human'] : [manifest.format || 'human'];
     for (const std of standards) {
       if (std.id === 'commit-message' && std.options) {
         for (const targetFormat of formatsToUse) {
-          const option = findOption(std, 'commit_language', newCommitLang);
+          const option = findOption(std, 'output_language', newOutputLang);
           if (option) {
             const sourcePath = getOptionSource(option, targetFormat);
             await copyStandard(sourcePath, '.standards/options', projectPath);
@@ -499,8 +499,8 @@ export async function runProjectConfiguration(options) {
     if (manifest.options.merge_strategy) {
       console.log(chalk.gray(`  ${msgObj.mergeStrategy}: ${manifest.options.merge_strategy}`));
     }
-    if (manifest.options.commit_language) {
-      console.log(chalk.gray(`  ${msgObj.commitLanguage}: ${manifest.options.commit_language}`));
+    if (manifest.options.output_language) {
+      console.log(chalk.gray(`  ${msgObj.outputLanguage}: ${manifest.options.output_language}`));
     }
     if (manifest.options.test_levels && manifest.options.test_levels.length > 0) {
       console.log(chalk.gray(`  ${msgObj.testLevels}: ${manifest.options.test_levels.join(', ')}`));
@@ -539,7 +539,7 @@ export async function runProjectConfiguration(options) {
     }
 
     baseChoices.push(
-      { name: msgObj.optionCommitLanguage, value: 'commit_language' }
+      { name: msgObj.optionOutputLanguage, value: 'output_language' }
     );
 
     // Test Levels, Content Mode and Methodology: only with -E flag (advanced)
@@ -702,9 +702,9 @@ export async function runProjectConfiguration(options) {
     newOptions.merge_strategy = await promptMergeStrategy();
   }
 
-  if (configType === 'all' || configType === 'commit_language') {
+  if (configType === 'all' || configType === 'output_language') {
     const displayLanguage = manifest.options?.display_language || 'en';
-    newOptions.commit_language = await promptCommitLanguage(displayLanguage);
+    newOptions.output_language = await promptOutputLanguage(displayLanguage);
   }
 
   // Test levels: only prompt with -E or direct --type test_levels (advanced setting)
@@ -744,8 +744,8 @@ export async function runProjectConfiguration(options) {
   if (newOptions.merge_strategy) {
     console.log(chalk.gray(`  ${msgObj.mergeStrategy}: ${newOptions.merge_strategy}`));
   }
-  if (newOptions.commit_language) {
-    console.log(chalk.gray(`  ${msgObj.commitLanguage}: ${newOptions.commit_language}`));
+  if (newOptions.output_language) {
+    console.log(chalk.gray(`  ${msgObj.outputLanguage}: ${newOptions.output_language}`));
   }
   if (newOptions.test_levels && newOptions.test_levels.length > 0) {
     console.log(chalk.gray(`  ${msgObj.testLevels}: ${newOptions.test_levels.join(', ')}`));
@@ -804,8 +804,8 @@ export async function runProjectConfiguration(options) {
 
       // Commit message
       if (std.id === 'commit-message') {
-        if (newOptions.commit_language && newOptions.commit_language !== manifest.options?.commit_language) {
-          await copyOptionFile(std, 'commit_language', newOptions.commit_language, targetFormat);
+        if (newOptions.output_language && newOptions.output_language !== manifest.options?.output_language) {
+          await copyOptionFile(std, 'output_language', newOptions.output_language, targetFormat);
         }
       }
 
@@ -829,9 +829,9 @@ export async function runProjectConfiguration(options) {
 
     // Determine language setting
     let commonLanguage = 'en';
-    if (newOptions.commit_language === 'bilingual') {
+    if (newOptions.output_language === 'bilingual') {
       commonLanguage = 'bilingual';
-    } else if (newOptions.commit_language === 'traditional-chinese') {
+    } else if (newOptions.output_language === 'traditional-chinese') {
       commonLanguage = 'zh-tw';
     }
 
@@ -850,8 +850,8 @@ export async function runProjectConfiguration(options) {
         language: commonLanguage,
         installedStandards: installedStandardsList,
         contentMode: newContentMode,
-        // Pass commit_language for dynamic commit standards generation
-        commitLanguage: newOptions.commit_language || 'english'
+        // Pass output_language for dynamic commit standards generation
+        outputLanguage: newOptions.output_language || 'english'
       };
 
       const result = writeIntegrationFile(tool, toolConfig, projectPath);

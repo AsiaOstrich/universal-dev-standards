@@ -104,7 +104,7 @@ npm test
 npm run lint
 ```
 
-### Commit Message Language | Commit 訊息語言
+### Output Language | 產出語言
 
 This project uses **English** commit messages.
 <!-- Options: English | Traditional Chinese | Bilingual -->

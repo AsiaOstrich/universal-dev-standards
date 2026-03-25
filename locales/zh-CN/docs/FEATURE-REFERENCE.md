@@ -43,7 +43,7 @@
 | `-f, --format` | Standards format (ai, human, both) |
 | `--workflow` | Git workflow (github-flow, gitflow, trunk-based) |
 | `--merge-strategy` | Merge strategy (squash, merge-commit, rebase-ff) |
-| `--commit-lang` | Commit message language (english, traditional-chinese, bilingual) |
+| `--output-lang` | Output language (english, traditional-chinese, bilingual) |
 | `--test-levels` | Test levels, comma-separated (unit-testing,integration-testing,...) |
 | `--lang` | Language extension (csharp, php) |
 | `--framework` | Framework extension (fat-free) |
@@ -62,7 +62,7 @@
 **选项**:
 | Option | 说明 |
 |--------|-------------|
-| `-t, --type` | Option type to configure (format, workflow, merge_strategy, commit_language, test_levels, skills, commands, all) |
+| `-t, --type` | Option type to configure (format, workflow, merge_strategy, output_language, test_levels, skills, commands, all) |
 | `--ai-tool` | Specific AI tool to configure (claude-code, opencode, copilot, etc.) |
 | `--skills-location` | Skills installation location (project, user) |
 | `-y, --yes` | Apply changes immediately without prompting |

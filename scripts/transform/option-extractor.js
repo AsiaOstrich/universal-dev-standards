@@ -70,7 +70,7 @@ function matchOption(title, pattern, category) {
     merge_strategy: [
       { regex: /(Merge Commit|Squash Merge|Rebase)/i, extract: 0 },
     ],
-    commit_language: [
+    output_language: [
       { regex: /Option [ABC]:\s*(.+)/i, extract: 1 },
       { regex: /^(English|Traditional Chinese|Bilingual)/i, extract: 0 },
     ],

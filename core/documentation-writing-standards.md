@@ -113,6 +113,38 @@ Day-to-day maintenance, bug fixes, minor feature enhancements of existing system
 
 ---
 
+## Documentation Language Configuration
+
+Documentation language shares the `output_language` setting with [commit-message-guide.md](commit-message-guide.md). This unified setting controls the language of all written outputs in a project.
+
+### Language Options
+
+| Setting Value | Commit Messages | Documentation |
+|--------------|----------------|---------------|
+| `english` | English only | English only |
+| `traditional-chinese` | Traditional Chinese only | Traditional Chinese only |
+| `bilingual` | English + Chinese | Tiered bilingual (see below) |
+
+### Document Tiers (Bilingual Mode)
+
+When `output_language` is set to `bilingual`, documents follow a three-tier system:
+
+| Tier | Documents | Behavior | Rationale |
+|------|-----------|----------|-----------|
+| **L1 — Mandatory** | Commit messages, CHANGELOG.md, PR descriptions | Automatically bilingual | Directly controlled by language setting |
+| **L2 — Recommended** | README.md, CONTRIBUTING.md, ADR/ | AI suggests bilingual | Most frequently read by developers |
+| **L3 — Unaffected** | ARCHITECTURE.md, API.md, DATABASE.md, DEPLOYMENT.md, MIGRATION.md | Follows display language | Technical specs; bilingual adds excessive redundancy |
+
+### Bilingual Document Format
+
+Use paragraph-level bilingual format, consistent with bilingual commit message body:
+
+- English paragraph first, followed by a blank line, then Chinese paragraph
+- Code blocks and tables are written once (not duplicated)
+- Section headings use `|` separator: `## Installation | 安裝`
+
+---
+
 ## Core Principles
 
 > **Documentation is an extension of code and should be treated with equal importance. Good documentation reduces communication costs, accelerates onboarding, and lowers maintenance risks.**
@@ -818,10 +850,59 @@ last_synced: 2026-03-17
 
 | Item | Standard |
 |------|----------|
-| Sync Updates | Update docs when code changes |
+| Sync Updates | **Automatic AI behavior**: After completing code changes, AI must check which documents are affected and list them as a reminder. See [AI Behavior: Automatic Documentation Impact Check](#automatic-documentation-impact-check) below |
 | Version Marking | Mark version and update date at top |
 | Review Inclusion | Include doc changes in code review |
 | Periodic Review | Review docs quarterly for staleness |
+
+### Automatic Documentation Impact Check
+
+**This is an automatic AI behavior** — AI assistants MUST perform this check after completing any code modification task, without waiting for the user to ask.
+
+**Workflow:**
+
+1. After finishing code changes, identify which files were modified
+2. For each modified file, check if any documents reference it (README, CLI docs, API docs, specs, skills, translations)
+3. If affected documents are found, append a reminder block with **suggested commands**:
+
+```
+---
+📋 **Documentation Impact**
+The following documents may need updating:
+- `README.md` — describes changed CLI option `--xxx`
+  → `/docs readme`
+- `docs/CLI-INIT-OPTIONS.md` — references modified function `promptXxx()`
+  → manual update or `/docs generate`
+- `locales/zh-TW/docs/CLI-INIT-OPTIONS.md` — translation of modified source
+  → `/docs translate docs/CLI-INIT-OPTIONS.md --lang zh-TW`
+
+Or run `/docs impact` for a full analysis.
+---
+```
+
+4. If no documents are affected, skip silently
+5. **Do not modify documents automatically** — only list the reminder and wait for user confirmation
+
+**Command suggestion mapping:**
+
+| Affected Document | Suggested Command |
+|-------------------|-------------------|
+| README.md | `/docs readme` |
+| API documentation | `/docs api` |
+| Generated docs (cheatsheet, reference) | `/docs generate` |
+| Translation files (`locales/`) | `/docs translate <source-file> --lang <lang>` |
+| Spec files, skill files, other docs | Manual update (suggest specific file path) |
+| Multiple docs affected | `/docs impact` for full overview |
+
+**Scope of check:**
+
+| Document Type | Check Against |
+|--------------|---------------|
+| CLI docs (`docs/`) | Modified functions, CLI options, commands |
+| Spec files (`docs/specs/`) | Modified interfaces, schemas, workflows |
+| Skills (`skills/`) | Modified behaviors, standards references |
+| Translations (`locales/`) | Any modified source file that has translations |
+| README, CHANGELOG | Modified public API, features, configuration |
 
 ### Review Checklist
 

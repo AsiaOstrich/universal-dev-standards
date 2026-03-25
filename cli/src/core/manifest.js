@@ -375,8 +375,15 @@ function migrateToV330(manifest) {
  * @returns {Object} manifest with missing fields filled in
  */
 function ensureRequiredFields(manifest) {
+  // Migrate commit_language → output_language (backward-compatible)
+  const options = manifest.options ? { ...manifest.options } : {};
+  if (options.commit_language && !options.output_language) {
+    options.output_language = options.commit_language;
+  }
+  // Keep commit_language as fallback for older CLIs
   return {
     ...manifest,
+    options,
     contentMode: manifest.contentMode || 'index',
     fileHashes: manifest.fileHashes || {},
     skillHashes: manifest.skillHashes || {},

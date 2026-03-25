@@ -146,7 +146,7 @@ Closes #123
 **專案決策點**: 在 `CONTRIBUTING.md` 中記錄你的選擇（選擇其一）：
 
 ```markdown
-## Commit Message Language
+## Output Language
 
 <!-- 選擇以下其中一個選項： -->
 

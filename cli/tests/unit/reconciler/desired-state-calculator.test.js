@@ -8,10 +8,10 @@ vi.mock('../../../src/utils/registry.js', () => ({
       category: 'core',
       source: { ai: 'ai/standards/commit-message.ai.yaml', human: 'core/commit-message-guide.md' },
       options: {
-        commitLanguage: {
+        outputLanguage: {
           choices: [
-            { id: 'english', source: { ai: 'ai/options/commit-message/commitLanguage/english.ai.yaml' } },
-            { id: 'bilingual', source: { ai: 'ai/options/commit-message/commitLanguage/bilingual.ai.yaml' } }
+            { id: 'english', source: { ai: 'ai/options/commit-message/outputLanguage/english.ai.yaml' } },
+            { id: 'bilingual', source: { ai: 'ai/options/commit-message/outputLanguage/bilingual.ai.yaml' } }
           ],
           default: 'english'
         }
@@ -180,7 +180,7 @@ describe('DesiredStateCalculator', () => {
         integrations: [],
         options: {
           'commit-message': {
-            commitLanguage: 'bilingual'
+            outputLanguage: 'bilingual'
           }
         },
         skills: { installed: false, installations: [] },
@@ -264,7 +264,7 @@ describe('DesiredStateCalculator', () => {
         integrations: [],
         options: {
           'commit-message': {
-            commitLanguage: ['english', 'bilingual']
+            outputLanguage: ['english', 'bilingual']
           }
         },
         skills: { installed: false, installations: [] },

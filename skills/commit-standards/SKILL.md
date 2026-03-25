@@ -15,7 +15,7 @@ Generate well-formatted commit messages following the Conventional Commits stand
 
 ## Workflow | 工作流程
 
-0. **Detect language** - Read `.standards/manifest.json` → check `options.commit_language`. If not found, default to `english`.
+0. **Detect language** - Read `.standards/manifest.json` → check `options.output_language`. If not found, default to `english`.
 1. **Check status** - Run `git status` and `git diff --staged` to understand changes
 2. **Analyze changes** - Determine the type (feat, fix, refactor, etc.) and scope
 3. **Generate message** - Create a commit message following the format for the detected language (see below)
@@ -52,7 +52,7 @@ Generate well-formatted commit messages following the Conventional Commits stand
 
 ## Bilingual Format | 雙語格式
 
-When `commit_language` is `bilingual`, you MUST use this format:
+When `output_language` is `bilingual`, you MUST use this format:
 
 ```
 <type>(<scope>): <English subject>. <中文主旨>.
@@ -94,7 +94,7 @@ Closes #123
 
 ## Traditional Chinese Format | 繁體中文格式
 
-When `commit_language` is `traditional-chinese`, use Chinese types and body:
+When `output_language` is `traditional-chinese`, use Chinese types and body:
 
 ```
 功能(認證): 新增 OAuth2 Google 登入支援

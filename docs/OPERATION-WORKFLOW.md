@@ -399,7 +399,7 @@ integrations/[tool-name]/
 │ - Skills install location (marketplace/user/project/none)       │
 │ - Adoption level (Essential/Recommended/Enterprise)             │
 │ - Format selection (ai/human/both)                              │
-│ - Standard options (workflow, commit_language, test_levels)     │
+│ - Standard options (workflow, output_language, test_levels)     │
 │ - Content mode (minimal/index/full)                             │
 └─────────────────────────────┬───────────────────────────────────┘
                               ↓

@@ -178,8 +178,8 @@ interface ManifestOptions {
   workflow?: 'github-flow' | 'gitflow' | 'trunk-based';
   /** Merge strategy preference */
   merge_strategy?: 'merge' | 'squash' | 'rebase';
-  /** Commit message language */
-  commit_language?: 'english' | 'chinese' | 'bilingual';
+  /** Output language */
+  output_language?: 'english' | 'chinese' | 'bilingual';
   /** Test levels to include */
   test_levels?: ('unit-testing' | 'integration-testing' | 'e2e-testing')[];
 }
@@ -318,7 +318,7 @@ type AIToolName =
   "options": {
     "workflow": "github-flow",
     "merge_strategy": "squash",
-    "commit_language": "english",
+    "output_language": "english",
     "test_levels": ["unit-testing", "integration-testing"]
   },
   "aiTools": ["claude-code", "cursor"],

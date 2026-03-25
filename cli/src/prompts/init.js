@@ -749,7 +749,7 @@ export async function promptMergeStrategy() {
 }
 
 /**
- * Prompt for commit message language
+ * Prompt for output language
  *
  * The bilingual option is only shown when displayLanguage is Chinese (zh-tw or zh-cn),
  * as bilingual commits are primarily useful for Chinese-speaking teams who want both
@@ -758,8 +758,8 @@ export async function promptMergeStrategy() {
  * @param {string} displayLanguage - Display language ('en', 'zh-tw', or 'zh-cn')
  * @returns {Promise<string>} Selected language ID: 'english', 'traditional-chinese', or 'bilingual'
  */
-export async function promptCommitLanguage(displayLanguage = 'en') {
-  const msg = t().commitLanguage;
+export async function promptOutputLanguage(displayLanguage = 'en') {
+  const msg = t().outputLanguage;
 
   console.log();
   console.log(chalk.cyan(msg.title));
@@ -890,7 +890,7 @@ export async function promptStandardOptions(level, displayLanguage = 'en', opts 
 
   // Commit message options (level 1+)
   // Pass displayLanguage to filter bilingual option
-  options.commit_language = await promptCommitLanguage(displayLanguage);
+  options.output_language = await promptOutputLanguage(displayLanguage);
 
   // Testing options (level 2+)
   // Default to all 4 levels; only prompt with --experimental

@@ -116,7 +116,7 @@ describe('Init Command Interactive', () => {
         installCancelled: 'Cancelled',
         gitWorkflow: 'Git Workflow',
         mergeStrategy: 'Merge Strategy',
-        commitLanguage: 'Commit Language',
+        outputLanguage: 'Output Language',
         testLevels: 'Test Levels',
         aiTools: 'AI Tools',
         skillsStatus: 'Skills Status',
@@ -234,7 +234,7 @@ describe('Init Command Interactive', () => {
     vi.mocked(prompts.promptStandardOptions).mockResolvedValue({
       workflow: 'git-flow',
       merge_strategy: 'rebase',
-      commit_language: 'bilingual',
+      output_language: 'bilingual',
       test_levels: ['unit-testing', 'integration-testing', 'e2e-testing']
     });
     vi.mocked(prompts.promptLanguage).mockResolvedValue(['javascript', 'typescript']);
@@ -277,7 +277,7 @@ describe('Init Command Interactive', () => {
       display_language: 'en',
       workflow: 'git-flow',
       merge_strategy: 'rebase',
-      commit_language: 'bilingual',
+      output_language: 'bilingual',
       test_levels: ['unit-testing', 'integration-testing', 'e2e-testing']
     });
 

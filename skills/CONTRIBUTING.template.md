@@ -21,7 +21,7 @@ Uncomment and list skills you want to DISABLE for this project.
 
 ## Development Standards
 
-### Commit Message Language
+### Output Language
 
 This project uses **English** commit types.
 <!-- Options: English | Traditional Chinese | Bilingual -->

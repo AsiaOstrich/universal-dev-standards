@@ -14,14 +14,14 @@
       "methodology": "Methodology:",
       "gitWorkflow": "Git Workflow:",
       "mergeStrategy": "Merge Strategy:",
-      "commitLanguage": "Commit Language:",
+      "outputLanguage": "Output Language:",
       "testLevels": "Test Levels:"
     },
     "prompts": {
       "format": "Select standards format:",
       "workflow": "Select Git workflow:",
       "mergeStrategy": "Select merge strategy:",
-      "commitLanguage": "Select commit message language:",
+      "outputLanguage": "Select commit message language:",
       "testLevels": "Select test levels:",
       "applyChanges": "Apply these changes?",
       "applyChangesNow": "Apply changes now? (regenerate integration files)"

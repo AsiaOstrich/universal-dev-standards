@@ -19,7 +19,7 @@ describe('generateAgentsMdSummary', () => {
         'security-standards.ai.yaml'
       ],
       language: 'en',
-      commitLanguage: 'english',
+      outputLanguage: 'english',
       standardOptions: {
         workflow: 'github-flow',
         merge_strategy: 'squash'
@@ -41,7 +41,7 @@ describe('generateAgentsMdSummary', () => {
     const config = {
       installedStandards: ['testing.ai.yaml'],
       language: 'en',
-      commitLanguage: 'english',
+      outputLanguage: 'english',
       standardOptions: {}
     };
 
@@ -62,7 +62,7 @@ describe('generateAgentsMdSummary', () => {
     const config = {
       installedStandards: ['commit-message.ai.yaml'],
       language: 'en',
-      commitLanguage: 'english',
+      outputLanguage: 'english',
       standardOptions: {}
     };
 
@@ -83,7 +83,7 @@ describe('generateAgentsMdSummary', () => {
         'testing.ai.yaml'
       ],
       language: 'en',
-      commitLanguage: 'english',
+      outputLanguage: 'english',
       standardOptions: {}
     };
 
@@ -101,7 +101,7 @@ describe('generateAgentsMdSummary', () => {
     const config = {
       installedStandards: [],
       language: 'en',
-      commitLanguage: 'english',
+      outputLanguage: 'english',
       standardOptions: {}
     };
 
@@ -117,7 +117,7 @@ describe('generateAgentsMdSummary', () => {
     const config = {
       installedStandards: [],
       language: 'en',
-      commitLanguage: 'english',
+      outputLanguage: 'english',
       standardOptions: {
         workflow: 'gitflow',
         merge_strategy: 'merge-commit'
@@ -132,12 +132,12 @@ describe('generateAgentsMdSummary', () => {
     expect(content).toContain('merge-commit');
   });
 
-  it('should_handle_traditional_chinese_commit_language', () => {
+  it('should_handle_traditional_chinese_output_language', () => {
     // Arrange
     const config = {
       installedStandards: [],
       language: 'zh-tw',
-      commitLanguage: 'traditional-chinese',
+      outputLanguage: 'traditional-chinese',
       standardOptions: {}
     };
 
@@ -149,12 +149,12 @@ describe('generateAgentsMdSummary', () => {
     expect(content).toContain('繁體中文');
   });
 
-  it('should_handle_bilingual_commit_language', () => {
+  it('should_handle_bilingual_output_language', () => {
     // Arrange
     const config = {
       installedStandards: [],
       language: 'en',
-      commitLanguage: 'bilingual',
+      outputLanguage: 'bilingual',
       standardOptions: {}
     };
 
@@ -171,7 +171,7 @@ describe('generateAgentsMdSummary', () => {
     const config = {
       installedStandards: standards,
       language: 'en',
-      commitLanguage: 'english',
+      outputLanguage: 'english',
       standardOptions: {}
     };
 
@@ -201,7 +201,7 @@ describe('generateAgentsMdSummary', () => {
     const config = {
       installedStandards: ['anti-hallucination.ai.yaml'],
       language: 'en',
-      commitLanguage: 'english',
+      outputLanguage: 'english',
       standardOptions: {}
     };
 
@@ -222,7 +222,7 @@ describe('generateAgentsMdSummary', () => {
         'requirement-template.md'
       ],
       language: 'en',
-      commitLanguage: 'english',
+      outputLanguage: 'english',
       standardOptions: {}
     };
 
@@ -240,7 +240,7 @@ describe('generateAgentsMdSummary', () => {
     const config = {
       installedStandards: [],
       language: 'en',
-      commitLanguage: 'english',
+      outputLanguage: 'english',
       standardOptions: {},
       projectPath: join(import.meta.dirname, '../../../')
     };
@@ -260,7 +260,7 @@ describe('generateAgentsMdSummary', () => {
     const config = {
       installedStandards: [],
       language: 'en',
-      commitLanguage: 'english',
+      outputLanguage: 'english',
       standardOptions: {},
       projectPath: import.meta.dirname // tests/unit/utils - no package.json here
     };

@@ -74,7 +74,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       // Act - Call with empty integrations
@@ -104,7 +104,7 @@ describe('integration-installer', () => {
         contentMode: 'index',
         level: 3,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       getToolFilePath.mockImplementation(tool => {
@@ -140,7 +140,7 @@ describe('integration-installer', () => {
           contentMode: 'index',
           level: 3,
           language: 'en',
-          commitLanguage: 'english'
+          outputLanguage: 'english'
         }),
         mockProjectPath
       );
@@ -165,7 +165,7 @@ describe('integration-installer', () => {
         installedStandards: ['anti-hallucination.ai.yaml', 'commit-message.ai.yaml', 'testing.ai.yaml'],
         contentMode: 'index',
         level: 3,
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       });
 
       expect(mockSpinner.succeed).toHaveBeenCalledWith('Generated 3 integration file(s)');
@@ -182,7 +182,7 @@ describe('integration-installer', () => {
         contentMode: 'full',
         level: 3,
         commonLanguage: 'zh-tw',
-        commitLanguage: 'traditional-chinese'
+        outputLanguage: 'traditional-chinese'
       };
 
       getToolFilePath.mockReturnValue('.cursorrules');
@@ -204,7 +204,7 @@ describe('integration-installer', () => {
       expect(ic.installedStandards).toEqual(['anti-hallucination.ai.yaml', 'commit-message.ai.yaml']);
       expect(ic.contentMode).toBe('full');
       expect(ic.level).toBe(3);
-      expect(ic.commitLanguage).toBe('traditional-chinese');
+      expect(ic.outputLanguage).toBe('traditional-chinese');
       // installedStandards should be a copy, not a reference
       expect(ic.installedStandards).not.toBe(config.installedStandards);
     });
@@ -218,7 +218,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       getToolFilePath.mockReturnValue('.cursorrules');
@@ -248,7 +248,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       // Both tools target AGENTS.md
@@ -280,7 +280,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       getToolFilePath.mockReturnValue('.cursorrules');
@@ -320,7 +320,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       getToolFilePath.mockReturnValue('.cursorrules');
@@ -353,7 +353,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       getToolFilePath.mockReturnValue('.unknownrules');
@@ -383,7 +383,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       getToolFilePath.mockReturnValue('.cursorrules');
@@ -418,7 +418,7 @@ describe('integration-installer', () => {
         contentMode: 'full',
         level: 3,
         commonLanguage: 'en',
-        commitLanguage: 'traditional-chinese'
+        outputLanguage: 'traditional-chinese'
       };
 
       getToolFilePath.mockReturnValue('.windsurfrules');
@@ -438,7 +438,7 @@ describe('integration-installer', () => {
           installedStandards: ['testing.ai.yaml', 'documentation-structure.ai.yaml'],
           contentMode: 'full',
           level: 3,
-          commitLanguage: 'traditional-chinese'
+          outputLanguage: 'traditional-chinese'
         }),
         mockProjectPath
       );
@@ -449,7 +449,7 @@ describe('integration-installer', () => {
       const config = {
         integrations: ['cursor'],
         displayLanguage: 'zh-tw',
-        standardOptions: { commit_language: 'traditional-chinese' },
+        standardOptions: { output_language: 'traditional-chinese' },
         skillsConfig: {
           integrationConfigs: {
             cursor: { categories: ['anti-hallucination'] }
@@ -466,12 +466,12 @@ describe('integration-installer', () => {
       // Act - Install with init-flow config shape
       await installIntegrations(config, mockProjectPath);
 
-      // Assert - Language resolved from displayLanguage, commitLanguage from standardOptions
+      // Assert - Language resolved from displayLanguage, outputLanguage from standardOptions
       expect(writeIntegrationFile).toHaveBeenCalledWith(
         'cursor',
         expect.objectContaining({
           language: 'zh-tw',
-          commitLanguage: 'traditional-chinese'
+          outputLanguage: 'traditional-chinese'
         }),
         mockProjectPath
       );
@@ -482,7 +482,7 @@ describe('integration-installer', () => {
       const config = {
         integrations: ['windsurf'],
         displayLanguage: 'zh-tw',
-        standardOptions: { commit_language: 'bilingual' },
+        standardOptions: { output_language: 'bilingual' },
         skillsConfig: {
           integrationConfigs: {
             windsurf: { categories: ['testing'], language: 'bilingual' }
@@ -505,7 +505,7 @@ describe('integration-installer', () => {
         expect.objectContaining({
           language: 'bilingual',
           categories: ['testing'],
-          commitLanguage: 'bilingual'
+          outputLanguage: 'bilingual'
         }),
         mockProjectPath
       );
@@ -520,7 +520,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       getToolFilePath.mockImplementation(tool => {
@@ -578,7 +578,7 @@ describe('integration-installer', () => {
         contentMode: 'index',
         level: 3,
         commonLanguage: 'zh-tw',
-        commitLanguage: 'traditional-chinese'
+        outputLanguage: 'traditional-chinese'
       };
 
       integrationFileExists.mockReturnValue(false);
@@ -606,7 +606,7 @@ describe('integration-installer', () => {
           installedStandards: ['commit-message.ai.yaml'],
           contentMode: 'index',
           level: 3,
-          commitLanguage: 'traditional-chinese'
+          outputLanguage: 'traditional-chinese'
         }),
         mockProjectPath
       );
@@ -621,7 +621,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       // Act - Skip generation
@@ -642,7 +642,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       integrationFileExists.mockReturnValue(true);
@@ -665,7 +665,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       integrationFileExists.mockReturnValue(false);
@@ -690,7 +690,7 @@ describe('integration-installer', () => {
         contentMode: 'index',
         level: 3,
         displayLanguage: 'zh-tw',
-        standardOptions: { commit_language: 'traditional-chinese' }
+        standardOptions: { output_language: 'traditional-chinese' }
       };
 
       integrationFileExists.mockReturnValue(false);
@@ -704,7 +704,7 @@ describe('integration-installer', () => {
         'claude-code',
         expect.objectContaining({
           language: 'zh-tw',
-          commitLanguage: 'traditional-chinese'
+          outputLanguage: 'traditional-chinese'
         }),
         mockProjectPath
       );
@@ -731,7 +731,7 @@ describe('integration-installer', () => {
           contentMode: 'minimal',
           level: 2,
           language: 'en',
-          commitLanguage: 'english'
+          outputLanguage: 'english'
         }),
         mockProjectPath
       );
@@ -745,7 +745,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       integrationFileExists.mockReturnValue(false);
@@ -793,7 +793,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       getToolFilePath.mockReturnValue('.cursorrules');
@@ -821,7 +821,7 @@ describe('integration-installer', () => {
         contentMode: 'index',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       getToolFilePath.mockReturnValue('.cursorrules');
@@ -849,7 +849,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       getToolFilePath.mockReturnValue('.cursorrules');
@@ -877,7 +877,7 @@ describe('integration-installer', () => {
         contentMode: 'index',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       getToolFilePath.mockReturnValue('.cursorrules');
@@ -902,7 +902,7 @@ describe('integration-installer', () => {
         contentMode: 'minimal',
         level: 2,
         commonLanguage: 'en',
-        commitLanguage: 'english'
+        outputLanguage: 'english'
       };
 
       getToolFilePath.mockReturnValue('.cursorrules');
@@ -1059,7 +1059,7 @@ describe('integration-installer', () => {
         installedStandards: ['commit-message.ai.yaml', 'testing.ai.yaml'],
         displayLanguage: 'zh-tw',
         standardOptions: {
-          commit_language: 'traditional-chinese',
+          output_language: 'traditional-chinese',
           workflow: 'gitflow'
         }
       };
@@ -1079,7 +1079,7 @@ describe('integration-installer', () => {
         expect.objectContaining({
           installedStandards: ['commit-message.ai.yaml', 'testing.ai.yaml'],
           language: 'zh-tw',
-          commitLanguage: 'traditional-chinese',
+          outputLanguage: 'traditional-chinese',
           standardOptions: expect.objectContaining({ workflow: 'gitflow' })
         }),
         '/test'

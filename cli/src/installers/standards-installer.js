@@ -100,8 +100,8 @@ export async function installStandards(config, projectPath) {
           }
         }
         // Commit message options
-        if (std.id === 'commit-message' && config.standardOptions.commit_language) {
-          const copied = await copyOptionFiles(std, 'commit_language', config.standardOptions.commit_language, targetFormat);
+        if (std.id === 'commit-message' && (config.standardOptions.output_language || config.standardOptions.commit_language)) {
+          const copied = await copyOptionFiles(std, 'output_language', config.standardOptions.output_language || config.standardOptions.commit_language, targetFormat);
           results.standards.push(...copied);
         }
         // Testing options

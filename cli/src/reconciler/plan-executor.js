@@ -442,7 +442,7 @@ function buildIntegrationConfig(manifest, toolName) {
     format: manifest.format || 'ai',
     contentMode: manifest.contentMode || 'index',
     language: manifest.integrationConfigs?.[toolName]?.language || 'en',
-    commitLanguage: manifest.integrationConfigs?.[toolName]?.commitLanguage || 'english',
+    outputLanguage: manifest.integrationConfigs?.[toolName]?.outputLanguage || manifest.integrationConfigs?.[toolName]?.commitLanguage || 'english',
     installedSkills: manifest.skills?.names || [],
     installedCommands: manifest.commands?.names || [],
     methodology: manifest.methodology,

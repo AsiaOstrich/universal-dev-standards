@@ -216,7 +216,7 @@ describe('Integration Generator', () => {
       }
     });
 
-    describe('commitLanguage option', () => {
+    describe('outputLanguage option', () => {
       it('should generate English commit types by default', () => {
         const config = {
           tool: 'cursor',
@@ -237,7 +237,7 @@ describe('Integration Generator', () => {
         expect(result).not.toContain('修正');
       });
 
-      it('should generate English commit types when commitLanguage is english', () => {
+      it('should generate English commit types when outputLanguage is english', () => {
         const config = {
           tool: 'cursor',
           categories: ['commit-standards'],
@@ -246,7 +246,7 @@ describe('Integration Generator', () => {
           customRules: [],
           detailLevel: 'standard',
           language: 'en',
-          commitLanguage: 'english'
+          outputLanguage: 'english'
         };
 
         const result = generateIntegrationContent(config);
@@ -258,7 +258,7 @@ describe('Integration Generator', () => {
         expect(result).not.toContain('功能');
       });
 
-      it('should generate Traditional Chinese commit types when commitLanguage is traditional-chinese', () => {
+      it('should generate Traditional Chinese commit types when outputLanguage is traditional-chinese', () => {
         const config = {
           tool: 'cursor',
           categories: ['commit-standards'],
@@ -267,7 +267,7 @@ describe('Integration Generator', () => {
           customRules: [],
           detailLevel: 'standard',
           language: 'zh-tw',
-          commitLanguage: 'traditional-chinese'
+          outputLanguage: 'traditional-chinese'
         };
 
         const result = generateIntegrationContent(config);
@@ -281,7 +281,7 @@ describe('Integration Generator', () => {
         expect(result).toContain('feat');
       });
 
-      it('should generate bilingual commit types when commitLanguage is bilingual', () => {
+      it('should generate bilingual commit types when outputLanguage is bilingual', () => {
         const config = {
           tool: 'cursor',
           categories: ['commit-standards'],
@@ -290,7 +290,7 @@ describe('Integration Generator', () => {
           customRules: [],
           detailLevel: 'standard',
           language: 'bilingual',
-          commitLanguage: 'bilingual'
+          outputLanguage: 'bilingual'
         };
 
         const result = generateIntegrationContent(config);
@@ -313,7 +313,7 @@ describe('Integration Generator', () => {
           customRules: [],
           detailLevel: 'minimal',
           language: 'zh-tw',
-          commitLanguage: 'traditional-chinese'
+          outputLanguage: 'traditional-chinese'
         };
 
         const result = generateIntegrationContent(config);
@@ -331,7 +331,7 @@ describe('Integration Generator', () => {
           customRules: [],
           detailLevel: 'comprehensive',
           language: 'en',
-          commitLanguage: 'traditional-chinese'
+          outputLanguage: 'traditional-chinese'
         };
 
         const result = generateIntegrationContent(config);
@@ -570,9 +570,9 @@ describe('Integration Generator', () => {
       );
     });
 
-    describe('commit-standards × commitLanguage × detailLevel full matrix', () => {
+    describe('commit-standards × outputLanguage × detailLevel full matrix', () => {
       const commitCases = [
-        // [commitLanguage, detailLevel, mustContain, mustNotContain]
+        // [outputLanguage, detailLevel, mustContain, mustNotContain]
         ['english',             'minimal',       '<type>(<scope>): <subject>',         '功能'],
         ['english',             'standard',      '<type>(<scope>): <subject>',         '功能'],
         ['english',             'comprehensive', 'Subject Line Rules',                 '功能'],
@@ -585,8 +585,8 @@ describe('Integration Generator', () => {
       ];
 
       it.each(commitCases)(
-        'commitLanguage=%s detailLevel=%s should contain "%s"',
-        (commitLanguage, detailLevel, mustContain, mustNotContain) => {
+        'outputLanguage=%s detailLevel=%s should contain "%s"',
+        (outputLanguage, detailLevel, mustContain, mustNotContain) => {
           const result = generateIntegrationContent({
             tool: 'cursor',
             categories: ['commit-standards'],
@@ -595,7 +595,7 @@ describe('Integration Generator', () => {
             customRules: [],
             detailLevel,
             language: 'en',
-            commitLanguage,
+            outputLanguage,
           });
 
           expect(result).toContain(mustContain);

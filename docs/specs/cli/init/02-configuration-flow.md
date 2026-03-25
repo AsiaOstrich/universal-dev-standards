@@ -43,7 +43,7 @@ The configuration flow must:
 | `options.display_language` | string | From `displayLanguage` | From `displayLanguage` |
 | `options.workflow` | string | Derived from level | Default based on level |
 | `options.merge_strategy` | string | Derived from level | Default: squash |
-| `options.commit_language` | string | `promptIntegrationConfig()` | Default: english |
+| `options.output_language` | string | `promptIntegrationConfig()` | Default: english |
 
 > **Note**: The `locale` parameter has been replaced by `displayLanguage`. Locale extensions (zh-tw, zh-cn) are now auto-installed based on the selected display language.
 
@@ -273,7 +273,7 @@ The configuration flow must:
 │       display_language: displayLanguage,                                    │
 │       workflow: 'github-flow',                                              │
 │       merge_strategy: 'squash',                                             │
-│       commit_language: 'english'                                            │
+│       output_language: 'english'                                            │
 │     }                                                                       │
 │   }                                                                         │
 │                                                                              │
@@ -628,7 +628,7 @@ interface InitConfiguration {
   options: {
     workflow: string;
     merge_strategy: string;
-    commit_language: string;
+    output_language: string;
     test_levels?: string[];
   };
 }

@@ -372,7 +372,7 @@ function processDecisions(parsed) {
 function inferOptionCategory(title) {
   const titleLower = title?.toLowerCase() || '';
 
-  if (titleLower.includes('commit')) return 'commit_language';
+  if (titleLower.includes('commit')) return 'output_language';
   if (titleLower.includes('test')) return 'testing_approach';
   if (titleLower.includes('git')) return 'git_workflow';
   if (titleLower.includes('changelog')) return 'changelog_format';

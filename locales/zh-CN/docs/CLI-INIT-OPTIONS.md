@@ -850,7 +850,7 @@ uds init --experimental
 | Format | `promptFormat()` | `-f, --format` | `ai` |
 | Git Workflow | `promptGitWorkflow()` | `--workflow` | `github-flow` |
 | Merge Strategy | `promptMergeStrategy()` | `--merge-strategy` | `squash` |
-| Commit Language | `promptCommitLanguage()` | `--commit-lang` | `english` |
+| Output Language | `promptOutputLanguage()` | `--output-lang` | `english` |
 | Test Levels | `promptTestLevels()` | `--test-levels` | `unit,integration` |
 | Language | `promptLanguage()` | `--lang` | 自动检测 |
 | Framework | `promptFramework()` | `--framework` | 自动检测 |
@@ -883,7 +883,7 @@ uds init -y \
   --skills-location marketplace \
   --workflow github-flow \
   --merge-strategy squash \
-  --commit-lang english \
+  --output-lang english \
   --test-levels unit,integration \
   --content-mode index
 
@@ -897,7 +897,7 @@ uds init -y --agents-md
 uds init -y --no-agents-md
 
 # 繁体中文团队
-uds init -y --commit-lang traditional-chinese --locale zh-cn
+uds init -y --output-lang traditional-chinese --locale zh-cn
 
 # PHP 项目
 uds init -y --lang php --framework fat-free

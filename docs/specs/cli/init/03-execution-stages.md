@@ -250,7 +250,7 @@ Generate AI tool integration files (CLAUDE.md, .cursorrules, etc.) based on conf
 │      └── full → Embed full standard content                                  │
 │                                                                              │
 │   4. Apply locale-specific content                                           │
-│      └── Use commit_language for dynamic content                             │
+│      └── Use output_language for dynamic content                             │
 │                                                                              │
 │   5. Write file with UDS markers                                             │
 │      └── <!-- UDS:START --> ... <!-- UDS:END -->                            │
@@ -284,7 +284,7 @@ async function generateIntegrations(projectPath, config, installedStandards) {
         standards: installedStandards,
         contentMode: config.contentMode,
         locale: config.locale,
-        language: config.options.commit_language,
+        language: config.options.output_language,
         level: config.level
       });
 

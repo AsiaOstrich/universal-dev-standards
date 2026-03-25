@@ -33,7 +33,7 @@ vi.mock('../../src/utils/registry.js', () => ({
   findOption: vi.fn(() => null),
   getAllStandards: vi.fn(() => [
     { id: 'git-workflow', options: { workflow: [], merge_strategy: [] } },
-    { id: 'commit-message', options: { commit_language: [] } },
+    { id: 'commit-message', options: { output_language: [] } },
     { id: 'testing', options: { test_level: [] } }
   ]),
   getStandardsByLevel: vi.fn(() => []),
@@ -50,7 +50,7 @@ vi.mock('../../src/utils/copier.js', () => ({
     options: {
       workflow: 'github-flow',
       merge_strategy: 'squash',
-      commit_language: 'english',
+      output_language: 'english',
       test_levels: ['unit-testing']
     }
   })),
@@ -62,7 +62,7 @@ vi.mock('../../src/prompts/init.js', () => ({
   promptFormat: vi.fn(() => 'ai'),
   promptGitWorkflow: vi.fn(() => 'gitflow'),
   promptMergeStrategy: vi.fn(() => 'rebase'),
-  promptCommitLanguage: vi.fn(() => 'bilingual'),
+  promptOutputLanguage: vi.fn(() => 'bilingual'),
   promptTestLevels: vi.fn(() => ['unit-testing', 'integration-testing']),
   promptConfirm: vi.fn(() => true),
   promptManageAITools: vi.fn(() => ({ action: 'cancel', tools: [] })),
@@ -130,7 +130,7 @@ import { configureCommand } from '../../src/commands/configure.js';
 import { configCommand, runProjectConfiguration } from '../../src/commands/config.js';
 import { regenerateIntegrations } from '../../src/commands/update.js';
 import { isInitialized, readManifest, writeManifest } from '../../src/utils/copier.js';
-import { promptConfirm, promptDisplayLanguage, promptCommitLanguage } from '../../src/prompts/init.js';
+import { promptConfirm, promptDisplayLanguage, promptOutputLanguage } from '../../src/prompts/init.js';
 import { config } from '../../src/utils/config-manager.js';
 
 describe('Configure Command', () => {
@@ -204,7 +204,7 @@ describe('Configure Command', () => {
         options: {
           workflow: 'github-flow',
           merge_strategy: 'squash',
-          commit_language: 'english'
+          output_language: 'english'
         }
       });
       promptConfirm.mockResolvedValue(false);
@@ -408,7 +408,7 @@ describe('Configure Command', () => {
         level: 2,
         contentMode: 'minimal',
         aiTools: [],
-        options: { display_language: 'en', commit_language: 'english' }
+        options: { display_language: 'en', output_language: 'english' }
       });
 
       // Flat menu → choose display_language → handleDisplayLanguageChange runs
@@ -416,7 +416,7 @@ describe('Configure Command', () => {
         .mockResolvedValueOnce({ type: 'display_language' });
 
       promptDisplayLanguage.mockResolvedValue('zh-tw');
-      promptCommitLanguage.mockResolvedValue('bilingual');
+      promptOutputLanguage.mockResolvedValue('bilingual');
 
       await expect(configCommand(undefined, null, null, {})).rejects.toThrow('process.exit called');
 
@@ -472,7 +472,7 @@ describe('Configure Command', () => {
         level: 2,
         contentMode: 'minimal',
         aiTools: ['claude-code'],
-        options: { display_language: 'en', commit_language: 'english' }
+        options: { display_language: 'en', output_language: 'english' }
       });
 
       // Flat menu → display_language
@@ -481,7 +481,7 @@ describe('Configure Command', () => {
         .mockResolvedValueOnce({ confirm: false }); // decline regeneration
 
       promptDisplayLanguage.mockResolvedValue('zh-tw');
-      promptCommitLanguage.mockResolvedValue('bilingual');
+      promptOutputLanguage.mockResolvedValue('bilingual');
 
       await expect(configCommand(undefined, null, null, {})).rejects.toThrow('process.exit called');
 

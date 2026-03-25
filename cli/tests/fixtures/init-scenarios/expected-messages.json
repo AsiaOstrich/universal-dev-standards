@@ -69,7 +69,7 @@
     "step9_standard_options": {
       "git_workflow": "Select Git workflow",
       "merge_strategy": "Select merge strategy",
-      "commit_language": "Select commit message language",
+      "output_language": "Select commit message language",
       "test_levels": "Select test levels to include"
     },
     "step10_language": {
@@ -137,7 +137,7 @@
       "skills_marketplace": "Plugin Marketplace (managed by Claude Code)",
       "git_workflow": "Git Workflow:",
       "merge_strategy": "Merge Strategy:",
-      "commit_language": "Commit Language:",
+      "output_language": "Output Language:",
       "test_levels": "Test Levels:"
     },
     "confirmation": {

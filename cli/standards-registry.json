@@ -32,9 +32,9 @@
         "git-workflow"
       ]
     },
-    "commit_language": {
-      "name": "Commit Message Language",
-      "nameZh": "提交訊息語言",
+    "output_language": {
+      "name": "Output Language",
+      "nameZh": "產出語言",
       "appliesTo": [
         "commit-message"
       ]
@@ -713,7 +713,7 @@
       "skillName": "commit-standards",
       "description": "Conventional Commits format for standardized git commit messages",
       "options": {
-        "commit_language": {
+        "output_language": {
           "default": "english",
           "choices": [
             {

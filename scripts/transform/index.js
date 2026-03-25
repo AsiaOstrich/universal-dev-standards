@@ -34,9 +34,9 @@ const STANDARDS_WITH_OPTIONS = {
     }
   },
   'commit-message-guide': {
-    options: ['commit_language'],
+    options: ['output_language'],
     optionPatterns: {
-      commit_language: /### Option [ABC]: (.+)/g
+      output_language: /### Option [ABC]: (.+)/g
     }
   },
   'testing-standards': {

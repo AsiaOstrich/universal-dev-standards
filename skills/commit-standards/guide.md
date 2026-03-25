@@ -215,7 +215,7 @@ This skill supports project-specific language configuration.
 
 ### Detection Order
 
-1. Check `CONTRIBUTING.md` for "Commit Message Language" section
+1. Check `CONTRIBUTING.md` for "Output Language" section
 2. If found, use the specified option (English / Traditional Chinese / Bilingual)
 3. If not found, **default to English** for maximum tool compatibility
 
@@ -227,7 +227,7 @@ If no configuration found and context is unclear:
 2. After user selection, suggest documenting in `CONTRIBUTING.md`:
 
 ```markdown
-## Commit Message Language
+## Output Language
 
 This project uses **[chosen option]** commit types.
 <!-- Options: English | Traditional Chinese | Bilingual -->
@@ -238,7 +238,7 @@ This project uses **[chosen option]** commit types.
 In project's `CONTRIBUTING.md`:
 
 ```markdown
-## Commit Message Language
+## Output Language
 
 This project uses **English** commit types.
 

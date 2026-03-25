@@ -74,7 +74,7 @@ const STANDARD_DESCRIPTIONS = {
 };
 
 /**
- * Commit type templates for different commit_language options
+ * Commit type templates for different output_language options
  * These are used to generate dynamic commit standards based on user's language preference
  */
 const COMMIT_TYPE_TEMPLATES = {
@@ -143,29 +143,29 @@ const COMMIT_TYPE_TEMPLATES = {
 };
 
 /**
- * Generate commit types table based on commit_language
- * @param {string} commitLanguage - The commit language: 'english', 'traditional-chinese', 'bilingual', or 'bilingual-zhcn'
+ * Generate commit types table based on output_language
+ * @param {string} outputLanguage - The output language: 'english', 'traditional-chinese', 'bilingual', or 'bilingual-zhcn'
  * @param {string} format - Output format: 'markdown' or 'plaintext'
  * @returns {string} Formatted commit types section
  */
-function generateCommitTypesTable(commitLanguage, format = 'markdown') {
-  const template = COMMIT_TYPE_TEMPLATES[commitLanguage] || COMMIT_TYPE_TEMPLATES.english;
+function generateCommitTypesTable(outputLanguage, format = 'markdown') {
+  const template = COMMIT_TYPE_TEMPLATES[outputLanguage] || COMMIT_TYPE_TEMPLATES.english;
   const lines = [];
 
   if (format === 'markdown') {
-    if (commitLanguage === 'traditional-chinese') {
+    if (outputLanguage === 'traditional-chinese') {
       lines.push('| 類型 | 英文對照 | 說明 | 範例 |');
       lines.push('|------|----------|------|------|');
       for (const t of template.types) {
         lines.push(`| \`${t.type}\` | ${t.english} | ${t.description} | ${t.example} |`);
       }
-    } else if (commitLanguage === 'bilingual') {
+    } else if (outputLanguage === 'bilingual') {
       lines.push('| Type | EN Description | 中文說明 | Example |');
       lines.push('|------|----------------|----------|---------|');
       for (const t of template.types) {
         lines.push(`| \`${t.type}\` | ${t.description_en} | ${t.description_zh} | ${t.example} |`);
       }
-    } else if (commitLanguage === 'bilingual-zhcn') {
+    } else if (outputLanguage === 'bilingual-zhcn') {
       // Simplified Chinese bilingual - header uses Simplified Chinese
       lines.push('| Type | EN Description | 中文说明 | Example |');
       lines.push('|------|----------------|----------|---------|');
@@ -182,11 +182,11 @@ function generateCommitTypesTable(commitLanguage, format = 'markdown') {
     }
   } else {
     // Plaintext format
-    if (commitLanguage === 'traditional-chinese') {
+    if (outputLanguage === 'traditional-chinese') {
       for (const t of template.types) {
         lines.push(`- ${t.type} (${t.english}): ${t.description}`);
       }
-    } else if (commitLanguage === 'bilingual' || commitLanguage === 'bilingual-zhcn') {
+    } else if (outputLanguage === 'bilingual' || outputLanguage === 'bilingual-zhcn') {
       for (const t of template.types) {
         lines.push(`- ${t.type}: ${t.description_en} / ${t.description_zh}`);
       }
@@ -201,26 +201,26 @@ function generateCommitTypesTable(commitLanguage, format = 'markdown') {
 }
 
 /**
- * Generate dynamic commit standards template based on commit_language
- * @param {string} commitLanguage - The commit language option: 'english', 'traditional-chinese', or 'bilingual'
+ * Generate dynamic commit standards template based on output_language
+ * @param {string} outputLanguage - The output language option: 'english', 'traditional-chinese', or 'bilingual'
  * @param {string} detailLevel - Detail level: 'minimal', 'standard', or 'comprehensive'
  * @returns {string} Generated commit standards content
  */
-function generateCommitStandardsContent(commitLanguage, detailLevel = 'standard') {
-  const template = COMMIT_TYPE_TEMPLATES[commitLanguage] || COMMIT_TYPE_TEMPLATES.english;
+function generateCommitStandardsContent(outputLanguage, detailLevel = 'standard') {
+  const template = COMMIT_TYPE_TEMPLATES[outputLanguage] || COMMIT_TYPE_TEMPLATES.english;
 
   if (detailLevel === 'minimal') {
-    if (commitLanguage === 'traditional-chinese') {
+    if (outputLanguage === 'traditional-chinese') {
       return `## 提交標準
 - 格式: \`${template.format}\`
 - ${template.formatNote}
 - 主題保持在 72 字元內`;
-    } else if (commitLanguage === 'bilingual') {
+    } else if (outputLanguage === 'bilingual') {
       return `## Commit Standards | 提交標準
 - Format: \`${template.format}\`
 - ${template.formatNote}
 - Keep subject under 72 characters | 主題保持在 72 字元內`;
-    } else if (commitLanguage === 'bilingual-zhcn') {
+    } else if (outputLanguage === 'bilingual-zhcn') {
       return `## Commit Standards | 提交标准
 - Format: \`${template.format}\`
 - ${template.formatNote}
@@ -234,9 +234,9 @@ function generateCommitStandardsContent(commitLanguage, detailLevel = 'standard'
   }
 
   if (detailLevel === 'standard') {
-    const typesTable = generateCommitTypesTable(commitLanguage, 'markdown');
+    const typesTable = generateCommitTypesTable(outputLanguage, 'markdown');
 
-    if (commitLanguage === 'traditional-chinese') {
+    if (outputLanguage === 'traditional-chinese') {
       return `## 提交訊息標準
 參考: .standards/commit-message.ai.yaml, .standards/options/traditional-chinese.ai.yaml
 
@@ -256,7 +256,7 @@ ${typesTable}
 - 主題行: 最多 72 字元
 - 使用祈使語氣
 - 本文: 說明做了什麼及為什麼，而非如何做`;
-    } else if (commitLanguage === 'bilingual') {
+    } else if (outputLanguage === 'bilingual') {
       return `## Commit Message Standards | 提交訊息標準
 Reference: .standards/commit-message.ai.yaml, .standards/options/bilingual.ai.yaml
 
@@ -279,7 +279,7 @@ ${typesTable}
 - Use imperative mood | 使用祈使語氣
 - Body: MUST include both English and Chinese, English first | 本文: 必須雙語，英文在前中文在後
 - NEVER mix languages in one paragraph | 禁止同段落混合語言`;
-    } else if (commitLanguage === 'bilingual-zhcn') {
+    } else if (outputLanguage === 'bilingual-zhcn') {
       return `## Commit Message Standards | 提交消息标准
 Reference: .standards/commit-message.ai.yaml, .standards/options/bilingual.ai.yaml
 
@@ -326,9 +326,9 @@ ${typesTable}
   }
 
   // Comprehensive level
-  const typesTable = generateCommitTypesTable(commitLanguage, 'markdown');
+  const typesTable = generateCommitTypesTable(outputLanguage, 'markdown');
 
-  if (commitLanguage === 'traditional-chinese') {
+  if (outputLanguage === 'traditional-chinese') {
     return `## 提交訊息標準
 參考: .standards/commit-message.ai.yaml, .standards/options/traditional-chinese.ai.yaml
 
@@ -361,7 +361,7 @@ ${typesTable}
 - 破壞性變更: \`破壞性變更: 說明\`
 - Issue 引用: \`關閉 #123\`, \`修正 #456\`
 - 共同作者: \`Co-authored-by: Name <email>\``;
-  } else if (commitLanguage === 'bilingual') {
+  } else if (outputLanguage === 'bilingual') {
     return `## Commit Message Standards | 提交訊息標準
 Reference: .standards/commit-message.ai.yaml, .standards/options/bilingual.ai.yaml
 
@@ -415,7 +415,7 @@ Closes #123
 - Breaking changes: \`BREAKING CHANGE: description\`
 - Issue references: \`Fixes #123\`, \`Closes #456\`
 - Co-authors: \`Co-authored-by: Name <email>\``;
-  } else if (commitLanguage === 'bilingual-zhcn') {
+  } else if (outputLanguage === 'bilingual-zhcn') {
     return `## Commit Message Standards | 提交消息标准
 Reference: .standards/commit-message.ai.yaml, .standards/options/bilingual.ai.yaml
 
@@ -2432,15 +2432,15 @@ export function generateMinimalStandardsReference(installedStandards, format, la
 }
 
 /**
- * Generate commit message language directive for integration files
- * Ensures AI tools always know the expected commit language, even when
+ * Generate output language directive for integration files
+ * Ensures AI tools always know the expected output language, even when
  * commit-message.ai.yaml is not installed as a standard.
- * @param {string} commitLanguage - 'english', 'traditional-chinese', 'simplified-chinese', 'bilingual', or 'bilingual-zhcn'
+ * @param {string} outputLanguage - 'english', 'traditional-chinese', 'simplified-chinese', 'bilingual', or 'bilingual-zhcn'
  * @param {string} language - Display language: 'en', 'zh-tw', 'zh-cn', or 'bilingual'
  * @returns {string|null} The directive section, or null if not needed
  */
-function generateCommitLanguageDirective(commitLanguage, language) {
-  if (!commitLanguage || commitLanguage === 'english') {
+function generateOutputLanguageDirective(outputLanguage, language) {
+  if (!outputLanguage || outputLanguage === 'english') {
     // For zh-tw/zh-cn display language with english commits, still add a note
     if (language === 'zh-tw') {
       return '## 提交訊息語言\n所有提交訊息使用**英文**撰寫。';
@@ -2451,7 +2451,7 @@ function generateCommitLanguageDirective(commitLanguage, language) {
     return null; // English display + English commits = no directive needed
   }
 
-  if (commitLanguage === 'traditional-chinese') {
+  if (outputLanguage === 'traditional-chinese') {
     if (language === 'zh-tw') {
       return '## 提交訊息語言\n所有提交訊息必須使用**繁體中文**撰寫。\n格式：`<類型>(<範圍>): <主旨>`';
     }
@@ -2461,7 +2461,7 @@ function generateCommitLanguageDirective(commitLanguage, language) {
     return '## Commit Message Language\nWrite all commit messages in **Traditional Chinese (繁體中文)**.\nFormat: `<類型>(<範圍>): <主旨>`';
   }
 
-  if (commitLanguage === 'simplified-chinese') {
+  if (outputLanguage === 'simplified-chinese') {
     if (language === 'zh-tw') {
       return '## 提交訊息語言\n所有提交訊息必須使用**簡體中文**撰寫。\n格式：`<类型>(<范围>): <主旨>`';
     }
@@ -2471,9 +2471,9 @@ function generateCommitLanguageDirective(commitLanguage, language) {
     return '## Commit Message Language\nWrite all commit messages in **Simplified Chinese (简体中文)**.\nFormat: `<类型>(<范围>): <主旨>`';
   }
 
-  if (commitLanguage === 'bilingual' || commitLanguage === 'bilingual-zhcn') {
-    const secondary = commitLanguage === 'bilingual-zhcn' ? '简体中文' : '繁體中文';
-    const bodyRule = commitLanguage === 'bilingual-zhcn'
+  if (outputLanguage === 'bilingual' || outputLanguage === 'bilingual-zhcn') {
+    const secondary = outputLanguage === 'bilingual-zhcn' ? '简体中文' : '繁體中文';
+    const bodyRule = outputLanguage === 'bilingual-zhcn'
       ? '本文必须双语：英文在前 → 空行 → 中文在后。禁止混合语言。'
       : '本文必須雙語：英文在前 → 空行 → 中文在後。禁止混合語言。';
     if (language === 'zh-tw') {
@@ -2588,8 +2588,8 @@ export function generateIntegrationContent(config) {
     // New fields for enhanced standards compliance
     installedStandards = [],
     contentMode = 'minimal',
-    // Commit language option for dynamic commit standards generation
-    commitLanguage = 'english'
+    // Output language option for dynamic commit standards generation
+    outputLanguage = 'english'
   } = config;
 
   const sections = [];
@@ -2602,15 +2602,15 @@ export function generateIntegrationContent(config) {
 
   // Add rule sections based on selected categories (core rules - always included)
   for (const categoryId of categories) {
-    // Special handling for commit-standards: use dynamic generation based on commitLanguage
+    // Special handling for commit-standards: use dynamic generation based on outputLanguage
     if (categoryId === 'commit-standards') {
       // When bilingual is selected with zh-cn display language, use bilingual-zhcn template
       // This provides Simplified Chinese content instead of Traditional Chinese
-      let effectiveCommitLanguage = commitLanguage;
-      if (commitLanguage === 'bilingual' && language === 'zh-cn') {
-        effectiveCommitLanguage = 'bilingual-zhcn';
+      let effectiveOutputLanguage = outputLanguage;
+      if (outputLanguage === 'bilingual' && language === 'zh-cn') {
+        effectiveOutputLanguage = 'bilingual-zhcn';
       }
-      const commitContent = generateCommitStandardsContent(effectiveCommitLanguage, detailLevel);
+      const commitContent = generateCommitStandardsContent(effectiveOutputLanguage, detailLevel);
       sections.push(commitContent);
       sections.push('\n---\n');
       continue;
@@ -2631,12 +2631,12 @@ export function generateIntegrationContent(config) {
 
   // Add standards reference/compliance instructions (based on contentMode)
   // ALL modes should reference installed standards, just with different detail levels
-  if (installedStandards.length > 0 || commitLanguage) {
+  if (installedStandards.length > 0 || outputLanguage) {
     let standardsContent = '';
 
     // Include commit message language directive inside markers so it updates with marker-based updates
-    if (commitLanguage) {
-      const commitLangSection = generateCommitLanguageDirective(commitLanguage, language);
+    if (outputLanguage) {
+      const commitLangSection = generateOutputLanguageDirective(outputLanguage, language);
       if (commitLangSection) {
         standardsContent += commitLangSection + '\n\n';
       }
@@ -3133,7 +3133,7 @@ function detectBuildCommands(projectPath) {
  * @param {Object} config - Generation configuration
  * @param {string[]} config.installedStandards - List of installed standard file names
  * @param {string} [config.language='en'] - Display language
- * @param {string} [config.commitLanguage='english'] - Commit message language
+ * @param {string} [config.outputLanguage='english'] - Output language
  * @param {Object} [config.standardOptions={}] - Standard options (workflow, merge_strategy, etc.)
  * @param {string} [config.projectPath] - Project root path for detecting build tools
  * @returns {string} AGENTS.md content (≤ 150 lines)
@@ -3142,7 +3142,7 @@ export function generateAgentsMdSummary(config = {}) {
   const {
     installedStandards = [],
     language = 'en',
-    commitLanguage = 'english',
+    outputLanguage = 'english',
     standardOptions = {},
     projectPath
   } = config;
@@ -3182,14 +3182,14 @@ export function generateAgentsMdSummary(config = {}) {
   lines.push(`- **Workflow**: ${workflow}`);
   lines.push(`- **Merge Strategy**: ${mergeStrategy}`);
 
-  // Commit language
-  if (commitLanguage === 'english') {
+  // Output language
+  if (outputLanguage === 'english') {
     lines.push('- **Commit Language**: English');
     lines.push('- **Format**: `<type>(<scope>): <subject>`');
-  } else if (commitLanguage === 'traditional-chinese') {
+  } else if (outputLanguage === 'traditional-chinese') {
     lines.push('- **Commit Language**: Traditional Chinese (繁體中文)');
     lines.push('- **Format**: `<type>(<scope>): <主旨>`');
-  } else if (commitLanguage === 'bilingual') {
+  } else if (outputLanguage === 'bilingual') {
     lines.push('- **Commit Language**: Bilingual (English + Chinese)');
     lines.push('- **Format**: `<type>(<scope>): <subject>. <主旨>`');
   }

@@ -4,9 +4,9 @@
 
 ## Overview | 概述
 
-Ensure all UDS CLI commands display output in the language corresponding to the project's `commit_language` setting, unless explicitly overridden with the `--ui-lang` flag.
+Ensure all UDS CLI commands display output in the language corresponding to the project's `output_language` setting, unless explicitly overridden with the `--ui-lang` flag.
 
-確保所有 UDS CLI 命令根據專案的 `commit_language` 設定顯示對應的 UI 語言，除非使用 `--ui-lang` 明確指定。
+確保所有 UDS CLI 命令根據專案的 `output_language` 設定顯示對應的 UI 語言，除非使用 `--ui-lang` 明確指定。
 
 ## Status | 狀態
 
@@ -20,14 +20,14 @@ Ensure all UDS CLI commands display output in the language corresponding to the 
 
 | ID | Requirement | 說明 | Priority |
 |----|-------------|------|----------|
-| REQ-001 | All commands read `manifest.options.commit_language` | 所有命令讀取專案的語言設定 | High |
+| REQ-001 | All commands read `manifest.options.output_language` | 所有命令讀取專案的語言設定 | High |
 | REQ-002 | Language mapping follows standard convention | 語言映射遵循標準慣例 | High |
 | REQ-003 | `--ui-lang` flag takes precedence | CLI 參數優先於專案設定 | High |
 | REQ-004 | Commands without manifest use default language | 無 manifest 時使用預設語言 | Medium |
 
 ### Language Mapping | 語言映射
 
-| commit_language | UI Language |
+| output_language | UI Language |
 |-----------------|-------------|
 | `traditional-chinese` | `zh-tw` |
 | `simplified-chinese` | `zh-cn` |
@@ -91,7 +91,7 @@ export async function commandName(options) {
     return;
   }
 
-  // Set UI language based on commit_language setting
+  // Set UI language based on output_language setting
   // Only override if user didn't explicitly set --ui-lang flag
   if (!isLanguageExplicitlySet()) {
     const langMap = {
@@ -100,7 +100,7 @@ export async function commandName(options) {
       english: 'en',
       bilingual: 'en'
     };
-    const uiLang = langMap[manifest.options?.commit_language] || 'en';
+    const uiLang = langMap[manifest.options?.output_language] || 'en';
     setLanguage(uiLang);
   }
 
@@ -166,9 +166,9 @@ Changes:
 
 ### Unit Tests
 
-- [ ] Verify `list.js` respects `commit_language` setting
-- [ ] Verify `check.js` respects `commit_language` setting
-- [ ] Verify `skills.js` respects `commit_language` setting
+- [ ] Verify `list.js` respects `output_language` setting
+- [ ] Verify `check.js` respects `output_language` setting
+- [ ] Verify `skills.js` respects `output_language` setting
 
 ### E2E Tests
 
@@ -220,7 +220,7 @@ node cli/bin/uds.js list --ui-lang en # Override to English
 
 ## Acceptance Criteria | 驗收標準
 
-- [ ] All commands (`list`, `check`, `skills`) read `manifest.options.commit_language`
+- [ ] All commands (`list`, `check`, `skills`) read `manifest.options.output_language`
 - [ ] All commands respect `--ui-lang` flag when explicitly set
 - [ ] All existing tests pass (501 tests)
 - [ ] New E2E tests added for `--ui-lang` flag

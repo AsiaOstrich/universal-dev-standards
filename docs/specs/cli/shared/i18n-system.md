@@ -86,7 +86,7 @@ The `messages` object contains the following top-level categories:
 | `aiTools` | AI tools selection | `title`, `description`, `question`, `choices` |
 | `skillsLocation` | Skills installation | `title`, `question`, `choices` |
 | `commandsInstallation` | Commands installation | `title`, `question`, `choices` |
-| `commitLanguage` | Commit message language | `title`, `question`, `choices` |
+| `outputLanguage` | Output language | `title`, `question`, `choices` |
 | `methodology` | Development methodology | `title`, `question`, `choices` |
 | `commands` | Command-specific messages | `common`, `list`, `skills`, `check`, `init`, `update`, `configure` |
 

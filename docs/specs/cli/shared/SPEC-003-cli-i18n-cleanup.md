@@ -59,7 +59,7 @@ Removed bilingual format from all `question` strings in `messages.js`, except fo
 - `mergeStrategy.question`: `'選擇合併策略：'`
 - `testLevels.question`: `'選擇測試層級：'`
 - `skillsLocation.question`: `'Skills 要安裝在哪裡？'`
-- `commitLanguage.question`: `'選擇 commit 訊息語言：'`
+- `outputLanguage.question`: `'選擇產出語言：'`
 - `installMode.question`: `'選擇安裝模式：'`
 - `adoptionLevelConfig.question`: `'選擇新的採用等級：'`
 - `methodology.question`: `'你想使用哪種開發方法論？'`

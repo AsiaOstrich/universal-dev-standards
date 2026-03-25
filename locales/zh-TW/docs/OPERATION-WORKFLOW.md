@@ -208,7 +208,7 @@ CC BY 4.0
 |------|------|------|
 | Git 工作流 | github-flow, gitflow, trunk-based | `options/git-workflow/` |
 | 合併策略 | squash, merge-commit, rebase-ff | `options/git-workflow/` |
-| 提交訊息語言 | english, traditional-chinese, bilingual | `options/commit-message/` |
+| 產出語言 | english, traditional-chinese, bilingual | `options/commit-message/` |
 | 測試類型 | unit, integration, e2e, system 等 | `options/testing/` |
 | 程式碼審查 | pr-review, pair-programming, automated | `options/code-review/` |
 | 文件類型 | markdown, api-docs, wiki-style | `options/documentation/` |
@@ -378,7 +378,7 @@ integrations/[tool-name]/
 │ - Skills 安裝位置（marketplace/user/project/none）              │
 │ - 採用層級（Essential/Recommended/Enterprise）                  │
 │ - 格式選擇（ai/human/both）                                     │
-│ - 標準選項（workflow, commit_language, test_levels）            │
+│ - 標準選項（workflow, output_language, test_levels）            │
 │ - 內容模式（minimal/index/full）                                │
 └─────────────────────────────┬───────────────────────────────────┘
                               ↓

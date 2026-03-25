@@ -117,6 +117,8 @@ Implement Google OAuth2 authentication flow for user login.
 Closes #123
 ```
 
+> **Note**: This setting is named `output_language` in the project manifest. It controls both commit message language and documentation language. See [documentation-writing-standards.md](documentation-writing-standards.md#documentation-language-configuration) for details on how this setting affects documentation.
+
 ### Language Selection Guide
 
 Use this guide to choose the appropriate commit message language for your project:
@@ -141,7 +143,7 @@ Use this guide to choose the appropriate commit message language for your projec
 **Project Decision Point**: Document your choice in `CONTRIBUTING.md` (choose ONE):
 
 ```markdown
-## Commit Message Language
+## Output Language
 
 <!-- Choose ONE of the following options: -->
 

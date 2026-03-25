@@ -1,4 +1,4 @@
-# Commit Message Language Options
+# Output Language Options
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/skills/commit-standards/language-options.md)
 
@@ -126,7 +126,7 @@ Closes #123
 Document your choice in `CONTRIBUTING.md`:
 
 ```markdown
-## Commit Message Language
+## Output Language
 
 This project uses **[English / Traditional Chinese / Bilingual]** commit types.
 
