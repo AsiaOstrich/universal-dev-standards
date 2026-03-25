@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **文件生態系閉環** (SPEC-DOCS-01): 新增 `/docs impact` 和 `/docs translate` 子命令
+  - `/docs impact` — 主動分析程式碼變更對文件的影響，附建議命令
+  - `/docs translate` — 翻譯狀態檢查與 AI 輔助翻譯同步
+  - `sync-updates` 規則升級為自動 AI 行為，改完 code 自動提醒受影響文件
+  - 命令建議映射表：每種文件類型對應建議的斜線命令
+- **文件三層分級制度**: bilingual 模式下文件依 L1（強制）/ L2（建議）/ L3（不影響）分級
+
+### Changed
+- **`commit_language` → `output_language`**: 統一語言設定名詞，同時控制 commit message 和文件語言（74 檔案重命名）
+  - 與 `display_language` 形成對稱：display = 顯示端、output = 產出端
+  - 向後相容：manifest 自動遷移、`--commit-lang` 保留為 hidden alias
+- **`/docs` 命令擴展**: 子命令從 4 個增加到 6 個（新增 `impact`、`translate`）
+
+### Fixed
+- **removeFromManifest 遺漏清理**: 修正解除安裝時未清理 `integrationBlockHashes` 和 `integrationConfigs` 的問題
+
 ## [5.1.0-beta.1] - 2026-03-25
 
 > **Beta Release**: 手動打包部署 Release 模式、AI 回應導航標準。供早期使用者測試。
