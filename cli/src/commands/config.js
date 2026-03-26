@@ -255,6 +255,16 @@ async function handleLimitedConfig(options) {
  * 5. Copy output_language option file if changed
  * 6. Write manifest once at end
  */
+/**
+ * Infer installation level from existing installations (majority vote, default 'project').
+ */
+function inferInstallationLevel(installations) {
+  if (!installations || installations.length === 0) return 'project';
+  const levels = installations.map(i => (typeof i === 'string' ? 'project' : (i.level || 'project')));
+  const userCount = levels.filter(l => l === 'user').length;
+  return userCount > levels.length / 2 ? 'user' : 'project';
+}
+
 async function handleDisplayLanguageChange() {
   const projectPath = process.cwd();
   const initialized = isInitialized(projectPath);
@@ -910,6 +920,94 @@ export async function runProjectConfiguration(options) {
       }
     }
     intSpinner.succeed(msgObj.regeneratedIntegrations.replace('{count}', results.generated.length));
+  }
+
+  // Cascade: Auto-install Skills/Commands for newly added AI tools
+  if (configType === 'ai_tools' && needsIntegrationRegeneration) {
+    const oldTools = manifest.aiTools || [];
+    const addedTools = newAITools.filter(t => !oldTools.includes(t));
+
+    if (addedTools.length > 0) {
+      const cmdLocale = displayLanguageToLocale(
+        newOptions.display_language || manifest.options?.display_language || 'en'
+      );
+
+      // Skills cascade
+      const hasExistingSkills = manifest.skills?.installations?.length > 0;
+      if (hasExistingSkills) {
+        const skillCapableTools = addedTools.filter(tool => {
+          const cfg = getAgentConfig(tool);
+          return cfg?.supportsSkills && cfg?.skills;
+        });
+
+        if (skillCapableTools.length > 0) {
+          const level = inferInstallationLevel(manifest.skills.installations);
+          const toolNames = skillCapableTools.map(t => getAgentDisplayName(t)).join(', ');
+          const confirmSkills = options.yes || (await inquirer.prompt([{
+            type: 'confirm',
+            name: 'confirm',
+            message: t('config.autoInstallSkillsForNewTools', `Install Skills for ${toolNames}? (${level} level)`),
+            default: true
+          }])).confirm;
+
+          if (confirmSkills) {
+            const newInstallations = skillCapableTools.map(agent => ({ agent, level }));
+            const spinner = ora(t('config.installingSkillsForNewTools', 'Installing Skills for new tools...')).start();
+            const skillResult = await installSkillsToMultipleAgents(newInstallations, null, projectPath, cmdLocale);
+            spinner.succeed(t('config.skillsInstalledForNewTools', 'Skills installed for new tools'));
+
+            manifest.skills = manifest.skills || {};
+            manifest.skills.installations = manifest.skills.installations || [];
+            for (const inst of newInstallations) {
+              if (!manifest.skills.installations.find(i => i.agent === inst.agent)) {
+                manifest.skills.installations.push(inst);
+              }
+            }
+            if (skillResult.allFileHashes) {
+              manifest.skillHashes = { ...(manifest.skillHashes || {}), ...skillResult.allFileHashes };
+            }
+          }
+        }
+      }
+
+      // Commands cascade
+      const hasExistingCommands = manifest.commands?.installations?.length > 0;
+      if (hasExistingCommands) {
+        const commandCapableTools = addedTools.filter(tool => {
+          const cfg = getAgentConfig(tool);
+          return cfg?.commands !== null && cfg?.commands !== undefined;
+        });
+
+        if (commandCapableTools.length > 0) {
+          const level = inferInstallationLevel(manifest.commands.installations);
+          const toolNames = commandCapableTools.map(t => getAgentDisplayName(t)).join(', ');
+          const confirmCmds = options.yes || (await inquirer.prompt([{
+            type: 'confirm',
+            name: 'confirm',
+            message: t('config.autoInstallCommandsForNewTools', `Install Commands for ${toolNames}? (${level} level)`),
+            default: true
+          }])).confirm;
+
+          if (confirmCmds) {
+            const newCmdInstallations = commandCapableTools.map(agent => ({ agent, level }));
+            const spinner = ora(t('config.installingCommandsForNewTools', 'Installing Commands for new tools...')).start();
+            const cmdResult = await installCommandsToMultipleAgents(newCmdInstallations, null, projectPath, cmdLocale);
+            spinner.succeed(t('config.commandsInstalledForNewTools', 'Commands installed for new tools'));
+
+            manifest.commands = manifest.commands || {};
+            manifest.commands.installations = manifest.commands.installations || [];
+            for (const inst of newCmdInstallations) {
+              if (!manifest.commands.installations.find(i => i.agent === inst.agent)) {
+                manifest.commands.installations.push(inst);
+              }
+            }
+            if (cmdResult.allFileHashes) {
+              manifest.commandHashes = { ...(manifest.commandHashes || {}), ...cmdResult.allFileHashes };
+            }
+          }
+        }
+      }
+    }
   }
 
   // Update manifest
