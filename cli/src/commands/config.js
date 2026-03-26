@@ -631,6 +631,53 @@ export async function runProjectConfiguration(options) {
             console.log(chalk.yellow(`  ${msgObj.couldNotRemove}: ${getToolFilePath(tool)}`));
           }
         }
+
+        // Clean up manifest metadata for the removed tool
+        // Remove from skills.installations
+        if (manifest.skills?.installations) {
+          manifest.skills.installations = manifest.skills.installations.filter(
+            inst => inst.agent !== tool
+          );
+        }
+
+        // Remove from commands.installations
+        if (manifest.commands?.installations) {
+          manifest.commands.installations = manifest.commands.installations.filter(
+            inst => inst.agent !== tool
+          );
+        }
+
+        // Remove matching skillHashes (keyed by "toolName/...")
+        if (manifest.skillHashes) {
+          for (const key of Object.keys(manifest.skillHashes)) {
+            if (key.startsWith(`${tool}/`)) {
+              delete manifest.skillHashes[key];
+            }
+          }
+        }
+
+        // Remove matching commandHashes (keyed by "toolName/...")
+        if (manifest.commandHashes) {
+          for (const key of Object.keys(manifest.commandHashes)) {
+            if (key.startsWith(`${tool}/`)) {
+              delete manifest.commandHashes[key];
+            }
+          }
+        }
+
+        // Remove from integrationBlockHashes (keyed by tool file path)
+        const toolFileName = getToolFilePath(tool);
+        if (manifest.integrationBlockHashes?.[toolFileName]) {
+          delete manifest.integrationBlockHashes[toolFileName];
+        }
+
+        // Remove from integrationConfigs
+        if (manifest.integrationConfigs?.[tool]) {
+          delete manifest.integrationConfigs[tool];
+        }
+        if (manifest.integrationConfigs?.[toolFileName]) {
+          delete manifest.integrationConfigs[toolFileName];
+        }
       }
       spinner.succeed(msgObj.integrationsRemoved);
     } else if (result.action === 'view' || result.action === 'cancel') {
