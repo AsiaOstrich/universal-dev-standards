@@ -59,6 +59,14 @@ export async function copyStandard(sourcePath, targetDir, projectPath) {
     const result = await downloadStandard(sourcePath, targetDir, projectPath);
 
     // If download failed, provide a more helpful error message
+    if (!result.success && result.error?.includes('429')) {
+      return failure(
+        'GitHub API rate limit exceeded. Please wait a few minutes before retrying.',
+        ERROR_CODES.RATE_LIMITED,
+        { sourcePath, targetDir }
+      );
+    }
+
     if (!result.success && result.error?.includes('404')) {
       return failure(
         `File not available: ${sourcePath}. This may be a beta version issue - try updating the CLI first.`,

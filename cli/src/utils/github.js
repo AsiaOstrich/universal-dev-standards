@@ -3,6 +3,7 @@ import { dirname, join, basename } from 'path';
 import { homedir } from 'os';
 import { fileURLToPath } from 'url';
 import https from 'https';
+import { setTimeout as delay } from 'timers/promises';
 
 // Re-export agent-specific functions from ai-agent-paths for unified API
 export {
@@ -28,42 +29,123 @@ const CLI_ROOT = join(__dirname, '..', '..');
 const SKILLS_LOCAL_DIR = join(CLI_ROOT, '..', 'skills', 'claude-code');
 
 /**
+ * Status codes that are safe to retry (transient errors)
+ */
+const RETRYABLE_STATUS_CODES = [429, 502, 503, 504];
+
+/**
+ * Retry configuration
+ */
+const RETRY_CONFIG = {
+  maxRetries: 3,
+  baseDelayMs: 1000,
+};
+
+/**
+ * Network error codes that are safe to retry
+ */
+const RETRYABLE_NETWORK_ERRORS = ['ECONNRESET', 'ENOTFOUND', 'ECONNREFUSED', 'ETIMEDOUT', 'EPIPE'];
+
+/**
+ * Calculate delay for a retry attempt
+ * @param {number} attempt - Current attempt (0-indexed)
+ * @param {Object} headers - Response headers (may contain Retry-After or X-RateLimit-Reset)
+ * @returns {number} Delay in milliseconds
+ */
+function calculateRetryDelay(attempt, headers = {}) {
+  const retryAfter = headers['retry-after'];
+  if (retryAfter) {
+    const seconds = parseInt(retryAfter, 10);
+    if (!isNaN(seconds) && seconds > 0 && seconds <= 120) {
+      return seconds * 1000;
+    }
+  }
+
+  const resetTimestamp = headers['x-ratelimit-reset'];
+  if (resetTimestamp) {
+    const resetMs = parseInt(resetTimestamp, 10) * 1000;
+    const waitMs = resetMs - Date.now();
+    if (waitMs > 0 && waitMs <= 120000) {
+      return waitMs;
+    }
+  }
+
+  return RETRY_CONFIG.baseDelayMs * Math.pow(2, attempt);
+}
+
+/**
+ * Perform a single HTTPS GET request
+ * @param {string} url - URL to fetch
+ * @returns {Promise<{data: string, statusCode: number, headers: Object}>}
+ */
+function httpGet(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      if (res.statusCode === 301 || res.statusCode === 302) {
+        httpGet(res.headers.location).then(resolve, reject);
+        return;
+      }
+
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve({
+        data,
+        statusCode: res.statusCode,
+        headers: res.headers
+      }));
+      res.on('error', reject);
+    }).on('error', reject);
+  });
+}
+
+/**
+ * Download with retry and exponential backoff
+ * @param {string} url - Full URL to download
+ * @param {string} label - Label for error messages (e.g., filePath)
+ * @returns {Promise<string>} File content
+ */
+async function downloadWithRetry(url, label) {
+  let lastError = null;
+
+  for (let attempt = 0; attempt <= RETRY_CONFIG.maxRetries; attempt++) {
+    try {
+      const result = await httpGet(url);
+
+      if (result.statusCode === 200) {
+        return result.data;
+      }
+
+      if (RETRYABLE_STATUS_CODES.includes(result.statusCode) && attempt < RETRY_CONFIG.maxRetries) {
+        const delayMs = calculateRetryDelay(attempt, result.headers);
+        await delay(delayMs);
+        lastError = new Error(`GitHub returned ${result.statusCode} for ${label}`);
+        continue;
+      }
+
+      throw new Error(`GitHub returned ${result.statusCode} for ${label}`);
+    } catch (err) {
+      if (RETRYABLE_NETWORK_ERRORS.includes(err.code) && attempt < RETRY_CONFIG.maxRetries) {
+        const delayMs = RETRY_CONFIG.baseDelayMs * Math.pow(2, attempt);
+        await delay(delayMs);
+        lastError = err;
+        continue;
+      }
+
+      throw err;
+    }
+  }
+
+  throw lastError || new Error(`Download failed after ${RETRY_CONFIG.maxRetries} retries: ${label}`);
+}
+
+/**
  * Download a file from GitHub raw content
  * @param {string} filePath - Path relative to repo root (e.g., 'core/checkin-standards.md')
  * @returns {Promise<string>} File content
  */
 export function downloadFromGitHub(filePath) {
   const url = `${GITHUB_RAW_BASE}/${filePath}`;
-
-  return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      if (res.statusCode === 301 || res.statusCode === 302) {
-        // Follow redirect
-        https.get(res.headers.location, (redirectRes) => {
-          if (redirectRes.statusCode !== 200) {
-            reject(new Error(`GitHub returned ${redirectRes.statusCode} for ${filePath}`));
-            return;
-          }
-
-          let data = '';
-          redirectRes.on('data', chunk => data += chunk);
-          redirectRes.on('end', () => resolve(data));
-          redirectRes.on('error', reject);
-        }).on('error', reject);
-        return;
-      }
-
-      if (res.statusCode !== 200) {
-        reject(new Error(`GitHub returned ${res.statusCode} for ${filePath}`));
-        return;
-      }
-
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => resolve(data));
-      res.on('error', reject);
-    }).on('error', reject);
-  });
+  return downloadWithRetry(url, filePath);
 }
 
 /**
@@ -139,35 +221,7 @@ export async function downloadIntegration(sourcePath, targetPath, projectPath) {
  */
 export function downloadFromSkillsRepo(filePath) {
   const url = `${SKILLS_RAW_BASE}/${filePath}`;
-
-  return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      if (res.statusCode === 301 || res.statusCode === 302) {
-        https.get(res.headers.location, (redirectRes) => {
-          if (redirectRes.statusCode !== 200) {
-            reject(new Error(`GitHub returned ${redirectRes.statusCode} for ${filePath}`));
-            return;
-          }
-
-          let data = '';
-          redirectRes.on('data', chunk => data += chunk);
-          redirectRes.on('end', () => resolve(data));
-          redirectRes.on('error', reject);
-        }).on('error', reject);
-        return;
-      }
-
-      if (res.statusCode !== 200) {
-        reject(new Error(`GitHub returned ${res.statusCode} for ${filePath}`));
-        return;
-      }
-
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => resolve(data));
-      res.on('error', reject);
-    }).on('error', reject);
-  });
+  return downloadWithRetry(url, filePath);
 }
 
 /**

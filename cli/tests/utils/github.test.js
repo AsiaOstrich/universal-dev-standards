@@ -27,6 +27,15 @@ vi.mock('https', () => ({
   }
 }));
 
+// Mock timers/promises to avoid real delays in tests
+const { mockDelay } = vi.hoisted(() => ({
+  mockDelay: vi.fn(() => Promise.resolve())
+}));
+
+vi.mock('timers/promises', () => ({
+  setTimeout: mockDelay
+}));
+
 import { existsSync, mkdirSync, writeFileSync, readFileSync, readdirSync, copyFileSync } from 'fs';
 import {
   getSkillsDir,
@@ -38,7 +47,9 @@ import {
   hasLocalSkills,
   getLocalSkillsDir,
   installSkillFromLocal,
-  installSkillToDir
+  installSkillToDir,
+  downloadFromGitHub,
+  downloadFromSkillsRepo
 } from '../../src/utils/github.js';
 
 describe('GitHub Utils', () => {
@@ -422,6 +433,236 @@ describe('GitHub Utils', () => {
       // Should pick the latest version from cache directory
       expect(result.version).toBe('4.0.0');
       expect(result.source).toBe('marketplace');
+    });
+  });
+
+  // Helper to create a mock HTTP response
+  function createMockResponse(statusCode, body = '', headers = {}) {
+    const listeners = {};
+    const res = {
+      statusCode,
+      headers,
+      on: vi.fn((event, handler) => {
+        listeners[event] = handler;
+        return res;
+      })
+    };
+    // Schedule data and end events
+    process.nextTick(() => {
+      if (listeners.data && body) listeners.data(body);
+      if (listeners.end) listeners.end();
+    });
+    return res;
+  }
+
+  // Helper to create a mock request with error
+  function createMockRequestWithError(errorCode) {
+    return {
+      on: vi.fn((event, handler) => {
+        if (event === 'error') {
+          process.nextTick(() => {
+            const err = new Error(`Network error: ${errorCode}`);
+            err.code = errorCode;
+            handler(err);
+          });
+        }
+        return { on: vi.fn() };
+      })
+    };
+  }
+
+  describe('downloadFromGitHub', () => {
+    it('should download content on 200', async () => {
+      mockHttpsGet.mockImplementation((_url, callback) => {
+        const res = createMockResponse(200, 'file content');
+        callback(res);
+        return { on: vi.fn() };
+      });
+
+      const result = await downloadFromGitHub('core/test.md');
+
+      expect(result).toBe('file content');
+    });
+
+    it('should follow 301 redirects', async () => {
+      let callCount = 0;
+      mockHttpsGet.mockImplementation((_url, callback) => {
+        callCount++;
+        if (callCount === 1) {
+          const res = createMockResponse(301, '', { location: 'https://redirect.example.com/file' });
+          callback(res);
+        } else {
+          const res = createMockResponse(200, 'redirected content');
+          callback(res);
+        }
+        return { on: vi.fn() };
+      });
+
+      const result = await downloadFromGitHub('core/test.md');
+
+      expect(result).toBe('redirected content');
+    });
+
+    it('should throw on 404 without retry', async () => {
+      mockHttpsGet.mockImplementation((_url, callback) => {
+        const res = createMockResponse(404);
+        callback(res);
+        return { on: vi.fn() };
+      });
+
+      await expect(downloadFromGitHub('core/missing.md'))
+        .rejects.toThrow('GitHub returned 404');
+      // 404 is not retryable — should only call once
+      expect(mockHttpsGet).toHaveBeenCalledTimes(1);
+    });
+
+    it('should retry on 429 and succeed on second attempt', async () => {
+      let callCount = 0;
+      mockHttpsGet.mockImplementation((_url, callback) => {
+        callCount++;
+        if (callCount === 1) {
+          const res = createMockResponse(429, '', { 'retry-after': '1' });
+          callback(res);
+        } else {
+          const res = createMockResponse(200, 'success after retry');
+          callback(res);
+        }
+        return { on: vi.fn() };
+      });
+
+      const result = await downloadFromGitHub('core/test.md');
+
+      expect(result).toBe('success after retry');
+      expect(mockHttpsGet).toHaveBeenCalledTimes(2);
+      expect(mockDelay).toHaveBeenCalledTimes(1);
+    });
+
+    it('should respect Retry-After header on 429', async () => {
+      let callCount = 0;
+      mockHttpsGet.mockImplementation((_url, callback) => {
+        callCount++;
+        if (callCount === 1) {
+          const res = createMockResponse(429, '', { 'retry-after': '5' });
+          callback(res);
+        } else {
+          const res = createMockResponse(200, 'ok');
+          callback(res);
+        }
+        return { on: vi.fn() };
+      });
+
+      await downloadFromGitHub('core/test.md');
+
+      expect(mockDelay).toHaveBeenCalledWith(5000);
+    });
+
+    it('should retry on 503', async () => {
+      let callCount = 0;
+      mockHttpsGet.mockImplementation((_url, callback) => {
+        callCount++;
+        if (callCount === 1) {
+          const res = createMockResponse(503);
+          callback(res);
+        } else {
+          const res = createMockResponse(200, 'recovered');
+          callback(res);
+        }
+        return { on: vi.fn() };
+      });
+
+      const result = await downloadFromGitHub('core/test.md');
+
+      expect(result).toBe('recovered');
+      expect(mockHttpsGet).toHaveBeenCalledTimes(2);
+    });
+
+    it('should throw after max retries exhausted on 429', async () => {
+      mockHttpsGet.mockImplementation((_url, callback) => {
+        const res = createMockResponse(429);
+        callback(res);
+        return { on: vi.fn() };
+      });
+
+      await expect(downloadFromGitHub('core/test.md'))
+        .rejects.toThrow('GitHub returned 429');
+      // Initial attempt + 3 retries = 4 calls
+      expect(mockHttpsGet).toHaveBeenCalledTimes(4);
+      expect(mockDelay).toHaveBeenCalledTimes(3);
+    });
+
+    it('should retry on ECONNRESET network error', async () => {
+      let callCount = 0;
+      mockHttpsGet.mockImplementation((_url, callback) => {
+        callCount++;
+        if (callCount === 1) {
+          // Return object that emits error
+          return createMockRequestWithError('ECONNRESET');
+        }
+        const res = createMockResponse(200, 'recovered from network error');
+        callback(res);
+        return { on: vi.fn() };
+      });
+
+      const result = await downloadFromGitHub('core/test.md');
+
+      expect(result).toBe('recovered from network error');
+      expect(mockHttpsGet).toHaveBeenCalledTimes(2);
+    });
+
+    it('should use exponential backoff when no Retry-After header', async () => {
+      let callCount = 0;
+      mockHttpsGet.mockImplementation((_url, callback) => {
+        callCount++;
+        if (callCount <= 3) {
+          const res = createMockResponse(429);
+          callback(res);
+        } else {
+          const res = createMockResponse(200, 'ok');
+          callback(res);
+        }
+        return { on: vi.fn() };
+      });
+
+      await downloadFromGitHub('core/test.md');
+
+      // Exponential backoff: 1000, 2000, 4000
+      expect(mockDelay).toHaveBeenNthCalledWith(1, 1000);
+      expect(mockDelay).toHaveBeenNthCalledWith(2, 2000);
+      expect(mockDelay).toHaveBeenNthCalledWith(3, 4000);
+    });
+  });
+
+  describe('downloadFromSkillsRepo', () => {
+    it('should download content on 200', async () => {
+      mockHttpsGet.mockImplementation((_url, callback) => {
+        const res = createMockResponse(200, 'skill content');
+        callback(res);
+        return { on: vi.fn() };
+      });
+
+      const result = await downloadFromSkillsRepo('test-skill/SKILL.md');
+
+      expect(result).toBe('skill content');
+    });
+
+    it('should retry on 429', async () => {
+      let callCount = 0;
+      mockHttpsGet.mockImplementation((_url, callback) => {
+        callCount++;
+        if (callCount === 1) {
+          const res = createMockResponse(429);
+          callback(res);
+        } else {
+          const res = createMockResponse(200, 'skill after retry');
+          callback(res);
+        }
+        return { on: vi.fn() };
+      });
+
+      const result = await downloadFromSkillsRepo('test-skill/SKILL.md');
+
+      expect(result).toBe('skill after retry');
+      expect(mockHttpsGet).toHaveBeenCalledTimes(2);
     });
   });
 });

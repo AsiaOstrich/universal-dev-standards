@@ -136,6 +136,7 @@ export const ERROR_CODES = {
   DOWNLOAD_FAILED: 'DOWNLOAD_FAILED',
   NETWORK_TIMEOUT: 'NETWORK_TIMEOUT',
   NETWORK_OFFLINE: 'NETWORK_OFFLINE',
+  RATE_LIMITED: 'RATE_LIMITED',
   INVALID_URL: 'INVALID_URL',
   
   // Validation errors
@@ -170,6 +171,7 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.FILE_COPY_FAILED]: 'Failed to copy file: {source} → {target}',
   [ERROR_CODES.DOWNLOAD_FAILED]: 'Failed to download file: {url}',
   [ERROR_CODES.NETWORK_OFFLINE]: 'Network connection unavailable. Please check your internet connection.',
+  [ERROR_CODES.RATE_LIMITED]: 'GitHub API rate limit exceeded. Please wait a few minutes before retrying.',
   [ERROR_CODES.INVALID_INPUT]: 'Invalid input: {input}',
   [ERROR_CODES.AI_TOOL_NOT_SUPPORTED]: 'AI tool not supported: {tool}',
   [ERROR_CODES.PROJECT_NOT_INITIALIZED]: 'UDS is not initialized in this project.',
@@ -289,6 +291,7 @@ export function isRecoverableError(error) {
     return [
       ERROR_CODES.NETWORK_TIMEOUT,
       ERROR_CODES.NETWORK_OFFLINE,
+      ERROR_CODES.RATE_LIMITED,
       ERROR_CODES.USER_CANCELLED,
       ERROR_CODES.PROCESS_FAILED
     ].includes(error.code);

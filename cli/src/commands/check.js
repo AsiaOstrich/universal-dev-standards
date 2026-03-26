@@ -502,7 +502,17 @@ async function showSingleFileDiff(projectPath, manifest, relativePath, msg) {
   }
 
   console.log(chalk.gray(msg.fetchingOriginal));
-  const originalContent = await downloadFromGitHub(sourcePath);
+  let originalContent;
+  try {
+    originalContent = await downloadFromGitHub(sourcePath);
+  } catch (error) {
+    if (error.message.includes('429')) {
+      console.log(chalk.red(msg.rateLimited || 'GitHub API rate limit exceeded. Please wait a few minutes and try again.'));
+    } else {
+      console.log(chalk.red(`${msg.couldNotFetchOriginal} (${error.message})`));
+    }
+    return;
+  }
   if (!originalContent) {
     console.log(chalk.red(msg.couldNotFetchOriginal));
     return;
