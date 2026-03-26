@@ -69,6 +69,72 @@ Scenario: User login with valid credentials
 
 Thresholds are configurable via `--threshold` parameter or project configuration.
 
+## Four-Layer Traceability | 四層追溯（`--full` 模式）
+
+Use `--full` flag to extend from 2-layer (AC→Test) to 4-layer traceability.
+
+使用 `--full` 標記將追溯從 2 層（AC→Test）擴展為 4 層。
+
+### Traceability Layers | 追溯層次
+
+```
+Layer 0: Requirement / User Story (REQ)
+    ↓ (defines)
+Layer 1: Acceptance Criteria (AC)
+    ↓ (@AC annotations)
+Layer 2: Test Cases
+    ↓ (covers)
+Layer 3: Source Code (@implements)
+```
+
+### Layer Annotations | 各層標註慣例
+
+```typescript
+// Layer 3→1: Code referencing AC
+// @implements AC-1, AC-2
+function authenticate(user: string, pass: string) { ... }
+```
+
+```markdown
+<!-- Layer 0→1: Requirement in SPEC -->
+## Requirements
+### REQ-1: User Authentication
+- AC-1: Given valid credentials, when login, then authenticated
+- AC-2: Given invalid credentials, when login, then rejected
+```
+
+### Full Traceability Report | 完整追溯報告
+
+```markdown
+## Four-Layer Traceability Matrix
+
+| Requirement | AC | Test | Code | Status |
+|-------------|-----|------|------|--------|
+| REQ-1 | AC-1 | auth.test.ts:15 | auth.ts:42 | ✅ Full |
+| REQ-1 | AC-2 | auth.test.ts:30 | auth.ts:58 | ✅ Full |
+| REQ-2 | AC-3 | — | dashboard.ts:10 | ⚠️ No test |
+| REQ-3 | AC-4 | export.test.ts:5 | — | ⚠️ No code |
+
+### Gap Summary
+- Layer 0→1: 2 requirements without AC
+- Layer 1→2: 1 AC without tests
+- Layer 2→3: 0 tests without code mapping
+- Layer 3→1: 3 code files without AC mapping
+```
+
+### Reverse Tracing | 反向追溯
+
+Use `--trace-code <path>` to trace from code back to requirements.
+
+使用 `--trace-code <path>` 從程式碼反向追溯到需求。
+
+```bash
+/ac-coverage --trace-code src/auth.ts
+# Output:
+# src/auth.ts:42 → @implements AC-1 → REQ-1 (SPEC-AUTH-001)
+# src/auth.ts:58 → @implements AC-2 → REQ-1 (SPEC-AUTH-001)
+```
+
 ## Report Format | 報告格式
 
 The generated report follows the standard format from `core/acceptance-criteria-traceability.md`:
@@ -111,6 +177,8 @@ After `/ac-coverage` completes, the AI assistant should suggest:
 > - 覆蓋率達標 → 執行 `/checkin` 品質關卡 — Coverage meets threshold → Run `/checkin` quality gates
 > - 有未覆蓋 AC → 執行 `/derive-tdd` 補齊測試 ⭐ **Recommended / 推薦** — Uncovered AC found → Run `/derive-tdd` to add tests
 > - 有部分覆蓋 AC → 檢查缺少的邊界情況 — Partial AC → Review missing edge cases
+> - 需要完整追溯 → 執行 `/ac-coverage --full` — Need full traceability → Run with `--full`
+> - 反向追溯 → 執行 `/ac-coverage --trace-code <path>` — Reverse trace → Use `--trace-code`
 
 ## Reference | 參考
 

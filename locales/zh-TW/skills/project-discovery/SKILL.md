@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/project-discovery/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-03-26
 status: current
 description: "[UDS] 在既有程式碼庫新增功能前的 Phase 0 評估，評估專案健康度與風險"
 ---
@@ -52,11 +52,57 @@ description: "[UDS] 在既有程式碼庫新增功能前的 Phase 0 評估，評
 3. [低] 解決 src/utils/ 中的 TODO 積壓
 ```
 
+## 風險登記簿
+
+評估完成後，已識別的風險記錄在結構化的風險登記簿中進行持續追蹤。
+
+### 風險矩陣
+
+```
+              影響
+         低     中     高
+高     [ 中 ] [ 高 ] [重大]
+中     [ 低 ] [ 中 ] [ 高 ]   可能性
+低     [ 低 ] [ 低 ] [ 中 ]
+```
+
+### 風險登記簿模板
+
+```markdown
+# 風險登記簿 — [專案名稱]
+**最後更新**：YYYY-MM-DD
+
+| ID | 類別 | 描述 | 可能性 | 影響 | 等級 | 負責人 | 緩解措施 | 狀態 |
+|----|------|------|--------|------|------|--------|----------|------|
+| RISK-001 | 安全性 | 過時相依套件有 CVE | 高 | 高 | 重大 | @dev | npm audit fix | 開放 |
+| RISK-002 | 效能 | 無負載測試 | 中 | 高 | 高 | @ops | 新增 k6 測試 | 開放 |
+| RISK-003 | 品質 | 支付模組測試覆蓋率低 | 高 | 中 | 高 | @qa | 新增整合測試 | 緩解中 |
+```
+
+### 風險狀態生命週期
+
+```
+已識別 ──► 緩解中 ──► 已解決 ──► 已關閉
+  │
+  └──► 已接受（附理由說明）
+```
+
+### 風險存放
+
+```
+docs/risks/
+├── RISK-REGISTER.md              # 活躍風險登記簿
+├── RISK-REGISTER-2026-Q1.md      # 季度快照（選用）
+└── README.md                     # 索引
+```
+
 ## 使用方式
 
 - `/discover` - 完整專案健康度評估
 - `/discover auth` - 針對 auth 相關模組進行評估
 - `/discover payments` - 在新增支付功能前評估風險
+- `/discover --risks` - 檢視目前風險登記簿
+- `/discover --update-risk RISK-NNN` - 更新風險項目狀態
 
 ## 下一步引導
 
@@ -67,6 +113,8 @@ description: "[UDS] 在既有程式碼庫新增功能前的 Phase 0 評估，評
 > - **遺留程式碼** → 執行 `/reverse spec` 提取現有行為
 > - **重構** → 執行 `/refactor decide` 選擇策略
 > - **快速修復** → 執行 `/tdd` 撰寫針對性測試並修復
+> - **風險追蹤** → 執行 `/discover --risks` 檢視風險登記簿
+> - **架構決策** → 執行 `/adr` 記錄探索過程中的決策
 
 ## 參考
 

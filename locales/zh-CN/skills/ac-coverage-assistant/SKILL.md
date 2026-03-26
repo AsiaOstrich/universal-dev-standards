@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/ac-coverage-assistant/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-03-26
 status: current
 description: |
   分析验收条件（AC）与测试之间的追踪关系，产生覆盖率报告。
@@ -73,6 +73,68 @@ Scenario: 使用有效凭证登录
 
 门槛可通过 `--threshold` 参数或项目配置自定义。
 
+## 四层追溯（`--full` 模式）
+
+使用 `--full` 标记将追溯从 2 层（AC→Test）扩展为 4 层。
+
+### 追溯层次
+
+```
+第 0 层：需求 / 用户故事（REQ）
+    ↓ (定义)
+第 1 层：验收条件（AC）
+    ↓ (@AC 标注)
+第 2 层：测试用例
+    ↓ (覆盖)
+第 3 层：源代码（@implements）
+```
+
+### 各层标注惯例
+
+```typescript
+// 第 3→1 层：代码引用 AC
+// @implements AC-1, AC-2
+function authenticate(user: string, pass: string) { ... }
+```
+
+```markdown
+<!-- 第 0→1 层：SPEC 中的需求 -->
+## 需求
+### REQ-1: 用户认证
+- AC-1: 给定有效凭证，当登录时，则通过认证
+- AC-2: 给定无效凭证，当登录时，则拒绝登录
+```
+
+### 完整追溯报告
+
+```markdown
+## 四层追溯矩阵
+
+| 需求 | AC | 测试 | 代码 | 状态 |
+|------|-----|------|------|------|
+| REQ-1 | AC-1 | auth.test.ts:15 | auth.ts:42 | ✅ 完整 |
+| REQ-1 | AC-2 | auth.test.ts:30 | auth.ts:58 | ✅ 完整 |
+| REQ-2 | AC-3 | — | dashboard.ts:10 | ⚠️ 无测试 |
+| REQ-3 | AC-4 | export.test.ts:5 | — | ⚠️ 无代码 |
+
+### 差距摘要
+- 第 0→1 层：2 个需求缺少 AC
+- 第 1→2 层：1 个 AC 缺少测试
+- 第 2→3 层：0 个测试缺少代码映射
+- 第 3→1 层：3 个代码文件缺少 AC 映射
+```
+
+### 反向追溯
+
+使用 `--trace-code <path>` 从代码反向追溯到需求。
+
+```bash
+/ac-coverage --trace-code src/auth.ts
+# 输出：
+# src/auth.ts:42 → @implements AC-1 → REQ-1 (SPEC-AUTH-001)
+# src/auth.ts:58 → @implements AC-2 → REQ-1 (SPEC-AUTH-001)
+```
+
 ## 报告格式
 
 产生的报告遵循 `core/acceptance-criteria-traceability.md` 的标准格式：
@@ -81,7 +143,7 @@ Scenario: 使用有效凭证登录
 # AC 覆盖率报告
 
 **规格**: SPEC-001 — 功能名称
-**产生日期**: 2026-03-18
+**产生日期**: 2026-03-26
 **覆盖率**: 75% (6/8 AC)
 
 ## 摘要
@@ -115,8 +177,10 @@ Scenario: 使用有效凭证登录
 
 > **AC 覆盖率分析完成。建议下一步：**
 > - 覆盖率达标 → 执行 `/checkin` 品质关卡
-> - 有未覆盖 AC → 执行 `/derive-tdd` 补齐测试
+> - 有未覆盖 AC → 执行 `/derive-tdd` 补齐测试 ⭐ **推荐**
 > - 有部分覆盖 AC → 检查缺少的边界情况
+> - 需要完整追溯 → 执行 `/ac-coverage --full`
+> - 反向追溯 → 执行 `/ac-coverage --trace-code <path>`
 
 ## 参考
 

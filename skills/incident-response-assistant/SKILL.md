@@ -29,8 +29,8 @@ Guide structured incident response from detection through post-mortem.
 ## Response Workflow | 回應工作流程
 
 ```
-DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORTEM
-偵測         分級        緩解          解決         事後檢討
+DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORTEM ──► IMPROVE
+偵測         分級        緩解          解決         事後檢討       持續改善
 ```
 
 ### 1. Detect — Identify the Incident | 偵測事故
@@ -49,9 +49,13 @@ DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORT
 - Root cause analysis, implement proper fix, deploy
 - 根因分析、實作正確修復、部署
 
-### 5. Post-Mortem — Learn & Improve | 事後檢討
+### 5. Post-Mortem — Document & Analyze | 事後檢討
 - Document timeline, impact, root cause, action items
 - 記錄時間軸、影響範圍、根因、行動項目
+
+### 6. Improve — Track & Prevent | 持續改善
+- Track action item completion, analyze incident trends, prevent recurrence
+- 追蹤行動項目完成度、分析事故趨勢、防止再發
 
 ## Post-Mortem Template | 事後檢討模板
 
@@ -76,9 +80,14 @@ DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORT
 [Description of the underlying cause / 根本原因描述]
 
 ### Action Items
-| Action | Owner | Due Date | Priority |
-|--------|-------|----------|----------|
-| [Fix] | @name | YYYY-MM-DD | P0 |
+| Action | Owner | Due Date | Priority | Status |
+|--------|-------|----------|----------|--------|
+| [Fix] | @name | YYYY-MM-DD | P0 | Open |
+
+### Incident Metrics
+- MTTR (Mean Time To Recovery): Xh Ym
+- Detection Time: Xm (alert to IC assigned)
+- Recurrence: First / Repeat (link to previous)
 ```
 
 ## Communication Template | 溝通模板
@@ -97,7 +106,43 @@ Next update: [Time]
 /incident "API 500 errors"      # Guided response for specific incident | 特定事故引導回應
 /incident --post-mortem         # Generate post-mortem template | 產生事後檢討模板
 /incident --sev1                # SEV-1 rapid response checklist | SEV-1 快速回應清單
+/incident --actions             # List open action items | 列出未完成行動項目
+/incident --metrics             # Show incident trends | 顯示事故趨勢指標
 ```
+
+## Improvement Tracking | 改善追蹤
+
+### Action Item Lifecycle | 行動項目生命週期
+
+```
+Open ──► In Progress ──► Done ──► Verified
+```
+
+| Status | Description | 說明 |
+|--------|-------------|------|
+| **Open** | Identified, not started | 已識別，未開始 |
+| **In Progress** | Being worked on | 進行中 |
+| **Done** | Fix implemented | 已實作修復 |
+| **Verified** | Confirmed effective | 已驗證有效 |
+
+### Incident Storage | 事故存放
+
+```
+docs/incidents/
+├── INC-2026-03-15-api-outage.md
+├── INC-2026-03-20-db-pool-exhaustion.md
+└── README.md    # Index (optional)
+```
+
+### Metrics Tracked | 追蹤指標
+
+| Metric | Description | 說明 |
+|--------|-------------|------|
+| **MTTR** | Mean Time To Recovery | 平均恢復時間 |
+| **MTTD** | Mean Time To Detection | 平均偵測時間 |
+| **Frequency** | Incidents per period | 每期事故數 |
+| **Recurrence** | Repeated root causes | 重複根因比例 |
+| **Action Completion** | % of actions done | 行動項目完成率 |
 
 ## Next Steps Guidance | 下一步引導
 
@@ -108,6 +153,8 @@ After `/incident` completes, the AI assistant should suggest:
 > - 程式碼審查 → 執行 `/review` 審查修復變更 — Review fix changes
 > - 記錄學習 → 執行 `/docs` 更新文件 — Document learnings
 > - 安全審查 → 執行 `/security` 檢查安全影響 — Check security impact
+> - 團隊回顧 → 執行 `/retrospective`（SEV-1/SEV-2 建議）— Team retrospective (recommended for SEV-1/2)
+> - 查看行動項目 → 執行 `/incident --actions` — View open action items
 
 ## Reference | 參考
 
@@ -118,6 +165,7 @@ After `/incident` completes, the AI assistant should suggest:
 
 | Version | Date | Changes | 變更說明 |
 |---------|------|---------|----------|
+| 1.1.0 | 2026-03-26 | Add IMPROVE phase, action tracking, metrics | 新增改善階段、行動追蹤、指標 |
 | 1.0.0 | 2026-03-24 | Initial release | 初始版本 |
 
 

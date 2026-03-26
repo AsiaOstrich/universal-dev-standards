@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/project-discovery/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-03-26
 status: current
 description: "[UDS] 在既有程式碼庫新增功能前的 Phase 0 評估，評估專案健康度與風險"
 name: discover
@@ -57,11 +57,43 @@ disable-model-invocation: true
 3. [低] 解決 src/utils/ 中的 TODO 積壓
 ```
 
+## 風險登記簿
+
+評估完成後，已識別的風險記錄在結構化的風險登記簿中。
+
+### 風險矩陣
+
+```
+              影響
+         低     中     高
+高   [ 中  ] [ 高  ] [重大]
+中   [ 低  ] [ 中  ] [ 高 ]   可能性
+低   [ 低  ] [ 低  ] [ 中  ]
+```
+
+### 風險狀態
+
+```
+已識別 ──► 緩解中 ──► 已解決 ──► 已關閉
+  │
+  └──► 已接受（附理由）
+```
+
+### 存放位置
+
+```
+docs/risks/
+├── RISK-REGISTER.md              # 活躍風險登記簿
+└── README.md
+```
+
 ## 使用方式
 
 - `/discover` - 完整專案健康度評估
 - `/discover auth` - 針對 auth 相關模組進行評估
 - `/discover payments` - 在新增支付功能前評估風險
+- `/discover --risks` - 查看當前風險登記簿
+- `/discover --update-risk RISK-NNN` - 更新風險項目狀態
 
 ## 下一步引導
 
@@ -72,6 +104,8 @@ disable-model-invocation: true
 > - **遺留程式碼** → 執行 `/reverse spec` 提取現有行為
 > - **重構** → 執行 `/refactor decide` 選擇策略
 > - **快速修復** → 執行 `/tdd` 撰寫針對性測試並修復
+> - **風險追蹤** → 執行 `/discover --risks` 查看風險登記簿
+> - **架構決策** → 執行 `/adr` 記錄發現過程中的決策
 
 ## 參考
 

@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/ac-coverage-assistant/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-03-26
 status: current
 description: "[UDS] 分析 AC 與測試的追蹤關係及覆蓋率"
 name: ac-coverage
@@ -74,6 +74,56 @@ Scenario: 使用有效憑證登入
 
 門檻可透過 `--threshold` 參數或專案設定進行配置。
 
+## 四層追溯（`--full` 模式）
+
+使用 `--full` 標記將追溯從 2 層（AC→Test）擴展為 4 層。
+
+### 追溯層次
+
+```
+第 0 層：需求 / 使用者故事 (REQ)
+    ↓ (定義)
+第 1 層：驗收條件 (AC)
+    ↓ (@AC 標註)
+第 2 層：測試案例
+    ↓ (覆蓋)
+第 3 層：原始碼 (@implements)
+```
+
+### 各層標註慣例
+
+```typescript
+// 第 3→1 層：程式碼引用 AC
+// @implements AC-1, AC-2
+function authenticate(user: string, pass: string) { ... }
+```
+
+### 完整追溯報告
+
+```markdown
+## 四層追溯矩陣
+
+| 需求 | AC | 測試 | 程式碼 | 狀態 |
+|------|-----|------|--------|------|
+| REQ-1 | AC-1 | auth.test.ts:15 | auth.ts:42 | ✅ 完整 |
+| REQ-2 | AC-3 | — | dashboard.ts:10 | ⚠️ 無測試 |
+
+### 缺口摘要
+- 第 0→1 層：N 個需求沒有 AC
+- 第 1→2 層：N 個 AC 沒有測試
+- 第 2→3 層：N 個測試沒有程式碼對應
+```
+
+### 反向追溯
+
+使用 `--trace-code <path>` 從程式碼反向追溯到需求。
+
+```bash
+/ac-coverage --trace-code src/auth.ts
+# 輸出：
+# src/auth.ts:42 → @implements AC-1 → REQ-1 (SPEC-AUTH-001)
+```
+
 ## 報告格式
 
 產生的報告遵循 `core/acceptance-criteria-traceability.md` 中的標準格式：
@@ -123,6 +173,8 @@ Scenario: 使用有效憑證登入
 > - 覆蓋率達標 → 執行 `/checkin` 通過品質關卡
 > - 有未覆蓋 AC → 執行 `/derive-tdd` 補齊測試
 > - 有部分覆蓋 AC → 檢查缺少的邊界情況
+> - 需要完整追溯 → 執行 `/ac-coverage --full`
+> - 反向追溯 → 執行 `/ac-coverage --trace-code <path>`
 
 ## 參考
 

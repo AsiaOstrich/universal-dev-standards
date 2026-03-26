@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/project-discovery/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-03-26
 status: current
 description: |
   在既有代码库新增功能前的 Phase 0 评估，评估项目健康度、架构与风险。
@@ -55,11 +55,57 @@ description: |
 3. [低] 解决 src/utils/ 中的 TODO 积压
 ```
 
+## 风险登记簿
+
+评估完成后，已识别的风险记录在结构化的风险登记簿中进行持续追踪。
+
+### 风险矩阵
+
+```
+              影响
+         低     中     高
+高     [ 中 ] [ 高 ] [重大]
+中     [ 低 ] [ 中 ] [ 高 ]   可能性
+低     [ 低 ] [ 低 ] [ 中 ]
+```
+
+### 风险登记簿模板
+
+```markdown
+# 风险登记簿 — [项目名称]
+**最后更新**：YYYY-MM-DD
+
+| ID | 类别 | 描述 | 可能性 | 影响 | 等级 | 负责人 | 缓解措施 | 状态 |
+|----|------|------|--------|------|------|--------|----------|------|
+| RISK-001 | 安全性 | 过时依赖套件有 CVE | 高 | 高 | 重大 | @dev | npm audit fix | 开放 |
+| RISK-002 | 性能 | 无负载测试 | 中 | 高 | 高 | @ops | 新增 k6 测试 | 开放 |
+| RISK-003 | 质量 | 支付模块测试覆盖率低 | 高 | 中 | 高 | @qa | 新增集成测试 | 缓解中 |
+```
+
+### 风险状态生命周期
+
+```
+已识别 ──► 缓解中 ──► 已解决 ──► 已关闭
+  │
+  └──► 已接受（附理由说明）
+```
+
+### 风险存放
+
+```
+docs/risks/
+├── RISK-REGISTER.md              # 活跃风险登记簿
+├── RISK-REGISTER-2026-Q1.md      # 季度快照（可选）
+└── README.md                     # 索引
+```
+
 ## 使用方式
 
 - `/discover` - 完整项目健康度评估
 - `/discover auth` - 针对 auth 相关模块进行评估
 - `/discover payments` - 在新增支付功能前评估风险
+- `/discover --risks` - 查看当前风险登记簿
+- `/discover --update-risk RISK-NNN` - 更新风险项目状态
 
 ## 下一步引导
 
@@ -70,6 +116,8 @@ description: |
 > - **遗留代码** → 执行 `/reverse spec` 提取现有行为
 > - **重构** → 执行 `/refactor decide` 选择策略
 > - **快速修复** → 执行 `/tdd` 撰写针对性测试并修复
+> - **风险追踪** → 执行 `/discover --risks` 查看风险登记簿
+> - **架构决策** → 执行 `/adr` 记录探索过程中的决策
 
 ## 参考
 

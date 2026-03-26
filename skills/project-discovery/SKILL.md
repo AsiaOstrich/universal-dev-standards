@@ -52,11 +52,59 @@ Recommendations:
 3. [LOW]  Resolve TODO backlog in src/utils/
 ```
 
+## Risk Register | 風險登記簿
+
+After assessment, identified risks are recorded in a structured Risk Register for ongoing tracking.
+
+評估完成後，已識別的風險記錄在結構化的風險登記簿中進行持續追蹤。
+
+### Risk Matrix | 風險矩陣
+
+```
+              Impact | 影響
+         Low    Med    High
+High   [ Med ] [High] [Crit]
+Med    [ Low ] [Med ] [High]   Likelihood | 可能性
+Low    [ Low ] [Low ] [Med ]
+```
+
+### Risk Register Template | 風險登記簿模板
+
+```markdown
+# Risk Register — [Project Name]
+**Last Updated**: YYYY-MM-DD
+
+| ID | Category | Description | Likelihood | Impact | Level | Owner | Mitigation | Status |
+|----|----------|-------------|-----------|--------|-------|-------|------------|--------|
+| RISK-001 | Security | Outdated deps with CVEs | High | High | Critical | @dev | npm audit fix | Open |
+| RISK-002 | Performance | No load testing | Medium | High | High | @ops | Add k6 tests | Open |
+| RISK-003 | Quality | Low test coverage in payments | High | Medium | High | @qa | Add IT tests | Mitigating |
+```
+
+### Risk Status Lifecycle | 風險狀態
+
+```
+Identified ──► Mitigating ──► Resolved ──► Closed
+     │
+     └──► Accepted (with justification)
+```
+
+### Risk Storage | 風險存放
+
+```
+docs/risks/
+├── RISK-REGISTER.md              # Active risk register
+├── RISK-REGISTER-2026-Q1.md      # Quarterly snapshot (optional)
+└── README.md                     # Index
+```
+
 ## Usage | 使用方式
 
 - `/discover` - Full project health assessment
 - `/discover auth` - Focused assessment of auth-related modules
 - `/discover payments` - Assess risks before adding payment features
+- `/discover --risks` - View current risk register
+- `/discover --update-risk RISK-NNN` - Update a risk item status
 
 ## Next Steps Guidance | 下一步引導
 
@@ -67,6 +115,8 @@ After `/discover` completes, the AI assistant should suggest based on the assess
 > - **Legacy code / 遺留程式碼** → `/reverse spec` to extract existing behavior
 > - **Refactoring / 重構** → `/refactor decide` to choose a strategy
 > - **Quick fix / 快速修復** → `/tdd` to write a targeted test and fix
+> - **Risk tracking / 風險追蹤** → `/discover --risks` to view risk register
+> - **Architecture decision / 架構決策** → `/adr` to record decisions made during discovery
 
 ## Reference | 參考
 

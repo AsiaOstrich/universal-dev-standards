@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/incident-response-assistant/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-03-26
 status: current
 description: |
   引导事故回应、根因分析和事后复盘文档撰写。
@@ -28,8 +28,8 @@ description: |
 ## 回应工作流程
 
 ```
-DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORTEM
-检测         分级        缓解          解决         事后复盘
+DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORTEM ──► IMPROVE
+检测         分级        缓解          解决         事后复盘       持续改善
 ```
 
 ### 1. Detect — 检测事故
@@ -46,6 +46,9 @@ DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORT
 
 ### 5. Post-Mortem — 事后复盘
 记录时间轴、影响范围、根因、行动项。
+
+### 6. Improve — 持续改善
+追踪行动项完成度、分析事故趋势、防止再发。
 
 ## 事后复盘模板
 
@@ -70,9 +73,14 @@ DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORT
 [根本原因描述]
 
 ### 行动项
-| 行动 | 负责人 | 截止日期 | 优先级 |
-|------|--------|----------|--------|
-| [修复] | @name | YYYY-MM-DD | P0 |
+| 行动 | 负责人 | 截止日期 | 优先级 | 状态 |
+|------|--------|----------|--------|------|
+| [修复] | @name | YYYY-MM-DD | P0 | 开启 |
+
+### 事故指标
+- MTTR（平均恢复时间）：Xh Ym
+- 检测时间：Xm（告警到指派 IC）
+- 再发性：首次 / 重复（链接至先前事故）
 ```
 
 ## 沟通模板
@@ -90,16 +98,54 @@ DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORT
 - `/incident "API 500 errors"` - 特定事故引导回应
 - `/incident --post-mortem` - 生成事后复盘模板
 - `/incident --sev1` - SEV-1 快速响应清单
+- `/incident --actions` - 列出未完成行动项
+- `/incident --metrics` - 显示事故趋势指标
+
+## 改善追踪
+
+### 行动项生命周期
+
+```
+Open ──► In Progress ──► Done ──► Verified
+```
+
+| 状态 | 说明 |
+|------|------|
+| **Open** | 已识别，未开始 |
+| **In Progress** | 进行中 |
+| **Done** | 已实现修复 |
+| **Verified** | 已验证有效 |
+
+### 事故存放
+
+```
+docs/incidents/
+├── INC-2026-03-15-api-outage.md
+├── INC-2026-03-20-db-pool-exhaustion.md
+└── README.md    # 索引（可选）
+```
+
+### 追踪指标
+
+| 指标 | 说明 |
+|------|------|
+| **MTTR** | 平均恢复时间 |
+| **MTTD** | 平均检测时间 |
+| **Frequency** | 每期事故数 |
+| **Recurrence** | 重复根因比例 |
+| **Action Completion** | 行动项完成率 |
 
 ## 下一步引导
 
 `/incident` 完成后，AI 助手应建议：
 
 > **事故回应指引已提供。建议下一步：**
-> - 执行 `/commit` 创建修复提交
+> - 执行 `/commit` 创建修复提交 ⭐ **推荐**
 > - 执行 `/review` 审查修复变更
 > - 执行 `/docs` 更新文档
 > - 执行 `/security` 检查安全影响
+> - 执行 `/retrospective`（SEV-1/SEV-2 建议）— 团队回顾
+> - 执行 `/incident --actions` — 查看未完成行动项
 
 ## 参考
 
