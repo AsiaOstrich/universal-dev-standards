@@ -380,12 +380,29 @@ function ensureRequiredFields(manifest) {
   if (options.commit_language && !options.output_language) {
     options.output_language = options.commit_language;
   }
-  // Keep commit_language as fallback for older CLIs
+  // Remove deprecated commit_language once output_language is set
+  if (options.output_language && options.commit_language) {
+    delete options.commit_language;
+  }
+
+  // Normalize fileHashes keys: deduplicate backslash vs forward-slash paths (Windows)
+  const fileHashes = manifest.fileHashes || {};
+  const normalizedHashes = {};
+  for (const [key, value] of Object.entries(fileHashes)) {
+    const normalizedKey = key.replace(/\\/g, '/');
+    // Keep the newer entry (by installedAt) if both exist
+    if (!normalizedHashes[normalizedKey] ||
+        (value.installedAt && (!normalizedHashes[normalizedKey].installedAt ||
+          value.installedAt > normalizedHashes[normalizedKey].installedAt))) {
+      normalizedHashes[normalizedKey] = value;
+    }
+  }
+
   return {
     ...manifest,
     options,
     contentMode: manifest.contentMode || 'index',
-    fileHashes: manifest.fileHashes || {},
+    fileHashes: normalizedHashes,
     skillHashes: manifest.skillHashes || {},
     commandHashes: manifest.commandHashes || {},
     integrationBlockHashes: manifest.integrationBlockHashes || {},
@@ -418,11 +435,12 @@ export function updateUpstream(manifest, upstream) {
  * @returns {Object} Updated manifest
  */
 export function addFileHash(manifest, filePath, hash, size) {
+  const normalizedPath = filePath.replace(/\\/g, '/');
   return {
     ...manifest,
     fileHashes: {
       ...manifest.fileHashes,
-      [filePath]: {
+      [normalizedPath]: {
         hash,
         size,
         installedAt: new Date().toISOString()

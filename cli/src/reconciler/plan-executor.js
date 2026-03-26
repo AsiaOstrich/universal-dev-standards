@@ -218,7 +218,8 @@ async function executeCreateOrUpdate(projectPath, action, manifest) {
             // Update hash in manifest
             const hashInfo = computeFileHash(join(projectPath, action.path));
             if (hashInfo) {
-              manifest.fileHashes[action.path] = {
+              const normalizedPath = action.path.replace(/\\/g, '/');
+              manifest.fileHashes[normalizedPath] = {
                 ...hashInfo,
                 installedAt: new Date().toISOString()
               };
@@ -239,7 +240,8 @@ async function executeCreateOrUpdate(projectPath, action, manifest) {
     // Update hash in manifest
     const hashInfo = computeFileHash(targetPath);
     if (hashInfo) {
-      manifest.fileHashes[action.path] = {
+      const normalizedPath = action.path.replace(/\\/g, '/');
+      manifest.fileHashes[normalizedPath] = {
         ...hashInfo,
         installedAt: new Date().toISOString()
       };
