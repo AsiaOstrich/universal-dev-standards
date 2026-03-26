@@ -4,8 +4,8 @@
   "last_updated": "2026-03-25",
   "stats": {
     "core_standards": 51,
-    "skills": 42,
-    "slash_commands": 47
+    "skills": 43,
+    "slash_commands": 48
   },
   "standards": [
     {
@@ -289,6 +289,11 @@
       "id": "retrospective-assistant",
       "command": "/retrospective",
       "category": "governance"
+    },
+    {
+      "id": "contract-test-assistant",
+      "command": "/contract-test",
+      "category": "development"
     },
     {
       "id": "atdd-assistant",

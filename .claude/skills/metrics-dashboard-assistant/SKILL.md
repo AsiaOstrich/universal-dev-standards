@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/metrics-dashboard-assistant/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-03-26
 status: current
 description: "[UDS] 追蹤開發指標、程式碼品質指示器與專案健康狀態"
 name: metrics
@@ -23,7 +23,8 @@ argument-hint: "[metric type or module | 指標類型或模組]"
 |------|------|
 | `/metrics` | 執行完整專案健康檢查 |
 | `/metrics --quality` | 僅程式碼品質指標 |
-| `/metrics --debt` | 技術債摘要 |
+| `/metrics --debt` | 分類技術債報告 |
+| `/metrics --debt-trend` | 技術債趨勢 |
 | `/metrics --test` | 測試健康指標 |
 | `/metrics src/` | 限定特定模組範圍 |
 
@@ -34,8 +35,61 @@ argument-hint: "[metric type or module | 指標類型或模組]"
 | **程式碼品質** | 複雜度、重複率、lint 警告 |
 | **測試健康** | 覆蓋率 %、通過率、不穩定測試數 |
 | **提交品質** | 大小、頻率、格式合規 |
-| **債務追蹤** | TODO/FIXME 數量、問題存在時間 |
+| **債務追蹤** | TODO/FIXME 數量、問題存在時間、債務分類 |
 | **依賴健康** | 過時套件、漏洞數量 |
+
+## 技術債分類
+
+基於 SQALE 方法和 ISO/IEC 25010 維護性子特性。
+
+| 類別 | 衡量項目 | 偵測方法 |
+|------|----------|----------|
+| **程式碼債** | TODO/FIXME、死碼、重複 | Grep, lint |
+| **測試債** | 未覆蓋模組、低覆蓋區域 | 覆蓋率報告 |
+| **設計債** | 複雜度熱點（cyclomatic > 15）、深層巢狀 | 靜態分析 |
+| **文件債** | 未文件化 API、過時文件 | JSDoc/TypeDoc 掃描 |
+| **依賴債** | 過時套件、已知 CVE | npm audit/outdated |
+
+### 債務報告格式
+
+```markdown
+## 技術債報告
+
+**日期**: YYYY-MM-DD | **債務密度**: N 項 / 每千行
+
+### 摘要
+| 類別 | 數量 | 嚴重度 | 預估修復時間 | 趨勢 |
+|------|------|--------|-------------|------|
+| 程式碼債 | 42 | 中 | 21h | ↑ +5 |
+| 測試債 | 15 模組 | 高 | 30h | → 穩定 |
+| 設計債 | 3 熱點 | 高 | 16h | ↓ -1 |
+| 文件債 | 8 API | 低 | 8h | ↑ +2 |
+| 依賴債 | 5 過時 | 嚴重 | 4h | → 穩定 |
+
+**總預估修復時間**: 79 小時
+
+### 最高優先項目
+1. [嚴重] CVE-2024-XXXX in lodash — 修復: npm update
+2. [高] src/parser/ 複雜度 28 — 修復: 提取方法
+3. [高] src/payments/ 0% 覆蓋率 — 修復: 新增整合測試
+```
+
+### 趨勢追蹤
+
+使用 `--debt-trend` 與過去的快照比較。
+
+```
+User: /metrics --debt-trend
+AI: 技術債趨勢（近 3 個月）：
+
+    程式碼債:  ████████░░ 42 (+5)  ↑ 增加中
+    測試債:    ██████░░░░ 15 (0)   → 穩定
+    設計債:    ███░░░░░░░  3 (-1)  ↓ 改善中
+    文件債:    ████░░░░░░  8 (+2)  ↑ 增加中
+    依賴債:    ██░░░░░░░░  5 (0)   → 穩定
+
+    總計: 73 項（前次 67）— ⚠️ 債務增加中
+```
 
 ## 快速健康分數
 
@@ -66,3 +120,5 @@ argument-hint: "[metric type or module | 指標類型或模組]"
 > - 執行 `/refactor` 處理高複雜度模組
 > - 執行 `/coverage` 改善低覆蓋率區域
 > - 執行 `/audit` 檢視安全與依賴問題
+> - 執行 `/metrics --debt-trend` 追蹤技術債趨勢
+> - 執行 `/retrospective` 在回顧中討論技術債

@@ -590,6 +590,7 @@ describe('Check Command', () => {
       // Updated from 26 to 27 after adding project-discovery skill
       // Updated from 27 to 28 after adding adr-assistant skill
       // Updated from 28 to 29 after adding retrospective-assistant skill
+      // contract-test-assistant has no core standard (uses options/testing/contract-testing.md), so no count change
       expect(output).toContain('29 via Skills');
 
       // Should NOT show exactly "0 via Skills" as a standalone line
