@@ -1,0 +1,59 @@
+# ADR Standards - AI Optimized
+# Source: core/adr-standards.md
+
+id: adr-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-26"
+  source: core/adr-standards.md
+  guide: skills/adr-assistant/guide.md
+  description: Architecture Decision Records for tracking significant technical decisions
+
+# When to write an ADR
+trigger_conditions:
+  write_adr:
+    - "Choosing a framework, library, or platform"
+    - "Defining API contracts or data formats"
+    - "Changing deployment strategy"
+    - "Establishing coding patterns or conventions"
+    - "Making trade-offs with long-term consequences"
+    - "Deviating from established patterns"
+  skip_adr:
+    - "Routine dependency updates"
+    - "Bug fixes within existing architecture"
+    - "Code style or formatting decisions"
+    - "Trivial implementation choices"
+
+# ADR template structure
+template:
+  required_sections:
+    - "Status (Proposed | Accepted | Deprecated | Superseded)"
+    - "Date (YYYY-MM-DD)"
+    - "Context"
+    - "Considered Options (minimum 2)"
+    - "Decision Outcome with justification"
+    - "Consequences (Good / Bad)"
+  optional_sections:
+    - "Deciders"
+    - "Technical Story"
+    - "Decision Drivers"
+    - "Neutral consequences"
+    - "Links"
+
+# Status transitions
+status_lifecycle:
+  flow: "Proposed → Accepted → Deprecated | Superseded"
+  rule: "Never revert Accepted to Proposed; supersede instead"
+
+# Storage
+storage:
+  directory: "docs/adr/"
+  naming: "ADR-NNN-short-description.md"
+
+# Key rules
+rules:
+  - "Write ADR at decision time, not weeks later"
+  - "Include at least 2 considered options"
+  - "Never edit accepted ADRs; supersede instead"
+  - "Link bidirectionally to SPECs, code, and PRs"
+  - "Six-month rule: if someone might ask 'why?' later, write an ADR"

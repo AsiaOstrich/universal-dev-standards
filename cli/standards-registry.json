@@ -1599,6 +1599,32 @@
       "category": "skill",
       "skillName": null,
       "description": "Iron Law: no verification evidence = no completion claim. RED-GREEN cycle for bug fixes"
+    },
+    {
+      "id": "adr-standards",
+      "name": "Architecture Decision Records",
+      "nameZh": "架構決策記錄",
+      "source": {
+        "human": "core/adr-standards.md",
+        "ai": "ai/standards/adr-standards.ai.yaml",
+        "guide": "skills/adr-assistant/guide.md"
+      },
+      "category": "skill",
+      "skillName": "adr-assistant",
+      "description": "Lightweight, version-controlled records of significant architectural decisions with context, options, and rationale"
+    },
+    {
+      "id": "retrospective-standards",
+      "name": "Retrospective Standards",
+      "nameZh": "回顧標準",
+      "source": {
+        "human": "core/retrospective-standards.md",
+        "ai": "ai/standards/retrospective-standards.ai.yaml",
+        "guide": "skills/retrospective-assistant/guide.md"
+      },
+      "category": "skill",
+      "skillName": "retrospective-assistant",
+      "description": "Structured team retrospectives for Sprint and Release cycles with facilitation techniques and action item tracking"
     }
   ]
 }

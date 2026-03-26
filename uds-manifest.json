@@ -3,15 +3,25 @@
   "version": "5.1.0-beta.2",
   "last_updated": "2026-03-25",
   "stats": {
-    "core_standards": 49,
-    "skills": 40,
-    "slash_commands": 45
+    "core_standards": 51,
+    "skills": 42,
+    "slash_commands": 47
   },
   "standards": [
     {
       "id": "acceptance-test-driven-development",
       "category": "development",
       "level": 3
+    },
+    {
+      "id": "adr-standards",
+      "category": "governance",
+      "level": 2
+    },
+    {
+      "id": "retrospective-standards",
+      "category": "governance",
+      "level": 2
     },
     {
       "id": "accessibility-standards",
@@ -268,6 +278,16 @@
     {
       "id": "ai-instruction-standards",
       "command": "/guide",
+      "category": "governance"
+    },
+    {
+      "id": "adr-assistant",
+      "command": "/adr",
+      "category": "governance"
+    },
+    {
+      "id": "retrospective-assistant",
+      "command": "/retrospective",
       "category": "governance"
     },
     {

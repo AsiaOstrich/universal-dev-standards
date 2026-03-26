@@ -1,0 +1,43 @@
+# Retrospective Standards - AI Optimized
+# Source: core/retrospective-standards.md
+
+id: retrospective-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-26"
+  source: core/retrospective-standards.md
+  guide: skills/retrospective-assistant/guide.md
+  description: Structured team retrospectives with facilitation techniques and action item tracking
+
+# Types
+types:
+  sprint: "End of iteration, 30-60 min, focus on process/collaboration/tools"
+  release: "After release, 60-90 min, focus on quality/metrics/cross-team"
+
+# Techniques
+techniques:
+  start-stop-continue: "Default, quick — Start / Stop / Continue"
+  starfish: "Nuanced — More / Keep / Less / Start / Stop"
+  4ls: "Emotional — Liked / Learned / Lacked / Longed for"
+  sailboat: "Visual — Wind / Anchor / Rocks / Island"
+
+# Action items
+action_items:
+  max_per_retro: 3
+  required_fields: ["Action", "Owner", "Due Date", "Status"]
+  lifecycle: "Open → In Progress → Done | Cancelled"
+  stale_threshold: "2 retrospective cycles"
+
+# Storage
+storage:
+  directory: "docs/retrospectives/"
+  naming: "RETRO-YYYY-MM-DD-[type]-[identifier].md"
+
+# Key rules
+rules:
+  - "Hold retrospectives at end of every Sprint and after each Release"
+  - "Use structured techniques; rotate to prevent fatigue"
+  - "Limit to 1-3 SMART action items with single owners"
+  - "Always review previous action items first"
+  - "Gather data (git log, metrics) before the session"
+  - "Focus on process, not people — no blame"
