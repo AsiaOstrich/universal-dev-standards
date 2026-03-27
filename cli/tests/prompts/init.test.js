@@ -24,21 +24,21 @@ vi.mock('chalk', () => {
   };
 });
 
-// Use hoisted to define mock before vi.mock
-const { mockPrompt } = vi.hoisted(() => ({
-  mockPrompt: vi.fn()
+// Use hoisted to define mocks before vi.mock
+const { mockSelect, mockCheckbox, mockConfirm, mockInput } = vi.hoisted(() => ({
+  mockSelect: vi.fn(),
+  mockCheckbox: vi.fn(),
+  mockConfirm: vi.fn(),
+  mockInput: vi.fn()
 }));
 
-// Create a class-like function for Separator
-function MockSeparator(text) {
-  this.text = text;
-  this.type = 'separator';
-}
-
-vi.mock('inquirer', () => ({
-  default: {
-    prompt: mockPrompt,
-    Separator: MockSeparator
+vi.mock('@inquirer/prompts', () => ({
+  select: mockSelect,
+  checkbox: mockCheckbox,
+  confirm: mockConfirm,
+  input: mockInput,
+  Separator: class Separator {
+    constructor(text) { this.text = text; this.type = 'separator'; }
   }
 }));
 
@@ -71,7 +71,7 @@ describe('Init Prompts', () => {
     vi.spyOn(console, 'log').mockImplementation((...args) => {
       consoleLogs.push(args.join(' '));
     });
-    mockPrompt.mockReset();
+    mockSelect.mockReset(); mockCheckbox.mockReset(); mockConfirm.mockReset(); mockInput.mockReset();
   });
 
   afterEach(() => {
@@ -81,7 +81,7 @@ describe('Init Prompts', () => {
 
   describe('promptAITools', () => {
     it('should return selected AI tools', async () => {
-      mockPrompt.mockResolvedValue({ tools: ['claude-code', 'cursor'] });
+      mockCheckbox.mockResolvedValue(['claude-code', 'cursor']);
 
       const result = await promptAITools({});
 
@@ -89,7 +89,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return empty array when nothing selected', async () => {
-      mockPrompt.mockResolvedValue({ tools: [] });
+      mockCheckbox.mockResolvedValue([]);
 
       const result = await promptAITools({});
 
@@ -99,7 +99,7 @@ describe('Init Prompts', () => {
 
   describe('promptSkillsInstallLocation', () => {
     it('should show marketplace tip for Claude Code', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['claude-code:user'] });
+      mockCheckbox.mockResolvedValue(['claude-code:user']);
 
       await promptSkillsInstallLocation(['claude-code']);
 
@@ -109,7 +109,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return user location', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['claude-code:user'] });
+      mockCheckbox.mockResolvedValue(['claude-code:user']);
 
       const result = await promptSkillsInstallLocation(['claude-code']);
 
@@ -117,7 +117,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return project location', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['claude-code:project'] });
+      mockCheckbox.mockResolvedValue(['claude-code:project']);
 
       const result = await promptSkillsInstallLocation(['claude-code']);
 
@@ -125,7 +125,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return empty array when none selected', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['none'] });
+      mockCheckbox.mockResolvedValue(['none']);
 
       const result = await promptSkillsInstallLocation(['claude-code']);
 
@@ -134,7 +134,7 @@ describe('Init Prompts', () => {
 
     it('should prompt for Cursor skills installation (added Jan 2026, v2.3.35)', async () => {
       // Cursor now supports SKILL.md as of v2.3.35 (Jan 2026)
-      mockPrompt.mockResolvedValue({ locations: ['cursor:project'] });
+      mockCheckbox.mockResolvedValue(['cursor:project']);
 
       const result = await promptSkillsInstallLocation(['cursor']);
 
@@ -142,7 +142,7 @@ describe('Init Prompts', () => {
     });
 
     it('should support multi-agent selection', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['claude-code:user', 'opencode:project'] });
+      mockCheckbox.mockResolvedValue(['claude-code:user', 'opencode:project']);
 
       const result = await promptSkillsInstallLocation(['claude-code', 'opencode']);
 
@@ -155,7 +155,7 @@ describe('Init Prompts', () => {
 
   describe('promptCommandsInstallation', () => {
     it('should return user level location', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['opencode:user'] });
+      mockCheckbox.mockResolvedValue(['opencode:user']);
 
       const result = await promptCommandsInstallation(['opencode']);
 
@@ -163,7 +163,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return project level location', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['opencode:project'] });
+      mockCheckbox.mockResolvedValue(['opencode:project']);
 
       const result = await promptCommandsInstallation(['opencode']);
 
@@ -172,7 +172,7 @@ describe('Init Prompts', () => {
 
     it('should prompt for Cursor commands installation (added Jan 2026, v2.3.35)', async () => {
       // Cursor now supports commands as of v2.3.35 (Jan 2026)
-      mockPrompt.mockResolvedValue({ locations: ['cursor:project'] });
+      mockCheckbox.mockResolvedValue(['cursor:project']);
 
       const result = await promptCommandsInstallation(['cursor']);
 
@@ -180,7 +180,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return empty array when empty selection', async () => {
-      mockPrompt.mockResolvedValue({ locations: [] });
+      mockCheckbox.mockResolvedValue([]);
 
       const result = await promptCommandsInstallation(['opencode']);
 
@@ -188,7 +188,7 @@ describe('Init Prompts', () => {
     });
 
     it('should support multi-agent selection with different levels', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['opencode:user', 'copilot:project'] });
+      mockCheckbox.mockResolvedValue(['opencode:user', 'copilot:project']);
 
       const result = await promptCommandsInstallation(['opencode', 'copilot']);
 
@@ -199,7 +199,7 @@ describe('Init Prompts', () => {
     });
 
     it('should deduplicate same agent with both levels, keeping project', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['opencode:user', 'opencode:project'] });
+      mockCheckbox.mockResolvedValue(['opencode:user', 'opencode:project']);
 
       const result = await promptCommandsInstallation(['opencode']);
 
@@ -211,7 +211,7 @@ describe('Init Prompts', () => {
 
   describe('promptSkillsInstallLocation deduplication', () => {
     it('should deduplicate same agent selected at both levels, keeping project', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['claude-code:user', 'claude-code:project'] });
+      mockCheckbox.mockResolvedValue(['claude-code:user', 'claude-code:project']);
 
       const result = await promptSkillsInstallLocation(['claude-code']);
 
@@ -221,7 +221,7 @@ describe('Init Prompts', () => {
     });
 
     it('should show warning when deduplicating', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['claude-code:user', 'claude-code:project'] });
+      mockCheckbox.mockResolvedValue(['claude-code:user', 'claude-code:project']);
 
       await promptSkillsInstallLocation(['claude-code']);
 
@@ -230,7 +230,7 @@ describe('Init Prompts', () => {
     });
 
     it('should not deduplicate different agents', async () => {
-      mockPrompt.mockResolvedValue({ locations: ['claude-code:user', 'opencode:project'] });
+      mockCheckbox.mockResolvedValue(['claude-code:user', 'opencode:project']);
 
       const result = await promptSkillsInstallLocation(['claude-code', 'opencode']);
 
@@ -253,7 +253,7 @@ describe('Init Prompts', () => {
     });
 
     it('should prompt for update when project needs update', async () => {
-      mockPrompt.mockResolvedValue({ action: 'project' });
+      mockSelect.mockResolvedValue('project');
 
       const result = await promptSkillsUpdate(
         { installed: true, version: '0.9.0' },
@@ -265,7 +265,7 @@ describe('Init Prompts', () => {
     });
 
     it('should prompt for update when user needs update', async () => {
-      mockPrompt.mockResolvedValue({ action: 'user' });
+      mockSelect.mockResolvedValue('user');
 
       const result = await promptSkillsUpdate(
         null,
@@ -277,7 +277,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return both targets when both selected', async () => {
-      mockPrompt.mockResolvedValue({ action: 'both' });
+      mockSelect.mockResolvedValue('both');
 
       const result = await promptSkillsUpdate(
         { installed: true, version: '0.9.0' },
@@ -297,7 +297,7 @@ describe('Init Prompts', () => {
     });
 
     it('should prompt when skills installed', async () => {
-      mockPrompt.mockResolvedValue({ scope: 'minimal' });
+      mockSelect.mockResolvedValue('minimal');
 
       const result = await promptStandardsScope(true);
 
@@ -307,7 +307,7 @@ describe('Init Prompts', () => {
 
   describe('promptFormat', () => {
     it('should return selected format', async () => {
-      mockPrompt.mockResolvedValue({ format: 'ai' });
+      mockSelect.mockResolvedValue('ai');
 
       const result = await promptFormat();
 
@@ -315,7 +315,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return human format', async () => {
-      mockPrompt.mockResolvedValue({ format: 'human' });
+      mockSelect.mockResolvedValue('human');
 
       const result = await promptFormat();
 
@@ -323,7 +323,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return both format', async () => {
-      mockPrompt.mockResolvedValue({ format: 'both' });
+      mockSelect.mockResolvedValue('both');
 
       const result = await promptFormat();
 
@@ -333,7 +333,7 @@ describe('Init Prompts', () => {
 
   describe('promptGitWorkflow', () => {
     it('should return github-flow', async () => {
-      mockPrompt.mockResolvedValue({ workflow: 'github-flow' });
+      mockSelect.mockResolvedValue('github-flow');
 
       const result = await promptGitWorkflow();
 
@@ -341,7 +341,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return gitflow', async () => {
-      mockPrompt.mockResolvedValue({ workflow: 'gitflow' });
+      mockSelect.mockResolvedValue('gitflow');
 
       const result = await promptGitWorkflow();
 
@@ -351,7 +351,7 @@ describe('Init Prompts', () => {
 
   describe('promptMergeStrategy', () => {
     it('should return squash', async () => {
-      mockPrompt.mockResolvedValue({ strategy: 'squash' });
+      mockSelect.mockResolvedValue('squash');
 
       const result = await promptMergeStrategy();
 
@@ -359,7 +359,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return merge-commit', async () => {
-      mockPrompt.mockResolvedValue({ strategy: 'merge-commit' });
+      mockSelect.mockResolvedValue('merge-commit');
 
       const result = await promptMergeStrategy();
 
@@ -369,7 +369,7 @@ describe('Init Prompts', () => {
 
   describe('promptOutputLanguage', () => {
     it('should return english', async () => {
-      mockPrompt.mockResolvedValue({ language: 'english' });
+      mockSelect.mockResolvedValue('english');
 
       const result = await promptOutputLanguage();
 
@@ -377,7 +377,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return bilingual when displayLanguage is zh-tw', async () => {
-      mockPrompt.mockResolvedValue({ language: 'bilingual' });
+      mockSelect.mockResolvedValue('bilingual');
 
       const result = await promptOutputLanguage('zh-tw');
 
@@ -385,7 +385,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return bilingual when displayLanguage is zh-cn', async () => {
-      mockPrompt.mockResolvedValue({ language: 'bilingual' });
+      mockSelect.mockResolvedValue('bilingual');
 
       const result = await promptOutputLanguage('zh-cn');
 
@@ -393,7 +393,7 @@ describe('Init Prompts', () => {
     });
 
     it('should work with default displayLanguage (en)', async () => {
-      mockPrompt.mockResolvedValue({ language: 'traditional-chinese' });
+      mockSelect.mockResolvedValue('traditional-chinese');
 
       const result = await promptOutputLanguage();
 
@@ -401,7 +401,7 @@ describe('Init Prompts', () => {
     });
 
     it('should accept displayLanguage parameter', async () => {
-      mockPrompt.mockResolvedValue({ language: 'english' });
+      mockSelect.mockResolvedValue('english');
 
       // Should not throw when displayLanguage is provided
       const result = await promptOutputLanguage('en');
@@ -412,7 +412,7 @@ describe('Init Prompts', () => {
 
   describe('promptTestLevels', () => {
     it('should return selected test levels', async () => {
-      mockPrompt.mockResolvedValue({ levels: ['unit-testing', 'integration-testing'] });
+      mockCheckbox.mockResolvedValue(['unit-testing', 'integration-testing']);
 
       const result = await promptTestLevels();
 
@@ -422,7 +422,7 @@ describe('Init Prompts', () => {
 
   describe('promptStandardOptions', () => {
     it('should return options for level 1', async () => {
-      mockPrompt.mockResolvedValue({ language: 'english' });
+      mockSelect.mockResolvedValue('english');
 
       const result = await promptStandardOptions(1);
 
@@ -430,11 +430,11 @@ describe('Init Prompts', () => {
     });
 
     it('should return more options for level 2+ with experimental', async () => {
-      mockPrompt
-        .mockResolvedValueOnce({ workflow: 'github-flow' })
-        .mockResolvedValueOnce({ strategy: 'squash' })
-        .mockResolvedValueOnce({ language: 'english' })
-        .mockResolvedValueOnce({ levels: ['unit-testing'] });
+      mockSelect
+        .mockResolvedValueOnce('github-flow')
+        .mockResolvedValueOnce('squash')
+        .mockResolvedValueOnce('english');
+      mockCheckbox.mockResolvedValueOnce(['unit-testing']);
 
       const result = await promptStandardOptions(2, 'en', { experimental: true });
 
@@ -445,9 +445,9 @@ describe('Init Prompts', () => {
     });
 
     it('should default merge_strategy and test_levels without experimental', async () => {
-      mockPrompt
-        .mockResolvedValueOnce({ workflow: 'github-flow' })
-        .mockResolvedValueOnce({ language: 'english' });
+      mockSelect
+        .mockResolvedValueOnce('github-flow')
+        .mockResolvedValueOnce('english');
 
       const result = await promptStandardOptions(2);
 
@@ -458,7 +458,7 @@ describe('Init Prompts', () => {
     });
 
     it('should pass displayLanguage to promptOutputLanguage', async () => {
-      mockPrompt.mockResolvedValue({ language: 'bilingual' });
+      mockSelect.mockResolvedValue('bilingual');
 
       const result = await promptStandardOptions(1, 'zh-cn');
 
@@ -466,7 +466,7 @@ describe('Init Prompts', () => {
     });
 
     it('should use default displayLanguage when not provided', async () => {
-      mockPrompt.mockResolvedValue({ language: 'english' });
+      mockSelect.mockResolvedValue('english');
 
       const result = await promptStandardOptions(1);
 
@@ -476,7 +476,7 @@ describe('Init Prompts', () => {
 
   describe('promptInstallMode', () => {
     it('should return skills mode', async () => {
-      mockPrompt.mockResolvedValue({ mode: 'skills' });
+      mockSelect.mockResolvedValue('skills');
 
       const result = await promptInstallMode();
 
@@ -484,7 +484,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return full mode', async () => {
-      mockPrompt.mockResolvedValue({ mode: 'full' });
+      mockSelect.mockResolvedValue('full');
 
       const result = await promptInstallMode();
 
@@ -494,7 +494,7 @@ describe('Init Prompts', () => {
 
   describe('promptSkillsUpgrade', () => {
     it('should return upgrade action', async () => {
-      mockPrompt.mockResolvedValue({ action: 'upgrade' });
+      mockSelect.mockResolvedValue('upgrade');
 
       const result = await promptSkillsUpgrade('0.9.0', '1.0.0');
 
@@ -502,7 +502,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return keep action', async () => {
-      mockPrompt.mockResolvedValue({ action: 'keep' });
+      mockSelect.mockResolvedValue('keep');
 
       const result = await promptSkillsUpgrade('0.9.0', '1.0.0');
 
@@ -520,7 +520,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return selected languages', async () => {
-      mockPrompt.mockResolvedValue({ languages: ['csharp'] });
+      mockCheckbox.mockResolvedValue(['csharp']);
 
       const result = await promptLanguage({ csharp: true });
 
@@ -536,7 +536,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return selected frameworks', async () => {
-      mockPrompt.mockResolvedValue({ frameworks: ['fat-free'] });
+      mockCheckbox.mockResolvedValue(['fat-free']);
 
       const result = await promptFramework({ 'fat-free': true });
 
@@ -546,7 +546,7 @@ describe('Init Prompts', () => {
 
   describe('promptLocale', () => {
     it('should return zh-tw when confirmed', async () => {
-      mockPrompt.mockResolvedValue({ useLocale: true });
+      mockConfirm.mockResolvedValue(true);
 
       const result = await promptLocale();
 
@@ -554,7 +554,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return null when not confirmed', async () => {
-      mockPrompt.mockResolvedValue({ useLocale: false });
+      mockConfirm.mockResolvedValue(false);
 
       const result = await promptLocale();
 
@@ -564,7 +564,7 @@ describe('Init Prompts', () => {
 
   describe('promptIntegrations', () => {
     it('should return selected integrations', async () => {
-      mockPrompt.mockResolvedValue({ integrations: ['cursor', 'copilot'] });
+      mockCheckbox.mockResolvedValue(['cursor', 'copilot']);
 
       const result = await promptIntegrations({});
 
@@ -574,7 +574,7 @@ describe('Init Prompts', () => {
 
   describe('promptConfirm', () => {
     it('should return true when confirmed', async () => {
-      mockPrompt.mockResolvedValue({ confirmed: true });
+      mockConfirm.mockResolvedValue(true);
 
       const result = await promptConfirm('Proceed?');
 
@@ -582,7 +582,7 @@ describe('Init Prompts', () => {
     });
 
     it('should return false when not confirmed', async () => {
-      mockPrompt.mockResolvedValue({ confirmed: false });
+      mockConfirm.mockResolvedValue(false);
 
       const result = await promptConfirm('Proceed?');
 

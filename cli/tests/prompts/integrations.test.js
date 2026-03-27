@@ -13,15 +13,20 @@ vi.mock('chalk', () => ({
   }
 }));
 
-// Use hoisted to define mock before vi.mock
-const { mockPrompt } = vi.hoisted(() => ({
-  mockPrompt: vi.fn()
+// Use hoisted to define mocks before vi.mock
+const { mockSelect, mockCheckbox, mockConfirm, mockInput } = vi.hoisted(() => ({
+  mockSelect: vi.fn(),
+  mockCheckbox: vi.fn(),
+  mockConfirm: vi.fn(),
+  mockInput: vi.fn()
 }));
 
-vi.mock('inquirer', () => ({
-  default: {
-    prompt: mockPrompt
-  }
+vi.mock('@inquirer/prompts', () => ({
+  select: mockSelect,
+  checkbox: mockCheckbox,
+  confirm: mockConfirm,
+  input: mockInput,
+  Separator: class Separator { constructor(t) { this.text = t; } }
 }));
 
 import {
@@ -46,7 +51,7 @@ describe('Integration Prompts', () => {
     vi.spyOn(console, 'log').mockImplementation((...args) => {
       consoleLogs.push(args.join(' '));
     });
-    mockPrompt.mockReset();
+    mockSelect.mockReset(); mockCheckbox.mockReset(); mockConfirm.mockReset(); mockInput.mockReset();
   });
 
   afterEach(() => {
@@ -56,7 +61,7 @@ describe('Integration Prompts', () => {
 
   describe('promptIntegrationMode', () => {
     it('should return default mode', async () => {
-      mockPrompt.mockResolvedValue({ mode: 'default' });
+      mockSelect.mockResolvedValue('default');
 
       const result = await promptIntegrationMode();
 
@@ -64,7 +69,7 @@ describe('Integration Prompts', () => {
     });
 
     it('should return custom mode', async () => {
-      mockPrompt.mockResolvedValue({ mode: 'custom' });
+      mockSelect.mockResolvedValue('custom');
 
       const result = await promptIntegrationMode();
 
@@ -72,7 +77,7 @@ describe('Integration Prompts', () => {
     });
 
     it('should return merge mode', async () => {
-      mockPrompt.mockResolvedValue({ mode: 'merge' });
+      mockSelect.mockResolvedValue('merge');
 
       const result = await promptIntegrationMode();
 
@@ -82,7 +87,7 @@ describe('Integration Prompts', () => {
 
   describe('promptRuleCategories', () => {
     it('should return selected categories', async () => {
-      mockPrompt.mockResolvedValue({ categories: ['anti-hallucination', 'commit-standards'] });
+      mockCheckbox.mockResolvedValue(['anti-hallucination', 'commit-standards']);
 
       const result = await promptRuleCategories({});
 
@@ -98,7 +103,7 @@ describe('Integration Prompts', () => {
     });
 
     it('should return selected languages', async () => {
-      mockPrompt.mockResolvedValue({ languages: ['javascript', 'python'] });
+      mockCheckbox.mockResolvedValue(['javascript', 'python']);
 
       const result = await promptLanguageRules({ javascript: true, python: true });
 
@@ -114,7 +119,7 @@ describe('Integration Prompts', () => {
 
   describe('promptExclusions', () => {
     it('should return empty array when no exclusions wanted', async () => {
-      mockPrompt.mockResolvedValue({ hasExclusions: false });
+      mockConfirm.mockResolvedValue(false);
 
       const result = await promptExclusions();
 
@@ -122,9 +127,8 @@ describe('Integration Prompts', () => {
     });
 
     it('should return exclusion patterns', async () => {
-      mockPrompt
-        .mockResolvedValueOnce({ hasExclusions: true })
-        .mockResolvedValueOnce({ exclusions: ['*.test.js', 'node_modules'] });
+      mockConfirm.mockResolvedValueOnce(true);
+      mockInput.mockResolvedValueOnce('*.test.js, node_modules');
 
       const result = await promptExclusions();
 
@@ -134,7 +138,7 @@ describe('Integration Prompts', () => {
 
   describe('promptCustomRules', () => {
     it('should return empty array when no custom rules wanted', async () => {
-      mockPrompt.mockResolvedValue({ hasCustomRules: false });
+      mockConfirm.mockResolvedValue(false);
 
       const result = await promptCustomRules();
 
@@ -142,11 +146,11 @@ describe('Integration Prompts', () => {
     });
 
     it('should return custom rules', async () => {
-      mockPrompt
-        .mockResolvedValueOnce({ hasCustomRules: true })
-        .mockResolvedValueOnce({ rule: 'Custom rule 1' })
-        .mockResolvedValueOnce({ rule: 'Custom rule 2' })
-        .mockResolvedValueOnce({ rule: '' });
+      mockConfirm.mockResolvedValueOnce(true);
+      mockInput
+        .mockResolvedValueOnce('Custom rule 1')
+        .mockResolvedValueOnce('Custom rule 2')
+        .mockResolvedValueOnce('');
 
       const result = await promptCustomRules();
 
@@ -156,7 +160,7 @@ describe('Integration Prompts', () => {
 
   describe('promptMergeStrategy', () => {
     it('should return append strategy', async () => {
-      mockPrompt.mockResolvedValue({ strategy: 'append' });
+      mockSelect.mockResolvedValue('append');
 
       const result = await promptMergeStrategy('cursor');
 
@@ -164,7 +168,7 @@ describe('Integration Prompts', () => {
     });
 
     it('should return overwrite strategy', async () => {
-      mockPrompt.mockResolvedValue({ strategy: 'overwrite' });
+      mockSelect.mockResolvedValue('overwrite');
 
       const result = await promptMergeStrategy('cursor');
 
@@ -172,7 +176,7 @@ describe('Integration Prompts', () => {
     });
 
     it('should return keep strategy', async () => {
-      mockPrompt.mockResolvedValue({ strategy: 'keep' });
+      mockSelect.mockResolvedValue('keep');
 
       const result = await promptMergeStrategy('windsurf');
 
@@ -182,7 +186,7 @@ describe('Integration Prompts', () => {
 
   describe('promptDetailLevel', () => {
     it('should return minimal level', async () => {
-      mockPrompt.mockResolvedValue({ level: 'minimal' });
+      mockSelect.mockResolvedValue('minimal');
 
       const result = await promptDetailLevel();
 
@@ -190,7 +194,7 @@ describe('Integration Prompts', () => {
     });
 
     it('should return standard level', async () => {
-      mockPrompt.mockResolvedValue({ level: 'standard' });
+      mockSelect.mockResolvedValue('standard');
 
       const result = await promptDetailLevel();
 
@@ -198,7 +202,7 @@ describe('Integration Prompts', () => {
     });
 
     it('should return comprehensive level', async () => {
-      mockPrompt.mockResolvedValue({ level: 'comprehensive' });
+      mockSelect.mockResolvedValue('comprehensive');
 
       const result = await promptDetailLevel();
 
@@ -208,7 +212,7 @@ describe('Integration Prompts', () => {
 
   describe('promptRuleLanguage', () => {
     it('should return en', async () => {
-      mockPrompt.mockResolvedValue({ language: 'en' });
+      mockSelect.mockResolvedValue('en');
 
       const result = await promptRuleLanguage();
 
@@ -216,7 +220,7 @@ describe('Integration Prompts', () => {
     });
 
     it('should return zh-tw', async () => {
-      mockPrompt.mockResolvedValue({ language: 'zh-tw' });
+      mockSelect.mockResolvedValue('zh-tw');
 
       const result = await promptRuleLanguage();
 
@@ -224,7 +228,7 @@ describe('Integration Prompts', () => {
     });
 
     it('should return bilingual', async () => {
-      mockPrompt.mockResolvedValue({ language: 'bilingual' });
+      mockSelect.mockResolvedValue('bilingual');
 
       const result = await promptRuleLanguage();
 
@@ -277,7 +281,7 @@ describe('Integration Prompts', () => {
 
   describe('promptIntegrationConfig', () => {
     it('should return config with keep strategy when existing rules and user chooses keep', async () => {
-      mockPrompt.mockResolvedValue({ strategy: 'keep' });
+      mockSelect.mockResolvedValue('keep');
 
       const result = await promptIntegrationConfig('cursor', {}, true);
 
@@ -286,7 +290,7 @@ describe('Integration Prompts', () => {
     });
 
     it('should prompt for mode when no existing rules', async () => {
-      mockPrompt.mockResolvedValue({ mode: 'default' });
+      mockSelect.mockResolvedValue('default');
 
       const result = await promptIntegrationConfig('cursor', {}, false);
 
@@ -294,8 +298,7 @@ describe('Integration Prompts', () => {
     });
 
     it('should use default mode when merge selected but no existing file', async () => {
-      mockPrompt
-        .mockResolvedValueOnce({ mode: 'merge' });
+      mockSelect.mockResolvedValueOnce('merge');
 
       const result = await promptIntegrationConfig('cursor', {}, false);
 
@@ -303,15 +306,17 @@ describe('Integration Prompts', () => {
     });
 
     it('should prompt for all options in custom mode', async () => {
-      mockPrompt
-        .mockResolvedValueOnce({ strategy: 'overwrite' })
-        .mockResolvedValueOnce({ mode: 'custom' })
-        .mockResolvedValueOnce({ categories: ['anti-hallucination'] })
-        .mockResolvedValueOnce({ languages: [] })
-        .mockResolvedValueOnce({ level: 'standard' })
-        .mockResolvedValueOnce({ language: 'en' })
-        .mockResolvedValueOnce({ hasExclusions: false })
-        .mockResolvedValueOnce({ hasCustomRules: false });
+      mockSelect
+        .mockResolvedValueOnce('overwrite')
+        .mockResolvedValueOnce('custom')
+        .mockResolvedValueOnce('standard')
+        .mockResolvedValueOnce('en');
+      mockCheckbox
+        .mockResolvedValueOnce(['anti-hallucination'])
+        .mockResolvedValueOnce([]);
+      mockConfirm
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(false);
 
       const result = await promptIntegrationConfig('cursor', { languages: {} }, true);
 

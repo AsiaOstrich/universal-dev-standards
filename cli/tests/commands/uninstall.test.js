@@ -3,14 +3,16 @@ import { existsSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
-// Mock inquirer before importing command
-vi.mock('inquirer', () => ({
-  default: {
-    prompt: vi.fn()
-  }
+// Mock @inquirer/prompts before importing command
+vi.mock('@inquirer/prompts', () => ({
+  select: vi.fn(),
+  checkbox: vi.fn(),
+  confirm: vi.fn(),
+  input: vi.fn(),
+  Separator: class Separator { constructor(t) { this.text = t; } }
 }));
 
-import inquirer from 'inquirer';
+import { select, checkbox, confirm } from '@inquirer/prompts';
 import { uninstallCommand } from '../../src/commands/uninstall.js';
 
 describe('uninstall command', () => {
@@ -226,22 +228,20 @@ describe('uninstall command', () => {
     it('should prompt for categories and confirmation', async () => {
       createTestInstallation({ withStandards: true });
 
-      inquirer.prompt
-        .mockResolvedValueOnce({ categories: ['standards'] })
-        .mockResolvedValueOnce({ confirmed: true });
+      checkbox.mockResolvedValueOnce(['standards']);
+      confirm.mockResolvedValueOnce(true);
 
       await uninstallCommand({});
 
-      expect(inquirer.prompt).toHaveBeenCalledTimes(2);
+      expect(checkbox).toHaveBeenCalledTimes(1);
       expect(existsSync(join(testDir, '.standards'))).toBe(false);
     });
 
     it('should abort when user does not confirm', async () => {
       createTestInstallation({ withStandards: true });
 
-      inquirer.prompt
-        .mockResolvedValueOnce({ categories: ['standards'] })
-        .mockResolvedValueOnce({ confirmed: false });
+      checkbox.mockResolvedValueOnce(['standards']);
+      confirm.mockResolvedValueOnce(false);
 
       await uninstallCommand({});
 
@@ -252,7 +252,7 @@ describe('uninstall command', () => {
     it('should abort when no categories selected', async () => {
       createTestInstallation({ withStandards: true });
 
-      inquirer.prompt.mockResolvedValueOnce({ categories: [] });
+      checkbox.mockResolvedValueOnce([]);
 
       await uninstallCommand({});
 

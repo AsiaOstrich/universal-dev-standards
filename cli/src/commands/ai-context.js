@@ -8,7 +8,7 @@
  */
 
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { input, select, confirm as inquirerConfirm } from '@inquirer/prompts';
 import { existsSync, readFileSync, writeFileSync, readdirSync } from 'fs';
 import { join, basename } from 'path';
 import * as yaml from 'js-yaml';
@@ -43,41 +43,35 @@ export async function aiContextInitCommand(options) {
     config = generateConfig(projectInfo, projectPath);
   } else {
     // Interactive mode
-    const answers = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'name',
-        message: 'Project name:',
-        default: projectInfo.name
-      },
-      {
-        type: 'list',
-        name: 'type',
-        message: 'Project type:',
-        choices: ['web-app', 'library', 'cli', 'api', 'monorepo', 'mobile', 'other'],
-        default: projectInfo.type
-      },
-      {
-        type: 'list',
-        name: 'language',
-        message: 'Primary language:',
-        choices: ['typescript', 'javascript', 'python', 'go', 'rust', 'java', 'other'],
-        default: projectInfo.language
-      },
-      {
-        type: 'list',
-        name: 'architecture',
-        message: 'Architecture type:',
-        choices: ['layered', 'microservices', 'modular', 'monolith', 'event-driven'],
-        default: 'layered'
-      },
-      {
-        type: 'confirm',
-        name: 'scanModules',
-        message: 'Scan for modules automatically?',
-        default: true
-      }
-    ]);
+    const name = await input({
+      message: 'Project name:',
+      default: projectInfo.name
+    });
+
+    const type = await select({
+      message: 'Project type:',
+      choices: ['web-app', 'library', 'cli', 'api', 'monorepo', 'mobile', 'other'].map(v => ({ name: v, value: v })),
+      default: projectInfo.type
+    });
+
+    const language = await select({
+      message: 'Primary language:',
+      choices: ['typescript', 'javascript', 'python', 'go', 'rust', 'java', 'other'].map(v => ({ name: v, value: v })),
+      default: projectInfo.language
+    });
+
+    const architecture = await select({
+      message: 'Architecture type:',
+      choices: ['layered', 'microservices', 'modular', 'monolith', 'event-driven'].map(v => ({ name: v, value: v })),
+      default: 'layered'
+    });
+
+    const scanModules = await inquirerConfirm({
+      message: 'Scan for modules automatically?',
+      default: true
+    });
+
+    const answers = { name, type, language, architecture, scanModules };
 
     config = generateConfig({
       ...projectInfo,

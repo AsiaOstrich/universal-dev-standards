@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { select, checkbox, confirm } from '@inquirer/prompts';
 import { readManifest, manifestExists, writeManifest } from '../core/manifest.js';
 import { t } from '../i18n/messages.js';
 import { uninstallStandards } from '../uninstallers/standards-uninstaller.js';
@@ -53,9 +53,7 @@ export async function uninstallCommand(options) {
     selectedCategories = [...CATEGORIES];
   } else {
     // Interactive: checkbox selection
-    const { categories } = await inquirer.prompt([{
-      type: 'checkbox',
-      name: 'categories',
+    const categories = await checkbox({
       message: msg.selectCategories,
       choices: [
         { name: `${msg.categoryHooks} (.husky/pre-commit)`, value: 'hooks', checked: true },
@@ -63,7 +61,7 @@ export async function uninstallCommand(options) {
         { name: `${msg.categoryIntegrations} (CLAUDE.md, .cursorrules, ...)`, value: 'integrations', checked: true },
         { name: `${msg.categoryStandards} (.standards/)`, value: 'standards', checked: true }
       ]
-    }]);
+    });
 
     if (categories.length === 0) {
       console.log(chalk.yellow(msg.nothingSelected));
@@ -89,12 +87,10 @@ export async function uninstallCommand(options) {
 
   // Confirm (unless --yes or --dry-run)
   if (!dryRun && !options.yes) {
-    const { confirmed } = await inquirer.prompt([{
-      type: 'confirm',
-      name: 'confirmed',
+    const confirmed = await confirm({
       message: msg.confirmUninstall,
       default: false
-    }]);
+    });
 
     if (!confirmed) {
       console.log(chalk.yellow(common.cancelled));
@@ -177,16 +173,14 @@ async function executeUninstall(projectPath, manifest, categories, options) {
 function createIntegrationPromptFn() {
   const msg = t().commands.uninstall;
   return async (fileName) => {
-    const { action } = await inquirer.prompt([{
-      type: 'list',
-      name: 'action',
+    const action = await select({
       message: `${fileName}: ${msg.integrationAction}`,
       choices: [
         { name: msg.removeBlockOnly, value: 'remove-block' },
         { name: msg.deleteEntireFile, value: 'delete-file' },
         { name: msg.skipFile, value: 'skip' }
       ]
-    }]);
+    });
     return action;
   };
 }

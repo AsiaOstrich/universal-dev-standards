@@ -10,7 +10,7 @@
 
 import chalk from 'chalk';
 import ora from 'ora';
-import inquirer from 'inquirer';
+import { select, confirm as inquirerConfirm } from '@inquirer/prompts';
 import { MicroSpec, SpecStatus } from '../vibe/micro-spec.js';
 import { msg } from '../i18n/messages.js';
 
@@ -67,19 +67,15 @@ export async function specCreateCommand(intent, options = {}) {
 
     // Ask for confirmation unless --yes flag
     if (!options.yes) {
-      const { action } = await inquirer.prompt([
-        {
-          type: 'list',
-          name: 'action',
-          message: t('spec.confirmQuestion', 'How would you like to proceed?'),
-          choices: [
-            { name: t('spec.confirm', 'Confirm and proceed'), value: 'confirm' },
-            { name: t('spec.edit', 'Edit the spec'), value: 'edit' },
-            { name: t('spec.skip', 'Skip (keep as draft)'), value: 'skip' },
-            { name: t('spec.discard', 'Discard'), value: 'discard' }
-          ]
-        }
-      ]);
+      const action = await select({
+        message: t('spec.confirmQuestion', 'How would you like to proceed?'),
+        choices: [
+          { name: t('spec.confirm', 'Confirm and proceed'), value: 'confirm' },
+          { name: t('spec.edit', 'Edit the spec'), value: 'edit' },
+          { name: t('spec.skip', 'Skip (keep as draft)'), value: 'skip' },
+          { name: t('spec.discard', 'Discard'), value: 'discard' }
+        ]
+      });
 
       if (action === 'confirm') {
         microSpec.confirm(spec.id);
@@ -261,16 +257,12 @@ export async function specDeleteCommand(id, options = {}) {
   });
 
   if (!options.yes) {
-    const { confirm } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'confirm',
-        message: t('spec.deleteConfirm', `Are you sure you want to delete spec '${id}'?`),
-        default: false
-      }
-    ]);
+    const confirmed = await inquirerConfirm({
+      message: t('spec.deleteConfirm', `Are you sure you want to delete spec '${id}'?`),
+      default: false
+    });
 
-    if (!confirm) {
+    if (!confirmed) {
       console.log(chalk.gray(t('spec.deleteCancelled', 'Delete cancelled.')));
       return;
     }

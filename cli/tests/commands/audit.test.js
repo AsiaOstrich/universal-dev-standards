@@ -20,15 +20,17 @@ vi.mock('../../src/utils/github.js', () => ({
   downloadFromGitHub: vi.fn()
 }));
 
-// Mock inquirer for Layer 3 tests
-const { mockPrompt } = vi.hoisted(() => ({
-  mockPrompt: vi.fn()
+// Mock @inquirer/prompts for Layer 3 tests
+const { mockCheckbox, mockInput } = vi.hoisted(() => ({
+  mockCheckbox: vi.fn(),
+  mockInput: vi.fn()
 }));
-vi.mock('inquirer', () => ({
-  default: {
-    prompt: mockPrompt,
-    Separator: vi.fn()
-  }
+vi.mock('@inquirer/prompts', () => ({
+  select: vi.fn(),
+  checkbox: mockCheckbox,
+  confirm: vi.fn(),
+  input: mockInput,
+  Separator: class Separator { constructor(t) { this.text = t; } }
 }));
 
 import { auditCommand } from '../../src/commands/audit.js';

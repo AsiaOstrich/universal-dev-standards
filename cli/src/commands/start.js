@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { select, input, confirm as inquirerConfirm } from '@inquirer/prompts';
 import { MissionManager, MissionType, MissionState } from '../missions/MissionManager.js';
 import { msg } from '../i18n/messages.js';
 
@@ -59,18 +59,14 @@ export async function startCommand(missionType, intent, options) {
     console.log('');
 
     if (!options.yes) {
-      const { action } = await inquirer.prompt([
-        {
-          type: 'list',
-          name: 'action',
-          message: t('mission.existingAction', 'What would you like to do?'),
-          choices: [
-            { name: t('mission.resume', 'Resume existing mission'), value: 'resume' },
-            { name: t('mission.cancel', 'Cancel existing and start new'), value: 'cancel' },
-            { name: t('mission.abort', 'Abort (do nothing)'), value: 'abort' }
-          ]
-        }
-      ]);
+      const action = await select({
+        message: t('mission.existingAction', 'What would you like to do?'),
+        choices: [
+          { name: t('mission.resume', 'Resume existing mission'), value: 'resume' },
+          { name: t('mission.cancel', 'Cancel existing and start new'), value: 'cancel' },
+          { name: t('mission.abort', 'Abort (do nothing)'), value: 'abort' }
+        ]
+      });
 
       if (action === 'abort') {
         console.log(chalk.gray(t('mission.aborted', 'Operation cancelled.')));
@@ -96,32 +92,24 @@ export async function startCommand(missionType, intent, options) {
   // If no type provided, prompt for selection
   let selectedType = missionType;
   if (!selectedType) {
-    const { type } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'type',
-        message: t('mission.selectType', 'Select mission type:'),
-        choices: Object.entries(MISSION_INFO).map(([key, info]) => ({
-          name: `${info.emoji} ${info.name}\n     ${chalk.gray(info.description)}`,
-          value: key,
-          short: info.name
-        }))
-      }
-    ]);
+    const type = await select({
+      message: t('mission.selectType', 'Select mission type:'),
+      choices: Object.entries(MISSION_INFO).map(([key, info]) => ({
+        name: `${info.emoji} ${info.name}\n     ${chalk.gray(info.description)}`,
+        value: key,
+        short: info.name
+      }))
+    });
     selectedType = type;
   }
 
   // If no intent provided, prompt for it
   let missionIntent = intent;
   if (!missionIntent) {
-    const { userIntent } = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'userIntent',
-        message: t('mission.enterIntent', 'Describe your goal:'),
-        validate: (input) => input.trim().length > 0 || t('mission.intentRequired', 'Intent is required')
-      }
-    ]);
+    const userIntent = await input({
+      message: t('mission.enterIntent', 'Describe your goal:'),
+      validate: (val) => val.trim().length > 0 || t('mission.intentRequired', 'Intent is required')
+    });
     missionIntent = userIntent;
   }
 
@@ -245,16 +233,12 @@ export async function missionCancelCommand(options) {
   }
 
   if (!options.yes) {
-    const { confirm } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'confirm',
-        message: t('mission.confirmCancel', `Cancel mission "${current.id}"?`),
-        default: false
-      }
-    ]);
+    const confirmed = await inquirerConfirm({
+      message: t('mission.confirmCancel', `Cancel mission "${current.id}"?`),
+      default: false
+    });
 
-    if (!confirm) {
+    if (!confirmed) {
       console.log(chalk.gray(t('mission.cancelAborted', 'Operation cancelled.')));
       return;
     }

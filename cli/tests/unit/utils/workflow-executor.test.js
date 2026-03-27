@@ -14,11 +14,13 @@ import {
 } from '../../../src/utils/workflow-executor.js';
 import { StepStatus, WorkflowStatus } from '../../../src/utils/workflow-state.js';
 
-// Mock inquirer
-vi.mock('inquirer', () => ({
-  default: {
-    prompt: vi.fn()
-  }
+// Mock @inquirer/prompts
+vi.mock('@inquirer/prompts', () => ({
+  select: vi.fn(),
+  checkbox: vi.fn(),
+  confirm: vi.fn(),
+  input: vi.fn(),
+  Separator: class Separator { constructor(t) { this.text = t; } }
 }));
 
 // Mock workflows-installer
@@ -45,7 +47,7 @@ vi.mock('../../../src/config/ai-agent-paths.js', () => ({
   getAgentConfig: vi.fn()
 }));
 
-import inquirer from 'inquirer';
+import { select, confirm, input } from '@inquirer/prompts';
 import {
   getWorkflowContent,
   parseWorkflow,
@@ -109,8 +111,10 @@ describe('WorkflowExecutor', () => {
       }
     });
 
-    // Default inquirer mock - confirm everything
-    inquirer.prompt.mockResolvedValue({ confirm: true, completed: true, action: 'resume' });
+    // Default mocks - confirm everything
+    confirm.mockResolvedValue(true);
+    select.mockResolvedValue('resume');
+    input.mockResolvedValue('');
 
     executor = new WorkflowExecutor({
       aiTool: 'claude-code',
@@ -300,7 +304,7 @@ describe('WorkflowExecutor', () => {
     it('should prompt for confirmation in interactive mode', async () => {
       // Arrange
       executor.interactive = true;
-      inquirer.prompt.mockResolvedValue({ confirm: true });
+      confirm.mockResolvedValue(true);
       const manualStep = mockWorkflow.steps[0];
 
       // Act
@@ -308,15 +312,14 @@ describe('WorkflowExecutor', () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(inquirer.prompt).toHaveBeenCalled();
+      expect(confirm).toHaveBeenCalled();
     });
 
     it('should allow skipping in interactive mode', async () => {
       // Arrange
       executor.interactive = true;
-      inquirer.prompt
-        .mockResolvedValueOnce({ confirm: false })
-        .mockResolvedValueOnce({ action: 'skip' });
+      confirm.mockResolvedValueOnce(false);
+      select.mockResolvedValueOnce('skip');
       const manualStep = mockWorkflow.steps[0];
 
       // Act
@@ -527,7 +530,7 @@ describe('WorkflowExecutor', () => {
     it('should prompt for action in interactive mode', async () => {
       // Arrange
       executor.interactive = true;
-      inquirer.prompt.mockResolvedValue({ action: RecoveryAction.RETRY });
+      select.mockResolvedValue(RecoveryAction.RETRY);
       const step = mockWorkflow.steps[0];
       const result = { success: false, error: 'Test error' };
 
@@ -536,7 +539,7 @@ describe('WorkflowExecutor', () => {
 
       // Assert
       expect(action).toBe(RecoveryAction.RETRY);
-      expect(inquirer.prompt).toHaveBeenCalled();
+      expect(select).toHaveBeenCalled();
     });
   });
 

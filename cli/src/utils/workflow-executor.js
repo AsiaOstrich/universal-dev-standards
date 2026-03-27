@@ -8,7 +8,7 @@
  */
 
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { select, confirm, input } from '@inquirer/prompts';
 import { WorkflowStateManager, StepStatus, WorkflowStatus } from './workflow-state.js';
 import {
   getWorkflowContent,
@@ -102,15 +102,13 @@ export class WorkflowExecutor {
       // Check if can resume
       if (this.stateManager.canResume()) {
         if (this.interactive) {
-          const { action } = await inquirer.prompt([{
-            type: 'list',
-            name: 'action',
+          const action = await select({
             message: 'Previous execution found. What would you like to do?',
             choices: [
               { name: 'Resume from where it stopped', value: 'resume' },
               { name: 'Start fresh (discard previous state)', value: 'restart' }
             ]
-          }]);
+          });
 
           if (action === 'restart') {
             this.stateManager.clear();
@@ -547,24 +545,20 @@ export class WorkflowExecutor {
 
     // Interactive confirmation
     if (this.interactive) {
-      const { confirm } = await inquirer.prompt([{
-        type: 'confirm',
-        name: 'confirm',
+      const stepConfirmed = await confirm({
         message: 'Have you completed this step?',
         default: true
-      }]);
+      });
 
-      if (!confirm) {
-        const { action } = await inquirer.prompt([{
-          type: 'list',
-          name: 'action',
+      if (!stepConfirmed) {
+        const action = await select({
           message: 'What would you like to do?',
           choices: [
             { name: 'Mark as complete anyway', value: 'complete' },
             { name: 'Skip this step', value: 'skip' },
             { name: 'Pause workflow', value: 'pause' }
           ]
-        }]);
+        });
 
         if (action === 'skip') {
           return { success: true, skipped: true, outputs: {} };
@@ -613,12 +607,10 @@ export class WorkflowExecutor {
         value: key
       }));
 
-      const { decision } = await inquirer.prompt([{
-        type: 'list',
-        name: 'decision',
+      const decision = await select({
         message: 'Select decision:',
         choices
-      }]);
+      });
 
       return { success: true, outputs: { decision } };
     }
@@ -692,9 +684,7 @@ export class WorkflowExecutor {
       return RecoveryAction.ABORT;
     }
 
-    const { action } = await inquirer.prompt([{
-      type: 'list',
-      name: 'action',
+    const action = await select({
       message: 'How would you like to proceed?',
       choices: [
         { name: 'Retry this step', value: RecoveryAction.RETRY },
@@ -702,7 +692,7 @@ export class WorkflowExecutor {
         { name: 'Pause (resume later)', value: RecoveryAction.PAUSE },
         { name: 'Abort workflow', value: RecoveryAction.ABORT }
       ]
-    }]);
+    });
 
     return action;
   }
@@ -713,12 +703,10 @@ export class WorkflowExecutor {
    * @returns {Object} Completion info
    */
   async promptAgentCompletion(step) {
-    const { completed } = await inquirer.prompt([{
-      type: 'confirm',
-      name: 'completed',
+    const completed = await confirm({
       message: 'Has the agent completed this task?',
       default: true
-    }]);
+    });
 
     if (!completed) {
       return { completed: false, outputs: null };
@@ -728,21 +716,17 @@ export class WorkflowExecutor {
     const outputs = {};
 
     if (step.outputs && step.outputs.length > 0) {
-      const { collectOutputs } = await inquirer.prompt([{
-        type: 'confirm',
-        name: 'collectOutputs',
+      const collectOutputs = await confirm({
         message: 'Would you like to record any outputs?',
         default: false
-      }]);
+      });
 
       if (collectOutputs) {
         for (const output of step.outputs) {
-          const { value } = await inquirer.prompt([{
-            type: 'input',
-            name: 'value',
+          const value = await input({
             message: `Enter value for "${output}" (or leave empty):`,
             default: ''
-          }]);
+          });
 
           if (value) {
             outputs[output] = value;

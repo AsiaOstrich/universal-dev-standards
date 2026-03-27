@@ -7,7 +7,7 @@
  */
 
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { select } from '@inquirer/prompts';
 import {
   getAvailableAgentNames,
   getAgentContent,
@@ -175,35 +175,30 @@ export async function agentInstallCommand(agentName, options) {
 
   // Interactive mode if no options specified
   if (!options.yes && !options.tool && !options.global) {
-    const answers = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'tool',
-        message: 'Select AI tool:',
-        choices: supportedTools.map(t => {
-          const config = getAgentConfig(t);
-          const mode = getExecutionMode(t);
-          return {
-            name: `${config.name} [${getModeLabel(mode)}]`,
-            value: t
-          };
-        }),
-        default: 'claude-code'
-      },
-      {
-        type: 'list',
-        name: 'level',
-        message: 'Installation level:',
-        choices: [
-          { name: 'Project (.claude/agents/)', value: 'project' },
-          { name: 'User (~/.claude/agents/)', value: 'user' }
-        ],
-        default: 'project'
-      }
-    ]);
+    const selectedTool = await select({
+      message: 'Select AI tool:',
+      choices: supportedTools.map(t => {
+        const config = getAgentConfig(t);
+        const mode = getExecutionMode(t);
+        return {
+          name: `${config.name} [${getModeLabel(mode)}]`,
+          value: t
+        };
+      }),
+      default: 'claude-code'
+    });
 
-    targetTool = answers.tool;
-    level = answers.level;
+    const selectedLevel = await select({
+      message: 'Installation level:',
+      choices: [
+        { name: 'Project (.claude/agents/)', value: 'project' },
+        { name: 'User (~/.claude/agents/)', value: 'user' }
+      ],
+      default: 'project'
+    });
+
+    targetTool = selectedTool;
+    level = selectedLevel;
   }
 
   // Perform installation

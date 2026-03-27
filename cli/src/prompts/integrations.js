@@ -1,4 +1,4 @@
-import inquirer from 'inquirer';
+import { select, checkbox, confirm as inquirerConfirm, input } from '@inquirer/prompts';
 import chalk from 'chalk';
 import { t } from '../i18n/messages.js';
 
@@ -98,12 +98,8 @@ export async function promptIntegrationMode() {
   console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
-  const { mode } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'mode',
+  const mode = await select({
       message: msg.question,
-      suffix: ' ',
       choices: [
         {
           name: `${chalk.green('Default')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.default}`,
@@ -119,8 +115,7 @@ export async function promptIntegrationMode() {
         }
       ],
       default: 'default'
-    }
-  ]);
+  });
 
   return mode;
 }
@@ -145,12 +140,8 @@ export async function promptRuleCategories(_detected = {}) {
     checked: cat.default
   }));
 
-  const { categories } = await inquirer.prompt([
-    {
-      type: 'checkbox',
-      name: 'categories',
+  const categories = await checkbox({
       message: msg.question,
-      suffix: ' ',
       instructions: false,
       choices,
       validate: (answer) => {
@@ -159,8 +150,7 @@ export async function promptRuleCategories(_detected = {}) {
         }
         return true;
       }
-    }
-  ]);
+  });
 
   return categories;
 }
@@ -197,16 +187,11 @@ export async function promptLanguageRules(detected = {}) {
     return [];
   }
 
-  const { languages } = await inquirer.prompt([
-    {
-      type: 'checkbox',
-      name: 'languages',
+  const languages = await checkbox({
       message: msg.question,
-      suffix: ' ',
       instructions: false,
       choices
-    }
-  ]);
+  });
 
   return languages;
 }
@@ -223,31 +208,20 @@ export async function promptExclusions() {
   console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
-  const { hasExclusions } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'hasExclusions',
+  const hasExclusions = await inquirerConfirm({
       message: msg.question,
-      suffix: ' ',
       default: false
-    }
-  ]);
+  });
 
   if (!hasExclusions) {
     return [];
   }
 
-  const { exclusions } = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'exclusions',
-      message: msg.inputPrompt,
-      suffix: ' ',
-      filter: (input) => input.split(',').map(s => s.trim()).filter(s => s.length > 0)
-    }
-  ]);
+  const exclusionInput = await input({
+      message: msg.inputPrompt
+  });
 
-  return exclusions;
+  return exclusionInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
 }
 
 /**
@@ -262,15 +236,10 @@ export async function promptCustomRules() {
   console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
-  const { hasCustomRules } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'hasCustomRules',
+  const hasCustomRules = await inquirerConfirm({
       message: msg.question,
-      suffix: ' ',
       default: false
-    }
-  ]);
+  });
 
   if (!hasCustomRules) {
     return [];
@@ -280,14 +249,9 @@ export async function promptCustomRules() {
   let addMore = true;
 
   while (addMore) {
-    const { rule } = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'rule',
-        message: msg.inputPrompt,
-        suffix: ' '
-      }
-    ]);
+    const rule = await input({
+        message: msg.inputPrompt
+    });
 
     if (rule.trim()) {
       customRules.push(rule.trim());
@@ -312,12 +276,8 @@ export async function promptMergeStrategy(toolName) {
   console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
-  const { strategy } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'strategy',
+  const strategy = await select({
       message: msg.question,
-      suffix: ' ',
       choices: [
         {
           name: `${chalk.green('Append')} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.append}`,
@@ -337,8 +297,7 @@ export async function promptMergeStrategy(toolName) {
         }
       ],
       default: 'append'
-    }
-  ]);
+  });
 
   return strategy;
 }
@@ -355,12 +314,8 @@ export async function promptDetailLevel() {
   console.log(chalk.gray(`  ${msg.description}`));
   console.log();
 
-  const { level } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'level',
+  const level = await select({
       message: msg.question,
-      suffix: ' ',
       choices: [
         {
           name: `${chalk.gray(msg.labels.minimal)} - ${msg.choices.minimal}`,
@@ -376,8 +331,7 @@ export async function promptDetailLevel() {
         }
       ],
       default: 'standard'
-    }
-  ]);
+  });
 
   return level;
 }
@@ -389,12 +343,8 @@ export async function promptDetailLevel() {
 export async function promptRuleLanguage() {
   const msg = t().integration.ruleLanguage;
 
-  const { language } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'language',
+  const language = await select({
       message: msg.question,
-      suffix: ' ',
       choices: [
         {
           name: `${chalk.green(msg.choices.en)} ${chalk.gray(`(${t().recommended})`)}`,
@@ -410,8 +360,7 @@ export async function promptRuleLanguage() {
         }
       ],
       default: 'en'
-    }
-  ]);
+  });
 
   return language;
 }

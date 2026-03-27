@@ -7,7 +7,7 @@
  */
 
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { select } from '@inquirer/prompts';
 import {
   getAvailableWorkflowNames,
   getWorkflowContent,
@@ -169,36 +169,31 @@ export async function workflowInstallCommand(workflowName, options) {
 
   // Interactive mode if no options specified
   if (!options.yes && !options.tool && !options.global) {
-    const answers = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'tool',
-        message: 'Select AI tool:',
-        choices: supportedTools.map(t => {
-          const config = getAgentConfig(t);
-          const hasTask = supportsTask(t);
-          const mode = hasTask ? 'auto-execute' : 'guided';
-          return {
-            name: `${config.name} [${mode}]`,
-            value: t
-          };
-        }),
-        default: 'claude-code'
-      },
-      {
-        type: 'list',
-        name: 'level',
-        message: 'Installation level:',
-        choices: [
-          { name: 'Project (.claude/workflows/)', value: 'project' },
-          { name: 'User (~/.claude/workflows/)', value: 'user' }
-        ],
-        default: 'project'
-      }
-    ]);
+    const selectedTool = await select({
+      message: 'Select AI tool:',
+      choices: supportedTools.map(t => {
+        const config = getAgentConfig(t);
+        const hasTask = supportsTask(t);
+        const mode = hasTask ? 'auto-execute' : 'guided';
+        return {
+          name: `${config.name} [${mode}]`,
+          value: t
+        };
+      }),
+      default: 'claude-code'
+    });
 
-    targetTool = answers.tool;
-    level = answers.level;
+    const selectedLevel = await select({
+      message: 'Installation level:',
+      choices: [
+        { name: 'Project (.claude/workflows/)', value: 'project' },
+        { name: 'User (~/.claude/workflows/)', value: 'user' }
+      ],
+      default: 'project'
+    });
+
+    targetTool = selectedTool;
+    level = selectedLevel;
   }
 
   // Perform installation

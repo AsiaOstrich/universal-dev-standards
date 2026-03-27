@@ -12,7 +12,7 @@
  */
 
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { checkbox, input } from '@inquirer/prompts';
 import { createRequire } from 'node:module';
 import { readManifest, isInitialized } from '../utils/copier.js';
 import { runHealthCheck } from '../utils/health-checker.js';
@@ -295,22 +295,17 @@ async function handleReport(auditResult, options, msg) {
   let userComments = '';
 
   if (!isDryRun) {
-    const answers = await inquirer.prompt([
-      {
-        type: 'checkbox',
-        name: 'selected',
-        message: msg.submitPrompt || 'Select findings to submit:',
-        choices: findings
-      },
-      {
-        type: 'input',
-        name: 'comments',
-        message: msg.userCommentsPrompt || 'Additional comments (optional):'
-      }
-    ]);
+    const selected = await checkbox({
+      message: msg.submitPrompt || 'Select findings to submit:',
+      choices: findings
+    });
 
-    selectedFindings = answers.selected;
-    userComments = answers.comments || '';
+    const comments = await input({
+      message: msg.userCommentsPrompt || 'Additional comments (optional):'
+    });
+
+    selectedFindings = selected;
+    userComments = comments || '';
 
     if (selectedFindings.length === 0) {
       console.log(chalk.gray('No findings selected. Skipping submission.'));
