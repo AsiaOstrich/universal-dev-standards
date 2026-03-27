@@ -284,6 +284,8 @@ Is there a specific reason for this approach?
 📝 NOTE: This is a clever solution! Nice use of reduce here.
 ```
 
+> 此評論前綴方式與 [Conventional Comments](https://conventionalcomments.org/) 規範一致，該規範在團隊和工具間標準化了審查回饋格式。
+
 ### 替代方案：文字標籤
 
 對於偏好純文字標籤（無 emoji）的團隊：

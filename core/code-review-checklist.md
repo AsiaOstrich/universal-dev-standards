@@ -279,6 +279,8 @@ Is there a specific reason for this approach?
 📝 NOTE: This is a clever solution! Nice use of reduce here.
 ```
 
+> This comment prefix approach aligns with the [Conventional Comments](https://conventionalcomments.org/) specification, which standardizes review feedback across teams and tools.
+
 ### Alternative: Text Labels
 
 For teams preferring plain text labels without emojis:
