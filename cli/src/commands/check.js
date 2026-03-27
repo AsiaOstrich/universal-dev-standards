@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { select } from '@inquirer/prompts';
 import ora from 'ora';
 import { existsSync, readFileSync } from 'fs';
 import { join, basename } from 'path';
@@ -419,31 +419,23 @@ async function interactiveMode(projectPath, manifest, fileStatus, msg) {
       ];
     }
 
-    const { action } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'action',
-        message: msg.actionPrompt,
-        choices
-      }
-    ]);
+    const action = await select({
+      message: msg.actionPrompt,
+      choices
+    });
 
     switch (action) {
       case 'view': {
         await showSingleFileDiff(projectPath, manifest, issue.file, msg);
         // After viewing, ask again
-        const { followUp } = await inquirer.prompt([
-          {
-            type: 'list',
-            name: 'followUp',
-            message: msg.followUpPrompt,
-            choices: [
-              { name: msg.actionRestore, value: 'restore' },
-              { name: msg.actionKeep, value: 'keep' },
-              { name: msg.actionSkip, value: 'skip' }
-            ]
-          }
-        ]);
+        const followUp = await select({
+          message: msg.followUpPrompt,
+          choices: [
+            { name: msg.actionRestore, value: 'restore' },
+            { name: msg.actionKeep, value: 'keep' },
+            { name: msg.actionSkip, value: 'skip' }
+          ]
+        });
         if (followUp === 'restore') {
           await restoreSingleFile(projectPath, manifest, issue.file, msg);
           manifestUpdated = true;

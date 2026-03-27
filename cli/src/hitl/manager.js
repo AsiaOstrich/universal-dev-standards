@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { select } from '@inquirer/prompts';
 import { RiskClassifier } from './classifier.js';
 import { Checkpoint } from './checkpoint.js';
 import { config } from '../utils/config-manager.js';
@@ -57,18 +57,14 @@ export class HitlManager {
       console.log(chalk.gray(`   Reason: ${context.reason}`));
     }
 
-    const { action } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'action',
-        message: 'How would you like to proceed?',
-        choices: [
-          { name: 'Approve', value: 'approve' },
-          { name: 'Deny', value: 'deny' },
-          { name: 'Show Details', value: 'details' }
-        ]
-      }
-    ]);
+    const action = await select({
+      message: 'How would you like to proceed?',
+      choices: [
+        { name: 'Approve', value: 'approve' },
+        { name: 'Deny', value: 'deny' },
+        { name: 'Show Details', value: 'details' }
+      ]
+    });
 
     if (action === 'details') {
       console.log(chalk.gray(''));

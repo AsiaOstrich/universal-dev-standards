@@ -23,7 +23,7 @@ vi.mock('ora', () => ({
 
 // Use hoisted to define mock before vi.mock
 const { mockPrompt, mockExistsSync } = vi.hoisted(() => ({
-  mockPrompt: vi.fn(() => Promise.resolve({ confirmed: true })),
+  mockPrompt: vi.fn(() => Promise.resolve(true)),
   mockExistsSync: vi.fn(() => true)
 }));
 
@@ -42,10 +42,12 @@ vi.mock('../../src/utils/hasher.js', () => ({
   refreshIntegrationBlockHashes: vi.fn()
 }));
 
-vi.mock('inquirer', () => ({
-  default: {
-    prompt: mockPrompt
-  }
+vi.mock('@inquirer/prompts', () => ({
+  select: mockPrompt,
+  checkbox: mockPrompt,
+  confirm: mockPrompt,
+  input: mockPrompt,
+  Separator: class Separator { constructor(t) { this.text = t; } }
 }));
 
 vi.mock('../../src/utils/copier.js', () => ({
@@ -148,7 +150,7 @@ describe('Update Command', () => {
     vi.spyOn(process, 'cwd').mockReturnValue('/test/project');
     // Reset the mock before each test
     mockPrompt.mockReset();
-    mockPrompt.mockResolvedValue({ confirmed: true });
+    mockPrompt.mockResolvedValue(true);
     mockExistsSync.mockReset();
     mockExistsSync.mockReturnValue(true);
   });
@@ -212,7 +214,7 @@ describe('Update Command', () => {
         standards: { version: '3.0.0' },
         skills: { version: '1.0.0' }
       });
-      mockPrompt.mockResolvedValue({ confirmed: false });
+      mockPrompt.mockResolvedValue(false);
 
       await updateCommand({});
 
@@ -231,7 +233,7 @@ describe('Update Command', () => {
         integrations: [],
         skills: { installed: false }
       });
-      mockPrompt.mockResolvedValue({ confirmed: false });
+      mockPrompt.mockResolvedValue(false);
 
       await updateCommand({});
 
@@ -248,7 +250,7 @@ describe('Update Command', () => {
         integrations: [],
         skills: { installed: false }
       });
-      mockPrompt.mockResolvedValue({ confirmed: true });
+      mockPrompt.mockResolvedValue(true);
 
       await expect(updateCommand({})).rejects.toThrow('process.exit called');
 
@@ -317,7 +319,7 @@ describe('Update Command', () => {
         integrations: ['.cursorrules'],
         skills: { installed: false }
       });
-      mockPrompt.mockResolvedValue({ confirmed: false });
+      mockPrompt.mockResolvedValue(false);
 
       await updateCommand({});
 
@@ -382,7 +384,7 @@ describe('Update Command', () => {
         standards: { version: '3.4.0' },
         skills: { version: '1.0.0' }
       });
-      mockPrompt.mockResolvedValue({ confirmed: false });
+      mockPrompt.mockResolvedValue(false);
 
       await updateCommand({});
 
@@ -405,7 +407,7 @@ describe('Update Command', () => {
         standards: { version: '3.4.0' },
         skills: { version: '1.0.0' }
       });
-      mockPrompt.mockResolvedValue({ confirmed: false });
+      mockPrompt.mockResolvedValue(false);
 
       await updateCommand({});
 
@@ -644,8 +646,8 @@ describe('Update Command', () => {
 
       // First prompt: confirm update, Second prompt: confirm install new
       mockPrompt
-        .mockResolvedValueOnce({ confirmed: true })
-        .mockResolvedValueOnce({ installNew: true });
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(true);
 
       await expect(updateCommand({})).rejects.toThrow('process.exit called');
 
@@ -669,8 +671,8 @@ describe('Update Command', () => {
 
       // First prompt: confirm update, Second prompt: decline new standards
       mockPrompt
-        .mockResolvedValueOnce({ confirmed: true })
-        .mockResolvedValueOnce({ installNew: false });
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(false);
 
       await expect(updateCommand({})).rejects.toThrow('process.exit called');
 
@@ -869,9 +871,9 @@ describe('Update Command', () => {
 
       // First prompt: confirm update, second prompt: confirm restore
       mockPrompt
-        .mockResolvedValueOnce({ confirmed: true })
-        .mockResolvedValueOnce({ restoreMissing: true })
-        .mockResolvedValue({});
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(true)
+        .mockResolvedValue(true);
 
       await expect(updateCommand({})).rejects.toThrow('process.exit called');
 

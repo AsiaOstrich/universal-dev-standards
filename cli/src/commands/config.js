@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { select, confirm as inquirerConfirm } from '@inquirer/prompts';
 import ora from 'ora';
 import { unlinkSync, existsSync, writeFileSync, mkdirSync } from 'fs';
 import { join, basename } from 'path';
@@ -212,27 +212,23 @@ async function handleLimitedConfig(options) {
   console.log(chalk.gray(t('config.notInitializedHint', 'Project not initialized. Run `uds init` for full configuration.')));
   console.log('');
 
-  const { initType } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'initType',
-      message: t('config.initQuestion', 'What would you like to configure?'),
-      choices: [
-        {
-          name: t('config.displayLanguageOption', 'Display Language - Change UI language'),
-          value: 'display_language'
-        },
-        {
-          name: t('config.vibeMode', 'Vibe Coding Mode - For AI-assisted development'),
-          value: 'vibe'
-        },
-        {
-          name: t('config.menuShowConfig', 'Show current configuration (JSON)'),
-          value: 'show'
-        }
-      ]
-    }
-  ]);
+  const initType = await select({
+    message: t('config.initQuestion', 'What would you like to configure?'),
+    choices: [
+      {
+        name: t('config.displayLanguageOption', 'Display Language - Change UI language'),
+        value: 'display_language'
+      },
+      {
+        name: t('config.vibeMode', 'Vibe Coding Mode - For AI-assisted development'),
+        value: 'vibe'
+      },
+      {
+        name: t('config.menuShowConfig', 'Show current configuration (JSON)'),
+        value: 'show'
+      }
+    ]
+  });
 
   if (initType === 'display_language') {
     await handleDisplayLanguageChange();
@@ -331,14 +327,12 @@ async function handleDisplayLanguageChange() {
   const hasSkillInstalls = manifest.skills?.installations?.length > 0;
   const hasCommandInstalls = manifest.commands?.installations?.length > 0;
   if (hasSkillInstalls || hasCommandInstalls) {
-    const { confirm } = await inquirer.prompt([{
-      type: 'confirm',
-      name: 'confirm',
+    const confirmReinstall = await inquirerConfirm({
       message: t('config.reinstallWithNewLocale', 'Reinstall Skills/Commands with new language?'),
       default: true
-    }]);
+    });
 
-    if (confirm) {
+    if (confirmReinstall) {
       const cmdLocale = displayLanguageToLocale(newLang);
       if (hasSkillInstalls) {
         const spinner = ora(t('config.reinstallingSkills', 'Reinstalling Skills...')).start();
@@ -355,14 +349,12 @@ async function handleDisplayLanguageChange() {
 
   // Cascade 3: Regenerate integrations if AI tools configured
   if (manifest.aiTools?.length > 0) {
-    const { confirm } = await inquirer.prompt([{
-      type: 'confirm',
-      name: 'confirm',
+    const confirmRegen = await inquirerConfirm({
       message: t('config.regenerateForLanguage', 'Regenerate AI tool integrations with new language?'),
       default: true
-    }]);
+    });
 
-    if (confirm) {
+    if (confirmRegen) {
       const spinner = ora(t('config.applyingPreset', 'Applying...')).start();
       regenerateIntegrations(projectPath, manifest);
       spinner.succeed(t('config.integrationsRegenerated', 'Integrations regenerated'));
@@ -388,18 +380,14 @@ async function initVibeMode(options) {
   if (options.yes) {
     preset = 'balanced';
   } else {
-    const { selectedPreset } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'selectedPreset',
-        message: t('config.selectPreset', 'Select a preset:'),
-        choices: Object.entries(VIBE_PRESETS).map(([key, value]) => ({
-          name: `${t(`config.presets.${key}.name`, value.name)}\n     ${chalk.gray(t(`config.presets.${key}.description`, value.description))}`,
-          value: key,
-          short: t(`config.presets.${key}.name`, value.name)
-        }))
-      }
-    ]);
+    const selectedPreset = await select({
+      message: t('config.selectPreset', 'Select a preset:'),
+      choices: Object.entries(VIBE_PRESETS).map(([key, value]) => ({
+        name: `${t(`config.presets.${key}.name`, value.name)}\n     ${chalk.gray(t(`config.presets.${key}.description`, value.description))}`,
+        value: key,
+        short: t(`config.presets.${key}.name`, value.name)
+      }))
+    });
     preset = selectedPreset;
   }
 
@@ -419,16 +407,12 @@ async function initVibeMode(options) {
 
   // Confirm unless --yes
   if (!options.yes) {
-    const { confirm } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'confirm',
-        message: t('config.confirmApply', 'Apply these settings?'),
-        default: true
-      }
-    ]);
+    const confirmApply = await inquirerConfirm({
+      message: t('config.confirmApply', 'Apply these settings?'),
+      default: true
+    });
 
-    if (!confirm) {
+    if (!confirmApply) {
       console.log(chalk.gray(t('config.cancelled', 'Configuration cancelled.')));
       return;
     }
@@ -522,16 +506,16 @@ export async function runProjectConfiguration(options) {
   let configType = options.type || null;
 
   if (!configType) {
-    const inq = await import('inquirer');
+    const { select: dynamicSelect, Separator: DynSeparator } = await import('@inquirer/prompts');
 
     // Build flat menu matching init step order
     const baseChoices = [
       { name: t('config.displayLanguageOption', 'Display Language - Change UI language'), value: 'display_language' },
-      new inq.default.Separator(),
+      new DynSeparator(),
       { name: chalk.cyan(msgObj.optionAITools), value: 'ai_tools' },
       { name: chalk.cyan(msgObj.optionSkills || 'Manage Skills installations'), value: 'skills' },
       { name: chalk.cyan(msgObj.optionCommands || 'Manage Commands installations'), value: 'commands' },
-      new inq.default.Separator()
+      new DynSeparator()
     ];
 
     // Format, Merge Strategy, Content Mode: only show with -E flag (advanced)
@@ -556,28 +540,24 @@ export async function runProjectConfiguration(options) {
     if (options.experimental) {
       baseChoices.push(
         { name: `${msgObj.optionTestLevels} ${chalk.yellow(msgObj.experimental)}`, value: 'test_levels' },
-        new inq.default.Separator(),
+        new DynSeparator(),
         { name: `${chalk.cyan(msgObj.optionContentMode)} ${chalk.yellow(msgObj.experimental)}`, value: 'content_mode' },
         { name: `${chalk.cyan(msgObj.optionMethodology)} ${chalk.yellow(msgObj.experimental)}`, value: 'methodology' }
       );
     }
 
     baseChoices.push(
-      new inq.default.Separator(),
+      new DynSeparator(),
       { name: t('config.vibeMode', 'Vibe Coding Mode'), value: 'vibe_coding' },
-      new inq.default.Separator(),
+      new DynSeparator(),
       { name: msgObj.optionAll, value: 'all' },
       { name: t('config.menuShowConfig', 'Show current configuration (JSON)'), value: 'show' }
     );
 
-    const { type } = await inq.default.prompt([
-      {
-        type: 'list',
-        name: 'type',
-        message: msgObj.selectOption,
-        choices: baseChoices
-      }
-    ]);
+    const type = await dynamicSelect({
+      message: msgObj.selectOption,
+      choices: baseChoices
+    });
     configType = type;
   }
 
@@ -943,12 +923,10 @@ export async function runProjectConfiguration(options) {
         if (skillCapableTools.length > 0) {
           const level = inferInstallationLevel(manifest.skills.installations);
           const toolNames = skillCapableTools.map(t => getAgentDisplayName(t)).join(', ');
-          const confirmSkills = options.yes || (await inquirer.prompt([{
-            type: 'confirm',
-            name: 'confirm',
+          const confirmSkills = options.yes || await inquirerConfirm({
             message: t('config.autoInstallSkillsForNewTools', `Install Skills for ${toolNames}? (${level} level)`),
             default: true
-          }])).confirm;
+          });
 
           if (confirmSkills) {
             const newInstallations = skillCapableTools.map(agent => ({ agent, level }));
@@ -981,12 +959,10 @@ export async function runProjectConfiguration(options) {
         if (commandCapableTools.length > 0) {
           const level = inferInstallationLevel(manifest.commands.installations);
           const toolNames = commandCapableTools.map(t => getAgentDisplayName(t)).join(', ');
-          const confirmCmds = options.yes || (await inquirer.prompt([{
-            type: 'confirm',
-            name: 'confirm',
+          const confirmCmds = options.yes || await inquirerConfirm({
             message: t('config.autoInstallCommandsForNewTools', `Install Commands for ${toolNames}? (${level} level)`),
             default: true
-          }])).confirm;
+          });
 
           if (confirmCmds) {
             const newCmdInstallations = commandCapableTools.map(agent => ({ agent, level }));
@@ -1102,13 +1078,11 @@ export async function runProjectConfiguration(options) {
       }
     } else {
       // Interactive mode: prompt user
-      const inq = await import('inquirer');
-      const { apply } = await inq.default.prompt([{
-        type: 'confirm',
-        name: 'apply',
+      const { confirm: dynConfirm } = await import('@inquirer/prompts');
+      const apply = await dynConfirm({
         message: msgObj.applyChangesNow,
         default: true
-      }]);
+      });
 
       if (apply) {
         const applySpinner = ora(msgObj.applyingChanges).start();
@@ -1151,7 +1125,7 @@ export async function runProjectConfiguration(options) {
 
   console.log();
 
-  // Exit explicitly to prevent hanging due to inquirer's readline interface
+  // Exit explicitly to prevent hanging
   process.exit(0);
 }
 
@@ -1165,7 +1139,7 @@ export async function runProjectConfiguration(options) {
  * @param {string} [skillsLocation] - Skills installation location (project, user) for non-interactive mode
  */
 async function handleSkillsConfiguration(manifest, projectPath, msgObj, common, specificTool, skillsLocation) {
-  const inq = await import('inquirer');
+  const { select: dynSelect } = await import('@inquirer/prompts');
   const aiTools = manifest.aiTools || [];
 
   // Non-interactive mode: install for specific tool
@@ -1284,14 +1258,10 @@ async function handleSkillsConfiguration(manifest, projectPath, msgObj, common, 
   );
 
   // Ask what action to take
-  const { action } = await inq.default.prompt([
-    {
-      type: 'list',
-      name: 'action',
-      message: msgObj.skillsAction || 'What would you like to do?',
-      choices: menuChoices
-    }
-  ]);
+  const action = await dynSelect({
+    message: msgObj.skillsAction || 'What would you like to do?',
+    choices: menuChoices
+  });
 
   if (action === 'cancel' || action === 'view') {
     console.log(chalk.gray(msgObj.noChanges || 'No changes made'));
@@ -1312,16 +1282,14 @@ async function handleSkillsConfiguration(manifest, projectPath, msgObj, common, 
     }
 
     // Prompt for installation level
-    const { skillsLevel } = await inq.default.prompt([{
-      type: 'list',
-      name: 'skillsLevel',
+    const skillsLevel = await dynSelect({
       message: msgObj.skillsLevelQuestion || 'Where should Skills be installed?',
       choices: [
         { name: `${msgObj.projectLevel || 'Project level'} (.claude/skills/, etc.)`, value: 'project' },
         { name: `${msgObj.userLevel || 'User level'} (~/.claude/skills/, etc.)`, value: 'user' }
       ],
       default: 'project'
-    }]);
+    });
 
     const installations = declinedToolsWithSupport.map(agent => ({
       agent,
@@ -1392,7 +1360,7 @@ async function handleSkillsConfiguration(manifest, projectPath, msgObj, common, 
  * @param {string} [specificTool] - Specific AI tool to install (triggers interactive prompt for level)
  */
 async function handleCommandsConfiguration(manifest, projectPath, msgObj, common, specificTool) {
-  const inq = await import('inquirer');
+  const { select: dynSelect } = await import('@inquirer/prompts');
   const aiTools = manifest.aiTools || [];
 
   // Semi-interactive mode: install for specific tool (prompt for level)
@@ -1410,16 +1378,14 @@ async function handleCommandsConfiguration(manifest, projectPath, msgObj, common
     }
 
     // Prompt for installation level
-    const { commandsLevel } = await inq.default.prompt([{
-      type: 'list',
-      name: 'commandsLevel',
+    const commandsLevel = await dynSelect({
       message: msgObj.commandsLevelQuestion || 'Where should Commands be installed?',
       choices: [
         { name: `${msgObj.projectLevel || 'Project level'} (${agentCfg.commands.project}) (${msgObj.recommended || 'Recommended'})`, value: 'project' },
         { name: `${msgObj.userLevel || 'User level'} (${agentCfg.commands.user})`, value: 'user' }
       ],
       default: 'project'
-    }]);
+    });
 
     // Install to selected level
     const installations = [{ agent: specificTool, level: commandsLevel }];
@@ -1510,14 +1476,10 @@ async function handleCommandsConfiguration(manifest, projectPath, msgObj, common
   );
 
   // Ask what action to take
-  const { action } = await inq.default.prompt([
-    {
-      type: 'list',
-      name: 'action',
-      message: msgObj.commandsAction || 'What would you like to do?',
-      choices: menuChoices
-    }
-  ]);
+  const action = await dynSelect({
+    message: msgObj.commandsAction || 'What would you like to do?',
+    choices: menuChoices
+  });
 
   if (action === 'cancel' || action === 'view') {
     console.log(chalk.gray(msgObj.noChanges || 'No changes made'));

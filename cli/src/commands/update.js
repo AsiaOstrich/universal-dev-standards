@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import inquirer from 'inquirer';
+import { select, confirm as inquirerConfirm, checkbox, Separator } from '@inquirer/prompts';
 import { execSync } from 'child_process';
 import { existsSync, unlinkSync } from 'fs';
 import { join, basename } from 'path';
@@ -307,18 +307,14 @@ export async function updateCommand(options) {
 
       // Ask user what action to take
       if (!options.yes) {
-        const { action } = await inquirer.prompt([
-          {
-            type: 'list',
-            name: 'action',
-            message: msg.whatToDo,
-            choices: [
-              { name: msg.updateCliFirst, value: 'update-cli' },
-              { name: msg.continueWithCurrent, value: 'continue' },
-              { name: msg.cancel, value: 'cancel' }
-            ]
-          }
-        ]);
+        const action = await select({
+          message: msg.whatToDo,
+          choices: [
+            { name: msg.updateCliFirst, value: 'update-cli' },
+            { name: msg.continueWithCurrent, value: 'continue' },
+            { name: msg.cancel, value: 'cancel' }
+          ]
+        });
 
         if (action === 'update-cli') {
           await updateCliAndExit(options.beta || false);
@@ -388,14 +384,10 @@ export async function updateCommand(options) {
 
   // Confirm
   if (!options.yes) {
-    const { confirmed } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'confirmed',
-        message: msg.confirmUpdate,
-        default: true
-      }
-    ]);
+    const confirmed = await inquirerConfirm({
+      message: msg.confirmUpdate,
+      default: true
+    });
 
     if (!confirmed) {
       console.log(chalk.yellow(msg.updateCancelled));
@@ -445,14 +437,10 @@ export async function updateCommand(options) {
       shouldInstallNew = true;
     } else {
       // Interactive mode: ask user
-      const { installNew } = await inquirer.prompt([
-        {
-          type: 'confirm',
-          name: 'installNew',
-          message: msg.installNewStandards,
-          default: true
-        }
-      ]);
+      const installNew = await inquirerConfirm({
+        message: msg.installNewStandards,
+        default: true
+      });
       shouldInstallNew = installNew;
     }
 
@@ -663,14 +651,10 @@ export async function updateCommand(options) {
     if (options.yes) {
       shouldRestore = true;
     } else {
-      const { restoreMissing } = await inquirer.prompt([
-        {
-          type: 'confirm',
-          name: 'restoreMissing',
-          message: (msg.restoreMissingPrompt || 'Restore {count} missing file(s)?').replace('{count}', missingFiles.length),
-          default: true
-        }
-      ]);
+      const restoreMissing = await inquirerConfirm({
+        message: (msg.restoreMissingPrompt || 'Restore {count} missing file(s)?').replace('{count}', missingFiles.length),
+        default: true
+      });
       shouldRestore = restoreMissing;
     }
 
@@ -1025,7 +1009,7 @@ export async function updateCommand(options) {
 
   console.log();
 
-  // Exit explicitly to prevent hanging due to inquirer's readline interface
+  // Exit explicitly to prevent hanging
   process.exit(0);
 }
 
@@ -1807,15 +1791,13 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
     });
 
     // Add skip option
-    updateChoices.push(new inquirer.Separator());
+    updateChoices.push(new Separator());
     updateChoices.push({
       name: chalk.gray(msg.skipSkillsUpdate || 'Skip Skills update'),
       value: '__skip__'
     });
 
-    const { selectedUpdateAgents } = await inquirer.prompt([{
-      type: 'checkbox',
-      name: 'selectedUpdateAgents',
+    const selectedUpdateAgents = await checkbox({
       message: msg.selectSkillsToUpdate || 'Select AI tools to update Skills for:',
       choices: updateChoices,
       validate: (answer) => {
@@ -1824,7 +1806,7 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
         }
         return true;
       }
-    }]);
+    });
 
     // Filter out skip and map to update info
     const filteredUpdateAgents = selectedUpdateAgents.filter(a => a !== '__skip__');
@@ -1885,15 +1867,13 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
     });
 
     // Add skip option
-    updateCmdChoices.push(new inquirer.Separator());
+    updateCmdChoices.push(new Separator());
     updateCmdChoices.push({
       name: chalk.gray(msg.skipCommandsUpdate || 'Skip Commands update'),
       value: '__skip__'
     });
 
-    const { selectedUpdateCmdAgents } = await inquirer.prompt([{
-      type: 'checkbox',
-      name: 'selectedUpdateCmdAgents',
+    const selectedUpdateCmdAgents = await checkbox({
       message: msg.selectCommandsToUpdate || 'Select AI tools to update Commands for:',
       choices: updateCmdChoices,
       validate: (answer) => {
@@ -1902,7 +1882,7 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
         }
         return true;
       }
-    }]);
+    });
 
     // Filter out skip and map to update info
     const filteredUpdateCmdAgents = selectedUpdateCmdAgents.filter(a => a !== '__skip__');
@@ -2005,14 +1985,10 @@ async function handleForceReconcile(projectPath, options) {
 
   // Confirm unless --yes
   if (!options.yes) {
-    const { confirmed } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'confirmed',
-        message: `Apply ${planResult.plan.actions.length} changes?`,
-        default: true
-      }
-    ]);
+    const confirmed = await inquirerConfirm({
+      message: `Apply ${planResult.plan.actions.length} changes?`,
+      default: true
+    });
 
     if (!confirmed) {
       console.log(chalk.yellow('Cancelled.'));
