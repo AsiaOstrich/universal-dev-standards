@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.1.0-beta.3] - 2026-03-28
+
+> **Beta Release**: 依賴大版本升級、文件生命週期標準、CLI bug 修復。供早期使用者測試。
+
+### Added
+- **文件生命週期標準** (SPEC-DOCLC-001): 新增 `core/documentation-lifecycle.md`
+  - 定義文件更新觸發規則表（7 種觸發條件 × 6 種文件類型）
+  - 定義文件檢查金字塔（Commit → PR → Release 三層）
+  - 區分硬檢查（自動化）與軟檢查（人工審查）
+  - 定義責任歸屬矩陣（角色 × 文件類型 × 時機）
+- **Release Workflow 文件同步檢查**: `release-workflow.md` 新增 Documentation Sync Verification 章節
+- **文件可及性標準**: `documentation-writing-standards.md` 新增 WCAG 2.1 可及性章節
+- **業界標準引用增強**: 4 個文件標準補齊 ISO 26515、Diátaxis、Conventional Comments 引用
+- **新技能與標準**: `/adr`、`/retrospective`、`/contract-test`、`/metrics` 技術債量化、`/incident` 改善追蹤、`/discover` 風險登記簿、`/ac-coverage` 四層追溯
+
+### Changed
+- **Commander v14**: 升級 commander 至 v14.0.0（無程式碼變更）
+- **Inquirer → @inquirer/prompts**: 從 inquirer v9 遷移至 @inquirer/prompts v7
+  - 刪除不再需要的 checkbox monkey patch
+  - 所有 prompt 呼叫改用新 API 格式（15 個 source files + 7 個 test files）
+
+### Fixed
+- **Skill-only 標準 null path**: 修正 `project-discovery` 等純 skill 標準安裝時的 path 錯誤
+- **GitHub 429 Rate Limit**: 修正 `uds check` 在 GitHub API 回應 429 時崩潰的問題
+- **AI 工具連動安裝**: 新增 AI 工具時自動連動安裝 Skills 和 Commands
+- **Windows 路徑重複**: 修正 Windows 環境下路徑重複問題
+- **Manifest 殘留清理**: 修正移除 AI 工具時未清理 manifest 中的殘留元資料
+
 ## [5.1.0-beta.2] - 2026-03-25
 
 > **Beta Release**: `output_language` 統一語言設定、文件生態系閉環。供早期使用者測試。
