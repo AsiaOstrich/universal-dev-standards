@@ -6,7 +6,7 @@ This document defines the development standards for the Universal Development St
 
 Universal Development Standards is a language-agnostic, framework-agnostic development standards framework. It provides:
 
-- **Core Standards** (`core/`): 49 fundamental development standards
+- **Core Standards** (`core/`): 53 fundamental development standards
 - **AI Skills** (`skills/`): Claude Code skills for AI-assisted development
 - **CLI Tool** (`cli/`): Node.js CLI for adopting standards
 - **Integrations** (`integrations/`): Configurations for various AI tools
@@ -457,7 +457,7 @@ UDS (標準定義) ──→ DevAP (編排執行) ──→ VibeOps (全生命�
 
 ### UDS 的角色
 
-1. **標準來源**：UDS 定義的 49 項標準被 DevAP 和 VibeOps 消費
+1. **標準來源**：UDS 定義的 53 項標準被 DevAP 和 VibeOps 消費
 2. **工具無關**：UDS 支援 9 種 AI 工具，DevAP/VibeOps 只是消費者之一
 3. **授權隔離**：UDS 的 MIT + CC BY 4.0 授權不受消費者的 AGPL/Apache 影響
 
