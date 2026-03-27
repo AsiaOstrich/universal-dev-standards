@@ -284,6 +284,8 @@ Is there a specific reason for this approach?
 📝 NOTE: This is a clever solution! Nice use of reduce here.
 ```
 
+> 此评论前缀方式与 [Conventional Comments](https://conventionalcomments.org/) 规范一致，该规范在团队和工具间标准化了审查回馈格式。
+
 ### 替代方案：文字标签
 
 对于偏好纯文字标签（无 emoji）的团队：

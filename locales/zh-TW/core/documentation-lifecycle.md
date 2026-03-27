@@ -14,7 +14,7 @@ status: current
 **最後更新**: 2026-03-27
 **適用範圍**: 所有具有文件的軟體專案
 **範圍**: universal
-**業界標準**: ISO/IEC 26514（系統與軟體工程 — 使用者資訊的設計與開發）
+**業界標準**: ISO/IEC 26514（系統與軟體工程 — 使用者資訊的設計與開發）、ISO/IEC 26515（敏捷文件）、Docs as Code
 **參考**: [documentation-structure.md](../../../core/documentation-structure.md), [documentation-writing-standards.md](../../../core/documentation-writing-standards.md)
 
 ---
@@ -60,6 +60,16 @@ status: current
 ```
 
 在 commit 階段偵測（秒級、自動化）遠比在 release 階段偵測（小時級、手動）成本低。下方的檢查金字塔透過從快速/自動化到全面/手動的分層檢查來實踐此原則。
+
+此原則也與 **README 驅動開發**（Tom Preston-Werner）一致：先撰寫 README 可以在開始寫程式碼前釐清目的，在最早階段發現文件缺口。
+
+### 恰到好處的文件
+
+> **在敏捷環境中，撰寫能創造價值的文件。**（ISO/IEC 26515）
+
+- 偏好活文件而非全面的預先文件
+- 文件深度應與變更的風險和複雜度相匹配
+- 聚焦於幫助下一位讀者（新開發者、未來維護者或終端使用者）做出決策或採取行動
 
 ---
 
@@ -152,6 +162,7 @@ status: current
 | CHANGELOG 完整性 | 軟檢查 | 人工審查發布說明 |
 | 遷移指南完整性 | 軟檢查 | 人工審查（如適用） |
 | README 準確性 | 軟檢查 | 人工審查專案描述、徽章、範例 |
+| 文件可用性抽查 | 軟檢查 | 驗證關鍵使用者路徑已記錄且範例可運作（靈感來自 ISO/IEC 26513） |
 
 **目標：** 確保文件已準備好發布且完整。
 

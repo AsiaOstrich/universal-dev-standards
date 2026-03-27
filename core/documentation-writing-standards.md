@@ -6,7 +6,7 @@
 **Last Updated**: 2026-03-17
 **Applicability**: All software projects (new, refactoring, migration, maintenance)
 **Scope**: partial
-**Industry Standards**: OpenAPI 3.1, AsyncAPI 2.6, JSON Schema 2020-12
+**Industry Standards**: OpenAPI 3.1, AsyncAPI 2.6, JSON Schema 2020-12, WCAG 2.1 (Documentation accessibility)
 **References**: [openapis.org](https://www.openapis.org/)
 
 ---
@@ -981,6 +981,21 @@ project-root/
 | Diagram Drawing | Mermaid / draw.io / PlantUML |
 | API Documentation | OpenAPI (Swagger) / Redoc |
 | ER Diagram | dbdiagram.io / DBeaver |
+
+---
+
+## Documentation Accessibility
+
+Ensure documentation is accessible to all users, following WCAG 2.1 Level A guidelines where applicable.
+
+| Requirement | Description | Example |
+|-------------|-------------|---------|
+| **Plain language** | Use clear, simple language; target grade 8 reading level | Avoid: "utilize" → Use: "use" |
+| **Alt text for images** | Provide descriptive alt text for all non-decorative images | `![Architecture diagram showing three-tier layout](arch.png)` |
+| **Heading hierarchy** | Use proper heading levels (h1→h2→h3), never skip levels | Don't jump from `#` to `###` |
+| **Link text** | Use descriptive link text, not "click here" | Avoid: [click here] → Use: [installation guide] |
+| **Code blocks** | Use fenced code blocks with language identifiers | ` ```javascript ` not ` ``` ` |
+| **Color independence** | Don't rely solely on color to convey meaning | Use ✅/❌ icons alongside color |
 
 ---
 

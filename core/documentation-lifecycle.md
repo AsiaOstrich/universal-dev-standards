@@ -6,7 +6,7 @@
 **Last Updated**: 2026-03-27
 **Applicability**: All software projects with documentation
 **Scope**: universal
-**Industry Standards**: ISO/IEC 26514 (Systems and software engineering — Design and development of information for users)
+**Industry Standards**: ISO/IEC 26514 (Systems and software engineering — Design and development of information for users), ISO/IEC 26515 (Agile documentation), Docs as Code
 **References**: [documentation-structure.md](documentation-structure.md), [documentation-writing-standards.md](documentation-writing-standards.md)
 
 ---
@@ -52,6 +52,16 @@ Cost to fix
 ```
 
 Detection at commit time (seconds, automated) is far cheaper than detection at release time (hours, manual). The check pyramid (below) implements this principle by layering checks from fast/automated to comprehensive/manual.
+
+This principle also aligns with **README Driven Development** (Tom Preston-Werner): writing the README first forces clarity of purpose before coding begins, catching documentation gaps at the earliest possible stage.
+
+### Just Enough Documentation
+
+> **In agile environments, document what delivers value.** (ISO/IEC 26515)
+
+- Prefer living documents over comprehensive upfront documentation
+- Documentation depth should match the risk and complexity of the change
+- Focus on what helps the next reader (new developer, future maintainer, or end user) make decisions or take action
 
 ---
 
@@ -144,6 +154,7 @@ Runs before each release as part of the release checklist.
 | CHANGELOG completeness | Soft | Manual review of release notes |
 | Migration guide completeness | Soft | Manual review (if applicable) |
 | README accuracy | Soft | Manual review of project description, badges, examples |
+| Documentation usability spot-check | Soft | Verify key user paths are documented and examples work (inspired by ISO/IEC 26513) |
 
 **Goal:** Ensure documentation is release-ready and complete.
 

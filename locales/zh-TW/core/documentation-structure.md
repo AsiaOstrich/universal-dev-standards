@@ -14,7 +14,7 @@ status: current
 **最後更新**: 2026-03-17
 **適用範圍**: 所有需要文件的軟體專案
 **範圍**: partial
-**業界標準**: 無（業界慣例）
+**業界標準**: Diátaxis Framework (diataxis.fr)
 **參考**: [diataxis.fr](https://diataxis.fr/)
 
 ---

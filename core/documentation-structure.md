@@ -6,7 +6,7 @@
 **Last Updated**: 2026-03-17
 **Applicability**: All software projects requiring documentation
 **Scope**: partial
-**Industry Standards**: None (Industry convention)
+**Industry Standards**: Diátaxis Framework (diataxis.fr)
 **References**: [diataxis.fr](https://diataxis.fr/)
 
 ---
