@@ -38,8 +38,8 @@ Universal Development Standards is a **language-agnostic, framework-agnostic** d
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Core Standards** | 48 | Universal development guidelines (Markdown) |
-| **AI Skills** | 40 | Interactive skills (YAML) |
+| **Core Standards** | 53 | Universal development guidelines (Markdown) |
+| **AI Skills** | 43 | Interactive skills (YAML) |
 | **Slash Commands** | 45 | Quick actions for daily development |
 | **CLI Commands** | 6 | Command-line tools |
 

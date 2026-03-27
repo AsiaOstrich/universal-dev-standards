@@ -1,0 +1,156 @@
+# Documentation Lifecycle Standard - AI Optimized
+# Source: core/documentation-lifecycle.md
+
+id: documentation-lifecycle
+meta:
+  version: "1.0.0"
+  updated: "2026-03-27"
+  source: core/documentation-lifecycle.md
+  description: Defines when to update docs, when to check them, and who is responsible (co-update principle, shift-left, trigger matrix, check pyramid)
+
+core_principles:
+  co_update:
+    description: Code author updates docs in same PR
+    rules:
+      - Code and doc changes MUST be in same PR
+      - Code author is primary responsible for doc updates
+      - Reviewers verify doc completeness during review
+  shift_left:
+    description: Earlier detection = lower fix cost
+    levels: [commit (seconds), PR (minutes), release (hours)]
+
+trigger_matrix:
+  description: "Trigger × Document Type → obligation level (MUST/SHOULD/N/A)"
+  triggers:
+    - name: New feature
+      readme: SHOULD
+      api_docs: MUST
+      changelog: MUST
+      architecture: SHOULD
+      user_guide: MUST
+      translation: SHOULD
+    - name: API change
+      readme: N/A
+      api_docs: MUST
+      changelog: MUST
+      architecture: SHOULD
+      user_guide: SHOULD
+      translation: SHOULD
+    - name: Breaking change
+      readme: MUST
+      api_docs: MUST
+      changelog: MUST
+      architecture: MUST
+      user_guide: MUST
+      translation: MUST
+    - name: Bug fix
+      readme: N/A
+      api_docs: N/A
+      changelog: SHOULD
+      architecture: N/A
+      user_guide: SHOULD
+      translation: N/A
+    - name: Dependency upgrade
+      readme: SHOULD
+      api_docs: N/A
+      changelog: SHOULD
+      architecture: SHOULD
+      user_guide: N/A
+      translation: N/A
+    - name: Configuration change
+      readme: SHOULD
+      api_docs: N/A
+      changelog: SHOULD
+      architecture: N/A
+      user_guide: MUST
+      translation: SHOULD
+    - name: Architecture change
+      readme: SHOULD
+      api_docs: SHOULD
+      changelog: MUST
+      architecture: MUST
+      user_guide: SHOULD
+      translation: SHOULD
+
+check_pyramid:
+  level_1_commit:
+    timing: seconds
+    automation: fully automated
+    checks:
+      - { name: "Internal link validity", type: hard }
+      - { name: "Referenced file existence", type: hard }
+      - { name: "Markdown syntax validity", type: hard }
+      - { name: "Version header presence", type: hard }
+
+  level_2_pr:
+    timing: minutes
+    automation: semi-automated
+    checks:
+      - { name: "Doc-code change sync", type: hard }
+      - { name: "Trigger matrix compliance", type: soft }
+      - { name: "Content accuracy", type: soft }
+      - { name: "Example code correctness", type: soft }
+      - { name: "Terminology consistency", type: soft }
+
+  level_3_release:
+    timing: hours
+    automation: manual + automated
+    checks:
+      - { name: "Version number consistency", type: hard }
+      - { name: "Translation sync status", type: hard }
+      - { name: "Feature-documentation coverage", type: hard }
+      - { name: "All external link validity", type: hard }
+      - { name: "CHANGELOG completeness", type: soft }
+      - { name: "Migration guide completeness", type: soft }
+      - { name: "README accuracy", type: soft }
+
+hard_vs_soft:
+  hard:
+    properties: [deterministic, automatable, binary pass/fail, blocks workflow]
+    examples: [version consistency, file existence, link validity, translation sync, markdown syntax, feature count]
+  soft:
+    properties: [requires judgment, advisory, non-blocking]
+    examples: [content correctness, example runnability, release notes accuracy, migration guide completeness, terminology consistency, readability]
+
+responsibility_matrix:
+  - { doc_type: README, responsible: "Code author", timing: "Same PR", verification: "PR review (soft)" }
+  - { doc_type: API Docs, responsible: "Code author", timing: "Same PR as API change", verification: "PR review + link check" }
+  - { doc_type: CHANGELOG, responsible: "Code author (entry) / Release manager (final)", timing: "Entry: same PR / Final: release", verification: "Release checklist (soft)" }
+  - { doc_type: "Architecture (ADR)", responsible: "Tech lead / Architect", timing: "When decision is made", verification: "PR review (soft)" }
+  - { doc_type: User Guide, responsible: "Code author / Technical writer", timing: "Same PR or follow-up", verification: "PR review (soft)" }
+  - { doc_type: Translation, responsible: "Translator / Code author", timing: "After source finalized", verification: "Translation sync script (hard)" }
+
+rules:
+  - id: co-update
+    trigger: making code changes that affect documentation
+    instruction: Update corresponding documentation in the same PR as the code change
+    priority: required
+
+  - id: trigger-matrix-check
+    trigger: submitting a PR with code changes
+    instruction: >
+      Consult the trigger × document type matrix to determine which documents
+      need updating. Include all MUST updates in the same PR.
+    priority: required
+
+  - id: check-pyramid
+    trigger: CI/CD pipeline configuration
+    instruction: >
+      Implement checks in three levels: Level 1 (commit, automated),
+      Level 2 (PR, semi-automated), Level 3 (release, comprehensive).
+    priority: recommended
+
+  - id: hard-soft-classification
+    trigger: adding documentation checks
+    instruction: >
+      Classify each check as hard (automated, blocking) or soft (manual, advisory).
+      Only hard checks should block CI/CD pipelines.
+    priority: required
+
+quick_reference:
+  decision_flow:
+    - "Is this a code change?"
+    - "Check Trigger × Document Type Matrix"
+    - "Any MUST cells → Update in same PR"
+    - "Any SHOULD cells → Update if practical"
+    - "All N/A → No doc update needed"

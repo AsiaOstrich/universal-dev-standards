@@ -1053,6 +1053,18 @@
       "description": "Standard directory structure for project documentation"
     },
     {
+      "id": "documentation-lifecycle",
+      "name": "Documentation Lifecycle",
+      "nameZh": "文件生命週期",
+      "source": {
+        "human": "core/documentation-lifecycle.md",
+        "ai": "ai/standards/documentation-lifecycle.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "When to update docs, when to check them, and who is responsible"
+    },
+    {
       "id": "documentation-writing",
       "name": "Documentation Writing Standards",
       "nameZh": "文件撰寫標準",
