@@ -138,6 +138,9 @@ npm run lint  # 或專案的 lint 指令
 
 # 執行預發布檢查（如有）
 ./scripts/pre-release-check.sh  # 或 .\scripts\pre-release-check.ps1
+
+# 執行文件同步檢查（如有）
+./scripts/check-usage-docs-sync.sh  # 或 .\scripts\check-usage-docs-sync.ps1
 ```
 
 ### 步驟 5：手動驗證
@@ -297,6 +300,21 @@ npm version patch
 - [ ] Linting 通過
 - [ ] 建置成功
 - [ ] 核心功能運作正常（冒煙測試）
+- [ ] 產生的文件已是最新版本（如適用）
+
+### 文件同步驗證
+
+發布前，驗證文件已與原始碼同步。
+
+**硬性檢查（自動化、阻塞性）：**
+- 產生的文件與當前原始檔案一致
+- 文件連結有效
+- 功能數量和表格正確
+
+**軟性檢查（人工審查、建議性）：**
+- 發布說明準確描述變更
+- README 反映新功能
+- 遷移指南完整（如適用）
 
 ### Beta 發布前
 
@@ -346,11 +364,12 @@ npm version patch
 1. **識別發布類型：** 詢問是 beta、alpha、rc 或穩定版
 2. **執行預發布檢查：** 測試、linting、git 狀態
 3. **檢查專案特有規則：** 閱讀 `CLAUDE.md` 取得額外需求
-4. **更新版本：** 使用適當的版本指令
-5. **更新 CHANGELOG：** 遵循標準格式
-6. **建立 git tag：** 格式 `v{VERSION}`
-7. **建立 release：** GitHub/GitLab release
-8. **驗證發布：** 檢查 dist-tags 並測試安裝
+4. **驗證文件同步：** 確保產生的文件與原始檔案一致
+5. **更新版本：** 使用適當的版本指令
+6. **更新 CHANGELOG：** 遵循標準格式
+7. **建立 git tag：** 格式 `v{VERSION}`
+8. **建立 release：** GitHub/GitLab release
+9. **驗證發布：** 檢查 dist-tags 並測試安裝
 
 ---
 

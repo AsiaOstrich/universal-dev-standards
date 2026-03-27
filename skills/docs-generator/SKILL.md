@@ -51,6 +51,29 @@ language: [en, zh-TW]
 - `/docgen .usage-docs.yaml` - Generate docs from specified config file
 - `/docgen --format cheatsheet` - Generate cheatsheet only
 
+## Check Mode | 檢查模式
+
+Verify that generated documentation is up to date with source files.
+
+驗證產生的文件是否與原始檔案保持同步。
+
+**Usage | 使用方式:**
+
+```bash
+# Check if generated docs are in sync
+./scripts/check-usage-docs-sync.sh
+
+# Auto-fix out-of-sync docs
+./scripts/check-usage-docs-sync.sh --fix
+```
+
+- **Check mode** (default): Reports differences between source and generated docs. Exits with non-zero status if out of sync.
+- **Fix mode** (`--fix`): Automatically regenerates out-of-date documentation files.
+
+> **Note | 注意**: This check is integrated into `pre-release-check.sh` as Step 8 (Usage docs sync check).
+>
+> 此檢查已整合至 `pre-release-check.sh` 的步驟 8（使用文件同步檢查）。
+
 ## Generated Output Example | 產生範例
 
 ```markdown

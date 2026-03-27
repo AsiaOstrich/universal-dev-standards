@@ -54,6 +54,25 @@ language: [en, zh-TW]
 - `/docgen .usage-docs.yaml` - 从指定的配置文件生成文档
 - `/docgen --format cheatsheet` - 仅生成速查表
 
+## 检查模式
+
+验证生成的文档是否与源文件保持同步。
+
+**使用方式：**
+
+```bash
+# 检查生成的文档是否同步
+./scripts/check-usage-docs-sync.sh
+
+# 自动修复不同步的文档
+./scripts/check-usage-docs-sync.sh --fix
+```
+
+- **检查模式**（默认）：报告源文件与生成文档之间的差异。若不同步则以非零状态退出。
+- **修复模式**（`--fix`）：自动重新生成过期的文档文件。
+
+> **注意**：此检查已整合至 `pre-release-check.sh` 的步骤 8（使用文档同步检查）。
+
 ## 下一步引导
 
 `/docgen` 完成后，AI 助手应建议：

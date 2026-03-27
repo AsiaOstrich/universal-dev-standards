@@ -130,6 +130,9 @@ npm run lint  # or your project's lint command
 
 # Run pre-release checks (if available)
 ./scripts/pre-release-check.sh  # or .\scripts\pre-release-check.ps1
+
+# Run documentation sync check (if available)
+./scripts/check-usage-docs-sync.sh  # or .\scripts\check-usage-docs-sync.ps1
 ```
 
 ### Step 5: Manual Verification
@@ -292,6 +295,21 @@ npm version patch
 - [ ] Linting passing
 - [ ] Build successful
 - [ ] Core functionality works (smoke test)
+- [ ] Generated documentation is up to date (if applicable)
+
+### Documentation Sync Verification
+
+Before releasing, verify that documentation is synchronized with source code.
+
+**Hard checks (automated, blocking):**
+- Generated docs match current source files
+- Documentation links are valid
+- Feature counts and tables are accurate
+
+**Soft checks (manual review, advisory):**
+- Release notes accurately describe changes
+- README reflects new features
+- Migration guide complete (if applicable)
 
 ### Before Beta Release
 
@@ -341,11 +359,12 @@ When helping with releases:
 1. **Identify release type:** Ask if beta, alpha, rc, or stable
 2. **Run pre-release checks:** Tests, linting, git status
 3. **Check for project-specific rules:** Read `CLAUDE.md` for additional requirements
-4. **Update version:** Use appropriate version command
-5. **Update CHANGELOG:** Follow standard format
-6. **Create git tag:** Format `v{VERSION}`
-7. **Create release:** GitHub/GitLab release
-8. **Verify publication:** Check dist-tags and test installation
+4. **Verify documentation sync:** Ensure generated docs match source files
+5. **Update version:** Use appropriate version command
+6. **Update CHANGELOG:** Follow standard format
+7. **Create git tag:** Format `v{VERSION}`
+8. **Create release:** GitHub/GitLab release
+9. **Verify publication:** Check dist-tags and test installation
 
 ---
 
