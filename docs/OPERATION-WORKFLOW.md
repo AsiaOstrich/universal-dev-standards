@@ -1015,7 +1015,17 @@ Include this table in README.md:
 - [ ] Version sync check passes (`./scripts/check-version-sync.sh`)
 - [ ] CHANGELOG.md is updated
 - [ ] Git working directory is clean
+- [ ] Documentation sync check passes (`./scripts/check-usage-docs-sync.sh`)
+- [ ] Documentation integrity check passes (`./scripts/check-docs-integrity.sh`)
 - [ ] Skill descriptions are single-line with `[UDS]` prefix (check `.claude/skills/*/SKILL.md` and `locales/zh-TW/skills/*/SKILL.md`)
+
+**Documentation Sync Checklist:**
+- [ ] Generated docs match source files
+- [ ] Documentation links are valid
+- [ ] Feature counts match actual counts
+- [ ] Cross-language tables have matching rows
+
+> **Note**: All documentation checks above are included in `./scripts/pre-release-check.sh`.
 
 **Version Files Checklist (8 files):**
 - [ ] `cli/package.json` - `"version": "X.Y.Z"`

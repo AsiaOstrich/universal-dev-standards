@@ -93,6 +93,9 @@ npm run lint  # 或项目的 lint 指令
 
 # 检查 git 状态
 git status  # 应为乾淨状态
+
+# 执行文档同步检查（如有）
+./scripts/check-usage-docs-sync.sh  # 或 .\scripts\check-usage-docs-sync.ps1
 ```
 
 ### 步骤 2：更新版本
@@ -267,6 +270,21 @@ npm version patch
 - [ ] Git 工作目录乾淨
 - [ ] CHANGELOG 已更新
 - [ ] 在正确的分支（穩定版用 main）
+- [ ] 生成的文档已是最新版本（如适用）
+
+### 文档同步验证
+
+发布前，验证文档已与源代码同步。
+
+**硬性检查（自动化、阻塞性）：**
+- 生成的文档与当前源文件一致
+- 文档链接有效
+- 功能数量和表格准确
+
+**软性检查（人工审查、建议性）：**
+- 发布说明准确描述变更
+- README 反映新功能
+- 迁移指南完整（如适用）
 
 ### Beta 發布前
 
@@ -316,11 +334,12 @@ npm version patch
 1. **識别發布类型：** 詢問是 beta、alpha、rc 或穩定版
 2. **执行预發布检查：** 测试、linting、git 状态
 3. **检查项目特有規則：** 阅读 `CLAUDE.md` 取得額外需求
-4. **更新版本：** 使用適當的版本指令
-5. **更新 CHANGELOG：** 遵循标准格式
-6. **建立 git tag：** 格式 `v{VERSION}`
-7. **建立 release：** GitHub/GitLab release
-8. **验证發布：** 检查 dist-tags 并测试安裝
+4. **验证文档同步：** 确保生成的文档与源文件一致
+5. **更新版本：** 使用適當的版本指令
+6. **更新 CHANGELOG：** 遵循标准格式
+7. **建立 git tag：** 格式 `v{VERSION}`
+8. **建立 release：** GitHub/GitLab release
+9. **验证發布：** 检查 dist-tags 并测试安裝
 
 ---
 

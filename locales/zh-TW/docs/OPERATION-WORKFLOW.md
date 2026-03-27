@@ -915,6 +915,16 @@ cd cli && npm test && npm run lint
 - [ ] 版本同步檢查通過（`./scripts/check-version-sync.sh`）
 - [ ] CHANGELOG.md 已更新
 - [ ] Git 工作目錄乾淨
+- [ ] 文件同步檢查通過（`./scripts/check-usage-docs-sync.sh`）
+- [ ] 文件完整性檢查通過（`./scripts/check-docs-integrity.sh`）
+
+**文件同步檢查清單：**
+- [ ] 產生的文件與原始檔案一致
+- [ ] 文件連結有效
+- [ ] 功能數量與實際數量相符
+- [ ] 跨語言表格的列數一致
+
+> **注意**：以上所有文件檢查皆已包含在 `./scripts/pre-release-check.sh` 中。
 
 **版本檔案檢查清單（6 個檔案）：**
 - [ ] `cli/package.json` - `"version": "X.Y.Z"`
