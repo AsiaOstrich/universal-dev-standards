@@ -44,6 +44,10 @@ export async function installStandards(config, projectPath) {
   // Helper to copy standard with format awareness
   const copyStandardWithFormat = async (std, targetFormat) => {
     const sourcePath = getStandardSource(std, targetFormat);
+    if (!sourcePath) {
+      // Skill-only standards have no source file to copy — skip silently
+      return { success: true, sourcePath: null };
+    }
     const result = await copyStandard(sourcePath, '.standards', projectPath);
     return { ...result, sourcePath };
   };
@@ -78,9 +82,9 @@ export async function installStandards(config, projectPath) {
   for (const std of standardsToCopy) {
     for (const targetFormat of formatsToUse) {
       const { success, sourcePath, error } = await copyStandardWithFormat(std, targetFormat);
-      if (success) {
+      if (success && sourcePath) {
         results.standards.push(sourcePath);
-      } else {
+      } else if (!success) {
         results.errors.push(`${sourcePath}: ${error}`);
       }
     }
