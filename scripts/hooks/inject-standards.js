@@ -136,13 +136,13 @@ async function main() {
     // Record hook stats (silent, non-blocking)
     try {
       const configPath = join(cwd, '.uds', 'config.json');
-      let statsEnabled = true;
+      let statsEnabled = false; // Default OFF — opt-in via .uds/config.json
       try {
         if (existsSync(configPath)) {
           const config = JSON.parse(readFileSync(configPath, 'utf-8'));
-          if (config.hookStats === false) statsEnabled = false;
+          if (config.hookStats === true) statsEnabled = true;
         }
-      } catch { /* default enabled */ }
+      } catch { /* default disabled */ }
 
       if (statsEnabled) {
         const statsDir = join(cwd, '.uds');

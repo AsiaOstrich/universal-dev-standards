@@ -99,8 +99,8 @@ describe('HookStats', () => {
   // ========================================
 
   describe('shouldRecordStats()', () => {
-    it('should return true by default (no config)', () => {
-      expect(shouldRecordStats(TEST_DIR)).toBe(true);
+    it('should return false by default (no config, opt-in required)', () => {
+      expect(shouldRecordStats(TEST_DIR)).toBe(false);
     });
 
     it('should return false when config has hookStats: false', () => {
@@ -112,7 +112,7 @@ describe('HookStats', () => {
       expect(shouldRecordStats(TEST_DIR)).toBe(false);
     });
 
-    it('should return true when config has hookStats: true', () => {
+    it('should return true when config has hookStats: true (opt-in)', () => {
       mkdirSync(join(TEST_DIR, '.uds'), { recursive: true });
       writeFileSync(
         join(TEST_DIR, '.uds', 'config.json'),
@@ -121,10 +121,10 @@ describe('HookStats', () => {
       expect(shouldRecordStats(TEST_DIR)).toBe(true);
     });
 
-    it('should return true when config is invalid JSON', () => {
+    it('should return false when config is invalid JSON', () => {
       mkdirSync(join(TEST_DIR, '.uds'), { recursive: true });
       writeFileSync(join(TEST_DIR, '.uds', 'config.json'), 'not json');
-      expect(shouldRecordStats(TEST_DIR)).toBe(true);
+      expect(shouldRecordStats(TEST_DIR)).toBe(false);
     });
   });
 

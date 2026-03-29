@@ -13,6 +13,9 @@ Thumbs.db
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# UDS local data (hook stats, health scores, cache)
+.uds/
 *.swp
 *.swo
 *~

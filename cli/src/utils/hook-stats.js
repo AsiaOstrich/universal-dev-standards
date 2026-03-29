@@ -8,25 +8,27 @@
  * @see docs/specs/SPEC-SELFDIAG-001-standards-self-diagnosis.md (REQ-7)
  */
 
-import { existsSync, readFileSync, appendFileSync, mkdirSync } from 'fs';
+import { existsSync, readFileSync, appendFileSync, mkdirSync, statSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 const STATS_FILE = '.uds/hook-stats.jsonl';
 const CONFIG_FILE = '.uds/config.json';
+const MAX_STATS_SIZE = 1024 * 1024; // 1MB
 
 /**
- * Check if hook stats recording is enabled
+ * Check if hook stats recording is enabled.
+ * Default: OFF (opt-in). Set hookStats: true in .uds/config.json to enable.
  * @param {string} projectPath
  * @returns {boolean}
  */
 export function shouldRecordStats(projectPath) {
   const configPath = join(projectPath, CONFIG_FILE);
   try {
-    if (!existsSync(configPath)) return true;
+    if (!existsSync(configPath)) return false; // Default OFF
     const config = JSON.parse(readFileSync(configPath, 'utf-8'));
-    return config.hookStats !== false;
+    return config.hookStats === true; // Explicit opt-in required
   } catch {
-    return true; // Default to enabled on config read errors
+    return false; // Default OFF on config read errors
   }
 }
 
@@ -53,6 +55,19 @@ export function appendHookStat(projectPath, entry) {
     // Include prompt_length if provided (but never prompt content)
     if (entry.prompt_length !== undefined) {
       record.prompt_length = entry.prompt_length;
+    }
+
+    // Truncate if file exceeds 1MB (keep last half)
+    if (existsSync(statsPath)) {
+      try {
+        const size = statSync(statsPath).size;
+        if (size > MAX_STATS_SIZE) {
+          const content = readFileSync(statsPath, 'utf-8');
+          const lines = content.trim().split('\n');
+          const keepLines = lines.slice(Math.floor(lines.length / 2));
+          writeFileSync(statsPath, keepLines.join('\n') + '\n');
+        }
+      } catch { /* ignore truncation errors */ }
     }
 
     appendFileSync(statsPath, JSON.stringify(record) + '\n');

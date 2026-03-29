@@ -1112,6 +1112,10 @@ Step 7: Verify Release
 | Install Scripts Sync | `scripts/check-install-scripts-sync.sh` | Check install scripts |
 | Spec Sync | `scripts/check-spec-sync.sh` | Check Core↔Skill sync |
 | Pre-release | `scripts/pre-release.sh` | Pre-release automation |
+| External Refs | `scripts/check-external-references.mjs` | Check URL reachability & version references |
+| Hook Stats | `scripts/analyze-hook-stats.mjs` | Analyze context-aware loading blind spots |
+| Effectiveness | `scripts/aggregate-effectiveness.mjs` | Aggregate cross-product effectiveness reports |
+| Version Manifest | `scripts/generate-version-manifest.mjs` | Generate .standards/version-manifest.json |
 
 ### 10.3 Configuration Files
 
@@ -1130,6 +1134,7 @@ Step 7: Verify Release
 |------|---------|
 | `.github/workflows/ci.yml` | CI workflow (tests, linting) |
 | `.github/workflows/publish.yml` | npm publish workflow |
+| `.github/workflows/scheduled-health.yml` | Weekly health score check + auto-issue |
 
 ---
 
@@ -1149,6 +1154,15 @@ Step 7: Verify Release
 
 # Run tests and linting
 cd cli && npm test && npm run lint
+
+# Health score (self-diagnosis)
+node cli/bin/uds.js audit --score --self
+
+# External reference check (requires network)
+node scripts/check-external-references.mjs
+
+# Hook stats analysis (requires opt-in data)
+node scripts/analyze-hook-stats.mjs
 ```
 
 ### Pre-release

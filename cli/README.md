@@ -160,6 +160,54 @@ Universal Dev Standards - Installed Skills
 Total unique skills: 14 / 14
 ```
 
+### `uds audit`
+
+Deep health diagnosis with pattern detection and feedback. | 深度健康診斷，包含模式偵測與回饋。
+
+```bash
+# Full audit (health + patterns + friction)
+uds audit
+
+# Health score only (4-dimension scoring)
+uds audit --score
+
+# Self mode (for UDS repo itself)
+uds audit --score --self
+
+# JSON output
+uds audit --score --format json
+
+# Save snapshot for trend tracking
+uds audit --score --save
+
+# Show historical trend
+uds audit --score --trend
+
+# CI mode (exit 1 if below threshold)
+uds audit --score --ci --threshold 75
+```
+
+**Health Score Dimensions | 健康評分維度:**
+
+| Dimension | Weight | Description | 說明 |
+|-----------|--------|-------------|------|
+| Completeness | 25% | Ecosystem completeness per standard | 每個標準的生態系完整性 |
+| Freshness | 25% | How recently standards were updated | 標準的更新時間 |
+| Consistency | 30% | Sync status across layers | 各層間同步狀態 |
+| Coverage | 20% | Verification script/test coverage | 驗證腳本和測試覆蓋率 |
+
+**Hook Statistics (opt-in) | Hook 統計（需啟用）:**
+
+啟用觸發統計記錄以分析 context-aware loading 的盲區：
+
+```bash
+# Enable hook stats
+echo '{"hookStats": true}' > .uds/config.json
+
+# Analyze after sufficient data collected
+node scripts/analyze-hook-stats.mjs
+```
+
 ## Adoption Levels | 採用等級
 
 | Level | Name | Description | 說明 |
