@@ -186,24 +186,6 @@ quality_metrics:
   tools: [markdown-link-check, lychee, remark-lint, textstat, vale]
 
 rules:
-  - id: doc-language-consistency
-    trigger: writing documentation
-    instruction: >
-      Follow the output_language setting from manifest for document language.
-      This setting is shared with commit-message standard.
-    priority: required
-
-  - id: bilingual-doc-format
-    trigger: writing bilingual documentation
-    instruction: >
-      When output_language is bilingual, apply three-tier system:
-      L1 (CHANGELOG, PR): mandatory bilingual.
-      L2 (README, CONTRIBUTING, ADR): recommended bilingual.
-      L3 (ARCHITECTURE, API, DATABASE, DEPLOYMENT, MIGRATION): unaffected.
-      Format: English paragraph first, blank line, Chinese paragraph.
-      Code blocks and tables write once. Headings use | separator.
-    priority: required
-
   - id: llm-writing
     trigger: writing documentation
     instruction: Follow LLM-optimized writing rules (short paragraphs, consistent terms, context self-sufficiency)
@@ -230,45 +212,8 @@ rules:
     priority: required
 
   - id: sync-updates
-    trigger: after completing code changes (auto)
-    instruction: >
-      AUTOMATIC BEHAVIOR: After finishing any code modification task,
-      the AI MUST perform a documentation impact check before responding to the user.
-
-      Steps:
-      1. Identify which files were modified (functions, APIs, configs, CLI options, etc.)
-      2. For each modified file, check if any of these documents reference it:
-         - README.md, CHANGELOG.md, API docs, CLI docs, inline JSDoc
-         - Spec files (docs/specs/), skill files (skills/)
-         - Translation files (locales/)
-      3. If potentially affected documents are found, append a reminder block
-         with suggested commands for each:
-
-         ---
-         📋 **Documentation Impact**
-         The following documents may need updating:
-         - `README.md` — describes changed CLI option `--xxx`
-           → `/docs readme`
-         - `docs/CLI-INIT-OPTIONS.md` — references modified function
-           → manual update or `/docs generate`
-         - `locales/zh-TW/docs/CLI-INIT-OPTIONS.md` — translation of modified source
-           → `/docs translate CLI-INIT-OPTIONS.md --lang zh-TW`
-
-         Or run `/docs impact` to get a full analysis.
-         ---
-
-         Command suggestion mapping:
-         - README.md → `/docs readme`
-         - API docs → `/docs api`
-         - Generated docs (cheatsheet, reference) → `/docs generate`
-         - Translation files (locales/) → `/docs translate <file>`
-         - Spec/skill/other docs → suggest manual update
-         - Multiple docs affected → `/docs impact` for full overview
-
-      4. If no documents are affected, skip silently (do not mention it).
-
-      This check is automatic — do not wait for user to ask.
-      This is a REMINDER only — do not modify documents without user confirmation.
+    trigger: changing code
+    instruction: Update documentation when code changes
     priority: required
 
   - id: version-marking

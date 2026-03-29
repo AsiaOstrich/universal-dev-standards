@@ -74,9 +74,14 @@ DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORT
 [根本原因描述]
 
 ### 行動項目
-| 行動 | 負責人 | 截止日期 | 優先級 |
-|------|--------|----------|--------|
-| [修復] | @name | YYYY-MM-DD | P0 |
+| 行動 | 負責人 | 截止日期 | 優先級 | 狀態 |
+|------|--------|----------|--------|------|
+| [修復] | @name | YYYY-MM-DD | P0 | 開啟 |
+
+### 事故指標
+- MTTR（平均恢復時間）：Xh Ym
+- 偵測時間：Xm（告警到指派 IC）
+- 再發性：首次 / 重複（連結至先前事故）
 ```
 
 ## 溝通模板
@@ -97,17 +102,51 @@ DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORT
 - `/incident --actions` - 列出未完成行動項目
 - `/incident --metrics` - 顯示事故趨勢指標
 
+## 改善追蹤
+
+### 行動項目生命週期
+
+```
+Open ──► In Progress ──► Done ──► Verified
+```
+
+| 狀態 | 說明 |
+|------|------|
+| **Open** | 已識別，未開始 |
+| **In Progress** | 進行中 |
+| **Done** | 已實作修復 |
+| **Verified** | 已驗證有效 |
+
+### 事故存放
+
+```
+docs/incidents/
+├── INC-2026-03-15-api-outage.md
+├── INC-2026-03-20-db-pool-exhaustion.md
+└── README.md    # 索引（選用）
+```
+
+### 追蹤指標
+
+| 指標 | 說明 |
+|------|------|
+| **MTTR** | 平均恢復時間 |
+| **MTTD** | 平均偵測時間 |
+| **Frequency** | 每期事故數 |
+| **Recurrence** | 重複根因比例 |
+| **Action Completion** | 行動項目完成率 |
+
 ## 下一步引導
 
 `/incident` 完成後，AI 助手應建議：
 
 > **事故回應指引已提供。建議下一步：**
-> - 執行 `/commit` 建立修復提交
+> - 執行 `/commit` 建立修復提交 ⭐ **推薦**
 > - 執行 `/review` 審查修復變更
 > - 執行 `/docs` 更新文件
 > - 執行 `/security` 檢查安全影響
-> - 執行 `/retrospective`（SEV-1/SEV-2 建議）
-> - 執行 `/incident --actions` 查看行動項目
+> - 執行 `/retrospective`（SEV-1/SEV-2 建議）— 團隊回顧
+> - 執行 `/incident --actions` — 查看未完成行動項目
 
 ## 參考
 

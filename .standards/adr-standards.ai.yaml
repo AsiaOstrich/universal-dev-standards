@@ -1,85 +1,59 @@
 # ADR Standards - AI Optimized
 # Source: core/adr-standards.md
 
-standard:
-  id: adr-standards
-  name: Architecture Decision Records
-  description: Lightweight, version-controlled records of significant architectural decisions
-  guidelines:
-    - "Record significant architectural decisions with context, options, and rationale"
-    - "Use standard ADR template (Context, Decision Drivers, Options, Outcome, Consequences)"
-    - "Store ADRs in docs/adr/ with sequential numbering (ADR-NNN)"
-    - "Never edit accepted ADRs; supersede with a new ADR instead"
+id: adr-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-26"
+  source: core/adr-standards.md
+  guide: skills/adr-assistant/guide.md
+  description: Architecture Decision Records for tracking significant technical decisions
 
-  meta:
-    version: "1.0.0"
-    updated: "2026-03-26"
-    source: core/adr-standards.md
-    guide: skills/adr-assistant/guide.md
-    description: Architecture Decision Records for tracking significant technical decisions
+# When to write an ADR
+trigger_conditions:
+  write_adr:
+    - "Choosing a framework, library, or platform"
+    - "Defining API contracts or data formats"
+    - "Changing deployment strategy"
+    - "Establishing coding patterns or conventions"
+    - "Making trade-offs with long-term consequences"
+    - "Deviating from established patterns"
+  skip_adr:
+    - "Routine dependency updates"
+    - "Bug fixes within existing architecture"
+    - "Code style or formatting decisions"
+    - "Trivial implementation choices"
 
-  template:
-    sections:
-      - name: "Status"
-        values: ["Proposed", "Accepted", "Deprecated", "Superseded by ADR-NNN"]
-      - name: "Date"
-        format: "YYYY-MM-DD"
-      - name: "Deciders"
-        description: "People involved in the decision"
-      - name: "Technical Story"
-        description: "Related SPEC-ID, Issue, or PR"
-      - name: "Context"
-        description: "Technical or business context"
-      - name: "Decision Drivers"
-        description: "Criteria that matter most"
-      - name: "Considered Options"
-        min_options: 2
-      - name: "Decision Outcome"
-        description: "Chosen option with justification"
-      - name: "Consequences"
-        subsections: ["Good", "Bad", "Neutral"]
-      - name: "Links"
-        description: "Related ADRs, SPECs, PRs"
+# ADR template structure
+template:
+  required_sections:
+    - "Status (Proposed | Accepted | Deprecated | Superseded)"
+    - "Date (YYYY-MM-DD)"
+    - "Context"
+    - "Considered Options (minimum 2)"
+    - "Decision Outcome with justification"
+    - "Consequences (Good / Bad)"
+  optional_sections:
+    - "Deciders"
+    - "Technical Story"
+    - "Decision Drivers"
+    - "Neutral consequences"
+    - "Links"
 
-  status_lifecycle:
-    transitions:
-      - from: Proposed
-        to: [Accepted]
-      - from: Accepted
-        to: [Deprecated, Superseded]
-    terminal_states: [Deprecated, Superseded]
-    rule: "Never revert Accepted to Proposed; create new ADR instead"
+# Status transitions
+status_lifecycle:
+  flow: "Proposed → Accepted → Deprecated | Superseded"
+  rule: "Never revert Accepted to Proposed; supersede instead"
 
-  storage:
-    directory: "docs/adr/"
-    naming: "ADR-NNN-short-description.md"
-    numbering: sequential
-    start: "001"
+# Storage
+storage:
+  directory: "docs/adr/"
+  naming: "ADR-NNN-short-description.md"
 
-  rules:
-    - id: six-month-rule
-      trigger: making architectural decision
-      instruction: "Write an ADR if someone might ask 'why?' in 6 months"
-      priority: recommended
-    - id: minimum-options
-      trigger: writing ADR
-      instruction: "Consider at least 2 options with pros and cons"
-      priority: required
-    - id: no-edit-accepted
-      trigger: updating ADR
-      instruction: "Never edit an accepted ADR; create a superseding ADR instead"
-      priority: required
-    - id: bidirectional-links
-      trigger: completing ADR
-      instruction: "Link ADR to related SPECs, code, and PRs bidirectionally"
-      priority: recommended
-    - id: write-at-decision-time
-      trigger: making decision
-      instruction: "Write ADR during or immediately after the decision, not weeks later"
-      priority: required
-
-  integration:
-    sdd: "Reference ADRs in Technical Design section of SDD specs"
-    code: "Add // See ADR-NNN comments for non-obvious patterns"
-    commit: "Include ADR-NNN in commit footer for traceability"
-    pr: "Reference relevant ADRs in PR descriptions"
+# Key rules
+rules:
+  - "Write ADR at decision time, not weeks later"
+  - "Include at least 2 considered options"
+  - "Never edit accepted ADRs; supersede instead"
+  - "Link bidirectionally to SPECs, code, and PRs"
+  - "Six-month rule: if someone might ask 'why?' later, write an ADR"

@@ -1,84 +1,43 @@
 # Retrospective Standards - AI Optimized
 # Source: core/retrospective-standards.md
 
-standard:
-  id: retrospective-standards
-  name: Retrospective Standards
-  description: Structured team retrospectives for Sprint and Release cycles with action item tracking
-  guidelines:
-    - "Hold retrospectives at the end of every Sprint/iteration and after each Release"
-    - "Use structured techniques (Start-Stop-Continue, Starfish, 4Ls, Sailboat)"
-    - "Limit to 1-3 action items per retrospective with single owners"
-    - "Review previous action items at the start of each retrospective"
+id: retrospective-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-26"
+  source: core/retrospective-standards.md
+  guide: skills/retrospective-assistant/guide.md
+  description: Structured team retrospectives with facilitation techniques and action item tracking
 
-  meta:
-    version: "1.0.0"
-    updated: "2026-03-26"
-    source: core/retrospective-standards.md
-    guide: skills/retrospective-assistant/guide.md
-    description: Structured team retrospectives with facilitation techniques and action item tracking
+# Types
+types:
+  sprint: "End of iteration, 30-60 min, focus on process/collaboration/tools"
+  release: "After release, 60-90 min, focus on quality/metrics/cross-team"
 
-  types:
-    sprint:
-      when: "End of every iteration/sprint"
-      duration: "30-60 minutes"
-      focus: "Team process, collaboration, tools"
-    release:
-      when: "After each release"
-      duration: "60-90 minutes"
-      focus: "Delivery quality, cycle metrics, cross-team coordination"
+# Techniques
+techniques:
+  start-stop-continue: "Default, quick — Start / Stop / Continue"
+  starfish: "Nuanced — More / Keep / Less / Start / Stop"
+  4ls: "Emotional — Liked / Learned / Lacked / Longed for"
+  sailboat: "Visual — Wind / Anchor / Rocks / Island"
 
-  techniques:
-    - id: start-stop-continue
-      name: Start-Stop-Continue
-      best_for: "Quick retrospectives, default choice"
-      categories: ["Start", "Stop", "Continue"]
-    - id: starfish
-      name: Starfish
-      best_for: "Nuanced analysis, deeper reflection"
-      categories: ["More of", "Keep", "Less of", "Start", "Stop"]
-    - id: 4ls
-      name: 4Ls
-      best_for: "Team building, emotional focus"
-      categories: ["Liked", "Learned", "Lacked", "Longed for"]
-    - id: sailboat
-      name: Sailboat
-      best_for: "Visual teams, creative discussions"
-      categories: ["Wind (strengths)", "Anchor (impediments)", "Rocks (risks)", "Island (goals)"]
+# Action items
+action_items:
+  max_per_retro: 3
+  required_fields: ["Action", "Owner", "Due Date", "Status"]
+  lifecycle: "Open → In Progress → Done | Cancelled"
+  stale_threshold: "2 retrospective cycles"
 
-  action_items:
-    format:
-      required: ["Action", "Owner", "Due Date", "Status"]
-      optional: ["Metric"]
-    lifecycle: "Open → In Progress → Done | Cancelled"
-    rules:
-      - "Maximum 3 action items per retrospective"
-      - "Each item must have a single owner (not 'the team')"
-      - "Stale items (2+ cycles) must be re-evaluated"
-      - "Review all open items at start of each retrospective"
+# Storage
+storage:
+  directory: "docs/retrospectives/"
+  naming: "RETRO-YYYY-MM-DD-[type]-[identifier].md"
 
-  storage:
-    directory: "docs/retrospectives/"
-    naming: "RETRO-YYYY-MM-DD-[type]-[identifier].md"
-
-  rules:
-    - id: regular-schedule
-      trigger: end of iteration
-      instruction: "Hold a retrospective at the end of every Sprint/iteration"
-      priority: required
-    - id: data-driven
-      trigger: starting retrospective
-      instruction: "Gather git log, metrics, and issue data before the session"
-      priority: recommended
-    - id: limit-actions
-      trigger: creating action items
-      instruction: "Limit to 1-3 action items with SMART criteria"
-      priority: required
-    - id: review-previous
-      trigger: starting retrospective
-      instruction: "Review previous retro's action items first"
-      priority: required
-    - id: rotate-technique
-      trigger: repeated retrospectives
-      instruction: "Vary facilitation technique to prevent retro fatigue"
-      priority: recommended
+# Key rules
+rules:
+  - "Hold retrospectives at end of every Sprint and after each Release"
+  - "Use structured techniques; rotate to prevent fatigue"
+  - "Limit to 1-3 SMART action items with single owners"
+  - "Always review previous action items first"
+  - "Gather data (git log, metrics) before the session"
+  - "Focus on process, not people — no blame"

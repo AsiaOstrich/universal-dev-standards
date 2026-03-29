@@ -56,6 +56,25 @@ language: [en, zh-TW]
 - `/docgen .usage-docs.yaml` - 從指定的設定檔產生文件
 - `/docgen --format cheatsheet` - 僅產生速查表
 
+## 檢查模式
+
+驗證產生的文件是否與原始檔案保持同步。
+
+**使用方式：**
+
+```bash
+# 檢查產生的文件是否同步
+./scripts/check-usage-docs-sync.sh
+
+# 自動修復不同步的文件
+./scripts/check-usage-docs-sync.sh --fix
+```
+
+- **檢查模式**（預設）：報告原始檔與產生文件之間的差異。若不同步則以非零狀態退出。
+- **修復模式**（`--fix`）：自動重新產生過期的文件。
+
+> **注意**：此檢查已整合至 `pre-release-check.sh` 的步驟 8（使用文件同步檢查）。
+
 ## 下一步引導
 
 `/docgen` 完成後，AI 助手應建議：

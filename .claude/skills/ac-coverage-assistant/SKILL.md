@@ -81,21 +81,29 @@ Scenario: 使用有效憑證登入
 ### 追溯層次
 
 ```
-第 0 層：需求 / 使用者故事 (REQ)
+第 0 層：需求 / 使用者故事（REQ）
     ↓ (定義)
-第 1 層：驗收條件 (AC)
+第 1 層：驗收條件（AC）
     ↓ (@AC 標註)
 第 2 層：測試案例
     ↓ (覆蓋)
-第 3 層：原始碼 (@implements)
+第 3 層：原始碼（@implements）
 ```
 
 ### 各層標註慣例
 
 ```typescript
-// 第 3→1 層：程式碼引用 AC
+// 第 3→1 層：程式碼參考 AC
 // @implements AC-1, AC-2
 function authenticate(user: string, pass: string) { ... }
+```
+
+```markdown
+<!-- 第 0→1 層：SPEC 中的需求 -->
+## 需求
+### REQ-1: 使用者驗證
+- AC-1: 給定有效憑證，當登入時，則通過驗證
+- AC-2: 給定無效憑證，當登入時，則拒絕登入
 ```
 
 ### 完整追溯報告
@@ -106,12 +114,15 @@ function authenticate(user: string, pass: string) { ... }
 | 需求 | AC | 測試 | 程式碼 | 狀態 |
 |------|-----|------|--------|------|
 | REQ-1 | AC-1 | auth.test.ts:15 | auth.ts:42 | ✅ 完整 |
+| REQ-1 | AC-2 | auth.test.ts:30 | auth.ts:58 | ✅ 完整 |
 | REQ-2 | AC-3 | — | dashboard.ts:10 | ⚠️ 無測試 |
+| REQ-3 | AC-4 | export.test.ts:5 | — | ⚠️ 無程式碼 |
 
 ### 缺口摘要
-- 第 0→1 層：N 個需求沒有 AC
-- 第 1→2 層：N 個 AC 沒有測試
-- 第 2→3 層：N 個測試沒有程式碼對應
+- 第 0→1 層：2 個需求缺少 AC
+- 第 1→2 層：1 個 AC 缺少測試
+- 第 2→3 層：0 個測試缺少程式碼對應
+- 第 3→1 層：3 個程式碼檔案缺少 AC 對應
 ```
 
 ### 反向追溯
@@ -122,6 +133,7 @@ function authenticate(user: string, pass: string) { ... }
 /ac-coverage --trace-code src/auth.ts
 # 輸出：
 # src/auth.ts:42 → @implements AC-1 → REQ-1 (SPEC-AUTH-001)
+# src/auth.ts:58 → @implements AC-2 → REQ-1 (SPEC-AUTH-001)
 ```
 
 ## 報告格式
@@ -132,7 +144,7 @@ function authenticate(user: string, pass: string) { ... }
 # AC 覆蓋率報告
 
 **規格**: SPEC-001 — 功能名稱
-**產生日期**: 2026-03-24
+**產生日期**: 2026-03-26
 **覆蓋率**: 75% (6/8 AC)
 
 ## 摘要
@@ -164,6 +176,8 @@ function authenticate(user: string, pass: string) { ... }
 
 - `/ac-coverage` - 分析當前專案的 AC 覆蓋率
 - `/ac-coverage path/to/SPEC.md` - 分析特定規格檔案的 AC 覆蓋率
+- `/ac-coverage --full` - 執行四層完整追溯分析
+- `/ac-coverage --trace-code <path>` - 從程式碼反向追溯到需求
 
 ## 下一步引導
 
@@ -171,7 +185,7 @@ function authenticate(user: string, pass: string) { ... }
 
 > **AC 覆蓋率分析完成。建議下一步：**
 > - 覆蓋率達標 → 執行 `/checkin` 通過品質關卡
-> - 有未覆蓋 AC → 執行 `/derive-tdd` 補齊測試
+> - 有未覆蓋 AC → 執行 `/derive-tdd` 補齊測試 ⭐ **推薦**
 > - 有部分覆蓋 AC → 檢查缺少的邊界情況
 > - 需要完整追溯 → 執行 `/ac-coverage --full`
 > - 反向追溯 → 執行 `/ac-coverage --trace-code <path>`
@@ -179,5 +193,6 @@ function authenticate(user: string, pass: string) { ... }
 ## 參考
 
 - 核心規範：[acceptance-criteria-traceability.md](../../../../core/acceptance-criteria-traceability.md)
+- SPEC：[SPEC-AC-COVERAGE.md](../../../../docs/specs/skills/SPEC-AC-COVERAGE.md)
 - 相關：[test-coverage-assistant](../test-coverage-assistant/SKILL.md)（程式碼層級覆蓋率）
 - 相關：[checkin-assistant](../checkin-assistant/SKILL.md)（品質關卡）
