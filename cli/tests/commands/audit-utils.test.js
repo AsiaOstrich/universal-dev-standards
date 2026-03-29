@@ -422,4 +422,66 @@ describe('Audit Utilities', () => {
       expect(url).toContain('github.com/AsiaOstrich/universal-dev-standards/issues/new');
     });
   });
+
+  // ========================
+  // Health Scorer (SPEC-SELFDIAG-001)
+  // ========================
+
+  describe('HealthScorer Integration', () => {
+    let runHealthScore, saveScoreSnapshot, loadTrend;
+
+    beforeEach(async () => {
+      const mod = await import('../../src/utils/health-scorer.js');
+      runHealthScore = mod.runHealthScore;
+      saveScoreSnapshot = mod.saveScoreSnapshot;
+      loadTrend = mod.loadTrend;
+    });
+
+    it('should produce score with all required fields for consumer mode', () => {
+      // Arrange: initialized project
+      const manifest = createValidManifest({
+        standards: ['core/testing.ai.yaml', 'core/commit-message.ai.yaml']
+      });
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), JSON.stringify(manifest));
+      writeFileSync(join(TEST_DIR, '.standards', 'testing.ai.yaml'), 'content');
+      writeFileSync(join(TEST_DIR, '.standards', 'commit-message.ai.yaml'), 'content');
+
+      // Act
+      const result = runHealthScore(TEST_DIR, { self: false });
+
+      // Assert (AC-1, AC-2)
+      expect(result.score).toBeGreaterThanOrEqual(0);
+      expect(result.score).toBeLessThanOrEqual(100);
+      expect(result.mode).toBe('consumer');
+      expect(result.dimensions.completeness).toBeDefined();
+      expect(result.dimensions.freshness).toBeDefined();
+      expect(result.dimensions.consistency).toBeDefined();
+      expect(result.dimensions.coverage).toBeDefined();
+      expect(result.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+      expect(result.error).toBeUndefined();
+    });
+
+    it('should produce score with self mode', () => {
+      const manifest = createValidManifest();
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), JSON.stringify(manifest));
+
+      const result = runHealthScore(TEST_DIR, { self: true });
+      expect(result.mode).toBe('self');
+    });
+
+    it('should save and load trend correctly', () => {
+      // Save two snapshots
+      const result1 = { score: 78, dimensions: {}, timestamp: '2026-03-22T10:00:00Z' };
+      const result2 = { score: 82, dimensions: {}, timestamp: '2026-03-29T10:00:00Z' };
+
+      saveScoreSnapshot(TEST_DIR, result1);
+      // Overwrite with result2 (same day in test)
+      saveScoreSnapshot(TEST_DIR, result2);
+
+      const trend = loadTrend(TEST_DIR);
+      expect(trend.entries.length).toBeGreaterThanOrEqual(1);
+    });
+  });
 });

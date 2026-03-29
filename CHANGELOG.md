@@ -9,6 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **標準自我診斷系統** (SPEC-SELFDIAG-001): 讓 UDS 從被動框架升級為能自我診斷的框架
+  - `uds audit --score [--self]`: 4 維度健康評分（完整度/新鮮度/一致性/覆蓋度）
+  - `--save / --trend`: 歷史趨勢追蹤與退化偵測
+  - `--ci --threshold N`: CI 模式，以 exit code 反映健康狀態
+  - `--format json`: 結構化 JSON 輸出
+- **Hook 學習迴路**: inject-standards.js 支援觸發統計記錄（opt-in）
+  - 啟用方式：在 `.uds/config.json` 設定 `{"hookStats": true}`
+  - 分析工具：`node scripts/analyze-hook-stats.mjs`
+  - 隱私保護：不記錄 prompt 內容，僅記錄匹配統計
+  - 檔案大小上限 1MB，自動截斷舊記錄
+- **排程自我診斷**: `.github/workflows/scheduled-health.yml`
+  - 每週一 09:00 UTC 自動執行健康評分
+  - 分數低於閾值時自動建立 GitHub Issue
+  - 支援 `workflow_dispatch` 手動觸發
+- **外部參考檢查**: `scripts/check-external-references.mjs`
+  - 掃描 `core/*.md` 和 `.standards/*.ai.yaml` 中的外部 URL
+  - 偵測失效連結（link-rot）和過期版本引用
+  - 支援離線模式（`--offline`）和 JSON 輸出（`--json`）
+- **跨產品標準效果回饋協議**: `specs/standards-effectiveness-schema.json`
+  - 定義 DevAP/VibeOps → UDS 的標準效果回饋 JSON 格式
+  - 匯總工具：`scripts/aggregate-effectiveness.mjs`
+- **版本清單產出**: `scripts/generate-version-manifest.mjs`
+  - Release 時產出 `.standards/version-manifest.json` 供消費者偵測版本漂移
+- **整合冒煙測試**: `cli/tests/integration/tool-outputs.test.js`
+  - 驗證全部 10 個 AI 工具的 `uds init` 產出格式
+
+### Changed
+- `.gitignore`: 新增 `.uds/` 排除本地統計資料
+
 ## [5.1.0-beta.3] - 2026-03-28
 
 > **Beta Release**: 依賴大版本升級、文件生命週期標準、CLI bug 修復。供早期使用者測試。

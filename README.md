@@ -58,7 +58,7 @@ npx universal-dev-standards init
 | **Core Standards** | 53 | Universal development guidelines |
 | **AI Skills** | 43 | Interactive skills |
 | **Slash Commands** | 45 | Quick actions |
-| **CLI Commands** | 6 | list, init, configure, check, update, skills |
+| **CLI Commands** | 7 | list, init, configure, check, update, skills, audit |
 <!-- UDS_STATS_TABLE_END -->
 
 > **What's New in 5.0?** See [Pre-release Notes](docs/PRE-RELEASE.md) for details on new features.

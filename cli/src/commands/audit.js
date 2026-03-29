@@ -16,6 +16,7 @@ import { checkbox, input } from '@inquirer/prompts';
 import { createRequire } from 'node:module';
 import { readManifest, isInitialized } from '../utils/copier.js';
 import { runHealthCheck } from '../utils/health-checker.js';
+import { runHealthScore, saveScoreSnapshot, loadTrend } from '../utils/health-scorer.js';
 import { analyzePatterns } from '../utils/pattern-analyzer.js';
 import { detectFrictions } from '../utils/friction-detector.js';
 import {
@@ -40,12 +41,23 @@ const pkg = require('../../package.json');
  * @param {boolean} options.gh - Force gh CLI for submission
  * @param {string} options.format - Output format (json)
  * @param {boolean} options.quiet - Summary only
+ * @param {boolean} options.score - Run health score analysis
+ * @param {boolean} options.self - Self mode (UDS repo)
+ * @param {boolean} options.save - Save score snapshot
+ * @param {boolean} options.trend - Show score trend
+ * @param {boolean} options.ci - CI mode (exit code based on threshold)
+ * @param {number} options.threshold - Score threshold for CI mode
  */
 export async function auditCommand(options = {}) {
   const projectPath = process.cwd();
   const isJson = options.format === 'json';
   const isQuiet = options.quiet || false;
   const isReport = options.report || false;
+
+  // Handle --score mode
+  if (options.score) {
+    return handleScoreMode(projectPath, options);
+  }
 
   // Determine which layers to run
   const hasLayerFlag = options.health || options.patterns || options.friction;
@@ -366,6 +378,97 @@ async function handleReport(auditResult, options, msg) {
     console.log(chalk.yellow(msg.copiedToClipboard || 'Full report copied to clipboard'));
     console.log(chalk.gray(`Create issue: https://github.com/${REPO}/issues/new`));
   }
+}
+
+/**
+ * Handle --score mode (SPEC-SELFDIAG-001)
+ * @param {string} projectPath
+ * @param {Object} options
+ */
+async function handleScoreMode(projectPath, options) {
+  const isJson = options.format === 'json';
+  const isCi = options.ci || false;
+  const threshold = options.threshold ? Number(options.threshold) : 75;
+
+  const result = runHealthScore(projectPath, { self: !!options.self });
+
+  // Handle errors
+  if (result.error) {
+    if (isCi) {
+      console.log('0');
+      process.exit(1);
+    }
+    if (isJson) {
+      console.log(JSON.stringify(result, null, 2));
+    } else {
+      console.log(chalk.red(`Error: ${result.error}`));
+    }
+    process.exit(1);
+  }
+
+  // Save snapshot if requested
+  if (options.save) {
+    saveScoreSnapshot(projectPath, result);
+  }
+
+  // CI mode: just output score and exit
+  if (isCi) {
+    console.log(String(result.score));
+    process.exit(result.score >= threshold ? 0 : 1);
+  }
+
+  // JSON output
+  if (isJson) {
+    const output = { ...result };
+    if (options.trend) {
+      output.trend = loadTrend(projectPath);
+    }
+    console.log(JSON.stringify(output, null, 2));
+    return;
+  }
+
+  // Terminal output
+  console.log();
+  console.log(chalk.bold('Standards Health Score'));
+  console.log(chalk.gray('═'.repeat(50)));
+  console.log();
+
+  const scoreColor = result.score >= 80 ? chalk.green
+    : result.score >= 60 ? chalk.yellow
+      : chalk.red;
+  console.log(`  Overall: ${scoreColor(chalk.bold(`${result.score}/100`))}`);
+  console.log(`  Mode:    ${result.mode}`);
+  console.log();
+
+  // Dimension details
+  for (const [name, dim] of Object.entries(result.dimensions)) {
+    const dimColor = dim.score >= 80 ? chalk.green
+      : dim.score >= 60 ? chalk.yellow
+        : chalk.red;
+    const label = name.charAt(0).toUpperCase() + name.slice(1);
+    console.log(`  ${label}: ${dimColor(`${dim.score}/100`)}`);
+  }
+
+  // Trend
+  if (options.trend) {
+    const trend = loadTrend(projectPath);
+    console.log();
+    console.log(chalk.bold('Trend'));
+    console.log(chalk.gray('─'.repeat(40)));
+
+    if (trend.entries.length === 0) {
+      console.log(chalk.gray('  No history. Use --save to start tracking.'));
+    } else {
+      for (const entry of trend.entries) {
+        console.log(`  ${entry.date}: ${entry.score}`);
+      }
+      if (trend.degraded) {
+        console.log(chalk.red(`  ⚠ Degradation detected: ${trend.change} points`));
+      }
+    }
+  }
+
+  console.log();
 }
 
 /**
