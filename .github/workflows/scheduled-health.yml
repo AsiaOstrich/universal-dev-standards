@@ -1,0 +1,72 @@
+name: Weekly Standards Health Check
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday 09:00 UTC
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: cd cli && npm ci
+
+      - name: Run health score
+        id: health
+        run: |
+          cd cli
+          SCORE=$(node bin/uds.js audit --score --self --ci --threshold 0 2>&1 || echo "0")
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          node bin/uds.js audit --score --self --format json > ../health-report.json
+
+      - name: Run dependency audit
+        run: cd cli && npm audit --json > ../npm-audit.json 2>&1 || true
+
+      - name: Check for degradation
+        id: check
+        run: |
+          SCORE=${{ steps.health.outputs.score }}
+          echo "Current score: $SCORE"
+          if [ "$SCORE" -lt 75 ]; then
+            echo "degraded=true" >> $GITHUB_OUTPUT
+            echo "reason=Score below threshold (75)" >> $GITHUB_OUTPUT
+          else
+            echo "degraded=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create issue if degraded
+        if: steps.check.outputs.degraded == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let report = {};
+            try {
+              report = JSON.parse(fs.readFileSync('health-report.json', 'utf-8'));
+            } catch (e) {
+              report = { score: '${{ steps.health.outputs.score }}', error: 'Could not parse report' };
+            }
+
+            const dims = report.dimensions || {};
+            const dimLines = Object.entries(dims)
+              .map(([name, dim]) => `- **${name}**: ${dim.score}/100`)
+              .join('\n');
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `⚠️ 標準健康分數下降: ${report.score}/100`,
+              body: `## 自動偵測\n\n**Overall Score**: ${report.score}/100\n\n### 維度分數\n${dimLines}\n\n### 觸發原因\n${{ steps.check.outputs.reason }}\n\n---\n*此 Issue 由 scheduled-health workflow 自動建立*`,
+              labels: ['auto-detected', 'standards-health']
+            });

@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/AsiaOstrich/universal-dev-standards/specs/standards-effectiveness-schema.json",
+  "title": "Standards Effectiveness Report",
+  "description": "Cross-product schema for reporting UDS standards effectiveness from DevAP/VibeOps executions",
+  "type": "object",
+  "required": ["schema_version", "source", "timestamp", "standards_applied"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["vibeops", "devap", "manual"]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "project_type": {
+      "type": "string",
+      "enum": ["web-api", "cli", "library", "web-app", "mobile", "other"]
+    },
+    "standards_applied": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["standard_id", "effectiveness"],
+        "properties": {
+          "standard_id": {
+            "type": "string",
+            "description": "UDS standard identifier (e.g., 'testing', 'commit-message')"
+          },
+          "version": {
+            "type": "string"
+          },
+          "applied_by_agent": {
+            "type": "string",
+            "description": "Agent that applied this standard (e.g., 'reviewer', 'builder')"
+          },
+          "effectiveness": {
+            "type": "object",
+            "required": ["was_referenced", "was_followed"],
+            "properties": {
+              "was_referenced": {
+                "type": "boolean",
+                "description": "Whether the standard was loaded/referenced during execution"
+              },
+              "was_followed": {
+                "type": "boolean",
+                "description": "Whether the output complied with the standard"
+              },
+              "violation_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "friction_reported": {
+                "type": "boolean"
+              },
+              "friction_detail": {
+                "type": "string"
+              },
+              "quality_impact": {
+                "type": ["object", "null"],
+                "properties": {
+                  "before_score": { "type": ["number", "null"] },
+                  "after_score": { "type": ["number", "null"] },
+                  "dimension": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "iteration_data": {
+      "type": "object",
+      "properties": {
+        "total_iterations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "iteration_causes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["iteration", "cause"],
+            "properties": {
+              "iteration": { "type": "integer" },
+              "cause": { "type": "string" },
+              "related_standard": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "unmatched_issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["issue", "category"],
+        "properties": {
+          "issue": { "type": "string" },
+          "category": { "type": "string" },
+          "suggested_standard": { "type": "string" }
+        }
+      }
+    }
+  }
+}

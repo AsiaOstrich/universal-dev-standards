@@ -198,6 +198,12 @@ program
   .option('--gh', 'Force gh CLI for submission')
   .option('--format <format>', 'Output format (json)')
   .option('--quiet', 'Summary only')
+  .option('--score', 'Run multi-dimensional health score analysis')
+  .option('--self', 'Self mode: analyze UDS repo itself (use with --score)')
+  .option('--save', 'Save score snapshot for trend tracking (use with --score)')
+  .option('--trend', 'Show historical score trend (use with --score)')
+  .option('--ci', 'CI mode: output score only, exit 1 if below threshold (use with --score)')
+  .option('--threshold <n>', 'Score threshold for CI mode (default: 75)', '75')
   .action(auditCommand);
 
 program

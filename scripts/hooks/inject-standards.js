@@ -11,7 +11,7 @@
  * Error handling: failures are non-blocking (exit 0 with empty output)
  */
 
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync, appendFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -132,6 +132,32 @@ async function main() {
     }
 
     const matchedStandards = matchDomains(prompt, manifest);
+
+    // Record hook stats (silent, non-blocking)
+    try {
+      const configPath = join(cwd, '.uds', 'config.json');
+      let statsEnabled = true;
+      try {
+        if (existsSync(configPath)) {
+          const config = JSON.parse(readFileSync(configPath, 'utf-8'));
+          if (config.hookStats === false) statsEnabled = false;
+        }
+      } catch { /* default enabled */ }
+
+      if (statsEnabled) {
+        const statsDir = join(cwd, '.uds');
+        if (!existsSync(statsDir)) mkdirSync(statsDir, { recursive: true });
+        const statsPath = join(statsDir, 'hook-stats.jsonl');
+        const record = JSON.stringify({
+          timestamp: new Date().toISOString(),
+          matched_standards: matchedStandards.map(s => s.replace(/.*\//, '').replace('.ai.yaml', '')),
+          matched_count: matchedStandards.length,
+          total_available: Object.keys(manifest.domains || {}).length,
+          prompt_length: prompt.length
+        });
+        appendFileSync(statsPath, record + '\n');
+      }
+    } catch { /* silent failure — never block hook */ }
 
     if (matchedStandards.length === 0) {
       process.exit(0);
