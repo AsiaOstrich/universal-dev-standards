@@ -1565,6 +1565,18 @@
       "description": "Sub-agent dispatch, parallel coordination, and status protocol (DONE/DONE_WITH_CONCERNS/NEEDS_CONTEXT/BLOCKED)"
     },
     {
+      "id": "agent-communication-protocol",
+      "name": "Agent Communication Protocol",
+      "nameZh": "跨專案 Agent 通訊協定",
+      "source": {
+        "human": "core/agent-communication-protocol.md",
+        "ai": "ai/standards/agent-communication-protocol.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": null,
+      "description": "Unified status codes, envelope protocol, structured handoff, and versioning for cross-project agent communication"
+    },
+    {
       "id": "model-selection",
       "name": "AI Model Selection Strategy",
       "nameZh": "AI 模型分級選擇策略",

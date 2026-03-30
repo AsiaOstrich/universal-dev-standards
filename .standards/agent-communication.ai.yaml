@@ -1,0 +1,143 @@
+# Agent Communication Protocol - AI Optimized
+# Source: core/agent-communication-protocol.md
+# Spec: docs/specs/SPEC-AGENT-COMM-001-agent-communication-protocol.md
+
+standard:
+  id: agent-communication
+  name: Agent Communication Protocol
+  description: 跨專案 Agent 統一通訊協定
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-30"
+    source: core/agent-communication-protocol.md
+    description: 統一狀態碼、訊息信封、結構化交接與協定版本管理
+    scope: universal
+
+  guidelines:
+    - "Agent 間通訊必須使用 Envelope 格式，禁止 prompt injection"
+    - "狀態碼必須使用統一 8 碼超集：success / success_partial / failed / blocked / needs_context / skipped / timeout / unknown"
+    - "上下文傳遞必須使用 Handoff 物件，引用 artifact_id 而非嵌入完整內容"
+    - "未知狀態碼映射為 unknown，記錄警告，不中斷執行"
+    - "同 MAJOR 版本保證向後相容，不同 MAJOR 回報 VERSION_INCOMPATIBLE"
+
+  status_protocol:
+    - unified: success
+      uds: DONE
+      devap: success
+      vibeops: success
+    - unified: success_partial
+      uds: DONE_WITH_CONCERNS
+      devap: done_with_concerns
+      vibeops: partial
+    - unified: failed
+      uds: null
+      devap: failed
+      vibeops: failure
+    - unified: blocked
+      uds: BLOCKED
+      devap: blocked
+      vibeops: null
+    - unified: needs_context
+      uds: NEEDS_CONTEXT
+      devap: needs_context
+      vibeops: null
+    - unified: skipped
+      uds: null
+      devap: skipped
+      vibeops: null
+    - unified: timeout
+      uds: null
+      devap: timeout
+      vibeops: null
+    - unified: unknown
+      uds: null
+      devap: null
+      vibeops: null
+
+  envelope:
+    version: "1.0"
+    required_fields:
+      - field: envelope_version
+        type: string
+        description: "協定版本（MAJOR.MINOR）"
+      - field: message_id
+        type: uuid
+        description: "訊息唯一 ID"
+      - field: source
+        type: object
+        description: "發送者 { agent_id, agent_type, project }"
+      - field: target
+        type: object
+        description: "接收者 { agent_id?, agent_type }（broadcast 時可省略）"
+      - field: status
+        type: string
+        description: "統一狀態碼"
+      - field: timestamp
+        type: iso8601
+        description: "訊息建立時間"
+      - field: payload.artifact_type
+        type: string
+        enum: [spec, code, test, review, plan, design]
+      - field: payload.artifact_id
+        type: string
+        description: "Artifact 唯一 ID"
+    optional_fields:
+      - field: correlation_id
+        description: "關聯 ID（同一任務鏈）"
+      - field: parent_message_id
+        description: "父訊息 ID（回應時填寫）"
+      - field: metadata
+        description: "擴展元資料（model_tier, token_usage, duration_ms）"
+      - field: concerns
+        description: "success_partial 時的疑慮列表"
+
+  handoff:
+    required_fields:
+      - field: from
+        description: "發送者 { agent_id, agent_type, message_id }"
+      - field: to
+        description: "接收者 { agent_type }"
+      - field: artifacts
+        description: "Artifact 引用陣列 [{ artifact_id, artifact_type, summary }]"
+    optional_fields:
+      - field: decision_log
+        description: "決策記錄 [{ decision, reason, agent_id, timestamp }]"
+      - field: pending_items
+        description: "待處理事項 [{ item, priority, context? }]"
+      - field: constraints
+        description: "約束條件 [string]"
+
+  rules:
+    - id: ACP-001
+      trigger: "訊息缺少必要欄位"
+      action: "拒絕並回報 INVALID_ENVELOPE，指出缺少的欄位"
+      priority: critical
+    - id: ACP-002
+      trigger: "收到未知狀態碼"
+      action: "映射為 unknown，記錄警告，繼續執行"
+      priority: high
+    - id: ACP-003
+      trigger: "收到不同 MAJOR 版本的訊息"
+      action: "回報 VERSION_INCOMPATIBLE，附帶支援的版本範圍"
+      priority: high
+    - id: ACP-004
+      trigger: "收到同 MAJOR 更高 MINOR 版本的訊息"
+      action: "解析已知欄位，忽略未知欄位，不報錯"
+      priority: medium
+    - id: ACP-005
+      trigger: "建立 Handoff"
+      action: "引用 artifact_id，不嵌入完整內容"
+      priority: medium
+
+physical_spec:
+  type: checklist
+  validator:
+    type: ai_review
+    rule: "檢查 Agent 通訊是否遵循 Envelope 格式、統一狀態碼、Handoff 結構"
+  checks:
+    - "訊息是否使用 Envelope 格式（非 prompt injection）"
+    - "狀態碼是否為 8 碼超集之一"
+    - "Handoff 是否引用 artifact_id 而非嵌入內容"
+    - "decision_log 每筆是否包含 decision, reason, agent_id, timestamp"
+    - "版本不相容時是否回報 VERSION_INCOMPATIBLE"
