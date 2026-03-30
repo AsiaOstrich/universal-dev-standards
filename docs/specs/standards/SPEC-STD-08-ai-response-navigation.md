@@ -1,6 +1,6 @@
 # [SPEC-STD-08] Feature: AI Response Navigation Standard
 
-**Status**: Implemented
+**Status**: Archived
 
 > **Language**: English | 繁體中文
 

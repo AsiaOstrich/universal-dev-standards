@@ -1,6 +1,6 @@
 # [SPEC-ADR-001] Feature: Architecture Decision Records (ADR) Skill
 
-- **Status**: Implemented
+- **Status**: Archived
 - **Created**: 2026-03-26
 - **Author**: AI-assisted
 - **Priority**: High

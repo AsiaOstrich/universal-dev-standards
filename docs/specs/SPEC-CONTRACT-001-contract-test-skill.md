@@ -1,6 +1,6 @@
 # [SPEC-CONTRACT-001] Feature: Contract Test Skill
 
-- **Status**: Implemented
+- **Status**: Archived
 - **Created**: 2026-03-26
 - **Priority**: Medium
 - **Scope**: universal

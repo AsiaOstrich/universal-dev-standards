@@ -1,6 +1,6 @@
 # [SPEC-AC-002] Feature: Four-Layer Traceability Matrix
 
-- **Status**: Implemented
+- **Status**: Archived
 - **Created**: 2026-03-26
 - **Priority**: High
 - **Scope**: universal

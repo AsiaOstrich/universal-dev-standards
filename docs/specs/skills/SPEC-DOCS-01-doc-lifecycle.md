@@ -31,7 +31,7 @@ Code Changes → sync-updates (auto reminder + command suggestions)
 
 ## Status
 
-- **Status**: Implemented
+- **Status**: Archived
 - **Created**: 2026-03-25
 - **Spec Type**: Retroactive (features already implemented, spec created for traceability)
 

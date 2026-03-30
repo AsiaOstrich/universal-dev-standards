@@ -1,6 +1,6 @@
 # [SPEC-SELFDIAG-001] Feature: Standards Self-Diagnosis System
 
-- **Status**: Implemented
+- **Status**: Archived
 - **Created**: 2026-03-29
 - **Author**: AI-assisted
 - **Priority**: High

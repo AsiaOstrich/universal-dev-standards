@@ -1,6 +1,6 @@
 # [SPEC-DISCOVER-002] Feature: Persistent Risk Register
 
-- **Status**: Implemented
+- **Status**: Archived
 - **Created**: 2026-03-26
 - **Priority**: High
 - **Scope**: universal

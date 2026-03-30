@@ -1,5 +1,7 @@
 # ATDD Traceability: SPEC-DOCLC-001
 
+- **Status**: Archived
+
 ## AC → Requirement → Scenario 追蹤矩陣
 
 | AC | Requirement | Scenario | 驗證方式 | 狀態 |

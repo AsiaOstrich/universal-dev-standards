@@ -1,6 +1,6 @@
 # [SPEC-METRICS-002] Feature: Technical Debt Quantification
 
-- **Status**: Implemented
+- **Status**: Archived
 - **Created**: 2026-03-26
 - **Priority**: Medium
 - **Scope**: universal

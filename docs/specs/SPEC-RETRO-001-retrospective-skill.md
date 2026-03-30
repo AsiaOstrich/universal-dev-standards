@@ -1,6 +1,6 @@
 # [SPEC-RETRO-001] Feature: Retrospective Skill
 
-- **Status**: Implemented
+- **Status**: Archived
 - **Created**: 2026-03-26
 - **Author**: AI-assisted
 - **Priority**: High

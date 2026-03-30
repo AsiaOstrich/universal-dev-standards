@@ -1,6 +1,6 @@
 # [SPEC-WORKFLOW-01] 修改 .standards/ 檔案時自動觸發審計提醒
 
-**Status**: Implemented
+**Status**: Archived
 **Priority**: P2
 **Scope**: universal
 **Last Updated**: 2026-03-30

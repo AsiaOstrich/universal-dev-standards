@@ -1,6 +1,6 @@
 # [SPEC-DOCLC-001] Feature: Documentation Lifecycle Standard
 
-- **Status**: Implemented
+- **Status**: Archived
 - **Created**: 2026-03-27
 - **Author**: AI-assisted
 - **Priority**: Medium

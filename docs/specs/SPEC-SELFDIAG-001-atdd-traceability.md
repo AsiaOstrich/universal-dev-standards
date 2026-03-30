@@ -1,5 +1,7 @@
 # SPEC-SELFDIAG-001 ATDD Traceability Matrix
 
+- **Status**: Archived
+
 > [Source: docs/specs/SPEC-SELFDIAG-001-standards-self-diagnosis.md]
 > [Generated] AC ↔ BDD ↔ TDD 追蹤表
 
