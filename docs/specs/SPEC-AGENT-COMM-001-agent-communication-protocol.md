@@ -3,7 +3,7 @@
 | 欄位 | 值 |
 |------|-----|
 | **SPEC-ID** | SPEC-AGENT-COMM-001 |
-| **狀態** | Approved |
+| **狀態** | Archived |
 | **版本** | 1.0.0 |
 | **作者** | AsiaOstrich Team |
 | **建立日期** | 2026-03-30 |
