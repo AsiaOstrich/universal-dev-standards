@@ -65,11 +65,13 @@
     "ora": "^9.3.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@vitest/coverage-v8": "^4.1.2",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
-    "eslint": "^8.56.0",
+    "eslint": "^10.1.0",
     "glob": "^13.0.1",
+    "globals": "^17.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "vitest": "^4.1.2"
