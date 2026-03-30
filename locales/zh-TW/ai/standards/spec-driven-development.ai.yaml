@@ -3,8 +3,8 @@
 
 id: spec-driven-development
 meta:
-  version: "1.2.0"
-  updated: "2025-12-30"
+  version: "1.3.0"
+  updated: "2026-03-30"
   source: methodologies/guides/sdd-guide.md
   description: 規格驅動開發工作流程，在實作前先完成文件規範
   language: zh-TW
@@ -76,6 +76,47 @@ spec_template:
       description: 潛在風險和緩解策略
       required: false
 
+    - name: 輸入/輸出合約
+      description: 結構化的 I/O 合約，含欄位層級定義
+      required: false
+      template: |
+        ### 輸入合約
+        | 欄位 | 型別 | 必填 | 來源 | 說明 |
+        |------|------|------|------|------|
+
+        ### 輸出合約
+        | 欄位 | 型別 | 保證 | 消費者 | 說明 |
+        |------|------|------|--------|------|
+
+    - name: 假設與待釐清
+      description: 使用反幻覺標籤追蹤假設，並設定待釐清問題的期限
+      required: true
+      note: 僅對新規格為必填；現有規格不需回溯新增此章節
+      template: |
+        ### 假設
+        | # | 假設內容 | 影響範圍 | 驗證方式 | 狀態 |
+        |---|---------|---------|---------|------|
+        | A1 | [Assumption] 說明 | AC-N | 如何驗證 | 未驗證 |
+
+        ### 待釐清
+        | # | 問題 | 影響 AC | 負責人 | 期限 |
+        |---|------|--------|--------|------|
+
+    - name: AI Agent 行為
+      description: AI Agent 的角色、處理規則、品質檢查和限制約束
+      required: false
+      template: |
+        ### 角色與職責
+        ### 處理規則
+        | # | 規則 | 優先級 |
+        |---|------|-------|
+
+        ### 品質檢查（自我驗證）
+        - [ ] [檢查項目]
+
+        ### 限制與約束
+        - 禁止 [行為]
+
 integration:
   commit_messages:
     instruction: 在 commit 訊息中引用規格 ID
@@ -137,6 +178,34 @@ rules:
     trigger: 規格實作已驗證
     instruction: 歸檔規格並附上 commits/PRs 連結
     priority: required
+
+  - id: ac-yaml-preferred
+    trigger: 規格有超過 3 個驗收標準
+    instruction: 建立 .ac.yaml sidecar 以供機器可讀的 AC 解析
+    priority: recommended
+
+  - id: assumptions-required
+    trigger: 建立新規格
+    instruction: 包含假設與待釐清章節，使用反幻覺標籤（[Assumption]、[Need Confirmation]）
+    priority: required
+
+  - id: assumption-tags-resolved
+    trigger: 規格核准
+    instruction: 所有 [Assumption] 和 [Need Confirmation] 標籤必須在核准前解決
+    priority: required
+
+sidecar_files:
+  - name: AC YAML Sidecar
+    pattern: "<SPEC-ID>.ac.yaml"
+    schema: specs/schemas/acceptance-criteria.schema.yaml
+    description: 機器可讀的驗收標準（建議在 >3 個 AC 時使用）
+    priority: recommended
+    fallback: Pipeline 回退到 regex 解析 markdown AC（向後相容）
+
+  - name: I/O Schema
+    pattern: "specs/contracts/<SPEC-ID>.{input,output}.schema.json"
+    description: 可選的正式 I/O 驗證 schema，用於跨規格資料流驗證
+    priority: optional
 
 best_practices:
   do:

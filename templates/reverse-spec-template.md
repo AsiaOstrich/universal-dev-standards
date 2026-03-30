@@ -267,6 +267,27 @@ So that I can access my personal dashboard and data.
 
 ---
 
+## Assumptions & Open Questions
+
+### Assumptions
+
+| # | Assumption | Impact Scope | Verification Method | Status |
+|---|-----------|--------------|---------------------|--------|
+| A1 | [Assumption] <!-- describe assumption --> | <!-- affected area --> | <!-- how to verify --> | Unverified |
+
+<!-- Example:
+| A1 | [Assumption] Auth middleware validates JWT before reaching controller | AuthController, UserController | Check middleware chain in app.ts | Unverified |
+| A2 | [Assumption] Database indexes exist for all query patterns | Performance | Run EXPLAIN on common queries | Unverified |
+-->
+
+### Open Questions
+
+| # | Question | Affected Area | Owner | Deadline |
+|---|---------|--------------|-------|----------|
+| Q1 | [Need Confirmation] <!-- question --> | <!-- area --> | <!-- who --> | <!-- when --> |
+
+---
+
 ## Out of Scope
 
 [Unknown] **Requires human input**

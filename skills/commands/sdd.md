@@ -105,6 +105,10 @@ Check project config: `.uds/config.yaml` → `workflow.enforcement_mode`
 3. 所有 AC 使用 Given/When/Then 格式
 4. 為 spec 指定 ID（查看 `docs/specs/` 目錄決定下一個編號）
 5. 撰寫 Test Plan
+6. 填寫 Assumptions & Open Questions（必填），使用 `[Assumption]`/`[Need Confirmation]` 標籤
+7. IF spec 有 >3 ACs → 建議建立 `.ac.yaml` sidecar（參考 `specs/schemas/acceptance-criteria.schema.yaml`）
+8. IF spec 定義 API/data flow → 建議填寫 I/O Contract 章節
+9. IF spec 涉及 AI Agent 行為 → 填寫 AI Agent Behavior 章節
 
 **Decision: Spec 放置位置**
 - IF 是 CLI 相關 → `docs/specs/cli/`
@@ -130,6 +134,8 @@ Check project config: `.uds/config.yaml` → `workflow.enforcement_mode`
 | Test Plan 對應 | Test Plan 涵蓋所有 AC |
 | 範圍一致性 | 沒有超出 discuss 鎖定的範圍 |
 | 無歧義 | 沒有模糊用語（「等等」「適當地」） |
+| 假設標記完整性 | 所有假設都有 `[Assumption]` 標籤和驗證方式 |
+| 待釐清追蹤 | 所有 `[Need Confirmation]` 項目有負責人和期限 |
 
 3. 輸出 Review 結果表格
 4. 更新 spec status 為 `Review`
@@ -285,6 +291,8 @@ Get stakeholder sign-off before implementation begins. Update spec status from D
 - [ ] Acceptance criteria are testable | 驗收標準可測試
 - [ ] Technical design is feasible | 技術設計可行
 - [ ] Test plan covers all AC | 測試計畫涵蓋所有 AC
+- [ ] All [Assumption] tags resolved (verified or invalidated) | 所有假設標籤已解決
+- [ ] All [Need Confirmation] items answered | 所有待確認項目已回答
 
 **Approval metadata added to spec | 核准元資料：**
 ```yaml
@@ -502,6 +510,40 @@ Brief description of the feature.
 ## Acceptance Criteria
 - AC-1: Given [precondition], When [action], Then [expected outcome]
 - AC-2: Given [precondition], When [action], Then [expected outcome]
+
+## Input/Output Contract (Optional) / 輸入輸出合約（可選）
+
+### Input Contract
+| Field | Type | Required | Source | Description |
+|-------|------|----------|--------|-------------|
+
+### Output Contract
+| Field | Type | Guarantee | Consumer | Description |
+|-------|------|-----------|----------|-------------|
+
+## Assumptions & Open Questions / 假設與待釐清
+
+### Assumptions / 假設
+| # | Assumption | Impact Scope | Verification Method | Status |
+|---|-----------|--------------|---------------------|--------|
+| A1 | [Assumption] description | AC-N | How to verify | Unverified/Verified/Invalid |
+
+### Open Questions / 待釐清
+| # | Question | Affected AC | Owner | Deadline |
+|---|---------|------------|-------|----------|
+
+## AI Agent Behavior (Optional) / AI Agent 行為（可選）
+
+### Role & Responsibilities / 角色與職責
+### Processing Rules / 處理規則
+| # | Rule | Priority |
+|---|------|----------|
+
+### Quality Checks (Self-Validation) / 品質檢查（自我驗證）
+- [ ] [Check item]
+
+### Constraints / 限制與約束
+- Must not [behavior]
 
 ## Test Plan
 - [ ] Unit tests for [component]

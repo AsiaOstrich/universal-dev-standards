@@ -1,0 +1,72 @@
+# Acceptance Criteria YAML Sidecar Schema
+# Usage: Create <SPEC-ID>.ac.yaml alongside your spec markdown file
+# Example: docs/specs/SPEC-001-feature.ac.yaml
+#
+# Pipeline reads YAML first, falls back to regex parsing of markdown (backward compatible)
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: Acceptance Criteria YAML Sidecar
+description: Machine-readable acceptance criteria for automated pipeline parsing
+version: "1.0.0"
+
+type: object
+required:
+  - spec_id
+  - acceptance_criteria
+
+properties:
+  spec_id:
+    type: string
+    pattern: "^SPEC-"
+    description: Reference to the parent spec document (e.g., SPEC-001)
+
+  acceptance_criteria:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required:
+        - id
+        - title
+        - given
+        - when
+        - then
+      properties:
+        id:
+          type: string
+          pattern: "^AC-\\d+"
+          description: Unique AC identifier (e.g., AC-1, AC-2)
+        title:
+          type: string
+          description: Short descriptive title for the acceptance criterion
+        given:
+          type: string
+          description: Precondition (Given clause)
+        when:
+          type: string
+          description: Action or trigger (When clause)
+        then:
+          type: string
+          description: Expected outcome (Then clause)
+        tags:
+          type: array
+          items:
+            type: string
+          description: Classification tags (e.g., happy-path, edge-case, security)
+        test_mapping:
+          type: object
+          description: Link to the test that verifies this AC
+          properties:
+            file:
+              type: string
+              description: Relative path to the test file
+            line:
+              type: integer
+              description: Line number of the test case
+            status:
+              type: string
+              enum:
+                - covered
+                - partial
+                - uncovered
+              description: Coverage status of this AC

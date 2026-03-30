@@ -3,8 +3,8 @@
 
 id: spec-driven-development
 meta:
-  version: "1.2.0"
-  updated: "2025-12-30"
+  version: "1.3.0"
+  updated: "2026-03-30"
   source: methodologies/guides/sdd-guide.md
   description: Spec-Driven Development workflow where documentation precedes implementation
 
@@ -79,6 +79,47 @@ spec_template:
       description: Potential risks and mitigation strategies
       required: false
 
+    - name: Input/Output Contract
+      description: Structured I/O contract with field-level definitions for inputs and outputs
+      required: false
+      template: |
+        ### Input Contract
+        | Field | Type | Required | Source | Description |
+        |-------|------|----------|--------|-------------|
+
+        ### Output Contract
+        | Field | Type | Guarantee | Consumer | Description |
+        |-------|------|-----------|----------|-------------|
+
+    - name: Assumptions & Open Questions
+      description: Tracked assumptions with anti-hallucination tags and open questions with deadlines
+      required: true
+      note: Required for new specs only; existing specs are not required to retroactively add this section
+      template: |
+        ### Assumptions
+        | # | Assumption | Impact Scope | Verification Method | Status |
+        |---|-----------|--------------|---------------------|--------|
+        | A1 | [Assumption] description | AC-N | How to verify | Unverified |
+
+        ### Open Questions
+        | # | Question | Affected AC | Owner | Deadline |
+        |---|---------|------------|-------|----------|
+
+    - name: AI Agent Behavior
+      description: Role, processing rules, quality checks, and constraints for AI agents
+      required: false
+      template: |
+        ### Role & Responsibilities
+        ### Processing Rules
+        | # | Rule | Priority |
+        |---|------|----------|
+
+        ### Quality Checks (Self-Validation)
+        - [ ] [Check item]
+
+        ### Constraints
+        - Must not [behavior]
+
 integration:
   commit_messages:
     instruction: Reference spec ID in commit messages
@@ -140,6 +181,34 @@ rules:
     trigger: spec implementation verified
     instruction: Archive spec with links to commits/PRs
     priority: required
+
+  - id: ac-yaml-preferred
+    trigger: spec has more than 3 acceptance criteria
+    instruction: Create .ac.yaml sidecar for machine-readable AC parsing
+    priority: recommended
+
+  - id: assumptions-required
+    trigger: creating new spec
+    instruction: Include Assumptions & Open Questions section with anti-hallucination tags ([Assumption], [Need Confirmation])
+    priority: required
+
+  - id: assumption-tags-resolved
+    trigger: spec approval
+    instruction: All [Assumption] and [Need Confirmation] tags must be resolved before approval
+    priority: required
+
+sidecar_files:
+  - name: AC YAML Sidecar
+    pattern: "<SPEC-ID>.ac.yaml"
+    schema: specs/schemas/acceptance-criteria.schema.yaml
+    description: Machine-readable acceptance criteria (recommended when >3 ACs)
+    priority: recommended
+    fallback: Pipeline falls back to regex parsing of markdown AC (backward compatible)
+
+  - name: I/O Schema
+    pattern: "specs/contracts/<SPEC-ID>.{input,output}.schema.json"
+    description: Optional formal I/O validation schemas for cross-spec data flow verification
+    priority: optional
 
 best_practices:
   do:

@@ -1,15 +1,15 @@
 ---
 source: ../../../core/spec-driven-development.md
-source_version: 2.1.0
-translation_version: 2.1.0
-last_synced: 2026-01-26
+source_version: 2.2.0
+translation_version: 2.2.0
+last_synced: 2026-03-30
 status: current
 ---
 
 # 规格驱动开发 (SDD) 标准
 
-**版本**: 2.1.0
-**最后更新**: 2026-01-26
+**版本**: 2.2.0
+**最后更新**: 2026-03-30
 **适用范围**: 所有采用规格驱动开发的项目
 **范围**: universal
 
@@ -758,6 +758,7 @@ SDD 验证基于已建立的测试理论：
 
 | 版本 | 日期 | 变更内容 |
 |------|------|----------|
+| 2.2.0 | 2026-03-30 | 新增：AC YAML Sidecar、I/O 合约章节、假设与待厘清章节、AI Agent 行为章节 |
 | 2.1.0 | 2026-01-26 | 新增：变更评估 (SDD 前评估) 章节，包含决策树、双向同步评估章节，包含同步矩阵和检查清单 |
 | 2.0.0 | 2026-01-25 | **重大重构**: 新增 SDD 作为独立方法论章节（将 SDD 与 TDD/BDD/ATDD 家族分离）、成熟度级别（Martin Fowler 2025）、常见陷阱、包含理论基础的验证层、SDD + 测试集成模型、/derive-contracts 命令 |
 | 1.4.0 | 2026-01-19 | 新增：与正向推导集成章节、推导命令 |

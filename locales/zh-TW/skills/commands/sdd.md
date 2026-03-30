@@ -102,6 +102,8 @@ grep -E "^- \[(x|X)\]" docs/specs/SPEC-XXX.md
 - [ ] 驗收標準可測試
 - [ ] 技術設計可行
 - [ ] 測試計畫涵蓋所有 AC
+- [ ] 所有 [Assumption] 標籤已解決（已驗證或已失效）
+- [ ] 所有 [Need Confirmation] 項目已回答
 
 **核准元資料：**
 ```yaml
@@ -293,6 +295,40 @@ Brief description of the feature.
 ## Acceptance Criteria
 - AC-1: Given [precondition], When [action], Then [expected outcome]
 - AC-2: Given [precondition], When [action], Then [expected outcome]
+
+## Input/Output Contract (Optional) / 輸入輸出合約（可選）
+
+### Input Contract / 輸入合約
+| Field | Type | Required | Source | Description |
+|-------|------|----------|--------|-------------|
+
+### Output Contract / 輸出合約
+| Field | Type | Guarantee | Consumer | Description |
+|-------|------|-----------|----------|-------------|
+
+## Assumptions & Open Questions / 假設與待釐清
+
+### Assumptions / 假設
+| # | Assumption | Impact Scope | Verification Method | Status |
+|---|-----------|--------------|---------------------|--------|
+| A1 | [Assumption] description | AC-N | How to verify | Unverified/Verified/Invalid |
+
+### Open Questions / 待釐清
+| # | Question | Affected AC | Owner | Deadline |
+|---|---------|------------|-------|----------|
+
+## AI Agent Behavior (Optional) / AI Agent 行為（可選）
+
+### Role & Responsibilities / 角色與職責
+### Processing Rules / 處理規則
+| # | Rule | Priority |
+|---|------|----------|
+
+### Quality Checks (Self-Validation) / 品質檢查（自我驗證）
+- [ ] [Check item]
+
+### Constraints / 限制與約束
+- Must not [behavior]
 
 ## Test Plan
 - [ ] Unit tests for [component]

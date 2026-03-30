@@ -105,6 +105,8 @@ Get stakeholder sign-off before implementation begins. Update spec status from D
 - [ ] 验收标准可测试
 - [ ] 技术设计可行
 - [ ] 测试计划涵盖所有 AC
+- [ ] 所有 [Assumption] 标签已解决（已验证或已失效）
+- [ ] 所有 [Need Confirmation] 项目已回答
 
 **Approval metadata added to spec | 批准元数据：**
 ```yaml
@@ -310,6 +312,40 @@ Brief description of the feature.
 ## Acceptance Criteria
 - AC-1: Given [precondition], When [action], Then [expected outcome]
 - AC-2: Given [precondition], When [action], Then [expected outcome]
+
+## Input/Output Contract (Optional) / 输入输出合约（可选）
+
+### Input Contract / 输入合约
+| Field | Type | Required | Source | Description |
+|-------|------|----------|--------|-------------|
+
+### Output Contract / 输出合约
+| Field | Type | Guarantee | Consumer | Description |
+|-------|------|-----------|----------|-------------|
+
+## Assumptions & Open Questions / 假设与待厘清
+
+### Assumptions / 假设
+| # | Assumption | Impact Scope | Verification Method | Status |
+|---|-----------|--------------|---------------------|--------|
+| A1 | [Assumption] description | AC-N | How to verify | Unverified/Verified/Invalid |
+
+### Open Questions / 待厘清
+| # | Question | Affected AC | Owner | Deadline |
+|---|---------|------------|-------|----------|
+
+## AI Agent Behavior (Optional) / AI Agent 行为（可选）
+
+### Role & Responsibilities / 角色与职责
+### Processing Rules / 处理规则
+| # | Rule | Priority |
+|---|------|----------|
+
+### Quality Checks (Self-Validation) / 品质检查（自我验证）
+- [ ] [Check item]
+
+### Constraints / 限制与约束
+- Must not [behavior]
 
 ## Test Plan
 - [ ] Unit tests for [component]
