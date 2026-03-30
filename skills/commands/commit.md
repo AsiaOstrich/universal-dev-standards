@@ -22,6 +22,7 @@ Before generating a commit, the AI assistant MUST run these checks:
 | No merge conflicts | `grep -r "<<<<<<< " --include="*.{js,ts,md,yaml}" .` | → Resolve conflicts first |
 | Tests pass (if feat/fix) | `cd cli && npm run test:unit` (or project test cmd) | → Fix tests before committing |
 | Spec reference (feat/fix) | Check `docs/specs/SPEC-*.md` for active specs | → Suggest `Refs: SPEC-XXX` in footer |
+| UDS upstream files | `git diff --cached --name-only \| grep -E '^\.(standards\|claude/skills)/'` | → Suggest `/audit --friction` (advisory) |
 
 ### Spec Tracking Gate | Spec 追蹤閘門
 
@@ -106,6 +107,10 @@ If a spec is linked, add `Refs: SPEC-XXX` to the commit footer. This is advisory
 **Decision: Spec 追蹤（僅 feat/fix）**
 - IF 有活躍 spec → 建議在 footer 加 `Refs: SPEC-XXX`
 - IF 無 spec 且變更顯著（>3 檔案或新 API） → 建議 `/sdd`
+- 此為建議性（non-blocking），使用者可忽略
+
+**Decision: UDS 上游檔案偵測**
+- IF staged 包含 `.standards/` 或 `.claude/skills/` → 顯示 ⚠️「偵測到 UDS 上游管理的檔案被修改，建議執行 `/audit --friction` 回報上游」
 - 此為建議性（non-blocking），使用者可忽略
 
 🛑 **STOP**: 展示 commit message 後等待使用者確認或修改

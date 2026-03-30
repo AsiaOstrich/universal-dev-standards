@@ -31,6 +31,7 @@ Verify pre-commit quality gates before committing code to ensure codebase stabil
 | **Security** | No hardcoded secrets or vulnerabilities | 無硬編碼密鑰 |
 | **Documentation** | API docs and CHANGELOG updated if needed | 文件已更新 |
 | **Workflow** | Branch naming and commit message correct | 分支和提交格式正確 |
+| **Upstream** | No `.standards/` or `.claude/skills/` modifications (advisory) | 無 UDS 上游檔案修改（建議性） |
 
 ## Never Commit When | 禁止提交的情況
 

@@ -32,6 +32,7 @@ description: "[UDS] 在提交程式碼前驗證品質關卡，確保程式碼庫
 | **安全性** | 無硬編碼密鑰或漏洞 | No hardcoded secrets |
 | **文件** | API 文件和 CHANGELOG 已更新 | Documentation updated |
 | **工作流程** | 分支命名和提交訊息格式正確 | Branch naming and commit correct |
+| **上游檔案** | `.standards/` 或 `.claude/skills/` 無修改（建議性） | No UDS upstream file modifications (advisory) |
 
 ## 禁止提交的情況
 

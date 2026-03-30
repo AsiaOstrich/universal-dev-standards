@@ -29,6 +29,7 @@ argument-hint: "[description of changes | 變更描述]"
 | 無合併衝突 | `grep -r "<<<<<<< " --include="*.{js,ts,md,yaml}" .` | → 先解決衝突 |
 | 測試通過（feat/fix）| `cd cli && npm run test:unit`（或專案測試指令）| → 先修復測試 |
 | Spec 引用（feat/fix）| 檢查 `docs/specs/SPEC-*.md` 是否有活躍規格 | → 建議在 footer 加 `Refs: SPEC-XXX` |
+| UDS 上游檔案 | `git diff --cached --name-only \| grep -E '^\.(standards\|claude/skills)/'` | → 建議執行 `/audit --friction`（建議性）|
 
 ### Spec 追蹤閘門
 

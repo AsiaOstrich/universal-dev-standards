@@ -35,6 +35,7 @@ description: |
 | **安全性** | 无硬编码密钥或漏洞 | No hardcoded secrets |
 | **文档** | API 文档和 CHANGELOG 已更新 | Documentation updated |
 | **工作流程** | 分支命名和提交消息格式正确 | Branch naming and commit correct |
+| **上游文件** | `.standards/` 或 `.claude/skills/` 无修改（建议性） | No UDS upstream file modifications (advisory) |
 
 ## 禁止提交的情况
 

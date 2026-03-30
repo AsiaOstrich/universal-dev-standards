@@ -224,6 +224,16 @@ rules:
       spec or feature, offer to resume instead of starting fresh.
     priority: required
 
+  - id: standards-modification-audit
+    trigger: staging or committing changes to .standards/ or .claude/skills/
+    instruction: >
+      When staged or modified files include paths matching .standards/ or
+      .claude/skills/, warn the user that these are UDS upstream-managed files.
+      Suggest running /audit --friction to check for drift and /audit --report
+      to submit feedback upstream. This is advisory, not blocking.
+      Detection command: git diff --cached --name-only | grep -E '^\.(standards|claude/skills)/'
+    priority: recommended
+
   - id: feat-commit-spec-suggestion
     trigger: committing a feat or fix type change
     instruction: >
