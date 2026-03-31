@@ -1,0 +1,80 @@
+# Postmortem Standards - AI Optimized
+# Source: core/postmortem-standards.md
+
+id: postmortem-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-31"
+  source: core/postmortem-standards.md
+  description: Blameless postmortem process, root cause analysis, action items tracking, and organizational learning
+
+trigger_conditions:
+  mandatory:
+    - "SEV-1 (always)"
+    - "SEV-2 > 1 hour"
+    - "Data loss"
+    - "SLA breach"
+    - "Security breach"
+  recommended:
+    - "SEV-2 < 1 hour"
+    - "SEV-3 recurring (2+ in 30 days)"
+    - "Near-miss with large impact"
+    - "Team member request"
+  exempt:
+    - "SEV-3/4 first occurrence, clear root cause"
+    - "Same root cause already tracked"
+    - "Purely external factor"
+
+blameless_principles:
+  - "Humans make errors — mistakes are systemic, not personal"
+  - "Focus on systems — how the system allowed the error"
+  - "Psychological safety — no fear of punishment"
+  - "Learning-oriented — goal is learning, not blame"
+  - "Behavior description — 'X happened' not 'person did X'"
+
+process_timeline:
+  "24h": "Collect timeline and facts"
+  "48h": "Write draft"
+  "+3 biz days": "Hold meeting"
+  "+24h after meeting": "Finalize and publish"
+  "ongoing": "Track action items"
+
+meeting_agenda:
+  opening: "5 min — restate blameless principles"
+  timeline_review: "15 min — walk through events"
+  impact_assessment: "10 min — quantify impact"
+  root_cause_analysis: "20 min — structured RCA"
+  improvement_ideas: "15 min — action items"
+  summary: "5 min — confirm learnings"
+
+rca_methods:
+  5_whys: "Linear causation, single root cause"
+  ishikawa: "Multi-factor, categorized (People/Process/Tools/Environment)"
+  fault_tree: "Complex systems, AND/OR logic"
+  timeline_analysis: "Time-dependent, multi-participant"
+  change_analysis: "Recent change suspected"
+
+cause_classification:
+  root_cause: "If removed, incident would not have occurred"
+  trigger: "Event that directly caused the incident"
+  contributing_factor: "Worsened impact but not the root cause"
+
+action_item_types:
+  prevent: "Prevent root cause recurrence"
+  detect: "Detect problem earlier"
+  mitigate: "Reduce impact scope and time"
+  process: "Improve response procedures"
+
+action_item_states: ["Open", "In Progress", "Done", "Verified", "Blocked"]
+
+overdue_escalation:
+  "7 days": "Notify owner"
+  "14 days": "Notify manager"
+  "30 days": "Escalate to retrospective"
+
+trend_analysis_dimensions:
+  - "Root cause type distribution"
+  - "Service distribution"
+  - "MTTR trend"
+  - "MTTD trend"
+  - "Recurring root cause ratio"

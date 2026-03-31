@@ -749,96 +749,148 @@ Step 5: Update skills/commands/update.md
 
 ### 8.1 Adding a New Core Standard
 
-**Complete Flow (10 steps):**
+**Complete Flow (12 steps):**
 
 ```
-Step 1: Create core/new-standard.md
-        ↓
-Step 2: Create ai/standards/new-standard.ai.yaml
-        ↓
-Step 3: Create options/new-standard/*.md (if applicable)
-        ↓
-Step 4: Create ai/options/new-standard/*.ai.yaml (if applicable)
-        ↓
-Step 5: Create skills/new-skill/ (if applicable)
-        ↓
-Step 6: Create ALL locale translations (⚠️ MUST sync all locales)
-        - locales/zh-TW/core/new-standard.md
-        - locales/zh-CN/core/new-standard.md
-        ↓
-Step 7: Update cli/standards-registry.json
-        ↓
-Step 9: Update CHANGELOG.md
-        ↓
-Step 10: Run all sync check scripts
+Phase 1: Core Artifacts (Steps 1-4)
+Step 1:  Create core/new-standard.md
+         ↓
+Step 2:  Create ai/standards/new-standard.ai.yaml
+         ↓
+Step 3:  Update cli/standards-registry.json (add entry)
+         ↓
+Step 4:  Copy to .standards/new-standard.ai.yaml (installed copy)
+
+Phase 2: Skill & Command (Steps 5-7, if applicable)
+         ↓
+Step 5:  Create skills/new-skill/SKILL.md + guide.md (if interactive)
+         ↓
+Step 6:  Create skills/commands/new-command.md (if slash command)
+         ↓
+Step 7:  Sync .claude/skills/new-skill/ (consumer layer)
+
+Phase 3: Translations (Steps 8-9)
+         ↓
+Step 8:  Create locales/zh-TW/core/new-standard.md
+         ↓
+Step 9:  Create locales/zh-CN/core/new-standard.md
+
+Phase 4: Integration & Verification (Steps 10-12)
+         ↓
+Step 10: Update Integration configs (if Level 1 tool, see docs/internal/INTEGRATION-SIMPLIFICATION-PROPOSAL.md)
+         ↓
+Step 11: Create options/new-standard/*.md + ai/options/*.ai.yaml (if applicable)
+         ↓
+Step 12: Run all sync check scripts
 ```
+
+> **Alpha/Beta**: Steps 8-10 (translations + integrations) may be deferred.
+> **Stable release**: All 12 steps MUST be complete.
 
 **Detailed Steps:**
 
 1. **Create Core Standard**
    ```bash
-   # Create the markdown file
+   # Create the markdown file following UDS core format
+   # Required sections: Version, Scope, References, License
    touch core/new-standard.md
-   # Follow the standard template structure
    ```
 
 2. **Create AI-Optimized Version**
    ```bash
+   # Token-optimized YAML for AI assistants
    touch ai/standards/new-standard.ai.yaml
-   # Use concise YAML format
+   # Required fields: id, meta (version, updated, source, description)
    ```
 
-3. **Create Options (if applicable)**
-   ```bash
-   mkdir -p options/new-standard
-   touch options/new-standard/option-1.md
-   touch options/new-standard/option-2.md
-
-   mkdir -p ai/options/new-standard
-   touch ai/options/new-standard/option-1.ai.yaml
-   touch ai/options/new-standard/option-2.ai.yaml
-   ```
-
-4. **Create Skill (if applicable)**
-   ```bash
-   mkdir -p skills/new-standard-skill
-   touch skills/new-standard-skill/SKILL.md
-   touch skills/new-standard-skill/guide.md
-   ```
-
-5. **Create Translations**
-   ```bash
-   touch locales/zh-TW/core/new-standard.md
-   touch locales/zh-CN/core/new-standard.md
-   # Add YAML Front Matter with source tracking
-   ```
-
-6. **Update Registry**
+3. **Update Registry**
    ```json
-   // In cli/standards-registry.json
+   // In cli/standards-registry.json, add to "standards" array:
    {
-     "standards": [
-       {
-         "id": "new-standard",
-         "name": "New Standard Name",
-         "level": 2,
-         "category": "reference",
-         "source": {
-           "ai": "ai/standards/new-standard.ai.yaml",
-           "human": "core/new-standard.md"
-         }
-       }
-     ]
+     "id": "new-standard",
+     "name": "New Standard Name",
+     "nameZh": "新標準中文名",
+     "source": {
+       "human": "core/new-standard.md",
+       "ai": "ai/standards/new-standard.ai.yaml"
+     },
+     "category": "core",
+     "description": "One-line description"
    }
    ```
 
-7. **Verify**
+4. **Copy to .standards/ (Installed Copy)**
    ```bash
-   ./scripts/check-standards-sync.sh
-   ./scripts/check-translation-sync.sh
-   ./scripts/check-translation-sync.sh zh-CN
-   cd cli && npm test
+   cp ai/standards/new-standard.ai.yaml .standards/new-standard.ai.yaml
    ```
+
+5. **Create Skill (if applicable)**
+   ```bash
+   # Only if the standard needs interactive AI guidance
+   mkdir -p skills/new-standard-skill
+   touch skills/new-standard-skill/SKILL.md    # With YAML frontmatter (name, scope)
+   touch skills/new-standard-skill/guide.md    # Detailed guide
+   # Update scripts/check-spec-sync.sh SKILL_CORE_MAPPINGS
+   ```
+
+6. **Create Command (if applicable)**
+   ```bash
+   # Only if the skill has a slash command
+   touch skills/commands/new-command.md
+   ```
+
+7. **Sync Consumer Layer**
+   ```bash
+   # .claude/skills/ is the consumer layer for UDS's own use
+   mkdir -p .claude/skills/new-skill
+   # Copy or symlink SKILL.md
+   ```
+
+8. **Create Translations (zh-TW)**
+   ```bash
+   touch locales/zh-TW/core/new-standard.md
+   # Add YAML Front Matter with source tracking
+   ```
+
+9. **Create Translations (zh-CN)**
+   ```bash
+   touch locales/zh-CN/core/new-standard.md
+   ```
+
+10. **Update Integration Configs (if needed)**
+    - **Level 3 tools** (Claude Code): No update needed (context-aware-loading handles it)
+    - **Level 2 tools** (Gemini, Aider): Add `.standards/` reference if relevant
+    - **Level 1 tools** (Copilot, Cursor): Inline content in config file
+
+11. **Create Options (if applicable)**
+    ```bash
+    mkdir -p options/new-standard
+    touch options/new-standard/option-1.md
+    mkdir -p ai/options/new-standard
+    touch ai/options/new-standard/option-1.ai.yaml
+    ```
+
+12. **Verify**
+    ```bash
+    # Run all sync checks
+    ./scripts/check-standards-sync.sh          # core ↔ ai.yaml
+    ./scripts/check-registry-completeness.sh   # core → registry → .standards/
+    ./scripts/check-spec-sync.sh               # core ↔ skill (if applicable)
+    ./scripts/check-commands-sync.sh           # skill ↔ command (if applicable)
+    ./scripts/check-scope-sync.sh              # scope tag check
+    ./scripts/check-translation-sync.sh        # zh-TW
+    ./scripts/check-translation-sync.sh zh-CN  # zh-CN
+    cd cli && npm test                          # all tests pass
+    ```
+
+**Quick Reference: Which Steps Are Required?**
+
+| Scenario | Required Steps |
+|----------|---------------|
+| Core standard only (no skill) | 1, 2, 3, 4, 8, 9, 12 |
+| Core standard + skill + command | All 12 steps |
+| Core standard (alpha/beta) | 1, 2, 3, 4, 12 |
+| Options variant only | 11, 12 |
 
 ### 8.2 Adding a New Skill
 

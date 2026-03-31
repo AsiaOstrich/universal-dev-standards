@@ -1,0 +1,79 @@
+# Alerting Standards - AI Optimized
+# Source: core/alerting-standards.md
+
+id: alerting-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-31"
+  source: core/alerting-standards.md
+  description: Alert severity classification, escalation, noise reduction, and SLO-based alerting
+
+severity:
+  P1:
+    name: Critical
+    criteria: "Full outage, data loss, security breach"
+    response_time: "< 5 min"
+    channels: "Phone + SMS + Chat"
+  P2:
+    name: High
+    criteria: "Major feature degraded, partial outage"
+    response_time: "< 15 min"
+    channels: "SMS + Chat"
+  P3:
+    name: Warning
+    criteria: "Performance degraded, resource approaching limits"
+    response_time: "< 4 hours"
+    channels: "Chat + Ticket"
+  P4:
+    name: Info
+    criteria: "Anomalous trend, preventive notice"
+    response_time: "Next business day"
+    channels: "Email + Ticket"
+
+escalation:
+  P1: "0m→on-call, 5m→lead, 15m→manager, 30m→VP"
+  P2: "0m→on-call, 15m→lead, 30m→manager"
+  auto_escalate: "If unacknowledged within response_time"
+
+actionable_alert_elements:
+  - "Title (with severity)"
+  - "Impact (services and scope)"
+  - "Current status (metric value vs threshold)"
+  - "Runbook link"
+  - "Dashboard link"
+  - "Start time"
+
+runbook_requirement:
+  P1: MUST
+  P2: MUST
+  P3: SHOULD
+  P4: SHOULD
+
+noise_reduction:
+  deduplication: "Same fingerprint within window → merge"
+  grouping: "Related alerts from cascading failure → single notification"
+  suppression: "Silence during maintenance windows (never P1/P2)"
+  dampening: "Sustained breach for N minutes before firing"
+
+alerts_as_code:
+  - "Stored in Git"
+  - "Code reviewed"
+  - "Automatically tested (syntax, thresholds, runbook links)"
+
+slo_based_alerting:
+  multi_window_burn_rate:
+    "1h/14.4x": "P1 Page — budget exhausted in ~2 days"
+    "6h/6x": "P2 Alert — budget exhausted in ~5 days"
+    "3d/1x": "P3 Ticket — may exhaust by month end"
+
+quality_metrics:
+  SNR: "> 80% actionable"
+  MTTA: "P1 < 5m, P2 < 15m"
+  alert_frequency: "< 5 per person per day"
+  duplication_rate: "< 20%"
+  runbook_coverage: "P1/P2: 100%, P3/P4: > 80%"
+
+quarterly_audit:
+  - "Was it triggered in 90 days?"
+  - "Did it require human action?"
+  - "Does it have a runbook?"
