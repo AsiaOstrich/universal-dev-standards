@@ -1,0 +1,68 @@
+# Deprecation & Sunset Standards - AI Optimized
+# Source: core/deprecation-standards.md
+
+id: deprecation-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-31"
+  source: core/deprecation-standards.md
+  description: API deprecation, feature sunset, system decommission lifecycle
+
+api_deprecation:
+  sunset_timeline:
+    "T-6 months": "Announce — publish sunset date"
+    "T-3 months": "Deprecate — add Sunset header"
+    "T-3 to T-1": "Migrate — assist consumers"
+    "T-1 month": "Warn — final notice"
+    "T": "Sunset — return 410 Gone"
+    "T+1 month": "Archive — remove infrastructure"
+  http_headers:
+    deprecation: "Deprecation: true"
+    sunset: "Sunset: Sat, 31 Dec 2026 23:59:59 GMT"
+    successor: 'Link: <url>; rel="successor-version"'
+  parallel_period: "≥6 months after new GA, or 3 months after last consumer migrates"
+
+notification_channels:
+  - "CHANGELOG / Release Notes"
+  - "API response headers (Sunset)"
+  - "Email / direct notification"
+  - "API documentation (deprecated badge)"
+  - "Dashboard (remaining consumer count)"
+
+feature_sunset:
+  impact_analysis:
+    - "Usage (users in last 30 days)"
+    - "Dependencies (other features/services)"
+    - "Data (owned data needing migration/archive)"
+    - "Contract (SLA/contractual obligations)"
+    - "Alternative (replacement available?)"
+  checklist:
+    - "Notify affected users (≥30 days)"
+    - "Provide migration guide"
+    - "Remove feature code (no dead code)"
+    - "Remove related feature flags"
+    - "Migrate/archive related data"
+    - "Update API and user docs"
+    - "Set up redirects"
+    - "Update CHANGELOG"
+
+system_decommission:
+  stages:
+    - "Dependency analysis"
+    - "Consumer migration"
+    - "Data archival"
+    - "DNS/Redirect setup"
+    - "Infrastructure cleanup"
+    - "Monitoring removal"
+    - "Documentation archival"
+  data_retention:
+    user_data: "Per privacy law (GDPR: delete, others: 5-7 years)"
+    transactions: "Per tax/audit (typically 7 years)"
+    logs: "1 year"
+    config_code: "Permanent (Git history)"
+
+tracking_metrics:
+  - "Consumer migration rate (target: 100% at Sunset)"
+  - "Remaining traffic (target: 0 at Sunset)"
+  - "Dependency cleanup rate (target: 100% at Archive)"
+  - "Data archival completion (target: 100% at Archive)"
