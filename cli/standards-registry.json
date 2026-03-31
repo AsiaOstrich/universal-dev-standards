@@ -1704,6 +1704,39 @@
       },
       "category": "core",
       "description": "Blameless postmortem process, root cause analysis, action items tracking, and organizational learning"
+    },
+    {
+      "id": "tech-debt-standards",
+      "name": "Tech Debt Management Standards",
+      "nameZh": "技術債管理標準",
+      "source": {
+        "human": "core/tech-debt-standards.md",
+        "ai": "ai/standards/tech-debt-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Tech debt taxonomy, registry, budget, impact matrix, and metrics"
+    },
+    {
+      "id": "feature-flag-standards",
+      "name": "Feature Flag Standards",
+      "nameZh": "Feature Flag 標準",
+      "source": {
+        "human": "core/feature-flag-standards.md",
+        "ai": "ai/standards/feature-flag-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Feature flag types, lifecycle, TTL, audit, and decay detection"
+    },
+    {
+      "id": "environment-standards",
+      "name": "Environment Standards",
+      "nameZh": "環境管理標準",
+      "source": {
+        "human": "core/environment-standards.md",
+        "ai": "ai/standards/environment-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Environment tiers, configuration management, parity, and secret management"
     }
   ]
 }

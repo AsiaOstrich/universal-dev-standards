@@ -1,0 +1,55 @@
+# Feature Flag Standards - AI Optimized
+# Source: core/feature-flag-standards.md
+
+id: feature-flag-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-31"
+  source: core/feature-flag-standards.md
+  description: Feature flag types, lifecycle, TTL, audit, and decay detection
+
+types:
+  release: "Control unfinished feature visibility — short-term (1-4 weeks)"
+  experiment: "A/B testing and feature experiments — medium-term (2-8 weeks)"
+  ops: "Operational toggles (degradation, circuit breaker) — long-term/permanent"
+  permission: "Role/user-based feature access — long-term"
+
+naming: "<type>_<feature>_<context>"
+
+lifecycle:
+  stages: ["Created", "Active", "Validated", "Cleanup", "Removed", "Expired"]
+  flow: "Created → Active → Validated → Cleanup → Removed (or → Expired if TTL exceeded)"
+
+ttl:
+  release: "Default 2 weeks, max 4 weeks"
+  experiment: "Default 4 weeks, max 8 weeks"
+  ops: "No TTL, quarterly review required"
+  permission: "No TTL, managed with feature lifecycle"
+
+audit:
+  frequency: quarterly
+  dimensions:
+    - "Survival time (exceeded TTL?)"
+    - "Usage status (enabled in all envs?)"
+    - "Code references (> 10 locations?)"
+    - "Test impact (increased complexity?)"
+
+decay_detection:
+  actions:
+    - "Mark flag as Expired"
+    - "Create tech debt registry entry"
+    - "Notify flag owner"
+    - "Remind in next Sprint Planning"
+
+cleanup_checklist:
+  - "Remove flag conditional code (keep enabled branch)"
+  - "Remove flag configuration/definition"
+  - "Update related tests"
+  - "Update documentation"
+  - "Verify all environments"
+
+testing_principles:
+  - "Test both states (on and off)"
+  - "Avoid combination explosion"
+  - "Test default/off behavior (safe degradation)"
+  - "Environment isolation"

@@ -999,6 +999,99 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 ---
 
+## Linting Strategy
+
+### Rule Severity Classification
+
+Classify lint rules into three severity levels with clear CI behavior:
+
+| Level | CI Behavior | Use For | Examples |
+|-------|-------------|---------|---------|
+| **Error** | Block CI (fail build) | Likely bugs, security issues | Unused variables, unhandled promises, `eval` usage |
+| **Warning** | Pass but report | Quality suggestions, should fix | Function too long, nesting too deep, TODO markers |
+| **Info** | Pass silently | Style preferences, informational | Trailing whitespace, import sorting |
+
+**Rule Classification Decision Tree:**
+
+```
+Could this rule violation cause a bug?
+├─ Yes → Error
+└─ No
+   ├─ Could it degrade maintainability?
+   │  ├─ Yes → Warning
+   │  └─ No → Info
+   └─ Does it involve security?
+      └─ Yes → Error
+```
+
+### Auto-fix Strategy
+
+Not all lint rules should be auto-fixed. Classify by safety:
+
+| Category | Condition | Examples | Auto-fix Allowed |
+|----------|-----------|---------|-----------------|
+| **✅ Safe to auto-fix** | Fix is deterministic, does not change semantics | Indentation, semicolons, import sorting, trailing commas | Yes |
+| **⚠️ Needs confirmation** | Fix may change semantics | Variable renaming, type inference | Confirm before applying |
+| **❌ Forbidden to auto-fix** | Fix requires context understanding | Removing unused variables, refactoring complex logic | Never — human judgment required |
+
+**Auto-fix Timing:**
+
+| Timing | Behavior | Rationale |
+|--------|----------|-----------|
+| **Pre-commit hook** | Auto-fix safe rules (formatting) | Fast feedback, clean commits |
+| **CI pipeline** | Check only, never fix | Ensure developers are aware of issues |
+| **PR review** | Suggest as PR comment | Non-blocking, educational |
+
+### Team Consistency Principles
+
+The goal is not a universal style — it is **consistency within a team**:
+
+| Principle | Description |
+|-----------|-------------|
+| **Team decides** | Style choices are made by team vote, not individual preference |
+| **Config in version control** | Lint config files MUST be committed to Git |
+| **No debate after decision (no bikeshedding)** | Once adopted, all members follow; minimize style arguments |
+| **Automation first** | Rules that can be enforced by tools should not rely on human review |
+| **Strict rules for new projects** | New projects use strict rulesets; existing projects may adopt gradually |
+
+### Gradual Adoption
+
+For existing projects adopting linting:
+
+1. **Apply strict rules to new/modified files only** — Do not require fixing the entire codebase at once
+2. **Allow `// eslint-disable-next-line` with upper limit** — Permit disable markers for existing violations, but set a maximum count (e.g., < 100 per project)
+3. **Reduce disable count quarterly** — Each quarter, reduce the allowed disable count by 25%
+4. **Full enforcement** — Eventually enable full enforcement across all files
+
+### Language-Agnostic Configuration Template
+
+Use this language-agnostic YAML template as a reference when setting up linting for any language:
+
+```yaml
+# Lint Configuration Strategy (language-agnostic)
+rules:
+  # Error-level: Block CI
+  security:        error   # Security-related checks (e.g., eval, SQL injection patterns)
+  possible-bugs:   error   # Likely bug patterns (e.g., unused vars, unreachable code)
+  type-safety:     error   # Type-related issues (if applicable)
+
+  # Warning-level: Report but pass CI
+  maintainability: warning # Complexity, duplication, long functions
+  naming:          warning # Naming conventions
+  documentation:   warning # Missing docs for public APIs
+
+  # Info-level: Silent
+  style:           info    # Formatting preferences
+  import-order:    info    # Import organization
+
+auto_fix:
+  on_save: true            # Format on save in editor
+  on_commit: true          # Fix safe rules in pre-commit hook
+  on_ci: false             # CI only checks, never fixes
+```
+
+---
+
 ## Related Standards
 
 - [Project Structure Standard](project-structure.md)
