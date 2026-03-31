@@ -447,6 +447,90 @@ tests/
 
 ---
 
+## Exploratory Testing
+
+> **Reference**: ISTQB CTFL v4.0 §4.4, James Bach's Session-Based Test Management (SBTM)
+
+Exploratory testing is a structured approach where test design, execution, and learning happen simultaneously. It complements automated testing by discovering unknown defects that scripted tests cannot anticipate.
+
+### Session-Based Test Management (SBTM)
+
+Each exploratory testing session follows the SBTM framework:
+
+| Element | Description | Requirement |
+|---------|-------------|-------------|
+| **Time Box** | Fixed session duration of 60-90 minutes | Required |
+| **Charter** | Clear exploration goal, test area, and expected risks | Required |
+| **Session Notes** | Structured record of steps, observations, deviations, and issues | Required |
+| **Debrief** | Post-session review with team or test lead | Recommended |
+
+**Charter format**:
+```
+Explore [target area]
+With [resources/techniques]
+To discover [expected information/risks]
+```
+
+### Heuristics (SFDPOT)
+
+Use the SFDPOT mnemonic (James Bach's Heuristic Test Strategy Model) to guide exploration across six dimensions:
+
+| Dimension | Focus Area | Example Questions |
+|-----------|-----------|-------------------|
+| Structure | System components and their relationships | What modules exist? How are they connected? |
+| Function | Features and capabilities the system provides | What does each feature do? What are the edge cases? |
+| Data | Input/output data, boundary values, formats | What data types are accepted? What happens at boundaries? |
+| Platform | OS, browser, hardware, environment differences | Does it work on all supported platforms? |
+| Operations | Installation, configuration, maintenance, monitoring | Can it be installed cleanly? How is it maintained? |
+| Time | Concurrency, timeouts, scheduling, time zones | What happens under concurrent access? How are timeouts handled? |
+
+> **Tip**: Use at least 3 SFDPOT dimensions per session to ensure broad coverage.
+
+### Session Record Template
+
+Every exploratory testing session MUST produce a session record using this template:
+
+| Field | Description | Required |
+|-------|-------------|----------|
+| **Charter** | The exploration goal and scope | Yes |
+| **Area** | The functional area or component tested | Yes |
+| **Duration** | Actual time spent (within 60-90 min time box) | Yes |
+| **Notes** | Steps taken, observations, deviations from charter | Yes |
+| **Bugs Found** | List of defects discovered with severity | Yes |
+| **Follow-up** | Action items: new charters, automation candidates, questions | Yes |
+
+**Example session record**:
+```markdown
+## Session Record
+- **Charter**: Explore login flow with invalid credentials to discover error handling gaps
+- **Area**: Authentication module
+- **Duration**: 75 minutes
+- **Notes**: Tested SQL injection, XSS in username, Unicode characters, empty fields...
+- **Bugs Found**: 2 (BUG-101: XSS not sanitized in error message, BUG-102: No rate limiting)
+- **Follow-up**: Write automated regression for BUG-101, new charter for password reset flow
+```
+
+### Automation Complement
+
+Exploratory testing and automated testing serve complementary roles:
+
+| Aspect | Exploratory Testing | Automated Testing |
+|--------|-------------------|-------------------|
+| **Purpose** | Discover unknown defects | Protect against known regressions |
+| **Timing** | New features, risk areas, pre-release | Every build, continuous integration |
+| **Strength** | Creativity, adaptability, context | Speed, repeatability, coverage |
+| **Cost** | Human effort per session | Maintenance cost over time |
+
+**The Discovery-to-Protection cycle**:
+
+1. **Explore** — Conduct exploratory session, discover new defects
+2. **Report** — Document bugs found in session record
+3. **Automate** — Convert confirmed bugs into automated regression tests
+4. **Protect** — Automated tests prevent recurrence in future builds
+5. **Repeat** — New exploratory sessions focus on unexplored areas
+
+> **Rule**: Every bug discovered through exploratory testing SHOULD have a corresponding automated regression test added within the same sprint. This transforms one-time discoveries into permanent protection.
+
 ---
 
 ## Related Standards

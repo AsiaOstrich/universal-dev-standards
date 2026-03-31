@@ -207,6 +207,122 @@ lighthouse_scores:
 
 ---
 
+## Performance Testing Execution
+
+### Test Type Definitions
+
+| Test Type | Purpose | Applicable Scenario |
+|-----------|---------|---------------------|
+| **Load Test** | Validate system behavior under expected load | Pre-release validation, capacity planning |
+| **Stress Test** | Find system limits and breaking point behavior | Architecture changes, scale-up verification |
+| **Soak Test** | Detect memory leaks or resource exhaustion over extended runtime | Major releases, resource-intensive services |
+| **Spike Test** | Verify system response and recovery under sudden traffic bursts | Pre-marketing campaigns, promotional events |
+
+### Baseline Management
+
+#### First-Time Baseline Establishment
+
+1. Execute at least 3 full Load Tests on a stable version
+2. Take the median of p50, p95, p99 as the baseline
+3. Record test environment configuration (hardware, data volume, concurrency)
+4. Store baseline in version control alongside test scripts
+
+#### Drift Detection Thresholds
+
+| Metric | Acceptable Drift | Investigate | Blocking |
+|--------|-----------------|-------------|----------|
+| p50 Latency | < 5% | 5-15% | > 15% |
+| p95 Latency | < 10% | 10-20% | > 20% |
+| p99 Latency | < 10% | 10-25% | > 25% |
+| Throughput | < 5% decrease | 5-15% decrease | > 15% decrease |
+| Error Rate | No increase | < 0.1% increase | > 0.1% increase |
+
+#### Baseline Update Strategy
+
+- After architecture refactoring: MUST re-establish baseline
+- After hardware upgrade: SHOULD update baseline
+- After successful performance optimization: SHOULD set new values as baseline
+- All baseline updates MUST document the reason and date of change
+
+### CI Trigger Conditions
+
+Not every commit needs performance testing. Use the following trigger condition matrix:
+
+| Trigger Condition | Load Test | Stress Test | Soak Test | Spike Test |
+|-------------------|-----------|-------------|-----------|------------|
+| Every commit | No | No | No | No |
+| PR merge to main | Yes (lite) | No | No | No |
+| Release tag | Yes (full) | Yes | No | No |
+| Scheduled (weekly) | Yes | No | Yes | No |
+| Manual trigger | Yes | Yes | Yes | Yes |
+| Performance-related file changes | Yes (lite) | No | No | No |
+
+### Performance Budget
+
+Analogous to the SRE Error Budget concept, a Performance Budget defines the tolerable degradation margin.
+
+| Concept | Definition | Example |
+|---------|------------|---------|
+| **Performance Target** | Target performance level | p99 < 200ms |
+| **Performance Budget** | Allowed degradation headroom | p99 may degrade to 220ms (10%) |
+| **Budget Consumption** | Cumulative degradation percentage | 6% consumed this quarter |
+| **Budget Exhaustion** | Triggers freeze on non-essential changes | Freeze when < 2% remaining |
+
+#### Degradation Tolerance
+
+- p99 latency SHALL NOT degrade more than 10%
+- Throughput SHALL NOT decrease more than 5%
+- Error rate SHALL NOT increase more than 0.05%
+- Budget resets on a quarterly cycle
+
+### Test Report Format
+
+#### Report Template
+
+```markdown
+## Performance Test Report
+
+### Test Metadata
+- **Date**: YYYY-MM-DD
+- **Duration**: X minutes
+- **Test Type**: Load / Stress / Soak / Spike
+- **Environment**: staging / production-mirror
+
+### Results Summary
+| Metric | Baseline | Current | Change | Status |
+|--------|----------|---------|--------|--------|
+| p50 Latency | Xms | Yms | +Z% | PASS/FAIL |
+| p95 Latency | Xms | Yms | +Z% | PASS/FAIL |
+| p99 Latency | Xms | Yms | +Z% | PASS/FAIL |
+| Throughput | X rps | Y rps | -Z% | PASS/FAIL |
+| Error Rate | X% | Y% | +Z% | PASS/FAIL |
+
+### Pass/Fail Determination
+- **Overall**: PASS / FAIL
+- **Failed Criteria**: [list of exceeded thresholds]
+
+### Trend Analysis
+- Chart of last 10 runs with baseline markers
+- Anomaly points highlighted
+
+### Recommendations
+- Action items based on results
+```
+
+#### Pass/Fail Determination Rules
+
+- All blocking-level thresholds within limits → **PASS**
+- Any blocking-level threshold exceeded → **FAIL**
+- Investigation-level thresholds exceeded → logged as warning, does not block
+
+#### Trend Chart Requirements
+
+- Include at least the last 10 runs for trend comparison
+- Display baseline markers on the chart
+- Highlight anomaly data points that exceed thresholds
+
+---
+
 ## Related Standards
 
 - [Testing Standards](testing-standards.md) - Performance testing integration

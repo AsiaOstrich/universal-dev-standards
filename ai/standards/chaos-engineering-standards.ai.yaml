@@ -1,0 +1,41 @@
+# Chaos Engineering Standards - AI Optimized
+# Source: core/chaos-engineering-standards.md
+
+id: chaos-engineering-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-31"
+  source: core/chaos-engineering-standards.md
+  description: Chaos experiment design, fault injection, safety guardrails, and SLO integration
+
+experiment_workflow:
+  1: "Hypothesize — define steady state and expected behavior"
+  2: "Experiment — inject fault in controlled manner"
+  3: "Observe — monitor metrics, logs, alerts"
+  4: "Conclude — confirm/reject hypothesis, document learnings"
+
+fault_injection_types:
+  - "Network latency/partition"
+  - "Service unavailability"
+  - "Resource exhaustion (CPU/memory/disk)"
+  - "Dependency failure"
+  - "Clock skew"
+
+safety_guardrails:
+  blast_radius: "Limit affected traffic/instances percentage"
+  auto_stop: "Abort if SLO breach detected"
+  rollback: "Immediate rollback mechanism ready before experiment"
+
+progressive_chaos:
+  stage_1: "Non-production — learn tooling, validate hypotheses safely"
+  stage_2: "Staging — realistic environment, broader fault scenarios"
+  stage_3: "Production — controlled experiments, strict guardrails"
+
+slo_integration: "Chaos experiments MUST NOT consume more than X% of Error Budget"
+
+record_template:
+  - "Hypothesis"
+  - "Method (fault type, scope, duration)"
+  - "Results (metrics before/during/after)"
+  - "Learnings"
+  - "Action items"

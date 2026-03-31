@@ -1770,6 +1770,28 @@
       },
       "category": "core",
       "description": "Onboarding, handoff, bus factor assessment, and code tour"
+    },
+    {
+      "id": "test-data-standards",
+      "name": "Test Data Management Standards",
+      "nameZh": "測試資料管理標準",
+      "source": {
+        "human": "core/test-data-standards.md",
+        "ai": "ai/standards/test-data-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Test data strategies, anonymization, fixtures, isolation, and anti-patterns"
+    },
+    {
+      "id": "chaos-engineering-standards",
+      "name": "Chaos Engineering Standards",
+      "nameZh": "混沌工程標準",
+      "source": {
+        "human": "core/chaos-engineering-standards.md",
+        "ai": "ai/standards/chaos-engineering-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Chaos experiment design, fault injection, safety guardrails, and SLO integration"
     }
   ]
 }
