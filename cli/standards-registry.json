@@ -1649,6 +1649,61 @@
       "category": "skill",
       "skillName": "retrospective-assistant",
       "description": "Structured team retrospectives for Sprint and Release cycles with facilitation techniques and action item tracking"
+    },
+    {
+      "id": "observability-standards",
+      "name": "Observability Standards",
+      "nameZh": "可觀測性標準",
+      "source": {
+        "human": "core/observability-standards.md",
+        "ai": "ai/standards/observability-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Three pillars observability framework (Logs, Metrics, Traces) with Golden Signals and maturity model"
+    },
+    {
+      "id": "slo-standards",
+      "name": "SLO Standards",
+      "nameZh": "SLO 標準",
+      "source": {
+        "human": "core/slo-standards.md",
+        "ai": "ai/standards/slo-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "SLI/SLO/Error Budget definitions, setting methodology, and service templates"
+    },
+    {
+      "id": "alerting-standards",
+      "name": "Alerting Standards",
+      "nameZh": "告警標準",
+      "source": {
+        "human": "core/alerting-standards.md",
+        "ai": "ai/standards/alerting-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Alert severity classification, escalation, noise reduction, and SLO-based alerting"
+    },
+    {
+      "id": "runbook-standards",
+      "name": "Runbook Standards",
+      "nameZh": "Runbook 標準",
+      "source": {
+        "human": "core/runbook-standards.md",
+        "ai": "ai/standards/runbook-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Runbook writing, maintenance, drills, and alert integration"
+    },
+    {
+      "id": "postmortem-standards",
+      "name": "Postmortem Standards",
+      "nameZh": "事後檢討標準",
+      "source": {
+        "human": "core/postmortem-standards.md",
+        "ai": "ai/standards/postmortem-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Blameless postmortem process, root cause analysis, action items tracking, and organizational learning"
     }
   ]
 }

@@ -1,0 +1,55 @@
+# SLO Standards - AI Optimized
+# Source: core/slo-standards.md
+
+id: slo-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-31"
+  source: core/slo-standards.md
+  description: SLI/SLO/Error Budget definitions, setting methodology, and service templates
+
+concepts:
+  SLI: "Quantitative measurement of service behavior (engineering team)"
+  SLO: "Internal target for SLI over time window (triggers Error Budget policy)"
+  SLA: "External contract (triggers contractual penalties)"
+  error_budget: "Allowed unreliability = 1 - SLO target"
+  rule: "SLO should be stricter than SLA (e.g., SLA 99.9% → SLO 99.95%)"
+
+sli_selection:
+  api_services:
+    availability: "Non-5xx / total requests"
+    latency: "Requests below threshold proportion"
+    quality: "Non-degraded responses proportion"
+  batch_jobs:
+    freshness: "Data update delay within threshold"
+    correctness: "Correctly processed / total records"
+    coverage: "Successfully completed / scheduled batches"
+  frontend:
+    load_performance: "LCP < 2.5s, FID < 100ms, CLS < 0.1"
+    availability: "Successfully loaded pages proportion"
+    interaction_delay: "Response below threshold proportion"
+
+slo_setting_steps:
+  1: "Select SLI"
+  2: "Determine measurement window (rolling 28d recommended)"
+  3: "Set target value (start from historical P5)"
+  4: "Define compliance formula"
+  5: "Document SLO specification"
+
+target_reference:
+  "99%": "7.3h/month — internal tools"
+  "99.5%": "3.65h/month — B2B services"
+  "99.9%": "43.8min/month — consumer-facing"
+  "99.95%": "21.9min/month — financial/healthcare"
+  "99.99%": "4.38min/month — infrastructure"
+
+error_budget:
+  burn_rate_alerts:
+    fast: "2% budget in 1h → Page (P1)"
+    medium: "5% budget in 6h → Alert (P2)"
+    slow: "10% budget in 3d → Ticket (P3)"
+  exhaustion_policies:
+    - "Freeze releases"
+    - "Reliability sprint"
+    - "Enhanced review"
+    - "Lower SLO target"
