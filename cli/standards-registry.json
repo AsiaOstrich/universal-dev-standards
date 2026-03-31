@@ -1792,6 +1792,50 @@
       },
       "category": "core",
       "description": "Chaos experiment design, fault injection, safety guardrails, and SLO integration"
+    },
+    {
+      "id": "supply-chain-security-standards",
+      "name": "Supply Chain Security Standards",
+      "nameZh": "供應鏈安全標準",
+      "source": {
+        "human": "core/supply-chain-security-standards.md",
+        "ai": "ai/standards/supply-chain-security-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "SBOM formats, dependency audit, SLSA levels, license compliance"
+    },
+    {
+      "id": "estimation-standards",
+      "name": "Estimation Standards",
+      "nameZh": "估算標準",
+      "source": {
+        "human": "core/estimation-standards.md",
+        "ai": "ai/standards/estimation-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Estimation methods, calibration, anti-patterns, confidence levels"
+    },
+    {
+      "id": "design-document-standards",
+      "name": "Design Document Standards",
+      "nameZh": "設計文件標準",
+      "source": {
+        "human": "core/design-document-standards.md",
+        "ai": "ai/standards/design-document-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "HLD/LLD templates, C4 architecture diagrams, design review checklist"
+    },
+    {
+      "id": "privacy-standards",
+      "name": "Privacy Standards",
+      "nameZh": "隱私標準",
+      "source": {
+        "human": "core/privacy-standards.md",
+        "ai": "ai/standards/privacy-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Privacy by Design, data classification, DPIA, user rights"
     }
   ]
 }
