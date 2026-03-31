@@ -251,6 +251,53 @@ Strategies are not mutually exclusive. Common combinations:
 
 ---
 
+## Deployment Verification
+
+### Success Criteria
+
+A deployment is considered **successful** when ALL of the following conditions are met during the measurement window:
+
+| Condition | Threshold | Measurement Window |
+|-----------|-----------|-------------------|
+| **Error rate** | ≤ pre-deployment baseline + 0.1% | 5 minutes |
+| **P99 latency** | ≤ pre-deployment baseline × 1.2 | 5 minutes |
+| **Health check** | 100% pass rate | Continuous |
+| **Smoke tests** | 100% pass rate | Within 2 minutes post-deploy |
+
+If any condition fails, the deployment SHOULD trigger an automatic rollback or alert the on-call engineer for manual intervention.
+
+### Observation Period
+
+Each deployment strategy requires a minimum observation period before the deployment can be considered stable:
+
+| Deployment Type | Minimum Observation Period | Key Observation Metrics |
+|----------------|---------------------------|------------------------|
+| **Canary** | 15 minutes (per traffic percentage stage) | Error rate, Latency, Business metrics |
+| **Blue-Green** | 5 minutes (after traffic switch) | Health check, Error rate |
+| **Rolling** | Entire rollout duration | Health check per batch |
+| **Feature Flag** | 24 hours (first enablement) | Business metrics, User feedback |
+
+During the observation period:
+- Automated monitoring MUST be active
+- Rollback capability MUST remain available
+- No additional deployments SHOULD be made to the same service
+
+### Smoke Test Requirements
+
+Post-deployment smoke tests MUST execute automatically and cover at minimum the following items:
+
+| # | Test Item | Expected Result | Timeout |
+|---|-----------|-----------------|---------|
+| 1 | Health check endpoint returns 200 | HTTP 200 with status "healthy" | 5 seconds |
+| 2 | Core API endpoints available (at least 3 critical paths) | HTTP 2xx responses | 10 seconds each |
+| 3 | Database connectivity normal | Successful query execution | 5 seconds |
+| 4 | External dependencies reachable | Successful connectivity check | 10 seconds each |
+| 5 | Total execution time | All tests complete | 60 seconds max |
+
+Smoke test failure MUST block the deployment from proceeding and trigger a rollback.
+
+---
+
 ## DORA Metrics
 
 | Metric | Elite | High | Medium | Low |

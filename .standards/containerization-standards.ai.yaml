@@ -1,0 +1,58 @@
+# Containerization Standards - AI Optimized
+# Source: core/containerization-standards.md
+
+id: containerization-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-31"
+  source: core/containerization-standards.md
+  description: Container image build best practices, tagging, security scanning, and registry management
+
+dockerfile_best_practices:
+  base_image:
+    - "Use official images"
+    - "Use slim/alpine variants"
+    - "Pin exact version (not latest)"
+    - "Update regularly (monthly)"
+  layering:
+    - "Least-changing layers first (system → deps → source)"
+    - "Merge RUN commands"
+    - "Clean temp files in same RUN"
+    - "Use .dockerignore"
+    - "COPY specific files before COPY all"
+
+multi_stage:
+  builder: "Compile/build — includes dev tools, source, build output"
+  production: "Run app — only runtime + build output, no source/dev tools"
+
+security_checklist:
+  - "Non-root user (USER directive)"
+  - "No known vulnerabilities (Critical/High = 0)"
+  - "No hardcoded secrets"
+  - "Minimal port exposure"
+  - "Read-only filesystem (if possible)"
+  - "No unnecessary tools (curl, wget, ssh)"
+
+vulnerability_scanning:
+  critical: "Block pipeline"
+  high: "Warn + create fix ticket"
+  medium_low: "Log only"
+
+tagging:
+  semantic: "vX.Y.Z — formal releases"
+  commit_sha: "sha-<short> — traceability"
+  branch: "<branch> — dev/test"
+  environment: "<env>-latest — env tracking"
+  rule: "MUST NOT use 'latest' in production"
+
+registry:
+  cleanup:
+    semantic_tags: "Keep forever"
+    environment_tags: "Keep last N"
+    branch_tags: "Clean 7 days after branch delete"
+    commit_sha: "Keep last 30 days"
+    dangling: "Clean immediately"
+  access:
+    ci_cd: "Push + Pull"
+    developers: "Pull only (production registry)"
+    production: "Pull only"

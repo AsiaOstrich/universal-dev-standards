@@ -243,6 +243,53 @@ All environment provisioning MUST be documented through infrastructure as code (
 
 ---
 
+## 8. Infrastructure as Code (IaC) Principles
+
+### 8.1 Core Principles
+
+All infrastructure provisioning MUST follow these six IaC core principles:
+
+| # | Principle | Description |
+|---|-----------|-------------|
+| 1 | **Declarative-First (聲明式優先)** | Describe the desired end state rather than procedural steps. Declarative definitions make infrastructure predictable and auditable. |
+| 2 | **Idempotency (冪等性)** | Applying the same configuration multiple times MUST produce the same result. No side effects from repeated execution. |
+| 3 | **Version Control (版本控制)** | All IaC code MUST be stored in Git. Changes are tracked, reviewed, and auditable through commit history. |
+| 4 | **Modularity (模組化)** | Infrastructure SHOULD be composed of reusable modules. Avoid copy-paste duplication across environments. |
+| 5 | **Environment Parameterization (環境參數化)** | Use the same modules across environments with different parameter values. Environment-specific values are injected via variables, not hardcoded. |
+| 6 | **Immutable Infrastructure (不可變基礎設施)** | When updating infrastructure, replace resources rather than modifying in-place. This ensures consistency and simplifies rollback. |
+
+### 8.2 IaC Code Review Checklist
+
+When a PR contains IaC changes, reviewers MUST evaluate the following four aspects:
+
+| # | Aspect | Check Items |
+|---|--------|-------------|
+| 1 | **Security (安全性)** | Least privilege applied, no hardcoded secrets, IAM policies scoped correctly, network exposure minimized |
+| 2 | **Cost Impact (成本影響)** | New resources identified, instance sizing justified, estimated monthly cost change documented |
+| 3 | **Rollback Feasibility (回滾可行性)** | Changes are reversible, destructive operations flagged, backup/snapshot strategy for stateful resources |
+| 4 | **Environment Consistency (環境一致性)** | Changes maintain parity across tiers, environment-specific overrides documented, no configuration drift introduced |
+
+### 8.3 Drift Detection
+
+Infrastructure drift occurs when the actual state of resources diverges from the IaC-defined state (e.g., manual changes via console). Teams MUST implement drift detection practices:
+
+**Detection:**
+- Run periodic drift detection scans (e.g., `terraform plan`, `pulumi preview`) on a scheduled basis (RECOMMENDED: daily for production)
+- Compare actual infrastructure state against the IaC-defined desired state
+- Integrate drift checks into CI/CD pipelines
+
+**Notification:**
+- Detected drift MUST trigger notifications to the responsible team (via Slack, email, or alerting system)
+- Drift reports SHOULD include: affected resources, detected differences, and timestamp
+
+**Remediation:**
+- Teams MUST resolve drift using one of two approaches:
+  - **Update IaC**: If the manual change was intentional, update the IaC code to reflect the new desired state
+  - **Revert Infrastructure**: If the manual change was unauthorized or accidental, revert the infrastructure to match the IaC definition
+- Drift remediation SHOULD be tracked as a ticket and resolved within a defined SLA
+
+---
+
 ## References
 
 - [The Twelve-Factor App — Config](https://12factor.net/config) — Environment-based configuration principles

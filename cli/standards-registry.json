@@ -1737,6 +1737,17 @@
       },
       "category": "core",
       "description": "Environment tiers, configuration management, parity, and secret management"
+    },
+    {
+      "id": "containerization-standards",
+      "name": "Containerization Standards",
+      "nameZh": "容器化標準",
+      "source": {
+        "human": "core/containerization-standards.md",
+        "ai": "ai/standards/containerization-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Container image build best practices, tagging, security scanning, and registry management"
     }
   ]
 }
