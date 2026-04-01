@@ -21,6 +21,7 @@ import { uninstallCommand } from '../src/commands/uninstall.js';
 import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand, specArchiveCommand, specDeleteCommand } from '../src/commands/spec.js';
 import { startCommand, missionStatusCommand, missionPauseCommand, missionResumeCommand, missionCancelCommand, missionListCommand } from '../src/commands/start.js';
 import { releaseCommand } from '../src/commands/release.js';
+import { compileStandards } from '../src/commands/compile.js';
 import { setLanguage, setLanguageExplicit, detectLanguage, t } from '../src/i18n/messages.js';
 import { maybeCheckForUpdates, formatUpdateNotice, shouldCheckUpdateForCommand } from '../src/utils/update-checker.js';
 
@@ -218,6 +219,27 @@ program
   .option('--dry-run', 'Preview mode, no files modified')
   .option('-y, --yes', 'Skip confirmation prompts')
   .action(uninstallCommand);
+
+program
+  .command('compile')
+  .description('Compile enforcement standards into hook configurations')
+  .option('--target <target>', 'Target platform (claude-code)', 'claude-code')
+  .option('--dry-run', 'Preview output without writing files')
+  .action((options) => {
+    const result = compileStandards(process.cwd(), {
+      target: options.target,
+      dryRun: options.dryRun,
+    });
+    if (!result.success) {
+      console.error(result.error);
+      process.exit(1);
+    }
+    if (result.dryRun) {
+      console.log(JSON.stringify(result.config, null, 2));
+    } else {
+      console.log(`Compiled ${result.compiledCount} enforcement standard(s) for ${options.target}`);
+    }
+  });
 
 // Release command with subcommands (Manual Deployment Mode)
 program
