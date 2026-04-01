@@ -136,6 +136,38 @@ Use these labels to indicate derivation certainty:
 | `[Generated]` | AI-generated structure | Test skeleton, TODO comments |
 | `[TODO]` | Requires human implementation | Test assertions, step definitions |
 
+### 5. Test Level Configuration Awareness
+
+**Rule**: Before deriving tests, `/derive` SHOULD check the project's `test_levels` configuration to determine which test levels to generate. This ensures derivation respects the team's testing strategy.
+
+**Configuration Sources** (checked in order):
+1. `.standards/.uds.manifest.json` → `options.test_levels`
+2. `uds-manifest.json` → `stats` or root-level `test_levels`
+3. If no configuration found → default to all levels (`unit-testing`, `integration-testing`, `system-testing`, `e2e-testing`)
+
+**Behavior**:
+
+| Configured test_levels | `/derive all` produces |
+|----------------------|----------------------|
+| `['unit-testing']` | BDD + TDD only |
+| `['unit-testing', 'integration-testing']` | BDD + TDD + IT |
+| `['unit-testing', 'integration-testing', 'e2e-testing']` | BDD + TDD + IT + E2E |
+| `['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing']` (default) | BDD + TDD + IT + E2E (all) |
+| No manifest / no test_levels | All levels (same as default) |
+
+**Mapping**:
+
+| test_levels value | Derivation output |
+|-------------------|------------------|
+| `unit-testing` | `/derive-tdd` (always included) |
+| `integration-testing` | `/derive-it` |
+| `system-testing` | `/derive-it` (system = broader integration) |
+| `e2e-testing` | `/derive-e2e` |
+
+**Note**: BDD (.feature), ATDD (acceptance.md), and Contracts (contract.json) are always generated regardless of test_levels, as they are specification artifacts not test-level specific.
+
+**AI Agent Instruction**: When executing `/derive all`, check for `test_levels` configuration first. If `e2e-testing` is not in the configured levels, skip E2E skeleton generation and inform the user: "Skipping E2E derivation — not in project test_levels configuration. Run `uds config --type test_levels` to add it."
+
 ---
 
 ## Input Format Requirements
@@ -651,6 +683,24 @@ And clicks "Submit"                         → Interaction: click button "Submi
 Then a success message is displayed         → Assertion: verify success message visible
 And the project appears in the project list → Assertion: verify "My Project" in project list
 ```
+
+---
+
+## AC Level Summary Marking
+
+When `/derive all` produces multi-level output, include an **AC Level Summary** at the end of the output to help developers understand why each AC was assigned to a specific test level:
+
+```markdown
+## AC Level Summary
+| AC | Suggested Level | Rationale |
+|----|----------------|-----------|
+| AC-1 | E2E | Involves UI redirect and page navigation |
+| AC-2 | Integration | API endpoint with database interaction |
+| AC-3 | Unit | Pure calculation, no external dependencies |
+| AC-4 | Integration | Calls external payment gateway API |
+```
+
+This summary is informational — developers may override the suggested level based on their judgment.
 
 ---
 
