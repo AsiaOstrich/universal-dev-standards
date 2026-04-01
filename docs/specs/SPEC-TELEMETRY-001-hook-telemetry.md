@@ -1,6 +1,6 @@
 # [SPEC-TELEMETRY-001] Feature: 跨系統 Telemetry 統一 — Hook 執行遙測與採用率報告
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Created**: 2026-04-01
 - **Issue**: #65
 - **Phase**: harness-engineering Phase 3
