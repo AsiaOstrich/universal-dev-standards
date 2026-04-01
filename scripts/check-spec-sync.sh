@@ -67,6 +67,9 @@ forward-derivation|forward-derivation-standards.md
 ai-friendly-architecture|ai-friendly-architecture.md
 ai-instruction-standards|ai-instruction-standards.md
 release-standards|versioning.md
+observability-assistant|observability-standards.md
+slo-assistant|slo-standards.md
+runbook-assistant|runbook-standards.md
 "
 
 # Define utility skills (no Core Standard needed)
