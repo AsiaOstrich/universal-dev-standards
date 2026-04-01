@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **Integration Commands Sync** (SPEC-INTSYNC-001): 新增 `check-integration-commands-sync.sh` 腳本，自動偵測 AI 工具整合檔是否以 `/command` 格式引用所有必要的斜線命令
+- `COMMAND-INDEX.json`: 47 個 commands 的 Single Source of Truth，含 7 類分類（core/testing/quality/docs/ops/methodology/reference）
+- Pre-release 新增 Step 7.5 整合命令同步檢查
+- `/derive` 擴展：感知 `test_levels` 配置 + AC Level Summary + BDD/TDD 推演
+- `/derive` 擴展：支援 IT + E2E 測試推演（SPEC-DERIVE-001）
+
+### Changed
+- `REGISTRY.json`: 所有 tier 新增 `requiredCategories` 欄位；Complete 和 Partial tier 均要求全部 command categories
+- `REGISTRY.json`: Cursor 依實際能力（不支援 Workflows）從 `complete` 降為 `partial` tier
+
 ## [5.1.0-beta.4] - 2026-04-01
 
 > **Beta Release**: 大規模標準擴展（+17 新標準），覆蓋 SDLC 8 階段。SDLC 覆蓋率從 64% 提升至 84%。
