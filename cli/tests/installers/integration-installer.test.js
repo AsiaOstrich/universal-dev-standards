@@ -15,7 +15,11 @@ vi.mock('../../src/utils/integration-generator.js', () => ({
   writeIntegrationFile: vi.fn(),
   integrationFileExists: vi.fn(),
   getToolFilePath: vi.fn(),
-  writeAgentsMdSummary: vi.fn()
+  writeAgentsMdSummary: vi.fn(),
+  resolveContentModeForTool: vi.fn((tool, userMode) => {
+    if (userMode && userMode !== 'auto') return { contentMode: userMode, level: undefined };
+    return { contentMode: 'index', level: 2 };
+  })
 }));
 
 vi.mock('../../src/utils/copier.js', () => ({

@@ -28,6 +28,7 @@ import { homedir } from 'os';
 export const AI_AGENT_PATHS = {
   'claude-code': {
     name: 'Claude Code',
+    tier: 'complete',
     skills: {
       project: '.claude/skills/',
       user: join(homedir(), '.claude', 'skills')
@@ -51,6 +52,7 @@ export const AI_AGENT_PATHS = {
   },
   'opencode': {
     name: 'OpenCode',
+    tier: 'complete',
     skills: {
       project: '.opencode/skill/',
       user: join(homedir(), '.config', 'opencode', 'skill')
@@ -75,6 +77,7 @@ export const AI_AGENT_PATHS = {
   },
   'cursor': {
     name: 'Cursor',
+    tier: 'complete',
     skills: {
       project: '.cursor/skills/',
       user: join(homedir(), '.cursor', 'skills')
@@ -96,6 +99,7 @@ export const AI_AGENT_PATHS = {
   },
   'cline': {
     name: 'Cline',
+    tier: 'partial',
     skills: {
       project: '.cline/skills/',
       user: join(homedir(), '.cline', 'skills')
@@ -118,6 +122,7 @@ export const AI_AGENT_PATHS = {
   },
   'roo-code': {
     name: 'Roo Code',
+    tier: 'complete',
     skills: {
       project: '.roo/skills/',
       user: join(homedir(), '.roo', 'skills')
@@ -142,6 +147,7 @@ export const AI_AGENT_PATHS = {
   },
   'codex': {
     name: 'OpenAI Codex',
+    tier: 'partial',
     skills: {
       project: '.codex/skills/',
       user: join(homedir(), '.codex', 'skills')
@@ -160,6 +166,7 @@ export const AI_AGENT_PATHS = {
   },
   'copilot': {
     name: 'GitHub Copilot',
+    tier: 'partial',
     skills: {
       project: '.github/skills/',
       user: join(homedir(), '.copilot', 'skills')
@@ -183,6 +190,7 @@ export const AI_AGENT_PATHS = {
   },
   'windsurf': {
     name: 'Windsurf',
+    tier: 'partial',
     skills: {
       project: '.windsurf/skills/',
       user: join(homedir(), '.codeium', 'windsurf', 'skills')
@@ -205,6 +213,7 @@ export const AI_AGENT_PATHS = {
   },
   'gemini-cli': {
     name: 'Gemini CLI',
+    tier: 'preview',
     skills: {
       project: '.gemini/skills/',
       user: join(homedir(), '.gemini', 'skills')
@@ -232,6 +241,7 @@ export const AI_AGENT_PATHS = {
   },
   'antigravity': {
     name: 'Google Antigravity',
+    tier: 'minimal',
     skills: {
       project: '.agent/skills/',
       user: join(homedir(), '.gemini', 'antigravity', 'skills')
@@ -254,6 +264,16 @@ export const AI_AGENT_PATHS = {
  */
 export function getAgentConfig(agent) {
   return AI_AGENT_PATHS[agent] || null;
+}
+
+/**
+ * Get the tier classification for a specific AI agent
+ * @param {string} agent - Agent identifier
+ * @returns {string} Tier: 'complete', 'partial', 'preview', or 'minimal'
+ */
+export function getAgentTier(agent) {
+  const config = AI_AGENT_PATHS[agent];
+  return config?.tier || 'partial';
 }
 
 /**

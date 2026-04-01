@@ -10,7 +10,8 @@ import { computeFileHash, scanForUntrackedFiles, refreshIntegrationBlockHashes }
 import {
   writeIntegrationFile,
   getToolFilePath,
-  writeAgentsMdSummary
+  writeAgentsMdSummary,
+  resolveContentModeForTool
 } from '../utils/integration-generator.js';
 import {
   calculateCategoriesFromStandards,
@@ -488,12 +489,16 @@ export async function updateCommand(options) {
         continue; // Skip if already generated (AGENTS.md sharing)
       }
 
+      // Resolve contentMode per tool based on tier (supports 'auto' from manifest)
+      const savedContentMode = manifest.contentMode || 'auto';
+      const resolved = resolveContentModeForTool(tool, savedContentMode);
       const toolConfig = {
         tool,
         categories: ['anti-hallucination', 'commit-standards', 'code-review'],
         language: commonLanguage,
         installedStandards: installedStandardsList,
-        contentMode: manifest.contentMode || 'minimal',
+        contentMode: resolved.contentMode,
+        level: resolved.level,
         // Pass output_language for dynamic commit standards generation
         outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english'
       };
@@ -1053,12 +1058,16 @@ export function regenerateIntegrations(projectPath, manifest) {
       continue; // Skip if already generated (AGENTS.md sharing)
     }
 
+    // Resolve contentMode per tool based on tier
+    const savedMode = manifest.contentMode || 'auto';
+    const resolvedMode = resolveContentModeForTool(tool, savedMode);
     const toolConfig = {
       tool,
       categories: ['anti-hallucination', 'commit-standards', 'code-review'],
       language: commonLanguage,
       installedStandards: installedStandardsList,
-      contentMode: manifest.contentMode || 'minimal',
+      contentMode: resolvedMode.contentMode,
+      level: resolvedMode.level,
       // Pass output_language for dynamic commit standards generation
       outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english'
     };

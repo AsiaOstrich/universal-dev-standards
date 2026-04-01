@@ -4,7 +4,8 @@ import {
   writeIntegrationFile,
   integrationFileExists,
   getToolFilePath,
-  writeAgentsMdSummary
+  writeAgentsMdSummary,
+  resolveContentModeForTool
 } from '../utils/integration-generator.js';
 import { calculateCategoriesFromStandards } from '../utils/reference-sync.js';
 import { t } from '../i18n/messages.js';
@@ -113,14 +114,16 @@ export async function installIntegrations(config, projectPath) {
     const validCategories = installedStandards.length > 0
       ? requestedCategories.filter(cat => calculateCategoriesFromStandards(installedStandards).includes(cat))
       : requestedCategories;
+    // Resolve contentMode per tool based on tier and capabilities
+    const resolved = resolveContentModeForTool(tool, contentMode);
     const enhancedConfig = {
       ...integrationConfigs[tool],
       tool,
       categories: validCategories,
       language: integrationConfigs[tool]?.language || commonLanguage,
       installedStandards,
-      contentMode,
-      level,
+      contentMode: resolved.contentMode,
+      level: resolved.level ?? level,
       // Pass output_language for dynamic commit standards generation
       outputLanguage
     };
@@ -223,6 +226,8 @@ export async function generateClaudeMd(config, projectPath) {
   const categories = installedStandards.length > 0
     ? calculateCategoriesFromStandards(installedStandards)
     : ['anti-hallucination', 'commit-standards', 'code-review'];
+  // Resolve contentMode for claude-code based on tier
+  const claudeResolved = resolveContentModeForTool('claude-code', contentMode);
   const claudeConfig = {
     tool: 'claude-code',
     categories,
@@ -233,8 +238,8 @@ export async function generateClaudeMd(config, projectPath) {
     language: commonLanguage,
     // Enhanced standards compliance fields
     installedStandards,
-    contentMode,
-    level,
+    contentMode: claudeResolved.contentMode,
+    level: claudeResolved.level ?? level,
     // Pass output_language for dynamic commit standards generation
     outputLanguage
   };

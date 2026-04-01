@@ -118,7 +118,11 @@ vi.mock('../../src/utils/skills-installer.js', () => ({
 
 vi.mock('../../src/utils/integration-generator.js', () => ({
   writeIntegrationFile: vi.fn(() => ({ success: true, path: 'CLAUDE.md' })),
-  getToolFilePath: vi.fn(() => 'CLAUDE.md')
+  getToolFilePath: vi.fn(() => 'CLAUDE.md'),
+  resolveContentModeForTool: vi.fn((tool, userMode) => {
+    if (userMode && userMode !== 'auto') return { contentMode: userMode, level: undefined };
+    return { contentMode: 'index', level: 2 };
+  })
 }));
 
 vi.mock('../../src/commands/check.js', () => ({

@@ -3,6 +3,43 @@ import { dirname, join, basename } from 'path';
 import { getLanguageRules } from '../prompts/integrations.js';
 import { computeIntegrationBlockHash } from './hasher.js';
 import { UDS_MARKERS, SUPPORTED_AI_TOOLS, LEGACY_TOOL_MAPPINGS } from '../core/constants.js';
+import { getAgentConfig, getAgentTier } from '../config/ai-agent-paths.js';
+
+/**
+ * Resolve contentMode and level based on AI tool's tier and capabilities.
+ * When userContentMode is 'auto', the function determines the best contentMode
+ * based on the tool's tier and whether it supports Skills.
+ *
+ * @param {string} tool - AI tool identifier (e.g., 'claude-code', 'copilot')
+ * @param {string} userContentMode - User-specified contentMode or 'auto'
+ * @returns {{ contentMode: string, level: number|undefined }}
+ */
+export function resolveContentModeForTool(tool, userContentMode) {
+  // If user explicitly specified a contentMode (not 'auto'), respect it
+  if (userContentMode && userContentMode !== 'auto') {
+    return { contentMode: userContentMode, level: undefined };
+  }
+
+  const config = getAgentConfig(tool);
+  if (!config) return { contentMode: 'index', level: 2 };
+
+  const tier = config.tier || 'partial';
+
+  switch (tier) {
+    case 'complete':
+      return config.supportsSkills
+        ? { contentMode: 'minimal', level: 3 }
+        : { contentMode: 'index', level: 2 };
+    case 'partial':
+      return { contentMode: 'full', level: 1 };
+    case 'preview':
+      return { contentMode: 'index', level: 2 };
+    case 'minimal':
+      return { contentMode: 'minimal', level: 1 };
+    default:
+      return { contentMode: 'index', level: 2 };
+  }
+}
 
 /**
  * Helper functions for tool configuration

@@ -187,6 +187,10 @@ describe('Init Command Interactive', () => {
     vi.mocked(integrationGenerator.writeIntegrationFile).mockReturnValue({ success: true, path: 'MOCK' });
     vi.mocked(integrationGenerator.integrationFileExists).mockReturnValue(false);
     vi.mocked(integrationGenerator.writeAgentsMdSummary).mockReturnValue({ success: true, path: 'AGENTS.md', blockHashInfo: null });
+    vi.mocked(integrationGenerator.resolveContentModeForTool).mockImplementation((tool, userMode) => {
+      if (userMode && userMode !== 'auto') return { contentMode: userMode, level: undefined };
+      return { contentMode: 'index', level: 2 };
+    });
 
     // Mock Hasher
     vi.mocked(hasher.computeFileHash).mockReturnValue({ hash: 'abc', size: 123 });

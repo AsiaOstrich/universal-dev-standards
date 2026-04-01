@@ -256,7 +256,7 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     skillsLocationFlag = (hasSkillsCompatibleTool && onlySkillsCompatibleTools) ? 'marketplace' : 'none';
   }
 
-  const contentModeFlag = options.contentMode || 'index';
+  const contentModeFlag = options.contentMode || 'auto';
   let skillsConfig = {};
 
   if (skillsLocationFlag === 'marketplace') {

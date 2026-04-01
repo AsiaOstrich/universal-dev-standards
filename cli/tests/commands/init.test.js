@@ -163,7 +163,11 @@ vi.mock('../../src/utils/integration-generator.js', () => ({
   getSupportedTools: vi.fn(() => ['cursor', 'windsurf', 'cline', 'copilot', 'antigravity', 'claude-code', 'codex', 'gemini-cli', 'opencode']),
   toolsShareFile: vi.fn((t1, t2) => (t1 === 'codex' && t2 === 'opencode') || (t1 === 'opencode' && t2 === 'codex')),
   generateComplianceInstructions: vi.fn(() => '## Standards Compliance'),
-  generateStandardsIndex: vi.fn(() => '## Standards Index')
+  generateStandardsIndex: vi.fn(() => '## Standards Index'),
+  resolveContentModeForTool: vi.fn((tool, userMode) => {
+    if (userMode && userMode !== 'auto') return { contentMode: userMode, level: undefined };
+    return { contentMode: 'index', level: 2 };
+  })
 }));
 
 import { initCommand } from '../../src/commands/init.js';
