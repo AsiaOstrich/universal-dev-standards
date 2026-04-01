@@ -9,7 +9,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.1.0-beta.4] - 2026-04-01
+
+> **Beta Release**: 大規模標準擴展（+17 新標準），覆蓋 SDLC 8 階段。SDLC 覆蓋率從 64% 提升至 84%。
+
 ### Added
+- **Phase 1 — 監控維運標準** (5 個新 core 標準):
+  - `observability-standards`: 三支柱框架（Logs/Metrics/Traces）、Golden Signals、L0-L4 成熟度模型
+  - `slo-standards`: SLI 選取指南、SLO 設定方法論（5 步驟）、Error Budget 政策
+  - `alerting-standards`: P1-P4 分級、Escalation 路徑、SLO-based alerting、告警品質指標
+  - `runbook-standards`: 標準範本（7 段落）、5 類 Runbook、演練機制、品質 6 原則
+  - `postmortem-standards`: Blameless 原則、5 種 RCA 方法、Action Items 生命週期
+- **Phase 2 — 編碼實作標準** (3 新建 + 1 擴展):
+  - `tech-debt-standards`: 6 類分類法、登記簿範本（11 欄位）、預算機制、3×3 影響矩陣
+  - `feature-flag-standards`: 4 類 Flag、TTL 生命週期、腐化偵測、清理檢查表
+  - `environment-standards`: 4 環境層級、5 層配置優先級、Secret 管理、IaC 原則
+  - `checkin-standards` 擴展: Linting 三級分級、Auto-fix 策略、團隊一致性原則
+- **Phase 3 — 部署與交付** (1 新建 + 2 擴展):
+  - `containerization-standards`: Dockerfile 最佳實踐、Multi-stage Build、Image 標籤/安全/Registry
+  - `deployment-standards` 擴展: 部署驗證（成功判定、觀察期、Smoke Test）
+  - `environment-standards` 擴展: IaC 原則（聲明式/冪等/Drift Detection）
+- **Phase 4 — 測試深化** (2 新建 + 2 擴展):
+  - `test-data-standards`: 3 層資料策略、匿名化規則、隔離原則、Factory Pattern
+  - `chaos-engineering-standards`: 4 步驟實驗流程、5 種故障注入、安全護欄、SLO 整合
+  - `performance-standards` 擴展: 4 種效能測試類型、基準線管理、效能預算
+  - `testing-standards` 擴展: 探索式測試 SBTM、SFDPOT 啟發法
+- **Phase 5 — 退役與演進** (2 個新 core 標準):
+  - `deprecation-standards`: API Sunset 6 階段、Feature Sunset 8 步清單、系統退役 7 步驟
+  - `knowledge-transfer-standards`: 30 天 Onboarding 路線圖、Handoff 6 步清單、Bus Factor 評估
+- **Phase 6-8 — 規劃/治理/品質** (4 個新 core 標準):
+  - `supply-chain-security-standards`: SBOM（SPDX/CycloneDX）、SLSA L1-L4、License 合規矩陣
+  - `estimation-standards`: 3 種估算方法、校準機制、5 個反模式、信心等級
+  - `design-document-standards`: HLD（6 段落）/LLD（5 段落）範本、C4 架構圖、設計審查
+  - `privacy-standards`: Privacy by Design 7 原則、資料分類、DPIA、使用者 5 項權利
+- **3 個新 Skill**: `observability-assistant`、`slo-assistant`、`runbook-assistant`
+- **翻譯**: 17 個新標準 × zh-TW + zh-CN = 34 個翻譯檔
+- **同步工具**: `scripts/check-registry-completeness.sh`（core→ai.yaml→registry→.standards/ 完整性檢查）
+- **Pre-release 檢查**: 新增 Step 18 registry completeness（總步驟 19→20）
+- **SDD 工件**: 18 份規格、18 份 BDD Feature、693 個 TDD 測試（全部通過）
+
+### Changed
+- **Integration 精簡化**: `uds init`/`update` 根據 AI 工具 tier 自動選擇 contentMode
+  - complete (Claude Code) → minimal, partial (Copilot) → full, preview (Gemini) → index
+  - `ai-agent-paths.js` 新增 `tier` 欄位和 `getAgentTier()` 函式
+  - `integration-generator.js` 新增 `resolveContentModeForTool()` 映射函式
+  - `init.js` contentMode 預設值從 `'index'` 改為 `'auto'`
+- **CLAUDE.md**: Installed Standards Index 從 61 → 78 標準、核心檔案數 49 → 71
+- **OPERATION-WORKFLOW.md**: §8.1 新增標準同步清單從 10 步擴展為 12 步
+
+### Added (carried from Unreleased)
 - **標準自我診斷系統** (SPEC-SELFDIAG-001): 讓 UDS 從被動框架升級為能自我診斷的框架
   - `uds audit --score [--self]`: 4 維度健康評分（完整度/新鮮度/一致性/覆蓋度）
   - `--save / --trend`: 歷史趨勢追蹤與退化偵測
