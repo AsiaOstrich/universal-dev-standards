@@ -1,6 +1,6 @@
 # [SPEC-HOOKS-001] Feature: 核心標準 Hook 實作
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Created**: 2026-04-01
 - **Issue**: #62
 - **Phase**: harness-engineering Phase 1
