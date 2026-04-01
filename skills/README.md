@@ -58,6 +58,9 @@ These skills provide standard guidance and workflows. They can be accessed via s
 | `durable-execution-assistant` | `/durable` | [UDS] Workflow fault recovery and rollback |
 | `migration-assistant` | `/migrate` | [UDS] Code migration and framework upgrades |
 | `audit-assistant` | `/audit` | [UDS] Standards compliance audit |
+| `observability-assistant` | `/observability` | [UDS] Observability setup, metrics, alerting 🆕 |
+| `slo-assistant` | `/slo` | [UDS] SLI selection, SLO setting, Error Budget 🆕 |
+| `runbook-assistant` | `/runbook` | [UDS] Runbook creation, drills, coverage 🆕 |
 
 > **Note**: For reference guides (e.g., Git Workflow, Logging, Error Codes), use the `/guide` command.
 

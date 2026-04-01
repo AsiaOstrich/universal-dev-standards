@@ -70,10 +70,10 @@ echo "=========================================="
 echo ""
 
 # =============================================================================
-# Check 1/4: Command Table Coverage / 命令表覆蓋
+# Check 1/5: Command Table Coverage / 命令表覆蓋
 # =============================================================================
 
-echo -e "${BLUE}[1/4] Command Table Coverage / 命令表覆蓋${NC}"
+echo -e "${BLUE}[1/5] Command Table Coverage / 命令表覆蓋${NC}"
 echo "----------------------------------------"
 echo ""
 
@@ -211,10 +211,10 @@ fi
 echo ""
 
 # =============================================================================
-# Check 2/4: Markdown Link Validation / Markdown 連結驗證
+# Check 2/5: Markdown Link Validation / Markdown 連結驗證
 # =============================================================================
 
-echo -e "${BLUE}[2/4] Markdown Link Validation / Markdown 連結驗證${NC}"
+echo -e "${BLUE}[2/5] Markdown Link Validation / Markdown 連結驗證${NC}"
 echo "----------------------------------------"
 echo ""
 
@@ -355,10 +355,10 @@ fi
 echo ""
 
 # =============================================================================
-# Check 3/4: Feature Count Accuracy / 功能數量準確性
+# Check 3/5: Feature Count Accuracy / 功能數量準確性
 # =============================================================================
 
-echo -e "${BLUE}[3/4] Feature Count Accuracy / 功能數量準確性${NC}"
+echo -e "${BLUE}[3/5] Feature Count Accuracy / 功能數量準確性${NC}"
 echo "----------------------------------------"
 echo ""
 
@@ -432,10 +432,10 @@ fi
 echo ""
 
 # =============================================================================
-# Check 4/4: Cross-Language Table Parity / 跨語言表格一致性
+# Check 4/5: Cross-Language Table Parity / 跨語言表格一致性
 # =============================================================================
 
-echo -e "${BLUE}[4/4] Cross-Language Table Parity / 跨語言表格一致性${NC}"
+echo -e "${BLUE}[4/5] Cross-Language Table Parity / 跨語言表格一致性${NC}"
 echo "----------------------------------------"
 echo ""
 
@@ -568,6 +568,59 @@ for pair in "${FILE_PAIRS[@]}"; do
     trans_rel="${pair##*|}"
     check_table_parity "$ROOT_DIR/$en_rel" "$ROOT_DIR/$trans_rel"
 done
+
+echo ""
+
+# =============================================================================
+# Check 5/5: Index Completeness / 索引完整性
+# =============================================================================
+
+echo -e "${BLUE}[5/5] Index Completeness / 索引完整性${NC}"
+echo "----------------------------------------"
+echo ""
+
+FEATURE_REF="$ROOT_DIR/docs/FEATURE-REFERENCE.md"
+CHEATSHEET="$ROOT_DIR/docs/CHEATSHEET.md"
+index_errors=0
+
+if [[ -f "$FEATURE_REF" ]]; then
+    echo -e "${CYAN}  Checking core standards in FEATURE-REFERENCE.md:${NC}"
+    for core_file in "$ROOT_DIR/core"/*.md; do
+        [[ ! -f "$core_file" ]] && continue
+        core_name=$(basename "$core_file" .md)
+        # Skip template files
+        case "$core_name" in
+            requirement-checklist|requirement-template|requirement-document-template) continue ;;
+        esac
+        if grep -q "$core_name" "$FEATURE_REF" 2>/dev/null; then
+            : # OK, found in index
+        else
+            echo -e "  ${RED}[MISSING] $core_name not found in FEATURE-REFERENCE.md${NC}"
+            inc_errors
+            index_errors=$((index_errors + 1))
+        fi
+    done
+
+    echo -e "${CYAN}  Checking slash commands in FEATURE-REFERENCE.md:${NC}"
+    for cmd_file in "$ROOT_DIR/skills/commands"/*.md; do
+        [[ ! -f "$cmd_file" ]] && continue
+        cmd_name=$(basename "$cmd_file" .md)
+        [[ "$cmd_name" == "README" || "$cmd_name" == "COMMAND-FAMILY-OVERVIEW" ]] && continue
+        if grep -q "$cmd_name" "$FEATURE_REF" 2>/dev/null; then
+            : # OK
+        else
+            echo -e "  ${RED}[MISSING] /$cmd_name not found in FEATURE-REFERENCE.md${NC}"
+            inc_errors
+            index_errors=$((index_errors + 1))
+        fi
+    done
+
+    if [[ $index_errors -eq 0 ]]; then
+        echo -e "  ${GREEN}[OK] All core standards and commands found in FEATURE-REFERENCE.md${NC}"
+    fi
+else
+    echo -e "  ${YELLOW}⏭ docs/FEATURE-REFERENCE.md not found${NC}"
+fi
 
 echo ""
 

@@ -55,10 +55,10 @@ npx universal-dev-standards init
 <!-- UDS_STATS_TABLE_START -->
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Core Standards** | 53 | Universal development guidelines |
-| **AI Skills** | 43 | Interactive skills |
-| **Slash Commands** | 45 | Quick actions |
-| **CLI Commands** | 7 | list, init, configure, check, update, skills, audit |
+| **Core Standards** | 71 | Universal development guidelines |
+| **AI Skills** | 46 | Interactive skills |
+| **Slash Commands** | 48 | Quick actions |
+| **CLI Commands** | 9 | list, init, configure, check, update, skills, audit, agent, workflow |
 <!-- UDS_STATS_TABLE_END -->
 
 > **What's New in 5.0?** See [Pre-release Notes](docs/PRE-RELEASE.md) for details on new features.
@@ -96,8 +96,8 @@ graph TD
 
 | AI Tool | Status | Skills | Slash Commands | Configuration |
 | :--- | :--- | :---: | :---: | :--- |
-| **Claude Code** | ✅ Complete | **26** | **30** | `CLAUDE.md` |
-| **OpenCode** | ✅ Complete | **26** | **30** | `AGENTS.md` |
+| **Claude Code** | ✅ Complete | **29** | **33** | `CLAUDE.md` |
+| **OpenCode** | ✅ Complete | **29** | **33** | `AGENTS.md` |
 | **Gemini CLI** | 🧪 Preview | **18+** | **20+** | `GEMINI.md` |
 | **Cursor** | ✅ Complete | **Core** | **Simulated** | `.cursorrules` |
 | **Cline / Roo Code**| 🔶 Partial | **Core** | **Workflow** | `.clinerules` |

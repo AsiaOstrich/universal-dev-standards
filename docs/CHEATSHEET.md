@@ -54,10 +54,12 @@
 | `/methodology` | [UDS] Manage development methodology workflow |
 | `/metrics` | "[UDS] Track development metrics, code quality indicators and project health" |
 | `/migrate` | "[UDS] Guide code migration, framework upgrades and technology modernization" |
+| `/observability` | "[UDS] Guide observability setup, metrics design, alerting and maturity assessment" 🆕 |
 | `/pr` | "[UDS] Guide Pull Request creation, review automation and merge strategies" |
 | `/refactor` | [UDS] Guide refactoring decisions and strategy selection |
 | `/release` | [UDS] Manage release process and changelogs. |
 | `/requirement` | [UDS] Write user stories and requirements following INVEST criteria |
+| `/runbook` | "[UDS] Guide runbook creation, maintenance, drills and coverage reporting" 🆕 |
 | `/reverse-bdd` | [UDS] Transform SDD acceptance criteria to BDD scenarios |
 | `/reverse-sdd` | [UDS] Reverse engineer code into SDD specification document |
 | `/reverse-tdd` | [UDS] Analyze BDD-TDD coverage gaps |
@@ -67,6 +69,7 @@
 | `/sdd-retro` | [UDS] Create retroactive specs for untracked feat/fix commits |
 | `/sdd` | [UDS] Create or review specification documents for Spec-Driven Development |
 | `/security` | "[UDS] Guide security review and vulnerability assessment following OWASP standards" |
+| `/slo` | "[UDS] Guide SLI selection, SLO setting and Error Budget management" 🆕 |
 | `/tdd` | [UDS] Guide through Test-Driven Development workflow |
 | `/update` | [UDS] Update development standards to latest version |
 
@@ -99,6 +102,7 @@
 | `incident-response-assistant` | Guide incident response, root cause analysis, and post-morte |
 | `logging-guide` | Implement structured logging with proper log levels and sens |
 | `methodology-system` | "[UDS] Manage development methodology workflow" |
+| `observability-assistant` | "[UDS] Guide observability setup, metrics, alerting" 🆕 |
 | `metrics-dashboard-assistant` | "[UDS] Track development metrics, code quality indicators, a |
 | `migration-assistant` | "[UDS] Guide code migration, framework upgrades, and technol |
 | `pr-automation-assistant` | Guide pull request creation, review automation, and merge st |
@@ -106,10 +110,12 @@
 | `project-structure-guide` | Guide for organizing project directories following language- |
 | `refactoring-assistant` | "[UDS] Guide refactoring decisions and strategy selection" |
 | `release-standards` | "[UDS] Guide release process and changelogs" |
+| `runbook-assistant` | "[UDS] Guide runbook creation, maintenance, drills" 🆕 |
 | `requirement-assistant` | "[UDS] Write user stories and requirements following INVEST  |
 | `reverse-engineer` | "[UDS] System archeology — reverse engineer code across Logi |
 | `security-assistant` | Guide security review and vulnerability assessment following |
 | `security-scan-assistant` | Guide automated security scanning, dependency auditing, and  |
+| `slo-assistant` | "[UDS] Guide SLI selection, SLO setting, Error Budget" 🆕 |
 | `spec-driven-dev` | "[UDS] Create or review specification documents for Spec-Dri |
 | `tdd-assistant` | "[UDS] Guide through Test-Driven Development workflow" |
 | `test-coverage-assistant` | "[UDS] Analyze test coverage and provide recommendations" |
@@ -187,6 +193,23 @@
 | `virtual-organization-standards` | This standard treats the AI ecosystem as a "Virtua |
 | `workflow-enforcement` | Workflow Enforcement Standards |
 | `workflow-state-protocol` | Workflow State Protocol |
+| `observability-standards` | Three pillars (Logs/Metrics/Traces), Golden Signals, maturity model 🆕 |
+| `slo-standards` | SLI/SLO/Error Budget definitions and methodology 🆕 |
+| `alerting-standards` | P1-P4 severity, escalation, SLO-based alerting 🆕 |
+| `runbook-standards` | Runbook template, drills, coverage reporting 🆕 |
+| `postmortem-standards` | Blameless postmortem, RCA methods, action items 🆕 |
+| `tech-debt-standards` | Tech debt taxonomy, registry, budget, metrics 🆕 |
+| `feature-flag-standards` | Flag types, lifecycle, TTL, decay detection 🆕 |
+| `environment-standards` | Environment tiers, config priority, secret management, IaC 🆕 |
+| `containerization-standards` | Dockerfile best practices, image tagging, security 🆕 |
+| `test-data-standards` | Test data strategies, anonymization, isolation 🆕 |
+| `chaos-engineering-standards` | Experiment workflow, fault injection, safety guardrails 🆕 |
+| `deprecation-standards` | API sunset, feature sunset, system decommission 🆕 |
+| `knowledge-transfer-standards` | Onboarding, handoff, bus factor, code tour 🆕 |
+| `supply-chain-security-standards` | SBOM, SLSA levels, license compliance 🆕 |
+| `estimation-standards` | Estimation methods, calibration, anti-patterns 🆕 |
+| `design-document-standards` | HLD/LLD templates, C4 diagrams, design review 🆕 |
+| `privacy-standards` | Privacy by Design, data classification, DPIA, user rights 🆕 |
 
 ## 📜 Scripts
 
@@ -206,6 +229,7 @@
 | `check-docs-sync.sh` | Documentation Sync Checker |
 | `check-orphan-specs.ps1` | Check Orphan Specs |
 | `check-orphan-specs.sh` | Orphan Spec Detection Script |
+| `check-registry-completeness.sh` | Registry Completeness Checker 🆕 |
 | `check-scope-sync.ps1` | Check Scope Sync |
 | `check-scope-sync.sh` | Scope Consistency Check Script |
 | `check-skill-next-steps-sync.ps1` | Check Skill Next Steps Sync |

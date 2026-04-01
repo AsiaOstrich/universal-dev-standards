@@ -10,14 +10,14 @@
 ## Table of Contents
 
 1. [CLI Commands](#cli-commands) (9)
-2. [Slash Commands](#slash-commands) (45)
-3. [Skills](#skills) (40)
+2. [Slash Commands](#slash-commands) (48)
+3. [Skills](#skills) (43)
 4. [Agents](#agents) (5)
 5. [Workflows](#workflows) (5)
-6. [Core Standards](#core-standards) (48)
+6. [Core Standards](#core-standards) (71)
 7. [Scripts](#scripts) (41)
 
-**Total Features: 193**
+**Total Features: 222**
 
 ---
 
@@ -180,6 +180,7 @@
 | `/metrics` | "[UDS] Track development metrics, code quality indicators and project health" |
 | `/methodology` | [UDS] Manage development methodology workflow |
 | `/migrate` | "[UDS] Guide code migration, framework upgrades and technology modernization" |
+| `/observability` | Observability setup, maturity assessment, alerting design 🆕 |
 | `/pr` | "[UDS] Guide Pull Request creation, review automation and merge strategies" |
 | `/refactor` | [UDS] Guide refactoring decisions and strategy selection |
 | `/release` | [UDS] Manage release process and changelogs. |
@@ -189,10 +190,12 @@
 | `/reverse-tdd` | [UDS] Analyze BDD-TDD coverage gaps |
 | `/reverse` | [UDS] Reverse engineer code to Specs, BDD, or TDD coverage. |
 | `/review` | [UDS] Perform systematic code review with checklist |
+| `/runbook` | Runbook creation, drill planning, coverage reporting 🆕 |
 | `/scan` | "[UDS] Guide automated security scanning, dependency auditing and secret detection" |
 | `/sdd-retro` | [UDS] Create retroactive specs for untracked feat/fix commits |
 | `/sdd` | [UDS] Create or review specification documents for Spec-Driven Development |
 | `/security` | "[UDS] Guide security review and vulnerability assessment following OWASP standards" |
+| `/slo` | SLI selection, SLO setting, Error Budget calculation 🆕 |
 | `/tdd` | [UDS] Guide through Test-Driven Development workflow |
 | `/update` | [UDS] Update development standards to latest version |
 
@@ -229,6 +232,7 @@
 | `methodology-system` | "[UDS] Manage development methodology workflow" |
 | `metrics-dashboard-assistant` | "[UDS] Track development metrics, code quality indicators, and project health" |
 | `migration-assistant` | "[UDS] Guide code migration, framework upgrades, and technology modernization" |
+| `observability-assistant` | Guide observability setup, metrics design, alerting 🆕 |
 | `pr-automation-assistant` | Guide pull request creation, review automation, and merge strategies. |
 | `project-discovery` | "[UDS] Assess project health, architecture, and risks before adding features" |
 | `project-structure-guide` | Guide for organizing project directories following language-specific best practices. |
@@ -236,8 +240,10 @@
 | `release-standards` | "[UDS] Guide release process and changelogs" |
 | `requirement-assistant` | "[UDS] Write user stories and requirements following INVEST criteria" |
 | `reverse-engineer` | "[UDS] System archeology — reverse engineer code across Logic, Data, and Runtime dimensions" |
+| `runbook-assistant` | Guide runbook creation, maintenance, drills 🆕 |
 | `security-assistant` | Guide security review and vulnerability assessment following OWASP standards. |
 | `security-scan-assistant` | Guide automated security scanning, dependency auditing, and secret detection. |
+| `slo-assistant` | Guide SLI selection, SLO setting, Error Budget management 🆕 |
 | `spec-driven-dev` | "[UDS] Create or review specification documents for Spec-Driven Development" |
 | `tdd-assistant` | "[UDS] Guide through Test-Driven Development workflow" |
 | `test-coverage-assistant` | "[UDS] Analyze test coverage and provide recommendations" |
@@ -280,39 +286,56 @@
 | `ai-agreement-standards` | 1.0.0 | This standard formalizes the interaction between Human (Acquirer) and AI (Suppli |
 | `ai-friendly-architecture` | 1.0.0 | This standard defines architecture and documentation practices that maximize the |
 | `ai-instruction-standards` | 1.0.0 | This standard defines best practices for creating and maintaining AI instruction |
+| `alerting-standards` | 1.0.0 | P1-P4 severity, escalation, SLO-based alerting 🆕 |
 | `anti-hallucination` | 1.5.0 | This standard defines strict guidelines for AI assistants to prevent hallucinati |
 | `api-design-standards` | 1.0.0 | This standard defines comprehensive guidelines for designing, building, and main |
 | `behavior-driven-development` | 1.1.0 |  |
 | `branch-completion` | 1.0.0 | Define a standardized workflow for completing development branches, including pr |
 | `change-batching-standards` | - |  |
 | `changelog-standards` | 1.0.2 | This standard defines how to write and maintain a CHANGELOG.md file to communica |
+| `chaos-engineering-standards` | 1.0.0 | Experiment workflow, fault injection, safety guardrails 🆕 |
 | `checkin-standards` | 1.5.0 | This standard defines quality gates that MUST be passed before committing code t |
 | `code-review-checklist` | 1.3.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
 | `commit-message-guide` | 1.3.0 | Standardized commit messages improve code review efficiency, facilitate automate |
+| `containerization-standards` | 1.0.0 | Dockerfile best practices, image tagging, security 🆕 |
 | `context-aware-loading` | 1.0.0 | This standard defines a protocol for AI tools to selectively load development st |
 | `database-standards` | 1.0.0 | This standard defines guidelines for database design, querying, migration, and o |
 | `deployment-standards` | 1.0.0 | This standard defines guidelines for safely deploying software to production, co |
+| `deprecation-standards` | 1.0.0 | API sunset, feature sunset, system decommission 🆕 |
+| `design-document-standards` | 1.0.0 | HLD/LLD templates, C4 diagrams, design review 🆕 |
 | `developer-memory` | 1.0.0 | This standard defines a structured system for capturing, retrieving, and surfaci |
 | `documentation-structure` | 1.5.0 | This standard defines a consistent documentation structure for software projects |
 | `documentation-writing-standards` | 1.2.0 | This standard defines documentation requirements based on project types and prov |
+| `environment-standards` | 1.0.0 | Environment tiers, config priority, secret management, IaC 🆕 |
 | `error-code-standards` | 1.2.0 |  |
+| `estimation-standards` | 1.0.0 | Estimation methods, calibration, anti-patterns 🆕 |
+| `feature-flag-standards` | 1.0.0 | Flag types, lifecycle, TTL, decay detection 🆕 |
 | `forward-derivation-standards` | 1.2.0 | This standard defines the principles and workflows for Forward Derivation—automa |
 | `git-workflow` | 1.4.0 | This standard defines Git branching strategies and workflows to ensure consisten |
 | `git-worktree` | 1.0.0 | Define a lifecycle for using Git worktrees to isolate development work, ensuring |
+| `knowledge-transfer-standards` | 1.0.0 | Onboarding, handoff, bus factor, code tour 🆕 |
 | `logging-standards` | 1.2.0 |  |
 | `model-selection` | 1.0.0 | Define a cost-effective strategy for selecting AI model tiers based on task comp |
+| `observability-standards` | 1.0.0 | Three pillars (Logs/Metrics/Traces), Golden Signals, maturity model 🆕 |
 | `performance-standards` | 1.1.0 | This standard defines comprehensive guidelines for software performance engineer |
 | `pipeline-integration-standards` | - |  |
+| `postmortem-standards` | 1.0.0 | Blameless postmortem, RCA methods, action items 🆕 |
+| `privacy-standards` | 1.0.0 | Privacy by Design, data classification, DPIA, user rights 🆕 |
 | `project-context-memory` | 1.1.0 | This standard defines a structured system for capturing, retrieving, and enforci |
 | `project-structure` | 1.2.0 | This standard defines conventions for project directory structure beyond documen |
 | `refactoring-standards` | 2.1.0 | This standard defines comprehensive guidelines for code refactoring, covering ev |
 | `requirement-engineering` | 1.0.0 |  |
 | `reverse-engineering-standards` | 1.0.0 | This standard defines the principles, workflows, and best practices for reverse  |
+| `runbook-standards` | 1.0.0 | Runbook template, drills, coverage reporting 🆕 |
 | `security-standards` | 1.1.0 | This standard defines comprehensive security guidelines for software development |
+| `slo-standards` | 1.0.0 | SLI/SLO/Error Budget definitions and methodology 🆕 |
 | `spec-driven-development` | 2.1.0 |  |
 | `structured-task-definition` | 1.0.0 |  |
+| `supply-chain-security-standards` | 1.0.0 | SBOM, SLSA levels, license compliance 🆕 |
 | `systematic-debugging` | 1.0.0 | Define a structured, four-phase debugging workflow that prevents the common anti |
+| `tech-debt-standards` | 1.0.0 | Tech debt taxonomy, registry, budget, metrics 🆕 |
 | `test-completeness-dimensions` | 1.1.0 | This document defines a systematic framework for evaluating test completeness. I |
+| `test-data-standards` | 1.0.0 | Test data strategies, anonymization, isolation 🆕 |
 | `test-driven-development` | 1.2.0 |  |
 | `test-governance` | - |  |
 | `testing-standards` | 3.0.0 | This standard defines actionable testing rules and conventions for AI agents and |
@@ -321,6 +344,12 @@
 | `virtual-organization-standards` | 1.0.0 | This standard treats the AI ecosystem as a "Virtual Organization." It defines ho |
 | `workflow-enforcement` | - |  |
 | `workflow-state-protocol` | 1.0.0 |  |
+| `adr-standards` | 1.0.0 | Architecture Decision Records management |
+| `agent-communication-protocol` | 1.0.0 | Cross-project agent communication protocol |
+| `ai-command-behavior` | 1.0.0 | AI command behavior standards |
+| `ai-response-navigation` | 1.0.0 | AI response navigation footer standards |
+| `documentation-lifecycle` | 1.0.0 | Documentation update triggers and review pyramid |
+| `retrospective-standards` | 1.0.0 | Structured team retrospectives |
 
 ---
 
