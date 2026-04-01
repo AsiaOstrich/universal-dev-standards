@@ -33,7 +33,7 @@
     },
     "cursor": {
       "name": "Cursor",
-      "tier": "complete",
+      "tier": "partial",
       "integrationFiles": [
         "integrations/cursor/.cursorrules"
       ],
@@ -187,37 +187,43 @@
       "name": "Complete Support",
       "nameZh": "完全支援",
       "description": "Full UDS integration with Skills, Agents, and Workflows support",
-      "requiredRules": ["AH-001", "AH-002", "AH-003", "AH-004", "SDD-001", "SDD-002", "CMT-001"]
+      "requiredRules": ["AH-001", "AH-002", "AH-003", "AH-004", "SDD-001", "SDD-002", "CMT-001"],
+      "requiredCategories": ["core", "testing", "quality", "docs", "ops", "methodology", "reference"]
     },
     "partial": {
       "name": "Partial Support",
       "nameZh": "部分支援",
       "description": "Basic UDS integration with core anti-hallucination and commit rules",
-      "requiredRules": ["AH-001", "AH-002", "AH-003", "AH-004", "SDD-001", "CMT-001"]
+      "requiredRules": ["AH-001", "AH-002", "AH-003", "AH-004", "SDD-001", "CMT-001"],
+      "requiredCategories": ["core", "testing", "quality", "docs", "ops", "methodology", "reference"]
     },
     "minimal": {
       "name": "Minimal Support",
       "nameZh": "最小支援",
       "description": "Minimal integration with basic guidelines",
-      "requiredRules": ["AH-001", "AH-002"]
+      "requiredRules": ["AH-001", "AH-002"],
+      "requiredCategories": []
     },
     "preview": {
       "name": "Preview",
       "nameZh": "預覽版",
       "description": "Experimental integration under development",
-      "requiredRules": ["AH-001", "AH-002", "AH-003"]
+      "requiredRules": ["AH-001", "AH-002", "AH-003"],
+      "requiredCategories": []
     },
     "planned": {
       "name": "Planned",
       "nameZh": "計劃中",
       "description": "Integration planned but not yet implemented",
-      "requiredRules": []
+      "requiredRules": [],
+      "requiredCategories": []
     },
     "tool": {
       "name": "SDD Tool",
       "nameZh": "SDD 工具",
       "description": "Spec-Driven Development tool, not AI coding assistant",
-      "requiredRules": []
+      "requiredRules": [],
+      "requiredCategories": []
     }
   },
 

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "lastUpdated": "2026-04-01",
+  "description": "Command registry with category classification for integration sync",
+  "descriptionZh": "命令登記表，含分類標記，用於整合同步檢查",
+
+  "categories": {
+    "core": {
+      "description": "Foundation commands every AI tool should know",
+      "descriptionZh": "基礎命令，所有 AI 工具都應知道",
+      "commands": ["commit", "review", "sdd", "check", "init", "update", "config"]
+    },
+    "testing": {
+      "description": "Testing-related commands",
+      "descriptionZh": "測試相關命令",
+      "commands": ["tdd", "bdd", "atdd", "coverage", "ac-coverage", "derive", "derive-bdd", "derive-tdd", "derive-atdd", "derive-all"]
+    },
+    "quality": {
+      "description": "Quality and refactoring commands",
+      "descriptionZh": "品質與重構命令",
+      "commands": ["checkin", "refactor", "scan", "security", "reverse", "reverse-sdd", "reverse-bdd", "reverse-tdd"]
+    },
+    "docs": {
+      "description": "Documentation and requirements commands",
+      "descriptionZh": "文件與需求命令",
+      "commands": ["docs", "docgen", "changelog", "requirement", "brainstorm", "sdd-retro", "pr"]
+    },
+    "ops": {
+      "description": "Operations and observability commands",
+      "descriptionZh": "維運與可觀測性命令",
+      "commands": ["observability", "slo", "runbook", "incident", "metrics", "durable", "ci-cd"]
+    },
+    "methodology": {
+      "description": "Methodology and workflow commands",
+      "descriptionZh": "方法論與工作流程命令",
+      "commands": ["methodology", "dev-workflow", "discover", "release", "audit", "migrate"]
+    },
+    "reference": {
+      "description": "Reference guide commands (read-only)",
+      "descriptionZh": "參考指南命令（唯讀）",
+      "commands": ["database", "api-design"]
+    }
+  },
+
+  "excluded": ["README.md", "COMMAND-FAMILY-OVERVIEW.md", "guide.md"]
+}

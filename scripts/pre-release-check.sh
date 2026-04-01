@@ -190,6 +190,9 @@ run_check "6" "Running documentation sync check" "$SCRIPT_DIR/check-docs-sync.sh
 # Step 7: AI Agent sync
 run_check "7" "Running AI Agent sync check" "$SCRIPT_DIR/check-ai-agent-sync.sh"
 
+# Step 7.5: Integration commands sync (SPEC-INTSYNC-001)
+run_check "7.5" "Running integration commands sync check" "$SCRIPT_DIR/check-integration-commands-sync.sh"
+
 # Step 8: Usage docs sync
 run_check "8" "Running usage docs sync check" "$SCRIPT_DIR/check-usage-docs-sync.sh"
 
