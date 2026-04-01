@@ -3,7 +3,7 @@ name: derive
 scope: partial
 description: "[UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications"
 allowed-tools: Read, Write, Grep, Glob
-argument-hint: "[all|bdd|tdd|atdd] <spec-file>"
+argument-hint: "[all|bdd|tdd|it|e2e|atdd] <spec-file>"
 prerequisites: ["spec-approved"]
 disable-model-invocation: true
 ---
@@ -18,9 +18,11 @@ Generate derived artifacts (BDD scenarios, TDD skeletons, ATDD tables) from appr
 
 | Subcommand | Description | Output |
 |------------|-------------|--------|
-| `all` | Generate BDD + TDD (default) | `.feature` + `.test.*` |
+| `all` | Full derivation pipeline (BDD + TDD + IT + E2E + ATDD + Contracts) | `.feature` + `.test.*` + `.it.test.*` + `.e2e.test.*` + `.md` + `.json` |
 | `bdd` | Generate BDD scenarios only | `.feature` |
 | `tdd` | Generate TDD skeletons only | `.test.*` |
+| `it` | Generate Integration test skeletons | `.it.test.*` |
+| `e2e` | Generate E2E test skeletons | `.e2e.test.*` |
 | `atdd` | Generate ATDD test tables | `.md` (Markdown tables) |
 
 ## Workflow | 工作流程
@@ -50,9 +52,11 @@ Generate derived artifacts (BDD scenarios, TDD skeletons, ATDD tables) from appr
 ## Usage | 使用方式
 
 ```
-/derive all specs/SPEC-001.md           - Derive BDD + TDD | 推演 BDD + TDD
+/derive all specs/SPEC-001.md           - Full derivation pipeline | 完整推演管線
 /derive bdd specs/SPEC-001.md           - Derive BDD scenarios only | 僅推演 BDD 場景
 /derive tdd specs/SPEC-001.md           - Derive TDD skeletons only | 僅推演 TDD 骨架
+/derive it specs/SPEC-001.md            - Derive Integration test skeletons | 推演整合測試骨架
+/derive e2e specs/SPEC-001.md           - Derive E2E test skeletons | 推演 E2E 測試骨架
 /derive atdd specs/SPEC-001.md          - Derive ATDD tables | 推演 ATDD 表格
 ```
 

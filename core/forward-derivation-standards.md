@@ -483,6 +483,177 @@ spec-review → forward-derivation → discovery
 
 ---
 
+## Test Level Decision Tree
+
+根據 AC 的性質決定應生成哪種測試層級：
+
+```
+AC 涉及使用者介面操作（點擊、瀏覽、重導向、表單填寫）？
+├─ Yes → E2E Test
+└─ No
+   ├─ AC 涉及多個服務/元件互動（API 呼叫、DB 查詢、Queue）？
+   │  ├─ Yes → Integration Test
+   │  └─ No → Unit Test（已由 /derive-tdd 覆蓋）
+   └─ AC 涉及外部系統呼叫（第三方 API、外部 DB）？
+      └─ Yes → Integration Test
+```
+
+---
+
+## Integration Test Derivation
+
+當 AC 涉及多個服務/元件互動或外部系統呼叫時，生成 Integration Test 骨架。
+
+### Interface Templates | 介面範本
+
+#### HTTP API
+
+```
+Setup:
+  - Start test server / mock server
+  - Seed test data (DB fixtures, mock responses)
+
+Request:
+  - Send HTTP request (method, path, headers, body)
+  - [TODO] Fill in request details from AC
+
+Assert:
+  - Verify response status code
+  - Verify response body structure
+  - Verify side effects (DB state, event published)
+  - [TODO] Fill in expected values from AC
+
+Teardown:
+  - Clean up test data
+  - Stop test server / mock server
+```
+
+#### Database
+
+```
+Setup:
+  - Connect to test database
+  - Run migrations / seed schema
+  - Insert prerequisite data
+
+Action:
+  - Execute query / repository method
+  - [TODO] Fill in operation details from AC
+
+Assert:
+  - Verify returned data matches expected
+  - Verify data persistence (read-after-write)
+  - Verify constraints (unique, foreign key)
+  - [TODO] Fill in expected results from AC
+
+Teardown:
+  - Rollback transaction / truncate tables
+  - Disconnect from test database
+```
+
+#### Message Queue
+
+```
+Setup:
+  - Connect to test queue (or in-memory broker)
+  - Subscribe to target topic/queue
+  - Prepare message payload
+
+Action:
+  - Publish message to queue
+  - [TODO] Fill in message details from AC
+
+Assert:
+  - Verify message received by consumer
+  - Verify message payload structure
+  - Verify consumer side effects (DB write, API call)
+  - [TODO] Fill in expected behavior from AC
+
+Teardown:
+  - Drain queue
+  - Disconnect from broker
+```
+
+#### Service-to-Service
+
+```
+Setup:
+  - Start dependent service (or mock/stub)
+  - Configure service discovery / endpoints
+  - Prepare request context
+
+Action:
+  - Call target service method / endpoint
+  - [TODO] Fill in service call details from AC
+
+Assert:
+  - Verify response from target service
+  - Verify downstream service was called correctly
+  - Verify error propagation (if applicable)
+  - [TODO] Fill in expected interactions from AC
+
+Teardown:
+  - Stop mock services
+  - Clean up shared state
+```
+
+---
+
+## E2E Test Derivation
+
+當 AC 涉及使用者介面操作時，生成 E2E Test 骨架。
+
+### Browser E2E Skeleton | 瀏覽器 E2E 骨架
+
+```
+Environment:
+  - Launch browser (headless or headed)
+  - Set viewport, locale, auth state
+  - [TODO] Configure environment from AC prerequisites
+
+Navigation:
+  - Navigate to target URL / page
+  - Wait for page load / element visibility
+  - [TODO] Fill in target page from AC
+
+Interaction:
+  - Perform user actions (click, type, select, scroll)
+  - [TODO] Fill in user actions from AC steps
+
+Assertion:
+  - Verify page state (URL, title, element text)
+  - Verify visual elements (visible, hidden, enabled)
+  - Verify data changes reflected in UI
+  - [TODO] Fill in expected outcomes from AC
+
+Cleanup:
+  - Reset application state
+  - Close browser context
+```
+
+### Gherkin Step Mapping | Gherkin 步驟映射
+
+| Gherkin Keyword | Maps To | E2E Phase |
+|-----------------|---------|-----------|
+| `Given` | Setup + Navigation | Environment preparation, page navigation, prerequisite state |
+| `When` | Interaction | User actions (click, type, submit) |
+| `Then` | Assertion | Verify expected outcomes (page state, UI elements, data) |
+| `And` / `But` | Extends previous | Additional setup, interaction, or assertion |
+
+**Mapping Example**:
+
+```gherkin
+# Gherkin (from BDD)
+Given a logged-in user on the dashboard     → Environment: set auth state; Navigation: go to /dashboard
+When the user clicks "Create Project"       → Interaction: click button "Create Project"
+And fills in the project name "My Project"  → Interaction: type "My Project" into name field
+And clicks "Submit"                         → Interaction: click button "Submit"
+Then a success message is displayed         → Assertion: verify success message visible
+And the project appears in the project list → Assertion: verify "My Project" in project list
+```
+
+---
+
 ## Commands
 
 ### Command Reference
@@ -491,9 +662,11 @@ spec-review → forward-derivation → discovery
 |---------|-------|--------|---------|
 | `/derive-bdd` | SPEC-XXX.md | .feature | AC → Gherkin scenarios |
 | `/derive-tdd` | SPEC-XXX.md | .test.ts | AC → Test skeletons |
+| `/derive-it` | SPEC-XXX.md or .feature | .it.test.* | AC → Integration test skeletons |
+| `/derive-e2e` | SPEC-XXX.md or .feature | .e2e.test.* | AC → E2E test skeletons |
 | `/derive-atdd` | SPEC-XXX.md | acceptance.md | AC → Acceptance test tables |
 | `/derive-contracts` | SPEC-XXX.md | contract.json, schema.json | AC → Contract and schema definitions |
-| `/derive-all` | SPEC-XXX.md | All above | Full derivation pipeline (BDD + TDD + ATDD + Contracts) |
+| `/derive-all` | SPEC-XXX.md | All above | Full derivation pipeline (BDD + TDD + IT + E2E + ATDD + Contracts) |
 
 ### Command Parameters
 
@@ -516,7 +689,13 @@ spec-review → forward-derivation → discovery
 # Generate contract and schema definitions for verification
 /derive-contracts specs/SPEC-001.md --output-dir ./contracts
 
-# Generate all outputs (BDD + TDD + ATDD + Contracts)
+# Generate integration test skeletons
+/derive-it specs/SPEC-001.md --lang python --framework pytest
+
+# Generate E2E test skeletons
+/derive-e2e specs/SPEC-001.md --framework playwright
+
+# Generate all outputs (BDD + TDD + IT + E2E + ATDD + Contracts)
 /derive-all specs/SPEC-001.md --output-dir ./generated
 
 # Preview without creating files

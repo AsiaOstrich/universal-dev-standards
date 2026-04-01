@@ -1,7 +1,7 @@
 ---
 name: derive
 description: [UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications.
-argument-hint: "[all|bdd|tdd|atdd] <spec-file> [--lang <lang>] [--framework <fw>] [--output-dir <dir>]"
+argument-hint: "[all|bdd|tdd|it|e2e|atdd] <spec-file> [--lang <lang>] [--framework <fw>] [--output-dir <dir>]"
 ---
 
 # Derive Test Structures | 推演測試結構
@@ -20,9 +20,11 @@ Generate derived artifacts (BDD scenarios, TDD skeletons, ATDD tables) from appr
 
 | Subcommand | Description | Output |
 |------------|-------------|--------|
-| `all` | Generate BDD + TDD (Default) | `.feature` + `.test.*` |
+| `all` | Full derivation pipeline (BDD + TDD + IT + E2E + ATDD + Contracts) | All formats |
 | `bdd` | Generate BDD scenarios only | `.feature` |
 | `tdd` | Generate TDD skeletons only | `.test.*` |
+| `it` | Generate Integration test skeletons | `.it.test.*` |
+| `e2e` | Generate E2E test skeletons | `.e2e.test.*` |
 | `atdd` | Generate ATDD test tables | `.md` (Markdown tables) |
 
 ### Options | 選項
@@ -53,7 +55,7 @@ Generate derived artifacts (BDD scenarios, TDD skeletons, ATDD tables) from appr
 ## Examples | 範例
 
 ```bash
-# Derive everything (BDD + TDD)
+# Full derivation pipeline (BDD + TDD + IT + E2E + ATDD + Contracts)
 /derive all specs/SPEC-001.md
 
 # Derive BDD scenarios only
@@ -61,6 +63,12 @@ Generate derived artifacts (BDD scenarios, TDD skeletons, ATDD tables) from appr
 
 # Derive TDD for Python
 /derive tdd specs/SPEC-001.md --lang python --framework pytest
+
+# Derive Integration test skeletons
+/derive it specs/SPEC-001.md
+
+# Derive E2E test skeletons
+/derive e2e specs/SPEC-001.md
 
 # Derive ATDD tables for manual testing
 /derive atdd specs/SPEC-001.md
@@ -91,7 +99,7 @@ Generate derived artifacts (BDD scenarios, TDD skeletons, ATDD tables) from appr
 
 🛑 **STOP**: AC 格式轉換後展示結果，等待使用者確認轉換正確再繼續
 
-3. 依子命令分派到 `/derive-bdd`、`/derive-tdd`、`/derive-atdd`
+3. 依子命令分派到 `/derive-bdd`、`/derive-tdd`、`/derive-it`、`/derive-e2e`、`/derive-atdd`
 4. 驗證 1:1 對應（每個 AC 恰好一個測試/場景）
 5. 展示推演摘要
 
