@@ -22,6 +22,7 @@ import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand
 import { startCommand, missionStatusCommand, missionPauseCommand, missionResumeCommand, missionCancelCommand, missionListCommand } from '../src/commands/start.js';
 import { releaseCommand } from '../src/commands/release.js';
 import { compileStandards } from '../src/commands/compile.js';
+import { generateReport } from '../src/commands/report.js';
 import { setLanguage, setLanguageExplicit, detectLanguage, t } from '../src/i18n/messages.js';
 import { maybeCheckForUpdates, formatUpdateNotice, shouldCheckUpdateForCommand } from '../src/utils/update-checker.js';
 
@@ -238,6 +239,30 @@ program
       console.log(JSON.stringify(result.config, null, 2));
     } else {
       console.log(`Compiled ${result.compiledCount} enforcement standard(s) for ${options.target}`);
+    }
+  });
+
+program
+  .command('report')
+  .description('Analyze hook telemetry and show adoption report')
+  .action(() => {
+    const report = generateReport(process.cwd());
+    if (report.noData) {
+      console.log('No telemetry data available. Run hooks to generate data.');
+      return;
+    }
+    console.log(`\nUDS Hook Telemetry Report`);
+    console.log('═'.repeat(50));
+    console.log(`Total executions: ${report.totalExecutions}\n`);
+    console.log('Standard'.padEnd(25) + 'Executions  Pass Rate  Avg Duration');
+    console.log('─'.repeat(50));
+    for (const s of report.standards) {
+      console.log(
+        s.id.padEnd(25) +
+        String(s.executions).padEnd(12) +
+        `${s.passRate.toFixed(1)}%`.padEnd(11) +
+        `${s.avgDuration}ms`
+      );
     }
   });
 
