@@ -35,7 +35,7 @@ export function shouldRecordStats(projectPath) {
 /**
  * Append a hook trigger stat entry. Silently fails on any error.
  * @param {string} projectPath
- * @param {{ matched_standards: string[], matched_count: number, total_available: number, prompt_length?: number }} entry
+ * @param {{ matched_standards: string[], matched_count: number, total_available: number, prompt_length?: number, hook_type?: string }} entry
  */
 export function appendHookStat(projectPath, entry) {
   try {
@@ -55,6 +55,11 @@ export function appendHookStat(projectPath, entry) {
     // Include prompt_length if provided (but never prompt content)
     if (entry.prompt_length !== undefined) {
       record.prompt_length = entry.prompt_length;
+    }
+
+    // Include hook_type if provided (commit-msg | security | logging)
+    if (entry.hook_type !== undefined) {
+      record.hook_type = entry.hook_type;
     }
 
     // Truncate if file exceeds 1MB (keep last half)
