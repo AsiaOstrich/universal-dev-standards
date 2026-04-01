@@ -545,6 +545,19 @@ export async function updateCommand(options) {
     intSpinner.succeed(msg.syncedIntegrations.replace('{count}', results.integrations.length));
   }
 
+  // Update layered CLAUDE.md if content_layout is layered
+  if (manifest.contentLayout === 'layered') {
+    try {
+      const { generateLayeredClaudeMd } = await import('../generators/layered-claudemd.js');
+      const layeredResult = generateLayeredClaudeMd(projectPath, { update: true });
+      if (!layeredResult.fallback) {
+        console.log(chalk.green(`  ✓ Layered CLAUDE.md updated (${layeredResult.generatedFiles.length} files)`));
+      }
+    } catch {
+      // Silently skip if generator not available
+    }
+  }
+
   // Recompute file hashes for updated files
   const now = new Date().toISOString();
   if (!manifest.fileHashes) {

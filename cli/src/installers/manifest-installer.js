@@ -26,6 +26,7 @@ export function writeFinalManifest(config, results, projectPath) {
     },
     format: config.format,
     contentMode: config.contentMode || 'minimal',
+    contentLayout: config.contentLayout || 'flat',
     standards: results.standards || [],
     extensions: results.extensions || [],
     integrations: results.integrations || [],

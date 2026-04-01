@@ -867,6 +867,7 @@ uds init --experimental
 | AGENTS.md | `--agents-md` | 生成 AGENTS.md 通用摘要（默认：未选 codex/opencode 时自动生成） |
 | 不生成 AGENTS.md | `--no-agents-md` | 跳过 AGENTS.md 生成 |
 | 强制执行 Hooks | `--with-hooks` | 安装强制执行 hooks（commit-msg、security、logging） |
+| 内容布局 | `--content-layout` | 内容布局（`flat`、`layered`）- 默认：`flat` |
 | 模式（已弃用） | `-m, --mode` | 安装模式（skills, full）- 请改用 `--skills-location` |
 
 ### 完整 CLI 示例
@@ -899,6 +900,9 @@ uds init -y --no-agents-md
 
 # 安装强制执行 hooks
 uds init -y --with-hooks
+
+# 分层 CLAUDE.md（子目录 context-aware loading）
+uds init -y --content-layout layered
 
 # 繁体中文团队
 uds init -y --output-lang traditional-chinese --locale zh-cn

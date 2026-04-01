@@ -150,7 +150,18 @@ export async function initCommand(options) {
   // 4. Write Manifest & Display Summary
   writeFinalManifest(config, combinedResults, projectPath);
 
-  // 4.5. Install enforcement hooks (if --with-hooks)
+  // 4.5. Generate layered CLAUDE.md (if --content-layout layered)
+  if (config.contentLayout === 'layered') {
+    const { generateLayeredClaudeMd } = await import('../generators/layered-claudemd.js');
+    const layeredResult = generateLayeredClaudeMd(projectPath);
+    if (layeredResult.fallback) {
+      console.log(chalk.yellow('  ⚠ No matchable subdirectories found, using flat mode'));
+    } else {
+      console.log(chalk.green(`  ✓ Layered CLAUDE.md generated (${layeredResult.generatedFiles.length} files)`));
+    }
+  }
+
+  // 4.6. Install enforcement hooks (if --with-hooks)
   if (config.withHooks) {
     const { installHooks } = await import('../installers/hooks-installer.js');
     const hookResult = installHooks(projectPath);
@@ -346,7 +357,8 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     methodology: null,
     generateAgentsMd,
     releaseMode: options.releaseMode || 'ci-cd',
-    withHooks: !!options.withHooks
+    withHooks: !!options.withHooks,
+    contentLayout: options.contentLayout || 'flat'
   };
 }
 
