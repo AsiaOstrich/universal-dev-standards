@@ -1,6 +1,6 @@
 # [SPEC-FF-001] Feature: Feature Flag Management Standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-03-31
 - **Author**: AI-assisted
 - **Priority**: High (P1)

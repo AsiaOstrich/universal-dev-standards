@@ -1,6 +1,6 @@
 # [SPEC-LAYERED-001] Feature: 分層 CLAUDE.md — Context-aware Loading
 
-- **Status**: Implemented
+- **Status**: Archived
 - **Created**: 2026-04-01
 - **Issue**: #63
 - **Phase**: harness-engineering Phase 2

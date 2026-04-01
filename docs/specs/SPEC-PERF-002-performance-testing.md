@@ -1,6 +1,6 @@
 # [SPEC-PERF-002] Feature: Performance Testing Execution Extension for performance-standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-03-31
 - **Author**: AI-assisted
 - **Priority**: Medium (P2)

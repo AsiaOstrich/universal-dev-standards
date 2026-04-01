@@ -1,6 +1,6 @@
 # [SPEC-TESTDATA-001] Feature: Test Data Standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-03-31
 - **Author**: AI-assisted
 - **Priority**: High (P1)

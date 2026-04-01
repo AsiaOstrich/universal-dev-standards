@@ -1,6 +1,6 @@
 # [SPEC-COMPILE-001] Feature: Standards-as-Hooks 編譯器 (uds compile)
 
-- **Status**: Implemented
+- **Status**: Archived
 - **Created**: 2026-04-01
 - **Issue**: #64
 - **Phase**: harness-engineering Phase 3

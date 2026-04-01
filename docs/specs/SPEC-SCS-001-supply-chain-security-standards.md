@@ -1,6 +1,6 @@
 # [SPEC-SCS-001] Feature: Supply Chain Security Standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-03-31
 - **Author**: AI-assisted
 - **Priority**: Critical (P0)

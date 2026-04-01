@@ -1,6 +1,6 @@
 # [SPEC-SLO-001] Feature: SLI/SLO/Error Budget Standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-03-31
 - **Author**: AI-assisted
 - **Priority**: Critical (P0)

@@ -1,6 +1,6 @@
 # [SPEC-TEST-002] Feature: Exploratory Testing Standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-03-31
 - **Author**: AI-assisted
 - **Priority**: High (P1)

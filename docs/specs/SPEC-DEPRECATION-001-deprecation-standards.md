@@ -1,6 +1,6 @@
 # [SPEC-DEPRECATION-001] Feature: Deprecation & Sunset Standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-03-31
 - **Author**: AI-assisted
 - **Priority**: Critical (P0)

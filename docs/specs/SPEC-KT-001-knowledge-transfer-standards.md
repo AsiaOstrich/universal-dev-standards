@@ -1,6 +1,6 @@
 # [SPEC-KT-001] Feature: Knowledge Transfer Standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-03-31
 - **Author**: AI-assisted
 - **Priority**: High (P1)

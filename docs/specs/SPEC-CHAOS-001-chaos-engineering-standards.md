@@ -1,6 +1,6 @@
 # [SPEC-CHAOS-001] Feature: Chaos Engineering Standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-03-31
 - **Author**: AI-assisted
 - **Priority**: High (P1)

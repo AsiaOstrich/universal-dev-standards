@@ -1,6 +1,6 @@
 # [SPEC-ENV-002] Feature: IaC Principles Extension for environment-standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-03-31
 - **Author**: AI-assisted
 - **Priority**: Medium (P2)

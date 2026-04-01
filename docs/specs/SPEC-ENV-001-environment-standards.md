@@ -1,6 +1,6 @@
 # [SPEC-ENV-001] Feature: Environment Management Standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-03-31
 - **Author**: AI-assisted
 - **Priority**: High (P1)

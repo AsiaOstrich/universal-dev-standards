@@ -1,6 +1,6 @@
 # [SPEC-CHECKIN-002] Feature: Linting Strategy Extension for checkin-standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-03-31
 - **Author**: AI-assisted
 - **Priority**: Medium (P2)

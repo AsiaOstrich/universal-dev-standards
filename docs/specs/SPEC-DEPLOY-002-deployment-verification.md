@@ -1,6 +1,6 @@
 # [SPEC-DEPLOY-002] Feature: Deployment Verification Extension
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-03-31
 - **Author**: AI-assisted
 - **Priority**: Medium (P2)

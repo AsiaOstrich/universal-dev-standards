@@ -1,6 +1,6 @@
 # [SPEC-DERIVE-001] Feature: Multi-Level Test Derivation
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-04-01
 - **Author**: AI-assisted
 - **Priority**: High (P1)

@@ -1,6 +1,6 @@
 # [SPEC-PRIVACY-001] Feature: Privacy Standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-04-01
 - **Author**: AI-assisted
 - **Priority**: High (P1)

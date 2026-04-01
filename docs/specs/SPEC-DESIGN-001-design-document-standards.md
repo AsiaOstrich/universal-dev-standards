@@ -1,6 +1,6 @@
 # [SPEC-DESIGN-001] Feature: Design Document Standards
 
-- **Status**: Draft
+- **Status**: Archived
 - **Created**: 2026-04-01
 - **Author**: AI-assisted
 - **Priority**: High (P1)

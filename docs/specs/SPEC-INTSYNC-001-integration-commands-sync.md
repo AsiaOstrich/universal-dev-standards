@@ -1,6 +1,6 @@
 # [SPEC-INTSYNC-001] Feature: AI 工具整合命令對齊檢查
 
-**Status**: Approved
+**Status**: Archived
 **Created**: 2026-04-01
 **Author**: AI Assistant + User
 **Spec ID**: SPEC-INTSYNC-001
