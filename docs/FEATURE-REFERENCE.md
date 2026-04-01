@@ -10,14 +10,14 @@
 ## Table of Contents
 
 1. [CLI Commands](#cli-commands) (9)
-2. [Slash Commands](#slash-commands) (48)
+2. [Slash Commands](#slash-commands) (50)
 3. [Skills](#skills) (43)
 4. [Agents](#agents) (5)
 5. [Workflows](#workflows) (5)
 6. [Core Standards](#core-standards) (71)
 7. [Scripts](#scripts) (41)
 
-**Total Features: 222**
+**Total Features: 224**
 
 ---
 
@@ -164,11 +164,13 @@
 | `/config` | [UDS] Configure project development standards |
 | `/coverage` | [UDS] Analyze test coverage and provide recommendations |
 | `/database` | "[UDS] Guide database design, migration planning and query optimization" |
-| `/derive-all` | [UDS] Derive all test structures (BDD, TDD, ATDD) from SDD specification |
+| `/derive-all` | [UDS] Derive all test structures (BDD + TDD + IT + E2E + ATDD + Contracts) from SDD specification |
 | `/derive-atdd` | [UDS] Derive ATDD acceptance tests from SDD specification |
 | `/derive-bdd` | [UDS] Derive BDD Gherkin scenarios from SDD specification |
+| `/derive-e2e` | [UDS] Derive E2E test skeletons from SDD specification or .feature 🆕 |
+| `/derive-it` | [UDS] Derive Integration test skeletons from SDD specification or .feature 🆕 |
 | `/derive-tdd` | [UDS] Derive TDD test skeletons from SDD specification |
-| `/derive` | [UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications. |
+| `/derive` | [UDS] Derive BDD scenarios, TDD skeletons, IT/E2E skeletons, or ATDD tables from specifications. |
 | `/dev-workflow` | "[UDS] Guide for mapping software development phases to UDS commands and features" |
 | `/discover` | "[UDS] Assess project health, architecture, and risks before adding features" |
 | `/docgen` | "[UDS] Generate usage documentation from project sources" |

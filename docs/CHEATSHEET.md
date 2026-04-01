@@ -41,6 +41,8 @@
 | `/derive-all` | [UDS] Derive all test structures (BDD, TDD, ATDD) from SDD specification |
 | `/derive-atdd` | [UDS] Derive ATDD acceptance tests from SDD specification |
 | `/derive-bdd` | [UDS] Derive BDD Gherkin scenarios from SDD specification |
+| `/derive-e2e` | [UDS] Derive E2E test skeletons from SDD specification or .feature 🆕 |
+| `/derive-it` | [UDS] Derive Integration test skeletons from SDD specification or .feature 🆕 |
 | `/derive-tdd` | [UDS] Derive TDD test skeletons from SDD specification |
 | `/derive` | [UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications. |
 | `/dev-workflow` | "[UDS] Guide for mapping software development phases to UDS commands and features" |

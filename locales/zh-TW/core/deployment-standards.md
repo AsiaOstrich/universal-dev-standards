@@ -59,8 +59,52 @@ status: current
 | 故障率 | 0-15% | 16-30% |
 | 服務恢復時間 | < 1 小時 | < 1 天 |
 
+## 部署驗證
+
+### 成功標準
+
+部署在觀測視窗內滿足以下**所有**條件時視為成功：
+
+| 條件 | 閾值 | 觀測視窗 |
+|------|------|----------|
+| **Error rate** | ≤ 部署前 baseline + 0.1% | 5 分鐘 |
+| **P99 latency** | ≤ 部署前 baseline × 1.2 | 5 分鐘 |
+| **Health check** | 100% 通過率 | 持續 |
+| **Smoke tests** | 100% 通過率 | 部署後 2 分鐘內 |
+
+任一條件失敗應觸發自動 rollback 或通知 on-call 工程師。
+
+### 觀測期
+
+| 部署類型 | 最短觀測期 | 關鍵觀測指標 |
+|----------|-----------|-------------|
+| **Canary** | 每流量階段 15 分鐘 | Error rate、Latency、業務指標 |
+| **Blue-Green** | 切換後 5 分鐘 | Health check、Error rate |
+| **Rolling** | 整個上線期間 | 每批次 Health check |
+| **Feature Flag** | 首次啟用 24 小時 | 業務指標、使用者回饋 |
+
+### Smoke Test 要求
+
+部署後 Smoke Test 必須自動執行，至少涵蓋：
+
+| # | 測試項目 | 預期結果 | 超時 |
+|---|----------|----------|------|
+| 1 | Health check endpoint 回傳 200 | HTTP 200 + status "healthy" | 5 秒 |
+| 2 | 核心 API endpoints 可用（至少 3 條關鍵路徑） | HTTP 2xx | 10 秒/條 |
+| 3 | 資料庫連線正常 | 查詢成功執行 | 5 秒 |
+| 4 | 外部相依服務可達 | 連線檢查成功 | 10 秒/項 |
+| 5 | 總執行時間 | 所有測試完成 | 最長 60 秒 |
+
+Smoke Test 失敗必須阻擋部署並觸發 rollback。
+
+---
+
 ## 相關標準
 
 - [安全標準](security-standards.md)
 - [效能標準](performance-standards.md)
 - [測試標準](testing-standards.md)
+- [簽入標準](checkin-standards.md) - 部署前品質關卡
+- [Changelog 標準](changelog-standards.md) - 記錄已部署變更
+- [Git 工作流標準](git-workflow.md) - 分支策略與發布流程
+- [版本標準](versioning.md) - 發布版本號碼

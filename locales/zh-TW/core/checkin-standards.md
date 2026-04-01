@@ -1004,12 +1004,61 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 ---
 
+## Linting 策略
+
+### 規則嚴重性分類
+
+| 層級 | CI 行為 | 適用場景 | 範例 |
+|------|---------|----------|------|
+| **Error** | 阻擋 CI（build 失敗） | 可能的 Bug、安全問題 | 未使用變數、未處理 Promise、`eval` 使用 |
+| **Warning** | 通過但回報 | 品質建議 | 函式過長、巢狀過深、TODO 標記 |
+| **Info** | 靜默通過 | 風格偏好 | 行尾空白、import 排序 |
+
+### Auto-fix 策略
+
+| 類別 | 範例 | 允許自動修復 |
+|------|------|-------------|
+| **安全修復** | 縮排、分號、import 排序 | 是 |
+| **需確認** | 變數重命名、型別推斷 | 確認後修復 |
+| **禁止自動修復** | 移除未使用變數、重構複雜邏輯 | 否（需人工判斷） |
+
+**Auto-fix 時機：**
+
+| 時機 | 行為 | 理由 |
+|------|------|------|
+| **Pre-commit hook** | 修復安全規則（格式化） | 快速回饋、乾淨提交 |
+| **CI pipeline** | 僅檢查，不修復 | 確保開發者了解問題 |
+| **PR review** | 以 PR 評論建議 | 不阻擋、具教育意義 |
+
+### 團隊一致性原則
+
+| 原則 | 說明 |
+|------|------|
+| **團隊決定** | 風格選擇由團隊投票，非個人偏好 |
+| **設定納入版控** | Lint 設定檔必須提交至 Git |
+| **決定後不辯論** | 採用後全員遵循，避免 bikeshedding |
+| **自動化優先** | 能由工具強制的規則不依賴人工審查 |
+| **新專案嚴格** | 新專案使用嚴格規則集；既有專案漸進採用 |
+
+### 漸進採用
+
+1. **僅對新增/修改檔案套用嚴格規則** — 不要求一次修復整個 codebase
+2. **允許 `// eslint-disable-next-line` 但設上限** — 例如每專案 < 100 個
+3. **每季減少 disable 數量** — 每季減少 25%
+4. **全面強制** — 最終於所有檔案啟用
+
+---
+
 ## 相關標準
 
 - [專案結構標準](project-structure.md)
 - [測試標準](testing-standards.md)（或使用 `/testing-guide` 技能）
 - [Commit 訊息規範](commit-message-guide.md)
 - [程式碼審查清單](code-review-checklist.md)
+- [部署標準](deployment-standards.md) - 品質關卡與部署就緒性
+- [驗收條件追溯標準](acceptance-criteria-traceability.md) - AC 覆蓋率驗證
+- [變更批次合併標準](change-batching-standards.md) - 批次閾值觸發
+- [Pipeline 整合標準](pipeline-integration-standards.md) - 自動簽入
 
 ---
 
