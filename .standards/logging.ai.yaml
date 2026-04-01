@@ -145,3 +145,8 @@ quick_reference:
       - [INFO, 30 days]
       - [WARN, 90 days]
       - [ERROR/FATAL, 1 year]
+
+enforcement:
+  hook_script: scripts/hooks/check-logging-standard.js
+  trigger: PostToolUse
+  severity: warning

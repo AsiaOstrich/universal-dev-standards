@@ -109,6 +109,11 @@ standard:
           - "Fixes #456"
           - "Refs #789"
 
+enforcement:
+  hook_script: scripts/hooks/validate-commit-msg.js
+  trigger: UserPromptSubmit
+  severity: error
+
 physical_spec:
   type: custom_script
   validator:

@@ -66,6 +66,7 @@ function matchDomains(prompt, manifest) {
         documentation: ['/docs', '/changelog', '/generate-docs', 'readme', 'changelog', 'documentation'],
         workflow: ['/release', '/commit', 'branch', 'merge', 'release', 'deploy', 'version'],
         architecture: ['architecture', 'project setup', 'error handling', 'logging', 'project structure'],
+        enforcement: ['hook', 'enforce', 'validate', 'dangerous', 'security check', 'logging check'],
       };
       triggers = domainTriggerMap[domainName] || [domainName];
     }

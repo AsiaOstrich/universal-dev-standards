@@ -860,6 +860,7 @@ uds init --experimental
 | Experimental | `-E, --experimental` | Enable experimental features (methodology selection) |
 | AGENTS.md | `--agents-md` | Generate AGENTS.md universal summary (default: yes if no codex/opencode) |
 | No AGENTS.md | `--no-agents-md` | Skip AGENTS.md generation |
+| Enforcement Hooks | `--with-hooks` | Install enforcement hooks (commit-msg, security, logging) |
 | UI Language | `--ui-lang` | UI language for prompts (`en`, `zh-tw`, `auto`) - default: `auto` |
 | Mode (deprecated) | `-m, --mode` | Installation mode (skills, full) - use `--skills-location` instead |
 | Force overwrite | `-f, --force` | Overwrite existing configuration (used by `uds ai-context init`) |
@@ -891,6 +892,9 @@ uds init -y --agents-md
 
 # Skip AGENTS.md generation
 uds init -y --no-agents-md
+
+# Install with enforcement hooks
+uds init -y --with-hooks
 
 # Traditional Chinese team
 uds init -y --output-lang traditional-chinese --locale zh-tw

@@ -93,6 +93,7 @@ program
   .option('--content-mode <mode>', 'Content mode for integration files (minimal, index, full) [default: index]')
   .option('--agents-md', 'Generate AGENTS.md universal summary')
   .option('--no-agents-md', 'Skip AGENTS.md generation')
+  .option('--with-hooks', 'Install enforcement hooks (commit-msg, security, logging)')
   .option('-y, --yes', 'Use defaults, skip interactive prompts')
   .option('-E, --experimental', 'Enable experimental features (methodology)')
   .action(initCommand);

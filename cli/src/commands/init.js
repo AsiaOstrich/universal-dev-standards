@@ -150,6 +150,15 @@ export async function initCommand(options) {
   // 4. Write Manifest & Display Summary
   writeFinalManifest(config, combinedResults, projectPath);
 
+  // 4.5. Install enforcement hooks (if --with-hooks)
+  if (config.withHooks) {
+    const { installHooks } = await import('../installers/hooks-installer.js');
+    const hookResult = installHooks(projectPath);
+    if (hookResult.installed) {
+      console.log(chalk.green(`  ✓ Enforcement hooks installed (${hookResult.scriptsCount} scripts)`));
+    }
+  }
+
   // 5. Setup Pre-commit Hook
   await setupHuskyHook(projectPath);
 
@@ -336,7 +345,8 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     contentMode: skillsConfig.contentMode || 'minimal',
     methodology: null,
     generateAgentsMd,
-    releaseMode: options.releaseMode || 'ci-cd'
+    releaseMode: options.releaseMode || 'ci-cd',
+    withHooks: !!options.withHooks
   };
 }
 
