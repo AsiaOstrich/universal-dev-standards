@@ -60,9 +60,9 @@ TOTAL_COUNT=0
 ORPHAN_LIST=""
 
 while IFS= read -r spec_file; do
-    # Skip README files and index files
+    # Skip README files, index files, and ATDD-derived tables
     filename=$(basename "$spec_file")
-    if [[ "$filename" == "README.md" ]] || [[ "$filename" == "INDEX.md" ]]; then
+    if [[ "$filename" == "README.md" ]] || [[ "$filename" == "INDEX.md" ]] || [[ "$filename" == *"-atdd.md" ]]; then
         continue
     fi
 
@@ -77,12 +77,12 @@ while IFS= read -r spec_file; do
     # Avoid false positives from headings like "# Status Display"
     status="unknown"
 
-    # Try blockquote/bold pattern first: > **Status**: Value  or  **Status**: Value
-    status_line=$(grep -m 1 -E '^\s*>?\s*\*?\*?Status\*?\*?\s*:' "$spec_file" 2>/dev/null || echo "")
+    # Try blockquote/bold/list pattern: > **Status**: Value  or  **Status**: Value  or  - **Status**: Value
+    status_line=$(grep -m 1 -E '^\s*[-*>]?\s*\*?\*?Status\*?\*?\s*:' "$spec_file" 2>/dev/null || echo "")
 
     if [ -z "$status_line" ]; then
-        # Try table pattern: | **Status** | Value |  or  | Status | Value |
-        status_line=$(grep -m 1 -E '^\s*\|.*[Ss]tatus.*\|.*\|' "$spec_file" 2>/dev/null || echo "")
+        # Try table pattern: | **Status** | Value |  or  | Status | Value |  or  | **狀態** | Value |
+        status_line=$(grep -m 1 -E '^\s*\|.*([Ss]tatus|狀態).*\|.*\|' "$spec_file" 2>/dev/null || echo "")
         if [ -n "$status_line" ]; then
             # Extract value from second table cell: | Status | VALUE |
             status=$(echo "$status_line" | awk -F'|' '{gsub(/^[[:space:]]*|[[:space:]]*$/, "", $3); print $3}' | sed 's/\*//g' | awk '{print $1}')
