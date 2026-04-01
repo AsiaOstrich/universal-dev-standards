@@ -68,10 +68,10 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=19
+TOTAL=20
 
 if [ "$SKIP_TESTS" = true ]; then
-    TOTAL=17
+    TOTAL=18
 fi
 
 # Function to run a check
@@ -256,22 +256,25 @@ else
     SKIPPED=$((SKIPPED + 1))
 fi
 
-# Step 18: Unit Tests
+# Step 18: Registry Completeness
+run_check "18" "Running registry completeness check | 註冊表完整性檢查" "$SCRIPT_DIR/check-registry-completeness.sh"
+
+# Step 19: Unit Tests
 if [ "$SKIP_TESTS" = true ]; then
-    echo -e "${CYAN}[18/$TOTAL]${NC} Running unit tests..."
+    echo -e "${CYAN}[19/$TOTAL]${NC} Running unit tests..."
     echo -e "      ${YELLOW}⏭ Skipped (--skip-tests flag)${NC}"
     SKIPPED=$((SKIPPED + 1))
 else
-    run_check "18" "Running unit tests | 單元測試" "npm run test:unit --prefix $CLI_DIR"
+    run_check "19" "Running unit tests | 單元測試" "npm run test:unit --prefix $CLI_DIR"
 fi
 
-# Step 19: E2E Tests (Bug Regression)
+# Step 20: E2E Tests (Bug Regression)
 if [ "$SKIP_TESTS" = true ]; then
-    echo -e "${CYAN}[19/$TOTAL]${NC} Running E2E tests..."
+    echo -e "${CYAN}[20/$TOTAL]${NC} Running E2E tests..."
     echo -e "      ${YELLOW}⏭ Skipped (--skip-tests flag)${NC}"
     SKIPPED=$((SKIPPED + 1))
 else
-    run_check "19" "Running E2E tests | E2E 迴歸測試" "npm run test:e2e --prefix $CLI_DIR"
+    run_check "20" "Running E2E tests | E2E 迴歸測試" "npm run test:e2e --prefix $CLI_DIR"
 fi
 
 # Show summary
