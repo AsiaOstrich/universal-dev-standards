@@ -1,9 +1,10 @@
 # [SPEC-FLOW-001] Feature: 自訂 SDLC 流程引擎 — Flow Template YAML 與 Flow Engine
 
-- **Status**: Implemented
+- **Status**: Archived
 - **Created**: 2026-04-02
 - **Implemented**: 2026-04-02
-- **Note**: 17/17 AC 全部完成
+- **Archived**: 2026-04-02
+- **Commits**: b495d48, 3ba89a3, 8e839d7, fc2a9fe, cc80ae7, ec82256, b591af0
 - **Scope**: partial (概念 universal，但 CLI 實作為 UDS 工具)
 - **Depends-on**: 無（新功能）
 

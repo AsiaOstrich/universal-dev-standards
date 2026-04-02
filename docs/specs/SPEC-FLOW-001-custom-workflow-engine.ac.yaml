@@ -1,7 +1,7 @@
 # SPEC-FLOW-001 Acceptance Criteria (Machine-Readable)
 spec_id: SPEC-FLOW-001
 title: 自訂 SDLC 流程引擎
-status: Implemented
+status: Archived
 
 acceptance_criteria:
   - id: AC-1
