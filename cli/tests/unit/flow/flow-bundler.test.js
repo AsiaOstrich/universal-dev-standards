@@ -1,99 +1,150 @@
 /**
- * Tests for SPEC-FLOW-001: 自訂 SDLC 流程引擎 — Flow Bundler
- * Generated from: docs/specs/SPEC-FLOW-001-custom-workflow-engine.md
- * Generated at: 2026-04-02
+ * Tests for SPEC-FLOW-001: Flow Bundler (Export/Import)
  * AC Coverage: AC-16, AC-17
  */
 
 import { describe, it, expect } from 'vitest';
+import { exportBundle, importBundle, validateBundle } from '../../../src/flow/flow-bundler.js';
+
+const sampleFlow = {
+  id: 'my-flow',
+  name: '我的流程',
+  extends: 'sdd',
+  stages: [
+    { id: 'plan', name: 'Plan', steps: [{ command: '/brainstorm' }],
+      gates: [{ type: 'blocking', ref: 'security-gate' }] }
+  ]
+};
+
+const sampleGates = {
+  'security-gate': {
+    id: 'security-gate', name: '安全閘門', type: 'blocking',
+    checks: [{ run: 'npm audit', expect: 'exit_code_0' }]
+  }
+};
 
 describe('SPEC-FLOW-001: Flow Bundler', () => {
   // ============================================================
-  // AC-16: uds flow export 匯出包含 gates 的 bundle
+  // AC-16: Export
   // ============================================================
-  describe('AC-16: Export Bundle', () => {
-    it('should export flow with referenced gates into single bundle file', async () => {
-      // Arrange
-      // [TODO] 建立 flow 引用 ref: security-gate
-      // [TODO] 建立 .uds/gates/security-gate.gate.yaml
+  describe('AC-16: exportBundle', () => {
+    it('should create bundle with flow and referenced gates', () => {
+      const bundle = exportBundle(sampleFlow, sampleGates, { projectName: 'test-project' });
 
-      // Act
-      // [TODO] FlowBundler.export('my-flow', outputPath)
-
-      // Assert
-      // [TODO] bundle 包含 bundle_version、exported_at、exported_from
-      // [TODO] bundle.flow 包含完整 flow 定義
-      // [TODO] bundle.gates 包含 security-gate 定義
-      expect(true).toBe(true); // Placeholder
+      expect(bundle.bundle_version).toBe('1.0');
+      expect(bundle.exported_from).toBe('test-project');
+      expect(bundle.exported_at).toBeDefined();
+      expect(bundle.flow.id).toBe('my-flow');
+      expect(bundle.gates).toHaveLength(1);
+      expect(bundle.gates[0].id).toBe('security-gate');
     });
 
-    it('should export flow without gates when no refs exist', async () => {
-      // Arrange
-      // [TODO] 建立 flow 只用 inline gates，不引用外部 gate
+    it('should export empty gates when flow has no gate refs', () => {
+      const noGateFlow = {
+        id: 'simple', name: 'Simple',
+        stages: [{ id: 'build', name: 'Build', steps: [{ command: '/tdd' }] }]
+      };
 
-      // Act
-      // [TODO] FlowBundler.export('simple-flow', outputPath)
+      const bundle = exportBundle(noGateFlow, {});
 
-      // Assert
-      // [TODO] bundle.gates 為空陣列或 undefined
-      expect(true).toBe(true); // Placeholder
+      expect(bundle.gates).toHaveLength(0);
+    });
+
+    it('should only include gates that are referenced by the flow', () => {
+      const extraGates = {
+        ...sampleGates,
+        'unused-gate': { id: 'unused-gate', name: 'Unused', type: 'warning', checks: [] }
+      };
+
+      const bundle = exportBundle(sampleFlow, extraGates);
+
+      expect(bundle.gates).toHaveLength(1);
+      expect(bundle.gates[0].id).toBe('security-gate');
     });
   });
 
   // ============================================================
-  // AC-17: uds flow import 匯入 bundle 並處理衝突
+  // AC-17: Import + Validation
   // ============================================================
-  describe('AC-17: Import Bundle', () => {
-    it('should import bundle to .uds/flows/ and .uds/gates/', async () => {
-      // Arrange
-      // [TODO] 建立合法的 bundle YAML
+  describe('AC-17: importBundle', () => {
+    it('should extract flow and gates from bundle', () => {
+      const bundle = {
+        bundle_version: '1.0',
+        exported_at: '2026-04-02T10:00:00Z',
+        flow: sampleFlow,
+        gates: [sampleGates['security-gate']]
+      };
 
-      // Act
-      // [TODO] FlowBundler.import(bundlePath)
+      const result = importBundle(bundle);
 
-      // Assert
-      // [TODO] .uds/flows/{flow-id}.flow.yaml 已建立
-      // [TODO] .uds/gates/{gate-id}.gate.yaml 已建立
-      expect(true).toBe(true); // Placeholder
+      expect(result.flow.id).toBe('my-flow');
+      expect(result.gates).toHaveLength(1);
+      expect(result.gates[0].id).toBe('security-gate');
     });
 
-    it('should not overwrite existing files without --force', async () => {
-      // Arrange
-      // [TODO] .uds/flows/ 已有同名 flow 檔案
-      // [TODO] force = false
+    it('should detect conflicts with existing flows', () => {
+      const bundle = {
+        bundle_version: '1.0',
+        flow: sampleFlow,
+        gates: []
+      };
+      const existingFlowIds = ['my-flow'];
 
-      // Act
-      // [TODO] FlowBundler.import(bundlePath, { force: false })
+      const result = importBundle(bundle, { existingFlowIds });
 
-      // Assert
-      // [TODO] 回傳 { conflict: true, existingFiles: [...] }
-      // [TODO] 原有檔案未被修改
-      expect(true).toBe(true); // Placeholder
+      expect(result.conflicts).toHaveLength(1);
+      expect(result.conflicts[0]).toBe('my-flow');
     });
 
-    it('should overwrite existing files with --force', async () => {
-      // Arrange
-      // [TODO] .uds/flows/ 已有同名 flow 檔案
-      // [TODO] force = true
+    it('should report no conflicts when flow is new', () => {
+      const bundle = {
+        bundle_version: '1.0',
+        flow: sampleFlow,
+        gates: []
+      };
 
-      // Act
-      // [TODO] FlowBundler.import(bundlePath, { force: true })
+      const result = importBundle(bundle, { existingFlowIds: ['other-flow'] });
 
-      // Assert
-      // [TODO] 檔案已被覆寫
-      expect(true).toBe(true); // Placeholder
+      expect(result.conflicts).toHaveLength(0);
+    });
+  });
+
+  describe('AC-17: validateBundle', () => {
+    it('should pass validation for valid bundle', () => {
+      const bundle = {
+        bundle_version: '1.0',
+        flow: sampleFlow,
+        gates: [sampleGates['security-gate']]
+      };
+
+      const errors = validateBundle(bundle, { availableBaseFlows: ['sdd'] });
+
+      expect(errors).toHaveLength(0);
     });
 
-    it('should report error when bundle references non-existent base flow', async () => {
-      // Arrange
-      // [TODO] bundle 中 flow 有 extends: non-existent-base
+    it('should report error when extends references non-existent base flow', () => {
+      const bundle = {
+        bundle_version: '1.0',
+        flow: { ...sampleFlow, extends: 'nonexistent' },
+        gates: []
+      };
 
-      // Act
-      // [TODO] FlowBundler.import(bundlePath)
+      const errors = validateBundle(bundle, { availableBaseFlows: ['sdd', 'tdd'] });
 
-      // Assert
-      // [TODO] 回傳錯誤「base flow 'non-existent-base' 不存在，請先安裝」
-      expect(true).toBe(true); // Placeholder
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toMatch(/nonexistent/);
+    });
+
+    it('should pass when flow has no extends', () => {
+      const bundle = {
+        bundle_version: '1.0',
+        flow: { id: 'standalone', name: 'Standalone', stages: [{ id: 's1', name: 'S1', steps: [{ command: '/tdd' }] }] },
+        gates: []
+      };
+
+      const errors = validateBundle(bundle, { availableBaseFlows: [] });
+
+      expect(errors).toHaveLength(0);
     });
   });
 });
