@@ -1,6 +1,6 @@
 # Execution History Repository Standard — 開發規格
 
-**狀態**: Approved
+**狀態**: Archived
 **建立日期**: 2026-04-02
 **參考實作**: dev-autopilot SPEC-008（Implemented Phase 1-3）
 
