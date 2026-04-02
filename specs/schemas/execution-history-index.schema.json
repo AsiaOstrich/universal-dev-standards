@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Execution History Index (L1)",
+  "description": "Active tasks index for execution history — max 50 tasks, < 200 tokens target",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["version", "updated", "tasks"],
+  "properties": {
+    "version": { "type": "string" },
+    "updated": { "type": "string", "format": "date-time" },
+    "max_active_tasks": { "type": "integer", "default": 50 },
+    "archive_threshold_days": { "type": "integer", "default": 90 },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["task_id", "task_name", "latest_run", "latest_status", "latest_date", "total_runs"],
+        "properties": {
+          "task_id": { "type": "string" },
+          "task_name": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "latest_run": { "type": "string", "pattern": "^[0-9]{3}$" },
+          "latest_status": { "type": "string", "enum": ["success", "failure", "partial"] },
+          "latest_date": { "type": "string", "format": "date" },
+          "total_runs": { "type": "integer", "minimum": 1 }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Execution History Log Entry",
+  "description": "Single log entry schema for execution-log.jsonl (one per line)",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["timestamp", "level", "event"],
+  "properties": {
+    "timestamp": { "type": "string", "format": "date-time" },
+    "level": { "type": "string", "enum": ["debug", "info", "warn", "error"] },
+    "event": { "type": "string" },
+    "details": { "type": "object" },
+    "tool_call": { "type": "string" },
+    "tokens": { "type": "integer" }
+  }
+}

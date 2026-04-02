@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Execution History Final Status",
+  "description": "Final execution status artifact schema",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["status", "summary", "timestamp"],
+  "properties": {
+    "status": { "type": "string", "enum": ["success", "failure", "partial"] },
+    "summary": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "duration_seconds": { "type": "number" },
+    "error": { "type": "string" }
+  }
+}

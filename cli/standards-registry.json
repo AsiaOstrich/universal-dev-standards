@@ -1324,6 +1324,18 @@
       "description": "Structured system for capturing, retrieving, and surfacing developer experience insights across conversations and projects"
     },
     {
+      "id": "execution-history",
+      "name": "Execution History Repository Standards",
+      "nameZh": "執行歷史倉庫標準",
+      "source": {
+        "human": "core/execution-history.md",
+        "ai": "ai/standards/execution-history.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Structured system for persisting agent execution artifacts with L1/L2/L3 tiered access model"
+    },
+    {
       "id": "project-context-memory",
       "name": "Project Context Memory Standards",
       "nameZh": "專案情境記憶標準",

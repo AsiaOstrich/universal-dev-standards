@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Execution History Token Usage",
+  "description": "Token usage breakdown artifact schema",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["total", "breakdown"],
+  "properties": {
+    "total": {
+      "type": "object",
+      "properties": {
+        "input_tokens": { "type": "integer" },
+        "output_tokens": { "type": "integer" }
+      }
+    },
+    "breakdown": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": { "type": "string" },
+          "input_tokens": { "type": "integer" },
+          "output_tokens": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

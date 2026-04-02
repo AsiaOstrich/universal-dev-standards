@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Execution History Task Manifest (L2)",
+  "description": "Task-level summary manifest — < 1,000 tokens per task target",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["task_id", "task_description_summary", "run_history", "artifacts_available"],
+  "properties": {
+    "task_id": { "type": "string" },
+    "task_description_summary": { "type": "string" },
+    "run_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["run", "status", "date"],
+        "properties": {
+          "run": { "type": "string", "pattern": "^[0-9]{3}$" },
+          "status": { "type": "string", "enum": ["success", "failure", "partial"] },
+          "date": { "type": "string", "format": "date" },
+          "duration_s": { "type": "number" },
+          "tokens_total": { "type": "integer" }
+        }
+      }
+    },
+    "key_metrics": {
+      "type": "object",
+      "properties": {
+        "pass_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "avg_tokens": { "type": "number" },
+        "avg_duration_s": { "type": "number" }
+      }
+    },
+    "artifacts_available": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "failure_summary": { "type": "string" }
+  }
+}
