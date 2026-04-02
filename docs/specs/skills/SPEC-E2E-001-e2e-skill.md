@@ -1,7 +1,10 @@
 # [SPEC-E2E-001] Feature: `/e2e` 斜線命令 — 從 BDD 場景生成 E2E 測試骨架
 
-- **Status**: Approved
+- **Status**: Archived
 - **Approved**: 2026-04-02
+- **Implemented**: 2026-04-02
+- **Archived**: 2026-04-02
+- **Commits**: fe69335, 5e9918b
 - **Created**: 2026-04-02
 - **Priority**: Medium
 - **Scope**: partial (概念 universal，Skill 實作為 UDS 工具)
