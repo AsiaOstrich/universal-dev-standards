@@ -1,0 +1,124 @@
+# SPEC-FLOW-001 Acceptance Criteria (Machine-Readable)
+spec_id: SPEC-FLOW-001
+title: 自訂 SDLC 流程引擎
+status: Draft
+
+acceptance_criteria:
+  - id: AC-1
+    description: Flow YAML 能被解析和驗證（schema 正確性）
+    requirement: REQ-1
+    scope: UDS
+    status: pending
+    test_type: unit
+
+  - id: AC-2
+    description: 引用不存在的命令時回報錯誤
+    requirement: REQ-1
+    scope: UDS
+    status: pending
+    test_type: unit
+
+  - id: AC-3
+    description: SDD/TDD/BDD 預設流程以 Flow YAML 表達
+    requirement: REQ-2
+    scope: UDS
+    status: pending
+    test_type: integration
+
+  - id: AC-4
+    description: extends 繼承機制正確合併 stages/steps/gates
+    requirement: REQ-3
+    scope: UDS
+    status: pending
+    test_type: unit
+
+  - id: AC-5
+    description: overrides/insert/remove_steps 操作正確
+    requirement: REQ-3
+    scope: UDS
+    status: pending
+    test_type: unit
+
+  - id: AC-6
+    description: 多層繼承正確解析
+    requirement: REQ-3
+    scope: UDS
+    status: pending
+    test_type: unit
+
+  - id: AC-7
+    description: 獨立閘門定義可被引用和執行
+    requirement: REQ-4
+    scope: UDS
+    status: pending
+    test_type: integration
+
+  - id: AC-8
+    description: Blocking/Warning 閘門行為正確
+    requirement: REQ-4
+    scope: UDS
+    status: pending
+    test_type: unit
+
+  - id: AC-9
+    description: 不可移除閘門無法被覆寫移除
+    requirement: REQ-4
+    scope: UDS
+    status: pending
+    test_type: unit
+
+  - id: AC-10
+    description: 流程狀態正確持久化並可恢復
+    requirement: REQ-5
+    scope: UDS
+    status: pending
+    test_type: integration
+
+  - id: AC-11
+    description: 狀態格式與 workflow-state-protocol 相容
+    requirement: REQ-5
+    scope: UDS
+    status: pending
+    test_type: unit
+
+  - id: AC-12
+    description: uds flow create 互動式建立流程
+    requirement: REQ-6
+    scope: UDS
+    status: pending
+    test_type: e2e
+
+  - id: AC-13
+    description: uds flow list 列出所有流程
+    requirement: REQ-6
+    scope: UDS
+    status: pending
+    test_type: e2e
+
+  - id: AC-14
+    description: uds flow validate 檢查流程定義
+    requirement: REQ-6
+    scope: UDS
+    status: pending
+    test_type: e2e
+
+  - id: AC-15
+    description: uds flow diff 比較兩個流程
+    requirement: REQ-6
+    scope: UDS
+    status: pending
+    test_type: e2e
+
+  - id: AC-16
+    description: uds flow export 匯出包含 gates 的 bundle
+    requirement: REQ-7
+    scope: UDS
+    status: pending
+    test_type: integration
+
+  - id: AC-17
+    description: uds flow import 匯入 bundle 並處理衝突
+    requirement: REQ-7
+    scope: UDS
+    status: pending
+    test_type: integration
