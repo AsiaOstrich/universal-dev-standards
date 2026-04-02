@@ -463,7 +463,22 @@ standard:
 9. **使用範例** — Agent 讀取歷史的步驟（L1 篩選 → L2 摘要 → L3 深入）
 10. **相關標準** — developer-memory, project-context-memory, workflow-state-protocol
 
-### 3. `cli/standards-registry.json`（修改）
+### 3. `specs/schemas/execution-history-*.schema.json`（新增 6 個）
+
+從 `execution-history.ai.yaml` 的 `definitions` 區塊匯出獨立的 JSON Schema 檔案，供下游專案（DevAP、VibeOps）在 CI 中做合約測試。
+
+| Schema 檔案 | 驗證對象 |
+|-------------|---------|
+| `execution-history-index.schema.json` | index.json（L1） |
+| `execution-history-manifest.schema.json` | manifest.json（L2） |
+| `execution-history-test-results.schema.json` | test-results.json |
+| `execution-history-log-entry.schema.json` | execution-log.jsonl 每行 |
+| `execution-history-token-usage.schema.json` | token-usage.json |
+| `execution-history-final-status.schema.json` | final-status.json |
+
+每個 schema 須包含 `version` 欄位（與 `execution-history.ai.yaml` 的 `meta.version` 一致），用於跨專案版本追蹤。
+
+### 4. `cli/standards-registry.json`（修改）
 
 在 `standards` 陣列中新增 entry：
 
