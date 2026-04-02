@@ -1,8 +1,9 @@
 # [SPEC-FLOW-001] Feature: 自訂 SDLC 流程引擎 — Flow Template YAML 與 Flow Engine
 
-- **Status**: Draft
+- **Status**: Implemented
 - **Created**: 2026-04-02
-- **Phase**: flow-engine Phase 1
+- **Implemented**: 2026-04-02
+- **Note**: AC-12（uds flow create 互動式建立）延後至後續迭代
 - **Scope**: partial (概念 universal，但 CLI 實作為 UDS 工具)
 - **Depends-on**: 無（新功能）
 
