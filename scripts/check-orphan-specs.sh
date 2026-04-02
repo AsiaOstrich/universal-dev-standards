@@ -62,7 +62,7 @@ ORPHAN_LIST=""
 while IFS= read -r spec_file; do
     # Skip README files, index files, and ATDD-derived tables
     filename=$(basename "$spec_file")
-    if [[ "$filename" == "README.md" ]] || [[ "$filename" == "INDEX.md" ]] || [[ "$filename" == *"-atdd.md" ]]; then
+    if [[ "$filename" == "README.md" ]] || [[ "$filename" == "INDEX.md" ]] || [[ "$filename" == *"-atdd.md" ]] || [[ "$filename" == *"-traceability.md" ]]; then
         continue
     fi
 
