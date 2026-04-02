@@ -35,6 +35,7 @@ status: current
 | `tdd-assistant` | `/tdd` | [UDS] 測試驅動開發 |
 | `bdd-assistant` | `/bdd` | [UDS] 行為驅動開發 |
 | `atdd-assistant` | `/atdd` | [UDS] 驗收測試驅動開發 |
+| `e2e-assistant` | `/e2e` | [UDS] 從 BDD 場景生成 E2E 測試骨架 |
 | `release-standards` | `/release` | [UDS] 發布與變更日誌管理 |
 | `documentation-guide` | `/docs` | [UDS] 文件管理 |
 | `requirement-assistant` | `/requirement` | [UDS] 需求撰寫 |

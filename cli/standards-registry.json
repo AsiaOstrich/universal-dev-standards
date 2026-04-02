@@ -384,6 +384,9 @@
       "skills/atdd-assistant/atdd-workflow.md",
       "skills/atdd-assistant/acceptance-criteria-guide.md"
     ],
+    "e2e-assistant": [
+      "skills/e2e-assistant/SKILL.md"
+    ],
     "commands": [
       "skills/commands/README.md",
       "skills/commands/atdd.md",
@@ -394,6 +397,7 @@
       "skills/commands/commit.md",
       "skills/commands/config.md",
       "skills/commands/coverage.md",
+      "skills/commands/e2e.md",
       "skills/commands/derive-all.md",
       "skills/commands/derive-atdd.md",
       "skills/commands/derive-bdd.md",

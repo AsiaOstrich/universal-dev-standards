@@ -35,6 +35,7 @@ status: current
 | `tdd-assistant` | `/tdd` | [UDS] 测试驱动开发 |
 | `bdd-assistant` | `/bdd` | [UDS] 行为驱动开发 |
 | `atdd-assistant` | `/atdd` | [UDS] 验收测试驱动开发 |
+| `e2e-assistant` | `/e2e` | [UDS] 从 BDD 场景生成 E2E 测试骨架 |
 | `release-standards` | `/release` | [UDS] 发布与变更日志管理 |
 | `documentation-guide` | `/docs` | [UDS] 文档管理 |
 | `requirement-assistant` | `/requirement` | [UDS] 需求撰写 |

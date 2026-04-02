@@ -14,7 +14,7 @@
     "testing": {
       "description": "Testing-related commands",
       "descriptionZh": "測試相關命令",
-      "commands": ["tdd", "bdd", "atdd", "coverage", "ac-coverage", "derive", "derive-bdd", "derive-tdd", "derive-atdd", "derive-all"]
+      "commands": ["tdd", "bdd", "atdd", "e2e", "coverage", "ac-coverage", "derive", "derive-bdd", "derive-tdd", "derive-atdd", "derive-all"]
     },
     "quality": {
       "description": "Quality and refactoring commands",
