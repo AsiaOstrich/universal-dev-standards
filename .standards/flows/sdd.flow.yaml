@@ -1,0 +1,84 @@
+# SDD (Spec-Driven Development) — 內建預設流程
+# Source: methodologies/sdd.methodology.yaml
+# SPEC-FLOW-001 REQ-2
+
+id: sdd
+name: "Spec-Driven Development"
+version: "1.0.0"
+description: "規格優先的開發流程：先寫規格，再實作，最後驗證"
+
+stages:
+  - id: discuss
+    name: "Discuss — 釐清範圍"
+    steps:
+      - command: /brainstorm
+        required: false
+      - command: /requirement
+        required: false
+    gates:
+      - type: warning
+        artifact: "docs/specs/SPEC-*.md"
+
+  - id: proposal
+    name: "Proposal — 撰寫規格"
+    steps:
+      - command: /sdd
+        required: true
+    gates:
+      - type: blocking
+        artifact: "docs/specs/SPEC-*.md"
+
+  - id: review
+    name: "Review — 審查規格"
+    steps:
+      - command: /review
+        required: true
+    gates:
+      - type: blocking
+        run: "echo 'Spec must be approved before implementation'"
+        expect: exit_code_0
+
+  - id: implementation
+    name: "Implementation — 實作"
+    steps:
+      - command: /derive
+        required: true
+      - command: /tdd
+        required: true
+      - command: /api-design
+        required: false
+        when: scope_includes_api
+      - command: /database
+        required: false
+        when: scope_includes_database
+    gates:
+      - type: blocking
+        run: "npm test"
+        expect: exit_code_0
+
+  - id: verification
+    name: "Verification — 驗證"
+    steps:
+      - command: /checkin
+        required: true
+      - command: /coverage
+        required: false
+    gates:
+      - type: blocking
+        run: "npm test"
+        expect: exit_code_0
+      - type: blocking
+        run: "npm run lint"
+        expect: exit_code_0
+
+  - id: archive
+    name: "Archive — 歸檔"
+    steps:
+      - command: /commit
+        required: true
+
+config:
+  enforcement: suggest
+  allow_skip_optional: true
+  state_persistence: true
+  gate_timeout: 30

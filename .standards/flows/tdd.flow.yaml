@@ -1,0 +1,60 @@
+# TDD (Test-Driven Development) — 內建預設流程
+# Source: methodologies/tdd.methodology.yaml
+# SPEC-FLOW-001 REQ-2
+
+id: tdd
+name: "Test-Driven Development"
+version: "1.0.0"
+description: "測試驅動開發：Red-Green-Refactor 循環"
+
+stages:
+  - id: red
+    name: "RED — 撰寫失敗測試"
+    loop: true
+    steps:
+      - command: /tdd
+        required: true
+    gates:
+      - type: warning
+        run: "echo 'Ensure test fails for the right reason'"
+        expect: exit_code_0
+
+  - id: green
+    name: "GREEN — 讓測試通過"
+    loop: true
+    steps:
+      - command: /tdd
+        required: true
+    gates:
+      - type: blocking
+        run: "npm test"
+        expect: exit_code_0
+
+  - id: refactor
+    name: "REFACTOR — 改善程式碼"
+    loop: true
+    steps:
+      - command: /refactor
+        required: false
+    gates:
+      - type: blocking
+        run: "npm test"
+        expect: exit_code_0
+
+  - id: done
+    name: "DONE — 功能完成"
+    steps:
+      - command: /checkin
+        required: true
+      - command: /commit
+        required: true
+    gates:
+      - type: blocking
+        run: "npm test"
+        expect: exit_code_0
+
+config:
+  enforcement: suggest
+  allow_skip_optional: true
+  state_persistence: true
+  gate_timeout: 30
