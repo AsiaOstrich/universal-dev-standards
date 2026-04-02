@@ -85,9 +85,8 @@ acceptance_criteria:
     description: uds flow create 互動式建立流程
     requirement: REQ-6
     scope: UDS
-    status: deferred
+    status: passed
     test_type: e2e
-    note: 延後至後續迭代（需要 Commander.js + Inquirer.js CLI wiring）
 
   - id: AC-13
     description: uds flow list 列出所有流程

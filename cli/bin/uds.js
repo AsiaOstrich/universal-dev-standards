@@ -22,6 +22,7 @@ import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand
 import { startCommand, missionStatusCommand, missionPauseCommand, missionResumeCommand, missionCancelCommand, missionListCommand } from '../src/commands/start.js';
 import { releaseCommand } from '../src/commands/release.js';
 import { compileStandards } from '../src/commands/compile.js';
+import { flowCreateCommand, flowListCommand, flowValidateCommand, flowDiffCommand, flowExportCommand, flowImportCommand } from '../src/commands/flow.js';
 import { generateReport } from '../src/commands/report.js';
 import { setLanguage, setLanguageExplicit, detectLanguage, t } from '../src/i18n/messages.js';
 import { maybeCheckForUpdates, formatUpdateNotice, shouldCheckUpdateForCommand } from '../src/utils/update-checker.js';
@@ -410,6 +411,44 @@ aiContextCommand
   .description('Show module dependency graph')
   .option('-m, --mermaid', 'Output Mermaid diagram format')
   .action(aiContextGraphCommand);
+
+// Flow command with subcommands (SPEC-FLOW-001)
+const flowCommand = program
+  .command('flow')
+  .description('Manage custom SDLC flows');
+
+flowCommand
+  .command('create')
+  .description('Create a custom flow interactively')
+  .action(flowCreateCommand);
+
+flowCommand
+  .command('list')
+  .alias('ls')
+  .description('List all available flows (built-in + custom)')
+  .action(flowListCommand);
+
+flowCommand
+  .command('validate <id>')
+  .description('Validate a flow definition')
+  .action(flowValidateCommand);
+
+flowCommand
+  .command('diff <flow-a> <flow-b>')
+  .description('Compare two flows')
+  .action(flowDiffCommand);
+
+flowCommand
+  .command('export <id>')
+  .description('Export a flow as a shareable bundle')
+  .option('-o, --output <path>', 'Output file path')
+  .action(flowExportCommand);
+
+flowCommand
+  .command('import <file>')
+  .description('Import a flow bundle')
+  .option('-f, --force', 'Overwrite existing files')
+  .action(flowImportCommand);
 
 // Start command for mission-oriented development
 program

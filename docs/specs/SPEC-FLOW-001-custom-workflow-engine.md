@@ -3,7 +3,7 @@
 - **Status**: Implemented
 - **Created**: 2026-04-02
 - **Implemented**: 2026-04-02
-- **Note**: AC-12（uds flow create 互動式建立）延後至後續迭代
+- **Note**: 17/17 AC 全部完成
 - **Scope**: partial (概念 universal，但 CLI 實作為 UDS 工具)
 - **Depends-on**: 無（新功能）
 
