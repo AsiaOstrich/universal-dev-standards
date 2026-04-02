@@ -1,65 +1,103 @@
 /**
- * [Generated] TDD skeletons for SPEC-E2E-001 REQ-5: 覆蓋差距分析
+ * TDD tests for SPEC-E2E-001 REQ-5: 覆蓋差距分析
  * Source: docs/specs/skills/SPEC-E2E-001-e2e-skill.md
  * AC Coverage: AC-16, AC-17
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
+
+import { analyzeCoverageGap } from '../../../src/utils/e2e-analyzer.js';
 
 describe('SPEC-E2E-001: /e2e Skill', () => {
+  let testDir;
+
+  beforeEach(() => {
+    testDir = mkdtempSync(join(tmpdir(), 'e2e-coverage-'));
+  });
+
+  afterEach(() => {
+    rmSync(testDir, { recursive: true, force: true });
+  });
+
   describe('REQ-5: 覆蓋差距分析', () => {
     // AC-16: /e2e --analyze 輸出覆蓋差距報告
     describe('AC-16: 掃描覆蓋差距', () => {
-      it('should output coverage report with covered feature count', () => {
-        // Arrange — 模擬 feature 和 e2e test 檔案
-        // [TODO] const featureFiles = Array.from({ length: 34 }, (_, i) => `SPEC-${i}.feature`);
-        // [TODO] const e2eTests = Array.from({ length: 6 }, (_, i) => `spec-${i}.e2e.test.js`);
+      it('should report covered and total feature count', () => {
+        // Arrange
+        const featuresDir = join(testDir, 'tests', 'features');
+        const e2eDir = join(testDir, 'tests', 'e2e');
+        mkdirSync(featuresDir, { recursive: true });
+        mkdirSync(e2eDir, { recursive: true });
+
+        writeFileSync(join(featuresDir, 'SPEC-A.feature'), 'Feature: A\n');
+        writeFileSync(join(featuresDir, 'SPEC-B.feature'), 'Feature: B\n');
+        writeFileSync(join(featuresDir, 'SPEC-C.feature'), 'Feature: C\n');
+        writeFileSync(join(e2eDir, 'SPEC-A.e2e.test.js'), 'test A');
 
         // Act
-        // [TODO] const report = generateCoverageReport(featureFiles, e2eTests);
+        const report = analyzeCoverageGap(featuresDir, e2eDir);
 
-        // Assert — 報告包含覆蓋數量
-        // [TODO] expect(report.covered).toBe(6);
-        // [TODO] expect(report.total).toBe(34);
+        // Assert
+        expect(report.total).toBe(3);
+        expect(report.covered).toBe(1);
       });
 
       it('should list features missing E2E coverage', () => {
         // Arrange
-        // [TODO] const featureFiles = ['a.feature', 'b.feature', 'c.feature'];
-        // [TODO] const e2eTests = ['a.e2e.test.js'];
+        const featuresDir = join(testDir, 'tests', 'features');
+        const e2eDir = join(testDir, 'tests', 'e2e');
+        mkdirSync(featuresDir, { recursive: true });
+        mkdirSync(e2eDir, { recursive: true });
+
+        writeFileSync(join(featuresDir, 'SPEC-A.feature'), 'Feature: A\n');
+        writeFileSync(join(featuresDir, 'SPEC-B.feature'), 'Feature: B\n');
+        writeFileSync(join(e2eDir, 'SPEC-A.e2e.test.js'), 'test A');
 
         // Act
-        // [TODO] const report = generateCoverageReport(featureFiles, e2eTests);
+        const report = analyzeCoverageGap(featuresDir, e2eDir);
 
         // Assert
-        // [TODO] expect(report.missing).toEqual(['b.feature', 'c.feature']);
+        expect(report.missing).toContain('SPEC-B.feature');
+        expect(report.missing).not.toContain('SPEC-A.feature');
       });
 
-      it('should suggest priority order based on risk/complexity', () => {
+      it('should handle empty directories gracefully', () => {
         // Arrange
-        // [TODO] const featureFiles = ['critical-flow.feature', 'simple-util.feature'];
-        // [TODO] const e2eTests = [];
+        const featuresDir = join(testDir, 'tests', 'features');
+        const e2eDir = join(testDir, 'tests', 'e2e');
+        mkdirSync(featuresDir, { recursive: true });
+        mkdirSync(e2eDir, { recursive: true });
 
         // Act
-        // [TODO] const report = generateCoverageReport(featureFiles, e2eTests);
+        const report = analyzeCoverageGap(featuresDir, e2eDir);
 
         // Assert
-        // [TODO] expect(report.priority).toBeDefined();
-        // [TODO] expect(report.priority[0]).toBe('critical-flow.feature');
+        expect(report.total).toBe(0);
+        expect(report.covered).toBe(0);
+        expect(report.missing).toHaveLength(0);
       });
     });
 
     // AC-17: 建議與 /ac-coverage-assistant 整合
     describe('AC-17: 與 ac-coverage-assistant 整合', () => {
-      it('should suggest running /ac-coverage-assistant for detailed AC-level tracking', () => {
+      it('should include suggestion for /ac-coverage-assistant in report', () => {
         // Arrange
-        // [TODO] const report = { covered: 6, total: 34, missing: [...] };
+        const featuresDir = join(testDir, 'tests', 'features');
+        const e2eDir = join(testDir, 'tests', 'e2e');
+        mkdirSync(featuresDir, { recursive: true });
+        mkdirSync(e2eDir, { recursive: true });
+
+        writeFileSync(join(featuresDir, 'SPEC-A.feature'), 'Feature: A\n');
 
         // Act
-        // [TODO] const suggestions = generateSuggestions(report);
+        const report = analyzeCoverageGap(featuresDir, e2eDir);
 
         // Assert
-        // [TODO] expect(suggestions).toContain('/ac-coverage-assistant');
+        expect(report.suggestions).toBeDefined();
+        expect(report.suggestions.some(s => s.includes('/ac-coverage-assistant'))).toBe(true);
       });
     });
   });

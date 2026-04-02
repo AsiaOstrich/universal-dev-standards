@@ -1,87 +1,316 @@
 /**
- * [Generated] TDD skeletons for SPEC-E2E-001 REQ-1: AC 適用性分析
+ * TDD tests for SPEC-E2E-001 REQ-1: AC 適用性分析
  * Source: docs/specs/skills/SPEC-E2E-001-e2e-skill.md
  * AC Coverage: AC-1, AC-2, AC-3, AC-4, AC-5
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { mkdtempSync, writeFileSync, mkdirSync, rmSync, readdirSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
+
+// [RED] Import functions we're about to implement
+import {
+  parseFeatureScenarios,
+  classifyScenario,
+  analyzeFeatureFile
+} from '../../../src/utils/e2e-analyzer.js';
 
 describe('SPEC-E2E-001: /e2e Skill', () => {
+  let testDir;
+
+  beforeEach(() => {
+    testDir = mkdtempSync(join(tmpdir(), 'e2e-analyze-'));
+  });
+
+  afterEach(() => {
+    rmSync(testDir, { recursive: true, force: true });
+  });
+
   describe('REQ-1: AC 適用性分析', () => {
-    // AC-1: 篩選適合 E2E 的 AC
+
+    // === parseFeatureScenarios ===
+
+    describe('parseFeatureScenarios', () => {
+      it('should extract scenario names and steps from feature content', () => {
+        // Arrange
+        const content = `Feature: Test
+  Scenario: Login flow
+    Given user is on login page
+    When user enters credentials
+    Then user sees dashboard
+
+  Scenario: Calculate total
+    Given a list of prices
+    When total is calculated
+    Then result is correct
+`;
+        // Act
+        const scenarios = parseFeatureScenarios(content);
+
+        // Assert
+        expect(scenarios).toHaveLength(2);
+        expect(scenarios[0].name).toBe('Login flow');
+        expect(scenarios[0].steps).toHaveLength(3);
+        expect(scenarios[1].name).toBe('Calculate total');
+      });
+    });
+
+    // === AC-1: 分類 AC ===
+
     describe('AC-1: 分類 AC 為 e2e/unit/integration-suitable', () => {
-      it('should classify each Scenario in a feature file into e2e-suitable, unit-suitable, or integration-suitable', () => {
-        // Arrange — 準備包含 10 個 Scenario 的 .feature 內容
-        // [TODO] const featureContent = readFixture('mixed-scenarios.feature');
+      it('should classify each scenario with a valid category', () => {
+        // Arrange
+        const scenarios = [
+          { name: 'User login flow', steps: [
+            'Given user is on login page',
+            'When user enters credentials and clicks submit',
+            'Then user sees the dashboard'
+          ]},
+          { name: 'Sort algorithm', steps: [
+            'Given a list of numbers',
+            'When sorted',
+            'Then result is ascending'
+          ]},
+          { name: 'API calls DB', steps: [
+            'Given API receives request',
+            'When handler queries database',
+            'Then response contains data'
+          ]}
+        ];
 
-        // Act — 執行 AC 適用性分析
-        // [TODO] const result = analyzeAcSuitability(featureContent);
+        // Act
+        const results = scenarios.map(s => classifyScenario(s));
 
-        // Assert — 每個 Scenario 都有分類結果
-        // [TODO] expect(result.classifications).toHaveLength(10);
-        // [TODO] result.classifications.forEach(c => {
-        // [TODO]   expect(['e2e-suitable', 'unit-suitable', 'integration-suitable']).toContain(c.category);
-        // [TODO] });
+        // Assert
+        expect(results).toHaveLength(3);
+        results.forEach(r => {
+          expect(['e2e-suitable', 'unit-suitable', 'integration-suitable']).toContain(r.category);
+          expect(r.reason).toBeDefined();
+        });
       });
     });
 
-    // AC-2: 純邏輯型 AC 被排除
+    // === AC-2: 純邏輯型排除 ===
+
     describe('AC-2: 排除純邏輯型 AC', () => {
-      it('should classify pure computation scenarios as unit-suitable with reason', () => {
-        // Arrange — 準備描述純計算邏輯的 Scenario
-        // [TODO] const scenario = { name: '排序演算法', steps: ['Given 一組數字', 'When 排序', 'Then 結果正確'] };
+      it('should classify pure computation as unit-suitable', () => {
+        // Arrange
+        const scenario = {
+          name: 'Sort algorithm',
+          steps: [
+            'Given a list of numbers [3, 1, 2]',
+            'When the list is sorted',
+            'Then the result is [1, 2, 3]'
+          ]
+        };
 
         // Act
-        // [TODO] const result = classifyScenario(scenario);
+        const result = classifyScenario(scenario);
 
         // Assert
-        // [TODO] expect(result.category).toBe('unit-suitable');
-        // [TODO] expect(result.reason).toBeDefined();
+        expect(result.category).toBe('unit-suitable');
+        expect(result.reason).toBeTruthy();
+      });
+
+      it('should classify validation logic as unit-suitable', () => {
+        // Arrange
+        const scenario = {
+          name: 'Email validation',
+          steps: [
+            'Given an email string "invalid"',
+            'When validated',
+            'Then result is false'
+          ]
+        };
+
+        // Act
+        const result = classifyScenario(scenario);
+
+        // Assert
+        expect(result.category).toBe('unit-suitable');
+      });
+
+      it('should classify formatting/parsing as unit-suitable', () => {
+        // Arrange
+        const scenario = {
+          name: 'Date format',
+          steps: [
+            'Given a date object',
+            'When formatted as ISO string',
+            'Then output matches pattern'
+          ]
+        };
+
+        // Act
+        const result = classifyScenario(scenario);
+
+        // Assert
+        expect(result.category).toBe('unit-suitable');
       });
     });
 
-    // AC-3: 使用者流程型 AC 被識別為 e2e-suitable
+    // === AC-3: 使用者流程型識別 ===
+
     describe('AC-3: 識別使用者流程型 AC', () => {
-      it('should classify multi-step user flow scenarios as e2e-suitable', () => {
-        // Arrange — 準備描述跨多步驟使用者操作的 Scenario
-        // [TODO] const scenario = { name: '使用者登入→建立訂單→付款', steps: [...] };
+      it('should classify multi-step user flow as e2e-suitable', () => {
+        // Arrange
+        const scenario = {
+          name: 'User creates order',
+          steps: [
+            'Given user is logged in',
+            'When user navigates to product page',
+            'And user adds item to cart',
+            'And user proceeds to checkout',
+            'Then order is confirmed'
+          ]
+        };
 
         // Act
-        // [TODO] const result = classifyScenario(scenario);
+        const result = classifyScenario(scenario);
 
         // Assert
-        // [TODO] expect(result.category).toBe('e2e-suitable');
+        expect(result.category).toBe('e2e-suitable');
+      });
+
+      it('should classify CLI complete flow as e2e-suitable', () => {
+        // Arrange
+        const scenario = {
+          name: 'uds init flow',
+          steps: [
+            'Given user runs "uds init"',
+            'When user selects standards',
+            'Then .standards/ directory is created',
+            'And CLAUDE.md is updated'
+          ]
+        };
+
+        // Act
+        const result = classifyScenario(scenario);
+
+        // Assert
+        expect(result.category).toBe('e2e-suitable');
+      });
+
+      it('should classify UI interaction as e2e-suitable', () => {
+        // Arrange
+        const scenario = {
+          name: 'Form submission',
+          steps: [
+            'Given user is on registration page',
+            'When user fills in the form and clicks submit',
+            'Then success message is displayed'
+          ]
+        };
+
+        // Act
+        const result = classifyScenario(scenario);
+
+        // Assert
+        expect(result.category).toBe('e2e-suitable');
       });
     });
 
-    // AC-4: 空 feature 檔案
+    // === AC-1 continued: integration-suitable ===
+
+    describe('AC-1 (integration): 跨元件但非使用者流程', () => {
+      it('should classify API-to-database interaction as integration-suitable', () => {
+        // Arrange
+        const scenario = {
+          name: 'API saves to database',
+          steps: [
+            'Given API receives a POST request',
+            'When handler writes to database',
+            'Then record is persisted'
+          ]
+        };
+
+        // Act
+        const result = classifyScenario(scenario);
+
+        // Assert
+        expect(result.category).toBe('integration-suitable');
+      });
+
+      it('should classify service-to-service call as integration-suitable', () => {
+        // Arrange
+        const scenario = {
+          name: 'Service calls external API',
+          steps: [
+            'Given payment service receives request',
+            'When service calls gateway API',
+            'Then transaction is processed'
+          ]
+        };
+
+        // Act
+        const result = classifyScenario(scenario);
+
+        // Assert
+        expect(result.category).toBe('integration-suitable');
+      });
+    });
+
+    // === AC-4: 空 feature 檔案 ===
+
     describe('AC-4: 空 feature 檔案', () => {
-      it('should output a message when feature file contains no scenarios', () => {
-        // Arrange — 準備空的 .feature 內容
-        // [TODO] const featureContent = 'Feature: Empty\n';
+      it('should return empty classifications with message for feature without scenarios', () => {
+        // Arrange
+        const featurePath = join(testDir, 'empty.feature');
+        writeFileSync(featurePath, 'Feature: Empty Feature\n');
 
         // Act
-        // [TODO] const result = analyzeAcSuitability(featureContent);
+        const result = analyzeFeatureFile(featurePath);
 
         // Assert
-        // [TODO] expect(result.classifications).toHaveLength(0);
-        // [TODO] expect(result.message).toContain('不包含可分析的 Scenario');
+        expect(result.classifications).toHaveLength(0);
+        expect(result.message).toContain('不包含可分析的 Scenario');
+      });
+
+      it('should handle feature with only comments', () => {
+        // Arrange
+        const featurePath = join(testDir, 'comments.feature');
+        writeFileSync(featurePath, '# Just a comment\nFeature: Empty\n  # Another comment\n');
+
+        // Act
+        const result = analyzeFeatureFile(featurePath);
+
+        // Assert
+        expect(result.classifications).toHaveLength(0);
       });
     });
 
-    // AC-5: feature 檔案不存在
+    // === AC-5: feature 檔案不存在 ===
+
     describe('AC-5: feature 檔案不存在', () => {
-      it('should output error message and list available feature files when path does not exist', () => {
-        // Arrange — 不存在的檔案路徑
-        // [TODO] const nonExistentPath = 'tests/features/non-existent.feature';
+      it('should return error when file does not exist', () => {
+        // Arrange
+        const nonExistent = join(testDir, 'non-existent.feature');
 
         // Act
-        // [TODO] const result = await runE2eCommand(nonExistentPath);
+        const result = analyzeFeatureFile(nonExistent);
 
         // Assert
-        // [TODO] expect(result.error).toContain('找不到檔案');
-        // [TODO] expect(result.availableFiles).toBeDefined();
-        // [TODO] expect(result.availableFiles.length).toBeGreaterThan(0);
+        expect(result.error).toContain('找不到檔案');
+      });
+
+      it('should list available feature files when directory has features', () => {
+        // Arrange
+        const featuresDir = join(testDir, 'tests', 'features');
+        mkdirSync(featuresDir, { recursive: true });
+        writeFileSync(join(featuresDir, 'login.feature'), 'Feature: Login\n');
+        writeFileSync(join(featuresDir, 'signup.feature'), 'Feature: Signup\n');
+        const nonExistent = join(featuresDir, 'missing.feature');
+
+        // Act
+        const result = analyzeFeatureFile(nonExistent);
+
+        // Assert
+        expect(result.error).toContain('找不到檔案');
+        expect(result.availableFiles).toBeDefined();
+        expect(result.availableFiles).toHaveLength(2);
+        expect(result.availableFiles).toContain('login.feature');
+        expect(result.availableFiles).toContain('signup.feature');
       });
     });
   });
