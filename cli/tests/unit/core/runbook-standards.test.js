@@ -12,7 +12,6 @@ describe('SPEC-RUNBOOK-001: Runbook Standards', () => {
   let content;
 
   beforeAll(() => {
-    // [TODO] This test will pass once core/runbook-standards.md is implemented
     if (!existsSync(STANDARD_PATH)) {
       content = '';
       return;

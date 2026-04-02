@@ -12,7 +12,6 @@ describe('SPEC-SLO-001: SLI/SLO/Error Budget Standards', () => {
   let content;
 
   beforeAll(() => {
-    // [TODO] This test will pass once core/slo-standards.md is implemented
     if (!existsSync(STANDARD_PATH)) {
       content = '';
       return;

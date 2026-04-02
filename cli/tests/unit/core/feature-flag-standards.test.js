@@ -12,7 +12,6 @@ describe('SPEC-FF-001: Feature Flag Management Standards', () => {
   let content;
 
   beforeAll(() => {
-    // [TODO] This test will pass once core/feature-flag-standards.md is implemented
     if (!existsSync(STANDARD_PATH)) {
       content = '';
       return;

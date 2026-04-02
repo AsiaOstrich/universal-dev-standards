@@ -12,7 +12,6 @@ describe('SPEC-OBS-001: Observability Standards', () => {
   let content;
 
   beforeAll(() => {
-    // [TODO] This test will pass once core/observability-standards.md is implemented
     if (!existsSync(STANDARD_PATH)) {
       content = '';
       return;
@@ -119,7 +118,6 @@ describe('SPEC-OBS-001: Observability Standards', () => {
     });
 
     it('should include at least 7 checklist items', () => {
-      // [TODO] Count checklist items (lines starting with - [ ])
       const checklistItems = content.match(/- \[ \]/g) || [];
       expect(checklistItems.length).toBeGreaterThanOrEqual(7);
     });
@@ -128,7 +126,6 @@ describe('SPEC-OBS-001: Observability Standards', () => {
   describe('AC-6: Existing logging-standards preserved', () => {
     // [Source: SPEC-OBS-001:AC-6]
     it('should not modify logging-standards.md core content', () => {
-      // [TODO] Verify logging-standards.md retains original sections
       const loggingPath = resolve(import.meta.dirname, '../../../../core/logging-standards.md');
       if (existsSync(loggingPath)) {
         const loggingContent = readFileSync(loggingPath, 'utf-8');

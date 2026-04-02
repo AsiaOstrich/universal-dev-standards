@@ -12,7 +12,6 @@ describe('SPEC-PM-001: Blameless Postmortem Standards', () => {
   let content;
 
   beforeAll(() => {
-    // [TODO] This test will pass once core/postmortem-standards.md is implemented
     if (!existsSync(STANDARD_PATH)) {
       content = '';
       return;

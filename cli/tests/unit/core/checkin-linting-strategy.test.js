@@ -12,7 +12,6 @@ describe('SPEC-CHECKIN-002: Linting Strategy Extension', () => {
   let content;
 
   beforeAll(() => {
-    // [TODO] This test will pass once core/checkin-standards.md has the Linting Strategy section
     if (!existsSync(STANDARD_PATH)) {
       content = '';
       return;

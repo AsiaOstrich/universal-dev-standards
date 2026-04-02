@@ -49,7 +49,6 @@ describe('SPEC-HOOKS-001 / REQ-6: Hook 統計記錄擴展', () => {
         const lastEntry = JSON.parse(lines[lines.length - 1]);
         expect(lastEntry.hook_type).toBe('commit-msg');
       }
-      // [TODO] If appendHookStat doesn't support hook_type yet, this test will guide implementation
     });
 
     it('should record hook_type "security" in stat entry', () => {

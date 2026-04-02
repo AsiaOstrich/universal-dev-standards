@@ -12,7 +12,6 @@ describe('SPEC-ALERT-001: Alerting Standards', () => {
   let content;
 
   beforeAll(() => {
-    // [TODO] This test will pass once core/alerting-standards.md is implemented
     if (!existsSync(STANDARD_PATH)) {
       content = '';
       return;

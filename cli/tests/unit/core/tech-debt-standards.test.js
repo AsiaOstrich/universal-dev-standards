@@ -12,7 +12,6 @@ describe('SPEC-TECHDEBT-001: Tech Debt Management Standards', () => {
   let content;
 
   beforeAll(() => {
-    // [TODO] This test will pass once core/tech-debt-standards.md is implemented
     if (!existsSync(STANDARD_PATH)) {
       content = '';
       return;
