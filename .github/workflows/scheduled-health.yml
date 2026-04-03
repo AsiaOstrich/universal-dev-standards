@@ -47,7 +47,7 @@ jobs:
 
       - name: Create issue if degraded
         if: steps.check.outputs.degraded == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
