@@ -145,3 +145,12 @@ quick_reference:
       - [INFO, 30 days]
       - [WARN, 90 days]
       - [ERROR/FATAL, 1 year]
+
+enforcement:
+  hook_type: PostToolUse
+  matcher:
+    tool: Write
+    path: "src/**/*.ts"
+  script_ref: "scripts/hooks/check-logging-standard.js"
+  severity: warning
+  timeout_ms: 500

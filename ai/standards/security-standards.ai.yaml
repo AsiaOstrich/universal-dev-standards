@@ -128,3 +128,11 @@ physical_spec:
   validator:
     command: "npm audit --dry-run > /dev/null 2>&1 || test -f .trivyignore || test -f .snyk"
     rule: "security_scan_configured"
+
+enforcement:
+  hook_type: PreToolUse
+  matcher:
+    tool: Bash
+  script_ref: "scripts/hooks/check-dangerous-cmd.js"
+  severity: error
+  timeout_ms: 500

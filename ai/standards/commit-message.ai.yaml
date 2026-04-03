@@ -117,3 +117,9 @@ physical_spec:
   simulator:
     type: command
     command: 'echo "{input}" | npx commitlint'
+
+enforcement:
+  hook_type: PreCommit
+  script_ref: "scripts/hooks/validate-commit-msg.js"
+  severity: error
+  timeout_ms: 500
