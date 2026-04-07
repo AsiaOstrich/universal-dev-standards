@@ -18,7 +18,9 @@ import { aiContextInitCommand, aiContextValidateCommand, aiContextGraphCommand }
 import { sweepCommand } from '../src/commands/sweep.js';
 import { auditCommand } from '../src/commands/audit.js';
 import { uninstallCommand } from '../src/commands/uninstall.js';
-import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand, specArchiveCommand, specDeleteCommand } from '../src/commands/spec.js';
+import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand, specArchiveCommand, specDeleteCommand, specSearchCommand } from '../src/commands/spec.js';
+import { quickstartCommand } from '../src/commands/quickstart.js';
+import { specSplitCommand } from '../src/commands/spec-split.js';
 import { startCommand, missionStatusCommand, missionPauseCommand, missionResumeCommand, missionCancelCommand, missionListCommand } from '../src/commands/start.js';
 import { releaseCommand } from '../src/commands/release.js';
 import { compileStandards } from '../src/commands/compile.js';
@@ -322,6 +324,25 @@ specCommand
   .option('-y, --yes', 'Skip confirmation')
   .option('-o, --output <path>', 'Specs directory (default: specs/)')
   .action(specDeleteCommand);
+
+specCommand
+  .command('search <query>')
+  .description('Search specs by title or content')
+  .option('--archived', 'Search only archived specs')
+  .option('-o, --output <dir>', 'Specs directory')
+  .action(specSearchCommand);
+
+specCommand
+  .command('split <id>')
+  .description('Split a large spec into two with mutual depends_on references')
+  .option('-o, --output <dir>', 'Specs directory')
+  .action(specSplitCommand);
+
+// Quickstart command
+program
+  .command('quickstart')
+  .description('Interactive workflow guide — find the right commands quickly')
+  .action(quickstartCommand);
 
 // Agent command with subcommands
 const agentCommand = program

@@ -422,6 +422,55 @@ describe('MicroSpec', () => {
 
       expect(success).toBe(false);
     });
+
+    it('should update archive index.json after archiving', () => {
+      // Arrange
+      existsSync.mockImplementation((path) => {
+        if (path.includes('index.json')) return false;
+        return true;
+      });
+      readFileSync.mockReturnValue(
+        '## Micro-Spec: Test Feature\n**Status**: draft\n**Created**: 2026-01-28\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n**Intent**: Test intent\n**Scope**: frontend\n**Acceptance**:\n- [ ] AC-1: done\n**Confirmed**: No'
+      );
+
+      // Act
+      microSpec.archive('SPEC-001-test');
+
+      // Assert — index.json should be written
+      const indexCalls = writeFileSync.mock.calls.filter(c => c[0].includes('index.json'));
+      expect(indexCalls.length).toBe(1);
+      const indexContent = JSON.parse(indexCalls[0][1]);
+      expect(indexContent).toEqual([
+        expect.objectContaining({
+          id: 'SPEC-001-test',
+          title: 'Test Feature',
+          type: 'feature',
+          scope: 'frontend',
+        })
+      ]);
+      expect(indexContent[0]).toHaveProperty('archived_at');
+    });
+
+    it('should append to existing archive index.json', () => {
+      // Arrange
+      const existingIndex = [{ id: 'SPEC-000-old', title: 'Old', type: 'bugfix', archived_at: '2026-01-01', scope: 'backend' }];
+      existsSync.mockReturnValue(true);
+      readFileSync.mockImplementation((path) => {
+        if (path.includes('index.json')) return JSON.stringify(existingIndex);
+        return '## Micro-Spec: New Feature\n**Status**: draft\n**Created**: 2026-01-28\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n**Intent**: New\n**Scope**: general\n**Acceptance**:\n- [ ] AC-1: done\n**Confirmed**: No';
+      });
+
+      // Act
+      microSpec.archive('SPEC-002-new');
+
+      // Assert — index should have 2 entries
+      const indexCalls = writeFileSync.mock.calls.filter(c => c[0].includes('index.json'));
+      expect(indexCalls.length).toBe(1);
+      const indexContent = JSON.parse(indexCalls[0][1]);
+      expect(indexContent).toHaveLength(2);
+      expect(indexContent[0].id).toBe('SPEC-000-old');
+      expect(indexContent[1].id).toBe('SPEC-002-new');
+    });
   });
 
   describe('delete', () => {

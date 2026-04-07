@@ -11,6 +11,8 @@
 import chalk from 'chalk';
 import ora from 'ora';
 import { select, confirm as inquirerConfirm } from '@inquirer/prompts';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { MicroSpec, SpecStatus } from '../vibe/micro-spec.js';
 import { msg } from '../i18n/messages.js';
 
@@ -277,4 +279,62 @@ export async function specDeleteCommand(id, options = {}) {
   }
 
   console.log(chalk.green(t('spec.deleted', 'Spec deleted.')));
+}
+
+/**
+ * Execute the spec search command
+ * @param {string} query - Search query string
+ * @param {Object} options - Command options
+ */
+export function specSearchCommand(query, options = {}) {
+  if (!query) {
+    console.log(chalk.red('Error: Search query is required'));
+    process.exit(1);
+  }
+
+  const microSpec = new MicroSpec({ cwd: process.cwd(), output: options.output });
+  const results = [];
+  const queryLower = query.toLowerCase();
+
+  // Search in archive index
+  const indexPath = join(microSpec.archiveDir, 'index.json');
+  if (existsSync(indexPath)) {
+    try {
+      const index = JSON.parse(readFileSync(indexPath, 'utf-8'));
+      for (const entry of index) {
+        if (
+          entry.id.toLowerCase().includes(queryLower) ||
+          entry.title.toLowerCase().includes(queryLower)
+        ) {
+          results.push({ ...entry, source: 'archive' });
+        }
+      }
+    } catch { /* ignore parse errors */ }
+  }
+
+  // Also search active specs (unless --archived flag)
+  if (!options.archived) {
+    const specs = microSpec.list();
+    for (const spec of specs) {
+      if (
+        spec.id.toLowerCase().includes(queryLower) ||
+        spec.title.toLowerCase().includes(queryLower) ||
+        (spec.intent && spec.intent.toLowerCase().includes(queryLower))
+      ) {
+        results.push({ id: spec.id, title: spec.title, type: spec.type, source: 'active', status: spec.status });
+      }
+    }
+  }
+
+  if (results.length === 0) {
+    console.log(chalk.yellow(`No specs found matching "${query}"`));
+    return;
+  }
+
+  console.log(chalk.bold(`\nFound ${results.length} spec(s) matching "${query}":\n`));
+  for (const r of results) {
+    const badge = r.source === 'archive' ? chalk.gray('[archived]') : chalk.green(`[${r.status}]`);
+    console.log(`  ${chalk.cyan(r.id)} ${badge} ${r.title}`);
+  }
+  console.log();
 }

@@ -514,7 +514,35 @@ export class MicroSpec {
 
     // Move to archive
     renameSync(sourcePath, destPath);
+
+    // Update archive index
+    this._updateArchiveIndex(spec);
+
     return true;
+  }
+
+  /**
+   * Update archive index.json with archived spec metadata
+   * @param {Object} spec - The archived spec object
+   */
+  _updateArchiveIndex(spec) {
+    const indexPath = join(this.archiveDir, 'index.json');
+    let index = [];
+    if (existsSync(indexPath)) {
+      try {
+        index = JSON.parse(readFileSync(indexPath, 'utf-8'));
+      } catch {
+        index = [];
+      }
+    }
+    index.push({
+      id: spec.id,
+      title: spec.title,
+      type: spec.type,
+      archived_at: new Date().toISOString(),
+      scope: spec.scope || 'general',
+    });
+    writeFileSync(indexPath, JSON.stringify(index, null, 2), 'utf-8');
   }
 
   /**
