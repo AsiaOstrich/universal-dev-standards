@@ -279,6 +279,67 @@ export class StandardValidator {
   }
 
   /**
+   * Validate spec file effective line count against size thresholds.
+   * Excludes YAML frontmatter (--- to ---) and fenced code blocks (``` to ```).
+   * @param {string} specFilePath - Absolute path to the spec file
+   * @param {Object} [options] - Optional thresholds
+   * @param {number} [options.targetLines=300] - Warning threshold
+   * @param {number} [options.hardCapLines=400] - Fail threshold
+   * @returns {{ effectiveLines: number, status: 'pass'|'warn'|'fail', message: string }}
+   */
+  validateSpecSize(specFilePath, options = {}) {
+    const targetLines = options.targetLines ?? 300;
+    const hardCapLines = options.hardCapLines ?? 400;
+
+    const content = fs.readFileSync(specFilePath, 'utf-8');
+    if (content.trim() === '') {
+      return { effectiveLines: 0, status: 'pass', message: 'Spec within target: 0 lines' };
+    }
+    const allLines = content.split('\n');
+
+    let effectiveLines = 0;
+    let inFrontmatter = false;
+    let frontmatterSeen = false;
+    let inCodeBlock = false;
+
+    for (const line of allLines) {
+      const trimmed = line.trim();
+
+      // YAML frontmatter: first --- opens, second --- closes
+      if (trimmed === '---' && !frontmatterSeen) {
+        inFrontmatter = !inFrontmatter;
+        if (!inFrontmatter) frontmatterSeen = true;
+        continue;
+      }
+      if (inFrontmatter) continue;
+
+      // Fenced code blocks: ``` toggles
+      if (trimmed.startsWith('```')) {
+        inCodeBlock = !inCodeBlock;
+        continue;
+      }
+      if (inCodeBlock) continue;
+
+      effectiveLines++;
+    }
+
+    let status;
+    let message;
+    if (effectiveLines > hardCapLines) {
+      status = 'fail';
+      message = `Spec exceeds hard cap: ${effectiveLines} lines (hard cap: ${hardCapLines})`;
+    } else if (effectiveLines > targetLines) {
+      status = 'warn';
+      message = `Spec exceeds target: ${effectiveLines} lines (target: ${targetLines})`;
+    } else {
+      status = 'pass';
+      message = `Spec within target: ${effectiveLines} lines`;
+    }
+
+    return { effectiveLines, status, message };
+  }
+
+  /**
    * Run a simulation to predict compliance with a standard
    * @param {string} standardId - Standard ID
    * @param {string} input - Input to test (e.g. commit message)
