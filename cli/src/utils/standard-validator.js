@@ -340,6 +340,61 @@ export class StandardValidator {
   }
 
   /**
+   * Compute spec quality score based on heuristic checklist
+   * @param {Object} spec - Parsed spec object
+   * @param {string} [specMode] - 'standard' (10 items) or 'boost' (25 items)
+   * @returns {{ score: number, maxScore: number, items: Array<{id: number, description: string, passed: boolean}> }}
+   */
+  computeSpecScore(spec, specMode) {
+    const mode = specMode || spec.specMode || 'standard';
+    const items = this._getStandardChecklist(spec);
+
+    if (mode === 'boost') {
+      items.push(...this._getBoostChecklist(spec));
+    }
+
+    const score = items.filter(i => i.passed).length;
+    return { score, maxScore: items.length, items };
+  }
+
+  /** @private Standard mode checklist (10 items) */
+  _getStandardChecklist(spec) {
+    return [
+      { id: 1, description: 'Background and motivation are clear', passed: !!(spec.intent && spec.intent.length > 10) },
+      { id: 2, description: 'Goals are measurable', passed: Array.isArray(spec.acceptance) && spec.acceptance.length > 0 },
+      { id: 3, description: 'Non-goals are explicit', passed: !!(spec.notes && spec.notes.length > 0 && spec.notes !== '') },
+      { id: 4, description: 'Risks identified with mitigations', passed: Array.isArray(spec.risks) && spec.risks.length > 0 },
+      { id: 5, description: 'Impact scope assessed', passed: !!(spec.scope && spec.scope !== 'general') },
+      { id: 6, description: 'Requirements are specific and splittable', passed: Array.isArray(spec.acceptance) && spec.acceptance.length >= 2 },
+      { id: 7, description: 'Boundary conditions identified', passed: Array.isArray(spec.edgeCases) && spec.edgeCases.length > 0 },
+      { id: 8, description: 'Technical solution is concrete', passed: !!(spec.scope && spec.scope.includes('/')) },
+      { id: 9, description: 'Dependencies are clear', passed: Array.isArray(spec.dependsOn) },
+      { id: 10, description: 'No blocking open questions', passed: !Array.isArray(spec.openQuestions) || spec.openQuestions.length === 0 },
+    ];
+  }
+
+  /** @private Boost mode additional checklist (15 items, IDs 11-25) */
+  _getBoostChecklist(spec) {
+    return [
+      { id: 11, description: 'All user stories have clear acceptance criteria', passed: Array.isArray(spec.userStories) && spec.userStories.length > 0 },
+      { id: 12, description: 'Functional requirements cover all user stories', passed: Array.isArray(spec.acceptance) && spec.acceptance.length >= (spec.userStories || []).length },
+      { id: 13, description: 'Non-functional requirements defined', passed: Array.isArray(spec.nonFunctionalRequirements) && spec.nonFunctionalRequirements.length > 0 },
+      { id: 14, description: 'Edge cases identified and documented', passed: Array.isArray(spec.edgeCases) && spec.edgeCases.length > 0 },
+      { id: 15, description: 'Data model changes described', passed: !!(spec.dataModelChanges) },
+      { id: 16, description: 'Spec aligns with proposal goals', passed: !!(spec.motivation && spec.motivation.length > 10) },
+      { id: 17, description: 'User stories cover all proposal goals', passed: Array.isArray(spec.userStories) && spec.userStories.length > 0 },
+      { id: 18, description: 'Acceptance criteria are testable', passed: Array.isArray(spec.acceptance) && spec.acceptance.some(a => /AC-\d/.test(a)) },
+      { id: 19, description: 'No contradicting requirements', passed: true }, // Heuristic: assume no contradictions
+      { id: 20, description: 'Dependencies are clear', passed: Array.isArray(spec.dependsOn) },
+      { id: 21, description: 'Task granularity is reasonable', passed: Array.isArray(spec.tasks) && spec.tasks.length > 0 },
+      { id: 22, description: 'Dependencies are correct', passed: Array.isArray(spec.dependsOn) },
+      { id: 23, description: 'Parallel tasks marked correctly', passed: Array.isArray(spec.tasks) && spec.tasks.length >= 2 },
+      { id: 24, description: 'File paths specified', passed: Array.isArray(spec.tasks) && spec.tasks.some(t => t.filePath) },
+      { id: 25, description: 'Checkpoints are reasonable', passed: !!(spec.confirmed) },
+    ];
+  }
+
+  /**
    * Run a simulation to predict compliance with a standard
    * @param {string} standardId - Standard ID
    * @param {string} input - Input to test (e.g. commit message)
