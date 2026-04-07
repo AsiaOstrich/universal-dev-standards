@@ -205,12 +205,27 @@ export class MicroSpec {
    * @returns {string} Markdown content
    */
   toMarkdown(spec) {
+    const dependsOn = Array.isArray(spec.dependsOn) && spec.dependsOn.length > 0
+      ? spec.dependsOn.join(', ')
+      : 'none';
+    const specMode = spec.specMode || 'standard';
+
+    if (specMode === 'boost') {
+      return this._toBoostMarkdown(spec, dependsOn);
+    }
+    return this._toStandardMarkdown(spec, dependsOn);
+  }
+
+  /** @private Standard (micro-spec) markdown template */
+  _toStandardMarkdown(spec, dependsOn) {
     const lines = [
       `## Micro-Spec: ${spec.title}`,
       '',
       `**Status**: ${spec.status}`,
       `**Created**: ${spec.createdAt.slice(0, 10)}`,
       `**Type**: ${spec.type}`,
+      '**Spec Mode**: standard',
+      `**Depends On**: ${dependsOn}`,
       '',
       `**Intent**: ${spec.intent}`,
       '',
@@ -218,6 +233,52 @@ export class MicroSpec {
       '',
       '**Acceptance**:',
       ...spec.acceptance.map(a => `- ${a}`),
+      '',
+      `**Confirmed**: ${spec.confirmed ? 'Yes' : 'No'}`,
+      ''
+    ];
+
+    if (spec.notes) {
+      lines.push('**Notes**:', spec.notes, '');
+    }
+
+    return lines.join('\n');
+  }
+
+  /** @private Boost (full SDD) markdown template */
+  _toBoostMarkdown(spec, dependsOn) {
+    const approach = spec.approach || 'conventional';
+    const lines = [
+      `## Spec: ${spec.title}`,
+      '',
+      `**Status**: ${spec.status}`,
+      `**Created**: ${spec.createdAt.slice(0, 10)}`,
+      `**Type**: ${spec.type}`,
+      '**Spec Mode**: boost',
+      `**Approach**: ${approach}`,
+      `**Depends On**: ${dependsOn}`,
+      '',
+      '### Motivation',
+      '',
+      spec.intent || '<!-- 為什麼需要這個變更？ -->',
+      '',
+      '### Detailed Design',
+      '',
+      '<!-- 技術方案、架構、關鍵實作方式 -->',
+      '',
+      '### Acceptance Criteria',
+      '',
+      ...spec.acceptance.map(a => `- ${a}`),
+      '',
+      '### Risks & Trade-offs',
+      '',
+      '| Risk | Impact | Mitigation |',
+      '|------|--------|------------|',
+      '| | | |',
+      '',
+      '### Open Questions',
+      '',
+      '1. ',
       '',
       `**Confirmed**: ${spec.confirmed ? 'Yes' : 'No'}`,
       ''
@@ -251,8 +312,8 @@ export class MicroSpec {
       notes: ''
     };
 
-    // Parse title
-    const titleMatch = content.match(/^## Micro-Spec: (.+)$/m);
+    // Parse title (supports both "## Micro-Spec:" and "## Spec:" formats)
+    const titleMatch = content.match(/^## (?:Micro-)?Spec: (.+)$/m);
     if (titleMatch) spec.title = titleMatch[1];
 
     // Parse status
@@ -279,6 +340,25 @@ export class MicroSpec {
     const acceptanceMatches = content.match(/- \[[ x]\] .+/g);
     if (acceptanceMatches) {
       spec.acceptance = acceptanceMatches.map(a => a.replace(/^- /, ''));
+    }
+
+    // Parse spec_mode
+    const specModeMatch = content.match(/\*\*Spec Mode\*\*: (\w+)/);
+    spec.specMode = specModeMatch ? specModeMatch[1] : 'standard';
+
+    // Parse approach (boost mode only)
+    const approachMatch = content.match(/\*\*Approach\*\*: (\w+)/);
+    if (approachMatch) {
+      spec.approach = approachMatch[1];
+    }
+
+    // Parse depends_on
+    const dependsOnMatch = content.match(/\*\*Depends On\*\*: (.+)/);
+    if (dependsOnMatch) {
+      const value = dependsOnMatch[1].trim();
+      spec.dependsOn = value === 'none' ? [] : value.split(',').map(s => s.trim());
+    } else {
+      spec.dependsOn = [];
     }
 
     // Parse confirmed
@@ -334,6 +414,48 @@ export class MicroSpec {
 
     const content = readFileSync(filepath, 'utf-8');
     return this.fromMarkdown(content, id);
+  }
+
+  /**
+   * Add a dependency to a spec
+   * @param {string} id - Spec ID
+   * @param {string} targetId - Target spec ID to depend on
+   * @returns {Object|null} Updated spec or null
+   */
+  addDependency(id, targetId) {
+    const spec = this.get(id);
+    if (!spec) return null;
+
+    if (!Array.isArray(spec.dependsOn)) spec.dependsOn = [];
+    if (!spec.dependsOn.includes(targetId)) {
+      spec.dependsOn.push(targetId);
+    }
+
+    const markdown = this.toMarkdown(spec);
+    const filepath = join(this.specsDir, `${id}.md`);
+    writeFileSync(filepath, markdown, 'utf-8');
+
+    return spec;
+  }
+
+  /**
+   * Remove a dependency from a spec
+   * @param {string} id - Spec ID
+   * @param {string} targetId - Target spec ID to remove
+   * @returns {Object|null} Updated spec or null
+   */
+  removeDependency(id, targetId) {
+    const spec = this.get(id);
+    if (!spec) return null;
+
+    if (!Array.isArray(spec.dependsOn)) spec.dependsOn = [];
+    spec.dependsOn = spec.dependsOn.filter(dep => dep !== targetId);
+
+    const markdown = this.toMarkdown(spec);
+    const filepath = join(this.specsDir, `${id}.md`);
+    writeFileSync(filepath, markdown, 'utf-8');
+
+    return spec;
   }
 
   /**
