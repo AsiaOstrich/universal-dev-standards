@@ -35,6 +35,22 @@ standard:
         required: false
         description: Additional context (blockers, dependencies)
 
+    lintable_fields:
+      description: "可被 uds lint 自動驗證的欄位"
+      fields:
+        - ac_coverage:
+            description: "AC 是否被測試引用（@AC-N 標記）"
+            check: "掃描測試檔案中的 @AC-N 和 @SPEC-NNN 標記"
+            severity: warning  # 初期為 warning，穩定後可升級為 error
+        - dependency_validity:
+            description: "depends_on 引用的 specs 是否存在"
+            check: "驗證 depends_on 目標在 specs/ 目錄中存在"
+            severity: error
+        - spec_size:
+            description: "spec 有效行數是否在限制內"
+            check: "計算有效行數，與 size_control 設定比對"
+            severity: warning  # 超過 target 為 warning，超過 hard_cap 為 error
+
     linking_convention:
       description: Tests must reference source AC using standard annotations
       annotations:

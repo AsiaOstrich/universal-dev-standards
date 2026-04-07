@@ -197,6 +197,88 @@ rules:
     instruction: All [Assumption] and [Need Confirmation] tags must be resolved before approval
     priority: required
 
+  - id: spec-size-control
+    description: "控制規格產物大小，防止 AI context window 溢出"
+    when: "建立或修改 spec 檔案時"
+    action: |
+      檢查 spec 有效行數（排除 YAML frontmatter 和 fenced code blocks）：
+      - ≤ 300 行：✅ 通過
+      - 301-400 行：⚠️ 警告，建議精簡或拆分
+      - > 400 行：❌ 超過 hard cap，必須拆分（使用 depends_on 串聯子 specs）
+    config:
+      target_lines: 300
+      hard_cap_lines: 400
+      exclude_patterns:
+        - "^---$"           # YAML frontmatter delimiters
+        - "^```"            # fenced code block delimiters
+      configurable: true    # 可透過 .uds/config.yaml 覆寫
+      config_path: "spec.size_control.target_lines / spec.size_control.hard_cap_lines"
+
+  - id: dependency-tracking
+    description: "規格之間的依賴應使用 depends_on 欄位追蹤"
+    when: "spec 引用其他 spec 的產出或前置條件時"
+    action: |
+      在 spec 中加入 depends_on 欄位，列出依賴的 spec ID。
+      - 使用 `uds spec deps add <id> --on <target>` 管理依賴
+      - `uds lint` 會驗證 depends_on 目標是否存在
+    format: "depends_on: [SPEC-001, SPEC-003]"
+
+  - id: checklist-scoring
+    description: "規格品質量化評分"
+    when: "spec 完成 review 前進行品質評估"
+    action: |
+      根據 spec_mode 執行不同深度的評分：
+
+      ## Standard Mode (/10)
+
+      ### Proposal Quality (5 分)
+      1. Background and motivation are clear
+      2. Goals are measurable
+      3. Non-goals are explicit
+      4. Risks identified with mitigations
+      5. Impact scope assessed
+
+      ### Requirements & Solution (5 分)
+      6. Requirements are specific and splittable into tasks
+      7. Boundary conditions identified
+      8. Technical solution is concrete (modules/files specified)
+      9. Dependencies are clear
+      10. No blocking open questions (or marked non-blocking)
+
+      ## Boost Mode (/25)
+
+      ### Proposal Quality (5 分) — 同上 1-5
+
+      ### Spec Completeness (5 分)
+      11. All user stories have clear acceptance criteria
+      12. Functional requirements cover all user stories
+      13. Non-functional requirements defined
+      14. Edge cases identified and documented
+      15. Data model changes described
+
+      ### Spec Consistency (5 分)
+      16. Spec aligns with proposal goals
+      17. User stories cover all proposal goals
+      18. Acceptance criteria are testable
+      19. No contradicting requirements
+      20. Dependencies are clear
+
+      ### Task Executability (5 分)
+      21. Task granularity is reasonable (each < 2h)
+      22. Dependencies are correct
+      23. Parallel tasks marked correctly
+      24. File paths specified
+      25. Checkpoints are reasonable
+
+      ### Cross Validation (5 分)
+      26. proposal → spec: All goals have corresponding requirements
+      27. spec → tasks: All requirements have corresponding tasks
+      28. tasks → spec: No tasks beyond spec scope
+      29. clarify → all: All clarifications reflected
+      30. No orphan ACs (via uds lint)
+
+    output: "Score: X / {10|25}"
+
 sidecar_files:
   - name: AC YAML Sidecar
     pattern: "<SPEC-ID>.ac.yaml"
