@@ -57,3 +57,37 @@ rules:
   - "Never edit accepted ADRs; supersede instead"
   - "Link bidirectionally to SPECs, code, and PRs"
   - "Six-month rule: if someone might ask 'why?' later, write an ADR"
+
+# DEC borrowing extension rules
+dec_borrowing_rules:
+  dec_tech_radar_default_trial:
+    description: "All new borrowing DECs must start with Technology Radar state = Trial"
+    apply_when: "Creating a new DEC that documents borrowing from a paper/repo/external source"
+    action: "Set 技術雷達狀態.狀態 to Trial and fill 下次評估日期"
+
+  dec_missing_hypothesis_warning:
+    description: "When referencing a DEC that lacks a 借鑲假設 block, annotate with warning"
+    apply_when: "AI references a DEC during planning or analysis"
+    action: "Annotate with [假設未定義] and remind to fill the hypothesis block; do NOT block the workflow"
+
+  dec_tech_radar_states:
+    Adopt: "Validated effective; maintain as standard practice"
+    Trial: "Under evaluation; requires 下次評估日期 (mandatory)"
+    Assess: "Effective only under limited conditions; record applicability boundary"
+    Hold: "Ineffective or harmful; stop new adoption; plan removal"
+
+  dec_status_transitions:
+    Trial_to_Adopt: "Success criteria met; record verification date and evidence"
+    Trial_to_Hold: "Exceeded deadline without meeting target; trigger reversal protocol"
+    Trial_to_Assess: "Correct implementation but mismatched context; narrow scope"
+    any_to_Hold_emergency: "Harmful side effects; immediately disable via Feature Flag"
+
+  reversal_dec_rules:
+    create_when: "Method itself is ineffective (after confirming correct implementation and matching context)"
+    do_not_create_when: "Implementation error — fix and restart hypothesis timer instead"
+    filename_pattern: "DEC-NNN-reversal.md"
+    original_dec_update: "Set original DEC status to 'Superseded by DEC-NNN-reversal'"
+
+  tech_radar_index:
+    location: "cross-project/decisions/TECH-RADAR.md"
+    sync_rule: "Update TECH-RADAR.md whenever a DEC's radar state changes"

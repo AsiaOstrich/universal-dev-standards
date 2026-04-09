@@ -203,3 +203,148 @@ Before accepting an ADR, verify:
 4. **Link bidirectionally** — ADRs reference code; code references ADRs.
 5. **Review periodically** — mark outdated ADRs as deprecated during architecture reviews.
 6. **Store in version control** — ADRs should live alongside the code they govern.
+
+---
+
+## DEC Borrowing Extension
+
+> **Context**: For cross-project Decision Records (DEC) that document the borrowing of methods from papers, repositories, or external sources, extend the base ADR template with the following blocks. These blocks are backward-compatible — existing DECs without them are valid, but new borrowing DECs should include them.
+
+### Extended DEC Template
+
+```markdown
+# DEC-NNN: [Borrowing Decision Title]
+
+> **建立日期**: YYYY-MM-DD
+> **上游來源**: [Source Name](URL)
+> **上游快照日期**: YYYY-MM-DD
+> **用途**: [Brief description of the borrowing purpose]
+
+---
+
+## [Standard DEC Sections: Context / Decision / Consequences]
+
+... (same as base ADR template) ...
+
+---
+
+## 技術雷達狀態
+
+- **狀態**: Trial | Adopt | Assess | Hold
+- **最後評估日期**: YYYY-MM-DD
+- **下次評估日期**: YYYY-MM-DD（Trial 狀態必填）
+
+## 借鑒假設
+
+- **假設陳述**: 實作 [方法X] 後，[指標Y] 將從 [基準值a] 改善至 [目標值b]
+- **測量方式**: [如何量測，例如：人工評分 / 自動化測試通過率 / 工具輸出品質]
+- **基準值**: [借鑒前的現狀數據或主觀評分]
+- **目標值**: [預期達到的改善幅度]
+- **驗證期限**: YYYY-MM-DD
+- **成功條件**: [達到目標值的 X% 以上]
+- **失敗條件**: [超過期限且低於目標值 Y%，或指標惡化]
+
+## 評估紀錄
+
+| 日期 | 狀態 | 觀察 | 決定 |
+|------|------|------|------|
+| YYYY-MM-DD | Trial | [初始建立] | 開始評估 |
+```
+
+### Technology Radar States
+
+| State | Meaning | Action |
+|-------|---------|--------|
+| **Adopt** | Validated effective; fully adopted | Document as standard practice; record evidence |
+| **Trial** | Under evaluation; limited scope | Measure continuously; maintain hypothesis block |
+| **Assess** | Effective under limited conditions | Record applicability boundary; do not expand |
+| **Hold** | Evaluated ineffective or harmful | Stop new adoption; plan removal |
+
+**Default**: All new borrowing DECs start at `Trial`.
+
+### Diagnosis Flow (When Negative Results Observed)
+
+```
+觀察到負面結果
+      ↓
+Step 1: 對照原始論文/Repo，確認實作是否正確
+      ↓ 實作有誤 ──→ 修正實作，重啟假設書計時（不建立 Reversal DEC）
+      ↓ 實作正確
+Step 2: 確認應用場景是否符合論文假設
+      ↓ 場景不符 ──→ 記錄適用邊界，狀態更新為 Assess
+      ↓ 場景符合
+Step 3: 判定方法本身無效
+      ↓
+建立 Reversal DEC（DEC-NNN-reversal）→ 移除實作 → TECH-RADAR 更新為 Hold
+```
+
+---
+
+## Reversal DEC Format
+
+When a borrowing method is determined ineffective, create a `DEC-NNN-reversal.md` file alongside the original DEC:
+
+```markdown
+# DEC-NNN-reversal: [Original Method Name] — 移除決定
+
+> **建立日期**: YYYY-MM-DD
+> **原始 DEC**: [DEC-NNN](DEC-NNN-original-title.md)
+> **移除原因**: 方法本身無效 | 場景不符 | 有反效果
+> **緊急程度**: 正常流程 | 緊急（反效果，立即停用）
+
+---
+
+## 移除原因
+
+[詳述為何判定此方法無效。說明已確認：
+1. 實作正確性（已對照原始論文/Repo 確認）
+2. 應用場景符合性（已確認場景符合論文假設）
+3. 方法在我們環境中的實際表現]
+
+## 診斷過程
+
+| 步驟 | 確認項目 | 結果 |
+|------|---------|------|
+| Step 1 | 實作是否正確對照原始來源 | ✅ 正確 |
+| Step 2 | 應用場景是否符合論文假設 | ✅ 符合 |
+| Step 3 | 方法本身有效性 | ❌ 無效 |
+
+## 觀察到的指標
+
+| 指標 | 借鑲前 | 借鑲後 | 預期目標 | 判定 |
+|------|-------|-------|---------|------|
+| [指標名稱] | [基準值] | [實際值] | [目標值] | ❌ 未達成 |
+
+## 反模式紀錄
+
+> 記錄此方法在我們環境中的反模式，供未來避免相同錯誤。
+
+- [反模式 1: 具體描述]
+- [反模式 2: 具體描述]
+
+## 移除步驟
+
+- [ ] 透過 Feature Flag 停用相關功能
+- [ ] 移除實作程式碼
+- [ ] 更新 TECH-RADAR.md：狀態改為 Hold
+- [ ] 更新原始 DEC 狀態為 `Superseded by DEC-NNN-reversal`
+- [ ] 在下次 Retrospective 分享學習（緊急情況除外）
+
+## 學習點
+
+[從此次失敗借鑲中學到什麼？對未來借鑲決策的啟示？]
+
+## Links
+
+- 原始 DEC: [DEC-NNN](DEC-NNN-original-title.md)
+- 相關 Retrospective: [連結]
+- TECH-RADAR: [cross-project/decisions/TECH-RADAR.md](../decisions/TECH-RADAR.md)
+```
+
+### Reversal DEC Rules
+
+1. **Always create** a Reversal DEC when a method is determined ineffective (not just implementation errors).
+2. **Do NOT create** a Reversal DEC for implementation errors — fix and restart the hypothesis timer instead.
+3. The original DEC status should be updated to `Superseded by DEC-NNN-reversal`.
+4. Reversal DECs are terminal — they are never reversed themselves.
+5. For methods with harmful side effects, skip the Retrospective wait and act immediately.
