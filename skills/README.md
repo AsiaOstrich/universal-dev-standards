@@ -62,6 +62,7 @@ These skills provide standard guidance and workflows. They can be accessed via s
 | `observability-assistant` | `/observability` | [UDS] Observability setup, metrics, alerting 🆕 |
 | `slo-assistant` | `/slo` | [UDS] SLI selection, SLO setting, Error Budget 🆕 |
 | `runbook-assistant` | `/runbook` | [UDS] Runbook creation, drills, coverage 🆕 |
+| `process-automation` | `/process-to-skill` | [UDS] Identify repeated processes and build Skills with the right development depth |
 
 > **Note**: For reference guides (e.g., Git Workflow, Logging, Error Codes), use the `/guide` command.
 
