@@ -5,7 +5,11 @@
  * Records hook execution telemetry to .standards/telemetry.jsonl.
  * Format: {timestamp, standard_id, hook_type, result, duration_ms}
  *
+ * If telemetryUpload=true and telemetryApiKey≠"" in .uds/config.json,
+ * also uploads the result to the remote telemetry server (opt-in).
+ *
  * @see docs/specs/SPEC-TELEMETRY-001-hook-telemetry.md (REQ-1)
+ * @see docs/specs/SPEC-TELEMETRY-002-hook-upload.md
  */
 
 import { existsSync, readFileSync, appendFileSync, mkdirSync, statSync, writeFileSync } from 'fs';
@@ -51,5 +55,23 @@ export function recordTelemetry(projectPath, entry) {
     appendFileSync(telPath, JSON.stringify(record) + '\n');
   } catch {
     // Silently ignore write failures
+  }
+}
+
+/**
+ * Upload hook result to remote telemetry server (opt-in via .uds/config.json).
+ * Silently fails — never blocks hook execution.
+ *
+ * @param {string} projectPath - Project root path
+ * @param {{ standard_id: string, hook_type: string, exitCode: number, duration_ms: number }} entry
+ * @returns {Promise<void>}
+ */
+export async function uploadTelemetry(projectPath, entry) {
+  try {
+    // Dynamic import to avoid blocking if CLI module not available in hook context
+    const { uploadHookTelemetry } = await import('../../cli/src/utils/telemetry-uploader.js');
+    await uploadHookTelemetry(projectPath, entry);
+  } catch {
+    // Silently ignore upload failures (AC-4: never block hook)
   }
 }

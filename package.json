@@ -13,5 +13,8 @@
     "docs:generate": "node scripts/generate-docs.mjs",
     "docs:sync": "npm run docs:manifest && npm run docs:generate"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@asiaostrich/telemetry-client": "^0.1.0"
+  }
 }
