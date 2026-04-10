@@ -9,16 +9,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.1.0-beta.5] - 2026-04-10
+
+> **Beta Release**: 大規模 CLI 擴展（SDLC Flow Engine、Standards-as-Hooks 編譯器、分層 CLAUDE.md、SuperSpec Phase 4、opt-in 遙測上傳）與 Skill 治理框架（/process-to-skill、DEC 評估框架）。
+
 ### Added
-- **Integration Commands Sync** (SPEC-INTSYNC-001): 新增 `check-integration-commands-sync.sh` 腳本，自動偵測 AI 工具整合檔是否以 `/command` 格式引用所有必要的斜線命令
-- `COMMAND-INDEX.json`: 47 個 commands 的 Single Source of Truth，含 7 類分類（core/testing/quality/docs/ops/methodology/reference）
+
+**新功能 — CLI & Standards**
+- **opt-in 遙測上傳** (SPEC-TELEMETRY-002): Hook 執行結果可選擇性上傳至遠端分析端點；雙重防護（`telemetryUpload=true` + `telemetryApiKey` 非空）；SHA-256 匿名 user_id，不含 PII
+- **DEC 借鑲評估框架** (XSPEC-014 Layer 1): 技術雷達（Technology Radar）、假設書（Hypothesis Document）、Reversal DEC 三大評估工具，支援借鑲決策記錄
+- **SuperSpec Phase 4 — 收尾功能** (XSPEC-005): `uds spec archive`（歸檔索引）、`uds spec search`（全文搜尋）、`uds spec quickstart`（快速建立）、`uds spec split`（大型 spec 拆分）
+- **SuperSpec Phase 2 — 驗證管線**: `spec-linter`（格式驗證）、品質評分（0-100 分）、`context sync`（AC 與文件同步）
+- **spec 大小閘門** (AC-3): `validateSpecSize()` — 超過 600 行觸發警告，超過 1200 行阻擋提交
+- **YAML 標準擴展** (AC-18): `.standards/*.ai.yaml` 格式擴展，支援 `enforcement` 區塊與 `required_fields` 定義
+- **SDLC Flow Engine** (SPEC-FLOW-001): 自訂 SDLC 工作流程引擎，含狀態機持久化（Phase 1）、可插拔品質閘門（Phase 4）、Export/Import（Phase 6-7）、互動式建立（AC-12）
+- **Standards-as-Hooks 編譯器** (SPEC-COMPILE-001): `uds compile` — 將 `.standards/*.ai.yaml` 的 `enforcement` 區塊自動轉譯為 Claude Code hook 腳本
+- **分層 CLAUDE.md** (SPEC-LAYERED-001): `uds init --content-layout` 支援多層目錄的獨立 CLAUDE.md；`directory-mapper` + `generator` 核心模組
+- **Hook 整合** (SPEC-HOOKS-001): `uds init --with-hooks` 一鍵安裝 hook 腳本（commit-msg / security / logging）；YAML enforcement 區塊自動注入
+- **Hook 執行遙測** (SPEC-TELEMETRY-001): 本地端 hook 執行統計（exitCode、duration_ms、hook_type），寫入 `.uds/hook-stats.jsonl`
+- **執行歷史倉庫標準** (`execution-history`): 新增 `core/execution-history.md` — AI Agent 工作階段跨對話持久化記憶標準，含 `@executes`/`@reads`/`@writes` 標註慣例
+- **`/e2e` 斜線命令** (SPEC-E2E-001): 從 BDD Gherkin 場景自動生成 E2E 測試骨架；支援 Playwright/Cypress/Puppeteer；AC 分析、模式識別、覆蓋差距報告
+- **`/process-to-skill` Skill** (XSPEC-020): Process-to-Skill 治理框架；3-Times Rule；Simple/Complex/Delta 決策樹；Placement Decision（專案 vs UDS）
+- **Skill 治理模板**: `templates/SKILL-CANDIDATES.md`（候選追蹤）、`templates/SKILL-BRIEF-TEMPLATE.md`（Simple Skill 最小規格）
+- **Integration Commands Sync** (SPEC-INTSYNC-001): `check-integration-commands-sync.sh` — 自動偵測 AI 工具整合檔是否引用所有斜線命令
+- `COMMAND-INDEX.json`: 47 個 commands 的 Single Source of Truth，含 7 類分類
+- `/derive` 擴展：感知 `test_levels` 配置 + AC Level Summary；支援 IT + E2E 測試推演（SPEC-DERIVE-001）
+- **三個核心標準新增 `enforcement` 區塊**: `commit-message-guide`、`testing-standards`、`checkin-standards`
 - Pre-release 新增 Step 7.5 整合命令同步檢查
-- `/derive` 擴展：感知 `test_levels` 配置 + AC Level Summary + BDD/TDD 推演
-- `/derive` 擴展：支援 IT + E2E 測試推演（SPEC-DERIVE-001）
+
+**文件與規格**
+- 批次歸檔 28 個已完成的 orphan specs 為 Archived 狀態
+- 歸檔 SPEC-TELEMETRY-001、SPEC-COMPILE-001、SPEC-LAYERED-001、SPEC-HOOKS-001、SPEC-FLOW-001、SPEC-E2E-001（共 6 份規格）
+- 新增 XSPEC-005 SuperSpec 借鑲規格與衍生測試工件
 
 ### Changed
 - `REGISTRY.json`: 所有 tier 新增 `requiredCategories` 欄位；Complete 和 Partial tier 均要求全部 command categories
 - `REGISTRY.json`: Cursor 依實際能力（不支援 Workflows）從 `complete` 降為 `partial` tier
+- `spec dependency tracking`：新增 `depends_on` 欄位與 dual mode 支援（strict / advisory）
+
+### Fixed
+- `check-orphan-specs.sh`: 排除 traceability 文件的誤判（含 `SPEC-` 前綴的參考行被誤判為 orphan）
+- `check-orphan-specs.sh`: 修復 orphan spec 偵測 regex（支援 list 前綴和中文狀態欄位）
+
+### Chore
+- `.gitignore`: 新增 `.workflow-state/`（排除工作流程狀態 ephemeral 檔案）
+- 移除 11 個測試檔案中過時的 `[TODO]` 標記
 
 ## [5.1.0-beta.4] - 2026-04-01
 

@@ -1,14 +1,14 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 3.5.0-beta.13
-translation_version: 3.5.0-beta.13
-last_synced: 2026-01-13
+source_version: 5.1.0-beta.5
+translation_version: 5.1.0-beta.5
+last_synced: 2026-04-10
 status: current
 ---
 
 # 变更日志
 
-> **语言**: [English](../../CHANGELOG.md) | [简体中文](../zh-TW/CHANGELOG.md) | 简体中文
+> **语言**: [English](../../CHANGELOG.md) | [繁体中文](../zh-TW/CHANGELOG.md) | 简体中文
 
 本项目的所有重要变更都将记录在此文件中。
 
@@ -16,6 +16,50 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.1.0-beta.5] - 2026-04-10
+
+> **Beta 版本**：大规模 CLI 扩展（SDLC Flow Engine、Standards-as-Hooks 编译器、分层 CLAUDE.md、SuperSpec Phase 4、opt-in 遥测上传）与 Skill 治理框架（/process-to-skill、DEC 评估框架）。
+
+### 新增
+
+**新功能 — CLI & 标准**
+- **opt-in 遥测上传**（SPEC-TELEMETRY-002）：Hook 执行结果可选择性上传至远端分析端点；双重防护；SHA-256 匿名 user_id，不含个人资料
+- **DEC 借镶评估框架**（XSPEC-014 Layer 1）：技术雷达、假设书、Reversal DEC 三大评估工具
+- **SuperSpec Phase 4 — 收尾功能**（XSPEC-005）：`uds spec archive`、`uds spec search`、`uds spec quickstart`、`uds spec split`
+- **SuperSpec Phase 2 — 验证管线**：`spec-linter`、品质评分（0-100 分）、`context sync`
+- **spec 大小闸门**（AC-3）：`validateSpecSize()` — 超过 600 行触发警告，超过 1200 行阻挡提交
+- **YAML 标准扩展**（AC-18）：`.standards/*.ai.yaml` 支持 `enforcement` 区块与 `required_fields`
+- **SDLC Flow Engine**（SPEC-FLOW-001）：自定义工作流程引擎，含状态机持久化、可插拔品质闸门、Export/Import
+- **Standards-as-Hooks 编译器**（SPEC-COMPILE-001）：`uds compile` — 自动将 YAML enforcement 区块转译为 hook 脚本
+- **分层 CLAUDE.md**（SPEC-LAYERED-001）：`uds init --content-layout` 支持多层目录独立 CLAUDE.md
+- **Hook 整合**（SPEC-HOOKS-001）：`uds init --with-hooks` 一键安装 hook 脚本
+- **Hook 执行遥测**（SPEC-TELEMETRY-001）：本地端 hook 执行统计，写入 `.uds/hook-stats.jsonl`
+- **执行历史仓库标准**（`execution-history`）：AI Agent 跨对话持久化记忆标准
+- **`/e2e` 斜线命令**（SPEC-E2E-001）：从 BDD Gherkin 场景自动生成 E2E 测试骨架
+- **`/process-to-skill` Skill**（XSPEC-020）：Process-to-Skill 治理框架；3-Times Rule；Simple/Complex/Delta 决策树
+- **Skill 治理模板**：`templates/SKILL-CANDIDATES.md`、`templates/SKILL-BRIEF-TEMPLATE.md`
+- **Integration Commands Sync**（SPEC-INTSYNC-001）：自动检测 AI 工具整合文件是否引用所有斜线命令
+- `COMMAND-INDEX.json`：47 个 commands 的 Single Source of Truth
+- `/derive` 扩展：感知 `test_levels`；支持 IT + E2E 测试推演（SPEC-DERIVE-001）
+- **三个核心标准新增 `enforcement` 区块**：`commit-message-guide`、`testing-standards`、`checkin-standards`
+
+**文档与规格**
+- 批次归档 28 个已完成的 orphan specs 为 Archived 状态
+- 归档 6 份规格：SPEC-TELEMETRY-001、SPEC-COMPILE-001、SPEC-LAYERED-001、SPEC-HOOKS-001、SPEC-FLOW-001、SPEC-E2E-001
+
+### 变更
+- `REGISTRY.json`：所有 tier 新增 `requiredCategories` 字段
+- `REGISTRY.json`：Cursor 从 `complete` 降为 `partial` tier
+- `spec dependency tracking`：新增 `depends_on` 字段与 dual mode 支持
+
+### 修复
+- `check-orphan-specs.sh`：排除 traceability 文档的误判
+- `check-orphan-specs.sh`：修复支持 list 前缀和中文状态字段的 regex
+
+### 杂项
+- `.gitignore`：新增 `.workflow-state/`
+- 移除 11 个测试文件中过时的 `[TODO]` 标记
 
 ## [3.5.0-beta.13] - 2026-01-13
 
