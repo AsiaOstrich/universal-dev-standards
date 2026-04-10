@@ -16,6 +16,9 @@ Thumbs.db
 
 # UDS local data (hook stats, health scores, cache)
 .uds/
+
+# Workflow state (ephemeral, per-session)
+.workflow-state/
 *.swp
 *.swo
 *~
