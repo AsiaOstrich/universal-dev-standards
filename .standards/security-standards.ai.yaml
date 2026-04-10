@@ -123,13 +123,18 @@ checklist:
     - "No secrets in code/VCS"
     - "Security headers configured"
 
-enforcement:
-  hook_script: scripts/hooks/check-dangerous-cmd.js
-  trigger: PreToolUse
-  severity: error
-
 physical_spec:
   type: custom_script
   validator:
     command: "npm audit --dry-run > /dev/null 2>&1 || test -f .trivyignore || test -f .snyk"
     rule: "security_scan_configured"
+
+enforcement:
+  hook_type: PreToolUse
+  trigger: PreToolUse
+  matcher:
+    tool: Bash
+  script_ref: "scripts/hooks/check-dangerous-cmd.js"
+  hook_script: "scripts/hooks/check-dangerous-cmd.js"
+  severity: error
+  timeout_ms: 500

@@ -109,11 +109,6 @@ standard:
           - "Fixes #456"
           - "Refs #789"
 
-enforcement:
-  hook_script: scripts/hooks/validate-commit-msg.js
-  trigger: UserPromptSubmit
-  severity: error
-
 physical_spec:
   type: custom_script
   validator:
@@ -122,3 +117,11 @@ physical_spec:
   simulator:
     type: command
     command: 'echo "{input}" | npx commitlint'
+
+enforcement:
+  hook_type: PreCommit
+  trigger: UserPromptSubmit
+  script_ref: "scripts/hooks/validate-commit-msg.js"
+  hook_script: "scripts/hooks/validate-commit-msg.js"
+  severity: error
+  timeout_ms: 500

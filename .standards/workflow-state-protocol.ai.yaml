@@ -40,17 +40,6 @@ state_file:
     - next_steps
     - open_questions
     - decisions
-    - spec_mode:
-        type: enum
-        values: [standard, boost]
-        description: "規格模式。standard = 輕量 micro-spec，boost = 完整 SDD 規格"
-        default: standard
-    - approach:
-        type: enum
-        values: [conventional, exploratory]
-        description: "設計方法。conventional = 遵循既有架構，exploratory = 可提出新架構（需附理由）"
-        default: conventional
-        applies_to: boost  # 僅在 boost 模式有意義
 
 event_log:
   location: ".workflow-state/{workflow}-{id}.log.yaml"
@@ -112,16 +101,6 @@ rules:
       warn the user that the workflow state may be stale and suggest
       reviewing it before continuing.
     priority: recommended
-
-  - id: context-sync-on-session-end
-    description: "Session 結束前可執行 uds sync 匯出上下文"
-    when: "AI session 即將結束或使用者切換 session"
-    action: |
-      建議使用者執行 `uds sync` 將當前上下文匯出到 .workflow-state/context.md。
-      新 session 開始時，AI 可讀取此檔案快速恢復工作狀態。
-      此操作消耗 0 AI tokens（純 shell/JS 執行）。
-    output_file: ".workflow-state/context.md"
-    max_lines: 500
 
   - id: gitignore-workflow-state
     trigger: creating .workflow-state/ directory

@@ -54,13 +54,6 @@ standard:
         - API documentation updated
         - README updated (if needed)
         - CHANGELOG updated (for user-facing changes to [Unreleased] section)
-    upstream_file_detection:
-      items:
-        - "Check git diff for .standards/ or .claude/skills/ modifications"
-        - "If detected: warn user these are UDS upstream-managed files"
-        - "Suggest /audit --friction before committing"
-      severity: warning
-      blocking: false
     workflow_compliance:
       items:
         - Branch naming correct

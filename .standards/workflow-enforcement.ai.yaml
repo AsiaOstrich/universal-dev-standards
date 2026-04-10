@@ -76,13 +76,6 @@ gates:
             condition: status_is_approved
             on_fail: guide_to_approve
             blocking: true
-          - check: spec_size_within_limit
-            condition: "spec 有效行數 ≤ hard_cap_lines (預設 400)"
-            on_fail:
-              enforce: "STOP — Spec 超過 {hard_cap_lines} 行 hard cap。請先使用 `uds spec split` 或手動拆分為子 specs（用 depends_on 串聯），再進入實作階段。"
-              suggest: "WARNING — Spec 超過 {hard_cap_lines} 行，建議拆分。繼續？[y/N]"
-              off: null
-            blocking: true  # enforce 模式下阻斷
           - check: workflow_state
             command: "ls .workflow-state/sdd-*.yaml 2>/dev/null"
             condition: check_for_resumable_state
@@ -230,16 +223,6 @@ rules:
       existing state files. If an active workflow exists for the same
       spec or feature, offer to resume instead of starting fresh.
     priority: required
-
-  - id: standards-modification-audit
-    trigger: staging or committing changes to .standards/ or .claude/skills/
-    instruction: >
-      When staged or modified files include paths matching .standards/ or
-      .claude/skills/, warn the user that these are UDS upstream-managed files.
-      Suggest running /audit --friction to check for drift and /audit --report
-      to submit feedback upstream. This is advisory, not blocking.
-      Detection command: git diff --cached --name-only | grep -E '^\.(standards|claude/skills)/'
-    priority: recommended
 
   - id: feat-commit-spec-suggestion
     trigger: committing a feat or fix type change

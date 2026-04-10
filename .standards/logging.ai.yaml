@@ -147,6 +147,12 @@ quick_reference:
       - [ERROR/FATAL, 1 year]
 
 enforcement:
-  hook_script: scripts/hooks/check-logging-standard.js
+  hook_type: PostToolUse
   trigger: PostToolUse
+  matcher:
+    tool: Write
+    path: "src/**/*.ts"
+  script_ref: "scripts/hooks/check-logging-standard.js"
+  hook_script: "scripts/hooks/check-logging-standard.js"
   severity: warning
+  timeout_ms: 500
