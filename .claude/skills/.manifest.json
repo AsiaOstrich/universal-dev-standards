@@ -1,8 +1,8 @@
 {
-  "version": "5.1.0-beta.3",
+  "version": "5.1.0-beta.5",
   "source": "universal-dev-standards",
   "agent": "claude-code",
   "level": "project",
   "locale": "zh-TW",
-  "installedDate": "2026-03-28"
+  "installedDate": "2026-04-10"
 }
