@@ -1,8 +1,8 @@
 ---
 source: ../../../core/runbook-standards.md
-source_version: "1.0.0"
-translation_version: "1.0.0"
-last_synced: "2026-04-01"
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-10
 status: current
 ---
 
