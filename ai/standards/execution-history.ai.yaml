@@ -1,5 +1,5 @@
 # Execution History Repository Standards - AI Optimized
-# Source: core/execution-history.md
+# Source: cross-project/specs/XSPEC-003-execution-history-standard-sdd.md
 
 standard:
   id: execution-history
@@ -11,11 +11,12 @@ standard:
     - "提供 L1/L2/L3 三層存取，平衡資訊量與 token 成本"
     - "敏感資訊在寫入時自動 redact"
     - "跨專案僅共享 L1 層級，遵守授權隔離"
+    - "歷史保留策略確保 L1/L2 索引永久保留，L3 artifacts 依 max_runs 設定自動清理以控制儲存空間"
 
   meta:
     version: "1.0.0"
     updated: "2026-04-02"
-    source: core/execution-history.md
+    source: cross-project/specs/XSPEC-003-execution-history-standard-sdd.md
     description: "基於 Meta-Harness 論文洞見，建立跨專案執行歷史標準"
 
   schema:

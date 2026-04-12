@@ -275,8 +275,8 @@ describe('execution-history-spec: Execution History Repository Standard', () => 
       // Arrange
       if (!existsSync(YAML_PATH)) return;
       const parsed = yamlLoad(readFileSync(YAML_PATH, 'utf-8'));
-      // Assert: YAML 的 source 指向 core markdown
-      expect(parsed.standard.meta.source).toBe('core/execution-history.md');
+      // Assert: YAML 的 source 指向 XSPEC-003 SDD 規格（跨專案權威來源）
+      expect(parsed.standard.meta.source).toBe('cross-project/specs/XSPEC-003-execution-history-standard-sdd.md');
     });
   });
 });
