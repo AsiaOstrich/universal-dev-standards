@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.1.0-beta.5
-translation_version: 5.1.0-beta.5
-last_synced: 2026-04-10
+source_version: 5.1.0-beta.6
+translation_version: 5.1.0-beta.6
+last_synced: 2026-04-13
 status: current
 ---
 
@@ -16,6 +16,24 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.1.0-beta.6] - 2026-04-13
+
+> **Beta 版本**：修复 `uds init` 崩溃问题、E2E 测试隔离问题，以及 macOS 显示语言检测失效问题。
+
+### 修复
+
+- **`uds init --yes` 崩溃**（`manifest-installer.js`）：`contentMode: 'auto'` 未被 `|| 'minimal'` 后备值拦截，导致 Schema 验证失败，`manifest.json` 无法写入
+- **macOS 显示语言被忽略**：新增 `~/.udsrc ui.language` 的读取，修复英文语系 macOS 忽略用户语言偏好的问题
+- **E2E 测试隔离**（`cli-runner.js`）：所有子进程 spawn 改以独立的 `TEST_HOME_DIR` 覆盖 `HOME`，消除开发者 `~/.udsrc` 对测试输出的干扰
+- **E2E 计数断言**（`update-flow.test.js`）：过滤 `manifest.standards` 仅计算 `.ai.yaml` 文件，排除 `.md` 模板文件的干扰
+
+### 新增
+
+- **认知校准框架**（XSPEC-008）：反幻觉标准新增认知校准框架章节
+- **`/e2e-assistant` Skill**：从 BDD Gherkin 场景自动生成 E2E 测试骨架的交互式技能
+- **`/process-to-skill` Skill**：Process-to-Skill 治理框架技能
+- **`execution-history.ai.yaml`**：同步至 XSPEC-003-SDD 规格格式
 
 ## [5.1.0-beta.5] - 2026-04-10
 

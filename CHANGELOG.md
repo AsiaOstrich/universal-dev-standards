@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.1.0-beta.6] - 2026-04-13
+
+> **Beta Release**: Bug fixes for `uds init` crash, E2E test isolation, and macOS display language detection.
+
+### Fixed
+- **`uds init --yes` crash** (`manifest-installer.js`): `contentMode: 'auto'` failed schema validation (allowed: `minimal/index/full`), causing init to crash after copying files without writing `manifest.json`. Now resolves `'auto'` to `'minimal'` before writing.
+- **macOS display language ignored** (`bin/uds.js`, `config.js`, `update.js`): Three root causes prevented `uds config` display language from taking effect on English-locale macOS after upgrading from 3.5.1 to 5.1.0-beta.5. Fixed language detection priority chain and `display_language` backfill migration.
+- **E2E test isolation** (`tests/utils/cli-runner.js`): Tests inherited developer's `~/.udsrc` (`zh-tw`), overriding language detection and breaking all English-output assertions. Added `HOME: TEST_HOME_DIR` isolation.
+- **E2E test count assertion** (`tests/e2e/update-flow.test.js`): CLAUDE.md yaml count compared against total manifest standards including 3 non-yaml `.md` templates. Filter to `.ai.yaml` only before comparing.
+
+### Added
+- **Epistemic calibration framework** (`core/anti-hallucination.md`, XSPEC-008): Six calibration protocols — Certainty Gradient (CG), Evidence Chain (EC), Uncertainty Decomposition (UD), Boundary Awareness (BA), Calibration Feedback (CF), Meta-Uncertainty (MU).
+- **`/e2e-assistant` Skill**: From BDD Gherkin scenarios, auto-generate E2E test skeletons; framework detection (Playwright/Cypress/Puppeteer); coverage gap analysis.
+- **`/process-to-skill` Skill**: Process-to-Skill governance framework; 3-Times Rule; Simple/Complex/Delta decision tree.
+- **`execution-history.ai.yaml`** synced with XSPEC-003-SDD schema.
+
 ## [5.1.0-beta.5] - 2026-04-10
 
 > **Beta Release**: 大規模 CLI 擴展（SDLC Flow Engine、Standards-as-Hooks 編譯器、分層 CLAUDE.md、SuperSpec Phase 4、opt-in 遙測上傳）與 Skill 治理框架（/process-to-skill、DEC 評估框架）。
