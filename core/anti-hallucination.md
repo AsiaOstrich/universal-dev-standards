@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/anti-hallucination.md)
 
-**Version**: 1.5.0
-**Last Updated**: 2026-01-29
+**Version**: 1.5.1
+**Last Updated**: 2026-04-13
 **Applicability**: All software projects using AI assistants
 **Scope**: universal
 **Industry Standards**: None (UDS original)
@@ -170,10 +170,29 @@ Before making any statement about code, requirements, or architecture:
 
 ---
 
+## Agent Epistemic Calibration (v1.4.0, XSPEC-008)
+
+Agents must declare their epistemic state using the Answer/Ask/Abstain framework:
+
+| Action | When to Use | Required Fields |
+|--------|-------------|----------------|
+| `answer` | Has sufficient information | None (completeness/confidence optional) |
+| `ask` | Missing critical information | `missing_variables` list |
+| `abstain` | Truly outside capability | `abstain_reason` |
+
+**Fail-closed agents** (must always answer): `evaluator`, `guardian`
+
+**Backward compatibility**: Missing `epistemic` field defaults to `action_type: "answer"`.
+
+See: XSPEC-008, DEC-014 (PassiveQA)
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.5.1 | 2026-04-13 | Added: Agent Epistemic Calibration (Answer/Ask/Abstain) framework (XSPEC-008) |
 | 1.5.0 | 2026-01-29 | Refactored: Split into Rules + Guide, moved examples to guide |
 | 1.4.0 | 2026-01-19 | Added: Side Effect Analysis rule |
 | 1.3.1 | 2025-12-24 | Added: Related Standards section |
