@@ -816,30 +816,46 @@ When user asks to prepare a release:
 
 1. **Ask for release type**: beta, alpha, rc, or stable
 2. **Run pre-release checks**: Tests, linting, git status
-3. **Update ALL version files** (see UDS-specific section below)
-4. **Update CHANGELOG.md**: Follow the format in release-workflow.md
-5. **Create git tag**: Format `vX.Y.Z` or `vX.Y.Z-beta.N`
-6. **Commit and push**: Git commit and push tags
-7. **Create GitHub Release**: Use `gh release create` command
+3. **Run `bump-version.sh`** — updates ALL version files atomically (see UDS-specific section below)
+4. **Update CHANGELOG.md** (EN + zh-TW + zh-CN): Follow the format in release-workflow.md
+5. **Commit, tag, push**: `git add -A && git commit && git tag vX.Y.Z && git push origin main vX.Y.Z`
+6. **Create GitHub Release**: Use `gh release create` command
+
+> ⚠️ **Never manually update individual version files**. Always use `scripts/bump-version.sh` to avoid missing files.
 
 ### UDS Project-Specific Release Steps
 
 > ⚠️ **IMPORTANT**: This section contains UDS-specific requirements that MUST be followed in addition to the standard release workflow.
 
-#### Version Files to Update
+#### Step 0: Run bump-version.sh (MANDATORY)
 
-When updating version, files must be synchronized based on release type:
+**Always use the version bump script** — it updates all files atomically and runs verification:
+
+```bash
+# macOS / Linux
+./scripts/bump-version.sh 5.2.0-beta.1   # Pre-release
+./scripts/bump-version.sh 5.2.0          # Stable
+
+# After bump-version.sh:
+# → Update CHANGELOG.md (EN + zh-TW + zh-CN) manually
+# → git add -A && git commit -m "chore(release): X.Y.Z"
+# → git tag vX.Y.Z && git push origin main vX.Y.Z
+```
+
+The script handles these files automatically:
 
 | File | Field | Alpha/Beta/RC | Stable |
 |------|-------|---------------|--------|
-| `cli/package.json` | `"version"` | ✅ Update | ✅ Update |
-| `cli/standards-registry.json` | `"version"` (3 places) | ✅ Update | ✅ Update |
-| `uds-manifest.json` | `"version"` + `"last_updated"` | ✅ Update | ✅ Update |
-| `README.md` | `**Version**:` | ✅ Update | ✅ Update |
-| `locales/zh-TW/README.md` | `**版本**:` | ✅ Update | ✅ Update |
-| `locales/zh-CN/README.md` | `**版本**:` | ✅ Update | ✅ Update |
-| `.claude-plugin/plugin.json` | `"version"` | ❌ Keep stable | ✅ Update |
-| `.claude-plugin/marketplace.json` | `"version"` | ❌ Keep stable | ✅ Update |
+| `cli/package.json` | `"version"` | ✅ Auto | ✅ Auto |
+| `cli/standards-registry.json` | `"version"` (3 places) | ✅ Auto | ✅ Auto |
+| `uds-manifest.json` | `"version"` + `"last_updated"` | ✅ Auto | ✅ Auto |
+| `README.md` | `**Version**:` | ✅ Auto | ✅ Auto |
+| `locales/zh-TW/README.md` | `**版本**:` | ✅ Auto | ✅ Auto |
+| `locales/zh-CN/README.md` | `**版本**:` | ✅ Auto | ✅ Auto |
+| `locales/zh-TW/CHANGELOG.md` | frontmatter | ✅ Auto | ✅ Auto |
+| `locales/zh-CN/CHANGELOG.md` | frontmatter | ✅ Auto | ✅ Auto |
+| `.claude-plugin/plugin.json` | `"version"` | ❌ Skip | ✅ Auto |
+| `.claude-plugin/marketplace.json` | `"version"` | ❌ Skip | ✅ Auto |
 
 > **Marketplace Version Strategy**: `.claude-plugin/` files are only updated for stable releases. This prevents beta/alpha versions from being automatically pushed to Claude Plugin Marketplace users. Marketplace users will only receive stable versions.
 
