@@ -496,7 +496,7 @@ describe('E2E: uds update', () => {
       if (claudeExists) {
         const claudeContent = await readFile(join(testDir, 'CLAUDE.md'), 'utf8');
         const updatedManifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-        const installedCount = (updatedManifest.standards || []).length;
+        const installedCount = (updatedManifest.standards || []).filter(s => s.endsWith('.ai.yaml')).length;
         const yamlEntries = (claudeContent.match(/\.ai\.yaml/g) || []).length;
         claudeIncludesAll = yamlEntries >= installedCount;
       }
@@ -520,10 +520,10 @@ describe('E2E: uds update', () => {
       // Run update to ensure integrations are synced
       const result = await runCommand('update', { yes: true, offline: true }, testDir, 15000);
 
-      // Read manifest to get installed standards count
+      // Read manifest to get installed standards count (only .ai.yaml files, not .md templates)
       const manifestPath = join(testDir, '.standards/manifest.json');
       const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-      const installedCount = (manifest.standards || []).length;
+      const installedCount = (manifest.standards || []).filter(s => s.endsWith('.ai.yaml')).length;
 
       // If CLAUDE.md exists and has standards section, verify count matches
       const claudeExists = await fileExists(join(testDir, 'CLAUDE.md'));
@@ -531,8 +531,8 @@ describe('E2E: uds update', () => {
         const claudeContent = await readFile(join(testDir, 'CLAUDE.md'), 'utf8');
         // Count .ai.yaml entries in CLAUDE.md
         const yamlEntries = (claudeContent.match(/\.ai\.yaml/g) || []).length;
-        // Should have at least as many entries as installed standards
-        // (some standards may have multiple mentions)
+        // Should have at least as many entries as installed .ai.yaml standards
+        // (some standards may have multiple mentions; .md templates are not listed)
         expect(yamlEntries).toBeGreaterThanOrEqual(installedCount);
       }
 

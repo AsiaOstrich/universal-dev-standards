@@ -3,8 +3,8 @@
   "version": "5.1.0-beta.5",
   "last_updated": "2026-04-10",
   "stats": {
-    "core_standards": 51,
-    "skills": 43,
+    "core_standards": 72,
+    "skills": 48,
     "slash_commands": 48
   },
   "standards": [
@@ -262,6 +262,111 @@
       "id": "ai-command-behavior",
       "category": "uncategorized",
       "level": 3
+    },
+    {
+      "id": "agent-communication-protocol",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "ai-response-navigation",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "alerting-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "chaos-engineering-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "containerization-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "deprecation-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "design-document-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "documentation-lifecycle",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "environment-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "estimation-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "execution-history",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "feature-flag-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "knowledge-transfer-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "observability-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "postmortem-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "privacy-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "runbook-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "slo-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "supply-chain-security-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "tech-debt-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "test-data-standards",
+      "category": "uncategorized",
+      "level": 3
     }
   ],
   "skills": [
@@ -502,6 +607,31 @@
     },
     {
       "id": "security-scan-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "e2e-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "observability-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "process-automation",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "runbook-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "slo-assistant",
       "command": "/guide",
       "category": "uncategorized"
     }

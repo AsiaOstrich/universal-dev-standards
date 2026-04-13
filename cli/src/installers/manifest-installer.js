@@ -25,7 +25,7 @@ export function writeFinalManifest(config, results, projectPath) {
       installed: new Date().toISOString().split('T')[0]
     },
     format: config.format,
-    contentMode: config.contentMode || 'minimal',
+    contentMode: (config.contentMode === 'auto' ? 'minimal' : config.contentMode) || 'minimal',
     contentLayout: config.contentLayout || 'flat',
     standards: results.standards || [],
     extensions: results.extensions || [],

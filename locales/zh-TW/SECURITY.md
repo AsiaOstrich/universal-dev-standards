@@ -5,6 +5,7 @@
 <!-- UDS_SUPPORTED_VERSIONS_START -->
 | 版本 | 支援狀態 |
 |------|--------|
+| 5.1.0-beta.5 | ✅ 預發布版本 |
 | 5.0.0 | ✅ 最新正式版 |
 | < 5.0.0 | ❌ 已終止支援 |
 <!-- UDS_SUPPORTED_VERSIONS_END -->

@@ -8,10 +8,16 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { mkdtemp, rm, mkdir, writeFile, readFile, access } from 'fs/promises';
 import { tmpdir } from 'os';
-import { existsSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CLI_PATH = join(__dirname, '../../bin/uds.js');
+
+// Isolated HOME directory for E2E tests — prevents reading developer's ~/.udsrc
+// which would change language detection and break tests expecting English output.
+// Must exist so uds init can write to ~/.claude/skills etc without error.
+const TEST_HOME_DIR = join(tmpdir(), `uds-test-home-${process.pid}`);
+mkdirSync(TEST_HOME_DIR, { recursive: true });
 
 /**
  * Strip ANSI escape codes from string
@@ -119,7 +125,7 @@ export async function runNonInteractive(options = {}, workDir, timeout = 30000, 
     const proc = spawn('node', [CLI_PATH, ...args], {
       cwd: workDir,
       stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env, FORCE_COLOR: '0' } // Disable colors for easier parsing
+      env: { ...process.env, FORCE_COLOR: '0', HOME: TEST_HOME_DIR } // Disable colors; isolate HOME to prevent reading developer's ~/.udsrc
     });
 
     let stdout = '';
@@ -187,7 +193,7 @@ export async function runInteractive(inputs, cliOptions = {}, workDir, timeout =
     const proc = spawn('node', [CLI_PATH, ...args], {
       cwd: workDir,
       stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env, FORCE_COLOR: '0' }
+      env: { ...process.env, FORCE_COLOR: '0', HOME: TEST_HOME_DIR }
     });
 
     let stdout = '';
@@ -496,7 +502,7 @@ export async function runCommand(command, options = {}, workDir, timeout = 30000
     const proc = spawn('node', [CLI_PATH, ...args], {
       cwd: workDir,
       stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env, FORCE_COLOR: '0' }
+      env: { ...process.env, FORCE_COLOR: '0', HOME: TEST_HOME_DIR }
     });
 
     let stdout = '';
