@@ -28,6 +28,8 @@ import { flowCreateCommand, flowListCommand, flowValidateCommand, flowDiffComman
 import { generateReport } from '../src/commands/report.js';
 import { setLanguage, setLanguageExplicit, detectLanguage, t } from '../src/i18n/messages.js';
 import { maybeCheckForUpdates, formatUpdateNotice, shouldCheckUpdateForCommand } from '../src/utils/update-checker.js';
+import { config } from '../src/utils/config-manager.js';
+import { readManifest, isInitialized } from '../src/utils/copier.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -62,13 +64,35 @@ program
   .hook('preAction', (thisCommand) => {
     const opts = thisCommand.opts();
     const uiLang = opts.uiLang || 'auto';
-    if (uiLang === 'auto') {
-      // Auto-detect: can be overridden by manifest settings later
-      setLanguage(detectLanguage(null));
-    } else {
-      // Explicit setting: mark as explicitly set to prevent override
+    if (uiLang !== 'auto') {
+      // Explicit --ui-lang flag: highest priority, mark as explicitly set
       setLanguageExplicit(uiLang);
+      return;
     }
+
+    // Auto-detect priority chain:
+    // 1. Project manifest options.display_language
+    // 2. ~/.udsrc ui.language
+    // 3. OS env LANG / LC_ALL
+    // 4. Default 'en'
+    const projectPath = process.cwd();
+    if (isInitialized(projectPath)) {
+      const manifest = readManifest(projectPath);
+      if (manifest?.options?.display_language) {
+        setLanguage(manifest.options.display_language);
+        return;
+      }
+    }
+
+    // Fallback to ~/.udsrc ui.language
+    const rcLang = config.get('ui.language');
+    if (rcLang && rcLang !== 'en') {
+      setLanguage(rcLang);
+      return;
+    }
+
+    // Fallback to OS environment variable detection
+    setLanguage(detectLanguage(null));
   })
   .hook('postAction', async (thisCommand) => {
     const cmd = thisCommand.name();

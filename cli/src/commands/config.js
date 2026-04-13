@@ -264,13 +264,25 @@ function inferInstallationLevel(installations) {
 async function handleDisplayLanguageChange() {
   const projectPath = process.cwd();
   const initialized = isInitialized(projectPath);
-  let currentLang = config.get('ui.language') || 'en';
+
+  // Determine effective current language using the same priority chain as preAction:
+  // 1. Project manifest options.display_language (authoritative for initialized projects)
+  // 2. ~/.udsrc ui.language
+  // 3. Default 'en'
+  let currentLang = 'en';
+  let manifestHasDisplayLang = false;
 
   if (initialized) {
     const manifest = readManifest(projectPath);
     if (manifest?.options?.display_language) {
       currentLang = manifest.options.display_language;
+      manifestHasDisplayLang = true;
     }
+  }
+
+  if (!manifestHasDisplayLang) {
+    // manifest missing display_language — fall back to ~/.udsrc
+    currentLang = config.get('ui.language') || 'en';
   }
 
   const langNames = { en: 'English', 'zh-tw': '繁體中文', 'zh-cn': '简体中文' };
@@ -278,7 +290,10 @@ async function handleDisplayLanguageChange() {
 
   const newLang = await promptDisplayLanguage();
 
-  if (newLang === currentLang) {
+  // Only skip if the manifest already has the desired language persisted.
+  // If manifest lacks display_language (even when ~/.udsrc matches), we must
+  // still write the manifest so the project picks up the setting correctly.
+  if (newLang === currentLang && manifestHasDisplayLang) {
     console.log(chalk.gray(t('config.noLanguageChange', 'Language unchanged.')));
     return;
   }

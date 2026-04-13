@@ -20,6 +20,7 @@ import {
 } from '../utils/reference-sync.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
 import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
+import { config } from '../utils/config-manager.js';
 import {
   installSkillsToMultipleAgents,
   installCommandsToMultipleAgents,
@@ -610,6 +611,20 @@ export async function updateCommand(options) {
       } catch {
         // Ignore removal errors
       }
+    }
+  }
+
+  // Migrate display_language: if manifest options is missing display_language,
+  // attempt to backfill from ~/.udsrc ui.language so the project honours the
+  // language the user already configured globally.
+  if (!manifest.options?.display_language) {
+    const rcLang = config.get('ui.language');
+    if (rcLang && rcLang !== 'en') {
+      manifest.options = manifest.options || {};
+      manifest.options.display_language = rcLang;
+      const msg2 = t().commands?.update;
+      console.log();
+      console.log(chalk.cyan((msg2?.displayLanguageMigrated) || `ℹ Display language migrated from ~/.udsrc: ${rcLang}`));
     }
   }
 
