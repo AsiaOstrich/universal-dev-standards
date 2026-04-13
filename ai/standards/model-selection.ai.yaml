@@ -8,10 +8,10 @@ standard:
   description: AI 模型分級選擇策略
 
   meta:
-    version: "1.0.0"
-    updated: "2026-03-20"
+    version: "2.0.0"
+    updated: "2026-04-13"
     source: core/model-selection.md
-    description: 三層模型分級選擇標準
+    description: "三層模型分級選擇策略 + 多模型池能力管理（XSPEC-027）"
     inspired_by: superpowers/subagent-driven-development
 
   guidelines:
@@ -70,6 +70,112 @@ standard:
       action: "從 standard 或更高層級開始"
       priority: medium
 
+  capability_dimensions:
+    description: "能力維度分類與評分說明（XSPEC-027, DEC-031, DEC-032）"
+    scoring_scale:
+      5: "生產就緒 — 高準確率，可直接使用"
+      4: "良好 — 偶有遺漏，可接受"
+      3: "基本可用 — 需人工補充"
+      2: "部分可用 — 僅供參考"
+      1: "不可靠 — 不建議使用"
+    dimensions:
+      modality:
+        vision:
+          description: "圖片/截圖理解能力（UI 分析、圖表解讀）"
+          benchmark: "internal-vision-bench"
+          scoring_guide:
+            5: "≥ 90% 準確，可萃取完整 DESIGN.md"
+            4: "75-89%，偶有遺漏但可用"
+            3: "60-74%，需人工補充"
+            2: "40-59%，僅供參考"
+            1: "< 40%，不可靠"
+        audio:
+          description: "語音理解能力"
+          benchmark: "future-audio-bench"
+        image_generation:
+          description: "圖片生成能力"
+          benchmark: "provider-specific"
+      reasoning:
+        code_reasoning:
+          description: "程式碼理解與生成品質"
+          benchmark: "humaneval-plus"
+        math_reasoning:
+          description: "數學推理準確率"
+          benchmark: "gsm8k"
+        instruction_following:
+          description: "複雜多步驟指令遵循率（VibeOps 最重視）"
+          benchmark: "internal-instruction-bench"
+        long_context_quality:
+          description: "長文件中間段資訊存取（Lost-in-the-Middle）"
+          benchmark: "needle-in-haystack"
+      output:
+        structured_output:
+          description: "JSON mode / Schema 格式輸出成功率"
+          benchmark: "internal-json-bench"
+        tool_use:
+          description: "Function Calling 正確率"
+          benchmark: "internal-tool-bench"
+      language:
+        multilingual_zh_tw:
+          description: "繁體中文品質（本系統優先語言）"
+          benchmark: "internal-zh-tw-bench"
+
+  capability_registry:
+    description: "模型能力登記表（DEC-031 D1）。各子專案依實際測試維護分數。"
+    format:
+      model_id: "provider/model-name"
+      version_pinned: "版本鎖定識別（SHA、日期戳或 model_version）"
+      pin_date: "鎖定日期（YYYY-MM-DD）"
+      eol_date: "預期淘汰日期（可選，YYYY-MM-DD）"
+      capabilities:
+        "<dimension>.<subdimension>": "<1-5 整數分>"
+    examples:
+      - model_id: "anthropic/claude-sonnet-4-6"
+        version_pinned: "claude-sonnet-4-6"
+        pin_date: "2026-04-13"
+        capabilities:
+          "modality.vision": 4
+          "reasoning.instruction_following": 5
+          "reasoning.code_reasoning": 5
+          "output.structured_output": 5
+          "output.tool_use": 5
+          "language.multilingual_zh_tw": 5
+      - model_id: "anthropic/claude-haiku-4-5"
+        version_pinned: "claude-haiku-4-5-20251001"
+        pin_date: "2026-04-13"
+        capabilities:
+          "modality.vision": 3
+          "reasoning.instruction_following": 4
+          "reasoning.code_reasoning": 4
+          "output.structured_output": 4
+          "output.tool_use": 4
+          "language.multilingual_zh_tw": 4
+
+  routing_rules:
+    description: "能力路由決策規則（DEC-031 D2, DEC-032 D3）"
+    selection_strategy: "pareto_weighted"
+    rules:
+      - id: CAP-001
+        condition: "任務需要 capability X，模型得分 ≥ min_score"
+        action: "SUPPORTED — 正常執行"
+        priority: high
+      - id: CAP-002
+        condition: "任務需要 capability X，模型得分 2-3（min_score 未達但 ≥ 2）"
+        action: "DEGRADED — 降級流程執行，產出標記 [DEGRADED]"
+        priority: medium
+      - id: CAP-003
+        condition: "任務需要 capability X，模型得分 ≤ 1 或未登記"
+        action: "UNSUPPORTED — 使用替代流程或提示用戶"
+        priority: high
+      - id: CAP-004
+        condition: "模型降智偵測（DEC-033）觸發 moderate 信號"
+        action: "啟動金絲雀測試，同時記錄降智警告"
+        priority: high
+      - id: CAP-005
+        condition: "模型降智偵測觸發 critical 信號"
+        action: "自動切換備用模型，上報 P1 Issue"
+        priority: critical
+
 physical_spec:
   type: checklist
   validator:
@@ -79,3 +185,5 @@ physical_spec:
     - "是否根據複雜度信號選擇模型等級"
     - "BLOCKED 時是否嘗試升級而非直接失敗"
     - "簡單任務是否避免使用過高等級模型"
+    - "能力登記表是否包含 version_pinned 與 pin_date"
+    - "路由決策是否依 SUPPORTED/DEGRADED/UNSUPPORTED 三態處理"
