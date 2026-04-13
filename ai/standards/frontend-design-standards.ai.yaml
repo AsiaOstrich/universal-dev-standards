@@ -1,0 +1,305 @@
+# Frontend Design Standards - AI Optimized
+# Source: core/frontend-design-standards.md
+# Based on: DEC-029 (awesome-design-md, MIT), DEC-030 (OpenAI Frontend Guide)
+# Version: 1.0.0
+
+id: frontend-design-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-04-13"
+  source: core/frontend-design-standards.md
+  description: |
+    DESIGN.md 前端設計標準：9 段結構、語義色彩 token、字體角色、
+    間距比例、UI 硬性約束與 anti-pattern 清單。
+    適用所有含前端介面的專案。
+
+# DESIGN.md 必填 9 段結構
+design_md_sections:
+  - id: visual-theme
+    name: Visual Theme & Mood
+    required: true
+    fields:
+      theme: "一行風格描述（例：Minimal, professional, data-dense）"
+      mood: "情感品質（例：Calm, focused, trustworthy）"
+      inspiration: "參考產品或設計風格（例：Linear, Stripe dashboard）"
+      dark_mode: "primary | secondary | unsupported"
+
+  - id: color-palette
+    name: Color Palette
+    required: true
+    description: "語義色彩 token 系統。所有 5 個核心 token 均為必填。"
+    required_tokens: [background, surface, primary-text, muted-text, accent]
+    optional_tokens: [error, warning, success, border, overlay]
+
+  - id: typography
+    name: Typography
+    required: true
+    description: "字體家族與排版角色層次。最多 2 個字體家族。"
+    required_roles: [display, headline, body, caption]
+    constraint: "max_font_families: 2"
+
+  - id: component-styling
+    name: Component Styling
+    required: true
+    description: "UI 元件視覺規則：邊框圓角、按鈕、輸入框、卡片"
+    required_fields: [border_radius_scale, button_variants, input_styling, card_styling]
+
+  - id: layout-spacing
+    name: Layout & Spacing
+    required: true
+    description: "間距比例（8px 基底，7 個步進值）與網格定義"
+    required_tokens: [space-1, space-2, space-3, space-4, space-5, space-6, space-8]
+    note: "space-7 不存在（刻意跳過以維持視覺節奏）"
+
+  - id: depth-shadow
+    name: Depth & Shadow System
+    required: true
+    description: "陰影層次系統，至少 3 個 elevation 層級"
+    min_elevation_levels: 3
+
+  - id: design-guidelines
+    name: Design Guidelines & Anti-patterns
+    required: true
+    description: "設計規則與禁止模式清單（約束式 prompting 核心）"
+    required_subsections:
+      - ui_hard_constraints: "至少 4 條硬性規則"
+      - anti_patterns: "至少 5 條禁止模式"
+
+  - id: responsive
+    name: Responsive Behavior
+    required: true
+    description: "斷點定義與響應式規則，Mobile-first 必填"
+    min_breakpoints: 3
+    required_approach: mobile-first
+
+  - id: agent-prompt-refs
+    name: Agent Prompt References
+    required: true
+    description: "AI Agent 快速讀取的設計意圖摘要"
+    required_fields: [style_summary, key_constraints, tone]
+
+# 語義色彩 5 個必要 token
+semantic_color_tokens:
+  required:
+    background:
+      role: "頁面/App 底色"
+      example_dark: "#0A0A0A"
+      example_light: "#FFFFFF"
+    surface:
+      role: "卡片、面板、Modal 底色"
+      example_dark: "#1A1A1A"
+      example_light: "#F9FAFB"
+    primary-text:
+      role: "主要正文文字"
+      example_dark: "#F5F5F5"
+      example_light: "#111827"
+    muted-text:
+      role: "次要文字、placeholder"
+      example_dark: "#888888"
+      example_light: "#6B7280"
+    accent:
+      role: "CTA 按鈕、連結、強調色"
+      note: "全站只能有 1 個 accent 色，禁止多個強調色"
+      example: "#6366F1"
+  naming_convention: kebab-case
+  format: hex_with_alpha_optional
+
+# 字體角色 4 個必要角色
+typography_roles:
+  required:
+    display:
+      size: "48px+"
+      weight: 700
+      line_height: 1.1
+      usage: "英雄標題、Splash 文字"
+    headline:
+      size: "24–32px"
+      weight: 600
+      line_height: 1.3
+      usage: "區段標題、卡片標題"
+    body:
+      size: "16px"
+      weight: 400
+      line_height: 1.6
+      usage: "段落、主要內容"
+    caption:
+      size: "12–14px"
+      weight: 400
+      line_height: 1.4
+      usage: "標籤、Metadata、輔助說明"
+  constraint:
+    max_font_families: 2
+    note: "display + headline 可共用一個字體家族；body + caption 共用另一個（或相同）"
+
+# 間距比例（8px 基底，7 個步進值）
+spacing_scale:
+  base: 8
+  tokens:
+    space-1: 4px
+    space-2: 8px
+    space-3: 16px
+    space-4: 24px
+    space-5: 32px
+    space-6: 48px
+    space-8: 64px
+  note: "space-7 不存在（刻意跳過）。所有元件間距必須使用這些 token，不得使用任意像素值。"
+
+# UI 硬性約束清單（約束式 prompting）
+ui_hard_constraints:
+  - id: single-h1
+    rule: "每頁最多 1 個 H1"
+    rationale: "清晰的內容層次，避免語義模糊"
+  - id: max-sections
+    rule: "頁面區段不超過 6 個"
+    rationale: "防止認知過載"
+  - id: max-font-families
+    rule: "字體家族最多 2 個"
+    rationale: "視覺一致性"
+  - id: single-accent
+    rule: "強調色最多 1 個，禁止混用多個 accent 色"
+    rationale: "防止視覺雜訊"
+  - id: max-nesting
+    rule: "視覺巢狀最多 3 層"
+    rationale: "可讀性與結構清晰度"
+  - id: info-hierarchy
+    rule: "資訊層次遵循 Hero → Support → Detail → CTA 順序"
+    rationale: "Narrative structure，引導使用者注意力"
+  - id: touch-targets
+    rule: "行動裝置觸控目標最小 44×44px"
+    rationale: "無障礙設計基本要求"
+
+# 禁止的 UI 反模式
+anti_patterns:
+  - id: floating-badge
+    name: "浮動徽章（floating badge）"
+    description: "徽章脫離內容浮動顯示，無明確歸屬"
+    preferred: "使用內嵌 label 或狀態指示器"
+  - id: generic-card-layout
+    name: "通用卡片堆疊（generic card layout）"
+    description: "完全相同的卡片作為主要內容結構，無差異化"
+    preferred: "帶有清晰層次的多樣化內容結構"
+  - id: dashboard-grid-as-homepage
+    name: "首頁儀表板化（dashboard grid as homepage）"
+    description: "行銷首頁設計成數據儀表板 Grid 佈局"
+    preferred: "敘事型首頁：Hero → Support → CTA 結構"
+  - id: competing-ctas
+    name: "競爭性 CTA（competing CTAs）"
+    description: "同一畫面有多個視覺權重相同的 CTA 按鈕"
+    preferred: "1 個主要 CTA，0–1 個次要 CTA"
+  - id: color-only-differentiation
+    name: "僅用顏色區分（color-only differentiation）"
+    description: "只用顏色區分狀態或分類，無其他視覺提示"
+    preferred: "顏色搭配圖示、文字標籤或圖案"
+  - id: decorative-overload
+    name: "裝飾性過載（decorative overload）"
+    description: "無資訊傳遞功能的插圖或動畫佔用視覺空間"
+    preferred: "移除裝飾元素；優先使用功能性視覺"
+  - id: triple-nesting
+    name: "三層以上巢狀（triple nesting）"
+    description: "視覺層次超過 3 層，導致結構難以閱讀"
+    preferred: "扁平化結構，用留白區隔"
+  - id: rainbow-accents
+    name: "多色強調系統（rainbow accents）"
+    description: "同時使用多個強調色（紫色 CTA、橘色徽章、綠色標籤）"
+    preferred: "單一 accent 色彩系統，統一視覺語言"
+
+# DESIGN.md 存放位置規範
+file_placement:
+  filename: "DESIGN.md"
+  filename_casing: "exact uppercase"
+  location: "project root"
+  same_level_as: ["README.md", "CLAUDE.md", "package.json"]
+  forbidden_locations: ["docs/", "src/", "assets/", "subdirectories"]
+  section_heading_level: "##"
+  version_required: true
+
+# AI 行為規則
+rules:
+  - id: require-design-md
+    trigger: "當 AI Agent 開始生成前端 UI 程式碼或設計規格時"
+    instruction: |
+      先檢查專案根目錄是否存在 DESIGN.md。
+      若存在，讀取 Section 9（Agent Prompt References）作為快速定向，
+      再依需要讀取其他段落。
+      若不存在，提示使用者先建立 DESIGN.md（可使用 templates/DESIGN.md 模板）。
+    priority: required
+
+  - id: semantic-tokens-only
+    trigger: "當 AI Agent 產生包含顏色的前端程式碼時"
+    instruction: |
+      使用語義 token 名稱（background, surface, accent 等），
+      不得直接在元件中硬編碼 hex 色值。
+      例：用 `var(--color-accent)` 而非 `#6366F1`。
+    priority: required
+
+  - id: enforce-hard-constraints
+    trigger: "當 AI Agent 生成任何頁面或視圖時"
+    instruction: |
+      強制執行 UI 硬性約束：
+      - 每頁只有 1 個 H1
+      - 最多 6 個頁面區段
+      - 最多 2 個字體家族
+      - 最多 1 個 accent 色
+    priority: required
+
+  - id: reject-anti-patterns
+    trigger: "當 AI Agent 生成 UI 結構或元件時"
+    instruction: |
+      主動偵測並拒絕以下反模式：
+      floating-badge, generic-card-layout, dashboard-grid-as-homepage,
+      competing-ctas, color-only-differentiation。
+      若偵測到，提出替代方案。
+    priority: required
+
+  - id: spacing-scale-only
+    trigger: "當 AI Agent 生成 CSS 或 layout 相關程式碼時"
+    instruction: |
+      所有間距值必須使用標準 space-N token（space-1 到 space-8，無 space-7）。
+      不得使用任意像素值（如 13px, 20px, 37px）。
+    priority: recommended
+
+  - id: narrative-structure
+    trigger: "當 AI Agent 生成首頁（Homepage/Landing Page）時"
+    instruction: |
+      遵循 Narrative structure：Hero → Support → Detail → CTA。
+      禁止將首頁設計成 Dashboard Grid。
+    priority: required
+
+# 快速參考表
+quick_reference:
+  semantic_tokens:
+    columns: ["Token", "角色", "明色範例", "暗色範例"]
+    rows:
+      - ["background", "頁面底色", "#FFFFFF", "#0A0A0A"]
+      - ["surface", "卡片/面板", "#F9FAFB", "#1A1A1A"]
+      - ["primary-text", "主要文字", "#111827", "#F5F5F5"]
+      - ["muted-text", "次要文字", "#6B7280", "#888888"]
+      - ["accent", "強調/CTA", "（專案自訂）", "（專案自訂）"]
+  typography_roles:
+    columns: ["角色", "大小", "Weight", "Line-height", "用途"]
+    rows:
+      - ["display", "48px+", "700", "1.1", "英雄標題"]
+      - ["headline", "24–32px", "600", "1.3", "區段標題"]
+      - ["body", "16px", "400", "1.6", "正文內容"]
+      - ["caption", "12–14px", "400", "1.4", "標籤/說明"]
+  spacing_scale:
+    columns: ["Token", "值", "主要用途"]
+    rows:
+      - ["space-1", "4px", "圖示內距、緊湊元素"]
+      - ["space-2", "8px", "預設元素內距"]
+      - ["space-3", "16px", "元件內部間距"]
+      - ["space-4", "24px", "區塊間距、網格欄距"]
+      - ["space-5", "32px", "元件之間"]
+      - ["space-6", "48px", "主要區段之間"]
+      - ["space-8", "64px", "頁面層級分隔"]
+  anti_patterns:
+    columns: ["禁止模式", "說明"]
+    rows:
+      - ["floating-badge", "浮動徽章，脫離內容無歸屬"]
+      - ["generic-card-layout", "無差異化卡片堆疊"]
+      - ["dashboard-grid-as-homepage", "首頁儀表板化"]
+      - ["competing-ctas", "多個等重 CTA"]
+      - ["color-only-differentiation", "僅用顏色區分狀態"]
+      - ["decorative-overload", "無功能的裝飾元素"]
+      - ["triple-nesting", "超過 3 層視覺巢狀"]
+      - ["rainbow-accents", "多色強調系統"]

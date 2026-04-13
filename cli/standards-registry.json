@@ -1852,6 +1852,17 @@
       },
       "category": "core",
       "description": "Privacy by Design, data classification, DPIA, user rights"
+    },
+    {
+      "id": "frontend-design-standards",
+      "name": "Frontend Design Standards",
+      "nameZh": "前端設計標準",
+      "source": {
+        "human": "core/frontend-design-standards.md",
+        "ai": "ai/standards/frontend-design-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "DESIGN.md 9-section spec format, semantic color tokens, font roles, spacing scale, UI hard constraints, anti-patterns"
     }
   ]
 }

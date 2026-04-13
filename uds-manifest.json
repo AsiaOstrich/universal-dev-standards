@@ -3,7 +3,7 @@
   "version": "5.1.0-beta.6",
   "last_updated": "2026-04-13",
   "stats": {
-    "core_standards": 72,
+    "core_standards": 73,
     "skills": 48,
     "slash_commands": 48
   },
@@ -296,6 +296,11 @@
     {
       "id": "design-document-standards",
       "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "frontend-design-standards",
+      "category": "quality",
       "level": 3
     },
     {
