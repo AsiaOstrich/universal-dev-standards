@@ -59,7 +59,7 @@ principles:
     rule: Enable understanding through configuration and entry point analysis
     key_files:
       - .ai-context.yaml
-      - package.json / pyproject.toml
+      - "package.json / pyproject.toml / go.mod / Cargo.toml / pom.xml / build.gradle / Gemfile"
       - Entry point files
       - QUICK-REF.md files
 

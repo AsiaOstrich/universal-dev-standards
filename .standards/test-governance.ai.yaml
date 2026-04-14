@@ -54,9 +54,14 @@ standard:
     static_analysis:
       description: Run static analysis tools before test execution
       examples:
-        - "ruff check . (Python)"
-        - "eslint . (TypeScript/JavaScript)"
+        - "eslint . (JavaScript/TypeScript)"
+        - "ruff check . / flake8 (Python)"
         - "mypy . (Python type checking)"
+        - "go vet ./... / staticcheck (Go)"
+        - "cargo clippy (Rust)"
+        - "checkstyle / SpotBugs (Java)"
+        - "rubocop (Ruby)"
+        - "dotnet format --verify-no-changes (C#)"
 
   completion_criteria:
     description: >
