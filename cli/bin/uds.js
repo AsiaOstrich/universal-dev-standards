@@ -26,6 +26,7 @@ import { releaseCommand } from '../src/commands/release.js';
 import { compileStandards } from '../src/commands/compile.js';
 import { flowCreateCommand, flowListCommand, flowValidateCommand, flowDiffCommand, flowExportCommand, flowImportCommand } from '../src/commands/flow.js';
 import { generateReport } from '../src/commands/report.js';
+import { mcpCommand } from '../src/commands/mcp.js';
 import { setLanguage, setLanguageExplicit, detectLanguage, t } from '../src/i18n/messages.js';
 import { maybeCheckForUpdates, formatUpdateNotice, shouldCheckUpdateForCommand } from '../src/utils/update-checker.js';
 import { config } from '../src/utils/config-manager.js';
@@ -538,5 +539,8 @@ missionCommand
   .option('-t, --type <type>', 'Filter by mission type')
   .option('-s, --state <state>', 'Filter by state')
   .action(missionListCommand);
+
+// MCP command for AI tool integration
+mcpCommand(program);
 
 program.parse();

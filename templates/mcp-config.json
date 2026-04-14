@@ -1,0 +1,10 @@
+{
+  "_comment": "Add this to your Claude Code settings.json or Cursor mcp.json",
+  "mcpServers": {
+    "uds-design-standards": {
+      "command": "uds",
+      "args": ["mcp", "serve"],
+      "description": "UDS Frontend Design Standards Server"
+    }
+  }
+}
