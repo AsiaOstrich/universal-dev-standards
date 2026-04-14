@@ -1,0 +1,161 @@
+# Industry Testing Pyramid - AI Optimized Option
+# Parent: testing
+# Reference: Mike Cohn's Test Pyramid, Martin Fowler's Testing Pyramid
+
+id: industry-pyramid
+meta:
+  parent: testing
+  version: "2.0.0"
+  description: Pragmatic 4-level testing pyramid for agile teams
+  sources:
+    - "Mike Cohn's Test Pyramid (empirical recommendation)"
+    - "Martin Fowler's Testing Pyramid (https://martinfowler.com/bliki/TestPyramid.html)"
+    - "Google Testing Blog (https://testing.googleblog.com)"
+
+best_for:
+  - Agile/Scrum development teams
+  - CI/CD focused environments
+  - Small to medium projects
+  - DevOps practices
+  - Rapid iteration cycles
+
+pyramid:
+  visual: |
+    ┌─────────┐
+    │   E2E   │  ←  3% (Slow, expensive)
+    ├─────────┤
+    │   ST    │  ←  7% (Medium speed)
+    ├─────────┤
+    │   IT    │  ← 20% (Fast)
+    ├─────────┤
+    │   UT    │  ← 70% (Very fast, many)
+    └─────────┘
+  ratio: "70/20/7/3"
+  note: "Empirical recommendation by Mike Cohn, not a mandatory standard"
+  rationale: |
+    - More unit tests = faster feedback
+    - Fewer E2E tests = lower maintenance cost
+    - Integration tests catch interface issues
+    - System tests validate subsystem behavior with stubbed externals
+
+levels:
+  - name: Unit Testing
+    abbreviation: UT
+    percentage: 70
+    definition: Isolated tests for individual functions, methods, or classes
+    scope: Single function/method/class
+    speed: "< 100ms per test"
+    dependencies: All mocked
+    characteristics:
+      - Fast execution
+      - Deterministic results
+      - No I/O operations
+      - Tests single unit of behavior
+
+  - name: Integration Testing
+    abbreviation: IT
+    percentage: 20
+    definition: Tests for component interactions and data flow
+    scope: Multiple components interacting
+    speed: "< 1 second per test"
+    dependencies: Mix of real and mocked
+    characteristics:
+      - Tests real integrations
+      - May use containers (Testcontainers)
+      - Validates data flow
+
+  - name: System Testing
+    abbreviation: ST
+    percentage: 7
+    definition: Tests complete subsystem with stubbed external dependencies
+    scope: Complete subsystem validation
+    speed: "< 10 seconds per test"
+    dependencies: Real internal services, stubbed external APIs
+    characteristics:
+      - Validates subsystem behavior end-to-end
+      - Stubbed external dependencies
+      - Tests in SIT environment
+
+  - name: End-to-End Testing
+    abbreviation: E2E
+    percentage: 3
+    definition: Tests complete user workflows across entire system
+    scope: Full user flows from user perspective
+    speed: "30 seconds to minutes per test"
+    dependencies: All real
+    characteristics:
+      - Simulates real user behavior
+      - Tests critical paths only
+      - Highest maintenance cost
+
+coverage_targets:
+  columns: [Metric, Minimum, Recommended]
+  rows:
+    - [Line Coverage, 70%, 85%]
+    - [Branch Coverage, 60%, 80%]
+    - [Function Coverage, 80%, 90%]
+
+rules:
+  - id: follow-pyramid-ratio
+    trigger: planning test strategy with industry pyramid
+    instruction: Target 70/20/7/3 ratio for UT/IT/ST/E2E (empirical, not mandatory)
+    priority: required
+
+  - id: test-at-lowest-level
+    trigger: deciding where to add test
+    instruction: Write tests at the lowest level that provides confidence
+    priority: recommended
+
+  - id: avoid-e2e-for-edge-cases
+    trigger: testing edge cases
+    instruction: Use unit tests for edge cases, not E2E
+    priority: recommended
+
+  - id: integration-for-boundaries
+    trigger: testing component boundaries
+    instruction: Use integration tests to verify interface contracts
+    priority: recommended
+
+anti_patterns:
+  - name: Ice Cream Cone
+    description: Too many E2E, too few unit tests
+  - name: Hourglass
+    description: Many unit + E2E but few integration/system tests
+
+comparison_with_istqb:
+  columns: [Industry Level, ISTQB Equivalent, Note]
+  rows:
+    - [Unit Testing (UT), Component Testing, Same concept]
+    - [Integration Testing (IT), Integration Testing, Same concept]
+    - [System Testing (ST), System Testing, Same concept]
+    - [E2E Testing, Acceptance Testing, Industry E2E ≈ ISTQB Acceptance]
+
+when_to_choose:
+  choose_industry_when:
+    - Practicing Agile/Scrum methodology
+    - CI/CD pipeline is critical
+    - Fast feedback is priority
+    - Team is small and cross-functional
+    - Minimal documentation overhead desired
+  avoid_industry_when:
+    - Need formal QA certification
+    - Enterprise compliance requirements
+    - Dedicated QA team prefers ISTQB
+    - Audit documentation is required
+
+tools_by_level:
+  unit_testing:
+    javascript: [Jest, Vitest, Mocha]
+    python: [pytest, unittest]
+    java: [JUnit, TestNG]
+    csharp: [xUnit, NUnit, MSTest]
+    go: [testing package, testify]
+  integration_testing:
+    javascript: [Supertest, Testcontainers]
+    python: [pytest, Testcontainers]
+    java: [Spring Boot Test, Testcontainers]
+    csharp: [WebApplicationFactory, Testcontainers]
+  e2e_testing:
+    javascript: [Playwright, Cypress, Puppeteer]
+    python: [Playwright, Selenium]
+    java: [Selenium, Playwright]

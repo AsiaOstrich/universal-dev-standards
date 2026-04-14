@@ -53,11 +53,21 @@ Scan coverage gaps between BDD features and existing E2E tests.
 
 ## Supported Frameworks | 支援框架
 
-| Framework | Auto-detected | Template |
-|-----------|:------------:|----------|
-| Playwright | ✅ | `@playwright/test` |
-| Cypress | ✅ | `cy.*` commands |
-| Vitest | ✅ | `describe/it` + async |
+| Ecosystem | Framework | Auto-detected | Template |
+|-----------|-----------|:------------:|----------|
+| JavaScript | Playwright | ✅ | `@playwright/test` |
+| JavaScript | Cypress | ✅ | `cy.*` commands |
+| JavaScript | Vitest | ✅ | `describe/it` + async |
+| JavaScript | WebdriverIO | ✅ | `browser.*` |
+| Python | pytest-playwright | ✅ | `def test_*(page: Page)` |
+| Python | Selenium + pytest | ✅ | `def test_*(driver)` |
+| Python | Robot Framework | ✅ | `*** Test Cases ***` |
+| Go | chromedp | ✅ | `func Test*(t *testing.T)` |
+| Go | rod | ✅ | `func Test*(t *testing.T)` |
+| Java | Selenium WebDriver | ✅ | `@Test void` |
+| Java | Playwright for Java | ✅ | `@Test void` |
+| Ruby | Capybara | ✅ | `feature/scenario` |
+| Ruby | Watir | ✅ | `it` blocks |
 
 ## Usage | 使用方式
 

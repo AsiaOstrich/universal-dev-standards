@@ -96,6 +96,7 @@ For complete standards, see:
 - [Testing Standards](../../core/testing-standards.md) - Actionable rules
 - [Testing Theory](./testing-theory.md) - Educational knowledge base
 - [Testing Pyramid](./testing-pyramid.md) - Detailed pyramid ratios
+- [Test Skeleton Templates](./test-skeleton-templates.md) - Multi-language skeletons for UT/IT/ST/Perf/Contract
 
 ### AI-Optimized Format (Token-Efficient)
 
@@ -109,6 +110,10 @@ For AI assistants, use the YAML format files for reduced token usage:
   - Integration Testing: `ai/options/testing/integration-testing.ai.yaml`
   - System Testing: `ai/options/testing/system-testing.ai.yaml`
   - E2E Testing: `ai/options/testing/e2e-testing.ai.yaml`
+  - Security Testing: `ai/options/testing/security-testing.ai.yaml`
+  - Performance Testing: `ai/options/testing/performance-testing.ai.yaml`
+  - Contract Testing: `ai/options/testing/contract-testing.ai.yaml`
+- Skeleton templates (all levels, multi-language): [test-skeleton-templates.md](./test-skeleton-templates.md)
 
 ## Naming Conventions
 

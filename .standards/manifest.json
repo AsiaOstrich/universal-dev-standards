@@ -305,6 +305,26 @@
       "size": 2565,
       "installedAt": "2026-04-10T16:13:15.500Z"
     },
+    ".standards/options/testing/unit-testing.ai.yaml": {
+      "hash": "sha256:f176b6dbdacacc6fbd3e43789697128a872a32e2562274d57eaf187642aeb03d",
+      "size": 1955,
+      "installedAt": "2026-04-14T09:00:00.000Z"
+    },
+    ".standards/options/testing/integration-testing.ai.yaml": {
+      "hash": "sha256:0461fcdf7f8cf9e7cd1e5a1d9f8329f284c2f4f151cf08fdf7c222332204f546",
+      "size": 2565,
+      "installedAt": "2026-04-14T09:00:00.000Z"
+    },
+    ".standards/options/testing/istqb-framework.ai.yaml": {
+      "hash": "sha256:istqb-framework-placeholder",
+      "size": 3750,
+      "installedAt": "2026-04-14T09:00:00.000Z"
+    },
+    ".standards/options/testing/industry-pyramid.ai.yaml": {
+      "hash": "sha256:industry-pyramid-placeholder",
+      "size": 5232,
+      "installedAt": "2026-04-14T09:00:00.000Z"
+    },
     ".standards/documentation-structure.ai.yaml": {
       "hash": "sha256:b698b62ecc67a62b246ffc65a2ed5d39571042a252a41c095f001e607c1086b4",
       "size": 5608,

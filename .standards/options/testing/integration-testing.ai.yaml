@@ -1,0 +1,112 @@
+# Integration Testing (IT/SIT) - AI Optimized Option
+# Parent: testing
+
+id: integration-testing
+meta:
+  parent: testing
+  version: "1.1.0"
+  description: Testing interactions between components
+
+abbreviation_note: |
+  The integration testing level has two common abbreviations:
+  - IT (Integration Testing): Agile/DevOps communities (Martin Fowler, Google)
+  - SIT (System Integration Testing): Enterprise/ISTQB contexts
+  Both refer to the same testing concept.
+
+characteristics:
+  scope: Multiple components working together
+  speed: "<1 second per test"
+  isolation: Partial (may use real dependencies)
+  pyramid_percentage: 20%
+
+rules:
+  - id: test-integration-points
+    trigger: writing integration test
+    instruction: Focus on boundaries between components
+    priority: required
+
+  - id: use-real-dependencies
+    trigger: setting up integration test
+    instruction: Use real implementations when possible, test doubles for external services
+    priority: recommended
+
+  - id: test-data-management
+    trigger: setting up test data
+    instruction: Use fixtures or factories, clean up after tests
+    priority: required
+
+  - id: database-isolation
+    trigger: testing with database
+    instruction: Use test database, rollback or truncate between tests
+    priority: required
+
+when_to_write:
+  - Testing API endpoints
+  - Testing database operations
+  - Testing service interactions
+  - Testing message queues
+  - Testing cache behavior
+
+integration_points:
+  - name: Database
+    approach: Use test database with Testcontainers or in-memory DB
+    pseudocode: |
+      # Arrange
+      db = start_test_database()
+      repo = new UserRepository(db)
+      # Act
+      repo.save(user)
+      found = repo.findById(user.id)
+      # Assert
+      assert found == user
+    tools_by_language:
+      javascript: Testcontainers-node, better-sqlite3
+      python: pytest-postgresql, SQLite in-memory
+      java: Testcontainers, H2
+      go: dockertest, SQLite in-memory
+      csharp: Testcontainers-dotnet, SQLite in-memory
+
+  - name: HTTP API
+    approach: Use real HTTP client, mock external services
+    pseudocode: |
+      # Act
+      response = http_client.post("/api/users", body={name: "Test User"})
+      # Assert
+      assert response.status == 201
+    tools_by_language:
+      javascript: Supertest, node-fetch
+      python: requests, httpx, pytest-httpserver
+      java: RestAssured, MockMvc
+      go: net/http/httptest
+      csharp: WebApplicationFactory, HttpClient
+
+  - name: Message Queue
+    approach: Use embedded queue or Testcontainers
+    pseudocode: |
+      # Act
+      publisher.send("user.created", event)
+      received = consumer.receive()
+      # Assert
+      assert received.payload == event
+    tools_by_language:
+      javascript: bullmq test utils, in-memory queue
+      python: fakeredis, kombu in-memory
+      java: Testcontainers (RabbitMQ/Kafka)
+      go: go-redis mock, in-process channel
+      csharp: MassTransit InMemory transport
+
+tools:
+  database:
+    - Testcontainers
+    - Docker Compose
+    - In-memory databases (H2, SQLite)
+  http:
+    - Supertest (Node.js)
+    - RestAssured (Java)
+    - requests (Python)
+  mocking:
+    - WireMock
+    - MockServer
+    - nock (Node.js)
+
+coverage_target: "Critical paths and integration points"
