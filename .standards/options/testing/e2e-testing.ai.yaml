@@ -1,0 +1,59 @@
+# End-to-End Testing (E2E) - AI Optimized Option
+# Parent: testing
+
+id: e2e-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: Testing complete user journeys from UI through backend to database
+
+characteristics:
+  scope: Full stack — UI, API, persistence, external services
+  speed: "Seconds to minutes per scenario"
+  isolation: None (production-like environment)
+  pyramid_percentage: 3%
+
+rules:
+  - id: user-journey-focus
+    trigger: writing e2e test
+    instruction: Model each test after a real user journey, not a technical workflow
+    priority: required
+
+  - id: stable-selectors
+    trigger: selecting UI elements
+    instruction: Use accessibility-attribute or data-testid selectors; avoid brittle CSS paths
+    priority: required
+
+  - id: network-reliability
+    trigger: handling external services in e2e
+    instruction: Retry transient failures with exponential backoff; never hard-code sleeps
+    priority: required
+
+  - id: parallel-safe
+    trigger: running e2e suite
+    instruction: Tests must be parallelisable; use unique data per test run (UUID-based)
+    priority: recommended
+
+  - id: screenshot-on-failure
+    trigger: test failure
+    instruction: Capture screenshot and DOM snapshot on failure for diagnostics
+    priority: recommended
+
+when_to_write:
+  - Critical user journeys (login, purchase, onboarding)
+  - Regression guards for high-value features
+  - Cross-browser or cross-platform validation
+
+when_not_to_write:
+  - Unit-level logic — delegate to UT
+  - Every possible UI state — delegate to component/integration tests
+
+tools:
+  javascript: [Playwright, Cypress, WebdriverIO]
+  python: [pytest-playwright, Selenium + pytest, Robot Framework]
+  java: [Selenium WebDriver, Playwright for Java, Gauge]
+  go: [chromedp, rod]
+  csharp: [Playwright for .NET, Selenium WebDriver]
+  ruby: [Capybara + Selenium, Watir]
+
+coverage_target: "Top 5–10 critical user journeys"

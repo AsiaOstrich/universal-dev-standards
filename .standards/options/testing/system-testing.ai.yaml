@@ -1,0 +1,60 @@
+# System Testing (ST) - AI Optimized Option
+# Parent: testing
+
+id: system-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: Testing the complete integrated system against requirements
+
+characteristics:
+  scope: Full system, all components integrated
+  speed: "Seconds to minutes per test"
+  isolation: None (real system, real dependencies)
+  pyramid_percentage: 7%
+
+rules:
+  - id: test-as-user
+    trigger: writing system test
+    instruction: Test from the user's perspective through real interfaces (API, CLI, UI)
+    priority: required
+
+  - id: real-environment
+    trigger: setting up system test
+    instruction: Use an environment that mirrors production; avoid mocks
+    priority: required
+
+  - id: focus-on-flows
+    trigger: selecting system test cases
+    instruction: Cover critical business flows, not every permutation
+    priority: required
+
+  - id: independent-state
+    trigger: managing test state
+    instruction: Each test must set up and tear down its own state; tests must not share mutable state
+    priority: required
+
+  - id: validate-contracts
+    trigger: testing external integrations
+    instruction: Verify that the system fulfils its stated API/interface contracts
+    priority: recommended
+
+when_to_write:
+  - Validating end-to-end business flows (e.g., checkout, registration)
+  - Verifying non-functional requirements (response time, throughput)
+  - Confirming behaviour after major refactors or dependency upgrades
+  - Smoke testing after deployment
+
+when_not_to_write:
+  - Replacing unit or integration tests for lower-level logic
+  - Testing every edge case (delegate to UT/IT)
+
+tools:
+  javascript: [Playwright, Cypress, Supertest + Jest]
+  python: [pytest + requests, behave, Robot Framework]
+  java: [REST Assured, Selenium, Cucumber-JVM]
+  go: [net/http/httptest, testify, gotestsum]
+  csharp: [xUnit + HttpClient, SpecFlow, NBomber]
+  ruby: [RSpec + Faraday, Capybara]
+
+coverage_target: "Critical business flows and cross-service boundaries"

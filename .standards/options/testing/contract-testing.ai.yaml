@@ -1,0 +1,60 @@
+# Contract Testing - AI Optimized Option
+# Parent: testing
+
+id: contract-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: Verifying that services fulfil agreed API contracts independently of each other
+
+characteristics:
+  scope: Service boundaries — API request/response shape, message payloads
+  speed: "<1 second per contract assertion"
+  isolation: Complete (no live dependency required)
+  pyramid_percentage: "Cross-cutting (lives between IT and ST)"
+
+rules:
+  - id: consumer-driven
+    trigger: writing contract test
+    instruction: Consumers define the contract; providers verify they satisfy it — not the other way around
+    priority: required
+
+  - id: decouple-deployment
+    trigger: releasing a service
+    instruction: A service must pass all consumer contracts before deploying; use a contract broker
+    priority: required
+
+  - id: evolve-not-break
+    trigger: changing an API
+    instruction: Additive changes are safe; removing or renaming fields requires consumer agreement first
+    priority: required
+
+  - id: test-shape-not-logic
+    trigger: writing provider verification
+    instruction: Contract tests verify data shape and status codes; business logic belongs in unit tests
+    priority: required
+
+  - id: version-contracts
+    trigger: managing contract files
+    instruction: Store contract files in version control; tag with semantic versions
+    priority: recommended
+
+when_to_write:
+  - Any service that is consumed by another service or by a frontend
+  - Event-driven architectures where message schemas must be stable
+  - Public APIs with external consumers
+
+when_not_to_write:
+  - Internal library calls within the same deployable unit
+  - Database schemas (use migration-based versioning instead)
+
+tools:
+  general: [Pact, Spring Cloud Contract, Schemathesis]
+  javascript: [Pact JS, Pact Broker, Dredd]
+  python: [pact-python, schemathesis]
+  java: [Pact JVM, Spring Cloud Contract]
+  go: [pact-go]
+  csharp: [PactNet]
+  ruby: [pact-ruby]
+
+coverage_target: "All inter-service API contracts; all event schema contracts"

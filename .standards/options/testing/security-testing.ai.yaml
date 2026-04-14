@@ -1,0 +1,66 @@
+# Security Testing - AI Optimized Option
+# Parent: testing
+
+id: security-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: Identifying vulnerabilities, verifying security controls, and validating OWASP Top 10 mitigations
+
+characteristics:
+  scope: Application, API, infrastructure, dependencies
+  speed: "Minutes to hours (pipeline-integrated scans)"
+  isolation: Staging/isolated environment recommended
+  pyramid_percentage: "Cross-cutting (runs at multiple levels)"
+
+rules:
+  - id: shift-left
+    trigger: planning security tests
+    instruction: Run SAST and dependency scans in CI on every PR; do not defer to release
+    priority: required
+
+  - id: owasp-coverage
+    trigger: designing security test cases
+    instruction: Map test cases to OWASP Top 10; ensure injection, auth, and access-control are covered
+    priority: required
+
+  - id: no-real-credentials
+    trigger: writing security tests
+    instruction: Use synthetic/rotated credentials in tests; never commit real secrets
+    priority: required
+
+  - id: dependency-audit
+    trigger: adding or updating dependencies
+    instruction: Run dependency vulnerability scan; block on CRITICAL/HIGH CVEs
+    priority: required
+
+  - id: secrets-detection
+    trigger: pre-commit or CI check
+    instruction: Run secrets-detection tool to prevent credential leakage
+    priority: required
+
+when_to_write:
+  - Authentication and authorisation flows
+  - Input validation and sanitisation paths
+  - File upload and download endpoints
+  - Any endpoint accepting user-controlled data
+
+tools:
+  sast:
+    javascript: [ESLint security plugins, Semgrep]
+    python: [Bandit, Semgrep]
+    java: [SpotBugs + FindSecBugs, Semgrep]
+    go: [gosec, Semgrep]
+    csharp: [Security Code Scan, Semgrep]
+    ruby: [Brakeman, Semgrep]
+  dependency_scan:
+    javascript: [npm audit, Snyk]
+    python: [pip-audit, Safety, Snyk]
+    java: [OWASP Dependency-Check, Snyk]
+    go: [govulncheck, Snyk]
+    csharp: [dotnet list package --vulnerable, Snyk]
+    ruby: [bundler-audit, Snyk]
+  dast: [OWASP ZAP, Nuclei, Burp Suite Community]
+  secrets: [truffleHog, gitleaks, detect-secrets]
+
+coverage_target: "All OWASP Top 10 categories relevant to the application"

@@ -1,0 +1,62 @@
+# Performance Testing - AI Optimized Option
+# Parent: testing
+
+id: performance-testing
+meta:
+  parent: testing
+  version: "1.0.0"
+  description: Validating system behaviour under expected and peak load conditions
+
+characteristics:
+  scope: APIs, databases, message queues, full system
+  speed: "Minutes to hours per test run"
+  isolation: Dedicated performance environment (production-sized data)
+  pyramid_percentage: "Cross-cutting (separate pipeline stage)"
+
+rules:
+  - id: define-slo-first
+    trigger: planning performance test
+    instruction: Define SLO targets (p95 latency, throughput, error rate) before writing tests
+    priority: required
+
+  - id: production-like-data
+    trigger: setting up performance test
+    instruction: Use production-sized or representative datasets; never test against empty databases
+    priority: required
+
+  - id: baseline-before-change
+    trigger: running performance test
+    instruction: Establish a baseline before each feature change; compare against baseline to detect regressions
+    priority: required
+
+  - id: include-ramp-up
+    trigger: writing load test script
+    instruction: Include ramp-up and ramp-down phases; do not spike to peak load instantly
+    priority: recommended
+
+  - id: monitor-resources
+    trigger: running load test
+    instruction: Capture CPU, memory, and I/O metrics alongside latency; bottleneck is often not the application
+    priority: recommended
+
+when_to_write:
+  - Before major releases of high-traffic APIs
+  - After significant architectural changes (DB migrations, caching layer)
+  - When SLO agreements are in place
+  - For batch jobs with throughput requirements
+
+test_types:
+  load_test: Validate behaviour under expected concurrent users
+  stress_test: Find the breaking point beyond expected load
+  soak_test: Detect memory leaks or degradation over extended runtime
+  spike_test: Validate recovery after sudden traffic bursts
+
+tools:
+  general: [k6, Gatling, Apache JMeter, Locust]
+  javascript: [k6 (scripted in JS), Artillery]
+  python: [Locust, pytest-benchmark]
+  java: [Gatling (Scala DSL), JMeter, wrk]
+  go: [vegeta, bombardier]
+  csharp: [NBomber, BenchmarkDotNet]
+
+coverage_target: "All endpoints with defined SLOs; p95 latency within target under 2× expected load"
