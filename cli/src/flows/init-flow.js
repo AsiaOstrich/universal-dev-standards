@@ -13,7 +13,8 @@ import {
   promptCommandsInstallation,
   handleAgentsMdSharing,
   promptAgentsMd,
-  promptReleaseMode
+  promptReleaseMode,
+  promptProjectContractStep
 } from '../prompts/init.js';
 import {
   promptIntegrationConfig
@@ -236,6 +237,10 @@ export async function runInitFlow(options, detected, projectPath) {
   }
   skillsConfig.methodology = methodology;
   skillsConfig.locale = displayLanguageToLocale(displayLanguage);
+
+  // === STEP 13: Project Command Contract (uds.project.yaml) — XSPEC-029 Phase 3 ===
+  // Optional step — skippable by answering "n" or pressing Ctrl+C.
+  await promptProjectContractStep(projectPath);
 
   return {
     languages,

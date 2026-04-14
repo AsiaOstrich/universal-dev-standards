@@ -563,6 +563,8 @@ export async function runProjectConfiguration(options) {
 
     baseChoices.push(
       new DynSeparator(),
+      { name: t('config.projectContractOption', 'Project Command Contract (uds.project.yaml)'), value: 'project_contract' },
+      new DynSeparator(),
       { name: t('config.vibeMode', 'Vibe Coding Mode'), value: 'vibe_coding' },
       new DynSeparator(),
       { name: msgObj.optionAll, value: 'all' },
@@ -585,6 +587,13 @@ export async function runProjectConfiguration(options) {
   // Handle vibe_coding (flat menu item)
   if (configType === 'vibe_coding') {
     await initVibeMode(options);
+    process.exit(0);
+  }
+
+  // Handle project_contract — guided uds.project.yaml creation (XSPEC-029 Phase 3)
+  if (configType === 'project_contract') {
+    const { promptProjectCommandContract } = await import('../prompts/init.js');
+    await promptProjectCommandContract(projectPath);
     process.exit(0);
   }
 

@@ -171,6 +171,7 @@ describe('Init Command Interactive', () => {
     vi.mocked(prompts.promptFramework).mockResolvedValue([]);
     vi.mocked(prompts.promptContentMode).mockResolvedValue('minimal');
     vi.mocked(prompts.promptConfirm).mockResolvedValue(true);
+    vi.mocked(prompts.promptProjectContractStep).mockResolvedValue(undefined);
 
     // Mock Integration Prompts
     vi.mocked(integrationPrompts.promptIntegrationConfig).mockResolvedValue({});

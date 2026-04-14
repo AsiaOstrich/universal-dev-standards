@@ -132,7 +132,8 @@ vi.mock('../../src/prompts/init.js', () => ({
   promptCommandsInstallation: vi.fn(() => []),
   handleAgentsMdSharing: vi.fn((tools) => tools),
   promptAgentsMd: vi.fn(() => false),
-  promptReleaseMode: vi.fn(() => 'ci-cd')
+  promptReleaseMode: vi.fn(() => 'ci-cd'),
+  promptProjectContractStep: vi.fn(() => Promise.resolve())
 }));
 
 vi.mock('../../src/prompts/integrations.js', () => ({

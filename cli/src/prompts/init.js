@@ -1,4 +1,6 @@
-import { select, checkbox, confirm as inquirerConfirm, Separator } from '@inquirer/prompts';
+import { select, checkbox, confirm as inquirerConfirm, Separator, input } from '@inquirer/prompts';
+import { existsSync, writeFileSync, readdirSync } from 'fs';
+import { join } from 'path';
 import chalk from 'chalk';
 import os from 'os';
 import { t, setLanguage, detectLanguage } from '../i18n/messages.js';
@@ -1348,4 +1350,158 @@ export async function promptMethodology() {
   });
 
   return methodology;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Project Command Contract (uds.project.yaml) — XSPEC-029 Phase 3
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Detect project ecosystem and return suggested commands.
+ * @param {string} projectPath
+ * @returns {{ test: string, lint: string, build: string, security: string }}
+ */
+export function suggestCommands(projectPath) {
+  const p = (f) => join(projectPath, f);
+
+  if (existsSync(p('package.json')))
+    return { test: 'npm test', lint: 'npm run lint', build: 'npm run build', security: 'npm audit' };
+
+  if (existsSync(p('requirements.txt')) || existsSync(p('pyproject.toml')) || existsSync(p('setup.py')))
+    return { test: 'python -m pytest', lint: 'python -m ruff check .', build: 'python -m build', security: 'pip-audit' };
+
+  if (existsSync(p('go.mod')))
+    return { test: 'go test ./...', lint: 'go vet ./...', build: 'go build ./...', security: 'govulncheck ./...' };
+
+  if (existsSync(p('pom.xml')))
+    return { test: 'mvn test', lint: 'mvn checkstyle:check', build: 'mvn package', security: 'mvn dependency-check:check' };
+
+  if (existsSync(p('build.gradle')) || existsSync(p('build.gradle.kts')))
+    return { test: './gradlew test', lint: './gradlew checkstyleMain', build: './gradlew build', security: './gradlew dependencyCheckAnalyze' };
+
+  if (existsSync(p('Cargo.toml')))
+    return { test: 'cargo test', lint: 'cargo clippy', build: 'cargo build', security: 'cargo audit' };
+
+  if (existsSync(p('Gemfile')))
+    return { test: 'bundle exec rspec', lint: 'bundle exec rubocop', build: 'gem build *.gemspec', security: 'bundle audit' };
+
+  // C# — glob for .csproj / .sln
+  try {
+    const files = readdirSync(projectPath);
+    if (files.some(f => f.endsWith('.csproj') || f.endsWith('.sln')))
+      return { test: 'dotnet test', lint: 'dotnet format --verify-no-changes', build: 'dotnet build', security: 'dotnet list package --vulnerable' };
+  } catch {
+    // ignore read errors
+  }
+
+  // Unknown ecosystem — return empty strings so user fills them in
+  return { test: '', lint: '', build: '', security: '' };
+}
+
+/**
+ * Generate uds.project.yaml content from a commands map.
+ * @param {{ test?: string, lint?: string, build?: string, security?: string }} commands
+ * @returns {string}
+ */
+export function generateProjectConfigYaml(commands) {
+  const lines = ['version: "1"', '', 'commands:'];
+  for (const [intent, cmd] of Object.entries(commands)) {
+    if (cmd && cmd.trim()) {
+      lines.push(`  ${intent}: ${cmd.trim()}`);
+    }
+  }
+  return lines.join('\n') + '\n';
+}
+
+/**
+ * Wraps promptProjectCommandContract with an initial confirm prompt.
+ * Used as the optional Step 13 in the init flow so the whole step can be
+ * mocked in tests as a single unit.
+ *
+ * @param {string} projectPath - Absolute project root path
+ * @returns {Promise<void>}
+ */
+export async function promptProjectContractStep(projectPath) {
+  try {
+    const wantContract = await inquirerConfirm({
+      message: 'Create uds.project.yaml (project command contract)?',
+      default: true
+    });
+    if (wantContract) {
+      await promptProjectCommandContract(projectPath);
+    }
+    // If false — silently skip (caller can show a hint message)
+  } catch {
+    // Ctrl+C or any error — treat as skip
+  }
+}
+
+/**
+ * Interactive wizard that guides the user through creating uds.project.yaml.
+ * Detects the project ecosystem and pre-fills defaults.
+ *
+ * @param {string} projectPath - Absolute project root path
+ * @returns {Promise<boolean>} true if the file was written, false if skipped
+ */
+export async function promptProjectCommandContract(projectPath) {
+  const contractPath = join(projectPath, 'uds.project.yaml');
+
+  // If already exists, ask whether to overwrite
+  if (existsSync(contractPath)) {
+    console.log();
+    console.log(chalk.yellow('  uds.project.yaml already exists.'));
+
+    const overwrite = await inquirerConfirm({
+      message: 'Overwrite existing uds.project.yaml?',
+      default: false
+    });
+
+    if (!overwrite) {
+      console.log(chalk.gray('  Skipped — keeping existing uds.project.yaml'));
+      return false;
+    }
+  }
+
+  const suggestions = suggestCommands(projectPath);
+  const hasAnySuggestion = Object.values(suggestions).some(v => v);
+
+  console.log();
+  console.log(chalk.bold('📋 Project Command Contract (uds.project.yaml)'));
+  console.log(chalk.gray('  Tell UDS how to run standard commands in this project (language-agnostic).'));
+  console.log(chalk.gray('  Press Enter to accept a suggestion, or type your own. Leave blank to skip.'));
+  console.log();
+
+  if (hasAnySuggestion) {
+    console.log(chalk.gray('  Detected suggestions:'));
+    for (const [intent, cmd] of Object.entries(suggestions)) {
+      if (cmd) console.log(chalk.gray(`    ${intent}: ${cmd}`));
+    }
+    console.log();
+  }
+
+  const intents = ['test', 'lint', 'build', 'security'];
+  const commands = {};
+
+  for (const intent of intents) {
+    const defaultVal = suggestions[intent] || '';
+    const answer = await input({
+      message: `  ${intent} command${defaultVal ? ` (default: ${defaultVal})` : ' (optional)'}:`,
+      default: defaultVal
+    });
+    commands[intent] = answer.trim();
+  }
+
+  const hasAnyCommand = Object.values(commands).some(v => v);
+  if (!hasAnyCommand) {
+    console.log(chalk.gray('  No commands entered — uds.project.yaml not created.'));
+    return false;
+  }
+
+  const yaml = generateProjectConfigYaml(commands);
+  writeFileSync(contractPath, yaml, 'utf-8');
+
+  console.log();
+  console.log(chalk.green('  ✔ uds.project.yaml created'));
+  console.log(chalk.gray(`    Path: ${contractPath}`));
+  return true;
 }
