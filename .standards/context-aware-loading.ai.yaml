@@ -163,10 +163,11 @@ standard:
 
         1. Read .standards/manifest.json → extract upstream.version
         2. Run: npm view universal-dev-standards dist-tags --json
-        3. Compare upstream.version with the "latest" tag from npm
+           (or: yarn info universal-dev-standards dist-tags --json / pnpm view universal-dev-standards dist-tags --json)
+        3. Compare upstream.version with the "latest" tag from the registry
         4. If a newer version exists, display ONE line before your response:
            "ℹ UDS v{latest} 已發布（目前 v{current}）— 執行 `uds update` 更新"
-        5. If versions match or npm is unreachable, skip silently
+        5. If versions match or registry is unreachable, skip silently
         6. Only check ONCE per conversation — do not repeat on subsequent
            UDS operations in the same session
       priority: required

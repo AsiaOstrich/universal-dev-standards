@@ -18,7 +18,7 @@ export const messages = {
     // Update Notice
     updateNotice: {
       header: 'Update available',
-      command: 'npm update -g universal-dev-standards',
+      command: 'npm update -g universal-dev-standards (or: yarn global upgrade / pnpm update -g)',
       disableHint: 'Set UDS_NO_UPDATE_CHECK=1 to disable'
     },
 
@@ -887,7 +887,7 @@ export const messages = {
         currentCli: 'Current CLI',
         latestOnNpm: 'Latest on npm',
         latestStable: 'Latest stable',
-        runNpmUpdate: 'Run: npm update -g universal-dev-standards',
+        runNpmUpdate: 'Run: npm update -g universal-dev-standards  (or: yarn global upgrade / pnpm update -g)',
         // Final status
         projectCompliant: '✓ Project is compliant with standards',
         issuesDetected: '⚠ Some issues detected. Review above for details.',
@@ -1278,7 +1278,7 @@ export const messages = {
     // 更新通知
     updateNotice: {
       header: '有新版本可用',
-      command: 'npm update -g universal-dev-standards',
+      command: 'npm update -g universal-dev-standards（或 yarn global upgrade / pnpm update -g）',
       disableHint: '設定 UDS_NO_UPDATE_CHECK=1 可關閉'
     },
 
@@ -2147,7 +2147,7 @@ export const messages = {
         currentCli: '目前 CLI',
         latestOnNpm: 'npm 最新版本',
         latestStable: '最新穩定版',
-        runNpmUpdate: '執行：npm update -g universal-dev-standards',
+        runNpmUpdate: '執行：npm update -g universal-dev-standards（或 yarn global upgrade / pnpm update -g）',
         // Final status
         projectCompliant: '✓ 專案符合標準',
         issuesDetected: '⚠ 偵測到一些問題。請檢視上方詳情。',
@@ -2538,7 +2538,7 @@ export const messages = {
     // 更新通知
     updateNotice: {
       header: '有新版本可用',
-      command: 'npm update -g universal-dev-standards',
+      command: 'npm update -g universal-dev-standards（或 yarn global upgrade / pnpm update -g）',
       disableHint: '设置 UDS_NO_UPDATE_CHECK=1 可关闭'
     },
 
@@ -3420,7 +3420,7 @@ export const messages = {
         currentCli: '当前 CLI',
         latestOnNpm: 'npm 最新版本',
         latestStable: '最新稳定版',
-        runNpmUpdate: '执行：npm update -g universal-dev-standards',
+        runNpmUpdate: '执行：npm update -g universal-dev-standards（或 yarn global upgrade / pnpm update -g）',
         // Final status
         projectCompliant: '✓ 项目符合标准',
         issuesDetected: '⚠ 检测到一些问题。详情请查看上文。',
