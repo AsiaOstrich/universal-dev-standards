@@ -3098,17 +3098,36 @@ export function getToolFilePath(tool) {
 
 
 /**
+ * Get default commands based on ecosystem
+ * @param {'node'|'python'|'go'|'java_maven'|'java_gradle'|'rust'|'ruby'} ecosystem
+ * @returns {{ test: string, lint: string, build: string, install: string }}
+ */
+function getDefaultCommands(ecosystem) {
+  const commands = {
+    node: { test: 'npm test', lint: 'npm run lint', build: 'npm run build', install: 'npm install' },
+    python: { test: 'python -m pytest', lint: 'python -m ruff check .', build: 'python -m build', install: 'pip install -r requirements.txt' },
+    go: { test: 'go test ./...', lint: 'go vet ./...', build: 'go build ./...', install: 'go mod download' },
+    java_maven: { test: 'mvn test', lint: 'mvn checkstyle:check', build: 'mvn package', install: 'mvn dependency:resolve' },
+    java_gradle: { test: './gradlew test', lint: './gradlew checkstyleMain', build: './gradlew build', install: './gradlew dependencies' },
+    rust: { test: 'cargo test', lint: 'cargo clippy', build: 'cargo build', install: 'cargo fetch' },
+    ruby: { test: 'bundle exec rspec', lint: 'bundle exec rubocop', build: 'gem build *.gemspec', install: 'bundle install' },
+  };
+  return commands[ecosystem] || commands.node;
+}
+
+/**
  * Detect build/test commands based on project files
  * @param {string} [projectPath] - Project root path
  * @returns {string[]} Array of command lines
  */
 function detectBuildCommands(projectPath) {
   if (!projectPath) {
+    const defaultCmds = getDefaultCommands('node');
     return [
       '# Check project configuration for build commands',
-      'npm install      # Install dependencies (Node.js)',
-      'npm test         # Run tests',
-      'npm run lint     # Check code style'
+      `${defaultCmds.install}      # Install dependencies (Node.js)`,
+      `${defaultCmds.test}         # Run tests`,
+      `${defaultCmds.lint}     # Check code style`
     ];
   }
 

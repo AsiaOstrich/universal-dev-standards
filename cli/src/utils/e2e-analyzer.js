@@ -192,6 +192,22 @@ export function analyzeExistingPatterns(e2eDir) {
 // REQ-4: E2E 測試骨架生成
 // ============================================================
 
+/**
+ * Detect the project ecosystem based on manifest files
+ * @param {string} [projectPath='.'] - Path to the project root
+ * @returns {'node'|'python'|'go'|'java'|'rust'|'ruby'}
+ */
+function detectEcosystem(projectPath = '.') {
+  const p = (f) => join(projectPath, f);
+  if (existsSync(p('package.json'))) return 'node';
+  if (existsSync(p('requirements.txt')) || existsSync(p('pyproject.toml'))) return 'python';
+  if (existsSync(p('go.mod'))) return 'go';
+  if (existsSync(p('pom.xml')) || existsSync(p('build.gradle'))) return 'java';
+  if (existsSync(p('Cargo.toml'))) return 'rust';
+  if (existsSync(p('Gemfile'))) return 'ruby';
+  return 'node'; // fallback
+}
+
 const SKELETON_TEMPLATES = {
   vitest: {
     header: (specId) => `/**
@@ -299,6 +315,65 @@ beforeEach(() => {
     // cy.contains('expected text').should('be.visible');
   });
 `
+  },
+
+  // Python (pytest-playwright)
+  'pytest-playwright': {
+    header: (specId) => `# [Generated] E2E tests for ${specId}
+# [TODO] Fill in test implementations
+
+import pytest
+from playwright.sync_api import Page
+`,
+    setup: () => `
+# [TODO] Setup fixtures and test data
+`,
+    test: (scenario) => `
+# @${scenario.specId} @${scenario.ac}
+def test_${scenario.name.toLowerCase().replace(/\s+/g, '_')}(page: Page):
+    # Arrange
+    # [TODO] Setup test preconditions
+
+    # Act
+    # [TODO] Execute the user flow
+
+    # Assert
+    # [TODO] Verify expected outcomes
+`
+  },
+
+  // Go (chromedp)
+  chromedp: {
+    header: (specId) => `// [Generated] E2E tests for ${specId}
+// [TODO] Fill in test implementations
+
+package e2e_test
+
+import (
+\t"context"
+\t"testing"
+\t"github.com/chromedp/chromedp"
+)
+`,
+    setup: () => `
+// [TODO] Setup shared test context if needed
+`,
+    test: (scenario) => `
+// @${scenario.specId} @${scenario.ac}
+func Test${scenario.name.replace(/\s+/g, '')}(t *testing.T) {
+\tctx, cancel := chromedp.NewContext(context.Background())
+\tdefer cancel()
+
+\t// Arrange
+\t// [TODO] Setup test preconditions
+
+\t// Act
+\t// [TODO] Add chromedp tasks
+
+\t// Assert
+\t// [TODO] Verify expected outcomes
+}
+`
   }
 };
 
@@ -308,16 +383,24 @@ beforeEach(() => {
  * @param {{ framework: string }} options
  * @returns {string}
  */
-export function generateE2eSkeleton(scenarios, { framework = 'vitest' } = {}) {
-  const template = SKELETON_TEMPLATES[framework] || SKELETON_TEMPLATES.vitest;
+export function generateE2eSkeleton(scenarios, { framework = 'vitest', projectPath } = {}) {
+  // If no framework is explicitly specified (using default), detect ecosystem and adjust
+  const resolvedFramework = (() => {
+    if (framework !== 'vitest') return framework; // caller specified explicitly
+    const ecosystem = detectEcosystem(projectPath);
+    if (ecosystem === 'python') return 'pytest-playwright';
+    if (ecosystem === 'go') return 'chromedp';
+    return framework;
+  })();
+  const template = SKELETON_TEMPLATES[resolvedFramework] || SKELETON_TEMPLATES.vitest;
   const specId = scenarios[0]?.specId || 'SPEC-XXX';
 
   let output = template.header(specId);
   output += template.setup();
 
-  if (framework === 'vitest') {
+  if (resolvedFramework === 'vitest') {
     output += `\ndescribe('E2E: ${specId}', () => {`;
-  } else if (framework === 'cypress') {
+  } else if (resolvedFramework === 'cypress') {
     output += `\ndescribe('E2E: ${specId}', () => {`;
   }
 
@@ -325,7 +408,7 @@ export function generateE2eSkeleton(scenarios, { framework = 'vitest' } = {}) {
     output += template.test(s);
   }
 
-  if (framework === 'vitest' || framework === 'cypress') {
+  if (resolvedFramework === 'vitest' || resolvedFramework === 'cypress') {
     output += '});\n';
   }
 
