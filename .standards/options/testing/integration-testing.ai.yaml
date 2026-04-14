@@ -59,12 +59,6 @@ integration_points:
       found = repo.findById(user.id)
       # Assert
       assert found == user
-    tools_by_language:
-      javascript: Testcontainers-node, better-sqlite3
-      python: pytest-postgresql, SQLite in-memory
-      java: Testcontainers, H2
-      go: dockertest, SQLite in-memory
-      csharp: Testcontainers-dotnet, SQLite in-memory
 
   - name: HTTP API
     approach: Use real HTTP client, mock external services
@@ -73,12 +67,6 @@ integration_points:
       response = http_client.post("/api/users", body={name: "Test User"})
       # Assert
       assert response.status == 201
-    tools_by_language:
-      javascript: Supertest, node-fetch
-      python: requests, httpx, pytest-httpserver
-      java: RestAssured, MockMvc
-      go: net/http/httptest
-      csharp: WebApplicationFactory, HttpClient
 
   - name: Message Queue
     approach: Use embedded queue or Testcontainers
@@ -88,25 +76,16 @@ integration_points:
       received = consumer.receive()
       # Assert
       assert received.payload == event
-    tools_by_language:
-      javascript: bullmq test utils, in-memory queue
-      python: fakeredis, kombu in-memory
-      java: Testcontainers (RabbitMQ/Kafka)
-      go: go-redis mock, in-process channel
-      csharp: MassTransit InMemory transport
 
-tools:
-  database:
-    - Testcontainers
-    - Docker Compose
-    - In-memory databases (H2, SQLite)
-  http:
-    - Supertest (Node.js)
-    - RestAssured (Java)
-    - requests (Python)
-  mocking:
-    - WireMock
-    - MockServer
-    - nock (Node.js)
+ai_instruction: |
+  Read uds.project.yaml to identify the ecosystem, then select:
+  - The appropriate in-memory or containerised DB driver for that ecosystem
+  - The appropriate HTTP test client for that ecosystem
+  - The appropriate embedded queue or mock transport for that ecosystem
+  Never hardcode tool names for a fixed set of languages.
+
+tools_note: |
+  Select integration test tools based on the detected ecosystem in uds.project.yaml.
+  Common patterns: Testcontainers (cross-language), in-memory DB, HTTP test client.
 
 coverage_target: "Critical paths and integration points"

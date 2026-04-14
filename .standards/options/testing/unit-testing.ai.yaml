@@ -60,12 +60,10 @@ structure:
     # Assert
     assert result == 25
 
-  language_examples:
-    javascript: "expect(new Calculator().square(5)).toBe(25);"
-    python: "assert Calculator().square(5) == 25"
-    java: "assertEquals(25, new Calculator().square(5));"
-    go: "assert.Equal(t, 25, NewCalculator().Square(5))"
-    csharp: "Assert.Equal(25, new Calculator().Square(5));"
+ai_instruction: |
+  Read uds.project.yaml to identify the ecosystem, then translate the pseudocode
+  above into the target language using its standard test framework and assertion library.
+  Never hardcode examples for a fixed set of languages.
 
 when_to_write:
   - Testing pure functions
@@ -81,9 +79,6 @@ when_not_to_write:
 
 coverage_target: "80% of business logic"
 
-tools:
-  javascript: [Jest, Vitest, Mocha]
-  python: [pytest, unittest]
-  java: [JUnit, TestNG]
-  csharp: [xUnit, NUnit, MSTest]
-  go: [testing package, testify]
+tools_note: |
+  Select test framework based on the detected ecosystem in uds.project.yaml.
+  Do not assume a specific language or framework.

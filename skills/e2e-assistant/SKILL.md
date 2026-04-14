@@ -53,21 +53,25 @@ Scan coverage gaps between BDD features and existing E2E tests.
 
 ## Supported Frameworks | 支援框架
 
-| Ecosystem | Framework | Auto-detected | Template |
+| Ecosystem | Framework | Auto-detected | Detection signal |
 |-----------|-----------|:------------:|----------|
-| JavaScript | Playwright | ✅ | `@playwright/test` |
-| JavaScript | Cypress | ✅ | `cy.*` commands |
-| JavaScript | Vitest | ✅ | `describe/it` + async |
-| JavaScript | WebdriverIO | ✅ | `browser.*` |
-| Python | pytest-playwright | ✅ | `def test_*(page: Page)` |
-| Python | Selenium + pytest | ✅ | `def test_*(driver)` |
-| Python | Robot Framework | ✅ | `*** Test Cases ***` |
-| Go | chromedp | ✅ | `func Test*(t *testing.T)` |
-| Go | rod | ✅ | `func Test*(t *testing.T)` |
-| Java | Selenium WebDriver | ✅ | `@Test void` |
-| Java | Playwright for Java | ✅ | `@Test void` |
-| Ruby | Capybara | ✅ | `feature/scenario` |
-| Ruby | Watir | ✅ | `it` blocks |
+| JavaScript | Playwright | ✅ | `@playwright/test` in package.json |
+| JavaScript | Cypress | ✅ | `cypress` dep + config file |
+| JavaScript | Vitest | ✅ | `vitest` dep + e2e directory |
+| JavaScript | WebdriverIO | ❌ Manual | listed in SUPPORTED_FRAMEWORKS |
+| Python | pytest-playwright | ✅ | `pytest-playwright` in requirements |
+| Python | Selenium + pytest | ✅ | `selenium` in requirements |
+| Python | Robot Framework | ✅ | `robotframework` in requirements |
+| Python | Behave | ✅ | `behave` in requirements |
+| Go | chromedp | ✅ | `chromedp` in go.mod |
+| Go | rod | ✅ | `rod` in go.mod |
+| Java | Selenium WebDriver | ✅ | `selenium-java` in pom.xml / build.gradle |
+| Java | Playwright for Java | ✅ | `playwright` in pom.xml / build.gradle |
+| Java | Gauge | ✅ | `gauge-java` in pom.xml / build.gradle |
+| Ruby | Capybara | ✅ | `capybara` in Gemfile |
+| Ruby | Watir | ✅ | `watir` in Gemfile |
+| C# | Playwright for .NET | ❌ Manual | not yet auto-detected |
+| C# | Selenium WebDriver | ❌ Manual | not yet auto-detected |
 
 ## Usage | 使用方式
 
