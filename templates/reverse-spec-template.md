@@ -189,6 +189,33 @@ So that I can access my personal dashboard and data.
 
 ---
 
+## E2E Scenarios（必填）
+
+> 定義使用者或呼叫者視角的端對端場景。至少填 1 條 Happy Path。
+> 若確實不需要 E2E，填寫 `e2e_not_required_reason` 並留空 Scenarios 區塊。
+
+**e2e_not_required_reason**（若 Scenarios 為空，此欄必填）：
+<!-- 有效理由：純內部工具函式 | 已被 SPEC-NNN E2E 涵蓋，見 [SPEC-NNN] -->
+<!-- 無效理由：「之後再補」「現在沒空」 -->
+
+### Happy Path: [場景名稱]
+
+```gherkin
+Given [用戶或系統狀態前提]
+When  [觸發動作或 API 呼叫]
+Then  [可觀察的預期結果：HTTP status、資料庫狀態、回應 body]
+```
+
+### Error Path: [場景名稱]（建議：安全相關、Quota、計費功能必填）
+
+```gherkin
+Given [異常前提條件]
+When  [觸發動作]
+Then  [預期錯誤處理：status code、錯誤訊息、無副作用]
+```
+
+---
+
 ## Acceptance Criteria
 
 ### Extracted from Tests
