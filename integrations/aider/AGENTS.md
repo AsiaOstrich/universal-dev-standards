@@ -107,8 +107,32 @@ Configure Aider to run linting and tests after edits:
 ```yaml
 auto-lint: true
 auto-test: true
-lint-cmd: "npm run lint"
-test-cmd: "npm test"
+# lint-cmd and test-cmd vary by ecosystem.
+# Uncomment and adjust for your project:
+#
+# Node.js:
+#   lint-cmd: "npm run lint"
+#   test-cmd: "npm test"
+#
+# Python:
+#   lint-cmd: "python -m ruff check ."
+#   test-cmd: "python -m pytest"
+#
+# Go:
+#   lint-cmd: "go vet ./..."
+#   test-cmd: "go test ./..."
+#
+# Java (Maven):
+#   lint-cmd: "mvn checkstyle:check"
+#   test-cmd: "mvn test"
+#
+# Rust:
+#   lint-cmd: "cargo clippy"
+#   test-cmd: "cargo test"
+#
+# Auto-detect (set to your actual commands):
+lint-cmd: "npm run lint"   # Replace with your lint command
+test-cmd: "npm test"       # Replace with your test command
 ```
 
 ---

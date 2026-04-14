@@ -76,7 +76,14 @@ Before suggesting a commit, verify:
 | `src/` | Source code | No |
 | `tests/` | Test files | No |
 | `dist/` | Build output | **Yes** |
-| `node_modules/` | Dependencies | **Yes** |
+
+<!-- Common build artifacts — uncomment relevant lines in your .gitignore: -->
+<!-- node_modules/       # Node.js -->
+<!-- __pycache__/        # Python -->
+<!-- .venv/              # Python virtualenv -->
+<!-- target/             # Java Maven / Rust -->
+<!-- dist/               # General -->
+<!-- build/              # General -->
 
 ### Conventions | 慣例
 
@@ -93,15 +100,22 @@ Before suggesting a commit, verify:
 
 ### Build Commands | 建置指令
 
+<!-- Commands vary by ecosystem. Uncomment and adjust for your project: -->
+<!-- Node.js:   npm run build && npm test -->
+<!-- Python:    python -m build && python -m pytest -->
+<!-- Go:        go build ./... && go test ./... -->
+<!-- Java (Maven): mvn package && mvn test -->
+<!-- Rust:      cargo build && cargo test -->
+
 ```bash
 # Development build
-npm run build
+{{BUILD_COMMAND}}
 
 # Run tests
-npm test
+{{TEST_COMMAND}}
 
 # Lint check
-npm run lint
+{{LINT_COMMAND}}
 ```
 
 ### Output Language | 產出語言
