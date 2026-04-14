@@ -110,7 +110,13 @@ gates:
       - phase: green
         prerequisites:
           - check: failing_test_exists
-            command: "npm test 2>&1 | grep -E 'FAIL|failing'"
+            command: >
+              if [ -f package.json ]; then npm test 2>&1 | grep -E 'FAIL|failing';
+              elif [ -f go.mod ]; then go test ./... 2>&1 | grep -E 'FAIL|--- FAIL';
+              elif [ -f requirements.txt ] || [ -f pyproject.toml ]; then python -m pytest 2>&1 | grep -E 'FAILED|ERROR';
+              elif [ -f pom.xml ]; then mvn test 2>&1 | grep -E 'FAILURE|ERROR';
+              elif [ -f Cargo.toml ]; then cargo test 2>&1 | grep -E 'FAILED|error';
+              else npm test 2>&1 | grep -E 'FAIL|failing'; fi
             condition: at_least_one_test_failing
             on_fail: guide_to_red_phase
             blocking: true
@@ -118,7 +124,13 @@ gates:
       - phase: refactor
         prerequisites:
           - check: all_tests_passing
-            command: "npm test"
+            command: >
+              if [ -f package.json ]; then npm test;
+              elif [ -f go.mod ]; then go test ./...;
+              elif [ -f requirements.txt ] || [ -f pyproject.toml ]; then python -m pytest;
+              elif [ -f pom.xml ]; then mvn test -q;
+              elif [ -f Cargo.toml ]; then cargo test;
+              else npm test; fi
             condition: zero_test_failures
             on_fail: guide_to_green_phase
             blocking: true

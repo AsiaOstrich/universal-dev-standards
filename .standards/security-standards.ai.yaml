@@ -126,7 +126,22 @@ checklist:
 physical_spec:
   type: custom_script
   validator:
-    command: "npm audit --dry-run > /dev/null 2>&1 || test -f .trivyignore || test -f .snyk"
+    command: >
+      if [ -f package.json ]; then
+        npm audit --dry-run > /dev/null 2>&1 || test -f .trivyignore || test -f .snyk;
+      elif [ -f requirements.txt ] || [ -f pyproject.toml ] || [ -f setup.py ]; then
+        pip-audit --dry-run > /dev/null 2>&1 || python -m safety check --dry-run > /dev/null 2>&1 || test -f .trivyignore || test -f .snyk;
+      elif [ -f go.mod ]; then
+        govulncheck ./... > /dev/null 2>&1 || test -f .trivyignore || test -f .snyk;
+      elif [ -f pom.xml ] || [ -f build.gradle ] || [ -f build.gradle.kts ]; then
+        test -f dependency-check-report.xml || test -f .trivyignore || test -f .snyk;
+      elif [ -f Cargo.toml ]; then
+        cargo audit > /dev/null 2>&1 || test -f .trivyignore || test -f .snyk;
+      elif [ -f Gemfile ]; then
+        bundle audit > /dev/null 2>&1 || test -f .trivyignore || test -f .snyk;
+      else
+        test -f .trivyignore || test -f .snyk;
+      fi
     rule: "security_scan_configured"
 
 enforcement:

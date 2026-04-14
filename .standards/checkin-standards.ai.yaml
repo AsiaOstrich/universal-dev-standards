@@ -151,8 +151,28 @@ physical_spec:
   type: custom_script
   validator:
     command: >
-      echo "🔍 UDS Check-in Gates:" && 
-      (npm run lint --if-present || echo "ℹ️ No lint script") && 
-      (npm test --if-present || echo "ℹ️ No test script") && 
+      echo "🔍 UDS Check-in Gates:" &&
+      if [ -f package.json ]; then
+        (npm run lint --if-present || echo "ℹ️ No lint script") &&
+        (npm test --if-present || echo "ℹ️ No test script");
+      elif [ -f requirements.txt ] || [ -f pyproject.toml ] || [ -f setup.py ]; then
+        (python -m ruff check . 2>/dev/null || python -m flake8 2>/dev/null || echo "ℹ️ No lint script") &&
+        (python -m pytest 2>/dev/null || echo "ℹ️ No test script");
+      elif [ -f go.mod ]; then
+        (go vet ./... 2>/dev/null || echo "ℹ️ No lint script") &&
+        (go test ./... 2>/dev/null || echo "ℹ️ No test script");
+      elif [ -f pom.xml ]; then
+        (mvn verify -q 2>/dev/null || echo "ℹ️ No test script");
+      elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then
+        (./gradlew check 2>/dev/null || echo "ℹ️ No test script");
+      elif [ -f Cargo.toml ]; then
+        (cargo clippy 2>/dev/null || echo "ℹ️ No lint script") &&
+        (cargo test 2>/dev/null || echo "ℹ️ No test script");
+      elif [ -f Gemfile ]; then
+        (bundle exec rubocop 2>/dev/null || echo "ℹ️ No lint script") &&
+        (bundle exec rspec 2>/dev/null || bundle exec rake test 2>/dev/null || echo "ℹ️ No test script");
+      else
+        echo "ℹ️ Ecosystem not detected; skipping lint/test gates";
+      fi &&
       (test -f CHANGELOG.md || echo "ℹ️ No CHANGELOG.md")
     rule: "checkin_gates_passed"
