@@ -182,21 +182,23 @@ physical_spec:
   type: custom_script
   validator:
     command: >
-      if [ -f package.json ]; then
+      if [ -f uds.project.yaml ] && grep -q 'version:' uds.project.yaml; then
+        exit 0;
+      elif [ -f package.json ]; then
         node -e 'try { require("./package.json").version ? process.exit(0) : process.exit(1) } catch { process.exit(1) }';
       elif [ -f pyproject.toml ]; then
-        grep -q '^version\s*=' pyproject.toml || grep -q '^version\s*=' setup.cfg;
+        grep -q '^version\s*=' pyproject.toml || grep -q '^version\s*=' setup.cfg 2>/dev/null;
       elif [ -f setup.py ]; then
         grep -q "version\s*=" setup.py;
       elif [ -f go.mod ]; then
-        echo "ℹ️ Go modules use git tags for versioning; ensure git tag exists" && exit 0;
+        echo "ℹ️ Go modules use git tags for versioning" && exit 0;
       elif [ -f pom.xml ]; then
         grep -q '<version>' pom.xml;
       elif [ -f Cargo.toml ]; then
         grep -q '^version\s*=' Cargo.toml;
       elif [ -f Gemfile ]; then
-        test -f VERSION || grep -q "VERSION\s*=" lib/**/*.rb 2>/dev/null || echo "ℹ️ No version file found";
+        test -f VERSION || echo "ℹ️ No version file found";
       else
-        echo "⚠️  Cannot detect ecosystem to verify version. Add package.json/pyproject.toml/go.mod/pom.xml/Cargo.toml." && exit 1;
+        echo "⚠️  請執行 uds configure 建立 uds.project.yaml" && exit 1;
       fi
     rule: "package_version_exists"

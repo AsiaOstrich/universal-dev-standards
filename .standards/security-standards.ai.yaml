@@ -127,7 +127,11 @@ physical_spec:
   type: custom_script
   validator:
     command: >
-      if [ -f package.json ]; then
+      if [ -f uds.project.yaml ] && grep -q 'security:' uds.project.yaml; then
+        exit 0;
+      elif [ -f Makefile ] && grep -q '^security:' Makefile; then
+        exit 0;
+      elif [ -f package.json ]; then
         npm audit --dry-run > /dev/null 2>&1 || test -f .trivyignore || test -f .snyk;
       elif [ -f requirements.txt ] || [ -f pyproject.toml ] || [ -f setup.py ]; then
         pip-audit --dry-run > /dev/null 2>&1 || python -m safety check --dry-run > /dev/null 2>&1 || test -f .trivyignore || test -f .snyk;

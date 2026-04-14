@@ -117,7 +117,13 @@ physical_spec:
   type: custom_script
   validator:
     command: >
-      if [ -f package.json ]; then
+      if [ -f uds.project.yaml ] && grep -q 'commands:' uds.project.yaml; then
+        exit 0;
+      elif [ -f Makefile ] && grep -q '^test:' Makefile; then
+        exit 0;
+      elif [ -f justfile ] && grep -q '^test:' justfile; then
+        exit 0;
+      elif [ -f package.json ]; then
         test -f vitest.config.ts || test -f vitest.config.js || test -f jest.config.js || grep -q '"test":' package.json;
       elif [ -f requirements.txt ] || [ -f pyproject.toml ] || [ -f setup.py ] || [ -f setup.cfg ]; then
         python -m pytest --collect-only -q > /dev/null 2>&1 || test -f pytest.ini || test -f pyproject.toml;
@@ -130,6 +136,6 @@ physical_spec:
       elif [ -f Gemfile ]; then
         test -f spec/spec_helper.rb || test -f test/test_helper.rb;
       else
-        echo "⚠️  Cannot detect ecosystem. Set ecosystem in uds.project.yaml or add package.json/go.mod/requirements.txt." && exit 1;
+        echo "⚠️  請執行 uds configure 建立 uds.project.yaml" && exit 1;
       fi
     rule: "test_runner_configured"

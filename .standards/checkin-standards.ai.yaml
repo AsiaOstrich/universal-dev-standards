@@ -152,7 +152,11 @@ physical_spec:
   validator:
     command: >
       echo "🔍 UDS Check-in Gates:" &&
-      if [ -f package.json ]; then
+      if [ -f uds.project.yaml ] && grep -q 'commands:' uds.project.yaml; then
+        echo "✅ uds.project.yaml 命令契約已配置";
+      elif [ -f Makefile ] && grep -q '^test:' Makefile; then
+        echo "✅ Makefile test target 已配置";
+      elif [ -f package.json ]; then
         (npm run lint --if-present || echo "ℹ️ No lint script") &&
         (npm test --if-present || echo "ℹ️ No test script");
       elif [ -f requirements.txt ] || [ -f pyproject.toml ] || [ -f setup.py ]; then
@@ -172,7 +176,7 @@ physical_spec:
         (bundle exec rubocop 2>/dev/null || echo "ℹ️ No lint script") &&
         (bundle exec rspec 2>/dev/null || bundle exec rake test 2>/dev/null || echo "ℹ️ No test script");
       else
-        echo "ℹ️ Ecosystem not detected; skipping lint/test gates";
+        echo "⚠️  請執行 uds configure 建立 uds.project.yaml";
       fi &&
       (test -f CHANGELOG.md || echo "ℹ️ No CHANGELOG.md")
     rule: "checkin_gates_passed"

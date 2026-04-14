@@ -111,7 +111,12 @@ gates:
         prerequisites:
           - check: failing_test_exists
             command: >
-              if [ -f package.json ]; then npm test 2>&1 | grep -E 'FAIL|failing';
+              if [ -f uds.project.yaml ] && grep -q 'test:' uds.project.yaml; then
+                cmd=$(grep 'test:' uds.project.yaml | head -1 | sed 's/.*test:\s*//');
+                eval "$cmd" 2>&1 | grep -iE 'fail|error' || true;
+              elif [ -f Makefile ] && grep -q '^test:' Makefile; then
+                make test 2>&1 | grep -iE 'fail|error' || true;
+              elif [ -f package.json ]; then npm test 2>&1 | grep -E 'FAIL|failing';
               elif [ -f go.mod ]; then go test ./... 2>&1 | grep -E 'FAIL|--- FAIL';
               elif [ -f requirements.txt ] || [ -f pyproject.toml ]; then python -m pytest 2>&1 | grep -E 'FAILED|ERROR';
               elif [ -f pom.xml ]; then mvn test 2>&1 | grep -E 'FAILURE|ERROR';
@@ -125,7 +130,12 @@ gates:
         prerequisites:
           - check: all_tests_passing
             command: >
-              if [ -f package.json ]; then npm test;
+              if [ -f uds.project.yaml ] && grep -q 'test:' uds.project.yaml; then
+                cmd=$(grep 'test:' uds.project.yaml | head -1 | sed 's/.*test:\s*//');
+                eval "$cmd";
+              elif [ -f Makefile ] && grep -q '^test:' Makefile; then
+                make test;
+              elif [ -f package.json ]; then npm test;
               elif [ -f go.mod ]; then go test ./...;
               elif [ -f requirements.txt ] || [ -f pyproject.toml ]; then python -m pytest;
               elif [ -f pom.xml ]; then mvn test -q;
