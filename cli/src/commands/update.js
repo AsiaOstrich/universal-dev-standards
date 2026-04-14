@@ -129,6 +129,34 @@ function compareVersions(v1, v2) {
 }
 
 /**
+ * Detect the global package manager used to install UDS.
+ * Checks npm_execpath env var first, then falls back to lock-file detection.
+ */
+function detectGlobalPackageManager() {
+  // npm_execpath is set by npm/yarn/pnpm when running scripts
+  const execPath = process.env.npm_execpath || '';
+  if (execPath.includes('yarn')) return 'yarn';
+  if (execPath.includes('pnpm')) return 'pnpm';
+
+  // Check if running under bun
+  if (process.versions?.bun) return 'bun';
+
+  return 'npm'; // default
+}
+
+/**
+ * Build the global install command for universal-dev-standards.
+ */
+function buildInstallCommand(pm, tag) {
+  switch (pm) {
+    case 'yarn': return `yarn global add universal-dev-standards${tag}`;
+    case 'pnpm': return `pnpm add -g universal-dev-standards${tag}`;
+    case 'bun':  return `bun install -g universal-dev-standards${tag}`;
+    default:     return `npm install -g universal-dev-standards${tag}`;
+  }
+}
+
+/**
  * Update CLI to latest version and prompt user to re-run
  * @param {boolean} useBeta - Whether to install beta version
  */
@@ -139,9 +167,9 @@ async function updateCliAndExit(useBeta = false) {
   try {
     // Command is hardcoded - no user input, safe from injection
     const tag = useBeta ? '@beta' : '@latest';
-    execSync(`npm install -g universal-dev-standards${tag}`, {
-      stdio: 'pipe'
-    });
+    const pm = detectGlobalPackageManager();
+    const installCmd = buildInstallCommand(pm, tag);
+    execSync(installCmd, { stdio: 'pipe' });
 
     spinner.succeed(msg.cliUpdated);
     console.log();
@@ -152,7 +180,10 @@ async function updateCliAndExit(useBeta = false) {
     spinner.fail(msg.cliUpdateFailed);
     console.log(chalk.yellow(`  ${msg.permissionIssue}`));
     console.log(chalk.gray(`  ${msg.tryManually}`));
-    console.log(chalk.white(`    sudo npm install -g universal-dev-standards${useBeta ? '@beta' : ''}`));
+    const pm = detectGlobalPackageManager();
+    const manualTag = useBeta ? '@beta' : '';
+    console.log(chalk.white(`    ${buildInstallCommand(pm, manualTag)}`));
+    console.log(chalk.gray(`    (or: npm install -g universal-dev-standards${manualTag})`));
     console.log();
     process.exit(1);
   }

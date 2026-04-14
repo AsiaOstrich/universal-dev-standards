@@ -340,6 +340,30 @@ function scanHook(state, projectPath) {
   } catch {
     // Ignore read errors
   }
+
+  // Also scan native .git/hooks/pre-commit (installed by uds init for non-Node projects)
+  const nativeHookPath = join(projectPath, '.git', 'hooks', 'pre-commit');
+  if (existsSync(nativeHookPath)) {
+    try {
+      const content = readFileSync(nativeHookPath, 'utf-8');
+      const udsLines = content.split('\n').filter(line =>
+        line.includes('uds') || line.includes('UDS') || line.includes('.standards')
+      );
+
+      if (udsLines.length > 0) {
+        state.hook.set('.git/hooks/pre-commit', {
+          relativePath: '.git/hooks/pre-commit',
+          hash: computeFileHash(join(projectPath, '.git', 'hooks', 'pre-commit'))?.hash || null,
+          size: null,
+          category: 'hook',
+          sourcePath: null,
+          metadata: { udsLines, scanned: true, type: 'native' }
+        });
+      }
+    } catch {
+      // Ignore read errors
+    }
+  }
 }
 
 /**

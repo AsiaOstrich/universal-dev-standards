@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
 
 /**
@@ -37,6 +37,37 @@ export function uninstallHook(projectPath, options = {}) {
     result.removed.push('.husky/pre-commit (UDS check lines)');
   } catch (error) {
     result.errors.push(`.husky/pre-commit — ${error.message}`);
+  }
+
+  // Also handle native .git/hooks/pre-commit (installed by uds init for non-Node projects)
+  const nativeHookPath = join(projectPath, '.git', 'hooks', 'pre-commit');
+  if (existsSync(nativeHookPath)) {
+    try {
+      const content = readFileSync(nativeHookPath, 'utf-8');
+      const udsPattern = /uds\s+check|checkin-standards|UDS pre-commit hook/;
+
+      if (!udsPattern.test(content)) {
+        result.skipped.push('.git/hooks/pre-commit (no UDS lines found)');
+      } else if (dryRun) {
+        result.removed.push('.git/hooks/pre-commit (UDS native hook)');
+      } else {
+        // Remove only UDS-related lines, keep other hook content
+        const lines = content.split('\n');
+        const filtered = lines.filter(line => !udsPattern.test(line));
+
+        // If only shebang remains, remove the file entirely; otherwise rewrite
+        const nonEmpty = filtered.filter(l => l.trim() && l.trim() !== '#!/bin/sh');
+        if (nonEmpty.length === 0) {
+          unlinkSync(nativeHookPath);
+          result.removed.push('.git/hooks/pre-commit (UDS native hook, file removed)');
+        } else {
+          writeFileSync(nativeHookPath, filtered.join('\n'), 'utf-8');
+          result.removed.push('.git/hooks/pre-commit (UDS lines removed)');
+        }
+      }
+    } catch (error) {
+      result.errors.push(`.git/hooks/pre-commit — ${error.message}`);
+    }
   }
 
   return result;
