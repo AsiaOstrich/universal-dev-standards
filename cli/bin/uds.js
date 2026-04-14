@@ -27,6 +27,7 @@ import { compileStandards } from '../src/commands/compile.js';
 import { flowCreateCommand, flowListCommand, flowValidateCommand, flowDiffCommand, flowExportCommand, flowImportCommand } from '../src/commands/flow.js';
 import { generateReport } from '../src/commands/report.js';
 import { mcpCommand } from '../src/commands/mcp.js';
+import { runIntentCommand } from '../src/commands/run-intent.js';
 import { setLanguage, setLanguageExplicit, detectLanguage, t } from '../src/i18n/messages.js';
 import { maybeCheckForUpdates, formatUpdateNotice, shouldCheckUpdateForCommand } from '../src/utils/update-checker.js';
 import { config } from '../src/utils/config-manager.js';
@@ -542,5 +543,12 @@ missionCommand
 
 // MCP command for AI tool integration
 mcpCommand(program);
+
+// uds run <intent> — language-agnostic command proxy (XSPEC-029)
+program
+  .command('run <intent>')
+  .description('Run a project command by intent (test/lint/build/security) via uds.project.yaml')
+  .option('--dry-run', 'Show resolved command without executing')
+  .action(runIntentCommand);
 
 program.parse();
