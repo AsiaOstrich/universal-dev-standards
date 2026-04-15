@@ -580,6 +580,11 @@ Body MUST be bilingual: English first → blank line → Chinese second. NEVER m
 - `retrospective-standards.ai.yaml` - retrospective-standards.ai.yaml
 - `execution-history.ai.yaml` - execution-history.ai.yaml
 - `agent-communication-protocol.ai.yaml` - agent-communication-protocol.ai.yaml
+- `dual-phase-output.ai.yaml` - 雙階段 LLM 輸出標準（<analysis> 丟棄 + <summary> 保留）
+- `circuit-breaker.ai.yaml` - 通用斷路器（三態 CLOSED/HALF_OPEN/OPEN，防 API 雪崩）
+- `token-budget.ai.yaml` - Token 閾值四區模型（安全/警告/危險/阻塞）
+- `security-decision.ai.yaml` - 安全決策鐵律（deny > ask > allow 優先級仲裁）
+- `capability-declaration.ai.yaml` - Fail-Closed 能力聲明（工具/Adapter 預設不安全）
 <!-- UDS:STANDARDS:END -->
 
 ---

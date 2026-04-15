@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "5.1.0-beta.6",
-  "lastUpdated": "2026-03-23",
+  "version": "5.1.0-beta.7",
+  "lastUpdated": "2026-04-15",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
     "ai": {
@@ -1886,6 +1886,61 @@
       },
       "category": "core",
       "description": "DESIGN.md 9-section spec format, semantic color tokens, font roles, spacing scale, UI hard constraints, anti-patterns"
+    },
+    {
+      "id": "dual-phase-output",
+      "name": "Dual-Phase LLM Output Standard",
+      "nameZh": "雙階段 LLM 輸出標準",
+      "source": {
+        "human": "core/dual-phase-output.md",
+        "ai": "ai/standards/dual-phase-output.ai.yaml"
+      },
+      "category": "core",
+      "description": "Dual-phase LLM output pattern: <analysis> thinking discarded, <summary> structured conclusion retained. Saves 1000-3500 tokens per review invocation."
+    },
+    {
+      "id": "circuit-breaker",
+      "name": "Circuit Breaker Standard",
+      "nameZh": "通用斷路器標準",
+      "source": {
+        "human": "core/circuit-breaker.md",
+        "ai": "ai/standards/circuit-breaker.ai.yaml"
+      },
+      "category": "core",
+      "description": "3-state circuit breaker (CLOSED/HALF_OPEN/OPEN) to prevent API stampede from consecutive failures. Default failureThreshold: 3."
+    },
+    {
+      "id": "token-budget",
+      "name": "Token Budget Zone Standard",
+      "nameZh": "Token 閾值四區模型",
+      "source": {
+        "human": "core/token-budget.md",
+        "ai": "ai/standards/token-budget.ai.yaml"
+      },
+      "category": "core",
+      "description": "4-zone token budget model (safe/warning/danger/blocking) for graceful degradation before hitting hard token limits."
+    },
+    {
+      "id": "security-decision",
+      "name": "Security Decision Standard",
+      "nameZh": "安全決策鐵律",
+      "source": {
+        "human": "core/security-decision.md",
+        "ai": "ai/standards/security-decision.ai.yaml"
+      },
+      "category": "core",
+      "description": "deny>ask>allow arbitration rule with projectSettings trust radius protection. deny always wins regardless of source priority."
+    },
+    {
+      "id": "capability-declaration",
+      "name": "Capability Declaration Standard",
+      "nameZh": "Fail-Closed 能力聲明",
+      "source": {
+        "human": "core/capability-declaration.md",
+        "ai": "ai/standards/capability-declaration.ai.yaml"
+      },
+      "category": "core",
+      "description": "Fail-Closed capability defaults for all tools and adapters: isConcurrencySafe, isReadOnly, requiresUserConfirmation all default to safe values."
     }
   ]
 }

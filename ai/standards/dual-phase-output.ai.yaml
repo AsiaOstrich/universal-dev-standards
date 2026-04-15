@@ -1,0 +1,108 @@
+# Dual-Phase LLM Output Standard - AI Optimized
+# Source: XSPEC-035 (claude-code-book Ch.7 AutoCompact dual-phase design)
+
+standard:
+  id: dual-phase-output
+  name: Dual-Phase LLM Output Standard
+  description: 雙階段 LLM 輸出模式 — <analysis> 思考丟棄，<summary> 結構化保留
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-04-15"
+    source: XSPEC-035
+    description: >
+      讓 LLM 充分推理的同時，避免思考過程累積在上下文中消耗 token 預算。
+      適用於所有需要 LLM 審查的場景：Judge、Evaluator、Guardian、AutoCompact。
+    scope: universal
+    borrowed_from: "claude-code-book Ch.7 formatCompactSummary dual-phase output"
+
+  guidelines:
+    - "所有 LLM 審查 Agent 必須要求雙階段輸出格式（<analysis> + <summary>）"
+    - "<analysis> 在後處理時必須丟棄，不得寫入持久化上下文或對話歷史"
+    - "<summary> 必須包含結構化結論欄位（decision、confidence、findings、next_action）"
+    - "若回應缺少雙階段格式，後處理器必須降級相容（完整回應視為 summary）並記錄警告"
+    - "summary 欄位命名需遵循本標準，各應用場景可擴充但不可刪減核心欄位"
+
+  format:
+    xml_tags:
+      analysis:
+        purpose: "LLM 思考草稿 — 後處理時丟棄"
+        required: true
+        content_guidance:
+          - "逐條審查邏輯"
+          - "邊界情境考量"
+          - "替代方案比較"
+      summary:
+        purpose: "結構化結論 — 後處理時保留"
+        required: true
+        core_fields:
+          decision:
+            type: enum
+            values: [approved, rejected, needs_revision]
+            required: true
+          confidence:
+            type: enum
+            values: [high, medium, low]
+            required: true
+          findings:
+            type: array
+            item_format: "[type] description"
+            required: true
+          next_action:
+            type: string
+            required: true
+        extension_fields:
+          note: "各應用場景可新增欄位，不可刪減上述核心欄位"
+          examples:
+            security: "severity: critical | high | medium | low, cwe_ids: [CWE-NNN]"
+            quality: "test_coverage: number, tech_debt_score: number"
+
+  prompt_template: |
+    You MUST respond using EXACTLY this two-phase XML structure:
+
+    <analysis>
+    [Your reasoning process — will be DISCARDED after processing]
+    - Step-by-step evaluation
+    - Edge case considerations
+    - Alternative comparisons
+    </analysis>
+
+    <summary>
+    decision: approved | rejected | needs_revision
+    confidence: high | medium | low
+    findings:
+      - [type] description
+    next_action: [recommended follow-up action]
+    </summary>
+
+    IMPORTANT: The <analysis> block is your scratchpad. Only <summary> persists.
+
+  post_processing:
+    extract_summary:
+      pattern: "<summary>([\\s\\S]*?)</summary>"
+      on_missing: fallback_to_full_response
+    discard_analysis:
+      pattern: "<analysis>([\\s\\S]*?)</analysis>"
+      action: discard
+    fallback:
+      trigger: "summary tag not found in response"
+      action: "use full response as summary content"
+      log_level: warn
+      message: "[WARN] dual-phase format missing, fallback to full response"
+
+  token_impact:
+    analysis_ratio: "50-70% of typical review response"
+    savings_per_review: "1000–3500 tokens"
+    savings_in_fix_loop_3x: "3000–10500 tokens"
+    note: "Savings accumulate in repeated review scenarios (Fix Loop, Feedback Loop)"
+
+  applicable_agents:
+    - DevAP Judge Agent
+    - VibeOps Evaluator Agent
+    - VibeOps Guardian Agent
+    - Any LLM-driven AutoCompact / summarization component
+
+  error_codes:
+    DPO-001: "summary tag missing — fallback activated"
+    DPO-002: "analysis tag missing — full response processed as-is"
+    DPO-003: "required summary field absent — parsing error"
