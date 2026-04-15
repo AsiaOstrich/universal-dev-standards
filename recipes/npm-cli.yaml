@@ -1,0 +1,26 @@
+# UDS Built-in Recipe: npm-cli
+# Use this recipe for npm packages that expose a CLI binary (contain a "bin" field).
+# For libraries without a bin entry, use npm-library instead.
+name: npm-cli
+description: Package as npm CLI tool (with bin entry)
+requires:
+  - package.json   # must contain "bin" field
+  - tsconfig.json
+steps:
+  - run: npm run build
+    description: Compile TypeScript to dist/
+  - run: "node -e \"const p=require('./package.json'); if(!p.bin) { console.error('ERROR: package.json missing bin field'); process.exit(1); }\""
+    description: Verify bin entry exists in package.json
+  - run: npm pack
+    description: Create .tgz archive
+  - run: npm publish
+    description: Publish to registry
+config:
+  registry: https://registry.npmjs.org
+  access: public
+  tag: latest
+hooks:
+  preBuild: ~
+  postBuild: ~
+  prePublish: ~
+  postPublish: ~

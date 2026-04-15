@@ -1,0 +1,25 @@
+# UDS Built-in Recipe: docker-service
+# Use this recipe to build and push a multi-platform Docker container image.
+# Requires Docker Buildx to be configured in the build environment.
+name: docker-service
+description: Build and push Docker container image
+requires:
+  - Dockerfile
+steps:
+  - run: "docker buildx build --platform {platforms} -t {registry}/{name}:{version} ."
+    description: Build multi-platform image
+  - run: "docker push {registry}/{name}:{version}"
+    description: Push to container registry
+  - run: "docker tag {registry}/{name}:{version} {registry}/{name}:latest"
+    description: Tag as latest
+  - run: "docker push {registry}/{name}:latest"
+    description: Push latest tag
+config:
+  registry: ghcr.io
+  platforms: linux/amd64,linux/arm64
+  push_latest: true
+hooks:
+  preBuild: ~
+  postBuild: ~
+  prePush: ~
+  postPush: ~

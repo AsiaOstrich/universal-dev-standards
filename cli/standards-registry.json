@@ -787,6 +787,18 @@
       "description": "Safe deployment strategies, feature flags, rollback, environment parity, and DORA metrics"
     },
     {
+      "id": "packaging-standards",
+      "name": "Packaging Standards",
+      "nameZh": "打包標準",
+      "source": {
+        "human": "core/packaging-standards.md",
+        "ai": "ai/standards/packaging-standards.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Recipe-based packaging framework for user projects using UDS/DevAP toolchain"
+    },
+    {
       "id": "api-design-standards",
       "name": "API Design Standards",
       "nameZh": "API 設計標準",

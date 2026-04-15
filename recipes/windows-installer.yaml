@@ -1,0 +1,20 @@
+# UDS Built-in Recipe: windows-installer
+# Use this recipe to produce a Windows installer (.msi or .exe).
+# The user project MUST provide packaging/windows-build.sh — UDS does not supply it.
+# That script is responsible for invoking the installer toolchain (e.g. WiX, NSIS, electron-builder).
+name: windows-installer
+description: Build Windows installer (.msi or .exe). Requires user-provided build script.
+requires:
+  - package.json
+  - packaging/windows-build.sh   # user must provide this script
+steps:
+  - run: npm run build
+    description: Compile application
+  - run: bash packaging/windows-build.sh
+    description: Execute user-provided Windows installer build script
+config:
+  output_dir: dist/installers
+  format: msi   # or exe
+hooks:
+  preBuild: ~
+  postBuild: ~

@@ -1,0 +1,24 @@
+# UDS Built-in Recipe: npm-library
+# Use this recipe for npm packages without a binary entry point (libraries).
+# For CLI tools with a "bin" field, use npm-cli instead.
+name: npm-library
+description: Package as npm library (no bin entry)
+requires:
+  - package.json
+  - tsconfig.json
+steps:
+  - run: npm run build
+    description: Compile TypeScript to dist/
+  - run: npm pack
+    description: Create .tgz archive
+  - run: npm publish
+    description: Publish to registry
+config:
+  registry: https://registry.npmjs.org
+  access: public
+  tag: latest
+hooks:
+  preBuild: ~
+  postBuild: ~
+  prePublish: ~
+  postPublish: ~

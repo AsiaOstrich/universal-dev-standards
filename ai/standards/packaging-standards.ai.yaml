@@ -1,0 +1,142 @@
+# Packaging Standards (AI-Optimized v1)
+# Source: core/packaging-standards.md
+
+standard:
+  id: packaging
+  name: Packaging Standards
+  description: Recipe-based packaging framework for user projects using UDS/DevAP toolchain
+  guidelines:
+    - "Recipe-based: use built-in or custom recipes for each packaging target"
+    - "Declarative: declare targets in .devap/packaging.yaml"
+    - "Customizable: override config, inject hooks, or write custom recipes"
+    - "Pipeline-integrated: packaging runs between Review and Deploy in VibeOps"
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-04-15"
+    source: core/packaging-standards.md
+
+  principles:
+    core:
+      - recipe_based: "Every packaging target references a named Recipe; no ad-hoc scripts in pipeline YAML"
+      - declarative_targets: "Projects declare targets in .devap/packaging.yaml; DevAP resolves and executes"
+      - customizable: "Four customization layers allow config overrides, hook injection, custom Recipes, and escape hatches"
+      - pipeline_integrated: "Packaging runs as a named stage between Review and Deploy"
+
+recipe_structure:
+  required_fields: [name, steps]
+  optional_fields: [description, requires, config, hooks]
+  step_fields:
+    required: [run]
+    optional: [description]
+  hook_points: [preBuild, postBuild, prePublish, postPublish]
+  config_variables:
+    - name: "{registry}"
+      source: "config.registry"
+    - name: "{name}"
+      source: "package.json#name or config.name"
+    - name: "{version}"
+      source: "package.json#version or config.version"
+    - name: "{platforms}"
+      source: "config.platforms"
+    - name: "{output_dir}"
+      source: "config.output_dir"
+
+built_in_recipes:
+  npm_library:
+    file: recipes/npm-library.yaml
+    use_case: "npm package without a binary entry point"
+    requires: [package.json, tsconfig.json]
+    steps: [npm run build, npm pack, npm publish]
+    default_config:
+      registry: https://registry.npmjs.org
+      access: public
+      tag: latest
+  npm_cli:
+    file: recipes/npm-cli.yaml
+    use_case: "npm package with bin field (CLI tool)"
+    requires: [package.json, tsconfig.json]
+    steps: [npm run build, verify_bin_field, npm pack, npm publish]
+    default_config:
+      registry: https://registry.npmjs.org
+      access: public
+      tag: latest
+  docker_service:
+    file: recipes/docker-service.yaml
+    use_case: "Docker container image build and push"
+    requires: [Dockerfile]
+    steps: [docker buildx build, docker push, docker tag latest, docker push latest]
+    default_config:
+      registry: ghcr.io
+      platforms: linux/amd64,linux/arm64
+      push_latest: true
+  windows_installer:
+    file: recipes/windows-installer.yaml
+    use_case: "Windows installer (.msi or .exe) via user-provided build script"
+    requires: [package.json, "packaging/windows-build.sh"]
+    steps: [npm run build, bash packaging/windows-build.sh]
+    default_config:
+      output_dir: dist/installers
+      format: msi
+
+customization_layers:
+  L1:
+    name: config_override
+    mechanism: "config: block in .devap/packaging.yaml"
+    when: "Change default values (registry URL, tag, output dir)"
+  L2:
+    name: hook_injection
+    mechanism: "hooks: block in .devap/packaging.yaml"
+    when: "Run extra commands before/after build or publish"
+  L3:
+    name: custom_recipe
+    mechanism: "New .yaml file in project's .devap/recipes/"
+    when: "Entirely different build process; built-ins don't apply"
+  L4:
+    name: escape_hatch
+    mechanism: "script: key replacing recipe: in target definition"
+    when: "Raw shell script when no Recipe abstraction is suitable"
+
+acceptance_criteria:
+  success_conditions:
+    - condition: "All requires files exist"
+      threshold: "100%"
+      timing: "Before any step runs"
+    - condition: "All steps exit with code 0"
+      threshold: "100%"
+      timing: "Per step"
+    - condition: "postBuild artifact exists"
+      threshold: "Present in expected path"
+      timing: "After build step"
+    - condition: "Hook commands exit with code 0"
+      threshold: "100%"
+      timing: "Per hook"
+    - condition: "Published artifact is retrievable"
+      threshold: "HTTP 200 / registry query succeeds"
+      timing: "Post-publish smoke check"
+  failure_handling:
+    missing_requires: {action: "fail immediately", retry: false}
+    step_nonzero_exit: {action: "fail immediately, run postBuild hook if defined", retry: "configurable"}
+    hook_nonzero_exit: {action: "fail immediately", retry: false}
+    publish_unreachable: {action: "retry with exponential backoff", retry: true, max_retries: 3}
+
+recipe_selection_guide:
+  decision_tree:
+    is_npm_package:
+      yes:
+        has_bin_field:
+          yes: npm-cli
+          no: npm-library
+      no:
+        is_container_image:
+          yes: docker-service
+          no:
+            is_windows_installer:
+              yes: windows-installer
+              no: custom-recipe-required
+
+physical_spec:
+  type: custom_script
+  validator:
+    command: "test -f .devap/packaging.yaml"
+    rule: "packaging_config_declared"
