@@ -329,7 +329,35 @@ Multiple pitfalls → Pattern → Mental Model
 
 ---
 
-## 5. Noise Control
+## 5. Memory Verification Principle（記憶是線索，非結論）
+
+> 借鑑 lintsinghua/claude-code-book 記憶驗證原則。
+
+記憶提供方向，但**不能直接作為事實使用**。使用記憶前須獨立驗證：
+
+| 記憶內容 | 驗證方法 | 衝突時處理 |
+|---------|---------|-----------|
+| 檔案路徑 | 確認檔案仍存在（Glob/Read） | 標記記憶為 `needs-revision` |
+| 函式名稱/API flag | 確認仍存在（Grep/文件） | 標記記憶為 `needs-revision` |
+| 架構快照/Repo 狀態 | 優先信任 `git log`/原始碼 | 更新記憶為當前狀態 |
+| 套件版本/相依 | 確認 package.json/lockfile | 以實際版本為準 |
+
+### 禁止行為
+
+- 直接引用記憶中的具體 API/路徑/函式名稱推薦給使用者，未先驗證
+- 宣稱「根據記憶，X 存在」而未執行獨立確認
+- 因記憶內容與現況衝突時，選擇信任記憶而非當前觀察
+
+### 記憶用途場景
+
+記憶適合提供：
+- **搜尋方向**：「這類問題上次在 X 模組找到答案」
+- **模式線索**：「這個錯誤模式對應已知 pitfall MEM-2026-0042」
+- **決策背景**：「此設計決策的歷史背景是...」
+
+---
+
+## 6. Noise Control
 
 ### Push Levels
 

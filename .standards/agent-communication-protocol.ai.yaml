@@ -8,8 +8,8 @@ standard:
   description: 跨專案 Agent 統一通訊協定
 
   meta:
-    version: "1.0.0"
-    updated: "2026-03-30"
+    version: "1.1.0"
+    updated: "2026-04-15"
     source: core/agent-communication-protocol.md
     description: 統一狀態碼、訊息信封、結構化交接與協定版本管理
     scope: universal
@@ -108,6 +108,50 @@ standard:
       - field: constraints
         description: "約束條件 [string]"
 
+  topology_event:
+    description: >
+      SPEC-090/XSPEC-007 Phase 3B — 動態拓撲路由決策事件格式。
+      當 Pipeline 使用語義匹配路由時，每輪 Pass 完成後產生一筆 topology_event，
+      記錄各個 Agent 間路由邊的決策結果。作為 L3 artifact（topology-trace.jsonl）持久化。
+    required_fields:
+      - field: type
+        type: string
+        const: "topology_event"
+        description: "固定值，用於識別事件類型"
+      - field: timestamp
+        type: iso8601
+        description: "事件產生時間"
+      - field: run_id
+        type: string
+        description: "Pipeline 唯一執行 ID"
+      - field: round
+        type: integer
+        description: "Pipeline 執行輪次（第幾次 Pass，從 1 開始）"
+      - field: edges
+        type: array
+        description: "本輪評估的所有路由邊"
+        items:
+          from: { type: string, description: "上游 Agent 名稱" }
+          to: { type: string, description: "下游 Agent 名稱" }
+          decision: { type: string, enum: ["execute", "skip"], description: "路由決策" }
+          similarity: { type: number, description: "Token overlap similarity 分數（-1 表示未計算）" }
+          reason: { type: string, description: "決策原因說明" }
+    optional_fields:
+      - field: skipped_agents
+        type: array
+        items: string
+        description: "本輪因語義路由決策而跳過的 Agent 列表"
+      - field: active_agents
+        type: array
+        items: string
+        description: "本輪實際執行的 Agent 列表"
+    storage:
+      artifact_type: "topology-trace"
+      format: jsonl
+      file: "topology-trace.jsonl"
+      access_layer: L3
+      condition: "semanticRouting.enabled = true 時產生"
+
   rules:
     - id: ACP-001
       trigger: "訊息缺少必要欄位"
@@ -129,6 +173,10 @@ standard:
       trigger: "建立 Handoff"
       action: "引用 artifact_id，不嵌入完整內容"
       priority: medium
+    - id: ACP-006
+      trigger: "Pipeline Pass 完成，且 semanticRouting.enabled = true"
+      action: "產生 topology_event，附加至 topology-trace.jsonl（L3 artifact）"
+      priority: recommended
 
 physical_spec:
   type: checklist

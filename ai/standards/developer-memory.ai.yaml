@@ -154,6 +154,19 @@ standard:
         Upgrade path: pitfalls → pattern → mental-model.
       priority: recommended
 
+    - id: memory-as-hint-not-conclusion
+      trigger: "before acting on any recalled memory (file paths, function names, API flags, repo state)"
+      instruction: >
+        記憶是線索，不是結論（借鑑 lintsinghua/claude-code-book 記憶驗證原則）。
+        使用記憶前必須驗證其仍然成立：
+        - 記憶提到檔案路徑 → 先確認檔案存在（Glob/Read）
+        - 記憶提到函式或 flag → 先確認仍存在（Grep）
+        - 記憶描述 repo 架構快照 → 優先信任 git log / 原始碼
+        - 若記憶內容與現況衝突 → 信任現況，標記記憶為 needs-revision
+        禁止：直接引用記憶中的具體 API/路徑/函式名稱作為事實，
+        未獨立驗證即向使用者推薦操作。
+      priority: required
+
     - id: noise-control
       trigger: surfacing memories
       instruction: >

@@ -108,6 +108,36 @@ standard:
       - field: constraints
         description: "約束條件 [string]"
 
+  hook_exit_codes:
+    description: >
+      Hook 退出碼三分類（借鑑 lintsinghua/claude-code-book Ch.7 Hooks 協議）。
+      適用於所有 DevAP/VibeOps 生成的 Claude Code hook shell 腳本。
+    codes:
+      - code: 0
+        name: pass
+        description: "Hook 通過，工具/Agent 執行繼續"
+        blocking: false
+        stdout_handling: "忽略"
+        stderr_handling: "忽略"
+      - code: 2
+        name: block
+        description: "阻止執行；stderr 輸出作為回饋文字直接注入 AI 上下文"
+        blocking: true
+        stdout_handling: "忽略"
+        stderr_handling: "作為 AI feedback 注入（支援 JSON 格式 decision:block/reason）"
+        note: "PreToolUse exit 2 → 阻止工具呼叫；Stop exit 2 → 中止 session"
+      - code: other
+        name: warn
+        description: "非阻擋性警告；記錄日誌但執行繼續（exit 1 為常用警告代碼）"
+        blocking: false
+        stdout_handling: "記錄到系統日誌"
+        stderr_handling: "顯示為 warning，不注入 AI 上下文"
+    rules:
+      - "MUST: 阻擋行為只能用 exit 2，不得用 exit 1 或其他非零代碼"
+      - "MUST: exit 2 時 stderr 必須是人類可讀的原因（推薦 JSON: {reason: string}）"
+      - "SHOULD: 軟性警告（deprecated pattern、style 違反）使用 exit 1"
+      - "MAY: exit 0 時可輸出 JSON 到 stdout（Stop hook 用 decision:block 要求 AI 繼續）"
+
   rules:
     - id: ACP-001
       trigger: "訊息缺少必要欄位"
@@ -129,6 +159,10 @@ standard:
       trigger: "建立 Handoff"
       action: "引用 artifact_id，不嵌入完整內容"
       priority: medium
+    - id: ACP-006
+      trigger: "生成 hook 腳本"
+      action: "依照 hook_exit_codes 三分類：0=pass, 2=block+feedback, 其他=warn"
+      priority: high
 
 physical_spec:
   type: checklist
