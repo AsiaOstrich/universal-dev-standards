@@ -1,0 +1,111 @@
+# Anti-Sycophancy Prompting Standards - AI Optimized
+# Source: core/anti-sycophancy-prompting.md
+
+id: anti-sycophancy-prompting
+meta:
+  version: "1.0.0"
+  updated: "2026-04-15"
+  source: core/anti-sycophancy-prompting.md
+  description: Techniques and rules for designing prompts that elicit genuine, critical LLM responses rather than sycophantic agreement
+
+principles:
+  socratic_critique:
+    rule: Reframe evaluation tasks as critique tasks to eliminate sycophancy incentives
+    do:
+      - Ask for fatal objections rather than approval
+      - Require technically grounded, non-trivial objections
+      - Prohibit positive opening phrases
+    do_not:
+      - Ask "is this a good idea?" without specifying critique mode
+      - Accept "Great idea, but..." as valid critique framing
+
+  anchor_prevention:
+    rule: Obtain independent LLM judgment before revealing user position
+    steps:
+      - Ask for neutral comparison without revealing preference
+      - Receive independent judgment
+      - Reveal user position
+      - Require explicit technical justification for any stance change
+
+  symmetric_output:
+    rule: Use format constraints to force balanced opposing viewpoints
+    format: "| Arguments FOR | Arguments AGAINST | — Net Recommendation: [clear stance]"
+    constraints:
+      - Both columns must have similar length (< 20% difference)
+      - Net recommendation must be explicit and may be negative
+
+  confidence_labeling:
+    rule: Require confidence scores on all recommendations
+    format: "Confidence: [1-5] — [reason for uncertainty]"
+    scale:
+      5: Validated at similar scale, high certainty
+      4: Industry standard with sufficient documentation
+      3: Reasonable inference, PoC recommended
+      2: Uncertain, Spike strongly recommended
+      1: Highly uncertain, not recommended for direct adoption
+    constraints:
+      - Confidence < 3 must include "More information needed"
+      - All major claims require confidence labeling
+
+  sycophancy_detection:
+    rule: Detect sycophantic response patterns for automated re-evaluation
+    signals:
+      - id: positive-opener
+        pattern: Response starts with agreeable phrase within first 50 tokens
+        examples: ["great", "interesting", "certainly", "of course", "absolutely"]
+      - id: position-flip
+        pattern: Model reverses stance after user reveals preference without new evidence
+      - id: risk-minimization
+        pattern: "While there are some minor issues, overall..."
+      - id: missing-quantification
+        pattern: Major recommendation lacks confidence score or specific metrics
+    trigger: If 2+ signals detected, invoke re-evaluation with Red Team framing
+
+prohibited_behaviors:
+  - id: positive-opener
+    description: Do NOT open critique with positive affirmation
+    correct_action: Start directly with analysis
+
+  - id: unsupported-flip
+    description: Do NOT reverse stance after user reveals preference without new technical evidence
+    correct_action: Maintain position or cite specific new information
+
+  - id: unquantified-risk
+    description: Do NOT describe risks as "minor" without evidence
+    correct_action: Quantify risk or explain why it is bounded
+
+  - id: missing-confidence
+    description: Do NOT provide major recommendations without confidence level
+    correct_action: Always include confidence (1-5) and uncertainty statement
+
+agent_application:
+  code_review:
+    apply: [socratic_critique, symmetric_output, sycophancy_detection]
+  architecture_advisor:
+    apply: [anchor_prevention, confidence_labeling, sycophancy_detection]
+  bug_analysis:
+    apply: [socratic_critique, confidence_labeling]
+  general_consultation:
+    apply: [symmetric_output, confidence_labeling]
+
+complete_template: |
+  You are a domain expert with no emotional investment in my satisfaction.
+  Your role is to identify flaws in my thinking, not to make me feel good.
+
+  Rules:
+  - Do NOT open with positive phrases (good, interesting, nice, certainly)
+  - Every recommendation must include a confidence level (1-5) and what you are uncertain about
+  - If my direction is wrong, say so directly
+
+  My question: [question]
+
+  First, list the incorrect assumptions I may be holding about this problem.
+  Then give your honest recommendation.
+
+checklist:
+  - Prompt does not invite agreement
+  - Positive opening phrases explicitly prohibited
+  - Independent stance obtained before revealing user preference (if applicable)
+  - Dual-column format enforced for evaluation tasks
+  - Confidence levels required on major recommendations
+  - Sycophancy detection applied to output

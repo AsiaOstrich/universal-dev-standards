@@ -681,6 +681,17 @@
   },
   "standards": [
     {
+      "id": "anti-sycophancy-prompting",
+      "name": "Anti-Sycophancy Prompting Standards",
+      "nameZh": "防迎合提示詞設計標準",
+      "source": {
+        "human": "core/anti-sycophancy-prompting.md",
+        "ai": "ai/standards/anti-sycophancy-prompting.ai.yaml"
+      },
+      "category": "core",
+      "description": "Techniques for designing prompts that elicit genuine, critical LLM responses rather than sycophantic agreement"
+    },
+    {
       "id": "anti-hallucination",
       "name": "Anti-Hallucination Guidelines",
       "nameZh": "反幻覺指南",
