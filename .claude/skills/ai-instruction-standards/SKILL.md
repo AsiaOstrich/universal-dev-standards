@@ -1,28 +1,29 @@
 ---
+name: ai-instruction-standards
+description: "Create and maintain AI instruction files (CLAUDE.md, .cursorrules, .windsurfrules) with proper universal vs project-specific separation. Use when setting up AI tool configurations, reviewing instruction file structure, or onboarding new AI tools to a project."
 source: ../../../../skills/ai-instruction-standards/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-05
 status: current
 scope: partial
-description: "[UDS] 建立和維護 AI 指令檔案（CLAUDE.md、.cursorrules 等）並採用適當結構"
 ---
 
 # AI 指令檔案標準指南
 
 > **語言**: [English](../../../../skills/ai-instruction-standards/SKILL.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-01-25
-**適用範圍**: Claude Code Skills
-
----
-
-> **核心標準**: 本技能實作 [AI 指令檔案標準](../../core/ai-instruction-standards.md)。完整方法論文件請參閱核心標準。
-
 ## 目的
 
-本技能協助建立和維護 AI 指令檔案，適當區分通用標準與專案特定配置。
+本技能協助建立和維護 AI 指令檔案，適當區分通用標準與專案特定配置。實作 [AI 指令檔案標準](../../core/ai-instruction-standards.md) 核心標準。
+
+## 工作流程
+
+1. **偵測現有檔案** — 檢查 `CLAUDE.md`、`.cursorrules`、`.windsurfrules` 等是否存在
+2. **分析結構** — 檢查內容是否適當區分通用/專案特定區段
+3. **生成或改善** — 建立/更新指令檔案，確保通用區段無專案特定路徑/命令/版本
+4. **多工具同步** — 若使用多個 AI 工具，建議建立共用 `docs/ai-standards.md` 避免重複
+5. **驗證** — 執行維護檢查清單確認結構正確
 
 ## 快速參考
 
@@ -194,18 +195,3 @@ project/
 - [反幻覺規範](../../core/anti-hallucination.md) - AI 準確性規則
 - [AI 友善架構](../../core/ai-friendly-architecture.md) - 上下文優化
 
----
-
-## 版本歷史
-
-| 版本 | 日期 | 變更 |
-|------|------|------|
-| 1.0.0 | 2026-01-25 | 初始發布 |
-
----
-
-## 授權
-
-本技能以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
-
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

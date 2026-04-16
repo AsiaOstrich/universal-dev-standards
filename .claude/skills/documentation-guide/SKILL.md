@@ -1,10 +1,11 @@
 ---
+name: documentation-guide
+description: "Guide documentation structure, content requirements, and best practices by project type. Use when creating README, ARCHITECTURE, API, DATABASE, or DEPLOYMENT docs, auditing existing documentation completeness, or setting up ADR workflows."
 source: ../../../../skills/documentation-guide/SKILL.md
 source_version: 2.1.0
 translation_version: 2.1.0
 last_synced: 2026-03-17
 status: current
-description: "[UDS] 引導文件結構、內容需求和專案文件最佳實踐"
 scope: universal
 ---
 
@@ -12,19 +13,17 @@ scope: universal
 
 > **語言**: [English](../../../../skills/documentation-guide/SKILL.md) | 繁體中文
 
-**版本**: 2.1.0
-**最後更新**: 2026-03-17
-**適用範圍**: Claude Code Skills
-
----
-
 ## 目的
 
-本 Skill 提供專案文件的全面指導，包括：
-- 文件結構和檔案組織
-- 依專案類型的內容需求
-- 技術文件的撰寫標準
-- 常見文件類型的範本
+本 Skill 提供專案文件的全面指導，包括文件結構和檔案組織、依專案類型的內容需求、技術文件的撰寫標準，以及常見文件類型的範本。
+
+## 工作流程
+
+1. **判斷專案類型** — 新專案、重構、遷移或維護
+2. **依矩陣確認需求** — 根據專案類型判斷必要/建議/不需要的文件
+3. **建立文件結構** — 依金字塔層級建立 README → ARCHITECTURE → API/DB/DEPLOY → ADR/MIGRATION/CHANGELOG
+4. **套用範本** — 使用對應範本填充內容（見快速參考中的 YAML 壓縮格式）
+5. **稽核驗證** — 執行文件稽核檢查清單，確認完整性和連結正確性
 
 ---
 
@@ -400,20 +399,3 @@ MIT
 - [變更日誌標準](../../core/changelog-standards.md) - CHANGELOG 格式
 - [變更日誌指南技能](../changelog-guide/SKILL.md) - CHANGELOG 技能
 
----
-
-## 版本歷史
-
-| 版本 | 日期 | 變更 |
-|------|------|------|
-| 2.1.0 | 2026-03-17 | 新增：Diátaxis 分類、LLM 發現、品質指標、增強版 ADR 範本、翻譯友善寫作 |
-| 2.0.0 | 2026-01-12 | 新增：專案類型矩陣、文件範本、文件金字塔 |
-| 1.0.0 | 2025-12-24 | 初始版本 |
-
----
-
-## 授權
-
-本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
-
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

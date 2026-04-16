@@ -1,4 +1,6 @@
 ---
+name: ai-collaboration-standards
+description: "Prevent AI hallucination and ensure evidence-based responses with certainty tags and source attribution. Use when analyzing code, making recommendations, providing options, or assessing confidence levels."
 source: ../../../../skills/ai-collaboration-standards/SKILL.md
 source_version: 1.1.0
 translation_version: 1.1.0
@@ -11,15 +13,17 @@ scope: universal
 
 > **語言**: [English](../../../../skills/ai-collaboration-standards/SKILL.md) | 繁體中文
 
-**版本**: 1.1.0
-**最後更新**: 2026-01-25
-**適用範圍**: Claude Code Skills
-
----
-
 ## 目的
 
 此技能確保 AI 助理提供準確、基於證據的回應，避免產生幻覺。
+
+## 工作流程
+
+1. **讀取來源** — 在做出任何陳述前，先讀取實際檔案/文件
+2. **標記來源** — 使用 `[Source: Code]`、`[Source: Docs]` 等標籤標記資訊來源
+3. **分類確定性** — 為每個陳述標記 `[Confirmed]`、`[Inferred]`、`[Assumption]` 或 `[Unknown]`
+4. **驗證引用** — 包含檔案路徑和行號（例如 `src/auth/service.ts:45`）
+5. **提供建議** — 呈現選項時，必須包含建議選擇及其理由
 
 ## 快速參考
 
@@ -159,18 +163,3 @@ This project uses **English** certainty tags.
 - [程式碼審查檢查清單](../../core/code-review-checklist.md)
 - [測試標準](../../core/testing-standards.md)
 
----
-
-## 版本歷史
-
-| 版本 | 日期 | 變更 |
-|---------|------|---------|
-| 1.0.0 | 2025-12-24 | 新增：標準章節（目的、相關標準、版本歷史、授權） |
-
----
-
-## 授權
-
-此技能依據 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 釋出。
-
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

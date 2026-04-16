@@ -1,28 +1,29 @@
 ---
+name: ai-friendly-architecture
+description: "Design AI-friendly project architecture with explicit patterns, layered documentation, and semantic boundaries. Use when setting up .ai-context.yaml, creating module headers, establishing context layers, or optimizing project structure for AI collaboration."
 source: ../../../../skills/ai-friendly-architecture/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-05
 status: current
 scope: uds-specific
-description: "[UDS] 設計 AI 友善架構，包含明確模式、分層文件和語義邊界"
 ---
 
 # AI 友善架構指南
 
 > **語言**: [English](../../../../skills/ai-friendly-architecture/SKILL.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-01-25
-**適用範圍**: Claude Code Skills
-
----
-
-> **核心標準**: 本技能實作 [AI 友善架構](../../core/ai-friendly-architecture.md)。完整方法論文件請參閱核心標準。
-
 ## 目的
 
-本技能協助設計專案架構，透過明確模式、分層文件和語義邊界，最大化 AI 協作效能。
+本技能協助設計專案架構，透過明確模式、分層文件和語義邊界，最大化 AI 協作效能。實作 [AI 友善架構](../../core/ai-friendly-architecture.md) 核心標準。
+
+## 工作流程
+
+1. **評估現狀** — 檢查是否存在 `.ai-context.yaml` 和 `QUICK-REF.md`
+2. **建立上下文配置** — 建立 `.ai-context.yaml` 描述模組、入口點和相依性
+3. **分層文件** — 依 Token 預算建立 L1 快速參考（<500）、L2 詳細（<5000）、L3 範例
+4. **新增模組標頭** — 在主要檔案加入標準模組標頭（目的、相依性、匯出）
+5. **驗證** — 確認無反模式（魔術字串、隱式路由、全域狀態、循環相依）
 
 ## 快速參考
 
@@ -201,18 +202,3 @@ documentation:
 - [文件結構](../../core/documentation-structure.md) - 文件分層
 - [反幻覺](../../core/anti-hallucination.md) - AI 準確性標準
 
----
-
-## 版本歷史
-
-| 版本 | 日期 | 變更 |
-|------|------|------|
-| 1.0.0 | 2026-01-25 | 初始發布 |
-
----
-
-## 授權
-
-本技能以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
-
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
