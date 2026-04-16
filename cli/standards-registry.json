@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "version": "5.1.0-beta.7",
-  "lastUpdated": "2026-04-15",
+  "lastUpdated": "2026-04-16",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
     "ai": {
@@ -1952,6 +1952,28 @@
       },
       "category": "core",
       "description": "System-level immutability: DTO fields as readonly, ReadonlyArray<T> for arrays, spread syntax for mutations, deep immutability across parallel boundaries."
+    },
+    {
+      "id": "failure-source-taxonomy",
+      "name": "Failure Source Taxonomy Standard",
+      "nameZh": "失敗來源分類法",
+      "source": {
+        "human": "core/failure-source-taxonomy.md",
+        "ai": "ai/standards/failure-source-taxonomy.ai.yaml"
+      },
+      "category": "core",
+      "description": "8-class failureSource dimension (why) on top of TaskStatus (what), enabling Recovery Recipe Registry to precisely match strategies per failure type."
+    },
+    {
+      "id": "recovery-recipe-registry",
+      "name": "Recovery Recipe Registry Standard",
+      "nameZh": "恢復食譜註冊表",
+      "source": {
+        "human": "core/recovery-recipe-registry.md",
+        "ai": "ai/standards/recovery-recipe-registry.ai.yaml"
+      },
+      "category": "core",
+      "description": "Unified YAML-configurable Recovery Recipe format keyed by failureSource (XSPEC-045), with 6 built-in strategies and 5 default recipes, backward-compatible fallback."
     }
   ]
 }
