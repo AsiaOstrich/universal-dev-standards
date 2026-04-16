@@ -1,4 +1,6 @@
 ---
+name: project-structure-guide
+description: "Guide project directory structure setup by language and framework conventions. Use when creating new projects, reorganizing existing structure, adding modules, configuring builds, or deciding file placement across 10+ languages."
 source: ../../../../skills/project-structure-guide/SKILL.md
 source_version: 1.1.0
 translation_version: 1.1.0
@@ -11,15 +13,16 @@ scope: universal
 
 > **Language**: [English](../../../../skills/project-structure-guide/SKILL.md) | 繁體中文
 
-**版本**：1.1.0
-**最後更新**：2026-03-04
-**適用性**：Claude Code Skills
-
----
-
 ## 目的
 
 此技能提供根據語言和框架慣例建構專案的指引，協助建立一致、可維護的目錄佈局。
+
+## 工作流程
+
+1. **偵測語言/框架** — 檢查專案中的 `package.json`、`pyproject.toml`、`go.mod`、`Cargo.toml` 等
+2. **比對慣例** — 根據偵測到的語言選擇對應的目錄結構模式
+3. **生成結構** — 建立符合慣例的目錄樹和配置檔案
+4. **驗證結構** — 檢查 gitignore 模式、檔案命名、目錄分離是否正確
 
 ## 觸發時機
 
@@ -143,6 +146,31 @@ project/
 6. **辨析目錄術語** - utils/（無狀態、通用）、helpers/（層級綁定）、shared/（跨模組）、lib/（包裝依賴）
 7. **工作文件放 docs/working/** - 腦力激盪、RFC、POC、技術調查放在 docs/working/ 並進行生命週期管理
 8. **生成碼分離** - 放在 src/generated/{type}/，永不與手寫程式碼混合
+
+## 範例
+
+### 輸入
+
+使用者說：「我要建立一個 Node.js Express API 專案」
+
+### 輸出
+
+```
+my-api/
+├── src/
+│   ├── index.js
+│   ├── routes/
+│   ├── controllers/
+│   ├── services/
+│   └── models/
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── docs/
+├── config/
+├── package.json
+└── .gitignore
+```
 
 ## 相關標準
 
