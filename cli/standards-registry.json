@@ -1941,6 +1941,17 @@
       },
       "category": "core",
       "description": "Fail-Closed capability defaults for all tools and adapters: isConcurrencySafe, isReadOnly, requiresUserConfirmation all default to safe values."
+    },
+    {
+      "id": "immutability-first",
+      "name": "Immutability-First Architecture Standard",
+      "nameZh": "不可變性設計原則",
+      "source": {
+        "human": "core/immutability-first.md",
+        "ai": "ai/standards/immutability-first.ai.yaml"
+      },
+      "category": "core",
+      "description": "System-level immutability: DTO fields as readonly, ReadonlyArray<T> for arrays, spread syntax for mutations, deep immutability across parallel boundaries."
     }
   ]
 }
