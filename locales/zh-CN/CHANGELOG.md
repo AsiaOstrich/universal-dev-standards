@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.1.0-beta.6
-translation_version: 5.1.0-beta.6
-last_synced: 2026-04-13
+source_version: 5.1.0-beta.7
+translation_version: 5.1.0-beta.7
+last_synced: 2026-04-17
 status: current
 ---
 
@@ -16,6 +16,25 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.1.0-beta.7] - 2026-04-17
+
+> **Beta Release**：DEC-043 Wave 1 — 六个 Trial 状态标准，涵盖可靠性模式与治理 Meta 框架。
+
+### 新增
+- **Reliability 包（XSPEC-067）**：三个 Trial 状态的韧性模式标准。
+  - `retry-standards`：重试策略（指数退避、Jitter、幂等性保护）。
+  - `timeout-standards`：分层 timeout 预算（call / request / end-to-end）与传递规则。
+  - `health-check-standards`：Liveness / Readiness / Startup probe 语义。
+- **治理 Meta 包（XSPEC-070，Wave 1 前置）**：三个定义「标准如何被纳入、管理、与 Skill 对齐」的 Trial 标准。
+  - `standard-admission-criteria`：新标准提案的入场门槛。
+  - `standard-lifecycle-management`：Trial → Stable → Deprecated → Archived 状态流转。
+  - `skill-standard-alignment-check`：Skill 与其引用标准之间的对齐稽核。
+- 六份标准皆遵循 UDS 三方同步要求：`.ai.yaml`（机器）+ `.md`（人类）+ `cli/standards-registry.json` entry（+66 行）。
+
+### 背景
+- 由 **DEC-043**（UDS 覆盖完整性路线图）驱动。治理 Meta 包为 Wave 1 前置条件，解锁 Wave 2–4（八个主题标准包：SRE / CI-CD / IaC / 合规 / Reliability / 资料工程 / 产品 / 治理 — XSPEC-063~070）。
+- PR：#77
 
 ## [5.1.0-beta.6] - 2026-04-13
 

@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.1.0-beta.7] - 2026-04-17
+
+> **Beta Release**: DEC-043 Wave 1 — six trial-status standards covering reliability patterns and governance meta-framework.
+
+### Added
+- **Reliability pack (XSPEC-067)**: Three trial-status standards for resilience patterns.
+  - `retry-standards` (`ai/standards/retry-standards.ai.yaml`, `core/retry-standards.md`): retry policy with exponential backoff, jitter, and idempotency guards.
+  - `timeout-standards` (`ai/standards/timeout-standards.ai.yaml`, `core/timeout-standards.md`): layered timeout budgets (call / request / end-to-end) and propagation rules.
+  - `health-check-standards` (`ai/standards/health-check-standards.ai.yaml`, `core/health-check-standards.md`): liveness / readiness / startup probe semantics.
+- **Governance meta pack (XSPEC-070, Wave 1 prerequisite)**: Three trial-status standards defining how standards themselves are admitted, managed, and aligned with Skills.
+  - `standard-admission-criteria`: gating criteria for new standard proposals.
+  - `standard-lifecycle-management`: Trial → Stable → Deprecated → Archived transitions.
+  - `skill-standard-alignment-check`: alignment audit between Skills and the standards they reference.
+- All six standards follow the UDS three-way sync requirement: `.ai.yaml` (machine) + `.md` (human) + `cli/standards-registry.json` entry (+66 lines).
+
+### Context
+- Driven by **DEC-043** (UDS coverage completeness roadmap). Governance meta pack is the Wave 1 prerequisite unblocking Wave 2–4 (eight topic standard packs: SRE / CI-CD / IaC / Compliance / Reliability / Data Engineering / Product / Governance — XSPEC-063~070).
+- PR: #77
+
+[5.1.0-beta.7]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.1.0-beta.6...v5.1.0-beta.7
+
 ## [5.1.0-beta.6] - 2026-04-13
 
 > **Beta Release**: Bug fixes for `uds init` crash, E2E test isolation, and macOS display language detection.
