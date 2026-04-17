@@ -1,0 +1,144 @@
+# Standard Lifecycle Management - AI Optimized
+# Source: XSPEC-070 (DEC-043 Wave 1 Governance Meta Pack)
+
+standard:
+  id: standard-lifecycle-management
+  name: Standard Lifecycle Management
+  description: UDS 標準生命週期狀態機（Proposed → Trial → Active → Deprecated → Archived）與 frontmatter 必要欄位
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-04-17"
+    status: trial
+    since: "2026-04-17"
+    expires: "2026-10-17"
+    source: XSPEC-070
+    borrowed_from: DEC-043
+    description: >
+      既有 66 個標準無明確狀態管理：新增標準沒有試驗期、過時標準無棄用路徑、廢棄標準仍被引用。
+      本標準建立五狀態機（Proposed / Trial / Active / Deprecated / Archived）與合法轉移規則，
+      並規範所有 .ai.yaml 標準必須在 frontmatter 標示 status / since / expires / supersedes。
+    scope: universal
+    industry_reference: "IETF RFC lifecycle (Proposed → Draft → Internet Standard), Python PEP states, W3C Recommendation Track"
+
+  guidelines:
+    - "所有 .ai.yaml 標準 frontmatter 必須包含 status / since 欄位"
+    - "Trial 狀態必須指定 expires（試驗期限，預設 6 個月）"
+    - "Deprecated 狀態必須指定 supersedes（替代者的 standard id 或遷移文件路徑）"
+    - "禁止反向轉移（Active → Proposed、Archived → Active 無意義）"
+    - "Trial → Active 需在 expires 前完成驗證決定；逾期未決則自動 Archived"
+
+  states:
+    Proposed:
+      description: "草案階段，尚未通過 admission-criteria"
+      allowed_locations: "DEC 文件 / XSPEC 文件 / PR branch；不進主線 ai/standards/"
+      can_be_referenced_by_skill: false
+      transition_out: ["Trial"]
+      transition_criteria:
+        Trial: "通過 standard-admission-criteria 四項條件"
+
+    Trial:
+      description: "批准但試驗中，有明確試驗期限"
+      allowed_locations: "ai/standards/，frontmatter 標記 status=trial"
+      can_be_referenced_by_skill: "true (標註 trial 狀態)"
+      default_trial_period_months: 6
+      transition_out: ["Active", "Archived"]
+      transition_criteria:
+        Active: "試驗期內被至少 2 個獨立場景實際使用且無重大修正需求"
+        Archived: "試驗期結束未達 Active 條件，或發現根本設計缺陷"
+
+    Active:
+      description: "全面採用，是 standard-of-truth"
+      allowed_locations: "ai/standards/，frontmatter 標記 status=active"
+      can_be_referenced_by_skill: true
+      transition_out: ["Deprecated"]
+      transition_criteria:
+        Deprecated: "發現更好替代標準、或標準已過時、或業界實踐改變"
+
+    Deprecated:
+      description: "標記棄用，仍可用但不建議；必須提供遷移路徑"
+      allowed_locations: "ai/standards/，frontmatter 標記 status=deprecated + supersedes"
+      can_be_referenced_by_skill: "true (Skill 應警示 deprecated 並指向 supersedes)"
+      default_migration_period_months: 6
+      transition_out: ["Archived"]
+      transition_criteria:
+        Archived: "遷移期結束，所有 downstream 已切換至替代標準"
+
+    Archived:
+      description: "已移除，僅保留歷史紀錄；不再載入"
+      allowed_locations: "ai/standards/archive/ 或 git 歷史"
+      can_be_referenced_by_skill: false
+      transition_out: []
+
+  transition_matrix:
+    description: "合法狀態轉移路徑（其他皆禁止）"
+    legal_transitions:
+      - "Proposed → Trial"
+      - "Trial → Active"
+      - "Trial → Archived"
+      - "Active → Deprecated"
+      - "Deprecated → Archived"
+    forbidden_transitions:
+      - "Active → Proposed（無意義）"
+      - "Archived → Active（應重新申請 admission）"
+      - "Deprecated → Active（應重新 Trial）"
+      - "Proposed → Active（須先 Trial 驗證）"
+
+  frontmatter_required_fields:
+    description: "所有 .ai.yaml 標準必須在 meta 區塊包含的欄位"
+    always_required:
+      status: "proposed | trial | active | deprecated | archived"
+      since: "ISO-8601 日期，進入當前狀態的日期"
+      version: "semver 字串"
+    conditional_required:
+      expires:
+        when: "status = trial"
+        format: "ISO-8601 日期，預設 since + 6 months"
+      supersedes:
+        when: "status = deprecated"
+        format: "替代標準 id（如 'retry-standards-v2'）或遷移文件路徑"
+      migration_guide:
+        when: "status = deprecated"
+        format: "遷移指引的相對路徑（選填，但強烈建議）"
+
+  scenarios:
+    scenario_1_trial_to_active:
+      given: "retry-standards 處於 trial 狀態，since=2026-04-17, expires=2026-10-17"
+      when: "2026-08-01 審視使用情況，發現 DevAP Fix Loop 和 VibeOps Builder 都已採用，無重大缺陷"
+      then: "轉移到 Active，更新 status=active, since=2026-08-01，移除 expires 欄位"
+      note: "Trial → Active 的典型路徑"
+
+    scenario_2_trial_auto_archive:
+      given: "某標準 trial 期限 2026-10-17 到期，尚未通過驗證"
+      when: "2026-10-17 自動審視"
+      then: "狀態轉為 Archived，記錄未通過原因"
+      note: "避免 Trial 標準無限期停留，造成標準庫混亂"
+
+    scenario_3_deprecated_with_migration:
+      given: "legacy-retry-logic 發現有更好的 retry-standards 取代"
+      when: "執行 deprecation"
+      then: "status=deprecated, since=2026-04-17, supersedes=retry-standards, migration_guide=docs/migrations/retry-v1-to-v2.md"
+      and: "Skill 使用 legacy-retry-logic 時顯示警告，建議遷移至 retry-standards"
+
+  telemetry_events:
+    standard_state_change:
+      fields:
+        standard_id: string
+        from_state: "proposed | trial | active | deprecated | archived"
+        to_state: "proposed | trial | active | deprecated | archived"
+        reason: string
+        timestamp: string
+      when: "每次標準狀態變更時上報（對齊 telemetry-server）"
+
+  error_codes:
+    LIFECYCLE-001: "MISSING_STATUS — frontmatter 缺 status 欄位"
+    LIFECYCLE-002: "MISSING_EXPIRES — trial 狀態缺 expires 欄位"
+    LIFECYCLE-003: "MISSING_SUPERSEDES — deprecated 狀態缺 supersedes 欄位"
+    LIFECYCLE-004: "FORBIDDEN_TRANSITION — 嘗試非法狀態轉移"
+    LIFECYCLE-005: "TRIAL_EXPIRED — Trial 期限已過但未完成 Active / Archived 決策"
+
+  integration_points:
+    - "standard-admission-criteria.ai.yaml — Proposed → Trial 必須通過 admission"
+    - "skill-standard-alignment-check.ai.yaml — Skill 僅可錨定 trial/active/deprecated 狀態標準"
+    - "adr-standards.ai.yaml — Active → Deprecated 的決策建議搭配 ADR 記錄"
+    - "telemetry-server — standard_state_change 事件匯總，用於分析標準演進"

@@ -1,0 +1,134 @@
+# Retry Standards - AI Optimized
+# Source: XSPEC-067 (DEC-043 Wave 1 Reliability Pack)
+
+standard:
+  id: retry-standards
+  name: Retry Standards
+  description: 重試策略標準 — 指數退避加抖動、重試上限、依 failure-source 分類的重試規則
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-04-17"
+    status: trial
+    since: "2026-04-17"
+    expires: "2026-10-17"
+    source: XSPEC-067
+    borrowed_from: DEC-043
+    description: >
+      延伸既有 circuit-breaker 與 failure-source-taxonomy，補齊 retry 層的標準化規則。
+      避免各元件各自實作重試造成行為不一致（無上限重試、無 jitter 導致 thundering herd）。
+      與 failure-source-taxonomy 深度整合：依失敗類型決定是否重試、重試幾次、退避多久。
+    scope: universal
+    industry_reference: "Netflix Hystrix retry, Google SRE Book Ch.22, AWS Architecture Blog - exponential backoff and jitter"
+
+  guidelines:
+    - "所有重試邏輯必須使用 exponential + jitter，禁止固定間隔或無 jitter 的純指數"
+    - "重試必須有明確上限（max_attempts），禁止無限重試"
+    - "重試決策必須先參考 failure-source-taxonomy 分類，fail-fast 類別不得重試"
+    - "重試必須與 circuit-breaker 整合：OPEN 狀態下不得重試，直接 fail-fast"
+    - "每次重試都應透過遙測事件上報（retry_attempted / retry_exhausted），方便觀察無效重試"
+
+  backoff_formula:
+    name: "Exponential with full jitter"
+    formula: "wait_ms = min(cap_ms, base_ms * 2^attempt) * (0.5 + random() * 0.5)"
+    defaults:
+      base_ms: 100
+      cap_ms: 30000
+      max_attempts: 5
+      jitter_ratio: 0.5
+    rationale:
+      - "Exponential 隨重試次數指數退避，避免短時間大量請求"
+      - "Jitter ±50% 避免 thundering herd（所有 client 同時重試）"
+      - "cap_ms=30s 避免超長等待，與典型 request timeout 對齊"
+
+  failure_source_rules:
+    description: "依 failure-source-taxonomy 的 8 類 failureSource 決定重試策略"
+    rules:
+      transient_network:
+        retry: true
+        max_attempts: 5
+        base_ms: 100
+        note: "短暫網路抖動，指數退避通常可恢復"
+      rate_limit:
+        retry: true
+        max_attempts: 3
+        base_ms: 1000
+        note: "底數加大（1s）預留額度恢復時間；若 API 回傳 Retry-After 則優先採用"
+      upstream_unavailable:
+        retry: true
+        max_attempts: 3
+        base_ms: 500
+        note: "重試前先查 circuit-breaker；連續失敗觸發 OPEN 狀態"
+      tool_failure:
+        retry: true
+        max_attempts: 2
+        base_ms: 200
+        note: "工具層失敗通常非 transient，僅給 2 次機會"
+      prompt_delivery:
+        retry: true
+        max_attempts: 2
+        base_ms: 100
+        note: "多半是短暫 API 問題；超過 2 次改走 model_switch"
+      authentication:
+        retry: false
+        note: "fail-fast；憑證錯誤重試不會變對，只會浪費 quota"
+      validation:
+        retry: false
+        note: "fail-fast；input 錯誤重試結果不變"
+      policy_violation:
+        retry: false
+        note: "fail-fast；安全決策禁止繞過（對齊 security-decision 標準）"
+      quota_exhausted:
+        retry: false
+        note: "fail-fast；等 budget reset 或升級 tier，不應在同 session 內重試"
+
+  circuit_breaker_integration:
+    rule_1: "每次重試前檢查對應 breaker 的 state；若為 OPEN 立即回傳 CircuitOpenError，不消耗 max_attempts"
+    rule_2: "重試全部耗盡（retry_exhausted）計入 breaker 的 failure count"
+    rule_3: "HALF_OPEN 狀態下僅允許 1 次探針重試，不套用 max_attempts"
+
+  telemetry_events:
+    retry_attempted:
+      fields:
+        operation: string
+        attempt: number
+        max_attempts: number
+        failure_source: "FailureSource | null"
+        wait_ms: number
+      when: "每次重試前上傳（第 0 次原始呼叫不算）"
+    retry_exhausted:
+      fields:
+        operation: string
+        attempts: number
+        final_failure_source: FailureSource
+      when: "達到 max_attempts 仍失敗時上傳"
+
+  scenarios:
+    scenario_1_exponential_backoff:
+      given: "呼叫下游 API 失敗，failure_source=transient_network，已重試 2 次"
+      when: "計算第 3 次重試的等待時間"
+      then: "wait_ms = min(30000, 100 * 2^3) * (0.5 + random * 0.5) = 800 * [0.5..1.0] = 400~800ms"
+      note: "驗證退避公式正確套用 jitter"
+
+    scenario_2_fail_fast_on_auth:
+      given: "API 回傳 401 Unauthorized，偵測元件標記 failure_source=authentication"
+      when: "決定是否重試"
+      then: "立即 fail-fast，不進入退避，不計入 circuit-breaker failure count"
+      note: "authentication 類別 retry=false，避免浪費 quota"
+
+    scenario_3_circuit_open_skip:
+      given: "對應 breaker 為 OPEN 狀態，cooldown 剩 15s"
+      when: "發起重試"
+      then: "立即回傳 CircuitOpenError，不發起請求，不消耗 max_attempts"
+      note: "與 circuit-breaker 整合：OPEN 狀態下 fail-fast"
+
+  error_codes:
+    RETRY-001: "RETRY_EXHAUSTED — 達到 max_attempts 仍失敗"
+    RETRY-002: "RETRY_SKIPPED_NON_RETRYABLE — failure_source 屬 fail-fast 類別"
+    RETRY-003: "RETRY_SKIPPED_CIRCUIT_OPEN — breaker OPEN 狀態下跳過重試"
+
+  integration_points:
+    - "circuit-breaker.ai.yaml — OPEN 狀態下禁止重試，retry_exhausted 計入 failure count"
+    - "failure-source-taxonomy.ai.yaml — 依 failureSource 決定 retry/fail-fast"
+    - "timeout-standards.ai.yaml — 單次重試 timeout 不得超過剩餘 deadline"
+    - "recovery-recipe-registry.ai.yaml — retry 耗盡後交棒給 recovery recipe"

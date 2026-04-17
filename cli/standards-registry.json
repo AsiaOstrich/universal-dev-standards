@@ -1974,6 +1974,72 @@
       },
       "category": "core",
       "description": "Unified YAML-configurable Recovery Recipe format keyed by failureSource (XSPEC-045), with 6 built-in strategies and 5 default recipes, backward-compatible fallback."
+    },
+    {
+      "id": "retry-standards",
+      "name": "Retry Standards",
+      "nameZh": "重試策略標準",
+      "source": {
+        "human": "core/retry-standards.md",
+        "ai": "ai/standards/retry-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Exponential backoff with full jitter, max_attempts cap, and failure-source-aware retry rules (DEC-043 Wave 1 Reliability, XSPEC-067, trial)."
+    },
+    {
+      "id": "timeout-standards",
+      "name": "Timeout Standards",
+      "nameZh": "Timeout 標準",
+      "source": {
+        "human": "core/timeout-standards.md",
+        "ai": "ai/standards/timeout-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Cascading 0.8x per-layer timeout budget, deadline propagation via absolute timestamps, circuit-breaker integration (DEC-043 Wave 1 Reliability, XSPEC-067, trial)."
+    },
+    {
+      "id": "health-check-standards",
+      "name": "Health Check Standards",
+      "nameZh": "健康檢查標準",
+      "source": {
+        "human": "core/health-check-standards.md",
+        "ai": "ai/standards/health-check-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Liveness/readiness/startup probe separation, deep health check scope (critical deps only), structured JSON response (DEC-043 Wave 1 Reliability, XSPEC-067, trial)."
+    },
+    {
+      "id": "standard-admission-criteria",
+      "name": "Standard Admission Criteria",
+      "nameZh": "標準納入條件",
+      "source": {
+        "human": "core/standard-admission-criteria.md",
+        "ai": "ai/standards/standard-admission-criteria.ai.yaml"
+      },
+      "category": "core",
+      "description": "Four admission gates (Evidence / Scope / Non-overlapping / AI-executable) for new UDS standards, with explicit rejection protocol (DEC-043 Wave 1 Governance Meta, XSPEC-070, trial)."
+    },
+    {
+      "id": "standard-lifecycle-management",
+      "name": "Standard Lifecycle Management",
+      "nameZh": "標準生命週期管理",
+      "source": {
+        "human": "core/standard-lifecycle-management.md",
+        "ai": "ai/standards/standard-lifecycle-management.ai.yaml"
+      },
+      "category": "core",
+      "description": "5-state lifecycle machine (Proposed/Trial/Active/Deprecated/Archived) with legal transitions and required frontmatter fields (DEC-043 Wave 1 Governance Meta, XSPEC-070, trial)."
+    },
+    {
+      "id": "skill-standard-alignment-check",
+      "name": "Skill-Standard Alignment Check",
+      "nameZh": "Skill 與 Standard 對齊檢查",
+      "source": {
+        "human": "core/skill-standard-alignment-check.md",
+        "ai": "ai/standards/skill-standard-alignment-check.ai.yaml"
+      },
+      "category": "core",
+      "description": "Skills must anchor to a Standard; Standards may exist without a Skill. Orphan-skill detection workflow (DEC-043 Wave 1 Governance Meta, XSPEC-070, trial)."
     }
   ]
 }
