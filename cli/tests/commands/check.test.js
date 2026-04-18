@@ -4,6 +4,17 @@ import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
+// Bypass DEC-044 / XSPEC-071 self-adoption guard in unit tests — the
+// real guard inspects process.cwd() (the UDS source repo) and would
+// refuse the command under test.
+vi.mock('../../src/utils/detect-self-adoption.js', () => ({
+  detectSelfAdoption: vi.fn(() => false),
+  detectSelfAdoptionDetailed: vi.fn(() => ({ isSelfAdoption: false, signals: [] })),
+  guardAgainstSelfAdoption: vi.fn(() => true),
+  formatSelfAdoptionRefuseMessage: vi.fn(() => []),
+  formatSelfAdoptionForceWarning: vi.fn(() => [])
+}));
+
 // Mock npm-registry to avoid network requests during tests
 vi.mock('../../src/utils/npm-registry.js', () => ({
   checkForUpdates: vi.fn(() => Promise.resolve({

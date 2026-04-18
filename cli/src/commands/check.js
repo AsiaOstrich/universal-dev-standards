@@ -36,6 +36,7 @@ import { writeUpdateCache } from '../utils/update-checker.js';
 import { StandardValidator } from '../utils/standard-validator.js';
 import { WorkflowGate } from '../utils/workflow-gate.js';
 import { t, getLanguage, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
+import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 
 /**
  * Display the summary of file integrity status
@@ -211,6 +212,11 @@ function displayAdoptionStatus(manifest, msg, common, repoInfo) {
  */
 export async function checkCommand(options = {}) {
   const projectPath = process.cwd();
+
+  // Refuse to run inside the UDS source repo itself.
+  // See DEC-044 / XSPEC-071 — adoption-drift check makes no sense for the
+  // source repo. `--force` bypasses (e.g. private forks of UDS).
+  guardAgainstSelfAdoption('check', options, projectPath);
 
   // Handle --standard option (validate specific standard physical spec)
   if (options.standard) {

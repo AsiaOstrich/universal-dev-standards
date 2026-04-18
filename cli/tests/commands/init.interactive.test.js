@@ -39,6 +39,17 @@ vi.mock('../../src/utils/integration-generator.js');
 vi.mock('../../src/utils/hasher.js');
 vi.mock('../../src/config/ai-agent-paths.js');
 
+// Bypass DEC-044 / XSPEC-071 self-adoption guard in unit tests — the
+// real guard inspects process.cwd() (the UDS source repo) and would
+// refuse the command under test.
+vi.mock('../../src/utils/detect-self-adoption.js', () => ({
+  detectSelfAdoption: vi.fn(() => false),
+  detectSelfAdoptionDetailed: vi.fn(() => ({ isSelfAdoption: false, signals: [] })),
+  guardAgainstSelfAdoption: vi.fn(() => true),
+  formatSelfAdoptionRefuseMessage: vi.fn(() => []),
+  formatSelfAdoptionForceWarning: vi.fn(() => [])
+}));
+
 describe('Init Command Interactive', () => {
   // Mock process.exit to avoid exiting the test process
   let mockExit;

@@ -128,6 +128,7 @@ program
   .option('--content-layout <layout>', 'Content layout (flat, layered) [default: flat]')
   .option('-y, --yes', 'Use defaults, skip interactive prompts')
   .option('-E, --experimental', 'Enable experimental features (methodology)')
+  .option('--force', 'Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071)')
   .action(initCommand);
 
 program
@@ -173,6 +174,7 @@ program
   .option('--ci', 'CI mode: disable interactive prompts and set exit code on issues')
   .option('--migrate', 'Migrate legacy manifest to hash-based tracking')
   .option('--offline', 'Skip npm registry check for CLI updates')
+  .option('--force', 'Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071)')
   .action(checkCommand);
 
 program

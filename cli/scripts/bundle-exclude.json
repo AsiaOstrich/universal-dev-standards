@@ -1,0 +1,5 @@
+{
+  "$schema_comment": "Schema: { excluded_files: [{ path: string, reason: string }], notes: string }",
+  "notes": "Intentional exclusions from cli/bundled/. Any .ai.yaml under .standards/ whose RELATIVE path is listed here is allowed to be absent from bundled/. Paths are relative to .standards/ (e.g. 'options/bilingual.ai.yaml'). Empty list on 2026-04-18 — the 7 known mismatches flagged by DEC-044 § 2.1 are owner-gated debt to be resolved later (see XSPEC-071 Req 2 Scenario 2-3).",
+  "excluded_files": []
+}

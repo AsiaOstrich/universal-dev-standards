@@ -1,0 +1,69 @@
+name: Bundle Parity Check
+
+# Enforces that the npm-bundled standards (cli/bundled/) stay in sync with
+# the source-of-truth .standards/ directory. See DEC-044 / XSPEC-071.
+#
+# The check currently has known debt: as of 2026-04-18 seven source files
+# (anti-sycophancy-prompting, options/bilingual, five options/testing/*) are
+# not yet present in the bundle. That debt is tracked via
+# cli/scripts/bundle-exclude.json (initially empty so the CI surfaces the
+# gap) and is owner-gated — decisions on include-in-bundle vs.
+# remove-from-source are tracked in XSPEC-071 Req 2 Scenario 2-3.
+#
+# For now this job runs with `continue-on-error: true` so that the hotfix
+# merge is not blocked by pre-existing debt. Flip to hard-fail once the
+# seven files are triaged.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.standards/**'
+      - 'cli/bundled/**'
+      - 'cli/scripts/prepack.mjs'
+      - 'cli/scripts/check-bundle-parity.mjs'
+      - 'cli/scripts/bundle-exclude.json'
+      - '.github/workflows/bundle-parity.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.standards/**'
+      - 'cli/bundled/**'
+      - 'cli/scripts/prepack.mjs'
+      - 'cli/scripts/check-bundle-parity.mjs'
+      - 'cli/scripts/bundle-exclude.json'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  parity:
+    name: Bundle ⇄ Source Parity
+    runs-on: ubuntu-latest
+    # Known debt on 2026-04-18 — flip to hard-fail once XSPEC-071 Req 2
+    # Scenario 2-3 is resolved.
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: cli/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Regenerate bundled/ (prepack)
+        run: npm run prepack
+
+      - name: Run bundle-parity check
+        run: npm run check:bundle-parity

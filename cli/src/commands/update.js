@@ -49,6 +49,7 @@ import {
   listBackups
 } from '../reconciler/index.js';
 import { restoreSingleFile } from './check.js';
+import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 
 /**
  * Determine the correct target directory for a standard file.
@@ -243,6 +244,11 @@ function resolveLocale(manifest, projectPath) {
  */
 export async function updateCommand(options) {
   const projectPath = process.cwd();
+
+  // Refuse to run inside the UDS source repo itself.
+  // See DEC-044 / XSPEC-071 — without this guard `uds update` would overwrite
+  // source-of-truth `.standards/` with bundled copies. `--force` bypasses.
+  guardAgainstSelfAdoption('update', options, projectPath);
 
   // Check if initialized first (use default language)
   if (!isInitialized(projectPath)) {

@@ -55,6 +55,7 @@
     "generate:e2e-spec": "node scripts/generate-e2e-spec.mjs",
     "prepare": "node ../scripts/setup-husky.mjs",
     "test:upgrade": "node scripts/test-upgrade-path.mjs",
+    "check:bundle-parity": "node scripts/check-bundle-parity.mjs",
     "prepack": "node scripts/prepack.mjs"
   },
   "dependencies": {

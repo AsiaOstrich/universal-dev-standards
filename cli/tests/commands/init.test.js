@@ -21,6 +21,17 @@ vi.mock('ora', () => ({
   }))
 }));
 
+// Bypass DEC-044 / XSPEC-071 self-adoption guard in unit tests — the
+// real guard inspects process.cwd() (the UDS source repo) and would
+// refuse the command under test.
+vi.mock('../../src/utils/detect-self-adoption.js', () => ({
+  detectSelfAdoption: vi.fn(() => false),
+  detectSelfAdoptionDetailed: vi.fn(() => ({ isSelfAdoption: false, signals: [] })),
+  guardAgainstSelfAdoption: vi.fn(() => true),
+  formatSelfAdoptionRefuseMessage: vi.fn(() => []),
+  formatSelfAdoptionForceWarning: vi.fn(() => [])
+}));
+
 vi.mock('../../src/utils/skills-installer.js', () => ({
   installSkillsToMultipleAgents: vi.fn(() => ({
     success: true,

@@ -1,0 +1,11 @@
+# UDS Source Repo Marker
+# This file signals to the UDS CLI that the current directory is the
+# Universal Development Standards source repository itself, not an
+# adopter project.
+#
+# Presence of this file causes `uds update`, `uds check`, and `uds init`
+# to refuse running (see DEC-044 / XSPEC-071). Use `scripts/bump-version.sh`
+# or `npm run docs:sync` for source-repo maintenance instead.
+#
+# Created: 2026-04-18
+# Related: DEC-044, XSPEC-071

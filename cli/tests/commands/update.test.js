@@ -42,6 +42,17 @@ vi.mock('../../src/utils/hasher.js', () => ({
   refreshIntegrationBlockHashes: vi.fn()
 }));
 
+// Bypass DEC-044 / XSPEC-071 self-adoption guard in unit tests — these
+// tests mock `fs.existsSync` to return true for everything, which would
+// otherwise trigger the real guard and refuse the command under test.
+vi.mock('../../src/utils/detect-self-adoption.js', () => ({
+  detectSelfAdoption: vi.fn(() => false),
+  detectSelfAdoptionDetailed: vi.fn(() => ({ isSelfAdoption: false, signals: [] })),
+  guardAgainstSelfAdoption: vi.fn(() => true),
+  formatSelfAdoptionRefuseMessage: vi.fn(() => []),
+  formatSelfAdoptionForceWarning: vi.fn(() => [])
+}));
+
 vi.mock('@inquirer/prompts', () => ({
   select: mockPrompt,
   checkbox: mockPrompt,

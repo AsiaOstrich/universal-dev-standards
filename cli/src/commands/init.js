@@ -22,6 +22,7 @@ import {
 } from '../utils/github.js';
 import { displayLanguageToLocale } from '../utils/locale.js';
 import { generateReleaseConfig, RELEASE_MODE_LABELS } from '../utils/release-config.js';
+import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 
 /**
  * Init command - initialize standards in current project
@@ -31,6 +32,11 @@ export async function initCommand(options) {
   const projectPath = process.cwd();
   let msg = t().commands.init;
   let common = t().commands.common;
+
+  // Refuse to run inside the UDS source repo itself.
+  // See DEC-044 / XSPEC-071 — UDS source repo already ships its standards;
+  // running `uds init` here is nonsensical. `--force` bypasses.
+  guardAgainstSelfAdoption('init', options, projectPath);
 
   console.log();
   console.log(chalk.bold(msg.title));
