@@ -349,6 +349,12 @@ npm install
 npm link
 ```
 
+### Type Checking | 型別檢查
+
+No `typecheck` script is provided — this CLI is pure ESM JavaScript (`.js` / `.mjs`), no TypeScript sources, and no `tsconfig.json`. Static analysis is handled by `npm run lint` (ESLint). Tracked under BUG-A04 (XSPEC-073).
+
+未提供 `typecheck` 腳本 —— 本 CLI 為純 ESM JavaScript（`.js` / `.mjs`），無 TypeScript 原始碼亦無 `tsconfig.json`。靜態分析由 `npm run lint`（ESLint）負責。追蹤於 BUG-A04（XSPEC-073）。
+
 ### Git Hooks | Git 鉤子
 
 Git hooks work through Git Bash, which is included with Git for Windows. No additional configuration needed.
