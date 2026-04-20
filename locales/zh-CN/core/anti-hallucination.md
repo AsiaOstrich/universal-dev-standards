@@ -1,8 +1,8 @@
 ---
 source: ../../../core/anti-hallucination.md
-source_version: 1.5.0
-translation_version: 1.5.0
-last_synced: 2026-02-10
+source_version: 1.5.1
+translation_version: 1.5.1
+last_synced: 2026-04-20
 status: current
 ---
 
@@ -742,6 +742,24 @@ Redis 是最佳选择。如果这是单实例应用程序且有
 
 ---
 
+## Agent 认识论校准（v1.4.0，XSPEC-008）
+
+Agent 必须使用 Answer / Ask / Abstain 框架声明其认识论状态：
+
+| 动作 | 使用时机 | 必填字段 |
+|------|---------|---------|
+| `answer` | 拥有足够信息 | 无（completeness/confidence 为选填）|
+| `ask` | 缺少关键信息 | `missing_variables` 列表 |
+| `abstain` | 真正超出能力范围 | `abstain_reason` |
+
+**Fail-closed Agent**（必须始终回答）：`evaluator`、`guardian`
+
+**向后兼容**：缺少 `epistemic` 字段时默认为 `action_type: "answer"`。
+
+参见：XSPEC-008、DEC-014（PassiveQA）
+
+---
+
 ## 相关标准
 
 - [测试标准](testing-standards.md) - 确保验证 AI 分析结果（或使用 `/testing-guide` 技能）
@@ -754,6 +772,7 @@ Redis 是最佳选择。如果这是单实例应用程序且有
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.5.1 | 2026-04-13 | 新增: Agent 认识论校准（Answer/Ask/Abstain）框架（XSPEC-008）|
 | 1.4.0 | 2026-01-19 | 新增: 副作用分析规则（第 7 条禁止行为）、工作流程步骤及检查清单项目 |
 | 1.3.1 | 2025-12-24 | 新增: 相关标准章节 |
 | 1.3.0 | 2025-12-22 | 增强: 禁止行为章节，新增详细对比范例 |
