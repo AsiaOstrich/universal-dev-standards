@@ -237,7 +237,7 @@ Directories excluded from version control will not be committed, so they should 
 | Category | Common Directories/Files | Reason |
 |----------|-------------------------|--------|
 | AI Collaboration Tools | `.claude/`, `.cursor/`, `.ai/` | Local development aids, not in version control |
-| Development Standards | `.standards/`, `docs/internal/` | Local standard docs, not in version control |
+| Development Standards | `.standards/` | Local standard docs, not in version control |
 | Build Outputs | `dist/`, `build/`, `out/` | Build artifacts, not in version control |
 | Large Data | `data/`, `datasets/` | Data files, not in version control |
 

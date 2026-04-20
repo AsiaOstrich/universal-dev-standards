@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **Docs centralization (DEC-047 Batch 2)**: Migrated UDS planning/governance docs to the AsiaOstrich dev-platform planning hub. These files are no longer distributed with UDS:
+  - `docs/AI-AGENT-ROADMAP.md` → dev-platform `cross-project/roadmap/uds-agent-roadmap.md`
+  - `docs/OPERATION-WORKFLOW.md` → dev-platform `cross-project/ops/uds-operation.md`
+  - `docs/internal/AGENT-PROTOCOL.md` → dev-platform `cross-project/ops/uds-agent-protocol.md`
+  - `docs/internal/AI-AGENT-SYNC-SOP.md` → dev-platform `cross-project/ops/uds-ai-agent-sync-sop.md`
+  - `docs/internal/INTEGRATION-SIMPLIFICATION-PROPOSAL.md` → dev-platform `cross-project/ops/uds-integration-simplification-proposal.md`
+  - Locale copies (`locales/zh-TW/docs/`, `locales/zh-CN/docs/`) of ROADMAP and OPERATION-WORKFLOW also removed.
+  - Internal references in `CLAUDE.md`, `MAINTENANCE.md`, `scripts/`, `docs/specs/system/`, `adoption/` updated.
+
 ## [5.1.1] - 2026-04-20
 
 > **Patch Release**: Windows CI fix, skill `name` field added to 53 SKILL.md files, three `.md` source standards updated with incident rules from BUG-A08 post-mortem, zh-TW/zh-CN translations synced.

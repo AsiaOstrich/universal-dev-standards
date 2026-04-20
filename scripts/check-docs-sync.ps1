@@ -191,10 +191,8 @@ Write-Host "Review these files if relevant changes were made:" -ForegroundColor 
 Write-Host ""
 
 $DocsToCheck = @(
-    @{ Path = "docs/AI-AGENT-ROADMAP.md"; Desc = "New features or AI agent support" }
     @{ Path = "docs/CLI-INIT-OPTIONS.md"; Desc = "CLI option changes (has automated check)" }
     @{ Path = "docs/archive/LOCALIZATION-ROADMAP.md"; Desc = "Translation or i18n changes" }
-    @{ Path = "docs/OPERATION-WORKFLOW.md"; Desc = "Workflow or process changes" }
     @{ Path = "docs/USAGE-MODES-COMPARISON.md"; Desc = "Usage mode changes" }
     @{ Path = "docs/WINDOWS-GUIDE.md"; Desc = "Windows-specific changes" }
     @{ Path = "STANDARDS-MAPPING.md"; Desc = "Standard mapping changes" }

@@ -1,14 +1,16 @@
 # Maintenance Guide
 
-> **This document has been merged into [OPERATION-WORKFLOW.md](docs/OPERATION-WORKFLOW.md).**
+> **Maintenance workflow has moved to the AsiaOstrich dev-platform planning hub.**
 >
-> As of v2.0.0, all maintenance workflows, file sync maps, and directory references are consolidated in a single document.
+> As of v2.0.0, all maintenance workflows were consolidated into `OPERATION-WORKFLOW.md`.
+> As of v5.1.1, that document was migrated to the internal planning hub (`cross-project/ops/uds-operation.md`) per DEC-047.
 >
-> **本文件已合併至 [OPERATION-WORKFLOW.md](docs/OPERATION-WORKFLOW.md)。**
+> **維護流程已遷至 AsiaOstrich dev-platform 規劃中心。**
 >
-> 自 v2.0.0 起，所有維護工作流程、檔案同步對照表及目錄參考已整合至單一文件。
+> 自 v2.0.0 起合併至 `OPERATION-WORKFLOW.md`；自 v5.1.1 起依 DEC-047 遷至內部規劃中心（`cross-project/ops/uds-operation.md`）。
 
-## Quick Links
+## Quick Reference
 
-- [Operation Workflow](docs/OPERATION-WORKFLOW.md) — Complete maintenance reference
-- [Archived version](docs/archive/MAINTENANCE-v1.md) — Original standalone guide (v1.1.0)
+For day-to-day maintenance, follow the verification steps in `CLAUDE.md` (§Post-Modification Verification).
+
+- [Archived v1.1.0](docs/archive/MAINTENANCE-v1.md) — Original standalone guide

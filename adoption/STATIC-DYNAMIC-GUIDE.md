@@ -273,7 +273,7 @@ If you currently have all rules in one file:
 - [CLAUDE.md Template](../templates/CLAUDE.md.template) - Ready-to-use static rules template
 - [Claude Code Skills](../skills/README.md) - Skill installation guide
 - [Adoption Guide](./ADOPTION-GUIDE.md) - Overall adoption strategy
-- [OPERATION-WORKFLOW.md](../docs/OPERATION-WORKFLOW.md) - How to add/update Skills (for maintainers)
+- Maintainer workflow guide — see internal planning hub (`cross-project/ops/uds-operation.md`)
 
 ---
 

@@ -92,7 +92,7 @@ So that I can ensure all components are properly integrated and synchronized.
   - Related standards (add to "Related Standards" sections)
   - `skills/commands/README.md` (if commands added)
   - `STANDARDS-MAPPING.md` (if standard mapping changes)
-  - `docs/OPERATION-WORKFLOW.md` (if workflow-related)
+  - Maintainer workflow docs (internal planning hub)
   - Standard's "Version History" section
 
 ### AC-6: CLI Integration
@@ -150,7 +150,7 @@ So that I can ensure all components are properly integrated and synchronized.
 │      ├── Update related standards' "Related Standards" sections             │
 │      ├── Update commands/README.md (if commands added)                      │
 │      ├── Update STANDARDS-MAPPING.md                                        │
-│      └── Update docs/OPERATION-WORKFLOW.md (if workflow-related)            │
+│      └── Update maintainer workflow docs (internal planning hub)             │
 │                                                                              │
 │  7️⃣  CLI INTEGRATION                                                        │
 │      ├── cli/standards-registry.json → standards[] array                    │
@@ -272,7 +272,7 @@ status: current
 4. **Phase 4: Documentation Integration**
    - Update related standards' "Related Standards" sections
    - Update `STANDARDS-MAPPING.md`
-   - Update `docs/OPERATION-WORKFLOW.md` (if applicable)
+   - Update maintainer workflow docs if applicable (internal planning hub)
 
 5. **Phase 5: CLI Integration**
    - Update `cli/standards-registry.json` → `standards[]`
@@ -304,7 +304,7 @@ status: current
 
 ### Integrates With
 - `cli/standards-registry.json` - Central registry
-- `docs/OPERATION-WORKFLOW.md` - Project workflow documentation
+- Maintainer workflow documentation (internal planning hub)
 - CI/CD pipeline - Pre-commit hooks run verification
 
 ---

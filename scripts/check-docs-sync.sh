@@ -188,10 +188,8 @@ echo ""
 
 # List of docs that may need updating
 DOCS_TO_CHECK=(
-    "docs/AI-AGENT-ROADMAP.md:New features or AI agent support"
     "docs/CLI-INIT-OPTIONS.md:CLI option changes (has automated check)"
     "docs/archive/LOCALIZATION-ROADMAP.md:Translation or i18n changes"
-    "docs/OPERATION-WORKFLOW.md:Workflow or process changes"
     "docs/USAGE-MODES-COMPARISON.md:Usage mode changes"
     "docs/WINDOWS-GUIDE.md:Windows-specific changes"
     "STANDARDS-MAPPING.md:Standard mapping changes"

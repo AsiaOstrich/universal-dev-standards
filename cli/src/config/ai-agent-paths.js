@@ -2,7 +2,6 @@
  * AI Agent Paths Configuration
  *
  * Centralized configuration for all supported AI coding assistants.
- * Based on docs/AI-AGENT-ROADMAP.md specifications.
  *
  * @version 1.0.0
  */

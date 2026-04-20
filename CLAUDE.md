@@ -591,15 +591,15 @@ Body MUST be bilingual: English first → blank line → Chinese second. NEVER m
 
 ## Post-Modification Verification / 修改後驗證
 
-**IMPORTANT**: After completing any of the following modifications, AI assistants MUST read and follow the verification steps in [docs/OPERATION-WORKFLOW.md](docs/OPERATION-WORKFLOW.md):
+**IMPORTANT**: After completing any of the following modifications, AI assistants MUST verify that all relevant files have been updated (see sections below for specifics). The full maintenance workflow is tracked internally in the AsiaOstrich dev-platform planning hub (`cross-project/ops/uds-operation.md`).
 
-| Modification Type | Reference Section |
-|-------------------|-------------------|
-| Add/modify core standard | §8.1 Adding a New Core Standard |
-| Add/modify skill | §8.2 Adding a New Skill |
-| Add/modify AI tool integration | §8.3 Adding a New AI Tool Integration |
-| Prepare release | §9 Release Process |
-| Any multi-file change | §7 Maintenance Workflow |
+| Modification Type | Key Checks |
+|-------------------|-----------|
+| Add/modify core standard | Update registry, translations, Related Standards sections |
+| Add/modify skill | Update skillFiles mapping, skill count tests |
+| Add/modify AI tool integration | Update ai-agent-paths.js, CLAUDE.md integrations list |
+| Prepare release | Run bump-version.sh, update CHANGELOG, verify sync scripts |
+| Any multi-file change | Run check-standards-sync.sh + check-translation-sync.sh |
 | Add/modify installation commands | Cross-Platform Command Sync (below) |
 
 ### Quick Verification (All Changes)
@@ -622,7 +622,7 @@ After ANY modification, run:
 cd cli && npm test && npm run lint
 ```
 
-> **AI Agent 同步檢查 SOP**: See [docs/internal/AI-AGENT-SYNC-SOP.md](docs/internal/AI-AGENT-SYNC-SOP.md) for the complete procedure.
+> **AI Agent 同步檢查 SOP**: AI Agent sync SOP is maintained internally in the dev-platform planning hub (`cross-project/ops/uds-ai-agent-sync-sop.md`).
 
 ### Core↔Skill Sync Rules (UDS-specific) / Core↔Skill 同步規則
 
@@ -760,7 +760,7 @@ All Core Standards and Skills are marked with a `scope` field indicating their u
 After modifying these UDS project files, verify cross-platform command sync:
 - Adoption guides (`adoption/`)
 - Skills installation instructions (`skills/*/README.md`)
-- Maintenance guides (`docs/OPERATION-WORKFLOW.md`, `ai/MAINTENANCE.md`)
+- Maintenance guides (`ai/MAINTENANCE.md`)
 - Checklists (`adoption/checklists/`)
 
 #### Files Requiring Sync / 需要同步的檔案

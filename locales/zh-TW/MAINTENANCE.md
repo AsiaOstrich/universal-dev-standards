@@ -1,12 +1,15 @@
 # 維護指南
 
-> **本文件已合併至 [OPERATION-WORKFLOW.md](../../docs/OPERATION-WORKFLOW.md)。**
+> **維護流程已遷至 AsiaOstrich dev-platform 規劃中心。**
 >
-> 自 v2.0.0 起，所有維護工作流程、檔案同步對照表及目錄參考已整合至單一文件。
+> 自 v2.0.0 起，所有維護工作流程整合至 `OPERATION-WORKFLOW.md`；自 v5.1.1 起依 DEC-047 遷至內部規劃中心（`cross-project/ops/uds-operation.md`）。
 >
-> **This document has been merged into [OPERATION-WORKFLOW.md](../../docs/OPERATION-WORKFLOW.md).**
+> **Maintenance workflow has moved to the AsiaOstrich dev-platform planning hub.**
+>
+> Merged into `OPERATION-WORKFLOW.md` in v2.0.0; migrated to internal planning hub in v5.1.1 per DEC-047.
 
-## 快速連結
+## 快速參考
 
-- [Operation Workflow](../../docs/OPERATION-WORKFLOW.md) — 完整維護參考文件
-- [歸檔版本](../../docs/archive/MAINTENANCE-v1.md) — 原始獨立指南 (v1.1.0)
+日常維護請遵循 `CLAUDE.md` 中的驗證步驟（§Post-Modification Verification）。
+
+- [歸檔版本 v1.1.0](../../docs/archive/MAINTENANCE-v1.md) — 原始獨立指南
