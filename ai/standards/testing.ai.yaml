@@ -113,6 +113,20 @@ standard:
       instruction: Use test doubles sparingly; prefer real implementations when fast enough
       priority: recommended
 
+    - id: e2e-precondition-scope
+      trigger: writing E2E globalSetup or environment pre-checks
+      instruction: >
+        E2E environment pre-checks must verify the health of ALL pages and endpoints
+        under test, not just the authentication entry point. A smoke check that only
+        validates the login page will silently pass even when feature pages return
+        HTTP 500. Maintain an explicit list of pages covered by the suite and verify
+        each returns a non-5xx response before running tests.
+      priority: recommended
+      evidence: >
+        Real incident (2026-04): E2E globalSetup only checked Login.aspx health;
+        feature page returned 500 silently — full E2E suite passed with false
+        confidence, masking a production crash.
+
 physical_spec:
   type: custom_script
   validator:

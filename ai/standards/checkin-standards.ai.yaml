@@ -147,6 +147,24 @@ standard:
       instruction: AI must NOT auto-execute git add/commit/push, wait for explicit user approval
       priority: required
 
+    - id: project-file-sync
+      trigger: adding a new source file to disk
+      instruction: >
+        For legacy project formats (e.g. .NET Framework .csproj, MSBuild), every
+        source file on disk must also be registered in the project manifest file.
+        Unregistered files are silently excluded from compilation without any error
+        or warning. Run a pre-build or pre-commit check comparing files on disk
+        against project manifest entries; fail fast on any unregistered file.
+      priority: required
+      applicability: legacy_project_formats
+      examples:
+        - ".NET Framework .csproj (ItemGroup/Compile Include)"
+        - "legacy MSBuild project files"
+      evidence: >
+        Real incident (2026-04): ADAccountManagerV2.aspx.cs added to disk but not
+        registered in MSPlatform.csproj — silently excluded from build, causing
+        production crash with "Cannot load type" error.
+
 physical_spec:
   type: custom_script
   validator:

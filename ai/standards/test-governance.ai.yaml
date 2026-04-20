@@ -146,3 +146,15 @@ standard:
         System tests should stub external dependencies but use real internal services.
         Use SIT environment for system-level validation.
       priority: recommended
+
+    - id: test-execution-continuity
+      trigger: adding or completing a test case
+      instruction: >
+        A test case must be wired to an automated execution trigger (CI gate, build
+        hook, or scheduled run). A test that exists but is never run provides false
+        confidence and is worse than no test at all. Verify that execution history
+        exists before marking test coverage as complete.
+      priority: required
+      evidence: >
+        BUG-A08 post-mortem (2026-04-20): 22 tests existed in UDS but were never
+        executed by any CI gate, passing silently and masking real failures.
