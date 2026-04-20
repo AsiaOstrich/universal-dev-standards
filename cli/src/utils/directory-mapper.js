@@ -9,7 +9,7 @@
  */
 
 import { readdirSync } from 'fs';
-import { join, relative } from 'path';
+import { join, relative, basename } from 'path';
 
 /**
  * Default mappings from standard IDs to directory glob patterns.
@@ -84,7 +84,7 @@ export function mapStandardsToDirectories(projectPath, customMappings = {}) {
     const matchedDirs = [];
 
     for (const dir of projectDirs) {
-      const dirName = dir.split('/').pop();
+      const dirName = basename(dir);
       if (patterns.includes(dirName)) {
         matchedDirs.push(dir);
       }

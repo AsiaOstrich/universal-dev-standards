@@ -1,4 +1,5 @@
 ---
+name: documentation-guide
 scope: universal
 description: |
   Guide documentation structure, content requirements, and project documentation best practices.

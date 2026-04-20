@@ -1,4 +1,5 @@
 ---
+name: error-code-guide
 scope: universal
 description: |
   Design consistent error codes following the PREFIX_CATEGORY_NUMBER format.

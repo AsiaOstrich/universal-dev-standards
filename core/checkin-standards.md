@@ -906,6 +906,25 @@ obj/
 node_modules/
 ```
 
+### Legacy Project File Sync (project-file-sync)
+
+> **Applicability**: .NET Framework, MSBuild `.csproj`, and any legacy format that requires explicit file registration.
+
+Legacy project formats (e.g. `.NET Framework .csproj`) do **not** auto-include source files on disk — every file must be explicitly listed in the project manifest. Unregistered files are **silently excluded from compilation** with no error or warning.
+
+**Risk**: You add a new `.cs`/`.aspx.cs` file, rebuild the DLL — the file is excluded. Tests pass (they're testing the old DLL). Production crashes with "Cannot load type".
+
+**Pre-commit check**:
+
+```bash
+# Find .cs files on disk not registered in .csproj
+comm -23 \
+  <(find . -name "*.cs" | sort) \
+  <(grep -oP '(?<=Include=")[^"]+\.cs' MyProject.csproj | sort)
+```
+
+**Rule**: If your project uses a legacy format, run a disk-vs-manifest comparison before every commit. Fail fast on any unregistered file.
+
 ---
 
 ## Common Violations and Solutions

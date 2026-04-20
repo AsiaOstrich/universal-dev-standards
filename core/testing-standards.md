@@ -231,6 +231,29 @@ This standard defines actionable testing rules and conventions for AI agents and
 e2e/[feature]/[scenario].[ext]
 ```
 
+#### E2E Precondition Scope (e2e-precondition-scope)
+
+E2E environment pre-checks (`globalSetup`, `beforeAll`) must verify the health of **all pages and endpoints under test**, not just the authentication entry point.
+
+**Anti-pattern** — login-only health check:
+```ts
+// ❌ Passes even when feature pages return 500
+await page.goto('/login');
+expect(response.status()).toBe(200);
+```
+
+**Required pattern** — explicit coverage list:
+```ts
+// ✅ Verify all pages covered by the suite
+const PAGES_UNDER_TEST = ['/login', '/dashboard', '/feature-x'];
+for (const path of PAGES_UNDER_TEST) {
+  const res = await fetch(`${BASE_URL}${path}`);
+  expect(res.status).toBeLessThan(500); // fail fast on 5xx
+}
+```
+
+> **Evidence**: Real incident — E2E `globalSetup` only checked `Login.aspx`; a feature page returned HTTP 500 silently. The full E2E suite passed with false confidence, masking a production crash.
+
 ---
 
 ## Test Doubles

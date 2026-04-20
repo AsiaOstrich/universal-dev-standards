@@ -121,6 +121,7 @@ Release completion criteria (checked before release):
 | enforce-completion-criteria | Completing a task or feature | Verify all required completion criteria are met before marking task/feature as done | Required |
 | pyramid-compliance | Planning test strategy | Follow the 70/20/7/3 pyramid ratio as a guideline. Deviation is acceptable with documented justification | Required |
 | sit-isolation | Running system tests | System tests should stub external dependencies but use real internal services. Use SIT environment for system-level validation | Recommended |
+| test-execution-continuity | Adding or completing a test case | A test case must be wired to an automated execution trigger (CI gate, build hook, or scheduled run). A test that exists but is never run provides false confidence and is worse than no test at all. Verify that execution history exists before marking test coverage as complete. | Required |
 
 ---
 

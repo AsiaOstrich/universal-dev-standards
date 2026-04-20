@@ -1,4 +1,5 @@
 ---
+name: ai-instruction-standards
 scope: partial
 description: |
   Create and maintain AI instruction files (CLAUDE.md, .cursorrules, etc.) with proper structure.

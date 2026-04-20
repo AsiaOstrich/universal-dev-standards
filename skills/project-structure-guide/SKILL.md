@@ -1,4 +1,5 @@
 ---
+name: project-structure-guide
 scope: universal
 description: |
   Guide for organizing project directories following language-specific best practices.

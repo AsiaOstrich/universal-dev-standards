@@ -1,4 +1,5 @@
 ---
+name: logging-guide
 scope: universal
 description: |
   Implement structured logging with proper log levels and sensitive data handling.

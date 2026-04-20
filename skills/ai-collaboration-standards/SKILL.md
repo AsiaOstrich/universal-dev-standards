@@ -1,4 +1,5 @@
 ---
+name: ai-collaboration-standards
 scope: universal
 description: |
   Prevent AI hallucination and ensure evidence-based responses when analyzing code or making suggestions.
