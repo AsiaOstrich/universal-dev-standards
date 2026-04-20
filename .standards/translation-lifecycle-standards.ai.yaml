@@ -1,0 +1,145 @@
+# Translation Lifecycle Standards - AI Optimized
+# Source: core/translation-lifecycle-standards.md
+
+id: translation-lifecycle-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-04-20"
+  status: trial
+  since: "2026-04-20"
+  expires: "2026-10-20"
+  source: core/translation-lifecycle-standards.md
+  description: >
+    MISSING vs OUTDATED distinction, semver-aware severity (PATCH/MINOR/MAJOR),
+    and automation integration for translation sync in multi-locale projects.
+  scope: universal
+  parent: documentation-lifecycle
+
+severity_levels:
+  MISSING:
+    condition: Translation file does not exist
+    exit_code: 1
+    label: "[MISSING]"
+    action: Create before release
+  MAJOR:
+    condition: source major version ahead of translation source_version major
+    exit_code: 1
+    label: "[MAJOR]"
+    action: Update before stable release (blocker)
+  MINOR:
+    condition: source minor version ahead (same major)
+    exit_code: 0
+    label: "[MINOR]"
+    action: Update before next release (advisory)
+  PATCH:
+    condition: source patch version ahead (same major.minor)
+    exit_code: 0
+    label: "[PATCH]"
+    action: Update when convenient (advisory)
+  CURRENT:
+    condition: source_version == current source version
+    exit_code: 0
+    label: "[CURRENT]"
+    action: None
+
+frontmatter_schema:
+  required:
+    - source          # relative path to source file
+    - source_version  # source version at last sync (semver)
+    - translation_version  # translation's own version
+    - last_synced     # YYYY-MM-DD
+    - status          # current | outdated | draft
+
+trigger_conditions:
+  - event: new_standard_added
+    action: Create translation in ALL supported locales
+    severity: MISSING (blocker if absent)
+  - event: standard_patch_bump
+    action: Update frontmatter source_version + last_synced
+    severity: PATCH (advisory)
+  - event: standard_minor_bump
+    action: Translate new content + update frontmatter
+    severity: MINOR (advisory, before next release)
+  - event: standard_major_bump
+    action: Full retranslation + update frontmatter
+    severity: MAJOR (blocker, before current release)
+
+automation:
+  pre_commit_hook:
+    file: .githooks/pre-commit
+    trigger: core/*.md files staged
+    behavior: warn on OUTDATED, never block commit
+    setup: ./scripts/install-hooks.sh
+  release_gate:
+    command: bash scripts/check-translation-sync.sh
+    exit_1_conditions: [MISSING, MAJOR]
+    exit_0_conditions: [MINOR, PATCH, CURRENT]
+  bump_version_integration:
+    command: runs check-translation-sync.sh after version files updated
+    purpose: immediate feedback on translation health at bump time
+
+rules:
+  - id: missing-is-blocker
+    trigger: running release gate check
+    instruction: >
+      Any translation file that does not exist is a release blocker.
+      The release gate must exit 1 if MISSING count > 0.
+    priority: required
+
+  - id: major-gap-is-blocker
+    trigger: running release gate check
+    instruction: >
+      If a translation's source_version MAJOR is behind the current source MAJOR,
+      the translation may be fundamentally incorrect. Exit 1.
+    priority: required
+
+  - id: minor-patch-advisory
+    trigger: running release gate check
+    instruction: >
+      MINOR and PATCH version gaps are advisory. Show warnings but exit 0.
+      Users can still read the translation; it is slightly stale, not wrong.
+    priority: required
+
+  - id: frontmatter-required
+    trigger: creating or updating a translation file
+    instruction: >
+      Every translation file MUST start with YAML frontmatter containing:
+      source, source_version, translation_version, last_synced, status.
+      Files without frontmatter are flagged as MISSING_FRONTMATTER.
+    priority: required
+
+  - id: update-on-source-change
+    trigger: modifying a source standard in core/
+    instruction: >
+      After modifying a core standard, check if translations need updating.
+      At minimum update frontmatter source_version + last_synced for PATCH changes.
+      For MINOR/MAJOR changes, update translated content too.
+    priority: recommended
+
+scenarios:
+  - id: new-standard
+    given: A new standard is added to core/ with no translations
+    when: check-translation-sync.sh runs
+    then: Reports [MISSING] for each locale; exits 1
+    error_code: TRANS-001
+
+  - id: patch-bump
+    given: Source goes from 1.0.0 to 1.0.1; translation source_version=1.0.0
+    when: check-translation-sync.sh runs
+    then: Reports [PATCH] advisory; exits 0
+
+  - id: major-gap
+    given: Source is at 2.0.0; translation source_version=1.5.0
+    when: check-translation-sync.sh runs
+    then: Reports [MAJOR] blocker; exits 1
+    error_code: TRANS-002
+
+integration_points:
+  - system: check-translation-sync.sh
+    role: primary automation; enforces severity levels
+  - system: .githooks/pre-commit
+    role: commit-time reminder when core/ files staged
+  - system: bump-version.sh
+    role: release-time advisory snapshot
+  - system: pre-release-check.sh
+    role: final gate before npm publish (calls check-translation-sync.sh)

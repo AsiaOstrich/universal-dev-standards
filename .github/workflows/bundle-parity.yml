@@ -1,18 +1,10 @@
 name: Bundle Parity Check
 
 # Enforces that the npm-bundled standards (cli/bundled/) stay in sync with
-# the source-of-truth .standards/ directory. See DEC-044 / XSPEC-071.
+# the source-of-truth .standards/ directory. See DEC-044 / XSPEC-071 / XSPEC-072.
 #
-# The check currently has known debt: as of 2026-04-18 seven source files
-# (anti-sycophancy-prompting, options/bilingual, five options/testing/*) are
-# not yet present in the bundle. That debt is tracked via
-# cli/scripts/bundle-exclude.json (initially empty so the CI surfaces the
-# gap) and is owner-gated — decisions on include-in-bundle vs.
-# remove-from-source are tracked in XSPEC-071 Req 2 Scenario 2-3.
-#
-# For now this job runs with `continue-on-error: true` so that the hotfix
-# merge is not blocked by pre-existing debt. Flip to hard-fail once the
-# seven files are triaged.
+# XSPEC-072 Phase 2 resolved all 57 bundle-source gaps (2026-04-20).
+# This job is now a hard-fail gate.
 
 on:
   pull_request:
@@ -41,9 +33,7 @@ jobs:
   parity:
     name: Bundle ⇄ Source Parity
     runs-on: ubuntu-latest
-    # Known debt on 2026-04-18 — flip to hard-fail once XSPEC-071 Req 2
-    # Scenario 2-3 is resolved.
-    continue-on-error: true
+    # Hard-fail since XSPEC-072 Phase 2 cleared all debt (2026-04-20).
     defaults:
       run:
         working-directory: cli
