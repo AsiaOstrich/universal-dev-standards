@@ -1,4 +1,5 @@
 ---
+name: changelog-guide
 source: ../../../../skills/changelog-guide/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0

@@ -1,4 +1,5 @@
 ---
+name: e2e-assistant
 source: ../../../../skills/e2e-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0

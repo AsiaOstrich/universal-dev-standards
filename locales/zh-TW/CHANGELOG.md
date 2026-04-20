@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.1.0
-translation_version: 5.1.0
+source_version: 5.1.1
+translation_version: 5.1.1
 last_synced: 2026-04-20
 status: current
 ---
@@ -16,6 +16,24 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.1.1] - 2026-04-20
+
+> **修補版本**：Windows CI 修正、53 個 SKILL.md 補 `name` 欄位、三份 `.md` 源文件依 BUG-A08 事後分析新增規則、zh-TW/zh-CN 翻譯同步。
+
+### 修正
+- **`cli/src/utils/directory-mapper.js`**：以 `path.basename(dir)` 取代 `dir.split('/').pop()`，修正 Windows CI 路徑分隔符相容性問題（修復 Windows CI runner 上 `directory-mapper.test.js` 測試失敗）。
+
+### 新增
+- **`name` 欄位** 補齊至 9 個源目錄 `skills/*/SKILL.md` 及 44 個 `locales/zh-TW/skills/*/SKILL.md`，符合 Skill 驗證工具需求。
+
+### 變更
+- **`core/test-governance.md`** 1.0.0 → 1.1.0：新增 `test-execution-continuity` 規則（BUG-A08 事後分析 — 22 個測試存在但未連接任何 CI 執行觸發器）。
+- **`core/checkin-standards.md`** 1.5.0 → 1.6.0：新增舊版專案檔案同步（`project-file-sync`）章節 — 磁碟上的每個源文件必須登錄於舊版專案 manifest 中。
+- **`core/testing-standards.md`** 3.1.0 → 3.2.0：新增 E2E 前置條件範圍（`e2e-precondition-scope`）章節 — E2E 前置檢查必須驗證所有受測頁面/端點，而非僅驗證認證入口。
+- **zh-TW 與 zh-CN 翻譯** 已同步 `test-governance.md`、`checkin-standards.md`、`testing-standards.md` 三份文件。
+
+[5.1.1]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.1.0...v5.1.1
 
 ## [5.1.0] - 2026-04-20
 

@@ -1,4 +1,5 @@
 ---
+name: code-review-assistant
 source: ../../../../skills/code-review-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0

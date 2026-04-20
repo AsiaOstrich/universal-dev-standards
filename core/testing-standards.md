@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/testing-standards.md)
 
-**Version**: 3.1.0
-**Last Updated**: 2026-03-24
+**Version**: 3.2.0
+**Last Updated**: 2026-04-20
 **Applicability**: All software projects
 **Scope**: universal
 **Industry Standards**: ISTQB CTFL v4.0, ISO/IEC/IEEE 29119

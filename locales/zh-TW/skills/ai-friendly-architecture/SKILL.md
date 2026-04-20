@@ -1,4 +1,5 @@
 ---
+name: ai-friendly-architecture
 source: ../../../../skills/ai-friendly-architecture/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0

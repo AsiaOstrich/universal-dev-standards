@@ -1,4 +1,5 @@
 ---
+name: project-discovery
 source: ../../../../skills/project-discovery/SKILL.md
 source_version: 1.1.0
 translation_version: 1.1.0

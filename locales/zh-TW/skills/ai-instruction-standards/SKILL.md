@@ -1,4 +1,5 @@
 ---
+name: ai-instruction-standards
 source: ../../../../skills/ai-instruction-standards/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0

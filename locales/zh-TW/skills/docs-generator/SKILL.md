@@ -1,4 +1,5 @@
 ---
+name: docs-generator
 source: ../../../../skills/docs-generator/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0

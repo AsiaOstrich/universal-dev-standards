@@ -1,4 +1,5 @@
 ---
+name: pr-automation-assistant
 source: ../../../../skills/pr-automation-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0

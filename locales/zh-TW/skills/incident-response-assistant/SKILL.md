@@ -1,4 +1,5 @@
 ---
+name: incident-response-assistant
 source: ../../../../skills/incident-response-assistant/SKILL.md
 source_version: 1.1.0
 translation_version: 1.1.0

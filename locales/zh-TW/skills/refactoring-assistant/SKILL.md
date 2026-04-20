@@ -1,4 +1,5 @@
 ---
+name: refactoring-assistant
 source: ../../../../skills/refactoring-assistant/SKILL.md
 source_version: 2.0.0
 translation_version: 2.0.0

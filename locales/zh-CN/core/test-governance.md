@@ -1,8 +1,8 @@
 ---
 source: ../../../core/test-governance.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-04-20
 status: current
 ---
 
@@ -100,6 +100,17 @@ status: current
 | **CI** | 自动化测试 | 测试夹具 |
 | **SIT** | 集成测试 | 模拟数据 |
 | **预发布** | E2E 和验收测试 | 脱敏生产数据 |
+
+---
+
+## 规则
+
+| ID | 触发条件 | 指令 | 优先级 |
+|----|---------|------|--------|
+| enforce-completion-criteria | 完成任务或功能时 | 在将任务/功能标记为完成之前，验证所有必要的完成条件已满足 | 必须 |
+| pyramid-compliance | 规划测试策略时 | 以 70/20/7/3 金字塔比例作为指导方针。允许偏差，但需有文档记录的理由 | 必须 |
+| sit-isolation | 运行系统测试时 | 系统测试应对外部依赖使用 Stub，但使用真实的内部服务。使用 SIT 环境进行系统级验证 | 建议 |
+| test-execution-continuity | 新增或完成测试用例时 | 测试用例必须连接到自动化执行触发器（CI gate、build hook 或定时执行）。存在但从未执行的测试提供假信心，比没有测试更糟。在将测试覆盖率标记为完成前，请确认执行历程存在。| 必须 |
 
 ---
 

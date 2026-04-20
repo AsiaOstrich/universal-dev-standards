@@ -1,4 +1,5 @@
 ---
+name: spec-driven-dev
 source: ../../../../skills/spec-driven-dev/SKILL.md
 source_version: 1.2.0
 translation_version: 1.2.0

@@ -1,4 +1,5 @@
 ---
+name: project-structure-guide
 source: ../../../../skills/project-structure-guide/SKILL.md
 source_version: 1.1.0
 translation_version: 1.1.0

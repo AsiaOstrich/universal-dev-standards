@@ -1,8 +1,8 @@
 ---
 source: ../../../core/test-governance.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-04-20
 status: current
 ---
 
@@ -80,6 +80,17 @@ status: current
 | CI | 自動化測試 | CI/CD 管線 |
 | Staging | 整合和 E2E 測試 | DevOps |
 | Production | 煙霧測試和監控 | SRE |
+
+## 規則
+
+| ID | 觸發時機 | 指令 | 優先度 |
+|----|---------|------|--------|
+| enforce-completion-criteria | 完成任務或功能時 | 在將任務/功能標記為完成前，驗證所有必要的完成準則已達成 | 必須 |
+| pyramid-compliance | 規劃測試策略時 | 以 70/20/7/3 金字塔比例為指引。可接受偏差，但需有文件記錄的正當理由 | 必須 |
+| sit-isolation | 執行系統測試時 | 系統測試應對外部相依性使用 Stub，但使用真實的內部服務。使用 SIT 環境進行系統層級的驗證 | 建議 |
+| test-execution-continuity | 新增或完成測試案例時 | 測試案例必須連接到自動化執行觸發器（CI gate、build hook 或排程執行）。存在但從未執行的測試提供假信心，比沒有測試更糟。在將測試覆蓋率標記為完成前，請確認執行歷程存在。| 必須 |
+
+---
 
 ## 相關標準
 

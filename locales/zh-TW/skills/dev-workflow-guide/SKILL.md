@@ -1,4 +1,5 @@
 ---
+name: dev-workflow-guide
 source: ../../../../skills/dev-workflow-guide/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0

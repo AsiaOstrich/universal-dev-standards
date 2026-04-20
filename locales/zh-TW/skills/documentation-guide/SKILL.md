@@ -1,4 +1,5 @@
 ---
+name: documentation-guide
 source: ../../../../skills/documentation-guide/SKILL.md
 source_version: 2.1.0
 translation_version: 2.1.0

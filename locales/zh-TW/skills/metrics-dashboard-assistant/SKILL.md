@@ -1,4 +1,5 @@
 ---
+name: metrics-dashboard-assistant
 source: ../../../../skills/metrics-dashboard-assistant/SKILL.md
 source_version: 1.1.0
 translation_version: 1.1.0

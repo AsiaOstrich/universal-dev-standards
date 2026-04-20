@@ -1,8 +1,8 @@
 ---
 source: ../../../core/testing-standards.md
-source_version: 3.1.0
-translation_version: 3.1.0
-last_synced: 2026-03-25
+source_version: 3.2.0
+translation_version: 3.2.0
+last_synced: 2026-04-20
 status: current
 ---
 
@@ -238,6 +238,29 @@ status: current
 [Feature].e2e.spec.[ext]
 e2e/[feature]/[scenario].[ext]
 ```
+
+#### E2E 前置条件范围（e2e-precondition-scope）
+
+E2E 环境前置检查（`globalSetup`、`beforeAll`）必须验证**所有受测页面与端点**的健康状态，而非仅验证认证入口点。
+
+**反模式** — 只验 login：
+```ts
+// ❌ 即使功能页返回 500 也会通过
+await page.goto('/login');
+expect(response.status()).toBe(200);
+```
+
+**正确模式** — 明确的覆盖列表：
+```ts
+// ✅ 验证套件涵盖的所有页面
+const PAGES_UNDER_TEST = ['/login', '/dashboard', '/feature-x'];
+for (const path of PAGES_UNDER_TEST) {
+  const res = await fetch(`${BASE_URL}${path}`);
+  expect(res.status).toBeLessThan(500); // 遇到 5xx 立即失败
+}
+```
+
+> **证据**：真实事故 — E2E `globalSetup` 只验了 `Login.aspx`；功能页静默返回 HTTP 500。整个 E2E 套件通过，提供假信心，直到正式环境崩溃才被发现。
 
 ---
 

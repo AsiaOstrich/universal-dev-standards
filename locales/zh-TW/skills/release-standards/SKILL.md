@@ -1,4 +1,5 @@
 ---
+name: release-standards
 source: ../../../../skills/release-standards/SKILL.md
 source_version: 1.1.0
 translation_version: 1.1.0

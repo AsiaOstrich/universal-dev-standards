@@ -1,4 +1,5 @@
 ---
+name: checkin-assistant
 source: ../../../../skills/checkin-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0

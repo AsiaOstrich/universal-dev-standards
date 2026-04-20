@@ -1,4 +1,5 @@
 ---
+name: requirement-assistant
 source: ../../../../skills/requirement-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0

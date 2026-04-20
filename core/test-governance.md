@@ -2,6 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/test-governance.md)
 
+**Version**: 1.1.0
+**Last Updated**: 2026-04-20
 **Applicability**: All software projects
 **Scope**: universal
 

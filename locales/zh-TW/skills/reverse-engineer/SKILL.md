@@ -1,4 +1,5 @@
 ---
+name: reverse-engineer
 source: ../../../../skills/reverse-engineer/SKILL.md
 source_version: 1.2.0
 translation_version: 1.2.0

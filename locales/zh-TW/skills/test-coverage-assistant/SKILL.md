@@ -1,4 +1,5 @@
 ---
+name: test-coverage-assistant
 source: ../../../../skills/test-coverage-assistant/SKILL.md
 source_version: 1.1.0
 translation_version: 1.1.0

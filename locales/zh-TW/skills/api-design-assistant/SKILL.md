@@ -1,4 +1,5 @@
 ---
+name: api-design-assistant
 source: ../../../../skills/api-design-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0

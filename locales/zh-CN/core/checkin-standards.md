@@ -1,8 +1,8 @@
 ---
 source: ../../../core/checkin-standards.md
-source_version: 1.5.0
-translation_version: 1.5.0
-last_synced: 2026-03-18
+source_version: 1.6.0
+translation_version: 1.6.0
+last_synced: 2026-04-20
 status: current
 ---
 
@@ -910,6 +910,25 @@ bin/
 obj/
 node_modules/
 ```
+
+### 旧版项目文件同步（project-file-sync）
+
+> **适用范围**：.NET Framework、MSBuild `.csproj` 及任何需要显式登记文件的旧版格式。
+
+旧版项目格式（如 `.NET Framework .csproj`）不会自动包含磁盘上的源码文件——每个文件都必须在项目 manifest 中显式列出。未登记的文件在**编译时被静默排除，不会产生任何错误或警告**。
+
+**风险**：新增 `.cs`/`.aspx.cs` 文件后重建 DLL，该文件被排除。测试通过（测试的是旧 DLL），正式环境崩溃并显示"无法加载类型"。
+
+**预提交检查**：
+
+```bash
+# 找出磁盘上未登记于 .csproj 的 .cs 文件
+comm -23 \
+  <(find . -name "*.cs" | sort) \
+  <(grep -oP '(?<=Include=")[^"]+\.cs' MyProject.csproj | sort)
+```
+
+**规则**：若项目使用旧版格式，每次提交前执行磁盘与 manifest 的比对。发现未登记文件时立即失败。
 
 ---
 

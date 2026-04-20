@@ -1,4 +1,5 @@
 ---
+name: ai-collaboration-standards
 source: ../../../../skills/ai-collaboration-standards/SKILL.md
 source_version: 1.1.0
 translation_version: 1.1.0

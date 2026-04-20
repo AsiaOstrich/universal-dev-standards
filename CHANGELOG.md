@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.1.1] - 2026-04-20
+
+> **Patch Release**: Windows CI fix, skill `name` field added to 53 SKILL.md files, three `.md` source standards updated with incident rules from BUG-A08 post-mortem, zh-TW/zh-CN translations synced.
+
+### Fixed
+- **`cli/src/utils/directory-mapper.js`**: Replace `dir.split('/').pop()` with `path.basename(dir)` for Windows cross-platform compatibility — fixes `directory-mapper.test.js` failures on Windows CI runners.
+
+### Added
+- **`name` field** added to 9 source `skills/*/SKILL.md` files and 44 `locales/zh-TW/skills/*/SKILL.md` files — required by skill validation tooling.
+
+### Changed
+- **`core/test-governance.md`** 1.0.0 → 1.1.0: added `test-execution-continuity` rule (BUG-A08 post-mortem — 22 tests existed but were never wired to CI execution triggers).
+- **`core/checkin-standards.md`** 1.5.0 → 1.6.0: added Legacy Project File Sync (`project-file-sync`) section — every source file on disk must be registered in legacy project manifest files.
+- **`core/testing-standards.md`** 3.1.0 → 3.2.0: added E2E Precondition Scope (`e2e-precondition-scope`) section — E2E pre-checks must verify all pages/endpoints under test, not just the auth entry point.
+- **zh-TW and zh-CN translations** synced for `test-governance.md`, `checkin-standards.md`, and `testing-standards.md`.
+
+[5.1.1]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.1.0...v5.1.1
+
 ## [5.1.0] - 2026-04-20
 
 > **Stable Release**: BUG-A06 i18n completeness — 32 missing translations added, semver-aware translation gate, new `translation-lifecycle-standards` UDS standard. BUG-A07 shell test coverage — bats smoke tests for 20+ scripts. BUG-A08 fake-pass test audit — 22 tests corrected. Pre-release Batch 0: 6 standards promoted from Trial to Adopt (DEC-021/025/031/035/038/040). Total standards: 106.
