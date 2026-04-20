@@ -1,3 +1,11 @@
+---
+source: ../../../core/anti-sycophancy-prompting.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-20
+status: current
+---
+
 # 防迎合提示詞設計標準
 
 > **語言**: [English](../../../core/anti-sycophancy-prompting.md) | 繁體中文

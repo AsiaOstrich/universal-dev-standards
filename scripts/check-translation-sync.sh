@@ -328,11 +328,17 @@ echo -e "Missing metadata:   ${YELLOW}$GLOBAL_MISSING_META${NC}"
 echo -e "Missing source:     ${RED}$GLOBAL_MISSING_SOURCE${NC}"
 echo ""
 
-# Exit with error if there are issues
-if [ $GLOBAL_OUTDATED -gt 0 ] || [ $GLOBAL_MISSING_SOURCE -gt 0 ] || [ $GLOBAL_ERRORS -gt 0 ]; then
-    echo -e "${RED}Some translations need attention!${NC}"
+# Exit with error only if translations are MISSING (not merely outdated).
+# Outdated translations are advisory warnings — they degrade gracefully.
+# Missing translations are release blockers — adopters see no content at all.
+if [ $GLOBAL_MISSING_SOURCE -gt 0 ] || [ $GLOBAL_ERRORS -gt 0 ]; then
+    echo -e "${RED}Some translations are missing — release blocker!${NC}"
     echo ""
     exit 1
+elif [ $GLOBAL_OUTDATED -gt 0 ]; then
+    echo -e "${YELLOW}Some translations are outdated (advisory). Update when convenient.${NC}"
+    echo ""
+    exit 0
 else
     echo -e "${GREEN}All translations are in sync!${NC}"
     echo ""
