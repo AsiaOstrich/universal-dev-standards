@@ -1,0 +1,200 @@
+# Recovery Recipe Registry Standard - AI Optimized
+# Source: XSPEC-046 (claw-code ROADMAP Phase 3 Recovery Recipes, DEC-035)
+
+standard:
+  id: recovery-recipe-registry
+  name: Recovery Recipe Registry Standard
+  description: 恢復食譜註冊表 — 將分散的恢復邏輯統一為 YAML 可配置的 Recipe，以 failureSource 為匹配鍵
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-04-16"
+    source: XSPEC-046
+    description: >
+      各模組（Fix Loop、Circuit Breaker、Guardian 自動修復、Staging 重試）的恢復邏輯
+      統一為可外部化的 Recovery Recipe 格式。每個 Recipe 透過 failureSource（XSPEC-045）
+      匹配觸發條件，選擇對應的恢復策略，並定義升級路徑（escalation）。
+      無匹配 Recipe 時 fallback 到現有行為（向後相容）。
+    scope: universal
+    borrowed_from: "ultraworkers/claw-code ROADMAP Phase 3 Recovery Recipes (adapted to YAML format)"
+    depends_on: "failure-source-taxonomy.ai.yaml (XSPEC-045)"
+
+  guidelines:
+    - "每個 Recovery Recipe 必須有唯一 ID（RR-NNN 格式）"
+    - "match.failure_source 必須是 failure-source-taxonomy 中定義的 8 類之一"
+    - "escalation.on_exhaust 必須定義，不得無限循環（如 escalation 指向自身）"
+    - "無匹配 Recipe 時，系統必須 fallback 到現有預設行為（不得拋出錯誤）"
+    - "使用者自訂 Recipe 優先於內建 Recipe（同 failureSource 時，使用者配置的先匹配）"
+    - "Recipe config 格式錯誤時 fallback 到策略預設值（不中斷執行）"
+
+  strategies:
+    fix_loop:
+      description: "注入結構化錯誤回饋，重試任務（現有 Fix Loop）"
+      config:
+        max_attempts:
+          type: number
+          default: 3
+        budget_usd:
+          type: number
+          default: 0.50
+      best_for: [compilation, test_failure]
+
+    circuit_breaker:
+      description: "三態斷路器保護（XSPEC-036），連續失敗後開路避免雪崩"
+      config:
+        failure_threshold:
+          type: number
+          default: 3
+        cooldown_ms:
+          type: number
+          default: 30000
+      best_for: [tool_failure, prompt_delivery]
+
+    rebase_and_retry:
+      description: "先執行 git rebase 同步基底分支，再重試任務/迭代"
+      config:
+        max_attempts:
+          type: number
+          default: 1
+        base_branch:
+          type: string
+          default: "main"
+      best_for: [branch_divergence]
+      requires: "XSPEC-047 Branch Drift Detection"
+
+    model_switch:
+      description: "切換至備用模型後重試"
+      config:
+        fallback_models:
+          type: "string[]"
+          description: "按優先順序的備用模型列表"
+        max_attempts:
+          type: number
+          default: 2
+      best_for: [model_degradation, prompt_delivery]
+
+    degraded_mode:
+      description: "以降級模式繼續執行（如：跳過品質驗證、以部分結果繼續）"
+      config: {}
+      result_status: "done_with_concerns"
+      best_for: [resource_exhaustion, model_degradation]
+
+    human_checkpoint:
+      description: "暫停執行，等待人工介入（提供失敗細節供判斷）"
+      config:
+        message:
+          type: string
+          description: "通知使用者的訊息"
+      best_for: [policy_violation, branch_divergence]
+      note: "所有其他策略的最終升級路徑"
+
+  recipe_schema:
+    description: "Recovery Recipe YAML 格式定義"
+    fields:
+      id:
+        type: string
+        pattern: "RR-[0-9]+"
+        required: true
+      name:
+        type: string
+        required: true
+      match:
+        required: true
+        fields:
+          failure_source:
+            type: FailureSource
+            required: true
+          severity:
+            type: "string[]"
+            values: [critical, high, medium, low]
+            description: "空或省略表示匹配所有 severity"
+      strategy:
+        type: RecoveryStrategy
+        required: true
+      config:
+        type: object
+        description: "策略特定配置，覆蓋策略預設值"
+      escalation:
+        required: true
+        fields:
+          on_exhaust:
+            type: RecoveryStrategy
+            required: true
+            description: "嘗試耗盡後的下一步策略（不得指向自身）"
+          message:
+            type: string
+            description: "升級時的通知訊息"
+
+  default_recipes:
+    description: "安裝時隨附的 5 個預設 Recipe"
+    recipes:
+      - id: RR-001
+        name: "Fix Loop for Compilation Errors"
+        match: { failure_source: compilation }
+        strategy: fix_loop
+        config: { max_attempts: 3, budget_usd: 0.50 }
+        escalation: { on_exhaust: human_checkpoint }
+
+      - id: RR-002
+        name: "Fix Loop for Test Failures"
+        match: { failure_source: test_failure }
+        strategy: fix_loop
+        config: { max_attempts: 3, budget_usd: 0.50 }
+        escalation: { on_exhaust: human_checkpoint }
+
+      - id: RR-003
+        name: "Model Switch for Degradation"
+        match: { failure_source: model_degradation }
+        strategy: model_switch
+        config: { max_attempts: 2 }
+        escalation: { on_exhaust: degraded_mode }
+
+      - id: RR-004
+        name: "Rebase for Branch Divergence"
+        match: { failure_source: branch_divergence }
+        strategy: rebase_and_retry
+        config: { max_attempts: 1 }
+        escalation: { on_exhaust: human_checkpoint, message: "Rebase 衝突，需人工解決" }
+
+      - id: RR-005
+        name: "Degraded Mode for Resource Exhaustion"
+        match: { failure_source: resource_exhaustion }
+        strategy: degraded_mode
+        escalation: { on_exhaust: human_checkpoint }
+
+  types:
+    RecoveryStrategy:
+      description: "6 個內建恢復策略"
+      values:
+        - fix_loop
+        - circuit_breaker
+        - rebase_and_retry
+        - model_switch
+        - degraded_mode
+        - human_checkpoint
+
+    RecoveryRecipe:
+      description: "恢復食譜定義"
+      fields:
+        id: "string  # RR-NNN 格式"
+        name: string
+        match:
+          failure_source: FailureSource
+          severity: "string[] (optional)"
+        strategy: RecoveryStrategy
+        config: "object (optional)"
+        escalation:
+          on_exhaust: RecoveryStrategy
+          message: "string (optional)"
+
+  integration_points:
+    devap:
+      files:
+        - "packages/core/src/types.ts — RecoveryRecipe / RecoveryStrategy type"
+        - "packages/core/src/recovery-registry.ts — Registry 實作與預設 recipe"
+        - "packages/core/src/orchestrator.ts — fix loop 前查詢 Registry"
+    vibeops:
+      files:
+        - "src/types/index.ts — 獨立定義 RecoveryRecipe（AGPL 隔離）"
+        - "src/runner/recovery-registry.ts — 獨立實作"
+        - "recovery-recipes.yaml — 預設 recipe 配置"

@@ -1,0 +1,96 @@
+# Auto-Generated Changelog - AI Optimized Option
+# Parent: changelog
+
+id: auto-generated
+meta:
+  parent: changelog
+  version: "1.0.0"
+  description: Changelog generated from commit history
+
+best_for:
+  - Projects using Conventional Commits
+  - CI/CD automated releases
+  - Frequent release cycles
+  - Teams preferring automation over manual editing
+
+tools:
+  - name: conventional-changelog
+    platform: Node.js
+    command: npx conventional-changelog -p angular -i CHANGELOG.md -s
+    config: .changelogrc
+
+  - name: semantic-release
+    platform: Node.js
+    command: npx semantic-release
+    config: .releaserc
+
+  - name: git-cliff
+    platform: Rust
+    command: git cliff -o CHANGELOG.md
+    config: cliff.toml
+
+  - name: release-please
+    platform: GitHub Action
+    description: Google's release automation
+
+prerequisites:
+  - Conventional Commits format
+  - Consistent commit message structure
+  - CI/CD pipeline integration
+
+commit_to_changelog_mapping:
+  columns: [Commit Type, Changelog Section]
+  rows:
+    - [feat, Added]
+    - [fix, Fixed]
+    - [perf, Changed]
+    - [refactor, Changed]
+    - [docs, Documentation]
+    - [chore, Maintenance]
+    - ["BREAKING CHANGE", Breaking Changes]
+
+rules:
+  - id: conventional-commits
+    trigger: writing commit message
+    instruction: Use Conventional Commits format for proper changelog generation
+    priority: required
+
+  - id: scope-for-grouping
+    trigger: writing commit message
+    instruction: Use scope to group related changes
+    priority: recommended
+
+  - id: breaking-change-footer
+    trigger: introducing breaking change
+    instruction: Add "BREAKING CHANGE:" footer in commit body
+    priority: required
+
+example_config:
+  conventional_changelog: |
+    // .changelogrc
+    {
+      "preset": "angular",
+      "releaseCount": 0
+    }
+
+  git_cliff: |
+    # cliff.toml
+    [changelog]
+    header = "# Changelog\n\n"
+    body = """
+    {% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | upper_first }}
+    {% for commit in commits %}
+    - {{ commit.message | upper_first }}
+    {%- endfor %}
+    {% endfor %}
+    """
+
+comparison_with_manual:
+  columns: [Aspect, Auto-Generated, Manual (Keep a Changelog)]
+  rows:
+    - [Effort, Low (automated), High (manual writing)]
+    - [Consistency, High (template-based), Varies (human written)]
+    - [Detail Level, Commit-level, Feature-level (curated)]
+    - [Prerequisites, Conventional Commits, None]
+    - [Best For, Frequent releases, Milestone releases]

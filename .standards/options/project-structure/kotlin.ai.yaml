@@ -1,0 +1,123 @@
+# Kotlin Project Structure - AI Optimized Option
+# Parent: project-structure
+
+id: kotlin
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Kotlin project conventions
+
+structure:
+  gradle: |
+    project-root/
+    ├── src/
+    │   ├── main/
+    │   │   ├── kotlin/
+    │   │   │   └── com/example/app/
+    │   │   │       ├── Application.kt
+    │   │   │       ├── config/
+    │   │   │       ├── controller/
+    │   │   │       ├── service/
+    │   │   │       ├── repository/
+    │   │   │       └── model/
+    │   │   └── resources/
+    │   │       └── application.yml
+    │   └── test/
+    │       ├── kotlin/
+    │       │   └── com/example/app/
+    │       └── resources/
+    ├── build.gradle.kts      # Gradle Kotlin DSL
+    ├── settings.gradle.kts
+    ├── gradle.properties
+    └── gradlew
+
+  android: |
+    project-root/
+    ├── app/
+    │   ├── src/
+    │   │   ├── main/
+    │   │   │   ├── kotlin/
+    │   │   │   ├── res/
+    │   │   │   └── AndroidManifest.xml
+    │   │   ├── test/
+    │   │   └── androidTest/
+    │   └── build.gradle.kts
+    ├── build.gradle.kts
+    ├── settings.gradle.kts
+    └── gradle.properties
+
+  multiplatform: |
+    project-root/
+    ├── shared/
+    │   ├── src/
+    │   │   ├── commonMain/kotlin/
+    │   │   ├── commonTest/kotlin/
+    │   │   ├── androidMain/kotlin/
+    │   │   ├── iosMain/kotlin/
+    │   │   └── jvmMain/kotlin/
+    │   └── build.gradle.kts
+    ├── androidApp/
+    ├── iosApp/
+    └── build.gradle.kts
+
+config_files:
+  - file: build.gradle.kts
+    purpose: Build configuration (Kotlin DSL)
+    required: true
+    alternative: build.gradle (Groovy)
+
+  - file: settings.gradle.kts
+    purpose: Project settings
+    required: true
+
+  - file: gradle.properties
+    purpose: Gradle properties
+    required: false
+
+  - file: gradle/libs.versions.toml
+    purpose: Version catalog
+    required: false
+    note: Recommended for dependency management
+
+gitignore:
+  - build/
+  - .gradle/
+  - "*.iml"
+  - .idea/
+  - local.properties
+  - "*.apk"
+  - "*.aab"
+
+rules:
+  - id: kotlin-dsl
+    trigger: creating build files
+    instruction: Prefer build.gradle.kts (Kotlin DSL) over Groovy
+    priority: recommended
+
+  - id: package-structure
+    trigger: organizing code
+    instruction: Follow reverse domain package naming (com.example.app)
+    priority: required
+
+  - id: test-location
+    trigger: placing tests
+    instruction: Mirror main source structure in test directory
+    priority: required
+
+  - id: version-catalog
+    trigger: managing dependencies
+    instruction: Use version catalogs (libs.versions.toml) for dependencies
+    priority: recommended
+
+  - id: coroutines-testing
+    trigger: testing coroutines
+    instruction: Use kotlinx-coroutines-test for testing suspend functions
+    priority: recommended
+
+tools:
+  build: [Gradle, Gradle Kotlin DSL]
+  test_runner: [JUnit5, Kotest, MockK]
+  linter: [Detekt, ktlint]
+  formatter: [ktlint, IntelliJ IDEA]
+  package_manager: [Gradle, Maven]
+  documentation: [Dokka]

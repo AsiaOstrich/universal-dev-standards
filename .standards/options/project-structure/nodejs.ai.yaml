@@ -1,0 +1,81 @@
+# Node.js/TypeScript Project Structure - AI Optimized Option
+# Parent: project-structure
+
+id: nodejs
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Node.js and TypeScript project conventions
+
+structure:
+  standard: |
+    project-root/
+    ├── src/
+    │   ├── index.ts          # Entry point
+    │   ├── app.ts            # Application setup
+    │   ├── controllers/      # Route handlers
+    │   ├── services/         # Business logic
+    │   ├── models/           # Data models
+    │   ├── middleware/       # Express middleware
+    │   ├── utils/            # Utility functions
+    │   └── types/            # TypeScript types
+    ├── tests/
+    │   ├── unit/
+    │   ├── integration/
+    │   └── e2e/
+    ├── dist/                 # Compiled output (gitignored)
+    ├── node_modules/         # Dependencies (gitignored)
+    ├── package.json
+    ├── tsconfig.json
+    └── .env                  # Environment vars (gitignored)
+
+config_files:
+  - file: package.json
+    purpose: Dependencies and scripts
+    required: true
+
+  - file: tsconfig.json
+    purpose: TypeScript configuration
+    required: "if using TypeScript"
+
+  - file: .eslintrc.json
+    purpose: Linting rules
+
+  - file: .prettierrc
+    purpose: Code formatting
+
+  - file: jest.config.js
+    purpose: Test configuration
+
+gitignore:
+  - node_modules/
+  - dist/
+  - build/
+  - "*.log"
+  - ".env*"
+  - "!.env.example"
+  - coverage/
+  - ".nyc_output/"
+
+rules:
+  - id: src-entry
+    trigger: creating Node.js project
+    instruction: Use src/index.ts as entry point
+    priority: recommended
+
+  - id: tests-structure
+    trigger: organizing tests
+    instruction: Mirror src/ structure in tests/ directory
+    priority: recommended
+
+  - id: env-example
+    trigger: using environment variables
+    instruction: Commit .env.example with all required variables
+    priority: required
+
+tools:
+  package_manager: [npm, yarn, pnpm]
+  bundler: [esbuild, webpack, rollup, vite]
+  test_runner: [jest, vitest, mocha]
+  linter: [eslint]
+  formatter: [prettier]

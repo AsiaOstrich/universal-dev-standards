@@ -1,0 +1,51 @@
+# Merge Commit Strategy - AI Optimized Option
+# Parent: git-workflow
+
+id: merge-commit
+meta:
+  parent: git-workflow
+  version: "1.0.0"
+  description: Preserves complete branch history
+
+best_for:
+  - long-lived feature branches
+  - audit requirements
+  - complex features with many commits
+  - GitFlow workflow
+
+command: git merge --no-ff
+
+pros:
+  - complete history preserved
+  - easy to revert entire feature
+  - clear merge boundaries
+
+cons:
+  - cluttered git log
+  - complex commit graph
+
+rules:
+  - id: use-no-ff
+    trigger: merging feature branch
+    instruction: Use --no-ff flag to create merge commit
+    priority: required
+
+  - id: meaningful-merge-message
+    trigger: creating merge commit
+    instruction: Write descriptive merge commit message
+    priority: recommended
+
+examples:
+  command: |
+    git checkout main
+    git merge --no-ff feature/user-auth
+    # Creates merge commit preserving branch history
+
+  log_output: |
+    *   Merge branch 'feature/user-auth'
+    |\
+    | * feat(auth): add password reset
+    | * feat(auth): add login form
+    | * feat(auth): add user model
+    |/
+    * previous commit on main

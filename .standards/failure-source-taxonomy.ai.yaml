@@ -1,0 +1,115 @@
+# Failure Source Taxonomy Standard - AI Optimized
+# Source: XSPEC-045 (claw-code ROADMAP Phase 2 Failure Taxonomy, DEC-035)
+
+standard:
+  id: failure-source-taxonomy
+  name: Failure Source Taxonomy Standard
+  description: 失敗來源分類法 — 在 TaskStatus（what）之上新增 failureSource（why）維度，8 類結構化失敗來源
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-04-16"
+    source: XSPEC-045
+    description: >
+      現有的 TaskStatus 只回答「發生了什麼」（what），failureSource 補充「為什麼失敗」（why）。
+      結構化的失敗來源使下游恢復機制（Recovery Recipe Registry, XSPEC-046）能精準匹配策略，
+      避免用同一套重試邏輯處理本質不同的失敗類型。
+    scope: universal
+    borrowed_from: "ultraworkers/claw-code ROADMAP Phase 2 Failure Taxonomy (adapted for LLM Agent context)"
+
+  guidelines:
+    - "所有失敗結果應攜帶 failureSource，使恢復策略可精準匹配"
+    - "failureSource 為 optional 欄位，不得破壞現有不含此欄位的程式碼"
+    - "在同一失敗事件中，選擇最根本的來源作為 failureSource（例如 branch_divergence 比 compilation 更根本）"
+    - "failureSource 應由偵測到失敗的元件設定（QualityGate / Adapter / SafetyHook / BranchDriftChecker）"
+    - "跨專案（DevAP / VibeOps）各自獨立定義 FailureSource type，語義保持一致"
+
+  failure_sources:
+    prompt_delivery:
+      description: "Prompt 未正確傳遞給 LLM（API 4xx、空回應、格式解析失敗）"
+      detection_hint: "API 回傳 4xx / 空回應 / JSON 解析失敗"
+      recommended_recovery: "重試或 model_switch"
+      severity_range: [critical, high]
+
+    model_degradation:
+      description: "LLM 降智或回應品質明顯下降（重複輸出、無關回應、品質驟降）"
+      detection_hint: "輸出品質評分低於基準線 / 連續重複輸出 / 評估分數 < 30"
+      recommended_recovery: "model_switch"
+      severity_range: [critical, high, medium]
+
+    branch_divergence:
+      description: "工作分支落後基底分支，可能導致合併衝突或假回歸"
+      detection_hint: "git rev-list --count HEAD..origin/{baseBranch} > 0"
+      recommended_recovery: "rebase_and_retry"
+      severity_range: [critical, high, medium]
+      note: "severity 由落後 commit 數決定：1-5 為 medium，6+ 為 high/critical"
+
+    compilation:
+      description: "編譯或型別檢查錯誤（TypeScript tsc、Go build、Rust cargo 等）"
+      detection_hint: "build / tsc / compile 指令 exit code != 0"
+      recommended_recovery: "fix_loop"
+      severity_range: [high, medium, low]
+
+    test_failure:
+      description: "測試失敗（unit / integration / system / e2e 任一層級）"
+      detection_hint: "test 指令 exit code != 0"
+      recommended_recovery: "fix_loop"
+      severity_range: [high, medium, low]
+
+    tool_failure:
+      description: "工具層失敗（MCP server 無回應、Plugin 載入失敗、CLI 工具不存在）"
+      detection_hint: "MCP / Plugin / shell 工具執行失敗或 timeout"
+      recommended_recovery: "circuit_breaker 保護後重試，或降級模式繼續"
+      severity_range: [critical, high, medium]
+
+    policy_violation:
+      description: "安全或治理策略攔截（Guardian deny、SafetyHook 阻擋、Fail-Closed 觸發）"
+      detection_hint: "SecurityDecision 為 deny / Guardian verdict 為 blocking: true"
+      recommended_recovery: "human_checkpoint（不自動重試，需人工審查）"
+      severity_range: [critical, high]
+
+    resource_exhaustion:
+      description: "資源耗盡（token 預算超限、時間 timeout、美元預算耗盡）"
+      detection_hint: "error_max_turns / error_max_budget_usd / token zone BLOCKING"
+      recommended_recovery: "degraded_mode 或 human_checkpoint"
+      severity_range: [critical, high]
+
+  types:
+    FailureSource:
+      description: "8 類失敗來源的 union type"
+      values:
+        - prompt_delivery
+        - model_degradation
+        - branch_divergence
+        - compilation
+        - test_failure
+        - tool_failure
+        - policy_violation
+        - resource_exhaustion
+
+    FailureDetail:
+      description: "結構化失敗細節"
+      fields:
+        source: FailureSource
+        raw_error: string
+        detected_by: "string  # 偵測元件名稱（quality-gate / claude-adapter / safety-hook / branch-drift）"
+        timestamp: "string  # ISO 8601"
+
+  priority_rules:
+    description: "當多個失敗來源並存時的優先級規則"
+    rules:
+      - "branch_divergence > compilation（分支漂移通常是 compilation 失敗的根因）"
+      - "policy_violation > 其他（安全優先，不嘗試繞過）"
+      - "resource_exhaustion > 其他（資源耗盡時無意義重試）"
+      - "其他情況取最先偵測到的來源"
+
+  integration_points:
+    devap:
+      files:
+        - "packages/core/src/types.ts — TaskResult.failureSource / FailureSource type"
+        - "packages/core/src/quality-gate.ts — QualityGateResult.failureSource 推斷"
+        - "packages/adapter-claude/src/claude-adapter.ts — resource_exhaustion 映射"
+    vibeops:
+      files:
+        - "src/types/index.ts — IterationRecord.failureSource（獨立定義，AGPL 隔離）"
+        - "src/runner/pipeline-runner.ts — agent:error 事件 payload"

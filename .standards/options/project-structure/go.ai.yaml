@@ -1,0 +1,79 @@
+# Go Project Structure - AI Optimized Option
+# Parent: project-structure
+
+id: go
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Go project conventions
+
+structure:
+  standard: |
+    project-root/
+    ├── cmd/
+    │   └── appname/
+    │       └── main.go       # Entry point
+    ├── internal/             # Private packages
+    │   ├── app/
+    │   ├── handler/
+    │   ├── service/
+    │   └── repository/
+    ├── pkg/                  # Public packages
+    │   └── utils/
+    ├── api/                  # API definitions
+    │   └── openapi.yaml
+    ├── configs/              # Configuration files
+    ├── scripts/              # Build/deployment scripts
+    ├── tests/                # Additional test data
+    ├── go.mod
+    ├── go.sum
+    └── Makefile
+
+config_files:
+  - file: go.mod
+    purpose: Module definition
+    required: true
+
+  - file: go.sum
+    purpose: Dependency checksums
+    required: true
+
+  - file: Makefile
+    purpose: Build commands
+    required: false
+
+gitignore:
+  - bin/
+  - "*.exe"
+  - "*.test"
+  - "*.out"
+  - vendor/
+  - ".env"
+  - coverage.out
+
+rules:
+  - id: cmd-layout
+    trigger: creating Go project
+    instruction: Use cmd/ for application entry points
+    priority: recommended
+
+  - id: internal-pkg
+    trigger: organizing packages
+    instruction: Use internal/ for private, pkg/ for public packages
+    priority: recommended
+
+  - id: tests-location
+    trigger: placing tests
+    instruction: Place tests alongside code (*_test.go files)
+    priority: required
+
+  - id: package-naming
+    trigger: naming packages
+    instruction: Use short, lowercase package names
+    priority: required
+
+tools:
+  build: [go build, go install]
+  test_runner: [go test, testify]
+  linter: [golangci-lint]
+  formatter: [gofmt, goimports]

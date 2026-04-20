@@ -1,0 +1,85 @@
+# .NET/C# Project Structure - AI Optimized Option
+# Parent: project-structure
+
+id: dotnet
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: .NET and C# project conventions
+
+structure:
+  solution: |
+    SolutionName/
+    ├── SolutionName.sln
+    ├── src/
+    │   ├── ProjectName.Api/
+    │   │   ├── Controllers/
+    │   │   ├── Program.cs
+    │   │   └── ProjectName.Api.csproj
+    │   ├── ProjectName.Core/
+    │   │   ├── Models/
+    │   │   ├── Services/
+    │   │   ├── Interfaces/
+    │   │   └── ProjectName.Core.csproj
+    │   └── ProjectName.Infrastructure/
+    │       ├── Data/
+    │       ├── Repositories/
+    │       └── ProjectName.Infrastructure.csproj
+    ├── tests/
+    │   ├── ProjectName.UnitTests/
+    │   └── ProjectName.IntegrationTests/
+    ├── docs/
+    └── tools/
+
+config_files:
+  - file: "*.sln"
+    purpose: Solution file
+    required: true
+
+  - file: "*.csproj"
+    purpose: Project file
+    required: true
+
+  - file: global.json
+    purpose: SDK version
+    required: false
+
+  - file: Directory.Build.props
+    purpose: Shared build properties
+    required: false
+
+  - file: appsettings.json
+    purpose: Application configuration
+    required: true
+
+gitignore:
+  - bin/
+  - obj/
+  - "*.user"
+  - "*.suo"
+  - ".vs/"
+  - "*.DotSettings.user"
+  - packages/
+  - TestResults/
+
+rules:
+  - id: solution-layout
+    trigger: creating .NET solution
+    instruction: Use src/ for projects, tests/ for test projects
+    priority: recommended
+
+  - id: project-naming
+    trigger: naming projects
+    instruction: Use PascalCase for project names (Company.Product.Layer)
+    priority: required
+
+  - id: clean-architecture
+    trigger: structuring projects
+    instruction: Separate Api, Core, and Infrastructure projects
+    priority: recommended
+
+tools:
+  build: [dotnet CLI, MSBuild]
+  test_runner: [xUnit, NUnit, MSTest]
+  package_manager: [NuGet]
+  ide: [Visual Studio, Rider, VS Code]

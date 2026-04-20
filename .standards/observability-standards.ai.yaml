@@ -1,0 +1,64 @@
+# Observability Standards - AI Optimized
+# Source: core/observability-standards.md
+
+id: observability-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-31"
+  source: core/observability-standards.md
+  description: Three pillars observability framework (Logs, Metrics, Traces) with Golden Signals and maturity model
+
+three_pillars:
+  logs: "Discrete events — debugging, audit, error details (see logging.ai.yaml)"
+  metrics: "Numerical measurements over time — dashboards, alerting, capacity"
+  traces: "Request flow across services — latency analysis, dependency mapping"
+  correlation:
+    - "trace_id links Logs ↔ Traces ↔ Metrics (via Exemplars)"
+    - "service.name filters all pillars"
+
+metric_types:
+  counter: "Monotonically increasing (request count, errors)"
+  gauge: "Point-in-time value, up/down (memory, connections)"
+  histogram: "Value distribution in buckets (duration, size)"
+  summary: "Client-computed percentiles (legacy)"
+
+metric_naming: "<domain>.<entity>.<action>.<unit>"
+metric_examples:
+  - "http.server.request.duration.seconds"
+  - "http.server.request.total"
+  - "db.client.query.duration.seconds"
+  - "system.memory.usage.bytes"
+
+high_cardinality_warning: "Labels > 1000 unique values → use Logs/Traces instead"
+
+traces:
+  span_naming: "Descriptive: db.query.users.findById, http.server.POST./api/orders"
+  sampling_strategies:
+    head_based: "Simple, low overhead; may miss errors"
+    tail_based: "Keeps anomalies; high resource"
+    adaptive: "Dynamic rate; complex to implement"
+  propagation: "W3C Trace Context (traceparent + tracestate headers)"
+
+golden_signals:
+  latency: "P50/P95/P99 histogram — http.server.request.duration.seconds"
+  traffic: "RPS — rate(http.server.request.total)"
+  errors: "Error rate % — 5xx/total"
+  saturation: "Resource utilization — CPU, memory, connection pool"
+
+maturity_model:
+  L0: "No observability — stdout/stderr only"
+  L1: "Basic logging — structured, centralized, searchable"
+  L2: "Metrics-driven — Logs + Metrics, dashboards, basic alerting"
+  L3: "Full observability — three pillars, correlation, SLO-based alerting"
+  L4: "Intelligent — AIOps, anomaly detection, auto-remediation"
+
+instrumentation_checklist:
+  - "Structured logging with trace_id"
+  - "HTTP/gRPC entry metrics (count, duration, errors)"
+  - "Critical business operation custom metrics"
+  - "Distributed tracing enabled (spans, sampling)"
+  - "Health check endpoints (liveness + readiness)"
+  - "Dashboard covering Golden Signals"
+  - "Alert rules defined (SLO burn rate minimum)"
+  - "Log retention configured"
+  - "Sensitive data excluded"

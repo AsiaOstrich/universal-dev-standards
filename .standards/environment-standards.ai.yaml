@@ -1,0 +1,61 @@
+# Environment Standards - AI Optimized
+# Source: core/environment-standards.md
+
+id: environment-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-31"
+  source: core/environment-standards.md
+  description: Environment tiers, configuration management, parity, and secret management
+
+tiers:
+  local: "Developer machine — personal dev and unit tests"
+  dev: "Shared development — integration and initial testing"
+  staging: "Pre-production — QA, UAT, performance testing"
+  production: "Live — user-facing service"
+  optional: ["Preview (per-PR)", "Sandbox (third-party)", "DR (disaster recovery)"]
+
+config_priority:
+  1: "Environment variables (highest)"
+  2: "Command-line arguments"
+  3: "Environment config files"
+  4: "Application config files"
+  5: "Hardcoded defaults (lowest)"
+
+parity:
+  tech_stack: MUST
+  architecture: SHOULD
+  config_structure: MUST
+  data_structure: MUST
+  scale: MAY
+  data_content: "MUST differ (anonymize production data)"
+
+secret_management:
+  principles:
+    - "Never commit to version control"
+    - "Provide .env.example template"
+    - "Use centralized Secret Manager"
+    - "Minimum privilege per environment/service"
+    - "Regular rotation with expiry"
+  gitignore:
+    - ".env"
+    - ".env.local"
+    - ".env.*.local"
+    - "*.pem"
+    - "*.key"
+    - "credentials.json"
+    - "service-account.json"
+
+verification_checklist:
+  - "Connectivity (services can communicate)"
+  - "Authentication (secrets set and valid)"
+  - "Data (migrations executed)"
+  - "Monitoring (logs, metrics, alerts configured)"
+  - "Security (HTTPS, firewall)"
+  - "Access (correct permissions)"
+  - "Backup (configured for production)"
+  - "DNS (domains pointing correctly)"
+
+ephemeral_environments:
+  preview: "Auto-destroy on PR merge/close"
+  documentation: "Include infra components, config steps, verification, estimated build time"

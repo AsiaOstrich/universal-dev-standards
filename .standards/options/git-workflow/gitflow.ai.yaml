@@ -1,0 +1,110 @@
+# GitFlow - AI Optimized Option
+# Parent: git-workflow
+
+id: gitflow
+meta:
+  parent: git-workflow
+  version: "1.0.0"
+  description: Structured workflow for scheduled releases
+
+best_for:
+  - scheduled releases (monthly, quarterly)
+  - multiple production versions maintained simultaneously
+  - large teams (10+)
+  - formal release processes
+
+branches:
+  - name: main
+    purpose: production releases
+    lifetime: permanent
+    protection:
+      - require pull request reviews
+      - no direct commits
+      - tag on merge
+
+  - name: develop
+    purpose: integration branch for next release
+    lifetime: permanent
+
+  - name: "feature/*"
+    purpose: new features
+    base: develop
+    merge_to: develop
+    lifetime: temporary
+
+  - name: "release/*"
+    purpose: release preparation
+    base: develop
+    merge_to: [main, develop]
+    lifetime: temporary
+
+  - name: "hotfix/*"
+    purpose: urgent production fixes
+    base: main
+    merge_to: [main, develop]
+    lifetime: temporary
+
+rules:
+  - id: no-direct-main-commits
+    trigger: committing code
+    instruction: Never commit directly to main; use release or hotfix branches
+    priority: required
+
+  - id: feature-from-develop
+    trigger: starting new feature
+    instruction: Create feature branches from develop
+    priority: required
+
+  - id: release-version-bump
+    trigger: creating release branch
+    instruction: Update version number and CHANGELOG before merge
+    priority: required
+
+  - id: hotfix-both-branches
+    trigger: completing hotfix
+    instruction: Merge hotfix to both main AND develop
+    priority: required
+
+  - id: tag-releases
+    trigger: merging to main
+    instruction: Create annotated tag with version number
+    priority: required
+
+workflow:
+  - step: feature development
+    commands:
+      - git checkout develop
+      - git pull origin develop
+      - git checkout -b feature/{name}
+      - "# work and commit"
+      - git push -u origin feature/{name}
+      - "# create PR to develop"
+
+  - step: release preparation
+    commands:
+      - git checkout develop
+      - git checkout -b release/v{version}
+      - "# update CHANGELOG.md"
+      - "npm version {version}"
+      - git push -u origin release/v{version}
+
+  - step: release finalization
+    commands:
+      - git checkout main
+      - git merge --no-ff release/v{version}
+      - "git tag -a v{version} -m \"Release {version}\""
+      - git checkout develop
+      - git merge --no-ff release/v{version}
+      - git push origin main develop --tags
+      - git branch -d release/v{version}
+
+  - step: hotfix
+    commands:
+      - git checkout main
+      - git checkout -b hotfix/{name}
+      - "# fix and commit"
+      - git checkout main
+      - git merge --no-ff hotfix/{name}
+      - git checkout develop
+      - git merge --no-ff hotfix/{name}
+      - git push origin main develop

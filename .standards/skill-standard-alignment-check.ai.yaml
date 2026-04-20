@@ -1,0 +1,119 @@
+# Skill-Standard Alignment Check - AI Optimized
+# Source: XSPEC-070 (DEC-043 Wave 1 Governance Meta Pack)
+
+standard:
+  id: skill-standard-alignment-check
+  name: Skill-Standard Alignment Check
+  description: Skill 必有 Standard 作為錨點，Standard 可無 Skill；定期識別孤兒 Skill
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-04-17"
+    status: trial
+    since: "2026-04-17"
+    expires: "2026-10-17"
+    source: XSPEC-070
+    borrowed_from: DEC-043
+    description: >
+      Skill 是 UX 糖衣，Standard 是 standards-of-truth。若 Skill 無錨定 Standard，
+      其行為就沒有明文依據，會隨作者口味飄移。本標準規範 Skill 必須指明錨定哪個 Standard，
+      並定期識別「孤兒 Skill」（無對應 Standard），觸發補 Standard 的流程。
+      反向允許 Standard 無 Skill（不強制每個 Standard 都造 Skill）。
+    scope: universal
+    industry_reference: "AsiaOstrich DEC-043 七主題缺口分析（slo/runbook/observability 等 40+ Skill 部分無 Standard 錨點）"
+
+  guidelines:
+    - "所有 Skill 必須在 frontmatter 指明 anchor_standard（至少一個）"
+    - "anchor_standard 必須指向 Trial / Active / Deprecated 狀態的標準 id"
+    - "Skill 無 anchor_standard 視為 orphan，必須在下一版補上或降級為 Proposed"
+    - "Standard 無對應 Skill 是合法的（Standard 可獨立存在，Skill 僅為 UX 加速）"
+    - "定期（建議季度）執行 alignment check，產出 orphan Skill 清單"
+
+  alignment_rules:
+    skill_must_have_standard:
+      rule: "Skill 的 frontmatter 必須包含 anchor_standard 欄位"
+      format: "anchor_standard: <standard-id> 或 [<standard-id-1>, <standard-id-2>, ...]"
+      enforcement: "CI / pre-release check 強制，缺欄位視為 fail"
+      exception: "純 utility Skill（如 docs-generator）可標記 anchor_standard: none + 填 utility_reason"
+
+    standard_may_have_skill:
+      rule: "Standard 是否有對應 Skill 不強制"
+      rationale:
+        - "Standard 是 standards-of-truth，可被 QualityGate / Agent 直接消費"
+        - "Skill 僅是 UX 糖衣，不是 Standard 的必要條件"
+        - "強制每 Standard 都造 Skill 會導致 Skill 庫膨脹"
+      example: "immutability-first 標準無對應 Skill — 合法"
+
+    orphan_skill_detection:
+      rule: "沒有 anchor_standard 的 Skill 視為 orphan"
+      action_on_detected:
+        - "列入季度報告"
+        - "建立對應 Standard 的 XSPEC（循 admission-criteria 流程）"
+        - "若無法建立 Standard，降 Skill 為 Proposed 直到有錨點"
+
+  known_orphans_2026_04:
+    description: "本 XSPEC-070 識別的現存 orphan Skill（由 XSPEC-063~069 補齊）"
+    list:
+      - skill_id: "slo-assistant"
+        needs_standard: "slo-standards (XSPEC-063 規劃中)"
+      - skill_id: "runbook-assistant"
+        needs_standard: "runbook-standards (XSPEC-064 規劃中)"
+      - skill_id: "incident-response-assistant"
+        needs_standard: "incident-response-standards (XSPEC-063 規劃中)"
+      - skill_id: "observability-assistant"
+        needs_standard: "observability-standards (XSPEC-063 規劃中)"
+      - skill_id: "metrics-dashboard-assistant"
+        needs_standard: "metrics-dashboard-standards (XSPEC-063 規劃中)"
+      - skill_id: "ci-cd-assistant"
+        needs_standard: "ci-cd-standards (XSPEC-066 規劃中)"
+    note: "清單將隨 XSPEC-063~069 實作逐步清空"
+
+  alignment_check_workflow:
+    step_1: "掃描 skills/**/*.md 抽取 frontmatter anchor_standard"
+    step_2: "掃描 ai/standards/*.ai.yaml 抽取所有 standard.id"
+    step_3: "計算差集：Skill without anchor_standard → orphan 清單"
+    step_4: "計算反向差集：Standard without Skill → informational（非錯誤）"
+    step_5: "若 anchor_standard 指向不存在的 id 或已 Archived 的 id → 錯誤"
+    output: "alignment-report.json / alignment-report.md（含 orphan 清單、broken anchor 清單）"
+
+  scenarios:
+    scenario_1_skill_with_valid_anchor:
+      given: "retry-assistant Skill frontmatter 含 anchor_standard: retry-standards"
+      when: "執行 alignment check"
+      then: "retry-standards 存在且狀態為 Trial，檢查通過"
+      note: "典型的健康 Skill-Standard 對齊"
+
+    scenario_2_orphan_skill_detected:
+      given: "slo-assistant Skill 無 anchor_standard 欄位"
+      when: "執行 alignment check"
+      then: "列入 orphan 清單，狀態報告標註「需建立 slo-standards 或降級為 Proposed」"
+      note: "對齊 XSPEC-063 計畫補 slo-standards 的需求"
+
+    scenario_3_standard_without_skill_ok:
+      given: "immutability-first.ai.yaml 存在，但無對應 immutability-assistant Skill"
+      when: "執行 alignment check"
+      then: "standalone-standard 計數 +1，不視為錯誤"
+      note: "Standard 可獨立存在；強制每 Standard 造 Skill 不合理"
+
+  telemetry_events:
+    alignment_check_run:
+      fields:
+        total_skills: number
+        total_standards: number
+        orphan_skills_count: number
+        broken_anchors_count: number
+        standalone_standards_count: number
+        timestamp: string
+      when: "每次 alignment check 執行時上報"
+
+  error_codes:
+    ALIGN-001: "SKILL_MISSING_ANCHOR — Skill frontmatter 缺 anchor_standard"
+    ALIGN-002: "BROKEN_ANCHOR — anchor_standard 指向不存在的 standard id"
+    ALIGN-003: "ARCHIVED_ANCHOR — anchor_standard 指向已 Archived 的標準"
+    ALIGN-004: "UTILITY_MISSING_REASON — utility Skill 標 anchor_standard=none 但缺 utility_reason"
+
+  integration_points:
+    - "standard-admission-criteria.ai.yaml — orphan Skill 促成新 Standard 申請"
+    - "standard-lifecycle-management.ai.yaml — anchor 必須指向非 Archived 狀態標準"
+    - "pre-release-check.sh — alignment check 可整合為 release gate（選用）"
+    - "DEC-043 — XSPEC-063~069 的主要目的之一即是清空本標準識別的 orphan 清單"

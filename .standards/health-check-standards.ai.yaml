@@ -1,0 +1,140 @@
+# Health Check Standards - AI Optimized
+# Source: XSPEC-067 (DEC-043 Wave 1 Reliability Pack)
+
+standard:
+  id: health-check-standards
+  name: Health Check Standards
+  description: 健康檢查標準 — liveness / readiness / startup 三種 probe、深度 health check、結構化 JSON 回應
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-04-17"
+    status: trial
+    since: "2026-04-17"
+    expires: "2026-10-17"
+    source: XSPEC-067
+    borrowed_from: DEC-043
+    description: >
+      業界常見錯誤：把 liveness 和 readiness 混用（健康檢查檢查外部依賴導致連鎖重啟）。
+      本標準明確三種 probe 語意分離、定義深度 health check 的檢查範圍（僅關鍵依賴）、
+      並規範結構化 JSON 回應以便下游自動化處理。與 observability 整合為 RED metric 的 Error 來源之一。
+    scope: universal
+    industry_reference: "Kubernetes probes, Microsoft eShop health checks, Google SRE Book Ch.6"
+
+  guidelines:
+    - "Liveness probe 不得檢查外部依賴（DB、下游 API），否則會造成連鎖重啟"
+    - "Readiness probe 可檢查關鍵外部依賴，但僅關鍵（非全部依賴）"
+    - "慢啟動服務應使用 startup probe，啟動完成後交棒給 liveness"
+    - "Health check 端點必須回傳結構化 JSON，包含 status / dependencies / timestamp"
+    - "Health check 結果應作為 observability 的 Error signal 之一，連續 fail 觸發 incident"
+
+  probe_types:
+    liveness:
+      purpose: "服務是否還活著（process 是否卡死）"
+      endpoint_suggestion: "GET /health/live"
+      checks:
+        allowed:
+          - "process 是否能回應 HTTP"
+          - "內部 event loop 是否可用"
+        forbidden:
+          - "DB 連線（DB 壞時 liveness 失敗 → pod 重啟 → 啟動更多 client → DB 更壞）"
+          - "下游 API（會造成連鎖重啟）"
+          - "消息佇列"
+      on_fail: "重啟 pod / process"
+      failure_threshold: 3
+      period_seconds: 10
+
+    readiness:
+      purpose: "是否可接收流量"
+      endpoint_suggestion: "GET /health/ready"
+      checks:
+        allowed:
+          - "自身 API 可用"
+          - "DB 連線可用（若服務必須依賴 DB 才能工作）"
+          - "關鍵下游依賴可用（非全部下游）"
+          - "必要的設定 / 憑證已載入"
+        forbidden:
+          - "非關鍵依賴（避免非關鍵故障造成服務被移出負載均衡）"
+      on_fail: "移出負載均衡，不重啟"
+      failure_threshold: 3
+      period_seconds: 5
+
+    startup:
+      purpose: "啟動期專用，替代慢啟動服務的 liveness"
+      endpoint_suggestion: "GET /health/startup"
+      checks:
+        - "啟動過程所需資源（如快取預熱、index 載入）已完成"
+      on_fail: "重啟 pod（啟動超時）"
+      handover: "通過後停用，改由 liveness 接手"
+      failure_threshold: 30
+      period_seconds: 10
+
+  depth_rules:
+    shallow:
+      when: "liveness"
+      checks: "process 是否可回應，不碰任何外部依賴"
+    deep:
+      when: "readiness"
+      checks:
+        - "自身 API 路由可解析"
+        - "DB ping 成功（若必須 DB）"
+        - "關鍵下游 API ping 成功（非全部）"
+      note: "關鍵依賴的定義：沒有它服務就完全無法提供核心功能"
+
+  response_format:
+    content_type: "application/json"
+    status_codes:
+      "200": "healthy — 所有關鍵依賴正常"
+      "503": "unhealthy — 至少一個關鍵依賴失敗"
+    schema:
+      status: "healthy | degraded | unhealthy"
+      timestamp: "ISO-8601"
+      uptime_seconds: number
+      dependencies:
+        description: "每個被檢查的依賴的狀態（僅 readiness / deep check 回傳）"
+        example:
+          database:
+            status: "healthy | unhealthy"
+            latency_ms: number
+            last_check: "ISO-8601"
+          upstream_api:
+            status: "healthy | unhealthy"
+            latency_ms: number
+      version: "service version string"
+
+  observability_integration:
+    rule_1: "Health check 結果應作為 RED metric 的 Error 來源之一（Rate / Errors / Duration）"
+    rule_2: "連續 N 次 health check failed 應觸發 incident（對齊 incident-response）"
+    rule_3: "probe 延遲本身應被監控（異常緩慢可能是 resource_exhaustion 徵兆）"
+
+  scenarios:
+    scenario_1_liveness_not_checking_db:
+      given: "DB 暫時無法連線（連線池耗盡）"
+      when: "liveness probe 被呼叫"
+      then: "回傳 200 healthy（liveness 不檢查 DB）"
+      note: "避免 DB 連鎖故障導致所有 pod 重啟"
+
+    scenario_2_readiness_fails_on_critical_dep:
+      given: "關鍵下游 API 不可達（服務無法處理任何請求）"
+      when: "readiness probe 被呼叫"
+      then: "回傳 503 unhealthy，dependencies.upstream_api.status=unhealthy"
+      and: "pod 被移出負載均衡，但 process 不重啟"
+      note: "readiness fail → 不接流量；liveness 仍 healthy → 不重啟"
+
+    scenario_3_startup_then_liveness_handover:
+      given: "服務需 60s 預熱快取"
+      when: "pod 啟動"
+      then: "startup probe 檢查預熱狀態，前 60s 持續回 503"
+      and: "預熱完成後 startup 回 200，自此停用，改由 liveness 接手"
+      note: "避免慢啟動服務在預熱中被誤判為 crash 重啟"
+
+  error_codes:
+    HC-001: "HEALTH_CHECK_FAILED — 關鍵依賴失敗"
+    HC-002: "HEALTH_CHECK_TIMEOUT — probe 本身超時"
+    HC-003: "INVALID_DEPENDENCY_SET — readiness 檢查了非關鍵依賴（設計違規）"
+
+  integration_points:
+    - "observability-standards（XSPEC-063 規劃中）— health check 是 RED metric 的 Error 來源"
+    - "incident-response-assistant — 連續 health check failed 觸發 incident 流程"
+    - "circuit-breaker.ai.yaml — breaker OPEN 時 readiness 應回 degraded"
+    - "deployment-standards.ai.yaml — K8s probe 配置對應三種 probe 類型"

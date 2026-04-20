@@ -1,0 +1,147 @@
+# PHP Project Structure - AI Optimized Option
+# Parent: project-structure
+
+id: php
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: PHP project conventions
+
+structure:
+  standard: |
+    project-root/
+    ├── src/
+    │   ├── Controller/
+    │   ├── Service/
+    │   ├── Repository/
+    │   ├── Entity/
+    │   ├── Exception/
+    │   └── Helper/
+    ├── config/
+    │   └── config.php
+    ├── public/               # Web root
+    │   ├── index.php
+    │   ├── css/
+    │   ├── js/
+    │   └── images/
+    ├── resources/
+    │   └── views/
+    ├── tests/
+    │   ├── Unit/
+    │   └── Feature/
+    ├── vendor/               # Dependencies (gitignored)
+    ├── storage/              # Logs, cache (gitignored)
+    ├── composer.json
+    ├── composer.lock
+    └── phpunit.xml
+
+  laravel: |
+    project-root/
+    ├── app/
+    │   ├── Http/
+    │   │   ├── Controllers/
+    │   │   └── Middleware/
+    │   ├── Models/
+    │   ├── Services/
+    │   └── Providers/
+    ├── config/
+    ├── database/
+    │   ├── migrations/
+    │   ├── seeders/
+    │   └── factories/
+    ├── public/
+    ├── resources/
+    │   ├── views/
+    │   ├── css/
+    │   └── js/
+    ├── routes/
+    ├── storage/
+    ├── tests/
+    ├── composer.json
+    └── artisan
+
+  symfony: |
+    project-root/
+    ├── bin/
+    │   └── console
+    ├── config/
+    │   ├── packages/
+    │   ├── routes/
+    │   └── services.yaml
+    ├── public/
+    │   └── index.php
+    ├── src/
+    │   ├── Controller/
+    │   ├── Entity/
+    │   ├── Repository/
+    │   └── Service/
+    ├── templates/
+    ├── tests/
+    ├── var/                  # Cache, logs
+    ├── vendor/
+    └── composer.json
+
+config_files:
+  - file: composer.json
+    purpose: Package manifest
+    required: true
+
+  - file: composer.lock
+    purpose: Dependency lock file
+    required: true
+
+  - file: phpunit.xml
+    purpose: PHPUnit configuration
+    required: false
+
+  - file: .php-cs-fixer.php
+    purpose: Code style configuration
+    required: false
+
+  - file: phpstan.neon
+    purpose: Static analysis configuration
+    required: false
+
+gitignore:
+  - vendor/
+  - storage/
+  - var/
+  - ".env"
+  - ".env.local"
+  - "*.cache"
+  - "*.log"
+  - node_modules/
+
+rules:
+  - id: psr-autoloading
+    trigger: organizing namespaces
+    instruction: Follow PSR-4 autoloading standard
+    priority: required
+
+  - id: public-web-root
+    trigger: configuring web server
+    instruction: Point web root to public/ directory only
+    priority: required
+
+  - id: env-config
+    trigger: managing configuration
+    instruction: Use .env files for environment-specific config
+    priority: recommended
+
+  - id: tests-mirror
+    trigger: placing tests
+    instruction: Mirror src/ structure in tests/ directory
+    priority: recommended
+
+  - id: dependency-injection
+    trigger: organizing services
+    instruction: Use dependency injection container
+    priority: recommended
+
+tools:
+  build: [Composer]
+  test_runner: [PHPUnit, Pest, Codeception]
+  linter: [PHP_CodeSniffer, PHP-CS-Fixer]
+  static_analysis: [PHPStan, Psalm]
+  package_manager: [Composer, Packagist]
+  documentation: [phpDocumentor]

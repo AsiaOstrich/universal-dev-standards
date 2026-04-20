@@ -1,0 +1,65 @@
+# Runbook Standards - AI Optimized
+# Source: core/runbook-standards.md
+
+id: runbook-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-31"
+  source: core/runbook-standards.md
+  description: Runbook writing, maintenance, drills, and alert integration
+
+types:
+  alert_response: "Diagnose and fix specific alert"
+  standard_operation: "Routine operational procedures"
+  emergency_procedure: "Major incident rapid response"
+  change_procedure: "Planned change execution"
+  troubleshooting_guide: "General problem investigation"
+
+required_sections:
+  - "Overview (alert name, severity, services, owner, last updated, last drilled)"
+  - "Symptoms"
+  - "Impact assessment"
+  - "Diagnostic steps (with commands)"
+  - "Fix steps (with verification)"
+  - "Escalation (specific contacts)"
+  - "Post-actions"
+
+writing_principles:
+  reproducible: "Steps copy-pasteable"
+  unambiguous: "One interpretation per step"
+  decision_points: "Explicit branch conditions"
+  rollback: "Fallback for failed fixes"
+  verification: "Confirm success after each fix"
+  time_bounded: "Expected completion time stated"
+
+organization:
+  naming: "kebab-case, problem-focused (not solution-focused)"
+  directories:
+    alerts: "Alert Response"
+    operations: "Standard Operation"
+    emergency: "Emergency Procedure"
+    troubleshooting: "Troubleshooting Guide"
+
+review_cycles:
+  alert_response: quarterly
+  emergency_procedure: monthly
+  standard_operation: bi-annually
+  change_procedure: after_each_use
+  troubleshooting_guide: bi-annually
+
+drill_frequency:
+  P1_runbooks: monthly
+  P2_runbooks: quarterly
+  emergency: quarterly
+  other: bi-annually
+
+drill_record_fields:
+  - "Date and participants"
+  - "Runbook name"
+  - "Result (pass/partial/fail)"
+  - "Issues found"
+  - "Estimated vs actual repair time"
+
+coverage_targets:
+  P1_P2: "100%"
+  P3_P4: "> 80%"

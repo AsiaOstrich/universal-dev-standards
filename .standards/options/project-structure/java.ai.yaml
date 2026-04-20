@@ -1,0 +1,82 @@
+# Java/Maven Project Structure - AI Optimized Option
+# Parent: project-structure
+
+id: java
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Java and Maven/Gradle project conventions
+
+structure:
+  maven: |
+    project-root/
+    ├── pom.xml
+    ├── src/
+    │   ├── main/
+    │   │   ├── java/
+    │   │   │   └── com/company/project/
+    │   │   │       ├── Application.java
+    │   │   │       ├── controller/
+    │   │   │       ├── service/
+    │   │   │       ├── model/
+    │   │   │       └── repository/
+    │   │   └── resources/
+    │   │       ├── application.properties
+    │   │       └── logback.xml
+    │   └── test/
+    │       ├── java/
+    │       │   └── com/company/project/
+    │       └── resources/
+    ├── target/              # Build output (gitignored)
+    └── docs/
+
+config_files:
+  - file: pom.xml
+    purpose: Maven configuration
+    required: "if using Maven"
+
+  - file: build.gradle
+    purpose: Gradle configuration
+    required: "if using Gradle"
+
+  - file: application.properties
+    purpose: Application configuration
+    required: true
+
+  - file: logback.xml
+    purpose: Logging configuration
+    required: false
+
+gitignore:
+  - target/
+  - build/
+  - "*.class"
+  - "*.jar"
+  - "*.war"
+  - ".idea/"
+  - "*.iml"
+  - ".gradle/"
+  - ".settings/"
+  - ".classpath"
+  - ".project"
+
+rules:
+  - id: package-naming
+    trigger: naming packages
+    instruction: Use reverse domain name (com.company.project)
+    priority: required
+
+  - id: maven-layout
+    trigger: creating Java project
+    instruction: Follow Maven standard directory layout
+    priority: required
+
+  - id: tests-mirror
+    trigger: organizing tests
+    instruction: Mirror main/ structure in test/
+    priority: required
+
+tools:
+  build: [Maven, Gradle]
+  test_runner: [JUnit 5, TestNG]
+  ide: [IntelliJ IDEA, Eclipse, VS Code]

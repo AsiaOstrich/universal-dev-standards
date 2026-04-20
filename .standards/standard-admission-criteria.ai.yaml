@@ -1,0 +1,107 @@
+# Standard Admission Criteria - AI Optimized
+# Source: XSPEC-070 (DEC-043 Wave 1 Governance Meta Pack)
+
+standard:
+  id: standard-admission-criteria
+  name: Standard Admission Criteria
+  description: 新標準納入 UDS 的四項條件（Evidence / Scope / Non-overlapping / AI-executable）與拒絕理由明文化
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-04-17"
+    status: trial
+    since: "2026-04-17"
+    expires: "2026-10-17"
+    source: XSPEC-070
+    borrowed_from: DEC-043
+    description: >
+      在 DEC-043 提出 60+ 候選新標準的背景下，需要一個明文的納入檢查清單，
+      避免標準庫膨脹（重疊、未使用）與降低品質。本標準是 UDS 的治理層 meta 標準，
+      用來「決定標準的標準」。每個候選新標準必須通過四項條件才能從 Proposed 進入 Trial。
+    scope: universal
+    industry_reference: "IETF RFC admission criteria, Python PEP process, W3C Recommendation Track"
+
+  guidelines:
+    - "所有候選新標準必須填寫 admission checklist，缺任一項視為不合格"
+    - "拒絕候選標準時必須寫下明文理由，不得以「不合適」之類籠統用詞草率結案"
+    - "通過 admission 僅代表可進 Trial，不代表直接 Active（需通過試驗期驗證）"
+    - "本標準本身也必須符合四項條件（self-applicability 原則）"
+    - "既有 66 個 Active 標準不溯及既往；新增標準自本標準發布後適用"
+
+  criteria:
+    evidence:
+      description: "至少 2 個具體使用場景（非 hypothetical）"
+      checks:
+        - "場景來自實際專案、Repo、論文或 DEC 記錄"
+        - "場景描述具體（可舉出檔案 / 函式 / commit），非泛泛而談"
+        - "至少 1 個場景來自 AsiaOstrich 三專案內部痛點或外部產業佐證"
+      rejection_example: "「未來可能用到」— 無具體場景，不通過"
+
+    scope:
+      description: "明確的作用域（哪些活動 / 哪些子專案 / 哪些情境）"
+      checks:
+        - "在 meta.scope 標示 universal / partial / uds-specific"
+        - "frontmatter 列出適用的活動類型（如 development, deployment, testing）"
+        - "若為 partial 或 uds-specific，說明不通用的原因"
+      rejection_example: "「所有場合都適用」— 過度泛化，不通過"
+
+    non_overlapping:
+      description: "與既有 UDS 標準無重大重疊（< 30% 內容重複）"
+      checks:
+        - "列出最接近的 3 個既有標準，說明如何補足差異"
+        - "若有 ≥ 30% 重疊，應改為擴充既有標準而非新增"
+        - "定義 integration_points 說明與既有標準的關係"
+      rejection_example: "與既有 `retry-standards` 80% 內容重複 — 應合併，不通過"
+
+    ai_executable:
+      description: "至少一個 DevAP QualityGate / VibeOps Agent prompt / Skill 能消費此標準"
+      checks:
+        - "定義清楚的 guidelines（bullet point，每條可驗證）"
+        - "至少包含 2 個具體 scenarios（Given-When-Then 格式）"
+        - "若需型別 / 介面，提供 interface / types 區塊"
+        - "與現有 Skill / QualityGate 的 integration_points 明確"
+      rejection_example: "只有抽象原則，無任何 AI 可執行的規則 — 不通過"
+
+  rejection_protocol:
+    rule_1: "拒絕理由必須具體指出未通過的 criterion（evidence / scope / non-overlapping / ai-executable）"
+    rule_2: "拒絕記錄寫入 `cross-project/decisions/` 或 DEC 的 rejection log 區塊"
+    rule_3: "候選者可依理由修正後重新申請（不永久封鎖）"
+    rule_4: "若拒絕理由涉及與既有標準重疊，應建議改為擴充既有標準"
+
+  self_applicability:
+    description: "本標準也必須符合四項條件"
+    evidence: "DEC-043 的 60+ 候選標準 + XSPEC-070 scenario 1-3 為具體使用場景"
+    scope: "universal，作用於 UDS 自身治理"
+    non_overlapping: "與既有 adr-standards 互補（ADR 記錄決策，admission 記錄納入條件）"
+    ai_executable: "本 yaml 的 scenarios 可被 standard-lifecycle Skill 消費"
+
+  scenarios:
+    scenario_1_new_standard_passes:
+      given: "候選標準 `retry-standards` 申請納入"
+      when: "執行 admission 檢查"
+      then: "Evidence（XSPEC-067 Scenario 1-1/1-2）、Scope（universal）、Non-overlapping（與 circuit-breaker 互補）、AI-executable（9 條 guidelines + 3 scenarios）全部通過"
+      and: "狀態從 Proposed 進入 Trial"
+
+    scenario_2_rejected_for_overlap:
+      given: "候選標準 `advanced-retry-with-jitter` 申請納入"
+      when: "Non-overlapping 檢查"
+      then: "與既有 retry-standards 重疊 > 30%，拒絕"
+      and: "拒絕理由：「80% 內容與 retry-standards 重疊，建議改為擴充既有標準的 Phase 2」"
+
+    scenario_3_rejected_for_vague_evidence:
+      given: "候選標準 `universal-best-practices` 申請納入"
+      when: "Evidence 檢查"
+      then: "無具體場景，只有「未來可能用到」類描述，拒絕"
+      and: "拒絕理由：「缺具體場景，請提供至少 2 個已發生的使用案例或產業佐證」"
+
+  error_codes:
+    ADMISSION-001: "MISSING_EVIDENCE — Evidence criterion 未通過"
+    ADMISSION-002: "SCOPE_UNDEFINED — Scope criterion 未通過"
+    ADMISSION-003: "OVERLAP_EXCEEDED — 與既有標準重疊 > 30%"
+    ADMISSION-004: "NOT_AI_EXECUTABLE — 缺 guidelines / scenarios，AI 無法消費"
+
+  integration_points:
+    - "standard-lifecycle-management.ai.yaml — 通過 admission 後從 Proposed → Trial"
+    - "skill-standard-alignment-check.ai.yaml — admission 通過的標準才能被 Skill 錨定"
+    - "adr-standards.ai.yaml — admission 決策本身可能需要 ADR 記錄"
+    - "DEC-043 — 本標準是 Wave 1 的前置條件，後續 Wave 2/3 的候選都走此流程"

@@ -1,0 +1,75 @@
+# Rebase + Fast-Forward Strategy - AI Optimized Option
+# Parent: git-workflow
+
+id: rebase-ff
+meta:
+  parent: git-workflow
+  version: "1.0.0"
+  description: Linear history with preserved commits
+
+best_for:
+  - Trunk-Based Development
+  - teams wanting linear history
+  - preserving individual commits
+  - small, frequent integrations
+
+commands:
+  - git rebase main feature/*
+  - git merge --ff-only feature/*
+
+pros:
+  - linear, clean history
+  - preserves individual commits
+  - easy bisect and blame
+
+cons:
+  - rewrites history (force push needed)
+  - can be complex for beginners
+  - potential conflicts during rebase
+
+rules:
+  - id: rebase-before-merge
+    trigger: preparing to merge
+    instruction: Rebase feature branch onto latest main before merge
+    priority: required
+
+  - id: ff-only-merge
+    trigger: merging to main
+    instruction: Use --ff-only to ensure linear history
+    priority: required
+
+  - id: force-push-after-rebase
+    trigger: after rebasing
+    instruction: Force push to update remote branch
+    priority: required
+    validator: "git push --force-with-lease"
+
+  - id: no-shared-branch-rebase
+    trigger: rebasing
+    instruction: Never rebase shared/public branches
+    priority: required
+
+examples:
+  workflow: |
+    # Update feature branch
+    git checkout feature/user-auth
+    git fetch origin
+    git rebase origin/main
+
+    # Force push (safely)
+    git push --force-with-lease
+
+    # Merge with fast-forward
+    git checkout main
+    git merge --ff-only feature/user-auth
+
+  log_output: |
+    * feat(auth): add password reset
+    * feat(auth): add login form
+    * feat(auth): add user model
+    * previous commit on main
+
+warnings:
+  - Never rebase commits that have been pushed to shared branches
+  - Use --force-with-lease instead of --force for safety
+  - Communicate with team before rebasing shared work

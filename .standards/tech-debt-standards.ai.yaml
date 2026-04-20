@@ -1,0 +1,56 @@
+# Tech Debt Management Standards - AI Optimized
+# Source: core/tech-debt-standards.md
+
+id: tech-debt-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-03-31"
+  source: core/tech-debt-standards.md
+  description: Tech debt taxonomy, registry, budget, impact matrix, and metrics
+
+taxonomy:
+  design: "Architecture/design decisions — impacts maintainability, scalability"
+  code: "Code quality issues — impacts readability, modification cost"
+  test: "Test coverage/quality gaps — impacts regression risk, confidence"
+  documentation: "Missing/outdated docs — impacts onboarding, knowledge transfer"
+  dependency: "Outdated/risky dependencies — impacts security, compatibility"
+  infrastructure: "Infrastructure config issues — impacts deployment, stability"
+
+awareness:
+  deliberate: "Conscious decision to ship fast, must document rationale"
+  inadvertent: "Caused by inexperience or oversight, needs review improvement"
+
+registry_fields:
+  - "ID (TD-NNN)"
+  - "Title"
+  - "Type (6 categories)"
+  - "Source (how discovered)"
+  - "Impact (scope and severity)"
+  - "Estimated cost (SP or days)"
+  - "Interest (ongoing cost if unpaid)"
+  - "Priority (P0-P3)"
+  - "Owner"
+  - "Created date"
+  - "Target resolution date"
+  - "Status (Open→Scheduled→In Progress→Resolved→Verified)"
+
+budget:
+  new_project: "10% of dev time"
+  mature_project: "15% of dev time"
+  high_debt_project: "20-30% of dev time"
+
+impact_matrix: "3×3 (Impact: High/Med/Low × Effort: Easy/Med/Hard) → P0-P3"
+
+interest_types:
+  time: "Extra time per modification"
+  risk: "Increased regression risk"
+  talent: "Knowledge concentration risk"
+
+metrics:
+  - "Total debt volume (SP)"
+  - "Debt ratio (new/resolved per sprint, target < 1.0)"
+  - "Average age (target < 90 days)"
+  - "Type distribution (no single type > 40%)"
+  - "High priority ratio (P0+P1 < 20%)"
+
+commit_marking: "Tech-Debt: TD-NNN (introduced|resolved: description)"

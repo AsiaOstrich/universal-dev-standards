@@ -1,0 +1,117 @@
+# Rust Project Structure - AI Optimized Option
+# Parent: project-structure
+
+id: rust
+meta:
+  parent: project-structure
+  version: "1.0.0"
+  description: Rust project conventions
+
+structure:
+  binary: |
+    project-root/
+    ├── src/
+    │   ├── main.rs           # Entry point
+    │   ├── lib.rs            # Library root (optional)
+    │   ├── config.rs
+    │   ├── error.rs
+    │   └── modules/
+    │       ├── mod.rs
+    │       ├── handler.rs
+    │       └── service.rs
+    ├── tests/                # Integration tests
+    │   └── integration_test.rs
+    ├── benches/              # Benchmarks
+    │   └── benchmark.rs
+    ├── examples/             # Example code
+    │   └── example.rs
+    ├── Cargo.toml
+    ├── Cargo.lock
+    └── README.md
+
+  library: |
+    project-root/
+    ├── src/
+    │   ├── lib.rs            # Library entry point
+    │   ├── error.rs
+    │   └── modules/
+    │       └── mod.rs
+    ├── tests/
+    ├── examples/
+    ├── Cargo.toml
+    └── README.md
+
+  workspace: |
+    project-root/
+    ├── crates/
+    │   ├── core/
+    │   │   ├── src/
+    │   │   └── Cargo.toml
+    │   ├── api/
+    │   │   ├── src/
+    │   │   └── Cargo.toml
+    │   └── cli/
+    │       ├── src/
+    │       └── Cargo.toml
+    ├── Cargo.toml            # Workspace root
+    └── Cargo.lock
+
+config_files:
+  - file: Cargo.toml
+    purpose: Package manifest
+    required: true
+
+  - file: Cargo.lock
+    purpose: Dependency lock file
+    required: true
+    note: Commit for binaries, gitignore for libraries
+
+  - file: rust-toolchain.toml
+    purpose: Toolchain version
+    required: false
+
+  - file: .cargo/config.toml
+    purpose: Cargo configuration
+    required: false
+
+gitignore:
+  - target/
+  - "*.pdb"
+  - ".env"
+  - "Cargo.lock"  # For libraries only
+
+rules:
+  - id: module-organization
+    trigger: organizing modules
+    instruction: Use mod.rs or module_name.rs pattern consistently
+    priority: required
+
+  - id: tests-location
+    trigger: placing tests
+    instruction: |
+      Unit tests: In same file with #[cfg(test)] mod tests
+      Integration tests: In tests/ directory
+    priority: required
+
+  - id: error-handling
+    trigger: defining errors
+    instruction: Define custom error types in error.rs or errors.rs
+    priority: recommended
+
+  - id: workspace-for-large
+    trigger: structuring large project
+    instruction: Use Cargo workspaces for multi-crate projects
+    priority: recommended
+
+  - id: doc-comments
+    trigger: documenting public API
+    instruction: Use /// for public items, //! for module-level docs
+    priority: recommended
+
+tools:
+  build: [cargo build, cargo build --release]
+  test_runner: [cargo test, cargo nextest]
+  linter: [clippy]
+  formatter: [rustfmt, cargo fmt]
+  package_manager: [cargo, crates.io]
+  documentation: [cargo doc, rustdoc]
