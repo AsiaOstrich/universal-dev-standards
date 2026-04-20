@@ -35,7 +35,8 @@ echo ""
 
 # Run translation sync check (advisory only — never exit 1 from this hook)
 SYNC_OUTPUT=$(bash "$SCRIPT_DIR/scripts/check-translation-sync.sh" 2>&1)
-OUTDATED_LINES=$(echo "$SYNC_OUTPUT" | grep -E "\[MAJOR\]|\[MINOR\]|\[PATCH\]" || true)
+# Match lines where label is followed by a file path (not legend/summary lines)
+OUTDATED_LINES=$(echo "$SYNC_OUTPUT" | grep -E "\[(MAJOR|MINOR|PATCH)\]\s+\S+/" || true)
 
 if [ -n "$OUTDATED_LINES" ]; then
     echo -e "${YELLOW}⚠️  Outdated translations detected for modified standards:${NC}"
