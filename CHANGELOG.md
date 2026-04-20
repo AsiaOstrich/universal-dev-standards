@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.1.0] - 2026-04-20
+
+> **Stable Release**: BUG-A06 i18n completeness — 32 missing translations added, semver-aware translation gate, new `translation-lifecycle-standards` UDS standard. BUG-A07 shell test coverage — bats smoke tests for 20+ scripts. BUG-A08 fake-pass test audit — 22 tests corrected. Pre-release Batch 0: 6 standards promoted from Trial to Adopt (DEC-021/025/031/035/038/040). Total standards: 106.
+
+### Added
+- **`translation-lifecycle-standards`** (Trial, expires 2026-10-20): New UDS standard codifying MISSING vs OUTDATED distinction, semver-aware severity classification (MISSING/MAJOR = release blocker, MINOR/PATCH = advisory), automation integration (pre-commit hook, release gate, bump-version integration). Source: BUG-A06 post-mortem.
+- **`.githooks/pre-commit`** + **`scripts/install-hooks.sh`**: Commit-time reminder when `core/*.md` files are staged; shows OUTDATED warnings without blocking commits. Activate via `./scripts/install-hooks.sh`.
+- **32 zh-TW and zh-CN translations** (BUG-A06): All core standards now have complete zh-TW and zh-CN translations including: `circuit-breaker`, `token-budget`, `dual-phase-output`, `failure-source-taxonomy`, `immutability-first`, `security-decision`, `capability-declaration`, `recovery-recipe-registry`, `retry-standards`, `health-check-standards`, `timeout-standards`, `skill-standard-alignment-check`, `standard-admission-criteria`, `standard-lifecycle-management`, `packaging-standards`, `frontend-design-standards`, `translation-lifecycle-standards`, and others.
+- **bats smoke tests** (BUG-A07): `tests/scripts/` — smoke tests for 20+ shell scripts covering `check-translation-sync.sh`, `check-version-sync.sh`, `bump-version.sh`, `install-hooks.sh`, and others.
+
+### Changed
+- **`check-translation-sync.sh`**: Semver-aware severity — MAJOR version gap now exits 1 (release blocker); MINOR/PATCH gaps exit 0 with advisory warnings. Added `semver_diff()` function and `[MAJOR]`/`[MINOR]`/`[PATCH]` severity labels.
+- **`bump-version.sh`**: Auto-runs `check-translation-sync.sh` after version files updated, providing translation health snapshot at release prep time.
+- **`scripts/pre-release-check.sh`**: Updated to call `check-translation-sync.sh` as a hard gate (MISSING + MAJOR = exit 1).
+
+### Fixed
+- **zh-CN `anti-hallucination.md`** (BUG-A06): Updated from 1.5.0 → 1.5.1 — added missing "Agent Epistemic Calibration" section (Answer/Ask/Abstain framework from XSPEC-008). The section was absent in zh-CN since 2026-04-13.
+- **22 fake-pass tests** (BUG-A08): Tests that passed without actually testing the correct behavior have been corrected with real assertions.
+
+### Promoted to Adopt (Pre-release Batch 0)
+- `circuit-breaker` (DEC-021): Adopted after 6-month Trial
+- `token-budget` (DEC-025): Adopted after 6-month Trial
+- `dual-phase-output` (DEC-031): Adopted after 6-month Trial
+- `security-decision` (DEC-035): Adopted after 6-month Trial
+- `immutability-first` (DEC-038): Adopted after 6-month Trial
+- `failure-source-taxonomy` (DEC-040): Adopted after 6-month Trial
+
+[5.1.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.1.0-beta.7...v5.1.0
+
 ## [5.1.0-beta.7] - 2026-04-17
 
 > **Beta Release**: DEC-043 Wave 1 — six trial-status standards covering reliability patterns and governance meta-framework.

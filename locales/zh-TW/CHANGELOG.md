@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.1.0-beta.7
-translation_version: 5.1.0-beta.7
-last_synced: 2026-04-17
+source_version: 5.1.0
+translation_version: 5.1.0
+last_synced: 2026-04-20
 status: current
 ---
 
@@ -16,6 +16,35 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.1.0] - 2026-04-20
+
+> **正式版**：BUG-A06 i18n 完整性 — 新增 32 份缺失翻譯、Semver 感知翻譯閘門、新增 `translation-lifecycle-standards` UDS 標準。BUG-A07 Shell 測試覆蓋 — 20+ 腳本的 bats smoke tests。BUG-A08 假通過測試稽核 — 修正 22 個測試。Pre-release Batch 0：6 個標準從 Trial 升至 Adopt（DEC-021/025/031/035/038/040）。標準總數：106 個。
+
+### 新增
+- **`translation-lifecycle-standards`**（Trial，到期 2026-10-20）：新 UDS 標準，定義 MISSING 與 OUTDATED 的區別、Semver 嚴重度分級（MISSING/MAJOR = 發布阻塞器，MINOR/PATCH = advisory），以及自動化整合（pre-commit hook、release gate、bump-version 整合）。來源：BUG-A06 事後分析。
+- **`.githooks/pre-commit`** + **`scripts/install-hooks.sh`**：commit 時若暫存 `core/*.md` 檔案則顯示 OUTDATED 警告，永不阻塞 commit。透過 `./scripts/install-hooks.sh` 啟用。
+- **32 份 zh-TW 與 zh-CN 翻譯**（BUG-A06）：所有核心標準現已有完整 zh-TW 和 zh-CN 翻譯，包含 `circuit-breaker`、`token-budget`、`dual-phase-output`、`failure-source-taxonomy`、`immutability-first`、`security-decision`、`capability-declaration`、`recovery-recipe-registry`、`retry-standards`、`health-check-standards`、`timeout-standards`、`skill-standard-alignment-check`、`standard-admission-criteria`、`standard-lifecycle-management`、`packaging-standards`、`frontend-design-standards`、`translation-lifecycle-standards` 等。
+- **bats smoke tests**（BUG-A07）：`tests/scripts/` — 20+ 個 Shell 腳本的 smoke tests，涵蓋 `check-translation-sync.sh`、`check-version-sync.sh`、`bump-version.sh`、`install-hooks.sh` 等。
+
+### 變更
+- **`check-translation-sync.sh`**：Semver 感知嚴重度 — MAJOR 版本落差現在 exit 1（發布阻塞器）；MINOR/PATCH 落差 exit 0 附 advisory 警告。新增 `semver_diff()` 函式與 `[MAJOR]`/`[MINOR]`/`[PATCH]` 嚴重度標籤。
+- **`bump-version.sh`**：更新版本檔案後自動執行 `check-translation-sync.sh`，在升版時提供翻譯健康狀態快照。
+- **`scripts/pre-release-check.sh`**：更新為將 `check-translation-sync.sh` 作為硬閘門（MISSING + MAJOR = exit 1）。
+
+### 修正
+- **zh-CN `anti-hallucination.md`**（BUG-A06）：從 1.5.0 更新至 1.5.1 — 補上缺失的「Agent 认识论校准」章節（Answer/Ask/Abstain 框架，XSPEC-008）。該章節自 2026-04-13 起在 zh-CN 中完全缺失。
+- **22 個假通過測試**（BUG-A08）：修正未正確驗證行為的測試，加入真實斷言。
+
+### 升至 Adopt（Pre-release Batch 0）
+- `circuit-breaker`（DEC-021）：Trial 6 個月後升至 Adopt
+- `token-budget`（DEC-025）：Trial 6 個月後升至 Adopt
+- `dual-phase-output`（DEC-031）：Trial 6 個月後升至 Adopt
+- `security-decision`（DEC-035）：Trial 6 個月後升至 Adopt
+- `immutability-first`（DEC-038）：Trial 6 個月後升至 Adopt
+- `failure-source-taxonomy`（DEC-040）：Trial 6 個月後升至 Adopt
+
+[5.1.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.1.0-beta.7...v5.1.0
 
 ## [5.1.0-beta.7] - 2026-04-17
 
