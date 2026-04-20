@@ -25,9 +25,28 @@ trap _cleanup_null_file EXIT
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+ORANGE='\033[0;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
+
+# Semver difference classifier
+# Returns: PATCH | MINOR | MAJOR | UNKNOWN
+semver_diff() {
+    local v1="${1%%-*}"  # strip pre-release suffix
+    local v2="${2%%-*}"
+    local maj1 min1 pat1 maj2 min2 pat2
+    IFS='.' read -r maj1 min1 pat1 <<< "$v1"
+    IFS='.' read -r maj2 min2 pat2 <<< "$v2"
+    # Guard: non-numeric or empty → UNKNOWN
+    if ! [[ "$maj1" =~ ^[0-9]+$ ]] || ! [[ "$maj2" =~ ^[0-9]+$ ]]; then
+        echo "UNKNOWN"; return
+    fi
+    if [ "$maj1" != "$maj2" ]; then echo "MAJOR"
+    elif [ "$min1" != "$min2" ]; then echo "MINOR"
+    else echo "PATCH"
+    fi
+}
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
@@ -64,6 +83,9 @@ echo ""
 GLOBAL_TOTAL=0
 GLOBAL_CURRENT=0
 GLOBAL_OUTDATED=0
+GLOBAL_OUTDATED_PATCH=0
+GLOBAL_OUTDATED_MINOR=0
+GLOBAL_OUTDATED_MAJOR=0
 GLOBAL_MISSING_META=0
 GLOBAL_MISSING_SOURCE=0
 GLOBAL_ERRORS=0
@@ -77,6 +99,7 @@ check_locale() {
     local TOTAL=0
     local CURRENT=0
     local OUTDATED=0
+    local OUTDATED_MAJOR=0
     local MISSING_META=0
     local MISSING_SOURCE=0
 
@@ -181,10 +204,29 @@ check_locale() {
                 CURRENT=$((CURRENT + 1))
             fi
         else
-            echo -e "${RED}[OUTDATED]${NC} $rel_path"
-            echo "          Source: $source_version -> $current_source_version"
-            echo "          Translation: $trans_version"
-            OUTDATED=$((OUTDATED + 1))
+            local diff_level
+            diff_level=$(semver_diff "$source_version" "$current_source_version")
+            case "$diff_level" in
+                MAJOR)
+                    echo -e "${RED}[MAJOR]${NC}   $rel_path"
+                    echo "          Source: $source_version -> $current_source_version  ⛔ MAJOR version gap — release blocker"
+                    echo "          Translation: $trans_version"
+                    OUTDATED=$((OUTDATED + 1))
+                    OUTDATED_MAJOR=$((OUTDATED_MAJOR + 1))
+                    ;;
+                MINOR)
+                    echo -e "${ORANGE}[MINOR]${NC}   $rel_path"
+                    echo "          Source: $source_version -> $current_source_version  ⚠️  MINOR version gap — update before release"
+                    echo "          Translation: $trans_version"
+                    OUTDATED=$((OUTDATED + 1))
+                    ;;
+                *)
+                    echo -e "${YELLOW}[PATCH]${NC}   $rel_path"
+                    echo "          Source: $source_version -> $current_source_version  💡 PATCH gap — advisory"
+                    echo "          Translation: $trans_version"
+                    OUTDATED=$((OUTDATED + 1))
+                    ;;
+            esac
         fi
 
     done < <(find "$LOCALE_DIR" -name "*.md" -type f | sort)
@@ -297,11 +339,12 @@ check_locale() {
     GLOBAL_TOTAL=$((GLOBAL_TOTAL + TOTAL))
     GLOBAL_CURRENT=$((GLOBAL_CURRENT + CURRENT))
     GLOBAL_OUTDATED=$((GLOBAL_OUTDATED + OUTDATED))
+    GLOBAL_OUTDATED_MAJOR=$((GLOBAL_OUTDATED_MAJOR + OUTDATED_MAJOR))
     GLOBAL_MISSING_META=$((GLOBAL_MISSING_META + MISSING_META))
     GLOBAL_MISSING_SOURCE=$((GLOBAL_MISSING_SOURCE + MISSING_SOURCE))
 
-    # Return error status if this locale has issues
-    if [ $OUTDATED -gt 0 ] || [ $MISSING_SOURCE -gt 0 ]; then
+    # Return error status if this locale has blocking issues
+    if [ $OUTDATED_MAJOR -gt 0 ] || [ $MISSING_SOURCE -gt 0 ]; then
         return 1
     fi
     return 0
@@ -323,24 +366,37 @@ echo ""
 echo -e "Locales checked:    ${BLUE}$(echo $LOCALES | wc -w | tr -d ' ')${NC}"
 echo -e "Total files:        ${BLUE}$GLOBAL_TOTAL${NC}"
 echo -e "Current:            ${GREEN}$GLOBAL_CURRENT${NC}"
-echo -e "Outdated:           ${RED}$GLOBAL_OUTDATED${NC}"
+echo -e "Outdated (MAJOR):   ${RED}$GLOBAL_OUTDATED_MAJOR${NC}  ← release blocker if > 0"
+echo -e "Outdated (total):   ${YELLOW}$GLOBAL_OUTDATED${NC}"
 echo -e "Missing metadata:   ${YELLOW}$GLOBAL_MISSING_META${NC}"
 echo -e "Missing source:     ${RED}$GLOBAL_MISSING_SOURCE${NC}"
 echo ""
+echo -e "Severity legend:"
+echo -e "  ${RED}[MAJOR]${NC}  Major version gap — release blocker (exit 1)"
+echo -e "  ${ORANGE}[MINOR]${NC}  Minor version gap — update before release (advisory)"
+echo -e "  ${YELLOW}[PATCH]${NC}  Patch version gap — update when convenient (advisory)"
+echo -e "  ${RED}[MISSING]${NC} Source file missing — release blocker (exit 1)"
+echo ""
 
-# Exit with error only if translations are MISSING (not merely outdated).
-# Outdated translations are advisory warnings — they degrade gracefully.
-# Missing translations are release blockers — adopters see no content at all.
+# Exit codes:
+#   1 = release blocker (MISSING or MAJOR version gap)
+#   0 = clean or advisory-only (MINOR/PATCH outdated)
 if [ $GLOBAL_MISSING_SOURCE -gt 0 ] || [ $GLOBAL_ERRORS -gt 0 ]; then
-    echo -e "${RED}Some translations are missing — release blocker!${NC}"
+    echo -e "${RED}❌ Some translations are MISSING — release blocker!${NC}"
+    echo ""
+    exit 1
+elif [ $GLOBAL_OUTDATED_MAJOR -gt 0 ]; then
+    echo -e "${RED}❌ Some translations have MAJOR version gaps — release blocker!${NC}"
+    echo -e "   Update the affected translations before publishing a stable release."
     echo ""
     exit 1
 elif [ $GLOBAL_OUTDATED -gt 0 ]; then
-    echo -e "${YELLOW}Some translations are outdated (advisory). Update when convenient.${NC}"
+    MINOR_COUNT=$((GLOBAL_OUTDATED - GLOBAL_OUTDATED_MAJOR))
+    echo -e "${YELLOW}⚠️  $MINOR_COUNT translation(s) have MINOR/PATCH gaps (advisory). Update when convenient.${NC}"
     echo ""
     exit 0
 else
-    echo -e "${GREEN}All translations are in sync!${NC}"
+    echo -e "${GREEN}✅ All translations are in sync!${NC}"
     echo ""
     exit 0
 fi

@@ -178,6 +178,25 @@ else
     echo -e "${YELLOW}[WARN]${NC} check-version-sync.sh not found, skipping verification"
 fi
 
+# ── Translation sync advisory check ──────────────────────────────────────────
+echo ""
+echo "── Checking translation sync status ─────────────────────────────────────"
+echo ""
+
+if [ -f "$SCRIPT_DIR/check-translation-sync.sh" ]; then
+    # Run in advisory mode: show output, but only fail on MAJOR gaps or MISSING
+    # (exit code from the script already encodes this distinction)
+    if ! bash "$SCRIPT_DIR/check-translation-sync.sh" 2>&1; then
+        echo ""
+        echo -e "${YELLOW}[WARN]${NC} Translation sync check found release-blocking issues."
+        echo "       Update affected translations before \`npm publish\`."
+        echo ""
+        # Advisory: don't exit 1 here — developer may choose to fix separately
+    fi
+else
+    echo -e "${YELLOW}[SKIP]${NC} check-translation-sync.sh not found"
+fi
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""
 echo "=========================================="
@@ -188,7 +207,8 @@ echo -e "  Version bumped to: ${GREEN}${NEW_VERSION}${NC}"
 echo ""
 echo "  Next steps:"
 echo "  1. Update CHANGELOG.md (EN + zh-TW + zh-CN) with release notes"
-echo "  2. git add -A && git commit -m \"chore(release): $NEW_VERSION\""
-echo "  3. git tag v$NEW_VERSION && git push origin main v$NEW_VERSION"
-echo "  4. Create GitHub Release (pre-release: $IS_PRERELEASE)"
+echo "  2. Fix any MAJOR/MISSING translation issues shown above"
+echo "  3. git add -A && git commit -m \"chore(release): $NEW_VERSION\""
+echo "  4. git tag v$NEW_VERSION && git push origin main v$NEW_VERSION"
+echo "  5. Create GitHub Release (pre-release: $IS_PRERELEASE)"
 echo ""

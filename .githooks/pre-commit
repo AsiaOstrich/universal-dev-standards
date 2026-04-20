@@ -1,0 +1,49 @@
+#!/bin/bash
+#
+# UDS Pre-Commit Hook
+# 預提交鉤子
+#
+# Triggered automatically on every `git commit`.
+# Run `./scripts/install-hooks.sh` once after cloning to activate.
+#
+# What this hook does:
+#   1. If any core/*.md standards are staged → warn about outdated translations
+#   2. Never blocks the commit (translation OUTDATED is advisory, not a hard gate)
+#
+# Hard gates (exit 1) live in pre-release-check.sh, not here.
+#
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# ── Check for staged core standard files ─────────────────────────────────────
+STAGED_CORE=$(git diff --cached --name-only 2>/dev/null | grep "^core/.*\.md$" || true)
+
+if [ -z "$STAGED_CORE" ]; then
+    exit 0  # Nothing in core/ — skip translation check entirely
+fi
+
+# Colors
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+echo ""
+echo -e "${CYAN}[pre-commit] Core standards modified — checking translations...${NC}"
+echo -e "${CYAN}Staged files:${NC}"
+echo "$STAGED_CORE" | sed 's/^/  /'
+echo ""
+
+# Run translation sync check (advisory only — never exit 1 from this hook)
+SYNC_OUTPUT=$(bash "$SCRIPT_DIR/scripts/check-translation-sync.sh" 2>&1)
+OUTDATED_LINES=$(echo "$SYNC_OUTPUT" | grep -E "\[MAJOR\]|\[MINOR\]|\[PATCH\]" || true)
+
+if [ -n "$OUTDATED_LINES" ]; then
+    echo -e "${YELLOW}⚠️  Outdated translations detected for modified standards:${NC}"
+    echo "$OUTDATED_LINES" | sed 's/^/  /'
+    echo ""
+    echo -e "${YELLOW}  Tip: run \`bash scripts/check-translation-sync.sh\` for full details.${NC}"
+    echo -e "${YELLOW}  Commit proceeds — update translations when convenient.${NC}"
+    echo ""
+fi
+
+exit 0

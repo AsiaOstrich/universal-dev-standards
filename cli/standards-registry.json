@@ -2040,6 +2040,17 @@
       },
       "category": "core",
       "description": "Skills must anchor to a Standard; Standards may exist without a Skill. Orphan-skill detection workflow (DEC-043 Wave 1 Governance Meta, XSPEC-070, trial)."
+    },
+    {
+      "id": "translation-lifecycle-standards",
+      "name": "Translation Lifecycle Standards",
+      "nameZh": "翻譯生命週期標準",
+      "source": {
+        "human": "core/translation-lifecycle-standards.md",
+        "ai": "ai/standards/translation-lifecycle-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "MISSING vs OUTDATED distinction, semver-aware severity (PATCH/MINOR/MAJOR), and automation integration (pre-commit hook, release gate) for multi-locale documentation"
     }
   ]
 }
