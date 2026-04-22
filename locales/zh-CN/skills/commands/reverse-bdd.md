@@ -1,4 +1,12 @@
 ---
+source: ../../../../skills/commands/reverse-bdd.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
+---
 description: [UDS] Transform SDD acceptance criteria to BDD scenarios
 allowed-tools: Read, Grep, Glob, Write
 argument-hint: "[spec file or source directory | 规格文件或源代码目录]"

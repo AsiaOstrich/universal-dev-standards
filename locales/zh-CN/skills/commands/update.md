@@ -1,4 +1,12 @@
 ---
+source: ../../../../skills/commands/update.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
+---
 description: [UDS] Update development standards to latest version
 allowed-tools: Read, Bash(uds update:*), Bash(uds check:*), Bash(uds configure:*), Bash(npx:*), Bash(cat .standards/*), Bash(ls .claude/*), Bash(ls .opencode/*), Bash(ls .github/*)
 argument-hint: "[--yes] [--offline] [--beta]"

@@ -1,3 +1,11 @@
+---
+source: ../../../docs/FEATURE-REFERENCE.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档

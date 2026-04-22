@@ -1,3 +1,11 @@
+---
+source: ../../../core/workflow-state-protocol.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
 # 工作流程狀態協議
 
 > **語言**: [English](../../../core/workflow-state-protocol.md) | 繁體中文

@@ -1,4 +1,12 @@
 ---
+source: ../../../../skills/commands/sdd.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
+---
 description: [UDS] Create or review specification documents for Spec-Driven Development
 allowed-tools: Read, Write, Grep, Glob, Bash(git:*), Bash(npm test:*)
 argument-hint: "[create|review|approve|implement|verify] [spec name or file | 规格名称或文件]"

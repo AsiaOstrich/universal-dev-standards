@@ -1,3 +1,11 @@
+---
+source: ../../../docs/CLI-FLOW.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
 # CLI 命令流程
 
 > **Language**: [English](../../../docs/CLI-FLOW.md) | [繁體中文](../../zh-TW/docs/CLI-FLOW.md) | 简体中文

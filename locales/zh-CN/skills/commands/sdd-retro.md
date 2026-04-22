@@ -1,4 +1,12 @@
 ---
+source: ../../../../skills/commands/sdd-retro.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
+---
 description: [UDS] Create retroactive specs for untracked feat/fix commits
 allowed-tools: Read, Write, Grep, Glob, Bash(git log:*), Bash(git show:*), Bash(git diff:*), Bash(mkdir:*)
 argument-hint: "[--since=<date> | --last=<N> | 自动扫描]"

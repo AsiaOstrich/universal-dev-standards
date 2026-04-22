@@ -1,3 +1,11 @@
+---
+source: ../../SECURITY.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
 # 安全政策
 
 ## 支援的版本

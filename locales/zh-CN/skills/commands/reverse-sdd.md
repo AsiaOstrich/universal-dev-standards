@@ -1,4 +1,12 @@
 ---
+source: ../../../../skills/commands/reverse-sdd.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
+---
 description: [UDS] Reverse engineer code into SDD specification document
 allowed-tools: Read, Grep, Glob, Write
 argument-hint: "[source file or directory | 源文件或目录]"

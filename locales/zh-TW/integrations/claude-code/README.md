@@ -1,3 +1,11 @@
+---
+source: ../../../../integrations/claude-code/README.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
 # Claude Code 整合
 
 > **語言**: English | [繁體中文](README.md)

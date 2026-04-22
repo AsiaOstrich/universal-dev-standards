@@ -1,3 +1,11 @@
+---
+source: ../../../core/ai-friendly-architecture.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
 # AI 友好架构标准
 
 > **语言**: [English](../../../core/ai-friendly-architecture.md) | 简体中文

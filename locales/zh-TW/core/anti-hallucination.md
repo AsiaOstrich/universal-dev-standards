@@ -1,3 +1,11 @@
+---
+source: ../../../core/anti-hallucination.md
+source_version: 1.5.1
+translation_version: 1.5.1
+last_synced: 2026-04-22
+status: current
+---
+
 # 防幻覺規範 (Anti-Hallucination Standards)
 
 > **語言**: [English](../../../core/anti-hallucination.md) | 繁體中文

@@ -1,3 +1,11 @@
+---
+source: ../../../core/workflow-enforcement.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
 # 工作流程强制执行标准
 
 **适用范围**：所有使用结构化开发方法论的软件项目

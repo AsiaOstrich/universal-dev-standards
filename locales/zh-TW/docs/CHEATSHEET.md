@@ -1,3 +1,11 @@
+---
+source: ../../../docs/CHEATSHEET.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
 # UDS 速查表
 
 > Quick reference for all UDS features | Last updated: 2026-03-24

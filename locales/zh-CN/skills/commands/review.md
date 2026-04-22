@@ -1,4 +1,12 @@
 ---
+source: ../../../../skills/commands/review.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
+---
 description: [UDS] Perform systematic code review with checklist
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
 argument-hint: "[file path or branch | 文件路径或分支名称]"

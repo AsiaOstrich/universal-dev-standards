@@ -1,3 +1,11 @@
+---
+source: ../../../core/refactoring-standards.md
+source_version: 2.1.0
+translation_version: 2.1.0
+last_synced: 2026-04-22
+status: current
+---
+
 # 重構標準
 
 > **語言**: [English](../../../core/refactoring-standards.md) | 繁體中文

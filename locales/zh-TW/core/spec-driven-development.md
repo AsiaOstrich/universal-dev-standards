@@ -1,3 +1,11 @@
+---
+source: ../../../core/spec-driven-development.md
+source_version: 2.2.0
+translation_version: 2.2.0
+last_synced: 2026-04-22
+status: current
+---
+
 # 規格驅動開發 (SDD) 標準
 
 > **語言**: [English](../../../core/spec-driven-development.md) | 繁體中文

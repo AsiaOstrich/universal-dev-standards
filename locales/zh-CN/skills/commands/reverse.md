@@ -1,4 +1,12 @@
 ---
+source: ../../../../skills/commands/reverse.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
+---
 name: reverse
 description: [UDS] Reverse engineer code to Specs, BDD, or TDD coverage.
 argument-hint: "[spec|bdd|tdd] <input> [--output <file>]"

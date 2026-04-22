@@ -1,3 +1,11 @@
+---
+source: ../../../docs/archive/MIGRATION-V5.md
+source_version: 5.0.0
+translation_version: 5.0.0
+last_synced: 2026-04-22
+status: current
+---
+
 # 遷移指南：Universal Dev Standards V5
 
 > **語言**: English | [繁體中文](MIGRATION-V5.md)

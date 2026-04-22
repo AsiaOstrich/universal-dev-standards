@@ -1,3 +1,11 @@
+---
+source: ../../../core/workflow-enforcement.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
 # 工作流程強制執行標準
 
 **適用範圍**：所有使用結構化開發方法論的軟體專案

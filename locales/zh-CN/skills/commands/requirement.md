@@ -1,4 +1,12 @@
 ---
+source: ../../../../skills/commands/requirement.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
+---
 description: [UDS] Write user stories and requirements following INVEST criteria
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[feature name or description | 功能名称或描述]"

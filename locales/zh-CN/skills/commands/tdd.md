@@ -1,4 +1,12 @@
 ---
+source: ../../../../skills/commands/tdd.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: experimental
+---
+
+---
 description: [UDS] Guide through Test-Driven Development workflow
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
 argument-hint: "[feature or function to implement | 要实现的功能]"

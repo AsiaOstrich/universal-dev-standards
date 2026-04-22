@@ -1,3 +1,11 @@
+---
+source: ../../README.md
+source_version: 5.1.1
+translation_version: 5.1.1
+last_synced: 2026-04-22
+status: current
+---
+
 # Universal Development Standards
 
 [![npm version](https://img.shields.io/npm/v/universal-dev-standards.svg)](https://www.npmjs.com/package/universal-dev-standards)

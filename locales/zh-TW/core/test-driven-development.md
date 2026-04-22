@@ -1,3 +1,11 @@
+---
+source: ../../../core/test-driven-development.md
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-04-22
+status: current
+---
+
 # 測試驅動開發 (TDD) 標準
 
 > **語言**: [English](../../../core/test-driven-development.md) | 繁體中文

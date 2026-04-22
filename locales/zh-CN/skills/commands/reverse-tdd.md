@@ -1,4 +1,12 @@
 ---
+source: ../../../../skills/commands/reverse-tdd.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
+---
 description: [UDS] Analyze BDD-TDD coverage gaps
 allowed-tools: Read, Grep, Glob, Write
 argument-hint: "[feature file or test directory | Feature 文件或测试目录]"

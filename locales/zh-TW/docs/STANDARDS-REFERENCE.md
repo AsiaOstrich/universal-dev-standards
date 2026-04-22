@@ -1,3 +1,11 @@
+---
+source: ../../../docs/STANDARDS-REFERENCE.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
 # UDS 核心規範與業界標準對照表
 # UDS Core Standards vs Industry Standards Reference
 

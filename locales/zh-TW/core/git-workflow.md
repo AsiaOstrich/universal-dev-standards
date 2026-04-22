@@ -1,3 +1,11 @@
+---
+source: ../../../core/git-workflow.md
+source_version: 1.4.0
+translation_version: 1.4.0
+last_synced: 2026-04-22
+status: current
+---
+
 # Git 工作流程標準
 
 > **語言**: [English](../../../core/git-workflow.md) | 繁體中文

@@ -1,3 +1,11 @@
+---
+source: ../../MAINTENANCE.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
 # 維護指南
 
 > **維護流程已遷至 AsiaOstrich dev-platform 規劃中心。**

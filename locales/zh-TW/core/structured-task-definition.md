@@ -1,3 +1,11 @@
+---
+source: ../../../core/structured-task-definition.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-04-22
+status: current
+---
+
 # 結構化任務定義標準
 
 > **語言**: [English](../../../core/structured-task-definition.md) | 繁體中文
