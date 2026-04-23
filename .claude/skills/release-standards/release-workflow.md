@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/release-standards/release-workflow.md
-source_version: 2.2.0
-translation_version: 2.2.0
-last_synced: 2026-01-26
+source_version: 2.3.0
+translation_version: 2.3.0
+last_synced: 2026-04-23
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **Language**: [English](../../../../skills/release-standards/release-workflow.md) | 繁體中文
 
-**版本**: 2.2.0
-**最後更新**: 2026-01-26
+**版本**: 2.3.0
+**最後更新**: 2026-04-23
 **適用範圍**: 所有使用語義化版本的軟體專案
 
 ---
@@ -165,6 +165,25 @@ git commit -m "chore(release): X.Y.Z"
 git tag vX.Y.Z
 git push origin main --tags
 ```
+
+### 步驟 6.5（可選）：打包發布檔
+
+> 執行時機：已完成步驟 6（commit + tag 已推送），且需要提供平台安裝包或二進位執行檔。
+> 無需打包（純 npm/PyPI 套件）可跳過此步驟。
+
+```
+執行 /release package 進入互動式打包引導：
+
+1. Skill 自動偵測技術棧
+2. 確認目標打包平台
+3. Skill 輸出環境準備清單（憑證、環境變數）
+4. Skill 輸出打包命令（複製後自行執行）
+5. 執行完成後，Skill 輸出 checksums 驗證命令
+```
+
+詳細打包命令範本請參閱 [guide.md 打包指引](./guide.md#打包指引release-package)。
+
+---
 
 ### 步驟 7：建立 Release
 
@@ -384,6 +403,7 @@ npm version patch
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 2.3.0 | 2026-04-23 | 新增步驟 6.5（可選）打包發布檔，整合 `/release package` 引導 |
 | 2.2.0 | 2026-01-26 | 簡化為通用 Beta→Stable 流程；Alpha→Beta→Stable 移至專案特定配置 |
 | 2.1.0 | 2026-01-26 | 採用「版號優先」流程：更新版號 → 測試 → 驗證 → 發布 |
 | 2.0.0 | 2026-01-14 | 重構為通用指南，專案特有內容移至 CLAUDE.md |

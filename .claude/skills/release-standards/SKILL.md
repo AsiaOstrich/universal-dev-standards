@@ -1,14 +1,14 @@
 ---
 source: ../../../../skills/release-standards/SKILL.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-02-10
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-04-23
 status: current
-description: "[UDS] 引導遵循語義化版本和變更日誌最佳實踐的發布流程"
+description: "[UDS] 引導遵循語義化版本和變更日誌最佳實踐的發布流程，含打包指引"
 name: release
-allowed-tools: Read, Write, Grep, Bash(git:*), Bash(npm version:*)
+allowed-tools: Read, Write, Grep, Bash(git:*), Bash(npm version:*), Bash(ls:*), Bash(sha256sum:*), Bash(find:*)
 scope: universal
-argument-hint: "[version]"
+argument-hint: "[version|package]"
 disable-model-invocation: true
 ---
 
@@ -26,6 +26,7 @@ disable-model-invocation: true
 | `finish` | 完成發布（標籤、合併） | Finalize release (tag, merge) |
 | `changelog` | 產生或更新變更日誌 | Generate or update CHANGELOG.md |
 | `check` | 執行發布前檢查 | Run pre-release verification |
+| `package` | 打包發布檔（可選，在 tag 後執行） | Package release artifacts (optional, run after tagging) |
 
 ## 版本類型
 
@@ -59,15 +60,24 @@ disable-model-invocation: true
 - `/release changelog 1.2.0` - 更新 v1.2.0 的 CHANGELOG
 - `/release finish 1.2.0` - 完成並標籤 v1.2.0
 - `/release check` - 執行發布前驗證
+- `/release package` - 偵測技術棧並引導打包（在 tag 後、建立 Release 前執行）
 
 ## 下一步引導
 
-`/release` 完成後，AI 助手應建議：
+`/release finish` 完成後，AI 助手應建議：
 
 > **發布流程完成。建議下一步：**
+> - （若需打包）執行 `/release package` 偵測技術棧並產出打包命令
 > - 驗證 npm 發布狀態 `npm view <pkg> dist-tags`
 > - 建立 GitHub Release 並撰寫發布說明
 > - 通知利害關係人新版本已發布
+
+`/release package` 完成後，AI 助手應建議：
+
+> **打包指引完成。建議下一步：**
+> - 執行上方命令清單進行打包
+> - 打包完成後執行 `/release finish` 繼續建立 GitHub Release
+> - 上傳 artifacts 與 checksums.txt 至 GitHub Release
 
 ## 參考
 

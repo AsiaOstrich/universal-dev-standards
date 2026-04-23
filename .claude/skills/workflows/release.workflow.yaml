@@ -7,18 +7,18 @@
 # Extended with enterprise-grade checklists, security checks, and multi-platform support.
 
 name: release
-version: 1.1.0
+version: 1.2.0
 description: |
   Complete release workflow for software projects.
-  Guides version planning, changelog update, and release creation.
-  Includes security checks, multi-platform publishing, and team notification guidance.
-  Keywords: release, publish, version, changelog, 發布, 版本.
+  Guides version planning, changelog update, packaging, and release creation.
+  Includes security checks, multi-platform publishing, packaging guidance (Step 5.5), and team notification guidance.
+  Keywords: release, publish, version, changelog, package, packaging, 發布, 版本, 打包.
 
 metadata:
   author: universal-dev-standards
   category: release
   difficulty: intermediate
-  estimated_steps: 7
+  estimated_steps: 8
   related_skills:
     - release-standards
 
@@ -553,6 +553,129 @@ steps:
       - GPG signed (if configured)
       - Pushed to remote
       - Protected branch rules satisfied
+
+  # Step 5.5: Package Artifacts (Optional)
+  - id: package-artifacts
+    name: Package Artifacts (Optional)
+    type: manual
+    phase: execution
+    optional: true
+    description: |
+      Package release artifacts before uploading to GitHub Release.
+      Skip this step for pure registry packages (npm/PyPI only).
+      Use /release package to enter interactive packaging guidance.
+    inputs:
+      - tag_name
+      - new_version
+    outputs:
+      - artifacts_path
+      - checksums_file
+    checklist:
+      - Tech stack detected (Electron / Go / Python / npm)
+      - Target platforms confirmed
+      - Environment prerequisites verified (certificates, env vars)
+      - Packaging commands executed
+      - Artifacts present in dist/ directory
+      - SHA256 checksums generated (checksums.txt)
+    instructions: |
+      執行 `/release package` 進入互動式打包引導。
+
+      ---
+
+      **自動偵測邏輯：**
+
+      | 偵測條件 | 識別結果 |
+      |---------|---------|
+      | `package.json` 含 `electron` | Electron 應用 |
+      | `package.json` 含 `pkg`/`nexe` | Node.js CLI |
+      | `package.json`（無以上） | npm 套件 |
+      | `Cargo.toml` | Rust |
+      | `pyproject.toml` / `setup.py` | Python |
+      | `go.mod` | Go CLI |
+
+      ---
+
+      **Electron 應用打包：**
+
+      環境準備：
+      ```bash
+      # macOS Notarization（必要）
+      export APPLE_ID="your@email.com"
+      export APPLE_APP_SPECIFIC_PASSWORD="xxxx-xxxx-xxxx-xxxx"
+      export APPLE_TEAM_ID="XXXXXXXXXX"
+
+      # Windows Authenticode（必要）
+      export CSC_LINK="path/to/cert.pfx"
+      export CSC_KEY_PASSWORD="your-cert-password"
+      ```
+
+      打包命令：
+      ```bash
+      npx electron-builder --mac dmg
+      npx electron-builder --win nsis
+      npx electron-builder --linux AppImage deb
+      ```
+
+      ---
+
+      **Go CLI 打包：**
+
+      ```bash
+      # 手動 cross-compile
+      GOOS=darwin  GOARCH=amd64 go build -o dist/myapp-darwin-amd64  .
+      GOOS=darwin  GOARCH=arm64 go build -o dist/myapp-darwin-arm64  .
+      GOOS=linux   GOARCH=amd64 go build -o dist/myapp-linux-amd64   .
+      GOOS=linux   GOARCH=arm64 go build -o dist/myapp-linux-arm64   .
+      GOOS=windows GOARCH=amd64 go build -o dist/myapp-windows-amd64.exe .
+
+      # 或使用 goreleaser（建議）
+      goreleaser release --clean
+      ```
+
+      ---
+
+      **Python CLI 打包：**
+
+      ```bash
+      # PyInstaller（單一執行檔）
+      pyinstaller --onefile --name myapp src/main.py
+
+      # poetry wheel + sdist（PyPI 用）
+      poetry build
+      ```
+
+      ---
+
+      **npm 套件打包：**
+
+      ```bash
+      # 確認內容
+      npm pack --dry-run
+
+      # 打包（產出 .tgz）
+      npm pack
+
+      # 發布（可選，也可在 Step 6 統一處理）
+      npm publish          # @latest
+      npm publish --tag beta
+      ```
+
+      ---
+
+      **Artifacts 驗證（所有技術棧通用）：**
+
+      ```bash
+      # 確認 artifacts 存在
+      ls -la dist/
+
+      # 生成 checksums（必做）
+      sha256sum dist/* > dist/checksums.txt
+      cat dist/checksums.txt
+      ```
+
+      ⚠️ **知識層設計說明：**
+      以上命令需複製後自行在終端執行。打包涉及本地憑證與工具鏈，
+      Skill 不自動執行以確保安全性與可控性。
 
   # Step 6: Create GitHub Release
   - id: create-release

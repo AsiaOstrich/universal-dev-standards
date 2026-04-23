@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/release-standards/SKILL.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-01-02
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-04-23
 status: current
 description: |
   語意化版本控制和變更日誌格式化的軟體發布標準。
@@ -174,10 +174,212 @@ This project follows **Keep a Changelog** format.
 
 ---
 
+---
+
+## 打包指引（`/release package`）
+
+在建立 GitHub Release（Step 6）之前，使用 `/release package` 引導完成打包。
+
+### 設計原則
+
+Skill 採用**知識層**模式：輸出命令清單，不自動執行。打包涉及本地憑證與工具鏈，Skill 無法保證環境正確；使用者複製命令後自行執行，確保可控。
+
+---
+
+### 技術棧自動偵測邏輯
+
+執行 `/release package` 時，Skill 依以下優先序讀取專案檔案識別技術棧：
+
+| 偵測順序 | 偵測條件 | 識別結果 |
+|---------|---------|---------|
+| 1 | `package.json` 含 `electron` 相依 | Electron 應用 |
+| 2 | `package.json` 含 `pkg` 或 `nexe` 相依 | Node.js CLI |
+| 3 | `package.json`（無以上相依） | npm 套件 |
+| 4 | `Cargo.toml` 存在 | Rust / Cargo |
+| 5 | `pyproject.toml` 或 `setup.py` 存在 | Python 套件 |
+| 6 | `go.mod` 存在 | Go CLI |
+| 7 | 以上皆無 | 請使用者手動指定 |
+
+---
+
+### Wave 1 技術棧打包指引
+
+#### Electron 應用
+
+**環境準備：**
+
+| 平台 | 必要環境變數 / 工具 |
+|------|-------------------|
+| macOS | `APPLE_ID`、`APPLE_APP_SPECIFIC_PASSWORD`、`APPLE_TEAM_ID`（Notarization 用）|
+| Windows | 程式碼簽章憑證（`.pfx` 或 HSM），`CSC_LINK`、`CSC_KEY_PASSWORD` |
+| Linux | 無額外憑證需求 |
+
+**打包命令（以 electron-builder 為例）：**
+
+```bash
+# 確認 electron-builder 已安裝
+npx electron-builder --version
+
+# 打包所有平台（需在 CI 或各平台本地執行）
+npx electron-builder --mac --win --linux
+
+# 僅打包 macOS
+npx electron-builder --mac
+
+# 僅打包特定格式
+npx electron-builder --mac dmg
+npx electron-builder --win nsis
+npx electron-builder --linux AppImage deb
+```
+
+**Artifacts 驗證：**
+
+```bash
+ls -la dist/
+# 預期輸出：*.dmg / *.exe / *.AppImage / *.deb
+
+sha256sum dist/*.dmg dist/*.exe dist/*.AppImage > dist/checksums.txt
+cat dist/checksums.txt
+```
+
+---
+
+#### Go CLI
+
+**環境準備：**
+
+```bash
+# 確認 Go 環境
+go version
+
+# 安裝 goreleaser（可選，建議用於多平台）
+go install github.com/goreleaser/goreleaser/v2@latest
+```
+
+**打包命令：**
+
+```bash
+# 方法 1：手動 cross-compile（無額外工具）
+GOOS=darwin  GOARCH=amd64 go build -o dist/myapp-darwin-amd64  .
+GOOS=darwin  GOARCH=arm64 go build -o dist/myapp-darwin-arm64  .
+GOOS=linux   GOARCH=amd64 go build -o dist/myapp-linux-amd64   .
+GOOS=linux   GOARCH=arm64 go build -o dist/myapp-linux-arm64   .
+GOOS=windows GOARCH=amd64 go build -o dist/myapp-windows-amd64.exe .
+
+# 方法 2：goreleaser（自動 matrix + 打包 tar.gz）
+goreleaser release --clean
+# 或先測試
+goreleaser release --snapshot --clean
+```
+
+**Artifacts 驗證：**
+
+```bash
+ls -la dist/
+sha256sum dist/myapp-* > dist/checksums.txt
+```
+
+---
+
+#### Python CLI
+
+**環境準備：**
+
+```bash
+# 方法 1：PyInstaller（產出單一執行檔）
+pip install pyinstaller
+
+# 方法 2：poetry build（產出 wheel + sdist，適合 PyPI 發布）
+pip install poetry
+```
+
+**打包命令：**
+
+```bash
+# PyInstaller — 打包成單一執行檔
+pyinstaller --onefile --name myapp src/main.py
+
+# 或使用 spec 檔（若已有 myapp.spec）
+pyinstaller myapp.spec
+
+# poetry — 打包 wheel + sdist
+poetry build
+# 產出：dist/myapp-X.Y.Z.tar.gz  dist/myapp-X.Y.Z-py3-none-any.whl
+
+# 發布到 PyPI
+twine upload dist/*
+# 或先測試
+twine upload --repository testpypi dist/*
+```
+
+**Artifacts 驗證：**
+
+```bash
+ls -la dist/
+sha256sum dist/* > dist/checksums.txt
+```
+
+---
+
+#### npm 套件
+
+**環境準備：**
+
+```bash
+# 確認 npm 登入狀態
+npm whoami
+
+# 確認 2FA 設定（若啟用需準備 OTP）
+npm profile get
+```
+
+**打包命令：**
+
+```bash
+# 先 dry-run 確認內容
+npm pack --dry-run
+
+# 實際打包（產出 .tgz）
+npm pack
+
+# 正式發布
+npm publish                    # 穩定版（@latest）
+npm publish --tag beta         # Beta 版
+npm publish --tag alpha        # Alpha 版
+
+# 2FA 啟用時
+npm publish --otp=XXXXXX
+```
+
+**發布驗證：**
+
+```bash
+npm view <package-name> dist-tags
+npm view <package-name> version
+```
+
+---
+
+### 通用 Checksums 與 GitHub Release 上傳
+
+打包完成後，上傳 artifacts 至 GitHub Release：
+
+```bash
+# 生成 checksums（含所有 artifacts）
+sha256sum dist/* > dist/checksums.txt
+
+# 上傳至 GitHub Release（需先完成 Step 5 建立 tag）
+gh release upload vX.Y.Z dist/myapp-darwin-amd64 dist/myapp-linux-amd64
+gh release upload vX.Y.Z dist/checksums.txt
+```
+
+---
+
 ## 版本歷史
 
 | 版本 | 日期 | 變更內容 |
 |---------|------|---------|
+| 1.2.0 | 2026-04-23 | 新增：打包指引章節（/release package，Wave 1 四個技術棧）|
 | 1.1.0 | 2026-01-02 | 新增：發布流程指南，包含完整發布流程 |
 | 1.0.0 | 2025-12-24 | 新增：標準段落（目的、相關標準、版本歷史、授權條款） |
 
