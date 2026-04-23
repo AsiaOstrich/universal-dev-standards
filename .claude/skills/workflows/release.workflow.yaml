@@ -7,11 +7,11 @@
 # Extended with enterprise-grade checklists, security checks, and multi-platform support.
 
 name: release
-version: 1.2.0
+version: 1.3.0
 description: |
   Complete release workflow for software projects.
   Guides version planning, changelog update, packaging, and release creation.
-  Includes security checks, multi-platform publishing, packaging guidance (Step 5.5), and team notification guidance.
+  Includes security checks, multi-platform publishing, packaging guidance (Step 5.5 — Wave 1 & 2), and team notification guidance.
   Keywords: release, publish, version, changelog, package, packaging, 發布, 版本, 打包.
 
 metadata:
@@ -584,14 +584,17 @@ steps:
 
       **自動偵測邏輯：**
 
-      | 偵測條件 | 識別結果 |
-      |---------|---------|
-      | `package.json` 含 `electron` | Electron 應用 |
-      | `package.json` 含 `pkg`/`nexe` | Node.js CLI |
-      | `package.json`（無以上） | npm 套件 |
-      | `Cargo.toml` | Rust |
-      | `pyproject.toml` / `setup.py` | Python |
-      | `go.mod` | Go CLI |
+      | 偵測條件 | 識別結果 | Wave |
+      |---------|---------|------|
+      | `src-tauri/tauri.conf.json` 存在 | Tauri 應用 | 2 |
+      | `package.json` 含 `electron` | Electron 應用 | 1 |
+      | `package.json` 含 `engines.vscode` | VS Code Extension | 2 |
+      | `package.json` 含 `pkg`/`nexe` | Node.js CLI | 1 |
+      | `package.json`（無以上） | npm 套件 | 1 |
+      | `Dockerfile` 存在 | Docker 映像 | 2 |
+      | `Cargo.toml` | Rust / Cargo | 2 |
+      | `pyproject.toml` / `setup.py` | Python | 1 |
+      | `go.mod` | Go CLI | 1 |
 
       ---
 
@@ -658,6 +661,82 @@ steps:
       # 發布（可選，也可在 Step 6 統一處理）
       npm publish          # @latest
       npm publish --tag beta
+      ```
+
+      ---
+
+      **Rust / Cargo 打包（Wave 2）：**
+
+      ```bash
+      # 方法 1：cargo-dist（推薦，自動 multi-platform）
+      cargo install cargo-dist
+      cargo dist build --release
+
+      # 方法 2：cross 手動 cross-compile
+      cargo install cross
+      cross build --release --target x86_64-unknown-linux-gnu
+      cross build --release --target aarch64-unknown-linux-gnu
+      cross build --release --target x86_64-pc-windows-gnu
+      # macOS（需 macOS 主機）
+      cargo build --release --target aarch64-apple-darwin
+
+      # 打包成 tarball
+      tar czf dist/myapp-linux-amd64.tar.gz -C target/x86_64-unknown-linux-gnu/release myapp
+      ```
+
+      ---
+
+      **Tauri 應用打包（Wave 2）：**
+
+      ```bash
+      # 打包目前平台
+      npm run tauri build
+      # 或
+      npx tauri build
+
+      # 輸出位置：
+      # macOS  → src-tauri/target/release/bundle/dmg/*.dmg
+      # Windows → src-tauri/target/release/bundle/msi/*.msi
+      # Linux  → src-tauri/target/release/bundle/appimage/*.AppImage
+      ```
+
+      > ⚠️ Tauri 必須在目標平台本機執行，跨平台需 CI matrix。
+
+      ---
+
+      **Docker 映像（Multi-Arch）（Wave 2）：**
+
+      ```bash
+      # 建立 multi-arch builder（首次）
+      docker buildx create --name multiarch --driver docker-container --use
+      docker buildx inspect --bootstrap
+
+      # 建置並推送
+      docker buildx build \
+        --platform linux/amd64,linux/arm64 \
+        --tag owner/image:vX.Y.Z \
+        --tag owner/image:latest \
+        --push \
+        .
+
+      # 驗證 manifest
+      docker manifest inspect owner/image:vX.Y.Z
+      ```
+
+      ---
+
+      **VS Code Extension（Wave 2）：**
+
+      ```bash
+      # 打包成 .vsix
+      npm install -g @vscode/vsce
+      vsce package
+
+      # 發布到 VS Code Marketplace
+      vsce publish
+
+      # 發布到 Open VSX（可選）
+      ovsx publish *.vsix -p $OVSX_TOKEN
       ```
 
       ---
