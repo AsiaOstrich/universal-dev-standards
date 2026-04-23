@@ -3,7 +3,7 @@
   "version": "5.1.1",
   "last_updated": "2026-04-20",
   "stats": {
-    "core_standards": 73,
+    "core_standards": 74,
     "skills": 48,
     "slash_commands": 48
   },
@@ -45,6 +45,11 @@
     },
     {
       "id": "anti-hallucination",
+      "category": "governance",
+      "level": 1
+    },
+    {
+      "id": "agent-behavior-discipline",
       "category": "governance",
       "level": 1
     },

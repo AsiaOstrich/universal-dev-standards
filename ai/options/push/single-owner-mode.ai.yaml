@@ -1,0 +1,60 @@
+# Push Option: Single Owner Mode - AI Optimized
+# Parent: push-standards (XSPEC-081)
+# Source: options/push/single-owner-mode.md
+
+id: single-owner-mode
+meta:
+  parent: push-standards
+  version: "1.0.0"
+  updated: "2026-04-24"
+  source: options/push/single-owner-mode.md
+  description: Reduced-friction push mode for personal/solo repositories — removes collaboration guardrails while keeping essential safety checks
+
+best_for:
+  - Personal repositories with sole ownership
+  - Solo open source projects with no external contributors
+  - Forked repositories for personal experimentation
+
+configuration:
+  repo_mode: single-owner
+  protected_branches: [main, master, "release/*", "hotfix/*"]
+  push_gates:
+    default: [lint, test]
+  receipt:
+    output: console
+  auto_pr: false
+
+behaviors:
+  protected_branch_detection:
+    enabled: true
+    confirmation_required: false
+    action: warning_only
+    note: Shows branch name and pending commit count; user proceeds without typing confirmation string
+
+  force_push_guardrail:
+    enabled: true
+    confirmation_required: false
+    action: warning_only
+    shows: commits_count_only
+    note: No author breakdown; records force_push=true in receipt
+
+  pre_push_gates:
+    gates: [lint, test]
+    execution: sequential
+    skip_flag: "--skip-gates"
+    skip_records: gates_skipped=true
+
+  pr_automation:
+    enabled: false
+    auto_pr: false
+    note: No PR prompts after push; use 'gh pr create' manually if needed
+
+  push_receipt:
+    output: console
+    fields: [branch, commit_sha, gates_passed, gates_skipped, force_push, timestamp, target_remote]
+
+comparison_with_team_mode:
+  protected_branch_detection: warning_only  # team: full + confirmation required
+  force_push_guardrail: warning_only        # team: confirmation text required
+  pre_push_gates: identical                 # both: lint + test
+  pr_automation: disabled                  # team: enabled

@@ -705,6 +705,17 @@
       "description": "Guidelines for AI collaboration to prevent hallucination and ensure evidence-based responses"
     },
     {
+      "id": "agent-behavior-discipline",
+      "name": "Agent Behavior Discipline",
+      "nameZh": "Agent 行為紀律標準",
+      "source": {
+        "human": "core/agent-behavior-discipline.md",
+        "ai": "ai/standards/agent-behavior-discipline.ai.yaml"
+      },
+      "category": "core",
+      "description": "Four behavioral disciplines for AI agents: Ask (surface assumptions), Simple (minimum code), Precision (scope only what's needed), Test (loop until verified)"
+    },
+    {
       "id": "ai-friendly-architecture",
       "name": "AI-Friendly Architecture",
       "nameZh": "AI 友善架構",
