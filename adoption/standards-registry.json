@@ -101,6 +101,17 @@
       "description": "Branching strategies including Trunk-Based, GitHub Flow, and GitFlow"
     },
     {
+      "id": "push-standards",
+      "name": "Git Push Safety Gates",
+      "nameZh": "Git 推送安全閘門",
+      "category": "skill",
+      "file": ".standards/push-standards.ai.yaml",
+      "skill": "skills/push/SKILL.md",
+      "tags": ["git", "push", "quality-gate", "safety", "collaboration"],
+      "description": "Git push safety gates, protected branch detection, force-push guardrails, and push receipt audit trail",
+      "implements": ["XSPEC-081"]
+    },
+    {
       "id": "versioning",
       "name": "Semantic Versioning",
       "nameZh": "語意化版本",
