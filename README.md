@@ -156,7 +156,7 @@ UDS (What to do) → DevAP (How agents do it) → VibeOps (Full lifecycle)
 | Layer | Product | Role | License |
 |-------|---------|------|---------|
 | Standards | **UDS** | Development methodology framework | MIT + CC BY 4.0 |
-| Orchestration | [DevAP](https://github.com/AsiaOstrich/dev-autopilot) | Agent-agnostic orchestration engine | Apache-2.0 |
+| Orchestration | [DevAP](https://github.com/AsiaOstrich/dev-autopilot) | Agent-agnostic orchestration engine | MIT |
 | Lifecycle | [VibeOps](https://github.com/AsiaOstrich/vibeops360) | AI-driven software factory | AGPL-3.0-only |
 
 - **UDS** defines development standards → consumed by DevAP (quality gates) and VibeOps (agent pipeline)
