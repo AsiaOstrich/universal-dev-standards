@@ -2062,6 +2062,18 @@
       },
       "category": "core",
       "description": "MISSING vs OUTDATED distinction, semver-aware severity (PATCH/MINOR/MAJOR), and automation integration (pre-commit hook, release gate) for multi-locale documentation"
+    },
+    {
+      "id": "push-standards",
+      "name": "Git Push Safety Gates",
+      "nameZh": "Git Push 安全閘門標準",
+      "source": {
+        "human": "skills/push/SKILL.md",
+        "ai": "ai/standards/push-standards.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": "push",
+      "description": "Git push safety gates, protected branch detection, force-push guardrails, pre-push quality gate enforcement, and push receipt audit trail"
     }
   ]
 }

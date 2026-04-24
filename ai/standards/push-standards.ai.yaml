@@ -1,0 +1,105 @@
+id: push-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-04-23"
+  source: skills/push/SKILL.md
+  description: "Git push safety gates, protected branch detection, force-push guardrails, and push receipt audit trail"
+
+config:
+  protected_branches:
+    default: ["main", "master", "release/*", "hotfix/*"]
+    description: "Branches requiring explicit confirmation before push"
+
+  push_gates:
+    default: ["lint", "test"]
+    optional: ["ac-coverage", "type-check", "security-scan"]
+    description: "Quality gates to run before pushing"
+
+  receipt:
+    output:
+      default: "console"
+      choices: ["console", "file", "both"]
+    file_path: "~/.uds/push-history.jsonl"
+
+  auto_pr:
+    default: true
+    description: "Prompt to create PR after pushing to non-protected branch"
+
+  repo_mode:
+    default: "team"
+    choices: ["team", "single-owner"]
+    description: "single-owner skips PR prompts and reduces collaboration guardrails"
+
+rules:
+  - id: detect-protected-branch
+    trigger: "executing /push"
+    priority: required
+    instruction: |
+      Before pushing, detect the target branch name.
+      If the target matches any protected_branches pattern:
+      1. Display a warning with the branch name
+      2. Show what commits will be pushed
+      3. Require explicit user confirmation before proceeding
+      4. If user does not confirm, abort without pushing
+
+  - id: force-push-guardrail
+    trigger: "push with --force flag detected"
+    priority: required
+    instruction: |
+      When force push is detected:
+      1. Calculate commits that will be overwritten on remote
+      2. Show the count and authors of overwritten commits
+      3. Require the user to type a confirmation string (e.g., "yes, force push")
+      4. Record force_push: true in the push receipt
+
+  - id: pre-push-gates
+    trigger: "before executing git push"
+    priority: required
+    instruction: |
+      Run all configured push_gates in sequence:
+      - lint: run project lint command (from uds.project.yaml or detected)
+      - test: run project test command
+      If any gate fails: abort push, display which gate failed, suggest fix.
+      If --skip-gates flag: run push without gates, mark gates_skipped: true in receipt.
+
+  - id: push-receipt
+    trigger: "after successful push"
+    priority: required
+    instruction: |
+      Output a structured push receipt containing:
+      - branch: target branch name
+      - commit_sha: HEAD commit SHA (short)
+      - gates_passed: list of gates that ran and passed
+      - gates_skipped: boolean
+      - force_push: boolean
+      - timestamp: ISO 8601 format
+      If receipt.output includes "file": append to ~/.uds/push-history.jsonl as JSON line.
+
+  - id: pr-integration
+    trigger: "after successful push to non-protected branch"
+    priority: suggested
+    instruction: |
+      If auto_pr is true AND repo_mode is "team":
+      Check if an open PR exists for this branch on the remote.
+      If no open PR: prompt user whether to run pr-automation-assistant.
+      If user confirms: invoke pr-automation-assistant.
+      If auto_pr is false OR repo_mode is "single-owner": skip this step.
+
+  - id: single-owner-mode
+    trigger: "repo_mode: single-owner is configured"
+    priority: recommended
+    instruction: |
+      In single-owner mode, skip all collaboration-specific steps:
+      - No PR prompts
+      - Reduced force-push warnings (still warn, but no confirmation text required)
+      Protected branch detection remains active.
+
+schema:
+  push_receipt:
+    branch: string
+    commit_sha: string
+    gates_passed: "string[]"
+    gates_skipped: boolean
+    force_push: boolean
+    timestamp: "ISO 8601 string"
+    target_remote: string

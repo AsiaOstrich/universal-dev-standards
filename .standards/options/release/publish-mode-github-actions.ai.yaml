@@ -1,0 +1,65 @@
+# Release Option: GitHub Actions Publish Mode - AI Optimized
+# Parent: release-standards
+# Source: options/release/publish-mode-github-actions.md
+
+id: publish-mode-github-actions
+meta:
+  parent: release-standards
+  version: "1.0.0"
+  updated: "2026-04-24"
+  source: options/release/publish-mode-github-actions.md
+  description: CD publish pattern for npm packages — publish is triggered automatically by GitHub Release, not by manual `npm publish`
+
+best_for:
+  - npm packages hosted in GitHub repositories
+  - Projects with GitHub Actions publish workflow (publish.yml or similar)
+  - Single-owner or small-team repos using GitHub Actions CD
+  - Projects where NPM_TOKEN is stored as a GitHub Actions secret
+
+configuration:
+  publish_mode: github-actions
+  publish_trigger: gh_release_create
+  publish_command: none  # npm publish is handled by GitHub Actions
+  tag_format: "v{semver}"
+
+behaviors:
+  release_finish_sequence:
+    steps:
+      - bump_version      # scripts/bump-version.sh or npm version
+      - update_changelog  # add [X.Y.Z] section, remove from [Unreleased]
+      - commit_and_tag    # git commit + git tag vX.Y.Z
+      - push_with_tag     # git push origin main vX.Y.Z
+      - create_gh_release # gh release create vX.Y.Z --title "vX.Y.Z" --notes "..."
+    note: >
+      DO NOT run `npm publish` manually. The `gh release create` command triggers
+      the publish workflow via `release: published` event. GitHub Actions handles
+      the actual npm publish using NPM_TOKEN stored as a repository secret.
+
+  gh_release_create:
+    command: 'gh release create v{version} --title "v{version}" --notes "{changelog_entry}"'
+    triggers: publish_workflow
+    publishes_to_npm_tag:
+      stable: latest       # versions without pre-release suffix (e.g. 5.2.0)
+      prerelease: next      # versions with beta/alpha/rc suffix (e.g. 5.2.0-beta.1)
+
+  publish_workflow:
+    trigger_event: "release: published"
+    secret_required: NPM_TOKEN
+    runs_on: github_actions
+    note: >
+      Workflow file is typically `.github/workflows/publish.yml`.
+      It runs `npm publish` with `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}`.
+
+  local_verification:
+    before_release:
+      - run_tests         # npm test / vitest
+      - verify_build      # npm run build (if applicable)
+      - check_version     # confirm package.json version matches intended tag
+    note: All local gates must pass before `gh release create`
+
+comparison_with_manual_mode:
+  publish_command: "not run locally"    # manual: npm publish
+  publish_trigger: gh_release_create   # manual: direct npm publish
+  npm_token_location: github_secret    # manual: local .npmrc or env var
+  audit_trail: github_actions_log      # manual: none (local terminal)
+  reproducibility: full_ci_isolation   # manual: depends on local environment
