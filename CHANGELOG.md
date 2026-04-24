@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.2.0] - 2026-04-24
+
+> **Minor Release**: Three new standards/skills (XSPEC-080/081/082) — `/release package` sub-command, `/push` Quality Gate Skill, and `agent-behavior-discipline` standard (Karpathy four principles: Ask/Simple/Precision/Test). Bundle parity hardened. Docs centralized to dev-platform. Total standards: 74.
+
+### Added
+- **`agent-behavior-discipline.ai.yaml`** (Trial, expires 2026-10-24, XSPEC-082 / DEC-048): New governance standard encoding Andrej Karpathy's four AI Agent behavioral principles — Ask (surface assumptions before executing), Simple (minimum sufficient code), Precision (surgical changes only), Test (define verifiable success criteria + self-correction loop). Integrated into `uds-manifest.json` (74th entry) and `cli/standards-registry.json`.
+- **`/push` Skill** (`skills/push/`, XSPEC-081): Git push quality gates and collaboration guardrails — protected branch detection, force-push guard, pre-push gate validation, push receipt audit log, PR integration entry point. Includes two configuration options: `options/push/single-owner-mode.ai.yaml` (reduced guardrails for solo repos) and `options/push/team-mode.ai.yaml` (full guardrails, confirmation required for teams).
+- **`/release package` sub-command** (`skills/release/`, XSPEC-080): Packaging guidance for 10 target formats — npm/Node.js, Python/PyPI, Go binary, Electron app, Homebrew formula (Wave 1) + Rust/Cargo, Tauri desktop, Docker image, VS Code Extension, GitHub Release asset (Wave 2). Detection-first design: auto-detects project type before applying packaging steps.
+
+### Fixed
+- **Bundle parity** (XSPEC-072 Phase 2): Resolved parity gap between `ai/standards/` and `bundle/` — all 74 standards now present in the bundle. CI hardened to hard-fail (exit 1) on any parity mismatch, preventing silent bundle drift.
+- **i18n NO META frontmatters** (BUG-A06): Added missing YAML frontmatter to 36 translation files that were flagged as `NO META` — fixes translation sync validation false positives.
+
 ### Changed
 - **Docs centralization (DEC-047 Batch 2)**: Migrated UDS planning/governance docs to the AsiaOstrich dev-platform planning hub. These files are no longer distributed with UDS:
   - `docs/AI-AGENT-ROADMAP.md` → dev-platform `cross-project/roadmap/uds-agent-roadmap.md`
@@ -17,7 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `docs/internal/AI-AGENT-SYNC-SOP.md` → dev-platform `cross-project/ops/uds-ai-agent-sync-sop.md`
   - `docs/internal/INTEGRATION-SIMPLIFICATION-PROPOSAL.md` → dev-platform `cross-project/ops/uds-integration-simplification-proposal.md`
   - Locale copies (`locales/zh-TW/docs/`, `locales/zh-CN/docs/`) of ROADMAP and OPERATION-WORKFLOW also removed.
-  - Internal references in `CLAUDE.md`, `MAINTENANCE.md`, `scripts/`, `docs/specs/system/`, `adoption/` updated.
+
+[5.2.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.1.1...v5.2.0
 
 ## [5.1.1] - 2026-04-20
 

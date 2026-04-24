@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.1.1
-translation_version: 5.1.1
-last_synced: 2026-04-20
+source_version: 5.2.0
+translation_version: 5.2.0
+last_synced: 2026-04-24
 status: current
 ---
 
@@ -16,6 +16,26 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.2.0] - 2026-04-24
+
+> **次版本发布**：三项新标准/技能（XSPEC-080/081/082）—— `/release package` 子命令、`/push` 质量守门 Skill、以及 `agent-behavior-discipline` 标准（Karpathy 四大原则：问/减/准/测）。Bundle 一致性加固。文档集中至 dev-platform。标准总数：74。
+
+### 新增
+- **`agent-behavior-discipline.ai.yaml`**（Trial 试验期至 2026-10-24，XSPEC-082 / DEC-048）：新治理标准，系统化整合 Andrej Karpathy 提炼的四大 AI Agent 行为纪律——问（执行前揭露假设）、减（最小充分代码）、准（精准修改边界）、测（定义可验证成功标准 + 自我修正循环）。已加入 `uds-manifest.json`（第 74 个标准）及 `cli/standards-registry.json`。
+- **`/push` Skill**（`skills/push/`，XSPEC-081）：Git Push 质量守门与跨人协作护栏——受保护分支检测、force-push 护栏、pre-push gate 验证、push 审计日志、PR 集成入口。包含两个配置选项：`options/push/single-owner-mode.ai.yaml`（单人仓库简化护栏）和 `options/push/team-mode.ai.yaml`（团队全护栏，需确认）。
+- **`/release package` 子命令**（`skills/release/`，XSPEC-080）：10 种目标格式的打包指引——npm/Node.js、Python/PyPI、Go 二进制、Electron App、Homebrew（Wave 1）+ Rust/Cargo、Tauri 桌面、Docker 镜像、VS Code Extension、GitHub Release 资产（Wave 2）。检测优先设计：自动检测项目类型再套用打包步骤。
+
+### 修正
+- **Bundle 一致性**（XSPEC-072 Phase 2）：解决 `ai/standards/` 与 `bundle/` 之间的差异——74 个标准现在全部纳入 bundle。CI 硬性失败（exit 1）于任何差异，防止静默的 bundle 落差。
+- **i18n NO META frontmatter**（BUG-A06）：补齐 36 个翻译文件缺少的 YAML frontmatter，修复翻译同步验证误报。
+
+### 变更
+- **文档集中化（DEC-047 Batch 2）**：UDS 规划/治理文档已迁移至 AsiaOstrich dev-platform 规划中心，不再随 UDS 发布：
+  - `docs/AI-AGENT-ROADMAP.md`、`docs/OPERATION-WORKFLOW.md`、`docs/internal/` 下四份文档已移除
+  - `locales/zh-TW/docs/`、`locales/zh-CN/docs/` 副本亦已移除
+
+[5.2.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.1.1...v5.2.0
 
 ## [5.1.1] - 2026-04-20
 
