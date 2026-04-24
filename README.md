@@ -72,8 +72,8 @@ UDS uses a **Dual-Layer Execution Model** designed for both high-speed interacti
 ```mermaid
 graph TD
     A[AI Agent / Developer] --> B{Action Layer}
-    B -- "Daily Tasks" --> C[Skills Layer (.ai.yaml)]
-    B -- "Deep Review" --> D[Standards Layer (.md)]
+    B -- "Daily Tasks" --> C["Skills Layer (.ai.yaml)"]
+    B -- "Deep Review" --> D["Standards Layer (.md)"]
     
     C --> C1[Token-Efficient]
     C --> C2[Interactive Wizards]

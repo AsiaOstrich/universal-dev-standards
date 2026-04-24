@@ -1,7 +1,7 @@
 ---
 source: ../../README.md
-source_version: 5.1.1
-translation_version: 5.1.1
+source_version: 5.2.0
+translation_version: 5.2.0
 last_synced: 2026-04-22
 status: current
 ---
@@ -63,7 +63,7 @@ npx universal-dev-standards init
 <!-- UDS_STATS_TABLE_START -->
 | 类别 | 数量 | 说明 |
 |----------|-------|-------------|
-| **核心标准** | 72 | 通用开发准则 |
+| **核心标准** | 78 | 通用开发准则 |
 | **AI Skills** | 48 | 互动式技能 |
 | **斜线命令** | 48 | 快速操作 |
 | **CLI 命令** | 6 | list, init, configure, check, update, skills |
@@ -80,8 +80,8 @@ UDS 采用 **双层执行模型 (Dual-Layer Execution Model)**，专为高速互
 ```mermaid
 graph TD
     A[AI 助手 / 开发者] --> B{执行层}
-    B -- "日常任务" --> C[技能层 Skills (.ai.yaml)]
-    B -- "深度审查" --> D[标准层 Standards (.md)]
+    B -- "日常任务" --> C["技能层 Skills (.ai.yaml)"]
+    B -- "深度审查" --> D["标准层 Standards (.md)"]
     
     C --> C1[Token 优化]
     C --> C2[互动式引导]
@@ -104,14 +104,14 @@ graph TD
 
 | AI 工具 | 状态 | Skills | 斜线命令 | 配置文件 |
 | :--- | :--- | :---: | :---: | :--- |
-| **Claude Code** | ✅ 完整支持 | **26** | **30** | `CLAUDE.md` |
-| **OpenCode** | ✅ 完整支持 | **26** | **30** | `AGENTS.md` |
+| **Claude Code** | ✅ 完整支持 | **29** | **33** | `CLAUDE.md` |
+| **OpenCode** | ✅ 完整支持 | **29** | **33** | `AGENTS.md` |
 | **Gemini CLI** | 🧪 预览版 | **18+** | **20+** | `GEMINI.md` |
 | **Cursor** | ✅ 完整支持 | **核心** | **模拟支持** | `.cursorrules` |
 | **Cline / Roo Code**| 🔶 部分支持 | **核心** | **工作流** | `.clinerules` |
 | **Windsurf** | 🔶 部分支持 | ✅ | **规则书** | `.windsurfrules` |
 
-> **状态图例**：✅ 完整支持 | 🧪 預覽版 | 🔶 部分支持 | ⏳ 计划中
+> **状态图例**：✅ 完整支持 | 🧪 预览版 | 🔶 部分支持 | ⏳ 计划中
 
 ---
 
@@ -153,12 +153,51 @@ uds uninstall   # 从项目移除标准
 
 ---
 
+## 🌐 生态系统
+
+UDS 是 AsiaOstrich 三层产品架构中的**标准定义层**：
+
+```
+UDS（定义什么） → DevAP（代理如何执行） → VibeOps（完整生命周期）
+```
+
+| 层级 | 产品 | 角色 | 授权 |
+|------|------|------|------|
+| 标准 | **UDS** | 开发方法论框架 | MIT + CC BY 4.0 |
+| 编排 | [DevAP](https://github.com/AsiaOstrich/dev-autopilot) | 代理无关的编排引擎 | Apache-2.0 |
+| 生命周期 | [VibeOps](https://github.com/AsiaOstrich/vibeops360) | AI 驱动的软件工厂 | AGPL-3.0-only |
+
+- **UDS** 定义开发标准 → 供 DevAP（质量 Gate）和 VibeOps（代理管线）使用
+- **DevAP** 使用 UDS 标准编排 AI 代理 → VibeOps 是其消费者之一
+- **VibeOps** 提供完整软件生命周期 → 通过 `uds init` 集成 UDS（一次复制）
+
+UDS 保持**工具无关性**：支持 Claude Code、OpenCode、Gemini CLI、Cursor、Cline 和 Windsurf。DevAP 和 VibeOps 是消费者，并非必要依赖。
+
+---
+
 ## 📄 授权
 
 | 组件 | 授权 |
 | :--- | :--- |
 | **文档内容** | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | **CLI 工具** | [MIT](../../cli/LICENSE) |
+
+## 致谢
+
+UDS 的架构灵感来自以下杰出的开源项目：
+
+| 项目 | 借鉴概念 | 授权 |
+|------|---------|------|
+| [Superpowers](https://github.com/obra/superpowers) | 系统性调试、代理调度、验证证据 | MIT |
+| [GSD](https://github.com/gsd-build/get-shit-done) | 结构化任务定义、可追溯性矩阵、验证循环上限 | MIT |
+| [PAUL](https://github.com/ChristopherKahler/paul) | Plan-Apply-Unify 循环、验收驱动开发 | MIT |
+| [CARL](https://github.com/ChristopherKahler/carl) | 上下文感知加载、动态规则注入 | MIT |
+| [CrewAI](https://github.com/crewAIInc/crewAI) | 多代理通信协议、上下文预算追踪 | MIT |
+| [LangGraph](https://github.com/langchain-ai/langgraph) | 工作流状态协议、HITL 中断检查点 | MIT |
+| [OpenHands](https://github.com/All-Hands-AI/OpenHands) | 事件溯源、动作-观察流模式 | MIT |
+| [DSPy](https://github.com/stanfordnlp/dspy) | 代理签名、结构化 I/O 契约 | MIT |
+
+> **注意**：UDS 仅借鉴概念与方法论，不包含上述项目的任何源代码。
 
 ---
 
