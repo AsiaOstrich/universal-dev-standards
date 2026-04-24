@@ -75,6 +75,35 @@ See [MIGRATION-GUIDE-V2.md](docs/archive/MIGRATION-GUIDE-V2.md) for templates.
 
 請參閱 [MIGRATION-GUIDE-V2.md](docs/archive/MIGRATION-GUIDE-V2.md) 以獲取範本。
 
+### 6. Bundle Decision Flow | Bundle 決策流程（必讀）
+
+When adding a new standard (`.ai.yaml`), you **must** decide whether it belongs in the npm bundle. Follow the DEC-045 contract rules:
+
+新增標準（`.ai.yaml`）時，**必須**決定是否納入 npm bundle。遵循 DEC-045 契約規則：
+
+| Decision | Condition | Action |
+|----------|-----------|--------|
+| `BUNDLE` | Adopter-facing basic standard (API design, database, testing…) | Place in `ai/standards/` — prepack.mjs copies it automatically |
+| `EXCLUDE` | UDS-internal governance (agent dispatch, workflow enforcement, pipeline…) | Place in `ai/standards/` AND add to `cli/scripts/bundle-exclude.json` with reason |
+| `OPTION` | Adopter-selectable variant | Place in `ai/options/<category>/` — both source and bundle |
+
+**Rule of thumb | 判斷原則**:
+- Name contains `governance` / `agent-` / `ai-` / `workflow-` / `pipeline-` / `execution-history` → likely `EXCLUDE`
+- Standard name is a language/framework-agnostic foundation (database, API, git…) → likely `BUNDLE`
+- When in doubt → default to `EXCLUDE` and note it in `bundle-exclude.json`
+
+**After adding, run the parity check | 新增後必跑 parity 檢查**:
+
+```bash
+cd cli
+npm run prepack          # regenerate bundled/
+npm run check:bundle-parity   # must exit 0
+```
+
+If the check fails, either add the file to the bundle or add an exclusion entry. The GHA `bundle-parity.yml` workflow will hard-fail on any mismatch — catching it locally saves CI cycles.
+
+Also update `cli/standards-registry.json` with the `source.ai` reference — the pre-commit hook enforces this.
+
 ---
 
 ## Contribution Guidelines | 貢獻指南

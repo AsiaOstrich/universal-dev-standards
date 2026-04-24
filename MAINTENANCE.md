@@ -15,6 +15,23 @@ For day-to-day maintenance, follow the verification steps in `CLAUDE.md` (§Post
 
 - [Archived version v1.1.0](docs/archive/MAINTENANCE-v1.md) — original standalone guide
 
+## Bundle-Source Parity (XSPEC-072 / DEC-045)
+
+Before every release, confirm bundle parity is clean:
+
+```bash
+cd cli
+npm run prepack                # regenerate cli/bundled/ from ai/
+npm run check:bundle-parity    # must exit 0 (source == bundled modulo excludes)
+```
+
+If parity fails:
+1. **New file in `.standards/` not in `ai/`** → copy to `ai/standards/` (if adopter-facing) or add to `cli/scripts/bundle-exclude.json` (if UDS-internal)
+2. **New file in `ai/` not in `.standards/`** → copy to `.standards/`
+3. **New option file** → ensure it exists in both `ai/options/<cat>/` and `.standards/options/<cat>/`
+
+The `scripts/bump-version.sh` does **not** yet auto-run parity — run it manually before tagging. The GHA `bundle-parity.yml` workflow hard-fails on any mismatch in PRs and pushes to `main`.
+
 ## Translations
 
 - [繁體中文](locales/zh-TW/MAINTENANCE.md)
