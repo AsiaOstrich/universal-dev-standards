@@ -29,19 +29,19 @@ describe('SPEC-LAYERED-001 / REQ-1: 標準→目錄映射', () => {
       const result = mapStandardsToDirectories(testDir);
 
       // Assert
-      expect(result['database-standards']).toContain('src/database');
+      expect(result['database-standards']).toContain(join('src', 'database'));
     });
 
     it('should map database-standards to src/db/', () => {
       mkdirSync(join(testDir, 'src', 'db'), { recursive: true });
       const result = mapStandardsToDirectories(testDir);
-      expect(result['database-standards']).toContain('src/db');
+      expect(result['database-standards']).toContain(join('src', 'db'));
     });
 
     it('should map database-standards to src/models/', () => {
       mkdirSync(join(testDir, 'src', 'models'), { recursive: true });
       const result = mapStandardsToDirectories(testDir);
-      expect(result['database-standards']).toContain('src/models');
+      expect(result['database-standards']).toContain(join('src', 'models'));
     });
   });
 
@@ -63,13 +63,13 @@ describe('SPEC-LAYERED-001 / REQ-1: 標準→目錄映射', () => {
     it('should map api-design-standards to src/api/', () => {
       mkdirSync(join(testDir, 'src', 'api'), { recursive: true });
       const result = mapStandardsToDirectories(testDir);
-      expect(result['api-design-standards']).toContain('src/api');
+      expect(result['api-design-standards']).toContain(join('src', 'api'));
     });
 
     it('should map api-design-standards to src/routes/', () => {
       mkdirSync(join(testDir, 'src', 'routes'), { recursive: true });
       const result = mapStandardsToDirectories(testDir);
-      expect(result['api-design-standards']).toContain('src/routes');
+      expect(result['api-design-standards']).toContain(join('src', 'routes'));
     });
   });
 
