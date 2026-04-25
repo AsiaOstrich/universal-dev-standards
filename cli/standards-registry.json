@@ -2074,6 +2074,17 @@
       "category": "skill",
       "skillName": "push",
       "description": "Git push safety gates, protected branch detection, force-push guardrails, pre-push quality gate enforcement, and push receipt audit trail"
+    },
+    {
+      "id": "no-cicd-deployment",
+      "name": "No-CI/CD Deployment Strategy",
+      "nameZh": "無 CI/CD 部署策略",
+      "source": {
+        "human": "core/no-cicd-deployment.md",
+        "ai": "ai/standards/no-cicd-deployment.ai.yaml"
+      },
+      "category": "core",
+      "description": "Reliable deployment strategy without CI/CD platforms: shell scripts with fail-fast, smoke test verification, Blue-Green rollback"
     }
   ]
 }

@@ -301,6 +301,15 @@
       "skillName": null,
       "description": "Template for planning technology migrations",
       "applicability": "Migration projects"
+    },
+    {
+      "id": "no-cicd-deployment",
+      "name": "No-CI/CD Deployment Strategy",
+      "nameZh": "無 CI/CD 部署策略",
+      "source": "core/no-cicd-deployment.md",
+      "category": "skill",
+      "skillName": "deploy-assistant",
+      "description": "Reliable deployment strategy without CI/CD platforms: shell scripts with fail-fast, smoke test verification, Blue-Green rollback"
     }
   ]
 }

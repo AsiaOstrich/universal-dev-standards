@@ -1,0 +1,134 @@
+# No-CI/CD Deployment Strategy (AI-Optimized v1)
+# Source: core/no-cicd-deployment.md
+
+standard:
+  id: no-cicd-deployment
+  name: No-CI/CD Deployment Strategy
+  description: Reliable deployment without CI/CD platforms using shell scripts, smoke tests, Blue-Green switching, and deploy.lock protection
+  guidelines:
+    - "Use set -euo pipefail in all deploy scripts — fail fast, stop on first error"
+    - "Always verify deployment after completion — check version endpoint, never assume success"
+    - "Maintain Blue-Green slots for instant rollback — recovery time must be <30 seconds"
+    - "Enforce deploy.lock to prevent concurrent deployments"
+    - "Only deploy commits with semantic version tags — no untagged HEAD deployments"
+    - "Log every deployment with timestamp, version, operator, and result (JSON Lines)"
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-04-26"
+    source: core/no-cicd-deployment.md
+    description: Reliable deployment strategy for environments without CI/CD platforms
+    complements: deployment-standards.ai.yaml
+
+  principles:
+    core:
+      - fail_fast: "set -euo pipefail stops execution at first failure — no silent partial deploys"
+      - verify_always: "Post-deploy smoke test is mandatory, not optional"
+      - instant_recovery: "Blue-Green rollback must complete in <30 seconds"
+      - concurrent_protection: "deploy.lock prevents race conditions from simultaneous deployments"
+      - version_discipline: "Only semver-tagged commits are deployable"
+      - audit_trail: "Every deploy produces a machine-readable log entry"
+
+  architecture:
+    three_layer:
+      layer_1_prevent:
+        name: "Prevent Wrong Deployments"
+        mechanisms:
+          - "set -euo pipefail in deploy.sh"
+          - "Mandatory test pass before deploy"
+          - "Semver tag enforcement"
+          - "deploy.lock concurrency guard"
+      layer_2_verify:
+        name: "Verify Deployment Correctness"
+        mechanisms:
+          - "HTTP /health endpoint check"
+          - "Version number comparison with VERSION file"
+          - "Auto-rollback on verification failure"
+      layer_3_recover:
+        name: "Fast Recovery Capability"
+        mechanisms:
+          - "Blue-Green slot switching"
+          - "Nginx upstream pointer swap"
+          - "Single-command rollback.sh"
+
+  deploy_script:
+    required_header: "#!/usr/bin/env bash\nset -euo pipefail"
+    mandatory_steps:
+      - step: test
+        order: 1
+        description: "Run full test suite before any deployment"
+      - step: build
+        order: 2
+        description: "Produce deployment artifact"
+      - step: deploy
+        order: 3
+        description: "Transfer artifact to target server"
+      - step: verify
+        order: 4
+        description: "Run smoke test; auto-rollback on failure"
+    lock_pattern:
+      file: "/tmp/deploy.lock"
+      create: "echo $$ > $LOCK_FILE"
+      cleanup: "trap 'rm -f $LOCK_FILE' EXIT"
+      check: "[ -f $LOCK_FILE ] && echo 'Deploy in progress' && exit 1"
+    version_enforcement:
+      command: "git describe --exact-match --tags HEAD"
+      format: "v[0-9]+\\.[0-9]+\\.[0-9]+"
+      failure_message: "No semver tag on HEAD — tag before deploying"
+
+  smoke_test:
+    endpoint: "/health"
+    required_fields:
+      - field: "version"
+        source: "VERSION file"
+        comparison: "exact match"
+      - field: "status"
+        expected: "ok"
+    failure_action: "auto_rollback"
+    timeout_seconds: 30
+
+  blue_green:
+    slots:
+      - name: blue
+        port: 3001
+        state: "active (stable)"
+      - name: green
+        port: 3002
+        state: "inactive (staging)"
+    switch_mechanism: "nginx upstream pointer"
+    rollback_time_sla: "30 seconds"
+    rollback_command: "./rollback.sh"
+
+  deployment_log:
+    format: "JSON Lines"
+    required_fields:
+      - "timestamp (ISO 8601)"
+      - "version"
+      - "git_commit"
+      - "operator (whoami)"
+      - "result (success|failure)"
+      - "duration_seconds"
+    location: "/var/log/deployments.jsonl"
+
+  checklist:
+    pre_deploy:
+      - "Tests pass"
+      - "Artifact built successfully"
+      - "No deploy.lock present"
+      - "HEAD has semver tag"
+      - "Previous deployment log reviewed"
+    post_deploy:
+      - "Health check HTTP 200"
+      - "Version matches expected"
+      - "Service responds to basic requests"
+      - "Deployment log entry written"
+    rollback_readiness:
+      - "Blue slot running previous stable version"
+      - "rollback.sh tested and functional"
+      - "Nginx upstream reload works"
+
+  physical_spec:
+    type: custom_script
+    validator:
+      command: "test -f deploy.sh && grep -q 'set -euo pipefail' deploy.sh && test -f rollback.sh && test -f verify.sh"
+      rule: "no_cicd_deployment_scripts_configured"
