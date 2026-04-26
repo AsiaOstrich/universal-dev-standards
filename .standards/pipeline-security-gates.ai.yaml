@@ -1,0 +1,71 @@
+# Pipeline Security Gates (AI-Optimized v1)
+# Source: core/pipeline-security-gates.md
+
+standard:
+  id: pipeline-security-gates
+  name: Pipeline Security Gates
+  description: Security checkpoints embedded in CI pipeline — SAST, DAST, SCA, secrets scan with block/warn/log behavior
+  guidelines:
+    - "Secrets scan at pre-commit — block ALL commits containing secrets"
+    - "SAST after build — block Critical/High findings"
+    - "SCA + SBOM generation at package stage"
+    - "DAST after staging deploy — warn on findings, require approval for Critical"
+    - "Never skip security gates with --force or emergency bypass without audit trail"
+    - "Treat security gate failures as pipeline failures, not warnings"
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-04-26"
+    source: core/pipeline-security-gates.md
+    complements: security-standards.ai.yaml
+
+gate_positions:
+  pre_commit:
+    type: secrets_scan
+    tools: ["gitleaks", "trufflehog", "detect-secrets"]
+    scope: "staged files"
+    block_on: ["any secret pattern match"]
+    never_skip: true
+  post_build:
+    type: sast
+    tools: ["semgrep", "codeql", "sonarqube"]
+    scope: "source code + build output"
+    block_on: ["Critical", "High"]
+    warn_on: ["Medium"]
+    log_only: ["Low", "Info"]
+  post_staging_deploy:
+    type: dast
+    tools: ["zap", "nuclei", "burpsuite-enterprise"]
+    scope: "running staging application"
+    block_on: ["Critical"]
+    require_approval: ["High"]
+    warn_on: ["Medium"]
+  package_stage:
+    type: sca_and_sbom
+    tools: ["trivy", "syft", "grype", "dependabot"]
+    scope: "dependencies + container image"
+    block_on: ["Critical CVE with fix available"]
+    warn_on: ["High CVE", "outdated dependencies"]
+    sbom_format: ["spdx", "cyclonedx"]
+
+bypass_policy:
+  allowed: false
+  exception_process: "written security approval + audit log entry"
+  emergency_bypass: "time-limited token + mandatory post-incident review"
+
+failure_behavior:
+  Critical: {action: "block pipeline", notify: "security-team", sla: "immediate"}
+  High: {action: "block pipeline", notify: "team-lead", sla: "same-day"}
+  Medium: {action: "warn + require approval", notify: "developer", sla: "next-sprint"}
+  Low: {action: "log only", notify: "none", sla: "backlog"}
+
+integration_points:
+  secrets_vault: "Integrate with HashiCorp Vault or AWS Secrets Manager for secrets injection"
+  sbom_registry: "Upload SBOM to dependency-track or grype-db for continuous monitoring"
+  incident_response: "Critical findings automatically create incident tickets"
+
+physical_spec:
+  type: custom_script
+  validator:
+    command: "grep -r 'secrets\\|sast\\|sca\\|dast' .github/workflows/ .gitlab-ci.yml Jenkinsfile 2>/dev/null | head -1 || echo 'no-ci-pipeline'"
+    rule: "security_gates_in_pipeline"

@@ -2085,6 +2085,39 @@
       },
       "category": "core",
       "description": "Reliable deployment strategy without CI/CD platforms: shell scripts with fail-fast, smoke test verification, Blue-Green rollback"
+    },
+    {
+      "id": "rollback-standards",
+      "name": "Rollback Standards",
+      "nameZh": "回滾標準",
+      "source": {
+        "human": "core/rollback-standards.md",
+        "ai": "ai/standards/rollback-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Rollback trigger conditions, auto vs manual decisions, and error budget integration"
+    },
+    {
+      "id": "cd-deployment-strategies",
+      "name": "CD Deployment Strategies",
+      "nameZh": "CD 部署策略",
+      "source": {
+        "human": "core/cd-deployment-strategies.md",
+        "ai": "ai/standards/cd-deployment-strategies.ai.yaml"
+      },
+      "category": "core",
+      "description": "Strategy selection matrix for blue-green, canary, rolling, and recreate deployments"
+    },
+    {
+      "id": "pipeline-security-gates",
+      "name": "Pipeline Security Gates",
+      "nameZh": "CI Pipeline 安全閘門",
+      "source": {
+        "human": "core/pipeline-security-gates.md",
+        "ai": "ai/standards/pipeline-security-gates.ai.yaml"
+      },
+      "category": "core",
+      "description": "Security checkpoints embedded in CI pipeline — SAST, DAST, SCA, secrets scan with block/warn/log behavior"
     }
   ]
 }

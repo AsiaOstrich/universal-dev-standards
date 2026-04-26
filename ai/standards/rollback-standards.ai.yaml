@@ -1,0 +1,68 @@
+# Rollback Standards (AI-Optimized v1)
+# Source: core/rollback-standards.md
+
+standard:
+  id: rollback-standards
+  name: Rollback Standards
+  description: Rollback trigger conditions, auto vs manual decisions, and error budget integration
+  guidelines:
+    - "Define rollback triggers with measurable thresholds — never subjective 'it looks bad'"
+    - "Auto-rollback on error rate > 2× baseline sustained 5 minutes"
+    - "Assisted rollback when SLO violated but non-critical"
+    - "Manual rollback for latency degradation within SLO bounds"
+    - "Error budget < 10% automatically escalates assisted to auto-rollback"
+    - "Every rollback event must be logged and trigger incident response flow"
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-04-26"
+    source: core/rollback-standards.md
+    parent: deployment-standards.ai.yaml
+
+trigger_conditions:
+  auto_rollback:
+    error_rate: ">2× baseline sustained 5min"
+    health_check_failures: "3 consecutive"
+    p99_latency: ">5× baseline sustained 3min"
+  assisted_rollback:
+    slo_violated: "non-critical path"
+    error_budget_remaining: "<10%"
+  manual_rollback:
+    latency_degraded: "within SLO bounds"
+    cosmetic_issues: "user-visible but non-functional"
+
+severity_matrix:
+  P0: {trigger: auto, timeline: "<2min", notify: "all-hands"}
+  P1: {trigger: auto, timeline: "<5min", notify: "on-call"}
+  P2: {trigger: assisted, timeline: "<15min", notify: "team-lead"}
+  P3: {trigger: manual, timeline: "<1hr", notify: "developer"}
+
+error_budget_integration:
+  threshold: "10% remaining"
+  escalation: "assisted → auto"
+  incident_event: true
+  pause_deploys: "when budget exhausted"
+
+rollback_methods:
+  blue_green: {time: "<30s", risk: low, prerequisite: "dual-slot infrastructure"}
+  feature_flag: {time: "<5s", risk: minimal, prerequisite: "flag system in place"}
+  dns_switch: {time: "60-120s", risk: medium, prerequisite: "multi-region setup"}
+  code_revert: {time: "minutes", risk: medium, prerequisite: "clean git history"}
+  database_restore: {time: "hours", risk: high, prerequisite: "backup verified"}
+
+checklist:
+  pre_rollback:
+    - "Confirm rollback target version is healthy"
+    - "Verify database migration is backward compatible"
+    - "Notify stakeholders of rollback"
+  post_rollback:
+    - "Confirm health checks pass at target version"
+    - "Write rollback event to deployment log"
+    - "Open incident ticket for root cause analysis"
+    - "Update error budget tracking"
+
+physical_spec:
+  type: custom_script
+  validator:
+    command: "test -f rollback.sh && grep -q 'set -euo pipefail' rollback.sh"
+    rule: "rollback_script_configured"

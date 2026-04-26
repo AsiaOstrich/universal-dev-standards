@@ -1,0 +1,73 @@
+# CD Deployment Strategies (AI-Optimized v1)
+# Source: core/cd-deployment-strategies.md
+
+standard:
+  id: cd-deployment-strategies
+  name: CD Deployment Strategies
+  description: Strategy selection matrix for blue-green, canary, rolling, and recreate deployments
+  guidelines:
+    - "Choose strategy based on: traffic volume × risk tolerance × infrastructure cost"
+    - "High traffic + low risk tolerance → blue-green (instant rollback)"
+    - "Medium traffic + medium risk → canary (progressive validation)"
+    - "Low traffic + low risk → rolling (resource efficient)"
+    - "Dev/internal only → recreate (simplest, acceptable downtime)"
+    - "Never deploy directly to production without staging validation"
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-04-26"
+    source: core/cd-deployment-strategies.md
+    parent: deployment-standards.ai.yaml
+
+strategy_matrix:
+  blue_green:
+    traffic: high
+    risk_tolerance: low
+    infrastructure_cost: high
+    downtime: zero
+    rollback_time: "<30s"
+    use_cases: ["stateful services", "database-compatible changes", "high-SLA APIs"]
+    prerequisites: ["dual environment", "load balancer", "health checks"]
+  canary:
+    traffic: medium_to_high
+    risk_tolerance: medium
+    infrastructure_cost: medium
+    downtime: zero
+    rollback_time: "<2min"
+    use_cases: ["feature validation", "A/B testing", "high-risk changes"]
+    traffic_stages: ["1%", "5%", "25%", "50%", "100%"]
+    prerequisites: ["traffic splitting", "observability", "auto-promotion rules"]
+  rolling:
+    traffic: any
+    risk_tolerance: medium
+    infrastructure_cost: low
+    downtime: minimal
+    rollback_time: "minutes"
+    use_cases: ["stateless services", "standard updates", "batch workers"]
+    prerequisites: ["multiple instances", "health checks"]
+  recreate:
+    traffic: low
+    risk_tolerance: high
+    infrastructure_cost: minimal
+    downtime: "seconds to minutes"
+    rollback_time: "minutes"
+    use_cases: ["dev/staging", "internal tools", "single-instance services"]
+    prerequisites: ["none"]
+
+decision_tree:
+  step_1: "Is zero-downtime required? No → recreate; Yes → continue"
+  step_2: "Is traffic > 10k req/min? Yes → blue-green or canary; No → rolling"
+  step_3: "Is change high-risk? Yes → canary; No → blue-green or rolling"
+  step_4: "Is infrastructure budget constrained? Yes → rolling; No → blue-green"
+
+no_cicd_compatibility:
+  blue_green: "See no-cicd-deployment.ai.yaml for script-based implementation"
+  canary: "Requires Nginx split_clients or HAProxy for script-based canary"
+  rolling: "Achievable with sequential rsync + health check loop"
+  recreate: "Simplest — stop, deploy, start"
+
+physical_spec:
+  type: custom_script
+  validator:
+    command: "grep -r 'deployment_strategy\\|deploy.*strategy' . --include='*.yaml' --include='*.json' -l 2>/dev/null | head -1"
+    rule: "deployment_strategy_documented"

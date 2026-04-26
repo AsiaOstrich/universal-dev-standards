@@ -310,6 +310,33 @@
       "category": "skill",
       "skillName": "deploy-assistant",
       "description": "Reliable deployment strategy without CI/CD platforms: shell scripts with fail-fast, smoke test verification, Blue-Green rollback"
+    },
+    {
+      "id": "rollback-standards",
+      "name": "Rollback Standards",
+      "nameZh": "回滾標準",
+      "source": "core/rollback-standards.md",
+      "category": "core",
+      "skillName": null,
+      "description": "Rollback trigger conditions, auto vs manual decisions, and error budget integration"
+    },
+    {
+      "id": "cd-deployment-strategies",
+      "name": "CD Deployment Strategies",
+      "nameZh": "CD 部署策略",
+      "source": "core/cd-deployment-strategies.md",
+      "category": "core",
+      "skillName": null,
+      "description": "Strategy selection matrix for blue-green, canary, rolling, and recreate deployments"
+    },
+    {
+      "id": "pipeline-security-gates",
+      "name": "Pipeline Security Gates",
+      "nameZh": "CI Pipeline 安全閘門",
+      "source": "core/pipeline-security-gates.md",
+      "category": "core",
+      "skillName": null,
+      "description": "Security checkpoints embedded in CI pipeline — SAST, DAST, SCA, secrets scan with block/warn/log behavior"
     }
   ]
 }
