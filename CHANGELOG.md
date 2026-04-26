@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.3.0] - 2026-04-26
+
+> **Minor Release**: Four new standards + one new Skill (XSPEC-085/064) — `no-cicd-deployment`, `rollback-standards`, `cd-deployment-strategies`, `pipeline-security-gates`, and `/deploy` Skill. Total standards: 136.
+
+### Added
+- **`no-cicd-deployment.ai.yaml`** (XSPEC-085 Phase 1): Three-layer deployment architecture for no-CI/CD environments — `set -euo pipefail` + deploy.lock + version tag enforcement; smoke test + auto-rollback; Blue-Green <30s rollback.
+- **`rollback-standards.ai.yaml`** (XSPEC-064 Phase 1): Rollback trigger matrix — auto (error rate >2× baseline), assisted (SLO violated), manual (latency within SLO). Error budget <10% escalates to auto. P0–P3 severity with SLA.
+- **`cd-deployment-strategies.ai.yaml`** (XSPEC-064 Phase 1): Strategy selection matrix — blue-green / canary / rolling / recreate decision tree (traffic × risk × cost). No-CI/CD compatibility notes included.
+- **`pipeline-security-gates.ai.yaml`** (XSPEC-064 Phase 1): CI security gate positions — pre-commit secrets scan, post-build SAST, post-staging DAST, package-stage SCA+SBOM. Critical/High block pipeline; Medium requires approval.
+- **`/deploy` Skill** (`skills/deploy-assistant/`, XSPEC-085 Phase 1b): Interactive no-CI/CD deployment script generator with zh-TW locale translation.
+
 ## [5.2.0] - 2026-04-24
 
 > **Minor Release**: Three new standards/skills (XSPEC-080/081/082) — `/release package` sub-command, `/push` Quality Gate Skill, and `agent-behavior-discipline` standard (Karpathy four principles: Ask/Simple/Precision/Test). Bundle parity hardened. Docs centralized to dev-platform. Total standards: 74.

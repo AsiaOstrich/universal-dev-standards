@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.2.0
-translation_version: 5.2.0
-last_synced: 2026-04-24
+source_version: 5.3.0
+translation_version: 5.3.0
+last_synced: 2026-04-26
 status: current
 ---
 
@@ -16,6 +16,17 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.3.0] - 2026-04-26
+
+> **次版本發布**：四個新標準 + 一個新 Skill（XSPEC-085/064）—— `no-cicd-deployment`、`rollback-standards`、`cd-deployment-strategies`、`pipeline-security-gates`，以及無 CI/CD 環境的 `/deploy` Skill。標準總數：136。
+
+### 新增
+- **`no-cicd-deployment.ai.yaml`**（XSPEC-085 Phase 1）：無 CI/CD 平台的三層部署架構 — `set -euo pipefail` + deploy.lock + 版本 tag 強制；Smoke Test + 自動 rollback；Blue-Green 切換 <30 秒。
+- **`rollback-standards.ai.yaml`**（XSPEC-064 Phase 1）：Rollback 觸發條件矩陣 — 自動（error rate >2× baseline）、輔助（SLO 違反）、手動（延遲在 SLO 內）。Error budget <10% 升級為自動。P0–P3 嚴重級別與 SLA。
+- **`cd-deployment-strategies.ai.yaml`**（XSPEC-064 Phase 1）：部署策略選用矩陣 — blue-green / canary / rolling / recreate 決策樹（流量 × 風險 × 成本）。含無 CI/CD 相容性說明。
+- **`pipeline-security-gates.ai.yaml`**（XSPEC-064 Phase 1）：CI 安全檢查點 — pre-commit secrets 掃描、post-build SAST、post-staging DAST、package 階段 SCA+SBOM。Critical/High 阻擋 pipeline；Medium 需要審核。
+- **`/deploy` Skill**（`skills/deploy-assistant/`，XSPEC-085 Phase 1b）：無 CI/CD 互動式部署腳本生成器，含繁體中文本地化翻譯。
 
 ## [5.2.0] - 2026-04-24
 
