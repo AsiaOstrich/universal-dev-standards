@@ -3183,7 +3183,7 @@ function detectBuildCommands(projectPath) {
 }
 
 /**
- * Generate a concise AGENTS.md summary file (≤ 150 lines)
+ * Generate a concise AGENTS.md summary file
  * Follows AAIF best practices: commands, testing, structure, style, git, boundaries
  *
  * @param {Object} config - Generation configuration
@@ -3192,7 +3192,7 @@ function detectBuildCommands(projectPath) {
  * @param {string} [config.outputLanguage='english'] - Output language
  * @param {Object} [config.standardOptions={}] - Standard options (workflow, merge_strategy, etc.)
  * @param {string} [config.projectPath] - Project root path for detecting build tools
- * @returns {string} AGENTS.md content (≤ 150 lines)
+ * @returns {string} AGENTS.md content
  */
 export function generateAgentsMdSummary(config = {}) {
   const {
@@ -3265,16 +3265,14 @@ export function generateAgentsMdSummary(config = {}) {
   lines.push('');
 
   if (installedStandards.length > 0) {
-    lines.push('All standards are in `.standards/`. Key standards:');
+    lines.push('All standards are in `.standards/`. Installed standards:');
     lines.push('');
 
-    // Group and show key standards (limited to keep within 150 lines)
     const keyStandards = installedStandards
       .filter(s => {
         const name = basename(s);
         return name.endsWith('.ai.yaml');
-      })
-      .slice(0, 30); // Limit to avoid exceeding 150 lines
+      });
 
     for (const std of keyStandards) {
       const name = basename(std).replace('.ai.yaml', '');

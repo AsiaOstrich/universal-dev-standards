@@ -165,8 +165,8 @@ describe('generateAgentsMdSummary', () => {
     expect(content).toContain('Bilingual');
   });
 
-  it('should_limit_standards_to_30_entries_max', () => {
-    // Arrange - 40 standards to test limit
+  it('should_list_all_standards_without_cap', () => {
+    // Arrange - 40 standards (previously capped at 30, now all should be listed)
     const standards = Array.from({ length: 40 }, (_, i) => `standard-${i}.ai.yaml`);
     const config = {
       installedStandards: standards,
@@ -179,10 +179,10 @@ describe('generateAgentsMdSummary', () => {
     const content = generateAgentsMdSummary(config);
     const standardLines = content.split('\n').filter(l => l.startsWith('- `.standards/'));
 
-    // Assert - should be limited to 30
-    expect(standardLines.length).toBeLessThanOrEqual(30);
-    // And still within 150 lines total
-    expect(content.split('\n').length).toBeLessThanOrEqual(150);
+    // Assert - all 40 standards should be listed (no artificial cap)
+    expect(standardLines.length).toBe(40);
+    // uds check compares manifest standards vs AGENTS.md — they should match
+    expect(content).toContain('Installed standards:');
   });
 
   it('should_use_default_values_when_no_config_provided', () => {
