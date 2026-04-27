@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.3.1] - 2026-04-27
+
+> **Patch Release**: Bug fix — `uds check` no longer falsely warns "AGENTS.md standards out of sync" after `uds update`.
+
+### Fixed
+- **`generateAgentsMdSummary()`** (`integration-generator.js`): Removed `.slice(0, 30)` cap that caused AGENTS.md to list only 30 of all installed standards. `uds check` compares against all manifest standards, so the truncation always produced a false "out of sync" warning. Generator now lists all installed `.ai.yaml` standards; check passes cleanly.
+
 ## [5.3.0] - 2026-04-26
 
 > **Minor Release**: Four new standards + one new Skill (XSPEC-085/064) — `no-cicd-deployment`, `rollback-standards`, `cd-deployment-strategies`, `pipeline-security-gates`, and `/deploy` Skill. Total standards: 136.

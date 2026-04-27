@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.3.0
-translation_version: 5.3.0
-last_synced: 2026-04-26
+source_version: 5.3.1
+translation_version: 5.3.1
+last_synced: 2026-04-27
 status: current
 ---
 
@@ -16,6 +16,13 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.3.1] - 2026-04-27
+
+> **修補版本發布**：Bug 修復 —— `uds update` 後 `uds check` 不再誤報「AGENTS.md 標準不同步」。
+
+### 修復
+- **`generateAgentsMdSummary()`**（`integration-generator.js`）：移除導致 AGENTS.md 只列出 30 項標準的 `.slice(0, 30)` 截斷。`uds check` 與 manifest 全量標準比對，截斷導致永遠誤報 `30/64 out of sync`。現在列出全部已安裝標準，check 正常通過。
 
 ## [5.3.0] - 2026-04-26
 
