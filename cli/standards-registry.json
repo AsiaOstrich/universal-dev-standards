@@ -1377,7 +1377,12 @@
       },
       "category": "reference",
       "skillName": null,
-      "description": "Structured system for persisting agent execution artifacts with L1/L2/L3 tiered access model"
+      "deprecated": true,
+      "deprecatedSince": "5.4.0",
+      "removalVersion": "6.0.0",
+      "canonicalOwner": "devap",
+      "canonicalPath": "dev-autopilot/standards/orchestration/execution-history.ai.yaml",
+      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Execution history L1/L2/L3 protocol — see dev-autopilot/standards/orchestration/execution-history.ai.yaml"
     },
     {
       "id": "project-context-memory",
@@ -1564,7 +1569,12 @@
       },
       "category": "reference",
       "skillName": null,
-      "description": "Configuration contract, stage model, and context classification for automated development pipelines"
+      "deprecated": true,
+      "deprecatedSince": "5.4.0",
+      "removalVersion": "6.0.0",
+      "canonicalOwner": "devap",
+      "canonicalPath": "dev-autopilot/standards/flow/pipeline-integration-standards.ai.yaml",
+      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Pipeline 6-stage model — see dev-autopilot/standards/flow/pipeline-integration-standards.ai.yaml"
     },
     {
       "id": "acceptance-criteria-traceability",
@@ -1627,7 +1637,12 @@
       },
       "category": "skill",
       "skillName": null,
-      "description": "Sub-agent dispatch, parallel coordination, and status protocol (DONE/DONE_WITH_CONCERNS/NEEDS_CONTEXT/BLOCKED)"
+      "deprecated": true,
+      "deprecatedSince": "5.4.0",
+      "removalVersion": "6.0.0",
+      "canonicalOwner": "devap",
+      "canonicalPath": "dev-autopilot/standards/orchestration/agent-dispatch.ai.yaml",
+      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Agent dispatch protocol — see dev-autopilot/standards/orchestration/agent-dispatch.ai.yaml"
     },
     {
       "id": "agent-communication-protocol",
@@ -1639,7 +1654,12 @@
       },
       "category": "skill",
       "skillName": null,
-      "description": "Unified status codes, envelope protocol, structured handoff, and versioning for cross-project agent communication"
+      "deprecated": true,
+      "deprecatedSince": "5.4.0",
+      "removalVersion": "6.0.0",
+      "canonicalOwner": "devap",
+      "canonicalPath": "dev-autopilot/standards/orchestration/agent-communication-protocol.ai.yaml",
+      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Agent envelope/handoff protocol — see dev-autopilot/standards/orchestration/agent-communication-protocol.ai.yaml"
     },
     {
       "id": "model-selection",

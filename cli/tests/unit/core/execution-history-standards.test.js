@@ -1,6 +1,8 @@
 // [Source: specs/execution-history-spec.md]
-// [Generated] TDD skeleton for execution-history standards content verification
-// Pattern: AAA (Arrange-Act-Assert)
+// [Updated: XSPEC-086 Phase 2 - 2026-04-27]
+// Standard migrated to DevAP per DEC-049. UDS now holds deprecated stub.
+// Canonical location: dev-autopilot/standards/orchestration/execution-history.ai.yaml
+// Tests updated to verify deprecated stub structure.
 
 import { describe, it, expect, beforeAll } from 'vitest';
 import { readFileSync, existsSync } from 'fs';
@@ -11,56 +13,12 @@ const ROOT = resolve(import.meta.dirname, '../../../..');
 const YAML_PATH = resolve(ROOT, 'ai/standards/execution-history.ai.yaml');
 const CORE_MD_PATH = resolve(ROOT, 'core/execution-history.md');
 const REGISTRY_PATH = resolve(ROOT, 'cli/standards-registry.json');
-const SCHEMA_DIR = resolve(ROOT, 'specs/schemas');
 
-describe('execution-history-spec: Execution History Repository Standard', () => {
+describe('execution-history-spec: Execution History Repository Standard (Deprecated Stub)', () => {
   // ──────────────────────────────────────────────────────────────────
-  // AC-1: AI 標準 YAML 可載入
-  // [Source: specs/execution-history-spec.md:AC-1]
+  // AC-1: Deprecated stub 可載入，包含遷移後標記
   // ──────────────────────────────────────────────────────────────────
-  describe('AC-1: AI 標準 YAML 可載入', () => {
-    let yamlContent;
-    let parsed;
-
-    beforeAll(() => {
-      // Arrange
-      if (!existsSync(YAML_PATH)) {
-        yamlContent = '';
-        parsed = null;
-        return;
-      }
-      yamlContent = readFileSync(YAML_PATH, 'utf-8');
-      parsed = yamlLoad(yamlContent);
-    });
-
-    it('should_exist_when_standard_is_implemented', () => {
-      // Assert: YAML 檔案存在
-      expect(existsSync(YAML_PATH)).toBe(true);
-    });
-
-    it('should_parse_without_errors_when_loaded', () => {
-      // Act: yamlLoad 在 beforeAll 已執行
-      // Assert: 解析成功
-      expect(parsed).not.toBeNull();
-      expect(parsed).toHaveProperty('standard');
-    });
-
-    it('should_have_correct_id_when_parsed', () => {
-      // Assert: standard.id 為 "execution-history"
-      expect(parsed.standard.id).toBe('execution-history');
-    });
-
-    it('should_have_correct_name_when_parsed', () => {
-      // Assert
-      expect(parsed.standard.name).toBe('Execution History Repository Standards');
-    });
-  });
-
-  // ──────────────────────────────────────────────────────────────────
-  // AC-2: YAML Schema 包含完整 definitions
-  // [Source: specs/execution-history-spec.md:AC-2]
-  // ──────────────────────────────────────────────────────────────────
-  describe('AC-2: YAML Schema 包含完整 definitions', () => {
+  describe('AC-1: Deprecated stub 可載入', () => {
     let parsed;
 
     beforeAll(() => {
@@ -68,33 +26,34 @@ describe('execution-history-spec: Execution History Repository Standard', () => 
       parsed = yamlLoad(readFileSync(YAML_PATH, 'utf-8'));
     });
 
-    it('should_contain_test_results_definition_when_parsed', () => {
-      // Assert
-      expect(parsed.standard.definitions).toHaveProperty('test-results');
+    it('should_exist_when_standard_is_implemented', () => {
+      expect(existsSync(YAML_PATH)).toBe(true);
     });
 
-    it('should_contain_log_entry_definition_when_parsed', () => {
-      expect(parsed.standard.definitions).toHaveProperty('log-entry');
+    it('should_parse_without_errors_when_loaded', () => {
+      expect(parsed).not.toBeNull();
+      expect(parsed).toHaveProperty('standard');
     });
 
-    it('should_contain_token_usage_definition_when_parsed', () => {
-      expect(parsed.standard.definitions).toHaveProperty('token-usage');
+    it('should_have_correct_id_when_parsed', () => {
+      expect(parsed.standard.id).toBe('execution-history');
     });
 
-    it('should_contain_final_status_definition_when_parsed', () => {
-      expect(parsed.standard.definitions).toHaveProperty('final-status');
+    it('should_be_marked_deprecated_when_parsed', () => {
+      // Standard has moved to DevAP — stub must declare deprecated
+      expect(parsed.standard.meta.deprecated).toBe(true);
     });
 
-    it('should_have_exactly_4_definitions_when_parsed', () => {
-      // Assert: 4 個 schema 定義
-      const keys = Object.keys(parsed.standard.definitions);
-      expect(keys).toHaveLength(4);
+    it('should_point_to_devap_canonical_location_when_parsed', () => {
+      expect(parsed.standard.meta.canonical_owner).toBe('devap');
+      expect(parsed.standard.meta.canonical_path).toBe(
+        'dev-autopilot/standards/orchestration/execution-history.ai.yaml'
+      );
     });
   });
 
   // ──────────────────────────────────────────────────────────────────
-  // AC-3: Core Markdown 參考文件完整
-  // [Source: specs/execution-history-spec.md:AC-3]
+  // AC-3: Core Markdown 參考文件完整（仍留在 UDS）
   // ──────────────────────────────────────────────────────────────────
   describe('AC-3: Core Markdown 參考文件完整', () => {
     let content;
@@ -108,7 +67,6 @@ describe('execution-history-spec: Execution History Repository Standard', () => 
       expect(existsSync(CORE_MD_PATH)).toBe(true);
     });
 
-    // 規格定義的 10 個章節
     const expectedSections = [
       '概述',
       '動機',
@@ -124,158 +82,57 @@ describe('execution-history-spec: Execution History Repository Standard', () => 
 
     for (const section of expectedSections) {
       it(`should_contain_section_${section}_when_checked`, () => {
-        // Assert: 章節存在（以標題形式）
         expect(content).toContain(section);
       });
     }
   });
 
   // ──────────────────────────────────────────────────────────────────
-  // AC-4: Registry 註冊成功
-  // [Source: specs/execution-history-spec.md:AC-4]
+  // AC-4: Registry 標記 deprecated
   // ──────────────────────────────────────────────────────────────────
-  describe('AC-4: Registry 註冊成功', () => {
-    let registry;
+  describe('AC-4: Registry 標記 deprecated', () => {
     let entry;
 
     beforeAll(() => {
-      // Arrange
       const raw = readFileSync(REGISTRY_PATH, 'utf-8');
-      registry = JSON.parse(raw);
-      // Act: 搜尋 execution-history entry
+      const registry = JSON.parse(raw);
       const standards = registry.standards || [];
       entry = standards.find(s => s.id === 'execution-history');
     });
 
     it('should_be_registered_in_standards_registry_when_checked', () => {
-      // Assert
       expect(entry).toBeDefined();
     });
 
-    it('should_have_category_reference_when_registered', () => {
-      expect(entry?.category).toBe('reference');
+    it('should_be_marked_deprecated_in_registry_when_checked', () => {
+      expect(entry?.deprecated).toBe(true);
     });
 
-    it('should_have_null_skillName_when_registered', () => {
-      expect(entry?.skillName).toBeNull();
+    it('should_have_devap_canonical_path_in_registry_when_checked', () => {
+      expect(entry?.canonicalOwner).toBe('devap');
+      expect(entry?.canonicalPath).toBe(
+        'dev-autopilot/standards/orchestration/execution-history.ai.yaml'
+      );
     });
 
     it('should_have_correct_source_paths_when_registered', () => {
       expect(entry?.source?.human).toBe('core/execution-history.md');
       expect(entry?.source?.ai).toBe('ai/standards/execution-history.ai.yaml');
     });
-
-    it('should_have_nameZh_when_registered', () => {
-      expect(entry?.nameZh).toBeTruthy();
-    });
-  });
-
-  // ──────────────────────────────────────────────────────────────────
-  // AC-5: JSON Schema 檔案可驗證
-  // [Source: specs/execution-history-spec.md:AC-5]
-  // ──────────────────────────────────────────────────────────────────
-  describe('AC-5: JSON Schema 檔案可驗證', () => {
-    const schemaFiles = [
-      'execution-history-index.schema.json',
-      'execution-history-manifest.schema.json',
-      'execution-history-test-results.schema.json',
-      'execution-history-log-entry.schema.json',
-      'execution-history-token-usage.schema.json',
-      'execution-history-final-status.schema.json',
-    ];
-
-    for (const file of schemaFiles) {
-      const filePath = resolve(SCHEMA_DIR, file);
-
-      it(`should_exist_${file}_when_implemented`, () => {
-        expect(existsSync(filePath)).toBe(true);
-      });
-
-      it(`should_parse_as_valid_json_${file}_when_loaded`, () => {
-        // Arrange
-        if (!existsSync(filePath)) return;
-        const raw = readFileSync(filePath, 'utf-8');
-        // Act & Assert: JSON 解析成功
-        expect(() => JSON.parse(raw)).not.toThrow();
-      });
-    }
-
-    it('should_have_consistent_version_across_all_schemas_when_checked', () => {
-      // Arrange: 取得 YAML meta.version
-      if (!existsSync(YAML_PATH)) return;
-      const yamlParsed = yamlLoad(readFileSync(YAML_PATH, 'utf-8'));
-      const expectedVersion = yamlParsed.standard.meta.version;
-
-      // Act & Assert: 每個 schema 的 version 一致
-      for (const file of schemaFiles) {
-        const filePath = resolve(SCHEMA_DIR, file);
-        if (!existsSync(filePath)) continue;
-        const schema = JSON.parse(readFileSync(filePath, 'utf-8'));
-        expect(schema.version).toBe(expectedVersion);
-      }
-    });
-  });
-
-  // ──────────────────────────────────────────────────────────────────
-  // AC-6: 與同類標準架構對齊
-  // [Source: specs/execution-history-spec.md:AC-6]
-  // ──────────────────────────────────────────────────────────────────
-  describe('AC-6: 與同類標準架構對齊', () => {
-    let registry;
-    let execHistoryEntry;
-    let devMemoryEntry;
-
-    beforeAll(() => {
-      const raw = readFileSync(REGISTRY_PATH, 'utf-8');
-      registry = JSON.parse(raw);
-      const standards = registry.standards || [];
-      execHistoryEntry = standards.find(s => s.id === 'execution-history');
-      devMemoryEntry = standards.find(s => s.id === 'developer-memory');
-    });
-
-    it('should_match_developer_memory_category_when_compared', () => {
-      // Assert: 與 developer-memory 的 category 一致
-      expect(execHistoryEntry?.category).toBe(devMemoryEntry?.category);
-    });
-
-    it('should_match_developer_memory_skillName_when_compared', () => {
-      // Assert: 與 developer-memory 的 skillName 一致
-      expect(execHistoryEntry?.skillName).toBe(devMemoryEntry?.skillName);
-    });
-
-    it('should_have_source_format_matching_developer_memory_when_compared', () => {
-      // Assert: source 結構一致（有 human 和 ai）
-      expect(execHistoryEntry?.source).toHaveProperty('human');
-      expect(execHistoryEntry?.source).toHaveProperty('ai');
-    });
-
-    it('should_have_always_on_protocol_classification_when_yaml_checked', () => {
-      // Arrange
-      if (!existsSync(YAML_PATH)) return;
-      const parsed = yamlLoad(readFileSync(YAML_PATH, 'utf-8'));
-      // Assert
-      expect(parsed.standard.architecture.classification).toBe('always-on-protocol');
-    });
   });
 
   // ──────────────────────────────────────────────────────────────────
   // AC-7: 同步檢查通過
-  // [Source: specs/execution-history-spec.md:AC-7]
-  // NOTE: AC-7 requires running ./scripts/check-standards-sync.sh
-  //       This is an integration-level check, tested via pre-release-check.sh
   // ──────────────────────────────────────────────────────────────────
   describe('AC-7: 同步檢查通過', () => {
     it('should_have_matching_yaml_and_core_md_files_when_checked', () => {
-      // Assert: 兩個檔案都存在（同步的前提條件）
       expect(existsSync(YAML_PATH)).toBe(true);
       expect(existsSync(CORE_MD_PATH)).toBe(true);
     });
 
-    it('should_have_yaml_source_pointing_to_core_md_when_checked', () => {
-      // Arrange
+    it('should_have_yaml_source_pointing_to_xspec003_when_checked', () => {
       if (!existsSync(YAML_PATH)) return;
       const parsed = yamlLoad(readFileSync(YAML_PATH, 'utf-8'));
-      // Assert: YAML 的 source 指向 XSPEC-003 SDD 規格（跨專案權威來源）
       expect(parsed.standard.meta.source).toBe('cross-project/specs/XSPEC-003-execution-history-standard-sdd.md');
     });
   });
