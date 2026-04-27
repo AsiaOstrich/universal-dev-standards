@@ -1588,7 +1588,12 @@
       },
       "category": "reference",
       "skillName": null,
-      "description": "Pending changes state machine, threshold strategies, and atomicity guarantees for batch commits"
+      "deprecated": true,
+      "deprecatedSince": "5.4.0",
+      "removalVersion": "6.0.0",
+      "canonicalOwner": "devap",
+      "canonicalPath": "dev-autopilot/standards/flow/change-batching-standards.ai.yaml",
+      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Change batching state machine — see dev-autopilot/standards/flow/change-batching-standards.ai.yaml"
     },
     {
       "id": "migration-template",
