@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.3.2] - 2026-04-27
+
+> **Patch Release**: Bug fix — `uds update -y` now auto-installs/updates Skills and Commands instead of only showing hints.
+
+### Fixed
+- **`uds update --yes` / `-y`** (`cli/src/commands/update.js`): The `--yes` flag previously skipped Skills and Commands installation entirely, printing a "New features available" hint instead. It now mirrors the interactive path — missing Skills/Commands are installed immediately and outdated ones are updated. The manifest and integration files are refreshed accordingly. Fixes the regression where `uds update -y` left `.claude/` Skills unchanged while interactive `uds update` updated them.
+
 ## [5.3.1] - 2026-04-27
 
 > **Patch Release**: Bug fix — `uds check` no longer falsely warns "AGENTS.md standards out of sync" after `uds update`.

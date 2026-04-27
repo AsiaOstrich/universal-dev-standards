@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.3.1
-translation_version: 5.3.1
+source_version: 5.3.2
+translation_version: 5.3.2
 last_synced: 2026-04-27
 status: current
 ---
@@ -16,6 +16,13 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.3.2] - 2026-04-27
+
+> **修補版本發布**：Bug 修復 —— `uds update -y` 現在會自動安裝/更新 Skills 和 Commands，不再只顯示提示訊息。
+
+### 修復
+- **`uds update --yes` / `-y`**（`cli/src/commands/update.js`）：`--yes` 旗標先前對 Skills 和 Commands 安裝完全跳過，只顯示「New features available」提示。現在與互動模式行為一致 —— 缺少的 Skills/Commands 立即安裝，過時的直接更新，並同步刷新 manifest 與整合檔案。修復了 `uds update -y` 讓 `.claude/` Skills 保持不變而互動式 `uds update` 正常更新的行為差異。
 
 ## [5.3.1] - 2026-04-27
 
