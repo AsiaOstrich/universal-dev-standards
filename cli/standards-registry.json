@@ -1675,7 +1675,12 @@
       },
       "category": "reference",
       "skillName": null,
-      "description": "Branch completion workflow with 4 options (merge/PR/keep/discard) and prerequisite checks"
+      "deprecated": true,
+      "deprecatedSince": "5.4.0",
+      "removalVersion": "6.0.0",
+      "canonicalOwner": "devap",
+      "canonicalPath": "dev-autopilot/standards/flow/branch-completion.ai.yaml",
+      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Branch completion workflow — see dev-autopilot/standards/flow/branch-completion.ai.yaml"
     },
     {
       "id": "verification-evidence",
