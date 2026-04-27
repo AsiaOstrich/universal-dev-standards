@@ -148,7 +148,7 @@ import { getRepositoryInfo, getAllStandards } from '../../src/utils/registry.js'
 import { refreshIntegrationBlockHashes } from '../../src/utils/hasher.js';
 import { writeIntegrationFile } from '../../src/utils/integration-generator.js';
 import { restoreSingleFile } from '../../src/commands/check.js';
-import { getInstalledSkillsInfoForAgent } from '../../src/utils/skills-installer.js';
+import { getInstalledSkillsInfoForAgent, installSkillsToMultipleAgents } from '../../src/utils/skills-installer.js';
 
 describe('Update Command', () => {
   let consoleLogs = [];
@@ -430,7 +430,7 @@ describe('Update Command', () => {
       expect(output).toContain('Update available');
     });
 
-    it('should show new features hint in --yes mode when skills/commands missing', async () => {
+    it('should auto-install Skills in --yes mode when skills/commands missing', async () => {
       isInitialized.mockReturnValue(true);
       readManifest.mockReturnValue({
         upstream: { version: '2.0.0' },
@@ -447,8 +447,7 @@ describe('Update Command', () => {
 
       await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
 
-      const output = consoleLogs.join('\n');
-      expect(output).toContain('New features available');
+      expect(installSkillsToMultipleAgents).toHaveBeenCalled();
     });
 
     it('should not show new features prompt when aiTools is empty', async () => {

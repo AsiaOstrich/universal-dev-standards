@@ -967,24 +967,96 @@ export async function updateCommand(options) {
           writeManifest(manifest, projectPath);
         }
       } else {
-        // --yes mode: show hint but don't auto-install (conservative behavior)
-        console.log();
-        console.log(chalk.cyan(msg.newFeaturesAvailableHint || 'Note: New features available for your AI tools'));
+        // --yes mode: auto-install/update Skills and Commands (treat -y as confirming all prompts)
+        const skillsLocale = resolveLocale(manifest, projectPath);
+        let hasChanges = false;
+
         if (missingSkills.length > 0) {
-          const toolNames = missingSkills.map(s => s.displayName).join(', ');
-          console.log(chalk.gray(`  • Skills (${toolNames}): run "uds update --skills" or "uds init" to install`));
+          const spinner = ora(msg.installingNewSkills || 'Installing Skills...').start();
+          const result = await installSkillsToMultipleAgents(missingSkills, null, projectPath, skillsLocale);
+          if (!manifest.skills) manifest.skills = {};
+          manifest.skills.installed = true;
+          manifest.skills.version = repoInfo.skills.version;
+          manifest.skills.installations = [...(manifest.skills.installations || []), ...missingSkills];
+          if (result.allFileHashes) {
+            if (!manifest.skillHashes) manifest.skillHashes = {};
+            Object.assign(manifest.skillHashes, result.allFileHashes);
+          }
+          if (result.totalErrors === 0) {
+            spinner.succeed((msg.newSkillsInstalled || 'Installed Skills for {count} AI tools').replace('{count}', missingSkills.length));
+          } else {
+            spinner.warn((msg.newSkillsInstalledWithErrors || 'Installed Skills with {errors} errors').replace('{errors}', result.totalErrors));
+          }
+          hasChanges = true;
         }
+
         if (outdatedSkills.length > 0) {
-          const toolNames = outdatedSkills.map(s => `${s.displayName} (${s.currentVersion} → ${s.latestVersion})`).join(', ');
-          console.log(chalk.gray(`  • Skills update (${toolNames}): run "uds update" interactively to update`));
+          const spinner = ora(msg.updatingSkills || 'Updating Skills...').start();
+          const result = await installSkillsToMultipleAgents(outdatedSkills, null, projectPath, skillsLocale);
+          if (!manifest.skills) manifest.skills = {};
+          manifest.skills.version = repoInfo.skills.version;
+          if (!manifest.skills.location && manifest.skills.installations?.length > 0) {
+            const levels = manifest.skills.installations.map(s => s.level).filter(Boolean);
+            const uniqueLevels = [...new Set(levels)];
+            manifest.skills.location = uniqueLevels.length === 1 ? uniqueLevels[0] : (uniqueLevels.length > 1 ? 'multiple' : undefined);
+          }
+          if (result.allFileHashes) {
+            if (!manifest.skillHashes) manifest.skillHashes = {};
+            Object.assign(manifest.skillHashes, result.allFileHashes);
+          }
+          if (result.totalErrors === 0) {
+            spinner.succeed((msg.skillsUpdated || 'Updated Skills for {count} AI tools').replace('{count}', outdatedSkills.length));
+          } else {
+            spinner.warn((msg.skillsUpdatedWithErrors || 'Updated Skills with {errors} errors').replace('{errors}', result.totalErrors));
+          }
+          hasChanges = true;
         }
+
         if (missingCommands.length > 0) {
-          const toolNames = missingCommands.map(c => c.displayName).join(', ');
-          console.log(chalk.gray(`  • Commands (${toolNames}): run "uds update --commands" or "uds init" to install`));
+          const spinner = ora(msg.installingNewCommands || 'Installing commands...').start();
+          const result = await installCommandsToMultipleAgents(missingCommands, null, projectPath, skillsLocale);
+          if (!manifest.commands) manifest.commands = {};
+          manifest.commands.installed = true;
+          manifest.commands.version = repoInfo.skills.version;
+          manifest.commands.installations = [...(manifest.commands.installations || []), ...missingCommands];
+          if (result.allFileHashes) {
+            if (!manifest.commandHashes) manifest.commandHashes = {};
+            replaceCommandHashesForUpdatedAgents(manifest.commandHashes, result.allFileHashes);
+          }
+          if (result.totalErrors === 0) {
+            spinner.succeed((msg.newCommandsInstalled || 'Installed commands for {count} AI tools').replace('{count}', missingCommands.length));
+          } else {
+            spinner.warn((msg.newCommandsInstalledWithErrors || 'Installed commands with {errors} errors').replace('{errors}', result.totalErrors));
+          }
+          hasChanges = true;
         }
+
         if (outdatedCommands.length > 0) {
-          const toolNames = outdatedCommands.map(c => `${c.displayName} (${c.currentVersion} → ${c.latestVersion})`).join(', ');
-          console.log(chalk.gray(`  • Commands update (${toolNames}): run "uds update" interactively to update`));
+          const spinner = ora(msg.updatingCommands || 'Updating Commands...').start();
+          const result = await installCommandsToMultipleAgents(outdatedCommands, null, projectPath, skillsLocale);
+          if (!manifest.commands) manifest.commands = {};
+          manifest.commands.version = repoInfo.skills.version;
+          if (result.allFileHashes) {
+            if (!manifest.commandHashes) manifest.commandHashes = {};
+            replaceCommandHashesForUpdatedAgents(manifest.commandHashes, result.allFileHashes);
+          }
+          if (result.totalErrors === 0) {
+            spinner.succeed((msg.commandsUpdated || 'Updated Commands for {count} AI tools').replace('{count}', outdatedCommands.length));
+          } else {
+            spinner.warn((msg.commandsUpdatedWithErrors || 'Updated Commands with {errors} errors').replace('{errors}', result.totalErrors));
+          }
+          hasChanges = true;
+        }
+
+        if (hasChanges) {
+          if (missingSkills.length > 0 || outdatedSkills.length > 0) {
+            const regenResult = regenerateIntegrations(projectPath, manifest);
+            if (regenResult.updated.length > 0) {
+              console.log(chalk.green(`  ✓ ${msg.syncedIntegrations.replace('{count}', regenResult.updated.length)}`));
+            }
+          }
+          refreshIntegrationBlockHashes(manifest, projectPath);
+          writeManifest(manifest, projectPath);
         }
       }
     }
