@@ -1007,7 +1007,12 @@
       },
       "category": "reference",
       "skillName": null,
-      "description": "Protocol for persisting and restoring workflow state across AI sessions"
+      "deprecated": true,
+      "deprecatedSince": "5.4.0",
+      "removalVersion": "6.0.0",
+      "canonicalOwner": "devap",
+      "canonicalPath": "dev-autopilot/standards/flow/workflow-state-protocol.ai.yaml",
+      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Workflow state persistence protocol — see dev-autopilot/standards/flow/workflow-state-protocol.ai.yaml"
     },
     {
       "id": "workflow-enforcement",
