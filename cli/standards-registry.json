@@ -1019,7 +1019,12 @@
       },
       "category": "reference",
       "skillName": null,
-      "description": "Machine-enforceable workflow gates that prevent phase skipping in SDD/TDD/BDD methodologies"
+      "deprecated": true,
+      "deprecatedSince": "5.4.0",
+      "removalVersion": "6.0.0",
+      "canonicalOwner": "devap",
+      "canonicalPath": "dev-autopilot/standards/flow/workflow-enforcement.ai.yaml",
+      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Machine-enforceable workflow gates — see dev-autopilot/standards/flow/workflow-enforcement.ai.yaml"
     },
     {
       "id": "testing",
