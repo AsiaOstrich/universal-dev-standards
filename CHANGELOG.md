@@ -9,6 +9,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.4.0] - 2026-04-27
+
+> **Minor Release**: XSPEC-086 Phase 2 — 8 個純流程/編排標準遷移至 DevAP（deprecated stubs 保留向後相容）。UDS 職責回歸活動定義層，流程編排交由 DevAP 負責（DEC-049）。
+
+### Deprecated（XSPEC-086 Phase 2 — 遷移至 DevAP）
+
+下列 8 個標準已遷移至 `dev-autopilot/standards/`，成為 DevAP canonical 位置。UDS 保留 deprecated stub 至 v6.0.0。
+
+**`ai/standards/flow/`（已遷入 DevAP `standards/flow/`）**
+- `workflow-enforcement.ai.yaml` → `dev-autopilot/standards/flow/workflow-enforcement.ai.yaml`
+- `workflow-state-protocol.ai.yaml` → `dev-autopilot/standards/flow/workflow-state-protocol.ai.yaml`
+- `change-batching-standards.ai.yaml` → `dev-autopilot/standards/flow/change-batching-standards.ai.yaml`
+- `branch-completion.ai.yaml` → `dev-autopilot/standards/flow/branch-completion.ai.yaml`
+- `pipeline-integration-standards.ai.yaml` → `dev-autopilot/standards/flow/pipeline-integration-standards.ai.yaml`
+
+**`ai/standards/orchestration/`（已遷入 DevAP `standards/orchestration/`）**
+- `agent-dispatch.ai.yaml` → `dev-autopilot/standards/orchestration/agent-dispatch.ai.yaml`
+- `agent-communication-protocol.ai.yaml` → `dev-autopilot/standards/orchestration/agent-communication-protocol.ai.yaml`
+- `execution-history.ai.yaml` → `dev-autopilot/standards/orchestration/execution-history.ai.yaml`
+
+### Changed
+
+- `cli/standards-registry.json`：8 個標準條目標記 `deprecated: true`、`deprecatedSince: "5.4.0"`、`removalVersion: "6.0.0"`、`canonicalOwner: "devap"`、`canonicalPath`
+- `cli/tests/unit/core/execution-history-standards.test.js`：測試更新為驗證 deprecated stub 結構（meta.deprecated + canonical_path），22 tests 通過
+
+### Migration Guide
+
+安裝 DevAP 並載入對應標準以取得完整的流程執行能力：
+
+```bash
+npm install -g dev-autopilot
+# 各標準 canonical 位置見 dev-autopilot/standards/README.md
+```
+
+UDS 5.x 仍提供 deprecated stubs（含 fallback 規則），UDS 6.0.0 將完全移除。
+
 ## [5.3.2] - 2026-04-27
 
 > **Patch Release**: Bug fix — `uds update -y` now auto-installs/updates Skills and Commands instead of only showing hints.
