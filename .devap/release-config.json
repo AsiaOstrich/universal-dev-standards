@@ -1,0 +1,17 @@
+{
+  "_comment": "UDS release config for `devap release` (XSPEC-089). Mirrors scripts/bump-version.sh — keep in sync.",
+  "versionFiles": [
+    { "path": "cli/package.json", "field": "version" },
+    {
+      "path": "cli/standards-registry.json",
+      "fields": [
+        "version",
+        "repositories.standards.version",
+        "repositories.skills.version"
+      ]
+    },
+    { "path": "uds-manifest.json", "field": "version" }
+  ],
+  "changelog": { "path": "CHANGELOG.md" },
+  "branch": "main"
+}
