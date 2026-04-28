@@ -5,6 +5,13 @@ description: "[UDS] Guide through Behavior-Driven Development workflow"
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[feature or spec | 功能或規格]"
 ---
+<!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
+  BDD lifecycle orchestration (4-phase cycle, Gherkin scaffolding, RED/GREEN execution) extracted to:
+  - DevAP flow: dev-autopilot/.devap/flows/bdd.flow.yaml
+  - DevAP CLI:  devap bdd (packages/cli/src/commands/bdd.ts)
+  This Skill retains: Gherkin format definition, Three Amigos structure, BDD cycle diagram.
+  Use `devap bdd` for enforced cycle; this Skill for format and principle reference.
+-->
 
 # BDD Assistant | BDD 助手
 

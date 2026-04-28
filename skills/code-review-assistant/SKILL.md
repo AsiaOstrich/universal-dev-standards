@@ -6,6 +6,13 @@ allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git sho
 argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
 disable-model-invocation: true
 ---
+<!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
+  Code review workflow orchestration (4-step sequence, outcome gating) extracted to:
+  - DevAP flow: dev-autopilot/.devap/flows/review.flow.yaml
+  - DevAP CLI:  devap review (packages/cli/src/commands/review.ts)
+  This Skill retains: 8 review category definitions, BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE prefix semantics.
+  Use `devap review` for enforced execution; this Skill for category and prefix reference.
+-->
 
 # Code Review Assistant | 程式碼審查助手
 
