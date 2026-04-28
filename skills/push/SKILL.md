@@ -8,6 +8,14 @@ description: |
 allowed-tools: Read, Bash(git:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(bun:*)
 argument-hint: "[--force] [--target <branch>] [--skip-gates] [--no-pr]"
 ---
+<!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
+  Push workflow orchestration (gate execution sequence, abort logic) extracted to:
+  - DevAP flow: dev-autopilot/.devap/flows/push.flow.yaml
+  - DevAP CLI:  devap push (packages/cli/src/commands/push.ts)
+  - Flow spec:  dev-autopilot/standards/flow/push-gate-sequence.ai.yaml
+  This Skill retains: feature definitions, configuration schema, options documentation.
+  Use `devap push` for enforced execution; this Skill for activity reference.
+-->
 
 # Push Assistant | 推送助手
 
