@@ -1,3 +1,17 @@
+/**
+ * UDS Start Command — Mission 任務啟動
+ *
+ * 啟動一個具名任務（Mission）並設定任務意圖。
+ *
+ * @deprecated XSPEC-095 (2026-04-28): This command is superseded by `devap mission`.
+ *   The orchestration logic has been extracted to DevAP:
+ *   - Core module: dev-autopilot/packages/core/src/mission/
+ *   - CLI command: dev-autopilot/packages/cli/src/commands/mission.ts
+ *
+ *   棄用理由：UDS 專注於活動定義，DevAP 承擔流程編排（XSPEC-086 / DEC-049）。
+ *   UDS 5.x 仍維持本命令可用（向後相容），UDS 6.0.0 將移除。
+ *   建議遷移：`uds start ...` → `devap mission start <type> "<intent>"`
+ */
 import chalk from 'chalk';
 import { select, input, confirm as inquirerConfirm } from '@inquirer/prompts';
 import { MissionManager, MissionType, MissionState } from '../missions/MissionManager.js';
