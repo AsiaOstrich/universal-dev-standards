@@ -1,0 +1,27 @@
+# [XSPEC-088] Commit 流程閘門 — 三步強制流程
+# 防止 AI 助手繞過使用者確認直接執行 git commit
+# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
+# Source: dev-autopilot/.devap/flows/commit.flow.yaml
+# This flow definition is now the canonical UDS standard.
+# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+name: commit
+description: >
+  Enforces a 3-step commit workflow: generate message → user confirmation → execute.
+  AI agents cannot bypass this flow to run git commit directly.
+steps:
+  - id: generate-message
+    type: ai-task
+    description: "呼叫 /commit-standards Skill 生成 Conventional Commits 格式訊息"
+    tool: devap:commit-message-generator
+
+  - id: user-confirm
+    type: gate
+    gate: HUMAN_CONFIRM
+    prompt: "確認此 commit message 並執行提交？[y/n]"
+    on_reject: generate-message
+    requires: [generate-message]
+
+  - id: execute-commit
+    type: shell
+    command: "git commit -m '{{commit_message}}'"
+    requires: [user-confirm]

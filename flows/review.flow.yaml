@@ -1,0 +1,63 @@
+# [XSPEC-086 Phase 4] Code Review 流程 — Identify → Checklist → Report → Summarize
+# CLI 實作：packages/cli/src/commands/review.ts
+# 活動定義（審查類別、評論前綴）：UDS code-review-assistant/SKILL.md
+# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
+# Source: dev-autopilot/.devap/flows/review.flow.yaml
+# This flow definition is now the canonical UDS standard.
+# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+name: review
+description: >
+  Systematic code review: identify changes → apply 8-category checklist → generate findings report → summarize.
+  Review categories and comment prefix definitions remain in UDS code-review-assistant/SKILL.md.
+steps:
+  - id: identify-changes
+    type: shell
+    command: "git diff {{target}} --stat"
+    description: "取得要審查的 diff（branch diff 或指定檔案）"
+
+  - id: apply-checklist
+    type: ai-review
+    description: "8 個類別逐一系統性審查"
+    categories:
+      - id: functionality
+        description: "功能是否正確？邏輯是否符合需求？"
+      - id: design
+        description: "架構是否合適？介面設計是否清晰？"
+      - id: quality
+        description: "程式碼是否乾淨可維護？是否遵循 DRY/SOLID？"
+      - id: readability
+        description: "命名是否清楚？是否容易理解？"
+      - id: tests
+        description: "測試覆蓋是否足夠？是否有回歸測試？"
+      - id: security
+        description: "是否有注入漏洞？是否有硬編碼密鑰？"
+      - id: performance
+        description: "是否有 N+1 查詢？是否有效率瓶頸？"
+      - id: error-handling
+        description: "錯誤是否妥善處理？是否有未處理的邊界情況？"
+    requires: [identify-changes]
+
+  - id: generate-report
+    type: ai-task
+    description: "輸出結構化審查報告（使用 BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前綴）"
+    output_format:
+      blocking: "必須修復才能合併"
+      important: "建議修復"
+      suggestion: "可選改善"
+      question: "需要確認"
+      note: "僅供參考"
+    requires: [apply-checklist]
+
+  - id: summarize
+    type: ai-task
+    description: "整體評估：APPROVE / REQUEST_CHANGES / COMMENT + 後續建議"
+    outcomes:
+      approve: "無 BLOCKING 項目，可合併"
+      request_changes: "有 BLOCKING 項目，需修復後重新審查"
+      comment: "有 IMPORTANT/SUGGESTION，由作者決定是否處理"
+    requires: [generate-report]
+
+completion:
+  on_approve: "✅ 審查通過，可執行 devap checkin → devap commit"
+  on_request_changes: "❌ 有 BLOCKING 項目，修復後重新執行 devap review"
+  on_comment: "💬 有建議，確認後執行 devap checkin"

@@ -1,0 +1,79 @@
+# [XSPEC-086 Phase 4] BDD 流程 — DISCOVERY → FORMULATION → AUTOMATION → LIVING DOCS
+# CLI 實作：packages/cli/src/commands/bdd.ts
+# 活動定義（Gherkin 格式、Three Amigos、場景結構）：UDS bdd-assistant/SKILL.md
+# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
+# Source: dev-autopilot/.devap/flows/bdd.flow.yaml
+# This flow definition is now the canonical UDS standard.
+# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+name: bdd
+description: >
+  Behavior-Driven Development cycle: Discovery → Formulation (Gherkin) → Automation → Living Docs.
+  Gherkin format and Three Amigos structure definitions remain in UDS bdd-assistant/SKILL.md.
+steps:
+  - id: discovery
+    type: sequence
+    description: "與利害關係人探索行為，識別例子與邊界情況，理解業務意圖"
+    tasks:
+      - id: identify-feature
+        type: ai-task
+        description: "理解要描述行為的功能或用戶故事"
+      - id: three-amigos
+        type: ai-task
+        description: "從 Business（What/Why）、Dev（How）、QA（What-if）三個角度確認範圍"
+    gate: HUMAN_CONFIRM
+    prompt: "Discovery 完成，探索出所有行為例子，進入 FORMULATION 撰寫場景？"
+
+  - id: formulation
+    type: sequence
+    description: "以 Gherkin 語言撰寫場景（Feature + Scenario + Given/When/Then）"
+    tasks:
+      - id: write-feature
+        type: ai-task
+        description: "撰寫 Feature 文件（角色、目標、業務價值）"
+      - id: write-scenarios
+        type: ai-task
+        description: "每個 AC 至少一個 Scenario；使用宣告式而非命令式步驟"
+      - id: write-edge-cases
+        type: ai-task
+        description: "補充 Scenario Outline 涵蓋邊界情況和異常流程"
+    gate: HUMAN_CONFIRM
+    prompt: "場景已撰寫完成，進入 AUTOMATION 實作步驟定義？"
+    on_reject: discovery
+    requires: [discovery]
+
+  - id: automation
+    type: sequence
+    description: "實作步驟定義（step definitions），在場景框架中使用 TDD 完成功能程式碼"
+    tasks:
+      - id: implement-steps
+        type: ai-task
+        description: "實作每個 Given/When/Then 步驟定義"
+      - id: run-scenarios-red
+        type: shell
+        command: "{{bdd_test_command}}"
+        description: "執行 BDD 場景確認失敗（場景先行）"
+      - id: implement-code
+        type: ai-task
+        description: "撰寫功能程式碼使場景通過（可在內部使用 TDD 循環）"
+      - id: run-scenarios-green
+        type: shell
+        command: "{{bdd_test_command}}"
+        description: "執行 BDD 場景確認全部通過"
+    gate: HUMAN_CONFIRM
+    prompt: "所有場景通過，進入 LIVING DOCS 維護？"
+    requires: [formulation]
+
+  - id: living-docs
+    type: sequence
+    description: "確認場景作為活文件，與利害關係人審查，更新過時場景"
+    tasks:
+      - id: review-with-stakeholders
+        type: ai-task
+        description: "邀請業務與 QA 確認場景仍準確反映業務規則"
+      - id: update-stale-scenarios
+        type: ai-task
+        description: "識別並更新實作後發現需要調整的場景"
+    requires: [automation]
+
+completion:
+  message: "✅ BDD 循環完成。建議：devap checkin → devap commit"

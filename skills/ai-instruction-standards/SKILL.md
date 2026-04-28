@@ -2,18 +2,18 @@
 name: ai-instruction-standards
 scope: partial
 description: |
-  Create and maintain AI instruction files (CLAUDE.md, .cursorrules, etc.) with proper structure.
+  Create and maintain AI instruction files (CLAUDE.md, AGENTS.md, .cursor/rules/, etc.) with proper structure.
   Use when: creating AI instruction files, separating universal vs project-specific rules, configuring AI tools.
-  Keywords: CLAUDE.md, cursorrules, windsurfrules, clinerules, AI instructions, system prompt, 指令檔案, AI 設定.
+  Keywords: CLAUDE.md, AGENTS.md, cursorrules, windsurfrules, clinerules, AI instructions, system prompt, 指令檔案, AI 設定.
 ---
 
 # AI Instruction File Standards Guide
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/skills/ai-instruction-standards/SKILL.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-25
-**Applicability**: Claude Code Skills
+**Version**: 2.0.0
+**Last Updated**: 2026-04-28
+**Applicability**: All AI coding tools
 
 ---
 
@@ -23,28 +23,54 @@ description: |
 
 This skill is part of a three-layer AI collaboration system:
 
-| Layer | Skill | Question it Answers | 回答的問題 |
-|-------|-------|-------------------|-----------|
-| **Behavior** (Immediate) | `/ai-collaboration` | "How should AI respond accurately?" | 「AI 如何準確回應？」 |
-| **Configuration** (Session) | `/ai-instruction-standards` (this) | "What to write in CLAUDE.md?" | 「CLAUDE.md 該寫什麼？」 |
-| **Architecture** (Long-term) | `/ai-friendly-architecture` | "How to structure code for AI?" | 「如何讓專案對 AI 友善？」 |
+| Layer | Skill | Question it Answers |
+|-------|-------|-------------------|
+| **Behavior** (Immediate) | `/ai-collaboration` | "How should AI respond accurately?" |
+| **Configuration** (Session) | `/ai-instruction-standards` (this) | "What to write in CLAUDE.md / AGENTS.md?" |
+| **Architecture** (Long-term) | `/ai-friendly-architecture` | "How to structure code for AI?" |
 
 ## Purpose
 
-This skill helps create and maintain AI instruction files with proper separation between universal standards and project-specific configurations.
+This skill helps create and maintain AI instruction files with proper separation between universal standards and project-specific configurations, across all major AI coding tools.
+
+---
 
 ## Quick Reference
 
-### Supported AI Tools
+### Supported AI Tools (2026-04-28)
 
-| AI Tool | Instruction File | Format |
-|---------|-----------------|--------|
-| Claude Code | `CLAUDE.md` | Markdown |
-| Cursor | `.cursorrules` | Markdown |
-| Windsurf | `.windsurfrules` | Markdown |
-| Cline | `.clinerules` | Markdown |
-| GitHub Copilot | `.github/copilot-instructions.md` | Markdown |
-| OpenCode | `.opencode/instructions.md` | Markdown |
+#### CLI / Agent Tools (Terminal)
+
+| Tool | Primary File | Workflow Mechanism | MCP |
+|------|-------------|-------------------|-----|
+| **Claude Code** | `CLAUDE.md` + `.claude/rules/*.md` | Skills (`.claude/skills/` → `/{name}`) | ✅ |
+| **Gemini CLI** | `GEMINI.md` | `.gemini/commands/*.toml` → `/{name}` | ✅ |
+| **OpenAI Codex CLI** | `AGENTS.md` (+ `AGENTS.override.md`) | Team commands; `/review` built-in | ✅ |
+| **OpenCode** | `AGENTS.md` (CLAUDE.md compatible) | Built-in only (`/init` `/undo` `/share`) | ✅ |
+
+#### AI-native IDE / Editor Integration
+
+| Tool | Primary File | Workflow Mechanism | MCP |
+|------|-------------|-------------------|-----|
+| **Cursor** | `.cursor/rules/*.mdc` ⚠️ | `@`-mentions; `/multitask` | ✅ |
+| **GitHub Copilot** | `.github/copilot-instructions.md` | `.github/prompts/*.prompt.md` → `/{name}` | ✅ |
+| **Windsurf** | `.windsurfrules` / `.windsurf/rules/*.md` | `.windsurf/workflows/*.md` → `/{name}` | ✅ |
+| **Cline** | `.clinerules` | None | ✅ |
+
+> ⚠️ **Cursor**: `.cursorrules` is **deprecated** — migrate to `.cursor/rules/*.mdc`
+
+---
+
+### Cross-Tool Universal Standard: `AGENTS.md`
+
+`AGENTS.md` is the emerging de-facto cross-tool instruction standard:
+
+**Supported by**: Gemini CLI, OpenAI Codex CLI, OpenCode, GitHub Copilot, Windsurf, Cursor
+**Not supported by**: Claude Code (uses `CLAUDE.md`), Cline (uses `.clinerules`)
+
+**Recommendation**: Use `AGENTS.md` as the universal baseline for cross-tool projects, then add tool-specific files for advanced features (Skills, Workflows, Prompts).
+
+---
 
 ### Core Principle: Universal vs Project-Specific
 
@@ -52,6 +78,8 @@ This skill helps create and maintain AI instruction files with proper separation
 |------|----------|---------|
 | **Universal** | Generic rules | "Run tests before committing" |
 | **Project-Specific** | Concrete commands | "Run `npm test` before committing" |
+
+---
 
 ### Recommended Layout
 
@@ -80,15 +108,124 @@ This skill helps create and maintain AI instruction files with proper separation
 [Your project structure]
 ```
 
-## Detailed Guidelines
+---
 
-For complete standards, see:
-- [AI Instruction File Standards](../../core/ai-instruction-standards.md)
+## Tool-Specific Setup Guides
 
-### AI-Optimized Format (Token-Efficient)
+### Claude Code
 
-For AI assistants, use the YAML format file for reduced token usage:
-- Base standard: `ai/standards/ai-instruction-standards.ai.yaml`
+```
+CLAUDE.md                        # Main instructions (hierarchical: global → project → subdir)
+.claude/rules/                   # Glob-scoped additional rules
+.claude/skills/{name}/SKILL.md   # Custom slash commands → /{name}
+.claude/agents/{name}.md         # Subagent definitions
+```
+
+### Gemini CLI
+
+```
+GEMINI.md                          # Main instructions
+.gemini/commands/{name}.toml       # Custom slash commands → /{name}
+.gemini/agents/{name}.yaml         # Subagent definitions
+```
+
+Example `.gemini/commands/review.toml`:
+```toml
+description = "Run code review checklist"
+prompt = "Review the following changes: !{git diff HEAD}"
+```
+
+### OpenAI Codex CLI
+
+```
+AGENTS.md                  # Main instructions (Git root → cwd traversal)
+AGENTS.override.md         # Temporary override (highest priority)
+~/.codex/AGENTS.md         # Global fallback
+.codex/agents/             # Custom agent definitions
+```
+
+### OpenCode
+
+```
+AGENTS.md                       # Primary (auto-recognized)
+CLAUDE.md                       # Also recognized (migration compatibility)
+.opencode/agents/               # Custom agent definitions
+opencode.json (instructions)    # Glob-pattern file references
+```
+
+### Cursor
+
+```
+.cursor/rules/                  # MDC format rules (replaces .cursorrules)
+  {name}.mdc                    # Frontmatter: description, globs, alwaysApply
+AGENTS.md                       # Also supported for agent context
+```
+
+MDC frontmatter example:
+```yaml
+---
+description: "TypeScript coding standards"
+globs: ["**/*.ts", "**/*.tsx"]
+alwaysApply: false
+---
+```
+
+> **Migration**: If you have `.cursorrules`, move content to `.cursor/rules/*.mdc`.
+
+### GitHub Copilot
+
+```
+.github/copilot-instructions.md         # Always-on, all chats
+.github/instructions/*.instructions.md  # File-glob scoped (applyTo frontmatter)
+.github/prompts/*.prompt.md             # Reusable templates → /{name} slash commands
+.github/agents/*.agent.md               # Custom agents with tool access control
+AGENTS.md                               # Also recognized
+```
+
+### Windsurf
+
+```
+.windsurfrules                   # Project rules (team-shareable)
+.windsurf/rules/*.md             # MDC frontmatter structured rules
+.windsurf/workflows/*.md         # Reusable task sequences → /{name}
+AGENTS.md                        # Also recognized
+```
+
+Workflow example (`.windsurf/workflows/review.md`):
+```markdown
+Run a code review:
+1. Run `git diff HEAD`
+2. Check for BLOCKING issues (security, correctness)
+3. Check for IMPORTANT issues (design, tests)
+4. Output findings with BLOCKING/IMPORTANT/SUGGESTION prefixes
+```
+
+---
+
+## Multi-Tool Project Configuration
+
+When a project uses multiple AI tools:
+
+```
+project/
+├── AGENTS.md                            # Universal baseline (cross-tool)
+├── CLAUDE.md                            # Claude Code (extends AGENTS.md)
+├── GEMINI.md                            # Gemini CLI
+├── .cursor/rules/
+│   └── standards.mdc                    # Cursor
+├── .windsurf/
+│   └── workflows/                       # Windsurf workflows
+│       ├── review.md
+│       └── checkin.md
+└── .github/
+    ├── copilot-instructions.md          # Copilot always-on
+    └── prompts/
+        └── review.prompt.md             # Copilot slash command
+```
+
+**Best Practice**: Write universal content in `AGENTS.md` once, then import/reference it from tool-specific files to avoid duplication.
+
+---
 
 ## Content Guidelines
 
@@ -116,53 +253,7 @@ For AI assistants, use the YAML format file for reduced token usage:
 | **File Structure** | `src/`, `cli/`, `tests/` |
 | **Team Conventions** | Traditional Chinese comments |
 
-## Labeling Convention
-
-### Option A: Section Headers
-
-```markdown
-## Universal Standards
-[universal content]
-
-## Project-Specific Configuration
-[project-specific content]
-```
-
-### Option B: Inline Markers
-
-```markdown
-> ⚠️ **Project-Specific**: This section contains configuration unique to this project.
-
-### Tech Stack
-...
-```
-
-### Option C: Comment Annotations
-
-```markdown
-<!-- UNIVERSAL: The following applies to all projects -->
-### Commit Message Format
-...
-
-<!-- PROJECT-SPECIFIC: Customize for your project -->
-### Quick Commands
-...
-```
-
-## Multi-Tool Configuration
-
-When using multiple AI tools, maintain consistency:
-
-```
-project/
-├── CLAUDE.md              # Claude Code instructions
-├── .cursorrules           # Cursor instructions (can import from CLAUDE.md)
-├── .windsurfrules         # Windsurf instructions
-└── .github/
-    └── copilot-instructions.md  # Copilot instructions
-```
-
-**Best Practice**: Create a shared `docs/ai-standards.md` and reference it from each tool's file to avoid duplication.
+---
 
 ## Maintenance Checklist
 
@@ -172,38 +263,39 @@ Before committing changes to AI instruction files:
 - [ ] Project-specific sections are clearly marked
 - [ ] Cross-references to standards documents are correct
 - [ ] Format matches existing sections
+- [ ] If using Cursor: `.cursorrules` migrated to `.cursor/rules/*.mdc`
+- [ ] If multi-tool project: `AGENTS.md` covers the universal baseline
 
 ---
 
 ## Configuration Detection
 
-This skill supports project-specific configuration.
-
 ### Detection Order
 
-1. Check for existing `CLAUDE.md` or equivalent files
-2. Analyze content structure for universal/project-specific separation
-3. If not found, **suggest creating structured AI instruction file**
+1. Check for existing `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, or equivalent files
+2. Detect which AI tools are in use (check for `.cursor/`, `.windsurf/`, `.github/copilot-instructions.md`, etc.)
+3. Analyze content structure for universal/project-specific separation
+4. If not found, **suggest creating structured AI instruction file**
 
 ### First-Time Setup
 
 If no AI instruction file found:
 
-1. Ask: "This project doesn't have an AI instruction file. Would you like to create one?"
-2. Determine project type and tech stack
-3. Generate template with appropriate sections
-4. Add to `.gitignore` if contains sensitive info
+1. Ask: "This project doesn't have an AI instruction file. Which AI tools do you use?"
+2. Recommend `AGENTS.md` for cross-tool projects, `CLAUDE.md` for Claude Code only
+3. Determine project type and tech stack
+4. Generate template with appropriate sections
+5. Add to `.gitignore` if contains sensitive info
 
 ---
 
-## Next Steps Guidance | 下一步引導
+## Next Steps Guidance
 
-After `/ai-instructions` completes, the AI assistant should suggest:
+After `/ai-instructions` completes, suggest:
 
-> **AI 指令檔案標準已掌握。建議下一步 / AI instruction file standards understood. Suggested next steps:**
-> - 建立或更新專案的 `CLAUDE.md`（或對應的 AI 指令檔案） ⭐ **Recommended / 推薦** — 立即將標準應用到專案中 / Apply standards to the project immediately
-> - 執行 `/ai-friendly-architecture` 從架構層面優化 AI 協作 — 配合指令檔案提升 AI 理解力 / Enhance AI understanding alongside instruction files
-> - 執行 `/ai-collaboration` 複習 AI 行為準則 — 確保指令檔案中的規則與行為標準一致 / Ensure instruction file rules align with behavior standards
+> - Create or update project's `CLAUDE.md` / `AGENTS.md` ⭐ **Recommended** — Apply standards immediately
+> - Run `/ai-friendly-architecture` to optimize AI collaboration at the architecture level
+> - Run `/ai-collaboration` to review AI behavior guidelines
 
 ---
 
@@ -220,6 +312,7 @@ After `/ai-instructions` completes, the AI assistant should suggest:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0.0 | 2026-04-28 | Add Gemini CLI, OpenAI Codex CLI; update Cursor (MDC format, deprecated .cursorrules); update OpenCode (AGENTS.md primary); update Copilot (multiple file types); update Windsurf (Workflows); add AGENTS.md cross-tool standard section |
 | 1.0.0 | 2026-01-25 | Initial release |
 
 ---

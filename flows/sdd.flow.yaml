@@ -1,0 +1,90 @@
+# [XSPEC-086 Phase 4] SDD 流程 — 7-Phase Spec-Driven Development 狀態機
+# CLI 實作：packages/cli/src/commands/sdd.ts
+# 活動定義（spec 格式、狀態、delta 操作）：UDS spec-driven-dev/SKILL.md
+# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
+# Source: dev-autopilot/.devap/flows/sdd.flow.yaml
+# This flow definition is now the canonical UDS standard.
+# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+name: sdd
+description: >
+  7-phase Spec-Driven Development lifecycle: Discuss → Create → Review → Approve → Implement → Verify → Archive.
+  Spec format and state definitions remain in UDS spec-driven-development.ai.yaml.
+phases:
+  - id: discuss
+    description: "釐清需求範圍、解決模糊點、建立設計原則"
+    gate: HUMAN_CONFIRM
+    prompt: "需求已釐清，進入 CREATE 撰寫規格？"
+    on_reject: discuss
+
+  - id: create
+    description: "撰寫規格文件（Overview + Requirements + AC + Technical Design + Test Plan）"
+    type: ai-task
+    output: spec_document
+    requires: [discuss]
+    gate: HUMAN_CONFIRM
+    prompt: "規格草稿已完成，進入 REVIEW 審查？"
+    on_reject: create
+
+  - id: review
+    description: "審查規格的完整性、一致性與可行性"
+    type: ai-review
+    checklist:
+      - "每個 Requirement 都有至少一個 Scenario"
+      - "Acceptance Criteria 使用 Given/When/Then 格式"
+      - "Technical Design 足夠明確可實作"
+      - "Test Plan 涵蓋 happy path 與 edge cases"
+    gate: HUMAN_CONFIRM
+    prompt: "審查完成，進入 APPROVE 核准？"
+    on_reject: create
+    requires: [create]
+
+  - id: approve
+    description: "利害關係人核准，將 spec 狀態從 Review → Approved"
+    type: gate
+    gate: HUMAN_CONFIRM
+    prompt: "核准此規格並開始實作？"
+    on_reject: review
+    requires: [review]
+
+  - id: implement
+    description: "依核准規格實作，每個 Requirement 參照 spec AC"
+    type: ai-task
+    tracking:
+      - "每個 AC 完成後在 spec 標記 ✅"
+      - "commit message 引用 spec ID"
+    requires: [approve]
+    gate: HUMAN_CONFIRM
+    prompt: "所有 AC 已實作，進入 VERIFY 驗證？"
+
+  - id: verify
+    description: "確認實作與 spec 一致，所有測試通過，AC 全部滿足"
+    type: sequence
+    steps:
+      - id: run-tests
+        type: shell
+        command: "{{test_command}}"
+        description: "執行完整測試套件"
+      - id: ac-coverage-check
+        type: ai-check
+        description: "逐條確認每個 AC 已有對應測試"
+      - id: spec-match-check
+        type: ai-check
+        description: "確認實作行為符合 spec 描述"
+    requires: [implement]
+    gate: HUMAN_CONFIRM
+    prompt: "所有 AC 驗證通過，歸檔此規格？"
+
+  - id: archive
+    description: "歸檔 spec（狀態 → Archived），加入實作 commit/PR 連結"
+    type: ai-task
+    output: archived_spec
+    requires: [verify]
+
+completion:
+  message: "✅ SDD 週期完成。規格已歸檔，可執行 devap commit 提交最終成果。"
+
+state_transitions:
+  Draft: [Review]
+  Review: [Approved, Draft]
+  Approved: [Implemented]
+  Implemented: [Archived]

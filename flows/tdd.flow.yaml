@@ -1,0 +1,84 @@
+# [XSPEC-086 Phase 4] TDD 流程 — RED → GREEN → REFACTOR 循環
+# CLI 實作：packages/cli/src/commands/tdd.ts
+# 活動定義：UDS tdd-assistant/SKILL.md + test-driven-development.ai.yaml
+# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
+# Source: dev-autopilot/.devap/flows/tdd.flow.yaml
+# This flow definition is now the canonical UDS standard.
+# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+name: tdd
+description: >
+  Guides through Test-Driven Development: understand requirement → list test cases
+  → RED (write failing test) → GREEN (write minimum code) → REFACTOR (improve code) → loop.
+steps:
+  - id: understand-requirement
+    type: ai-task
+    description: "解析使用者輸入，確認要實作的功能、函式或用戶故事"
+
+  - id: list-test-cases
+    type: ai-task
+    description: "列出測試案例：happy path、edge cases、error cases"
+    requires: [understand-requirement]
+
+  - id: pick-test
+    type: gate
+    gate: HUMAN_CONFIRM
+    prompt: "選擇本循環要實作的測試案例，確認開始 RED 階段？"
+    requires: [list-test-cases]
+
+  - id: red-phase
+    type: sequence
+    description: "🔴 RED：撰寫失敗測試（AAA 格式）"
+    requires: [pick-test]
+    steps:
+      - id: write-test
+        type: ai-task
+        description: "撰寫描述預期行為的測試（Arrange-Act-Assert）"
+      - id: run-tests-red
+        type: shell
+        command: "{{test_command}}"
+        description: "執行測試，確認新測試失敗（其他測試仍應通過）"
+      - id: verify-failure
+        type: gate
+        gate: HUMAN_CONFIRM
+        prompt: "測試已正確失敗且失敗原因正確（紅燈），繼續 GREEN 階段？"
+        on_reject: red-phase
+
+  - id: green-phase
+    type: sequence
+    description: "🟢 GREEN：撰寫最少程式碼使測試通過"
+    requires: [red-phase]
+    steps:
+      - id: write-code
+        type: ai-task
+        description: "撰寫最少程式碼（hardcoding 可接受），不超出測試需求"
+      - id: run-tests-green
+        type: shell
+        command: "{{test_command}}"
+        description: "執行測試，確認所有測試通過（綠燈）"
+      - id: verify-pass
+        type: gate
+        gate: HUMAN_CONFIRM
+        prompt: "所有測試通過（綠燈），繼續 REFACTOR 階段？"
+        on_reject: green-phase
+
+  - id: refactor-phase
+    type: sequence
+    description: "🔵 REFACTOR：改善程式碼品質（不新增功能）"
+    requires: [green-phase]
+    steps:
+      - id: refactor
+        type: ai-task
+        description: "識別並移除重複、改善命名、簡化結構（每次一個改動）"
+      - id: run-tests-refactor
+        type: shell
+        command: "{{test_command}}"
+        description: "執行測試，確認重構後仍然全部通過"
+      - id: cycle-complete
+        type: gate
+        gate: HUMAN_CONFIRM
+        prompt: "重構完成，是否繼續下一個測試案例？"
+        on_yes: pick-test
+        on_no: complete
+
+completion:
+  message: "✅ TDD 循環完成。建議：devap commit → /checkin → /coverage"

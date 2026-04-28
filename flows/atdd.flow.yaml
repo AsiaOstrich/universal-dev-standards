@@ -1,0 +1,147 @@
+id: atdd
+name: Acceptance Test-Driven Development
+version: "1.0"
+description: ATDD lifecycle — WORKSHOP → DISTILLATION → DEVELOPMENT → DEMO → DONE
+# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
+# Source: dev-autopilot/.devap/flows/atdd.flow.yaml
+# This flow definition is now the canonical UDS standard.
+# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+
+phases:
+  - id: workshop
+    name: WORKSHOP — Story & Acceptance Criteria
+    tasks:
+      - id: present-story
+        type: ai-task
+        prompt: |
+          Guide the WORKSHOP phase for the feature: {{feature}}.
+
+          1. Help PO/stakeholder present the user story in INVEST format:
+             As a [role], I want [feature], So that [benefit]
+
+          2. Facilitate Three Amigos discussion:
+             - Business: What & Why
+             - Development: How
+             - Testing: What if / edge cases
+
+          3. Define acceptance criteria using Given/When/Then format.
+
+          4. Validate INVEST criteria:
+             - Independent: Can be developed independently?
+             - Negotiable: Implementation details flexible?
+             - Valuable: Clear value to end user?
+             - Estimable: Can be reasonably estimated?
+             - Small: Fits in one iteration?
+             - Testable: Has clear pass/fail acceptance criteria?
+
+          Output: user story card + acceptance criteria list (3-5 AC minimum)
+
+      - id: ac-sign-off
+        type: HUMAN_CONFIRM
+        prompt: |
+          請確認接受準則（AC）是否完整且可測試，然後繼續 DISTILLATION 階段？
+          (Confirm acceptance criteria are complete and testable before DISTILLATION)
+
+  - id: distillation
+    name: DISTILLATION — Convert AC to Executable Tests
+    tasks:
+      - id: convert-ac-to-tests
+        type: ai-task
+        prompt: |
+          Convert the acceptance criteria from WORKSHOP to executable acceptance tests.
+
+          For each AC:
+          1. Write Gherkin scenario (Given/When/Then)
+          2. Map to test framework format (Cucumber / pytest-bdd / SpecFlow)
+          3. Identify test data requirements
+          4. Mark edge cases as separate scenarios
+
+          Output: .feature file scaffold with all scenarios
+
+      - id: po-sign-off
+        type: HUMAN_CONFIRM
+        prompt: |
+          請 PO 確認測試場景符合業務預期？
+          (PO: Do these test scenarios match the business expectations?)
+
+  - id: development
+    name: DEVELOPMENT — Red → Green cycle
+    tasks:
+      - id: run-acceptance-tests-red
+        type: shell
+        command: "{{test_cmd}}"
+        expect: failure
+        description: Run acceptance tests — expect RED (all failing)
+
+      - id: implement-with-bdd-tdd
+        type: ai-task
+        prompt: |
+          Drive implementation using BDD/TDD inner loop:
+
+          1. Pick ONE failing acceptance test
+          2. Break it into unit tests (TDD RED)
+          3. Implement minimal code to pass unit tests (TDD GREEN)
+          4. Refactor
+          5. Check if acceptance test moves to GREEN
+          6. Repeat until acceptance test passes
+
+          Current failing tests: {{failing_tests}}
+
+      - id: run-acceptance-tests-green
+        type: shell
+        command: "{{test_cmd}}"
+        expect: success
+        description: Run acceptance tests — expect GREEN (all passing)
+
+      - id: iterate-check
+        type: HUMAN_CONFIRM
+        prompt: |
+          所有接受測試通過？準備 DEMO 給利害關係人？
+          (All acceptance tests green? Ready for DEMO to stakeholders?)
+
+  - id: demo
+    name: DEMO — Stakeholder Showcase
+    tasks:
+      - id: prepare-demo
+        type: ai-task
+        prompt: |
+          Prepare a stakeholder demo for: {{feature}}
+
+          1. Summary of implemented AC (which tests pass)
+          2. Live demo script (step-by-step user actions)
+          3. Edge cases covered
+          4. Known limitations or deferred AC
+
+      - id: stakeholder-acceptance
+        type: HUMAN_CONFIRM
+        prompt: |
+          利害關係人 / PO 是否接受此功能實作？
+          (Stakeholders / PO: Do you accept this feature implementation?)
+          on_no: Request changes and return to DEVELOPMENT
+
+  - id: done
+    name: DONE — Story Closed
+    tasks:
+      - id: merge-and-close
+        type: ai-task
+        prompt: |
+          Complete the ATDD cycle for: {{feature}}
+
+          1. Ensure all acceptance tests are in CI
+          2. Update living documentation (feature files = living docs)
+          3. Mark story as DONE in backlog
+          4. Archive acceptance criteria as permanent test suite
+
+      - id: emit-atdd-summary
+        type: record
+        fields:
+          feature: "{{feature}}"
+          acceptance_tests: "{{test_count}} scenarios"
+          outcome: done
+
+state_transitions:
+  WORKSHOP    → DISTILLATION: ac-sign-off approved
+  DISTILLATION → DEVELOPMENT: po-sign-off approved
+  DEVELOPMENT  → DEMO:        run-acceptance-tests-green passed + iterate-check approved
+  DEMO         → DONE:        stakeholder-acceptance approved
+  DEMO         → DEVELOPMENT: stakeholder-acceptance rejected

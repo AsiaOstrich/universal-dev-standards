@@ -8,20 +8,11 @@ description: |
 allowed-tools: Read, Bash(git:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(bun:*)
 argument-hint: "[--force] [--target <branch>] [--skip-gates] [--no-pr]"
 ---
-<!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
-  Push workflow orchestration (gate execution sequence, abort logic) extracted to:
-  - DevAP flow: dev-autopilot/.devap/flows/push.flow.yaml
-  - DevAP CLI:  devap push (packages/cli/src/commands/push.ts)
-  - Flow spec:  dev-autopilot/standards/flow/push-gate-sequence.ai.yaml
-  This Skill retains: feature definitions, configuration schema, options documentation.
-  Use `devap push` for enforced execution; this Skill for activity reference.
--->
-
 # Push Assistant | 推送助手
 
 > **Language**: English | 繁體中文
 
-**Version**: 1.0.0
+**Version**: 2.0.0
 **Created**: 2026-04-23
 **Applicability**: Claude Code Skills
 
@@ -34,6 +25,53 @@ AI-assisted safety layer for `git push`. Detects protected branches, enforces fo
 ## Core Standard | 核心標準
 
 This skill implements [`.standards/push-standards.ai.yaml`](../../.standards/push-standards.ai.yaml).
+
+---
+
+## Workflow | 執行工作流程
+
+When `/push` is invoked, Claude executes the following steps natively:
+
+### Step 1: Detect Protected Branch
+Run `git rev-parse --abbrev-ref HEAD` to get current branch.
+Compare against `protected_branches` list (default: main, master, release/*, hotfix/*).
+If protected: show warning + pending commits, require explicit user confirmation before proceeding.
+
+### Step 2: Detect Force Push
+If `--force` or `--force-with-lease` flag detected:
+Run `git log origin/<branch>..HEAD --oneline` to find commits that will be overwritten.
+Show count and author list. Require user to type `yes, force push` to proceed.
+
+### Step 3: Run Pre-Push Quality Gates
+Run each configured gate in sequence using Bash tool:
+- `lint`: detect and run project lint command
+- `test`: detect and run project test command
+- `type-check` (optional): TypeScript type check
+- `ac-coverage` (optional): acceptance criteria coverage
+- `security-scan` (optional): security vulnerability scan
+
+If any required gate fails: abort with error message.
+
+### Step 4: Execute Push
+Run `git push <remote> <branch> [--force]`.
+If push fails: show git error and suggest remediation.
+
+### Step 5: Emit Push Receipt
+Output structured receipt to console (and optionally to `~/.uds/push-history.jsonl`):
+```json
+{
+  "branch": "<branch>",
+  "commit_sha": "<sha>",
+  "gates_passed": ["lint", "test"],
+  "force_push": false,
+  "timestamp": "<ISO8601>",
+  "target_remote": "origin"
+}
+```
+
+### Step 6: PR Integration
+If `auto_pr=true` AND `repo_mode=team` AND no open PR exists for this branch:
+Suggest running `/pr-automation-assistant` to create a Pull Request.
 
 ---
 
@@ -200,6 +238,7 @@ After `/push` completes, the AI assistant should suggest:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0.0 | 2026-04-28 | Restore workflow execution steps (DevAP decomposition XSPEC-097); remove deprecation notice |
 | 1.0.0 | 2026-04-23 | Initial release — XSPEC-081 Phase 1 |
 
 ---

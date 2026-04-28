@@ -1,0 +1,161 @@
+id: pr
+name: Pull Request Lifecycle
+version: "1.0"
+description: PR lifecycle — CREATE → REVIEW → APPROVE → MERGE → CLEANUP
+# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
+# Source: dev-autopilot/.devap/flows/pr.flow.yaml
+# This flow definition is now the canonical UDS standard.
+# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+
+phases:
+  - id: create
+    name: CREATE — Open Pull Request
+    tasks:
+      - id: pre-pr-checks
+        type: shell
+        command: "git diff --stat origin/{{base_branch}}...HEAD"
+        description: Show diff stats before creating PR
+
+      - id: size-gate
+        type: ai-task
+        prompt: |
+          Analyze the diff for PR: {{branch}}
+
+          If lines changed > 400:
+          - BLOCK and suggest splitting into smaller PRs
+          - Output split strategy
+
+          If no test files changed:
+          - WARN: request test coverage
+
+          Otherwise:
+          - Proceed with PR creation guidance
+
+      - id: create-pr
+        type: ai-task
+        prompt: |
+          Create a pull request for branch: {{branch}} → {{base_branch}}
+
+          PR checklist:
+          1. Title: concise, imperative mood, under 70 chars
+          2. Description template:
+             ## Summary
+             - [bullet points of changes]
+
+             ## Changes
+             - [technical details]
+
+             ## Test Plan
+             - [ ] Unit tests pass
+             - [ ] Integration tests pass
+             - [ ] Manual test steps
+
+          3. Labels: apply appropriate labels (bug/feature/docs/refactor)
+          4. Reviewers: assign appropriate reviewers
+          5. Base branch: confirm sync with {{base_branch}}
+
+          Command: gh pr create --title "<title>" --body "<description>"
+
+  - id: review
+    name: REVIEW — Code Review
+    tasks:
+      - id: auto-review-gates
+        type: ai-task
+        prompt: |
+          Run automated review gates for PR: {{pr_number}}
+
+          Check:
+          1. CI status: gh pr checks {{pr_number}}
+          2. Diff size: flag if > 400 lines
+          3. Test files: verify test coverage exists
+          4. Draft status: skip reviewer assignment if draft
+          5. Staleness: flag if > 7 days since last update
+
+          Block if: CI failing, no tests, >400 lines without split plan
+          Warn if: stale, minor issues
+
+      - id: code-review
+        type: ai-review
+        target: "{{pr_number}}"
+        categories:
+          - functionality
+          - design
+          - security
+          - performance
+          - tests
+        output: review-findings
+
+  - id: approve
+    name: APPROVE — Final Sign-off
+    tasks:
+      - id: review-resolution
+        type: HUMAN_CONFIRM
+        prompt: |
+          所有 BLOCKING review 問題已解決？可以核准此 PR？
+          (All BLOCKING review items resolved? Ready to approve?)
+
+      - id: approve-pr
+        type: shell
+        command: "gh pr review {{pr_number}} --approve"
+        description: Approve PR via GitHub CLI
+
+  - id: merge
+    name: MERGE — Land the Changes
+    tasks:
+      - id: select-merge-strategy
+        type: ai-task
+        prompt: |
+          Recommend merge strategy for PR {{pr_number}}:
+
+          - Squash merge: single feature/bug fix, clean linear history ✅ (default)
+          - Merge commit: preserve full branch history (long-lived branches)
+          - Rebase merge: linear history with individual commits (complex features)
+
+          Recommendation based on: commit count, PR type, team convention
+
+      - id: execute-merge
+        type: HUMAN_CONFIRM
+        prompt: |
+          確認合併策略並執行合併？
+          (Confirm merge strategy and execute merge?)
+
+      - id: merge-pr
+        type: shell
+        command: "gh pr merge {{pr_number}} --squash --delete-branch"
+        description: Merge PR with squash strategy
+
+  - id: cleanup
+    name: CLEANUP — Post-merge Housekeeping
+    tasks:
+      - id: sync-local
+        type: shell
+        command: "git checkout {{base_branch}} && git pull origin {{base_branch}}"
+        description: Sync local base branch after merge
+
+      - id: post-merge-tasks
+        type: ai-task
+        prompt: |
+          Post-merge cleanup for PR {{pr_number}}:
+
+          1. Confirm branch deleted (remote)
+          2. Update any related issues (close with "Closes #NNN")
+          3. Notify stakeholders if needed
+          4. Update project board / backlog status
+
+      - id: emit-pr-summary
+        type: record
+        fields:
+          pr_number: "{{pr_number}}"
+          branch: "{{branch}}"
+          base_branch: "{{base_branch}}"
+          outcome: merged
+
+gates:
+  size_check:
+    threshold_lines: 400
+    action: block-and-suggest-split
+  ci_check:
+    action: block-if-failing
+  test_coverage:
+    action: warn-if-missing
+  staleness_days: 7

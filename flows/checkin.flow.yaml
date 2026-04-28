@@ -1,0 +1,77 @@
+# [XSPEC-086 Phase 4] Checkin 流程 — Pre-commit 品質關卡序列
+# CLI 實作：packages/cli/src/commands/checkin.ts
+# 活動定義（checklist 項目、哲學）：UDS checkin-standards.ai.yaml
+# 編排序列（gate 順序、abort 邏輯）：standards/flow/checkin-gate-sequence.ai.yaml
+# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
+# Source: dev-autopilot/.devap/flows/checkin.flow.yaml
+# This flow definition is now the canonical UDS standard.
+# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+name: checkin
+description: >
+  Pre-commit quality gate sequence: build → tests → code quality → documentation → workflow compliance → summary.
+  Gate checklist definitions remain in UDS checkin-standards.ai.yaml.
+steps:
+  - id: inspect-staged-changes
+    type: shell
+    command: "git status && git diff --cached --stat"
+    description: "檢視 staged 變更範圍，提供後續閘門執行依據"
+
+  - id: build-verification
+    type: shell
+    command: "{{build_command}}"
+    description: "Build 必須成功（其他閘門的前提）"
+    on_failure:
+      action: abort
+      message: "❌ Build 驗證失敗，其餘閘門已跳過。請先修復編譯錯誤。"
+    requires: [inspect-staged-changes]
+
+  - id: test-verification
+    type: shell
+    command: "{{test_command}}"
+    description: "所有測試必須通過（含現有回歸測試）"
+    on_failure:
+      action: abort
+      message: "❌ 測試驗證失敗，請確保所有測試通過後再簽入。"
+    requires: [build-verification]
+
+  - id: code-quality
+    type: shell
+    command: "{{lint_command}}"
+    description: "Lint 與安全性檢查（no secrets, no injection）"
+    on_failure:
+      action: abort
+      message: "❌ 程式碼品質閘門失敗。"
+    requires: [test-verification]
+
+  - id: documentation
+    type: ai-check
+    description: "文件更新軟性閘門（API doc + CHANGELOG）"
+    items:
+      - "API documentation updated if needed"
+      - "CHANGELOG [Unreleased] section updated for user-facing changes"
+    on_failure:
+      action: warn
+      message: "⚠️ 文件可能需要更新，建議在合併前補齊。"
+    requires: [code-quality]
+
+  - id: workflow-compliance
+    type: ai-check
+    description: "Git workflow 合規性（branch naming + commit message）"
+    items:
+      - "Branch naming follows <type>/<description> format"
+      - "Commit message follows project convention"
+    on_failure:
+      action: warn
+      message: "⚠️ Workflow 合規性需確認。"
+    requires: [documentation]
+
+  - id: emit-checkin-summary
+    type: record
+    format: checkin_summary
+    description: "輸出 checkin 摘要：通過/警告/失敗的閘門清單"
+    requires: [workflow-compliance]
+
+completion:
+  on_all_pass: "✅ 所有閘門通過，可執行 devap commit 提交"
+  on_warn: "⚠️ 有警告，建議修復後再提交"
+  on_abort: "❌ 閘門失敗，已中止"

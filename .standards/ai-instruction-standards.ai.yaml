@@ -3,30 +3,205 @@
 
 id: ai-instruction-standards
 meta:
-  version: "1.0.0"
-  updated: "2026-01-14"
+  version: "2.0.0"
+  updated: "2026-04-28"
   source: core/ai-instruction-standards.md
   description: Best practices for creating AI instruction files with universal vs project-specific separation
 
+# ─────────────────────────────────────────────
+# 工具支援清單 (2026-04-28 更新)
+# ─────────────────────────────────────────────
 supported_tools:
+
+  # CLI / Agent 型（終端機代理）
   - tool: Claude Code
-    file: CLAUDE.md
-    format: Markdown
-  - tool: Cursor
-    file: .cursorrules
-    format: Markdown
-  - tool: Windsurf
-    file: .windsurfrules
-    format: Markdown
-  - tool: Cline
-    file: .clinerules
-    format: Markdown
-  - tool: GitHub Copilot
-    file: .github/copilot-instructions.md
-    format: Markdown
+    vendor: Anthropic
+    category: cli_agent
+    primary_file: CLAUDE.md
+    additional_files:
+      - path: .claude/rules/*.md
+        note: glob-based conditional rules
+    workflow_mechanism: Skills (.claude/skills/*.md → /{skill-name})
+    subagent_config: .claude/agents/
+    mcp_support: true
+    hooks: true
+    notes: Hierarchical CLAUDE.md (global → project → subdir); most advanced hook system
+
+  - tool: Gemini CLI
+    vendor: Google
+    category: cli_agent
+    primary_file: GEMINI.md
+    workflow_mechanism: ".gemini/commands/*.toml → /{command-name}; supports !{shell} inline"
+    subagent_config: .gemini/agents/
+    mcp_support: true
+    hooks: false
+    notes: "1M context window; A2A remote agents; free tier with Google account; Apache 2.0 open source"
+
+  - tool: OpenAI Codex CLI
+    vendor: OpenAI
+    category: cli_agent
+    primary_file: AGENTS.md
+    additional_files:
+      - path: AGENTS.override.md
+        note: temporary override, highest priority
+      - path: ~/.codex/AGENTS.md
+        note: global fallback
+    workflow_mechanism: "Local team commands; /review (non-destructive code review)"
+    subagent_config: .codex/agents/
+    mcp_support: true
+    hooks: true
+    notes: "Direct Agents SDK integration; spawn_agents_on_csv batch processing; AGENTS.md traverses from Git root to cwd"
+
   - tool: OpenCode
-    file: .opencode/instructions.md
-    format: Markdown
+    vendor: Open Source
+    category: cli_agent
+    primary_file: AGENTS.md
+    additional_files:
+      - path: CLAUDE.md
+        note: auto-recognized for migration compatibility
+    workflow_mechanism: "No custom slash commands; /init /undo /redo /share built-in"
+    subagent_config: .opencode/agents/
+    mcp_support: true
+    hooks: true
+    notes: "75+ LLM providers; CLAUDE.md backward-compatible; HTTP API for programmatic control; 95K+ GitHub stars"
+
+  # AI-native IDE / 編輯器整合
+  - tool: Cursor
+    vendor: Anysphere
+    category: ide
+    primary_file: .cursor/rules/*.mdc
+    deprecated_file: .cursorrules
+    additional_files:
+      - path: AGENTS.md
+        note: also supported for agent context
+    workflow_mechanism: "@-mentions for context; /multitask for parallel subagents; no custom slash commands"
+    subagent_config: Background Agents (cloud VM); /multitask inline
+    mcp_support: true
+    hooks: true
+    notes: ".cursorrules is DEPRECATED — migrate to .cursor/rules/*.mdc with MDC frontmatter (description, globs, alwaysApply); Background Agents run on cloud Ubuntu VM; BugBot auto-reviews PRs"
+
+  - tool: GitHub Copilot
+    vendor: GitHub / Microsoft
+    category: ide
+    primary_file: .github/copilot-instructions.md
+    additional_files:
+      - path: .github/instructions/*.instructions.md
+        note: conditional, file-glob scoped (applyTo frontmatter)
+      - path: .github/prompts/*.prompt.md
+        note: reusable task templates, exposed as slash commands
+      - path: .github/agents/*.agent.md
+        note: custom agents with fine-grained tool access
+      - path: AGENTS.md
+        note: also recognized
+    workflow_mechanism: ".github/prompts/*.prompt.md → /{prompt-name}; .github/agents/*.agent.md → named agents"
+    subagent_config: ".github/agents/*.agent.md; Local/CLI/Cloud/Third-party 4 deployment models"
+    mcp_support: true
+    hooks: true
+    notes: "Organization-level instructions for enterprise; priority: personal > repo > org; multi-model (Claude, GPT-5, Gemini)"
+
+  - tool: Windsurf
+    vendor: Codeium
+    category: ide
+    primary_file: .windsurfrules
+    additional_files:
+      - path: .windsurf/rules/*.md
+        note: MDC frontmatter, structured rules
+      - path: AGENTS.md
+        note: auto-recognized; subdir scope via location-based activation
+    workflow_mechanism: ".windsurf/workflows/*.md → /{workflow-name}; nestable workflows"
+    subagent_config: "Up to 5 parallel agents (Wave 13); each in isolated Git worktree"
+    mcp_support: true
+    hooks: true
+    notes: "Arena Mode: compare multiple agents on same task; SWE-1.5 proprietary coding model; MDM enterprise policy deployment; VS Code extension compatible"
+
+  - tool: Cline
+    vendor: Open Source
+    category: ide
+    primary_file: .clinerules
+    workflow_mechanism: Chat-based, no custom slash commands
+    subagent_config: null
+    mcp_support: true
+    hooks: false
+    notes: VS Code extension; MCP-first design
+
+# ─────────────────────────────────────────────
+# 跨工具通用標準：AGENTS.md
+# ─────────────────────────────────────────────
+cross_tool_standard:
+  file: AGENTS.md
+  description: |
+    AGENTS.md is emerging as the de-facto cross-tool instruction standard.
+    Supported by: Gemini CLI, OpenAI Codex CLI, OpenCode, GitHub Copilot, Windsurf, Cursor.
+    Recommendation: use AGENTS.md as the universal baseline, then add tool-specific files for advanced features.
+  supported_by:
+    - Gemini CLI
+    - OpenAI Codex CLI
+    - OpenCode
+    - GitHub Copilot
+    - Windsurf
+    - Cursor
+  not_supported_by:
+    - Claude Code  # uses CLAUDE.md; AGENTS.md not auto-recognized
+    - Cline        # uses .clinerules
+
+# ─────────────────────────────────────────────
+# Slash Commands / Workflow 機制對照
+# ─────────────────────────────────────────────
+workflow_mechanisms:
+  - tool: Claude Code
+    mechanism: Skills
+    file_pattern: .claude/skills/{name}/SKILL.md
+    trigger: "/{skill-name}"
+    shareable: true
+    notes: Supports allowed-tools, scope, argument-hint frontmatter
+
+  - tool: Gemini CLI
+    mechanism: Custom Commands
+    file_pattern: ".gemini/commands/{name}.toml (or {namespace}/{name}.toml)"
+    trigger: "/{command-name} or /{namespace}:{name}"
+    shareable: true
+    notes: "Supports !{shell} inline execution; MCP prompts auto-exposed as slash commands"
+
+  - tool: Windsurf
+    mechanism: Workflows
+    file_pattern: .windsurf/workflows/{name}.md
+    trigger: "/{workflow-name}"
+    shareable: true
+    notes: Nestable; manual trigger only (not auto-invoked by Cascade)
+
+  - tool: GitHub Copilot
+    mechanism: Prompt Files + Agent Skills
+    file_pattern: ".github/prompts/{name}.prompt.md"
+    trigger: "/{prompt-name}"
+    shareable: true
+    notes: ".github/agents/*.agent.md for specialized agents with tool access control"
+
+  - tool: Cursor
+    mechanism: None (native)
+    file_pattern: null
+    trigger: "@-mentions, /multitask"
+    shareable: false
+    notes: No custom slash command system; use rules files for persistent behavior
+
+  - tool: OpenAI Codex CLI
+    mechanism: Team Commands
+    file_pattern: local team config
+    trigger: custom
+    shareable: false
+    notes: Limited; primary interaction via chat
+
+  - tool: OpenCode
+    mechanism: None (native)
+    file_pattern: null
+    trigger: Built-in only (/init /undo /redo /share)
+    shareable: false
+    notes: No custom slash command system
+
+  - tool: Cline
+    mechanism: None
+    file_pattern: null
+    trigger: null
+    shareable: false
 
 content_types:
   universal:
@@ -110,6 +285,17 @@ rules:
     instruction: Always clearly label project-specific sections
     priority: required
 
+  - id: cursor-migration
+    trigger: project uses .cursorrules
+    instruction: |
+      .cursorrules is deprecated. Migrate to .cursor/rules/*.mdc with MDC frontmatter:
+      ---
+      description: "Rule description"
+      globs: ["**/*.ts"]
+      alwaysApply: false
+      ---
+    priority: recommended
+
   - id: leakage-detection
     trigger: before committing AI instruction file
     instruction: |
@@ -126,6 +312,8 @@ maintenance_checklist:
     required: true
   - item: Format matches existing sections
     required: true
+  - item: If using Cursor, .cursorrules has been migrated to .cursor/rules/*.mdc
+    required: false
 
 quick_reference:
   content_types:
@@ -140,3 +328,15 @@ quick_reference:
       - ["## Universal", Applicable to any project]
       - ["## Project-Specific", Unique to this project]
       - ["> Warning: Project-Specific", Inline warning for specific section]
+
+  tool_files:
+    columns: [Tool, Category, Primary File, Workflow Mechanism]
+    rows:
+      - [Claude Code, CLI/Agent, CLAUDE.md, "Skills (.claude/skills/)"]
+      - [Gemini CLI, CLI/Agent, GEMINI.md, ".gemini/commands/*.toml"]
+      - [OpenAI Codex CLI, CLI/Agent, AGENTS.md, "Team commands"]
+      - [OpenCode, CLI/Agent, "AGENTS.md (CLAUDE.md compatible)", "Built-in only"]
+      - [Cursor, IDE, ".cursor/rules/*.mdc (deprecated: .cursorrules)", "@-mentions"]
+      - [GitHub Copilot, IDE, ".github/copilot-instructions.md", ".github/prompts/*.prompt.md"]
+      - [Windsurf, IDE, ".windsurfrules / .windsurf/rules/*.md", ".windsurf/workflows/*.md"]
+      - [Cline, IDE, .clinerules, "None"]
