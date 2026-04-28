@@ -1,5 +1,9 @@
 # Dual-Phase LLM Output Standard - AI Optimized
 # Source: XSPEC-035 (claude-code-book Ch.7 AutoCompact dual-phase design)
+# DEPRECATION NOTICE (XSPEC-086 Phase 3, 2026-04-28):
+#   Post-processing flow (extract→discard→fallback, phase-switch logic) extracted to
+#   DevAP standards/flow/dual-phase-processing.ai.yaml.
+#   This file retains format definition, prompt_template, and token_impact data.
 
 standard:
   id: dual-phase-output

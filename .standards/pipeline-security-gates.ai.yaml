@@ -1,5 +1,9 @@
 # Pipeline Security Gates (AI-Optimized v1)
 # Source: core/pipeline-security-gates.md
+# DEPRECATION NOTICE (XSPEC-086 Phase 3, 2026-04-28):
+#   Security gate orchestration (pipeline stage ordering, escalation flow) extracted to
+#   DevAP standards/flow/pipeline-security-gate-sequence.ai.yaml.
+#   This file retains gate definitions, tools, severity levels, and failure_behavior.
 
 standard:
   id: pipeline-security-gates
