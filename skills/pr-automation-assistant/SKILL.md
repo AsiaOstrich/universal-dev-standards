@@ -8,6 +8,14 @@ description: |
 allowed-tools: Read, Grep, Glob, Bash(git:*, gh:*)
 argument-hint: "[branch name or PR number | 分支名稱或 PR 編號]"
 ---
+<!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
+  PR lifecycle orchestration (5-step: CREATE→REVIEW→APPROVE→MERGE→CLEANUP,
+  size gate >400 lines block, CI gate, squash/merge strategy, gh CLI integration) extracted to:
+  - DevAP flow: dev-autopilot/.devap/flows/pr.flow.yaml
+  - DevAP CLI:  devap pr (packages/cli/src/commands/pr.ts)
+  This Skill retains: PR description template, merge strategy decision matrix, auto-review trigger rules.
+  Use `devap pr` for enforced lifecycle; this Skill for template and rule reference.
+-->
 
 # PR Automation Assistant | PR 自動化助手
 
