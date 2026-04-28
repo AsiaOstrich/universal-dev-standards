@@ -5,6 +5,14 @@ description: "[UDS] Pre-commit quality gates verification"
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git status:*), Bash(npm test:*), Bash(npm run lint:*)
 disable-model-invocation: true
 ---
+<!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
+  Checkin workflow orchestration (gate execution sequence, abort logic) extracted to:
+  - DevAP flow: dev-autopilot/.devap/flows/checkin.flow.yaml
+  - DevAP CLI:  devap checkin (packages/cli/src/commands/checkin.ts)
+  - Flow spec:  dev-autopilot/standards/flow/checkin-gate-sequence.ai.yaml
+  This Skill retains: quality gate definitions, checklist items, never-commit rules.
+  Use `devap checkin` for enforced execution; this Skill for activity reference.
+-->
 
 # Check-in Assistant | 簽入助手
 

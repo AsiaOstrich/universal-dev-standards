@@ -5,6 +5,13 @@ description: "[UDS] Create or review specification documents for Spec-Driven Dev
 allowed-tools: Read, Write, Grep, Glob, Bash(git:*)
 argument-hint: "[spec name or feature | 規格名稱或功能]"
 ---
+<!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
+  SDD lifecycle orchestration (7-phase state machine, phase transitions, gate checks) extracted to:
+  - DevAP flow: dev-autopilot/.devap/flows/sdd.flow.yaml
+  - DevAP CLI:  devap sdd (packages/cli/src/commands/sdd.ts) with --phase jump support
+  This Skill retains: spec format definition, state descriptions, delta operations, decision tree.
+  Use `devap sdd` for enforced lifecycle; this Skill for spec structure reference.
+-->
 
 # Spec-Driven Development Assistant | 規格驅動開發助手
 
