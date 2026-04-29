@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ArchetypeDefinition",
+  "description": "UDS Flow Archetype — 使用者旅程編排模板（DEC-052）",
+  "type": "object",
+  "required": ["archetype"],
+  "properties": {
+    "archetype": {
+      "type": "object",
+      "required": ["id", "name", "version", "trigger", "agent-chain", "flow-sequence", "quality-profile", "ui"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]+$" },
+        "name": {
+          "type": "object",
+          "required": ["zh", "en"],
+          "properties": {
+            "zh": { "type": "string" },
+            "en": { "type": "string" }
+          }
+        },
+        "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "trigger": {
+          "type": "object",
+          "required": ["type", "description"],
+          "properties": {
+            "type": { "type": "string", "enum": ["natural-language", "screenshot", "codebase", "incident", "hypothesis"] },
+            "description": { "type": "string" }
+          }
+        },
+        "agent-chain": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "flow-sequence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["flow"],
+            "properties": {
+              "flow": { "type": "string" },
+              "condition": { "type": "string" }
+            }
+          },
+          "minItems": 1
+        },
+        "quality-profile": { "type": "string" },
+        "ui": {
+          "type": "object",
+          "required": ["mode", "visualization", "primary-pages", "secondary-pages", "hidden-pages"],
+          "properties": {
+            "mode": { "type": "string" },
+            "visualization": { "type": "string", "enum": ["timeline", "canvas", "tree", "spike-card", "parallel-tracks"] },
+            "primary-pages": { "type": "array", "items": { "type": "string" } },
+            "secondary-pages": { "type": "array", "items": { "type": "string" } },
+            "hidden-pages": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "created": { "type": "string" },
+            "description": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

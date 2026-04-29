@@ -3,6 +3,17 @@
 Machine-readable workflow definitions for software development activities.
 Migrated from DevAP `.devap/flows/` (XSPEC-097, 2026-04-28).
 
+## Flows 層子分類（DEC-052）
+
+Flows 層包含兩種子分類：
+
+| 子分類 | 格式 | 目錄 | 定義 |
+|--------|------|------|------|
+| **Verb-flow** | `*.flow.yaml` | `flows/` | 單一動作編排（本目錄） |
+| **Archetype-flow** | `*.archetype.yaml` | `archetypes/` | 使用者旅程編排（多條 verb-flow 的情境組合） |
+
+> 詳見 [archetypes/README.md](../archetypes/README.md) 與 [DEC-052](../../../dev-platform/cross-project/decisions/DEC-052-flow-archetype-layer.md)。
+
 ## What are Flows?
 
 Flows are the **universal, tool-agnostic, machine-executable** representation of UDS methodology standards.

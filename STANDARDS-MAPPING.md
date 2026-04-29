@@ -119,7 +119,7 @@ This section maps UDS components to international software engineering standards
 | performance-standards.md | ✅ | - | ✅ | ✅ | ✅ | ✅ |
 | requirement-engineering.md | ✅ | requirement-assistant | ✅ | ✅ | ✅ | ✅ |
 | reverse-engineering-standards.md | ✅ | reverse-engineer | ✅ | ✅ | ✅ | ✅ |
-| forward-derivation-standards.md | ✅ | forward-derivation | ✅ | ✅ | ✅ | ✅ |
+| forward-derivation-standards.md | ✅ | spec-derivation | ✅ | ✅ | ✅ | ✅ |
 | acceptance-test-driven-development.md | ✅ | atdd-assistant | ✅ | ✅ | ✅ | ✅ |
 | behavior-driven-development.md | ✅ | bdd-assistant | ✅ | ✅ | ✅ | ✅ |
 | ai-friendly-architecture.md | ✅ | ai-friendly-architecture | ✅ | ✅ | ✅ | ✅ |

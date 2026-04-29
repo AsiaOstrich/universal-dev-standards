@@ -1,5 +1,5 @@
 ---
-name: derive
+name: spec-derive
 scope: partial
 description: "[UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications"
 allowed-tools: Read, Write, Grep, Glob

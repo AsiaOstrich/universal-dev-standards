@@ -1,0 +1,37 @@
+archetype:
+  id: reverse-engineering
+  name:
+    zh: 逆向工程
+    en: Reverse Engineering
+  version: 1.0.0
+  trigger:
+    type: codebase
+    description: 從既有程式碼倉出發，反推 spec 並補充 characterization tests
+  agent-chain:
+    - planner
+    - architect
+    - reviewer
+    - builder
+  flow-sequence:
+    - flow: reverse-eng
+    - flow: sdd
+    - flow: tdd
+    - flow: commit
+      condition: user-confirmed
+  quality-profile: reverse-engineering
+  ui:
+    mode: reverse
+    visualization: tree
+    primary-pages:
+      - Architecture
+      - Specs
+      - Tests
+      - Memory
+    secondary-pages:
+      - Metrics
+      - Research
+    hidden-pages:
+      - UIDesigns
+  metadata:
+    created: "2026-04-29"
+    description: 從 legacy codebase 反推 spec 並補充 characterization tests，支援安全重構。

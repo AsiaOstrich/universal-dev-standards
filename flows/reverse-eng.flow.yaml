@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: MIT
+# UDS reverse-eng verb-flow（XSPEC-104）
+flow:
+  id: reverse-eng
+  description: CODE_SCAN → TEST_ANALYSIS → GAP_IDENTIFICATION — 基於 reverse-engineering-standards
+  steps:
+    - id: code-scan
+      type: ai-task
+      agent: planner
+      action: scan-codebase
+      output: behavior-manifest
+
+    - id: test-analysis
+      type: ai-task
+      agent: reviewer
+      input: behavior-manifest
+      action: analyze-test-coverage
+      output: gap-report
+
+    - id: gap-review
+      type: gate
+      kind: HUMAN_CONFIRM
+      message: "已識別未覆蓋行為模組，請確認後繼續生成 spec。"
+
+    - id: spec-generation
+      type: ai-task
+      agent: architect
+      input:
+        - behavior-manifest
+        - gap-report
+      action: generate-spec-draft
+      output: sdd-spec-draft
+
+    - id: spec-review
+      type: gate
+      kind: HUMAN_CONFIRM
+      message: "SDD spec draft 已生成，確認後繼續生成 characterization tests。"

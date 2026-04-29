@@ -38,10 +38,10 @@ These skills provide standard guidance and workflows. They can be accessed via s
 | `documentation-guide` | `/docs` | [UDS] Documentation management |
 | `requirement-assistant` | `/requirement` | [UDS] Requirement writing |
 | `reverse-engineer` | `/reverse` | [UDS] Reverse engineer code |
-| `forward-derivation` | `/derive` | [UDS] Derive artifacts from spec |
+| `spec-derivation` | `/spec-derive` | [UDS] Derive BDD/TDD/ATDD artifacts from spec |
 | `spec-driven-dev` | `/sdd` | [UDS] Spec-Driven Development |
 | `test-coverage-assistant` | `/coverage` | [UDS] Test coverage analysis |
-| `methodology-system` | `/methodology` | [UDS] Development methodology |
+| `dev-methodology` | `/methodology` | [UDS] Development methodology |
 | `refactoring-assistant` | `/refactor` | [UDS] Refactoring guidance |
 | `project-discovery` | `/discover` | [UDS] Assess project health and risks |
 | `brainstorm-assistant` | `/brainstorm` | [UDS] Structured AI-assisted ideation |
@@ -62,7 +62,7 @@ These skills provide standard guidance and workflows. They can be accessed via s
 | `observability-assistant` | `/observability` | [UDS] Observability setup, metrics, alerting 🆕 |
 | `slo-assistant` | `/slo` | [UDS] SLI selection, SLO setting, Error Budget 🆕 |
 | `runbook-assistant` | `/runbook` | [UDS] Runbook creation, drills, coverage 🆕 |
-| `process-automation` | `/process-to-skill` | [UDS] Identify repeated processes and build Skills with the right development depth |
+| `skill-builder` | `/skill-builder` | [UDS] Identify repeated processes and build Skills with the right development depth |
 
 > **Note**: For reference guides (e.g., Git Workflow, Logging, Error Codes), use the `/guide` command.
 

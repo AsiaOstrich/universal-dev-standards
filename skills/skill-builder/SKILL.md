@@ -1,5 +1,5 @@
 ---
-name: process-to-skill
+name: skill-builder
 scope: universal
 description: "[UDS] Identify repeated processes and build Skills with the right development depth"
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash

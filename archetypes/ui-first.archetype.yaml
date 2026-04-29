@@ -1,0 +1,40 @@
+archetype:
+  id: ui-first
+  name:
+    zh: UI 優先 Vibe Coding
+    en: UI-first Vibe Coding
+  version: 1.0.0
+  trigger:
+    type: screenshot
+    description: 從 screenshot / Figma URL / mockup 出發，反推 spec 並生成代碼與測試
+  agent-chain:
+    - ui-ux
+    - designer
+    - architect
+    - builder
+    - reviewer
+    - guardian
+    - evaluator
+  flow-sequence:
+    - flow: ui-first
+    - flow: sdd
+    - flow: tdd
+    - flow: commit
+  quality-profile: ui-first
+  ui:
+    mode: ui-first
+    visualization: canvas
+    primary-pages:
+      - UIDesigns
+      - Specs
+      - Tests
+      - PipelineRun
+    secondary-pages:
+      - Architecture
+      - Artifacts
+    hidden-pages:
+      - Incidents
+      - SLO
+  metadata:
+    created: "2026-04-29"
+    description: 從 UI mockup 反推 spec 並生成代碼與測試。對標 Lovable/Bolt/v0，加入 spec 反推與 9-agent 治理。

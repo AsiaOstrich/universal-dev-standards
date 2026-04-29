@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: MIT
+# UDS ui-first verb-flow（XSPEC-102）
+flow:
+  id: ui-first
+  description: UI artifact → DESIGN.md → spec 反推 → code → tests 的閘門流程
+  steps:
+    - id: receive-ui-artifact
+      type: ai-task
+      agent: ui-ux
+      action: analyze-ui-artifact
+      output: ui-analysis
+
+    - id: generate-design-md
+      type: ai-task
+      agent: designer
+      input: ui-analysis
+      action: generate-design-md
+      output: design-md
+
+    - id: design-review
+      type: gate
+      kind: HUMAN_CONFIRM
+      message: "DESIGN.md 已生成，請確認元件結構是否正確後繼續推導 spec。"
+
+    - id: reverse-spec
+      type: ai-task
+      agent: architect
+      input: design-md
+      action: reverse-derive-spec
+      output: sdd-spec-draft
+
+    - id: generate-code
+      type: ai-task
+      agent: builder
+      input: [design-md, sdd-spec-draft]
+      action: generate-components
+      output: component-code
+
+    - id: inject-bdd-smoke
+      type: ai-task
+      agent: builder
+      input: [sdd-spec-draft, component-code]
+      action: generate-bdd-smoke-tests
+      output: bdd-smoke-tests
+
+    - id: inject-tdd-characterization
+      type: ai-task
+      agent: builder
+      input: component-code
+      action: generate-characterization-tests
+      output: tdd-characterization-tests
+
+    - id: guardian-review
+      type: ai-task
+      agent: guardian
+      input: [component-code, bdd-smoke-tests, tdd-characterization-tests]
+      action: security-review
+      output: guardian-report
+
+    - id: quality-gate
+      type: gate
+      kind: HUMAN_CONFIRM
+      message: "代碼、BDD/TDD 測試生成完畢，guardian 審查完成。確認提交？"

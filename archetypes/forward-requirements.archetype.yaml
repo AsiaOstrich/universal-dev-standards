@@ -1,0 +1,44 @@
+archetype:
+  id: forward-requirements
+  name:
+    zh: 正向需求驅動
+    en: Forward Requirements-driven
+  version: 1.0.0
+  trigger:
+    type: natural-language
+    description: 從自然語言需求或 user story 出發，走完完整 SDLC
+  agent-chain:
+    - planner
+    - architect
+    - builder
+    - reviewer
+    - evaluator
+    - guardian
+    - operator
+  flow-sequence:
+    - flow: sdd
+    - flow: bdd
+    - flow: atdd
+    - flow: tdd
+    - flow: review
+    - flow: commit
+    - flow: push
+    - flow: pr
+  quality-profile: forward-requirements
+  ui:
+    mode: requirements
+    visualization: timeline
+    primary-pages:
+      - Specs
+      - Tests
+      - Architecture
+      - PipelineRun
+      - Artifacts
+    secondary-pages:
+      - Memory
+      - Research
+    hidden-pages:
+      - UIDesigns
+  metadata:
+    created: "2026-04-29"
+    description: 完整正向 SDLC。SDD → BDD → ATDD → TDD → review → commit → PR。適合企業合規場景。
