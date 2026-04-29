@@ -6,11 +6,46 @@ Migrated from DevAP `.devap/flows/` (XSPEC-097, 2026-04-28).
 ## What are Flows?
 
 Flows are the **universal, tool-agnostic, machine-executable** representation of UDS methodology standards.
-They bridge the gap between `.standards/*.ai.yaml` (rules) and tool-specific adapters (Skills).
+They chain together Skills under gate conditions to form enforceable workflows.
+
+### Four-Layer Model (as of 2026-04-29, DEC-051)
 
 ```
-Standards (.ai.yaml) → Flows (.flow.yaml) → Adapters (Skills, Workflows, Prompts)
+Standards (.ai.yaml / core/*.md)
+    │  "What is correct?"
+    ▼
+Skills (skills/<name>/SKILL.md)
+    │  "How to do ONE action?"
+    ▼
+Flows (.flow.yaml / TaskPlan .json)
+    │  "How to CHAIN actions with gates?"
+    ▼
+Adapters (integrations/, runtime, agents, configs)
+       "Who runs it where?"
 ```
+
+Each layer answers a different question and references only layers above it (no upward references).
+
+**Adapter sub-types**:
+- **Tool Adapter** — tool/language interface (e.g., `integrations/claude-code/`, `integrations/cursor/`)
+- **Role Adapter** — agent role prompt + I/O schema (e.g., VibeOps `agents/architect/`)
+- **Runtime Adapter** — execution engine (e.g., VibeOps `src/orchestrator/`)
+- **Config Adapter** — application-level config (e.g., `vibeops.config.json`)
+
+> Cross-project teaching guide: [dev-platform/cross-project/CONCEPTS.md](https://github.com/AsiaOstrich/dev-platform/blob/main/cross-project/CONCEPTS.md)
+
+### Standards sub-types (for reference)
+
+Standards include several sub-types that all live in the Standards layer:
+- **Core rules**: `.standards/*.ai.yaml` + `core/*.md`
+- **Methodologies**: `methodologies/*.methodology.yaml` (combinations of standards)
+- **Options / Variants**: `options/*/` (per-standard alternatives)
+- **Recipes / Templates**: `recipes/*.yaml`, `templates/*`
+
+### Compatibility note
+
+The earlier three-layer shorthand `Standards → Flows → Adapters` remains valid as a quick reference.
+The four-layer model above is the authoritative description that inserts **Skills** as an explicit layer.
 
 ## Available Flows
 
