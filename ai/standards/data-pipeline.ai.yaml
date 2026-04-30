@@ -1,0 +1,113 @@
+# Data Pipeline Standards - AI Optimized
+# Source: XSPEC-068 Wave 3 Data Engineering Pack
+
+id: data-pipeline
+title: Data Pipeline Standards
+version: "1.0.0"
+status: Active
+tags: [data-engineering, pipeline, etl, data-quality, orchestration, idempotency]
+summary: |
+  Defines engineering standards for building reliable, observable, and
+  maintainable data pipelines. Covers idempotency and exactly-once semantics,
+  error handling and dead-letter queues, checkpoint and recovery patterns,
+  data lineage tracking, pipeline observability (metrics, alerting), testing
+  requirements, and deployment practices. Applicable to batch ETL, streaming
+  pipelines, and ML feature pipelines.
+
+requirements:
+  - id: REQ-001
+    title: Idempotency and Exactly-Once Processing
+    description: |
+      Every data pipeline MUST be designed for idempotent execution:
+      re-running the same pipeline for the same time window or batch MUST
+      produce identical output without duplication or data loss. Pipelines
+      MUST use deterministic keys for deduplication. Batch pipelines MUST
+      support re-processing historical partitions cleanly. Streaming pipelines
+      MUST implement exactly-once or at-least-once with deduplication using
+      unique event IDs. Overwrites of output partitions are preferred over
+      appends for batch jobs.
+    level: MUST
+    examples:
+      - "Batch: pipeline writes to date-partitioned output and overwrites the partition on re-run"
+      - "Streaming: dedup using Kafka message key + consumer group offset tracking"
+      - "Test: running pipeline twice for 2026-04-01 produces same row count both times"
+
+  - id: REQ-002
+    title: Error Handling and Dead-Letter Queues
+    description: |
+      Data pipelines MUST implement structured error handling with
+      categorized failure modes. Transient errors (network timeout, API
+      rate limit) MUST use exponential backoff retry (max 3 attempts).
+      Permanent errors (schema violation, invalid data) MUST route records
+      to a Dead-Letter Queue (DLQ) with the original record, error type,
+      error message, and processing timestamp. DLQ records MUST be
+      monitored and addressed within the pipeline's SLA.
+    level: MUST
+    examples:
+      - "Transient retry: retry_policy: {max_attempts: 3, backoff_base: 2s, max_backoff: 30s}"
+      - "DLQ record: {original_record: {...}, error_type: 'SCHEMA_VIOLATION', error_msg: 'field amount is null', ts: '...'}"
+      - "DLQ alert: >100 DLQ messages in 1 hour → PagerDuty alert to data-oncall"
+
+  - id: REQ-003
+    title: Checkpoint and Recovery
+    description: |
+      Long-running batch pipelines and stateful streaming pipelines MUST
+      implement checkpointing to enable recovery from mid-run failures
+      without full reprocessing. Checkpoints MUST record: last successfully
+      processed partition/offset/watermark, job run ID, and timestamp.
+      Recovery MUST resume from the last checkpoint, not from the beginning.
+      Checkpoint state MUST be stored in durable external storage (not
+      local disk).
+    level: MUST
+    examples:
+      - "Batch: checkpoint stores {last_processed_date: '2026-04-28', last_id: 12345678} in S3"
+      - "Streaming: Flink checkpoint interval 5 minutes, stored in S3 with 3 checkpoints retained"
+      - "Recovery test: kill job mid-run, restart, verify output matches full run with no duplicates"
+
+  - id: REQ-004
+    title: Data Lineage Tracking
+    description: |
+      Every data pipeline MUST emit lineage metadata describing its data
+      flow: source datasets (with versions/timestamps), transformation logic
+      applied, and output datasets produced. Lineage MUST be machine-readable
+      and ingested into a central lineage store or data catalog. Lineage
+      enables root-cause analysis of data quality issues and impact assessment
+      of upstream changes.
+    level: MUST
+    examples:
+      - "Lineage emit: {job: 'orders-aggregator', inputs: ['raw_orders@2026-04-30'], outputs: ['daily_order_summary@2026-04-30'], transform_version: 'v1.3.2'}"
+      - "OpenLineage event emitted to Marquez or DataHub on job start and completion"
+      - "Lineage query: 'Which pipelines read from raw_orders?' returns 5 downstream jobs"
+
+  - id: REQ-005
+    title: Pipeline Observability and SLOs
+    description: |
+      Every production data pipeline MUST expose the following metrics:
+      records processed (counter), processing latency (histogram), error
+      rate (gauge), DLQ depth (gauge), and last successful run timestamp.
+      Pipelines MUST define SLOs for: freshness (data available within N
+      hours of source), completeness (≥ X% records successfully processed),
+      and latency (p95 processing time within threshold). SLO violations
+      MUST trigger alerts.
+    level: MUST
+    examples:
+      - "Metric: pipeline_records_processed_total{pipeline='orders-agg',status='success'}"
+      - "Freshness SLO: daily_order_summary available by 03:00 UTC — alert if missing by 04:00 UTC"
+      - "Completeness alert: processed_records / expected_records < 0.99 → P2 alert"
+
+  - id: REQ-006
+    title: Pipeline Testing Requirements
+    description: |
+      Data pipelines MUST have automated tests covering: unit tests for
+      transformation logic (test with sample input/output DataFrames),
+      integration tests validating end-to-end flow with synthetic data,
+      and schema conformance tests validating output matches declared
+      data contract. Pipelines SHOULD have regression tests for historically
+      problematic edge cases (nulls in key fields, negative amounts,
+      duplicate records). Test coverage MUST be ≥ 80% for transformation
+      logic.
+    level: MUST
+    examples:
+      - "Unit test: test_calculate_order_total() — asserts discount applied correctly on sample rows"
+      - "Integration test: runs full pipeline on 1000 synthetic orders, validates output row count and schema"
+      - "Edge case test: pipeline handles duplicate order_id gracefully, deduplication logic verified"

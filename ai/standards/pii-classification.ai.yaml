@@ -1,0 +1,109 @@
+# PII Classification and Handling Standards - AI Optimized
+# Source: XSPEC-066 Wave 3 Compliance Pack
+
+id: pii-classification
+title: PII Classification and Handling Standards
+version: "1.0.0"
+status: Active
+tags: [compliance, privacy, pii, gdpr, data-protection, security]
+summary: |
+  Defines how Personally Identifiable Information (PII) and sensitive personal
+  data is classified, labeled, stored, transmitted, and disposed of. Covers
+  a three-tier data sensitivity classification, mandatory handling controls
+  per tier, data minimization principles, consent management requirements,
+  retention and deletion schedules, and cross-border transfer restrictions.
+  Aligned with GDPR Article 9, CCPA, and general privacy-by-design principles.
+
+requirements:
+  - id: REQ-001
+    title: PII Data Sensitivity Classification
+    description: |
+      All data fields containing personal information MUST be classified into
+      one of three tiers before storage or processing. TIER-1 (Highly
+      Sensitive): health data, financial account numbers, government IDs,
+      biometrics, passwords, SSNs — requires encryption at rest and in
+      transit, access logging, no caching. TIER-2 (Sensitive): full name +
+      contact info combination, location history, behavioral profiles,
+      IP addresses — requires encryption in transit, access controls.
+      TIER-3 (General PII): first name only, country-level location, general
+      demographics — standard access controls sufficient.
+    level: MUST
+    examples:
+      - "Field: credit_card_number → TIER-1, encrypted AES-256-GCM, no logging of value"
+      - "Field: user_email + user_name together → TIER-2, TLS required, RBAC enforced"
+      - "Field: country_code → TIER-3, standard DB access controls"
+
+  - id: REQ-002
+    title: Data Minimization and Purpose Limitation
+    description: |
+      Systems MUST collect only the minimum PII necessary for the explicitly
+      stated purpose. Each PII field in the data model MUST have a documented
+      business purpose and legal basis (consent, contract, legitimate
+      interest, legal obligation). Collection of PII without documented
+      purpose is PROHIBITED. Purpose limitation MUST be enforced: data
+      collected for purpose A MUST NOT be used for unrelated purpose B
+      without separate consent.
+    level: MUST
+    examples:
+      - "Data dictionary entry: email_address, purpose: account authentication, legal_basis: contract"
+      - "Phone number collected for 2FA cannot be reused for marketing without new consent"
+      - "PR review checklist: 'Does this new field have a documented purpose in the data dictionary?'"
+
+  - id: REQ-003
+    title: PII Masking and Anonymization in Non-Production
+    description: |
+      PII MUST NOT exist in non-production environments (development, staging,
+      test) unless explicitly required and approved. Test and staging databases
+      MUST use anonymized or synthetic data. Any approved exception MUST be
+      time-limited, access-controlled, and documented. PII MUST be masked
+      in application logs: email addresses shown as u***@domain.com, phone
+      numbers as +1-XXX-XXX-1234, card numbers as ****-****-****-1234.
+    level: MUST
+    examples:
+      - "Staging DB: email stored as 'user_12345@test.invalid', not real email"
+      - "Log output: 'User u***@example.com logged in' not 'User alice@example.com logged in'"
+      - "Exception process: production data copy to staging requires security team approval + 7-day TTL"
+
+  - id: REQ-004
+    title: Data Retention and Deletion Schedule
+    description: |
+      Every data category containing PII MUST have a documented retention
+      schedule with maximum retention period aligned to legal requirements
+      and business need. Automated deletion MUST be implemented for data
+      past its retention period. Deletion MUST be verifiable (deletion
+      receipts or audit logs). Users exercising right-to-erasure MUST
+      receive deletion confirmation within 30 days (GDPR) or 45 days (CCPA).
+    level: MUST
+    examples:
+      - "Customer account data: retained 7 years after account closure (tax requirements)"
+      - "Session tokens: deleted after 24 hours of inactivity via automated cron job"
+      - "Right-to-erasure request: user data purged from all systems within 25 days, confirmation email sent"
+
+  - id: REQ-005
+    title: Cross-Border Data Transfer Controls
+    description: |
+      Transfers of TIER-1 or TIER-2 PII across national borders MUST comply
+      with applicable transfer mechanisms. EU → non-adequate country transfers
+      MUST use Standard Contractual Clauses (SCCs) or Binding Corporate Rules.
+      Data residency requirements MUST be documented in the system design.
+      Cross-border transfers MUST be logged with destination country and
+      legal basis.
+    level: MUST
+    examples:
+      - "EU user data stored in AWS eu-west-1, not replicated to us-east-1 without SCC"
+      - "Transfer log: destination=US, mechanism=SCC-2021, purpose=customer-support, timestamp=..."
+      - "Architecture doc notes: 'All PII stored in EU region per GDPR Article 46'"
+
+  - id: REQ-006
+    title: PII Impact Assessment for New Features
+    description: |
+      Any new feature or system change that introduces new PII collection or
+      processing SHOULD undergo a Privacy Impact Assessment (PIA) before
+      implementation. The PIA MUST document: what PII is collected, purpose,
+      legal basis, retention period, third-party sharing, and risk mitigations.
+      Features with TIER-1 PII require mandatory PIA; TIER-2 is recommended.
+    level: SHOULD
+    examples:
+      - "New feature: 'Save payment method' → PIA required (TIER-1 card data)"
+      - "PIA template: docs/templates/privacy-impact-assessment.md"
+      - "PIA outcome: fingerprint auth approved with biometric data stored only on-device"

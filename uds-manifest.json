@@ -1,9 +1,9 @@
 {
   "project": "Universal Development Standards",
   "version": "5.4.0",
-  "last_updated": "2026-04-27",
+  "last_updated": "2026-04-30",
   "stats": {
-    "core_standards": 74,
+    "core_standards": 83,
     "skills": 48,
     "slash_commands": 48
   },
@@ -376,6 +376,51 @@
     {
       "id": "test-data-standards",
       "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "slo-sli",
+      "category": "sre",
+      "level": 2
+    },
+    {
+      "id": "runbook",
+      "category": "sre",
+      "level": 2
+    },
+    {
+      "id": "incident-response",
+      "category": "sre",
+      "level": 2
+    },
+    {
+      "id": "license-compliance",
+      "category": "compliance",
+      "level": 2
+    },
+    {
+      "id": "pii-classification",
+      "category": "compliance",
+      "level": 2
+    },
+    {
+      "id": "audit-trail",
+      "category": "compliance",
+      "level": 2
+    },
+    {
+      "id": "schema-evolution",
+      "category": "data-engineering",
+      "level": 3
+    },
+    {
+      "id": "data-contract",
+      "category": "data-engineering",
+      "level": 3
+    },
+    {
+      "id": "data-pipeline",
+      "category": "data-engineering",
       "level": 3
     }
   ],

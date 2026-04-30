@@ -1,0 +1,104 @@
+# Runbook Standards - AI Optimized
+# Source: XSPEC-063 Wave 3 SRE Pack
+
+id: runbook
+title: Runbook Writing Standards
+version: "1.0.0"
+status: Active
+tags: [sre, operations, runbook, incident, oncall]
+summary: |
+  Defines how operational runbooks are written, organized, maintained, and
+  tested. Covers required sections, writing principles (reproducible,
+  unambiguous steps), directory structure, review cadence, and drill
+  frequency. A well-written runbook reduces Mean Time To Repair (MTTR) by
+  ensuring any on-call engineer can execute recovery steps without requiring
+  tribal knowledge.
+
+requirements:
+  - id: REQ-001
+    title: Required Runbook Sections
+    description: |
+      Every runbook MUST include the following sections in order:
+      (1) Overview — alert name, severity, affected services, owner, last
+      updated, last drilled date; (2) Symptoms — observable indicators;
+      (3) Impact Assessment — user-facing effect and blast radius;
+      (4) Diagnostic Steps — ordered steps with copy-pasteable commands;
+      (5) Fix Steps — ordered remediation with verification for each step;
+      (6) Escalation — specific contacts with role and availability;
+      (7) Post-Actions — follow-up tasks, tickets, postmortem triggers.
+    level: MUST
+    examples:
+      - "Overview: Alert=HighErrorRate, Severity=P2, Service=payment-api, Owner=@alice"
+      - "Diagnostic: `kubectl get pods -n payments | grep -v Running`"
+      - "Escalation: If not resolved in 30min, page @payment-lead (PD: pd-payments)"
+
+  - id: REQ-002
+    title: Reproducible and Unambiguous Steps
+    description: |
+      Each step in a runbook MUST be reproducible and unambiguous. Steps
+      MUST use copy-pasteable commands with no placeholders left undefined.
+      Decision points MUST include explicit branch conditions (if X then Y,
+      else Z). Every fix step MUST include a verification command confirming
+      the fix worked before proceeding. Expected output MUST be shown.
+    level: MUST
+    examples:
+      - "Bad: 'Restart the service' — Good: `systemctl restart payment-api && systemctl status payment-api`"
+      - "Branch: If error count > 100/min go to step 5a, else go to step 5b"
+      - "Verify: `curl -s https://api/health | jq .status` should return 'ok'"
+
+  - id: REQ-003
+    title: Runbook Naming and Directory Organization
+    description: |
+      Runbooks MUST use kebab-case names that describe the problem, not the
+      solution. Files MUST be organized into typed directories:
+      alerts/ for alert-response runbooks, operations/ for standard ops,
+      emergency/ for major incident procedures, troubleshooting/ for
+      general investigation guides. Each runbook file MUST declare its type
+      in the front matter.
+    level: MUST
+    examples:
+      - "Good: alerts/payment-api-high-error-rate.md"
+      - "Bad: runbooks/restart-payment-service.md"
+      - "Front matter: type: alert_response, alert: HighErrorRateAlert"
+
+  - id: REQ-004
+    title: Review and Drill Cadence
+    description: |
+      Runbooks MUST be reviewed on schedule based on type: alert-response
+      runbooks quarterly, emergency procedures monthly, standard operation
+      and troubleshooting guides bi-annually, change procedures after each
+      use. Runbooks MUST be drilled: P1 runbooks monthly, P2 quarterly,
+      emergency procedures quarterly. Drill records must be appended to the
+      runbook or linked from it.
+    level: MUST
+    examples:
+      - "Drill record: 2026-03-15, participants: @alice @bob, result: pass, MTTR: 12min"
+      - "Quarterly review: updated diagnostic commands after k8s upgrade"
+      - "Post-change update: change-procedure/db-failover.md updated after March 14 drill"
+
+  - id: REQ-005
+    title: Rollback and Fallback Steps
+    description: |
+      Any runbook describing a change or fix MUST include a clearly labeled
+      rollback section describing how to undo the change if the fix fails
+      or causes additional issues. The rollback section MUST appear before
+      the escalation section and include its own verification steps.
+    level: MUST
+    examples:
+      - "Rollback: `helm rollback payment-api 1 && kubectl rollout status deployment/payment-api`"
+      - "Rollback verify: error rate returns below 1% within 3 minutes"
+      - "If rollback fails: escalate immediately, do not attempt further fixes"
+
+  - id: REQ-006
+    title: Alert Integration Metadata
+    description: |
+      Alert-response runbooks SHOULD include a metadata block linking the
+      runbook to specific alert rules. This enables automatic runbook
+      linking in alerting tools (PagerDuty, Alertmanager). Metadata MUST
+      include the alert name, dashboard URL, and Prometheus/logging query
+      used to investigate.
+    level: SHOULD
+    examples:
+      - "alert_name: PaymentAPIHighErrorRate5xx"
+      - "dashboard: https://grafana/d/payment-api-overview"
+      - "query: sum(rate(http_requests_total{status=~'5..'}[5m])) by (service)"

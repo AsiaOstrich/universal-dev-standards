@@ -2158,6 +2158,105 @@
       },
       "category": "core",
       "description": "Security checkpoints embedded in CI pipeline — SAST, DAST, SCA, secrets scan with block/warn/log behavior"
+    },
+    {
+      "id": "slo-sli",
+      "name": "SLO/SLI Definition Standards",
+      "nameZh": "SLO/SLI 定義標準",
+      "source": {
+        "human": "core/slo-sli.md",
+        "ai": "ai/standards/slo-sli.ai.yaml"
+      },
+      "category": "core",
+      "description": "SLI selection per service type, SLO target-setting methodology, error budget policies, and multi-window burn-rate alerting"
+    },
+    {
+      "id": "runbook",
+      "name": "Runbook Writing Standards",
+      "nameZh": "Runbook 撰寫標準",
+      "source": {
+        "human": "core/runbook.md",
+        "ai": "ai/standards/runbook.ai.yaml"
+      },
+      "category": "core",
+      "description": "Required sections, reproducible steps, naming conventions, review cadence, and drill frequency for operational runbooks"
+    },
+    {
+      "id": "incident-response",
+      "name": "Incident Response Standards",
+      "nameZh": "事件回應標準",
+      "source": {
+        "human": "core/incident-response.md",
+        "ai": "ai/standards/incident-response.ai.yaml"
+      },
+      "category": "core",
+      "description": "Severity classification, IC role, stakeholder communication, blameless postmortem, on-call rotation, and incident metrics"
+    },
+    {
+      "id": "license-compliance",
+      "name": "License Compliance Standards",
+      "nameZh": "授權合規標準",
+      "source": {
+        "human": "core/license-compliance.md",
+        "ai": "ai/standards/license-compliance.ai.yaml"
+      },
+      "category": "core",
+      "description": "License tier classification, automated scanning in CI, SBOM generation, attribution notices, and violation remediation"
+    },
+    {
+      "id": "pii-classification",
+      "name": "PII Classification and Handling Standards",
+      "nameZh": "PII 分類與處理標準",
+      "source": {
+        "human": "core/pii-classification.md",
+        "ai": "ai/standards/pii-classification.ai.yaml"
+      },
+      "category": "core",
+      "description": "Three-tier PII sensitivity classification, data minimization, masking in non-production, retention schedules, and cross-border transfer controls"
+    },
+    {
+      "id": "audit-trail",
+      "name": "Audit Trail Standards",
+      "nameZh": "稽核追蹤標準",
+      "source": {
+        "human": "core/audit-trail.md",
+        "ai": "ai/standards/audit-trail.ai.yaml"
+      },
+      "category": "core",
+      "description": "Mandatory auditable events, record schema, immutability, retention periods, query/export, and SIEM integration"
+    },
+    {
+      "id": "schema-evolution",
+      "name": "Schema Evolution Standards",
+      "nameZh": "Schema 演進標準",
+      "source": {
+        "human": "core/schema-evolution.md",
+        "ai": "ai/standards/schema-evolution.ai.yaml"
+      },
+      "category": "core",
+      "description": "Backward-compatible change patterns, prohibited breaking changes, expand-contract migration, schema versioning, and CI compatibility checks"
+    },
+    {
+      "id": "data-contract",
+      "name": "Data Contract Standards",
+      "nameZh": "資料契約標準",
+      "source": {
+        "human": "core/data-contract.md",
+        "ai": "ai/standards/data-contract.ai.yaml"
+      },
+      "category": "core",
+      "description": "Data contract specification format, quality SLOs, breaking-change governance, automated contract testing, and consumer registration"
+    },
+    {
+      "id": "data-pipeline",
+      "name": "Data Pipeline Standards",
+      "nameZh": "資料管線標準",
+      "source": {
+        "human": "core/data-pipeline.md",
+        "ai": "ai/standards/data-pipeline.ai.yaml"
+      },
+      "category": "core",
+      "description": "Idempotency, error handling with DLQs, checkpointing, data lineage, pipeline observability SLOs, and testing requirements"
     }
   ]
 }

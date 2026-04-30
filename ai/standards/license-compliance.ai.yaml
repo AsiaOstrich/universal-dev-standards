@@ -1,0 +1,106 @@
+# License Compliance Standards - AI Optimized
+# Source: XSPEC-066 Wave 3 Compliance Pack
+
+id: license-compliance
+title: License Compliance Standards
+version: "1.0.0"
+status: Active
+tags: [compliance, licensing, open-source, legal, supply-chain]
+summary: |
+  Defines how teams identify, track, and manage open-source and third-party
+  software licenses throughout the software development lifecycle. Covers
+  license classification (permissive vs. copyleft), prohibited licenses,
+  SBOM generation, license scanning in CI/CD, and remediation processes
+  for license violations. Designed to prevent legal exposure from
+  incompatible license combinations and ensure supply-chain transparency.
+
+requirements:
+  - id: REQ-001
+    title: License Classification and Allowlist
+    description: |
+      Every project MUST maintain a documented license policy classifying
+      licenses into three tiers. APPROVED: MIT, Apache 2.0, BSD-2-Clause,
+      BSD-3-Clause, ISC, CC0 — can be used without review. REVIEW-REQUIRED:
+      LGPL-2.1, LGPL-3.0, MPL-2.0, CDDL — requires legal/architecture
+      review before adoption. PROHIBITED: GPL-2.0 (without exception),
+      GPL-3.0, AGPL-3.0, SSPL, Commons Clause additions — MUST NOT be
+      included in proprietary or commercial products.
+    level: MUST
+    examples:
+      - "MIT dependency lodash → auto-approved, no review needed"
+      - "LGPL-3.0 dependency → open GitHub issue tagged 'license-review' before merging"
+      - "GPL-3.0 dependency found in PR → PR blocked by CI until dependency replaced"
+
+  - id: REQ-002
+    title: Automated License Scanning in CI
+    description: |
+      Every repository MUST run automated license scanning on every pull
+      request and on a daily scheduled basis. The scan MUST fail the build
+      if any PROHIBITED license is detected in direct or transitive
+      dependencies. REVIEW-REQUIRED licenses MUST generate a warning that
+      blocks merge until manually approved and documented. Scan results
+      MUST be stored as build artifacts for 1 year.
+    level: MUST
+    examples:
+      - "CI step: `npx license-checker --onlyAllow 'MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC'`"
+      - "Daily scheduled scan via GitHub Actions: runs license-checker across all repos"
+      - "Build artifact: license-report-2026-04-30.json retained for 1 year"
+
+  - id: REQ-003
+    title: Software Bill of Materials (SBOM) Generation
+    description: |
+      Every production release MUST include a Software Bill of Materials
+      (SBOM) in SPDX 2.3 or CycloneDX 1.5 format. The SBOM MUST list all
+      direct and transitive dependencies with: package name, version,
+      license identifier (SPDX), and supplier. SBOMs MUST be generated
+      automatically as part of the release pipeline and stored alongside
+      release artifacts.
+    level: MUST
+    examples:
+      - "SBOM generated via: `syft . -o spdx-json > sbom-v1.2.0.spdx.json`"
+      - "SBOM uploaded to release: GitHub Release v1.2.0 includes sbom-v1.2.0.spdx.json"
+      - "SBOM SPDX entry: {name: 'lodash', version: '4.17.21', licenseConcluded: 'MIT'}"
+
+  - id: REQ-004
+    title: License Attribution and Notices
+    description: |
+      Products distributed to external users MUST include a NOTICES or
+      LICENSE-THIRD-PARTY file listing all open-source components and their
+      license texts. This file MUST be auto-generated from the SBOM data.
+      For web applications, attribution MUST be accessible via a dedicated
+      page or endpoint (e.g., /licenses or /legal/notices).
+    level: MUST
+    examples:
+      - "NOTICES file auto-generated: `npx generate-license-file --input package.json --output NOTICES`"
+      - "Web app: GET /legal/notices returns HTML page with all dependency licenses"
+      - "Mobile app: 'Open Source Licenses' screen in Settings menu"
+
+  - id: REQ-005
+    title: License Violation Remediation Process
+    description: |
+      When a license violation is detected, teams MUST follow the remediation
+      process: (1) immediately block merge/release if PROHIBITED license;
+      (2) create a tracking issue within 1 business day; (3) remediate
+      within 5 business days for PROHIBITED, 30 days for REVIEW-REQUIRED;
+      (4) document decision and alternative chosen; (5) update SBOM and
+      re-scan to verify clean. Unresolved violations MUST be reported to
+      the engineering lead monthly.
+    level: MUST
+    examples:
+      - "Violation: transitive dep uses GPL-3.0 → PR blocked, issue COMP-112 created same day"
+      - "Remediation: replaced dep with MIT-licensed alternative within 3 days"
+      - "Monthly report: 0 open violations as of 2026-04-30"
+
+  - id: REQ-006
+    title: License Review for New Technology Adoption
+    description: |
+      Before adopting any new framework, library, or tool, engineers SHOULD
+      verify its license tier as part of the technology evaluation. License
+      status SHOULD be documented in the relevant ADR or technical spike
+      document. For REVIEW-REQUIRED licenses, architecture review board
+      approval MUST be obtained before adoption.
+    level: SHOULD
+    examples:
+      - "ADR-042 notes: 'Library X uses Apache 2.0 — approved tier, no legal review needed'"
+      - "ADR-043 notes: 'Library Y uses LGPL-3.0 — review-required, legal approved 2026-03-10'"
+      - "Technology radar entry includes license classification for each evaluated tool"
