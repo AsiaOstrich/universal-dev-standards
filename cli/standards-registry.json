@@ -2257,6 +2257,72 @@
       },
       "category": "core",
       "description": "Idempotency, error handling with DLQs, checkpointing, data lineage, pipeline observability SLOs, and testing requirements"
+    },
+    {
+      "id": "iac-design-principles",
+      "name": "Infrastructure as Code Design Principles",
+      "nameZh": "基礎設施即程式碼設計原則",
+      "source": {
+        "human": "core/iac-design-principles.md",
+        "ai": "ai/standards/iac-design-principles.ai.yaml"
+      },
+      "category": "core",
+      "description": "Four IaC principles (reproducible, immutable, idempotent, versioned), remote state with locking, and drift detection with three-category classification"
+    },
+    {
+      "id": "container-image-standards",
+      "name": "Container Image Build and Security Standards",
+      "nameZh": "容器映像建構與安全標準",
+      "source": {
+        "human": "core/container-image-standards.md",
+        "ai": "ai/standards/container-image-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Dockerfile five principles (multi-stage, non-root, distroless, no secrets, SBOM labels), SBOM embedding via syft/trivy, and CVE scanning block policy"
+    },
+    {
+      "id": "secret-management-standards",
+      "name": "Secret Management and Credential Hygiene Standards",
+      "nameZh": "機密管理與憑證衛生標準",
+      "source": {
+        "human": "core/secret-management-standards.md",
+        "ai": "ai/standards/secret-management-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Three secret source tiers (Vault, Cloud KMS, SOPS), rotation policies by credential type, hardcoded secret prevention, and safe injection patterns"
+    },
+    {
+      "id": "prd-standards",
+      "name": "Product Requirements Document Standards",
+      "nameZh": "產品需求文件標準",
+      "source": {
+        "human": "core/prd-standards.md",
+        "ai": "ai/standards/prd-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "PRD five sections (Problem, Persona, Metrics, Scope, Constraints), PRD-to-user-story bridge with metric traceability, and post-kickoff revision policy"
+    },
+    {
+      "id": "product-metrics-standards",
+      "name": "Product Metrics Framework Standards",
+      "nameZh": "產品指標框架標準",
+      "source": {
+        "human": "core/product-metrics-standards.md",
+        "ai": "ai/standards/product-metrics-standards.ai.yaml"
+      },
+      "category": "core",
+      "description": "Framework selection matrix (AARRR/HEART/North Star), North Star four criteria, three-level metric hierarchy, and anti-vanity metric rule"
+    },
+    {
+      "id": "user-story-mapping",
+      "name": "User Story Mapping Standards",
+      "nameZh": "使用者故事地圖標準",
+      "source": {
+        "human": "core/user-story-mapping.md",
+        "ai": "ai/standards/user-story-mapping.ai.yaml"
+      },
+      "category": "core",
+      "description": "Three-layer story map (Backbone, Walking Skeleton, Detail Stories), MVP horizontal slice rule, INVEST compliance per story, and GWT acceptance criteria"
     }
   ]
 }

@@ -1,0 +1,83 @@
+# IaC Design Principles - AI Optimized
+# Source: XSPEC-065 Wave 4 IaC Pack
+
+id: iac-design-principles
+title: Infrastructure as Code Design Principles
+version: "1.0.0"
+status: Active
+tags: [iac, infrastructure, terraform, pulumi, cloudformation, immutable-infrastructure]
+summary: |
+  Defines the four foundational principles for Infrastructure as Code (IaC)
+  authoring: reproducible, immutable, idempotent, and versioned. Covers state
+  management requirements including remote state with locking, drift detection
+  categories, and CI/CD integration. Designed to ensure infrastructure changes
+  are traceable, reversible, and safe to apply repeatedly without unintended
+  side effects.
+
+requirements:
+  - id: REQ-001
+    title: IaC Four Principles
+    description: |
+      All infrastructure definitions MUST adhere to four foundational principles:
+      (1) Reproducible — given the same inputs and state, applying IaC produces
+      identical infrastructure. (2) Immutable — infrastructure changes are
+      applied by replacing resources, not mutating them in-place; blue/green or
+      rolling replacement patterns are preferred over in-place mutations.
+      (3) Idempotent — applying the same IaC configuration multiple times
+      produces the same result without error or unintended side effects.
+      (4) Versioned — all IaC definitions are stored in version control with
+      meaningful commit messages; no infrastructure change is made outside the
+      VCS workflow.
+    level: MUST
+    examples:
+      - "Terraform modules pinned to specific provider versions for reproducibility"
+      - "EC2 instance replacement via launch template version bump, not in-place AMI update"
+      - "`terraform apply` is safe to re-run; no manual pre-checks needed for idempotency"
+      - "All Pulumi programs committed to git; no ad-hoc CLI changes accepted"
+
+  - id: REQ-002
+    title: State Management
+    description: |
+      IaC state MUST be stored in a remote backend with locking enabled to
+      prevent concurrent modifications. Local state files MUST NOT be committed
+      to version control or used in CI/CD pipelines. Recommended backends:
+      Terraform Cloud / S3+DynamoDB (Terraform), Pulumi Service / S3 (Pulumi),
+      CloudFormation native stack state. State access MUST be restricted to
+      authorized principals via IAM or equivalent. State encryption at rest
+      is REQUIRED.
+    level: MUST
+    examples:
+      - "Terraform S3 backend with DynamoDB lock table; `.terraform/` in .gitignore"
+      - "Pulumi state stored in Pulumi Cloud with team access controls"
+      - "CI pipeline uses OIDC to assume role with state bucket access; no static credentials"
+      - "State file encrypted using AWS KMS customer-managed key"
+
+  - id: REQ-003
+    title: Drift Detection
+    description: |
+      Teams MUST run `plan` (or equivalent) in CI on every pull request to
+      detect configuration drift. Drift outcomes MUST be classified into one
+      of three categories and handled accordingly: (1) rollback-to-code —
+      actual infra deviates from code due to manual change; revert actual to
+      match code on next apply. (2) update-code-from-actual — actual reflects
+      intentional change not yet codified; update IaC to match, then apply.
+      (3) manual-reconcile — drift requires human judgment (e.g., data volume
+      changes); escalate to infra owner with documented decision. Drift reports
+      SHOULD be published to a team channel on a scheduled cadence (e.g., daily).
+    level: MUST
+    examples:
+      - "CI runs `terraform plan` on PR; plan output posted as PR comment"
+      - "Security group rule added via console → classified rollback-to-code; removed on next apply"
+      - "RDS storage autoscaled → classified update-code-from-actual; IaC updated to new size"
+      - "Daily drift scan via scheduled CI job; report posted to #infra-alerts Slack channel"
+
+anti_patterns:
+  - "Committing local state files (terraform.tfstate) to version control"
+  - "Applying mutable in-place changes (e.g., sed-patching running VMs) instead of replacing resources"
+  - "Making manual console changes without updating the corresponding IaC definition"
+  - "Using no remote locking, allowing concurrent applies that corrupt state"
+  - "Pinning to `latest` provider or module versions, breaking reproducibility"
+
+related_standards:
+  - containerization-standards
+  - secret-management-standards

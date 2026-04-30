@@ -3,7 +3,7 @@
   "version": "5.4.0",
   "last_updated": "2026-04-30",
   "stats": {
-    "core_standards": 83,
+    "core_standards": 89,
     "skills": 48,
     "slash_commands": 48
   },
@@ -422,6 +422,36 @@
       "id": "data-pipeline",
       "category": "data-engineering",
       "level": 3
+    },
+    {
+      "id": "iac-design-principles",
+      "category": "infrastructure",
+      "level": 2
+    },
+    {
+      "id": "container-image-standards",
+      "category": "infrastructure",
+      "level": 2
+    },
+    {
+      "id": "secret-management-standards",
+      "category": "security",
+      "level": 2
+    },
+    {
+      "id": "prd-standards",
+      "category": "product",
+      "level": 2
+    },
+    {
+      "id": "product-metrics-standards",
+      "category": "product",
+      "level": 2
+    },
+    {
+      "id": "user-story-mapping",
+      "category": "product",
+      "level": 2
     }
   ],
   "skills": [

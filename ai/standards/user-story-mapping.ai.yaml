@@ -1,0 +1,108 @@
+# User Story Mapping - AI Optimized
+# Source: XSPEC-069 Wave 4 Product Layer Pack
+
+id: user-story-mapping
+title: User Story Mapping Standards
+version: "1.0.0"
+status: Active
+tags: [product, user-story, story-map, mvp, agile, backlog]
+summary: |
+  Defines how teams construct and use story maps to plan product releases.
+  Covers the three-layer story map structure (Backbone activities, Walking
+  Skeleton sub-tasks, Detail Stories), the MVP horizontal slice rule that
+  ensures all backbone activities are covered minimally before deepening
+  any single activity, INVEST compliance per story, and Given/When/Then
+  acceptance criteria linked to measurable product metrics. Designed to
+  prevent incomplete MVPs and ensure every story is testable and traceable.
+
+requirements:
+  - id: REQ-001
+    title: Story Map Three Layers
+    description: |
+      Every story map MUST be structured in three horizontal layers:
+      (1) Backbone (top row) — user activities at the highest abstraction
+      level, representing the complete end-to-end user journey. Each backbone
+      item is a verb phrase from the user's perspective (e.g., "Find a product",
+      "Complete purchase", "Track order"). The backbone must represent the
+      full journey, not only implemented features.
+      (2) Walking Skeleton (middle row) — sub-tasks for each backbone activity,
+      representing the minimum steps required to make the backbone activity
+      functional. Organized vertically under each backbone item.
+      (3) Detail Stories (bottom rows) — specific user stories that implement
+      variations, enhancements, and edge cases for each walking skeleton step.
+      Prioritized vertically within each column (higher = higher priority).
+    level: MUST
+    examples:
+      - "Backbone: [Browse] → [Search] → [Add to Cart] → [Checkout] → [Track Order]"
+      - "Walking skeleton under [Checkout]: [Enter address] → [Select payment] → [Confirm order]"
+      - "Detail story under [Select payment]: 'As a buyer, I want to pay with saved card'"
+      - "Backbone covers full journey even if some activities are out of scope for v1"
+
+  - id: REQ-002
+    title: MVP Horizontal Slice Rule
+    description: |
+      The MVP release boundary MUST be defined as a horizontal slice across
+      the story map, covering all backbone activities at the walking skeleton
+      level. An MVP that covers only a subset of backbone activities (a
+      vertical slice that perfects one activity while others are absent or
+      non-functional) is PROHIBITED, as it creates a product experience that
+      cannot be evaluated end-to-end by users. Exception: single-activity
+      products (e.g., a focused utility app) are exempt if the product's
+      full value proposition is delivered by that one activity. Exceptions
+      MUST be documented with rationale in the story map.
+    level: MUST
+    examples:
+      - "Valid MVP: Browse(skeleton) + Search(skeleton) + Checkout(skeleton) — all activities covered"
+      - "Invalid MVP: Browse(full polish) + Search(full polish) — checkout absent, no end-to-end flow"
+      - "Exception documented: 'This MVP is a single-purpose QR code scanner; one activity is complete'"
+      - "Release planning: draw MVP line horizontally after walking skeleton row for all columns"
+
+  - id: REQ-003
+    title: Story INVEST Compliance
+    description: |
+      Every user story in the story map MUST comply with the INVEST criteria
+      as defined in requirement-engineering.ai.yaml: Independent (can be
+      developed and delivered without depending on unfinished stories),
+      Negotiable (details open for discussion; not a fixed contract),
+      Valuable (delivers value to user or business if shipped alone),
+      Estimable (team can size it; sufficient detail exists),
+      Small (fits within one sprint at most; split if larger),
+      Testable (acceptance criteria exist that can be objectively verified).
+      Stories that fail INVEST must be refined before entering a sprint.
+      INVEST assessment MUST be performed during backlog refinement sessions.
+    level: MUST
+    examples:
+      - "Story fails Independent: 'As a user I want to checkout' depends on 15 unfinished stories → split"
+      - "Story fails Small: estimated 13 story points → split into 3 smaller stories"
+      - "Story fails Testable: 'improve the UI' → rewrite with Given/When/Then AC"
+      - "Backlog refinement checklist includes INVEST review for each new story"
+
+  - id: REQ-004
+    title: Acceptance Criteria Format
+    description: |
+      Every user story MUST have at least one acceptance criterion written in
+      Given/When/Then (GWT) format. Acceptance criteria MUST be tied to a
+      measurable product outcome from the product-metrics-standards hierarchy
+      where applicable. Stories with acceptance criteria that cannot be
+      objectively verified (e.g., "the page looks good") are non-compliant.
+      Acceptance criteria MUST be written before development begins and MUST
+      not be modified after development starts without PM and dev lead
+      sign-off (same revision policy as PRD changes).
+    level: MUST
+    examples:
+      - "Given I have items in my cart / When I click 'Checkout' / Then I see the address form"
+      - "Given I enter an invalid card / When I submit / Then I see error 'Invalid card number'"
+      - "Metric tie: 'This story contributes to checkout completion rate (North Star driver)'"
+      - "Non-compliant AC: 'The checkout button should be prominent' — not objectively verifiable"
+
+anti_patterns:
+  - "Vertical MVP slicing: perfecting one user activity while other backbone activities are absent"
+  - "Stories without acceptance criteria entering development (no clear definition of done)"
+  - "Backbone activities not mapped to actual user goals (mapped to system components instead)"
+  - "Story map used only for planning and discarded; not kept as a living release planning tool"
+  - "Detail stories added directly without backbone and walking skeleton context"
+
+related_standards:
+  - prd-standards
+  - requirement-engineering
+  - product-metrics-standards
