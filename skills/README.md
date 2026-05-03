@@ -34,6 +34,7 @@ These skills provide standard guidance and workflows. They can be accessed via s
 | `bdd-assistant` | `/bdd` | [UDS] Behavior-Driven Development |
 | `atdd-assistant` | `/atdd` | [UDS] Acceptance Test-Driven Development |
 | `e2e-assistant` | `/e2e` | [UDS] E2E test skeleton generation from BDD scenarios |
+| `journey-test-assistant` | `/journey-test` | [UDS] Connected user journey test plan (TESTPLAN) + E2E skeleton generation |
 | `release-standards` | `/release` | [UDS] Release & Changelog management |
 | `documentation-guide` | `/docs` | [UDS] Documentation management |
 | `requirement-assistant` | `/requirement` | [UDS] Requirement writing |

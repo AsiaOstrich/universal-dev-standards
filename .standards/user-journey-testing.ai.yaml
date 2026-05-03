@@ -1,0 +1,107 @@
+# User Journey Testing Standard - AI Optimized
+# 使用者旅程測試標準：定義 TESTPLAN 格式，讓跨 Story 的連貫使用者旅程成為測試一等公民
+
+standard:
+  id: user-journey-testing
+  name: User Journey Testing Standard
+  description: Defines TESTPLAN format for connected, sequential user journey tests
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-05-03"
+    source: core/user-journey-testing.md
+    description: TESTPLAN format for connected, sequential user journey tests
+
+  guidelines:
+    - "Every project MUST have at least one TESTPLAN-NNN.md documenting the main user journey"
+    - "TESTPLAN steps MUST be sequential and stateful — each step depends on prior state"
+    - "Every TESTPLAN MUST define personas before test steps"
+    - "TESTPLAN and automated E2E tests MUST use the same T-NNN identifiers"
+    - "Journey E2E tests MUST skip gracefully when environment is unavailable"
+    - "Journey tests cover what AC tests cannot: cross-story state continuity"
+
+  testplan_format:
+    file_naming: "TESTPLAN-NNN-<project-slug>.md"
+    location: "test-plans/"
+    sections:
+      personas:
+        required: true
+        description: "Define all test actors with their role and permissions"
+        format: "| Actor | Role | Key Permissions |"
+      environment:
+        required: true
+        description: "List environment prerequisites and verification commands"
+      test_groups:
+        required: true
+        description: "T-NNN numbered test groups with sequential dependency chain"
+      execution_order:
+        required: true
+        description: "Dependency diagram showing T-NNN → T-NNN relationships"
+
+  step_markers:
+    "[UI]": "Browser-based action, verify visually"
+    "[API]": "curl / API client verification"
+    "[CHECK]": "Expected result to confirm"
+    "[SKIP-if]": "Conditional skip with reason"
+    "★": "High-risk step requiring confirmation"
+
+  step_format:
+    fields:
+      - step_id: "T-NNN-M (group-step format)"
+      - operation: "What to do, with [MARKER]"
+      - expected_result: "What should happen"
+    precondition: "State from previous T-NNN that must be satisfied"
+    depends_on: "Comma-separated T-NNN identifiers"
+
+  automation_mapping:
+    principle: "Every T-NNN group maps to a describe() block; every step maps to an it()"
+    file_pattern: "*.journey.spec.ts or *.journey.e2e.test.ts"
+    shared_state: "Journey tests MUST use shared let variables across it() blocks"
+    skip_strategy: "Use describe.skipIf(!BASE_URL) for environment-dependent tests"
+
+  journey_categories:
+    - id: platform-admin-journey
+      description: "Platform admin setup: login → org → project → pipeline"
+      required_for: ["enterprise", "saas"]
+    - id: member-journey
+      description: "Org member: join → project access → pipeline view"
+      required_for: ["enterprise", "saas"]
+    - id: dev-journey
+      description: "Developer: new project → spec → pipeline → artifact"
+      required_for: ["all"]
+
+  rules:
+    - id: testplan-required
+      trigger: creating a new project
+      instruction: Generate TESTPLAN-001.md with personas, environment, and main journey steps before writing code
+      priority: required
+
+    - id: journey-before-code
+      trigger: starting project implementation
+      instruction: Define the user journey test plan first; journey tests act as living acceptance criteria
+      priority: recommended
+
+    - id: sequential-state
+      trigger: writing journey E2E tests
+      instruction: Use shared state variables (let token, orgSlug, projectSlug) so each test step builds on previous results
+      priority: required
+
+    - id: graceful-skip
+      trigger: writing journey E2E tests
+      instruction: Guard with describe.skipIf(!process.env.JOURNEY_BASE_URL) so tests are skipped in unit CI
+      priority: required
+
+    - id: t-nnn-alignment
+      trigger: writing any E2E test
+      instruction: Reference T-NNN identifiers from TESTPLAN in test descriptions for traceability
+      priority: recommended
+
+    - id: persona-first
+      trigger: writing TESTPLAN
+      instruction: Define all user personas before writing any test steps
+      priority: required
+
+    - id: dependency-chain
+      trigger: writing TESTPLAN
+      instruction: Each test group must declare its depends_on list so execution order is explicit
+      priority: required
