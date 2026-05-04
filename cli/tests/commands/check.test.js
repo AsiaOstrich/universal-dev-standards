@@ -604,7 +604,8 @@ describe('Check Command', () => {
       // contract-test-assistant has no core standard (uses options/testing/contract-testing.md), so no count change
       // Updated from 29 to 30 after adding push-standards (XSPEC-072 parity fix, linked to /push skill)
       // Updated from 30 to 32 after adding flow-based-testing (e2e-assistant) and mock-boundary (testing-guide) standards
-      expect(output).toContain('32 via Skills');
+      // Updated from 32 to 34 after adding security-testing (security-scan-assistant) and mutation-testing (test-coverage-assistant)
+      expect(output).toContain('34 via Skills');
 
       // Should NOT show exactly "0 via Skills" as a standalone line
       // Note: We check for the regex pattern since "22 via Skills" contains "0 via Skills" as substring

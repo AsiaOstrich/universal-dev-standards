@@ -1,0 +1,171 @@
+# Security Testing Standards - AI Optimized
+# Source: core/security-testing.md
+
+id: security-testing
+meta:
+  version: "1.0.0"
+  updated: "2026-05-04"
+  source: core/security-testing.md
+  description: >
+    Security testing methodology covering SAST, dependency auditing, and DAST.
+    Complements security-standards.ai.yaml (architecture) with execution-level guidance.
+
+# ─────────────────────────────────────────────────────────
+# Core Categories
+# ─────────────────────────────────────────────────────────
+categories:
+  - id: sast
+    name: Static Application Security Testing (SAST)
+    description: Analyze source code for vulnerabilities without executing it
+    tools:
+      typescript_javascript:
+        - name: eslint-plugin-security
+          config: "eslint-plugin-security/recommended"
+          detects: [eval injection, regex DoS, path traversal, prototype pollution]
+        - name: semgrep
+          config: "p/typescript"
+          detects: [XSS, injection, hardcoded secrets]
+      python:
+        - name: bandit
+          command: "bandit -r . -ll"
+          detects: [SQL injection, hardcoded passwords, insecure deserialization]
+      java:
+        - name: SpotBugs + FindSecBugs
+          detects: [SQL injection, XSS, LDAP injection]
+    trigger: pre-commit + CI on every PR
+    severity_gate: High or Critical → block merge
+
+  - id: dependency_audit
+    name: Dependency Vulnerability Auditing
+    description: Scan third-party packages for known CVEs
+    tools:
+      nodejs:
+        - name: npm audit
+          command: "npm audit --audit-level=high"
+          audit_levels:
+            - level: critical
+              action: Block immediately — patch or remove dependency
+            - level: high
+              action: Block merge — must be resolved before shipping
+            - level: moderate
+              action: Log warning — resolve within 14 days
+            - level: low
+              action: Track — resolve in next scheduled maintenance
+        - name: snyk
+          command: "snyk test --severity-threshold=high"
+          note: Alternative to npm audit; provides remediation suggestions
+      python:
+        - name: pip-audit
+          command: "pip-audit --vulnerability-service pypi"
+        - name: safety
+          command: "safety check"
+    trigger:
+      - pre-push hook
+      - CI pipeline (every PR)
+      - Weekly scheduled scan (catch newly disclosed CVEs)
+    severity_gate: High or Critical CVE → block release
+
+  - id: dast
+    name: Dynamic Application Security Testing (DAST)
+    description: Test running application for vulnerabilities through HTTP interactions
+    when_to_use: Applications with public-facing APIs or web UIs
+    tools:
+      - name: OWASP ZAP
+        mode: [baseline scan, full scan, API scan]
+        trigger: staging deployment
+      - name: Nuclei
+        command: "nuclei -u https://staging.example.com -t cves/"
+        trigger: staging deployment
+    trigger: Post-deployment to staging — NOT in unit/integration test phase
+    severity_gate: High or Critical finding → block production deployment
+
+  - id: secret_scanning
+    name: Secret / Credential Scanning
+    description: Detect accidentally committed secrets, tokens, and credentials
+    tools:
+      - name: gitleaks
+        command: "gitleaks detect --source . --no-git"
+        detects: [API keys, JWT secrets, database URLs, private keys]
+      - name: truffleHog
+        command: "trufflehog git file://."
+    trigger: pre-commit + CI
+    severity_gate: Any detected secret → block commit/merge immediately
+
+# ─────────────────────────────────────────────────────────
+# Quality Gates
+# ─────────────────────────────────────────────────────────
+quality_gates:
+  pre_commit:
+    - sast (eslint-plugin-security or equivalent)
+    - secret_scanning (gitleaks)
+
+  pre_push:
+    - dependency_audit (npm audit --audit-level=high)
+
+  pre_merge:
+    - all pre_commit gates
+    - dependency_audit
+
+  pre_release:
+    - all pre_merge gates
+    - dast (staging scan)
+    - full dependency_audit (npm audit without --audit-level filter)
+
+# ─────────────────────────────────────────────────────────
+# CVE Handling Policy
+# ─────────────────────────────────────────────────────────
+cve_policy:
+  critical: Patch or remove within 24 hours; block all deploys until resolved
+  high: Resolve before next release; document if temporary exception needed
+  moderate: Track in backlog; resolve within 14 days
+  low: Track; resolve in scheduled maintenance window
+
+  exception_process:
+    - Document CVE ID and reason for exception
+    - Set expiry date (max 30 days)
+    - Get security lead approval
+    - Add to `.npmrc` / `audit-exceptions.json` with comment
+
+# ─────────────────────────────────────────────────────────
+# Rules
+# ─────────────────────────────────────────────────────────
+rules:
+  - id: dependency-audit-pre-push
+    trigger: pushing code to remote
+    instruction: Run npm audit --audit-level=high before push; block on High/Critical findings
+    priority: required
+
+  - id: sast-pre-commit
+    trigger: committing code changes
+    instruction: Run SAST tool (eslint-plugin-security); block on High severity findings
+    priority: required
+
+  - id: secret-scan-always
+    trigger: any code commit
+    instruction: Run secret scanning; never commit with detected secrets
+    priority: required
+
+  - id: dast-on-staging
+    trigger: deploying to staging environment
+    instruction: Run DAST baseline scan; review findings before promoting to production
+    priority: required
+
+  - id: no-mock-security-in-tests
+    trigger: writing tests involving auth or security controls
+    instruction: Never mock security controls in tests (see mock-boundary.ai.yaml)
+    priority: required
+
+anti_patterns:
+  - Treating all CVEs as equal (Critical ≠ Low in urgency)
+  - Running DAST in CI against production (use staging only)
+  - Ignoring npm audit warnings indefinitely without documented exceptions
+  - Mocking auth middleware in security tests (defeats the purpose)
+  - Treating SAST as the only security layer (SAST + DAST + audit = defense in depth)
+
+quick_reference:
+  minimum_security_baseline: |
+    □ npm audit --audit-level=high passes (or exceptions documented)
+    □ SAST tool configured and running in CI
+    □ Secret scanning enabled in pre-commit
+    □ No High/Critical CVEs without documented exceptions
+    □ Security controls NOT mocked in tests

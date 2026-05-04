@@ -1209,6 +1209,30 @@
       "description": "Rules defining what can and cannot be mocked to prevent hollow tests"
     },
     {
+      "id": "security-testing",
+      "name": "Security Testing Standards",
+      "nameZh": "安全測試標準",
+      "source": {
+        "human": "core/security-testing.md",
+        "ai": "ai/standards/security-testing.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": "security-scan-assistant",
+      "description": "SAST, dependency auditing, DAST, and secret scanning methodology"
+    },
+    {
+      "id": "mutation-testing",
+      "name": "Mutation Testing Standards",
+      "nameZh": "突變測試標準",
+      "source": {
+        "human": "core/mutation-testing.md",
+        "ai": "ai/standards/mutation-testing.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": "test-coverage-assistant",
+      "description": "Mutation testing methodology to evaluate test suite effectiveness"
+    },
+    {
       "id": "test-driven-development",
       "name": "Test-Driven Development",
       "nameZh": "測試驅動開發",

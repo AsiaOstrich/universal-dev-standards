@@ -1,0 +1,192 @@
+# Mutation Testing Standards - AI Optimized
+# Source: core/mutation-testing.md
+
+id: mutation-testing
+meta:
+  version: "1.0.0"
+  updated: "2026-05-04"
+  source: core/mutation-testing.md
+  description: >
+    Mutation testing methodology to evaluate test suite effectiveness.
+    Answers "do my tests actually catch bugs?" beyond line coverage.
+
+# ─────────────────────────────────────────────────────────
+# Core Concepts
+# ─────────────────────────────────────────────────────────
+core_concepts:
+  definition: >
+    Mutation testing automatically injects small bugs (mutations) into source code,
+    then runs the test suite to see if tests detect (kill) the bug.
+    A test suite that kills most mutations is effective; one that misses them is hollow.
+
+  key_terms:
+    - term: Mutant
+      definition: A copy of source code with one small artificial bug injected
+    - term: Killed mutant
+      definition: Test suite detected the bug (test failed)
+    - term: Survived mutant
+      definition: Test suite missed the bug (all tests still pass) — indicates weak tests
+    - term: Mutation Score
+      formula: "Killed / (Killed + Survived) × 100%"
+      interpretation: Higher is better; 0% = tests prove nothing; 100% = very thorough
+
+  common_mutation_operators:
+    - category: Arithmetic operators
+      examples: ["+ → -", "* → /", "++ → --"]
+    - category: Conditional boundaries
+      examples: ["> → >=", "< → <=", "=== → !=="]
+    - category: Statement deletion
+      examples: ["Remove return statement", "Remove function call"]
+    - category: Boolean literal
+      examples: ["true → false", "false → true"]
+
+# ─────────────────────────────────────────────────────────
+# Tools
+# ─────────────────────────────────────────────────────────
+tools:
+  typescript_javascript:
+    - name: Stryker Mutator
+      packages: ["@stryker-mutator/core", "@stryker-mutator/vitest-runner"]
+      config_file: stryker.config.json
+      command: "npx stryker run"
+      strengths: [Deep vitest/jest integration, incremental mode, HTML reports]
+      note: Use incremental mode to speed up re-runs (--incremental flag)
+
+  python:
+    - name: mutmut
+      command: "mutmut run"
+      config: setup.cfg or pyproject.toml
+    - name: Cosmic Ray
+      command: "cosmic-ray init config.toml && cosmic-ray exec config.toml"
+
+  java:
+    - name: PIT (Pitest)
+      command: "mvn org.pitest:pitest-maven:mutationCoverage"
+      strengths: [Industry standard for Java, excellent IDE integration]
+
+# ─────────────────────────────────────────────────────────
+# Thresholds
+# ─────────────────────────────────────────────────────────
+thresholds:
+  description: Minimum acceptable mutation scores by module criticality
+
+  critical_modules:
+    description: Auth, payment, license validation, security controls
+    minimum_score: 80
+    enforcement: Block release if below threshold
+    examples: [auth/*, license/*, payment/*, security/*]
+
+  standard_modules:
+    description: Core business logic
+    minimum_score: 70
+    enforcement: Warning in CI; must be resolved before next release
+
+  ai_generated_tests:
+    description: Tests produced by AI tools (including this assistant)
+    minimum_score: 50
+    enforcement: Required review before accepting AI-generated test files
+    rationale: AI tends to generate hollow tests; mutation score reveals this
+
+  overall_project:
+    minimum_score: 60
+    enforcement: Advisory (track trend; alert on regression > 5%)
+
+# ─────────────────────────────────────────────────────────
+# Stryker Quick Start (TypeScript/Vitest)
+# ─────────────────────────────────────────────────────────
+stryker_quickstart:
+  install: "npm install --save-dev @stryker-mutator/core @stryker-mutator/vitest-runner"
+
+  minimal_config: |
+    {
+      "testRunner": "vitest",
+      "coverageAnalysis": "perTest",
+      "mutate": [
+        "src/license/**/*.ts",
+        "src/enterprise/quota/**/*.ts",
+        "src/runner/pipeline-runner.ts",
+        "!src/**/*.test.ts"
+      ],
+      "vitest": {
+        "configFile": "vitest.config.ts"
+      },
+      "thresholds": {
+        "high": 80,
+        "low": 60,
+        "break": 50
+      },
+      "reporters": ["progress", "html", "json"],
+      "htmlReporter": {
+        "fileName": "reports/mutation/index.html"
+      }
+    }
+
+  incremental_mode: "npx stryker run --incremental"
+  full_run: "npx stryker run"
+
+# ─────────────────────────────────────────────────────────
+# When to Run
+# ─────────────────────────────────────────────────────────
+execution_timing:
+  - trigger: On-demand local run
+    command: "npm run test:mutation"
+    frequency: Before committing changes to critical modules
+    note: Mutation testing is slow (minutes to hours); do NOT run in every commit hook
+
+  - trigger: Pre-release quality gate
+    command: "npm run test:mutation -- --breakAt 60"
+    frequency: Before every release
+    enforcement: Break if overall score < 60%
+
+  - trigger: Critical module change
+    command: "npx stryker run --mutate 'src/license/**'"
+    frequency: Any change to auth/license/payment/security code
+    enforcement: Must maintain ≥ 80% on changed module
+
+  - trigger: AI-generated tests acceptance
+    command: "npx stryker run --mutate [module under test]"
+    frequency: Before accepting AI-generated test PRs
+    enforcement: Score < 50% → reject; require human-written tests
+
+# ─────────────────────────────────────────────────────────
+# Rules
+# ─────────────────────────────────────────────────────────
+rules:
+  - id: mutation-pre-release
+    trigger: preparing a release
+    instruction: Run mutation testing; overall score must be ≥ 60% to proceed
+    priority: required
+
+  - id: mutation-critical-modules
+    trigger: modifying auth, license, payment, or security code
+    instruction: Run module-scoped mutation testing; maintain ≥ 80% mutation score
+    priority: required
+
+  - id: mutation-ai-generated
+    trigger: accepting AI-generated test files
+    instruction: >
+      Run mutation testing on the module under test.
+      Score < 50% → reject tests; require human-authored replacements.
+    priority: required
+
+  - id: do-not-run-in-every-commit
+    trigger: planning CI pipeline
+    instruction: Do NOT add mutation testing to commit hooks or every-PR CI; it is too slow
+    priority: required
+    note: Reserve for pre-release gate and on-demand runs
+
+anti_patterns:
+  - Treating 100% line coverage as sufficient (lines covered ≠ mutations killed)
+  - Adding mutation testing to pre-commit hooks (makes commits 10-60 minutes long)
+  - Accepting AI-generated tests without mutation score validation
+  - Killing mutations by adding trivial assertions (expect(x).toBeDefined())
+  - Targeting only happy paths in mutation testing (branches and boundaries are key)
+
+quick_reference:
+  mutation_testing_checklist: |
+    □ Stryker configured for critical modules (license/*, auth/*, quota/*)
+    □ test:mutation script in package.json
+    □ Thresholds set: critical ≥ 80%, overall ≥ 60%, break at 50%
+    □ Pre-release: run full mutation suite before tagging version
+    □ AI-generated tests: validate with mutation score before accepting
+    □ NOT in commit hooks (too slow)
