@@ -477,6 +477,11 @@
       "id": "secure-op",
       "category": "security",
       "level": 2
+    },
+    {
+      "id": "server-ops-security",
+      "category": "security",
+      "level": 2
     }
   ],
   "skills": [

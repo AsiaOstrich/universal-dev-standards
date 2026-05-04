@@ -1,0 +1,274 @@
+# Server Operations Security Standard - AI Optimized
+# Source: core/server-ops-security.md
+
+id: server-ops-security
+meta:
+  version: "1.0.0"
+  updated: "2026-05-04"
+  source: core/server-ops-security.md
+  description: >
+    Server and infrastructure operational security covering SSH hardening,
+    host configuration, privilege management, bastion patterns, patch management,
+    and network isolation for AI Agent production environments.
+
+# ─────────────────────────────────────────────────────────
+# Core Categories
+# ─────────────────────────────────────────────────────────
+categories:
+  - id: ssh_hardening
+    name: SSH Hardening
+    description: SSH service must use key-based authentication only; password login is prohibited
+    required_sshd_config:
+      - directive: PasswordAuthentication
+        value: "no"
+      - directive: PermitRootLogin
+        value: "no"
+      - directive: PubkeyAuthentication
+        value: "yes"
+      - directive: Port
+        value: "non-default (not 22)"
+      - directive: MaxAuthTries
+        value: 3
+      - directive: LoginGraceTime
+        value: 30
+      - directive: AllowUsers
+        value: explicit allowlist
+      - directive: ClientAliveInterval
+        value: 300
+      - directive: ClientAliveCountMax
+        value: 2
+    tools:
+      - name: fail2ban
+        purpose: Block brute-force IPs
+        config:
+          jailtime: ">= 3600 seconds (1 hour)"
+          findtime: 600
+          maxretry: 5
+    key_management:
+      algorithm: Ed25519 (not RSA-1024)
+      private_key: Must be passphrase-protected
+      rotation: Annual or on suspected compromise
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.5 Secure Authentication"
+      - "ISO/IEC 27001:2022 A.8.20 Network Security"
+
+  - id: host_hardening
+    name: Host Hardening
+    description: Minimal OS installation; only retain required services
+    cis_benchmark: CIS Benchmark Level 1 (Linux)
+    required_actions:
+      - action: Disable unused services
+        examples: [avahi-daemon, cups, bluetooth]
+      - action: Enable firewall
+        tools: [UFW, iptables]
+      - action: Enable auditd
+        purpose: System call auditing
+        target_score: ">= 75 (Lynis audit score)"
+      - action: Apply sysctl hardening
+        settings:
+          - "kernel.dmesg_restrict = 1"
+          - "net.ipv4.ip_forward = 0 (unless router)"
+          - "kernel.randomize_va_space = 2"
+      - action: Disable USB storage
+        when: USB storage not required
+      - action: Set umask 027
+        scope: system-wide default
+    tools:
+      - name: Lynis
+        command: "lynis audit system"
+        gate: Score >= 75
+      - name: OpenSCAP
+        purpose: CIS Benchmark compliance scanning
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.9 Configuration Management"
+      - "NIST SP 800-123 Guide to General Server Security"
+
+  - id: privilege_management
+    name: Privilege Management
+    description: Least privilege principle; service accounts must not have shell or sudo access
+    rules:
+      - rule: AI Agent service account is non-root with no login shell (/sbin/nologin)
+      - rule: Service account has access only to required directories
+      - rule: sudo entries must be explicit allowlist (no NOPASSWD ALL)
+      - rule: Each service uses an independent Unix account (no sharing)
+      - rule: Privileged accounts audited quarterly
+    sudo_policy:
+      location: /etc/sudoers.d/
+      prohibited: "NOPASSWD ALL"
+      required: Explicit command allowlist per account
+    pam_lockout:
+      module: pam_faillock (or pam_tally2 on older systems)
+      failed_attempts: 5
+      lockout_duration: "15 minutes (900 seconds)"
+    audit_tools:
+      - "sudo -l (per account review)"
+      - last
+      - lastlog
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.2 Privileged Access Rights"
+      - "ISO/IEC 27001:2022 A.8.18 Use of privileged utility programs"
+
+  - id: bastion_pattern
+    name: Bastion / Jump Host Pattern
+    description: Production environments must be accessed through a Bastion Host; direct SSH to prod nodes is prohibited
+    applicability:
+      staging: recommended
+      production: required
+    architecture:
+      bastion_host:
+        - Dedicated VM; sole external SSH entry point
+        - MFA enforced (TOTP or YubiKey)
+        - Session recording enabled
+      prod_nodes:
+        - Firewall rule: "iptables -A INPUT -p tcp --dport 22 -s <bastion_ip> -j ACCEPT; DROP all other SSH"
+        - No direct internet SSH exposure
+      session_recording:
+        tools: [tmux + script, Teleport, AWS Session Manager]
+        purpose: All shell sessions recorded and auditable
+      emergency_access:
+        method: Out-of-band console (iLO / iDRAC / console server)
+        purpose: Access when Bastion is unavailable
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.3 Information Access Restriction"
+      - "NIST SP 800-207 Zero Trust Architecture"
+
+  - id: patch_management
+    name: Patch Management
+    description: OS and packages must be regularly updated; CVE remediation has defined SLAs
+    sla:
+      - severity: Critical CVE
+        deadline: "Patch or isolate within 24 hours"
+      - severity: High CVE
+        deadline: "Patch within 72 hours"
+      - severity: Medium CVE
+        deadline: "Patch within 7 days"
+      - severity: Low CVE
+        deadline: "Next maintenance window (≤ 30 days)"
+    automation:
+      debian_ubuntu:
+        tool: unattended-upgrades
+        config: "APT::Periodic::Unattended-Upgrade 1; security updates auto-applied"
+      rhel_centos:
+        tools: [yum-cron, dnf-automatic]
+        config: "apply_updates = yes (security only)"
+    scanning:
+      containers:
+        tool: Trivy
+        command: "trivy image <image>"
+        frequency: Weekly + on every build
+      systems:
+        tool: OpenVAS
+        frequency: Weekly
+    ai_agent_specific:
+      - rule: Use official base images only
+      - rule: Base image update cadence must not exceed 90 days
+      - rule: Guardian OPA Sidecar and application containers follow same patch SLA
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.8 Management of Technical Vulnerabilities"
+
+  - id: network_isolation
+    name: Network Isolation
+    description: Services are network-isolated; attack surface is minimized
+    rules:
+      - rule: Prod nodes must not be directly internet-facing; expose only through load balancer or API gateway
+      - rule: Inter-service communication uses internal VPC or overlay network (no public IPs)
+      - rule: AI Agent outbound traffic uses an explicit allowlist of permitted API endpoints
+      - rule: Database ports (5432, 3306, 6379) must not be exposed externally
+      - rule: Monitoring ports (Prometheus :9090, Grafana :3000) accessible from internal network only
+    tools:
+      on_prem: [iptables, nftables]
+      aws: [Security Groups, NACLs, VPC Flow Logs]
+      gcp: [VPC Firewall Rules, Cloud Armor]
+    outbound_allowlist_format: |
+      # Example: /etc/vibeops/outbound-allowlist.conf
+      ALLOW api.openai.com:443
+      ALLOW registry.npmjs.org:443
+      DENY *:* (default deny)
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.20 Networks Security"
+      - "ISO/IEC 27001:2022 A.8.22 Web Filtering"
+
+# ─────────────────────────────────────────────────────────
+# Quality Gates
+# ─────────────────────────────────────────────────────────
+quality_gates:
+  pre_deploy:
+    - ssh_password_auth: disabled
+    - root_login: disabled
+    - fail2ban: enabled
+    - firewall: enabled_and_configured
+    - unattended_upgrades: enabled
+  prod_only:
+    - bastion_host: required
+    - mfa_on_bastion: required
+    - session_recording: enabled
+    - all_critical_cve: patched
+  ai_agent_specific:
+    - service_account: non_root_no_shell
+    - outbound_whitelist: configured
+    - guardian_sidecar: running
+    - audit_log: enabled
+
+# ─────────────────────────────────────────────────────────
+# Rules
+# ─────────────────────────────────────────────────────────
+rules:
+  - id: ssh-key-only
+    trigger: configuring SSH on any server
+    instruction: >
+      Set PasswordAuthentication no and PermitRootLogin no in /etc/ssh/sshd_config.
+      Verify with: sshd -T | grep -E "passwordauthentication|permitrootlogin"
+    priority: required
+
+  - id: least-privilege-service-accounts
+    trigger: deploying any AI Agent or service
+    instruction: >
+      Create a dedicated non-root Unix account for each service.
+      Set shell to /sbin/nologin. Grant only necessary directory permissions.
+    priority: required
+
+  - id: bastion-for-prod
+    trigger: accessing production servers
+    instruction: >
+      Always connect via Bastion Host. Never SSH directly to prod nodes.
+      Verify Bastion MFA is active before connecting.
+    priority: required
+
+  - id: patch-critical-cvs-24h
+    trigger: critical CVE disclosure affecting deployed system
+    instruction: >
+      Apply patch or isolate affected system within 24 hours.
+      If patch unavailable, block network access to vulnerable component.
+    priority: required
+
+  - id: outbound-allowlist
+    trigger: deploying AI Agent to production
+    instruction: >
+      Configure explicit outbound allowlist. Default deny all outbound.
+      Document each permitted endpoint with business justification.
+    priority: required
+
+anti_patterns:
+  - Direct SSH to prod nodes without Bastion
+  - PasswordAuthentication yes in /etc/ssh/sshd_config
+  - Service running as root user
+  - NOPASSWD ALL in /etc/sudoers or /etc/sudoers.d/
+  - Database or monitoring ports exposed to internet
+  - Base images older than 90 days without CVE re-scan
+  - No outbound traffic restriction on AI Agent hosts
+
+quick_reference:
+  server_ops_security_checklist: |
+    □ SSH password auth disabled (PasswordAuthentication no)
+    □ Root SSH login disabled (PermitRootLogin no)
+    □ fail2ban enabled with jailtime >= 1 hour
+    □ Firewall enabled and default-deny inbound
+    □ unattended-upgrades (security) enabled
+    □ AI Agent service account: non-root, no shell
+    □ sudo entries: explicit commands only, no NOPASSWD ALL
+    □ Bastion Host in place for prod access
+    □ MFA enforced on Bastion
+    □ Session recording enabled
+    □ Critical CVEs patched within 24h SLA
+    □ AI Agent outbound allowlist configured
+    □ DB/monitoring ports not exposed externally

@@ -2382,6 +2382,17 @@
       },
       "category": "security",
       "description": "AI Agent secure operation methodology: Veto-based decision, SOBR risk scoring, Fail-Closed principle, tamper-evident audit chain, HITL escalation, and prompt injection defense"
+    },
+    {
+      "id": "server-ops-security",
+      "name": "Server Operations Security",
+      "nameZh": "伺服器操作安全標準",
+      "source": {
+        "human": "core/server-ops-security.md",
+        "ai": "ai/standards/server-ops-security.ai.yaml"
+      },
+      "category": "security",
+      "description": "SSH hardening, host configuration, privilege management, bastion patterns, patch management SLA, and network isolation for AI Agent production environments"
     }
   ]
 }
