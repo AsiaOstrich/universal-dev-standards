@@ -1182,7 +1182,31 @@
       },
       "category": "skill",
       "skillName": "test-coverage-assistant",
-      "description": "Framework for evaluating test coverage completeness"
+      "description": "Framework for evaluating test coverage completeness across 10 dimensions"
+    },
+    {
+      "id": "flow-based-testing",
+      "name": "Flow-Based Testing",
+      "nameZh": "流程解構測試",
+      "source": {
+        "human": "core/flow-based-testing.md",
+        "ai": "ai/standards/flow-based-testing.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": "e2e-assistant",
+      "description": "Flow decomposition methodology for testing multi-step processes with branch coverage"
+    },
+    {
+      "id": "mock-boundary",
+      "name": "Mock Boundary Standards",
+      "nameZh": "Mock 邊界規則",
+      "source": {
+        "human": "core/mock-boundary.md",
+        "ai": "ai/standards/mock-boundary.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": "testing-guide",
+      "description": "Rules defining what can and cannot be mocked to prevent hollow tests"
     },
     {
       "id": "test-driven-development",

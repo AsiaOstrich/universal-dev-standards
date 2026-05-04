@@ -1,0 +1,240 @@
+# Flow-Based Testing Standards - AI Optimized
+# Source: core/flow-based-testing.md
+
+id: flow-based-testing
+meta:
+  version: "1.0.0"
+  updated: "2026-05-04"
+  source: core/flow-based-testing.md
+  description: Flow decomposition methodology for testing multi-step processes with branch coverage
+
+core_concepts:
+  problem: >
+    AC-centric tests verify individual behaviors in isolation but miss integration gaps
+    between steps and leave decision-point branches untested.
+    A flow where AC-1 passes and AC-2 passes independently does NOT guarantee
+    the AC-1 → AC-2 → AC-3 sequential flow works correctly.
+  solution: >
+    Decompose each workflow into flows, identify all decision points,
+    expand into a scenario matrix, then write journey tests with shared state threading.
+
+# ─────────────────────────────────────────────────────────
+# Step 1: Flow Identification
+# ─────────────────────────────────────────────────────────
+flow_identification:
+  description: Extract testable flows from SPEC/AC before writing any test code
+  activities:
+    - name: Define Preconditions
+      description: Document the system's initial state before the flow begins
+      examples:
+        - User is authenticated (token present)
+        - Database has seed data
+        - External services are available
+    - name: List Ordered Action Sequence
+      description: List all steps in the exact execution order
+      examples:
+        - Step 1: Validate input
+        - Step 2: Check quota
+        - Step 3: Call external service
+        - Step 4: Persist result
+        - Step 5: Return response
+    - name: Extract Decision Points
+      description: Identify every if/else/conditional in the flow
+      examples:
+        - "Is the user authorized? [yes → continue | no → 401]"
+        - "Is quota sufficient? [yes → continue | no → 429]"
+        - "Did external service respond? [200 → success | timeout → retry | error → fail]"
+    - name: Define Terminal States
+      description: List all possible end states (success + each distinct failure)
+      examples:
+        - "SUCCESS: Resource created, 201 returned"
+        - "FAIL_AUTH: 401 with error code AUTH_INVALID"
+        - "FAIL_QUOTA: 429 with error code QUOTA_EXCEEDED"
+        - "FAIL_EXTERNAL: 504 with error code EXTERNAL_TIMEOUT"
+  output: Flow definition (decision point list + terminal state map)
+
+# ─────────────────────────────────────────────────────────
+# Step 2: Decision Table Expansion
+# ─────────────────────────────────────────────────────────
+decision_table_expansion:
+  description: Expand decision points into a scenario matrix using a coverage strategy
+  coverage_strategies:
+    - name: Each-Choice
+      description: Each decision value appears in at least one scenario
+      formula: "Minimum scenarios = sum of unique values across all decision points"
+      use_when: Low-risk flows, fast feedback cycles, initial coverage
+      example: "3 values + 2 values + 3 values = 8 minimum scenarios"
+    - name: Pairwise
+      description: All pairs of decision values are covered (OWASP T-way testing)
+      formula: Approximately N × max_values scenarios (N = decision points)
+      use_when: Medium-risk flows, balance between coverage and test count
+      tools: [allpairs, pairwiseJS]
+    - name: All-Combinations
+      description: Full Cartesian product of all decision values
+      formula: "Scenarios = product of value counts per decision point"
+      use_when: Critical flows (auth, payment, license validation, security controls)
+      warning: Can grow exponentially; only use for flows with < 4 decision points or < 3 values each
+
+  decision_table_template: |
+    Flow: [Flow Name]
+
+    Decision Points:
+    | Point          | Values                          |
+    |----------------|---------------------------------|
+    | Authorization  | valid / expired / missing       |
+    | Quota          | sufficient / exceeded           |
+    | ExternalSvc    | available / timeout / error     |
+
+    Each-Choice Scenarios (minimum coverage):
+    | Scenario | Auth     | Quota      | ExternalSvc | Expected          |
+    |----------|----------|------------|-------------|-------------------|
+    | S1       | valid    | sufficient | available   | success           |
+    | S2       | expired  | sufficient | available   | 401_expired       |
+    | S3       | missing  | sufficient | available   | 401_missing       |
+    | S4       | valid    | exceeded   | available   | 429_quota         |
+    | S5       | valid    | sufficient | timeout     | 504_retry         |
+    | S6       | valid    | sufficient | error       | 502_external_fail |
+
+# ─────────────────────────────────────────────────────────
+# Step 3: Journey Test Structure
+# ─────────────────────────────────────────────────────────
+journey_test_structure:
+  description: Write flow tests with shared state threading — state accumulates across steps
+  key_principle: >
+    Each test step inherits state from previous steps through a shared context object.
+    Never reset the context between steps in a journey test.
+
+  happy_path_pattern: |
+    describe("Flow: [Flow Name]", () => {
+      // Shared context — state accumulates, NOT reset between steps
+      const ctx: {
+        token?: string;
+        resourceId?: string;
+        result?: ResponseType;
+      } = {}
+
+      it("Step 1: [Precondition setup]", async () => {
+        ctx.token = await setupAuth()
+        expect(ctx.token).toBeTruthy()
+      })
+
+      it("Step 2: [Core action using Step 1 state]", async () => {
+        ctx.resourceId = await createResource(ctx.token!, inputData)
+        expect(ctx.resourceId).toMatch(/^[a-z0-9-]+$/)
+      })
+
+      it("Step 3: [Verification using accumulated state]", async () => {
+        ctx.result = await getResource(ctx.token!, ctx.resourceId!)
+        expect(ctx.result.status).toBe("active")
+        expect(ctx.result.id).toBe(ctx.resourceId)
+      })
+    })
+
+  branch_pattern: |
+    // Each branch outcome gets its own describe block
+    describe("Flow Branch: [Decision Point] → [Outcome]", () => {
+      it("should [expected behavior] when [condition]", async () => {
+        // Setup: put the system into the branch condition
+        const expiredToken = buildExpiredJwt()
+
+        // Act: trigger the flow with branch condition
+        const response = await callApi(expiredToken)
+
+        // Assert: verify BOTH the response AND any side effects
+        expect(response.status).toBe(401)
+        expect(response.body.code).toBe("AUTH_TOKEN_EXPIRED")
+        // Verify NO side effects occurred (resource not created)
+        const count = await getResourceCount()
+        expect(count).toBe(0)
+      })
+    })
+
+  anti_patterns_in_structure:
+    - "Using beforeEach to reset ctx — breaks state threading between steps"
+    - "Putting all steps in a single it() block — hides which step failed"
+    - "Asserting only on the final state — intermediate step bugs go undetected"
+    - "Using arbitrary delays between steps — use proper async/await"
+
+# ─────────────────────────────────────────────────────────
+# Feature Type Mapping
+# ─────────────────────────────────────────────────────────
+feature_type_mapping:
+  - type: Workflow / Multi-step Process
+    requires: flow_decomposition
+    minimum_coverage: Each-Choice
+    test_structure: journey-chained-test
+    dimensions: [1, 3, 4, 5, 9, 10]
+    with_ai: [1, 3, 4, 5, 9, 10, 8]
+    note: Apply flow-based-testing standard; use shared ctx; Each-Choice minimum branch coverage
+
+# ─────────────────────────────────────────────────────────
+# Rules
+# ─────────────────────────────────────────────────────────
+rules:
+  - id: flow-identification-required
+    trigger: feature has 3 or more sequential steps
+    instruction: Apply 3-step flow decomposition (identify → decision table → journey structure) before writing tests
+    priority: required
+
+  - id: decision-table-for-branches
+    trigger: flow has any if/else or conditional logic
+    instruction: Create decision table with all decision values; apply Each-Choice minimum coverage
+    priority: required
+
+  - id: shared-state-in-journey
+    trigger: writing multi-step flow test
+    instruction: Use shared context object (ctx); never reset it between steps within the same flow
+    priority: required
+
+  - id: separate-branch-describes
+    trigger: decision point has 2 or more outcome values
+    instruction: Each distinct outcome gets its own describe block with a clear name
+    priority: required
+
+  - id: all-combinations-for-critical
+    trigger: flow involves authentication, payment, license validation, or security controls
+    instruction: Apply All-Combinations coverage strategy; test every value combination
+    priority: required
+
+  - id: verify-side-effects-in-branches
+    trigger: writing branch test for failure path
+    instruction: Assert BOTH the error response AND that no unintended side effects occurred
+    priority: required
+
+# ─────────────────────────────────────────────────────────
+# Anti-Patterns
+# ─────────────────────────────────────────────────────────
+anti_patterns:
+  - Testing only the happy path flow (missing failure terminal states)
+  - Resetting shared state between steps in a journey test (breaks state threading)
+  - Testing each step in isolation without verifying accumulated state
+  - Using a single test case for a flow with multiple decision points (hides which branch failed)
+  - Applying Pairwise or All-Combinations to every flow (creates unmaintainable test counts; reserve for critical flows)
+  - Not verifying side effects (or absence of side effects) in branch tests
+  - Starting flow test from midpoint without establishing preconditions
+
+# ─────────────────────────────────────────────────────────
+# Quick Reference
+# ─────────────────────────────────────────────────────────
+quick_reference:
+  flow_test_checklist: |
+    Flow: ___________________
+
+    □ Step 1 — Flow Identification
+      □ Preconditions documented
+      □ Ordered step sequence listed (Step 1 → Step N)
+      □ All decision points extracted (every if/else/condition)
+      □ All terminal states defined (success + each distinct failure)
+
+    □ Step 2 — Decision Table
+      □ Decision table created with all values per decision point
+      □ Coverage strategy chosen (Each-Choice / Pairwise / All-Combinations)
+      □ Critical flows (auth/payment/security) use All-Combinations
+      □ Minimum scenario count = sum of unique values (Each-Choice)
+
+    □ Step 3 — Journey Test Structure
+      □ Happy path journey test exists (shared ctx, all steps in sequence)
+      □ Each branch outcome has its own describe block
+      □ Step assertions verify accumulated ctx state, not just final result
+      □ Branch tests verify both error response AND absence of side effects
+      □ No beforeEach resetting ctx between steps

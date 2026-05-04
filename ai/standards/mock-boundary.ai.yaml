@@ -1,0 +1,250 @@
+# Mock Boundary Standards - AI Optimized
+# Source: core/mock-boundary.md
+
+id: mock-boundary
+meta:
+  version: "1.0.0"
+  updated: "2026-05-04"
+  source: core/mock-boundary.md
+  description: >
+    Rules defining what can and cannot be mocked to prevent hollow tests —
+    tests that pass while the real system is broken.
+
+# ─────────────────────────────────────────────────────────
+# Core Problem
+# ─────────────────────────────────────────────────────────
+core_problem:
+  name: Hollow Test Anti-Pattern
+  description: >
+    Over-mocking replaces real business logic with test doubles, making the test suite
+    a specification of mock behavior rather than system behavior.
+    The tests pass in CI while the real system silently fails.
+  real_world_example: |
+    // SPEC-002.test.ts (VibeOps) — hollow test example
+    vi.mock('../../src/runner/agent-runner.js')      // Core dependency mocked
+    vi.mock('../../src/runner/guardian-hooks.js')     // Core dependency mocked
+    vi.mock('../../src/runner/prototyper.js')         // Core dependency mocked
+    vi.mock('../../src/runner/iteration-report.js')   // Core dependency mocked
+    vi.mock('../../src/memory/memory-store.js')       // Core dependency mocked
+    vi.mock('node:fs/promises', ...)                  // I/O mocked
+
+    // Result: runPipeline() runs but touches ZERO real code.
+    // All 8 agent calls are faked. The test proves nothing about pipeline logic.
+
+# ─────────────────────────────────────────────────────────
+# Allowed Mocks
+# ─────────────────────────────────────────────────────────
+allowed:
+  - category: External HTTP Services
+    description: Third-party APIs, LLM providers, payment gateways, email services
+    reason: Prevents flaky tests from external dependencies; enables response scenario control
+    examples:
+      - OpenAI / Anthropic / Grok API
+      - Stripe / payment processors
+      - SendGrid / email providers
+      - External OAuth providers
+    implementation: Mock the HTTP client or provider factory; never mock the internal caller
+
+  - category: Time Functions
+    description: Date.now(), new Date(), setTimeout, setInterval
+    reason: Makes tests deterministic and enables time-travel scenarios
+    examples:
+      - "vi.useFakeTimers()"
+      - "vi.setSystemTime(new Date('2026-01-01'))"
+    note: Always restore real timers after test with vi.useRealTimers()
+
+  - category: Environment Variables
+    description: process.env values
+    reason: Tests need different configurations without changing system state
+    implementation: Use vi.stubEnv() or process.env assignment in beforeEach/afterEach
+
+  - category: File System (unit tests only)
+    description: fs.readFile, fs.writeFile, fs.stat in UNIT tests
+    reason: Avoids slow I/O in fast unit tests
+    constraint: >
+      Integration tests, flow tests, and E2E tests MUST use real filesystem
+      or in-memory FS (memfs) — never vi.mock('node:fs/promises') at those levels
+
+  - category: Cross-Module Boundaries (with counterpart)
+    description: Calls to OTHER modules when testing THIS module's own logic
+    reason: Isolates the unit under test from its collaborators
+    constraint: >
+      A corresponding integration test MUST exist that exercises the real interaction.
+      Mock only when the real collaborator has its own test coverage.
+    example: |
+      // Mocking the DB layer in a service unit test is OK IF:
+      // 1. The DB layer has its own integration tests
+      // 2. The service test focuses on service logic (not DB behavior)
+
+# ─────────────────────────────────────────────────────────
+# Forbidden Mocks
+# ─────────────────────────────────────────────────────────
+forbidden:
+  - category: Own Module Core Logic
+    description: Mocking the module's OWN functions in the file that tests it
+    example: |
+      // ❌ Testing pipeline-runner.ts but mocking pipeline-runner itself
+      vi.mock('../../src/runner/pipeline-runner.js')
+      import { runPipeline } from '../../src/runner/pipeline-runner.js'
+      // runPipeline is now a no-op stub — the test proves nothing
+    violation_indicator: >
+      The mock import path resolves to the same directory as the test file,
+      or the mock replaces the primary export being tested.
+    fix: Remove the mock and let the real code run; mock only its external dependencies
+
+  - category: Database Layer in Integration/Flow Tests
+    description: Replacing DB calls with in-memory return values in integration or flow tests
+    reason: Masks query bugs, schema constraint violations, index issues, and migration errors
+    alternative: >
+      Use in-memory SQLite (better-sqlite3 / sql.js), test containers,
+      or a dedicated test schema — a real database with controlled data
+    example: |
+      // ❌ Forbidden in integration/flow tests
+      vi.mock('../../src/db/client.js', () => ({ query: vi.fn().mockResolvedValue([]) }))
+
+      // ✅ Correct: use real in-memory DB
+      import Database from 'better-sqlite3'
+      const testDb = new Database(':memory:')
+
+  - category: Core Framework Internals
+    description: Express/Fastify routing, ORM core (Drizzle/Prisma internals), auth middleware core
+    reason: Tests pass while real routing, query building, or auth enforcement is broken
+    example: |
+      // ❌ Forbidden
+      vi.mock('express', () => ({ Router: () => ({ get: vi.fn(), post: vi.fn() }) }))
+
+  - category: Security Controls
+    description: Auth token validators, permission checks, rate limiters, input sanitizers
+    reason: Mocking security controls makes tests useless for security validation
+    example: |
+      // ❌ Forbidden — this test proves nothing about auth
+      vi.mock('../../src/auth/middleware.js', () => ({
+        requireAuth: (req, res, next) => next()  // always passes
+      }))
+    fix: Use a real test user with a real valid token; test with real auth logic
+
+# ─────────────────────────────────────────────────────────
+# Hollow Test Detection Patterns
+# ─────────────────────────────────────────────────────────
+detection_patterns:
+  hollow_test_indicators:
+    - name: Mock Count Exceeds Import Count
+      check: "vi.mock() call count >= number of non-type imports in the test file"
+      severity: high
+      action: Review all assertions; verify at least one assertion is on actual output
+
+    - name: Assertions Only on Mock Calls
+      check: "All expect() statements use .toHaveBeenCalled() or .toHaveBeenCalledWith()"
+      severity: high
+      action: Add assertions on actual return values and system state changes
+
+    - name: More Mock Setup Than Assertions
+      check: "Lines of mock setup > lines of expect() assertions"
+      severity: medium
+      action: Consider if the test is testing behavior or just mock wiring
+
+    - name: Self-Referential Mock
+      check: "A vi.mock() path resolves to the same module being imported as the subject under test"
+      severity: critical
+      action: Remove the self-mock immediately; it makes the test a no-op
+
+  ai_generation_warning: >
+    AI tools (including this assistant) tend to generate hollow tests because:
+    1. Mocking makes tests compile and pass without requiring real infrastructure
+    2. AI cannot know the full dependency graph at generation time
+    When reviewing AI-generated tests, always apply the hollow test indicators above.
+
+# ─────────────────────────────────────────────────────────
+# Anti-Patterns
+# ─────────────────────────────────────────────────────────
+anti_patterns:
+  - name: Total Mock Isolation
+    description: Every import is mocked; test verifies only mock interaction counts
+    problem: Tests pass regardless of actual logic correctness
+    symptom: Deleting the implementation file doesn't break the test
+
+  - name: Mock the World
+    description: External + internal + database + filesystem all mocked in one test
+    problem: Test becomes a specification of mock behavior, not system behavior
+
+  - name: Mock Without Integration Counterpart
+    description: Cross-module mock with no corresponding integration test
+    problem: The interaction between modules is never actually exercised
+
+  - name: Security Mock Bypass
+    description: Auth/permission middleware replaced with always-pass stub
+    problem: Security regression cannot be detected
+
+  - name: Database Mock Cascade
+    description: DB mock returns hardcoded data, hiding query logic errors
+    problem: Schema migrations, wrong predicates, missing joins — all invisible
+
+# ─────────────────────────────────────────────────────────
+# Rules
+# ─────────────────────────────────────────────────────────
+rules:
+  - id: no-own-module-mock
+    trigger: writing any test for a module
+    instruction: Never vi.mock() a path that resolves to the module being tested
+    priority: required
+
+  - id: real-db-in-flow-tests
+    trigger: writing flow test, integration test, or E2E test
+    instruction: >
+      Use a real database (in-memory SQLite, test container, or test schema).
+      Never mock the DB layer in these test levels.
+    priority: required
+
+  - id: mock-needs-integration-counterpart
+    trigger: adding a vi.mock() for a cross-module dependency in a unit test
+    instruction: >
+      Ensure a corresponding integration test exercises the real interaction.
+      Note the counterpart test in a comment: "// integration: see src/__tests__/integration/..."
+    priority: required
+
+  - id: security-no-mock
+    trigger: test involves authentication, authorization, or rate limiting
+    instruction: >
+      Never mock security controls.
+      Create a real test user with a real token; exercise the real auth logic.
+    priority: required
+
+  - id: hollow-test-review
+    trigger: mock count in test file equals or exceeds non-type import count
+    instruction: >
+      Apply hollow test indicators checklist before submitting.
+      At least one assertion must verify an actual output value (not a mock call).
+    priority: required
+
+  - id: ai-generated-test-mock-review
+    trigger: tests are AI-generated
+    instruction: >
+      AI-generated tests frequently over-mock. Apply all detection_patterns checks.
+      If any hollow test indicator triggers, rewrite the mocking strategy.
+    priority: required
+
+# ─────────────────────────────────────────────────────────
+# Quick Reference
+# ─────────────────────────────────────────────────────────
+quick_reference:
+  allowed_mock_summary:
+    - "✅ External HTTP/LLM/payment APIs"
+    - "✅ Time functions (Date.now, setTimeout)"
+    - "✅ Environment variables"
+    - "✅ File system — in unit tests only"
+    - "✅ Cross-module boundaries — with integration test counterpart"
+
+  forbidden_mock_summary:
+    - "❌ Own module's core logic (self-referential mock)"
+    - "❌ Database layer in integration/flow/E2E tests"
+    - "❌ HTTP framework internals (Express router, etc.)"
+    - "❌ Security controls (auth middleware, permission checks)"
+
+  checklist: |
+    Before submitting test with mocks:
+    □ No vi.mock() path matches the module under test
+    □ DB layer not mocked in integration/flow tests
+    □ Security controls not mocked
+    □ Mock count < import count (or justified with comment)
+    □ At least one assertion on actual output value (not mock call)
+    □ Integration counterpart exists for each cross-module mock

@@ -164,6 +164,16 @@
       "level": 2
     },
     {
+      "id": "flow-based-testing",
+      "category": "testing",
+      "level": 2
+    },
+    {
+      "id": "mock-boundary",
+      "category": "testing",
+      "level": 2
+    },
+    {
       "id": "test-driven-development",
       "category": "development",
       "level": 2
