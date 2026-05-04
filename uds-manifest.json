@@ -472,6 +472,11 @@
       "id": "user-story-mapping",
       "category": "product",
       "level": 2
+    },
+    {
+      "id": "secure-op",
+      "category": "security",
+      "level": 2
     }
   ],
   "skills": [

@@ -2371,6 +2371,17 @@
       },
       "category": "core",
       "description": "Three-layer story map (Backbone, Walking Skeleton, Detail Stories), MVP horizontal slice rule, INVEST compliance per story, and GWT acceptance criteria"
+    },
+    {
+      "id": "secure-op",
+      "name": "Secure-Op Standard",
+      "nameZh": "AI Agent 安全操作標準",
+      "source": {
+        "human": "core/secure-op.md",
+        "ai": "ai/standards/secure-op.ai.yaml"
+      },
+      "category": "security",
+      "description": "AI Agent secure operation methodology: Veto-based decision, SOBR risk scoring, Fail-Closed principle, tamper-evident audit chain, HITL escalation, and prompt injection defense"
     }
   ]
 }
