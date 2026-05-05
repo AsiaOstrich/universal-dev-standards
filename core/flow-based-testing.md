@@ -1,6 +1,6 @@
 # Flow-Based Testing
 
-**Version**: 1.1.0
+**Version**: 1.2.0
 **Last Updated**: 2026-05-05
 **Applicability**: All software projects with multi-step workflows
 **Scope**: universal
@@ -118,11 +118,20 @@ describe("Flow Branch: Quota exceeded path", () => {
 
 ---
 
-## PRD Pre-Release Gate
+## Multi-Gate Flow Verification Model
 
-The three testability elements (Decision Points + Terminal States + Decision Table) are a **PRD quality gate**, not a test-design afterthought. They MUST be completed before the PRD is released to implementation.
+Flow coverage is not a single pre-release check — it is a **progressive verification chain** across the entire SDLC. There are two fundamentally different questions that must be answered at different stages:
 
-Use `templates/requirement-template.md` sections **2.4 Flow Specification** and **9.4 Flow Test Matrix** to embed these elements directly into the requirement document:
+| Verification Type | Question | Executor | Timing |
+|------------------|----------|----------|--------|
+| **Coverage** | Are all terminal states tested? | Automated CI | Dev → Staging → Pre-UAT |
+| **Correctness** | Are the terminal state definitions right? | Human UAT | UAT phase |
+
+Confusing the two wastes UAT cycles on technical coverage issues that CI should have caught.
+
+### Gate 0 — PRD Sign-off (Before Implementation Starts)
+
+The three testability elements MUST be written into the PRD before a single line of code is written. Use `templates/requirement-template.md` §2.4 and §9.4:
 
 | Element | PRD Section | When Required |
 |---------|-------------|---------------|
@@ -131,9 +140,56 @@ Use `templates/requirement-template.md` sections **2.4 Flow Specification** and 
 | Terminal States list | §2.4 | All distinct end states |
 | Decision Table (Each-Choice) | §9.4 | All flows |
 | Upgrade to All-Combinations | §9.4 | Auth / payment / security |
-| `flow_test_checklist` sign-off | §9.4 | Before PRD approval |
+| UAT acceptance script (pre-filled) | §9.4 | Before PRD approval |
 
-> **Why at PRD stage?** Test engineers cannot derive branch coverage from a spec that only describes the happy path. Discovering missing decision points during test design wastes a full sprint. Embedding flow specification in the PRD surfaces coverage gaps before a single line of code is written.
+> **Why at PRD stage?** Test engineers cannot derive branch coverage from a spec that only describes the happy path. Discovering missing decision points during test design wastes a full sprint.
+
+### Gate 1 — PR Merge (Per Feature Branch)
+
+Every PR that touches a flow with ≥ 3 steps MUST include automated tests covering the terminal states introduced or modified by that PR. Reviewers block merge if terminal states are added to §2.4 without corresponding tests.
+
+### Gate 3 — Pre-UAT Deployment (Automated + QA Lead Sign-off)
+
+CI must prove coverage completeness **before** UAT begins. UAT is for correctness validation, not technical testing.
+
+Required CI checks:
+- All Decision Table scenarios have a passing automated test
+- Zero terminal states without test coverage
+- Branch coverage ≥ 90% (or project-defined threshold)
+- All-Combinations fully passing for auth / payment / security flows
+
+> Deploying to UAT without Gate 3 forces business stakeholders to act as technical QA — a costly and demoralizing misuse of UAT time.
+
+### Gate 4 — UAT Sign-off (Business Correctness, Pre-Production)
+
+UAT validates that terminal state **definitions are correct** against real business rules, not that they are covered. Use the UAT Acceptance Script in §9.4 (derived directly from the Decision Table — no separate script creation needed):
+
+- Business stakeholders sign off each row (terminal state)
+- If UAT reveals a previously undefined terminal state: add it to §2.4 + Decision Table + automated test, re-run Gate 3, then resume UAT
+- No new terminal states discovered during UAT = strong signal that §2.4 was thorough
+
+### Gate Model Summary
+
+```
+PRD Sign-off
+    │ Gate 0: §2.4 + §9.4 complete (Decision Points, Terminal States,
+    │         Decision Table, UAT script pre-filled)
+    ▼
+Implementation + PR Reviews
+    │ Gate 1: Each PR covering a flow includes terminal state tests
+    ▼
+Staging / Integration
+    │ (no formal gate — CI green is sufficient)
+    ▼
+Pre-UAT Deployment
+    │ Gate 3: CI proves 100% terminal state coverage + branch coverage ≥ 90%
+    ▼
+UAT Execution
+    │ Gate 4: Business sign-off on terminal state correctness
+    │         New terminal states → back to Gate 3 before proceeding
+    ▼
+Production
+```
 
 ---
 
