@@ -1,7 +1,7 @@
 # Flow-Based Testing
 
-**Version**: 1.0.0
-**Last Updated**: 2026-05-04
+**Version**: 1.1.0
+**Last Updated**: 2026-05-05
 **Applicability**: All software projects with multi-step workflows
 **Scope**: universal
 **Industry Standards**: ISO/IEC/IEEE 29119-4 (Test Techniques), ISTQB Foundation Syllabus
@@ -115,6 +115,25 @@ describe("Flow Branch: Quota exceeded path", () => {
 - **behavior-driven-development**: BDD Scenario Outline tables map to decision table expansion
 - **mock-boundary**: Flow tests must respect mock boundary rules (no mocking own module logic)
 - **e2e-testing**: Journey tests run at ST or E2E level; flow tests can run at IT level with real DB
+
+---
+
+## PRD Pre-Release Gate
+
+The three testability elements (Decision Points + Terminal States + Decision Table) are a **PRD quality gate**, not a test-design afterthought. They MUST be completed before the PRD is released to implementation.
+
+Use `templates/requirement-template.md` sections **2.4 Flow Specification** and **9.4 Flow Test Matrix** to embed these elements directly into the requirement document:
+
+| Element | PRD Section | When Required |
+|---------|-------------|---------------|
+| Preconditions + Ordered Steps | §2.4 | Flows with ≥ 3 steps |
+| Decision Points list | §2.4 | Every branch condition |
+| Terminal States list | §2.4 | All distinct end states |
+| Decision Table (Each-Choice) | §9.4 | All flows |
+| Upgrade to All-Combinations | §9.4 | Auth / payment / security |
+| `flow_test_checklist` sign-off | §9.4 | Before PRD approval |
+
+> **Why at PRD stage?** Test engineers cannot derive branch coverage from a spec that only describes the happy path. Discovering missing decision points during test design wastes a full sprint. Embedding flow specification in the PRD surfaces coverage gaps before a single line of code is written.
 
 ---
 
