@@ -508,6 +508,12 @@
       "category": "security",
       "level": 2
     }
+    ,
+    {
+      "id": "prompt-regression",
+      "category": "testing",
+      "level": 2
+    }
   ],
   "skills": [
     {

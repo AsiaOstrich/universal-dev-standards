@@ -2449,5 +2449,17 @@
       "category": "security",
       "description": "CodeQL semantic code analysis + secret scanning + Biome security rules. Complements dependency auditing with deep static analysis detecting injection vulnerabilities."
     }
+    ,
+    {
+      "id": "prompt-regression",
+      "name": "Prompt Regression Standards",
+      "nameZh": "Prompt 回歸測試標準",
+      "source": {
+        "human": "core/prompt-regression.md",
+        "ai": "ai/standards/prompt-regression.ai.yaml"
+      },
+      "category": "testing",
+      "description": "Golden SHA-256 checksum tests for AI agent prompt files. Detects unintended prompt changes in CI; requires documented acknowledgment when checksums are updated."
+    }
   ]
 }
