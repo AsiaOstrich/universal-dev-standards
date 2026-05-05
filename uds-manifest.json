@@ -492,6 +492,11 @@
       "id": "container-security",
       "category": "security",
       "level": 2
+    },
+    {
+      "id": "adversarial-test",
+      "category": "testing",
+      "level": 2
     }
   ],
   "skills": [

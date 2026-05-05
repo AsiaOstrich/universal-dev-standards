@@ -2415,6 +2415,17 @@
       },
       "category": "security",
       "description": "Container image hardening, registry security, runtime protection, secrets management, Kubernetes network policy, and supply chain integrity for AI Agent production environments"
+    },
+    {
+      "id": "adversarial-test",
+      "name": "Adversarial Test Standards",
+      "nameZh": "對抗性測試標準",
+      "source": {
+        "human": "core/adversarial-test.md",
+        "ai": "ai/standards/adversarial-test.ai.yaml"
+      },
+      "category": "testing",
+      "description": "Red-team corpus design for AI agents: OWASP LLM Top 10 adversarial probes (prompt injection LLM01, PII exfiltration LLM06, privilege escalation LLM08, source-agent spoofing)"
     }
   ]
 }
