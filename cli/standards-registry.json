@@ -2485,5 +2485,17 @@
       "category": "testing",
       "description": "Unit tests for AI agent token budget zone classification boundaries (safe/warning/danger/blocking), pipeline cost thresholds, and runaway-loop prevention guards."
     }
+    ,
+    {
+      "id": "replay-test",
+      "name": "Replay Test Standards",
+      "nameZh": "回放測試標準",
+      "source": {
+        "human": "core/replay-test.md",
+        "ai": "ai/standards/replay-test.ai.yaml"
+      },
+      "category": "testing",
+      "description": "Golden fixture recording and deterministic replay for AI agent pipelines. Enables customer bug reproduction, verdict regression detection, and incident investigation without a live LLM."
+    }
   ]
 }

@@ -1,0 +1,111 @@
+# SPDX-License-Identifier: MIT
+name: Replay Test Standards
+nameZh: 回放測試標準
+id: replay-test
+version: "1.0.0"
+category: testing
+scope: ai-agent-systems
+summary: >
+  Golden fixture recording and deterministic replay for AI agent pipelines.
+  Enables customer bug reproduction, verdict regression detection, and
+  on-site incident investigation without requiring a live LLM.
+
+requirements:
+  - id: REQ-01
+    title: Golden Fixture Format
+    titleZh: 黃金 fixture 格式
+    level: MUST
+    description: >
+      Each replay fixture MUST be a JSON file containing: (1) the exact input
+      that triggered the behaviour, (2) the expected output (decision/verdict),
+      (3) metadata (date recorded, source — customer report / CI regression /
+      incident, description). Fixtures MUST be deterministic (same input always
+      produces same output for pure-function components).
+
+  - id: REQ-02
+    title: Replay Test Suite
+    titleZh: 回放測試套件
+    level: MUST
+    description: >
+      A dedicated replay test file MUST load each fixture and assert that
+      re-running the component under test produces the recorded expected output.
+      For AI components with LLM dependencies, replay MUST mock the LLM layer
+      and test only the deterministic logic (scoring, routing, policy evaluation).
+
+  - id: REQ-03
+    title: Bug Regression Capture
+    titleZh: Bug 回歸捕捉
+    level: MUST
+    description: >
+      When a production bug is reported, a fixture MUST be created from the
+      failing input within the same PR that fixes the bug. The fixture prevents
+      the bug from being reintroduced silently.
+
+  - id: REQ-04
+    title: Fixture Coverage
+    titleZh: Fixture 覆蓋
+    level: SHOULD
+    description: >
+      The fixture set SHOULD include at least one representative for each
+      decision outcome (e.g. ALLOW / REQUIRE_HITL / DENY for Guardian).
+      Edge cases reported by customers or from red-team exercises SHOULD be
+      added as separate fixtures.
+
+  - id: REQ-05
+    title: Fixture Naming Convention
+    titleZh: Fixture 命名規範
+    level: MUST
+    description: >
+      Fixture files MUST follow the pattern:
+      `<component>-<outcome>-<short-description>.json`
+      e.g. `guardian-deny-prod-drop-table.json`,
+           `guardian-allow-dev-npm-install.json`
+
+examples:
+  - name: "Guardian replay fixture file"
+    code: |
+      {
+        "meta": {
+          "recorded": "2026-05-05",
+          "source": "red-team-exercise",
+          "description": "DROP TABLE in prod should DENY"
+        },
+        "input": {
+          "session_id": "replay-001",
+          "source_agent": "operator",
+          "intent": "Clean up test data",
+          "plan": [{"command": "DROP TABLE users;", "command_type": "mutate", "target_resource": "db_schema", "reversible": false}],
+          "target_env": "prod",
+          "reversible": false
+        },
+        "expected": {
+          "decision": "DENY"
+        }
+      }
+
+  - name: "Replay test loading fixtures"
+    code: |
+      const fixtures = readdirSync('src/guardian/__fixtures__')
+        .filter(f => f.endsWith('.json'))
+        .map(f => JSON.parse(readFileSync(join('src/guardian/__fixtures__', f), 'utf-8')))
+
+      for (const { meta, input, expected } of fixtures) {
+        it(meta.description, () => {
+          const result = scoreReviewable(input)
+          const decision = deriveDecision(result.score)
+          expect(decision).toBe(expected.decision)
+        })
+      }
+
+anti_patterns:
+  - description: >
+      Fixtures without metadata fields — without source and date, it's
+      impossible to know why a fixture exists or when it was added.
+  - description: >
+      Creating fixtures only for the happy path — the most valuable fixtures
+      are customer-reported failures and red-team findings.
+
+related_standards:
+  - adversarial-test
+  - testing
+  - verification-evidence

@@ -526,6 +526,12 @@
       "category": "testing",
       "level": 2
     }
+    ,
+    {
+      "id": "replay-test",
+      "category": "testing",
+      "level": 2
+    }
   ],
   "skills": [
     {
