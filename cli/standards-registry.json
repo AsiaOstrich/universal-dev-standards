@@ -1221,6 +1221,17 @@
       "description": "SAST, dependency auditing, DAST, and secret scanning methodology"
     },
     {
+      "id": "llm-output-validation",
+      "name": "LLM Output Validation Standards",
+      "nameZh": "LLM 輸出驗證標準",
+      "source": {
+        "human": "core/llm-output-validation.md",
+        "ai": "ai/standards/llm-output-validation.ai.yaml"
+      },
+      "category": "testing",
+      "description": "Standards for validating LLM and AI agent outputs: schema conformance, hallucination detection, prompt regression"
+    },
+    {
       "id": "mutation-testing",
       "name": "Mutation Testing Standards",
       "nameZh": "突變測試標準",

@@ -179,6 +179,11 @@
       "level": 2
     },
     {
+      "id": "llm-output-validation",
+      "category": "testing",
+      "level": 2
+    },
+    {
       "id": "mutation-testing",
       "category": "testing",
       "level": 2

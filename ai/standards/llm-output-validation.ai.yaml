@@ -1,0 +1,269 @@
+# LLM Output Validation Standards - AI Optimized
+# Source: core/llm-output-validation.md
+
+id: llm-output-validation
+meta:
+  version: "1.0.0"
+  updated: "2026-05-05"
+  source: core/llm-output-validation.md
+  description: >
+    Standards for validating LLM and AI agent outputs to ensure schema
+    conformance, detect hallucinations, and assess response groundedness.
+    Covers structural validation, semantic validation, and test strategies.
+
+# ─────────────────────────────────────────────────────────
+# Core Concepts
+# ─────────────────────────────────────────────────────────
+core_concepts:
+  definition: >
+    LLM outputs are non-deterministic and may violate expected schema,
+    introduce hallucinated facts, or fail to stay grounded in provided context.
+    LLM output validation is the practice of systematically testing that
+    AI agent outputs meet structural and semantic quality standards.
+
+  validation_dimensions:
+    - dimension: Schema Conformance
+      definition: >
+        The output matches the declared JSON / type schema exactly —
+        required fields present, types correct, enums respected.
+      test_type: Contract Test
+      automated: true
+
+    - dimension: Hallucination Detection
+      definition: >
+        Factual claims in the output can be traced back to source material
+        (grounded) or are fabricated (hallucinated).
+      test_type: Semantic / NLI probe
+      automated: partial
+
+    - dimension: Grounded Answer Rate
+      definition: >
+        Ratio of responses that cite or derive from provided context
+        vs. responses that introduce unsupported facts.
+      metric: "grounded_answers / total_answers"
+      target: "≥ 0.95 for RAG-based agents"
+      automated: partial
+
+    - dimension: Refusal Evaluation
+      definition: >
+        Agent correctly refuses (or escalates) out-of-scope, harmful,
+        or ambiguous requests rather than hallucinating a plausible answer.
+      test_type: Adversarial probe
+      automated: true (via test corpus)
+
+    - dimension: Determinism / Stability
+      definition: >
+        With temperature=0, same prompt yields same output schema structure
+        (if not identical content).
+      test_type: Replay / Golden file
+      automated: true
+
+# ─────────────────────────────────────────────────────────
+# Contract Testing (Schema Conformance)
+# ─────────────────────────────────────────────────────────
+contract_testing:
+  definition: >
+    Contract tests verify that LLM/agent outputs satisfy a declared schema
+    (JSON Schema, Zod, Pydantic, etc.) before being consumed downstream.
+    They are the cheapest and most automated form of LLM output validation.
+
+  patterns:
+    - name: Schema-driven contract test
+      description: >
+        Maintain an output-schema.json per agent. Run fixture outputs through
+        a schema validator (Ajv / Pydantic / jsonschema) in unit tests.
+      example: |
+        // TypeScript with ajv
+        import Ajv from "ajv"
+        import schema from "./output-schema.json"
+        const ajv = new Ajv()
+        const validate = ajv.compile(schema)
+        const result = validate(agentOutput)
+        expect(result).toBe(true)
+
+    - name: Golden file test
+      description: >
+        Capture a real LLM response as a golden fixture (JSON).
+        Re-validate against the schema on every schema change.
+        Diff the fixture if schema is unchanged (regression).
+
+    - name: Negative contract test
+      description: >
+        Provide outputs that violate the schema (missing required fields,
+        wrong types). Assert the validator correctly rejects them.
+        Proves the schema is strict enough to catch real failures.
+
+  per_agent_structure:
+    - "agents/<agent-name>/output-schema.json — JSON Schema definition"
+    - "agents/<agent-name>/__tests__/contract.test.ts — contract test suite"
+    - "agents/<agent-name>/__fixtures__/valid.json — valid output fixture"
+    - "agents/<agent-name>/__fixtures__/invalid-*.json — invalid fixtures"
+
+# ─────────────────────────────────────────────────────────
+# Hallucination Detection
+# ─────────────────────────────────────────────────────────
+hallucination_detection:
+  definition: >
+    Hallucination occurs when an LLM generates plausible-sounding but
+    factually incorrect or unsupported content.
+
+  detection_strategies:
+    - strategy: Grounding check
+      description: >
+        For RAG-based agents: compare named entities / key facts in response
+        against retrieved documents using NLI or embedding similarity.
+      tools: [DeepEval, Ragas, custom NLI probe]
+      complexity: high
+
+    - strategy: Schema field validation
+      description: >
+        Structured outputs (JSON) partially prevent hallucination by requiring
+        specific enumerations and reference IDs. If the LLM hallucinates a
+        field value, it either violates the schema (caught by contract test)
+        or produces a real-looking but wrong value (requires semantic check).
+      complexity: low
+
+    - strategy: Confidence calibration
+      description: >
+        Agent includes a confidence score or explicitly marks uncertain claims.
+        Downstream consumers reject or escalate low-confidence outputs.
+      requires: Prompt design to elicit uncertainty markers
+      complexity: medium
+
+  rate_targets:
+    structured_output_agents:
+      schema_conformance: "≥ 99%"
+      factual_hallucination_rate: "≤ 5%"
+    rag_agents:
+      grounded_answer_rate: "≥ 95%"
+    chat_agents:
+      refusal_on_out_of_scope: "≥ 90%"
+
+# ─────────────────────────────────────────────────────────
+# Prompt Regression & Stability
+# ─────────────────────────────────────────────────────────
+prompt_regression:
+  definition: >
+    When a prompt is changed, verify that the output schema structure
+    is preserved (even if content differs). A prompt change that silently
+    breaks downstream field expectations is a regression.
+
+  test_pattern: |
+    # 1. Before prompt change: capture golden output structure
+    # 2. Change prompt
+    # 3. Re-run with temperature=0 on same input fixture
+    # 4. Validate output against schema (contract test)
+    # 5. Diff field presence / enum values against golden
+
+  required_on:
+    - Any change to agents/*/prompt.md
+    - Model version upgrade (same prompt, new model)
+    - New required output field added to schema
+
+# ─────────────────────────────────────────────────────────
+# Tools & Libraries
+# ─────────────────────────────────────────────────────────
+tools:
+  schema_validation:
+    - name: Ajv (TypeScript/JavaScript)
+      package: "ajv"
+      strengths: [JSON Schema draft-07 support, fast, minimal]
+      use_case: Contract tests for agents with JSON output-schema.json
+
+    - name: Zod (TypeScript)
+      package: "zod"
+      strengths: [Type-safe, composable, coercion support]
+      use_case: Runtime validation when TypeScript types are available
+
+    - name: Pydantic (Python)
+      package: "pydantic"
+      strengths: [Automatic validation from type annotations]
+      use_case: Python-based agent contract tests
+
+  hallucination_evaluation:
+    - name: DeepEval
+      package: "deepeval"
+      features: [Hallucination metric, Contextual Precision, Faithfulness]
+      note: Requires LLM judge (adds cost)
+
+    - name: Ragas
+      package: "ragas"
+      features: [Answer Grounding, Context Recall, Faithfulness]
+      note: Designed for RAG pipelines
+
+# ─────────────────────────────────────────────────────────
+# Quality Gates
+# ─────────────────────────────────────────────────────────
+quality_gates:
+  - gate: Schema conformance (CI)
+    threshold: "100% of valid fixtures pass schema validation"
+    enforcement: Block merge
+    automated: true
+    note: Run in every PR via contract.test.ts
+
+  - gate: Negative schema rejection (CI)
+    threshold: "100% of invalid fixtures are rejected by schema validator"
+    enforcement: Block merge
+    automated: true
+    note: Proves schema is strict enough
+
+  - gate: Hallucination rate (pre-release)
+    threshold: "≤ 5% hallucinated facts on benchmark dataset"
+    enforcement: Advisory (escalate to human review if exceeded)
+    automated: partial
+    note: Run monthly or on model upgrade
+
+  - gate: Prompt regression (on prompt change)
+    threshold: "Schema conformance maintained after prompt change"
+    enforcement: Block merge
+    automated: true (via contract test re-run)
+
+# ─────────────────────────────────────────────────────────
+# Rules
+# ─────────────────────────────────────────────────────────
+rules:
+  - id: agent-must-have-output-schema
+    trigger: defining or modifying an AI agent
+    instruction: >
+      Every agent MUST have a declared output-schema.json.
+      Agents without a schema cannot be safely composed into pipelines.
+    priority: required
+
+  - id: contract-test-per-agent
+    trigger: defining or modifying an AI agent
+    instruction: >
+      Every agent MUST have a contract.test.ts with at least:
+      (1) one valid fixture that passes schema validation
+      (2) one invalid fixture that fails schema validation
+    priority: required
+
+  - id: prompt-change-triggers-contract-rerun
+    trigger: modifying agents/*/prompt.md
+    instruction: >
+      Re-run the agent's contract tests with temperature=0 after any
+      prompt change. A schema violation in the golden fixture signals regression.
+    priority: required
+
+  - id: model-upgrade-triggers-contract-rerun
+    trigger: upgrading the LLM model version used by an agent
+    instruction: >
+      Run all agent contract tests against the new model.
+      Compare output structure, field presence, and enum values against golden.
+    priority: required
+
+anti_patterns:
+  - Defining agents without output-schema.json
+  - Only validating JSON.parse (syntax) without schema (semantic) validation
+  - Writing contract tests with only valid fixtures (no negative cases)
+  - Accepting model upgrades without re-running contract tests
+  - Using high temperature (> 0.3) in contract test fixtures (non-deterministic)
+
+quick_reference:
+  contract_test_checklist: |
+    □ agents/<name>/output-schema.json exists
+    □ agents/<name>/__tests__/contract.test.ts exists
+    □ Valid fixture: all required fields, correct types, enum values
+    □ Invalid fixtures: missing required field, wrong type, invalid enum
+    □ Schema validator: Ajv (JSON Schema) or Zod (TypeScript)
+    □ CI: contract tests run on every PR
+    □ Prompt change: re-run contract test, compare against golden
