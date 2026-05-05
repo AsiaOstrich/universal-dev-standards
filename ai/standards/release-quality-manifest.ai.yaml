@@ -1,0 +1,135 @@
+# Release Quality Manifest Standards - AI Optimized
+# Source: core/release-quality-manifest.md
+
+id: release-quality-manifest
+meta:
+  version: "1.0.0"
+  updated: "2026-05-05"
+  source: core/release-quality-manifest.md
+  description: Automated per-release Quality Manifest that aggregates all quality gate results into a single machine-readable artifact
+
+requirements:
+  REQ-1:
+    id: REQ-RQM-001
+    title: Machine-Readable Format
+    rule: >
+      Every release MUST produce a Quality Manifest in YAML or JSON format that
+      aggregates the results of all defined quality gates. The manifest MUST be
+      committed to source control or attached to the release artifact.
+    rationale: >
+      Machine-readable manifests enable automated release gates and customer audits;
+      prose-only release notes cannot be parsed by downstream tooling.
+
+  REQ-2:
+    id: REQ-RQM-002
+    title: Gate Coverage
+    rule: >
+      The Quality Manifest MUST include at minimum: unit test coverage %, mutation
+      score %, SCA CVE counts (critical/high), SAST finding counts (high/medium),
+      E2E pass rate %, container CVE scan status, image signature status, SBOM
+      presence, and (if applicable) LLM hallucination rate and prompt injection
+      resistance score.
+    rationale: >
+      Partial manifests create false confidence; a complete manifest proves end-to-end
+      quality rather than cherry-picked metrics.
+
+  REQ-3:
+    id: REQ-RQM-003
+    title: Pass/Warn/Fail Status per Gate
+    rule: >
+      Each gate entry MUST carry a status field: "pass" (meets target), "warn"
+      (within acceptable deviation from target), or "fail" (blocks release).
+      The manifest MUST have an overall status field derived from the worst gate.
+    rationale: >
+      Binary pass/fail per gate plus an aggregate status enables release go/no-go
+      automation without human judgment on individual metrics.
+
+  REQ-4:
+    id: REQ-RQM-004
+    title: Automated Generation in CI
+    rule: >
+      The Quality Manifest MUST be generated automatically by CI (not manually
+      authored). Each gate's value MUST be extracted from the corresponding tool
+      output (vitest coverage JSON, stryker JSON, trivy SARIF, etc.).
+    rationale: >
+      Manually authored manifests are unreliable; CI-generated manifests are the
+      only form of evidence that meets audit requirements.
+
+  REQ-5:
+    id: REQ-RQM-005
+    title: Customer-Facing Summary
+    rule: >
+      A human-readable summary of the Quality Manifest (e.g., Markdown table)
+      MUST be generated alongside the machine-readable format and included in
+      the release notes or documentation.
+    rationale: >
+      Customers and auditors need a scannable summary; the machine-readable format
+      alone does not satisfy human review requirements.
+
+manifest_schema:
+  release: "string — semver tag e.g. v1.2.0"
+  generated_at: "ISO 8601 timestamp"
+  commit: "git SHA"
+  gates:
+    unit_coverage:
+      actual: "percentage string e.g. '73%'"
+      target: "threshold e.g. '80%'"
+      status: "pass | warn | fail"
+    mutation_score:
+      actual: "percentage string"
+      target: "threshold"
+      status: "pass | warn | fail"
+    sca_critical_cve:
+      actual: "integer"
+      target: "0"
+      status: "pass | fail"
+    sca_high_cve:
+      actual: "integer"
+      target: "0"
+      status: "pass | warn | fail"
+    sast_high:
+      actual: "integer"
+      target: "0"
+      status: "pass | warn | fail"
+    e2e_pass_rate:
+      actual: "percentage string"
+      target: "threshold"
+      status: "pass | warn | fail"
+    container_cve_critical:
+      actual: "integer"
+      target: "0"
+      status: "pass | fail"
+    image_signed:
+      actual: "boolean"
+      target: "true"
+      status: "pass | fail"
+    sbom_present:
+      actual: "boolean"
+      target: "true"
+      status: "pass | fail"
+  overall: "PASS | WARN | FAIL"
+
+generation_guidance: >
+  Extract coverage from vitest --coverage --reporter=json (summary.total.lines.pct).
+  Extract mutation score from stryker's mutation-testing-report.json (metrics.mutationScore).
+  Extract CVE counts from trivy JSON output (Results[].Vulnerabilities filtered by Severity).
+  Extract SAST from CodeQL SARIF (runs[].results filtered by level=error).
+  Combine into manifest YAML via a CI shell script or Node.js release script.
+
+anti_patterns:
+  - description: >
+      Generating the manifest after all gates have passed — gates should use
+      the manifest values, not precede them.
+  - description: >
+      Hardcoding metric values in the manifest generation script — all values
+      MUST be extracted from tool outputs to remain accurate.
+  - description: >
+      Using 'warn' status for critical security gates (sca_critical_cve,
+      container_cve_critical) — critical security gates are binary pass/fail.
+
+related_standards:
+  - testing
+  - security-testing
+  - supply-chain-attestation
+  - verification-evidence
+  - deployment-standards

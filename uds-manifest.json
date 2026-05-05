@@ -556,6 +556,24 @@
       "category": "testing",
       "level": 2
     }
+    ,
+    {
+      "id": "data-migration-testing",
+      "category": "testing",
+      "level": 2
+    }
+    ,
+    {
+      "id": "chaos-injection-tests",
+      "category": "testing",
+      "level": 2
+    }
+    ,
+    {
+      "id": "release-quality-manifest",
+      "category": "deployment",
+      "level": 2
+    }
   ],
   "skills": [
     {
