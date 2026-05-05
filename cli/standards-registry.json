@@ -2461,5 +2461,17 @@
       "category": "testing",
       "description": "Golden SHA-256 checksum tests for AI agent prompt files. Detects unintended prompt changes in CI; requires documented acknowledgment when checksums are updated."
     }
+    ,
+    {
+      "id": "supply-chain-attestation",
+      "name": "Supply Chain Attestation Standards",
+      "nameZh": "供應鏈溯源標準",
+      "source": {
+        "human": "core/supply-chain-attestation.md",
+        "ai": "ai/standards/supply-chain-attestation.ai.yaml"
+      },
+      "category": "security",
+      "description": "CycloneDX SBOM generation, SLSA provenance (L1/L2), and cosign signing for verifiable software supply chain integrity from source to deployed artefact."
+    }
   ]
 }

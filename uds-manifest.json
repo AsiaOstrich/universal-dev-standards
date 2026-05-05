@@ -514,6 +514,12 @@
       "category": "testing",
       "level": 2
     }
+    ,
+    {
+      "id": "supply-chain-attestation",
+      "category": "security",
+      "level": 2
+    }
   ],
   "skills": [
     {

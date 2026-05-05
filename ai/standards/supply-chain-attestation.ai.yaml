@@ -1,0 +1,109 @@
+# SPDX-License-Identifier: MIT
+name: Supply Chain Attestation Standards
+nameZh: 供應鏈溯源標準
+id: supply-chain-attestation
+version: "1.0.0"
+category: security
+scope: software-delivery
+summary: >
+  SBOM generation, SLSA provenance, and cosign signing to establish verifiable
+  software supply chain integrity from source to deployed artefact.
+
+requirements:
+  - id: REQ-01
+    title: Software Bill of Materials (SBOM)
+    titleZh: 軟體材料清單（SBOM）
+    level: MUST
+    description: >
+      Every release artefact MUST be accompanied by a CycloneDX JSON SBOM
+      listing all direct and transitive dependencies with name, version,
+      licence, and PURL. SBOM MUST be generated at build time from the
+      lock file (not package.json) to capture exact resolved versions.
+    implementation: |
+      # npm + CycloneDX
+      npm install -g @cyclonedx/cyclonedx-npm
+      cyclonedx-npm --output-format JSON --output-file sbom.cdx.json
+
+  - id: REQ-02
+    title: SLSA Provenance
+    titleZh: SLSA 溯源聲明
+    level: MUST
+    description: >
+      Every release MUST include a SLSA provenance document (minimum SLSA L1)
+      attesting the build inputs, builder identity, and build environment.
+      SLSA L2 is RECOMMENDED for public releases (requires GitHub Actions
+      OIDC token signing via slsa-framework/slsa-github-generator).
+    implementation: |
+      # SLSA L1 self-attestation (minimum)
+      provenance.json includes: buildType, builder.id,
+      invocation.configSource (repo+commit), materials, metadata.
+
+  - id: REQ-03
+    title: Artefact Signing
+    titleZh: 製品簽章
+    level: MUST
+    description: >
+      The SBOM, provenance document, and all release artefacts MUST be signed
+      using cosign (keyless Sigstore OIDC or key-based). Signatures MUST be
+      bundled with the release artefact for offline verification.
+    implementation: |
+      cosign sign-blob --key env://COSIGN_PRIVATE_KEY sbom.cdx.json > sbom.cdx.json.sig
+      cosign sign-blob --key env://COSIGN_PRIVATE_KEY provenance.json > provenance.json.sig
+
+  - id: REQ-04
+    title: Release Bundle
+    titleZh: 發布包完整性
+    level: MUST
+    description: >
+      The release bundle MUST include: primary artefact, sbom.cdx.json,
+      provenance.json, checksums.txt, and all .sig files.
+      SHA-256 checksums MUST cover all artefacts including SBOM and provenance.
+
+  - id: REQ-05
+    title: Verification Instructions
+    titleZh: 驗證指引
+    level: SHOULD
+    description: >
+      Release notes SHOULD include one-command verification instructions for
+      end-users to confirm artefact integrity using cosign and the SBOM.
+
+examples:
+  - name: "CycloneDX SBOM in GitHub Actions"
+    code: |
+      - name: Generate SBOM
+        run: |
+          npm install -g @cyclonedx/cyclonedx-npm
+          cyclonedx-npm --output-format JSON \
+                        --output-file sbom.cdx.json \
+                        --package-lock-only
+
+  - name: "SLSA L1 provenance generation"
+    code: |
+      - name: Generate SLSA L1 provenance
+        run: |
+          cat > provenance.json << EOF
+          {
+            "_type": "https://in-toto.io/Statement/v0.1",
+            "predicateType": "https://slsa.dev/provenance/v0.2",
+            "subject": [{"name": "vibeops", "digest": {"sha256": "${IMAGE_DIGEST}"}}],
+            "predicate": {
+              "buildType": "https://github.com/Attestations/GitHubActionsWorkflow@v1",
+              "builder": {"id": "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"},
+              "invocation": {"configSource": {"uri": "git+https://github.com/${GITHUB_REPOSITORY}@${GITHUB_SHA}"}},
+              "metadata": {"buildInvocationId": "${GITHUB_RUN_ID}"}
+            }
+          }
+          EOF
+
+anti_patterns:
+  - description: >
+      Generating SBOM from package.json alone — always use the lock file
+      to capture exact resolved versions, not declared ranges.
+  - description: >
+      Signing only the primary artefact and omitting SBOM/provenance from
+      the signature scope — all attestation documents must also be signed.
+
+related_standards:
+  - supply-chain-security-standards
+  - container-security
+  - sast-advanced
