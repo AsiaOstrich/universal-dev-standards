@@ -497,6 +497,11 @@
       "id": "adversarial-test",
       "category": "testing",
       "level": 2
+    },
+    {
+      "id": "policy-as-code-testing",
+      "category": "testing",
+      "level": 2
     }
   ],
   "skills": [

@@ -2426,6 +2426,17 @@
       },
       "category": "testing",
       "description": "Red-team corpus design for AI agents: OWASP LLM Top 10 adversarial probes (prompt injection LLM01, PII exfiltration LLM06, privilege escalation LLM08, source-agent spoofing)"
+    },
+    {
+      "id": "policy-as-code-testing",
+      "name": "Policy as Code Testing Standards",
+      "nameZh": "Policy as Code 測試標準",
+      "source": {
+        "human": "core/policy-as-code-testing.md",
+        "ai": "ai/standards/policy-as-code-testing.ai.yaml"
+      },
+      "category": "testing",
+      "description": "OPA Rego unit test standards: _test.rego file conventions, ALLOW/DENY/boundary cases, Fail-Closed default, CI opa test integration, anti-patterns (array.concat on sets)"
     }
   ]
 }
