@@ -323,6 +323,70 @@ Analogous to the SRE Error Budget concept, a Performance Budget defines the tole
 
 ---
 
+## Per-Release Capacity Sign-off
+
+This section defines the **capacity gate** that must be satisfied before production release (Dimension 10 in `release-readiness-gate.md`, Tier-3).
+
+### Capacity Forecast
+
+Before each release candidate, produce a capacity forecast based on:
+
+1. **Baseline**: 90-day rolling average of peak TPS and resource utilization (CPU, memory, DB connections, storage growth rate)
+2. **Release impact estimate**: expected traffic delta from new features (e.g., +15% TPS from new notification flow)
+3. **Seasonal adjustment**: any known traffic spikes within the next 30 days (marketing campaigns, seasonal peaks)
+
+### Headroom Thresholds
+
+| Metric | Target (PASS) | Warn Band | Fail Threshold |
+|--------|--------------|-----------|----------------|
+| CPU headroom at projected peak | ≥ 30% | 20–30% | < 20% |
+| Memory headroom | ≥ 25% | 15–25% | < 15% |
+| DB connection pool headroom | ≥ 40% | 25–40% | < 25% |
+| p99 latency vs baseline | ≤ +5% | +5% to +10% | > +10% regression |
+| Error rate at peak load | < 0.1% | 0.1–0.5% | > 0.5% |
+
+### Load Test Requirement
+
+Run the load test scenario defined in the Performance Testing sections above (Soak + Spike test minimum) before finalizing the capacity sign-off:
+
+```bash
+# Example: k6 capacity verification run
+k6 run --vus 500 --duration 20m scripts/perf/soak-test.js
+# Pass criterion: headroom metrics above, p99 within budget
+```
+
+### Sign-off Evidence
+
+The capacity gate requires **two named sign-offs** — both Engineering Lead and SRE Lead:
+
+```markdown
+## Capacity Sign-off — <version>
+
+**Projection date**: YYYY-MM-DD
+**Baseline period**: last 90 days
+
+| Metric | Baseline peak | Projected peak | Headroom | Status |
+|--------|-------------|---------------|----------|--------|
+| CPU | [X]% | [Y]% | [Z]% | PASS/WARN/FAIL |
+| Memory | [X]% | [Y]% | [Z]% | PASS/WARN/FAIL |
+| DB pool | [X]% | [Y]% | [Z]% | PASS/WARN/FAIL |
+| p99 latency | [X]ms | [Y]ms | [±Z]% | PASS/WARN/FAIL |
+
+**Load test artifact**: [link to load test report]
+
+**Eng Lead sign-off**: _______________ Date: __________
+**SRE Lead sign-off**: _______________ Date: __________
+```
+
+### When Tier-3 Applies as N/A
+
+The capacity sign-off is `N/A` (with documented rationale) when:
+- Project has < 100 DAU and no significant traffic growth expected
+- Internal tooling with fixed user count
+- Static content / documentation site
+
+---
+
 ## Related Standards
 
 - [Testing Standards](testing-standards.md) - Performance testing integration
@@ -330,6 +394,7 @@ Analogous to the SRE Error Budget concept, a Performance Budget defines the tole
 - [Logging Standards](logging-standards.md) - Performance logging
 - [Code Review Checklist](code-review-checklist.md) - Performance review
 - [Deployment Standards](deployment-standards.md) - Performance validation pre-deployment
+- [Release Readiness Gate](release-readiness-gate.md) - Dimension 1 (load) and Dimension 10 (capacity)
 
 ---
 

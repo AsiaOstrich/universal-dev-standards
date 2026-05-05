@@ -817,12 +817,70 @@ Before Release:
 
 ---
 
+## Release-Blocking Threshold
+
+This section defines the **minimum a11y gate** that must pass before production release (Dimension 3 in `release-readiness-gate.md`, Tier-2).
+
+### Automated Gate (CI — axe-core / Pa11y)
+
+| Severity | Hard Minimum | Warn Band |
+|----------|-------------|-----------|
+| critical | 0 (release blocker) | — |
+| serious | ≤ project-configured threshold (default: 0) | +1–2 → WARN |
+| moderate | advisory, not blocking | — |
+| minor | advisory, not blocking | — |
+
+Run axe-core against every critical user-flow screen before release:
+
+```bash
+npx axe-cli <url> --tags wcag2a,wcag2aa --exit  # non-zero exit if critical/serious
+```
+
+CI must fail the build if `critical > 0` or `serious > configured-threshold`.
+
+### Conformance Level by Project Type
+
+| Project Type | Minimum Conformance | Notes |
+|-------------|-------------------|-------|
+| General web / SaaS | WCAG 2.1 Level AA | Default |
+| Financial, Healthcare, Government | WCAG 2.1 Level AA + Section 508 | Legally mandated |
+| Aspirational / premium brand | WCAG 2.2 Level AA | Recommended |
+
+### Keyboard Navigation Gate (Manual, Pre-UAT)
+
+All critical user flows (as defined in requirement-template §2.4) must be fully operable by keyboard alone:
+- Tab / Shift+Tab: navigate all interactive elements
+- Enter / Space: activate controls
+- Escape: dismiss modals / overlays
+- Arrow keys: navigate menus, tabs, tree views
+
+Gate: 100% of critical flow steps reachable by keyboard; no focus trap.
+
+### Screen Reader Spot Check (Manual, Pre-UAT)
+
+Minimum: 1 critical user flow tested on each of:
+- **Windows**: NVDA + Chrome
+- **macOS**: VoiceOver + Safari
+
+Pass criterion: all steps completable without visual reference; all form errors announced; all dynamic content changes announced.
+
+### Release Sign-off Evidence
+
+The a11y gate contributes to the Release Readiness Sign-off as:
+
+```
+| 3 | Accessibility | PASS | axe report: 0 critical / 0 serious; keyboard pass; SR spot-check VoiceOver OK | QA Lead |
+```
+
+---
+
 ## Related Standards
 
 - [Documentation Writing Standards](documentation-writing-standards.md) - Accessible documentation
 - [Code Review Checklist](code-review-checklist.md) - Accessibility review
 - [Testing Standards](testing-standards.md) - Accessibility testing
 - [Security Standards](security-standards.md) - Authentication accessibility
+- [Release Readiness Gate](release-readiness-gate.md) - Dimension 3: a11y release gate
 
 ---
 

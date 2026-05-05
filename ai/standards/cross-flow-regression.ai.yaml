@@ -1,0 +1,61 @@
+# Cross-Flow Regression Standards - AI Optimized
+# Source: core/cross-flow-regression.md
+
+id: cross-flow-regression
+meta:
+  version: "1.0.0"
+  updated: "2026-05-05"
+  source: core/cross-flow-regression.md
+  description: Cross-flow regression testing complementing per-flow Multi-Gate; verifies inter-flow state correctness and CUJ pass rates
+
+requirements:
+  REQ-1:
+    id: REQ-CFR-001
+    title: CUJ Suite Required per Release
+    rule: >
+      Every release candidate MUST run the full Critical User Journey (CUJ) regression
+      suite. CUJs are end-to-end sequences spanning ≥ 2 flows that share state or are
+      commonly executed sequentially. CUJ pass rate MUST be ≥ 95%.
+    rationale: >
+      Per-flow Multi-Gate testing proves intra-flow correctness; cross-flow tests catch
+      state contamination bugs that only manifest when flow outputs become the next
+      flow's inputs.
+
+  REQ-2:
+    id: REQ-CFR-002
+    title: Retrigger on Flow Spec Change
+    rule: >
+      When any flow's §2.4 Decision Points or Terminal States are modified, the full
+      CUJ regression suite MUST re-run as a pre-merge check — not just tests for the
+      changed flow. This prevents silent regressions in downstream flows.
+    rationale: >
+      A change to one flow's terminal states can produce different intermediate state
+      that breaks a previously passing downstream flow.
+
+  REQ-3:
+    id: REQ-CFR-003
+    title: Sequential State Threading
+    rule: >
+      CUJ tests MUST use sequential state threading: a shared `ctx` object accumulates
+      state across flows within a single test describe block. State MUST NOT be reset
+      between steps of the same CUJ. Each CUJ MUST have its own isolated ctx.
+    rationale: >
+      Resetting state between steps masks cross-flow contamination; independent ctx
+      per CUJ prevents CUJ-to-CUJ interference from masking bugs.
+
+  REQ-4:
+    id: REQ-CFR-004
+    title: Release Gate
+    rule: >
+      CUJ pass rate ≥ 95% = PASS. 90–95% = WARN (document specific failed CUJs).
+      < 90% or any business-critical flow combo failure = FAIL (release blocked).
+      This is Dimension 6 (Tier-2) in release-readiness-gate.md.
+    rationale: >
+      90% threshold accounts for environment-specific flakiness while ensuring
+      the vast majority of user journeys are verified end-to-end.
+
+quick_reference:
+  boundary_with_flow_based_testing: "flow-based-testing = intra-flow; cross-flow-regression = inter-flow"
+  cuj_trigger: "every release candidate + any flow §2.4 change"
+  pass_rate_target: "≥ 95% overall; 100% for business-critical combos"
+  release_readiness_dimension: "Dim 6, Tier-2"
