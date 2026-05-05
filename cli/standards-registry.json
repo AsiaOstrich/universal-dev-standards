@@ -2473,5 +2473,17 @@
       "category": "security",
       "description": "CycloneDX SBOM generation, SLSA provenance (L1/L2), and cosign signing for verifiable software supply chain integrity from source to deployed artefact."
     }
+    ,
+    {
+      "id": "cost-budget-test",
+      "name": "Cost Budget Test Standards",
+      "nameZh": "成本預算測試標準",
+      "source": {
+        "human": "core/cost-budget-test.md",
+        "ai": "ai/standards/cost-budget-test.ai.yaml"
+      },
+      "category": "testing",
+      "description": "Unit tests for AI agent token budget zone classification boundaries (safe/warning/danger/blocking), pipeline cost thresholds, and runaway-loop prevention guards."
+    }
   ]
 }

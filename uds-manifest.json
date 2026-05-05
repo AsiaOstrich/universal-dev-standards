@@ -520,6 +520,12 @@
       "category": "security",
       "level": 2
     }
+    ,
+    {
+      "id": "cost-budget-test",
+      "category": "testing",
+      "level": 2
+    }
   ],
   "skills": [
     {
