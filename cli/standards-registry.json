@@ -2437,6 +2437,17 @@
       },
       "category": "testing",
       "description": "OPA Rego unit test standards: _test.rego file conventions, ALLOW/DENY/boundary cases, Fail-Closed default, CI opa test integration, anti-patterns (array.concat on sets)"
+    },
+    {
+      "id": "sast-advanced",
+      "name": "Advanced SAST Standards",
+      "nameZh": "進階 SAST 標準",
+      "source": {
+        "human": "core/sast-advanced.md",
+        "ai": "ai/standards/sast-advanced.ai.yaml"
+      },
+      "category": "security",
+      "description": "CodeQL semantic code analysis + secret scanning + Biome security rules. Complements dependency auditing with deep static analysis detecting injection vulnerabilities."
     }
   ]
 }

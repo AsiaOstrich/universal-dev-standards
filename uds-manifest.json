@@ -502,6 +502,11 @@
       "id": "policy-as-code-testing",
       "category": "testing",
       "level": 2
+    },
+    {
+      "id": "sast-advanced",
+      "category": "security",
+      "level": 2
     }
   ],
   "skills": [
