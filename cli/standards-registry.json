@@ -2497,5 +2497,53 @@
       "category": "testing",
       "description": "Golden fixture recording and deterministic replay for AI agent pipelines. Enables customer bug reproduction, verdict regression detection, and incident investigation without a live LLM."
     }
+    ,
+    {
+      "id": "smoke-test",
+      "name": "Smoke Test Standards",
+      "nameZh": "煙霧測試標準",
+      "source": {
+        "human": "core/smoke-test.md",
+        "ai": "ai/standards/smoke-test.ai.yaml"
+      },
+      "category": "testing",
+      "description": "Post-deployment sanity checks verifying critical paths (health endpoint, core API) complete in under 30 seconds with zero external dependencies."
+    }
+    ,
+    {
+      "id": "property-based-testing",
+      "name": "Property-Based Testing Standards",
+      "nameZh": "屬性基礎測試標準",
+      "source": {
+        "human": "core/property-based-testing.md",
+        "ai": "ai/standards/property-based-testing.ai.yaml"
+      },
+      "category": "testing",
+      "description": "fast-check / Hypothesis property tests for pure functions: range clamping, determinism, monotonicity, round-trip. Complements example-based unit tests by generating hundreds of random inputs."
+    }
+    ,
+    {
+      "id": "disaster-recovery-drill",
+      "name": "Disaster Recovery Drill Standards",
+      "nameZh": "災難恢復演練標準",
+      "source": {
+        "human": "core/disaster-recovery-drill.md",
+        "ai": "ai/standards/disaster-recovery-drill.ai.yaml"
+      },
+      "category": "operations",
+      "description": "Quarterly DR drill protocol: RTO/RPO targets, backup restore verification, Game Day exercises, drill records retained 12 months."
+    }
+    ,
+    {
+      "id": "flaky-test-management",
+      "name": "Flaky Test Management Standards",
+      "nameZh": "不穩定測試管理標準",
+      "source": {
+        "human": "core/flaky-test-management.md",
+        "ai": "ai/standards/flaky-test-management.ai.yaml"
+      },
+      "category": "testing",
+      "description": "Policies for detecting, quarantining (< 48h), and eliminating (< 30 days) flaky tests. Retry policy, root cause documentation, and quarantine annotation conventions."
+    }
   ]
 }

@@ -1,0 +1,89 @@
+# SPDX-License-Identifier: MIT
+name: Disaster Recovery Drill Standards
+nameZh: 災難恢復演練標準
+id: disaster-recovery-drill
+version: "1.0.0"
+category: operations
+scope: reliability
+summary: >
+  Structured DR drill standards: quarterly runbook execution, RTO/RPO
+  measurement, backup restore verification, and Game Day protocols.
+  Untested recovery plans fail at the worst moment.
+
+requirements:
+  - id: REQ-01
+    title: RTO/RPO Targets Defined
+    titleZh: RTO/RPO 目標定義
+    level: MUST
+    description: >
+      Each system MUST have documented RTO (Recovery Time Objective) and RPO
+      (Recovery Point Objective) targets. These must be agreed with stakeholders
+      before any DR drill can be considered meaningful.
+    examples:
+      - "VibeOps commercial: RTO < 1 hour, RPO < 24 hours (daily backup)"
+
+  - id: REQ-02
+    title: Backup Restore Test
+    titleZh: 備份還原測試
+    level: MUST
+    description: >
+      At minimum quarterly, a full backup restore MUST be executed in an
+      isolated environment and verified for data integrity. The restore time
+      MUST be measured and compared to the RTO target.
+
+  - id: REQ-03
+    title: Runbook Completeness
+    titleZh: 運行手冊完整性
+    level: MUST
+    description: >
+      A DR runbook MUST exist covering: (1) detection (how do we know disaster
+      occurred?), (2) decision (who declares DR?), (3) recovery steps
+      (step-by-step, executable commands), (4) verification (how do we confirm
+      recovery?), (5) communication plan.
+
+  - id: REQ-04
+    title: Game Day Exercise
+    titleZh: Game Day 演練
+    level: SHOULD
+    description: >
+      At minimum annually, a Game Day exercise SHOULD be conducted where the
+      team simulates a realistic failure scenario and executes the runbook from
+      scratch. Results SHOULD be documented and used to improve the runbook.
+
+  - id: REQ-05
+    title: Drill Record
+    titleZh: 演練記錄
+    level: MUST
+    description: >
+      Every DR drill MUST produce a written record including: date, participants,
+      scenario tested, RTO achieved, RPO achieved, issues found, remediation
+      actions. Records MUST be retained for 12 months.
+
+examples:
+  - name: "DR drill record template"
+    code: |
+      date: 2026-05-05
+      participants: [alice, bob]
+      scenario: "Database total loss — restore from daily backup"
+      rto_target: "1 hour"
+      rto_achieved: "42 minutes"
+      rpo_target: "24 hours"
+      rpo_achieved: "23 hours 15 minutes"
+      issues_found:
+        - "backup script path was stale — fixed in XSPEC-170"
+      remediation:
+        - "Update backup path in backup-restore.sh"
+      status: PASS
+
+anti_patterns:
+  - description: >
+      Only verifying that a backup file exists — always restore it and
+      verify data integrity. An untested backup is not a backup.
+  - description: >
+      Running DR drills in production — always use an isolated environment
+      to avoid turning a drill into an actual disaster.
+
+related_standards:
+  - deployment-standards
+  - chaos-engineering-standards
+  - verification-evidence

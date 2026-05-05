@@ -532,6 +532,30 @@
       "category": "testing",
       "level": 2
     }
+    ,
+    {
+      "id": "smoke-test",
+      "category": "testing",
+      "level": 2
+    }
+    ,
+    {
+      "id": "property-based-testing",
+      "category": "testing",
+      "level": 2
+    }
+    ,
+    {
+      "id": "disaster-recovery-drill",
+      "category": "operations",
+      "level": 2
+    }
+    ,
+    {
+      "id": "flaky-test-management",
+      "category": "testing",
+      "level": 2
+    }
   ],
   "skills": [
     {

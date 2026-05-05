@@ -1,0 +1,105 @@
+# SPDX-License-Identifier: MIT
+name: Property-Based Testing Standards
+nameZh: 屬性基礎測試標準
+id: property-based-testing
+version: "1.0.0"
+category: testing
+scope: correctness-validation
+summary: >
+  Property-based testing generates hundreds of random inputs to verify that
+  invariants (properties) hold for all valid inputs, not just the examples
+  a developer thought to write. Especially valuable for pure functions,
+  parsers, and security-critical logic.
+
+requirements:
+  - id: REQ-01
+    title: Property Identification
+    titleZh: 屬性識別
+    level: MUST
+    description: >
+      For each module under property-based test, developers MUST explicitly
+      identify the invariants to test. Examples: idempotency, monotonicity,
+      round-trip (encode/decode), boundary clamping, determinism.
+
+  - id: REQ-02
+    title: Generator Coverage
+    titleZh: 生成器覆蓋
+    level: MUST
+    description: >
+      Property tests MUST use appropriate generators: bounded integers for
+      array indices, valid enum values for type-constrained fields,
+      arbitrary strings for fuzz targets. Generators MUST cover the full
+      valid input space, not just a curated subset.
+
+  - id: REQ-03
+    title: Shrinking
+    titleZh: 最小化反例
+    level: SHOULD
+    description: >
+      When a property test fails, the framework SHOULD shrink the
+      counterexample to its minimal form. Libraries like fast-check (JS/TS)
+      and Hypothesis (Python) do this automatically.
+
+  - id: REQ-04
+    title: Run Count
+    titleZh: 執行次數
+    level: MUST
+    description: >
+      Property tests MUST run at least 100 samples per property in CI.
+      For security-critical functions (hash chains, token validation,
+      policy evaluation), run at least 1000 samples.
+
+  - id: REQ-05
+    title: Seed Persistence
+    titleZh: 種子持久化
+    level: SHOULD
+    description: >
+      When a property test fails, the failing seed SHOULD be saved and
+      re-run in CI until the fix is confirmed. This ensures regressions
+      are caught even after the random seed changes.
+
+examples:
+  - name: "fast-check idempotency property for score clamping"
+    code: |
+      import fc from "fast-check"
+      import { describe, it } from "vitest"
+
+      describe("scoreReviewable idempotency", () => {
+        it("score is always in [0, 100]", () => {
+          fc.assert(
+            fc.property(
+              fc.record({
+                target_env: fc.constantFrom("prod", "staging", "dev"),
+                command_type: fc.constantFrom("query", "mutate", "exec", "delete"),
+                reversible: fc.boolean(),
+              }),
+              ({ target_env, command_type, reversible }) => {
+                const result = scoreReviewable({
+                  session_id: "prop-001",
+                  source_agent: "operator",
+                  intent: "test",
+                  plan: [{ command: "ls", command_type, reversible }],
+                  target_env,
+                  reversible,
+                })
+                return result.score >= 0 && result.score <= 100
+              }
+            ),
+            { numRuns: 1000 }
+          )
+        })
+      })
+
+anti_patterns:
+  - description: >
+      Using fc.anything() for domain-specific inputs — unguided random
+      strings will mostly generate invalid inputs that get rejected early.
+      Use constrained generators (fc.constantFrom, fc.integer with bounds).
+  - description: >
+      Setting numRuns: 10 — too few samples to find edge cases. Use at
+      least 100 for regular code and 1000 for security-critical functions.
+
+related_standards:
+  - mutation-testing
+  - testing
+  - adversarial-test
