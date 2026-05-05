@@ -1,8 +1,8 @@
 ---
 source: ../../../../skills/ai-instruction-standards/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-05
+source_version: 2.0.0
+translation_version: 2.0.0
+last_synced: 2026-05-05
 status: current
 scope: partial
 description: |
@@ -15,8 +15,8 @@ description: |
 
 > **语言**: [English](../../../../skills/ai-instruction-standards/SKILL.md) | 简体中文
 
-**版本**: 1.0.0
-**最后更新**: 2026-01-25
+**版本**: 2.0.0
+**最后更新**: 2026-05-05
 **适用范围**: Claude Code Skills
 
 ---
