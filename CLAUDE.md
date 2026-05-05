@@ -30,6 +30,11 @@ Universal Development Standards is a language-agnostic, framework-agnostic devel
 > **ONLY** read `core/guides/` or `methodologies/guides/` when explicitly asked for educational content, detailed explanations, or tutorials.
 > This ensures token efficiency and focused context.
 
+> **Source-of-Truth Precedence (Source Repo Only)**:
+> In this UDS source repo, `core/*.md` is the **live source of truth**.
+> The `.standards/*.ai.yaml` files inside the `<!-- UDS:STANDARDS:START -->` block are an **adopter dogfooding snapshot** maintained by `npx uds install/update` — by DEC-044, `uds update` cannot run inside the source repo, so this snapshot will lag behind `core/`.
+> When the two diverge, **always prefer `core/`**. Subagents launched from this repo's CWD MUST treat `core/*.md` as authoritative.
+
 ### 1. Commit Message Format
 
 Follow the Conventional Commits specification defined in `core/commit-message-guide.md`:
