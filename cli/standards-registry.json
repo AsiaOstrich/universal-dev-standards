@@ -2393,6 +2393,17 @@
       },
       "category": "security",
       "description": "SSH hardening, host configuration, privilege management, bastion patterns, patch management SLA, and network isolation for AI Agent production environments"
+    },
+    {
+      "id": "container-security",
+      "name": "Container Security",
+      "nameZh": "容器安全標準",
+      "source": {
+        "human": "core/container-security.md",
+        "ai": "ai/standards/container-security.ai.yaml"
+      },
+      "category": "security",
+      "description": "Container image hardening, registry security, runtime protection, secrets management, Kubernetes network policy, and supply chain integrity for AI Agent production environments"
     }
   ]
 }
