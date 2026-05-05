@@ -16,11 +16,14 @@ A Release Quality Manifest makes quality evidence:
 
 ## Schema
 
+The RQM now covers **16 quality dimensions** matching `release-readiness-gate.md`. Automated gates appear here; human-verified gates appear in the Release Readiness Sign-off document.
+
 ```yaml
 release: vibeops-commercial-1.2.0
 generated_at: "2026-05-05T04:00:00Z"
 commit: "abc1234"
 gates:
+  # ── Automated quality gates ──────────────────────────────
   unit_coverage:
     actual: "73%"
     target: "80%"
@@ -57,7 +60,42 @@ gates:
     actual: true
     target: true
     status: pass
-overall: WARN   # worst gate status (2 warns, no fails)
+  # ── Extended dimensions (aligned with release-readiness-gate.md) ──
+  a11y_critical:             # Dimension 3: axe-core critical violations
+    actual: 0
+    target: 0
+    status: pass
+  a11y_serious:              # Dimension 3: axe-core serious violations
+    actual: 0
+    target: 0
+    status: pass
+  contract_drift:            # Dimension 4: consumer contracts failing (n/a if no consumers)
+    actual: 0
+    target: 0
+    status: pass             # or "n/a" if no API consumers
+  cross_flow_cuj_pass_rate:  # Dimension 6: critical user journey pass rate
+    actual: "100%"
+    target: "95%"
+    status: pass
+  browser_tier1_pass_rate:   # Dimension 9: Tier-1 browser matrix (n/a for non-frontend)
+    actual: "100%"
+    target: "100%"
+    status: pass             # or "n/a" for CLI/backend
+  capacity_headroom_cpu_pct: # Dimension 10: CPU headroom at projected peak (n/a for small projects)
+    actual: "42%"
+    target: "30%"
+    status: pass             # or "n/a" for small-scale projects
+  smoke_pass_rate:           # Dimension 14: post-deploy smoke (populated after staging deploy)
+    actual: "100%"
+    target: "100%"
+    status: pass
+  flow_gate_report:          # Dimension 16: Multi-Gate Flow verification
+    gate_0_complete: true    # all flows with ≥3 steps have §2.4 + §9.4 filled
+    gate_1_pr_coverage: true # all PRs touching flows include terminal-state tests
+    gate_3_ci_pass: true     # Decision Table CI all green; branch coverage ≥ 90%
+    gate_4_uat_signoff: true # UAT sign-off table signed
+    status: pass
+overall: WARN   # worst gate status across all dimensions (2 warns, no fails)
 ```
 
 ## Status Semantics
@@ -68,15 +106,23 @@ overall: WARN   # worst gate status (2 warns, no fails)
 | `warn` | Within acceptable deviation (see per-gate policy) | Document reason; no release block |
 | `fail` | Below hard minimum | **Blocks release** |
 
-### Per-Gate Hard Minimums (Examples)
+### Per-Gate Hard Minimums
 
-| Gate | Warn Band | Fail Threshold |
-|------|-----------|----------------|
-| unit_coverage | target - 10pp to target | below target - 10pp |
-| mutation_score | target - 5pp to target | below target - 5pp |
-| sca_critical_cve | — | any critical CVE = fail |
-| container_cve_critical | — | any critical CVE = fail |
-| e2e_pass_rate | target - 3pp to target | below target - 3pp |
+| Gate | Warn Band | Fail Threshold | Release Readiness Dimension |
+|------|-----------|----------------|----------------------------|
+| unit_coverage | target - 10pp to target | below target - 10pp | (core RQM) |
+| mutation_score | target - 5pp to target | below target - 5pp | (core RQM) |
+| sca_critical_cve | — | any critical CVE = fail | Dim 2 (Security) |
+| container_cve_critical | — | any critical CVE = fail | Dim 2 (Security) |
+| e2e_pass_rate | target - 3pp to target | below target - 3pp | (core RQM) |
+| a11y_critical | — | > 0 = fail | Dim 3 (a11y) |
+| a11y_serious | project threshold | project threshold + 1-2 | Dim 3 (a11y) |
+| contract_drift | — | any red consumer contract = fail (if n/a: skip) | Dim 4 (Contract) |
+| cross_flow_cuj_pass_rate | 90–95% | < 90% | Dim 6 (Cross-flow Regression) |
+| browser_tier1_pass_rate | — | < 100% (if n/a: skip) | Dim 9 (Browser Compat) |
+| capacity_headroom_cpu_pct | 20–30% | < 20% (if n/a: skip) | Dim 10 (Capacity) |
+| smoke_pass_rate | — | any smoke failure = fail | Dim 14 (Smoke) |
+| flow_gate_report | gate_3_ci_pass=false | gate_0_complete=false OR gate_4_uat_signoff=false | Dim 16 (Multi-Gate Flow) |
 
 ## Automated Generation
 

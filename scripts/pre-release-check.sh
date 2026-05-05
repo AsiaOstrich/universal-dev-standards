@@ -68,7 +68,7 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=20
+TOTAL=22
 
 if [ "$SKIP_TESTS" = true ]; then
     TOTAL=18
@@ -278,6 +278,42 @@ if [ "$SKIP_TESTS" = true ]; then
     SKIPPED=$((SKIPPED + 1))
 else
     run_check "20" "Running E2E tests | E2E 迴歸測試" "npm run test:e2e --prefix $CLI_DIR"
+fi
+
+# Step 21: Release Readiness Sign-off (warning-only until next minor release)
+echo -e "${CYAN}[21/$TOTAL]${NC} Checking release readiness sign-off | 釋出準備簽核檢查..."
+if [ -f "$SCRIPT_DIR/check-release-readiness-signoff.sh" ]; then
+    signoff_output=$("$SCRIPT_DIR/check-release-readiness-signoff.sh" 2>&1)
+    signoff_exit=$?
+    if [ $signoff_exit -ne 0 ]; then
+        echo -e "      ${YELLOW}⚠ Release readiness sign-off incomplete (advisory) | 釋出準備簽核不完整（僅警告）${NC}"
+        echo "$signoff_output" | head -5 | sed 's/^/      /'
+        PASSED=$((PASSED + 1))  # warning-only: does not count as failure
+    else
+        echo -e "      ${GREEN}✓ Release readiness sign-off present${NC}"
+        PASSED=$((PASSED + 1))
+    fi
+else
+    echo -e "      ${YELLOW}⏭ check-release-readiness-signoff.sh not found${NC}"
+    SKIPPED=$((SKIPPED + 1))
+fi
+
+# Step 22: Flow Gate Report (warning-only until next minor release)
+echo -e "${CYAN}[22/$TOTAL]${NC} Checking flow gate report | 流程閘門報告檢查..."
+if [ -f "$SCRIPT_DIR/check-flow-gate-report.sh" ]; then
+    flowgate_output=$("$SCRIPT_DIR/check-flow-gate-report.sh" 2>&1)
+    flowgate_exit=$?
+    if [ $flowgate_exit -ne 0 ]; then
+        echo -e "      ${YELLOW}⚠ flow_gate_report.json missing or incomplete (advisory) | flow_gate_report.json 缺失或不完整（僅警告）${NC}"
+        echo "$flowgate_output" | head -5 | sed 's/^/      /'
+        PASSED=$((PASSED + 1))  # warning-only
+    else
+        echo -e "      ${GREEN}✓ Flow gate report valid${NC}"
+        PASSED=$((PASSED + 1))
+    fi
+else
+    echo -e "      ${YELLOW}⏭ check-flow-gate-report.sh not found${NC}"
+    SKIPPED=$((SKIPPED + 1))
 fi
 
 # Show summary

@@ -1121,6 +1121,7 @@ auto_fix:
 - [Acceptance Criteria Traceability](acceptance-criteria-traceability.md) - AC coverage verification
 - [Change Batching Standards](change-batching-standards.md) - Batch threshold triggers
 - [Pipeline Integration Standards](pipeline-integration-standards.md) - Automated check-in
+- [Release Readiness Gate](release-readiness-gate.md) - **Check-in ≠ release readiness**: passing per-commit gates is necessary but not sufficient for production; see the 16-dimension release gate for what "done" means at release time
 
 ---
 

@@ -1,6 +1,6 @@
 # Flow-Based Testing
 
-**Version**: 1.2.0
+**Version**: 1.3.0
 **Last Updated**: 2026-05-05
 **Applicability**: All software projects with multi-step workflows
 **Scope**: universal
@@ -190,6 +190,64 @@ UAT Execution
     ▼
 Production
 ```
+
+---
+
+## RQM Integration
+
+Gate 3 (Pre-UAT CI coverage gate) MUST produce a **`flow_gate_report.json`** artifact consumed by the Release Quality Manifest (`release-quality-manifest.md`, field `flow_gate_report`).
+
+### flow_gate_report.json Schema
+
+```json
+{
+  "generated_at": "2026-05-05T04:00:00Z",
+  "commit": "abc1234",
+  "flows": [
+    {
+      "flow_id": "login-authentication",
+      "spec_ref": "docs/specs/SPEC-001.md#2.4",
+      "decision_points": 3,
+      "terminal_states": 7,
+      "gate_0_complete": true,
+      "gate_1_pr_coverage": true,
+      "gate_3": {
+        "all_scenarios_green": true,
+        "terminal_states_covered": 7,
+        "terminal_states_defined": 7,
+        "branch_coverage_pct": 94,
+        "coverage_target": 90,
+        "all_combinations_required": false,
+        "status": "pass"
+      },
+      "gate_4_uat_signoff": true
+    }
+  ],
+  "summary": {
+    "total_flows": 5,
+    "gate_0_complete": true,
+    "gate_1_pr_coverage": true,
+    "gate_3_ci_pass": true,
+    "gate_4_uat_signoff": true,
+    "status": "pass"
+  }
+}
+```
+
+### Generation Script Hook
+
+Add to CI after test run (Gate 3):
+
+```bash
+# scripts/generate-flow-gate-report.sh
+node scripts/generate-flow-gate-report.mjs \
+  --coverage-report coverage/coverage-summary.json \
+  --flow-specs "docs/specs/**/*.md" \
+  --uat-signoffs ".release-readiness/*.md" \
+  --output flow_gate_report.json
+```
+
+The `summary.status` field feeds into `release-quality-manifest.yaml` under `flow_gate_report.status`.
 
 ---
 

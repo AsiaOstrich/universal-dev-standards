@@ -156,3 +156,7 @@ If the branch has an associated worktree, the worktree must be cleaned up as par
 - **Superpowers**: [finishing-a-development-branch](https://github.com/obra/superpowers) (MIT)
 - **Git Flow**: Branch lifecycle management
 - **Trunk-Based Development**: Short-lived branches pattern
+
+---
+
+> **Branch completion ≠ Release readiness.** A completed branch means all its own quality gates passed. It does not mean the product is ready to ship. See `release-readiness-gate.md` for the 16-dimension release gate that must pass before production deployment.
