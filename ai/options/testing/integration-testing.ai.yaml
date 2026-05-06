@@ -17,7 +17,7 @@ characteristics:
   scope: Multiple components working together
   speed: "<1 second per test"
   isolation: Partial (may use real dependencies)
-  pyramid_percentage: 20%
+  coverage_policy: "Behavior-completeness ratchet (XSPEC-178) — no fixed % floor. See full-coverage-testing.ai.yaml."
 
 rules:
   - id: test-integration-points
@@ -86,4 +86,4 @@ tools:
     - MockServer
     - nock (Node.js)
 
-coverage_target: "Critical paths and integration points"
+coverage_target: "All critical paths AND integration points — not just happy path. Ratchet CI enforced. (XSPEC-178)"

@@ -3,6 +3,7 @@ import { select } from '@inquirer/prompts';
 import ora from 'ora';
 import { existsSync, readFileSync } from 'fs';
 import { join, basename } from 'path';
+import { execSync } from 'child_process';
 import { readManifest, writeManifest, isInitialized, copyStandard, copyIntegration } from '../utils/copier.js';
 import {
   getAllStandards,
@@ -359,6 +360,9 @@ export async function checkCommand(options = {}) {
 
   // Coverage report
   displayCoverageReport(manifest, msg, common, projectPath);
+
+  // XSPEC-178: Full coverage compliance check
+  checkFullCoverageCompliance(manifest, projectPath);
 
   // Workflow status
   displayWorkflowStatus(projectPath);
@@ -921,6 +925,45 @@ function displaySkillsStatus(manifest, projectPath, msg) {
   console.log();
 
   return { missingSkills, missingCommands };
+}
+
+/**
+ * XSPEC-178: Check full-coverage-testing standard presence and STUB markers
+ */
+function checkFullCoverageCompliance(manifest, projectPath) {
+  // Check 1: full-coverage-testing.ai.yaml presence
+  const fullCoveragePath = join(projectPath, '.standards', 'full-coverage-testing.ai.yaml');
+  const hasFullCoverage = existsSync(fullCoveragePath);
+
+  if (!hasFullCoverage) {
+    try {
+      const semver = manifest?.upstream?.version || '0.0.0';
+      const parts = semver.split('.').map(Number);
+      const isV5_5plus = parts[0] > 5 || (parts[0] === 5 && (parts[1] || 0) >= 5);
+      if (isV5_5plus) {
+        console.log(chalk.yellow('  ⚠ [XSPEC-178] full-coverage-testing.ai.yaml not found.'));
+        console.log(chalk.gray('    Run `uds update` to install the full-coverage testing standard.'));
+        console.log();
+      }
+    } catch { /* ignore semver parse errors */ }
+  }
+
+  // Check 2: STUB marker count (advisory)
+  const srcDir = join(projectPath, 'src');
+  if (existsSync(srcDir)) {
+    try {
+      const result = execSync(
+        `grep -rn "WARNING: STUB" "${srcDir}" --include="*.ts" --include="*.js" 2>/dev/null | wc -l`,
+        { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] }
+      ).trim();
+      const stubCount = parseInt(result, 10) || 0;
+      if (stubCount > 0) {
+        console.log(chalk.yellow(`  ⚠ [STUB] ${stubCount} STUB marker(s) found in src/.`));
+        console.log(chalk.gray('    Must be removed before UAT/production deployment (XSPEC-178).'));
+        console.log();
+      }
+    } catch { /* grep not available or src not scannable */ }
+  }
 }
 
 /**

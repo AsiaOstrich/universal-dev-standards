@@ -4,19 +4,26 @@
 standard:
   id: testing
   name: Testing Standards
-  description: Testing pyramid and recommended coverage ratios with framework options
+  description: Testing structure, FIRST principles, AAA pattern, and framework options. For coverage policy, see full-coverage-testing (XSPEC-178).
   guidelines:
-    - "Follow 70/20/7/3 testing pyramid (UT/IT/ST/E2E)"
     - "Use FIRST principles for unit tests"
     - "Structure tests with Arrange-Act-Assert"
     - "Use meaningful test names"
+    - "See full-coverage-testing.ai.yaml for coverage policy (XSPEC-178)"
 
   meta:
-    version: "2.0.0"
-    updated: "2026-02-04"
+    version: "2.1.0"
+    updated: "2026-05-06"
     source: core/testing-standards.md
     guide: skills/testing-guide/testing-theory.md
-    description: Testing pyramid and recommended coverage ratios with framework options
+    description: Testing structure and principles. Coverage policy moved to full-coverage-testing (XSPEC-178).
+
+  deprecated_rules:
+    - id: pyramid-thresholds
+      description: "70/20/7/3 pyramid ratio and UT≥80%/IT≥70%/E2E happy-path-only thresholds"
+      reason: "AI-era paradigm shift: test generation cost equals code generation cost, so no layer should have a lower threshold. Replaced by behavior-completeness ratchet model."
+      since: "5.5.0"
+      replaced_by: "full-coverage-testing.ai.yaml (XSPEC-178)"
 
   framework_options:
     decision_point: Select testing framework based on project type
@@ -29,25 +36,25 @@ standard:
         best_for: Agile development, CI/CD optimization, rapid iteration
 
   pyramid:
-    ratio: "70/20/7/3"
-    note: "Recommended ratio based on Mike Cohn's test pyramid (empirical, not mandatory). ISTQB defines 4 levels: UT/IT/ST/E2E."
+    ratio: "DEPRECATED — see full-coverage-testing.ai.yaml"
+    note: "The 70/20/7/3 ratio is deprecated as of v5.5.0 (XSPEC-178). Coverage is now governed by behavior-completeness ratchet, not per-layer percentages. Layer names remain valid as organizational categories, not threshold buckets."
     levels:
       - name: Unit Tests (UT)
-        percentage: 70
         scope: Single function/method
         speed: Very fast (<100ms)
+        coverage_policy: "See full-coverage-testing.ai.yaml — ratchet model, no fixed % floor"
       - name: Integration Tests (IT)
-        percentage: 20
         scope: Multiple components interacting
         speed: Fast (<1s)
+        coverage_policy: "See full-coverage-testing.ai.yaml — ratchet model, no fixed % floor"
       - name: System Tests (ST)
-        percentage: 7
         scope: Complete subsystem with stubbed external dependencies
         speed: Medium (<10s)
+        coverage_policy: "See full-coverage-testing.ai.yaml — ratchet model, no fixed % floor"
       - name: E2E Tests
-        percentage: 3
         scope: Full user flows across entire system
         speed: Slow (>10s)
+        coverage_policy: "All AC must have E2E coverage — not just happy path"
 
   options:
     testing_framework:
@@ -81,9 +88,9 @@ standard:
           best_for: Microservices, API integrations, distributed systems
 
   rules:
-    - id: follow-pyramid
+    - id: follow-full-coverage
       trigger: planning test strategy
-      instruction: Follow 70/20/7/3 recommended ratio for UT/IT/ST/E2E (Mike Cohn empirical, not mandatory)
+      instruction: Follow behavior-completeness model — every public function needs happy/edge/error path tests. Ratchet CI ensures coverage never decreases. See full-coverage-testing.ai.yaml (XSPEC-178).
       priority: required
     - id: first-principles
       trigger: writing tests

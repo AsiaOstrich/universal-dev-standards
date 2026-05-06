@@ -1,0 +1,192 @@
+# Full Coverage Testing Standards - AI Optimized
+# XSPEC-178: Replaces pyramid threshold model with behavior-completeness paradigm
+# Source: core/full-coverage-testing.md
+
+standard:
+  id: full-coverage-testing
+  name: Full Coverage Testing Standards
+  description: Behavior-completeness full coverage paradigm replacing pyramid thresholds. Enforces anti-fake-test rules, STUB marker protocol, ratchet CI, and @ac traceability.
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-05-06"
+    source: core/full-coverage-testing.md
+    replaces: "testing pyramid thresholds (UT≥80%/IT≥70%/E2E happy-path-only)"
+    xspec: "XSPEC-178"
+    description: AI-era full coverage paradigm — cost of writing tests equals cost of writing code, so there is no reason to set lower thresholds for any test layer.
+
+  rationale: |
+    Traditional pyramid thresholds (UT≥80%, IT≥70%) assumed tests were expensive to write.
+    AI code generation eliminates this cost differential — code and tests are produced at the
+    same speed. Therefore: maximize coverage everywhere, with behavior-completeness as the
+    measure, not a percentage floor.
+
+  coverage_model:
+    type: behavior_completeness
+    description: Every public function must have tests for all three behavioral paths
+    required_paths:
+      - id: happy_path
+        description: Normal input produces correct output
+        example: "calculateDiscount(100, 0.1) → 90"
+      - id: edge_case
+        description: Boundary values do not cause unexpected errors
+        example: "calculateDiscount(0, 1.0) → 0 without throwing"
+      - id: error_path
+        description: Invalid input raises clear error or returns error state
+        example: "calculateDiscount(-1, 2.0) → throws ArgumentError"
+
+  ratchet_policy:
+    enabled: true
+    description: Coverage can only increase, never decrease. PR that regresses coverage is blocked.
+    mechanism:
+      - Store baseline in .coverage-baseline.json on main branch
+      - Every PR compares current coverage against baseline
+      - Regression = PR blocked, not merged
+      - Improvement = new baseline set on merge
+    note: No fixed floor threshold. The current coverage IS the threshold.
+
+  rules:
+    # ── Behavior completeness ──────────────────────────────────────
+    - id: three-path-coverage
+      trigger: writing tests for any public function
+      instruction: |
+        Write at least three tests per public function:
+        1. happy_path — normal inputs, expected output
+        2. edge_case — boundary values (zero, max, empty, null)
+        3. error_path — invalid inputs trigger explicit error or error state
+      priority: required
+
+    - id: ac-traceability
+      trigger: writing any test
+      instruction: |
+        Tag each test with the Acceptance Criteria it covers using JSDoc @ac tag.
+        Format: /** @ac AC-ID */ above the test function.
+        If no AC maps to this test, use: /** @ac UNTRACED */
+      priority: recommended
+      example: |
+        /**
+         * @ac AC-US03-2
+         */
+        it('should block PR when coverage regresses', () => { ... })
+
+    # ── Anti-fake test rules ───────────────────────────────────────
+    - id: no-tautology-assertions
+      trigger: writing any test assertion
+      instruction: |
+        FORBIDDEN: Tautology assertions that always pass regardless of behavior.
+        These add false coverage without verifying anything.
+      priority: required
+      forbidden_patterns:
+        - "expect(true).toBe(true)"
+        - "expect(false).toBe(false)"
+        - "expect(result).toBeDefined()  // without specific value"
+        - "expect(result).not.toBeNull()  // without specific value"
+      required_instead: "expect(result).toBe(<specific expected value>)"
+
+    - id: no-mock-business-logic
+      trigger: deciding what to mock
+      instruction: |
+        FORBIDDEN: Mocking core business logic or your own service functions.
+        Mocking your own code means the business logic is never actually executed.
+      priority: required
+      allowed_to_mock:
+        - External HTTP APIs (payment gateways, OAuth providers)
+        - Hardware interfaces (sensors, GPIO, Docker daemon)
+        - Third-party SDKs with no test mode
+        - File system (use tmpdir, not mock)
+      forbidden_to_mock:
+        - Core business calculation functions
+        - Your own service layer methods
+        - Database queries (use in-memory SQLite instead)
+        - Your own utility functions
+
+    - id: mock-must-have-reason
+      trigger: writing any mock/stub/spy
+      instruction: |
+        Every jest.mock(), vi.mock(), jest.spyOn(), or sinon.stub() must be preceded
+        by a comment explaining WHY this dependency must be mocked.
+        Format: // MOCK: <reason — what external dependency and why it cannot be real>
+      priority: required
+      example: |
+        // MOCK: External Stripe payment API — no sandbox available in CI
+        jest.mock('./payment-gateway', () => ({ charge: jest.fn().mockResolvedValue({ id: 'ch_test' }) }))
+
+    # ── STUB marker protocol ───────────────────────────────────────
+    - id: stub-marker-required
+      trigger: writing any temporary/placeholder implementation
+      instruction: |
+        ALL temporary implementations, placeholder functions, and fake returns
+        MUST be marked with the standard STUB marker.
+        Format: // WARNING: STUB — Remove before UAT
+        This marker is scanned by pre-push hooks and deploy.sh.
+        STUB markers block pushes to main and deployments to UAT/production.
+      priority: required
+      example: |
+        // WARNING: STUB — Remove before UAT
+        async function validatePayment(card: Card): Promise<boolean> {
+          return true; // Always approve — replace with real Stripe call
+        }
+
+    - id: coverage-exempt-format
+      trigger: dealing with genuinely untestable external dependencies
+      instruction: |
+        If a dependency truly cannot be tested (hardware, live external API with no sandbox),
+        declare an explicit exemption with a mandatory reason.
+        Format: // COVERAGE_EXEMPT: <specific reason why real test is impossible>
+        This exemption is respected by STUB scanners and will not trigger blocking.
+        The reason MUST be non-empty and specific.
+      priority: required
+      example: |
+        // COVERAGE_EXEMPT: Hardware temperature sensor — no simulation available in CI
+        async function readTemperature(): Promise<number> {
+          return hardwareSensor.read();
+        }
+
+    - id: no-silent-stub
+      trigger: reviewing code before commit
+      instruction: |
+        Stubbed/placeholder code without // WARNING: STUB is a violation.
+        Common patterns to watch for: functions that always return hardcoded values,
+        empty function bodies that should have logic, TODO comments without STUB marker.
+        These will eventually reach production undetected.
+      priority: required
+
+  deployment_gates:
+    pre_push_to_main:
+      action: block
+      trigger: "// WARNING: STUB" marker found in src/
+      message: "[STUB-BLOCK] STUB markers detected. Push to main rejected."
+    deploy_to_uat:
+      action: block
+      trigger: "// WARNING: STUB" marker found in src/
+      message: "[DEPLOY-BLOCK] STUB markers detected. UAT deployment aborted."
+    deploy_to_production:
+      action: block
+      trigger: "// WARNING: STUB" marker found in src/
+      message: "[CRITICAL] Production deployment with STUB markers is strictly prohibited."
+    deploy_to_staging:
+      action: warn
+      trigger: "// WARNING: STUB" marker found in src/
+      message: "[STUB-WARN] Deploying with STUB markers to staging. NOT permitted in UAT/production."
+    feature_branch_push:
+      action: warn
+      trigger: "// WARNING: STUB" marker found in src/
+      message: "[STUB-WARN] STUB markers found. Must remove before merging to main."
+
+  migration_from_pyramid:
+    deprecated:
+      - "UT ≥ 80% coverage threshold"
+      - "IT ≥ 70% coverage threshold"
+      - "E2E happy-path-only requirement"
+    replaced_by:
+      - "Behavior-completeness: happy/edge/error per public function"
+      - "Ratchet CI: coverage can only increase"
+      - "Anti-fake rules: no tautology, no business-logic mocks"
+      - "STUB protocol: deployment gates on all environments"
+
+physical_spec:
+  type: custom_script
+  validator:
+    command: >
+      test -f scripts/check-stubs.sh && test -f scripts/check-anti-fake-tests.sh
+    rule: "xspec178_enforcement_scripts_present"

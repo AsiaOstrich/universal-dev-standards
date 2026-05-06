@@ -11,7 +11,7 @@ characteristics:
   scope: Single function or method
   speed: "<100ms per test"
   isolation: Complete (no external dependencies)
-  pyramid_percentage: 70%
+  coverage_policy: "Behavior-completeness ratchet (XSPEC-178) — no fixed % floor. See full-coverage-testing.ai.yaml."
 
 rules:
   - id: test-one-thing
@@ -71,7 +71,7 @@ when_not_to_write:
   - Testing trivial getters/setters
   - Testing third-party libraries
 
-coverage_target: "80% of business logic"
+coverage_target: "Behavior-completeness: happy/edge/error path per public function. Ratchet CI — coverage can only increase. (XSPEC-178 — deprecated fixed 80% threshold)"
 
 tools:
   javascript: [Jest, Vitest, Mocha]

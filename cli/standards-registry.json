@@ -1042,7 +1042,7 @@
       },
       "category": "skill",
       "skillName": "testing-guide",
-      "description": "Testing pyramid and recommended coverage ratios (70/20/7/3)",
+      "description": "Testing structure, FIRST principles, AAA pattern, and framework options. Coverage policy superseded by full-coverage-testing (XSPEC-178).",
       "options": {
         "test_level": {
           "default": null,
@@ -1087,6 +1087,18 @@
           ]
         }
       }
+    },
+    {
+      "id": "full-coverage-testing",
+      "name": "Full Coverage Testing Standards",
+      "nameZh": "全覆蓋測試標準",
+      "source": {
+        "human": "core/testing-standards.md",
+        "ai": "ai/standards/full-coverage-testing.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": "testing-guide",
+      "description": "Behavior-completeness full coverage paradigm: ratchet CI, anti-fake-test rules (no tautology/business-logic mock), STUB marker protocol (pre-push + deploy gates), @ac traceability. Replaces pyramid thresholds (XSPEC-178)."
     },
     {
       "id": "documentation-structure",

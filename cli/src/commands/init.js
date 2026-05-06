@@ -399,7 +399,8 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
       workflow: options.workflow || 'github-flow',
       merge_strategy: options.mergeStrategy || 'squash',
       output_language: options.outputLang || 'english',
-      test_levels: options.testLevels ? options.testLevels.split(',') : ['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing']
+      test_levels: options.testLevels ? options.testLevels.split(',') : ['unit-testing', 'integration-testing', 'system-testing', 'e2e-testing'],
+      coverage_model: options.coverageModel || 'full-coverage'
     },
     skillsConfig,
     aiTools: aiToolsNormalized,

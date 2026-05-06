@@ -605,7 +605,8 @@ describe('Check Command', () => {
       // Updated from 29 to 30 after adding push-standards (XSPEC-072 parity fix, linked to /push skill)
       // Updated from 30 to 32 after adding flow-based-testing (e2e-assistant) and mock-boundary (testing-guide) standards
       // Updated from 32 to 34 after adding security-testing (security-scan-assistant) and mutation-testing (test-coverage-assistant)
-      expect(output).toContain('34 via Skills');
+      // Updated from 34 to 35 after adding full-coverage-testing (testing-guide) — XSPEC-178
+      expect(output).toContain('35 via Skills');
 
       // Should NOT show exactly "0 via Skills" as a standalone line
       // Note: We check for the regex pattern since "22 via Skills" contains "0 via Skills" as substring

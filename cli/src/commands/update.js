@@ -686,6 +686,16 @@ export async function updateCommand(options) {
     }
   }
 
+  // Migrate testing paradigm: pyramid thresholds → full-coverage (v5.5.0, XSPEC-178)
+  const isPreV5_5 = compareVersions(installedVersion, '5.5.0') < 0;
+  if (isPreV5_5) {
+    manifest.options = manifest.options || {};
+    manifest.options.coverage_model = manifest.options.coverage_model || 'full-coverage';
+    console.log();
+    console.log(chalk.yellow(msg.testParadigmMigrated || '⚠ Testing paradigm migrated: pyramid thresholds (UT≥80%/IT≥70%) → behavior-completeness full coverage (XSPEC-178)'));
+    console.log(chalk.cyan(msg.testParadigmNote || '  full-coverage-testing.ai.yaml installed. Review scripts/check-stubs.sh and scripts/check-anti-fake-tests.sh in your project.'));
+  }
+
   // Update manifest
   manifest.version = '3.3.0';
   manifest.upstream.version = latestVersion;
