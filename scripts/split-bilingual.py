@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
+# DEPRECATED: Use 'tsx scripts/split-bilingual.ts' instead (cross-platform, no Python dependency).
+# This script remains for legacy compatibility. New work should use the TypeScript port,
+# which runs on macOS / Linux / Windows via tsx and matches this script's output exactly.
+# Migration tracked under XSPEC-179 (cross-platform script ecosystem).
 """
 Split bilingual markdown files into separate English and Chinese versions.
 將雙語 markdown 檔案分離為獨立的英文和中文版本。
 
 Usage:
     python split-bilingual.py <input_file> <en_output> <zh_output>
+
+Preferred (TypeScript, cross-platform):
+    tsx scripts/split-bilingual.ts <input_file> <en_output> <zh_output>
+    npm run split-bilingual <input_file> <en_output> <zh_output>
 """
 
 import re
