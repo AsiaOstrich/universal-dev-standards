@@ -99,8 +99,9 @@ graph TD
 | **Claude Code** | ✅ Complete | **29** | **33** | `CLAUDE.md` |
 | **OpenCode** | ✅ Complete | **29** | **33** | `AGENTS.md` |
 | **Cursor** | ✅ Complete | **Core** | **Simulated** | `.cursorrules` |
+| **Roo Code** | ✅ Complete | **Core** | **Workflow** | `.roo/rules/` |
 | **Gemini CLI** | 🧪 Preview | **18+** | **20+** | `GEMINI.md` |
-| **Cline / Roo Code** | 🔶 Partial | **Core** | **Workflow** | `.clinerules` |
+| **Cline** | 🔶 Partial | **Core** | **Workflow** | `.clinerules` |
 | **Windsurf** | 🔶 Partial | **Core** | **Rulebook** | `.windsurfrules` |
 | **GitHub Copilot** | 🔶 Partial | **Core** | **Prompts** | `.github/copilot-instructions.md` |
 | **OpenAI Codex** | 🔶 Partial | **Core** | — | `AGENTS.md` |

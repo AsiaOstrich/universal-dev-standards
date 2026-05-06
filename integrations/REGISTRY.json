@@ -144,16 +144,17 @@
     },
     "roo-code": {
       "name": "Roo Code",
-      "tier": "partial",
+      "tier": "complete",
       "integrationFiles": [
-        "integrations/cline/.clinerules"
+        "integrations/roo-code/.roo/rules/uds-standards.md",
+        "integrations/roo-code/.clinerules"
       ],
-      "instructionFile": "integrations/cline/.clinerules",
-      "rulesLocation": "integrations/cline/",
+      "instructionFile": "integrations/roo-code/.roo/rules/uds-standards.md",
+      "rulesLocation": "integrations/roo-code/",
       "supportsSkills": true,
       "supportsAgents": true,
       "supportsWorkflows": true,
-      "note": "Uses Cline .clinerules (fully compatible); no dedicated integrations/roo-code/ directory yet"
+      "note": "Modern .roo/rules/ + legacy .clinerules backward compat"
     },
     "spec-kit": {
       "name": "Spec Kit",

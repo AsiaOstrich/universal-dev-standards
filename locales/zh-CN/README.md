@@ -107,8 +107,9 @@ graph TD
 | **Claude Code** | ✅ 完整支持 | **29** | **33** | `CLAUDE.md` |
 | **OpenCode** | ✅ 完整支持 | **29** | **33** | `AGENTS.md` |
 | **Cursor** | ✅ 完整支持 | **核心** | **模拟支持** | `.cursorrules` |
+| **Roo Code** | ✅ 完整支持 | **核心** | **工作流** | `.roo/rules/` |
 | **Gemini CLI** | 🧪 预览版 | **18+** | **20+** | `GEMINI.md` |
-| **Cline / Roo Code** | 🔶 部分支持 | **核心** | **工作流** | `.clinerules` |
+| **Cline** | 🔶 部分支持 | **核心** | **工作流** | `.clinerules` |
 | **Windsurf** | 🔶 部分支持 | **核心** | **规则书** | `.windsurfrules` |
 | **GitHub Copilot** | 🔶 部分支持 | **核心** | **提示词** | `.github/copilot-instructions.md` |
 | **OpenAI Codex** | 🔶 部分支持 | **核心** | — | `AGENTS.md` |

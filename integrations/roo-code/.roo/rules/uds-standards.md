@@ -1,0 +1,150 @@
+# Roo Code Rules — Universal Dev Standards
+# Roo Code 規則 — 通用開發標準
+
+This file defines the behavior for the Roo Code AI assistant to ensure compliance with **Universal Documentation Standards (UDS)**. Place this file at `.roo/rules/uds-standards.md` in your project root. Additional rules can live alongside it in `.roo/rules/`.
+
+本檔案定義 Roo Code AI 助理的行為，以確保符合**通用文件標準 (UDS)**。請將此檔案放在專案根目錄的 `.roo/rules/uds-standards.md`。其他規則可同放在 `.roo/rules/` 之下。
+
+## Usage | 使用方式
+
+```bash
+mkdir -p .roo/rules
+cp integrations/roo-code/.roo/rules/uds-standards.md .roo/rules/uds-standards.md
+```
+
+Roo Code automatically loads every Markdown file under `.roo/rules/` (alphabetical order) and remains fully backward-compatible with `.clinerules` and `.roorules`.
+
+Roo Code 會自動載入 `.roo/rules/` 下所有 Markdown（按字母順序），並完全相容於 `.clinerules` 與 `.roorules`。
+
+---
+
+# Universal Doc Standards Compliance
+
+You are an expert agentic coding assistant. You are required to follow the **Universal Documentation Standards** defined in this project.
+
+## Spec-Driven Development (SDD) Priority
+## 規格驅動開發 (SDD) 優先
+
+**Rule**: When an SDD tool (such as OpenSpec, Spec Kit, etc.) is integrated in this project and provides specific commands (e.g., slash commands like `/openspec` or `/spec`), you MUST prioritize using these commands over manual file editing.
+
+**規則**：當專案整合了 SDD 工具（如 OpenSpec、Spec Kit 等）並提供特定命令（如 `/openspec` 或 `/spec` 斜線命令）時，你必須優先使用這些命令，而非手動編輯檔案。
+
+**Detection**:
+- OpenSpec: Check for `openspec/` directory or `openspec.json`
+- Spec Kit: Check for `specs/` directory or `.speckit` configuration
+
+**偵測方式**:
+- OpenSpec: 檢查 `openspec/` 目錄或 `openspec.json`
+- Spec Kit: 檢查 `specs/` 目錄或 `.speckit` 設定
+
+**Rationale**:
+- **Consistency**: Tools ensure spec structure follows strict schemas
+- **Traceability**: Commands handle logging, IDs, and linking automatically
+- **Safety**: Tools have built-in validation preventing invalid states
+
+Reference: `.standards/spec-driven-development.md` (or `core/spec-driven-development.md`)
+
+## Core Standards Usage Rule
+## 核心標準使用規則
+
+> **Core Standards Usage Rule**:
+> When verifying standards, checking code, or performing tasks, **PRIORITIZE** reading the concise rules in `core/` (e.g., `core/testing-standards.md`).
+> **ONLY** read `core/guides/` or `methodologies/guides/` when explicitly asked for educational content, detailed explanations, or tutorials.
+> This ensures token efficiency and focused context.
+
+**核心標準使用規則**：
+> 當驗證標準、檢查程式碼或執行任務時，**優先**讀取 `core/` 中的精簡規則（例如 `core/testing-standards.md`）。
+> 只有在被明確要求提供教育內容、詳細解釋或教學時，才讀取 `core/guides/` 或 `methodologies/guides/`。
+> 這確保了 Token 效率和上下文聚焦。
+
+## Core Protocol: Anti-Hallucination
+Reference: `.standards/anti-hallucination.md` (or `core/anti-hallucination.md`)
+
+1. **Evidence-Based Analysis**:
+   - You must read files before analyzing them (using `read_file` or `search_files`).
+   - Do not guess APIs, class names, or library versions.
+   - If you haven't seen the code, state "I need to read [file] to confirm".
+
+2. **Source Attribution**:
+   - Every factual claim about the code must cite sources.
+   - Format: `[Source: Code] path/to/file:line`
+   - External docs: `[Source: External] http://url (Accessed: Date)`
+
+3. **Certainty Classification**:
+   - Use tags to indicate confidence: `[Confirmed]`, `[Inferred]`, `[Assumption]`, `[Unknown]`.
+
+4. **Recommendations**:
+   - When presenting options, YOU MUST explicitly state a "Recommended" choice with reasoning.
+
+## Workflow Enforcement Gates
+## 工作流程強制閘門
+
+**CRITICAL**: Before executing any workflow phase command, you MUST check prerequisites.
+**關鍵規則**：在執行任何工作流程階段命令前，你必須檢查前置條件。
+
+### Session Start Protocol / Session 啟動協議
+At session start, check for active workflows: `ls .workflow-state/*.yaml 2>/dev/null`
+If active workflows found → inform user and offer to resume.
+
+### Phase Gates / 階段閘門
+
+| Workflow | Phase | Prerequisite | On Failure |
+|---------|-------|-------------|------------|
+| SDD | implement | Spec status = Approved | → `/sdd approve` |
+| SDD | verify | All ACs have code + tests | → `/sdd implement` |
+| TDD | GREEN | Failing test exists | → Stay in RED |
+| TDD | REFACTOR | All tests passing | → Stay in GREEN |
+| BDD | AUTOMATION | `.feature` file exists | → FORMULATION |
+| Commit | feat/fix | Check active specs | → Suggest `Refs: SPEC-XXX` |
+
+**NEVER** write implementation code before a failing test exists (TDD).
+**NEVER** write step definitions before `.feature` files exist (BDD).
+
+Reference: `.standards/workflow-enforcement.ai.yaml`
+
+---
+
+## Roo Code Specific Notes
+## Roo Code 特定說明
+
+### Custom Modes / 自訂模式
+
+If `.roomodes` defines custom modes, mode-specific rules can live in `.roo/rules-{mode}/`. The UDS rules in `.roo/rules/` apply to all modes by default.
+
+若 `.roomodes` 定義了自訂模式，模式特定規則可放在 `.roo/rules-{mode}/`。`.roo/rules/` 下的 UDS 規則預設套用到所有模式。
+
+### Backward Compatibility / 向下相容
+
+Roo Code still reads `.clinerules` and `.roorules`. UDS ships both `.roo/rules/uds-standards.md` (this file) and `.clinerules` so projects migrating from Cline can keep their existing setup while gaining Roo Code's modern rules engine.
+
+Roo Code 仍會讀取 `.clinerules` 與 `.roorules`。UDS 同時提供 `.roo/rules/uds-standards.md`（本檔案）與 `.clinerules`，讓從 Cline 遷移過來的專案保留既有設定，同時獲得 Roo Code 的現代規則引擎。
+
+---
+
+## Documentation & Commits
+
+1. **Commit Messages**:
+   - Follow the pattern defined in `.standards/commit-message.ai.yaml`.
+   - Format: `type(scope): description`
+
+2. **Check-in Quality**:
+   - Before suggesting "I'm done", verify work against `.standards/checkin-standards.md`.
+
+---
+
+## AI Response Navigation
+## AI 回應導航
+
+**Rule**: Every substantive AI response MUST end with a Navigation Footer suggesting next steps.
+**規則**：每個實質性的 AI 回應結尾必須包含導航區塊，建議下一步行動。
+
+**Key behaviors / 關鍵行為**:
+- Append navigation suggestions after completing tasks, providing analysis, asking questions, or reporting errors
+- Mark the recommended option with ⭐ when providing multiple choices
+- Use contextual templates (task completed, user question, error/failure, in progress, informational reply)
+- Adapt option count to context (1-5, never exceed 5)
+- Prefer slash commands in suggestions when applicable
+
+**豁免 / Exemption**: Ultra-short confirmations ("OK", "Done") may omit navigation.
+
+Reference: `.standards/ai-response-navigation.ai.yaml` (or `core/ai-response-navigation.md`)
