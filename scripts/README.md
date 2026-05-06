@@ -5,9 +5,10 @@ Maintenance, sync-check and release-automation scripts for the UDS repository.
 
 ## Layout / 目錄
 
-- `*.sh` — POSIX/bash scripts (primary on macOS / Linux CI)
-- `*.ps1` — PowerShell mirrors (Windows contributors)
-- `*.mjs` — Node-based generators (manifest, docs, version); cross-platform replacements for critical `.sh` scripts
+- `*.sh` — POSIX/bash scripts (primary on macOS / Linux CI; legacy where `.mjs`/`.ts` exists)
+- `*.ps1` — PowerShell mirrors (Windows contributors; superseded by `.ts` for new scripts)
+- `*.mjs` — Node.js ESM scripts (cross-platform, no transpilation)
+- `*.ts` — TypeScript scripts (cross-platform via `tsx`); preferred for new scripts
 - `hooks/`, `transform/` — sub-tooling
 
 ## Cross-platform release scripts / 跨平台發版腳本
@@ -80,6 +81,39 @@ git pre-commit hook 已改為 Node.js 跨平台實作（XSPEC-180）：`.githook
 為極簡 POSIX `sh` 殼層，實際邏輯在 `scripts/pre-commit.mjs`。Hook 為 advisory，
 僅在修改 `core/*.md` 但翻譯未同步時警告，不會擋 commit。
 
+## Cross-platform check scripts (TypeScript) / 跨平台檢查腳本（TypeScript）
+
+The following quality-check scripts are implemented in TypeScript and run via
+`tsx`. They replace the legacy bash variants for cross-platform consistency
+(XSPEC-179 Phase 2).
+
+以下品質檢查腳本以 TypeScript 實作，透過 `tsx` 執行。它們取代了原 bash 版本以
+達成跨平台一致性（XSPEC-179 Phase 2）。
+
+| Script | npm script | Replaces |
+|--------|------------|----------|
+| `check-ai-behavior-sync.ts` | `npm run check:ai-behavior` | `check-ai-behavior-sync.sh` |
+| `check-commit-spec-reference.ts` | `npm run check:commit-spec` | `check-commit-spec-reference.sh` |
+| `check-flow-gate-report.ts` | `npm run check:flow-gate` | `check-flow-gate-report.sh` |
+| `check-integration-commands-sync.ts` | `npm run check:integration-commands` | `check-integration-commands-sync.sh` |
+| `check-registry-completeness.ts` | `npm run check:registry` | `check-registry-completeness.sh` |
+| `check-release-readiness-signoff.ts` | `npm run check:release-signoff` | `check-release-readiness-signoff.sh` |
+| `check-workflow-compliance.ts` | `npm run check:workflow-compliance` | `check-workflow-compliance.sh` |
+
+### Strategy: single TypeScript source / 策略：單一 TypeScript 來源
+
+This batch deliberately avoids the previous bash + PowerShell dual-track
+pattern. A single `.ts` file runs unchanged on macOS / Linux / Windows via
+`tsx`, eliminating the "can only verify on Windows" feedback gap.
+
+本批次刻意避開先前 bash + PowerShell 雙軌模式。單一 `.ts` 檔透過 `tsx` 在
+macOS / Linux / Windows 上執行結果一致，消除「只能在 Windows 驗證」的反饋落差。
+
+The original `.sh` files are kept with `DEPRECATED` notices for legacy
+Linux/macOS compatibility but should not be added to.
+
+原 `.sh` 檔保留並加 `DEPRECATED` 警告供 legacy Linux/macOS 相容，但不應再新增。
+
 ## Testing convention / 測試慣例
 
 All non-trivial shell scripts SHOULD have **smoke tests** under
@@ -142,8 +176,20 @@ setup() {
 See `tests/scripts/check-version-sync.bats` for a complete reference.
 完整參考範例見 `tests/scripts/check-version-sync.bats`。
 
-### When adding a new shell script / 新增 shell 腳本時
+### When adding a new script / 新增腳本時
 
-1. Implement `scripts/<name>.sh`
-2. Add `tests/scripts/<name>.bats` with the smoke-test template above
-3. Run `npm run test:scripts` locally before committing
+For **new scripts**, prefer TypeScript:
+
+1. Implement `scripts/<name>.ts`
+2. Add an npm script entry in root `package.json` (`tsx scripts/<name>.ts`)
+3. Optionally add a Vitest unit test (XSPEC-179 Phase 3, evaluation pending)
+
+For **legacy shell scripts** that already exist, BATS smoke tests remain
+valid — see template above.
+
+新增**新腳本**時優先採用 TypeScript：
+1. 實作 `scripts/<name>.ts`
+2. 在 root `package.json` 新增對應 npm script（`tsx scripts/<name>.ts`）
+3. 可選擇加入 Vitest 單元測試（XSPEC-179 Phase 3，待 ADR）
+
+對於**既有的 shell 腳本**，BATS 冒煙測試仍然有效，見上方樣板。

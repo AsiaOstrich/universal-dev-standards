@@ -17,6 +17,45 @@ status: current
 
 ## [Unreleased]
 
+> **跨平台脚本迁移**（XSPEC-179 + XSPEC-180）：bash 脚本逐步被单一来源的
+> TypeScript / Node.js ESM 等价实现取代，可在 macOS / Linux / Windows 上以
+> 相同方式执行。原 `.sh` 文件保留并加上 `DEPRECATED` 警告以维持向后兼容。
+
+### 新增
+
+- **AI 工具表格补全**（`README.md`、`locales/zh-TW/README.md`、`locales/zh-CN/README.md`）：补上五个遗漏工具——GitHub Copilot、OpenAI Codex、Aider、Continue、Google Antigravity。新增 ⚠ Minimal 状态图例。（`1b588e1`）
+- **`scripts/bump-version.mjs`**（XSPEC-179 Phase 1）：跨平台版本升版实现，与原 `.sh` 对等。（`1a44e14`）
+- **`scripts/install-hooks.mjs`**（XSPEC-179 Phase 1）：跨平台 git hooks 安装程序；于 Windows 自动跳过 `chmod`。（`1a44e14`）
+- **`scripts/pre-commit.mjs`**（XSPEC-180）：pre-commit hook 的 Node.js ESM 实现，平台分支于 Windows 调用 `check-translation-sync.ps1`，其他平台调用 `.sh`。（`1572869`）
+- **7 个 TypeScript 检查脚本**（XSPEC-179 Phase 2，`0a26d14`）：从 bash 迁移至单一 TypeScript 来源，通过 `tsx` 执行：
+  - `scripts/check-ai-behavior-sync.ts`
+  - `scripts/check-commit-spec-reference.ts`
+  - `scripts/check-flow-gate-report.ts`
+  - `scripts/check-integration-commands-sync.ts`
+  - `scripts/check-registry-completeness.ts`
+  - `scripts/check-release-readiness-signoff.ts`
+  - `scripts/check-workflow-compliance.ts`
+- **`tsx@^4.20.0`** 加入 root `devDependencies`（XSPEC-179 Phase 2，`0a26d14`）。
+- **7 个 npm scripts** 串接 TypeScript 检查脚本（`0a26d14`）：`check:ai-behavior`、`check:commit-spec`、`check:flow-gate`、`check:integration-commands`、`check:registry`、`check:release-signoff`、`check:workflow-compliance`。
+
+### 变更
+
+- **REGISTRY**：`roo-code` integration tier 从 `planned` 升为 `partial`；AI 工具表格中将 Roo Code 独立成行（不再与 Cline 合并）。（`1b588e1`）
+- **`.githooks/pre-commit`**（XSPEC-180，`1572869`）：从 51 行 bash 精简为 16 行 POSIX `sh` 薄壳层，将实际逻辑委派给 `scripts/pre-commit.mjs`。
+- **`scripts/bump-version.mjs`**（`19ad314`）：新增 `buildCmd()` 辅助函数，于 Windows 自动切换为 PowerShell + `.ps1` 来调用 `check-version-sync` / `check-translation-sync`，恢复 Windows 平台对等性。
+- **XSPEC-179 Phase 2 策略修订**（`0a26d14`）：放弃先前的 `.sh` + `.ps1` 双轨方案，改采**单一 TypeScript 来源**策略。单一 `.ts` 通过 `tsx` 在所有平台上行为一致，消除「只能在 Windows 验证」的反馈落差。
+
+### 弃用
+
+- **`scripts/bump-version.sh`**（`1a44e14`）：标记为 DEPRECATED，由 `bump-version.mjs` 取代。
+- **`scripts/install-hooks.sh`**（`1a44e14`）：标记为 DEPRECATED，由 `install-hooks.mjs` 取代。
+- **7 个 legacy `check-*.sh` 脚本**（`0a26d14`）：对应的 `.ts` 版本（如上）已成为 canonical 实现。`.sh` 文件保留供 legacy Linux/macOS 环境使用，但不应再新增功能。
+
+### 修复
+
+- **`scripts/check-release-readiness-signoff.sh`**（`0a26d14`，于 TypeScript 移植时顺带修复的潜伏 bug）：原本错误的 `grep -c "0\n0"` 样式（永远无法匹配到字面 `\n`）已修正，现在能可靠侦测缺漏的 sign-off 信号。
+- **`scripts/check-integration-commands-sync.sh`**（`0a26d14`，于 TypeScript 移植时顺带修复的潜伏 bug）：消除 `find` 与下游 consumer 之间 broken pipe 引发的 SIGPIPE 噪音。
+
 ## [5.3.2] - 2026-04-27
 
 > **修补版本发布**：Bug 修复 —— `uds update -y` 现在会自动安装/更新 Skills 和 Commands，不再只显示提示信息。

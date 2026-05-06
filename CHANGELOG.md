@@ -9,6 +9,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+> **Cross-platform script migration** (XSPEC-179 + XSPEC-180): Bash scripts are
+> being progressively replaced by single-source TypeScript / Node.js ESM
+> equivalents that run unchanged on macOS / Linux / Windows. Legacy `.sh` files
+> remain with `DEPRECATED` notices for backward compatibility.
+
+### Added
+
+- **AI tool table coverage** (`README.md`, `locales/zh-TW/README.md`, `locales/zh-CN/README.md`): Added five previously missing tools — GitHub Copilot, OpenAI Codex, Aider, Continue, Google Antigravity. Introduced a ⚠ Minimal status legend entry. (`1b588e1`)
+- **`scripts/bump-version.mjs`** (XSPEC-179 Phase 1): Cross-platform version-bump implementation, on par with the legacy `.sh`. (`1a44e14`)
+- **`scripts/install-hooks.mjs`** (XSPEC-179 Phase 1): Cross-platform git hooks installer; skips `chmod` automatically on Windows. (`1a44e14`)
+- **`scripts/pre-commit.mjs`** (XSPEC-180): Node.js ESM implementation of the pre-commit hook, with a platform branch that calls `check-translation-sync.ps1` on Windows and `.sh` elsewhere. (`1572869`)
+- **7 TypeScript check scripts** (XSPEC-179 Phase 2, `0a26d14`): Migrated from bash to a single TypeScript source executed via `tsx`:
+  - `scripts/check-ai-behavior-sync.ts`
+  - `scripts/check-commit-spec-reference.ts`
+  - `scripts/check-flow-gate-report.ts`
+  - `scripts/check-integration-commands-sync.ts`
+  - `scripts/check-registry-completeness.ts`
+  - `scripts/check-release-readiness-signoff.ts`
+  - `scripts/check-workflow-compliance.ts`
+- **`tsx@^4.20.0`** added to root `devDependencies` (XSPEC-179 Phase 2, `0a26d14`).
+- **7 npm scripts** wiring the TypeScript checks (`0a26d14`): `check:ai-behavior`, `check:commit-spec`, `check:flow-gate`, `check:integration-commands`, `check:registry`, `check:release-signoff`, `check:workflow-compliance`.
+
+### Changed
+
+- **REGISTRY**: `roo-code` integration tier moved from `planned` to `partial`; Roo Code split out from the Cline row in the AI tool table. (`1b588e1`)
+- **`.githooks/pre-commit`** (XSPEC-180, `1572869`): Reduced from a 51-line bash implementation to a 16-line POSIX `sh` shim that delegates to `scripts/pre-commit.mjs`.
+- **`scripts/bump-version.mjs`** (`19ad314`): Added `buildCmd()` helper that switches to PowerShell + `.ps1` on Windows when invoking `check-version-sync` / `check-translation-sync`, restoring parity on Windows.
+- **XSPEC-179 Phase 2 strategy revision** (`0a26d14`): Abandoned the previous `.sh` + `.ps1` dual-track plan in favour of a **single TypeScript source** approach. A single `.ts` file runs unchanged across all platforms via `tsx`, eliminating the "can only verify on Windows" feedback gap.
+
+### Deprecated
+
+- **`scripts/bump-version.sh`** (`1a44e14`): Marked DEPRECATED; superseded by `bump-version.mjs`.
+- **`scripts/install-hooks.sh`** (`1a44e14`): Marked DEPRECATED; superseded by `install-hooks.mjs`.
+- **7 legacy `check-*.sh` scripts** (`0a26d14`): Their `.ts` counterparts (above) are now the canonical implementation. The `.sh` files are retained for legacy Linux/macOS environments but should not receive new features.
+
+### Fixed
+
+- **`scripts/check-release-readiness-signoff.sh`** (`0a26d14`, latent bug fixed in TypeScript port): Faulty `grep -c "0\n0"` pattern (which never matched a literal `\n`) corrected so missing sign-off signals are detected reliably.
+- **`scripts/check-integration-commands-sync.sh`** (`0a26d14`, latent bug fixed in TypeScript port): Eliminated SIGPIPE noise originating from a broken pipe between `find` and downstream consumers.
+
 ## [5.6.0] - 2026-05-06
 
 > **Minor Release**: Full Coverage Testing Paradigm (XSPEC-178) — abolishes pyramid thresholds in favour of behaviour-completeness (happy / edge / error path per public function), ratchet CI, anti-fake-test enforcement, and STUB marker protocol.
