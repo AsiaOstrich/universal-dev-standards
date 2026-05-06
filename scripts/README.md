@@ -58,6 +58,28 @@ git config --unset core.hooksPath
 
 Legacy equivalent: `./scripts/install-hooks.sh` (macOS/Linux only)
 
+### Pre-commit hook (cross-platform) / 預提交鉤子（跨平台）
+
+The git pre-commit hook is implemented in Node.js for cross-platform support
+(XSPEC-180):
+
+- `.githooks/pre-commit` — Thin POSIX `sh` shim (works on macOS / Linux /
+  Windows via Git for Windows' bundled `sh`).
+- `scripts/pre-commit.mjs` — Real logic (Node.js ESM, no bash dependencies).
+
+Install once with `node scripts/install-hooks.mjs`. The hook is **advisory**:
+it warns when modifying `core/*.md` standards without updating translations,
+but never blocks the commit. Hard gates (exit 1) live in
+`pre-release-check.sh`, not here.
+
+The translation sync check is platform-aware: PowerShell + `.ps1` on Windows,
+bash + `.sh` on macOS/Linux (via the same `buildCmd()` pattern as
+`bump-version.mjs`).
+
+git pre-commit hook 已改為 Node.js 跨平台實作（XSPEC-180）：`.githooks/pre-commit`
+為極簡 POSIX `sh` 殼層，實際邏輯在 `scripts/pre-commit.mjs`。Hook 為 advisory，
+僅在修改 `core/*.md` 但翻譯未同步時警告，不會擋 commit。
+
 ## Testing convention / 測試慣例
 
 All non-trivial shell scripts SHOULD have **smoke tests** under
