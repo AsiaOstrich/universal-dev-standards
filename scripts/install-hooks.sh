@@ -1,4 +1,6 @@
 #!/bin/bash
+# DEPRECATED: Use 'node scripts/install-hooks.mjs' instead (cross-platform).
+# This script remains for legacy Linux/macOS compatibility.
 #
 # UDS Git Hooks Installer
 # 安裝 Git Hooks 腳本

@@ -7,8 +7,56 @@ Maintenance, sync-check and release-automation scripts for the UDS repository.
 
 - `*.sh` — POSIX/bash scripts (primary on macOS / Linux CI)
 - `*.ps1` — PowerShell mirrors (Windows contributors)
-- `*.mjs` — Node-based generators (manifest, docs, version)
+- `*.mjs` — Node-based generators (manifest, docs, version); cross-platform replacements for critical `.sh` scripts
 - `hooks/`, `transform/` — sub-tooling
+
+## Cross-platform release scripts / 跨平台發版腳本
+
+The following Node.js ESM scripts are the **recommended** way to run release operations
+on any platform (macOS, Linux, Windows). The `.sh` originals are kept for legacy
+compatibility but carry a DEPRECATED notice.
+
+以下 Node.js ESM 腳本是在任何平台（macOS、Linux、Windows）執行發版操作的**推薦方式**。
+`.sh` 原檔保留供舊環境相容，但已標記為棄用。
+
+### `bump-version.mjs` — Version bump / 版本升版
+
+```bash
+# Bump to a beta release / 升版至 beta
+node scripts/bump-version.mjs 5.7.0-beta.1
+
+# Bump to a stable release / 升版至穩定版
+node scripts/bump-version.mjs 5.7.0
+```
+
+Updates all version files atomically:
+- `cli/package.json`
+- `cli/standards-registry.json` (all `version` fields)
+- `uds-manifest.json` (`version` + `last_updated`)
+- `README.md`, `locales/zh-TW/README.md`, `locales/zh-CN/README.md`
+- `locales/*/CHANGELOG.md` frontmatter (`source_version`, `translation_version`, `last_synced`)
+- `.claude-plugin/plugin.json` and `marketplace.json` (stable releases only)
+
+Then verifies consistency via `check-version-sync.sh` and runs `check-translation-sync.sh`
+as an advisory check.
+
+Legacy equivalent: `./scripts/bump-version.sh <version>` (macOS/Linux only)
+
+### `install-hooks.mjs` — Git hooks installer / Git Hooks 安裝程式
+
+```bash
+node scripts/install-hooks.mjs
+```
+
+Configures git to use `.githooks/` as the hooks directory.
+Skips `chmod` automatically on Windows.
+
+Uninstall / 解除安裝:
+```bash
+git config --unset core.hooksPath
+```
+
+Legacy equivalent: `./scripts/install-hooks.sh` (macOS/Linux only)
 
 ## Testing convention / 測試慣例
 

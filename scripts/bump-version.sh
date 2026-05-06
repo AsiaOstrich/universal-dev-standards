@@ -1,4 +1,6 @@
 #!/bin/bash
+# DEPRECATED: Use 'node scripts/bump-version.mjs <version>' instead (cross-platform).
+# This script remains for legacy Linux/macOS compatibility.
 #
 # Version Bump Script
 # 版本升版腳本
