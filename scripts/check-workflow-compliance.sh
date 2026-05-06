@@ -1,4 +1,7 @@
 #!/bin/sh
+# DEPRECATED: Use 'npx tsx scripts/check-workflow-compliance.ts' instead (cross-platform).
+# This script remains for legacy Linux/macOS compatibility.
+#
 # Workflow Compliance Check — WARNING ONLY (non-blocking)
 #
 # Checks for workflow compliance issues and prints warnings.

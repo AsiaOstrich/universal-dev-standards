@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# DEPRECATED: Use 'npx tsx scripts/check-flow-gate-report.ts' instead (cross-platform).
+# This script remains for legacy Linux/macOS compatibility.
+#
 # check-flow-gate-report.sh
 # Verifies that flow_gate_report.json exists and has valid summary.status.
 # Part of UDS Release Readiness Gate (core/release-readiness-gate.md, Dimension 16).

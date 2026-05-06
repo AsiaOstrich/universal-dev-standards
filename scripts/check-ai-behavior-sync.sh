@@ -1,4 +1,6 @@
 #!/bin/bash
+# DEPRECATED: Use 'npx tsx scripts/check-ai-behavior-sync.ts' instead (cross-platform).
+# This script remains for legacy Linux/macOS compatibility.
 #
 # AI Agent Behavior Sync Checker
 # AI Agent Behavior 覆蓋率檢查器

@@ -1,4 +1,7 @@
 #!/bin/sh
+# DEPRECATED: Use 'npx tsx scripts/check-commit-spec-reference.ts' instead (cross-platform).
+# This script remains for legacy Linux/macOS compatibility.
+#
 # Commit-msg Spec Reference Suggestion — WARNING ONLY (non-blocking)
 #
 # For feat/fix commits, suggests adding Refs: SPEC-XXX if active specs exist.

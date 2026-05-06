@@ -1,4 +1,6 @@
 #!/bin/bash
+# DEPRECATED: Use 'npx tsx scripts/check-integration-commands-sync.ts' instead (cross-platform).
+# This script remains for legacy Linux/macOS compatibility.
 #
 # Integration Commands Sync Checker
 # 整合命令同步檢查器

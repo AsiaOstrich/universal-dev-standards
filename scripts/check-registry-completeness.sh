@@ -1,4 +1,6 @@
 #!/bin/bash
+# DEPRECATED: Use 'npx tsx scripts/check-registry-completeness.ts' instead (cross-platform).
+# This script remains for legacy Linux/macOS compatibility.
 #
 # Registry Completeness Checker
 # 註冊表完整性檢查器

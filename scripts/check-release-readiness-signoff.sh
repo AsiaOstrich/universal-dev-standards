@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# DEPRECATED: Use 'npx tsx scripts/check-release-readiness-signoff.ts' instead (cross-platform).
+# This script remains for legacy Linux/macOS compatibility.
+#
 # check-release-readiness-signoff.sh
 # Verifies that a Release Readiness Sign-off document exists for the current release.
 # Part of UDS Release Readiness Gate (core/release-readiness-gate.md).

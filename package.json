@@ -2,7 +2,8 @@
   "devDependencies": {
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
-    "opencc-js": "^1.3.0"
+    "opencc-js": "^1.3.0",
+    "tsx": "^4.20.0"
   },
   "scripts": {
     "commitlint": "commitlint --edit",
@@ -12,7 +13,14 @@
     "docs:manifest": "node scripts/sync-manifest.mjs",
     "docs:generate": "node scripts/generate-docs.mjs",
     "docs:sync": "npm run docs:manifest && npm run docs:generate",
-    "test:scripts": "tests/bats/bin/bats tests/scripts/"
+    "test:scripts": "tests/bats/bin/bats tests/scripts/",
+    "check:ai-behavior": "tsx scripts/check-ai-behavior-sync.ts",
+    "check:commit-spec": "tsx scripts/check-commit-spec-reference.ts",
+    "check:flow-gate": "tsx scripts/check-flow-gate-report.ts",
+    "check:integration-commands": "tsx scripts/check-integration-commands-sync.ts",
+    "check:registry": "tsx scripts/check-registry-completeness.ts",
+    "check:release-signoff": "tsx scripts/check-release-readiness-signoff.ts",
+    "check:workflow-compliance": "tsx scripts/check-workflow-compliance.ts"
   },
   "type": "module",
   "dependencies": {
