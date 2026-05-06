@@ -9,6 +9,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.6.0] - 2026-05-06
+
+> **Minor Release**: Full Coverage Testing Paradigm (XSPEC-178) — abolishes pyramid thresholds in favour of behaviour-completeness (happy / edge / error path per public function), ratchet CI, anti-fake-test enforcement, and STUB marker protocol.
+
+### Added
+
+- **`ai/standards/full-coverage-testing.ai.yaml`** — New standard defining the Full Coverage Testing Paradigm: behaviour-completeness model, ratchet CI policy, anti-fake-test rules (no tautology assertions, no mocking core business logic), STUB marker protocol, `@ac` AC-traceability tagging, and `COVERAGE_EXEMPT` exemption format (XSPEC-178)
+- **`core/full-coverage-testing.md`** — Human-readable companion to the new YAML standard; required by pre-commit standards-sync hook
+
+### Changed
+
+- **`ai/standards/testing.ai.yaml`**: Added `deprecated_rules` block; pyramid threshold rules (`follow-pyramid`) deprecated since v5.5.0 and replaced by `follow-full-coverage` pointing to the new standard
+- **`ai/options/testing/unit-testing.ai.yaml`**: Removed `pyramid_percentage: 70%`; replaced with `coverage_policy: "Behaviour-completeness ratchet (XSPEC-178)"`
+- **`ai/options/testing/integration-testing.ai.yaml`**: Removed `pyramid_percentage: 20%`; replaced with ratchet coverage policy targeting all critical integration paths
+- **`cli/standards-registry.json`**: Added `full-coverage-testing` entry (category: `skill`, skillName: `testing-guide`); updated `testing` entry description to remove pyramid threshold percentages
+- **`cli/src/commands/init.js`**: `standardOptions` now includes `coverage_model: 'full-coverage'` default
+- **`cli/src/commands/update.js`**: v5.5.0 migration block sets `options.coverage_model = 'full-coverage'` on upgrade and prints paradigm-shift notice
+- **`cli/src/commands/check.js`**: Added `checkFullCoverageCompliance()` — warns when `full-coverage-testing.ai.yaml` is missing in v5.5.0+ projects, reports STUB marker count in `src/`
+
+### Also in this release (post-v5.5.0 fixes)
+
+- **`core/`**: Added `release-readiness-gate.md` aggregation standard; extended `browser-compatibility-standards.md`; closed coverage gaps for a11y threshold, contract testing, cross-flow regression, and capacity sign-off
+- **`templates/`**: Expanded flow test matrix to multi-gate model with UAT script column; added flow specification section to `requirement-template.md`
+- **`flows/`**: Wired Multi-Gate Flow into RQM and pre-release pipeline
+- **`cli/package.json`**: Bumped `@inquirer/prompts` 8.4.2, `ora` 9.4.0, `vitest` 4.1.5, `ajv` 8.20.0, `opencc-js` 1.3.0, `@commitlint` 20.5.3
+- **CLAUDE.md / docs**: Added XSPEC-176 source-of-truth precedence note
+
+### Migration from Pyramid Thresholds
+
+Projects upgrading from `< 5.5.0` will receive a migration notice via `uds update`:
+
+```
+⚠ Testing paradigm migrated to Full Coverage (XSPEC-178).
+  full-coverage-testing.ai.yaml installed. Remove coverageThreshold from jest/vitest config.
+```
+
+See `core/full-coverage-testing.md` for the complete migration checklist (delete `coverageThreshold`, install `.coverage-baseline.json`, add ratchet scripts to CI).
+
+## [5.5.0] - 2026-05-05
+
+> **Minor Release**: 17 New Standards — Testing Security, LLM Output Validation, Supply Chain Integrity, Release Quality. See [GitHub Release](https://github.com/AsiaOstrich/universal-dev-standards/releases/tag/v5.5.0) for full notes.
+
 ## [5.4.0] - 2026-04-27
 
 > **Minor Release**: XSPEC-086 Phase 2 — 8 個純流程/編排標準遷移至 DevAP（deprecated stubs 保留向後相容）。UDS 職責回歸活動定義層，流程編排交由 DevAP 負責（DEC-049）。
