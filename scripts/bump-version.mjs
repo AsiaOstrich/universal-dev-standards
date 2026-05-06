@@ -20,6 +20,21 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 
+const IS_WINDOWS = process.platform === 'win32';
+
+/**
+ * Build a platform-aware shell command for a .sh script.
+ * On Windows, falls back to the .ps1 counterpart if it exists.
+ * Returns null when no runnable variant is found.
+ */
+function buildCmd(shPath) {
+  if (!IS_WINDOWS) return existsSync(shPath) ? `bash "${shPath}"` : null;
+  const ps1Path = shPath.replace(/\.sh$/, '.ps1');
+  return existsSync(ps1Path)
+    ? `powershell -ExecutionPolicy Bypass -File "${ps1Path}"`
+    : null;
+}
+
 // ── ANSI colours (no external dependency) ──────────────────────────────────
 const RED    = '\x1b[0;31m';
 const GREEN  = '\x1b[0;32m';
@@ -192,33 +207,33 @@ if (!IS_PRERELEASE) {
   console.log(`  ${YELLOW}[SKIP]${NC} .claude-plugin/ files (pre-release — marketplace keeps stable version)`);
 }
 
-// ── Verify with check-version-sync.sh ─────────────────────────────────────
+// ── Verify with check-version-sync (platform-aware) ───────────────────────
 console.log('');
 console.log('── Running version sync verification ────────────────────────────────────');
 console.log('');
 
-const syncScript = join(SCRIPT_DIR, 'check-version-sync.sh');
-if (existsSync(syncScript)) {
+const syncCmd = buildCmd(join(SCRIPT_DIR, 'check-version-sync.sh'));
+if (syncCmd) {
   try {
-    execSync(`bash "${syncScript}"`, { stdio: 'inherit' });
+    execSync(syncCmd, { stdio: 'inherit' });
   } catch {
     console.log('');
     console.error(`${RED}Version sync check FAILED. Please fix the above mismatches before committing.${NC}`);
     process.exit(1);
   }
 } else {
-  console.log(`${YELLOW}[WARN]${NC} check-version-sync.sh not found, skipping verification`);
+  console.log(`${YELLOW}[WARN]${NC} check-version-sync script not found for this platform, skipping verification`);
 }
 
-// ── Translation sync advisory check ──────────────────────────────────────
+// ── Translation sync advisory check (platform-aware) ──────────────────────
 console.log('');
 console.log('── Checking translation sync status ─────────────────────────────────────');
 console.log('');
 
-const translationScript = join(SCRIPT_DIR, 'check-translation-sync.sh');
-if (existsSync(translationScript)) {
+const translationCmd = buildCmd(join(SCRIPT_DIR, 'check-translation-sync.sh'));
+if (translationCmd) {
   try {
-    execSync(`bash "${translationScript}"`, { stdio: 'inherit' });
+    execSync(translationCmd, { stdio: 'inherit' });
   } catch {
     console.log('');
     console.log(`${YELLOW}[WARN]${NC} Translation sync check found release-blocking issues.`);
@@ -227,7 +242,7 @@ if (existsSync(translationScript)) {
     // Advisory only — do not exit 1
   }
 } else {
-  console.log(`${YELLOW}[SKIP]${NC} check-translation-sync.sh not found`);
+  console.log(`${YELLOW}[SKIP]${NC} check-translation-sync script not found for this platform`);
 }
 
 // ── Summary ───────────────────────────────────────────────────────────────
