@@ -4,7 +4,6 @@
   "lastUpdated": "2026-01-26",
   "description": "AI Agent integration registry for cross-agent sync verification",
   "descriptionZh": "AI Agent 整合註冊表，用於跨 Agent 同步驗證",
-
   "agents": {
     "claude-code": {
       "name": "Claude Code",
@@ -145,14 +144,16 @@
     },
     "roo-code": {
       "name": "Roo Code",
-      "tier": "planned",
-      "integrationFiles": [],
-      "instructionFile": null,
-      "rulesLocation": null,
+      "tier": "partial",
+      "integrationFiles": [
+        "integrations/cline/.clinerules"
+      ],
+      "instructionFile": "integrations/cline/.clinerules",
+      "rulesLocation": "integrations/cline/",
       "supportsSkills": true,
       "supportsAgents": true,
       "supportsWorkflows": true,
-      "note": "Planned integration - not yet implemented"
+      "note": "Uses Cline .clinerules (fully compatible); no dedicated integrations/roo-code/ directory yet"
     },
     "spec-kit": {
       "name": "Spec Kit",
@@ -181,34 +182,71 @@
       "note": "SDD tool, not AI coding assistant"
     }
   },
-
   "tiers": {
     "complete": {
       "name": "Complete Support",
       "nameZh": "完全支援",
       "description": "Full UDS integration with Skills, Agents, and Workflows support",
-      "requiredRules": ["AH-001", "AH-002", "AH-003", "AH-004", "SDD-001", "SDD-002", "CMT-001"],
-      "requiredCategories": ["core", "testing", "quality", "docs", "ops", "methodology", "reference"]
+      "requiredRules": [
+        "AH-001",
+        "AH-002",
+        "AH-003",
+        "AH-004",
+        "SDD-001",
+        "SDD-002",
+        "CMT-001"
+      ],
+      "requiredCategories": [
+        "core",
+        "testing",
+        "quality",
+        "docs",
+        "ops",
+        "methodology",
+        "reference"
+      ]
     },
     "partial": {
       "name": "Partial Support",
       "nameZh": "部分支援",
       "description": "Basic UDS integration with core anti-hallucination and commit rules",
-      "requiredRules": ["AH-001", "AH-002", "AH-003", "AH-004", "SDD-001", "CMT-001"],
-      "requiredCategories": ["core", "testing", "quality", "docs", "ops", "methodology", "reference"]
+      "requiredRules": [
+        "AH-001",
+        "AH-002",
+        "AH-003",
+        "AH-004",
+        "SDD-001",
+        "CMT-001"
+      ],
+      "requiredCategories": [
+        "core",
+        "testing",
+        "quality",
+        "docs",
+        "ops",
+        "methodology",
+        "reference"
+      ]
     },
     "minimal": {
       "name": "Minimal Support",
       "nameZh": "最小支援",
       "description": "Minimal integration with basic guidelines",
-      "requiredRules": ["AH-001", "AH-002"],
+      "requiredRules": [
+        "AH-001",
+        "AH-002"
+      ],
       "requiredCategories": []
     },
     "preview": {
       "name": "Preview",
       "nameZh": "預覽版",
       "description": "Experimental integration under development",
-      "requiredRules": ["AH-001", "AH-002", "AH-003"],
+      "requiredRules": [
+        "AH-001",
+        "AH-002",
+        "AH-003"
+      ],
       "requiredCategories": []
     },
     "planned": {
@@ -226,7 +264,6 @@
       "requiredCategories": []
     }
   },
-
   "syncRules": {
     "AH-001": {
       "id": "AH-001",
@@ -339,9 +376,11 @@
       "section": "Commit Message Format"
     }
   },
-
   "checkConfig": {
-    "excludeAgents": ["planned", "tool"],
+    "excludeAgents": [
+      "planned",
+      "tool"
+    ],
     "verboseOutput": false,
     "failOnWarning": false,
     "reportFormat": "summary"

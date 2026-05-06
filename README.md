@@ -98,12 +98,17 @@ graph TD
 | :--- | :--- | :---: | :---: | :--- |
 | **Claude Code** | ✅ Complete | **29** | **33** | `CLAUDE.md` |
 | **OpenCode** | ✅ Complete | **29** | **33** | `AGENTS.md` |
-| **Gemini CLI** | 🧪 Preview | **18+** | **20+** | `GEMINI.md` |
 | **Cursor** | ✅ Complete | **Core** | **Simulated** | `.cursorrules` |
-| **Cline / Roo Code**| 🔶 Partial | **Core** | **Workflow** | `.clinerules` |
-| **Windsurf** | 🔶 Partial | ✅ | **Rulebook** | `.windsurfrules` |
+| **Gemini CLI** | 🧪 Preview | **18+** | **20+** | `GEMINI.md` |
+| **Cline / Roo Code** | 🔶 Partial | **Core** | **Workflow** | `.clinerules` |
+| **Windsurf** | 🔶 Partial | **Core** | **Rulebook** | `.windsurfrules` |
+| **GitHub Copilot** | 🔶 Partial | **Core** | **Prompts** | `.github/copilot-instructions.md` |
+| **OpenAI Codex** | 🔶 Partial | **Core** | — | `AGENTS.md` |
+| **Aider** | 🔶 Partial | — | — | `AGENTS.md` |
+| **Continue** | 🔶 Partial | — | — | `.continue/config.json` |
+| **Google Antigravity** | ⚠️ Minimal | — | — | `.antigravity/rules.md` |
 
-> **Status Legend**: ✅ Complete | 🧪 Preview | 🔶 Partial | ⏳ Planned
+> **Status Legend**: ✅ Complete | 🧪 Preview | 🔶 Partial | ⚠️ Minimal | ⏳ Planned
 
 ---
 
@@ -163,7 +168,7 @@ UDS (What to do) → DevAP (How agents do it) → VibeOps (Full lifecycle)
 - **DevAP** orchestrates AI agents using UDS standards → VibeOps is one of its consumers
 - **VibeOps** provides full software lifecycle → integrates UDS via `uds init` (copy-once)
 
-UDS remains **tool-agnostic**: it supports Claude Code, OpenCode, Gemini CLI, Cursor, Cline, and Windsurf. DevAP and VibeOps are consumers, not requirements.
+UDS remains **tool-agnostic**: it supports Claude Code, OpenCode, Gemini CLI, Cursor, Cline, Roo Code, Windsurf, GitHub Copilot, OpenAI Codex, Aider, Continue, and Google Antigravity. DevAP and VibeOps are consumers, not requirements.
 
 ---
 
