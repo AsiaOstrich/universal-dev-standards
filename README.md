@@ -153,23 +153,22 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## 🌐 Ecosystem
 
-UDS is the **standards definition layer** in the AsiaOstrich three-layer product architecture:
+UDS is a **standards-definition library** — the source of `what good development looks like`. It is consumed by adoption layers (Adapters, Pipelines, Agents, IDEs) but does not bundle, mandate, or endorse any specific orchestration product.
 
 ```
-UDS (What to do) → DevAP (How agents do it) → VibeOps (Full lifecycle)
+UDS (What to do) ──→ Adoption Layer (any Adapter / Pipeline / Agent / IDE)
 ```
 
-| Layer | Product | Role | License |
-|-------|---------|------|---------|
-| Standards | **UDS** | Development methodology framework | MIT + CC BY 4.0 |
-| Orchestration | [DevAP](https://github.com/AsiaOstrich/dev-autopilot) | Agent-agnostic orchestration engine | MIT |
-| Lifecycle | [VibeOps](https://github.com/AsiaOstrich/vibeops360) | AI-driven software factory | AGPL-3.0-only |
+| Layer | Component | Role | License |
+|-------|-----------|------|---------|
+| Standards | **UDS** | Tool-agnostic development methodology framework | MIT + CC BY 4.0 |
+| Adoption | (your project / pipeline / agent runtime) | Reads `.standards/` and applies them in context | (your choice) |
 
-- **UDS** defines development standards → consumed by DevAP (quality gates) and VibeOps (agent pipeline)
-- **DevAP** orchestrates AI agents using UDS standards → VibeOps is one of its consumers
-- **VibeOps** provides full software lifecycle → integrates UDS via `uds init` (copy-once)
+- **UDS** defines development standards → installed via `uds init` (copy-once) into any project
+- **Adoption layer** chooses how to enforce them: quality gates, agent prompts, CI checks, IDE rules
+- **No vendor lock-in**: UDS itself is pure standards content; you bring your own runtime
 
-UDS remains **tool-agnostic**: it supports Claude Code, OpenCode, Gemini CLI, Cursor, Cline, Roo Code, Windsurf, GitHub Copilot, OpenAI Codex, Aider, Continue, and Google Antigravity. DevAP and VibeOps are consumers, not requirements.
+UDS is **tool-agnostic**: it supports Claude Code, OpenCode, Gemini CLI, Cursor, Cline, Roo Code, Windsurf, GitHub Copilot, OpenAI Codex, Aider, Continue, and Google Antigravity. Any of them — or none — can act as the adoption layer.
 
 ---
 

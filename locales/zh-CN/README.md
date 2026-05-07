@@ -161,23 +161,22 @@ uds uninstall   # 从项目移除标准
 
 ## 🌐 生态系统
 
-UDS 是 AsiaOstrich 三层产品架构中的**标准定义层**：
+UDS 是一个**纯标准定义库**（Standards Definition Library）——定义「什么是好的开发方式」。它由任意采用层（Adapter / Pipeline / Agent / IDE）消费，但本身**不绑定**任何特定编排产品。
 
 ```
-UDS（定义什么） → DevAP（代理如何执行） → VibeOps（完整生命周期）
+UDS（定义什么） ──→ 采用层（任意 Adapter / Pipeline / Agent / IDE）
 ```
 
-| 层级 | 产品 | 角色 | 授权 |
+| 层级 | 组件 | 角色 | 授权 |
 |------|------|------|------|
-| 标准 | **UDS** | 开发方法论框架 | MIT + CC BY 4.0 |
-| 编排 | [DevAP](https://github.com/AsiaOstrich/dev-autopilot) | 代理无关的编排引擎 | MIT |
-| 生命周期 | [VibeOps](https://github.com/AsiaOstrich/vibeops360) | AI 驱动的软件工厂 | AGPL-3.0-only |
+| 标准 | **UDS** | 工具无关的开发方法论框架 | MIT + CC BY 4.0 |
+| 采用层 | （你的项目 / pipeline / Agent runtime） | 读取 `.standards/` 并依情境套用 | （由你决定） |
 
-- **UDS** 定义开发标准 → 供 DevAP（质量 Gate）和 VibeOps（代理管线）使用
-- **DevAP** 使用 UDS 标准编排 AI 代理 → VibeOps 是其消费者之一
-- **VibeOps** 提供完整软件生命周期 → 通过 `uds init` 集成 UDS（一次复制）
+- **UDS** 定义开发标准 → 通过 `uds init`（一次复制）安装至任何项目
+- **采用层** 自行决定执行方式：质量闸门、代理 prompt、CI 检查、IDE 规则
+- **无供应商锁定**：UDS 本身只是纯标准内容，runtime 由你选择
 
-UDS 保持**工具无关性**：支持 Claude Code、OpenCode、Gemini CLI、Cursor、Cline、Roo Code、Windsurf、GitHub Copilot、OpenAI Codex、Aider、Continue 和 Google Antigravity。DevAP 和 VibeOps 是消费者，并非必要依赖。
+UDS 保持**工具无关性**：支持 Claude Code、OpenCode、Gemini CLI、Cursor、Cline、Roo Code、Windsurf、GitHub Copilot、OpenAI Codex、Aider、Continue 和 Google Antigravity。其中任一个——或都不用——皆可作为采用层。
 
 ---
 

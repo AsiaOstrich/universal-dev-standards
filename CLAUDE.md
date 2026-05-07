@@ -461,33 +461,32 @@ For testing requirements, follow [core/testing-standards.md](core/testing-standa
 
 ---
 
-## 跨產品整合策略
+## 採用層整合策略
 
-UDS 在 AsiaOstrich 三層產品架構中定位為**標準定義層**：
+UDS 定位為**純標準庫**（Standards Definition Library）。它定義「該做什麼」，並透過 `.standards/` 由任意採用層（Adapters / Pipelines / Agents / IDE）讀取與執行。UDS 本身**不綁定**任何特定下游產品、不提供 runtime、不指定授權模式。
 
 ```
-UDS (標準定義) ──→ DevAP (編排執行) ──→ VibeOps (全生命週期)
-  MIT + CC BY 4.0     Apache-2.0          AGPL-3.0-only
+UDS（標準定義；MIT + CC BY 4.0）──→ 採用層（任意 Adapter / Pipeline / Agent / IDE）
 ```
 
 ### UDS 的角色
 
-1. **標準來源**：UDS 定義的 70+ 項標準被 DevAP 和 VibeOps 消費
-2. **工具無關**：UDS 支援 9 種 AI 工具，DevAP/VibeOps 只是消費者之一
-3. **授權隔離**：UDS 的 MIT + CC BY 4.0 授權不受消費者的 AGPL/Apache 影響
+1. **標準來源**：UDS 定義 70+ 項標準供任意採用層消費
+2. **工具無關**：UDS 支援 12+ 種 AI 工具與一般 CI / IDE 整合
+3. **授權獨立**：UDS 採 MIT + CC BY 4.0；採用層的授權選擇與 UDS 無關
 
-### 標準如何流向 DevAP / VibeOps
+### 標準如何流向採用層
 
 | 流向 | 機制 | 說明 |
 |------|------|------|
-| UDS → DevAP | `.standards/` copy-once | DevAP 透過 `uds init` 安裝標準，QualityGate 讀取 |
-| UDS → VibeOps | `.standards/` copy-once | VibeOps 透過 `uds init` 安裝標準，Agent prompt 引用 |
-| UDS → DevAP → VibeOps | TestPolicy bridge | UDS test-governance → DevAP TestPolicy → VibeOps Builder TDD |
+| UDS → 採用層 | `.standards/` copy-once | 採用層透過 `uds init` 安裝標準，於 Quality Gate / Agent prompt / IDE rule 中讀取 |
+| UDS → CI 整合 | `.standards/` 引用 | CI / pre-commit hook 讀取對應 `.ai.yaml` 進行驗證 |
+| UDS → 採用層 bridges | 例如 TestPolicy 格式 | 採用層在 UDS 之上建立特定 bridge（如 test-governance → TestPolicy）|
 
 ### 對 UDS 開發的影響
 
-- 新增/修改標準時，需考慮 DevAP 和 VibeOps 的消費場景
-- test-governance.ai.yaml 的 TestPolicy 格式需與 DevAP types.ts 對齊
+- 新增/修改標準時，需考慮**通用採用場景**（不假設特定下游產品的內部結構）
+- 標準格式需保持中性、可攜（不嵌入採用層的實作細節）
 - 標準的 scope 標記（universal/partial/uds-specific）影響可攜性
 
 ---
