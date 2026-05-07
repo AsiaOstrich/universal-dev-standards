@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **Skill tiering & budget tuning** (XSPEC-185 / DEC-061): Three-tier classification (Core / Advanced / Specialist) for the 40+ UDS skills, addressing Claude Code's `/doctor` warning about truncated skill descriptions when adopters install extra plugins. New artifacts:
+  - `skills/README.md` §Skill Tiers — tier membership table
+  - `flows/skill-tiering-rationale.md` — tiering criteria and DEC-051 mapping
+  - `examples/skill-overrides-recommended.json` — copy-paste `skillOverrides` reference (Tier 3 → `"name-only"`)
+  - `docs/skill-budget-tuning.md` — adopter guide (user/project settings, customization, raising budget)
+
+  **Adopter action (optional)**: merge the `skillOverrides` block from `examples/skill-overrides-recommended.json` into your `~/.claude/settings.json` or project `.claude/settings.json`. Tier 3 skills remain callable via `/<name>` — only Claude's auto-discovery listing is suppressed. See `docs/skill-budget-tuning.md`.
 - **AI tool table coverage** (`README.md`, `locales/zh-TW/README.md`, `locales/zh-CN/README.md`): Added five previously missing tools — GitHub Copilot, OpenAI Codex, Aider, Continue, Google Antigravity. Introduced a ⚠ Minimal status legend entry. (`1b588e1`)
 - **`scripts/bump-version.mjs`** (XSPEC-179 Phase 1): Cross-platform version-bump implementation, on par with the legacy `.sh`. (`1a44e14`)
 - **`scripts/install-hooks.mjs`** (XSPEC-179 Phase 1): Cross-platform git hooks installer; skips `chmod` automatically on Windows. (`1a44e14`)

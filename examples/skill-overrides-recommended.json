@@ -1,0 +1,18 @@
+{
+  "_comment_top": "UDS reference skillOverrides — see skills/README.md §Skill Tiers and docs/skill-budget-tuning.md for usage. Merge the skillOverrides block below into your ~/.claude/settings.json or project .claude/settings.json. Tier 3 skills remain callable via /<name>; only their descriptions are hidden from Claude's auto-discovery listing to save context budget.",
+  "_comment_provenance": "Generated per DEC-061 / XSPEC-185. Adopters are free to override (promote a Tier 3 to 'on' or demote any to 'name-only' / 'user-invocable-only').",
+
+  "skillOverrides": {
+    "incident-response-assistant": "name-only",
+    "observability-assistant": "name-only",
+    "slo-assistant": "name-only",
+    "runbook-assistant": "name-only",
+    "retrospective-assistant": "name-only",
+    "durable-execution-assistant": "name-only",
+    "metrics-dashboard-assistant": "name-only",
+    "migration-assistant": "name-only",
+    "security-scan-assistant": "name-only",
+    "brainstorm-assistant": "name-only",
+    "skill-builder": "name-only"
+  }
+}

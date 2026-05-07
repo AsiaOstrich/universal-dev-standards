@@ -67,6 +67,29 @@ These skills provide standard guidance and workflows. They can be accessed via s
 
 > **Note**: For reference guides (e.g., Git Workflow, Logging, Error Codes), use the `/guide` command.
 
+## Skill Tiers (Listing Budget Optimization)
+
+> Background: Claude Code reserves a fraction of context (default 1%) for skill listings via `skillListingBudgetFraction`. With 40+ UDS skills and adopter-installed plugins, descriptions can be truncated. UDS organizes skills into three tiers so adopters can optionally suppress less-used descriptions while keeping skills callable via `/<name>`.
+>
+> See [DEC-061](https://github.com/AsiaOstrich/dev-platform/blob/main/cross-project/decisions/DEC-061-uds-skill-listing-budget.md) for the decision and tradeoffs. Reference settings live in [`examples/skill-overrides-recommended.json`](../examples/skill-overrides-recommended.json). Detailed tuning: [`docs/skill-budget-tuning.md`](../docs/skill-budget-tuning.md).
+
+### Tier 1 — Core (daily use)
+**Listing default**: `"on"` (full description shown). Always auto-discoverable.
+
+`commit-standards`, `push`, `git-workflow-guide`, `tdd-assistant`, `bdd-assistant`, `testing-guide`, `code-review-assistant`, `refactoring-assistant`, `requirement-assistant`, `spec-driven-dev`, `adr-assistant`, `dev-workflow-guide`, `checkin-assistant`
+
+### Tier 2 — Advanced (weekly use)
+**Listing default**: `"on"` (full description shown).
+
+`atdd-assistant`, `e2e-assistant`, `journey-test-assistant`, `contract-test-assistant`, `security-assistant`, `deploy-assistant`, `ci-cd-assistant`, `error-code-guide`, `logging-guide`, `documentation-guide`, `api-design-assistant`, `database-assistant`, `project-structure-guide`, `ai-instruction-standards`, `release-standards`, `changelog-guide`, `test-coverage-assistant`, `pr-automation-assistant`, `spec-derivation`, `reverse-engineer`, `project-discovery`, `dev-methodology`, `audit-assistant`, `docs-generator`
+
+### Tier 3 — Specialist (monthly or event-driven)
+**Listing default**: `"name-only"` in reference overrides — saves tokens; **still callable via `/<name>`**.
+
+`incident-response-assistant`, `observability-assistant`, `slo-assistant`, `runbook-assistant`, `retrospective-assistant`, `durable-execution-assistant`, `metrics-dashboard-assistant`, `migration-assistant`, `security-scan-assistant`, `brainstorm-assistant`, `skill-builder`
+
+> Tier rationale & criteria: [`flows/skill-tiering-rationale.md`](../flows/skill-tiering-rationale.md). Adopters may freely override the reference (promote a Tier 3 skill to `"on"` if they use it daily, or demote any to `"name-only"`).
+
 ## Tool Adapters
 
 Specific configurations for various AI tools are located in `skills/tools/`.
