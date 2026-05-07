@@ -40,6 +40,7 @@ status: current
 
 ### 变更
 
+- **下游项目解耦**（6 批次，`ebe716c`–`2392c0f`）：所有公开叙述中对特定下游产品（DevAP / VibeOps）的直接引用已替换为采用层中性术语，涵盖 130+ 个文件。UDS 重申为纯 MIT + CC BY 4.0 标准库，与任何特定采用层无依赖关系。
 - **REGISTRY**：`roo-code` integration tier 从 `planned` 升为 `partial`；AI 工具表格中将 Roo Code 独立成行（不再与 Cline 合并）。（`1b588e1`）
 - **`.githooks/pre-commit`**（XSPEC-180，`1572869`）：从 51 行 bash 精简为 16 行 POSIX `sh` 薄壳层，将实际逻辑委派给 `scripts/pre-commit.mjs`。
 - **`scripts/bump-version.mjs`**（`19ad314`）：新增 `buildCmd()` 辅助函数，于 Windows 自动切换为 PowerShell + `.ps1` 来调用 `check-version-sync` / `check-translation-sync`，恢复 Windows 平台对等性。
@@ -50,6 +51,10 @@ status: current
 - **`scripts/bump-version.sh`**（`1a44e14`）：标记为 DEPRECATED，由 `bump-version.mjs` 取代。
 - **`scripts/install-hooks.sh`**（`1a44e14`）：标记为 DEPRECATED，由 `install-hooks.mjs` 取代。
 - **7 个 legacy `check-*.sh` 脚本**（`0a26d14`）：对应的 `.ts` 版本（如上）已成为 canonical 实现。`.sh` 文件保留供 legacy Linux/macOS 环境使用，但不应再新增功能。
+
+### 移除
+
+- **`.devap/` 目录**（`2392c0f`）：移除孤儿 DevAP dogfooding 安装目录。DevAP 已于 2026-04-28 退场（XSPEC-086/095）。
 
 ### 修复
 

@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- **Downstream-project decoupling** (6 Batches, `ebe716c`–`2392c0f`): All public-facing references to specific downstream projects (DevAP / VibeOps) replaced with adoption-layer neutral terminology across 130+ files. UDS is reaffirmed as a pure MIT + CC BY 4.0 standards library independent of any specific adoption layer. Key areas: `README.md`/`CLAUDE.md`/locales, `.standards/`/`ai/standards/` DEPRECATED stubs, `core/*.md`/locale mirrors, `cli/` source + tests, `skills/*/SKILL.md`, `flows/*.flow.yaml`/`flows/README.md`, `docs/specs/`, `specs/` root, `packaging-standards`, `git-worktree` path examples.
+
 - **REGISTRY**: `roo-code` integration tier moved from `planned` to `partial`; Roo Code split out from the Cline row in the AI tool table. (`1b588e1`)
 - **`.githooks/pre-commit`** (XSPEC-180, `1572869`): Reduced from a 51-line bash implementation to a 16-line POSIX `sh` shim that delegates to `scripts/pre-commit.mjs`.
 - **`scripts/bump-version.mjs`** (`19ad314`): Added `buildCmd()` helper that switches to PowerShell + `.ps1` on Windows when invoking `check-version-sync` / `check-translation-sync`, restoring parity on Windows.
@@ -43,6 +45,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **`scripts/bump-version.sh`** (`1a44e14`): Marked DEPRECATED; superseded by `bump-version.mjs`.
 - **`scripts/install-hooks.sh`** (`1a44e14`): Marked DEPRECATED; superseded by `install-hooks.mjs`.
 - **7 legacy `check-*.sh` scripts** (`0a26d14`): Their `.ts` counterparts (above) are now the canonical implementation. The `.sh` files are retained for legacy Linux/macOS environments but should not receive new features.
+
+### Removed
+
+- **`.devap/` directory** (`2392c0f`): Orphan DevAP dogfooding installation removed. DevAP retired 2026-04-28 (XSPEC-086/095); UDS now uses `flows/commit.flow.yaml` natively and `scripts/bump-version.mjs` for releases.
 
 ### Fixed
 
