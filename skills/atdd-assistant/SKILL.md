@@ -7,11 +7,10 @@ argument-hint: "[feature or spec | 功能或規格]"
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
   ATDD lifecycle orchestration (5-phase: WORKSHOP→DISTILLATION→DEVELOPMENT→DEMO→DONE,
-  INVEST validation, AC→Gherkin conversion, RED/GREEN execution, PO sign-off gates) extracted to:
-  - DevAP flow: dev-autopilot/.devap/flows/atdd.flow.yaml
-  - DevAP CLI:  devap atdd (packages/cli/src/commands/atdd.ts)
-  This Skill retains: INVEST criteria table, ATDD cycle diagram, Gherkin AC format, Three Amigos structure.
-  Use `devap atdd` for enforced lifecycle; this Skill for format and principle reference.
+  INVEST validation, AC→Gherkin conversion, RED/GREEN execution, PO sign-off gates) relocated to
+  adoption layer (XSPEC-095, 2026-04-28). This Skill retains: INVEST criteria table, ATDD cycle
+  diagram, Gherkin AC format, Three Amigos structure.
+  For enforced lifecycle execution, use your adoption layer's toolchain.
 -->
 
 # ATDD Assistant | ATDD 助手

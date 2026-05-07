@@ -6,11 +6,10 @@ allowed-tools: Read, Write, Grep, Glob, Bash(git:*)
 argument-hint: "[spec name or feature | 規格名稱或功能]"
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
-  SDD lifecycle orchestration (7-phase state machine, phase transitions, gate checks) extracted to:
-  - DevAP flow: dev-autopilot/.devap/flows/sdd.flow.yaml
-  - DevAP CLI:  devap sdd (packages/cli/src/commands/sdd.ts) with --phase jump support
-  This Skill retains: spec format definition, state descriptions, delta operations, decision tree.
-  Use `devap sdd` for enforced lifecycle; this Skill for spec structure reference.
+  SDD lifecycle orchestration (7-phase state machine, phase transitions, gate checks) relocated to
+  adoption layer (XSPEC-095, 2026-04-28). This Skill retains: spec format definition, state
+  descriptions, delta operations, decision tree.
+  For enforced lifecycle execution, use your adoption layer's toolchain.
 -->
 
 # Spec-Driven Development Assistant | 規格驅動開發助手

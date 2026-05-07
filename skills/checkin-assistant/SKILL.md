@@ -6,12 +6,10 @@ allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git status:*), Bash(npm 
 disable-model-invocation: true
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
-  Checkin workflow orchestration (gate execution sequence, abort logic) extracted to:
-  - DevAP flow: dev-autopilot/.devap/flows/checkin.flow.yaml
-  - DevAP CLI:  devap checkin (packages/cli/src/commands/checkin.ts)
-  - Flow spec:  dev-autopilot/standards/flow/checkin-gate-sequence.ai.yaml
-  This Skill retains: quality gate definitions, checklist items, never-commit rules.
-  Use `devap checkin` for enforced execution; this Skill for activity reference.
+  Checkin workflow orchestration (gate execution sequence, abort logic) relocated to adoption layer
+  (XSPEC-095, 2026-04-28). This Skill retains: quality gate definitions, checklist items,
+  never-commit rules.
+  For enforced execution, use your adoption layer's toolchain.
 -->
 
 # Check-in Assistant | 簽入助手

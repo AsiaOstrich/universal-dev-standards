@@ -34,7 +34,7 @@ Optionally auto-fix safe patterns (console.log, debugger statements).
 ```bash
 /sweep                        # Scan current directory, report findings
 /sweep --fix                  # Scan and auto-fix fixable patterns
-/sweep --report               # Scan and save report to .devap/sweep-report.json
+/sweep --report               # Scan and save report to .uds/sweep-report.json
 /sweep --path src/            # Scan specific directory
 /sweep --exclude "**/*.test.ts"  # Exclude patterns (glob)
 ```
@@ -78,7 +78,7 @@ Use Edit tool to apply changes file by file.
 Report: "Fixed N findings in M files."
 
 ### Step 6: Save Report (if --report)
-Write findings to `.devap/sweep-report.json`:
+Write findings to `.uds/sweep-report.json`:
 ```json
 {
   "timestamp": "<ISO8601>",

@@ -6,11 +6,10 @@ allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx vitest:*)
 argument-hint: "[feature or file | 功能或檔案]"
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
-  TDD flow orchestration (RED→GREEN→REFACTOR cycle, test execution gates) extracted to:
-  - DevAP flow: dev-autopilot/.devap/flows/tdd.flow.yaml
-  - DevAP CLI:  devap tdd (packages/cli/src/commands/tdd.ts)
-  This Skill retains: TDD principles, FIRST rules, AAA format, language examples, workflow guide.
-  Use `devap tdd` for enforced interactive cycle; this Skill for practice reference.
+  TDD flow orchestration (RED→GREEN→REFACTOR cycle, test execution gates) relocated to adoption
+  layer (XSPEC-095, 2026-04-28). This Skill retains: TDD principles, FIRST rules, AAA format,
+  language examples, workflow guide.
+  For enforced interactive cycle, use your adoption layer's toolchain.
 -->
 
 # TDD Assistant | TDD 助手

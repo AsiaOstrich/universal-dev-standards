@@ -10,11 +10,10 @@ argument-hint: "[branch name or PR number | 分支名稱或 PR 編號]"
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
   PR lifecycle orchestration (5-step: CREATE→REVIEW→APPROVE→MERGE→CLEANUP,
-  size gate >400 lines block, CI gate, squash/merge strategy, gh CLI integration) extracted to:
-  - DevAP flow: dev-autopilot/.devap/flows/pr.flow.yaml
-  - DevAP CLI:  devap pr (packages/cli/src/commands/pr.ts)
-  This Skill retains: PR description template, merge strategy decision matrix, auto-review trigger rules.
-  Use `devap pr` for enforced lifecycle; this Skill for template and rule reference.
+  size gate >400 lines block, CI gate, squash/merge strategy, gh CLI integration) relocated to
+  adoption layer (XSPEC-095, 2026-04-28). This Skill retains: PR description template,
+  merge strategy decision matrix, auto-review trigger rules.
+  For enforced lifecycle execution, use your adoption layer's toolchain.
 -->
 
 # PR Automation Assistant | PR 自動化助手

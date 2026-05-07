@@ -199,5 +199,5 @@ describe.skipIf(!BASE_URL)("Platform Admin Journey — T-001 → T-010", () => {
 ## 參考
 
 - 標準：[user-journey-testing.ai.yaml](../../.standards/user-journey-testing.ai.yaml)
-- 相關 XSPEC：XSPEC-128（UDS 標準定義）、XSPEC-129（VibeOps 實作範例）
+- 相關 XSPEC：XSPEC-128（UDS 標準定義）
 - 相關 Skill：`/e2e`（AC 層測試）、`/atdd`（驗收條件定義）
