@@ -14,6 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 > equivalents that run unchanged on macOS / Linux / Windows. Legacy `.sh` files
 > remain with `DEPRECATED` notices for backward compatibility.
 
+### Removed
+
+- **Ecosystem section in README** (`README.md`, `locales/zh-TW/README.md`,
+  `locales/zh-CN/README.md`): Removed `## 🌐 Ecosystem` / `## 🌐 生態系統` /
+  `## 🌐 生态系统` section entirely. UDS is a standalone tool-agnostic standards
+  library; the section's heading suggested an "ecosystem of products" that no
+  longer applies after downstream-project decoupling (Batch 1–6, 2026-05-04).
+  Tool compatibility list (Claude Code / Cursor / etc.) is preserved earlier in
+  the README.
+
 ### Added
 
 - **AI tool table coverage** (`README.md`, `locales/zh-TW/README.md`, `locales/zh-CN/README.md`): Added five previously missing tools — GitHub Copilot, OpenAI Codex, Aider, Continue, Google Antigravity. Introduced a ⚠ Minimal status legend entry. (`1b588e1`)

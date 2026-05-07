@@ -159,27 +159,6 @@ uds uninstall   # 從專案移除標準
 
 ---
 
-## 🌐 生態系統
-
-UDS 是一個**純標準定義庫**（Standards Definition Library）——定義「什麼是好的開發方式」。它由任意採用層（Adapter / Pipeline / Agent / IDE）消費，但本身**不綁定**任何特定編排產品。
-
-```
-UDS（定義什麼） ──→ 採用層（任意 Adapter / Pipeline / Agent / IDE）
-```
-
-| 層級 | 元件 | 角色 | 授權 |
-|------|------|------|------|
-| 標準 | **UDS** | 工具無關的開發方法論框架 | MIT + CC BY 4.0 |
-| 採用層 | （你的專案 / pipeline / Agent runtime） | 讀取 `.standards/` 並依情境套用 | （由你決定） |
-
-- **UDS** 定義開發標準 → 透過 `uds init`（一次複製）安裝至任何專案
-- **採用層** 自行決定執行方式：品質閘門、代理人 prompt、CI 檢查、IDE 規則
-- **無供應商鎖定**：UDS 本身只是純標準內容，runtime 由你選擇
-
-UDS 保持**工具無關性**：支援 Claude Code、OpenCode、Gemini CLI、Cursor、Cline、Roo Code、Windsurf、GitHub Copilot、OpenAI Codex、Aider、Continue 和 Google Antigravity。其中任一個——或都不用——皆可作為採用層。
-
----
-
 ## 📄 授權
 
 | 元件 | 授權 |

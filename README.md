@@ -151,27 +151,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ---
 
-## 🌐 Ecosystem
-
-UDS is a **standards-definition library** — the source of `what good development looks like`. It is consumed by adoption layers (Adapters, Pipelines, Agents, IDEs) but does not bundle, mandate, or endorse any specific orchestration product.
-
-```
-UDS (What to do) ──→ Adoption Layer (any Adapter / Pipeline / Agent / IDE)
-```
-
-| Layer | Component | Role | License |
-|-------|-----------|------|---------|
-| Standards | **UDS** | Tool-agnostic development methodology framework | MIT + CC BY 4.0 |
-| Adoption | (your project / pipeline / agent runtime) | Reads `.standards/` and applies them in context | (your choice) |
-
-- **UDS** defines development standards → installed via `uds init` (copy-once) into any project
-- **Adoption layer** chooses how to enforce them: quality gates, agent prompts, CI checks, IDE rules
-- **No vendor lock-in**: UDS itself is pure standards content; you bring your own runtime
-
-UDS is **tool-agnostic**: it supports Claude Code, OpenCode, Gemini CLI, Cursor, Cline, Roo Code, Windsurf, GitHub Copilot, OpenAI Codex, Aider, Continue, and Google Antigravity. Any of them — or none — can act as the adoption layer.
-
----
-
 ## 📄 License
 
 | Component | License |
