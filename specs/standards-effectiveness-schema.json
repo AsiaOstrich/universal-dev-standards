@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/AsiaOstrich/universal-dev-standards/specs/standards-effectiveness-schema.json",
   "title": "Standards Effectiveness Report",
-  "description": "Cross-product schema for reporting UDS standards effectiveness from DevAP/VibeOps executions",
+  "description": "Cross-adoption-layer schema for reporting UDS standards effectiveness from adoption layer executions",
   "type": "object",
   "required": ["schema_version", "source", "timestamp", "standards_applied"],
   "properties": {
@@ -12,7 +12,8 @@
     },
     "source": {
       "type": "string",
-      "enum": ["vibeops", "devap", "manual"]
+      "type": "string",
+      "description": "Adoption layer identifier or 'manual'"
     },
     "timestamp": {
       "type": "string",

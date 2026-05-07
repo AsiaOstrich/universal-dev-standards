@@ -111,15 +111,15 @@ Projects that need to deviate from built-in Recipe defaults should use the lowes
 
 | Layer | Mechanism | When to Use |
 |-------|-----------|-------------|
-| **L1 — Config Override** | `config:` block in `.devap/packaging.yaml` | Change default values (registry URL, tag, output dir) |
-| **L2 — Hook Injection** | `hooks:` block in `.devap/packaging.yaml` | Run extra commands before/after build or publish |
-| **L3 — Custom Recipe** | New `.yaml` file in project's `.devap/recipes/` | Entirely different build process; built-ins don't apply |
+| **L1 — Config Override** | `config:` block in `.uds/packaging.yaml` | Change default values (registry URL, tag, output dir) |
+| **L2 — Hook Injection** | `hooks:` block in `.uds/packaging.yaml` | Run extra commands before/after build or publish |
+| **L3 — Custom Recipe** | New `.yaml` file in project's `.uds/recipes/` | Entirely different build process; built-ins don't apply |
 | **L4 — Escape Hatch** | `script:` key replacing `recipe:` in target definition | Raw shell script when no Recipe abstraction is suitable |
 
 ### L1 Example — Config Override
 
 ```yaml
-# .devap/packaging.yaml
+# .uds/packaging.yaml
 targets:
   - name: publish-npm
     recipe: npm-library
@@ -132,7 +132,7 @@ targets:
 ### L2 Example — Hook Injection
 
 ```yaml
-# .devap/packaging.yaml
+# .uds/packaging.yaml
 targets:
   - name: docker-push
     recipe: docker-service
@@ -145,7 +145,7 @@ targets:
 ### L3 Example — Custom Recipe
 
 ```yaml
-# .devap/recipes/electron-app.yaml
+# .uds/recipes/electron-app.yaml
 name: electron-app
 description: Build Electron desktop application
 requires:
@@ -161,7 +161,7 @@ config:
 ### L4 Example — Escape Hatch
 
 ```yaml
-# .devap/packaging.yaml
+# .uds/packaging.yaml
 targets:
   - name: legacy-bundle
     script: |

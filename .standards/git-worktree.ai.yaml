@@ -23,7 +23,7 @@ standard:
   lifecycle:
     - phase: setup
       steps:
-        - "選擇 worktree 目錄位置（優先順序：existing → .devap/worktrees → 詢問使用者）"
+        - "選擇 worktree 目錄位置（優先順序：existing → .uds/worktrees → 詢問使用者）"
         - "執行 git check-ignore 確認目錄被忽略"
         - "建立 worktree + 新分支"
         - "安裝依賴（若需要）"

@@ -46,4 +46,4 @@
 - 所有標準僅新增，未修改任何現有標準
 - 授權：MIT（與 UDS 一致）
 - `uds-manifest.json` 和 README 的更新已包含在本任務外（後續統一更新）
-- Phase 2（VibeOps UI/UX Agent 升級）和 Phase 3（DevAP Frontend QualityGate）為獨立子專案任務
+- Phase 2 和 Phase 3 為採用層獨立子專案任務

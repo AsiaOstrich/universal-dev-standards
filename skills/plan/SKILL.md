@@ -231,4 +231,4 @@ Claude 對 plan.json 執行以下驗證（無需外部引擎）：
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | 2.0.0 | 2026-04-28 | 升格為 UDS 正式 Skill；移除 [DEVAP] 標記；Step 9 改為 Claude-native 驗證（XSPEC-097 Phase 3） |
-| 1.0.0 | 2026-04-09 | 初始發布（DevAP packages/cli/skills/） |
+| 1.0.0 | 2026-04-09 | 初始發布（從上游遷移） |

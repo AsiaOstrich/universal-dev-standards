@@ -2,7 +2,7 @@
 
 **狀態**: Archived
 **建立日期**: 2026-04-02
-**參考實作**: dev-autopilot SPEC-008（Implemented Phase 1-3）
+**參考實作**: 外部採用層實作（上游 SPEC-008，Phase 1-3 已實作）
 
 > **本文件為自足規格**，包含所有實作所需的完整 schema 定義、範例和設計決策。
 > 不需要讀取外部專案的文件即可進行開發。
@@ -465,7 +465,7 @@ standard:
 
 ### 3. `specs/schemas/execution-history-*.schema.json`（新增 6 個）
 
-從 `execution-history.ai.yaml` 的 `definitions` 區塊匯出獨立的 JSON Schema 檔案，供下游專案（DevAP、VibeOps）在 CI 中做合約測試。
+從 `execution-history.ai.yaml` 的 `definitions` 區塊匯出獨立的 JSON Schema 檔案，供採用層在 CI 中做合約測試。
 
 | Schema 檔案 | 驗證對象 |
 |-------------|---------|

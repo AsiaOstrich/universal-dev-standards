@@ -238,7 +238,7 @@ After `/push` completes, the AI assistant should suggest:
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 2.0.0 | 2026-04-28 | Restore workflow execution steps (DevAP decomposition XSPEC-097); remove deprecation notice |
+| 2.0.0 | 2026-04-28 | Restore workflow execution steps (XSPEC-097 採用層解耦); remove deprecation notice |
 | 1.0.0 | 2026-04-23 | Initial release — XSPEC-081 Phase 1 |
 
 ---

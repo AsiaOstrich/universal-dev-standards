@@ -164,4 +164,4 @@ After completing the task, run: {task.verify_command}
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | 2.0.0 | 2026-04-28 | 升格為 UDS 正式 Skill；Step 1 改為 Claude-native 解析（移除 plan-resolver-cli.js 依賴）；新增 Quality Gate / Fix Loop 章節（XSPEC-097 Phase 3） |
-| 1.0.0 | 2026-04-09 | 初始發布（DevAP packages/cli/skills/） |
+| 1.0.0 | 2026-04-09 | 初始發布（從上游遷移） |

@@ -1,7 +1,7 @@
 # UDS Flow Definitions
 
 Machine-readable workflow definitions for software development activities.
-Migrated from DevAP `.devap/flows/` (XSPEC-097, 2026-04-28).
+UDS-managed flows (XSPEC-097, 2026-04-28).
 
 ## Flows 層子分類（DEC-052）
 
@@ -39,9 +39,9 @@ Each layer answers a different question and references only layers above it (no 
 
 **Adapter sub-types**:
 - **Tool Adapter** — tool/language interface (e.g., `integrations/claude-code/`, `integrations/cursor/`)
-- **Role Adapter** — agent role prompt + I/O schema (e.g., VibeOps `agents/architect/`)
-- **Runtime Adapter** — execution engine (e.g., VibeOps `src/orchestrator/`)
-- **Config Adapter** — application-level config (e.g., `vibeops.config.json`)
+- **Role Adapter** — agent role prompt + I/O schema (e.g., `agents/architect/` in adoption layer)
+- **Runtime Adapter** — execution engine (e.g., adoption layer orchestrator)
+- **Config Adapter** — application-level config (e.g., adoption layer config file)
 
 > Cross-project teaching guide: [dev-platform/cross-project/CONCEPTS.md](https://github.com/AsiaOstrich/dev-platform/blob/main/cross-project/CONCEPTS.md)
 
@@ -77,4 +77,4 @@ The four-layer model above is the authoritative description that inserts **Skill
 Flows are executed by different adapters depending on the AI tool:
 
 - **Claude Code**: `/orchestrate <plan.json>` Skill (Claude-native, no external engine)
-- **Future**: VibeOps pipeline engine, Gemini CLI workflows
+- **Future**: adoption layer pipeline engines, Gemini CLI workflows

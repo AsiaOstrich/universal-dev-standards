@@ -82,15 +82,15 @@ built_in_recipes:
 customization_layers:
   L1:
     name: config_override
-    mechanism: "config: block in .devap/packaging.yaml"
+    mechanism: "config: block in .uds/packaging.yaml"
     when: "Change default values (registry URL, tag, output dir)"
   L2:
     name: hook_injection
-    mechanism: "hooks: block in .devap/packaging.yaml"
+    mechanism: "hooks: block in .uds/packaging.yaml"
     when: "Run extra commands before/after build or publish"
   L3:
     name: custom_recipe
-    mechanism: "New .yaml file in project's .devap/recipes/"
+    mechanism: "New .yaml file in project's .uds/recipes/"
     when: "Entirely different build process; built-ins don't apply"
   L4:
     name: escape_hatch
@@ -138,5 +138,5 @@ recipe_selection_guide:
 physical_spec:
   type: custom_script
   validator:
-    command: "test -f .devap/packaging.yaml"
+    command: "test -f .uds/packaging.yaml"
     rule: "packaging_config_declared"

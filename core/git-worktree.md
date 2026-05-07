@@ -42,7 +42,7 @@ Define a lifecycle for using Git worktrees to isolate development work, ensuring
 
 1. **Choose worktree location** — priority order:
    - Existing configured path
-   - `.devap/worktrees/` or similar project-local directory
+   - `.uds/worktrees/` or similar project-local directory
    - Ask the user
 2. **Verify `.gitignore`** — run `git check-ignore` to confirm the worktree directory is ignored
 3. **Create the worktree** — `git worktree add <path> -b <branch-name>`

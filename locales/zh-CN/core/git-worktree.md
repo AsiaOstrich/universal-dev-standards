@@ -46,7 +46,7 @@ status: current
 
 1. **选择 worktree 位置** — 优先顺序：
    - 已配置的路径
-   - `.devap/worktrees/` 或类似项目本地目录
+   - `.uds/worktrees/` 或类似项目本地目录
    - 询问用户
 2. **验证 `.gitignore`** — 运行 `git check-ignore` 确认 worktree 目录被忽略
 3. **创建 worktree** — `git worktree add <path> -b <branch-name>`

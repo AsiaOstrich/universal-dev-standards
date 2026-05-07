@@ -136,7 +136,7 @@ After `/sweep` completes, suggest:
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.0.0 | 2026-04-28 | Initial release — XSPEC-097 Phase 1 (from DevAP sweep module) |
+| 1.0.0 | 2026-04-28 | Initial release — XSPEC-097 Phase 1 (從上游遷移) |
 
 ---
 

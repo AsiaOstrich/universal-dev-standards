@@ -121,13 +121,13 @@ UDS 随附四个内置 Recipe，位于 `recipes/` 目录：
 |------|------|----------|
 | **L1 — 配置覆盖** | 專案 packaging 配置（路徑由採用層決定） 中的 `config:` 块 | 更改默认值（registry URL、tag、输出目录）|
 | **L2 — Hook 注入** | 專案 packaging 配置（路徑由採用層決定） 中的 `hooks:` 块 | 在构建或发布前后执行额外命令 |
-| **L3 — 自定义 Recipe** | 项目 `.devap/recipes/` 中的新 `.yaml` 文件 | 完全不同的构建流程；内置 Recipe 不适用 |
+| **L3 — 自定义 Recipe** | 项目 `.uds/recipes/` 中的新 `.yaml` 文件 | 完全不同的构建流程；内置 Recipe 不适用 |
 | **L4 — Escape Hatch** | target 定义中以 `script:` 替代 `recipe:` | 原始 shell 脚本，无合适的 Recipe 抽象 |
 
 ### L1 示例 — 配置覆盖
 
 ```yaml
-# .devap/packaging.yaml
+# .uds/packaging.yaml
 targets:
   - name: publish-npm
     recipe: npm-library
@@ -140,7 +140,7 @@ targets:
 ### L2 示例 — Hook 注入
 
 ```yaml
-# .devap/packaging.yaml
+# .uds/packaging.yaml
 targets:
   - name: docker-push
     recipe: docker-service
@@ -153,7 +153,7 @@ targets:
 ### L3 示例 — 自定义 Recipe
 
 ```yaml
-# .devap/recipes/electron-app.yaml
+# .uds/recipes/electron-app.yaml
 name: electron-app
 description: 构建 Electron 桌面应用程序
 requires:
@@ -169,7 +169,7 @@ config:
 ### L4 示例 — Escape Hatch
 
 ```yaml
-# .devap/packaging.yaml
+# .uds/packaging.yaml
 targets:
   - name: legacy-bundle
     script: |
