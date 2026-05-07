@@ -46,9 +46,9 @@ Compression operations need output space to succeed. Reserve constants:
 
 ## Applicable Scenarios
 
-- DevAP task execution token monitoring
-- VibeOps 9-Agent pipeline cumulative context management
-- VibeOps PipelineMemory Snip trigger condition
+- Task execution token monitoring (adoption layer)
+- Multi-agent pipeline cumulative context management (adoption layer)
+- PipelineMemory Snip trigger condition (adoption layer)
 - Any environment with `maxTotalTokens` limit
 
 ## References

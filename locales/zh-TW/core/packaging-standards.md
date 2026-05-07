@@ -12,19 +12,19 @@ status: current
 
 **版本**: 1.0.0
 **最後更新**: 2026-04-15
-**適用性**: 使用 UDS/DevAP 工具鏈的專案
+**適用性**: 使用 UDS-aware 工具鏈的專案
 **範圍**: 通用 (Universal)
 
 ---
 
 ## 目的
 
-本標準定義一套基於 Recipe 的打包框架，讓使用者專案可在 `.devap/packaging.yaml` 中宣告打包目標（target）。UDS 負責提供 Recipe 定義與內建 Recipe 函式庫；DevAP 則在 pipeline 中執行編排。
+本標準定義一套基於 Recipe 的打包框架，讓使用者專案可在 專案 packaging 配置（路徑由採用層決定） 中宣告打包目標（target）。UDS 負責提供 Recipe 定義與內建 Recipe 函式庫；採用層 runtime 在 pipeline 中執行編排。
 
 框架的關注點分離如下：
 - **使用者專案**：宣告「打包什麼」（targets + 設定覆蓋）
 - **UDS**：定義「如何打包」（Recipe 結構 + 內建 Recipes）
-- **DevAP**：執行「何時打包」（在 Review 與 Deploy 之間的 pipeline 階段）
+- **採用層 pipeline**：執行「何時打包」（在 Review 與 Deploy 之間的 pipeline 階段）
 
 ---
 
@@ -33,9 +33,9 @@ status: current
 | 原則 | 說明 |
 |------|------|
 | **Recipe-based** | 每個打包目標都參照一個具名 Recipe；不在 pipeline YAML 中撰寫臨時腳本 |
-| **宣告式 targets** | 專案在 `.devap/packaging.yaml` 中宣告 targets；DevAP 負責解析與執行 |
+| **宣告式 targets** | 專案在 專案 packaging 配置（路徑由採用層決定） 中宣告 targets；採用層 runtime 負責解析與執行 |
 | **可客製化** | 四個客製化層允許設定覆蓋、Hook 注入、自訂 Recipe 及 Escape Hatch |
-| **整合至 Pipeline** | 打包作為獨立階段運行於 VibeOps pipeline 的 Review 與 Deploy 之間 |
+| **整合至 Pipeline** | 打包作為獨立階段運行於 採用層 pipeline 的 Review 與 Deploy 之間 |
 
 ---
 
@@ -119,8 +119,8 @@ UDS 隨附四個內建 Recipe，位於 `recipes/` 目錄：
 
 | 層級 | 機制 | 使用時機 |
 |------|------|----------|
-| **L1 — 設定覆蓋** | `.devap/packaging.yaml` 中的 `config:` 區塊 | 更改預設值（registry URL、tag、輸出目錄）|
-| **L2 — Hook 注入** | `.devap/packaging.yaml` 中的 `hooks:` 區塊 | 在建置或發佈前後執行額外指令 |
+| **L1 — 設定覆蓋** | 專案 packaging 配置（路徑由採用層決定） 中的 `config:` 區塊 | 更改預設值（registry URL、tag、輸出目錄）|
+| **L2 — Hook 注入** | 專案 packaging 配置（路徑由採用層決定） 中的 `hooks:` 區塊 | 在建置或發佈前後執行額外指令 |
 | **L3 — 自訂 Recipe** | 專案 `.devap/recipes/` 中的新 `.yaml` 檔案 | 完全不同的建置流程；內建 Recipe 不適用 |
 | **L4 — Escape Hatch** | target 定義中以 `script:` 取代 `recipe:` | 原始 shell 腳本，無適合的 Recipe 抽象 |
 
@@ -187,9 +187,9 @@ targets:
 |------|------|------|
 | 所有 `requires` 檔案存在 | 100% | 在任何步驟執行前檢查 |
 | 所有步驟以 exit code 0 結束 | 100% | 任何非零 exit 使執行失敗 |
-| `postBuild` 產出物存在 | 存在於預期路徑 | 建置步驟後由 DevAP 驗證 |
+| `postBuild` 產出物存在 | 存在於預期路徑 | 建置步驟後由採用層 runtime 驗證 |
 | Hook 指令以 exit code 0 結束 | 100% | Hook 失敗會傳播為步驟失敗 |
-| 已發佈產出物可被取回 | HTTP 200 / registry 查詢成功 | 由 DevAP 在發佈後進行 smoke check |
+| 已發佈產出物可被取回 | HTTP 200 / registry 查詢成功 | 由採用層 runtime 在發佈後進行 smoke check |
 
 ### 失敗處理
 

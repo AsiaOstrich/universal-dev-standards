@@ -37,7 +37,7 @@ check() {
   echo "OK:   ${path} → HTTP ${status}"
 }
 
-echo "=== VibeOps Smoke Test ==="
+echo "=== Smoke Test ==="
 check "/health"
 check "/api/status"
 echo "=== PASS ==="

@@ -48,12 +48,12 @@ jq '.components[] | select(.licenses[].license.id | test("GPL"))' sbom.cdx.json
 ```yaml
 - name: Generate SLSA L1 provenance
   run: |
-    IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "vibeops:commercial-${VERSION}" 2>/dev/null || echo "N/A")
+    IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "your-app:commercial-${VERSION}" 2>/dev/null || echo "N/A")
     cat > provenance.json << PROVEOF
     {
       "_type": "https://in-toto.io/Statement/v0.1",
       "predicateType": "https://slsa.dev/provenance/v0.2",
-      "subject": [{"name": "vibeops-commercial-${VERSION}", "digest": {"sha256": "$(sha256sum vibeops-commercial-${VERSION}.tar.gz | cut -d' ' -f1)"}}],
+      "subject": [{"name": "app-commercial-${VERSION}", "digest": {"sha256": "$(sha256sum app-commercial-${VERSION}.tar.gz | cut -d' ' -f1)"}}],
       "predicate": {
         "buildType": "https://github.com/Attestations/GitHubActionsWorkflow@v1",
         "builder": {"id": "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"},
@@ -99,8 +99,8 @@ cosign verify-blob --key cosign.pub --signature provenance.json.sig provenance.j
 ## Release Bundle Structure
 
 ```
-vibeops-commercial-v1.3.0/
-├── vibeops-commercial-v1.3.0.docker.tar.gz   # Primary artefact
+app-commercial-v1.3.0/
+├── app-commercial-v1.3.0.docker.tar.gz   # Primary artefact
 ├── sbom.cdx.json                              # CycloneDX SBOM
 ├── sbom.cdx.json.sig                          # cosign signature
 ├── provenance.json                            # SLSA L1 provenance

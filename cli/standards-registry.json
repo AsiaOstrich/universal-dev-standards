@@ -807,7 +807,7 @@
       },
       "category": "reference",
       "skillName": null,
-      "description": "Recipe-based packaging framework for user projects using UDS/DevAP toolchain"
+      "description": "Recipe-based packaging framework for user projects using a UDS-aware toolchain"
     },
     {
       "id": "api-design-standards",
@@ -1010,9 +1010,9 @@
       "deprecated": true,
       "deprecatedSince": "5.4.0",
       "removalVersion": "6.0.0",
-      "canonicalOwner": "devap",
-      "canonicalPath": "dev-autopilot/standards/flow/workflow-state-protocol.ai.yaml",
-      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Workflow state persistence protocol — see dev-autopilot/standards/flow/workflow-state-protocol.ai.yaml"
+      "canonicalOwner": "adoption-layer",
+      "canonicalPath": "",
+      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Workflow state persistence protocol — runtime is now adoption-layer responsibility."
     },
     {
       "id": "workflow-enforcement",
@@ -1027,9 +1027,9 @@
       "deprecated": true,
       "deprecatedSince": "5.4.0",
       "removalVersion": "6.0.0",
-      "canonicalOwner": "devap",
-      "canonicalPath": "dev-autopilot/standards/flow/workflow-enforcement.ai.yaml",
-      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Machine-enforceable workflow gates — see dev-autopilot/standards/flow/workflow-enforcement.ai.yaml"
+      "canonicalOwner": "adoption-layer",
+      "canonicalPath": "",
+      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Machine-enforceable workflow gates — runtime is now adoption-layer responsibility."
     },
     {
       "id": "testing",
@@ -1451,9 +1451,9 @@
       "deprecated": true,
       "deprecatedSince": "5.4.0",
       "removalVersion": "6.0.0",
-      "canonicalOwner": "devap",
-      "canonicalPath": "dev-autopilot/standards/orchestration/execution-history.ai.yaml",
-      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Execution history L1/L2/L3 protocol — see dev-autopilot/standards/orchestration/execution-history.ai.yaml"
+      "canonicalOwner": "adoption-layer",
+      "canonicalPath": "",
+      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Execution history L1/L2/L3 protocol — runtime is now adoption-layer responsibility."
     },
     {
       "id": "project-context-memory",
@@ -1643,9 +1643,9 @@
       "deprecated": true,
       "deprecatedSince": "5.4.0",
       "removalVersion": "6.0.0",
-      "canonicalOwner": "devap",
-      "canonicalPath": "dev-autopilot/standards/flow/pipeline-integration-standards.ai.yaml",
-      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Pipeline 6-stage model — see dev-autopilot/standards/flow/pipeline-integration-standards.ai.yaml"
+      "canonicalOwner": "adoption-layer",
+      "canonicalPath": "",
+      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Pipeline 6-stage model — runtime is now adoption-layer responsibility."
     },
     {
       "id": "acceptance-criteria-traceability",
@@ -1672,9 +1672,9 @@
       "deprecated": true,
       "deprecatedSince": "5.4.0",
       "removalVersion": "6.0.0",
-      "canonicalOwner": "devap",
-      "canonicalPath": "dev-autopilot/standards/flow/change-batching-standards.ai.yaml",
-      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Change batching state machine — see dev-autopilot/standards/flow/change-batching-standards.ai.yaml"
+      "canonicalOwner": "adoption-layer",
+      "canonicalPath": "",
+      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Change batching state machine — runtime is now adoption-layer responsibility."
     },
     {
       "id": "migration-template",
@@ -1711,9 +1711,9 @@
       "deprecated": true,
       "deprecatedSince": "5.4.0",
       "removalVersion": "6.0.0",
-      "canonicalOwner": "devap",
-      "canonicalPath": "dev-autopilot/standards/orchestration/agent-dispatch.ai.yaml",
-      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Agent dispatch protocol — see dev-autopilot/standards/orchestration/agent-dispatch.ai.yaml"
+      "canonicalOwner": "adoption-layer",
+      "canonicalPath": "",
+      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Agent dispatch protocol — runtime is now adoption-layer responsibility."
     },
     {
       "id": "agent-communication-protocol",
@@ -1728,9 +1728,9 @@
       "deprecated": true,
       "deprecatedSince": "5.4.0",
       "removalVersion": "6.0.0",
-      "canonicalOwner": "devap",
-      "canonicalPath": "dev-autopilot/standards/orchestration/agent-communication-protocol.ai.yaml",
-      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Agent envelope/handoff protocol — see dev-autopilot/standards/orchestration/agent-communication-protocol.ai.yaml"
+      "canonicalOwner": "adoption-layer",
+      "canonicalPath": "",
+      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Agent envelope/handoff protocol — runtime is now adoption-layer responsibility."
     },
     {
       "id": "model-selection",
@@ -1769,9 +1769,9 @@
       "deprecated": true,
       "deprecatedSince": "5.4.0",
       "removalVersion": "6.0.0",
-      "canonicalOwner": "devap",
-      "canonicalPath": "dev-autopilot/standards/flow/branch-completion.ai.yaml",
-      "description": "DEPRECATED: Migrated to DevAP per DEC-049. Branch completion workflow — see dev-autopilot/standards/flow/branch-completion.ai.yaml"
+      "canonicalOwner": "adoption-layer",
+      "canonicalPath": "",
+      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Branch completion workflow — runtime is now adoption-layer responsibility."
     },
     {
       "id": "verification-evidence",
@@ -2460,8 +2460,7 @@
       },
       "category": "security",
       "description": "CodeQL semantic code analysis + secret scanning + Biome security rules. Complements dependency auditing with deep static analysis detecting injection vulnerabilities."
-    }
-    ,
+    },
     {
       "id": "prompt-regression",
       "name": "Prompt Regression Standards",
@@ -2472,8 +2471,7 @@
       },
       "category": "testing",
       "description": "Golden SHA-256 checksum tests for AI agent prompt files. Detects unintended prompt changes in CI; requires documented acknowledgment when checksums are updated."
-    }
-    ,
+    },
     {
       "id": "supply-chain-attestation",
       "name": "Supply Chain Attestation Standards",
@@ -2484,8 +2482,7 @@
       },
       "category": "security",
       "description": "CycloneDX SBOM generation, SLSA provenance (L1/L2), and cosign signing for verifiable software supply chain integrity from source to deployed artefact."
-    }
-    ,
+    },
     {
       "id": "cost-budget-test",
       "name": "Cost Budget Test Standards",
@@ -2496,8 +2493,7 @@
       },
       "category": "testing",
       "description": "Unit tests for AI agent token budget zone classification boundaries (safe/warning/danger/blocking), pipeline cost thresholds, and runaway-loop prevention guards."
-    }
-    ,
+    },
     {
       "id": "replay-test",
       "name": "Replay Test Standards",
@@ -2508,8 +2504,7 @@
       },
       "category": "testing",
       "description": "Golden fixture recording and deterministic replay for AI agent pipelines. Enables customer bug reproduction, verdict regression detection, and incident investigation without a live LLM."
-    }
-    ,
+    },
     {
       "id": "smoke-test",
       "name": "Smoke Test Standards",
@@ -2520,8 +2515,7 @@
       },
       "category": "testing",
       "description": "Post-deployment sanity checks verifying critical paths (health endpoint, core API) complete in under 30 seconds with zero external dependencies."
-    }
-    ,
+    },
     {
       "id": "property-based-testing",
       "name": "Property-Based Testing Standards",
@@ -2532,8 +2526,7 @@
       },
       "category": "testing",
       "description": "fast-check / Hypothesis property tests for pure functions: range clamping, determinism, monotonicity, round-trip. Complements example-based unit tests by generating hundreds of random inputs."
-    }
-    ,
+    },
     {
       "id": "disaster-recovery-drill",
       "name": "Disaster Recovery Drill Standards",
@@ -2544,8 +2537,7 @@
       },
       "category": "operations",
       "description": "Quarterly DR drill protocol: RTO/RPO targets, backup restore verification, Game Day exercises, drill records retained 12 months."
-    }
-    ,
+    },
     {
       "id": "flaky-test-management",
       "name": "Flaky Test Management Standards",
@@ -2556,8 +2548,7 @@
       },
       "category": "testing",
       "description": "Policies for detecting, quarantining (< 48h), and eliminating (< 30 days) flaky tests. Retry policy, root cause documentation, and quarantine annotation conventions."
-    }
-    ,
+    },
     {
       "id": "data-migration-testing",
       "name": "Data Migration Testing Standards",
@@ -2568,8 +2559,7 @@
       },
       "category": "testing",
       "description": "Standards for database schema migration tests: up/down/idempotency/data-preservation coverage. Requires isolated in-memory DB per test, verifiable rollback path, and data integrity after ALTER/DROP."
-    }
-    ,
+    },
     {
       "id": "chaos-injection-tests",
       "name": "Chaos Injection Test Standards",
@@ -2580,8 +2570,7 @@
       },
       "category": "testing",
       "description": "Executable chaos injection tests for AI agent systems: LLM timeout/rate-limit, DB disconnect rollback, policy-engine fail-closed, and inter-agent blast-radius containment tests."
-    }
-    ,
+    },
     {
       "id": "release-quality-manifest",
       "name": "Release Quality Manifest Standards",

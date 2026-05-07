@@ -1,9 +1,9 @@
 # Dual-Phase LLM Output Standard - AI Optimized
 # Source: XSPEC-035 (claude-code-book Ch.7 AutoCompact dual-phase design)
 # DEPRECATION NOTICE (XSPEC-086 Phase 3, 2026-04-28):
-#   Post-processing flow (extract→discard→fallback, phase-switch logic) extracted to
-#   DevAP standards/flow/dual-phase-processing.ai.yaml.
-#   This file retains format definition, prompt_template, and token_impact data.
+#   Post-processing flow (extract→discard→fallback, phase-switch logic) is now
+#   adoption-layer responsibility — UDS no longer ships an executable runtime.
+#   This file retains format definition, prompt_template, and token_impact data only.
 
 standard:
   id: dual-phase-output
@@ -101,9 +101,9 @@ standard:
     note: "Savings accumulate in repeated review scenarios (Fix Loop, Feedback Loop)"
 
   applicable_agents:
-    - DevAP Judge Agent
-    - VibeOps Evaluator Agent
-    - VibeOps Guardian Agent
+    - Judge Agent (adoption layer)
+    - Evaluator Agent (adoption layer)
+    - Guardian Agent (adoption layer)
     - Any LLM-driven AutoCompact / summarization component
 
   error_codes:

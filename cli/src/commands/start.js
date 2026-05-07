@@ -3,14 +3,15 @@
  *
  * 啟動一個具名任務（Mission）並設定任務意圖。
  *
- * @deprecated XSPEC-095 (2026-04-28): This command is superseded by `devap mission`.
- *   The orchestration logic has been extracted to DevAP:
- *   - Core module: dev-autopilot/packages/core/src/mission/
- *   - CLI command: dev-autopilot/packages/cli/src/commands/mission.ts
+ * @deprecated XSPEC-095 (2026-04-28): Runtime relocated to adoption layer.
+ *   The orchestration logic is adoption-layer responsibility:
+ *   adoption layers must implement equivalent mission start commands
+ *   in their own toolchain.
  *
- *   棄用理由：UDS 專注於活動定義，DevAP 承擔流程編排（XSPEC-086 / DEC-049）。
+ *   棄用理由：UDS 專注於活動定義；流程編排由採用層承擔（XSPEC-086 /
+ *   DEC-049 — orchestration runtime moved to adoption layer 2026-04-28）。
  *   UDS 5.x 仍維持本命令可用（向後相容），UDS 6.0.0 將移除。
- *   建議遷移：`uds start ...` → `devap mission start <type> "<intent>"`
+ *   建議遷移：實作於採用層工具鏈。
  */
 import chalk from 'chalk';
 import { select, input, confirm as inquirerConfirm } from '@inquirer/prompts';

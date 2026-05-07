@@ -54,7 +54,7 @@ standard:
       rejection_example: "與既有 `retry-standards` 80% 內容重複 — 應合併，不通過"
 
     ai_executable:
-      description: "至少一個 DevAP QualityGate / VibeOps Agent prompt / Skill 能消費此標準"
+      description: "至少一個採用層元件（Quality Gate / Agent prompt / Skill / IDE rule）能消費此標準"
       checks:
         - "定義清楚的 guidelines（bullet point，每條可驗證）"
         - "至少包含 2 個具體 scenarios（Given-When-Then 格式）"

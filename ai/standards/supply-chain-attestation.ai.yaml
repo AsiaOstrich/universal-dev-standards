@@ -85,7 +85,7 @@ examples:
           {
             "_type": "https://in-toto.io/Statement/v0.1",
             "predicateType": "https://slsa.dev/provenance/v0.2",
-            "subject": [{"name": "vibeops", "digest": {"sha256": "${IMAGE_DIGEST}"}}],
+            "subject": [{"name": "your-app", "digest": {"sha256": "${IMAGE_DIGEST}"}}],
             "predicate": {
               "buildType": "https://github.com/Attestations/GitHubActionsWorkflow@v1",
               "builder": {"id": "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"},

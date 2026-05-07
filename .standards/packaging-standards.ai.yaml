@@ -4,12 +4,12 @@
 standard:
   id: packaging
   name: Packaging Standards
-  description: Recipe-based packaging framework for user projects using UDS/DevAP toolchain
+  description: Recipe-based packaging framework for user projects using a UDS-aware toolchain
   guidelines:
     - "Recipe-based: use built-in or custom recipes for each packaging target"
-    - "Declarative: declare targets in .devap/packaging.yaml"
+    - "Declarative: declare targets in your project's packaging config (path is adoption-layer specific)"
     - "Customizable: override config, inject hooks, or write custom recipes"
-    - "Pipeline-integrated: packaging runs between Review and Deploy in VibeOps"
+    - "Pipeline-integrated: packaging runs between Review and Deploy in the adoption-layer pipeline"
 
   meta:
     version: "1.0.0"
@@ -19,7 +19,7 @@ standard:
   principles:
     core:
       - recipe_based: "Every packaging target references a named Recipe; no ad-hoc scripts in pipeline YAML"
-      - declarative_targets: "Projects declare targets in .devap/packaging.yaml; DevAP resolves and executes"
+      - declarative_targets: "Projects declare targets in their packaging config (file path is adoption-layer specific); the adoption-layer runtime resolves and executes"
       - customizable: "Four customization layers allow config overrides, hook injection, custom Recipes, and escape hatches"
       - pipeline_integrated: "Packaging runs as a named stage between Review and Deploy"
 

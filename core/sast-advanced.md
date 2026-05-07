@@ -141,7 +141,7 @@ sast:
 ### `.gitleaks.toml` Configuration Example
 
 ```toml
-title = "VibeOps Gitleaks Configuration"
+title = "Gitleaks Configuration (example)"
 version = "8"
 
 [extend]
@@ -149,11 +149,11 @@ version = "8"
 useDefault = true
 
 [[rules]]
-id = "vibeops-license-key"
-description = "VibeOps license key"
-regex = '''vibeops[_\-]?license[_\-]?key\s*[:=]\s*["']?([A-Za-z0-9\-]{32,})["']?'''
+id = "app-license-key"
+description = "App license key"
+regex = '''app[_\-]?license[_\-]?key\s*[:=]\s*["']?([A-Za-z0-9\-]{32,})["']?'''
 severity = "CRITICAL"
-tags = ["license", "vibeops"]
+tags = ["license", "app"]
 
 [[allowlist.commits]]
 # Example: allow a specific commit hash that was remediated

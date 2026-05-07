@@ -3,13 +3,15 @@
  *
  * CLI 命令：管理自訂 SDLC 流程（create/list/validate/diff/export/import）。
  *
- * @deprecated XSPEC-095 (2026-04-28): This command is superseded by `devap flow`.
- *   The list/validate/diff operations have been extracted to DevAP:
- *   - CLI command: dev-autopilot/packages/cli/src/commands/flow-mgmt.ts
+ * @deprecated XSPEC-095 (2026-04-28): Runtime relocated to adoption layer.
+ *   The list/validate/diff operations are adoption-layer responsibility:
+ *   adoption layers must implement equivalent flow management commands
+ *   in their own toolchain.
  *
- *   棄用理由：UDS 專注於活動定義，DevAP 承擔流程編排（XSPEC-086 / DEC-049）。
+ *   棄用理由：UDS 專注於活動定義；流程編排由採用層承擔（XSPEC-086 /
+ *   DEC-049 — orchestration runtime moved to adoption layer 2026-04-28）。
  *   UDS 5.x 仍維持本命令可用（向後相容），UDS 6.0.0 將移除。
- *   建議遷移：`uds flow list/validate/diff` → `devap flow list/validate/diff`
+ *   建議遷移：實作於採用層工具鏈。
  */
 
 import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync } from 'fs';

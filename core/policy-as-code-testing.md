@@ -25,20 +25,20 @@ Policy as Code 的特殊風險：
 ```rego
 # 檔案命名：<policy_module>_test.rego
 # Package：<policy_package>_test
-package vibeops.guardian.forbidden_patterns_test
+package governance.guardian.forbidden_patterns_test
 
 import future.keywords.if
 
 # 正向測試：規則應觸發（assert rule fires）
 test_drop_database_is_forbidden if {
-    data.vibeops.guardian.forbidden_patterns.has_forbidden_pattern with input as {
+    data.governance.guardian.forbidden_patterns.has_forbidden_pattern with input as {
         "plan": [{"command_type": "sql", "command": "DROP DATABASE prod_main", "reversible": false}]
     }
 }
 
 # 負向測試：規則不應觸發（assert rule does NOT fire）
 test_safe_select_is_not_forbidden if {
-    not data.vibeops.guardian.forbidden_patterns.has_forbidden_pattern with input as {
+    not data.governance.guardian.forbidden_patterns.has_forbidden_pattern with input as {
         "plan": [{"command_type": "sql", "command": "SELECT * FROM users LIMIT 10", "reversible": true}]
     }
 }
@@ -79,9 +79,9 @@ docker run --rm \
 default allow = false
 
 allow if {
-    not data.vibeops.guardian.forbidden_patterns.has_forbidden_pattern
-    not data.vibeops.guardian.env_policy.prod_violation
-    not data.vibeops.guardian.logic_constraints.has_logic_violation
+    not data.governance.guardian.forbidden_patterns.has_forbidden_pattern
+    not data.governance.guardian.env_policy.prod_violation
+    not data.governance.guardian.logic_constraints.has_logic_violation
 }
 ```
 
@@ -93,9 +93,9 @@ OPA ≥ 0.40 的型別系統嚴格區分 array 和 set。`violations` partial ru
 
 ```rego
 # ✅ 正確：partial set rule 集合 violations
-deny_reasons[r] if { r := data.vibeops.guardian.forbidden_patterns.violations[_] }
-deny_reasons[r] if { r := data.vibeops.guardian.env_policy.violations[_] }
-deny_reasons[r] if { r := data.vibeops.guardian.logic_constraints.violations[_] }
+deny_reasons[r] if { r := data.governance.guardian.forbidden_patterns.violations[_] }
+deny_reasons[r] if { r := data.governance.guardian.env_policy.violations[_] }
+deny_reasons[r] if { r := data.governance.guardian.logic_constraints.violations[_] }
 
 # ❌ 錯誤：array.concat 用在 set 上 → rego_type_error
 # deny_reasons := array.concat(violations1, violations2)

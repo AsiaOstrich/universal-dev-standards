@@ -104,9 +104,9 @@ deny | ask | allow
 
 ## 適用組件
 
-- DevAP Safety Hook
-- VibeOps CommandPolicy
-- VibeOps Governance Framework（SPEC-049）
+- Safety Hook（採用層）
+- CommandPolicy（採用層）
+- Governance Framework（採用層；OPA / Cedar / 自訂 policy engine 皆可）
 - 任何多來源規則合併的安全仲裁場景
 
 ---

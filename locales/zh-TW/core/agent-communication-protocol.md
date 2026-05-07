@@ -12,7 +12,7 @@ status: current
 
 **版本**: 1.0.0
 **最後更新**: 2026-03-30
-**適用性**: 跨專案 AI Agent 編排（UDS / DevAP / VibeOps）
+**適用性**: 跨採用層 AI Agent 編排（任意 Adapter / Pipeline / Agent runtime 消費 UDS 標準）
 **範圍**: 通用 (Universal)
 **相關標準**: [代理派遣](./agent-dispatch.md)、[AI 模型選擇策略](./model-selection.md)
 **規格**: [SPEC-AGENT-COMM-001](../../../docs/specs/SPEC-AGENT-COMM-001-agent-communication-protocol.md)
@@ -60,12 +60,12 @@ status: current
 | `timeout` | 任務超時 |
 | `unknown` | 無法識別的狀態（降級） |
 
-### 1.2 跨專案映射
+### 1.2 跨採用層映射
 
-跨專案狀態碼映射表：
+跨採用層狀態碼對映表（informative example，採用層自訂自己的對映）：
 
-| 統一狀態 | UDS | DevAP | VibeOps |
-|----------|-----|-------|---------|
+| 統一狀態 | UDS | Adapter Example A | Adapter Example B |
+|----------|-----|-------------------|-------------------|
 | `success` | DONE | success | success |
 | `success_partial` | DONE_WITH_CONCERNS | done_with_concerns | partial |
 | `failed` | — | failed | failure |

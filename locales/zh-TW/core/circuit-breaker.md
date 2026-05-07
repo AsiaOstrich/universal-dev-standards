@@ -31,7 +31,7 @@ status: current
 - 任何重試機制必須使用斷路器包裝，不得直接無限重試
 - 斷路器狀態必須透過遙測可觀測（`circuit_breaker_state_change` 事件）
 - OPEN 狀態下的請求必須立即失敗（fail fast），不等待 timeout
-- `failureThreshold` 預設值為 3，與 claude-code-book 及 DevAP Fix Loop 一致
+- `failureThreshold` 預設值為 3，與 claude-code-book 及常見 Fix Loop 實作慣例一致
 - 斷路器必須按照「功能單元」建立，不得全域共享單一斷路器
 
 ---
@@ -93,12 +93,12 @@ status: current
 
 ## 適用場景
 
-- DevAP Fix Loop Agent 呼叫重試
-- DevAP Judge / Quality Gate 重試
-- DevAP API 呼叫（LLM API 不穩定保護）
-- VibeOps Feedback Loop 重試
-- VibeOps FLARE 主動檢索重試
-- VibeOps AutoCompact（原始靈感來源）
+- Fix Loop Agent 呼叫重試（採用層）
+- Judge / Quality Gate 重試（採用層）
+- LLM API 呼叫（不穩定保護；採用層）
+- Feedback Loop 重試（採用層）
+- FLARE 主動檢索重試（採用層）
+- AutoCompact 風格的對話壓縮（claude-code-book 為原始靈感來源）
 
 ---
 

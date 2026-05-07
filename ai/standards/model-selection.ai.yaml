@@ -103,7 +103,7 @@ standard:
           description: "數學推理準確率"
           benchmark: "gsm8k"
         instruction_following:
-          description: "複雜多步驟指令遵循率（VibeOps 最重視）"
+          description: "複雜多步驟指令遵循率（多 Agent pipeline 場景最重視）"
           benchmark: "internal-instruction-bench"
         long_context_quality:
           description: "長文件中間段資訊存取（Lost-in-the-Middle）"

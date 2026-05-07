@@ -4,19 +4,19 @@
 
 **Version**: 1.0.0
 **Last Updated**: 2026-04-15
-**Applicability**: Projects using UDS/DevAP toolchain
+**Applicability**: Projects using a UDS-aware toolchain
 **Scope**: universal
 
 ---
 
 ## Purpose
 
-This standard defines a Recipe-based packaging framework that enables user projects to declare packaging targets in `.devap/packaging.yaml`. UDS provides the Recipe definitions and built-in Recipe library; DevAP executes the orchestration at pipeline time.
+This standard defines a Recipe-based packaging framework that enables user projects to declare packaging targets in their packaging config (file path is adoption-layer specific). UDS provides the Recipe definitions and built-in Recipe library; the adoption-layer runtime executes the orchestration at pipeline time.
 
 The framework separates concerns:
 - **User project**: declares *what* to package (targets + config overrides)
 - **UDS**: defines *how* to package (Recipe structure + built-in Recipes)
-- **DevAP**: executes *when* to package (pipeline stage between Review and Deploy)
+- **Adoption-layer pipeline**: executes *when* to package (pipeline stage between Review and Deploy)
 
 ---
 
@@ -25,9 +25,9 @@ The framework separates concerns:
 | Principle | Description |
 |-----------|-------------|
 | **Recipe-based** | Every packaging target references a named Recipe; no ad-hoc scripts in pipeline YAML |
-| **Declarative targets** | Projects declare targets in `.devap/packaging.yaml`; DevAP resolves and executes |
+| **Declarative targets** | Projects declare targets in their packaging config (file path adoption-layer specific); the runtime resolves and executes |
 | **Customizable** | Four customization layers allow config overrides, hook injection, custom Recipes, and escape hatches |
-| **Pipeline-integrated** | Packaging runs as a named stage between Review and Deploy in the VibeOps pipeline |
+| **Pipeline-integrated** | Packaging runs as a named stage between Review and Deploy in the adoption-layer pipeline |
 
 ---
 
@@ -179,9 +179,9 @@ A packaging run is considered **successful** when ALL of the following condition
 |-----------|-----------|-------|
 | All `requires` files exist | 100% | Checked before any step runs |
 | All steps exit with code 0 | 100% | Any non-zero exit fails the run |
-| `postBuild` artifact exists | Present in expected path | Verified by DevAP after build step |
+| `postBuild` artifact exists | Present in expected path | Verified by the adoption-layer runtime after build step |
 | Hook commands exit with code 0 | 100% | Hook failure propagates as step failure |
-| Published artifact is retrievable | HTTP 200 / registry query succeeds | Verified by DevAP post-publish smoke check |
+| Published artifact is retrievable | HTTP 200 / registry query succeeds | Verified by the adoption-layer runtime post-publish smoke check |
 
 ### Failure Handling
 

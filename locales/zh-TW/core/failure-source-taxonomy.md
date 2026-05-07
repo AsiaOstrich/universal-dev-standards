@@ -32,7 +32,7 @@ status: current
 - `failureSource` 為 optional 欄位，不得破壞現有不含此欄位的程式碼
 - 在同一失敗事件中，選擇最根本的來源作為 `failureSource`（例如 `branch_divergence` 比 `compilation` 更根本）
 - `failureSource` 應由偵測到失敗的元件設定（QualityGate / Adapter / SafetyHook / BranchDriftChecker）
-- 跨專案（DevAP / VibeOps）各自獨立定義 `FailureSource` type，語義保持一致
+- 各採用層各自獨立定義 `FailureSource` type，語義保持一致
 
 ---
 
@@ -134,13 +134,11 @@ test_failure | tool_failure | policy_violation | resource_exhaustion
 
 ## 整合點
 
-### DevAP
+> 整合指引（informative；具體檔案路徑屬於採用層自訂範圍）。
 
-- `packages/core/src/types.ts` — `TaskResult.failureSource` / `FailureSource` type
-- `packages/core/src/quality-gate.ts` — `QualityGateResult.failureSource` 推斷
-- `packages/adapter-claude/src/claude-adapter.ts` — `resource_exhaustion` 映射
+### 預期呼叫點
 
-### VibeOps
-
-- `src/types/index.ts` — `IterationRecord.failureSource`（獨立定義，AGPL 隔離）
-- `src/runner/pipeline-runner.ts` — `agent:error` 事件 payload
+- 核心型別模組 — `TaskResult.failureSource` / `FailureSource` type
+- quality-gate 模組 — `QualityGateResult.failureSource` 推斷
+- agent adapter — `resource_exhaustion` / `network_error` 映射
+- pipeline runner — `agent:error` / `agent:retry` 事件 payload

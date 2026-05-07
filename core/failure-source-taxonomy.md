@@ -55,12 +55,12 @@ interface FailureDetail {
 - `failureSource` is an **optional** field — must not break existing code without this field
 - Select the most fundamental source as `failureSource` in a single failure event
 - `failureSource` should be set by the component that detects the failure
-- DevAP and VibeOps each define `FailureSource` type independently (AGPL isolation)
+- Adoption layers each define their own `FailureSource` type independently (license isolation)
 
 ## Applicable Scenarios
 
-- DevAP QualityGate failure result enrichment
-- VibeOps PipelineRunner `agent:error` event payload
+- Quality Gate (adoption layer) failure result enrichment
+- Pipeline Runner (adoption layer) `agent:error` event payload
 - Recovery Recipe Registry (XSPEC-046) match key
 - Telemetry failure analytics dimension
 

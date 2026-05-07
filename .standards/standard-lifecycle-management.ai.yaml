@@ -104,7 +104,7 @@ standard:
   scenarios:
     scenario_1_trial_to_active:
       given: "retry-standards 處於 trial 狀態，since=2026-04-17, expires=2026-10-17"
-      when: "2026-08-01 審視使用情況，發現 DevAP Fix Loop 和 VibeOps Builder 都已採用，無重大缺陷"
+      when: "2026-08-01 審視使用情況，發現多個採用層（Fix Loop / Builder Agent 等）都已採用，無重大缺陷"
       then: "轉移到 Active，更新 status=active, since=2026-08-01，移除 expires 欄位"
       note: "Trial → Active 的典型路徑"
 

@@ -1,6 +1,6 @@
 # Execution History Repository Standards - DEPRECATED STUB
-# This file has been migrated to DevAP per DEC-049 (UDS/DevAP responsibility split).
-# Canonical location: dev-autopilot/standards/orchestration/execution-history.ai.yaml
+# Runtime details relocated to adoption layer (runtime moved to adoption layer 2026-04-28).
+# Adoption layer must implement an equivalent runtime; UDS retains only the human-readable concept under core/.
 # Migration: XSPEC-086 Phase 2 (2026-04-27)
 #
 # Source spec: cross-project/specs/XSPEC-003-execution-history-standard-sdd.md
@@ -14,29 +14,27 @@ standard:
     deprecated: true
     deprecated_since: "5.4.0"
     removal_version: "6.0.0"
-    canonical_owner: devap
-    canonical_path: "dev-autopilot/standards/orchestration/execution-history.ai.yaml"
+    canonical_owner: adoption-layer
+    canonical_path: "" # adoption-layer responsibility
     source: cross-project/specs/XSPEC-003-execution-history-standard-sdd.md
     description: >
-      DEPRECATED: This standard has moved to DevAP (orchestration layer).
-      Install DevAP and load standards/orchestration/execution-history.ai.yaml instead.
+      DEPRECATED: Runtime details relocated to adoption layer (runtime moved to adoption layer 2026-04-28).
+      Adoption layer must implement an equivalent runtime.
 
   rules:
     - id: deprecation-notice
       trigger: any execution history operation
       instruction: >
-        This standard (execution-history.ai.yaml) has been migrated to DevAP.
+        Runtime details for this standard are now adoption-layer responsibility (runtime moved to adoption layer 2026-04-28).
         For the canonical executable definition, load:
-          dev-autopilot/standards/orchestration/execution-history.ai.yaml
 
-        Note: DevAP's packages/core already implements execution history (ExecutionHistoryStorage).
         The YAML standard is now co-located with the implementation.
       priority: required
 
     - id: record-on-completion
       trigger: "Agent 任務執行完畢"
       instruction: >
-        DEPRECATED — load dev-autopilot/standards/orchestration/execution-history.ai.yaml
+        DEPRECATED — see universal-dev-standards/core/ for human-readable concept; runtime is adoption-layer responsibility
         for the current executable history protocol.
 
         Minimal fallback: Write required artifacts to .execution-history/{task-id}/{run-number}/

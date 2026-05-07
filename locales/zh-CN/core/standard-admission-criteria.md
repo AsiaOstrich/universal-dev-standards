@@ -66,7 +66,7 @@ status: current
 
 ### 4. AI-executable（AI 可消费）
 
-至少一个 DevAP QualityGate / VibeOps Agent prompt / Skill 能消费：
+至少一个采用层组件（Quality Gate / Agent prompt / Skill / IDE rule）能消费：
 
 - 定义清楚的 guidelines（每条可验证）
 - 至少 2 个 Given-When-Then scenarios

@@ -63,7 +63,7 @@ describe('detectSelfAdoption', () => {
     // Adopter manifests have different `project` values (e.g. their own name).
     writeFileSync(
       join(tempDir, 'uds-manifest.json'),
-      JSON.stringify({ project: 'dev-autopilot', version: '5.1.0-beta.7' })
+      JSON.stringify({ project: 'some-adopter-project', version: '5.1.0-beta.7' })
     );
     expect(detectSelfAdoption(tempDir)).toBe(false);
   });

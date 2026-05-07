@@ -116,9 +116,9 @@ IMPORTANT: The <analysis> block is your scratchpad. Only <summary> persists.
 
 ## 適用 Agent
 
-- DevAP Judge Agent
-- VibeOps Evaluator Agent
-- VibeOps Guardian Agent
+- Judge Agent（採用層）
+- Evaluator Agent（採用層）
+- Guardian Agent（採用層）
 - 任何 LLM 驅動的 AutoCompact／摘要組件
 
 ---

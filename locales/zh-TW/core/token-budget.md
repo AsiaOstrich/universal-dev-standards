@@ -127,9 +127,9 @@ safe | warning | danger | blocking
 
 ## 適用場景
 
-- DevAP 任務執行（Task token 預算監控）
-- VibeOps 9-Agent Pipeline（跨 Agent 累積上下文監控）
-- VibeOps PipelineMemory Snip 觸發條件
+- Task 執行（Token 預算監控；採用層）
+- 多 Agent Pipeline（跨 Agent 累積上下文監控；採用層）
+- PipelineMemory Snip 觸發條件（採用層）
 - 任何有 `maxTotalTokens` 限制的 Agent 執行環境
 
 ---

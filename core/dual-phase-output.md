@@ -47,7 +47,7 @@ Applications may add fields inside `<summary>` but must not remove core fields:
 |----------|---------|
 | Single review | 1000–3500 tokens |
 | Fix Loop (3× retries) | 3000–10500 tokens |
-| VibeOps pipeline (evaluator + guardian) | 2000–7000 tokens per run |
+| Multi-agent pipeline (evaluator + guardian; adoption layer) | 2000–7000 tokens per run |
 
 ## References
 

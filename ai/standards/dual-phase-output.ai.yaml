@@ -97,9 +97,9 @@ standard:
     note: "Savings accumulate in repeated review scenarios (Fix Loop, Feedback Loop)"
 
   applicable_agents:
-    - DevAP Judge Agent
-    - VibeOps Evaluator Agent
-    - VibeOps Guardian Agent
+    - Judge Agent (adoption layer)
+    - Evaluator Agent (adoption layer)
+    - Guardian Agent (adoption layer)
     - Any LLM-driven AutoCompact / summarization component
 
   error_codes:

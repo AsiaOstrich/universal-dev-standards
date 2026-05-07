@@ -180,7 +180,7 @@ categories:
       aws: [Security Groups, NACLs, VPC Flow Logs]
       gcp: [VPC Firewall Rules, Cloud Armor]
     outbound_allowlist_format: |
-      # Example: /etc/vibeops/outbound-allowlist.conf
+      # Example: /etc/ai-agent/outbound-allowlist.conf
       ALLOW api.openai.com:443
       ALLOW registry.npmjs.org:443
       DENY *:* (default deny)

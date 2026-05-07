@@ -133,14 +133,11 @@ fix_loop | circuit_breaker | rebase_and_retry | model_switch | degraded_mode | h
 
 ## 集成点
 
-### DevAP
+> 集成指引（informative；具体文件路径属于采用层自订范围）。
 
-- `packages/core/src/types.ts` — `RecoveryRecipe` / `RecoveryStrategy` type
-- `packages/core/src/recovery-registry.ts` — Registry 实现与默认 recipe
-- `packages/core/src/orchestrator.ts` — fix loop 前查询 Registry
+### 预期呼叫点
 
-### VibeOps
-
-- `src/types/index.ts` — 独立定义 `RecoveryRecipe`（AGPL 隔离）
-- `src/runner/recovery-registry.ts` — 独立实现
-- `recovery-recipes.yaml` — 默认 recipe 配置
+- 核心型别模块 — `RecoveryRecipe` / `RecoveryStrategy` type
+- recovery-registry 模块 — Registry 实现与默认 recipe
+- orchestrator 模块 — fix loop 前查询 Registry
+- recovery-recipes 配置档 — 默认 recipe 配置（档名由采用层决定）

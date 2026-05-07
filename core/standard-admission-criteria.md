@@ -46,7 +46,7 @@
 
 ### 4. AI-executable（AI 可消費）
 
-至少一個 DevAP QualityGate / VibeOps Agent prompt / Skill 能消費：
+至少一個 Quality Gate (adoption layer) / Agent prompt (採用層) / Skill 能消費：
 
 - 定義清楚的 guidelines（每條可驗證）
 - 至少 2 個 Given-When-Then scenarios

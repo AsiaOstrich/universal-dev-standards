@@ -19,7 +19,7 @@ A Release Quality Manifest makes quality evidence:
 The RQM now covers **16 quality dimensions** matching `release-readiness-gate.md`. Automated gates appear here; human-verified gates appear in the Release Readiness Sign-off document.
 
 ```yaml
-release: vibeops-commercial-1.2.0
+release: app-commercial-1.2.0
 generated_at: "2026-05-05T04:00:00Z"
 commit: "abc1234"
 gates:
@@ -167,7 +167,7 @@ YAML
 Generate a Markdown table alongside the YAML for inclusion in release notes:
 
 ```markdown
-## Release Quality Gates — vibeops-commercial-1.2.0
+## Release Quality Gates — app-commercial-1.2.0
 
 | Gate | Actual | Target | Status |
 |------|--------|--------|--------|

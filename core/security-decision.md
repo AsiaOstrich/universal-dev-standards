@@ -30,7 +30,7 @@ In non-interactive (CI/CD) environments, `ask` is treated as `deny` — there is
 
 ## projectSettings Trust Radius
 
-Configuration from `projectSettings` (`.devap/`, `.vibeops/`) is excluded from security-sensitive operations to prevent malicious repository injection:
+Configuration from `projectSettings` (`.adoption/` style directories) is excluded from security-sensitive operations to prevent malicious repository injection:
 
 **Blocked operations from projectSettings**:
 - Setting `requiresUserConfirmation: false`

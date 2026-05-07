@@ -20,7 +20,7 @@ core_problem:
     a specification of mock behavior rather than system behavior.
     The tests pass in CI while the real system silently fails.
   real_world_example: |
-    // SPEC-002.test.ts (VibeOps) — hollow test example
+    // SPEC-002.test.ts (multi-agent pipeline project) — hollow test example
     vi.mock('../../src/runner/agent-runner.js')      // Core dependency mocked
     vi.mock('../../src/runner/guardian-hooks.js')     // Core dependency mocked
     vi.mock('../../src/runner/prototyper.js')         // Core dependency mocked

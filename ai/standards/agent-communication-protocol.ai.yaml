@@ -1,6 +1,6 @@
 # Agent Communication Protocol - DEPRECATED STUB
-# This file has been migrated to DevAP per DEC-049 (UDS/DevAP responsibility split).
-# Canonical location: dev-autopilot/standards/orchestration/agent-communication-protocol.ai.yaml
+# Runtime details relocated to adoption layer (runtime moved to adoption layer 2026-04-28).
+# Adoption layer must implement an equivalent runtime; UDS retains only the human-readable concept under core/.
 # Migration: XSPEC-086 Phase 2 (2026-04-27)
 #
 # Human-readable standard: core/agent-communication-protocol.md (remains in UDS)
@@ -14,20 +14,19 @@ standard:
     deprecated: true
     deprecated_since: "5.4.0"
     removal_version: "6.0.0"
-    canonical_owner: devap
-    canonical_path: "dev-autopilot/standards/orchestration/agent-communication-protocol.ai.yaml"
+    canonical_owner: adoption-layer
+    canonical_path: "" # adoption-layer responsibility
     source: core/agent-communication-protocol.md
     description: >
-      DEPRECATED: This standard has moved to DevAP (orchestration layer).
-      Install DevAP and load standards/orchestration/agent-communication-protocol.ai.yaml instead.
+      DEPRECATED: Runtime details relocated to adoption layer (runtime moved to adoption layer 2026-04-28).
+      Adoption layer must implement an equivalent runtime.
 
   rules:
     - id: deprecation-notice
       trigger: any agent communication operation
       instruction: >
-        This standard (agent-communication-protocol.ai.yaml) has been migrated to DevAP.
+        Runtime details for this standard are now adoption-layer responsibility (runtime moved to adoption layer 2026-04-28).
         For the canonical executable definition, load:
-          dev-autopilot/standards/orchestration/agent-communication-protocol.ai.yaml
 
         The human-readable standard remains at:
           universal-dev-standards/core/agent-communication-protocol.md
@@ -36,7 +35,7 @@ standard:
     - id: ACP-001
       trigger: "訊息缺少必要欄位"
       instruction: >
-        DEPRECATED — load dev-autopilot/standards/orchestration/agent-communication-protocol.ai.yaml
+        DEPRECATED — see universal-dev-standards/core/ for human-readable concept; runtime is adoption-layer responsibility
         for the current executable communication protocol.
 
         Minimal fallback: Reject messages missing required Envelope fields and report INVALID_ENVELOPE.

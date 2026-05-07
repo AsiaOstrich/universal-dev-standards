@@ -59,7 +59,7 @@ Deprecated ──(migration done)───→ Archived
 
 ## Usage Examples
 
-- **Scenario 1 — Trial → Active**：`retry-standards` 處於 trial。2026-08-01 審視發現 DevAP Fix Loop 和 VibeOps Builder 均採用且無重大缺陷 → 轉 Active，`since=2026-08-01`，移除 `expires`
+- **Scenario 1 — Trial → Active**：`retry-standards` 處於 trial。2026-08-01 審視發現 Fix Loop（採用層） 和 Builder Agent (採用層) 均採用且無重大缺陷 → 轉 Active，`since=2026-08-01`，移除 `expires`
 - **Scenario 2 — Trial 逾期自動 Archived**：某標準 trial 期限 2026-10-17 到期未通過驗證 → 狀態轉 Archived，記錄原因
 - **Scenario 3 — Deprecated 帶遷移**：`legacy-retry-logic` 被 `retry-standards` 取代 → `status=deprecated, supersedes=retry-standards, migration_guide=docs/migrations/retry-v1-to-v2.md`；Skill 使用時顯示警告
 

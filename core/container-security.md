@@ -8,7 +8,7 @@
 
 ## 概覽
 
-本標準涵蓋容器與 Kubernetes 環境的完整安全要求，適用於所有使用 Docker 或 K8s 部署的服務，尤其針對 **AI Agent 生產環境**（VibeOps）提供特化規則。
+本標準涵蓋容器與 Kubernetes 環境的完整安全要求，適用於所有使用 Docker 或 K8s 部署的服務，尤其針對 **AI Agent 生產環境**（採用層）提供特化規則。
 
 ### 六大安全域
 
@@ -280,7 +280,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-deny-all
-  namespace: vibeops
+  namespace: ai-agent
 spec:
   podSelector: {}     # 套用到所有 Pod
   policyTypes:
@@ -295,7 +295,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: ai-agent-egress-allowlist
-  namespace: vibeops
+  namespace: ai-agent
 spec:
   podSelector:
     matchLabels:
@@ -339,7 +339,7 @@ spec:
 spec:
   containers:
     - name: ai-agent
-      image: vibeops/ai-agent:v1.2.3@sha256:<digest>
+      image: ai-agent/runtime:v1.2.3@sha256:<digest>
       # ...
     - name: guardian-opa
       image: openpolicyagent/opa:latest-rootless@sha256:<digest>
@@ -439,7 +439,7 @@ GONOSUMCHECK="" GOFLAGS="-mod=mod" go mod download
 
 ## AI Agent 特殊考量
 
-本節補充 AI Agent（VibeOps）相關的容器安全特化要求：
+本節補充 AI Agent（採用層）相關的容器安全特化要求：
 
 ### 強制要求
 
@@ -459,7 +459,7 @@ GONOSUMCHECK="" GOFLAGS="-mod=mod" go mod download
 volumes:
   - name: audit-log
     hostPath:
-      path: /var/log/vibeops/audit    # 需事先 chattr +a
+      path: /var/log/ai-agent/audit    # 需事先 chattr +a
       type: DirectoryOrCreate
 
 # ❌ 錯誤：emptyDir（重啟消失）
@@ -471,8 +471,8 @@ volumes:
 在宿主機設定 append-only：
 ```bash
 # 設定目錄為 append-only（需 root）
-chattr +a /var/log/vibeops/audit
-lsattr /var/log/vibeops/audit    # 驗證 a 屬性
+chattr +a /var/log/ai-agent/audit
+lsattr /var/log/ai-agent/audit    # 驗證 a 屬性
 ```
 
 ---

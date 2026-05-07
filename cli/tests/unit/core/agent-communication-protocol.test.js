@@ -33,22 +33,24 @@ describe('SPEC-AGENT-COMM-001: Agent Communication Protocol', () => {
       expect(mapStatus('BLOCKED', 'uds').unified).toBe('blocked');
     });
 
-    it('should map all DevAP status codes to unified codes', () => {
+    it('should map all adapter_example_a status codes to unified codes', () => {
       // [Source: SPEC-AGENT-COMM-001:AC-1]
-      expect(mapStatus('success', 'devap').unified).toBe('success');
-      expect(mapStatus('failed', 'devap').unified).toBe('failed');
-      expect(mapStatus('skipped', 'devap').unified).toBe('skipped');
-      expect(mapStatus('timeout', 'devap').unified).toBe('timeout');
-      expect(mapStatus('done_with_concerns', 'devap').unified).toBe('success_partial');
-      expect(mapStatus('needs_context', 'devap').unified).toBe('needs_context');
-      expect(mapStatus('blocked', 'devap').unified).toBe('blocked');
+      // adapter_example_a: illustrative seven-state status vocabulary
+      expect(mapStatus('success', 'adapter_example_a').unified).toBe('success');
+      expect(mapStatus('failed', 'adapter_example_a').unified).toBe('failed');
+      expect(mapStatus('skipped', 'adapter_example_a').unified).toBe('skipped');
+      expect(mapStatus('timeout', 'adapter_example_a').unified).toBe('timeout');
+      expect(mapStatus('done_with_concerns', 'adapter_example_a').unified).toBe('success_partial');
+      expect(mapStatus('needs_context', 'adapter_example_a').unified).toBe('needs_context');
+      expect(mapStatus('blocked', 'adapter_example_a').unified).toBe('blocked');
     });
 
-    it('should map all VibeOps status codes to unified codes', () => {
+    it('should map all adapter_example_b status codes to unified codes', () => {
       // [Source: SPEC-AGENT-COMM-001:AC-1]
-      expect(mapStatus('success', 'vibeops').unified).toBe('success');
-      expect(mapStatus('partial', 'vibeops').unified).toBe('success_partial');
-      expect(mapStatus('failure', 'vibeops').unified).toBe('failed');
+      // adapter_example_b: illustrative three-state status vocabulary
+      expect(mapStatus('success', 'adapter_example_b').unified).toBe('success');
+      expect(mapStatus('partial', 'adapter_example_b').unified).toBe('success_partial');
+      expect(mapStatus('failure', 'adapter_example_b').unified).toBe('failed');
     });
 
     it('should define exactly 8 unified status codes', () => {
@@ -65,7 +67,7 @@ describe('SPEC-AGENT-COMM-001: Agent Communication Protocol', () => {
 
     it('should map unknown status to "unknown" with warning', () => {
       // [Source: SPEC-AGENT-COMM-001:AC-7]
-      const result = mapStatus('custom_status', 'vibeops');
+      const result = mapStatus('custom_status', 'adapter_example_b');
       expect(result.unified).toBe('unknown');
       expect(result.warning).toBeDefined();
       expect(result.warning.original).toBe('custom_status');
@@ -90,7 +92,7 @@ describe('SPEC-AGENT-COMM-001: Agent Communication Protocol', () => {
       source: {
         agent_id: 'builder-001',
         agent_type: 'builder',
-        project: 'vibeops',
+        project: 'adapter_example_b',
       },
       status: 'success',
       timestamp: '2026-03-30T10:00:00Z',
@@ -256,14 +258,16 @@ describe('SPEC-AGENT-COMM-001: Agent Communication Protocol', () => {
 
   describe('AC-8: Cross-Project Round Trip', () => {
 
-    it('should complete DevAP → VibeOps → DevAP round trip', () => {
+    it('should complete adapter_a → adapter_b → adapter_a round trip', () => {
       // [Source: SPEC-AGENT-COMM-001:AC-8]
+      // Two illustrative adoption-layer adapters (A and B) exchanging
+      // envelopes via the unified protocol.
 
-      // DevAP creates request
+      // Adapter A creates request
       const request = {
         envelope_version: '1.0',
-        message_id: 'msg-devap-001',
-        source: { agent_id: 'orchestrator-001', agent_type: 'orchestrator', project: 'devap' },
+        message_id: 'msg-adapter-a-001',
+        source: { agent_id: 'orchestrator-001', agent_type: 'orchestrator', project: 'adapter_example_a' },
         target: { agent_type: 'builder' },
         status: 'success',
         timestamp: '2026-03-30T10:00:00Z',
@@ -273,11 +277,11 @@ describe('SPEC-AGENT-COMM-001: Agent Communication Protocol', () => {
       // Validate request
       expect(validateEnvelope(request).valid).toBe(true);
 
-      // VibeOps responds
+      // Adapter B responds
       const response = {
         envelope_version: '1.0',
-        message_id: 'msg-vibeops-001',
-        source: { agent_id: 'builder-001', agent_type: 'builder', project: 'vibeops' },
+        message_id: 'msg-adapter-b-001',
+        source: { agent_id: 'builder-001', agent_type: 'builder', project: 'adapter_example_b' },
         target: { agent_id: 'orchestrator-001', agent_type: 'orchestrator' },
         status: 'success',
         timestamp: '2026-03-30T10:05:00Z',
@@ -285,15 +289,15 @@ describe('SPEC-AGENT-COMM-001: Agent Communication Protocol', () => {
         parent_message_id: request.message_id,
       };
 
-      // DevAP validates and parses response
+      // Adapter A validates and parses response
       expect(validateEnvelope(response).valid).toBe(true);
       const parsed = parseEnvelope(response);
       expect(parsed.status).toBe('success');
       expect(parsed.payload.artifact_id).toBe('art-code-001');
-      expect(parsed.parent_message_id).toBe('msg-devap-001');
+      expect(parsed.parent_message_id).toBe('msg-adapter-a-001');
 
-      // Map VibeOps status to DevAP internal
-      const mapped = mapStatus(parsed.status, 'vibeops');
+      // Map adapter B's status to unified vocabulary
+      const mapped = mapStatus(parsed.status, 'adapter_example_b');
       expect(mapped.unified).toBe('success');
     });
   });

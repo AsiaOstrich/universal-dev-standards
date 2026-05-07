@@ -20,7 +20,7 @@ requirements:
       (Recovery Point Objective) targets. These must be agreed with stakeholders
       before any DR drill can be considered meaningful.
     examples:
-      - "VibeOps commercial: RTO < 1 hour, RPO < 24 hours (daily backup)"
+      - "Commercial-grade SaaS example: RTO < 1 hour, RPO < 24 hours (daily backup)"
 
   - id: REQ-02
     title: Backup Restore Test

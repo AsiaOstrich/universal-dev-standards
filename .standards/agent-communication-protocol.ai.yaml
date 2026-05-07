@@ -21,39 +21,43 @@ standard:
     - "未知狀態碼映射為 unknown，記錄警告，不中斷執行"
     - "同 MAJOR 版本保證向後相容，不同 MAJOR 回報 VERSION_INCOMPATIBLE"
 
+  # Informative example: mapping from UDS unified status codes to two
+  # representative adoption-layer status vocabularies. Adoption layers
+  # (Adapters / Pipelines / Agent runtimes) define their own mapping in
+  # their own repository; the columns below are illustrative only.
   status_protocol:
     - unified: success
       uds: DONE
-      devap: success
-      vibeops: success
+      adapter_example_a: success
+      adapter_example_b: success
     - unified: success_partial
       uds: DONE_WITH_CONCERNS
-      devap: done_with_concerns
-      vibeops: partial
+      adapter_example_a: done_with_concerns
+      adapter_example_b: partial
     - unified: failed
       uds: null
-      devap: failed
-      vibeops: failure
+      adapter_example_a: failed
+      adapter_example_b: failure
     - unified: blocked
       uds: BLOCKED
-      devap: blocked
-      vibeops: null
+      adapter_example_a: blocked
+      adapter_example_b: null
     - unified: needs_context
       uds: NEEDS_CONTEXT
-      devap: needs_context
-      vibeops: null
+      adapter_example_a: needs_context
+      adapter_example_b: null
     - unified: skipped
       uds: null
-      devap: skipped
-      vibeops: null
+      adapter_example_a: skipped
+      adapter_example_b: null
     - unified: timeout
       uds: null
-      devap: timeout
-      vibeops: null
+      adapter_example_a: timeout
+      adapter_example_b: null
     - unified: unknown
       uds: null
-      devap: null
-      vibeops: null
+      adapter_example_a: null
+      adapter_example_b: null
 
   envelope:
     version: "1.0"

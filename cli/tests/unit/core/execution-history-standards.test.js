@@ -1,8 +1,9 @@
 // [Source: specs/execution-history-spec.md]
 // [Updated: XSPEC-086 Phase 2 - 2026-04-27]
-// Standard migrated to DevAP per DEC-049. UDS now holds deprecated stub.
-// Canonical location: dev-autopilot/standards/orchestration/execution-history.ai.yaml
-// Tests updated to verify deprecated stub structure.
+// Runtime relocated to adoption layer (DEC-049 superseded by adoption-layer
+// decoupling, 2026-05-07). UDS now holds a deprecated stub indicating that
+// the runtime is adoption-layer responsibility.
+// Tests updated to verify the deprecated stub structure.
 
 import { describe, it, expect, beforeAll } from 'vitest';
 import { readFileSync, existsSync } from 'fs';
@@ -40,15 +41,15 @@ describe('execution-history-spec: Execution History Repository Standard (Depreca
     });
 
     it('should_be_marked_deprecated_when_parsed', () => {
-      // Standard has moved to DevAP — stub must declare deprecated
+      // Runtime relocated to adoption layer — stub must declare deprecated
       expect(parsed.standard.meta.deprecated).toBe(true);
     });
 
-    it('should_point_to_devap_canonical_location_when_parsed', () => {
-      expect(parsed.standard.meta.canonical_owner).toBe('devap');
-      expect(parsed.standard.meta.canonical_path).toBe(
-        'dev-autopilot/standards/orchestration/execution-history.ai.yaml'
-      );
+    it('should_point_to_adoption_layer_when_parsed', () => {
+      // Stub no longer points at any specific downstream product;
+      // runtime is the adoption layer's responsibility.
+      expect(parsed.standard.meta.canonical_owner).toBe('adoption-layer');
+      expect(parsed.standard.meta.canonical_path).toBe('');
     });
   });
 
@@ -108,11 +109,9 @@ describe('execution-history-spec: Execution History Repository Standard (Depreca
       expect(entry?.deprecated).toBe(true);
     });
 
-    it('should_have_devap_canonical_path_in_registry_when_checked', () => {
-      expect(entry?.canonicalOwner).toBe('devap');
-      expect(entry?.canonicalPath).toBe(
-        'dev-autopilot/standards/orchestration/execution-history.ai.yaml'
-      );
+    it('should_have_adoption_layer_canonical_path_in_registry_when_checked', () => {
+      expect(entry?.canonicalOwner).toBe('adoption-layer');
+      expect(entry?.canonicalPath).toBe('');
     });
 
     it('should_have_correct_source_paths_when_registered', () => {

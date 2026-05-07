@@ -21,7 +21,7 @@ This document defines rules for what can and cannot be mocked in tests. Its goal
 
 A hollow test mocks so much of the system that the test becomes a specification of mock wiring rather than system behavior. The classic symptom: you can delete the implementation file and the test still passes.
 
-**Real example (VibeOps SPEC-002.test.ts)**:
+**Real example (Multi-agent pipeline SPEC-002.test.ts)**:
 
 ```typescript
 vi.mock('../../src/runner/agent-runner.js')      // Core logic replaced

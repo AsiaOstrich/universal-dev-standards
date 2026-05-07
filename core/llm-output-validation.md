@@ -135,10 +135,10 @@ LLM 產生「聽起來正確但實際上沒有根據」的內容。例如：
 
 ```bash
 # 1. 修改前：用 temperature=0 記錄 golden output
-vibeops run planner --input fixtures/planner-input.json --temp 0 > golden.json
+ai-agent run planner --input fixtures/planner-input.json --temp 0 > golden.json
 
 # 2. 修改後：重跑並比對
-vibeops run planner --input fixtures/planner-input.json --temp 0 > after.json
+ai-agent run planner --input fixtures/planner-input.json --temp 0 > after.json
 
 # 3. 用 contract test 驗證 after.json 仍符合 schema
 npx vitest run agents/__tests__/contract.test.ts

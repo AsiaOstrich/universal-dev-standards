@@ -1,6 +1,6 @@
 # Workflow State Protocol - DEPRECATED STUB
-# This file has been migrated to DevAP per DEC-049 (UDS/DevAP responsibility split).
-# Canonical location: dev-autopilot/standards/flow/workflow-state-protocol.ai.yaml
+# Runtime details relocated to adoption layer (runtime moved to adoption layer 2026-04-28).
+# Adoption layer must implement an equivalent runtime; UDS retains only the human-readable concept under core/.
 # Migration: XSPEC-086 Phase 2 (2026-04-27)
 #
 # Human-readable standard: core/workflow-state-protocol.md (remains in UDS)
@@ -13,31 +13,29 @@ meta:
   deprecated: true
   deprecated_since: "5.4.0"
   removal_version: "6.0.0"
-  canonical_owner: devap
-  canonical_path: "dev-autopilot/standards/flow/workflow-state-protocol.ai.yaml"
+  canonical_owner: adoption-layer
+  canonical_path: "" # adoption-layer responsibility
   source: core/workflow-state-protocol.md
   description: >
-    DEPRECATED: This standard has moved to DevAP (flow orchestration layer).
-    Install DevAP and load standards/flow/workflow-state-protocol.ai.yaml instead.
+    DEPRECATED: Runtime details relocated to adoption layer (runtime moved to adoption layer 2026-04-28).
+    Adoption layer must implement an equivalent runtime.
 
 rules:
   - id: deprecation-notice
     trigger: any workflow state operation
     instruction: >
-      This standard (workflow-state-protocol.ai.yaml) has been migrated to DevAP.
+      Runtime details for this standard are now adoption-layer responsibility (runtime moved to adoption layer 2026-04-28).
       For the canonical executable definition, load:
-        dev-autopilot/standards/flow/workflow-state-protocol.ai.yaml
 
       The human-readable standard remains at:
         universal-dev-standards/core/workflow-state-protocol.md
 
-      To install DevAP: npm install -g @devap/cli
     priority: required
 
   - id: state-load-on-resume
     trigger: session start or workflow command invocation
     instruction: >
-      DEPRECATED — load dev-autopilot/standards/flow/workflow-state-protocol.ai.yaml
+      DEPRECATED — see universal-dev-standards/core/ for human-readable concept; runtime is adoption-layer responsibility
       for the current executable state protocol.
 
       Minimal fallback: At session start, check .workflow-state/ for active workflows

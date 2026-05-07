@@ -45,10 +45,10 @@ interface CircuitBreaker {
 
 ## Applicable Scenarios
 
-- DevAP Fix Loop retries
-- DevAP LLM API call protection
-- VibeOps Feedback Loop retries
-- VibeOps FLARE retrieval retries
+- Fix Loop（採用層） retries
+- LLM API call protection (adoption layer)
+- Feedback Loop（採用層） retries
+- FLARE 主動檢索（採用層） retrieval retries
 - Any component using retry with external dependencies
 
 ## References

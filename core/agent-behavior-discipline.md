@@ -19,7 +19,7 @@ This standard defines four behavioral disciplines for AI agents that elevate per
 3. **Scope creep** — agent "helpfully" modifies unrelated code
 4. **Goalless loops** — agent iterates without a defined stopping condition
 
-The disciplines are designed to be stackable with existing UDS standards (`anti-hallucination`, `anti-sycophancy-prompting`, `test-driven-development`) and enforceable at the harness level (DevAP `DisciplineConfig`).
+The disciplines are designed to be stackable with existing UDS standards (`anti-hallucination`, `anti-sycophancy-prompting`, `test-driven-development`) and enforceable at the harness level (e.g., a `DisciplineConfig` shape implemented by the adoption layer).
 
 ---
 
@@ -153,9 +153,9 @@ Karpathy's strongest principle: *"LLMs excel at looping toward specific goals �
 
 ---
 
-## Enforcement at Harness Level (DevAP)
+## Enforcement at Harness Level (Adoption Layer)
 
-`DisciplineConfig` in DevAP `src/types.ts`:
+Reference shape for a harness-level `DisciplineConfig` (the actual type lives in your adoption layer's source):
 
 ```typescript
 interface DisciplineConfig {
@@ -165,7 +165,7 @@ interface DisciplineConfig {
 }
 ```
 
-The `assumptionCheckGate()` in `src/orchestrator.ts` evaluates task complexity against `ask_threshold` before dispatching to the agent.
+The harness's orchestrator (e.g., an `assumptionCheckGate()` function) should evaluate task complexity against `ask_threshold` before dispatching to the agent.
 
 ---
 

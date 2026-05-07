@@ -11,6 +11,12 @@ export const UNIFIED_STATUSES = [
   'needs_context', 'skipped', 'timeout', 'unknown',
 ];
 
+// Reference status mappings. `uds` is UDS's own native status set;
+// the other two entries are illustrative example mappings showing how
+// adoption-layer runtimes can plug their own status vocabularies into
+// the unified status code set. Adoption layers should add their own
+// keys (or call mapStatus with their own project name) — these example
+// keys are not endorsements of any specific downstream product.
 const STATUS_MAP = {
   uds: {
     DONE: 'success',
@@ -18,7 +24,7 @@ const STATUS_MAP = {
     NEEDS_CONTEXT: 'needs_context',
     BLOCKED: 'blocked',
   },
-  devap: {
+  adapter_example_a: {
     success: 'success',
     failed: 'failed',
     skipped: 'skipped',
@@ -27,7 +33,7 @@ const STATUS_MAP = {
     needs_context: 'needs_context',
     blocked: 'blocked',
   },
-  vibeops: {
+  adapter_example_b: {
     success: 'success',
     partial: 'success_partial',
     failure: 'failed',
@@ -38,7 +44,8 @@ const STATUS_MAP = {
  * Map a project-specific status to unified status code.
  * Unknown statuses map to 'unknown' with a warning.
  * @param {string} status - Project-specific status code
- * @param {string} project - Source project ('uds' | 'devap' | 'vibeops')
+ * @param {string} project - Source project (e.g. 'uds', 'adapter_example_a',
+ *   'adapter_example_b', or any custom adoption-layer project key)
  * @returns {{ unified: string, warning?: { original: string, project: string } }}
  */
 export function mapStatus(status, project) {

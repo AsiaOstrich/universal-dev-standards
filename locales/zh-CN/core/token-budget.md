@@ -20,7 +20,7 @@ status: current
 
 ## 目的
 
-Token 阈值四区模型（SAFE/WARNING/DANGER/BLOCKING），统一 DevAP/VibeOps 的 token 用量管控行为。
+Token 阈值四区模型（SAFE/WARNING/DANGER/BLOCKING），统一各采用层的 token 用量管控行为。
 
 各 Agent 对于「快用完 token 了」的处理方式各异（有的直接截断、有的无警告、有的在最后才通知）。本标准定义四个阈值区间，确保所有 Agent 在进入不同区间时采取一致的行为（警告、简化输出、阻塞）。
 

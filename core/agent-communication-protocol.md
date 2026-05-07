@@ -4,7 +4,7 @@
 
 **Version**: 1.0.0
 **Last Updated**: 2026-03-30
-**Applicability**: Cross-project AI agent orchestration (UDS / DevAP / VibeOps)
+**Applicability**: Cross-adoption-layer AI agent orchestration (any Adapter / Pipeline / Agent runtime that consumes UDS standards)
 **Scope**: universal
 **Related Standards**: [Agent Dispatch](./agent-dispatch.md), [Model Selection](./model-selection.md)
 **Spec**: [SPEC-AGENT-COMM-001](../docs/specs/SPEC-AGENT-COMM-001-agent-communication-protocol.md)
@@ -58,12 +58,12 @@ Eight standardized status codes form a superset of all project-specific states:
 | `timeout` | Task exceeded time limit | 任務超時 |
 | `unknown` | Unrecognized status (fallback) | 無法識別的狀態（降級） |
 
-### 1.2 Cross-Project Mapping
+### 1.2 Cross-Adoption-Layer Mapping
 
-跨專案狀態碼映射表：
+跨採用層狀態碼對映表（informative example，採用層自訂自己的對映）：
 
-| Unified | UDS | DevAP | VibeOps |
-|---------|-----|-------|---------|
+| Unified | UDS | Adapter Example A | Adapter Example B |
+|---------|-----|-------------------|-------------------|
 | `success` | DONE | success | success |
 | `success_partial` | DONE_WITH_CONCERNS | done_with_concerns | partial |
 | `failed` | — | failed | failure |

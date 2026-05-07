@@ -100,10 +100,10 @@ standard:
       consequence: "記錄 CAPABILITY_MISMATCH 事件，降級至 FAIL_CLOSED_DEFAULTS"
 
   applicable_components:
-    - "DevAP AgentAdapter（ClaudeAdapter / OpenCodeAdapter / CliAdapter）"
-    - "DevAP Tool 呼叫系統"
-    - "VibeOps ToolExecutor"
-    - "VibeOps Agent（planner / builder / evaluator 等）"
+    - "AgentAdapter implementations (e.g., ClaudeAdapter / OpenCodeAdapter / CliAdapter at the adoption layer)"
+    - "Tool 呼叫系統（採用層 runtime）"
+    - "ToolExecutor 實作（採用層）"
+    - "Agent（採用層；planner / builder / evaluator 等角色）"
     - "所有 MCP 工具插件"
 
   error_codes:

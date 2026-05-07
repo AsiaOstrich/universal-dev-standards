@@ -8,7 +8,7 @@ An untested DR plan is a false sense of security. Teams that have never executed
 
 Define these before writing the runbook:
 
-| Metric | Definition | VibeOps Commercial Target |
+| Metric | Definition | Commercial-grade Target |
 |--------|-----------|--------------------------|
 | RTO (Recovery Time Objective) | Max acceptable downtime | < 1 hour |
 | RPO (Recovery Point Objective) | Max acceptable data loss | < 24 hours (daily backup) |
@@ -20,9 +20,9 @@ Define these before writing the runbook:
 # scripts/backup-restore.sh — DR drill backup restore verification
 set -euo pipefail
 
-BACKUP_DIR="${BACKUP_DIR:-/var/backups/vibeops}"
+BACKUP_DIR="${BACKUP_DIR:-/var/backups/app}"
 RESTORE_DIR="${RESTORE_DIR:-/tmp/dr-restore}"
-DB_FILE="${DB_FILE:-vibeops.db}"
+DB_FILE="${DB_FILE:-app.db}"
 
 echo "=== DR Drill: Backup Restore Verification ==="
 echo "Source: ${BACKUP_DIR}/${DB_FILE}.backup"

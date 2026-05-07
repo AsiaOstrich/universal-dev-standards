@@ -56,8 +56,8 @@ escalation:                         # required
 
 ## Applicable Scenarios
 
-- DevAP Orchestrator selects recovery strategy before fix loop
-- VibeOps PipelineRunner handles `agent:error` with registry lookup
+- Orchestrator (adoption layer) selects recovery strategy before fix loop
+- Pipeline Runner (adoption layer) handles `agent:error` with registry lookup
 - Custom `recovery-recipes.yaml` for project-level recipe override
 - Telemetry tracking recovery strategy effectiveness
 

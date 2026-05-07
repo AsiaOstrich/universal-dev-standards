@@ -187,14 +187,10 @@ standard:
           on_exhaust: RecoveryStrategy
           message: "string (optional)"
 
+  # Integration guidance (informative; concrete file paths are adoption-layer concerns).
   integration_points:
-    devap:
-      files:
-        - "packages/core/src/types.ts — RecoveryRecipe / RecoveryStrategy type"
-        - "packages/core/src/recovery-registry.ts — Registry 實作與預設 recipe"
-        - "packages/core/src/orchestrator.ts — fix loop 前查詢 Registry"
-    vibeops:
-      files:
-        - "src/types/index.ts — 獨立定義 RecoveryRecipe（AGPL 隔離）"
-        - "src/runner/recovery-registry.ts — 獨立實作"
-        - "recovery-recipes.yaml — 預設 recipe 配置"
+    expected_call_sites:
+      - "core types module — RecoveryRecipe / RecoveryStrategy type"
+      - "recovery-registry module — Registry 實作與預設 recipe"
+      - "orchestrator module — fix loop 前查詢 Registry"
+      - "recovery-recipes config — 預設 recipe 配置（檔名由採用層決定）"
