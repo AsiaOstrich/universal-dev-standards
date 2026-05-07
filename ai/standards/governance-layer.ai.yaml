@@ -1,0 +1,114 @@
+# Governance Layer Standard - AI Optimized
+# Source: core/governance-layer.md
+
+id: governance-layer
+meta:
+  version: "1.0.0"
+  updated: "2026-05-07"
+  source: core/governance-layer.md
+  description: "治理層標準（Vision/Mission/Goals 三層架構 + KPI + 紅線清單）"
+  scope: universal
+  priority: meta
+
+# This is Standard #0 — evaluated before all other standards
+priority_order:
+  rule: "Governance layer overrides all other standards on conflict"
+  resolution_order:
+    1: governance-layer (this standard)
+    2: domain standards (testing, commit, deployment, etc.)
+    3: project-specific overrides
+
+# Three-layer schema requirements
+schema:
+  vision:
+    required: true
+    format: "Single sentence, ≤ 50 tokens"
+    content: "Long-term direction; timeless; no metrics"
+    change_frequency: annual
+
+  mission:
+    required: true
+    format: "3–5 commitments + red_lines table (≤ 300 tokens total)"
+    content: "What we do / don't do; red lines with trigger conditions + actions"
+    change_frequency: quarterly
+    red_lines:
+      required_fields:
+        - id           # Unique identifier (e.g., R1, GUARD-001)
+        - category     # quality | safety | compliance | ethics
+        - clause       # Human-readable forbidden/required statement
+        - action       # block | warn | escalate_to_human
+      recommended_fields:
+        - mission_clause_ref  # Reference to the mission commitment this enforces
+
+  goals:
+    required: true
+    format: "KPI table, ≤ 500 tokens"
+    change_frequency: per_sprint
+    falsifiability: "Every KPI must be measurable — no 'improve', 'enhance', 'better'"
+    kpi:
+      required_fields:
+        - id                 # Unique identifier (e.g., KPI-01)
+        - metric_name        # Name of the tracked metric
+        - threshold          # Quantified target (e.g., ≥ 95%, < 200 ms)
+        - measurement_method # How and when the metric is measured
+
+# Red line action semantics
+red_line_actions:
+  block:
+    description: "Halt pipeline immediately; do not proceed"
+  warn:
+    description: "Log violation and continue; escalate if threshold exceeded"
+  escalate_to_human:
+    description: "Pause and require human decision before continuing"
+
+# AI evaluator integration
+evaluator:
+  scoring_axes:
+    correctness:
+      weight: 0.4
+      veto_threshold: 0.3
+    mission_alignment:
+      weight: 0.3
+      veto_threshold: 0.3
+    goal_achievement:
+      weight: 0.3
+      veto_threshold: 0.3
+  veto_rule: "Any single axis < 0.3 → FAIL regardless of weighted sum"
+
+# Risk acceptance for relaxed gates
+risk_acceptance:
+  trigger: "gate.mode = trace_only (or any human gate bypass)"
+  required_fields:
+    - date
+    - signatory
+    - gates_bypassed
+    - risks_accepted
+  fail_closed: "Pipeline MUST refuse to start without a valid Risk Acceptance Clause"
+
+# Governance file structure
+file_structure:
+  directory: "governance/"
+  files:
+    - name: "vision.md"
+      content: "Single-sentence vision statement"
+    - name: "mission.md"
+      content: "Commitments + red lines table; Risk Acceptance Clause if applicable"
+    - name: "goals.md"
+      content: "KPI table (updated each Sprint)"
+
+# Compliance checklist (AI-verifiable)
+compliance_checks:
+  - id: CK-01
+    check: "Vision is a single sentence ≤ 50 tokens with no metrics"
+  - id: CK-02
+    check: "Mission has 3–5 commitments and a red_lines table"
+  - id: CK-03
+    check: "Every red line has: id, category, clause, action"
+  - id: CK-04
+    check: "Goals table present with all KPIs containing required fields"
+  - id: CK-05
+    check: "No KPI uses vague language (improve / enhance / better)"
+  - id: CK-06
+    check: "If gate.mode=trace_only, Risk Acceptance Clause exists in mission.md"
+  - id: CK-07
+    check: "Evaluator weights 0.4/0.3/0.3 with fail-closed veto at < 0.3"

@@ -681,6 +681,17 @@
   },
   "standards": [
     {
+      "id": "governance-layer",
+      "name": "Governance Layer Standard",
+      "nameZh": "治理層標準",
+      "source": {
+        "human": "core/governance-layer.md",
+        "ai": "ai/standards/governance-layer.ai.yaml"
+      },
+      "category": "core",
+      "description": "Standard #0: Vision/Mission/Goals three-layer governance schema with KPI mandatory fields, red lines format, and evaluator integration. Evaluated before all other standards."
+    },
+    {
       "id": "anti-sycophancy-prompting",
       "name": "Anti-Sycophancy Prompting Standards",
       "nameZh": "防迎合提示詞設計標準",
