@@ -2,10 +2,9 @@
 # CLI 實作：packages/cli/src/commands/push.ts (XSPEC-081)
 # 活動定義（gate 規格、設定模式）：UDS push-standards.ai.yaml
 # 編排序列（gate 排序、失敗行為）：standards/flow/push-gate-sequence.ai.yaml
-# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
-# Source: dev-autopilot/.devap/flows/push.flow.yaml
+# UDS-managed flow (XSPEC-097 Phase 2, 2026-04-28)
 # This flow definition is now the canonical UDS standard.
-# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+# Execution: Claude-native via /orchestrate Skill
 name: push
 description: >
   Enforces a 5-step push workflow: detect protected branch → detect force push
@@ -68,7 +67,7 @@ steps:
   - id: pr-integration
     type: suggest
     condition: "auto_pr=true AND repo_mode=team AND no open PR for branch"
-    message: "建議執行 devap pr 為此分支建立 Pull Request"
+    message: "建議執行 /pr 為此分支建立 Pull Request"
     requires: [emit-receipt]
 
 abort_behavior:

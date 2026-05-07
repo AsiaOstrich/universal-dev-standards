@@ -2,10 +2,9 @@ id: pr
 name: Pull Request Lifecycle
 version: "1.0"
 description: PR lifecycle — CREATE → REVIEW → APPROVE → MERGE → CLEANUP
-# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
-# Source: dev-autopilot/.devap/flows/pr.flow.yaml
+# UDS-managed flow (XSPEC-097 Phase 2, 2026-04-28)
 # This flow definition is now the canonical UDS standard.
-# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+# Execution: Claude-native via /orchestrate Skill
 
 phases:
   - id: create

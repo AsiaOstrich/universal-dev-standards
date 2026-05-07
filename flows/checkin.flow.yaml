@@ -2,10 +2,9 @@
 # CLI 實作：packages/cli/src/commands/checkin.ts
 # 活動定義（checklist 項目、哲學）：UDS checkin-standards.ai.yaml
 # 編排序列（gate 順序、abort 邏輯）：standards/flow/checkin-gate-sequence.ai.yaml
-# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
-# Source: dev-autopilot/.devap/flows/checkin.flow.yaml
+# UDS-managed flow (XSPEC-097 Phase 2, 2026-04-28)
 # This flow definition is now the canonical UDS standard.
-# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+# Execution: Claude-native via /orchestrate Skill
 name: checkin
 description: >
   Pre-commit quality gate sequence: build → tests → code quality → documentation → workflow compliance → summary.
@@ -72,6 +71,6 @@ steps:
     requires: [workflow-compliance]
 
 completion:
-  on_all_pass: "✅ 所有閘門通過，可執行 devap commit 提交"
+  on_all_pass: "✅ 所有閘門通過，可執行 /commit 提交"
   on_warn: "⚠️ 有警告，建議修復後再提交"
   on_abort: "❌ 閘門失敗，已中止"

@@ -1,10 +1,9 @@
 # [XSPEC-086 Phase 4] BDD 流程 — DISCOVERY → FORMULATION → AUTOMATION → LIVING DOCS
 # CLI 實作：packages/cli/src/commands/bdd.ts
 # 活動定義（Gherkin 格式、Three Amigos、場景結構）：UDS bdd-assistant/SKILL.md
-# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
-# Source: dev-autopilot/.devap/flows/bdd.flow.yaml
+# UDS-managed flow (XSPEC-097 Phase 2, 2026-04-28)
 # This flow definition is now the canonical UDS standard.
-# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+# Execution: Claude-native via /orchestrate Skill
 name: bdd
 description: >
   Behavior-Driven Development cycle: Discovery → Formulation (Gherkin) → Automation → Living Docs.
@@ -76,4 +75,4 @@ steps:
     requires: [automation]
 
 completion:
-  message: "✅ BDD 循環完成。建議：devap checkin → devap commit"
+  message: "✅ BDD 循環完成。建議：/checkin → /commit"

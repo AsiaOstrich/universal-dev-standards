@@ -1,10 +1,9 @@
 # [XSPEC-086 Phase 4] TDD 流程 — RED → GREEN → REFACTOR 循環
 # CLI 實作：packages/cli/src/commands/tdd.ts
 # 活動定義：UDS tdd-assistant/SKILL.md + test-driven-development.ai.yaml
-# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
-# Source: dev-autopilot/.devap/flows/tdd.flow.yaml
+# UDS-managed flow (XSPEC-097 Phase 2, 2026-04-28)
 # This flow definition is now the canonical UDS standard.
-# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+# Execution: Claude-native via /orchestrate Skill
 name: tdd
 description: >
   Guides through Test-Driven Development: understand requirement → list test cases
@@ -81,4 +80,4 @@ steps:
         on_no: complete
 
 completion:
-  message: "✅ TDD 循環完成。建議：devap commit → /checkin → /coverage"
+  message: "✅ TDD 循環完成。建議：/commit → /checkin → /coverage"

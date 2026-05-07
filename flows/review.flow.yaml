@@ -1,10 +1,9 @@
 # [XSPEC-086 Phase 4] Code Review 流程 — Identify → Checklist → Report → Summarize
 # CLI 實作：packages/cli/src/commands/review.ts
 # 活動定義（審查類別、評論前綴）：UDS code-review-assistant/SKILL.md
-# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
-# Source: dev-autopilot/.devap/flows/review.flow.yaml
+# UDS-managed flow (XSPEC-097 Phase 2, 2026-04-28)
 # This flow definition is now the canonical UDS standard.
-# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+# Execution: Claude-native via /orchestrate Skill
 name: review
 description: >
   Systematic code review: identify changes → apply 8-category checklist → generate findings report → summarize.
@@ -58,6 +57,6 @@ steps:
     requires: [generate-report]
 
 completion:
-  on_approve: "✅ 審查通過，可執行 devap checkin → devap commit"
-  on_request_changes: "❌ 有 BLOCKING 項目，修復後重新執行 devap review"
-  on_comment: "💬 有建議，確認後執行 devap checkin"
+  on_approve: "✅ 審查通過，可執行 /checkin → /commit"
+  on_request_changes: "❌ 有 BLOCKING 項目，修復後重新執行 /review"
+  on_comment: "💬 有建議，確認後執行 /checkin"

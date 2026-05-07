@@ -1,10 +1,9 @@
 # [XSPEC-086 Phase 4] SDD 流程 — 7-Phase Spec-Driven Development 狀態機
 # CLI 實作：packages/cli/src/commands/sdd.ts
 # 活動定義（spec 格式、狀態、delta 操作）：UDS spec-driven-dev/SKILL.md
-# Migrated from DevAP .devap/flows/ (XSPEC-097 Phase 2, 2026-04-28)
-# Source: dev-autopilot/.devap/flows/sdd.flow.yaml
+# UDS-managed flow (XSPEC-097 Phase 2, 2026-04-28)
 # This flow definition is now the canonical UDS standard.
-# Execution: Claude-native via /orchestrate Skill (no DevAP engine required)
+# Execution: Claude-native via /orchestrate Skill
 name: sdd
 description: >
   7-phase Spec-Driven Development lifecycle: Discuss → Create → Review → Approve → Implement → Verify → Archive.
@@ -81,7 +80,7 @@ phases:
     requires: [verify]
 
 completion:
-  message: "✅ SDD 週期完成。規格已歸檔，可執行 devap commit 提交最終成果。"
+  message: "✅ SDD 週期完成。規格已歸檔，可執行 /commit 提交最終成果。"
 
 state_transitions:
   Draft: [Review]
