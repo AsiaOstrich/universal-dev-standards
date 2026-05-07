@@ -123,7 +123,7 @@ cli/standards-registry.json           # +72 行（6 入口）
 1. **繁中翻譯** — 6 個 core standard 的 `locales/zh-TW/` 翻譯
 2. **Skill 評估** — 評估是否需要建立對應的 Claude Code Skill
 3. **CLAUDE.md 更新** — 考慮將新標準加入 Installed Standards Index
-4. **跨產品影響** — 評估對 DevAP/VibeOps 的消費影響
+4. **跨採用層影響** — 評估對各採用層的消費影響
 
 ## Version History / 版本歷史
 

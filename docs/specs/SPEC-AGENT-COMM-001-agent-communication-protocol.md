@@ -8,15 +8,14 @@
 | **作者** | AsiaOstrich Team |
 | **建立日期** | 2026-03-30 |
 | **最後更新** | 2026-03-30 |
-| **適用範圍** | 跨專案（UDS / DevAP / VibeOps） |
-| **相關 SPEC** | [VibeOps SPEC-017](https://github.com/AsiaOstrich/vibeops/blob/main/specs/SPEC-017-multi-subagent.md), [DevAP SPEC-004](https://github.com/AsiaOstrich/dev-autopilot/blob/main/specs/SPEC-004-vibeops-adapter.md) |
+| **適用範圍** | 跨採用層（UDS + 採用層） |
 | **相關標準** | `core/agent-dispatch.md`, `core/model-selection.md` |
 
 ---
 
 ## 1. 摘要
 
-定義 AsiaOstrich 三層產品（UDS / DevAP / VibeOps）的統一 Agent 通訊協定。本規格解決三個專案各自演化導致的狀態碼不相容、訊息格式分歧、上下文傳遞方式不一致等問題，建立可跨專案組合的 Agent 通訊基礎。
+定義 UDS 與採用層之間的統一 Agent 通訊協定。本規格解決各採用層各自演化導致的狀態碼不相容、訊息格式分歧、上下文傳遞方式不一致等問題，建立可跨採用層組合的 Agent 通訊基礎。
 
 本規格只定義協定標準（What），不定義各專案實作方式（How）。
 
@@ -26,8 +25,8 @@
 
 | 痛點 | 影響 | 嚴重度 |
 |------|------|--------|
-| **狀態碼不相容** | UDS 4 種、DevAP 7 種、VibeOps 2 種，無法直接映射 | 高 |
-| **訊息格式分歧** | UDS 用 prompt injection、DevAP 用 TaskResult、VibeOps 用自由格式 JSON | 高 |
+| **狀態碼不相容** | UDS 4 種、採用層各有差異，無法直接映射 | 高 |
+| **訊息格式分歧** | UDS 用 prompt injection，採用層格式各異（TaskResult、JSON 等） | 高 |
 | **上下文傳遞隱式** | agent 間的上下文靠 prompt 拼接，無結構化 handoff | 高 |
 | **無協定版本管理** | 各專案獨立修改格式，無向後相容保證 | 中 |
 
@@ -126,23 +125,23 @@
 
 ### 4.1 Unified Status Code
 
-以 DevAP 7 狀態為基底，擴展為 8 狀態超集：
+以現有採用層狀態碼為參考，擴展為 8 狀態超集：
 
 ```
-┌─────────────────────────────────────────────────────┐
-│              Unified Status Protocol                 │
-├──────────────────┬──────────┬────────────┬──────────┤
-│ Unified          │ UDS      │ DevAP      │ VibeOps  │
-├──────────────────┼──────────┼────────────┼──────────┤
-│ success          │ DONE     │ success    │ success  │
-│ success_partial  │ DONE*    │ done_w_c   │ partial  │
-│ failed           │ -        │ failed     │ failure  │
-│ blocked          │ BLOCKED  │ blocked    │ -        │
-│ needs_context    │ NEEDS_CTX│ needs_ctx  │ -        │
-│ skipped          │ -        │ skipped    │ -        │
-│ timeout          │ -        │ timeout    │ -        │
-│ unknown          │ -        │ -          │ -        │
-└──────────────────┴──────────┴────────────┴──────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                   Unified Status Protocol                    │
+├──────────────────┬──────────┬──────────────────┬────────────┤
+│ Unified          │ UDS      │ Adapter Example A │ Example B  │
+├──────────────────┼──────────┼──────────────────┼────────────┤
+│ success          │ DONE     │ success          │ success    │
+│ success_partial  │ DONE*    │ done_w_c         │ partial    │
+│ failed           │ -        │ failed           │ failure    │
+│ blocked          │ BLOCKED  │ blocked          │ -          │
+│ needs_context    │ NEEDS_CTX│ needs_ctx        │ -          │
+│ skipped          │ -        │ skipped          │ -          │
+│ timeout          │ -        │ timeout          │ -          │
+│ unknown          │ -        │ -                │ -          │
+└──────────────────┴──────────┴──────────────────┴────────────┘
 
 * UDS DONE_WITH_CONCERNS → success_partial
 ```
@@ -168,7 +167,7 @@ message_id: "msg-uuid-v4"       # 訊息唯一 ID
 source:                          # 發送者
   agent_id: "builder-001"       # agent 實例 ID
   agent_type: "builder"         # agent 類型
-  project: "vibeops"            # 來源專案（uds / devap / vibeops）
+  project: "adapter_example_a"  # 來源專案（uds / 採用層自訂識別碼）
 target:                          # 接收者（可選，broadcast 時省略）
   agent_id: "reviewer-001"
   agent_type: "reviewer"
@@ -245,14 +244,13 @@ handoff:
 | 專案 | 實作範圍 | 說明 |
 |------|----------|------|
 | **UDS** | 標準定義 + AI YAML | `core/agent-communication-protocol.md` + `.standards/agent-communication.ai.yaml` |
-| **DevAP** | Orchestrator adapter | TaskResult ↔ Envelope 轉換層 |
-| **VibeOps** | Pipeline adapter | AgentOutput ↔ Envelope 轉換層 + Handoff 注入 pipeline |
+| **採用層** | Adapter 實作 | 各採用層自行實作內部格式 ↔ Envelope 轉換層 |
 
 ## 5. Acceptance Criteria
 
 ### AC-1: Status Mapping Completeness
 
-- **GIVEN** 三個專案各自的 agent 狀態碼
+- **GIVEN** UDS 及各採用層各自的 agent 狀態碼
 - **WHEN** 執行映射轉換
 - **THEN** 所有現有狀態碼 SHALL 能映射到統一狀態碼，映射表無遺漏
 
@@ -292,11 +290,11 @@ handoff:
 - **WHEN** 解析該訊息
 - **THEN** SHALL 將其映射為 `unknown`，記錄警告日誌，不中斷執行流程
 
-### AC-8: Cross-Project Round Trip
+### AC-8: Cross-Adoption-Layer Round Trip
 
-- **GIVEN** DevAP orchestrator 派遣一個任務給 VibeOps agent
-- **WHEN** VibeOps agent 完成並回報
-- **THEN** 回報訊息 SHALL 符合 Envelope v1.0 schema，DevAP SHALL 能正確解析 status 和 payload
+- **GIVEN** 一個採用層 orchestrator 派遣一個任務給另一個採用層的 agent
+- **WHEN** 目標 agent 完成並回報
+- **THEN** 回報訊息 SHALL 符合 Envelope v1.0 schema，發送方 SHALL 能正確解析 status 和 payload
 
 ## 6. Test Plan
 
@@ -307,7 +305,7 @@ handoff:
 - [ ] Handoff 建構測試：選擇性 artifact 引用
 - [ ] Handoff 完整性測試：decision_log 必要欄位檢查
 - [ ] 版本不相容測試：v2.0 訊息在 v1.x 解析器中報錯
-- [ ] 跨專案整合測試：DevAP → VibeOps round trip（需三個專案配合）
+- [ ] 跨採用層整合測試：Adapter A → Adapter B round trip（需採用層配合）
 
 ## 7. Migration Strategy
 
@@ -315,9 +313,8 @@ handoff:
 
 ```
 Phase 1a: UDS 發布標準（core/ + .standards/）
-Phase 1b: DevAP 實作 Envelope adapter（TaskResult ↔ Envelope）
-Phase 1c: VibeOps 實作 Envelope adapter（AgentOutput ↔ Envelope）
-Phase 1d: 跨專案整合測試
+Phase 1b: 各採用層各自實作 Envelope adapter（內部格式 ↔ Envelope）
+Phase 1c: 跨採用層整合測試
 ```
 
 ### 7.2 向後相容
@@ -328,8 +325,7 @@ Phase 1d: 跨專案整合測試
 
 ### 7.3 Opt-in 機制
 
-- DevAP: `orchestrator.config.envelope_protocol: true` 啟用
-- VibeOps: `vibeops.config.json` 中 `"envelope_protocol": true` 啟用
+- 各採用層在自身配置中加入 `envelope_protocol: true` 啟用
 - 預設 `false`，不影響現有行為
 
 ---
@@ -358,7 +354,7 @@ Phase 1d: 跨專案整合測試
       "properties": {
         "agent_id": { "type": "string" },
         "agent_type": { "type": "string" },
-        "project": { "type": "string", "enum": ["uds", "devap", "vibeops"] }
+        "project": { "type": "string", "description": "Source project identifier (uds or adoption-layer-defined string)" }
       }
     },
     "target": {

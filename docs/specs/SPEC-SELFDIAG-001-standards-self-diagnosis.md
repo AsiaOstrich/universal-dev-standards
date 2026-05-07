@@ -8,7 +8,7 @@
 
 ## Overview
 
-讓 UDS 從「被動標準框架」升級為「能自我診斷的標準框架」。透過 6 項改進建立雙向回饋迴路：標準向下流動（UDS → DevAP → VibeOps），效果向上回饋（VibeOps → DevAP → UDS）。
+讓 UDS 從「被動標準框架」升級為「能自我診斷的標準框架」。透過 6 項改進建立雙向回饋迴路：標準向下流動（UDS → 採用層），效果向上回饋（採用層 → UDS）。
 
 ## Motivation
 
@@ -18,8 +18,8 @@
 2. **所有檢查都是人工觸發** — 17 個 check 腳本 + 19 步 pre-release 檢查，但沒有持續監控機制
 3. **跨工具整合無驗證** — 支援 13 個 AI 工具但改動 core 時無法驗證所有工具產出的正確性
 4. **Context-aware hook 無學習能力** — fire-and-forget，不知道哪些 trigger 有盲區
-5. **三套產品無向上回饋** — UDS 不知道哪些標準在 DevAP/VibeOps 實際使用中有效
-6. **跨產品標準版本可能 drift** — DevAP/VibeOps 的 `.standards/` 版本可能落後
+5. **採用層無向上回饋** — UDS 不知道哪些標準在採用層實際使用中有效
+6. **跨採用層標準版本可能 drift** — 採用層的 `.standards/` 版本可能落後
 
 ### 與現有能力的關係
 
@@ -240,8 +240,8 @@
 系統 SHALL 定義跨產品的標準效果回饋 JSON Schema。
 
 #### Scenario: Schema 定義
-- **GIVEN** UDS 需要從 DevAP/VibeOps 接收標準效果資料
-- **WHEN** 消費者（DevAP/VibeOps）產出 effectiveness report
+- **GIVEN** UDS 需要從採用層接收標準效果資料
+- **WHEN** 消費者（採用層）產出 effectiveness report
 - **THEN** 報告符合 `specs/standards-effectiveness-schema.json` 的 JSON Schema
 
 #### Scenario: 匯總分析
@@ -266,7 +266,7 @@
 - **THEN** 產出 `.standards/version-manifest.json`，包含 `uds_version`、`standards_hash`、`compatibility`
 
 #### Scenario: 消費者版本檢查
-- **GIVEN** DevAP/VibeOps 的 CI 中安裝了 UDS 標準
+- **GIVEN** 採用層的 CI 中安裝了 UDS 標準
 - **WHEN** CI 執行 `check-uds-version-drift` 步驟
 - **THEN** 比對本地 manifest 與 npm registry 最新版本，drift > 1 minor version 時發出 warning
 
@@ -414,10 +414,8 @@ Test Layer (cli/tests/)
 
 | 產品 | 需要的變更 | 機制 |
 |------|-----------|------|
-| DevAP | ExecutionReport 附帶 standards_effectiveness | GitHub Issue |
-| DevAP | CI 加入 check-uds-version-drift | GitHub Issue |
-| VibeOps | Evaluator 附帶 standards_effectiveness | GitHub Issue |
-| VibeOps | CI 加入 check-uds-version-drift | GitHub Issue |
+| 採用層（各自） | ExecutionReport 附帶 standards_effectiveness | 採用層自行實作 |
+| 採用層（各自） | CI 加入 check-uds-version-drift | 採用層自行實作 |
 
 ---
 

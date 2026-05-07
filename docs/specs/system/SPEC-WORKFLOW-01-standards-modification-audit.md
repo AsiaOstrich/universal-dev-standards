@@ -23,7 +23,7 @@ When developers modify UDS-managed files (`.standards/`, `.claude/skills/`), the
 
 ### Problem Statement / 問題陳述
 
-In VibeOps (AsiaOstrich/vibeops), the full `/sdd` → `/checkin` → `/commit` workflow was completed while modifying `.standards/spec-driven-development.ai.yaml` (+35 lines) and `specs/TEMPLATE.md` (+33 lines). No step in the workflow detected these were UDS upstream files. The user had to manually discover this and create Issue #60.
+In an adoption-layer project, the full `/sdd` → `/checkin` → `/commit` workflow was completed while modifying `.standards/spec-driven-development.ai.yaml` (+35 lines) and `specs/TEMPLATE.md` (+33 lines). No step in the workflow detected these were UDS upstream files. The user had to manually discover and report this issue.
 
 ### Solution / 解決方案
 

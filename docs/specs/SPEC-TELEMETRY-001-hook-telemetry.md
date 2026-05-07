@@ -4,19 +4,19 @@
 - **Created**: 2026-04-01
 - **Issue**: #65
 - **Phase**: harness-engineering Phase 3
-- **Scope**: uds-specific (UDS 部分；DevAP/VibeOps 整合為外部依賴)
+- **Scope**: uds-specific (UDS 部分；採用層整合為外部依賴)
 - **Depends-on**: SPEC-HOOKS-001 (Implemented)
 
 ## Overview
 
-建立統一的 hook 執行遙測格式，記錄每次 hook 執行的結果與耗時，並提供 `uds report` 命令分析採用率。此為 UDS 範圍的實作，DevAP/VibeOps 整合屬後續外部工作。
+建立統一的 hook 執行遙測格式，記錄每次 hook 執行的結果與耗時，並提供 `uds report` 命令分析採用率。此為 UDS 範圍的實作，採用層整合屬後續外部工作。
 
 ## Motivation
 
 目前 `hook-stats.js` 記錄的是 context-aware loading 的觸發統計。enforcement hooks（Phase 1 實作的 commit-msg、security、logging）的執行結果尚無遙測記錄。統一的遙測格式可實現：
 1. 標準採用率量化（哪些標準被強制執行最多？）
 2. Hook 效能監控（執行耗時是否超過 500ms？）
-3. 跨系統（UDS→DevAP→VibeOps）數據交叉分析
+3. 跨採用層（UDS → 採用層）數據交叉分析
 
 ## Requirements
 
@@ -80,8 +80,8 @@
 |----|------|-----|------|
 | AC-1 | Hook 執行後 `telemetry.jsonl` 記錄正確 | REQ-1 | UDS |
 | AC-2 | `uds report` 產出可讀的採用率報告 | REQ-2 | UDS |
-| AC-3 | DevAP StandardsEffectivenessReport 包含 hook 數據 | — | DevAP（外部） |
-| AC-4 | VibeOps pipeline 報告包含 telemetry 彙整 | — | VibeOps（外部） |
+| AC-3 | 採用層 StandardsEffectivenessReport 包含 hook 數據 | — | 採用層（外部） |
+| AC-4 | 採用層 pipeline 報告包含 telemetry 彙整 | — | 採用層（外部） |
 | AC-5 | Telemetry 檔案有 rotation 機制 | REQ-3 | UDS |
 
 > **Note**: AC-3 和 AC-4 屬於外部 repo，本 spec 僅覆蓋 UDS 範圍（AC-1、AC-2、AC-5）。
@@ -139,5 +139,5 @@ logging                    389     95.1%      110ms
 ## Dependencies
 
 - **依賴**: SPEC-HOOKS-001 (hook 基礎), SPEC-COMPILE-001 (enforcement 格式)
-- **外部依賴**: DevAP #5 (AC-3), VibeOps (AC-4)
+- **外部依賴**: 採用層自行實作 (AC-3, AC-4)
 - **被依賴**: 無
