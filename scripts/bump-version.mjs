@@ -115,6 +115,20 @@ updateFile(
   `"version": "${NEW_VERSION}"`
 );
 
+// 1b. cli/package-lock.json — top-level + packages[""] version
+{
+  const file = join(CLI_DIR, 'package-lock.json');
+  if (existsSync(file)) {
+    const data = JSON.parse(readFileSync(file, 'utf8'));
+    data.version = NEW_VERSION;
+    if (data.packages?.['']) data.packages[''].version = NEW_VERSION;
+    writeFileSync(file, JSON.stringify(data, null, 2) + '\n', 'utf8');
+    console.log(`  ${GREEN}[OK]${NC} cli/package-lock.json (version)`);
+  } else {
+    console.log(`  ${YELLOW}[SKIP]${NC} cli/package-lock.json — file not found`);
+  }
+}
+
 // 2. cli/standards-registry.json (all occurrences)
 {
   const file = join(CLI_DIR, 'standards-registry.json');
