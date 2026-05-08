@@ -1,0 +1,29 @@
+# Development tools — not needed by adopters
+tests/
+scripts/
+.github/
+.githooks/
+.gemini/
+.release-readiness/
+
+# Internal / confidential
+docs/internal/
+
+# Build artifacts & caches
+node_modules/
+.ruff_cache/
+cli/bundled/
+
+# Logs
+*.log
+
+# Editor & OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.gitattributes
+.gitmodules
