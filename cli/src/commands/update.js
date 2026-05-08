@@ -204,10 +204,23 @@ function checkNewStandards(manifest) {
   // Include all reference and skill standards
   const eligibleStandards = registryStandards.filter(s => s.category === 'reference' || s.category === 'skill');
 
-  // Get installed standard basenames for comparison
-  const installedBasenames = new Set(
-    (manifest.standards || []).map(s => basename(s))
-  );
+  // Get installed standard basenames for comparison.
+  // Handles both legacy path format ("ai/standards/foo.ai.yaml" → basename "foo.ai.yaml")
+  // and v3.4.0 ID format ("foo" → resolve to source path, then get basename).
+  const installedBasenames = new Set();
+  for (const s of (manifest.standards || [])) {
+    if (s.includes('/options/') || s.startsWith('options/')) continue; // Skip option paths
+    if (!s.includes('/') && !s.includes('.')) {
+      // ID format: resolve to actual source filename via registry
+      const entry = registryStandards.find(r => r.id === s);
+      if (entry) {
+        const sourcePath = getStandardSource(entry, format);
+        if (sourcePath) installedBasenames.add(basename(sourcePath));
+      }
+    } else {
+      installedBasenames.add(basename(s));
+    }
+  }
 
   // Find standards in registry that are not yet installed
   const newStandards = [];
@@ -394,9 +407,20 @@ export async function updateCommand(options) {
 
   // List files to update
   console.log(chalk.gray(msg.filesToUpdate));
+  const displayFormat = manifest.format || 'ai';
+  const allStdsDisplay = getAllStandards();
   for (const std of manifest.standards) {
-    const fileName = std.split('/').pop();
-    const displayPath = getStandardTargetDir(std) + '/' + fileName;
+    // ID format: resolve to source path for display
+    let resolvedStd = std;
+    if (!std.includes('/') && !std.includes('.')) {
+      const entry = allStdsDisplay.find(r => r.id === std);
+      if (entry) {
+        const src = getStandardSource(entry, displayFormat);
+        if (src) resolvedStd = src;
+      }
+    }
+    const fileName = resolvedStd.split('/').pop();
+    const displayPath = getStandardTargetDir(resolvedStd) + '/' + fileName;
     console.log(chalk.gray(`  ${displayPath}`));
   }
   for (const ext of manifest.extensions) {
@@ -445,8 +469,19 @@ export async function updateCommand(options) {
   };
 
   // Update standards
+  const updateFormat = manifest.format || 'ai';
+  const allStdsUpdate = getAllStandards();
   for (const std of manifest.standards) {
-    const result = await copyStandard(std, getStandardTargetDir(std), projectPath);
+    // ID format: resolve to source path for copying
+    let sourcePath = std;
+    if (!std.includes('/') && !std.includes('.')) {
+      const entry = allStdsUpdate.find(r => r.id === std);
+      if (entry) {
+        const src = getStandardSource(entry, updateFormat);
+        if (src) sourcePath = src;
+      }
+    }
+    const result = await copyStandard(sourcePath, getStandardTargetDir(sourcePath), projectPath);
     if (result.success) {
       results.updated.push(std);
     } else {
@@ -602,10 +637,21 @@ export async function updateCommand(options) {
     manifest.fileHashes = {};
   }
 
-  // Update hashes for standards
+  // Update hashes for standards (handles both ID format and legacy path format)
+  const hashFormat = manifest.format || 'ai';
+  const allStdsHash = getAllStandards();
   for (const std of manifest.standards) {
-    const fileName = basename(std);
-    const relativePath = (std.includes('options/')
+    // Resolve ID-format to source path
+    let resolvedPath = std;
+    if (!std.includes('/') && !std.includes('.')) {
+      const entry = allStdsHash.find(r => r.id === std);
+      if (entry) {
+        const src = getStandardSource(entry, hashFormat);
+        if (src) resolvedPath = src;
+      }
+    }
+    const fileName = basename(resolvedPath);
+    const relativePath = (resolvedPath.includes('options/')
       ? join('.standards', 'options', fileName)
       : join('.standards', fileName)).replace(/\\/g, '/');
     const fullPath = join(projectPath, relativePath);
@@ -705,9 +751,20 @@ export async function updateCommand(options) {
 
   // Post-update integrity check: detect and restore missing files
   const allTrackedFiles = [];
+  const trackFormat = manifest.format || 'ai';
+  const allStdsTrack = getAllStandards();
   for (const std of manifest.standards) {
-    const fileName = basename(std);
-    const relativePath = std.includes('options/')
+    // Resolve ID-format to source path for computing relativePath
+    let resolvedStd = std;
+    if (!std.includes('/') && !std.includes('.')) {
+      const entry = allStdsTrack.find(r => r.id === std);
+      if (entry) {
+        const src = getStandardSource(entry, trackFormat);
+        if (src) resolvedStd = src;
+      }
+    }
+    const fileName = basename(resolvedStd);
+    const relativePath = resolvedStd.includes('options/')
       ? join('.standards', 'options', fileName)
       : join('.standards', fileName);
     allTrackedFiles.push(relativePath);

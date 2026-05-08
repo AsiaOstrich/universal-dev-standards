@@ -1,20 +1,21 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, basename } from 'path';
+import { getAllStandards } from '../utils/registry.js';
 
 /**
- * UDS Manifest Schema v3.3.0
+ * UDS Manifest Schema v3.4.0
  * Central configuration and state tracking for UDS installations
  */
 
 /**
  * Supported manifest schema versions
  */
-export const SUPPORTED_SCHEMA_VERSIONS = ['3.0.0', '3.1.0', '3.2.0', '3.3.0'];
+export const SUPPORTED_SCHEMA_VERSIONS = ['3.0.0', '3.1.0', '3.2.0', '3.3.0', '3.4.0'];
 
 /**
  * Current manifest schema version
  */
-export const CURRENT_SCHEMA_VERSION = '3.3.0';
+export const CURRENT_SCHEMA_VERSION = '3.4.0';
 
 /**
  * Default manifest values
@@ -294,6 +295,11 @@ export function migrateManifest(manifest) {
     migrated = migrateToV330(migrated);
   }
 
+  if (currentVersion < '3.4.0') {
+    // Migrate to 3.4.0 - convert standards array from path format to ID format
+    migrated = migrateToV340(migrated);
+  }
+
   // Update schema version
   migrated.version = CURRENT_SCHEMA_VERSION;
 
@@ -368,6 +374,83 @@ function migrateToV330(manifest) {
 }
 
 /**
+ * Migration to version 3.4.0
+ * Converts standards array from legacy path format ("ai/standards/foo.ai.yaml",
+ * "core/foo.md") to registry ID format ("foo"). Deduplicates entries that
+ * refer to the same standard via different format paths (ai vs human).
+ * @param {Object} manifest - V3.3.x manifest
+ * @returns {Object} V3.4.0 compatible manifest
+ */
+function migrateToV340(manifest) {
+  return {
+    ...manifest,
+    version: '3.4.0',
+    standards: migrateStandardsPathsToIds(manifest.standards || [])
+  };
+}
+
+/**
+ * Convert a standards array from legacy path format to registry ID format.
+ * Entries that already look like IDs (no "/" or ".") are kept as-is.
+ * Path entries are matched against the registry's source.ai / source.human
+ * fields (exact path match or basename match), then replaced with the
+ * registry ID. Entries that match no registry standard are dropped.
+ *
+ * @param {string[]} standards - Standards array (may be IDs or legacy paths)
+ * @returns {string[]} Sorted, deduplicated array of registry IDs
+ */
+export function migrateStandardsPathsToIds(standards) {
+  if (!standards || standards.length === 0) return [];
+
+  const hasPathFormat = standards.some(
+    s => typeof s === 'string' && (s.includes('/') || s.includes('.'))
+  );
+  if (!hasPathFormat) return standards;
+
+  const allStandards = getAllStandards();
+  const ids = new Set();
+  // Option file paths (ai/options/...) have no short-ID equivalent; collect separately
+  const optionPaths = [];
+
+  for (const entry of standards) {
+    if (typeof entry !== 'string') continue;
+
+    // Already an ID (no path separators or extensions)
+    if (!entry.includes('/') && !entry.includes('.')) {
+      ids.add(entry);
+      continue;
+    }
+
+    // Option file paths (e.g. ai/options/commit-message/english.ai.yaml):
+    // no registry ID equivalent — preserve as-is so update/check can manage them
+    if (entry.includes('/options/') || entry.includes('options/')) {
+      optionPaths.push(entry);
+      continue;
+    }
+
+    // Base-standard path format — find matching registry entry
+    let matched = false;
+    for (const s of allStandards) {
+      const src = s.source;
+      const paths = typeof src === 'string'
+        ? [src]
+        : Object.values(src || {}).filter(p => typeof p === 'string');
+
+      if (paths.some(p => p === entry || basename(p) === basename(entry))) {
+        ids.add(s.id);
+        matched = true;
+        break;
+      }
+    }
+    // Unmatched non-option paths are silently dropped (standard removed from registry)
+    void matched;
+  }
+
+  // Return: sorted IDs first, then option paths (preserving order)
+  return [...ids].sort().concat(optionPaths);
+}
+
+/**
  * Ensure all required fields exist on a manifest that already has the current
  * schema version. Older CLIs may have stamped the version number without
  * actually writing every field introduced in that schema.
@@ -398,9 +481,15 @@ function ensureRequiredFields(manifest) {
     }
   }
 
+  // Safety net: convert any remaining path-format standards to IDs.
+  // Runs even at current schema version in case a manifest was written with
+  // the wrong format by an older CLI or a partial migration.
+  const standards = migrateStandardsPathsToIds(manifest.standards || []);
+
   return {
     ...manifest,
     options,
+    standards,
     contentMode: manifest.contentMode || 'index',
     fileHashes: normalizedHashes,
     skillHashes: manifest.skillHashes || {},

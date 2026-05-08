@@ -140,9 +140,10 @@ describe('Check Command', () => {
     });
 
     it('should report all files present when complete (legacy manifest)', async () => {
+      // v3.4.0: standards use registry ID format; desired state expects .ai.yaml (format: 'ai')
       const manifest = createValidManifest({
         level: 1,
-        standards: ['core/anti-hallucination.md']
+        standards: ['anti-hallucination']
       });
 
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
@@ -150,7 +151,7 @@ describe('Check Command', () => {
         join(TEST_DIR, '.standards', 'manifest.json'),
         JSON.stringify(manifest)
       );
-      writeFileSync(join(TEST_DIR, '.standards', 'anti-hallucination.md'), '# Content');
+      writeFileSync(join(TEST_DIR, '.standards', 'anti-hallucination.ai.yaml'), '# Content');
 
       await checkCommand({ noInteractive: true });
 
@@ -336,9 +337,10 @@ describe('Check Command', () => {
     });
 
     it('should suggest migration for legacy manifests', async () => {
+      // v3.4.0: standards use registry ID format; desired state expects .ai.yaml (format: 'ai')
       const manifest = createValidManifest({
         level: 1,
-        standards: ['core/anti-hallucination.md'],
+        standards: ['anti-hallucination'],
         fileHashes: {}  // Empty fileHashes triggers migration suggestion
       });
 
@@ -347,7 +349,7 @@ describe('Check Command', () => {
         join(TEST_DIR, '.standards', 'manifest.json'),
         JSON.stringify(manifest)
       );
-      writeFileSync(join(TEST_DIR, '.standards', 'anti-hallucination.md'), '# Content');
+      writeFileSync(join(TEST_DIR, '.standards', 'anti-hallucination.ai.yaml'), '# Content');
 
       await checkCommand({ noInteractive: true });
 

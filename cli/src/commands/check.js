@@ -112,13 +112,42 @@ function performFileIntegrityCheck(projectPath, manifest, msg) {
     console.log(chalk.gray(`    ${msg.checkingExistence}`));
     console.log();
 
-    // Check standards
+    // Check standards — support both legacy path format and current ID format
+    const allStdsLegacy = getAllStandards();
+    const legacyFormat = manifest.format || 'ai';
     for (const std of manifest.standards) {
-      const filePath = join(projectPath, '.standards', std.split('/').pop());
-      if (existsSync(filePath)) {
-        fileStatus.noHash.push(`.standards/${std.split('/').pop()}`);
+      // Option file paths (ai/options/...) use a subdirectory; handle separately
+      if (std.includes('/options/') || std.startsWith('options/')) {
+        const fileName = std.split('/').pop();
+        const filePath = join(projectPath, '.standards', 'options', fileName);
+        if (existsSync(filePath)) {
+          fileStatus.noHash.push(`.standards/options/${fileName}`);
+        } else {
+          fileStatus.missing.push(`.standards/options/${fileName}`);
+        }
+        continue;
+      }
+      // ID format (no '/' or '.'): resolve via registry to get actual filename
+      let fileName;
+      if (!std.includes('/') && !std.includes('.')) {
+        const entry = allStdsLegacy.find(s => s.id === std);
+        if (entry) {
+          const src = entry.source;
+          const sourcePath = typeof src === 'string'
+            ? src
+            : (src?.[legacyFormat] || src?.ai || src?.human || std);
+          fileName = basename(sourcePath);
+        } else {
+          fileName = std;
+        }
       } else {
-        fileStatus.missing.push(`.standards/${std.split('/').pop()}`);
+        fileName = std.split('/').pop();
+      }
+      const filePath = join(projectPath, '.standards', fileName);
+      if (existsSync(filePath)) {
+        fileStatus.noHash.push(`.standards/${fileName}`);
+      } else {
+        fileStatus.missing.push(`.standards/${fileName}`);
       }
     }
 
@@ -739,10 +768,23 @@ async function migrateToHashBasedTracking(projectPath, manifest) {
   const now = new Date().toISOString();
   let count = 0;
 
-  // Process standards
+  // Process standards — support both legacy path format and current ID format
+  const format = manifest.format || 'ai';
+  const allStds = getAllStandards();
   for (const std of manifest.standards) {
-    const fileName = basename(std);
-    const relativePath = (std.includes('options/')
+    // Resolve path: ID format → look up source path from registry
+    let resolvedPath = std;
+    if (!std.includes('/') && !std.includes('.')) {
+      const entry = allStds.find(s => s.id === std);
+      if (entry) {
+        const src = entry.source;
+        resolvedPath = typeof src === 'string'
+          ? src
+          : (src?.[format] || src?.ai || src?.human || std);
+      }
+    }
+    const fileName = basename(resolvedPath);
+    const relativePath = (resolvedPath.includes('options/')
       ? join('.standards', 'options', fileName)
       : join('.standards', fileName)).replace(/\\/g, '/');
     const fullPath = join(projectPath, relativePath);

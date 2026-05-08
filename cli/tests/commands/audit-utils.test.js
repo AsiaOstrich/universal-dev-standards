@@ -91,8 +91,9 @@ describe('Audit Utilities', () => {
     });
 
     it('should detect missing standard files', () => {
+      // Use real registry ID 'testing' but don't create .standards/testing.ai.yaml
       const manifest = createValidManifest({
-        standards: ['core/missing-standard.ai.yaml']
+        standards: ['testing']
       });
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -103,7 +104,7 @@ describe('Audit Utilities', () => {
       const result = runHealthCheck(TEST_DIR);
       expect(result.status).toBe('WARNING');
       const missingIssue = result.issues.find(i =>
-        i.component === 'missing-standard.ai.yaml'
+        i.component === 'testing.ai.yaml'
       );
       expect(missingIssue).toBeDefined();
     });

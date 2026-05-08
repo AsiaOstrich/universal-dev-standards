@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.7.2] - 2026-05-08
+
+### Fixed
+- **Manifest schema v3.4.0 — `standards` path→ID migration** (`cli/src/core/manifest.js`): Added `migrateToV340()` migration step and `migrateStandardsPathsToIds()` helper. Manifests whose `standards` array contains legacy path-format entries (e.g. `"ai/standards/foo.ai.yaml"`) are now automatically converted to short registry IDs (e.g. `"foo"`) when loaded. Option file paths (`ai/options/…`) are preserved as-is. An `ensureRequiredFields()` safety net runs even when the schema version already matches, guarding against partially-written manifests. (`cli/src/core/manifest.js`, `cli/src/reconciler/desired-state-calculator.js`)
+- **`uds check` legacy existence check** (`cli/src/commands/check.js`): The no-hash fallback path now resolves registry-ID-format standards to their actual source filenames (e.g. `"testing"` → `"testing.ai.yaml"`), and correctly routes option file paths into `.standards/options/`. Previously, ID-format standards resulted in path-less lookups that always reported "missing".
+- **`uds update` ID-format support** (`cli/src/commands/update.js`): Five code paths (`checkNewStandards`, file list display, file copy loop, hash recomputation, post-update integrity scan) now resolve ID-format standards to source paths via the registry, so projects whose manifests have been migrated to v3.4.0 continue to receive correct file operations.
+- **`uds audit` health/friction checks** (`cli/src/utils/health-checker.js`, `cli/src/utils/friction-detector.js`): Both utilities now resolve ID-format standards to actual filenames before checking disk/CLAUDE.md references, preventing false-OK results on migrated manifests.
+
 ## [5.7.1] - 2026-05-08
 
 ### Fixed
@@ -1963,6 +1971,7 @@ This reflects the project's expanded scope covering all development standards, n
 - Integrations: OpenSpec framework
 
 [Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.1...HEAD
+[5.7.2]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.1...v5.7.2
 [5.7.1]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.0...v5.7.1
 [5.7.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.6.0...v5.7.0
 [4.3.0-alpha.1]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.2.0...v4.3.0-alpha.1

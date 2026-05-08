@@ -122,8 +122,9 @@ describe('Audit Command', () => {
     });
 
     it('should report WARNING when standard files are missing', async () => {
+      // Use real registry ID 'testing' — resolves to testing.ai.yaml, which is not created
       const manifest = createValidManifest({
-        standards: ['core/testing.ai.yaml']
+        standards: ['testing']
       });
       mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
       writeFileSync(
@@ -261,13 +262,14 @@ describe('Audit Command', () => {
     });
 
     it('should detect unused standards', async () => {
-      const testFile = 'unused-standard.ai.yaml';
+      // Use real registry ID 'testing' → resolves to 'testing.ai.yaml'
+      const testFile = 'testing.ai.yaml';
       const content = 'some yaml content';
       const { createHash } = await import('crypto');
       const hash = createHash('sha256').update(content).digest('hex');
 
       const manifest = createValidManifest({
-        standards: ['core/unused-standard.ai.yaml'],
+        standards: ['testing'],
         aiTools: ['claude-code'],
         fileHashes: {
           [`.standards/${testFile}`]: {

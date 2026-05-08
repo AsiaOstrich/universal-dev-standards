@@ -83,7 +83,8 @@ describe('Copier Utils', () => {
       writeManifest(manifest2, TEST_DIR);
 
       const result = readManifest(TEST_DIR);
-      expect(result.version).toBe('3.3.0');
+      // readManifest auto-migrates to current schema version
+      expect(result.version).toBe('3.4.0');
       expect(result.level).toBe(2);
     });
   });
@@ -99,7 +100,8 @@ describe('Copier Utils', () => {
 
       const result = readManifest(TEST_DIR);
 
-      expect(result.version).toBe('3.3.0');
+      // readManifest auto-migrates to current schema version
+      expect(result.version).toBe('3.4.0');
       expect(result.level).toBe(1);
     });
 

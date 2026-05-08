@@ -15,6 +15,7 @@ import {
   createManifest,
   mergeManifest,
   migrateManifest,
+  migrateStandardsPathsToIds,
   needsMigration,
   updateUpstream,
   addFileHash,
@@ -62,12 +63,13 @@ describe('Schema Constants', () => {
       expect(SUPPORTED_SCHEMA_VERSIONS).toContain('3.1.0');
       expect(SUPPORTED_SCHEMA_VERSIONS).toContain('3.2.0');
       expect(SUPPORTED_SCHEMA_VERSIONS).toContain('3.3.0');
+      expect(SUPPORTED_SCHEMA_VERSIONS).toContain('3.4.0');
     });
   });
 
   describe('CURRENT_SCHEMA_VERSION', () => {
     it('should be the latest version', () => {
-      expect(CURRENT_SCHEMA_VERSION).toBe('3.3.0');
+      expect(CURRENT_SCHEMA_VERSION).toBe('3.4.0');
     });
   });
 
@@ -423,14 +425,16 @@ describe('Manifest Migration', () => {
         format: 'human',
         contentMode: 'index',
         aiTools: ['claude-code', 'cursor'],
-        standards: ['core/test.md']
+        // Use real registry path that maps to a known ID
+        standards: ['ai/standards/commit-message.ai.yaml']
       };
 
       const migrated = migrateManifest(oldManifest);
 
       expect(migrated.upstream.repo).toBe('custom/repo');
       expect(migrated.aiTools).toContain('claude-code');
-      expect(migrated.standards).toContain('core/test.md');
+      // v3.4.0: path format converted to ID
+      expect(migrated.standards).toContain('commit-message');
     });
 
     it('should preserve legacy level/standardsScope fields during migration', () => {
@@ -450,6 +454,105 @@ describe('Manifest Migration', () => {
       expect(migrated.level).toBe(3);
       expect(migrated.standardsScope).toBe('full');
     });
+
+    it('v3.3.0 with path-format standards should convert to ID format', () => {
+      const manifest = {
+        version: '3.3.0',
+        upstream: { repo: 'test/repo' },
+        format: 'ai',
+        contentMode: 'index',
+        standards: ['ai/standards/commit-message.ai.yaml', 'ai/standards/testing.ai.yaml'],
+        skillHashes: {},
+        commandHashes: {},
+        integrationBlockHashes: {}
+      };
+
+      const migrated = migrateManifest(manifest);
+
+      expect(migrated.version).toBe(CURRENT_SCHEMA_VERSION);
+      expect(migrated.standards).toContain('commit-message');
+      expect(migrated.standards).toContain('testing');
+      // Should not contain path-format entries
+      expect(migrated.standards.every(s => !s.includes('/'))).toBe(true);
+    });
+
+    it('v3.4.0 with path-format standards (edge case) should still convert via ensureRequiredFields', () => {
+      const manifest = {
+        version: '3.4.0',
+        upstream: { repo: 'test/repo' },
+        format: 'ai',
+        contentMode: 'index',
+        standards: ['ai/standards/commit-message.ai.yaml'],
+        skillHashes: {},
+        commandHashes: {},
+        integrationBlockHashes: {}
+      };
+
+      const migrated = migrateManifest(manifest);
+
+      expect(migrated.standards).toContain('commit-message');
+      expect(migrated.standards.every(s => !s.includes('/'))).toBe(true);
+    });
+  });
+});
+
+describe('migrateStandardsPathsToIds', () => {
+  it('should return empty array for empty input', () => {
+    expect(migrateStandardsPathsToIds([])).toEqual([]);
+    expect(migrateStandardsPathsToIds(null)).toEqual([]);
+    expect(migrateStandardsPathsToIds(undefined)).toEqual([]);
+  });
+
+  it('should return unchanged array when all entries are already IDs', () => {
+    const ids = ['commit-message', 'testing', 'anti-hallucination'];
+    const result = migrateStandardsPathsToIds(ids);
+    expect(result).toEqual(ids);
+  });
+
+  it('should convert ai/ path format to registry IDs', () => {
+    const paths = ['ai/standards/commit-message.ai.yaml', 'ai/standards/testing.ai.yaml'];
+    const result = migrateStandardsPathsToIds(paths);
+    expect(result).toContain('commit-message');
+    expect(result).toContain('testing');
+    expect(result.every(s => !s.includes('/'))).toBe(true);
+  });
+
+  it('should convert core/ path format (human format) to registry IDs', () => {
+    // Actual human source path for commit-message is core/commit-message-guide.md
+    const paths = ['core/commit-message-guide.md'];
+    const result = migrateStandardsPathsToIds(paths);
+    expect(result).toContain('commit-message');
+  });
+
+  it('should deduplicate when ai/ and human/ paths refer to the same standard', () => {
+    const paths = [
+      'ai/standards/commit-message.ai.yaml',
+      'core/commit-message-guide.md'
+    ];
+    const result = migrateStandardsPathsToIds(paths);
+    expect(result.filter(s => s === 'commit-message').length).toBe(1);
+  });
+
+  it('should drop paths that match no registry standard', () => {
+    const paths = ['ai/standards/nonexistent-fake.ai.yaml', 'commit-message'];
+    const result = migrateStandardsPathsToIds(paths);
+    expect(result).not.toContain('nonexistent-fake');
+    expect(result).toContain('commit-message');
+  });
+
+  it('should handle mixed ID and path format input', () => {
+    const mixed = ['commit-message', 'ai/standards/testing.ai.yaml'];
+    const result = migrateStandardsPathsToIds(mixed);
+    expect(result).toContain('commit-message');
+    expect(result).toContain('testing');
+    expect(result.every(s => !s.includes('/'))).toBe(true);
+  });
+
+  it('should return sorted results', () => {
+    const paths = ['ai/standards/testing.ai.yaml', 'ai/standards/commit-message.ai.yaml'];
+    const result = migrateStandardsPathsToIds(paths);
+    const sorted = [...result].sort();
+    expect(result).toEqual(sorted);
   });
 });
 

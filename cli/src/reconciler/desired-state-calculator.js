@@ -82,8 +82,25 @@ function calculateStandards(state, manifest) {
   const allStandards = getAllStandards();
 
   for (const standardId of (manifest.standards || [])) {
-    // Find registry entry for this standard
-    const registryEntry = allStandards.find(s => s.id === standardId);
+    // Skip option file paths — they are handled by calculateOptions, not this function.
+    // Option paths look like "ai/options/commit-message/english.ai.yaml".
+    if (standardId.includes('/options/') || standardId.startsWith('options/')) continue;
+
+    // Primary lookup: match by registry ID
+    let registryEntry = allStandards.find(s => s.id === standardId);
+
+    // Fallback: legacy path-format manifest entry (e.g. "ai/standards/foo.ai.yaml").
+    // Handles manifests that have not yet been migrated to v3.4.0 ID format.
+    if (!registryEntry && (standardId.includes('/') || standardId.includes('.'))) {
+      registryEntry = allStandards.find(s => {
+        const src = s.source;
+        const paths = typeof src === 'string'
+          ? [src]
+          : Object.values(src || {}).filter(p => typeof p === 'string');
+        return paths.some(p => p === standardId || basename(p) === basename(standardId));
+      });
+    }
+
     if (!registryEntry) continue;
 
     const source = getStandardSource(registryEntry, format);

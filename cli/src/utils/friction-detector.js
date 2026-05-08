@@ -14,6 +14,7 @@ import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { compareFileHash, hasFileHashes, computeFileHash } from './hasher.js';
 import { SUPPORTED_AI_TOOLS } from '../core/constants.js';
+import { getAllStandards, getStandardSource } from './registry.js';
 
 /**
  * Run friction detection on a UDS installation
@@ -113,9 +114,20 @@ function detectUnusedStandards(projectPath, manifest) {
 
   const allConfigText = configContents.join('\n');
 
-  // Check each standard file
+  // Check each standard file (handles both ID format and legacy path format)
+  const allStdsFriction = getAllStandards();
+  const frictionFormat = manifest.format || 'ai';
   const standardFiles = (manifest.standards || []).map(s => {
-    return s.includes('/') ? s.split('/').pop() : s;
+    if (!s.includes('/') && !s.includes('.')) {
+      // ID format: resolve to actual filename
+      const entry = allStdsFriction.find(r => r.id === s);
+      if (entry) {
+        const src = getStandardSource(entry, frictionFormat);
+        if (src) return src.split('/').pop();
+      }
+      return s;
+    }
+    return s.split('/').pop();
   });
 
   for (const fileName of standardFiles) {

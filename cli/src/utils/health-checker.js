@@ -16,6 +16,7 @@ import { join } from 'path';
 import { readManifest } from './copier.js';
 import { compareFileHash, hasFileHashes } from './hasher.js';
 import { SUPPORTED_AI_TOOLS } from '../core/constants.js';
+import { getAllStandards, getStandardSource } from './registry.js';
 
 /**
  * Run Layer 1 health check on a UDS installation
@@ -64,8 +65,22 @@ export function runHealthCheck(projectPath) {
 
   // Check 4: Each standard file in manifest exists
   if (manifest.standards && Array.isArray(manifest.standards)) {
+    const allStds = getAllStandards();
+    const stdFormat = manifest.format || 'ai';
     for (const standardId of manifest.standards) {
-      const fileName = standardId.includes('/') ? standardId.split('/').pop() : standardId;
+      // Resolve ID-format to actual filename via registry
+      let fileName;
+      if (!standardId.includes('/') && !standardId.includes('.')) {
+        const entry = allStds.find(s => s.id === standardId);
+        if (entry) {
+          const src = getStandardSource(entry, stdFormat);
+          fileName = src ? src.split('/').pop() : standardId;
+        } else {
+          fileName = standardId;
+        }
+      } else {
+        fileName = standardId.split('/').pop();
+      }
       const filePath = join(standardsDir, fileName);
       if (!existsSync(filePath)) {
         issues.push({
