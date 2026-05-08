@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.7.3] - 2026-05-08
+
+### Fixed
+- **`uds update` stale-ID skip** (`cli/src/commands/update.js`): Four loops (display, copy, hash recomputation, post-update integrity check) now skip unrecognized short IDs in `manifest.standards` (entries that contain neither `/` nor `.` but have no matching registry entry, e.g. stale AI tool names `claude-code`, `opencode`). Previously these caused spurious "missing file" warnings and failed restore attempts during `uds update`.
+
 ## [5.7.2] - 2026-05-08
 
 ### Fixed

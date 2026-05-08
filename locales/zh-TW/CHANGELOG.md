@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.7.2
-translation_version: 5.7.2
+source_version: 5.7.3
+translation_version: 5.7.3
 last_synced: 2026-05-08
 status: current
 ---
@@ -16,6 +16,11 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.7.3] - 2026-05-08
+
+### 修復
+- **`uds update` 跳過無效 ID**（`cli/src/commands/update.js`）：display、copy、hash 重算、post-update integrity check 四個迴圈，現在會跳過 `manifest.standards` 中無法解析的 short ID（沒有 `/` 或 `.` 且 registry 無對應 entry，例如殘留的 AI 工具名稱 `claude-code`、`opencode`）。修正前，這類條目會在 `uds update` 中觸發無意義的「缺失檔案」警告與失敗的還原嘗試。
 
 ## [5.7.1] - 2026-05-08
 
