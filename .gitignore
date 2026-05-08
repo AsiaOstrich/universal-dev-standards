@@ -62,3 +62,9 @@ docs/internal/confidential/
 
 # Windows /dev/null redirect artifact
 NULL
+
+# Auto-generated project context (gemini-cli artifact)
+.project-context/
+
+# Python linter cache
+.ruff_cache/
