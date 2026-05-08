@@ -48,7 +48,7 @@ jobs:
           cache-dependency-path: cli/package-lock.json
 
       - name: Install dependencies
-        run: npm ci --omit=optional
+        run: npm ci
 
       - name: Run ESLint
         run: npm run lint
@@ -82,7 +82,7 @@ jobs:
           cache-dependency-path: cli/package-lock.json
 
       - name: Install dependencies
-        run: npm ci --omit=optional
+        run: npm ci
 
       - name: Verify CLI runs
         run: node bin/uds.js --version
@@ -114,7 +114,7 @@ jobs:
           cache-dependency-path: cli/package-lock.json
 
       - name: Install dependencies
-        run: npm ci --omit=optional
+        run: npm ci
 
       - name: Run E2E tests
         run: npm run test:e2e
