@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.7.1] - 2026-05-08
+
+### Fixed
+- **`cli/package-lock.json`**: Sync lock file to fix `npm ci` failure on GitHub Actions (`@emnapi/core` and `@emnapi/runtime` entries were missing).
+
+### Removed
+- **`specs/`**: Removed 4 spec files already migrated to dev-platform as XSPECs (SPEC-frontend-design-standard, SPEC-mcp-design-standards-server, superspec-borrowing-phase1-2-spec, superspec-phase4-spec). Retained `execution-history-spec.md` (Archived), `schemas/`, and `standards-effectiveness-schema.json`.
+- **`docs/archive/`**: Removed 7 outdated migration guides and workflow analysis documents.
+- **`.project-context/`**: Removed gemini-cli auto-generated artifact (content covered by `CLAUDE.md`).
+
+### Added
+- **`.npmignore`**: Exclude `tests/`, `scripts/`, `.github/`, `.githooks/`, `.gemini/`, `.release-readiness/`, `docs/internal/` from the npm package. These were previously published unintentionally (no `files` field or `.npmignore` existed).
+
+**Adopter note**: If you previously relied on any files from `tests/` or `scripts/` installed from npm, install them from the GitHub repo directly.
+
 ## [5.7.0] - 2026-05-08
 
 > **Cross-platform script migration** (XSPEC-179 + XSPEC-180): Bash scripts are
@@ -1947,7 +1962,8 @@ This reflects the project's expanded scope covering all development standards, n
 - Templates: Requirement document templates
 - Integrations: OpenSpec framework
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.0...HEAD
+[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.1...HEAD
+[5.7.1]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.0...v5.7.1
 [5.7.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.6.0...v5.7.0
 [4.3.0-alpha.1]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.2.0...v4.3.0-alpha.1
 [4.2.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.1.0...v4.2.0

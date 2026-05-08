@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.7.0
-translation_version: 5.7.0
+source_version: 5.7.1
+translation_version: 5.7.1
 last_synced: 2026-05-08
 status: current
 ---
@@ -16,6 +16,19 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.7.1] - 2026-05-08
+
+### 修復
+- **`cli/package-lock.json`**：同步 lock file，修正 GitHub Actions `npm ci` 失敗（`@emnapi/core`、`@emnapi/runtime` 條目缺失）。
+
+### 移除
+- **`specs/`**：刪除已遷移至 dev-platform 的 4 個 spec 檔案（XSPEC-026/005/006 對應）。保留 `execution-history-spec.md`（Archived）、`schemas/`、`standards-effectiveness-schema.json`。
+- **`docs/archive/`**：刪除 7 個過時的遷移指南與工作流程分析文件。
+- **`.project-context/`**：刪除 gemini-cli 自動生成的架構文件（內容已由 CLAUDE.md 涵蓋）。
+
+### 新增
+- **`.npmignore`**：排除 `tests/`、`scripts/`、`.github/` 等開發用目錄，不再隨 npm publish 發出（v5.7.0 前這些目錄一直被誤打包）。
 
 ## [5.7.0] - 2026-05-08
 
@@ -911,7 +924,8 @@ status: current
 - 範本：需求文件範本
 - 整合：OpenSpec 框架
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.0...HEAD
+[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.1...HEAD
+[5.7.1]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.0...v5.7.1
 [5.7.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.6.0...v5.7.0
 [3.4.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.0.0...v3.3.0
