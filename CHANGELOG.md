@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.7.0] - 2026-05-08
+
 > **Cross-platform script migration** (XSPEC-179 + XSPEC-180): Bash scripts are
 > being progressively replaced by single-source TypeScript / Node.js ESM
 > equivalents that run unchanged on macOS / Linux / Windows. Legacy `.sh` files
@@ -1945,7 +1947,8 @@ This reflects the project's expanded scope covering all development standards, n
 - Templates: Requirement document templates
 - Integrations: OpenSpec framework
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.3.0-alpha.1...HEAD
+[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.0...HEAD
+[5.7.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.6.0...v5.7.0
 [4.3.0-alpha.1]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.2.0...v4.3.0-alpha.1
 [4.2.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v4.0.0...v4.1.0

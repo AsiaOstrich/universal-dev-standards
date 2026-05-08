@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.6.0
-translation_version: 5.6.0
-last_synced: 2026-05-06
+source_version: 5.7.0
+translation_version: 5.7.0
+last_synced: 2026-05-08
 status: current
 ---
 
@@ -16,6 +16,8 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.7.0] - 2026-05-08
 
 > **跨平台脚本迁移**（XSPEC-179 + XSPEC-180）：bash 脚本逐步被单一来源的
 > TypeScript / Node.js ESM 等价实现取代，可在 macOS / Linux / Windows 上以
@@ -909,7 +911,8 @@ status: current
 - 范本：需求文档范本
 - 集成：OpenSpec 框架
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.0...HEAD
+[5.7.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.6.0...v5.7.0
 [3.0.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.3.0...v3.0.0
 [2.3.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v2.1.0...v2.2.0
