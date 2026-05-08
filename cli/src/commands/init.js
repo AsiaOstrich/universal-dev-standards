@@ -65,7 +65,7 @@ export async function initCommand(options) {
   console.log();
 
   // Configuration object
-  let config = {};
+  let config;
 
   if (!options.yes) {
     // Interactive Mode
@@ -218,7 +218,7 @@ async function setupHuskyHook(projectPath) {
         console.log(chalk.gray('  Initializing husky...'));
         execSync('npx husky init', { stdio: 'ignore', cwd: projectPath });
       }
-    } catch (e) {
+    } catch {
       // Ignore, might already be init
     }
 
@@ -249,7 +249,7 @@ async function setupHuskyHook(projectPath) {
         writeFileSync(preCommitPath, content + `\n# UDS Standard Check\n${udsCmd}\n`, 'utf-8');
         try {
           execSync(`chmod +x ${preCommitPath}`);
-        } catch (e) {
+        } catch {
           // Ignore chmod failures on systems that don't support it
         }
         console.log(chalk.green('  ✓ Adding uds check to pre-commit hook'));

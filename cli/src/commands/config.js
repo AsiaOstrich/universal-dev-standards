@@ -8,8 +8,7 @@ import { msg, t as getMessages, setLanguage, isLanguageExplicitlySet } from '../
 import {
   getOptionSource,
   findOption,
-  getAllStandards,
-  getStandardSource
+  getAllStandards
 } from '../utils/registry.js';
 import {
   copyStandard,
@@ -641,7 +640,7 @@ export async function runProjectConfiguration(options) {
           try {
             unlinkSync(filePath);
             console.log(chalk.gray(`  ${msgObj.removed}: ${getToolFilePath(tool)}`));
-          } catch (err) {
+          } catch {
             console.log(chalk.yellow(`  ${msgObj.couldNotRemove}: ${getToolFilePath(tool)}`));
           }
         }

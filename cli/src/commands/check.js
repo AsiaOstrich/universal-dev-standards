@@ -36,7 +36,7 @@ import { checkForUpdates } from '../utils/npm-registry.js';
 import { writeUpdateCache } from '../utils/update-checker.js';
 import { StandardValidator } from '../utils/standard-validator.js';
 import { WorkflowGate } from '../utils/workflow-gate.js';
-import { t, getLanguage, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
+import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 
 /**
@@ -496,7 +496,7 @@ async function showSingleFileDiff(projectPath, manifest, relativePath, msg) {
   const fullPath = join(projectPath, relativePath);
 
   // Get current content
-  let currentContent = '';
+  let currentContent;
   try {
     currentContent = readFileSync(fullPath, 'utf-8');
   } catch {

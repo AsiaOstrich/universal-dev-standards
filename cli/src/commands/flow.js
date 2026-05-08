@@ -15,11 +15,11 @@
  */
 
 import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
-import { join, basename } from 'path';
+import { join } from 'path';
 import yaml from 'js-yaml';
 import { parseFlow } from '../flow/flow-parser.js';
 import { listFlows, validateFlowById, diffFlows } from '../flow/flow-commands.js';
-import { exportBundle, importBundle, validateBundle } from '../flow/flow-bundler.js';
+import { exportBundle, importBundle } from '../flow/flow-bundler.js';
 
 /**
  * 從互動式回答建立 Flow 物件。
@@ -105,7 +105,7 @@ export function loadAllFlows(projectPath) {
 /**
  * CLI action: uds flow create
  */
-export async function flowCreateCommand(options) {
+export async function flowCreateCommand(_options) {
   const inquirer = await import('inquirer');
   const projectPath = process.cwd();
 
