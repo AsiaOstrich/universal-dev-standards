@@ -414,10 +414,9 @@ export async function updateCommand(options) {
     let resolvedStd = std;
     if (!std.includes('/') && !std.includes('.')) {
       const entry = allStdsDisplay.find(r => r.id === std);
-      if (entry) {
-        const src = getStandardSource(entry, displayFormat);
-        if (src) resolvedStd = src;
-      }
+      if (!entry) continue; // Skip unrecognized IDs (e.g. stale AI tool names)
+      const src = getStandardSource(entry, displayFormat);
+      if (src) resolvedStd = src;
     }
     const fileName = resolvedStd.split('/').pop();
     const displayPath = getStandardTargetDir(resolvedStd) + '/' + fileName;
@@ -476,10 +475,9 @@ export async function updateCommand(options) {
     let sourcePath = std;
     if (!std.includes('/') && !std.includes('.')) {
       const entry = allStdsUpdate.find(r => r.id === std);
-      if (entry) {
-        const src = getStandardSource(entry, updateFormat);
-        if (src) sourcePath = src;
-      }
+      if (!entry) continue; // Skip unrecognized IDs (e.g. stale AI tool names)
+      const src = getStandardSource(entry, updateFormat);
+      if (src) sourcePath = src;
     }
     const result = await copyStandard(sourcePath, getStandardTargetDir(sourcePath), projectPath);
     if (result.success) {
@@ -645,10 +643,9 @@ export async function updateCommand(options) {
     let resolvedPath = std;
     if (!std.includes('/') && !std.includes('.')) {
       const entry = allStdsHash.find(r => r.id === std);
-      if (entry) {
-        const src = getStandardSource(entry, hashFormat);
-        if (src) resolvedPath = src;
-      }
+      if (!entry) continue; // Skip unrecognized IDs (e.g. stale AI tool names)
+      const src = getStandardSource(entry, hashFormat);
+      if (src) resolvedPath = src;
     }
     const fileName = basename(resolvedPath);
     const relativePath = (resolvedPath.includes('options/')
@@ -758,10 +755,9 @@ export async function updateCommand(options) {
     let resolvedStd = std;
     if (!std.includes('/') && !std.includes('.')) {
       const entry = allStdsTrack.find(r => r.id === std);
-      if (entry) {
-        const src = getStandardSource(entry, trackFormat);
-        if (src) resolvedStd = src;
-      }
+      if (!entry) continue; // Skip unrecognized IDs (e.g. stale AI tool names)
+      const src = getStandardSource(entry, trackFormat);
+      if (src) resolvedStd = src;
     }
     const fileName = basename(resolvedStd);
     const relativePath = resolvedStd.includes('options/')
