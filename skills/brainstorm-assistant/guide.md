@@ -676,6 +676,274 @@ dismiss on each checklist item, with a 'hide checklist' option in settings.
 
 ---
 
+## Mode Selection Guide | 模式選擇指引
+
+The mode selection table in SKILL.md uses objective triggers to remove the
+"which mode should I use?" decision overhead. This section explains the
+rationale behind each rule.
+
+SKILL.md 的模式選擇表使用客觀觸發條件，消除「我應該用哪個模式？」的決策負擔。本節說明各規則的設計理由。
+
+### Why objective triggers instead of subjective diagnosis
+
+The v2.0 brainstorm rebuttal session itself surfaced this problem: if users must
+first diagnose "is my problem strategic or execution-type?", that meta-decision
+consumes cognitive resources before the session even starts. Objective triggers
+(word count, presence of a flag, existence of a spec) eliminate this.
+
+### Trigger calibration
+
+The `< 20 words` threshold is a starting heuristic, not a permanent rule.
+After 5–10 sessions, review whether short inputs consistently led to
+under-explored problems or whether they were legitimately simple. Adjust
+the threshold based on observation, not intuition.
+
+---
+
+## Self-Evaluation Framework | 自我評估框架
+
+Use these three metrics after every brainstorming session to build an
+empirical record of quality over time. Do NOT evaluate v2.0 vs v1.0 based
+on a single session — draw conclusions only after collecting at least 3
+comparable sessions.
+
+每次腦力激盪結束後使用這三個指標，建立長期品質紀錄。不要以單次工作階段評估 v2.0 vs v1.0，至少收集 3 次可比較的工作階段後再下結論。
+
+### The Three Metrics | 三個指標
+
+#### 1. Adoption Rate | 採用率
+**Question:** Of all ideas generated in this session, how many will you actually use or investigate further?
+
+**Scale:**
+- 5 = 3+ ideas directly actionable
+- 4 = 2 ideas actionable, 1+ worth exploring
+- 3 = 1 idea actionable
+- 2 = No idea directly actionable, but useful frames emerged
+- 1 = Session produced nothing useful
+
+**Why this matters:** Adoption rate is the closest proxy to "did the brainstorming solve the right problem?" It corrects for sessions that feel productive but produce ideas that are never revisited.
+
+#### 2. Diversity | 語義多樣性
+**Question:** Were the Extension Batch ideas (6–10) noticeably different in theme and approach from the Intuition Batch ideas (1–5)?
+
+**Scale:**
+- 5 = Extension Batch explored completely different problem dimensions
+- 4 = Extension Batch had 3+ ideas that clearly crossed semantic boundaries
+- 3 = Some extension, but most ideas were variations on Batch 1 themes
+- 2 = Extension Batch was effectively a continuation of Batch 1
+- 1 = No meaningful semantic difference between batches
+
+**Why this matters:** Diversity measures whether the 10-idea gate actually pushed past the "obvious answer zone." If diversity scores are consistently low, the semantic boundary instruction in Batch 2 may need strengthening.
+
+#### 3. Cognitive Load | 認知負擔
+**Question:** How mentally taxing was this session? (Higher score = lower burden)
+
+**Scale:**
+- 5 = Session felt effortless and generative
+- 4 = Some friction but overall productive
+- 3 = Moderate effort, a few frustrating moments
+- 2 = Session felt like work throughout
+- 1 = Exhausting; would avoid repeating this format
+
+**Why this matters:** A brainstorming method that consistently scores 1–2 on cognitive load will be abandoned in favour of informal thinking, regardless of quality improvements. Target: cognitive load ≥ 3 while adoption rate and diversity are also improving.
+
+### Session Log Template | 工作階段記錄模板
+
+```
+Date: YYYY-MM-DD
+Topic: [one sentence]
+Mode: [Full / Quick / No-Rebuttal / Skip-Preflight]
+Duration: [minutes]
+
+Adoption Rate:   /5 — [reason]
+Diversity:       /5 — [reason]
+Cognitive Load:  /5 — [reason]
+
+Notable observation:
+[One sentence on what worked or what felt wrong]
+```
+
+### Interpreting Trends | 趨勢判讀
+
+After 3+ sessions, look for these patterns:
+
+| Pattern | Interpretation | Action |
+|---------|---------------|--------|
+| Adoption Rate consistently ≤ 2 | Problem framing failing in FRAME, not technique | Spend more time on 5 Whys before diverging |
+| Diversity consistently ≤ 2 | 10-idea gate not producing semantic breadth | Enforce explicit topic-change before Batch 2 |
+| Cognitive Load consistently ≤ 2 | Process overhead too high for problem complexity | Switch to `--no-rebuttal` or `--quick` for lower-stakes problems |
+| All three metrics ≥ 4 | v2.0 working well for this problem type | No change needed |
+| Adoption Rate ↑ but Cognitive Load ↓ over sessions | Habituation — the new flow is becoming natural | Continue; occasional `--quick` refreshes |
+
+---
+
+## A/B Experiment Protocol | A/B 實驗協議
+
+Use this protocol to validate whether v2.0 genuinely outperforms v1.0 for
+your specific problem types, rather than relying on the research assumptions
+alone.
+
+使用此協議驗證 v2.0 是否真的對你的特定問題類型優於 v1.0，而非單純依賴研究假設。
+
+### Protocol Design
+
+**Duration:** 3 paired sessions (minimum)
+**Method:** Same category of problem, alternating method
+
+**Session pairing:**
+```
+Session A1: Problem of type X → v1.0 (AI generates first, no Pre-flight)
+Session B1: Problem of type X → v2.0 (Pre-flight + full flow)
+[one week gap]
+Session A2: Problem of type Y → v2.0
+Session B2: Problem of type Y → v1.0
+[one week gap]
+Session A3: Problem of type X → v2.0
+Session B3: Problem of type X → v1.0
+```
+
+Alternating reduces order effects (learning from session A affecting session B).
+
+**Critical: evaluate each session immediately after completion.** Do not wait — memory of cognitive load fades fastest.
+
+### What to Measure
+
+For each session, record:
+
+| Measure | v1.0 session | v2.0 session |
+|---------|-------------|-------------|
+| Adoption Rate (1–5) | | |
+| Diversity (1–5) | | |
+| Cognitive Load (1–5) | | |
+| Time to complete (min) | | |
+| Ideas generated (count) | | |
+| Ideas in Batch 2 that surprised you | N/A | |
+
+### Interpreting Results
+
+- **v2.0 wins** if Adoption Rate and Diversity are both higher, and Cognitive
+  Load difference is ≤ 1 point
+- **v1.0 wins** if v2.0 Cognitive Load is ≥ 2 points lower *and* Adoption Rate
+  difference is < 1 point
+- **Situational** if results differ by problem type → implement full situation
+  routing (see Mode Selection section)
+
+### Key Hypothesis to Validate
+
+The three research assumptions underlying v2.0 have different levels of
+external validity risk in AI-assisted solo contexts (see Research Validity
+Caveats section below). The A/B protocol should specifically check:
+
+1. **Pre-flight hypothesis:** After writing 3 ideas yourself, does the AI's
+   first batch explore genuinely different territory? Track explicitly.
+2. **10-idea gate hypothesis:** Are ideas 7–10 consistently more diverse or
+   useful than ideas 1–3? Review the session log after each run.
+3. **Rebuttal hypothesis:** After the rebuttal round, did you actually modify
+   or discard any ideas? If never, the rebuttal round may not be adding value
+   for your problem types.
+
+---
+
+## Research Validity Caveats | 研究效度說明
+
+v2.0 is grounded in three research findings. Each has a different level of
+external validity risk when applied to AI-assisted single-user brainstorming.
+Understand the limitations before treating the research as settled fact.
+
+v2.0 基於三項研究發現。每項在應用於 AI 輔助單人腦力激盪時，有不同程度的外部效度風險。在將研究視為確定事實之前，請理解其局限性。
+
+### Assumption 1: AI output anchors thinking (NGT basis)
+
+**Original finding:** Nominal Group Technique shows that individuals brainstorming
+separately then merging outperform interacting groups. Mechanism: production
+blocking and conformity pressure in groups.
+
+**Application to v2.0:** Pre-flight assumes AI output anchors your thinking the
+same way a dominant human voice does in a group.
+
+**External validity risk: MEDIUM**
+
+The anchoring mechanism may differ. Human social anchoring involves
+conformity pressure and real-time interruption. AI output is static text you
+can choose to ignore. The question is whether *reading* AI output before writing
+your own ideas meaningfully narrows your semantic exploration.
+
+**How to validate:** In your A/B experiment, after v2.0 sessions, note whether
+the AI's first batch was genuinely different from your Pre-flight ideas. If yes,
+Pre-flight is working. If the AI frequently produces ideas similar to yours
+anyway, Pre-flight's value may be in forcing you to articulate your starting
+point — a different but still valid benefit.
+
+### Assumption 2: Best ideas appear in the second half (Nijstad basis)
+
+**Original finding:** Nijstad et al. show that early ideas in brainstorming
+sessions are the most conventional. Creative ideas emerge after the obvious
+zone is exhausted.
+
+**Application to v2.0:** The 10-idea minimum gate and semantic batching assume
+this temporal pattern holds in AI-assisted contexts.
+
+**External validity risk: LOW**
+
+This finding is about cognitive pattern (exhausting obvious associations first),
+not about group dynamics. It is more likely to transfer to AI-assisted solo
+contexts because the underlying mechanism (semantic network traversal) applies
+regardless of whether a human or AI is generating ideas.
+
+**How to validate:** After each session, review ideas 1–5 vs ideas 7–10. Are
+the later ideas consistently less obvious? If yes, the gate is earning its keep.
+
+### Assumption 3: Debate produces better ideas (Nemeth basis)
+
+**Original finding:** Nemeth (1995) shows that groups instructed to debate
+produce more and better ideas than groups following "no criticism" rules.
+
+**Application to v2.0:** The Rebuttal Round assumes that structured debate with
+AI counterarguments improves idea quality.
+
+**External validity risk: HIGH**
+
+This is the most tenuous transfer. Nemeth's finding is about *genuine
+disagreement between people with different perspectives and stakes*. An AI
+playing "devil's advocate" on demand may produce counterarguments that are
+formally correct but lack the authentic dissent that drives Nemeth's effect.
+The counterarguments may feel adversarial without being genuinely revelatory.
+
+**How to validate:** After each rebuttal round, honestly assess: did the
+counterarguments surface something you had genuinely not considered? If the
+answer is consistently "no, I had already thought of this", the rebuttal round
+may be providing false confidence rather than genuine challenge. Consider
+switching to `--no-rebuttal` for well-understood problem domains.
+
+---
+
+## Gradual Adoption Protocol | 漸進採用協議
+
+If the full v2.0 flow feels overwhelming, adopt the three changes in sequence
+rather than all at once. Spend two weeks on each phase before adding the next.
+
+如果完整 v2.0 流程感覺負擔過重，按順序逐步採用三個改動，而非一次全部導入。每個階段使用兩週再加入下一個。
+
+### Phase 1: Pre-flight only (weeks 1–2)
+
+Run `/brainstorm --no-rebuttal [topic]` with Pre-flight enabled but skip
+rebuttal. Focus on: does writing 3 ideas first change what the AI produces?
+
+### Phase 2: Add the 10-idea gate (weeks 3–4)
+
+Continue with Pre-flight. Now enforce the 10-idea minimum. Focus on: are ideas
+7–10 better than ideas 1–5?
+
+### Phase 3: Add the Rebuttal Round (weeks 5–6)
+
+Run the full v2.0 flow. Focus on: do the counterarguments surface issues you
+had not considered?
+
+After 6 weeks, review session logs and the A/B experiment data to calibrate
+which combination works best for your problem types.
+
+---
+
 ## Best Practices
 
 ### Do's
@@ -684,8 +952,9 @@ dismiss on each checklist item, with a 'hide checklist' option in settings.
   improves idea diversity
 - Run all the way to 10+ ideas — the best ideas appear late
 - Take the rebuttal round seriously — vague defences are a warning sign
-- Save the Brainstorm Report for future reference
+- Record three evaluation metrics after every session
 - Use `--quick` for time-constrained situations, full mode for important decisions
+- Review session log trends after every 3 sessions
 
 ### Don'ts
 
@@ -695,6 +964,7 @@ dismiss on each checklist item, with a 'hide checklist' option in settings.
 - Don't accept vague AI counterarguments ("this might be hard") — insist on
   specific failure conditions
 - Don't skip the 5 Whys — surface-level problems lead to surface-level solutions
+- Don't draw conclusions from a single session — wait for 3+ data points
 
 ---
 
@@ -712,6 +982,7 @@ dismiss on each checklist item, with a 'hide checklist' option in settings.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.1.0 | 2026-05-09 | XSPEC-196 Phase 2: Mode Selection objective routing table; Self-Evaluation Framework (3 metrics + session log template + trend interpretation); A/B Experiment Protocol; Research Validity Caveats (3 assumptions with external validity risk ratings); Gradual Adoption Protocol (3-phase, 6-week plan) |
 | 2.0.0 | 2026-05-09 | XSPEC-196: Phase 0 Pre-flight (anti-anchoring), Rebuttal Round (Nemeth Protocol), 10-idea minimum gate + semantic batching; research foundations section added |
 | 1.0.0 | 2026-02-12 | Initial release |
 

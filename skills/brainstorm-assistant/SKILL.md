@@ -16,11 +16,29 @@ Structured ideation before specification writing. Transform vague ideas into act
 
 > **Implements**: XSPEC-196 brainstorm-assistant v2 — Cognitive Science Upgrade
 
+## Mode Selection | 使用前先選模式
+
+Apply these **objective triggers** before starting. Default is full v2.0 — routing rules are shortcuts to skip phases, not barriers to add.
+
+使用前套用以下**客觀觸發條件**。預設為完整 v2.0，路由規則是跳過階段的快捷鍵，而非額外障礙。
+
+| Condition | Recommended Mode | Command |
+|-----------|-----------------|---------|
+| Problem description < 20 words **or** topic feels vague | Full v2.0 (default) | `/brainstorm [topic]` |
+| Strategic question (career, architecture, business model) | Full v2.0 with rebuttal | `/brainstorm [topic]` |
+| Creative-only (naming, tagline, marketing copy) | Lite — skip rebuttal | `/brainstorm --no-rebuttal [topic]` |
+| Time-constrained or execution-type (write code, fix copy) | Quick mode | `/brainstorm --quick [topic]` |
+| Already have an SDD spec for this topic | Skip pre-flight | `/brainstorm --skip-preflight [topic]` |
+
+> **Rule of thumb:** If you are unsure which row applies, use full v2.0. The cognitive overhead of deciding is higher than just running the full flow.
+>
+> **判斷原則：** 不確定適用哪一行時，直接用完整 v2.0。判斷本身的認知成本高於直接跑完整流程。
+
 ## Workflow | 工作流程
 
 ```
-PRE-FLIGHT ──► FRAME ──► DIVERGE ──► CONVERGE ──► OUTPUT
-  防止錨定      定義問題    發散思考      反駁收斂      輸出提案
+[Mode Selection] ──► PRE-FLIGHT ──► FRAME ──► DIVERGE ──► CONVERGE ──► OUTPUT
+   客觀路由          防止錨定        定義問題    發散思考      反駁收斂      輸出提案
 ```
 
 ---
@@ -211,6 +229,22 @@ one-line summary of the user's response.
 | **SCAMPER** | Idea modification | 7 prompts: Substitute, Combine, Adapt, Modify, Put to other use, Eliminate, Reverse | 創意改造 |
 | **Six Thinking Hats** | Multi-perspective | 6 modes: Facts, Emotions, Risks, Benefits, Creativity, Process | 多角度思考 |
 | **Dot Voting** | Quick prioritization | Each participant gets 3 votes | 快速排序 |
+
+## Session Self-Evaluation | 工作階段自評
+
+After each session, record three metrics (1–5 scale) to track improvement over time.
+
+每次工作階段結束後，記錄三個指標（1–5 分），追蹤長期改善趨勢。
+
+| Metric | Question | 指標 |
+|--------|----------|------|
+| **Adoption Rate** | How many of today's ideas will I actually use? | 採用率：今天的想法有幾個會實際使用？ |
+| **Diversity** | Were the Extension Batch ideas noticeably different from Intuition Batch? | 多樣性：延伸批是否與直覺批明顯不同？ |
+| **Cognitive Load** | How mentally taxing was this session? (5 = effortless, 1 = exhausting) | 認知負擔：這次工作階段的心智消耗程度？ |
+
+Collect 3 sessions before drawing conclusions. See [guide.md](./guide.md) for the full A/B experiment protocol.
+
+收集 3 次工作階段資料再下結論。完整 A/B 實驗協議見 [guide.md](./guide.md)。
 
 ## Flags | 旗標
 
