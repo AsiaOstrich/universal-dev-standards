@@ -10,8 +10,8 @@ description: |
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/skills/brainstorm-assistant/guide.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-02-12
+**Version**: 2.0.0
+**Last Updated**: 2026-05-09
 **Applicability**: All software projects
 **Scope**: universal
 **Type**: Utility Skill (no core standard)
@@ -31,8 +31,55 @@ This skill fills the ideation gap in the UDS workflow:
 ```
 /brainstorm → /requirement → /sdd → Implementation
      ▲              ▲          ▲
-  (NEW)          Existing   Existing
+  (this)          Existing   Existing
 ```
+
+---
+
+## Research Foundations | 認知科學依據
+
+The v2.0 workflow is grounded in three research findings that challenge
+assumptions in Osborn's classic brainstorming rules:
+
+v2.0 流程基於三項研究發現，這些發現挑戰了 Osborn 經典腦力激盪規則中的假設：
+
+### 1. Independent thinking before merging (Nominal Group Technique)
+
+Groups where members first generate ideas independently — then combine — consistently
+outperform interacting groups in both quantity and quality. The mechanism is
+**production blocking**: while listening to others (or reading AI output), your
+own thought stream is interrupted.
+
+**Application in this skill:** Phase 0 PRE-FLIGHT collects three user ideas
+before the AI generates anything, preventing AI-first anchoring.
+
+**在本 Skill 的應用：** Phase 0 PRE-FLIGHT 在 AI 生成任何內容前收集使用者的三個想法，
+防止 AI 先說話導致的錨定效應。
+
+### 2. Creative ideas appear in the second half of divergence (Nijstad et al.)
+
+Studies consistently show that the first 3–5 ideas in any brainstorming session
+are almost always the most familiar and obvious. Truly creative ideas emerge
+after the "obvious answer zone" is exhausted — typically after idea 7 or 8.
+
+**Application in this skill:** The 10-idea minimum gate and semantic batching in
+Phase 2 force users past this threshold before evaluation begins.
+
+**在本 Skill 的應用：** Phase 2 的 10 個想法最低門檻和語義批次化，強制使用者在開始評估
+前突破「顯而易見答案區」。
+
+### 3. Debate produces more and better ideas than "no criticism" rules (Nemeth, 1995)
+
+Charlan Nemeth's research directly challenges Osborn's core rule of deferring
+all judgment. Groups instructed to debate and criticise generated more ideas,
+of higher quality, than groups following traditional "no criticism" brainstorming
+rules. The mechanism: criticism forces explicit defence of assumptions, surfacing
+hidden weaknesses before commitment.
+
+**Application in this skill:** The Rebuttal Round in Phase 3 introduces
+structured debate on the top-ranked ideas before final selection.
+
+**在本 Skill 的應用：** Phase 3 的反駁輪在最終選擇前對排名最高的想法引入結構化辯論。
 
 ---
 
@@ -41,21 +88,76 @@ This skill fills the ideation gap in the UDS workflow:
 ### Workflow Overview
 
 ```
-┌────────────┐    ┌────────────┐    ┌────────────┐    ┌────────────┐
-│   FRAME    │───▶│  DIVERGE   │───▶│  CONVERGE  │───▶│   OUTPUT   │
-│ Define the │    │ Generate   │    │ Evaluate & │    │ Brainstorm │
-│ problem    │    │ ideas      │    │ prioritize │    │ Report     │
-└────────────┘    └────────────┘    └────────────┘    └────────────┘
+┌─────────────┐  ┌────────────┐  ┌─────────────────┐  ┌─────────────┐  ┌────────────┐
+│  PRE-FLIGHT │─▶│   FRAME    │─▶│    DIVERGE      │─▶│  CONVERGE   │─▶│   OUTPUT   │
+│  (Phase 0)  │  │ Define the │  │ Batch 1 (1-5)   │  │ Score +     │  │ Brainstorm │
+│ User writes │  │ problem    │  │ Batch 2 (6-10+) │  │ Rebuttal    │  │ Report     │
+│ 3 ideas     │  │            │  │ Gate: ≥10 ideas │  │ Round       │  │            │
+└─────────────┘  └────────────┘  └─────────────────┘  └─────────────┘  └────────────┘
 ```
 
 ### Phase Summary
 
-| Phase | Goal | Key Techniques | Time |
-|-------|------|----------------|------|
-| **FRAME** | Define problem clearly | 5 Whys, HMW, Stakeholder Map | 10-15 min |
-| **DIVERGE** | Generate many ideas | HMW, SCAMPER, Six Thinking Hats | 15-20 min |
-| **CONVERGE** | Evaluate and rank | Evaluation Matrix, Dot Voting | 10-15 min |
-| **OUTPUT** | Actionable report | Brainstorm Report template | 5-10 min |
+| Phase | Goal | Key Mechanism | Time |
+|-------|------|---------------|------|
+| **PRE-FLIGHT** | Prevent AI anchoring | User writes 3 ideas first | 3–5 min |
+| **FRAME** | Define problem clearly | 5 Whys, HMW | 10–15 min |
+| **DIVERGE** | Generate ≥10 diverse ideas | Batching + semantic gate | 15–25 min |
+| **CONVERGE** | Select battle-tested ideas | Scoring + Rebuttal Round | 15–20 min |
+| **OUTPUT** | Actionable report | Brainstorm Report template | 5–10 min |
+
+---
+
+## Phase 0: PRE-FLIGHT | 防止 AI 錨定
+
+> Goal: Establish independent thinking before any AI content is generated.
+>
+> 目標：在任何 AI 內容生成之前，建立使用者的獨立思考框架。
+
+### Why this matters
+
+The single highest-leverage change in v2.0. Research shows that once a person
+sees any AI-generated framing, subsequent ideas cluster within that semantic
+space. Pre-flight creates an "intellectual immune system" against this bias.
+
+v2.0 中槓桿效應最高的改動。研究顯示，一旦看到任何 AI 生成的框架，後續想法就會在該語義
+空間內聚集。Pre-flight 為這種偏見創造了「智識免疫系統」。
+
+### Prompt the user to provide
+
+```
+Before we start brainstorming, please take 2–3 minutes to write:
+
+1. Problem (one sentence): What is the core problem you want to solve?
+2. Your initial ideas (3, any quality):
+   - Idea A:
+   - Idea B:
+   - Idea C:
+3. What I do NOT want (solution type to avoid, or N/A):
+
+Submit when ready. The AI will read these before generating anything.
+```
+
+### AI behaviour after receiving Pre-flight input
+
+1. Acknowledge the user's ideas without evaluating them
+2. Proceed to FRAME
+3. In DIVERGE Batch 1, explicitly explore directions the user did not mention
+4. If the user declared an unwanted solution type, exclude that type from all
+   generated ideas throughout the session
+
+### Skipping Pre-flight
+
+Use `--skip-preflight` to bypass. A one-line warning is displayed:
+
+```
+⚠ Skipping Pre-flight may cause AI anchoring
+```
+
+The session continues immediately to FRAME. Pre-flight skip is appropriate when:
+- The user has already written extensive notes elsewhere
+- This is a repeat session on a well-understood problem
+- Time is severely constrained (use `--quick` instead when possible)
 
 ---
 
@@ -158,21 +260,63 @@ This grounds ideation in reality and prevents proposing ideas that conflict with
 
 ---
 
-## Phase 2: DIVERGE | 發散思考
+## Phase 2: DIVERGE | 發散思考（v2.0 升級版）
 
-> Goal: Generate as many ideas as possible. Quantity over quality at this stage.
+> Goal: Generate at least 10 ideas across two semantic batches before evaluating any.
 >
-> 目標：盡可能產生多個想法。此階段重量不重質。
+> 目標：在評估之前，跨越兩個語義批次產生至少 10 個想法。
 
-**Rules of Divergent Thinking:**
-1. Defer judgment — no idea is bad
-2. Go for quantity — aim for 10+ ideas
-3. Build on others — "Yes, and..."
-4. Encourage wild ideas — they often lead to practical breakthroughs
+### The 10-Idea Gate
 
-### Technique A: HMW Brainstorming (Default)
+**Research basis:** Nijstad et al. show that the most creative ideas appear in
+the second half of a divergence session. Stopping at 3–5 ideas almost always
+means stopping in the "obvious answer zone."
 
-For each HMW question, generate 3-5 solution ideas.
+The "Enter CONVERGE" option is hidden until 10 ideas are generated. Below 10,
+the status shows `Continue diverging (N/10)`.
+
+### Batch 1 — Intuition Batch (ideas 1–5) | 直覺批
+
+Generate fast, unfiltered ideas. Do not evaluate at this stage.
+
+Rules:
+- Speed over depth
+- No idea is wrong
+- Label the batch "Intuition Batch — fast, unfiltered"
+- Display `✓ Intuition batch complete` after idea 5
+
+### Batch 2 — Extension Batch (ideas 6–10) | 延伸批
+
+Generate ideas that cross the semantic boundary of Batch 1.
+
+Display before starting:
+```
+Extension Batch: ideas must cross the semantic boundary of Batch 1.
+If your next idea is in the same theme category as a Batch 1 idea,
+try a different angle first.
+```
+
+Semantic overlap detection (non-blocking):
+- If a proposed idea shares a theme type with any Batch 1 idea, flag:
+  `⚠ Semantic overlap — try a different direction`
+- The user may still submit the idea; the flag is advisory only
+
+### Continuing past 10
+
+Users may continue beyond 10 ideas without limit. No upper gate exists.
+After 10, the "Enter CONVERGE" option appears alongside "Continue diverging".
+
+### Techniques
+
+| Technique | When to Use | 使用時機 |
+|-----------|-------------|----------|
+| **HMW Questions** | Default starting point | 預設起點 |
+| **SCAMPER** | Improving existing features | 改善現有功能 |
+| **Six Thinking Hats** | Need multiple perspectives | 需要多角度思考 |
+
+#### Technique A: HMW Brainstorming (Default)
+
+For each HMW question, generate 3–5 solution ideas.
 
 **Template:**
 
@@ -187,7 +331,7 @@ Ideas:
 5. [Idea] — [Brief explanation]
 ```
 
-### Technique B: SCAMPER
+#### Technique B: SCAMPER
 
 Apply 7 creative prompts to an existing feature or process. Best for improving what already exists.
 
@@ -215,7 +359,7 @@ E - Eliminate:   [idea]
 R - Reverse:     [idea]
 ```
 
-### Technique C: Six Thinking Hats
+#### Technique C: Six Thinking Hats
 
 Examine the problem from 6 distinct perspectives. Best when you need comprehensive analysis.
 
@@ -228,41 +372,17 @@ Examine the problem from 6 distinct perspectives. Best when you need comprehensi
 | 5 | Green | Creativity | What new ideas emerge? What if we...? |
 | 6 | Blue | Process & Summary | What's the big picture? What's our next step? |
 
-**Template:**
-
-```
-Topic: [topic]
-
-White Hat (Facts):
-- [fact/data point]
-
-Red Hat (Feelings):
-- [intuition/emotion]
-
-Black Hat (Risks):
-- [risk/concern]
-
-Yellow Hat (Benefits):
-- [opportunity/benefit]
-
-Green Hat (Ideas):
-- [creative idea]
-
-Blue Hat (Summary):
-- [synthesis and next step]
-```
-
 ---
 
-## Phase 3: CONVERGE | 收斂評估
+## Phase 3: CONVERGE | 反駁收斂（v2.0 升級版）
 
-> Goal: Evaluate ideas objectively and select the best ones to pursue.
+> Goal: Select ideas that survive both positive scoring AND structured debate.
 >
-> 目標：客觀評估想法，選出最值得推進的方案。
+> 目標：選出同時通過正向評分和結構化辯論的想法。
 
-### Evaluation Matrix
+### Step 3a: Evaluation Matrix | 評分
 
-Score each idea on 4 criteria (1-5 scale):
+Score each idea on 4 criteria (1–5 scale):
 
 | Criterion | Weight | Score Guide |
 |-----------|--------|-------------|
@@ -286,14 +406,50 @@ Score = (Feasibility × 0.3) + (Impact × 0.3) + (Effort × 0.2) + (Alignment ×
 | 3 | Progressive form | 5 | 4 | 4 | 4 | **4.3** |
 | 4 | Guest checkout | 5 | 3 | 5 | 3 | **4.0** |
 
-### Quick Prioritization: Dot Voting
+### Step 3b: Rebuttal Round | 反駁輪
 
-When the evaluation matrix feels too heavy, use dot voting:
+**Research basis (Nemeth, 1995):** Groups allowed to debate produce more and
+better ideas than groups following "no-criticism" rules. The mechanism is that
+criticism forces explicit defence of assumptions, which surfaces hidden
+weaknesses before commitment.
 
-1. List all ideas
-2. Each participant gets 3 votes (dots)
-3. Vote on your top picks (can put multiple dots on one idea)
-4. Highest vote count wins
+**For each of the top 3 ideas**, the AI presents **2 specific counterarguments.**
+
+Format for each counterargument:
+```
+"This idea will fail in [specific context] because [specific reason]."
+```
+
+**NOT acceptable** (too vague):
+- "This might be difficult to implement."
+- "There could be edge cases."
+
+**Acceptable** (specific failure condition):
+- "This idea will fail for enterprise customers because their IT policy
+  prohibits storing OAuth tokens in browser localStorage."
+- "This idea will fail during peak traffic because the synchronous
+  API call blocks the render thread, causing visible jank at 500ms+."
+
+### User response options
+
+The user MUST select one of three options per counterargument before the session advances:
+
+| Option | Action |
+|--------|--------|
+| (a) Accept criticism | Provide a modified version of the idea that addresses the failure |
+| (b) Disagree | Provide a specific reason why the counterargument does not apply |
+| (c) Criticism valid | Remove the idea from the ranking |
+
+### Rebuttal outcome in report
+
+Each idea that remains after the rebuttal round receives a badge in the final report:
+
+```
+✓ Passed rebuttal — [one-line summary of user's response]
+```
+
+**Skipping:** `--no-rebuttal` skips the rebuttal round. The report section is
+marked "Rebuttal: skipped".
 
 ---
 
@@ -311,6 +467,8 @@ When the evaluation matrix feels too heavy, use dot voting:
 **Date**: YYYY-MM-DD
 **Participants**: [human, AI assistant]
 **Techniques Used**: [HMW, SCAMPER, etc.]
+**Pre-flight**: [Completed / Skipped]
+**Rebuttal Round**: [Completed / Skipped]
 
 ## Problem Statement
 
@@ -324,36 +482,37 @@ When the evaluation matrix feels too heavy, use dot voting:
 
 ## Ideas Generated
 
-| # | Idea | Source Technique | Feasibility | Impact | Effort | Alignment | Score |
-|---|------|-----------------|-------------|--------|--------|-----------|-------|
-| 1 | ...  | SCAMPER-R        | 4           | 5      | 3      | 5         | 4.3   |
-| 2 | ...  | HMW              | 3           | 4      | 2      | 4         | 3.3   |
-| 3 | ...  | Six Hats-Green   | 5           | 4      | 4      | 4         | 4.3   |
+| # | Idea | Batch | Source Technique | Feasibility | Impact | Effort | Alignment | Score |
+|---|------|-------|-----------------|-------------|--------|--------|-----------|-------|
+| 1 | ...  | B1    | SCAMPER-R        | 4           | 5      | 3      | 5         | 4.3   |
+| 2 | ...  | B2    | HMW              | 3           | 4      | 2      | 4         | 3.3   |
+| 3 | ...  | B2    | Six Hats-Green   | 5           | 4      | 4      | 4         | 4.3   |
 
 ## Top 3 Recommendations
 
-### 1. [Idea Name] (Score: X.X)
+### 1. [Idea Name] (Score: X.X) ✓ Passed rebuttal
 - **Why**: [Reasoning]
 - **Key Benefit**: [Primary value]
-- **Main Risk**: [Primary concern]
+- **Rebuttal response**: [One-line summary of how user addressed the challenge]
 - **Estimated Scope**: [Small / Medium / Large]
 
-### 2. [Idea Name] (Score: X.X)
+### 2. [Idea Name] (Score: X.X) ✓ Passed rebuttal
 - **Why**: [Reasoning]
 - **Key Benefit**: [Primary value]
-- **Main Risk**: [Primary concern]
+- **Rebuttal response**: [One-line summary]
 - **Estimated Scope**: [Small / Medium / Large]
 
-### 3. [Idea Name] (Score: X.X)
+### 3. [Idea Name] (Score: X.X) ✓ Passed rebuttal
 - **Why**: [Reasoning]
 - **Key Benefit**: [Primary value]
-- **Main Risk**: [Primary concern]
+- **Rebuttal response**: [One-line summary]
 - **Estimated Scope**: [Small / Medium / Large]
 
 ## Discarded Ideas (with reasons)
 
 | Idea | Reason for Discarding |
 |------|-----------------------|
+| ...  | Removed during rebuttal round (counterargument accepted) |
 | ...  | Low feasibility (score: 1/5) |
 
 ## Next Steps
@@ -362,6 +521,33 @@ When the evaluation matrix feels too heavy, use dot voting:
 - [ ] Proceed to `/sdd` if requirements are already clear
 - [ ] Conduct follow-up brainstorm on [subtopic]
 ```
+
+---
+
+## Flags Reference | 旗標參考
+
+| Flag | Phase affected | Behaviour |
+|------|---------------|-----------|
+| `--skip-preflight` | Phase 0 | Bypass Pre-flight; display one-line anchoring warning |
+| `--no-rebuttal` | Phase 3 | Skip rebuttal round; mark report section "Rebuttal: skipped" |
+| `--quick` | All | 3-idea fast mode; Phase 0, 10-idea gate, and rebuttal all exempt |
+| `--technique scamper` | Phase 2 | Force SCAMPER as primary divergence technique |
+
+### Quick Mode (`--quick`)
+
+Delivers results in under 5 minutes. Output is 20 lines maximum.
+
+```
+1 HMW question → 3 ideas → 1 recommendation → next steps
+```
+
+All cognitive-science gates (Pre-flight, 10-idea minimum, Rebuttal Round) are
+exempt in quick mode. Quick mode is appropriate for:
+- Mid-coding-session decisions
+- Re-scoping an already-understood problem
+- Initial orientation before a full session
+
+Always offer to expand: "Would you like to run a full brainstorming session?"
 
 ---
 
@@ -386,7 +572,7 @@ The Brainstorm Report maps directly to downstream tools:
 | Problem Statement | Summary / Motivation |
 | Top Recommendation | Proposed Solution |
 | Evaluation Matrix | Trade-offs / Alternatives Considered |
-| Risks (Black Hat) | Risks section |
+| Rebuttal responses | Risks section |
 | Estimated Scope | Scope section |
 
 ---
@@ -402,61 +588,91 @@ When invoked in a project directory, the brainstorm assistant will:
 
 ---
 
-## Example Walkthrough
+## Example Walkthrough (v2.0)
 
 ### Scenario: "We need to improve user retention"
+
+**PRE-FLIGHT (user submits):**
+```
+Problem: 30-day retention is 15%, well below industry average of 40%
+My ideas:
+  A: Send re-engagement emails after 7 days of inactivity
+  B: Add an achievement / gamification system
+  C: Show users a "what's new" summary on login
+Do NOT want: Solutions requiring backend ML models (too slow to ship)
+```
 
 **FRAME:**
 ```
 5 Whys:
-Problem: User retention is low (30-day retention at 15%)
-
-Why 1: Users stop using the app after initial signup
-→ Because they don't discover key features
-
-Why 2: Why don't they discover features?
-→ Because the onboarding only shows basic setup
-
-Why 3: Why does onboarding only show basic setup?
-→ Because it was designed as a one-time wizard
-
-Why 4: Why a one-time wizard?
-→ Because the team assumed users would explore on their own
-
-Why 5: Why does that assumption fail?
-→ Because the app has 20+ features and no progressive disclosure
+Problem: Retention at 15%
+Why 1: Users stop using the app after initial signup → don't discover key features
+Why 2: Why don't they discover features? → onboarding shows only basic setup
+Why 3: Why basic setup only? → one-time wizard design assumption
+Why 4: Why wizard? → team assumed users would explore independently
+Why 5: Why does that assumption fail? → 20+ features, no progressive disclosure
 
 Root Cause: No progressive onboarding — users see everything or nothing
 
 HMW Questions:
 1. How might we guide users to discover features at the right moment?
 2. How might we make feature discovery feel natural, not forced?
-3. How might we celebrate user milestones to build engagement habits?
+3. How might we celebrate milestones to build engagement habits?
 ```
 
-**DIVERGE (HMW + SCAMPER):**
+**DIVERGE — Batch 1 (Intuition):**
+```
+AI note: Exploring directions beyond the user's A/B/C ideas
 
-| # | Idea | Technique |
-|---|------|-----------|
-| 1 | Contextual tooltips triggered by user behavior | HMW-1 |
-| 2 | Weekly "Did you know?" email with one feature | HMW-1 |
-| 3 | Achievement system with unlock badges | HMW-3 |
-| 4 | Replace wizard with progressive checklist | SCAMPER-S |
-| 5 | Combine onboarding with first real task | SCAMPER-C |
-| 6 | Adapt Duolingo's streak system | SCAMPER-A |
-| 7 | Minimize onboarding to 1 question: "What's your goal?" | SCAMPER-M |
-| 8 | Eliminate signup wall, let users try first | SCAMPER-E |
-| 9 | Reverse: let power users mentor new users | SCAMPER-R |
+1. Contextual tooltips triggered by user behaviour  [HMW-1]
+2. Progressive checklist replacing one-time wizard  [SCAMPER-S]
+3. First-task onboarding (skip setup, do real work first)  [SCAMPER-C]
+4. Peer-mentor matching for new users  [SCAMPER-R]
+5. Habit streak tracker (daily login reward)  [HMW-3]
+✓ Intuition batch complete
+```
 
-**CONVERGE:**
+**DIVERGE — Batch 2 (Extension — cross semantic boundary):**
+```
+Extension Batch: ideas must cross the semantic boundary of Batch 1
 
-| # | Idea | Feasibility | Impact | Effort | Alignment | Score |
-|---|------|-------------|--------|--------|-----------|-------|
-| 7 | Goal-based onboarding | 5 | 5 | 4 | 5 | **4.8** |
-| 1 | Contextual tooltips | 4 | 4 | 3 | 5 | **4.0** |
-| 5 | Onboarding via real task | 3 | 5 | 2 | 5 | **3.8** |
+6. API-driven onboarding: detect user's data and auto-populate examples  [HMW-1]
+7. Reverse onboarding: show power-user workflow first, simplify on request  [SCAMPER-R]
+8. Social proof: show "your peers use feature X 3× per week"  [HMW-2]
+9. Feature unlock gates: earn access to advanced features via usage  [HMW-3]
+10. Cohort-based pacing: group users by signup week, send same tips together  [HMW-1]
+```
 
-**OUTPUT:** Top recommendation is "Goal-based onboarding" → proceed to `/requirement`.
+**CONVERGE — Scoring:**
+```
+| # | Idea                          | Feasibility | Impact | Effort | Align | Score |
+|---|-------------------------------|-------------|--------|--------|-------|-------|
+| 2 | Progressive checklist         | 5           | 5      | 4      | 5     | 4.8   |
+| 6 | API-driven onboarding         | 4           | 5      | 3      | 5     | 4.3   |
+| 1 | Contextual tooltips           | 4           | 4      | 3      | 5     | 4.0   |
+```
+
+**CONVERGE — Rebuttal Round:**
+```
+Idea #2: Progressive checklist
+
+Counterargument 1: "This idea will fail for returning users who re-install the
+app because the checklist state is lost if tied to the device, causing
+experienced users to re-do beginner tasks and feel patronised."
+
+User response (b — disagree): "Checklist state is stored server-side tied to
+user ID, so returning users resume from where they left off."
+
+Counterargument 2: "This idea will fail for power users who feel checklists are
+infantilising and will disable them immediately if there's no way to opt out."
+
+User response (a — accept): Modified → Add a one-click 'I know this already'
+dismiss on each checklist item, with a 'hide checklist' option in settings.
+
+→ ✓ Passed rebuttal
+```
+
+**OUTPUT:** Top recommendation is "Progressive checklist (modified)" → proceed to `/requirement`.
 
 ---
 
@@ -464,19 +680,21 @@ HMW Questions:
 
 ### Do's
 
-- Start with FRAME — resist the urge to jump to solutions
-- Generate at least 10 ideas before evaluating any
-- Use codebase context to ground feasibility scores
+- Complete Pre-flight before starting — it takes 3 minutes and dramatically
+  improves idea diversity
+- Run all the way to 10+ ideas — the best ideas appear late
+- Take the rebuttal round seriously — vague defences are a warning sign
 - Save the Brainstorm Report for future reference
-- Time-box each phase to maintain momentum
+- Use `--quick` for time-constrained situations, full mode for important decisions
 
 ### Don'ts
 
+- Don't read the AI output before writing your Pre-flight ideas
 - Don't evaluate during DIVERGE phase
-- Don't limit yourself to one technique — combine them
+- Don't stop at 5 ideas — push through the "obvious answer zone"
+- Don't accept vague AI counterarguments ("this might be hard") — insist on
+  specific failure conditions
 - Don't skip the 5 Whys — surface-level problems lead to surface-level solutions
-- Don't brainstorm alone when stakeholders are available
-- Don't force all ideas through the same technique
 
 ---
 
@@ -494,6 +712,7 @@ HMW Questions:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0.0 | 2026-05-09 | XSPEC-196: Phase 0 Pre-flight (anti-anchoring), Rebuttal Round (Nemeth Protocol), 10-idea minimum gate + semantic batching; research foundations section added |
 | 1.0.0 | 2026-02-12 | Initial release |
 
 ---
