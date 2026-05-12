@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "5.7.3",
-  "lastUpdated": "2026-04-16",
+  "version": "5.8.0",
+  "lastUpdated": "2026-05-12",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
     "ai": {
@@ -58,14 +58,14 @@
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "5.7.3"
+      "version": "5.8.0"
     },
     "skills": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
       "localPath": "skills",
       "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills",
-      "version": "5.7.3",
+      "version": "5.8.0",
       "note": "Skills are now included in the main repository under skills/"
     }
   },
@@ -1668,7 +1668,31 @@
       },
       "category": "reference",
       "skillName": null,
-      "description": "AC-to-test traceability matrix, coverage calculation, and spec generation quality rules"
+      "description": "AC-to-test traceability matrix, coverage calculation (with not_implemented gate), and spec generation quality rules"
+    },
+    {
+      "id": "feature-manifest-standard",
+      "name": "Feature Manifest Standard",
+      "nameZh": "功能盤點清單標準",
+      "source": {
+        "human": "core/feature-manifest-standard.md",
+        "ai": "ai/standards/feature-manifest-standard.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Machine-readable FM-NNN feature inventory format for migration/refactoring projects; FEATURE_STUB protocol and completeness gates"
+    },
+    {
+      "id": "behavior-snapshot",
+      "name": "Behavior Snapshot Standard",
+      "nameZh": "行為快照標準",
+      "source": {
+        "human": "core/behavior-snapshot.md",
+        "ai": "ai/standards/behavior-snapshot.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "HTTP golden-file snapshot format for migration parity verification and refactoring characterization (Gate 0/1 protocol)"
     },
     {
       "id": "change-batching",

@@ -1,0 +1,168 @@
+# Behavior Snapshot Standard - AI Optimized
+# Source: core/behavior-snapshot.md
+
+standard:
+  id: behavior-snapshot
+  name: Behavior Snapshot Standard
+  description: HTTP request/response golden file format for migration parity verification and refactoring characterization; defines snapshot schema, parity gate, and Gate 0 protocol
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-05-12"
+    source: core/behavior-snapshot.md
+    references:
+      - "XSPEC-201: Refactor/Migration Completeness Protocol"
+      - "Michael Feathers: Working Effectively with Legacy Code (characterization tests)"
+      - "Golden Master Testing pattern"
+
+  snapshot_schema:
+    description: Format of a single snapshot JSON file in .snapshots/<feature-id>/<scenario>.json
+    required_fields:
+      - name: feature_id
+        type: string
+        description: FM-NNN from feature-manifest.yaml
+      - name: scenario
+        type: string
+        description: "Scenario name (snake_case): happy_path, not_found, invalid_credentials, etc."
+      - name: request
+        type: object
+        fields:
+          method: "HTTP method (GET|POST|PUT|PATCH|DELETE)"
+          path: "URL path (no base URL)"
+          headers: "Optional request headers (omit auth tokens — use placeholder)"
+          body: "Optional request body (JSON)"
+      - name: response
+        type: object
+        fields:
+          status: "HTTP status code (integer)"
+          body: "Response body (JSON object)"
+      - name: ignore_fields
+        type: list
+        description: |
+          Fields to skip during parity comparison.
+          Use for legitimately non-deterministic values: timestamps, tokens, IDs.
+          Do NOT use to hide business logic differences.
+
+    example: |
+      {
+        "feature_id": "FM-007",
+        "scenario": "happy_path",
+        "request": {
+          "method": "POST",
+          "path": "/api/orders/123/cancel",
+          "headers": { "Content-Type": "application/json" },
+          "body": { "reason": "customer_request" }
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "success": true,
+            "order_status": "cancelled",
+            "refund_initiated": true
+          }
+        },
+        "ignore_fields": ["refund_id", "cancelled_at"]
+      }
+
+  directory_structure:
+    root: ".snapshots/"
+    layout: ".snapshots/<feature-id>/<scenario>.json"
+    example: |
+      .snapshots/
+        FM-001-UserLogin/
+          happy_path.json
+          invalid_credentials.json
+        FM-007-OrderCancellation/
+          happy_path.json
+          order_not_found.json
+          MANUAL-refund_webhook.json
+    manual_prefix:
+      description: "Files prefixed MANUAL- contain manually authored snapshots (cannot be auto-recorded)"
+      examples:
+        - webhook endpoints triggered by third parties
+        - scenarios requiring specific database state
+        - background job/queue-triggered flows
+
+  ignore_fields_guidance:
+    always_ignore:
+      - created_at, updated_at, timestamp, recorded_at
+      - token, session_id, csrf_token, access_token, refresh_token
+      - request_id, trace_id, correlation_id
+    always_compare:
+      - status, code, message, error_code
+      - user_id, order_id (when using fixed test data)
+      - amount, quantity, price (business calculation results)
+      - "success, refunded, cancelled (boolean business outcomes)"
+
+  parity_gate:
+    description: CI gate comparing new system responses against recorded snapshots
+    tool: "npx tsx scripts/parity-check.ts --url <target-url> --snapshots .snapshots [--env <uat|staging>]"
+    pass_criteria: "100% of non-MANUAL snapshots must match (status + non-ignored body fields)"
+    failure_behavior:
+      uat_or_production: "Exit 1 — deployment blocked with [PARITY-BLOCK] message"
+      staging: "Exit 2 — warning only with [PARITY-WARN] message"
+    report_format: |
+      Parity Results: <passed>/<total> passed (<pct>%)
+        ✅ FM-001 / happy_path
+        ✅ FM-001 / invalid_credentials
+        ❌ [PARITY-FAIL] FM-007 / happy_path
+            body.order_status: expected "cancelled", got "pending"
+
+  gate_zero_protocol:
+    description: Characterization test gate for refactoring (XSPEC-201 Phase 1)
+    when: "--variant refactor in /vo-pipeline"
+    requirement: |
+      Characterization tests must exist and ALL pass before refactoring begins.
+      Characterization tests lock existing behavior — they do not test correctness,
+      they test that the behavior does not change during refactoring.
+    test_annotation: "@characterization or describe('characterization')"
+    enforcement: |
+      Gate 0: Run characterization tests before first refactoring commit.
+      Any failure during refactoring triggers immediate warning.
+      Gate 2: All characterization tests must pass before refactoring is considered complete.
+    anti_pattern: "Do NOT start refactoring without Gate 0 — behavior drift becomes undetectable"
+
+  rules:
+    - id: snapshot-before-migration
+      trigger: starting --variant migration pipeline
+      instruction: |
+        .snapshots/ must exist with at least one snapshot per feature before pipeline starts.
+        This is Gate 1b in the pre-flight check.
+      priority: required
+
+    - id: characterization-before-refactor
+      trigger: starting --variant refactor pipeline
+      instruction: |
+        Characterization tests must exist and pass before any refactoring begins.
+        If characterization tests don't exist, halt and prompt developer to write them.
+      priority: required
+
+    - id: ignore-fields-discipline
+      trigger: creating or reviewing snapshot ignore_fields
+      instruction: |
+        Only add fields to ignore_fields if they are legitimately non-deterministic
+        (timestamps, tokens, random IDs). Business logic fields must always be compared.
+        Overuse of ignore_fields defeats the purpose of parity testing.
+      priority: required
+
+    - id: manual-snapshots
+      trigger: snapshot cannot be auto-recorded
+      instruction: |
+        Prefix filename with MANUAL- and note why auto-recording is not possible.
+        MANUAL- snapshots must be authored by a human with full business knowledge.
+        They are excluded from auto-replay but count toward coverage reporting.
+      priority: recommended
+
+    - id: parity-100-before-uat
+      trigger: before UAT deployment in migration pipeline
+      instruction: |
+        Run parity check against all non-MANUAL snapshots.
+        100% pass rate required. Any failure blocks UAT deployment.
+        Fix parity failures before promoting — they represent behavioral divergence.
+      priority: required
+
+related_standards:
+  - feature-manifest-standard.ai.yaml
+  - acceptance-criteria-traceability.ai.yaml
+  - refactoring-standards.ai.yaml
+  - testing.ai.yaml

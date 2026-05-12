@@ -83,28 +83,60 @@ Scenario: User login with valid credentials
 | **Covered** | ✅ | AC is fully tested | All conditions in AC have corresponding test assertions |
 | **Partial** | ⚠️ | AC is partially tested | Some conditions tested, but edge cases or paths missing |
 | **Uncovered** | ❌ | AC has no tests | No test case references this AC |
+| **Not Implemented** | 🚫 | AC has no corresponding implementation | Feature code does not exist (not a test gap — a code gap) |
+
+### `not_implemented` vs `uncovered` Decision Tree
+
+```
+Q1: Does the corresponding code exist in src/?
+  No → 🚫 not_implemented
+  Yes → Q2: Does any test reference this AC?
+    No → ❌ uncovered
+    Yes → Q3: Are all conditions in the AC tested?
+      Yes → ✅ covered
+      No → ⚠️ partial
+```
+
+Typical signals of `not_implemented`: `throw new NotImplementedException()`, empty stub body, `// FEATURE_STUB:` marker.
 
 ### Coverage Calculation
 
 ```
-AC Coverage % = (covered_count / total_ac_count) × 100
+AC Coverage % = (covered_count + partial_count × 0.5) / (total_ac_count - not_implemented_count) × 100
 
 Where:
   covered_count = count of AC with status "covered"
   total_ac_count = total number of AC in specification
+  not_implemented_count = count of AC with status "not_implemented" (excluded from denominator)
   partial counts as 0.5 for coverage calculation
 ```
 
 ### Example Calculation
 
 ```
-SPEC-001: 8 AC total
-  - 5 covered (✅)
-  - 2 partial (⚠️)
-  - 1 uncovered (❌)
+SPEC-001: 20 AC total
+  - 15 covered (✅)
+  - 0 partial (⚠️)
+  - 2 uncovered (❌)
+  - 3 not_implemented (🚫)
 
-Coverage = (5 + 2×0.5) / 8 = 6/8 = 75%
+Coverage = (15 + 0) / (20 - 3) × 100 = 88.2%
+Status: BLOCKED by 3 not_implemented AC(s)
 ```
+
+### CI Gate for `not_implemented`
+
+`not_implemented` ACs trigger a **blocking** CI gate independent of the coverage percentage gate:
+
+```
+[AC-NOT-IMPL] 3 AC(s) marked not_implemented:
+  🚫 AC-007  OrderCancellation
+  🚫 AC-012  RefundCalculation
+  🚫 AC-019  ExportToPDF
+All not_implemented ACs must be resolved before UAT.
+```
+
+The gate clears only when all `not_implemented` ACs are updated to `uncovered`, `partial`, or `covered`.
 
 ---
 
@@ -273,6 +305,8 @@ Generated spec MUST include:
 | Ignoring uncovered AC | Gaps in verification | Track and plan coverage for all AC |
 | AC without testability | Cannot be verified | Ensure all AC are testable |
 | Coverage without assertions | Tests run but verify nothing | Check for meaningful assertions |
+| Using `uncovered` for missing code | Hides functional completeness gap | Use `not_implemented` when code doesn't exist |
+| Including `not_implemented` in denominator | Inflates coverage metric | Exclude `not_implemented` from denominator |
 
 ---
 
@@ -291,3 +325,4 @@ Generated spec MUST include:
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0.0 | 2026-03-18 | Initial version — traceability matrix, coverage calculation, spec generation rules |
+| 1.1.0 | 2026-05-12 | Add `not_implemented` 4th status; update CI gate formula; add decision tree (XSPEC-199) |

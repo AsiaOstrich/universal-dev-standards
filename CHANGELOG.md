@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.8.0] - 2026-05-12
+
+### Added
+- **`feature-manifest-standard`** (`ai/standards/feature-manifest-standard.ai.yaml`, `core/feature-manifest-standard.md`): New standard defining the FM-NNN machine-readable feature inventory format for migration/refactoring projects. Includes confidence scoring, migration risk labels (PHP→C#), FEATURE_STUB: marker protocol, and Gate 1 completeness gate. (XSPEC-200)
+- **`behavior-snapshot`** (`ai/standards/behavior-snapshot.ai.yaml`, `core/behavior-snapshot.md`): New standard defining HTTP golden-file snapshot format for migration parity verification and refactoring characterization tests. Includes snapshot schema, `ignore_fields` guidance, parity gate (exit codes 0/1/2), and Gate 0 characterization test protocol. (XSPEC-201)
+
+### Changed
+- **`acceptance-criteria-traceability`**: Added 4th AC status `not_implemented` (🚫) — distinct from `uncovered` (code exists but no test) and `not_implemented` (code does not exist). Updated coverage formula to exclude `not_implemented` from denominator. Added CI gate rule: `not_implemented_count > 0` → blocking (independent of coverage % gate). Added decision tree for status classification. (XSPEC-199)
+
 ## [5.7.3] - 2026-05-08
 
 ### Fixed

@@ -1,0 +1,146 @@
+# Feature Manifest Standard - AI Optimized
+# Source: core/feature-manifest-standard.md
+
+standard:
+  id: feature-manifest-standard
+  name: Feature Manifest Standard
+  description: Machine-readable feature inventory format for migration and refactoring projects; defines FM-NNN schema, confidence scoring, and FEATURE_STUB hook protocol
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-05-12"
+    source: core/feature-manifest-standard.md
+    references:
+      - "XSPEC-200: Migration Feature Inventory and Completeness Gate"
+      - "XSPEC-201: Refactor/Migration Completeness Protocol"
+      - "XSPEC-199: AC not_implemented status"
+
+  manifest_schema:
+    description: Structure of feature-manifest.yaml for a migration or refactoring project
+    required_fields:
+      - name: manifest_version
+        type: string
+        value: "1.0"
+      - name: source_system
+        type: object
+        fields:
+          - language: source language (php, python, java, etc.)
+          - framework: source framework (laravel, django, spring, etc.)
+          - scan_date: ISO 8601 date
+          - scan_coverage: "<N>/<total> routes (100%)"
+      - name: features
+        type: list
+        item_schema:
+          - id: "FM-NNN (zero-padded 3 digits)"
+          - name: "PascalCase feature name"
+          - description: "Plain language description of business purpose"
+          - http_method: "GET|POST|PUT|PATCH|DELETE (null for non-HTTP)"
+          - route: "URL path or null for CLI/background"
+          - controller: "ClassName::methodName"
+          - confidence: "0.0–1.0 (see confidence_scoring)"
+          - side_effects: "list of DB_READ|DB_WRITE|EMAIL|QUEUE|HTTP_CALL|FILE"
+          - migration_risks: "list of risk labels (see migration_risks)"
+          - ac_id: "null initially; set by Planner"
+          - status: "not_implemented (initial value for all migration features)"
+
+  confidence_scoring:
+    description: How to assign confidence values during inventory
+    levels:
+      - value: 1.0
+        meaning: Feature name and business purpose are unambiguous from code
+        example: "UserLogin method in AuthController with clear JWT response"
+      - value: 0.8
+        meaning: Feature name is reasonable but business purpose requires inference
+        example: "process() method with database write — likely a form submission"
+      - value: 0.5
+        meaning: Likely an infrastructure/utility method, not a primary business feature
+        example: "HealthCheck, CorsMiddleware, LoggingFilter"
+      - value: 0.3
+        meaning: Unclear — requires human confirmation before generating AC
+        example: "handle() method with no context, generic catch-all route"
+    human_review_threshold: 0.5
+    human_review_rule: "All features with confidence < 0.5 MUST be reviewed by a human before AC generation"
+
+  migration_risks:
+    description: Risk labels for migration to target language
+    php_to_csharp:
+      - label: SESSION_HANDLING
+        description: PHP session → ASP.NET Core Session/Cookie middleware
+      - label: ORM_DIFFERENCES
+        description: Eloquent ORM → Entity Framework behavioral differences
+      - label: TIMEZONE_HANDLING
+        description: PHP timezone functions → .NET DateTimeOffset
+      - label: FILE_UPLOAD_PATH
+        description: PHP $_FILES superglobal → ASP.NET Core IFormFile
+      - label: REGEX_DIFFERENCES
+        description: PHP PCRE syntax vs .NET Regex syntax differences
+      - label: ARRAY_FUNCTIONS
+        description: PHP array_* functions → LINQ equivalents
+      - label: EXCEPTION_HIERARCHY
+        description: PHP exception hierarchy vs .NET exception hierarchy differences
+    generic:
+      - label: ASYNC_MODEL
+        description: Sync code → async/await migration required
+      - label: NULL_SEMANTICS
+        description: Null handling differences between source and target language
+      - label: STRING_ENCODING
+        description: String encoding/collation differences
+
+  feature_stub_protocol:
+    description: How to use FEATURE_STUB markers in target codebase (XSPEC-200)
+    format: "// FEATURE_STUB: <FM-ID> <FeatureName> — <AC-ID> pending"
+    example: |
+      // FEATURE_STUB: FM-007 OrderCancellation — AC-007 pending
+      public async Task<Result> CancelOrderAsync(string orderId) {
+          throw new NotImplementedException();
+      }
+    rules:
+      - "One FEATURE_STUB per FM-ID in the target codebase"
+      - "FEATURE_STUB is removed when implementation is complete and AC status updated"
+      - "FEATURE_STUB blocks CI gate (same as WARNING:STUB) — blocks main branch push and UAT/prod deploy"
+      - "FEATURE_STUB is distinct from WARNING:STUB: FEATURE_STUB = code never existed; WARNING:STUB = temp fake logic"
+
+  completeness_gate:
+    description: Pipeline gates enforced by this manifest (XSPEC-200)
+    gate_1:
+      name: Manifest Existence Gate
+      trigger: Before /vo-pipeline --variant migration starts
+      rule: "artifacts/feature-manifest.yaml must exist and .snapshots/ must exist"
+      failure_message: "Run /vo-inventory and /vo-snapshot before starting migration pipeline"
+    gate_not_implemented:
+      name: Feature Completeness Gate
+      trigger: CI before UAT deployment
+      rule: "No features in manifest may have status: not_implemented AND corresponding FEATURE_STUB in codebase"
+      failure_message: "[FEATURE-INCOMPLETE] N features still not implemented. See feature-manifest.yaml."
+
+  rules:
+    - id: manifest-before-migration
+      trigger: starting a migration pipeline
+      instruction: |
+        Require feature-manifest.yaml before generating AC or writing code.
+        All features start with status: not_implemented.
+        Planner generates AC from manifest entries.
+      priority: required
+
+    - id: confidence-review
+      trigger: feature-manifest.yaml has features with confidence < 0.5
+      instruction: |
+        Halt AC generation for low-confidence features.
+        Present list to human for review before proceeding.
+        Human must confirm feature name, purpose, and whether it's in scope.
+      priority: required
+
+    - id: stub-lifecycle
+      trigger: implementing a feature from manifest
+      instruction: |
+        When implementation is complete:
+        1. Remove FEATURE_STUB: marker from code
+        2. Update manifest status from not_implemented to implemented
+        3. Update AC traceability status from not_implemented to uncovered or covered
+      priority: required
+
+related_standards:
+  - acceptance-criteria-traceability.ai.yaml
+  - behavior-snapshot.ai.yaml
+  - spec-driven-development.ai.yaml
+  - refactoring-standards.ai.yaml
