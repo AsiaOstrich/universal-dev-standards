@@ -17,6 +17,15 @@ status: current
 
 ## [Unreleased]
 
+## [5.8.0] - 2026-05-12
+
+### 新增
+- **`feature-manifest-standard`**（`ai/standards/feature-manifest-standard.ai.yaml`、`core/feature-manifest-standard.md`）：新增標準，定義移植/重構專案的 FM-NNN 機器可讀功能盤點格式。含信心評分、移植風險標籤（PHP→C#）、`FEATURE_STUB:` 標記協議與 Gate 1 完整性閘門。（XSPEC-200）
+- **`behavior-snapshot`**（`ai/standards/behavior-snapshot.ai.yaml`、`core/behavior-snapshot.md`）：新增標準，定義 HTTP 金文件快照格式，用於移植同等性驗證與重構特徵化測試。含快照結構、`ignore_fields` 指引、parity gate exit codes 與 Gate 0 特徵化測試協議。（XSPEC-201）
+
+### 修改
+- **`acceptance-criteria-traceability`**：新增第 4 個 AC 狀態 `not_implemented`（🚫）——區分「程式碼不存在」與 `uncovered`（程式碼存在但無測試）。更新覆蓋率公式（分母排除 `not_implemented`）。新增 CI blocking gate：`not_implemented_count > 0` → blocking（獨立於覆蓋率 % gate）。新增狀態分類決策樹。（XSPEC-199）
+
 ## [5.7.3] - 2026-05-08
 
 ### 修復
