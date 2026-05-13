@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.10.0] - 2026-05-13
+
+### Added
+- **`multi-environment-e2e-testing`** (`ai/standards/multi-environment-e2e-testing.ai.yaml`): New standard for E2E test configuration across multiple deployment targets. Core principle: "The run command IS the documentation." Covers: BASE_URL baked into test framework config (not .env); self-checking runner scripts per environment; environment capability matrix committed to repo; CI gate mapping; credential handling rules. Closes UDS Issue #95. (XSPEC-204)
+
+### Changed
+- **`mock-boundary`** (v1.0.0 → v1.1.0): Added Level 1 / Level 2 mock layer distinction. Level 1 = code-level mocks regulated by STUB rules. Level 2 = infrastructure-level stub servers (WireMock, MockSoap) regulated by environment stratification rules, NOT subject to STUB deployment-blocking. Added `external_dependency_testability_matrix` template (✅/⚠️/❌ per service × environment). Added rules: `level-2-stub-server-rules`, `no-stub-server-in-prd`. Closes UDS Issue #94 Blind Spot 2. (XSPEC-204)
+- **`deployment-standards`** (v1.0.0 → v1.1.0): Added `environment_stratification_matrix` block — projects with external dependencies must build this matrix at test-planning time; template includes 10-flow × 3-environment grid. Added `stub_server_cicd_rules` block — Option A (sidecar deploy) / Option B (PRD smoke deferral); production artifact exclusion rules; PRD prohibition rules; forbidden state definition. Closes UDS Issue #94 Blind Spots 1 & 3. (XSPEC-204)
+- **`verification-evidence`** (v1.0.0 → v1.1.0): Added Iron Law (Environment): evidence must specify `environment_layer` for externally-dependent ACs. Added `environment_layer` field to evidence format (required for features with external service dependencies). Added rules VE-005, VE-006. (XSPEC-204)
+- **`test-completeness-dimensions`** (v1.2.0 → v1.3.0): Added Dimension 11: **Environment Verifiability** — for ACs with external service dependencies, document minimum verifiable environment layer (local/UAT/PRD), track PRD-only items, require smoke test plan. Updated feature type mapping: External Integration → [1,3,7,11]; new type External-Dependent Workflow → [1,3,4,5,9,10,11]. Updated use-checklist rule. (XSPEC-204)
+
 ## [5.9.0] - 2026-05-13
 
 ### Added

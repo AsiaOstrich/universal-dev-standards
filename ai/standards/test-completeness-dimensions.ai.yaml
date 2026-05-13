@@ -3,10 +3,12 @@
 
 id: test-completeness-dimensions
 meta:
-  version: "1.2.0"
-  updated: "2026-05-04"
+  version: "1.3.0"
+  updated: "2026-05-13"
   source: core/test-completeness-dimensions.md
-  description: Framework for evaluating test completeness across 10 dimensions (v1.2.0 adds Flow Completeness and Branch Coverage)
+  description: >
+    Framework for evaluating test completeness across 11 dimensions.
+    v1.3.0 adds Dimension 11: Environment Verifiability (XSPEC-204).
 
 dimensions:
   - id: 1
@@ -114,6 +116,21 @@ dimensions:
     when_required: When flow has any conditional logic or decision points
     note: Use decision_table_expansion from flow-based-testing.ai.yaml to enumerate scenarios
 
+  - id: 11
+    name: Environment Verifiability
+    description: >
+      For each AC with external service dependencies, document which environment layer
+      can fully verify it, and plan PRD-smoke coverage for items that cannot be verified in UAT.
+    test_items:
+      - Environment stratification responsibility matrix exists for features with external dependencies
+      - Each AC is tagged with its minimum verifiable environment layer (local / UAT / PRD)
+      - ACs that are PRD-only are explicitly tracked and have a PRD smoke test plan
+      - Evidence for externally-dependent ACs includes environment_layer field
+    when_required: >
+      Any feature with external service dependencies (SMS, payment, IdP, email,
+      SOAP integrations, external REST APIs)
+    note: See multi-environment-e2e-testing.ai.yaml and deployment-standards.ai.yaml for environment capability matrix templates
+
 feature_type_mapping:
   note: "Dimension 8 (AI Generation Quality) applies when tests are AI-generated"
   types:
@@ -138,14 +155,20 @@ feature_type_mapping:
       with_ai: [1, 3, 5, 8]
 
     - type: External Integration
-      dimensions: [1, 3, 7]
-      with_ai: [1, 3, 7, 8]
+      dimensions: [1, 3, 7, 11]
+      with_ai: [1, 3, 7, 8, 11]
+      note: Dimension 11 required for any external service dependency
 
     - type: Workflow / Multi-step Process
       dimensions: [1, 3, 4, 5, 9, 10]
       with_ai: [1, 3, 4, 5, 9, 10, 8]
       required_pattern: journey-chained-test
       note: Apply flow-based-testing standard; use shared ctx; Each-Choice minimum branch coverage
+
+    - type: External-Dependent Workflow
+      dimensions: [1, 3, 4, 5, 9, 10, 11]
+      with_ai: [1, 3, 4, 5, 9, 10, 8, 11]
+      note: Combines Workflow + External Integration; Dimension 11 mandatory
 
 error_code_coverage:
   - code: 200
@@ -198,7 +221,7 @@ anti_patterns:
 rules:
   - id: use-checklist
     trigger: designing tests for a feature
-    instruction: Use the 10 dimensions checklist to ensure completeness (dim 8 for AI-generated tests; dim 9/10 for multi-step workflows)
+    instruction: Use the 11 dimensions checklist to ensure completeness (dim 8 for AI-generated tests; dim 9/10 for multi-step workflows; dim 11 for external dependencies)
     priority: required
 
   - id: authorization-matrix
@@ -278,6 +301,12 @@ checklist_template: |
     □ Each distinct error branch has its own describe block
     □ Critical flows (auth/payment/security) use All-Combinations
 
+  □ Environment Verifiability (for features with external dependencies)
+    □ Environment stratification matrix created/updated
+    □ Each AC tagged with minimum verifiable environment layer
+    □ PRD-only ACs documented with smoke test plan
+    □ Evidence includes environment_layer field for externally-dependent ACs
+
 quick_reference:
   dimensions:
     columns: [ID, Dimension, Key Focus]
@@ -292,9 +321,10 @@ quick_reference:
       - [8, AI Generation, AI-generated test quality]
       - [9, Flow Completeness, Complete path to each terminal state]
       - [10, Branch Coverage, All decision-point branches covered]
+      - [11, Environment Verifiability, External-dep ACs tagged with environment layer]
 
   feature_dimensions:
-    note: "*Dimension 8 applies when tests are AI-generated; †Dimensions 9/10 apply to multi-step workflows"
+    note: "*Dimension 8 applies when tests are AI-generated; †Dimensions 9/10 apply to multi-step workflows; ‡Dimension 11 applies to features with external service dependencies"
     columns: [Feature Type, Required Dimensions]
     rows:
       - [CRUD API, "1,2,3,4,6,7,8*"]
@@ -304,3 +334,5 @@ quick_reference:
       - [Background Job, "1,3,5,8*"]
       - [External Integration, "1,3,7,8*"]
       - [Workflow / Multi-step Process, "1,3,4,5,9†,10†,8*"]
+      - [External Integration, "1,3,7,11‡,8*"]
+      - [External-Dependent Workflow, "1,3,4,5,9†,10†,11‡,8*"]

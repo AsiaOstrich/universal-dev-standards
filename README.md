@@ -6,7 +6,7 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 5.9.0 | **Released**: 2026-04-13 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
+**Version**: 5.10.0 | **Released**: 2026-04-13 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 Language-agnostic, framework-agnostic development standards for software projects. Ensure consistency, quality, and maintainability across diverse technology stacks with AI-native workflows.
 

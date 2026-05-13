@@ -8,15 +8,19 @@ standard:
   description: 驗證證據標準，強化 anti-hallucination
 
   meta:
-    version: "1.0.0"
-    updated: "2026-03-20"
+    version: "1.1.0"
+    updated: "2026-05-13"
     source: core/verification-evidence.md
-    description: 驗證證據標準 — Iron Law: 無驗證證據不可聲稱完成
+    description: >
+      驗證證據標準 — Iron Law: 無驗證證據不可聲稱完成。
+      v1.1.0: Evidence must specify which environment layer it was collected from (XSPEC-204).
     inspired_by: superpowers/verification-before-completion
 
   guidelines:
     - "Iron Law：無驗證證據 = 不可聲稱完成"
     - "每次驗證必須記錄 command + exitCode + output + timestamp"
+    - "Iron Law（Environment）：驗收前必須確認「此環境層次能驗證此流程的哪些維度」"
+    - "驗收證據必須標明收集自哪個環境層次（local / UAT / PRD）"
     - "回歸測試必須展示 RED → GREEN 循環"
     - "代理報告 success ≠ 實際 success，需獨立驗證"
     - "驗證輸出截斷至合理長度（2000 字元）但保留關鍵資訊"
@@ -39,6 +43,13 @@ standard:
         type: string
         required: true
         description: "執行時間（ISO 8601 格式）"
+      - name: environment_layer
+        type: string
+        required: false
+        description: >
+          收集證據的環境層次（local / uat / prd）。
+          對有外部服務依賴的功能為必填——缺少此欄位時，該 AC 的驗收等級視為 local-only。
+        example: "uat"
 
   red_green_cycle:
     description: "回歸測試的 RED → GREEN 驗證"
@@ -72,13 +83,28 @@ standard:
       action: "截斷但保留錯誤訊息與摘要行"
       priority: medium
 
+  environment_rules:
+    - id: VE-005
+      trigger: "AC 涉及外部服務依賴（SMS、金流、IdP）"
+      action: >
+        驗收證據必須標明 environment_layer。
+        local-only 證據對此類 AC 不足——需確認 UAT 或 PRD 層次的驗證計畫。
+      priority: required
+    - id: VE-006
+      trigger: "有外部服務依賴的 AC 標記為 done，但無 environment_layer"
+      action: >
+        降級為 done_with_concerns。
+        要求補充環境層次聲明，或在 environment-stratification-matrix 中標記為 ⚠️/❌。
+      priority: high
+
 physical_spec:
   type: checklist
   validator:
     type: ai_review
-    rule: "檢查任務完成是否附帶驗證證據（command + exit_code + output + timestamp）"
+    rule: "檢查任務完成是否附帶驗證證據（command + exit_code + output + timestamp + environment_layer）"
   checks:
     - "完成聲明是否附帶 verification_evidence"
     - "evidence 是否包含所有必填欄位"
     - "exit_code 是否為 0（成功）"
     - "Bug fix 是否有 RED → GREEN 循環證據"
+    - "有外部服務依賴的 AC 是否標明 environment_layer"

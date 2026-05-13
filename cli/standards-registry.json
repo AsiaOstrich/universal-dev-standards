@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "5.9.0",
+  "version": "5.10.0",
   "lastUpdated": "2026-05-13",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
@@ -58,14 +58,14 @@
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "5.9.0"
+      "version": "5.10.0"
     },
     "skills": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
       "localPath": "skills",
       "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills",
-      "version": "5.9.0",
+      "version": "5.10.0",
       "note": "Skills are now included in the main repository under skills/"
     }
   },
@@ -1705,6 +1705,18 @@
       "category": "reference",
       "skillName": null,
       "description": "Language-agnostic methodology for exhaustive feature discovery in legacy systems; Deterministic-First principle, Software Form Taxonomy (7 forms), five static foundations, dynamic/human observation protocols, cross-layer validation matrix"
+    },
+    {
+      "id": "multi-environment-e2e-testing",
+      "name": "Multi-Environment E2E Testing",
+      "nameZh": "多環境 E2E 測試標準",
+      "source": {
+        "human": "core/multi-environment-e2e-testing.md",
+        "ai": "ai/standards/multi-environment-e2e-testing.ai.yaml"
+      },
+      "category": "testing",
+      "skillName": null,
+      "description": "E2E test configuration across multiple deployment targets; BASE_URL baked in test config; self-checking runner scripts; environment capability matrix; CI gate mapping; credential handling rules"
     },
     {
       "id": "change-batching",

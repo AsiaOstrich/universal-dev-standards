@@ -12,10 +12,13 @@ standard:
     - "Automate build, test, deploy, and rollback"
 
   meta:
-    version: "1.0.0"
-    updated: "2026-02-09"
+    version: "1.1.0"
+    updated: "2026-05-13"
     source: core/deployment-standards.md
-    description: Safe deployment strategies, feature flags, rollback, environment parity, and DORA metrics
+    description: >
+      Safe deployment strategies, feature flags, rollback, environment parity, and DORA metrics.
+      v1.1.0: Added environment stratification responsibility matrix and stub server CI/CD
+      lifecycle rules (XSPEC-204).
 
   principles:
     core:
@@ -124,6 +127,108 @@ checklist:
     short_term_1hr: ["Error rate <0.1%", "Response times within SLA", "No support ticket spike"]
     medium_term_24hr: ["Batch jobs successful", "Data consistency verified", "No memory leaks"]
     long_term_1wk: ["Flag cleanup scheduled", "Retrospective completed", "Docs updated"]
+
+# ─────────────────────────────────────────────────────────
+# Environment Stratification Responsibility Matrix (v1.1.0)
+# ─────────────────────────────────────────────────────────
+environment_stratification_matrix:
+  rule: >
+    Projects with external dependencies MUST build an environment stratification
+    responsibility matrix at test-planning time (not at release candidate review).
+    This matrix answers: "Which test flows can be fully verified in which environment?"
+  when_required: "Any project with external service dependencies (SMS, payment, IdP, messaging, etc.)"
+  where: "docs/testing/environment-stratification-matrix.md or in the test plan"
+
+  template: |
+    ## Environment Stratification Responsibility Matrix
+
+    | Flow / Feature         | local UAT        | Remote UAT       | PRD                |
+    |------------------------|:----------------:|:----------------:|:------------------:|
+    | Auth / Login           | ✅ stub IdP      | ✅ Keycloak/AD   | ✅ Enterprise IdP  |
+    | SMS Sending            | ⚠️ L2-stub       | ❌ / ⚠️          | ✅ Real + billing  |
+    | Payment / Purchase     | ⚠️ L2-stub       | ⚠️ network-dep   | ✅ Real + reconcile|
+    | User / Dept Management | ✅               | ✅ cross-machine  | ✅                 |
+    | Background Jobs        | ✅ in-process    | ✅               | ✅                 |
+
+    Legend:
+    ✅ Full E2E verification possible
+    ⚠️ Flow passes through stub/mock — real-world dimensions NOT verified
+    ❌ Cannot test in this environment layer
+
+    ### PRD-only verification items (must plan PRD smoke test coverage)
+    - SMS billing correctness
+    - Payment real debit + bank reconciliation
+    - Enterprise AD group sync behavior
+
+  mandatory_rule: >
+    This matrix MUST be reviewed at test planning stage alongside
+    acceptance-criteria-traceability. It is NOT acceptable to discover
+    PRD-only verification items for the first time during release candidate review.
+
+# ─────────────────────────────────────────────────────────
+# Stub Server CI/CD Lifecycle Rules (v1.1.0)
+# ─────────────────────────────────────────────────────────
+stub_server_cicd_rules:
+  rationale: >
+    Production CI/CD artifacts commonly exclude stub server directories for valid
+    security reasons (e.g., MockSoap/, tests/stub-server/ excluded from build.ps1).
+    Without explicit rules, this creates an undocumented "UAT cannot test X" situation
+    that is discovered too late in the release cycle.
+
+  build_time:
+    rules:
+      - "Production artifact MUST exclude all stub server code directories"
+      - "Exclusion rule MUST be documented in docs/uat/STUB-EXCLUSION-RATIONALE.md"
+      - "CI build verification step MUST confirm stub directories are absent from artifact"
+    example_ps1: |
+      # build.ps1 — explicit exclusion with documentation comment
+      # Stub server excluded from production artifact (see docs/uat/STUB-EXCLUSION-RATIONALE.md)
+      # Consequence: UAT machine cannot run SMS/MMS flow without sidecar deployment (see Option A below)
+      $exclude = @("MockSoap", "tests/stub-server", "test-fixtures")
+
+  uat_deployment:
+    rule: "Choose Option A or Option B; document the choice; do NOT leave it undocumented"
+    options:
+      option_a_sidecar_deploy:
+        name: "Sidecar Deployment (Recommended)"
+        description: >
+          Stub server deployed as separate process to UAT machine;
+          application configured via env var to reach the stub endpoint.
+        benefit: "Decoupled from app artifact; independently updatable"
+        example_github_actions: |
+          deploy-stub-server:
+            environment: uat
+            steps:
+              - name: Deploy stub server to UAT
+                run: |
+                  ssh uat-machine "cd /opt/stub-server && pm2 start server.js --name stub-server"
+              - name: Configure app to use stub
+                run: echo "SMS_ENDPOINT=http://uat-machine:9999/soap" >> $GITHUB_ENV
+        example_gitlab_ci: |
+          deploy-stub-server:
+            stage: deploy
+            environment: uat
+            script:
+              - ssh uat-machine "pm2 start tests/stub-server/server.js --name stub-server"
+            only: [uat-branch, tags]
+
+      option_b_prd_smoke_deferral:
+        name: "PRD Smoke Deferral"
+        description: >
+          Document which flows cannot be tested in UAT; explicitly mark them as
+          PRD-smoke-only items. These items must appear in the environment stratification matrix.
+        requirement: "Must be reflected as ❌ in environment stratification matrix with PRD smoke plan"
+
+  prd_prohibitions:
+    - "MUST NOT deploy or run stub servers in PRD environment"
+    - "MUST NOT include stub server code in PRD artifact"
+    - "MUST NOT allow network access to stub server endpoints from PRD"
+
+  forbidden_state: >
+    It is NEVER acceptable to have "no stub server AND no real service AND no documented
+    deferral" for a testable flow. Every flow must be either:
+    (a) fully testable in UAT via real service or Level 2 stub server, OR
+    (b) explicitly documented as PRD-smoke-only with a smoke test plan.
 
 physical_spec:
   type: custom_script

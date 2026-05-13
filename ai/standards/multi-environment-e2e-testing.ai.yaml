@@ -1,0 +1,250 @@
+# Multi-Environment E2E Testing Standards - AI Optimized
+# Source: XSPEC-204 (UDS Issue #94, #95)
+
+id: multi-environment-e2e-testing
+meta:
+  version: "1.0.0"
+  updated: "2026-05-13"
+  description: >
+    Standards for E2E test configuration across multiple deployment targets.
+    Core principle: The run command IS the documentation.
+    Each environment has one entry-point script that self-checks prerequisites
+    and runs the correct test subset.
+
+# ─────────────────────────────────────────────────────────
+# Core Principle
+# ─────────────────────────────────────────────────────────
+core_principle:
+  name: Executable Environment Documentation
+  statement: "The run command IS the documentation."
+  rationale: >
+    Developers repeatedly ask "how do I run tests against environment X?"
+    because the answer is scattered across README, wiki, and verbal knowledge.
+    When the run script self-checks prerequisites and sets the correct BASE_URL,
+    the script itself becomes the authoritative environment setup guide.
+  anti_pattern: >
+    Manually changing BASE_URL in .env before test runs — breaks other
+    developers' configs and cannot be committed without affecting everyone.
+
+# ─────────────────────────────────────────────────────────
+# Test Framework Multi-Environment Config
+# ─────────────────────────────────────────────────────────
+test_framework_config:
+  rule: "BASE_URL is baked into test project config, not read from .env"
+  rationale: >
+    If BASE_URL comes from .env, developers must modify .env before running
+    against a specific environment, creating race conditions in teams and
+    accidental commits of wrong URLs.
+
+  playwright_pattern: |
+    // playwright.config.ts
+    const ENVS = {
+      'local-iis':         'http://localhost/corp',
+      'local-iis-express': 'http://localhost:18080/lotest',
+      'uat':               'http://portal_uat.example.com/app',
+      'prd':               'https://app.example.com',
+    } as const;
+
+    export default defineConfig({
+      projects: Object.entries(ENVS).map(([name, url]) => ({
+        name,
+        use: { browserName: 'chromium', baseURL: url },
+      })),
+    });
+
+  cypress_pattern: |
+    // cypress.config.ts
+    const ENVS = {
+      'local':  { baseUrl: 'http://localhost:3000' },
+      'uat':    { baseUrl: 'http://uat.example.com' },
+      'prd':    { baseUrl: 'https://app.example.com' },
+    };
+    // Pass via --env target=uat; default to local
+
+  rules:
+    - "One test config file; environment distinction via project name or --project flag"
+    - "No environment-specific playwright/cypress.config.*.ts files"
+    - "BASE_URL never in .env for E2E test configs"
+
+# ─────────────────────────────────────────────────────────
+# Runner Script Pattern
+# ─────────────────────────────────────────────────────────
+runner_script_pattern:
+  rule: "Each environment has one entry-point script that self-checks prerequisites"
+  location: "scripts/run-tests-<env>.(ps1|sh)"
+  template_powershell: |
+    # scripts/run-tests-local-iis.ps1
+    # Self-check prerequisites before running tests
+
+    # 1. Check Docker
+    if (-not (Get-Process "com.docker.backend" -ErrorAction SilentlyContinue)) {
+      Write-Error "Docker is not running. Start Docker Desktop first."
+      exit 1
+    }
+
+    # 2. Check App is responding
+    try {
+      $resp = Invoke-WebRequest "http://localhost/corp/health" -UseBasicParsing -TimeoutSec 5
+    } catch {
+      Write-Error "App not responding at http://localhost/corp. Start IIS site first."
+      exit 1
+    }
+
+    # 3. Run tests
+    npx playwright test --project=local-iis @args
+
+  template_bash: |
+    #!/bin/bash
+    # scripts/run-tests-local.sh
+
+    # 1. Check Docker
+    if ! docker info > /dev/null 2>&1; then
+      echo "ERROR: Docker is not running." >&2
+      exit 1
+    fi
+
+    # 2. Check App
+    if ! curl -s -f http://localhost:3000/health > /dev/null 2>&1; then
+      echo "ERROR: App not responding at http://localhost:3000" >&2
+      exit 1
+    fi
+
+    npx playwright test --project=local "$@"
+
+  prerequisite_checks:
+    - "Docker / container runtime"
+    - "Application health endpoint"
+    - "Database connectivity (if separate from app)"
+    - "Required environment-specific services"
+
+# ─────────────────────────────────────────────────────────
+# Environment Capability Matrix
+# ─────────────────────────────────────────────────────────
+capability_matrix:
+  rule: >
+    Projects with external dependencies MUST maintain an environment capability
+    matrix committed to the repository (docs/testing/environment-capability-matrix.md
+    or inline in testing README).
+  when_required: "Any project with external HTTP services, IdP, payment, messaging"
+
+  template: |
+    ## Environment Capability Matrix
+
+    | Service / Feature | local-dev | local-iis | UAT | PRD |
+    |-------------------|:---------:|:---------:|:---:|:---:|
+    | Auth / SAML       | ⚠️ Keycloak stub | ✅ Keycloak local | ✅ Keycloak UAT | ✅ Enterprise IdP |
+    | SMS Gateway       | ⚠️ stub-server | ⚠️ stub-server | ⚠️ stub-server / ❌ | ✅ Real Gateway + billing |
+    | Payment / Finance | ⚠️ stub-server | ⚠️ stub-server | ⚠️ partial | ✅ Real + reconciliation |
+    | Background Jobs   | ✅ in-process | ✅ in-process | ✅ | ✅ |
+    | File Storage      | ✅ local | ✅ local | ✅ blob | ✅ blob |
+
+    Legend:
+    ✅ Full verification possible
+    ⚠️ Flow passes but through stub (real-world dimensions NOT verified)
+    ❌ Cannot test in this environment
+
+    ### Dimensions NOT verifiable in UAT (must defer to PRD smoke)
+    - SMS: Billing correctness, carrier delivery confirmation, DR reporting
+    - Payment: Real debit/credit, bank reconciliation, card validation
+
+  when_to_update: "Update matrix when adding any new external service dependency"
+
+# ─────────────────────────────────────────────────────────
+# CI Gate Mapping
+# ─────────────────────────────────────────────────────────
+ci_gate_mapping:
+  rule: "Map environments to CI/CD stages; document which gate must pass before each deployment stage"
+
+  pattern: |
+    # .github/workflows/ci.yml or .gitlab-ci.yml
+
+    e2e-smoke-gate:       # Must pass → any deployment
+      runs-on: ubuntu-latest
+      script: scripts/run-tests-local.sh --grep smoke
+
+    e2e-uat-gate:         # Must pass → PRD deployment
+      environment: uat
+      script: scripts/run-tests-uat.sh
+      only: [tags, release-branches]
+
+    e2e-prd-smoke:        # Must pass → mark release as stable
+      environment: prd
+      script: scripts/run-tests-prd-smoke.sh
+      only: [tags]
+
+  gate_requirements:
+    before_staging_deploy: ["unit tests", "integration tests", "e2e-smoke-gate"]
+    before_uat_deploy:     ["all staging gates", "e2e-uat-gate (if UAT environment available)"]
+    before_prd_deploy:     ["e2e-uat-gate", "sign-off from capability matrix review"]
+    after_prd_deploy:      ["e2e-prd-smoke within 10 min of deploy"]
+
+# ─────────────────────────────────────────────────────────
+# Credential Handling
+# ─────────────────────────────────────────────────────────
+credential_handling:
+  rule: "Separate what goes in git from what stays gitignored"
+
+  commit_to_git:
+    - "Base URLs per environment (non-secret, team needs to share)"
+    - "Test usernames for non-PRD environments"
+    - "Feature flags and test configuration"
+    - "Self-check scripts (no credentials embedded)"
+
+  gitignore:
+    - "Passwords and secrets"
+    - "API keys and tokens"
+    - ".env.test.local (personal overrides)"
+
+  ci_secrets: "Pass PRD test passwords via CI secret variables (GitHub Secrets / GitLab CI Variables)"
+
+  example_gitignore: |
+    # Test credentials
+    .env.test.local
+    tests/fixtures/auth-secrets.json
+    # Base URLs and non-secrets are committed; see playwright.config.ts
+
+# ─────────────────────────────────────────────────────────
+# Rules
+# ─────────────────────────────────────────────────────────
+rules:
+  - id: base-url-in-config
+    trigger: setting up E2E tests for a project with multiple environments
+    instruction: >
+      Define all environment BASE_URLs in the test framework config (playwright.config.ts /
+      cypress.config.ts) as named projects. Do not rely on .env for BASE_URL.
+    priority: required
+
+  - id: one-runner-per-env
+    trigger: adding a new deployment target
+    instruction: >
+      Create scripts/run-tests-<env>.(ps1|sh) with self-checking prerequisite steps.
+      The script must verify all required services before invoking the test runner.
+    priority: required
+
+  - id: capability-matrix-required
+    trigger: feature has external service dependencies (SMS, payment, IdP, file storage)
+    instruction: >
+      Create or update the environment capability matrix in docs/testing/.
+      Clearly mark ✅/⚠️/❌ for each service × environment combination.
+      List dimensions NOT verifiable in UAT; mark these as "PRD-only smoke" items.
+    priority: required
+
+  - id: ci-gate-mapping
+    trigger: defining CI/CD pipeline stages
+    instruction: >
+      Map each CI gate to the environments it must pass.
+      E2E gate must specify which environment it targets.
+    priority: required
+
+# ─────────────────────────────────────────────────────────
+# Relationship to Other Standards
+# ─────────────────────────────────────────────────────────
+related_standards:
+  - id: deployment-standards
+    relationship: "Extends — adds environment dimension to CI gates and deployment readiness"
+  - id: test-completeness-dimensions
+    relationship: "Complements — adds dimension 11: Environment Verifiability"
+  - id: verification-evidence
+    relationship: "Complements — evidence must specify which environment it was collected from"
+  - id: mock-boundary
+    relationship: "Complements — capability matrix references Level 2 stub server usage"

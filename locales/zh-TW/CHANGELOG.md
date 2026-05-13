@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.9.0
-translation_version: 5.9.0
+source_version: 5.10.0
+translation_version: 5.10.0
 last_synced: 2026-05-13
 status: current
 ---
@@ -16,6 +16,17 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.10.0] - 2026-05-13
+
+### 新增
+- **`multi-environment-e2e-testing`**（`ai/standards/multi-environment-e2e-testing.ai.yaml`）：新增多部署目標 E2E 測試設定標準。核心原則：「執行指令即文件」。涵蓋：BASE_URL 內嵌於測試框架設定（不依賴 .env）；各環境含自我檢查前置條件的 runner 腳本；環境能力矩陣 commit 至 repo；CI Gate 映射；憑證處理規則。關閉 UDS Issue #95。（XSPEC-204）
+
+### 修改
+- **`mock-boundary`**（v1.0.0 → v1.1.0）：新增 Level 1 / Level 2 mock 層次區分。Level 1 = 程式碼級 mock，受 STUB 標記規則管制。Level 2 = 基礎設施級 stub server（WireMock、MockSoap），受環境分層規則管制，**不受** STUB 部署封鎖規則管轄。新增 `external_dependency_testability_matrix` 模板（✅/⚠️/❌ 各服務 × 環境）。新增規則：`level-2-stub-server-rules`、`no-stub-server-in-prd`。關閉 UDS Issue #94 盲點二。（XSPEC-204）
+- **`deployment-standards`**（v1.0.0 → v1.1.0）：新增 `environment_stratification_matrix` 區塊——有外部依賴的專案必須在測試計畫階段建立此矩陣；模板包含 10 大流程 × 三層環境對照表。新增 `stub_server_cicd_rules` 區塊——選項 A（sidecar 部署）/ 選項 B（推遲至 PRD Smoke）；production artifact 排除規則；PRD 禁止規則；禁止狀態定義。關閉 UDS Issue #94 盲點一與盲點三。（XSPEC-204）
+- **`verification-evidence`**（v1.0.0 → v1.1.0）：新增 Iron Law（環境維度）：有外部服務依賴的 AC 驗收證據必須標明 `environment_layer`。在 evidence format 新增 `environment_layer` 欄位（有外部服務依賴的功能為必填）。新增規則 VE-005、VE-006。（XSPEC-204）
+- **`test-completeness-dimensions`**（v1.2.0 → v1.3.0）：新增第 11 維度：**環境可驗證性（Environment Verifiability）**——有外部服務依賴的 AC 須標明最低可驗證環境層次（local/UAT/PRD），追蹤 PRD-only 項目，要求 smoke 測試計畫。更新功能類型對照：外部整合 → [1,3,7,11]；新增類型「外部依賴工作流程」→ [1,3,4,5,9,10,11]。更新 use-checklist 規則。（XSPEC-204）
 
 ## [5.9.0] - 2026-05-13
 
