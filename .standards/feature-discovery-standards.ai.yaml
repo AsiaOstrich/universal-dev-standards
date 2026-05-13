@@ -1,0 +1,459 @@
+# Feature Discovery Standards - AI Optimized
+# Source: core/feature-discovery-standards.md
+
+id: feature-discovery-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-05-13"
+  source: core/feature-discovery-standards.md
+  description: Language-agnostic methodology for exhaustive feature discovery in legacy systems; defines Deterministic-First principle, Software Form Taxonomy, five static foundations, dynamic/human observation protocols, and cross-layer validation matrix
+  pipeline_position: "Discovery → feature-manifest-standard → behavior-snapshot"
+  references:
+    - "XSPEC-202: Feature Discovery Standards"
+    - "XSPEC-199/200/201: Migration completeness protocol suite"
+
+# === CORE PRINCIPLE ===
+core_principle:
+  name: Deterministic-First
+  statement: |
+    AI cannot tell you what it doesn't know it doesn't know.
+    RAG solves "find details about a known feature."
+    It does NOT solve "discover that this feature exists."
+    Exhaustive feature discovery requires deterministic tools (grep/AST/log/schema) — not AI inference.
+  blocking_rule: |
+    If deterministic extraction results are absent when entering Discovery Phase,
+    AI MUST output: [BLOCKED] Missing deterministic extraction artifacts.
+    Run extraction tools first before AI analysis.
+  rag_prohibition:
+    phase: Discovery Phase
+    rule: AI is PROHIBITED from generating a feature list through inference or RAG retrieval alone
+    rationale: AI will not report what it doesn't know it missed — only deterministic tools produce exhaustive lists
+    ai_role_in_discovery:
+      - Classify extracted items into feature categories
+      - Assign confidence scores to candidates
+      - Fill business-purpose descriptions for confirmed entries
+      - NOT generate the initial feature list
+
+# === SOFTWARE FORM TAXONOMY ===
+software_form_taxonomy:
+  description: Identify the software form before choosing extraction strategy. If ambiguous, check detection_signals or ask the user.
+  forms:
+    web:
+      entry_points:
+        - Route definitions (routes files, controllers)
+        - HTTP method handlers (GET/POST/PUT/PATCH/DELETE)
+        - Middleware registrations
+      detection_signals:
+        - routes/ or app/Http/ directory
+        - composer.json (PHP) / package.json with express/fastify/hono (Node) / requirements.txt with django/flask/fastapi (Python)
+        - controllers/ or handlers/ directory
+      extraction_tools:
+        - "grep routes for route definitions (framework-specific)"
+        - "DB schema extraction (SHOW TABLES / INFORMATION_SCHEMA / schema.prisma)"
+        - "access log analysis: awk '{print $7}' access.log | sort -u"
+        - "grep form action and AJAX calls in view templates"
+        - "grep for email/notification sending patterns"
+
+    cli:
+      entry_points:
+        - main() function and equivalents
+        - Argument parser registrations (subcommands, flags, options)
+        - Shell completion definitions
+      detection_signals:
+        - "argparse / click / cobra / clap / typer import"
+        - cmd/ or commands/ directory
+        - No web server bind/listen calls
+      extraction_tools:
+        - "grep -rE 'ArgumentParser|getopt|click\\.command|cobra\\.Command|clap::App|typer\\.Typer' ."
+        - "Run with --help and list all subcommands recursively"
+        - "find . -name '*_complete*' -o -name '*.completion.sh' (shell completion files)"
+        - "grep subcommand registration patterns"
+
+    gui:
+      entry_points:
+        - Menu item handlers
+        - Button/widget event listeners
+        - UI definition files (.ui, .fxml, .qml, .xib, .storyboard)
+      detection_signals:
+        - ".ui / .qrc / .fxml / .glade / .qml / .xib / .storyboard files"
+        - "QMainWindow / JFrame / NSViewController / Activity / Fragment subclasses"
+        - "addEventListener / connect(SIGNAL) / @IBAction / Slot annotation"
+      extraction_tools:
+        - "find . -name '*.ui' -o -name '*.fxml' -o -name '*.glade' -o -name '*.qml'"
+        - "grep -rE 'addEventListener|Slot\\(|@IBAction|on_click|connect\\(SIGNAL'"
+        - "Extract menu items from UI definition XML files"
+        - "grep keyboard shortcut constant definitions"
+
+    daemon:
+      entry_points:
+        - main() with event loop
+        - Signal handlers (SIGTERM, SIGINT, SIGUSR1, SIGUSR2, SIGHUP)
+        - Socket bind/listen registrations
+        - Configuration option definitions
+      detection_signals:
+        - systemd .service unit file
+        - "signal() / sigaction() calls"
+        - "bind() / listen() socket calls"
+        - "No UI framework imports"
+      extraction_tools:
+        - "grep -rE 'signal\\(|SIGTERM|SIGUSR[12]|SIGHUP' ."
+        - "netstat -tlnp (if process is running)"
+        - "Parse config file schema — each option = one configurable behavior"
+        - "find /etc/systemd -name '*.service' 2>/dev/null"
+
+    library:
+      entry_points:
+        - Public API surface (exported symbols)
+        - Header files (C/C++)
+        - index.d.ts / __init__.py / index.js exports
+      detection_signals:
+        - No main() entry point
+        - package.json with 'main' or 'exports' fields
+        - Header files in include/ or src/ with public API markers
+        - "setup.py / pyproject.toml without console_scripts entry point"
+      extraction_tools:
+        - "cat index.d.ts or src/__init__.py or include/*.h"
+        - "grep -rE '^(public|export|__all__)' ."
+        - "nm <binary> | grep ' T ' for exported symbols"
+        - "Analyze existing test files — tests ARE the API specification"
+
+    mobile:
+      entry_points:
+        - Activity / Fragment (Android)
+        - UIViewController / SwiftUI View (iOS)
+        - Intent filters and deep link handlers
+        - Push notification handlers
+      detection_signals:
+        - AndroidManifest.xml
+        - Info.plist
+        - "extends Activity / AppCompatActivity"
+        - "implements UIApplicationDelegate"
+      extraction_tools:
+        - "grep android:name in AndroidManifest.xml for all Activities and Services"
+        - "grep CFBundleURLTypes in Info.plist for deep link schemes"
+        - "find . -name '*.storyboard' -o -name '*.xib'"
+        - "grep -rE 'onReceive|BroadcastReceiver|UNUserNotification|didReceiveRemoteNotification'"
+
+    embedded:
+      entry_points:
+        - Interrupt handlers (ISR)
+        - Main control loop (usually infinite)
+        - Communication protocol parsers (UART/SPI/I2C/CAN/USB)
+        - Watchdog / timer handlers
+      detection_signals:
+        - "#include <avr/interrupt.h> or equivalent"
+        - "ISR() macro usage"
+        - "HAL_ prefix functions (STM32 HAL)"
+        - "No OS process model"
+      extraction_tools:
+        - "grep -rE 'ISR\\(|__interrupt|INTERRUPT_HANDLER|_irq_handler'"
+        - "grep -rE 'HAL_UART|SPI_Transmit|I2C_Master|CAN_Transmit'"
+        - "grep -rE 'WATCHDOG|WDT_|tim_irq'"
+        - "Parse linker script (.ld) for memory map and section layout"
+
+# === FIVE STATIC FOUNDATIONS ===
+static_foundations:
+  description: |
+    Apply to ALL software forms when git history, access logs, and runtime execution are unavailable.
+    Execute in order 1→5; each foundation produces one candidate list.
+    ANY item appearing in ANY foundation = confirmed feature candidate.
+    Merge results into the cross-layer validation matrix before writing feature-manifest.yaml.
+
+  foundations:
+    - name: Entry Points
+      order: 1
+      description: All locations where program execution begins — the most reliable foundation; directly maps to features
+      what_to_find:
+        - main() functions and framework equivalents
+        - Route/handler registrations (web)
+        - Event listener registrations
+        - Public API surface (library)
+      output: "Entry point inventory (file:line, handler name, interaction type)"
+
+    - name: Call Graph
+      order: 2
+      description: From all entry points, trace all reachable functions — reveals hidden features in deeply nested logic and utility wrappers
+      tools:
+        - "C/C++: cflow src/main.c; doxygen + graphviz"
+        - "Python: pyan3 *.py --html > callgraph.html"
+        - "JavaScript/TypeScript: madge --image graph.svg src/"
+        - "Java: jdeps -v myapp.jar"
+        - "Go: go tool callgraph ./..."
+      dead_code_note: "Functions unreachable from any entry point = dead code OR dynamic dispatch — flag for human review, do not silently exclude"
+      output: "Call graph (entry points → reachable functions); dead code candidate list"
+
+    - name: String Mining
+      order: 3
+      description: UI strings, error messages, and log calls reveal features and boundary conditions that are hard to find in code structure alone
+      extraction_commands:
+        - "grep -rhoE '\"[^\"{10,}\"' . | sort -u > strings.txt  # strings ≥10 chars"
+        - "grep -rE 'throw|raise|Error|Exception' . | grep -oE '\"[^\"]+\"'  # error messages"
+        - "grep -rE 'log\\.|logger\\.|console\\.log|printf\\(|print\\(' .  # log calls"
+        - "grep -rE 'Button|Label|Menu|Dialog|MessageBox|Toast' .  # UI element strings"
+      error_message_value: "Each unique error message = a boundary condition = a test scenario. Feed string corpus to AI for feature classification."
+      output: "String corpus (UI labels, error messages, log entries) — feed to AI for classification after collection"
+
+    - name: Resource Files
+      order: 4
+      description: Internationalization files, icons, config schemas, and templates are fingerprints of features — often more complete than code analysis
+      what_to_find:
+        - "i18n/l10n files (*.po, *.json locale, messages.properties, *.resx, *.strings)"
+        - "Icon files (each icon typically represents one feature or action)"
+        - "Config schema (each option = one configurable behavior = one feature dimension)"
+        - "Report/document templates (*.jrxml, *.tpl, *.template, *.docx template)"
+        - "Installation/deployment scripts (Makefile, *.sh, Dockerfile, *.spec)"
+      i18n_value: "i18n file keys are often the most complete inventory of all UI elements — each key = one visible feature element"
+      output: "Resource inventory (i18n keys, icon names, config options, template names)"
+
+    - name: External Interfaces
+      order: 5
+      description: All ways the software interacts with the outside world — frequently missed because they appear as utility code rather than features
+      what_to_find:
+        - "File I/O: fopen, open(), File., fs., ifstream, ofstream, Path.read_text"
+        - "Network: http://, https://, socket, bind, connect, tcp, udp, WebSocket"
+        - "Process execution: exec(), system(), Process., subprocess, os.system"
+        - "Library loading: LoadLibrary, dlopen, importlib.import_module"
+        - "Environment variables: getenv, os.environ, ENV[], process.env"
+        - "OS registry/config: RegOpenKey (Windows), UserDefaults (macOS)"
+      extraction_commands:
+        - "grep -rE 'fopen|open\\(|File\\.|fs\\.' . | grep -v test"
+        - "grep -rE 'http://|https://|socket\\(' . | grep -v test"
+        - "grep -rE 'exec\\(|system\\(|subprocess|Process\\.' . | grep -v test"
+        - "grep -rE 'getenv|os\\.environ|process\\.env' ."
+      output: "External interface inventory (file paths accessed, URLs called, env vars read, processes spawned)"
+
+# === DYNAMIC OBSERVATION PROTOCOL ===
+dynamic_observation:
+  description: Use when the legacy system can be executed in any environment — even partially. Dynamic observation produces more complete data than static analysis.
+  value: "Running the system once with tracing enabled produces a definitive reachability map that static analysis cannot match."
+
+  prerequisites:
+    - Legacy system can be launched (even in a degraded/dev mode)
+    - A person familiar with the system is available to demonstrate realistic usage
+
+  platforms:
+    linux:
+      system_calls: "strace -f -o trace.log ./oldapp  # records every syscall"
+      library_calls: "ltrace -f -o ltrace.log ./oldapp  # records every library call"
+      open_files: "lsof -p <pid>  # shows all open files and sockets"
+      network: "tcpdump -i any -w net.pcap  # captures all network traffic"
+      file_access: "inotifywait -mr /path/to/watch  # caution: very noisy on large directories"
+
+    macos:
+      file_system: "fswatch /path/to/app  # file system events"
+      dtrace: "sudo dtrace -n 'syscall::open*:entry { printf(\"%s\\n\", copyinstr(arg0)); }'"
+      network: "tcpdump -i any -w net.pcap"
+
+    windows:
+      process: "Process Monitor (Sysinternals ProcMon.exe)  # file/registry/network/process events"
+      network: "WireShark  # full network capture"
+      registry: "Process Monitor with Registry filter enabled"
+
+    universal_coverage:
+      tools:
+        - "C/C++: gcov (compile with -fprofile-arcs -ftest-coverage) + lcov for HTML report"
+        - "Python: coverage.py run ./script.py && coverage.py report"
+        - "Java: JaCoCo (Gradle/Maven plugin)"
+        - "JavaScript/TypeScript: nyc or c8 wrapping test runner"
+        - "Go: go test -coverprofile=coverage.out && go tool cover -html=coverage.out"
+      value: "Code coverage with REAL usage scenarios = definitive map of reachable code"
+
+  recommended_workflow:
+    - "Step 1: Have a domain expert demonstrate a complete typical workday"
+    - "Step 2: Run strace/coverage in parallel during the demonstration"
+    - "Step 3: Replay the demonstration 3 times for edge cases"
+    - "Step 4: Analyze trace for system calls, files accessed, URLs called"
+
+  output: "Execution trace (system calls, file accesses, network connections, code coverage map)"
+
+# === HUMAN OBSERVATION PROTOCOL ===
+human_observation:
+  description: |
+    Last resort for features that deterministic tools and dynamic tracing cannot find.
+    Required when: system cannot run, domain experts are unavailable for tracing, or features are triggered by rare business events.
+
+  techniques:
+    - name: User Demo Recording
+      steps:
+        - "Find 1-2 heavy users of the legacy system"
+        - "Ask them to screen-record (with audio) a full typical workday"
+        - "Review recording for any interaction not captured in other foundations"
+        - "Pay special attention to keyboard shortcuts, context menus, and 'power user' workflows"
+      value: "Reveals habitual workflows and undocumented shortcuts invisible to code analysis"
+
+    - name: Support Ticket Mining
+      steps:
+        - "Search last 6-12 months of support tickets / Jira / GitHub issues"
+        - "Each recurring issue type = a boundary condition or edge case feature"
+        - "Tickets requesting 'restore old behavior' = high-risk migration targets"
+        - "Group by frequency — top 20 most-reported issues likely represent missing features"
+
+    - name: Internal Knowledge Mining
+      sources:
+        - "Internal Wiki / Confluence pages about the system"
+        - "Slack/Teams message history filtered by system name"
+        - "Email threads about system behavior or change requests"
+        - "Old release notes (even informal changelog.txt)"
+
+  confidence_assignment:
+    human_observed_unverified:
+      value: 0.7
+      meaning: "Feature confirmed by user observation but not yet located in source code"
+      action: "Add to feature-manifest with confidence: 0.7; find source code before AC generation"
+    human_observed_code_located:
+      value: 1.0
+      meaning: "Feature confirmed by user AND code verified"
+      action: "Upgrade to 1.0 after locating the corresponding code"
+
+  output: "Human observation log (feature name, observer, date, description, confidence)"
+
+# === CROSS-LAYER VALIDATION MATRIX ===
+cross_layer_matrix:
+  description: |
+    After running all applicable foundations, merge results into this matrix.
+    ANY item with at least one checkmark = confirmed feature candidate → include in feature-manifest.
+    Items with zero checkmarks across all applicable layers = dead code candidates → flag for human review, do not silently exclude.
+
+  columns:
+    - id: entry_point
+      label: "Entry Point"
+      source: "Foundation 1: Entry Points"
+    - id: db_or_schema
+      label: "DB/Schema"
+      source: "Foundation 1 (web): DB schema; or data file for other forms"
+    - id: log_or_dynamic
+      label: "Log/Dynamic"
+      source: "Access log (web) or dynamic observation trace"
+    - id: ui_or_resource
+      label: "UI/Resource"
+      source: "Foundation 3: String Mining + Foundation 4: Resource Files"
+    - id: notification_or_external
+      label: "Notification/External"
+      source: "Foundation 5: External Interfaces"
+    - id: git_or_history
+      label: "Git/History"
+      source: "git log --grep / commit history (if available)"
+    - id: human
+      label: "Human"
+      source: "Human observation protocol"
+
+  confidence_formula: |
+    confidence = (columns_with_checkmark) / (columns_applicable_to_this_form)
+    Minimum to include in feature-manifest: ≥ 1 checkmark in any column
+    Confidence < 0.5: flag for human review before AC generation
+    Confidence < 0.3: require human confirmation before including in manifest
+
+  example: |
+    | Feature Candidate | Entry Point | DB/Schema     | Log/Dynamic | UI/Resource | Notification/Ext | Git/History | Human | Confidence |
+    |-------------------|-------------|---------------|-------------|-------------|-----------------|-------------|-------|------------|
+    | UserLogin         | ✅ Auth.php  | ✅ users tbl  | ✅ POST /login | ✅ login.html | ✅ JWT email  | ✅ 2019-03  | ✅    | 1.0        |
+    | MonthlyReconcile  | ❌           | ✅ invoices   | ✅ log entry   | ❌           | ✅ email tpl  | ✅ 2020-11  | ✅    | 0.71       |
+    | AdminUserDelete   | ✅ Admin.php | ✅ users tbl  | ❌            | ✅ admin.html | ❌           | ✅ 2021-06  | ❌    | 0.57       |
+
+  merge_rule: "Use feature-manifest FM-NNN schema to represent each confirmed row; confidence from this matrix becomes the manifest confidence field"
+
+# === RULES FOR AI ===
+rules:
+  - id: deterministic-first
+    trigger: starting feature discovery for any legacy system
+    instruction: |
+      REQUIRE deterministic extraction results before generating any feature list.
+      If no extraction artifacts exist, output:
+        [BLOCKED] Missing deterministic extraction artifacts.
+        Run the following tools for <detected_form>:
+        <list applicable tools from Software Form Taxonomy>
+      Do not proceed with feature list generation until artifacts are provided.
+    priority: required
+
+  - id: no-rag-for-discovery
+    trigger: feature discovery phase
+    instruction: |
+      Do NOT use RAG or long-context inference alone to generate the initial feature list.
+      RAG is permitted ONLY for filling in details (description, side_effects, confidence rationale)
+      of features already identified by deterministic extraction.
+    priority: required
+
+  - id: identify-form-first
+    trigger: starting feature discovery
+    instruction: |
+      Identify the software form (web/cli/gui/daemon/library/mobile/embedded) before selecting extraction strategy.
+      Use detection_signals from software_form_taxonomy to determine the form.
+      If ambiguous, ask the user: "This looks like [form] based on [signal]. Confirm or specify --form <type>."
+    priority: required
+
+  - id: apply-all-static-foundations
+    trigger: source-only analysis (no git, no log, no runtime)
+    instruction: |
+      Execute ALL five static foundations in order: entry_points → call_graph → string_mining → resource_files → external_interfaces.
+      Do not skip foundations even if earlier ones seem comprehensive — each foundation catches different categories of features.
+      Each foundation produces a candidate list. Merge ALL lists into the cross-layer matrix.
+    priority: required
+
+  - id: prefer-dynamic-observation
+    trigger: legacy system can be executed in any environment
+    instruction: |
+      When the system can run, prefer dynamic observation over static analysis.
+      Running with strace/coverage + domain expert demonstration produces a more complete feature map.
+      Static foundations are still required — dynamic observation complements, not replaces them.
+    priority: recommended
+
+  - id: human-observation-for-gaps
+    trigger: features cannot be confirmed through any tool-based foundation
+    instruction: |
+      When a feature candidate cannot be confirmed through any tool-based foundation,
+      escalate to human observation protocol.
+      Assign confidence: 0.7 for human-observed but code-unverified features.
+      Do not include confidence < 0.3 features in manifest without explicit human confirmation.
+    priority: required
+
+  - id: matrix-before-manifest
+    trigger: generating feature-manifest.yaml
+    instruction: |
+      Complete the cross-layer validation matrix before writing feature-manifest.yaml.
+      Only items with ≥1 checkmark in the matrix should become FM-NNN entries.
+      Zero-checkmark items are dead code candidates — list separately for human review.
+    priority: required
+
+  - id: dead-code-handling
+    trigger: call graph analysis reveals unreachable code
+    instruction: |
+      Functions unreachable from any entry point are dead code candidates.
+      Do NOT silently exclude them — list them in a separate section of the feature manifest as dead_code_candidates.
+      Dynamic dispatch (virtual functions, reflection) can make code appear unreachable in static analysis.
+      Require human confirmation before classifying anything as dead code.
+    priority: required
+
+# Quick Reference
+quick_reference:
+  software_forms:
+    columns: [Form, Key Entry Points, Primary Detection Signal, Fastest Extraction Tool]
+    rows:
+      - [web, Routes + Controllers, routes/ directory, "grep 'Route::' or framework equivalent"]
+      - [cli, main() + arg parser, argparse/click/cobra import, "run --help; grep arg parser"]
+      - [gui, Menu/Button handlers, .ui/.fxml/.xib files, "find . -name '*.ui'"]
+      - [daemon, main() + signal handlers, systemd .service file, "grep signal()/bind()"]
+      - [library, Public API exports, No main(); index.d.ts, "cat index.d.ts or __init__.py"]
+      - [mobile, Activity/ViewController, AndroidManifest.xml / Info.plist, "grep android:name"]
+      - [embedded, ISR + main loop, ISR() macro, "grep ISR\\("]
+
+  static_foundations_order:
+    columns: [Order, Foundation, What It Catches, Output]
+    rows:
+      - [1, Entry Points, "Direct feature invocation points", "Entry point inventory"]
+      - [2, Call Graph, "Hidden logic reachable from entry points", "Call graph + dead code candidates"]
+      - [3, String Mining, "UI features + boundary conditions", "String corpus for AI classification"]
+      - [4, Resource Files, "i18n keys (often most complete list), icons, config", "Resource inventory"]
+      - [5, External Interfaces, "File I/O, network, env vars, process calls", "External interface inventory"]
+
+  pipeline:
+    description: "Where this standard fits in the migration/refactoring pipeline"
+    flow: "feature-discovery-standards (FIND) → feature-manifest-standard (REPRESENT) → behavior-snapshot (VERIFY)"
+    gate_sequence: "Gate 0 (characterization) → Gate 1 (manifest exists) → Gate N (no not_implemented)"
+
+related_standards:
+  - feature-manifest-standard.ai.yaml
+  - behavior-snapshot.ai.yaml
+  - reverse-engineering-standards.ai.yaml
+  - anti-hallucination.ai.yaml
+  - acceptance-criteria-traceability.ai.yaml
+  - refactoring-standards.ai.yaml

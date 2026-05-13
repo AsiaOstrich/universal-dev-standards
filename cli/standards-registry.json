@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "5.8.0",
-  "lastUpdated": "2026-05-12",
+  "version": "5.9.0",
+  "lastUpdated": "2026-05-13",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
     "ai": {
@@ -1692,7 +1692,19 @@
       },
       "category": "reference",
       "skillName": null,
-      "description": "HTTP golden-file snapshot format for migration parity verification and refactoring characterization (Gate 0/1 protocol)"
+      "description": "Multi-modal golden-file snapshot format (HTTP/CLI/File/Event adapters) for migration parity verification and refactoring characterization (Gate 0/1 protocol)"
+    },
+    {
+      "id": "feature-discovery-standards",
+      "name": "Feature Discovery Standards",
+      "nameZh": "功能發現方法論標準",
+      "source": {
+        "human": "core/feature-discovery-standards.md",
+        "ai": "ai/standards/feature-discovery-standards.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Language-agnostic methodology for exhaustive feature discovery in legacy systems; Deterministic-First principle, Software Form Taxonomy (7 forms), five static foundations, dynamic/human observation protocols, cross-layer validation matrix"
     },
     {
       "id": "change-batching",
