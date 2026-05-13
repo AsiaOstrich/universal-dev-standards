@@ -771,7 +771,10 @@ export async function updateCommand(options) {
     allTrackedFiles.push(join('.standards', fileName));
   }
   for (const int of (manifest.integrations || [])) {
-    allTrackedFiles.push(int);
+    const filePath = getToolFilePath(int);
+    if (filePath) {
+      allTrackedFiles.push(filePath);
+    }
   }
 
   const missingFiles = allTrackedFiles.filter(f => !existsSync(join(projectPath, f)));

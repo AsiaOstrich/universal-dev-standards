@@ -1039,4 +1039,74 @@ describe('Update Command', () => {
       expect(output).toContain('.claude/skills/universal-dev-standards');
     });
   });
+
+  describe('BUG-FIX: integration tool names in manifest.integrations must not be treated as file paths', () => {
+    // Regression test for the bug where manifest.integrations entries like
+    // "claude-code" and "opencode" were pushed directly into allTrackedFiles,
+    // causing existsSync("claude-code") to return false and triggering a
+    // spurious "missing file" restore attempt with "無法判斷來源" error.
+    //
+    // Fixed in update.js: use getToolFilePath(int) to resolve to actual file path
+    // (e.g. "claude-code" → "CLAUDE.md") before pushing to allTrackedFiles.
+
+    it('should NOT report claude-code or opencode as missing files after update', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: ['claude-code', 'opencode'],
+        aiTools: ['claude-code', 'opencode'],
+        skills: { installed: false }
+      });
+
+      // All files exist (default mock), including CLAUDE.md resolved by getToolFilePath
+      mockExistsSync.mockReturnValue(true);
+      // yes: true so the command runs to completion and calls process.exit
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // restoreSingleFile should NOT have been called with "claude-code" or "opencode"
+      // as file paths — the fix converts these to actual paths via getToolFilePath
+      expect(restoreSingleFile).not.toHaveBeenCalledWith(
+        expect.stringContaining('claude-code'),
+        expect.anything(),
+        expect.anything()
+      );
+      expect(restoreSingleFile).not.toHaveBeenCalledWith(
+        expect.stringContaining('opencode'),
+        expect.anything(),
+        expect.anything()
+      );
+
+      // No "missing" warning should appear in output
+      const output = consoleLogs.join('\n');
+      expect(output).not.toContain('still missing');
+    });
+
+    it('should resolve integration tool name to CLAUDE.md via getToolFilePath — no spurious missing-file restore', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: ['claude-code'],
+        aiTools: ['claude-code'],
+        skills: { installed: false }
+      });
+
+      // CLAUDE.md (resolved by getToolFilePath) exists; raw string "claude-code" does not
+      mockExistsSync.mockImplementation((filePath) => {
+        if (typeof filePath === 'string' && /[/\\]claude-code$/.test(filePath)) {
+          return false; // raw "claude-code" path does not exist
+        }
+        return true; // CLAUDE.md and everything else exists
+      });
+
+      // yes: true so the command runs to completion
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // With fix: getToolFilePath("claude-code") → "CLAUDE.md" → existsSync → true → no restore
+      expect(restoreSingleFile).not.toHaveBeenCalled();
+    });
+  });
 });
