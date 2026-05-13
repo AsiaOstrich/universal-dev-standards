@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **`verification-evidence`** (v1.0.0 → v1.1.0): Added Iron Law (Environment): evidence must specify `environment_layer` for externally-dependent ACs. Added `environment_layer` field to evidence format (required for features with external service dependencies). Added rules VE-005, VE-006. (XSPEC-204)
 - **`test-completeness-dimensions`** (v1.2.0 → v1.3.0): Added Dimension 11: **Environment Verifiability** — for ACs with external service dependencies, document minimum verifiable environment layer (local/UAT/PRD), track PRD-only items, require smoke test plan. Updated feature type mapping: External Integration → [1,3,7,11]; new type External-Dependent Workflow → [1,3,4,5,9,10,11]. Updated use-checklist rule. (XSPEC-204)
 
+### Fixed
+- **`uds update` spurious "missing file" restore for integration tool names**: When `manifest.integrations` contained AI tool identifiers (`"claude-code"`, `"opencode"`), the update command pushed them directly into `allTrackedFiles` as file paths instead of resolving them via `getToolFilePath()`. This caused `existsSync("claude-code")` to return false, triggering a spurious "⚠ N file(s) still missing after update" warning and "✗ claude-code: 無法判斷來源" restore failures. Fix: resolve each entry via `getToolFilePath(int)` first; skip entries that don't map to a real path. Reproduced on `uds update` 5.7.2 → 5.8.0.
+
 ## [5.9.0] - 2026-05-13
 
 ### Added

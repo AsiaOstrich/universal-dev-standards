@@ -28,6 +28,9 @@ status: current
 - **`verification-evidence`**（v1.0.0 → v1.1.0）：新增 Iron Law（环境维度）：有外部服务依赖的 AC 验收证据必须标明 `environment_layer`。在 evidence format 新增 `environment_layer` 字段（有外部服务依赖的功能为必填）。新增规则 VE-005、VE-006。（XSPEC-204）
 - **`test-completeness-dimensions`**（v1.2.0 → v1.3.0）：新增第 11 维度：**环境可验证性（Environment Verifiability）**——有外部服务依赖的 AC 须标明最低可验证环境层次（local/UAT/PRD），追踪 PRD-only 项目，要求 smoke 测试计划。更新功能类型映射：外部集成 → [1,3,7,11]；新增类型"外部依赖工作流程"→ [1,3,4,5,9,10,11]。更新 use-checklist 规则。（XSPEC-204）
 
+### 修复
+- **`uds update` 集成工具名称误作文件路径的误报**：`manifest.integrations` 含有 `"claude-code"`、`"opencode"` 等工具标识符时，update 命令将其直接推入 `allTrackedFiles` 作为文件路径，导致 `existsSync("claude-code")` 返回 false，触发假的「⚠ N 个文件缺失」警告和「✗ claude-code: 无法判断来源」还原失败。修复方式：先用 `getToolFilePath(int)` 转换为真实路径（如 `"CLAUDE.md"`）再推入列表；无法映射的条目跳过。问题出现于 `uds update` 5.7.2 → 5.8.0。
+
 ## [5.9.0] - 2026-05-13
 
 ### 新增
