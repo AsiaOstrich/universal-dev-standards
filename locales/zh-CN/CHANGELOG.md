@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.8.0
-translation_version: 5.8.0
-last_synced: 2026-05-12
+source_version: 5.9.0
+translation_version: 5.9.0
+last_synced: 2026-05-13
 status: current
 ---
 
@@ -16,6 +16,17 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.9.0] - 2026-05-13
+
+### 新增
+- **`feature-discovery-standards`**（`ai/standards/feature-discovery-standards.ai.yaml`、`core/feature-discovery-standards.md`）：新增标准，定义遗留系统功能穷举发现的语言无关方法论。确立 **Deterministic-First 原则**（AI 在 Discovery Phase 禁止通过推断生成功能清单）。定义七种软件形式分类法（web/cli/gui/daemon/library/mobile/embedded），各含检测信号与提取工具。定义五个静态基础（入口点→调用图→字符串挖掘→资源文件→外部接口）、动态观察协议（三平台）、人工观察协议（confidence: 0.7 规则）与多层交叉比对矩阵模板。流水线位置：Discovery → feature-manifest → behavior-snapshot。（XSPEC-202）
+- **`ai/language-packs/language-pack-php-to-csharp.ai.yaml`**：UDS 首个语言包，提供 PHP→C#（ASP.NET Core）迁移风险标签，含 7 个标签（SESSION_HANDLING、ORM_DIFFERENCES、TIMEZONE_HANDLING、FILE_UPLOAD_PATH、REGEX_DIFFERENCES、ARRAY_FUNCTIONS、EXCEPTION_HIERARCHY）各附详细说明。（XSPEC-203）
+- **`ai/language-packs/README.md`**：语言包命名规范、使用指南与贡献说明。（XSPEC-203）
+
+### 变更
+- **`feature-manifest-standard`**（v1.0.0 → v1.1.0）：重构 `migration_risks` 为语言无关架构。移除硬编的 `php_to_csharp` 区块（已移入 `ai/language-packs/`）。新增 `language_packs` Extension Point（`extension_point: true`）。新增三个通用风险标签：CONCURRENCY_MODEL、PACKAGE_ECOSYSTEM、TYPE_SYSTEM。（XSPEC-203）
+- **`behavior-snapshot`**（v1.0.0 → v1.1.0）：从纯 HTTP 扩充为多模态格式。新增 `adapter` 字段（默认 `http`，向下兼容）。新增 `adapters` 区段，含 4 种 schema：`http` / `cli` / `file` / `event`。新增 `adapter-selection` 与 `backward-compatibility` 规则。现有不含 `adapter` 字段的 HTTP 快照无需修改。（XSPEC-203）
 
 ## [5.8.0] - 2026-05-12
 

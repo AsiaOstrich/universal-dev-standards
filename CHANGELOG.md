@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.9.0] - 2026-05-13
+
+### Added
+- **`feature-discovery-standards`** (`ai/standards/feature-discovery-standards.ai.yaml`, `core/feature-discovery-standards.md`): New standard defining language-agnostic methodology for exhaustive feature discovery in legacy systems. Establishes the **Deterministic-First principle** (AI prohibited from generating feature lists through inference alone in Discovery Phase). Defines Software Form Taxonomy for 7 forms (web/cli/gui/daemon/library/mobile/embedded) with detection signals and extraction tools. Defines Five Static Foundations (entry points → call graph → string mining → resource files → external interfaces), Dynamic Observation Protocol (Linux/macOS/Windows), Human Observation Protocol (confidence: 0.7 rule), and Cross-Layer Validation Matrix template. Pipeline position: Discovery → feature-manifest → behavior-snapshot. (XSPEC-202)
+- **`ai/language-packs/language-pack-php-to-csharp.ai.yaml`**: First UDS Language Pack for PHP→C# (ASP.NET Core) migration risks. Contains 7 risk labels (SESSION_HANDLING, ORM_DIFFERENCES, TIMEZONE_HANDLING, FILE_UPLOAD_PATH, REGEX_DIFFERENCES, ARRAY_FUNCTIONS, EXCEPTION_HIERARCHY) with detailed descriptions. (XSPEC-203)
+- **`ai/language-packs/README.md`**: Language pack naming convention, usage guide, and contributing instructions. (XSPEC-203)
+
+### Changed
+- **`feature-manifest-standard`** (v1.0.0 → v1.1.0): Refactored `migration_risks` to language-agnostic architecture. Removed `php_to_csharp` hardcoded block (migrated to `ai/language-packs/`). Added `language_packs` Extension Point (`extension_point: true`). Added 3 new generic risk labels: CONCURRENCY_MODEL, PACKAGE_ECOSYSTEM, TYPE_SYSTEM. (XSPEC-203)
+- **`behavior-snapshot`** (v1.0.0 → v1.1.0): Extended from HTTP-only to multi-modal. Added `adapter` field (default: `http`, backward compatible). Added `adapters` section with 4 concrete schemas: `http` / `cli` / `file` / `event`. Added `adapter-selection` and `backward-compatibility` rules. Existing HTTP snapshots without `adapter` field remain valid. (XSPEC-203)
+
 ## [5.8.0] - 2026-05-12
 
 ### Added
