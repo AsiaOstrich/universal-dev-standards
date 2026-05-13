@@ -55,6 +55,7 @@ New request? | 新需求？
 ├─ New feature/capability? → Create proposal | 建立提案
 ├─ Breaking change? → Create proposal | 建立提案
 ├─ Architecture change? → Create proposal | 建立提案
+├─ Agent/role definition (spans multiple features)? → Use spec-type: agent | 使用 Agent SPEC template
 └─ Unclear? → Create proposal (safer) | 建立提案（較安全）
 ```
 
@@ -124,6 +125,46 @@ The system SHALL [behavior description].
 ## Test Plan
 - [ ] Unit tests for [component]
 - [ ] Integration tests for [flow]
+```
+
+### Agent SPEC Structure | Agent 規格結構（`spec-type: agent`）
+
+```markdown
+# [SPEC-ID] Agent: [Role Name]
+<!-- spec-type: agent -->
+<!-- agent-id auto-referenced by feature SPECs -->
+
+## Role Definition
+- **Role**: [Agent Name]
+- **Responsibility**: [One sentence]
+- **Autonomy Level**: L[1-5] (per DEC-065)
+
+## Capability Scope
+**Owns:**
+- [Capability 1]
+- [Capability 2]
+
+**Does NOT own:**
+- [Explicit exclusion]
+
+## Interface Contract
+### Input
+| Message Type | Required Fields | Optional Fields |
+|---|---|---|
+| [Type] | [fields] | [fields] |
+
+### Output
+| Artifact Type | Success Condition | Failure Condition |
+|---|---|---|
+| [Type] | [condition] | [condition] |
+
+## Agent Interactions
+- **Upstream**: [Who calls this agent]
+- **Downstream**: [Who this agent calls]
+- **Parallel**: [Agents working alongside]
+
+## Related Feature SPECs
+- [SPEC-NNN] — [This agent's role in that spec]
 ```
 
 ### Scenario Formatting Rules | 場景格式規則

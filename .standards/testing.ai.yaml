@@ -12,8 +12,8 @@ standard:
     - "Use meaningful test names"
 
   meta:
-    version: "2.0.0"
-    updated: "2026-02-04"
+    version: "2.1.0"
+    updated: "2026-05-13"
     source: core/testing-standards.md
     guide: skills/testing-guide/testing-theory.md
     description: Testing pyramid and recommended coverage ratios with framework options
@@ -112,6 +112,36 @@ standard:
       trigger: using mocks/stubs
       instruction: Use test doubles sparingly; prefer real implementations when fast enough
       priority: recommended
+    - id: schema-parity-ci
+      trigger: migration project touching entity definitions or migration scripts
+      instruction: Include at least one automated schema parity test that compares source and target schema metadata programmatically. Run in CI on every PR that touches entity definitions or migration scripts.
+      priority: required
+
+migration_testing:
+  schema_parity:
+    description: For any project migrating a database schema, include automated schema parity verification rather than relying on manually maintained documents.
+    pattern:
+      step_1: Query source schema metadata at test time (e.g., SQLite PRAGMA table_info, MySQL information_schema)
+      step_2: Query target schema metadata at test time (e.g., EF Core DbContext.Model.GetProperties(), direct information_schema query)
+      step_3: Assert every expected source column exists in target with compatible type, OR is documented as an intentional change (intentional_removals list)
+    ci_gate:
+      trigger: PR touches entity definitions or migration scripts
+      enforcement: required (blocking)
+    catches:
+      - Column renames not propagated to mapper
+      - Type changes (e.g. TEXT → NVARCHAR(50)) that silently truncate data
+      - Source columns added but never mapped to target
+      - Target columns removed but still referenced in source code
+    reference_implementation:
+      language: csharp
+      framework: EF Core vs SQLite
+      pattern: |
+        var properties = dbContext.Model.FindEntityType(typeof(Entity))!
+            .GetProperties().Select(p => p.GetColumnName()).ToHashSet();
+        var sourceColumns = conn.Query<string>(
+            "SELECT name FROM pragma_table_info('tablename')").ToHashSet();
+        var unmapped = sourceColumns.Except(knownRemovals).Except(properties);
+        Assert.Empty(unmapped);
 
 physical_spec:
   type: custom_script

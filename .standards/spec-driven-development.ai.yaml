@@ -3,8 +3,8 @@
 
 id: spec-driven-development
 meta:
-  version: "1.2.0"
-  updated: "2025-12-30"
+  version: "1.3.0"
+  updated: "2026-05-13"
   source: methodologies/guides/sdd-guide.md
   description: Spec-Driven Development workflow where documentation precedes implementation
 
@@ -52,6 +52,63 @@ principles:
     exceptions:
       - Critical hotfixes (restore service immediately, document later)
       - Trivial changes (typos, comments, formatting)
+
+spec_types:
+  description: SDD supports multiple granularity levels via spec-type field
+  default: feature
+  values:
+    - type: feature
+      description: Describes a single functional change (default, backward compatible)
+      granularity: function/feature level
+      template: standard SDD spec template
+
+    - type: agent
+      description: Describes an Agent role definition spanning multiple features
+      granularity: role level
+      template: agent_spec_template
+      required_sections:
+        - role_definition
+        - capability_scope
+        - interface_contract
+        - agent_interactions
+        - related_feature_specs
+
+    - type: infrastructure
+      description: Describes cross-cutting concerns or infrastructure changes
+      granularity: system level
+      template: standard SDD spec template with infrastructure focus
+
+  agent_spec_template:
+    sections:
+      - name: Role Definition
+        fields: [role_name, role_responsibility, autonomy_level]
+        autonomy_levels: "L1-L5 (per DEC-065)"
+
+      - name: Capability Scope
+        fields: [capabilities_list, out_of_scope]
+
+      - name: Interface Contract
+        subsections:
+          - name: Input
+            fields: [accepted_message_types, required_fields, optional_fields]
+          - name: Output
+            fields: [artifact_types, success_exit_condition, failure_exit_condition]
+
+      - name: Agent Interactions
+        fields: [upstream_agents, downstream_agents, parallel_agents]
+
+      - name: Related Feature SPECs
+        description: List of feature SPECs this agent participates in
+        format: "- [SPEC-NNN] description of this agent's role in that spec"
+
+  traceability:
+    feature_to_agent:
+      field: agent-id
+      description: Optional field in feature SPEC header referencing the owning Agent SPEC
+      example: "agent-id: SPEC-090"
+    agent_to_features:
+      section: Related Feature SPECs
+      description: Agent SPEC lists all feature SPECs it participates in
 
 spec_template:
   sections:
@@ -139,6 +196,16 @@ rules:
   - id: archive-completed-specs
     trigger: spec implementation verified
     instruction: Archive spec with links to commits/PRs
+    priority: required
+
+  - id: spec-type-agent-template
+    trigger: creating spec for an Agent or role definition
+    instruction: Use spec-type agent and follow agent_spec_template with 5 required sections (Role Definition, Capability Scope, Interface Contract, Agent Interactions, Related Feature SPECs)
+    priority: required
+
+  - id: spec-type-backward-compat
+    trigger: reading any existing spec without spec-type field
+    instruction: Treat as spec-type feature (default). Existing specs require no migration.
     priority: required
 
 best_practices:

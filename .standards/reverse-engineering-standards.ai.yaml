@@ -3,8 +3,8 @@
 
 id: reverse-engineering
 meta:
-  version: "1.0.0"
-  updated: "2026-01-19"
+  version: "1.1.0"
+  updated: "2026-05-13"
   source: core/reverse-engineering-standards.md
   description: Standards for reverse engineering code into structured specifications
 
@@ -12,6 +12,17 @@ meta:
 workflow:
   name: Reverse Engineering Pipeline
   stages:
+    - stage: ROUTE_DRIVEN_INVENTORY
+      description: Build feature inventory starting from routing layer, not filesystem
+      output: Route-anchored inventory with verified file paths
+      certainty: "[Confirmed]"
+      actions:
+        - Identify routing entry points (routes.php, web.php, api.php, Program.cs, router configs)
+        - Trace each route to its dispatcher (Controller@method, handler function)
+        - Locate the handler file and verify its actual filesystem path
+        - Flag any route that dispatches to a missing or mislocated file
+      note: "NEVER start from filesystem glob (e.g. find . -name '*.php'). Files may exist without routes; routes may point to moved files."
+
     - stage: CODE_SCAN
       description: Analyze code structure, APIs, data models
       output: Technical inventory
@@ -162,6 +173,11 @@ anti_patterns:
       impact: Incomplete spec
       fix: Always require review phase
 
+    - name: Filesystem-First Inventory
+      impact: Path mismatches silently enter the inventory; routes to moved files go undetected
+      fix: Always start from the routing layer (routes → dispatcher → handler file → verify path)
+      context: migration projects
+
   process:
     - name: Generating for Unread Code
       impact: Invalid output
@@ -251,6 +267,16 @@ rules:
     trigger: making inferences
     instruction: Use [Inferred] tag and add "Verify with stakeholders" note
     priority: recommended
+
+  - id: route-driven-inventory
+    trigger: building feature inventory for migration project
+    instruction: Start from routing/dispatch layer, not filesystem. Trace router → dispatcher → handler file, then verify the handler path matches the filesystem.
+    priority: required
+
+  - id: bidirectional-verification
+    trigger: completing source-to-target mapping
+    instruction: After building source→target mapping, perform a target→source sweep. List all target endpoints/workers/handlers; confirm each maps to a known source item or is explicitly labelled as new (🆕). Any unmapped, unlabelled target item is a [GAP] requiring human review.
+    priority: required
 
 # Quick Reference
 quick_reference:
