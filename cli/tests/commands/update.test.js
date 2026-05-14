@@ -1109,4 +1109,85 @@ describe('Update Command', () => {
       expect(restoreSingleFile).not.toHaveBeenCalled();
     });
   });
+
+  describe('XSPEC-208 BUG-208-02: orphan integrationBlockHashes cleanup', () => {
+    // Regression for spurious "Integration UDS Block Integrity: GEMINI.md missing"
+    // warning after manifest.aiTools shrinks. Before the fix, hashes from
+    // previously-installed tools (e.g. gemini-cli, opencode) survived every
+    // upgrade and triggered missing-file reports in `uds check`.
+
+    it('prunes orphaned integrationBlockHashes whose file is no longer generated', async () => {
+      isInitialized.mockReturnValue(true);
+
+      // Manifest mirrors the machine-setup state observed in XSPEC-208:
+      // aiTools shrank to ["claude-code"] but integrationBlockHashes still
+      // contains stale GEMINI.md and AGENTS.md entries from a 2026-03 install.
+      const testManifest = {
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: ['CLAUDE.md'],
+        aiTools: ['claude-code'],
+        integrationBlockHashes: {
+          'CLAUDE.md': { blockHash: 'sha256:current', installedAt: '2026-05-14T01:15:51.772Z' },
+          'GEMINI.md': { blockHash: 'sha256:stale-gemini', installedAt: '2026-03-23T13:34:40.525Z' },
+          'AGENTS.md': { blockHash: 'sha256:stale-agents', installedAt: '2026-03-23T13:34:40.525Z' }
+        },
+        skills: { installed: false }
+      };
+      readManifest.mockReturnValue(testManifest);
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // After update: orphans pruned, CLAUDE.md retained.
+      expect(Object.keys(testManifest.integrationBlockHashes).sort()).toEqual(['CLAUDE.md']);
+      expect(testManifest.integrationBlockHashes['GEMINI.md']).toBeUndefined();
+      expect(testManifest.integrationBlockHashes['AGENTS.md']).toBeUndefined();
+
+      // Console should announce the prune so users see what changed.
+      const output = consoleLogs.join('\n');
+      expect(output).toMatch(/Pruned 2 orphaned integration hash|清除 2 個孤兒|清除 2 个孤儿/);
+    });
+
+    it('keeps hashes whose corresponding integration file is still generated', async () => {
+      isInitialized.mockReturnValue(true);
+      const testManifest = {
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: ['CLAUDE.md'],
+        aiTools: ['claude-code'],
+        integrationBlockHashes: {
+          'CLAUDE.md': { blockHash: 'sha256:current', installedAt: '2026-05-14' }
+        },
+        skills: { installed: false }
+      };
+      readManifest.mockReturnValue(testManifest);
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // No orphans → no prune → CLAUDE.md hash retained.
+      expect(Object.keys(testManifest.integrationBlockHashes)).toEqual(['CLAUDE.md']);
+      const output = consoleLogs.join('\n');
+      expect(output).not.toMatch(/Pruned \d+ orphaned/);
+    });
+
+    it('handles manifest without integrationBlockHashes (legacy / pre-3.3 manifest)', async () => {
+      isInitialized.mockReturnValue(true);
+      const testManifest = {
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: ['CLAUDE.md'],
+        aiTools: ['claude-code'],
+        // intentionally no integrationBlockHashes field
+        skills: { installed: false }
+      };
+      readManifest.mockReturnValue(testManifest);
+
+      // Must not throw on missing integrationBlockHashes
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+      expect(testManifest.integrationBlockHashes).toBeUndefined();
+    });
+  });
 });

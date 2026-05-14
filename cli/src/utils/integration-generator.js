@@ -46,14 +46,30 @@ export function resolveContentModeForTool(tool, userContentMode) {
  */
 
 /**
+ * Set of all known integration file names (e.g. "CLAUDE.md", ".cursorrules"),
+ * derived from SUPPORTED_AI_TOOLS so reverse lookup stays in sync.
+ */
+const KNOWN_TOOL_FILES = new Set(
+  Object.values(SUPPORTED_AI_TOOLS).map(c => c.file)
+);
+
+/**
  * Get tool file name with legacy mapping support
- * @param {string} tool - Tool name
+ * @param {string} tool - Tool name (e.g. "claude-code") or filename (e.g. "CLAUDE.md")
  * @returns {string} File name
  */
 function getToolFileName(tool) {
   const normalizedName = LEGACY_TOOL_MAPPINGS[tool] || tool;
   const config = SUPPORTED_AI_TOOLS[normalizedName];
-  return config ? config.file : `${tool}.md`;
+  if (config) return config.file;
+
+  // XSPEC-208 BUG-208-01: schema 3.x manifests store filenames (not tool keys)
+  // in manifest.integrations. Without this guard, getToolFileName("CLAUDE.md")
+  // returns "CLAUDE.md.md" and triggers spurious missing-file restore failures.
+  if (KNOWN_TOOL_FILES.has(tool) || /\.(md|yaml|yml|json)$/i.test(tool)) {
+    return tool;
+  }
+  return `${tool}.md`;
 }
 
 /**

@@ -30,7 +30,8 @@ import {
   generateComplianceInstructions,
   mergeRules,
   writeIntegrationFile,
-  integrationFileExists
+  integrationFileExists,
+  getToolFilePath
 } from '../../src/utils/integration-generator.js';
 
 describe('Integration Generator', () => {
@@ -1002,6 +1003,49 @@ describe('Integration Generator', () => {
       expect(result).toContain('SHOULD follow');
       expect(result).toContain('Developer memory');
       expect(result).toContain('Always (protocol)');
+    });
+  });
+
+  describe('getToolFilePath — XSPEC-208 BUG-208-01 regression', () => {
+    // Regression for spurious "CLAUDE.md.md / 無法判斷來源" warning produced by
+    // `uds update` against schema 3.x manifests that stored filenames (not tool
+    // keys) in `manifest.integrations`. See XSPEC-208 for full root-cause analysis.
+
+    it('returns config.file for known tool keys', () => {
+      expect(getToolFilePath('claude-code')).toBe('CLAUDE.md');
+      expect(getToolFilePath('opencode')).toBe('AGENTS.md');
+      expect(getToolFilePath('gemini-cli')).toBe('GEMINI.md');
+      expect(getToolFilePath('cursor')).toBe('.cursorrules');
+    });
+
+    it('respects legacy tool name mappings', () => {
+      // codex → opencode (AGENTS.md); copilot → github-copilot
+      expect(getToolFilePath('codex')).toBe('AGENTS.md');
+      expect(getToolFilePath('copilot')).toBe('.github/copilot-instructions.md');
+    });
+
+    it('returns the input unchanged when given a known integration filename (schema 3.x case)', () => {
+      // Before XSPEC-208 fix: getToolFilePath("CLAUDE.md") fell into the
+      // `${tool}.md` fallback and returned "CLAUDE.md.md", which was then
+      // pushed into allTrackedFiles and triggered a spurious missing-file
+      // restore that failed with "無法判斷來源".
+      expect(getToolFilePath('CLAUDE.md')).toBe('CLAUDE.md');
+      expect(getToolFilePath('GEMINI.md')).toBe('GEMINI.md');
+      expect(getToolFilePath('AGENTS.md')).toBe('AGENTS.md');
+      expect(getToolFilePath('.cursorrules')).toBe('.cursorrules');
+      expect(getToolFilePath('.github/copilot-instructions.md')).toBe('.github/copilot-instructions.md');
+    });
+
+    it('returns the input unchanged for inputs with a known file extension', () => {
+      expect(getToolFilePath('something.md')).toBe('something.md');
+      expect(getToolFilePath('rules.yaml')).toBe('rules.yaml');
+      expect(getToolFilePath('config.json')).toBe('config.json');
+    });
+
+    it('falls back to `${tool}.md` for unknown tool keys without a known extension', () => {
+      // Legacy fallback preserved for forward compatibility with future tools.
+      expect(getToolFilePath('newtool')).toBe('newtool.md');
+      expect(getToolFilePath('hypothetical-future-agent')).toBe('hypothetical-future-agent.md');
     });
   });
 });

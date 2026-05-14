@@ -614,6 +614,27 @@ export async function updateCommand(options) {
     }
 
     intSpinner.succeed(msg.syncedIntegrations.replace('{count}', results.integrations.length));
+
+    // XSPEC-208 BUG-208-02: prune orphaned integrationBlockHashes whose
+    // integration file is no longer generated (e.g. manifest.aiTools shrank
+    // from ["claude-code","gemini-cli"] to ["claude-code"], leaving stale
+    // GEMINI.md hash). Without this, `uds check` -> checkIntegrationBlocksIntegrity
+    // falsely reports those files as missing.
+    if (manifest.integrationBlockHashes) {
+      const expectedFiles = new Set(results.integrations);
+      const orphaned = Object.keys(manifest.integrationBlockHashes)
+        .filter(f => !expectedFiles.has(f));
+      for (const f of orphaned) {
+        delete manifest.integrationBlockHashes[f];
+      }
+      if (orphaned.length > 0) {
+        console.log(chalk.gray(
+          `  ${(msg.prunedOrphanedBlockHashes || 'Pruned {count} orphaned integration hash(es): {files}')
+            .replace('{count}', orphaned.length)
+            .replace('{files}', orphaned.join(', '))}`
+        ));
+      }
+    }
   }
 
   // Update layered CLAUDE.md if content_layout is layered

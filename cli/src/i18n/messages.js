@@ -1052,6 +1052,7 @@ export const messages = {
         updatedStandards: 'Updated {count} standard files',
         syncingIntegrations: 'Syncing integration files...',
         syncedIntegrations: 'Synced {count} integration files',
+        prunedOrphanedBlockHashes: 'Pruned {count} orphaned integration hash(es): {files}',
         // Success
         updateSuccess: '✓ Standards updated successfully!',
         versionUpdated: 'Version: {current} → {latest}',
@@ -2312,6 +2313,7 @@ export const messages = {
         updatedStandards: '已更新 {count} 個標準檔案',
         syncingIntegrations: '同步整合檔案中...',
         syncedIntegrations: '已同步 {count} 個整合檔案',
+        prunedOrphanedBlockHashes: '已清除 {count} 個孤兒整合雜湊：{files}',
         // Success
         updateSuccess: '✓ 標準更新成功！',
         versionUpdated: '版本：{current} → {latest}',
@@ -3501,6 +3503,7 @@ export const messages = {
         updatedStandards: '已更新 {count} 个标准文件',
         syncingIntegrations: '正在同步集成文件...',
         syncedIntegrations: '已同步 {count} 个集成文件',
+        prunedOrphanedBlockHashes: '已清除 {count} 个孤儿集成哈希：{files}',
         // Success
         updateSuccess: '✓ 标准更新成功！',
         versionUpdated: '版本：{current} → {latest}',
