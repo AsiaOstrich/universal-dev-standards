@@ -1,18 +1,92 @@
 # License Compliance Standards - AI Optimized
-# Source: XSPEC-066 Wave 3 Compliance Pack
+# Sources:
+#   v1.0.0 — XSPEC-066 Wave 3 Compliance Pack (general OSS practices)
+#   v2.0.0 — XSPEC-193 §7.1 (AI-specific rules for AI-Generated Code)
 
 id: license-compliance
-title: License Compliance Standards
-version: "1.0.0"
+title: License Compliance Standards for AI-Generated Code
+version: "2.0.0"
 status: Active
-tags: [compliance, licensing, open-source, legal, supply-chain]
+tags: [compliance, licensing, open-source, legal, supply-chain, ai-generated, eu-ai-act, sbom, pii]
+created: 2026-04-30
+updated: 2026-05-14
+
+references:
+  - XSPEC-066   # v1.0.0 baseline - Wave 3 Compliance Pack
+  - XSPEC-193   # v2.0.0 AI-specific rules - VibeOps License Compliance Agent
+  - DEC-041     # EU AI Act compliance
+  - DEC-062     # Harness Engineering 2026 adoption
+  - DEC-063     # VibeOps legal & compliance strategy
+  - DEC-064     # Customer IP isolation (cache salt)
+  - XSPEC-189   # Telemetry Schema v2 (event types referenced below)
+
 summary: |
-  Defines how teams identify, track, and manage open-source and third-party
-  software licenses throughout the software development lifecycle. Covers
-  license classification (permissive vs. copyleft), prohibited licenses,
-  SBOM generation, license scanning in CI/CD, and remediation processes
-  for license violations. Designed to prevent legal exposure from
-  incompatible license combinations and ensure supply-chain transparency.
+  Comprehensive license compliance for AI-augmented development.
+
+  Tier 1 (REQ-001~006) — General OSS practices: license classification,
+  CI scanning, SBOM generation, attribution, violation remediation, and
+  technology adoption review. Applies to every project regardless of AI use.
+
+  Tier 2 (LC-001~009) — AI-specific rules: SPDX-first, independent evaluator,
+  evidence-based decisions, blocklist/allowlist/greylist enforcement, SBOM
+  required on every PR, PII pattern detection, copyright similarity check,
+  EU AI Act Article 50 transparency markers, and customer policy sovereignty.
+
+  Tier 2 is binding on AI Agents that produce code (VibeOps Generator Agent
+  and equivalents). Designed to prevent legal exposure from incompatible
+  license combinations, ensure supply-chain transparency, and satisfy
+  EU AI Act Article 50 obligations.
+
+scope:
+  applies_to:
+    - AI-generated code (Generator Agent output)
+    - Dependency manifests (package.json / requirements.txt / go.mod / Cargo.toml / etc.)
+    - Open-source code snippet references and copy-paste
+  excludes:
+    - Internal-only tooling scripts with no external distribution (SBOM still recommended)
+    - Fully hand-written, non-AI-generated code (SBOM still recommended)
+
+principles:
+  - id: P-1
+    name: SPDX First
+    description: |
+      All license identifiers MUST use SPDX standard IDs (https://spdx.org/licenses/).
+      Vague descriptions like "MIT-like" or "BSD-style" are prohibited. If no
+      SPDX match can be found, the Agent MUST escalate to a human rather than
+      guess.
+
+  - id: P-2
+    name: Independent Evaluator
+    description: |
+      The License Compliance Agent MUST use a model class different from the
+      code Generator Agent. This avoids Generator/Evaluator error correlation
+      and preserves review independence (DEC-062 H6).
+
+  - id: P-3
+    name: Evidence-Based Decision
+    description: |
+      Every block or review-required decision MUST carry traceable evidence:
+      SPDX ID lookup source, similarity score, comparison repo URL, etc.
+      Verdicts without evidence are prohibited.
+
+  - id: P-4
+    name: Transparency by Default
+    description: |
+      AI-generated output MUST carry a transparency marker per EU AI Act
+      Article 50. Marker removal requires explicit human action; an AI Agent
+      MAY NOT decide to remove markers autonomously.
+
+  - id: P-5
+    name: Customer Sovereignty
+    description: |
+      Customers MAY customize license policy within their accepted liability
+      scope, but MAY NOT bypass platform-floor limits set in the VibeOps
+      EULA §9. Overrides MUST be telemetered with justification.
+
+# ─────────────────────────────────────────────────────────────
+# Tier 1 — General OSS Compliance Practices (v1.0.0 baseline)
+# Applies to every project regardless of AI use.
+# ─────────────────────────────────────────────────────────────
 
 requirements:
   - id: REQ-001
@@ -104,3 +178,250 @@ requirements:
       - "ADR-042 notes: 'Library X uses Apache 2.0 — approved tier, no legal review needed'"
       - "ADR-043 notes: 'Library Y uses LGPL-3.0 — review-required, legal approved 2026-03-10'"
       - "Technology radar entry includes license classification for each evaluated tool"
+
+# ─────────────────────────────────────────────────────────────
+# Tier 2 — AI-Specific Rules (v2.0.0, XSPEC-193 §7.1)
+# Binding on AI Agents that produce code.
+# ─────────────────────────────────────────────────────────────
+
+rules:
+  - id: LC-001
+    name: SPDX ID Lookup Required
+    severity: blocking
+    description: |
+      Every dependency license MUST be resolved to a SPDX standard ID
+      before any list comparison.
+    checks:
+      - "license_lookup() result must have non-null spdx_id"
+      - "If confidence < 0.7, escalate_to_human"
+      - "Free-text license fields from package metadata MUST NOT be used directly"
+
+  - id: LC-002
+    name: Blocklist Auto-Block
+    severity: blocking
+    description: |
+      SPDX IDs on the Blocklist MUST trigger block_pr automatically. No
+      exception channel inside the platform (customer override layer may
+      remove items, but the override is logged via telemetry).
+    blocklist:
+      # Strong-copyleft (viral)
+      - GPL-2.0
+      - GPL-2.0-only
+      - GPL-2.0-or-later
+      - GPL-3.0
+      - GPL-3.0-only
+      - GPL-3.0-or-later
+      - AGPL-1.0
+      - AGPL-3.0
+      - AGPL-3.0-only
+      - AGPL-3.0-or-later
+      # Source-Available (non-OSS, commercially restrictive)
+      - SSPL-1.0
+      - Commons-Clause              # Not a formal SPDX ID; treated as non-OSS
+      - BUSL-1.1
+      - BUSL-1.0
+      - Confluent-Community-License
+      - Elastic-License-2.0
+    checks:
+      - "license_blocklist_check() returns decision='block' → call block_pr() immediately"
+      - "block_pr() reason field is mandatory in form: '{pkg}@{version} uses {spdx_id}'"
+
+  - id: LC-003
+    name: Allowlist Auto-Approve
+    severity: informational
+    description: |
+      SPDX IDs on the Allowlist MUST be auto-approved, recorded in SBOM
+      without triggering review.
+    allowlist:
+      - MIT
+      - MIT-0
+      - BSD-2-Clause
+      - BSD-3-Clause
+      - BSD-3-Clause-Clear
+      - Apache-2.0
+      - ISC
+      - 0BSD
+      - CC0-1.0
+      - Unlicense
+      - Zlib
+      - WTFPL
+      - CC-BY-4.0          # Documentation only
+      - CC-BY-SA-4.0       # Documentation only
+      - Python-2.0         # PSF-specific
+
+  - id: LC-004
+    name: Greylist Human Review
+    severity: review_required
+    description: |
+      SPDX IDs on the Greylist enter the review queue. A human judges
+      whether the static/dynamic-linking model triggers copyleft contagion.
+    greylist:
+      - LGPL-2.1
+      - LGPL-2.1-only
+      - LGPL-2.1-or-later
+      - LGPL-3.0
+      - LGPL-3.0-only
+      - LGPL-3.0-or-later
+      - MPL-2.0
+      - EPL-1.0
+      - EPL-2.0
+      - CDDL-1.0
+      - CDDL-1.1
+      - GPL-Classpath-exception-2.0  # OpenJDK
+    review_guidance:
+      - "Determine static-link vs dynamic-link"
+      - "Determine whether the package is on the production path or only a dev/test dependency"
+      - "LGPL dynamic-link is generally safe; static-link requires legal sign-off"
+
+  - id: LC-005
+    name: SBOM Mandatory Generation
+    severity: blocking
+    description: |
+      Every dependency-list change or PR merge MUST regenerate the SBOM in
+      CycloneDX 1.5 or SPDX 2.3 format. SHA-256 hash of the SBOM file MUST
+      be recorded.
+    checks:
+      - "SBOM file passes the corresponding schema validation (CycloneDX XML/JSON schema)"
+      - "Every component in the SBOM has an SPDX license expression"
+      - "SBOM path: `{project_root}/sbom.cdx.json` (or `.spdx.json`)"
+
+  - id: LC-006
+    name: Copyright Similarity Threshold
+    severity: blocking
+    description: |
+      AI-generated code with CodeBERT-embedding similarity ≥ 0.85 to a
+      known open-source repo MUST be inspected. If the source repo is on
+      the blocklist (GPL/AGPL), the PR MUST be blocked.
+    checks:
+      - "overall_similarity >= 0.85 AND source_license in blocklist → block_pr"
+      - "overall_similarity >= 0.70 AND source_license in greylist → review"
+      - "overall_similarity >= 0.85 AND source_license in allowlist → record info event, do not block"
+    evidence_required:
+      - "source_repo URL"
+      - "source_license SPDX ID"
+      - "similarity score (4 decimal places)"
+      - "matched_section (first 5 lines of the snippet)"
+
+  - id: LC-007
+    name: PII Pattern Detection
+    severity: review_required
+    description: |
+      When AI-generated code contains a personal-data handling pattern,
+      issue a warning with a remediation hint. severity="critical" patterns
+      MUST escalate to human review.
+    pii_types:
+      critical:
+        - ssn               # Social security number
+        - credit_card       # Credit-card number
+        - biometric         # Biometric identifiers
+        - health_record     # Health records (HIPAA / Taiwan PDPA §6 special category)
+      warning:
+        - email
+        - phone
+        - id_number         # National ID
+        - date_of_birth
+        - address
+    detection_strategy:
+      - "regex: field-name patterns (email, phone_number, ssn, credit_card_number, ...)"
+      - "ast: function-signature analysis (getUserEmail(), processCreditCard(), ...)"
+      - "llm_assist: ambiguous contexts (confidence threshold 0.8)"
+
+  - id: LC-008
+    name: EU AI Act Transparency Marker
+    severity: blocking
+    description: |
+      Every AI-generated source file MUST carry a transparency marker at
+      output time, per EU AI Act Article 50 (Limited-Risk transparency
+      obligation).
+    marker_format:
+      source_code: |
+        // AI-generated: VibeOps v{version} on {date}
+        // AI Generation Disclosure: Per EU AI Act Article 50.
+        // Modifications by humans should remove this notice.
+      markdown: |
+        ---
+        > AI Generation Disclosure: This content was AI-generated by VibeOps
+        > v{version} on {date}. Per EU AI Act Article 50.
+      json_yaml: |
+        _ai_generated: "VibeOps v{version} on {date} — EU AI Act Article 50"
+    checks:
+      - "Marker MUST be in the file header (source code) or metadata block (JSON/YAML)"
+      - "Marker removal requires the transparency_marker tool's explicit remove operation plus human confirmation"
+      - "When eu_ai_act_classifier() returns high_risk, additionally include a human_oversight statement"
+
+  - id: LC-009
+    name: Customer Policy Ceiling
+    severity: informational
+    description: |
+      Customers MAY adjust lists via ~/.vibeops/license-policy.yaml, but
+      adjustments MUST be telemetered (human_override_block event) and MUST
+      NOT modify the EULA §9 liability-allocation clause at the platform
+      layer.
+    checks:
+      - "If allowlist_add contains blocklist members, record a warning telemetry"
+      - "greylist_review: 'auto-allow' requires an extra telemetry tag customer_risk_accepted=true"
+      - "If the customer config schema validation fails, fall back to platform default policy"
+
+# ─────────────────────────────────────────────────────────────
+# Tool integration (XSPEC-193 §2, §3)
+# ─────────────────────────────────────────────────────────────
+
+tooling_integration:
+  description: |
+    Maps to the 10 tools defined in XSPEC-193 §2. Tool call order is fixed
+    to keep prompts cache-friendly under the DEC-064 cache-salt strategy.
+  tool_sequence:
+    1: dependency_reader            # Read dependency manifest
+    2: license_lookup               # SPDX lookup
+    3: license_blocklist_check      # Tier check
+    4: sbom_generator               # SBOM generation (LC-005)
+    5: pii_pattern_detector         # PII detection (LC-007)
+    6: copyright_similarity_check   # Copyright similarity (LC-006)
+    7: eu_ai_act_classifier         # EU AI Act risk classification
+    8: transparency_marker          # Transparency marker (LC-008)
+    9: block_pr                     # Sole flow-interrupting authority
+    10: suggest_alternative         # Alternative package suggestion (XSPEC-193 §4.5)
+    11: escalate_to_human           # Fallback when automation cannot decide
+
+# ─────────────────────────────────────────────────────────────
+# Telemetry (DEC-066 / XSPEC-189 v2 envelope)
+# ─────────────────────────────────────────────────────────────
+
+telemetry:
+  required_events:
+    - license_compliance_result    # Final result of each review
+    - block_pr                     # Block event detail
+    - license_lookup_failure       # SPDX lookup failure (drives alternative-table updates)
+    - copyright_similarity_high    # High-similarity warning
+    - eu_ai_act_classification     # Classification distribution
+    - human_override_block         # Human override of a block (requires reason)
+  envelope_reference: XSPEC-189    # Telemetry Schema v2 envelope
+  event_type: quality
+  event_subtype_examples:
+    - license_compliance_result    # LC rule outcomes
+    - gate_pass / gate_fail        # When License Compliance acts as a gate
+
+# ─────────────────────────────────────────────────────────────
+# Adoption guidance
+# ─────────────────────────────────────────────────────────────
+
+adoption_guidance:
+  uds_install_path: ai/standards/license-compliance.ai.yaml
+  vibeops_config_path: src/agents/license-compliance/rules.yaml
+  customer_config_path: ~/.vibeops/license-policy.yaml
+  notes:
+    - "v2.0.0 Tier 2 rules are Active for AI-augmented projects. Legal sign-off on the blocklist remains pending; treat the blocklist as authoritative-pending-review."
+    - "LGPL greylist decisions should consult legal counsel."
+    - "Alternative-package table (XSPEC-193 §4.5) is updated quarterly, driven by license_lookup_failure telemetry."
+    - "When this standard is consumed by VibeOps, the License Compliance Agent enforces every LC rule listed above. Other adopters MAY choose to enforce LC rules via CI alone (Tier 1 REQ-002 path)."
+
+# ─────────────────────────────────────────────────────────────
+# Compatibility note
+# ─────────────────────────────────────────────────────────────
+
+compatibility:
+  v1_to_v2: |
+    v1.0.0 REQ-001~006 are unchanged and remain authoritative for general
+    OSS practice. v2.0.0 adds Tier 2 LC-001~009 as a strict superset for
+    AI-augmented projects. A project that adopted v1.0.0 remains compliant;
+    AI-augmented projects MUST additionally enforce Tier 2.
