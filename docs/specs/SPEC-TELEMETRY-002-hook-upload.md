@@ -1,6 +1,6 @@
 # [SPEC-TELEMETRY-002] Feature: Hook 執行結果遠端遙測上傳（Opt-in）
 
-- **Status**: Approved
+- **Status**: Stable
 - **Created**: 2026-04-10
 - **Depends-on**: SPEC-TELEMETRY-001 (Archived — 本地記錄已實作)
 - **Scope**: uds-specific

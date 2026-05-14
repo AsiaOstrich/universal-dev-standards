@@ -56,3 +56,6 @@ Compression operations need output space to succeed. Reserve constants:
 - AI-optimized: [ai/standards/token-budget.ai.yaml](../ai/standards/token-budget.ai.yaml)
 - XSPEC-036: Cross-project specification
 - Borrowed from: [claude-code-book](https://github.com/lintsinghua/claude-code-book) Ch.7 four-zone context management
+
+
+**Scope**: universal

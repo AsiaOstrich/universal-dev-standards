@@ -103,3 +103,6 @@ interface PipelineMemoryEntry {
 
 - AI-optimized: [ai/standards/immutability-first.ai.yaml](../ai/standards/immutability-first.ai.yaml)
 - XSPEC-044: Cross-project specification
+
+
+**Scope**: universal

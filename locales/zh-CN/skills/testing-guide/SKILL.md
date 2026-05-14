@@ -232,3 +232,39 @@ test('method_scenario_expected', () => {
 本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权發布。
 
 **來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+
+
+## Next Steps Guidance | 下一步引導
+
+After `/testing` completes, the AI assistant should suggest:
+
+> **測試標準與最佳實踐已掌握。建議下一步 / Testing standards and best practices understood. Suggested next steps:**
+> - 執行 `/tdd` 開始測試驅動開發（紅-綠-重構循環） ⭐ **Recommended / 推薦** — 將測試知識立即轉化為實踐 / Turn testing knowledge into practice immediately
+> - 執行 `/coverage` 分析目前程式碼覆蓋率 — 找出測試缺口 / Identify testing gaps
+> - 執行 `/bdd` 撰寫行為驅動的 Given-When-Then 場景 — 從使用者角度定義測試 / Define tests from user perspective
+
+---
+
+## Related Standards
+
+- [Testing Standards](../../core/testing-standards.md) - Actionable rules
+- [Testing Theory](./testing-theory.md) - Educational knowledge base
+- [Code Review Checklist](../../core/code-review-checklist.md)
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.2.0 | 2026-01-29 | Added links to new testing-theory.md knowledge base |
+| 1.1.0 | 2025-12-29 | Added Testing Theory Essentials YAML section |
+| 1.0.0 | 2025-12-24 | Initial: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

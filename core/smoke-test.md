@@ -63,3 +63,6 @@ echo "=== PASS ==="
 - [Testing Standards](testing.md) — overall test pyramid
 - [Deployment Standards](deployment-standards.md) — deployment pipeline
 - [Performance Standards](performance-standards.md) — latency SLOs
+
+
+**Scope**: universal

@@ -14,7 +14,7 @@ status: current
 
 > **语言**: [English](../../README.md) | [繁體中文](../zh-TW/README.md) | 简体中文
 
-**版本**: 5.11.0 | **发布日期**: 2026-04-13 | **授权**: [双重授权](../../LICENSE) (CC BY 4.0 + MIT)
+**版本**: 5.11.0 | **发布日期**: 2026-05-14 | **授权**: [双重授权](../../LICENSE) (CC BY 4.0 + MIT)
 
 语言无关、框架无关的软件项目文档标准。通过 AI 原生工作流，确保不同技术栈之间的一致性、质量和可维护性。
 
@@ -63,8 +63,8 @@ npx universal-dev-standards init
 <!-- UDS_STATS_TABLE_START -->
 | 类别 | 数量 | 说明 |
 |----------|-------|-------------|
-| **核心标准** | 78 | 通用开发准则 |
-| **AI Skills** | 48 | 互动式技能 |
+| **核心标准** | 125 | 通用开发准则 |
+| **AI Skills** | 54 | 互动式技能 |
 | **斜线命令** | 48 | 快速操作 |
 | **CLI 命令** | 6 | list, init, configure, check, update, skills |
 <!-- UDS_STATS_TABLE_END -->

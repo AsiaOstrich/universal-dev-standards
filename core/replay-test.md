@@ -84,3 +84,6 @@ describe("Guardian replay fixtures", () => {
 - [Adversarial Test Standards](adversarial-test.md) — red-team corpus
 - [Verification Evidence Standards](verification-evidence.md) — AC traceability
 - [Testing Standards](testing.md) — overall test pyramid
+
+
+**Scope**: universal

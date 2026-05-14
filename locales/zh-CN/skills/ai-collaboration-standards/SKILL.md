@@ -173,3 +173,38 @@ This project uses **English** certainty tags.
 此技能依据 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 釋出。
 
 **來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+
+
+## Next Steps Guidance | 下一步引導
+
+After `/ai-collaboration` completes, the AI assistant should suggest:
+
+> **AI 協作行為規範已掌握。建議下一步 / AI collaboration behavior standards understood. Suggested next steps:**
+> - 執行 `/ai-instructions` 建立或更新 CLAUDE.md 等 AI 指令檔案 ⭐ **Recommended / 推薦** — 將協作標準寫入專案配置 / Write collaboration standards into project configuration
+> - 執行 `/ai-friendly-architecture` 設計 AI 友善架構 — 從長期架構層面優化 AI 協作 / Optimize AI collaboration at the architecture level
+> - 執行 `/review` 運用確定性標籤進行程式碼審查 — 實踐基於證據的分析 / Practice evidence-based analysis
+
+---
+
+## Related Standards
+
+- [Anti-Hallucination Standards](../../core/anti-hallucination.md)
+- [Code Review Checklist](../../core/code-review-checklist.md)
+- [Testing Standards](../../core/testing-standards.md)
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.1.0 | 2026-01-25 | Added: Unified Tag System with Certainty and Derivation tag categories |
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

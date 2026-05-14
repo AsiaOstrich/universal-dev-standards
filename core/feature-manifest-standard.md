@@ -3,7 +3,7 @@
 > **Language**: English | 繁體中文
 
 **Applicability**: Migration and refactoring projects where an existing system is being ported or restructured
-**Scope**: universal (language-agnostic manifest format)
+**Scope**: universal
 
 ---
 

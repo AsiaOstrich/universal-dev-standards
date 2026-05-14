@@ -203,3 +203,6 @@ status:
 - `deployment-standards.ai.yaml` — 有 CI/CD 平台的部署策略（本文件的補充前提）
 - `health-check-standards.ai.yaml` — /health 端點設計規範
 - `circuit-breaker.ai.yaml` — 斷路器整合（進階場景）
+
+
+**Scope**: universal

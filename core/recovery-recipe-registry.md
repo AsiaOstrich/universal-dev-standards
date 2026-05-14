@@ -67,3 +67,6 @@ escalation:                         # required
 - XSPEC-046: Cross-project specification
 - Depends on: Failure Source Taxonomy (XSPEC-045)
 - Borrowed from: [ultraworkers/claw-code](https://github.com/ultraworkers/claw-code) ROADMAP Phase 3 Recovery Recipes
+
+
+**Scope**: universal

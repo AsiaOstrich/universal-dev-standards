@@ -82,3 +82,6 @@
 - DEC-043: UDS 覆蓋完整性路線圖（本標準是 Wave 1 前置條件）
 - Related: `standard-lifecycle-management`, `skill-standard-alignment-check`, `adr-standards`
 - Industry: IETF RFC admission criteria, Python PEP process, W3C Recommendation Track
+
+
+**Scope**: universal

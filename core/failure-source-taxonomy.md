@@ -70,3 +70,6 @@ interface FailureDetail {
 - XSPEC-045: Cross-project specification
 - Depends on: Recovery Recipe Registry (XSPEC-046)
 - Borrowed from: [ultraworkers/claw-code](https://github.com/ultraworkers/claw-code) ROADMAP Phase 2 Failure Taxonomy
+
+
+**Scope**: universal

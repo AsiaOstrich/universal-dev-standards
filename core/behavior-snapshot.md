@@ -3,7 +3,7 @@
 > **Language**: English | 繁體中文
 
 **Applicability**: Migration and refactoring projects requiring behavioral parity verification
-**Scope**: universal (HTTP-based systems)
+**Scope**: universal
 
 ---
 

@@ -114,3 +114,6 @@ it('pipeline continues when one agent throws', async () => {
 - `testing.ai.yaml` — general test structure
 - `secure-op.ai.yaml` — Fail-Closed principle for AI agents
 - `security-standards.ai.yaml` — security invariants
+
+
+**Scope**: universal

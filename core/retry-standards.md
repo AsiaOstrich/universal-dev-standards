@@ -60,3 +60,6 @@ wait_ms = min(cap_ms, base_ms * 2^attempt) * (0.5 + random() * 0.5)
 - DEC-043: UDS 覆蓋完整性路線圖（驅動來源）
 - Related: `circuit-breaker`, `failure-source-taxonomy`, `timeout-standards`, `recovery-recipe-registry`
 - Industry: Netflix Hystrix retry, Google SRE Book Ch.22, AWS Architecture Blog — exponential backoff and jitter
+
+
+**Scope**: universal

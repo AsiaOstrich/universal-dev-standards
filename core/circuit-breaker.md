@@ -56,3 +56,6 @@ interface CircuitBreaker {
 - AI-optimized: [ai/standards/circuit-breaker.ai.yaml](../ai/standards/circuit-breaker.ai.yaml)
 - XSPEC-036: Cross-project specification
 - Borrowed from: [claude-code-book](https://github.com/lintsinghua/claude-code-book) Ch.2 `MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES`
+
+
+**Scope**: universal

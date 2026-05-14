@@ -176,3 +176,6 @@ npx vitest run agents/__tests__/contract.test.ts
 - ISO/IEC 42001:2023 — AI 管理系統
 - [UDS `security-testing.ai.yaml`](./security-testing.md) — SAST + DAST 整合
 - [UDS `adversarial-test.ai.yaml`](./adversarial-test.md) — Prompt injection 紅隊標準
+
+
+**Scope**: universal

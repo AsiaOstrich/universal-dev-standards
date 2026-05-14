@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.11.0] - 2026-05-14
+
+### Added
+- **`spec-driven-development`** SPEC Type Agent variant: `acceptance-criteria-traceability.ai.yaml` and the SDD template gain a `spec-type: feature | agent | infrastructure` field, plus a five-section Agent SPEC template (capability surface / decision boundaries / observability / failure modes / cross-agent invariants). Enables Builder/QA/Planner-style SPECs to be tracked separately from feature SPECs and linked back to specific agents via the new `agent-id` field. (XSPEC-205)
+- **`reverse-engineering-standards`** migration inventory bidirectionality: new routing-driven discovery method (filesystem-glob starting points are now forbidden), target→source bidirectional scan, and `[GAP]` marker protocol for findings that have no corresponding source artefact. Pairs with a new `migration_testing` section in `testing.ai.yaml` requiring a 3-step schema parity pattern enforced via CI gate. Closes UDS Issues #96 and #97. (XSPEC-206)
+
+### Fixed
+- **`uds update` spurious "CLAUDE.md.md: 無法判斷來源" restore failure for schema 3.x manifests** (`cli/src/utils/integration-generator.js`, `cli/src/commands/update.js`): Schema 3.x manifests store **filenames** (e.g. `"CLAUDE.md"`) in `manifest.integrations`, not tool keys. The `getToolFileName` fallback at `integration-generator.js:56` unconditionally appended `".md"`, so `getToolFilePath("CLAUDE.md")` returned `"CLAUDE.md.md"`, was reported as a missing file, and failed to restore (`getSourcePathFromRelative` had no mapping for the synthetic path). Commit `79532b3` (5.10.0) fixed the inverse case (tool-name input) but missed this filename variant. Fix: precompute `KNOWN_TOOL_FILES` from `SUPPORTED_AI_TOOLS` and short-circuit when input is a known integration filename or already carries a known file extension (`.md`/`.yaml`/`.yml`/`.json`). 5 new regression tests in `integration-generator.test.js`. (XSPEC-208 BUG-208-01)
+- **`uds update` / `uds check` spurious "Integration UDS Block Integrity: GEMINI.md/AGENTS.md missing" warnings** (`cli/src/commands/update.js`, `cli/src/i18n/messages.js`): `manifest.integrationBlockHashes` accumulated entries on every install but was never pruned. When `manifest.aiTools` shrank (e.g. `["claude-code","gemini-cli"]` → `["claude-code"]`) the GEMINI.md hash remained and `check.js:1491 checkIntegrationBlocksIntegrity` falsely reported the file as missing. Fix: after the integration regeneration step, derive the expected file set from `manifest.aiTools` (the declared configuration, NOT `results.integrations` which over-prunes on transient write failures) and prune any orphaned hash. Pruned filenames are reported via a new i18n key `prunedOrphanedBlockHashes` (en / zh-TW / zh-CN). 3 new regression tests in `update.test.js`. Reproduced on machine-setup `uds update` 5.1.0-beta.4 → 5.10.0; verified fixed on 5.10.0 → 5.11.0. (XSPEC-208 BUG-208-02)
+
 ## [5.10.0] - 2026-05-13
 
 ### Added

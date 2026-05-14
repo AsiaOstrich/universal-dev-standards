@@ -5,7 +5,7 @@
 **Version**: 1.0.0
 **Last Updated**: 2026-05-05
 **Applicability**: TypeScript / JavaScript projects
-**Scope**: CI/CD security enforcement
+**Scope**: universal
 **References**: [CodeQL documentation](https://codeql.github.com/), [gitleaks](https://github.com/gitleaks/gitleaks), [Biome linter](https://biomejs.dev/)
 
 ---

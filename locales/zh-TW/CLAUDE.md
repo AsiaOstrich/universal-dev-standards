@@ -14,7 +14,7 @@ status: current
 
 Universal Development Standards 是一個語言無關、框架無關的文件化標準框架。它提供：
 
-- **核心規範** (`core/`)：71 個基礎開發標準
+- **核心規範** (`core/`)：125 個基礎開發標準
 - **AI 技能** (`skills/`)：用於 AI 輔助開發的 Claude Code 技能
 - **CLI 工具** (`cli/`)：用於採用標準的 Node.js CLI
 - **整合** (`integrations/`)：各種 AI 工具的配置

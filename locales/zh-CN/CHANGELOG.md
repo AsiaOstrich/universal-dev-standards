@@ -2,7 +2,7 @@
 source: ../../CHANGELOG.md
 source_version: 5.11.0
 translation_version: 5.11.0
-last_synced: 2026-05-13
+last_synced: 2026-05-14
 status: current
 ---
 
@@ -16,6 +16,16 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.11.0] - 2026-05-14
+
+### 新增 / Added
+- **`spec-driven-development`** SPEC Type Agent 变体：`acceptance-criteria-traceability.ai.yaml` 与 SDD 模板新增 `spec-type: feature | agent | infrastructure` 字段，以及 Agent SPEC 五段式模板（能力范围 / 决策边界 / 可观测性 / 失败模式 / 跨 Agent 不变量）。让 Builder/QA/Planner 风格的 SPEC 可独立于 feature SPEC 追踪，并通过新增的 `agent-id` 字段连回特定 Agent。(XSPEC-205)
+- **`reverse-engineering-standards`** 移植清单双向验证：新增路由驱动的发现方法（禁止以 filesystem-glob 为起点）、target→source 双向扫描，以及对"无对应来源产物"的发现的 `[GAP]` 标记协议。搭配 `testing.ai.yaml` 新增 `migration_testing` 区段，要求以 3 步骤 schema parity pattern 并由 CI gate 强制执行。关闭 UDS Issue #96 与 #97。(XSPEC-206)
+
+### 修复 / Fixed
+- **`uds update` 对 schema 3.x manifest 误报"CLAUDE.md.md：无法判断来源"还原失败**（`cli/src/utils/integration-generator.js`、`cli/src/commands/update.js`）：schema 3.x manifest 在 `manifest.integrations` 存的是**文件名**（如 `"CLAUDE.md"`）而非工具名。`integration-generator.js:56` 的 `getToolFileName` fallback 无条件附加 `".md"`，导致 `getToolFilePath("CLAUDE.md")` 返回 `"CLAUDE.md.md"`，被当成丢失文件而无法还原（`getSourcePathFromRelative` 对该合成路径没有 mapping）。Commit `79532b3`（5.10.0）修了反向案例（工具名输入），但漏这个文件名变体。修补：从 `SUPPORTED_AI_TOOLS` 预计算 `KNOWN_TOOL_FILES`，对已知集成文件名或已含已知扩展名（`.md`/`.yaml`/`.yml`/`.json`）的输入短路返回。`integration-generator.test.js` 新增 5 个 regression test。(XSPEC-208 BUG-208-01)
+- **`uds update` / `uds check` 误报"Integration UDS Block Integrity：GEMINI.md/AGENTS.md 丢失"警告**（`cli/src/commands/update.js`、`cli/src/i18n/messages.js`）：`manifest.integrationBlockHashes` 每次安装都累加但从不清理。当 `manifest.aiTools` 缩减（如 `["claude-code","gemini-cli"]` → `["claude-code"]`），GEMINI.md 的 hash 仍残留，`check.js:1491 checkIntegrationBlocksIntegrity` 误报该文件丢失。修补：在 integration 重新生成步骤后，依 `manifest.aiTools`（声明的配置，而非 `results.integrations`，后者在暂时性写入失败时会 over-prune）反推预期文件名集合并移除孤儿 hash。被清理的文件名通过新增 i18n key `prunedOrphanedBlockHashes`（en / zh-TW / zh-CN）回报。`update.test.js` 新增 3 个 regression test。在 machine-setup `uds update` 5.1.0-beta.4 → 5.10.0 触发；于 5.10.0 → 5.11.0 验证修复。(XSPEC-208 BUG-208-02)
 
 ## [5.10.0] - 2026-05-13
 

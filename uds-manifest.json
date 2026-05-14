@@ -1,10 +1,10 @@
 {
   "project": "Universal Development Standards",
   "version": "5.11.0",
-  "last_updated": "2026-05-13",
+  "last_updated": "2026-05-14",
   "stats": {
-    "core_standards": 89,
-    "skills": 48,
+    "core_standards": 125,
+    "skills": 54,
     "slash_commands": 48
   },
   "standards": [
@@ -507,72 +507,206 @@
       "id": "sast-advanced",
       "category": "security",
       "level": 2
-    }
-    ,
+    },
     {
       "id": "prompt-regression",
       "category": "testing",
       "level": 2
-    }
-    ,
+    },
     {
       "id": "supply-chain-attestation",
       "category": "security",
       "level": 2
-    }
-    ,
+    },
     {
       "id": "cost-budget-test",
       "category": "testing",
       "level": 2
-    }
-    ,
+    },
     {
       "id": "replay-test",
       "category": "testing",
       "level": 2
-    }
-    ,
+    },
     {
       "id": "smoke-test",
       "category": "testing",
       "level": 2
-    }
-    ,
+    },
     {
       "id": "property-based-testing",
       "category": "testing",
       "level": 2
-    }
-    ,
+    },
     {
       "id": "disaster-recovery-drill",
       "category": "operations",
       "level": 2
-    }
-    ,
+    },
     {
       "id": "flaky-test-management",
       "category": "testing",
       "level": 2
-    }
-    ,
+    },
     {
       "id": "data-migration-testing",
       "category": "testing",
       "level": 2
-    }
-    ,
+    },
     {
       "id": "chaos-injection-tests",
       "category": "testing",
       "level": 2
-    }
-    ,
+    },
     {
       "id": "release-quality-manifest",
       "category": "deployment",
       "level": 2
+    },
+    {
+      "id": "anti-sycophancy-prompting",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "behavior-snapshot",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "browser-compatibility-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "capability-declaration",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "cd-deployment-strategies",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "circuit-breaker",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "contract-testing-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "cross-flow-regression",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "dual-phase-output",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "failure-source-taxonomy",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "feature-manifest-standard",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "full-coverage-testing",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "governance-layer",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "health-check-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "immutability-first",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "no-cicd-deployment",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "packaging-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "pipeline-security-gates",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "recovery-recipe-registry",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "release-readiness-gate",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "retry-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "rollback-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "security-decision",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "skill-standard-alignment-check",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "standard-admission-criteria",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "standard-lifecycle-management",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "timeout-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "token-budget",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "translation-lifecycle-standards",
+      "category": "uncategorized",
+      "level": 3
     }
   ],
   "skills": [
@@ -838,6 +972,56 @@
     },
     {
       "id": "slo-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "ac-coverage",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "deploy-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "dev-methodology",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "journey-test-assistant",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "orchestrate",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "plan",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "push",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "skill-builder",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "spec-derivation",
+      "command": "/guide",
+      "category": "uncategorized"
+    },
+    {
+      "id": "sweep",
       "command": "/guide",
       "category": "uncategorized"
     }

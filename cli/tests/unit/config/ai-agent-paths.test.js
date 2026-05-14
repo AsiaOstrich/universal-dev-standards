@@ -233,10 +233,11 @@ describe('AI Agent Paths Configuration', () => {
       expect(AVAILABLE_COMMANDS.length).toBeGreaterThan(0);
     });
 
-    it('should have 45 commands (22 Action Skills + 12 Commands-only + 11 Operations)', () => {
-      // Updated Mar 2026: Added 11 operations commands
-      // security, scan, api-design, database, ci-cd, incident, pr, metrics, durable, migrate, audit
-      expect(AVAILABLE_COMMANDS.length).toBe(45);
+    it('should have 49 commands (22 Action Skills + 12 Commands-only + 11 Operations + 4 SRE/Observability)', () => {
+      // Updated May 2026 (v5.11.0): Added 4 SRE/Observability commands (XSPEC-208 release prep,
+      // aligning AVAILABLE_COMMANDS with skills/commands/*.md files)
+      // e2e, observability, runbook, slo
+      expect(AVAILABLE_COMMANDS.length).toBe(49);
     });
 
     it('should have name and description for each command', () => {

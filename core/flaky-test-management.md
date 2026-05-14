@@ -71,3 +71,6 @@ export default defineConfig({
 
 - [Testing Standards](testing.md) — overall test pyramid
 - [Test Governance Standards](test-governance.md) — CI policies
+
+
+**Scope**: universal

@@ -119,3 +119,6 @@ Q4: 基礎設施預算有限？
 - [rollback-standards.md](rollback-standards.md) — 回滾觸發條件矩陣
 - [no-cicd-deployment.md](no-cicd-deployment.md) — 無 CI/CD 部署策略
 - AI 格式：[../ai/standards/cd-deployment-strategies.ai.yaml](../ai/standards/cd-deployment-strategies.ai.yaml)
+
+
+**Scope**: universal

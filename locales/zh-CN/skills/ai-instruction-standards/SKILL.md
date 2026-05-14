@@ -212,3 +212,38 @@ project/
 本技能以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权发布。
 
 **来源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+
+
+## Next Steps Guidance
+
+After `/ai-instructions` completes, suggest:
+
+> - Create or update project's `CLAUDE.md` / `AGENTS.md` ⭐ **Recommended** — Apply standards immediately
+> - Run `/ai-friendly-architecture` to optimize AI collaboration at the architecture level
+> - Run `/ai-collaboration` to review AI behavior guidelines
+
+---
+
+## Related Standards
+
+- [AI Instruction File Standards](../../core/ai-instruction-standards.md) - Core standard
+- [Documentation Writing Standards](../../core/documentation-writing-standards.md) - Writing guidelines
+- [Anti-Hallucination Guidelines](../../core/anti-hallucination.md) - AI accuracy rules
+- [AI-Friendly Architecture](../../core/ai-friendly-architecture.md) - Context optimization
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 2.0.0 | 2026-04-28 | Add Gemini CLI, OpenAI Codex CLI; update Cursor (MDC format, deprecated .cursorrules); update OpenCode (AGENTS.md primary); update Copilot (multiple file types); update Windsurf (Workflows); add AGENTS.md cross-tool standard section |
+| 1.0.0 | 2026-01-25 | Initial release |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

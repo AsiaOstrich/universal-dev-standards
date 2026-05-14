@@ -541,6 +541,14 @@ export const AVAILABLE_COMMANDS = [
   { name: 'audit', description: 'Audit standards compliance and generate reports' },
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // Observability / SRE (Commands-only)
+  // ═══════════════════════════════════════════════════════════════════════════
+  { name: 'e2e', description: 'Generate E2E test scaffolding from BDD scenarios' },
+  { name: 'observability', description: 'Guide observability instrumentation (logs, metrics, traces)' },
+  { name: 'runbook', description: 'Author operational runbooks for incidents and routine procedures' },
+  { name: 'slo', description: 'Define SLOs, SLIs, and error budgets' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // CLI Management (Commands-only, UDS CLI specific)
   // ═══════════════════════════════════════════════════════════════════════════
   { name: 'init', description: 'Initialize UDS standards in project' },

@@ -186,3 +186,6 @@ policies/
 - [UDS `secure-op.ai.yaml`](./secure-op.md) — AI Agent 安全操作六大支柱
 - [UDS `adversarial-test.ai.yaml`](./adversarial-test.md) — 對抗性測試（OWASP LLM01）
 - [UDS `container-security.ai.yaml`](./container-security.md) — 容器安全（OPA Sidecar 部署）
+
+
+**Scope**: universal

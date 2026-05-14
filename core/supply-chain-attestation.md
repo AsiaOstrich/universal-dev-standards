@@ -115,3 +115,6 @@ app-commercial-v1.3.0/
 - [Supply Chain Security Standards](supply-chain-security-standards.md) — dependency audit policies
 - [Container Security Standards](container-security.md) — image hardening
 - [Advanced SAST Standards](sast-advanced.md) — static analysis
+
+
+**Scope**: universal

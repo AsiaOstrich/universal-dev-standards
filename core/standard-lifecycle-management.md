@@ -92,3 +92,6 @@ Deprecated ──(migration done)───→ Archived
 - DEC-043: UDS 覆蓋完整性路線圖（驅動來源）
 - Related: `standard-admission-criteria`, `skill-standard-alignment-check`, `adr-standards`
 - Industry: IETF RFC lifecycle (Proposed → Draft → Internet Standard), Python PEP states, W3C Recommendation Track
+
+
+**Scope**: universal

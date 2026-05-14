@@ -102,3 +102,6 @@
 - [deployment-standards.md](deployment-standards.md) — 部署基礎策略
 - [cd-deployment-strategies.md](cd-deployment-strategies.md) — 部署策略選用矩陣
 - AI 格式：[../ai/standards/rollback-standards.ai.yaml](../ai/standards/rollback-standards.ai.yaml)
+
+
+**Scope**: universal

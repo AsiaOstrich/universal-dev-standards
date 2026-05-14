@@ -71,3 +71,6 @@ See `docs/DR-RUNBOOK.md` for the full runbook template.
 - [Deployment Standards](deployment-standards.md) — deployment pipeline
 - [Chaos Engineering Standards](chaos-engineering-standards.md) — failure injection
 - [Verification Evidence Standards](verification-evidence.md) — drill records
+
+
+**Scope**: universal

@@ -210,3 +210,6 @@ Layer 4: 稽核日誌（hash chain）  — 確保不可篡改
 - ISO/IEC 42001:2023 — AI 管理系統
 - [UDS `secure-op.ai.yaml`](./secure-op.md) — AI Agent 安全操作六大支柱
 - [UDS `llm-output-validation.ai.yaml`](./llm-output-validation.md) — LLM 輸出驗證標準
+
+
+**Scope**: universal

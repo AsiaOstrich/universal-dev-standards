@@ -63,3 +63,6 @@ function arbitrate(rules: SecurityDecisionRule[]): SecurityDecision {
 - AI-optimized: [ai/standards/security-decision.ai.yaml](../ai/standards/security-decision.ai.yaml)
 - XSPEC-037: Cross-project specification
 - Borrowed from: [claude-code-book](https://github.com/lintsinghua/claude-code-book) Ch.4 four-stage permission pipeline
+
+
+**Scope**: universal

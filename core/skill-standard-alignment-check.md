@@ -77,3 +77,6 @@ Skill 必有 Standard 作為錨點，Standard 可無 Skill；定期識別孤兒 
 - DEC-043: UDS 覆蓋完整性路線圖（XSPEC-063~069 目的之一即清空本標準識別的 orphan 清單）
 - Related: `standard-admission-criteria`, `standard-lifecycle-management`
 - Internal: AsiaOstrich DEC-043 七主題缺口分析（slo/runbook/observability 等 40+ Skill 部分無 Standard 錨點）
+
+
+**Scope**: universal

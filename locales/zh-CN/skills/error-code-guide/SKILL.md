@@ -267,3 +267,36 @@ export const ErrorCodes = {
 此技能採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权。
 
 **來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+
+
+## Next Steps Guidance | 下一步引導
+
+After `/errors` completes, the AI assistant should suggest:
+
+> **錯誤碼設計已完成。建議下一步 / Error code design completed. Suggested next steps:**
+> - 執行 `/sdd` 將錯誤碼設計納入正式規格 ⭐ **Recommended / 推薦** — 確保錯誤碼在規格中有完整定義 / Ensure error codes are fully defined in specs
+> - 執行 `/logging` 設定結構化日誌以配合錯誤碼 — 讓錯誤碼與日誌系統整合 / Integrate error codes with logging system
+> - 執行 `/tdd` 為錯誤處理邏輯撰寫測試 — 確保每個錯誤碼都有對應的測試 / Ensure each error code has corresponding tests
+
+---
+
+## Related Standards
+
+- [Error Code Standards](../../core/error-code-standards.md)
+- [Logging Standards](../../core/logging-standards.md)
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-30 | Initial release |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

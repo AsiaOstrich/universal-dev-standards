@@ -1,6 +1,7 @@
 # [SPEC-DEC-001] Feature: 借鑒方法有效性評估框架 — UDS 實作
 
-> **狀態**: Approved
+> **狀態**: Implemented
+> **Status**: Stable
 > **建立日期**: 2026-04-09
 > **作者**: AlbertHsu
 > **上游規格**: [XSPEC-014](../../../dev-platform/cross-project/specs/XSPEC-014-borrow-effectiveness-evaluation.md)

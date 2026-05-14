@@ -181,3 +181,6 @@ The ratchet starts at your current coverage. From that point on, it can only inc
 - `integration-testing.ai.yaml` — Integration test patterns
 - `deployment-standards.ai.yaml` — Deploy gate requirements
 - XSPEC-178 — Full specification and implementation phases
+
+
+**Scope**: universal

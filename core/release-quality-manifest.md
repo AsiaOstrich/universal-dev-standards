@@ -191,3 +191,6 @@ Generate a Markdown table alongside the YAML for inclusion in release notes:
 - `supply-chain-attestation.ai.yaml` — SBOM and provenance
 - `testing.ai.yaml` — overall test strategy
 - `deployment-standards.ai.yaml` — release gate integration
+
+
+**Scope**: universal

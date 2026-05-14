@@ -57,3 +57,6 @@ const FAIL_CLOSED_DEFAULTS: CapabilityDeclaration = {
 - AI-optimized: [ai/standards/capability-declaration.ai.yaml](../ai/standards/capability-declaration.ai.yaml)
 - XSPEC-037: Cross-project specification
 - Borrowed from: [claude-code-book](https://github.com/lintsinghua/claude-code-book) Ch.3 `buildTool` Fail-Closed factory
+
+
+**Scope**: universal

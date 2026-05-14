@@ -519,3 +519,6 @@ lsattr /var/log/ai-agent/audit    # 驗證 a 屬性
 □ Audit log volume：append-only partition（非 emptyDir）
 □ Lockfile 固定（npm ci / pip --require-hashes / go mod verify）
 ```
+
+
+**Scope**: universal

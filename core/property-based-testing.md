@@ -71,3 +71,6 @@ fc.assert(property, { seed: 1234567890 })
 - [Mutation Testing Standards](mutation-testing.md) — complement to PBT
 - [Testing Standards](testing-standards.md) — overall test pyramid
 - [Adversarial Test Standards](adversarial-test.md) — security-focused fuzzing
+
+
+**Scope**: universal

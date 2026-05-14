@@ -283,3 +283,36 @@ logger.error('处理订单失败', {
 此技能採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权。
 
 **來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+
+
+## Next Steps Guidance | 下一步引導
+
+After `/logging` completes, the AI assistant should suggest:
+
+> **日誌標準已掌握。建議下一步 / Logging standards understood. Suggested next steps:**
+> - 根據日誌指南在程式碼中實作結構化日誌 ⭐ **Recommended / 推薦** — 立即將日誌標準應用到專案 / Apply logging standards to the project immediately
+> - 執行 `/errors` 設計錯誤碼以配合日誌系統 — 讓錯誤追蹤更有效率 / Make error tracking more efficient
+> - 執行 `/sdd` 將可觀測性需求納入規格 — 確保日誌需求在規格中有定義 / Ensure logging requirements are defined in specs
+
+---
+
+## Related Standards
+
+- [Logging Standards](../../core/logging-standards.md)
+- [Error Code Standards](../../core/error-code-standards.md)
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-30 | Initial release |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

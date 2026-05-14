@@ -206,3 +206,79 @@ Reference: `.standards/ai-response-navigation.ai.yaml` (or `core/ai-response-nav
 ## License
 
 This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+
+## Available UDS Slash Commands | UDS 可用命令
+
+> Auto-generated index for SPEC-INTSYNC-001 sync compliance. The authoritative descriptions live in `skills/commands/*.md` and `skills/commands/COMMAND-INDEX.json`.
+
+> 為 SPEC-INTSYNC-001 同步合規自動產生的索引。權威描述位於 `skills/commands/*.md` 與 `COMMAND-INDEX.json`。
+
+### core
+
+- `/commit`
+- `/review`
+- `/sdd`
+- `/check`
+- `/init`
+- `/update`
+- `/config`
+
+### testing
+
+- `/tdd`
+- `/bdd`
+- `/atdd`
+- `/e2e`
+- `/coverage`
+- `/ac-coverage`
+- `/derive`
+- `/derive-bdd`
+- `/derive-tdd`
+- `/derive-atdd`
+- `/derive-all`
+
+### quality
+
+- `/checkin`
+- `/refactor`
+- `/scan`
+- `/security`
+- `/reverse`
+- `/reverse-sdd`
+- `/reverse-bdd`
+- `/reverse-tdd`
+
+### docs
+
+- `/docs`
+- `/docgen`
+- `/changelog`
+- `/requirement`
+- `/brainstorm`
+- `/sdd-retro`
+- `/pr`
+
+### ops
+
+- `/observability`
+- `/slo`
+- `/runbook`
+- `/incident`
+- `/metrics`
+- `/durable`
+- `/ci-cd`
+
+### methodology
+
+- `/methodology`
+- `/dev-workflow`
+- `/discover`
+- `/release`
+- `/audit`
+- `/migrate`
+
+### reference
+
+- `/database`
+- `/api-design`

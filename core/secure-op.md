@@ -312,3 +312,6 @@ P0c 等級 + 外部稽核師可存取的 Audit Chain 匯出功能。
 - `security-testing`：安全測試方法論（SAST、DAST、依賴審計）
 - `audit-trail`：一般 Audit Trail 標準
 - `mock-boundary`：測試中禁止 mock 安全控制
+
+
+**Scope**: universal

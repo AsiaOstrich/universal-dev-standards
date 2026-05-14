@@ -107,3 +107,6 @@
 - [pipeline-integration-standards.md](pipeline-integration-standards.md) — CI 管線整合標準
 - [deployment-standards.md](deployment-standards.md) — 部署基礎原則
 - AI 格式：[../ai/standards/pipeline-security-gates.ai.yaml](../ai/standards/pipeline-security-gates.ai.yaml)
+
+
+**Scope**: universal

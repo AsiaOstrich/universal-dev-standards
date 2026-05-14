@@ -54,3 +54,6 @@ Applications may add fields inside `<summary>` but must not remove core fields:
 - AI-optimized: [ai/standards/dual-phase-output.ai.yaml](../ai/standards/dual-phase-output.ai.yaml)
 - XSPEC-035: Cross-project specification
 - Borrowed from: [claude-code-book](https://github.com/lintsinghua/claude-code-book) Ch.7 `formatCompactSummary`
+
+
+**Scope**: universal

@@ -61,3 +61,6 @@ Downstream DB timeout  =  5120 ms   (6400  × 0.8)
 - DEC-043: UDS 覆蓋完整性路線圖（驅動來源）
 - Related: `circuit-breaker`, `retry-standards`, `failure-source-taxonomy`
 - Industry: gRPC deadline propagation, Envoy timeout budgeting, Google SRE Book Ch.22
+
+
+**Scope**: universal

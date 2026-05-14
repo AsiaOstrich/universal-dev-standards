@@ -122,7 +122,8 @@ else
     done <<< "$ALL_COMMANDS"
 
     # Extract commands listed in skills/README.md table (lines matching | ... | `/command` | ... |)
-    TABLE_COMMANDS=$(grep -oE '`/[a-z]+`' "$SKILLS_README" | \
+    # Allow digits in command names (e.g. /e2e); sub-command "-" forms are filtered by the EXPECTED_COMMANDS loop above.
+    TABLE_COMMANDS=$(grep -oE '`/[a-z0-9-]+`' "$SKILLS_README" | \
         sed 's/`\///g' | \
         sed 's/`//g' | \
         sort -u)

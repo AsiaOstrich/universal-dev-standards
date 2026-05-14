@@ -70,3 +70,6 @@
 - DEC-043: UDS 覆蓋完整性路線圖（驅動來源）
 - Related: `deployment-standards`, `circuit-breaker`, observability-standards (XSPEC-063 規劃中)
 - Industry: Kubernetes probes, Microsoft eShop health checks, Google SRE Book Ch.6
+
+
+**Scope**: universal
