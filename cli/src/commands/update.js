@@ -616,12 +616,26 @@ export async function updateCommand(options) {
     intSpinner.succeed(msg.syncedIntegrations.replace('{count}', results.integrations.length));
 
     // XSPEC-208 BUG-208-02: prune orphaned integrationBlockHashes whose
-    // integration file is no longer generated (e.g. manifest.aiTools shrank
-    // from ["claude-code","gemini-cli"] to ["claude-code"], leaving stale
-    // GEMINI.md hash). Without this, `uds check` -> checkIntegrationBlocksIntegrity
+    // integration file is no longer claimed by manifest.aiTools (e.g. aiTools
+    // shrank from ["claude-code","gemini-cli"] to ["claude-code"], leaving a
+    // stale GEMINI.md hash). Without this, `uds check` -> checkIntegrationBlocksIntegrity
     // falsely reports those files as missing.
+    //
+    // The expected set is built from manifest.aiTools (the declared
+    // configuration), NOT results.integrations (what was actually written).
+    // Using results.integrations would over-prune when writes fail (e.g.
+    // sandbox EPERM) and incorrectly drop valid hashes.
     if (manifest.integrationBlockHashes) {
-      const expectedFiles = new Set(results.integrations);
+      const expectedFiles = new Set();
+      for (const tool of (manifest.aiTools || [])) {
+        const targetFile = getToolFilePath(tool);
+        if (targetFile) expectedFiles.add(targetFile);
+      }
+      // Universal AGENTS.md is tracked when generateAgentsMd is enabled.
+      if (manifest.generateAgentsMd) {
+        expectedFiles.add('AGENTS.md');
+      }
+
       const orphaned = Object.keys(manifest.integrationBlockHashes)
         .filter(f => !expectedFiles.has(f));
       for (const f of orphaned) {
