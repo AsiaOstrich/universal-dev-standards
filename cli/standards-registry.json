@@ -2326,12 +2326,13 @@
       "id": "license-compliance",
       "name": "License Compliance Standards",
       "nameZh": "授權合規標準",
+      "version": "2.1.0",
       "source": {
         "human": "core/license-compliance.md",
         "ai": "ai/standards/license-compliance.ai.yaml"
       },
       "category": "core",
-      "description": "License tier classification, automated scanning in CI, SBOM generation, attribution notices, and violation remediation"
+      "description": "License tier classification, automated scanning in CI, SBOM generation, attribution notices, violation remediation, ClearlyDefined API, AST PII analysis, and EmbeddingProvider copyright similarity"
     },
     {
       "id": "pii-classification",

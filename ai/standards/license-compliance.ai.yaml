@@ -2,23 +2,27 @@
 # Sources:
 #   v1.0.0 — XSPEC-066 Wave 3 Compliance Pack (general OSS practices)
 #   v2.0.0 — XSPEC-193 §7.1 (AI-specific rules for AI-Generated Code)
+#   v2.1.0 — XSPEC-193 Phase 2 (ClearlyDefined API + AST PII + EmbeddingProvider + ASPEC-001)
 
 id: license-compliance
 title: License Compliance Standards for AI-Generated Code
-version: "2.0.0"
+version: "2.1.0"
 status: Active
-tags: [compliance, licensing, open-source, legal, supply-chain, ai-generated, eu-ai-act, sbom, pii]
+tags: [compliance, licensing, open-source, legal, supply-chain, ai-generated, eu-ai-act, sbom, pii, clearly-defined, ast-pii, embedding]
 created: 2026-04-30
-updated: 2026-05-14
+updated: 2026-05-16
+
+agent_ref: ASPEC-001   # License Compliance Agent spec (XSPEC-205 format)
 
 references:
   - XSPEC-066   # v1.0.0 baseline - Wave 3 Compliance Pack
-  - XSPEC-193   # v2.0.0 AI-specific rules - VibeOps License Compliance Agent
+  - XSPEC-193   # v2.0.0 + v2.1.0 AI-specific rules - VibeOps License Compliance Agent
   - DEC-041     # EU AI Act compliance
   - DEC-062     # Harness Engineering 2026 adoption
   - DEC-063     # VibeOps legal & compliance strategy
   - DEC-064     # Customer IP isolation (cache salt)
   - XSPEC-189   # Telemetry Schema v2 (event types referenced below)
+  - ASPEC-001   # License Compliance Agent SPEC (XSPEC-205 §REQ-2 format)
 
 summary: |
   Comprehensive license compliance for AI-augmented development.
@@ -36,6 +40,12 @@ summary: |
   and equivalents). Designed to prevent legal exposure from incompatible
   license combinations, ensure supply-chain transparency, and satisfy
   EU AI Act Article 50 obligations.
+
+  v2.1.0 enhancements (XSPEC-193 Phase 2, 2026-05-16):
+  - LC-001 now backed by ClearlyDefined API (confidence ≥ 0.95 when CD available)
+  - LC-007 PII detection upgraded with tree-sitter AST semantic context
+  - LC-006 copyright similarity upgraded with EmbeddingProvider strategy
+    (onnx-minilm / ollama-bge-m3 / jaccard fallback)
 
 scope:
   applies_to:
@@ -191,10 +201,19 @@ rules:
     description: |
       Every dependency license MUST be resolved to a SPDX standard ID
       before any list comparison.
+
+      v2.1.0: Primary source is ClearlyDefined API (confidence ≥ 0.95 for
+      well-known packages). Falls back to SPDX database (confidence ≤ 0.8)
+      or package metadata heuristics. Requests are token-bucket-rate-limited
+      (10 req/s, burst 20) and cached with 24h TTL + DEC-064 client_salt
+      isolation. offline=true bypasses external calls entirely.
     checks:
       - "license_lookup() result must have non-null spdx_id"
       - "If confidence < 0.7, escalate_to_human"
       - "Free-text license fields from package metadata MUST NOT be used directly"
+      - "ClearlyDefined API: GET /definitions/{type}/{provider}/{namespace}/{name}/{revision}"
+      - "On 5xx: exponential backoff × 3 (200ms/1s/3s); on 429: batch fallback immediately"
+      - "Cache key = sha256(client_salt + ':' + purl) — DEC-064 isolation guaranteed"
 
   - id: LC-002
     name: Blocklist Auto-Block
@@ -289,18 +308,28 @@ rules:
     name: Copyright Similarity Threshold
     severity: blocking
     description: |
-      AI-generated code with CodeBERT-embedding similarity ≥ 0.85 to a
-      known open-source repo MUST be inspected. If the source repo is on
-      the blocklist (GPL/AGPL), the PR MUST be blocked.
+      AI-generated code with embedding similarity ≥ 0.85 to a known
+      open-source repo MUST be inspected. If the source repo is on the
+      blocklist (GPL/AGPL), the PR MUST be blocked.
+
+      v2.1.0: EmbeddingProvider strategy (XSPEC-193 Phase 2):
+        - provider='onnx-minilm': local ONNX inference (all-MiniLM-L6-v2)
+        - provider='ollama-bge-m3': Ollama local API (bge-m3, localhost:11434)
+        - provider='jaccard' (default): Jaccard token similarity (Phase 1)
+      Known snippet index is per-customer (DEC-064 client_salt isolated).
+      External search is opt-in (enableExternalSearch=false by default).
     checks:
       - "overall_similarity >= 0.85 AND source_license in blocklist → block_pr"
       - "overall_similarity >= 0.70 AND source_license in greylist → review"
       - "overall_similarity >= 0.85 AND source_license in allowlist → record info event, do not block"
+      - "ONNX/Ollama unavailable → graceful fallback to Jaccard (no exception)"
+      - "snippet index build: buildSnippetIndex(snippets, provider) per-customer"
     evidence_required:
       - "source_repo URL"
       - "source_license SPDX ID"
       - "similarity score (4 decimal places)"
       - "matched_section (first 5 lines of the snippet)"
+      - "embedding_provider used (for audit trail)"
 
   - id: LC-007
     name: PII Pattern Detection
@@ -309,6 +338,17 @@ rules:
       When AI-generated code contains a personal-data handling pattern,
       issue a warning with a remediation hint. severity="critical" patterns
       MUST escalate to human review.
+
+      v2.1.0: AST-enhanced detection via tree-sitter (XSPEC-193 Phase 2):
+        - Language support: TypeScript, JavaScript, Python
+        - AST context classification:
+            hardcoded_value → severity upgraded to critical
+            comment         → severity downgraded to info
+            schema_field    → ast_context='schema_field'
+        - Pragma support: // pii:ignore on same line suppresses finding
+        - tree-sitter unavailable → graceful fallback to regex (no exception)
+        - LLM assist: stub (enableLLMAssist=false default, Phase 3 integration)
+        - PIIPattern.confidence and PIIPattern.ast_context are new optional fields
     pii_types:
       critical:
         - ssn               # Social security number
@@ -323,8 +363,8 @@ rules:
         - address
     detection_strategy:
       - "regex: field-name patterns (email, phone_number, ssn, credit_card_number, ...)"
-      - "ast: function-signature analysis (getUserEmail(), processCreditCard(), ...)"
-      - "llm_assist: ambiguous contexts (confidence threshold 0.8)"
+      - "ast: tree-sitter semantic context (hardcoded_value / comment / schema_field)"
+      - "llm_assist: ambiguous contexts (confidence threshold 0.8, Phase 3)"
 
   - id: LC-008
     name: EU AI Act Transparency Marker
@@ -410,6 +450,7 @@ adoption_guidance:
   vibeops_config_path: src/agents/license-compliance/rules.yaml
   customer_config_path: ~/.vibeops/license-policy.yaml
   notes:
+    - "v2.1.0 adds ClearlyDefined API integration, AST PII analysis, and EmbeddingProvider strategy. Requires VibeOps ≥ v1.6.0 (commit c44a4bf)."
     - "v2.0.0 Tier 2 rules are Active for AI-augmented projects. Legal sign-off on the blocklist remains pending; treat the blocklist as authoritative-pending-review."
     - "LGPL greylist decisions should consult legal counsel."
     - "Alternative-package table (XSPEC-193 §4.5) is updated quarterly, driven by license_lookup_failure telemetry."
@@ -425,3 +466,10 @@ compatibility:
     OSS practice. v2.0.0 adds Tier 2 LC-001~009 as a strict superset for
     AI-augmented projects. A project that adopted v1.0.0 remains compliant;
     AI-augmented projects MUST additionally enforce Tier 2.
+  v2_to_v2_1: |
+    v2.1.0 is a backward-compatible superset of v2.0.0. New features
+    (ClearlyDefined API, AST PII, EmbeddingProvider) are opt-in via
+    ComplianceAgentConfig. All existing LC-001~009 rules are unchanged.
+    PIIPattern gains optional fields (confidence, ast_context); existing
+    code that reads PIIPattern is unaffected.
+    Minimum runtime: Node.js 22 + VibeOps v1.6.0.
