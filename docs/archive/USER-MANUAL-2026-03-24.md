@@ -1,10 +1,4 @@
-> **⚠️ DEPRECATED** — This manual is outdated (last updated 2026-03-24) and is no longer maintained.
-> See the new user documentation at **[docs/user/README.md](user/README.md)** for current guides.
-> Archived at: [docs/archive/USER-MANUAL-2026-03-24.md](archive/USER-MANUAL-2026-03-24.md)
-
----
-
-# User Manual (Archived)
+# User Manual
 
 **Version**: 1.0.0
 **Last Updated**: 2026-03-24

@@ -13,6 +13,8 @@
     "docs:manifest": "node scripts/sync-manifest.mjs",
     "docs:generate": "node scripts/generate-docs.mjs",
     "docs:sync": "npm run docs:manifest && npm run docs:generate",
+    "docs:generate-index": "tsx scripts/generate-skill-index.ts",
+    "docs:check-index": "tsx scripts/check-skill-index.ts",
     "test:scripts": "tests/bats/bin/bats tests/scripts/",
     "check:ai-behavior": "tsx scripts/check-ai-behavior-sync.ts",
     "check:commit-spec": "tsx scripts/check-commit-spec-reference.ts",

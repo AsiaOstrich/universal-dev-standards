@@ -1108,7 +1108,9 @@ Examples:
     // Generate reference
     if (!args.cheatsheetOnly) {
       const refContent = generateReference(data, lang, config);
-      const refPath = path.join(outputPath, 'FEATURE-REFERENCE.md');
+      const refPath = lang === 'en'
+        ? path.join(ROOT_DIR, 'docs', 'reference', 'FEATURE-REFERENCE.md')
+        : path.join(outputPath, 'FEATURE-REFERENCE.md');
 
       if (args.check) {
         const existing = fs.existsSync(refPath)
@@ -1128,7 +1130,9 @@ Examples:
     // Generate cheatsheet
     if (!args.referenceOnly) {
       const cheatContent = generateCheatsheet(data, lang, config);
-      const cheatPath = path.join(outputPath, 'CHEATSHEET.md');
+      const cheatPath = lang === 'en'
+        ? path.join(ROOT_DIR, 'docs', 'user', 'CHEATSHEET.md')
+        : path.join(outputPath, 'CHEATSHEET.md');
 
       if (args.check) {
         const existing = fs.existsSync(cheatPath)

@@ -48,6 +48,18 @@ npx universal-dev-standards init
 >
 > See also: [Daily Workflow Guide](adoption/DAILY-WORKFLOW-GUIDE.md)
 
+### 📚 Documentation
+
+| I want to... | Document |
+|---|---|
+| **New to UDS?** Set up in 5 minutes | [docs/user/GETTING-STARTED.md](docs/user/GETTING-STARTED.md) |
+| Browse all 54 skills by Tier & Category | [docs/user/SKILLS-INDEX.md](docs/user/SKILLS-INDEX.md) |
+| See all slash commands | [docs/user/COMMANDS-INDEX.md](docs/user/COMMANDS-INDEX.md) |
+| Quick reference card | [docs/user/CHEATSHEET.md](docs/user/CHEATSHEET.md) |
+| Common questions | [docs/user/FAQ.md](docs/user/FAQ.md) |
+| Troubleshoot problems | [docs/user/TROUBLESHOOTING.md](docs/user/TROUBLESHOOTING.md) |
+| Understand UDS terminology | [docs/user/GLOSSARY.md](docs/user/GLOSSARY.md) |
+
 ---
 
 ## ✨ Features

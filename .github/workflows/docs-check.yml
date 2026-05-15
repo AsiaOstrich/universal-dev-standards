@@ -1,0 +1,26 @@
+name: Docs Index Check
+
+on:
+  pull_request:
+    paths:
+      - 'uds-manifest.json'
+      - 'skills/*/SKILL.md'
+      - 'cli/standards-registry.json'
+      - 'scripts/generate-skill-index.ts'
+
+jobs:
+  check-docs-index:
+    name: Verify SKILLS-INDEX and COMMANDS-INDEX are up to date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Check generated docs are up to date
+        run: npm run docs:check-index

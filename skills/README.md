@@ -4,6 +4,9 @@ This directory contains the reference implementations of Universal Development S
 
 > Derived from [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) core standards.
 
+> **For the full indexed skill list** (by Tier, Category, and use case), see **[docs/user/SKILLS-INDEX.md](../docs/user/SKILLS-INDEX.md)** (auto-generated).
+> For slash command reference, see **[docs/user/COMMANDS-INDEX.md](../docs/user/COMMANDS-INDEX.md)**.
+
 ## Directory Structure
 
 ```
