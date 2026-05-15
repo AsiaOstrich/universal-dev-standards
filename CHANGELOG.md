@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.12.0] - 2026-05-16
+
+### Added
+- **`docs/user/` user documentation hub** (XSPEC-211): New dual-track documentation structure mirroring VibeOps conventions. Contains 8 files serving first-time users and daily users:
+  - `docs/user/GETTING-STARTED.md` — 5-minute end-to-end walkthrough (install → `uds init` → `/sdd` → `/commit`)
+  - `docs/user/SKILLS-INDEX.md` — auto-generated index of all 54 skills, organized by Tier (DEC-061) and Category, plus "When to Use" quick reference
+  - `docs/user/COMMANDS-INDEX.md` — auto-generated alphabetical listing of all 48 slash commands with skill mapping
+  - `docs/user/FAQ.md` — 14 questions covering installation, skills, SDD, updating, and architecture
+  - `docs/user/GLOSSARY.md` — definitions for UDS, SDD, ATDD, BDD, TDD, XSPEC, Dual-Layer, Skill Tier, Standard, Activity, Bundle/Source, ADR, AC
+  - `docs/user/TROUBLESHOOTING.md` — problem→solution guide (installation, skills not showing, non-Claude-Code tools, update failures), absorbing `SKILL-FALLBACK-GUIDE.md`
+  - `docs/user/README.md` — three-audience doc hub (new users / daily users / maintainers) with document map
+  - `docs/user/CHEATSHEET.md` — moved from `docs/` (no content change)
+- **`scripts/generate-skill-index.ts`** — generates `SKILLS-INDEX.md` and `COMMANDS-INDEX.md` from `uds-manifest.json` + `skills/*/SKILL.md` frontmatter. Uses SKILL.md `name` field as authoritative command source. Run: `npm run docs:generate-index`
+- **`scripts/check-skill-index.ts`** — pre-commit guard; regenerates docs and diffs; exits non-zero if stale. Run: `npm run docs:check-index`
+- **`scripts/setup-hooks.sh`** — installs `.git/hooks/pre-commit` to call `docs:check-index` on every commit
+- **`.github/workflows/docs-check.yml`** — CI job that verifies `SKILLS-INDEX.md` and `COMMANDS-INDEX.md` are in sync when `uds-manifest.json`, `skills/*/SKILL.md`, or `cli/standards-registry.json` are modified in a PR
+- **`docs/reference/FEATURE-REFERENCE.md`** — `FEATURE-REFERENCE.md` relocated from `docs/` to `docs/reference/` (auto-generated, no content change)
+- **`docs/archive/USER-MANUAL-2026-03-24.md`** — archived copy of the deprecated User Manual
+
+### Changed
+- **`package.json`**: Added `docs:generate-index` (`tsx scripts/generate-skill-index.ts`) and `docs:check-index` (`tsx scripts/check-skill-index.ts`) scripts
+- **`scripts/generate-usage-docs.mjs`**: Updated English output paths — `FEATURE-REFERENCE.md` now writes to `docs/reference/`, `CHEATSHEET.md` now writes to `docs/user/`
+- **`skills/README.md`**: Added banner pointing to `docs/user/SKILLS-INDEX.md` and `COMMANDS-INDEX.md` as the primary indexed skill reference
+- **`README.md`**: Added "📚 Documentation" table in Quick Start section, listing all 7 `docs/user/` files with direct links
+- **`docs/USER-MANUAL.md`**: Added deprecation banner directing users to `docs/user/README.md`; archived copy preserved at `docs/archive/USER-MANUAL-2026-03-24.md`
+
+### Removed
+- **`docs/SKILL-FALLBACK-GUIDE.md`**: Content merged into `docs/user/TROUBLESHOOTING.md`. Non-Claude-Code fallback strategies and Skill→Core Standard mapping table are preserved under the "Using UDS Without Claude Code" section
+
 ## [5.11.0] - 2026-05-14
 
 ### Added

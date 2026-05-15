@@ -17,6 +17,35 @@ status: current
 
 ## [Unreleased]
 
+## [5.12.0] - 2026-05-16
+
+### 新增
+- **`docs/user/` 使用者文件體系**（XSPEC-211）：新增雙軌文件結構，仿照 VibeOps 慣例，包含 8 份文件：
+  - `docs/user/GETTING-STARTED.md` — 5 分鐘端到端教學（install → `uds init` → `/sdd` → `/commit`）
+  - `docs/user/SKILLS-INDEX.md` — 自動生成的 54 個 skill 索引，依 Tier（DEC-061）與 Category 分類，含「觸發時機速查」表
+  - `docs/user/COMMANDS-INDEX.md` — 自動生成的 48 個 slash command 字母序清單，含 skill 對應
+  - `docs/user/FAQ.md` — 14 題常見問題（安裝、skill、SDD、升級、架構）
+  - `docs/user/GLOSSARY.md` — UDS、SDD、ATDD、BDD、TDD、XSPEC、Dual-Layer、Skill Tier、Standard、Activity、Bundle/Source、ADR、AC 等術語定義
+  - `docs/user/TROUBLESHOOTING.md` — 問題→解法指南，整合 `SKILL-FALLBACK-GUIDE.md` 內容
+  - `docs/user/README.md` — 三類受眾入口（新手 / 日常使用者 / 維護者）+ 文件地圖
+  - `docs/user/CHEATSHEET.md` — 從 `docs/` 移入（內容不變）
+- **`scripts/generate-skill-index.ts`** — 從 `uds-manifest.json` + `skills/*/SKILL.md` frontmatter 生成 SKILLS-INDEX.md 與 COMMANDS-INDEX.md。執行：`npm run docs:generate-index`
+- **`scripts/check-skill-index.ts`** — pre-commit 守門；重生成後 diff，不同步則 exit 非零。執行：`npm run docs:check-index`
+- **`scripts/setup-hooks.sh`** — 安裝 `.git/hooks/pre-commit`，每次 commit 自動呼叫 `docs:check-index`
+- **`.github/workflows/docs-check.yml`** — CI job：PR 修改 manifest/SKILL.md/registry 時驗證 INDEX 文件已同步
+- **`docs/reference/FEATURE-REFERENCE.md`** — FEATURE-REFERENCE.md 從 `docs/` 遷移至 `docs/reference/`（自動生成，內容不變）
+- **`docs/archive/USER-MANUAL-2026-03-24.md`** — 已廢棄 User Manual 的歸檔備份
+
+### 變更
+- **`package.json`**：新增 `docs:generate-index` 與 `docs:check-index` npm scripts
+- **`scripts/generate-usage-docs.mjs`**：更新英文輸出路徑（FEATURE-REFERENCE → `docs/reference/`，CHEATSHEET → `docs/user/`）
+- **`skills/README.md`**：新增 banner 指向 `docs/user/SKILLS-INDEX.md` 與 `COMMANDS-INDEX.md`
+- **`README.md`**：Quick Start 段落新增「📚 Documentation」表格，列出 7 份 `docs/user/` 文件直連
+- **`docs/USER-MANUAL.md`**：新增 deprecation banner 指向 `docs/user/README.md`；歸檔備份保留於 `docs/archive/`
+
+### 移除
+- **`docs/SKILL-FALLBACK-GUIDE.md`**：內容已整合至 `docs/user/TROUBLESHOOTING.md`。非 Claude Code 工具的 fallback 策略與 Skill→Core Standard 對應表保留於「Using UDS Without Claude Code」段落
+
 ## [5.11.0] - 2026-05-14
 
 ### 新增 / Added
