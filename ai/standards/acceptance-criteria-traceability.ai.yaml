@@ -61,11 +61,17 @@ standard:
 
       - status: not_implemented
         symbol: "🚫"
-        definition: AC has no corresponding implementation (feature code does not exist)
+        definition: AC has no corresponding implementation or test verification (feature code or test body does not exist)
         criteria: |
-          No business logic in src/ corresponds to this AC.
-          Distinct from uncovered: uncovered = code exists but no test; not_implemented = code does not exist.
-          Typical signals: throw NotImplementedException(), empty stub body, FEATURE_STUB: marker.
+          No business logic in src/ corresponds to this AC, OR the only test mapped
+          to this AC is an it.todo() placeholder (test body not implemented).
+          Distinct from uncovered: uncovered = code exists but test was forgotten;
+          not_implemented = explicitly marked as pending implementation.
+          Typical signals:
+            - throw NotImplementedException(), empty stub body, FEATURE_STUB: marker
+            - it.todo("AC-XXX: ...") — test slot reserved but verification not written
+          XSPEC-220: it.todo() tests map to not_implemented, NOT to uncovered.
+          Rationale: it.todo() is a deliberate placeholder, not an oversight.
         decision_tree: |
           Q1: Does the corresponding code exist in src/?
             No → not_implemented

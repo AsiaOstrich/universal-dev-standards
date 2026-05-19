@@ -59,9 +59,54 @@ standard:
         definition: AC has no tests
         criteria: No test case references this AC
 
+      - status: not_implemented
+        symbol: "🚫"
+        definition: AC has no corresponding implementation or test verification (feature code or test body does not exist)
+        criteria: |
+          No business logic in src/ corresponds to this AC, OR the only test mapped
+          to this AC is an it.todo() placeholder (test body not implemented).
+          Distinct from uncovered: uncovered = code exists but test was forgotten;
+          not_implemented = explicitly marked as pending implementation.
+          Typical signals:
+            - throw NotImplementedException(), empty stub body, FEATURE_STUB: marker
+            - it.todo("AC-XXX: ...") — test slot reserved but verification not written
+          XSPEC-220: it.todo() tests map to not_implemented, NOT to uncovered.
+          Rationale: it.todo() is a deliberate placeholder, not an oversight.
+        decision_tree: |
+          Q1: Does the corresponding code exist in src/?
+            No → not_implemented
+            Yes → Q2: Does any test reference this AC?
+              No → uncovered
+              Yes → Q3: Are all conditions in the AC tested?
+                Yes → covered
+                No → partial
+
     calculation:
-      formula: "AC Coverage % = (covered_count + partial_count × 0.5) / total_ac_count × 100"
-      note: Partial counts as 0.5 for coverage calculation
+      formula: "AC Coverage % = (covered_count + partial_count × 0.5) / (total_ac_count - not_implemented_count) × 100"
+      note: |
+        not_implemented ACs are excluded from the coverage denominator (separate dimension).
+        Partial counts as 0.5 for coverage calculation.
+        Example: 20 ACs total, 3 not_implemented, 15 covered, 2 uncovered →
+          coverage = (15 + 0) / (20 - 3) × 100 = 88.2%
+
+    ci_gate:
+      not_implemented_blocking: true
+      rule: "not_implemented_count > 0 → CI fails with [AC-NOT-IMPL] before UAT gate"
+      report_format: |
+        AC Traceability Report
+        ──────────────────────
+        🚫 NOT IMPLEMENTED (<count>) — BLOCKING
+          AC-007  OrderCancellation        src/orders/ 無對應實作
+          AC-012  RefundCalculation        src/payments/ 無對應實作
+
+        ❌ UNCOVERED (<count>) — WARNING
+          AC-003  BulkImport               test/import/ 缺測試
+
+        ✅ COVERED (<count>)
+        ⚠️  PARTIAL (<count>)
+
+        AC Coverage: <pct>% (<covered>/<implemented_total> implemented ACs)
+        Status: BLOCKED by <not_impl_count> not_implemented AC(s)
 
   quality_thresholds:
     defaults:
@@ -147,7 +192,14 @@ standard:
 
     - id: honest-status
       trigger: reporting AC coverage
-      instruction: Use honest status classification (covered/partial/uncovered); never inflate coverage
+      instruction: "Use honest status classification (covered/partial/uncovered/not_implemented); never inflate coverage"
+      priority: required
+
+    - id: not-implemented-gate
+      trigger: AC traceability matrix contains not_implemented status
+      instruction: |
+        Flag CI as BLOCKED with [AC-NOT-IMPL] message. List all not_implemented ACs.
+        not_implemented must be resolved before UAT. Exclude not_implemented from coverage denominator.
       priority: required
 
     - id: track-all-ac

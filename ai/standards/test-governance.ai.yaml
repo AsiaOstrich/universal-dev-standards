@@ -158,3 +158,22 @@ standard:
       evidence: >
         BUG-A08 post-mortem (2026-04-20): 22 tests existed in UDS but were never
         executed by any CI gate, passing silently and masking real failures.
+
+    - id: gate-wiring-required
+      trigger: adding any quality detection script to the repository
+      instruction: |
+        Quality detection scripts (anti-fake check, stub check, coverage ratchet,
+        tautology scanner) MUST appear in at least one CI workflow job AND at least
+        one local hook (pre-commit or pre-push). A script that exists in scripts/
+        but is never called by CI is equivalent to not existing and constitutes a
+        governance gap. Apply the same execution-continuity principle to detection
+        scripts as to test cases: existence ≠ execution.
+        Checklist when adding a detection script:
+          [ ] Script is called in .github/workflows/*.yml (at least one job)
+          [ ] Script is called in .husky/pre-commit or .husky/pre-push
+          [ ] CI step name references the XSPEC or standard that mandates it
+      priority: required
+      evidence: >
+        XSPEC-220 post-mortem (2026-05-19): check-anti-fake-tests.sh existed in
+        vibeops/scripts/ for months but was not called by pre-commit, allowing
+        tautology assertions to be committed undetected.
