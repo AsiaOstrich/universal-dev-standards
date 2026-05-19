@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.12.0
-translation_version: 5.12.0
-last_synced: 2026-05-15
+source_version: 5.12.1
+translation_version: 5.12.1
+last_synced: 2026-05-19
 status: current
 ---
 
@@ -16,6 +16,13 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.12.1] - 2026-05-19
+
+### 變更
+- **`full-coverage-testing.ai.yaml`**（`no-tautology-assertions` 規則，XSPEC-220）：AI agent 生成未實作測試骨架時，**必須**使用 `it.todo("AC-XXX: ...")`，禁止使用含 `expect(true).toBe(true)` 的 `it()` callback——無論由人類或 AI agent 生成，均視為 `[ANTI-FAKE-001]` 違規。
+- **`test-governance.ai.yaml`**（`gate-wiring-required` 規則，XSPEC-220）：品質偵測腳本（anti-fake、stub-check、coverage ratchet）**必須**同時出現在至少一個 CI workflow job 與至少一個 local hook。腳本存在於 `scripts/` 但從未被 CI 呼叫，等同不存在，視為治理缺口。
+- **`acceptance-criteria-traceability.ai.yaml`**（`not_implemented` 狀態，XSPEC-220）：明確定義 `it.todo()` 佔位符對應 `not_implemented 🚫` 狀態（不計入覆蓋率分母），補充決策樹區分 `not_implemented`（有意識標記）與 `uncovered`（遺漏）。
 
 ## [5.12.0] - 2026-05-16
 
