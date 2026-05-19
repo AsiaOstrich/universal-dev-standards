@@ -262,6 +262,9 @@ fi
 # Step 18: Registry Completeness
 run_check "18" "Running registry completeness check | 註冊表完整性檢查" "$SCRIPT_DIR/check-registry-completeness.sh"
 
+# Step 18.5: Skill Structural Integrity (XSPEC-223)
+run_check "18.5" "Running skill structural integrity check | Skill 結構完整性檢查" "tsx $SCRIPT_DIR/check-skill-structural-integrity.ts"
+
 # Step 19: Unit Tests
 if [ "$SKIP_TESTS" = true ]; then
     echo -e "${CYAN}[19/$TOTAL]${NC} Running unit tests..."
