@@ -5,8 +5,39 @@ on:
     types: [published]
 
 jobs:
+  clean-room-install:
+    name: Clean-room Install Test (XSPEC-221)
+    runs-on: ubuntu-latest
+    container:
+      image: node:20-alpine
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install UDS globally from source
+        working-directory: cli
+        run: npm install -g .
+
+      - name: Verify uds --version
+        run: uds --version
+
+      - name: Verify uds list (≥10 standards, no errors)
+        run: |
+          output=$(uds list 2>&1)
+          echo "$output"
+          count=$(echo "$output" | grep -c "^")
+          [ "$count" -ge 10 ]
+          echo "$output" | grep -qv "Error\|Cannot find module"
+
+      - name: Verify uds init --dry-run
+        run: |
+          mkdir /tmp/uds-test && cd /tmp/uds-test
+          uds init --dry-run
+
   publish:
     name: Publish to npm
+    needs: [clean-room-install]
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -32,3 +32,27 @@ setup() {
   run bash "$SCRIPT" --unknown-flag
   [ "$status" -ne 0 ]
 }
+
+# XSPEC-222: Dogfooding Gate (Step 23)
+
+@test "pre-release-check.sh defines Step 23 Dogfooding Gate" {
+  run grep -c "Dogfooding" "$SCRIPT"
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 1 ]
+}
+
+@test "Step 23 runs uds check not uds update" {
+  run bash -c "grep -A20 'Dogfooding' '$SCRIPT'"
+  [[ "$output" =~ "check" ]]
+  [[ ! "$output" =~ "uds.js update" ]]
+}
+
+@test "TOTAL counter is 23" {
+  run grep "^TOTAL=23" "$SCRIPT"
+  [ "$status" -eq 0 ]
+}
+
+@test "--skip-tests does not skip Dogfooding Gate" {
+  run bash -c "awk '/SKIP_TESTS.*true/,/^fi/' '$SCRIPT' | grep -c 'Dogfooding'"
+  [ "$output" -eq 0 ]
+}

@@ -68,10 +68,10 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=22
+TOTAL=23
 
 if [ "$SKIP_TESTS" = true ]; then
-    TOTAL=18
+    TOTAL=19
 fi
 
 # Function to run a check
@@ -314,6 +314,26 @@ if [ -f "$SCRIPT_DIR/check-flow-gate-report.sh" ]; then
 else
     echo -e "      ${YELLOW}⏭ check-flow-gate-report.sh not found${NC}"
     SKIPPED=$((SKIPPED + 1))
+fi
+
+# Step 23: Dogfooding Gate — new CLI build must pass uds check on itself (XSPEC-222)
+echo -e "${CYAN}[23/$TOTAL]${NC} Dogfooding gate — UDS check on itself | 自我採用驗證..."
+dogfood_output=$(node "$CLI_DIR/bin/uds.js" check 2>&1)
+dogfood_exit=$?
+if [ $dogfood_exit -eq 0 ]; then
+    echo -e "      ${GREEN}✓ Dogfooding gate passed — UDS validates itself${NC}"
+    PASSED=$((PASSED + 1))
+else
+    echo -e "      ${RED}✗ Dogfooding gate FAILED — UDS cannot validate itself${NC}"
+    echo ""
+    echo "$dogfood_output" | sed 's/^/      /'
+    echo ""
+    FAILED=$((FAILED + 1))
+    if [ "$FAIL_FAST" = true ]; then
+        echo -e "${RED}Stopping due to --fail-fast${NC}"
+        show_summary
+        exit 1
+    fi
 fi
 
 # Show summary
