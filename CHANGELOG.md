@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **`.github/RELEASE-FLOW-TODOS.md`**: Persistent tracking file for release-flow improvements surfaced during dogfood. Contains TODO-001 ~ TODO-005 (auto docs:generate-index in bump-version.mjs, FB/Threads prompt capture habit, `_template/` validation on next bootstrap, Phase 1.5 social-assets hard gate, Phase 2 Meta API auto-publish workflow). Maintainers edit this file to add new items or resolve existing ones.
+
+### Changed
+- **`.github/workflows/release-reminder.yml`**: Now reads `.github/RELEASE-FLOW-TODOS.md` and surfaces open TODOs inside the weekly Monday 09:00 UTC reminder issue body. Improvements compound across release cycles instead of getting lost in commit history.
+
 ## [5.13.3] - 2026-05-26
 
 ### Fixed

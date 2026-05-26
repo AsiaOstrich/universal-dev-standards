@@ -94,6 +94,43 @@ jobs:
             const hasAdded = /### Added/i.test(unreleasedBody);
             const suggestedBump = hasBreaking ? 'major' : (hasAdded ? 'minor' : 'patch');
 
+            // Read release-flow improvement TODOs (persistent file, edited freely).
+            const fs = require('fs');
+            let todoContent = '';
+            try {
+              const raw = fs.readFileSync('.github/RELEASE-FLOW-TODOS.md', 'utf-8');
+              // Count open TODOs (lines with "🔲 Open").
+              const openMatches = raw.match(/Status\*\*: 🔲 Open/g) || [];
+              const todoOpenCount = openMatches.length;
+              // Extract individual TODO sections (between `## TODO-` headers and the next `---`).
+              const todoSections = raw.match(/^## TODO-\d+[\s\S]*?(?=^---$)/gm) || [];
+              const todoSummary = todoSections.map(section => {
+                const titleMatch = section.match(/^## (TODO-\d+ — .+)$/m);
+                const statusMatch = section.match(/\*\*Status\*\*: (.+)$/m);
+                const actionMatch = section.match(/\*\*Proposed action\*\*: (.+?)(?=\n-|\n\n|$)/s);
+                return {
+                  title: titleMatch ? titleMatch[1].trim() : '?',
+                  status: statusMatch ? statusMatch[1].trim() : '?',
+                  action: actionMatch ? actionMatch[1].trim().slice(0, 200) : '?',
+                };
+              });
+              if (todoSummary.length > 0) {
+                todoContent = [
+                  '',
+                  '### 🔧 Release-Flow Improvement TODOs',
+                  '',
+                  `**${todoOpenCount} open** · full detail in [.github/RELEASE-FLOW-TODOS.md](../blob/main/.github/RELEASE-FLOW-TODOS.md)`,
+                  '',
+                  ...todoSummary.slice(0, 8).map(t =>
+                    `- **${t.title}** — ${t.status}\n  ${t.action.replace(/\n/g, ' ')}`
+                  ),
+                  todoSummary.length > 8 ? `- ... and ${todoSummary.length - 8} more` : '',
+                ].filter(Boolean).join('\n');
+              }
+            } catch (e) {
+              console.log(`Could not read RELEASE-FLOW-TODOS.md: ${e.message}`);
+            }
+
             const title = `📦 Release reminder: ${entryCount} entries unreleased, ${daysSinceTag} days since ${latestTag}`;
             const body = [
               '## Auto-detected by weekly release-reminder workflow',
@@ -114,9 +151,13 @@ jobs:
               '',
               `Run \`/release start ${suggestedBump}\` (or \`/release check\` to validate first).`,
               '',
+              '> Before triggering the release, sweep through the open TODOs below — many of them are quick fixes that compound across releases.',
+              todoContent,
+              '',
               '---',
               '',
               '*This issue is auto-managed by `.github/workflows/release-reminder.yml`. It will be updated on each Monday until a release is published. Close manually to silence for this cycle.*',
+              '*TODO content is read from `.github/RELEASE-FLOW-TODOS.md` — edit there to add/remove/resolve items.*',
             ].join('\n');
 
             // Look for existing open issue with the auto-managed label set.
