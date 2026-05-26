@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.13.3] - 2026-05-26
+
+### Fixed
+- **`scripts/pre-release-check.sh` Step 22.5 logic upgrade**: Original implementation (v5.13.0) only accepted Pass A (`[Unreleased]` non-empty). After a CHANGELOG promotion (`[Unreleased]` → `[X.Y.Z]`), the section is correctly emptied but the original check falsely failed and required `--skip-changelog` workaround. New logic adds **Pass B (post-promotion)**: also passes when the latest dated section matches today AND has substantive entries. Also adds **Fail D**: today's dated section exists but is template-only. Surfaced when releasing v5.13.0 — the gate's own pre-release-check fell back to `--skip-changelog` because the gate was already at scenario B.
+
+### Note (translation backfill)
+- `locales/zh-TW/CHANGELOG.md` and `locales/zh-CN/CHANGELOG.md` backfilled with the [5.13.1] section that was missed during the v5.13.1 hotfix commit (Edit tool encountered a tool-state issue blocking those two translations).
+
 ## [5.13.2] - 2026-05-26
 
 ### Fixed

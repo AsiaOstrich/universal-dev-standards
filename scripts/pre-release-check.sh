@@ -325,10 +325,23 @@ else
     SKIPPED=$((SKIPPED + 1))
 fi
 
-# Step 22.5: CHANGELOG [Unreleased] gate — refuses release when [Unreleased] is empty
+# Step 22.5: CHANGELOG documented-this-release gate — refuses release when neither
+# [Unreleased] nor today's dated section has substantive content.
+#
 # Why: Release is irreversible; downstream consumers depend on CHANGELOG to know what changed.
+#
+# Two pass conditions (either satisfies the gate):
+#   (A) "Work in progress, ready to release"  — [Unreleased] has entries
+#   (B) "Just promoted [Unreleased] → [X.Y.Z]" — latest dated section is today AND has entries
+#
+# Fail conditions:
+#   (C) "Forgot to update CHANGELOG"          — [Unreleased] empty AND latest dated section is older than today
+#   (D) "Today's section is template-only"    — [Unreleased] empty AND today's section exists but has no entries
+#
 # Honors --skip-changelog flag (advisory; justification expected in release commit message).
-echo -e "${CYAN}[22.5/$TOTAL]${NC} Checking CHANGELOG [Unreleased] section | CHANGELOG 未發版區段檢查..."
+# v5.13.3 logic upgrade: original v5.13.0 implementation only checked condition A,
+# falsely failed condition B (just-promoted) and required --skip-changelog workaround.
+echo -e "${CYAN}[22.5/$TOTAL]${NC} Checking CHANGELOG documented-this-release gate | CHANGELOG 已記錄本次發版檢查..."
 if [ "$SKIP_CHANGELOG" = true ]; then
     echo -e "      ${YELLOW}⏭ Skipped (--skip-changelog flag — justification expected in commit message)${NC}"
     SKIPPED=$((SKIPPED + 1))
@@ -336,26 +349,57 @@ elif [ ! -f "$ROOT_DIR/CHANGELOG.md" ]; then
     echo -e "      ${RED}✗ CHANGELOG.md not found at repo root${NC}"
     FAILED=$((FAILED + 1))
 else
-    # Extract content between "## [Unreleased]" and the next "## [" header (released version).
-    # awk: print lines after Unreleased header until next ## [ header (exclusive).
+    # ── Pass A: [Unreleased] has substantive content ───────────────────────────
     unreleased_body=$(awk '/^## \[Unreleased\]/{flag=1; next} /^## \[/{flag=0} flag' "$ROOT_DIR/CHANGELOG.md")
-    # Strip whitespace-only lines and check if anything substantive remains.
     unreleased_substantive=$(echo "$unreleased_body" | grep -v '^[[:space:]]*$' | head -5)
-    if [ -z "$unreleased_substantive" ]; then
-        echo -e "      ${RED}✗ CHANGELOG.md [Unreleased] section is empty${NC}"
-        echo -e "      ${RED}  Cannot release without documenting changes since last version.${NC}"
-        echo -e "      ${CYAN}  Run \`/changelog\` skill to populate from git log,${NC}"
-        echo -e "      ${CYAN}  or use --skip-changelog flag with justification.${NC}"
-        FAILED=$((FAILED + 1))
-        if [ "$FAIL_FAST" = true ]; then
-            echo -e "${RED}Stopping due to --fail-fast${NC}"
-            show_summary
-            exit 1
-        fi
-    else
+
+    if [ -n "$unreleased_substantive" ]; then
         entry_count=$(echo "$unreleased_body" | grep -c '^[-*]' 2>/dev/null || echo "0")
-        echo -e "      ${GREEN}✓ [Unreleased] section populated (~$entry_count entries)${NC}"
+        echo -e "      ${GREEN}✓ [Unreleased] section populated (~$entry_count entries) — pass A${NC}"
         PASSED=$((PASSED + 1))
+    else
+        # ── Pass B check: latest dated section is today + non-empty ────────────
+        # Match first "## [VERSION] - YYYY-MM-DD" line (excludes [Unreleased]).
+        latest_section_line=$(grep -m1 -E '^## \[[0-9]+\.[0-9]+\.[0-9]+.*\] - [0-9]{4}-[0-9]{2}-[0-9]{2}' "$ROOT_DIR/CHANGELOG.md" || echo "")
+        latest_date=$(echo "$latest_section_line" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' || echo "")
+        today=$(date +%Y-%m-%d)
+
+        if [ "$latest_date" = "$today" ]; then
+            # Extract content of today's section: from its header to the next "## [" header.
+            latest_body=$(awk -v hdr="$latest_section_line" '
+                $0 == hdr {flag=1; next}
+                /^## \[/ {flag=0}
+                flag
+            ' "$ROOT_DIR/CHANGELOG.md")
+            latest_substantive=$(echo "$latest_body" | grep -v '^[[:space:]]*$' | head -5)
+
+            if [ -n "$latest_substantive" ]; then
+                entry_count=$(echo "$latest_body" | grep -c '^[-*]' 2>/dev/null || echo "0")
+                latest_version=$(echo "$latest_section_line" | grep -oE '\[[^]]+\]' | head -1 | tr -d '[]' | head -c 30)
+                echo -e "      ${GREEN}✓ Latest dated section [$latest_version] - $today populated (~$entry_count entries) — pass B (post-promotion)${NC}"
+                PASSED=$((PASSED + 1))
+            else
+                echo -e "      ${RED}✗ Today's [$latest_section_line] section exists but is empty (fail D)${NC}"
+                echo -e "      ${RED}  Section was created but no entries were added.${NC}"
+                FAILED=$((FAILED + 1))
+                if [ "$FAIL_FAST" = true ]; then
+                    echo -e "${RED}Stopping due to --fail-fast${NC}"
+                    show_summary
+                    exit 1
+                fi
+            fi
+        else
+            echo -e "      ${RED}✗ CHANGELOG.md [Unreleased] is empty AND no dated section for today ($today) (fail C)${NC}"
+            echo -e "      ${RED}  Latest dated section is from ${latest_date:-(none)} — likely forgot to document changes.${NC}"
+            echo -e "      ${CYAN}  Run \`/changelog\` skill to populate [Unreleased] from git log,${NC}"
+            echo -e "      ${CYAN}  or use --skip-changelog flag with justification.${NC}"
+            FAILED=$((FAILED + 1))
+            if [ "$FAIL_FAST" = true ]; then
+                echo -e "${RED}Stopping due to --fail-fast${NC}"
+                show_summary
+                exit 1
+            fi
+        fi
     fi
 fi
 

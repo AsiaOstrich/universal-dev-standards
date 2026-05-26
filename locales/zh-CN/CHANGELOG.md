@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.13.2
-translation_version: 5.13.2
+source_version: 5.13.3
+translation_version: 5.13.3
 last_synced: 2026-05-26
 status: current
 ---
@@ -16,6 +16,19 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.13.3] - 2026-05-26
+
+### 修复
+- **`scripts/pre-release-check.sh` Step 22.5 逻辑升级**：原始实作（v5.13.0）只接受 Pass A（`[Unreleased]` 非空）。CHANGELOG promotion（`[Unreleased]` → `[X.Y.Z]`）后该 section 正确清空但原 check 误判失败，需 `--skip-changelog` 绕过。新逻辑加 **Pass B（post-promotion）**：最新 dated section 是 today AND 有内容也 pass。并新增 **Fail D**：今日 dated section 存在但仅有 template。发版 v5.13.0 时 surface — gate 自己的 pre-release-check 退到 `--skip-changelog` 因为已是情境 B。
+
+### 备注（翻译回填）
+- `locales/zh-TW/CHANGELOG.md` 与 `locales/zh-CN/CHANGELOG.md` 补回 v5.13.1 hotfix commit 时遗漏的 [5.13.1] section（Edit 工具当时遇到 tool-state 问题挡住这两份翻译）。
+
+## [5.13.1] - 2026-05-26 [PUBLISH 失败 — 见 5.13.2]
+
+### 修复
+- **`.github/workflows/publish.yml` Clean-room Install Test（XSPEC-221 hotfix）**：在 alpine clean-room job 的 `npm install -g .` 之前新增 `npm ci --ignore-scripts` 步骤。
 
 ## [5.13.2] - 2026-05-26
 
