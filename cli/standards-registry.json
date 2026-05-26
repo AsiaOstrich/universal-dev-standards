@@ -1148,6 +1148,18 @@
       "description": "Content requirements and writing guidelines for different project types"
     },
     {
+      "id": "self-review-protocol",
+      "name": "Self-Review Protocol",
+      "nameZh": "自我審查協議",
+      "source": {
+        "human": "core/self-review-protocol.md",
+        "ai": "ai/standards/self-review-protocol.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Mandatory self-review pass on large markdown edits (>50 lines) before commit; catches 6 categories of internal cross-reference inconsistencies (diagram/step mismatch, changelog reference errors, count drift, stale templates, wrong tool references, placeholder vs rule misalignment)"
+    },
+    {
       "id": "ai-instruction-standards",
       "name": "AI Instruction File Standards",
       "nameZh": "AI 指令檔案規範",
