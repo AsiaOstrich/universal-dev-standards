@@ -15,6 +15,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      # XSPEC-221 hotfix: `npm install -g .` does NOT install transitive deps in
+      # alpine clean-room environments (deps must exist before -g symlink). v5.13.0
+      # release surfaced this when the gate first ran against a real release.
+      - name: Install dependencies (required before -g install)
+        working-directory: cli
+        run: npm ci --ignore-scripts
+        env:
+          HUSKY: '0'
+
       - name: Install UDS globally from source
         working-directory: cli
         run: npm install -g .

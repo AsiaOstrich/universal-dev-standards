@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.13.1] - 2026-05-26
+
+### Fixed
+- **`.github/workflows/publish.yml` Clean-room Install Test (XSPEC-221 hotfix)**: Added `npm ci --ignore-scripts` step before `npm install -g .` in the alpine clean-room job. Surfaced when v5.13.0 release publish failed with `ERR_MODULE_NOT_FOUND: Cannot find package 'commander'` — `npm install -g .` does NOT install transitive dependencies in clean-room environments, requiring deps to exist before the global symlink. The gate (XSPEC-221) correctly blocked a broken release; this fixes the gate's own command sequence.
+
 ## [5.13.0] - 2026-05-26
 
 ### Added
