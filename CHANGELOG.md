@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [5.13.1] - 2026-05-26
+## [5.13.2] - 2026-05-26
+
+### Fixed
+- **`.github/workflows/publish.yml` Clean-room Install Test (XSPEC-221 hotfix v2)**: Replaced `uds init --dry-run` (option not implemented in CLI) with `uds init --help` as the safe non-mutating verification of init command wiring. Surfaced when v5.13.1 publish failed with `error: unknown option '--dry-run'` — the v5.13.1 fix correctly resolved deps but the next verification step relied on a non-existent flag. Second self-bug found by the gate; gate is now exercised end-to-end.
+
+## [5.13.1] - 2026-05-26 [FAILED PUBLISH — see 5.13.2]
 
 ### Fixed
 - **`.github/workflows/publish.yml` Clean-room Install Test (XSPEC-221 hotfix)**: Added `npm ci --ignore-scripts` step before `npm install -g .` in the alpine clean-room job. Surfaced when v5.13.0 release publish failed with `ERR_MODULE_NOT_FOUND: Cannot find package 'commander'` — `npm install -g .` does NOT install transitive dependencies in clean-room environments, requiring deps to exist before the global symlink. The gate (XSPEC-221) correctly blocked a broken release; this fixes the gate's own command sequence.

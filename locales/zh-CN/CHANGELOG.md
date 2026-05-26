@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.13.1
-translation_version: 5.13.1
+source_version: 5.13.2
+translation_version: 5.13.2
 last_synced: 2026-05-26
 status: current
 ---
@@ -16,6 +16,16 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.13.2] - 2026-05-26
+
+### 修复
+- **`.github/workflows/publish.yml` Clean-room Install Test（XSPEC-221 hotfix v2）**：将 `uds init --dry-run`（CLI 未实作此 option）换成 `uds init --help` 作为安全的 non-mutating 验证。v5.13.1 publish 失败时 surface — 错误讯息 `error: unknown option '--dry-run'`。gate 第二次自我 bug 被抓出；gate 经此次端对端验证。
+
+## [5.13.1] - 2026-05-26 [PUBLISH 失败 — 见 5.13.2]
+
+### 修复
+- **`.github/workflows/publish.yml` Clean-room Install Test（XSPEC-221 hotfix）**：在 alpine clean-room job 的 `npm install -g .` 之前新增 `npm ci --ignore-scripts` 步骤。
 
 ## [5.13.0] - 2026-05-26
 
