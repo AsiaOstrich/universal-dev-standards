@@ -91,6 +91,13 @@ ASSESS ──► CHOOSE ──► DEFINE ──► IMPLEMENT ──► VERIFY
 | `/api-design` | Define API contracts during design | 設計時定義 API 合約 |
 | `/ci-cd` | Add contract verification to pipeline | 管線中加入合約驗證 |
 | `/testing` | Contract tests as part of test strategy | 合約測試作為測試策略一部分 |
+| `/migrate` | Capture legacy response fixtures during API migration; verify new impl preserves structural equivalence | API 遷移時捕獲 legacy response fixture，驗證新實作保持結構性等價 |
+
+### Migration Contract Tests — When Replacing an Implementation | 遷移合約測試（替換實作時）
+
+When migrating an API endpoint from one tech stack to another (PHP → .NET, Express → Spring, etc.), a contract test against a **legacy reference fixture** catches missing fields, renamed fields, and placement drift that unit tests on the new DTO cannot. See [migration-assistant § API Migration Contract Tests](../migration-assistant/SKILL.md#api-migration-contract-tests--api-遷移合約測試) for the fixture capture protocol and audit checklist.
+
+當 API endpoint 從一個技術棧遷至另一個（PHP → .NET、Express → Spring 等），對 **legacy 參考 fixture** 的 contract test 可捕捉「缺漏欄位」「rename」「層級漂移」等新 DTO 單元測試無法覆蓋的缺陷。詳見 [migration-assistant § API Migration Contract Tests](../migration-assistant/SKILL.md#api-migration-contract-tests--api-遷移合約測試)。
 
 ## Next Steps Guidance | 下一步引導
 
