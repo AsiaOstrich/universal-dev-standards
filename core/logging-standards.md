@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/logging-standards.md)
 
-**Version**: 1.2.0
-**Last Updated**: 2026-01-24
+**Version**: 1.3.0
+**Last Updated**: 2026-05-26
 **Applicability**: All software projects
 **Scope**: universal
 **Industry Standards**: RFC 5424, OpenTelemetry, W3C Trace Context
@@ -595,6 +595,117 @@ For endpoints called thousands of times per second:
 | WARN | 90 days |
 | ERROR/FATAL | 1 year |
 
+---
+
+## Log File Rotation Policy
+
+### Rotation policy — MUST set both
+
+A file-based log sink configuration **MUST** include **both** triggers:
+
+1. **Time-based rotation** (`rollingInterval: Day` or equivalent) — for chronological partitioning
+2. **Size-based rotation** with `rollOnFileSizeLimit: true` (or equivalent) — to handle volume spikes
+
+> **Why mandatory:** Most logging libraries ship with a silent default size cap. When the file hits the cap, subsequent log writes are **dropped silently** — no warning, no error. The application keeps running while half a day of logs vanish. Setting both triggers explicitly defeats this trap.
+
+### Default cap is hostile in production
+
+| Library | Default size cap | Behavior when cap hit |
+|---|---|---|
+| Serilog File sink (.NET) | 1 GB | **Silently stops writing** (`RollOnFileSizeLimit = false` by default) |
+| log4j RollingFileAppender | none unless set | Same — no roll = drops |
+| Python `RotatingFileHandler` | infinite unless `maxBytes` set | Grows unbounded |
+| Winston `winston-daily-rotate-file` | none unless `maxSize` set | Same — no roll = drops |
+
+If you do not explicitly configure size-based rotation, you are accepting one of the failure modes above.
+
+### Recommended starting values
+
+| Parameter | Value | Rationale |
+|---|---|---|
+| `fileSizeLimitBytes` | 100 MB | Balance: small enough to open in an editor, large enough to avoid excessive rolls |
+| `rollOnFileSizeLimit` | `true` | When cap hit, create `*-001.txt`, `*-002.txt`; do **NOT** drop |
+| `retainedFileCountLimit` | ≥ N×7 where N = max expected rolls/day | Avoid premature deletion of in-window logs |
+
+### Recipes per language
+
+**.NET / Serilog** (`appsettings.json`):
+
+```json
+{
+  "Serilog": {
+    "WriteTo": [{
+      "Name": "File",
+      "Args": {
+        "path": "logs/app-.txt",
+        "rollingInterval": "Day",
+        "fileSizeLimitBytes": 104857600,
+        "rollOnFileSizeLimit": true,
+        "retainedFileCountLimit": 90
+      }
+    }]
+  }
+}
+```
+
+**Python** (`logging.handlers`):
+
+```python
+from logging.handlers import RotatingFileHandler
+
+handler = RotatingFileHandler(
+    filename="logs/app.log",
+    maxBytes=104857600,   # 100 MB
+    backupCount=90        # ~3 months of rolls assuming low cardinality
+)
+# For combined time+size rotation, compose TimedRotatingFileHandler with size check
+# or use a third-party library such as concurrent-log-handler.
+```
+
+**Java / log4j2** (`log4j2.xml`):
+
+```xml
+<RollingFile name="App" fileName="logs/app.log"
+             filePattern="logs/app-%d{yyyy-MM-dd}-%i.log.gz">
+  <PatternLayout pattern="%d %-5p %c{1.} - %m%n"/>
+  <Policies>
+    <TimeBasedTriggeringPolicy interval="1"/>
+    <SizeBasedTriggeringPolicy size="100 MB"/>
+  </Policies>
+  <DefaultRolloverStrategy max="90"/>
+</RollingFile>
+```
+
+**Node / Winston** (`winston-daily-rotate-file`):
+
+```javascript
+import DailyRotateFile from "winston-daily-rotate-file";
+
+new DailyRotateFile({
+  filename: "logs/app-%DATE%.log",
+  datePattern: "YYYY-MM-DD",
+  maxSize: "100m",
+  maxFiles: "90d"
+});
+```
+
+### Operational SOP — investigate, don't just raise the cap
+
+If a log file size reaches ≥ 90% of `fileSizeLimitBytes` at expected end-of-day, **investigate the cause before raising the cap**. Typical root causes:
+
+- Noisy retry loop logging every attempt at INFO instead of WARN summary
+- Unbounded debug logging accidentally enabled in production
+- Stack-trace flood from one upstream failure
+- Health probe / sidecar polluting the business log
+
+Raising the cap masks the underlying noise problem and pushes the next outage further out.
+
+### Failure-mode reference (real incident)
+
+A production .NET Worker using only `rollingInterval: Day` (no size limit set, Serilog default 1 GB cap) hit the cap at 07:31 and silently dropped every log entry until 13:00+ when the operator noticed the tail was stale. Five consecutive daily files showed `~1,073,741,8XX bytes` (= 1 GiB exactly, Serilog default). Half a day of production diagnostics were lost. Setting `fileSizeLimitBytes` + `rollOnFileSizeLimit: true` would have rolled to `worker-YYYYMMDD_001.txt` and preserved the events.
+
+---
+
 ## Quick Reference Card
 
 ### Log Level Selection
@@ -623,6 +734,14 @@ App cannot continue?         → FATAL
 - [ ] Credit cards never logged
 - [ ] Retention policies configured
 
+### Rotation Checklist
+
+- [ ] Time-based rotation set (`rollingInterval: Day` or equivalent)
+- [ ] Size-based rotation set with `rollOnFileSizeLimit: true` (or equivalent)
+- [ ] `fileSizeLimitBytes` explicitly configured (default cap is hostile)
+- [ ] `retainedFileCountLimit` ≥ N×7 to cover within-window rolls
+- [ ] 90% size SOP defined: investigate noise root cause, do not just raise cap
+
 ---
 
 **Related Standards:**
@@ -635,6 +754,7 @@ App cannot continue?         → FATAL
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-05-26 | Added: Log File Rotation Policy — mandatory dual-trigger (time + size) rotation with hostile-default warning, recipes for .NET/Python/Java/Node, ops SOP (XSPEC-232 / closes issue #111) |
 | 1.2.0 | 2026-01-24 | Added: OpenTelemetry Semantic Conventions, Observability Three Pillars Integration, Log-based Alerting, Advanced Correlation Patterns |
 | 1.1.0 | 2026-01-05 | Added: References section with OWASP, RFC 5424, OpenTelemetry, and 12 Factor App |
 | 1.0.0 | 2025-12-30 | Initial logging standards |

@@ -3,10 +3,10 @@
 
 id: logging
 meta:
-  version: "1.2.0"
-  updated: "2026-03-18"
+  version: "1.3.0"
+  updated: "2026-05-26"
   source: core/logging-standards.md
-  description: Logging levels, structured logging, and best practices
+  description: Logging levels, structured logging, file rotation policy, and best practices
 
 log_levels:
   ordered:
@@ -118,6 +118,43 @@ rules:
       - Traces: Request flow across services
       Correlate all three via trace_id/span_id
     priority: recommended
+
+  - id: rotation-dual-trigger
+    trigger: configuring file-based log sink
+    instruction: |
+      File-based log sinks MUST set both rotation triggers:
+        1. Time-based: rollingInterval=Day (or equivalent)
+        2. Size-based: fileSizeLimitBytes explicit AND rollOnFileSizeLimit=true
+      Default size caps are hostile in production — Serilog silently drops at 1 GB
+      if rollOnFileSizeLimit is left at default false; log4j / Winston / Python
+      RotatingFileHandler likewise drop or grow unbounded without explicit config.
+      Recommended starting value: fileSizeLimitBytes=104857600 (100 MB),
+      retainedFileCountLimit >= N*7 where N = max expected rolls per day.
+    priority: required
+
+  - id: rotation-ops-sop
+    trigger: log file size approaching cap
+    instruction: |
+      If a log file size reaches >= 90% of fileSizeLimitBytes at expected end-of-day,
+      INVESTIGATE the cause (noisy retry loop, unbounded debug logging, stack-trace
+      flood) BEFORE raising the cap. Raising the cap masks the noise problem.
+    priority: required
+
+rotation_policy:
+  must_set_both:
+    time_based: rollingInterval=Day (or equivalent)
+    size_based:
+      fileSizeLimitBytes: explicit (100 MB recommended)
+      rollOnFileSizeLimit: true
+  hostile_defaults:
+    serilog: silently stops at 1 GB if rollOnFileSizeLimit=false
+    log4j: drops if no SizeBasedTriggeringPolicy
+    python_rotatingfilehandler: grows unbounded if maxBytes unset
+    winston: drops if maxSize unset
+  recommended:
+    fileSizeLimitBytes: 104857600
+    retainedFileCountLimit_formula: "N * 7 (N = max rolls/day)"
+  ops_sop: investigate noise root cause at >= 90% size before raising cap
 
 quick_reference:
   level_selection:

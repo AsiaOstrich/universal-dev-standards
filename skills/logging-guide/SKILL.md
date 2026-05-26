@@ -11,8 +11,8 @@ description: |
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/skills/logging-guide/SKILL.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-30
+**Version**: 1.1.0
+**Last Updated**: 2026-05-26
 **Applicability**: Claude Code Skills
 
 ---
@@ -206,6 +206,21 @@ logger.error('Failed to process order', {
 - Aggregate metrics instead of individual logs
 - Use separate log streams
 
+## Log File Rotation
+
+File-based log sinks **MUST** set **both** rotation triggers — time-based **and** size-based. Default size caps in popular libraries (Serilog 1 GB, log4j/Winston/Python `RotatingFileHandler` no cap) cause silent data loss in production.
+
+```
+✓ rollingInterval: Day                    # time-based
+✓ fileSizeLimitBytes: 104857600 (100 MB)  # size-based
+✓ rollOnFileSizeLimit: true               # roll, do NOT drop
+✓ retainedFileCountLimit: ≥ N*7           # N = max rolls/day
+```
+
+When a log file reaches **≥ 90% of `fileSizeLimitBytes`** at expected end-of-day, **investigate the noise root cause** (noisy retry loop / unbounded debug logging / stack-trace flood) before raising the cap.
+
+> Full specification with per-language recipes (.NET Serilog / Python / Java log4j2 / Node Winston) and the real-incident failure-mode reference: see [Log File Rotation Policy](../../core/logging-standards.md#log-file-rotation-policy) in the core standard.
+
 ## Checklist
 
 ### Required Fields
@@ -223,6 +238,13 @@ logger.error('Failed to process order', {
 - [ ] PII masked or hashed
 - [ ] Credit cards never logged
 - [ ] Retention policies configured
+
+### Rotation
+
+- [ ] Time-based rotation set (`rollingInterval: Day` or equivalent)
+- [ ] Size-based rotation set (`fileSizeLimitBytes` + `rollOnFileSizeLimit: true`)
+- [ ] `retainedFileCountLimit` ≥ N×7 (N = max rolls/day)
+- [ ] 90% size SOP defined (investigate noise, do not just raise cap)
 
 ---
 
@@ -283,6 +305,7 @@ After `/logging` completes, the AI assistant should suggest:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-05-26 | Added: Log File Rotation section with cross-link to core standard rotation policy; Rotation checklist (XSPEC-232) |
 | 1.0.0 | 2025-12-30 | Initial release |
 
 ---
