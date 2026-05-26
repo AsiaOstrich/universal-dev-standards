@@ -1,0 +1,180 @@
+name: Weekly Release Reminder
+
+# Mirrors scheduled-health.yml pattern. Fires Monday 09:00 UTC.
+# Opens (or updates) an issue when:
+#   1. CHANGELOG.md [Unreleased] has non-empty entries, AND
+#   2. ≥ 7 days have passed since the latest semver tag.
+# Goal: prevent the v1.X→v1.X.1 patch cycle for releases (analog to UDS
+# self-review-protocol for markdown edits) — keep release cadence honest.
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday 09:00 UTC (same as scheduled-health)
+  workflow_dispatch:
+
+jobs:
+  release-reminder:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # need full tag history for git describe
+
+      - name: Parse CHANGELOG [Unreleased] section
+        id: changelog
+        run: |
+          # Extract lines between '## [Unreleased]' and the next '## [' header.
+          # Then strip whitespace-only lines.
+          UNRELEASED_BODY=$(awk '/^## \[Unreleased\]/{flag=1; next} /^## \[/{flag=0} flag' CHANGELOG.md \
+            | grep -v '^[[:space:]]*$' || true)
+          if [ -z "$UNRELEASED_BODY" ]; then
+            echo "has_entries=false" >> $GITHUB_OUTPUT
+            echo "entry_count=0" >> $GITHUB_OUTPUT
+          else
+            # Count bullet-style entries (- or *).
+            COUNT=$(echo "$UNRELEASED_BODY" | grep -c '^[-*]' || echo "0")
+            echo "has_entries=true" >> $GITHUB_OUTPUT
+            echo "entry_count=$COUNT" >> $GITHUB_OUTPUT
+            # Save body for issue (escape multiline for GITHUB_OUTPUT).
+            {
+              echo "body<<UNRELEASED_EOF"
+              echo "$UNRELEASED_BODY"
+              echo "UNRELEASED_EOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+      - name: Compute days since latest tag
+        id: tag
+        run: |
+          LATEST_TAG=$(git tag --sort=-version:refname | head -1)
+          if [ -z "$LATEST_TAG" ]; then
+            echo "days=999" >> $GITHUB_OUTPUT
+            echo "tag=(none)" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          TAG_DATE_EPOCH=$(git log -1 --format=%ct "$LATEST_TAG")
+          NOW_EPOCH=$(date +%s)
+          DAYS=$(( (NOW_EPOCH - TAG_DATE_EPOCH) / 86400 ))
+          echo "days=$DAYS" >> $GITHUB_OUTPUT
+          echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Decide whether to remind
+        id: decide
+        run: |
+          HAS_ENTRIES="${{ steps.changelog.outputs.has_entries }}"
+          DAYS="${{ steps.tag.outputs.days }}"
+          if [ "$HAS_ENTRIES" = "true" ] && [ "$DAYS" -ge 7 ]; then
+            echo "should_remind=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_remind=false" >> $GITHUB_OUTPUT
+          fi
+          echo "Decision: has_entries=$HAS_ENTRIES days_since_tag=$DAYS → should_remind=$([ "$HAS_ENTRIES" = "true" ] && [ "$DAYS" -ge 7 ] && echo true || echo false)"
+
+      - name: Create or update reminder issue
+        if: steps.decide.outputs.should_remind == 'true'
+        uses: actions/github-script@v9
+        env:
+          ENTRY_COUNT: ${{ steps.changelog.outputs.entry_count }}
+          LATEST_TAG: ${{ steps.tag.outputs.tag }}
+          DAYS_SINCE_TAG: ${{ steps.tag.outputs.days }}
+          UNRELEASED_BODY: ${{ steps.changelog.outputs.body }}
+        with:
+          script: |
+            const entryCount = process.env.ENTRY_COUNT;
+            const latestTag = process.env.LATEST_TAG;
+            const daysSinceTag = process.env.DAYS_SINCE_TAG;
+            const unreleasedBody = process.env.UNRELEASED_BODY || '(could not capture body)';
+
+            // Suggest semver bump level based on entry content (heuristic).
+            const hasBreaking = /BREAKING|REMOVED|major/i.test(unreleasedBody);
+            const hasAdded = /### Added/i.test(unreleasedBody);
+            const suggestedBump = hasBreaking ? 'major' : (hasAdded ? 'minor' : 'patch');
+
+            const title = `📦 Release reminder: ${entryCount} entries unreleased, ${daysSinceTag} days since ${latestTag}`;
+            const body = [
+              '## Auto-detected by weekly release-reminder workflow',
+              '',
+              `- **Latest tag**: \`${latestTag}\``,
+              `- **Days since last release**: ${daysSinceTag}`,
+              `- **[Unreleased] entries**: ~${entryCount}`,
+              `- **Suggested bump**: \`${suggestedBump}\` (heuristic based on entry content)`,
+              '',
+              '### [Unreleased] preview',
+              '',
+              '```markdown',
+              unreleasedBody.split('\n').slice(0, 20).join('\n'),
+              unreleasedBody.split('\n').length > 20 ? '...' : '',
+              '```',
+              '',
+              '### Suggested next step',
+              '',
+              `Run \`/release start ${suggestedBump}\` (or \`/release check\` to validate first).`,
+              '',
+              '---',
+              '',
+              '*This issue is auto-managed by `.github/workflows/release-reminder.yml`. It will be updated on each Monday until a release is published. Close manually to silence for this cycle.*',
+            ].join('\n');
+
+            // Look for existing open issue with the auto-managed label set.
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'release-reminder',
+              state: 'open',
+              per_page: 5,
+            });
+
+            if (existing.data.length > 0) {
+              const issue = existing.data[0];
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                title,
+                body,
+              });
+              console.log(`Updated existing release-reminder issue #${issue.number}`);
+            } else {
+              const created = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['release-reminder', 'auto-generated'],
+              });
+              console.log(`Created new release-reminder issue #${created.data.number}`);
+            }
+
+      - name: Auto-close on no-op
+        if: steps.decide.outputs.should_remind == 'false'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            // If conditions no longer met (e.g. release was published), close any open reminder.
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'release-reminder',
+              state: 'open',
+              per_page: 5,
+            });
+            for (const issue of existing.data) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+                state_reason: 'completed',
+              });
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: '✅ Auto-closed: conditions no longer met (release published or [Unreleased] cleared).',
+              });
+              console.log(`Auto-closed release-reminder issue #${issue.number}`);
+            }

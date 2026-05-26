@@ -36,6 +36,7 @@ CLI_DIR="$ROOT_DIR/cli"
 # Parse arguments
 FAIL_FAST=false
 SKIP_TESTS=false
+SKIP_CHANGELOG=false
 
 for arg in "$@"; do
     case $arg in
@@ -47,13 +48,18 @@ for arg in "$@"; do
             SKIP_TESTS=true
             shift
             ;;
+        --skip-changelog)
+            SKIP_CHANGELOG=true
+            shift
+            ;;
         --help)
             echo "Usage: ./scripts/pre-release-check.sh [options]"
             echo ""
             echo "Options:"
-            echo "  --fail-fast    Stop on first failure"
-            echo "  --skip-tests   Skip running tests (faster validation)"
-            echo "  --help         Show this help message"
+            echo "  --fail-fast       Stop on first failure"
+            echo "  --skip-tests      Skip running tests (faster validation)"
+            echo "  --skip-changelog  Skip CHANGELOG [Unreleased] hard gate (requires justification)"
+            echo "  --help            Show this help message"
             exit 0
             ;;
         *)
@@ -317,6 +323,40 @@ if [ -f "$SCRIPT_DIR/check-flow-gate-report.sh" ]; then
 else
     echo -e "      ${YELLOW}⏭ check-flow-gate-report.sh not found${NC}"
     SKIPPED=$((SKIPPED + 1))
+fi
+
+# Step 22.5: CHANGELOG [Unreleased] gate — refuses release when [Unreleased] is empty
+# Why: Release is irreversible; downstream consumers depend on CHANGELOG to know what changed.
+# Honors --skip-changelog flag (advisory; justification expected in release commit message).
+echo -e "${CYAN}[22.5/$TOTAL]${NC} Checking CHANGELOG [Unreleased] section | CHANGELOG 未發版區段檢查..."
+if [ "$SKIP_CHANGELOG" = true ]; then
+    echo -e "      ${YELLOW}⏭ Skipped (--skip-changelog flag — justification expected in commit message)${NC}"
+    SKIPPED=$((SKIPPED + 1))
+elif [ ! -f "$ROOT_DIR/CHANGELOG.md" ]; then
+    echo -e "      ${RED}✗ CHANGELOG.md not found at repo root${NC}"
+    FAILED=$((FAILED + 1))
+else
+    # Extract content between "## [Unreleased]" and the next "## [" header (released version).
+    # awk: print lines after Unreleased header until next ## [ header (exclusive).
+    unreleased_body=$(awk '/^## \[Unreleased\]/{flag=1; next} /^## \[/{flag=0} flag' "$ROOT_DIR/CHANGELOG.md")
+    # Strip whitespace-only lines and check if anything substantive remains.
+    unreleased_substantive=$(echo "$unreleased_body" | grep -v '^[[:space:]]*$' | head -5)
+    if [ -z "$unreleased_substantive" ]; then
+        echo -e "      ${RED}✗ CHANGELOG.md [Unreleased] section is empty${NC}"
+        echo -e "      ${RED}  Cannot release without documenting changes since last version.${NC}"
+        echo -e "      ${CYAN}  Run \`/changelog\` skill to populate from git log,${NC}"
+        echo -e "      ${CYAN}  or use --skip-changelog flag with justification.${NC}"
+        FAILED=$((FAILED + 1))
+        if [ "$FAIL_FAST" = true ]; then
+            echo -e "${RED}Stopping due to --fail-fast${NC}"
+            show_summary
+            exit 1
+        fi
+    else
+        entry_count=$(echo "$unreleased_body" | grep -c '^[-*]' 2>/dev/null || echo "0")
+        echo -e "      ${GREEN}✓ [Unreleased] section populated (~$entry_count entries)${NC}"
+        PASSED=$((PASSED + 1))
+    fi
 fi
 
 # Step 23: Dogfooding Gate — new CLI build must pass uds check on itself (XSPEC-222)

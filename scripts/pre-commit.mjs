@@ -7,10 +7,13 @@
 // Run `node scripts/install-hooks.mjs` once after cloning to activate.
 //
 // What this hook does:
-//   1. If any core/*.md standards are staged → warn about outdated translations
-//   2. Never blocks the commit (translation OUTDATED is advisory, not a hard gate)
+//   1. If substantive code/standards/skills changes are staged but CHANGELOG.md is not →
+//      warn so [Unreleased] doesn't drift behind reality.
+//   2. If any core/*.md standards are staged → warn about outdated translations.
+//   3. Never blocks the commit (both checks are advisory, not hard gates).
 //
-// Hard gates (exit 1) live in pre-release-check.sh, not here.
+// Hard gates (exit 1) live in pre-release-check.sh, not here (including the
+// release-time CHANGELOG [Unreleased] gate).
 //
 // NOTE: This is the cross-platform equivalent of the legacy bash hook body.
 // The .githooks/pre-commit file is a thin POSIX sh shim that exec's this script.
@@ -59,11 +62,53 @@ try {
   process.exit(0);
 }
 
+const stagedList = stagedFiles.split('\n').map((f) => f.trim()).filter(Boolean);
+
+// ── Step 1.5: CHANGELOG drift advisory ─────────────────────────────────────
+// File-pattern heuristic (pre-commit can't see the commit message):
+// substantive change in core / AI standards / CLI source / scripts / skills / workflows
+// without a paired CHANGELOG.md update → yellow warning (commit still proceeds).
+const SUBSTANTIVE_PATTERNS = [
+  /^core\/.*\.md$/,
+  /^ai\/standards\/.*\.yaml$/,
+  /^cli\/src\/.*\.(ts|mjs|js)$/,
+  /^cli\/bin\/.*\.(js|ts|mjs)$/,
+  /^scripts\/.*\.(sh|mjs|ts)$/,
+  /^skills\/[^/]+\/SKILL\.md$/,
+  /^\.github\/workflows\/.*\.ya?ml$/,
+];
+const EXCLUDE_PATTERNS = [
+  /\.test\.(ts|mjs|js)$/,
+  /^tests\//,
+  /package(-lock)?\.json$/,
+  /^docs\//,
+];
+
+const substantiveStaged = stagedList.filter(
+  (f) =>
+    SUBSTANTIVE_PATTERNS.some((re) => re.test(f)) &&
+    !EXCLUDE_PATTERNS.some((re) => re.test(f)),
+);
+const changelogStaged = stagedList.some((f) =>
+  /(^|^locales\/[^/]+\/)CHANGELOG\.md$/.test(f),
+);
+
+if (substantiveStaged.length > 0 && !changelogStaged) {
+  console.log('');
+  console.log(`${YELLOW}⚠️  CHANGELOG drift detected: substantive change staged without CHANGELOG.md update${NC}`);
+  console.log(`${CYAN}Staged substantive files:${NC}`);
+  for (const f of substantiveStaged.slice(0, 5)) console.log(`  ${f}`);
+  if (substantiveStaged.length > 5) {
+    console.log(`  ... and ${substantiveStaged.length - 5} more`);
+  }
+  console.log('');
+  console.log(`${YELLOW}  Tip: run \`/changelog\` to append to CHANGELOG.md [Unreleased] before commit.${NC}`);
+  console.log(`${YELLOW}  Commit proceeds — but [Unreleased] gate will block release-time (pre-release-check.sh step 22.5).${NC}`);
+  console.log('');
+}
+
 // ── Step 2: Filter core/*.md ────────────────────────────────────────────────
-const stagedCore = stagedFiles
-  .split('\n')
-  .map((f) => f.trim())
-  .filter((f) => /^core\/.*\.md$/.test(f));
+const stagedCore = stagedList.filter((f) => /^core\/.*\.md$/.test(f));
 
 if (stagedCore.length === 0) {
   // Nothing in core/ — skip translation check entirely.
