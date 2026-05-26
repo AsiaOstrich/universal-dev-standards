@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.12.1
-translation_version: 5.12.1
-last_synced: 2026-05-19
+source_version: 5.13.0
+translation_version: 5.13.0
+last_synced: 2026-05-26
 status: current
 ---
 
@@ -16,6 +16,25 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.13.0] - 2026-05-26
+
+### 新增
+- **`core/self-review-protocol.md` v1.0.0**（含 `ai/standards/self-review-protocol.ai.yaml`、`locales/zh-TW/core/self-review-protocol.md`、`cli/standards-registry.json` 註冊項）：新標準，要求**大型 markdown 編輯（> 50 行）commit 前必跑 self-review**。明列 **6 類內部 cross-reference 不一致** — diagram/step 不同步、changelog 編號錯位、計數錯位、stale 範本、錯誤工具引用、placeholder 與 rule 不對齊 — 並附具體檢查方法。與 code review（程式碼）、內容自我審計（完整性）、同儕審查（設計）三者分工互補。觀察源：下游 skill 編輯出現的 `v1.X→v1.X.1` patch 慣性。
+- **`scripts/pre-release-check.sh` Step 22.5 — CHANGELOG hard gate**：當 `CHANGELOG.md [Unreleased]` 為空時拒絕發版。新增 `--skip-changelog` flag 提供 escape valve（發版 commit message 須註明理由）。插在 flow gate（step 22）與 dogfooding gate（step 23）之間。
+- **`scripts/pre-commit.mjs` Step 1.5 — CHANGELOG drift advisory**：當 staged commit 改 substantive source（`core/`、`ai/standards/`、`cli/src`、`cli/bin`、`scripts/`、`skills/*/SKILL.md`、`.github/workflows/`）但沒 stage `CHANGELOG.md` 時，黃色 warning（不擋 commit，exit 0）。訊息指向 release-time hard gate 讓使用者知道忽略警告的後果。
+- **`.github/workflows/release-reminder.yml`**：每週一 09:00 UTC cron，當 `CHANGELOG.md [Unreleased]` 非空 **且** 距離 latest semver tag ≥ 7 天時，開或更新標 `release-reminder` + `auto-generated` 的 issue。條件不再滿足時（發完版或 [Unreleased] 清空）自動 close。內建 semver bump heuristic（依條目內容推 major/minor/patch）。
+- **`scripts/check-skill-structural-integrity.ts`**（XSPEC-223，P1 發版 gate）：驗證 skill `SKILL.md` 結構完整性（frontmatter 欄位、必要 section）。串接到 `pre-release-check.sh` step 18.5；任何 skill 結構不全則擋發版。
+- **`packaging-standards`**（XSPEC-233 / #112）：新增 API migration contract test fixtures section — 定義跨版本 API 遷移相容性測試的 fixture 格式。
+- **Clean-room install gate**（XSPEC-221）於 `.github/workflows/publish.yml`：Alpine Node 20 容器跑 `npm install -g .`（從 `cli/`），驗證 `uds --version` / `uds list` / `uds init --dry-run`。任何步驟失敗則擋 `publish` job。
+- **Dogfooding gate**（XSPEC-222）— `scripts/pre-release-check.sh` step 23：新 CLI build 必須能跑 `uds check` 通過自身驗證才能發版。
+
+### 變更
+- **`core/deployment-standards.md`**（XSPEC-231 / #110 + #113）：部署防禦性配對 — 強制歸檔格式驗證 + 解壓-驗證-才刪除 模式。關閉「壓縮檔損毀但先被刪除」失敗類別。
+- **`core/logging-standards.md`**（XSPEC-232 / #111）：強制雙觸發日誌輪替策略 — size **AND** time 兩種觸發都必須配置（非 OR）。關閉「size 門檻未達所以輪替從未觸發」失敗模式。
+- **`skills/contract-test-assistant/SKILL.md`** 與 **`skills/runbook-assistant/SKILL.md`**：配合 XSPEC-231/232/233 模式的小幅更新。
+- **依賴升級（`cli/`）**：`lint-staged` 17.0.3→17.0.4（#107）、`@inquirer/prompts` 8.4.2→8.4.3（#106）、`eslint` 10.3.0→10.4.0（#105）、`@vitest/coverage-v8` 4.1.5→4.1.6（#103）、`vitest` 4.1.5→4.1.6（#101）、`@commitlint/cli` 21.0.0→21.0.1（#104）、`tsx` 4.21.0→4.22.3（#109）。
+- **CI actions**：`actions/checkout` 4→6（#98）、`actions/setup-node` 4→6（#99）。
 
 ## [5.12.1] - 2026-05-19
 

@@ -1,9 +1,9 @@
 {
   "project": "Universal Development Standards",
-  "version": "5.12.1",
-  "last_updated": "2026-05-19",
+  "version": "5.13.0",
+  "last_updated": "2026-05-26",
   "stats": {
-    "core_standards": 125,
+    "core_standards": 127,
     "skills": 54,
     "slash_commands": 48
   },
@@ -705,6 +705,11 @@
     },
     {
       "id": "translation-lifecycle-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "self-review-protocol",
       "category": "uncategorized",
       "level": 3
     }

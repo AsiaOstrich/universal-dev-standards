@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.12.1
-translation_version: 5.12.1
-last_synced: 2026-05-19
+source_version: 5.13.0
+translation_version: 5.13.0
+last_synced: 2026-05-26
 status: current
 ---
 
@@ -16,6 +16,32 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.13.0] - 2026-05-26
+
+### 新增
+- **`core/self-review-protocol.md` v1.0.0**（含 `ai/standards/self-review-protocol.ai.yaml`、`locales/zh-TW/core/self-review-protocol.md`、`cli/standards-registry.json` 注册项）：新标准，要求**大型 markdown 编辑（> 50 行）commit 前必跑 self-review**。明列 **6 类内部 cross-reference 不一致** — diagram/step 不同步、changelog 编号错位、计数错位、stale 模板、错误工具引用、placeholder 与 rule 不对齐 — 并附具体检查方法。与 code review（代码）、内容自我审计（完整性）、同侪审查（设计）三者分工互补。观察源：下游 skill 编辑出现的 `v1.X→v1.X.1` patch 惯性。
+- **`scripts/pre-release-check.sh` Step 22.5 — CHANGELOG hard gate**：当 `CHANGELOG.md [Unreleased]` 为空时拒绝发版。新增 `--skip-changelog` flag 提供 escape valve（发版 commit message 须注明理由）。插在 flow gate（step 22）与 dogfooding gate（step 23）之间。
+- **`scripts/pre-commit.mjs` Step 1.5 — CHANGELOG drift advisory**：当 staged commit 改 substantive source（`core/`、`ai/standards/`、`cli/src`、`cli/bin`、`scripts/`、`skills/*/SKILL.md`、`.github/workflows/`）但没 stage `CHANGELOG.md` 时，黄色 warning（不挡 commit，exit 0）。讯息指向 release-time hard gate 让使用者知道忽略警告的后果。
+- **`.github/workflows/release-reminder.yml`**：每周一 09:00 UTC cron，当 `CHANGELOG.md [Unreleased]` 非空 **且** 距离 latest semver tag ≥ 7 天时，开或更新标 `release-reminder` + `auto-generated` 的 issue。条件不再满足时（发完版或 [Unreleased] 清空）自动 close。内建 semver bump heuristic（依条目内容推 major/minor/patch）。
+- **`scripts/check-skill-structural-integrity.ts`**（XSPEC-223，P1 发版 gate）：验证 skill `SKILL.md` 结构完整性（frontmatter 字段、必要 section）。串接到 `pre-release-check.sh` step 18.5；任何 skill 结构不全则挡发版。
+- **`packaging-standards`**（XSPEC-233 / #112）：新增 API migration contract test fixtures section — 定义跨版本 API 迁移相容性测试的 fixture 格式。
+- **Clean-room install gate**（XSPEC-221）于 `.github/workflows/publish.yml`：Alpine Node 20 容器跑 `npm install -g .`（从 `cli/`），验证 `uds --version` / `uds list` / `uds init --dry-run`。任何步骤失败则挡 `publish` job。
+- **Dogfooding gate**（XSPEC-222）— `scripts/pre-release-check.sh` step 23：新 CLI build 必须能跑 `uds check` 通过自身验证才能发版。
+
+### 变更
+- **`core/deployment-standards.md`**（XSPEC-231 / #110 + #113）：部署防御性配对 — 强制归档格式验证 + 解压-验证-才删除 模式。关闭「压缩档损毁但先被删除」失败类别。
+- **`core/logging-standards.md`**（XSPEC-232 / #111）：强制双触发日志轮替策略 — size **AND** time 两种触发都必须配置（非 OR）。关闭「size 门槛未达所以轮替从未触发」失败模式。
+- **`skills/contract-test-assistant/SKILL.md`** 与 **`skills/runbook-assistant/SKILL.md`**：配合 XSPEC-231/232/233 模式的小幅更新。
+- **依赖升级（`cli/`）**：`lint-staged` 17.0.3→17.0.4（#107）、`@inquirer/prompts` 8.4.2→8.4.3（#106）、`eslint` 10.3.0→10.4.0（#105）、`@vitest/coverage-v8` 4.1.5→4.1.6（#103）、`vitest` 4.1.5→4.1.6（#101）、`@commitlint/cli` 21.0.0→21.0.1（#104）、`tsx` 4.21.0→4.22.3（#109）。
+- **CI actions**：`actions/checkout` 4→6（#98）、`actions/setup-node` 4→6（#99）。
+
+## [5.12.1] - 2026-05-19
+
+### 变更
+- **`full-coverage-testing.ai.yaml`**（`no-tautology-assertions` 规则，XSPEC-220）：AI agent 生成未实作测试骨架时，**必须**使用 `it.todo("AC-XXX: ...")`，禁止使用含 `expect(true).toBe(true)` 的 `it()` callback——无论由人类或 AI agent 生成，均视为 `[ANTI-FAKE-001]` 违规。
+- **`test-governance.ai.yaml`**（`gate-wiring-required` 规则，XSPEC-220）：品质侦测脚本（anti-fake、stub-check、coverage ratchet）**必须**同时出现在至少一个 CI workflow job 与至少一个 local hook。脚本存在于 `scripts/` 但从未被 CI 呼叫，等同不存在，视为治理缺口。
+- **`acceptance-criteria-traceability.ai.yaml`**（`not_implemented` 状态，XSPEC-220）：明确定义 `it.todo()` 占位符对应 `not_implemented 🚫` 状态（不计入覆盖率分母），补充决策树区分 `not_implemented`（有意识标记）与 `uncovered`（遗漏）。
 
 ## [5.12.0] - 2026-05-16
 

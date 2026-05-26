@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.13.0] - 2026-05-26
+
+### Added
+- **`core/self-review-protocol.md` v1.0.0** (paired with `ai/standards/self-review-protocol.ai.yaml`, `locales/zh-TW/core/self-review-protocol.md`, and `cli/standards-registry.json` entry): New standard mandating a self-review pass on large markdown edits (>50 lines) before commit. Defines **6 categories of internal cross-reference inconsistency** — diagram/step mismatch, changelog reference errors, count drift, stale templates, wrong tool references, placeholder/rule misalignment — with concrete check methods. Distinguished from code review (covers code), content self-audit (covers completeness), and peer review (covers design). Born from observed `v1.X→v1.X.1` patch cycles in downstream skill editing.
+- **`scripts/pre-release-check.sh` Step 22.5 — CHANGELOG hard gate**: Refuses release when `CHANGELOG.md [Unreleased]` section is empty. New `--skip-changelog` flag provides an escape valve (justification expected in release commit message). Inserted between flow gate (step 22) and dogfooding gate (step 23).
+- **`scripts/pre-commit.mjs` Step 1.5 — CHANGELOG drift advisory**: Warns (non-blocking, exit 0) when substantive changes are staged (`core/`, `ai/standards/`, `cli/src`, `cli/bin`, `scripts/`, `skills/*/SKILL.md`, `.github/workflows/`) without a paired `CHANGELOG.md` update. Points users to the release-time hard gate so they understand the consequence of ignoring the warning.
+- **`.github/workflows/release-reminder.yml`**: Weekly Monday 09:00 UTC cron that opens (or updates) a labeled issue when `CHANGELOG.md [Unreleased]` is non-empty **and** ≥7 days have passed since the latest semver tag. Auto-closes any open reminder when conditions no longer hold. Suggests semver bump heuristic (major/minor/patch) from entry content.
+- **`scripts/check-skill-structural-integrity.ts`** (XSPEC-223, P1 release gate): Validates skill `SKILL.md` structural completeness (frontmatter fields, required sections). Wired into `pre-release-check.sh` step 18.5; blocks release if any skill has structural defects.
+- **`packaging-standards`** (XSPEC-233 / #112): API migration contract test fixtures section added — defines fixture format for testing API migration compatibility across versions.
+- **Clean-room install gate** (XSPEC-221) in `.github/workflows/publish.yml`: Alpine Node 20 container runs `npm install -g .` from `cli/`, verifies `uds --version` / `uds list` / `uds init --dry-run`. Blocks the `publish` job if any step fails.
+- **Dogfooding gate** (XSPEC-222) — `scripts/pre-release-check.sh` step 23: New CLI build must pass `uds check` against itself before release proceeds.
+
+### Changed
+- **`core/deployment-standards.md`** (XSPEC-231 / #110 + #113): Defensive deploy pairing — mandates archive integrity verification + extract-verify-then-delete pattern. Closes the "corrupted archive deleted before verification" failure class.
+- **`core/logging-standards.md`** (XSPEC-232 / #111): Mandatory dual-trigger log rotation policy — both size **AND** time triggers must be configured (not OR). Closes the "rotation never fired because size threshold never hit" failure mode.
+- **`skills/contract-test-assistant/SKILL.md`** and **`skills/runbook-assistant/SKILL.md`**: Minor updates supporting XSPEC-231/232/233 patterns.
+- **Dependencies (`cli/`)**: `lint-staged` 17.0.3→17.0.4 (#107), `@inquirer/prompts` 8.4.2→8.4.3 (#106), `eslint` 10.3.0→10.4.0 (#105), `@vitest/coverage-v8` 4.1.5→4.1.6 (#103), `vitest` 4.1.5→4.1.6 (#101), `@commitlint/cli` 21.0.0→21.0.1 (#104), `tsx` 4.21.0→4.22.3 (#109).
+- **CI actions**: `actions/checkout` 4→6 (#98), `actions/setup-node` 4→6 (#99).
+
 ## [5.12.1] - 2026-05-19
 
 ### Changed

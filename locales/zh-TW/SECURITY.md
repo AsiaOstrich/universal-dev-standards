@@ -13,7 +13,7 @@ status: current
 <!-- UDS_SUPPORTED_VERSIONS_START -->
 | 版本 | 支援狀態 |
 |------|--------|
-| 5.11.0 | ✅ 最新正式版 |
+| 5.13.0 | ✅ 最新正式版 |
 | < 5.0.0 | ❌ 已終止支援 |
 <!-- UDS_SUPPORTED_VERSIONS_END -->
 
