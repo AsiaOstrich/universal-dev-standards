@@ -1,0 +1,35 @@
+# Facebook Caption — v{VERSION}
+
+> **Format**: Single post with Cover image
+> **Link**: FB supports inline clickable URLs — no "bio link" workaround needed
+> **Page**: post via business Page (not personal profile) for analytics + auto-share API support in Phase 2
+
+---
+
+```
+🚀 universal-dev-standards v{VERSION} 上 npm 了，這版帶了 {N} 個你會實際用到的東西：
+
+✅ {FEATURE_1_NAME}（{FEATURE_1_TAG}）
+{FEATURE_1_DESCRIPTION_PARAGRAPH}
+
+✅ {FEATURE_2_NAME}
+{FEATURE_2_DESCRIPTION_PARAGRAPH}
+
+✅ {FEATURE_3_NAME}
+{FEATURE_3_DESCRIPTION_PARAGRAPH}
+
+✅ {FEATURE_4_NAME}
+{FEATURE_4_DESCRIPTION_PARAGRAPH}
+
+{OPTIONAL_BONUS_PARAGRAPH}
+
+{OPTIONAL_TRUST_SIGNAL_PARAGRAPH}
+
+試用：
+npm install universal-dev-standards@latest
+npx universal-dev-standards init
+
+GitHub: github.com/AsiaOstrich/universal-dev-standards
+
+#開源 #DevOps #DocumentationStandards #繁體中文開發
+```

@@ -1,0 +1,50 @@
+# Threads Caption — v{VERSION}
+
+> **Format**: 3-post thread (use Threads "Add to thread" feature to chain them)
+> **Separator**: `---` between posts (parser-friendly for future automation)
+> **Char limit**: 500 per post (Chinese chars count 1:1)
+
+---
+
+## Post 1 (hook + Cover 圖)
+
+```
+universal-dev-standards v{VERSION} 上 npm。
+
+{ONE_LINE_PROBLEM_STATEMENT}
+
+🐛 「{PAIN_POINT_1}」
+🐛 「{PAIN_POINT_2}」
+🐛 「{PAIN_POINT_3}」
+
+每個都是 production 真實踩過的坑，現在被 UDS 標準化封死 👇
+```
+
+---
+
+## Post 2 (features)
+
+```
+v{VERSION} 新增：
+
+📐 {FEATURE_1_NAME} — {FEATURE_1_ONE_LINER}
+
+🛡️ {FEATURE_2_NAME} — {FEATURE_2_ONE_LINER}
+
+📜 {FEATURE_3_NAME} — {FEATURE_3_ONE_LINER}
+
+⚙️ {FEATURE_4_NAME} — {FEATURE_4_ONE_LINER}
+
+{OPTIONAL_BONUS_LINE}
+```
+
+---
+
+## Post 3 (trust signal + CTA)
+
+```
+{TRUST_SIGNAL_OR_DOGFOOD_NOTE}
+
+npm install universal-dev-standards
+github.com/AsiaOstrich/universal-dev-standards
+```
