@@ -12,8 +12,8 @@ standard:
     - "Pipeline-integrated: packaging runs between Review and Deploy in the adoption-layer pipeline"
 
   meta:
-    version: "1.0.0"
-    updated: "2026-04-15"
+    version: "1.1.0"
+    updated: "2026-05-26"
     source: core/packaging-standards.md
 
   principles:
@@ -134,6 +134,29 @@ recipe_selection_guide:
             is_windows_installer:
               yes: windows-installer
               no: custom-recipe-required
+
+archive_format_integrity:
+  rules:
+    - id: real_format_matches_extension
+      requirement: "A .zip file MUST be a real ZIP archive (PKZip magic PK\\x03\\x04). A renamed POSIX tar with .zip extension is forbidden."
+      priority: required
+    - id: verify_before_publish
+      requirement: "Packaging step MUST verify the produced archive's real format before declaring success."
+      priority: required
+      verification_examples:
+        zip_python: "python -c \"import zipfile; zipfile.ZipFile('out.zip').namelist()\""
+        zip_unix: "file out.zip  # expect 'Zip archive data', NOT 'POSIX tar archive'"
+        targz_unix: "tar -tzf out.tar.gz >/dev/null"
+    - id: windows_recipe_compliance
+      requirement: "On Windows, use PowerShell Compress-Archive or .NET ZipFile::CreateFromDirectory. Do NOT use git-bash 'tar -a -cf x.zip' — the auto-extension flag produces a POSIX tar archive."
+      priority: required
+      do_use:
+        - "Compress-Archive -Path 'publish\\*' -DestinationPath 'dist\\patch.zip' -Force"
+        - "[System.IO.Compression.ZipFile]::CreateFromDirectory(...)"
+      do_not_use:
+        - "tar -a -cf x.zip ...  # produces POSIX tar with .zip extension on Windows tar ports"
+  consumer_side_defense: "Producers cannot guarantee verification downstream. Deploy scripts MUST verify archive integrity before any destructive action — see deployment-standards Defensive Deployment Ordering."
+  failure_mode_reference: "PROD incident 2026-05-24: tar-renamed-to-.zip + Expand-Archive silent no-op + unconditional Remove-Item destroyed live install. ~3 minutes downtime."
 
 physical_spec:
   type: custom_script

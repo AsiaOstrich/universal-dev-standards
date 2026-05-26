@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/packaging-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-04-15
+**Version**: 1.1.0
+**Last Updated**: 2026-05-26
 **Applicability**: Projects using a UDS-aware toolchain
 **Scope**: universal
 
@@ -194,6 +194,75 @@ A packaging run is considered **successful** when ALL of the following condition
 
 ---
 
+## Archive Format Integrity
+
+When a packaging step produces an archive (`.zip`, `.tar.gz`, `.tar.bz2`, etc.) that will be consumed by a deploy script, the **real binary format MUST match the file extension**. A file named `.zip` MUST be a real ZIP archive (PKZip magic `PK\x03\x04`), not a renamed tar archive.
+
+> **Why mandatory:** mismatched archive formats trigger silent failures downstream. PowerShell's `Expand-Archive` and `[System.IO.Compression.ZipFile]::ExtractToDirectory()` accept tar-renamed-to-`.zip` **without raising an error** — the file is read, nothing is extracted, no exception. If the next step of the deploy script is destructive (e.g., "delete current install directory"), the live install is destroyed with nothing to replace it.
+
+### Verification before publish
+
+Every packaging step that produces an archive **MUST** include format verification before declaring success. Minimum verification:
+
+| Format | Verification one-liner |
+|---|---|
+| `.zip` | `python -c "import zipfile; zipfile.ZipFile('out.zip').namelist()"` must succeed |
+| `.zip` (Unix) | `file out.zip` must report `Zip archive data`, **NOT** `POSIX tar archive` |
+| `.tar.gz` | `tar -tzf out.tar.gz >/dev/null` must succeed |
+| any | optional: hash a manifest of expected files and compare |
+
+Verification failure MUST abort the packaging pipeline before publish.
+
+### Platform-specific recipes
+
+**Windows — DO use:**
+
+```powershell
+# Option A: PowerShell built-in (produces real ZIP)
+Compress-Archive -Path "publish\*" -DestinationPath "dist\patch.zip" -Force
+
+# Option B: .NET API (produces real ZIP)
+Add-Type -Assembly System.IO.Compression.FileSystem
+[System.IO.Compression.ZipFile]::CreateFromDirectory(
+    "publish", "dist\patch.zip", "Optimal", $false
+)
+```
+
+**Windows — DO NOT use:**
+
+```bash
+# ❌ git-bash / busybox tar -a -cf is UNRELIABLE on Windows
+# The -a "auto by extension" flag produces a POSIX tar archive with .zip extension.
+# `file patch.zip` → "POSIX tar archive (GNU)"  (not "Zip archive data")
+cd publish && tar -a -cf "../dist/patch.zip" api/
+```
+
+**Unix-like — DO use:**
+
+```bash
+# Use 'zip' for ZIP archives (BSD/Linux)
+zip -r dist/patch.zip publish/
+
+# Use 'tar -czf' (without -a) for tar.gz archives — explicit, deterministic
+tar -czf dist/patch.tar.gz publish/
+
+# Verify before publishing
+file dist/patch.zip            # expect "Zip archive data"
+python -c "import zipfile; zipfile.ZipFile('dist/patch.zip').namelist()"
+```
+
+### Consumer-side defense
+
+Producers cannot guarantee that consumers verify. Consumers (deploy scripts) **MUST** verify archive integrity before any destructive action. See [Deployment Standards — Defensive Deployment Ordering](deployment-standards.md#defensive-deployment-ordering) for the consumer-side requirement.
+
+### Failure mode reference (real incident)
+
+A Windows IIS production deploy script (2026-05-24) used `tar -a -cf patch.zip api/` in git-bash to produce its release archive. The consumer-side PowerShell deploy script then ran `Expand-Archive` (silent no-op on the tar-renamed file), proceeded to `Remove-Item -Recurse` the live `apiDir`, then `Copy-Item` from a source that did not exist (because nothing had been extracted). The live install was wiped, AppPool stopped, and production was down for ~3 minutes until backup-based rollback completed.
+
+The combination of (a) producer using auto-extension tar and (b) consumer not verifying extract output destroyed the running install with no error raised at any step.
+
+---
+
 ## Related Standards
 
 - [Deployment Standards](deployment-standards.md) — Deploy stage that follows packaging
@@ -207,6 +276,7 @@ A packaging run is considered **successful** when ALL of the following condition
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-05-26 | Added: Archive Format Integrity section — real-format-must-match-extension rule, verification one-liners, Windows recipe DO/DON'T list, real incident reference (XSPEC-231 / closes issue #113) |
 | 1.0.0 | 2026-04-15 | Initial release — XSPEC-034 Phase 1 |
 
 ---

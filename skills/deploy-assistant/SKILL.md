@@ -170,6 +170,8 @@ After `/deploy` completes, the AI assistant should suggest:
 
 - Core standard: [no-cicd-deployment.md](../../core/no-cicd-deployment.md)
 - Core standard: [deployment-standards.md](../../core/deployment-standards.md)
+- Core standard: [deployment-standards.md § Defensive Deployment Ordering](../../core/deployment-standards.md#defensive-deployment-ordering) — **MANDATORY** extract-verify-then-delete sequence for destructive updates / **強制**遵循 extract-verify-then-delete 順序
+- Core standard: [packaging-standards.md § Archive Format Integrity](../../core/packaging-standards.md#archive-format-integrity) — verify archive format before consuming / 消費 archive 前先驗證格式
 - Related: [ci-cd-assistant](../ci-cd-assistant/SKILL.md) — For environments WITH CI/CD
 
 ## Version History | 版本歷史

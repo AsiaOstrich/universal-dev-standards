@@ -12,11 +12,14 @@ standard:
     - "Automate build, test, deploy, and rollback"
 
   meta:
-    version: "1.1.0"
-    updated: "2026-05-13"
+    version: "1.2.0"
+    updated: "2026-05-26"
     source: core/deployment-standards.md
     description: >
       Safe deployment strategies, feature flags, rollback, environment parity, and DORA metrics.
+      v1.2.0: Added Defensive Deployment Ordering — required extract-verify-then-delete sequence,
+      PowerShell + bash verify snippets, failure mode mapping, cross-link to packaging-standards
+      Archive Format Integrity (XSPEC-231 / closes issue #110).
       v1.1.0: Added environment stratification responsibility matrix and stub server CI/CD
       lifecycle rules (XSPEC-204).
 
@@ -229,6 +232,51 @@ stub_server_cicd_rules:
     deferral" for a testable flow. Every flow must be either:
     (a) fully testable in UAT via real service or Level 2 stub server, OR
     (b) explicitly documented as PRD-smoke-only with a smoke test plan.
+
+defensive_ordering:
+  scope: "destructive-update deploy patterns (stop → swap → start) common to Windows IIS, SystemD-managed services, and similar in-place replacement workflows."
+  forbidden_ordering: |
+    1. Stop service
+    2. Extract new package         ← may silently no-op on format mismatch
+    3. Delete old install          ← runs unconditionally — destroys live install
+    4. Copy new install            ← throws (source doesn't exist)
+    5. Start service               ← cannot start (binaries gone)
+  required_ordering: |
+    1. Stop service
+    2. Extract new package → staging area  (NOT directly over live install)
+    3. ✅ VERIFY staging area contains expected artifacts
+       ↑ if verification fails: abort, do NOT touch the live install
+    4. Backup live install                 (or earlier — both is fine)
+    5. Delete old install (preserving logs / runtime data)
+    6. Copy new install from staging
+    7. Restore preserved configs
+    8. Start service
+    9. Sanity check (HTTP probe / health endpoint)
+  verify_step_3:
+    required: true
+    skip_allowed: false
+    minimum: "Test-Path / [ -f ... ] against at least one well-known file from the new package."
+    preferred: "Hash-check a manifest of expected files."
+  rules:
+    - id: extract-to-staging-not-live
+      requirement: "Step 2 MUST extract to a staging area separate from the live install path."
+      priority: required
+    - id: verify-before-destructive
+      requirement: "Step 3 MUST verify staging contents before any destructive step touches the live install. Failure MUST abort with live install untouched."
+      priority: required
+    - id: backup-required
+      requirement: "A backup of the live install MUST exist before step 5 (delete). Can be taken earlier."
+      priority: required
+    - id: preserve-runtime-data
+      requirement: "Step 5 MUST exclude logs and runtime data from deletion."
+      priority: required
+  failure_modes_addressed:
+    - wrong_format_archive: "Step 3 verify fails — live install untouched"
+    - partial_extract: "Step 3 verify fails — live install untouched"
+    - archive_root_changed: "Step 3 verify fails — live install untouched"
+    - permission_denied_extract: "Step 3 verify fails — live install untouched"
+  upstream_prevention: "Producer-side prevention via packaging-standards Archive Format Integrity. Both layers form defense-in-depth — neither alone is sufficient."
+  failure_mode_reference: "PROD incident 2026-05-24: Expand-Archive silent no-op on tar-renamed-to-.zip + unconditional Remove-Item destroyed live install. ~3 minutes downtime. Step 3 verify would have aborted before destruction."
 
 physical_spec:
   type: custom_script

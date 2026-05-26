@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/deployment-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-02-09
+**Version**: 1.1.0
+**Last Updated**: 2026-05-26
 **Applicability**: All software projects with deployment pipelines
 **Scope**: universal
 **Industry Standards**: Twelve-Factor App, Google SRE — Release Engineering, DORA State of DevOps
@@ -219,6 +219,103 @@ Strategies are not mutually exclusive. Common combinations:
 
 ---
 
+## Defensive Deployment Ordering
+
+When a deploy script replaces a running install (the destructive-update pattern common to Windows IIS, SystemD-managed services, or any "stop → swap → start" workflow), the ordering of destructive steps relative to verification is non-negotiable.
+
+### The forbidden ordering
+
+```
+1. Stop service
+2. Extract new package         ← may silently no-op on format mismatch
+3. Delete old install          ← runs unconditionally — destroys the running install
+4. Copy new install            ← throws (source doesn't exist)
+5. Start service               ← cannot start (binaries gone)
+```
+
+If step 2 silently fails (corrupt archive, wrong format, disk full, permissions), step 3 still runs and **destroys the running install**, leaving nothing to recover from except backup. Backup helps for full rollback but does NOT prevent the outage window — the service is already down.
+
+### The required ordering — extract, verify, then delete
+
+The destructive deploy ordering **MUST** be:
+
+```
+1. Stop service
+2. Extract new package → staging area      (NOT directly over live install)
+3. ✅ VERIFY staging area contains expected artifacts
+   ↑ if verification fails: abort, do NOT touch the live install
+4. Backup live install                     (or done earlier — both is fine)
+5. Delete old install (preserving logs / runtime data)
+6. Copy new install from staging
+7. Restore preserved configs
+8. Start service
+9. Sanity check (HTTP probe / health endpoint)
+```
+
+**Step 3 verification is non-negotiable.** Minimum verification is checking that at least one well-known file from the new package exists in the staging area. Hash-checking a manifest of expected files is preferred when available.
+
+### Verification snippets
+
+**PowerShell** (Windows IIS deploy):
+
+```powershell
+$staging = "C:\deploy\staging-$(Get-Date -Format yyyyMMddHHmmss)"
+Expand-Archive -Path $zipPath -DestinationPath $staging -Force
+
+# Non-negotiable: verify staging before touching live install
+if (-not (Test-Path "$staging\api\MyApp.dll")) {
+    throw "Expected $staging\api\MyApp.dll not found — archive may be corrupt or wrong format. Aborting deploy. Live install untouched."
+}
+
+# Only NOW touch live install
+Copy-Item "$apiDir" "$backupDir" -Recurse -Force
+Get-ChildItem $apiDir -Exclude logs | Remove-Item -Recurse -Force
+Copy-Item "$staging\api\*" $apiDir -Recurse
+```
+
+**bash** (Linux SystemD-managed service):
+
+```bash
+set -euo pipefail
+
+STAGING="/srv/deploy/staging-$(date +%Y%m%d%H%M%S)"
+mkdir -p "$STAGING"
+tar -xzf "$ARCHIVE" -C "$STAGING"
+
+# Non-negotiable: verify staging before touching live install
+if [ ! -f "$STAGING/bin/myapp" ]; then
+  echo "ERROR: Expected $STAGING/bin/myapp not found. Aborting deploy. Live install untouched." >&2
+  exit 1
+fi
+
+# Only NOW touch live install
+systemctl stop myapp
+cp -a "$LIVE_DIR" "$BACKUP_DIR"
+find "$LIVE_DIR" -mindepth 1 -not -path "$LIVE_DIR/logs*" -delete
+cp -a "$STAGING"/* "$LIVE_DIR/"
+systemctl start myapp
+```
+
+### Failure modes addressed
+
+| Failure mode | What protects against it |
+|---|---|
+| Archive is wrong format (e.g., tar renamed to `.zip`) | Step 3 verify fails — live install untouched |
+| Partial extract (disk full mid-extract) | Step 3 verify fails — live install untouched |
+| Archive root structure changed (extra wrapper folder, missing key file) | Step 3 verify fails — live install untouched |
+| Permissions issue (extract step had read but not write) | Step 3 verify fails — live install untouched |
+| Backup script itself fails | Optional secondary check after step 4 |
+
+### Upstream prevention
+
+Verifying at the consumer side is the last line of defense. The **upstream** prevention — refusing to produce a misformatted archive in the first place — is covered by [Packaging Standards — Archive Format Integrity](packaging-standards.md#archive-format-integrity). Both layers together form a defense-in-depth pair; neither alone is sufficient.
+
+### Failure mode reference (real incident)
+
+A Windows IIS production deploy script (2026-05-24) ran `Expand-Archive` against a tar-renamed-to-`.zip` archive (silent no-op), then `Remove-Item -Recurse` against the live `apiDir`, then `Copy-Item` from a source that did not exist (because nothing had been extracted). The live install was wiped, AppPool stopped, production was down for ~3 minutes until backup-based rollback completed. Adding step 3 verify (`Test-Path "$staging/api/MyApp.dll"`) would have aborted the deploy at the staging stage with the live install untouched.
+
+---
+
 ## Post-Deployment Checklist
 
 ### Immediate (< 5 minutes)
@@ -334,6 +431,7 @@ Smoke test failure MUST block the deployment from proceeding and trigger a rollb
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-05-26 | Added: Defensive Deployment Ordering section — required extract-verify-then-delete sequence, PowerShell + bash verify snippets, failure mode mapping, cross-link to packaging-standards Archive Format Integrity (XSPEC-231 / closes issue #110) |
 | 1.0.0 | 2026-02-09 | Initial release |
 
 ---
