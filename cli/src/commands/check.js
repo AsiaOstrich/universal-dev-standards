@@ -1054,6 +1054,19 @@ function checkIntegrationFiles(manifest, projectPath, msg) {
   console.log(chalk.cyan(msg.aiToolIntegration));
 
   const standardsFiles = manifest.standards?.map(s => basename(s)) || [];
+
+  // Build a lookup map: registry ID → actual AI filename
+  // Needed because some standards have IDs that differ from their .ai.yaml basename
+  // (e.g. ID "error-code-standards" → file "error-codes.ai.yaml").
+  // After migrateStandardsPathsToIds(), manifest.standards contains IDs, so a plain
+  // content.includes(id) check would fail for these mismatched entries.
+  const allRegistryStds = getAllStandards();
+  const idToAiFilename = new Map(
+    allRegistryStds
+      .filter(s => s.source?.ai)
+      .map(s => [s.id, basename(s.source.ai)])
+  );
+
   let hasIssues = false;
   let checkedCount = 0;
 
@@ -1093,8 +1106,14 @@ function checkIntegrationFiles(manifest, projectPath, msg) {
     const missingStandards = [];
 
     for (const stdFile of standardsFiles) {
-      // Check if standard is referenced in the file
+      // Check if standard is referenced in the file.
+      // stdFile is a registry ID (e.g. "error-code-standards") after manifest
+      // migration. For standards where the ID doesn't match the .ai.yaml basename
+      // (e.g. ID "error-code-standards" → file "error-codes.ai.yaml"), we must
+      // also check the actual filename so those aren't falsely reported as missing.
+      const aiFilename = idToAiFilename.get(stdFile);
       const isReferenced = content.includes(stdFile) ||
+        (aiFilename !== undefined && aiFilename !== stdFile && content.includes(aiFilename)) ||
         content.includes(`.standards/${stdFile}`) ||
         content.includes(`standards/${stdFile}`);
 

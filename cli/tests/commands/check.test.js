@@ -616,5 +616,55 @@ describe('Check Command', () => {
       expect(output).not.toMatch(/(?<!\d)\s+0 via Skills/);
     });
 
+    it('should not falsely report standards as missing when registry ID differs from .ai.yaml filename', async () => {
+      // Regression test for bug: "error-code-standards" and "logging-standards" were always
+      // reported as missing even when their actual AI files (error-codes.ai.yaml / logging.ai.yaml)
+      // were referenced in CLAUDE.md.
+      //
+      // Root cause: migrateStandardsPathsToIds() converts path entries like
+      // "ai/standards/error-codes.ai.yaml" to the registry ID "error-code-standards".
+      // check.js then did content.includes("error-code-standards") which always fails because
+      // CLAUDE.md was generated with the actual filename "error-codes.ai.yaml".
+      //
+      // Fix: also check against the actual AI filename from the registry.
+
+      const manifest = createValidManifest({
+        level: 2,
+        // Use path format — migrateStandardsPathsToIds converts these to IDs on read
+        standards: [
+          'ai/standards/error-codes.ai.yaml',
+          'ai/standards/logging.ai.yaml',
+        ],
+        integrations: ['CLAUDE.md'],
+        aiTools: ['claude-code'],
+      });
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+
+      // CLAUDE.md references the actual filenames (as integration-generator produces)
+      writeFileSync(
+        join(TEST_DIR, 'CLAUDE.md'),
+        [
+          '## Installed Standards Index',
+          '',
+          '- `error-codes.ai.yaml` - error-codes.ai.yaml',
+          '- `logging.ai.yaml` - logging.ai.yaml',
+        ].join('\n')
+      );
+
+      await checkCommand({ noInteractive: true });
+
+      const output = consoleLogs.join('\n');
+      // Neither standard should appear in the missing list
+      expect(output).not.toContain('error-code-standards');
+      expect(output).not.toContain('logging-standards');
+      // The integration block should be fully green (no ⚠ warning)
+      expect(output).not.toMatch(/⚠.*CLAUDE\.md/);
+    });
+
   });
 });
