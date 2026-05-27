@@ -39,6 +39,12 @@
       }
     }
   },
+  "publish_schedule": {
+    "publish_at": null,
+    "timezone_note": "Store as UTC ISO8601. Taiwan (UTC+8): 08:30 TW = 00:30Z",
+    "platforms": ["threads", "instagram", "facebook", "linkedin"],
+    "status": "pending"
+  },
   "social_posts": {
     "instagram": {
       "posted_at": null,

@@ -1,0 +1,92 @@
+name: Social Media Auto-Publish
+
+# Fires every 30 minutes to check if any release is scheduled to publish.
+# Also supports manual trigger for immediate publishing or testing.
+#
+# Scheduling flow:
+#   1. After gh release create, update release-assets/v{VERSION}/meta.json:
+#      publish_schedule.publish_at = "2026-05-28T00:30:00Z"  (e.g. 08:30 TW = 00:30 UTC)
+#      publish_schedule.status     = "pending"
+#   2. This workflow fires every 30 min, checks the window, and publishes when ready.
+#   3. After publishing, meta.json is updated with posted_at + URLs and committed.
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # Every 30 minutes
+
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 5.14.0) — leave blank to auto-detect'
+        required: false
+        default: ''
+      platform:
+        description: 'Platform: all | linkedin | threads | instagram | facebook'
+        required: false
+        default: 'all'
+      dry_run:
+        description: 'Dry run (print output, no API calls)'
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  publish:
+    name: Publish to social platforms
+    runs-on: ubuntu-latest
+
+    # Skip scheduled runs if there are no pending releases
+    # (workflow_dispatch always runs)
+    permissions:
+      contents: write   # needed to commit updated meta.json
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run social publisher
+        id: publish
+        run: |
+          node scripts/social/publish.mjs \
+            ${{ inputs.version && format('--version {0}', inputs.version) || '' }} \
+            --platform ${{ inputs.platform || 'all' }} \
+            ${{ (github.event_name == 'schedule') && '--check-schedule' || '' }} \
+            ${{ (inputs.dry_run == 'true') && '--dry-run' || '' }}
+        env:
+          VERSION: ${{ inputs.version }}
+          PLATFORM: ${{ inputs.platform || 'all' }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          # LinkedIn
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_ID: ${{ secrets.LINKEDIN_PERSON_ID }}
+          LINKEDIN_ORG_ID: ${{ secrets.LINKEDIN_ORG_ID }}
+          # Threads (Meta)
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          # Instagram (Meta)
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          # Facebook (Meta)
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+
+      - name: Commit updated meta.json
+        if: ${{ inputs.dry_run != 'true' }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add release-assets/
+          # Only commit if there are changes (meta.json updated with posted_at/URLs)
+          git diff --cached --quiet || git commit -m "chore(social): update meta.json with posted_at and URLs
+
+          Auto-committed by social-publish.yml after successful publish.
+
+          Co-Authored-By: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          git push

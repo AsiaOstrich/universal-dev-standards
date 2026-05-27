@@ -1,0 +1,73 @@
+{
+  "version": "{VERSION}",
+  "released_at": null,
+  "github_release": "https://github.com/AsiaOstrich/universal-dev-standards/releases/tag/v{VERSION}",
+  "github_tag": "v{VERSION}",
+  "git_commit": null,
+  "npm_package": "https://www.npmjs.com/package/universal-dev-standards/v/{VERSION}",
+  "npm_tarball": "https://registry.npmjs.org/universal-dev-standards/-/universal-dev-standards-{VERSION}.tgz",
+  "images": {
+    "style": "synthwave / cyberpunk retro tech",
+    "style_note": "Include style anchor at end of each prompt to prevent ChatGPT auto-switching to infographic style.",
+    "generator": "ChatGPT free tier (DALL-E 3 / GPT-Image-1)",
+    "generated_at": null,
+    "platforms": {
+      "instagram": {
+        "format": "N-image carousel, PNG 1080x1080",
+        "files": {},
+        "prompt_capture_status": "captured — see prompts.md"
+      },
+      "facebook": {
+        "format": "single landscape infographic, PNG (~1200x630)",
+        "files": {
+          "cover": "images/fb/cover.png"
+        },
+        "prompt_capture_status": "captured — see prompts.md"
+      },
+      "threads": {
+        "format": "3 portrait images, one per thread post (~1080x1350)",
+        "files": {
+          "post_1": "images/threads/post-1.png",
+          "post_2": "images/threads/post-2.png",
+          "post_3": "images/threads/post-3.png"
+        },
+        "prompt_capture_status": "captured — see prompts.md"
+      }
+    }
+  },
+  "publish_schedule": {
+    "publish_at": null,
+    "timezone_note": "Store as UTC ISO8601. Taiwan (UTC+8): 08:30 TW = 00:30Z. Set this AFTER release, then push. social-publish.yml will fire within 30 min of this time.",
+    "platforms": ["threads", "instagram", "facebook", "linkedin"],
+    "status": "pending"
+  },
+  "social_posts": {
+    "instagram": {
+      "posted_at": null,
+      "format": "carousel",
+      "url": null
+    },
+    "threads": {
+      "posted_at": null,
+      "format": "3-post thread",
+      "post_urls": [null, null, null]
+    },
+    "facebook": {
+      "posted_at": null,
+      "format": "single post with cover image",
+      "url": null
+    },
+    "x": {
+      "posted_at": null,
+      "format": "3-tweet thread (manual)",
+      "tweet_urls": [null, null, null],
+      "note": "X has no free API — post manually from captions/x.md"
+    },
+    "linkedin": {
+      "posted_at": null,
+      "format": "single post",
+      "url": null,
+      "note": "Can attach FB cover image (1200x630) for visual boost"
+    }
+  }
+}
