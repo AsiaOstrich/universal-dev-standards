@@ -54,6 +54,18 @@
       "posted_at": null,
       "format": "single post with cover image",
       "url": null
+    },
+    "x": {
+      "posted_at": null,
+      "format": "3-tweet thread",
+      "tweet_urls": [null, null, null],
+      "note": "No image required — text-only thread works well on X for technical content"
+    },
+    "linkedin": {
+      "posted_at": null,
+      "format": "single post, no image required",
+      "url": null,
+      "note": "Can attach FB cover image (1200x630) if desired for visual boost"
     }
   }
 }

@@ -1,0 +1,43 @@
+# X (Twitter) Caption — v{VERSION}
+
+> **Format**: 3-tweet thread (reply to yourself)
+> **Char limit**: 280 per tweet — CJK chars count as 2, URLs count as 23
+> **Style**: concise, technical, code-snippet friendly
+> **Posted**: (fill in after posting)
+
+---
+
+## Tweet 1 — Hook (最重要，決定展開率)
+
+```
+{ONE_LINE_HOOK}
+
+root cause: {ROOT_CAUSE_SHORT}
+fix: {FIX_SHORT}
+
+v{VERSION} 修好了。
+
+thread 👇
+```
+
+---
+
+## Tweet 2 — Root cause deep dive
+
+```
+{ROOT_CAUSE_DETAIL}
+
+{CODE_OR_BEFORE_AFTER_SNIPPET}
+```
+
+---
+
+## Tweet 3 — CTA
+
+```
+{OPTIONAL_TRUST_SIGNAL}
+
+npm i -g universal-dev-standards
+
+github.com/AsiaOstrich/universal-dev-standards
+```
