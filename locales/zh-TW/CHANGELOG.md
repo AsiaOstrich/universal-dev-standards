@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.13.3
-translation_version: 5.13.3
-last_synced: 2026-05-26
+source_version: 5.14.0
+translation_version: 5.14.0
+last_synced: 2026-05-27
 status: current
 ---
 
@@ -16,6 +16,17 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.14.0] - 2026-05-27
+
+### 新增
+- **`.github/RELEASE-FLOW-TODOS.md`**：發版流程改善項目的持久追蹤檔案，記錄 dogfood 過程中發現的問題。包含 TODO-001 ~ TODO-005（bump-version.mjs 自動執行 docs:generate-index、FB/Threads prompt 捕捉習慣、下次 bootstrap 驗證 `_template/`、Phase 1.5 social-assets 硬閘、Phase 2 Meta API 自動發布 workflow）。維護者可直接編輯此檔案新增或關閉項目。
+
+### 變更
+- **`.github/workflows/release-reminder.yml`**：現在讀取 `.github/RELEASE-FLOW-TODOS.md` 並將 open TODO 顯示在每週一 09:00 UTC reminder issue 內文中。改善項目在每個發布週期持續累積，不再遺失在 commit history 裡。
+
+### 修復
+- **`cli/src/commands/check.js` — AI 工具整合 check 誤報 missing 標準**：`uds check` 錯誤地將 `error-code-standards` 和 `logging-standards` 報告為 missing，即使實際 `.ai.yaml` 檔案（`error-codes.ai.yaml`、`logging.ai.yaml`）已正確寫入 `CLAUDE.md`。根因：`migrateStandardsPathsToIds()` 將 manifest 路徑轉為 registry ID（如 `ai/standards/error-codes.ai.yaml` → `error-code-standards`），但整合檔案是以實際檔名生成的。check 現在從 registry 建立 `id → aiFilename` 查找表，在 ID 未直接出現於整合檔案時以實際檔名進行第二次比對。
 
 ## [5.13.3] - 2026-05-26
 
