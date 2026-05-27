@@ -9,11 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.14.0] - 2026-05-27
+
 ### Added
 - **`.github/RELEASE-FLOW-TODOS.md`**: Persistent tracking file for release-flow improvements surfaced during dogfood. Contains TODO-001 ~ TODO-005 (auto docs:generate-index in bump-version.mjs, FB/Threads prompt capture habit, `_template/` validation on next bootstrap, Phase 1.5 social-assets hard gate, Phase 2 Meta API auto-publish workflow). Maintainers edit this file to add new items or resolve existing ones.
 
 ### Changed
 - **`.github/workflows/release-reminder.yml`**: Now reads `.github/RELEASE-FLOW-TODOS.md` and surfaces open TODOs inside the weekly Monday 09:00 UTC reminder issue body. Improvements compound across release cycles instead of getting lost in commit history.
+
+### Fixed
+- **`cli/src/commands/check.js` — false-positive missing standards in AI tool integration check**: `uds check` incorrectly reported `error-code-standards` and `logging-standards` as missing even when the actual `.ai.yaml` files (`error-codes.ai.yaml`, `logging.ai.yaml`) were correctly referenced in `CLAUDE.md`. Root cause: `migrateStandardsPathsToIds()` converts manifest path entries to registry IDs (e.g. `ai/standards/error-codes.ai.yaml` → `error-code-standards`), but the integration file is generated with the actual filename. The check now builds an `id → aiFilename` lookup from the registry and falls back to the actual filename when the ID is not directly found in the integration file content.
 
 ## [5.13.3] - 2026-05-26
 
