@@ -5,7 +5,7 @@ description: |
   Testing pyramid and test writing standards for UT/IT/ST/E2E.
   Supports ISTQB and Industry Pyramid frameworks.
   Use when: writing tests, discussing test coverage, test strategy, or test naming.
-  Keywords: test, unit, integration, e2e, coverage, mock, ISTQB, SIT, 測試, 單元, 整合, 端對端.
+  Keywords: test, unit, integration, e2e, coverage, mock, ISTQB, SIT.
 ---
 
 # Testing Guide

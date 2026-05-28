@@ -4,7 +4,7 @@ scope: uds-specific
 description: |
   Design AI-friendly architecture with explicit patterns, layered documentation, and semantic boundaries.
   Use when: structuring projects for AI collaboration, optimizing codebase for AI analysis, setting up AI context.
-  Keywords: architecture, AI-friendly, context, modules, documentation layers, .ai-context.yaml, 架構, AI 友善, 上下文.
+  Keywords: architecture, AI-friendly, context, modules, documentation layers, .ai-context.yaml.
 ---
 
 # AI-Friendly Architecture Guide

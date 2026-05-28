@@ -1,6 +1,14 @@
+---
+source: ../../../core/self-review-protocol.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-05-28
+status: current
+---
+
 # Self-Review Protocol（自我審查協議）
 
-> [English](../../../core/self-review-protocol.md) | **繁體中文**
+> **語言**: [English](../../../core/self-review-protocol.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-05-26

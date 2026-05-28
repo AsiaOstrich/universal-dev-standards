@@ -4,7 +4,7 @@ scope: universal
 description: |
   Guide automated security scanning, dependency auditing, and secret detection.
   Use when: dependency audit, CVE scanning, secret detection, license compliance.
-  Keywords: scan, audit, CVE, dependency, secret, SBOM, vulnerability, 掃描, 漏洞.
+  Keywords: scan, audit, CVE, dependency, secret, SBOM, vulnerability.
 allowed-tools: Read, Grep, Glob, Bash(npm:audit, npx:*)
 argument-hint: "[scan type or target | 掃描類型或目標]"
 ---

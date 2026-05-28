@@ -4,7 +4,7 @@ scope: universal
 description: |
   Scan codebase for debug artifacts and code quality issues; optionally auto-fix safe patterns.
   Use when: before committing, during PR review, or periodic codebase cleanup.
-  Keywords: sweep, debug cleanup, console.log, debugger, TODO, ts-any, code quality, 掃描, 清理.
+  Keywords: sweep, debug cleanup, console.log, debugger, TODO, ts-any, code quality.
 allowed-tools: Read, Grep, Glob, Bash(find:*), Edit, Write
 argument-hint: "[--fix] [--report] [--path <dir>] [--exclude <pattern>]"
 ---

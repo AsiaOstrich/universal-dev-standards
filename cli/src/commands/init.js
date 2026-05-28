@@ -23,6 +23,7 @@ import {
 import { displayLanguageToLocale } from '../utils/locale.js';
 import { generateReleaseConfig, RELEASE_MODE_LABELS } from '../utils/release-config.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
+import { readInstallYaml } from '../utils/config-manager.js';
 
 /**
  * Init command - initialize standards in current project
@@ -308,7 +309,13 @@ echo "Pre-commit checks passed"
  * Build configuration for non-interactive mode
  */
 function buildNonInteractiveConfig(options, detected, projectPath) {
-  const displayLanguage = options.locale || detectLanguage(null);
+  // Locale resolution order (XSPEC-239 §Req-3):
+  //   CLI --locale > .uds/install.yaml locale: > UDS_LOCALE env > LANG > 'en'
+  // detectLanguage() handles UDS_LOCALE + LANG fallback internally (P1-CLI-3).
+  const installYaml = readInstallYaml(projectPath);
+  const displayLanguage = options.locale
+    || installYaml.locale
+    || detectLanguage(null);
   
   // Determine AI tools
   const detectedAiTools = Object.keys(detected.aiTools).filter(k => detected.aiTools[k]);

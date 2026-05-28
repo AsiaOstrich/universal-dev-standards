@@ -4,7 +4,7 @@ scope: partial
 description: |
   Create and maintain AI instruction files (CLAUDE.md, AGENTS.md, .cursor/rules/, etc.) with proper structure.
   Use when: creating AI instruction files, separating universal vs project-specific rules, configuring AI tools.
-  Keywords: CLAUDE.md, AGENTS.md, cursorrules, windsurfrules, clinerules, AI instructions, system prompt, 指令檔案, AI 設定.
+  Keywords: CLAUDE.md, AGENTS.md, cursorrules, windsurfrules, clinerules, AI instructions, system prompt.
 ---
 
 # AI Instruction File Standards Guide

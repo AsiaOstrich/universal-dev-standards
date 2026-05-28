@@ -4,7 +4,7 @@ scope: universal
 description: |
   Guide runbook creation, maintenance, and drill exercises.
   Use when: writing runbooks, planning drills, auditing runbook coverage, post-incident runbook updates.
-  Keywords: runbook, operations, drill, on-call, procedure, 操作手冊, 演練.
+  Keywords: runbook, operations, drill, on-call, procedure.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[create|drill|coverage] [alert name or type | 告警名稱或類型]"
 ---

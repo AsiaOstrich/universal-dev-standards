@@ -4,7 +4,7 @@ scope: universal
 description: |
   [UDS] Guide structured team retrospectives for Sprint and Release cycles.
   Use when: sprint end, release post-mortem, iteration review, process improvement.
-  Keywords: retrospective, retro, sprint review, lessons learned, action items, 回顧, 檢討, 持續改善.
+  Keywords: retrospective, retro, sprint review, lessons learned, action items.
 allowed-tools: Read, Write, Glob, Grep
 argument-hint: "[sprint | release | actions | --technique starfish]"
 ---

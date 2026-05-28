@@ -110,3 +110,42 @@ export class ConfigManager {
 
 // Singleton instance for the CLI
 export const config = new ConfigManager();
+
+/**
+ * Read the adopter-declared install settings from `.uds/install.yaml`.
+ *
+ * This file is a *declarative* install descriptor (distinct from
+ * `.uds/config.yaml` which holds runtime preferences). Adopters use it to
+ * pin install-time choices — most importantly `locale:` — so they do not
+ * need to pass `--locale` every time they run `uds init`/`uds update`.
+ *
+ * Locale resolution order (XSPEC-239 §Req-3 / P1-CLI-2 + P1-CLI-3):
+ *   CLI `--locale` > install.yaml `locale:` > `UDS_LOCALE` env > LANG > 'en'
+ *
+ * @param {string} projectPath - Project root path
+ * @returns {{locale: string|null, [key: string]: any}} Parsed YAML object, or
+ *   an empty object when the file is missing/unreadable. `locale` is always
+ *   present (null when not declared) so callers can safely do `.locale`.
+ */
+export function readInstallYaml(projectPath) {
+  if (!projectPath) {
+    return { locale: null };
+  }
+
+  const filePath = path.join(projectPath, '.uds', 'install.yaml');
+  if (!fs.existsSync(filePath)) {
+    return { locale: null };
+  }
+
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const parsed = yaml.load(content);
+    if (!parsed || typeof parsed !== 'object') {
+      return { locale: null };
+    }
+    return { locale: null, ...parsed };
+  } catch (error) {
+    console.warn(`Warning: Failed to load .uds/install.yaml: ${error.message}`);
+    return { locale: null };
+  }
+}

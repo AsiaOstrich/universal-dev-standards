@@ -4,7 +4,7 @@ scope: universal
 description: |
   Guide documentation structure, content requirements, and project documentation best practices.
   Use when: creating README, documentation, docs folder, project setup, technical docs.
-  Keywords: README, docs, documentation, CONTRIBUTING, CHANGELOG, ARCHITECTURE, API docs, 文件, 說明文件, 技術文件.
+  Keywords: README, docs, documentation, CONTRIBUTING, CHANGELOG, ARCHITECTURE, API docs.
 ---
 
 # Documentation Guide

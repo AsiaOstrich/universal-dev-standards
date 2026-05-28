@@ -4,7 +4,7 @@ scope: universal
 description: |
   Guide CI/CD pipeline design, configuration, and optimization.
   Use when: setting up pipelines, optimizing build times, configuring deployment stages.
-  Keywords: CI/CD, pipeline, GitHub Actions, deployment, build, 持續整合, 持續部署.
+  Keywords: CI/CD, pipeline, GitHub Actions, deployment, build.
 allowed-tools: Read, Grep, Glob
 argument-hint: "[pipeline config or stage | Pipeline 配置或階段]"
 ---

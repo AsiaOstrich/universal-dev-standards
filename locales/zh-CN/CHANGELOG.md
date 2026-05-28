@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.14.0
-translation_version: 5.14.0
-last_synced: 2026-05-27
+source_version: 5.15.0
+translation_version: 5.15.0
+last_synced: 2026-05-28
 status: current
 ---
 
@@ -16,6 +16,35 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.15.0] - 2026-05-28
+
+### 新增 — i18n 分层语言策略（XSPEC-239）
+
+- **`core/ai-instruction-standards.md` v1.0.0 → v1.1.0**：新增 `## 国际化（i18n）` 章节，定义 SKILL.md 与 root 级 AI 指令档的 L1/L2/L3/L4 分层语言策略。**范围延伸**自原本只规范 root 级（`CLAUDE.md`、`.cursorrules` 等）扩张至涵盖 skill 级档案（`SKILL.md`）。定义 canonical/locale 档案结构、责任边界、chimera 防范规则、采用者安装模式。
+- **`ai/standards/ai-instruction-standards.ai.yaml` v1.0.0 → v1.1.0**：对应的 `i18n:` 区块 + 4 条新规则。
+- **10 个缺漏 zh-TW locale skill 变体**：`ac-coverage`、`deploy-assistant`、`dev-methodology`、`journey-test-assistant`、`orchestrate`、`plan`、`push`、`skill-builder`、`spec-derivation`、`sweep`。zh-TW skill 覆盖率达 54/54（100%）。
+- **`cli/src/lint/i18n.js` + `uds check --i18n` 命令**：强制执行 5 条 chimera 防范规则。Error 退出码 1。`--json` 模式给 CI 用。
+- **`scripts/generate-locale-coverage.mjs` + 自动产生的 `locales/COVERAGE.md`**：依 skill/standard × locale 的覆盖率矩阵 + drift 警告。npm script `docs:locale-coverage`。
+- **`UDS_LOCALE` 环境变数支援**。
+- **`.uds/install.yaml` `locale:` 栏位支援**：让采用者宣告偏好 locale 一次，免去每次 `--locale`。
+- **Locale fallback WARN**：取代原本的 silent fallback。
+- **i18n 讯息**：新增 `localeFallbackTitle` / `localeFallbackHint` 键（en/zh-tw/zh-cn）。
+
+### 变更
+
+- **CLI locale 解析优先顺序**：6 阶层 — `--locale` > `.uds/install.yaml` > `UDS_LOCALE` env > manifest > `.standards/` 侦测 > `'en'`。
+- **`core/ai-instruction-standards.md` 译本**：zh-TW 与 zh-CN locale 同步至 v1.1.0 含完整在地化 i18n 章节。（zh-CN 章节标记 pending-review，依 XSPEC-239 O-2 — 简中翻译质量策略未定。）
+
+### 修正
+
+- **29 个 canonical SKILL.md 描述 chimera 修正**（XSPEC-239 Phase 1B）：从下列 skill 的 `description:` frontmatter 移除 CJK 内容：`adr-assistant`、`ai-collaboration-standards`、`ai-friendly-architecture`、`ai-instruction-standards`、`api-design-assistant`、`audit-assistant`、`ci-cd-assistant`、`contract-test-assistant`、`database-assistant`、`deploy-assistant`、`documentation-guide`、`error-code-guide`、`git-workflow-guide`、`incident-response-assistant`、`journey-test-assistant`、`logging-guide`、`observability-assistant`、`orchestrate`、`plan`、`pr-automation-assistant`、`project-structure-guide`、`push`、`retrospective-assistant`、`runbook-assistant`、`security-assistant`、`security-scan-assistant`、`slo-assistant`、`sweep`、`testing-guide`。
+- **`skills/reverse-engineer/SKILL.md` description em dash** 改为 ASCII hyphen。
+- **`locales/zh-TW/core/self-review-protocol.md` 缺 YAML frontmatter** 已补。
+
+### 采用者升级注意
+
+对于以 `--locale zh-TW` 或 `--locale zh-CN` 安装 UDS 的项目，请执行 `uds update`。手动编辑过 canonical 档案的采用者，请将客制化内容调整至 locale 变体或 overlay。新的 `uds check --i18n` lint 可验证项目干净。
 
 ## [5.14.0] - 2026-05-27
 

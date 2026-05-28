@@ -1,7 +1,7 @@
 ---
 name: reverse
 scope: partial
-description: "[UDS] System archeology — reverse engineer code across Logic, Data, and Runtime dimensions"
+description: "[UDS] System archeology - reverse engineer code across Logic, Data, and Runtime dimensions"
 allowed-tools: Read, Grep, Glob, Bash(pg_dump:*), Bash(mysql:*), Bash(sqlite3:*), Bash(npm run:*), Bash(cat:*), Bash(docker:*)
 argument-hint: "[spec|data|runtime|bdd|tdd] <input>"
 disable-model-invocation: true

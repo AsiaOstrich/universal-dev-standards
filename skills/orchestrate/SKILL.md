@@ -5,7 +5,7 @@ scope: universal
 description: |
   Orchestrate multi-task execution plans using Claude's native Agent tool (DAG-based, no external engine).
   Use when: executing a plan.json file with parallel/sequential task dependencies.
-  Keywords: orchestrate, plan, execute, DAG, task plan, 編排, 執行計畫, 並行.
+  Keywords: orchestrate, plan, execute, DAG, task plan.
 argument-hint: "<plan.json> [--dry-run]"
 ---
 

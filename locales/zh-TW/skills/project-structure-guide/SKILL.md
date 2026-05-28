@@ -3,8 +3,12 @@ name: project-structure-guide
 source: ../../../../skills/project-structure-guide/SKILL.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-03-04
+last_synced: 2026-05-28
 status: current
+description: |
+  [UDS] 引導依語言特性最佳實踐組織專案目錄結構。
+  Use when: creating projects, reorganizing structure, adding modules, setting up builds, deciding file placement.
+  Keywords: project, structure, directory, layout, gitignore, scaffold, file placement, 專案結構, 目錄配置.
 ---
 
 # 專案結構指南

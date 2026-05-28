@@ -175,6 +175,7 @@ program
   .option('--migrate', 'Migrate legacy manifest to hash-based tracking')
   .option('--offline', 'Skip npm registry check for CLI updates')
   .option('--force', 'Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071)')
+  .option('--i18n', 'Run i18n lint rules (XSPEC-239) across canonical + locale variants')
   .action(checkCommand);
 
 program
@@ -207,6 +208,7 @@ program
   .option('--plan', 'Show reconciliation plan without executing (like terraform plan)')
   .option('--force', 'Force update all files, ignoring hash comparison')
   .option('--rollback', 'Rollback to the most recent backup')
+  .option('--locale <locale>', 'Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env')
   .action(updateCommand);
 
 program

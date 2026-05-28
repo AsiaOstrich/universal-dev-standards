@@ -1,7 +1,7 @@
 ---
 name: audit
 scope: universal
-description: "[UDS] UDS Health & Feedback System | UDS 健康檢查與回饋系統"
+description: "[UDS] UDS Health & Feedback System"
 allowed-tools: Read, Grep, Glob, Bash(git log, uds audit)
 argument-hint: "[--health | --patterns | --friction | --report]"
 disable-model-invocation: true

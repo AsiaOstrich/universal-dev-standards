@@ -4,7 +4,7 @@ scope: universal
 description: |
   [UDS] Create, manage, and track Architecture Decision Records (ADR).
   Use when: architecture decisions, technology choices, design trade-offs, pattern selection.
-  Keywords: ADR, architecture decision, decision record, trade-off, 架構決策, 決策記錄.
+  Keywords: ADR, architecture decision, decision record, trade-off.
 allowed-tools: Read, Write, Glob, Grep
 argument-hint: "[create | list | supersede ADR-NNN | 決策主題]"
 ---

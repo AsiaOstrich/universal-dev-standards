@@ -4,7 +4,7 @@ scope: universal
 description: |
   Guide for organizing project directories following language-specific best practices.
   Use when: creating projects, reorganizing structure, adding modules, setting up builds, deciding file placement.
-  Keywords: project, structure, directory, layout, gitignore, scaffold, 專案結構, 目錄, file placement, utils, helpers, shared, where to put, 檔案歸檔.
+  Keywords: project, structure, directory, layout, gitignore, scaffold, file placement, utils, helpers, shared, where to put.
 ---
 
 # Project Structure Guide

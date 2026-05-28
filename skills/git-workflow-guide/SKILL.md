@@ -4,7 +4,7 @@ scope: universal
 description: |
   Guide Git branching strategies, branch naming, and merge operations.
   Use when: creating branches, merging, pull requests, Git workflow questions.
-  Keywords: branch, merge, PR, pull request, GitFlow, GitHub Flow, 分支, 合併, 工作流程.
+  Keywords: branch, merge, PR, pull request, GitFlow, GitHub Flow.
 ---
 
 # Git Workflow Guide

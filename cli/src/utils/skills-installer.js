@@ -197,13 +197,20 @@ export async function installSkillsForAgent(agent, level, skillNames = null, pro
     targetDir,
     installed: [],
     errors: [],
-    fileHashes: {} // New: file hashes for installed skills
+    fileHashes: {}, // New: file hashes for installed skills
+    // List of skill names that requested a localized variant but fell back to
+    // the English source because no locale variant exists for them.
+    // Populated only when `locale` is a localized locale (not 'en').
+    localeFallbacks: []
   };
 
   for (const skillName of toInstall) {
     const result = installSingleSkill(skillName, targetDir, locale);
     if (result.success) {
       results.installed.push(skillName);
+      if (result.fallbackToEn) {
+        results.localeFallbacks.push(skillName);
+      }
     } else {
       results.errors.push({ skill: skillName, error: result.error });
       results.success = false;
@@ -356,11 +363,17 @@ function mergeSkillFrontmatter(enSourceDir, targetDir) {
 }
 
 /**
- * Install a single skill to a target directory
+ * Install a single skill to a target directory.
+ *
+ * When `locale` requests a localized variant but no localized directory exists
+ * for the requested skill, the function silently copies the English source and
+ * sets `fallbackToEn: true` on the result so callers can surface a WARN at the
+ * end of the install run (XSPEC-239 §Req-3 / P1-CLI-1).
+ *
  * @param {string} skillName - Skill name
  * @param {string} targetBaseDir - Target base directory
  * @param {string} locale - Locale for skill content (default: 'en')
- * @returns {Object} Result
+ * @returns {{success: boolean, skillName: string, path?: string, error?: string, fallbackToEn?: boolean}} Result
  */
 function installSingleSkill(skillName, targetBaseDir, locale = 'en') {
   const enSourceDir = join(SKILLS_LOCAL_DIR, skillName);
@@ -369,6 +382,7 @@ function installSingleSkill(skillName, targetBaseDir, locale = 'en') {
   // Determine the actual source directory based on locale
   let sourceDir = enSourceDir;
   let needsFrontmatterMerge = false;
+  let fallbackToEn = false;
 
   if (isLocalizedLocale(locale)) {
     const localizedDir = getLocalizedSkillsSourceDir(locale);
@@ -376,8 +390,11 @@ function installSingleSkill(skillName, targetBaseDir, locale = 'en') {
     if (existsSync(localizedSkillDir)) {
       sourceDir = localizedSkillDir;
       needsFrontmatterMerge = true;
+    } else {
+      // Locale requested but missing for this skill — fall back to English source.
+      // Flag the result so the caller can aggregate a WARN.
+      fallbackToEn = true;
     }
-    // else: fall back to English source
   }
 
   if (!existsSync(sourceDir)) {
@@ -410,12 +427,13 @@ function installSingleSkill(skillName, targetBaseDir, locale = 'en') {
       mergeSkillFrontmatter(enSourceDir, targetDir);
     }
 
-    return { success: true, skillName, path: targetDir };
+    return { success: true, skillName, path: targetDir, fallbackToEn };
   } catch (error) {
     return {
       success: false,
       skillName,
-      error: error.message
+      error: error.message,
+      fallbackToEn
     };
   }
 }
@@ -909,8 +927,13 @@ export async function installSkillsToMultipleAgents(installations, skillNames = 
     installations: [],
     totalInstalled: 0,
     totalErrors: 0,
-    allFileHashes: {} // New: combined file hashes from all installations
+    allFileHashes: {}, // New: combined file hashes from all installations
+    // Aggregated set of skill names that fell back to English across all
+    // agents/levels. Used by the high-level installer to print a single WARN.
+    localeFallbacks: []
   };
+
+  const fallbackSet = new Set();
 
   for (const { agent, level } of uniqueInstallations) {
     const result = await installSkillsForAgent(agent, level, skillNames, projectPath, locale);
@@ -926,7 +949,16 @@ export async function installSkillsToMultipleAgents(installations, skillNames = 
     if (result.fileHashes) {
       Object.assign(results.allFileHashes, result.fileHashes);
     }
+
+    // Merge locale fallbacks (dedupe across agents)
+    if (Array.isArray(result.localeFallbacks)) {
+      for (const name of result.localeFallbacks) {
+        fallbackSet.add(name);
+      }
+    }
   }
+
+  results.localeFallbacks = Array.from(fallbackSet).sort();
 
   return results;
 }

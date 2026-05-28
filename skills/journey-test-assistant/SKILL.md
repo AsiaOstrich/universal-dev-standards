@@ -1,7 +1,7 @@
 ---
 name: journey-test-assistant
 scope: partial
-description: "[UDS] 從專案描述生成連貫使用者旅程測試計畫（TESTPLAN）與 E2E 骨架"
+description: "[UDS] Generate coherent user journey test plans (TESTPLAN) and E2E skeletons from project description."
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[project description | --analyze | --archetype A1|A2|A3]"
 status: stable

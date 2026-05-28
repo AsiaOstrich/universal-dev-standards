@@ -1,8 +1,8 @@
 ---
 source: ../../../core/ai-instruction-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-14
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-05-28
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **语言**: [English](../../../core/ai-instruction-standards.md) | [简体中文](../../zh-TW/core/ai-instruction-standards.md) | 简体中文
 
-**版本**: 1.0.0
-**最后更新**: 2026-01-14
+**版本**: 1.1.0
+**最后更新**: 2026-05-28
 **适用范围**: 所有使用 AI 编码助手的项目
 
 ---
@@ -151,6 +151,111 @@ AI 指令文件通常混合两种类型的内容：
 
 ---
 
+## 国际化（i18n）
+
+AI 指令档常需提供多语言版本——既为了国际采用者，也为了非英语母语维护者主导的项目。本章节定义多语言指令档的组织、验证与安装规则。
+
+### AI 指令档的范围
+
+本标准涵盖两个层级的 AI 指令档：
+
+| 层级 | 范例 | i18n 模式 |
+|------|------|----------|
+| **Root 层** | `CLAUDE.md`、`.cursorrules`、`.windsurfrules`、`.opencode/instructions.md` | 单档内以 inline 段落分语言（例：`## 中文` / `## English`）|
+| **Skill 层** | Claude Code `.claude/skills/{name}/SKILL.md`、OpenCode plugin instructions | Canonical（英文）+ `locales/{lang}/` 变体 |
+
+> 注意：skill 层的多档结构主要对 Claude Code 适用。其他工具是 root 单档；对它们只有下方「分层语言策略」与「Chimera 防范」规则适用。
+
+### 分层语言策略
+
+每份 AI 指令档概念上有 **4 层**，各层语言责任不同：
+
+| 层 | 内容 | Canonical (en) | Locale ({lang}) | 为何分这层 |
+|----|------|---------------|----------------|-----------|
+| **L1 — Metadata** | YAML frontmatter `description`、`argument-hint`、`allowed-tools` | **必须英文** | **必须对应 locale 语言** | AI 触发讯号；英文 token 效率最高 + 训练语料密度高 |
+| **L2 — 指令（Instructions）** | 对 AI 的命令式规则 | **必须英文** | 对应 locale 语言（可选；可保留英文）| AI 读英文指令最精准 |
+| **L3 — 输出范本（Output Templates）** | 范例输出、回应格式、情境范本 | 英文（canonical 锁定英文）| **强制对应 locale**（mandatory）| **唯一直接影响 AI 输出语言的层** |
+| **L4 — 人类文件** | 维护者注解、贡献者说明 | 英文 | 对应 locale 语言（强烈建议）| 给人类维护者读，AI 不读 |
+
+**关键 insight**：L1（description）是 AI 用来决定「**是否调用**」此 skill 的触发讯号——它**不**影响 AI 之后说什么。L3（output template）才是控制 AI 输出语言的唯一开关。**i18n 强制检查应该聚焦在 L3——加强 L1 的强制是常见错误。**
+
+### Canonical / Locale 档案结构
+
+UDS 标准与 skill 的 locale 变体结构：
+
+```text
+core/{name}.md
+core/{name}.ai.yaml
+locales/{lang}/core/{name}.md
+locales/{lang}/ai/standards/{name}.ai.yaml
+skills/{name}/SKILL.md
+locales/{lang}/skills/{name}/SKILL.md
+```
+
+**命名惯例**：使用 BCP 47 语言标签——`zh-TW`、`zh-CN`、`ja`、`ko`、`en-US` 等。
+
+### Locale 变体 Frontmatter 必填栏位
+
+```yaml
+---
+name: {与 canonical 同名}
+source: {指回 canonical 的相对路径}
+source_version: {翻译时 canonical 的版本}
+translation_version: {本翻译的版本}
+---
+```
+
+`source_version` 落后超过 2 个 minor 版本会触发 drift 警告。
+
+### 责任边界
+
+| 角色 | 拥有 | 必须做 |
+|------|------|--------|
+| **Canonical 拥有者** | `core/{name}.md` 等 | 维持 L1/L2/L3/L4 为英文；breaking change 时 bump `source_version` |
+| **Locale 维护者** | `locales/{lang}/...` | `translation_version` 对齐 `source_version`；翻译 L1（必）、L2（选）、L3（必）、L4（建议）|
+| **采用者** | 自己的 `.claude/skills/`、`CLAUDE.md` | 用 `uds install --locale {lang}` 安装；**绝不**手动修改 canonical |
+
+### Chimera 防范
+
+| 模式 | 严重度 | 侦测方式 |
+|------|--------|----------|
+| Canonical 的 `description` 含 CJK | ❌ Error | Lint |
+| Locale 变体的 `description` 是纯 ASCII | ❌ Error | Lint |
+| Locale 变体缺 `source:` frontmatter | ❌ Error | Lint |
+| Canonical L3 含非英文范例 | ⚠️ Warn | Lint |
+| 采用者档案与 canonical/locale 都不同 | ⚠️ Warn | Sync check |
+| `translation_version` 落后过多 | ⚠️ Warn | Drift check |
+
+### 采用者安装
+
+```bash
+uds install --locale zh-CN   # 以简体中文安装 skills 与 standards
+```
+
+**Locale 解析优先顺序**：`--locale` flag > `.uds/install.yaml` > `UDS_LOCALE` env > fallback `en`
+
+Locale 不存在时 fallback 到 canonical + WARN，**不**阻断安装。
+
+### 迁移：已有 chimera 的采用者
+
+1. **辨识 chimera**：比对采用者档案与 UDS canonical / locale 变体
+2. **安装正确变体**：`uds install --locale {lang}`
+3. **保留专案级客制**：抽出为 overlay
+4. **丢弃纯翻译**：locale 变体取代之
+
+### 快速参考
+
+| 动作 | 何时 | 工具 / 档案 |
+|------|------|------------|
+| 新增语言支援 | 想支援新 locale | `locales/{lang}/...` |
+| 更新 canonical | 改进英文 source | Bump `source_version` |
+| 翻译 / 同步 locale | 新增或更新 locale 内容 | Bump `translation_version` |
+| 检查覆盖率 | 定期 review | `locales/COVERAGE.md` |
+| 带 locale 安装 | 采用者初设 | `uds install --locale {lang}` |
+| 跑 i18n lint | Commit 前 / CI | `uds lint --i18n` |
+
+---
+
 ## 维护检查清单
 
 在提交 AI 指令文件的变更之前：
@@ -205,6 +310,7 @@ grep -n "npm\|yarn\|pip\|cargo" CLAUDE.md | head -20
 | 版本 | 日期 | 变更 |
 |------|------|------|
 | 1.0.0 | 2026-01-14 | 初始发布 |
+| 1.1.0 | 2026-05-28 | 新增 i18n 章节；范围延伸至 skill 层级文件 |
 
 ---
 

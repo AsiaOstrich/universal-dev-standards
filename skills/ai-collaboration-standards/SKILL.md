@@ -4,7 +4,7 @@ scope: universal
 description: |
   Prevent AI hallucination and ensure evidence-based responses when analyzing code or making suggestions.
   Use when: analyzing code, making recommendations, providing options, or when user asks about confidence/certainty.
-  Keywords: certainty, assumption, inference, evidence, source, 確定性, 推測, 假設, 來源, 證據.
+  Keywords: certainty, assumption, inference, evidence, source.
 ---
 
 # AI Collaboration Standards

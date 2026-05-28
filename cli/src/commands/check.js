@@ -38,6 +38,7 @@ import { StandardValidator } from '../utils/standard-validator.js';
 import { WorkflowGate } from '../utils/workflow-gate.js';
 import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
+import { lintAll as lintI18nAll, partitionFindings as partitionI18nFindings } from '../lint/i18n.js';
 
 /**
  * Display the summary of file integrity status
@@ -242,6 +243,15 @@ function displayAdoptionStatus(manifest, msg, common, repoInfo) {
  */
 export async function checkCommand(options = {}) {
   const projectPath = process.cwd();
+
+  // Handle --i18n option early — i18n lint is meant to be runnable both
+  // inside UDS source (lint canonical + locale variants) and inside
+  // adopter projects (lint installed locale variants). It does not require
+  // adoption-drift checks, so we short-circuit before guardAgainstSelfAdoption.
+  if (options.i18n) {
+    await runI18nLint(projectPath, options);
+    return;
+  }
 
   // Refuse to run inside the UDS source repo itself.
   // See DEC-044 / XSPEC-071 — adoption-drift check makes no sense for the
@@ -1835,5 +1845,66 @@ function displayWorkflowStatus(projectPath) {
     console.log();
   } catch {
     // Silently skip if workflow gate not available
+  }
+}
+
+// ============================================================
+// i18n Lint (XSPEC-239 — P1-CLI-5)
+// ============================================================
+
+/**
+ * Run i18n lint across canonical + locale variants and print findings.
+ * Exits 1 if any error-level findings are detected.
+ *
+ * @param {string} projectPath
+ * @param {object} options - CLI options (currently honors options.json)
+ */
+async function runI18nLint(projectPath, options = {}) {
+  const findings = lintI18nAll({ projectPath });
+  const { errors, warnings } = partitionI18nFindings(findings);
+
+  if (options.json) {
+    console.log(JSON.stringify({
+      summary: {
+        errors: errors.length,
+        warnings: warnings.length,
+      },
+      findings,
+    }, null, 2));
+    if (errors.length > 0) process.exitCode = 1;
+    return;
+  }
+
+  console.log();
+  console.log(chalk.bold('UDS i18n Lint (XSPEC-239)'));
+  console.log(chalk.gray('─'.repeat(50)));
+  console.log();
+
+  if (findings.length === 0) {
+    console.log(chalk.green('  ✓ No i18n violations found.'));
+    console.log();
+    return;
+  }
+
+  // Display errors first
+  for (const f of errors) {
+    console.log(chalk.red(`  ✗ [${f.rule}]`));
+    console.log(chalk.red(`    ${f.file}:${f.line}`));
+    console.log(chalk.gray(`    ${f.message}`));
+    console.log();
+  }
+  for (const f of warnings) {
+    console.log(chalk.yellow(`  ⚠ [${f.rule}]`));
+    console.log(chalk.yellow(`    ${f.file}:${f.line}`));
+    console.log(chalk.gray(`    ${f.message}`));
+    console.log();
+  }
+
+  console.log(chalk.gray('─'.repeat(50)));
+  console.log(`  ${chalk.red('Errors:')} ${errors.length}    ${chalk.yellow('Warnings:')} ${warnings.length}`);
+  console.log();
+
+  if (errors.length > 0) {
+    process.exitCode = 1;
   }
 }

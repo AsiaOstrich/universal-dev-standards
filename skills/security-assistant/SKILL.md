@@ -4,7 +4,7 @@ scope: universal
 description: |
   Guide security review and vulnerability assessment following OWASP standards.
   Use when: security audit, vulnerability check, secure coding review, threat modeling.
-  Keywords: security, OWASP, vulnerability, authentication, authorization, 安全, 漏洞, 認證.
+  Keywords: security, OWASP, vulnerability, authentication, authorization.
 allowed-tools: Read, Grep, Glob
 argument-hint: "[module or file to audit | 要審計的模組或檔案]"
 ---

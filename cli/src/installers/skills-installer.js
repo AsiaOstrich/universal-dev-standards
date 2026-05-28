@@ -35,6 +35,46 @@ import {
 import { getRepositoryInfo } from '../utils/registry.js';
 
 /**
+ * Print a single WARN block summarizing skills that fell back to the English
+ * source because no localized variant exists for the requested locale.
+ *
+ * Adopter-facing behaviour (XSPEC-239 §Req-3 / P1-CLI-1):
+ * - One yellow block at the end of install, listing all fallen-back skills.
+ * - Hint pointer to `locales/COVERAGE.md` for the full coverage matrix.
+ *
+ * The `messages` bundle is the same flat command-scope bundle that `installSkills`
+ * receives (e.g. `t().commands.init`). Falls back to English literals if keys
+ * are absent so older translation bundles keep working.
+ *
+ * @param {string[]} fallenBack - Skill names that fell back to English
+ * @param {string} [locale] - Requested locale (e.g. 'zh-TW'); used in the message
+ * @param {Object} [messages] - Command-scope i18n bundle (optional)
+ * @returns {void}
+ */
+export function printLocaleFallbackWarning(fallenBack, locale, messages) {
+  if (!fallenBack || fallenBack.length === 0) return;
+
+  const count = fallenBack.length;
+  const localeLabel = locale || 'requested locale';
+
+  const titleTemplate = messages?.localeFallbackTitle
+    || 'Locale fallback: {count} skill(s) fell back to English because no {locale} variant exists:';
+  const hint = messages?.localeFallbackHint
+    || 'See locales/COVERAGE.md for full coverage status.';
+
+  const title = titleTemplate
+    .replace('{count}', String(count))
+    .replace('{locale}', localeLabel);
+
+  console.log();
+  console.log(chalk.yellow(`⚠ ${title}`));
+  for (const name of fallenBack) {
+    console.log(chalk.yellow(`    - ${name}`));
+  }
+  console.log(chalk.gray(`  ${hint}`));
+}
+
+/**
  * Get all skill files mapping (skill name -> file paths)
  * Used for remote download fallback
  * @returns {Object} Mapping of skill names to file paths
@@ -119,6 +159,15 @@ export async function installSkills(skillsConfig, projectPath, messages, results
       skillSpinner.warn(messages.installedSkillsWithErrors
         .replace('{count}', installResult.totalInstalled)
         .replace('{errors}', installResult.totalErrors));
+    }
+
+    // P1-CLI-1: Emit a single locale-fallback WARN after the install loop when
+    // adopters requested a localized variant but some skills only ship in English.
+    // The aggregated list is built in installSkillsToMultipleAgents (deduped).
+    if (Array.isArray(installResult.localeFallbacks) && installResult.localeFallbacks.length > 0) {
+      // `messages` is a flat command-scope bundle (e.g. t().commands.init);
+      // the WARN helper looks for localeFallbackTitle/Hint keys directly on it.
+      printLocaleFallbackWarning(installResult.localeFallbacks, skillsConfig.locale, messages);
     }
   } else if (skillsConfig.needsInstall && skillsConfig.updateTargets?.length > 0) {
     // Legacy fallback for backward compatibility (remote download)

@@ -4,7 +4,7 @@ scope: universal
 description: |
   Guide API design following REST, GraphQL, and gRPC best practices.
   Use when: designing APIs, reviewing endpoints, API versioning decisions.
-  Keywords: API, REST, GraphQL, gRPC, endpoint, versioning, 介面設計.
+  Keywords: API, REST, GraphQL, gRPC, endpoint, versioning.
 allowed-tools: Read, Grep, Glob
 argument-hint: "[API endpoint or module | API 端點或模組]"
 ---

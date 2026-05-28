@@ -4,7 +4,7 @@ scope: universal
 description: |
   Guide observability setup, metrics design, and alerting configuration.
   Use when: new service instrumentation, SLO definition, alert design, maturity assessment.
-  Keywords: observability, metrics, traces, golden signals, alerting, SLO, 可觀測性, 告警.
+  Keywords: observability, metrics, traces, golden signals, alerting, SLO.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[service name or observability topic | 服務名稱或可觀測性主題]"
 ---

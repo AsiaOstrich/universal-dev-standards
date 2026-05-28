@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.14.0
-translation_version: 5.14.0
-last_synced: 2026-05-27
+source_version: 5.15.0
+translation_version: 5.15.0
+last_synced: 2026-05-28
 status: current
 ---
 
@@ -16,6 +16,39 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.15.0] - 2026-05-28
+
+### 新增 — i18n 分層語言策略（XSPEC-239）
+
+- **`core/ai-instruction-standards.md` v1.0.0 → v1.1.0**：新增 `## 國際化（i18n）` 章節，定義 SKILL.md 與 root 級 AI 指令檔的 L1/L2/L3/L4 分層語言策略。**範圍延伸**自原本只規範 root 級（`CLAUDE.md`、`.cursorrules` 等）擴張至涵蓋 skill 級檔案（`SKILL.md`）。定義 canonical/locale 檔案結構、責任邊界、chimera 防範規則、採用者安裝模式。
+- **`ai/standards/ai-instruction-standards.ai.yaml` v1.0.0 → v1.1.0**：對應的 `i18n:` 區塊 + 4 條新規則（`i18n-canonical-english-only`、`i18n-locale-must-match-language`、`i18n-l3-template-language-controls-output`、`i18n-no-manual-canonical-edits-by-adopters`）。
+- **10 個缺漏 zh-TW locale skill 變體**：`ac-coverage`、`deploy-assistant`、`dev-methodology`、`journey-test-assistant`、`orchestrate`、`plan`、`push`、`skill-builder`、`spec-derivation`、`sweep`。zh-TW skill 覆蓋率達 54/54（100%）。
+- **`cli/src/lint/i18n.js` + `uds check --i18n` 命令**：強制執行 5 條 chimera 防範規則（`canonical:description-must-be-ascii` 錯誤、`locale:description-must-match-language` 錯誤、`locale:must-have-source-frontmatter` 錯誤、`canonical:l3-language-consistency` 警告、`translation-drift-warn` 警告）。Error 退出碼 1。`--json` 模式給 CI 用。
+- **`scripts/generate-locale-coverage.mjs` + 自動產生的 `locales/COVERAGE.md`**：依 skill/standard × locale 的覆蓋率矩陣 + drift 警告。npm script `docs:locale-coverage`。
+- **`UDS_LOCALE` 環境變數支援**：在 `cli/src/i18n/messages.js detectLanguage()` 與 `cli/src/commands/update.js resolveLocale()` 讀取。接受 `zh-tw`、`zh_tw`、`zh-cn`、`zh_cn`、`en`（不分大小寫）。
+- **`.uds/install.yaml` `locale:` 欄位支援**：`cli/src/utils/config-manager.js readInstallYaml()` 讀取可選 `locale:`，讓採用者宣告偏好 locale 一次，免去每次 `--locale`。
+- **Locale fallback WARN**：當 `installSingleSkill` 從缺漏的 locale 變體 fallback 到英文時，安裝結束時統一以黃色 WARN 區塊列出受影響 skill。取代原本的 silent fallback。
+- **i18n 訊息**：在 en/zh-tw/zh-cn locale 中新增 `localeFallbackTitle` / `localeFallbackHint` 鍵。
+
+### 變更
+
+- **CLI locale 解析優先順序**（`cli/src/commands/update.js resolveLocale()`）：現為 6 階層 — `--locale` CLI 旗標 > `.uds/install.yaml` `locale:` > `UDS_LOCALE` env > manifest > `.standards/` 偵測 > `'en'`。`init` 與 `update` 一致。
+- **`core/ai-instruction-standards.md` 譯本**：zh-TW 與 zh-CN locale 同步至 v1.1.0 含完整在地化 i18n 章節。（zh-CN 章節標記 pending-review，依 XSPEC-239 O-2 — 簡中翻譯品質策略未定。）
+
+### 修正
+
+- **29 個 canonical SKILL.md 描述 chimera 修正**（XSPEC-239 Phase 1B）：自下列 skill 的 `description:` frontmatter 移除 CJK 內容：`adr-assistant`、`ai-collaboration-standards`、`ai-friendly-architecture`、`ai-instruction-standards`、`api-design-assistant`、`audit-assistant`、`ci-cd-assistant`、`contract-test-assistant`、`database-assistant`、`deploy-assistant`、`documentation-guide`、`error-code-guide`、`git-workflow-guide`、`incident-response-assistant`、`journey-test-assistant`、`logging-guide`、`observability-assistant`、`orchestrate`、`plan`、`pr-automation-assistant`、`project-structure-guide`、`push`、`retrospective-assistant`、`runbook-assistant`、`security-assistant`、`security-scan-assistant`、`slo-assistant`、`sweep`、`testing-guide`。譯本改放於 `locales/{lang}/skills/`。原本依賴 `.claude/skills/` 中繁中描述的採用者應重跑 `uds update --locale zh-TW`（或 `--locale zh-CN`）。
+- **`skills/reverse-engineer/SKILL.md` description em dash（U+2014）** 改為 ASCII hyphen — canonical 描述必須純 ASCII（依新 lint 規則）。
+- **`locales/zh-TW/core/self-review-protocol.md` 缺 YAML frontmatter** 已補（`source:`、`source_version:`、`translation_version:`、`last_synced:`、`status:`），與其他 zh-TW core 變體一致。
+
+### 採用者升級注意
+
+對於以 `--locale zh-TW` 或 `--locale zh-CN` 安裝 UDS（或被 `LANG=zh_*` 偵測）的專案，本次 release 可能造成使用者可見的變化：
+
+- **升級後請執行 `uds update`**。原本描述含中文的 skill，canonical 中的 `description:` 會變英文，繁中 `description:` + body 在 locale 變體中。`.claude/skills/{name}/SKILL.md` 會從 locale 變體自動重新安裝。
+- **手動編輯過 canonical** 檔案（在 `.claude/skills/` 加繁中描述）的採用者，請將客製化內容調整至 locale 變體或 overlay — 詳見 `core/ai-instruction-standards.md` 的 `XSPEC-239` 遷移章節。
+- 新的 `uds check --i18n` lint 可驗證專案乾淨：errors 阻擋，warnings（例如 `translation-drift-warn`）只進 dashboard 不預設 fail CI。
 
 ## [5.14.0] - 2026-05-27
 

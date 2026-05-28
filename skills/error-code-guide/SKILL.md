@@ -4,7 +4,7 @@ scope: universal
 description: |
   Design consistent error codes following the PREFIX_CATEGORY_NUMBER format.
   Use when: defining error codes, creating error handling, designing APIs.
-  Keywords: error code, error handling, error format, API errors, 錯誤碼, 錯誤處理.
+  Keywords: error code, error handling, error format, API errors.
 ---
 
 # Error Code Guide

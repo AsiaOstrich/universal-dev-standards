@@ -4,7 +4,7 @@ scope: universal
 description: |
   [UDS] Guide contract testing strategy for APIs and microservices.
   Use when: API contracts, microservices, consumer-driven testing, provider verification.
-  Keywords: contract test, Pact, OpenAPI, consumer-driven, provider, 合約測試, API 合約.
+  Keywords: contract test, Pact, OpenAPI, consumer-driven, provider.
 allowed-tools: Read, Write, Glob, Grep
 argument-hint: "[verify | consumer | provider | 策略選擇]"
 ---

@@ -4,7 +4,7 @@ scope: universal
 description: |
   Guide incident response, root cause analysis, and post-mortem documentation.
   Use when: production incident, outage response, post-mortem writing, RCA.
-  Keywords: incident, outage, post-mortem, RCA, root cause, 事故, 故障, 根因分析.
+  Keywords: incident, outage, post-mortem, RCA, root cause.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[incident description or severity | 事故描述或嚴重程度]"
 ---

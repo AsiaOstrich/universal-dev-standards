@@ -5,7 +5,7 @@ scope: universal
 description: |
   Generate plan.json from Spec documents, OpenSpec changes, or free-text requirements.
   Use when: converting specifications into executable task plans for /orchestrate.
-  Keywords: plan, spec, task plan, 計畫, 規格, 任務, plan.json, DAG.
+  Keywords: plan, spec, task plan, plan.json, DAG.
 argument-hint: "[spec-file.md | openspec-dir/ | \"requirement text\" | (interactive)]"
 ---
 

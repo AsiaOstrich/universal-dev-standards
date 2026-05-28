@@ -3,10 +3,10 @@
 
 id: ai-instruction-standards
 meta:
-  version: "1.0.0"
-  updated: "2026-01-14"
+  version: "1.1.0"
+  updated: "2026-05-28"
   source: core/ai-instruction-standards.md
-  description: Best practices for creating AI instruction files with universal vs project-specific separation
+  description: Best practices for creating AI instruction files (root and skill level) with universal/project-specific separation and i18n strategy
 
 supported_tools:
   - tool: Claude Code
@@ -117,6 +117,26 @@ rules:
       grep -n "npm\|yarn\|pip\|cargo" CLAUDE.md | head -20
     priority: required
 
+  - id: i18n-canonical-english-only
+    trigger: editing canonical AI instruction file
+    instruction: Keep description and metadata in English; localize via locales/{lang}/ variants
+    priority: required
+
+  - id: i18n-locale-must-match-language
+    trigger: creating or editing locale variant
+    instruction: Description must be in the locale's language; include source/source_version/translation_version frontmatter
+    priority: required
+
+  - id: i18n-l3-template-language-controls-output
+    trigger: writing output templates / examples
+    instruction: L3 templates determine AI output language; localize L3 in locale variants, never in canonical
+    priority: required
+
+  - id: i18n-no-manual-canonical-edits-by-adopters
+    trigger: adopter wants to customize an installed instruction file
+    instruction: Use uds install --locale or overlays; do not modify canonical files in-place
+    priority: required
+
 maintenance_checklist:
   - item: Universal sections contain no project-specific paths, commands, or versions
     required: true
@@ -126,6 +146,173 @@ maintenance_checklist:
     required: true
   - item: Format matches existing sections
     required: true
+
+i18n:
+  scope:
+    description: |
+      Defines language-handling policy for AI instruction files at two levels:
+      root-level (CLAUDE.md, .cursorrules, etc.) and skill-level
+      (Claude Code SKILL.md, OpenCode plugin instructions, etc.)
+    levels:
+      - level: root
+        files:
+          - CLAUDE.md
+          - .cursorrules
+          - .windsurfrules
+          - .clinerules
+          - .github/copilot-instructions.md
+          - .opencode/instructions.md
+        i18n_pattern: single_file_with_inline_language_sections
+      - level: skill
+        files:
+          - .claude/skills/{name}/SKILL.md
+          - .opencode/plugins/{name}/instructions.md
+        i18n_pattern: canonical_plus_locale_variants
+
+  layered_strategy:
+    description: |
+      Every AI instruction file has 4 layers. L3 (output templates) is the only
+      layer that directly affects AI output language; L1/L2 are processing
+      instructions for the AI. Enforce L3 strictly, L1 as a clear convention.
+    layers:
+      - id: L1
+        name: metadata
+        content:
+          - YAML frontmatter description
+          - argument-hint
+          - allowed-tools
+        canonical_language: english
+        locale_language: must_match_locale
+        rationale: AI-trigger signal; English has highest training-data density and token efficiency
+        impact_on_ai_output: none
+      - id: L2
+        name: instructions
+        content:
+          - imperative rules for AI
+          - steps
+          - behavior rules
+        canonical_language: english
+        locale_language: locale_optional
+        rationale: AI reads English instructions most precisely
+        impact_on_ai_output: none
+      - id: L3
+        name: output_templates
+        content:
+          - example outputs
+          - response format templates
+          - scenario examples
+        canonical_language: english
+        locale_language: must_match_locale_mandatory
+        rationale: AI mirrors the language of templates it sees — this is the only layer that controls output language
+        impact_on_ai_output: direct
+      - id: L4
+        name: human_docs
+        content:
+          - maintainer comments
+          - contributor walkthroughs
+        canonical_language: english
+        locale_language: locale_recommended
+        rationale: Read by human maintainers, not by AI
+        impact_on_ai_output: none
+
+  file_structure:
+    canonical:
+      - core/{name}.md
+      - core/{name}.ai.yaml
+      - skills/{name}/SKILL.md
+    locale:
+      - locales/{lang}/core/{name}.md
+      - locales/{lang}/ai/standards/{name}.ai.yaml
+      - locales/{lang}/skills/{name}/SKILL.md
+    locale_naming: BCP_47   # zh-TW, zh-CN, ja, ko, en-US, etc.
+
+  locale_variant_frontmatter:
+    required_fields:
+      - field: name
+        value: same as canonical
+      - field: source
+        value: relative path to canonical file
+      - field: source_version
+        value: version of canonical at time of translation
+      - field: translation_version
+        value: version of this translation
+    drift_alert:
+      condition: source_version gap > 2 minor versions behind canonical
+      severity: warn
+
+  responsibility_boundaries:
+    - role: canonical_owner
+      owns:
+        - core/{name}.md
+        - core/{name}.ai.yaml
+        - skills/{name}/SKILL.md
+      duties:
+        - Keep L1/L2/L3/L4 in English
+        - Bump source_version on every breaking change
+    - role: locale_maintainer
+      owns:
+        - locales/{lang}/...
+      duties:
+        - Keep translation_version aligned with source_version
+        - Translate L1 (required), L2 (optional), L3 (required), L4 (recommended)
+    - role: adopter
+      owns:
+        - their own .claude/skills/, CLAUDE.md
+      duties:
+        - Install via uds install --locale {lang}
+        - Never manually modify canonical files
+        - Use overlays or locale variants for customization
+
+  chimera_prevention:
+    rules:
+      - id: canonical-description-must-be-ascii
+        trigger: canonical file with CJK in description field
+        severity: error
+        instruction: Canonical files must keep description in English; move localized description to locale variant
+      - id: locale-description-must-match-language
+        trigger: locale variant with ASCII-only description
+        severity: error
+        instruction: Locale variant description must use the locale's language
+      - id: locale-must-have-source-frontmatter
+        trigger: locale variant missing source/source_version/translation_version
+        severity: error
+        instruction: Add traceability frontmatter pointing to canonical
+      - id: canonical-l3-language-consistency
+        trigger: canonical L3 output template contains non-English example
+        severity: warn
+        instruction: Localize L3 templates in locale variants, not canonical
+      - id: adopter-must-match-installed-locale
+        trigger: adopter file in .claude/skills/ differs from both canonical and any locale variant
+        severity: warn
+        instruction: Use uds install --locale or overlays instead of manual canonical edits
+      - id: translation-drift-warn
+        trigger: translation_version lag > 2 minor versions behind source_version
+        severity: warn
+        instruction: Re-sync translation from current canonical version
+
+  installation_model:
+    cli: uds install --locale {lang}
+    locale_resolution_priority:
+      - --locale CLI flag
+      - .uds/install.yaml locale field
+      - environment variable UDS_LOCALE
+      - fallback to en
+    missing_locale_behavior:
+      action: fallback_to_canonical_with_warn
+      block_install: false
+      coverage_visibility: locales/COVERAGE.md
+
+  migration:
+    name: adopter_chimera_cleanup
+    steps:
+      - id: identify
+        description: Compare adopter files against UDS canonical and locale variants
+      - id: install_proper_variants
+        description: Run uds install --locale {lang} to replace chimera
+      - id: preserve_legitimate_customization
+        description: Extract project-specific (non-translation) customization into overlay or UDS-CUSTOMIZATION.md
+      - id: discard_pure_translations
+        description: Chimera changes that were only translations are superseded by locale variants
 
 quick_reference:
   content_types:

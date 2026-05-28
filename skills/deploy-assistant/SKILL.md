@@ -4,7 +4,7 @@ scope: universal
 description: |
   Guide reliable deployments without CI/CD platforms (GitHub Actions / GitLab CI).
   Use when: deploying to VPS, air-gapped servers, or environments without CI/CD infrastructure.
-  Keywords: deployment, no-cicd, shell script, blue-green, smoke test, rollback, 無CI/CD, 部署.
+  Keywords: deployment, no-cicd, shell script, blue-green, smoke test, rollback.
 allowed-tools: Read, Bash(cat VERSION:*), Bash(git describe:*), Bash(which nginx:*), Bash(which rsync:*)
 argument-hint: "[project type | 專案類型: node/python/docker/go]"
 ---

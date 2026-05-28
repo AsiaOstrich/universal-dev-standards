@@ -4,7 +4,7 @@ scope: universal
 description: |
   Guide SLI selection, SLO setting, and Error Budget management.
   Use when: defining service quality targets, setting up SLO-based alerting, Error Budget policy.
-  Keywords: SLI, SLO, SLA, Error Budget, burn rate, service level, 服務等級.
+  Keywords: SLI, SLO, SLA, Error Budget, burn rate, service level.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[create|review|budget] [service name | 服務名稱]"
 ---

@@ -4,7 +4,7 @@ scope: universal
 description: |
   AI-assisted safety layer for git push operations with quality gates and collaboration guardrails.
   Use when: pushing commits, force pushing, pushing to protected branches, pushing feature branches.
-  Keywords: git push, force push, protected branch, quality gate, push receipt, PR automation, 推送, 保護分支, 品質閘門.
+  Keywords: git push, force push, protected branch, quality gate, push receipt, PR automation.
 allowed-tools: Read, Bash(git:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(bun:*)
 argument-hint: "[--force] [--target <branch>] [--skip-gates] [--no-pr]"
 ---

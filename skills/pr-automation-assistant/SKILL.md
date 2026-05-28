@@ -4,7 +4,7 @@ scope: universal
 description: |
   Guide pull request creation, review automation, and merge strategies.
   Use when: creating PRs, automating reviews, configuring merge policies.
-  Keywords: pull request, PR, merge, review, GitHub, GitLab, 合併請求, 審查.
+  Keywords: pull request, PR, merge, review, GitHub, GitLab.
 allowed-tools: Read, Grep, Glob, Bash(git:*, gh:*)
 argument-hint: "[branch name or PR number | 分支名稱或 PR 編號]"
 ---

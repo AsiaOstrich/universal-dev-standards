@@ -1003,6 +1003,10 @@ export const messages = {
         installingSkills: 'Installing Claude Code Skills...',
         installedSkills: 'Installed {count} Skills to {locations}',
         installedSkillsWithErrors: 'Installed {count} Skills with {errors} errors',
+        // P1-CLI-1: locale fallback summary (printed after install when some
+        // skills lack a localized variant and fell back to English source)
+        localeFallbackTitle: 'Locale fallback: {count} skill(s) fell back to English because no {locale} variant exists:',
+        localeFallbackHint: 'See locales/COVERAGE.md for full coverage status.',
         // Success
         initializedSuccess: '✓ Standards initialized successfully!',
         filesCopied: '{count} files copied to project',
@@ -2264,6 +2268,9 @@ export const messages = {
         installingSkills: '安裝 Claude Code Skills 中...',
         installedSkills: '已安裝 {count} 個 Skills 到 {locations}',
         installedSkillsWithErrors: '已安裝 {count} 個 Skills，有 {errors} 個錯誤',
+        // P1-CLI-1：locale fallback 摘要（安裝結束後顯示，列出沒有對應語系變體而退回英文來源的 skill）
+        localeFallbackTitle: 'Locale fallback：{count} 個 skill 因為沒有 {locale} 變體而退回英文版本：',
+        localeFallbackHint: '完整覆蓋率請參閱 locales/COVERAGE.md。',
         // Success
         initializedSuccess: '✓ 標準初始化成功！',
         filesCopied: '已複製 {count} 個檔案到專案',
@@ -3270,6 +3277,9 @@ export const messages = {
         installingSkills: '正在安装 Claude Code Skills...',
         installedSkills: '已安装 {count} 个 Skills 到 {locations}',
         installedSkillsWithErrors: '已安装 {count} 个 Skills，有 {errors} 个错误',
+        // P1-CLI-1：locale fallback 摘要（安装结束后显示，列出没有对应语种变体而退回英文来源的 skill）
+        localeFallbackTitle: 'Locale fallback：{count} 个 skill 因为没有 {locale} 变体而退回英文版本：',
+        localeFallbackHint: '完整覆盖率请参阅 locales/COVERAGE.md。',
         // Success
         initializedSuccess: '✓ 标准初始化成功！',
         filesCopied: '已复制 {count} 个文件到项目',
@@ -3792,12 +3802,19 @@ export function msg(path) {
 }
 
 /**
- * Detect language from environment or locale setting
+ * Detect language from environment or locale setting.
+ *
+ * Resolution order (XSPEC-239 §Req-3 / P1-CLI-3):
+ *   1. explicit `locale` arg (from CLI `--locale`)
+ *   2. `UDS_LOCALE` env var (UDS-specific override; takes precedence over LANG)
+ *   3. POSIX locale env vars (`LANG` / `LC_ALL` / `LC_MESSAGES`)
+ *   4. `'en'`
+ *
  * @param {string|null} locale - Locale setting from CLI options
- * @returns {string} Detected language code
+ * @returns {string} Detected language code ('zh-tw' | 'zh-cn' | 'en')
  */
 export function detectLanguage(locale) {
-  // If locale is explicitly set, use it
+  // 1. If locale is explicitly set, use it
   if (locale === 'zh-tw') {
     return 'zh-tw';
   }
@@ -3805,7 +3822,17 @@ export function detectLanguage(locale) {
     return 'zh-cn';
   }
 
-  // Check environment variables
+  // 2. UDS-specific env var (P1-CLI-3): preferred over generic POSIX LANG so
+  // adopters can opt into a specific UDS locale in CI without touching LANG.
+  if (process.env.UDS_LOCALE) {
+    const v = process.env.UDS_LOCALE.toLowerCase();
+    if (v === 'zh-tw' || v === 'zh_tw') return 'zh-tw';
+    if (v === 'zh-cn' || v === 'zh_cn') return 'zh-cn';
+    if (v === 'en') return 'en';
+    // Unknown UDS_LOCALE values fall through to LANG detection below
+  }
+
+  // 3. Check POSIX environment variables
   const envLang = process.env.LANG || process.env.LC_ALL || process.env.LC_MESSAGES || '';
   if (envLang.toLowerCase().includes('zh_tw') || envLang.toLowerCase().includes('zh-tw')) {
     return 'zh-tw';
@@ -3814,6 +3841,6 @@ export function detectLanguage(locale) {
     return 'zh-cn';
   }
 
-  // Default to English
+  // 4. Default to English
   return 'en';
 }

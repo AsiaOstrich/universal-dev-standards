@@ -4,7 +4,7 @@ scope: universal
 description: |
   Implement structured logging with proper log levels and sensitive data handling.
   Use when: adding logging, debugging, setting up observability.
-  Keywords: logging, log level, structured logging, observability, 日誌, 記錄, 結構化日誌.
+  Keywords: logging, log level, structured logging, observability.
 ---
 
 # Logging Guide

@@ -9,6 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.15.0] - 2026-05-28
+
+### Added — i18n Layered Language Strategy (XSPEC-239)
+
+- **`core/ai-instruction-standards.md` v1.0.0 → v1.1.0**: New `## Internationalization (i18n)` section defining L1/L2/L3/L4 layered language strategy for SKILL.md and root-level AI instruction files. **Scope extended** from root-level only (`CLAUDE.md`, `.cursorrules`, ...) to also cover skill-level files (`SKILL.md`). Defines canonical/locale file structure, responsibility boundaries, chimera-prevention rules, and adopter installation model.
+- **`ai/standards/ai-instruction-standards.ai.yaml` v1.0.0 → v1.1.0**: Mirrored `i18n:` block + 4 new rules (`i18n-canonical-english-only`, `i18n-locale-must-match-language`, `i18n-l3-template-language-controls-output`, `i18n-no-manual-canonical-edits-by-adopters`).
+- **10 missing zh-TW locale skill variants**: `ac-coverage`, `deploy-assistant`, `dev-methodology`, `journey-test-assistant`, `orchestrate`, `plan`, `push`, `skill-builder`, `spec-derivation`, `sweep`. zh-TW skill coverage now 54/54 (100%).
+- **`cli/src/lint/i18n.js` + `uds check --i18n` command**: Lint enforcing 5 chimera-prevention rules (`canonical:description-must-be-ascii` error, `locale:description-must-match-language` error, `locale:must-have-source-frontmatter` error, `canonical:l3-language-consistency` warn, `translation-drift-warn` warn). Exit code 1 on errors. `--json` mode for CI.
+- **`scripts/generate-locale-coverage.mjs` + auto-generated `locales/COVERAGE.md`**: Coverage matrix per skill/standard per locale + drift warnings. npm script `docs:locale-coverage`.
+- **`UDS_LOCALE` environment variable support**: Read in `cli/src/i18n/messages.js detectLanguage()` and `cli/src/commands/update.js resolveLocale()`. Accepts `zh-tw`, `zh_tw`, `zh-cn`, `zh_cn`, `en` (case-insensitive).
+- **`.uds/install.yaml` `locale:` field support**: `cli/src/utils/config-manager.js readInstallYaml()` reads optional `locale:` so adopters declare preferred locale once instead of passing `--locale` every time.
+- **Locale fallback WARN**: When `installSingleSkill` falls back from a missing locale variant to English, a single end-of-install yellow WARN block lists affected skills. Replaces the previous silent fallback.
+- **i18n messages**: New keys `localeFallbackTitle` / `localeFallbackHint` in en/zh-tw/zh-cn locales.
+
+### Changed
+
+- **CLI locale resolution priority** (`cli/src/commands/update.js resolveLocale()`): now 6-tier — `--locale` CLI flag > `.uds/install.yaml` `locale:` > `UDS_LOCALE` env > manifest > `.standards/` detection > `'en'`. Aligned across `init` and `update`.
+- **Translations of `core/ai-instruction-standards.md`**: zh-TW and zh-CN locales synced to v1.1.0 with full localized i18n section. (zh-CN section marked pending-review per XSPEC-239 O-2 — translation quality strategy unresolved.)
+
+### Fixed
+
+- **29 canonical SKILL.md description chimera fixed** (XSPEC-239 Phase 1B): removed CJK content from `description:` frontmatter across `adr-assistant`, `ai-collaboration-standards`, `ai-friendly-architecture`, `ai-instruction-standards`, `api-design-assistant`, `audit-assistant`, `ci-cd-assistant`, `contract-test-assistant`, `database-assistant`, `deploy-assistant`, `documentation-guide`, `error-code-guide`, `git-workflow-guide`, `incident-response-assistant`, `journey-test-assistant`, `logging-guide`, `observability-assistant`, `orchestrate`, `plan`, `pr-automation-assistant`, `project-structure-guide`, `push`, `retrospective-assistant`, `runbook-assistant`, `security-assistant`, `security-scan-assistant`, `slo-assistant`, `sweep`, `testing-guide`. Translations live in `locales/{lang}/skills/` instead. Adopters relying on Chinese descriptions in `.claude/skills/` should re-run `uds update --locale zh-TW` (or `--locale zh-CN`).
+- **`skills/reverse-engineer/SKILL.md` description em dash (U+2014)** replaced with ASCII hyphen — canonical descriptions must be ASCII-only per new lint rule.
+- **`locales/zh-TW/core/self-review-protocol.md` missing YAML frontmatter** added (`source:`, `source_version:`, `translation_version:`, `last_synced:`, `status:`) to match other zh-TW core variants.
+
+### Migration notes for adopters
+
+This release contains potentially user-visible changes for projects that installed UDS with `--locale zh-TW` or `--locale zh-CN` (or had `LANG=zh_*` detected):
+
+- **Re-run `uds update`** after upgrading. Skills whose descriptions previously contained Chinese will now have English `description:` in canonical and full Chinese `description:` + body in the locale variant. Your `.claude/skills/{name}/SKILL.md` will be re-installed from the locale variant automatically.
+- Adopters who **manually edited canonical** files (added Chinese descriptions in `.claude/skills/`) should reconcile their customizations into locale variants or overlays — see `XSPEC-239` migration section in `core/ai-instruction-standards.md`.
+- The new `uds check --i18n` lint can verify your project is clean: errors are blocking, warnings (e.g. `translation-drift-warn`) surface in dashboards but don't fail CI by default.
+
 ## [5.14.0] - 2026-05-27
 
 ### Added
