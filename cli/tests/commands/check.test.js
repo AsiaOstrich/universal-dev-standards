@@ -608,7 +608,8 @@ describe('Check Command', () => {
       // Updated from 30 to 32 after adding flow-based-testing (e2e-assistant) and mock-boundary (testing-guide) standards
       // Updated from 32 to 34 after adding security-testing (security-scan-assistant) and mutation-testing (test-coverage-assistant)
       // Updated from 34 to 35 after adding full-coverage-testing (testing-guide) — XSPEC-178
-      expect(output).toContain('35 via Skills');
+      // Updated from 35 to 36 after adding knowledge-graph-memory (knowledge-graph skill) — XSPEC-237 Phase 5
+      expect(output).toContain('36 via Skills');
 
       // Should NOT show exactly "0 via Skills" as a standalone line
       // Note: We check for the regex pattern since "22 via Skills" contains "0 via Skills" as substring

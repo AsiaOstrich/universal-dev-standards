@@ -2,7 +2,7 @@
 
 > **Auto-generated** — do not edit manually.
 > Run `npm run docs:generate-index` to update.
-> Last regenerated: 2026-05-26 | UDS v5.13.3 | 54 skills
+> Last regenerated: 2026-05-29 | UDS v5.15.0 | 55 skills
 
 Use skills by typing their command in Claude Code (e.g., `/sdd`, `/tdd`, `/commit`).
 Skills not in Tier 1 are always callable via `/<name>` even if not listed in the context menu.
@@ -34,7 +34,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 | `tdd-assistant` | `/tdd` | Guide through Test-Driven Development workflow |
 | `testing-guide` | `/testing-guide` | Testing pyramid and test writing standards for UT/IT/ST/E2E. |
 
-### Tier 2 — Advanced (27 skills · weekly use · listed by default)
+### Tier 2 — Advanced (28 skills · weekly use · listed by default)
 
 | Skill | Command | Description |
 |-------|---------|-------------|
@@ -54,13 +54,14 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 | `documentation-guide` | `/documentation-guide` | Guide documentation structure, content requirements, and project documentation best practices. |
 | `e2e-assistant` | `/e2e` | Generate E2E test skeletons from BDD scenarios |
 | `error-code-guide` | `/error-code-guide` | Design consistent error codes following the PREFIX_CATEGORY_NUMBER format. |
-| `journey-test-assistant` | `/journey-test-assistant` | 從專案描述生成連貫使用者旅程測試計畫（TESTPLAN）與 E2E 骨架 |
+| `journey-test-assistant` | `/journey-test-assistant` | Generate coherent user journey test plans (TESTPLAN) and E2E skeletons from project description. |
+| `knowledge-graph` | `/knowledge-graph` | Trace spec/decision/code impact chains via a knowledge graph (engine or Markdown fallback) |
 | `logging-guide` | `/logging-guide` | Implement structured logging with proper log levels and sensitive data handling. |
 | `pr-automation-assistant` | `/pr` | Guide pull request creation, review automation, and merge strategies. |
 | `project-discovery` | `/discover` | Assess project health, architecture, and risks before adding features |
 | `project-structure-guide` | `/project-structure-guide` | Guide for organizing project directories following language-specific best practices. |
 | `release-standards` | `/release` | Guide release process and changelogs |
-| `reverse-engineer` | `/reverse` | System archeology — reverse engineer code across Logic, Data, and Runtime dimensions |
+| `reverse-engineer` | `/reverse` | System archeology - reverse engineer code across Logic, Data, and Runtime dimensions |
 | `security-assistant` | `/security` | Guide security review and vulnerability assessment following OWASP standards. |
 | `spec-derivation` | `/spec-derive` | Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications |
 | `sweep` | `/sweep` | Scan codebase for debug artifacts and code quality issues; optionally auto-fix safe patterns. |
@@ -125,7 +126,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 |-------|---------|------|-------------|
 | `ac-coverage` | `/ac-coverage` | T2 | Analyze AC-to-test traceability and coverage |
 | `e2e-assistant` | `/e2e` | T2 | Generate E2E test skeletons from BDD scenarios |
-| `journey-test-assistant` | `/journey-test-assistant` | T2 | 從專案描述生成連貫使用者旅程測試計畫（TESTPLAN）與 E2E 骨架 |
+| `journey-test-assistant` | `/journey-test-assistant` | T2 | Generate coherent user journey test plans (TESTPLAN) and E2E skeletons from project description. |
 | `test-coverage-assistant` | `/coverage` | T2 | Analyze test coverage and provide recommendations |
 | `testing-guide` | `/testing-guide` | T1 | Testing pyramid and test writing standards for UT/IT/ST/E2E. |
 
@@ -148,6 +149,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 | `changelog-guide` | `/changelog` | T2 | Generate and maintain CHANGELOG.md entries |
 | `docs-generator` | `/docgen` | T2 | Generate usage documentation from project sources |
 | `documentation-guide` | `/documentation-guide` | T2 | Guide documentation structure, content requirements, and project documentation best practices. |
+| `knowledge-graph` | `/knowledge-graph` | T2 | Trace spec/decision/code impact chains via a knowledge graph (engine or Markdown fallback) |
 | `release-standards` | `/release` | T2 | Guide release process and changelogs |
 
 ### Automation
@@ -156,7 +158,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 |-------|---------|------|-------------|
 | `orchestrate` | `/orchestrate` | T1 | Orchestrate multi-task execution plans using Claude's native Agent tool (DAG-based, no external engine). |
 | `plan` | `/plan` | T1 | Generate plan.json from Spec documents, OpenSpec changes, or free-text requirements. |
-| `reverse-engineer` | `/reverse` | T2 | System archeology — reverse engineer code across Logic, Data, and Runtime dimensions |
+| `reverse-engineer` | `/reverse` | T2 | System archeology - reverse engineer code across Logic, Data, and Runtime dimensions |
 
 ### Operations
 

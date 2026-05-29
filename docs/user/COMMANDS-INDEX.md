@@ -2,7 +2,7 @@
 
 > **Auto-generated** — do not edit manually.
 > Run `npm run docs:generate-index` to update.
-> Last regenerated: 2026-05-26 | UDS v5.13.3 | 54 unique commands
+> Last regenerated: 2026-05-29 | UDS v5.15.0 | 55 unique commands
 
 Type any command in Claude Code to activate the corresponding skill.
 Commands not visible in the menu are still callable — Claude Code loads skills on demand.
@@ -40,7 +40,8 @@ Commands not visible in the menu are still callable — Claude Code loads skills
 | `/error-code-guide` | `error-code-guide` | T2 | Design consistent error codes following the PREFIX_CATEGORY_NUMBER format. |
 | `/git-workflow-guide` | `git-workflow-guide` | T1 | Guide Git branching strategies, branch naming, and merge operations. |
 | `/incident` | `incident-response-assistant` | T3 | Guide incident response, root cause analysis, and post-mortem documentation. |
-| `/journey-test-assistant` | `journey-test-assistant` | T2 | 從專案描述生成連貫使用者旅程測試計畫（TESTPLAN）與 E2E 骨架 |
+| `/journey-test-assistant` | `journey-test-assistant` | T2 | Generate coherent user journey test plans (TESTPLAN) and E2E skeletons from project description. |
+| `/knowledge-graph` | `knowledge-graph` | T2 | Trace spec/decision/code impact chains via a knowledge graph (engine or Markdown fallback) |
 | `/logging-guide` | `logging-guide` | T2 | Implement structured logging with proper log levels and sensitive data handling. |
 | `/methodology` | `dev-methodology` | T2 | Manage development methodology workflow |
 | `/metrics` | `metrics-dashboard-assistant` | T3 | Track development metrics, code quality indicators, and project health |
@@ -55,7 +56,7 @@ Commands not visible in the menu are still callable — Claude Code loads skills
 | `/release` | `release-standards` | T2 | Guide release process and changelogs |
 | `/requirement` | `requirement-assistant` | T1 | Write user stories and requirements following INVEST criteria |
 | `/retrospective` | `retrospective-assistant` | T3 | Guide structured team retrospectives for Sprint and Release cycles. |
-| `/reverse` | `reverse-engineer` | T2 | System archeology — reverse engineer code across Logic, Data, and Runtime dimensions |
+| `/reverse` | `reverse-engineer` | T2 | System archeology - reverse engineer code across Logic, Data, and Runtime dimensions |
 | `/review` | `code-review-assistant` | T1 | Perform systematic code review with checklist |
 | `/runbook` | `runbook-assistant` | T3 | Guide runbook creation, maintenance, and drill exercises. |
 | `/scan` | `security-scan-assistant` | T3 | Guide automated security scanning, dependency auditing, and secret detection. |

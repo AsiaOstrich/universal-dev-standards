@@ -1491,6 +1491,18 @@
       "description": "System for capturing, retrieving, and enforcing project-specific context, architectural decisions, and domain knowledge"
     },
     {
+      "id": "knowledge-graph-memory",
+      "name": "Knowledge Graph Memory Standards",
+      "nameZh": "知識圖記憶標準",
+      "source": {
+        "human": "core/knowledge-graph-memory.md",
+        "ai": "ai/standards/knowledge-graph-memory.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": "knowledge-graph",
+      "description": "Relationship schema for traversing specs, decisions, and code as a graph (related/impacts/supersedes front-matter -> IMPACTS/SUPERSEDES edges); complements vector memory with structural multi-hop queries; engine-optional with Markdown degradation; basis for self-evolving (SAGE) confidence"
+    },
+    {
       "id": "context-aware-loading",
       "name": "Context-Aware Standard Loading",
       "nameZh": "上下文感知標準載入",

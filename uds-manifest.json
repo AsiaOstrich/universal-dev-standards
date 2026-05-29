@@ -1029,6 +1029,11 @@
       "id": "sweep",
       "command": "/guide",
       "category": "uncategorized"
+    },
+    {
+      "id": "knowledge-graph",
+      "command": "/knowledge-graph",
+      "category": "documentation"
     }
   ],
   "agent_support": {
