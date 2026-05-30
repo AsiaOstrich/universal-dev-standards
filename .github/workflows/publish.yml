@@ -69,6 +69,10 @@ jobs:
           cache: 'npm'
           cache-dependency-path: cli/package-lock.json
 
+      # OIDC trusted publishing requires npm >= 11.5.1 (newer than the bundled npm).
+      - name: Upgrade npm for OIDC
+        run: npm install -g npm@latest
+
       - name: Install dependencies
         run: npm install --ignore-scripts
         env:
@@ -112,7 +116,9 @@ jobs:
             echo "Publishing version $VERSION with tag: latest"
           fi
 
+      # OIDC trusted publishing: npm authenticates via this job's id-token against
+      # the trusted publisher configured on npmjs (universal-dev-standards →
+      # Settings → Trusted Publisher: AsiaOstrich / universal-dev-standards /
+      # publish.yml). No NODE_AUTH_TOKEN secret needed; provenance is automatic.
       - name: Publish to npm
         run: npm publish --provenance --access public --tag ${{ steps.npm-tag.outputs.tag }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_ASIAOSTRICH }}
