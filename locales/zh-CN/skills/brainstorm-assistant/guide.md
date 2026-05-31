@@ -2,6 +2,7 @@
 scope: universal
 source: ../../../../skills/brainstorm-assistant/guide.md
 source_version: 3.0.0
+source_hash: 24f4fe4819a4
 translation_version: 3.0.0
 last_synced: 2026-06-01
 status: current

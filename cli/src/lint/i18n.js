@@ -8,7 +8,9 @@
  *   locale:description-must-match-language     (error)
  *   locale:must-have-source-frontmatter        (error)
  *   canonical:l3-language-consistency          (warn)
- *   translation-drift-warn                     (warn)
+ *   translation-drift-warn                     (warn)   version-gap (needs a version on the canonical)
+ *   translation-content-drift-warn             (warn)   source_hash mismatch — catches SILENT drift, version-independent (XSPEC-248)
+ *   translation-hash-missing                   (info)   blind-spot marker: no canonical version AND no source_hash → freshness unverifiable (XSPEC-248)
  *
  * `adopter-must-match-installed-locale` is deferred (needs project context,
  * not source-tree level).
@@ -18,6 +20,7 @@
 
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join, dirname, basename, resolve } from 'path';
+import { createHash } from 'crypto';
 
 // CJK Unified Ideographs ranges (excluding fullwidth punctuation, but
 // including ranges Ext-A/B used by zh-TW/zh-CN). Hangul, Hiragana,
@@ -110,6 +113,26 @@ function readSourceVersion(filePath) {
     if (m) return m[1].trim();
   }
   return null;
+}
+
+/**
+ * Compute a stable content hash of a canonical file: sha256 of its content
+ * with CRLF normalized and trailing whitespace stripped, truncated to 12 hex.
+ *
+ * Used for `source_hash` drift detection (XSPEC-248), which — unlike the
+ * version-gap check — does NOT depend on the canonical carrying a `version:`
+ * field. This is what catches "silent drift": canonical content changed but
+ * nobody bumped the locale's version metadata.
+ *
+ * @param {string} filePath - Absolute path to canonical file
+ * @returns {string|null} 12-hex digest, or null if file is missing
+ */
+export function computeSourceHash(filePath) {
+  if (!existsSync(filePath)) return null;
+  const normalized = readFileSync(filePath, 'utf-8')
+    .replace(/\r\n/g, '\n')
+    .replace(/\s+$/, '');
+  return createHash('sha256').update(normalized).digest('hex').slice(0, 12);
 }
 
 /**
@@ -233,12 +256,14 @@ export function lintLocale(skillMdPath, locale) {
     }
   }
 
-  // Rule: translation-drift-warn
+  // Rules: translation-drift-warn (version) + translation-content-drift-warn (hash) + translation-hash-missing
   if (fm.source && fm.translation_version) {
     // Resolve source path relative to this file's directory
     const sourceRel = fm.source.value;
     const sourcePath = resolve(dirname(skillMdPath), sourceRel);
     const actualSourceVersion = readSourceVersion(sourcePath);
+
+    // (a) version-gap drift — only works when the canonical carries a version
     if (actualSourceVersion) {
       const gap = isMajorOrMinorGap(fm.translation_version.value, actualSourceVersion);
       if (gap) {
@@ -253,6 +278,30 @@ export function lintLocale(skillMdPath, locale) {
           message: `translation_version \`${fm.translation_version.value}\` lags source_version \`${actualSourceVersion}\` (${detail}). Re-sync recommended.`
         });
       }
+    }
+
+    // (b) content-hash drift — version-independent; catches SILENT drift (XSPEC-248)
+    if (fm.source_hash) {
+      const currentHash = computeSourceHash(sourcePath);
+      if (currentHash && currentHash !== fm.source_hash.value) {
+        findings.push({
+          rule: 'translation-content-drift-warn',
+          severity: 'warn',
+          line: fm.source_hash.line,
+          file: skillMdPath,
+          message: `Canonical content changed since last sync (source_hash \`${fm.source_hash.value}\` != current \`${currentHash}\`). Re-translate and update source_hash.`
+        });
+      }
+    } else if (!actualSourceVersion) {
+      // (c) blind-spot marker: neither a canonical version NOR a source_hash exists,
+      // so content freshness cannot be verified at all (how brainstorm rotted to v1.0).
+      findings.push({
+        rule: 'translation-hash-missing',
+        severity: 'info',
+        line: fm.source.line,
+        file: skillMdPath,
+        message: 'Cannot verify content freshness: canonical has no version field and locale has no source_hash. Stamp source_hash (sha256[:12] of canonical) to enable silent-drift detection.'
+      });
     }
   }
 
@@ -334,5 +383,6 @@ export function partitionFindings(findings) {
   return {
     errors: findings.filter(f => f.severity === 'error'),
     warnings: findings.filter(f => f.severity === 'warn'),
+    infos: findings.filter(f => f.severity === 'info'),
   };
 }

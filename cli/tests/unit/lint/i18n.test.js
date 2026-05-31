@@ -7,6 +7,7 @@ import {
   lintLocale,
   lintAll,
   partitionFindings,
+  computeSourceHash,
 } from '../../../src/lint/i18n.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -240,6 +241,111 @@ describe('lint/i18n', () => {
       const findings = lintLocale(localePath, 'zh-TW');
       const drift = findings.find(f => f.rule === 'translation-drift-warn');
       expect(drift).toBeUndefined();
+    });
+
+    // --- source_hash / silent-drift detection (XSPEC-248) ---
+
+    it('fires content-drift warning when source_hash != current canonical hash', () => {
+      makeUdsTree(TEST_DIR);
+      const srcPath = join(TEST_DIR, 'skills', 'foo', 'SKILL.md');
+      mkdirSync(dirname(srcPath), { recursive: true });
+      // Canonical has NO version field — the version-gap check is inert here,
+      // so only the content-hash check can catch drift.
+      writeFileSync(srcPath, [
+        '---', 'name: foo', 'description: "[UDS] Example skill"', '---', '', '# Foo v2 content',
+      ].join('\n'));
+
+      const localePath = join(TEST_DIR, 'locales', 'zh-TW', 'skills', 'foo', 'SKILL.md');
+      mkdirSync(dirname(localePath), { recursive: true });
+      writeFileSync(localePath, [
+        '---', 'name: foo', 'source: ../../../../skills/foo/SKILL.md',
+        'source_version: 1.0.0', 'translation_version: 1.0.0',
+        'source_hash: deadbeef0000', // stale hash, will not match
+        'description: "[UDS] 範例技能"', '---', '', '# 範例',
+      ].join('\n'));
+
+      const findings = lintLocale(localePath, 'zh-TW');
+      const drift = findings.find(f => f.rule === 'translation-content-drift-warn');
+      expect(drift).toBeDefined();
+      expect(drift.severity).toBe('warn');
+      // The blind-spot info must NOT fire when a (stale) source_hash is present
+      expect(findings.find(f => f.rule === 'translation-hash-missing')).toBeUndefined();
+    });
+
+    it('does not fire content-drift when source_hash matches current canonical', () => {
+      makeUdsTree(TEST_DIR);
+      const srcPath = join(TEST_DIR, 'skills', 'foo', 'SKILL.md');
+      mkdirSync(dirname(srcPath), { recursive: true });
+      writeFileSync(srcPath, [
+        '---', 'name: foo', 'description: "[UDS] Example skill"', '---', '', '# Foo',
+      ].join('\n'));
+      const hash = computeSourceHash(srcPath);
+
+      const localePath = join(TEST_DIR, 'locales', 'zh-TW', 'skills', 'foo', 'SKILL.md');
+      mkdirSync(dirname(localePath), { recursive: true });
+      writeFileSync(localePath, [
+        '---', 'name: foo', 'source: ../../../../skills/foo/SKILL.md',
+        'source_version: 1.0.0', 'translation_version: 1.0.0',
+        `source_hash: ${hash}`,
+        'description: "[UDS] 範例技能"', '---', '', '# 範例',
+      ].join('\n'));
+
+      const findings = lintLocale(localePath, 'zh-TW');
+      expect(findings.find(f => f.rule === 'translation-content-drift-warn')).toBeUndefined();
+      expect(findings.find(f => f.rule === 'translation-hash-missing')).toBeUndefined();
+    });
+
+    it('emits hash-missing info when canonical has no version AND locale has no source_hash', () => {
+      makeUdsTree(TEST_DIR);
+      const srcPath = join(TEST_DIR, 'skills', 'foo', 'SKILL.md');
+      mkdirSync(dirname(srcPath), { recursive: true });
+      // No version field on canonical → version-gap check inert (the blind spot).
+      writeFileSync(srcPath, [
+        '---', 'name: foo', 'description: "[UDS] Example skill"', '---', '', '# Foo',
+      ].join('\n'));
+
+      const localePath = join(TEST_DIR, 'locales', 'zh-TW', 'skills', 'foo', 'SKILL.md');
+      mkdirSync(dirname(localePath), { recursive: true });
+      writeFileSync(localePath, [
+        '---', 'name: foo', 'source: ../../../../skills/foo/SKILL.md',
+        'source_version: 1.0.0', 'translation_version: 1.0.0',
+        'description: "[UDS] 範例技能"', '---', '', '# 範例',
+      ].join('\n'));
+
+      const findings = lintLocale(localePath, 'zh-TW');
+      const info = findings.find(f => f.rule === 'translation-hash-missing');
+      expect(info).toBeDefined();
+      expect(info.severity).toBe('info');
+    });
+
+    it('does not emit hash-missing info when canonical carries a version', () => {
+      makeUdsTree(TEST_DIR);
+      const srcPath = join(TEST_DIR, 'skills', 'foo', 'SKILL.md');
+      mkdirSync(dirname(srcPath), { recursive: true });
+      writeFileSync(srcPath, [
+        '---', 'name: foo', 'description: "[UDS] Example skill"', 'version: 1.0.0', '---', '', '# Foo',
+      ].join('\n'));
+
+      const localePath = join(TEST_DIR, 'locales', 'zh-TW', 'skills', 'foo', 'SKILL.md');
+      mkdirSync(dirname(localePath), { recursive: true });
+      writeFileSync(localePath, [
+        '---', 'name: foo', 'source: ../../../../skills/foo/SKILL.md',
+        'source_version: 1.0.0', 'translation_version: 1.0.0',
+        'description: "[UDS] 範例技能"', '---', '', '# 範例',
+      ].join('\n'));
+
+      const findings = lintLocale(localePath, 'zh-TW');
+      expect(findings.find(f => f.rule === 'translation-hash-missing')).toBeUndefined();
+    });
+
+    it('partitionFindings buckets info severity separately', () => {
+      const sample = [
+        { severity: 'error' }, { severity: 'warn' }, { severity: 'info' }, { severity: 'info' },
+      ];
+      const { errors, warnings, infos } = partitionFindings(sample);
+      expect(errors).toHaveLength(1);
+      expect(warnings).toHaveLength(1);
+      expect(infos).toHaveLength(2);
     });
   });
 

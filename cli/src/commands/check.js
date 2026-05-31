@@ -1861,13 +1861,14 @@ function displayWorkflowStatus(projectPath) {
  */
 async function runI18nLint(projectPath, options = {}) {
   const findings = lintI18nAll({ projectPath });
-  const { errors, warnings } = partitionI18nFindings(findings);
+  const { errors, warnings, infos } = partitionI18nFindings(findings);
 
   if (options.json) {
     console.log(JSON.stringify({
       summary: {
         errors: errors.length,
         warnings: warnings.length,
+        infos: infos.length,
       },
       findings,
     }, null, 2));
@@ -1900,8 +1901,16 @@ async function runI18nLint(projectPath, options = {}) {
     console.log();
   }
 
+  // Info findings are collapsed to a summary line to avoid flooding output
+  // (e.g. many locale files still lack source_hash). They never fail the gate.
+  if (infos.length > 0) {
+    console.log(chalk.cyan(`  ℹ ${infos.length} locale file(s) lack source_hash — silent content drift cannot be detected for them.`));
+    console.log(chalk.gray('    Stamp source_hash (sha256[:12] of canonical) when a locale is verified in sync to enable detection.'));
+    console.log();
+  }
+
   console.log(chalk.gray('─'.repeat(50)));
-  console.log(`  ${chalk.red('Errors:')} ${errors.length}    ${chalk.yellow('Warnings:')} ${warnings.length}`);
+  console.log(`  ${chalk.red('Errors:')} ${errors.length}    ${chalk.yellow('Warnings:')} ${warnings.length}    ${chalk.cyan('Info:')} ${infos.length}`);
   console.log();
 
   if (errors.length > 0) {

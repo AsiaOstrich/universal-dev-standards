@@ -6,6 +6,7 @@ description: |
   關鍵字：brainstorm, ideation, persona ensemble, multi-critic, HMW, SCAMPER, 腦力激盪, 發想, 創意。
 source: ../../../../skills/brainstorm-assistant/guide.md
 source_version: 3.0.0
+source_hash: 24f4fe4819a4
 translation_version: 3.0.0
 last_synced: 2026-06-01
 status: current

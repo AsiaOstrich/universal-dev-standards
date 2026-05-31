@@ -2,6 +2,7 @@
 name: brainstorm-assistant
 source: ../../../../skills/brainstorm-assistant/SKILL.md
 source_version: 3.0.0
+source_hash: 25e622a7d063
 translation_version: 3.0.0
 last_synced: 2026-06-01
 status: current
