@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.15.0
-translation_version: 5.15.0
-last_synced: 2026-05-28
+source_version: 5.15.1
+translation_version: 5.15.1
+last_synced: 2026-05-31
 status: current
 ---
 
