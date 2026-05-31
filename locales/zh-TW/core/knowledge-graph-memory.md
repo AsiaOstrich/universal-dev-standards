@@ -21,7 +21,7 @@ status: current
 
 本標準定義一套**關係 schema**，讓規格、決策與程式碼能以圖的方式遍歷——回答如*「我若修改 `execute()`，會影響哪些規格與決策？」*的問題。它與向量／語意記憶（找出*相似*的產物）互補，提供**結構遍歷**（找出*有關聯*的產物）。
 
-此 schema 與引擎無關：以純 Markdown front-matter 表達，AI 助手可直接讀取（降級模式），亦可由可選的圖引擎（如 [CodeSage](https://github.com/AsiaOstrich/CodeSage)）索引以進行多跳查詢（服務模式）。
+此 schema 與引擎無關：以純 Markdown front-matter 表達，AI 助手可直接讀取（降級模式），亦可由可選的圖引擎（如 [EngramGraph](https://github.com/AsiaOstrich/EngramGraph)）索引以進行多跳查詢（服務模式）。
 
 ---
 
@@ -68,7 +68,7 @@ related: [XSPEC-204]
 ```markdown
 ---
 id: DEC-069
-title: CodeSage Architecture
+title: EngramGraph Architecture
 date: 2026-05-27
 supersedes: [DEC-057]
 impacts: [XSPEC-237]

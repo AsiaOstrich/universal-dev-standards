@@ -13,7 +13,7 @@
 
 This standard defines a **relationship schema** so that specifications, decisions, and code can be traversed as a graph — answering questions like *"if I change `execute()`, which specs and decisions are affected?"*. It complements vector/semantic memory (which finds *similar* artifacts) with **structural traversal** (which finds *connected* artifacts).
 
-The schema is engine-agnostic: it is expressed as plain Markdown front-matter that an AI assistant can read directly (degraded mode), and that an optional graph engine (e.g. [CodeSage](https://github.com/AsiaOstrich/CodeSage)) can index for multi-hop queries (service mode).
+The schema is engine-agnostic: it is expressed as plain Markdown front-matter that an AI assistant can read directly (degraded mode), and that an optional graph engine (e.g. [EngramGraph](https://github.com/AsiaOstrich/EngramGraph)) can index for multi-hop queries (service mode).
 
 ---
 
@@ -60,7 +60,7 @@ related: [XSPEC-204]
 ```markdown
 ---
 id: DEC-069
-title: CodeSage Architecture
+title: EngramGraph Architecture
 date: 2026-05-27
 supersedes: [DEC-057]
 impacts: [XSPEC-237]

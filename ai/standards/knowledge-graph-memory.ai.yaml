@@ -62,7 +62,7 @@ standard:
       always_available: true
     service:
       description: "Graph engine indexed: a single multi-hop query (impact-analysis {nodeId, maxHops}) returns the full cross-domain chain"
-      example_engine: "CodeSage (@asiaostrich/codesage)"
+      example_engine: "EngramGraph (engramgraph)"
 
   confidence:
     optional: true

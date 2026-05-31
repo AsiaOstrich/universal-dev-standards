@@ -14,7 +14,7 @@ description: "[UDS] 透過知識圖追蹤規格／決策／程式碼的影響鏈
 
 依據[知識圖記憶標準](../../../../core/knowledge-graph-memory.md)的關係 schema，回答橫跨規格、決策與程式碼的結構性問題——*「XSPEC-205 的完整影響鏈是什麼？」*。有無圖引擎皆可運作。
 
-> **Implements**: XSPEC-237 Phase 5 — knowledge-graph skill（CodeSage opt-in）
+> **Implements**: XSPEC-237 Phase 5 — knowledge-graph skill（EngramGraph opt-in）
 
 ## 模式選擇
 
@@ -22,7 +22,7 @@ description: "[UDS] 透過知識圖追蹤規格／決策／程式碼的影響鏈
 
 | 條件 | 模式 |
 |------|------|
-| 設定了 `CODESAGE_URL`，或本機圖引擎 `/health` 有回應 | 服務模式（引擎）|
+| 設定了 `ENGRAM_URL`，或本機圖引擎 `/health` 有回應 | 服務模式（引擎）|
 | 否則 | 降級模式（Markdown）|
 
 ## 工作流程
@@ -31,7 +31,7 @@ description: "[UDS] 透過知識圖追蹤規格／決策／程式碼的影響鏈
 2. **選擇模式**——探測圖引擎（服務）否則後備（降級）。
 3. **服務模式（AC-5b）**——送出單一多跳查詢，呈現回傳的鏈（含跨域連結 code → spec → decision）：
    ```bash
-   curl -s -X POST "$CODESAGE_URL/graph/impact-analysis" \
+   curl -s -X POST "$ENGRAM_URL/graph/impact-analysis" \
      -H 'content-type: application/json' \
      -d '{"nodeId":"XSPEC-205","maxHops":3}'
    ```
@@ -45,12 +45,12 @@ description: "[UDS] 透過知識圖追蹤規格／決策／程式碼的影響鏈
 
 ## 下一步引導
 
-- 降級模式若觸及讀取深度上限，告知使用者圖引擎（如 CodeSage）可給出完整鏈，以及如何設定 `CODESAGE_URL`。
+- 降級模式若觸及讀取深度上限，告知使用者圖引擎（如 EngramGraph）可給出完整鏈，以及如何設定 `ENGRAM_URL`。
 - 若參照的 id 找不到，標示為待修的懸空參照。
 - 主動提議為遍歷過的文件補上缺漏的 `impacts`/`impacted_by` front-matter。
 
 ## 參考
 
 - 標準：[core/knowledge-graph-memory.md](../../../../core/knowledge-graph-memory.md)
-- 引擎（opt-in）：[CodeSage](https://github.com/AsiaOstrich/CodeSage) — `@asiaostrich/codesage`
+- 引擎（opt-in）：[EngramGraph](https://github.com/AsiaOstrich/EngramGraph) — `engramgraph`
 - 詳細指南：[guide.md](guide.md)

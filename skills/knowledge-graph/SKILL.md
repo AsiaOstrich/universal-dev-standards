@@ -14,7 +14,7 @@ Answer structural questions across specs, decisions, and code — *"what is the 
 
 回答橫跨規格、決策與程式碼的結構性問題——*「XSPEC-205 的完整影響鏈是什麼？」*——依據[知識圖記憶標準](../../core/knowledge-graph-memory.md)的關係 schema。有無圖引擎皆可運作。
 
-> **Implements**: XSPEC-237 Phase 5 — knowledge-graph skill (CodeSage opt-in)
+> **Implements**: XSPEC-237 Phase 5 — knowledge-graph skill (EngramGraph opt-in)
 
 ## Mode Selection | 模式選擇
 
@@ -22,7 +22,7 @@ Detect which mode to use **before** answering:
 
 | Condition | Mode |
 |-----------|------|
-| `CODESAGE_URL` set, or a local graph engine responds on `/health` | Service mode (engine) |
+| `ENGRAM_URL` set, or a local graph engine responds on `/health` | Service mode (engine) |
 | Otherwise | Degraded mode (Markdown) |
 
 ## Workflow | 工作流程
@@ -31,7 +31,7 @@ Detect which mode to use **before** answering:
 2. **Choose mode** — probe for a graph engine (service) else fall back (degraded).
 3. **Service mode (AC-5b)** — issue a single multi-hop query and present the returned chain, including cross-domain links (code → spec → decision):
    ```bash
-   curl -s -X POST "$CODESAGE_URL/graph/impact-analysis" \
+   curl -s -X POST "$ENGRAM_URL/graph/impact-analysis" \
      -H 'content-type: application/json' \
      -d '{"nodeId":"XSPEC-205","maxHops":3}'
    ```
@@ -47,12 +47,12 @@ See [knowledge-graph-memory](../../core/knowledge-graph-memory.md). Front-matter
 
 ## Next Steps Guidance | 下一步引導
 
-- If degraded mode hit a reading-depth limit, tell the user a graph engine (e.g. CodeSage) would give a complete chain, and how to set `CODESAGE_URL`.
+- If degraded mode hit a reading-depth limit, tell the user a graph engine (e.g. EngramGraph) would give a complete chain, and how to set `ENGRAM_URL`.
 - If a referenced id was not found, surface it as a dangling reference to fix.
 - Offer to add missing `impacts`/`impacted_by` front-matter to the documents you traversed.
 
 ## Reference | 參考
 
 - Standard: [core/knowledge-graph-memory.md](../../core/knowledge-graph-memory.md)
-- Engine (opt-in): [CodeSage](https://github.com/AsiaOstrich/CodeSage) — `@asiaostrich/codesage`
+- Engine (opt-in): [EngramGraph](https://github.com/AsiaOstrich/EngramGraph) — `engramgraph`
 - Detailed guide: [guide.md](guide.md)

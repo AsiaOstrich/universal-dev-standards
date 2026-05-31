@@ -8,12 +8,12 @@ Companion to [SKILL.md](SKILL.md). Worked examples of both operating modes and t
 
 ## 1. Service Mode (graph engine) | 服務模式
 
-When a CodeSage-compatible engine is reachable, a single query returns the full chain.
+When an EngramGraph-compatible engine is reachable, a single query returns the full chain.
 
 ### Impact analysis | 影響分析
 
 ```bash
-curl -s -X POST "$CODESAGE_URL/graph/impact-analysis" \
+curl -s -X POST "$ENGRAM_URL/graph/impact-analysis" \
   -H 'content-type: application/json' \
   -d '{"nodeId":"XSPEC-205","maxHops":3}'
 # => { "nodeId": "XSPEC-205",
@@ -26,7 +26,7 @@ curl -s -X POST "$CODESAGE_URL/graph/impact-analysis" \
 ### Confidence feedback (SAGE) | 信心回饋
 
 ```bash
-curl -s -X POST "$CODESAGE_URL/graph/ingest" \
+curl -s -X POST "$ENGRAM_URL/graph/ingest" \
   -H 'content-type: application/json' \
   -d '{"type":"test_fail","functionId":"src/a.ts#execute"}'
 ```
@@ -66,4 +66,4 @@ Both modes produce the **same answer shape** (a list of connected Specs/Decision
 ## Reference | 參考
 
 - [core/knowledge-graph-memory.md](../../core/knowledge-graph-memory.md)
-- [CodeSage](https://github.com/AsiaOstrich/CodeSage)
+- [EngramGraph](https://github.com/AsiaOstrich/EngramGraph)
