@@ -65,7 +65,9 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
+          # No `registry-url`: it writes an empty //registry.npmjs.org/:_authToken
+          # to .npmrc, which suppresses OIDC trusted publishing (npm takes the
+          # empty-token path → ENEEDAUTH/E404). Without it npm engages OIDC.
           cache: 'npm'
           cache-dependency-path: cli/package-lock.json
 
