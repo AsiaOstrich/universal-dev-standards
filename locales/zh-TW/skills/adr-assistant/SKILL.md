@@ -2,8 +2,9 @@
 name: adr-assistant
 source: ../../../../skills/adr-assistant/SKILL.md
 source_version: 1.0.0
+source_hash: 7d8bf5944cf4
 translation_version: 1.0.0
-last_synced: 2026-03-26
+last_synced: 2026-06-01
 status: current
 description: "[UDS] 建立、管理和追蹤架構決策記錄（ADR）"
 ---
@@ -148,50 +149,28 @@ docs/adr/
 > - 更新相關規格以引用此 ADR
 > - 若狀態為 `Proposed`，分享給團隊審查
 
+## AI 代理行為
+
+當使用者呼叫 `/adr` 時，AI 助手必須：
+
+1. **檢查現有 ADR** — 搜尋 `docs/adr/` 以確定下一個 ADR 編號
+2. **互動式引導** — 逐步詢問背景、驅動因素和選項
+3. **產生檔案** — 將 ADR 寫入 `docs/adr/ADR-NNN-title.md`
+4. **建議連結** — 識別相關規格或 ADR 以建立交叉引用
+5. **提供下一步** — 顯示上方的下一步引導
+
+當使用者呼叫 `/adr list` 時：
+1. 掃描 `docs/adr/` 目錄
+2. 解析每個 ADR 檔案的狀態
+3. 以表格顯示：編號、標題、狀態、日期
+
+當使用者呼叫 `/adr supersede [ADR-NNN]` 時：
+1. 讀取現有 ADR
+2. 引導建立新 ADR
+3. 將舊 ADR 狀態更新為 `Superseded by ADR-NNN`
+4. 在新 ADR 中加入 `Supersedes ADR-NNN`
+
 ## 參考
 
 - 核心規範：[adr-standards.md](../../../../core/adr-standards.md)
 - 詳細指南：[guide.md](./guide.md)
-
-
-## Next Steps Guidance | 下一步引導
-
-After `/adr` completes, the AI assistant should suggest:
-
-> **ADR created. Suggested next steps:**
-> - Execute `/sdd` to create a spec if the decision requires implementation
-> - Execute `/commit` to commit the ADR file
-> - Update related SPECs to reference this ADR
-> - Share with team for review if status is `Proposed`
-
-> **ADR 已建立。建議下一步：**
-> - 執行 `/sdd` 建立規格（若決策需要實作）
-> - 執行 `/commit` 提交 ADR 檔案
-> - 更新相關規格以引用此 ADR
-> - 若狀態為 `Proposed`，分享給團隊審查
-
-## AI Agent Behavior | AI 代理行為
-
-When the user invokes `/adr`, the AI assistant MUST:
-
-1. **Check existing ADRs** — Search `docs/adr/` to determine next ADR number
-2. **Guide interactively** — Ask about context, drivers, and options step by step
-3. **Generate the file** — Write ADR to `docs/adr/ADR-NNN-title.md`
-4. **Suggest links** — Identify related SPECs or ADRs to cross-reference
-5. **Offer next steps** — Show the Next Steps Guidance above
-
-When the user invokes `/adr list`:
-1. Scan `docs/adr/` directory
-2. Parse status from each ADR file
-3. Display as a table: Number, Title, Status, Date
-
-When the user invokes `/adr supersede [ADR-NNN]`:
-1. Read the existing ADR
-2. Guide creation of a new ADR
-3. Update old ADR status to `Superseded by ADR-NNN`
-4. Add `Supersedes ADR-NNN` to new ADR
-
-## Reference | 參考
-
-- Core Standard: [adr-standards.md](../../core/adr-standards.md)
-- Detailed Guide: [guide.md](./guide.md)
