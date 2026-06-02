@@ -2,8 +2,9 @@
 name: push
 source: ../../../../skills/push/SKILL.md
 source_version: 2.0.0
-translation_version: 1.0.0
-last_synced: 2026-05-28
+translation_version: 2.0.0
+last_synced: 2026-06-02
+source_hash: b7812535483c
 scope: universal
 description: |
   [UDS] AI 輔助 git push 安全層：品質閘門 + 協作護欄。

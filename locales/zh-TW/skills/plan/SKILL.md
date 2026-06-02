@@ -2,8 +2,9 @@
 name: plan
 source: ../../../../skills/plan/SKILL.md
 source_version: 2.0.0
-translation_version: 1.0.0
-last_synced: 2026-05-28
+translation_version: 2.0.0
+last_synced: 2026-06-02
+source_hash: 6fbb1a1b8040
 scope: universal
 description: |
   [UDS] 從 Spec 文件、OpenSpec 變更或自由文字需求生成 plan.json。
