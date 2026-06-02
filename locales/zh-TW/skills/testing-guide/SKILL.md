@@ -2,7 +2,8 @@
 source: ../../../../skills/testing-guide/SKILL.md
 source_version: 1.2.0
 translation_version: 1.2.0
-last_synced: 2026-02-10
+last_synced: 2026-06-02
+source_hash: 49b6f9e0c6a4
 status: current
 name: testing
 description: "[UDS] 測試金字塔與 UT/IT/ST/E2E 測試撰寫標準"
@@ -12,15 +13,38 @@ description: "[UDS] 測試金字塔與 UT/IT/ST/E2E 測試撰寫標準"
 
 > **語言**: [English](../../../../skills/testing-guide/SKILL.md) | 繁體中文
 
-**版本**: 1.1.0
-**最後更新**: 2025-12-29
+**版本**: 1.2.0
+**最後更新**: 2026-01-29
 **適用範圍**: Claude Code Skills
 
 ---
 
 ## 目的
 
-本 Skill 提供測試金字塔標準和系統化測試的最佳實踐，支援 ISTQB 和業界通行金字塔框架。
+本 Skill 提供測試金字塔標準和系統化測試的最佳實踐，同時支援 ISTQB 和業界通行金字塔框架。
+
+## 測試技能導航 | Testing Skills Navigator
+
+UDS 提供 6 個與測試相關的 Skill。請使用以下決策樹找到合適的工具：
+
+```
+你想做什麼？ | What do you want to do?
+├── 測量程式碼覆蓋率（行/分支/函式）                  → /coverage
+├── 追蹤哪些需求有測試（AC 可追蹤性）                → /ac-coverage
+├── 以測試驅動開發進行開發（紅-綠-重構）             → /tdd
+├── 撰寫 BDD 場景（Given-When-Then）               → /bdd
+├── 與利害關係人定義驗收測試                         → /atdd
+└── 學習測試標準與最佳實踐                           → /testing（本 Skill）
+```
+
+| Skill | 焦點 | Focus |
+|-------|------|-------|
+| `/testing` | 測試標準與最佳實踐參考 | Standards and best practices reference |
+| `/coverage` | 程式碼層級覆蓋率分析 | Code-level coverage analysis |
+| `/ac-coverage` | 需求層級 AC 可追蹤性 | Requirement-level AC traceability |
+| `/tdd` | 紅-綠-重構開發循環 | Red-Green-Refactor development cycle |
+| `/bdd` | Given-When-Then 行為場景 | Behavior scenarios with Given-When-Then |
+| `/atdd` | 與利害關係人定義驗收條件 | Acceptance criteria with stakeholders |
 
 ## 框架選擇
 
@@ -71,7 +95,10 @@ description: "[UDS] 測試金字塔與 UT/IT/ST/E2E 測試撰寫標準"
 ## 詳細指南
 
 完整標準請參考：
-- [測試金字塔](./testing-pyramid.md)
+- [測試標準](../../core/testing-standards.md) - 可執行的規則
+- [測試理論](./testing-theory.md) - 教學知識庫
+- [測試金字塔](./testing-pyramid.md) - 詳細的金字塔比例
+- [測試骨架範本](./test-skeleton-templates.md) - UT/IT/ST/Perf/Contract 的多語言骨架
 
 ### AI 優化格式（Token 高效）
 
@@ -85,6 +112,10 @@ description: "[UDS] 測試金字塔與 UT/IT/ST/E2E 測試撰寫標準"
   - 整合測試：`ai/options/testing/integration-testing.ai.yaml`
   - 系統測試：`ai/options/testing/system-testing.ai.yaml`
   - E2E 測試：`ai/options/testing/e2e-testing.ai.yaml`
+  - 安全測試：`ai/options/testing/security-testing.ai.yaml`
+  - 效能測試：`ai/options/testing/performance-testing.ai.yaml`
+  - 合約測試：`ai/options/testing/contract-testing.ai.yaml`
+- 骨架範本（所有層級、多語言）：[test-skeleton-templates.md](./test-skeleton-templates.md)
 
 ## 命名慣例
 
@@ -156,15 +187,104 @@ test('method_scenario_expected', () => {
 
 ---
 
+## 測試理論精要（YAML 壓縮）
+
+```yaml
+# === ISTQB FUNDAMENTALS ===
+terminology:
+  error: "Human mistake in thinking"
+  defect: "Bug in code (caused by error)"
+  failure: "System behaves incorrectly (caused by defect)"
+  chain: "Error → Defect → Failure"
+
+oracle_problem:
+  definition: "How do we know the expected result is correct?"
+  approaches:
+    - specification_oracle: "Compare against spec"
+    - reference_oracle: "Compare against reference impl"
+    - consistency_oracle: "Same input → same output"
+    - heuristic_oracle: "Reasonable approximation"
+
+# === STATIC vs DYNAMIC ===
+static_testing:
+  definition: "Examine without executing"
+  techniques: [reviews, walkthroughs, inspections, static_analysis]
+  finds: "Defects before runtime"
+  examples: [ESLint, SonarQube, code_review]
+
+dynamic_testing:
+  definition: "Execute and observe behavior"
+  techniques: [unit, integration, system, acceptance]
+  finds: "Failures during execution"
+
+# === TEST DESIGN TECHNIQUES ===
+black_box:
+  equivalence_partitioning:
+    principle: "Divide inputs into equivalent classes"
+    example: "Age: [<0 invalid], [0-17 minor], [18-64 adult], [65+ senior]"
+  boundary_value:
+    principle: "Test at boundaries of partitions"
+    example: "Age: test -1, 0, 17, 18, 64, 65"
+  decision_table:
+    principle: "Combinations of conditions → actions"
+    use: "Complex business rules"
+  state_transition:
+    principle: "Valid sequences of states"
+    use: "Workflow, state machines"
+
+white_box:
+  statement_coverage: "Every statement executed once"
+  branch_coverage: "Every decision branch taken"
+  condition_coverage: "Every condition T/F"
+  path_coverage: "Every possible path (often impractical)"
+
+# === RISK-BASED TESTING ===
+risk_assessment:
+  likelihood: "How likely to fail?"
+  impact: "How bad if fails?"
+  priority: "likelihood × impact"
+
+risk_matrix:
+  high_high: "Test extensively, first priority"
+  high_low: "Good coverage"
+  low_high: "Good coverage"
+  low_low: "Basic coverage"
+
+# === DEFECT MANAGEMENT ===
+defect_lifecycle:
+  states: [new, assigned, in_progress, fixed, verified, closed]
+  reopen_trigger: "Verification fails"
+
+severity_vs_priority:
+  severity: "Technical impact (critical/major/minor/trivial)"
+  priority: "Business urgency (high/medium/low)"
+  example: "Typo on login page: low severity, high priority (brand)"
+
+# === TEST ENVIRONMENT ===
+isolation_levels:
+  unit: "In-memory, mocked deps"
+  integration: "Containerized DB (Docker)"
+  staging: "Production-like, isolated"
+  production: "Real, feature flags for testing"
+
+test_data_strategies:
+  fixtures: "Static predefined data"
+  factories: "Dynamic generation (faker)"
+  snapshots: "Sanitized production copy"
+  synthetic: "Algorithm-generated edge cases"
+```
+
+---
+
 ## 設定偵測
 
 本 Skill 支援專案特定設定。
 
 ### 偵測順序
 
-1. 檢查 `CONTRIBUTING.md` 的「停用 Skills」區段
+1. 檢查 `CONTRIBUTING.md` 的「Disabled Skills」（停用 Skills）區段
    - 如果列出此 Skill，則為該專案停用
-2. 檢查 `CONTRIBUTING.md` 的「測試標準」區段
+2. 檢查 `CONTRIBUTING.md` 的「Testing Standards」（測試標準）區段
 3. 若未找到，**預設使用標準覆蓋率目標**
 
 ### 首次設定
@@ -207,32 +327,9 @@ test('method_scenario_expected', () => {
 
 ---
 
-## 相關標準
+## 下一步引導 | Next Steps Guidance
 
-- [測試標準](../../core/testing-standards.md)
-- [程式碼審查檢查清單](../../core/code-review-checklist.md)
-
----
-
-## 版本歷史
-
-| 版本 | 日期 | 變更內容 |
-|---------|------|---------|
-| 1.1.0 | 2025-12-29 | 新增：框架選擇（ISTQB/業界通行金字塔）、IT/SIT 縮寫說明 |
-| 1.0.0 | 2025-12-24 | 新增：標準區段（目的、相關標準、版本歷史、授權） |
-
----
-
-## 授權
-
-本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
-
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
-
-
-## Next Steps Guidance | 下一步引導
-
-After `/testing` completes, the AI assistant should suggest:
+當 `/testing` 完成後，AI 助理應建議：
 
 > **測試標準與最佳實踐已掌握。建議下一步 / Testing standards and best practices understood. Suggested next steps:**
 > - 執行 `/tdd` 開始測試驅動開發（紅-綠-重構循環） ⭐ **Recommended / 推薦** — 將測試知識立即轉化為實踐 / Turn testing knowledge into practice immediately
@@ -241,26 +338,26 @@ After `/testing` completes, the AI assistant should suggest:
 
 ---
 
-## Related Standards
+## 相關標準
 
-- [Testing Standards](../../core/testing-standards.md) - Actionable rules
-- [Testing Theory](./testing-theory.md) - Educational knowledge base
-- [Code Review Checklist](../../core/code-review-checklist.md)
+- [測試標準](../../core/testing-standards.md) - 可執行的規則
+- [測試理論](./testing-theory.md) - 教學知識庫
+- [程式碼審查檢查清單](../../core/code-review-checklist.md)
 
 ---
 
-## Version History
+## 版本歷史
 
-| Version | Date | Changes |
+| 版本 | 日期 | 變更內容 |
 |---------|------|---------|
-| 1.2.0 | 2026-01-29 | Added links to new testing-theory.md knowledge base |
-| 1.1.0 | 2025-12-29 | Added Testing Theory Essentials YAML section |
-| 1.0.0 | 2025-12-24 | Initial: Standard sections (Purpose, Related Standards, Version History, License) |
+| 1.2.0 | 2026-01-29 | 新增連結至新的 testing-theory.md 知識庫 |
+| 1.1.0 | 2025-12-29 | 新增測試理論精要 YAML 區段 |
+| 1.0.0 | 2025-12-24 | 初版：標準區段（目的、相關標準、版本歷史、授權） |
 
 ---
 
-## License
+## 授權
 
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
