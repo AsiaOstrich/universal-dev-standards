@@ -134,6 +134,60 @@ describe('lint/i18n', () => {
   });
 
   // ---------------------------------------------------------------
+  // lintCanonical — guide.md ruleset (XSPEC-248)
+  // ---------------------------------------------------------------
+  describe("lintCanonical guide ruleset (isGuide)", () => {
+    const guideWithCjkDescription = [
+      '---',
+      'scope: universal',
+      'description: |',
+      '  Guide observability across logs, metrics, traces.',
+      '  Keywords: observability, 可觀測性, 監控.',
+      '---',
+      '',
+      '# Observability Guide',
+      '',
+    ].join('\n');
+
+    it('guide: CJK keywords in description do NOT trigger description-must-be-ascii', () => {
+      const guidePath = join(TEST_DIR, 'guide.md');
+      writeFileSync(guidePath, guideWithCjkDescription);
+
+      const findings = lintCanonical(guidePath, { isGuide: true });
+      const err = findings.find(f => f.rule === 'canonical:description-must-be-ascii');
+      expect(err).toBeUndefined();
+    });
+
+    it('WITHOUT isGuide the same CJK description WOULD error (proves the flag matters)', () => {
+      const guidePath = join(TEST_DIR, 'guide.md');
+      writeFileSync(guidePath, guideWithCjkDescription);
+
+      const findings = lintCanonical(guidePath);
+      const err = findings.find(f => f.rule === 'canonical:description-must-be-ascii');
+      expect(err).toBeDefined();
+    });
+
+    it('guide: still flags a predominantly-CJK example block via l3 (despite CJK description)', () => {
+      const guidePath = join(TEST_DIR, 'guide.md');
+      writeFileSync(guidePath, [
+        guideWithCjkDescription,
+        '## 範例',
+        '',
+        '```markdown',
+        '## 結果',
+        '請查閱範例輸出內容',
+        '```',
+        '',
+      ].join('\n'));
+
+      const findings = lintCanonical(guidePath, { isGuide: true });
+      const warn = findings.find(f => f.rule === 'canonical:l3-language-consistency');
+      expect(warn).toBeDefined();
+      expect(warn.severity).toBe('warn');
+    });
+  });
+
+  // ---------------------------------------------------------------
   // lintLocale
   // ---------------------------------------------------------------
   describe('lintLocale', () => {

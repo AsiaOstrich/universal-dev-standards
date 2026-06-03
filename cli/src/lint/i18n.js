@@ -147,14 +147,20 @@ export function computeSourceHash(filePath) {
  * @param {string} skillMdPath - Absolute path to canonical file
  * @returns {Array<{rule, severity, line, message, file}>}
  */
-export function lintCanonical(skillMdPath) {
+export function lintCanonical(skillMdPath, opts = {}) {
+  // opts.isGuide — canonical guide.md (XSPEC-248): guide descriptions
+  // legitimately carry CJK discoverability keywords (e.g. "可觀測性"), so the
+  // ASCII-description rule does NOT apply. The l3 body check still does (and
+  // runs regardless of description language, since there is no ASCII rule to
+  // double-report against).
+  const { isGuide = false } = opts;
   const findings = [];
   if (!existsSync(skillMdPath)) return findings;
   const content = readFileSync(skillMdPath, 'utf-8');
   const { fm, body } = parseFrontmatter(content);
 
-  // Rule: canonical:description-must-be-ascii
-  if (fm && fm.description) {
+  // Rule: canonical:description-must-be-ascii (SKILL.md / core only; not guides)
+  if (!isGuide && fm && fm.description) {
     if (NON_ASCII_REGEX.test(fm.description.value)) {
       findings.push({
         rule: 'canonical:description-must-be-ascii',
@@ -168,9 +174,13 @@ export function lintCanonical(skillMdPath) {
 
   // Rule: canonical:l3-language-consistency
   // Heuristic: scan code-block-style output templates (```...```) for
-  // non-English example response text. Only fire when description is ASCII
-  // (otherwise the description-must-be-ascii error already covers it).
-  if (fm && fm.description && !NON_ASCII_REGEX.test(fm.description.value)) {
+  // non-English example response text. For SKILL.md/core only run when the
+  // description is ASCII (otherwise the description-must-be-ascii error already
+  // covers it); for guides (no ASCII rule) always scan the body.
+  const runL3 = isGuide
+    ? true
+    : Boolean(fm && fm.description && !NON_ASCII_REGEX.test(fm.description.value));
+  if (runL3) {
     const fenceRegex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
     let match;
     while ((match = fenceRegex.exec(body)) !== null) {
@@ -323,8 +333,10 @@ export function lintLocale(skillMdPath, locale) {
 }
 
 /**
- * Batch-lint a UDS project tree. Scans canonical `skills/` and `core/`,
- * plus `locales/{locale}/skills/` and `locales/{locale}/core/`.
+ * Batch-lint a UDS project tree. Scans canonical `skills/` (SKILL.md + guide.md)
+ * and `core/`, plus `locales/{locale}/skills/` (SKILL.md + guide.md) and
+ * `locales/{locale}/core/`. Canonical guide.md uses the guide ruleset
+ * (CJK discoverability keywords allowed in description; XSPEC-248).
  *
  * @param {object} opts
  * @param {string} opts.projectPath - Project (or UDS) root path
@@ -339,13 +351,18 @@ export function lintAll({ projectPath, locales }) {
   const coreDir = join(projectPath, 'core');
   const localesDir = join(projectPath, 'locales');
 
-  // --- Canonical skills ---
+  // --- Canonical skills (SKILL.md + guide.md) ---
   if (existsSync(skillsDir)) {
     for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
       const skillFile = join(skillsDir, entry.name, 'SKILL.md');
       if (existsSync(skillFile)) {
         findings.push(...lintCanonical(skillFile));
+      }
+      // XSPEC-248: guide.md uses the guide ruleset (CJK description allowed).
+      const guideFile = join(skillsDir, entry.name, 'guide.md');
+      if (existsSync(guideFile)) {
+        findings.push(...lintCanonical(guideFile, { isGuide: true }));
       }
     }
   }
@@ -375,6 +392,11 @@ export function lintAll({ projectPath, locales }) {
           const skillFile = join(localeSkillsDir, entry.name, 'SKILL.md');
           if (existsSync(skillFile)) {
             findings.push(...lintLocale(skillFile, locale));
+          }
+          // XSPEC-248: locale guide.md reuses the locale ruleset (freshness checks).
+          const guideFile = join(localeSkillsDir, entry.name, 'guide.md');
+          if (existsSync(guideFile)) {
+            findings.push(...lintLocale(guideFile, locale));
           }
         }
       }
