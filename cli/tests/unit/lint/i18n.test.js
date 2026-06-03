@@ -95,6 +95,42 @@ describe('lint/i18n', () => {
       expect(warn).toBeDefined();
       expect(warn.severity).toBe('warn');
     });
+
+    it('does NOT warn on a deliberate bilingual `EN | 中文` template (English-dominant)', () => {
+      // XSPEC-248 l3 refinement: bilingual house-style templates (e.g. the
+      // PR description template) are English-dominant and must be allowed.
+      const skillPath = join(TEST_DIR, 'SKILL.md');
+      writeFileSync(skillPath, [
+        '---',
+        'name: pr-automation-assistant',
+        'description: "[UDS] Automate the pull request lifecycle"',
+        '---',
+        '',
+        '# PR Automation',
+        '',
+        '## PR Description Template | PR 描述模板',
+        '',
+        '```markdown',
+        '## Summary | 摘要',
+        '<1-3 bullet points describing the change>',
+        '',
+        '## Changes | 變更內容',
+        '- Added / Modified / Removed ...',
+        '',
+        '## Test Plan | 測試計畫',
+        '- [ ] Unit tests pass',
+        '- [ ] Manual verification steps',
+        '',
+        '## Screenshots | 截圖',
+        '(if UI changes)',
+        '```',
+        '',
+      ].join('\n'));
+
+      const findings = lintCanonical(skillPath);
+      const warn = findings.find(f => f.rule === 'canonical:l3-language-consistency');
+      expect(warn).toBeUndefined();
+    });
   });
 
   // ---------------------------------------------------------------

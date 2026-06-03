@@ -33,6 +33,11 @@ const CJK_REGEX = /[㐀-䶿一-鿿豈-﫿぀-ゟ゠-ヿ가-힯]/;
 // eslint-disable-next-line no-control-regex
 const NON_ASCII_REGEX = /[^\x09\x0A\x0D\x20-\x7E]/;
 
+// Global variant of CJK_REGEX (same character ranges, derived to avoid
+// re-typing the ranges) — used to *count* CJK characters for the
+// l3-language-consistency ratio check (bilingual templates vs. real drift).
+const CJK_GLOBAL_REGEX = new RegExp(CJK_REGEX.source, 'g');
+
 /**
  * Parse a minimal YAML front matter from markdown content.
  * Returns { fm: {key→value}, fmEndLine: number, body: string }
@@ -181,19 +186,28 @@ export function lintCanonical(skillMdPath) {
       if (skipLangs.has(lang.toLowerCase())) continue;
 
       // Likely an output template / example response (e.g., ```markdown,
-      // ```text, ```output, ```response). Flag if it contains CJK.
+      // ```text, ```output, ```response). Only flag when the block is
+      // *predominantly* CJK — i.e. an untranslated example dumped into
+      // canonical. Deliberate bilingual `English | 中文` templates (house
+      // style) stay English-dominant, so they are allowed; a Chinese-only
+      // example response is CJK-dominant and still caught. (XSPEC-248 l3
+      // refinement — rule vs. bilingual-convention tension.)
       if (CJK_REGEX.test(block)) {
-        // Compute approx. line number of the fence start
-        const lineNum = content.substring(0, match.index).split('\n').length;
-        findings.push({
-          rule: 'canonical:l3-language-consistency',
-          severity: 'warn',
-          line: lineNum,
-          file: skillMdPath,
-          message: `Canonical body contains a non-English example response inside a non-code fenced block (lang=\`${lang || 'plain'}\`). Move translated examples to the locale variant.`
-        });
-        // Only report first occurrence per file to keep output readable
-        break;
+        const cjkCount = (block.match(CJK_GLOBAL_REGEX) || []).length;
+        const asciiLetterCount = (block.match(/[A-Za-z]/g) || []).length;
+        if (cjkCount > asciiLetterCount) {
+          // Compute approx. line number of the fence start
+          const lineNum = content.substring(0, match.index).split('\n').length;
+          findings.push({
+            rule: 'canonical:l3-language-consistency',
+            severity: 'warn',
+            line: lineNum,
+            file: skillMdPath,
+            message: `Canonical body contains a predominantly-CJK example response inside a non-code fenced block (lang=\`${lang || 'plain'}\`). Move the translated example to the locale variant (bilingual \`EN | 中文\` templates are allowed).`
+          });
+          // Only report first occurrence per file to keep output readable
+          break;
+        }
       }
     }
   }
