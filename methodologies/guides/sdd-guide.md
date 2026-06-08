@@ -133,7 +133,8 @@ Avoid these common pitfalls when adopting SDD:
 | Critical hotfixes | Fix first, document later |
 | Typos and formatting | Direct commit, no spec needed |
 | Exploratory prototypes | Skip formal specs, iterate quickly |
-| Small bug fixes (< 30 min) | Lightweight tracking only |
+| Trivial bug fixes (typo-level, no shared code) | Lightweight tracking only |
+| Regression-prone bug fixes (shared code / migration / previously-broken path) | Use the Bugfix Spec Template (below) |
 
 ---
 
@@ -205,6 +206,38 @@ Use these tags in spec documents to indicate scope:
 | `[Scope: Project]` | Project-specific, not for distribution | CI/CD config, team conventions |
 | `[Scope: Universal]` | Reusable by other projects | Coding standards, testing patterns |
 | `[Scope: Utility]` | Tool/generator, no Core Standard needed | docs-generator, code-formatter |
+
+---
+
+## Bugfix Spec Template (regression-prone fixes) | Bugfix 規格模板
+
+> XSPEC-264. Not every bug needs a spec — **trivial** bugs stay lightweight. But a
+> **regression-prone** fix (touches shared code, a migration, or a path that was
+> broken-then-fixed before) warrants a lightweight `<BUG-ID>.bugfix.md` — far
+> cheaper than a feature spec, far safer than a blind patch.
+
+```markdown
+# <BUG-ID>: <short title>
+
+## Current behavior
+What happens now (the defect) + reproduction steps.
+
+## Expected behavior
+What should happen instead.
+
+## Unchanged behavior
+Explicitly what must NOT change — the regression-guard scope.
+
+## Root cause
+Link the systematic-debugging analysis (5-whys / bisection).
+
+## Regression test
+The test that fails before the fix and passes after — and asserts the
+"Unchanged behavior" still holds. Treat this test as an AC
+(acceptance-criteria-traceability: `@AC <BUG-ID>`).
+```
+
+**When to use** (see Change Evaluation table above): trivial → lightweight; regression-prone → this template. The `Unchanged behavior` + `Regression test` sections are what UDS's own migration/refactor regressions (XSPEC-199/200/201) repeatedly lacked. Stays lightweight by design; do not escalate trivial bugs.
 
 ---
 
