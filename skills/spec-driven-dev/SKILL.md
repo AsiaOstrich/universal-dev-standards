@@ -200,12 +200,14 @@ is a faithful projection of the AC spine across specs.
 | **cross-spec conflict** | same AC id defined in >1 spec / 同 AC id 跨多 spec | 🔴 BLOCKING |
 | **orphan .feature** | Gherkin `@AC-N` tag referencing a non-existent AC / @AC-N 引用不存在 | 🔴 BLOCKING |
 | **AC w/o scenario** | AC has no `.feature` scenario (when BDD in use) / AC 無 BDD scenario | report only / 僅報告 |
+| **user-guide drift** | user-guide `T-N` with no matching journey/E2E test id / 手冊 T-N 無對應測試 | 🔴 BLOCKING |
 
 Coverage % uses the acceptance-criteria-traceability formula (not_implemented excluded). `--json` for CI.
 
 ```
-npm run sdd:analyze -- --specs specs --tests tests [--json]
+npm run sdd:analyze -- --specs specs --tests tests [--userguide docs] [--json]
 ```
+`--userguide <dir>` enables user-guide↔E2E drift detection (T-NNN, XSPEC-260/257). / 啟用手冊↔E2E drift 偵測。
 
 **vs `/ac-coverage`**: ac-coverage = per-spec detailed AC↔test matrix；`/sdd analyze` = cross-spec/batch consistency + orphan detection（互補、不取代）。
 

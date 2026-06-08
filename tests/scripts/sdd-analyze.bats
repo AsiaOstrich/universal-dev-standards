@@ -100,3 +100,26 @@ run_analyze() {
   [[ "$output" == *"without BDD scenario"* ]]
   [[ "$output" == *"AC-2"* ]]
 }
+
+# ── Phase 3: user-guide ↔ E2E drift (T-NNN) ──────────────────────────────────
+
+@test "user-guide T-NNN with no matching test id blocks with exit 1 (drift)" {
+  mkdir -p "$PROJ/docs"
+  printf -- '- AC-1: login\n' > "$PROJ/specs/SPEC-001.md"
+  printf '// @AC AC-1\n// T-001 verified here\n' > "$PROJ/tests/a.test.ts"
+  printf '| UG-1 | login | T-001 |\n| UG-2 | logout | T-999 |\n' > "$PROJ/docs/guide.md"
+  run_analyze --userguide "$PROJ/docs"
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"drift"* ]]
+  [[ "$output" == *"T-999"* ]]
+}
+
+@test "user-guide T-NNN matching a real test id is not drift" {
+  mkdir -p "$PROJ/docs"
+  printf -- '- AC-1: login\n' > "$PROJ/specs/SPEC-001.md"
+  printf '// @AC AC-1\n// T-001\n' > "$PROJ/tests/a.test.ts"
+  printf '| UG-1 | login | T-001 |\n' > "$PROJ/docs/guide.md"
+  run_analyze --userguide "$PROJ/docs"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Status: OK"* ]]
+}
