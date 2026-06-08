@@ -25,6 +25,7 @@
     "check:release-signoff": "tsx scripts/check-release-readiness-signoff.ts",
     "check:workflow-compliance": "tsx scripts/check-workflow-compliance.ts",
     "check:skill-integrity": "tsx scripts/check-skill-structural-integrity.ts",
+    "sdd:analyze": "tsx scripts/sdd-analyze.ts",
     "split-bilingual": "tsx scripts/split-bilingual.ts"
   },
   "type": "module",

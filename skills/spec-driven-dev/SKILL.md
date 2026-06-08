@@ -185,12 +185,34 @@ When modifying existing specs, use delta sections:
 | `## REMOVED Requirements` | Deprecated features | 移除功能 |
 | `## RENAMED Requirements` | Name changes | 重新命名 |
 
+## Cross-Artifact Analysis (`/sdd analyze`) | 跨 artifact 一致性檢查
+
+The **executable face** of the acceptance-criteria-traceability standard +
+forward-derivation single-spine principle (XSPEC-262). Validates that every test
+is a faithful projection of the AC spine across specs.
+本命令是 acceptance-criteria-traceability + forward-derivation single-spine 的**可執行面**，驗證每個測試是否忠實投影 AC 主幹。
+
+| Signal | Meaning | Gate |
+|--------|---------|------|
+| **orphan test** | `@AC AC-NNN` references an AC no spec defines / 引用不存在的 AC | 🔴 BLOCKING |
+| **uncovered** | an AC has no `@AC` reference / AC 無測試引用 | report only / 僅報告 |
+| **not_implemented** | AC marked so in its `.ac.yaml` / `.ac.yaml` 標記 | 🔴 BLOCKING before UAT |
+
+Coverage % uses the acceptance-criteria-traceability formula (not_implemented excluded). `--json` for CI.
+
+```
+npm run sdd:analyze -- --specs specs --tests tests [--json]
+```
+
+**vs `/ac-coverage`**: ac-coverage = per-spec detailed AC↔test matrix；`/sdd analyze` = cross-spec/batch consistency + orphan detection（互補、不取代）。
+
 ## Usage | 使用方式
 
 ```
 /sdd                     - Interactive spec creation wizard | 互動式規格建立精靈
 /sdd auth-flow           - Create spec for specific feature | 為特定功能建立規格
 /sdd review              - Review existing specs | 審查現有規格
+/sdd analyze             - Cross-artifact consistency check | 跨 artifact 一致性檢查
 /sdd --sync-check        - Check sync status | 檢查同步狀態
 ```
 
