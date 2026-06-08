@@ -49,12 +49,21 @@ export interface ACResult {
   tests: string[];
 }
 
+export interface CrossSpecConflict {
+  acId: string;
+  specs: string[]; // distinct spec ids defining the same AC id
+}
+
 export interface AnalysisResult {
   acs: ACResult[];
   orphans: OrphanTest[];
   notImplemented: string[];
   total: number;
   coveragePct: number;
+  // Phase 2 — spec↔.feature sync + cross-spec conflicts
+  crossSpecConflicts: CrossSpecConflict[];
+  featureOrphans: OrphanTest[]; // .feature @AC tag referencing a non-existent AC
+  acsWithoutScenario: string[]; // AC with no .feature scenario (report-only)
   blocking: boolean;
   blockingReasons: string[];
 }
@@ -85,6 +94,15 @@ export function extractTestRefs(content: string, file: string): TestRef[] {
   return out;
 }
 
+/** Extract Gherkin `@AC-NNN` tags from a .feature file (hyphenated, not spaced). */
+export function extractFeatureRefs(content: string, file: string): TestRef[] {
+  const out: TestRef[] = [];
+  for (const m of content.matchAll(/@(AC-(?:\d+-)?\d+)\b/g)) {
+    out.push({ acId: m[1], file });
+  }
+  return out;
+}
+
 /** Read optional `<spec>.ac.yaml` sibling for not_implemented / partial status. */
 export function readAcYamlStatus(acYamlContent: string): Record<string, ACStatus> {
   const map: Record<string, ACStatus> = {};
@@ -106,7 +124,11 @@ export function readAcYamlStatus(acYamlContent: string): Record<string, ACStatus
 
 // ── Core analysis (pure) ──────────────────────────────────────────────────────
 
-export function analyzeConsistency(specACs: SpecAC[], testRefs: TestRef[]): AnalysisResult {
+export function analyzeConsistency(
+  specACs: SpecAC[],
+  testRefs: TestRef[],
+  featureRefs: TestRef[] = []
+): AnalysisResult {
   const specIds = new Set(specACs.map((a) => a.id));
   const refsByAc = new Map<string, string[]>();
   for (const r of testRefs) {
@@ -134,10 +156,34 @@ export function analyzeConsistency(specACs: SpecAC[], testRefs: TestRef[]): Anal
   const denom = acs.length - notImplemented.length;
   const coveragePct = denom > 0 ? Math.round(((covered + partial * 0.5) / denom) * 1000) / 10 : 100;
 
+  // Phase 2 — cross-spec conflicts: same AC id defined in >1 distinct spec.
+  const specsByAc = new Map<string, Set<string>>();
+  for (const a of specACs) {
+    if (!specsByAc.has(a.id)) specsByAc.set(a.id, new Set());
+    specsByAc.get(a.id)!.add(a.specId);
+  }
+  const crossSpecConflicts: CrossSpecConflict[] = [];
+  for (const [acId, specs] of specsByAc) {
+    if (specs.size > 1) crossSpecConflicts.push({ acId, specs: [...specs].sort() });
+  }
+
+  // Phase 2 — spec↔.feature sync.
+  const featureAcSet = new Set(featureRefs.map((r) => r.acId));
+  const featureOrphans: OrphanTest[] = featureRefs
+    .filter((r) => !specIds.has(r.acId))
+    .map((r) => ({ acId: r.acId, file: r.file }));
+  // Only flag missing scenarios when the project actually uses BDD (.feature present).
+  const acsWithoutScenario =
+    featureRefs.length > 0 ? [...specIds].filter((id) => !featureAcSet.has(id)) : [];
+
   const blockingReasons: string[] = [];
   if (orphans.length > 0) blockingReasons.push(`${orphans.length} orphan test reference(s)`);
   if (notImplemented.length > 0)
     blockingReasons.push(`${notImplemented.length} not_implemented AC(s)`);
+  if (crossSpecConflicts.length > 0)
+    blockingReasons.push(`${crossSpecConflicts.length} cross-spec AC id conflict(s)`);
+  if (featureOrphans.length > 0)
+    blockingReasons.push(`${featureOrphans.length} orphan .feature reference(s)`);
 
   return {
     acs,
@@ -145,6 +191,9 @@ export function analyzeConsistency(specACs: SpecAC[], testRefs: TestRef[]): Anal
     notImplemented,
     total: acs.length,
     coveragePct,
+    crossSpecConflicts,
+    featureOrphans,
+    acsWithoutScenario,
     blocking: blockingReasons.length > 0,
     blockingReasons,
   };
@@ -166,6 +215,22 @@ export function formatReport(r: AnalysisResult): string {
   if (r.notImplemented.length) {
     lines.push(`## 🚫 not_implemented (${r.notImplemented.length}) — BLOCKING before UAT`);
     for (const id of r.notImplemented) lines.push(`  - ${id}`);
+    lines.push("");
+  }
+  if (r.crossSpecConflicts.length) {
+    lines.push(`## ⚠️ Cross-spec AC id conflicts (${r.crossSpecConflicts.length}) — BLOCKING`);
+    for (const c of r.crossSpecConflicts)
+      lines.push(`  - \`${c.acId}\` defined in: ${c.specs.join(", ")}`);
+    lines.push("");
+  }
+  if (r.featureOrphans.length) {
+    lines.push(`## ❗ Orphan .feature refs (${r.featureOrphans.length}) — BLOCKING`);
+    for (const o of r.featureOrphans) lines.push(`  - \`${o.acId}\` in ${o.file} — no such AC`);
+    lines.push("");
+  }
+  if (r.acsWithoutScenario.length) {
+    lines.push(`## 📝 AC without BDD scenario (${r.acsWithoutScenario.length}) — report`);
+    for (const id of r.acsWithoutScenario) lines.push(`  - ${id}`);
     lines.push("");
   }
   const uncovered = r.acs.filter((a) => a.status === "uncovered");
@@ -198,6 +263,7 @@ function walk(dir: string, test: (f: string) => boolean): string[] {
 function collectFromDisk(specsDir: string, testsDir: string): {
   specACs: SpecAC[];
   testRefs: TestRef[];
+  featureRefs: TestRef[];
 } {
   const specACs: SpecAC[] = [];
   for (const specFile of walk(specsDir, (f) => f.endsWith(".md"))) {
@@ -223,7 +289,14 @@ function collectFromDisk(specsDir: string, testsDir: string): {
       ...extractTestRefs(fs.readFileSync(testFile, "utf8"), path.relative(testsDir, testFile))
     );
   }
-  return { specACs, testRefs };
+  // Phase 2: .feature files may live under specs/ or tests/
+  const featureRefs: TestRef[] = [];
+  for (const dir of new Set([specsDir, testsDir])) {
+    for (const ff of walk(dir, (f) => f.endsWith(".feature"))) {
+      featureRefs.push(...extractFeatureRefs(fs.readFileSync(ff, "utf8"), path.relative(dir, ff)));
+    }
+  }
+  return { specACs, testRefs, featureRefs };
 }
 
 function main(argv: string[]): void {
@@ -236,8 +309,8 @@ function main(argv: string[]): void {
   const testsDir = path.resolve(root, getArg("--tests", "tests"));
   const asJson = argv.includes("--json");
 
-  const { specACs, testRefs } = collectFromDisk(specsDir, testsDir);
-  const result = analyzeConsistency(specACs, testRefs);
+  const { specACs, testRefs, featureRefs } = collectFromDisk(specsDir, testsDir);
+  const result = analyzeConsistency(specACs, testRefs, featureRefs);
 
   if (asJson) {
     console.log(JSON.stringify(result, null, 2));

@@ -68,3 +68,35 @@ run_analyze() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"Status: OK"* ]]
 }
+
+# ── Phase 2: spec↔.feature sync + cross-spec conflicts ───────────────────────
+
+@test "cross-spec AC id conflict blocks with exit 1" {
+  printf -- '- AC-1: defined in spec A\n' > "$PROJ/specs/SPEC-A.md"
+  printf -- '- AC-1: defined in spec B\n' > "$PROJ/specs/SPEC-B.md"
+  printf '// @AC AC-1\n' > "$PROJ/tests/a.test.ts"
+  run_analyze
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Cross-spec"* ]]
+  [[ "$output" == *"AC-1"* ]]
+}
+
+@test "orphan .feature reference blocks with exit 1" {
+  printf -- '- AC-1: login\n' > "$PROJ/specs/SPEC-001.md"
+  printf '@AC-1\nScenario: ok\n@AC-999\nScenario: orphan\n' > "$PROJ/tests/x.feature"
+  printf '// @AC AC-1\n' > "$PROJ/tests/a.test.ts"
+  run_analyze
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Orphan .feature"* ]]
+  [[ "$output" == *"AC-999"* ]]
+}
+
+@test "AC without BDD scenario reported when .feature present (non-blocking)" {
+  printf -- '- AC-1: has scenario\n- AC-2: no scenario\n' > "$PROJ/specs/SPEC-001.md"
+  printf '@AC-1\nScenario: ok\n' > "$PROJ/tests/x.feature"
+  printf '// @AC AC-1\n// @AC AC-2\n' > "$PROJ/tests/a.test.ts"
+  run_analyze
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"without BDD scenario"* ]]
+  [[ "$output" == *"AC-2"* ]]
+}
