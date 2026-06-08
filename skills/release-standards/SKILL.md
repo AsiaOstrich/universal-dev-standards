@@ -49,11 +49,25 @@ Configure via `uds init` or `uds config --type release_mode`:
 ## Workflow | 工作流程
 
 1. **Determine version** - Decide version type based on changes (MAJOR/MINOR/PATCH)
-2. **Update version files** - Update package.json and related version references
-3. **Update CHANGELOG** - Move [Unreleased] entries to new version section
-4. **Run pre-release checks** - Verify tests, lint, and standards compliance
-5. **Create git tag** - Tag with `vX.Y.Z` format
-6. **Commit and push** - Commit version bump and push tags
+2. **Triage open issues/PRs** - `gh pr list` + `gh issue list`; classify each **bring-in vs defer** (XSPEC-265) / 掃描 issue/PR、每項二分（帶上 vs backlog）
+3. **Update version files** - Update package.json and related version references
+4. **Update CHANGELOG** - Move [Unreleased] entries to new version section
+5. **Run pre-release checks** - Verify tests, lint, standards compliance, **and issue/PR triage gate**
+6. **Create git tag** - Tag with `vX.Y.Z` format
+7. **Commit and push** - Commit version bump and push tags
+
+### Pre-release Issue/PR Triage Gate | 發版前 issue/PR triage 閘門 (XSPEC-265)
+
+Before bumping, scan open issues/PRs and make a conscious decision per item — do **not** rely on memory:
+
+| Class | Action |
+|-------|--------|
+| **Bring-in** | patch dependabot PR / release-blocking bug / fix relevant to this version's theme → merge before bump |
+| **Defer** | major PR, audit/enhancement issue, needs separate evaluation → record in signoff "deferred" + release-notes Known Issues |
+
+- Confirm `cross-project/sub-project-triage.md` snapshot is recent (≤7 days); refresh if stale.
+- Record the result in the release sign-off (Tier-1): `Pre-release issue/PR triage | PASS | N PRs / M issues: X merged / Y deferred`.
+- **Do not require emptying the backlog** — only that every item has a conscious decision + a record. 不要求清空 backlog，只要求每項有意識決策 + 留紀錄。
 
 ### Version Increment Rules | 版本遞增規則
 
