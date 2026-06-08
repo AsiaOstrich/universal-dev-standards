@@ -8,8 +8,8 @@ status: current
 
 # 规格驱动开发 (SDD) 标准
 
-**版本**: 2.2.0
-**最后更新**: 2026-03-30
+**版本**: 2.3.0
+**最后更新**: 2026-06-08
 **适用范围**: 所有采用规格驱动开发的项目
 **范围**: universal
 
@@ -118,6 +118,20 @@ SDD **不是** "ATDD → BDD → TDD" 序列的一部分。相反，它通过正
 - [GitHub spec-kit](https://github.com/github/spec-kit/blob/main/spec-driven.md)
 
 ---
+
+## AC 格式
+
+UDS 支持两种 AC 记法。**GWT 为预设与首选**（Forward Derivation／BDD 场景生成依赖它）。**EARS**（Easy Approach to Requirements Syntax，IBM Rational）为可选补充，对事件／状态／恒常／异常需求表达更精准（XSPEC-263）。
+
+| EARS 型 | 模板 | 用于 |
+|---------|------|------|
+| 恒常 Ubiquitous | `THE SYSTEM SHALL <response>` | 恒常需求（无触发）|
+| 事件驱动 Event-driven | `WHEN <trigger> THE SYSTEM SHALL <response>` | 事件触发 |
+| 状态驱动 State-driven | `WHILE <state> THE SYSTEM SHALL <response>` | 状态持续期间 |
+| 异常 Unwanted | `IF <condition>, THEN THE SYSTEM SHALL <response>` | 错误／异常处理 |
+| 选配 Optional | `WHERE <feature included> THE SYSTEM SHALL <response>` | 选配功能 |
+
+每个 AC 提供 **GWT 或 EARS** 之一（`.ac.yaml` 的 `given/when/then` 或 `ears`）。BDD 可推导行为优先 GWT；GWT 表达牵强时改用 EARS。不强制两者并存、不移除 GWT。
 
 ## 常见陷阱
 

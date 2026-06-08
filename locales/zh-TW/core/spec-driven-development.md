@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../core/spec-driven-development.md) | 繁體中文
 
-**版本**: 2.2.0
-**最後更新**: 2026-03-30
+**版本**: 2.3.0
+**最後更新**: 2026-06-08
 **適用性**: 所有採用規格驅動開發的專案
 **範圍**: 通用 (Universal)
 
@@ -37,6 +37,24 @@ SDD 的核心流程：**討論 → 規格提案 → 規格審查 → 實作 → 
 | **主要產物** | Markdown 規格文件 (`docs/specs/`) |
 | **參與者** | 架構師、開發者、AI 助手 |
 | **驗證方式** | 規格審查、正向推演 (Forward Derivation) |
+
+## AC 格式
+
+UDS 支援兩種 AC 記法。**GWT 為預設與首選**（Forward Derivation／BDD 場景生成依賴它）。**EARS**（Easy Approach to Requirements Syntax，IBM Rational）為可選補充，對事件／狀態／恆常／異常需求表達更精準。
+
+| EARS 型 | 模板 | 用於 |
+|---------|------|------|
+| 恆常 Ubiquitous | `THE SYSTEM SHALL <response>` | 恆常需求（無觸發）|
+| 事件驅動 Event-driven | `WHEN <trigger> THE SYSTEM SHALL <response>` | 事件觸發 |
+| 狀態驅動 State-driven | `WHILE <state> THE SYSTEM SHALL <response>` | 狀態持續期間 |
+| 異常 Unwanted | `IF <condition>, THEN THE SYSTEM SHALL <response>` | 錯誤／異常處理 |
+| 選配 Optional | `WHERE <feature included> THE SYSTEM SHALL <response>` | 選配功能 |
+
+每個 AC 提供 **GWT 或 EARS** 之一（`.ac.yaml` 的 `given/when/then` 或 `ears`）。BDD 可推導行為優先 GWT；GWT 表達牽強時改用 EARS。不強制兩者並存、不移除 GWT。
+
+## v2.3.0 新增內容
+
+- **EARS 記法** 作為可選 AC 格式（XSPEC-263）：5 種 EARS 模板 + `.ac.yaml` `ears` 欄位。GWT 維持預設與首選；`given/when/then` 由 required 放寬（向後相容）。
 
 ## v2.2.0 新增內容
 

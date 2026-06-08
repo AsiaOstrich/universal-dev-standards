@@ -28,9 +28,7 @@ properties:
       required:
         - id
         - title
-        - given
-        - when
-        - then
+      # XSPEC-263: provide GWT (given/when/then — default, preferred for BDD derivation) OR ears.
       properties:
         id:
           type: string
@@ -48,6 +46,16 @@ properties:
         then:
           type: string
           description: Expected outcome (Then clause)
+        ears:
+          type: string
+          description: >-
+            Optional EARS-notation AC (XSPEC-263). Use instead of GWT for
+            ubiquitous / event-driven / state-driven / unwanted / optional
+            requirements. Templates: 'THE SYSTEM SHALL <response>' |
+            'WHEN <trigger> THE SYSTEM SHALL <response>' |
+            'WHILE <state> THE SYSTEM SHALL <response>' |
+            'IF <condition>, THEN THE SYSTEM SHALL <response>' |
+            'WHERE <feature> THE SYSTEM SHALL <response>'. GWT remains preferred.
         tags:
           type: array
           items:
