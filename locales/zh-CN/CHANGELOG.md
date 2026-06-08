@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.15.1
-translation_version: 5.15.1
-last_synced: 2026-05-31
+source_version: 5.16.0
+translation_version: 5.16.0
+last_synced: 2026-06-08
 status: current
 ---
 
@@ -16,6 +16,16 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.16.0] - 2026-06-08
+
+### 新增 — 测试推导链延伸至用户指南（XSPEC-260）
+
+- **`core/forward-derivation-standards.md`**：新增 `## Terminal Projection: User Guide`（终端投影：用户指南）段 + `### Single-Spine Principle`（单一主干原则）。把推导管道从测试延伸到用户指南——用户指南是 journey／E2E 测试以机器验证的同一条 AC 主干的终端投影。定义共用 `T-NNN` 编号（用户指南步骤的 `T-NNN` 必须等于某个真实 journey／E2E 测试的 id）、user-facing AC 筛选与保守预设，以及单一主干原则：测试／文件来源是同一 AC 主干的 N×1 投影、非 N×N 平行对照；另立平行编号体系即为违规。
+- **`ai/standards/forward-derivation-standards.ai.yaml`**：对应 `terminal_projection` 区块 + 3 条 rules（`single-spine-no-parallel-numbering`、`user-guide-shared-tnnn`、`user-facing-ac-conservative-default`）。
+- **`core/acceptance-criteria-traceability.md`**：新增 `## User-Documentation Coverage`（用户文件覆盖）维度——追踪 user-facing AC 是否被用户指南记载。含 user-facing AC 筛选（保守预设：判不准归 user-facing）、沿用 ✅/⚠️/❌ 状态，及排除非 user-facing 与 `not_implemented` AC 的覆盖率公式。
+- **`ai/standards/acceptance-criteria-traceability.ai.yaml`**：对应 `user_doc_coverage` 区块 + 2 条 rules（`user-doc-user-facing-only`、`user-doc-shared-tnnn`）。
+- **zh-TW / zh-CN 语言版**：两标准的新段落均完整翻译。
 
 ## [5.15.0] - 2026-05-28
 

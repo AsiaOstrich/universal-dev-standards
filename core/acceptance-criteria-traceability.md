@@ -140,6 +140,52 @@ The gate clears only when all `not_implemented` ACs are updated to `uncovered`, 
 
 ---
 
+## User-Documentation Coverage | 使用者文件覆蓋
+
+The AC↔test matrix above verifies that AC are *tested*. A second dimension verifies that **user-facing AC are also documented** for the end user. This extends the traceability spine past tests to the user guide — see Forward Derivation Standards → *Terminal Projection: User Guide*. The user guide and the journey/E2E suite are two projections of one workflow, so they share one ruler: `T-NNN`.
+
+### User-Facing AC Filter
+
+Apply the user-doc dimension **only to user-facing AC** — those an end user can directly observe or operate. This prevents the dimension from degrading into a blanket documentation obligation on every internal AC.
+
+| AC kind | User-facing? |
+|---------|--------------|
+| UI flow, screen, navigation | Yes |
+| CLI command / flag a user runs | Yes |
+| User-facing API semantics (public contract a user calls) | Yes |
+| Internal refactor / module contract | No |
+| Performance threshold, capacity | No |
+| Security control, internal guardrail | No |
+
+**Conservative default**: when in doubt, treat the AC as user-facing. Excluding an AC requires **explicit marking** (e.g. `user_facing: false`), never silent omission.
+
+### User-Doc Status
+
+Reuse the same symbols, now answering "is this user-facing AC covered by a user-guide step?":
+
+| Status | Symbol | Definition |
+|--------|--------|------------|
+| **Documented** | ✅ | A user-guide step covers this AC, tagged with the AC's shared `T-NNN` |
+| **Partial** | ⚠️ | A user-guide step exists but is incomplete or ambiguously tagged |
+| **Undocumented** | ❌ | No user-guide step references this user-facing AC |
+
+`not_implemented` (🚫) AC are excluded from the user-doc denominator, exactly as in the test-coverage calculation.
+
+### User-Doc Coverage Calculation
+
+```
+User-Doc Coverage % = (documented + partial × 0.5) / (user_facing_ac_count - not_implemented_count) × 100
+
+Where:
+  user_facing_ac_count = count of AC classified user-facing (conservative default applies)
+  non-user-facing AC are counted in neither numerator nor denominator
+  partial counts as 0.5
+```
+
+> **Single ruler**: a user-guide step's `T-NNN` MUST equal a real journey/E2E test id (Forward Derivation Standards). This binds three projections of one AC — test, journey, and user guide — to a single spine. A user-guide step that mints a parallel id with no matching test is reported as **undocumented**, never as covered.
+
+---
+
 ## Quality Thresholds
 
 ### Default Thresholds

@@ -99,6 +99,20 @@ ac_level_summary:
   description: "Output AC Level Summary at end of /derive all"
   format: "| AC | Suggested Level | Rationale |"
 
+# Terminal Projection: User Guide (extends the chain past tests)
+terminal_projection:
+  description: "The user guide is the terminal projection of the derivation chain — the human-readable view of the same workflow E2E/journey tests verify by machine"
+  single_source_of_truth: "AC spine — BDD, TDD/IT/E2E, ATDD, contracts, and the user guide are all projections of the same AC"
+  user_facing_filter:
+    rule: "A user-guide step is required only for an AC an end user can directly observe or operate (UI flow, CLI command, user-facing API semantics)"
+    excluded: "Purely internal AC (refactor, internal module contracts, performance thresholds, security controls) carry no user-guide obligation"
+    default: "When in doubt, treat the AC as user-facing; explicit marking is required to exclude"
+  shared_numbering:
+    rule: "Each user-guide step is tagged T-NNN, and that T-NNN MUST be the id of a real journey/E2E test"
+    ambiguous: "Ambiguous or missing tags are reported as uncovered (prefer redundancy over omission)"
+    violation: "Minting a parallel T-NNN-style series detached from the AC spine"
+  single_spine_principle: "Test and documentation sources are layered projections of one AC spine (N×1), not independent sources cross-checking one another pairwise (N×N); TDD/IT/E2E are pyramid layers of the same spine, not rival sources"
+
 # Certainty Framework
 certainty_framework:
   tags:
@@ -170,6 +184,15 @@ rules:
     priority: recommended
   - id: ac-level-summary
     instruction: Output AC Level Summary table at end of /derive all
+    priority: recommended
+  - id: single-spine-no-parallel-numbering
+    instruction: Every test/doc artifact must trace back to the AC spine; never mint a parallel T-NNN-style series detached from it
+    priority: required
+  - id: user-guide-shared-tnnn
+    instruction: A user-guide step's T-NNN must equal a real journey/E2E test id; ambiguous or missing tags are reported as uncovered
+    priority: required
+  - id: user-facing-ac-conservative-default
+    instruction: User-guide obligation applies to user-facing AC only; when in doubt treat as user-facing, explicit marking to exclude
     priority: recommended
 
 related_standards:

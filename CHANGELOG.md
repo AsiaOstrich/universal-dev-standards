@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.16.0] - 2026-06-08
+
+### Added — Test Derivation Chain Extended to the User Guide (XSPEC-260)
+
+- **`core/forward-derivation-standards.md`**: New `## Terminal Projection: User Guide` section + `### Single-Spine Principle`. Extends the derivation pipeline past tests to the user guide — the user guide is the terminal projection of the same AC spine that journey/E2E tests verify by machine. Defines shared `T-NNN` numbering (a user-guide step's `T-NNN` MUST equal a real journey/E2E test id), the user-facing AC filter with conservative default, and the single-spine principle: test/doc sources are N×1 projections of one AC spine, not N×N parallel cross-checks; minting a parallel numbering scheme is a VIOLATION.
+- **`ai/standards/forward-derivation-standards.ai.yaml`**: Mirrored `terminal_projection` block + 3 rules (`single-spine-no-parallel-numbering`, `user-guide-shared-tnnn`, `user-facing-ac-conservative-default`).
+- **`core/acceptance-criteria-traceability.md`**: New `## User-Documentation Coverage` dimension — tracks whether user-facing AC are documented in the user guide. Includes a user-facing AC filter (conservative default: when in doubt, user-facing), reused ✅/⚠️/❌ status, and a coverage formula excluding non-user-facing and `not_implemented` AC.
+- **`ai/standards/acceptance-criteria-traceability.ai.yaml`**: Mirrored `user_doc_coverage` block + 2 rules (`user-doc-user-facing-only`, `user-doc-shared-tnnn`).
+- **zh-TW / zh-CN locales**: Both new sections fully translated for both standards.
+
 ## [5.15.0] - 2026-05-28
 
 ### Added — i18n Layered Language Strategy (XSPEC-239)

@@ -108,6 +108,27 @@ standard:
         AC Coverage: <pct>% (<covered>/<implemented_total> implemented ACs)
         Status: BLOCKED by <not_impl_count> not_implemented AC(s)
 
+  user_doc_coverage:
+    description: "Second dimension: are user-facing AC also documented in the user guide? Extends the traceability spine past tests to the user guide (Forward Derivation Standards -> Terminal Projection: User Guide)"
+    user_facing_filter:
+      rule: "Apply only to user-facing AC — those an end user can directly observe or operate (UI flow, CLI command, user-facing API semantics)"
+      excluded: "Internal refactor/module contracts, performance thresholds, security/internal guardrails"
+      conservative_default: "When in doubt treat AC as user-facing; excluding requires explicit 'user_facing: false', never silent omission"
+    status:
+      - status: documented
+        symbol: "✅"
+        definition: "A user-guide step covers this AC, tagged with the AC's shared T-NNN"
+      - status: partial
+        symbol: "⚠️"
+        definition: "A user-guide step exists but is incomplete or ambiguously tagged"
+      - status: undocumented
+        symbol: "❌"
+        definition: "No user-guide step references this user-facing AC"
+    calculation: |
+      user_doc_coverage = (documented + partial × 0.5) / (user_facing_ac_count - not_implemented_count) × 100
+      non-user-facing AC counted in neither numerator nor denominator; partial = 0.5; not_implemented excluded from denominator
+    shared_ruler: "A user-guide step's T-NNN MUST equal a real journey/E2E test id (single spine: test + journey + user guide). A parallel id with no matching test is reported undocumented, never covered"
+
   quality_thresholds:
     defaults:
       - name: Minimum AC Coverage
@@ -220,6 +241,16 @@ standard:
     - id: spec-quality
       trigger: generating specifications automatically
       instruction: Validate generated AC against SMART criteria and testability
+      priority: required
+
+    - id: user-doc-user-facing-only
+      trigger: computing the user-doc coverage dimension
+      instruction: "Apply user-doc coverage only to user-facing AC; when in doubt treat as user-facing, exclude only with an explicit 'user_facing: false' marking"
+      priority: recommended
+
+    - id: user-doc-shared-tnnn
+      trigger: linking a user-guide step to an AC
+      instruction: "A user-guide step's T-NNN must equal a real journey/E2E test id; a parallel id with no matching test is reported undocumented, never covered"
       priority: required
 
 related_standards:

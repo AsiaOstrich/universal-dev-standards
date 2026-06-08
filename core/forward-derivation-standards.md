@@ -515,6 +515,25 @@ spec-review → forward-derivation → discovery
 
 ---
 
+## Terminal Projection: User Guide | 終端投影：使用者指南
+
+The derivation chain does not stop at tests. The **user guide is the terminal projection** of the same chain — the human-readable view of the very workflow that E2E/journey tests verify by machine. "What the user reads as steps" and "what E2E actually verifies as behavior" become one maintained invariant.
+
+- **Single source of truth**: the SPEC's acceptance criteria (AC). Every downstream artifact — BDD scenarios, TDD/IT/E2E skeletons, ATDD tables, contracts, **and the user guide** — is a projection of the same AC spine. The user guide is not a separate source to be cross-checked; it is one more projection.
+- **User-facing AC only**: a user-guide step is required only for an AC that an **end user can directly observe or operate** (UI flow, CLI command, user-facing API semantics). Purely internal AC (refactor, internal module contracts, performance thresholds, security controls) carry no user-guide obligation. **When in doubt, treat the AC as user-facing** — conservative default; explicit marking is required to exclude.
+- **Shared numbering (`T-NNN`)**: each user-guide step is tagged `T-NNN`, and that `T-NNN` MUST be the id of a real journey/E2E test. The user guide and the E2E suite are two projections of one workflow sharing one ruler. Ambiguous or missing tags are reported as **uncovered** (prefer redundancy over omission).
+  - ✅ user-guide step `T-012 "Create a project"` ↔ E2E test `T-012` in the journey spec.
+  - ❌ user guide invents `UG-3` with no corresponding test → drift, reported as uncovered.
+- **Drift example**: user guide says "2-click checkout" while E2E still verifies "3-step payment" — without shared numbering, no one notices. Shared `T-NNN` turns this drift into a reported coverage gap.
+
+### Single-Spine Principle (not parallel cross-check)
+
+Test and documentation sources are **multiple layered projections of one AC spine**, not independent sources of truth that cross-check one another. TDD/IT/E2E are pyramid *layers* of the same spine (see Test Level Decision Tree), not rival sources. Cross-checking N sources pairwise (N×N) breeds drift; projecting each artifact back to the single AC spine (N×1) eliminates it.
+
+> **Rule**: every test or documentation artifact MUST trace back to an AC. Minting a **parallel numbering scheme** — a second `T-NNN`-style series detached from the AC spine — is a VIOLATION. There is one ruler: the AC spine, with `T-NNN` shared between journey/E2E tests and the user guide.
+
+---
+
 ## Test Level Decision Tree
 
 根據 AC 的性質決定應生成哪種測試層級：
