@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.16.0
-translation_version: 5.16.0
+source_version: 5.17.0
+translation_version: 5.17.0
 last_synced: 2026-06-08
 status: current
 ---
@@ -16,6 +16,16 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [5.17.0] - 2026-06-08
+
+### 新增 — 可執行 SDD 一致性與 AC 格式擴充（XSPEC-262/263/264）
+
+- **`/sdd analyze` 跨 artifact 一致性（XSPEC-262，`scripts/sdd-analyze.ts`）**：acceptance-criteria-traceability + forward-derivation single-spine 的可執行面。7 類信號——孤兒測試／未覆蓋／not_implemented／跨 spec AC 衝突／孤兒 .feature／AC 無 scenario／手冊↔E2E drift（`T-NNN`，實現 XSPEC-260 R5）。`npm run sdd:analyze`；12 bats 測試。
+- **EARS 記法作為可選 AC 格式（XSPEC-263）**：spec-driven-development v2.3.0 加 5 種 EARS 模板；schema 加可選 `ears` 欄位（given/when/then 由 required 放寬、向後相容）。GWT 維持預設首選。
+- **結構化 Bugfix 規格模板（XSPEC-264）**：sdd-guide 決策樹細分 trivial vs regression-prone，新增輕量 `<BUG-ID>.bugfix.md` 模板（current/expected/**unchanged** + root-cause + regression-test 當 AC）。
+
+> 註：Bugfix 模板的 sdd-guide locale（zh-TW/zh-CN）同步交 XSPEC-248 迴路（既有 locale drift）。
 
 ## [5.16.0] - 2026-06-08
 

@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.17.0] - 2026-06-08
+
+### Added — Executable SDD consistency & AC-format extensions (XSPEC-262/263/264)
+
+- **`/sdd analyze` — cross-artifact consistency (XSPEC-262, `scripts/sdd-analyze.ts`)**: the executable face of acceptance-criteria-traceability + forward-derivation single-spine. 7 signals — orphan test / uncovered / not_implemented / cross-spec AC conflict / orphan .feature / AC-without-scenario / user-guide↔E2E drift (`T-NNN`, fulfilling XSPEC-260 R5). `npm run sdd:analyze [-- --userguide docs --json]`; 12 bats tests. `/sdd` skill documents the action + ac-coverage division of labour.
+- **EARS notation as optional AC format (XSPEC-263)**: `spec-driven-development` v2.2.0→v2.3.0 adds an AC Formats section with 5 EARS templates; `acceptance-criteria.schema.yaml` gains an optional `ears` field (`given/when/then` relaxed from required, backward compatible). GWT remains default & preferred.
+- **Structured Bugfix Spec Template (XSPEC-264)**: `sdd-guide.md` splits the bug decision-tree into trivial vs regression-prone, and adds a lightweight `<BUG-ID>.bugfix.md` template (current/expected/**unchanged** behavior + root-cause + regression-test-as-AC).
+
+> Note: `sdd-guide` locale (zh-TW/zh-CN) sync for the Bugfix template is deferred to the XSPEC-248 feature-review loop (pre-existing locale drift).
+
 ## [5.16.0] - 2026-06-08
 
 ### Added — Test Derivation Chain Extended to the User Guide (XSPEC-260)
