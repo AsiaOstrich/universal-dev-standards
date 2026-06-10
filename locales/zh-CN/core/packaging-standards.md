@@ -1,8 +1,9 @@
 ---
 source: ../../../core/packaging-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-04-20
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-06-10
+source_hash: aa338edba3b1
 status: current
 ---
 
@@ -10,8 +11,8 @@ status: current
 
 > **语言**: [English](../../../core/packaging-standards.md) | 简体中文
 
-**版本**: 1.0.0
-**最后更新**: 2026-04-15
+**版本**: 1.1.0
+**最后更新**: 2026-05-26
 **适用性**: 使用 UDS-aware 工具链的项目
 **范围**: 通用 (Universal)
 
@@ -202,6 +203,75 @@ targets:
 
 ---
 
+## 归档格式完整性
+
+当打包步骤生成将被部署脚本使用的归档（`.zip`、`.tar.gz`、`.tar.bz2` 等）时，**真实的二进制格式必须与文件扩展名一致**。命名为 `.zip` 的文件必须是真正的 ZIP 归档（PKZip 魔数 `PK\x03\x04`），而不是改名后的 tar 归档。
+
+> **为何必须：** 格式不匹配的归档会触发下游静默失败。PowerShell 的 `Expand-Archive` 和 `[System.IO.Compression.ZipFile]::ExtractToDirectory()` 会**不抛出任何错误地**接受 tar 改名为 `.zip` 的文件——文件被读取，但什么都不会被解压，且没有任何异常。若部署脚本的下一步是破坏性操作（例如"删除当前安装目录"），则运行中的安装将被销毁而无任何内容可替换。
+
+### 发布前验证
+
+每个生成归档的打包步骤**必须**在声明成功前包含格式验证。最低验证要求：
+
+| 格式 | 验证单行命令 |
+|---|---|
+| `.zip` | `python -c "import zipfile; zipfile.ZipFile('out.zip').namelist()"` 必须成功 |
+| `.zip`（Unix） | `file out.zip` 必须报告 `Zip archive data`，**不得**为 `POSIX tar archive` |
+| `.tar.gz` | `tar -tzf out.tar.gz >/dev/null` 必须成功 |
+| 任意格式 | 可选：对预期文件清单进行哈希比对 |
+
+验证失败必须在发布前终止打包流水线。
+
+### 各平台配置示例
+
+**Windows — 应当使用：**
+
+```powershell
+# 选项 A：PowerShell 内置（生成真正的 ZIP）
+Compress-Archive -Path "publish\*" -DestinationPath "dist\patch.zip" -Force
+
+# 选项 B：.NET API（生成真正的 ZIP）
+Add-Type -Assembly System.IO.Compression.FileSystem
+[System.IO.Compression.ZipFile]::CreateFromDirectory(
+    "publish", "dist\patch.zip", "Optimal", $false
+)
+```
+
+**Windows — 不应使用：**
+
+```bash
+# ❌ git-bash / busybox 的 tar -a -cf 在 Windows 上不可靠
+# -a "按扩展名自动选择格式" 标志会生成带 .zip 扩展名的 POSIX tar 归档。
+# `file patch.zip` → "POSIX tar archive (GNU)"（而非 "Zip archive data"）
+cd publish && tar -a -cf "../dist/patch.zip" api/
+```
+
+**类 Unix 系统 — 应当使用：**
+
+```bash
+# 使用 'zip' 生成 ZIP 归档（BSD/Linux）
+zip -r dist/patch.zip publish/
+
+# 使用 'tar -czf'（不加 -a）生成 tar.gz 归档——明确、确定
+tar -czf dist/patch.tar.gz publish/
+
+# 发布前验证
+file dist/patch.zip            # 期望 "Zip archive data"
+python -c "import zipfile; zipfile.ZipFile('dist/patch.zip').namelist()"
+```
+
+### 消费者侧防御
+
+生产者无法保证消费者会进行验证。消费者（部署脚本）**必须**在任何破坏性操作前验证归档完整性。消费者侧要求参见[部署标准 — 防御性部署排序](deployment-standards.md#防御性部署排序)。
+
+### 失败模式参考（真实事故）
+
+某 Windows IIS 生产部署脚本（2026-05-24）在 git-bash 中使用 `tar -a -cf patch.zip api/` 生成发布归档。消费者侧的 PowerShell 部署脚本随后执行了 `Expand-Archive`（对该 tar 改名文件静默无操作），继续对运行中的 `apiDir` 执行 `Remove-Item -Recurse`，然后从根本不存在的源路径执行 `Copy-Item`（因为什么都没有被解压）。运行中的安装被清空，AppPool 停止，生产环境中断了约 3 分钟，直到基于备份的回滚完成。
+
+（a）生产者使用自动扩展名 tar，（b）消费者未验证解压输出——这两个因素共同造成了运行中的安装被销毁，且整个过程无任何错误被报告。
+
+---
+
 ## 相关标准
 
 - [部署标准](deployment-standards.md) — 打包后的部署阶段
@@ -215,6 +285,7 @@ targets:
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.1.0 | 2026-05-26 | 新增：归档格式完整性章节——真实格式必须与扩展名一致的规则、验证单行命令、Windows 配置 DO/DON'T 列表、真实事故参考（XSPEC-231 / 关闭 issue #113） |
 | 1.0.0 | 2026-04-15 | 初始发行 — XSPEC-034 Phase 1 |
 
 ---

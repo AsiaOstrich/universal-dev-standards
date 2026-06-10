@@ -1,8 +1,9 @@
 ---
 source: ../../../core/packaging-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-04-15
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-06-10
+source_hash: aa338edba3b1
 status: current
 ---
 
@@ -10,8 +11,8 @@ status: current
 
 > **語言**: [English](../../../core/packaging-standards.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-04-15
+**版本**: 1.1.0
+**最後更新**: 2026-05-26
 **適用性**: 使用 UDS-aware 工具鏈的專案
 **範圍**: 通用 (Universal)
 
@@ -202,6 +203,75 @@ targets:
 
 ---
 
+## Archive 格式完整性
+
+當打包步驟產生將由部署腳本消費的 archive（`.zip`、`.tar.gz`、`.tar.bz2` 等）時，**真實的二進位格式必須與副檔名相符**。命名為 `.zip` 的檔案必須是真正的 ZIP archive（PKZip magic `PK\x03\x04`），而非改名的 tar archive。
+
+> **為何強制要求：** archive 格式不符會在下游觸發靜默失敗。PowerShell 的 `Expand-Archive` 和 `[System.IO.Compression.ZipFile]::ExtractToDirectory()` 接受 tar 改名的 `.zip` **而不拋出錯誤**——檔案被讀取，什麼都沒有解壓縮，也沒有例外。若部署腳本的下一步是破壞性的（例如「刪除現有安裝目錄」），運行中的安裝就會被摧毀而無任何替代物。
+
+### 發布前驗證
+
+每個產生 archive 的打包步驟**必須**在宣告成功前包含格式驗證。最低驗證要求：
+
+| 格式 | 驗證單行指令 |
+|---|---|
+| `.zip` | `python -c "import zipfile; zipfile.ZipFile('out.zip').namelist()"` 必須成功 |
+| `.zip`（Unix） | `file out.zip` 必須回報 `Zip archive data`，**而非** `POSIX tar archive` |
+| `.tar.gz` | `tar -tzf out.tar.gz >/dev/null` 必須成功 |
+| 任何格式 | 選用：雜湊比對預期檔案的 manifest |
+
+驗證失敗必須在發布前中止打包管線。
+
+### 各平台設定範例
+
+**Windows — 應該這樣做：**
+
+```powershell
+# 選項 A：PowerShell 內建（產生真正的 ZIP）
+Compress-Archive -Path "publish\*" -DestinationPath "dist\patch.zip" -Force
+
+# 選項 B：.NET API（產生真正的 ZIP）
+Add-Type -Assembly System.IO.Compression.FileSystem
+[System.IO.Compression.ZipFile]::CreateFromDirectory(
+    "publish", "dist\patch.zip", "Optimal", $false
+)
+```
+
+**Windows — 不應該這樣做：**
+
+```bash
+# ❌ git-bash / busybox tar -a -cf 在 Windows 上不可靠
+# -a「依副檔名自動」旗標會產生副檔名為 .zip 的 POSIX tar archive。
+# `file patch.zip` → "POSIX tar archive (GNU)"（而非 "Zip archive data"）
+cd publish && tar -a -cf "../dist/patch.zip" api/
+```
+
+**類 Unix — 應該這樣做：**
+
+```bash
+# ZIP archive 使用 'zip'（BSD/Linux）
+zip -r dist/patch.zip publish/
+
+# tar.gz archive 使用 'tar -czf'（不加 -a）——明確且確定性
+tar -czf dist/patch.tar.gz publish/
+
+# 發布前驗證
+file dist/patch.zip            # 預期 "Zip archive data"
+python -c "import zipfile; zipfile.ZipFile('dist/patch.zip').namelist()"
+```
+
+### 消費端防禦
+
+生產端無法保證消費端一定會驗證。消費端（部署腳本）**必須**在任何破壞性動作前驗證 archive 完整性。消費端需求請參閱[部署標準 — 防禦性部署順序](deployment-standards.md#防禦性部署順序)。
+
+### 失敗模式參考（真實事故）
+
+一個 Windows IIS 正式部署腳本（2026-05-24）在 git-bash 中使用 `tar -a -cf patch.zip api/` 產生其發行 archive。消費端的 PowerShell 部署腳本接著執行 `Expand-Archive`（對 tar 改名檔案靜默空操作），繼續對運行中的 `apiDir` 執行 `Remove-Item -Recurse`，然後從一個不存在的來源執行 `Copy-Item`（因為什麼都沒有被解壓縮）。運行中的安裝被清除，AppPool 停止，正式環境中斷約 3 分鐘，直到完成基於備份的回滾。
+
+（a）生產端使用自動副檔名 tar，加上（b）消費端未驗證解壓縮輸出，兩者組合在任何步驟都沒有拋出錯誤的情況下摧毀了運行中的安裝。
+
+---
+
 ## 相關標準
 
 - [部署標準](deployment-standards.md) — 打包後的部署階段
@@ -215,6 +285,7 @@ targets:
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.1.0 | 2026-05-26 | 新增：Archive 格式完整性章節——真實格式必須符合副檔名規則、驗證單行指令、Windows 正確/錯誤做法清單、真實事故參考（XSPEC-231 / 關閉 issue #113） |
 | 1.0.0 | 2026-04-15 | 初始發行 — XSPEC-034 Phase 1 |
 
 ---

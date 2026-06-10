@@ -1,9 +1,9 @@
 ---
 source: ../../../../skills/spec-derivation/guide.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: 218670e49db0
+source_version: 2.0.0
+translation_version: 2.0.0
+last_synced: 2026-06-10
+source_hash: 8c89e24244a5
 status: current
 scope: partial
 description: |

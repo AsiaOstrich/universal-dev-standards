@@ -2,9 +2,10 @@
 name: logging
 description: "[UDS] 實作結構化日誌，包含正確的日誌層級和敏感資料處理"
 source: ../../../../skills/logging-guide/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-08
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-06-10
+source_hash: 6b7244c91aa0
 status: current
 ---
 
@@ -12,8 +13,8 @@ status: current
 
 > **語言**: [English](../../../../skills/logging-guide/SKILL.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2025-12-30
+**版本**: 1.1.0
+**最後更新**: 2026-05-26
 **適用範圍**: Claude Code Skills
 
 ---
@@ -205,6 +206,21 @@ logger.error('處理訂單失敗', {
 - 聚合指標而非個別日誌
 - 使用獨立的日誌串流
 
+## 日誌檔案輪替
+
+基於檔案的 log sink **必須**同時設定兩種輪替觸發器——時間輪替**與**大小輪替。常見函式庫的預設大小上限（Serilog 1 GB、log4j/Winston/Python `RotatingFileHandler` 無上限）在正式環境中會造成靜默資料遺失。
+
+```
+✓ rollingInterval: Day                    # 時間輪替
+✓ fileSizeLimitBytes: 104857600 (100 MB)  # 大小輪替
+✓ rollOnFileSizeLimit: true               # 輪替，不要丟棄
+✓ retainedFileCountLimit: ≥ N*7           # N = 每日最大輪替次數
+```
+
+當日誌檔案在預期的每日結束時達到 **`fileSizeLimitBytes` 的 ≥ 90%**，**調查噪音根因**（嘈雜的重試迴圈 / 不受限制的 debug 日誌 / stack trace 洪流），不要只提高上限。
+
+> 含各語言設定範例（.NET Serilog / Python / Java log4j2 / Node Winston）及真實事故失敗模式參考的完整規格：請參閱核心標準的[日誌檔案輪替政策](../../../../core/logging-standards.md#日誌檔案輪替政策)。
+
 ## 檢查清單
 
 ### 必要欄位
@@ -222,6 +238,13 @@ logger.error('處理訂單失敗', {
 - [ ] PII 已遮罩或雜湊
 - [ ] 信用卡從不記錄
 - [ ] 保留政策已設定
+
+### 輪替
+
+- [ ] 已設定時間輪替（`rollingInterval: Day` 或等效設定）
+- [ ] 已設定大小輪替（`fileSizeLimitBytes` + `rollOnFileSizeLimit: true`）
+- [ ] `retainedFileCountLimit` ≥ N×7（N = 每日最大輪替次數）
+- [ ] 已定義 90% 大小 SOP（調查噪音，勿只提高上限）
 
 ---
 
@@ -271,6 +294,7 @@ logger.error('處理訂單失敗', {
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.1.0 | 2026-05-26 | 新增：日誌檔案輪替章節及指向核心標準輪替政策的交叉連結；輪替清單（XSPEC-232） |
 | 1.0.0 | 2025-12-30 | 初始發布 |
 
 ---
@@ -291,25 +315,3 @@ After `/logging` completes, the AI assistant should suggest:
 > - 執行 `/errors` 設計錯誤碼以配合日誌系統 — 讓錯誤追蹤更有效率 / Make error tracking more efficient
 > - 執行 `/sdd` 將可觀測性需求納入規格 — 確保日誌需求在規格中有定義 / Ensure logging requirements are defined in specs
 
----
-
-## Related Standards
-
-- [Logging Standards](../../core/logging-standards.md)
-- [Error Code Standards](../../core/error-code-standards.md)
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2025-12-30 | Initial release |
-
----
-
-## License
-
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

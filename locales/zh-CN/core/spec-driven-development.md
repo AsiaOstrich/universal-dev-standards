@@ -1,8 +1,9 @@
 ---
 source: ../../../core/spec-driven-development.md
-source_version: 2.2.0
-translation_version: 2.2.0
-last_synced: 2026-03-30
+source_version: 2.3.0
+translation_version: 2.3.0
+last_synced: 2026-06-10
+source_hash: 08dd8c2bee20
 status: current
 ---
 
@@ -119,6 +120,21 @@ SDD **不是** "ATDD → BDD → TDD" 序列的一部分。相反，它通过正
 
 ---
 
+## 快速参考
+
+| 方面 | 说明 |
+|------|------|
+| **核心工作流** | 讨论 → 提案 → 审查 → 实现 → 验证 → 归档 |
+| **核心原则** | 规格优先，代码在后 |
+| **AC 格式** | Given/When/Then（GWT，默认——支持 BDD 推导）**或** EARS 记法（可选，XSPEC-263） |
+| **测试生成** | 正向推导（/derive-bdd, /derive-tdd, /derive-all） |
+| **成熟度级别** | 规格优先、规格锚定、规格即源 |
+| **工具** | OpenSpec, Spec Kit, 手动（基于文件） |
+| **I/O 合约** | 可选的结构化输入/输出定义，用于跨规格数据流 |
+| **假设** | 必须的假设追踪章节（[Assumption] 和 [Need Confirmation]） |
+| **AC YAML Sidecar** | 推荐使用 .ac.yaml 实现机器可读的 AC（当 AC 数量 > 3 时） |
+| **AI Agent 行为** | 可选章节，定义规格内的 agent 角色、规则、质量检查和约束 |
+
 ## AC 格式
 
 UDS 支持两种 AC 记法。**GWT 为预设与首选**（Forward Derivation／BDD 场景生成依赖它）。**EARS**（Easy Approach to Requirements Syntax，IBM Rational）为可选补充，对事件／状态／恒常／异常需求表达更精准（XSPEC-263）。
@@ -132,6 +148,26 @@ UDS 支持两种 AC 记法。**GWT 为预设与首选**（Forward Derivation／B
 | 选配 Optional | `WHERE <feature included> THE SYSTEM SHALL <response>` | 选配功能 |
 
 每个 AC 提供 **GWT 或 EARS** 之一（`.ac.yaml` 的 `given/when/then` 或 `ears`）。BDD 可推导行为优先 GWT；GWT 表达牵强时改用 EARS。不强制两者并存、不移除 GWT。
+
+## v2.3.0 新增内容
+
+- **EARS 记法**作为可选 AC 格式（XSPEC-263）：5 种 EARS 模板 + `.ac.yaml` 的 `ears` 字段。GWT 仍为默认和首选格式；`given/when/then` 从 `required` 放宽（向后兼容）。
+
+## v2.2.0 新增内容
+
+- **AC YAML Sidecar**：通过 `.ac.yaml` 文件实现机器可读的验收条件（schema: `specs/schemas/acceptance-criteria.schema.yaml`）
+- **I/O 合约章节**：规格模板中的可选结构化输入/输出合约
+- **假设与待厘清章节**：新规格的必须章节，整合防幻觉标签
+- **AI Agent 行为章节**：在规格内定义 AI agent 行为的可选章节
+
+> 现有规格**不需要**回填这些章节。
+
+## 相关标准
+
+- [正向推导标准](forward-derivation-standards.md)
+- [反向工程标准](reverse-engineering-standards.md)
+- [测试驱动开发](test-driven-development.md)
+- [行为驱动开发](behavior-driven-development.md)
 
 ## 常见陷阱
 

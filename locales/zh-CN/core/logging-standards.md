@@ -1,18 +1,22 @@
 ---
 source: ../../../core/logging-standards.md
-source_version: 1.2.0
-translation_version: 1.2.0
-last_synced: 2026-01-24
+source_version: 1.3.0
+translation_version: 1.3.0
+last_synced: 2026-06-10
+source_hash: 7853d510d681
 status: current
 ---
 
-> **语言**: [English](../../../core/logging-standards.md) | [简体中文](../../zh-TW/core/logging-standards.md) | 简体中文
+> **语言**: [English](../../../core/logging-standards.md) | 简体中文
 
 # 日志标准
 
-**版本**: 1.0.0
-**最后更新**: 2025-12-30
-**适用范围**: 所有需要日志记录的应用程序
+**版本**: 1.3.0
+**最后更新**: 2026-05-26
+**适用范围**: 所有软件项目
+**范围**: universal
+**行业标准**: RFC 5424, OpenTelemetry, W3C Trace Context
+**参考**: [opentelemetry.io](https://opentelemetry.io/)
 
 ---
 
@@ -311,6 +315,123 @@ tracestate: vendor=value
 - [ ] 永不记录信用卡
 - [ ] 已配置保留策略
 
+### 轮转检查清单
+
+- [ ] 已设置时间轮转（`rollingInterval: Day` 或同等配置）
+- [ ] 已设置大小轮转，`rollOnFileSizeLimit: true`（或同等配置）
+- [ ] 已显式配置 `fileSizeLimitBytes`（默认上限会造成危害）
+- [ ] `retainedFileCountLimit` ≥ N×7，以覆盖窗口内的轮转文件
+- [ ] 已定义 90% 大小 SOP：调查噪声根因，不要盲目提高上限
+
+---
+
+## 日志文件轮转策略
+
+### 轮转策略——必须同时设置两者
+
+基于文件的日志接收器配置**必须**包含**两个**触发器：
+
+1. **基于时间的轮转**（`rollingInterval: Day` 或同等配置）——按时间分区
+2. **基于大小的轮转**，`rollOnFileSizeLimit: true`（或同等配置）——应对流量峰值
+
+> **为何必须：** 大多数日志库默认带有静默的大小上限。当文件达到上限时，后续的日志写入会被**静默丢弃**——无任何警告或错误提示。应用程序继续运行，而半天的日志就此消失。同时显式设置两个触发器可避开这个陷阱。
+
+### 生产环境中的默认上限危害
+
+| 库 | 默认大小上限 | 达到上限时的行为 |
+|---|---|---|
+| Serilog File sink (.NET) | 1 GB | **静默停止写入**（`RollOnFileSizeLimit = false` 为默认值） |
+| log4j RollingFileAppender | 未设置则无上限 | 同上——不轮转即丢弃 |
+| Python `RotatingFileHandler` | 未设置 `maxBytes` 则无限 | 无限增长 |
+| Winston `winston-daily-rotate-file` | 未设置 `maxSize` 则无上限 | 同上——不轮转即丢弃 |
+
+若未显式配置基于大小的轮转，即是接受上述某种失败模式。
+
+### 推荐初始值
+
+| 参数 | 取值 | 说明 |
+|---|---|---|
+| `fileSizeLimitBytes` | 100 MB | 平衡：足够小以便编辑器打开，足够大以避免过多轮转 |
+| `rollOnFileSizeLimit` | `true` | 达到上限时创建 `*-001.txt`、`*-002.txt`；**不要**丢弃 |
+| `retainedFileCountLimit` | ≥ N×7（N = 每天最大预期轮转次数） | 避免过早删除窗口内的日志 |
+
+### 各语言配置示例
+
+**.NET / Serilog**（`appsettings.json`）：
+
+```json
+{
+  "Serilog": {
+    "WriteTo": [{
+      "Name": "File",
+      "Args": {
+        "path": "logs/app-.txt",
+        "rollingInterval": "Day",
+        "fileSizeLimitBytes": 104857600,
+        "rollOnFileSizeLimit": true,
+        "retainedFileCountLimit": 90
+      }
+    }]
+  }
+}
+```
+
+**Python**（`logging.handlers`）：
+
+```python
+from logging.handlers import RotatingFileHandler
+
+handler = RotatingFileHandler(
+    filename="logs/app.log",
+    maxBytes=104857600,   # 100 MB
+    backupCount=90        # 低基数时约保留 3 个月的轮转文件
+)
+# 如需时间+大小组合轮转，可组合使用 TimedRotatingFileHandler 并检查大小，
+# 或使用第三方库如 concurrent-log-handler。
+```
+
+**Java / log4j2**（`log4j2.xml`）：
+
+```xml
+<RollingFile name="App" fileName="logs/app.log"
+             filePattern="logs/app-%d{yyyy-MM-dd}-%i.log.gz">
+  <PatternLayout pattern="%d %-5p %c{1.} - %m%n"/>
+  <Policies>
+    <TimeBasedTriggeringPolicy interval="1"/>
+    <SizeBasedTriggeringPolicy size="100 MB"/>
+  </Policies>
+  <DefaultRolloverStrategy max="90"/>
+</RollingFile>
+```
+
+**Node / Winston**（`winston-daily-rotate-file`）：
+
+```javascript
+import DailyRotateFile from "winston-daily-rotate-file";
+
+new DailyRotateFile({
+  filename: "logs/app-%DATE%.log",
+  datePattern: "YYYY-MM-DD",
+  maxSize: "100m",
+  maxFiles: "90d"
+});
+```
+
+### 运营 SOP——调查根因，不要仅提高上限
+
+若日志文件大小在预计当天结束时达到 `fileSizeLimitBytes` 的 ≥ 90%，**在提高上限之前先调查原因**。典型根因：
+
+- 在 INFO 级别记录每次重试的嘈杂重试循环（应改为 WARN 摘要）
+- 意外在生产环境启用的无限制 debug 日志
+- 单个上游故障引发的堆栈跟踪洪流
+- 健康探针 / sidecar 污染业务日志
+
+提高上限只会掩盖底层噪声问题，并将下一次故障推迟到更远的未来。
+
+### 失败模式参考（真实事故）
+
+某生产 .NET Worker 仅使用 `rollingInterval: Day`（未设置大小限制，Serilog 默认 1 GB 上限），在 07:31 触达上限后静默丢弃了所有日志条目，直到 13:00+ 运维人员发现日志尾部已停止更新。连续 5 个日志文件均显示 `~1,073,741,8XX 字节`（= 1 GiB，Serilog 默认值）。半天的生产诊断数据就此丢失。同时设置 `fileSizeLimitBytes` 和 `rollOnFileSizeLimit: true` 本可在保留所有事件的情况下将文件轮转为 `worker-YYYYMMDD_001.txt`。
+
 ---
 
 ## 相关标准
@@ -324,6 +445,7 @@ tracestate: vendor=value
 
 | 版本 | 日期 | 变更 |
 |-----|------|------|
+| 1.3.0 | 2026-05-26 | 新增：日志文件轮转策略——强制双触发器（时间 + 大小）轮转，含默认上限危害警告、各语言（.NET/Python/Java/Node）配置示例、运营 SOP（XSPEC-232 / 关闭 issue #111） |
 | 1.2.0 | 2026-01-24 | 新增：OpenTelemetry 语义规范、可观测性三支柱整合、基于日志的告警、进阶关联模式 |
 | 1.1.0 | 2026-01-05 | 新增：参考标准章节，包含 OWASP、RFC 5424、OpenTelemetry 和 12 Factor App |
 | 1.0.0 | 2025-12-30 | 初始日志标准 |

@@ -1,8 +1,9 @@
 ---
 source: ../../README.md
-source_version: 5.2.0
-translation_version: 5.2.0
-last_synced: 2026-04-22
+source_version: 5.17.0
+translation_version: 5.17.0
+last_synced: 2026-06-10
+source_hash: 651c07df0abe
 status: current
 ---
 
@@ -55,6 +56,18 @@ npx universal-dev-standards init
 > **提示**：输入 `/dev-workflow` 获取完整的开发阶段指南与所有可用命令。
 >
 > 另请参阅：[每日开发工作流程指南](adoption/DAILY-WORKFLOW-GUIDE.md)
+
+### 📚 文档
+
+| 我想要... | 文档 |
+|---|---|
+| **UDS 新手？** 5 分钟快速上手 | [docs/user/GETTING-STARTED.md](docs/user/GETTING-STARTED.md) |
+| 按 Tier & Category 浏览全部 54 个技能 | [docs/user/SKILLS-INDEX.md](docs/user/SKILLS-INDEX.md) |
+| 查看所有斜线命令 | [docs/user/COMMANDS-INDEX.md](docs/user/COMMANDS-INDEX.md) |
+| 快速参考卡片 | [docs/user/CHEATSHEET.md](docs/user/CHEATSHEET.md) |
+| 常见问题 | [docs/user/FAQ.md](docs/user/FAQ.md) |
+| 排查问题 | [docs/user/TROUBLESHOOTING.md](docs/user/TROUBLESHOOTING.md) |
+| 了解 UDS 术语 | [docs/user/GLOSSARY.md](docs/user/GLOSSARY.md) |
 
 ---
 
@@ -141,10 +154,10 @@ uds uninstall   # 从项目移除标准
 
 使用 `uds config` 管理您的偏好设置：
 
-| 参数 | 命令示例 | 说明 |
+| 参数 | 命令 | 说明 |
 | :--- | :--- | :--- |
 | **提交语言** | `uds config --lang zh-CN` | 设置 AI 提交消息的偏好语言 |
-| **标准等级** | `uds init --level 2` | 选择采用深度 (1: 基本, 3: 全面) |
+| **标准** | `uds init` | 安装所有可用标准 |
 | **工具模式** | `uds config --mode skills` | 在 Skills、Standards 或两者之间切换 |
 
 ---

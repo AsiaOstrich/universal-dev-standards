@@ -1,8 +1,9 @@
 ---
 source: ../../README.md
-source_version: 5.2.0
-translation_version: 5.2.0
-last_synced: 2026-04-22
+source_version: 5.17.0
+translation_version: 5.17.0
+last_synced: 2026-06-10
+source_hash: 651c07df0abe
 status: current
 ---
 
@@ -55,6 +56,18 @@ npx universal-dev-standards init
 > **提示**：輸入 `/dev-workflow` 取得完整的開發階段指南與所有可用指令。
 >
 > 另請參閱：[每日開發工作流程指南](adoption/DAILY-WORKFLOW-GUIDE.md)
+
+### 📚 文件
+
+| 我想要... | 文件 |
+|---|---|
+| **UDS 新手？** 5 分鐘快速入門 | [docs/user/GETTING-STARTED.md](../../docs/user/GETTING-STARTED.md) |
+| 依 Tier 和分類瀏覽所有 54 個 Skills | [docs/user/SKILLS-INDEX.md](../../docs/user/SKILLS-INDEX.md) |
+| 查看所有斜線命令 | [docs/user/COMMANDS-INDEX.md](../../docs/user/COMMANDS-INDEX.md) |
+| 快速參考卡 | [docs/user/CHEATSHEET.md](../../docs/user/CHEATSHEET.md) |
+| 常見問題 | [docs/user/FAQ.md](../../docs/user/FAQ.md) |
+| 疑難排解 | [docs/user/TROUBLESHOOTING.md](../../docs/user/TROUBLESHOOTING.md) |
+| 了解 UDS 術語 | [docs/user/GLOSSARY.md](../../docs/user/GLOSSARY.md) |
 
 ---
 
@@ -141,10 +154,10 @@ uds uninstall   # 從專案移除標準
 
 使用 `uds config` 管理您的偏好設定：
 
-| 參數 | 指令範例 | 說明 |
+| 參數 | 指令 | 說明 |
 | :--- | :--- | :--- |
 | **提交語言** | `uds config --lang zh-TW` | 設定 AI 提交訊息的偏好語言 |
-| **標準等級** | `uds init --level 2` | 選擇採用深度 (1: 基本, 3: 全面) |
+| **標準** | `uds init` | 安裝所有可用標準 |
 | **工具模式** | `uds config --mode skills` | 在 Skills、Standards 或兩者之間切換 |
 
 ---

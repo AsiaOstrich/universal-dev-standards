@@ -1,8 +1,16 @@
+---
+source: ../../../docs/user/CHEATSHEET.md
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-06-10
+status: current
+---
+
 # UDS 速查表
 
 > Quick reference for all UDS features | Last updated: 2026-05-14
 
-**Language**: [English](../../../docs/CHEATSHEET.md) | [繁體中文](../../zh-TW/docs/CHEATSHEET.md) | 简体中文
+**Language**: [English](../../../docs/user/CHEATSHEET.md) | [繁體中文](../../zh-TW/docs/CHEATSHEET.md) | 简体中文
 
 ---
 

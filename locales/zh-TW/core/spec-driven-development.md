@@ -1,8 +1,9 @@
 ---
 source: ../../../core/spec-driven-development.md
-source_version: 2.2.0
-translation_version: 2.2.0
-last_synced: 2026-04-22
+source_version: 2.3.0
+translation_version: 2.3.0
+last_synced: 2026-06-10
+source_hash: 08dd8c2bee20
 status: current
 ---
 
@@ -19,9 +20,9 @@ status: current
 
 ## 摘要
 
-規格驅動開發 (SDD) 是一種「文件優先」的開發方法論，強調在編寫任何程式碼之前，先定義清晰、結構化的規格（Specification）。這種方法特別適合 AI 輔助開發，因為高品質的規格能顯著降低 AI 的幻覺並提高程式碼生成的準確度。
+規格驅動開發（SDD）是一種 AI 時代的方法論（2025 年起），有別於傳統的 TDD/BDD/ATDD。它確保所有變更在實作前都透過規格進行規劃、記錄與核准。核心原則是**「規格優先，程式碼其次」**——沒有對應的已核准規格，就不能進行任何功能性程式碼變更。
 
-SDD 的核心流程：**討論 → 規格提案 → 規格審查 → 實作 → 驗證 → 歸檔**。
+SDD 在不同的成熟度層級運作：規格優先（完成後丟棄）、規格錨定（貫穿整個演進過程維護）、規格即來源（規格是唯一來源，程式碼自動生成）。此方法論使用正向推演（Forward Derivation）從規格生成測試產物（BDD 場景、TDD 骨架、契約）。
 
 ---
 
@@ -33,10 +34,16 @@ SDD 的核心流程：**討論 → 規格提案 → 規格審查 → 實作 → 
 
 | 面向 | 說明 |
 |------|------|
-| **核心原則** | 先規格，後實作 (Spec First) |
-| **主要產物** | Markdown 規格文件 (`docs/specs/`) |
-| **參與者** | 架構師、開發者、AI 助手 |
-| **驗證方式** | 規格審查、正向推演 (Forward Derivation) |
+| **核心工作流程** | 討論 → 提案 → 審查 → 實作 → 驗證 → 歸檔 |
+| **核心原則** | 規格優先，程式碼其次 (Spec First, Code Second) |
+| **AC 格式** | Given/When/Then（GWT，預設——啟用 BDD 推演）**或** EARS 記法（選用，XSPEC-263） |
+| **測試生成** | 正向推演（/derive-bdd、/derive-tdd、/derive-all） |
+| **成熟度層級** | 規格優先、規格錨定、規格即來源 |
+| **工具** | OpenSpec、Spec Kit、手動（基於檔案） |
+| **I/O 契約** | 可選的結構化輸入/輸出定義，用於跨規格資料流 |
+| **假設** | 追蹤假設（[Assumption]）與待釐清項目（[Need Confirmation]）的必填章節 |
+| **AC YAML Sidecar** | 建議在 AC 超過 3 條時使用 .ac.yaml（機器可讀 AC） |
+| **AI Agent 行為** | 可選章節，用於在規格中定義 Agent 角色、規則、品質檢查、限制 |
 
 ## AC 格式
 
@@ -67,6 +74,7 @@ UDS 支援兩種 AC 記法。**GWT 為預設與首選**（Forward Derivation／B
 
 ## 相關標準
 
-- [測試驅動開發](test-driven-development.md)
-- [反向工程標準](reverse-engineering-standards.md)
 - [正向推演標準](forward-derivation-standards.md)
+- [反向工程標準](reverse-engineering-standards.md)
+- [測試驅動開發](test-driven-development.md)
+- [行為驅動開發](behavior-driven-development.md)

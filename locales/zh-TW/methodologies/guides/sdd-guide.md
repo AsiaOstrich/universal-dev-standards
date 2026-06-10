@@ -1,8 +1,9 @@
 ---
-source: ../../core/spec-driven-development.md
+source: ../../../../methodologies/guides/sdd-guide.md
 source_version: 2.1.0
 translation_version: 2.1.0
-last_synced: 2026-01-26
+last_synced: 2026-06-10
+source_hash: 972eba45ce66
 status: current
 ---
 
@@ -13,7 +14,7 @@ status: current
 **適用範圍**: 所有採用規格驅動開發的專案
 **範圍**: universal
 
-> **語言**: [English](../../../../core/spec-driven-development.md) | [繁體中文](../../core/spec-driven-development.md)
+> **語言**: [English](../../../../methodologies/guides/sdd-guide.md) | [繁體中文](../../methodologies/guides/sdd-guide.md)
 
 ---
 
@@ -25,6 +26,223 @@ status: current
 - 減少利害關係人與開發者之間的溝通誤解
 - 為所有變更提供清晰的審計軌跡
 - 新成員更容易上手
+
+---
+
+## SDD 作為獨立方法論
+
+SDD（規格驅動開發，2025）是 AI 時代的方法論，有別於傳統的 TDD/BDD/ATDD 家族。它源於 AI 輔助開發工具的廣泛採用，以及現代軟體工程對「規格優先」方法的需求。
+
+### 歷史背景
+
+| 方法論家族 | 時代 | 核心文獻 | 關係 |
+|-----------|------|----------|------|
+| **TDD/BDD/ATDD** | 1999-2011 | GOOS（Freeman & Pryce）、Dan North、Gojko Adzic | 傳統測試驅動開發家族 |
+| **SDD (2025)** | 2025+ | Thoughtworks、GitHub spec-kit、Martin Fowler | AI 時代新興概念，與傳統家族獨立 |
+
+### 與測試方法論的關係
+
+SDD **不屬於** "ATDD → BDD → TDD" 序列。它透過正向推演生成測試產出物，但仍是獨立方法論。
+
+| 方法論 | 起源 | 焦點 | SDD 整合方式 |
+|--------|------|------|-------------|
+| **TDD** | 1999，Kent Beck | 程式碼層級測試 | 可用於 SDD 實作階段 |
+| **BDD** | 2006，Dan North | 行為情境 | 正向推演生成 .feature 檔案 |
+| **ATDD** | 2003-2006，GOOS | 協作驗收 | 可選的 AC 定義輸入方式 |
+
+### 關鍵區別
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    兩套獨立方法論系統                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌─────────────────────────────────────┐                                   │
+│   │     SDD（AI 時代方法論）              │                                  │
+│   │                                      │                                  │
+│   │   需求 → SPEC.md → 正向推演 → 測試   │                                  │
+│   │                                      │                                  │
+│   │   • 規格是權威來源                   │                                  │
+│   │   • AI 輔助程式碼生成                │                                  │
+│   │   • 正向推演生成測試結構             │                                  │
+│   └─────────────────────────────────────┘                                   │
+│                                                                             │
+│   ┌─────────────────────────────────────┐                                   │
+│   │  雙迴圈 TDD（傳統）                   │                                  │
+│   │                                      │                                  │
+│   │   BDD（外迴圈）→ TDD（內迴圈）        │                                  │
+│   │                                      │                                  │
+│   │   • 測試驅動設計                     │                                  │
+│   │   • 手動開發                         │                                  │
+│   │   • ATDD 是可選的協作輸入，           │                                  │
+│   │     而非循序步驟                     │                                  │
+│   └─────────────────────────────────────┘                                   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## SDD 成熟度等級
+
+根據 Martin Fowler 對 SDD 工具的分析（2025），團隊可在不同成熟度等級運作：
+
+| 等級 | 名稱 | 說明 | 人類角色 |
+|------|------|------|---------|
+| 1 | **規格優先** | 先寫規格，完成後丟棄 | 編輯規格與程式碼 |
+| 2 | **規格錨定** | 在整個演進過程維護規格 | 編輯規格，AI 輔助程式碼 |
+| 3 | **規格即來源** | 規格是唯一來源，程式碼自動生成 | 只編輯規格，絕不碰程式碼 |
+
+### 等級特性
+
+**等級 1：規格優先**
+- 在實作前撰寫規格
+- 功能完成後可丟棄規格
+- 程式碼仍是權威來源
+- 2025 年最常見
+
+**等級 2：規格錨定**
+- 在整個生命週期維護規格
+- 規格用於演進與維護
+- AI 根據規格更新協助程式碼變更
+- 在企業環境中逐步採用
+
+**等級 3：規格即來源**
+- 規格是唯一的真實來源
+- 程式碼標注 "GENERATED - DO NOT EDIT"
+- 任何變更都需先修改規格
+- 2025 年仍在實驗階段
+
+### 參考資料
+
+- [Thoughtworks: Spec-Driven Development](https://www.thoughtworks.com/en-us/insights/blog/agile-engineering-practices/spec-driven-development-unpacking-2025-new-engineering-practices)
+- [Martin Fowler: SDD Tools (Kiro, spec-kit, Tessl)](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html)
+- [GitHub spec-kit](https://github.com/github/spec-kit/blob/main/spec-driven.md)
+
+---
+
+## 常見陷阱
+
+採用 SDD 時應避免以下常見陷阱：
+
+| 陷阱 | 問題 | 緩解措施 |
+|------|------|---------|
+| **過度形式化** | 像瀑布開發一樣拖慢回饋速度 | 保持迭代，使用短週期 |
+| **規格漂移** | 規格與程式碼不同步 | 持續驗證，在 CI/CD 中做漂移偵測 |
+| **AI 幻覺** | AI 生成的程式碼與規格不符 | 強健的驗證、契約測試 |
+| **尺寸不符** | 對小 bug 使用重量級流程 | 根據複雜度選擇合適流程 |
+| **過早優化** | 跳躍至規格即來源（等級 3） | 從規格優先開始，逐步演進 |
+
+### 何時不使用完整 SDD
+
+| 情境 | 建議 |
+|------|------|
+| 關鍵熱修復 | 先修復，後補文件 |
+| 錯字與格式 | 直接 commit，不需規格 |
+| 探索性原型 | 跳過正式規格，快速迭代 |
+| 瑣碎 bug 修復（錯字層級、無共用程式碼） | 僅輕量追蹤 |
+| 易回歸 bug 修復（共用程式碼 / 遷移 / 曾破壞路徑） | 使用下方的 Bugfix 規格模板 |
+
+---
+
+## 變更評估（SDD 前置評估）
+
+開始 SDD 工作流程前，先評估變更的性質與範圍。這能防止過度工程化，確保變更被正確路由。
+
+### 評估決策樹
+
+```
+新需求/變更
+    │
+    ▼
+┌─────────────────────────────────────────────────────────┐
+│ Q1: 這個變更的適用範圍是什麼？                              │
+│     What is the scope of this change?                    │
+├─────────────────────────────────────────────────────────┤
+│ A) 僅限專案內部使用                                        │
+│    → 加入 CLAUDE.md 或專案設定                             │
+│    → 不需要核心標準                                        │
+│                                                          │
+│ B) 可被其他專案複用的規則                                   │
+│    → 建立核心標準                                          │
+│    → 評估是否需要 Skill/Command                            │
+└─────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────┐
+│ Q2: 這個功能需要 AI 互動嗎？                               │
+│     Does this feature require AI interaction?            │
+├─────────────────────────────────────────────────────────┤
+│ A) 需要互動式工作流程                                      │
+│    → 建立 Skill                                          │
+│    → 評估是否需要 Slash Command                            │
+│                                                          │
+│ B) 靜態規則 / 背景知識                                     │
+│    → 僅建核心標準                                          │
+│    → 在 CLAUDE.md 中引用                                  │
+└─────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────┐
+│ Q3: 使用者需要直接觸發嗎？                                  │
+│     Does the user need to trigger this directly?         │
+├─────────────────────────────────────────────────────────┤
+│ A) 需要 /command 觸發                                     │
+│    → 建立 Slash Command                                  │
+│                                                          │
+│ B) AI 自動套用                                            │
+│    → 僅建 Skill，不需要 Command                            │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 評估結果
+
+| 評估結果 | 需建立的產出物 |
+|---------|-------------|
+| 僅限專案 | 僅更新 CLAUDE.md |
+| 通用靜態規則 | 核心標準 + CLAUDE.md 引用 |
+| 通用互動式 | 核心標準 + Skill |
+| 使用者觸發工作流程 | 核心標準 + Skill + Command |
+
+### 範圍分類標籤
+
+在規格文件中使用以下標籤標示範圍：
+
+| 標籤 | 含義 | 範例 |
+|------|------|------|
+| `[Scope: Project]` | 專案專用，不對外發布 | CI/CD 設定、團隊慣例 |
+| `[Scope: Universal]` | 可被其他專案複用 | 編碼標準、測試模式 |
+| `[Scope: Utility]` | 工具/生成器，不需核心標準 | docs-generator、code-formatter |
+
+---
+
+## Bugfix 規格模板（易回歸修復）
+
+> XSPEC-264。不是每個 bug 都需要規格——**瑣碎** bug 保持輕量即可。但**易回歸**的修復
+>（觸及共用程式碼、遷移或曾被修復又破壞的路徑）值得一份輕量的
+> `<BUG-ID>.bugfix.md`——比功能規格便宜得多，比盲目修補安全得多。
+
+```markdown
+# <BUG-ID>: <簡短標題>
+
+## Current behavior（當前行為）
+現在發生的事（缺陷） + 重現步驟。
+
+## Expected behavior（預期行為）
+應該發生的事。
+
+## Unchanged behavior（不變行為）
+明確列出**不應改變**的內容——回歸防護範圍。
+
+## Root cause（根本原因）
+連結系統性除錯分析（5 個為什麼 / 二分法）。
+
+## Regression test（回歸測試）
+修復前失敗、修復後通過的測試——並且斷言「不變行為」仍然成立。
+將此測試視為 AC（acceptance-criteria-traceability: `@AC <BUG-ID>`）。
+```
+
+**使用時機**（參見上方變更評估表）：瑣碎 → 輕量；易回歸 → 使用此模板。`Unchanged behavior`（不變行為）+ `Regression test`（回歸測試）兩節，正是 UDS 自身的遷移/重構回歸（XSPEC-199/200/201）屢屢缺少的。設計上保持輕量；不要把瑣碎 bug 升級。
 
 ---
 
@@ -45,12 +263,61 @@ status: current
 
 | 階段 | 說明 | 產出物 |
 |------|------|--------|
-| **討論** | 釐清需求與探索方案 | 討論紀錄 |
+| **討論** | 釐清灰色地帶、鎖定範圍、建立 read_first 清單 | 範圍定義、規範參考 |
 | **提案** | 定義變更內容與原因 | `proposal.md` |
 | **審查** | 利害關係人核准 | 審查意見、核准紀錄 |
 | **實作** | 執行已核准的規格 | 程式碼、測試、文件 |
-| **驗證** | 確認實作符合規格 | 測試結果、審查 |
-| **歸檔** | 關閉並歸檔規格 | 已歸檔的規格與 commits/PRs 連結 |
+| **驗證** | 確認實作符合規格（最多 3 次迭代） | 測試結果、追蹤矩陣 |
+| **歸檔** | 關閉並歸檔規格 | 已歸檔規格及 commits/PRs 連結 |
+
+---
+
+## 雙向同步評估
+
+處理規格及其實作時，始終評估哪些內容需要同步。變更可能來自任何產出物，並應傳播至相關產出物。
+
+### 同步矩陣
+
+| 變更來源 | 需評估同步至 |
+|---------|------------|
+| 核心標準 | → Skills、Commands、AI YAML、翻譯 |
+| Skill | → 核心標準（如適用）、Commands、翻譯 |
+| Command | → Skill、核心標準（如適用）、翻譯 |
+
+### 同步檢查清單範本
+
+在規格文件中加入此檢查清單：
+
+```markdown
+## Sync Checklist（同步檢查清單）
+
+### 從核心標準出發
+- [ ] 建立/更新對應的 Skill？（若需互動）
+- [ ] 建立/更新 Slash Command？（若需使用者觸發）
+- [ ] 更新翻譯？（zh-TW、zh-CN 等）
+- [ ] 更新 AI YAML 版本？（如適用）
+
+### 從 Skill 出發
+- [ ] 此 Skill 應有核心標準嗎？
+- [ ] 若為工具 Skill（如 docs-generator），標記為 "[Scope: Utility]"？
+- [ ] 建立 Slash Command？
+- [ ] 更新翻譯？
+
+### 從 Command 出發
+- [ ] 此 Command 屬於哪個 Skill？
+- [ ] 更新 Skill 文件？
+- [ ] 更新翻譯？
+```
+
+### 同步標記
+
+在文件中使用以下標記表示同步狀態：
+
+| 標記 | 含義 |
+|------|------|
+| `[Synced: ✓]` | 所有相關產出物已同步 |
+| `[Synced: Pending]` | 需要同步但尚未完成 |
+| `[Synced: N/A]` | 沒有需要同步的相關產出物（如獨立工具） |
 
 ---
 
@@ -58,7 +325,7 @@ status: current
 
 ### 1. SDD 工具命令優先
 
-**規則**: 當專案整合了 SDD 工具（如 OpenSpec, Spec Kit 等）且該工具提供特定命令（例如 `/openspec` 或 `/spec` 等斜線命令）時，AI 助手**必須優先使用這些命令**，而非直接手動編輯檔案。
+**規則**: 當專案整合了 SDD 工具（如 OpenSpec、Spec Kit 等）且該工具提供特定命令（例如 `/openspec` 或 `/spec` 等斜線命令）時，AI 助手**必須優先使用這些命令**，而非直接手動編輯檔案。
 
 **理由**:
 - **一致性**: 工具確保規格結構遵循嚴格的架構。
@@ -75,7 +342,7 @@ status: current
 **規則**: SDD 是一種方法論，不綁定於單一工具。雖然 OpenSpec 是常見的實作，但本標準適用於任何 SDD 工具（例如 Spec Kit）。
 
 **指引**:
-- **通用流程**: 討論 -> 提案 -> 審查 -> 實作 -> 驗證 -> 歸檔。
+- **通用流程**: 討論 → 提案 → 審查 → 實作 → 驗證 → 歸檔。
 - **工具適應**: 適應工作區中啟用之 SDD 工具的特定命令與模式。
 
 ---
@@ -224,11 +491,11 @@ Refs: SPEC-001
 
 當規格透過反向工程生成時：
 
-1. **標記狀態**：在元資料中包含 `狀態: 草稿（反向工程）`
-2. **填寫未知**：所有 `[未知]` 區塊必須由人類在核准前填寫
-3. **驗證推論**：所有 `[推論]` 項目必須經過審查和確認
-4. **標準審查**：在實作前遵循正常 SDD 審查流程
-5. **來源引用**：維護 file:line 參考以確保可追溯性
+1. **標記狀態**: 在元資料中包含 `Status: Draft (Reverse-Engineered)`
+2. **填寫未知**: 所有 `[Unknown]` 區塊必須由人類在核准前填寫
+3. **驗證推論**: 所有 `[Inferred]` 項目必須經過審查和確認
+4. **標準審查**: 在實作前遵循正常 SDD 審查流程
+5. **來源引用**: 維護 file:line 參考以確保可追溯性
 
 ### 何時使用反向工程
 
@@ -246,6 +513,216 @@ Refs: SPEC-001
 | `/reverse-spec` | 從現有程式碼生成 SDD 規格 |
 | `/reverse-bdd` | 將驗收條件轉換為 Gherkin 情境 |
 | `/reverse-tdd` | 分析 BDD 情境的測試覆蓋 |
+
+---
+
+## 與正向推演整合
+
+### 概述
+
+規格核准後，使用[正向推演標準](../../core/forward-derivation-standards.md)從驗收條件自動生成 BDD 情境、TDD 測試骨架和 ATDD 驗收測試。
+
+### 正向推演 → SDD 流水線
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                  已核准規格 → 正向推演流水線                              │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   APPROVED SPEC-XXX.md                                                  │
+│        │                                                                │
+│        ▼                                                                │
+│   ┌────────────────────────────────────────────────────────────┐       │
+│   │ /derive-all specs/SPEC-XXX.md                               │       │
+│   │   • 解析驗收條件                                             │       │
+│   │   • 轉換 AC → Gherkin 情境 [已生成]                          │       │
+│   │   • 生成 TDD 測試骨架 [已生成]                               │       │
+│   │   • 建立 ATDD 驗收表格 [已生成]                              │       │
+│   └────────────────────────────────────────────────────────────┘       │
+│        │                                                                │
+│        ▼                                                                │
+│   輸出檔案                                                              │
+│   ├── features/SPEC-XXX.feature（BDD）                                  │
+│   ├── tests/SPEC-XXX.test.ts（TDD）                                     │
+│   └── acceptance/SPEC-XXX-acceptance.md（ATDD）                         │
+│        │                                                                │
+│        ▼                                                                │
+│   人類審查 → BDD/TDD 工作流程繼續                                        │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### 何時使用正向推演
+
+| 情境 | 做法 |
+|------|------|
+| 規格已核准，開始實作 | 用 `/derive-all` 生成測試結構 |
+| 快速需要 BDD 情境 | 用 `/derive-bdd` 生成 Gherkin |
+| 開始 TDD 工作流程 | 用 `/derive-tdd` 生成測試骨架 |
+| 手動驗收測試 | 用 `/derive-atdd` 生成測試表格 |
+
+### 相關命令
+
+| 命令 | 輸入 | 輸出 | 用途 |
+|------|------|------|------|
+| `/derive-bdd` | SPEC-XXX.md | .feature | AC → Gherkin 情境 |
+| `/derive-tdd` | SPEC-XXX.md | .test.ts | AC → 測試骨架 |
+| `/derive-atdd` | SPEC-XXX.md | acceptance.md | AC → 測試表格 |
+| `/derive-all` | SPEC-XXX.md | 以上全部 | 完整推演流水線 |
+| `/derive-contracts` | SPEC-XXX.md | contract.json, schema.json | AC → 契約驗證 |
+
+---
+
+## 驗證層
+
+SDD 需要強健的驗證機制，確保生成的程式碼與規格一致。驗證層在整個開發生命週期提供持續驗證。
+
+### 理論基礎
+
+| 理論 | 來源 | 在 SDD 中的應用 |
+|------|------|---------------|
+| **契約式設計** | Bertrand Meyer, 1986 | AC 作為前後置條件 |
+| **正式驗證** | 電腦科學 | 規格 vs 實作 |
+| **規格即範例** | Gojko Adzic, 2011 | 可執行規格 |
+| **契約測試** | Pact, 2013+ | 服務契約驗證 |
+
+### 驗證機制
+
+| 機制 | 用途 | 工具 |
+|------|------|------|
+| **契約測試** | 驗證實作是否遵守介面保證 | Pact、Spring Cloud Contract、Specmatic |
+| **Schema 驗證** | 拒絕違反結構要求的 payload | JSON Schema、OpenAPI 驗證器 |
+| **漂移偵測** | 偵測規格與行為的偏離 | CI/CD 整合、Specmatic |
+| **向後相容性** | 將變更分類為新增/破壞性 | OpenAPI diff 工具 |
+
+### SDD 驗證流程
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         SDD 驗證層                                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   SPEC-XXX.md（已核准）                                                     │
+│        │                                                                    │
+│        ├──→ 正向推演                                                        │
+│        │         │                                                          │
+│        │         ├──→ 契約測試（已生成）                                     │
+│        │         ├──→ Schema 驗證器（已生成）                               │
+│        │         ├──→ BDD 情境（已生成）                                    │
+│        │         └──→ TDD 骨架（已生成）                                    │
+│        │                                                                    │
+│        └──→ 實作（AI 輔助）                                                 │
+│                  │                                                          │
+│                  ▼                                                          │
+│        ┌─────────────────────────────────────────────────────┐             │
+│        │              持續驗證                                │             │
+│        │  ┌─────────────────────────────────────────────────┐│             │
+│        │  │ 契約測試               ✓/✗                      ││             │
+│        │  │ Schema 驗證            ✓/✗                      ││             │
+│        │  │ 漂移偵測               ✓/✗                      ││             │
+│        │  │ BDD 情境               ✓/✗                      ││             │
+│        │  │ TDD 單元測試           ✓/✗                      ││             │
+│        │  └─────────────────────────────────────────────────┘│             │
+│        └─────────────────────────────────────────────────────┘             │
+│                  │                                                          │
+│                  ▼                                                          │
+│        驗證報告 → 歸檔或迭代                                                │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 生成的驗證產出物
+
+| 產出物 | 用途 | 驗證角色 |
+|--------|------|---------|
+| `.feature`（BDD） | 行為情境 | 驗收驗證 |
+| `.test.ts`（TDD） | 單元測試骨架 | 實作驗證 |
+| `acceptance.md`（ATDD） | 驗收測試表格 | 商業驗證 |
+| `contract.json` | 契約定義 | 介面驗證 |
+| `schema.json` | Schema 定義 | 結構驗證 |
+
+### SDD 中的 V&V
+
+- **驗證（Verification）**（正確地建造）：契約測試通過、schema 有效、程式碼符合規格
+- **確認（Validation）**（建造正確的東西）：AC 達成、利害關係人核准、商業價值交付
+
+### 參考資料
+
+- [InfoQ: Spec-Driven Development - Validation Layer](https://www.infoq.com/articles/spec-driven-development/)
+- [Microsoft: Consumer-Driven Contract Testing](https://microsoft.github.io/code-with-engineering-playbook/automated-testing/cdc-testing/)
+- [Wikipedia: Formal Verification](https://en.wikipedia.org/wiki/Formal_verification)
+- [Specmatic: AI-powered API Contract Testing](https://specmatic.io/)
+
+---
+
+## SDD + 測試整合模型
+
+### 理論基礎
+
+SDD 驗證植基於成熟的測試理論：
+
+```
+契約式設計（1986）              規格即範例（2011）
+        │                              │
+        ▼                              ▼
+┌───────────────────────────────────────────────────────────────┐
+│               SDD 驗證模型                                     │
+│                                                               │
+│   規格（AC）  ←──→  契約測試  ←──→  實作                       │
+│       ↑                 ↑                      ↓              │
+│   前後置                驗證                執行時              │
+│   條件                  機制                行為              │
+└───────────────────────────────────────────────────────────────┘
+```
+
+### 整合點
+
+| SDD 階段 | 測試整合 | 理論 |
+|---------|---------|------|
+| **規格撰寫** | AC ＝ 前後置條件 | 契約式設計 |
+| **正向推演** | 生成契約測試 | 可執行規格 |
+| **實作** | TDD（可選） | 測試驅動開發 |
+| **驗證** | 契約測試 + 漂移偵測 | 執行時驗證 |
+| **歸檔** | 測試結果作為證據 | 可追溯性 |
+
+### 實務工作流程
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    實務 SDD 工作流程                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   【輸入來源】（以下任一）                                                    │
+│   ├── 需求訪談（最常見）                                                     │
+│   ├── 利害關係人郵件/文件                                                    │
+│   ├── 產品需求文件（PRD）                                                    │
+│   └── ATDD 工作坊（可選協作）                                                │
+│        ↓                                                                    │
+│   【SDD 提案撰寫】                                                           │
+│   SPEC-XXX.md 包含：                                                        │
+│   - 摘要、動機                                                               │
+│   - 詳細設計                                                                 │
+│   - 驗收條件（Given-When-Then）                                              │
+│   - 相依性、風險                                                             │
+│        ↓                                                                    │
+│   【審查與核准】                                                             │
+│        ↓                                                                    │
+│   【正向推演】                                                               │
+│   /derive-all → .feature, .test.ts, acceptance.md, contract.json            │
+│        ↓                                                                    │
+│   【實作】（TDD 可選）                                                       │
+│        ↓                                                                    │
+│   【驗證】→ 【歸檔】                                                         │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 與傳統方法的主要調整
+
+1. **ATDD 工作坊是可選的**: 不是每個功能都需要正式工作坊
+2. **規格是起點**: 無論輸入來源為何，均轉換為 SPEC-XXX.md
+3. **Given-When-Then 已內嵌**: AC 格式借鑒 BDD，但不要求正式的 ATDD 流程
+4. **正向推演填補缺口**: 自動生成測試結構，彌補無工作坊的不足
 
 ---
 
@@ -299,17 +776,17 @@ Refs: SPEC-001
 
 ## 相關標準
 
-- [正向推演標準](../../core/forward-derivation-standards.md) - 規格轉測試轉換（規格 → BDD/TDD/ATDD）
-- [反向工程標準](../../core/reverse-engineering-standards.md) - 程式碼轉規格轉換
-- [測試驅動開發](../../core/test-driven-development.md) - TDD 工作流程與 SDD 整合
-- [行為驅動開發](../../../../core/behavior-driven-development.md) - BDD 工作流程與 Given-When-Then 情境
-- [驗收測試驅動開發](../../../../core/acceptance-test-driven-development.md) - ATDD 工作流程與商業驗收
-- [測試標準](../../core/testing-standards.md) - 測試框架與最佳實踐（或使用 `/testing-guide` 技能）
-- [測試完整性維度](../../core/test-completeness-dimensions.md) - 7 維度測試覆蓋
-- [Commit 訊息指南](../../core/commit-message-guide.md) - Commit 訊息規範
-- [程式碼簽入標準](../../core/checkin-standards.md) - 程式碼簽入標準
-- [程式碼審查清單](../../core/code-review-checklist.md) - 程式碼審查清單
-- [文件結構標準](../../core/documentation-structure.md) - 文件結構標準
+- [正向推演標準](../../core/forward-derivation-standards.md) — 規格轉測試轉換（規格 → BDD/TDD/ATDD）
+- [反向工程標準](../../core/reverse-engineering-standards.md) — 程式碼轉規格轉換（程式碼 → 規格）
+- [測試驅動開發](../../core/test-driven-development.md) — TDD 工作流程與 SDD 整合
+- [行為驅動開發](../../core/behavior-driven-development.md) — BDD 工作流程與 Given-When-Then 情境
+- [驗收測試驅動開發](../../core/acceptance-test-driven-development.md) — ATDD 工作流程與商業驗收
+- [測試標準](../../core/testing-standards.md) — 測試框架與最佳實踐（或使用 `/testing-guide` 技能）
+- [測試完整性維度](../../core/test-completeness-dimensions.md) — 8 維度測試覆蓋
+- [Commit 訊息指南](../../core/commit-message-guide.md) — Commit 訊息規範
+- [程式碼簽入標準](../../core/checkin-standards.md) — 程式碼簽入標準
+- [程式碼審查清單](../../core/code-review-checklist.md) — 程式碼審查清單
+- [文件結構標準](../../core/documentation-structure.md) — 文件結構標準
 
 ---
 
@@ -317,6 +794,9 @@ Refs: SPEC-001
 
 | 版本 | 日期 | 變更內容 |
 |------|------|----------|
+| 2.1.0 | 2026-01-26 | 新增：變更評估（SDD 前置評估）章節含決策樹、雙向同步評估章節含同步矩陣與檢查清單 |
+| 2.0.0 | 2026-01-25 | **重大重構**：新增「SDD 作為獨立方法論」章節（將 SDD 與 TDD/BDD/ATDD 家族分離）、成熟度等級（Martin Fowler 2025）、常見陷阱、含理論基礎的驗證層、SDD + 測試整合模型、/derive-contracts 命令 |
+| 1.4.0 | 2026-01-19 | 新增：與正向推演整合章節、derive 命令 |
 | 1.3.0 | 2026-01-19 | 新增：與反向工程整合章節、相關命令 |
 | 1.2.0 | 2026-01-05 | 新增：IEEE 830-1998 和 SWEBOK v4.0 第 1 章（軟體需求）至參考資料 |
 | 1.1.0 | 2025-12-24 | 新增：工作流程圖、規格範本、整合指南、最佳實踐、相關標準、授權 |
@@ -326,11 +806,28 @@ Refs: SPEC-001
 
 ## 參考資料
 
+### SDD（2025 AI 時代）
+
+- [Thoughtworks: Spec-Driven Development](https://www.thoughtworks.com/en-us/insights/blog/agile-engineering-practices/spec-driven-development-unpacking-2025-new-engineering-practices)
+- [Martin Fowler: SDD Tools (Kiro, spec-kit, Tessl)](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html)
+- [GitHub spec-kit](https://github.com/github/spec-kit/blob/main/spec-driven.md)
+- [InfoQ: Spec-Driven Development](https://www.infoq.com/articles/spec-driven-development/)
+
+### 傳統需求工程
+
 - [OpenSpec Documentation](https://github.com/openspec)
 - [Design Documents Best Practices](https://www.industrialempathy.com/posts/design-docs-at-google/)
 - [ADR (Architecture Decision Records)](https://adr.github.io/)
-- [IEEE 830-1998 - 軟體需求規格](https://standards.ieee.org/ieee/830/1222/) - 需求文件標準
-- [SWEBOK v4.0 - 第 1 章：軟體需求](https://www.computer.org/education/bodies-of-knowledge/software-engineering) - IEEE Computer Society
+- [IEEE 830-1998 — 軟體需求規格](https://standards.ieee.org/ieee/830/1222/) — 需求文件標準
+- [SWEBOK v4.0 — 第 1 章：軟體需求](https://www.computer.org/education/bodies-of-knowledge/software-engineering) — IEEE Computer Society
+
+### 驗證理論
+
+- [Design by Contract — Bertrand Meyer, 1986](https://en.wikipedia.org/wiki/Design_by_contract) — 前後置條件理論
+- [Wikipedia: Formal Verification](https://en.wikipedia.org/wiki/Formal_verification) — 正式驗證理論
+- [Microsoft: Consumer-Driven Contract Testing](https://microsoft.github.io/code-with-engineering-playbook/automated-testing/cdc-testing/) — 契約測試框架
+- [Specmatic: AI-powered API Contract Testing](https://specmatic.io/) — 現代契約測試工具
+- [Gojko Adzic: Specification by Example](https://gojko.net/books/specification-by-example/) — 可執行規格（2011）
 
 ---
 

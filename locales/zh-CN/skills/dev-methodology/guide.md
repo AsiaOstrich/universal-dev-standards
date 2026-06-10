@@ -1,9 +1,9 @@
 ---
 source: ../../../../skills/dev-methodology/guide.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: a17742b81576
+source_version: 2.0.0
+translation_version: 2.0.0
+last_synced: 2026-06-10
+source_hash: cf9cbf22df6f
 status: current
 scope: partial
 description: |
