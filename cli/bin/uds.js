@@ -36,6 +36,17 @@ import { readManifest, isInitialized } from '../src/utils/copier.js';
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
 
+// Non-UTF-8 Windows consoles (e.g. CP950/Big5 on zh-TW systems) render UTF-8
+// output as mojibake — switch the active code page before any output (#125)
+if (process.platform === 'win32') {
+  try {
+    const { execSync } = await import('node:child_process');
+    execSync('chcp 65001', { stdio: 'ignore' });
+  } catch {
+    // Best effort — cosmetic only, never block the CLI
+  }
+}
+
 /**
  * Perform update check and print notice if a newer version is available.
  * Resolves silently on error so it never breaks CLI flow.
@@ -231,6 +242,7 @@ program
   .option('--patterns', 'Pattern detection only')
   .option('--friction', 'Friction detection only')
   .option('--report', 'Interactive feedback submission')
+  .option('--yes', 'Submit all findings without interactive selection (CI / non-TTY)')
   .option('--dry-run', 'Preview report without submitting')
   .option('--gh', 'Force gh CLI for submission')
   .option('--format <format>', 'Output format (json)')

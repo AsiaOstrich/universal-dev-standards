@@ -109,6 +109,28 @@ describe('Audit Utilities', () => {
       expect(missingIssue).toBeDefined();
     });
 
+    it('should not flag standards installed under subdirectories like options/ (#115)', () => {
+      const manifest = createValidManifest({
+        standards: ['testing']
+      });
+      mkdirSync(join(TEST_DIR, '.standards', 'options'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+      // Installed under options/ subdirectory instead of .standards/ root
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'options', 'testing.ai.yaml'),
+        'content'
+      );
+
+      const result = runHealthCheck(TEST_DIR);
+      const missingIssue = result.issues.find(i =>
+        i.component === 'testing.ai.yaml' && i.message.includes('missing')
+      );
+      expect(missingIssue).toBeUndefined();
+    });
+
     it('should detect broken AI config references', () => {
       const manifest = createValidManifest({
         aiTools: ['claude-code']
@@ -266,6 +288,72 @@ describe('Audit Utilities', () => {
       const orphaned = frictions.find(f => f.type === 'orphaned');
       expect(orphaned).toBeDefined();
       expect(orphaned.severity).toBe('MEDIUM');
+    });
+
+    it('should not flag tracked files inside options/ subdirectory as orphaned (#115)', () => {
+      const content = 'option standard content';
+      const hash = createHash('sha256').update(content).digest('hex');
+
+      const manifest = createValidManifest({
+        fileHashes: {
+          '.standards/options/github-flow.ai.yaml': {
+            hash: `sha256:${hash}`,
+            size: Buffer.byteLength(content),
+            installedAt: '2026-01-01'
+          }
+        }
+      });
+
+      mkdirSync(join(TEST_DIR, '.standards', 'options'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'options', 'github-flow.ai.yaml'),
+        content
+      );
+
+      const frictions = detectFrictions(TEST_DIR, manifest);
+      const orphaned = frictions.filter(f => f.type === 'orphaned');
+      expect(orphaned).toEqual([]);
+    });
+
+    it('should not flag release-config.yaml as orphaned (#115)', () => {
+      const manifest = createValidManifest({ fileHashes: {} });
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'release-config.yaml'),
+        'release_mode: standard'
+      );
+
+      const frictions = detectFrictions(TEST_DIR, manifest);
+      const orphaned = frictions.filter(f => f.type === 'orphaned');
+      expect(orphaned).toEqual([]);
+    });
+
+    it('should report untracked files in subdirectories with their relative path (#115)', () => {
+      const manifest = createValidManifest({ fileHashes: {} });
+
+      mkdirSync(join(TEST_DIR, '.standards', 'options'), { recursive: true });
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'manifest.json'),
+        JSON.stringify(manifest)
+      );
+      writeFileSync(
+        join(TEST_DIR, '.standards', 'options', 'stray.ai.yaml'),
+        'content'
+      );
+
+      const frictions = detectFrictions(TEST_DIR, manifest);
+      const orphaned = frictions.find(f => f.type === 'orphaned');
+      expect(orphaned).toBeDefined();
+      expect(orphaned.standard).toBe('options/stray.ai.yaml');
     });
 
     it('should detect unused standards', () => {

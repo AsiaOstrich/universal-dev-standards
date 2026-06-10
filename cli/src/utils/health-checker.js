@@ -11,7 +11,7 @@
  * @see docs/specs/system/SPEC-AUDIT-01-standards-audit.md (AC-1)
  */
 
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { readManifest } from './copier.js';
 import { compareFileHash, hasFileHashes } from './hasher.js';
@@ -67,6 +67,9 @@ export function runHealthCheck(projectPath) {
   if (manifest.standards && Array.isArray(manifest.standards)) {
     const allStds = getAllStandards();
     const stdFormat = manifest.format || 'ai';
+    // Option standards install under subdirectories (e.g. .standards/options/),
+    // so a root-only existence check reports them as false "missing" (#115)
+    const installedFileNames = collectInstalledFileNames(standardsDir);
     for (const standardId of manifest.standards) {
       // Resolve ID-format to actual filename via registry
       let fileName;
@@ -82,7 +85,7 @@ export function runHealthCheck(projectPath) {
         fileName = standardId.split('/').pop();
       }
       const filePath = join(standardsDir, fileName);
-      if (!existsSync(filePath)) {
+      if (!existsSync(filePath) && !installedFileNames.has(fileName)) {
         issues.push({
           severity: 'WARNING',
           component: fileName,
@@ -109,6 +112,30 @@ export function runHealthCheck(projectPath) {
   const status = hasErrors ? 'ERROR' : hasWarnings ? 'WARNING' : 'OK';
 
   return { status, issues };
+}
+
+/**
+ * Recursively collect file basenames installed under .standards/
+ * (option standards live in subdirectories such as .standards/options/ — #115)
+ * @param {string} dir
+ * @param {Set<string>} names
+ * @returns {Set<string>}
+ */
+function collectInstalledFileNames(dir, names = new Set()) {
+  let entries;
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return names;
+  }
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      collectInstalledFileNames(join(dir, entry.name), names);
+    } else {
+      names.add(entry.name);
+    }
+  }
+  return names;
 }
 
 /**

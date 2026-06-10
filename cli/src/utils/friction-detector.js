@@ -162,25 +162,24 @@ function detectOrphanedFiles(projectPath, manifest) {
   // Get list of tracked files from manifest
   const trackedFiles = new Set();
 
-  // From fileHashes
+  // From fileHashes (normalize separators so Windows-written manifests match)
   if (manifest.fileHashes) {
     for (const key of Object.keys(manifest.fileHashes)) {
       if (key.startsWith('.standards/') || key.startsWith('.standards\\')) {
-        trackedFiles.add(key.replace(/^\.standards[/\\]/, ''));
+        trackedFiles.add(key.replace(/^\.standards[/\\]/, '').replaceAll('\\', '/'));
       }
     }
   }
 
-  // Always exclude manifest.json
+  // Always exclude UDS-managed files that are not hash-tracked
   trackedFiles.add('manifest.json');
+  trackedFiles.add('release-config.yaml'); // written by `uds config` (#115)
 
-  // Scan .standards/ directory
-  let actualFiles;
-  try {
-    actualFiles = readdirSync(standardsDir).filter(f => f !== 'manifest.json');
-  } catch {
-    return frictions;
-  }
+  // Scan .standards/ recursively — option standards live in subdirectories
+  // such as .standards/options/, which a flat readdir reports as an
+  // orphaned "options" entry (#115)
+  const actualFiles = collectRelativeFilePaths(standardsDir)
+    .filter(f => f !== 'manifest.json');
 
   for (const fileName of actualFiles) {
     if (!trackedFiles.has(fileName)) {
@@ -195,4 +194,29 @@ function detectOrphanedFiles(projectPath, manifest) {
   }
 
   return frictions;
+}
+
+/**
+ * Recursively list files under a directory as '/'-separated relative paths
+ * @param {string} baseDir
+ * @param {string} prefix
+ * @param {Array<string>} acc
+ * @returns {Array<string>}
+ */
+function collectRelativeFilePaths(baseDir, prefix = '', acc = []) {
+  let entries;
+  try {
+    entries = readdirSync(baseDir, { withFileTypes: true });
+  } catch {
+    return acc;
+  }
+  for (const entry of entries) {
+    const relPath = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      collectRelativeFilePaths(join(baseDir, entry.name), relPath, acc);
+    } else {
+      acc.push(relPath);
+    }
+  }
+  return acc;
 }

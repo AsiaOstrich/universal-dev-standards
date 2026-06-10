@@ -302,19 +302,40 @@ async function handleReport(auditResult, options, msg) {
     return;
   }
 
-  // Interactive selection
+  // Interactive selection (skipped with --yes: submit all findings)
   let selectedFindings = findings.map(f => f.value);
   let userComments = '';
 
-  if (!isDryRun) {
-    const selected = await checkbox({
-      message: msg.submitPrompt || 'Select findings to submit:',
-      choices: findings
-    });
+  const submitAll = options.yes || false;
+  const nonInteractiveHint = msg.nonInteractiveHint ||
+    'Interactive prompt unavailable in this terminal. Re-run with `uds audit --report --yes` to submit all findings without prompts.';
 
-    const comments = await input({
-      message: msg.userCommentsPrompt || 'Additional comments (optional):'
-    });
+  if (!isDryRun && !submitAll) {
+    // @inquirer/prompts throws ExitPromptError on non-TTY stdin
+    // (CI, piped shells, some Windows consoles) — guard instead of crashing (#125)
+    if (!process.stdin.isTTY) {
+      console.log(chalk.yellow(nonInteractiveHint));
+      return;
+    }
+
+    let selected;
+    let comments;
+    try {
+      selected = await checkbox({
+        message: msg.submitPrompt || 'Select findings to submit:',
+        choices: findings
+      });
+
+      comments = await input({
+        message: msg.userCommentsPrompt || 'Additional comments (optional):'
+      });
+    } catch (err) {
+      if (err && err.name === 'ExitPromptError') {
+        console.log(chalk.yellow(nonInteractiveHint));
+        return;
+      }
+      throw err;
+    }
 
     selectedFindings = selected;
     userComments = comments || '';
