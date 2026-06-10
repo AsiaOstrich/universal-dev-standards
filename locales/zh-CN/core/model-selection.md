@@ -1,8 +1,8 @@
 ---
 source: ../../../core/model-selection.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
+source_version: 1.0.1
+translation_version: 1.0.1
+last_synced: 2026-06-10
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 # AI 模型选择策略
 
-**版本**: 1.0.0
-**最后更新**: 2026-03-20
+**版本**: 1.0.1
+**最后更新**: 2026-06-10
 **适用范围**: 使用多层级模型的 AI 辅助开发
 **范围**: universal
 **灵感来源**: [Superpowers](https://github.com/obra/superpowers) — subagent-driven-development (MIT)
@@ -100,10 +100,33 @@ status: current
 
 ---
 
+## 与下一步建议整合
+
+[ai-response-navigation](ai-response-navigation.md) 标准（规则 R6，可选）允许每个「建议下一步」选项携带级别标注。本标准的复杂度信号即为判断依据。
+
+**与厂商无关原则**：级别名称（Fast／Standard／Capable）是工具无关的泛称。各平台自行将级别映射到可用模型。
+
+| 级别 | 典型能力定位 |
+|------|-------------|
+| Fast | 轻量级 / 指令遵循 |
+| Standard | 均衡推理 + 代码生成 |
+| Capable | 高级推理、架构分析 |
+
+---
+
 ## 相关标准
 
 - [代理派遣与并行协调](agent-dispatch.md)
 - [验证证据](verification-evidence.md)
+
+---
+
+## 版本历史
+
+| 版本 | 日期 | 变更 |
+|------|------|------|
+| 1.0.1 | 2026-06-10 | 新增「与下一步建议整合」节（R6 交叉引用；与厂商无关原则） |
+| 1.0.0 | 2026-03-20 | 初始版本 |
 
 ---
 

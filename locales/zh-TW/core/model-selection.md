@@ -1,8 +1,8 @@
 ---
 source: ../../../core/model-selection.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
+source_version: 1.0.1
+translation_version: 1.0.1
+last_synced: 2026-06-10
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../core/model-selection.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-03-20
+**版本**: 1.0.1
+**最後更新**: 2026-06-10
 **適用性**: 使用多模型分級的 AI 輔助開發
 **範圍**: 通用 (Universal)
 **靈感來源**: [Superpowers](https://github.com/obra/superpowers) — subagent-driven-development (MIT)
@@ -76,8 +76,31 @@ status: current
 | **預篩選** | 先用低成本模型判斷是否需要升級 |
 | **任務分解** | 將複雜任務拆分為多個簡單子任務 |
 
+## 與下一步建議整合
+
+[ai-response-navigation](ai-response-navigation.md) 標準（規則 R6，選用）允許每個「建議下一步」選項攜帶等級標注。本標準的複雜度信號即為判斷依據。
+
+**與廠商無關原則**：等級名稱（Fast／Standard／Capable）是工具無關的泛稱。各平台自行將等級映射到可用模型。
+
+| 等級 | 典型能力定位 |
+|------|-------------|
+| Fast | 輕量級 / 指令遵循 |
+| Standard | 均衡推理 + 程式碼生成 |
+| Capable | 進階推理、架構分析 |
+
+---
+
 ## 相關標準
 
 - [代理派遣與並行協調](agent-dispatch.md)
 - [驗證證據](verification-evidence.md)
 - [系統化除錯](systematic-debugging.md)
+
+---
+
+## 版本歷史
+
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.1 | 2026-06-10 | 新增「與下一步建議整合」節（R6 交叉引用；與廠商無關原則） |
+| 1.0.0 | 2026-03-20 | 初始版本 |

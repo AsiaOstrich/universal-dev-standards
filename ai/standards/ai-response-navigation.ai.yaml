@@ -3,8 +3,8 @@
 
 id: ai-response-navigation
 meta:
-  version: "1.0.0"
-  updated: "2026-03-25"
+  version: "1.1.0"
+  updated: "2026-06-10"
   source: core/ai-response-navigation.md
   description: Every substantive AI response must include contextual next-step suggestions with recommended options
 
@@ -63,6 +63,19 @@ rules:
       Align the format with this standard's templates. Keep skill-specific contextual recommendations
       but ensure format consistency — use blockquote, recommendation marking, and appropriate template.
     priority: recommended
+
+  - id: model-tier-annotation
+    trigger: a next-step option clearly maps to a specific task complexity tier
+    instruction: >
+      OPTIONALLY append a model tier annotation after the option description:
+      〔model: Fast〕, 〔model: Standard〕, or 〔model: Capable〕.
+      Use complexity signals from the model-selection standard to determine the tier:
+      Fast = single file, unambiguous spec; Standard = 2-5 files, inter-module judgment;
+      Capable = 5+ files, architectural decisions.
+      Tier names are vendor-neutral — each tool maps them to available models independently.
+      Existing skills do not need retroactive updates; new and revised skills are encouraged to adopt.
+      Localized notation: 〔模型：Fast〕 / 〔模型：Standard〕 / 〔模型：Capable〕
+    priority: optional
 
 related_standards:
   - ai-command-behavior

@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/model-selection.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-03-20
+**Version**: 1.0.1
+**Last Updated**: 2026-06-10
 **Applicability**: AI-assisted development with multiple model tiers
 **Scope**: universal
 **Inspired by**: [Superpowers](https://github.com/obra/superpowers) — subagent-driven-development (MIT)
@@ -231,3 +231,28 @@ Escalation means using a more capable model, not repeating the same action. The 
 - **能力維度（XSPEC-027）** — 基於模型能力（Can this model do it?）
 
 兩者並用：先依複雜度選擇 Tier，再依能力維度確認選中的模型支援任務所需的 capability。
+
+---
+
+## Navigation Integration | 與下一步建議整合
+
+The [ai-response-navigation](ai-response-navigation.md) standard (Rule R6, optional) allows each next-step suggestion option to carry a Tier annotation. The complexity signals in this standard serve as the judgment basis.
+
+**Vendor-neutral principle**: Tier names (Fast / Standard / Capable) are tool-agnostic labels. They do not correspond to any specific vendor's model identifiers. Each platform or tool independently maintains its own Tier → concrete model mapping.
+
+Example mapping (illustrative only, not normative):
+
+| Tier | Typical capability level |
+|------|--------------------------|
+| Fast | Lightweight / instruction-following |
+| Standard | Balanced reasoning + code generation |
+| Capable | Advanced reasoning, architectural analysis |
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.1 | 2026-06-10 | Add Navigation Integration section (R6 cross-reference; vendor-neutral principle) |
+| 1.0.0 | 2026-03-20 | Initial release |

@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/ai-response-navigation.md) | [简体中文](../locales/zh-CN/core/ai-response-navigation.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-03-25
+**Version**: 1.1.0
+**Last Updated**: 2026-06-10
 **Applicability**: All projects using AI-assisted development
 **Scope**: universal
 **Industry Standards**: None (Emerging AI tool practice)
@@ -68,6 +68,32 @@ Adjust the number of options based on context complexity:
 ### Rule 5: Prefer Slash Commands
 
 When a next-step suggestion corresponds to a known slash command, reference it using `` `/command` `` format so users can copy and execute directly. Use natural language descriptions for steps without corresponding commands.
+
+### Rule 6: Model Tier Annotation（Optional）
+
+When a next-step option clearly maps to a specific complexity tier, you MAY annotate it with a model tier hint. This annotation is **strictly optional** — existing skills do not need to be updated retroactively; new and revised skills are encouraged to adopt it.
+
+**Notation**: append `〔model: Fast〕`, `〔model: Standard〕`, or `〔model: Capable〕` after the option description.
+
+**Tier selection**: use the complexity signals from the [model-selection](model-selection.md) standard:
+- `Fast` — single file, unambiguous spec, no design judgment
+- `Standard` — 2–5 files, inter-module understanding needed
+- `Capable` — 5+ files, architectural decisions, cross-system correctness
+
+**Localized notation**:
+- 繁體中文：`〔模型：Fast〕` / `〔模型：Standard〕` / `〔模型：Capable〕`
+- 简体中文：`〔模型：Fast〕` / `〔模型：Standard〕` / `〔模型：Capable〕`
+
+Tier names are **vendor-neutral**. Each tool or platform maps these tiers to its available models independently.
+
+**Example** (task completed, with tier annotations):
+
+```markdown
+> **Suggested next steps:**
+> - Run `/derive bdd` to extract BDD scenarios `〔model: Fast〕` — format conversion only
+> - Run `/checkin` for quality gate verification ⭐ **Recommended** `〔model: Standard〕` — inter-module judgment required
+> - Run `/sdd` for integrated architecture design `〔model: Capable〕` — cross-system impact analysis
+```
 
 ---
 
@@ -257,6 +283,7 @@ Each tool's integration layer is responsible for rendering the Navigation Footer
 | R3 | Match template to response type |
 | R4 | 1–5 options, adapt to context |
 | R5 | Use `/command` format when applicable |
+| R6 | *(Optional)* Append `〔model: Fast\|Standard\|Capable〕` when tier is clear |
 
 | Exempt | Not Exempt |
 |--------|------------|
@@ -280,6 +307,7 @@ Each tool's integration layer is responsible for rendering the Navigation Footer
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-06-10 | Add R6 optional model tier annotation (`〔model: Fast\|Standard\|Capable〕`); vendor-neutral; no forced changes to existing skills |
 | 1.0.0 | 2026-03-25 | Initial release |
 
 ---

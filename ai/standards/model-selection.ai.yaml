@@ -8,8 +8,8 @@ standard:
   description: AI 模型分級選擇策略
 
   meta:
-    version: "2.0.0"
-    updated: "2026-04-13"
+    version: "2.0.1"
+    updated: "2026-06-10"
     source: core/model-selection.md
     description: "三層模型分級選擇策略 + 多模型池能力管理（XSPEC-027）"
     inspired_by: superpowers/subagent-driven-development
@@ -175,6 +175,15 @@ standard:
         condition: "模型降智偵測觸發 critical 信號"
         action: "自動切換備用模型，上報 P1 Issue"
         priority: critical
+
+  navigation_integration:
+    description: >
+      The ai-response-navigation standard (Rule R6, optional) allows next-step suggestion
+      options to carry a Tier annotation (〔model: Fast〕 / 〔model: Standard〕 / 〔model: Capable〕).
+      The complexity signals in this standard serve as the judgment basis for those annotations.
+    vendor_neutral_principle: >
+      Tier names (Fast / Standard / Capable) are vendor-agnostic labels.
+      Each platform independently maps these tiers to its available models.
 
 physical_spec:
   type: checklist
