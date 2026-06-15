@@ -114,26 +114,51 @@ function detectUnusedStandards(projectPath, manifest) {
 
   const allConfigText = configContents.join('\n');
 
-  // Check each standard file (handles both ID format and legacy path format)
+  // Build a filename -> canonical id index from the registry. AI configs
+  // reference a standard by its canonical id (e.g. `.standards/ai-agreement`),
+  // which often diverges from the installed filename: most files carry a
+  // `-standards` suffix the id drops, and a few diverge entirely
+  // (error-codes.ai.yaml -> id error-code-standards). Matching only on the
+  // filename therefore produced false "unused" findings whose remediation is
+  // `uds uninstall` — i.e. it could remove standards that are in active use. (#125)
   const allStdsFriction = getAllStandards();
   const frictionFormat = manifest.format || 'ai';
-  const standardFiles = (manifest.standards || []).map(s => {
+  const fileNameToId = new Map();
+  for (const entry of allStdsFriction) {
+    const src = getStandardSource(entry, frictionFormat) || getStandardSource(entry, 'human');
+    if (src) fileNameToId.set(src.split('/').pop(), entry.id);
+  }
+
+  // Resolve each manifest standard to its canonical id + filename
+  // (handles both ID format and legacy path format)
+  const standardRefs = (manifest.standards || []).map(s => {
+    let id;
+    let fileName;
     if (!s.includes('/') && !s.includes('.')) {
-      // ID format: resolve to actual filename
+      // ID format: the entry itself is the id; resolve filename via registry
+      id = s;
       const entry = allStdsFriction.find(r => r.id === s);
-      if (entry) {
-        const src = getStandardSource(entry, frictionFormat);
-        if (src) return src.split('/').pop();
-      }
-      return s;
+      const src = entry ? getStandardSource(entry, frictionFormat) : null;
+      fileName = src ? src.split('/').pop() : s;
+    } else {
+      // Path format: derive filename, then look up canonical id
+      fileName = s.split('/').pop();
+      id = fileNameToId.get(fileName) || null;
     }
-    return s.split('/').pop();
+    return { id, fileName };
   });
 
-  for (const fileName of standardFiles) {
-    // Check if the filename (without extension) is referenced
+  for (const { id, fileName } of standardRefs) {
     const baseName = fileName.replace(/\.ai\.yaml$/, '').replace(/\.md$/, '');
-    if (!allConfigText.includes(fileName) && !allConfigText.includes(baseName)) {
+    // Candidate reference tokens, canonical id first. The trailing
+    // `-standards` strip is a defensive fallback for standards absent from the
+    // registry. A match on any token means the standard is referenced — erring
+    // toward "referenced" is the safe direction (avoid uninstall-driven data loss).
+    const candidates = [id, fileName, baseName, baseName.replace(/-standards$/, '')]
+      .filter(Boolean);
+    const referenced = candidates.some(token => allConfigText.includes(token));
+
+    if (!referenced) {
       frictions.push({
         standard: fileName,
         type: 'unused',

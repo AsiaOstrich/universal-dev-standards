@@ -410,6 +410,74 @@ describe('Audit Utilities', () => {
       const unused = frictions.find(f => f.standard === 'testing.ai.yaml' && f.type === 'unused');
       expect(unused).toBeUndefined();
     });
+
+    // #125: AI configs reference a standard by its canonical id, which often
+    // drops a `-standards` suffix carried by the filename. Matching only on the
+    // filename produced false "unused" findings whose remediation (uninstall)
+    // could remove standards in active use.
+    it('should not flag standards referenced by canonical id when filename has a -standards suffix', () => {
+      const content = 'some yaml content';
+      const hash = createHash('sha256').update(content).digest('hex');
+
+      const manifest = createValidManifest({
+        standards: ['ai/standards/ai-agreement-standards.ai.yaml'],
+        aiTools: ['claude-code'],
+        fileHashes: {
+          '.standards/ai-agreement-standards.ai.yaml': {
+            hash: `sha256:${hash}`,
+            size: Buffer.byteLength(content),
+            installedAt: '2026-01-01'
+          }
+        }
+      });
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.standards', 'ai-agreement-standards.ai.yaml'), content);
+      // CLAUDE.md references the canonical id (no -standards suffix)
+      writeFileSync(
+        join(TEST_DIR, 'CLAUDE.md'),
+        '# Project\n- `.standards/ai-agreement` — AI agreement standards'
+      );
+
+      const frictions = detectFrictions(TEST_DIR, manifest);
+      const unused = frictions.find(
+        f => f.standard === 'ai-agreement-standards.ai.yaml' && f.type === 'unused'
+      );
+      expect(unused).toBeUndefined();
+    });
+
+    // #125: the hardest divergence — file error-codes.ai.yaml has canonical id
+    // error-code-standards (singular/suffix mismatch). Resolved via the registry.
+    it('should not flag a standard whose canonical id fully diverges from its filename', () => {
+      const content = 'some yaml content';
+      const hash = createHash('sha256').update(content).digest('hex');
+
+      const manifest = createValidManifest({
+        standards: ['ai/standards/error-codes.ai.yaml'],
+        aiTools: ['claude-code'],
+        fileHashes: {
+          '.standards/error-codes.ai.yaml': {
+            hash: `sha256:${hash}`,
+            size: Buffer.byteLength(content),
+            installedAt: '2026-01-01'
+          }
+        }
+      });
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.standards', 'error-codes.ai.yaml'), content);
+      // CLAUDE.md references the canonical id (error-code-standards), not the filename
+      writeFileSync(
+        join(TEST_DIR, 'CLAUDE.md'),
+        '# Project\n- `.standards/error-code-standards` — error code standards'
+      );
+
+      const frictions = detectFrictions(TEST_DIR, manifest);
+      const unused = frictions.find(
+        f => f.standard === 'error-codes.ai.yaml' && f.type === 'unused'
+      );
+      expect(unused).toBeUndefined();
+    });
   });
 
   // ========================
