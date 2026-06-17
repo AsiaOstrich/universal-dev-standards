@@ -160,6 +160,74 @@ CI reports AC coverage rate. If more than 20% of ACs lack `@ac`-tagged tests, a 
 
 ---
 
+## Migration Error-Path Completeness (XSPEC-288)
+
+> Part of the [XSPEC-284](https://github.com/AsiaOstrich/universal-dev-standards) 9-axis migration completeness matrix (**axis ⑨ — error paths**). The three-path model above requires an error path **per function**; this section adds the **migration-specific** guarantee that legacy's error/degradation/fallback branches are **systematically** carried over — not merely sampled.
+
+### Why the three-path model alone is not enough for a migration
+
+The per-function error-path requirement and XSPEC-201's error-path snapshot only verify the error cases **you thought to enumerate**. In a rewrite the happy path is migrated because it has an explicit requirement, while error branches — scattered across `try/catch` layers, custom exception hierarchies, specific error codes, and degradation fallbacks — are **silently dropped in bulk**. A passing error-path sample does not prove **no branch was missed** (same blind-spot class as #134, occurring on the error-path layer). This section is the **systematic-enumeration + gap-analysis** layer above the snapshot mechanism.
+
+### Step 1 — Mechanized legacy exception / error-code list (derive, R1)
+
+Enumerate the legacy error surface **mechanically**, not from memory:
+
+| Source | Yields |
+|--------|--------|
+| `catch` / `except` / `rescue` blocks (grep) | every caught exception type + handler |
+| Custom exception / error class hierarchy | the declared error taxonomy |
+| Error/status codes (HTTP status, app error codes, error enums) | the response-code surface |
+| Error response shapes (serializers, error DTOs) | the on-the-wire error contract |
+
+The captured list is the **error-path to-verify checklist** — sourced from artifacts, not human recall.
+
+### Step 2 — Systematic missing-branch gap analysis (oracle, R2)
+
+For **each** legacy error branch from Step 1, verify the new system has a corresponding handler. A branch with no mapping is marked `not_implemented` (XSPEC-199) and **blocks**. The output is a **"missing error branch" gap report** over the full derived list — not a sample that happened to pass.
+
+```markdown
+## Error-Path Gap Report — <module>
+
+| Legacy branch (error type / code) | New-system handler | Status |
+|-----------------------------------|--------------------|--------|
+| PaymentDeclinedException → 402 | PaymentService.handleDecline | MAPPED |
+| GatewayTimeout → retry+fallback | (none found) | not_implemented — BLOCK |
+| ValidationError → 422 + field list | InputValidator | MAPPED |
+
+**Branches: N total · M mapped · K not_implemented (block if K>0)**
+```
+
+### Step 3 — Degradation / fallback parity (R3)
+
+Legacy degradation modes (fallback on external-service failure, retry, partial results) are easy to drop because they only run when something fails. Verify the new system preserves the corresponding degradation behavior, so the system is not "consistent on the happy path, wildly different on failure":
+
+- [ ] External-service-failure **fallback** behavior matches legacy
+- [ ] **Retry** policy (count, backoff, give-up) matches legacy
+- [ ] **Partial-result** handling matches legacy (returns what it can vs all-or-nothing)
+- [ ] **Circuit-breaker / timeout** degradation matches legacy
+
+### Step 4 — Error-response differential (oracle, R4)
+
+Extend [behavior-snapshot](behavior-snapshot.md) parity and XSPEC-284 R5 replay to cover the **error response**, not just the happy-path response. Compare new vs legacy on:
+
+- **Error code** (HTTP status, app error code)
+- **Message structure** (error DTO shape, field-level errors)
+- **HTTP status** mapping per error class
+
+This makes implicit error-path divergence self-report at cutover, the same way the happy-path snapshot does.
+
+**Gate timing**: pre-UAT (gap analysis + degradation parity) + cutover before/after (error-response differential).
+
+### Importance ranking (scope guidance)
+
+Not every legacy error branch must map at equal priority. Rank by **production-actual trigger frequency** (echoes #134 "production is the oracle"): branches that have actually fired in production logs are mapped first; never-fired latent branches are lower priority but still listed. A high-frequency production error branch with no new-system mapping is a hard block.
+
+### Completeness declaration (matrix alignment)
+
+Axis ⑨ is satisfied when this section declares all three: **derive** (Step 1 mechanized exception/error-code list), **oracle** (Step 2 systematic gap analysis + Step 4 error-response differential), and **gate timing** (pre-UAT + cutover before/after). Reuse XSPEC-201 error-path snapshot + the three-path model above — this section adds only systematic missing-branch analysis and the error-response differential, it does not rebuild a test framework.
+
+---
+
 ## Migration from Pyramid Model
 
 If your project previously used pyramid thresholds:
@@ -180,7 +248,10 @@ The ratchet starts at your current coverage. From that point on, it can only inc
 - `unit-testing.ai.yaml` — Unit test scope and organization
 - `integration-testing.ai.yaml` — Integration test patterns
 - `deployment-standards.ai.yaml` — Deploy gate requirements
+- `behavior-snapshot.md` — Error-response differential oracle (Migration Error-Path Completeness, axis ⑨)
+- `migration-assistant` skill — Legacy exception/error-code derive + degradation parity (XSPEC-288)
 - XSPEC-178 — Full specification and implementation phases
+- XSPEC-288 — Migration Error-Path Completeness (axis ⑨ of XSPEC-284 matrix)
 
 
 **Scope**: universal

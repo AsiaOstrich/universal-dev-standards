@@ -8,8 +8,8 @@ standard:
   description: Behavior-completeness full coverage paradigm replacing pyramid thresholds. Enforces anti-fake-test rules, STUB marker protocol, ratchet CI, and @ac traceability.
 
   meta:
-    version: "1.0.0"
-    updated: "2026-05-06"
+    version: "1.1.0"
+    updated: "2026-06-17"
     source: core/full-coverage-testing.md
     replaces: "testing pyramid thresholds (UT≥80%/IT≥70%/E2E happy-path-only)"
     xspec: "XSPEC-178"
@@ -190,6 +190,38 @@ standard:
       - "Ratchet CI: coverage can only increase"
       - "Anti-fake rules: no tautology, no business-logic mocks"
       - "STUB protocol: deployment gates on all environments"
+
+  # XSPEC-288: Migration Error-Path Completeness (axis 9 of XSPEC-284 completeness matrix)
+  # The three-path model requires an error path PER FUNCTION; this adds the migration
+  # guarantee that legacy error/degradation/fallback branches are SYSTEMATICALLY carried
+  # over, not merely sampled. Systematic-enumeration + gap-analysis layer above the
+  # XSPEC-201 error-path snapshot.
+  migration_error_path_completeness:
+    axis: "9 (error paths) of XSPEC-284 migration completeness matrix"
+    why_gap: "Per-function error path + XSPEC-201 snapshot verify only enumerated error cases. A rewrite drops scattered error branches in bulk; a passing sample does not prove no branch was missed."
+    derive: # R1 mechanized legacy exception/error-code list
+      sources:
+        catch_blocks: "grep catch/except/rescue -> every caught exception type + handler"
+        exception_hierarchy: "custom exception/error class taxonomy"
+        error_codes: "HTTP status, app error codes, error enums"
+        error_shapes: "error serializers/DTOs -> on-the-wire error contract"
+      note: "Captured list is the error-path to-verify checklist, sourced from artifacts not recall."
+    gap_analysis: # R2 systematic missing-branch oracle
+      rule: "for EACH legacy error branch verify a corresponding new-system handler; no mapping -> not_implemented (XSPEC-199) -> BLOCK"
+      output: "missing-error-branch gap report over the full derived list, not a passing sample"
+    degradation_parity: # R3
+      checklist: [external_failure_fallback, retry_policy, partial_result_handling, circuit_breaker_timeout]
+      goal: "not consistent on happy path but wildly different on failure"
+    error_response_differential: # R4
+      extends: "behavior-snapshot parity + XSPEC-284 R5 replay, applied to the ERROR response"
+      compare: [error_code, message_structure, http_status]
+    importance_ranking: "rank by production-actual trigger frequency (#134 production is the oracle); fired-in-prod branches mapped first; a high-frequency prod error branch with no mapping is a hard block"
+    gate_timing: [pre-UAT, "cutover before/after"]
+    completeness_declaration:
+      derive: "Step1 mechanized exception/error-code list"
+      oracle: "Step2 systematic gap analysis + Step4 error-response differential"
+      gate_timing: "pre-UAT + cutover before/after"
+      reuse: "XSPEC-201 error-path snapshot + three-path model; adds only systematic missing-branch analysis + error-response differential"
 
 physical_spec:
   type: custom_script

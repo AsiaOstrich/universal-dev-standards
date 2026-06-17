@@ -1,9 +1,9 @@
 ---
 source: ../../../core/full-coverage-testing.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-06-10
-source_hash: e05fa172a6ee
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-06-17
+source_hash: a8cffbab007a
 status: current
 ---
 
@@ -171,6 +171,56 @@ CI 會回報 AC 覆蓋率。若超過 20% 的 AC 沒有 `@ac` 標籤的測試，
 
 ---
 
+## 遷移錯誤路徑完整性（XSPEC-288）
+
+> 屬於 [XSPEC-284](https://github.com/AsiaOstrich/universal-dev-standards) 9 軸遷移完整性矩陣的**軸⑨（錯誤路徑）**。上述三路徑模型要求**每個函式**都有錯誤路徑；本節新增**遷移專屬**保證——legacy 的錯誤/降級/fallback 分支被**系統性**移植，而非僅抽樣。
+
+### 為何三路徑模型對遷移不夠
+
+每函式錯誤路徑要求與 XSPEC-201 的錯誤路徑快照，只驗你**想到要列舉**的錯誤案例。重寫時 happy path 因有明確需求而被移植，而錯誤分支——散落於 `try/catch` 階層、自訂例外階層、特定錯誤碼、降級 fallback——**被整批靜默遺漏**。通過的錯誤路徑抽樣**不證明沒有任何分支被漏**（與 #134 同源盲區，只是發生在錯誤路徑層）。本節是快照機制之上的**系統性列舉 + gap 分析**層。
+
+### 步驟 1 — 機械化 legacy 例外/錯誤碼清單（derive，R1）
+
+**機械化**列舉 legacy 錯誤面，不靠人腦回憶：
+
+| 來源 | 推導出 |
+|------|--------|
+| `catch`／`except`／`rescue` 區塊（grep） | 每個捕捉的例外型別 + handler |
+| 自訂例外／錯誤類階層 | 宣告的錯誤分類法 |
+| 錯誤／狀態碼（HTTP status、app 錯誤碼、錯誤 enum） | 回應碼面 |
+| 錯誤回應形狀（serializer、錯誤 DTO） | on-the-wire 錯誤契約 |
+
+擷取的清單即**錯誤路徑待驗清單**——來自 artifact 而非人腦回憶。
+
+### 步驟 2 — 系統性遺漏分支 gap 分析（oracle，R2）
+
+對步驟 1 的**每條** legacy 錯誤分支，驗證新系統有對應 handler。無對映者標 `not_implemented`（XSPEC-199）並 **block**。產出涵蓋完整推導清單的**「遺漏錯誤分支」gap 報告**——而非僅抽樣通過。
+
+### 步驟 3 — 降級／Fallback 對等（R3）
+
+legacy 降級模式（外部服務失敗時的 fallback、重試、部分結果）因只在失敗時才執行而容易被漏。驗證新系統保留對應降級行為，避免「正常路徑一致、失敗時行為迥異」：
+
+- [ ] 外部服務失敗的 **fallback** 行為與 legacy 一致
+- [ ] **重試**策略（次數、backoff、放棄條件）與 legacy 一致
+- [ ] **部分結果**處理與 legacy 一致（盡量回傳 vs all-or-nothing）
+- [ ] **斷路器／逾時**降級與 legacy 一致
+
+### 步驟 4 — 錯誤回應差分（oracle，R4）
+
+把 [behavior-snapshot](behavior-snapshot.md) 對等與 XSPEC-284 R5 replay 延伸涵蓋**錯誤回應**，不只 happy-path 回應。比對新舊：**錯誤碼**（HTTP status、app 錯誤碼）、**訊息結構**（錯誤 DTO 形狀、欄位級錯誤）、各錯誤類的 **HTTP status** 對映。讓隱性錯誤路徑分歧在 cutover 自報，如同 happy-path 快照。
+
+**Gate 時機**：pre-UAT（gap 分析 + 降級對等）+ cutover 前後（錯誤回應差分）。
+
+### 重要性分級（範圍指引）
+
+並非每條 legacy 錯誤分支都同等優先。依**生產實際觸發頻率**排序（呼應 #134「以生產為準」）：生產 log 中實際觸發過的分支優先對映；從未觸發的潛在分支較低優先但仍列入。高頻生產錯誤分支若無新系統對映即硬 block。
+
+### 完整性宣告（矩陣對齊）
+
+當本節宣告三件事——**清單來源**（步驟 1 機械化例外/錯誤碼清單）、**oracle**（步驟 2 系統性 gap 分析 + 步驟 4 錯誤回應差分）、**gate 時機**（pre-UAT + cutover 前後）——即滿足軸⑨。複用 XSPEC-201 錯誤路徑快照 + 上述三路徑模型——本節只新增系統性遺漏分支分析與錯誤回應差分，不重造測試框架。
+
+---
+
 ## 從金字塔模型遷移
 
 若你的專案先前使用金字塔門檻：
@@ -191,7 +241,10 @@ CI 會回報 AC 覆蓋率。若超過 20% 的 AC 沒有 `@ac` 標籤的測試，
 - `unit-testing.ai.yaml` — 單元測試範圍與組織
 - `integration-testing.ai.yaml` — 整合測試模式
 - `deployment-standards.ai.yaml` — 部署閘門需求
+- `behavior-snapshot.md` — 錯誤回應差分 oracle（遷移錯誤路徑完整性，軸⑨）
+- `migration-assistant` skill — legacy 例外/錯誤碼 derive + 降級對等（XSPEC-288）
 - XSPEC-178 — 完整規格與實作階段
+- XSPEC-288 — 遷移錯誤路徑完整性（XSPEC-284 矩陣軸⑨）
 
 
 **Scope**: universal

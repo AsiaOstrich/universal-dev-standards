@@ -334,6 +334,36 @@ Verify the new system preserves **idempotency** (a repeated operation does not p
 
 **287（本節，軸⑧）**負責**轉移合法性 + 時序正確性**（領域問題）；**[XSPEC-286](../../core/performance-standards.md) 軸⑥**負責**並發競態／隔離**（效能/競爭問題）。重疊案例（並發導致非法轉移）的並發面歸 286、轉移合法性面歸本節；落地時依主導失敗模式指派主責。
 
+## Error-Path Completeness | 錯誤路徑完整性
+
+> **Implements**: XSPEC-284 R9 (axis ⑨) → split out as **XSPEC-288**.
+
+The most common migration omission is "happy path migrated, error / degradation / fallback branches dropped in bulk". The happy path has an explicit requirement; error branches are scattered (try/catch layers, custom exception hierarchies, specific error codes) and silently lost. This skill owns the **migration derive + degradation parity** (R1/R3); the **systematic missing-branch gap analysis + error-response differential** (R2/R4) lives in [full-coverage-testing](../../core/full-coverage-testing.md) "Migration Error-Path Completeness".
+
+最常見的遷移遺漏是「happy path 移了、錯誤／降級／fallback 分支整批被漏」。happy path 有明確需求，錯誤分支散落（try/catch 階層、自訂例外階層、特定錯誤碼）而被靜默遺失。本 skill 負責**遷移 derive + 降級對等**（R1/R3）；**系統性遺漏分支 gap 分析 + 錯誤回應差分**（R2/R4）落在 [full-coverage-testing](../../core/full-coverage-testing.md)「Migration Error-Path Completeness」。
+
+### Step 1 — Mechanized legacy exception / error-code list (derive, R1) | 機械化例外/錯誤碼清單
+
+Enumerate the legacy error surface **mechanically** (not from recall): grep `catch`/`except`/`rescue` blocks, the custom exception/error class hierarchy, all error/status codes, and error response shapes (serializers/DTOs). This list is the error-path to-verify checklist handed to the gap analysis in full-coverage-testing.
+
+**機械化**列舉 legacy 錯誤面（不靠回憶）：grep `catch`／`except`／`rescue` 區塊、自訂例外/錯誤類階層、所有錯誤/狀態碼、錯誤回應形狀（serializer／DTO）。此清單即交給 full-coverage-testing gap 分析的錯誤路徑待驗清單。
+
+### Step 2 — Degradation / fallback parity (R3) | 降級／Fallback 對等
+
+legacy degradation modes only run on failure, so they are easy to drop. Verify the new system preserves them — fail closed on parity, not "consistent on happy path, wildly different on failure":
+
+legacy 降級模式只在失敗時執行，容易被漏。驗證新系統保留——對等上 fail closed，而非「正常路徑一致、失敗時行為迥異」：
+
+- [ ] External-service-failure **fallback** matches legacy | 外部服務失敗 fallback 與 legacy 一致
+- [ ] **Retry** policy (count / backoff / give-up) matches legacy | 重試策略（次數／backoff／放棄）與 legacy 一致
+- [ ] **Partial-result** handling matches legacy | 部分結果處理與 legacy 一致
+- [ ] **Circuit-breaker / timeout** degradation matches legacy | 斷路器／逾時降級與 legacy 一致
+
+> **Importance ranking**: rank legacy error branches by **production-actual trigger frequency** (#134 "production is the oracle"). A high-frequency prod error branch with no new-system mapping is a hard block; never-fired latent branches are still listed but lower priority.
+> **重要性分級**：依**生產實際觸發頻率**排序（#134「以生產為準」）。高頻生產錯誤分支無對映即硬 block；從未觸發的潛在分支仍列入但較低優先。
+
+> Cross-ref: [full-coverage-testing](../../core/full-coverage-testing.md) Migration Error-Path Completeness (gap report + error-response differential, R2/R4); [behavior-snapshot](../../core/behavior-snapshot.md) (error-response parity).
+
 ## Rollback Strategy | 回滾策略
 
 | Approach | When to Use | 使用時機 |
@@ -384,10 +414,10 @@ Each migration declares, per axis, three things: **derive** (list source) · **d
 | ⑥ Non-functional | legacy perf baseline + concurrency list | latency/throughput regression + isolation | pre-UAT | XSPEC-286 (split out) |
 | ⑦ Data integrity | schema type / encoding / timezone list | row count + checksum + encoding bytes + aggregate equality | post-migration + post-cutover | XSPEC-172 data-migration-testing; XSPEC-206; XSPEC-284 R6 (future) |
 | ⑧ **State machine** | legacy transition graph (enum + update-points + prod sequences) | **legal transitions + temporal invariants (`created ≤ updated`)** | pre-UAT + **post-cutover** | **This skill — State-Machine & Temporal Parity** (XSPEC-287) |
-| ⑨ Error paths | legacy exception hierarchy / error codes | error-path snapshot + systematic gap analysis | pre-UAT | XSPEC-288 (split out); full-coverage-testing |
+| ⑨ **Error paths** | legacy exception hierarchy / error codes (this skill derive + degradation) | **error-path snapshot + systematic gap analysis + error-response differential** | pre-UAT + cutover before/after | **This skill — Error-Path Completeness** (R1/R3) + **full-coverage-testing** Migration Error-Path Completeness (R2/R4); XSPEC-288 |
 | **Cross-axis** | — | **shadow run** (mirror prod to both) / **replay** (replay legacy requests) | cutover before/after | XSPEC-284 R5 (generalises `/vo-snapshot` parity, future) |
 
-每軸宣告〔清單來源 derive｜oracle detect｜gate 時機〕；標為已覆蓋者對映既有 UDS 標準，**勿重複造輪子**。未宣告的軸視為**已知遺漏風險**。本框架 P0 落地＝軸③④⑤（本 skill）；軸⑥已拆 XSPEC-286（落地於 performance-standards）、**軸⑧已落地於本 skill State-Machine & Temporal Parity（XSPEC-287）**、軸⑨拆 XSPEC-288。
+每軸宣告〔清單來源 derive｜oracle detect｜gate 時機〕；標為已覆蓋者對映既有 UDS 標準，**勿重複造輪子**。未宣告的軸視為**已知遺漏風險**。本框架 P0 落地＝軸③④⑤（本 skill）；軸⑥已拆 XSPEC-286（落地於 performance-standards）、**軸⑧已落地於本 skill State-Machine & Temporal Parity（XSPEC-287）**、**軸⑨已落地（XSPEC-288）＝本 skill Error-Path Completeness（R1/R3 derive + 降級）+ full-coverage-testing（R2/R4 系統性 gap 分析 + 錯誤回應差分）**。
 
 ## Reference | 參考
 
@@ -401,6 +431,7 @@ Each migration declares, per axis, three things: **derive** (list source) · **d
 
 | Version | Date | Changes | 變更 |
 |---------|------|---------|------|
+| 1.4.0 | 2026-06-17 | Added: Error-Path Completeness (axis ⑨, XSPEC-288) — mechanized legacy exception/error-code derive (R1) + degradation/fallback parity checklist (R3) + production-frequency importance ranking; systematic gap analysis + error-response differential (R2/R4) delegated to full-coverage-testing; matrix row ⑨ split between this skill and full-coverage-testing | 新增錯誤路徑完整性（軸⑨，XSPEC-288）：機械化例外/錯誤碼 derive（R1）+ 降級對等清單（R3）+ 生產頻率重要性分級；系統性 gap 分析 + 錯誤回應差分（R2/R4）委由 full-coverage-testing |
 | 1.3.0 | 2026-06-17 | Added: State-Machine & Temporal Parity (axis ⑧, XSPEC-287) — three-way transition-graph derive (enum + update-points + prod sequences), legal-transition validation, temporal invariants (`created ≤ updated` / no future / monotonic), sequence/idempotency parity, boundary with XSPEC-286 axis ⑥; matrix row ⑧ now owned by this skill | 新增狀態機與時序對等（軸⑧，XSPEC-287）：三方轉移圖萃取、合法轉移驗證、時序不變量、序列/冪等對等、與 XSPEC-286 軸⑥邊界 |
 | 1.2.0 | 2026-06-17 | Added: Post-Cutover Data Reconciliation (cutover-boundary SQL + tolerance/alerting + Gate-0 implicit-rule checklist + 3-gate positioning), Background Job / Side-Effect Completeness (exists + has-fired), 9-axis Completeness Matrix appendix; cross-ref behavior-snapshot/observability-assistant (XSPEC-284 P0 R2/R3 / closes #134) | 新增 Post-Cutover 生產資料對帳、背景作業完整性驗證、9 軸完整性矩陣附錄 |
 | 1.1.0 | 2026-05-26 | Added: API Migration Contract Tests section — mandatory fixture capture protocol, C#/TS templates, field-by-field audit checklist (XSPEC-233 / closes #112) | 新增 API 遷移合約測試章節 |
