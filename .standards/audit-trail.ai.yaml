@@ -1,0 +1,113 @@
+# Audit Trail Standards - AI Optimized
+# Source: XSPEC-066 Wave 3 Compliance Pack
+
+id: audit-trail
+title: Audit Trail Standards
+version: "1.0.0"
+status: Active
+tags: [compliance, audit, logging, security, governance, traceability]
+summary: |
+  Defines the requirements for creating, storing, and managing immutable
+  audit trails across systems handling sensitive data, financial transactions,
+  access control changes, and compliance-relevant operations. Covers mandatory
+  event types, audit record schema, tamper-evidence requirements, retention
+  periods, query and export capabilities, and integration with SIEM systems.
+  Designed to satisfy SOC 2, ISO 27001, GDPR, and financial regulatory
+  requirements.
+
+requirements:
+  - id: REQ-001
+    title: Mandatory Auditable Event Types
+    description: |
+      Systems MUST capture audit records for the following event categories
+      without exception: (1) Authentication events — login success/failure,
+      logout, MFA events, password changes; (2) Authorization events — access
+      granted/denied, privilege escalation, role changes; (3) Data access —
+      read/write/delete of TIER-1 and TIER-2 PII, bulk data exports;
+      (4) Configuration changes — system settings, security policy changes,
+      user/role management; (5) Financial transactions — payment processing,
+      refunds, balance changes; (6) Compliance-relevant actions — consent
+      changes, data erasure requests, legal holds.
+    level: MUST
+    examples:
+      - "Auth event: {type: 'LOGIN_FAILURE', user_id: 'u123', ip: '1.2.3.4', timestamp: '...'}"
+      - "Data access: {type: 'PII_READ', user_id: 'admin1', record_id: 'customer:456', fields: ['ssn']}"
+      - "Config change: {type: 'ROLE_GRANTED', admin_id: 'u789', target_user: 'u123', role: 'payments-admin'}"
+
+  - id: REQ-002
+    title: Audit Record Schema
+    description: |
+      Every audit record MUST contain the following mandatory fields:
+      event_id (UUID v4), event_type (enumerated string), timestamp (ISO 8601
+      UTC with milliseconds), actor_id (user or service account), actor_ip
+      (for user actions), resource_type, resource_id, action, outcome
+      (success/failure), and environment (production/staging). SHOULD also
+      include: session_id, request_id for correlation, before/after state
+      for mutations, and geographic region.
+    level: MUST
+    examples:
+      - "{event_id: 'a1b2c3d4-...', event_type: 'USER_LOGIN', timestamp: '2026-04-30T14:23:01.456Z', actor_id: 'u123', actor_ip: '1.2.3.4', outcome: 'success'}"
+      - "Mutation record includes: before_state: {role: 'viewer'}, after_state: {role: 'admin'}"
+      - "Service account action: actor_id: 'svc:payment-processor', actor_ip: omitted (internal)"
+
+  - id: REQ-003
+    title: Immutability and Tamper Evidence
+    description: |
+      Audit logs MUST be written to an append-only store that prevents
+      modification or deletion by application-level principals. Audit
+      records MUST include a cryptographic hash of the previous record
+      (chaining) to detect tampering. Write access to the audit log store
+      MUST be restricted to the audit service only — no engineer or
+      application service should have direct write access. Log integrity
+      MUST be verifiable on demand.
+    level: MUST
+    examples:
+      - "Audit log stored in append-only S3 with Object Lock (WORM) enabled"
+      - "Each record includes: prev_hash: SHA-256 of previous record's canonical JSON"
+      - "Integrity check: `audit-tool verify --from 2026-04-01 --to 2026-04-30` returns 'Chain intact'"
+
+  - id: REQ-004
+    title: Audit Log Retention Periods
+    description: |
+      Audit logs MUST be retained according to the following minimums by
+      category: authentication/authorization events — 1 year hot, 6 years
+      cold (SOC 2 / ISO 27001); financial transaction events — 7 years
+      (financial regulations); PII access events — 3 years; configuration
+      changes — 3 years; all other audit events — 1 year. Deletion of
+      audit records before their retention period expires is PROHIBITED.
+      Logs approaching expiry MUST be automatically archived to cold storage.
+    level: MUST
+    examples:
+      - "Auth logs: S3 lifecycle rule → Standard 1 year → Glacier 5 years additional → delete"
+      - "Financial events: Glacier Deep Archive after 1 year, retained 7 years total"
+      - "Automated alert: 'Audit log retention policy violation detected in logs/auth/2019/'"
+
+  - id: REQ-005
+    title: Audit Log Query and Export Capability
+    description: |
+      The audit system MUST provide query capabilities supporting: filter by
+      event_type, actor_id, resource_id, time range, and outcome. Query
+      results MUST be exportable in JSON and CSV formats. Queries returning
+      PII MUST themselves be logged as audit events. Audit data MUST be
+      accessible to authorized compliance and security teams within 4 hours
+      of a data request, and to regulators within 24 hours.
+    level: MUST
+    examples:
+      - "Query: GET /audit?actor_id=u123&from=2026-04-01&to=2026-04-30&event_type=PII_READ"
+      - "Export: POST /audit/export {format: 'csv', query: {...}} → download link in 5 minutes"
+      - "Query-of-query logged: {type: 'AUDIT_QUERY', queried_by: 'compliance-team', params: {...}}"
+
+  - id: REQ-006
+    title: SIEM Integration and Alerting
+    description: |
+      Audit logs SHOULD be forwarded in real-time to a SIEM (Security
+      Information and Event Management) system. SIEM SHOULD have automated
+      detection rules for: brute-force login patterns (>5 failures in 5min),
+      privilege escalation outside business hours, bulk PII exports (>1000
+      records in 1 hour), and access from new geographic regions. Alerts
+      SHOULD trigger on-call notification for high-severity detections.
+    level: SHOULD
+    examples:
+      - "Splunk/Elastic forwarding: audit events streamed via Kafka to SIEM in <30 seconds"
+      - "Detection rule: 5+ login failures same user in 5min → PagerDuty P2 alert"
+      - "Geo-anomaly: login from new country after 30+ days of consistent region → security review"
