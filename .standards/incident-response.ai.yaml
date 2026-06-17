@@ -1,0 +1,107 @@
+# Incident Response Standards - AI Optimized
+# Source: XSPEC-063 Wave 3 SRE Pack
+
+id: incident-response
+title: Incident Response Standards
+version: "1.0.0"
+status: Active
+tags: [sre, incident, oncall, postmortem, severity]
+summary: |
+  Defines the end-to-end incident response lifecycle: severity classification,
+  response time SLAs, roles and responsibilities, communication protocols,
+  escalation paths, and blameless postmortem requirements. Designed to reduce
+  MTTR, ensure consistent stakeholder communication during incidents, and
+  drive systemic reliability improvements through structured postmortems.
+
+requirements:
+  - id: REQ-001
+    title: Severity Classification
+    description: |
+      Every incident MUST be classified at declaration using a 4-level
+      severity scale. SEV-1 (Critical): complete service outage or data
+      breach affecting all users, response within 15 minutes, C-suite
+      notification. SEV-2 (High): major feature unavailable or significant
+      performance degradation >25% users, response within 30 minutes.
+      SEV-3 (Medium): minor feature unavailable or degradation <25% users,
+      response within 4 hours. SEV-4 (Low): cosmetic issue or very minor
+      impact, response within 24 hours.
+    level: MUST
+    examples:
+      - "SEV-1: Payment processing completely down → IC declared, bridge opened in <5min"
+      - "SEV-2: Checkout latency >10s for 30% of users → on-call paged, IC assigned"
+      - "SEV-3: Search autocomplete broken → ticket created, fix in next sprint"
+
+  - id: REQ-002
+    title: Incident Commander Role
+    description: |
+      Every SEV-1 and SEV-2 incident MUST have a designated Incident
+      Commander (IC) assigned within 10 minutes of declaration. The IC is
+      responsible for: coordinating the response bridge, assigning roles
+      (scribe, comms lead, technical leads), driving timeline, making
+      go/no-go decisions on fixes, and initiating postmortem. The IC does
+      NOT directly troubleshoot — their sole focus is coordination.
+    level: MUST
+    examples:
+      - "IC assignment: 'I'm taking IC for this SEV-2, @alice please scribe, @bob comms'"
+      - "IC checklist: bridge open, roles assigned, status page updated, stakeholders notified"
+      - "IC does not debug code; delegates to technical leads who report findings"
+
+  - id: REQ-003
+    title: Stakeholder Communication Protocol
+    description: |
+      During SEV-1/SEV-2 incidents, stakeholder updates MUST be sent on a
+      defined cadence: initial notification within 15 minutes of declaration,
+      updates every 30 minutes until resolution, immediate update on any
+      severity change or major development. Updates MUST include: current
+      status, known impact, what is being done, next update time. Status
+      page MUST be updated simultaneously with internal communications.
+    level: MUST
+    examples:
+      - "T+15min: 'We are investigating elevated error rates on checkout. ~500 users affected. Next update in 30min.'"
+      - "T+45min: 'Root cause identified as database connection pool exhaustion. Fix in progress. Next update in 30min.'"
+      - "Resolution: 'Service restored at 14:32 UTC. Postmortem scheduled for 2026-05-02.'"
+
+  - id: REQ-004
+    title: Blameless Postmortem Requirements
+    description: |
+      Every SEV-1 incident MUST have a blameless postmortem completed within
+      5 business days. SEV-2 incidents MUST have a postmortem within 10
+      business days. Postmortems MUST be blameless — focusing on systemic
+      causes, not individual mistakes. Required sections: timeline, impact,
+      root cause (5 Whys), contributing factors, action items with owners
+      and due dates, lessons learned. Action items MUST be tracked to
+      completion.
+    level: MUST
+    examples:
+      - "Timeline: 14:00 Alert fired → 14:05 IC assigned → 14:23 RCA found → 14:32 resolved"
+      - "Root cause: 5 Whys tracing alert → connection pool exhaustion → missing timeout config → no review gate"
+      - "Action item: INFRA-2341 Add connection pool monitoring, owner: @dave, due: 2026-05-15"
+
+  - id: REQ-005
+    title: On-Call Rotation and Handoff
+    description: |
+      Every production service MUST have a documented on-call rotation with
+      at least 2 engineers. Rotation schedules MUST be published at least
+      2 weeks in advance. On-call handoff MUST include a written summary of:
+      active incidents, recent incidents still under investigation,
+      known flaky alerts, upcoming planned maintenance, and any service
+      health concerns. Handoff MUST be acknowledged by incoming on-call.
+    level: MUST
+    examples:
+      - "Handoff doc: 3 active flaky alerts (JIRA links), 1 ongoing SEV-3, maintenance window Friday 02:00 UTC"
+      - "Rotation: 1-week shifts, 2 primary + 1 secondary, published monthly in PagerDuty"
+      - "Handoff acknowledgment: incoming engineer replies 'Handoff received, I have the pager'"
+
+  - id: REQ-006
+    title: Incident Retrospective Metrics
+    description: |
+      Teams SHOULD track and review incident metrics monthly: MTTD (Mean
+      Time To Detect), MTTR (Mean Time To Resolve), incident frequency by
+      severity, repeat incidents (same root cause within 90 days), and
+      postmortem action item completion rate. These metrics SHOULD be
+      reviewed in monthly reliability reviews with engineering leadership.
+    level: SHOULD
+    examples:
+      - "Monthly metrics: MTTD 8min, MTTR 42min, 3 SEV-2s, 0 SEV-1s, 0 repeat incidents"
+      - "Repeat incident flag: same DB timeout root cause in March and April → escalate to reliability sprint"
+      - "Action item completion rate: 85% of previous month's items closed on time"

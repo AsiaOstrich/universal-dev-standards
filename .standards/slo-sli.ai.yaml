@@ -1,0 +1,97 @@
+# SLO/SLI Standards - AI Optimized
+# Source: XSPEC-063 Wave 3 SRE Pack
+
+id: slo-sli
+title: SLO/SLI Definition Standards
+version: "1.0.0"
+status: Active
+tags: [sre, reliability, observability, slo, sli, error-budget]
+summary: |
+  Defines how teams select, measure, and govern Service Level Indicators (SLIs)
+  and Service Level Objectives (SLOs). Covers SLI selection per service type,
+  SLO target-setting methodology, error budget policies, and multi-window
+  burn-rate alerting. Designed to bridge engineering reliability work with
+  customer-facing SLA commitments.
+
+requirements:
+  - id: REQ-001
+    title: SLI Selection Per Service Type
+    description: |
+      Every production service MUST define at least one SLI matched to its
+      service type. API services must measure availability (non-5xx / total)
+      and latency (requests below threshold proportion). Batch jobs must
+      measure freshness (data lag ≤ threshold) and correctness (successfully
+      processed / total). Frontend services must measure Core Web Vitals
+      (LCP < 2.5s, FID < 100ms, CLS < 0.1).
+    level: MUST
+    examples:
+      - "availability_sli = count(http_status != 5xx) / count(all_requests)"
+      - "latency_sli = count(request_duration_ms < 200) / count(all_requests)"
+      - "freshness_sli = 1 if data_lag_minutes <= 5 else 0"
+
+  - id: REQ-002
+    title: SLO Target Setting Methodology
+    description: |
+      SLO targets MUST be set using historical baseline data. Teams MUST
+      start from the observed P5 performance (i.e., the 5th-percentile
+      worst period) over at least 28 rolling days, then add a small
+      buffer. The SLO target MUST be strictly higher than any external
+      SLA commitment (e.g., SLA 99.9% → SLO ≥ 99.95%).
+    level: MUST
+    examples:
+      - "Historical 28-day availability P5 = 99.92% → SLO = 99.95%"
+      - "SLA guarantees 99.9% → internal SLO set to 99.95%"
+      - "Never set SLO equal to SLA; maintain ≥ 0.05% buffer"
+
+  - id: REQ-003
+    title: Error Budget Policy
+    description: |
+      Every service with an SLO MUST have a written Error Budget Policy
+      specifying actions when the error budget is partially or fully
+      exhausted. At minimum the policy must define: (1) freeze threshold
+      (typically 50% exhausted → release freeze), (2) reliability sprint
+      trigger (100% exhausted), and (3) SLO review cadence (quarterly).
+    level: MUST
+    examples:
+      - "50% budget consumed → new feature deploys require VP approval"
+      - "100% budget consumed → team enters reliability sprint, no new features"
+      - "Error budget policy must be linked from the service runbook"
+
+  - id: REQ-004
+    title: Multi-Window Burn-Rate Alerting
+    description: |
+      Teams SHOULD implement multi-window burn-rate alerts to catch both
+      fast and slow budget exhaustion. Recommended thresholds: fast burn
+      (2% of monthly budget consumed in 1 hour → P1 page), medium burn
+      (5% in 6 hours → P2 alert), slow burn (10% in 3 days → P3 ticket).
+    level: SHOULD
+    examples:
+      - "fast_burn: burn_rate > 14.4 for 5 minutes → PagerDuty P1"
+      - "medium_burn: burn_rate > 6 for 30 minutes → Slack #oncall P2"
+      - "slow_burn: burn_rate > 3 for 6 hours → Jira ticket auto-created"
+
+  - id: REQ-005
+    title: SLO Documentation and Review Cadence
+    description: |
+      Each SLO MUST be documented in a standard SLO spec file containing:
+      service name, SLI formula, measurement window, target value, error
+      budget, alerting thresholds, and owner. SLO specs MUST be reviewed
+      quarterly and updated within 2 weeks of any major architecture change.
+    level: MUST
+    examples:
+      - "File: docs/slos/payment-api.slo.yaml with all required fields"
+      - "Quarterly review scheduled as recurring calendar event for service owner"
+      - "After database migration, SLO re-baselining completed within 14 days"
+
+  - id: REQ-006
+    title: SLO Compliance Reporting
+    description: |
+      Teams SHOULD publish a monthly SLO compliance report to stakeholders.
+      The report must include: achieved vs. target SLI value, error budget
+      remaining, significant incidents affecting SLO, and planned reliability
+      improvements. Dashboard links must be included.
+    level: SHOULD
+    examples:
+      - "Monthly Slack post in #reliability with SLO compliance dashboard link"
+      - "Report includes: 99.97% achieved (target 99.95%), budget 85% remaining"
+      - "Incident summary: 2 incidents, root causes addressed, no budget risk"
