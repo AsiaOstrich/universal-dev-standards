@@ -1,0 +1,279 @@
+# Resource / Cost Boundary Declaration Standards - AI Optimized
+# Sources:
+#   v1.0.0 — XSPEC-277 Resource / Cost Boundary Declaration (cost burn as a declared, fail-closed boundary)
+#            XSPEC-276 (parent boundary-materialization lens; cost is the split-out dimension)
+#            XSPEC-285 (VibeOps proactive cost governance — the enforcement/executor face)
+
+id: resource-cost-boundary
+title: Resource / Cost Boundary Declaration Standards (Explicit, Machine-Readable, Fail-Closed Budgets)
+version: "1.0.0"
+status: Active
+tags: [cost-boundary, resource-budget, token-budget, cost-burn, fail-closed, governance-gate, llm-native, budget-declaration, runaway-loop]
+created: 2026-06-17
+updated: 2026-06-17
+
+spec_ref: XSPEC-277   # Resource / Cost Boundary Declaration complete spec
+
+references:
+  - XSPEC-277   # v1.0.0 source — Resource / Cost Boundary Declaration
+  - XSPEC-276   # Parent boundary-materialization lens (cost = split-out dimension)
+  - XSPEC-285   # VibeOps proactive cost governance — enforcement/executor face
+  - XSPEC-191   # Unit-economics PoC / BudgetGuard (reference implementation)
+  - XSPEC-270   # Model right-sizing router (cost-driven downgrade)
+  - XSPEC-037   # Capability declaration (fail-closed posture mirrored)
+  - DEC-024     # Pareto evolution token-cost gate (reference implementation)
+
+summary: |
+  The resource consumption of an agentic / LLM execution unit (pipeline run, agent, role) is
+  often implicit: token usage, loop/iteration count, retry count, per-run cost ceiling,
+  wall-clock, call rate. When those bounds are not explicitly declared and enforced, runaway
+  loops and token burn are a known LLM-native failure mode (cost burn).
+
+  This standard makes the resource/cost boundary a first-class, machine-readable, fail-closed
+  declaration. Any LLM execution unit MUST declare its resource budget; a runtime breach MUST
+  fail-closed per the declared behaviour. It is the COST dimension of boundary materialization
+  (XSPEC-276) — the one dimension UDS has no existing standard for, and concrete enough to be
+  AI-executable, so it is split out as a narrow standard.
+
+  REQ-001~005: a resource budget taxonomy (token/iteration/retry/cost_usd/wallclock/rate); a
+  machine-readable resource_budget: declaration (kind + limit + breach behaviour); a
+  fail-closed check-resource-budget gate (undeclared -> warn/block; runtime breach -> abort);
+  convergence of existing point mechanisms as reference implementations; and budget value
+  sovereignty (mechanism standardized, ceiling values owned by the adopter). This standard is
+  the "declare what bounds" half; XSPEC-285 is the "enforce/govern" half.
+
+scope:
+  applies_to:
+    - Any LLM execution unit (pipeline run, agent, role) whose resource consumption must be bounded
+    - Plans / agent configs / role configs that carry a resource_budget declaration
+    - Budget-breach run reports used as cost-governance / audit evidence
+  excludes:
+    - The budget VALUES themselves (actual ceilings) — owned by the adopter/customer (a project/economics decision)
+    - Enforcement-engine wiring (e.g. the VibeOps proactive cost-governance executor, XSPEC-285) — downstream
+    - Latency/throughput performance targets — that is performance-standards (adjacent, distinct)
+
+budget_taxonomy:
+  description: |
+    A standard set of resource budget kinds. A unit need not declare every kind, but a kind
+    it relies on for safety MUST be declared (an unbounded relied-upon kind is a violation).
+  kinds:
+    - kind: token
+      bound: input / output / total token ceiling
+      typical_breach: prompt/output explosion
+    - kind: iteration
+      bound: loop / iteration / tool-round upper bound
+      typical_breach: runaway loop
+    - kind: retry
+      bound: retry upper bound
+      typical_breach: unbounded re-attempt
+    - kind: cost_usd
+      bound: per-call / per-run / per-session cost ceiling
+      typical_breach: silent budget burn
+    - kind: wallclock
+      bound: timeout
+      typical_breach: hung run
+    - kind: rate
+      bound: call frequency
+      typical_breach: call storm
+
+declaration_format:
+  description: |
+    A first-class resource_budget: block embedded in a plan / agent / role config. Each entry
+    carries a kind + (optional) scope + limit value + on_breach behaviour.
+  example: |
+    resource_budget:
+      - kind: cost_usd
+        scope: per_run
+        limit: 3.00
+        on_breach: abort
+      - kind: iteration
+        limit: 60
+        on_breach: abort
+      - kind: retry
+        limit: 3
+        on_breach: warn
+      - kind: token
+        scope: total
+        limit: 400000
+        on_breach: abort
+  on_breach_values: [warn, abort]
+
+reference_implementations:
+  description: |
+    Existing VibeOps point mechanisms converge onto this standard as reference implementations
+    (REQ-004) — unified, not re-invented.
+  mappings:
+    - mechanism: "orchestrator quality profile max_retries / max_retry_budget_usd"
+      budget_kind: "retry / cost_usd (per-task fix-loop)"
+    - mechanism: "BudgetGuard / PoC abort max_cost_per_session_usd / min_cache_hit_ratio (XSPEC-191)"
+      budget_kind: "cost_usd / rate"
+    - mechanism: "Pareto Evolution Gate token-cost dimension (DEC-024)"
+      budget_kind: "token / cost_usd"
+    - mechanism: "agent-loop maxToolRounds / maxTotalTokens"
+      budget_kind: "iteration / token"
+
+principles:
+  - id: P-1
+    name: Bounds are Explicit
+    description: |
+      Resource budgets MUST be declared, not implicit in a developer's head or scattered
+      settings. An undeclared relied-upon bound is a violation, not an omission.
+
+  - id: P-2
+    name: Machine-Readable
+    description: |
+      The resource_budget: block is a first-class artifact a generator/runtime can read at
+      generation/execution time — so a unit knows its bounds up front, not after review.
+
+  - id: P-3
+    name: Fail-Closed
+    description: |
+      An undeclared relied-upon bound, or a runtime breach, MUST block/abort per declaration.
+      Never a silent unbounded pass — mirroring capability-declaration (XSPEC-037) fail-closed.
+
+  - id: P-4
+    name: No Re-Invention
+    description: |
+      Existing point mechanisms converge as reference implementations. New units inherit the
+      declaration habit rather than re-inventing a budget knob.
+
+  - id: P-5
+    name: Value Sovereignty
+    description: |
+      The declaration mechanism is standardized; the ceiling values are owned by the adopter
+      (a project/economics decision). The standard mandates that bounds are declared, not which.
+
+requirements:
+  - id: REQ-001
+    title: Resource Budget Taxonomy
+    description: |
+      Every LLM execution unit's resource bounds MUST be expressible from a standard set of
+      kinds: token, iteration, retry, cost_usd, wallclock, rate. A unit need not declare every
+      kind, but kinds it relies on for safety MUST be declared.
+    level: MUST
+    examples:
+      - "agent-loop declares iteration:60 + token(total):400000"
+      - "pipeline run declares cost_usd(per_run):3.00 + retry:3"
+
+  - id: REQ-002
+    title: Machine-Readable Declaration
+    description: |
+      A resource_budget: block MUST be declarable (embedded in plan / agent / role config),
+      each entry carrying kind + limit value + breach behaviour (warn / abort). It is a
+      first-class artifact, not a scattered setting or after-the-fact note.
+    level: MUST
+    schema_fields:
+      - "kind: token | iteration | retry | cost_usd | wallclock | rate"
+      - "scope (optional): per_call | per_run | per_session | total"
+      - "limit: numeric ceiling"
+      - "on_breach: warn | abort"
+
+  - id: REQ-003
+    title: Fail-Closed Enforcement Gate (check-resource-budget)
+    description: |
+      A quality gate check-resource-budget MUST (a) flag any LLM execution unit that does not
+      declare a budget (warn by default, block in strict mode); and (b) on a runtime breach
+      fail-closed per the declared on_breach (abort halts the unit, warn records and continues).
+      Mirrors capability-declaration (XSPEC-037) and the governance-gate family — never silent.
+    level: MUST
+    checks:
+      - "Unit with no resource_budget -> gate warns (strict mode: blocks)"
+      - "Runtime cost_usd exceeds declared limit with on_breach:abort -> unit aborts, breach recorded"
+      - "Runtime breach with on_breach:warn -> recorded and continues"
+
+  - id: REQ-004
+    title: Converge Existing Mechanisms (reference implementations)
+    description: |
+      Existing point mechanisms (orchestrator max_retries / max_retry_budget_usd, XSPEC-191
+      BudgetGuard, DEC-024 Pareto token gate, XSPEC-270 right-sizing router) SHOULD be mapped
+      to this standard as reference implementations — unified, not re-implemented.
+    level: SHOULD
+    checks:
+      - "Each existing budget mechanism maps to a taxonomy kind + on_breach behaviour"
+      - "A new agent/role adopts a resource_budget block rather than a bespoke budget knob"
+
+  - id: REQ-005
+    title: Budget Value Sovereignty
+    description: |
+      The declaration mechanism is standardized; the budget values (ceilings) are owned by the
+      adopter/customer (a project/economics decision). The standard mandates that bounds are
+      declared and enforced, not which numbers.
+    level: SHOULD
+    checks:
+      - "Ceiling values are adopter-configurable; the standard does not hard-code numbers"
+      - "The gate enforces presence + fail-closed behaviour, not a specific limit value"
+
+# ─────────────────────────────────────────────────────────────
+# GWT scenarios (admission condition 4 — AI-executable)
+# ─────────────────────────────────────────────────────────────
+
+scenarios:
+  - id: GWT-1
+    given: "a pipeline / agent unit with no token or cost_usd budget declared"
+    when: "check-resource-budget runs"
+    then: "it warns 'undeclared resource budget' (and blocks in strict mode)"
+  - id: GWT-2
+    given: "a unit declares cost_usd per_run limit 3.00 with on_breach: abort"
+    when: "the run's accumulated cost exceeds 3.00 at runtime"
+    then: "the unit fail-closed aborts and the breach is recorded for audit / cost governance"
+
+# ─────────────────────────────────────────────────────────────
+# Boundaries with adjacent standards (admission condition 3, <30% overlap)
+# ─────────────────────────────────────────────────────────────
+
+adjacent_boundaries:
+  - standard: performance-standards
+    its_angle: latency / throughput targets
+    distinct: targets, not a fail-closed cost ceiling
+  - standard: model-selection
+    its_angle: choose a model tier
+    distinct: tier selection, not budget enforcement
+  - standard: capability-declaration (XSPEC-037)
+    its_angle: explicit capability + fail-closed
+    distinct: capability surface, not resource budget
+
+# ─────────────────────────────────────────────────────────────
+# Gate timing
+# ─────────────────────────────────────────────────────────────
+
+gate_timing:
+  pre_run: REQ-003(a) check-resource-budget declaration check (undeclared -> warn / strict block)
+  on_runtime_breach: REQ-003(b) fail-closed per on_breach (abort / warn)
+  after_breach: record breach for audit / cost-governance executor (XSPEC-285)
+
+# ─────────────────────────────────────────────────────────────
+# Telemetry (DEC-066 / XSPEC-189 v2 envelope)
+# ─────────────────────────────────────────────────────────────
+
+telemetry:
+  required_events:
+    - resource_budget_undeclared   # unit missing a relied-upon budget (REQ-003a)
+    - resource_budget_breach       # runtime breach detail (kind, limit, actual)
+    - resource_budget_abort        # fail-closed abort on breach (on_breach:abort)
+  envelope_reference: XSPEC-189    # Telemetry Schema v2 envelope
+  event_type: quality
+  event_subtype_examples:
+    - resource_budget_breach
+    - gate_pass / gate_fail        # when check-resource-budget acts as a ship/run gate
+
+# ─────────────────────────────────────────────────────────────
+# Integration with existing standards
+# ─────────────────────────────────────────────────────────────
+
+integration:
+  performance-standards: performance sets latency/throughput targets; this sets fail-closed resource ceilings (adjacent, distinct)
+  model-selection: right-sizing picks a model tier; a cost_usd breach can drive a downgrade (XSPEC-270), but the budget declaration is this standard's concern
+  test-governance: check-resource-budget is a governed gate; budget declarations are governed policy
+  verification-evidence: a breach/no-breach run report is a kind of verification evidence (budgets honoured + trace)
+
+# ─────────────────────────────────────────────────────────────
+# Adoption guidance
+# ─────────────────────────────────────────────────────────────
+
+adoption_guidance:
+  uds_install_path: ai/standards/resource-cost-boundary.ai.yaml
+  notes:
+    - "v1.0.0 defines the budget declaration mechanism and a fail-closed gate. Budget values are adopter-owned."
+    - "This standard is the 'declare what bounds' half; XSPEC-285 (VibeOps proactive cost governance) is the 'enforce/govern' half."
+    - "Map existing budget knobs (max_retries, BudgetGuard, Pareto token gate, right-sizing router) to taxonomy kinds rather than re-inventing."
+    - "Collect only the cost/resource dimension — do not expand into a vague 'resource governance' (XSPEC-276 over-design guardrail)."

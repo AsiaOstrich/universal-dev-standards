@@ -2383,6 +2383,18 @@
       "description": "Model origin registry (vendor/jurisdiction/origin class), provenance policy schema with local-weights distinction, fail-closed enforcement at every model-selection point, audit evidence, reference policy packs, and unknown-origin fail-closed — the provenance (source) profile of the governance-gate family"
     },
     {
+      "id": "resource-cost-boundary",
+      "name": "Resource / Cost Boundary Declaration Standards",
+      "nameZh": "資源／成本邊界宣告標準",
+      "version": "1.0.0",
+      "source": {
+        "human": "core/resource-cost-boundary.md",
+        "ai": "ai/standards/resource-cost-boundary.ai.yaml"
+      },
+      "category": "core",
+      "description": "Explicit, machine-readable, fail-closed resource budget declaration for LLM execution units — a token/iteration/retry/cost/wallclock/rate taxonomy, a resource_budget block, a check-resource-budget gate (undeclared warns, runtime breach aborts), and convergence of existing budget mechanisms as reference implementations (cost dimension of boundary materialization)"
+    },
+    {
       "id": "pii-classification",
       "name": "PII Classification and Handling Standards",
       "nameZh": "PII 分類與處理標準",

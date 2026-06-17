@@ -67,7 +67,7 @@ npx universal-dev-standards init
 <!-- UDS_STATS_TABLE_START -->
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Core Standards** | 130 | Universal development guidelines |
+| **Core Standards** | 131 | Universal development guidelines |
 | **AI Skills** | 55 | Interactive skills |
 | **Slash Commands** | 48 | Quick actions |
 | **CLI Commands** | 6 | list, init, configure, check, update, skills |
