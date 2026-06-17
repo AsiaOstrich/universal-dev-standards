@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/performance-standards.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-29
+**Version**: 1.2.0
+**Last Updated**: 2026-06-17
 **Applicability**: All software projects
 **Scope**: universal
 **Industry Standards**: ISO/IEC 25010 Performance Efficiency
@@ -323,6 +323,97 @@ Analogous to the SRE Error Budget concept, a Performance Budget defines the tole
 
 ---
 
+## Migration Non-Functional Parity (XSPEC-286)
+
+> Part of the [XSPEC-284](https://github.com/AsiaOstrich/universal-dev-standards) 9-axis migration completeness matrix (**axis ⑥ — non-functional**). Covers the omission class "function is correct, data is correct, but **it runs differently**" during a legacy refactor / rewrite. This section adds **migration-specific** before/after semantics on top of the general baseline/drift machinery above; it does NOT replace the general performance framework.
+
+### Why this is a real gap
+
+The general Baseline Management above answers "did *this version* regress vs *its own* prior baseline". It does NOT answer "does the **new** system match the **legacy** system it replaces". In a rewrite (e.g. PHP single-request → .NET shared-state threads) the latency/throughput/isolation characteristics of legacy are **implicit and undocumented**, so per-request functional parity and behavior-snapshot parity both pass while the system silently runs slower, exhausts a smaller pool, or loses a lock semantic.
+
+### Differential oracle, not absolute threshold
+
+Migration parity uses **legacy as the baseline** and a **declared tolerance**, not the absolute targets in the tables above. The legacy system's measured behavior is the oracle; "no regression beyond the declared tolerance" is the pass criterion. This makes divergence self-report instead of relying on someone remembering to enumerate every hot path.
+
+### Step 1 — Mechanized non-functional baseline capture (R3)
+
+Legacy non-functional characteristics are mostly implicit. Derive the baseline **mechanically** (not from memory) from legacy artifacts:
+
+| Source | Derived baseline item |
+|--------|----------------------|
+| Key routes / controllers | p50 / p95 / p99 latency per critical path |
+| Hot queries / slow-query log | Per-query latency, rows scanned |
+| Background jobs / cron | Job duration, throughput (records/min) |
+| Connection pool config | Min/max connections, idle/connection timeout |
+| Timeout / rate-limit config | Per-endpoint timeout, requests/min, burst |
+| Transaction config | Isolation level (READ COMMITTED / REPEATABLE READ / SERIALIZABLE) |
+
+The captured set is **both** the comparison baseline for the regression gate **and** the to-verify checklist for resource/limit parity (Step 4).
+
+### Step 2 — Performance regression differential gate (R1)
+
+For each baseline path, measure the corresponding path in the new system and compare against the **legacy baseline** within a declared tolerance.
+
+| Metric | Default migration tolerance | Block when |
+|--------|----------------------------|-----------|
+| p50 latency | ≤ +10% vs legacy | > +10% |
+| p95 latency | ≤ +15% vs legacy | > +15% |
+| p99 latency | ≤ +20% vs legacy | > +20% |
+| Throughput | ≤ -10% vs legacy | > -10% decrease |
+
+Tolerances are **per-path configurable** (a batch job and an interactive endpoint differ). Start in **shadow** (measure-only, do not block) to collect samples and calibrate per-path tolerances, then promote to blocking.
+
+**Gate timing**: pre-UAT (catch regression before sign-off) **and** post-cutover (catch regression that only appears under real production load).
+
+```markdown
+## Migration Performance Parity Report — <path>
+
+| Metric | Legacy baseline | New system | Δ | Tolerance | Status |
+|--------|-----------------|------------|---|-----------|--------|
+| p50 | [X]ms | [Y]ms | +[Z]% | +10% | PASS/FAIL |
+| p95 | [X]ms | [Y]ms | +[Z]% | +15% | PASS/FAIL |
+| p99 | [X]ms | [Y]ms | +[Z]% | +20% | PASS/FAIL |
+| Throughput | [X] rps | [Y] rps | -[Z]% | -10% | PASS/FAIL |
+
+**Mode**: shadow (measure-only) / blocking
+**Overall**: PASS / FAIL
+```
+
+### Step 3 — Concurrency isolation verification (R2)
+
+The same resource (same record / same account balance / same sequence number) may be accessed by multiple concurrent operations. Legacy lock / transaction-isolation / ordering guarantees are **implicit behavior** and are routinely changed by a rewrite — and **neither functional tests nor behavior-snapshot parity catch this** (per-request parity ≠ concurrency parity, the same blind spot class as "per-request ≠ data-at-rest").
+
+**Method**: drive a race with concurrent stress, then assert **domain invariants** rather than checking outputs one-at-a-time.
+
+| Invariant class | Example assertion |
+|-----------------|-------------------|
+| Conservation | `SUM(balance)` unchanged after N concurrent transfers |
+| Uniqueness | no duplicate sequence number under concurrent allocation |
+| No lost update | last-writer-wins not silently replacing a committed write |
+| Ordering | events applied in a guaranteed order under concurrency |
+
+Detecting an **isolation downgrade** (e.g. legacy SERIALIZABLE → new READ COMMITTED, or a removed row lock) blocks. The invariants themselves are domain-defined; where a concurrency case overlaps a state-transition or temporal invariant, **the state-machine / temporal concern is owned by XSPEC-287** (axis ⑧) and concurrency race is owned here (axis ⑥) — see XSPEC-287 §boundary.
+
+**Gate timing**: pre-UAT.
+
+### Step 4 — Resource / limit parity (R4)
+
+Verify that legacy resource limits are not **unintentionally** changed by the rewrite (a timeout silently dropping from 30s to 5s fails long jobs; a smaller pool serializes traffic). Add to the non-functional reconciliation checklist:
+
+- [ ] Request / operation **timeouts** match legacy (or change is declared)
+- [ ] **Rate limits** (requests/min, burst) match legacy
+- [ ] **Connection pool** min/max and idle/connection timeout match legacy
+- [ ] **Batch sizes** match legacy
+- [ ] **Transaction isolation level** matches legacy (cross-check with Step 3)
+
+Each item is either matched or has a **declared, justified** delta. An undeclared delta is a known regression risk and blocks cutover.
+
+### Completeness declaration (matrix alignment)
+
+Axis ⑥ of the migration completeness matrix is satisfied when this section declares all three: **derive** (Step 1 mechanized baseline), **oracle** (Step 2 regression differential + Step 3 invariant assertions), and **gate timing** (pre-UAT + post-cutover). Reuse the general baseline/drift and `observability-assistant` measurement machinery — this section adds only the migration before/after and concurrency-isolation semantics, it does not rebuild a general performance framework.
+
+---
+
 ## Per-Release Capacity Sign-off
 
 This section defines the **capacity gate** that must be satisfied before production release (Dimension 10 in `release-readiness-gate.md`, Tier-3).
@@ -395,6 +486,8 @@ The capacity sign-off is `N/A` (with documented rationale) when:
 - [Code Review Checklist](code-review-checklist.md) - Performance review
 - [Deployment Standards](deployment-standards.md) - Performance validation pre-deployment
 - [Release Readiness Gate](release-readiness-gate.md) - Dimension 1 (load) and Dimension 10 (capacity)
+- [Behavior Snapshot](behavior-snapshot.md) - Functional parity oracle (complements migration non-functional parity)
+- [Full Coverage Testing](full-coverage-testing.md) - Concurrency dimension cross-reference
 
 ---
 
@@ -402,6 +495,7 @@ The capacity sign-off is `N/A` (with documented rationale) when:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-06-17 | Added Migration Non-Functional Parity (XSPEC-286, axis ⑥): before/after differential regression gate, concurrency isolation verification, resource/limit parity, mechanized baseline capture |
 | 1.1.0 | 2026-01-29 | Refactored: Split into Rules + Guide, moved explanations to guide |
 | 1.0.0 | 2026-01-29 | Initial release |
 

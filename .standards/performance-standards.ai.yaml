@@ -1,7 +1,7 @@
 # Performance Standards (AI-Optimized)
 # Source: core/performance-standards.md
 # Guide: core/guides/performance-guide.md
-# Version: 1.0.0
+# Version: 1.2.0
 
 iso25010_efficiency:
   time_behavior: "Response time, throughput"
@@ -127,3 +127,48 @@ capacity_planning:
     cpu: "Plan at 70%"
     memory: "Plan at 80%"
     storage: "Plan at 70%"
+
+# XSPEC-286: Migration Non-Functional Parity (axis 6 of XSPEC-284 completeness matrix)
+# Covers "function correct, data correct, but RUNS differently" omissions in a legacy rewrite.
+# Differential oracle: legacy is the baseline, "no regression beyond declared tolerance" is pass.
+migration_non_functional_parity:
+  axis: "6 (non-functional) of XSPEC-284 migration completeness matrix"
+  principle: "Legacy is the baseline; declared tolerance, not absolute target. Divergence self-reports."
+  why_gap: "General baseline/drift compares a version to its OWN prior baseline, not new-vs-legacy. Per-request and behavior-snapshot parity both pass while the system silently runs slower / loses a lock semantic."
+  derive: # R3 mechanized baseline capture
+    sources:
+      key_routes: "p50/p95/p99 latency per critical path"
+      hot_queries: "per-query latency, rows scanned (slow-query log)"
+      background_jobs: "job duration, throughput records/min"
+      connection_pool: "min/max connections, idle/connection timeout"
+      timeout_ratelimit: "per-endpoint timeout, requests/min, burst"
+      transaction_config: "isolation level"
+    note: "Captured set is both the regression baseline AND the resource/limit parity checklist."
+  regression_gate: # R1 performance regression differential
+    oracle: "measure new-system path, compare vs legacy baseline within declared tolerance"
+    default_tolerance:
+      p50_latency: "<= +10% vs legacy"
+      p95_latency: "<= +15% vs legacy"
+      p99_latency: "<= +20% vs legacy"
+      throughput: "<= -10% decrease vs legacy"
+    per_path_configurable: true
+    rollout: "shadow (measure-only) first to calibrate per-path tolerance, then promote to blocking"
+    gate_timing: [pre-UAT, post-cutover]
+  concurrency_isolation: # R2
+    method: "drive a race with concurrent stress, then assert DOMAIN INVARIANTS (not one-at-a-time output checks)"
+    invariants:
+      conservation: "SUM(balance) unchanged after N concurrent transfers"
+      uniqueness: "no duplicate sequence number under concurrent allocation"
+      no_lost_update: "committed write not silently replaced"
+      ordering: "events applied in guaranteed order under concurrency"
+    blocks_on: "isolation downgrade (e.g. SERIALIZABLE -> READ COMMITTED, removed row lock)"
+    boundary: "state-transition legality and temporal invariants owned by XSPEC-287 (axis 8); concurrency race owned here (axis 6)"
+    gate_timing: [pre-UAT]
+  resource_limit_parity: # R4
+    checklist: [request_timeout, rate_limit, connection_pool, batch_size, transaction_isolation]
+    rule: "each item matched OR has a declared justified delta; undeclared delta blocks cutover"
+  completeness_declaration:
+    derive: "Step1 mechanized baseline"
+    oracle: "Step2 regression differential + Step3 invariant assertions"
+    gate_timing: "pre-UAT + post-cutover"
+    reuse: "general baseline/drift + observability-assistant measurement; adds only migration before/after + concurrency-isolation semantics"

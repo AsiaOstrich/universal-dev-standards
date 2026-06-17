@@ -1,8 +1,8 @@
 ---
 source: ../../../core/performance-standards.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-03-24
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-06-17
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../core/performance-standards.md) | 繁體中文
 
-**版本**: 1.1.0
-**最後更新**: 2026-01-29
+**版本**: 1.2.0
+**最後更新**: 2026-06-17
 **適用性**: 所有軟體專案
 **範圍**: 通用 (Universal)
 **業界標準**: ISO/IEC 25010 效能效率
@@ -126,6 +126,83 @@ status: current
 
 ---
 
+## 遷移非功能性對等（XSPEC-286）
+
+> 屬於 [XSPEC-284](https://github.com/AsiaOstrich/universal-dev-standards) 9 軸遷移完整性矩陣的**軸⑥（非功能）**。涵蓋舊系統重構/重寫時「功能對了、資料對了，但**跑起來不一樣**」這一類遺漏。本節在上述通用基線/漂移機制之上**新增遷移專屬**的 before/after 語義，**不取代**通用效能框架。
+
+### 為何是真缺口
+
+上述通用基線管理回答的是「**這個版本**相較**它自己**先前的基線是否回歸」，**不**回答「**新**系統是否與它取代的**legacy**對等」。重寫時（如 PHP 單請求 → .NET 共享狀態多執行緒），legacy 的延遲/吞吐/隔離特性多為**隱性、未文件化**，使 per-request 功能對等與 behavior-snapshot 對等都通過，系統卻悄悄跑得更慢、耗盡更小的連線池、或丟失某個鎖語義。
+
+### 差分神諭，非絕對門檻
+
+遷移對等以 **legacy 為基線** + **宣告容差**，而非上述表格的絕對目標。legacy 量測到的行為就是 oracle，「回歸不超過宣告容差」即 pass。讓分歧自報，而非靠人記得列舉每條熱路徑。
+
+### 步驟 1 — 機械化擷取非功能基線（R3）
+
+legacy 非功能特性多為隱性。從 legacy artifact **機械化**推導基線（不靠人腦回憶）：
+
+| 來源 | 推導出的基線項 |
+|------|---------------|
+| 關鍵路由 / controller | 各關鍵路徑 p50 / p95 / p99 延遲 |
+| 熱點查詢 / 慢查詢 log | 每查詢延遲、掃描列數 |
+| 背景作業 / cron | 作業時長、吞吐（records/min） |
+| 連線池設定 | min/max 連線數、idle/connection timeout |
+| 逾時 / rate-limit 設定 | 每端點逾時、requests/min、burst |
+| 交易設定 | 隔離級別（READ COMMITTED / REPEATABLE READ / SERIALIZABLE） |
+
+擷取的集合**同時**是回歸 gate 的比較基線**與**資源/限制 parity（步驟 4）的待驗清單。
+
+### 步驟 2 — 效能回歸差分 gate（R1）
+
+對每條基線路徑，量測新系統對應路徑，與 **legacy 基線**在宣告容差內比較。
+
+| 指標 | 預設遷移容差 | block 條件 |
+|------|-------------|-----------|
+| p50 延遲 | ≤ +10%（vs legacy） | > +10% |
+| p95 延遲 | ≤ +15%（vs legacy） | > +15% |
+| p99 延遲 | ≤ +20%（vs legacy） | > +20% |
+| 吞吐 | ≤ -10%（vs legacy） | > -10% 下降 |
+
+容差**每路徑可配**（批次作業與互動端點不同）。**shadow** 起手（只量測不 block）以收樣校準每路徑容差，再升為 blocking。
+
+**Gate 時機**：pre-UAT（簽核前抓回歸）**與** post-cutover（抓只在真實生產負載下浮現的回歸）。
+
+### 步驟 3 — 並發隔離驗證（R2）
+
+同一資源（同筆記錄 / 同帳戶餘額 / 同序號）可能被多並發操作存取。legacy 的鎖 / 交易隔離 / 順序保證屬**隱性行為**，重寫常被改變——而**功能測試與 behavior-snapshot 對等都抓不到**（per-request 對等 ≠ 並發對等，與「per-request ≠ data-at-rest」同源盲區）。
+
+**方法**：以併發壓力觸發 race，斷言**領域不變量**而非逐一檢查輸出。
+
+| 不變量類別 | 範例斷言 |
+|-----------|---------|
+| 守恆 | N 次並發轉帳後 `SUM(balance)` 不變 |
+| 唯一性 | 並發配號下無重複序號 |
+| 無遺失更新 | 已 commit 的寫入不被靜默覆寫 |
+| 順序 | 並發下事件依保證順序套用 |
+
+偵測到**隔離降級**（如 legacy SERIALIZABLE → 新 READ COMMITTED、或移除列鎖）即 block。不變量由領域定義；並發案例與狀態轉移/時序不變量重疊時，**狀態機/時序由 XSPEC-287（軸⑧）負責**，並發競態由本節（軸⑥）負責——見 XSPEC-287 §邊界。
+
+**Gate 時機**：pre-UAT。
+
+### 步驟 4 — 資源 / 限制 parity（R4）
+
+驗證 legacy 資源限制不被重寫**無意**改變（逾時從 30s 悄悄降到 5s 會讓長作業失敗；更小的連線池會串行化流量）。納入非功能對帳清單：
+
+- [ ] 請求 / 操作**逾時**與 legacy 一致（或變更已宣告）
+- [ ] **Rate limit**（requests/min、burst）與 legacy 一致
+- [ ] **連線池** min/max 與 idle/connection timeout 與 legacy 一致
+- [ ] **批次大小**與 legacy 一致
+- [ ] **交易隔離級別**與 legacy 一致（與步驟 3 交叉檢查）
+
+每項要嘛匹配、要嘛有**宣告且具理由**的差異。未宣告的差異即已知回歸風險，block cutover。
+
+### 完整性宣告（矩陣對齊）
+
+當本節宣告三件事——**清單來源**（步驟 1 機械化基線）、**oracle**（步驟 2 回歸差分 + 步驟 3 不變量斷言）、**gate 時機**（pre-UAT + post-cutover）——即滿足遷移完整性矩陣軸⑥。複用通用基線/漂移與 `observability-assistant` 量測機制——本節只新增遷移 before/after 與並發隔離語義，不重造通用效能框架。
+
+---
+
 ## 相關標準
 
 - [部署標準](deployment-standards.md)
@@ -133,3 +210,5 @@ status: current
 - [測試標準](testing-standards.md)
 - [需求工程](requirement-engineering.md) - NFR 文件
 - [日誌標準](logging-standards.md) - 效能日誌
+- [行為快照](behavior-snapshot.md) - 功能對等 oracle（與遷移非功能對等互補）
+- [完整覆蓋測試](full-coverage-testing.md) - 並發維度交叉引用
