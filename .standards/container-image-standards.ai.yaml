@@ -1,0 +1,88 @@
+# Container Image Standards - AI Optimized
+# Source: XSPEC-065 Wave 4 IaC Pack
+
+id: container-image-standards
+title: Container Image Build and Security Standards
+version: "1.0.0"
+status: Active
+tags: [container, docker, dockerfile, sbom, security, supply-chain]
+summary: |
+  Defines security and compliance requirements for container image build
+  pipelines. Covers five Dockerfile authoring principles (multi-stage builds,
+  non-root execution, minimal base images, secret-free build args, SBOM
+  metadata), SBOM generation and embedding using syft or trivy, and image
+  scanning policies that block Critical/High CVEs. Complements the existing
+  containerization-standards (layer ordering and tagging) by focusing on
+  supply-chain security and compliance attestation.
+
+requirements:
+  - id: REQ-001
+    title: Dockerfile Five Principles
+    description: |
+      Every production Dockerfile MUST follow five principles:
+      (1) Multi-stage build — use separate builder and runtime stages to
+      minimize final image size and attack surface.
+      (2) Non-root final user — the runtime stage MUST set a non-root USER
+      (UID ≥ 1000); running as root in production containers is prohibited.
+      (3) Distroless or Alpine base — use distroless (gcr.io/distroless) or
+      Alpine-based images as the final stage to minimize CVE exposure; avoid
+      full Debian/Ubuntu unless justified and documented.
+      (4) No hardcoded secrets — build ARGs and ENV variables MUST NOT contain
+      secrets; secrets are injected at runtime via volume mounts or secret
+      managers.
+      (5) SBOM metadata label — the final image MUST include an OCI label
+      `org.opencontainers.image.source` and a build-time label
+      `org.opencontainers.image.revision` containing the git commit SHA.
+    level: MUST
+    examples:
+      - "FROM node:20-alpine AS builder ... FROM gcr.io/distroless/nodejs20 AS runtime"
+      - "RUN addgroup -S app && adduser -S app -G app ... USER app"
+      - "LABEL org.opencontainers.image.revision=$GIT_SHA"
+      - "Secrets passed via `--mount=type=secret` in BuildKit, not ENV"
+
+  - id: REQ-002
+    title: SBOM Embedding
+    description: |
+      Every production container image MUST have a Software Bill of Materials
+      (SBOM) generated during the CI build step. SBOM MUST be generated using
+      syft or trivy in CycloneDX or SPDX format. The SBOM MUST be either:
+      (a) embedded as an OCI image annotation (preferred for OCI-compliant
+      registries), or (b) attached as a cosign attestation to the image digest.
+      SBOM artifacts MUST be stored alongside the image in the container
+      registry and retained for at least 12 months for compliance audits.
+    level: MUST
+    examples:
+      - "`syft packages docker:myapp:latest -o spdx-json > sbom.spdx.json`"
+      - "`cosign attest --type spdx --predicate sbom.spdx.json myregistry/myapp@sha256:...`"
+      - "SBOM attached to image in ECR; lifecycle policy retains for 365 days"
+      - "OCI annotation `org.opencontainers.image.sbom` pointing to SBOM digest"
+
+  - id: REQ-003
+    title: Image Scanning
+    description: |
+      All container images MUST be scanned for known CVEs before being pushed
+      to a production registry. Scanning MUST be integrated into the CI pipeline
+      using trivy, grype, or equivalent. Severity policy: Critical and High CVEs
+      MUST block the build and prevent image promotion to production; Medium CVEs
+      MUST generate a warning and create a tracked ticket; Low and Negligible CVEs
+      are informational only. Base image updates MUST be triggered automatically
+      when upstream images receive CVE patches (e.g., via Dependabot or Renovate
+      for Dockerfile base image pins).
+    level: MUST
+    examples:
+      - "`trivy image --exit-code 1 --severity CRITICAL,HIGH myapp:latest`"
+      - "CI step fails with exit code 1 on Critical CVE; build blocked from promotion"
+      - "Medium CVE detected → Jira ticket auto-created with CVE ID and affected package"
+      - "Renovate configured to auto-PR Dockerfile base image updates weekly"
+
+anti_patterns:
+  - "Using `latest` tag for base images in production Dockerfiles (non-reproducible builds)"
+  - "Running container processes as root (UID 0) in the final runtime stage"
+  - "Embedding secrets in Docker build ARGs or ENV variables that persist in image layers"
+  - "Skipping SBOM generation to save CI time, losing supply-chain traceability"
+  - "Pushing images to production without CVE scanning results"
+
+related_standards:
+  - containerization-standards
+  - secret-management-standards
+  - iac-design-principles
