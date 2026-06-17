@@ -1,8 +1,8 @@
 ---
 source: ../../../core/logging-standards.md
-source_version: 1.3.0
-translation_version: 1.3.0
-last_synced: 2026-06-10
+source_version: 1.4.0
+translation_version: 1.4.0
+last_synced: 2026-06-17
 source_hash: 7853d510d681
 status: current
 ---
@@ -11,8 +11,8 @@ status: current
 
 > **語言**: [English](../../../core/logging-standards.md) | 繁體中文
 
-**版本**: 1.3.0
-**最後更新**: 2026-05-26
+**版本**: 1.4.0
+**最後更新**: 2026-06-17
 **適用性**: 所有軟體專案
 **範圍**: 通用 (Universal)
 **業界標準**: RFC 5424、OpenTelemetry、W3C Trace Context
@@ -21,6 +21,81 @@ status: current
 ## 概述
 
 本文件定義日誌標準，確保所有環境中的應用程式日誌具有一致性、結構化且可操作。
+
+## 強制事件 (Mandatory Events)
+
+> **結案** UDS issue [#108](https://github.com/AsiaOstrich/universal-dev-standards/issues/108)（XSPEC-234）。本標準其餘部分定義**如何**寫一條 log（等級／欄位／PII 遮罩／輪替）；本章定義**何時必須寫**——把「規範上合格但實質沉默」的 logging 排除在外。
+
+遵守所有格式規則卻**在關鍵時刻從不觸發**的 logging 比沒有還糟：它在事故當下給人虛假的安全感。以下事件是**必須**寫 log 的 canonical 時機，每個宣告 `when`／`must_log`／`must_NOT_log`／`level`／`rationale`。
+
+### 為何需要（真實事故）
+
+某 PHP→.NET 遷移耗 2 天診斷「send failed、沒 log」，因為**四層皆沉默**：
+
+1. **負載平衡器將 backend 標 DOWN**（503）——health probe 逾時；backend 只記 probe 噪音，零業務事件。
+2. **Framework 驗證 reject**（如 ModelState／DTO 501）——在任何 handler 執行前就返回，**payload 完全未 log**。
+3. **Auth 失敗**只記「Account or password error」——**無 uid、無 source IP** → 無法調查。
+4. **背景 worker 還活著但 log 檔 0 bytes**——無機制偵測沉默。
+
+這些都無法靠格式規則捕捉，強制事件補上此缺口。
+
+### 類目（9 個 canonical 事件）
+
+| id | when 時機 | level | 核心必填欄位（`must_log`）| `must_NOT_log` |
+|----|-----------|-------|---------------------------|----------------|
+| `application_startup` | process boot 後，**接受請求前** | INFO | app_name, version, git_sha, environment, hostname, pid, listening_endpoints | secrets、完整連線字串 |
+| `request_received` | HTTP middleware 首次看到 request | INFO / DEBUG | method, path, source_ip, request_id | request body、auth headers |
+| `validation_failure` | schema / ModelState / DTO 驗證 reject | WARN | request_id, path, missing_fields[], payload_shape（僅 keys）| 欄位**值**、PII |
+| `authentication_failure` | login / token 驗證失敗 | WARN | uid（嘗試）, source_ip, failure_reason | password、token value |
+| `outbound_call_start` | 對外 HTTP/RPC call 發起 | INFO | target_url（host+path）, request_id propagated, timeout_ms | credentials、bearer tokens |
+| `outbound_call_complete` | 外部 call 返回或失敗 | INFO / WARN / ERROR | status_code **或** failure_phase（dns/tcp/tls/http）, elapsed_ms, retries | 含 PII 的 response body |
+| `business_event` | state-changing 業務操作完成 | INFO | operation_name, actor, target ids, outcome | 完整 record payload、PII |
+| `heartbeat` | 長期背景服務，≥ 1 次 / 60 秒 | INFO | service_name, queue_depth, items_processed_since_last_heartbeat | — |
+| `shutdown` | process 退出（graceful 或 fatal）| INFO / ERROR | app_name, signal/reason, uptime_seconds, pending_work_count | — |
+
+每個事件的 `rationale` 對應真實失效模式：`validation_failure` ⇒ 事故 #2（payload 未記）；`authentication_failure` 欄位要求 ⇒ 事故 #3（無 uid/IP）；`heartbeat` + 沉默偵測 ⇒ 事故 #4（0-byte log）；`application_startup`/`shutdown` ⇒ 生命週期盲區；`outbound_call_*` ⇒「send failed」卻無 call 痕跡。
+
+### 場景
+
+#### Scenario：驗證失敗時必須有 log
+
+- **GIVEN** API endpoint 收到缺 `[Required]` 欄位的 payload
+- **WHEN** framework 在 handler 執行前自動 reject（如 400/501）
+- **THEN** 必須寫一條 WARN log，含 `request_id`、`path`、`missing_fields[]`、`payload_shape`（僅 keys）
+- **AND** post-mortem 可直接從 log 重現失敗原因
+
+#### Scenario：背景服務必須 heartbeat
+
+- **GIVEN** worker process 啟動
+- **WHEN** 60 秒內無 INFO/WARN/ERROR 寫入
+- **THEN** 必須寫一條 `heartbeat` log，含當前 queue depth 與累計處理量
+- **AND** 若連續 ≥ 2× 心跳間隔（≥ 120 秒）無 heartbeat，silence detector 必須 alert
+
+### Compliant startup log 範例
+
+```json
+{
+  "timestamp": "2026-06-17T08:00:00.000Z",
+  "level": "INFO",
+  "message": "application_startup",
+  "event": "application_startup",
+  "app_name": "payment-service",
+  "version": "2.3.1",
+  "git_sha": "a1b2c3d",
+  "environment": "production",
+  "hostname": "pod-abc123",
+  "pid": 4711,
+  "listening_endpoints": ["0.0.0.0:8080", "0.0.0.0:9090/metrics"]
+}
+```
+
+### Follow-on 規則
+
+1. **Access log 分離**——health probe／liveness 流量不應污染業務事件 log。將 probe 導向獨立 sink／檔案，避免淹沒或輪替掉業務事件（見事故 #1）。
+2. **Log 沉默偵測 SLA**——服務應於 N 分鐘無事件時 alert，N ≤ 2× `heartbeat` 間隔。缺少預期 log 本身就是可告警條件（見下方「Absence of Expected Logs」告警模式）。
+3. **OPS-facing log 可發現性**——回給 client 的錯誤回應應帶 `request_id`，讓支援能將使用者回報的失敗對應到 backend log，免於來回詢問 log 存取。
+
+> **Cross-ref**：`heartbeat`／沉默偵測與[日誌檔案輪替政策](#日誌檔案輪替政策)互補（0-byte／靜默丟棄的 log 是同一盲區的兩個方向），並與 migration-assistant 的背景作業／副作用完整性互補（這些事件即可觀測的「已執行」證據）。
 
 ## 日誌等級
 
@@ -584,6 +659,7 @@ new DailyRotateFile({
 
 | 版本 | 日期 | 變更 |
 |-----|------|------|
+| 1.4.0 | 2026-06-17 | 新增：強制事件類目——9 個 canonical「何時必須寫 log」事件（when/must_log/must_NOT_log/level/rationale）、驗證失敗 + heartbeat 場景、compliant startup 範例、follow-on 規則（access log 分離、沉默偵測 SLA、request_id 可發現性）（XSPEC-234 / 關閉 issue #108） |
 | 1.3.0 | 2026-05-26 | 新增：日誌檔案輪替政策——強制雙觸發器（時間 + 大小）輪替及危險預設警告、.NET/Python/Java/Node 各語言設定範例、操作 SOP（XSPEC-232 / 關閉 issue #111） |
 | 1.2.0 | 2026-01-24 | 新增：OpenTelemetry 語義慣例、可觀測性三支柱整合、基於日誌的告警、進階關聯模式 |
 | 1.1.0 | 2026-01-05 | 新增：參考標準章節，包含 OWASP、RFC 5424、OpenTelemetry 和 12 Factor App |

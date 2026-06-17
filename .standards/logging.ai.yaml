@@ -3,10 +3,10 @@
 
 id: logging
 meta:
-  version: "1.3.0"
-  updated: "2026-05-26"
+  version: "1.4.0"
+  updated: "2026-06-17"
   source: core/logging-standards.md
-  description: Logging levels, structured logging, file rotation policy, and best practices
+  description: Logging levels, structured logging, mandatory events catalog, file rotation policy, and best practices
 
 log_levels:
   ordered:
@@ -51,6 +51,69 @@ structured_logging:
   field_naming: snake_case
   format: JSON in production
 
+# When you MUST write a log entry (XSPEC-234 / closes #108).
+# Compliant formatting but silent-at-the-critical-moment logging is excluded.
+mandatory_events:
+  - id: application_startup
+    when: After process boot, before accepting requests
+    level: INFO
+    must_log: [app_name, version, git_sha, environment, hostname, pid, listening_endpoints]
+    must_not_log: [secrets, full_connection_strings]
+    rationale: Lifecycle blind spot; confirms which build/config is actually live
+  - id: request_received
+    when: First time HTTP middleware sees a request
+    level: INFO/DEBUG
+    must_log: [method, path, source_ip, request_id]
+    must_not_log: [request_body, auth_headers]
+    rationale: Establishes request_id correlation from the edge inward
+  - id: validation_failure
+    when: schema / ModelState / DTO validation rejects
+    level: WARN
+    must_log: [request_id, path, missing_fields, payload_shape]
+    must_not_log: [field_values, pii]
+    rationale: Framework rejects before handler; payload otherwise never logged (incident #2)
+  - id: authentication_failure
+    when: login / token verification fails
+    level: WARN
+    must_log: [uid_attempted, source_ip, failure_reason]
+    must_not_log: [password, token_value]
+    rationale: 'Account or password error alone is un-investigable without uid/IP (incident #3)'
+  - id: outbound_call_start
+    when: An outbound HTTP/RPC call is initiated
+    level: INFO
+    must_log: [target_url_host_path, request_id_propagated, timeout_ms]
+    must_not_log: [credentials, bearer_tokens]
+    rationale: A send-failed error must leave a trace that the call was even attempted
+  - id: outbound_call_complete
+    when: An external call returns or fails
+    level: INFO/WARN/ERROR
+    must_log: [status_code_or_failure_phase, elapsed_ms, retries]
+    must_not_log: [response_body_with_pii]
+    rationale: Distinguish dns/tcp/tls/http failure phase for diagnosis
+  - id: business_event
+    when: A state-changing business operation completes
+    level: INFO
+    must_log: [operation_name, actor, target_ids, outcome]
+    must_not_log: [full_record_payload, pii]
+    rationale: Audit trail of what changed and by whom
+  - id: heartbeat
+    when: Long-running background service, at least once per 60 seconds
+    level: INFO
+    must_log: [service_name, queue_depth, items_processed_since_last_heartbeat]
+    must_not_log: []
+    rationale: Detect silent/0-byte background worker; enables silence detection (incident #4)
+  - id: shutdown
+    when: Process exits (graceful or fatal)
+    level: INFO/ERROR
+    must_log: [app_name, signal_or_reason, uptime_seconds, pending_work_count]
+    must_not_log: []
+    rationale: Lifecycle blind spot; reveals crash vs graceful and lost in-flight work
+
+mandatory_events_follow_on_rules:
+  access_log_separation: Health-probe/liveness traffic MUST NOT pollute business-event log (separate sink)
+  silence_detection_sla: Alert after N minutes with no events, N <= 2x heartbeat interval
+  request_id_discoverability: Error responses to client SHOULD carry request_id for support correlation
+
 sensitive_data:
   never_log:
     - passwords
@@ -78,6 +141,19 @@ rules:
   - id: structured-format
     trigger: writing logs
     instruction: Use structured JSON logging with required fields
+    priority: required
+
+  - id: mandatory-events
+    trigger: implementing startup/shutdown, request handling, validation, auth, outbound calls, background services
+    instruction: |
+      Emit the mandatory events catalog entries (see mandatory_events):
+      application_startup, request_received, validation_failure,
+      authentication_failure, outbound_call_start, outbound_call_complete,
+      business_event, heartbeat, shutdown. A log that follows every formatting
+      rule but never fires at the critical moment is excluded. Validation rejects
+      MUST log payload_shape (keys only, not values); auth failures MUST log
+      uid+source_ip (never password/token); background services MUST heartbeat
+      so silence is detectable.
     priority: required
 
   - id: include-context

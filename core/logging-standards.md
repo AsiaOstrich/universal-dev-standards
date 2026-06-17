@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/logging-standards.md)
 
-**Version**: 1.3.0
-**Last Updated**: 2026-05-26
+**Version**: 1.4.0
+**Last Updated**: 2026-06-17
 **Applicability**: All software projects
 **Scope**: universal
 **Industry Standards**: RFC 5424, OpenTelemetry, W3C Trace Context
@@ -14,6 +14,81 @@
 ## Overview
 
 This document defines logging standards for consistent, structured, and actionable application logs across all environments.
+
+## Mandatory Events
+
+> **Closes** UDS issue [#108](https://github.com/AsiaOstrich/universal-dev-standards/issues/108) (XSPEC-234). The rest of this standard defines **how** to write a log entry (level / fields / PII mask / rotation). This section defines **when you MUST write one** — excluding "compliant on paper but materially silent" logging.
+
+Logging that follows every formatting rule but **never fires at the moment that matters** is worse than useless: it gives false confidence during an incident. The events below are the canonical moments where a log entry is **mandatory**. Each declares `when` / `must_log` / `must_NOT_log` / `level` / `rationale`.
+
+### Why this exists (real incidents)
+
+A PHP→.NET migration burned 2 days diagnosing "send failed, no log", because **four layers were all silent**:
+
+1. **Load-balancer marks backend DOWN** (503) on health-probe timeout — backend logged only probe noise, zero business events.
+2. **Framework validation reject** (e.g. ModelState / DTO 501) — the rejecting framework returned before any handler ran, so the **payload was never logged**.
+3. **Auth failure** logged only "Account or password error" — **no uid, no source IP** → un-investigable.
+4. **Background worker alive but log file 0 bytes** — no mechanism detected the silence.
+
+None of these were caught by the formatting rules alone. Mandatory events close that gap.
+
+### Catalog (9 canonical events)
+
+| id | when | level | Core required fields (`must_log`) | `must_NOT_log` |
+|----|------|-------|-----------------------------------|----------------|
+| `application_startup` | After process boot, **before** accepting requests | INFO | app_name, version, git_sha, environment, hostname, pid, listening_endpoints | secrets, full connection strings |
+| `request_received` | First time HTTP middleware sees a request | INFO / DEBUG | method, path, source_ip, request_id | request body, auth headers |
+| `validation_failure` | schema / ModelState / DTO validation rejects | WARN | request_id, path, missing_fields[], payload_shape (keys only) | field **values**, PII |
+| `authentication_failure` | login / token verification fails | WARN | uid (attempted), source_ip, failure_reason | password, token value |
+| `outbound_call_start` | An outbound HTTP/RPC call is initiated | INFO | target_url (host+path), request_id propagated, timeout_ms | credentials, bearer tokens |
+| `outbound_call_complete` | An external call returns or fails | INFO / WARN / ERROR | status_code **or** failure_phase (dns/tcp/tls/http), elapsed_ms, retries | response body with PII |
+| `business_event` | A state-changing business operation completes | INFO | operation_name, actor, target ids, outcome | full record payload, PII |
+| `heartbeat` | Long-running background service, ≥ 1× / 60 s | INFO | service_name, queue_depth, items_processed_since_last_heartbeat | — |
+| `shutdown` | Process exits (graceful or fatal) | INFO / ERROR | app_name, signal/reason, uptime_seconds, pending_work_count | — |
+
+Each event's `rationale` ties back to a real failure mode: `validation_failure` ⇒ incident #2 (un-logged payload); `authentication_failure` field requirements ⇒ incident #3 (no uid/IP); `heartbeat` + silence detection ⇒ incident #4 (0-byte log); `application_startup`/`shutdown` ⇒ lifecycle blind spots; `outbound_call_*` ⇒ "send failed" with no trace of the call.
+
+### Scenarios
+
+#### Scenario: Validation failure must produce a log
+
+- **GIVEN** an API endpoint receives a payload missing a `[Required]` field
+- **WHEN** the framework auto-rejects (e.g. 400/501) before the handler runs
+- **THEN** a WARN log MUST be written with `request_id`, `path`, `missing_fields[]`, `payload_shape` (keys only)
+- **AND** a post-mortem can reconstruct the failure cause directly from the log
+
+#### Scenario: Background service must heartbeat
+
+- **GIVEN** a worker process is running
+- **WHEN** no INFO/WARN/ERROR is written within 60 s
+- **THEN** a `heartbeat` log MUST be written with current queue depth and items processed
+- **AND** if no heartbeat appears for ≥ 2× the interval (≥ 120 s), the silence detector MUST alert
+
+### Compliant startup log example
+
+```json
+{
+  "timestamp": "2026-06-17T08:00:00.000Z",
+  "level": "INFO",
+  "message": "application_startup",
+  "event": "application_startup",
+  "app_name": "payment-service",
+  "version": "2.3.1",
+  "git_sha": "a1b2c3d",
+  "environment": "production",
+  "hostname": "pod-abc123",
+  "pid": 4711,
+  "listening_endpoints": ["0.0.0.0:8080", "0.0.0.0:9090/metrics"]
+}
+```
+
+### Follow-on rules
+
+1. **Access-log separation** — health-probe / liveness traffic MUST NOT pollute the business-event log. Route probes to a separate sink/file so they cannot drown out or rotate away business events (see incident #1).
+2. **Log-silence detection SLA** — a service SHOULD alert after N minutes with no events, with N ≤ 2× the `heartbeat` interval. Absence of expected logs is itself an alertable condition (see the "Absence of Expected Logs" alert pattern below).
+3. **OPS-facing log discoverability** — error responses returned to the client SHOULD carry the `request_id`, so support can correlate a user-reported failure to backend logs without round-trips for log access.
+
+> **Cross-ref**: `heartbeat` / silence detection complement the [Log File Rotation Policy](#log-file-rotation-policy) (a 0-byte / silently-dropping log is the same blind spot from two directions) and migration-assistant's Background Job / Side-Effect Completeness (these events are the observable "has-fired" evidence).
 
 ## Log Levels
 
@@ -754,6 +829,7 @@ App cannot continue?         → FATAL
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.4.0 | 2026-06-17 | Added: Mandatory Events catalog — 9 canonical "when you MUST log" events (when/must_log/must_NOT_log/level/rationale), validation-failure + heartbeat scenarios, compliant startup example, follow-on rules (access-log separation, silence-detection SLA, request_id discoverability) (XSPEC-234 / closes issue #108) |
 | 1.3.0 | 2026-05-26 | Added: Log File Rotation Policy — mandatory dual-trigger (time + size) rotation with hostile-default warning, recipes for .NET/Python/Java/Node, ops SOP (XSPEC-232 / closes issue #111) |
 | 1.2.0 | 2026-01-24 | Added: OpenTelemetry Semantic Conventions, Observability Three Pillars Integration, Log-based Alerting, Advanced Correlation Patterns |
 | 1.1.0 | 2026-01-05 | Added: References section with OWASP, RFC 5424, OpenTelemetry, and 12 Factor App |
