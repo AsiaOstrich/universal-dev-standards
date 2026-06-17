@@ -3,8 +3,8 @@
   "version": "5.17.0",
   "last_updated": "2026-06-08",
   "stats": {
-    "core_standards": 127,
-    "skills": 54,
+    "core_standards": 129,
+    "skills": 55,
     "slash_commands": 48
   },
   "standards": [
@@ -424,6 +424,11 @@
       "level": 2
     },
     {
+      "id": "verification-oracle",
+      "category": "compliance",
+      "level": 2
+    },
+    {
       "id": "pii-classification",
       "category": "compliance",
       "level": 2
@@ -710,6 +715,11 @@
     },
     {
       "id": "self-review-protocol",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "knowledge-graph-memory",
       "category": "uncategorized",
       "level": 3
     }

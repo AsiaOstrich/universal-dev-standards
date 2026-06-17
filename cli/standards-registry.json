@@ -2359,6 +2359,18 @@
       "description": "License tier classification, automated scanning in CI, SBOM generation, attribution notices, violation remediation, ClearlyDefined API, AST PII analysis, and EmbeddingProvider copyright similarity"
     },
     {
+      "id": "verification-oracle",
+      "name": "Verification Oracle Standards",
+      "nameZh": "驗證 Oracle 標準",
+      "version": "1.0.0",
+      "source": {
+        "human": "core/verification-oracle.md",
+        "ai": "ai/standards/verification-oracle.ai.yaml"
+      },
+      "category": "core",
+      "description": "Ground-truth oracle as a first-class artifact, oracle-ability grading, fail-closed verification gate, sustained re-verification (correctness as CI invariant), audit evidence, and self-serve frontier ceiling — the correctness profile of the governance-gate family"
+    },
+    {
       "id": "pii-classification",
       "name": "PII Classification and Handling Standards",
       "nameZh": "PII 分類與處理標準",

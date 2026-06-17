@@ -6,7 +6,7 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 5.17.0 | **Released**: 2026-05-28 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
+**Version**: 5.17.0 | **Released**: 2026-06-17 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 Language-agnostic, framework-agnostic development standards for software projects. Ensure consistency, quality, and maintainability across diverse technology stacks with AI-native workflows.
 
@@ -67,8 +67,8 @@ npx universal-dev-standards init
 <!-- UDS_STATS_TABLE_START -->
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Core Standards** | 127 | Universal development guidelines |
-| **AI Skills** | 54 | Interactive skills |
+| **Core Standards** | 129 | Universal development guidelines |
+| **AI Skills** | 55 | Interactive skills |
 | **Slash Commands** | 48 | Quick actions |
 | **CLI Commands** | 6 | list, init, configure, check, update, skills |
 <!-- UDS_STATS_TABLE_END -->

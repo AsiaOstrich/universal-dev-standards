@@ -1,0 +1,278 @@
+# Verification Oracle Standards - AI Optimized
+# Sources:
+#   v1.0.0 — XSPEC-256 Verification Oracle (correctness as a maintained invariant)
+#            DEC-077 (mother decision: "correct" is a maintained invariant, the moat axis)
+
+id: verification-oracle
+title: Verification Oracle Standards (Ground-Truth Correctness as a Maintained Invariant)
+version: "1.0.0"
+status: Active
+tags: [correctness, oracle, ground-truth, verification, governance-gate, fail-closed, audit, regression, re-verification, ci-invariant]
+created: 2026-06-17
+updated: 2026-06-17
+
+spec_ref: XSPEC-256   # Verification Oracle complete spec
+
+references:
+  - XSPEC-256   # v1.0.0 source — Verification Oracle
+  - DEC-077     # Mother decision — correctness as a maintained invariant
+  - DEC-075     # Domain-neutral mechanism (oracle content belongs to customer)
+  - DEC-076     # Self-serve north star — oracle = self-serve ceiling
+  - DEC-063     # Legal & compliance — customer-owned output / high-stakes
+  - DEC-066     # Telemetry-driven evolution — audit/telemetry allowlist
+  - DEC-064     # Customer IP isolation (per-customer registry salt)
+  - XSPEC-193   # Sibling governance-gate profile — licensing
+  - XSPEC-255   # Sibling governance-gate profile — provenance
+  - XSPEC-252   # Oracle manufacturing (Tier-4 hand-off)
+  - XSPEC-188   # UAT ship-decision dashboard (business-level UAT anchors)
+  - XSPEC-201   # Behavior-snapshot = an oracle instance
+
+summary: |
+  A test oracle is the source of truth that decides whether software output is correct.
+  Software without an oracle cannot be said to be "right". This standard makes the
+  ground-truth oracle a first-class artifact and turns "correct" from a one-time
+  acceptance state into a maintained invariant re-verified on every change (DEC-077).
+
+  It is the CORRECTNESS member of the governance-gate family — alongside license-compliance
+  (XSPEC-193, licensing) and model-provenance (XSPEC-255, provenance) — sharing the same
+  shape: registry/check -> fail-closed gate -> audit evidence -> human-escalation ceiling.
+  The three are profiles of one mechanism over three axes: licensing / provenance / correctness.
+
+  REQ-001~007: ground-truth registry bound to AC; oracle-ability grading (Tier 1-4); a
+  fail-closed pre-ship verification gate; sustained re-verification on every change with
+  drift detection; auditable evidence (N/N reproduced + no-drift + trace); a self-serve
+  frontier ceiling that escalates unverifiable high-stakes paths to a human; and oracle
+  content sovereignty (mechanism neutral, correct answers owned by the customer).
+
+scope:
+  applies_to:
+    - High-stakes features where correctness is verifiable against a ground-truth oracle
+      (billing / calculation / compliance / rules / data transformation)
+    - Generated or refactored systems that must reproduce known-correct outputs
+    - Acceptance evidence and audit reports proving correctness over time
+  excludes:
+    - Low-stakes software with no oracle and no correctness stake (over-design; see DEC-077)
+    - The oracle CONTENT itself (correct answers) — owned by the customer, not this standard
+    - Enforcement-engine wiring (e.g. VibeOps pipeline gate) — downstream adoption concern
+
+oracle_ability_spectrum:
+  description: |
+    Grade each high-stakes feature by how readily its oracle exists. Drives cost,
+    beachhead selection, and the Tier-4 hand-off to oracle manufacturing (XSPEC-252).
+  tiers:
+    - tier: 1
+      shape: Known-correct output of a legacy system
+      readiness: Most ready, cheapest (parity-provable)
+    - tier: 2
+      shape: A batch of hand-computed / existing correct outputs
+      readiness: Ready (reproduce + scale)
+    - tier: 3
+      shape: Regulation / formula (rules exist, examples missing)
+      readiness: Needs co-derived worked examples + sign-off (ATDD)
+    - tier: 4
+      shape: Vague requirement (oracle must be mined from interviews)
+      readiness: Most expensive — the translation problem (XSPEC-252 pulls toward 1-2)
+
+principles:
+  - id: P-1
+    name: Oracle First
+    description: |
+      No oracle, no "correct". Every claim of correctness MUST be grounded in an oracle,
+      and every high-stakes feature MUST be graded for oracle-ability before correctness
+      is asserted. Where no oracle exists, escalate (P-5) rather than guess.
+
+  - id: P-2
+    name: Maintained Invariant
+    description: |
+      "Correct" is not a one-time acceptance state but an invariant re-verified on every
+      change (DEC-077). Drift (was-correct, now-wrong) is a blocking event, not a warning.
+
+  - id: P-3
+    name: Fail-Closed
+    description: |
+      Non-reproduction of any ground-truth case MUST block ship or escalate. The gate MUST
+      NOT silently pass — mirroring the license-compliance blocklist and model-provenance
+      denylist behaviour.
+
+  - id: P-4
+    name: Evidence-Based
+    description: |
+      Every verdict MUST carry a reproducible trace: cases reproduced (N/N), per-case
+      input -> expected vs actual diff, content hash, and an audit-trail id. Verdicts
+      without evidence are prohibited.
+
+  - id: P-5
+    name: Human Ceiling
+    description: |
+      Defining correctness and signing off acceptance are human judgments (customer /
+      legal / regulator). Unverifiable high-stakes paths MUST escalate to a human
+      (DEC-076 ceiling) — a product-enforced governance gate, not a consultant trap.
+
+  - id: P-6
+    name: Content Sovereignty
+    description: |
+      The verification mechanism is domain-neutral (DEC-075); the correct answers are
+      owned by the customer (DEC-063). Registries SHOULD be customer-scoped and isolated
+      (DEC-064 salt).
+
+requirements:
+  - id: REQ-001
+    title: Ground-Truth Registry (first-class artifact)
+    description: |
+      Customer-provided correct answers become a first-class artifact. Each case carries
+      an input scenario + expected correct output and is bound to the acceptance criterion
+      it proves (acceptance-criteria-traceability). At minimum the mechanism MUST support
+      numeric and structured-output comparison, with per-field exemptions (ignore_fields).
+      The expected output is the CORRECT result, not merely "endpoint returned HTTP 200".
+    level: MUST
+    examples:
+      - "Billing case: given {orders, org_state} -> expected correct charge $0 (no double-charge)"
+      - "Case bound to AC-7 'no duplicate charge on retry' via acceptance-criteria-traceability"
+      - "Structured compare with ignore_fields:[created_at,request_id] to exclude volatile fields"
+
+  - id: REQ-002
+    title: Oracle-ability Grading (Tier 1-4)
+    description: |
+      Every high-stakes feature MUST be tagged with its oracle Tier (1-4). A Tier-4
+      (must-mine) feature MUST have a defined hand-off point to an oracle-manufacturing
+      flow (interview / Prototype Probe, XSPEC-252) that pulls the expensive end toward
+      Tier 1-2. Beachhead selection SHOULD prefer Tier 1-2.
+    level: MUST
+    examples:
+      - "Feature 'legacy billing parity' graded Tier 1 (legacy known-correct outputs exist)"
+      - "Feature 'discretionary discount policy' graded Tier 4 -> XSPEC-252 manufacturing hand-off"
+
+  - id: REQ-003
+    title: Fail-Closed Verification Gate (pre-ship)
+    description: |
+      Before entering UAT/ship, the system MUST exactly reproduce every registered
+      ground-truth case. A non-reproduction MUST block ship or escalate — never silently
+      pass. The gate plugs into existing reviewer/QA gates and the audit logger.
+    level: MUST
+    checks:
+      - "All registry cases must reproduce (N/N) before ship is allowed"
+      - "Any non-reproduction -> block ship OR escalate_to_human; never silent pass"
+      - "Injection test: deliberately corrupt one expected value -> gate blocks"
+
+  - id: REQ-004
+    title: Sustained Re-Verification (correctness as CI invariant)
+    description: |
+      On every change/regeneration the full oracle suite MUST be re-run, making correct a
+      CI-grade invariant. Drift (was-correct, now-wrong) MUST be detected and blocked.
+      This mechanizes DEC-077 ("changed and still correct, provably correct throughout").
+    level: MUST
+    checks:
+      - "Change/regeneration triggers a full re-run of the oracle suite"
+      - "Drift (previously reproduced case now failing) -> detect and block (regression oracle)"
+      - "Regression test: introduce drift -> detected and blocked"
+
+  - id: REQ-005
+    title: Audit Evidence
+    description: |
+      Each run MUST emit an auditable report: reproduced N/N, no drift, trace attached.
+      It plugs into the audit logger / hash chain, model-provenance source evidence
+      (XSPEC-255), and the telemetry allowlist (DEC-066). This report is the outward proof
+      of the correctness/governance moat and a customer compliance artifact.
+    level: MUST
+    evidence_required:
+      - "cases reproduced count (N/N)"
+      - "per-case: scenario, input, expected, actual, diff on mismatch"
+      - "drift status (none / list of drifted case ids)"
+      - "content hash (sha256) of the report"
+      - "audit-trail id (hash-chain entry)"
+
+  - id: REQ-006
+    title: Self-Serve Frontier Ceiling
+    description: |
+      Where no oracle exists (correctness not decidable) or a high-stakes path is
+      unverifiable, self-serve MUST NOT silently pass. The system MUST flag "human must
+      decide / oracle must be supplied" and escalate (DEC-076 ceiling).
+    level: MUST
+    checks:
+      - "Feature with no oracle MUST NOT auto-ship — flag needs-human and escalate"
+      - "Injection test: an oracle-less high-stakes feature is not auto-shipped"
+
+  - id: REQ-007
+    title: Oracle Content Sovereignty
+    description: |
+      The mechanism is domain-neutral (DEC-075); the correct answers are customer-owned
+      (DEC-063). Registries SHOULD be customer-scoped and isolated (DEC-064 salt).
+    level: SHOULD
+    checks:
+      - "Registry scoping is per-customer; correctness verdicts attribute content to the customer"
+      - "Mechanism carries no domain-specific correctness logic baked in"
+
+# ─────────────────────────────────────────────────────────────
+# Governance-gate family (shared shape with XSPEC-193 / XSPEC-255)
+# ─────────────────────────────────────────────────────────────
+
+governance_gate_family:
+  description: |
+    verification-oracle is the CORRECTNESS profile of one governance-gate mechanism.
+    All profiles share: registry/check -> fail-closed gate -> audit evidence ->
+    customer-override-telemetered -> human-escalation ceiling.
+  profiles:
+    - profile: licensing
+      standard: license-compliance
+      spec: XSPEC-193
+      registry: blocklist/allowlist/greylist
+      block_trigger: prohibited license
+    - profile: provenance
+      standard: model-provenance (planned sibling)
+      spec: XSPEC-255
+      registry: model source policy
+      block_trigger: denied source
+    - profile: correctness
+      standard: verification-oracle
+      spec: XSPEC-256
+      registry: ground-truth registry
+      block_trigger: non-reproduction / drift
+
+# ─────────────────────────────────────────────────────────────
+# Gate timing
+# ─────────────────────────────────────────────────────────────
+
+gate_timing:
+  pre_ship: REQ-003 fail-closed gate — reproduce all ground-truth before UAT/ship
+  on_every_change: REQ-004 re-run full oracle suite — drift blocks
+  after_run: REQ-005 emit audit evidence report (outward moat proof)
+  on_unverifiable: REQ-006 escalate to human (no silent pass)
+
+# ─────────────────────────────────────────────────────────────
+# Telemetry (DEC-066 / XSPEC-189 v2 envelope)
+# ─────────────────────────────────────────────────────────────
+
+telemetry:
+  required_events:
+    - oracle_verification_result   # N/N reproduction outcome per run
+    - oracle_drift_detected        # was-correct, now-wrong (REQ-004)
+    - oracle_gate_block            # fail-closed block detail (REQ-003)
+    - oracle_escalation            # unverifiable high-stakes escalated (REQ-006)
+    - human_override_block         # human override of a block (requires reason)
+  envelope_reference: XSPEC-189    # Telemetry Schema v2 envelope
+  event_type: quality
+  event_subtype_examples:
+    - oracle_verification_result
+    - gate_pass / gate_fail        # when the oracle gate acts as a ship gate
+
+# ─────────────────────────────────────────────────────────────
+# Integration with existing standards
+# ─────────────────────────────────────────────────────────────
+
+integration:
+  acceptance-criteria-traceability: oracle cases bind to AC; reproduction is a form of AC coverage
+  verification-evidence: the oracle report is a kind of verification evidence (N/N + no-drift + trace)
+  test-governance: the oracle suite is governed test policy; the gate is a governed gate
+  behavior-snapshot: parity/snapshot gate = REQ-003/REQ-004 for the refactor/migration case (a snapshot is an oracle)
+
+# ─────────────────────────────────────────────────────────────
+# Adoption guidance
+# ─────────────────────────────────────────────────────────────
+
+adoption_guidance:
+  uds_install_path: ai/standards/verification-oracle.ai.yaml
+  notes:
+    - "v1.0.0 defines the correctness oracle mechanism and acceptance evidence. Oracle content (correct answers) is customer-owned (DEC-075/DEC-063)."
+    - "Adopters MAY enforce the gate via CI (reproduce ground-truth on every change) without a bespoke engine."
+    - "Tier-4 (must-mine) features need an oracle-manufacturing hand-off (XSPEC-252) before correctness can be claimed."
+    - "Group with license-compliance and model-provenance as one governance-gate subsystem (three profiles)."
