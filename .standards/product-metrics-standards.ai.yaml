@@ -1,0 +1,111 @@
+# Product Metrics Standards - AI Optimized
+# Source: XSPEC-069 Wave 4 Product Layer Pack
+
+id: product-metrics-standards
+title: Product Metrics Framework Standards
+version: "1.0.0"
+status: Active
+tags: [product, metrics, kpi, aarrr, heart, north-star, analytics]
+summary: |
+  Defines how teams select, structure, and govern product metrics. Covers
+  a framework selection matrix (AARRR for growth products, HEART for
+  experience products, custom North Star for platforms), North Star metric
+  criteria, a three-level metric hierarchy (North Star → L1 drivers →
+  L2 diagnostics), and an anti-vanity rule that rejects metrics decoupled
+  from revenue or retention impact. Designed to align teams around metrics
+  that drive meaningful product decisions rather than activity tracking.
+
+requirements:
+  - id: REQ-001
+    title: Framework Selection Matrix
+    description: |
+      Teams MUST select a primary metrics framework appropriate to their
+      product type. Selection criteria: (1) Growth products (consumer apps,
+      marketplaces, viral products focused on user acquisition and monetization)
+      → use AARRR framework (Acquisition, Activation, Retention, Referral,
+      Revenue). (2) Experience products (productivity tools, B2B SaaS, apps
+      where user satisfaction and task completion drive retention) → use
+      HEART framework (Happiness, Engagement, Adoption, Retention, Task
+      Success). (3) Platform products (developer platforms, APIs, infrastructure
+      products with diverse use cases) → define a custom North Star metric
+      that reflects platform value delivered, supplemented by AARRR or HEART
+      components as applicable. Framework selection MUST be documented in the
+      PRD or product strategy document.
+    level: MUST
+    examples:
+      - "Consumer social app → AARRR; primary focus on D7 retention and referral coefficient"
+      - "B2B project management tool → HEART; primary focus on Task Success and Retention"
+      - "Developer API platform → custom North Star: 'API calls per active developer per week'"
+      - "Framework documented in product-metrics.md: 'We use HEART because...'"
+
+  - id: REQ-002
+    title: North Star Criteria
+    description: |
+      Every product MUST define exactly one North Star metric that satisfies
+      all four criteria: (1) Leading indicator — it predicts future business
+      health (revenue, retention) rather than measuring past outcomes.
+      (2) Measurable and trackable — it can be calculated from existing or
+      easily obtainable data with a defined measurement cadence (weekly
+      or monthly). (3) Actionable by the team — the product team has direct
+      levers to influence it through feature development and UX decisions.
+      (4) Explainable in one sentence — any team member can describe what
+      it measures and why it matters without needing additional context.
+      North Star MUST be reviewed and reconfirmed at each annual product
+      planning cycle.
+    level: MUST
+    examples:
+      - "Spotify: 'Time spent listening per user per week' (leading, measurable, actionable)"
+      - "Airbnb: 'Nights booked per month' (explainable, predicts revenue)"
+      - "Weak North Star: 'Total revenue' (lagging, not directly actionable by product team)"
+      - "Annual review: North Star unchanged but L1 driver metrics updated for new product area"
+
+  - id: REQ-003
+    title: Metric Hierarchy
+    description: |
+      Teams MUST structure metrics in a three-level hierarchy with a maximum
+      of three levels. Level 1 (North Star): one metric representing overall
+      product value delivered. Level 2 (L1 Driver Metrics): 3–5 metrics that
+      directly influence the North Star; each driver metric must have a
+      documented causal hypothesis linking it to the North Star. Level 3
+      (L2 Diagnostic Metrics): per-feature or per-team metrics that explain
+      movements in L1 drivers; maximum 3 diagnostics per driver. Metrics
+      beyond three levels of hierarchy are PROHIBITED — they indicate
+      measurement fragmentation rather than focus.
+    level: MUST
+    examples:
+      - "North Star: weekly active users completing core action"
+      - "L1 drivers: new user activation rate, 7-day retention, feature adoption breadth"
+      - "L2 diagnostic for activation: onboarding step completion rates (step 1/2/3)"
+      - "Prohibited: L4 sub-diagnostic metrics that obscure rather than explain"
+
+  - id: REQ-004
+    title: Anti-Vanity Rule
+    description: |
+      Teams MUST apply the anti-vanity test before adding any metric to the
+      official metrics dashboard. A metric fails the anti-vanity test if it
+      can increase while revenue and retention remain flat or decrease. Such
+      metrics MUST NOT appear in official product reviews or be used as
+      success criteria for features. Examples of vanity metrics that commonly
+      fail this test: total registered users (without active usage filter),
+      raw pageviews (without session quality filter), total API calls
+      (without unique active customer filter), press mentions, app store
+      downloads without activation. When a vanity metric is useful for
+      operational monitoring, it MUST be clearly labeled as "operational
+      indicator, not success metric."
+    level: MUST
+    examples:
+      - "Reject: 'Total signups this month' → replace with 'Signups who completed activation'"
+      - "Reject: 'Total pageviews' → replace with 'Sessions with ≥2 meaningful interactions'"
+      - "Allowed with label: 'Total API calls (operational indicator)' on infra dashboard"
+      - "Feature success metric: 'Users who used feature X and retained at D30' not 'feature clicks'"
+
+anti_patterns:
+  - "Tracking vanity metrics (total signups, raw pageviews) as primary success indicators"
+  - "No North Star defined — teams optimize for different local metrics, creating misalignment"
+  - "Conflicting team metrics where one team's optimization harms another team's metric"
+  - "Metric hierarchy deeper than 3 levels, creating measurement complexity without insight"
+  - "Changing the North Star quarterly, preventing year-over-year trend analysis"
+
+related_standards:
+  - prd-standards
+  - slo-sli

@@ -1,0 +1,88 @@
+# PRD Standards - AI Optimized
+# Source: XSPEC-069 Wave 4 Product Layer Pack
+
+id: prd-standards
+title: Product Requirements Document Standards
+version: "1.0.0"
+status: Active
+tags: [product, prd, requirements, user-research, planning]
+summary: |
+  Defines the structure, content requirements, and lifecycle governance for
+  Product Requirements Documents (PRDs). Covers five mandatory PRD sections
+  (Problem Statement, Target User/Persona, Success Metrics, Scope in/out,
+  Constraints), the bridge from PRD requirements to traceable user stories,
+  and the revision policy for changes after kickoff. Designed to ensure product
+  intent is clearly communicable to engineering, design, and stakeholders with
+  measurable success criteria.
+
+requirements:
+  - id: REQ-001
+    title: PRD Five Sections
+    description: |
+      Every PRD MUST contain five sections in the following order:
+      (1) Problem Statement — describes the user pain point or opportunity
+      in observable terms; includes quantitative data where available (e.g.,
+      support ticket volume, user research findings, funnel drop-off rates).
+      (2) Target User / Persona — identifies who is affected; references
+      named personas with role, context, and goals; at minimum one primary
+      persona and one secondary persona.
+      (3) Success Metrics — defines 2–4 measurable outcomes that indicate
+      the problem is solved; each metric must include current baseline,
+      target value, and measurement method.
+      (4) Scope In / Out — explicitly lists what is included and excluded
+      from this PRD; out-of-scope items may reference future PRDs.
+      (5) Constraints — technical, regulatory, time, budget, or dependency
+      constraints that bound the solution space.
+    level: MUST
+    examples:
+      - "Problem: 34% of users abandon checkout at payment step (Mixpanel, Q1 2026)"
+      - "Primary persona: Mid-market SaaS buyer; Secondary: IT admin approver"
+      - "Success metric: Checkout completion rate ≥ 72% (baseline 66%) measured via Amplitude"
+      - "Out of scope: saved payment methods (deferred to PRD-2026-Q3-payments)"
+
+  - id: REQ-002
+    title: PRD to User Story Bridge
+    description: |
+      Each PRD requirement MUST be broken down into one or more user stories
+      following the INVEST criteria defined in requirement-engineering.ai.yaml.
+      Every user story derived from a PRD MUST be traceable to at least one
+      PRD success metric — stories that cannot be linked to a success metric
+      MUST be flagged for PM review before inclusion in the backlog. The
+      traceability link (PRD section ID → User Story ID → Success Metric) MUST
+      be maintained in the backlog tool or as a traceability matrix in the PRD.
+    level: MUST
+    examples:
+      - "PRD-REQ-003 → US-042 'As a buyer, I want to pay with Apple Pay' → metric: checkout rate"
+      - "Story without metric link flagged with label `needs-metric-trace` in Jira"
+      - "Traceability matrix table in PRD section 6: REQ ↔ Stories ↔ Metrics"
+      - "Stories use INVEST: Independent, Negotiable, Valuable, Estimable, Small, Testable"
+
+  - id: REQ-003
+    title: Revision Policy
+    description: |
+      PRD changes requested after the development kickoff meeting MUST follow
+      a formal revision process: (1) Proposed change documented with rationale
+      and impact assessment. (2) Stakeholder sign-off obtained from PM, Tech
+      Lead, and Design Lead. (3) Scope impact assessed — if change adds scope,
+      a corresponding item must be moved to out-of-scope or timeline adjusted.
+      (4) Version history updated in the PRD with date, author, change summary,
+      and approver. PRDs without version history that have been modified after
+      kickoff are considered non-compliant.
+    level: MUST
+    examples:
+      - "PRD v1.2 (2026-04-15, @alice): Added biometric auth requirement; approved by @bob, @carol"
+      - "Scope impact: biometric auth added → saved cards feature deferred to v2"
+      - "Change log table at PRD top: Version | Date | Author | Summary | Approvers"
+      - "Minor editorial changes (typos, formatting) exempt from sign-off requirement"
+
+anti_patterns:
+  - "PRD without measurable success metrics (qualitative goals only, e.g., 'improve UX')"
+  - "Scope creep without change log: adding requirements mid-sprint without documented approval"
+  - "Solution-first PRD: describing implementation details before establishing user problem"
+  - "PRD with no explicit out-of-scope section, causing boundary disputes during development"
+  - "Success metrics defined after development starts, making them unverifiable"
+
+related_standards:
+  - requirement-engineering
+  - user-story-mapping
+  - product-metrics-standards
