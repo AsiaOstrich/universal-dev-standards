@@ -2,7 +2,7 @@
 
 > **Auto-generated** — do not edit manually.
 > Run `npm run docs:generate-index` to update.
-> Last regenerated: 2026-05-29 | UDS v5.15.0 | 55 unique commands
+> Last regenerated: 2026-06-17 | UDS v5.17.0 | 55 unique commands
 
 Type any command in Claude Code to activate the corresponding skill.
 Commands not visible in the menu are still callable — Claude Code loads skills on demand.

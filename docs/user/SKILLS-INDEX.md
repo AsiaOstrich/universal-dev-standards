@@ -2,7 +2,7 @@
 
 > **Auto-generated** — do not edit manually.
 > Run `npm run docs:generate-index` to update.
-> Last regenerated: 2026-05-29 | UDS v5.15.0 | 55 skills
+> Last regenerated: 2026-06-17 | UDS v5.17.0 | 55 skills
 
 Use skills by typing their command in Claude Code (e.g., `/sdd`, `/tdd`, `/commit`).
 Skills not in Tier 1 are always callable via `/<name>` even if not listed in the context menu.

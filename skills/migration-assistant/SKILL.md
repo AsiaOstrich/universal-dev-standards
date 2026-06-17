@@ -167,6 +167,106 @@ Before merging any migrated endpoint:
 - [ ] Contract test fixture 已 commit
 - [ ] Cross-link 至 contract-test-assistant 做持續消費端驗證
 
+## Post-Cutover Data Reconciliation | Cutover 後生產資料對帳
+
+> **Implements**: XSPEC-284 R2 (axis ③ persisted-data semantics) / closes UDS issue [#134](https://github.com/AsiaOstrich/universal-dev-standards/issues/134).
+
+Contract tests (above) and `behavior-snapshot` catch **interface** divergence but are blind to **persisted-data semantic** divergence. Two blind spots both share:
+
+1. **You can only assert what you thought to enumerate.** The rules that actually ship broken are the *implicit, undocumented* ones — especially the semantics of a persisted field (when is it non-zero? when is it overwritten?). Nobody writes a scenario for a rule they don't know exists.
+2. **Per-request parity ≠ data-at-rest parity.** A field written by an **asynchronous** process (delivery-receipt sync, settlement job, status reconciler) against a live external provider is not a deterministic request you can replay. Its correctness only emerges in **aggregate over real production volume**, not in a single happy-path snapshot.
+
+Contract test 與 `behavior-snapshot`只能捕捉**介面**分歧，對**持久化資料語義**分歧視而不見。兩者共有兩個盲區：(1) 你只能驗證你想得到要列舉的規則——真正出包的永遠是沒人寫下來的隱含規則（某欄位何時非零、何時被覆寫）；(2) per-request parity ≠ data-at-rest parity——由**非同步**程序（DR sync、結算批次、狀態對帳器）對 live 外部供應商寫入的欄位，不是可重放的確定性請求，其正確性只在**真實生產量的聚合**中浮現。
+
+### Failure fingerprint | 事故指紋（#134）
+
+某企業 SMS 平台 PHP→.NET 重寫：每筆金額由**非同步** DR sync 覆寫（`record.Cost = gatewayDr.Cost`）。legacy 對 carrier-failure 仍計費，rewrite 寫 gateway 回報的 `0` → cutover 邊界兩側同一失敗狀態的金額分歧。**所有既有 gate 全部漏接**（response shape 相同 → contract test 過；無人 curated「失敗仍計費」場景；欄位由背景作業對 live gateway 寫入 → 不可重放）。最後靠 ops 跑生產 `SUM(cost) GROUP BY status, day` 跨邊界彙總才發現。**單日抽樣甚至誤判「失敗不計費＝正常」**——只有跨 cutover 邊界的多週聚合才揭露真相。
+
+### Mandatory rule | 強制規則
+
+When a migration loads legacy data into the **same store** as new data, the old/new boundary is a **free differential oracle**. For each business-critical persisted field you **MUST**:
+
+- Define **aggregate reconciliation invariants** comparing the distribution of **legacy-origin vs new-origin** rows along key dimensions (e.g. `SUM(money) / COUNT(*) GROUP BY status, period`).
+- Run them **on a schedule against production** and alert when divergence exceeds a declared tolerance.
+- Investigate over a **multi-week window spanning the cutover** — never a single-day sample (a sampled check can confirm a *wrong* conclusion).
+
+當 migration 將 legacy 資料載入與 new 相同的**儲存**，新舊邊界即是**免費差分神諭**。對每個 business-critical 持久化欄位**必須**：定義聚合對帳不變量（比對 legacy-origin vs new-origin 列沿關鍵維度的分佈）、對生產**排程執行**並於分歧超過宣告容差時告警、以跨 cutover 的**多週窗口**調查（切忌單日抽樣，抽樣可能坐實錯誤結論）。
+
+### Cutover-boundary reconciliation SQL template | 對帳 SQL 模板
+
+```sql
+-- Reconcile a money/state field across the migration cutover boundary.
+SELECT status,
+       SUM(CASE WHEN created < @cutover THEN 1 ELSE 0 END)                          AS legacy_rows,
+       SUM(CASE WHEN created < @cutover AND money_field > 0 THEN 1 ELSE 0 END)      AS legacy_nonzero,
+       SUM(CASE WHEN created >= @cutover THEN 1 ELSE 0 END)                         AS new_rows,
+       SUM(CASE WHEN created >= @cutover AND money_field > 0 THEN 1 ELSE 0 END)     AS new_nonzero
+FROM records GROUP BY status;
+-- Invariant: nonzero-ratio per status must not differ across the boundary beyond tolerance.
+```
+
+### Tolerance & alerting guidance | 容差與告警指引
+
+| Aspect | Guidance | 指引 |
+|--------|----------|------|
+| **Invariant type** | nonzero-ratio / `SUM` / `COUNT` / `DISTINCT` / checksum per `GROUP BY status, period` | 每維度的非零比率 / 聚合相等 / checksum |
+| **Tolerance** | Declare per field; 0% for hard accounting invariants, a small ε only for known legitimate drift (e.g. rounding) | 逐欄宣告；硬會計不變量 0%，僅已知合法漂移容許小 ε |
+| **Window** | Multi-week, spanning cutover; bucket by `period` to localise the boundary | 多週、橫跨 cutover；以 `period` 分桶定位邊界 |
+| **Schedule** | Standing post-cutover cron (daily) until boundary rows age out of active reporting | post-cutover 排程（每日）直到邊界列退出活躍報表 |
+| **Alert** | Page on divergence > tolerance; route via `observability-assistant` alert rules | 分歧超過容差即告警；經 `observability-assistant` 告警規則路由 |
+
+### Gate 0 — Implicit-rule capture for persisted business fields | 隱含規則擷取
+
+Before migrating any feature that writes a persisted business field, **explicitly answer for each such field** three questions, then lock the answer as a snapshot scenario **or** a reconciliation invariant:
+
+> 1. **When is this value SET?** 何時設值？
+> 2. **When is it OVERWRITTEN?** 何時被覆寫？（尤其非同步路徑）
+> 3. **When is it ZEROED / nulled?** 何時歸零／清空？
+
+**High-risk implicit-rule checklist** — empirically recurring fingerprints | 高風險隱含規則檢查清單（經驗反覆出現的指紋）：
+
+- [ ] **Billing / charge semantics** — charged on submit vs on delivery; refund-on-failure? | 計費語義（提交時計費 vs 送達時計費；失敗退費？）
+- [ ] **Enum / status-code mapping** — every legacy code mapped; "success set" defined identically | 列舉／狀態碼對映（每個 legacy 碼都對映；「成功集合」定義一致）
+- [ ] **Null / empty handling** — empty string vs null vs absent; default-on-missing | 空值處理（空字串 vs null vs 不存在；缺值預設）
+- [ ] **Field-name casing / serialization** — snake_case vs camelCase binding | 欄位命名大小寫／序列化（snake_case vs camelCase 綁定）
+- [ ] **Timezone** — stored UTC vs local; report boundaries | 時區（存 UTC vs local；報表邊界）
+- [ ] **Rounding / type coercion** — `"2.00"` (text) parsed as int → dropped to 0 | 四捨五入／型別強轉（`"2.00"` 文字被當 int 解析 → 掉成 0）
+
+### 3-gate positioning | 3-gate 定位表
+
+Make the boundary between gates explicit so each axis has an owner and nothing falls into the seam:
+
+| Gate | Scope | When | 範圍 / 時機 |
+|------|-------|------|------|
+| [`behavior-snapshot`](../../core/behavior-snapshot.md) | per-request, **curated** scenarios | pre-UAT CI | per-request、人工 curated 場景；pre-UAT CI |
+| Contract tests (above / #112) | response **shape** (keys / types / placement) | unit / integration | response shape（keys/型別/層級）；單元/整合 |
+| **This section (#134)** | **aggregate, data-at-rest semantics of async-written fields, over real volume** | **post-cutover, scheduled, production** | **非同步寫入欄位的聚合、靜態資料語義，跨真實量；post-cutover 排程生產** |
+
+> Cross-ref: [`behavior-snapshot`](../../core/behavior-snapshot.md) (curated golden masters), [`observability-assistant`](../observability-assistant/SKILL.md) (reconciliation schedule + alert templates).
+
+## Background Job / Side-Effect Completeness | 背景作業／副作用完整性
+
+> **Implements**: XSPEC-284 R3 (axis ⑤).
+
+Migration inventories (`/vo-inventory`, XSPEC-200 `type:background_job`) and Devil's-Advocate grep (XSPEC-201 Step 4) **annotate** cron / queue consumers / scheduled batches / webhooks / mail-send points — but annotation alone proves nothing. A background job can be listed in the manifest, exist in code, and still **never actually run** in the new system.
+
+遷移清單與副作用 grep 只是**標注**背景作業——標注本身不證明任何事。背景作業可能在 manifest 列出、程式碼存在，卻在新系統**從未真正執行**。
+
+### Mandatory rule | 強制規則
+
+For every background side-effect carried over from legacy, verify **two** things — annotation is not enough:
+
+| Check | Pre-flight | Post-cutover |
+|-------|-----------|--------------|
+| **(a) Exists** — the cron / queue consumer / webhook / mail point is implemented in the new system | source grep + registration check | — |
+| **(b) Executed** — it has actually been **triggered / run at least once**, with observable evidence (log line, heartbeat, queue-depth drain, telemetry counter) | — | observability evidence required |
+
+If either check fails, mark the feature `not_implemented` (XSPEC-199) and **block UAT / cutover** — do not treat a silent, never-fired job as "done".
+
+對每條由 legacy 帶過來的背景副作用，須驗證**兩件事**（標注不夠）：(a) **存在**——cron／queue consumer／webhook／寄信點在新系統實際實作（source grep + 註冊檢查）；(b) **已執行**——post-cutover 已被**觸發／執行至少一次**且有可觀測證據（log、heartbeat、queue depth 排空、telemetry counter）。任一不過即標 `not_implemented`（XSPEC-199）並 **block UAT／cutover**——絕不把沉默、從未觸發的作業當「完成」。
+
+> Cross-ref: structured-log mandatory events `heartbeat` / `business_event` (logging-standards) provide the observable execution evidence for check (b).
+
 ## Rollback Strategy | 回滾策略
 
 | Approach | When to Use | 使用時機 |
@@ -199,15 +299,42 @@ After `/migrate` completes, the AI assistant should suggest:
 > - 執行 `/testing` 確保遷移後測試通過 ⭐ **Recommended / 推薦** — Verify post-migration tests
 > - 執行 `/commit` 提交遷移變更 — Commit migration changes
 
+## Appendix — 9-Axis Completeness Matrix | 附錄：9 軸完整性矩陣
+
+> **Source**: XSPEC-284 Legacy Refactor Completeness Framework. "Ensuring nothing is missing cannot be proven by enumeration" — you can only verify what you thought to enumerate. Strategy = two legs: **(1) mechanically derive** the to-do list from real legacy artifacts (schema / routes / cron config / prod logs), and **(2) differential oracles** (shadow run / replay / cutover-boundary reconciliation) that make divergence self-report.
+>
+> 「確保沒有遺漏」無法用列舉證明——你只能驗證你想得到要列舉的東西。策略＝兩條腿：(1) 從 legacy 真實 artifact **機械化推導**待辦清單；(2) **差分神諭**讓分歧自報。
+
+Each migration declares, per axis, three things: **derive** (list source) · **detect** (oracle) · **gate timing**. Axes marked here as covered map to existing UDS standards — do not re-invent.
+
+| Axis | Derive (list source) | Detect (oracle) | Gate | Covered by |
+|------|----------------------|-----------------|------|------------|
+| ① Feature | route table / controller / menu / permissions | inventory diff (legacy vs new) | pre-flight | XSPEC-200 feature-manifest + `/vo-inventory`; XSPEC-206 |
+| ② Behavior | curated scenarios + prod-log extraction | behavior-snapshot parity | pre-UAT | XSPEC-201 behavior-snapshot; **contract tests** (this skill) |
+| ③ **Persisted semantics** | DB schema full-column semantic sign-off (Gate 0) | **cutover-boundary aggregate reconciliation** | **post-cutover** | **This skill — Post-Cutover Data Reconciliation (#134)** |
+| ④ Implicit rules | cron / queue / computed-column / middleware source scan | per-field 3 questions + non-HTTP Devil's Advocate | pre-flight | This skill Gate 0 (HTTP layer: XSPEC-201 Step 7); XSPEC-284 R4 (non-HTTP, future) |
+| ⑤ **Background side-effects** | crontab / queue config / webhook registry / mail points | **per-job "exists + has fired"** | pre-flight + **post-cutover** | **This skill — Background Job / Side-Effect Completeness** |
+| ⑥ Non-functional | legacy perf baseline + concurrency list | latency/throughput regression + isolation | pre-UAT | XSPEC-286 (split out) |
+| ⑦ Data integrity | schema type / encoding / timezone list | row count + checksum + encoding bytes + aggregate equality | post-migration + post-cutover | XSPEC-172 data-migration-testing; XSPEC-206; XSPEC-284 R6 (future) |
+| ⑧ State machine | legacy transition graph | legal transitions + temporal invariants (`created ≤ updated`) | pre-UAT | XSPEC-287 (split out) |
+| ⑨ Error paths | legacy exception hierarchy / error codes | error-path snapshot + systematic gap analysis | pre-UAT | XSPEC-288 (split out); full-coverage-testing |
+| **Cross-axis** | — | **shadow run** (mirror prod to both) / **replay** (replay legacy requests) | cutover before/after | XSPEC-284 R5 (generalises `/vo-snapshot` parity, future) |
+
+每軸宣告〔清單來源 derive｜oracle detect｜gate 時機〕；標為已覆蓋者對映既有 UDS 標準，**勿重複造輪子**。未宣告的軸視為**已知遺漏風險**。本框架 P0 落地＝軸③④⑤（本 skill）；P1 軸⑥⑧⑨已拆獨立 XSPEC-286/287/288。
+
 ## Reference | 參考
 
 - Core standard: [refactoring-standards.md](../../core/refactoring-standards.md)
 - Related: [contract-test-assistant](../contract-test-assistant/SKILL.md) — Strategy for ongoing contract verification post-migration
+- Related: [behavior-snapshot](../../core/behavior-snapshot.md) — Curated golden-master parity (3-gate axis ②)
+- Related: [observability-assistant](../observability-assistant/SKILL.md) — Reconciliation schedule + alert rules for post-cutover oracle
+- Framework: XSPEC-284 Legacy Refactor Completeness Framework — 9-axis SSOT
 
 ## Version History | 版本歷史
 
 | Version | Date | Changes | 變更 |
 |---------|------|---------|------|
+| 1.2.0 | 2026-06-17 | Added: Post-Cutover Data Reconciliation (cutover-boundary SQL + tolerance/alerting + Gate-0 implicit-rule checklist + 3-gate positioning), Background Job / Side-Effect Completeness (exists + has-fired), 9-axis Completeness Matrix appendix; cross-ref behavior-snapshot/observability-assistant (XSPEC-284 P0 R2/R3 / closes #134) | 新增 Post-Cutover 生產資料對帳、背景作業完整性驗證、9 軸完整性矩陣附錄 |
 | 1.1.0 | 2026-05-26 | Added: API Migration Contract Tests section — mandatory fixture capture protocol, C#/TS templates, field-by-field audit checklist (XSPEC-233 / closes #112) | 新增 API 遷移合約測試章節 |
 | 1.0.0 | 2026-03-24 | Initial release | 初始版本 |
 
