@@ -3,7 +3,7 @@
   "version": "5.17.0",
   "last_updated": "2026-06-08",
   "stats": {
-    "core_standards": 129,
+    "core_standards": 130,
     "skills": 55,
     "slash_commands": 48
   },
@@ -425,6 +425,11 @@
     },
     {
       "id": "verification-oracle",
+      "category": "compliance",
+      "level": 2
+    },
+    {
+      "id": "model-provenance",
       "category": "compliance",
       "level": 2
     },

@@ -2371,6 +2371,18 @@
       "description": "Ground-truth oracle as a first-class artifact, oracle-ability grading, fail-closed verification gate, sustained re-verification (correctness as CI invariant), audit evidence, and self-serve frontier ceiling — the correctness profile of the governance-gate family"
     },
     {
+      "id": "model-provenance",
+      "name": "Model Provenance Policy Standards",
+      "nameZh": "模型來源政策標準",
+      "version": "1.0.0",
+      "source": {
+        "human": "core/model-provenance.md",
+        "ai": "ai/standards/model-provenance.ai.yaml"
+      },
+      "category": "core",
+      "description": "Model origin registry (vendor/jurisdiction/origin class), provenance policy schema with local-weights distinction, fail-closed enforcement at every model-selection point, audit evidence, reference policy packs, and unknown-origin fail-closed — the provenance (source) profile of the governance-gate family"
+    },
+    {
       "id": "pii-classification",
       "name": "PII Classification and Handling Standards",
       "nameZh": "PII 分類與處理標準",

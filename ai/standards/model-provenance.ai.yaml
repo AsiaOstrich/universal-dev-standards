@@ -1,0 +1,297 @@
+# Model Provenance Policy Standards - AI Optimized
+# Sources:
+#   v1.0.0 — XSPEC-255 Model Provenance Policy (acceptable model source as an enforced axis)
+#            DEC-075 (neutral mechanism / policy belongs to customer)
+#            DEC-063 (regulated / data-sovereignty customers)
+
+id: model-provenance
+title: Model Provenance Policy Standards (Acceptable Model Source as a Governed, Fail-Closed Axis)
+version: "1.0.0"
+status: Active
+tags: [provenance, model-source, geopolitics, data-sovereignty, governance-gate, fail-closed, audit, allowlist, denylist, compliance]
+created: 2026-06-17
+updated: 2026-06-17
+
+spec_ref: XSPEC-255   # Model Provenance Policy complete spec
+
+references:
+  - XSPEC-255   # v1.0.0 source — Model Provenance Policy
+  - XSPEC-193   # Sibling governance-gate profile — licensing (shared skeleton)
+  - XSPEC-256   # Sibling governance-gate profile — correctness
+  - DEC-075     # Domain-neutral mechanism (policy content belongs to customer/pack)
+  - DEC-063     # Legal & compliance — regulated / sovereignty-sensitive customers
+  - DEC-064     # Customer IP isolation (per-customer policy scoping)
+  - DEC-066     # Telemetry-driven evolution — audit/telemetry allowlist
+  - DEC-076     # Self-serve north star — provenance = a self-serve ceiling
+  - XSPEC-254   # Positioning pre-mortem (cost-structure / origin axis context)
+
+summary: |
+  Model selection is not only "cost x quality" — there is a third axis: whether the model's
+  SOURCE is acceptable to the customer (geopolitics / data sovereignty / regulation). A
+  regulated or geopolitically sensitive buyer may be unable to use models from a given
+  jurisdiction; the strictest reject even locally-run open weights of that origin. This
+  standard makes model provenance a first-class, enforced, auditable property: declare an
+  acceptable-source policy, block non-compliant model choices fail-closed, and emit
+  auditable evidence ("this delivery used no models of the denied origin").
+
+  It is the PROVENANCE (source) member of the governance-gate family — alongside
+  license-compliance (XSPEC-193, licensing) and verification-oracle (XSPEC-256, correctness)
+  — sharing the same shape: registry/check -> fail-closed gate -> audit evidence ->
+  human-escalation ceiling. The three are profiles of one mechanism over three axes:
+  licensing / provenance / correctness.
+
+  REQ-001~007: a model origin registry (model -> vendor -> jurisdiction/origin class); a
+  provenance policy schema (allow/deny origins, local-weights distinction, mode,
+  unknown-origin fail-closed); fail-closed enforcement at every model-selection point;
+  auditable provenance evidence; reference policy packs (content customer-owned);
+  unknown-origin fail-closed; and policy content sovereignty (mechanism neutral, policy
+  owned by the customer).
+
+scope:
+  applies_to:
+    - Any system that selects an LLM/model where the customer constrains acceptable model source
+      (regulated / government / geopolitically sensitive buyers)
+    - Model-selection points: per-agent config, routing decisions, BYOK
+    - Provenance audit reports proving no denied-origin model was used
+  excludes:
+    - The policy CONTENT itself (which origins are acceptable) — owned by the customer / a compliance pack
+    - Enforcement-engine wiring (e.g. VibeOps provider abstraction / router gate) — downstream adoption concern
+    - Cost/quality model right-sizing — that is model-selection; provenance is a constraint applied first
+
+origin_registry:
+  description: |
+    Each known model is classified by vendor -> jurisdiction -> origin class. Like the
+    license-compliance license DB, it is maintainable and extensible by the ecosystem/customer.
+  origin_classes:
+    - western-frontier   # e.g. Claude (Anthropic/US), GPT/o-series (OpenAI/US), Gemini (Google/US)
+    - western-open       # e.g. Llama (Meta/US), Mistral (Mistral/EU), Gemma (Google/US)
+    - china-origin       # e.g. DeepSeek (DeepSeek/CN), MiniMax (MiniMax/CN), Qwen (Alibaba/CN)
+  example_entries:
+    - { model: Claude, vendor: Anthropic, jurisdiction: US, origin_class: western-frontier }
+    - { model: GPT, vendor: OpenAI, jurisdiction: US, origin_class: western-frontier }
+    - { model: Gemini, vendor: Google, jurisdiction: US, origin_class: western-frontier }
+    - { model: Llama, vendor: Meta, jurisdiction: US, origin_class: western-open }
+    - { model: Mistral, vendor: Mistral, jurisdiction: EU, origin_class: western-open }
+    - { model: Gemma, vendor: Google, jurisdiction: US, origin_class: western-open }
+    - { model: DeepSeek, vendor: DeepSeek, jurisdiction: CN, origin_class: china-origin }
+    - { model: MiniMax, vendor: MiniMax, jurisdiction: CN, origin_class: china-origin }
+    - { model: Qwen, vendor: Alibaba, jurisdiction: CN, origin_class: china-origin }
+
+policy_schema:
+  description: |
+    Per-project/per-customer provenance policy. Mechanism only — concrete values are
+    customer/pack-owned (DEC-075).
+  fields:
+    allow_origins: "list of origin classes that are permitted"
+    deny_origins: "list of origin classes that are blocked"
+    china_local_weights: "deny | allow_local_only — distinguishes foreign open weights run locally; strict buyers deny"
+    mode: "block | warn | require_human"
+    unknown_origin: "block (fail-closed default) | warn | require_human"
+  example: |
+    {
+      "allow_origins": ["western-frontier", "western-open"],
+      "deny_origins": ["china-origin"],
+      "china_local_weights": "deny",
+      "mode": "block",
+      "unknown_origin": "block"
+    }
+
+principles:
+  - id: P-1
+    name: Provenance is a Third Axis
+    description: |
+      Model choice is cost x quality x acceptable source. The source axis MUST be a
+      first-class constraint, not an afterthought, for regulated/sovereignty-sensitive buyers.
+
+  - id: P-2
+    name: Registry First
+    description: |
+      Every model MUST carry vendor/jurisdiction/origin class before a policy can act on it.
+      An unclassified model is "unknown origin" and falls under fail-closed handling (P-3).
+
+  - id: P-3
+    name: Fail-Closed
+    description: |
+      A denied or unknown origin MUST block or escalate. The check MUST NOT silently pass —
+      mirroring the license-compliance blocklist and verification-oracle non-reproduction block.
+
+  - id: P-4
+    name: Evidence-Based
+    description: |
+      Every generation MUST record the model used and its origin class, so a compliance report
+      ("no denied-origin model used") is producible with a reproducible trace and audit id.
+
+  - id: P-5
+    name: Human Ceiling
+    description: |
+      Ambiguous provenance or a require_human mode MUST escalate to a human (DEC-076 ceiling)
+      rather than auto-resolve — a product-enforced governance gate.
+
+  - id: P-6
+    name: Content Sovereignty
+    description: |
+      The mechanism is domain-neutral (DEC-075); the acceptable-source policy is owned by the
+      customer (DEC-063). Policies SHOULD be customer-scoped and isolated (DEC-064).
+
+requirements:
+  - id: REQ-001
+    title: Model Origin Registry (first-class artifact)
+    description: |
+      Each known model MUST be classified by vendor -> jurisdiction -> origin class. The
+      registry is maintainable/extensible by the ecosystem/customer (like the license DB).
+      At minimum origin classes distinguish western-frontier, western-open, and other origins
+      so a policy can be expressed against them.
+    level: MUST
+    examples:
+      - "Claude -> Anthropic / US / western-frontier"
+      - "Qwen -> Alibaba / CN / china-origin"
+      - "Llama -> Meta / US / western-open"
+
+  - id: REQ-002
+    title: Provenance Policy Schema
+    description: |
+      A per-project/per-customer policy MUST express allow/deny origins (by class), a
+      local-weights distinction (foreign API/data-egress vs locally-run foreign open weights),
+      an enforcement mode (block/warn/require_human), and an unknown_origin behaviour that is
+      fail-closed by default.
+    level: MUST
+    schema_fields:
+      - "allow_origins / deny_origins (by origin class)"
+      - "china_local_weights: deny | allow_local_only (strict buyers deny even local foreign weights)"
+      - "mode: block | warn | require_human"
+      - "unknown_origin: block (fail-closed default)"
+
+  - id: REQ-003
+    title: Fail-Closed Enforcement (every model-selection point)
+    description: |
+      At every model-selection point (per-agent config / routing / BYOK) the chosen model's
+      origin MUST be checked against the active policy. A violation MUST block or escalate
+      fail-closed — never silently pass. Enforcement runs before routing so a disallowed
+      source is swapped for an acceptable model.
+    level: MUST
+    checks:
+      - "Apply TW-finance-gov-style policy -> selecting DeepSeek/MiniMax/Qwen (incl. local) is blocked"
+      - "Selecting Llama/Claude under the same policy is allowed"
+      - "Injection test: route a denied-origin model -> gate blocks (never silent pass)"
+
+  - id: REQ-004
+    title: Audit Evidence
+    description: |
+      Each generation MUST record the model used + its origin class, enabling a compliance
+      report ("this delivery used no models of the denied origin"). It plugs into the audit
+      logger / hash chain, verification-oracle correctness evidence (XSPEC-256), and the
+      telemetry allowlist (DEC-066). This report is the outward proof of the provenance moat.
+    level: MUST
+    evidence_required:
+      - "per generation: model id + vendor + origin class"
+      - "policy applied (allow/deny snapshot)"
+      - "denied-origin count (expected 0 under a deny policy)"
+      - "content hash (sha256) of the report"
+      - "audit-trail id (hash-chain entry)"
+
+  - id: REQ-005
+    title: Reference Policy Pack(s)
+    description: |
+      The mechanism SHOULD ship a small number of reference policy packs that demonstrate it
+      (e.g. a pack denying a given origin including local weights). The mechanism is neutral;
+      concrete policy content is owned by the customer or a compliance partner.
+    level: SHOULD
+    examples:
+      - "Reference pack 'TW-finance-gov': deny china-origin including local weights"
+
+  - id: REQ-006
+    title: Unknown-Origin Fail-Closed
+    description: |
+      A model whose origin is not in the registry (unknown provenance) MUST NOT be silently
+      allowed. The system MUST treat unknown origin as a fail-closed block or escalation
+      (REQ-002 unknown_origin), consistent with the governance-gate no-silent-pass rule.
+    level: MUST
+    checks:
+      - "Unknown-origin model under unknown_origin:block -> blocked/escalated, not auto-allowed"
+      - "Injection test: present an unregistered model -> gate does not silently pass"
+
+  - id: REQ-007
+    title: Provenance Policy Content Sovereignty
+    description: |
+      The mechanism is domain-neutral (DEC-075); the acceptable-source policy is
+      customer-owned (DEC-063). Policies SHOULD be customer-scoped and isolated (DEC-064).
+    level: SHOULD
+    checks:
+      - "Policy scoping is per-customer; provenance verdicts attribute policy to the customer"
+      - "Mechanism carries no jurisdiction-specific allow/deny baked in (only the registry classes)"
+
+# ─────────────────────────────────────────────────────────────
+# Governance-gate family (shared shape with XSPEC-193 / XSPEC-256)
+# ─────────────────────────────────────────────────────────────
+
+governance_gate_family:
+  description: |
+    model-provenance is the PROVENANCE (source) profile of one governance-gate mechanism.
+    All profiles share: registry/check -> fail-closed gate -> audit evidence ->
+    customer-override-telemetered -> human-escalation ceiling.
+  profiles:
+    - profile: licensing
+      standard: license-compliance
+      spec: XSPEC-193
+      registry: blocklist/allowlist/greylist
+      block_trigger: prohibited license
+    - profile: provenance
+      standard: model-provenance
+      spec: XSPEC-255
+      registry: model origin registry + policy
+      block_trigger: denied / unknown origin
+    - profile: correctness
+      standard: verification-oracle
+      spec: XSPEC-256
+      registry: ground-truth registry
+      block_trigger: non-reproduction / drift
+
+# ─────────────────────────────────────────────────────────────
+# Gate timing
+# ─────────────────────────────────────────────────────────────
+
+gate_timing:
+  pre_routing: REQ-003 fail-closed provenance check at every model-selection point
+  on_denied_or_unknown: REQ-006 / P-5 block or escalate to human (no silent pass)
+  on_allowed: REQ-004 record model + origin
+  after_run: REQ-004 emit provenance audit / compliance report (outward moat proof)
+
+# ─────────────────────────────────────────────────────────────
+# Telemetry (DEC-066 / XSPEC-189 v2 envelope)
+# ─────────────────────────────────────────────────────────────
+
+telemetry:
+  required_events:
+    - model_provenance_check      # origin check outcome per model-selection point
+    - model_provenance_block      # fail-closed block detail (REQ-003)
+    - model_provenance_escalation # require_human / ambiguous provenance escalated (P-5)
+    - unknown_origin_detected     # unregistered model encountered (REQ-006)
+    - human_override_block        # human override of a block (requires reason)
+  envelope_reference: XSPEC-189   # Telemetry Schema v2 envelope
+  event_type: quality
+  event_subtype_examples:
+    - model_provenance_check
+    - gate_pass / gate_fail       # when the provenance check acts as a selection gate
+
+# ─────────────────────────────────────────────────────────────
+# Integration with existing standards
+# ─────────────────────────────────────────────────────────────
+
+integration:
+  license-compliance: sibling profile; shared allowlist/denylist + fail-closed + audit + override skeleton
+  verification-oracle: sibling profile; provenance evidence sits alongside correctness evidence in one report
+  model-selection: provenance is a constraint applied before cost/quality right-sizing (unacceptable source removed from candidate set)
+  security-standards: foreign-API data egress + local-weights distinction are data-sovereignty controls
+  verification-evidence: the provenance report is a kind of verification evidence (model + origin + no-denied-origin trace)
+
+# ─────────────────────────────────────────────────────────────
+# Adoption guidance
+# ─────────────────────────────────────────────────────────────
+
+adoption_guidance:
+  uds_install_path: ai/standards/model-provenance.ai.yaml
+  notes:
+    - "v1.0.0 defines the provenance mechanism and audit evidence. Policy content (acceptable origins) is customer-owned (DEC-075/DEC-063)."
+    - "Adopters MAY enforce the check in CI / at the provider abstraction without a bespoke engine."
+    - "Distinguish foreign-API access (data egress) from locally-run foreign open weights — strict buyers deny even local weights."
+    - "Group with license-compliance and verification-oracle as one governance-gate subsystem (three profiles)."
