@@ -1,0 +1,110 @@
+# Data Contract Standards - AI Optimized
+# Source: XSPEC-068 Wave 3 Data Engineering Pack
+
+id: data-contract
+title: Data Contract Standards
+version: "1.0.0"
+status: Active
+tags: [data-engineering, data-contract, data-quality, api, interoperability]
+summary: |
+  Defines how data contracts are established, versioned, and enforced between
+  data producers and consumers. A data contract is a formal agreement
+  specifying the schema, quality guarantees, SLAs, and ownership of a dataset
+  or data stream. Covers contract specification format, freshness and quality
+  SLOs, breaking-change governance, consumer notification, and automated
+  contract testing. Reduces data pipeline failures caused by undiscovered
+  upstream changes.
+
+requirements:
+  - id: REQ-001
+    title: Data Contract Specification Format
+    description: |
+      Every shared dataset or data stream MUST have a data contract specified
+      in a machine-readable YAML file (data-contract.yaml) committed to
+      version control alongside the producer code. The contract MUST include:
+      contract_id, version, owner (team + contact), description, schema
+      (field names, types, nullability), data_quality SLOs (completeness,
+      freshness, uniqueness), SLA (delivery time), and consumer list.
+    level: MUST
+    examples:
+      - "File: datasets/orders/data-contract.yaml committed in producer repo"
+      - "Required fields: contract_id, version, owner.team, owner.email, schema, sla.freshness_minutes"
+      - "Schema entry: {field: order_amount, type: DECIMAL(12,2), nullable: false, description: 'Order total in USD'}"
+
+  - id: REQ-002
+    title: Data Quality SLOs
+    description: |
+      Every data contract MUST define explicit data quality SLOs for the
+      dataset. Required quality dimensions: completeness (% of non-null
+      values for required fields ≥ threshold), freshness (data updated
+      within N minutes/hours of source event), uniqueness (% of distinct
+      values for key fields), and validity (% of values conforming to
+      defined format/range). Quality SLO violations MUST trigger alerts
+      to both producer and registered consumers.
+    level: MUST
+    examples:
+      - "completeness_slo: {field: order_id, min_pct_non_null: 99.99}"
+      - "freshness_slo: {max_lag_minutes: 15, alert_on_breach: true}"
+      - "uniqueness_slo: {field: order_id, min_pct_unique: 100.0}"
+
+  - id: REQ-003
+    title: Contract Versioning and Breaking-Change Governance
+    description: |
+      Data contracts MUST be versioned using semantic versioning. PATCH
+      version changes (backward-compatible additions, documentation updates)
+      require only producer team approval. MINOR version changes (new
+      optional fields, relaxed constraints) require notification to consumers
+      with 7-day notice. MAJOR version changes (field removal, type changes,
+      semantic changes) require consumer approval and MUST NOT be deployed
+      without all registered consumers confirming readiness.
+    level: MUST
+    examples:
+      - "v1.0.0 → v1.1.0: added optional field shipping_method, consumers notified via email 7 days prior"
+      - "v1.1.0 → v2.0.0: dropped legacy_order_id field, consumer sign-off required in tracking issue"
+      - "Breaking change gate: CI blocks deployment until all consumers in data-contract.yaml have approved"
+
+  - id: REQ-004
+    title: Automated Contract Testing
+    description: |
+      Data contract compliance MUST be verified automatically. Producers
+      MUST run contract tests on every data pipeline execution, validating
+      output against the declared schema and quality SLOs. Tests MUST
+      check: schema conformance (no unexpected nulls, correct types),
+      freshness within SLO window, uniqueness of key fields, and row count
+      within expected range. Contract test failures MUST halt the pipeline
+      and page the data owner.
+    level: MUST
+    examples:
+      - "Contract test: `great_expectations checkpoint run orders-contract-checkpoint`"
+      - "Test assertion: expect_column_values_to_not_be_null('order_id', mostly=0.9999)"
+      - "Pipeline halt: contract test failure triggers SNS alert to #data-oncall, job aborted"
+
+  - id: REQ-005
+    title: Consumer Registration and Notification
+    description: |
+      Teams consuming a shared dataset MUST register as consumers in the
+      producer's data-contract.yaml file. Registration must include: consumer
+      team name, contact email/Slack, use case description, and fields
+      consumed. Registered consumers MUST receive automated notifications
+      when: the contract is modified, quality SLO breaches occur, the
+      dataset is deprecated, or planned maintenance will affect availability.
+    level: MUST
+    examples:
+      - "consumers entry: {team: analytics, contact: '#data-analytics', use_case: 'revenue reporting', fields: [order_id, amount, created_at]}"
+      - "Automated Slack notification: 'Data contract orders/v1 SLO breached: freshness 42min (SLO: 15min)'"
+      - "Deprecation notice sent 90 days before v1 end-of-life to all registered consumers"
+
+  - id: REQ-006
+    title: Contract Discoverability
+    description: |
+      All data contracts in an organization SHOULD be discoverable through
+      a central data catalog. The catalog SHOULD provide: searchable index
+      of all contracts by team/domain, current health status (quality SLO
+      compliance), schema browsing, lineage visualization (which pipelines
+      produce/consume each dataset), and a self-service consumer registration
+      workflow.
+    level: SHOULD
+    examples:
+      - "Data catalog: DataHub or Amundsen with all contract YAML files indexed"
+      - "Catalog entry includes: SLO compliance badge (green/yellow/red), last updated, consumer count"
+      - "Self-service: 'Subscribe to dataset' button generates PR adding consumer to data-contract.yaml"

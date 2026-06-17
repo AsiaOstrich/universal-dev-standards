@@ -1,0 +1,111 @@
+# Schema Evolution Standards - AI Optimized
+# Source: XSPEC-068 Wave 3 Data Engineering Pack
+
+id: schema-evolution
+title: Schema Evolution Standards
+version: "1.0.0"
+status: Active
+tags: [data-engineering, schema, migration, backward-compatibility, database]
+summary: |
+  Defines how database and data store schemas are evolved safely without
+  breaking existing consumers. Covers backward-compatible change patterns,
+  prohibited breaking changes, expand-contract migration strategy, schema
+  versioning, automated compatibility checking in CI/CD, and rollback
+  procedures for schema changes. Applicable to relational databases,
+  document stores, event schemas (Avro/Protobuf), and API request/response
+  schemas.
+
+requirements:
+  - id: REQ-001
+    title: Backward-Compatible Change Patterns
+    description: |
+      All schema changes MUST be backward-compatible unless a formal
+      breaking-change process is followed. Backward-compatible changes
+      include: adding new nullable columns/fields with defaults, adding
+      new tables/collections, adding new optional message fields, adding
+      new enum values (with unknown handling), widening a data type
+      (INT → BIGINT), and adding new indexes. These changes MUST be
+      deployable without coordinating consumer updates.
+    level: MUST
+    examples:
+      - "Add column: ALTER TABLE users ADD COLUMN middle_name VARCHAR(100) DEFAULT NULL"
+      - "Add optional Protobuf field: optional string nickname = 15; — safe, zero default"
+      - "Add index: CREATE INDEX CONCURRENTLY idx_orders_user_id ON orders(user_id)"
+
+  - id: REQ-002
+    title: Prohibited Breaking Changes Without Migration Plan
+    description: |
+      The following schema changes are classified as BREAKING and MUST NOT
+      be deployed without a formal expand-contract migration plan and
+      consumer coordination: renaming or dropping columns/fields, changing
+      data types incompatibly (VARCHAR → INT, widening to narrowing),
+      adding NOT NULL constraints to existing columns without defaults,
+      changing primary or foreign key definitions, removing enum values,
+      and changing field semantics (repurposing a column for different data).
+    level: MUST
+    examples:
+      - "PROHIBITED: ALTER TABLE users DROP COLUMN legacy_id → requires expand-contract"
+      - "PROHIBITED: ALTER TABLE orders ALTER COLUMN amount TYPE BIGINT — evaluate consumer impact first"
+      - "PROHIBITED: adding NOT NULL to existing column with NULL values in production data"
+
+  - id: REQ-003
+    title: Expand-Contract Migration Strategy
+    description: |
+      Breaking schema changes MUST use the expand-contract (parallel change)
+      pattern: Phase 1 (Expand) — add new structure alongside old; Phase 2
+      (Migrate) — backfill data from old to new, update all writers;
+      Phase 3 (Contract) — update all readers to use new structure;
+      Phase 4 (Cleanup) — remove old structure after all consumers updated.
+      Each phase MUST be a separate deployment, verified before proceeding.
+      Minimum wait between phases: 1 full deployment cycle.
+    level: MUST
+    examples:
+      - "Rename column email → contact_email: add contact_email, dual-write for 1 sprint, migrate readers, drop email"
+      - "Phase gate: 'Phase 2 complete when 0 reads of old column seen in query logs over 7 days'"
+      - "Cleanup verified: `SELECT COUNT(*) FROM users WHERE email IS NOT NULL` returns 0 before dropping"
+
+  - id: REQ-004
+    title: Schema Versioning and Registry
+    description: |
+      Event-driven and API schemas (Avro, Protobuf, JSON Schema) MUST be
+      registered in a schema registry with explicit version numbers.
+      Schema versions MUST follow semantic versioning: PATCH for backward-
+      compatible additions, MINOR for new optional fields, MAJOR for
+      breaking changes. Every schema change MUST be reviewed and approved
+      before registration. Consumers MUST specify the schema version they
+      consume.
+    level: MUST
+    examples:
+      - "Confluent Schema Registry: subject 'order-events-value', version 3 registered"
+      - "Schema compatibility: BACKWARD_TRANSITIVE enforced — new schema must be readable by all prior consumers"
+      - "Consumer declaration: {schema_id: 'order-events', version: '>=2.0.0 <3.0.0'}"
+
+  - id: REQ-005
+    title: Automated Schema Compatibility Checking in CI
+    description: |
+      Every PR modifying schema definitions MUST trigger automated
+      compatibility checks in CI. For relational schemas, migration scripts
+      MUST be run against a production-snapshot database in CI to detect
+      errors before merge. For event schemas, compatibility MUST be checked
+      against all registered consumer versions. Compatibility failures MUST
+      block the PR merge.
+    level: MUST
+    examples:
+      - "CI step: `flyway validate -url=jdbc:postgresql://test-db/snapshots` on every migration PR"
+      - "Avro compatibility: `schema-registry-validate --mode BACKWARD_TRANSITIVE new-schema.avsc`"
+      - "Failed check message: 'Schema change removes required field order_id — breaks consumer v2.3'"
+
+  - id: REQ-006
+    title: Schema Change Rollback Procedures
+    description: |
+      Every schema migration script MUST have a corresponding rollback
+      (down) migration script. Rollback scripts MUST be tested in CI
+      alongside the forward migration. For destructive changes (drops,
+      type changes), a data backup MUST be taken and verified before
+      execution. The rollback plan MUST be documented in the migration
+      PR and referenced in the deployment runbook.
+    level: MUST
+    examples:
+      - "V12__add_user_tier.sql paired with V12__add_user_tier.undo.sql tested in CI"
+      - "Pre-migration backup: `pg_dump orders_table > backup-2026-04-30-pre-v12.dump`"
+      - "Rollback PR comment: 'Rollback: run V12.undo.sql, takes ~2min, no data loss'"
