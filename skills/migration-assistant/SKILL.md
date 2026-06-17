@@ -267,6 +267,73 @@ If either check fails, mark the feature `not_implemented` (XSPEC-199) and **bloc
 
 > Cross-ref: structured-log mandatory events `heartbeat` / `business_event` (logging-standards) provide the observable execution evidence for check (b).
 
+## State-Machine & Temporal Parity | 狀態機與時序對等
+
+> **Implements**: XSPEC-284 R8 (axis ⑧) → split out as **XSPEC-287**.
+
+Legacy state-transition rules and temporal preconditions are **implicit**: a single-record snapshot "looks legal", and a violation only surfaces across a **sequence** of operations. So per-request functional parity and behavior-snapshot parity both miss them (same blind-spot class as "per-request ≠ data-at-rest" / "per-request ≠ concurrency"). `feature-manifest` has only a `status` field — it does **not** validate transition legality.
+
+legacy 的狀態轉移規則與時序前提多為**隱性**：單筆記錄的快照「看起來合法」，違規只在一連串操作的**轉移序列**中浮現，因此 per-request 功能對等與 behavior-snapshot 對等都抓不到（與「per-request ≠ data-at-rest」「per-request ≠ 並發」同源盲區）。`feature-manifest` 只有 `status` 欄，**不**驗證轉移合法性。
+
+### Step 1 — State-machine list source (derive, R3) | 狀態機清單來源
+
+Legacy transitions are scattered across controllers / services / DB triggers. Derive the state enumeration + legal-transition set **mechanically** via three-way cross-reference (do not rely on memory):
+
+legacy 狀態轉移散落於 controller／service／DB trigger。以**三方交叉**機械化擷取狀態列舉 + 合法轉移集（不靠人腦回憶）：
+
+| Source | Yields |
+|--------|--------|
+| **(1) enum definition** — status enum / lookup table | the full set of declared states |
+| **(2) state-update points** — grep every `status = ...` / `UPDATE ... SET status` / trigger | which transitions the code *can* perform |
+| **(3) production actual sequences** — distinct `(from_status → to_status)` pairs observed in prod history/audit | which transitions *actually* occur |
+
+> **Authority on conflict**: when the three disagree, treat **production-observed transitions as the legacy ground truth** (echoes #134 "production is the oracle"). A transition the code allows but production never produced is a latent path; a production transition the new enum forbids is a regression.
+
+> **權威性**：三者不一致時，以**生產實際出現過的轉移為 legacy 真實行為基準**（呼應 #134「以生產為準」）。程式碼允許但生產從未產生的轉移是潛在路徑；生產出現過但新 enum 禁止的轉移是回歸。
+
+### Step 2 — Legal-transition validation (oracle, R1) | 合法轉移驗證
+
+From the derived transition graph, assert the **new system forbids illegal transitions** that legacy forbade. Block when the new system **allows a transition legacy prohibited** (a rewrite routinely loosens implicit guards):
+
+依萃取出的轉移圖，斷言**新系統禁止 legacy 禁止的非法轉移**。當新系統**允許 legacy 禁止的轉移**即 block（重寫常放寬隱性護欄）：
+
+- `cancelled → pending` (reviving a cancelled order)
+- `refunded → paid` (un-refunding)
+- `shipped → draft` (backward past a point-of-no-return)
+
+**Gate timing**: pre-UAT.
+
+### Step 3 — Temporal invariant detection (oracle, R2) | 時序不變量偵測
+
+Assert temporal invariants that a single-row snapshot cannot reveal; violation → alert:
+
+斷言單筆快照無法揭露的時序不變量；違反即告警：
+
+- `created_at ≤ updated_at` (no record updated before it existed)
+- no **future timestamps** (clock skew / bad default)
+- **monotonic** status-timestamp progression (`paid_at ≤ shipped_at ≤ delivered_at`)
+- event-ordering guarantees preserved (no reordered event log)
+
+**Gate timing**: pre-UAT **and** post-cutover (shares the reconciliation schedule of axis ③ Post-Cutover Data Reconciliation above).
+
+**Gate 時機**：pre-UAT **與** post-cutover（與上方軸③ Post-Cutover 對帳共用排程）。
+
+### Step 4 — Sequence / ordering parity (R4) | 序列／順序對等
+
+Verify the new system preserves **idempotency** (a repeated operation does not produce a duplicate state change) and **critical event ordering**, so the rewrite does not introduce order-sensitive bugs:
+
+驗證新系統保留**冪等性**（重複操作不產生重複狀態變更）與**關鍵事件順序**，避免重寫引入順序敏感 bug：
+
+- [ ] Replaying the same event/message twice yields one state change, not two
+- [ ] Out-of-order delivery is rejected or reconciled, not silently applied
+- [ ] Idempotency keys / dedup windows match legacy semantics
+
+### Boundary with XSPEC-286 axis ⑥ | 與 XSPEC-286 軸⑥ 邊界
+
+**287 (this section, axis ⑧)** owns **transition legality + temporal correctness** (a domain question). **[XSPEC-286](../../core/performance-standards.md) axis ⑥** owns **concurrency race / isolation** (a performance/contention question). An overlap case — a *concurrent* operation causing an *illegal* transition — has its concurrency aspect in 286 and its transition-legality aspect here; assign the primary owner per the dominant failure mode at landing time.
+
+**287（本節，軸⑧）**負責**轉移合法性 + 時序正確性**（領域問題）；**[XSPEC-286](../../core/performance-standards.md) 軸⑥**負責**並發競態／隔離**（效能/競爭問題）。重疊案例（並發導致非法轉移）的並發面歸 286、轉移合法性面歸本節；落地時依主導失敗模式指派主責。
+
 ## Rollback Strategy | 回滾策略
 
 | Approach | When to Use | 使用時機 |
@@ -316,11 +383,11 @@ Each migration declares, per axis, three things: **derive** (list source) · **d
 | ⑤ **Background side-effects** | crontab / queue config / webhook registry / mail points | **per-job "exists + has fired"** | pre-flight + **post-cutover** | **This skill — Background Job / Side-Effect Completeness** |
 | ⑥ Non-functional | legacy perf baseline + concurrency list | latency/throughput regression + isolation | pre-UAT | XSPEC-286 (split out) |
 | ⑦ Data integrity | schema type / encoding / timezone list | row count + checksum + encoding bytes + aggregate equality | post-migration + post-cutover | XSPEC-172 data-migration-testing; XSPEC-206; XSPEC-284 R6 (future) |
-| ⑧ State machine | legacy transition graph | legal transitions + temporal invariants (`created ≤ updated`) | pre-UAT | XSPEC-287 (split out) |
+| ⑧ **State machine** | legacy transition graph (enum + update-points + prod sequences) | **legal transitions + temporal invariants (`created ≤ updated`)** | pre-UAT + **post-cutover** | **This skill — State-Machine & Temporal Parity** (XSPEC-287) |
 | ⑨ Error paths | legacy exception hierarchy / error codes | error-path snapshot + systematic gap analysis | pre-UAT | XSPEC-288 (split out); full-coverage-testing |
 | **Cross-axis** | — | **shadow run** (mirror prod to both) / **replay** (replay legacy requests) | cutover before/after | XSPEC-284 R5 (generalises `/vo-snapshot` parity, future) |
 
-每軸宣告〔清單來源 derive｜oracle detect｜gate 時機〕；標為已覆蓋者對映既有 UDS 標準，**勿重複造輪子**。未宣告的軸視為**已知遺漏風險**。本框架 P0 落地＝軸③④⑤（本 skill）；P1 軸⑥⑧⑨已拆獨立 XSPEC-286/287/288。
+每軸宣告〔清單來源 derive｜oracle detect｜gate 時機〕；標為已覆蓋者對映既有 UDS 標準，**勿重複造輪子**。未宣告的軸視為**已知遺漏風險**。本框架 P0 落地＝軸③④⑤（本 skill）；軸⑥已拆 XSPEC-286（落地於 performance-standards）、**軸⑧已落地於本 skill State-Machine & Temporal Parity（XSPEC-287）**、軸⑨拆 XSPEC-288。
 
 ## Reference | 參考
 
@@ -334,6 +401,7 @@ Each migration declares, per axis, three things: **derive** (list source) · **d
 
 | Version | Date | Changes | 變更 |
 |---------|------|---------|------|
+| 1.3.0 | 2026-06-17 | Added: State-Machine & Temporal Parity (axis ⑧, XSPEC-287) — three-way transition-graph derive (enum + update-points + prod sequences), legal-transition validation, temporal invariants (`created ≤ updated` / no future / monotonic), sequence/idempotency parity, boundary with XSPEC-286 axis ⑥; matrix row ⑧ now owned by this skill | 新增狀態機與時序對等（軸⑧，XSPEC-287）：三方轉移圖萃取、合法轉移驗證、時序不變量、序列/冪等對等、與 XSPEC-286 軸⑥邊界 |
 | 1.2.0 | 2026-06-17 | Added: Post-Cutover Data Reconciliation (cutover-boundary SQL + tolerance/alerting + Gate-0 implicit-rule checklist + 3-gate positioning), Background Job / Side-Effect Completeness (exists + has-fired), 9-axis Completeness Matrix appendix; cross-ref behavior-snapshot/observability-assistant (XSPEC-284 P0 R2/R3 / closes #134) | 新增 Post-Cutover 生產資料對帳、背景作業完整性驗證、9 軸完整性矩陣附錄 |
 | 1.1.0 | 2026-05-26 | Added: API Migration Contract Tests section — mandatory fixture capture protocol, C#/TS templates, field-by-field audit checklist (XSPEC-233 / closes #112) | 新增 API 遷移合約測試章節 |
 | 1.0.0 | 2026-03-24 | Initial release | 初始版本 |
