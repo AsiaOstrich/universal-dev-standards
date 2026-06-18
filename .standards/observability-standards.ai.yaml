@@ -8,6 +8,16 @@ meta:
   source: core/observability-standards.md
   description: Three pillars observability framework (Logs, Metrics, Traces) with Golden Signals and maturity model
 
+# XSPEC-070 Phase 2 — skill↔standard content-coverage audit.
+# Consumed by scripts/check-skill-content-coverage.ts. The anchor skill
+# (observability-assistant) is a thin launcher; require it to carry at least 30%
+# of the standard's depth so a stale skeleton is flagged (CONTENT-003).
+audit:
+  min_skill_ratio: 0.30
+  mandatory_keywords:
+    - golden signals
+    - maturity
+
 three_pillars:
   logs: "Discrete events — debugging, audit, error details (see logging.ai.yaml)"
   metrics: "Numerical measurements over time — dashboards, alerting, capacity"

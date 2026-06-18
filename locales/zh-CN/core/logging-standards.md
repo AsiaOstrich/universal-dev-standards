@@ -4,7 +4,7 @@ source_version: 1.3.0
 translation_version: 1.3.0
 last_synced: 2026-06-10
 source_hash: 7853d510d681
-status: current
+status: stale
 ---
 
 > **语言**: [English](../../../core/logging-standards.md) | 简体中文

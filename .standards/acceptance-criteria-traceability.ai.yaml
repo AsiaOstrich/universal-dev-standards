@@ -16,6 +16,14 @@ standard:
       - "ISTQB Foundation (Requirements-based testing)"
       - "INVEST Principles (Acceptance criteria quality)"
 
+  # XSPEC-070 Phase 2 — skill↔standard content-coverage audit.
+  # Consumed by scripts/check-skill-content-coverage.ts. v1.1.0 mandates the
+  # combined "canonical annotation" `@SPEC-<id> @AC-<n>`; the anchor skill
+  # (ac-coverage) MUST teach that term, or CONTENT-002 fires.
+  audit:
+    mandatory_keywords:
+      - canonical annotation
+
   traceability_matrix:
     description: Standard format for tracking AC to test relationships
     fields:

@@ -8,6 +8,22 @@ meta:
   source: core/logging-standards.md
   description: Logging levels, structured logging, mandatory events catalog, file rotation policy, and best practices
 
+# XSPEC-070 Phase 2 — skill↔standard content-coverage audit.
+# Consumed by scripts/check-skill-content-coverage.ts: the anchor skill
+# (logging-guide) MUST mention each mandatory event id below, or CONTENT-002 fires.
+# Source of truth: core/logging-standards.md "Mandatory Events" catalog (9 canonical events).
+audit:
+  mandatory_keywords:
+    - application_startup
+    - request_received
+    - validation_failure
+    - authentication_failure
+    - outbound_call_start
+    - outbound_call_complete
+    - business_event
+    - heartbeat
+    - shutdown
+
 log_levels:
   ordered:
     - name: TRACE
@@ -261,9 +277,11 @@ quick_reference:
 
 enforcement:
   hook_type: PostToolUse
+  trigger: PostToolUse
   matcher:
     tool: Write
     path: "src/**/*.ts"
   script_ref: "scripts/hooks/check-logging-standard.js"
+  hook_script: "scripts/hooks/check-logging-standard.js"
   severity: warning
   timeout_ms: 500
