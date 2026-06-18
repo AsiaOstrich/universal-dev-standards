@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/developer-memory.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-02-07
+**Version**: 1.1.0
+**Last Updated**: 2026-06-18
 **Applicability**: All software projects using AI assistants
 **Scope**: universal
 **Industry Standards**: None (UDS original)
@@ -233,11 +233,14 @@ AI scans the memory store and generates a review report covering:
 
 #### Retirement Suggestions
 
-| Trigger | Action |
-|---------|--------|
-| `confidence < 0.2` | Suggest retirement |
-| Not surfaced in 180+ days AND `confidence < 0.5` | Suggest retirement |
-| 5+ `invalid` feedback entries | Suggest retirement |
+Thresholds are UDS defaults (configurable per project); the rationale is
+recorded so each value is auditable rather than arbitrary.
+
+| Trigger | Action | Rationale |
+|---------|--------|-----------|
+| `confidence < 0.2` | Suggest retirement | Repeatedly invalidated knowledge is more noise than signal |
+| Not surfaced in 180+ days AND `confidence < 0.5` | Suggest retirement | Half-year dormancy combined with low confidence means the memory is no longer relevant to active work; the 180-day window matches the staleness/decay model in Staleness Detection below |
+| 5+ `invalid` feedback entries | Suggest retirement | Sustained negative feedback signals the memory is wrong or obsolete |
 
 #### Staleness Detection
 
@@ -587,6 +590,7 @@ If user feedback reveals:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-06-18 | Added: rationale column + configurable note to Retirement Suggestions thresholds (XSPEC-292 T8) |
 | 1.0.0 | 2026-02-07 | Initial standard: schema, 4 operations, proactive protocol, noise control, architecture decision (Always-On Protocol) |
 
 ---

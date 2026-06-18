@@ -13,8 +13,8 @@ standard:
     - "Respect noise control levels and cooldown periods"
 
   meta:
-    version: "1.0.0"
-    updated: "2026-02-07"
+    version: "1.1.0"
+    updated: "2026-06-18"
     source: core/developer-memory.md
     description: Structured system for capturing, retrieving, and surfacing developer experience insights across conversations and projects
 
@@ -115,7 +115,8 @@ standard:
       bonus_rules:
         - "3 consecutive valid: bonus +0.05"
         - "3 consecutive invalid: flag for review"
-        - "confidence < 0.2: flag for retirement"
+        - "confidence < 0.2: flag for retirement (repeatedly invalidated = noise)"
+        - "not surfaced 180+ days AND confidence < 0.5: flag for retirement (dormant + low confidence; 180d matches staleness model; UDS default, configurable)"
         - "confidence > 0.9 after 10+ uses: mark proven"
 
     review:

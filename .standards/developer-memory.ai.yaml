@@ -13,8 +13,8 @@ standard:
     - "Respect noise control levels and cooldown periods"
 
   meta:
-    version: "1.0.0"
-    updated: "2026-02-07"
+    version: "1.1.0"
+    updated: "2026-06-18"
     source: core/developer-memory.md
     description: Structured system for capturing, retrieving, and surfacing developer experience insights across conversations and projects
 
@@ -115,7 +115,8 @@ standard:
       bonus_rules:
         - "3 consecutive valid: bonus +0.05"
         - "3 consecutive invalid: flag for review"
-        - "confidence < 0.2: flag for retirement"
+        - "confidence < 0.2: flag for retirement (repeatedly invalidated = noise)"
+        - "not surfaced 180+ days AND confidence < 0.5: flag for retirement (dormant + low confidence; 180d matches staleness model; UDS default, configurable)"
         - "confidence > 0.9 after 10+ uses: mark proven"
 
     review:
@@ -153,6 +154,19 @@ standard:
         Suggest merging fragments into higher-level insight.
         Upgrade path: pitfalls → pattern → mental-model.
       priority: recommended
+
+    - id: memory-as-hint-not-conclusion
+      trigger: "before acting on any recalled memory (file paths, function names, API flags, repo state)"
+      instruction: >
+        記憶是線索，不是結論（借鑑 lintsinghua/claude-code-book 記憶驗證原則）。
+        使用記憶前必須驗證其仍然成立：
+        - 記憶提到檔案路徑 → 先確認檔案存在（Glob/Read）
+        - 記憶提到函式或 flag → 先確認仍存在（Grep）
+        - 記憶描述 repo 架構快照 → 優先信任 git log / 原始碼
+        - 若記憶內容與現況衝突 → 信任現況，標記記憶為 needs-revision
+        禁止：直接引用記憶中的具體 API/路徑/函式名稱作為事實，
+        未獨立驗證即向使用者推薦操作。
+      priority: required
 
     - id: noise-control
       trigger: surfacing memories
