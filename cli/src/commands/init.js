@@ -24,6 +24,8 @@ import { displayLanguageToLocale } from '../utils/locale.js';
 import { generateReleaseConfig, RELEASE_MODE_LABELS } from '../utils/release-config.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { readInstallYaml } from '../utils/config-manager.js';
+import { getToolFilePath } from '../utils/integration-generator.js';
+import { withFileTransaction } from '../utils/transaction.js';
 
 /**
  * Init command - initialize standards in current project
@@ -92,69 +94,119 @@ export async function initCommand(options) {
     }
   }
 
-  // ===== Execute Installation =====
+  // ===== Execute Installation (transactional — T11 / XSPEC-292 §9.2) =====
   console.log();
-  
-  // 1. Install Standards
-  const standardsResults = await installStandards(config, projectPath);
-  config.installedStandards = standardsResults.standards.map(s => basename(s));
 
-  // 1.5. Generate release-config.yaml if non-default mode selected
-  if (config.releaseMode && config.releaseMode !== 'ci-cd') {
-    const releaseConfigData = generateReleaseConfig(config.releaseMode);
-    const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
-    const yaml = (await import('js-yaml')).default;
-    mkdirSync(join(projectPath, '.standards'), { recursive: true });
-    writeFileSync(releaseConfigPath, yaml.dump(releaseConfigData), 'utf-8');
-    console.log(chalk.green(`  ✓ release-config.yaml (${config.releaseMode})`));
+  // Files/dirs `init` owns and must tear down if the install fails partway.
+  // `.standards/` (and release-config.yaml beneath it) plus the per-tool
+  // integration files at the project root. Skills/commands install into shared
+  // agent dirs (e.g. ~/.claude/skills, .opencode/) that may already hold
+  // unrelated content, so they are intentionally NOT tracked here — re-running
+  // `uds init` re-installs them idempotently.
+  const ownedPaths = [join(projectPath, '.standards')];
+  for (const tool of (config.integrations || config.aiTools || [])) {
+    const file = getToolFilePath(tool);
+    if (file) ownedPaths.push(join(projectPath, file));
   }
+  if (config.generateAgentsMd) ownedPaths.push(join(projectPath, 'AGENTS.md'));
 
-  // 2. Install Integrations
-  const integrationResults = await installIntegrations(config, projectPath);
+  let combinedResults;
+  // Captured inside apply() so the catch block can report which installers
+  // failed even though the verification error itself is generic.
+  let installErrors = [];
+  try {
+    const tx = await withFileTransaction(
+      ownedPaths,
+      {
+        apply: async () => {
+          // 1. Install Standards
+          const standardsResults = await installStandards(config, projectPath);
+          config.installedStandards = standardsResults.standards.map(s => basename(s));
 
-  // 2.5. Generate universal AGENTS.md if requested
-  const agentsMdResult = await generateUniversalAgentsMd(config, integrationResults, projectPath);
-  if (agentsMdResult.path) {
-    integrationResults.integrations.push(agentsMdResult.path);
-    if (agentsMdResult.blockHashInfo) {
-      integrationResults.integrationBlockHashes[agentsMdResult.path] = {
-        ...agentsMdResult.blockHashInfo,
-        installedAt: new Date().toISOString()
-      };
+          // 1.5. Generate release-config.yaml if non-default mode selected
+          if (config.releaseMode && config.releaseMode !== 'ci-cd') {
+            const releaseConfigData = generateReleaseConfig(config.releaseMode);
+            const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
+            const yaml = (await import('js-yaml')).default;
+            mkdirSync(join(projectPath, '.standards'), { recursive: true });
+            writeFileSync(releaseConfigPath, yaml.dump(releaseConfigData), 'utf-8');
+            console.log(chalk.green(`  ✓ release-config.yaml (${config.releaseMode})`));
+          }
+
+          // 2. Install Integrations
+          const integrationResults = await installIntegrations(config, projectPath);
+
+          // 2.5. Generate universal AGENTS.md if requested
+          const agentsMdResult = await generateUniversalAgentsMd(config, integrationResults, projectPath);
+          if (agentsMdResult.path) {
+            integrationResults.integrations.push(agentsMdResult.path);
+            if (agentsMdResult.blockHashInfo) {
+              integrationResults.integrationBlockHashes[agentsMdResult.path] = {
+                ...agentsMdResult.blockHashInfo,
+                installedAt: new Date().toISOString()
+              };
+            }
+          }
+
+          // 3. Install Skills & Commands
+          const skillsResults = {
+            skills: [],
+            commands: [],
+            errors: [],
+            skillHashes: {},
+            commandHashes: {}
+          };
+          await installSkills(config.skillsConfig, projectPath, msg, skillsResults);
+          await installCommands(config.skillsConfig, projectPath, msg, skillsResults);
+
+          // Combine results
+          installErrors = [
+            ...standardsResults.errors,
+            ...integrationResults.errors,
+            ...skillsResults.errors
+          ];
+          return {
+            standards: standardsResults.standards,
+            extensions: standardsResults.extensions,
+            integrations: integrationResults.integrations,
+            skills: skillsResults.skills,
+            commands: skillsResults.commands,
+            errors: installErrors,
+            fileHashes: standardsResults.fileHashes,
+            skillHashes: skillsResults.skillHashes,
+            commandHashes: skillsResults.commandHashes,
+            integrationBlockHashes: integrationResults.integrationBlockHashes,
+            manifestIntegrationConfigs: integrationResults.manifestIntegrationConfigs
+          };
+        },
+        // A half-installed project must never be committed: if any installer
+        // reported an error, fail verification → roll back → no manifest written.
+        verify: (results) => results.errors.length === 0
+      },
+      { label: 'uds init' }
+    );
+    combinedResults = tx.result;
+  } catch (err) {
+    console.log();
+    console.log(chalk.red(
+      (msg.installFailed || 'Installation failed and was rolled back: {error}')
+        .replace('{error}', err.message)
+    ));
+    for (const e of installErrors) {
+      console.log(chalk.gray(`    ${e}`));
     }
+    if (err.rolledBack === false) {
+      console.log(chalk.yellow(
+        (msg.rollbackFailed || 'Rollback also failed: {error}. Manual cleanup may be required.')
+          .replace('{error}', err.rollbackError?.message || 'unknown')
+      ));
+    }
+    process.exit(1);
+    return;
   }
 
-  // 3. Install Skills & Commands
-  const skillsResults = {
-    skills: [],
-    commands: [],
-    errors: [],
-    skillHashes: {},
-    commandHashes: {}
-  };
-  await installSkills(config.skillsConfig, projectPath, msg, skillsResults);
-  await installCommands(config.skillsConfig, projectPath, msg, skillsResults);
-
-  // Combine results
-  const combinedResults = {
-    standards: standardsResults.standards,
-    extensions: standardsResults.extensions,
-    integrations: integrationResults.integrations,
-    skills: skillsResults.skills,
-    commands: skillsResults.commands,
-    errors: [
-      ...standardsResults.errors,
-      ...integrationResults.errors,
-      ...skillsResults.errors
-    ],
-    fileHashes: standardsResults.fileHashes,
-    skillHashes: skillsResults.skillHashes,
-    commandHashes: skillsResults.commandHashes,
-    integrationBlockHashes: integrationResults.integrationBlockHashes,
-    manifestIntegrationConfigs: integrationResults.manifestIntegrationConfigs
-  };
-
-  // 4. Write Manifest & Display Summary
+  // 4. Write Manifest & Display Summary (commit point — only reached when the
+  //    install verified clean; this is the "initialized" marker for the project)
   writeFinalManifest(config, combinedResults, projectPath);
 
   // 4.5. Generate layered CLAUDE.md (if --content-layout layered)
