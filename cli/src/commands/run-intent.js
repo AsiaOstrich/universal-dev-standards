@@ -19,6 +19,15 @@ export async function runIntentCommand(intent, options = {}) {
     return;
   }
 
+  // T12 input validation (XSPEC-292 §9): intent is a config key lookup —
+  // restrict to a safe charset to reject malformed/injection-style input.
+  if (!/^[a-z0-9][a-z0-9_-]*$/.test(intent)) {
+    console.error(chalk.red(`✗ intent 格式無效: "${intent}"`));
+    console.log(chalk.gray('  intent 僅可含小寫字母、數字、- 與 _（例: test, lint, build）'));
+    process.exit(1);
+    return;
+  }
+
   let resolved;
   try {
     resolved = resolveCommand(intent, projectPath);
