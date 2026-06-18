@@ -135,6 +135,20 @@ describe('Release Command', () => {
       const output = consoleLogs.join('\n');
       expect(output).toContain('版本號');
     });
+
+    it('should reject malformed version (T12 input validation)', async () => {
+      await releaseCommand('promote', '1.a.0', {});
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('格式無效');
+    });
+
+    it('should reject incomplete semver (T12 input validation)', async () => {
+      await releaseCommand('promote', '1.2', {});
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('格式無效');
+    });
   });
 
   // ============================================================
@@ -210,6 +224,32 @@ describe('Release Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('環境');
+    });
+
+    it('should reject unknown environment not in allow-list (T12)', async () => {
+      await releaseCommand('deploy', 'xyz-typo', {});
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('未知的部署環境');
+      expect(writeFileSync).not.toHaveBeenCalled();
+    });
+
+    it('should accept custom environment from release-config.yaml (T12)', async () => {
+      readFileSync.mockImplementation((path) => {
+        if (path.includes('release-config.yaml')) {
+          return JSON.stringify({ release: { mode: 'manual', environments: ['qa'] } });
+        }
+        if (path.includes('package.json')) {
+          return JSON.stringify({ version: '1.2.0-rc.1' });
+        }
+        return '{}';
+      });
+
+      await releaseCommand('deploy', 'qa', {});
+
+      expect(writeFileSync).toHaveBeenCalled();
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('qa');
     });
   });
 

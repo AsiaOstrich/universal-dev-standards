@@ -15,7 +15,10 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import { resolveReleaseWorkflow } from '../utils/release-config.js';
-import { formatGitTag, createPromotionRecord, parseRCVersion } from '../utils/version-promote.js';
+import { formatGitTag, createPromotionRecord, parseRCVersion, isStableVersion } from '../utils/version-promote.js';
+
+// Default deployment environments (overridable via release-config.yaml release.environments)
+const DEFAULT_ENVIRONMENTS = ['development', 'staging', 'canary', 'preview', 'production'];
 import { createManifest, verifyManifest } from '../utils/build-manifest.js';
 import { recordDeployment, updateDeploymentResult, checkDeploymentReadiness } from '../utils/deployment-tracker.js';
 
@@ -177,6 +180,13 @@ async function handlePromote(targetVersion, projectPath) {
     return;
   }
 
+  // Validate stable semver format (catches typos like 1.a.0, 1.2, abc)
+  if (!isStableVersion(targetVersion)) {
+    console.log(chalk.red(`版本格式無效: ${targetVersion}`));
+    console.log(chalk.gray('  需為 stable semver（X.Y.Z），例如: uds release promote 1.2.0'));
+    return;
+  }
+
   // Find the latest RC for this version
   const currentVersion = getPackageVersion(projectPath);
   const parsed = currentVersion ? parseRCVersion(currentVersion) : null;
@@ -218,6 +228,19 @@ async function handleDeploy(environment, options, projectPath) {
     console.log(chalk.gray('  用法: uds release deploy staging'));
     console.log(chalk.gray('  用法: uds release deploy staging --result passed'));
     console.log(chalk.gray('  用法: uds release deploy production'));
+    return;
+  }
+
+  // Validate environment against allow-list (overridable via release-config.yaml)
+  const deployConfig = loadReleaseConfig(projectPath);
+  const allowedEnvironments =
+    Array.isArray(deployConfig?.release?.environments) && deployConfig.release.environments.length > 0
+      ? deployConfig.release.environments
+      : DEFAULT_ENVIRONMENTS;
+  if (!allowedEnvironments.includes(environment)) {
+    console.log(chalk.red(`未知的部署環境: ${environment}`));
+    console.log(chalk.gray(`  允許的環境: ${allowedEnvironments.join(', ')}`));
+    console.log(chalk.gray('  自訂環境請在 .standards/release-config.yaml 設定 release.environments'));
     return;
   }
 

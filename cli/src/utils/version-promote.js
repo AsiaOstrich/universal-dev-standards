@@ -6,6 +6,22 @@
 
 const RC_VERSION_REGEX = /^v?(\d+)\.(\d+)\.(\d+)-rc\.(\d+)$/;
 const SEMVER_REGEX = /^v?(\d+)\.(\d+)\.(\d+)(-[a-zA-Z]+\.\d+)?$/;
+const STABLE_VERSION_REGEX = /^v?(\d+)\.(\d+)\.(\d+)$/;
+
+/**
+ * True if `version` is a valid stable semver (X.Y.Z, optional leading v),
+ * with no pre-release suffix. Used to validate `uds release promote` targets.
+ */
+export function isStableVersion(version) {
+  return typeof version === 'string' && STABLE_VERSION_REGEX.test(version);
+}
+
+/**
+ * True if `version` is any valid semver this tool recognises (stable or RC).
+ */
+export function isValidVersion(version) {
+  return typeof version === 'string' && (SEMVER_REGEX.test(version) || RC_VERSION_REGEX.test(version));
+}
 
 /**
  * Parse an RC version string into its components.
