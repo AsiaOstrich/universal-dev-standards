@@ -4,6 +4,7 @@ scope: partial
 description: "[UDS] Pre-commit quality gates verification"
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git status:*), Bash(npm test:*), Bash(npm run lint:*)
 disable-model-invocation: true
+status: reference
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
   Checkin workflow orchestration (gate execution sequence, abort logic) relocated to adoption layer
@@ -14,11 +15,17 @@ disable-model-invocation: true
 
 # Check-in Assistant | 簽入助手
 
+> ⚠️ **Status: Reference（參考用，非可執行流程）** — 簽入流程協調（關卡執行序列、abort 邏輯）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留品質關卡定義、檢查清單項、never-commit 規則供參考。
+> Lifecycle orchestration has moved to the adoption layer (XSPEC-095); this document is **reference-only**. For enforced execution, use your adoption layer's toolchain.
+
 Verify pre-commit quality gates before committing code to ensure codebase stability.
 
 在提交程式碼前驗證品質關卡，確保程式碼庫的穩定性。
 
 ## Workflow | 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
+> The steps below are a **reference structure**, not an executable workflow.
 
 1. **Check git status** - Run `git status` and `git diff` to understand pending changes
 2. **Run tests** - Execute `npm test` (or project test command) to verify all tests pass

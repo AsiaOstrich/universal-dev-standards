@@ -4,6 +4,7 @@ scope: partial
 description: "[UDS] Guide through Acceptance Test-Driven Development workflow"
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[feature or spec | 功能或規格]"
+status: reference
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
   ATDD lifecycle orchestration (5-phase: WORKSHOP→DISTILLATION→DEVELOPMENT→DEMO→DONE,
@@ -14,6 +15,9 @@ argument-hint: "[feature or spec | 功能或規格]"
 -->
 
 # ATDD Assistant | ATDD 助手
+
+> ⚠️ **Status: Reference（參考用，非可執行流程）** — 5 階段 ATDD 生命週期協調（WORKSHOP→DISTILLATION→DEVELOPMENT→DEMO→DONE、INVEST 驗證、AC→Gherkin 轉換、RED/GREEN 執行、PO sign-off gates）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 INVEST 準則、ATDD 循環圖、Gherkin AC 格式、Three Amigos 結構供參考。
+> Lifecycle orchestration has moved to the adoption layer (XSPEC-095); this document is **reference-only**. For enforced execution, use your adoption layer's toolchain.
 
 Guide through the Acceptance Test-Driven Development (ATDD) workflow for defining and validating user stories.
 
@@ -29,6 +33,9 @@ WORKSHOP ──► DISTILLATION ──► DEVELOPMENT ──► DEMO ──► D
 ```
 
 ## Workflow | 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
+> The steps below are a **reference structure**, not an executable workflow.
 
 ### 1. WORKSHOP - Define AC | 定義驗收條件
 PO presents user story, team asks clarifying questions, define acceptance criteria together.

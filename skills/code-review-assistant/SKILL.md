@@ -5,6 +5,7 @@ description: "[UDS] Perform systematic code review with checklist"
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
 argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
 disable-model-invocation: true
+status: reference
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
   Code review workflow orchestration (4-step sequence, outcome gating) relocated to adoption layer
@@ -15,11 +16,17 @@ disable-model-invocation: true
 
 # Code Review Assistant | 程式碼審查助手
 
+> ⚠️ **Status: Reference（參考用，非可執行流程）** — 程式碼審查流程協調（4 步驟序列、outcome gating）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 8 大審查類別定義、BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前綴語意供參考。
+> Lifecycle orchestration has moved to the adoption layer (XSPEC-095); this document is **reference-only**. For enforced execution, use your adoption layer's toolchain.
+
 Perform systematic code review using standardized checklists and comment prefixes.
 
 執行系統性的程式碼審查，使用標準化的檢查清單和評論前綴。
 
 ## Workflow | 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
+> The steps below are a **reference structure**, not an executable workflow.
 
 1. **Identify changes** - Get diff of files to review via `git diff` or `git show`
 2. **Apply checklist** - Check each review category systematically

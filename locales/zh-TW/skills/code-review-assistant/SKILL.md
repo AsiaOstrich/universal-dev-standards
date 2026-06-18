@@ -12,6 +12,8 @@ description: "[UDS] 使用標準化檢查清單執行系統性程式碼審查"
 
 > **語言**: [English](../../../../skills/code-review-assistant/SKILL.md) | 繁體中文
 
+> ⚠️ **狀態：參考用（非可執行流程）** — 程式碼審查流程協調（4 步驟序列、outcome gating）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 8 大審查類別定義、BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前綴語意供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
+
 使用標準化的檢查清單和評論前綴，執行系統性的程式碼審查。
 
 ## 工作流程

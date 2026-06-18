@@ -12,6 +12,8 @@ description: "[UDS] 在提交程式碼前驗證品質關卡，確保程式碼庫
 
 > **語言**: [English](../../../../skills/checkin-assistant/SKILL.md) | 繁體中文
 
+> ⚠️ **狀態：參考用（非可執行流程）** — 簽入流程協調（關卡執行序列、abort 邏輯）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留品質關卡定義、檢查清單項、never-commit 規則供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
+
 在提交程式碼前驗證品質關卡，確保程式碼庫的穩定性。
 
 ## 工作流程

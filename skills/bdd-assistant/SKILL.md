@@ -4,6 +4,7 @@ scope: partial
 description: "[UDS] Guide through Behavior-Driven Development workflow"
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[feature or spec | 功能或規格]"
+status: reference
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
   BDD lifecycle orchestration (4-phase cycle, Gherkin scaffolding, RED/GREEN execution) relocated to
@@ -13,6 +14,9 @@ argument-hint: "[feature or spec | 功能或規格]"
 -->
 
 # BDD Assistant | BDD 助手
+
+> ⚠️ **Status: Reference（參考用，非可執行流程）** — BDD 生命週期協調（4 階段循環、Gherkin scaffolding、RED/GREEN 執行）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 Gherkin 格式定義、Three Amigos 結構、BDD 循環圖供參考。
+> Lifecycle orchestration has moved to the adoption layer (XSPEC-095); this document is **reference-only**. For enforced execution, use your adoption layer's toolchain.
 
 Guide through the Behavior-Driven Development (BDD) workflow using Given-When-Then format.
 
@@ -27,6 +31,9 @@ DISCOVERY ──► FORMULATION ──► AUTOMATION ──► LIVING DOCS
 ```
 
 ## Workflow | 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
+> The steps below are a **reference structure**, not an executable workflow.
 
 ### 1. DISCOVERY - Explore Behavior | 探索行為
 Discuss with stakeholders, identify examples and edge cases, understand the "why".

@@ -4,6 +4,7 @@ scope: partial
 description: "[UDS] Guide through Test-Driven Development workflow"
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx vitest:*)
 argument-hint: "[feature or file | 功能或檔案]"
+status: reference
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
   TDD flow orchestration (RED→GREEN→REFACTOR cycle, test execution gates) relocated to adoption
@@ -13,6 +14,9 @@ argument-hint: "[feature or file | 功能或檔案]"
 -->
 
 # TDD Assistant | TDD 助手
+
+> ⚠️ **Status: Reference（參考用，非可執行流程）** — TDD 流程協調（RED→GREEN→REFACTOR 循環、測試執行 gates）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 TDD 原則、FIRST 規則、AAA 格式、語言範例、流程指南供參考。
+> Lifecycle orchestration has moved to the adoption layer (XSPEC-095); this document is **reference-only**. For enforced execution, use your adoption layer's toolchain.
 
 Guide through the Test-Driven Development workflow: Red-Green-Refactor.
 
@@ -29,6 +33,9 @@ Guide through the Test-Driven Development workflow: Red-Green-Refactor.
 ```
 
 ## Workflow | 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
+> The steps below are a **reference structure**, not an executable workflow.
 
 ### Phase 1: RED - Write Failing Test | 紅燈 - 撰寫失敗測試
 

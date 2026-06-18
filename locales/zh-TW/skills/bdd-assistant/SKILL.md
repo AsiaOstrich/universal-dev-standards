@@ -12,6 +12,8 @@ description: "[UDS] 引導行為驅動開發（BDD）流程，使用 Given-When-
 
 > **語言**: [English](../../../../skills/bdd-assistant/SKILL.md) | 繁體中文
 
+> ⚠️ **狀態：參考用（非可執行流程）** — BDD 生命週期協調（4 階段循環、Gherkin scaffolding、RED/GREEN 執行）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 Gherkin 格式定義、Three Amigos 結構、BDD 循環圖供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
+
 引導行為驅動開發（BDD）流程，使用 Given-When-Then 格式。
 
 ## BDD 循環

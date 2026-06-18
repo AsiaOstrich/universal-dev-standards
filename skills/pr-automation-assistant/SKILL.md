@@ -7,6 +7,7 @@ description: |
   Keywords: pull request, PR, merge, review, GitHub, GitLab.
 allowed-tools: Read, Grep, Glob, Bash(git:*, gh:*)
 argument-hint: "[branch name or PR number | 分支名稱或 PR 編號]"
+status: reference
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
   PR lifecycle orchestration (5-step: CREATE→REVIEW→APPROVE→MERGE→CLEANUP,
@@ -17,6 +18,9 @@ argument-hint: "[branch name or PR number | 分支名稱或 PR 編號]"
 -->
 
 # PR Automation Assistant | PR 自動化助手
+
+> ⚠️ **Status: Reference（參考用，非可執行流程）** — PR 生命週期協調（5 步驟 CREATE→REVIEW→APPROVE→MERGE→CLEANUP、>400 行 size gate、CI gate、squash/merge 策略、gh CLI 整合）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 PR 描述模板、合併策略決策矩陣、auto-review 觸發規則供參考。
+> Lifecycle orchestration has moved to the adoption layer (XSPEC-095); this document is **reference-only**. For enforced execution, use your adoption layer's toolchain.
 
 Streamline the pull request lifecycle from creation to merge.
 
