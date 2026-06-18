@@ -269,6 +269,7 @@ The combination of (a) producer using auto-extension tar and (b) consumer not ve
 - [Pipeline Integration Standards](pipeline-integration-standards.md) — CI/CD pipeline configuration
 - [Checkin Standards](checkin-standards.md) — Quality gates before packaging
 - [Versioning Standards](versioning.md) — Version numbers used in package artifacts
+- [Supply Chain Attestation](supply-chain-attestation.md) — SBOM / SLSA provenance / signing of the packaged artifact (format integrity here is archive-level; attestation adds source-to-artifact provenance)
 
 ---
 

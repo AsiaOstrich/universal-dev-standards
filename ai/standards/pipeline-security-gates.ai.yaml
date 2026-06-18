@@ -13,6 +13,7 @@ standard:
     - "Secrets scan at pre-commit — block ALL commits containing secrets"
     - "SAST after build — block Critical/High findings"
     - "SCA + SBOM generation at package stage"
+    - "Attestation verification before deploy — verify artifact checksum, cosign signature, SLSA provenance (consume supply-chain-attestation output; never generate SBOM/signature without verifying it)"
     - "DAST after staging deploy — warn on findings, require approval for Critical"
     - "Never skip security gates with --force or emergency bypass without audit trail"
     - "Treat security gate failures as pipeline failures, not warnings"
@@ -51,6 +52,14 @@ gate_positions:
     block_on: ["Critical CVE with fix available"]
     warn_on: ["High CVE", "outdated dependencies"]
     sbom_format: ["spdx", "cyclonedx"]
+  pre_deploy_attestation:
+    type: attestation_verification
+    tools: ["cosign", "sha256sum", "slsa-verifier"]
+    scope: "packaged release artifact (archive / container image)"
+    block_on: ["signature verification failure", "checksum mismatch", "missing SLSA provenance"]
+    warn_on: ["SLSA level below target (>= L2 recommended for public release)"]
+    consumes: supply-chain-attestation
+    note: "Runs after package_stage, before deploy — closes the generate-but-never-verify gap"
 
 bypass_policy:
   allowed: false
@@ -66,6 +75,7 @@ failure_behavior:
 integration_points:
   secrets_vault: "Integrate with HashiCorp Vault or AWS Secrets Manager for secrets injection"
   sbom_registry: "Upload SBOM to dependency-track or grype-db for continuous monitoring"
+  artifact_signing: "Verify SBOM/provenance signatures and checksum with cosign before release (see supply-chain-attestation)"
   incident_response: "Critical findings automatically create incident tickets"
 
 physical_spec:
