@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/checkin-standards.md)
 
-**Version**: 1.6.0
-**Last Updated**: 2026-04-20
+**Version**: 1.7.0
+**Last Updated**: 2026-06-18
 **Applicability**: All software projects using version control
 **Scope**: partial
 **Industry Standards**: SWEBOK v4.0 Chapter 6
@@ -150,6 +150,12 @@ describe('Regression: [BUG-ID or description]', () => {
   - Nesting depth ≤3 levels
   - Cyclomatic complexity ≤10
   - No duplicated code blocks
+
+  > Thresholds are UDS defaults, configurable per project. Cyclomatic complexity
+  > ≤10 follows McCabe's original guidance (McCabe, 1976) — the value most
+  > linters (ESLint `complexity`, SonarQube) default to; the method-length and
+  > nesting limits are common style-guide defaults aimed at readability, not
+  > hard rules. Tune them to your language/team.
 
 - [ ] **Security checked**
   - No hardcoded secrets (passwords, API keys)
@@ -1005,6 +1011,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.7.0 | 2026-06-18 | Added: source + configurable note for code-smell thresholds (McCabe 1976 cyclomatic complexity; linter defaults) (XSPEC-292 T8) |
 | 1.5.0 | 2026-03-18 | Added: AC coverage verification, batch threshold trigger, automated check-in rules |
 | 1.4.0 | 2026-01-16 | Added: Bug Fix Testing Evaluation section with decision matrix |
 | 1.3.0 | 2026-01-05 | Added: SWEBOK v4.0 Chapter 6 (Software Configuration Management) to References |

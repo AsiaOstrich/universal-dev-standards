@@ -12,8 +12,8 @@ standard:
     - "Documentation: docs updated, CHANGELOG updated"
 
   meta:
-    version: "2.0.0"
-    updated: "2026-02-04"
+    version: "2.1.0"
+    updated: "2026-06-18"
     source: core/checkin-standards.md
     description: Quality gates that must be passed before committing code
 

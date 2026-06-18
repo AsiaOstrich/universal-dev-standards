@@ -3,7 +3,7 @@ source: ../../../core/checkin-standards.md
 source_version: 1.6.0
 translation_version: 1.6.0
 last_synced: 2026-04-20
-status: current
+status: stale
 ---
 
 # 程式碼簽入檢查點標準
