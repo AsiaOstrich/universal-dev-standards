@@ -125,16 +125,32 @@ function syncOne(name: string, opts: { check: boolean; regen: boolean }): SyncRe
 
   const coreMd = readFileSync(coreAbs, 'utf-8');
   report.version = parseCoreVersion(coreMd) || '(unknown)';
-  // getOutputFilename applies STANDARD_ID_MAPPING (e.g. checkin-standards →
-  // checkin), but some standards were never renamed on disk. If the mapped name
-  // is absent, fall back to the literal <name>.ai.yaml that actually exists so
-  // the .standards copy / verify works for those entries too.
-  let outName = getOutputFilename(`${name}.md`);
-  if (!existsSync(join(ROOT, 'ai/standards', outName)) &&
-      existsSync(join(ROOT, 'ai/standards', `${name}.ai.yaml`))) {
-    outName = `${name}.ai.yaml`;
+
+  // Resolve the ai/standards path. The registry's source.ai is AUTHORITATIVE —
+  // it survives id renames (checkin-standards → checkin) and irregular plurals
+  // (error-code-standards → error-codes.ai.yaml) that getOutputFilename cannot
+  // reproduce. Fall back to the conversion-rules mapping, then the literal name.
+  let regEntry: { id?: string; source?: { human?: string; ai?: string } } | null = null;
+  try {
+    const reg = JSON.parse(readFileSync(join(ROOT, 'cli/standards-registry.json'), 'utf-8'));
+    regEntry = (reg.standards || []).find(
+      (s: { id?: string; source?: { human?: string; ai?: string } }) =>
+        s?.source?.human === corePath || s?.id === name
+    ) || null;
+  } catch { /* registry read errors surface in the verify step below */ }
+
+  let aiRel: string;
+  if (regEntry?.source?.ai && existsSync(join(ROOT, regEntry.source.ai))) {
+    aiRel = regEntry.source.ai;
+  } else {
+    let mapped = getOutputFilename(`${name}.md`);
+    if (!existsSync(join(ROOT, 'ai/standards', mapped)) &&
+        existsSync(join(ROOT, 'ai/standards', `${name}.ai.yaml`))) {
+      mapped = `${name}.ai.yaml`;
+    }
+    aiRel = `ai/standards/${mapped}`;
   }
-  const aiRel = `ai/standards/${outName}`;
+  const outName = aiRel.split('/').pop() as string;
   const stdRel = `.standards/${outName}`;
   const aiAbs = join(ROOT, aiRel);
   const stdAbs = join(ROOT, stdRel);
@@ -201,19 +217,13 @@ function syncOne(name: string, opts: { check: boolean; regen: boolean }): SyncRe
     }
   }
 
-  // 4. registry — verify only.
-  const regAbs = join(ROOT, 'cli/standards-registry.json');
+  // 4. registry — verify only (reuse the entry resolved above).
   try {
-    const reg = JSON.parse(readFileSync(regAbs, 'utf-8'));
-    const entry = (reg.standards || []).find(
-      (s: { id?: string; source?: { human?: string; ai?: string } }) =>
-        s?.source?.human === corePath || s?.source?.ai === aiRel || s?.id === name
-    );
-    if (!entry) {
+    if (!regEntry) {
       report.drift = true;
-      report.error = `no registry entry for '${name}' (looked for source.human=${corePath} / source.ai=${aiRel})`;
+      report.error = `no registry entry for '${name}' (looked for source.human=${corePath} / id=${name})`;
     } else {
-      report.actions.push(`registry entry OK (id=${entry.id})`);
+      report.actions.push(`registry entry OK (id=${regEntry.id})`);
     }
   } catch (e) {
     report.error = `failed to read registry: ${(e as Error).message}`;

@@ -73,3 +73,12 @@ run_sync() {
   [[ "$output" == *"checkin-standards.ai.yaml"* ]]
   [[ "$output" != *"ai/standards/checkin.ai.yaml"* ]]
 }
+
+@test "uses registry source.ai for irregular filenames (error-code-standards → error-codes.ai.yaml)" {
+  # getOutputFilename maps to error-code.ai.yaml and the literal would be
+  # error-code-standards.ai.yaml — neither exists. Only the registry source.ai
+  # (error-codes.ai.yaml, pluralised) is correct.
+  run_sync --check error-code-standards
+  [[ "$output" == *"error-codes.ai.yaml"* ]]
+  [[ "$output" != *"missing"* ]]
+}
