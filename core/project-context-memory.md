@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/project-context-memory.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-03-16
+**Version**: 1.2.0
+**Last Updated**: 2026-06-18
 **Applicability**: All software projects using AI assistants
 **Scope**: uds-specific
 
@@ -200,6 +200,11 @@ Beta v5.1.0-beta.1 published on 2026-03-14.
 | `updated_at` > 7 days old | Flag as stale, ask to archive or resume |
 | All `remaining` steps completed | Suggest archiving the workflow state |
 
+> The 7-day staleness window is a UDS default, configurable per project. Basis:
+> a workflow state untouched for over a week is likely abandoned or superseded
+> in short-cycle development; it aligns with the developer-memory staleness
+> model. Lengthen it for long-running or part-time projects.
+
 ---
 
 ## 5. Comparison with Developer Memory
@@ -231,6 +236,7 @@ We use **Split-File Storage** (one Markdown file per topic) rather than a single
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-06-18 | Added: rationale + configurable note for the 7-day staleness threshold (XSPEC-292 T8) |
 | 1.1.0 | 2026-03-16 | Add `workflow-state` type for cross-session state tracking |
 | 1.0.0 | 2026-02-09 | Initial standard definition |
 

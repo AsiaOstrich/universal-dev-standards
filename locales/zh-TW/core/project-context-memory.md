@@ -3,7 +3,7 @@ source: ../../../core/project-context-memory.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-03-24
-status: current
+status: stale
 ---
 
 # 專案情境記憶標準
