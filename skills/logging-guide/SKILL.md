@@ -1,6 +1,7 @@
 ---
 name: logging-guide
 scope: universal
+anchor_standard: logging-standards
 description: |
   Implement structured logging with proper log levels and sensitive data handling.
   Use when: adding logging, debugging, setting up observability.
@@ -11,8 +12,8 @@ description: |
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/skills/logging-guide/SKILL.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-05-26
+**Version**: 1.4.0
+**Last Updated**: 2026-06-19
 **Applicability**: Claude Code Skills
 
 ---
@@ -56,6 +57,40 @@ App cannot continue?         → FATAL
 | **WARN** | Deprecated API, retry attempts, resource approaching limits |
 | **ERROR** | Failed operations, caught exceptions, integration failures |
 | **FATAL** | Unrecoverable errors, startup failures, lost critical resources |
+
+## Mandatory Events
+
+Formatting every log perfectly but **never firing at the moment that matters** is
+worse than useless — it gives false confidence during an incident. The core
+standard defines **9 canonical events that MUST produce a log entry**. A logging
+setup that follows the level/field rules but omits these is "compliant on paper,
+materially silent". Always implement all 9:
+
+| Event id | When | Level | Core required fields | Must NOT log |
+|----------|------|-------|----------------------|--------------|
+| `application_startup` | After boot, **before** accepting requests | INFO | app_name, version, git_sha, environment, hostname, pid, listening_endpoints | secrets, full connection strings |
+| `request_received` | First time middleware sees a request | INFO / DEBUG | method, path, source_ip, request_id | request body, auth headers |
+| `validation_failure` | schema / ModelState / DTO validation rejects | WARN | request_id, path, missing_fields[], payload_shape (keys only) | field **values**, PII |
+| `authentication_failure` | login / token verification fails | WARN | uid (attempted), source_ip, failure_reason | password, token value |
+| `outbound_call_start` | An outbound HTTP/RPC call is initiated | INFO | target_url (host+path), request_id propagated, timeout_ms | credentials, bearer tokens |
+| `outbound_call_complete` | An external call returns or fails | INFO / WARN / ERROR | status_code **or** failure_phase (dns/tcp/tls/http), elapsed_ms, retries | response body with PII |
+| `business_event` | A state-changing business operation completes | INFO | operation_name, actor, target ids, outcome | full record payload, PII |
+| `heartbeat` | Long-running background service, ≥ 1× / 60 s | INFO | service_name, queue_depth, items_processed_since_last_heartbeat | — |
+| `shutdown` | Process exits (graceful or fatal) | INFO / ERROR | app_name, signal/reason, uptime_seconds, pending_work_count | — |
+
+**Why these exact events** — each closes a real incident blind spot: a silent
+`validation_failure` hides un-logged payloads; `authentication_failure` without
+`uid`/`source_ip` is un-investigable; a missing `heartbeat` means a 0-byte log
+file goes unnoticed; absent `outbound_call_*` turns "send failed" into a 2-day
+hunt with no trace of the call.
+
+> A background service that writes no INFO/WARN/ERROR within 60 s MUST emit a
+> `heartbeat`; if none appears for ≥ 2× the interval (≥ 120 s), a silence detector
+> MUST alert.
+
+For the full catalog (each event's `when` / `must_log` / `must_NOT_log` /
+`rationale` and compliant examples), see the **Mandatory Events** section of the
+[core Logging Standards](../../core/logging-standards.md#mandatory-events).
 
 ## Structured Logging
 
@@ -305,6 +340,7 @@ After `/logging` completes, the AI assistant should suggest:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.4.0 | 2026-06-19 | Added: Mandatory Events section (9 canonical events) to close skill↔standard content drift; aligned version with core Logging Standards v1.4.0 (XSPEC-070 Phase 2) |
 | 1.1.0 | 2026-05-26 | Added: Log File Rotation section with cross-link to core standard rotation policy; Rotation checklist (XSPEC-232) |
 | 1.0.0 | 2025-12-30 | Initial release |
 

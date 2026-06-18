@@ -1,12 +1,19 @@
 ---
 name: ac-coverage
 scope: universal
+anchor_standard: acceptance-criteria-traceability
 description: "[UDS] Analyze AC-to-test traceability and coverage"
 allowed-tools: Read, Grep, Glob
 argument-hint: "[spec file path | 規格檔案路徑]"
 ---
 
 # AC Coverage Assistant | AC 覆蓋率助手
+
+**Version**: 1.1.0
+**Last Updated**: 2026-06-19
+**Applicability**: Claude Code Skills
+
+> **Core Standard**: This skill implements [Acceptance Criteria Traceability Standards](../../core/acceptance-criteria-traceability.md). For the authoritative methodology, refer to the core standard.
 
 Analyze Acceptance Criteria (AC) to test traceability and generate coverage reports.
 
@@ -24,7 +31,7 @@ Analyze Acceptance Criteria (AC) to test traceability and generate coverage repo
 ## Workflow | 工作流程
 
 1. **Parse SPEC** — Extract AC definitions (AC-1, AC-2, ...) from the specification file
-2. **Scan Tests** — Search test files for `@AC` and `@SPEC` annotations using standard linking conventions
+2. **Scan Tests** — Search test files for the **canonical annotation** `@SPEC-<id> @AC-<n>` (a single combined tag)
 3. **Build Matrix** — Map each AC to its test references (file, test name, line)
 4. **Classify Status** — Mark each AC as ✅ covered, ⚠️ partial, or ❌ uncovered
 5. **Calculate Coverage** — Apply formula: `Coverage % = (covered + partial × 0.5) / total × 100`
@@ -32,13 +39,17 @@ Analyze Acceptance Criteria (AC) to test traceability and generate coverage repo
 
 ## Linking Convention | 標註慣例
 
-Tests MUST reference their source AC using standard annotations:
+Tests MUST reference their source AC using the **canonical annotation**:
+`@SPEC-<id> @AC-<n>` — a single combined tag, e.g. `@SPEC-001 @AC-1`. Keeping the
+attribution on **one line** is what forward-derivation and test-runner tag
+filters consume. **Do not** split it into separate `@AC` / `@SPEC` lines.
+
+使用**標準合併標註** `@SPEC-<id> @AC-<n>`（單一合併標籤），保持同一行；**勿**拆成 `@AC` / `@SPEC` 兩行。
 
 ```typescript
 // TypeScript/JavaScript
 describe('AC-1: User login with valid credentials', () => {
-  // @AC AC-1
-  // @SPEC SPEC-001
+  // @SPEC-001 @AC-1
   it('should redirect to dashboard on successful login', () => { ... });
 });
 ```
@@ -47,8 +58,7 @@ describe('AC-1: User login with valid credentials', () => {
 # Python
 class TestAC1_UserLogin:
     """AC-1: User login with valid credentials
-    @AC AC-1
-    @SPEC SPEC-001
+    @SPEC-001 @AC-1
     """
     def test_redirect_to_dashboard(self): ...
 ```
