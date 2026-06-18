@@ -12,6 +12,7 @@ import { checkbox, confirm as inquirerConfirm } from '@inquirer/prompts';
 import { MicroSpec } from '../vibe/micro-spec.js';
 import { existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { withFileTransaction } from '../utils/transaction.js';
 
 /**
  * Extract acceptance criteria from spec markdown
@@ -135,7 +136,6 @@ export async function specSplitCommand(id, options = {}) {
   // Update original spec: add depends_on to new spec
   const originalContent = originalLines.join('\n');
   const updatedOriginal = addDependsOn(originalContent, newId);
-  writeFileSync(specPath, updatedOriginal, 'utf-8');
 
   // Create new spec with moved ACs
   const newSpec = {
@@ -154,7 +154,32 @@ export async function specSplitCommand(id, options = {}) {
     /\*\*Acceptance\*\*:[\s\S]*?(?=\n\*\*|$)/,
     `**Acceptance**:\n${acSection}`
   );
-  writeFileSync(newSpecPath, finalContent, 'utf-8');
+
+  // T11 (XSPEC-292 §9.2): the two writes must be atomic. If creating the new
+  // spec fails after the original was rewritten (ACs removed), the original
+  // would be corrupted and the moved ACs lost. Wrap both writes so any failure
+  // restores the original and removes a partially-written new spec.
+  try {
+    await withFileTransaction(
+      [specPath, newSpecPath],
+      {
+        apply: () => {
+          writeFileSync(specPath, updatedOriginal, 'utf-8');
+          writeFileSync(newSpecPath, finalContent, 'utf-8');
+        },
+        verify: () => existsSync(specPath) && existsSync(newSpecPath)
+      },
+      { label: `spec-split ${id}` }
+    );
+  } catch (err) {
+    console.log(chalk.red(`\nError: spec split failed and was rolled back: ${err.message}`));
+    console.log(chalk.gray(`  Original ${id} restored. Backup also at ${join(backupDir, `${id}-pre-split.md`)}`));
+    if (err.rolledBack === false) {
+      console.log(chalk.yellow(`  ⚠ Rollback also failed: ${err.rollbackError?.message}. Restore manually from the backup.`));
+    }
+    process.exit(1);
+    return;
+  }
 
   console.log(chalk.green('\nSplit complete:'));
   console.log(`  ${chalk.cyan(id)} — ${acs.length - toMove.length} ACs (updated)`);

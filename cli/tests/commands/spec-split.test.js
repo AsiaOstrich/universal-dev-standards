@@ -10,6 +10,9 @@ vi.mock('node:fs', () => ({
   unlinkSync: vi.fn(),
   renameSync: vi.fn(),
   copyFileSync: vi.fn(),
+  // Used by the file-transaction wrapper (T11).
+  statSync: vi.fn(() => ({ isDirectory: () => false })),
+  rmSync: vi.fn(),
 }));
 
 // Mock config-manager
@@ -40,7 +43,7 @@ vi.mock('chalk', () => {
   return { default: passthrough };
 });
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, readdirSync, statSync } from 'node:fs';
 import { checkbox, confirm } from '@inquirer/prompts';
 import { specSplitCommand, extractACs, addDependsOn } from '../../src/commands/spec-split.js';
 
@@ -260,5 +263,40 @@ describe('specSplitCommand', () => {
     expect(copyCall[0]).toContain('SPEC-010-complex.md');
     expect(copyCall[1]).toContain('.backup');
     expect(copyCall[1]).toContain('SPEC-010-complex-pre-split.md');
+  });
+
+  // XSPEC-292 §9.2 (T11): the two writes (rewrite original, create new spec)
+  // must be atomic. If creating the new spec fails after the original has been
+  // rewritten (ACs removed), the original would be left corrupted and the moved
+  // ACs lost. The transaction wrapper must restore the original and abort.
+  it('rolls back the original spec when creating the new spec fails (atomicity)', async () => {
+    existsSync.mockImplementation((path) => {
+      if (path.includes('.backup')) return false;
+      return true;
+    });
+    statSync.mockReturnValue({ isDirectory: () => false });
+    readFileSync.mockReturnValue(SAMPLE_SPEC_MD);
+    checkbox.mockResolvedValue(['AC-3']);
+    confirm.mockResolvedValue(true);
+
+    // Fail the SECOND write (the new spec) — after the original was rewritten.
+    let writeCount = 0;
+    writeFileSync.mockImplementation(() => {
+      writeCount++;
+      if (writeCount === 2) throw new Error('ENOSPC: no space left on device');
+    });
+
+    await specSplitCommand('SPEC-010-complex', {});
+
+    // Aborts non-zero…
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    // …and rollback rewrites the ORIGINAL content (AC-3 intact) to the original
+    // path, undoing the partial rewrite.
+    const restored = writeFileSync.mock.calls.find(
+      (c) => c[0].includes('SPEC-010-complex.md') && c[1] === SAMPLE_SPEC_MD
+    );
+    expect(restored).toBeDefined();
+    const output = consoleSpy.mock.calls.map(c => c[0]).join('\n');
+    expect(output).toMatch(/rolled back|rollback|failed/i);
   });
 });
