@@ -445,4 +445,50 @@ describe('MissionManager', () => {
       expect(config).toBeNull();
     });
   });
+
+  // XSPEC-292 §9.2 (T11): the Mission state machine needs a FAILED terminal
+  // state plus a guard so terminal missions can never be revived.
+  describe('FAILED terminal state + resume guard (T11)', () => {
+    it('exposes a FAILED state', () => {
+      expect(MissionState.FAILED).toBe('failed');
+    });
+
+    it('treats FAILED as terminal', () => {
+      expect(manager.isTerminalState(MissionState.FAILED)).toBe(true);
+    });
+
+    it('allows active states to transition into FAILED', () => {
+      expect(manager.canTransition(MissionState.IN_PROGRESS, MissionState.FAILED)).toBe(true);
+      expect(manager.canTransition(MissionState.PLANNING, MissionState.FAILED)).toBe(true);
+    });
+
+    it('forbids any transition out of FAILED', () => {
+      expect(manager.canTransition(MissionState.FAILED, MissionState.IN_PROGRESS)).toBe(false);
+      expect(manager.canTransition(MissionState.FAILED, MissionState.PLANNING)).toBe(false);
+    });
+
+    it('fail() moves the current mission to FAILED and archives it', () => {
+      existsSync.mockReturnValue(true);
+      readFileSync.mockReturnValue(JSON.stringify({
+        id: 'genesis-2026-01-01-abc', type: 'genesis', state: MissionState.IN_PROGRESS,
+        checkpoints: [], steps: [], specs: []
+      }));
+
+      const result = manager.fail('unrecoverable build error');
+
+      expect(result.state).toBe(MissionState.FAILED);
+      // Terminal → archived to history and current mission file removed.
+      expect(unlinkSync).toHaveBeenCalled();
+    });
+
+    it('refuses to revive a terminal mission (resume guard)', () => {
+      existsSync.mockReturnValue(true);
+      readFileSync.mockReturnValue(JSON.stringify({
+        id: 'genesis-2026-01-01-abc', type: 'genesis', state: MissionState.FAILED,
+        checkpoints: [], steps: [], specs: []
+      }));
+
+      expect(() => manager.transition(MissionState.IN_PROGRESS)).toThrow(/terminal/i);
+    });
+  });
 });

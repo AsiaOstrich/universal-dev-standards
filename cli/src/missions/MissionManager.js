@@ -26,22 +26,29 @@ export const MissionState = {
   REVIEW: 'review',
   COMPLETED: 'completed',
   PAUSED: 'paused',
-  CANCELLED: 'cancelled'
+  CANCELLED: 'cancelled',
+  // Terminal failure state (T11 / XSPEC-292 §9.2): a mission that cannot
+  // proceed (unrecoverable error / abandoned). Like COMPLETED and CANCELLED it
+  // is terminal and cannot be resumed.
+  FAILED: 'failed'
 };
 
 /**
- * Valid state transitions
+ * Valid state transitions.
+ * Any active (non-terminal) state may transition to FAILED; terminal states
+ * (COMPLETED / CANCELLED / FAILED) have no outgoing transitions.
  */
 const STATE_TRANSITIONS = {
-  [MissionState.CREATED]: [MissionState.PLANNING, MissionState.CANCELLED],
-  [MissionState.PLANNING]: [MissionState.SPEC_PENDING, MissionState.PAUSED, MissionState.CANCELLED],
-  [MissionState.SPEC_PENDING]: [MissionState.SPEC_CONFIRMED, MissionState.PLANNING, MissionState.CANCELLED],
-  [MissionState.SPEC_CONFIRMED]: [MissionState.IN_PROGRESS, MissionState.PAUSED, MissionState.CANCELLED],
-  [MissionState.IN_PROGRESS]: [MissionState.REVIEW, MissionState.PAUSED, MissionState.CANCELLED],
-  [MissionState.REVIEW]: [MissionState.COMPLETED, MissionState.IN_PROGRESS, MissionState.CANCELLED],
-  [MissionState.PAUSED]: [MissionState.PLANNING, MissionState.IN_PROGRESS, MissionState.CANCELLED],
+  [MissionState.CREATED]: [MissionState.PLANNING, MissionState.CANCELLED, MissionState.FAILED],
+  [MissionState.PLANNING]: [MissionState.SPEC_PENDING, MissionState.PAUSED, MissionState.CANCELLED, MissionState.FAILED],
+  [MissionState.SPEC_PENDING]: [MissionState.SPEC_CONFIRMED, MissionState.PLANNING, MissionState.CANCELLED, MissionState.FAILED],
+  [MissionState.SPEC_CONFIRMED]: [MissionState.IN_PROGRESS, MissionState.PAUSED, MissionState.CANCELLED, MissionState.FAILED],
+  [MissionState.IN_PROGRESS]: [MissionState.REVIEW, MissionState.PAUSED, MissionState.CANCELLED, MissionState.FAILED],
+  [MissionState.REVIEW]: [MissionState.COMPLETED, MissionState.IN_PROGRESS, MissionState.CANCELLED, MissionState.FAILED],
+  [MissionState.PAUSED]: [MissionState.PLANNING, MissionState.IN_PROGRESS, MissionState.CANCELLED, MissionState.FAILED],
   [MissionState.COMPLETED]: [],
-  [MissionState.CANCELLED]: []
+  [MissionState.CANCELLED]: [],
+  [MissionState.FAILED]: []
 };
 
 /**
@@ -157,12 +164,14 @@ export class MissionManager {
   }
 
   /**
-   * Check if state is terminal (completed or cancelled)
+   * Check if state is terminal (completed, cancelled, or failed)
    * @param {string} state - Mission state
    * @returns {boolean}
    */
   isTerminalState(state) {
-    return state === MissionState.COMPLETED || state === MissionState.CANCELLED;
+    return state === MissionState.COMPLETED
+      || state === MissionState.CANCELLED
+      || state === MissionState.FAILED;
   }
 
   /**
@@ -186,6 +195,15 @@ export class MissionManager {
     const mission = this.getCurrent();
     if (!mission) {
       throw new Error('No active mission found');
+    }
+
+    // Resume guard (T11 / XSPEC-292 §9.2): terminal states are final. A
+    // completed / cancelled / failed mission must never be revived — fail
+    // loudly instead of silently re-activating an archived mission.
+    if (this.isTerminalState(mission.state)) {
+      throw new Error(
+        `Mission ${mission.id} is in terminal state '${mission.state}' and cannot be transitioned or resumed.`
+      );
     }
 
     if (!this.canTransition(mission.state, toState)) {
@@ -429,6 +447,20 @@ export class MissionManager {
    */
   cancel(reason = '') {
     return this.transition(MissionState.CANCELLED, { reason });
+  }
+
+  /**
+   * Mark current mission as FAILED (terminal).
+   *
+   * Used when a mission cannot proceed — an unrecoverable error or an abandoned
+   * run. Unlike {@link pause}, a failed mission is archived to history and can
+   * never be resumed (see the resume guard in {@link transition}).
+   *
+   * @param {string} reason - Reason for the failure
+   * @returns {Object} Failed mission
+   */
+  fail(reason = '') {
+    return this.transition(MissionState.FAILED, { reason });
   }
 
   /**

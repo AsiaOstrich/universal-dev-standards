@@ -361,6 +361,7 @@ function getStateColor(state) {
     case MissionState.COMPLETED:
       return chalk.green;
     case MissionState.CANCELLED:
+    case MissionState.FAILED:
       return chalk.red;
     case MissionState.PAUSED:
       return chalk.yellow;
