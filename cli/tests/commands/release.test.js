@@ -357,5 +357,65 @@ describe('Release Command', () => {
       const output = consoleLogs.join('\n');
       expect(output).toContain('build-manifest.json');
     });
+
+    // T13 (XSPEC-292): verify must consume the recorded checksum via --artifact
+    const HELLO_SHA = '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824';
+
+    it('should pass and report checksum when --artifact matches recorded checksum', async () => {
+      existsSync.mockImplementation((path) =>
+        path.includes('release-config.yaml') ||
+        path.includes('build-manifest.json') ||
+        path.includes('pkg.tar.gz')
+      );
+      readFileSync.mockImplementation((path) => {
+        if (path.includes('release-config.yaml')) return JSON.stringify({ release: { mode: 'manual' } });
+        if (path.includes('build-manifest.json')) return JSON.stringify({ version: '1.2.0', commit: 'abc1234', checksum: { package: HELLO_SHA } });
+        if (path.includes('pkg.tar.gz')) return 'hello';
+        return '{}';
+      });
+
+      await releaseCommand('verify', null, { artifact: 'pkg.tar.gz' });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('通過');
+      expect(output).toContain('Checksum');
+    });
+
+    it('should fail when --artifact checksum does not match recorded checksum', async () => {
+      existsSync.mockImplementation((path) =>
+        path.includes('release-config.yaml') ||
+        path.includes('build-manifest.json') ||
+        path.includes('pkg.tar.gz')
+      );
+      readFileSync.mockImplementation((path) => {
+        if (path.includes('release-config.yaml')) return JSON.stringify({ release: { mode: 'manual' } });
+        if (path.includes('build-manifest.json')) return JSON.stringify({ version: '1.2.0', commit: 'abc1234', checksum: { package: 'sha256:wronghash' } });
+        if (path.includes('pkg.tar.gz')) return 'hello';
+        return '{}';
+      });
+
+      await releaseCommand('verify', null, { artifact: 'pkg.tar.gz' });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('失敗');
+      expect(output).toContain('checksum mismatch');
+    });
+
+    it('should warn when manifest records a checksum but no --artifact is given', async () => {
+      existsSync.mockImplementation((path) =>
+        path.includes('release-config.yaml') || path.includes('build-manifest.json')
+      );
+      readFileSync.mockImplementation((path) => {
+        if (path.includes('release-config.yaml')) return JSON.stringify({ release: { mode: 'manual' } });
+        if (path.includes('build-manifest.json')) return JSON.stringify({ version: '1.2.0', commit: 'abc1234', checksum: { package: 'sha256:deadbeef' } });
+        return '{}';
+      });
+
+      await releaseCommand('verify', null, {});
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('通過');
+      expect(output).toContain('checksum');
+    });
   });
 });

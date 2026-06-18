@@ -120,4 +120,55 @@ describe('build-manifest', () => {
       expect(result.valid).toBe(false);
     });
   });
+
+  // ============================================================
+  // T13 (XSPEC-292): verify must CONSUME the recorded checksum,
+  // not just store it. "Generate-but-never-verify" is a false
+  // integrity guarantee.
+  // ============================================================
+  describe('verifyManifest — checksum consumption (T13)', () => {
+    const base = { version: '1.0.0', commit: 'abc' };
+
+    it('should pass when actual checksum matches the recorded one', () => {
+      const manifest = { ...base, checksum: { package: 'sha256:deadbeef' } };
+      const result = verifyManifest(manifest, 'abc', { actualChecksum: 'deadbeef' });
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should fail when actual checksum does not match the recorded one', () => {
+      const manifest = { ...base, checksum: { package: 'sha256:deadbeef' } };
+      const result = verifyManifest(manifest, 'abc', { actualChecksum: 'cafe1234' });
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContainEqual(expect.stringContaining('checksum mismatch'));
+    });
+
+    it('should warn (not fail) when checksum recorded but no artifact provided', () => {
+      const manifest = { ...base, checksum: { package: 'sha256:deadbeef' } };
+      const result = verifyManifest(manifest, 'abc');
+      expect(result.valid).toBe(true);
+      expect(result.warnings).toContainEqual(expect.stringContaining('checksum'));
+    });
+
+    it('should not check checksum when manifest records none', () => {
+      const manifest = { ...base, checksum: { package: null } };
+      const result = verifyManifest(manifest, 'abc', { actualChecksum: 'whatever' });
+      expect(result.valid).toBe(true);
+      expect(result.warnings ?? []).toHaveLength(0);
+    });
+
+    it('should normalize the sha256: prefix and case when comparing', () => {
+      const manifest = { ...base, checksum: { package: 'DEADBEEF' } };
+      const result = verifyManifest(manifest, 'abc', { actualChecksum: 'sha256:deadbeef' });
+      expect(result.valid).toBe(true);
+    });
+
+    it('should stay backward compatible (no third arg, no checksum) — warnings is an array', () => {
+      const manifest = { ...base };
+      const result = verifyManifest(manifest, 'abc');
+      expect(result.valid).toBe(true);
+      expect(Array.isArray(result.warnings)).toBe(true);
+      expect(result.warnings).toHaveLength(0);
+    });
+  });
 });

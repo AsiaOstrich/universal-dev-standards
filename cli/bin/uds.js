@@ -317,6 +317,7 @@ program
   .description('Manage release process (promote, deploy, manifest, verify)')
   .option('--result <result>', 'Test result for deploy command (passed/failed)')
   .option('--checksum <hash>', 'Package checksum for manifest command')
+  .option('--artifact <path>', 'Artefact file to verify against the manifest checksum (verify command)')
   .action(releaseCommand);
 
 // Spec command with subcommands (Vibe Coding)

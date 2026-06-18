@@ -14,6 +14,7 @@ import yaml from 'js-yaml';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
+import { createHash } from 'crypto';
 import { resolveReleaseWorkflow } from '../utils/release-config.js';
 import { formatGitTag, createPromotionRecord, parseRCVersion, isStableVersion } from '../utils/version-promote.js';
 
@@ -152,7 +153,7 @@ export async function releaseCommand(subcommand, args, options) {
         console.log(chalk.red('verify 子命令僅在 manual 或 hybrid 模式下可用。'));
         return;
       }
-      await handleVerify(projectPath);
+      await handleVerify(projectPath, options);
       break;
 
     default:
@@ -330,9 +331,12 @@ async function handleManifest(versionArg, options, projectPath) {
 }
 
 /**
- * /release verify
+ * /release verify [--artifact <path>]
+ *
+ * T13 (XSPEC-292): when --artifact is given, compute its SHA256 so verify
+ * actually CONSUMES the checksum recorded in the manifest, not just stores it.
  */
-async function handleVerify(projectPath) {
+async function handleVerify(projectPath, options = {}) {
   const manifestPath = join(projectPath, 'build-manifest.json');
 
   if (!existsSync(manifestPath)) {
@@ -350,17 +354,35 @@ async function handleVerify(projectPath) {
   }
   const currentCommit = getGitCommit();
 
-  const result = verifyManifest(manifest, currentCommit);
+  // Compute the artefact's checksum when a path is supplied.
+  let actualChecksum;
+  const artifactPath = options.artifact || null;
+  if (artifactPath) {
+    if (!existsSync(artifactPath)) {
+      console.log(chalk.red(`找不到 artifact：${artifactPath}`));
+      return;
+    }
+    actualChecksum = createHash('sha256').update(readFileSync(artifactPath)).digest('hex');
+  }
+
+  const result = verifyManifest(manifest, currentCommit, { actualChecksum });
 
   if (result.valid) {
     console.log(chalk.green('✓ Manifest 驗證通過'));
     console.log(chalk.gray(`  版本: ${manifest.version}`));
     console.log(chalk.gray(`  Commit: ${manifest.commit} (一致)`));
+    if (actualChecksum && manifest.checksum?.package) {
+      console.log(chalk.gray(`  Checksum: ${actualChecksum} (一致)`));
+    }
   } else {
     console.log(chalk.red('✗ Manifest 驗證失敗'));
     for (const err of result.errors) {
       console.log(chalk.red(`  - ${err}`));
     }
+  }
+
+  for (const w of result.warnings ?? []) {
+    console.log(chalk.yellow(`  ⚠ ${w}`));
   }
 
   // Show staging status
@@ -392,7 +414,7 @@ function showReleaseHelp(workflow) {
     console.log(chalk.gray('    deploy <env>          記錄部署紀錄'));
     console.log(chalk.gray('    deploy <env> --result  更新測試結果'));
     console.log(chalk.gray('    manifest              產生 build-manifest.json'));
-    console.log(chalk.gray('    verify                驗證 manifest 一致性'));
+    console.log(chalk.gray('    verify [--artifact <path>]  驗證 manifest 一致性（含 checksum 比對）'));
   } else {
     console.log(chalk.gray('  CI/CD 模式下，請使用 /release start 和 /release finish'));
     console.log(chalk.gray('  切換到手動模式: uds config --type release_mode'));
