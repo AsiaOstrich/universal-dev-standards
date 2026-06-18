@@ -7,8 +7,8 @@ standard:
   description: Skill 必有 Standard 作為錨點，Standard 可無 Skill；定期識別孤兒 Skill
 
   meta:
-    version: "1.0.0"
-    updated: "2026-04-17"
+    version: "1.1.0"
+    updated: "2026-06-19"
     status: trial
     since: "2026-04-17"
     expires: "2026-10-17"
@@ -76,6 +76,36 @@ standard:
     step_5: "若 anchor_standard 指向不存在的 id 或已 Archived 的 id → 錯誤"
     output: "alignment-report.json / alignment-report.md（含 orphan 清單、broken anchor 清單）"
 
+  content_coverage_audit:
+    phase: 2
+    source: "XSPEC-292 T4（3 個真實 skill↔standard 內容漂移）"
+    script: "scripts/check-skill-content-coverage.ts (npm check:content-coverage)"
+    rationale: >
+      Phase 1 只證明 anchor 存在（防 orphan）。Skill 可帶有效 anchor_standard 仍漂移：
+      標準新增 mandatory 段落、bump 版本、或成長到遠超 Skill 的陳舊摘要。
+      Phase 2 把對齊從「錨點存在」延伸到「錨點內容同步」。
+    checks:
+      version_skew:
+        code: CONTENT-001
+        rule: "Skill **Version** < anchor 標準版本（取自 core/<id>.md）→ stale"
+        unversioned: "Skill 無版本 → CONTENT-001A（advisory only，永不阻擋）"
+      mandatory_keyword:
+        code: CONTENT-002
+        rule: "標準在 .ai.yaml 宣告的 audit.mandatory_keywords 未出現於 Skill 內文 → 報缺"
+        anti_hallucination: "審核器不臆測 mandatory，只讀標準作者明文宣告的清單"
+      size_ratio:
+        code: CONTENT-003
+        rule: "Skill 行數 / 標準行數 < audit.min_skill_ratio（預設 0.15）→ underspecified"
+    audit_declaration:
+      where: "標準 .ai.yaml 的頂層 audit: 或 standard.audit:（兩種 schema 皆支援）"
+      fields:
+        mandatory_keywords: "string[]（case-insensitive 子字串比對 Skill 內文）"
+        min_skill_ratio: "number（選填，覆寫預設 0.15）"
+    enforcement:
+      default: "advisory（列出 finding，exit 0，讓 audit 先落地）"
+      strict: "--strict 將 CONTENT-001/002/003 升為阻擋（exit 1）；CONTENT-001A 永不阻擋"
+      rollout: "先 advisory 進 CI 觀察 → 漂移清零後 pre-release gate 加 --strict"
+
   scenarios:
     scenario_1_skill_with_valid_anchor:
       given: "retry-assistant Skill frontmatter 含 anchor_standard: retry-standards"
@@ -111,6 +141,11 @@ standard:
     ALIGN-002: "BROKEN_ANCHOR — anchor_standard 指向不存在的 standard id"
     ALIGN-003: "ARCHIVED_ANCHOR — anchor_standard 指向已 Archived 的標準"
     ALIGN-004: "UTILITY_MISSING_REASON — utility Skill 標 anchor_standard=none 但缺 utility_reason"
+    CONTENT-001: "VERSION_SKEW — Skill 版本 < anchor 標準版本（stale；blocking under --strict）"
+    CONTENT-001A: "SKILL_UNVERSIONED — Skill 無版本，無法比對（advisory only）"
+    CONTENT-002: "MISSING_MANDATORY_KEYWORD — 標準宣告的 mandatory keyword 未出現於 Skill"
+    CONTENT-003: "UNDERSPECIFIED — Skill 規模遠小於 anchor 標準"
+    CONTENT-000: "ANCHOR_NOT_IN_REGISTRY — 內容覆蓋無法評估（broken anchor 屬 ALIGN-002）"
 
   integration_points:
     - "standard-admission-criteria.ai.yaml — orphan Skill 促成新 Standard 申請"

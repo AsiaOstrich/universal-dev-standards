@@ -1,6 +1,9 @@
 # Skill-Standard Alignment Check
 
 > **Source**: XSPEC-070 | **Driven by**: DEC-043 Wave 1 Governance Meta Pack | **Status**: Trial (2026-04-17 ~ 2026-10-17)
+>
+> **Phase 1**（anchor 存在性 / orphan 偵測）— Implemented。
+> **Phase 2**（content-coverage audit：版本偏移 / mandatory keyword / 規模落差）— Implemented（XSPEC-292 T4，`scripts/check-skill-content-coverage.ts`）。
 
 ## Overview
 
@@ -57,6 +60,45 @@ Skill 必有 Standard 作為錨點，Standard 可無 Skill；定期識別孤兒 
 5. 驗證 anchor 指向存在且非 Archived 的 id
 6. 產出 `alignment-report.json` / `alignment-report.md`
 
+## Content-Coverage Audit（Phase 2）
+
+> **Driven by**: XSPEC-292 T4（3 個真實 skill↔standard 內容漂移）。Phase 1 只證明 anchor
+> *存在*（防 orphan）；一個 Skill 可帶著有效 `anchor_standard` 仍漂移——標準新增 mandatory
+> 段落、bump 版本、或成長到遠超 Skill 的陳舊摘要。Phase 2 把對齊從「錨點存在」延伸到
+> 「錨點內容同步」。
+
+每個 `(skill, anchor_standard)` 配對執行三項內容層檢查（預設 advisory，`--strict` 轉硬閘）：
+
+| 檢查 | 錯誤碼 | 觸發條件 |
+|------|--------|----------|
+| **版本偏移** | `CONTENT-001` | Skill `**Version**` < anchor 標準版本（取自 `core/<id>.md`）。Skill 無版本則記 `CONTENT-001A`（advisory，永不阻擋）。 |
+| **mandatory keyword 覆蓋** | `CONTENT-002` | 標準在 `.ai.yaml` 宣告為 mandatory 的關鍵字（`audit.mandatory_keywords`）未出現在 Skill 內文。 |
+| **規模落差** | `CONTENT-003` | Skill 行數 / 標準行數 < `audit.min_skill_ratio`（預設 0.15），即 underspecified 骨架。 |
+
+### Audit 宣告（標準側 opt-in）
+
+mandatory keyword 與規模門檻由**標準自己**在其 `.ai.yaml` 宣告（反幻覺：審核器不臆測什麼是
+mandatory，只讀標準作者明文宣告的清單）。支援兩種 schema 位置：頂層 `audit:` 或 `standard.audit:`。
+
+```yaml
+# ai/standards/logging.ai.yaml
+audit:
+  mandatory_keywords:    # logging 的 9 canonical events
+    - application_startup
+    - request_received
+    # ...
+  min_skill_ratio: 0.15  # 選填，覆寫預設
+```
+
+### Advisory → Strict 升級路徑
+
+- 預設 **advisory**：列出所有 finding，exit 0，讓 audit 能在所有漂移修完前先落地。
+- `--strict`：將 `CONTENT-001/002/003` 升為阻擋失敗（exit 1）；`CONTENT-001A`（無版本）始終
+  資訊性、永不阻擋。
+- 建議：先以 advisory 進 CI 觀察 → 漂移清零後於 pre-release gate 加 `--strict`。
+
+腳本：`scripts/check-skill-content-coverage.ts`（npm script `check:content-coverage`）。
+
 ## Usage Examples
 
 - **Scenario 1 — 健康對齊**：`retry-assistant` frontmatter 含 `anchor_standard: retry-standards`，指向 Trial 狀態標準 → 檢查通過
@@ -65,14 +107,25 @@ Skill 必有 Standard 作為錨點，Standard 可無 Skill；定期識別孤兒 
 
 ## Error Codes
 
+Phase 1（anchor 存在性）：
+
 - `ALIGN-001` — `SKILL_MISSING_ANCHOR`
 - `ALIGN-002` — `BROKEN_ANCHOR`（指向不存在的 standard id）
 - `ALIGN-003` — `ARCHIVED_ANCHOR`（指向已 Archived 的標準）
 - `ALIGN-004` — `UTILITY_MISSING_REASON`
 
+Phase 2（內容覆蓋）：
+
+- `CONTENT-001` — `VERSION_SKEW`（Skill 版本 < anchor 標準版本，stale；blocking under `--strict`）
+- `CONTENT-001A` — `SKILL_UNVERSIONED`（Skill 無版本，無法比對；advisory only）
+- `CONTENT-002` — `MISSING_MANDATORY_KEYWORD`（標準宣告的 mandatory keyword 未出現於 Skill）
+- `CONTENT-003` — `UNDERSPECIFIED`（Skill 規模遠小於 anchor 標準）
+- `CONTENT-000` — `ANCHOR_NOT_IN_REGISTRY`（內容覆蓋無法評估；broken anchor 屬 ALIGN-002 領域）
+
 ## References
 
 - AI-optimized: [ai/standards/skill-standard-alignment-check.ai.yaml](../ai/standards/skill-standard-alignment-check.ai.yaml)
+- Phase 2 audit 腳本: `scripts/check-skill-content-coverage.ts`（npm `check:content-coverage`）
 - XSPEC-070: DEC-043 Wave 1 Governance Meta Pack 跨專案規格
 - DEC-043: UDS 覆蓋完整性路線圖（XSPEC-063~069 目的之一即清空本標準識別的 orphan 清單）
 - Related: `standard-admission-criteria`, `standard-lifecycle-management`
