@@ -4,7 +4,7 @@
 id: reverse-engineering
 meta:
   version: "1.1.0"
-  updated: "2026-05-13"
+  updated: "2026-06-18"
   source: core/reverse-engineering-standards.md
   description: Standards for reverse engineering code into structured specifications
 
@@ -12,17 +12,6 @@ meta:
 workflow:
   name: Reverse Engineering Pipeline
   stages:
-    - stage: ROUTE_DRIVEN_INVENTORY
-      description: Build feature inventory starting from routing layer, not filesystem
-      output: Route-anchored inventory with verified file paths
-      certainty: "[Confirmed]"
-      actions:
-        - Identify routing entry points (routes.php, web.php, api.php, Program.cs, router configs)
-        - Trace each route to its dispatcher (Controller@method, handler function)
-        - Locate the handler file and verify its actual filesystem path
-        - Flag any route that dispatches to a missing or mislocated file
-      note: "NEVER start from filesystem glob (e.g. find . -name '*.php'). Files may exist without routes; routes may point to moved files."
-
     - stage: CODE_SCAN
       description: Analyze code structure, APIs, data models
       output: Technical inventory
@@ -150,6 +139,19 @@ extraction_capability:
       reason: Often implicit
       required_action: Discuss with architects
 
+# Failure handling (failure -> escalate -> re-verify)
+failure_handling:
+  description: Inputs that cannot be analyzed safely must escalate, never ship as authoritative
+  matrix:
+    - condition: Parse failure (unsupported language / broken syntax tree)
+      action: Mark [Unknown], report language/file, escalate to a human domain expert, emit no inferred behavior
+    - condition: High unknown ratio (> 50% of behaviors [Unknown])
+      action: Halt spec finalization, require SME interview to fill [Unknown] first; never ship a majority-guessed spec
+    - condition: Contradicted inference (code contradicts an inferred behavior)
+      action: Downgrade to [Assumption], escalate to code owner; never record as [Confirmed]
+    - condition: Test-analysis failure (tests cannot be run/parsed)
+      action: Fall back to static analysis; mark behaviors [Inferred], never [Confirmed]
+
 # Anti-Patterns
 anti_patterns:
   code_analysis:
@@ -172,11 +174,6 @@ anti_patterns:
     - name: Skipping Human Review
       impact: Incomplete spec
       fix: Always require review phase
-
-    - name: Filesystem-First Inventory
-      impact: Path mismatches silently enter the inventory; routes to moved files go undetected
-      fix: Always start from the routing layer (routes → dispatcher → handler file → verify path)
-      context: migration projects
 
   process:
     - name: Generating for Unread Code
@@ -218,6 +215,10 @@ integration:
 
 # Rules for AI
 rules:
+  - id: re-fail-escalate-low-confidence
+    trigger: parse failure or above-threshold [Unknown] ratio
+    instruction: Block spec finalization and escalate to a human; never present a sub-threshold-confidence spec as authoritative
+    priority: required
   - id: read-before-claim
     trigger: starting reverse engineering
     instruction: Read ALL relevant files before making any claims about code behavior
@@ -267,16 +268,6 @@ rules:
     trigger: making inferences
     instruction: Use [Inferred] tag and add "Verify with stakeholders" note
     priority: recommended
-
-  - id: route-driven-inventory
-    trigger: building feature inventory for migration project
-    instruction: Start from routing/dispatch layer, not filesystem. Trace router → dispatcher → handler file, then verify the handler path matches the filesystem.
-    priority: required
-
-  - id: bidirectional-verification
-    trigger: completing source-to-target mapping
-    instruction: After building source→target mapping, perform a target→source sweep. List all target endpoints/workers/handlers; confirm each maps to a known source item or is explicitly labelled as new (🆕). Any unmapped, unlabelled target item is a [GAP] requiring human review.
-    priority: required
 
 # Quick Reference
 quick_reference:

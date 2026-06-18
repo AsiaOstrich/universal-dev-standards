@@ -3,8 +3,8 @@
 
 id: reverse-engineering
 meta:
-  version: "1.0.0"
-  updated: "2026-01-19"
+  version: "1.1.0"
+  updated: "2026-06-18"
   source: core/reverse-engineering-standards.md
   description: Standards for reverse engineering code into structured specifications
 
@@ -139,6 +139,19 @@ extraction_capability:
       reason: Often implicit
       required_action: Discuss with architects
 
+# Failure handling (failure -> escalate -> re-verify)
+failure_handling:
+  description: Inputs that cannot be analyzed safely must escalate, never ship as authoritative
+  matrix:
+    - condition: Parse failure (unsupported language / broken syntax tree)
+      action: Mark [Unknown], report language/file, escalate to a human domain expert, emit no inferred behavior
+    - condition: High unknown ratio (> 50% of behaviors [Unknown])
+      action: Halt spec finalization, require SME interview to fill [Unknown] first; never ship a majority-guessed spec
+    - condition: Contradicted inference (code contradicts an inferred behavior)
+      action: Downgrade to [Assumption], escalate to code owner; never record as [Confirmed]
+    - condition: Test-analysis failure (tests cannot be run/parsed)
+      action: Fall back to static analysis; mark behaviors [Inferred], never [Confirmed]
+
 # Anti-Patterns
 anti_patterns:
   code_analysis:
@@ -202,6 +215,10 @@ integration:
 
 # Rules for AI
 rules:
+  - id: re-fail-escalate-low-confidence
+    trigger: parse failure or above-threshold [Unknown] ratio
+    instruction: Block spec finalization and escalate to a human; never present a sub-threshold-confidence spec as authoritative
+    priority: required
   - id: read-before-claim
     trigger: starting reverse engineering
     instruction: Read ALL relevant files before making any claims about code behavior

@@ -1,6 +1,6 @@
 # Reverse Engineering Standards | 反向工程標準
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Last Updated**: 2026-01-19
 **Applicability**: All projects requiring code-to-specification transformation
 **Scope**: uds-specific
@@ -300,6 +300,26 @@ Use reverse-engineered specifications to identify test coverage gaps:
 
 ---
 
+## Failure Handling & Escalation
+
+Reverse engineering infers intent from existing code; some inputs cannot be
+analyzed safely. This section defines the failure → escalate → re-verify path so
+a low-confidence or unparseable input never produces a spec that looks
+authoritative.
+
+| Condition | Trigger | Action | Re-verify |
+|-----------|---------|--------|-----------|
+| **Parse failure** | Source cannot be parsed (unsupported language, broken syntax tree) | Mark the unit `[Unknown]` and report the language/file; escalate to a human domain expert. Emit no inferred behavior for it. | Source parses after tooling/fix |
+| **High unknown ratio** | `[Unknown]` items exceed the confidence threshold (default > 50% of behaviors) | Halt spec finalization; require a subject-matter-expert interview to fill `[Unknown]` items first. Do not ship a majority-guessed spec. | Unknown ratio below threshold |
+| **Contradicted inference** | Code contradicts a previously inferred behavior | Downgrade the item to `[Assumption]` and escalate to the code owner; never record a contradicted inference as `[Confirmed]`. | Owner confirms or corrects |
+| **Test-analysis failure** | Existing tests cannot be run/parsed for behavior extraction | Fall back to static analysis only; mark affected behaviors `[Inferred]` (lower certainty), never `[Confirmed]`. | — |
+
+**Rule RE-FAIL-001 (Required)**: A parse failure or an above-threshold
+`[Unknown]` ratio MUST block spec finalization and escalate to a human — never
+present a sub-threshold-confidence spec as authoritative.
+
+---
+
 ## Anti-Patterns to Avoid
 
 ### Code Analysis Anti-Patterns
@@ -383,6 +403,7 @@ Use reverse-engineered specifications to identify test coverage gaps:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-06-18 | Added: Failure Handling & Escalation section — parse failure / high-unknown-ratio / contradicted-inference escalation + rule RE-FAIL-001 (XSPEC-292 T7) |
 | 1.0.0 | 2026-01-19 | Initial release |
 
 ---
