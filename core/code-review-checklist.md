@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/code-review-checklist.md)
 
-**Version**: 1.3.0
-**Last Updated**: 2026-01-12
+**Version**: 1.4.0
+**Last Updated**: 2026-06-18
 **Applicability**: All software projects with code review processes
 **Scope**: universal
 **Industry Standards**: SWEBOK v4.0 Chapter 10
@@ -476,6 +476,13 @@ jobs:
 | 200-500 lines | 1 day | 2 days |
 | > 500 lines | 🚨 Consider splitting | 3+ days |
 
+> **Sources & configurability**: the size tiers reflect the empirically observed
+> drop in review effectiveness past ~200–400 changed lines (SmartBear/Cisco code
+> review study; [Google engineering practices](https://google.github.io/eng-practices/review/)).
+> The response-time targets are UDS defaults — replace them with your team's
+> review SLA. **Exception**: generated or vendored bulk changes (lockfiles,
+> migrations, snapshots) are reviewed by spot-check, not by line count.
+
 ### Reviewer Availability
 
 - Set "review hours" in team calendar
@@ -657,6 +664,7 @@ Comment Prefixes:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.4.0 | 2026-06-18 | Added: source + configurability note for PR-size/response-time thresholds (SmartBear/Cisco study, Google practices) + bulk-change exception (XSPEC-292 T8) |
 | 1.3.0 | 2026-01-12 | Added: Comprehensive Refactoring PRs section with pre-review checklist, review focus areas, large refactoring guidelines, red flags, and best practices |
 | 1.2.0 | 2026-01-05 | Added: SWEBOK v4.0 Chapter 10 (Software Quality) to References |
 | 1.1.0 | 2025-12-22 | Added: Alternative text labels section for review comments (Chinese label support) |
