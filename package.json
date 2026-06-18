@@ -27,7 +27,8 @@
     "check:skill-integrity": "tsx scripts/check-skill-structural-integrity.ts",
     "sdd:analyze": "tsx scripts/sdd-analyze.ts",
     "split-bilingual": "tsx scripts/split-bilingual.ts",
-    "check:naming-refs": "tsx scripts/check-naming-and-refs.ts"
+    "check:naming-refs": "tsx scripts/check-naming-and-refs.ts",
+    "sync:standard": "tsx scripts/sync-standard.ts"
   },
   "type": "module",
   "dependencies": {
