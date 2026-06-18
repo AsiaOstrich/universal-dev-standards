@@ -82,3 +82,11 @@ run_sync() {
   [[ "$output" == *"error-codes.ai.yaml"* ]]
   [[ "$output" != *"missing"* ]]
 }
+
+@test "parses **Version** inside a blockquote header (pii-classification)" {
+  # pii-classification uses '> **Version**: X | **Status**: ...' on one quoted
+  # line; the version parser must still read it (not report v(unknown), which
+  # would skip locale stale-marking).
+  run_sync --check pii-classification
+  [[ "$output" != *"v(unknown)"* ]]
+}

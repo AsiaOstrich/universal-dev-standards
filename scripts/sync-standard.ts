@@ -56,9 +56,14 @@ export function resolveStandardName(arg: string): string {
     .replace(/\.md$/, '');
 }
 
-/** Extract `**Version**: X.Y.Z` from a core standard's markdown. */
+/**
+ * Extract `**Version**: X.Y.Z` from a core standard's markdown. Accepts both the
+ * plain header and a blockquote single-line variant — `> **Version**: X.Y.Z |
+ * **Status**: ...` (used by e.g. pii-classification) — so the optional `> `
+ * prefix doesn't make the version read as unknown.
+ */
 export function parseCoreVersion(md: string): string | null {
-  const m = md.match(/^\*\*Version\*\*:\s*([0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9.]+)?)/m);
+  const m = md.match(/^>?\s*\*\*Version\*\*:\s*([0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9.]+)?)/m);
   return m ? m[1] : null;
 }
 
