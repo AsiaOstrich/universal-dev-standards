@@ -8,8 +8,8 @@ standard:
   description: Git Worktree 隔離開發標準
 
   meta:
-    version: "1.0.0"
-    updated: "2026-03-20"
+    version: "1.1.0"
+    updated: "2026-06-18"
     source: core/git-worktree.md
     description: Git Worktree 隔離開發與生命週期管理標準
     inspired_by: superpowers/using-git-worktrees
@@ -54,7 +54,7 @@ standard:
       priority: critical
     - id: GW-002
       trigger: "基準測試失敗"
-      action: "中止任務，報告環境問題"
+      action: "先重試至多 2 次（指數退避）以排除暫時性失敗；若持續失敗則中止任務並報告環境問題"
       priority: high
     - id: GW-003
       trigger: "異常退出"

@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/git-worktree.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-03-20
+**Version**: 1.1.0
+**Last Updated**: 2026-06-18
 **Applicability**: All projects using Git for version control
 **Scope**: universal
 **Inspired by**: [Superpowers](https://github.com/obra/superpowers) — using-git-worktrees (MIT)
@@ -59,7 +59,7 @@ pnpm install  # or npm install, pip install, etc.
 
 1. **Run the test suite** in the fresh worktree
 2. **Confirm all tests pass** — this verifies the environment is clean
-3. **If tests fail** — abort and report the environment issue (do not proceed)
+3. **If tests fail** — retry up to 2× with backoff to rule out transient flakes/timeouts; if they still fail, abort and report the environment issue (do not proceed)
 
 ```bash
 # Baseline verification
@@ -108,7 +108,7 @@ git worktree prune
 | ID | Trigger | Action | Priority |
 |----|---------|--------|----------|
 | GW-001 | Worktree directory not in `.gitignore` | Automatically add to `.gitignore` | Critical |
-| GW-002 | Baseline tests fail | Abort task, report environment issue | High |
+| GW-002 | Baseline tests fail | Retry up to 2× (exponential backoff) for transient failures; if persistent, abort task and report environment issue | High |
 | GW-003 | Abnormal exit during worktree operation | Ensure cleanup is executed | High |
 | GW-004 | Worktree exists after branch merge/delete | Prune stale worktree references | Medium |
 

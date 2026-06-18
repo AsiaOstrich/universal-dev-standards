@@ -3,7 +3,7 @@ source: ../../../core/git-worktree.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-03-24
-status: current
+status: stale
 ---
 
 > **语言**: [English](../../../core/git-worktree.md) | 简体中文
