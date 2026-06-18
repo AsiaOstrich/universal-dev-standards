@@ -4,7 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-06-10
 source_hash: fa53a8627f24
-status: current
+status: stale
 ---
 
 # 安全测试标准

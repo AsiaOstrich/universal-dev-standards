@@ -1,7 +1,7 @@
 # Security Testing Standards
 
-**Version**: 1.0.0
-**Last Updated**: 2026-05-04
+**Version**: 1.1.0
+**Last Updated**: 2026-06-19
 **Applicability**: All software projects
 **Scope**: universal
 **Industry Standards**: OWASP Testing Guide v4, NIST SP 800-115, ISO/IEC 27001
@@ -68,6 +68,30 @@ Tools: OWASP ZAP, Nuclei
 | High | Resolve before next release |
 | Moderate | Resolve within 14 days |
 | Low | Track; resolve in maintenance window |
+
+---
+
+## Finding Remediation Lifecycle
+
+The layers above detect findings and the CVE policy sets resolution SLAs, but a
+finding also needs an **owned lifecycle** — otherwise "block merge" is the only
+defined action and everything after detection is undefined. Every security
+finding (SAST / DAST / secret / dependency CVE) follows this state machine.
+
+| State | Meaning | Owner | Exit condition |
+|-------|---------|-------|----------------|
+| **Detected** | A layer (SAST/DAST/secret/audit) raised it | the scanning gate (CI) | severity assigned |
+| **Triaged** | Severity + validity confirmed (real vs false positive) | security reviewer | real → In-Progress; false-positive → `suppressed` with recorded justification |
+| **In-Progress** | Fix being implemented | code owner of the affected component | a fix is committed |
+| **Resolved** | Fix merged | code owner | the originating scan re-runs clean |
+| **Verified** | Re-scan confirms the finding is gone | the scanning gate (CI) | finding closed |
+
+- **Gate**: a Critical/High finding in any state other than `Verified` (or
+  `Triaged → suppressed` with justification) **blocks release**, consistent with
+  the CVE Response Policy SLAs above.
+- **No silent close**: a finding may only leave the lifecycle via `Verified`
+  (re-scan clean) or an explicit, recorded `suppressed` decision by the security
+  reviewer — never by deletion, nor by the fix author self-approving.
 
 ---
 
