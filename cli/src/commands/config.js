@@ -106,6 +106,30 @@ const VIBE_PRESETS = {
  * @param {string} value - Config value
  * @param {Object} options - Command options
  */
+/**
+ * Schema for known config keys (T12 input validation, XSPEC-292 §9).
+ * Unknown keys are allowed (forward-compatible); known keys are constrained.
+ */
+const CONFIG_SCHEMAS = {
+  'hitl.threshold': { type: 'number', enum: [0, 1, 2, 3, 4] },
+};
+
+/**
+ * Validate a config value against CONFIG_SCHEMAS.
+ * Returns an error message string, or null if valid / no schema.
+ */
+export function validateConfigValue(key, value) {
+  const schema = CONFIG_SCHEMAS[key];
+  if (!schema) return null;
+  if (schema.type === 'number' && typeof value !== 'number') {
+    return `${key} must be a number`;
+  }
+  if (schema.enum && !schema.enum.includes(value)) {
+    return `${key} must be one of: ${schema.enum.join(', ')}`;
+  }
+  return null;
+}
+
 export async function configCommand(action, key, value, options) {
   // Initialize config manager
   const currentConfig = config.init();
@@ -140,6 +164,13 @@ export async function configCommand(action, key, value, options) {
     if (value === 'true') typedValue = true;
     if (value === 'false') typedValue = false;
     if (!isNaN(Number(value))) typedValue = Number(value);
+
+    // T12 input validation: enforce schema for known config keys
+    const schemaError = validateConfigValue(key, typedValue);
+    if (schemaError) {
+      console.error(chalk.red(`Error: ${schemaError}`));
+      return;
+    }
 
     const scope = options.global ? 'global' : 'project';
     config.set(key, typedValue, scope);
