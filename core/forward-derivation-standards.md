@@ -1,6 +1,6 @@
 # Forward Derivation Standards | 正向推演標準
 
-**Version**: 1.2.0
+**Version**: 1.3.0
 **Last Updated**: 2026-03-18
 **Applicability**: All projects using Spec-Driven Development
 **Scope**: uds-specific
@@ -824,6 +824,34 @@ Forward derivation maps to the **DERIVE** stage in the [Pipeline Integration Sta
 
 ---
 
+## Failure Handling & Recovery
+
+Forward derivation defines several gates (AC parse, count verification, skeleton
+validation, human review). This section defines what happens when a gate
+**fails** — the failure → rollback → retry/escalate → re-verify path — so a
+failed derivation never silently emits partial or hallucinated output.
+
+### Failure → Recovery Matrix
+
+| Failure | Detected at | Recovery action | Re-verify |
+|---------|-------------|-----------------|-----------|
+| **Parse error** — an AC is not in a supported format (GWT / bullet) | DERIVE (parse AC) | Abort generation for that AC; report `file:line` and the expected format; emit no skeleton for it. Re-queue once the SPEC is fixed. | Parse succeeds on the corrected AC |
+| **AC count mismatch** — generated test count ≠ AC count | Count verification | **[Anti-hallucination violation]** Roll back the whole batch and regenerate under strict 1:1 mapping. Never add or delete tests to "make the count match" — that hides the hallucination. | Count check passes (tests = ACs) |
+| **Skeleton does not parse/compile** | Skeleton validation | Roll back the offending file; regenerate with the correct language template. On a second failure, mark the AC `[BLOCKED]` and escalate to a human. | File parses/compiles |
+| **Human review rejection** — reviewer flags wrong logic or unfilled `[TODO]` | Human review gate | Record the rejection reason; regenerate only the rejected items with that feedback as an added constraint. Never auto-approve. | Reviewer accepts |
+| **Missing source attribution** — output lacks `@SPEC-XXX` / `@AC-N` | Any stage | Block the transition into TDD RED; re-emit with attribution. | Every output carries attribution |
+
+### Recovery Rules
+
+| Rule | Description | Severity |
+|------|-------------|----------|
+| **FD-FAIL-001** | A gate failure MUST halt progression — never enter TDD RED with an unresolved failure. | Required |
+| **FD-FAIL-002** | A count mismatch is a hard rollback, not a reconciliation; adding or deleting tests to match the count is forbidden (it masks hallucination). | Required |
+| **FD-FAIL-003** | Automated retries are bounded (max 2, for transient or template errors); on exhaustion mark the AC `[BLOCKED]` and escalate to a human. | Required |
+| **FD-FAIL-004** | Every recovery path ends by re-verifying the gate it failed — recovery is incomplete until the original check passes. | Required |
+
+---
+
 ## Anti-Patterns to Avoid
 
 ### Generation Anti-Patterns
@@ -925,6 +953,7 @@ Forward derivation maps to the **DERIVE** stage in the [Pipeline Integration Sta
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-06-18 | Added: Failure Handling & Recovery section — failure→rollback→retry/escalate→re-verify matrix + recovery rules FD-FAIL-001..004 (XSPEC-292 T7) |
 | 1.2.0 | 2026-03-18 | Added: Pipeline Integration section — auto-TDD transition, pipeline hooks, auto-TDD entry workflow |
 | 1.1.0 | 2026-01-25 | Added: Contract output (contract.json), Schema output (schema.json), /derive-contracts command for verification artifact generation |
 | 1.0.0 | 2026-01-19 | Initial release |

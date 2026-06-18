@@ -3,7 +3,7 @@ source: ../../../core/forward-derivation-standards.md
 source_version: 1.2.0
 translation_version: 1.2.0
 last_synced: 2026-03-23
-status: current
+status: stale
 ---
 
 # 正向推演标准 | Forward Derivation Standards
