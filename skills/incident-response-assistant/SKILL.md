@@ -159,7 +159,7 @@ After `/incident` completes, the AI assistant should suggest:
 ## Reference | 參考
 
 - Core standard: [deployment-standards.md](../../core/deployment-standards.md)
-- Core standard: [logging.md](../../core/logging.md)
+- Core standard: [logging.md](../../core/logging-standards.md)
 
 ## Version History | 版本歷史
 

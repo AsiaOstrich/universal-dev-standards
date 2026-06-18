@@ -69,7 +69,7 @@ The comment is mandatory. PRs that update checksums without explanatory comments
 
 - [LLM Output Validation](llm-output-validation.md) — schema-level validation
 - [Adversarial Test](adversarial-test.md) — red-team corpus
-- [Testing Standards](testing.md) — overall testing pyramid
+- [Testing Standards](testing-standards.md) — overall testing pyramid
 
 
 **Scope**: universal

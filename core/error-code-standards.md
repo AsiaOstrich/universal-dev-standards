@@ -580,7 +580,7 @@ AUTH_VAL_001
 
 **Related Standards:**
 - [Logging Standards](logging-standards.md) - Error logging practices
-- [API Documentation Standards](api-documentation-standards.md) - Error response documentation
+- [API Documentation Standards](api-design-standards.md) - Error response documentation
 
 ---
 

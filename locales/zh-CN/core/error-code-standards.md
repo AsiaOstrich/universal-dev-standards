@@ -171,7 +171,7 @@ AUTH_VAL_001
 ## 相关标准
 
 - [日志标准](logging-standards.md) - 错误日志实践
-- [API 文档标准](api-documentation-standards.md) - 错误响应文档
+- [API 文档标准](api-design-standards.md) - 错误响应文档
 
 ---
 

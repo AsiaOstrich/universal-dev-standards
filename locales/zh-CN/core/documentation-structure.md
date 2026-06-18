@@ -291,7 +291,7 @@ graduated-to: path/to/formal-doc.md  # 若已毕业
 
 ## 相关标准
 
-- [API 文档标准](api-documentation-standards.md)
+- [API 文档标准](api-design-standards.md)
 - [变更日志标准](changelog-standards.md)
 - [规格驱动开发](spec-driven-development.md)
 

@@ -65,7 +65,7 @@ describe("PipelineBudgetConfig semantics", () => {
 ## Related Standards
 
 - [Mutation Testing Standards](mutation-testing.md) — constants without test coverage survive mutations
-- [Testing Standards](testing.md) — overall test pyramid
+- [Testing Standards](testing-standards.md) — overall test pyramid
 - [LLM Output Validation](llm-output-validation.md) — output-layer budget constraints
 
 

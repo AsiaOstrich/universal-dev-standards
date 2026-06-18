@@ -60,7 +60,7 @@ echo "=== PASS ==="
 
 ## Related Standards
 
-- [Testing Standards](testing.md) — overall test pyramid
+- [Testing Standards](testing-standards.md) — overall test pyramid
 - [Deployment Standards](deployment-standards.md) — deployment pipeline
 - [Performance Standards](performance-standards.md) — latency SLOs
 

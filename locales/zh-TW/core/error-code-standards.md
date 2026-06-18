@@ -579,7 +579,7 @@ AUTH_VAL_001
 
 **相關標準：**
 - [日誌標準](logging-standards.md) - 錯誤日誌實踐
-- [API 文件標準](api-documentation-standards.md) - 錯誤回應文件
+- [API 文件標準](api-design-standards.md) - 錯誤回應文件
 
 ---
 

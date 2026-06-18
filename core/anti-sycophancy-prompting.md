@@ -181,4 +181,4 @@ Then give your honest recommendation.
 ## Related Standards
 
 - [anti-hallucination.md](anti-hallucination.md) — Prevents fabrication; complements anti-sycophancy
-- [agent-epistemic-calibration.md](agent-epistemic-calibration.md) — Epistemic humility in agent design (where applicable)
+- [agent-epistemic-calibration.md](anti-hallucination.md) — Epistemic humility in agent design (where applicable)

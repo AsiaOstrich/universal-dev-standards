@@ -25,7 +25,7 @@ status: current
 本标准规范大型 markdown 编辑**commit 前**必跑 **self-review**，捕捉内部 cross-reference 不一致 — 这类问题惯性被内部推理忽略，但完整 re-read 一次即可 surface。
 
 **与其他标准的关系**：
-- 与 [code-review.md](code-review.md) 互补（后者涵盖代码变更）
+- 与 [code-review.md](code-review-checklist.md) 互补（后者涵盖代码变更）
 - 与 [documentation-writing-standards.md](documentation-writing-standards.md) 互补（后者涵盖内容创作）
 - 本标准专注于**大型 markdown 文档**（DEC、ADR、XSPEC、SKILL.md、规格文档、runbook 等）的**编辑后验证**
 
@@ -126,7 +126,7 @@ Self-review (protocol v1.0.0): N issues found, M applied in same commit / 0 foun
 
 | 实践 | 涵盖面向 | 触发时机 |
 |---|---|---|
-| **Code Review**（[code-review.md](code-review.md)）| 代码正确性、设计、安全 | code PR merge 前 |
+| **Code Review**（[code-review.md](code-review-checklist.md)）| 代码正确性、设计、安全 | code PR merge 前 |
 | **内容自我审计**（如 eval-source skill 7 题）| 内容完整性（是否包含所有必要 section）| 每次文档产出 |
 | **Self-Review Protocol**（本标准）| 内部 cross-reference 一致性（形式，非内容）| 大型 markdown 编辑后、commit 前 |
 | **同侪审查** | 独立视角、blast radius 评估 | 重要变更 |

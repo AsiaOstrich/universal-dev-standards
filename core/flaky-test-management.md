@@ -69,7 +69,7 @@ export default defineConfig({
 
 ## Related Standards
 
-- [Testing Standards](testing.md) — overall test pyramid
+- [Testing Standards](testing-standards.md) — overall test pyramid
 - [Test Governance Standards](test-governance.md) — CI policies
 
 

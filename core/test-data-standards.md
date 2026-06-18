@@ -296,8 +296,8 @@ ID?      → Hash / UUID / sequential
 
 - [Testing Standards](testing-standards.md) — Test levels, coverage, and quality requirements
 - [Security Standards](security-standards.md) — Data protection and PII handling
-- [Unit Testing Standards](unit-testing-standards.md) — Unit test patterns and best practices
-- [Integration Testing Standards](integration-testing-standards.md) — Integration test strategies
+- [Unit Testing Standards](../options/testing/unit-testing.md) — Unit test patterns and best practices
+- [Integration Testing Standards](../options/testing/integration-testing.md) — Integration test strategies
 
 ---
 

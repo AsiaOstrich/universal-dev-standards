@@ -16,7 +16,7 @@
 This standard mandates a **self-review pass** on large markdown edits before commit, to catch internal cross-reference inconsistencies that internal reasoning routinely misses.
 
 **Relationship to Other Standards**:
-- Complements [code-review.md](code-review.md) which covers code changes
+- Complements [code-review.md](code-review-checklist.md) which covers code changes
 - Complements [documentation-writing-standards.md](documentation-writing-standards.md) which covers content creation
 - This standard focuses on **post-edit verification** of large markdown documents (DECs, ADRs, XSPECs, SKILL.md, spec documents, runbooks)
 
@@ -119,7 +119,7 @@ Self-review (protocol v1.0.0): N issues found, M applied in same commit / 0 foun
 
 | Practice | Covers | Trigger |
 |---|---|---|
-| **Code Review** ([code-review.md](code-review.md)) | Code correctness, design, security | Before merging code PR |
+| **Code Review** ([code-review.md](code-review-checklist.md)) | Code correctness, design, security | Before merging code PR |
 | **Content Self-Audit** (e.g., eval-source skill's 7-question audit) | Content completeness (did we include all required sections?) | Each artefact creation |
 | **Self-Review Protocol** (this standard) | Internal cross-reference consistency (form, not content) | After large markdown edit, before commit |
 | **Peer Review** | Independent perspective, blast radius assessment | Significant changes |

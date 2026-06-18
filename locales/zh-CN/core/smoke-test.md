@@ -71,7 +71,7 @@ echo "=== PASS ==="
 
 ## 相关标准
 
-- [Testing Standards](testing.md) — 整体测试金字塔
+- [Testing Standards](testing-standards.md) — 整体测试金字塔
 - [Deployment Standards](deployment-standards.md) — 部署流水线
 - [Performance Standards](performance-standards.md) — 延迟 SLO
 

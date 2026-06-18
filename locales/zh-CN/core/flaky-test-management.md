@@ -80,7 +80,7 @@ export default defineConfig({
 
 ## 相关标准
 
-- [Testing Standards](testing.md) — 整体测试金字塔
+- [Testing Standards](testing-standards.md) — 整体测试金字塔
 - [Test Governance Standards](test-governance.md) — CI 政策
 
 
