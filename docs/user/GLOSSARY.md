@@ -113,6 +113,69 @@ _All new specs are created as XSPECs per the centralization policy (2026-04-22).
 
 ---
 
+## Terminology Normalization (Canonical Forms)
+
+> Single source of truth for terms and symbols that recur across standards
+> (XSPEC-292 T6). These tables make the **existing, intentional** conventions
+> explicit so new standards align instead of drifting. They do **not** rename
+> anything — most apparent "dual terminology" is layer-appropriate by design
+> (e.g. `createdAt` in a JSON body vs `created_at` in a database column is
+> correct, not a conflict).
+
+### Field naming by layer
+
+The same concept is spelled per its layer's convention. Crossing the layer
+boundary is a translation, not an inconsistency.
+
+| Layer | Convention | Examples |
+|-------|-----------|----------|
+| Structured logs (JSON) | `snake_case` | `trace_id`, `request_id`, `http_method`, `db_table` |
+| API JSON body | `camelCase` | `createdAt`, `firstName`, `httpStatus` |
+| API query parameters | `snake_case` | `?sort_by=created_at` |
+| URL path segments | `kebab-case` | `/user-profiles` |
+| HTTP header names | `lowercase-hyphen` | `x-request-id`, `traceparent` |
+| Database tables / columns | `snake_case` (singular table) | `user_account`, `created_at` |
+| Code identifiers | language-native | `camelCase` (JS/TS), `snake_case` (Python/Go) |
+
+_Standards: `logging-standards`, `api-design-standards`, `database-standards`._
+
+### Test-level abbreviations
+
+Uppercase = the term; lowercase = an environment identifier. `IT` always means
+Integration Testing, never Information Technology.
+
+| Abbr | Expansion | Typical environment |
+|------|-----------|---------------------|
+| `UT` | Unit Testing | `local` |
+| `IT` | Integration Testing | `local` / `ci` |
+| `ST` | System Testing | `ci` / `sit` |
+| `E2E` | End-to-End Testing | `staging` |
+| `AT` | Acceptance Testing | — |
+| `UAT` | User Acceptance Testing | — |
+| `SIT` | System Integration Testing (the term); `sit` is the SIT **environment** id | `ci` |
+
+_Standards: `testing` (testing-standards), `test-governance`._
+
+### Status: words vs symbols
+
+The **word** is the canonical/machine-readable value; the **symbol** is an
+optional visual rendering. They are paired, not competing.
+
+| Canonical word | Symbol | Domain |
+|----------------|--------|--------|
+| `covered` | ✅ | AC / test coverage |
+| `partial` | ⚠️ | AC / test coverage |
+| `uncovered` | ❌ | AC / test coverage (test gap) |
+| `not_implemented` | 🚫 | AC (code gap, not a test gap) |
+
+_Domain-specific lifecycles stay separate state machines — ADR
+(`Proposed → Accepted → Deprecated → Superseded`), document lifecycle
+(`draft → active → archived`), and AC coverage above are distinct and are **not**
+merged. Standards: `acceptance-criteria-traceability`, `adr-standards`,
+`documentation-structure`._
+
+---
+
 ## See Also
 
 - [FAQ.md](FAQ.md) — Common questions
