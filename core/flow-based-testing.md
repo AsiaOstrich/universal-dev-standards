@@ -1,7 +1,7 @@
 # Flow-Based Testing
 
-**Version**: 1.3.0
-**Last Updated**: 2026-05-05
+**Version**: 1.3.1
+**Last Updated**: 2026-06-18
 **Applicability**: All software projects with multi-step workflows
 **Scope**: universal
 **Industry Standards**: ISO/IEC/IEEE 29119-4 (Test Techniques), ISTQB Foundation Syllabus
@@ -111,7 +111,7 @@ describe("Flow Branch: Quota exceeded path", () => {
 
 ## Relationship to Other Standards
 
-- **test-completeness-dimensions**: Dimensions 9 (Flow Completeness) and 10 (Branch Coverage) are defined here
+- **test-completeness-dimensions**: defines **8** dimensions. Flow Completeness and Branch Coverage (decision-table) are detailed in THIS standard — they are not numbered dimensions 9/10 there (which has only 8)
 - **behavior-driven-development**: BDD Scenario Outline tables map to decision table expansion
 - **mock-boundary**: Flow tests must respect mock boundary rules (no mocking own module logic)
 - **e2e-testing**: Journey tests run at ST or E2E level; flow tests can run at IT level with real DB

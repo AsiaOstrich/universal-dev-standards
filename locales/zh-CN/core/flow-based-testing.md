@@ -4,7 +4,7 @@ source_version: 1.3.0
 translation_version: 1.3.0
 last_synced: 2026-06-10
 source_hash: a8838e95f84e
-status: current
+status: stale
 ---
 
 # 流程式测试（Flow-Based Testing）
