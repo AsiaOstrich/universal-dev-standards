@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/browser-compatibility-standards.md)
 
-**Version**: 1.0.1
+**Version**: 1.0.2
 **Last Updated**: 2026-06-18
 **Applicability**: Frontend projects (web apps, progressive web apps, web components)
 **Scope**: universal
@@ -27,6 +27,16 @@ Browser compatibility issues are among the most user-visible defects, yet they a
 | **Tier-1** (Supported) | Full feature parity + automated test coverage | 100% pass — blocks release if any test fails |
 | **Tier-2** (Partial support) | Best-effort; major flows must work | ≥ 95% pass — WARN if below, FAIL if < 90% |
 | **Tier-3** (Best effort) | Not officially supported; defects logged but not blocking | Advisory only |
+
+> **Tier-2 `≥95%` / `<90%` thresholds — basis & configurability**: these are UDS
+> defaults, configurable per project. Tier-2 is "best-effort, major flows must
+> work", so the gate tolerates a small tail of non-critical failures: `≥95%` =
+> healthy (WARN below, to prompt triage); `<90%` = material regression (FAIL).
+> Tune them to your target-market browser coverage — e.g. derive the Tier-2
+> browser set and the pass bar from your Browserslist market-share config
+> (`> 0.5%` etc.). **Exception**: when the failing Tier-2 cases are all
+> non-critical flows (logged as Tier-3-style defects), a release owner may
+> override the WARN/FAIL with a recorded justification.
 
 ---
 
@@ -210,6 +220,8 @@ last 2 ChromeAndroid versions
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.0.2 | 2026-06-18 | Added: basis + configurability + exception note for Tier-2 95%/90% thresholds (XSPEC-292 T8 / XSPEC-293 AC-293-2) |
+| 1.0.1 | 2026-06-18 | Added: Owning Spec pointer → XSPEC-293 (XSPEC-291 §11) |
 | 1.0.0 | 2026-05-05 | Initial release: Tier-1/2/3 matrix, Playwright config, cloud testing, release gate criteria |
 
 ---
