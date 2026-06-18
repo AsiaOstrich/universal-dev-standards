@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/accessibility-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-29
+**Version**: 1.1.0
+**Last Updated**: 2026-06-18
 **Applicability**: All software projects with user interfaces
 **Scope**: universal
 **Industry Standards**: WCAG 2.1/2.2, WAI-ARIA 1.2, Section 508
@@ -213,8 +213,11 @@ This standard defines comprehensive guidelines for creating accessible software 
 
 ```javascript
 // ✅ Good: Session timeout warning
-const TIMEOUT_WARNING = 5 * 60 * 1000; // 5 minutes before timeout
-const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+// A warning + a way to extend the session is REQUIRED by WCAG 2.2.1 (Timing
+// Adjustable). The specific durations are UDS defaults and are configurable:
+// 30 min idle aligns with NIST SP 800-63B AAL2 reauthentication guidance.
+const TIMEOUT_WARNING = 5 * 60 * 1000; // 5 min warning before timeout
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 min idle (UDS default; configurable)
 
 setTimeout(() => {
   const extend = confirm('Your session will expire in 5 minutes. Extend?');
@@ -909,6 +912,7 @@ The a11y gate contributes to the Release Readiness Sign-off as:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-06-18 | Added: source + configurable note for session-timeout durations (WCAG 2.2.1 Timing Adjustable; NIST SP 800-63B AAL2) (XSPEC-292 T8) |
 | 1.0.0 | 2026-01-29 | Initial release: WCAG 2.1 coverage, POUR principles, ARIA guidelines, keyboard navigation, forms, testing |
 
 ---
