@@ -1,6 +1,6 @@
 ---
 name: docgen
-scope: uds-specific
+scope: universal
 description: "[UDS] Generate usage documentation from project sources"
 allowed-tools: Read, Write, Grep, Glob, Bash(*)
 argument-hint: "[config file | 設定檔]"

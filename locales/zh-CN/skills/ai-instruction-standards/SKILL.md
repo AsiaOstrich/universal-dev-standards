@@ -216,7 +216,7 @@ project/
 
 ## Next Steps Guidance
 
-After `/ai-instructions` completes, suggest:
+After `/ai-instruction-standards` completes, suggest:
 
 > - Create or update project's `CLAUDE.md` / `AGENTS.md` ⭐ **Recommended** — Apply standards immediately
 > - Run `/ai-friendly-architecture` to optimize AI collaboration at the architecture level

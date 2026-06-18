@@ -5,7 +5,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-05
 status: current
-scope: uds-specific
+scope: universal
 description: "[UDS] 設計 AI 友善架構，包含明確模式、分層文件和語義邊界"
 ---
 
@@ -226,7 +226,7 @@ After `/ai-friendly-architecture` completes, the AI assistant should suggest:
 > **AI 友善架構指南已掌握。建議下一步 / AI-friendly architecture guide understood. Suggested next steps:**
 > - 執行 `/sdd` 將 AI 友善架構設計納入正式規格 ⭐ **Recommended / 推薦** — 確保架構決策有規格追蹤 / Ensure architecture decisions are tracked in specs
 > - 建立 `.ai-context.yaml` 和 `QUICK-REF.md` — 立即實作 AI 友善結構 / Implement AI-friendly structure immediately
-> - 執行 `/ai-instructions` 更新 CLAUDE.md 以反映架構配置 — 讓 AI 指令檔案與架構保持同步 / Keep AI instruction files in sync with architecture
+> - 執行 `/ai-instruction-standards` 更新 CLAUDE.md 以反映架構配置 — 讓 AI 指令檔案與架構保持同步 / Keep AI instruction files in sync with architecture
 
 ---
 
