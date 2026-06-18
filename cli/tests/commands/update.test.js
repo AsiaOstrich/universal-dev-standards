@@ -1190,4 +1190,75 @@ describe('Update Command', () => {
       expect(testManifest.integrationBlockHashes).toBeUndefined();
     });
   });
+
+  // XSPEC-292 §9.2 (T11): transactional integrity — a partial failure must
+  // NOT be recorded as a completed update. Before the fix, update.js bumped
+  // manifest.upstream.version to the latest version and printed "success" even
+  // when copyStandard() failed for some files, so the next `uds update`
+  // believed the project was already up to date and never retried.
+  describe('T11: partial failure must not record completion', () => {
+    afterEach(() => {
+      // copyStandard impl is set at module-mock level and survives clearAllMocks;
+      // restore the default success behaviour so later suites are unaffected.
+      copyStandard.mockReturnValue({ success: true, error: null, path: '/test/path' });
+    });
+
+    const partialFailureManifest = () => ({
+      upstream: { version: '2.0.0' },
+      standards: ['core/test.md'],
+      extensions: [],
+      integrations: [],
+      skills: { installed: false }
+    });
+
+    it('does not advance manifest upstream.version when a standard copy fails', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue(partialFailureManifest());
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.0.0' },
+        skills: { version: '1.0.0' }
+      });
+      copyStandard.mockReturnValue({ success: false, error: 'EPERM: operation not permitted' });
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      expect(writeManifest).toHaveBeenCalled();
+      // EVERY manifest write during a partial failure must keep the OLD version.
+      for (const call of writeManifest.mock.calls) {
+        expect(call[0].upstream.version).toBe('2.0.0');
+      }
+    });
+
+    it('exits non-zero and does not claim success on a partial update', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue(partialFailureManifest());
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.0.0' },
+        skills: { version: '1.0.0' }
+      });
+      copyStandard.mockReturnValue({ success: false, error: 'EPERM' });
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      expect(exitSpy).toHaveBeenCalledWith(1);
+      const output = consoleLogs.join('\n');
+      expect(output).not.toContain('Standards updated successfully');
+    });
+
+    it('still advances version and exits 0 on a clean update (no regression)', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue(partialFailureManifest());
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.0.0' },
+        skills: { version: '1.0.0' }
+      });
+      copyStandard.mockReturnValue({ success: true, error: null, path: '/test/path' });
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      expect(exitSpy).toHaveBeenCalledWith(0);
+      const versionWrites = writeManifest.mock.calls.map(c => c[0].upstream.version);
+      expect(versionWrites).toContain('3.0.0');
+    });
+  });
 });

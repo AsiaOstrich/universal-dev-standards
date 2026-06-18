@@ -808,9 +808,18 @@ export async function updateCommand(options) {
   }
 
   // Update manifest
+  // T11 (XSPEC-292 §9.2): never record a partial failure as a completed update.
+  // If any standard/extension/integration copy failed, KEEP the previous
+  // upstream.version (and installed date) so that re-running `uds update`
+  // retries the failed files instead of treating the project as already up to
+  // date. The manifest is still written so that hash/migration bookkeeping for
+  // the files that DID succeed is persisted.
+  const updateIncomplete = results.errors.length > 0;
   manifest.version = '3.3.0';
-  manifest.upstream.version = latestVersion;
-  manifest.upstream.installed = new Date().toISOString().split('T')[0];
+  if (!updateIncomplete) {
+    manifest.upstream.version = latestVersion;
+    manifest.upstream.installed = new Date().toISOString().split('T')[0];
+  }
   refreshIntegrationBlockHashes(manifest, projectPath);
   writeManifest(manifest, projectPath);
 
@@ -893,8 +902,14 @@ export async function updateCommand(options) {
 
   // Summary
   console.log();
-  console.log(chalk.green(msg.updateSuccess));
-  console.log(chalk.gray(`  ${msg.versionUpdated.replace('{current}', currentVersion).replace('{latest}', latestVersion)}`));
+  if (updateIncomplete) {
+    // T11: surface the partial state honestly instead of claiming success.
+    console.log(chalk.yellow(msg.updateIncomplete ||
+      '⚠ Update incomplete — some files failed to update. Version NOT advanced; re-run `uds update` to retry.'));
+  } else {
+    console.log(chalk.green(msg.updateSuccess));
+    console.log(chalk.gray(`  ${msg.versionUpdated.replace('{current}', currentVersion).replace('{latest}', latestVersion)}`));
+  }
   if (results.integrations.length > 0) {
     console.log(chalk.gray(`  ${msg.integrationsSynced.replace('{count}', results.integrations.length)}`));
   }
@@ -1285,8 +1300,9 @@ export async function updateCommand(options) {
 
   console.log();
 
-  // Exit explicitly to prevent hanging
-  process.exit(0);
+  // Exit explicitly to prevent hanging.
+  // T11: a partial update exits non-zero so CI / scripts can detect the failure.
+  process.exit(updateIncomplete ? 1 : 0);
 }
 
 /**
