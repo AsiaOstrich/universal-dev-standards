@@ -52,3 +52,16 @@ run_sync() {
     locales/zh-TW/core/anti-hallucination.md \
     locales/zh-CN/core/anti-hallucination.md
 }
+
+@test "default (no --regen) does NOT regenerate ai/standards" {
+  # ai/standards/*.ai.yaml is hand-maintained; convert would clobber it, so
+  # regeneration must be opt-in.
+  run_sync --check anti-hallucination
+  [[ "$output" != *"would regenerate"* ]]
+  [[ "$output" == *"hand-maintained"* || "$output" == *"--regen"* ]]
+}
+
+@test "--regen --check plans ai/standards regeneration" {
+  run_sync --check --regen anti-hallucination
+  [[ "$output" == *"regenerate"* ]]
+}

@@ -7,8 +7,12 @@
  * Given a `core/<name>.md` (with its `**Version**` already set), propagate to
  * every layer so they never silently diverge:
  *
- *   1. ai/standards/<id>.ai.yaml   — regenerated via convert-md-to-yaml.mjs
- *                                     (the existing generator; not reimplemented)
+ *   1. ai/standards/<id>.ai.yaml   — regenerated from core ONLY with --regen.
+ *                                     These files are often hand-curated (a
+ *                                     token-efficient summary); the machine
+ *                                     generator emits a verbose extraction that
+ *                                     would clobber that curation, so
+ *                                     regeneration is opt-in.
  *   2. .standards/<id>.ai.yaml     — UDS self-adoption copy, refreshed from (1)
  *   3. locales/<lang>/core/<name>.md — marked `status: stale` when the
  *      translation's `source_version` lags the new core version. The version
@@ -107,8 +111,8 @@ interface SyncReport {
   error: string | null;
 }
 
-function syncOne(name: string, opts: { check: boolean }): SyncReport {
-  const { check } = opts;
+function syncOne(name: string, opts: { check: boolean; regen: boolean }): SyncReport {
+  const { check, regen } = opts;
   const corePath = `core/${name}.md`;
   const coreAbs = join(ROOT, corePath);
   const report: SyncReport = { name, version: '(unknown)', actions: [], drift: false, error: null };
@@ -127,12 +131,20 @@ function syncOne(name: string, opts: { check: boolean }): SyncReport {
   const aiAbs = join(ROOT, aiRel);
   const stdAbs = join(ROOT, stdRel);
 
-  // 1. ai/standards — regenerate from core via the existing generator.
-  if (check) {
-    report.actions.push(`would regenerate ${aiRel} (convert-md-to-yaml.mjs)`);
+  // 1. ai/standards — regenerate from core ONLY when explicitly requested.
+  //    These files are frequently hand-maintained; convert-md-to-yaml.mjs emits
+  //    a verbose machine extraction that would clobber that curation (even with
+  //    --preserve). Regeneration is therefore opt-in (--regen); by default
+  //    ai.yaml stays the human's and we only reconcile the downstream copies.
+  if (regen) {
+    if (check) {
+      report.actions.push(`would regenerate ${aiRel} (convert-md-to-yaml.mjs, --regen)`);
+    } else {
+      execFileSync('node', ['scripts/convert-md-to-yaml.mjs', corePath], { cwd: ROOT, stdio: 'inherit' });
+      report.actions.push(`regenerated ${aiRel} (--regen)`);
+    }
   } else {
-    execFileSync('node', ['scripts/convert-md-to-yaml.mjs', corePath], { cwd: ROOT, stdio: 'inherit' });
-    report.actions.push(`regenerated ${aiRel}`);
+    report.actions.push(`${aiRel}: hand-maintained — regeneration skipped (pass --regen to overwrite from core)`);
   }
 
   // 2. .standards — refresh the self-adoption copy from ai/standards.
@@ -211,12 +223,16 @@ Usage:
   tsx scripts/sync-standard.ts --all [--check]
 
 Propagates a core/<name>.md change to all four layers:
-  1. ai/standards/<id>.ai.yaml   (regenerated via convert-md-to-yaml.mjs)
-  2. .standards/<id>.ai.yaml     (UDS self-adoption copy)
+  1. ai/standards/<id>.ai.yaml   (regenerated from core ONLY with --regen;
+                                  hand-curated otherwise — left untouched)
+  2. .standards/<id>.ai.yaml     (UDS self-adoption copy, refreshed from ai/)
   3. locales/*/core/<name>.md    (marked 'status: stale' when source_version lags)
   4. cli/standards-registry.json (verified only — never auto-edited)
 
 Options:
+  --regen   Regenerate ai/standards/<id>.ai.yaml from core via
+            convert-md-to-yaml.mjs. WARNING: overwrites hand-curated content
+            with a verbose machine extraction. Off by default.
   --check   Dry-run: report drift, write nothing; exit 1 if any layer needs sync.
   --help    Show this help.
 `);
@@ -230,6 +246,7 @@ function main(): void {
   }
 
   const check = argv.includes('--check');
+  const regen = argv.includes('--regen');
   const all = argv.includes('--all');
   const names = argv.filter((a) => !a.startsWith('-')).map(resolveStandardName);
 
@@ -252,7 +269,7 @@ function main(): void {
   let hadDrift = false;
 
   for (const name of targets) {
-    const r = syncOne(name, { check });
+    const r = syncOne(name, { check, regen });
     console.log(`\n${check ? '[check] ' : ''}${r.name} (v${r.version})`);
     for (const a of r.actions) console.log(`  - ${a}`);
     if (r.error) {
