@@ -4,6 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-06-02
 source_hash: b806494266e8
+status: stale
 ---
 
 # 瀏覽器相容性標準

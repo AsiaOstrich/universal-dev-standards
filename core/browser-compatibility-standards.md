@@ -2,10 +2,11 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/browser-compatibility-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-05-05
+**Version**: 1.0.1
+**Last Updated**: 2026-06-18
 **Applicability**: Frontend projects (web apps, progressive web apps, web components)
 **Scope**: universal
+**Owning Spec**: XSPEC-293 (orthogonal to XSPEC-209 route coverage)
 **Industry Standards**: Browserslist, W3C WebDriver, WebDriver BiDi
 **References**: [caniuse.com](https://caniuse.com/), [Playwright browser support matrix](https://playwright.dev/docs/browsers)
 

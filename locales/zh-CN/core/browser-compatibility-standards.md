@@ -4,7 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-06-10
 source_hash: 56b7d0fbf522
-status: current
+status: stale
 ---
 
 # 浏览器兼容性标准

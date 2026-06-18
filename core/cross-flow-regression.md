@@ -2,10 +2,11 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/cross-flow-regression.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-05-05
+**Version**: 1.0.1
+**Last Updated**: 2026-06-18
 **Applicability**: All software projects with multiple user flows or business processes
 **Scope**: universal
+**Owning Spec**: XSPEC-294 (complements flow-based-testing; non-overlapping)
 **Industry Standards**: ISTQB Advanced Test Analyst (Regression Test Strategy)
 **References**: `core/flow-based-testing.md`, `core/testing-standards.md`
 

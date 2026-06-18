@@ -4,6 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-06-02
 source_hash: 2f7bdbe6dc36
+status: stale
 ---
 
 # 跨流程回歸（Cross-Flow Regression）

@@ -3,7 +3,7 @@ source: ../../../core/error-code-standards.md
 source_version: 1.2.0
 translation_version: 1.2.0
 last_synced: 2026-03-18
-status: current
+status: stale
 ---
 
 # 錯誤碼標準

@@ -2,10 +2,11 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/developer-memory.md)
 
-**Version**: 1.1.0
+**Version**: 1.1.1
 **Last Updated**: 2026-06-18
 **Applicability**: All software projects using AI assistants
 **Scope**: universal
+**Owning Spec**: XSPEC-291 (developer-memory has no dedicated feature XSPEC; XSPEC-291 owns it)
 **Industry Standards**: None (UDS original)
 
 ---

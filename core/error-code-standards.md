@@ -2,10 +2,11 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/error-code-standards.md)
 
-**Version**: 1.2.0
-**Last Updated**: 2026-03-18
+**Version**: 1.2.1
+**Last Updated**: 2026-06-18
 **Applicability**: All software projects
 **Scope**: universal
+**Owning Spec**: XSPEC-291 (no dedicated feature XSPEC; XSPEC-291 owns this standard)
 **Industry Standards**: RFC 7807, RFC 9457
 **References**: [datatracker.ietf.org](https://datatracker.ietf.org/doc/html/rfc7807)
 

@@ -1,0 +1,63 @@
+# Browser Compatibility Standards - AI Optimized
+# Source: core/browser-compatibility-standards.md
+
+id: browser-compatibility-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-05-05"
+  source: core/browser-compatibility-standards.md
+  description: Browser/device support matrix, Playwright automation, and release gate for frontend projects; N/A for CLI/backend
+
+requirements:
+  REQ-1:
+    id: REQ-BC-001
+    title: Explicit Support Matrix
+    rule: >
+      Frontend projects MUST declare an explicit browser support matrix in
+      .browserslistrc and in Playwright project config. At minimum define Tier-1
+      (full support, release blocking) and Tier-2 (partial, WARN) browsers.
+      Tier-1 default: Chrome/Firefox/Safari/Edge latest + latest-1; iOS Safari
+      latest + latest-1; Android Chrome latest.
+    rationale: >
+      Implicit "supports all browsers" is untestable; an explicit matrix defines
+      scope for both engineering and QA.
+
+  REQ-2:
+    id: REQ-BC-002
+    title: Viewport Coverage
+    rule: >
+      Automated tests MUST cover at minimum three viewport widths: 360px (mobile),
+      768px (tablet), 1280px (desktop). No critical flow must be broken at any
+      Tier-1 browser × viewport combination.
+    rationale: >
+      Missing mobile viewport tests produce broken UX for the majority of
+      mobile users who represent 50%+ of web traffic globally.
+
+  REQ-3:
+    id: REQ-BC-003
+    title: Real iOS Device Testing
+    rule: >
+      For release candidates, Safari must be tested on real iOS devices (not
+      simulators only). WebKit on iOS Simulator diverges from real device WebKit
+      in rendering and API behaviour.
+    rationale: >
+      Simulator-only iOS testing misses a significant class of WebKit rendering
+      bugs that only manifest on real hardware.
+
+  REQ-4:
+    id: REQ-BC-004
+    title: Release Gate
+    rule: >
+      Tier-1 browser matrix pass rate MUST be 100% (no test failure = release block).
+      Tier-2 must be ≥ 95% (WARN if below). This is Dimension 9 (Tier-3) in
+      release-readiness-gate.md. Mark N/A for CLI, backend API, and mobile native projects.
+    rationale: >
+      100% Tier-1 requirement is appropriate because unsupported behavior in
+      a declared Tier-1 browser is a support commitment violation.
+
+quick_reference:
+  tier1_default: "Chrome, Firefox, Safari, Edge (latest + latest-1); iOS Safari; Android Chrome latest"
+  viewport_minimum: "360px, 768px, 1280px"
+  automation: "Playwright matrix config; BrowserStack/Sauce/LambdaTest for cross-OS"
+  na_when: "CLI-only, backend API, mobile native (non-web)"
+  release_readiness_dimension: "Dim 9, Tier-3"
