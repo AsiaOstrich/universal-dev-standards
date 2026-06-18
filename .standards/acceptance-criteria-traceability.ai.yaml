@@ -7,7 +7,7 @@ standard:
   description: AC-to-test traceability matrix, coverage calculation, and spec generation quality rules
 
   meta:
-    version: "1.0.0"
+    version: "1.1.0"
     updated: "2026-03-18"
     source: core/acceptance-criteria-traceability.md
     references:
@@ -36,10 +36,11 @@ standard:
         description: Additional context (blockers, dependencies)
 
     linking_convention:
-      description: Tests must reference source AC using standard annotations
+      description: Tests must reference source AC using the canonical combined annotation
+      canonical: "@SPEC-<id> @AC-<n> — single combined tag on one line, e.g. @SPEC-001 @AC-1"
+      note: "Do not split into separate @AC / @SPEC lines; forward-derivation and tag filters consume the combined form"
       annotations:
-        - "@AC AC-N — in test name or comment"
-        - "@SPEC SPEC-XXX — in test name or comment"
+        - "@SPEC-001 @AC-1 — in test name or comment (canonical, parallel)"
         - "describe('AC-N: description') — in test structure"
 
   coverage_status:

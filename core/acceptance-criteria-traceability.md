@@ -2,6 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/acceptance-criteria-traceability.md)
 
+**Version**: 1.1.0
+**Last Updated**: 2026-06-19
 **Applicability**: All software projects using specification-driven or test-driven workflows
 **Scope**: universal
 
@@ -45,13 +47,15 @@ Acceptance Criteria Traceability Standards define how to track the relationship 
 
 ### Linking Convention
 
-Tests MUST reference their source AC using standard annotations:
+Tests MUST reference their source AC using the **canonical annotation**:
+`@SPEC-<id> @AC-<n>` — a single combined tag, e.g. `@SPEC-001 @AC-1`. Keeping the
+attribution on one line is what forward-derivation and test-runner tag filters
+consume; **do not** split it into separate `@AC` / `@SPEC` lines.
 
 ```typescript
 // TypeScript/JavaScript
 describe('AC-1: User login with valid credentials', () => {
-  // @AC AC-1
-  // @SPEC SPEC-001
+  // @SPEC-001 @AC-1
   it('should redirect to dashboard on successful login', () => { ... });
 });
 ```
@@ -60,8 +64,7 @@ describe('AC-1: User login with valid credentials', () => {
 # Python
 class TestAC1_UserLogin:
     """AC-1: User login with valid credentials
-    @AC AC-1
-    @SPEC SPEC-001
+    @SPEC-001 @AC-1
     """
     def test_redirect_to_dashboard(self): ...
 ```
@@ -71,6 +74,13 @@ class TestAC1_UserLogin:
 @SPEC-001 @AC-1
 Scenario: User login with valid credentials
 ```
+
+> **Key naming (by design, not a conflict).** `acceptance-criteria` (kebab-case)
+> is the human / identifier spelling — doc titles, standard ids, AI-format keys.
+> `acceptance_criteria` (snake_case) is the YAML **serialization** field (e.g.
+> `structured-task-definition`). `acceptanceCriteria` (camelCase) is not used.
+> These are layer-appropriate spellings (see the glossary's field-naming table)
+> and are **not** unified.
 
 ---
 
