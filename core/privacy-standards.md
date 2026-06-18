@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/privacy-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-04-01
+**Version**: 1.1.0
+**Last Updated**: 2026-06-18
 **Applicability**: All software projects handling personal data
 **Scope**: universal
 **Industry Standards**: GDPR, CCPA, Privacy by Design (Ann Cavoukian)
@@ -51,12 +51,22 @@ Classify all data by sensitivity level:
 ### Trigger Conditions
 
 A DPIA MUST be conducted when:
-- Processing personal data at large scale
+- Processing personal data at **large scale** (see quantified criterion below)
 - Systematic monitoring of public areas
 - Automated decision-making with legal effects
 - Processing special category data (health, biometric, genetic)
 - Combining datasets from different sources
 - Processing data of vulnerable individuals (children, employees)
+
+> **"Large scale" — quantified criterion** _(source: GDPR Art. 35; WP29 DPIA
+> Guidelines WP248rev.01)_. No single hard number defines "large scale"; assess
+> against four factors: (1) number of data subjects — an absolute count or a
+> proportion of the relevant population; (2) volume and range of data items;
+> (3) duration or permanence of the processing; (4) geographical extent. Treat
+> processing as large scale when it is significant on **two or more** factors.
+> **Exception**: one-off processing, a single individual's data, or an
+> individual practitioner's records are not "large scale" and do not trigger a
+> DPIA on this ground alone (the other triggers above may still apply).
 
 ### Simplified DPIA Template
 
@@ -180,6 +190,7 @@ Is it personal data?
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-06-18 | Added: quantified "large scale" DPIA-trigger criterion (GDPR Art. 35 / WP29 WP248) + exception clause (XSPEC-292 T8) |
 | 1.0.0 | 2026-04-01 | Initial release |
 
 ---
