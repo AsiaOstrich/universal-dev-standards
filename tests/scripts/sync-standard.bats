@@ -65,3 +65,11 @@ run_sync() {
   run_sync --check --regen anti-hallucination
   [[ "$output" == *"regenerate"* ]]
 }
+
+@test "resolves the on-disk ai file when STANDARD_ID_MAPPING renames the id" {
+  # checkin-standards maps to id 'checkin', but the file is checkin-standards.ai.yaml.
+  # The script must fall back to the literal on-disk name, not the mapped-but-absent one.
+  run_sync --check checkin-standards
+  [[ "$output" == *"checkin-standards.ai.yaml"* ]]
+  [[ "$output" != *"ai/standards/checkin.ai.yaml"* ]]
+}

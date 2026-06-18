@@ -125,7 +125,15 @@ function syncOne(name: string, opts: { check: boolean; regen: boolean }): SyncRe
 
   const coreMd = readFileSync(coreAbs, 'utf-8');
   report.version = parseCoreVersion(coreMd) || '(unknown)';
-  const outName = getOutputFilename(`${name}.md`);
+  // getOutputFilename applies STANDARD_ID_MAPPING (e.g. checkin-standards →
+  // checkin), but some standards were never renamed on disk. If the mapped name
+  // is absent, fall back to the literal <name>.ai.yaml that actually exists so
+  // the .standards copy / verify works for those entries too.
+  let outName = getOutputFilename(`${name}.md`);
+  if (!existsSync(join(ROOT, 'ai/standards', outName)) &&
+      existsSync(join(ROOT, 'ai/standards', `${name}.ai.yaml`))) {
+    outName = `${name}.ai.yaml`;
+  }
   const aiRel = `ai/standards/${outName}`;
   const stdRel = `.standards/${outName}`;
   const aiAbs = join(ROOT, aiRel);
