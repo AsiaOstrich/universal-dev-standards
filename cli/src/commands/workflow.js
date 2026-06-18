@@ -5,6 +5,7 @@
  *
  * @version 1.0.0
  * @deprecated XSPEC-095 (2026-04-28): Runtime relocated to adoption layer.
+ * @superseded-by Adoption-layer runtime (XSPEC-095 / XSPEC-086 / DEC-049); scheduled for removal in UDS 6.0.0.
  *   The orchestration logic is adoption-layer responsibility:
  *   adoption layers must implement equivalent workflow commands in
  *   their own toolchain.

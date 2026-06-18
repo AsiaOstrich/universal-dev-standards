@@ -4,6 +4,7 @@
  * CLI 命令：管理自訂 SDLC 流程（create/list/validate/diff/export/import）。
  *
  * @deprecated XSPEC-095 (2026-04-28): Runtime relocated to adoption layer.
+ * @superseded-by Adoption-layer runtime (XSPEC-095 / XSPEC-086 / DEC-049); scheduled for removal in UDS 6.0.0.
  *   The list/validate/diff operations are adoption-layer responsibility:
  *   adoption layers must implement equivalent flow management commands
  *   in their own toolchain.
