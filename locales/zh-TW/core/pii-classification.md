@@ -4,7 +4,7 @@ source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-06-17
 source_hash: f4ff92c3fe1d
-status: current
+status: stale
 ---
 
 # PII 分類與處理標準

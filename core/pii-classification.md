@@ -1,6 +1,6 @@
 # PII Classification and Handling Standards
 
-> **Version**: 1.0.0 | **Status**: Active | **Updated**: 2026-06-17
+> **Version**: 1.1.0 | **Status**: Active | **Updated**: 2026-06-19
 > **AI-optimized version**: `ai/standards/pii-classification.ai.yaml`
 > **Spec**: XSPEC-066 (cross-project/specs/XSPEC-066-uds-compliance-audit-pack.md)
 
@@ -96,6 +96,43 @@ mandatory PIA; TIER-2 is recommended.
 - **`database-standards`** — data-dictionary fields carry the PII tier and the
   documented purpose/legal basis from REQ-002.
 
+## PII Discovery & Hand-Off Contract
+
+The integrations above name the consumers, but a hand-off needs a defined
+**trigger, interface, owner, and state** — otherwise "drives the masking rules"
+is a claim, not a contract. This reuses the `data-contract` REQ-005
+consumer-registration model and the `agent-communication-protocol` §3
+structured-handoff shape.
+
+### Trigger — when classification fires
+
+| When | What happens |
+|------|--------------|
+| New feature design | REQ-006 PII Impact Assessment classifies every new PII field **before** implementation |
+| PR / scan time | A field carrying PII with no tier is a **blocking** finding (CI) |
+| Data-dictionary change | A `database-standards` field gains/loses a PII tier → consumers are re-notified |
+
+### Interface — what crosses
+
+The producer artifact is a **PII classification registry** entry per field:
+`{ field, tier (TIER-1/2/3), purpose, legal_basis, masking_rule, retention }`.
+Consumers register against it (per `data-contract` REQ-005) and are notified on change.
+
+### Owners & registered consumers
+
+| Party | Responsibility |
+|-------|----------------|
+| Data owner / feature author | **Produces** the classification (REQ-001 / REQ-006) |
+| `logging-standards` (consumer) | Applies `masking_rule` to TIER-1/2 in non-prod and logs |
+| `audit-trail` (consumer) | Records mandatory access / export / erasure events |
+| `security-standards` (consumer) | Enforces encryption-at-rest/in-transit for TIER-1 |
+| Privacy / compliance owner | **Notified** on any new TIER-1 field or classification change |
+
+### State transition
+
+`Found → Classified (tier assigned) → Handled (masked / encrypted / retention set) → Verified (consumer confirms the rule is applied)`.
+A field stuck in `Found` (PII with no tier) **blocks release** (REQ-001 + the PR-time trigger above).
+
 ## Related Specs
 
 - XSPEC-066 — UDS compliance & audit pack (this standard's source)
@@ -105,4 +142,5 @@ mandatory PIA; TIER-2 is recommended.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v1.1.0 | 2026-06-19 | Added: PII Discovery & Hand-Off Contract (trigger / interface / owners / state) so the claimed hand-off to logging-standards / audit-trail is a defined contract, not a claim (XSPEC-292 T16) |
 | v1.0.0 | 2026-06-17 | Initial — REQ-001~006: PII tiers, data minimization, non-prod masking, retention/deletion, cross-border transfer, PIA (XSPEC-066) |

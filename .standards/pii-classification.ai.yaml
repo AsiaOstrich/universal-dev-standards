@@ -3,7 +3,7 @@
 
 id: pii-classification
 title: PII Classification and Handling Standards
-version: "1.0.0"
+version: "1.1.0"
 status: Active
 tags: [compliance, privacy, pii, gdpr, data-protection, security]
 summary: |
@@ -107,3 +107,17 @@ requirements:
       - "New feature: 'Save payment method' → PIA required (TIER-1 card data)"
       - "PIA template: docs/templates/privacy-impact-assessment.md"
       - "PIA outcome: fingerprint auth approved with biometric data stored only on-device"
+
+# Hand-off contract (XSPEC-292 T16): how a classification reaches its consumers
+hand_off:
+  trigger:
+    - "New feature design: REQ-006 PIA classifies new PII fields before implementation"
+    - "PR/scan time: a PII field with no tier is a blocking finding"
+    - "Data-dictionary change: tier added/removed -> re-notify consumers"
+  interface: "PII classification registry entry per field {field, tier, purpose, legal_basis, masking_rule, retention}; consumers register per data-contract REQ-005"
+  consumers:
+    - "logging-standards: applies masking_rule to TIER-1/2 in non-prod"
+    - "audit-trail: records access/export/erasure events"
+    - "security-standards: enforces encryption for TIER-1"
+    - "privacy/compliance owner: notified on new TIER-1 field or classification change"
+  state: "Found -> Classified -> Handled (masked/encrypted/retention) -> Verified; a field stuck in Found blocks release"
