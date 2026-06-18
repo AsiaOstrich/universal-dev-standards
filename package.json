@@ -26,7 +26,8 @@
     "check:workflow-compliance": "tsx scripts/check-workflow-compliance.ts",
     "check:skill-integrity": "tsx scripts/check-skill-structural-integrity.ts",
     "sdd:analyze": "tsx scripts/sdd-analyze.ts",
-    "split-bilingual": "tsx scripts/split-bilingual.ts"
+    "split-bilingual": "tsx scripts/split-bilingual.ts",
+    "check:naming-refs": "tsx scripts/check-naming-and-refs.ts"
   },
   "type": "module",
   "dependencies": {

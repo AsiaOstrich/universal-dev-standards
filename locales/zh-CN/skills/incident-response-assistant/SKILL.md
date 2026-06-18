@@ -150,4 +150,4 @@ docs/incidents/
 ## 参考
 
 - 核心规范：[deployment-standards.md](../../../../core/deployment-standards.md)
-- 核心规范：[logging.md](../../../../core/logging.md)
+- 核心规范：[logging.md](../../../../core/logging-standards.md)
