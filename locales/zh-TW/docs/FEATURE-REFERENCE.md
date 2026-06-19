@@ -11,7 +11,7 @@ status: current
 > Universal Development Standards - 完整功能文件
 > Auto-generated | Last updated: 2026-05-14
 
-**Language**: [English](../../../docs/FEATURE-REFERENCE.md) | 繁體中文 | [简体中文](../../zh-CN/docs/FEATURE-REFERENCE.md)
+**Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | 繁體中文 | [简体中文](../../zh-CN/docs/FEATURE-REFERENCE.md)
 
 ---
 

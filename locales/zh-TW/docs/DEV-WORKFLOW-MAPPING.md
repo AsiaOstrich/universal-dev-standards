@@ -191,7 +191,7 @@ Universal Development Standards (UDS) 提供 **20+ 斜線指令**，涵蓋整個
 |------|------|----------|
 | **本文件**（DEV-WORKFLOW-MAPPING.md） | 階段與指令對照，快速參考 | 尋找合適指令的開發者 |
 | [DAILY-WORKFLOW-GUIDE.md](../../../adoption/DAILY-WORKFLOW-GUIDE.md) | 詳細的日常工作流程與決策樹 | 學習 UDS 採用模式的開發者 |
-| [CHEATSHEET.md](../../../docs/CHEATSHEET.md) | 所有 UDS 功能一頁總覽 | 快速查閱 |
+| [CHEATSHEET.md](../../../docs/user/CHEATSHEET.md) | 所有 UDS 功能一頁總覽 | 快速查閱 |
 | `/dev-workflow` skill | Claude Code 中的互動式指南 | AI 輔助開發 |
 
 ---
@@ -221,4 +221,4 @@ Universal Development Standards (UDS) 提供 **20+ 斜線指令**，涵蓋整個
 
 ---
 
-[完整功能參考](../../../docs/FEATURE-REFERENCE.md) | [GitHub](https://github.com/AsiaOstrich/universal-dev-standards)
+[完整功能參考](../../../docs/reference/FEATURE-REFERENCE.md) | [GitHub](https://github.com/AsiaOstrich/universal-dev-standards)
