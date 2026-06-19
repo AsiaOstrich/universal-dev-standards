@@ -1,5 +1,5 @@
 ---
-source: ../../../../skills/methodology-system/SKILL.md
+source: ../../../../skills/dev-methodology/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10
@@ -13,7 +13,7 @@ argument-hint: "[action] [argument]"
 
 # 方法論系統
 
-> **語言**: [English](../../../../skills/methodology-system/SKILL.md) | 繁體中文
+> **語言**: [English](../../../../skills/dev-methodology/SKILL.md) | 繁體中文
 
 > [!WARNING]
 > **實驗性功能**

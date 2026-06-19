@@ -51,5 +51,5 @@ describe('SPEC-001: [Feature Name]', () => {
 
 ## 參考
 
-- 父指令：[/derive](../forward-derivation/SKILL.md)
+- 父指令：[/derive](../spec-derivation/SKILL.md)
 - 核心規範：[forward-derivation-standards.md](../../core/forward-derivation-standards.md)

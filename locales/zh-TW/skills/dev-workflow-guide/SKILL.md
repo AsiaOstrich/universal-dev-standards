@@ -181,8 +181,8 @@ API 設計與實作的推薦流程：
 
 - [詳細階段指引](./workflow-phases.md) - 完整的逐階段參考
 - [每日工作流程指南](../../adoption/DAILY-WORKFLOW-GUIDE.md) - 完整的每日工作流程指南
-- [功能開發工作流程](../workflows/feature-dev.yaml) - 自動化功能開發工作流程
-- [整合流程工作流程](../workflows/integrated-flow.yaml) - 完整的 ATDD/SDD/BDD/TDD 工作流程
+- [功能開發工作流程](../workflows/feature-dev.workflow.yaml) - 自動化功能開發工作流程
+- [整合流程工作流程](../workflows/integrated-flow.workflow.yaml) - 完整的 ATDD/SDD/BDD/TDD 工作流程
 
 ---
 

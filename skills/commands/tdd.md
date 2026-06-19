@@ -64,7 +64,7 @@ When `/tdd` is invoked:
 3. **追蹤階段轉換**隨著工作進展
 4. **在回應中顯示階段指示器**（🔴 紅燈、🟢 綠燈、🔵 重構）
 
-See [methodology-system](../methodology-system/SKILL.md) for full methodology tracking.
+See [methodology-system](../dev-methodology/SKILL.md) for full methodology tracking.
 
 ## TDD Cycle | TDD 循環
 

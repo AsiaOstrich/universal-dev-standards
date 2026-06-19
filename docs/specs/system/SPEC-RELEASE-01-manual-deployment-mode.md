@@ -365,8 +365,8 @@ deployments:
 
 ## References | 參考
 
-- [Release Standards Skill](../../skills/release-standards/SKILL.md)
-- [/release Command](../../skills/commands/release.md)
-- [Deployment Standards](../../core/deployment-standards.md)
-- [Versioning Standards](../../core/versioning.md)
+- [Release Standards Skill](../../../skills/release-standards/SKILL.md)
+- [/release Command](../../../skills/commands/release.md)
+- [Deployment Standards](../../../core/deployment-standards.md)
+- [Versioning Standards](../../../core/versioning.md)
 - [npm Release Spec (PUBLISH-00)](../cli/publishing/npm-release.md)

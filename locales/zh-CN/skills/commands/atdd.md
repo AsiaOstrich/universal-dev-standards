@@ -31,7 +31,7 @@ status: experimental
 3. **追踪阶段转换**随着工作进展
 4. **在响应中显示阶段指示器**（🤝 工作坊、🧪 提炼、💻 开发、🎬 展示、✅ 完成）
 
-详见 [methodology-system](../methodology-system/SKILL.md) 了解完整方法论追踪。
+详见 [methodology-system](../dev-methodology/SKILL.md) 了解完整方法论追踪。
 
 ## ATDD 循环
 
@@ -160,4 +160,4 @@ ATDD Level (Business Acceptance)
 - 核心规范: [acceptance-test-driven-development.md](../../core/acceptance-test-driven-development.md)
 - 技能: [atdd-assistant](../atdd-assistant/SKILL.md)
 - 方法论: [atdd.methodology.yaml](../../methodologies/atdd.methodology.yaml)
-- 方法论系统: [methodology-system](../methodology-system/SKILL.md)
+- 方法论系统: [methodology-system](../dev-methodology/SKILL.md)

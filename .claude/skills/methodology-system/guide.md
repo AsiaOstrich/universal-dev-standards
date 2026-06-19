@@ -1,5 +1,5 @@
 ---
-source: ../../../../skills/methodology-system/SKILL.md
+source: ../../../../skills/dev-methodology/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-12
@@ -8,7 +8,7 @@ status: experimental
 
 # 方法論系統 Skill
 
-> **Language**: [English](../../../../skills/methodology-system/SKILL.md) | 繁體中文
+> **Language**: [English](../../../../skills/dev-methodology/SKILL.md) | 繁體中文
 
 > [!WARNING]
 > **實驗性功能 / Experimental Feature**

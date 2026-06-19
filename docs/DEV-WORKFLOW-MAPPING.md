@@ -187,7 +187,7 @@ Step 7:  /commit             Create conventional commit
 |----------|-------|----------|
 | **This document** (DEV-WORKFLOW-MAPPING.md) | Phase-to-command mapping, quick reference | Developers looking for the right command |
 | [DAILY-WORKFLOW-GUIDE.md](../adoption/DAILY-WORKFLOW-GUIDE.md) | Detailed daily workflow with decision trees | Developers learning UDS adoption patterns |
-| [CHEATSHEET.md](CHEATSHEET.md) | All UDS features in one page | Quick lookup |
+| [CHEATSHEET.md](user/CHEATSHEET.md) | All UDS features in one page | Quick lookup |
 | `/dev-workflow` skill | Interactive guide in Claude Code | AI-assisted development |
 
 ---
@@ -217,4 +217,4 @@ Step 7:  /commit             Create conventional commit
 
 ---
 
-📖 [Full Feature Reference](FEATURE-REFERENCE.md) | 🔗 [GitHub](https://github.com/AsiaOstrich/universal-dev-standards)
+📖 [Full Feature Reference](reference/FEATURE-REFERENCE.md) | 🔗 [GitHub](https://github.com/AsiaOstrich/universal-dev-standards)

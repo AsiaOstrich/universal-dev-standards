@@ -123,5 +123,5 @@ Generate derived artifacts (BDD scenarios, TDD skeletons, ATDD tables) from appr
 
 ## References | 參考
 
-*   [Forward Derivation Standard](../forward-derivation/SKILL.md)
+*   [Forward Derivation Standard](../spec-derivation/SKILL.md)
 *   [Core Standard](../../core/forward-derivation-standards.md)

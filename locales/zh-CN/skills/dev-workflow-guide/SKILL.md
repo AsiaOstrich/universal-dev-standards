@@ -183,8 +183,8 @@ V. Release ──► VI. Documentation ──► VII. Standards ──► VIII. 
 
 - [详细阶段指南](./workflow-phases.md) - 完整的逐阶段参考
 - [日常工作流程指南](../../../../adoption/DAILY-WORKFLOW-GUIDE.md) - 综合日常工作流程指南
-- [功能开发工作流程](../workflows/feature-dev.yaml) - 自动化功能开发工作流程
-- [集成流程工作流程](../workflows/integrated-flow.yaml) - 完整的 ATDD/SDD/BDD/TDD 工作流程
+- [功能开发工作流程](../workflows/feature-dev.workflow.yaml) - 自动化功能开发工作流程
+- [集成流程工作流程](../workflows/integrated-flow.workflow.yaml) - 完整的 ATDD/SDD/BDD/TDD 工作流程
 
 ---
 

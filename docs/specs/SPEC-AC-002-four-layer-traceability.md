@@ -97,6 +97,6 @@ Source: REQ-1 (User Authentication Story)
 
 | # | 任務 |
 |---|------|
-| T1 | 修改 `skills/ac-coverage-assistant/SKILL.md` |
+| T1 | 修改 `skills/ac-coverage/SKILL.md` |
 | T2 | 同步更新 `.claude/skills/` 和翻譯 |
 | T3 | 驗證同步檢查 |

@@ -9,7 +9,7 @@ description: |
 
 # Forward Derivation Guide
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/forward-derivation/SKILL.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/spec-derivation/SKILL.md)
 
 **Version**: 2.0.0
 **Last Updated**: 2026-01-25

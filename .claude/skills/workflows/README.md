@@ -423,7 +423,7 @@ This prevents context pollution and ensures reproducible agent behavior.
 
 - [Agents Documentation](../agents/README.md)
 - [Skills Documentation](../README.md)
-- [Methodology System](../methodology-system/SKILL.md)
+- [Methodology System](../dev-methodology/SKILL.md)
 
 ---
 

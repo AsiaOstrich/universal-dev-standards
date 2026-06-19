@@ -88,6 +88,6 @@ SPEC-XXX.md ──► /derive-bdd ──► /derive-tdd ──► [/derive-atdd]
 
 ## Reference | 參考
 
-- Parent command: [/derive](../forward-derivation/SKILL.md)
+- Parent command: [/derive](../spec-derivation/SKILL.md)
 - Core standard: [forward-derivation-standards.md](../../core/forward-derivation-standards.md)
 - Sub-commands: [/derive-bdd](./derive-bdd.md), [/derive-tdd](./derive-tdd.md), [/derive-atdd](./derive-atdd.md)

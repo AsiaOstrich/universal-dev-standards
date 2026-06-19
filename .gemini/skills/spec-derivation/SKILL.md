@@ -1,5 +1,5 @@
 ---
-source: ../../../../skills/forward-derivation/SKILL.md
+source: ../../../../skills/spec-derivation/SKILL.md
 source_version: 2.0.0
 translation_version: 2.0.0
 last_synced: 2026-02-10
@@ -14,7 +14,7 @@ disable-model-invocation: true
 
 # 正向推演
 
-> **語言**: [English](../../../../skills/forward-derivation/SKILL.md) | 繁體中文
+> **語言**: [English](../../../../skills/spec-derivation/SKILL.md) | 繁體中文
 
 從已批准的 SDD 規格生成衍生工件（BDD 場景、TDD 骨架、ATDD 表格）。
 

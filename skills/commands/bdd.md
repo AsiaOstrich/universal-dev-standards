@@ -68,7 +68,7 @@ When `/bdd` is invoked:
 3. **追蹤階段轉換**隨著工作進展
 4. **在回應中顯示階段指示器**（🔍 探索、📝 制定、🤖 自動化、📚 活文件）
 
-See [methodology-system](../methodology-system/SKILL.md) for full methodology tracking.
+See [methodology-system](../dev-methodology/SKILL.md) for full methodology tracking.
 
 ## BDD Cycle | BDD 循環
 
@@ -240,4 +240,4 @@ BDD works best with collaboration:
 ## Reference | 參考
 
 - Methodology: [bdd.methodology.yaml](../../methodologies/bdd.methodology.yaml)
-- Methodology System: [methodology-system](../methodology-system/SKILL.md)
+- Methodology System: [methodology-system](../dev-methodology/SKILL.md)

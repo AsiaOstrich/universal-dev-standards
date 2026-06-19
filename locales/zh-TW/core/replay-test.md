@@ -96,7 +96,7 @@ describe("Guardian replay fixtures", () => {
 
 - [對抗性測試標準](../../../core/adversarial-test.md) — 紅隊語料庫
 - [驗證證據標準](../../../core/verification-evidence.md) — AC 可追溯性
-- [測試標準](../../../core/testing.md) — 整體測試金字塔
+- [測試標準](../../../core/testing-standards.md) — 整體測試金字塔
 
 
 **Scope**: universal

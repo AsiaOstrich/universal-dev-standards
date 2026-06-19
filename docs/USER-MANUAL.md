@@ -635,8 +635,8 @@ uds init
 |----------|-------------|
 | [Daily Workflow Guide](../adoption/DAILY-WORKFLOW-GUIDE.md) | Complete daily workflow reference |
 | [Command Family Overview](../skills/commands/COMMAND-FAMILY-OVERVIEW.md) | Command architecture and scenarios |
-| [Cheatsheet](CHEATSHEET.md) | Quick reference for all features |
-| [Feature Reference](FEATURE-REFERENCE.md) | Complete feature catalog (182 features) |
+| [Cheatsheet](user/CHEATSHEET.md) | Quick reference for all features |
+| [Feature Reference](reference/FEATURE-REFERENCE.md) | Complete feature catalog (182 features) |
 | [README](../README.md) | Project overview |
 
 ### Getting Help

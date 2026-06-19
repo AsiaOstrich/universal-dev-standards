@@ -64,7 +64,7 @@ REFACTOR: Clean up → run → MUST still pass
 3. **追踪阶段转换**随着工作进展
 4. **在响应中显示阶段指示器**
 
-See [methodology-system](../methodology-system/SKILL.md) for full methodology tracking.
+See [methodology-system](../dev-methodology/SKILL.md) for full methodology tracking.
 
 ## TDD Cycle | TDD 循环
 

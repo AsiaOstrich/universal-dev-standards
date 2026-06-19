@@ -31,7 +31,7 @@ status: experimental
 3. **追蹤階段轉換**隨著工作進展
 4. **在回應中顯示階段指示器**（🔍 探索、📝 制定、🤖 自動化、📚 活文件）
 
-詳見 [methodology-system](../methodology-system/SKILL.md) 了解完整方法論追蹤。
+詳見 [methodology-system](../dev-methodology/SKILL.md) 了解完整方法論追蹤。
 
 ## BDD 循環
 
@@ -139,4 +139,4 @@ BDD 最適合協作：
 ## 參考
 
 - 方法論: [bdd.methodology.yaml](../../../../methodologies/bdd.methodology.yaml)
-- 方法論系統: [methodology-system](../methodology-system/SKILL.md)
+- 方法論系統: [methodology-system](../dev-methodology/SKILL.md)

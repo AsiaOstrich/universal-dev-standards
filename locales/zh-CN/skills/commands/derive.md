@@ -74,5 +74,5 @@ argument-hint: "[all|bdd|tdd|atdd] <spec-file> [--lang <lang>] [--framework <fw>
 
 ## 参考
 
-*   [正向推演规范](../forward-derivation/SKILL.md)
+*   [正向推演规范](../spec-derivation/SKILL.md)
 *   [核心规范](../../core/forward-derivation-standards.md)

@@ -185,7 +185,7 @@ Use '/methodology switch <id>' to change.
 /methodology create
 ```
 
-Starts the interactive methodology creation wizard. See [create-methodology.md](../methodology-system/create-methodology.md) for details.
+Starts the interactive methodology creation wizard. See [create-methodology.md](../dev-methodology/create-methodology.md) for details.
 
 ---
 
@@ -342,9 +342,9 @@ You can also configure methodology settings using:
 
 ## Reference | 參考
 
-- [Methodology System Skill](../methodology-system/SKILL.md) - Full skill documentation
-- [Runtime Guide](../methodology-system/runtime.md) - AI behavior specification
-- [Create Custom](../methodology-system/create-methodology.md) - Custom methodology guide
+- [Methodology System Skill](../dev-methodology/SKILL.md) - Full skill documentation
+- [Runtime Guide](../dev-methodology/runtime.md) - AI behavior specification
+- [Create Custom](../dev-methodology/create-methodology.md) - Custom methodology guide
 
 ---
 

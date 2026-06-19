@@ -54,5 +54,5 @@ SPEC-XXX.md ──► Parse AC ──► Generate acceptance.md ──► Review
 
 ## 參考
 
-- 父命令：[/derive](../forward-derivation/SKILL.md)
+- 父命令：[/derive](../spec-derivation/SKILL.md)
 - 核心標準：[forward-derivation-standards.md](../../core/forward-derivation-standards.md)

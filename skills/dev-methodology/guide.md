@@ -15,7 +15,7 @@ status: experimental
 
 # Methodology System Skill
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/methodology-system/SKILL.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/dev-methodology/SKILL.md)
 
 **Version**: 2.0.0
 **Last Updated**: 2026-01-25

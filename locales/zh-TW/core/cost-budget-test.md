@@ -78,7 +78,7 @@ describe("PipelineBudgetConfig semantics", () => {
 ## 相關標準
 
 - [突變測試標準](../../../core/mutation-testing.md) — 未有測試覆蓋的常數容易在突變測試中存活
-- [測試標準](../../../core/testing.md) — 整體測試金字塔
+- [測試標準](../../../core/testing-standards.md) — 整體測試金字塔
 - [LLM 輸出驗證](../../../core/llm-output-validation.md) — 輸出層預算約束
 
 ---

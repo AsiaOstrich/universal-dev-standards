@@ -86,7 +86,7 @@ argument-hint: "[規格檔案路徑 | spec file path]"
 
 ## 參考
 
-- [AC 覆蓋率助手技能](../ac-coverage-assistant/SKILL.md)
+- [AC 覆蓋率助手技能](../ac-coverage/SKILL.md)
 - [核心規範：驗收條件追蹤](../../core/acceptance-criteria-traceability.md)
 - 相關：[/coverage](./coverage.md)（程式碼層級覆蓋率）
 - 相關：[/checkin](./checkin.md)（品質關卡）

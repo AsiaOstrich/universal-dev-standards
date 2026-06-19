@@ -490,9 +490,9 @@ status: current
   - `docs/CLI-INIT-OPTIONS.md`
   - `skills/commands/bdd.md`
   - `skills/commands/methodology.md`
-  - `skills/methodology-system/SKILL.md`
-  - `skills/methodology-system/create-methodology.md`
-  - `skills/methodology-system/runtime.md`
+  - `skills/dev-methodology/SKILL.md`
+  - `skills/dev-methodology/create-methodology.md`
+  - `skills/dev-methodology/runtime.md`
 - **文档**：更新稳定版本参考从 3.3.0 至 3.4.2
 
 ## [3.5.0-beta.10] - 2026-01-12

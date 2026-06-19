@@ -91,7 +91,7 @@ argument-hint: "[spec file path | 规格文件路径]"
 
 ## 参考
 
-- [AC Coverage Assistant Skill](../ac-coverage-assistant/SKILL.md)
+- [AC Coverage Assistant Skill](../ac-coverage/SKILL.md)
 - [Core Standard: Acceptance Criteria Traceability](../../core/acceptance-criteria-traceability.md)
 - 相关: [/coverage](./coverage.md) (代码层级覆盖率)
 - 相关: [/checkin](./checkin.md) (品质关卡)

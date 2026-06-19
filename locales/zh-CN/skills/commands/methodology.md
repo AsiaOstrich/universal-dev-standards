@@ -179,7 +179,7 @@ status: experimental
 /methodology create
 ```
 
-啟动互动式方法論建立精靈。詳見[建立自订方法論](../methodology-system/create-methodology.md)。
+啟动互动式方法論建立精靈。詳見[建立自订方法論](../dev-methodology/create-methodology.md)。
 
 ---
 
@@ -261,9 +261,9 @@ status: experimental
 
 ## 參考
 
-- [方法論系统 Skill](../methodology-system/SKILL.md) - 完整 skill 文档
-- [执行时引導](../methodology-system/runtime.md) - AI 行为規格
-- [建立自订方法論](../methodology-system/create-methodology.md) - 自订方法論指南
+- [方法論系统 Skill](../dev-methodology/SKILL.md) - 完整 skill 文档
+- [执行时引導](../dev-methodology/runtime.md) - AI 行为規格
+- [建立自订方法論](../dev-methodology/create-methodology.md) - 自订方法論指南
 
 ---
 

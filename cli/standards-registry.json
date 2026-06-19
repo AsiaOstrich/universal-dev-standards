@@ -421,10 +421,10 @@
       "skills/refactoring-assistant/guide.md"
     ],
     "methodology-system": [
-      "skills/methodology-system/SKILL.md",
-      "skills/methodology-system/guide.md",
-      "skills/methodology-system/runtime.md",
-      "skills/methodology-system/create-methodology.md"
+      "skills/dev-methodology/SKILL.md",
+      "skills/dev-methodology/guide.md",
+      "skills/dev-methodology/runtime.md",
+      "skills/dev-methodology/create-methodology.md"
     ],
     "reverse-engineer": [
       "skills/reverse-engineer/SKILL.md",
@@ -434,7 +434,7 @@
       "skills/reverse-engineer/tdd-analysis.md"
     ],
     "forward-derivation": [
-      "skills/forward-derivation/SKILL.md",
+      "skills/spec-derivation/SKILL.md",
       "skills/forward-derivation/guide.md"
     ],
     "ai-friendly-architecture": [

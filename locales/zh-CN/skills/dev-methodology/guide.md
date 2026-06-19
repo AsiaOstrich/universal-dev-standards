@@ -20,7 +20,7 @@ description: |
 
 # 方法论系统 Skill
 
-> **语言**：English | [繁體中文](../../locales/zh-TW/skills/methodology-system/SKILL.md)
+> **语言**：English | [繁體中文](../../locales/zh-TW/skills/dev-methodology/SKILL.md)
 
 **版本**：2.0.0
 **最后更新**：2026-01-25

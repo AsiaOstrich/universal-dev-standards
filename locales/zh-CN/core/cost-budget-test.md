@@ -78,7 +78,7 @@ describe("PipelineBudgetConfig semantics", () => {
 ## 相关标准
 
 - [突变测试标准](../../../core/mutation-testing.md) — 未有测试覆盖的常量容易在突变测试中存活
-- [测试标准](../../../core/testing.md) — 整体测试金字塔
+- [测试标准](../../../core/testing-standards.md) — 整体测试金字塔
 - [LLM 输出验证](../../../core/llm-output-validation.md) — 输出层预算约束
 
 ---

@@ -82,5 +82,5 @@ Feature: [Feature Name]
 
 ## Reference | 參考
 
-- Parent command: [/derive](../forward-derivation/SKILL.md)
+- Parent command: [/derive](../spec-derivation/SKILL.md)
 - Core standard: [forward-derivation-standards.md](../../core/forward-derivation-standards.md)

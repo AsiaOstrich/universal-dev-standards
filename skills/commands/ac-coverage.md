@@ -129,7 +129,7 @@ After `/ac-coverage` completes, the AI assistant should suggest:
 
 ## References | 參考
 
-- [AC Coverage Assistant Skill](../ac-coverage-assistant/SKILL.md)
+- [AC Coverage Assistant Skill](../ac-coverage/SKILL.md)
 - [Core Standard: Acceptance Criteria Traceability](../../core/acceptance-criteria-traceability.md)
 - Related: [/coverage](./coverage.md) (code-level coverage)
 - Related: [/checkin](./checkin.md) (quality gates)

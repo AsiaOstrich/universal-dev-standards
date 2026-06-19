@@ -902,7 +902,7 @@ failed derivation never silently emits partial or hallucinated output.
 
 ### Skill References
 
-- [Forward Derivation Skill](../skills/forward-derivation/SKILL.md) - Detailed workflow implementation
+- [Forward Derivation Skill](../skills/spec-derivation/SKILL.md) - Detailed workflow implementation
 - [Spec-Driven Development Skill](../skills/spec-driven-dev/SKILL.md) - SDD workflow
 - [BDD Assistant Skill](../skills/bdd-assistant/SKILL.md) - Gherkin refinement
 - [TDD Assistant Skill](../skills/tdd-assistant/SKILL.md) - Test implementation

@@ -198,8 +198,8 @@ After `/dev-workflow` completes, the AI assistant should suggest based on user's
 
 - [Detailed Phase Guide](./workflow-phases.md) - Complete phase-by-phase reference
 - [Daily Workflow Guide](../../adoption/DAILY-WORKFLOW-GUIDE.md) - Comprehensive daily workflow guide
-- [Feature Development Workflow](../workflows/feature-dev.yaml) - Automated feature dev workflow
-- [Integrated Flow Workflow](../workflows/integrated-flow.yaml) - Full ATDD/SDD/BDD/TDD workflow
+- [Feature Development Workflow](../workflows/feature-dev.workflow.yaml) - Automated feature dev workflow
+- [Integrated Flow Workflow](../workflows/integrated-flow.workflow.yaml) - Full ATDD/SDD/BDD/TDD workflow
 
 ---
 

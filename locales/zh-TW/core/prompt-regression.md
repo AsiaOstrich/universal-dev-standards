@@ -82,7 +82,7 @@ architect: "98017d39...",  // updated 2026-05-05: added Guardian policy XSPEC-16
 
 - [LLM 輸出驗證](../../../core/llm-output-validation.md) — schema 層級驗證
 - [對抗性測試](../../../core/adversarial-test.md) — 紅隊語料庫
-- [測試標準](../../../core/testing.md) — 整體測試金字塔
+- [測試標準](../../../core/testing-standards.md) — 整體測試金字塔
 
 
 **Scope**: universal

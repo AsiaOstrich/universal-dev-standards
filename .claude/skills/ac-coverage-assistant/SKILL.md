@@ -1,5 +1,5 @@
 ---
-source: ../../../../skills/ac-coverage-assistant/SKILL.md
+source: ../../../../skills/ac-coverage/SKILL.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-03-26
@@ -13,7 +13,7 @@ argument-hint: "[spec file path | 規格檔案路徑]"
 
 # AC 覆蓋率助手
 
-> **語言**: [English](../../../../skills/ac-coverage-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](../../../../skills/ac-coverage/SKILL.md) | 繁體中文
 
 分析驗收條件（AC）與測試之間的追蹤關係，並產生覆蓋率報告。
 

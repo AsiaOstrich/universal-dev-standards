@@ -227,7 +227,7 @@ After `/push` completes, the AI assistant should suggest:
 
 ## Related Standards | 相關標準
 
-- [Push Standards](.standards/push-standards.ai.yaml) — Core push safety rules
+- [Push Standards](../../.standards/push-standards.ai.yaml) — Core push safety rules
 - [Git Workflow](../../.standards/git-workflow.ai.yaml) — Branching strategy
 - [Commit Message](../../.standards/commit-message.ai.yaml) — Commit conventions
 - [PR Automation](../pr-automation-assistant/SKILL.md) — Pull Request automation

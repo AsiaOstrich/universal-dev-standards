@@ -5,7 +5,7 @@ description: |
   ATDD 驗收測試表為可選輸出，用於特殊需求。
   使用時機：規格已批准、開始 BDD/TDD 實作、生成測試結構。
   關鍵字：forward derivation, spec to test, BDD generation, TDD skeleton, test derivation, 正向推演, 規格轉測試, 測試生成。
-source: ../../../../skills/forward-derivation/SKILL.md
+source: ../../../../skills/spec-derivation/SKILL.md
 source_version: 2.0.0
 translation_version: 2.0.0
 last_synced: 2026-01-25
@@ -14,7 +14,7 @@ status: current
 
 # 正向推演指南
 
-> **語言**: [English](../../../../skills/forward-derivation/SKILL.md) | 繁體中文
+> **語言**: [English](../../../../skills/spec-derivation/SKILL.md) | 繁體中文
 
 **版本**: 2.0.0
 **最後更新**: 2026-01-25

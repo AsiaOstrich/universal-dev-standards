@@ -301,8 +301,8 @@ Is this a new feature with clear requirements?
 
 ## Related Documentation | 相關文件
 
-- [Forward Derivation SKILL](../forward-derivation/SKILL.md) - Detailed derivation workflow
-- [Integrated Flow Guide](../methodology-system/integrated-flow.md) - Complete methodology integration
+- [Forward Derivation SKILL](../spec-derivation/SKILL.md) - Detailed derivation workflow
+- [Integrated Flow Guide](../dev-methodology/integrated-flow.md) - Complete methodology integration
 - [Individual Command Files](./README.md) - All command references
 
 ---

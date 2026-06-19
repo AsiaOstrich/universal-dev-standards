@@ -31,7 +31,7 @@ When `/atdd` is invoked:
 3. **追蹤階段轉換**隨著工作進展
 4. **在回應中顯示階段指示器**（🤝 工作坊、🧪 提煉、💻 開發、🎬 展示、✅ 完成）
 
-See [methodology-system](../methodology-system/SKILL.md) for full methodology tracking.
+See [methodology-system](../dev-methodology/SKILL.md) for full methodology tracking.
 
 ## ATDD Cycle | ATDD 循環
 
@@ -229,4 +229,4 @@ ATDD Level (Business Acceptance)
 - Core Standard: [acceptance-test-driven-development.md](../../core/acceptance-test-driven-development.md)
 - Skill: [atdd-assistant](../atdd-assistant/SKILL.md)
 - Methodology: [atdd.methodology.yaml](../../methodologies/atdd.methodology.yaml)
-- Methodology System: [methodology-system](../methodology-system/SKILL.md)
+- Methodology System: [methodology-system](../dev-methodology/SKILL.md)
