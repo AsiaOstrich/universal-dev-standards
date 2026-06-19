@@ -1,6 +1,6 @@
 # Swift Project Structure
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/project-structure/swift.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/project-structure/swift.md) | [简体中文](../../locales/zh-CN/options/project-structure/swift.md)
 
 **Parent Standard**: [Project Structure](../../core/project-structure.md)
 

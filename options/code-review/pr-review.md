@@ -1,6 +1,6 @@
 # Pull Request Review
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/code-review/pr-review.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/code-review/pr-review.md) | [简体中文](../../locales/zh-CN/options/code-review/pr-review.md)
 
 **Parent Standard**: [Code Review Checklist](../../core/code-review-checklist.md)
 

@@ -1,6 +1,6 @@
 # Kotlin Project Structure
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/project-structure/kotlin.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/project-structure/kotlin.md) | [简体中文](../../locales/zh-CN/options/project-structure/kotlin.md)
 
 **Parent Standard**: [Project Structure](../../core/project-structure.md)
 

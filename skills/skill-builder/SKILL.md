@@ -8,7 +8,7 @@ argument-hint: "[process description | 流程描述]"
 
 # Process-to-Skill Assistant
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/process-automation/SKILL.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/skill-builder/SKILL.md) | [简体中文](../../locales/zh-CN/skills/skill-builder/SKILL.md)
 
 Guides you from "I keep doing this manually" to a properly built Skill,
 with the right amount of process along the way.

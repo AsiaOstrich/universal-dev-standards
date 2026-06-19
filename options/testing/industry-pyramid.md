@@ -1,6 +1,6 @@
 # Industry Testing Pyramid
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/testing/industry-pyramid.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/testing/industry-pyramid.md) | [简体中文](../../locales/zh-CN/options/testing/industry-pyramid.md)
 
 **Parent Standard**: [Testing Completeness](../../core/test-completeness-dimensions.md)
 

@@ -1,6 +1,6 @@
 # Performance Guide
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/core/guides/performance-guide.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/core/guides/performance-guide.md) | [简体中文](../../locales/zh-CN/core/guides/performance-guide.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2026-01-29

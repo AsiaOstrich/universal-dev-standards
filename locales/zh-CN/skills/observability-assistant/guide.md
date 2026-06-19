@@ -14,7 +14,7 @@ description: |
 
 # Observability Assistant
 
-> **语言**：English | [繁体中文](../../locales/zh-TW/skills/observability-assistant/SKILL.md)
+> **语言**: [English](../../../../skills/observability-assistant/guide.md) | 简体中文
 
 **版本**：1.0.0
 **最后更新**：2026-04-01

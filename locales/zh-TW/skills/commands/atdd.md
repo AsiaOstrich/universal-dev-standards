@@ -163,5 +163,5 @@ ATDD Level (Business Acceptance)
 
 - 核心標準：[acceptance-test-driven-development.md](../../core/acceptance-test-driven-development.md)
 - Skill：[atdd-assistant](../atdd-assistant/SKILL.md)
-- 方法論：[atdd.methodology.yaml](../../methodologies/atdd.methodology.yaml)
+- 方法論：[atdd.methodology.yaml](../../../../methodologies/atdd.methodology.yaml)
 - 方法論系統：[methodology-system](../dev-methodology/SKILL.md)

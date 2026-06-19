@@ -15,7 +15,7 @@ description: |
 
 # 正向推演指南
 
-> **语言**：English | [繁體中文](../../locales/zh-TW/skills/spec-derivation/SKILL.md)
+> **语言**: [English](../../../../skills/spec-derivation/guide.md) | 简体中文
 
 **版本**：2.0.0
 **最后更新**：2026-01-25

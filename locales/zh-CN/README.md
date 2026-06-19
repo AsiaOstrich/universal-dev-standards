@@ -62,9 +62,9 @@ npx universal-dev-standards init
 | 我想要... | 文档 |
 |---|---|
 | **UDS 新手？** 5 分钟快速上手 | [docs/user/GETTING-STARTED.md](docs/user/GETTING-STARTED.md) |
-| 按 Tier & Category 浏览全部 54 个技能 | [docs/user/SKILLS-INDEX.md](docs/user/SKILLS-INDEX.md) |
-| 查看所有斜线命令 | [docs/user/COMMANDS-INDEX.md](docs/user/COMMANDS-INDEX.md) |
-| 快速参考卡片 | [docs/user/CHEATSHEET.md](docs/user/CHEATSHEET.md) |
+| 按 Tier & Category 浏览全部 54 个技能 | [docs/user/SKILLS-INDEX.md](../../docs/user/SKILLS-INDEX.md) |
+| 查看所有斜线命令 | [docs/user/COMMANDS-INDEX.md](../../docs/user/COMMANDS-INDEX.md) |
+| 快速参考卡片 | [docs/user/CHEATSHEET.md](docs/CHEATSHEET.md) |
 | 常见问题 | [docs/user/FAQ.md](docs/user/FAQ.md) |
 | 排查问题 | [docs/user/TROUBLESHOOTING.md](docs/user/TROUBLESHOOTING.md) |
 | 了解 UDS 术语 | [docs/user/GLOSSARY.md](docs/user/GLOSSARY.md) |

@@ -1,6 +1,6 @@
 # UDS Glossary
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/docs/user/GLOSSARY.md) _(planned)_
+> **Language**: English | [繁體中文](../../locales/zh-TW/docs/user/GLOSSARY.md) | [简体中文](../../locales/zh-CN/docs/user/GLOSSARY.md)
 
 Terms specific to UDS or used in a UDS-specific way.
 

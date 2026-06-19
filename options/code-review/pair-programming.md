@@ -1,6 +1,6 @@
 # Pair Programming
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/code-review/pair-programming.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/code-review/pair-programming.md) | [简体中文](../../locales/zh-CN/options/code-review/pair-programming.md)
 
 **Parent Standard**: [Code Review Checklist](../../core/code-review-checklist.md)
 

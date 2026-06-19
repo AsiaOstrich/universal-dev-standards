@@ -57,7 +57,7 @@ triggers:
 
 # Code Architect Agent
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/agents/code-architect.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/agents/code-architect.md) | [简体中文](../../locales/zh-CN/skills/agents/code-architect.md)
 
 ## Purpose
 

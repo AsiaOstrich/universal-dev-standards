@@ -1,6 +1,6 @@
 # UDS Workflows
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/workflows/README.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/workflows/README.md) | [简体中文](../../locales/zh-CN/skills/workflows/README.md)
 
 **Version**: 1.1.0
 **Last Updated**: 2026-01-21

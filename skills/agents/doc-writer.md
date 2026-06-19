@@ -55,7 +55,7 @@ triggers:
 
 # Documentation Writer Agent
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/agents/doc-writer.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/agents/doc-writer.md) | [简体中文](../../locales/zh-CN/skills/agents/doc-writer.md)
 
 ## Purpose
 

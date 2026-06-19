@@ -57,7 +57,7 @@ triggers:
 
 # Test Specialist Agent
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/agents/test-specialist.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/agents/test-specialist.md) | [简体中文](../../locales/zh-CN/skills/agents/test-specialist.md)
 
 ## Purpose
 

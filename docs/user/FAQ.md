@@ -1,6 +1,6 @@
 # UDS Frequently Asked Questions
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/docs/user/FAQ.md) _(planned)_
+> **Language**: English | [繁體中文](../../locales/zh-TW/docs/user/FAQ.md) | [简体中文](../../locales/zh-CN/docs/user/FAQ.md)
 
 ---
 

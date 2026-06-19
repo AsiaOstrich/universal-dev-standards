@@ -86,7 +86,7 @@ triggers:
 
 # Specification Analyst Agent
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/agents/spec-analyst.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/agents/spec-analyst.md) | [简体中文](../../locales/zh-CN/skills/agents/spec-analyst.md)
 
 ## Purpose
 

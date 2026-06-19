@@ -1,6 +1,6 @@
 # Performance Testing
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/testing/performance-testing.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/testing/performance-testing.md) | [简体中文](../../locales/zh-CN/options/testing/performance-testing.md)
 
 **Parent Standard**: [Testing Completeness](../../core/test-completeness-dimensions.md)
 

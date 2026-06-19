@@ -1,6 +1,6 @@
 # Rust Project Structure
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/project-structure/rust.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/project-structure/rust.md) | [简体中文](../../locales/zh-CN/options/project-structure/rust.md)
 
 **Parent Standard**: [Project Structure](../../core/project-structure.md)
 

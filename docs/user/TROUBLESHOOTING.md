@@ -1,6 +1,6 @@
 # UDS Troubleshooting Guide
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/docs/user/TROUBLESHOOTING.md) _(planned)_
+> **Language**: English | [繁體中文](../../locales/zh-TW/docs/user/TROUBLESHOOTING.md) | [简体中文](../../locales/zh-CN/docs/user/TROUBLESHOOTING.md)
 
 Find your problem → follow the fix.
 

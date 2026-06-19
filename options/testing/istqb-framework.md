@@ -1,6 +1,6 @@
 # ISTQB Testing Framework
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/testing/istqb-framework.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/testing/istqb-framework.md) | [简体中文](../../locales/zh-CN/options/testing/istqb-framework.md)
 
 **Parent Standard**: [Testing Completeness](../../core/test-completeness-dimensions.md)
 

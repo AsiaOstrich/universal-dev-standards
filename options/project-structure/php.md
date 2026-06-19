@@ -1,6 +1,6 @@
 # PHP Project Structure
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/project-structure/php.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/project-structure/php.md) | [简体中文](../../locales/zh-CN/options/project-structure/php.md)
 
 **Parent Standard**: [Project Structure](../../core/project-structure.md)
 

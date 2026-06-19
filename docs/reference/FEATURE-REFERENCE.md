@@ -3,7 +3,7 @@
 > Universal Development Standards - Complete Feature Documentation
 > Auto-generated | Last updated: 2026-05-14
 
-**Language**: English | [繁體中文](../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../locales/zh-CN/docs/FEATURE-REFERENCE.md)
+**Language**: English | [繁體中文](../../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
 ---
 

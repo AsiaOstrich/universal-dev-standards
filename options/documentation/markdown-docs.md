@@ -1,6 +1,6 @@
 # Markdown Documentation
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/documentation/markdown-docs.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/documentation/markdown-docs.md) | [简体中文](../../locales/zh-CN/options/documentation/markdown-docs.md)
 
 **Parent Standard**: [Documentation Structure](../../core/documentation-structure.md)
 

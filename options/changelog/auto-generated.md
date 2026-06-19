@@ -1,6 +1,6 @@
 # Auto-Generated Changelog
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/changelog/auto-generated.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/changelog/auto-generated.md) | [简体中文](../../locales/zh-CN/options/changelog/auto-generated.md)
 
 **Parent Standard**: [Changelog Standards](../../core/changelog-standards.md)
 

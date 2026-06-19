@@ -1,6 +1,6 @@
 # Automated Code Review
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/code-review/automated-review.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/code-review/automated-review.md) | [简体中文](../../locales/zh-CN/options/code-review/automated-review.md)
 
 **Parent Standard**: [Code Review Checklist](../../core/code-review-checklist.md)
 

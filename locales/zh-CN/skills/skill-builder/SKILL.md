@@ -15,7 +15,7 @@ argument-hint: "[process description | 流程描述]"
 
 # 流程转 Skill 助手
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/process-automation/SKILL.md)
+> **语言**: [English](../../../../skills/skill-builder/SKILL.md) | 简体中文
 
 引导你从「我一直在手动做这件事」走到「拥有一个正确构建的 Skill」，并在这一过程中保持适量的流程治理。
 
@@ -144,6 +144,6 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
 ## 参考
 
-- Skill Brief 模板：[templates/SKILL-BRIEF-TEMPLATE.md](../../templates/SKILL-BRIEF-TEMPLATE.md)
-- 候选追踪：[templates/SKILL-CANDIDATES.md](../../templates/SKILL-CANDIDATES.md)（请复制到你的项目）
+- Skill Brief 模板：[templates/SKILL-BRIEF-TEMPLATE.md](../../../../templates/SKILL-BRIEF-TEMPLATE.md)
+- 候选追踪：[templates/SKILL-CANDIDATES.md](../../../../templates/SKILL-CANDIDATES.md)（请复制到你的项目）
 - ADR 标准：[core/adr-standards.md](../../core/adr-standards.md)

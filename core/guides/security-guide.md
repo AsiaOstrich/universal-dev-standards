@@ -1,6 +1,6 @@
 # Security Guide
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/core/guides/security-guide.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/core/guides/security-guide.md) | [简体中文](../../locales/zh-CN/core/guides/security-guide.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2026-01-29

@@ -1,6 +1,6 @@
 # Create Custom Methodology Guide
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/dev-methodology/create-methodology.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/dev-methodology/create-methodology.md) | [简体中文](../../locales/zh-CN/skills/dev-methodology/create-methodology.md)
 
 > [!WARNING]
 > **Experimental Feature / 實驗性功能**

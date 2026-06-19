@@ -1,6 +1,6 @@
 # Ruby Project Structure
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/project-structure/ruby.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/project-structure/ruby.md) | [简体中文](../../locales/zh-CN/options/project-structure/ruby.md)
 
 **Parent Standard**: [Project Structure](../../core/project-structure.md)
 

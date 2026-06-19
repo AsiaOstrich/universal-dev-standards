@@ -55,7 +55,7 @@ triggers:
 
 # Code Reviewer Agent
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/agents/reviewer.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/agents/reviewer.md) | [简体中文](../../locales/zh-CN/skills/agents/reviewer.md)
 
 ## Purpose
 

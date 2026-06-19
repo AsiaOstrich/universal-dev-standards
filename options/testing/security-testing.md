@@ -1,6 +1,6 @@
 # Security Testing
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/testing/security-testing.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/testing/security-testing.md) | [简体中文](../../locales/zh-CN/options/testing/security-testing.md)
 
 **Parent Standard**: [Testing Completeness](../../core/test-completeness-dimensions.md)
 

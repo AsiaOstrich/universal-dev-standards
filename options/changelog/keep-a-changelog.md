@@ -1,6 +1,6 @@
 # Keep a Changelog
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/changelog/keep-a-changelog.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/changelog/keep-a-changelog.md) | [简体中文](../../locales/zh-CN/options/changelog/keep-a-changelog.md)
 
 **Parent Standard**: [Changelog Standards](../../core/changelog-standards.md)
 

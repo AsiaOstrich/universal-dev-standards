@@ -116,5 +116,5 @@ ls docs/specs/SPEC-*.md 2>/dev/null
 ## 參考
 
 - [開發工作流程技能](../dev-workflow-guide/SKILL.md)
-- [詳細階段指南](../dev-workflow-guide/workflow-phases.md)
+- [詳細階段指南](../../../../skills/dev-workflow-guide/workflow-phases.md)
 - [每日工作流程指南](../../adoption/DAILY-WORKFLOW-GUIDE.md)

@@ -1,6 +1,6 @@
 # Methodology Runtime Guide
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/dev-methodology/runtime.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/dev-methodology/runtime.md) | [简体中文](../../locales/zh-CN/skills/dev-methodology/runtime.md)
 
 > [!WARNING]
 > **Experimental Feature / 實驗性功能**

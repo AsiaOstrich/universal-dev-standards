@@ -1,6 +1,6 @@
 # Getting Started with UDS
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/docs/user/GETTING-STARTED.md) _(planned)_
+> **Language**: English | [繁體中文](../../locales/zh-TW/docs/user/GETTING-STARTED.md) | [简体中文](../../locales/zh-CN/docs/user/GETTING-STARTED.md)
 
 This guide walks you through UDS from zero to your first AI-assisted spec and commit.
 Estimated time: **5 minutes**.

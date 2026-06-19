@@ -204,6 +204,6 @@ describe.skipIf(!BASE_URL)("Platform Admin Journey — T-001 → T-010", () => {
 
 ## 参考
 
-- 标准：[user-journey-testing.ai.yaml](../../.standards/user-journey-testing.ai.yaml)
+- 标准：[user-journey-testing.ai.yaml](../../../../.standards/user-journey-testing.ai.yaml)
 - 相关 XSPEC：XSPEC-128（UDS 标准定义）
 - 相关 Skill：`/e2e`（AC 层测试）、`/atdd`（验收条件定义）

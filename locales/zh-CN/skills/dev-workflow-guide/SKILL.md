@@ -164,7 +164,7 @@ V. Release ──► VI. Documentation ──► VII. Standards ──► VIII. 
 2. **阶段参数**：显示该阶段的详细指引，包含所有相关命令与示例
 3. **场景参数**：显示该场景的推荐逐步工作流程
 
-此技能会从 [workflow-phases.md](./workflow-phases.md) 读取详细的阶段信息。
+此技能会从 [workflow-phases.md](../../../../skills/dev-workflow-guide/workflow-phases.md) 读取详细的阶段信息。
 
 ## 下一步引导
 
@@ -181,10 +181,10 @@ V. Release ──► VI. Documentation ──► VII. Standards ──► VIII. 
 
 ## 参考
 
-- [详细阶段指南](./workflow-phases.md) - 完整的逐阶段参考
+- [详细阶段指南](../../../../skills/dev-workflow-guide/workflow-phases.md) - 完整的逐阶段参考
 - [日常工作流程指南](../../../../adoption/DAILY-WORKFLOW-GUIDE.md) - 综合日常工作流程指南
-- [功能开发工作流程](../workflows/feature-dev.workflow.yaml) - 自动化功能开发工作流程
-- [集成流程工作流程](../workflows/integrated-flow.workflow.yaml) - 完整的 ATDD/SDD/BDD/TDD 工作流程
+- [功能开发工作流程](../../../../skills/workflows/feature-dev.workflow.yaml) - 自动化功能开发工作流程
+- [集成流程工作流程](../../../../skills/workflows/integrated-flow.workflow.yaml) - 完整的 ATDD/SDD/BDD/TDD 工作流程
 
 ---
 

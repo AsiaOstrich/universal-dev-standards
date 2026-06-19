@@ -1,6 +1,6 @@
 # Testing Theory Knowledge Base
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/testing-guide/testing-theory.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/testing-guide/testing-theory.md) | [简体中文](../../locales/zh-CN/skills/testing-guide/testing-theory.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2026-01-29

@@ -241,7 +241,7 @@ Suggested commit:
 
 ## 檔案
 
-- [integrated-flow.md](./integrated-flow.md) - 兩套系統的完整工作流程指南
+- [integrated-flow.md](../../../../skills/dev-methodology/integrated-flow.md) - 兩套系統的完整工作流程指南
 - [runtime.md](./runtime.md) - AI 行為與執行期（runtime）指南
 - [create-methodology.md](./create-methodology.md) - 自訂方法論建立精靈
 

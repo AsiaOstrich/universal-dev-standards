@@ -1,6 +1,6 @@
 # API Documentation
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/documentation/api-docs.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/documentation/api-docs.md) | [简体中文](../../locales/zh-CN/options/documentation/api-docs.md)
 
 **Parent Standard**: [Documentation Structure](../../core/documentation-structure.md)
 

@@ -1,6 +1,6 @@
 # Wiki-Style Documentation
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/options/documentation/wiki-style.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/options/documentation/wiki-style.md) | [简体中文](../../locales/zh-CN/options/documentation/wiki-style.md)
 
 **Parent Standard**: [Documentation Structure](../../core/documentation-structure.md)
 

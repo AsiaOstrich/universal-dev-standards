@@ -14,7 +14,7 @@ description: |
 
 # SLO Assistant
 
-> **语言**：English | [繁體中文](../../locales/zh-TW/skills/slo-assistant/SKILL.md)
+> **语言**: [English](../../../../skills/slo-assistant/guide.md) | 简体中文
 
 **版本**：1.0.0
 **最后更新**：2026-04-01

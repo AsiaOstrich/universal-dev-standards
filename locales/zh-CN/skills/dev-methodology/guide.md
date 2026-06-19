@@ -20,7 +20,7 @@ description: |
 
 # 方法论系统 Skill
 
-> **语言**：English | [繁體中文](../../locales/zh-TW/skills/dev-methodology/SKILL.md)
+> **语言**: [English](../../../../skills/dev-methodology/guide.md) | 简体中文
 
 **版本**：2.0.0
 **最后更新**：2026-01-25
@@ -241,7 +241,7 @@ Suggested commit:
 
 ## 文件
 
-- [integrated-flow.md](./integrated-flow.md) - 两个系统的完整工作流指南
+- [integrated-flow.md](../../../../skills/dev-methodology/integrated-flow.md) - 两个系统的完整工作流指南
 - [runtime.md](./runtime.md) - AI 行为与运行时指南
 - [create-methodology.md](./create-methodology.md) - 自定义方法论创建向导
 
