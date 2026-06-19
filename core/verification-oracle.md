@@ -4,6 +4,8 @@
 > **AI-optimized version**: `ai/standards/verification-oracle.ai.yaml`
 > **Spec**: XSPEC-256 (cross-project/specs/XSPEC-256-verification-oracle.md)
 
+**Scope**: universal
+
 ## Overview
 
 A **test oracle** is the source of truth that decides whether software output is *correct*.

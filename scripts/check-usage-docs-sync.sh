@@ -70,8 +70,8 @@ fi
 
 # Check if output files exist
 DOCS_FILES=(
-  "docs/FEATURE-REFERENCE.md"
-  "docs/CHEATSHEET.md"
+  "docs/reference/FEATURE-REFERENCE.md"
+  "docs/user/CHEATSHEET.md"
   "locales/zh-TW/docs/FEATURE-REFERENCE.md"
   "locales/zh-TW/docs/CHEATSHEET.md"
   "locales/zh-CN/docs/FEATURE-REFERENCE.md"

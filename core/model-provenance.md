@@ -4,6 +4,8 @@
 > **AI-optimized version**: `ai/standards/model-provenance.ai.yaml`
 > **Spec**: XSPEC-255 (cross-project/specs/XSPEC-255-model-provenance-policy.md)
 
+**Scope**: universal
+
 ## Overview
 
 Model selection is not only "cost × quality" — there is a **third axis: whether the

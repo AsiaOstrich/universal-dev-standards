@@ -4,6 +4,8 @@
 > **AI-optimized version**: `ai/standards/secret-management-standards.ai.yaml`
 > **Spec**: XSPEC-065 (cross-project/specs/XSPEC-065-uds-infrastructure-pack.md)
 
+**Scope**: universal
+
 ## Overview
 
 This standard defines how teams store, inject, rotate, and audit secrets and

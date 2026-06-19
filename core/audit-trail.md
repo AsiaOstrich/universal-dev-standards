@@ -4,6 +4,8 @@
 > **AI-optimized version**: `ai/standards/audit-trail.ai.yaml`
 > **Spec**: XSPEC-066 (cross-project/specs/XSPEC-066-uds-compliance-audit-pack.md)
 
+**Scope**: universal
+
 ## Overview
 
 This standard defines the requirements for creating, storing, and managing

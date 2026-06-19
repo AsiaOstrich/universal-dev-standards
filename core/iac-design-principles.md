@@ -4,6 +4,8 @@
 > **AI-optimized version**: `ai/standards/iac-design-principles.ai.yaml`
 > **Spec**: XSPEC-065 (cross-project/specs/XSPEC-065-uds-infrastructure-pack.md)
 
+**Scope**: universal
+
 ## Overview
 
 This standard defines the four foundational principles for Infrastructure as Code

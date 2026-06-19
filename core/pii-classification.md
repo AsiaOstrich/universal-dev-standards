@@ -4,6 +4,8 @@
 > **AI-optimized version**: `ai/standards/pii-classification.ai.yaml`
 > **Spec**: XSPEC-066 (cross-project/specs/XSPEC-066-uds-compliance-audit-pack.md)
 
+**Scope**: universal
+
 ## Overview
 
 This standard defines how **Personally Identifiable Information (PII)** and

@@ -4,6 +4,8 @@
 > **AI-optimized version**: `ai/standards/user-story-mapping.ai.yaml`
 > **Spec**: XSPEC-069 (cross-project/specs/XSPEC-069-uds-product-layer-pack.md)
 
+**Scope**: universal
+
 ## Overview
 
 This standard defines how teams construct and use **story maps** to plan product

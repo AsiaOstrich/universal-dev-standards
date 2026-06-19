@@ -4,6 +4,8 @@
 > **AI-optimized version**: `ai/standards/product-metrics-standards.ai.yaml`
 > **Spec**: XSPEC-069 (cross-project/specs/XSPEC-069-uds-product-layer-pack.md)
 
+**Scope**: universal
+
 ## Overview
 
 This standard defines how teams **select, structure, and govern product metrics**.

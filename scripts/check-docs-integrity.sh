@@ -254,7 +254,11 @@ find "$ROOT_DIR" -name "*.md" -type f \
     ! -path "*/node_modules/*" \
     ! -path "*/.git/*" \
     ! -path "*/cli/node_modules/*" \
-    ! -path "*/cli/bundled/*" 2>/dev/null | \
+    ! -path "*/cli/bundled/*" \
+    ! -path "*/.claude/*" \
+    ! -path "*/.gemini/*" \
+    ! -path "*/docs/archive/*" \
+    ! -path "*/tests/bats/*" 2>/dev/null | \
 while IFS= read -r md_file; do
     [[ -z "$md_file" ]] && continue
 
@@ -283,6 +287,10 @@ files_checked=$(find "$ROOT_DIR" -name "*.md" -type f \
     ! -path "*/.git/*" \
     ! -path "*/cli/node_modules/*" \
     ! -path "*/cli/bundled/*" \
+    ! -path "*/.claude/*" \
+    ! -path "*/.gemini/*" \
+    ! -path "*/docs/archive/*" \
+    ! -path "*/tests/bats/*" \
     ! -path "*template*" ! -path "*TEMPLATE*" 2>/dev/null | wc -l | tr -d ' ')
 
 # Validate collected links

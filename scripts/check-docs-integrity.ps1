@@ -216,6 +216,10 @@ $mdFiles = Get-ChildItem -Path $RootDir -Filter "*.md" -Recurse -File |
         $_.FullName -notmatch "node_modules" -and
         $_.FullName -notmatch "[\\/]\.git[\\/]" -and
         $_.FullName -notmatch "[\\/]cli[\\/]bundled[\\/]" -and
+        $_.FullName -notmatch "[\\/]\.claude[\\/]" -and
+        $_.FullName -notmatch "[\\/]\.gemini[\\/]" -and
+        $_.FullName -notmatch "[\\/]docs[\\/]archive[\\/]" -and
+        $_.FullName -notmatch "[\\/]tests[\\/]bats[\\/]" -and
         $_.Name -notmatch "template" -and
         $_.Name -notmatch "TEMPLATE"
     }

@@ -4,6 +4,8 @@
 > **AI-optimized version**: `ai/standards/slo-sli.ai.yaml`
 > **Spec**: XSPEC-063 (cross-project/specs/XSPEC-063-uds-sre-standards-pack.md)
 
+**Scope**: universal
+
 ## Overview
 
 This standard defines how teams **select, measure, and govern Service Level

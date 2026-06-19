@@ -4,6 +4,8 @@
 > **AI-optimized version**: `ai/standards/data-contract.ai.yaml`
 > **Spec**: XSPEC-068 (cross-project/specs/XSPEC-068-uds-data-engineering-pack.md)
 
+**Scope**: universal
+
 ## Overview
 
 This standard defines how **data contracts** are established, versioned, and

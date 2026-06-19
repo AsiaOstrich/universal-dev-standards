@@ -4,6 +4,8 @@
 > **AI-optimized version**: `ai/standards/data-pipeline.ai.yaml`
 > **Spec**: XSPEC-068 (cross-project/specs/XSPEC-068-uds-data-engineering-pack.md)
 
+**Scope**: universal
+
 ## Overview
 
 This standard defines engineering requirements for building **reliable,

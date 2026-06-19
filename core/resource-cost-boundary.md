@@ -4,6 +4,8 @@
 > **AI-optimized version**: `ai/standards/resource-cost-boundary.ai.yaml`
 > **Spec**: XSPEC-277 (cross-project/specs/XSPEC-277-resource-cost-boundary-standard.md)
 
+**Scope**: universal
+
 ## Overview
 
 The resource consumption of an agentic / LLM execution unit (a pipeline run, an agent, a

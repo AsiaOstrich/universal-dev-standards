@@ -4,6 +4,8 @@
 > **AI-optimized version**: `ai/standards/license-compliance.ai.yaml`
 > **Agent Spec**: ASPEC-001 (cross-project/aspec/ASPEC-001-license-compliance-agent.md)
 
+**Scope**: universal
+
 ## Overview
 
 Comprehensive license compliance for AI-augmented development, covering both general OSS practice (Tier 1) and AI-specific rules for AI-generated code (Tier 2).
