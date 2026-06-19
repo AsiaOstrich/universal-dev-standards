@@ -248,6 +248,7 @@ The ratchet starts at your current coverage. From that point on, it can only inc
 - `unit-testing.ai.yaml` — Unit test scope and organization
 - `integration-testing.ai.yaml` — Integration test patterns
 - `deployment-standards.ai.yaml` — Deploy gate requirements
+- `flaky-test-management.md` — Intermittent-failure handling: a test that flakes is **not** a passing test. Before a coverage figure counts toward a gate, intermittent failures MUST be quarantined / retry-budgeted / root-caused per that standard — otherwise "full coverage" hides non-deterministic gaps.
 - `behavior-snapshot.md` — Error-response differential oracle (Migration Error-Path Completeness, axis ⑨)
 - `migration-assistant` skill — Legacy exception/error-code derive + degradation parity (XSPEC-288)
 - XSPEC-178 — Full specification and implementation phases

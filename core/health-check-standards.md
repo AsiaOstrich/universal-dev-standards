@@ -12,7 +12,7 @@
 - **Readiness 僅檢關鍵依賴**：非關鍵依賴不納入，避免邊緣故障造成服務被下線
 - **慢啟動用 startup probe**：啟動完成後交棒給 liveness
 - **結構化 JSON 回應**：含 `status` / `dependencies` / `timestamp` / `version`
-- **作為 observability signal**：連續 fail 觸發 incident
+- **作為 observability signal**：連續 fail（達 probe threshold）依 [alerting-standards](alerting-standards.md) 觸發告警——由 alerting 定義觸發時機、嚴重性對映與路由（`HC-001 HEALTH_CHECK_FAILED` 為 alert 來源之一），health-check 只負責 emit signal、不自行決定通知對象
 
 ## Probe Types
 
@@ -68,7 +68,7 @@
 - AI-optimized: [ai/standards/health-check-standards.ai.yaml](../ai/standards/health-check-standards.ai.yaml)
 - XSPEC-067: DEC-043 Wave 1 Reliability Pack 跨專案規格
 - DEC-043: UDS 覆蓋完整性路線圖（驅動來源）
-- Related: `deployment-standards`, `circuit-breaker`, observability-standards (XSPEC-063 規劃中)
+- Related: `deployment-standards`, `circuit-breaker`, `alerting-standards`（probe 連續失敗 → 告警觸發與路由）, observability-standards (XSPEC-063 規劃中)
 - Industry: Kubernetes probes, Microsoft eShop health checks, Google SRE Book Ch.6
 
 

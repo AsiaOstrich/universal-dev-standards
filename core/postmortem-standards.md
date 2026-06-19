@@ -255,6 +255,8 @@ For lower-severity or recurring incidents that don't warrant a full postmortem:
 | **Mitigate** | Reduce impact scope and duration | Implement automatic circuit breaker |
 | **Process** | Improve response procedures | Update on-call handoff checklist |
 
+> **Hand-off to tech-debt tracking**: a Prevent/Mitigate action item that is a long-lived design/architecture remediation (not a quick fix that closes with the incident) MUST be registered in the tech-debt registry per [tech-debt-standards](tech-debt-standards.md) with `Source = postmortem PM-<id>` — so it is budgeted and tracked rather than lost once the incident closes.
+
 ### Status Tracking
 
 ```

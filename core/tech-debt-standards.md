@@ -54,7 +54,7 @@ Every technical debt item must be recorded in a registry with the following 11 f
 | 1 | **ID** | Unique identifier using `TD-NNN` format | TD-001 |
 | 2 | **Title** | Short descriptive title | "Monolithic auth module needs decomposition" |
 | 3 | **Type** | One of the 6 debt types above | Design |
-| 4 | **Source** | How the debt was introduced (deliberate/inadvertent) | Deliberate |
+| 4 | **Source** | How the debt was introduced (deliberate / inadvertent / incident-postmortem — see [postmortem-standards](postmortem-standards.md) action-item hand-off) | Deliberate (or `postmortem PM-042`) |
 | 5 | **Impact** | Business and technical impact description | "Slows feature development by ~2 days per sprint" |
 | 6 | **Estimated Cost** | Effort to resolve (story points or person-days) | 8 story points |
 | 7 | **Interest** | Ongoing cost of not resolving (see Interest Types) | 1 day/sprint additional debugging |
