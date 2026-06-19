@@ -2,7 +2,7 @@
 
 > **Language**: English | 繁體中文
 
-**Parent Standard**: [Release Standards](../../.standards/release-standards.ai.yaml)
+**Parent Standard**: [Release Standards](../../skills/release-standards/SKILL.md)
 
 ---
 

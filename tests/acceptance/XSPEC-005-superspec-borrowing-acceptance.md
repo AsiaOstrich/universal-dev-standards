@@ -1,6 +1,6 @@
 # XSPEC-005 Acceptance Tests — SuperSpec Borrowing Phase 1-2
 
-**Specification**: [superspec-borrowing-phase1-2-spec.md](../../specs/superspec-borrowing-phase1-2-spec.md)
+**Specification**: superspec-borrowing-phase1-2-spec.mdï¼å·²å°å­ï¼
 **Generated**: 2026-04-07
 **Status**: Pending Review
 

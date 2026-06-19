@@ -187,6 +187,10 @@ function Test-PlaceholderLink {
     if ($Target -match 'old-path') { return $true }
     if ($Target -match 'your-') { return $true }
     if ($Target -match 'example') { return $true }
+    # Illustrative placeholders (aligned with check-naming-and-refs.ts)
+    if ($Target -match 'NNN|xxx|sample') { return $true }
+    if ($Target -match '(ADR|DEC|SPEC|TASK)-[0-9N]') { return $true }
+    if ($Target -match '^my-') { return $true }
     return $false
 }
 

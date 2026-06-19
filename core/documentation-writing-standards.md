@@ -991,7 +991,7 @@ Ensure documentation is accessible to all users, following WCAG 2.1 Level A guid
 | Requirement | Description | Example |
 |-------------|-------------|---------|
 | **Plain language** | Use clear, simple language; target grade 8 reading level | Avoid: "utilize" → Use: "use" |
-| **Alt text for images** | Provide descriptive alt text for all non-decorative images | `![Architecture diagram showing three-tier layout](arch.png)` |
+| **Alt text for images** | Provide descriptive alt text for all non-decorative images | `![Architecture diagram showing three-tier layout](path/to/arch.png)` |
 | **Heading hierarchy** | Use proper heading levels (h1→h2→h3), never skip levels | Don't jump from `#` to `###` |
 | **Link text** | Use descriptive link text, not "click here" | Avoid: [click here] → Use: [installation guide] |
 | **Code blocks** | Use fenced code blocks with language identifiers | ` ```javascript ` not ` ``` ` |

@@ -13,7 +13,7 @@ last_updated: 2026-04-22
 
 For day-to-day maintenance, follow the verification steps in `CLAUDE.md` (§Post-Modification Verification).
 
-- [Archived version v1.1.0](docs/archive/MAINTENANCE-v1.md) — original standalone guide
+- Archived version v1.1.0ï¼å·²å°å­ï¼ — original standalone guide
 
 ## Bundle-Source Parity (XSPEC-072 / DEC-045)
 

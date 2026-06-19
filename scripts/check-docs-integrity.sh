@@ -312,6 +312,10 @@ while IFS='|' read -r md_file link_target; do
     [[ "$link_target" =~ old-path ]] && continue
     [[ "$link_target" =~ your- ]] && continue
     [[ "$link_target" =~ example ]] && continue
+    # Illustrative placeholders (aligned with check-naming-and-refs.ts)
+    [[ "$link_target" =~ NNN|xxx|sample ]] && continue
+    [[ "$link_target" =~ (ADR|DEC|SPEC|TASK)-[0-9N] ]] && continue
+    [[ "$link_target" =~ ^my- ]] && continue
 
     # Split path and anchor
     file_path="${link_target%%#*}"
