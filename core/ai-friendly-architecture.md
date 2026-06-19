@@ -5,7 +5,7 @@
 **Version**: 1.0.0
 **Last Updated**: 2026-01-21
 **Applicability**: All software projects collaborating with AI assistants
-**Scope**: partial
+**Scope**: universal
 **Industry Standards**: None (Emerging AI collaboration practice)
 
 ---
