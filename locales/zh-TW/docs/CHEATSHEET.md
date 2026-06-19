@@ -1,14 +1,6 @@
----
-source: ../../../docs/user/CHEATSHEET.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-06-10
-status: current
----
-
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-05-14
+> Quick reference for all UDS features | Last updated: 2026-06-19
 
 **Language**: [English](../../../docs/user/CHEATSHEET.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CHEATSHEET.md)
 
@@ -42,6 +34,7 @@ status: current
 | `/check` | [UDS] Verify standards adoption status |
 | `/checkin` | "[UDS] Pre-commit quality gates verification" |
 | `/ci-cd` | "[UDS] Guide CI/CD pipeline design, configuration and optimization" |
+| `/code-review` | [UDS] Perform systematic code review with checklist |
 | `/commit` | [UDS] Generate commit messages following Conventional Commits standard |
 | `/config` | [UDS] Configure project development standards |
 | `/coverage` | [UDS] Analyze test coverage and provide recommendations |
@@ -72,7 +65,6 @@ status: current
 | `/reverse-sdd` | [UDS] Reverse engineer code into SDD specification document |
 | `/reverse-tdd` | [UDS] Analyze BDD-TDD coverage gaps |
 | `/reverse` | [UDS] Reverse engineer code to Specs, BDD, or TDD coverage. |
-| `/code-review` | [UDS] Perform systematic code review with checklist |
 | `/runbook` | "[UDS] Guide runbook creation, maintenance, drills, and coverage reporting" |
 | `/scan` | "[UDS] Guide automated security scanning, dependency auditing and secret detection" |
 | `/sdd-retro` | [UDS] Create retroactive specs for untracked feat/fix commits |
@@ -93,7 +85,7 @@ status: current
 | `ai-instruction-standards` | Create and maintain AI instruction files (CLAUDE.md, AGENTS. |
 | `api-design-assistant` | Guide API design following REST, GraphQL, and gRPC best prac |
 | `atdd-assistant` | "[UDS] Guide through Acceptance Test-Driven Development work |
-| `audit-assistant` | "[UDS] UDS Health & Feedback System \| UDS 健康檢查與回饋系統" |
+| `audit-assistant` | "[UDS] UDS Health & Feedback System" |
 | `bdd-assistant` | "[UDS] Guide through Behavior-Driven Development workflow" |
 | `brainstorm-assistant` | "[UDS] Structured AI-assisted brainstorming before spec crea |
 | `changelog-guide` | "[UDS] Generate and maintain CHANGELOG.md entries" |
@@ -113,7 +105,8 @@ status: current
 | `error-code-guide` | Design consistent error codes following the PREFIX_CATEGORY_ |
 | `git-workflow-guide` | Guide Git branching strategies, branch naming, and merge ope |
 | `incident-response-assistant` | Guide incident response, root cause analysis, and post-morte |
-| `journey-test-assistant` | "[UDS] 從專案描述生成連貫使用者旅程測試計畫（TESTPLAN）與 E2E 骨架" |
+| `journey-test-assistant` | "[UDS] Generate coherent user journey test plans (TESTPLAN)  |
+| `knowledge-graph` | "[UDS] Trace spec/decision/code impact chains via a knowledg |
 | `logging-guide` | Implement structured logging with proper log levels and sens |
 | `metrics-dashboard-assistant` | "[UDS] Track development metrics, code quality indicators, a |
 | `migration-assistant` | "[UDS] Guide code migration, framework upgrades, and technol |
@@ -128,7 +121,7 @@ status: current
 | `release-standards` | "[UDS] Guide release process and changelogs" |
 | `requirement-assistant` | "[UDS] Write user stories and requirements following INVEST  |
 | `retrospective-assistant` | [UDS] Guide structured team retrospectives for Sprint and Re |
-| `reverse-engineer` | "[UDS] System archeology — reverse engineer code across Logi |
+| `reverse-engineer` | "[UDS] System archeology - reverse engineer code across Logi |
 | `runbook-assistant` | Guide runbook creation, maintenance, and drill exercises. |
 | `security-assistant` | Guide security review and vulnerability assessment following |
 | `security-scan-assistant` | Guide automated security scanning, dependency auditing, and  |
@@ -182,6 +175,7 @@ status: current
 | `anti-hallucination` | This standard defines strict guidelines for AI ass |
 | `anti-sycophancy-prompting` | This standard defines techniques and rules for des |
 | `api-design-standards` | This standard defines comprehensive guidelines for |
+| `audit-trail` | Audit Trail Standards |
 | `behavior-driven-development` | Behavior-Driven Development (BDD) Standards |
 | `behavior-snapshot` | Behavior Snapshot Standard |
 | `branch-completion` | Define a standardized workflow for completing deve |
@@ -196,13 +190,16 @@ status: current
 | `circuit-breaker` | Circuit Breaker Standard |
 | `code-review-checklist` | This standard provides a comprehensive checklist f |
 | `commit-message-guide` | Standardized commit messages improve code review e |
+| `container-image-standards` | Container Image Build and Security Standards |
 | `container-security` | 容器安全標準 |
 | `containerization-standards` | Containerization Standards |
 | `context-aware-loading` | This standard defines a protocol for AI tools to s |
 | `contract-testing-standards` | Contract testing verifies that a provider (API ser |
 | `cost-budget-test` | Cost Budget Test Standards |
 | `cross-flow-regression` | This standard defines cross-flow regression testin |
+| `data-contract` | Data Contract Standards |
 | `data-migration-testing` | Data Migration Testing |
+| `data-pipeline` | Data Pipeline Standards |
 | `database-standards` | This standard defines guidelines for database desi |
 | `deployment-standards` | This standard defines guidelines for safely deploy |
 | `deprecation-standards` | Deprecation & Sunset Standards |
@@ -229,22 +226,30 @@ status: current
 | `git-worktree` | Define a lifecycle for using Git worktrees to isol |
 | `governance-layer` | A governance layer provides a shared anchor for al |
 | `health-check-standards` | Health Check Standards |
+| `iac-design-principles` | Infrastructure as Code Design Principles |
 | `immutability-first` | Immutability-First Architecture Standard |
+| `incident-response` | Incident Response Standards |
+| `knowledge-graph-memory` | This standard defines a **relationship schema** so |
 | `knowledge-transfer-standards` | Knowledge Transfer Standards |
+| `license-compliance` | License Compliance Standards |
 | `llm-output-validation` | LLM 輸出驗證標準 |
 | `logging-standards` | Logging Standards |
 | `mock-boundary` | This document defines rules for what can and canno |
+| `model-provenance` | Model Provenance Policy Standards |
 | `model-selection` | Define a cost-effective strategy for selecting AI  |
 | `mutation-testing` | Mutation testing evaluates test suite effectivenes |
 | `no-cicd-deployment` | No-CI/CD Deployment Strategy |
 | `observability-standards` | Observability Standards |
 | `packaging-standards` | This standard defines a Recipe-based packaging fra |
 | `performance-standards` | This standard defines comprehensive guidelines for |
+| `pii-classification` | PII Classification and Handling Standards |
 | `pipeline-integration-standards` | Pipeline Integration Standards |
 | `pipeline-security-gates` | Pipeline Security Gates（CI Pipeline 安全檢查點） |
 | `policy-as-code-testing` | Policy as Code 測試標準 |
 | `postmortem-standards` | Postmortem Standards (Blameless Post-Incident Review) |
+| `prd-standards` | Product Requirements Document Standards |
 | `privacy-standards` | Privacy Standards |
+| `product-metrics-standards` | Product Metrics Framework Standards |
 | `project-context-memory` | This standard defines a structured system for capt |
 | `project-structure` | This standard defines conventions for project dire |
 | `prompt-regression` | Prompt Regression Standards |
@@ -255,18 +260,24 @@ status: current
 | `release-readiness-gate` | This standard defines a **single, aggregated Relea |
 | `replay-test` | Replay Test Standards |
 | `requirement-engineering` | Requirement Engineering Standards |
+| `resource-cost-boundary` | Resource / Cost Boundary Declaration Standards |
 | `retrospective-standards` | Retrospectives are structured team reflections tha |
 | `retry-standards` | Retry Standards |
 | `reverse-engineering-standards` | This standard defines the principles, workflows, a |
 | `rollback-standards` | Rollback Standards（回滾標準） |
 | `runbook-standards` | Runbook Standards |
+| `runbook` | Runbook Writing Standards |
 | `sast-advanced` | This standard defines Advanced Static Application  |
+| `schema-evolution` | Schema Evolution Standards |
+| `secret-management-standards` | Secret Management and Credential Hygiene Standards |
 | `secure-op` | Secure-Op：AI Agent 安全操作標準 |
 | `security-decision` | Security Decision Standard |
 | `security-standards` | This standard defines comprehensive security guide |
 | `security-testing` | This document defines the security testing methodo |
+| `self-review-protocol` | This standard mandates a **self-review pass** on l |
 | `server-ops-security` | 伺服器操作安全標準 |
 | `skill-standard-alignment-check` | Skill-Standard Alignment Check |
+| `slo-sli` | SLO/SLI Definition Standards |
 | `slo-standards` | SLO Standards (Service Level Objectives) |
 | `smoke-test` | Smoke Test Standards |
 | `spec-driven-development` | Spec-Driven Development (SDD) Standards |
@@ -285,7 +296,9 @@ status: current
 | `timeout-standards` | Timeout Standards |
 | `token-budget` | Token Budget Zone Standard |
 | `translation-lifecycle-standards` | Translation lifecycle standards: MISSING vs OUTDAT |
+| `user-story-mapping` | User Story Mapping Standards |
 | `verification-evidence` | Establish an "Iron Law" that no task can be claime |
+| `verification-oracle` | Verification Oracle Standards |
 | `versioning` | This standard defines how to version software rele |
 | `virtual-organization-standards` | This standard treats the AI ecosystem as a "Virtua |
 | `workflow-enforcement` | Workflow Enforcement Standards |
@@ -340,6 +353,7 @@ status: current
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
 | `generate-docs.mjs` | Generate Docs |
+| `generate-locale-coverage.mjs` | Locale Coverage Generator |
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9 |
 | `install-hooks.mjs` | Install Hooks |
 | `install-hooks.sh` | DEPRECATED: Use 'node scripts/install-hooks.mjs' i |
@@ -348,6 +362,7 @@ status: current
 | `pre-release-check.sh` | Pre-release Check Script |
 | `pre-release.ps1` | Pre-Release Preparation Script for Universal Devel |
 | `pre-release.sh` | Pre-Release Preparation Script |
+| `setup-hooks.sh` | setup-hooks.sh — Install git hooks for UDS repo |
 | `setup-husky.mjs` | Cross-platform Husky Setup Script |
 | `sync-manifest.mjs` | Sync Manifest |
 

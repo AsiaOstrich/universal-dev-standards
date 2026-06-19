@@ -740,11 +740,11 @@ function generateReference(data, lang = 'en', config = null) {
 
   // Language links
   if (lang === 'en') {
-    md += `**Language**: English | [繁體中文](../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../locales/zh-CN/docs/FEATURE-REFERENCE.md)\n\n`;
+    md += `**Language**: English | [繁體中文](../../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../../locales/zh-CN/docs/FEATURE-REFERENCE.md)\n\n`;
   } else if (lang === 'zh-TW') {
-    md += `**Language**: [English](../../../docs/FEATURE-REFERENCE.md) | 繁體中文 | [简体中文](../../zh-CN/docs/FEATURE-REFERENCE.md)\n\n`;
+    md += `**Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | 繁體中文 | [简体中文](../../zh-CN/docs/FEATURE-REFERENCE.md)\n\n`;
   } else {
-    md += `**Language**: [English](../../../docs/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文\n\n`;
+    md += `**Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文\n\n`;
   }
 
   md += `---\n\n`;
@@ -917,11 +917,11 @@ function generateCheatsheet(data, lang = 'en', config = null) {
 
   // Language links
   if (lang === 'en') {
-    md += `**Language**: English | [繁體中文](../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../locales/zh-CN/docs/CHEATSHEET.md)\n\n`;
+    md += `**Language**: English | [繁體中文](../../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../../locales/zh-CN/docs/CHEATSHEET.md)\n\n`;
   } else if (lang === 'zh-TW') {
-    md += `**Language**: [English](../../../docs/CHEATSHEET.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CHEATSHEET.md)\n\n`;
+    md += `**Language**: [English](../../../docs/user/CHEATSHEET.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CHEATSHEET.md)\n\n`;
   } else {
-    md += `**Language**: [English](../../../docs/CHEATSHEET.md) | [繁體中文](../../zh-TW/docs/CHEATSHEET.md) | 简体中文\n\n`;
+    md += `**Language**: [English](../../../docs/user/CHEATSHEET.md) | [繁體中文](../../zh-TW/docs/CHEATSHEET.md) | 简体中文\n\n`;
   }
 
   md += `---\n\n`;
@@ -998,7 +998,8 @@ function generateCheatsheet(data, lang = 'en', config = null) {
 
   // Footer
   md += `---\n\n`;
-  md += `📖 [Full Reference](FEATURE-REFERENCE.md) | `;
+  const fullRefPath = lang === 'en' ? '../reference/FEATURE-REFERENCE.md' : 'FEATURE-REFERENCE.md';
+  md += `📖 [Full Reference](${fullRefPath}) | `;
   md += `🔗 [GitHub](https://github.com/AsiaOstrich/universal-dev-standards)\n`;
 
   return md;

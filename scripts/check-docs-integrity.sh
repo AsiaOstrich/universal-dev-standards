@@ -592,8 +592,8 @@ echo -e "${BLUE}[5/5] Index Completeness / 索引完整性${NC}"
 echo "----------------------------------------"
 echo ""
 
-FEATURE_REF="$ROOT_DIR/docs/FEATURE-REFERENCE.md"
-CHEATSHEET="$ROOT_DIR/docs/CHEATSHEET.md"
+FEATURE_REF="$ROOT_DIR/docs/reference/FEATURE-REFERENCE.md"
+CHEATSHEET="$ROOT_DIR/docs/user/CHEATSHEET.md"
 index_errors=0
 
 if [[ -f "$FEATURE_REF" ]]; then

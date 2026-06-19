@@ -1,15 +1,7 @@
----
-source: ../../../docs/reference/FEATURE-REFERENCE.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-06-10
-status: current
----
-
 # UDS 功能參考手冊
 
 > Universal Development Standards - 完整功能文件
-> Auto-generated | Last updated: 2026-05-14
+> Auto-generated | Last updated: 2026-06-19
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | 繁體中文 | [简体中文](../../zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -19,13 +11,13 @@ status: current
 
 1. [CLI 指令](#cli-commands) (9)
 2. [斜線命令](#slash-commands) (49)
-3. [技能](#skills) (54)
+3. [技能](#skills) (55)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
-6. [核心規範](#core-standards) (125)
-7. [腳本](#scripts) (55)
+6. [核心規範](#core-standards) (145)
+7. [腳本](#scripts) (57)
 
-**Total Features: 302**
+**Total Features: 325**
 
 ---
 
@@ -97,6 +89,7 @@ status: current
 | `--migrate` | Migrate legacy manifest to hash-based tracking |
 | `--offline` | Skip npm registry check for CLI updates |
 | `--force` | Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071) |
+| `--i18n` | Run i18n lint rules (XSPEC-239) across canonical + locale variants |
 
 ### `uds update`
 
@@ -117,6 +110,7 @@ status: current
 | `--plan` | Show reconciliation plan without executing (like terraform plan) |
 | `--force` | Force update all files, ignoring hash comparison |
 | `--rollback` | Rollback to the most recent backup |
+| `--locale` | Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env |
 
 ### `uds skills`
 
@@ -172,6 +166,7 @@ status: current
 | `/check` | [UDS] Verify standards adoption status |
 | `/checkin` | "[UDS] Pre-commit quality gates verification" |
 | `/ci-cd` | "[UDS] Guide CI/CD pipeline design, configuration and optimization" |
+| `/code-review` | [UDS] Perform systematic code review with checklist |
 | `/commit` | [UDS] Generate commit messages following Conventional Commits standard |
 | `/config` | [UDS] Configure project development standards |
 | `/coverage` | [UDS] Analyze test coverage and provide recommendations |
@@ -202,7 +197,6 @@ status: current
 | `/reverse-sdd` | [UDS] Reverse engineer code into SDD specification document |
 | `/reverse-tdd` | [UDS] Analyze BDD-TDD coverage gaps |
 | `/reverse` | [UDS] Reverse engineer code to Specs, BDD, or TDD coverage. |
-| `/code-review` | [UDS] Perform systematic code review with checklist |
 | `/runbook` | "[UDS] Guide runbook creation, maintenance, drills, and coverage reporting" |
 | `/scan` | "[UDS] Guide automated security scanning, dependency auditing and secret detection" |
 | `/sdd-retro` | [UDS] Create retroactive specs for untracked feat/fix commits |
@@ -225,7 +219,7 @@ status: current
 | `ai-instruction-standards` | Create and maintain AI instruction files (CLAUDE.md, AGENTS.md, .cursor/rules/, etc.) with proper structure. |
 | `api-design-assistant` | Guide API design following REST, GraphQL, and gRPC best practices. |
 | `atdd-assistant` | "[UDS] Guide through Acceptance Test-Driven Development workflow" |
-| `audit-assistant` | "[UDS] UDS Health & Feedback System \| UDS 健康檢查與回饋系統" |
+| `audit-assistant` | "[UDS] UDS Health & Feedback System" |
 | `bdd-assistant` | "[UDS] Guide through Behavior-Driven Development workflow" |
 | `brainstorm-assistant` | "[UDS] Structured AI-assisted brainstorming before spec creation" |
 | `changelog-guide` | "[UDS] Generate and maintain CHANGELOG.md entries" |
@@ -245,7 +239,8 @@ status: current
 | `error-code-guide` | Design consistent error codes following the PREFIX_CATEGORY_NUMBER format. |
 | `git-workflow-guide` | Guide Git branching strategies, branch naming, and merge operations. |
 | `incident-response-assistant` | Guide incident response, root cause analysis, and post-mortem documentation. |
-| `journey-test-assistant` | "[UDS] 從專案描述生成連貫使用者旅程測試計畫（TESTPLAN）與 E2E 骨架" |
+| `journey-test-assistant` | "[UDS] Generate coherent user journey test plans (TESTPLAN) and E2E skeletons from project description." |
+| `knowledge-graph` | "[UDS] Trace spec/decision/code impact chains via a knowledge graph (engine or Markdown fallback)" |
 | `logging-guide` | Implement structured logging with proper log levels and sensitive data handling. |
 | `metrics-dashboard-assistant` | "[UDS] Track development metrics, code quality indicators, and project health" |
 | `migration-assistant` | "[UDS] Guide code migration, framework upgrades, and technology modernization" |
@@ -260,7 +255,7 @@ status: current
 | `release-standards` | "[UDS] Guide release process and changelogs" |
 | `requirement-assistant` | "[UDS] Write user stories and requirements following INVEST criteria" |
 | `retrospective-assistant` | [UDS] Guide structured team retrospectives for Sprint and Release cycles. |
-| `reverse-engineer` | "[UDS] System archeology — reverse engineer code across Logic, Data, and Runtime dimensions" |
+| `reverse-engineer` | "[UDS] System archeology - reverse engineer code across Logic, Data, and Runtime dimensions" |
 | `runbook-assistant` | Guide runbook creation, maintenance, and drill exercises. |
 | `security-assistant` | Guide security review and vulnerability assessment following OWASP standards. |
 | `security-scan-assistant` | Guide automated security scanning, dependency auditing, and secret detection. |
@@ -303,9 +298,9 @@ status: current
 
 | Standard | 版本 | 說明 |
 |----------|---------|-------------|
-| `acceptance-criteria-traceability` | - |  |
+| `acceptance-criteria-traceability` | 1.1.0 |  |
 | `acceptance-test-driven-development` | 1.1.0 |  |
-| `accessibility-standards` | 1.0.0 | This standard defines comprehensive guidelines for creating accessible software  |
+| `accessibility-standards` | 1.1.0 | This standard defines comprehensive guidelines for creating accessible software  |
 | `adr-standards` | 1.0.0 | Architecture Decision Records capture the context, options, and rationale behind |
 | `adversarial-test` | - |  |
 | `agent-behavior-discipline` | 1.0.0 | This standard defines four behavioral disciplines for AI agents that elevate per |
@@ -314,76 +309,88 @@ status: current
 | `ai-agreement-standards` | 1.0.0 | This standard formalizes the interaction between Human (Acquirer) and AI (Suppli |
 | `ai-command-behavior` | 1.0.0 | This standard defines a structure for specifying AI Agent runtime behavior in co |
 | `ai-friendly-architecture` | 1.0.0 | This standard defines architecture and documentation practices that maximize the |
-| `ai-instruction-standards` | 1.0.0 | This standard defines best practices for creating and maintaining AI instruction |
-| `ai-response-navigation` | 1.0.0 | This standard defines navigation behavior for AI responses: every substantive AI |
+| `ai-instruction-standards` | 1.1.0 | This standard defines best practices for creating and maintaining AI instruction |
+| `ai-response-navigation` | 1.1.0 | This standard defines navigation behavior for AI responses: every substantive AI |
 | `alerting-standards` | 1.0.0 |  |
 | `anti-hallucination` | 1.5.1 | This standard defines strict guidelines for AI assistants to prevent hallucinati |
 | `anti-sycophancy-prompting` | 1.0.0 | This standard defines techniques and rules for designing prompts that elicit gen |
 | `api-design-standards` | 1.0.0 | This standard defines comprehensive guidelines for designing, building, and main |
+| `audit-trail` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `behavior-driven-development` | 1.1.0 |  |
 | `behavior-snapshot` | - |  |
 | `branch-completion` | 1.0.0 | Define a standardized workflow for completing development branches, including pr |
-| `browser-compatibility-standards` | 1.0.0 | This standard defines supported browser and device matrices, testing automation  |
+| `browser-compatibility-standards` | 1.0.2 | This standard defines supported browser and device matrices, testing automation  |
 | `capability-declaration` | - |  |
 | `cd-deployment-strategies` | - |  |
 | `change-batching-standards` | - |  |
 | `changelog-standards` | 1.0.2 | This standard defines how to write and maintain a CHANGELOG.md file to communica |
 | `chaos-engineering-standards` | 1.0.0 |  |
 | `chaos-injection-tests` | - |  |
-| `checkin-standards` | 1.6.0 | This standard defines quality gates that MUST be passed before committing code t |
+| `checkin-standards` | 1.7.0 | This standard defines quality gates that MUST be passed before committing code t |
 | `circuit-breaker` | - |  |
-| `code-review-checklist` | 1.3.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
+| `code-review-checklist` | 1.4.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
 | `commit-message-guide` | 1.3.0 | Standardized commit messages improve code review efficiency, facilitate automate |
+| `container-image-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `container-security` | - |  |
 | `containerization-standards` | 1.0.0 |  |
 | `context-aware-loading` | 1.0.0 | This standard defines a protocol for AI tools to selectively load development st |
 | `contract-testing-standards` | 1.0.0 | Contract testing verifies that a provider (API server) and its consumers (client |
 | `cost-budget-test` | - |  |
-| `cross-flow-regression` | 1.0.0 | This standard defines cross-flow regression testing — verifying that changes to  |
+| `cross-flow-regression` | 1.0.1 | This standard defines cross-flow regression testing — verifying that changes to  |
+| `data-contract` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `data-migration-testing` | - |  |
+| `data-pipeline` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `database-standards` | 1.0.0 | This standard defines guidelines for database design, querying, migration, and o |
-| `deployment-standards` | 1.0.0 | This standard defines guidelines for safely deploying software to production, co |
+| `deployment-standards` | 1.1.0 | This standard defines guidelines for safely deploying software to production, co |
 | `deprecation-standards` | 1.0.0 |  |
 | `design-document-standards` | 1.0.0 |  |
-| `developer-memory` | 1.0.0 | This standard defines a structured system for capturing, retrieving, and surfaci |
+| `developer-memory` | 1.1.1 | This standard defines a structured system for capturing, retrieving, and surfaci |
 | `disaster-recovery-drill` | - |  |
 | `documentation-lifecycle` | 1.0.0 | This standard defines **when** to update documentation, **when** to check it, an |
 | `documentation-structure` | 1.5.0 | This standard defines a consistent documentation structure for software projects |
 | `documentation-writing-standards` | 1.2.0 | This standard defines documentation requirements based on project types and prov |
 | `dual-phase-output` | - |  |
 | `environment-standards` | 1.0.0 |  |
-| `error-code-standards` | 1.2.0 |  |
+| `error-code-standards` | 1.2.1 |  |
 | `estimation-standards` | 1.0.0 |  |
 | `execution-history` | 1.0.0 |  |
 | `failure-source-taxonomy` | - |  |
 | `feature-flag-standards` | 1.0.0 |  |
 | `feature-manifest-standard` | - |  |
 | `flaky-test-management` | - |  |
-| `flow-based-testing` | 1.3.0 | This document defines a systematic methodology for testing multi-step processes. |
-| `forward-derivation-standards` | 1.2.0 | This standard defines the principles and workflows for Forward Derivation—automa |
+| `flow-based-testing` | 1.3.1 | This document defines a systematic methodology for testing multi-step processes. |
+| `forward-derivation-standards` | 1.3.0 | This standard defines the principles and workflows for Forward Derivation—automa |
 | `frontend-design-standards` | 1.0.0 | This standard defines a machine-readable frontend design specification format (D |
 | `full-coverage-testing` | - |  |
 | `git-workflow` | 1.4.0 | This standard defines Git branching strategies and workflows to ensure consisten |
-| `git-worktree` | 1.0.0 | Define a lifecycle for using Git worktrees to isolate development work, ensuring |
+| `git-worktree` | 1.1.0 | Define a lifecycle for using Git worktrees to isolate development work, ensuring |
 | `governance-layer` | 1.0.0 | A governance layer provides a shared anchor for all agents and roles in a projec |
 | `health-check-standards` | - |  |
+| `iac-design-principles` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `immutability-first` | - |  |
+| `incident-response` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
+| `knowledge-graph-memory` | 1.0.0 | This standard defines a **relationship schema** so that specifications, decision |
 | `knowledge-transfer-standards` | 1.0.0 |  |
+| `license-compliance` | 2.1.0 | **Status**: Active | **Updated**: 2026-05-16 |  |
 | `llm-output-validation` | - |  |
-| `logging-standards` | 1.2.0 |  |
+| `logging-standards` | 1.4.0 |  |
 | `mock-boundary` | 1.0.0 | This document defines rules for what can and cannot be mocked in tests. Its goal |
-| `model-selection` | 1.0.0 | Define a cost-effective strategy for selecting AI model tiers based on task comp |
+| `model-provenance` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
+| `model-selection` | 1.0.1 | Define a cost-effective strategy for selecting AI model tiers based on task comp |
 | `mutation-testing` | 1.0.0 | Mutation testing evaluates test suite effectiveness by injecting artificial bugs |
 | `no-cicd-deployment` | - |  |
 | `observability-standards` | 1.0.0 |  |
-| `packaging-standards` | 1.0.0 | This standard defines a Recipe-based packaging framework that enables user proje |
-| `performance-standards` | 1.1.0 | This standard defines comprehensive guidelines for software performance engineer |
+| `packaging-standards` | 1.1.0 | This standard defines a Recipe-based packaging framework that enables user proje |
+| `performance-standards` | 1.2.0 | This standard defines comprehensive guidelines for software performance engineer |
+| `pii-classification` | 1.1.0 | **Status**: Active | **Updated**: 2026-06-19 |  |
 | `pipeline-integration-standards` | - |  |
 | `pipeline-security-gates` | - |  |
 | `policy-as-code-testing` | - |  |
 | `postmortem-standards` | 1.0.0 |  |
-| `privacy-standards` | 1.0.0 |  |
-| `project-context-memory` | 1.1.0 | This standard defines a structured system for capturing, retrieving, and enforci |
+| `prd-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
+| `privacy-standards` | 1.1.0 |  |
+| `product-metrics-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
+| `project-context-memory` | 1.2.0 | This standard defines a structured system for capturing, retrieving, and enforci |
 | `project-structure` | 1.2.0 | This standard defines conventions for project directory structure beyond documen |
 | `prompt-regression` | - |  |
 | `property-based-testing` | - |  |
@@ -393,21 +400,27 @@ status: current
 | `release-readiness-gate` | 1.0.0 | This standard defines a **single, aggregated Release Readiness Gate** that unifi |
 | `replay-test` | - |  |
 | `requirement-engineering` | 1.0.0 |  |
+| `resource-cost-boundary` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `retrospective-standards` | 1.0.0 | Retrospectives are structured team reflections that identify what worked well, w |
 | `retry-standards` | - |  |
-| `reverse-engineering-standards` | 1.0.0 | This standard defines the principles, workflows, and best practices for reverse  |
+| `reverse-engineering-standards` | 1.1.0 | This standard defines the principles, workflows, and best practices for reverse  |
 | `rollback-standards` | - |  |
 | `runbook-standards` | 1.0.0 |  |
+| `runbook` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `sast-advanced` | 1.0.0 | This standard defines Advanced Static Application Security Testing (SAST) practi |
+| `schema-evolution` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
+| `secret-management-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `secure-op` | - |  |
 | `security-decision` | - |  |
 | `security-standards` | 1.1.0 | This standard defines comprehensive security guidelines for software development |
-| `security-testing` | 1.0.0 | This document defines the security testing methodology for software projects. It |
+| `security-testing` | 1.1.0 | This document defines the security testing methodology for software projects. It |
+| `self-review-protocol` | 1.0.0 | This standard mandates a **self-review pass** on large markdown edits before com |
 | `server-ops-security` | - |  |
 | `skill-standard-alignment-check` | - |  |
+| `slo-sli` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `slo-standards` | 1.0.0 |  |
 | `smoke-test` | - |  |
-| `spec-driven-development` | 2.2.0 |  |
+| `spec-driven-development` | 2.3.0 |  |
 | `standard-admission-criteria` | - |  |
 | `standard-lifecycle-management` | - |  |
 | `structured-task-definition` | 1.0.0 |  |
@@ -423,7 +436,9 @@ status: current
 | `timeout-standards` | - |  |
 | `token-budget` | - |  |
 | `translation-lifecycle-standards` | 1.0.0 | Translation lifecycle standards: MISSING vs OUTDATED distinction, semver-aware s |
+| `user-story-mapping` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `verification-evidence` | 1.0.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
+| `verification-oracle` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `versioning` | 1.2.0 | This standard defines how to version software releases using Semantic Versioning |
 | `virtual-organization-standards` | 1.0.0 | This standard treats the AI ecosystem as a "Virtual Organization." It defines ho |
 | `workflow-enforcement` | - |  |
@@ -480,6 +495,7 @@ status: current
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
 | `generate-docs.mjs` | Generate Docs |
+| `generate-locale-coverage.mjs` | Locale Coverage Generator |
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9, AC-14) |
 | `install-hooks.mjs` | Install Hooks |
 | `install-hooks.sh` | DEPRECATED: Use 'node scripts/install-hooks.mjs' instead (cross-platform). |
@@ -488,6 +504,7 @@ status: current
 | `pre-release-check.sh` | Pre-release Check Script |
 | `pre-release.ps1` | Pre-Release Preparation Script for Universal Development Standards |
 | `pre-release.sh` | Pre-Release Preparation Script |
+| `setup-hooks.sh` | setup-hooks.sh — Install git hooks for UDS repo |
 | `setup-husky.mjs` | Cross-platform Husky Setup Script |
 | `sync-manifest.mjs` | Sync Manifest |
 
