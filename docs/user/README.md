@@ -1,6 +1,6 @@
 # UDS User Documentation
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/docs/user/README.md) _(planned)_
+> **Language**: English | [繁體中文](../../locales/zh-TW/docs/user/README.md) | [简体中文](../../locales/zh-CN/docs/user/README.md)
 
 Welcome to the UDS (Universal Development Standards) user documentation hub.
 
