@@ -1,187 +1,150 @@
 ---
 source: ../../../skills/README.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-01-07
+translation_version: 1.2.0
+last_synced: 2026-06-20
 status: current
 ---
 
-# Claude Code Skills
+# 通用开发 Skills
 
 > **语言**: [English](../../../skills/README.md) | 简体中文
 
-软体开发标准的 Claude Code Skills。
+本目录收录通用开发标准（UDS）skill 的参考实现。这些 skill 尽可能设计为与工具无关，作为 AI 编程助手的「真实来源（Source of Truth）」。
 
 > 衍生自 [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) 核心标准。
 
-## 概述
+> **完整的索引式 skill 列表**（按 Tier、分类与使用场景）请见 **[docs/user/SKILLS-INDEX.md](../../../docs/user/SKILLS-INDEX.md)**（自动生成）。
+> 斜线命令参考请见 **[docs/user/COMMANDS-INDEX.md](../../../docs/user/COMMANDS-INDEX.md)**。
 
-这些技能会根据上下文在使用 Claude Code 时自动觸發，協助您：
+## 目录结构
 
-- 透過基於证据的响应防止 AI 幻覺
-- 撰写一致且格式良好的提交消息
-- 进行全面的程序码审查
-- 遵循测试最佳实踐
-- 使用語意化版本管理發布
+```
+skills/
+├── commands/          # 通用斜线命令定义（.md）
+├── agents/            # 通用 Agent 定义（.md）
+├── workflows/         # 通用 Workflow 定义（.yaml）
+├── tools/             # 工具专属的 adapter 与配置
+│   ├── cline/         # Cline (.clinerules)
+│   ├── cursor/        # Cursor (.cursorrules)
+│   ├── windsurf/      # Windsurf (.windsurfrules)
+│   └── copilot/       # GitHub Copilot (instructions.md)
+├── _shared/           # 共用模板与工具
+└── [skill-name]/      # 单个 skill 定义（例如 git-workflow-guide/）
+```
 
-## 可用的 Skills
+## 通用 Skills 与命令
+
+这些 skill 提供标准指引与工作流。在支持的工具中（如 Claude Code、OpenCode）可通过斜线命令访问，也可手动引用。
 
 | Skill（文件夹） | 命令 | 描述 |
 |----------------|---------|-------------|
 | `guide` | `/guide` | [UDS] 访问所有标准指南 |
-| `checkin-assistant` | `/checkin` | [UDS] 提交前质量闸门 |
+| `checkin-assistant` | `/checkin` | [UDS] 提交前质量门禁 |
 | `commit-standards` | `/commit` | [UDS] Conventional Commits 格式 |
-| `code-review-assistant` | `/code-review` | [UDS] 系统化程序码审查 |
+| `code-review-assistant` | `/code-review` | [UDS] 系统化代码审查 |
 | `tdd-assistant` | `/tdd` | [UDS] 测试驱动开发 |
 | `bdd-assistant` | `/bdd` | [UDS] 行为驱动开发 |
 | `atdd-assistant` | `/atdd` | [UDS] 验收测试驱动开发 |
 | `e2e-assistant` | `/e2e` | [UDS] 从 BDD 场景生成 E2E 测试骨架 |
-| `release-standards` | `/release` | [UDS] 发布与变更日志管理 |
+| `journey-test-assistant` | `/journey-test` | [UDS] 连贯用户旅程测试计划（TESTPLAN）＋ E2E 骨架生成 |
+| `release-standards` | `/release` | [UDS] 发行与 Changelog 管理 |
 | `documentation-guide` | `/docs` | [UDS] 文档管理 |
 | `requirement-assistant` | `/requirement` | [UDS] 需求撰写 |
-| `reverse-engineer` | `/reverse` | [UDS] 逆向工程程序码 |
-| `forward-derivation` | `/derive` | [UDS] 从规格衍生产出物 |
+| `reverse-engineer` | `/reverse` | [UDS] 逆向工程代码 |
+| `spec-derivation` | `/derive` | [UDS] 从 spec 推导 BDD/TDD/ATDD 产物 |
 | `spec-driven-dev` | `/sdd` | [UDS] 规格驱动开发 |
 | `test-coverage-assistant` | `/coverage` | [UDS] 测试覆盖率分析 |
-| `methodology-system` | `/methodology` | [UDS] 开发方法论 |
+| `dev-methodology` | `/methodology` | [UDS] 开发方法论 |
 | `refactoring-assistant` | `/refactor` | [UDS] 重构指引 |
 | `project-discovery` | `/discover` | [UDS] 评估项目健康度与风险 |
-| `brainstorm-assistant` | `/brainstorm` | [UDS] 结构化 AI 辅助构想 |
-| `changelog-guide` | `/changelog` | [UDS] 生成变更日志条目 |
+| `brainstorm-assistant` | `/brainstorm` | [UDS] 结构化 AI 辅助构思 |
+| `changelog-guide` | `/changelog` | [UDS] 生成 changelog 条目 |
 | `dev-workflow-guide` | `/dev-workflow` | [UDS] 将开发阶段对应到 UDS 命令 |
 | `docs-generator` | `/docgen` | [UDS] 生成使用文档 |
+| `security-assistant` | `/security` | [UDS] 安全审查与漏洞评估 |
+| `security-scan-assistant` | `/scan` | [UDS] 自动化安全扫描与依赖审计 |
+| `api-design-assistant` | `/api-design` | [UDS] API 设计（REST、GraphQL、gRPC）|
+| `database-assistant` | `/database` | [UDS] 数据库设计、迁移、查询优化 |
+| `ci-cd-assistant` | `/ci-cd` | [UDS] CI/CD 管线设计与优化 |
+| `incident-response-assistant` | `/incident` | [UDS] 事故响应与事后复盘 |
+| `pr-automation-assistant` | `/pr` | [UDS] Pull request 创建与审查自动化 |
+| `metrics-dashboard-assistant` | `/metrics` | [UDS] 开发指标与项目健康度 |
+| `durable-execution-assistant` | `/durable` | [UDS] 工作流故障恢复与回滚 |
+| `migration-assistant` | `/migrate` | [UDS] 代码迁移与框架升级 |
+| `audit-assistant` | `/audit` | [UDS] 标准合规审计 |
+| `observability-assistant` | `/observability` | [UDS] 可观测性配置、指标、告警 🆕 |
+| `slo-assistant` | `/slo` | [UDS] SLI 选择、SLO 设定、Error Budget 🆕 |
+| `runbook-assistant` | `/runbook` | [UDS] Runbook 创建、演练、覆盖率 🆕 |
+| `skill-builder` | `/skill-builder` | [UDS] 识别重复流程并以正确的开发深度构建 Skill |
 
-## 静态与动态规范
+> **注意**：参考型指南（如 Git Workflow、Logging、Error Codes）请使用 `/guide` 命令。
 
-规范依据应用时机分为兩类：
+## Skill Tier（列出预算优化）
 
-Standards are classified into two types based on when they should be applied:
-
-### 静态规范（项目文件）
-
-这些规范应該**隨时生效**，建议放在项目的 `CLAUDE.md` 或 `.cursorrules` 中：
-
-These standards should **always be active**. Add them to your project's `CLAUDE.md` or `.cursorrules`:
-
-| Standard | 核心規則 | Key Rules |
-|----------|---------|-----------|
-| [anti-hallucination](../../../core/anti-hallucination.md) | 确定性标签、建议原則 | Certainty labels, suggestion principles |
-| [checkin-standards](../../../core/checkin-standards.md) | 编譯通過、测试通過、覆蓋率达標 | Build passes, tests pass, coverage met |
-| [project-structure](../../../core/project-structure.md) | 目录结构规范 | Directory structure conventions |
-
-> 📄 參見 [CLAUDE.md.template](../../../templates/CLAUDE.md.template) 取得可直接使用的範本。
+> 背景：Claude Code 通过 `skillListingBudgetFraction` 保留一小部分 context（默认 1%）用于列出 skill。当有 40+ 个 UDS skill 加上采用者安装的 plugin 时，描述可能被截断。UDS 将 skill 组织为三个 tier，让采用者可选择性抑制较少用的描述，同时保持 skill 仍可通过 `/<name>` 调用。
 >
-> 📄 See [CLAUDE.md.template](../../../templates/CLAUDE.md.template) for a ready-to-use template.
+> 决策与权衡见 [DEC-061](https://github.com/AsiaOstrich/dev-platform/blob/main/cross-project/decisions/DEC-061-uds-skill-listing-budget.md)。参考配置位于 [`examples/skill-overrides-recommended.json`](../../../examples/skill-overrides-recommended.json)。详细调整：[`docs/skill-budget-tuning.md`](../../../docs/skill-budget-tuning.md)。
 
-### 动态规范（Skills）
+### Tier 1 — Core（每日使用）
+**列出默认**：`"on"`（显示完整描述）。永远可自动发现。
 
-这些规范由**关鍵字觸發**，按需载入。安裝为 Skills 使用：
+`commit-standards`、`push`、`git-workflow-guide`、`tdd-assistant`、`bdd-assistant`、`testing-guide`、`code-review-assistant`、`refactoring-assistant`、`requirement-assistant`、`spec-driven-dev`、`adr-assistant`、`dev-workflow-guide`、`checkin-assistant`
 
-These are **triggered by keywords** or specific tasks. Install as Skills:
+### Tier 2 — Advanced（每周使用）
+**列出默认**：`"on"`（显示完整描述）。
 
-| Skill | 觸發关鍵字 | Trigger Keywords |
-|-------|-----------|-----------------|
-| commit-standards | 提交、消息 | commit, git, message |
-| code-review-assistant | 审查、检查 | review, PR, checklist |
-| git-workflow-guide | 分支、合併 | branch, merge, workflow |
-| testing-guide | 测试、覆蓋率 | test, coverage, pyramid |
-| tdd-assistant | TDD、测试優先、紅綠重構 | TDD, test first, red green refactor |
-| release-standards | 版本、發布 | version, release, semver |
-| documentation-guide | 文件、文档 | README, docs, documentation |
-| requirement-assistant | 規格、需求、新功能 | spec, SDD, requirement |
+`atdd-assistant`、`e2e-assistant`、`journey-test-assistant`、`contract-test-assistant`、`security-assistant`、`deploy-assistant`、`ci-cd-assistant`、`error-code-guide`、`logging-guide`、`documentation-guide`、`api-design-assistant`、`database-assistant`、`project-structure-guide`、`ai-instruction-standards`、`release-standards`、`changelog-guide`、`test-coverage-assistant`、`pr-automation-assistant`、`spec-derivation`、`reverse-engineer`、`project-discovery`、`dev-methodology`、`audit-assistant`、`docs-generator`
 
-> 📖 參見[静态与动态指南](../../../adoption/STATIC-DYNAMIC-GUIDE.md)了解详细分类说明。
->
-> 📖 See [Static vs Dynamic Guide](../../../adoption/STATIC-DYNAMIC-GUIDE.md) for detailed classification.
+### Tier 3 — Specialist（每月或事件驱动）
+**列出默认**：在参考覆写中为 `"name-only"`——节省 token；**仍可通过 `/<name>` 调用**。
 
-## 安裝
+`incident-response-assistant`、`observability-assistant`、`slo-assistant`、`runbook-assistant`、`retrospective-assistant`、`durable-execution-assistant`、`metrics-dashboard-assistant`、`migration-assistant`、`security-scan-assistant`、`brainstorm-assistant`、`skill-builder`
 
-### 推荐：Plugin Marketplace
+> Tier 的理由与准则：[`flows/skill-tiering-rationale.md`](../../../flows/skill-tiering-rationale.md)。采用者可自由覆写参考配置（若每日使用某个 Tier 3 skill 可升为 `"on"`，或将任一 skill 降为 `"name-only"`）。
 
-透過 Claude Code Plugin Marketplace 安裝以獲得自动更新：
+## Tool Adapters
 
+各种 AI 工具的专属配置位于 `skills/tools/`。
+
+### Claude Code / OpenCode
+`skills/` 根目录下的文件（commands、agents、workflows）可直接兼容于 Claude Code 与 OpenCode。
+
+**安装（Plugin Marketplace）：**
 ```bash
-# 新增 marketplace（一次性设置）
 /plugin marketplace add AsiaOstrich/universal-dev-standards
-
-# 安裝包含所有 15 个技能的插件
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-**優点：**
-- ✅ Claude Code 重啟时自动更新
-- ✅ 与 Claude Code 更好的集成
-- ✅ 無需手动維護
-
-所有技能將自动载入并可使用。
-
-### 替代方案：脚本安裝（已棄用）
-
-> ⚠️ **已棄用**：透過脚本手动安裝已棄用，將在未來版本中移除。請改用 Plugin Marketplace。
-
-适用于无法访问 Marketplace 的环境（例如企业网络）：
-
-#### 手动安装（选择性 Skills）
-
-**macOS / Linux:**
+### Cursor
+位于 `skills/tools/cursor/`。
 ```bash
-mkdir -p ~/.claude/skills
-cp -r ai-collaboration-standards ~/.claude/skills/
-cp -r commit-standards ~/.claude/skills/
+cp skills/tools/cursor/.cursorrules .cursorrules
 ```
 
-**Windows PowerShell:**
-```powershell
-New-Item -ItemType Directory -Force -Path $env:USERPROFILE\.claude\skills
-Copy-Item -Recurse ai-collaboration-standards $env:USERPROFILE\.claude\skills\
-Copy-Item -Recurse commit-standards $env:USERPROFILE\.claude\skills\
-```
-
-### 替代方案：项目层级安裝（已棄用）
-
-> ⚠️ **已棄用**：项目层级手动安裝已棄用。建议使用 Plugin Marketplace 以獲得最佳体驗。
-
-適用於项目特定技能自订：
-
-**macOS / Linux:**
+### Windsurf
+位于 `skills/tools/windsurf/`。
 ```bash
-mkdir -p .claude/skills
-cp -r /path/to/skills/* .claude/skills/
+cp skills/tools/windsurf/.windsurfrules .windsurfrules
 ```
 
-**Windows PowerShell:**
-```powershell
-New-Item -ItemType Directory -Force -Path .claude\skills
-Copy-Item -Recurse path\to\skills\claude-code\* .claude\skills\
+### Cline
+位于 `skills/tools/cline/`。
+```bash
+cp skills/tools/cline/.clinerules .clinerules
 ```
 
-> **注意**：项目层级技能（`.claude/skills/`）優先於全域技能（`~/.claude/skills/`）。
-
-## 设置
-
-Skills 支援透過 `CONTRIBUTING.md` 进行项目特定设置。
-
-### 停用 Skills
-
-在您的项目 `CONTRIBUTING.md` 中加入：
-
-```markdown
-## Disabled Skills
-
-- testing-guide
-- release-standards
+### GitHub Copilot
+位于 `skills/tools/copilot/`。
+```bash
+mkdir -p .github
+cp skills/tools/copilot/copilot-instructions.md .github/copilot-instructions.md
 ```
 
-### 设置範本
+## 贡献
 
-完整设置选项請參見 [CONTRIBUTING.template.md](../../../skills/CONTRIBUTING.template.md)。
+新增 skill 或支持更多 AI 工具的指引，请见 [CONTRIBUTING.template.md](CONTRIBUTING.template.md)。
 
-## Skill 優先順序
+## 许可
 
-當同一个 skill 同时存在於兩个位置时：
-1. **项目层级**（`.claude/skills/`）優先
-2. **全域层级**（`~/.claude/skills/`）为备援
-
-## 授权条款
-
-雙重授权：CC BY 4.0（文件）+ MIT（程序码）
+双重许可：CC BY 4.0（文档）＋ MIT（代码）
