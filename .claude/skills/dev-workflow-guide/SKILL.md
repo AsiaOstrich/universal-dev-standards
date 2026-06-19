@@ -34,7 +34,7 @@ V. 版本提交 ──► VI. 文件與架構 ──► VII. 工具與標準 ─
 | **I. 規劃與設計** | `/brainstorm` `/requirement` `/sdd` `/reverse` | 需求、規格、逆向工程 |
 | **II. 測試驅動開發** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` | 先寫測試再寫程式 |
 | **III. 實作** | `/refactor` `/reverse` | 撰寫與改善程式碼 |
-| **IV. 品質關卡** | `/checkin` `/review` | 提交前檢查與程式碼審查 |
+| **IV. 品質關卡** | `/checkin` `/code-review` | 提交前檢查與程式碼審查 |
 | **V. 發布與提交** | `/commit` `/changelog` `/release` | 版本、提交、發布 |
 | **VI. 文件** | `/docs` `/docgen` `/struct` | 文件與專案結構 |
 | **VII. 工具與標準** | `/discover` `/testing` `/guide` `/git` | 參考指南 |

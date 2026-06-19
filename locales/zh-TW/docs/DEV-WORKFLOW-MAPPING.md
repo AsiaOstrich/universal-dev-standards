@@ -34,7 +34,7 @@ Universal Development Standards (UDS) 提供 **20+ 斜線指令**，涵蓋整個
 | I | **需求與設計** | `/brainstorm` `/requirement` `/sdd` `/reverse` | 從構想到規格 |
 | II | **測試驅動開發** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` | 先設計測試再寫程式 |
 | III | **程式碼開發** | `/refactor` `/reverse` | 撰寫與改善程式碼 |
-| IV | **品質保證** | `/checkin` `/review` | 提交前與程式碼審查 |
+| IV | **品質保證** | `/checkin` `/code-review` | 提交前與程式碼審查 |
 | V | **版本與提交** | `/commit` `/changelog` `/release` | 版本管理、提交、發布 |
 | VI | **文件與架構** | `/docs` `/docgen` `/struct` | 文件與專案結構 |
 | VII | **工具與標準參考** | `/discover` `/guide` | 健康檢查與參考資料 |
@@ -83,7 +83,7 @@ Universal Development Standards (UDS) 提供 **20+ 斜線指令**，涵蓋整個
 | 指令 | 功能說明 | 輸入 | 輸出 |
 |------|----------|------|------|
 | `/checkin` | 提交前品質驗證 | 暫存的變更 | 通過/失敗檢查清單（建置、測試、密碼、風格） |
-| `/review` | 系統化程式碼審查（10 個面向） | 程式碼差異或 PR | 含嚴重性前綴的審查意見 |
+| `/code-review` | 系統化程式碼審查（10 個面向） | 程式碼差異或 PR | 含嚴重性前綴的審查意見 |
 
 ### V. 版本與提交
 
@@ -144,7 +144,7 @@ Universal Development Standards (UDS) 提供 **20+ 斜線指令**，涵蓋整個
 步驟 9:  /refactor           提升程式碼品質
 步驟 10: /checkin            驗證品質關卡
 步驟 11: /commit             建立 Conventional Commit
-步驟 12: /review             程式碼審查（若有 PR）
+步驟 12: /code-review             程式碼審查（若有 PR）
 步驟 13: /docs               更新文件
 步驟 14: /changelog          更新 CHANGELOG
 步驟 15: /release            發布版本
@@ -213,7 +213,7 @@ Universal Development Standards (UDS) 提供 **20+ 斜線指令**，涵蓋整個
 | 改善程式碼結構 | `/refactor` |
 | 提交前檢查 | `/checkin` |
 | 建立提交訊息 | `/commit` |
-| 審查程式碼品質 | `/review` |
+| 審查程式碼品質 | `/code-review` |
 | 更新文件 | `/docs` 或 `/docgen` |
 | 準備發布版本 | `/changelog` 然後 `/release` |
 | 查詢標準 | `/guide [topic]` |

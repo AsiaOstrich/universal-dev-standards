@@ -54,7 +54,7 @@ status: current
 |----|------|-----------|
 | `testing` | testing, unit-testing, integration-testing, tdd, bdd, atdd | 撰写测试、测试文件编辑、"测试覆盖率"讨论 |
 | `specification` | spec-driven-development, forward-derivation, reverse-engineering | `/sdd`、`/spec` 命令、规格文件编辑 |
-| `quality` | code-review, refactoring, security, performance, accessibility | `/review` 命令、PR 审查、"重构"讨论 |
+| `quality` | code-review, refactoring, security, performance, accessibility | `/code-review` 命令、PR 审查、"重构"讨论 |
 | `documentation` | documentation-structure, documentation-writing, changelog | 撰写文档、README/CHANGELOG 编辑 |
 | `workflow` | git-workflow, github-flow, squash-merge, versioning, deployment | 分支操作、发布准备、合并 |
 | `architecture` | ai-friendly-architecture, project-structure, error-codes, logging | 架构决策、项目设置 |

@@ -1038,7 +1038,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 ### core
 
 - `/commit`
-- `/review`
+- `/code-review`
 - `/sdd`
 - `/check`
 - `/init`

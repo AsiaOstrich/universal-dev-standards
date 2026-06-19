@@ -55,7 +55,7 @@ CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
 
 #### REVIEW
 1. 获取 PR 差异
-2. 执行代码审查（套用 `/review` 标准）
+2. 执行代码审查（套用 `/code-review` 标准）
 3. 展示审查结果
 
 **STOP**: 审查结果展示后等待用户决定

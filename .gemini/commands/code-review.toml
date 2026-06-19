@@ -1,10 +1,7 @@
----
-source: ../../../../skills/commands/review.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-19
----
+# review command - converted from UDS
+description = "review command"
 
+prompt = """
 ---
 description: [UDS] Perform systematic code review with checklist
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
@@ -13,7 +10,7 @@ argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
 
 # 程式碼審查助手
 
-> **Language**: [English](../../../../skills/commands/review.md) | 繁體中文
+> **Language**: [English](../../../../skills/commands/code-review.md) | 繁體中文
 
 執行系統性的程式碼審查，使用標準化的檢查清單和評論前綴。
 
@@ -47,11 +44,12 @@ argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
 
 ## 使用方式
 
-- `/review` - 審查目前分支的所有變更
-- `/review src/auth.js` - 審查特定檔案
-- `/review feature/login` - 審查特定分支
+- `/code-review` - 審查目前分支的所有變更
+- `/code-review src/auth.js` - 審查特定檔案
+- `/code-review feature/login` - 審查特定分支
 
 ## 參考
 
 - 完整標準：[code-review-assistant](../code-review-assistant/SKILL.md)
 - 核心指南：[code-review-checklist](../../core/code-review-checklist.md)
+"""

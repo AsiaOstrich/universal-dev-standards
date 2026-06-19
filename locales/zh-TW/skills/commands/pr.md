@@ -53,7 +53,7 @@ CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
 
 #### REVIEW 階段
 1. 取得 PR 差異
-2. 執行程式碼審查（套用 `/review` 標準）
+2. 執行程式碼審查（套用 `/code-review` 標準）
 3. 展示審查結果
 
 🛑 **STOP**: 審查結果展示後等待使用者決定

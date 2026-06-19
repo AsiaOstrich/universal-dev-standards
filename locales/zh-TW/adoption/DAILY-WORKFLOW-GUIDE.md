@@ -353,7 +353,7 @@ test('should reject email without domain', () => {
    - 💡 SUGGESTION：建議改進
    - ❓ QUESTION：需要澄清
 
-💡 命令：/review
+💡 命令：/code-review
 ```
 
 ---
@@ -371,7 +371,7 @@ test('should reject email without domain', () => {
 | `/refactor` | 啟動重構工作流程 | 改善程式碼結構 |
 | `/methodology` | 查看/切換當前方法論 | 管理開發流程 |
 | `/commit` | 生成規範的 commit message | 提交程式碼 |
-| `/review` | 啟動程式碼審查 | 審查 PR |
+| `/code-review` | 啟動程式碼審查 | 審查 PR |
 | `/requirement` | 撰寫需求文件 | 定義 User Story |
 | `/checkin` | 提交前品質驗證 | 提交程式碼前 |
 | `/changelog` | 生成變更日誌條目 | 準備發布期間 |

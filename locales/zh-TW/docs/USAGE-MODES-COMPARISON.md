@@ -103,7 +103,7 @@ status: current
 | 學習曲線 | 低 | 高 | 低 |
 
 **說明**：
-- Skills 提供 `/commit`、`/tdd`、`/review` 等命令進行互動引導
+- Skills 提供 `/commit`、`/tdd`、`/code-review` 等命令進行互動引導
 - 規範文件需要開發者主動閱讀並應用
 - Skills 可自動偵測上下文（如 git status、專案語言）
 
@@ -177,7 +177,7 @@ status: current
 - Token 消耗最低
 - 互動體驗最佳
 - 無需管理額外文件
-- `/commit`、`/tdd`、`/review` 命令足夠日常使用
+- `/commit`、`/tdd`、`/code-review` 命令足夠日常使用
 
 **配置方式**：
 ```bash

@@ -71,7 +71,7 @@ describe('Skills Installer', () => {
       const commands = getAvailableCommandNames();
 
       expect(commands).toContain('commit');
-      expect(commands).toContain('review');
+      expect(commands).toContain('code-review');
       expect(commands).toContain('tdd');
     });
 
@@ -308,7 +308,7 @@ describe('Skills Installer', () => {
     });
 
     it('should return info after installation', async () => {
-      await installCommandsForAgent('opencode', 'project', ['commit', 'review'], TEST_DIR);
+      await installCommandsForAgent('opencode', 'project', ['commit', 'code-review'], TEST_DIR);
 
       const info = getInstalledCommandsForAgent('opencode', 'project', TEST_DIR);
 
@@ -316,7 +316,7 @@ describe('Skills Installer', () => {
       expect(info.installed).toBe(true);
       expect(info.count).toBe(2);
       expect(info.commands).toContain('commit');
-      expect(info.commands).toContain('review');
+      expect(info.commands).toContain('code-review');
       expect(info.level).toBe('project');
     });
 
@@ -355,9 +355,9 @@ describe('Skills Installer', () => {
     });
 
     it('should escape special characters in TOML strings', async () => {
-      await installCommandsForAgent('gemini-cli', 'project', ['review'], TEST_DIR);
+      await installCommandsForAgent('gemini-cli', 'project', ['code-review'], TEST_DIR);
 
-      const tomlPath = join(TEST_DIR, '.gemini/commands/review.toml');
+      const tomlPath = join(TEST_DIR, '.gemini/commands/code-review.toml');
       expect(existsSync(tomlPath)).toBe(true);
 
       const content = readFileSync(tomlPath, 'utf-8');

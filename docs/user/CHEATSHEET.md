@@ -64,7 +64,7 @@
 | `/reverse-sdd` | [UDS] Reverse engineer code into SDD specification document |
 | `/reverse-tdd` | [UDS] Analyze BDD-TDD coverage gaps |
 | `/reverse` | [UDS] Reverse engineer code to Specs, BDD, or TDD coverage. |
-| `/review` | [UDS] Perform systematic code review with checklist |
+| `/code-review` | [UDS] Perform systematic code review with checklist |
 | `/runbook` | "[UDS] Guide runbook creation, maintenance, drills, and coverage reporting" |
 | `/scan` | "[UDS] Guide automated security scanning, dependency auditing and secret detection" |
 | `/sdd-retro` | [UDS] Create retroactive specs for untracked feat/fix commits |

@@ -66,7 +66,7 @@ The four-layer model above is the authoritative description that inserts **Skill
 | BDD | bdd.flow.yaml | behavior-driven-development.ai.yaml |
 | ATDD | atdd.flow.yaml | acceptance-test-driven-development.ai.yaml |
 | SDD | sdd.flow.yaml | spec-driven-development.ai.yaml |
-| Code Review | review.flow.yaml | code-review.ai.yaml |
+| Code Review | code-review.flow.yaml | code-review.ai.yaml |
 | Checkin | checkin.flow.yaml | checkin-standards.ai.yaml |
 | Commit | commit.flow.yaml | commit-message.ai.yaml |
 | Push | push.flow.yaml | push-standards.ai.yaml |

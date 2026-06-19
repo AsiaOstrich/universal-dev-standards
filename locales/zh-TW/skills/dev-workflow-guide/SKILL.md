@@ -34,7 +34,7 @@ V. Release ──► VI. Documentation ──► VII. Standards ──► VIII. 
 | **I. 規劃與設計** | `/brainstorm` `/requirement` `/sdd` `/reverse` `/api-design` `/database` | Requirements, specs, API/DB design | 需求、規格、API/DB 設計 |
 | **II. 測試驅動開發** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` `/ac-coverage` | Design tests before code | 先寫測試再寫程式 |
 | **III. 實作** | `/refactor` `/reverse` `/migrate` `/durable` | Write, improve, and migrate code | 撰寫、改善與遷移程式碼 |
-| **IV. 品質關卡** | `/checkin` `/review` `/security` `/scan` `/incident` | Quality, security, incident response | 品質、安全、事故回應 |
+| **IV. 品質關卡** | `/checkin` `/code-review` `/security` `/scan` `/incident` | Quality, security, incident response | 品質、安全、事故回應 |
 | **V. 發布與提交** | `/commit` `/changelog` `/release` `/pr` `/ci-cd` | Version, commit, PR, CI/CD | 版本、提交、PR、CI/CD |
 | **VI. 文件** | `/docs` `/docgen` | Docs and project structure | 文件與專案結構 |
 | **VII. 工具與標準** | `/discover` `/guide` `/metrics` `/audit` | Reference guides, metrics, audit | 參考指南、指標、審計 |

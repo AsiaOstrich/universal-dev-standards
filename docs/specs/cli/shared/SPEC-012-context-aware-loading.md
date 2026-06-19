@@ -66,7 +66,7 @@ Inspired by the CARL framework's context-aware loading principle: load what you 
 | `always-on` | anti-hallucination, commit-message, checkin-standards, project-context-memory, developer-memory | (always loaded) |
 | `testing` | testing, unit-testing, integration-testing, test-completeness-dimensions, tdd, bdd, atdd | "write tests", "test coverage", test file edits |
 | `specification` | spec-driven-development, forward-derivation, reverse-engineering, requirement-engineering | "/sdd", "/spec", spec file edits |
-| `quality` | code-review, refactoring-standards, security-standards, performance-standards, accessibility-standards | "/review", "refactor", PR review |
+| `quality` | code-review, refactoring-standards, security-standards, performance-standards, accessibility-standards | "/code-review", "refactor", PR review |
 | `documentation` | documentation-structure, documentation-writing-standards, ai-instruction-standards, changelog | "write docs", README edits, CHANGELOG edits |
 | `workflow` | git-workflow, github-flow, squash-merge, versioning, deployment-standards | branch operations, release, merge |
 | `architecture` | ai-friendly-architecture, project-structure, error-codes, logging | architecture decisions, project setup |

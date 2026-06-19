@@ -2,7 +2,7 @@
 
 > **Auto-generated** — do not edit manually.
 > Run `npm run docs:generate-index` to update.
-> Last regenerated: 2026-06-17 | UDS v5.17.0 | 55 unique commands
+> Last regenerated: 2026-06-19 | UDS v5.17.0 | 55 unique commands
 
 Type any command in Claude Code to activate the corresponding skill.
 Commands not visible in the menu are still callable — Claude Code loads skills on demand.
@@ -26,6 +26,7 @@ Commands not visible in the menu are still callable — Claude Code loads skills
 | `/changelog` | `changelog-guide` | T2 | Generate and maintain CHANGELOG.md entries |
 | `/checkin` | `checkin-assistant` | T1 | Pre-commit quality gates verification |
 | `/ci-cd` | `ci-cd-assistant` | T2 | Guide CI/CD pipeline design, configuration, and optimization. |
+| `/code-review` | `code-review-assistant` | T1 | Perform systematic code review with checklist |
 | `/commit` | `commit-standards` | T1 | Generate commit messages following Conventional Commits standard |
 | `/contract-test` | `contract-test-assistant` | T2 | Guide contract testing strategy for APIs and microservices. |
 | `/coverage` | `test-coverage-assistant` | T2 | Analyze test coverage and provide recommendations |
@@ -57,7 +58,6 @@ Commands not visible in the menu are still callable — Claude Code loads skills
 | `/requirement` | `requirement-assistant` | T1 | Write user stories and requirements following INVEST criteria |
 | `/retrospective` | `retrospective-assistant` | T3 | Guide structured team retrospectives for Sprint and Release cycles. |
 | `/reverse` | `reverse-engineer` | T2 | System archeology - reverse engineer code across Logic, Data, and Runtime dimensions |
-| `/review` | `code-review-assistant` | T1 | Perform systematic code review with checklist |
 | `/runbook` | `runbook-assistant` | T3 | Guide runbook creation, maintenance, and drill exercises. |
 | `/scan` | `security-scan-assistant` | T3 | Guide automated security scanning, dependency auditing, and secret detection. |
 | `/sdd` | `spec-driven-dev` | T1 | Create or review specification documents for Spec-Driven Development |

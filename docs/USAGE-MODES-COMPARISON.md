@@ -95,7 +95,7 @@ This document compares the effectiveness of three usage modes after installing U
 | Learning curve | Low | High | Low |
 
 **Notes**:
-- Skills provide commands like `/commit`, `/tdd`, `/review` for interactive guidance
+- Skills provide commands like `/commit`, `/tdd`, `/code-review` for interactive guidance
 - Standards files require developers to actively read and apply
 - Skills can auto-detect context (git status, project language)
 
@@ -169,7 +169,7 @@ This document compares the effectiveness of three usage modes after installing U
 - Lowest token consumption
 - Best interactive experience
 - No extra files to manage
-- `/commit`, `/tdd`, `/review` commands sufficient for daily use
+- `/commit`, `/tdd`, `/code-review` commands sufficient for daily use
 
 **Configuration**:
 ```bash

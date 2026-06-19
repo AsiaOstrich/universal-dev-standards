@@ -3,7 +3,7 @@
   "version": "5.17.0",
   "last_updated": "2026-06-08",
   "stats": {
-    "core_standards": 131,
+    "core_standards": 145,
     "skills": 55,
     "slash_commands": 48
   },
@@ -787,7 +787,7 @@
     },
     {
       "id": "code-review-assistant",
-      "command": "/review",
+      "command": "/code-review",
       "category": "quality"
     },
     {

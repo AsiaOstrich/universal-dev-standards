@@ -180,7 +180,7 @@ description: |
 | 技能 | 關係 |
 |------|------|
 | `/sdd` | `/adr` 可從 `/sdd` 流程中觸發；ADR 在 Technical Design 中引用 |
-| `/review` | Code review 時可引用相關 ADR 作為設計決策依據 |
+| `/code-review` | Code review 時可引用相關 ADR 作為設計決策依據 |
 | `/commit` | 重大架構變更的 commit 可引用 ADR 編號 |
 
 ## Test Plan

@@ -2,7 +2,7 @@
 
 > **Auto-generated** — do not edit manually.
 > Run `npm run docs:generate-index` to update.
-> Last regenerated: 2026-06-17 | UDS v5.17.0 | 55 skills
+> Last regenerated: 2026-06-19 | UDS v5.17.0 | 55 skills
 
 Use skills by typing their command in Claude Code (e.g., `/sdd`, `/tdd`, `/commit`).
 Skills not in Tier 1 are always callable via `/<name>` even if not listed in the context menu.
@@ -21,7 +21,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 | `adr-assistant` | `/adr` | Create, manage, and track Architecture Decision Records (ADR). |
 | `bdd-assistant` | `/bdd` | Guide through Behavior-Driven Development workflow |
 | `checkin-assistant` | `/checkin` | Pre-commit quality gates verification |
-| `code-review-assistant` | `/review` | Perform systematic code review with checklist |
+| `code-review-assistant` | `/code-review` | Perform systematic code review with checklist |
 | `commit-standards` | `/commit` | Generate commit messages following Conventional Commits standard |
 | `dev-workflow-guide` | `/dev-workflow` | Guide for mapping software development phases to UDS commands and features |
 | `git-workflow-guide` | `/git-workflow-guide` | Guide Git branching strategies, branch naming, and merge operations. |
@@ -113,7 +113,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 | Skill | Command | Tier | Description |
 |-------|---------|------|-------------|
 | `checkin-assistant` | `/checkin` | T1 | Pre-commit quality gates verification |
-| `code-review-assistant` | `/review` | T1 | Perform systematic code review with checklist |
+| `code-review-assistant` | `/code-review` | T1 | Perform systematic code review with checklist |
 | `commit-standards` | `/commit` | T1 | Generate commit messages following Conventional Commits standard |
 | `git-workflow-guide` | `/git-workflow-guide` | T1 | Guide Git branching strategies, branch naming, and merge operations. |
 | `pr-automation-assistant` | `/pr` | T2 | Guide pull request creation, review automation, and merge strategies. |
@@ -203,7 +203,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 | 行為驅動開發（BDD） | `bdd-assistant` | `/bdd` |
 | 驗收測試驅動（ATDD） | `atdd-assistant` | `/atdd` |
 | 建立架構決策紀錄 | `adr-assistant` | `/adr` |
-| 程式碼審查 | `code-review-assistant` | `/review` |
+| 程式碼審查 | `code-review-assistant` | `/code-review` |
 | 重構決策 | `refactoring-assistant` | `/refactor` |
 | 撰寫使用者故事/需求 | `requirement-assistant` | `/requirement` |
 | 設計 API | `api-design-assistant` | `/api-design` |

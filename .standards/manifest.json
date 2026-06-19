@@ -739,7 +739,7 @@
       "size": 1790,
       "installedAt": "2026-03-23T13:32:39.148Z"
     },
-    "gemini-cli/review.toml": {
+    "gemini-cli/code-review.toml": {
       "hash": "sha256:169047ea33df7665d71e063d9038d624f504bad2f81ee6fc68cc52af2db2fcfe",
       "size": 1696,
       "installedAt": "2026-03-23T13:32:39.148Z"

@@ -142,7 +142,7 @@ docs/incidents/
 
 > **事故回應指引已提供。建議下一步：**
 > - 執行 `/commit` 建立修復提交 ⭐ **推薦**
-> - 執行 `/review` 審查修復變更
+> - 執行 `/code-review` 審查修復變更
 > - 執行 `/docs` 更新文件
 > - 執行 `/security` 檢查安全影響
 > - 執行 `/retrospective`（SEV-1/SEV-2 建議）— 團隊回顧

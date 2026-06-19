@@ -347,7 +347,7 @@ For significant new features requiring stakeholder acceptance:
    - 💡 SUGGESTION: Nice-to-have
    - ❓ QUESTION: Need clarification
 
-💡 Command: /review
+💡 Command: /code-review
 ```
 
 ---
@@ -365,7 +365,7 @@ For significant new features requiring stakeholder acceptance:
 | `/refactor` | Start refactoring workflow | Improving code structure |
 | `/methodology` | View/switch current methodology | Managing dev process |
 | `/commit` | Generate conventional commit message | Committing code |
-| `/review` | Start code review | Reviewing PRs |
+| `/code-review` | Start code review | Reviewing PRs |
 | `/requirement` | Write requirement document | Defining User Stories |
 | `/checkin` | Pre-commit quality verification | Before committing code |
 | `/changelog` | Generate changelog entries | During release preparation |

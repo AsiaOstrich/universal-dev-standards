@@ -305,9 +305,9 @@ routes -> controllers -> services -> repositories -> database
 - 根据现况评估发现编写新功能规格
 - 在风险评估区段引用现况评估报告
 
-### 搭配 /review（代码审查）
+### 搭配 /code-review（代码审查）
 
-步骤 0.4 的快照是 `/review` 的轻量版。在以下情况使用完整的 `/review`：
+步骤 0.4 的快照是 `/code-review` 的轻量版。在以下情况使用完整的 `/code-review`：
 - 现况评估发现重大质量疑虑
 - 规划变更前需要更深入的审计
 

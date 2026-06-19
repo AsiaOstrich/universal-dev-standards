@@ -254,7 +254,7 @@ describe('AI Agent Paths Configuration', () => {
 
       // Core development workflow
       expect(names).toContain('commit');
-      expect(names).toContain('review');
+      expect(names).toContain('code-review');
       expect(names).toContain('release');
       expect(names).toContain('changelog');
 

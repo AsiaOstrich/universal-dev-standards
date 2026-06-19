@@ -91,7 +91,7 @@ SKILL.md（產品層）和 skills/commands/dev-workflow.md SHALL 同步更新。
 | I. Planning | `/brainstorm` `/requirement` `/sdd` `/reverse` | **`/api-design`** **`/database`** |
 | II. Testing | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` | （無新增） |
 | III. Implementation | `/refactor` `/reverse` | **`/migrate`** **`/durable`** |
-| IV. Quality Gates | `/checkin` `/review` | **`/security`** **`/scan`** **`/incident`** |
+| IV. Quality Gates | `/checkin` `/code-review` | **`/security`** **`/scan`** **`/incident`** |
 | V. Release | `/commit` `/changelog` `/release` | **`/pr`** **`/ci-cd`** |
 | VI. Documentation | `/docs` `/docgen` `/struct` | （無新增） |
 | VII. Standards | `/discover` `/guide` | **`/metrics`** **`/audit`** |

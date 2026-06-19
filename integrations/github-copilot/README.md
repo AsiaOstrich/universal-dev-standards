@@ -106,7 +106,7 @@ Since Copilot doesn't support slash commands, use Chat prompts instead:
 Claude Code: /commit
 Copilot:     "Generate a commit message following Conventional Commits..."
 
-Claude Code: /review
+Claude Code: /code-review
 Copilot:     "Review this code following the code review checklist..."
 
 Claude Code: /tdd

@@ -119,7 +119,7 @@ sweep:
 After `/sweep` completes, suggest:
 
 > - Run `/checkin` to verify overall code quality before committing
-> - Run `/review` to review the cleaned-up changes
+> - Run `/code-review` to review the cleaned-up changes
 > - Run `/commit` to commit the fixes
 
 ---

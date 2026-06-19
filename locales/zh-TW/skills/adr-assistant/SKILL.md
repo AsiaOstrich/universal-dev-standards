@@ -125,7 +125,7 @@ docs/adr/
 | 技能 | 整合方式 |
 |------|---------|
 | `/sdd` | 在技術設計中引用 ADR；重大決策時建議建立 ADR |
-| `/review` | 程式碼審查時引用 ADR 作為設計依據 |
+| `/code-review` | 程式碼審查時引用 ADR 作為設計依據 |
 | `/commit` | 提交時在 footer 加入 ADR 編號 |
 | `/brainstorm` | 腦力激盪結果作為 ADR 選項分析輸入 |
 

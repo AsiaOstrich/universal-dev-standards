@@ -72,7 +72,7 @@ const WHEN_TO_USE: Array<{ scenario: string; skill: string; command: string }> =
   { scenario: '行為驅動開發（BDD）',      skill: 'bdd-assistant',           command: '/bdd' },
   { scenario: '驗收測試驅動（ATDD）',     skill: 'atdd-assistant',          command: '/atdd' },
   { scenario: '建立架構決策紀錄',         skill: 'adr-assistant',            command: '/adr' },
-  { scenario: '程式碼審查',              skill: 'code-review-assistant',    command: '/review' },
+  { scenario: '程式碼審查',              skill: 'code-review-assistant',    command: '/code-review' },
   { scenario: '重構決策',               skill: 'refactoring-assistant',    command: '/refactor' },
   { scenario: '撰寫使用者故事/需求',      skill: 'requirement-assistant',   command: '/requirement' },
   { scenario: '設計 API',              skill: 'api-design-assistant',     command: '/api-design' },

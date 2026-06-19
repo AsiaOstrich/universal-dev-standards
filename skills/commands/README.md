@@ -33,7 +33,7 @@ Commands for development workflow automation.
 |---------|-------------|------|
 | [`/brainstorm`](./brainstorm.md) | Structured AI-assisted brainstorming | AI 輔助腦力激盪 |
 | [`/commit`](./commit.md) | Generate conventional commit messages | 產生 commit message |
-| [`/review`](./review.md) | Perform systematic code review | 執行程式碼審查 |
+| [`/code-review`](./code-review.md) | Perform systematic code review | 執行程式碼審查 |
 | [`/release`](./release.md) | Guide through release process | 引導發布流程 |
 | [`/changelog`](./changelog.md) | Update CHANGELOG.md | 更新 CHANGELOG |
 | [`/requirement`](./requirement.md) | Write user stories and requirements | 撰寫需求文件 |
@@ -89,7 +89,7 @@ Commands for development methodology workflows.
 | `/check` | — | — | Standards Management |
 | `/config` | — | — | Standards Management |
 | `/commit` | commit-standards | `commit-message-guide.md` | Development Workflow |
-| `/review` | code-review | `code-review-checklist.md` | Development Workflow |
+| `/code-review` | code-review | `code-review-checklist.md` | Development Workflow |
 | `/checkin` | — | `checkin-standards.md` | Development Workflow |
 | `/release` | release-standards | `versioning.md` | Development Workflow |
 | `/changelog` | — | `changelog-standards.md` | Development Workflow |

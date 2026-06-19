@@ -102,7 +102,7 @@ SDD 規格 → /derive → /bdd → /tdd → 測試就緒
 | Command | Purpose | When to Use | 使用時機 |
 |---------|---------|-------------|----------|
 | `/checkin` | Pre-commit verification | Before every commit | 每次提交前 |
-| `/review` | Systematic code review | Before merging PRs | 合併 PR 前 |
+| `/code-review` | Systematic code review | Before merging PRs | 合併 PR 前 |
 
 ### Checkin Verification | 提交前驗證
 
@@ -115,7 +115,7 @@ SDD 規格 → /derive → /bdd → /tdd → 測試就緒
 
 ### Code Review | 程式碼審查
 
-`/review` evaluates 10 dimensions:
+`/code-review` evaluates 10 dimensions:
 1. Functionality
 2. Design & Architecture
 3. Code Quality
@@ -241,7 +241,7 @@ Start here | 從這裡開始
 ├─ "I'm writing tests"            → /tdd or /bdd
 ├─ "I'm writing code"             → (just code, or /refactor)
 ├─ "I'm done coding"              → /checkin → /commit
-├─ "I need to review code"        → /review
+├─ "I need to review code"        → /code-review
 ├─ "I'm preparing a release"      → /changelog → /release
 ├─ "I need to understand code"    → /reverse or /discover
 ├─ "I need a reference guide"     → /guide [topic]

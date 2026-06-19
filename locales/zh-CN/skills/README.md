@@ -31,7 +31,7 @@ status: current
 | `guide` | `/guide` | [UDS] 访问所有标准指南 |
 | `checkin-assistant` | `/checkin` | [UDS] 提交前质量闸门 |
 | `commit-standards` | `/commit` | [UDS] Conventional Commits 格式 |
-| `code-review-assistant` | `/review` | [UDS] 系统化程序码审查 |
+| `code-review-assistant` | `/code-review` | [UDS] 系统化程序码审查 |
 | `tdd-assistant` | `/tdd` | [UDS] 测试驱动开发 |
 | `bdd-assistant` | `/bdd` | [UDS] 行为驱动开发 |
 | `atdd-assistant` | `/atdd` | [UDS] 验收测试驱动开发 |

@@ -62,7 +62,7 @@ function matchDomains(prompt, manifest) {
       const domainTriggerMap = {
         testing: ['test', 'coverage', '/tdd', '/bdd', '/atdd', '/coverage', '.test.', '.spec.'],
         specification: ['/sdd', '/spec', '/derive', '/reverse', '/requirement', 'docs/specs/'],
-        quality: ['/review', '/refactor', '/check', 'code review', 'pull request', 'security', 'performance'],
+        quality: ['/code-review', '/refactor', '/check', 'code review', 'pull request', 'security', 'performance'],
         documentation: ['/docs', '/changelog', '/generate-docs', 'readme', 'changelog', 'documentation'],
         workflow: ['/release', '/commit', 'branch', 'merge', 'release', 'deploy', 'version'],
         architecture: ['architecture', 'project setup', 'error handling', 'logging', 'project structure'],

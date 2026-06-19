@@ -1,5 +1,5 @@
 ---
-source: ../../../../skills/commands/review.md
+source: ../../../../skills/commands/code-review.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-04-22
@@ -48,9 +48,9 @@ Perform systematic code review using standardized checklists and comment prefixe
 
 ## Usage | 使用方式
 
-- `/review` - 审查当前分支的所有变更
-- `/review src/auth.js` - 审查特定文件
-- `/review feature/login` - 审查特定分支
+- `/code-review` - 审查当前分支的所有变更
+- `/code-review src/auth.js` - 审查特定文件
+- `/code-review feature/login` - 审查特定分支
 
 ## Reference | 参考
 

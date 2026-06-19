@@ -5,7 +5,7 @@ translation_version: 1.0.0
 last_synced: 2026-02-10
 status: current
 description: "[UDS] 使用標準化檢查清單執行系統性程式碼審查"
-name: review
+name: code-review
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
 scope: universal
 argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
@@ -48,16 +48,16 @@ disable-model-invocation: true
 
 ## 使用方式
 
-- `/review` - 審查目前分支的所有變更
-- `/review src/auth.js` - 審查特定檔案
-- `/review feature/login` - 審查特定分支
+- `/code-review` - 審查目前分支的所有變更
+- `/code-review src/auth.js` - 審查特定檔案
+- `/code-review feature/login` - 審查特定分支
 
 ## 下一步引導
 
-`/review` 完成後，AI 助手應建議：
+`/code-review` 完成後，AI 助手應建議：
 
 > **程式碼審查完成。建議下一步：**
-> - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/review`
+> - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/code-review`
 > - 全部通過 → 執行 `/checkin` 品質關卡
 > - 僅有 💡 SUGGESTION → 執行 `/commit` 提交變更
 > - 審查中發現規範不實用或缺失 → 執行 `/audit --report` 回報

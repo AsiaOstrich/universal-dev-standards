@@ -471,7 +471,7 @@ export const AVAILABLE_COMMANDS = [
   // Core Development Workflow (Action Skills)
   // ═══════════════════════════════════════════════════════════════════════════
   { name: 'commit', description: 'Generate commit messages following Conventional Commits' },
-  { name: 'review', description: 'Perform code review with checklist' },
+  { name: 'code-review', description: 'Perform code review with checklist' },
   { name: 'checkin', description: 'Pre-commit quality gates verification' },
   { name: 'release', description: 'Guide release process' },
   { name: 'changelog', description: 'Generate changelog entries' },

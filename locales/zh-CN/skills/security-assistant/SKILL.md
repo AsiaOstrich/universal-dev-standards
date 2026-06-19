@@ -70,7 +70,7 @@ SCOPE ──► SCAN ──► ANALYZE ──► REPORT
 
 > **安全审查完成。建议下一步：**
 > - 执行 `/checkin` 确认修复符合提交规范
-> - 执行 `/review` 进行代码审查
+> - 执行 `/code-review` 进行代码审查
 > - 执行 `/commit` 提交安全修复
 > - 检查依赖包更新 → `npm audit` 或 `pip audit`
 

@@ -36,7 +36,7 @@ V. Release ──► VI. Documentation ──► VII. Standards ──► VIII. 
 | **I. 规划与设计** | `/brainstorm` `/requirement` `/sdd` `/reverse` `/api-design` `/database` | 需求、规格、API/DB 设计 |
 | **II. 测试驱动开发** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` `/ac-coverage` | 先写测试再写代码 |
 | **III. 实现** | `/refactor` `/reverse` `/migrate` `/durable` | 撰写、改善与迁移代码 |
-| **IV. 品质关卡** | `/checkin` `/review` `/security` `/scan` `/incident` | 品质、安全、事故响应 |
+| **IV. 品质关卡** | `/checkin` `/code-review` `/security` `/scan` `/incident` | 品质、安全、事故响应 |
 | **V. 发布与提交** | `/commit` `/changelog` `/release` `/pr` `/ci-cd` | 版本、提交、PR、CI/CD |
 | **VI. 文档** | `/docs` `/docgen` | 文档与项目结构 |
 | **VII. 工具与标准** | `/discover` `/guide` `/metrics` `/audit` | 参考指南、指标、审计 |

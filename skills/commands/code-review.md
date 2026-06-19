@@ -40,9 +40,9 @@ Perform systematic code review using standardized checklists and comment prefixe
 
 ## Usage | 使用方式
 
-- `/review` - Review all changes in current branch
-- `/review src/auth.js` - Review specific file
-- `/review feature/login` - Review specific branch
+- `/code-review` - Review all changes in current branch
+- `/code-review src/auth.js` - Review specific file
+- `/code-review feature/login` - Review specific branch
 
 ## AI Agent Behavior | AI 代理行為
 
@@ -52,9 +52,9 @@ Perform systematic code review using standardized checklists and comment prefixe
 
 | Input | AI Action |
 |-------|-----------|
-| `/review` | 執行 `git diff` 取得當前分支所有變更，開始審查 |
-| `/review <file>` | 僅審查指定檔案 |
-| `/review <branch>` | 審查指定分支相對於 main 的差異 |
+| `/code-review` | 執行 `git diff` 取得當前分支所有變更，開始審查 |
+| `/code-review <file>` | 僅審查指定檔案 |
+| `/code-review <branch>` | 審查指定分支相對於 main 的差異 |
 
 ### Interaction Script | 互動腳本
 

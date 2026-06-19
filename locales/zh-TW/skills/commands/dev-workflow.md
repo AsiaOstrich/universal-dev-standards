@@ -87,7 +87,7 @@ ls docs/specs/SPEC-*.md 2>/dev/null
 | **I. 規劃** | `/brainstorm` `/requirement` `/sdd` `/reverse` | 需求、規格、逆向工程 |
 | **II. 測試** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` | 先寫測試再寫程式 |
 | **III. 實作** | `/refactor` `/reverse` | 撰寫與改善程式碼 |
-| **IV. 品質** | `/checkin` `/review` | 提交前檢查與審查 |
+| **IV. 品質** | `/checkin` `/code-review` | 提交前檢查與審查 |
 | **V. 發布** | `/commit` `/changelog` `/release` | 版本、提交、發布 |
 | **VI. 文件** | `/docs` `/docgen` `/struct` | 文件與專案結構 |
 | **VII. 規範** | `/discover` `/guide` | 參考指南 |

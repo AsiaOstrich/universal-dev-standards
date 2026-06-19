@@ -235,7 +235,7 @@ Each tool's integration layer is responsible for rendering the Navigation Footer
 > **Suggested next steps:**
 > - Run `/test` to write tests for the new feature
 > - Run `/commit` to commit changes ⭐ **Recommended** — changes are complete and verified
-> - Run `/review` for self-review
+> - Run `/code-review` for self-review
 ```
 
 ### Example 2: Asking the User a Design Question

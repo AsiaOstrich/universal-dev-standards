@@ -64,7 +64,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for all override options
 
 **Q: Do I have to write a spec for every change?**
 
-No. Specs are recommended for features, user stories, and non-trivial changes. For small bug fixes or refactoring, `/commit` and `/review` are sufficient. The rule of thumb: if it would take more than 2 hours to implement, a spec helps.
+No. Specs are recommended for features, user stories, and non-trivial changes. For small bug fixes or refactoring, `/commit` and `/code-review` are sufficient. The rule of thumb: if it would take more than 2 hours to implement, a spec helps.
 
 **Q: Where are specs stored?**
 

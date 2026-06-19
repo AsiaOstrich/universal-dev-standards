@@ -301,9 +301,9 @@ Use `/sdd` after discovery to:
 - Write specifications for new features informed by discovery findings
 - Reference the Discovery Report for risk assessment sections
 
-### With /review (Code Review)
+### With /code-review (Code Review)
 
-The Step 0.4 snapshot is a lightweight version of `/review`. Use full `/review` when:
+The Step 0.4 snapshot is a lightweight version of `/code-review`. Use full `/code-review` when:
 - Discovery finds significant quality concerns
 - A deeper audit is needed before planning changes
 

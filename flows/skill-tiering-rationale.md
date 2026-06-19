@@ -21,7 +21,7 @@ A skill's tier is determined by **invocation frequency** and **discovery sensiti
 
 ### Tier 1 (Core) inclusion test
 - [ ] User invokes the skill in ≥3 of 5 typical sessions
-- [ ] The skill is part of the standard commit/test/review loop
+- [ ] The skill is part of the standard commit/test/code-review loop
 - [ ] Misclassifying it as Tier 3 would block normal workflow
 
 ### Tier 2 (Advanced) inclusion test

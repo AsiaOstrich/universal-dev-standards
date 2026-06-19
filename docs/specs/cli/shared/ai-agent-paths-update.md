@@ -137,8 +137,8 @@ Add Claude Code skills/commands merger note to `skills/README.md`:
 ## Slash Commands | 斜線命令
 
 > **Claude Code v2.1.3+ Note**: Slash commands and skills are now merged.
-> Both `.claude/commands/review.md` and `.claude/skills/review/SKILL.md`
-> create `/review` and work identically.
+> Both `.claude/commands/code-review.md` and `.claude/skills/review/SKILL.md`
+> create `/code-review` and work identically.
 >
 > **For other AI tools**: OpenCode, Roo Code, Gemini CLI and others
 > still use the traditional commands format.

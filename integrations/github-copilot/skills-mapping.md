@@ -60,7 +60,7 @@ Claude Code provides 25 skills with 17 slash commands. GitHub Copilot doesn't su
 | Claude Code | Copilot Chat Equivalent |
 |-------------|------------------------|
 | `/commit` | "Generate commit message following Conventional Commits format" |
-| `/review` | "Review this code following the code review checklist" |
+| `/code-review` | "Review this code following the code review checklist" |
 | `/tdd` | "Help me implement using TDD (Red-Green-Refactor)" |
 | `/coverage` | "Analyze test coverage using the 7 dimensions" |
 | `/requirement` | "Write user story following INVEST criteria" |
@@ -97,7 +97,7 @@ Claude Code provides 25 skills with 17 slash commands. GitHub Copilot doesn't su
    - Copilot: No state tracking between sessions
 
 3. **Slash Commands**
-   - Claude Code: `/commit`, `/review`, etc.
+   - Claude Code: `/commit`, `/code-review`, etc.
    - Copilot: Must type full prompts in Chat
 
 4. **MCP Tool Integration**

@@ -71,7 +71,7 @@ OpenCode supports the same skill invocation syntax as Claude Code:
 | Claude Code | OpenCode | Notes |
 |-------------|----------|-------|
 | `/commit` | `/commit` or `skill("commit-standards")` | Identical |
-| `/review` | `/review` or `skill("code-review-assistant")` | Identical |
+| `/code-review` | `/code-review` or `skill("code-review-assistant")` | Identical |
 | `/tdd` | `/tdd` or `skill("tdd-assistant")` | Identical |
 | `/coverage` | `/coverage` or `skill("test-coverage-assistant")` | Identical |
 | `/requirement` | `/requirement` or `skill("requirement-assistant")` | Identical |
@@ -192,7 +192,7 @@ OpenCode doesn't have an official marketplace like Claude Code, but several comm
 |---------|-------------|----------|
 | Skill format | YAML frontmatter + Markdown | ✅ Same |
 | Skill search paths | `.claude/skills/` | ✅ + `.opencode/skill/` |
-| Slash commands | `/commit`, `/review`, etc. | ✅ Same |
+| Slash commands | `/commit`, `/code-review`, etc. | ✅ Same |
 | Auto-triggering | Keyword-based | ✅ Same |
 | Skill permissions | Per-skill | ✅ Same |
 

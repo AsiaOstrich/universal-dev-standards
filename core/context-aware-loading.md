@@ -46,7 +46,7 @@ These standards are fundamental to every AI interaction and must always be loade
 |--------|-----------|---------------------|
 | `testing` | testing, unit-testing, integration-testing, test-completeness-dimensions, tdd, bdd, atdd | Writing tests, test file edits, "test coverage" discussion |
 | `specification` | spec-driven-development, forward-derivation, reverse-engineering, requirement-engineering | `/sdd`, `/spec` commands, spec file edits |
-| `quality` | code-review, refactoring, security, performance, accessibility | `/review` command, PR review, "refactor" discussion |
+| `quality` | code-review, refactoring, security, performance, accessibility | `/code-review` command, PR review, "refactor" discussion |
 | `documentation` | documentation-structure, documentation-writing, ai-instruction, changelog | Writing docs, README/CHANGELOG edits |
 | `workflow` | git-workflow, github-flow, squash-merge, versioning, deployment | Branch operations, release preparation, merging |
 | `architecture` | ai-friendly-architecture, project-structure, error-codes, logging | Architecture decisions, project setup |
@@ -62,7 +62,7 @@ Session Start
   ├─ Load all always-on standards
   ├─ Scan user request for trigger keywords
   ├─ Match file patterns if user is editing files
-  ├─ Detect slash commands (/sdd, /review, etc.)
+  ├─ Detect slash commands (/sdd, /code-review, etc.)
   └─ Load matching on-demand standards
 ```
 

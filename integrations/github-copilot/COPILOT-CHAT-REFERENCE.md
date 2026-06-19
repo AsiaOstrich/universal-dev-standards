@@ -39,7 +39,7 @@ Use Conventional Commits format: type(scope): description
 
 ### 2. Code Review
 
-**Claude Code**: `/review`
+**Claude Code**: `/code-review`
 
 **Copilot Chat Prompt**:
 ```

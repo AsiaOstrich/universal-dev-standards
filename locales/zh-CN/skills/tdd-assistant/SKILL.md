@@ -67,7 +67,7 @@ description: |
 > **TDD 循环完成。建议下一步：**
 > - 执行 `/checkin` 通过品质关卡
 > - 执行 `/coverage` 确认测试覆盖率
-> - 执行 `/review` 自我审查代码
+> - 执行 `/code-review` 自我审查代码
 
 ## 参考
 

@@ -62,7 +62,7 @@ Universal Development Standards is a **language-agnostic, framework-agnostic** d
 | Problem | UDS Solution |
 |---------|--------------|
 | Inconsistent commit messages across the team | Standardized Conventional Commits via `/commit` |
-| Code reviews that miss critical issues | Systematic 8-dimension review checklist via `/review` |
+| Code reviews that miss critical issues | Systematic 8-dimension review checklist via `/code-review` |
 | AI tools giving inconsistent advice | Unified standards that AI tools read and follow |
 | New team members take weeks to onboard | Clear standards and guided workflows |
 | No one agrees on test coverage expectations | Testing pyramid with explicit ratios (70/20/7/3) |
@@ -73,7 +73,7 @@ Universal Development Standards is a **language-agnostic, framework-agnostic** d
 **"Touch a little, protect a little"** — You do not need to adopt all 48 standards at once. UDS is designed for incremental adoption:
 
 - Start with `/commit` alone — zero cost, immediate benefit
-- Add `/review` next — catch issues before merge
+- Add `/code-review` next — catch issues before merge
 - Gradually introduce `/tdd` and `/sdd` as the team gets comfortable
 
 > **Boy Scout Rule**: Leave the code better than you found it. Each time you touch code, add a little protection (tests, docs).
@@ -459,14 +459,14 @@ Refs: SPEC-001
 | `test` | Tests | `test(auth): add login tests` |
 | `chore` | Maintenance | `chore(deps): update dependencies` |
 
-### `/review` — Code Review
+### `/code-review` — Code Review
 
-Before submitting, use `/review` for systematic review:
+Before submitting, use `/code-review` for systematic review:
 
 ```bash
-/review                    # Review all changes in current branch
-/review src/auth.js        # Review specific file
-/review feature/login      # Review specific branch
+/code-review                    # Review all changes in current branch
+/code-review src/auth.js        # Review specific file
+/code-review feature/login      # Review specific branch
 ```
 
 **8 review dimensions:**
@@ -505,7 +505,7 @@ Run `/checkin` before committing to verify all quality gates pass (tests, lintin
 | **Spec** | `/sdd`, `/requirement`, `/brainstorm` | Spec-driven development |
 | **Derive** | `/derive-all`, `/derive-bdd`, `/derive-tdd`, `/derive-atdd` | Generate tests from specs |
 | **Develop** | `/tdd`, `/bdd`, `/atdd` | Methodology workflows |
-| **Quality** | `/commit`, `/review`, `/checkin`, `/coverage`, `/ac-coverage` | Daily quality management |
+| **Quality** | `/commit`, `/code-review`, `/checkin`, `/coverage`, `/ac-coverage` | Daily quality management |
 | **Docs** | `/docs`, `/docgen`, `/changelog`, `/release` | Documentation & release |
 | **Reverse** | `/reverse`, `/reverse-sdd`, `/reverse-bdd`, `/reverse-tdd` | Legacy code reverse engineering |
 | **Refactor** | `/refactor` | Refactoring guidance |
@@ -523,7 +523,7 @@ You don't need to learn all commands at once. Adopt in stages:
 
 ```bash
 /commit     # Standardize commit messages
-/review     # Self-review before push
+/code-review     # Self-review before push
 ```
 
 > These two commands alone will immediately improve code quality.
@@ -570,7 +570,7 @@ You don't need to learn all commands at once. Adopt in stages:
 12:00  /commit                # Standardized commit
        → feat(auth): add two-factor authentication
 
-12:05  /review                # Final review
+12:05  /code-review                # Final review
        → 0 BLOCKING, 1 SUGGESTION
 ```
 
@@ -600,7 +600,7 @@ A: No. UDS is language-agnostic and framework-agnostic. It defines process and q
 A: No. Core standards are Markdown files that humans can read directly. AI tools just make the workflow smoother.
 
 **Q: Can I use UDS alone without my team adopting it?**
-A: Yes. The incremental adoption design supports individual use. Start with `/commit` and `/review` on your own, then introduce the team when they see results.
+A: Yes. The incremental adoption design supports individual use. Start with `/commit` and `/code-review` on your own, then introduce the team when they see results.
 
 **Q: Does UDS conflict with ESLint / Prettier?**
 A: They are complementary. ESLint/Prettier handle code formatting. UDS handles higher-level development process and quality standards.
@@ -625,7 +625,7 @@ uds init
 
 ### Recommended Learning Path
 
-1. Start with `/commit` + `/review` to build habits
+1. Start with `/commit` + `/code-review` to build habits
 2. Try `/sdd` when building a new feature
 3. When unsure what to do next, type `/dev-workflow`
 

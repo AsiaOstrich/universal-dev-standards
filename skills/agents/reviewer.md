@@ -50,7 +50,7 @@ triggers:
     - 程式碼審查
     - 審查
   commands:
-    - /review
+    - /code-review
 ---
 
 # Code Reviewer Agent

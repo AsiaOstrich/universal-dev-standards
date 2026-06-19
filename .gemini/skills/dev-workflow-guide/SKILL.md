@@ -35,7 +35,7 @@ V. Release ──► VI. Documentation ──► VII. Standards ──► VIII. 
 | **I. Planning & Design** | `/brainstorm` `/requirement` `/sdd` `/reverse` | Requirements, specs, reverse engineering | 需求、規格、逆向工程 |
 | **II. Test-Driven Development** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` | Design tests before code | 先寫測試再寫程式 |
 | **III. Implementation** | `/refactor` `/reverse` | Write and improve code | 撰寫與改善程式碼 |
-| **IV. Quality Gates** | `/checkin` `/review` | Pre-commit and code review | 提交前檢查與程式碼審查 |
+| **IV. Quality Gates** | `/checkin` `/code-review` | Pre-commit and code review | 提交前檢查與程式碼審查 |
 | **V. Release & Commit** | `/commit` `/changelog` `/release` | Version, commit, publish | 版本、提交、發布 |
 | **VI. Documentation** | `/docs` `/docgen` `/struct` | Docs and project structure | 文件與專案結構 |
 | **VII. Tools & Standards** | `/discover` `/testing` `/guide` `/git` | Reference guides | 參考指南 |

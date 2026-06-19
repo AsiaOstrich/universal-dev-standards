@@ -94,7 +94,7 @@ uds audit --report --dry-run
 
 ## Integration with Other Skills | 與其他技能的整合
 
-When suggested by other skills (e.g., `/checkin`, `/commit`, `/review`, `/sdd`), `/audit` can be invoked to:
+When suggested by other skills (e.g., `/checkin`, `/commit`, `/code-review`, `/sdd`), `/audit` can be invoked to:
 
 當被其他技能建議時，`/audit` 可根據情境執行針對性的檢查：
 
@@ -102,7 +102,7 @@ When suggested by other skills (e.g., `/checkin`, `/commit`, `/review`, `/sdd`),
 |---------|--------------------|------|
 | After `/checkin` failure | `/audit --health` | checkin 失敗後診斷 |
 | After `/commit` | `/audit --report` | 提交後回報發現 |
-| After `/review` finds friction | `/audit --friction` | 審查發現摩擦時 |
+| After `/code-review` finds friction | `/audit --friction` | 審查發現摩擦時 |
 | After `/sdd` spec creation | `/audit --patterns` | 規格建立後檢查覆蓋率 |
 
 ## Next Steps | 後續步驟

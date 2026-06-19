@@ -109,7 +109,7 @@ GitHub Copilot 相较于其他 AI 编程工具有一些限制：
 Claude Code: /commit
 Copilot:     "Generate a commit message following Conventional Commits..."
 
-Claude Code: /review
+Claude Code: /code-review
 Copilot:     "Review this code following the code review checklist..."
 
 Claude Code: /tdd

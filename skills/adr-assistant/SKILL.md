@@ -139,7 +139,7 @@ docs/adr/
 | Skill | Integration | 整合方式 |
 |-------|-------------|---------|
 | `/sdd` | Reference ADRs in Technical Design; suggest creating ADR for major decisions | 在技術設計中引用 ADR |
-| `/review` | Reference ADRs as design rationale during code review | 程式碼審查時引用 ADR |
+| `/code-review` | Reference ADRs as design rationale during code review | 程式碼審查時引用 ADR |
 | `/commit` | Include `ADR-NNN` in commit footer for traceability | 提交時在 footer 加入 ADR 編號 |
 | `/brainstorm` | Feed brainstorm output into ADR option analysis | 腦力激盪結果作為 ADR 選項分析輸入 |
 

@@ -89,13 +89,13 @@ uds audit --report --dry-run
 
 ## 与其他技能的整合
 
-当被其他技能（如 `/checkin`、`/commit`、`/review`、`/sdd`）建议时，`/audit` 可根据情境执行针对性的检查：
+当被其他技能（如 `/checkin`、`/commit`、`/code-review`、`/sdd`）建议时，`/audit` 可根据情境执行针对性的检查：
 
 | 情境 | 建议指令 |
 |------|---------|
 | `/checkin` 失败后诊断 | `/audit --health` |
 | `/commit` 后回报发现 | `/audit --report` |
-| `/review` 发现摩擦时 | `/audit --friction` |
+| `/code-review` 发现摩擦时 | `/audit --friction` |
 | `/sdd` 规格建立后检查覆盖率 | `/audit --patterns` |
 
 ## 后续步骤

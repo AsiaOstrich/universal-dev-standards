@@ -68,7 +68,7 @@ argument-hint: "[feature or file | 功能或檔案]"
 > **TDD 循環完成。建議下一步：**
 > - 執行 `/checkin` 通過品質關卡
 > - 執行 `/coverage` 確認測試覆蓋率
-> - 執行 `/review` 自我審查程式碼
+> - 執行 `/code-review` 自我審查程式碼
 
 ## 參考
 

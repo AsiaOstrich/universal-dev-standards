@@ -115,7 +115,7 @@ Claude Code will:
 | Generate commit | `/commit` |
 | Safe push | `/push` |
 | Architecture decision | `/adr` |
-| Code review | `/review` |
+| Code review | `/code-review` |
 
 For the full list, see [SKILLS-INDEX.md → When to Use](SKILLS-INDEX.md#觸發時機速查-when-to-use).
 

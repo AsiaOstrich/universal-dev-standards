@@ -344,7 +344,7 @@ export async function verifyAgent(agentPath, metadata) {
 
 - Paid/premium agents
 - In-app purchases
-- Rating/review backend
+- Rating/code-review backend
 - Central search API
 
 ---

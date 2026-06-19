@@ -32,7 +32,7 @@ These skills provide standard guidance and workflows. They can be accessed via s
 | `guide` | `/guide` | [UDS] Access all standard guides |
 | `checkin-assistant` | `/checkin` | [UDS] Pre-commit quality gates |
 | `commit-standards` | `/commit` | [UDS] Conventional Commits format |
-| `code-review-assistant` | `/review` | [UDS] Systematic code review |
+| `code-review-assistant` | `/code-review` | [UDS] Systematic code review |
 | `tdd-assistant` | `/tdd` | [UDS] Test-Driven Development |
 | `bdd-assistant` | `/bdd` | [UDS] Behavior-Driven Development |
 | `atdd-assistant` | `/atdd` | [UDS] Acceptance Test-Driven Development |

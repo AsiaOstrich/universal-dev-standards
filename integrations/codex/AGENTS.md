@@ -174,7 +174,7 @@ This document is released under [CC BY 4.0](https://creativecommons.org/licenses
 ### core
 
 - `/commit`
-- `/review`
+- `/code-review`
 - `/sdd`
 - `/check`
 - `/init`

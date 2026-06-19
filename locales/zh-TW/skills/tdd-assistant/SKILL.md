@@ -67,7 +67,7 @@ description: "[UDS] 引導測試驅動開發（TDD）流程：紅-綠-重構"
 > **TDD 循環完成。建議下一步：**
 > - 執行 `/checkin` 通過品質關卡
 > - 執行 `/coverage` 確認測試覆蓋率
-> - 執行 `/review` 自我審查程式碼
+> - 執行 `/code-review` 自我審查程式碼
 
 ## 參考
 

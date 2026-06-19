@@ -79,7 +79,7 @@ After `/tdd` completes, the AI assistant should suggest:
 > **TDD 循環完成。建議下一步 / TDD cycle complete. Suggested next steps:**
 > - 執行 `/checkin` 通過品質關卡 ⭐ **Recommended / 推薦** — Pass quality gates
 > - 執行 `/coverage` 確認測試覆蓋率 — Check test coverage
-> - 執行 `/review` 自我審查程式碼 — Self-review code quality
+> - 執行 `/code-review` 自我審查程式碼 — Self-review code quality
 
 ## Reference | 參考
 

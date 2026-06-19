@@ -1,5 +1,5 @@
 ---
-name: review
+name: code-review
 scope: universal
 description: "[UDS] Perform systematic code review with checklist"
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
@@ -56,16 +56,16 @@ Perform systematic code review using standardized checklists and comment prefixe
 
 ## Usage | 使用方式
 
-- `/review` - Review all changes in current branch
-- `/review src/auth.js` - Review specific file
-- `/review feature/login` - Review specific branch
+- `/code-review` - Review all changes in current branch
+- `/code-review src/auth.js` - Review specific file
+- `/code-review feature/login` - Review specific branch
 
 ## Next Steps Guidance | 下一步引導
 
-After `/review` completes, the AI assistant should suggest:
+After `/code-review` completes, the AI assistant should suggest:
 
 > **程式碼審查完成。建議下一步 / Code review complete. Suggested next steps:**
-> - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/review` — Fix issues then re-run `/review`
+> - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/code-review` — Fix issues then re-run `/code-review`
 > - 全部通過 → 執行 `/checkin` 品質關卡 ⭐ **Recommended / 推薦** — All passed → Run `/checkin` quality gates
 > - 僅有 💡 SUGGESTION → 執行 `/commit` 提交變更 — Only suggestions → Run `/commit`
 > - 審查中發現規範不實用或缺失 → 執行 `/audit --report` 回報 — Found impractical or missing standards → Run `/audit --report`
@@ -78,6 +78,6 @@ After `/review` completes, the AI assistant should suggest:
 
 ## AI Agent Behavior | AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/review`](../commands/review.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/code-review`](../commands/code-review.md#ai-agent-behavior--ai-代理行為)
 >
-> For complete AI agent behavior definition, see the corresponding command file: [`/review`](../commands/review.md#ai-agent-behavior--ai-代理行為)
+> For complete AI agent behavior definition, see the corresponding command file: [`/code-review`](../commands/code-review.md#ai-agent-behavior--ai-代理行為)

@@ -79,7 +79,7 @@ CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
 `/pr` 完成后，AI 助手应建议：
 
 > **PR 操作完成。建议下一步：**
-> - 执行 `/review` 进行详细代码审查
+> - 执行 `/code-review` 进行详细代码审查
 > - 执行 `/commit` 修正审查发现的问题
 > - 执行 `/changelog` 更新变更日志
 > - 检查 CI 状态 → `gh pr checks`

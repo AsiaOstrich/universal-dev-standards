@@ -9,7 +9,7 @@
     "core": {
       "description": "Foundation commands every AI tool should know",
       "descriptionZh": "基礎命令，所有 AI 工具都應知道",
-      "commands": ["commit", "review", "sdd", "check", "init", "update", "config"]
+      "commands": ["commit", "code-review", "sdd", "check", "init", "update", "config"]
     },
     "testing": {
       "description": "Testing-related commands",

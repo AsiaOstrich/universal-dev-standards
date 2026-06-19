@@ -16,17 +16,17 @@ workflows:
   sdd-flow:
     name: "SDD Flow (AI-Era)"
     description: "Spec-Driven Development for new features with AI assistance"
-    steps: [discover, sdd, derive, bdd-review, tdd, checkin, commit, review]
+    steps: [discover, sdd, derive, bdd-review, tdd, checkin, commit, code-review]
 
   bugfix-flow:
     name: "Bug Fix Flow"
     description: "Minimal workflow for fixing bugs with test coverage"
-    steps: [tdd, checkin, commit, review]
+    steps: [tdd, checkin, commit, code-review]
 
   double-loop-flow:
     name: "Double-Loop TDD"
     description: "BDD outer loop + TDD inner loop for behavior-driven development"
-    steps: [bdd, tdd, checkin, commit, review]
+    steps: [bdd, tdd, checkin, commit, code-review]
 
   legacy-modernization:
     name: "Legacy Modernization"
@@ -43,10 +43,10 @@ workflows:
     description: "Pre-release checks, changelog update, and release"
     steps: [release-check, changelog, release]
 
-  review-flow:
+  code-review-flow:
     name: "Code Review Flow"
     description: "Review code and commit"
-    steps: [review, commit]
+    steps: [code-review, commit]
 
 # ─────────────────────────────────────────────────────────────
 # Command Prerequisites
@@ -107,7 +107,7 @@ commands:
     entry_point: true
     description: "Create conventional commit — always available"
 
-  review:
+  code-review:
     entry_point: true
     description: "Code review — always available"
 

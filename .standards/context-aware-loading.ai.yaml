@@ -66,7 +66,7 @@ standard:
     quality:
       description: Standards for code review, refactoring, and quality assurance
       triggers:
-        - "/review"
+        - "/code-review"
         - "/refactor"
         - "/check"
         - "code review"
@@ -148,7 +148,7 @@ standard:
         Map slash commands to domains:
         /tdd, /bdd, /atdd, /coverage → testing
         /sdd, /spec, /derive, /reverse, /requirement → specification
-        /review, /refactor, /check → quality
+        /code-review, /refactor, /check → quality
         /docs, /changelog, /generate-docs → documentation
         /release, /commit → workflow
       priority: required
@@ -157,7 +157,7 @@ standard:
       trigger: "user invokes a UDS slash command, Skill, or UDS-related operation"
       instruction: >
         When the user invokes a UDS-related slash command (/commit, /sdd,
-        /review, /release, /tdd, /bdd, /docs, /changelog, etc.) or uses
+        /code-review, /release, /tdd, /bdd, /docs, /changelog, etc.) or uses
         a UDS Skill for the FIRST TIME in the current conversation,
         check for UDS updates:
 
