@@ -101,7 +101,7 @@ Scenario: User login with valid credentials
 
 ### 3. 推演标签（来自统一标签系统）
 
-本 skill 使用 **推演标签（Derivation Tags）** 从规格生成新内容。完整的标签参考见 [Anti-Hallucination Standards](../../core/anti-hallucination.md#certainty-classification-tags)。
+本 skill 使用 **推演标签（Derivation Tags）** 从规格生成新内容。完整的标签参考见 [Anti-Hallucination Standards](../../../../core/anti-hallucination.md#certainty-classification-tags)。
 
 | 标签 | 使用时机 | 示例 |
 |-----|----------|---------|

@@ -187,7 +187,7 @@ AI: Migration Assessment: Vue 2 → Vue 3
 
 ## AI 代理行为
 
-> 完整的 AI 行为定义请参阅对应的命令文件：[`/migrate`](../commands/migrate.md#ai-agent-behavior--ai-代理行为)
+> 完整的 AI 行为定义请参阅对应的命令文件：[`/migrate`](../../../../skills/commands/migrate.md#ai-agent-behavior--ai-代理行為)
 
 ## 授权
 

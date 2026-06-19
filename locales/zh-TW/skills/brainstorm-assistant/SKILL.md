@@ -267,4 +267,4 @@ description: "[UDS] 在撰寫規格前進行結構化 AI 輔助腦力激盪"
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/brainstorm`](../commands/brainstorm.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/brainstorm`](../../../../skills/commands/brainstorm.md#ai-agent-behavior--ai-代理行為)

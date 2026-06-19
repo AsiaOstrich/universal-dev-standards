@@ -238,7 +238,7 @@ get_file_anchors() {
     # Use perl for Unicode-safe anchor conversion (supports CJK characters)
     grep -E '^#{1,6} ' "$target_file" 2>/dev/null | \
         sed 's/^ *#* *//' | \
-        perl -CSD -pe '$_ = lc $_; s/[^\w\s-]//g; s/\s+/-/g; s/^-|-$//g; $_ .= "\n" unless /\n$/' > "$cache_file"
+        perl -CSD -pe '$_ = lc $_; s/[^\w\s-]//g; s/\s/-/g; s/^-|-$//g; $_ .= "\n" unless /\n$/' > "$cache_file"
 
     cat "$cache_file"
 }
@@ -568,10 +568,10 @@ FILE_PAIRS=(
     "skills/README.md|locales/zh-CN/skills/README.md"
     "adoption/DAILY-WORKFLOW-GUIDE.md|locales/zh-TW/adoption/DAILY-WORKFLOW-GUIDE.md"
     "adoption/DAILY-WORKFLOW-GUIDE.md|locales/zh-CN/adoption/DAILY-WORKFLOW-GUIDE.md"
-    "docs/CHEATSHEET.md|locales/zh-TW/docs/CHEATSHEET.md"
-    "docs/CHEATSHEET.md|locales/zh-CN/docs/CHEATSHEET.md"
-    "docs/FEATURE-REFERENCE.md|locales/zh-TW/docs/FEATURE-REFERENCE.md"
-    "docs/FEATURE-REFERENCE.md|locales/zh-CN/docs/FEATURE-REFERENCE.md"
+    "docs/user/CHEATSHEET.md|locales/zh-TW/docs/CHEATSHEET.md"
+    "docs/user/CHEATSHEET.md|locales/zh-CN/docs/CHEATSHEET.md"
+    "docs/reference/FEATURE-REFERENCE.md|locales/zh-TW/docs/FEATURE-REFERENCE.md"
+    "docs/reference/FEATURE-REFERENCE.md|locales/zh-CN/docs/FEATURE-REFERENCE.md"
     "docs/USER-MANUAL.md|locales/zh-TW/docs/USER-MANUAL.md"
     "docs/USER-MANUAL.md|locales/zh-CN/docs/USER-MANUAL.md"
 )

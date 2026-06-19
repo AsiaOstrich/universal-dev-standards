@@ -86,7 +86,7 @@ ASSESS ──► CHOOSE ──► DEFINE ──► IMPLEMENT ──► VERIFY
 
 ### 遷移合約測試（替換實作時）
 
-當 API endpoint 從一個技術棧遷至另一個（PHP → .NET、Express → Spring 等），對 **legacy 參考 fixture** 的 contract test 可捕捉「缺漏欄位」「rename」「層級漂移」等新 DTO 單元測試無法覆蓋的缺陷。詳見 [migration-assistant § API Migration Contract Tests](../migration-assistant/SKILL.md#api-migration-contract-tests--api-遷移合約測試) 取得 fixture 捕獲協議與稽核檢查清單。
+當 API endpoint 從一個技術棧遷至另一個（PHP → .NET、Express → Spring 等），對 **legacy 參考 fixture** 的 contract test 可捕捉「缺漏欄位」「rename」「層級漂移」等新 DTO 單元測試無法覆蓋的缺陷。詳見 [migration-assistant § API Migration Contract Tests](../../../../skills/migration-assistant/SKILL.md#api-migration-contract-tests--api-遷移合約測試) 取得 fixture 捕獲協議與稽核檢查清單。
 
 ## 下一步引導
 

@@ -107,4 +107,4 @@ argument-hint: "[动作] [参数]"
 
 ## AI 代理行为
 
-> 完整的 AI 行为定义请参阅对应的命令文件：[`/methodology`](../../../../skills/commands/methodology.md#ai-agent-behavior--ai-代理行为)
+> 完整的 AI 行为定义请参阅对应的命令文件：[`/methodology`](../../../../skills/commands/methodology.md#ai-agent-behavior--ai-代理行為)

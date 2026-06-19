@@ -213,6 +213,6 @@ The system SHALL [behavior description].
 
 ## AI Agent Behavior | AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/sdd`](../commands/sdd.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/sdd`](../../../../skills/commands/sdd.md#ai-agent-behavior--ai-代理行為)
 >
-> For complete AI agent behavior definition, see the corresponding command file: [`/sdd`](../commands/sdd.md#ai-agent-behavior--ai-代理行為)
+> For complete AI agent behavior definition, see the corresponding command file: [`/sdd`](../../../../skills/commands/sdd.md#ai-agent-behavior--ai-代理行為)

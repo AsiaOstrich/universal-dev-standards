@@ -101,7 +101,7 @@ Scenario: User login with valid credentials
 
 ### 3. 推演標籤（Derivation Tags，來自統一標籤系統）
 
-此 skill 使用 **推演標籤（Derivation Tags）** 從規格生成新內容。完整的標籤參考請見 [Anti-Hallucination Standards](../../core/anti-hallucination.md#certainty-classification-tags)。
+此 skill 使用 **推演標籤（Derivation Tags）** 從規格生成新內容。完整的標籤參考請見 [Anti-Hallucination Standards](../../../../core/anti-hallucination.md#certainty-classification-tags)。
 
 | 標籤 | 使用時機 | 範例 |
 |-----|----------|---------|

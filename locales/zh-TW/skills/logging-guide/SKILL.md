@@ -219,7 +219,7 @@ logger.error('處理訂單失敗', {
 
 當日誌檔案在預期的每日結束時達到 **`fileSizeLimitBytes` 的 ≥ 90%**，**調查噪音根因**（嘈雜的重試迴圈 / 不受限制的 debug 日誌 / stack trace 洪流），不要只提高上限。
 
-> 含各語言設定範例（.NET Serilog / Python / Java log4j2 / Node Winston）及真實事故失敗模式參考的完整規格：請參閱核心標準的[日誌檔案輪替政策](../../../../core/logging-standards.md#日誌檔案輪替政策)。
+> 含各語言設定範例（.NET Serilog / Python / Java log4j2 / Node Winston）及真實事故失敗模式參考的完整規格：請參閱核心標準的[日誌檔案輪替政策](../../core/logging-standards.md#日誌檔案輪替政策)。
 
 ## 檢查清單
 

@@ -129,4 +129,4 @@ Closes #123
 
 ## AI 代理行为
 
-> 完整的 AI 行为定义请参阅对应的命令文件：[`/commit`](../commands/commit.md#ai-agent-behavior--ai-代理行为)
+> 完整的 AI 行为定义请参阅对应的命令文件：[`/commit`](../../../../skills/commands/commit.md#ai-agent-behavior--ai-代理行為)

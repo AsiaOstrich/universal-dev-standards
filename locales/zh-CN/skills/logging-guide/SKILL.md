@@ -224,7 +224,7 @@ logger.error('处理订单失败', {
 
 当日志文件大小在预计当天结束时达到 **`fileSizeLimitBytes` 的 ≥ 90%**，**先调查噪声根因**（嘈杂的重试循环 / 意外启用的调试日志 / 堆栈跟踪洪流），再提高上限。
 
-> 含各语言（.NET Serilog / Python / Java log4j2 / Node Winston）配置示例及真实事故失败模式参考的完整规范，请参见核心标准中的 [日志文件轮转策略](../../../../core/logging-standards.md#日志文件轮转策略)。
+> 含各语言（.NET Serilog / Python / Java log4j2 / Node Winston）配置示例及真实事故失败模式参考的完整规范，请参见核心标准中的 [日志文件轮转策略](../../core/logging-standards.md#日志文件轮转策略)。
 
 ## 检查清单
 

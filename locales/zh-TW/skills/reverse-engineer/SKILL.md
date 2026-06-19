@@ -127,4 +127,4 @@ description: "[UDS] 系統考古——跨邏輯、資料、執行環境三維度
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/reverse`](../commands/reverse.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/reverse`](../../../../skills/commands/reverse.md#ai-agent-behavior--ai-代理行為)

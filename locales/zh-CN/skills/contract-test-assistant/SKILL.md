@@ -88,7 +88,7 @@ ASSESS ──► CHOOSE ──► DEFINE ──► IMPLEMENT ──► VERIFY
 
 ### 迁移契约测试（替换实现时）
 
-当 API endpoint 从一个技术栈迁移至另一个（PHP → .NET、Express → Spring 等），对 **legacy 参考 fixture** 的 contract test 可捕捉「缺失字段」「rename」「层级漂移」等新 DTO 单元测试无法覆盖的缺陷。详见 [migration-assistant § API Migration Contract Tests](../migration-assistant/SKILL.md#api-migration-contract-tests--api-遷移合約測試) 获取 fixture 捕获协议与审计检查清单。
+当 API endpoint 从一个技术栈迁移至另一个（PHP → .NET、Express → Spring 等），对 **legacy 参考 fixture** 的 contract test 可捕捉「缺失字段」「rename」「层级漂移」等新 DTO 单元测试无法覆盖的缺陷。详见 [migration-assistant § API Migration Contract Tests](../../../../skills/migration-assistant/SKILL.md#api-migration-contract-tests--api-遷移合約測試) 获取 fixture 捕获协议与审计检查清单。
 
 ## 下一步引导
 

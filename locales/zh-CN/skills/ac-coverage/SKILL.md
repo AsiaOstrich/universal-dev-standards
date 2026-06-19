@@ -189,4 +189,4 @@ function authenticate(user: string, pass: string) { ... }
 
 ## AI 代理行为
 
-> 完整的 AI 行为定义请参阅对应的命令文件：[`/ac-coverage`](../../../../skills/commands/ac-coverage.md#ai-agent-behavior--ai-代理行为)
+> 完整的 AI 行为定义请参阅对应的命令文件：[`/ac-coverage`](../../../../skills/commands/ac-coverage.md#ai-agent-behavior--ai-代理行為)
