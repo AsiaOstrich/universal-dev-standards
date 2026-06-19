@@ -38,13 +38,12 @@ argument-hint: "[规格文件路径]"
 
 ## 链接标注约定
 
-测试**必须**使用标准标注引用其来源 AC：
+测试**必须**使用 **canonical 合并标注** `@SPEC-<id> @AC-<n>`（单一合并标签、保持同一行；**勿**拆成 `@AC` / `@SPEC` 两行）引用其来源 AC：
 
 ```typescript
 // TypeScript/JavaScript
 describe('AC-1: User login with valid credentials', () => {
-  // @AC AC-1
-  // @SPEC SPEC-001
+  // @SPEC-001 @AC-1
   it('should redirect to dashboard on successful login', () => { ... });
 });
 ```
@@ -53,8 +52,7 @@ describe('AC-1: User login with valid credentials', () => {
 # Python
 class TestAC1_UserLogin:
     """AC-1: User login with valid credentials
-    @AC AC-1
-    @SPEC SPEC-001
+    @SPEC-001 @AC-1
     """
     def test_redirect_to_dashboard(self): ...
 ```
@@ -85,7 +83,7 @@ Scenario: User login with valid credentials
 Layer 0：需求 / 用户故事 (REQ)
     ↓ （定义）
 Layer 1：验收条件 (AC)
-    ↓ （@AC 标注）
+    ↓ （@SPEC-NNN @AC-N 标注）
 Layer 2：测试用例
     ↓ （覆盖）
 Layer 3：源代码 (@implements)

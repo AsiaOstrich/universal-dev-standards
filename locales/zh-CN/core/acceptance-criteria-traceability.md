@@ -53,13 +53,12 @@ status: stale
 
 ### 连结惯例
 
-测试 **必须** 使用标准注释引用其来源 AC：
+测试 **必须** 使用 **canonical 合并注释** `@SPEC-<id> @AC-<n>`（单一合并标签、保持同一行；**勿**拆成 `@AC` / `@SPEC` 两行）引用其来源 AC：
 
 ```typescript
 // TypeScript/JavaScript
 describe('AC-1: User login with valid credentials', () => {
-  // @AC AC-1
-  // @SPEC SPEC-001
+  // @SPEC-001 @AC-1
   it('should redirect to dashboard on successful login', () => { ... });
 });
 ```
@@ -68,8 +67,7 @@ describe('AC-1: User login with valid credentials', () => {
 # Python
 class TestAC1_UserLogin:
     """AC-1: User login with valid credentials
-    @AC AC-1
-    @SPEC SPEC-001
+    @SPEC-001 @AC-1
     """
     def test_redirect_to_dashboard(self): ...
 ```

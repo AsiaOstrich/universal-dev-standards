@@ -91,7 +91,7 @@ Use `--full` flag to extend from 2-layer (AC→Test) to 4-layer traceability.
 Layer 0: Requirement / User Story (REQ)
     ↓ (defines)
 Layer 1: Acceptance Criteria (AC)
-    ↓ (@AC annotations)
+    ↓ (@SPEC-NNN @AC-N annotations)
 Layer 2: Test Cases
     ↓ (covers)
 Layer 3: Source Code (@implements)

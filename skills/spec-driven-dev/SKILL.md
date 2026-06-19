@@ -194,8 +194,8 @@ is a faithful projection of the AC spine across specs.
 
 | Signal | Meaning | Gate |
 |--------|---------|------|
-| **orphan test** | `@AC AC-NNN` references an AC no spec defines / 引用不存在的 AC | 🔴 BLOCKING |
-| **uncovered** | an AC has no `@AC` reference / AC 無測試引用 | report only / 僅報告 |
+| **orphan test** | `@SPEC-NNN @AC-N` references an AC no spec defines / 引用不存在的 AC | 🔴 BLOCKING |
+| **uncovered** | an AC has no `@SPEC-NNN @AC-N` reference / AC 無測試引用 | report only / 僅報告 |
 | **not_implemented** | AC marked so in its `.ac.yaml` / `.ac.yaml` 標記 | 🔴 BLOCKING before UAT |
 | **cross-spec conflict** | same AC id defined in >1 spec / 同 AC id 跨多 spec | 🔴 BLOCKING |
 | **orphan .feature** | Gherkin `@AC-N` tag referencing a non-existent AC / @AC-N 引用不存在 | 🔴 BLOCKING |

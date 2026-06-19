@@ -36,13 +36,12 @@ argument-hint: "[規格檔案路徑]"
 
 ## 連結標註慣例
 
-測試**必須**使用標準標註引用其來源 AC：
+測試**必須**使用 **canonical 合併標註** `@SPEC-<id> @AC-<n>`（單一合併標籤、保持同一行；**勿**拆成 `@AC` / `@SPEC` 兩行）引用其來源 AC：
 
 ```typescript
 // TypeScript / JavaScript
 describe('AC-1: 使用者以有效憑證登入', () => {
-  // @AC AC-1
-  // @SPEC SPEC-001
+  // @SPEC-001 @AC-1
   it('登入成功後應導向儀表板', () => { ... });
 });
 ```
@@ -51,8 +50,7 @@ describe('AC-1: 使用者以有效憑證登入', () => {
 # Python
 class TestAC1_UserLogin:
     """AC-1: 使用者以有效憑證登入
-    @AC AC-1
-    @SPEC SPEC-001
+    @SPEC-001 @AC-1
     """
     def test_redirect_to_dashboard(self): ...
 ```
@@ -83,7 +81,7 @@ Scenario: 使用者以有效憑證登入
 Layer 0：需求 / 使用者故事 (REQ)
     ↓ （定義）
 Layer 1：驗收條件 (AC)
-    ↓ （@AC 標註）
+    ↓ （@SPEC-NNN @AC-N 標註）
 Layer 2：測試案例
     ↓ （覆蓋）
 Layer 3：原始碼 (@implements)
