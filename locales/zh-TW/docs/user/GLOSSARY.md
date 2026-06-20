@@ -76,7 +76,7 @@ _參見：`/sdd`、`spec-driven-development` 標準_
 _參見：[SKILLS-INDEX.md](../../../../docs/user/SKILLS-INDEX.md)_
 
 **Skill Budget（Skill 預算）**
-Claude Code 的 context window 中保留用於列出可用 skill 的比例。當有 54+ 個 skill 時，描述可能被截斷。UDS 以 Tier 來管理這項預算。
+Claude Code 的 context window 中保留用於列出可用 skill 的比例。當有 55+ 個 skill 時，描述可能被截斷。UDS 以 Tier 來管理這項預算。
 _參見：DEC-061、[skill-budget-tuning.md](../../../../docs/skill-budget-tuning.md)_
 
 **Skill Tier（Skill 分級，DEC-061）**
@@ -105,7 +105,7 @@ _參見：`/tdd`、`test-driven-development` 標準_
 ## U
 
 **UDS（Universal Development Standards，通用開發標準）**
-本專案。一套與語言無關、與框架無關的軟體開發品質彙集，含 125 個核心標準、54 個 AI skill 與 48 個斜線命令。
+本專案。一套與語言無關、與框架無關的軟體開發品質彙集，含 145 個核心標準、55 個 AI skill 與 48 個斜線命令。
 
 **UDS Manifest（`uds-manifest.json`）**
 所有 UDS 標準與 skill 的機器可讀索引。包含統計數據、skill 對命令的對照，以及分類歸屬。供 UDS CLI 與文件產生器使用。

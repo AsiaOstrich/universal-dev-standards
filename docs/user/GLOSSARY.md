@@ -69,7 +69,7 @@ A pre-built AI workflow packaged as a SKILL.md file. Activated by typing `/<name
 _See: [SKILLS-INDEX.md](SKILLS-INDEX.md)_
 
 **Skill Budget**
-The fraction of Claude Code's context window reserved for listing available skills. With 54+ skills, descriptions can be truncated. UDS uses Tiers to manage this budget.
+The fraction of Claude Code's context window reserved for listing available skills. With 55+ skills, descriptions can be truncated. UDS uses Tiers to manage this budget.
 _See: DEC-061, [skill-budget-tuning.md](../skill-budget-tuning.md)_
 
 **Skill Tier (DEC-061)**
@@ -98,7 +98,7 @@ _See: `/tdd`, `test-driven-development` standard_
 ## U
 
 **UDS (Universal Development Standards)**
-This project. A language-agnostic, framework-agnostic collection of 125 core standards, 54 AI skills, and 48 slash commands for software development quality.
+This project. A language-agnostic, framework-agnostic collection of 145 core standards, 55 AI skills, and 48 slash commands for software development quality.
 
 **UDS Manifest (`uds-manifest.json`)**
 The machine-readable index of all UDS standards and skills. Contains stats, skill-to-command mappings, and category assignments. Used by the UDS CLI and doc generators.
