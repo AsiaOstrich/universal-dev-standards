@@ -58,9 +58,20 @@ async function syncManifest() {
     }
   });
 
+  // 2b. Sync Slash Commands (command-definition files in skills/commands/).
+  // Counts actual `/command` definition files; excludes the family overview,
+  // the JSON index, README, and templates. This keeps the published
+  // slash_commands stat auto-derived so it never drifts when commands change.
+  const commandsDir = path.join(skillsDir, 'commands');
+  const NON_COMMAND_FILES = ['COMMAND-FAMILY-OVERVIEW.md', 'README.md'];
+  const commandFiles = fs.readdirSync(commandsDir)
+    .filter(f => f.endsWith('.md') && !NON_COMMAND_FILES.includes(f) && !/TEMPLATE/i.test(f));
+
+  manifest.stats.slash_commands = commandFiles.length;
+
   // 3. Write back to manifest
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-  console.log(`✅ Manifest synced. Standards: ${manifest.stats.core_standards}, Skills: ${manifest.stats.skills}`);
+  console.log(`✅ Manifest synced. Standards: ${manifest.stats.core_standards}, Skills: ${manifest.stats.skills}, Slash Commands: ${manifest.stats.slash_commands}`);
 }
 
 syncManifest().catch(console.error);
