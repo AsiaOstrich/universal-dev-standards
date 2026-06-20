@@ -233,11 +233,13 @@ describe('AI Agent Paths Configuration', () => {
       expect(AVAILABLE_COMMANDS.length).toBeGreaterThan(0);
     });
 
-    it('should have 49 commands (22 Action Skills + 12 Commands-only + 11 Operations + 4 SRE/Observability)', () => {
+    it('should have 51 commands (22 Action Skills + 12 Commands-only + 11 Operations + 4 SRE/Observability + 2 skill-only)', () => {
       // Updated May 2026 (v5.11.0): Added 4 SRE/Observability commands (XSPEC-208 release prep,
       // aligning AVAILABLE_COMMANDS with skills/commands/*.md files)
       // e2e, observability, runbook, slo
-      expect(AVAILABLE_COMMANDS.length).toBe(49);
+      // Updated Jun 2026: registered /journey-test and /skill-builder (created their
+      // skills/commands/*.md files; they were listed in skills/README but unregistered)
+      expect(AVAILABLE_COMMANDS.length).toBe(51);
     });
 
     it('should have name and description for each command', () => {

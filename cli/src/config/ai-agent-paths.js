@@ -484,6 +484,7 @@ export const AVAILABLE_COMMANDS = [
   { name: 'atdd', description: 'Guide ATDD workflow (acceptance criteria)' },
   { name: 'coverage', description: 'Analyze test coverage (8 dimensions)' },
   { name: 'ac-coverage', description: 'Generate AC traceability matrix and coverage report' },
+  { name: 'journey-test', description: 'Generate user journey test plan (TESTPLAN) and E2E skeletons' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Specification and Requirements (Action Skills)
@@ -524,6 +525,7 @@ export const AVAILABLE_COMMANDS = [
   // ═══════════════════════════════════════════════════════════════════════════
   { name: 'methodology', description: 'Development methodology selection' },
   { name: 'dev-workflow', description: 'Guide for mapping development phases to UDS commands' },
+  { name: 'skill-builder', description: 'Identify repeated processes and build Skills with the right depth' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Operations and Infrastructure (Action Skills)
