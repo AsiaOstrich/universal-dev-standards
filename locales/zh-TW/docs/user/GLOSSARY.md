@@ -76,7 +76,7 @@ _參見：`/sdd`、`spec-driven-development` 標準_
 _參見：[SKILLS-INDEX.md](../../../../docs/user/SKILLS-INDEX.md)_
 
 **Skill Budget（Skill 預算）**
-Claude Code 的 context window 中保留來列出可用 skill 的比例。當有 54+ 個 skill 時，描述可能被截斷。UDS 以 Tier 來管理這項預算。
+Claude Code 的 context window 中保留用於列出可用 skill 的比例。當有 54+ 個 skill 時，描述可能被截斷。UDS 以 Tier 來管理這項預算。
 _參見：DEC-061、[skill-budget-tuning.md](../../../../docs/skill-budget-tuning.md)_
 
 **Skill Tier（Skill 分級，DEC-061）**
