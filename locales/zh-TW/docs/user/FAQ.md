@@ -125,8 +125,8 @@ UDS 有兩層：
 **Q：什麼是 Skill Tier？（DEC-061）**
 
 Tier 控制 Claude Code 的 context 預算有多少用於 skill 描述：
-- **Tier 1**：永遠以完整描述列出（13 個 skill — 每日使用）
-- **Tier 2**：預設以完整描述列出（27 個 skill — 每週使用）
-- **Tier 3**：預設僅列出名稱（14 個 skill — 專家／事件驅動）
+- **Tier 1**：永遠以完整描述列出（15 個 skill — 每日使用）
+- **Tier 2**：預設以完整描述列出（28 個 skill — 每週使用）
+- **Tier 3**：預設僅列出名稱（12 個 skill — 專家／事件驅動）
 
 所有 tier 都能透過 `/<name>` 完整呼叫。Tier 只影響 _列出_ 的行為。

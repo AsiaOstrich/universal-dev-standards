@@ -81,9 +81,9 @@ _参见：DEC-061、[skill-budget-tuning.md](../../../../docs/skill-budget-tunin
 
 **Skill Tier（Skill 分级，DEC-061）**
 依使用频率对 skill 进行分类，借此控制列出行为：
-- **Tier 1（Core）**：13 个 skill，每日使用，永远以描述列出
-- **Tier 2（Advanced）**：27 个 skill，每周使用，默认以描述列出
-- **Tier 3（Specialist）**：14 个 skill，事件驱动，默认仅列出名称（仍可通过 `/<name>` 调用）
+- **Tier 1（Core）**：15 个 skill，每日使用，永远以描述列出
+- **Tier 2（Advanced）**：28 个 skill，每周使用，默认以描述列出
+- **Tier 3（Specialist）**：12 个 skill，事件驱动，默认仅列出名称（仍可通过 `/<name>` 调用）
 
 **Standard（标准）**
 涵盖某项特定实践（例如 commit 消息、API 设计、测试）的 UDS 准则文件。标准与技术、语言无关。每个标准同时存在为 Core Standard（`.md`）与 AI Standard（`.ai.yaml`）。

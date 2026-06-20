@@ -53,7 +53,7 @@ npx universal-dev-standards init
 | I want to... | Document |
 |---|---|
 | **New to UDS?** Set up in 5 minutes | [docs/user/GETTING-STARTED.md](docs/user/GETTING-STARTED.md) |
-| Browse all 54 skills by Tier & Category | [docs/user/SKILLS-INDEX.md](docs/user/SKILLS-INDEX.md) |
+| Browse all 55 skills by Tier & Category | [docs/user/SKILLS-INDEX.md](docs/user/SKILLS-INDEX.md) |
 | See all slash commands | [docs/user/COMMANDS-INDEX.md](docs/user/COMMANDS-INDEX.md) |
 | Quick reference card | [docs/user/CHEATSHEET.md](docs/user/CHEATSHEET.md) |
 | Common questions | [docs/user/FAQ.md](docs/user/FAQ.md) |

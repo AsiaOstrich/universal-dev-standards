@@ -118,8 +118,8 @@ When a Skill runs, it reads from `.ai.yaml` files. When a developer wants to und
 **Q: What are Skill Tiers? (DEC-061)**
 
 Tiers control how much of Claude Code's context budget is used for skill descriptions:
-- **Tier 1**: Always listed with full description (13 skills — daily use)
-- **Tier 2**: Listed with full description by default (27 skills — weekly use)
-- **Tier 3**: Listed with name only by default (14 skills — specialist/event-driven)
+- **Tier 1**: Always listed with full description (15 skills — daily use)
+- **Tier 2**: Listed with full description by default (28 skills — weekly use)
+- **Tier 3**: Listed with name only by default (12 skills — specialist/event-driven)
 
 All tiers are fully callable via `/<name>`. Tiers only affect _listing_ behavior.

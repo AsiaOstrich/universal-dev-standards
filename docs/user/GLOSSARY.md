@@ -74,9 +74,9 @@ _See: DEC-061, [skill-budget-tuning.md](../skill-budget-tuning.md)_
 
 **Skill Tier (DEC-061)**
 A classification of skills by usage frequency that controls listing behavior:
-- **Tier 1 (Core)**: 13 skills, daily use, always listed with description
-- **Tier 2 (Advanced)**: 27 skills, weekly use, listed with description by default
-- **Tier 3 (Specialist)**: 14 skills, event-driven, name-only listing by default (callable via `/<name>`)
+- **Tier 1 (Core)**: 15 skills, daily use, always listed with description
+- **Tier 2 (Advanced)**: 28 skills, weekly use, listed with description by default
+- **Tier 3 (Specialist)**: 12 skills, event-driven, name-only listing by default (callable via `/<name>`)
 
 **Standard**
 A UDS guideline document covering a specific practice (e.g., commit messages, API design, testing). Standards are technology-agnostic and language-agnostic. Each standard exists as a Core Standard (`.md`) and an AI Standard (`.ai.yaml`).

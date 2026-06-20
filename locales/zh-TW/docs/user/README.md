@@ -19,7 +19,7 @@ status: current
 
 1. **[GETTING-STARTED.md](../../../../docs/user/GETTING-STARTED.md)** — 5 分鐘導覽：安裝 → 初始化 → 第一份 spec → 第一次 commit（繁中翻譯進行中）
 2. **[GLOSSARY.md](../../../../docs/user/GLOSSARY.md)** — 什麼是 Skill？Standard？Tier？所有 UDS 術語的定義（繁中翻譯進行中）
-3. **[SKILLS-INDEX.md](../../../../docs/user/SKILLS-INDEX.md)** — 依 Tier 與分類瀏覽全部 54 個 skill（自動產生，僅英文）
+3. **[SKILLS-INDEX.md](../../../../docs/user/SKILLS-INDEX.md)** — 依 Tier 與分類瀏覽全部 55 個 skill（自動產生，僅英文）
 
 ---
 
@@ -55,7 +55,7 @@ docs/
 ├── user/                        ← 你在這裡（面向使用者的文件）
 │   ├── README.md                ← 本檔 — 文件中心
 │   ├── GETTING-STARTED.md       ← 首次設定指南
-│   ├── SKILLS-INDEX.md          ← 54 個 skill 依 Tier 與分類（自動產生）
+│   ├── SKILLS-INDEX.md          ← 55 個 skill 依 Tier 與分類（自動產生）
 │   ├── COMMANDS-INDEX.md        ← 所有斜線命令（自動產生）
 │   ├── CHEATSHEET.md            ← 快速參考卡
 │   ├── FAQ.md                   ← 常見問題

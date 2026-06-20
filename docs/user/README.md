@@ -12,7 +12,7 @@ Just installed UDS? Start here:
 
 1. **[GETTING-STARTED.md](GETTING-STARTED.md)** — 5-minute walkthrough: install → init → first spec → first commit
 2. **[GLOSSARY.md](GLOSSARY.md)** — What is a Skill? A Standard? A Tier? Definitions for all UDS terms
-3. **[SKILLS-INDEX.md](SKILLS-INDEX.md)** — Browse all 54 skills by Tier and Category
+3. **[SKILLS-INDEX.md](SKILLS-INDEX.md)** — Browse all 55 skills by Tier and Category
 
 ---
 
@@ -48,7 +48,7 @@ docs/
 ├── user/                        ← You are here (user-facing docs)
 │   ├── README.md                ← This file — doc hub
 │   ├── GETTING-STARTED.md       ← First-time setup guide
-│   ├── SKILLS-INDEX.md          ← 54 skills by Tier & Category (auto-generated)
+│   ├── SKILLS-INDEX.md          ← 55 skills by Tier & Category (auto-generated)
 │   ├── COMMANDS-INDEX.md        ← All slash commands (auto-generated)
 │   ├── CHEATSHEET.md            ← Quick reference card
 │   ├── FAQ.md                   ← Common questions
