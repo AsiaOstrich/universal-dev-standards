@@ -1,7 +1,7 @@
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档
-> Auto-generated | Last updated: 2026-06-19
+> Auto-generated | Last updated: 2026-06-20
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
@@ -10,14 +10,14 @@
 ## 目录
 
 1. [CLI 指令](#cli-commands) (9)
-2. [斜线命令](#slash-commands) (49)
+2. [斜线命令](#slash-commands) (51)
 3. [技能](#skills) (55)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
 6. [核心规范](#core-standards) (145)
 7. [脚本](#scripts) (57)
 
-**Total Features: 325**
+**Total Features: 327**
 
 ---
 
@@ -185,6 +185,7 @@
 | `/guide` | [UDS] Access Universal Development Standards guides and references. |
 | `/incident` | "[UDS] Guide incident response, root cause analysis and post-mortem documentation" |
 | `/init` | [UDS] Initialize development standards in current project |
+| `/journey-test` | [UDS] Generate coherent user journey test plans (TESTPLAN) and E2E skeletons from a project description. |
 | `/methodology` | [UDS] Manage development methodology workflow |
 | `/metrics` | "[UDS] Track development metrics, code quality indicators and project health" |
 | `/migrate` | "[UDS] Guide code migration, framework upgrades and technology modernization" |
@@ -202,6 +203,7 @@
 | `/sdd-retro` | [UDS] Create retroactive specs for untracked feat/fix commits |
 | `/sdd` | [UDS] Create or review specification documents for Spec-Driven Development |
 | `/security` | "[UDS] Guide security review and vulnerability assessment following OWASP standards" |
+| `/skill-builder` | [UDS] Identify repeated processes and build Skills with the right development depth. |
 | `/slo` | "[UDS] Guide SLI selection, SLO setting, and Error Budget management" |
 | `/tdd` | [UDS] Guide through Test-Driven Development workflow |
 | `/update` | [UDS] Update development standards to latest version |
