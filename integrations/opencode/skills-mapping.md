@@ -11,7 +11,7 @@ This document maps Claude Code skills to their OpenCode equivalents and implemen
 
 ## Overview
 
-Claude Code provides 25 skills with 17 slash commands. OpenCode supports skills natively and is **fully compatible** with Claude Code skill format.
+Claude Code provides 55 skills with 51 slash commands. OpenCode supports skills natively and is **fully compatible** with Claude Code skill format.
 
 ### Key Advantage: Native Compatibility
 

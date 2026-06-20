@@ -14,7 +14,7 @@ status: current
 
 ## 概述
 
-Claude Code 提供 25 個 skills 和 17 個斜線命令。GitHub Copilot 不支援斜線命令，但大部分功能可透過 Chat 提示和 `copilot-instructions.md` 檔案實現。
+Claude Code 提供 55 個 skills 和 51 個斜線命令。GitHub Copilot 不支援斜線命令，但大部分功能可透過 Chat 提示和 `copilot-instructions.md` 檔案實現。
 
 ---
 

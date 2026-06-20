@@ -11,7 +11,7 @@ This document maps Claude Code skills to their GitHub Copilot equivalents and wo
 
 ## Overview
 
-Claude Code provides 25 skills with 17 slash commands. GitHub Copilot doesn't support slash commands, but most functionality can be achieved through Chat prompts and the `copilot-instructions.md` file.
+Claude Code provides 55 skills with 51 slash commands. GitHub Copilot doesn't support slash commands, but most functionality can be achieved through Chat prompts and the `copilot-instructions.md` file.
 
 ---
 

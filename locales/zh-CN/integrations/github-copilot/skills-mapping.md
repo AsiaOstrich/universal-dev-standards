@@ -14,7 +14,7 @@ status: current
 
 ## 概述
 
-Claude Code 提供 25 个 skills 和 17 个斜杠命令。GitHub Copilot 不支持斜杠命令，但大部分功能可通过 Chat 提示和 `copilot-instructions.md` 文件实现。
+Claude Code 提供 55 个 skills 和 51 个斜杠命令。GitHub Copilot 不支持斜杠命令，但大部分功能可通过 Chat 提示和 `copilot-instructions.md` 文件实现。
 
 ---
 

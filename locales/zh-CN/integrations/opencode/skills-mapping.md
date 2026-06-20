@@ -14,7 +14,7 @@ status: current
 
 ## 概述
 
-Claude Code 提供 25 个技能和 17 个斜线命令。OpenCode 原生支持技能，且**完全兼容** Claude Code 技能格式。
+Claude Code 提供 55 个技能和 51 个斜线命令。OpenCode 原生支持技能，且**完全兼容** Claude Code 技能格式。
 
 ### 关键优势：原生兼容
 
