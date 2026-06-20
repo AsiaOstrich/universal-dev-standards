@@ -40,7 +40,7 @@ still callable — Claude Code loads them on demand. Each row is generated from 
 | `/docs` | docs | Manage, guide, and generate documentation. |
 | `/durable` | ops | Guide workflow failure recovery with checkpoints, retries and rollback strategies |
 | `/e2e` | testing | Generate E2E test skeletons from BDD scenarios with framework detection |
-| `/guide` | uncategorized | Access Universal Development Standards guides and references. |
+| `/guide` | reference | Access Universal Development Standards guides and references. |
 | `/incident` | ops | Guide incident response, root cause analysis and post-mortem documentation |
 | `/init` | core | Initialize development standards in current project |
 | `/journey-test` | testing | Generate coherent user journey test plans (TESTPLAN) and E2E skeletons from a project description. |

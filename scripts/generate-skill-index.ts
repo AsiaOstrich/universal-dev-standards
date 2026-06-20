@@ -301,6 +301,10 @@ function generateCommandsIndex(): string {
   for (const [cat, data] of Object.entries(index.categories)) {
     for (const cmd of (data as { commands: string[] }).commands) catOf.set(cmd, cat);
   }
+  // Category for commands intentionally excluded from COMMAND-INDEX.json's
+  // integration-sync scope (e.g. /guide is a meta command). They are still real
+  // slash commands, so they appear here with a sensible category.
+  const CATEGORY_OVERRIDE: Record<string, string> = { guide: 'reference' };
 
   const entries = files.map(file => {
     const base = file.replace(/\.md$/, '');
@@ -311,7 +315,7 @@ function generateCommandsIndex(): string {
     const cmd = (nameRaw || base).replace(/^\//, '');
     let desc = fm.match(/^description:\s*(.+)$/m)?.[1]?.trim().replace(/^["']|["']$/g, '') ?? '';
     desc = desc.replace(/^\[UDS\]\s*/, '').replace(/\|/g, '\\|').trim() || '—';
-    return { cmd, category: catOf.get(cmd) ?? 'uncategorized', desc };
+    return { cmd, category: catOf.get(cmd) ?? CATEGORY_OVERRIDE[cmd] ?? 'uncategorized', desc };
   }).sort((a, b) => a.cmd.localeCompare(b.cmd));
 
   const rows = entries.map(e => `| \`/${e.cmd}\` | ${e.category} | ${e.desc} |`).join('\n');
