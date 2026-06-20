@@ -281,55 +281,64 @@ ${whenToUseRows}
 `;
 }
 
-function generateCommandsIndex(skills: Skill[]): string {
+// COMMANDS-INDEX is derived from the actual /command definition files in
+// skills/commands/ (the authoritative command list), NOT from the per-skill
+// mapping — so command names are always correct and the count matches the
+// manifest's slash_commands stat. Skill/Tier context lives in SKILLS-INDEX.
+function generateCommandsIndex(): string {
   const buildDate = new Date().toISOString().slice(0, 10);
   const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'uds-manifest.json'), 'utf8'));
   const version = manifest.version ?? 'unknown';
 
-  // Deduplicate commands (some skills share a command)
-  const commandMap = new Map<string, Skill[]>();
-  for (const s of skills) {
-    if (!commandMap.has(s.command)) commandMap.set(s.command, []);
-    commandMap.get(s.command)!.push(s);
+  const commandsDir = path.join(ROOT, 'skills', 'commands');
+  const NON_COMMAND = new Set(['COMMAND-FAMILY-OVERVIEW.md', 'README.md']);
+  const files = fs.readdirSync(commandsDir)
+    .filter(f => f.endsWith('.md') && !NON_COMMAND.has(f) && !/TEMPLATE/i.test(f));
+
+  // Category lookup from COMMAND-INDEX.json (each command belongs to exactly one).
+  const index = JSON.parse(fs.readFileSync(path.join(commandsDir, 'COMMAND-INDEX.json'), 'utf8'));
+  const catOf = new Map<string, string>();
+  for (const [cat, data] of Object.entries(index.categories)) {
+    for (const cmd of (data as { commands: string[] }).commands) catOf.set(cmd, cat);
   }
 
-  const sorted = [...commandMap.entries()].sort(([a], [b]) => a.localeCompare(b));
+  const entries = files.map(file => {
+    const base = file.replace(/\.md$/, '');
+    const content = fs.readFileSync(path.join(commandsDir, file), 'utf8');
+    const fm = content.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
+    // Command name: frontmatter `name:` if present, else the filename.
+    const nameRaw = fm.match(/^name:\s*(.+)$/m)?.[1]?.trim().replace(/^["']|["']$/g, '');
+    const cmd = (nameRaw || base).replace(/^\//, '');
+    let desc = fm.match(/^description:\s*(.+)$/m)?.[1]?.trim().replace(/^["']|["']$/g, '') ?? '';
+    desc = desc.replace(/^\[UDS\]\s*/, '').replace(/\|/g, '\\|').trim() || '—';
+    return { cmd, category: catOf.get(cmd) ?? 'uncategorized', desc };
+  }).sort((a, b) => a.cmd.localeCompare(b.cmd));
 
-  const rows = sorted.map(([cmd, skillList]) => {
-    const skillIds = skillList.map(s => `\`${s.id}\``).join(', ');
-    const desc = skillList[0].description || '—';
-    const tiers = [...new Set(skillList.map(s => `T${s.tier}`))].join('/');
-    return `| \`${cmd}\` | ${skillIds} | ${tiers} | ${desc} |`;
-  }).join('\n');
+  const rows = entries.map(e => `| \`/${e.cmd}\` | ${e.category} | ${e.desc} |`).join('\n');
 
   return `# UDS Commands Index
 
 > **Auto-generated** — do not edit manually.
 > Run \`npm run docs:generate-index\` to update.
-> Last regenerated: ${buildDate} | UDS v${version} | ${sorted.length} unique commands
+> Last regenerated: ${buildDate} | UDS v${version} | ${entries.length} commands
 
-Type any command in Claude Code to activate the corresponding skill.
-Commands not visible in the menu are still callable — Claude Code loads skills on demand.
+Type any command in Claude Code to run it. Commands not visible in the menu are
+still callable — Claude Code loads them on demand. Each row is generated from a
+\`/command\` definition file in \`skills/commands/\`.
 
 ---
 
 ## All Commands (alphabetical)
 
-| Command | Skill | Tier | Description |
-|---------|-------|------|-------------|
+| Command | Category | Description |
+|---------|----------|-------------|
 ${rows}
-
----
-
-## By Category
-
-See [SKILLS-INDEX.md](SKILLS-INDEX.md#by-category) for skills grouped by category.
 
 ---
 
 ## Related
 
-- [SKILLS-INDEX.md](SKILLS-INDEX.md) — skills by Tier and Category
+- [SKILLS-INDEX.md](SKILLS-INDEX.md) — skills by Tier and Category (skill-centric view)
 - [GETTING-STARTED.md](GETTING-STARTED.md) — first-time setup
 `;
 }
@@ -346,7 +355,7 @@ const skillsIndexPath = path.join(userDocsDir, 'SKILLS-INDEX.md');
 const commandsIndexPath = path.join(userDocsDir, 'COMMANDS-INDEX.md');
 
 fs.writeFileSync(skillsIndexPath, generateSkillsIndex(skills), 'utf8');
-fs.writeFileSync(commandsIndexPath, generateCommandsIndex(skills), 'utf8');
+fs.writeFileSync(commandsIndexPath, generateCommandsIndex(), 'utf8');
 
 console.log(`✅ Generated docs/user/SKILLS-INDEX.md (${skills.length} skills)`);
 console.log(`✅ Generated docs/user/COMMANDS-INDEX.md`);
