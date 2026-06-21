@@ -11,9 +11,17 @@
  *      do not resolve, in core/*.md, skills/**\/SKILL.md and their locale copies.
  *      Illustrative example filenames (ADR-NNN, docs/getting-started.md, …) are
  *      excluded so only real broken links fail.
- *   2. T5 Acceptance-criteria annotation key consistency (ADVISORY) — reports
- *      mixed usage of @AC / @SPEC and acceptance-criteria / acceptance_criteria /
- *      acceptanceCriteria so a single canonical key can be adopted.
+ *   2. T5 Acceptance-criteria annotation consistency (ADVISORY) — flags genuine
+ *      violations of the canonical contract defined in
+ *      acceptance-criteria-traceability.md, NOT mere coexistence of forms:
+ *        - a split @AC tag: a tag-only line carrying @AC-<n> without its source
+ *          attribution (@SPEC-<id> or @US-<id>) on the SAME line. The canonical
+ *          is the combined tag `@SPEC-<id> @AC-<n>`; "do not split into separate
+ *          @AC / @SPEC lines". (Mere coexistence of @AC and @SPEC counts is NOT a
+ *          defect — the canonical form contains both.)
+ *        - camelCase `acceptanceCriteria` used outside the rule that documents it
+ *          is unused. (kebab `acceptance-criteria` and snake `acceptance_criteria`
+ *          are layer-appropriate spellings, by design — never flagged.)
  *   3. Duplicate skill command names (ADVISORY) — two skills declaring the same
  *      frontmatter `name:` (would collide as /command).
  *
@@ -95,16 +103,37 @@ function checkDangling(files: string[]): string[] {
   return [...new Set(dangling)];
 }
 
-function checkAnnotationKeys(files: string[]): Record<string, number> {
-  const keys = { '@AC': 0, '@SPEC': 0, 'acceptance-criteria': 0, acceptance_criteria: 0, acceptanceCriteria: 0 };
+// A line made up solely of @tag tokens — how Gherkin scenario tags appear.
+// Prose that merely mentions `@AC` / `@SPEC` (backticks, words, tables) never matches.
+const TAG_ONLY_LINE_RE = /^\s*@[\w-]+(?:\s+@[\w-]+)*\s*$/;
+const AC_TAG_RE = /@AC-[A-Za-z0-9]+/;
+// Canonical source attribution: @SPEC-<id> (SDD) or @US-<id> (ATDD/user-story).
+const SOURCE_TAG_RE = /@(?:SPEC|US)-[A-Za-z0-9]+/;
+
+interface AnnotationFindings {
+  splitAc: string[]; // tag-only lines with @AC- lacking a same-line source attribution
+  camelKey: string[]; // camelCase `acceptanceCriteria` outside the rule that documents it is unused
+}
+
+function checkAnnotationConsistency(files: string[]): AnnotationFindings {
+  const splitAc: string[] = [];
+  const camelKey: string[] = [];
   for (const file of files) {
-    const txt = readFileSync(file, 'utf8');
-    for (const k of Object.keys(keys) as (keyof typeof keys)[]) {
-      const re = new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-      keys[k] += (txt.match(re) || []).length;
-    }
+    const rel = relative(ROOT_DIR, file);
+    // The traceability standard documents that camelCase is "not used"; that prose
+    // mention is not a violation. Its locale copies mirror the same sentence.
+    const isCanonicalDef = /acceptance-criteria-traceability\.md$/.test(file);
+    const lines = readFileSync(file, 'utf8').split('\n');
+    lines.forEach((line, i) => {
+      if (TAG_ONLY_LINE_RE.test(line) && AC_TAG_RE.test(line) && !SOURCE_TAG_RE.test(line)) {
+        splitAc.push(`${rel}:${i + 1}: ${line.trim()}`);
+      }
+      if (!isCanonicalDef && /acceptanceCriteria/.test(line)) {
+        camelKey.push(`${rel}:${i + 1}`);
+      }
+    });
   }
-  return keys;
+  return { splitAc, camelKey };
 }
 
 function checkDuplicateSkillNames(): string[] {
@@ -144,19 +173,18 @@ function main(): void {
     process.stdout.write('\n');
   }
 
-  // 2. Annotation keys (ADVISORY)
-  process.stdout.write(`${BLUE}[2/3] AC annotation key consistency (T5)${NC}\n`);
-  const keys = checkAnnotationKeys(files);
-  const annoMixed = keys['@AC'] > 0 && keys['@SPEC'] > 0;
-  const keyMixed =
-    [keys['acceptance-criteria'], keys.acceptance_criteria, keys.acceptanceCriteria].filter((n) => n > 0).length > 1;
-  for (const [k, v] of Object.entries(keys)) process.stdout.write(`  ${k}: ${v}\n`);
-  if (annoMixed || keyMixed) {
+  // 2. Annotation consistency (ADVISORY)
+  process.stdout.write(`${BLUE}[2/3] AC annotation consistency (T5)${NC}\n`);
+  const anno = checkAnnotationConsistency(files);
+  const annoMixed = anno.splitAc.length > 0 || anno.camelKey.length > 0;
+  if (annoMixed) {
+    for (const v of anno.splitAc) process.stdout.write(`  ${RED}[SPLIT-AC]${NC} ${v} — fold in @SPEC-<id> / @US-<id> source\n`);
+    for (const v of anno.camelKey) process.stdout.write(`  ${YELLOW}[CAMEL]${NC} ${v} — use kebab/snake spelling, not acceptanceCriteria\n`);
     process.stdout.write(
-      `  ${YELLOW}[ADVISORY]${NC} mixed annotation/key forms — adopt one canonical key in acceptance-criteria-traceability.md\n\n`,
+      `  ${YELLOW}[ADVISORY]${NC} ${anno.splitAc.length} split @AC tag(s), ${anno.camelKey.length} camelCase key(s) — see acceptance-criteria-traceability.md\n\n`,
     );
   } else {
-    process.stdout.write(`  ${GREEN}[OK]${NC} consistent\n\n`);
+    process.stdout.write(`  ${GREEN}[OK]${NC} all @AC tags carry their source; no camelCase keys\n\n`);
   }
 
   // 3. Duplicate skill command names (ADVISORY)
@@ -174,7 +202,7 @@ function main(): void {
   process.stdout.write('  Summary | 摘要\n');
   process.stdout.write('==========================================\n');
   process.stdout.write(`  Dangling (error): ${dangling.length}\n`);
-  process.stdout.write(`  Annotation/key mixed (advisory): ${annoMixed || keyMixed ? 'yes' : 'no'}\n`);
+  process.stdout.write(`  Annotation split/camelCase (advisory): ${annoMixed ? 'yes' : 'no'}\n`);
   process.stdout.write(`  Duplicate names (advisory): ${dups.length}\n\n`);
 
   // Advisory-first (XSPEC-292 §7): surface findings without blocking CI until the

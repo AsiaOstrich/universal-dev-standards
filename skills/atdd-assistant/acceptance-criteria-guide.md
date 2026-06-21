@@ -388,7 +388,7 @@ And my original discount should remain
 Becomes:
 
 ```gherkin
-@AC-1
+@SPEC-001 @AC-1
 Scenario: Successful password reset
   Given I have a registered account with email "user@example.com"
   When I request a password reset for "user@example.com"

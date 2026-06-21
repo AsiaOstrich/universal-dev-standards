@@ -193,11 +193,10 @@ When working with Spec-Driven Development:
 ```gherkin
 # Reference spec in feature file
 # @spec SPEC-001
-@SPEC-001
 Feature: User Authentication
   Implements SPEC-001 user authentication requirements.
 
-  @AC-1
+  @SPEC-001 @AC-1
   Scenario: Successful login
     # Acceptance Criterion 1 from SPEC-001
     ...

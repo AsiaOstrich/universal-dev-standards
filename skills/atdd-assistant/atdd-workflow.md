@@ -233,13 +233,12 @@ Convert acceptance criteria into executable, automatable tests.
 # File: features/password-reset.feature
 # Story: US-123 - Password Reset
 
-@US-123
 Feature: Password Reset
   As a registered user
   I want to reset my password via email
   So that I can regain access if I forget my password
 
-  @AC-1 @happy-path
+  @US-123 @AC-1 @happy-path
   Scenario: Request password reset
     Given I am on the login page
     And I have a registered account with email "user@example.com"
@@ -248,14 +247,14 @@ Feature: Password Reset
     Then I should see "Reset link sent to your email"
     And I should receive an email within 5 minutes
 
-  @AC-2 @error-handling
+  @US-123 @AC-2 @error-handling
   Scenario: Reset link expires after 24 hours
     Given I have requested a password reset
     When I click the reset link after 24 hours
     Then I should see "This link has expired"
     And I should be offered to request a new link
 
-  @AC-3 @security
+  @US-123 @AC-3 @security
   Scenario: Unregistered email shows generic message
     Given I am on the password reset page
     When I enter an unregistered email
@@ -525,13 +524,12 @@ Demonstrate the completed feature to stakeholders and get formal acceptance.
 ### Distilled Tests (Gherkin)
 
 ```gherkin
-@US-456
 Feature: Order Confirmation Email
 
   Background:
     Given the email service is configured
 
-  @AC-1
+  @US-456 @AC-1
   Scenario: Email sent on successful order
     Given I am logged in as "customer@example.com"
     And I have items in my cart
@@ -540,7 +538,7 @@ Feature: Order Confirmation Email
     And the email should be received within 5 minutes
     And the email should contain my order number
 
-  @AC-2
+  @US-456 @AC-2
   Scenario: Email contains complete order details
     Given I have completed an order with:
       | item       | quantity | price |
@@ -554,7 +552,7 @@ Feature: Order Confirmation Email
     And it should show my shipping address
     And it should show estimated delivery date
 
-  @AC-3
+  @US-456 @AC-3
   Scenario: Guest checkout receives email
     Given I am not logged in
     And I complete checkout as guest with email "guest@example.com"

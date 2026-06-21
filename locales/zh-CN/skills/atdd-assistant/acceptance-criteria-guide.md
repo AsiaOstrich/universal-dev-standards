@@ -396,7 +396,7 @@ And 我原本的折扣应该保留
 变成：
 
 ```gherkin
-@AC-1
+@SPEC-001 @AC-1
 Scenario: 成功的密码重设
   Given 我有一个电子邮件为 "user@example.com" 的注册账号
   When 我为 "user@example.com" 请求密码重设

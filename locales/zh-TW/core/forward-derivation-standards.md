@@ -182,20 +182,19 @@ describe('AC-1: 使用者以有效憑證登入', () => {
 # Generator: forward-derivation v1.0.0
 # Generated at: 2026-01-19T10:00:00Z
 
-@SPEC-001
 Feature: 使用者認證
   作為使用者
   我想要登入系統
   以便存取我的儀表板
 
-  @AC-1 @happy-path
+  @SPEC-001 @AC-1 @happy-path
   Scenario: 使用者以有效憑證登入
     # [來源] 來自 SPEC-001 AC-1
     Given 已註冊的使用者有有效憑證
     When 使用者提交登入表單
     Then 使用者被導向儀表板
 
-  @AC-2 @error-handling
+  @SPEC-001 @AC-2 @error-handling
   Scenario: 無效憑證登入失敗
     # [來源] 來自 SPEC-001 AC-2
     Given 使用者有無效憑證

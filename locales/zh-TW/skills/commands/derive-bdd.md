@@ -31,10 +31,9 @@ SPEC-XXX.md ──► Parse AC ──► Generate .feature ──► Review
 ## 輸出格式
 
 ```gherkin
-@SPEC-001
 Feature: [Feature Name]
 
-  @AC-1
+  @SPEC-001 @AC-1
   Scenario: [AC-1 description]
     Given [context]
     When [action]

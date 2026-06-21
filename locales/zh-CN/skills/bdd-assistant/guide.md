@@ -198,11 +198,10 @@ Scenario: 使用有效凭证成功登录
 ```gherkin
 # 在 feature 文件中引用规格
 # @spec SPEC-001
-@SPEC-001
 Feature: 用户认证
   实现 SPEC-001 用户认证需求。
 
-  @AC-1
+  @SPEC-001 @AC-1
   Scenario: 成功登录
     # SPEC-001 的验收标准 1
     ...

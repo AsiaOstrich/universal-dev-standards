@@ -220,18 +220,17 @@ Scenario: Login shows error for invalid credentials
 # Generator: /derive-bdd v1.0.0
 # Generated at: 2026-01-19T10:00:00Z
 
-@SPEC-001
 Feature: User Authentication
   [Source] From SPEC-001 Summary
 
-  @AC-1 @happy-path
+  @SPEC-001 @AC-1 @happy-path
   Scenario: User login with valid credentials
     # [Source] From SPEC-001 AC-1
     Given a registered user with valid credentials
     When the user submits login form
     Then the user is redirected to dashboard
 
-  @AC-2 @error-handling
+  @SPEC-001 @AC-2 @error-handling
   Scenario: Login fails with invalid credentials
     # [Source] From SPEC-001 AC-2
     Given a user with invalid credentials
