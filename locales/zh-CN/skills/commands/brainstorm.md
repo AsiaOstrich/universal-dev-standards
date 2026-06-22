@@ -1,9 +1,9 @@
 ---
 source: ../../../../skills/commands/brainstorm.md
-source_version: 3.0.0
+source_version: 4.0.0
 source_hash: 3212203924de
-translation_version: 3.0.0
-last_synced: 2026-06-01
+translation_version: 4.0.0
+last_synced: 2026-06-22
 ---
 
 ---
@@ -29,13 +29,15 @@ PRE-FLIGHT ──► FRAME ──► DIVERGE ──────────► C
   防锚定        定义问题    persona 集成+透镜     多评审面板+硬角色反驳   输出提案
 ```
 
-| 阶段 | 目标 | 关键技法（v3） |
-|------|------|----------------|
-| **PRE-FLIGHT** | 防止 AI 锚定 | 用户先写 3 个想法；不用类比种子 |
-| **FRAME** | 清楚定义问题 | 5 Whys, HMW, Stakeholder Map |
-| **DIVERGE** | 逼出视角多样性 | persona 集成 + 多样性透镜 |
-| **CONVERGE** | 经偏误检查的选择 | 多评审面板 + Devil's Advocate/Steelman |
-| **OUTPUT** | 可执行的报告 | Brainstorm Report 模板 |
+| 阶段 | 目标 | 关键技法（v3）+ BQS 闸（v4） |
+|------|------|-------------------------------|
+| **PRE-FLIGHT** | 防止 AI 锚定 | 用户先写 3 个想法；不用类比种子；**BQS 第 0 层意图（explore/exploit）** |
+| **FRAME** | 清楚定义问题 | 5 Whys, HMW, Stakeholder Map；**D1 框架纯度** |
+| **DIVERGE** | 逼出视角多样性 | persona 集成 + 多样性透镜；**BQS 第 1 层 D1–D4，硬闸隐藏 D5–D8** |
+| **CONVERGE** | 经偏误检查的选择 | 多评审面板 + Devil's Advocate/Steelman；**BQS 第 2 层 D5–D8 施于 Top 3，D4 判官≠产生者** |
+| **OUTPUT** | 可执行的报告 | Brainstorm Report + Seeds + 争议区 + **第 3 层 Judgment Override** |
+
+> **BQS v1（XSPEC-296）：** v4 在 v3 上叠加四层 × 时间轴质量契约。完整 oracle 与结构规则见 skill：[Brainstorm Assistant Skill](../brainstorm-assistant/SKILL.md#bqs-v1--质量契约)。
 
 ## 技法
 
@@ -98,34 +100,39 @@ PRE-FLIGHT ──► FRAME ──► DIVERGE ──────────► C
 | `/brainstorm "topic"` | 以指定主题启动 PRE-FLIGHT，再进入 FRAME |
 | `/brainstorm --personas "a,b,c"` | 以自定义 persona 组进入 DIVERGE |
 | `/brainstorm --lens <name>` | 以指定多样性透镜为主进入 DIVERGE |
-| `/brainstorm --enhanced` | 若宿主支持子代理则并行跑 persona/评审，否则静默退回 baseline |
+| `/brainstorm --enhanced` | 若宿主支持子代理则并行跑 persona/评审，否则静默退回 baseline；此模式下 BQS D4 方可 pass |
+| `/brainstorm --intent exploit` | 以 exploit 意图启动（BQS 第 0 层），D2 低覆盖不扣分 |
 
 ### 交互脚本
 
 #### PRE-FLIGHT 阶段
 1. 请用户先写 问题（一句）＋3 个初始想法＋最不想要的解法类型
 2. 拒绝「像 X 但给 Y」种子，改写为底层问题
+3. **BQS 第 0 层**：宣告本次 explore/exploit 配比与赌注类型（未宣告默认偏 explore）
 
 🛑 **STOP**: 收到三项输入前不生成任何想法（`--skip-preflight` 例外，显示锚定警告）
 
 #### FRAME 阶段
 1. 厘清问题陈述（5 Whys 找根因）
 2. 重构为 HMW 问题；识别利益相关者
+3. **BQS D1 框架纯度**：问题不得内嵌特定方案或「像 X 给 Y」，须到根因
 
 🛑 **STOP**: 问题定义后等待用户确认
 
-#### DIVERGE 阶段
+#### DIVERGE 阶段（BQS 第 1 层 — D1–D4 leading，全程可见）
 1. 逐一以默认 persona（领域专家／怀疑者／跨域类比者／成本约束者／用户代言）思维链生成想法
 2. **分支隔离**：生成各 persona 时不互相预览，全部产完才一起呈现
 3. 至少套用一个多样性透镜（类比／假设反转／形态矩阵）
-4. 以多样性（覆盖的 persona/透镜数）而非数量为继续门槛
+4. 以多样性（覆盖的 persona/透镜数，D2/D3）而非数量为继续门槛
+5. **硬序列闸**：D5–D8 在最后一个 persona 产完前**不得揭示或评分**；CONVERGE critic 不得提前调用
 
-#### CONVERGE 阶段
+#### CONVERGE 阶段（BQS 第 2 层 — D5–D8 仅施于 Top 3）
 1. 以 3 个独立评审（工程可行性／用户影响／战略一致）各自评分后聚合
-2. 对前 3 名跑硬角色 Devil's Advocate（论证会失败）+ Steelman；用户以 (a)修改/(b)反驳/(c)移除 回应
-3. 排序并标记通过反驳的想法
+2. 对前 3 名跑硬角色 Devil's Advocate（论证会失败）+ Steelman；用户以 (a)修改/(b)反驳/(c)移除 回应。**D4 判官≠产生者**：评审须在独立 context（`--enhanced`）方可 pass，否则标 `[degraded]` 不得 pass
+3. **仅对 Top 3** 套用 D5 接地（外部事实需 file:line／来源、跨级地板；假说免接地）、D6 净值（解谁问题／真有吗／不做代价＋挂 lagging 栏）、D7 二态证伪（「需先做 X」转 next-step、不算 fail）、D8 next-step 裁决
+4. **Meta 停止规则**：维度全绿且再跑一轮 Top 3 集合成员不变→停；硬上限 2 轮
 
-🛑 **STOP**: 展示 Brainstorm Report 后等待用户决定下一步
+🛑 **STOP**: 展示 Brainstorm Report（含 Seeds／争议区／Judgment Override）后等待用户决定下一步
 
 ### 停止点
 
@@ -145,6 +152,8 @@ PRE-FLIGHT ──► FRAME ──► DIVERGE ──────────► C
 | 指定的 persona/透镜不存在 | 列出可用选项供选择 |
 | `--enhanced` 但宿主不支持子代理 | 静默退回 baseline，照常进行 |
 | 前 3 名全来自同一 persona/透镜 | 标示并在输出前再跑一个透镜 |
+| baseline 单 context 跑评审（无独立 context） | BQS D4 标 `[degraded]`，不得标 pass |
+| 外部事实宣称无 file:line／来源 | D5 接地 fail，要求补来源或改标 `[假说]` |
 
 ## 参考
 

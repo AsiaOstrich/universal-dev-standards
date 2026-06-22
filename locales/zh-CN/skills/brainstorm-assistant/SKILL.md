@@ -1,10 +1,10 @@
 ---
 name: brainstorm-assistant
 source: ../../../../skills/brainstorm-assistant/SKILL.md
-source_version: 3.0.0
+source_version: 4.0.0
 source_hash: 25e622a7d063
-translation_version: 3.0.0
-last_synced: 2026-06-01
+translation_version: 4.0.0
+last_synced: 2026-06-22
 status: current
 description: |
   在编写规格前进行结构化 AI 辅助头脑风暴。
@@ -18,10 +18,12 @@ description: |
 
 在编写规格前进行结构化发想。以 2024–2026 年 AI 辅助发想研究为基础，通过引导式头脑风暴，将模糊构想转化为可执行的功能提案。
 
-> **实现**: XSPEC-247 brainstorm v3 —— Multi-Persona Ensemble + Multi-Critic Convergence
-> （取代 v2 的「认知科学升级」）。
+> **实现**: XSPEC-296 头脑风暴质量标准（BQS v1）—— brainstorm v4，叠加于
+> XSPEC-247 brainstorm v3（Multi-Persona Ensemble + Multi-Critic Convergence）。
 
 **v3 的核心改动:** v3 把发散从「单一 AI 冲数量」改为 **persona 集成**（每个角色以思维链独立推理）×**多样性透镜**；把收敛从「单一 AI 评分 + 单一反驳」改为**多评审面板** + **硬角色反驳**（Devil's Advocate + Steelman）。这直接对应文献中最强的结论：多 persona 胜过单次 pass，而单一 LLM 评审既弱又易谄媚。
+
+**v4 的核心改动:** v3 提供了强健的*机制*，却没有可判定 pass/fail 的质量闸。v4 在其上叠加一道**时序化质量契约**——**头脑风暴质量标准（BQS v1）**——且不移除任何 v3 行为。BQS 是**四层 × 时间轴**结构：第 0 层宣告 explore/exploit 配比；第 1 层（过程、leading、发散期全程可见）跑维度 **D1–D4**；第 2 层（产物、leading、收敛后仅施于 Top 3）跑 **D5–D8** 加 Seeds 栏与争议区；第 3 层是不受治理的 **Judgment Override**。第一原理：**决策用 leading 信号、校准用 lagging 信号——两者是时间前后，而非对错取舍。** 硬序列闸禁止 D5–D8 在发散期被揭示或评分。详见下方「BQS v1 — 质量契约」。
 
 ## 使用前先选模式
 
@@ -43,7 +45,66 @@ description: |
 ```
 [模式选择] ─► PRE-FLIGHT ─► FRAME ─► DIVERGE ───────────► CONVERGE ──────────► OUTPUT
   客观路由      防止锚定      定义问题   persona 集成+透镜       多评审面板+硬角色反驳    输出提案
+  ▲ 第 0 层 意图            ▲ 第 1 层（D1–D4，leading）       ▲ 第 2 层（D5–D8，Top 3）   ▲ 第 3 层 override
 ```
+
+---
+
+## BQS v1 — 质量契约
+
+> **第一原理：** 头脑风暴的产物是**假说，不是答案**。一个点子好不好在发想当下不可知，所以质量只能用 **leading** 信号（过程＋认识论完整性）判；标准的正当性靠 **lagging** 信号（事后结果）**校准**。决策用 leading、校准用 lagging，两者是**时间**前后，不是对错取舍。（此处修正任何「只用 leading 不用 lagging」的绝对说法。）
+
+BQS 是**四层 × 时间轴**契约。它是 v3 的**叠加**——所有 v3 旗标与机制都保留（见「向后兼容」）。
+
+### 第 0 层 — 意图（开场宣告）
+
+开场宣告本次 **explore/exploit 配比** 与赌注类型（渐进 vs barbell 长尾）。此层**调节维度权重**：偏 exploit 的工作阶段，**D2（发散覆盖）低分是正确的、不扣分**。
+
+### 第 1 层 — 过程（发散期 leading，全程可见）
+
+| 维度 | Oracle（怎么判 fail）|
+|------|----------------------|
+| **D1 框架纯度** | 问题内嵌特定方案或「像 X 给 Y」→fail；须 5-Whys 到根因 |
+| **D2 发散覆盖** | 存活想法跨 <3 独立 persona/透镜→fail（受第 0 层权重调节）；连一轮零新增才算饱和 |
+| **D3 跨会话多样性** | 种子是竞品类比→fail；Top 全来自单一 lens→fail |
+| **D4 评估去偏** | 须 ≥3 评审 + 硬角色 Devil's Advocate + Steelman；**pass 须在独立 context 执行**，否则标 `[degraded]` 不得标 pass |
+
+> **硬序列闸：** D5–D8 禁止在发散期揭示或评分；CONVERGE 的 critic 不得在**最后一个 persona** 产完前被调用。
+
+### 第 2 层 — 产物（收敛后 leading，仅施于 Top 3）
+
+> 评判维度限缩在**收敛后 × 仅 Top 3**，绝不在发散期对全部想法当硬闸（否则回溯污染发散、扼杀无证据的未来想法、制造填表剧场）。
+
+| 维度 | Oracle |
+|------|--------|
+| **D5 接地** | 「现状/外部事实」主张无 file:line/来源→fail；「未来/假说」免接地、标 `[假说]`。**外部事实宣称为跨级地板**（creative 级亦适用）|
+| **D6 净值** | 入选想法未答「解谁问题／我们真有吗／不做的代价」→fail；至少一个「不值得做」淘汰。**挂 lagging 登记栏**：此判断事后拿什么信号验证？ |
+| **D7 可证伪** | 二态：`[现可陈述证伪]` 或 `[需先做 X 才能定义证伪]`；后者**转 next-step 喂 D8，不算 fail** |
+| **D8 可行动** | 无 next-step 裁决（含「暂不做」）→fail |
+| **＋Seeds 栏** | 杀想法时强制存「错在哪、指向什么真问题」；被杀 ≥1 则 Seeds ≥1（只检查非空）|
+| **＋争议区** | critic 方差 > 阈值的想法分流呈现，不按 mean 排序淘汰（守 barbell 长尾）|
+
+### 第 3 层 — 不可治理区（Judgment Override）
+
+明文留一块 oracle 不进入的地：人类直觉「保留/毙掉」附一句理由即可，**凌驾聚合分数、不需过任何维度**。承认标准不完备，避免「为过维度而 brainstorm」。
+
+### 结构规则
+
+1. **Meta 停止规则：** 该层维度全绿 **且** 再跑一轮后 **Top 3 集合成员不变**（看集合成员、不看内部排序）→停。**硬上限 2 轮**。取代模糊的「不翻决策」。
+2. **判官≠产生者：** D2/D4/D5/D7 判定须独立视角；单 context 自评只能 `[degraded]`，不得 pass。
+3. **校准回路（吃 lagging）：** v3 的三个工作阶段自评指标收编为此回路 **lagging** 端——**Adoption Rate＝D6 滞后验证、Diversity＝D2/D3 滞后观测、Cognitive Load＝成本约束**；**禁两套平行评估**。
+4. **BQS 自我演化（轻量）：** 版本化 + 证据清单 last-reviewed 逾期 flag；「定期对 BQS 自身 brainstorm」列可选。
+5. **最小充分原则：** 套用该 tier 所需的最少维度 + Top-3 限缩——认知经济性的守门，不另设成本维度。
+
+### 分级（绑 v3 既有客观触发，非自评）
+
+| Tier（来自模式选择触发）| 套用维度 |
+|--------------------------|----------|
+| creative / `--quick` | D1–D3 ＋ D5 外部事实地板 |
+| default | D1–D5 + D8 |
+| strategic / architecture / business | 全层 |
+
+> 分级由**客观模式选择触发表**（字数、旗标、是否有规格）决定，而非发起者自评。
 
 ---
 
@@ -62,6 +123,8 @@ description: |
 **用户提交后**，AI 读取全部三项输入再进入 FRAME。AI 的第一批 DIVERGE 输出必须探索用户未提及的方向，且不得重复用户已提交的想法。
 
 > **反种子 guardrail（v3 新增）：** 不要接受或生成「像 X 但给 Y」的框架当种子（如「给医生用的 Slack」）。这类产品类比种子会把 LLM 锁进单一解空间、明显降低想法多样性。请捕捉底层**问题**，而非产品类比。
+
+> **BQS 第 0 层 — 意图宣告（v4 新增）：** 在 FRAME 之前，宣告本次的 **explore/exploit 配比** 与赌注类型（渐进 vs barbell 长尾）。此宣告下游调节 D2 权重——偏 exploit 时低发散覆盖是正确的、不扣分。未宣告时默认：偏 explore。
 
 **旗标:** `--skip-preflight` 跳过本阶段并显示一行警告：
 `⚠ Skipping Pre-flight may cause AI anchoring`
@@ -115,6 +178,8 @@ description: |
 
 「好点子出现在后半段」（Nijstad）是**人类群体**现象，**未在 LLM 上得到证实**（LLM 多为达到高原 / 枯竭）。因此固定数量门槛降为**辅助提示**：若全组少于约 8 个相异想法，提示「继续——加一个还没用过的 persona 或透镜」。真正的门槛是**多样性**（覆盖了几个不同视角），而非数量。
 
+> **此处生效 BQS 第 1 层（D1–D4，leading，全程可见）：** 发散期只对 **D1（框架纯度）、D2（发散覆盖，依第 0 层加权）、D3（跨会话多样性）、D4（评估去偏）** 评分与呈现。**硬序列闸：** 评判维度 **D5–D8 在最后一个 persona 产完前不得揭示或评分**——CONVERGE 的 critic 在发散完成前不被调用。
+
 #### 经典技法（仍保留）
 
 | 技法 | 使用时机 |
@@ -159,6 +224,19 @@ description: |
 
 **旗标:** `--no-rebuttal` 跳过此步骤；报告区段标注「Rebuttal: skipped」。
 
+> **BQS D4 — 判官≠产生者：** D4 唯有**评审/Devil's Advocate 在独立 context 执行**（`--enhanced` 隔离 agent 宿主）才可 pass。baseline 单 context 下，面板是同 context 自评，标 `[degraded]`、**不得标 pass**——诚实但非独立。不得把 baseline 跑当成 D4 pass 静默通过。
+
+#### 步骤 3c：BQS 第 2 层——对 Top 3 的产物闸
+
+收敛后，**仅对 Top 3** 套用 **D5–D8**（绝不对全部发散想法）。对每个 Top-3 想法：
+
+- **D5 接地：** 将每个主张分流为 `[现状/外部事实]`（需 file:line 或来源，否则 fail）vs `[未来/假说]`（免接地、标 `[假说]`）。**外部事实宣称为跨级地板**——creative 级也须接地。
+- **D6 净值：** 每个 Top-3 须答「解谁问题／我们真有吗／不做的代价」；至少一个淘汰为「不值得做」；挂 **lagging 登记栏**（事后哪个信号验证）。
+- **D7 可证伪（二态）：** 标 `[现可陈述证伪]` **或** `[需先做 X 才能定义证伪]`。后者**转 next-step 喂 D8——不算 fail**。
+- **D8 可行动：** 每个存活想法需 next-step 裁决（含明确「暂不做」）；无 → fail。
+
+> **Meta 停止规则（BQS 结构规则 1）：** 当套用的维度全绿 **且** 再跑一轮后 **Top 3 集合成员不变**（看集合成员、非内部排序）→停。**硬上限 2 轮。**
+
 ---
 
 ### 阶段 4：OUTPUT | 输出提案
@@ -181,8 +259,21 @@ description: |
 |---|------|---------|------|-------------|---------------|--------------|-----------|
 | 1 | ...  | Skeptic | Reversal | 4.0 | 4.5 | 4.0 | 4.2 |
 
-## Top 3 Recommendations
+## Top 3 Recommendations (BQS Layer 2 applied)
 1. **[Idea]** ✓ Passed rebuttal — [Why] — Persona: [..] — [User rebuttal response]
+   - D5 grounding: [current-state claims with file:line | future claims marked [hypothesis]]
+   - D6 net benefit: [whose problem / do we have it / cost of not doing] — lagging signal: [..]
+   - D7 falsifiability: [falsifiable now | need to do X first → next-step]
+   - D8 next-step: [action | defer]
+
+## Contested Zone (high critic-variance ideas)
+[Ideas whose critic variance exceeded threshold — surfaced, NOT eliminated by mean ranking (barbell long-tail)]
+
+## Seeds (from killed ideas)
+[For each killed idea: what was wrong, what real problem it points to. Non-empty if ≥1 idea was killed.]
+
+## Judgment Override (Layer 3, ungoverned)
+[Human keep/kill decisions that override the aggregate score, each with a one-line reason. Optional.]
 
 ## Diversity Note
 [How many distinct lenses/personas the surviving ideas span — flag if all from one cluster]
@@ -194,6 +285,8 @@ description: |
 - [ ] Proceed to `/requirement` with top idea
 - [ ] Proceed to `/sdd` if requirements are clear
 ```
+
+> **BQS 输出新增（v4）：** **Seeds** 区（规则：被杀 ≥1 则非空）、**争议区**（高方差想法不按 mean 淘汰）、**Judgment Override** 通道（人类裁决凌驾聚合分）为 BQS 第 2/3 层所要求。Top-3 区块逐项记录 D5–D8 状态。
 
 ## 多样性崩塌防护
 
@@ -221,15 +314,17 @@ description: |
 | **Devil's Advocate + Steelman** | 硬角色反驳 |
 | **SCAMPER / 六顶帽** | 经典发散（可当 persona） |
 
-## 工作阶段自评
+## 校准回路——lagging 信号（BQS）
 
-每次工作阶段结束后记录三个指标（1–5 分），追踪长期改善。
+> **这是同一道 BQS 质量回路的 lagging 端——不是第二套平行评估系统。** 工作阶段中由 BQS 第 0–2 层做 leading 决策；这三个指标事后校准标准。禁止在 BQS 之外另跑一套自评。
 
-| 指标 | 问题 |
-|------|------|
-| **采用率** | 今天的想法我实际会用多少个？ |
-| **多样性** | 存活的想法是否跨越多个 persona/透镜？ |
-| **认知负担** | 这次有多耗费心力？（5 = 毫不费力） |
+每次工作阶段结束后记录三个指标（1–5 分），各自对应一个 BQS 维度作为其滞后验证：
+
+| 指标 | 问题 | BQS 滞后角色 |
+|------|------|--------------|
+| **采用率** | 今天的想法我实际会用多少个？ | **D6 净值滞后验证** |
+| **多样性** | 存活的想法是否跨越多个 persona/透镜？ | **D2/D3 滞后观测** |
+| **认知负担** | 这次有多耗费心力？（5 = 毫不费力） | **成本约束** |
 
 收集 3 次工作阶段的数据再下结论。完整的 A/B 实验协议见 [guide.md](./guide.md)。
 
@@ -237,6 +332,7 @@ description: |
 
 | 旗标 | 效果 |
 |------|------|
+| `--intent explore\|exploit\|<比例>` | 宣告 BQS 第 0 层 explore/exploit 意图（调节 D2 权重） |
 | `--personas "a,b,c"` | 覆写默认的 persona 组 |
 | `--lens analogical\|reversal\|morphological` | 强制指定主要的多样性透镜 |
 | `--enhanced` | 并行 persona/评审代理（不支持则退回） |

@@ -10,8 +10,8 @@ description: |
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/skills/brainstorm-assistant/guide.md)
 
-**Version**: 3.0.0
-**Last Updated**: 2026-06-01
+**Version**: 4.0.0
+**Last Updated**: 2026-06-22
 **Applicability**: All software projects
 **Scope**: universal
 **Type**: Utility Skill (no core standard)
@@ -42,6 +42,17 @@ v1 was a generic FRAME→DIVERGE→CONVERGE flow. v2 added cognitive-science gat
 - **CONVERGE** is now a **multi-critic panel** plus a **hard-role rebuttal** (Devil's Advocate + Steelman) — not one AI scorer plus one soft critique.
 
 The pre-flight phase is **kept and strengthened** (fixation research says AI anchoring is real and possibly worse), while the 10-idea gate and the single-AI rebuttal are **demoted / hardened** because their original human-group evidence does not transfer cleanly to a single LLM.
+
+### What v4 changes (BQS v1)
+
+v3 supplied strong *mechanisms* but no **decidable pass/fail quality gate** — its only close analogue, the Session Self-Evaluation, was after-the-fact, self-assessed, and non-blocking. **v4 layers the Brainstorm Quality Standard (BQS v1) on top of v3 without removing anything** (see "Backward Compatibility"). BQS is a **four-layer × timeline** quality contract:
+
+- **Layer 0 — Intent**: declare explore/exploit ratio; modulates dimension weights.
+- **Layer 1 — Process (divergence-period leading, visible)**: dimensions **D1 frame purity / D2 divergence coverage / D3 cross-session diversity / D4 evaluation de-bias**, each with an oracle. A **hard sequence gate** forbids the evaluative dimensions D5–D8 from being revealed or scored during divergence.
+- **Layer 2 — Product (post-convergence leading, Top 3 only)**: **D5 grounding / D6 net benefit / D7 falsifiability / D8 actionability**, plus a Seeds column and a contested zone for high-variance ideas.
+- **Layer 3 — Ungoverned**: a Judgment Override where human intuition overrides the aggregate score.
+
+The first principle is refined: **decisions use leading signals, calibration uses lagging signals — ordered in time, not a right/wrong trade-off** (this removes any "use only leading, never lagging" absolutism). The core claim: evaluative dimensions are confined to **after convergence × Top 3 only**, never as a full gate on every divergence idea — otherwise they retroactively pollute divergence, kill evidence-free future ideas, and create form-filling theatre. The full contract, oracles, and structural rules live in **SKILL.md → "BQS v1 — Quality Contract"**.
 
 ---
 
@@ -399,11 +410,15 @@ The Mode Selection table in SKILL.md uses objective triggers (word count, presen
 
 ---
 
-## Self-Evaluation Framework | 自我評估框架
+## Calibration Loop (BQS lagging end) | 校準回路（BQS lagging 端）
 
-Record three metrics after every session to build an empirical record. Do not judge v3 vs v2 on a single session — collect at least 3 comparable sessions.
+> **In v4 these three metrics are the lagging end of the single BQS quality loop, not a second parallel evaluation system.** The leading pass/fail decision is made by BQS Layers 0–2 during the session; these metrics calibrate the standard afterwards. **Adoption Rate = D6 net-benefit lagging validation, Diversity = D2/D3 lagging observation, Cognitive Load = a cost constraint.** Do not run a separate self-evaluation alongside BQS.
+>
+> **v4 中這三個指標是同一道 BQS 品質回路的 lagging 端，不是第二套平行評估系統。** 工作階段中由 BQS 第 0–2 層做 leading pass/fail 決策；這些指標事後校準標準。**採用率＝D6 淨值滯後驗證、多樣性＝D2/D3 滯後觀測、認知負擔＝成本約束。** 禁止在 BQS 之外另跑一套自評。
 
-每次工作階段後記錄三個指標，建立實證紀錄。不要以單次評估 v3 vs v2，至少收集 3 次可比較的工作階段。
+Record three metrics after every session to build an empirical record. Do not judge across versions on a single session — collect at least 3 comparable sessions.
+
+每次工作階段後記錄三個指標，建立實證紀錄。不要以單次評估跨版本，至少收集 3 次可比較的工作階段。
 
 ### The Three Metrics
 
@@ -538,6 +553,18 @@ After 6 weeks, review session logs and A/B data to calibrate which combination f
 
 ---
 
+## Backward Compatibility (v3 → v4) | 向後相容
+
+BQS v1 is an **additive quality contract**, not a rewrite. Everything from v3 is preserved:
+
+- **All flags**: `--personas`, `--lens`, `--enhanced`, `--skip-preflight`, `--no-rebuttal`, `--quick`, `--technique` behave exactly as in v3. v4 adds one optional flag, `--intent`, for the Layer 0 declaration.
+- **All mechanisms**: PRE-FLIGHT anti-anchoring, FRAME 5-Whys/HMW, the persona ensemble, diversity lenses, the multi-critic panel, the hard-role rebuttal (Devil's Advocate + Steelman), the Diversity-Collapse Guardrail, and the Enhanced Tier are unchanged.
+- **The `--enhanced` isolated-agent host** is what lets BQS **D4 pass** (judge ≠ generator); on a baseline single context the panel is marked `[degraded]`, never silently passed.
+
+BQS v1 是**疊加的品質契約**，不是打掉重練。v3 的一切都保留：所有旗標（`--personas`/`--lens`/`--enhanced`/`--skip-preflight`/`--no-rebuttal`/`--quick`/`--technique`）行為不變，v4 僅新增一個可選的 `--intent` 旗標供第 0 層宣告；所有機制（PRE-FLIGHT 防錨定、FRAME 5-Whys/HMW、persona 集成、多樣性透鏡、多評審面板、硬角色反駁、多樣性崩塌防護、Enhanced 層）不變；`--enhanced` 的隔離 agent 宿主正是讓 BQS **D4 pass**（判官≠產生者）的條件，baseline 單 context 標 `[degraded]`、不靜默通過。
+
+---
+
 ## Integration with UDS Workflow
 
 ### Mapping to `/requirement`
@@ -576,6 +603,7 @@ After 6 weeks, review session logs and A/B data to calibrate which combination f
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 4.0.0 | 2026-06-22 | XSPEC-296: Brainstorm Quality Standard (BQS v1) — a four-layer × timeline quality contract layered additively on v3. Layer 0 explore/exploit intent (modulates D2 weight); Layer 1 process leading dimensions D1–D4 with a hard sequence gate (D5–D8 forbidden during divergence); Layer 2 product leading dimensions D5–D8 applied to Top 3 only, with a Seeds column and high-variance contested zone; Layer 3 Judgment Override (overrides aggregate score). D4 judge≠generator (independent context else `[degraded]`); D5 claim split (external-fact floor cross-tier); D7 two-state falsifiability ("need to do X" → next-step, not fail); Meta stop rule (Top-3 set stability + hard cap 2 rounds). Session Self-Evaluation re-positioned as the calibration loop's lagging end (Adoption→D6, Diversity→D2/D3, Cognitive Load→cost; two parallel evaluations forbidden). First principle refined to "decisions use leading, calibration uses lagging". Tiering bound to objective Mode Selection triggers. New flag `--intent`. All v3 flags/mechanisms preserved. |
 | 3.0.0 | 2026-06-01 | XSPEC-247: DIVERGE re-centred on persona ensemble + diversity lenses (analogical/reversal/morphological); CONVERGE re-centred on multi-critic panel + hard-role rebuttal (Devil's Advocate + Steelman); Diversity-Collapse Guardrail; Enhanced Tier (parallel persona/critic agents, graceful fallback); Research Foundations rebuilt on 6 verified 2024–2026 sources; Validity Caveats re-rated (pre-flight LOW, Nijstad/Nemeth demoted); new flags `--personas`/`--lens`/`--enhanced`; anti-seed guardrail |
 | 2.1.0 | 2026-05-09 | XSPEC-196 Phase 2: Mode Selection objective routing; Self-Evaluation Framework; A/B Experiment Protocol; Research Validity Caveats; Gradual Adoption Protocol |
 | 2.0.0 | 2026-05-09 | XSPEC-196: Phase 0 Pre-flight (anti-anchoring), Rebuttal Round, 10-idea minimum gate + semantic batching |
