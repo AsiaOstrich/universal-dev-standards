@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/versioning.md)
 
-**Version**: 1.2.0
-**Last Updated**: 2025-12-30
+**Version**: 1.3.0
+**Last Updated**: 2026-06-23
 **Applicability**: All software projects with versioned releases
 **Scope**: universal
 **Industry Standards**: Semantic Versioning 2.0.0
@@ -155,6 +155,68 @@ Format: `MAJOR.MINOR.PATCH+BUILD`
 - Build metadata SHOULD NOT affect version precedence
 - Use for CI/CD tracking
 - Include in artifacts but not in version comparison
+
+> **Critical: build metadata MUST NOT be used as a deployment discriminator.**
+> Because tooling ignores `+build` in precedence and comparison (above), two builds
+> differing only in build metadata (`1.2.3+abc` vs `1.2.3+def`) are **indistinguishable
+> to release tooling** — rollback targets, `semver` comparison, and registries treat
+> them as the same release. Using `+sha` to tell apart behaviorally-different deployed
+> builds is a governance bypass: the version stops being the join key for changelog /
+> SBOM / audit / rollback / SLA / CVE scope. A change that ships MUST get a real
+> version bump or a unique immutable artifact identity (see **Deployment Version
+> Identity** below) — `+sha` is **not** a substitute.
+
+---
+
+## Deployment Version Identity
+
+> Source: a recurring failure mode — multiple behaviorally-different hotfix builds
+> deployed under the same `X.Y.Z`, distinguishable only by `+sha`, so answering
+> "which build is in prod / is fix X actually deployed?" collapses into commit
+> archaeology.
+
+### Core invariant
+
+**Every distinct deployable build artifact MUST carry a unique, immutable version
+identity (version proper + commit sha).** Deploying, *promoting*, or *rolling back*
+an **existing** artifact MUST NOT change its identity.
+
+- **Anchor on the artifact, not the deploy action.** A new build (different source or
+  dependencies) ⇒ new version. The *same* build moved between environments
+  (staging → prod, build-once-deploy-many), redeployed (blue-green / canary), or
+  rolled back is the **same** artifact and keeps its identity — it MUST NOT be
+  re-bumped. Re-bumping on promote/rollback makes the version number lie about what
+  is actually running.
+- **Never deploy two distinct builds under the same `X.Y.Z`.**
+
+### Enforce automatically, not by discipline
+
+The invariant MUST be enforced by an automatic mechanism, never by human discipline
+alone (the failure mode above *is* a forgotten manual bump). Use **either**:
+
+- **Git-height–derived versioning** (MinVer / Nerdbank.GitVersioning / GitVersion):
+  the version is derived from git commit topology, so a collision is structurally
+  impossible and "forgot to bump" is eliminated as an error class. RECOMMENDED for
+  polyglot / .NET / JVM projects (the Automation Tools section is otherwise
+  Node-centric). Note caveats for monorepos and squash-merge workflows.
+- **A CI uniqueness gate**: fail the release if the computed version already exists
+  as a git tag or in the registry.
+
+### Immutable artifacts (cross-reference)
+
+A unique *number* is necessary but not sufficient — the *artifact* must also be
+immutable and content-addressed. Deployments MUST reference immutable artifacts
+(e.g. container **image digest** `@sha256:…`, not mutable tags such as `:latest`);
+registries MUST NOT allow tag/version reuse. The artifact-level requirement lives in
+**container-image-standards**.
+
+### Build identity is observable (cross-reference)
+
+Deployed services SHOULD expose `version + commit sha + build time` via a **protected**
+endpoint (a *public* one leaks internal commit identity), and the exposed sha MUST
+match the deployed artifact's sha (verifiable, not self-reported). This is a
+deployment / observability concern — see **deployment-standards** (build-identity
+verification) and **supply-chain-attestation** (provenance as cryptographic backing).
 
 ---
 
