@@ -163,10 +163,10 @@ Format: `MAJOR.MINOR.PATCH+BUILD`
 
 > **關鍵：build metadata 不得作為部署的區分依據。**
 > 由於工具鏈在優先序與比較中忽略 `+build`（如上），兩個僅 build metadata 不同的建置
-> （`1.2.3+abc` vs `1.2.3+def`）對發布工具而言**無法區分**——回滾目標、`semver` 比較、
-> registry 都視為同一個發布。用 `+sha` 區分行為不同的已部署建置是一種治理逃逸：版本號不再是
-> changelog / SBOM / 稽核 / 回滾 / SLA / CVE 範圍的 join key。任何 ship 的變更 MUST 取得真正的
-> 版本 bump 或唯一不可變的 artifact 身分（見下方 **部署版本身分**）——`+sha` **不能**替代。
+> （`1.2.3+abc` vs `1.2.3+def`）對**版本比較工具**而言**無法區分**——回滾目標與 `semver` 比較
+> 視為同一個發布。用 `+sha` 區分行為不同的已部署建置是一種治理逃逸：版本號不再是 changelog /
+> SBOM / 稽核 / 回滾 / SLA / CVE 範圍的 join key。任何 ship 的變更 MUST 取得真正的版本 bump 或
+> 唯一不可變的 artifact 身分（見下方 **部署版本身分**）——`+sha` **不能**替代。
 
 ---
 
@@ -174,6 +174,10 @@ Format: `MAJOR.MINOR.PATCH+BUILD`
 
 > 來源：一個反覆出現的失敗模式——多個行為不同的 hotfix 建置以**同一個 `X.Y.Z`** 部署，僅靠
 > `+sha` 區分，於是「prod 跑的是哪個 / 修補 X 是否真的上了」退化成 commit 考古。
+
+本節規範**可部署單元**的身分——無論該單元對專案而言是什麼（容器 image、tarball、已發布套件）。
+它與下方的 [發布流程](#發布流程)（描述一套具體的單機發布流程）互補；此處的身分規則**不論部署機制
+為何皆適用**。
 
 ### 核心不變量
 
@@ -183,30 +187,34 @@ Format: `MAJOR.MINOR.PATCH+BUILD`
 - **錨定在 artifact，而非部署動作。** 新建置（原始碼或依賴不同）⇒ 新版本。*同一個*建置在環境間
   移動（staging → prod，build-once-deploy-many）、重新部署（blue-green / canary）、或回滾，是
   **同一個** artifact、保留其身分——MUST NOT 重新 bump。在 promote/rollback 上重新 bump 會讓版本
-  號謊報實際在跑的東西。
+  號謊報實際在跑的東西。（回滾還原一個先前的 artifact 時，是還原該 artifact 的原始身分，而非鑄造
+  一個新身分。）
 - **絕不讓兩個不同的建置共用同一個 `X.Y.Z`。**
 
 ### 自動強制，而非靠紀律
 
-此不變量 MUST 由自動機制強制，絕不單靠人為紀律（上述失敗模式*正是*忘記手動 bump）。採用**二擇一**：
+此不變量 SHOULD 由自動機制強制，而非單靠人為紀律——上述失敗模式*正是*忘記手動 bump。下列任一皆滿足：
 
+- **commit 驅動的發布自動化**（`semantic-release` / `standard-version`，見 [自動化工具](#自動化工具)）：
+  在 CI 中由 commit 歷史推導並 bump 版本，使人無從忘記 bump。
 - **git-height 衍生版本**（MinVer / Nerdbank.GitVersioning / GitVersion）：版本由 git 提交拓撲
-  推導，故碰撞結構上不可能、且「忘記 bump」整類錯誤被消除。對 polyglot / .NET / JVM 專案
-  RECOMMENDED（自動化工具一節原本以 Node 為主）。注意 monorepo 與 squash-merge 工作流的注意事項。
+  推導，故碰撞結構上不可能。對 polyglot / .NET / JVM 專案 RECOMMENDED（自動化工具一節原本以 Node
+  為主）。注意 monorepo 與 squash-merge 工作流的注意事項。
 - **CI 唯一性閘**：若算出的版本已存在於 git tag 或 registry，則 release 失敗。
 
 ### 不可變 artifact（交叉引用）
 
-唯一的*號碼*是必要但不充分——*artifact* 本身也必須不可變且內容定址。部署 MUST 引用不可變 artifact
-（例如容器 **image digest** `@sha256:…`，而非 `:latest` 之類的可變 tag）；registry MUST NOT 允許
-tag/版本重用。artifact 層級的要求歸 **container-image-standards**。
+唯一的*號碼*是必要但不充分——*artifact* 本身也必須不可變且內容定址（例如容器 image 以 digest 引用
+而非可變 tag）。具體的 artifact 層級要求——把部署釘在內容位址、禁止 tag/版本重用——**歸
+container-image-standards** 且將於該標準訂定；本標準只要求版本身分本身保持唯一且不可變。
 
 ### Build 身分可被觀測（交叉引用）
 
-已部署的服務 SHOULD 經由**受保護**端點暴露 `version + commit sha + build time`（*公開*端點會洩漏
-內部 commit 身分），且暴露的 sha MUST 與已部署 artifact 的 sha 相符（可驗證，而非自述）。這是部署 /
-可觀測性的關切——見 **deployment-standards**（build 身分驗證）與 **supply-chain-attestation**
-（provenance 作為密碼學背書）。
+已部署的服務 SHOULD 暴露 `version + commit sha + build time`，讓維運者不必 commit 考古就能知道在跑
+什麼；一旦暴露，sha MUST 與已部署 artifact 的 sha 相符（可驗證、非自述），且該端點 SHOULD 受存取
+控制（公開端點會洩漏內部 commit 身分）。這是部署 / 可觀測性的關切：build 身分驗證的要求**歸
+deployment-standards**（將於該標準訂定），而 **supply-chain-attestation** 已提供 provenance 作為
+「此 artifact 確實來自此 sha」的密碼學背書。
 
 ---
 

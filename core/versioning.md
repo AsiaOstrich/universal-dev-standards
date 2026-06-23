@@ -159,12 +159,12 @@ Format: `MAJOR.MINOR.PATCH+BUILD`
 > **Critical: build metadata MUST NOT be used as a deployment discriminator.**
 > Because tooling ignores `+build` in precedence and comparison (above), two builds
 > differing only in build metadata (`1.2.3+abc` vs `1.2.3+def`) are **indistinguishable
-> to release tooling** — rollback targets, `semver` comparison, and registries treat
-> them as the same release. Using `+sha` to tell apart behaviorally-different deployed
-> builds is a governance bypass: the version stops being the join key for changelog /
-> SBOM / audit / rollback / SLA / CVE scope. A change that ships MUST get a real
-> version bump or a unique immutable artifact identity (see **Deployment Version
-> Identity** below) — `+sha` is **not** a substitute.
+> to version-comparison tooling** — rollback targets and `semver` comparison treat them
+> as the same release. Using `+sha` to tell apart behaviorally-different deployed builds
+> is a governance bypass: the version stops being the join key for changelog / SBOM /
+> audit / rollback / SLA / CVE scope. A change that ships MUST get a real version bump or
+> a unique immutable artifact identity (see **Deployment Version Identity** below) —
+> `+sha` is **not** a substitute.
 
 ---
 
@@ -174,6 +174,11 @@ Format: `MAJOR.MINOR.PATCH+BUILD`
 > deployed under the same `X.Y.Z`, distinguishable only by `+sha`, so answering
 > "which build is in prod / is fix X actually deployed?" collapses into commit
 > archaeology.
+
+This section governs the identity of a **deployable unit** — whatever that unit is for the
+project (a container image, a tarball, a published package). It complements the
+[Release Process](#release-process) below, which describes one concrete single-host release
+flow; the identity rules here apply regardless of the deployment mechanism.
 
 ### Core invariant
 
@@ -186,37 +191,44 @@ an **existing** artifact MUST NOT change its identity.
   (staging → prod, build-once-deploy-many), redeployed (blue-green / canary), or
   rolled back is the **same** artifact and keeps its identity — it MUST NOT be
   re-bumped. Re-bumping on promote/rollback makes the version number lie about what
-  is actually running.
+  is actually running. (When a rollback restores a previous artifact, it restores that
+  artifact's original identity — it does not mint a new one.)
 - **Never deploy two distinct builds under the same `X.Y.Z`.**
 
 ### Enforce automatically, not by discipline
 
-The invariant MUST be enforced by an automatic mechanism, never by human discipline
-alone (the failure mode above *is* a forgotten manual bump). Use **either**:
+The invariant SHOULD be enforced by an automatic mechanism rather than human discipline
+alone — the failure mode above *is* a forgotten manual bump. Any of these satisfies it:
 
+- **Commit-driven release automation** (`semantic-release` / `standard-version`, see
+  [Automation Tools](#automation-tools)): derives and bumps the version from commit
+  history in CI, so a human cannot forget to bump.
 - **Git-height–derived versioning** (MinVer / Nerdbank.GitVersioning / GitVersion):
   the version is derived from git commit topology, so a collision is structurally
-  impossible and "forgot to bump" is eliminated as an error class. RECOMMENDED for
-  polyglot / .NET / JVM projects (the Automation Tools section is otherwise
-  Node-centric). Note caveats for monorepos and squash-merge workflows.
+  impossible. RECOMMENDED for polyglot / .NET / JVM projects (the Automation Tools
+  section is otherwise Node-centric). Note caveats for monorepos and squash-merge
+  workflows.
 - **A CI uniqueness gate**: fail the release if the computed version already exists
   as a git tag or in the registry.
 
 ### Immutable artifacts (cross-reference)
 
-A unique *number* is necessary but not sufficient — the *artifact* must also be
-immutable and content-addressed. Deployments MUST reference immutable artifacts
-(e.g. container **image digest** `@sha256:…`, not mutable tags such as `:latest`);
-registries MUST NOT allow tag/version reuse. The artifact-level requirement lives in
-**container-image-standards**.
+A unique *number* is necessary but not sufficient — the *artifact* must also be immutable
+and content-addressed (e.g. a container image referenced by digest rather than a mutable
+tag). The concrete artifact-level requirements — pinning deployments to a content address
+and forbidding tag/version reuse — **belong with container-image-standards** and are to be
+specified there; this standard only requires that the version identity itself remain
+unique and immutable.
 
 ### Build identity is observable (cross-reference)
 
-Deployed services SHOULD expose `version + commit sha + build time` via a **protected**
-endpoint (a *public* one leaks internal commit identity), and the exposed sha MUST
-match the deployed artifact's sha (verifiable, not self-reported). This is a
-deployment / observability concern — see **deployment-standards** (build-identity
-verification) and **supply-chain-attestation** (provenance as cryptographic backing).
+A deployed service SHOULD expose `version + commit sha + build time` so operators can tell
+what is running without commit archaeology; when exposed, the sha MUST match the deployed
+artifact's sha (verifiable, not self-reported) and the endpoint SHOULD be access-controlled
+(a public one leaks internal commit identity). This is a deployment / observability
+concern: the build-identity verification requirement **belongs with deployment-standards**
+(to be specified there), and **supply-chain-attestation** already provides provenance as
+the cryptographic backing for "this artifact came from this sha".
 
 ---
 
@@ -903,6 +915,7 @@ semver.major('2.3.1');  // 2
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-06-23 | Added: Deployment Version Identity section; build-metadata-as-deployment-discriminator caveat (from UDS #138) |
 | 1.2.0 | 2025-12-30 | Added: API Versioning Strategies, Deprecation Timeline, Backward Compatibility Checklist |
 | 1.1.3 | 2025-12-24 | Added: Related Standards section |
 | 1.1.2 | 2025-12-11 | Improved: Upgrade package naming example to use generic placeholders instead of hardcoded project names |
