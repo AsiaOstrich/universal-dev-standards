@@ -13,8 +13,8 @@ standard:
     - "Always require HTTPS"
 
   meta:
-    version: "1.0.0"
-    updated: "2026-03-18"
+    version: "1.1.0"
+    updated: "2026-06-24"
     source: core/api-design-standards.md
     description: Comprehensive API design guidelines for REST, GraphQL, and gRPC
 
@@ -60,10 +60,30 @@ standard:
       header: {example: "Accept-Version: v1", pros: "clean URLs", cons: "hidden, harder to test"}
       query_param: {example: "?v=1", pros: "easy to add", cons: "caching issues"}
     lifecycle:
+      # States only; period numbers are owned by deprecation-standards (single source).
       current: "Full support, new features"
-      supported: "6-12 months, bug/security fixes only"
-      deprecated: "3-6 months notice, sunset header"
+      supported: "Maintained in parallel with successor; bug/security fixes only"
+      deprecated: "Retirement announced; Deprecation/Sunset headers, migration guide"
       retired: "Return 410 Gone"
+      periods_source: "core/deprecation-standards.md#api-deprecation"
+    backward_compatibility:
+      # Breaking → requires MAJOR bump (see versioning.md#incrementing-rules)
+      breaking:
+        - Remove a public API endpoint
+        - Remove a required request field
+        - Add a required request field
+        - Change a response field's type
+        - Change the meaning of an error code
+        - Remove a response field consumers depend on
+      safe:  # MINOR or PATCH
+        - Add an optional request field
+        - Add a new response field
+        - Add a new endpoint
+        - Add a new error code
+        - Improve an error message
+        - Performance improvement
+    deprecation: "Lifecycle, per-tier notice periods, Sunset process → core/deprecation-standards.md#api-deprecation"
+    migration_guide: "On a breaking MAJOR, publish a v1→v2 guide mapping each old usage to its replacement"
 
   pagination:
     strategies:
@@ -160,6 +180,9 @@ rules:
   - id: REST-004
     rule: "Version APIs via URL path (/v1/) and maintain version lifecycle (current → deprecated → retired)"
     severity: warning
+  - id: REST-009
+    rule: "Classify every change before release: breaking changes (remove/retype/required fields, error-code meaning) require a MAJOR bump; additive changes ship as MINOR/PATCH. Deprecation periods follow deprecation-standards"
+    severity: error
   - id: REST-005
     rule: "Include rate limiting headers (X-RateLimit-Limit, Remaining, Reset) on all responses"
     severity: warning

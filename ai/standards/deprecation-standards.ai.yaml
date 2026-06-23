@@ -3,8 +3,8 @@
 
 id: deprecation-standards
 meta:
-  version: "1.0.0"
-  updated: "2026-03-31"
+  version: "1.1.0"
+  updated: "2026-06-24"
   source: core/deprecation-standards.md
   description: API deprecation, feature sunset, system decommission lifecycle
 
@@ -21,6 +21,14 @@ api_deprecation:
     sunset: "Sunset: Sat, 31 Dec 2026 23:59:59 GMT"
     successor: 'Link: <url>; rel="successor-version"'
   parallel_period: "≥6 months after new GA, or 3 months after last consumer migrates"
+  # Single source of truth for deprecation periods (consolidated from versioning.md,
+  # XSPEC-298 R8 / UDS #126). Sunset timeline above = default public-API cadence.
+  # Apply the LONGER of the tier minimum and parallel_period.
+  minimum_period_by_tier:
+    internal_api: "1 minor version"
+    partner_api: "2 minor versions + 3 months"
+    public_api: "2 minor versions + 6 months"
+    critical_infrastructure: "1 year minimum"
 
 notification_channels:
   - "CHANGELOG / Release Notes"

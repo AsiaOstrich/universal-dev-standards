@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/api-design-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-03-18
+**Version**: 1.1.0
+**Last Updated**: 2026-06-24
 **Applicability**: All software projects
 **Scope**: universal
 **Industry Standards**: OpenAPI 3.x, JSON:API 1.1, Google API Design Guide, RFC 7231 (HTTP Semantics)
@@ -165,12 +165,14 @@ https://api.example.com/v2/users
 
 ### Version Lifecycle
 
-| Phase | Duration | Action |
-|-------|----------|--------|
+An API version moves through four states. The **durations** — the parallel-support window and the deprecation notice period — are the single responsibility of [Deprecation & Sunset Standards](deprecation-standards.md#api-deprecation); this table defines only the states and the API-contract action in each, so the timing numbers live in exactly one place.
+
+| Phase | State | API-Contract Action |
+|-------|-------|---------------------|
 | **Current** | Active development | Full support, new features |
-| **Supported** | 6-12 months after successor | Bug fixes, security patches only |
-| **Deprecated** | 3-6 months notice | Sunset header, migration guide |
-| **Retired** | After deprecation period | Return 410 Gone with migration info |
+| **Supported** | Maintained in parallel with successor | Bug fixes, security patches only |
+| **Deprecated** | Retirement announced | `Deprecation` / `Sunset` headers, migration guide published |
+| **Retired** | Removed | Return `410 Gone` with migration info |
 
 ### Deprecation Headers
 
@@ -179,6 +181,88 @@ Sunset: Sat, 01 Jan 2028 00:00:00 GMT
 Deprecation: true
 Link: <https://api.example.com/v2/docs>; rel="successor-version"
 ```
+
+> The full deprecation **process** (the staged Sunset timeline) and the **minimum notice
+> period per API tier** are governed by [Deprecation & Sunset Standards](deprecation-standards.md#api-deprecation).
+> This standard owns the API-contract surface below: how a version is deprecated in code,
+> what counts as a breaking change, and how to document the migration.
+
+### Deprecating an API Version
+
+Signal deprecation through SemVer and in the API itself, then follow the deprecation lifecycle. The version progression mirrors [Semantic Versioning](versioning.md#incrementing-rules):
+
+```
+v1.0.0 — Version introduced
+v1.5.0 — Deprecation announced (no later than the N-1 minor before removal)
+v2.0.0 — Version removed (breaking change → MAJOR bump)
+```
+
+Mark deprecated code so callers see the warning well before the removal release:
+
+```javascript
+// v1.5.0 — add deprecation warning
+/**
+ * @deprecated Use authenticateV2() instead. Will be removed in v2.0.0
+ */
+function authenticate(username, password) {
+  console.warn('[DEPRECATED] authenticate() will be removed in v2.0.0. Use authenticateV2()');
+  return authenticateV2(username, password);
+}
+```
+
+### Backward Compatibility Checklist
+
+Before releasing, classify every change. Anything in the first list is **breaking** and requires a MAJOR version bump (see [Semantic Versioning](versioning.md#incrementing-rules)); anything in the second list is backward-compatible and ships in a MINOR or PATCH release.
+
+**Breaking — never without a MAJOR version bump:**
+- [ ] Remove a public API endpoint
+- [ ] Remove a required request field
+- [ ] Add a required request field
+- [ ] Change a response field's type
+- [ ] Change the meaning of an error code
+- [ ] Remove a response field consumers depend on
+
+**Backward-compatible — safe in a MINOR or PATCH release:**
+- [ ] Add an optional request field
+- [ ] Add a new response field
+- [ ] Add a new endpoint
+- [ ] Add a new error code
+- [ ] Improve an error message
+- [ ] Performance improvement
+
+### API Migration Guide
+
+When a MAJOR version ships breaking changes, publish a migration guide that maps each old usage to its replacement:
+
+````markdown
+# Migration Guide: v1.x to v2.0
+
+## Breaking Changes
+
+### 1. authenticate() removed
+
+**Before (v1.x)**:
+```javascript
+const token = await authenticate('user', 'pass');
+```
+
+**After (v2.0)**:
+```javascript
+const token = await authenticateV2({ username: 'user', password: 'pass' });
+```
+
+### 2. API response format changed
+
+**Before (v1.x)**: `{ "data": { "user": {...} } }`
+**After (v2.0)**: `{ "user": {...} }`
+
+```javascript
+// Before
+const user = response.data.user;
+// After
+const user = response.user;
+```
+````
 
 ---
 
@@ -917,6 +1001,7 @@ Error   → { type, title, status, detail, errors, traceId }
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-06-24 | Added: Deprecating an API Version, Backward Compatibility Checklist, and API Migration Guide (consolidated from versioning.md); Version Lifecycle now defers all period numbers to deprecation-standards as the single source of truth (XSPEC-298 R8, UDS #126) |
 | 1.0.0 | 2026-03-18 | Initial release |
 
 ---

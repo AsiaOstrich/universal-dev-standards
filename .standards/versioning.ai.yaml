@@ -13,8 +13,8 @@ standard:
     - "Use pre-release identifiers (alpha, beta, rc)"
 
   meta:
-    version: "2.0.0"
-    updated: "2026-02-04"
+    version: "2.1.0"
+    updated: "2026-06-24"
     source: core/versioning.md
     description: Semantic Versioning (SemVer) for software releases
 
@@ -82,42 +82,14 @@ standard:
         - Breaking changes allowed in MINOR versions
         - Move to 1.0.0 when API is stable
 
-  deprecation:
-    timeline:
-      internal_api: 1 minor version
-      partner_api: 2 minor versions + 3 months
-      public_api: 2 minor versions + 6 months
-      critical_infrastructure: 1 year minimum
-    backward_compatibility:
-      breaking_changes:
-        - Remove public API endpoints
-        - Remove required request fields
-        - Add required request fields
-        - Change response field types
-        - Change error code meanings
-        - Remove response fields consumers depend on
-      safe_changes:
-        - Add optional request fields
-        - Add new response fields
-        - Add new endpoints
-        - Add new error codes
-        - Improve error messages
-        - Performance improvements
-
-  api_versioning_strategies:
-    - strategy: URL Path
-      format: "/api/v1/users"
-      pros: Clear, easy routing
-      cons: URL pollution
-      recommended: true
-    - strategy: Query Parameter
-      format: "/api/users?version=1"
-      pros: Optional versioning
-      cons: Cache issues
-    - strategy: Header
-      format: "Accept: application/vnd.api.v1+json"
-      pros: Clean URLs
-      cons: Less visible
+  # API versioning strategies, the backward-compatibility checklist, deprecation
+  # timeline + per-tier periods, and the migration-guide template were moved to
+  # their single sources of truth (XSPEC-298 R8, UDS #126):
+  #   - api-design.ai.yaml  → versioning_strategies.backward_compatibility
+  #   - deprecation-standards.ai.yaml → api_deprecation.minimum_period_by_tier
+  cross_references:
+    api_contract: "core/api-design-standards.md#api-versioning-strategies"
+    deprecation_lifecycle: "core/deprecation-standards.md#api-deprecation"
 
   release_process:
     phases:

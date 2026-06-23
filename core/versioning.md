@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/versioning.md)
 
-**Version**: 1.3.0
-**Last Updated**: 2026-06-23
+**Version**: 1.4.0
+**Last Updated**: 2026-06-24
 **Applicability**: All software projects with versioned releases
 **Scope**: universal
 **Industry Standards**: Semantic Versioning 2.0.0
@@ -712,113 +712,14 @@ npm install --save-dev semantic-release
 
 ---
 
-## Breaking Change Communication
+## Breaking Changes & Deprecation
 
-### 1. Deprecation Warnings (N-1 Version)
+Breaking changes drive the **MAJOR** version increment (see [Incrementing Rules](#incrementing-rules)) — that is how SemVer signals an incompatible change to consumers. The *contract-level* details of evolving and retiring an API are owned by the standards responsible for those concerns, so each rule has a single source of truth:
 
-```javascript
-// Version 1.5.0 - Add deprecation warning
-/**
- * @deprecated Use authenticateV2() instead. Will be removed in v2.0.0
- */
-function authenticate(username, password) {
-  console.warn('[DEPRECATED] authenticate() will be removed in v2.0.0. Use authenticateV2()');
-  return authenticateV2(username, password);
-}
-```
+- **API versioning strategies, the backward-compatibility checklist (what counts as a breaking change), deprecation annotations in code, and the migration-guide template** → [API Design Standards](api-design-standards.md#api-versioning-strategies)
+- **The deprecation lifecycle, minimum notice periods by API tier, `Sunset` / `Deprecation` headers, and consumer notification** → [Deprecation & Sunset Standards](deprecation-standards.md#api-deprecation)
 
-### 2. API Versioning Strategies
-
-Choose an API versioning strategy based on your needs:
-
-| Strategy | Format | Pros | Cons |
-|----------|--------|------|------|
-| URL Path | `/api/v1/users` | Clear, easy routing | URL pollution |
-| Query Parameter | `/api/users?version=1` | Optional versioning | Cache issues |
-| Header | `Accept: application/vnd.api.v1+json` | Clean URLs | Less visible |
-| Content Negotiation | `Accept: application/vnd.api+json;version=1` | RESTful | Complex |
-
-**Recommended**: URL Path versioning for most APIs (clearest for developers).
-
-### 3. Deprecation Timeline
-
-Follow this timeline when deprecating API features:
-
-```
-v1.0.0 - Feature introduced
-v1.5.0 - Deprecation warning added (minimum N-1 version)
-v2.0.0 - Feature removed (document in migration guide)
-```
-
-**Deprecation Period Guidelines**:
-
-| API Type | Minimum Deprecation Period |
-|----------|---------------------------|
-| Internal API | 1 minor version |
-| Partner API | 2 minor versions + 3 months |
-| Public API | 2 minor versions + 6 months |
-| Critical Infrastructure | 1 year minimum |
-
-### 4. Backward Compatibility Checklist
-
-Before releasing, verify these backward compatibility rules:
-
-**DO NOT break (without major version bump)**:
-- [ ] Remove public API endpoints
-- [ ] Remove required request fields
-- [ ] Add required request fields
-- [ ] Change response field types
-- [ ] Change error code meanings
-- [ ] Remove response fields consumers depend on
-
-**Safe changes (minor/patch version)**:
-- [ ] Add optional request fields
-- [ ] Add new response fields
-- [ ] Add new endpoints
-- [ ] Add new error codes
-- [ ] Improve error messages
-- [ ] Performance improvements
-
-### 5. Migration Guide (N Version)
-
-```markdown
-# Migration Guide: v1.x to v2.0
-
-## Breaking Changes
-
-### 1. authenticate() removed
-
-**Before (v1.x)**:
-```javascript
-const token = await authenticate('user', 'pass');
-```
-
-**After (v2.0)**:
-```javascript
-const token = await authenticateV2({ username: 'user', password: 'pass' });
-```
-
-### 2. API response format changed
-
-**Before (v1.x)**:
-```json
-{ "data": { "user": {...} } }
-```
-
-**After (v2.0)**:
-```json
-{ "user": {...} }
-```
-
-Update your code:
-```javascript
-// Before
-const user = response.data.user;
-
-// After
-const user = response.user;
-```
-```
+This standard keeps only the version-numbering rule: an incompatible change MUST ship as a MAJOR bump, and deprecation SHOULD be announced in a prior MINOR before the removing MAJOR (see [MAJOR Version](#major-version-x00) guidelines).
 
 ---
 
@@ -908,6 +809,8 @@ semver.major('2.3.1');  // 2
 - [Changelog Standards](changelog-standards.md)
 - [Git Workflow Standards](git-workflow.md)
 - [Commit Message Guide](commit-message-guide.md)
+- [API Design Standards](api-design-standards.md) — API versioning strategies, backward-compatibility rules, migration guides
+- [Deprecation & Sunset Standards](deprecation-standards.md) — deprecation lifecycle and minimum notice periods
 
 ---
 
@@ -915,6 +818,7 @@ semver.major('2.3.1');  // 2
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.4.0 | 2026-06-24 | Moved out (to single sources): API Versioning Strategies (de-duplicated), Deprecation Timeline + per-tier periods, Backward Compatibility Checklist, and the Migration Guide template — now owned by api-design-standards / deprecation-standards; versioning cross-references them (XSPEC-298 R8, UDS #126) |
 | 1.3.0 | 2026-06-23 | Added: Deployment Version Identity section; build-metadata-as-deployment-discriminator caveat (from UDS #138) |
 | 1.2.0 | 2025-12-30 | Added: API Versioning Strategies, Deprecation Timeline, Backward Compatibility Checklist |
 | 1.1.3 | 2025-12-24 | Added: Related Standards section |

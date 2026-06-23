@@ -1,8 +1,8 @@
 ---
 source: ../../../core/api-design-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-18
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-06-24
 status: current
 ---
 
@@ -10,7 +10,7 @@ status: current
 
 > **語言**: [English](../../../core/api-design-standards.md) | 繁體中文
 
-> 版本: 1.0.0 | 最後更新: 2026-03-18
+> 版本: 1.1.0 | 最後更新: 2026-06-24
 
 **適用範圍**: 所有軟體專案
 **範疇**: universal
@@ -173,12 +173,14 @@ https://api.example.com/v2/users
 
 ### 版本生命週期
 
-| 階段 | 持續時間 | 動作 |
-|------|----------|------|
+API 版本會經歷四種狀態。其中的**持續時間**——平行支援期與棄用通知期——是[棄用與日落標準](deprecation-standards.md#api-棄用)的單一職責；本表只定義狀態與各狀態下的 API 契約動作，使時間數字只存在於單一處。
+
+| 階段 | 狀態 | API 契約動作 |
+|------|------|------|
 | **現行** | 積極開發中 | 完整支援、新功能 |
-| **支援中** | 後繼版本發布後 6-12 個月 | 僅限錯誤修復、安全修補 |
-| **已棄用** | 3-6 個月通知期 | Sunset 標頭、遷移指南 |
-| **已終止** | 棄用期結束後 | 回傳 410 Gone 與遷移資訊 |
+| **支援中** | 與後繼版本平行維護 | 僅限錯誤修復、安全修補 |
+| **已棄用** | 已宣告退役 | `Deprecation` / `Sunset` 標頭、發布遷移指南 |
+| **已終止** | 已移除 | 回傳 `410 Gone` 與遷移資訊 |
 
 ### 棄用標頭
 
@@ -187,6 +189,85 @@ Sunset: Sat, 01 Jan 2028 00:00:00 GMT
 Deprecation: true
 Link: <https://api.example.com/v2/docs>; rel="successor-version"
 ```
+
+> 完整的棄用**流程**（分階段的 Sunset 時間線）與**依 API 分級的最短通知期間**，由[棄用與日落標準](deprecation-standards.md#api-棄用)掌管。本標準負責下方的 API 契約面：如何在程式碼中棄用版本、何謂破壞性變更、以及如何撰寫遷移指南。
+
+### 棄用 API 版本
+
+透過 SemVer 與 API 本身發出棄用訊號，再依循棄用生命週期。版本演進對應[語義化版本](versioning.md#遞增規則)：
+
+```
+v1.0.0 — 版本引入
+v1.5.0 — 宣告棄用（不晚於移除前的 N-1 minor）
+v2.0.0 — 移除版本（破壞性變更 → MAJOR 遞增）
+```
+
+標記已棄用的程式碼，讓呼叫端在移除版本前就能看到警告：
+
+```javascript
+// v1.5.0 — 加入棄用警告
+/**
+ * @deprecated Use authenticateV2() instead. Will be removed in v2.0.0
+ */
+function authenticate(username, password) {
+  console.warn('[DEPRECATED] authenticate() will be removed in v2.0.0. Use authenticateV2()');
+  return authenticateV2(username, password);
+}
+```
+
+### 向後相容性檢查清單
+
+發布前，將每項變更分類。第一份清單中的任何項目皆屬**破壞性**，需升級 MAJOR 版本（見[語義化版本](versioning.md#遞增規則)）；第二份清單中的項目向後相容，可在 MINOR 或 PATCH 版本發布。
+
+**破壞性——不升級 MAJOR 版本絕不可做：**
+- [ ] 移除公開 API 端點
+- [ ] 移除必填請求欄位
+- [ ] 新增必填請求欄位
+- [ ] 變更回應欄位的類型
+- [ ] 變更錯誤碼的含義
+- [ ] 移除消費者依賴的回應欄位
+
+**向後相容——可在 MINOR 或 PATCH 版本安全發布：**
+- [ ] 新增可選請求欄位
+- [ ] 新增回應欄位
+- [ ] 新增端點
+- [ ] 新增錯誤碼
+- [ ] 改善錯誤訊息
+- [ ] 效能改進
+
+### API 遷移指南
+
+當 MAJOR 版本帶有破壞性變更時，發布一份遷移指南，將每個舊用法對應到其替代方案：
+
+````markdown
+# 遷移指南：v1.x 到 v2.0
+
+## 破壞性變更
+
+### 1. authenticate() 已移除
+
+**Before (v1.x)**:
+```javascript
+const token = await authenticate('user', 'pass');
+```
+
+**After (v2.0)**:
+```javascript
+const token = await authenticateV2({ username: 'user', password: 'pass' });
+```
+
+### 2. API 回應格式變更
+
+**Before (v1.x)**: `{ "data": { "user": {...} } }`
+**After (v2.0)**: `{ "user": {...} }`
+
+```javascript
+// Before
+const user = response.data.user;
+// After
+const user = response.user;
+```
+````
 
 ---
 
@@ -925,6 +1006,7 @@ Content-Security-Policy: default-src 'none'
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.1.0 | 2026-06-24 | 新增：棄用 API 版本、向後相容性檢查清單、API 遷移指南（自 versioning.md 整併）；版本生命週期的所有期間數字改由 deprecation-standards 作為單一真實來源（XSPEC-298 R8、UDS #126） |
 | 1.0.0 | 2026-03-18 | 初始版本 |
 
 ---

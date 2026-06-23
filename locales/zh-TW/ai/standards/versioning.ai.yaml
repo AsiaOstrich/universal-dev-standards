@@ -78,46 +78,13 @@ initial_development:
       - MINOR 版本允許破壞性變更
       - API 穩定時升至 1.0.0
 
-deprecation:
-  timeline:
-    internal_api: 1 個 minor 版本
-    partner_api: 2 個 minor 版本 + 3 個月
-    public_api: 2 個 minor 版本 + 6 個月
-    critical_infrastructure: 至少 1 年
-
-  backward_compatibility:
-    breaking_changes:
-      - 移除公開 API 端點
-      - 移除必要請求欄位
-      - 新增必要請求欄位
-      - 變更回應欄位類型
-      - 變更錯誤碼含義
-      - 移除使用者依賴的回應欄位
-
-    safe_changes:
-      - 新增選用請求欄位
-      - 新增回應欄位
-      - 新增端點
-      - 新增錯誤碼
-      - 改善錯誤訊息
-      - 效能改進
-
-api_versioning_strategies:
-  - strategy: URL 路徑
-    format: "/api/v1/users"
-    pros: 清楚、易於路由
-    cons: URL 污染
-    recommended: true
-
-  - strategy: 查詢參數
-    format: "/api/users?version=1"
-    pros: 選用版本控制
-    cons: 快取問題
-
-  - strategy: Header
-    format: "Accept: application/vnd.api.v1+json"
-    pros: 乾淨的 URL
-    cons: 較不可見
+# API 版本化策略、向後相容性檢查清單、棄用時間線 + 依分級期間、以及遷移指南模板，
+# 已移至各自的單一真實來源（XSPEC-298 R8、UDS #126）：
+#   - api-design-standards → versioning_strategies.backward_compatibility
+#   - deprecation-standards → api_deprecation.minimum_period_by_tier
+cross_references:
+  api_contract: "core/api-design-standards.md#api-versioning-strategies"
+  deprecation_lifecycle: "core/deprecation-standards.md#api-deprecation"
 
 release_process:
   phases:
@@ -201,11 +168,4 @@ quick_reference:
       - [alpha, 不穩定, 內部團隊]
       - [beta, 大致穩定, 早期採用者]
       - [rc, 穩定, Beta 測試者]
-
-  deprecation_periods:
-    columns: [API 類型, 最短期間]
-    rows:
-      - [內部 API, 1 個 minor 版本]
-      - [合作夥伴 API, 2 個 minor + 3 個月]
-      - [公開 API, 2 個 minor + 6 個月]
-      - [關鍵基礎設施, 1 年]
+  # deprecation_periods 已移至 deprecation-standards（依 API 分級的最短棄用期間，單一真實來源）

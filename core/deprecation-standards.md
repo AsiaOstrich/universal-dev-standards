@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/deprecation-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-03-31
+**Version**: 1.1.0
+**Last Updated**: 2026-06-24
 **Applicability**: All software projects
 **Scope**: universal
 **Industry Standards**: RFC 8594 (Sunset Header), RFC 8288 (Web Linking)
@@ -56,6 +56,19 @@ When a new version is released, the old version MUST be maintained for at least 
 - **3 months** after the last active consumer completes migration
 
 This ensures consumers have adequate time to migrate without service disruption.
+
+### Minimum Deprecation Period by API Tier
+
+The 6-stage Sunset Timeline above shows the **default cadence for a public API** (roughly 6 months of notice from Announce to Sunset). The *minimum* deprecation period scales with the API's audience and criticality. Apply the **longer** of the tier minimum below and the Version Parallel Period above:
+
+| API Tier | Minimum Deprecation Period |
+|----------|----------------------------|
+| **Internal API** | 1 minor version |
+| **Partner API** | 2 minor versions + 3 months |
+| **Public API** | 2 minor versions + 6 months |
+| **Critical Infrastructure** | 1 year minimum |
+
+These are minimums; a longer period may be required by an SLA or contractual commitment (see [Feature Sunset → Impact Analysis](#impact-analysis)). What *counts* as a breaking change that triggers deprecation, and the API versioning mechanics themselves, live in [API Design Standards](api-design-standards.md#api-versioning-strategies) — this standard is the single source of truth only for the deprecation timeline and these notice periods.
 
 ---
 
@@ -200,6 +213,7 @@ No alternative exists?      → Build alternative first
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-06-24 | Added: Minimum Deprecation Period by API Tier — establishes this standard as the single source of truth for deprecation periods, consolidated from versioning.md and harmonized with the Sunset Timeline and Version Parallel Period (XSPEC-298 R8, UDS #126) |
 | 1.0.0 | 2026-03-31 | Initial release: API Deprecation, Feature Sunset, System Decommission, Retirement Metrics |
 
 ---
