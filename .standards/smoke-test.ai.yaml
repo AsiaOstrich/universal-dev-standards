@@ -1,0 +1,87 @@
+# SPDX-License-Identifier: MIT
+name: Smoke Test Standards
+nameZh: 煙霧測試標準
+id: smoke-test
+version: "1.0.0"
+category: testing
+scope: deployment-validation
+summary: >
+  Post-deployment sanity checks that verify critical system paths are
+  operational within 30 seconds of deployment. Smoke tests fail fast and
+  alert on-call before users encounter broken deployments.
+
+requirements:
+  - id: REQ-01
+    title: Critical Path Coverage
+    titleZh: 關鍵路徑覆蓋
+    level: MUST
+    description: >
+      Smoke tests MUST cover the minimum set of critical paths: (1) process
+      starts and binds to expected port, (2) health endpoint returns 200,
+      (3) at least one core feature responds correctly. Smoke tests MUST NOT
+      cover edge cases, performance, or correctness — that is the unit test suite's job.
+
+  - id: REQ-02
+    title: Execution Time
+    titleZh: 執行時間
+    level: MUST
+    description: >
+      The full smoke test suite MUST complete in under 30 seconds. Tests that
+      take longer provide false confidence — if smoke tests run for 5 minutes,
+      on-call won't run them after every deployment.
+
+  - id: REQ-03
+    title: Zero Dependencies
+    titleZh: 零外部依賴
+    level: MUST
+    description: >
+      Smoke tests MUST NOT depend on external services (LLM APIs, databases,
+      third-party APIs) unless verifying the integration itself. Use local
+      stubs or mock servers for external dependencies.
+
+  - id: REQ-04
+    title: Deployment Integration
+    titleZh: 部署整合
+    level: SHOULD
+    description: >
+      Smoke tests SHOULD be invocable via a single command (e.g. `npm run smoke`
+      or `./smoke.sh`) and SHOULD be wired into the deployment pipeline to run
+      automatically after each deployment.
+
+  - id: REQ-05
+    title: Exit Code Contract
+    titleZh: 退出碼契約
+    level: MUST
+    description: >
+      Smoke tests MUST exit with code 0 on success and non-zero on any failure.
+      The failure message MUST identify which check failed and why.
+
+examples:
+  - name: "Node.js health check smoke test"
+    code: |
+      #!/usr/bin/env node
+      const http = require('http')
+      function check(path, expectedStatus = 200) {
+        return new Promise((resolve, reject) => {
+          http.get(`http://localhost:3000${path}`, (res) => {
+            if (res.statusCode !== expectedStatus) reject(new Error(`${path}: ${res.statusCode}`))
+            else resolve()
+          }).on('error', reject)
+        })
+      }
+      Promise.all([check('/health'), check('/api/status')])
+        .then(() => { console.log('Smoke: PASS'); process.exit(0) })
+        .catch(e => { console.error('Smoke: FAIL', e.message); process.exit(1) })
+
+anti_patterns:
+  - description: >
+      Running full integration test suite as smoke tests — smoke tests should
+      complete in 30s, not 5 minutes.
+  - description: >
+      Not failing on non-200 HTTP status — always assert the status code,
+      not just that the server responded.
+
+related_standards:
+  - testing
+  - deployment-standards
+  - performance-standards

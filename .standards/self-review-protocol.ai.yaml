@@ -1,0 +1,144 @@
+# Self-Review Protocol - AI Optimized
+# Source: core/self-review-protocol.md
+
+id: self-review-protocol
+meta:
+  version: "1.0.0"
+  updated: "2026-05-26"
+  source: core/self-review-protocol.md
+  description: Mandatory self-review pass on large markdown edits before commit; catches 6 categories of internal cross-reference inconsistencies that internal reasoning routinely misses
+
+trigger_conditions:
+  mandatory:
+    condition: commit modifies > 50 lines of markdown
+    artefact_types:
+      - ADR (architecture decision records, DEC-NNN)
+      - XSPEC (cross-project specs)
+      - XSPEC SDD Deltas
+      - SKILL.md (Claude Code custom skills)
+      - ARCHITECTURE.md
+      - API.md
+      - DEPLOYMENT.md
+      - MIGRATION.md
+      - runbooks
+      - playbooks
+      - README.md (when modifying major sections)
+  optional:
+    condition: commit modifies <= 50 lines of markdown
+    rationale: small edits rarely have cross-reference risk
+  not_applicable:
+    condition: code or config only changes
+    rationale: covered by lint, test, and code review
+
+inconsistency_categories:
+  - id: 1
+    name: diagram_step_mismatch
+    description: Diagram or flow chart out of sync with step list
+    example: workflow diagram has 7 boxes but document defines 8 steps
+    check: count diagram nodes vs `## Step N:` / `## N.` headers
+  - id: 2
+    name: changelog_reference_error
+    description: Changelog entry references wrong anchor
+    example: changelog says "Step 1 added X" but X actually at Step 0
+    check: for each changelog line, grep the anchor it references
+  - id: 3
+    name: count_drift
+    description: Explicit number in text out of sync with actual count
+    example: "self-audit has 4 questions" but list has 7
+    check: grep for "N questions", "N rows", "N items" and verify
+  - id: 4
+    name: stale_template
+    description: Hardcoded model names, tool versions, dates not updated
+    example: commit template hardcodes Claude Sonnet 4.6 when model varies
+    check: find hardcoded specifics; replace with placeholders or update
+  - id: 5
+    name: wrong_tool_reference
+    description: Recommended CLI command does not do what described
+    example: recommends `claude --version` for model name (shows CLI version)
+    check: for each CLI command mentioned, mental check or `--help` verify
+  - id: 6
+    name: placeholder_rule_misalignment
+    description: Example contradicts current rule or latest case experience
+    example: example shows D1/D2/D3 but rule says D3 not mandatory
+    check: every concrete value in examples consistent with current rules
+
+procedure:
+  step_1:
+    name: re_read_full_file
+    description: Use file-reading tool to read entire file (not just diff)
+    when: after editing, before committing
+  step_2:
+    name: walk_categories
+    description: Apply 6 categories above against the file
+  step_3:
+    name: fix_in_same_commit
+    description: If issues found, edit in place and include fixes in same commit
+    rationale: ship-and-patch creates follow-up commits; in-place fix is cleaner
+  step_4:
+    name: patch_if_already_committed
+    description: If issues found after commit, create patch commit (e.g., v1.2.1 fixes v1.2.0)
+
+recording_formats:
+  skill_md:
+    location: changelog line in frontmatter or near top
+    format: '> **v{X.Y.(Z+1)} Self-review pass {YYYY-MM-DD}**: {N} issues found, {M} fixed in same commit'
+  adr_dec:
+    location: '## Follow-up Tracking table'
+    format: '| Self-review pass | This DEC | ✅ YYYY-MM-DD (6 categories, no issues) |'
+  xspec_sdd_delta:
+    location: after non-modification list section (e.g. §N.6)
+    format: '> Self-review pass: YYYY-MM-DD (6 categories, no issues)'
+  commit_message_body:
+    location: last line of commit body
+    format: 'Self-review (protocol v1.0.0): N issues found, M applied in same commit / 0 found.'
+
+distinction_from_other_practices:
+  code_review:
+    covers: code correctness, design, security
+    trigger: before merging code PR
+    source_standard: code-review.md
+  content_self_audit:
+    covers: content completeness (all required sections present)
+    trigger: each artefact creation
+    example: eval-source skill 7-question audit
+  self_review_protocol:
+    covers: internal cross-reference consistency (form, not content)
+    trigger: after large markdown edit, before commit
+    source_standard: self-review-protocol.md (this standard)
+  peer_review:
+    covers: independent perspective, blast radius assessment
+    trigger: significant changes
+
+anti_patterns:
+  - skipping_because_diff_small:
+      problem: small diffs in large files often introduce cross-ref errors elsewhere
+      mitigation: trigger is whole-file size, not diff size
+  - reviewing_diff_only:
+      problem: cross-ref errors may live in unchanged sections referencing changed content
+      mitigation: re-read whole file, not just diff
+  - document_without_practice:
+      problem: discipline is in the practice, not the documentation
+      mitigation: enforce in commit checklist
+  - substitute_for_peer_review:
+      problem: self-review catches inconsistencies, not design flaws
+      mitigation: keep peer review for significant changes
+
+verification:
+  metrics:
+    - patch_commit_ratio:
+        description: ratio of v1.X.0 -> v1.X.1 follow-up patches for same artefact
+        target: significant drop after adopting; eval-source went from 100% to 0% after v1.3.0
+    - issue_surface_time:
+        description: issues caught by self-review (pre-commit) vs by next reader (post-commit)
+        target: pre-commit grows, post-commit shrinks
+
+examples_in_the_wild:
+  - artefact: dev-platform/.claude/skills/eval-source/SKILL.md
+    version: v1.3.0
+    commit: 6b45c5d
+    note: first SKILL.md edit to pass self-review pre-commit; preceded by 2 patch cycles (v1.1.0->v1.1.1 with 3 issues, v1.2.0->v1.2.1 with 6 issues) that motivated this standard
+
+self_review:
+  date: "2026-05-26"
+  issues_found: 0
+  notes: First draft self-review pass; no internal inconsistencies detected

@@ -1,0 +1,83 @@
+# Language Pack: PHP → C# (ASP.NET Core) Migration Risks
+# Migrated from: feature-manifest-standard v1.0.0 core standard
+# Use with: feature-manifest.yaml features[].migration_risks
+
+language_pack:
+  id: php-to-csharp
+  source: php
+  target: csharp
+  meta:
+    version: "1.0.0"
+    updated: "2026-05-13"
+    description: PHP to C# (ASP.NET Core) migration risk labels
+    migrated_from: "feature-manifest-standard v1.0.0 migration_risks.php_to_csharp"
+    references:
+      - "XSPEC-203: Language Pack Architecture"
+
+  migration_risks:
+    - label: SESSION_HANDLING
+      description: PHP session → ASP.NET Core Session/Cookie middleware differences
+      details: |
+        PHP sessions are file-backed by default and rely on PHPSESSID cookie.
+        ASP.NET Core uses IDistributedCache (Redis/SQL) backed sessions.
+        Check: session_start(), $_SESSION usage → ISession / IDistributedCache
+
+    - label: ORM_DIFFERENCES
+      description: Eloquent ORM → Entity Framework behavioral differences (lazy loading, conventions)
+      details: |
+        Eloquent uses ActiveRecord pattern; EF Core uses DataMapper/Unit of Work.
+        Lazy loading is opt-in in EF Core (vs default in Eloquent).
+        Check: Model relationships, ->with() eager loading, timestamps conventions
+
+    - label: TIMEZONE_HANDLING
+      description: PHP timezone functions → .NET DateTimeOffset handling
+      details: |
+        PHP date() and strtotime() are timezone-sensitive via date_default_timezone_set().
+        .NET uses DateTimeOffset for timezone-aware datetimes; DateTime is ambiguous.
+        Check: date(), strtotime(), Carbon usage → DateTimeOffset, TimeZoneInfo
+
+    - label: FILE_UPLOAD_PATH
+      description: PHP $_FILES superglobal → ASP.NET Core IFormFile interface
+      details: |
+        PHP uses $_FILES superglobal with move_uploaded_file().
+        ASP.NET Core uses IFormFile with CopyToAsync() and streaming.
+        Check: $_FILES, move_uploaded_file(), file validation logic
+
+    - label: REGEX_DIFFERENCES
+      description: PHP PCRE syntax vs .NET Regex syntax differences
+      details: |
+        PHP uses PCRE with delimiters (e.g., '/pattern/i'); .NET has no delimiters.
+        Named groups: PHP (?P<name>) vs .NET (?<name>).
+        Unicode properties and some PCRE extensions differ.
+        Check: preg_match(), preg_replace(), preg_split() usage
+
+    - label: ARRAY_FUNCTIONS
+      description: PHP array_* functions → LINQ equivalents
+      details: |
+        PHP array functions are procedural; .NET uses LINQ extension methods.
+        array_map() → .Select(); array_filter() → .Where(); array_reduce() → .Aggregate()
+        array_unique() → .Distinct(); usort() → .OrderBy()
+        Check: array_map, array_filter, array_reduce, usort, array_column usage
+
+    - label: EXCEPTION_HIERARCHY
+      description: PHP exception hierarchy vs .NET exception hierarchy differences
+      details: |
+        PHP: Exception → RuntimeException → InvalidArgumentException etc.
+        .NET: Exception → SystemException / ApplicationException → specific types
+        PHP allows catching multiple types with | (PHP 8+); .NET uses catch blocks.
+        Check: try/catch blocks, custom exception classes, exception type mapping
+
+  usage_example: |
+    # In feature-manifest.yaml:
+    features:
+      - id: FM-001
+        name: UserLogin
+        migration_risks:
+          - SESSION_HANDLING    # from this language pack
+          - NULL_SEMANTICS      # from generic risks (feature-manifest-standard)
+
+      - id: FM-007
+        name: OrderCancellation
+        migration_risks:
+          - ORM_DIFFERENCES     # from this language pack
+          - ASYNC_MODEL         # from generic risks

@@ -1,0 +1,83 @@
+# Knowledge Graph Memory Standards - AI Optimized
+# Source: core/knowledge-graph-memory.md
+
+standard:
+  id: knowledge-graph-memory
+  name: Knowledge Graph Memory Standards
+  description: Relationship schema for traversing specs, decisions, and code as a graph; complements vector memory with structural multi-hop queries, engine-optional with Markdown degradation
+  guidelines:
+    - "Express relationships as optional, additive YAML front-matter (related/impacts/impacted_by/supersedes/implements)"
+    - "Derive IMPACTS (Decision->Spec) and SUPERSEDES (Decision->Decision) edges from front-matter or [[ref]] links"
+    - "Support two modes: degraded (AI reads linked Markdown) and service (graph engine multi-hop query) with the same answer shape"
+    - "Keep the graph engine opt-in; always degrade gracefully to Markdown reading"
+    - "Treat vector/semantic memory as complementary (similarity) to graph traversal (structure), not replaced"
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-05-30"
+    source: core/knowledge-graph-memory.md
+    description: Relationship schema for traversing specs, decisions, and code as a graph; complements vector memory with structural multi-hop queries, engine-optional with Markdown degradation
+
+  schema:
+    format: "YAML front-matter on spec/decision Markdown documents"
+    optional_fields:
+      - field: related
+        type: list
+        direction: undirected
+        description: "Loosely associated artifact ids"
+      - field: impacts
+        type: list
+        direction: "this(Decision) -> Spec"
+        description: "Specs this decision changes"
+      - field: impacted_by
+        type: list
+        direction: "Decision -> this(Spec)"
+        description: "Decisions that change this spec"
+      - field: supersedes
+        type: list
+        direction: "this(Decision) -> Decision"
+        description: "Decisions this one replaces"
+      - field: implements
+        type: list
+        direction: "code/spec -> Spec"
+        description: "Specs this artifact realises"
+    node_kinds:
+      - prefix: "XSPEC-* / SPEC-*"
+        kind: Spec
+      - prefix: "DEC-* / ADR-*"
+        kind: Decision
+      - prefix: "function / class / module"
+        kind: Code
+
+  edges:
+    - rule: "Decision impacts:[SPEC]  => IMPACTS (Decision -> Spec)"
+    - rule: "Spec impacted_by:[DEC]   => IMPACTS (Decision -> Spec)"
+    - rule: "Decision supersedes:[DEC] => SUPERSEDES (Decision -> Decision)"
+    - rule: "[[XSPEC-NNN]] link in a Decision body => IMPACTS (Decision -> Spec)"
+    idempotent: "Declaring a relationship from both ends yields one edge, not two"
+
+  modes:
+    degraded:
+      description: "No engine: AI reads the target doc, follows front-matter/[[ref]] links by reading files, assembles the chain manually"
+      always_available: true
+    service:
+      description: "Graph engine indexed: a single multi-hop query (impact-analysis {nodeId, maxHops}) returns the full cross-domain chain"
+      example_engine: "EngramGraph (engramgraph)"
+
+  confidence:
+    optional: true
+    range: "0.1 - 1.0"
+    floor: 0.1
+    note: "Feedback signals (test pass/fail, human correction, status change) evolve confidence; floor prevents erasing important nodes (SAGE)"
+
+  rules:
+    - "Relationship fields are optional and additive; absence never breaks tooling"
+    - "Reference ids that do not exist yet become stub nodes, resolved when the target appears"
+    - "Declare each relationship from the owning side, but accept either"
+    - "Graph engine is opt-in; degrade gracefully to Markdown reading"
+    - "Vector/semantic memory is complementary, not replaced"
+
+  related_standards:
+    - project-context-memory
+    - developer-memory
+    - adr-standards

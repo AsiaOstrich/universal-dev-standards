@@ -1,0 +1,96 @@
+# SPDX-License-Identifier: MIT
+name: Cost Budget Test Standards
+nameZh: 成本預算測試標準
+id: cost-budget-test
+version: "1.0.0"
+category: testing
+scope: ai-agent-systems
+summary: >
+  Unit and integration tests that verify token budget zone classification,
+  pipeline cost thresholds, and runaway-loop prevention for AI agent systems.
+
+requirements:
+  - id: REQ-01
+    title: Zone Classification Boundary Tests
+    titleZh: 區間分類邊界測試
+    level: MUST
+    description: >
+      The token budget zone classifier MUST have unit tests covering all four
+      zones (safe/warning/danger/blocking) and every boundary value (the exact
+      threshold values, one below, and one above). This ensures that threshold
+      drift is caught by the test suite.
+    implementation: |
+      // Test all boundaries:
+      classifyTokenZone(0.84) → "safe"
+      classifyTokenZone(0.85) → "warning"   // WARNING_THRESHOLD
+      classifyTokenZone(0.89) → "warning"
+      classifyTokenZone(0.90) → "danger"    // DANGER_THRESHOLD
+      classifyTokenZone(0.94) → "danger"
+      classifyTokenZone(0.95) → "blocking"  // BLOCKING_THRESHOLD
+      classifyTokenZone(1.00) → "blocking"
+
+  - id: REQ-02
+    title: Pipeline Budget Config Validation Tests
+    titleZh: Pipeline 預算設定驗證測試
+    level: MUST
+    description: >
+      Tests MUST verify that PipelineBudgetConfig properties (maxCostPerRun,
+      maxCostPerDay, warningThreshold, autoDowngrade) have correct semantics.
+      At minimum: verify that exceeding maxCostPerRun triggers the expected
+      budget-exceeded behaviour.
+
+  - id: REQ-03
+    title: Overflow and Runaway Detection
+    titleZh: 溢位與失控偵測測試
+    level: MUST
+    description: >
+      Tests MUST include edge cases for budget overflow: usageRatio > 1.0
+      (over-budget), exactly 0.0 (no tokens used), and NaN/Infinity to verify
+      that the classifier does not silently return an unexpected zone.
+
+  - id: REQ-04
+    title: Cost Threshold Gate Integration Test
+    titleZh: 成本閾值閘門整合測試
+    level: SHOULD
+    description: >
+      Where a cost gate (e.g. CostTracker.isOverBudget) exists, integration
+      tests SHOULD verify that the gate blocks further LLM calls when the
+      daily cost limit is exceeded.
+
+  - id: REQ-05
+    title: Coverage of All Budget Constants
+    titleZh: 全預算常數覆蓋
+    level: MUST
+    description: >
+      All numeric constants in the budget configuration MUST appear in at least
+      one test. Constants that appear only in production code but never in tests
+      are a mutation survival risk.
+
+examples:
+  - name: "Zone boundary tests in Vitest"
+    code: |
+      import { classifyTokenZone, TOKEN_BUDGET } from "../types/index.js"
+
+      it.each([
+        [0.0,   "safe"],
+        [0.84,  "safe"],
+        [TOKEN_BUDGET.WARNING_THRESHOLD,  "warning"],
+        [TOKEN_BUDGET.DANGER_THRESHOLD,   "danger"],
+        [TOKEN_BUDGET.BLOCKING_THRESHOLD, "blocking"],
+        [1.0,   "blocking"],
+      ])("classifyTokenZone(%f) → %s", (ratio, expected) => {
+        expect(classifyTokenZone(ratio)).toBe(expected)
+      })
+
+anti_patterns:
+  - description: >
+      Testing only happy-path ratios like 0.5 or 0.75 — boundary values
+      (WARNING/DANGER/BLOCKING thresholds) are where off-by-one errors hide.
+  - description: >
+      Using magic numbers instead of TOKEN_BUDGET.* constants in tests —
+      if the constant changes, the test should fail, not silently pass.
+
+related_standards:
+  - testing
+  - mutation-testing
+  - llm-output-validation

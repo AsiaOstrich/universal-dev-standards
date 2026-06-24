@@ -609,7 +609,8 @@ describe('Check Command', () => {
       // Updated from 32 to 34 after adding security-testing (security-scan-assistant) and mutation-testing (test-coverage-assistant)
       // Updated from 34 to 35 after adding full-coverage-testing (testing-guide) — XSPEC-178
       // Updated from 35 to 36 after adding knowledge-graph-memory (knowledge-graph skill) — XSPEC-237 Phase 5
-      expect(output).toContain('36 via Skills');
+      // Updated from 36 to 37 after shipping user-journey-testing (journey-test-assistant skill) — bundle⇄source parity fix
+      expect(output).toContain('37 via Skills');
 
       // Should NOT show exactly "0 via Skills" as a standalone line
       // Note: We check for the regex pattern since "22 via Skills" contains "0 via Skills" as substring

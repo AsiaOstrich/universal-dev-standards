@@ -1,0 +1,62 @@
+# Contract Testing Standards - AI Optimized
+# Source: core/contract-testing-standards.md
+
+id: contract-testing-standards
+meta:
+  version: "1.0.0"
+  updated: "2026-05-05"
+  source: core/contract-testing-standards.md
+  description: Consumer-driven contract testing standard with release gate integration; applies to projects with API consumers
+
+requirements:
+  REQ-1:
+    id: REQ-CT-001
+    title: Consumer-Driven Flow
+    rule: >
+      For projects with API consumers, contracts MUST be published by consumers
+      to a Pact Broker (or equivalent). Providers MUST verify all active consumer
+      contracts in CI. The `can-i-deploy` command MUST return exit 0 before
+      any provider deployment.
+    rationale: >
+      Provider-only contract tests miss the most common class of contract bug:
+      the provider ships a change it considers non-breaking, but consumers assumed
+      different response structure.
+
+  REQ-2:
+    id: REQ-CT-002
+    title: Schema Matchers Not Literals
+    rule: >
+      Consumer contracts MUST use schema matchers (like(), eachLike(), integer(),
+      string(), email()) rather than exact literal values. Only assert fields
+      the consumer actually uses.
+    rationale: >
+      Literal value matching causes brittle contracts that break on realistic data
+      variation without indicating any real compatibility issue.
+
+  REQ-3:
+    id: REQ-CT-003
+    title: Backward Compatibility Window
+    rule: >
+      Minor releases MUST maintain N-1 consumer contract compatibility.
+      Major releases require a deprecation period: notify consumers, keep old
+      contract active until all consumers migrate, then archive.
+    rationale: >
+      Consumers cannot always upgrade in lockstep; the N-1 window allows them
+      one release cycle to migrate without service disruption.
+
+  REQ-4:
+    id: REQ-CT-004
+    title: Release Gate
+    rule: >
+      All active consumer contracts MUST be green before deploying a provider
+      to production. This is Dimension 4 (Tier-3) in release-readiness-gate.md.
+      Mark N/A when the project has no API consumers.
+    rationale: >
+      A red consumer contract means a deployed provider will break that consumer
+      in production — this is a hard release blocker, not a warning.
+
+quick_reference:
+  applies_when: "project has API consumers (service-to-service, frontend-to-backend, public API)"
+  gate: "can-i-deploy exit 0 before provider deploy; N-1 compat required"
+  broker_tag_convention: "main, production, <feature-branch>"
+  release_readiness_dimension: "Dim 4, Tier-3"

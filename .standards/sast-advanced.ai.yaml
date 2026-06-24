@@ -1,0 +1,135 @@
+# Advanced SAST Standards - AI Optimized
+# Source: XSPEC-161 SAST Advanced
+
+id: sast-advanced
+title: Advanced SAST Standards
+version: "1.0.0"
+status: Active
+tags: [sast, codeql, gitleaks, trufflehog, secret-scanning, biome, static-analysis, security, typescript, ci]
+summary: |
+  Defines advanced Static Application Security Testing (SAST) practices
+  beyond basic dependency auditing. Covers three complementary layers:
+  (1) CodeQL semantic analysis for TypeScript/JavaScript — detects injection
+  vulnerabilities, path traversal, prototype pollution, and XSS that npm audit
+  misses; (2) Secret scanning with gitleaks or TruffleHog — prevents committing
+  API keys, tokens, and credentials; (3) Biome-based code quality rules used as
+  a security lint layer for projects that adopt Biome instead of ESLint.
+  Specifies CI enforcement thresholds: block merge on any CRITICAL or HIGH
+  severity finding; 0 High findings is the passing gate.
+
+requirements:
+  - id: REQ-001
+    title: CodeQL Semantic Analysis
+    description: |
+      Projects using TypeScript or JavaScript MUST run CodeQL semantic analysis
+      on every push to the default branch and on every pull request targeting
+      the default branch. Additionally, a weekly scheduled scan MUST be
+      configured to catch newly published query packs. Use the
+      `security-extended` query suite rather than the default suite to include
+      injection, path-traversal, prototype-pollution, and XSS queries.
+      CodeQL MUST be configured with `github/codeql-action/init@v3` with
+      `languages: javascript-typescript` and query filters narrowed to
+      `security-extended`. The `autobuild` action MUST be used unless a
+      custom build command is required. Results MUST be uploaded to GitHub
+      Code Scanning so that SARIF findings appear in the Security tab and
+      block PRs when severity >= HIGH.
+    level: MUST
+    examples:
+      - "Workflow trigger: push to main + pull_request targeting main + schedule weekly"
+      - "init step: uses: github/codeql-action/init@v3 with languages: javascript-typescript"
+      - "query-filters: include tags contain security-extended"
+      - "analyze step uploads SARIF; GitHub blocks PR merge when CRITICAL/HIGH found"
+      - "Weekly cron: '0 2 * * 1' catches newly published CodeQL query packs"
+
+  - id: REQ-002
+    title: Secret Scanning on Every Push and PR
+    description: |
+      A secret scanning step MUST run on every push and pull request to detect
+      accidentally committed API keys, tokens, private keys, and credentials
+      before they reach the repository history. The recommended tool is
+      gitleaks (via `gitleaks/gitleaks-action@v2`). Projects MUST maintain a
+      `.gitleaks.toml` configuration file in the repository root to declare
+      custom patterns for project-specific secret formats and to whitelist
+      documented false positives via allowlist rules. The CI step MUST fail
+      with a non-zero exit code when any secret is detected, blocking merge.
+      Baseline false positives MUST be documented and reviewed quarterly.
+    level: MUST
+    examples:
+      - "CI job: uses gitleaks/gitleaks-action@v2 on push and pull_request events"
+      - ".gitleaks.toml defines custom patterns for project-specific tokens"
+      - "Allowlist rule added with documented justification for known false positive"
+      - "Secret detected → CI fails → developer rotates credential before re-pushing"
+
+  - id: REQ-003
+    title: Biome Security Rules as Lint Gate
+    description: |
+      Projects using Biome as their linter MUST enable the security-relevant
+      linting rules as part of the standard lint pass. Biome's `nursery` and
+      `suspicious` rule groups include patterns such as `noConsoleLog` (prevents
+      accidental secret logging), `noGlobalEval` (prevents dynamic code execution),
+      `noWith` (prevents scope pollution), and `noDebugger` (prevents debug
+      breakpoints in production). The `biome check .` command MUST be run in CI
+      as a blocking step. Projects MUST NOT use `--allow-errors` to bypass
+      security-relevant rule failures. Configuration in `biome.json` MUST set
+      `linter.enabled: true` and include the `recommended: true` ruleset plus
+      any additional security rules appropriate to the project.
+    level: MUST
+    examples:
+      - "biome.json: linter.enabled true, rules.suspicious.noGlobalEval error"
+      - "CI step: `npm run lint` maps to `biome check .`; fails on security rule violations"
+      - "noConsoleLog prevents accidental logging of JWT tokens or API keys"
+      - "noGlobalEval prevents eval() usage that could enable code injection"
+
+  - id: REQ-004
+    title: CI Quality Gate Thresholds
+    description: |
+      SAST findings MUST be classified by severity and the following merge-blocking
+      thresholds MUST be enforced: CRITICAL findings — block merge immediately,
+      no exceptions; HIGH findings — block merge; target is 0 HIGH findings in
+      all open PRs; MEDIUM findings — create tracking issue, do not block merge,
+      resolve within 30 days; LOW/INFORMATIONAL findings — optional resolution,
+      logged for visibility. GitHub Code Scanning branch protection rules MUST
+      be configured to require the CodeQL check to pass before merging.
+      The `sast` CI job MUST be listed as a required status check in branch
+      protection settings.
+    level: MUST
+    examples:
+      - "Branch protection: require CodeQL check + sast job to pass before merge"
+      - "CRITICAL finding in CodeQL → PR blocked; developer must fix or accept risk with CISO sign-off"
+      - "HIGH finding threshold: 0 HIGH open on main branch at all times"
+      - "MEDIUM finding: GitHub issue opened automatically via SARIF annotation; 30-day SLA"
+
+  - id: REQ-005
+    title: What CodeQL Finds That npm audit Misses
+    description: |
+      Teams MUST understand that npm audit only checks published CVEs in
+      dependency manifests (package.json lock file). CodeQL performs semantic
+      data-flow analysis on the actual source code and detects:
+      (1) Command injection — user-controlled data flowing into child_process.exec
+      or child_process.spawn with shell:true; (2) Path traversal — user input
+      used in fs.readFile / fs.writeFile without path.resolve + allowlist check;
+      (3) Prototype pollution — assignment to obj[userKey] = value where userKey
+      is unsanitized; (4) XSS via DOM sinks — user data assigned to innerHTML,
+      document.write, or passed to eval; (5) SQL injection via string concatenation
+      in ORM raw queries. These vulnerabilities exist in first-party code and are
+      invisible to dependency scanners.
+    level: SHOULD
+    examples:
+      - "CodeQL flags: exec(`git log ${userInput}`) as command injection"
+      - "CodeQL flags: fs.readFile(path.join(base, req.params.file)) as path traversal"
+      - "CodeQL flags: target[req.body.key] = req.body.value as prototype pollution"
+      - "npm audit shows 0 vulnerabilities; CodeQL finds path traversal in custom route handler"
+
+anti_patterns:
+  - "Running only npm audit and considering security 'done'"
+  - "Disabling CodeQL on PRs to speed up CI — defeats the purpose of shift-left security"
+  - "Adding entire file paths to gitleaks allowlist without reviewing the actual content"
+  - "Ignoring MEDIUM CodeQL findings indefinitely without tracking issues"
+  - "Using biome check --allow-errors to bypass security lint failures"
+  - "Not uploading SARIF results to GitHub Code Scanning (findings invisible in UI)"
+
+related_standards:
+  - security-standards
+  - secret-management-standards
+  - checkin-standards
+  - container-security

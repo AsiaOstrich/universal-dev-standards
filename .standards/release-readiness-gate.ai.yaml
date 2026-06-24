@@ -1,0 +1,77 @@
+# Release Readiness Gate Standards - AI Optimized
+# Source: core/release-readiness-gate.md
+
+id: release-readiness-gate
+meta:
+  version: "1.0.0"
+  updated: "2026-05-05"
+  source: core/release-readiness-gate.md
+  description: Single aggregated release gate covering 16 quality dimensions with tiered sign-off template and RQM integration
+
+requirements:
+  REQ-1:
+    id: REQ-RRG-001
+    title: 16-Dimension Coverage
+    rule: >
+      Every production release MUST evaluate all 16 quality dimensions defined in
+      core/release-readiness-gate.md. Tier-1 dimensions block release if FAIL.
+      Tier-2 dimensions require documented rationale if WARN. Tier-3 dimensions
+      require rationale if N/A.
+    rationale: >
+      Without explicit multi-dimension coverage, teams pass individual gate checks
+      but ship with unverified quality dimensions, creating systematic blind spots.
+
+  REQ-2:
+    id: REQ-RRG-002
+    title: Release Readiness Sign-off
+    rule: >
+      A Release Readiness Sign-off document MUST be created from the template in
+      core/release-readiness-gate.md for every release tag. It must be stored at
+      .release-readiness/<version>.md. The Overall Decision field must be explicitly
+      set to GO or NO-GO by a named release owner.
+    rationale: >
+      Anonymous or implicit GO decisions remove accountability; the sign-off creates
+      a named, dated, auditable record of the go/no-go decision and its evidence.
+
+  REQ-3:
+    id: REQ-RRG-003
+    title: Tier-1 Hard Block
+    rule: >
+      ANY Tier-1 dimension at FAIL status MUST block production deployment.
+      Tier-1 dimensions are: Security (Dim 2), DB Migration (Dim 5), Operational
+      Readiness (Dim 7), Rollback/DR (Dim 13), Production Smoke (Dim 14).
+    rationale: >
+      Tier-1 dimensions represent existential risks: security vulnerabilities,
+      broken rollback, misconfigured monitoring. No business justification
+      overrides a Tier-1 FAIL.
+
+  REQ-4:
+    id: REQ-RRG-004
+    title: RQM Alignment
+    rule: >
+      The machine-readable Release Quality Manifest (release-quality-manifest.md)
+      MUST include entries for all automated dimensions (a11y_critical, contract_drift,
+      cross_flow_cuj_pass_rate, browser_tier1_pass_rate, capacity_headroom_cpu_pct,
+      smoke_pass_rate, flow_gate_report). The RQM overall field must be PASS or WARN
+      (never FAIL) before deployment.
+    rationale: >
+      Human sign-off and machine manifest are complementary; the manifest enables
+      automated enforcement while the sign-off provides human accountability.
+
+  REQ-5:
+    id: REQ-RRG-005
+    title: Incremental Collection
+    rule: >
+      Release Readiness Sign-off evidence MUST be collected incrementally throughout
+      the release cycle (Gate 0 at PRD, Gate 3 pre-UAT, Gate 4 post-UAT). Creating
+      the sign-off on the day of deployment is an anti-pattern.
+    rationale: >
+      Last-minute sign-offs are rubber stamps; evidence collected late cannot
+      be acted upon without delaying the release.
+
+quick_reference:
+  tier_1_dimensions: "Security, DB Migration, Operational Readiness, Rollback/DR, Production Smoke"
+  tier_2_dimensions: "Performance, a11y, Cross-flow Regression, i18n, Docs, Feature Flags, Multi-Gate Flow"
+  tier_3_dimensions: "Contract Testing, Browser Compat, Capacity, Compliance/Privacy"
+  sign_off_location: ".release-readiness/<version>.md"
+  rqm_integration: "flow_gate_report.json → release-quality-manifest.yaml field flow_gate_report"

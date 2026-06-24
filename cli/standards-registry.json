@@ -1719,6 +1719,18 @@
       "description": "Multi-modal golden-file snapshot format (HTTP/CLI/File/Event adapters) for migration parity verification and refactoring characterization (Gate 0/1 protocol)"
     },
     {
+      "id": "user-journey-testing",
+      "name": "User Journey Testing Standard",
+      "nameZh": "使用者旅程測試標準",
+      "source": {
+        "human": "core/user-journey-testing.md",
+        "ai": "ai/standards/user-journey-testing.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": "journey-test-assistant",
+      "description": "TESTPLAN format for connected, sequential, stateful user journey tests; personas + T-NNN test groups with explicit dependency chains, mapped 1:1 to journey E2E describe()/it() blocks with graceful environment skip"
+    },
+    {
       "id": "feature-discovery-standards",
       "name": "Feature Discovery Standards",
       "nameZh": "功能發現方法論標準",

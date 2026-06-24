@@ -1,0 +1,365 @@
+# Secure-Op: AI Agent Secure Operation Standard - AI Optimized
+# Source: core/secure-op.md
+
+id: secure-op
+meta:
+  version: "1.0.0"
+  updated: "2026-05-04"
+  source: core/secure-op.md
+  description: >
+    AI Agent secure operation methodology covering Veto-based decision pipeline,
+    SOBR multi-dimensional risk scoring, Fail-Closed principle, tamper-evident
+    audit chain, HITL escalation, and prompt injection defense.
+
+# ─────────────────────────────────────────────────────────
+# Core Categories
+# ─────────────────────────────────────────────────────────
+categories:
+  - id: veto_based_decision
+    name: Veto-Based Decision Pipeline
+    description: >
+      Security decision logic must be Veto-based, not voting-based.
+      Any single layer issuing DENY terminates the pipeline immediately.
+    principles:
+      - name: Deterministic > Probabilistic
+        rule: >
+          Deterministic systems (policy engines, rule engines) take precedence
+          over LLM inference. Policy engine DENY cannot be overridden by semantic review.
+      - name: Policy-as-Code
+        rule: >
+          All security rules must be version-controlled and regression-testable.
+          No ad-hoc runtime rule injection.
+      - name: Decision Pipeline Order
+        pipeline:
+          - step: 1
+            layer: Policy Engine (OPA or equivalent)
+            type: deterministic
+            on_deny: terminate_immediately
+          - step: 2
+            layer: Risk Score (SOBR model)
+            type: quantitative
+            on_deny: terminate_or_escalate
+          - step: 3
+            layer: Semantic Review (optional LLM)
+            type: probabilistic
+            on_deny: terminate
+            note: Only reached if steps 1 and 2 pass
+    reference_implementation: OPA (Open Policy Agent) or equivalent policy engine
+    anti_patterns:
+      - Allowing LLM to override a deterministic DENY
+      - Treating security decisions as majority-vote among layers
+      - Bypassing policy engine for "efficiency"
+
+  - id: sobr_risk_scoring
+    name: SOBR Risk Scoring Model
+    description: >
+      Four-dimension quantitative risk model: Sensitivity, Operation, BlastRadius,
+      Reversibility. Produces a 0–100 score for routing decisions.
+    formula: "RiskScore = S×0.30 + O×0.25 + B×0.25 + R×0.20"
+    dimensions:
+      - id: S
+        name: Sensitivity
+        weight: 0.30
+        description: Target resource sensitivity level
+        range: 0-100
+        reference_values:
+          user_credentials: 100
+          prod_database: 95
+          internal_api_key: 85
+          staging_database: 60
+          config_file: 45
+          dev_environment: 30
+          public_docs: 5
+      - id: O
+        name: OperationType
+        weight: 0.25
+        description: Danger level of the operation being requested
+        range: 0-100
+        reference_values:
+          delete_permanent: 95
+          execute_arbitrary_code: 100
+          modify_iam_policy: 90
+          write_production_data: 75
+          read_sensitive_data: 50
+          read_public_data: 10
+      - id: B
+        name: BlastRadius
+        weight: 0.25
+        description: Number of systems or users affected if operation goes wrong
+        range: 0-100
+        reference_values:
+          all_production_systems: 100
+          single_production_service: 70
+          staging_environment: 40
+          isolated_dev_sandbox: 10
+      - id: R
+        name: Reversibility
+        weight: 0.20
+        description: Irreversibility degree (higher = harder to undo)
+        range: 0-100
+        reference_values:
+          permanent_delete_no_backup: 100
+          overwrite_with_no_version: 85
+          delete_with_backup: 50
+          read_only_no_side_effect: 0
+    decision_thresholds:
+      - range: "0-25"
+        decision: ALLOW
+        action: Execute normally; log for audit
+      - range: "26-50"
+        decision: ALLOW_WITH_MONITORING
+        action: Execute with enhanced logging; flag for post-hoc review
+      - range: "51-75"
+        decision: REQUIRE_HITL
+        action: Escalate to human reviewer; optionally pause execution
+      - range: "76-100"
+        decision: DENY
+        action: Reject operation; log decision path and violations
+    iso_mapping:
+      - "ISO/IEC 27001:2022 Annex A.8.24 - Use of privileged utility programs"
+      - "ISO/IEC 27005 - Information security risk management"
+
+  - id: fail_closed
+    name: Fail-Closed Principle
+    description: >
+      When any security component fails or is unreachable, the default behavior
+      MUST be DENY. Silent failure or fail-open is strictly prohibited.
+    rules:
+      - condition: Policy Engine unreachable
+        response: DENY ALL
+        exception: Read-only operations with no side effects may be allowed at operator discretion
+      - condition: Risk Scoring computation fails
+        response: REQUIRE_HITL (conservative escalation)
+        rationale: Unknown risk must be treated as high risk
+      - condition: Signature verification fails
+        response: DENY ALL
+        rationale: Tampered or corrupted verdict cannot be trusted
+      - condition: Any unknown/unhandled error
+        response: DENY
+        rationale: Unknown state must default to safe state
+    anti_patterns:
+      - name: Fail-Open
+        description: Defaulting to ALLOW when an error occurs
+        severity: CRITICAL
+      - name: Partial Validation Continue
+        description: Continuing execution after a partial validation failure
+        severity: HIGH
+      - name: Silent Error Swallowing
+        description: Catching errors without changing the decision to DENY
+        severity: HIGH
+    iso_mapping:
+      - "NIST SP 800-207 Zero Trust Architecture - Section 2.1"
+      - "ISO/IEC 27001:2022 A.8.22 - Filtering of web services"
+
+  - id: audit_chain
+    name: Tamper-Evident Audit Chain
+    description: >
+      All security decisions must be recorded in a verifiable, append-only,
+      tamper-evident audit trail using cryptographic hash chaining.
+    required_fields:
+      - field: request_id
+        type: string (UUID v4)
+        description: Unique identifier for each decision event
+      - field: decision
+        type: enum (ALLOW | ALLOW_WITH_MONITORING | REQUIRE_HITL | DENY)
+        description: Final security verdict
+      - field: risk_score
+        type: number (0-100)
+        description: Computed SOBR risk score
+      - field: timestamp
+        type: ISO 8601 UTC
+        description: Decision timestamp with millisecond precision
+      - field: violations
+        type: string[]
+        description: List of policy violations (empty if ALLOW)
+      - field: signature
+        type: base64-encoded Ed25519 signature
+        description: Cryptographic signature over core fields
+      - field: prev_hash
+        type: SHA-256 hex string
+        description: Hash of the previous audit record (chain link)
+    hash_chain:
+      algorithm: SHA-256
+      chain_field: prev_hash
+      genesis_value: "0000000000000000000000000000000000000000000000000000000000000000"
+      verification: Implement verify_chain() to detect any record tampering
+    signature:
+      algorithm: Ed25519
+      signed_payload: "{request_id}:{decision}:{risk_score}:{timestamp}"
+      note: Use asymmetric cryptography; never symmetric HMAC for audit signatures
+    storage_levels:
+      - level: 0
+        name: Minimum
+        storage: Local append-only file
+        note: Acceptable for dev/test only
+      - level: 1
+        name: Recommended
+        storage: WORM storage (S3 Object Lock / Azure Immutable Blob)
+        note: Required for production
+      - level: 2
+        name: Maximum
+        storage: Immutable cloud storage + remote attestation
+        note: Required for regulated environments (SOC2, ISO 27001 certified)
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.15 - Logging"
+      - "ISO/IEC 27001:2022 A.5.33 - Protection of records"
+
+  - id: hitl_escalation
+    name: Human-in-the-Loop (HITL) Escalation
+    description: >
+      When Risk Score falls in the 51-75 range (REQUIRE_HITL), a defined
+      human review escalation mechanism must be triggered.
+    modes:
+      - mode: non_blocking
+        description: Send notification but allow execution to continue under enhanced monitoring
+        when_to_use: Lower-risk HITL scenarios (score 51-62), non-critical operations
+      - mode: blocking
+        description: Pause execution and wait for explicit human approval
+        when_to_use: Higher-risk HITL scenarios (score 63-75), sensitive environments
+    requirements:
+      - TTL: HITL review requests must expire (recommended 1800 seconds)
+      - on_ttl_expire: Escalate decision to DENY
+      - audit: HITL trigger event and resolution must be logged in audit chain
+      - notification_interface: Webhook (canonical); adapters for Slack, Teams, PagerDuty
+    notification_payload:
+      fields:
+        - request_id
+        - risk_score
+        - operation_summary
+        - policy_violations
+        - expires_at
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.2 - Privileged access rights"
+      - "NIST SP 800-53 AC-2 - Account Management"
+
+  - id: prompt_injection_defense
+    name: Prompt Injection Defense
+    description: >
+      AI Agent systems must detect and block prompt injection attacks that attempt
+      to override security controls through malicious user input.
+    detection_patterns:
+      override_commands:
+        - "ignore previous instructions"
+        - "disregard your programming"
+        - "override your instructions"
+        - "forget what you were told"
+      role_manipulation:
+        - "you are now"
+        - "act as"
+        - "pretend you are"
+        - "DAN"
+        - "jailbreak"
+      system_token_injection:
+        - "[SYSTEM]"
+        - "[INST]"
+        - "<|system|>"
+        - "<<SYS>>"
+      instruction_prefix:
+        - "New instruction:"
+        - "Updated system prompt:"
+        - "OVERRIDE:"
+    response:
+      on_detection: DENY
+      violation_code: PROMPT_INJECTION_DETECTED
+      audit: Record detected pattern and original input hash in audit chain
+      note: >
+        Do not log raw malicious input; log the detected pattern type and
+        a hash of the input to avoid storing adversarial content in logs.
+    pipeline_integration:
+      intercept_at: M1 Intake layer (earliest possible stage)
+      rationale: Reject before entering evaluation pipeline to reduce attack surface
+    maintenance:
+      - Review and update detection patterns monthly
+      - Subscribe to OWASP LLM Working Group updates
+    iso_mapping:
+      - "OWASP LLM Top 10 2025 - LLM01: Prompt Injection"
+      - "ISO/IEC 27001:2022 A.8.24 - Use of privileged utility programs"
+
+# ─────────────────────────────────────────────────────────
+# Quality Gates
+# ─────────────────────────────────────────────────────────
+quality_gates:
+  agent_operation_checklist:
+    description: AI Agent operations MUST pass all gates before execution
+    gates:
+      - id: policy_engine_check
+        check: Policy Engine returns ALLOW (not DENY)
+        on_fail: Reject immediately; log violations
+        required: true
+      - id: risk_score_check
+        check: Risk Score < 76
+        on_fail: Reject; log decision path
+        required: true
+      - id: hitl_check
+        check: If Risk Score 51-75, HITL notification sent (blocking or non-blocking per mode)
+        on_fail: Reject if blocking mode timeout; continue with monitoring if non-blocking
+        required: true
+      - id: prompt_injection_check
+        check: No prompt injection pattern detected in input
+        on_fail: Reject; log PROMPT_INJECTION_DETECTED
+        required: true
+      - id: verdict_signature_check
+        check: Verdict carries valid cryptographic signature
+        on_fail: Reject; log SIGNATURE_INVALID
+        required: true
+      - id: audit_chain_check
+        check: Decision recorded in audit chain with prev_hash linked
+        on_fail: Log failure; decision still applied but alert raised
+        required: true
+
+# ─────────────────────────────────────────────────────────
+# Rules
+# ─────────────────────────────────────────────────────────
+rules:
+  - id: veto-over-vote
+    trigger: implementing security decision logic for AI agents
+    instruction: >
+      Use Veto-based pipeline (any DENY terminates). Never use voting/consensus
+      across security layers.
+    priority: required
+
+  - id: fail-closed-default
+    trigger: handling errors in security components
+    instruction: >
+      Default to DENY on any failure. Document explicit exceptions (e.g., read-only
+      fallback) with justification in code comments.
+    priority: required
+
+  - id: sobr-score-before-execution
+    trigger: AI agent requesting an operation
+    instruction: >
+      Compute SOBR risk score before executing any operation. Route based on
+      thresholds: <26 ALLOW, 26-50 ALLOW_WITH_MONITORING, 51-75 HITL, >=76 DENY.
+    priority: required
+
+  - id: audit-every-decision
+    trigger: any security verdict (ALLOW or DENY)
+    instruction: >
+      Record all decisions in audit chain regardless of outcome. ALLOW decisions
+      are auditable too—do not only log denials.
+    priority: required
+
+  - id: prompt-injection-earliest
+    trigger: receiving user input in AI agent pipeline
+    instruction: >
+      Scan for prompt injection at M1 Intake, before any semantic evaluation.
+      Do not allow suspicious input to reach the LLM reasoning layer.
+    priority: required
+
+anti_patterns:
+  - Defaulting to ALLOW when policy engine is unreachable (fail-open)
+  - Using LLM confidence score as the sole security gate
+  - Skipping audit chain for "low-risk" operations
+  - Storing raw malicious prompt injection content in logs
+  - Using HMAC instead of asymmetric signatures for audit records
+  - Setting HITL TTL to infinity (must have an expiry)
+  - Treating Risk Score as advisory rather than binding
+
+quick_reference:
+  secure_op_minimum_baseline: |
+    □ Policy Engine configured and reachable (fail-closed on unavailability)
+    □ SOBR Risk Score computed for every operation
+    □ HITL mechanism implemented for score 51-75 range
+    □ Prompt injection detection active at intake layer
+    □ All decisions recorded in hash-chained audit log with signatures
+    □ Audit log stored in append-only / WORM storage in production

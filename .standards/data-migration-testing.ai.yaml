@@ -1,0 +1,96 @@
+# Data Migration Testing Standards - AI Optimized
+# Source: core/data-migration-testing.md
+
+id: data-migration-testing
+meta:
+  version: "1.0.0"
+  updated: "2026-05-05"
+  source: core/data-migration-testing.md
+  description: Database migration up/down/idempotency testing standards for schema changes
+
+requirements:
+  REQ-1:
+    id: REQ-DMT-001
+    title: Up Migration Test
+    rule: >
+      Every schema migration MUST have an automated test that applies it to a clean
+      baseline schema and verifies the expected post-state (table names, columns,
+      indexes, constraints).
+    rationale: >
+      Unverified migrations silently corrupt production schema; up tests catch
+      incompatible changes before deployment.
+
+  REQ-2:
+    id: REQ-DMT-002
+    title: Down Migration (Rollback) Test
+    rule: >
+      Every migration that has a down/rollback function MUST have a test that
+      applies up, then down, and verifies the schema returns to its exact pre-state.
+      Zero data loss is the acceptance criterion.
+    rationale: >
+      Rollback is only reliable if it is tested; untested rollbacks fail at the worst
+      possible moment — during a production incident.
+
+  REQ-3:
+    id: REQ-DMT-003
+    title: Idempotency Test
+    rule: >
+      Migration runners MUST be tested to ensure applying the same migration twice
+      does not fail or cause side effects (e.g., duplicate columns, duplicate indexes).
+    rationale: >
+      CI retries and operator mistakes can trigger double-apply; idempotent migrations
+      prevent partial state corruption.
+
+  REQ-4:
+    id: REQ-DMT-004
+    title: Data Preservation Test
+    rule: >
+      Migrations that ALTER or DROP columns MUST include a test that seeds representative
+      data before the migration and verifies data integrity or expected transformation
+      after the migration.
+    rationale: >
+      Schema correctness does not imply data correctness; a column rename can silently
+      null-out existing data if the migration omits a data transform step.
+
+  REQ-5:
+    id: REQ-DMT-005
+    title: Migration History Integrity
+    rule: >
+      The migration runner's applied-migrations table/ledger MUST be validated:
+      each test run uses an isolated in-memory or temporary database so migrations
+      do not interfere with each other or with production state.
+    rationale: >
+      Shared migration state between tests causes non-deterministic failures that are
+      extremely difficult to diagnose.
+
+test_structure:
+  isolation: "Each migration test MUST run against an isolated in-memory or temp DB"
+  baseline: "Start from the schema state immediately before the migration under test"
+  assertions:
+    up: "Assert table/column/index existence and types"
+    down: "Assert schema returns to pre-migration state"
+    idempotency: "Apply migration twice; second apply must succeed without error"
+    data: "Seed rows before migration; assert row count and values after"
+
+tooling_guidance:
+  sqlite: "Use ':memory:' DSN; apply migrations via ORM migrate() or raw SQL"
+  postgres: "Use pgmock or test containers; run migrate up/down in a transaction"
+  drizzle_orm: >
+    Call db.run(sql`...`) with raw DDL, or use drizzle-kit's migrate() function
+    against a fresh :memory: SQLite database for each test file.
+
+anti_patterns:
+  - description: >
+      Testing migrations against a shared development database — causes cross-test
+      pollution and non-repeatable results.
+  - description: >
+      Skipping down migration tests because "we never rollback" — rollbacks happen
+      during incidents; the worst time to discover they are broken.
+  - description: >
+      Writing migration tests after the fact without seeding data — misses the
+      data preservation class of bugs entirely.
+
+related_standards:
+  - testing
+  - database-standards
+  - verification-evidence

@@ -1,0 +1,331 @@
+# Container Security Standard - AI Optimized
+# Source: core/container-security.md
+
+id: container-security
+meta:
+  version: "1.0.0"
+  updated: "2026-05-04"
+  source: core/container-security.md
+  description: >
+    Container and Kubernetes security covering image hardening, registry security,
+    runtime protection, secrets management, network policy, and supply chain
+    integrity for AI Agent production environments.
+
+# ─────────────────────────────────────────────────────────
+# Core Categories
+# ─────────────────────────────────────────────────────────
+categories:
+  - id: image_hardening
+    name: Image Hardening
+    description: Container images must be minimal, non-root, and built with multi-stage patterns
+    base_image:
+      preferred:
+        - distroless (gcr.io/distroless/*)
+        - alpine (< 10 MB)
+      prohibited:
+        - ubuntu/debian as final layer with full package manager
+        - latest tag on base image
+    dockerfile_rules:
+      - rule: Use multi-stage build; only copy artifacts to final stage
+      - rule: Final stage must set non-root USER (UID 1000)
+      - rule: No RUN apt-get / apk add in final layer (use builder stage only)
+      - rule: Only COPY specific files; never COPY . . in final stage
+      - rule: Pin base image by digest, not tag
+    security_context_k8s:
+      required:
+        - runAsNonRoot: true
+        - runAsUser: 1000
+        - allowPrivilegeEscalation: false
+        - readOnlyRootFilesystem: true
+      seccomp:
+        profile: RuntimeDefault
+      capabilities:
+        drop: [ALL]
+        add: explicit allowlist only (e.g., NET_BIND_SERVICE if needed)
+    ai_agent_specific:
+      - rule: AI Agent container must run as UID 1000 (non-root)
+      - rule: LLM call process must not have CAP_NET_RAW or CAP_SYS_ADMIN
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.9 Configuration Management"
+      - "NIST SP 800-190 §4.1 Image Vulnerabilities"
+      - "CIS Docker Benchmark v1.6 §4 Container Images"
+
+  - id: registry_security
+    name: Registry Security
+    description: All container images must be stored in private registries with signing and vulnerability scanning
+    registry:
+      type: private (GHCR, ECR, GCR, Harbor)
+      public_registry: prohibited for production images
+    tagging:
+      immutable_tag: required (semver or git SHA)
+      latest_tag: prohibited in production deployments
+      pinned_digest: required for supply chain integrity
+    signing:
+      tools: [Cosign, Notary v2]
+      policy: All production images must be signed before push
+      verification: Admission controller (Kyverno/Gatekeeper) verifies signature on deploy
+    vulnerability_scan:
+      tool: Trivy
+      gate:
+        critical: 0 (block push if any critical CVE)
+        high: 0 (block push if any high CVE)
+      frequency: On every build + weekly re-scan of deployed images
+      editions:
+        trial: Trivy gate mandatory
+        community: Trivy gate mandatory
+        commercial: Trivy gate mandatory
+    ai_agent_specific:
+      - rule: Guardian OPA Sidecar image must also pass Trivy gate
+      - rule: Trial/Community edition images enforce Trivy gate to avoid supply chain compromise
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.8 Management of Technical Vulnerabilities"
+      - "NIST SP 800-190 §4.2 Image Configuration Defects"
+      - "CIS Docker Benchmark v1.6 §2 Docker daemon configuration"
+
+  - id: runtime_security
+    name: Runtime Security
+    description: Running containers must have minimal capabilities and access; privileged mode is prohibited
+    prohibitions:
+      - privileged: true in securityContext
+      - hostNetwork: true (unless explicitly required and documented)
+      - hostPID: true
+      - hostIPC: true
+    required_settings:
+      - readOnlyRootFilesystem: true
+      - allowPrivilegeEscalation: false
+      - drop: [ALL] capabilities
+    seccomp:
+      profile: RuntimeDefault (or custom restricted profile)
+      audit_mode: allowed for profiling only; not for production
+    apparmor_selinux:
+      apparmor: docker-default (Kubernetes annotation)
+      selinux: enforcing mode on RHEL/CentOS hosts
+    writable_volumes:
+      pattern: Mount named volumes or PersistentVolumeClaims for writable data
+      tmpfs: allowed for /tmp when truly ephemeral
+    ai_agent_specific:
+      - rule: Audit log volume must be readOnly:false but backed by append-only partition
+      - rule: Agent working directory may use emptyDir; audit log must not
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.9 Configuration Management"
+      - "NIST SP 800-190 §4.3 Container Runtime Vulnerabilities"
+      - "CIS Docker Benchmark v1.6 §5 Container Runtime"
+
+  - id: secrets_management
+    name: Secrets Management
+    description: Secrets must never be embedded in images or passed via environment variables from plain text
+    prohibited:
+      - Hardcoded secrets in Dockerfile (ENV SECRET=...)
+      - Secrets in docker-compose.yml env: section as plain text
+      - ConfigMap storing sensitive values in K8s
+      - Git-tracked .env files containing real credentials
+    allowed:
+      staging:
+        - K8s Secrets (base64) + RBAC restriction
+        - Sealed Secrets (Bitnami) for GitOps
+      production:
+        - HashiCorp Vault (dynamic secrets)
+        - AWS Secrets Manager / GCP Secret Manager
+        - Azure Key Vault
+    injection_patterns:
+      - pattern: Mounted volume (/run/secrets/)
+        preferred: true
+      - pattern: Init container fetches secret and writes to shared emptyDir
+        acceptable: true
+      - pattern: Environment variable from K8s Secret reference
+        acceptable: true (better than plain text, but volume preferred)
+    ai_agent_specific:
+      - rule: LLM API keys must be injected via mounted secret volume, not ENV
+      - rule: Guardian OPA policy files are not secrets; use ConfigMap
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.12 Data Leakage Prevention"
+      - "ISO/IEC 27001:2022 A.8.24 Use of Cryptography"
+      - "NIST SP 800-190 §4.4 Container Image and Registry Vulnerabilities"
+
+  - id: network_policy
+    name: Network Policy
+    description: K8s NetworkPolicy must default-deny; only necessary ingress/egress is permitted
+    default_policy:
+      ingress: deny-all (explicit allow per service)
+      egress: deny-all (explicit allow per service)
+    required_allow:
+      dns: "kube-dns (UDP/TCP 53) must be allowed for all pods"
+      health_checks: "kubelet health check endpoints"
+    ai_agent_outbound_allowlist:
+      - host: api.anthropic.com
+        port: 443
+        protocol: HTTPS
+      - host: api.openai.com
+        port: 443
+        protocol: HTTPS
+      - host: "bedrock.*.amazonaws.com"
+        port: 443
+        protocol: HTTPS
+      - host: registry.npmjs.org
+        port: 443
+        protocol: HTTPS
+        note: Only during build phase; not at runtime
+    guardian_sidecar:
+      placement:
+        - same Pod as AI Agent (sidecar container)
+        - same K8s namespace minimum
+      communication: localhost (sidecar) or ClusterIP service (same namespace)
+    tools:
+      policy_enforcement: [Calico, Cilium, Kubernetes NetworkPolicy]
+      validation: [kubectl describe networkpolicy, Kyverno policy report]
+    ai_agent_specific:
+      - rule: AI Agent pod egress must be restricted to outbound allowlist
+      - rule: Guardian OPA Sidecar must be same Pod or same namespace
+      - rule: Any new LLM provider endpoint must be added to allowlist and reviewed
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.20 Networks Security"
+      - "ISO/IEC 27001:2022 A.8.22 Web Filtering"
+      - "CIS Kubernetes Benchmark v1.8 §5.3 Network Policies and CNI"
+
+  - id: supply_chain
+    name: Supply Chain Security
+    description: Container build process must be reproducible, auditable, and signed
+    sbom:
+      formats: [CycloneDX, SPDX]
+      generation:
+        tool: Syft or trivy sbom
+        trigger: Every image build
+        storage: Attached to registry as OCI artifact
+    image_pinning:
+      rule: All FROM directives must use digest (sha256:...), not floating tag
+      example: "FROM gcr.io/distroless/static-debian12@sha256:<digest>"
+    signing:
+      tool: Sigstore (keyless signing via GitHub Actions OIDC)
+      verification: Cosign verify --certificate-identity-regexp
+    reproducible_build:
+      - Set SOURCE_DATE_EPOCH for deterministic timestamps
+      - Use --no-cache in CI; never rely on layer cache across builds
+    lockfile_verification:
+      nodejs:
+        file: package-lock.json or yarn.lock
+        command: "npm ci (not npm install)"
+      python:
+        file: requirements.txt with pinned versions or Pipfile.lock
+        command: "pip install --require-hashes -r requirements.txt"
+      golang:
+        file: go.sum
+        command: "go mod verify"
+    ai_agent_specific:
+      - rule: SBOM must be generated for every AI Agent image release
+      - rule: Third-party AI SDK (anthropic, openai) versions must be pinned in lockfile
+    iso_mapping:
+      - "ISO/IEC 27001:2022 A.8.8 Management of Technical Vulnerabilities"
+      - "NIST SP 800-190 §4.5 Host OS Vulnerabilities"
+      - "SLSA Framework Level 2+ (provenance attestation)"
+
+# ─────────────────────────────────────────────────────────
+# Quality Gates
+# ─────────────────────────────────────────────────────────
+quality_gates:
+  pre_build:
+    - base_image_pinned_by_digest: required
+    - multi_stage_build: required
+    - no_secrets_in_dockerfile: required
+  pre_push:
+    - trivy_critical_count: 0
+    - trivy_high_count: 0
+    - image_signed: required (cosign or notary)
+    - sbom_generated: required
+  pre_deploy:
+    - image_tag_immutable: required (no 'latest')
+    - k8s_security_context:
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+    - network_policy_applied: required
+    - secrets_from_vault_or_k8s_secret: required
+  ai_agent_specific:
+    - agent_uid: 1000
+    - guardian_sidecar: same_pod_or_namespace
+    - outbound_allowlist: configured
+    - audit_log_volume: append_only_partition
+
+# ─────────────────────────────────────────────────────────
+# Rules
+# ─────────────────────────────────────────────────────────
+rules:
+  - id: non-root-container
+    trigger: writing any Dockerfile or K8s Pod spec
+    instruction: >
+      Set USER 1000 in Dockerfile final stage.
+      Set runAsNonRoot: true and runAsUser: 1000 in securityContext.
+      Verify: docker inspect --format='{{.Config.User}}' <image>
+    priority: required
+
+  - id: no-latest-tag
+    trigger: tagging or pulling container images
+    instruction: >
+      Never use 'latest' tag in production. Use semver (v1.2.3) or git SHA.
+      For base images, pin by digest: FROM image@sha256:<digest>
+    priority: required
+
+  - id: trivy-gate-before-push
+    trigger: building container image for any environment
+    instruction: >
+      Run: trivy image --exit-code 1 --severity CRITICAL,HIGH <image>
+      Block push if exit code is non-zero. Fix all critical/high CVEs first.
+    priority: required
+
+  - id: drop-all-capabilities
+    trigger: writing K8s Pod or Deployment spec
+    instruction: >
+      Set capabilities.drop: [ALL] in securityContext.
+      Only add specific capabilities if explicitly required (document justification).
+    priority: required
+
+  - id: default-deny-network-policy
+    trigger: deploying any service to Kubernetes
+    instruction: >
+      Apply default-deny NetworkPolicy to namespace before deploying services.
+      Then add explicit allow policies per service communication requirement.
+    priority: required
+
+  - id: no-env-secrets
+    trigger: any Dockerfile ENV or K8s env[] with sensitive values
+    instruction: >
+      Never pass secrets via ENV. Use K8s Secret + volume mount or Vault agent injector.
+      Check: grep -r "ENV.*KEY\|ENV.*SECRET\|ENV.*TOKEN" Dockerfile
+    priority: required
+
+  - id: sign-and-sbom
+    trigger: releasing container image to production
+    instruction: >
+      Generate SBOM: syft <image> -o cyclonedx-json > sbom.json
+      Sign image: cosign sign <image>@<digest>
+      Attach SBOM: cosign attach sbom --sbom sbom.json <image>@<digest>
+    priority: required
+
+anti_patterns:
+  - FROM ubuntu:latest (floating tag, large attack surface)
+  - RUN apt-get update && apt-get install in final Dockerfile stage
+  - Running container as root (USER root or no USER directive)
+  - ENV API_KEY=<real_key> in Dockerfile
+  - privileged: true in K8s securityContext
+  - No NetworkPolicy (allow all egress by default)
+  - Skipping Trivy scan on "quick" builds
+  - Using 'latest' image tag in Kubernetes Deployment
+  - SBOM not generated for production releases
+
+quick_reference:
+  container_security_checklist: |
+    □ Base image pinned by digest (not tag)
+    □ Multi-stage build; only COPY artifacts to final stage
+    □ Final stage: USER 1000 (non-root)
+    □ securityContext: runAsNonRoot, readOnlyRootFilesystem, allowPrivilegeEscalation:false
+    □ capabilities.drop: [ALL]
+    □ seccompProfile: RuntimeDefault
+    □ Trivy scan: 0 critical, 0 high before push
+    □ Image signed (Cosign / Notary v2)
+    □ SBOM generated (CycloneDX or SPDX)
+    □ No secrets in Dockerfile ENV or image layers
+    □ K8s Secrets or Vault for secret injection
+    □ NetworkPolicy: default-deny + explicit allow
+    □ AI Agent egress: allowlist (Anthropic, OpenAI, Bedrock)
+    □ Guardian OPA Sidecar: same Pod or same namespace
+    □ Audit log volume: append-only partition (not emptyDir)
+    □ Lockfile pinned (npm ci / pip --require-hashes / go mod verify)

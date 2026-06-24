@@ -1,0 +1,94 @@
+# SPDX-License-Identifier: MIT
+name: Prompt Regression Standards
+nameZh: Prompt 回歸測試標準
+id: prompt-regression
+version: "1.0.0"
+category: testing
+scope: ai-agent-systems
+summary: >
+  Prevent unintended prompt changes from silently degrading AI agent behaviour.
+  Golden checksum tests detect modifications; snapshot diff confirms intent.
+
+requirements:
+  - id: REQ-01
+    title: Prompt Versioning
+    titleZh: Prompt 版本化
+    level: MUST
+    description: >
+      Every AI agent MUST have a versioned prompt file (e.g. prompt.md with
+      frontmatter `version: "x.y.z"`). Changes require explicit version bump.
+
+  - id: REQ-02
+    title: Golden Checksum Test
+    titleZh: 黃金校驗和測試
+    level: MUST
+    description: >
+      A CI-enforced checksum test MUST store the SHA-256 hash of each agent's
+      prompt file. A mismatch fails the build and requires updating the golden
+      value with a comment confirming intent ("intentional change for X").
+    implementation: |
+      const GOLDEN = { "planner": "abc123...", ... }
+      it("prompt has not changed unexpectedly", () => {
+        const actual = sha256(readFileSync("agents/planner/prompt.md"))
+        expect(actual).toBe(GOLDEN["planner"])
+      })
+
+  - id: REQ-03
+    title: Snapshot Diff
+    titleZh: 快照差異比對
+    level: SHOULD
+    description: >
+      On CI failure, the system SHOULD output a unified diff between the
+      recorded snapshot and current prompt content to aid review.
+
+  - id: REQ-04
+    title: Change Review Gate
+    titleZh: 變更審查閘門
+    level: MUST
+    description: >
+      Prompt changes MUST be reviewed as code changes. Checksum updates require
+      a comment in the test file explaining why the prompt changed (e.g.
+      "Updated system role to include new Guardian policy reference XSPEC-160").
+
+  - id: REQ-05
+    title: Coverage
+    titleZh: 覆蓋範圍
+    level: MUST
+    description: >
+      The golden checksum test MUST cover ALL production agent prompt files.
+      New agents added to the system MUST be added to the test within the same
+      PR that introduces the agent.
+
+examples:
+  - name: "SHA-256 checksum test in Vitest"
+    code: |
+      import { createHash } from "crypto"
+      import { readFileSync } from "fs"
+      import { describe, it, expect } from "vitest"
+
+      const GOLDEN_CHECKSUMS: Record<string, string> = {
+        planner: "dd0d086d...",
+        guardian: "f56555...",
+      }
+
+      describe("Agent prompt regression", () => {
+        for (const [agent, expected] of Object.entries(GOLDEN_CHECKSUMS)) {
+          it(`agents/${agent}/prompt.md has not changed unexpectedly`, () => {
+            const content = readFileSync(`agents/${agent}/prompt.md`)
+            const actual = createHash("sha256").update(content).digest("hex")
+            expect(actual).toBe(expected)
+          })
+        }
+      })
+
+anti_patterns:
+  - description: >
+      Skipping checksums for "stable" agents — all prompts require regression
+      coverage regardless of perceived stability.
+  - description: >
+      Updating checksums in bulk without per-agent comments explaining intent.
+
+related_standards:
+  - llm-output-validation
+  - adversarial-test
+  - testing

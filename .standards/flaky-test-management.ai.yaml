@@ -1,0 +1,89 @@
+# SPDX-License-Identifier: MIT
+name: Flaky Test Management Standards
+nameZh: 不穩定測試管理標準
+id: flaky-test-management
+version: "1.0.0"
+category: testing
+scope: test-reliability
+summary: >
+  Policies and tooling for detecting, quarantining, and eliminating flaky
+  tests. Flaky tests erode CI confidence, cause false failures, and mask
+  real bugs.
+
+requirements:
+  - id: REQ-01
+    title: Flaky Test Definition
+    titleZh: 不穩定測試定義
+    level: MUST
+    description: >
+      A test is considered flaky if it produces different results (pass/fail)
+      on consecutive runs with the same code. Teams MUST define a flakiness
+      threshold: a test that fails ≥ 2% of runs on main branch without code
+      changes is flaky.
+
+  - id: REQ-02
+    title: Quarantine Protocol
+    titleZh: 隔離協議
+    level: MUST
+    description: >
+      Flaky tests MUST be quarantined within 48 hours of detection by:
+      (1) adding a `.skip` or `.todo` annotation, (2) opening a tracking
+      issue, (3) adding a comment with the issue link and known failure mode.
+      Quarantined tests MUST NOT block CI merges.
+
+  - id: REQ-03
+    title: Retry Policy
+    titleZh: 重試策略
+    level: SHOULD
+    description: >
+      CI SHOULD allow a maximum of 2 retries for tests in the quarantine list.
+      Retries SHOULD be applied only to known-flaky tests, not the entire suite.
+      A test that passes after retry is still considered flaky and MUST be fixed.
+
+  - id: REQ-04
+    title: Flaky Test Elimination SLA
+    titleZh: 修復 SLA
+    level: MUST
+    description: >
+      Quarantined tests MUST be either fixed or permanently removed within
+      30 days of quarantine. Tests left quarantined for > 30 days with no
+      activity SHOULD be automatically deleted.
+
+  - id: REQ-05
+    title: Root Cause Categories
+    titleZh: 根因分類
+    level: SHOULD
+    description: >
+      When eliminating a flaky test, the root cause SHOULD be documented in
+      the fixing PR. Common root causes: timing/race conditions, test isolation
+      failures (shared state), external service dependencies, random seed
+      dependence, file system ordering.
+
+examples:
+  - name: "Quarantine annotation (Vitest)"
+    code: |
+      // TODO: flaky test quarantined 2026-05-05 — see issue #42
+      // Root cause: race condition in WebSocket reconnection
+      it.skip("reconnects after disconnect", async () => { ... })
+
+  - name: "Vitest retry config for known flaky tests"
+    code: |
+      // vitest.config.ts
+      export default defineConfig({
+        test: {
+          retry: 2,  // global retry for all tests
+        }
+      })
+
+anti_patterns:
+  - description: >
+      Allowing flaky tests to block CI without quarantine — developers learn
+      to ignore CI failures, which hides real bugs.
+  - description: >
+      Using arbitrary sleeps (setTimeout/sleep) to fix race conditions —
+      this makes tests slower and more fragile. Use proper async coordination.
+
+related_standards:
+  - testing
+  - test-governance
+  - ci-cd-standards

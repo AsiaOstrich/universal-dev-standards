@@ -1,0 +1,227 @@
+# Policy as Code Testing Standards - AI Optimized
+# Source: core/policy-as-code-testing.md
+
+id: policy-as-code-testing
+meta:
+  version: "1.0.0"
+  updated: "2026-05-05"
+  source: core/policy-as-code-testing.md
+  description: >
+    Standards for unit testing Open Policy Agent (OPA) Rego policies and
+    other Policy as Code (PaC) engines. Ensures that AI agent authorization
+    policies are tested with the same rigor as application code.
+
+# ─────────────────────────────────────────────────────────
+# Core Concepts
+# ─────────────────────────────────────────────────────────
+core_concepts:
+  definition: >
+    Policy as Code (PaC) means security and authorization policies are expressed
+    as code (Rego, Cedar, CEL) rather than manual configuration. This enables
+    version control, code review, and automated testing of policies.
+
+  opa_test_framework:
+    overview: >
+      OPA's built-in test framework allows unit testing Rego policies with
+      `opa test`. Tests are Rego rules with names prefixed by `test_`.
+      Tests pass if they evaluate to `true`, fail if `false` or undefined.
+    run_command: "opa test <policy_directory> -v"
+    file_convention: "<policy_name>_test.rego in the same directory as the policy"
+
+  why_test_policies:
+    - reason: Policies encode security decisions — untested policies create silent security holes
+    - reason: Policy logic can have edge cases (reversible vs. irreversible, env-specific rules)
+    - reason: Policy changes must be validated against both allowed and denied cases
+    - reason: OPA Rego syntax errors are only caught at runtime without tests
+
+# ─────────────────────────────────────────────────────────
+# OPA Rego Test Structure
+# ─────────────────────────────────────────────────────────
+rego_test_structure:
+  file_naming: "<policy_module>_test.rego"
+  package_naming: "<policy_package>_test"
+
+  test_rule_format: |
+    # Each test is a Rego rule with `test_` prefix
+    # Test passes if rule body evaluates to true
+    test_<description> if {
+        <rule_under_test> with input as { <test_input> }
+    }
+
+    # Negative test (assert rule does NOT fire)
+    test_<description>_is_not_violated if {
+        not <rule_under_test> with input as { <test_input> }
+    }
+
+  required_test_categories:
+    - category: ALLOW cases
+      description: Inputs that must NOT trigger the policy violation
+      minimum: 2
+      example: |
+        test_safe_select_is_allowed if {
+            not data.my_pkg.has_violation with input as {
+                "plan": [{"command_type": "sql", "command": "SELECT * FROM t"}]
+            }
+        }
+
+    - category: DENY cases
+      description: Inputs that MUST trigger the policy violation
+      minimum: 3
+      example: |
+        test_drop_database_is_forbidden if {
+            data.my_pkg.has_forbidden_pattern with input as {
+                "plan": [{"command_type": "sql", "command": "DROP DATABASE prod"}]
+            }
+        }
+
+    - category: Boundary cases
+      description: Edge cases at the boundary of the policy condition
+      minimum: 1
+      example: |
+        # reversible=false triggers but reversible=true does not
+        test_irreversible_triggers if {
+            data.my_pkg.prod_violation with input as {
+                "target_env": "prod",
+                "plan": [{"reversible": false, "command": "DELETE FROM users"}]
+            }
+        }
+        test_reversible_does_not_trigger if {
+            not data.my_pkg.prod_violation with input as {
+                "target_env": "prod",
+                "plan": [{"reversible": true, "command": "SELECT * FROM users"}]
+            }
+        }
+
+    - category: Integration test (main policy)
+      description: Test the full policy chain via the main/root package
+      minimum: 2
+
+# ─────────────────────────────────────────────────────────
+# Policy Module Design Rules
+# ─────────────────────────────────────────────────────────
+policy_design_rules:
+  - rule: fail_closed_default
+    description: >
+      The root policy package MUST have `default allow = false`.
+      Any evaluation error or undefined result should deny, not allow.
+    example: |
+      default allow = false
+      allow if {
+          not data.my_pkg.forbidden.has_violation
+          not data.my_pkg.env.prod_violation
+      }
+
+  - rule: no_free_text_in_security_decisions
+    description: >
+      Policy rules MUST NOT parse user-controlled free-text fields (intent,
+      description, annotations) for security decisions. Only structured,
+      typed fields (command_type, reversible, target_env) should drive policy.
+    rationale: Free-text parsing creates prompt injection attack surface (OWASP LLM01)
+
+  - rule: set_not_array_for_violations
+    description: >
+      Use partial set rules (`violations[reason] if {...}`) to aggregate
+      violation reasons, not array rules. Arrays cannot be used with partial rules.
+    example: |
+      # CORRECT: partial set rule
+      violations[reason] if {
+          has_violation
+          reason := "VIOLATION_TYPE"
+      }
+      # INCORRECT: array.concat on sets causes type errors in OPA ≥ 0.40
+      # deny_reasons := array.concat(violations1, violations2)  ← DO NOT USE
+
+  - rule: module_per_concern
+    description: >
+      Each policy concern should be a separate Rego module (file).
+      E.g., forbidden_patterns.rego / env_policy.rego / risk_gate.rego.
+      Main.rego aggregates all modules via data references.
+    benefit: Enables per-module testing and cleaner separation of concerns
+
+# ─────────────────────────────────────────────────────────
+# CI Integration
+# ─────────────────────────────────────────────────────────
+ci_integration:
+  github_actions_step: |
+    - name: Test OPA Rego Policies
+      run: |
+        docker run --rm \
+          -v "${{ github.workspace }}/src/guardian/policies:/policies:ro" \
+          openpolicyagent/opa:latest-static \
+          test /policies -v
+
+  npm_script: |
+    "test:policy": "docker run --rm -v \"$(pwd)/src/guardian/policies:/policies:ro\" openpolicyagent/opa:latest-static test /policies -v"
+
+  local_opa_binary: |
+    # If OPA binary is installed:
+    opa test src/guardian/policies/ -v
+
+# ─────────────────────────────────────────────────────────
+# Quality Gates
+# ─────────────────────────────────────────────────────────
+quality_gates:
+  - gate: OPA policy tests (CI)
+    threshold: "100% of Rego tests pass"
+    enforcement: Block merge
+    automated: true
+    note: Run via `opa test` on every PR that touches *.rego files
+
+  - gate: Policy coverage
+    threshold: "Each policy module has ≥ 2 ALLOW + ≥ 3 DENY test cases"
+    enforcement: Advisory (reviewer checklist)
+
+  - gate: Integration tests
+    threshold: "Root policy (main.rego) has tests for both allow and deny paths"
+    enforcement: Block merge
+
+# ─────────────────────────────────────────────────────────
+# Rules
+# ─────────────────────────────────────────────────────────
+rules:
+  - id: rego-unit-test-per-module
+    trigger: creating or modifying a Rego policy module
+    instruction: >
+      Every Rego module MUST have a corresponding _test.rego file with at minimum:
+      2 ALLOW cases, 3 DENY cases, and 1 boundary case.
+    priority: required
+
+  - id: fail-closed-default
+    trigger: creating a root OPA policy package
+    instruction: >
+      Root policy MUST include `default allow = false`.
+      Any undefined evaluation must result in DENY.
+    priority: required
+
+  - id: no-free-text-in-policy
+    trigger: writing Rego rules
+    instruction: >
+      Never parse intent, description, or annotation fields in Rego rules.
+      Use only structured fields: command_type, command, reversible, target_env,
+      target_resource, risk_score.
+    priority: required
+
+  - id: policy-test-on-rego-change
+    trigger: modifying any *.rego file
+    instruction: >
+      Re-run `opa test` on the entire policy directory after any change.
+      CI must block merge if OPA tests fail.
+    priority: required
+
+anti_patterns:
+  - Using array.concat() on set-type violation rules (type error in OPA ≥ 0.40)
+  - Parsing intent/user-input fields in security policy logic
+  - Missing `default allow = false` in root policy
+  - Policy modules without corresponding _test.rego files
+  - Testing only DENY cases (no ALLOW cases means you can't tell if the policy is too restrictive)
+  - Running OPA tests only locally, not in CI
+
+quick_reference:
+  policy_test_checklist: |
+    □ Each policy module has a _test.rego file
+    □ Tests cover: ALLOW cases (≥ 2), DENY cases (≥ 3), boundary cases (≥ 1)
+    □ main.rego / root policy tested via integration tests
+    □ `default allow = false` present in root policy
+    □ No free-text field parsing in Rego rules
+    □ `opa test <policies_dir> -v` passes locally
+    □ CI step: `opa test` runs on every PR touching *.rego

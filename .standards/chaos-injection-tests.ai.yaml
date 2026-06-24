@@ -1,0 +1,91 @@
+# Chaos Injection Test Standards - AI Optimized
+# Source: core/chaos-injection-tests.md
+
+id: chaos-injection-tests
+meta:
+  version: "1.0.0"
+  updated: "2026-05-05"
+  source: core/chaos-injection-tests.md
+  description: Executable chaos injection tests for AI agent systems — DB disconnect, LLM timeout, policy engine failure
+
+requirements:
+  REQ-1:
+    id: REQ-CIT-001
+    title: Dependency Failure Isolation Test
+    rule: >
+      Each external dependency (database, LLM API, policy engine, queue) MUST have at
+      least one chaos test that simulates its complete unavailability and verifies the
+      system fails gracefully (returns a well-defined error, does not panic, does not
+      corrupt state).
+    rationale: >
+      AI agent systems have more external dependencies than traditional software;
+      a single dependency failure should not cascade to full system failure.
+
+  REQ-2:
+    id: REQ-CIT-002
+    title: LLM Timeout and Rate-Limit Chaos Test
+    rule: >
+      The LLM client MUST be tested under simulated timeout (response after deadline)
+      and rate-limit (429 status) conditions. The system MUST: surface a typed error,
+      respect retry-with-backoff policy, and not hang indefinitely.
+    rationale: >
+      LLM APIs are the highest-latency and most rate-limited dependency in AI systems;
+      timeout handling is safety-critical for any real-time pipeline.
+
+  REQ-3:
+    id: REQ-CIT-003
+    title: Policy Engine Fail-Closed Test
+    rule: >
+      When the policy engine (e.g., OPA sidecar) is unavailable, the system MUST
+      default to DENY (fail-closed), not to ALLOW (fail-open). A chaos test MUST
+      simulate policy engine unavailability and assert DENY behavior.
+    rationale: >
+      Fail-open on policy engine failure is a security vulnerability; the chaos test
+      makes this invariant machine-verifiable.
+
+  REQ-4:
+    id: REQ-CIT-004
+    title: Database Disconnect Recovery Test
+    rule: >
+      The system MUST be tested under database disconnect mid-operation. The test MUST
+      verify: transaction is rolled back (no partial write), connection pool recovers
+      within N seconds, and subsequent operations succeed after reconnect.
+    rationale: >
+      Database disconnects happen during maintenance windows and network partitions;
+      partial writes without rollback are the primary source of data corruption.
+
+  REQ-5:
+    id: REQ-CIT-005
+    title: Blast Radius Containment Test
+    rule: >
+      Chaos tests MUST verify that a failure in one agent or subsystem does not
+      propagate to unrelated agents. Inter-agent failure isolation MUST be tested
+      via simulated agent crash mid-pipeline.
+    rationale: >
+      In multi-agent pipelines, unchecked error propagation is the primary cause of
+      full pipeline failure when only one component fails.
+
+injection_patterns:
+  lm_timeout:
+    technique: "Mock LLM client to delay response beyond timeout deadline"
+    assertions: ["Error type is TimeoutError", "Retry count equals policy", "No deadlock"]
+  db_disconnect:
+    technique: "Close DB connection mid-transaction via test hook or jest.spyOn"
+    assertions: ["Transaction rolled back", "No partial rows written", "Pool reconnects"]
+  policy_engine_down:
+    technique: "Mock OPA HTTP client to return connection refused (ECONNREFUSED)"
+    assertions: ["Decision is DENY", "Error is logged at WARN+", "No state mutation"]
+  rate_limit:
+    technique: "Mock LLM client to return 429 with Retry-After header"
+    assertions: ["Backoff respects Retry-After", "Final error surfaces to caller"]
+
+safety_rules:
+  - "Never run chaos tests against production or shared staging databases"
+  - "Chaos tests MUST clean up injected faults in afterEach/finally blocks"
+  - "Tag chaos tests with a dedicated suite marker to exclude from fast unit test runs"
+
+related_standards:
+  - chaos-engineering-standards
+  - testing
+  - security-standards
+  - secure-op
