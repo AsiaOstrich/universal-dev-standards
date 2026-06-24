@@ -62,6 +62,62 @@ BUILD ──► TEST ──► ANALYZE ──► DEPLOY ──► VERIFY
 | **GitLab CI** | `cache:` keyword | `parallel:` keyword | CI/CD Variables | 使用 `include:` 模組化 |
 | **Jenkins** | Stash/unstash | `parallel {}` block | Credentials plugin | 使用 shared libraries |
 
+## CI Job Orchestration Patterns | CI 作業編排模式
+
+Recurring CI job-orchestration patterns (UDS #126). Each principle is platform-agnostic; the mapping columns show how each platform expresses it.
+反覆出現的 CI 作業編排模式（UDS #126）。每條原則平台無關；對照欄顯示各平台的寫法。
+
+### Trigger separation | 觸發分離
+
+Separate heavy, slow suites (a full E2E run) from lightweight per-change checks by **trigger**, so runner cost scales with risk, not with every push.
+將重型慢速套件（完整 E2E）以**觸發條件**與每次變更的輕量檢查分離，使 runner 成本隨風險而非每次 push 成長。
+
+| Need | GitHub Actions | GitLab CI | Jenkins |
+|------|----------------|-----------|---------|
+| Heavy suite on schedule | `on: schedule:` | `rules: if $CI_PIPELINE_SOURCE == "schedule"` | cron trigger |
+| Light checks per change | `on: pull_request` | `rules: if $CI_PIPELINE_SOURCE == "merge_request_event"` | SCM webhook |
+
+> ⚠️ Anti-pattern: full E2E on every push. 反模式：每次 push 跑完整 E2E。
+
+### Shared-resource serialization | 共享資源序列化
+
+When several jobs touch one **stateful shared resource** (a single test env / runner / deploy target), serialize them to prevent concurrent corruption.
+當多個作業觸及同一個**有狀態共享資源**（單一測試環境 / runner / 部署目標）時，序列化以防並發污染。
+
+| Need | GitHub Actions | GitLab CI | Jenkins |
+|------|----------------|-----------|---------|
+| Mutual exclusion | `concurrency: { group: … }` | `resource_group:` | `lock(resource: …)` |
+
+> ⚠️ Anti-pattern: two jobs writing the same DB/env in parallel. 反模式：兩作業並行寫同一 DB/環境。
+
+### Change-detection gating | 變更偵測閘控
+
+When `HEAD` is unchanged for a scope (or a change touches only out-of-scope paths), skip deploy/test to conserve runner time. Define "unchanged" **explicitly** (last-success SHA or path filters).
+當某範圍的 `HEAD` 自上次成功未變（或變更只觸及範圍外路徑）時，跳過 deploy/test 以節省 runner。**明確**定義「未變」（上次成功 SHA 或路徑過濾）。
+
+| Need | GitHub Actions | GitLab CI | Jenkins |
+|------|----------------|-----------|---------|
+| Skip on unchanged scope | `paths:` / `dorny/paths-filter` | `rules: changes:` / SHA compare | `changeset` condition |
+
+> ⚠️ Anti-pattern: full deploy + test for a docs-only commit. 反模式：文件-only commit 跑完整部署。
+
+### Advisory vs. gating jobs | 諮詢 vs 閘控作業
+
+Declare each job as **advisory** (failure reported, does not block merge) or **gating** (failure blocks merge). Conflating them blocks on noise or fails to gate on what matters. (Security gates are the Block/Warn/Log specialization — see [`pipeline-security-gates`](../../core/pipeline-security-gates.md).)
+明確宣告每個作業是 **advisory**（回報但不擋合併）或 **gating**（擋合併）。混淆會在雜訊上卡關、或漏掉該擋的。（安全閘門是 Block/Warn/Log 特例——見 [`pipeline-security-gates`](../../core/pipeline-security-gates.md)。）
+
+| Need | GitHub Actions | GitLab CI | Jenkins |
+|------|----------------|-----------|---------|
+| Advisory (non-blocking) | `continue-on-error: true` | `allow_failure: true` | `catchError` → `unstable` |
+| Gating (blocking) | required status check | default (no `allow_failure`) | hard fail |
+
+> ⚠️ Anti-pattern: a noisy third-party lint as a hard gate, or a critical suite as advisory. 反模式：把雜訊 lint 設硬閘，或把關鍵套件設 advisory。
+
+### Troubleshooting: `npm ci` `EUSAGE` | 排錯：`npm ci` `EUSAGE`
+
+`npm ci` requires a **committed** lockfile. If `package-lock.json` is gitignored, CI dies with `EUSAGE`. Fix: commit the lockfile, or for CI-only installs use `npm install --no-audit --no-fund --ignore-scripts` (skipping `prepare`/husky hooks not wanted in CI).
+`npm ci` 需要 **committed** lockfile。若 `package-lock.json` 被 gitignore，CI 會以 `EUSAGE` 失敗。修法：commit lockfile，或 CI-only 安裝用 `npm install --no-audit --no-fund --ignore-scripts`（跳過 CI 不需要的 `prepare`/husky hook）。
+
 ## Usage | 使用方式
 
 ```bash
@@ -90,6 +146,7 @@ After `/ci-cd` completes, the AI assistant should suggest:
 
 | Version | Date | Changes | 變更說明 |
 |---------|------|---------|----------|
+| 1.1.0 | 2026-06-24 | Add CI Job Orchestration Patterns (trigger separation, shared-resource serialization, change-detection gating, advisory-vs-gating, `npm ci` `EUSAGE` troubleshooting) — UDS #126 → XSPEC-300 | 新增 CI 作業編排模式（UDS #126） |
 | 1.0.0 | 2026-03-24 | Initial release | 初始版本 |
 
 ## License | 授權

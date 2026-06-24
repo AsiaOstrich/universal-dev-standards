@@ -59,6 +59,56 @@ BUILD ──► TEST ──► ANALYZE ──► DEPLOY ──► VERIFY
 | **GitLab CI** | `cache:` 关键字 | `parallel:` 关键字 | CI/CD Variables | 使用 `include:` 模块化 |
 | **Jenkins** | Stash/unstash | `parallel {}` 块 | Credentials plugin | 使用 shared libraries |
 
+## CI 作业编排模式
+
+反复出现的 CI 作业编排模式（UDS #126）。每条原则平台无关；对照栏显示各平台的写法。
+
+### 触发分离
+
+将重型慢速套件（完整 E2E）以**触发条件**与每次变更的轻量检查分离，使 runner 成本随风险而非每次 push 增长。
+
+| 需求 | GitHub Actions | GitLab CI | Jenkins |
+|------|----------------|-----------|---------|
+| 重型套件排程触发 | `on: schedule:` | `rules: if $CI_PIPELINE_SOURCE == "schedule"` | cron 触发 |
+| 轻量检查每次变更 | `on: pull_request` | `rules: if $CI_PIPELINE_SOURCE == "merge_request_event"` | SCM webhook |
+
+> ⚠️ 反模式：每次 push 跑完整 E2E。
+
+### 共享资源序列化
+
+当多个作业触及同一个**有状态共享资源**（单一测试环境 / runner / 部署目标）时，序列化以防并发污染。
+
+| 需求 | GitHub Actions | GitLab CI | Jenkins |
+|------|----------------|-----------|---------|
+| 互斥 | `concurrency: { group: … }` | `resource_group:` | `lock(resource: …)` |
+
+> ⚠️ 反模式：两作业并行写同一 DB/环境。
+
+### 变更检测闸控
+
+当某范围的 `HEAD` 自上次成功未变（或变更只触及范围外路径）时，跳过 deploy/test 以节省 runner。**明确**定义「未变」（上次成功 SHA 或路径过滤）。
+
+| 需求 | GitHub Actions | GitLab CI | Jenkins |
+|------|----------------|-----------|---------|
+| 范围未变则跳过 | `paths:` / `dorny/paths-filter` | `rules: changes:` / SHA 比对 | `changeset` 条件 |
+
+> ⚠️ 反模式：文档-only commit 跑完整部署。
+
+### 咨询 vs 闸控作业
+
+明确声明每个作业是 **advisory**（回报但不挡合并）或 **gating**（挡合并）。混淆会在噪声上卡关、或漏掉该挡的。（安全闸门是 Block/Warn/Log 特例——见 [`pipeline-security-gates`](../../../../core/pipeline-security-gates.md)。）
+
+| 需求 | GitHub Actions | GitLab CI | Jenkins |
+|------|----------------|-----------|---------|
+| Advisory（不挡） | `continue-on-error: true` | `allow_failure: true` | `catchError` → `unstable` |
+| Gating（挡合并） | required status check | 默认（无 `allow_failure`） | hard fail |
+
+> ⚠️ 反模式：把噪声 lint 设硬闸，或把关键套件设 advisory。
+
+### 排错：`npm ci` `EUSAGE`
+
+`npm ci` 需要 **committed** lockfile。若 `package-lock.json` 被 gitignore，CI 会以 `EUSAGE` 失败。修法：commit lockfile，或 CI-only 安装用 `npm install --no-audit --no-fund --ignore-scripts`（跳过 CI 不需要的 `prepare`/husky hook）。
+
 ## 使用方式
 
 - `/ci-cd` - 显示完整管线指引
