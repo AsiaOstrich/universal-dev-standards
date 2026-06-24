@@ -9,6 +9,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+> ⚠️ This batch contains a **breaking change** (the `review` → `code-review` command/skill rename) and removes deprecated standards/commands — the next release will therefore be **6.0.0 (major)**. A migration guide is required before release. Locale CHANGELOG (zh-TW/zh-CN) sync is deferred to release time.
+
+### Changed — BREAKING
+
+- **`review` command/skill renamed to `code-review`** (T1). `/review` callers must migrate to `/code-review`.
+
+### Added — New standards (coverage-roadmap waves + flagships)
+
+- **Domain & lifecycle standards completed**: product — `prd-standards`, `product-metrics`, `user-story-mapping` (XSPEC-069); infra — `container-image`, `secret-management`, `iac-design` (XSPEC-065); SRE — `incident-response`, `slo-sli`, `runbook` (XSPEC-063); data engineering — `data-pipeline`, `schema-evolution`, `data-contract` (XSPEC-068); compliance — `audit-trail`, `pii-classification` (XSPEC-066).
+- **Flagship standards**: `verification-oracle` (XSPEC-256), `model-provenance` (XSPEC-255), `resource-cost-boundary` (XSPEC-277).
+- **`user-journey-testing`** shipped as a first-class standard (ai/standards + core + zh-TW + registry).
+- **`logging-standards` mandatory events catalog** (XSPEC-234).
+
+### Added — UDS Stage 2 hardening (T5–T16)
+
+- **Canonical AC annotation** (T5) across `acceptance-criteria-traceability` and worked examples.
+- **Sourced quantitative thresholds** (T8): `browser-compatibility` 95%/90% gate, `checkin` code-smell, `accessibility` session-timeout, `code-review` PR-size/response-time + bulk exception, `project-context-memory` 7-day staleness, `developer-memory` retirement, `privacy` DPIA "large scale".
+- **Failure Handling sections** (T7): `git-worktree` transient-failure retry, `reverse-engineering` escalation, `forward-derivation` recovery.
+- **Cross-functional hand-offs** (T16): `security-testing` finding-remediation lifecycle, `pii-classification` discovery & hand-off contract.
+- **Glossary terminology normalization** as canonical source of truth (T6).
+- **CLI hardening** (T11/T12): Mission `FAILED` terminal state + resume guard, transactional `init` with rollback, input validation for `hitl`/`run`/`release`/config.
+
+### Added — Migration & refactor completeness family
+
+- `migration-assistant` post-cutover data reconciliation (XSPEC-284 P0), state-machine & temporal parity (XSPEC-287); `full-coverage-testing` migration error-path completeness (XSPEC-288); `performance-standards` migration non-functional parity (XSPEC-286).
+
+### Added — Tooling & workflow
+
+- **BQS v1 quality contract for `/brainstorm` v4** (XSPEC-296).
+- **CI Job Orchestration Patterns** in the `ci-cd-assistant` skill — trigger separation, shared-resource serialization, change-detection gating, advisory-vs-gating, `npm ci` `EUSAGE` troubleshooting (UDS #126 / XSPEC-300).
+- **Pre-deploy attestation verification gate** in `pipeline-security-gates`.
+- **Pre-release issue/PR triage gate** in the release flow (XSPEC-265).
+- `release verify` now consumes the recorded manifest checksum.
+- `/journey-test` and `/skill-builder` registered as formal commands.
+- Optional model-tier annotation (R6, XSPEC-270 Work Package A).
+- `sync-standard` four-layer sync tool; Phase 2 content-coverage audit metadata.
+
+### Changed
+
+- **API versioning & deprecation consolidated into single sources of truth** — producer-side API-versioning material folded into `api-design-standards`; inconsistent deprecation timelines reconciled (XSPEC-298 R8).
+- **Deployment Version Identity** section added to `versioning` with a build-metadata discriminator caveat (XSPEC-298 R1).
+
+### Deprecated
+
+- **6 workflow skills** marked as `reference` with visible deprecation notices; deprecated runtime commands tagged with a structured `@superseded-by` pointer (XSPEC-291 §4).
+
+### Fixed
+
+- **`uds audit` false positives**: `options/` files reported missing (health check now recurses into subdirectories), CP950 console mojibake, non-TTY crash (#115); unused-standard detection now matches on canonical id rather than filename (#125).
+- **Bundle ⇄ source parity restored** — 25 standards synced into the `.standards/` self-adoption tree.
+- Numerous docs/i18n integrity fixes: stale standard/skill/command counts, broken locale cross-links, command/skill index regeneration, anchor-slugger and table-parity paths.
+
 ## [5.17.0] - 2026-06-08
 
 ### Added — Executable SDD consistency & AC-format extensions (XSPEC-262/263/264)
