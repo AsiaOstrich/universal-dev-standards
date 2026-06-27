@@ -3,8 +3,8 @@
 
 id: reverse-engineering
 meta:
-  version: "1.1.0"
-  updated: "2026-06-18"
+  version: "1.2.0"
+  updated: "2026-06-27"
   source: core/reverse-engineering-standards.md
   description: Standards for reverse engineering code into structured specifications
 
@@ -31,6 +31,28 @@ workflow:
         - Extract Given-When-Then patterns (if BDD-style)
         - Identify boundary conditions
         - Note coverage gaps
+
+    - stage: IMPLICIT_RULE_SCAN
+      description: Scan non-HTTP persistence write paths for undocumented business rules
+      output: Implicit-rule inventory locked as behavior-snapshot scenarios or reconciliation invariants
+      certainty: "[Confirmed]/[Inferred]/[Unknown]"
+      position: after CODE_SCAN/TEST_ANALYSIS, before GAP_IDENTIFICATION
+      derive:
+        - "Scheduled: crontab / scheduler config / @Scheduled-style annotations / batch jobs"
+        - "Queue: queue consumers / job handlers / background workers / message listeners"
+        - "DB-layer: triggers / computed-generated columns / DEFAULT expressions / check constraints"
+        - "ORM lifecycle: beforeSave/afterSave/observer/model-event hooks / state-mutating middleware"
+      oracle_three_questions:
+        - "When is the field SET? (first-assign condition/trigger)"
+        - "When is it OVERWRITTEN? (every later write, INCLUDING async overwrites)"
+        - "When is it RESET / zeroed? (clear/default-back conditions)"
+      actions:
+        - Derive every non-HTTP persistence write path across the four categories
+        - Answer the three questions per persisted field and lock answers as snapshot scenarios or reconciliation invariants
+        - Extend Devil's Advocate (5 categories) from HTTP layer to non-HTTP paths
+        - Tag each rule [Confirmed] (with file:line) / [Inferred] / [Unknown]; route [Unknown] to GAP_IDENTIFICATION
+        - "PHP-specific: flag loose-comparison / type-juggling (==, truthy/falsy of \"0\"/\"\"/null/0, string-to-number coercion) — no equivalent under strongly-typed targets"
+      gate: pre-flight; unanswered three-question field marked not_implemented and blocks cutover
 
     - stage: GAP_IDENTIFICATION
       description: List unknowns requiring human input
@@ -249,6 +271,19 @@ rules:
     instruction: Map test cases to acceptance criteria with [Confirmed] tag and line references
     priority: required
 
+  - id: implicit-rule-scan-non-http
+    trigger: reverse engineering a system for refactor/migration where persisted fields may be written off the HTTP path
+    instruction: >
+      Run an IMPLICIT_RULE_SCAN after CODE_SCAN/TEST_ANALYSIS and before GAP_IDENTIFICATION. Mechanically derive
+      every non-HTTP persistence write path across four categories (scheduled, queue, DB-layer trigger/computed-column/
+      DEFAULT/check, ORM lifecycle hooks/middleware). For each persisted field answer three questions — when SET, when
+      OVERWRITTEN (including async overwrites), when RESET/zeroed — and lock each answer as a behavior-snapshot scenario
+      or reconciliation invariant. Extend Devil's Advocate to non-HTTP paths. Tag every rule [Confirmed] (with file:line)
+      / [Inferred] / [Unknown]; route [Unknown] to gap analysis. For PHP sources, additionally flag loose-comparison /
+      type-juggling dependencies that have no strongly-typed equivalent. Any field whose three questions are unanswered
+      is marked not_implemented and blocks cutover.
+    priority: required
+
   - id: human-review-required
     trigger: completing spec generation
     instruction: Always mark specification as requiring human review; [Unknown] sections MUST be filled by humans
@@ -284,6 +319,7 @@ quick_reference:
     rows:
       - [Code Scan, Technical inventory, "[Confirmed]"]
       - [Test Analysis, Draft AC, "[Confirmed]/[Inferred]"]
+      - [Implicit Rule Scan, Non-HTTP implicit-rule inventory, "[Confirmed]/[Inferred]/[Unknown]"]
       - [Gap ID, Gap analysis, "[Unknown] items"]
       - [Spec Gen, Draft SPEC, Mixed]
       - [Human Review, Validated spec, "[Confirmed]"]

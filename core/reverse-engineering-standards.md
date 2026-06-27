@@ -1,7 +1,7 @@
 # Reverse Engineering Standards | 反向工程標準
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-19
+**Version**: 1.2.0
+**Last Updated**: 2026-06-27
 **Applicability**: All projects requiring code-to-specification transformation
 **Scope**: uds-specific
 **Industry Standards**: IEEE 830-1998, SWEBOK v4.0 Chapter 9
@@ -51,9 +51,51 @@ This standard defines the principles, workflows, and best practices for reverse 
 |-------|-------------|--------|-----------------|
 | **Code Scanning** | Analyze code structure, APIs, data models | Technical inventory | [Confirmed] |
 | **Test Analysis** | Parse existing tests for acceptance criteria | Draft acceptance criteria | [Confirmed]/[Inferred] |
+| **Implicit Rule Scan** | Scan non-HTTP persistence write paths for undocumented rules | Implicit-rule inventory + three-question answers | [Confirmed]/[Inferred]/[Unknown] |
 | **Gap Identification** | List unknowns requiring human input | Gap analysis document | [Unknown] items |
 | **Spec Generation** | Generate draft specification | Draft SPEC-XXX.md | Mixed certainty |
 | **Human Review** | Stakeholder validation and gap filling | Validated specification | [Confirmed] |
+
+> **Note (v1.2.0)**: An **Implicit Rule Scan** stage is inserted after Code Scanning / Test Analysis and before Gap Identification — see [Implicit Rule Scan (Non-HTTP Persistence Rules)](#implicit-rule-scan-non-http-persistence-rules) below. Standard code scanning extracts HTTP entry points and data models, but persistent field values are frequently written by **non-HTTP paths** (cron, queue, computed columns, triggers, ORM hooks) whose business rules are never documented — the highest-frequency source of missed logic in a cross-language rewrite or cross-DB migration.
+
+---
+
+## Implicit Rule Scan (Non-HTTP Persistence Rules)
+
+> **Workflow position**: after Code Scanning / Test Analysis, before Gap Identification.
+
+Code scanning extracts what is reachable through HTTP — routes, controllers, request handlers. But a persisted field's value is often decided **off the request path**: a nightly cron flips a status, a queue retry re-stamps a timestamp, a database trigger derives a total, an ORM lifecycle hook zeroes a counter. Those rules are rarely written down, so a rewrite that only mirrors the HTTP surface silently drops them. This stage mechanically derives every non-HTTP write path and locks each implicit rule as a verifiable artifact.
+
+### Derive (mechanical list source)
+
+Scan the legacy system for every **non-HTTP persistence write path** across four categories:
+
+1. **Scheduled** — crontab entries, scheduler config, `@Scheduled`-style annotations, batch jobs
+2. **Queue** — queue consumers, job handlers, background workers, message listeners
+3. **DB-layer** — triggers, computed/generated columns, `DEFAULT` expressions, check constraints
+4. **ORM lifecycle** — `beforeSave`/`afterSave`/observer/model-event hooks, middleware that mutates persistent state
+
+### Oracle (detect) — three questions per field
+
+For each persistent field written by a non-HTTP path, answer and lock **three questions**:
+
+| Question | What to capture |
+|----------|-----------------|
+| **When is it SET?** | The condition/trigger that first assigns the value |
+| **When is it OVERWRITTEN?** | Every later write — **including asynchronous overwrites** (links back to post-cutover aggregate reconciliation) |
+| **When is it RESET / zeroed?** | The conditions that clear or default the value back |
+
+- Extend the **Devil's Advocate** challenge from the HTTP layer to **cover non-HTTP paths**: apply the same five adversarial categories (boundary, ordering, concurrency, failure/retry, null/default) to cron conditions, queue retries, computed columns, and trigger logic.
+- Tag every extracted rule with a certainty level: `[Confirmed]` (with a `file:line` citation) / `[Inferred]` / `[Unknown]`. Every `[Unknown]` is handed to Gap Identification for a human — it is never guessed.
+- **Output**: lock each implicit rule as a **behavior-snapshot scenario** or a **reconciliation invariant** (e.g. `SUM(cost) GROUP BY status` must hold across cutover), so the rule becomes a re-runnable oracle rather than prose.
+
+### Gate timing
+
+Pre-flight (planning). Any non-HTTP write field whose three questions are unanswered is marked `not_implemented` and **blocks cutover** — an undeclared implicit rule is treated as a known omission risk, not an acceptable gap.
+
+### PHP-specific note: loose comparison / type juggling
+
+When scanning PHP write paths, additionally flag **loose-comparison / type-juggling** dependencies: `==` comparisons, the truthy/falsy behavior of `"0"` / `""` / `null` / `0`, and automatic string-to-number coercion. These have no direct equivalent under a strongly-typed target (e.g. C#/.NET), so the implicit rule they encode is a high-frequency source of silently-dropped logic during a cross-language rewrite. Mark each such site `[Confirmed]` with `file:line` and lock the intended semantics as an explicit rule.
 
 ---
 
@@ -403,6 +445,7 @@ present a sub-threshold-confidence spec as authoritative.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-06-27 | Added: Implicit Rule Scan stage (non-HTTP persistence write-path extraction) — 4 derive categories + three-question oracle + non-HTTP Devil's Advocate + PHP type-juggling note + certainty/`file:line` (XSPEC-284 R4/AC-8) |
 | 1.1.0 | 2026-06-18 | Added: Failure Handling & Escalation section — parse failure / high-unknown-ratio / contradicted-inference escalation + rule RE-FAIL-001 (XSPEC-292 T7) |
 | 1.0.0 | 2026-01-19 | Initial release |
 

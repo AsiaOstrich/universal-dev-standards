@@ -3,10 +3,10 @@
 
 id: data-migration-testing
 meta:
-  version: "1.0.0"
-  updated: "2026-05-05"
+  version: "1.1.0"
+  updated: "2026-06-27"
   source: core/data-migration-testing.md
-  description: Database migration up/down/idempotency testing standards for schema changes
+  description: Database migration up/down/idempotency testing standards for schema changes, plus encoding-conversion and aggregate-invariant testing for cross-encoding/cross-engine migrations
 
 requirements:
   REQ-1:
@@ -63,6 +63,33 @@ requirements:
       Shared migration state between tests causes non-deterministic failures that are
       extremely difficult to diagnose.
 
+  REQ-6:
+    id: REQ-DMT-006
+    title: Encoding Conversion Test
+    rule: >
+      Migrations that cross encodings or DB engines (e.g. UTF-8 -> UTF-16/NVARCHAR,
+      VARCHAR -> NVARCHAR, or an implicit collation change) MUST include a test that
+      asserts equality at the BYTE / codepoint / normalization level — not display
+      level. Cover NFC vs NFD normalization, multi-byte boundaries, and CJK / emoji /
+      combining marks (supplementary-plane codepoints).
+    rationale: >
+      Two different byte or normalization sequences can decode to glyphs that look
+      identical, so a display-level (toBe) assertion passes while the stored bytes —
+      and downstream LIKE / unique-key / collation behavior — are silently corrupted.
+
+  REQ-7:
+    id: REQ-DMT-007
+    title: Aggregate Invariant Test
+    rule: >
+      Migrations of business-critical data MUST capture aggregate invariants
+      (COUNT(*), SUM(column), COUNT(DISTINCT key), checksum) grouped by a business
+      dimension BEFORE the migration and assert they are unchanged AFTER. Same oracle
+      as post-cutover production reconciliation, run at migration-test time.
+    rationale: >
+      Row-by-row sampling proves individual rows survived but not that the distribution
+      survived; a single wrong SUM/COUNT/DISTINCT flags drift that any sample missing
+      the affected rows would not catch.
+
 test_structure:
   isolation: "Each migration test MUST run against an isolated in-memory or temp DB"
   baseline: "Start from the schema state immediately before the migration under test"
@@ -71,6 +98,48 @@ test_structure:
     down: "Assert schema returns to pre-migration state"
     idempotency: "Apply migration twice; second apply must succeed without error"
     data: "Seed rows before migration; assert row count and values after"
+    encoding: "Assert byte/codepoint/normalization identity (Buffer compare + spread-to-codepoints + normalize), NOT display-level toBe; cover NFC/NFD, multi-byte boundaries, CJK/emoji/combining marks"
+    aggregate: "Capture COUNT/SUM/COUNT(DISTINCT)/checksum grouped by business dimension before; assert deep-equal after"
+
+cross_dialect_risks:
+  description: "SQLite -> SQL Server semantic disagreements; derive-list input for encoding/aggregate tests and the non-HTTP implicit-rule scan"
+  rows:
+    - point: Type system
+      sqlite: Dynamic typing (per-value affinity)
+      sqlserver: Static / strong typing
+      verify: Declare per-column type; scan for out-of-range / mixed-type values
+    - point: Boolean
+      sqlite: Stored as 0/1 integer
+      sqlserver: BIT
+      verify: 0/1 <-> BIT mapping; NULL boolean handling
+    - point: Date/time
+      sqlite: TEXT / REAL / INTEGER
+      sqlserver: datetime2 / datetimeoffset
+      verify: Format parse, time-zone, precision truncation
+    - point: Auto-increment PK
+      sqlite: AUTOINCREMENT
+      sqlserver: IDENTITY
+      verify: Existing id continuity; correct seed/reseed
+    - point: Case / collation
+      sqlite: LIKE case-insensitive by default / NOCASE
+      sqlserver: Determined by column collation
+      verify: Align collation; check unique-key folding collisions
+    - point: NULL ordering
+      sqlite: NULLs sort first (smallest)
+      sqlserver: Depends on configuration
+      verify: ORDER BY result-order invariant
+    - point: Float precision
+      sqlite: REAL
+      sqlserver: float / decimal
+      verify: Move money/exact values to decimal to avoid rounding error
+    - point: String concat
+      sqlite: "||"
+      sqlserver: "+ / CONCAT"
+      verify: Rewrite queries; reconcile NULL-concat semantics
+    - point: Pagination
+      sqlite: LIMIT / OFFSET
+      sqlserver: OFFSET..FETCH / TOP
+      verify: Rewrite + stable sort key for deterministic pages
 
 tooling_guidance:
   sqlite: "Use ':memory:' DSN; apply migrations via ORM migrate() or raw SQL"
@@ -89,6 +158,13 @@ anti_patterns:
   - description: >
       Writing migration tests after the fact without seeding data — misses the
       data preservation class of bugs entirely.
+  - description: >
+      Asserting string equality only on the decoded value — display-level equality
+      passes even when bytes, normalization form, or codepoints were corrupted across
+      an encoding/engine change.
+  - description: >
+      Validating a cross-engine migration with row sampling alone — distribution-level
+      drift (a wrong SUM/COUNT/DISTINCT) escapes any sample that misses the affected rows.
 
 related_standards:
   - testing
