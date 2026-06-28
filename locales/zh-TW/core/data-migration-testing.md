@@ -2,8 +2,8 @@
 source: ../../../core/data-migration-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-27
-source_hash: 2ddd76ee8654
+last_synced: 2026-06-28
+source_hash: 990309b5e8b1
 status: current
 ---
 
@@ -210,6 +210,7 @@ await migrate(db, { migrationsFolder: './drizzle' })
 - `database-standards.ai.yaml` — 綱要設計原則
 - `testing.ai.yaml` — 通用測試結構與金字塔
 - `verification-evidence.ai.yaml` — 稽核證據需求
+- `behavior-snapshot.ai.yaml` — 同樣的「別只比看起來相等」原則，作用於 oracle／序列化層，而非 DB 儲存層
 
 ---
 

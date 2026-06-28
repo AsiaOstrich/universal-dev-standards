@@ -197,6 +197,7 @@ Use `testcontainers` to spin up a fresh PostgreSQL container per test suite. The
 - `database-standards.ai.yaml` — schema design principles
 - `testing.ai.yaml` — general test structure and pyramid
 - `verification-evidence.ai.yaml` — audit evidence requirements
+- `behavior-snapshot.ai.yaml` — same "don't compare what merely *looks* equal" principle, applied at the oracle/serialization layer rather than the DB storage layer
 
 
 **Scope**: universal

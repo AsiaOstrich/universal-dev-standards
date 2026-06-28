@@ -1,9 +1,9 @@
 ---
 source: ../../../core/behavior-snapshot.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-06-10
-source_hash: 7b2146e4fd6c
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-06-28
+source_hash: 36a3683ae75b
 status: current
 ---
 
@@ -113,13 +113,32 @@ status: current
 
 ## `ignore_fields` 使用指南
 
-### 一律忽略（非確定性）
+> **核心原則 —— 忽略「值」，保留「格式」斷言。** 某欄位是非確定性的，意指它的*值*在每次執行間會改變；這**並不**代表該欄位的*形狀*可以自由變動。`ignore_fields` 的天真用法會把整個欄位排除在比較之外，連帶也停止斷言其格式 —— 於是當序列化器悄悄把 ISO-8601 時間戳改成 Unix epoch、拿掉時區、或變更 UUID 大小寫／版本時，皆無人察覺。**忽略其值，但仍斷言其格式。**
 
-| 欄位模式 | 原因 |
-|--------------|--------|
-| `created_at`、`updated_at`、`timestamp` | 每次請求都會改變 |
-| `token`、`session_id`、`csrf_token` | 密碼學隨機值 |
-| `request_id`、`trace_id`、`correlation_id` | 隨機 UUID |
+### 忽略值 vs. 忽略格式
+
+| 欄位 | 天真做法：整欄忽略 | 建議做法：忽略值、斷言格式 |
+|-------|---------------------------|-------------------------------------------|
+| `created_at` | 完全不比較 | 忽略其值；但仍斷言它是 ISO-8601、且維持相同的小數秒精度與相同的時區表示 |
+| `trace_id` | 完全不比較 | 忽略其值；但仍斷言它符合 UUID 版本與標準 8-4-4-4-12 形狀 |
+| `token` | 完全不比較 | 忽略其值；但仍斷言長度、字元集與前綴 |
+
+### 非確定性欄位：忽略值、斷言格式
+
+| 欄位模式 | 忽略（值） | 仍須斷言（格式／形狀） |
+|--------------|--------------------|-------------------------------|
+| `created_at`、`updated_at`、`timestamp` | 該瞬時 | ISO-8601 vs. epoch vs. 自訂；小數秒精度（位數）；時區表示（`Z` vs `+00:00` vs 偏移量） |
+| `token`、`session_id`、`csrf_token` | 隨機位元組 | 長度、字元集、前綴 |
+| `request_id`、`trace_id`、`correlation_id` | 隨機 UUID | UUID 版本 + 標準 8-4-4-4-12 形狀與大小寫 |
+
+**時間欄範例。** 某遷移後的端點回傳 `created_at`：
+
+```text
+舊系統："2026-05-12T08:30:00Z"
+新系統："2026-05-12T08:30:00.000+00:00"
+```
+
+兩者解碼後是同一瞬時，因此整欄忽略 —— 甚至是「先 parse 成日期再比值」 —— 都會通過。但**序列化格式已漂移**：多了小數秒、且時區表示從 `Z` 變成 `+00:00`。對採字串比對、或以嚴格格式 parse 的客戶端而言，這在正式環境會壞掉。斷言格式 pattern（例如 `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$`）能抓到它；整欄忽略則會遮蔽它。
 
 ### 一律比較（業務邏輯）
 
@@ -131,7 +150,71 @@ status: current
 | `success`、`refunded`、`cancelled` | 布林業務結果 |
 | `user_id`、`order_id`（搭配固定測試資料） | 參照完整性 |
 
-**規則**：`ignore_fields` 僅用於確實不確定性的值。用它來隱藏業務邏輯差異，會使一致性測試失去意義。
+### 整欄忽略（例外 —— 須附理由）
+
+把欄位完全排除在比較之外 —— 既不比值、**也不**斷言格式 —— 是**例外**，非預設。僅在欄位格式確實未定義或無關緊要時保留此做法（例如不透明的廠商 blob），並在行內註明理由。
+
+> ⚠️ **風險**：整欄忽略會遮蔽**格式漂移**。改變精度或時區的時間戳、改變版本的 UUID、或多了／少了一個尾零的數字都會悄悄通過 —— 而這正是一致性測試本應抓到的那類 bug。
+
+**規則**：`ignore_fields` 僅用於確實不確定性的*值*。忽略其值的同時，仍須斷言該欄位的格式／形狀。用它來排除業務邏輯欄位 —— 或用它來消音非確定性欄位的格式漂移 —— 都會使一致性測試失去意義。
+
+---
+
+## 序列化格式對等
+
+只比較**反序列化後物件**的差分 oracle，會悄悄把序列化層級的差異 normalize 掉：它把兩邊的回應都 parse 成 map／物件再比較，於是任何在 parse 後消失的分歧都看不見了。要抓到序列化 bug，oracle 必須以能保留序列化形式的粒度比較 —— 要嘛比對**原始序列化字串**，要嘛明確斷言 JSON 形狀。
+
+### 比較反序列化物件會遮蔽什麼
+
+| 序列化分歧 | 比較 parse 後物件時會被遮蔽嗎？ |
+|--------------------------|------------------------------------------|
+| `1` vs `1.0`（數字格式） | 會 —— 兩者都 parse 成數字 `1` |
+| `null` vs 缺少該 key | 會 —— 兩者都讀成不存在／null |
+| `true` vs `1` vs `"true"` | 常會 —— 型別強制轉換後 |
+| key 排序 | 會 —— 物件 key 無序 |
+| 前導零／科學記號 | 會 —— parse 時被 normalize |
+| 空白與 Unicode 轉義（`\/`、`\uXXXX`） | 會 —— parse 時遺失 |
+
+### 兩種策略
+
+1. **原始字串比對** —— 比對精確的序列化字串。保真度最強；當 wire 格式屬於契約一部分時採用（公開 API、被快取的 payload、簽章過的 body）。
+2. **明確的 JSON 形狀斷言** —— 當原始比對太嚴格時（例如確實有非確定性的值），改為明確斷言形狀：
+   - **key 的存在性與順序**（當順序屬於契約時）
+   - **數字格式**：`1` vs `1.0`、前導零、科學記號
+   - **`null` vs 缺漏 key**（省略欄位不等於明確的 `null`）
+   - **布林／字串型別**：`true` vs `"true"` vs `1`
+
+### 跨語言重寫會換掉序列化器
+
+當系統以另一種語言重寫時，序列化器會換 —— 而各序列化器的**預設行為**不同。oracle 必須明確斷言這些，因為沒有其他東西會幫你抓。PHP `json_encode` ↔ C# `System.Text.Json` 常見的預設差異：
+
+| 關注點 | PHP `json_encode`（預設） | C# `System.Text.Json`（預設） |
+|---------|------------------------------|----------------------------------|
+| 數字尾零 | `(float) 1.0` 輸出 `1`；需 `JSON_PRESERVE_ZERO_FRACTION` 才保留 `1.0` | `double` `1.0` 序列化成 `1`；`decimal` 保留小數位 |
+| 日期／時間 | 無原生日期型別 —— 由應用決定（常是自訂字串或 epoch） | `DateTime`/`DateTimeOffset` → ISO-8601（round-trip "O"），例如 `2026-05-12T08:30:00+00:00` |
+| 時區 | 由應用決定 | `DateTimeOffset` 保留偏移量；`DateTime.Kind` 決定 `Z` vs 偏移量 |
+| `null` 屬性 | 以 `"k":null` 輸出 | 預設輸出；僅在 `DefaultIgnoreCondition.WhenWritingNull` 時省略 |
+| key 排序 | 插入順序（associative array） | 屬性宣告／反射順序 |
+| 斜線與 Unicode 轉義 | 預設轉義 `/` 與非 ASCII，除非設 `JSON_UNESCAPED_SLASHES` / `JSON_UNESCAPED_UNICODE` | 不轉義 `/`；非 ASCII 依所設定的 encoder 轉義 |
+
+### 斷言序列化形狀（TypeScript）
+
+```typescript
+// 超越值的對等：斷言序列化形式，而不只是 parse 後的物件。
+function assertSerializationParity(oldRaw: string, newRaw: string): void {
+  // 1. 最強：精確的序列化字串（只剝除被忽略的*值*之後）。
+  if (oldRaw === newRaw) return;
+
+  // 2. 否則在原始文字上明確斷言形狀，而非在 JSON.parse() 上：
+  //    數字格式 —— 舊的 "1.0" 不可悄悄變成新的 "1"
+  const numberShape = (s: string) => s.match(/:\s*-?\d+(\.\d+)?([eE][+-]?\d+)?/g) ?? [];
+  expect(numberShape(newRaw)).toEqual(numberShape(oldRaw));
+
+  //    null vs 缺漏 —— 明確的 "key":null 不可消失
+  expect(/"refund_id"\s*:\s*null/.test(newRaw))
+    .toBe(/"refund_id"\s*:\s*null/.test(oldRaw));
+}
+```
 
 ---
 
@@ -227,6 +310,8 @@ describe('characterization: OrderService.cancelOrder', () => {
 | 過度使用 `ignore_fields` | 隱藏業務邏輯差異 | 僅忽略非確定性欄位 |
 | 跳過 MANUAL 快照 | Webhook/背景行為未測試 | UAT 前先撰寫 MANUAL 快照 |
 | 從損壞的系統錄製快照 | 基準線錯誤 | 錄製前先驗證舊系統行為 |
+| 只比較反序列化後的物件 | 序列化格式 bug（數字格式、`null` vs 缺漏 key、key 排序、型別強制轉換）在 parse 時被 normalize 掉 | 比對原始序列化字串，或明確斷言 JSON 形狀（見「序列化格式對等」） |
+| 對非確定性欄位採整欄 `ignore_fields` | 遮蔽該欄位的**格式**漂移（時間戳精度／時區、UUID 版本） | 忽略其值但仍斷言格式／形狀（見「`ignore_fields` 使用指南」） |
 | 特性化測試缺少 `@characterization` | Gate 0 找不到它們 | 一律加上 `@characterization` 標記 |
 | 未進行 Gate 0 就開始重構 | 無法偵測行為偏移 | 先跑特性化測試，始終如此 |
 
@@ -238,6 +323,7 @@ describe('characterization: OrderService.cancelOrder', () => {
 - [驗收條件追蹤](../../../core/acceptance-criteria-traceability.md) — `not_implemented` AC 狀態
 - [重構標準](../../../core/refactoring-standards.md) — 特性化測試需求
 - [測試標準](../../../core/testing-standards.md) — 測試實作標準
+- [資料遷移測試](../../../core/data-migration-testing.md) — 同樣的「別只比看起來相等」原則，作用於 DB 儲存層（byte／codepoint 編碼），而非 oracle／序列化層
 
 ---
 
@@ -246,3 +332,4 @@ describe('characterization: OrderService.cancelOrder', () => {
 | 版本 | 日期 | 變更 |
 |---------|------|---------|
 | 1.0.0 | 2026-05-12 | 初始版本 — 快照 schema、一致性閘門、Gate 0 特性化協議（XSPEC-201） |
+| 1.1.0 | 2026-06-28 | 比對保真度補強（XSPEC-306）— `ignore_fields` 改寫為「忽略值、斷言格式」；新增「序列化格式對等」章節（原始 vs. JSON 形狀斷言、PHP↔C# 序列化器預設）；2 條格式遮蔽反模式；與 data-migration-testing 交叉引用 |

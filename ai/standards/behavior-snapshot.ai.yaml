@@ -7,12 +7,13 @@ standard:
   description: Multi-modal golden file format for migration parity verification and refactoring characterization; supports HTTP, CLI, File, and Event adapters; defines snapshot schema, parity gate, and Gate 0 protocol
 
   meta:
-    version: "1.1.0"
-    updated: "2026-05-13"
+    version: "1.2.0"
+    updated: "2026-06-28"
     source: core/behavior-snapshot.md
     references:
       - "XSPEC-201: Refactor/Migration Completeness Protocol"
       - "XSPEC-203: Language Pack Architecture (multi-modal adapter extension)"
+      - "XSPEC-306: Oracle Comparison Fidelity & Serialization-Format Parity"
       - "Michael Feathers: Working Effectively with Legacy Code (characterization tests)"
       - "Golden Master Testing pattern"
 
@@ -169,15 +170,73 @@ standard:
         - background job/queue-triggered flows
 
   ignore_fields_guidance:
-    always_ignore:
-      - created_at, updated_at, timestamp, recorded_at
-      - token, session_id, csrf_token, access_token, refresh_token
-      - request_id, trace_id, correlation_id
+    core_principle: |
+      Ignore the VALUE, keep the FORMAT assertion. A non-deterministic field has a
+      value that changes between runs — its SHAPE is not free to change. Dropping the
+      whole field (naive ignore_fields) also stops asserting its format, so a serializer
+      that silently switches ISO-8601 to epoch, drops the timezone, or changes UUID
+      version/casing passes unnoticed.
+    ignore_value_assert_format:
+      - field: created_at, updated_at, timestamp
+        ignore: the instant
+        still_assert: "ISO-8601 vs epoch vs custom; fractional-second precision (digits); timezone representation (Z vs +00:00 vs offset)"
+      - field: token, session_id, csrf_token, access_token, refresh_token
+        ignore: the random bytes
+        still_assert: "length, charset, prefix"
+      - field: request_id, trace_id, correlation_id
+        ignore: the random UUID
+        still_assert: "UUID version + canonical 8-4-4-4-12 shape and casing"
     always_compare:
       - status, code, message, error_code
       - user_id, order_id (when using fixed test data)
       - amount, quantity, price (business calculation results)
       - "success, refunded, cancelled (boolean business outcomes)"
+    whole_field_ignore:
+      status: "exception — requires justification"
+      when_acceptable: "field format is genuinely unspecified or irrelevant (e.g. an opaque vendor blob); document the reason inline"
+      risk: "masks FORMAT drift — timestamp precision/timezone, UUID version, or a number gaining/losing a trailing zero passes silently"
+
+  serialization_format_parity:
+    description: |
+      A differential oracle that compares only DESERIALIZED objects normalizes
+      serialization-level differences away. To catch serialization bugs, compare at a
+      granularity that preserves the serialized form: compare the RAW serialized string,
+      or explicitly assert the JSON shape.
+    hidden_by_object_compare:
+      - "1 vs 1.0 (number format) — both parse to number 1"
+      - "null vs missing key — both read as absent/null"
+      - "true vs 1 vs \"true\" — after type coercion"
+      - "key ordering — object keys are unordered"
+      - "leading zeros / scientific notation — normalized on parse"
+      - "whitespace and Unicode escaping (\\/ , \\uXXXX) — lost on parse"
+    strategies:
+      raw_string: "compare the exact serialized string — strongest fidelity; use when the wire format is contractual (public API, cached payloads, signed bodies)"
+      json_shape_assertions:
+        - "key presence and order (when order is contractual)"
+        - "number format: 1 vs 1.0, leading zeros, scientific notation"
+        - "null vs absent key (omitted field != explicit null)"
+        - "boolean/string type: true vs \"true\" vs 1"
+    cross_language_defaults:
+      note: "rewriting in another language swaps the serializer; serializers differ in DEFAULTS — assert these explicitly"
+      php_json_encode_vs_csharp_system_text_json:
+        - concern: number trailing zeros
+          php: "(float)1.0 emits 1; JSON_PRESERVE_ZERO_FRACTION needed to keep 1.0"
+          csharp: "double 1.0 serializes as 1; decimal preserves scale"
+        - concern: date/time
+          php: "no native date type — app-defined (custom string or epoch)"
+          csharp: "DateTime/DateTimeOffset -> ISO-8601 round-trip 'O', e.g. 2026-05-12T08:30:00+00:00"
+        - concern: timezone
+          php: "app-defined"
+          csharp: "DateTimeOffset keeps offset; DateTime.Kind decides Z vs offset"
+        - concern: null properties
+          php: "included as \"k\":null"
+          csharp: "included by default; omitted only with DefaultIgnoreCondition.WhenWritingNull"
+        - concern: key ordering
+          php: "insertion order (associative array)"
+          csharp: "property-declaration / reflection order"
+        - concern: slash and unicode escaping
+          php: "escapes / and non-ASCII unless JSON_UNESCAPED_SLASHES / JSON_UNESCAPED_UNICODE"
+          csharp: "does not escape /; escapes non-ASCII per configured encoder"
 
   parity_gate:
     description: CI gate comparing new system responses against recorded snapshots
@@ -225,10 +284,27 @@ standard:
     - id: ignore-fields-discipline
       trigger: creating or reviewing snapshot ignore_fields
       instruction: |
-        Only add fields to ignore_fields if they are legitimately non-deterministic
-        (timestamps, tokens, random IDs). Business logic fields must always be compared.
-        Overuse of ignore_fields defeats the purpose of parity testing.
+        Ignore the VALUE, keep the FORMAT assertion. Only add fields to ignore_fields if
+        they are legitimately non-deterministic (timestamps, tokens, random IDs) — and even
+        then, still assert the field's format/shape (ISO-8601 pattern, UUID version, token
+        charset/prefix). Whole-field ignore (no value AND no format assertion) is an
+        exception that requires justification because it masks format drift. Business logic
+        fields must always be compared. Overuse of ignore_fields defeats parity testing.
       priority: required
+      anti_pattern: "Whole-field ignore on a non-deterministic field — masks timestamp precision/timezone or UUID-version drift"
+
+    - id: serialization-format-parity
+      trigger: differential oracle comparing serialized output (JSON etc.)
+      instruction: |
+        Do NOT compare only deserialized objects — parsing normalizes away serialization
+        bugs (1 vs 1.0, null vs missing key, key order, true vs 1, leading zeros, escaping).
+        Compare the RAW serialized string, or assert the JSON shape explicitly (key presence/
+        order, number format, null vs absent, boolean/string type). On cross-language rewrites
+        the serializer changes (e.g. PHP json_encode vs C# System.Text.Json have different
+        defaults for trailing zeros, dates, timezone, null omission, key order, escaping) —
+        assert these explicitly because nothing else will.
+      priority: required
+      anti_pattern: "Comparing only the deserialized object — serialization-format bugs are invisible after parse"
 
     - id: manual-snapshots
       trigger: snapshot cannot be auto-recorded
@@ -270,3 +346,4 @@ related_standards:
   - acceptance-criteria-traceability.ai.yaml
   - refactoring-standards.ai.yaml
   - testing.ai.yaml
+  - data-migration-testing.ai.yaml  # same "don't compare what merely looks equal" principle, at the DB storage layer
