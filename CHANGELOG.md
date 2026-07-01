@@ -46,10 +46,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Optional model-tier annotation (R6, XSPEC-270 Work Package A).
 - `sync-standard` four-layer sync tool; Phase 2 content-coverage audit metadata.
 
+### Added — Incident-sourced anti-drift & testability
+
+- **`refactoring-standards` Semantic Duplication & Copy-Drift** (#142): names the Copy-Drift anti-pattern (a domain fact re-implemented across sites, or a derived aggregate stored without an enforced binding to its source — invisible to textual-duplication metrics) and the Single-Source-of-Truth / Derive-Don't-Duplicate remedy (one unit per fact, derive over store, recompute stored aggregates at one choke point, lock with golden + architecture tests), plus the migration Intentional-Divergence Registry.
+- **`mock-boundary` injectable background execution** (#143): treats in-process fire-and-forget work (`Task.Run`, unawaited promises, `setTimeout`, goroutines, executors) as an injectable seam like the clock — production keeps real fire-and-forget, the test dispatcher runs inline and tracks the task for deterministic completion; adds the Poll/Sleep-for-Background-Result anti-pattern and a no-poll/sleep rule.
+
 ### Changed
 
 - **API versioning & deprecation consolidated into single sources of truth** — producer-side API-versioning material folded into `api-design-standards`; inconsistent deprecation timelines reconciled (XSPEC-298 R8).
 - **Deployment Version Identity** section added to `versioning` with a build-metadata discriminator caveat (XSPEC-298 R1).
+- **`versioning` build identity & polyglot versioning** (XSPEC-298 R2/R3): git-height–derived versioning (MinVer / Nerdbank.GitVersioning / GitVersion) for .NET/JVM/multi-language projects; build identity promoted to a requirement — deployed services MUST expose `version + commit sha + build time` via `/version`|`/health`, and Phase-5 verification MUST assert the sha matches the deployed artifact (#138).
 
 ### Deprecated
 
