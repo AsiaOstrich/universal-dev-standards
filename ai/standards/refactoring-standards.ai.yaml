@@ -3,8 +3,8 @@
 
 id: refactoring-standards
 meta:
-  version: "2.0.0"
-  updated: "2026-01-21"
+  version: "2.2.0"
+  updated: "2026-07-01"
   source: core/refactoring-standards.md
   guide: core/guides/refactoring-guide.md
   description: Refactoring guidelines with tactical, strategic, and safety strategies including decision matrix
@@ -292,9 +292,14 @@ metrics:
     - metric: Coupling
       measurement: Module dependencies count
       target: Reduce dependencies
-    - metric: Code Duplication
+    - metric: Code Duplication (textual)
       measurement: Duplicate percentage
       target: "< 3%"
+      note: Detects textual duplication only; cannot detect semantic duplication (see semantic_duplication)
+    - metric: Semantic Duplication
+      measurement: Golden / architecture test
+      target: 0 unmanaged domain facts
+      note: Static analysis cannot detect the same domain fact re-implemented across call sites
 
   test_quality:
     - metric: Test Coverage
@@ -313,6 +318,40 @@ metrics:
     - metric: Change Failure Rate
       source: Rollback count
       expected: Should decrease
+
+# Semantic Duplication & Copy-Drift (issue #142)
+semantic_duplication:
+  anti_pattern:
+    id: copy-drift
+    name: Copy-Drift
+    definition: Same domain fact implemented in multiple places, OR a derived value persisted without an enforced binding to its source, so the copies drift apart independently
+    why_undetected: Copies are not byte-identical (paraphrased logic, formula right in one place and wrong in another), so textual-duplication metrics report nothing
+    symptoms:
+      - List view disagrees with detail view
+      - Stored counter double-counts because one update path's decrement/rollback branch was skipped or commented out
+      - Same formula gives different answers in different modules
+      - Scope over-reach where one path adjusts an aggregate others also touch
+
+  pattern:
+    id: single-source-of-truth
+    name: Single Source of Truth / Derive-Don't-Duplicate
+    rules:
+      - one_unit_per_fact: Extract each domain fact into a single classifier/calculator/resolver; every call site calls it, no re-implementations or paraphrases
+      - derive_dont_store: Prefer computing on read over persisting a second copy; a value always derived cannot drift
+      - aggregate_as_projection: If an aggregate must be stored, treat it as a projection of its detail rows and recompute it at a single choke point (e.g. SaveChanges interceptor or one shared recompute() function) so every write path (incl. async jobs and failure write-backs) stays consistent
+      - never_incremental_adjust: Never let an individual path apply incremental "col = col + delta" to a stored aggregate; that is how decrement/rollback branches get skipped and counters diverge
+      - lock_with_tests: Use a golden test to pin the single source of truth, and an architecture test that fails if the rule is redefined anywhere else
+
+  intentional_divergence_registry:
+    when: New system intentionally diverges from legacy behavior (e.g. legacy function returns X but legacy pipeline reconciles it to Y; the port folds that reconciliation into the single unit so it returns Y directly)
+    actions:
+      - Register each intentional divergence (legacy behavior, new behavior, rationale, owning fact)
+      - Pin the new behavior with a golden test so a future "correction" back to legacy fails the build
+      - Feed the registry into any differential test against legacy so the divergence is treated as expected, not a regression
+
+  adopter_notes:
+    - Per-function legacy-vs-new diffing produces candidates, not verdicts; adjudicate each against the ENTIRE legacy pipeline (which may already reconcile the difference downstream) before calling it a bug
+    - Extract legacy function bodies programmatically / token-based (not by hand) to avoid reintroducing transcription errors
 
 # Team Collaboration
 team_collaboration:
@@ -456,8 +495,34 @@ rules:
     instruction: Keep PRs under 200 lines; split larger refactorings
     priority: recommended
 
+  - id: single-source-of-truth
+    trigger: same domain fact (classification, rule, calculation) needed at multiple call sites
+    instruction: Extract one shared classifier/calculator/resolver and call it everywhere; never re-implement or paraphrase the fact
+    priority: required
+
+  - id: derive-dont-duplicate
+    trigger: a derived value (aggregate, counter, denormalized field) is being persisted
+    instruction: Prefer deriving on read; if it must be stored, recompute it as a projection at a single choke point and never apply incremental col = col + delta adjustments per write path
+    priority: required
+
+  - id: lock-single-source-with-tests
+    trigger: after establishing a single source of truth for a domain fact
+    instruction: Add a golden test to pin it and an architecture test that fails if the rule is redefined elsewhere
+    priority: recommended
+
+  - id: register-intentional-divergence
+    trigger: new system intentionally diverges from legacy behavior during a port/migration
+    instruction: Record it in an intentional-divergence registry, pin with a golden test, and feed differential tests so it is treated as expected not a regression
+    priority: required
+
+  - id: adjudicate-diff-against-pipeline
+    trigger: reviewing per-function legacy-vs-new diffs
+    instruction: Treat diffs as candidates only; adjudicate each against the entire legacy pipeline before calling it a bug, and extract legacy bodies programmatically to avoid transcription errors
+    priority: recommended
+
 related_standards:
   - test-driven-development.md
   - testing-standards.md
+  - test-governance.md
   - code-review-checklist.md
   - checkin-standards.md
