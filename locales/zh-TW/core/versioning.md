@@ -1,8 +1,8 @@
 ---
 source: ../../../core/versioning.md
-source_version: 1.4.0
-translation_version: 1.4.0
-last_synced: 2026-06-24
+source_version: 1.5.0
+translation_version: 1.5.0
+last_synced: 2026-07-01
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 # 語義化版本標準
 
-**版本**: 1.3.0
-**最後更新**: 2026-06-23
+**版本**: 1.5.0
+**最後更新**: 2026-07-01
 **適用範圍**: 所有有版本發布的軟體專案
 
 ---
@@ -199,7 +199,8 @@ Format: `MAJOR.MINOR.PATCH+BUILD`
   在 CI 中由 commit 歷史推導並 bump 版本，使人無從忘記 bump。
 - **git-height 衍生版本**（MinVer / Nerdbank.GitVersioning / GitVersion）：版本由 git 提交拓撲
   推導，故碰撞結構上不可能。對 polyglot / .NET / JVM 專案 RECOMMENDED（自動化工具一節原本以 Node
-  為主）。注意 monorepo 與 squash-merge 工作流的注意事項。
+  為主）——見 [自動化工具](#自動化工具) 下的 git-height 子節。注意 monorepo 與 squash-merge 工作流
+  的注意事項。
 - **CI 唯一性閘**：若算出的版本已存在於 git tag 或 registry，則 release 失敗。
 
 ### 不可變 artifact（交叉引用）
@@ -208,11 +209,21 @@ Format: `MAJOR.MINOR.PATCH+BUILD`
 而非可變 tag）。具體的 artifact 層級要求——把部署釘在內容位址、禁止 tag/版本重用——**歸
 container-image-standards** 且將於該標準訂定；本標準只要求版本身分本身保持唯一且不可變。
 
-### Build 身分可被觀測（交叉引用）
+### Build 身分可被觀測（需求）
 
-已部署的服務 SHOULD 暴露 `version + commit sha + build time`，讓維運者不必 commit 考古就能知道在跑
-什麼；一旦暴露，sha MUST 與已部署 artifact 的 sha 相符（可驗證、非自述），且該端點 SHOULD 受存取
-控制（公開端點會洩漏內部 commit 身分）。這是部署 / 可觀測性的關切：build 身分驗證的要求**歸
+**已部署的服務 MUST 透過可查詢的 endpoint（專用的 `/version`，或嵌入 `/health`）暴露其 build 身分
+——`version + commit sha + build time`**，讓維運者不必檢視二進位或做 commit 考古就能知道確切在跑
+什麼。理由：手動版本號可能碰撞（如上），所以 ops 需要 `sha` 才能區分共用同一個 `X.Y.Z` 的兩個 build。
+
+需求：
+
+- 暴露的 `sha` MUST 與已部署 artifact 的 sha 相符——是**可驗證、非自述**（由建置推導，不可手打）。
+- 該 endpoint SHOULD 受存取控制；公開的 build 身分 endpoint 會洩漏內部 commit 身分。
+- 部署後驗證 MUST 斷言回傳的 sha 等於已部署 artifact 的 sha
+  （見 [Phase 5: Post-release Verification](#phase-5-post-release-verification-驗證階段)），而非僅
+  斷言版本號正確。
+
+這是部署 / 可觀測性的關切：具體的驗證*機制*（如何抓取 endpoint 並把斷言接進 gate）**歸
 deployment-standards**（將於該標準訂定），而 **supply-chain-attestation** 已提供 provenance 作為
 「此 artifact 確實來自此 sha」的密碼學背書。
 
@@ -491,8 +502,10 @@ sudo ./upgrade.sh
 # 1. 檢查服務狀態
 systemctl status your-service
 
-# 2. 檢查應用程式版本
-curl http://localhost:PORT/api/version
+# 2. 檢查應用程式 build 身分（version + commit sha + build time）
+#    斷言回傳的 sha 與已部署 artifact 的 sha 相符——不只是版本號。
+curl http://localhost:PORT/version    # 或 /health（若 build 身分嵌入其中）
+# 預期: {"version": "1.2.1", "sha": "<deployed-artifact-sha>", "buildTime": "..."}
 
 # 3. 檢查日誌無錯誤
 tail -100 /path/to/app.log | grep -i error
@@ -500,7 +513,9 @@ tail -100 /path/to/app.log | grep -i error
 
 **成功標準**:
 - 服務正常運行
-- API 回應正確版本號
+- `/version`（或 `/health`）回應正確版本號**且**回傳與已部署 artifact 相符的 commit sha——
+  僅版本號相符並不足夠，因為兩個 build 可能共用同一個 `X.Y.Z`
+  （見 [Build 身分可被觀測](#build-身分可被觀測需求)）
 - 日誌無致命錯誤
 - 功能驗證通過
 
@@ -655,6 +670,29 @@ npm install --save-dev semantic-release
 }
 ```
 
+### git-height 衍生版本（polyglot：.NET / JVM / 多語言）
+
+上述工具以 Node/npm 為主。對 **.NET、JVM 或多語言專案**，優先採用 **git-height 衍生版本**：
+版本由 git tag 圖加上「自上一個 tag 以來的 commit 數（commit height）」自動計算，而非存在
+人工編輯的檔案中。由於版本是 git 歷史的確定性函數，**兩個不同的建置不可能碰撞到同一個版本號**，
+且沒有任何手動 bump 步驟會被忘記——這正是它從結構上（而非靠紀律）滿足
+[部署版本身分](#部署版本身分)的原因。
+
+| Tool | Ecosystem | 說明 |
+|------|-----------|------|
+| **MinVer** | .NET / MSBuild | 由最近的 git tag 加 commit height 推導版本；無需設定檔、無需 build server 整合 |
+| **Nerdbank.GitVersioning** (nbgv) | .NET（也支援 Node 等） | 讀取 `version.json`；將 version + git height + commit id 烙印進 assembly 與套件 |
+| **GitVersion** | Polyglot（.NET，加上語言無關的 CLI） | 可設定的版本模式（如 Mainline、Continuous Delivery / Continuous Deployment），由分支與 tag 拓撲驅動 |
+
+**如何選擇：**
+
+- **Node / npm 專案** → commit 驅動的自動化（`semantic-release` / `standard-version`，見上）：bump 由 Conventional Commits 推導。
+- **Polyglot / .NET / JVM 專案** → git-height 衍生工具（MinVer / Nerdbank.GitVersioning / GitVersion）：版本由 git tag + commit height 推導。
+
+兩類都消除了會被忘記的手動 bump。**注意事項：** 在 monorepo 中，單一 repo 範圍的 commit height
+未必能乾淨對應到各套件的版本，而 squash-merge 工作流會改變 commit height——請對照你的 tagging
+慣例驗證推導出的版本。
+
 ---
 
 ## 依賴版本範圍
@@ -804,6 +842,7 @@ semver.major('2.3.1');  // 2
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.5.0 | 2026-07-01 | Added: 自動化工具新增 git-height 衍生版本工具（MinVer / Nerdbank.GitVersioning / GitVersion），適用 polyglot / .NET / JVM 專案（UDS #138 R2）；將「Build 身分可被觀測」提升為需求——已部署服務 MUST 透過可查詢 endpoint 暴露 `version + commit sha + build time`——並於 Phase 5 部署後驗證新增 commit-sha + build-time 斷言（UDS #138 R3） |
 | 1.4.0 | 2026-06-24 | Moved out (to single sources): API Versioning Strategies (de-duplicated), Deprecation Timeline + per-tier periods, Backward Compatibility Checklist, Migration Guide template — now owned by api-design-standards / deprecation-standards (XSPEC-298 R8, UDS #126) |
 | 1.3.0 | 2026-06-23 | Added: Deployment Version Identity section; build-metadata-as-deployment-discriminator caveat (from UDS #138) |
 | 1.2.0 | 2025-12-30 | Added: API Versioning Strategies, Deprecation Timeline, Backward Compatibility Checklist |

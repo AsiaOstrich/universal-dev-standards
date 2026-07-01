@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/versioning.md)
 
-**Version**: 1.4.0
-**Last Updated**: 2026-06-24
+**Version**: 1.5.0
+**Last Updated**: 2026-07-01
 **Applicability**: All software projects with versioned releases
 **Scope**: universal
 **Industry Standards**: Semantic Versioning 2.0.0
@@ -206,7 +206,8 @@ alone — the failure mode above *is* a forgotten manual bump. Any of these sati
 - **Git-height–derived versioning** (MinVer / Nerdbank.GitVersioning / GitVersion):
   the version is derived from git commit topology, so a collision is structurally
   impossible. RECOMMENDED for polyglot / .NET / JVM projects (the Automation Tools
-  section is otherwise Node-centric). Note caveats for monorepos and squash-merge
+  section is otherwise Node-centric) — see the git-height subsection under
+  [Automation Tools](#automation-tools). Note caveats for monorepos and squash-merge
   workflows.
 - **A CI uniqueness gate**: fail the release if the computed version already exists
   as a git tag or in the registry.
@@ -220,13 +221,26 @@ and forbidding tag/version reuse — **belong with container-image-standards** a
 specified there; this standard only requires that the version identity itself remain
 unique and immutable.
 
-### Build identity is observable (cross-reference)
+### Build identity is observable (requirement)
 
-A deployed service SHOULD expose `version + commit sha + build time` so operators can tell
-what is running without commit archaeology; when exposed, the sha MUST match the deployed
-artifact's sha (verifiable, not self-reported) and the endpoint SHOULD be access-controlled
-(a public one leaks internal commit identity). This is a deployment / observability
-concern: the build-identity verification requirement **belongs with deployment-standards**
+**A deployed service MUST expose its build identity — `version + commit sha + build time` —
+through a queryable endpoint** (a dedicated `/version`, or embedded in `/health`), so
+operators can determine exactly what is running without inspecting the binary or resorting to
+commit archaeology. Rationale: manual version numbers can collide (above), so ops needs the
+`sha` to tell apart two builds that ship under the same `X.Y.Z`.
+
+Requirements:
+
+- The exposed `sha` MUST match the deployed artifact's sha — it is **verifiable, not
+  self-reported** (derive it from the build, do not hand-type it).
+- The endpoint SHOULD be access-controlled; a public build-identity endpoint leaks internal
+  commit identity.
+- Post-release verification MUST assert the returned sha equals the deployed artifact's sha
+  (see [Phase 5: Post-release Verification](#phase-5-post-release-verification)), not merely
+  that the version number is correct.
+
+This is a deployment / observability concern: the concrete verification *mechanism* (how the
+endpoint is scraped and the assertion wired into a gate) **belongs with deployment-standards**
 (to be specified there), and **supply-chain-attestation** already provides provenance as
 the cryptographic backing for "this artifact came from this sha".
 
@@ -505,8 +519,10 @@ sudo ./upgrade.sh
 # 1. Check service status
 systemctl status your-service
 
-# 2. Check application version
-curl http://localhost:PORT/api/version
+# 2. Check application build identity (version + commit sha + build time)
+#    Assert the returned sha matches the deployed artifact's sha — not just the version.
+curl http://localhost:PORT/version    # or /health, if build identity is embedded there
+# Expected: {"version": "1.2.1", "sha": "<deployed-artifact-sha>", "buildTime": "..."}
 
 # 3. Check logs for no errors
 tail -100 /path/to/app.log | grep -i error
@@ -514,7 +530,9 @@ tail -100 /path/to/app.log | grep -i error
 
 **Success Criteria**:
 - Service running normally
-- API returns correct version number
+- `/version` (or `/health`) returns the correct version number **and** a commit sha that
+  matches the deployed artifact — a matching version alone is insufficient, since two builds
+  can share one `X.Y.Z` (see [Build identity is observable](#build-identity-is-observable-requirement))
 - No fatal errors in logs
 - Functionality verification passed
 
@@ -669,6 +687,32 @@ npm install --save-dev semantic-release
 }
 ```
 
+### Git-height–derived versioning (polyglot: .NET / JVM / multi-language)
+
+The tools above are Node/npm-centric. For **.NET, JVM, or multi-language projects**, prefer
+**git-height–derived versioning**, where the version is computed automatically from the git
+tag graph plus the number of commits since the last tag ("commit height") rather than stored
+in a hand-edited file. Because the version is a deterministic function of git history,
+**two different builds cannot collide on the same version number** and no manual bump step
+can be forgotten — this is what makes it satisfy
+[Deployment Version Identity](#deployment-version-identity) structurally rather than by
+discipline.
+
+| Tool | Ecosystem | Notes |
+|------|-----------|-------|
+| **MinVer** | .NET / MSBuild | Derives the version from the nearest git tag plus commit height; no config file, no build server integration required |
+| **Nerdbank.GitVersioning** (nbgv) | .NET (also Node and others) | Reads a `version.json`; stamps version + git height + commit id into assemblies and packages |
+| **GitVersion** | Polyglot (.NET, plus a language-agnostic CLI) | Configurable versioning modes (e.g. Mainline, Continuous Delivery / Continuous Deployment) driven by branch and tag topology |
+
+**When to use which:**
+
+- **Node / npm projects** → commit-driven automation (`semantic-release` / `standard-version`, above): the bump is derived from Conventional Commits.
+- **Polyglot / .NET / JVM projects** → git-height–derived tools (MinVer / Nerdbank.GitVersioning / GitVersion): the version is derived from git tag + commit height.
+
+Both families remove the forgettable manual bump. **Caveats:** in a monorepo a single
+repo-wide commit height may not map cleanly onto per-package versions, and squash-merge
+workflows alter commit height — validate the derived version against your tagging convention.
+
 ---
 
 ## Dependency Version Ranges
@@ -818,6 +862,7 @@ semver.major('2.3.1');  // 2
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.5.0 | 2026-07-01 | Added: git-height–derived versioning tools (MinVer / Nerdbank.GitVersioning / GitVersion) for polyglot / .NET / JVM projects in Automation Tools (UDS #138 R2); elevated "Build identity is observable" to a requirement — deployed services MUST expose `version + commit sha + build time` via a queryable endpoint — and added a commit-sha + build-time assertion to Phase 5 Post-release Verification (UDS #138 R3) |
 | 1.4.0 | 2026-06-24 | Moved out (to single sources): API Versioning Strategies (de-duplicated), Deprecation Timeline + per-tier periods, Backward Compatibility Checklist, and the Migration Guide template — now owned by api-design-standards / deprecation-standards; versioning cross-references them (XSPEC-298 R8, UDS #126) |
 | 1.3.0 | 2026-06-23 | Added: Deployment Version Identity section; build-metadata-as-deployment-discriminator caveat (from UDS #138) |
 | 1.2.0 | 2025-12-30 | Added: API Versioning Strategies, Deprecation Timeline, Backward Compatibility Checklist |

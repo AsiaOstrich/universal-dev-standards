@@ -1,7 +1,7 @@
 # Mock Boundary Standards
 
-**Version**: 1.0.0
-**Last Updated**: 2026-05-04
+**Version**: 1.1.0
+**Last Updated**: 2026-07-01
 **Applicability**: All software projects with unit and integration tests
 **Scope**: universal
 **Industry Standards**: ISTQB Foundation (Test Doubles), xUnit Patterns (Gerard Meszaros)
@@ -46,6 +46,7 @@ vi.mock('node:fs/promises', ...)                  // I/O replaced
 | Environment variables | `process.env.NODE_ENV`, `process.env.LICENSE_KEY` | Enables config variation |
 | File system (unit tests only) | `fs.readFile`, `fs.writeFile` | Avoids I/O in fast unit tests |
 | Cross-module boundaries (with IT counterpart) | Other modules' public APIs | Isolates unit under test |
+| In-process background execution (via injectable runner) | `Task.Run`, unawaited promises, `setTimeout`, goroutines, thread-pool dispatch | Injecting a runner seam lets tests await deterministic completion, eliminating the race |
 
 ---
 
@@ -57,6 +58,46 @@ vi.mock('node:fs/promises', ...)                  // I/O replaced
 | Database in IT/flow/E2E tests | `vi.mock('./db/client.js')` in integration tests | Hides query bugs, schema issues |
 | HTTP framework internals | `vi.mock('express')` | Real routing may be broken |
 | Security controls | Always-pass auth middleware stub | Security regressions invisible |
+
+---
+
+## Injectable Background Execution
+
+Fire-and-forget background work (a `Task.Run`, an unawaited promise, a `setTimeout`, a goroutine, a `java.util.concurrent` executor submission, or `asyncio.create_task`) is a **seam**, exactly like the system clock. Just as you inject a clock instead of reading wall-clock time, you inject the background dispatcher instead of spawning work directly. This lets a test drive the work to a **deterministic, awaited completion** and assert on its outcome (success, exception, or retry) — no polling, no sleeping, no race.
+
+Abstract the dispatch behind a small interface (e.g. `IBackgroundTaskRunner` / `BackgroundDispatcher`), then provide two implementations:
+
+- **Production**: preserves true fire-and-forget semantics — dispatch returns immediately and the work runs detached.
+- **Test**: runs the work **inline** and **tracks the underlying Task/promise**, exposing a handle the test can `await` so completion (and any failure) is observable.
+
+Language-neutral sketch (TypeScript pseudo-code):
+
+```typescript
+// Seam — injected wherever background work is dispatched
+interface BackgroundDispatcher {
+  dispatch(work: () => Promise<void>): void
+}
+
+// Production: real fire-and-forget — returns immediately, work runs detached
+class FireAndForgetDispatcher implements BackgroundDispatcher {
+  dispatch(work: () => Promise<void>): void {
+    void work() // intentionally not awaited
+  }
+}
+
+// Test: inline execution + tracked tasks so tests can await completion
+class DeterministicDispatcher implements BackgroundDispatcher {
+  private readonly tasks: Promise<void>[] = []
+  dispatch(work: () => Promise<void>): void {
+    this.tasks.push(work()) // start inline, keep the handle
+  }
+  async settle(): Promise<void> {
+    await Promise.all(this.tasks) // test awaits deterministic completion
+  }
+}
+```
+
+The test injects `DeterministicDispatcher`, exercises the code under test, then `await dispatcher.settle()` before asserting on the result — the background side effect is now fully observable and deterministic.
 
 ---
 
@@ -78,6 +119,7 @@ Before submitting a test file, check:
 - **Orphan Mock**: Cross-module mock with no integration test counterpart
 - **Security Bypass Mock**: Auth/permission logic replaced with pass-through stub
 - **Database Mock Cascade**: DB returns hardcoded data, hiding real query errors
+- **Poll/Sleep for Background Result**: Sleeping or polling to wait for fire-and-forget work to finish. The race is still there — the timeout merely hides it most of the time while slowing the whole suite and, on a shared runner, leaking flakiness into other MRs' CI. Inject a deterministic runner and await the tracked task instead.
 
 ---
 
@@ -90,6 +132,7 @@ Before submitting a test file, check:
 | IT counterpart | Mocking cross-module boundary | Ensure corresponding IT exists |
 | No security mock | Test involves auth/permissions | Use real test user + real token |
 | Hollow review | Mock count ≥ import count | Add output-value assertion |
+| No poll/sleep for background work | Test asserts a fire-and-forget side effect | Inject deterministic runner; await the tracked task |
 
 ---
 
@@ -98,3 +141,12 @@ Before submitting a test file, check:
 - **testing**: Mock boundary rules apply to all test levels in the testing pyramid
 - **test-completeness-dimensions**: Dimension 8 (AI Test Quality) references these rules
 - **flow-based-testing**: Flow tests must follow mock boundary rules
+
+---
+
+## Version History
+
+| Version | Date | Change |
+|---------|------|--------|
+| 1.0.0 | 2026-05-04 | Initial standard: hollow test problem, CAN/CANNOT mock tables, detection, anti-patterns, rules summary |
+| 1.1.0 | 2026-07-01 | Added injectable background execution as a seam (parallel to clock injection): CAN-mock row, `Injectable Background Execution` section, `Poll/Sleep for Background Result` anti-pattern, and no-poll/sleep rule (issue #143) |
