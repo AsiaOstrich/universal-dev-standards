@@ -35,7 +35,7 @@ export const WORKFLOWS = [
     name: 'Test-Driven Development (TDD)',
     description: 'Red-Green-Refactor cycle',
     steps: [
-      { cmd: 'uds workflow execute tdd', desc: 'Start TDD workflow' },
+      { cmd: '# Drive TDD with the /tdd skill', desc: 'Red-Green-Refactor from your AI assistant' },
       { cmd: '# Write failing test (RED)', desc: 'Define expected behavior' },
       { cmd: '# Make it pass (GREEN)', desc: 'Minimal implementation' },
       { cmd: '# Improve (REFACTOR)', desc: 'Clean up without breaking tests' },
@@ -57,7 +57,6 @@ export const WORKFLOWS = [
     steps: [
       { cmd: 'uds sync', desc: 'Generate context.md from git diff + workflow state' },
       { cmd: 'cat .workflow-state/context.md', desc: 'Read context in new session' },
-      { cmd: 'uds workflow status', desc: 'Check workflow execution status' },
     ],
   },
 ];

@@ -9,11 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-> ⚠️ This batch contains a **breaking change** (the `review` → `code-review` command/skill rename) and removes deprecated standards/commands — the next release will therefore be **6.0.0 (major)**. A migration guide is required before release. Locale CHANGELOG (zh-TW/zh-CN) sync is deferred to release time.
+## [6.0.0] - 2026-07-06
+
+> ⚠️ **Major release.** Contains one breaking rename and removes 8 deprecated machine-readable standards plus 4 deprecated CLI commands (all carrying a "removed in 6.0.0" notice since 5.4.0). **See the [v6 Migration Guide](docs/MIGRATION-v6.md)** ([繁體中文](locales/zh-TW/docs/MIGRATION-v6.md) | [简体中文](locales/zh-CN/docs/MIGRATION-v6.md)).
 
 ### Changed — BREAKING
 
-- **`review` command/skill renamed to `code-review`** (T1). `/review` callers must migrate to `/code-review`.
+- **`review` command/skill renamed to `code-review`** (T1). `/review` callers must migrate to `/code-review`; flow-id `review-flow` → `code-review-flow`. See Migration Guide §1.
+
+### Removed — BREAKING (scheduled since 5.4.0)
+
+- **8 deprecated `.ai.yaml` standard stubs removed** (runtime relocated to adoption layer in 5.4.0 per XSPEC-086/095 / DEC-049): `agent-communication-protocol`, `agent-dispatch`, `branch-completion`, `change-batching-standards`, `execution-history`, `pipeline-integration-standards`, `workflow-enforcement`, `workflow-state-protocol`. The human-readable `core/*.md` documents remain as reference (now on the registry-check REFERENCE_ONLY list); registry entries removed. See Migration Guide §2.
+- **4 deprecated CLI commands removed**: `uds start` / `uds mission:*`, `uds workflow:*`, `uds flow:*`, `uds sweep` (orchestration is adoption-layer responsibility; `/sweep` skill replaces `uds sweep`). Dead i18n keys and stale in-CLI hints referencing removed commands cleaned up (`config` next-steps, `quickstart` recipes). See Migration Guide §3.
 
 ### Added — New standards (coverage-roadmap waves + flagships)
 
@@ -2214,7 +2221,8 @@ This reflects the project's expanded scope covering all development standards, n
 - Templates: Requirement document templates
 - Integrations: OpenSpec framework
 
-[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.1...HEAD
+[Unreleased]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v6.0.0...HEAD
+[6.0.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.17.0...v6.0.0
 [5.7.2]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.1...v5.7.2
 [5.7.1]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.7.0...v5.7.1
 [5.7.0]: https://github.com/AsiaOstrich/universal-dev-standards/compare/v5.6.0...v5.7.0

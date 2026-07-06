@@ -55,6 +55,23 @@ function Map-CoreToAi {
     }
 }
 
+# Standards whose core/*.md is reference-only (no .ai.yaml counterpart)
+# 6.0.0 移除 .ai.yaml、core .md 留作 reference（DEC-090 發版批次）
+function Test-ReferenceOnlyCore {
+    param([string]$Name)
+    switch ($Name) {
+        "agent-communication-protocol"    { return $true }
+        "agent-dispatch"                  { return $true }
+        "branch-completion"               { return $true }
+        "change-batching-standards"       { return $true }
+        "execution-history"               { return $true }
+        "pipeline-integration-standards"  { return $true }
+        "workflow-enforcement"            { return $true }
+        "workflow-state-protocol"         { return $true }
+        default                           { return $false }
+    }
+}
+
 function Map-AiToCore {
     param([string]$AiName)
     switch ($AiName) {
@@ -82,6 +99,13 @@ if (Test-Path $CoreDir) {
     $mdFiles = Get-ChildItem -Path $CoreDir -Filter "*.md" -File | Sort-Object Name
     foreach ($mdFile in $mdFiles) {
         $baseName = $mdFile.BaseName
+
+        if (Test-ReferenceOnlyCore -Name $baseName) {
+            Write-Host "  [SKIP]    " -ForegroundColor Green -NoNewline
+            Write-Host "$baseName.md (reference-only, .ai.yaml removed in 6.0.0)"
+            continue
+        }
+
         $aiName = Map-CoreToAi -CoreName $baseName
         $aiFile = Join-Path $AiStandardsDir "$aiName.ai.yaml"
 

@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 5.17.0
-translation_version: 5.17.0
-last_synced: 2026-06-08
+source_version: 6.0.0
+translation_version: 6.0.0
+last_synced: 2026-07-06
 status: current
 ---
 
@@ -16,6 +16,71 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.0.0] - 2026-07-06
+
+> ⚠️ **重大版本（Major release）。** 包含一項 breaking 更名，並移除 8 個已棄用的機器可讀標準與 4 個已棄用的 CLI 命令（皆自 5.4.0 起帶有「將於 6.0.0 移除」告示）。**請參閱 [v6 遷移指南](docs/MIGRATION-v6.md)**（[English](../../docs/MIGRATION-v6.md) | [简体中文](../zh-CN/docs/MIGRATION-v6.md)）。
+
+### 變更 — BREAKING
+
+- **`review` 命令／skill 更名為 `code-review`**（T1）。`/review` 的呼叫端必須遷移至 `/code-review`；flow-id `review-flow` → `code-review-flow`。見遷移指南 §1。
+
+### 移除 — BREAKING（自 5.4.0 起排定）
+
+- **移除 8 個已棄用的 `.ai.yaml` 標準 stub**（runtime 已依 XSPEC-086/095 / DEC-049 於 5.4.0 移至 adoption layer）：`agent-communication-protocol`、`agent-dispatch`、`branch-completion`、`change-batching-standards`、`execution-history`、`pipeline-integration-standards`、`workflow-enforcement`、`workflow-state-protocol`。人類可讀的 `core/*.md` 文件保留作為參考（現列於 registry-check 的 REFERENCE_ONLY 清單）；registry 條目已移除。見遷移指南 §2。
+- **移除 4 個已棄用的 CLI 命令**：`uds start` / `uds mission:*`、`uds workflow:*`、`uds flow:*`、`uds sweep`（orchestration 屬 adoption layer 職責；`/sweep` skill 取代 `uds sweep`）。並清理引用已移除命令的死 i18n 鍵與過時的 in-CLI 提示（`config` next-steps、`quickstart` recipes）。見遷移指南 §3。
+
+### 新增 — 新標準（coverage-roadmap waves + 旗艦標準）
+
+- **領域與生命週期標準補齊**：product — `prd-standards`、`product-metrics`、`user-story-mapping`（XSPEC-069）；infra — `container-image`、`secret-management`、`iac-design`（XSPEC-065）；SRE — `incident-response`、`slo-sli`、`runbook`（XSPEC-063）；data engineering — `data-pipeline`、`schema-evolution`、`data-contract`（XSPEC-068）；compliance — `audit-trail`、`pii-classification`（XSPEC-066）。
+- **旗艦標準**：`verification-oracle`（XSPEC-256）、`model-provenance`（XSPEC-255）、`resource-cost-boundary`（XSPEC-277）。
+- **`user-journey-testing`** 以一級標準（first-class standard）身分發布（ai/standards + core + zh-TW + registry）。
+- **`logging-standards` 強制事件目錄（mandatory events catalog）**（XSPEC-234）。
+
+### 新增 — UDS Stage 2 硬化（T5–T16）
+
+- **Canonical AC 註記**（T5）：涵蓋 `acceptance-criteria-traceability` 與 worked examples。
+- **附出處的量化門檻**（T8）：`browser-compatibility` 95%/90% gate、`checkin` code-smell、`accessibility` session-timeout、`code-review` PR 大小／回應時間 + 大量變更例外、`project-context-memory` 7 天陳舊度、`developer-memory` 退役、`privacy` DPIA「large scale」。
+- **Failure Handling 章節**（T7）：`git-worktree` 暫時性失敗重試、`reverse-engineering` 升級（escalation）、`forward-derivation` 復原。
+- **跨職能交接**（T16）：`security-testing` finding-remediation 生命週期、`pii-classification` 發現與交接契約。
+- **Glossary 術語正規化**：作為 canonical 真實來源（T6）。
+- **CLI 硬化**（T11/T12）：Mission `FAILED` 終止狀態 + resume 防護、具 rollback 的 transactional `init`、`hitl`/`run`/`release`/config 的輸入驗證。
+
+### 新增 — 遷移與重構完整性家族
+
+- `migration-assistant` 切換後（post-cutover）資料對帳（XSPEC-284 P0）、狀態機與時序對等（XSPEC-287）；`full-coverage-testing` 遷移錯誤路徑完整性（XSPEC-288）；`performance-standards` 遷移非功能對等（XSPEC-286）。
+
+### 新增 — 工具與工作流程
+
+- **`/brainstorm` v4 的 BQS v1 品質契約**（XSPEC-296）。
+- **`ci-cd-assistant` skill 新增 CI Job Orchestration Patterns** — trigger 分離、共用資源序列化、change-detection gating、advisory vs gating、`npm ci` `EUSAGE` 疑難排解（UDS #126 / XSPEC-300）。
+- **`pipeline-security-gates` 新增部署前 attestation 驗證閘門**。
+- **release 流程新增發版前 issue/PR triage 閘門**（XSPEC-265）。
+- `release verify` 現在使用已記錄的 manifest checksum。
+- `/journey-test` 與 `/skill-builder` 註冊為正式命令。
+- 可選的 model-tier 註記（R6，XSPEC-270 Work Package A）。
+- `sync-standard` 四層同步工具；Phase 2 內容覆蓋稽核 metadata。
+
+### 新增 — 事故驅動的防漂移與可測試性
+
+- **`refactoring-standards` Semantic Duplication 與 Copy-Drift**（#142）：命名 Copy-Drift 反模式（同一領域事實在多處重複實作，或儲存的衍生彙總值與其來源之間沒有強制綁定——文字型重複度量測不到），以及 Single-Source-of-Truth / Derive-Don't-Duplicate 對策（每個事實一個單元、以推導取代儲存、儲存的彙總值在單一收斂點重算、以 golden + architecture 測試鎖住），另加遷移用的 Intentional-Divergence Registry。
+- **`mock-boundary` 可注入的背景執行**（#143）：將 in-process fire-and-forget 工作（`Task.Run`、未 await 的 promise、`setTimeout`、goroutine、executor）視為如同時鐘般的可注入接縫——production 保留真實 fire-and-forget，測試 dispatcher 則 inline 執行並追蹤 task 以達成確定性完成；新增 Poll/Sleep-for-Background-Result 反模式與 no-poll/sleep 規則。
+
+### 變更
+
+- **API versioning 與 deprecation 整併為單一真實來源** — producer 端的 API-versioning 內容併入 `api-design-standards`；不一致的 deprecation 時程已調和（XSPEC-298 R8）。
+- **`versioning` 新增 Deployment Version Identity 章節**，含 build-metadata 判別符（discriminator）注意事項（XSPEC-298 R1）。
+- **`versioning` 建置身分與多語言 versioning**（XSPEC-298 R2/R3）：.NET／JVM／多語言專案的 git-height 推導 versioning（MinVer / Nerdbank.GitVersioning / GitVersion）；建置身分升級為需求——已部署服務 MUST 經由 `/version`|`/health` 揭露 `version + commit sha + build time`，且 Phase-5 驗證 MUST 斷言 sha 與已部署 artifact 相符（#138）。
+
+### 棄用
+
+- **6 個 workflow skill** 標記為 `reference` 並附可見的棄用告示；已棄用的 runtime 命令加上結構化 `@superseded-by` 指標（XSPEC-291 §4）。
+
+### 修正
+
+- **`uds audit` 假陽性**：`options/` 檔案被誤報 missing（health check 現在會遞迴進子目錄）、CP950 主控台亂碼、非 TTY 崩潰（#115）；unused-standard 偵測改以 canonical id 而非檔名比對（#125）。
+- **Bundle ⇄ source 對等已恢復** — 25 個標準已同步進 `.standards/` self-adoption tree。
+- 多項 docs/i18n 完整性修正：過時的標準／skill／命令數量、壞掉的 locale 交叉連結、command/skill 索引重新產生、anchor-slugger 與 table-parity 路徑。
 
 ## [5.17.0] - 2026-06-08
 

@@ -75,37 +75,6 @@ export const messages = {
       deleted: 'Spec deleted.'
     },
 
-    // Mission Command
-    mission: {
-      activeExists: 'An active mission already exists:',
-      existingAction: 'What would you like to do?',
-      resume: 'Resume existing mission',
-      cancel: 'Cancel existing and start new',
-      abort: 'Abort (do nothing)',
-      aborted: 'Operation cancelled.',
-      resuming: 'Resuming existing mission...',
-      previousCancelled: 'Previous mission cancelled.',
-      selectType: 'Select mission type:',
-      enterIntent: 'Describe your goal:',
-      intentRequired: 'Intent is required',
-      created: 'Mission created!',
-      suggestedWorkflow: 'Suggested workflow:',
-      nextSteps: 'Next steps:',
-      useSpecCreate: 'Create specs:',
-      useStatus: 'Check status:',
-      usePause: 'Pause mission:',
-      planningPhase: 'Mission is now in planning phase.',
-      noActive: 'No active mission.',
-      startHint: 'Start one with: uds start <type> "<intent>"',
-      paused: 'Mission paused.',
-      resumed: 'Mission resumed!',
-      confirmCancel: 'Cancel this mission?',
-      cancelAborted: 'Operation cancelled.',
-      cancelled: 'Mission cancelled.',
-      noMissions: 'No missions found.',
-      listTitle: 'Missions:'
-    },
-
     // Display Language (first prompt - English only since language not yet selected)
     displayLanguage: {
       title: 'Display Language',
@@ -673,8 +642,6 @@ export const messages = {
       vibeMode: 'Vibe Coding Mode - For AI-assisted development',
       missionMode: 'Mission Mode - For goal-oriented development',
       customMode: 'Custom - Set individual options',
-      missionComingSoon: 'Mission mode setup coming soon!',
-      useStartCommand: 'For now, use: uds start <mission-type> <intent>',
       customHint: 'Use: uds config set <key> <value>',
       vibeModeTitle: 'Vibe Coding Configuration',
       vibeModeDesc: 'Configure UDS for natural language-driven development',
@@ -700,7 +667,7 @@ export const messages = {
       nextSteps: 'Next steps:',
       useSpec: 'Generate specs:',
       useSweep: 'Clean up code:',
-      useStart: 'Start a mission:',
+      useQuickstart: 'Explore recipes:',
       // Display Language
       displayLanguageOption: 'Display Language - Change UI language',
       currentLanguage: 'Current language',
@@ -1340,37 +1307,6 @@ export const messages = {
       deleted: '規格已刪除。'
     },
 
-    // Mission Command
-    mission: {
-      activeExists: '已存在進行中的任務：',
-      existingAction: '您想怎麼做？',
-      resume: '繼續現有任務',
-      cancel: '取消現有任務並開始新任務',
-      abort: '中止（不執行任何操作）',
-      aborted: '操作已取消。',
-      resuming: '正在繼續現有任務...',
-      previousCancelled: '已取消先前任務。',
-      selectType: '選擇任務類型：',
-      enterIntent: '描述您的目標：',
-      intentRequired: '必須提供意圖描述',
-      created: '任務已建立！',
-      suggestedWorkflow: '建議的工作流程：',
-      nextSteps: '後續步驟：',
-      useSpecCreate: '建立規格：',
-      useStatus: '查看狀態：',
-      usePause: '暫停任務：',
-      planningPhase: '任務現在處於規劃階段。',
-      noActive: '沒有進行中的任務。',
-      startHint: '使用以下命令開始：uds start <類型> "<意圖>"',
-      paused: '任務已暫停。',
-      resumed: '任務已繼續！',
-      confirmCancel: '確定要取消此任務嗎？',
-      cancelAborted: '操作已取消。',
-      cancelled: '任務已取消。',
-      noMissions: '找不到任務。',
-      listTitle: '任務列表：'
-    },
-
     // Display Language (first prompt - English only since language not yet selected)
     displayLanguage: {
       title: 'Display Language',
@@ -1938,8 +1874,6 @@ export const messages = {
       vibeMode: 'Vibe Coding 模式 - AI 輔助開發',
       missionMode: 'Mission 模式 - 目標導向開發',
       customMode: '自訂 - 個別設定選項',
-      missionComingSoon: 'Mission 模式設定即將推出！',
-      useStartCommand: '目前請使用：uds start <mission-type> <intent>',
       customHint: '使用：uds config set <key> <value>',
       vibeModeTitle: 'Vibe Coding 設定',
       vibeModeDesc: '設定 UDS 以進行自然語言驅動開發',
@@ -1965,7 +1899,7 @@ export const messages = {
       nextSteps: '後續步驟：',
       useSpec: '產生規格：',
       useSweep: '清理程式碼：',
-      useStart: '開始任務：',
+      useQuickstart: '探索工作流程範例：',
       // Display Language
       displayLanguageOption: '顯示語言 - 變更 UI 語言',
       currentLanguage: '目前語言',
@@ -2604,37 +2538,6 @@ export const messages = {
       deleted: '规格已删除。'
     },
 
-    // Mission Command
-    mission: {
-      activeExists: '已存在进行中的任务：',
-      existingAction: '您想怎么做？',
-      resume: '继续现有任务',
-      cancel: '取消现有任务并开始新任务',
-      abort: '中止（不执行任何操作）',
-      aborted: '操作已取消。',
-      resuming: '正在继续现有任务...',
-      previousCancelled: '已取消先前任务。',
-      selectType: '选择任务类型：',
-      enterIntent: '描述您的目标：',
-      intentRequired: '必须提供意图描述',
-      created: '任务已创建！',
-      suggestedWorkflow: '建议的工作流程：',
-      nextSteps: '后续步骤：',
-      useSpecCreate: '创建规格：',
-      useStatus: '查看状态：',
-      usePause: '暂停任务：',
-      planningPhase: '任务现在处于规划阶段。',
-      noActive: '没有进行中的任务。',
-      startHint: '使用以下命令开始：uds start <类型> "<意图>"',
-      paused: '任务已暂停。',
-      resumed: '任务已继续！',
-      confirmCancel: '确定要取消此任务吗？',
-      cancelAborted: '操作已取消。',
-      cancelled: '任务已取消。',
-      noMissions: '找不到任务。',
-      listTitle: '任务列表：'
-    },
-
     // Display Language (first prompt - English only since language not yet selected)
     displayLanguage: {
       title: 'Display Language',
@@ -3131,8 +3034,6 @@ export const messages = {
       vibeMode: 'Vibe Coding 模式 - AI 辅助开发',
       missionMode: 'Mission 模式 - 目标导向开发',
       customMode: '自定义 - 单独设置选项',
-      missionComingSoon: 'Mission 模式设置即将推出！',
-      useStartCommand: '目前请使用：uds start <mission-type> <intent>',
       customHint: '使用：uds config set <key> <value>',
       vibeModeTitle: 'Vibe Coding 配置',
       vibeModeDesc: '配置 UDS 以进行自然语言驱动开发',
@@ -3158,7 +3059,7 @@ export const messages = {
       nextSteps: '后续步骤：',
       useSpec: '生成规格：',
       useSweep: '清理代码：',
-      useStart: '开始任务：',
+      useQuickstart: '探索工作流程示例：',
       // Display Language
       displayLanguageOption: '显示语言 - 更改 UI 语言',
       currentLanguage: '当前语言',

@@ -33,7 +33,7 @@ Version 5.0.0-rc.16 | 2026
 
 | 類別 | 數量 | 說明 |
 |------|------|------|
-| **Core Standards** | 48 | 通用開發準則（Markdown） |
+| **Core Standards** | 140+ | 通用開發準則（Markdown） |
 | **AI Skills** | 40 | 互動式技能（YAML） |
 | **Slash Commands** | 45 | 快速操作指令 |
 | **CLI Commands** | 6 | 命令列工具 |
@@ -57,7 +57,7 @@ Version 5.0.0-rc.16 | 2026
 
 **Boy Scout Rule**：讓程式碼比你找到它時更好一點
 
-- 不需要一次導入 48 個標準
+- 不需要一次導入 140+ 個標準
 - 從 `/commit` 開始，零成本立即見效
 - 每次修改程式碼時，順手加一點保護（測試、文件）
 
@@ -129,7 +129,7 @@ npx universal-dev-standards init
 
 ```
 your-project/
-├── .standards/           # AI 標準（48 個 .ai.yaml 檔案）
+├── .standards/           # AI 標準（.ai.yaml 檔案）
 │   ├── testing.ai.yaml
 │   ├── commit-message.ai.yaml
 │   ├── code-review.ai.yaml

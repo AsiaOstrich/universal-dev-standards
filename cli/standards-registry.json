@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "5.17.0",
+  "version": "6.0.0",
   "lastUpdated": "2026-05-13",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
@@ -58,14 +58,14 @@
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "5.17.0"
+      "version": "6.0.0"
     },
     "skills": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
       "localPath": "skills",
       "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills",
-      "version": "5.17.0",
+      "version": "6.0.0",
       "note": "Skills are now included in the main repository under skills/"
     }
   },
@@ -1009,40 +1009,6 @@
       "description": "Standard structure for AI task definitions with 4 required fields (read_first, action, acceptance_criteria, verification)"
     },
     {
-      "id": "workflow-state-protocol",
-      "name": "Workflow State Protocol",
-      "nameZh": "工作流狀態協議",
-      "source": {
-        "human": "core/workflow-state-protocol.md",
-        "ai": "ai/standards/workflow-state-protocol.ai.yaml"
-      },
-      "category": "reference",
-      "skillName": null,
-      "deprecated": true,
-      "deprecatedSince": "5.4.0",
-      "removalVersion": "6.0.0",
-      "canonicalOwner": "adoption-layer",
-      "canonicalPath": "",
-      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Workflow state persistence protocol — runtime is now adoption-layer responsibility."
-    },
-    {
-      "id": "workflow-enforcement",
-      "name": "Workflow Enforcement",
-      "nameZh": "工作流程強制執行",
-      "source": {
-        "human": "core/workflow-enforcement.md",
-        "ai": "ai/standards/workflow-enforcement.ai.yaml"
-      },
-      "category": "reference",
-      "skillName": null,
-      "deprecated": true,
-      "deprecatedSince": "5.4.0",
-      "removalVersion": "6.0.0",
-      "canonicalOwner": "adoption-layer",
-      "canonicalPath": "",
-      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Machine-enforceable workflow gates — runtime is now adoption-layer responsibility."
-    },
-    {
       "id": "testing",
       "name": "Testing Standards",
       "nameZh": "測試標準",
@@ -1462,23 +1428,6 @@
       "description": "Structured system for capturing, retrieving, and surfacing developer experience insights across conversations and projects"
     },
     {
-      "id": "execution-history",
-      "name": "Execution History Repository Standards",
-      "nameZh": "執行歷史倉庫標準",
-      "source": {
-        "human": "core/execution-history.md",
-        "ai": "ai/standards/execution-history.ai.yaml"
-      },
-      "category": "reference",
-      "skillName": null,
-      "deprecated": true,
-      "deprecatedSince": "5.4.0",
-      "removalVersion": "6.0.0",
-      "canonicalOwner": "adoption-layer",
-      "canonicalPath": "",
-      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Execution history L1/L2/L3 protocol — runtime is now adoption-layer responsibility."
-    },
-    {
       "id": "project-context-memory",
       "name": "Project Context Memory Standards",
       "nameZh": "專案情境記憶標準",
@@ -1666,23 +1615,6 @@
       "description": "Template for writing comprehensive requirement documents"
     },
     {
-      "id": "pipeline-integration",
-      "name": "Pipeline Integration Standards",
-      "nameZh": "Pipeline 整合標準",
-      "source": {
-        "human": "core/pipeline-integration-standards.md",
-        "ai": "ai/standards/pipeline-integration-standards.ai.yaml"
-      },
-      "category": "reference",
-      "skillName": null,
-      "deprecated": true,
-      "deprecatedSince": "5.4.0",
-      "removalVersion": "6.0.0",
-      "canonicalOwner": "adoption-layer",
-      "canonicalPath": "",
-      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Pipeline 6-stage model — runtime is now adoption-layer responsibility."
-    },
-    {
       "id": "acceptance-criteria-traceability",
       "name": "Acceptance Criteria Traceability Standards",
       "nameZh": "驗收條件追蹤標準",
@@ -1755,23 +1687,6 @@
       "description": "E2E test configuration across multiple deployment targets; BASE_URL baked in test config; self-checking runner scripts; environment capability matrix; CI gate mapping; credential handling rules"
     },
     {
-      "id": "change-batching",
-      "name": "Change Batching Standards",
-      "nameZh": "變更批次合併標準",
-      "source": {
-        "human": "core/change-batching-standards.md",
-        "ai": "ai/standards/change-batching-standards.ai.yaml"
-      },
-      "category": "reference",
-      "skillName": null,
-      "deprecated": true,
-      "deprecatedSince": "5.4.0",
-      "removalVersion": "6.0.0",
-      "canonicalOwner": "adoption-layer",
-      "canonicalPath": "",
-      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Change batching state machine — runtime is now adoption-layer responsibility."
-    },
-    {
       "id": "migration-template",
       "name": "Migration Plan Template",
       "nameZh": "遷移計畫模板",
@@ -1792,40 +1707,6 @@
       "category": "skill",
       "skillName": null,
       "description": "Four-phase debugging workflow (Root Cause → Pattern Analysis → Hypothesis Testing → Fix) with 3-Strike Rule"
-    },
-    {
-      "id": "agent-dispatch",
-      "name": "Agent Dispatch & Parallel Coordination",
-      "nameZh": "子代理派遣與並行協調",
-      "source": {
-        "human": "core/agent-dispatch.md",
-        "ai": "ai/standards/agent-dispatch.ai.yaml"
-      },
-      "category": "skill",
-      "skillName": null,
-      "deprecated": true,
-      "deprecatedSince": "5.4.0",
-      "removalVersion": "6.0.0",
-      "canonicalOwner": "adoption-layer",
-      "canonicalPath": "",
-      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Agent dispatch protocol — runtime is now adoption-layer responsibility."
-    },
-    {
-      "id": "agent-communication-protocol",
-      "name": "Agent Communication Protocol",
-      "nameZh": "跨專案 Agent 通訊協定",
-      "source": {
-        "human": "core/agent-communication-protocol.md",
-        "ai": "ai/standards/agent-communication-protocol.ai.yaml"
-      },
-      "category": "skill",
-      "skillName": null,
-      "deprecated": true,
-      "deprecatedSince": "5.4.0",
-      "removalVersion": "6.0.0",
-      "canonicalOwner": "adoption-layer",
-      "canonicalPath": "",
-      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Agent envelope/handoff protocol — runtime is now adoption-layer responsibility."
     },
     {
       "id": "model-selection",
@@ -1850,23 +1731,6 @@
       "category": "reference",
       "skillName": null,
       "description": "Git worktree lifecycle management: setup → baseline → execute → merge → cleanup"
-    },
-    {
-      "id": "branch-completion",
-      "name": "Branch Completion Workflow",
-      "nameZh": "分支完成工作流",
-      "source": {
-        "human": "core/branch-completion.md",
-        "ai": "ai/standards/branch-completion.ai.yaml"
-      },
-      "category": "reference",
-      "skillName": null,
-      "deprecated": true,
-      "deprecatedSince": "5.4.0",
-      "removalVersion": "6.0.0",
-      "canonicalOwner": "adoption-layer",
-      "canonicalPath": "",
-      "description": "DEPRECATED: Runtime relocated to adoption layer (DEC-049 superseded 2026-05-07). Branch completion workflow — runtime is now adoption-layer responsibility."
     },
     {
       "id": "verification-evidence",
@@ -2362,7 +2226,7 @@
       "id": "license-compliance",
       "name": "License Compliance Standards",
       "nameZh": "授權合規標準",
-      "version": "5.17.0",
+      "version": "6.0.0",
       "source": {
         "human": "core/license-compliance.md",
         "ai": "ai/standards/license-compliance.ai.yaml"
@@ -2374,7 +2238,7 @@
       "id": "verification-oracle",
       "name": "Verification Oracle Standards",
       "nameZh": "驗證 Oracle 標準",
-      "version": "1.0.0",
+      "version": "6.0.0",
       "source": {
         "human": "core/verification-oracle.md",
         "ai": "ai/standards/verification-oracle.ai.yaml"
@@ -2386,7 +2250,7 @@
       "id": "model-provenance",
       "name": "Model Provenance Policy Standards",
       "nameZh": "模型來源政策標準",
-      "version": "1.0.0",
+      "version": "6.0.0",
       "source": {
         "human": "core/model-provenance.md",
         "ai": "ai/standards/model-provenance.ai.yaml"
@@ -2398,7 +2262,7 @@
       "id": "resource-cost-boundary",
       "name": "Resource / Cost Boundary Declaration Standards",
       "nameZh": "資源／成本邊界宣告標準",
-      "version": "1.0.0",
+      "version": "6.0.0",
       "source": {
         "human": "core/resource-cost-boundary.md",
         "ai": "ai/standards/resource-cost-boundary.ai.yaml"

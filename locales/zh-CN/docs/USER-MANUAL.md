@@ -71,7 +71,7 @@ Universal Development Standards 是一套为 AI 时代设计的**语言无关、
 
 ### 设计哲学
 
-**"碰一点，保护一点"** — 你不需要一次导入全部 48 个标准。UDS 专为渐进式导入设计：
+**"碰一点，保护一点"** — 你不需要一次导入全部 140+ 个标准。UDS 专为渐进式导入设计：
 
 - 先只用 `/commit` — 零成本，立即见效
 - 接着加入 `/code-review` — 在合并前捕捉问题
@@ -142,7 +142,7 @@ npx universal-dev-standards init
 
 ```
 your-project/
-├── .standards/           # 48 个 AI 标准（.ai.yaml 文件）
+├── .standards/           # AI 标准（.ai.yaml 文件）
 │   ├── testing.ai.yaml
 │   ├── commit-message.ai.yaml
 │   ├── code-review.ai.yaml

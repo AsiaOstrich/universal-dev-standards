@@ -53,26 +53,18 @@
     "ai/standards/context-aware-loading.ai.yaml",
     "ai/standards/test-governance.ai.yaml",
     "ai/standards/structured-task-definition.ai.yaml",
-    "ai/standards/workflow-state-protocol.ai.yaml",
-    "ai/standards/pipeline-integration-standards.ai.yaml",
     "ai/standards/acceptance-criteria-traceability.ai.yaml",
-    "ai/standards/change-batching-standards.ai.yaml",
     "ai/standards/api-design-standards.ai.yaml",
     "ai/standards/database-standards.ai.yaml",
-    "ai/standards/workflow-enforcement.ai.yaml",
     "ai/standards/systematic-debugging.ai.yaml",
-    "ai/standards/agent-dispatch.ai.yaml",
     "ai/standards/model-selection.ai.yaml",
     "ai/standards/git-worktree.ai.yaml",
-    "ai/standards/branch-completion.ai.yaml",
     "ai/standards/verification-evidence.ai.yaml",
     "ai/standards/ai-command-behavior.ai.yaml",
     "ai/standards/ai-response-navigation.ai.yaml",
     "ai/standards/documentation-lifecycle.ai.yaml",
     "ai/standards/adr-standards.ai.yaml",
-    "ai/standards/retrospective-standards.ai.yaml",
-    "ai/standards/execution-history.ai.yaml",
-    "ai/standards/agent-communication-protocol.ai.yaml"
+    "ai/standards/retrospective-standards.ai.yaml"
   ],
   "domains": {
     "always-on": [
@@ -116,10 +108,7 @@
     "workflow": [
       "ai/standards/git-workflow.ai.yaml",
       "ai/standards/versioning.ai.yaml",
-      "ai/standards/deployment-standards.ai.yaml",
-      "ai/standards/workflow-state-protocol.ai.yaml",
-      "ai/standards/pipeline-integration-standards.ai.yaml",
-      "ai/standards/change-batching-standards.ai.yaml"
+      "ai/standards/deployment-standards.ai.yaml"
     ],
     "architecture": [
       "ai/standards/ai-friendly-architecture.ai.yaml",
@@ -470,24 +459,9 @@
       "size": 4091,
       "installedAt": "2026-04-10T16:13:15.500Z"
     },
-    ".standards/workflow-state-protocol.ai.yaml": {
-      "hash": "sha256:20768f79355f03b51477ccde1a5f2a072444cf95a2abf750f7061ec5b8bc7df1",
-      "size": 4509,
-      "installedAt": "2026-04-10T16:13:15.500Z"
-    },
-    ".standards/pipeline-integration-standards.ai.yaml": {
-      "hash": "sha256:5970b87c88e9722bfa28fe3e2bf286b520b63be1ae92d495106a7d420513dac9",
-      "size": 6115,
-      "installedAt": "2026-04-10T16:13:15.500Z"
-    },
     ".standards/acceptance-criteria-traceability.ai.yaml": {
       "hash": "sha256:0c08af3ef7687c7ebbb12a4769172ff2d6540a6e12c0f1cd127d34ff064a59b5",
       "size": 6042,
-      "installedAt": "2026-04-10T16:13:15.500Z"
-    },
-    ".standards/change-batching-standards.ai.yaml": {
-      "hash": "sha256:e95b4a5cea6f20849357f002f1454bf147b1b359c95a927221fad6aab2599e73",
-      "size": 6136,
       "installedAt": "2026-04-10T16:13:15.500Z"
     },
     ".standards/api-design-standards.ai.yaml": {
@@ -500,19 +474,9 @@
       "size": 9152,
       "installedAt": "2026-04-10T16:13:15.500Z"
     },
-    ".standards/workflow-enforcement.ai.yaml": {
-      "hash": "sha256:aa037a3e9e1dd638576ba8fd820e98abb8ca205e0fa1e0e408eaf51335b687d1",
-      "size": 8669,
-      "installedAt": "2026-04-10T16:13:15.500Z"
-    },
     ".standards/systematic-debugging.ai.yaml": {
       "hash": "sha256:2584b82b62c4d8f18c8fa19eb109b146dcf095eeca9862e210305e9a6a47a98b",
       "size": 2712,
-      "installedAt": "2026-04-10T16:13:15.500Z"
-    },
-    ".standards/agent-dispatch.ai.yaml": {
-      "hash": "sha256:f17e49ac671a393a3d413f0f56e2275037d40f394c87128e00d7475d35f81889",
-      "size": 2691,
       "installedAt": "2026-04-10T16:13:15.500Z"
     },
     ".standards/model-selection.ai.yaml": {
@@ -523,11 +487,6 @@
     ".standards/git-worktree.ai.yaml": {
       "hash": "sha256:9b674a07b8d4a06635197dc81f1ced6b36ad5f0e91a650156cf4e56f4a24ea96",
       "size": 2467,
-      "installedAt": "2026-04-10T16:13:15.500Z"
-    },
-    ".standards/branch-completion.ai.yaml": {
-      "hash": "sha256:60c33a6c069c25b0e6e3616b32148bc184881c3408f9f08b6aef0569f1fb5266",
-      "size": 2484,
       "installedAt": "2026-04-10T16:13:15.500Z"
     },
     ".standards/verification-evidence.ai.yaml": {
@@ -558,16 +517,6 @@
     ".standards/retrospective-standards.ai.yaml": {
       "hash": "sha256:cdc8fd831050f50a6cc3031cf83b61d02d2c7abc7c3bb53fbefbc504f41f14e2",
       "size": 1471,
-      "installedAt": "2026-04-10T16:13:15.500Z"
-    },
-    ".standards/execution-history.ai.yaml": {
-      "hash": "sha256:95da028be00446e89897e8887c067b314fce6db516f8d5dc5bae0e2b74ba2d5e",
-      "size": 11948,
-      "installedAt": "2026-04-10T16:13:15.500Z"
-    },
-    ".standards/agent-communication-protocol.ai.yaml": {
-      "hash": "sha256:44b0c371f63334fef88c555a91fa5d6b58f6fb1f41eb291563a00a34d2168b54",
-      "size": 4823,
       "installedAt": "2026-04-10T16:13:15.500Z"
     }
   },

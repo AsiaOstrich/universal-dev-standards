@@ -89,6 +89,11 @@ is_reference_only() {
     case "$name" in
         "requirement-checklist"|"requirement-template"|"requirement-document-template")
             return 0 ;;
+        # 6.0.0 移除 .ai.yaml、core .md 留作 reference（DEC-090 發版批次）
+        "agent-communication-protocol"|"agent-dispatch"|"branch-completion"|"change-batching-standards")
+            return 0 ;;
+        "execution-history"|"pipeline-integration-standards"|"workflow-enforcement"|"workflow-state-protocol")
+            return 0 ;;
         *)
             return 1 ;;
     esac

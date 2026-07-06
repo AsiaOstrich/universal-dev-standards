@@ -1,6 +1,7 @@
 /**
  * Tests for SPEC-FLOW-001: Flow CLI Commands
- * AC Coverage: AC-12, AC-13, AC-14, AC-15
+ * AC Coverage: AC-13, AC-14, AC-15
+ * (AC-12 buildFlowFromAnswers 已隨 6.0.0 移除 cli/src/commands/flow.js 一併刪除)
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -9,7 +10,6 @@ import {
   validateFlowById,
   diffFlows
 } from '../../../src/flow/flow-commands.js';
-import { buildFlowFromAnswers } from '../../../src/commands/flow.js';
 
 // Shared fixtures
 const sddBuiltIn = {
@@ -126,78 +126,6 @@ describe('SPEC-FLOW-001: Flow Commands (Core Logic)', () => {
       expect(diff.stages.added).toHaveLength(0);
       expect(diff.stages.removed).toHaveLength(0);
       expect(diff.steps.modified).toHaveLength(0);
-    });
-  });
-});
-
-describe('SPEC-FLOW-001: Flow CLI (AC-12 Interactive Create)', () => {
-  // ============================================================
-  // AC-12: buildFlowFromAnswers — 從互動式回答建立 Flow YAML
-  // ============================================================
-  describe('AC-12: buildFlowFromAnswers', () => {
-    it('should build flow from scratch when no base selected', () => {
-      const answers = {
-        id: 'my-team',
-        name: '我的團隊流程',
-        base: null,
-        stages: [
-          { id: 'plan', name: '規劃', commands: ['/brainstorm', '/requirement'] },
-          { id: 'build', name: '建置', commands: ['/tdd'] }
-        ]
-      };
-
-      const flow = buildFlowFromAnswers(answers);
-
-      expect(flow.id).toBe('my-team');
-      expect(flow.name).toBe('我的團隊流程');
-      expect(flow.extends).toBeUndefined();
-      expect(flow.stages).toHaveLength(2);
-      expect(flow.stages[0].steps).toHaveLength(2);
-      expect(flow.stages[0].steps[0].command).toBe('/brainstorm');
-    });
-
-    it('should build flow with extends when base is selected', () => {
-      const answers = {
-        id: 'secure-sdd',
-        name: 'Secure SDD',
-        base: 'sdd',
-        stages: []
-      };
-
-      const flow = buildFlowFromAnswers(answers);
-
-      expect(flow.id).toBe('secure-sdd');
-      expect(flow.extends).toBe('sdd');
-    });
-
-    it('should set default config values', () => {
-      const answers = {
-        id: 'simple',
-        name: 'Simple',
-        base: null,
-        stages: [{ id: 'build', name: 'Build', commands: ['/tdd'] }]
-      };
-
-      const flow = buildFlowFromAnswers(answers);
-
-      expect(flow.config.enforcement).toBe('suggest');
-      expect(flow.config.state_persistence).toBe(true);
-      expect(flow.config.gate_timeout).toBe(30);
-    });
-
-    it('should generate valid YAML output', () => {
-      const answers = {
-        id: 'yaml-test',
-        name: 'YAML Test',
-        base: null,
-        stages: [{ id: 'build', name: 'Build', commands: ['/tdd'] }]
-      };
-
-      const flow = buildFlowFromAnswers(answers);
-
-      // Should be serializable (no circular refs, no functions)
-      expect(() => JSON.stringify(flow)).not.toThrow();
-      expect(flow.id).toBe('yaml-test');
     });
   });
 });

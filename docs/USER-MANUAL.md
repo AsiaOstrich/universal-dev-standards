@@ -70,7 +70,7 @@ Universal Development Standards is a **language-agnostic, framework-agnostic** d
 
 ### Design Philosophy
 
-**"Touch a little, protect a little"** — You do not need to adopt all 48 standards at once. UDS is designed for incremental adoption:
+**"Touch a little, protect a little"** — You do not need to adopt all 140+ standards at once. UDS is designed for incremental adoption:
 
 - Start with `/commit` alone — zero cost, immediate benefit
 - Add `/code-review` next — catch issues before merge
@@ -141,7 +141,7 @@ After running `uds init`, your project gains these new files:
 
 ```
 your-project/
-├── .standards/           # 48 AI standards (.ai.yaml files)
+├── .standards/           # AI standards (.ai.yaml files)
 │   ├── testing.ai.yaml
 │   ├── commit-message.ai.yaml
 │   ├── code-review.ai.yaml

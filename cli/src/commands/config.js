@@ -473,8 +473,8 @@ async function initVibeMode(options) {
   console.log('');
   console.log(chalk.gray(t('config.nextSteps', 'Next steps:')));
   console.log(chalk.gray(`  • ${t('config.useSpec', 'Generate specs:')} uds spec create "your idea"`));
-  console.log(chalk.gray(`  • ${t('config.useSweep', 'Clean up code:')} uds sweep`));
-  console.log(chalk.gray(`  • ${t('config.useStart', 'Start a mission:')} uds start greenfield "MyApp"`));
+  console.log(chalk.gray(`  • ${t('config.useSweep', 'Clean up code:')} /sweep (AI assistant skill)`));
+  console.log(chalk.gray(`  • ${t('config.useQuickstart', 'Explore recipes:')} uds quickstart`));
 }
 
 /**

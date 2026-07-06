@@ -47,6 +47,15 @@ const REFERENCE_ONLY: ReadonlyArray<string> = [
   'requirement-checklist',
   'requirement-template',
   'requirement-document-template',
+  // 6.0.0 移除 .ai.yaml、core .md 留作 reference（DEC-090 發版批次）
+  'agent-communication-protocol',
+  'agent-dispatch',
+  'branch-completion',
+  'change-batching-standards',
+  'execution-history',
+  'pipeline-integration-standards',
+  'workflow-enforcement',
+  'workflow-state-protocol',
 ];
 
 function mapCoreToAi(coreName: string): string {

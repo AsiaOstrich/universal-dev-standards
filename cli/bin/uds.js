@@ -13,18 +13,14 @@ import { configCommand } from '../src/commands/config.js';
 import { hitlCommand } from '../src/commands/hitl.js';
 import { skillsCommand } from '../src/commands/skills.js';
 import { agentListCommand, agentInstallCommand, agentInfoCommand } from '../src/commands/agent.js';
-import { workflowListCommand, workflowInstallCommand, workflowInfoCommand, workflowExecuteCommand, workflowStatusCommand } from '../src/commands/workflow.js';
 import { aiContextInitCommand, aiContextValidateCommand, aiContextGraphCommand } from '../src/commands/ai-context.js';
-import { sweepCommand } from '../src/commands/sweep.js';
 import { auditCommand } from '../src/commands/audit.js';
 import { uninstallCommand } from '../src/commands/uninstall.js';
 import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand, specArchiveCommand, specDeleteCommand, specSearchCommand } from '../src/commands/spec.js';
 import { quickstartCommand } from '../src/commands/quickstart.js';
 import { specSplitCommand } from '../src/commands/spec-split.js';
-import { startCommand, missionStatusCommand, missionPauseCommand, missionResumeCommand, missionCancelCommand, missionListCommand } from '../src/commands/start.js';
 import { releaseCommand } from '../src/commands/release.js';
 import { compileStandards } from '../src/commands/compile.js';
-import { flowCreateCommand, flowListCommand, flowValidateCommand, flowDiffCommand, flowExportCommand, flowImportCommand } from '../src/commands/flow.js';
 import { generateReport } from '../src/commands/report.js';
 import { mcpCommand } from '../src/commands/mcp.js';
 import { runIntentCommand } from '../src/commands/run-intent.js';
@@ -228,14 +224,6 @@ program
   .action(skillsCommand);
 
 program
-  .command('sweep')
-  .description('Auto-cleanup code after vibe coding sessions')
-  .option('--fix', 'Apply fixes instead of dry-run preview')
-  .option('--report', 'Save report to .uds/reports/')
-  .option('-v, --verbose', 'Show detailed output')
-  .action(sweepCommand);
-
-program
   .command('audit')
   .description('Deep health diagnosis with pattern detection and feedback (strategic). For quick file check, use "uds check"')
   .option('--health', 'Health check only')
@@ -411,47 +399,6 @@ agentCommand
   .description('Show detailed information about an agent')
   .action(agentInfoCommand);
 
-// Workflow command with subcommands
-const workflowCommand = program
-  .command('workflow')
-  .description('Manage UDS workflows for AI tools');
-
-workflowCommand
-  .command('list')
-  .description('List available and installed workflows')
-  .option('--installed', 'Show installation status for all AI tools')
-  .action(workflowListCommand);
-
-workflowCommand
-  .command('install [workflow-name]')
-  .description('Install workflows (specify name or "all" for all workflows)')
-  .option('-t, --tool <tool>', 'Target AI tool (default: claude-code)')
-  .option('-g, --global', 'Install to user level instead of project level')
-  .option('-y, --yes', 'Skip confirmation prompts')
-  .action(workflowInstallCommand);
-
-workflowCommand
-  .command('info <workflow-name>')
-  .description('Show detailed information about a workflow')
-  .action(workflowInfoCommand);
-
-workflowCommand
-  .command('execute <workflow-name>')
-  .alias('run')
-  .description('Execute a workflow step by step')
-  .option('-t, --tool <tool>', 'Target AI tool (default: claude-code)')
-  .option('--resume', 'Resume from saved state')
-  .option('--restart', 'Restart from beginning (discard saved state)')
-  .option('-v, --verbose', 'Show detailed output')
-  .option('--dry-run', 'Show steps without executing')
-  .option('-y, --yes', 'Skip confirmation prompts')
-  .action(workflowExecuteCommand);
-
-workflowCommand
-  .command('status [workflow-name]')
-  .description('Show execution status of workflows')
-  .action(workflowStatusCommand);
-
 // AI Context command with subcommands
 const aiContextCommand = program
   .command('ai-context')
@@ -475,88 +422,6 @@ aiContextCommand
   .description('Show module dependency graph')
   .option('-m, --mermaid', 'Output Mermaid diagram format')
   .action(aiContextGraphCommand);
-
-// Flow command with subcommands (SPEC-FLOW-001)
-const flowCommand = program
-  .command('flow')
-  .description('Manage custom SDLC flows');
-
-flowCommand
-  .command('create')
-  .description('Create a custom flow interactively')
-  .action(flowCreateCommand);
-
-flowCommand
-  .command('list')
-  .alias('ls')
-  .description('List all available flows (built-in + custom)')
-  .action(flowListCommand);
-
-flowCommand
-  .command('validate <id>')
-  .description('Validate a flow definition')
-  .action(flowValidateCommand);
-
-flowCommand
-  .command('diff <flow-a> <flow-b>')
-  .description('Compare two flows')
-  .action(flowDiffCommand);
-
-flowCommand
-  .command('export <id>')
-  .description('Export a flow as a shareable bundle')
-  .option('-o, --output <path>', 'Output file path')
-  .action(flowExportCommand);
-
-flowCommand
-  .command('import <file>')
-  .description('Import a flow bundle')
-  .option('-f, --force', 'Overwrite existing files')
-  .action(flowImportCommand);
-
-// Start command for mission-oriented development
-program
-  .command('start [mission-type] [intent]')
-  .description('Start a new development mission')
-  .option('-y, --yes', 'Skip confirmation prompts')
-  .option('--skip-planning', 'Skip automatic transition to planning phase')
-  .action(startCommand);
-
-// Mission command with subcommands
-const missionCommand = program
-  .command('mission')
-  .description('Manage development missions');
-
-missionCommand
-  .command('status')
-  .description('Show current mission status')
-  .action(missionStatusCommand);
-
-missionCommand
-  .command('pause')
-  .description('Pause current mission')
-  .option('-r, --reason <reason>', 'Reason for pausing')
-  .action(missionPauseCommand);
-
-missionCommand
-  .command('resume')
-  .description('Resume paused mission')
-  .action(missionResumeCommand);
-
-missionCommand
-  .command('cancel')
-  .description('Cancel current mission')
-  .option('-r, --reason <reason>', 'Reason for cancellation')
-  .option('-y, --yes', 'Skip confirmation')
-  .action(missionCancelCommand);
-
-missionCommand
-  .command('list')
-  .alias('ls')
-  .description('List all missions')
-  .option('-t, --type <type>', 'Filter by mission type')
-  .option('-s, --state <state>', 'Filter by state')
-  .action(missionListCommand);
 
 // MCP command for AI tool integration
 mcpCommand(program);

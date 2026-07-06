@@ -506,7 +506,6 @@ Body MUST be bilingual: English first → blank line → Chinese second. NEVER m
 |------|----------|------|
 | Writing commits | [commit-message.ai.yaml](.standards/commit-message.ai.yaml) | Every commit |
 | Project context | [project-context-memory.ai.yaml](.standards/project-context-memory.ai.yaml) | Planning & Coding |
-| Workflow gates | [workflow-enforcement.ai.yaml](.standards/workflow-enforcement.ai.yaml) | Before any workflow phase |
 
 **SHOULD follow** (相關任務時參考):
 | Task | Standard | When |
@@ -520,7 +519,7 @@ Body MUST be bilingual: English first → blank line → Chinese second. NEVER m
 
 本專案採用 UDS 標準。所有規範位於 `.standards/`：
 
-### Core (63 standards)
+### Core (55 standards)
 - `anti-hallucination.ai.yaml` - anti-hallucination.ai.yaml
 - `ai-friendly-architecture.ai.yaml` - ai-friendly-architecture.ai.yaml
 - `commit-message.ai.yaml` - 提交訊息格式
@@ -564,26 +563,18 @@ Body MUST be bilingual: English first → blank line → Chinese second. NEVER m
 - `context-aware-loading.ai.yaml` - context-aware-loading.ai.yaml
 - `test-governance.ai.yaml` - test-governance.ai.yaml
 - `structured-task-definition.ai.yaml` - structured-task-definition.ai.yaml
-- `workflow-state-protocol.ai.yaml` - workflow-state-protocol.ai.yaml
-- `pipeline-integration-standards.ai.yaml` - pipeline-integration-standards.ai.yaml
 - `acceptance-criteria-traceability.ai.yaml` - acceptance-criteria-traceability.ai.yaml
-- `change-batching-standards.ai.yaml` - change-batching-standards.ai.yaml
 - `api-design-standards.ai.yaml` - api-design-standards.ai.yaml
 - `database-standards.ai.yaml` - database-standards.ai.yaml
-- `workflow-enforcement.ai.yaml` - 工作流程強制執行
 - `systematic-debugging.ai.yaml` - systematic-debugging.ai.yaml
-- `agent-dispatch.ai.yaml` - agent-dispatch.ai.yaml
 - `model-selection.ai.yaml` - model-selection.ai.yaml
 - `git-worktree.ai.yaml` - git-worktree.ai.yaml
-- `branch-completion.ai.yaml` - branch-completion.ai.yaml
 - `verification-evidence.ai.yaml` - verification-evidence.ai.yaml
 - `ai-command-behavior.ai.yaml` - ai-command-behavior.ai.yaml
 - `ai-response-navigation.ai.yaml` - ai-response-navigation.ai.yaml
 - `documentation-lifecycle.ai.yaml` - documentation-lifecycle.ai.yaml
 - `adr-standards.ai.yaml` - adr-standards.ai.yaml
 - `retrospective-standards.ai.yaml` - retrospective-standards.ai.yaml
-- `execution-history.ai.yaml` - execution-history.ai.yaml
-- `agent-communication-protocol.ai.yaml` - agent-communication-protocol.ai.yaml
 - `dual-phase-output.ai.yaml` - 雙階段 LLM 輸出標準（<analysis> 丟棄 + <summary> 保留）
 - `circuit-breaker.ai.yaml` - 通用斷路器（三態 CLOSED/HALF_OPEN/OPEN，防 API 雪崩）
 - `token-budget.ai.yaml` - Token 閾值四區模型（安全/警告/危險/阻塞）

@@ -1,9 +1,9 @@
 {
   "project": "Universal Development Standards",
-  "version": "5.17.0",
-  "last_updated": "2026-06-08",
+  "version": "6.0.0",
+  "last_updated": "2026-07-06",
   "stats": {
-    "core_standards": 145,
+    "core_standards": 146,
     "skills": 55,
     "slash_commands": 51
   },
@@ -730,6 +730,11 @@
     },
     {
       "id": "knowledge-graph-memory",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "user-journey-testing",
       "category": "uncategorized",
       "level": 3
     }

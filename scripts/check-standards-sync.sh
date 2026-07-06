@@ -93,6 +93,20 @@ map_core_to_ai() {
     esac
 }
 
+# Standards whose core/*.md is reference-only (no .ai.yaml counterpart)
+# 6.0.0 移除 .ai.yaml、core .md 留作 reference（DEC-090 發版批次）
+is_reference_only_core() {
+    local name="$1"
+    case "$name" in
+        "agent-communication-protocol"|"agent-dispatch"|"branch-completion"|"change-batching-standards")
+            return 0 ;;
+        "execution-history"|"pipeline-integration-standards"|"workflow-enforcement"|"workflow-state-protocol")
+            return 0 ;;
+        *)
+            return 1 ;;
+    esac
+}
+
 # Map ai/standards/*.ai.yaml filename to core/*.md filename
 map_ai_to_core() {
     local ai_name="$1"
@@ -121,6 +135,12 @@ if [ -d "$CORE_DIR" ]; then
     for md_file in "$CORE_DIR"/*.md; do
         if [ -f "$md_file" ]; then
             base_name=$(basename "$md_file" .md)
+
+            if is_reference_only_core "$base_name"; then
+                echo -e "  ${GREEN}[SKIP]${NC}    $base_name.md (reference-only, .ai.yaml removed in 6.0.0)"
+                continue
+            fi
+
             ai_name=$(map_core_to_ai "$base_name")
             ai_file="$AI_STANDARDS_DIR/$ai_name.ai.yaml"
 
