@@ -2138,7 +2138,7 @@
       "name": "Git Push Safety Gates",
       "nameZh": "Git Push 安全閘門標準",
       "source": {
-        "human": "skills/push/SKILL.md",
+        "human": "core/push-standards.md",
         "ai": "ai/standards/push-standards.ai.yaml"
       },
       "category": "skill",

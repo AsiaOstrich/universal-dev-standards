@@ -3,7 +3,7 @@
   "version": "6.0.0",
   "last_updated": "2026-07-06",
   "stats": {
-    "core_standards": 146,
+    "core_standards": 149,
     "skills": 55,
     "slash_commands": 51
   },
@@ -735,6 +735,21 @@
     },
     {
       "id": "user-journey-testing",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "feature-discovery-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "multi-environment-e2e-testing",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "push-standards",
       "category": "uncategorized",
       "level": 3
     }
