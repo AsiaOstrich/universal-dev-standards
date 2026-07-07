@@ -66,6 +66,28 @@ echo -e "  Release type: ${BLUE}${RELEASE_TYPE}${NC}"
 echo -e "  Date        : ${BLUE}${TODAY}${NC}"
 echo ""
 
+# ── Pre-flight: bundle ⇄ source parity gate (XSPEC-072 Phase 4.2) ──────────────
+# Refuse to bump/release when the npm-bundled standards have drifted from the
+# source-of-truth .standards/. Runs BEFORE any mutation so a failure aborts
+# cleanly. Set SKIP_BUNDLE_PARITY=1 to override in an emergency.
+if [ "${SKIP_BUNDLE_PARITY:-}" = "1" ]; then
+    echo -e "  ${YELLOW}[WARN]${NC} Bundle parity gate SKIPPED via SKIP_BUNDLE_PARITY=1"
+    echo "         Release may ship bundle/source drift — verify manually."
+    echo ""
+else
+    echo "── Verifying bundle ⇄ source parity (pre-flight gate) ────────────────────"
+    echo ""
+    if ! ( cd "$CLI_DIR" && npm run prepack && npm run check:bundle-parity ); then
+        echo ""
+        echo -e "${RED}Bundle parity check FAILED — aborting before any files were modified.${NC}"
+        echo "Fix bundle/source drift (see XSPEC-072 / DEC-045), or set SKIP_BUNDLE_PARITY=1 to override."
+        exit 1
+    fi
+    echo ""
+    echo -e "  ${GREEN}[OK]${NC} Bundle parity holds — proceeding with version bump."
+    echo ""
+fi
+
 # ── Helper: portable sed -i ────────────────────────────────────────────────────
 # macOS sed requires '' after -i; GNU sed does not.
 sed_inplace() {
@@ -164,6 +186,19 @@ else
     echo ""
     echo -e "  ${YELLOW}[SKIP]${NC} .claude-plugin/ files (pre-release — marketplace keeps stable version)"
 fi
+
+# 9. Regenerate auto-generated skill/command indexes (RELEASE-FLOW-TODOS.md TODO-001)
+#    so their "Last regenerated | UDS vX" header carries the NEW version. Script
+#    lives in the root package.json.
+echo ""
+echo "── Regenerating skill/command indexes ────────────────────────────────────"
+echo ""
+if ! ( cd "$ROOT_DIR" && npm run docs:generate-index ); then
+    echo ""
+    echo -e "${RED}docs:generate-index FAILED — INDEX files may carry a stale version stamp.${NC}"
+    exit 1
+fi
+echo -e "  ${GREEN}[OK]${NC} docs/user/SKILLS-INDEX.md + COMMANDS-INDEX.md regenerated"
 
 # ── Verify with check-version-sync.sh ─────────────────────────────────────────
 echo ""

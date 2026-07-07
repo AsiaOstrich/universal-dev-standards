@@ -84,6 +84,33 @@ console.log(`  Release type: ${BLUE}${RELEASE_TYPE}${NC}`);
 console.log(`  Date        : ${BLUE}${TODAY}${NC}`);
 console.log('');
 
+// ── Pre-flight: bundle ⇄ source parity gate (XSPEC-072 Phase 4.2) ────────────
+// Refuse to bump/release when the npm-bundled standards have drifted from the
+// source-of-truth .standards/. `prepack` regenerates cli/bundled/ (gitignored),
+// then `check:bundle-parity` compares the two. This runs BEFORE any file is
+// mutated so a failure aborts cleanly. Set SKIP_BUNDLE_PARITY=1 to override in
+// an emergency (loudly warned — the release may then ship drift).
+if (process.env.SKIP_BUNDLE_PARITY === '1') {
+  console.log(`  ${YELLOW}[WARN]${NC} Bundle parity gate SKIPPED via SKIP_BUNDLE_PARITY=1`);
+  console.log('         Release may ship bundle/source drift — verify manually.');
+  console.log('');
+} else {
+  console.log('── Verifying bundle ⇄ source parity (pre-flight gate) ────────────────────');
+  console.log('');
+  try {
+    execSync('npm run prepack', { cwd: CLI_DIR, stdio: 'inherit' });
+    execSync('npm run check:bundle-parity', { cwd: CLI_DIR, stdio: 'inherit' });
+    console.log('');
+    console.log(`  ${GREEN}[OK]${NC} Bundle parity holds — proceeding with version bump.`);
+    console.log('');
+  } catch {
+    console.log('');
+    console.error(`${RED}Bundle parity check FAILED — aborting before any files were modified.${NC}`);
+    console.error('Fix bundle/source drift (see XSPEC-072 / DEC-045), or set SKIP_BUNDLE_PARITY=1 to override.');
+    process.exit(1);
+  }
+}
+
 // ── Helper: read → transform → write ────────────────────────────────────────
 /**
  * Apply a regex replacement to a file.
@@ -219,6 +246,22 @@ if (!IS_PRERELEASE) {
 } else {
   console.log('');
   console.log(`  ${YELLOW}[SKIP]${NC} .claude-plugin/ files (pre-release — marketplace keeps stable version)`);
+}
+
+// 9. Regenerate auto-generated skill/command indexes (RELEASE-FLOW-TODOS.md TODO-001)
+//    so their "Last regenerated | UDS vX" header carries the NEW version. Without
+//    this, a direct release commit ships a stale version stamp to npm (docs-check.yml
+//    only catches it on PRs). Runs from ROOT — the script lives in the root package.json.
+console.log('');
+console.log('── Regenerating skill/command indexes ────────────────────────────────────');
+console.log('');
+try {
+  execSync('npm run docs:generate-index', { cwd: ROOT_DIR, stdio: 'inherit' });
+  console.log(`  ${GREEN}[OK]${NC} docs/user/SKILLS-INDEX.md + COMMANDS-INDEX.md regenerated`);
+} catch {
+  console.log('');
+  console.error(`${RED}docs:generate-index FAILED — INDEX files may carry a stale version stamp.${NC}`);
+  process.exit(1);
 }
 
 // ── Verify with check-version-sync (platform-aware) ───────────────────────
