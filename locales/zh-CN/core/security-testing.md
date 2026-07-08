@@ -1,18 +1,18 @@
 ---
 source: ../../../core/security-testing.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-06-10
-source_hash: fa53a8627f24
-status: stale
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-07-08
+source_hash: 242e9016416c
+status: current
 ---
 
 # 安全测试标准
 
 > **语言**: [English](../../../core/security-testing.md) | [繁體中文](../../zh-TW/core/security-testing.md) | 简体中文
 
-**版本**: 1.0.0
-**最后更新**: 2026-05-04
+**版本**: 1.1.0
+**最后更新**: 2026-06-19
 **适用性**: 所有软件项目
 **范围**: universal
 **行业标准**: OWASP Testing Guide v4, NIST SP 800-115, ISO/IEC 27001
@@ -77,6 +77,23 @@ status: stale
 | High | 下次发布前解决 |
 | Moderate | 14 天内解决 |
 | Low | 跟踪；在维护窗口解决 |
+
+---
+
+## 发现事项修复生命周期
+
+上述各层负责检测发现，CVE 策略则设定解决时限（SLA），但一个发现事项还需要一个**有负责人的生命周期**——否则「阻止 merge」就是唯一定义好的动作，检测之后的一切都没有定义。每个安全发现（SAST / DAST / 密钥 / 依赖 CVE）都遵循以下状态机。
+
+| 状态 | 含义 | 负责人 | 退出条件 |
+|-------|---------|-------|----------------|
+| **Detected（已检测）** | 由某一层（SAST/DAST/密钥/审计）提出 | 扫描门禁（CI） | 已分配严重程度 |
+| **Triaged（已分诊）** | 已确认严重程度与有效性（真实 vs 误报） | 安全审查者 | 真实 → 转为 In-Progress；误报 → 标记为 `suppressed` 并记录理由 |
+| **In-Progress（处理中）** | 修复正在实现 | 受影响组件的代码负责人 | 修复已提交 |
+| **Resolved（已解决）** | 修复已合并 | 代码负责人 | 原扫描重新运行后无发现 |
+| **Verified（已验证）** | 重新扫描确认发现已消失 | 扫描门禁（CI） | 发现事项关闭 |
+
+- **门禁**：任何 Critical/High 发现若状态非 `Verified`（或 `Triaged → suppressed` 且附有理由），皆**阻止发布**，与上述 CVE 响应策略的 SLA 一致。
+- **不得静默关闭**：发现事项只能通过 `Verified`（重新扫描无发现）或安全审查者明确记录的 `suppressed` 决定离开此生命周期——绝不可通过删除，也不可由修复作者自行批准关闭。
 
 ---
 

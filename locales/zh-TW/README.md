@@ -1,9 +1,9 @@
 ---
 source: ../../README.md
-source_version: 5.17.0
-translation_version: 5.17.0
-last_synced: 2026-06-10
-source_hash: 651c07df0abe
+source_version: 6.0.0
+translation_version: 6.0.0
+last_synced: 2026-07-08
+source_hash: add024721b5a
 status: current
 ---
 
@@ -62,7 +62,7 @@ npx universal-dev-standards init
 | 我想要... | 文件 |
 |---|---|
 | **UDS 新手？** 5 分鐘快速入門 | [docs/user/GETTING-STARTED.md](../../docs/user/GETTING-STARTED.md) |
-| 依 Tier 和分類瀏覽所有 54 個 Skills | [docs/user/SKILLS-INDEX.md](../../docs/user/SKILLS-INDEX.md) |
+| 依 Tier 和分類瀏覽所有 55 個 Skills | [docs/user/SKILLS-INDEX.md](../../docs/user/SKILLS-INDEX.md) |
 | 查看所有斜線命令 | [docs/user/COMMANDS-INDEX.md](../../docs/user/COMMANDS-INDEX.md) |
 | 快速參考卡 | [docs/user/CHEATSHEET.md](../../docs/user/CHEATSHEET.md) |
 | 常見問題 | [docs/user/FAQ.md](../../docs/user/FAQ.md) |

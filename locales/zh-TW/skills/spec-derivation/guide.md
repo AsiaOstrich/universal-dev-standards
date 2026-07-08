@@ -3,7 +3,7 @@ source: ../../../../skills/spec-derivation/guide.md
 source_version: 2.0.0
 translation_version: 2.0.0
 last_synced: 2026-06-10
-source_hash: 8c89e24244a5
+source_hash: 3470ae083c12
 status: current
 scope: partial
 description: |

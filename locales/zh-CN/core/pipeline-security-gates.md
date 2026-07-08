@@ -2,8 +2,8 @@
 source: ../../../core/pipeline-security-gates.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-10
-source_hash: a2d6e88e26c8
+last_synced: 2026-07-08
+source_hash: b234d1eb2344
 status: current
 ---
 
@@ -15,7 +15,7 @@ status: current
 
 ## 概述
 
-本标准定义嵌入 CI pipeline 各阶段的安全检查点，涵盖 SAST、DAST、SCA（含 SBOM）和密钥扫描，并明确规定各类发现的阻断（Block）、警告（Warn）、记录（Log）行为。
+本标准定义嵌入 CI pipeline 各阶段的安全检查点，涵盖 SAST、DAST、SCA（含 SBOM）、密钥扫描，以及发布前的供应链签名验证，并明确规定各类发现的阻断（Block）、警告（Warn）、记录（Log）行为。
 
 ---
 
@@ -24,6 +24,7 @@ status: current
 - **密钥扫描在 pre-commit**：所有包含密钥的提交都必须被阻断，不得例外
 - **SAST 在构建后**：Critical 和 High 等级发现阻断 pipeline
 - **SCA + SBOM 在打包阶段**：追踪依赖组件风险并生成物料清单
+- **Attestation 验证在发布前**：打包后、部署前 MUST 验证 artifact 的 checksum、签名与 SLSA provenance（消费 supply-chain-attestation 标准的产出，不得「生成 SBOM 却不验证」）
 - **DAST 在 staging 部署后**：对运行中的应用进行动态扫描
 - **安全闸门失败 = pipeline 失败**：不得视为可忽略的警告
 - **任何绕过都需审计轨迹**：禁止静默跳过安全闸门
@@ -71,7 +72,24 @@ status: current
 
 ---
 
-### 4. Post-Staging Deploy — DAST（动态应用安全测试）
+### 4. Pre-Deploy — Artifact Attestation Verification（供应链签名验证）
+
+| 项目 | 说明 |
+|------|------|
+| 验证范围 | 已打包的发布 artifact（文件压缩包 / 容器镜像）|
+| 推荐工具 | cosign（`verify-blob` / `verify`）、sha256sum、slsa-verifier |
+| 阻断条件 | 签名验证失败、checksum 不符、SLSA provenance 缺失 |
+| 警告条件 | SLSA 等级低于目标（公开发布建议 ≥ L2）|
+
+打包阶段（gate 3）生成 SBOM 后，**部署/发布前 MUST 验证** artifact 的完整性与来源证明，
+避免「生成了 SBOM/签名却从不验证」的假保证：比对 `checksums.txt` 的 SHA256、以
+`cosign verify-blob` 验证 SBOM 与 provenance 签名、确认 SLSA provenance 存在。完整的
+生成与验证命令、Release Bundle 结构见
+[supply-chain-attestation.md](../../../core/supply-chain-attestation.md)。
+
+---
+
+### 5. Post-Staging Deploy — DAST（动态应用安全测试）
 
 | 项目 | 说明 |
 |------|------|
@@ -110,6 +128,7 @@ status: current
 |---------|------|
 | 密钥管理 | 集成 HashiCorp Vault 或 AWS Secrets Manager 进行密钥注入 |
 | SBOM 注册表 | 上传 SBOM 至 dependency-track 或 grype-db 持续监控 |
+| Artifact 签名 | 发布前以 cosign 验证 SBOM/provenance 签名与 checksum（见 supply-chain-attestation）|
 | 事故响应 | Critical 发现自动创建事故工单 |
 
 ---
@@ -119,6 +138,7 @@ status: current
 - [security-standards.md](../../../core/security-standards.md) — 应用安全基础标准
 - [pipeline-integration-standards.md](../../../core/pipeline-integration-standards.md) — CI 管道集成标准
 - [deployment-standards.md](../../../core/deployment-standards.md) — 部署基础原则
+- [supply-chain-attestation.md](../../../core/supply-chain-attestation.md) — SBOM / SLSA provenance / cosign 签名的生成与验证（gate 4 消费）
 - AI 格式：[pipeline-security-gates.ai.yaml](../../../ai/standards/pipeline-security-gates.ai.yaml)
 
 ---

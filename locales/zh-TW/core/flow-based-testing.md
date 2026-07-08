@@ -1,18 +1,18 @@
 ---
 source: ../../../core/flow-based-testing.md
-source_version: 1.3.0
-translation_version: 1.3.0
-last_synced: 2026-06-10
-source_hash: a8838e95f84e
-status: stale
+source_version: 1.3.1
+translation_version: 1.3.1
+last_synced: 2026-07-08
+source_hash: afadaebc0f49
+status: current
 ---
 
 # 流程式測試（Flow-Based Testing）
 
 > **Language**: [English](../../../core/flow-based-testing.md) | 繁體中文
 
-**版本**: 1.3.0
-**最後更新**: 2026-05-05
+**版本**: 1.3.1
+**最後更新**: 2026-06-18
 **適用範圍**: 所有具備多步驟工作流程的軟體專案
 **Scope**: universal
 **產業標準**: ISO/IEC/IEEE 29119-4（測試技術）、ISTQB Foundation Syllabus
@@ -120,7 +120,7 @@ describe("Flow Branch: Quota exceeded path", () => {
 
 ## 與其他標準的關係
 
-- **test-completeness-dimensions**：維度 9（Flow Completeness）與維度 10（Branch Coverage）在此定義
+- **test-completeness-dimensions**：定義了 **8** 個維度。Flow Completeness 與 Branch Coverage（決策表）的細節在本標準中說明——它們並非該標準中編號的維度 9/10（該標準僅有 8 個維度）
 - **behavior-driven-development**：BDD Scenario Outline 表格對應到決策表展開
 - **mock-boundary**：流程測試必須遵守 mock boundary 規則（不 mock 自身模組邏輯）
 - **e2e-testing**：旅程測試在 ST 或 E2E 層級執行；流程測試可在 IT 層級搭配真實 DB 執行
