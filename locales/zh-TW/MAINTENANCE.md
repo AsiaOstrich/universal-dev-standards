@@ -1,9 +1,9 @@
 ---
 source: ../../MAINTENANCE.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-06-10
-source_hash: ec4410b9245b
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-07-08
+source_hash: 5d0adbbf7d63
 status: current
 ---
 

@@ -7,6 +7,11 @@ setup() {
   REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
   SCRIPT="$REPO_ROOT/scripts/bump-version.sh"
   MJS_SCRIPT="$REPO_ROOT/scripts/bump-version.mjs"
+  ROGUE_FILE="$REPO_ROOT/.standards/zz-bats-rogue-parity-test.ai.yaml"
+}
+
+teardown() {
+  rm -f "$ROGUE_FILE"
 }
 
 @test "bump-version.sh exists" {
@@ -72,4 +77,27 @@ setup() {
 
 @test "bump-version.mjs honours SKIP_BUNDLE_PARITY override" {
   grep -q "SKIP_BUNDLE_PARITY" "$MJS_SCRIPT"
+}
+
+# ── Functional: parity drift must abort the bump BEFORE any file mutation ──────
+# A rogue .ai.yaml in .standards/ (absent from the bundle) breaks parity; the
+# bump must exit 1 without writing the new version anywhere. Requires npm —
+# skipped in environments without node (same prerequisite as the scripts).
+
+@test "bump-version.sh aborts on parity drift without mutating files (functional)" {
+  command -v npm >/dev/null 2>&1 || skip "npm not in PATH"
+  touch "$ROGUE_FILE"
+  run bash "$SCRIPT" "9.9.9"
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"parity"* ]]
+  ! grep -q '"version": "9.9.9"' "$REPO_ROOT/cli/package.json"
+}
+
+@test "bump-version.mjs aborts on parity drift without mutating files (functional)" {
+  command -v npm >/dev/null 2>&1 || skip "npm not in PATH"
+  touch "$ROGUE_FILE"
+  run node "$MJS_SCRIPT" "9.9.9"
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"parity"* ]]
+  ! grep -q '"version": "9.9.9"' "$REPO_ROOT/cli/package.json"
 }

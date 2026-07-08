@@ -1,6 +1,6 @@
 ---
-version: 1.0.0
-last_updated: 2026-04-22
+version: 1.1.0
+last_updated: 2026-07-08
 ---
 
 # Maintenance Guide
