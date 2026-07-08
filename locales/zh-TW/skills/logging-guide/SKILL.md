@@ -2,10 +2,10 @@
 name: logging
 description: "[UDS] 實作結構化日誌，包含正確的日誌層級和敏感資料處理"
 source: ../../../../skills/logging-guide/SKILL.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-06-10
-source_hash: 6b7244c91aa0
+source_version: 1.4.0
+translation_version: 1.4.0
+last_synced: 2026-07-08
+source_hash: cf114de1df86
 status: current
 ---
 
@@ -13,8 +13,8 @@ status: current
 
 > **語言**: [English](../../../../skills/logging-guide/SKILL.md) | 繁體中文
 
-**版本**: 1.1.0
-**最後更新**: 2026-05-26
+**版本**: 1.4.0
+**最後更新**: 2026-06-19
 **適用範圍**: Claude Code Skills
 
 ---
@@ -56,6 +56,28 @@ status: current
 | **WARN** | 已棄用 API、重試嘗試、資源接近上限 |
 | **ERROR** | 失敗的操作、捕獲的例外、整合失敗 |
 | **FATAL** | 無法恢復的錯誤、啟動失敗、失去關鍵資源 |
+
+## 強制事件
+
+把每則日誌格式化得再完美，但**在真正關鍵的時刻卻從不觸發**，比什麼都沒有還糟——它會在事故當下給人虛假的安心感。核心標準定義了**9 個必須產生日誌記錄的標準事件**。若日誌設定遵守層級／欄位規則卻遺漏這些事件，就是「規範上合格、實質上沉默」。務必全部實作這 9 項：
+
+| 事件 id | 時機 | 層級 | 核心必要欄位 | 不可記錄 |
+|----------|------|-------|----------------------|--------------|
+| `application_startup` | 開機後、**接受請求前** | INFO | app_name, version, git_sha, environment, hostname, pid, listening_endpoints | secrets、完整連線字串 |
+| `request_received` | Middleware 首次看到請求時 | INFO / DEBUG | method, path, source_ip, request_id | request body、auth headers |
+| `validation_failure` | schema / ModelState / DTO 驗證拒絕時 | WARN | request_id, path, missing_fields[], payload_shape（僅 keys） | 欄位**值**、PII |
+| `authentication_failure` | 登入 / token 驗證失敗時 | WARN | uid（嘗試值）, source_ip, failure_reason | password、token 值 |
+| `outbound_call_start` | 發起對外 HTTP/RPC 呼叫時 | INFO | target_url（host+path）, 傳遞的 request_id, timeout_ms | credentials、bearer tokens |
+| `outbound_call_complete` | 外部呼叫返回或失敗時 | INFO / WARN / ERROR | status_code **或** failure_phase（dns/tcp/tls/http）, elapsed_ms, retries | 含 PII 的 response body |
+| `business_event` | 具狀態改變的業務操作完成時 | INFO | operation_name, actor, target ids, outcome | 完整 record payload、PII |
+| `heartbeat` | 長期執行的背景服務，≥ 1 次 / 60 秒 | INFO | service_name, queue_depth, items_processed_since_last_heartbeat | — |
+| `shutdown` | 行程結束時（正常或致命錯誤） | INFO / ERROR | app_name, signal/reason, uptime_seconds, pending_work_count | — |
+
+**為何是這些事件**——每一項都補上一個真實的事故盲區：靜默的 `validation_failure` 會隱藏未記錄的 payload；`authentication_failure` 若缺 `uid`／`source_ip` 就無法調查；缺少 `heartbeat` 代表 0-byte 的日誌檔不會被察覺；沒有 `outbound_call_*` 會讓「送出失敗」變成一場找不到任何呼叫痕跡、耗時 2 天的追查。
+
+> 背景服務若在 60 秒內未寫入任何 INFO/WARN/ERROR，**必須**發出一則 `heartbeat`；若連續 ≥ 2 倍間隔（≥ 120 秒）都沒有出現，沉默偵測器**必須**告警。
+
+完整目錄（每個事件的 `when`／`must_log`／`must_NOT_log`／`rationale` 及合規範例），請參閱核心[日誌標準](../../core/logging-standards.md#強制事件-mandatory-events)的**強制事件**章節。
 
 ## 結構化日誌
 
@@ -294,6 +316,7 @@ logger.error('處理訂單失敗', {
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.4.0 | 2026-06-19 | 新增：強制事件章節（9 個標準事件），消弭技能與核心標準之間的內容漂移；版號與核心日誌標準 v1.4.0 對齊（XSPEC-070 Phase 2） |
 | 1.1.0 | 2026-05-26 | 新增：日誌檔案輪替章節及指向核心標準輪替政策的交叉連結；輪替清單（XSPEC-232） |
 | 1.0.0 | 2025-12-30 | 初始發布 |
 

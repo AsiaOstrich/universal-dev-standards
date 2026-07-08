@@ -2,8 +2,8 @@
 source: ../../../core/logging-standards.md
 source_version: 1.4.0
 translation_version: 1.4.0
-last_synced: 2026-06-17
-source_hash: 7853d510d681
+last_synced: 2026-07-08
+source_hash: 732277ef939f
 status: current
 ---
 

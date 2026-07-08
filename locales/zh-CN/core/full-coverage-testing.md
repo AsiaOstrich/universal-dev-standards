@@ -2,8 +2,8 @@
 source: ../../../core/full-coverage-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-10
-source_hash: e05fa172a6ee
+last_synced: 2026-07-08
+source_hash: 8ca921c68533
 status: current
 ---
 
@@ -171,6 +171,74 @@ CI 会回报 AC 覆盖率。若超过 20% 的 AC 没有 `@ac` 标签的测试，
 
 ---
 
+## 迁移错误路径完整性（XSPEC-288）
+
+> 属于 [XSPEC-284](https://github.com/AsiaOstrich/universal-dev-standards) 9 轴迁移完整性矩阵的**轴⑨（错误路径）**。上述三路径模型要求**每个函数**都有错误路径；本节新增**迁移专属**保证——legacy 的错误/降级/fallback 分支被**系统性**移植，而非仅抽样。
+
+### 为何三路径模型对迁移还不够
+
+每函数错误路径要求与 XSPEC-201 的错误路径快照，只验证你**想到要枚举**的错误案例。重写时 happy path 因有明确需求而被迁移，而错误分支——散落于 `try/catch` 层级、自定义异常层级、特定错误码、降级 fallback——**被整批静默遗漏**。通过的错误路径抽样**不能证明没有分支被遗漏**（与 #134 同源盲区，只是发生在错误路径层）。本节是快照机制之上的**系统性枚举 + gap 分析**层。
+
+### 步骤 1 — 机械化 legacy 异常/错误码清单（derive，R1）
+
+**机械化**枚举 legacy 错误面，而非依赖人脑回忆：
+
+| 来源 | 推导出 |
+|--------|--------|
+| `catch` / `except` / `rescue` 区块（grep） | 每个捕获的异常类型 + handler |
+| 自定义异常/错误类层级 | 声明的错误分类法 |
+| 错误/状态码（HTTP status、app 错误码、错误 enum） | 响应码面 |
+| 错误响应形状（serializer、错误 DTO） | on-the-wire 错误契约 |
+
+捕获到的清单即**错误路径待验清单**——来自 artifact 而非人脑回忆。
+
+### 步骤 2 — 系统性遗漏分支 gap 分析（oracle，R2）
+
+对步骤 1 的**每条** legacy 错误分支，验证新系统有对应 handler。无对应者标记为 `not_implemented`（XSPEC-199）并**阻止**。产出覆盖完整推导清单的**「遗漏错误分支」gap 报告**——而非仅抽样通过。
+
+```markdown
+## Error-Path Gap Report — <module>
+
+| Legacy branch (error type / code) | New-system handler | Status |
+|-----------------------------------|--------------------|--------|
+| PaymentDeclinedException → 402 | PaymentService.handleDecline | MAPPED |
+| GatewayTimeout → retry+fallback | (none found) | not_implemented — BLOCK |
+| ValidationError → 422 + field list | InputValidator | MAPPED |
+
+**Branches: N total · M mapped · K not_implemented (block if K>0)**
+```
+
+### 步骤 3 — 降级/Fallback 对等（R3）
+
+legacy 降级模式（外部服务失败时的 fallback、重试、部分结果）因仅在失败时才执行而容易被遗漏。验证新系统保留对应降级行为，避免「正常路径一致、失败时行为迥异」：
+
+- [ ] 外部服务失败的 **fallback** 行为与 legacy 一致
+- [ ] **重试**策略（次数、backoff、放弃条件）与 legacy 一致
+- [ ] **部分结果**处理与 legacy 一致（尽量返回 vs all-or-nothing）
+- [ ] **熔断器/超时**降级与 legacy 一致
+
+### 步骤 4 — 错误响应差分（oracle，R4）
+
+把 [behavior-snapshot](behavior-snapshot.md) 对等与 XSPEC-284 R5 replay 延伸至涵盖**错误响应**，而不只是 happy-path 响应。比对新旧系统：
+
+- **错误码**（HTTP status、app 错误码）
+- **消息结构**（错误 DTO 形状、字段级错误）
+- 各错误类的 **HTTP status** 映射
+
+这让隐性错误路径分歧在 cutover 时自我暴露，如同 happy-path 快照一样。
+
+**Gate 时机**：pre-UAT（gap 分析 + 降级对等）+ cutover 前后（错误响应差分）。
+
+### 重要性分级（范围指引）
+
+并非每条 legacy 错误分支都同等优先。按**生产实际触发频率**排序（呼应 #134「以生产为准」）：生产日志中实际触发过的分支优先对应；从未触发的潜在分支优先级较低但仍列入。高频生产错误分支若无新系统对应即为硬阻止。
+
+### 完整性声明（矩阵对齐）
+
+当本节声明以下三者——**derive**（步骤 1 机械化异常/错误码清单）、**oracle**（步骤 2 系统性 gap 分析 + 步骤 4 错误响应差分）、**gate 时机**（pre-UAT + cutover 前后）——即满足轴⑨。复用 XSPEC-201 错误路径快照 + 上述三路径模型——本节只新增系统性遗漏分支分析与错误响应差分，不重建测试框架。
+
+---
+
 ## 从金字塔模型迁移
 
 若你的项目先前使用金字塔门槛：
@@ -191,7 +259,11 @@ CI 会回报 AC 覆盖率。若超过 20% 的 AC 没有 `@ac` 标签的测试，
 - `unit-testing.ai.yaml` — 单元测试范围与组织
 - `integration-testing.ai.yaml` — 集成测试模式
 - `deployment-standards.ai.yaml` — 部署闸门需求
+- `flaky-test-management.md` — 间歇性失败处理：会 flaky 的测试**不算**通过的测试。覆盖率数字计入闸门前，间歇性失败必须（MUST）依该标准隔离/设定重试预算/根因排查——否则「全覆盖」会掩盖非确定性缺口。
+- `behavior-snapshot.md` — 错误响应差分 oracle（迁移错误路径完整性，轴⑨）
+- `migration-assistant` skill — legacy 异常/错误码 derive + 降级对等（XSPEC-288）
 - XSPEC-178 — 完整规格与实现阶段
+- XSPEC-288 — 迁移错误路径完整性（XSPEC-284 矩阵轴⑨）
 
 
 **Scope**: universal

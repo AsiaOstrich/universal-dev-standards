@@ -5,10 +5,10 @@ description: |
   使用时机：新增日志、调试、设置可观测性。
   关键字：logging, log level, structured logging, observability, 日志, 记录, 结构化日志。
 source: ../../../../skills/logging-guide/SKILL.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-06-10
-source_hash: 6b7244c91aa0
+source_version: 1.4.0
+translation_version: 1.4.0
+last_synced: 2026-07-08
+source_hash: cf114de1df86
 status: current
 ---
 
@@ -16,8 +16,8 @@ status: current
 
 > **语言**: [English](../../../../skills/logging-guide/SKILL.md) | 简体中文
 
-**版本**: 1.1.0
-**最后更新**: 2026-05-26
+**版本**: 1.4.0
+**最后更新**: 2026-06-19
 **适用范围**: Claude Code Skills
 
 ---
@@ -61,6 +61,28 @@ status: current
 | **WARN** | 已弃用 API、重试尝试、资源接近上限 |
 | **ERROR** | 失败的操作、捕获的异常、集成失败 |
 | **FATAL** | 无法恢复的错误、启动失败、失去关键资源 |
+
+## 强制事件
+
+把每条日志格式化得再完美，但**在真正关键的时刻却从不触发**，比什么都没有还糟——它会在事故当下给人虚假的安全感。核心标准定义了**9 个必须产生日志记录的标准事件**。若日志配置遵守级别／字段规则却遗漏这些事件，就是「规范上合格、实质上沉默」。务必全部实现这 9 项：
+
+| 事件 id | 时机 | 级别 | 核心必要字段 | 不可记录 |
+|----------|------|-------|----------------------|--------------|
+| `application_startup` | 启动后、**接受请求前** | INFO | app_name, version, git_sha, environment, hostname, pid, listening_endpoints | secrets、完整连接字符串 |
+| `request_received` | Middleware 首次看到请求时 | INFO / DEBUG | method, path, source_ip, request_id | request body、auth headers |
+| `validation_failure` | schema / ModelState / DTO 验证拒绝时 | WARN | request_id, path, missing_fields[], payload_shape（仅 keys） | 字段**值**、PII |
+| `authentication_failure` | 登录 / token 验证失败时 | WARN | uid（尝试值）, source_ip, failure_reason | password、token 值 |
+| `outbound_call_start` | 发起对外 HTTP/RPC 调用时 | INFO | target_url（host+path）, 传递的 request_id, timeout_ms | credentials、bearer tokens |
+| `outbound_call_complete` | 外部调用返回或失败时 | INFO / WARN / ERROR | status_code **或** failure_phase（dns/tcp/tls/http）, elapsed_ms, retries | 含 PII 的 response body |
+| `business_event` | 状态变更类业务操作完成时 | INFO | operation_name, actor, target ids, outcome | 完整 record payload、PII |
+| `heartbeat` | 长期运行的后台服务，≥ 1 次 / 60 秒 | INFO | service_name, queue_depth, items_processed_since_last_heartbeat | — |
+| `shutdown` | 进程退出时（正常或致命错误） | INFO / ERROR | app_name, signal/reason, uptime_seconds, pending_work_count | — |
+
+**为何是这些事件**——每一项都补上一个真实的事故盲区：静默的 `validation_failure` 会隐藏未记录的 payload；`authentication_failure` 若缺 `uid`／`source_ip` 就无法调查；缺少 `heartbeat` 意味着 0-byte 的日志文件不会被察觉；没有 `outbound_call_*` 会让「发送失败」变成一场找不到任何调用痕迹、耗时 2 天的排查。
+
+> 后台服务若在 60 秒内未写入任何 INFO/WARN/ERROR，**必须**发出一条 `heartbeat`；若连续 ≥ 2 倍间隔（≥ 120 秒）都没有出现，静默检测器**必须**告警。
+
+完整目录（每个事件的 `when`／`must_log`／`must_NOT_log`／`rationale` 及合规示例），请参见核心 [Logging Standards](../../core/logging-standards.md#强制事件mandatory-events) 的 **强制事件** 章节。
 
 ## 结构化日志
 
@@ -310,6 +332,7 @@ logger.error('处理订单失败', {
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.4.0 | 2026-06-19 | 新增：强制事件章节（9 个标准事件），消除技能与核心标准之间的内容漂移；版本号与核心日志标准 v1.4.0 对齐（XSPEC-070 Phase 2） |
 | 1.1.0 | 2026-05-26 | 新增：日志文件轮转章节及核心标准轮转策略交叉引用；轮转检查清单（XSPEC-232） |
 | 1.0.0 | 2025-12-30 | 初始发布 |
 

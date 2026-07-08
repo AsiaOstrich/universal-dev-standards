@@ -3,7 +3,7 @@ source: ../../../core/mock-boundary.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-07-01
-source_hash: d2648ad3d869
+source_hash: fe4715991a4c
 status: current
 ---
 
