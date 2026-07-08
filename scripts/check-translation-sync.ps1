@@ -26,6 +26,33 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = Split-Path -Parent $ScriptDir
 $LocalesDir = Join-Path $RootDir "locales"
 
+# --- source_hash integrity layer (XSPEC-072 bundle-parity, applied to translations) ---
+# Probe whether `git hash-object` is usable. It computes a blob hash from file
+# CONTENT and does not require the file to be tracked, but it does require the
+# git binary. If unavailable we degrade gracefully and skip hash validation.
+$script:GitAvailable = $false
+try {
+    if (Get-Command git -ErrorAction SilentlyContinue) {
+        $null = & git hash-object $PSCommandPath 2>$null
+        if ($LASTEXITCODE -eq 0) { $script:GitAvailable = $true }
+    }
+}
+catch { $script:GitAvailable = $false }
+
+# Compute first 12 chars of `git hash-object <file>` — the convention for the
+# `source_hash` frontmatter field (see core/documentation-writing-standards.md).
+# Returns $null when git is unavailable or the hash cannot be computed.
+function Get-SourceHash {
+    param([string]$SourceFile)
+    if (-not $script:GitAvailable) { return $null }
+    try {
+        $h = & git hash-object $SourceFile 2>$null
+        if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($h)) { return $null }
+        return $h.Trim().Substring(0, [Math]::Min(12, $h.Trim().Length))
+    }
+    catch { return $null }
+}
+
 # Determine which locales to check
 $CheckAll = $false
 $LocalesToCheck = @()
@@ -45,6 +72,8 @@ $script:GlobalOutdated = 0
 $script:GlobalMissingMeta = 0
 $script:GlobalMissingSource = 0
 $script:GlobalErrors = 0
+$script:GlobalDrift = 0    # source_hash present but mismatches source content (the "lie")
+$script:GlobalNoHash = 0   # managed translation with no source_hash field (advisory)
 
 Write-Host ""
 Write-Host "=========================================="
@@ -128,6 +157,8 @@ function Check-Locale {
     $Outdated = 0
     $MissingMeta = 0
     $MissingSource = 0
+    $Drift = 0
+    $NoHash = 0
 
     Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
     Write-Host "  Locale: $LocaleName" -ForegroundColor Cyan
@@ -155,6 +186,7 @@ function Check-Locale {
         $sourceVersion = Get-YamlValue -FilePath $transFile.FullName -Key "source_version"
         $transVersion = Get-YamlValue -FilePath $transFile.FullName -Key "translation_version"
         $status = Get-YamlValue -FilePath $transFile.FullName -Key "status"
+        $declaredHash = Get-YamlValue -FilePath $transFile.FullName -Key "source_hash"
 
         # Skip files without YAML front matter
         if (-not $sourcePath) {
@@ -186,9 +218,63 @@ function Check-Locale {
         # Get current source version
         $currentSourceVersion = Get-SourceVersion -SourceFile $fullSourcePath
 
-        # Compare versions
+        # --- source_hash verdict (content integrity layer) ---
+        # Many source files expose no parseable version, making the version
+        # comparison pass vacuously. source_hash is the real integrity signal:
+        # it catches a translation that declares a matching version while its
+        # source content has moved on.
+        $actualHash = $null
+        $hashVerdict = "skip"   # skip | match | mismatch | nohash
+        if ([string]::IsNullOrWhiteSpace($declaredHash)) {
+            $hashVerdict = "nohash"
+        }
+        elseif (-not $script:GitAvailable) {
+            $hashVerdict = "skip"   # git unavailable — cannot verify, degrade gracefully
+        }
+        else {
+            # Normalize declared hash: leading token, hex-only, first 12 chars
+            $normDeclared = ($declaredHash -split '\s+')[0]
+            $normDeclared = (($normDeclared -replace '[^0-9a-fA-F]', ''))
+            if ($normDeclared.Length -gt 12) { $normDeclared = $normDeclared.Substring(0, 12) }
+            $actualHash = Get-SourceHash -SourceFile $fullSourcePath
+            if ([string]::IsNullOrWhiteSpace($actualHash)) {
+                $hashVerdict = "skip"
+            }
+            elseif ($normDeclared -eq $actualHash) {
+                $hashVerdict = "match"
+            }
+            else {
+                $hashVerdict = "mismatch"
+                $declaredHash = $normDeclared
+            }
+        }
+
+        # Layered decision: version gap (existing) OR hash drift → outdated.
         if (($sourceVersion -eq $currentSourceVersion) -or (-not $currentSourceVersion)) {
-            if ($status -eq "current") {
+            # Version comparison reports "in sync" (possibly vacuously).
+            if ($hashVerdict -eq "mismatch") {
+                Write-Host "[DRIFT]   " -ForegroundColor DarkYellow -NoNewline
+                Write-Host $relPath
+                Write-Host "          source_hash: $declaredHash (declared) -> $actualHash (actual)  content drift - version claims sync but source changed"
+                Write-Host "          Translation: $transVersion"
+                $Drift++
+            }
+            elseif ($hashVerdict -eq "nohash") {
+                # Advisory only: majority of managed translations lack source_hash.
+                $NoHash++
+                if ($status -eq "current") {
+                    Write-Host "[CURRENT] " -ForegroundColor Green -NoNewline
+                    Write-Host "$relPath " -NoNewline
+                    Write-Host "(no source_hash - drift undetectable)" -ForegroundColor Yellow
+                }
+                else {
+                    Write-Host "[CHECK]   " -ForegroundColor Yellow -NoNewline
+                    Write-Host $relPath
+                    Write-Host "          Status: $status (should be 'current'?)"
+                }
+                $Current++
+            }
+            elseif ($status -eq "current") {
                 Write-Host "[CURRENT] " -ForegroundColor Green -NoNewline
                 Write-Host $relPath
                 $Current++
@@ -219,6 +305,14 @@ function Check-Locale {
     Write-Host $Outdated -ForegroundColor Red -NoNewline
     Write-Host " | Missing: " -NoNewline
     Write-Host $MissingSource -ForegroundColor Red
+    if ($Drift -gt 0) {
+        Write-Host "    Content drift (hash mismatch): " -NoNewline
+        Write-Host $Drift -ForegroundColor DarkYellow
+    }
+    if ($NoHash -gt 0) {
+        Write-Host "    No source_hash (drift undetectable): " -NoNewline
+        Write-Host $NoHash -ForegroundColor Yellow
+    }
     Write-Host ""
 
     # Update global counters
@@ -227,8 +321,11 @@ function Check-Locale {
     $script:GlobalOutdated += $Outdated
     $script:GlobalMissingMeta += $MissingMeta
     $script:GlobalMissingSource += $MissingSource
+    $script:GlobalDrift += $Drift
+    $script:GlobalNoHash += $NoHash
 
-    # Return success/failure
+    # Return success/failure. Hash drift is advisory (matches .sh): it does not
+    # fail the locale. Version-based $Outdated and missing sources still do.
     return (($Outdated -eq 0) -and ($MissingSource -eq 0))
 }
 
@@ -254,13 +351,25 @@ Write-Host "Current:            " -NoNewline
 Write-Host $script:GlobalCurrent -ForegroundColor Green
 Write-Host "Outdated:           " -NoNewline
 Write-Host $script:GlobalOutdated -ForegroundColor Red
+Write-Host "Content drift:      " -NoNewline
+Write-Host "$($script:GlobalDrift)  (source_hash mismatch - version claims sync but source changed)" -ForegroundColor DarkYellow
+Write-Host "No source_hash:     " -NoNewline
+Write-Host "$($script:GlobalNoHash)  (advisory - drift undetectable until hash added)" -ForegroundColor Yellow
 Write-Host "Missing metadata:   " -NoNewline
 Write-Host $script:GlobalMissingMeta -ForegroundColor Yellow
 Write-Host "Missing source:     " -NoNewline
 Write-Host $script:GlobalMissingSource -ForegroundColor Red
+if (-not $script:GitAvailable) {
+    Write-Host "Note: git hash-object unavailable - source_hash validation was SKIPPED." -ForegroundColor Yellow
+}
 Write-Host ""
 
-# Exit with error if there are issues
+# Exit codes mirror check-translation-sync.sh:
+#   Hash drift and missing source_hash are ADVISORY (do not fail the run).
+#   Version-based outdated / missing source remain blockers.
+if ($script:GlobalDrift -gt 0) {
+    Write-Host "$($script:GlobalDrift) translation(s) have source_hash content drift (advisory). Re-translate and refresh source_hash." -ForegroundColor DarkYellow
+}
 if (($script:GlobalOutdated -gt 0) -or ($script:GlobalMissingSource -gt 0) -or ($script:GlobalErrors -gt 0)) {
     Write-Host "Some translations need attention!" -ForegroundColor Red
     Write-Host ""

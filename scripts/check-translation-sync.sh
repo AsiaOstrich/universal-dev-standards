@@ -52,6 +52,26 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 LOCALES_DIR="$ROOT_DIR/locales"
 
+# --- source_hash integrity layer (XSPEC-072 bundle-parity, applied to translations) ---
+# Probe whether `git hash-object` is usable. It computes a blob hash from file
+# CONTENT and does not require the file to be tracked, but it does require the
+# git binary. If unavailable (non-git environment / git missing) we degrade
+# gracefully and skip hash validation instead of crashing.
+GIT_AVAILABLE=false
+if command -v git >/dev/null 2>&1 && git hash-object "${BASH_SOURCE[0]}" >/dev/null 2>&1; then
+    GIT_AVAILABLE=true
+fi
+
+# Compute the first 12 chars of `git hash-object <file>` — the established
+# convention for the `source_hash` frontmatter field (see
+# core/documentation-writing-standards.md). Echoes empty string when git is
+# unavailable or the hash cannot be computed.
+compute_source_hash() {
+    local f="$1"
+    [ "$GIT_AVAILABLE" = "true" ] || { echo ""; return; }
+    git hash-object "$f" 2>/dev/null | cut -c1-12
+}
+
 # Determine which locales to check
 if [ -z "$1" ] || [ "$1" = "--all" ] || [ "$1" = "-a" ]; then
     # Check all locales
@@ -89,6 +109,8 @@ GLOBAL_OUTDATED_MAJOR=0
 GLOBAL_MISSING_META=0
 GLOBAL_MISSING_SOURCE=0
 GLOBAL_ERRORS=0
+GLOBAL_DRIFT=0          # source_hash present but mismatches source content (the "lie")
+GLOBAL_NOHASH=0         # managed translation with no source_hash field (advisory)
 
 # Function to check a single locale
 check_locale() {
@@ -102,6 +124,8 @@ check_locale() {
     local OUTDATED_MAJOR=0
     local MISSING_META=0
     local MISSING_SOURCE=0
+    local DRIFT=0
+    local NOHASH=0
 
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${CYAN}  Locale: $LOCALE${NC}"
@@ -163,6 +187,7 @@ check_locale() {
         source_version=$(get_yaml_value "$trans_file" "source_version")
         trans_version=$(get_yaml_value "$trans_file" "translation_version")
         status=$(get_yaml_value "$trans_file" "status")
+        declared_hash=$(get_yaml_value "$trans_file" "source_hash")
 
         # Skip files without YAML front matter
         if [ -z "$source_path" ]; then
@@ -193,9 +218,53 @@ check_locale() {
         # Get current source version
         current_source_version=$(get_source_version "$full_source_path")
 
-        # Compare versions
+        # --- source_hash verdict (content integrity layer) ---
+        # Many source files expose NO parseable version in their header, which
+        # makes the version comparison below pass vacuously. The source_hash is
+        # therefore the real integrity signal: it catches a translation that
+        # declares a matching version while its source content has moved on.
+        actual_hash=""
+        hash_verdict="skip"   # skip | match | mismatch | nohash
+        if [ -z "$declared_hash" ]; then
+            hash_verdict="nohash"
+        elif [ "$GIT_AVAILABLE" != "true" ]; then
+            hash_verdict="skip"   # git unavailable — cannot verify, degrade gracefully
+        else
+            # Normalize declared hash: keep leading token, hex-only, first 12 chars
+            declared_hash="${declared_hash%% *}"
+            declared_hash=$(printf '%s' "$declared_hash" | tr -cd '0-9a-fA-F' | cut -c1-12)
+            actual_hash=$(compute_source_hash "$full_source_path")
+            if [ -z "$actual_hash" ]; then
+                hash_verdict="skip"
+            elif [ "$declared_hash" = "$actual_hash" ]; then
+                hash_verdict="match"
+            else
+                hash_verdict="mismatch"
+            fi
+        fi
+
+        # Layered decision: version gap (existing) OR hash drift → outdated.
         if [ "$source_version" = "$current_source_version" ] || [ -z "$current_source_version" ]; then
-            if [ "$status" = "current" ]; then
+            # Version comparison reports "in sync" (possibly vacuously).
+            # Hash drift under a matching version is the silent-lie case.
+            if [ "$hash_verdict" = "mismatch" ]; then
+                echo -e "${ORANGE}[DRIFT]${NC}   $rel_path"
+                echo "          source_hash: $declared_hash (declared) -> $actual_hash (actual)  ⚠️  content drift — version claims sync but source changed"
+                echo "          Translation: $trans_version"
+                DRIFT=$((DRIFT + 1))
+                OUTDATED=$((OUTDATED + 1))
+            elif [ "$hash_verdict" = "nohash" ]; then
+                # Advisory only: majority of managed translations lack source_hash.
+                # Keep the green line to avoid churn; surface the gap in the summary.
+                NOHASH=$((NOHASH + 1))
+                if [ "$status" = "current" ]; then
+                    echo -e "${GREEN}[CURRENT]${NC} $rel_path  ${YELLOW}(no source_hash — drift undetectable)${NC}"
+                else
+                    echo -e "${YELLOW}[CHECK]${NC}  $rel_path"
+                    echo "          Status: $status (should be 'current'?)"
+                fi
+                CURRENT=$((CURRENT + 1))
+            elif [ "$status" = "current" ]; then
                 echo -e "${GREEN}[CURRENT]${NC} $rel_path"
                 CURRENT=$((CURRENT + 1))
             else
@@ -324,6 +393,12 @@ check_locale() {
     echo ""
     echo -e "  ${BLUE}$LOCALE Summary:${NC}"
     echo -e "    Total: $TOTAL | Current: ${GREEN}$CURRENT${NC} | Outdated: ${RED}$OUTDATED${NC} | Missing: ${RED}$MISSING_SOURCE${NC}"
+    if [ $DRIFT -gt 0 ]; then
+        echo -e "    Content drift (hash mismatch): ${ORANGE}$DRIFT${NC}"
+    fi
+    if [ $NOHASH -gt 0 ]; then
+        echo -e "    No source_hash (drift undetectable): ${YELLOW}$NOHASH${NC}"
+    fi
     if [ $COMMANDS_MISSING -gt 0 ]; then
         echo -e "    Commands missing: ${RED}$COMMANDS_MISSING${NC}"
     fi
@@ -342,6 +417,8 @@ check_locale() {
     GLOBAL_OUTDATED_MAJOR=$((GLOBAL_OUTDATED_MAJOR + OUTDATED_MAJOR))
     GLOBAL_MISSING_META=$((GLOBAL_MISSING_META + MISSING_META))
     GLOBAL_MISSING_SOURCE=$((GLOBAL_MISSING_SOURCE + MISSING_SOURCE))
+    GLOBAL_DRIFT=$((GLOBAL_DRIFT + DRIFT))
+    GLOBAL_NOHASH=$((GLOBAL_NOHASH + NOHASH))
 
     # Return error status if this locale has blocking issues
     if [ $OUTDATED_MAJOR -gt 0 ] || [ $MISSING_SOURCE -gt 0 ]; then
@@ -368,13 +445,20 @@ echo -e "Total files:        ${BLUE}$GLOBAL_TOTAL${NC}"
 echo -e "Current:            ${GREEN}$GLOBAL_CURRENT${NC}"
 echo -e "Outdated (MAJOR):   ${RED}$GLOBAL_OUTDATED_MAJOR${NC}  ← release blocker if > 0"
 echo -e "Outdated (total):   ${YELLOW}$GLOBAL_OUTDATED${NC}"
+echo -e "Content drift:      ${ORANGE}$GLOBAL_DRIFT${NC}  (source_hash mismatch — version claims sync but source changed)"
+echo -e "No source_hash:     ${YELLOW}$GLOBAL_NOHASH${NC}  (advisory — drift undetectable until hash added)"
 echo -e "Missing metadata:   ${YELLOW}$GLOBAL_MISSING_META${NC}"
 echo -e "Missing source:     ${RED}$GLOBAL_MISSING_SOURCE${NC}"
+if [ "$GIT_AVAILABLE" != "true" ]; then
+    echo -e "${YELLOW}Note:${NC} git hash-object unavailable — source_hash validation was SKIPPED."
+fi
 echo ""
 echo -e "Severity legend:"
 echo -e "  ${RED}[MAJOR]${NC}  Major version gap — release blocker (exit 1)"
 echo -e "  ${ORANGE}[MINOR]${NC}  Minor version gap — update before release (advisory)"
 echo -e "  ${YELLOW}[PATCH]${NC}  Patch version gap — update when convenient (advisory)"
+echo -e "  ${ORANGE}[DRIFT]${NC}  source_hash mismatch — source content changed (advisory; the anti-lie check)"
+echo -e "  ${YELLOW}[NO HASH]${NC} No source_hash field — add one to enable drift detection (advisory)"
 echo -e "  ${RED}[MISSING]${NC} Source file missing — release blocker (exit 1)"
 echo ""
 
@@ -391,8 +475,13 @@ elif [ $GLOBAL_OUTDATED_MAJOR -gt 0 ]; then
     echo ""
     exit 1
 elif [ $GLOBAL_OUTDATED -gt 0 ]; then
-    MINOR_COUNT=$((GLOBAL_OUTDATED - GLOBAL_OUTDATED_MAJOR))
-    echo -e "${YELLOW}⚠️  $MINOR_COUNT translation(s) have MINOR/PATCH gaps (advisory). Update when convenient.${NC}"
+    VERSION_GAP_COUNT=$((GLOBAL_OUTDATED - GLOBAL_OUTDATED_MAJOR - GLOBAL_DRIFT))
+    if [ $VERSION_GAP_COUNT -gt 0 ]; then
+        echo -e "${YELLOW}⚠️  $VERSION_GAP_COUNT translation(s) have MINOR/PATCH version gaps (advisory). Update when convenient.${NC}"
+    fi
+    if [ $GLOBAL_DRIFT -gt 0 ]; then
+        echo -e "${ORANGE}⚠️  $GLOBAL_DRIFT translation(s) have source_hash content drift (advisory). Re-translate and refresh source_hash.${NC}"
+    fi
     echo ""
     exit 0
 else
