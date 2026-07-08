@@ -818,7 +818,7 @@ Track translation status in translated document headers:
 ---
 translation_status: current | needs_update | in_progress
 source_version: 1.2.0
-source_hash: abc123
+source_hash: a1b2c3d4e5f6   # first 12 chars of `git hash-object <source>`
 translated_by: human | machine | machine+human-review
 last_synced: 2026-03-17
 ---
