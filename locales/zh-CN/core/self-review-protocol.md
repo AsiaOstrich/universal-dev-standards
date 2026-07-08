@@ -3,7 +3,7 @@ source: ../../../core/self-review-protocol.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-06-10
-source_hash: 5f7bdf5347bd
+source_hash: 68942adc7ab6
 status: current
 ---
 

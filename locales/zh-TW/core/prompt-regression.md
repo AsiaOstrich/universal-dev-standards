@@ -3,7 +3,7 @@ source: ../../../core/prompt-regression.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-06-10
-source_hash: 418f48be7045
+source_hash: 25070d0b8a98
 status: current
 ---
 

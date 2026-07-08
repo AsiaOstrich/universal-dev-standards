@@ -1,20 +1,21 @@
 ---
 source: ../../../core/cross-flow-regression.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-06-10
-source_hash: ac618caf6d7f
-status: stale
+source_version: 1.0.1
+translation_version: 1.0.1
+last_synced: 2026-07-08
+source_hash: 33da58d89648
+status: current
 ---
 
 # 跨流程回归（Cross-Flow Regression）
 
 > **语言**：[English](../../../core/cross-flow-regression.md) | [繁體中文](../../zh-TW/core/cross-flow-regression.md) | 简体中文
 
-**版本**：1.0.0
-**最后更新**：2026-05-05
+**版本**：1.0.1
+**最后更新**：2026-06-18
 **适用范围**：所有具有多个 user flow 或业务流程的软件项目
 **Scope**：universal
+**所属规格**：XSPEC-294（与 flow-based-testing 互补，无重叠）
 **业界标准**：ISTQB Advanced Test Analyst（Regression Test Strategy）
 **参考资料**：`core/flow-based-testing.md`、`core/testing-standards.md`
 

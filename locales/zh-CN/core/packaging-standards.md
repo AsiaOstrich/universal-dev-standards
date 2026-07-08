@@ -3,7 +3,7 @@ source: ../../../core/packaging-standards.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-06-10
-source_hash: aa338edba3b1
+source_hash: 69ff3afd3c1e
 status: current
 ---
 
@@ -278,6 +278,7 @@ python -c "import zipfile; zipfile.ZipFile('dist/patch.zip').namelist()"
 - [Pipeline 整合标准](pipeline-integration-standards.md) — CI/CD pipeline 配置
 - [Check-in 标准](checkin-standards.md) — 打包前的质量关卡
 - [版本控制标准](versioning.md) — 包产出物使用的版本号
+- [供应链证明标准](supply-chain-attestation.md) — 打包产出物的 SBOM / SLSA 溯源 / 签名（此处的格式完整性属于归档层级；证明则补充了从源码到产出物的溯源）
 
 ---
 

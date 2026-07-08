@@ -3,7 +3,7 @@ source: ../../../core/cost-budget-test.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-06-10
-source_hash: 19cf2a8cd706
+source_hash: 88b78e9c7e7c
 status: current
 ---
 

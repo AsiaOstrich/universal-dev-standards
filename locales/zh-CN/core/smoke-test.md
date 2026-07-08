@@ -3,7 +3,7 @@ source: ../../../core/smoke-test.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-06-10
-source_hash: 391e5c330eb1
+source_hash: 71b84f25a084
 status: current
 ---
 

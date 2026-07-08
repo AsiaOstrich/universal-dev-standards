@@ -3,7 +3,7 @@ source: ../../../core/license-compliance.md
 source_version: 2.1.0
 translation_version: 2.1.0
 last_synced: 2026-06-10
-source_hash: 8a754039a2b5
+source_hash: 8ac1763bd1a1
 status: current
 ---
 
@@ -14,6 +14,8 @@ status: current
 > **版本**: 2.1.0 | **状态**: Active | **更新日期**: 2026-05-16
 > **AI 优化版本**: `ai/standards/license-compliance.ai.yaml`
 > **Agent Spec**: ASPEC-001 (cross-project/aspec/ASPEC-001-license-compliance-agent.md)
+
+**Scope**: universal
 
 ## 概述
 

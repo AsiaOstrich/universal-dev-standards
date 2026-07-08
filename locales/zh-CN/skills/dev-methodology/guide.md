@@ -3,7 +3,7 @@ source: ../../../../skills/dev-methodology/guide.md
 source_version: 2.0.0
 translation_version: 2.0.0
 last_synced: 2026-06-10
-source_hash: cf9cbf22df6f
+source_hash: 0b4eb7c53f73
 status: current
 scope: partial
 description: |
