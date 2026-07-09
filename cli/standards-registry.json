@@ -1123,7 +1123,7 @@
       },
       "category": "reference",
       "skillName": null,
-      "description": "Mandatory self-review pass on large markdown edits (>50 lines) before commit; catches 6 categories of internal cross-reference inconsistencies (diagram/step mismatch, changelog reference errors, count drift, stale templates, wrong tool references, placeholder vs rule misalignment)"
+      "description": "Mandatory self-review pass on large markdown edits (>50 lines) before commit; catches 7 categories of internal cross-reference inconsistencies (diagram/step mismatch, changelog reference errors, count drift, stale templates, wrong tool references, placeholder vs rule misalignment, language/terminology consistency)"
     },
     {
       "id": "ai-instruction-standards",
