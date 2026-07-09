@@ -3,8 +3,8 @@ name: journey-test-assistant
 source: ../../../../skills/journey-test-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: 439f49327b75
+last_synced: 2026-07-09
+source_hash: 9230eb251afd
 status: current
 scope: partial
 description: |

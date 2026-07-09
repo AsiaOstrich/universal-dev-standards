@@ -3,8 +3,8 @@ name: methodology
 source: ../../../../skills/dev-methodology/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: d654ee51f713
+last_synced: 2026-07-09
+source_hash: e7e6aae82545
 status: current
 scope: partial
 description: |

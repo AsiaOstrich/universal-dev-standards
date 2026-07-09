@@ -2,8 +2,8 @@
 source: ../../../../skills/knowledge-graph/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: 9c86b5a2a71d
+last_synced: 2026-07-09
+source_hash: 7921f66da47d
 status: current
 ---
 

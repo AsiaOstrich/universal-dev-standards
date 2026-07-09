@@ -1,9 +1,9 @@
 ---
 source: ../../../../skills/contract-test-assistant/SKILL.md
 source_version: 1.0.0
-source_hash: f67623eb913a
+source_hash: c8b082114d48
 translation_version: 1.0.0
-last_synced: 2026-06-01
+last_synced: 2026-07-09
 status: current
 description: |
   [UDS] 引导 API 和微服务的契约测试策略。

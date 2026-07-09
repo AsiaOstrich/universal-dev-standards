@@ -2,8 +2,8 @@
 source: ../../../../skills/dev-workflow-guide/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: 5bf83f0db544
+last_synced: 2026-07-09
+source_hash: bb3068d840d8
 status: current
 description: |
   将软件开发阶段对应到 UDS 命令与技能。

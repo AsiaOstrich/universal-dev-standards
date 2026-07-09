@@ -2,8 +2,8 @@
 source: ../../../../skills/observability-assistant/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: 760e3ec43846
+last_synced: 2026-07-09
+source_hash: 16143a7c8bbb
 status: current
 scope: universal
 description: |

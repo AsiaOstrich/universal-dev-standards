@@ -1,10 +1,10 @@
 ---
 name: ac-coverage
 source: ../../../../skills/ac-coverage/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: f8358fa818e4
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-07-09
+source_hash: eac0755fd844
 scope: universal
 status: current
 description: "[UDS] 分析验收条件（AC）与测试之间的追踪关系并生成覆盖率报告"
@@ -15,6 +15,12 @@ argument-hint: "[规格文件路径]"
 # AC 覆盖率助手
 
 > **语言**: [English](../../../../skills/ac-coverage/SKILL.md) | 简体中文
+
+**版本**: 1.1.0
+**最后更新**: 2026-06-19
+**适用范围**: Claude Code Skills
+
+> **核心标准**: 本技能实现[验收标准可追踪性标准](../../../../core/acceptance-criteria-traceability.md)。如需权威方法论，请参阅核心标准。
 
 分析验收条件（AC）与测试之间的追踪关系，并生成覆盖率报告。
 
@@ -30,7 +36,7 @@ argument-hint: "[规格文件路径]"
 ## 工作流程
 
 1. **解析 SPEC** — 从规格文件中抽取 AC 定义（AC-1, AC-2, ...）
-2. **扫描测试** — 依标准链接约定搜索测试文件中的 `@AC` 与 `@SPEC` 标注
+2. **扫描测试** — 搜索测试文件中的**规范标注** `@SPEC-<id> @AC-<n>`（单一合并标签）
 3. **构建矩阵** — 将每个 AC 对应到其测试引用（文件、测试名称、行号）
 4. **分类状态** — 将每个 AC 标记为 ✅ 已覆盖、⚠️ 部分覆盖、或 ❌ 未覆盖
 5. **计算覆盖率** — 套用公式：`覆盖率 % = (已覆盖 + 部分覆盖 × 0.5) / 总数 × 100`
