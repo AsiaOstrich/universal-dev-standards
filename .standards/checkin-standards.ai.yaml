@@ -12,8 +12,8 @@ standard:
     - "Documentation: docs updated, CHANGELOG updated"
 
   meta:
-    version: "2.1.0"
-    updated: "2026-06-18"
+    version: "2.2.0"
+    updated: "2026-07-09"
     source: core/checkin-standards.md
     description: Quality gates that must be passed before committing code
 
@@ -128,7 +128,7 @@ standard:
       priority: required
     - id: test-before-commit
       trigger: before committing
-      instruction: Run all test suites locally, review coverage
+      instruction: Run all relevant tests locally (directly exercised code plus tests affected by the change; use test impact analysis tooling if the project has it), review coverage. When scope is unclear or the change touches shared/core paths, run the full suite instead.
       priority: required
     - id: no-wip-commits
       trigger: writing commit message

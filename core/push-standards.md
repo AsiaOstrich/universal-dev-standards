@@ -1,6 +1,6 @@
 # Git Push Safety Gates
 
-> **Version**: 1.0.0 | **Status**: Active | **Updated**: 2026-04-23
+> **Version**: 1.1.0 | **Status**: Active | **Updated**: 2026-07-09
 > **AI-optimized version**: `ai/standards/push-standards.ai.yaml`
 > **Spec**: XSPEC-081 (cross-project/specs/XSPEC-081-uds-push-skill.md)
 
@@ -22,6 +22,7 @@ before they happen and to leave a durable record of every push that does happen.
 |---------|---------|-------|
 | `protected_branches` | `["main", "master", "release/*", "hotfix/*"]` | Branches requiring explicit confirmation before push |
 | `push_gates` | default: `["lint", "test"]`; optional: `["ac-coverage", "type-check", "security-scan"]` | Quality gates run before pushing |
+| `push_gates.test_scope` | `"full"` (choices: `"full"`, `"changed"`) | `"changed"` runs only tests affected by the diff via the project's test impact analysis tooling (e.g. `vitest --changed`), if configured. This is a fast local pre-check only — it does not replace the project's CI/full-suite run, which remains the authoritative gate |
 | `receipt.output` | `"console"` (choices: `console`, `file`, `both`) | Where the push receipt is written |
 | `receipt.file_path` | `~/.uds/push-history.jsonl` | Append-only JSON-lines history when `file` output is enabled |
 | `auto_pr` | `true` | Prompt to create a PR after pushing to a non-protected branch |
@@ -33,7 +34,7 @@ before they happen and to leave a durable record of every push that does happen.
 |------|---------|--------------|----------|
 | `detect-protected-branch` | Executing `/push` | Detect the target branch. If it matches any `protected_branches` pattern: display a warning with the branch name, show what commits will be pushed, require explicit user confirmation, and abort without pushing if not confirmed | required |
 | `force-push-guardrail` | Push with `--force` detected | Calculate commits that will be overwritten on the remote, show their count and authors, require the user to type a confirmation string (e.g. "yes, force push"), and record `force_push: true` in the receipt | required |
-| `pre-push-gates` | Before executing `git push` | Run all configured `push_gates` in sequence (lint, test, and any optional gates enabled); if any gate fails, abort the push, show which gate failed, and suggest a fix. With `--skip-gates`, push without gates and record `gates_skipped: true` | required |
+| `pre-push-gates` | Before executing `git push` | Run all configured `push_gates` in sequence (lint, test, and any optional gates enabled); if any gate fails, abort the push, show which gate failed, and suggest a fix. The `test` gate respects `push_gates.test_scope`: `"full"` (default) runs the complete suite; `"changed"` runs only the diff-affected subset via the project's test impact tooling and does **not** count as a substitute for the project's own CI/full-suite run. With `--skip-gates`, push without gates and record `gates_skipped: true` | required |
 | `push-receipt` | After a successful push | Output a structured push receipt (see schema below); if `receipt.output` includes `file`, append it as a JSON line to `~/.uds/push-history.jsonl` | required |
 | `pr-integration` | After a successful push to a non-protected branch | If `auto_pr` is true AND `repo_mode` is `team`: check whether an open PR exists for this branch; if not, prompt the user to run `pr-automation-assistant`. Skip entirely if `auto_pr` is false or `repo_mode` is `single-owner` | suggested |
 | `single-owner-mode` | `repo_mode: single-owner` is configured | Skip all collaboration-specific steps: no PR prompts, reduced force-push warnings (still warn, but no confirmation text required). Protected-branch detection remains active regardless of `repo_mode` | recommended |
@@ -78,3 +79,4 @@ Every successful push MUST produce a receipt with the following fields:
 | Version | Date | Changes |
 |---------|------|---------|
 | v1.0.0 | 2026-04-23 | Initial — protected-branch detection, force-push guardrail, pre-push gates, push receipt, PR integration, single-owner mode (XSPEC-081) |
+| v1.1.0 | 2026-07-09 | Add `push_gates.test_scope` (`full`/`changed`) — layered test gate exception so `test` can run a diff-affected subset locally without downgrading the project's authoritative full-suite gate (XSPEC-326) |

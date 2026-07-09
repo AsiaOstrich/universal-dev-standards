@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/checkin-standards.md)
 
-**Version**: 1.7.0
-**Last Updated**: 2026-06-18
+**Version**: 1.8.0
+**Last Updated**: 2026-07-09
 **Applicability**: All software projects using version control
 **Scope**: partial
 **Industry Standards**: SWEBOK v4.0 Chapter 6
@@ -96,7 +96,7 @@ pytest --cov=src tests/
 ```
 
 **Verification**:
-- Run all test suites locally
+- Run all relevant tests locally (see "All relevant tests pass" above — directly exercised code plus tests affected by the change, via test impact analysis tooling if the project has it); when scope is unclear, or the change touches shared/core paths, run the full suite instead
 - Review test coverage report
 - Ensure new code paths are tested
 
