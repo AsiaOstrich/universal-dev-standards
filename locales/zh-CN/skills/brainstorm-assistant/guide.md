@@ -1,10 +1,10 @@
 ---
 scope: universal
 source: ../../../../skills/brainstorm-assistant/guide.md
-source_version: 4.0.0
-source_hash: 24f4fe4819a4
-translation_version: 4.0.0
-last_synced: 2026-06-22
+source_version: 4.1.0
+source_hash: c5cd260548c2
+translation_version: 4.1.0
+last_synced: 2026-07-09
 status: current
 description: |
   指导在编写规格前进行结构化 AI 辅助头脑风暴。
@@ -16,8 +16,8 @@ description: |
 
 > **语言**: [English](../../../../skills/brainstorm-assistant/guide.md) | 简体中文
 
-**版本**: 4.0.0
-**最后更新**: 2026-06-22
+**版本**: 4.1.0
+**最后更新**: 2026-07-09
 **适用范围**: 所有软件项目
 **Scope**: universal
 **类型**: 工具型 Skill（无对应核心标准）
@@ -55,10 +55,10 @@ v3 提供了强健的*机制*，却没有**可判定 pass/fail 的质量闸**—
 
 - **第 0 层 — 意图**：宣告 explore/exploit 配比；调节维度权重。
 - **第 1 层 — 过程（发散期 leading、可见）**：维度 **D1 框架纯度／D2 发散覆盖／D3 跨会话多样性／D4 评估去偏**，各有 oracle。**硬序列闸**禁止评判维度 D5–D8 在发散期被揭示或评分。
-- **第 2 层 — 产物（收敛后 leading、仅 Top 3）**：**D5 接地／D6 净值／D7 可证伪／D8 可行动**，加 Seeds 栏与高方差想法的争议区。
+- **第 2 层 — 产物（收敛后 leading、仅施于推荐集——Agg. Score ≥ 3.5，不限笔数）**：**D5 接地／D6 净值／D7 可证伪／D8 可行动**，加 Seeds 栏与高方差想法的争议区。
 - **第 3 层 — 不可治理**：Judgment Override，人类直觉凌驾聚合分数。
 
-第一原理被修正：**决策用 leading 信号、校准用 lagging 信号——两者是时间前后，而非对错取舍**（移除任何「只用 leading 不用 lagging」绝对说法）。核心主张：评判维度限缩在**收敛后 × 仅 Top 3**，绝不在发散期对全部想法当硬闸——否则回溯污染发散、扼杀无证据的未来想法、制造填表剧场。完整契约、oracle 与结构规则见 **SKILL.md →「BQS v1 — 质量契约」**。
+第一原理被修正：**决策用 leading 信号、校准用 lagging 信号——两者是时间前后，而非对错取舍**（移除任何「只用 leading 不用 lagging」绝对说法）。核心主张：评判维度限缩在**收敛后 × 仅推荐集**（Agg. Score ≥ 3.5，不限笔数），绝不在发散期对全部想法当硬闸——否则回溯污染发散、扼杀无证据的未来想法、制造填表剧场。完整契约、oracle 与结构规则见 **SKILL.md →「BQS v1 — 质量契约」**。
 
 ---
 
@@ -313,7 +313,7 @@ HMW（默认起点）、SCAMPER（改善既有功能：Substitute、Combine、Ad
 
 ### Step 3b: 硬角色反驳轮
 
-软性的「请批评这个」大多得到附和——在弱批评框架下 LLM 会阿谀奉承。v3 对**前 3 个想法**分配**硬角色**：
+软性的「请批评这个」大多得到附和——在弱批评框架下 LLM 会阿谀奉承。v3 对**推荐集**（Agg. Score ≥ 3.5，不限笔数）中的每一个想法分配**硬角色**：
 
 - **Devil's Advocate**：「你的任务是论证这个想法*会*失败。给出 2 个具体的失败条件。」
 - **Steelman**：「陈述反方论点最强、最善意的版本——一个有思想的对手实际会提出的那种。」
@@ -366,9 +366,11 @@ HMW（默认起点）、SCAMPER（改善既有功能：Substitute、Combine、Ad
 |---|------|---------|------|--------------|---------------|---------------|------|
 | 1 | ...  | Skeptic | Reversal | 4.0 | 4.5 | 4.0 | 4.2 |
 
-## Top 3 Recommendations
+## Recommendations (Agg. Score ≥ 3.5 — uncapped)
 ### 1. [Idea] (Agg. X.X) ✓ Passed rebuttal
 - **Why**: [Reasoning]   - **Persona/Lens**: [..]   - **Rebuttal response**: [one line]   - **Scope**: [S/M/L]
+
+<!-- 列出所有 Agg. Score ≥ 3.5 的想法，依分数由高到低排序——不限 3 条。若无想法达 3.5，仅列分数最高的 1 个，标「(below threshold — shown for reference)」。 -->
 
 ## Diversity Note
 [How many distinct personas/lenses the surviving ideas span; flag if all from one cluster]
@@ -391,7 +393,7 @@ HMW（默认起点）、SCAMPER（改善既有功能：Substitute、Combine、Ad
 
 - **绝不**用竞品或产品类比做种子（「像 X 但用于 Y」）。
 - **变化透镜**，而非仅变化措辞——重写一个提示并不会让输出多样化。
-- 如果存活的前 3 名全部源自一个 persona 或透镜，**标记它**并在 OUTPUT 前额外运行一个透镜。
+- 如果存活的推荐集全部源自一个 persona 或透镜，**标记它**并在 OUTPUT 前额外运行一个透镜。
 - 早期优先使用**较低保真度**的想法陈述（一个粗略的方向，而非打磨过的概念）——高保真的 AI 输出会加深固着（发现 #3）。
 
 ---
@@ -606,6 +608,7 @@ BQS v1 是**叠加的质量契约**，不是推倒重来。v3 的一切都保留
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 4.1.0 | 2026-07-09 | XSPEC-325：把固定 Top-3 推荐上限改为分数门槛**推荐集**（Agg. Score ≥ 3.5，不限笔数），贯穿 BQS 第 2 层——产物闸（D5–D8）、硬角色反驳轮（Devil's Advocate + Steelman）、Meta 停止规则（集合成员稳定性）、多样性坍缩护栏、OUTPUT 推荐区块，全部改以推荐集为对象，不再是固定 3 个。若无想法达 3.5，仍显示分数最高的 1 个并标示「未达门槛，仅供参考」，避免报告空白。 |
 | 4.0.0 | 2026-06-22 | XSPEC-296：头脑风暴质量标准（BQS v1）——叠加于 v3 的四层 × 时间轴质量契约。第 0 层 explore/exploit 意图（调节 D2 权重）；第 1 层过程 leading 维度 D1–D4 + 硬序列闸（发散期禁 D5–D8）；第 2 层产物 leading 维度 D5–D8 仅施于 Top 3，加 Seeds 栏与高方差争议区；第 3 层 Judgment Override（凌驾聚合分）。D4 判官≠产生者（须独立 context，否则 `[degraded]`）；D5 主张分流（外部事实跨级地板）；D7 二态证伪（「需先做 X」→next-step、不算 fail）；Meta 停止规则（Top-3 集合稳定 + 硬上限 2 轮）。工作阶段自评重新定位为校准回路 lagging 端（Adoption→D6、Diversity→D2/D3、Cognitive Load→成本；禁两套平行评估）。第一原理修正为「决策用 leading、校准用 lagging」。分级绑客观模式选择触发。新增旗标 `--intent`。所有 v3 旗标／机制保留。 |
 | 3.0.0 | 2026-06-01 | XSPEC-247：DIVERGE 重新聚焦于 persona 集成 + 多样性透镜（类比 / 反转 / 形态学）；CONVERGE 重新聚焦于多评审面板 + 硬角色反驳（Devil's Advocate + Steelman）；多样性坍缩护栏；Enhanced 层级（并行 persona/评审智能体，优雅回退）；Research Foundations 基于 6 项已验证的 2024–2026 出处重建；效度说明重新评级（飞行前为低、Nijstad/Nemeth 降级）；新旗标 `--personas`/`--lens`/`--enhanced`；反种子护栏 |
 | 2.1.0 | 2026-05-09 | XSPEC-196 Phase 2：模式选择客观路由；自我评估框架；A/B 实验协议；研究效度说明；渐进采用协议 |

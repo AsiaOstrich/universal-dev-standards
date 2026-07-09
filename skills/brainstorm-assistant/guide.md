@@ -10,8 +10,8 @@ description: |
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/skills/brainstorm-assistant/guide.md)
 
-**Version**: 4.0.0
-**Last Updated**: 2026-06-22
+**Version**: 4.1.0
+**Last Updated**: 2026-07-09
 **Applicability**: All software projects
 **Scope**: universal
 **Type**: Utility Skill (no core standard)
@@ -49,10 +49,10 @@ v3 supplied strong *mechanisms* but no **decidable pass/fail quality gate** — 
 
 - **Layer 0 — Intent**: declare explore/exploit ratio; modulates dimension weights.
 - **Layer 1 — Process (divergence-period leading, visible)**: dimensions **D1 frame purity / D2 divergence coverage / D3 cross-session diversity / D4 evaluation de-bias**, each with an oracle. A **hard sequence gate** forbids the evaluative dimensions D5–D8 from being revealed or scored during divergence.
-- **Layer 2 — Product (post-convergence leading, Top 3 only)**: **D5 grounding / D6 net benefit / D7 falsifiability / D8 actionability**, plus a Seeds column and a contested zone for high-variance ideas.
+- **Layer 2 — Product (post-convergence leading, Recommended Set only — Agg. Score ≥ 3.5, uncapped)**: **D5 grounding / D6 net benefit / D7 falsifiability / D8 actionability**, plus a Seeds column and a contested zone for high-variance ideas.
 - **Layer 3 — Ungoverned**: a Judgment Override where human intuition overrides the aggregate score.
 
-The first principle is refined: **decisions use leading signals, calibration uses lagging signals — ordered in time, not a right/wrong trade-off** (this removes any "use only leading, never lagging" absolutism). The core claim: evaluative dimensions are confined to **after convergence × Top 3 only**, never as a full gate on every divergence idea — otherwise they retroactively pollute divergence, kill evidence-free future ideas, and create form-filling theatre. The full contract, oracles, and structural rules live in **SKILL.md → "BQS v1 — Quality Contract"**.
+The first principle is refined: **decisions use leading signals, calibration uses lagging signals — ordered in time, not a right/wrong trade-off** (this removes any "use only leading, never lagging" absolutism). The core claim: evaluative dimensions are confined to **after convergence × the Recommended Set only** (Agg. Score ≥ 3.5, uncapped), never as a full gate on every divergence idea — otherwise they retroactively pollute divergence, kill evidence-free future ideas, and create form-filling theatre. The full contract, oracles, and structural rules live in **SKILL.md → "BQS v1 — Quality Contract"**.
 
 ---
 
@@ -307,7 +307,7 @@ A single LLM is a weak, biased evaluator (Li et al., 2025: LLMs are strong at ge
 
 ### Step 3b: Hard-role Rebuttal Round
 
-A soft "please critique this" yields mostly agreement — LLMs are sycophantic under a weak critique frame. v3 assigns **hard roles** to the **top 3 ideas**:
+A soft "please critique this" yields mostly agreement — LLMs are sycophantic under a weak critique frame. v3 assigns **hard roles** to every idea in the **Recommended Set** (Agg. Score ≥ 3.5, uncapped):
 
 - **Devil's Advocate**: "Your job is to argue this idea WILL fail. Produce 2 specific failure conditions."
 - **Steelman**: "State the strongest, most charitable version of the counterargument — the one a thoughtful opponent would actually make."
@@ -360,9 +360,11 @@ Each idea that remains receives a badge: `✓ Passed rebuttal — [one-line summ
 |---|------|---------|------|--------------|---------------|---------------|------|
 | 1 | ...  | Skeptic | Reversal | 4.0 | 4.5 | 4.0 | 4.2 |
 
-## Top 3 Recommendations
+## Recommendations (Agg. Score ≥ 3.5 — uncapped)
 ### 1. [Idea] (Agg. X.X) ✓ Passed rebuttal
 - **Why**: [Reasoning]   - **Persona/Lens**: [..]   - **Rebuttal response**: [one line]   - **Scope**: [S/M/L]
+
+<!-- List every idea with Agg. Score ≥ 3.5, sorted descending — no cap at 3. If none reach 3.5, list only the single highest-scoring idea marked "(below threshold — shown for reference)". -->
 
 ## Diversity Note
 [How many distinct personas/lenses the surviving ideas span; flag if all from one cluster]
@@ -385,7 +387,7 @@ Using a single LLM for ideation reduces the **diversity of ideas across users**,
 
 - **Never seed** with a competitor or product analogy ("like X but for Y").
 - **Vary the lens**, not just the wording — rewording a prompt does not diversify output.
-- If the surviving Top 3 all originate from one persona or lens, **flag it** and run one additional lens before OUTPUT.
+- If the surviving Recommended Set all originate from one persona or lens, **flag it** and run one additional lens before OUTPUT.
 - Prefer **lower-fidelity** idea statements early (a rough direction, not a polished concept) — high-fidelity AI output deepens fixation (finding #3).
 
 ---
@@ -603,6 +605,7 @@ BQS v1 是**疊加的品質契約**，不是打掉重練。v3 的一切都保留
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 4.1.0 | 2026-07-09 | XSPEC-325: Replaced the fixed Top-3 recommendation cap with a score-threshold **Recommended Set** (Agg. Score ≥ 3.5, uncapped in count) throughout BQS Layer 2 — the product gate (D5–D8), the hard-role rebuttal round (Devil's Advocate + Steelman), the Meta stop rule (set-membership stability), the Diversity-Collapse Guardrail, and the OUTPUT Recommendations block all now key off the Recommended Set instead of a fixed 3. If no idea reaches 3.5, the single highest-scoring idea is still shown, marked "below threshold — shown for reference", so the report is never empty. |
 | 4.0.0 | 2026-06-22 | XSPEC-296: Brainstorm Quality Standard (BQS v1) — a four-layer × timeline quality contract layered additively on v3. Layer 0 explore/exploit intent (modulates D2 weight); Layer 1 process leading dimensions D1–D4 with a hard sequence gate (D5–D8 forbidden during divergence); Layer 2 product leading dimensions D5–D8 applied to Top 3 only, with a Seeds column and high-variance contested zone; Layer 3 Judgment Override (overrides aggregate score). D4 judge≠generator (independent context else `[degraded]`); D5 claim split (external-fact floor cross-tier); D7 two-state falsifiability ("need to do X" → next-step, not fail); Meta stop rule (Top-3 set stability + hard cap 2 rounds). Session Self-Evaluation re-positioned as the calibration loop's lagging end (Adoption→D6, Diversity→D2/D3, Cognitive Load→cost; two parallel evaluations forbidden). First principle refined to "decisions use leading, calibration uses lagging". Tiering bound to objective Mode Selection triggers. New flag `--intent`. All v3 flags/mechanisms preserved. |
 | 3.0.0 | 2026-06-01 | XSPEC-247: DIVERGE re-centred on persona ensemble + diversity lenses (analogical/reversal/morphological); CONVERGE re-centred on multi-critic panel + hard-role rebuttal (Devil's Advocate + Steelman); Diversity-Collapse Guardrail; Enhanced Tier (parallel persona/critic agents, graceful fallback); Research Foundations rebuilt on 6 verified 2024–2026 sources; Validity Caveats re-rated (pre-flight LOW, Nijstad/Nemeth demoted); new flags `--personas`/`--lens`/`--enhanced`; anti-seed guardrail |
 | 2.1.0 | 2026-05-09 | XSPEC-196 Phase 2: Mode Selection objective routing; Self-Evaluation Framework; A/B Experiment Protocol; Research Validity Caveats; Gradual Adoption Protocol |

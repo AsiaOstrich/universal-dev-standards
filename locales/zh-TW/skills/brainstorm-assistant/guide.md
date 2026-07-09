@@ -5,10 +5,10 @@ description: |
   使用時機：模糊想法、功能探索、問題再框架、創意發想。
   關鍵字：brainstorm, ideation, persona ensemble, multi-critic, HMW, SCAMPER, 腦力激盪, 發想, 創意。
 source: ../../../../skills/brainstorm-assistant/guide.md
-source_version: 4.0.0
-source_hash: 24f4fe4819a4
-translation_version: 4.0.0
-last_synced: 2026-06-22
+source_version: 4.1.0
+source_hash: c5cd260548c2
+translation_version: 4.1.0
+last_synced: 2026-07-09
 status: current
 ---
 
@@ -16,8 +16,8 @@ status: current
 
 > **語言**: [English](../../../../skills/brainstorm-assistant/guide.md) | 繁體中文
 
-**版本**: 4.0.0
-**最後更新**: 2026-06-22
+**版本**: 4.1.0
+**最後更新**: 2026-07-09
 **適用範圍**: 所有軟體專案
 **Scope**: universal
 **類型**: 工具型 Skill（無對應核心標準）
@@ -55,10 +55,10 @@ v3 提供了強健的*機制*，卻沒有**可判定 pass/fail 的品質閘**—
 
 - **第 0 層 — 意圖**：宣告 explore/exploit 配比；調節維度權重。
 - **第 1 層 — 過程（發散期 leading、可見）**：維度 **D1 框架純度／D2 發散覆蓋／D3 跨會話多樣性／D4 評估去偏**，各有 oracle。**硬序列閘**禁止評判維度 D5–D8 在發散期被揭示或評分。
-- **第 2 層 — 產物（收斂後 leading、僅 Top 3）**：**D5 接地／D6 淨值／D7 可證偽／D8 可行動**，加 Seeds 欄與高方差想法的爭議區。
+- **第 2 層 — 產物（收斂後 leading、僅施於推薦集——Agg. Score ≥ 3.5，不限筆數）**：**D5 接地／D6 淨值／D7 可證偽／D8 可行動**，加 Seeds 欄與高方差想法的爭議區。
 - **第 3 層 — 不可治理**：Judgment Override，人類直覺凌駕聚合分數。
 
-第一原理被修正：**決策用 leading 訊號、校準用 lagging 訊號——兩者是時間前後，而非對錯取捨**（移除任何「只用 leading 不用 lagging」絕對說法）。核心主張：評判維度限縮在**收斂後 × 僅 Top 3**，絕不在發散期對全部想法當硬閘——否則回溯污染發散、扼殺無證據的未來想法、製造填表劇場。完整契約、oracle 與結構規則見 **SKILL.md →「BQS v1 — 品質契約」**。
+第一原理被修正：**決策用 leading 訊號、校準用 lagging 訊號——兩者是時間前後，而非對錯取捨**（移除任何「只用 leading 不用 lagging」絕對說法）。核心主張：評判維度限縮在**收斂後 × 僅推薦集**（Agg. Score ≥ 3.5，不限筆數），絕不在發散期對全部想法當硬閘——否則回溯污染發散、扼殺無證據的未來想法、製造填表劇場。完整契約、oracle 與結構規則見 **SKILL.md →「BQS v1 — 品質契約」**。
 
 ---
 
@@ -301,7 +301,7 @@ HMW（預設起點）、SCAMPER（改善既有功能：Substitute 取代、Combi
 
 ### Step 3b: 硬角色反駁輪
 
-軟性的「請批評一下這個」多半換來附和——在弱批評框架下 LLM 會諂媚。v3 對**前 3 名想法**指派**硬角色**：
+軟性的「請批評一下這個」多半換來附和——在弱批評框架下 LLM 會諂媚。v3 對**推薦集**（Agg. Score ≥ 3.5，不限筆數）中的每一個想法指派**硬角色**：
 
 - **Devil's Advocate（魔鬼代言人）**：「你的任務是論證這個想法*會*失敗。提出 2 個具體的失敗條件。」
 - **Steelman（強論立場）**：「陳述最強、最善意版本的反論點——一個有思考力的對手真的會提出的那種。」
@@ -354,9 +354,11 @@ HMW（預設起點）、SCAMPER（改善既有功能：Substitute 取代、Combi
 |---|------|---------|------|--------------|---------------|---------------|------|
 | 1 | ...  | Skeptic | Reversal | 4.0 | 4.5 | 4.0 | 4.2 |
 
-## Top 3 Recommendations
+## Recommendations (Agg. Score ≥ 3.5 — uncapped)
 ### 1. [想法] (Agg. X.X) ✓ Passed rebuttal
 - **Why**: [理由]   - **Persona/Lens**: [..]   - **Rebuttal response**: [一行]   - **Scope**: [S/M/L]
+
+<!-- 列出所有 Agg. Score ≥ 3.5 的想法，依分數由高到低排序——不限 3 筆。若無想法達 3.5，僅列分數最高的 1 個，標「(below threshold — shown for reference)」。 -->
 
 ## Diversity Note
 [存活下來的想法跨越了多少個不同的 persona／透鏡；若全來自同一群集則標示]
@@ -379,7 +381,7 @@ HMW（預設起點）、SCAMPER（改善既有功能：Substitute 取代、Combi
 
 - **絕不**用競品或產品類比作種子（「像 X 但為 Y」）。
 - **變化透鏡**，而不只是措辭——重新措辭一個提示並不會讓輸出多樣化。
-- 若存活的前 3 名全源自單一 persona 或透鏡，**標示出來**並在 OUTPUT 前再跑一個額外透鏡。
+- 若存活的推薦集全源自單一 persona 或透鏡，**標示出來**並在 OUTPUT 前再跑一個額外透鏡。
 - 早期偏好**低擬真**的想法陳述（一個粗略方向，而非打磨過的概念）——高擬真的 AI 輸出會加深固著（發現 #3）。
 
 ---
@@ -589,6 +591,7 @@ BQS v1 是**疊加的品質契約**，不是打掉重練。v3 的一切都保留
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 4.1.0 | 2026-07-09 | XSPEC-325：把固定 Top-3 推薦上限改為分數門檻**推薦集**（Agg. Score ≥ 3.5，不限筆數），貫穿 BQS 第 2 層——產物閘（D5–D8）、硬角色反駁輪（Devil's Advocate + Steelman）、Meta 停止規則（集合成員穩定性）、多樣性崩塌護欄、OUTPUT 推薦區塊，全部改以推薦集為對象，不再是固定 3 個。若無想法達 3.5，仍顯示分數最高的 1 個並標示「未達門檻，僅供參考」，避免報告空白。 |
 | 4.0.0 | 2026-06-22 | XSPEC-296：腦力激盪品質標準（BQS v1）——疊加於 v3 的四層 × 時間軸品質契約。第 0 層 explore/exploit 意圖（調節 D2 權重）；第 1 層過程 leading 維度 D1–D4 + 硬序列閘（發散期禁 D5–D8）；第 2 層產物 leading 維度 D5–D8 僅施於 Top 3，加 Seeds 欄與高方差爭議區；第 3 層 Judgment Override（凌駕聚合分）。D4 判官≠產生者（須獨立 context，否則 `[degraded]`）；D5 主張分流（外部事實跨級地板）；D7 二態證偽（「需先做 X」→next-step、不算 fail）；Meta 停止規則（Top-3 集合穩定 + 硬上限 2 輪）。工作階段自評重新定位為校準回路 lagging 端（Adoption→D6、Diversity→D2/D3、Cognitive Load→成本；禁兩套平行評估）。第一原理修正為「決策用 leading、校準用 lagging」。分級綁客觀模式選擇觸發。新增旗標 `--intent`。所有 v3 旗標／機制保留。 |
 | 3.0.0 | 2026-06-01 | XSPEC-247：DIVERGE 重新對齊到 persona 集成 + 多樣性透鏡（類比／反轉／形態學）；CONVERGE 重新對齊到多評審面板 + 硬角色反駁（Devil's Advocate + Steelman）；多樣性崩塌護欄；Enhanced 層級（平行 persona／評審代理、優雅退回）；認知科學依據以 6 項已驗證的 2024–2026 出處重建；效度說明重新評等（pre-flight 為低、Nijstad／Nemeth 降級）；新增旗標 `--personas`／`--lens`／`--enhanced`；反種子護欄 |
 | 2.1.0 | 2026-05-09 | XSPEC-196 Phase 2：模式選擇客觀路由；自我評估框架；A/B 實驗協議；研究效度說明；漸進採用協議 |

@@ -21,9 +21,9 @@ Structured ideation before specification writing. Transform vague ideas into act
 
 v3 把發散從「單一 AI 衝數量」改為**persona 集成**（每個角色以思維鏈獨立推理）× **多樣性透鏡**；把收斂從「單一 AI 評分 + 單一反駁」改為**多評審面板** + **硬角色反駁**（Devil's Advocate + Steelman）。直接對應文獻最強結論：多 persona 勝過單一 pass，單一 LLM 評審既弱又易諂媚。
 
-**What changed in v4 | v4 的核心改動:** v3 supplied strong *mechanisms* but no decidable pass/fail quality gate. v4 layers a **time-sequenced quality contract** on top — the **Brainstorm Quality Standard (BQS v1)** — without removing any v3 behaviour. BQS is a **four-layer × timeline** structure: Layer 0 declares explore/exploit intent; Layer 1 (process, leading, visible during divergence) runs dimensions **D1–D4**; Layer 2 (product, leading, applied to Top 3 only after convergence) runs **D5–D8** plus a Seeds column and a contested zone; Layer 3 is an ungoverned **Judgment Override**. First principle: **decisions use leading signals; calibration uses lagging signals — these are ordered in time, not a right/wrong trade-off.** The hard sequence gate forbids D5–D8 from being revealed or scored during divergence. See "BQS v1 — Quality Contract" below.
+**What changed in v4 | v4 的核心改動:** v3 supplied strong *mechanisms* but no decidable pass/fail quality gate. v4 layers a **time-sequenced quality contract** on top — the **Brainstorm Quality Standard (BQS v1)** — without removing any v3 behaviour. BQS is a **four-layer × timeline** structure: Layer 0 declares explore/exploit intent; Layer 1 (process, leading, visible during divergence) runs dimensions **D1–D4**; Layer 2 (product, leading, applied to the Recommended Set only after convergence — ideas with Agg. Score ≥ 3.5, uncapped) runs **D5–D8** plus a Seeds column and a contested zone; Layer 3 is an ungoverned **Judgment Override**. First principle: **decisions use leading signals; calibration uses lagging signals — these are ordered in time, not a right/wrong trade-off.** The hard sequence gate forbids D5–D8 from being revealed or scored during divergence. See "BQS v1 — Quality Contract" below.
 
-**v4 的核心改動：** v3 提供了強健的*機制*，卻沒有可判定 pass/fail 的品質閘。v4 在其上疊加一道**時序化品質契約**——**腦力激盪品質標準（BQS v1）**——且不移除任何 v3 行為。BQS 是**四層 × 時間軸**結構：第 0 層宣告 explore/exploit 意圖；第 1 層（過程、leading、發散期全程可見）跑維度 **D1–D4**；第 2 層（產物、leading、收斂後僅施於 Top 3）跑 **D5–D8** 加 Seeds 欄與爭議區；第 3 層是不受治理的 **Judgment Override**。第一原理：**決策用 leading 訊號、校準用 lagging 訊號——兩者是時間前後，而非對錯取捨。** 硬序列閘禁止 D5–D8 在發散期被揭示或評分。詳見下方「BQS v1 — 品質契約」。
+**v4 的核心改動：** v3 提供了強健的*機制*，卻沒有可判定 pass/fail 的品質閘。v4 在其上疊加一道**時序化品質契約**——**腦力激盪品質標準（BQS v1）**——且不移除任何 v3 行為。BQS 是**四層 × 時間軸**結構：第 0 層宣告 explore/exploit 意圖；第 1 層（過程、leading、發散期全程可見）跑維度 **D1–D4**；第 2 層（產物、leading、收斂後僅施於推薦集，即 Agg. Score ≥ 3.5、不限筆數的想法）跑 **D5–D8** 加 Seeds 欄與爭議區；第 3 層是不受治理的 **Judgment Override**。第一原理：**決策用 leading 訊號、校準用 lagging 訊號——兩者是時間前後，而非對錯取捨。** 硬序列閘禁止 D5–D8 在發散期被揭示或評分。詳見下方「BQS v1 — 品質契約」。
 
 ## Mode Selection | 使用前先選模式
 
@@ -49,7 +49,7 @@ Apply these **objective triggers** before starting. Default is full v3 — routi
 ```
 [Mode Selection] ─► PRE-FLIGHT ─► FRAME ─► DIVERGE ───────────► CONVERGE ──────────► OUTPUT
    客觀路由          防止錨定      定義問題   persona 集成+透鏡       多評審面板+硬角色反駁    輸出提案
-   ▲ Layer 0 intent              ▲ Layer 1 (D1–D4, leading)        ▲ Layer 2 (D5–D8, Top 3)   ▲ Layer 3 override
+   ▲ Layer 0 intent              ▲ Layer 1 (D1–D4, leading)        ▲ Layer 2 (D5–D8, Recommended Set)   ▲ Layer 3 override
 ```
 
 ---
@@ -83,9 +83,9 @@ At the start, declare the **explore/exploit ratio** and the bet type (incrementa
 >
 > D5–D8 禁止在發散期揭示或評分；CONVERGE 的 critic 不得在**最後一個 persona** 產完前被呼叫。
 
-### Layer 2 — Product (post-convergence leading, applied to Top 3 only) | 第 2 層 — 產物（收斂後 leading，僅施於 Top 3）
+### Layer 2 — Product (post-convergence leading, applied to the Recommended Set only) | 第 2 層 — 產物（收斂後 leading，僅施於推薦集）
 
-> Evaluative dimensions are confined to **after convergence × Top 3 only** — never as a full gate on every divergence idea (that would retroactively pollute divergence, kill evidence-free future ideas, and create form-filling theatre). | 評判維度限縮在**收斂後 × 僅 Top 3**，絕不在發散期對全部想法當硬閘（否則回溯污染發散、扼殺無證據的未來想法、製造填表劇場）。
+> Evaluative dimensions are confined to **after convergence × the Recommended Set only** (ideas with Agg. Score ≥ 3.5, uncapped in count) — never as a full gate on every divergence idea (that would retroactively pollute divergence, kill evidence-free future ideas, and create form-filling theatre). | 評判維度限縮在**收斂後 × 僅推薦集**（Agg. Score ≥ 3.5 的想法，不限筆數），絕不在發散期對全部想法當硬閘（否則回溯污染發散、扼殺無證據的未來想法、製造填表劇場）。
 
 | Dim | Oracle | Oracle |
 |-----|--------|--------|
@@ -104,11 +104,11 @@ A reserved space no oracle enters: a human's intuition to "keep / kill" needs on
 
 ### Structural rules | 結構規則
 
-1. **Meta stop rule | Meta 停止規則:** stop when the layer's dimensions are all green **and**, after one more round, the **Top 3 set membership is unchanged** (set membership, not internal ranking). **Hard cap: 2 rounds.** This replaces the vague "decision didn't flip" criterion. | 該層維度全綠 **且** 再跑一輪後 **Top 3 集合成員不變**（看集合成員、不看內部排序）→停。**硬上限 2 輪**。取代模糊的「不翻決策」。
+1. **Meta stop rule | Meta 停止規則:** stop when the layer's dimensions are all green **and**, after one more round, the **Recommended Set membership is unchanged** (set membership, not internal ranking). **Hard cap: 2 rounds.** This replaces the vague "decision didn't flip" criterion. | 該層維度全綠 **且** 再跑一輪後 **推薦集成員不變**（看集合成員、不看內部排序）→停。**硬上限 2 輪**。取代模糊的「不翻決策」。
 2. **Judge ≠ generator | 判官≠產生者:** D2/D4/D5/D7 judgements need an independent viewpoint; single-context self-evaluation may only be `[degraded]`, never pass. | D2/D4/D5/D7 判定須獨立視角；單 context 自評只能 `[degraded]`，不得 pass。
 3. **Calibration loop (consumes lagging) | 校準回路（吃 lagging）:** v3's three Session Self-Evaluation metrics are folded in as the **lagging** end — **Adoption Rate = D6 lagging validation, Diversity = D2/D3 lagging observation, Cognitive Load = a cost constraint**. **Two parallel evaluation systems are forbidden** — there is one loop, not a separate self-eval. | v3 的 **Adoption Rate**＝D6 滯後驗證、**Diversity**＝D2/D3 滯後觀測、**Cognitive Load**＝成本約束；三者收編為此回路 lagging 端，**禁兩套平行評估**。
 4. **BQS self-evolution (lightweight) | BQS 自我演化（輕量）:** versioned + an evidence `last-reviewed` that flags when overdue; "periodically brainstorm BQS itself" is optional. | 版本化 + 證據清單 last-reviewed 逾期 flag；「定期對 BQS 自身 brainstorm」列可選。
-5. **Minimal sufficiency | 最小充分原則:** apply only the fewest dimensions the tier requires + the Top-3 confinement — this is the gate for cognitive economy; no separate cost dimension is added. | 套用該 tier 所需的最少維度 + Top-3 限縮——認知經濟性的守門，不另設成本維度。
+5. **Minimal sufficiency | 最小充分原則:** apply only the fewest dimensions the tier requires + confining Layer 2 to the Recommended Set (Agg. Score ≥ 3.5) instead of every divergence idea — this is the gate for cognitive economy; no separate cost dimension is added. | 套用該 tier 所需的最少維度 + 把第 2 層限縮在推薦集（Agg. Score ≥ 3.5），而非全部發散想法——認知經濟性的守門，不另設成本維度。
 
 ### Tiering (bound to v3 objective triggers, not self-assessment) | 分級（綁 v3 既有客觀觸發，非自評）
 
@@ -254,9 +254,9 @@ Per-criterion guide (1–5): Feasibility (5=trivial … 1=near-impossible); Impa
 
 #### Step 3b: Hard-role Rebuttal Round | 硬角色反駁輪
 
-A soft "please critique this" instruction yields mostly agreement (sycophancy). v3 assigns **hard roles**: for each of the **top 3 ideas**, run a **Devil's Advocate** ("Your job is to argue this idea WILL fail") and a **Steelman** ("State the strongest charitable version of the counterargument"). Together they stress-test resilience rather than merely poke.
+A soft "please critique this" instruction yields mostly agreement (sycophancy). v3 assigns **hard roles**: for each idea in the **Recommended Set** (Agg. Score ≥ 3.5, uncapped), run a **Devil's Advocate** ("Your job is to argue this idea WILL fail") and a **Steelman** ("State the strongest charitable version of the counterargument"). Together they stress-test resilience rather than merely poke.
 
-軟性「請批評一下」只會得到附和（諂媚）。v3 指派**硬角色**：對**前三名想法**各跑一個 **Devil's Advocate**（「你的任務是論證此案會失敗」）與一個 **Steelman**（「說出反方最強而善意的版本」）。兩者一起壓力測試韌性，而非只是戳。
+軟性「請批評一下」只會得到附和（諂媚）。v3 指派**硬角色**：對**推薦集**（Agg. Score ≥ 3.5，不限筆數）中的每一個想法各跑一個 **Devil's Advocate**（「你的任務是論證此案會失敗」）與一個 **Steelman**（「說出反方最強而善意的版本」）。兩者一起壓力測試韌性，而非只是戳。
 
 Each counterargument must take the form: "This idea will fail in [specific context] because [specific reason]." Vague concerns ("this might be hard") are rejected.
 
@@ -278,20 +278,20 @@ The user **must** respond to each before advancing:
 >
 > D4 唯有**評審/Devil's Advocate 在獨立 context 執行**（`--enhanced` 隔離 agent 宿主）才可 pass。baseline 單 context 下，面板是同 context 自評，標 `[degraded]`、**不得標 pass**——誠實但非獨立。不得把 baseline 跑當成 D4 pass 靜默通過。
 
-#### Step 3c: BQS Layer 2 — product gate on Top 3 | BQS 第 2 層——對 Top 3 的產物閘
+#### Step 3c: BQS Layer 2 — product gate on the Recommended Set | BQS 第 2 層——對推薦集的產物閘
 
-After convergence, apply **D5–D8 to the Top 3 only** (never to every divergence idea). For each Top-3 idea:
+After convergence, apply **D5–D8 to the Recommended Set only** (ideas with Agg. Score ≥ 3.5, uncapped — never to every divergence idea). If no idea reaches 3.5, keep the single highest-scoring idea and mark it `[below threshold — shown for reference]` so the report is never empty. For each idea in the Recommended Set:
 
-收斂後，**僅對 Top 3** 套用 **D5–D8**（絕不對全部發散想法）。對每個 Top-3 想法：
+收斂後，**僅對推薦集**（Agg. Score ≥ 3.5 的想法，不限筆數）套用 **D5–D8**（絕不對全部發散想法）。若無想法達 3.5，仍保留分數最高的 1 個，標記 `[未達門檻——僅供參考]`，避免報告空白。對推薦集中每個想法：
 
 - **D5 Grounding:** split each claim into `[current state / external fact]` (needs a file:line or source, else fail) vs `[future / hypothesis]` (no grounding needed, mark `[hypothesis]`). An **external-fact claim is a cross-tier floor** — it must be grounded even at the creative tier. | 將每個主張分流為 `[現狀/外部事實]`（需 file:line 或來源，否則 fail）vs `[未來/假說]`（免接地、標 `[假說]`）。**外部事實宣稱為跨級地板**——creative 級也須接地。
-- **D6 Net benefit:** each Top-3 idea must answer "whose problem / do we actually have it / cost of not doing it"; at least one idea must be eliminated as "not worth doing"; attach a **lagging registry field** (which later signal validates this). | 每個 Top-3 須答「解誰問題／我們真有嗎／不做的代價」；至少一個淘汰為「不值得做」；掛 **lagging 登記欄**（事後哪個訊號驗證）。
+- **D6 Net benefit:** each idea in the Recommended Set must answer "whose problem / do we actually have it / cost of not doing it"; at least one idea must be eliminated as "not worth doing"; attach a **lagging registry field** (which later signal validates this). | 推薦集中每個想法須答「解誰問題／我們真有嗎／不做的代價」；至少一個淘汰為「不值得做」；掛 **lagging 登記欄**（事後哪個訊號驗證）。
 - **D7 Falsifiability (two-state):** mark `[falsifiable now]` **or** `[need to do X first to define falsification]`. The latter is **routed to a next-step that feeds D8 — it does NOT count as fail**. | 標 `[現可陳述證偽]` **或** `[需先做 X 才能定義證偽]`。後者**轉 next-step 餵 D8——不算 fail**。
 - **D8 Actionability:** every surviving idea needs a next-step decision (including an explicit "defer / not now"); none → fail. | 每個存活想法需 next-step 裁決（含明確「暫不做」）；無 → fail。
 
-> **Meta stop rule (BQS structural rule 1) | Meta 停止規則:** stop iterating when the applied dimensions are all green **and** one more round leaves the **Top 3 set membership unchanged** (set membership, not internal ordering). **Hard cap: 2 rounds.**
+> **Meta stop rule (BQS structural rule 1) | Meta 停止規則:** stop iterating when the applied dimensions are all green **and** one more round leaves the **Recommended Set membership unchanged** (set membership, not internal ordering). **Hard cap: 2 rounds.**
 >
-> 當套用的維度全綠 **且** 再跑一輪後 **Top 3 集合成員不變**（看集合成員、非內部排序）→停。**硬上限 2 輪。**
+> 當套用的維度全綠 **且** 再跑一輪後 **推薦集成員不變**（看集合成員、非內部排序）→停。**硬上限 2 輪。**
 
 ---
 
@@ -317,12 +317,14 @@ Produce a Brainstorm Report ready for `/requirement` or `/sdd`. Each surviving i
 |---|------|---------|------|-------------|---------------|--------------|-----------|
 | 1 | ...  | Skeptic | Reversal | 4.0 | 4.5 | 4.0 | 4.2 |
 
-## Top 3 Recommendations (BQS Layer 2 applied)
-1. **[Idea]** ✓ Passed rebuttal — [Why] — Persona: [..] — [User rebuttal response]
+## Recommendations (BQS Layer 2 applied, Agg. Score ≥ 3.5 — uncapped)
+1. **[Idea]** (Agg. X.X) ✓ Passed rebuttal — [Why] — Persona: [..] — [User rebuttal response]
    - D5 grounding: [current-state claims with file:line | future claims marked [hypothesis]]
    - D6 net benefit: [whose problem / do we have it / cost of not doing] — lagging signal: [..]
    - D7 falsifiability: [falsifiable now | need to do X first → next-step]
    - D8 next-step: [action | defer]
+2. **[Idea]** (Agg. X.X) ✓ Passed rebuttal — ...
+<!-- List every idea with Agg. Score ≥ 3.5, sorted descending — do not cap at 3. If none reach 3.5, list only the single highest-scoring idea marked "[below threshold — shown for reference]". -->
 
 ## Contested Zone (high critic-variance ideas)
 [Ideas whose critic variance exceeded threshold — surfaced, NOT eliminated by mean ranking (barbell long-tail)]
@@ -344,9 +346,9 @@ Produce a Brainstorm Report ready for `/requirement` or `/sdd`. Each surviving i
 - [ ] Proceed to `/sdd` if requirements are clear
 ```
 
-> **BQS output additions (v4):** the **Seeds** section (rule: non-empty when ≥1 idea was killed), the **Contested Zone** (high-variance ideas not eliminated by mean ranking), and the **Judgment Override** channel (human decision overriding the aggregate score) are required by BQS Layer 2/3. The Top-3 block records the D5–D8 status per idea.
+> **BQS output additions (v4):** the **Seeds** section (rule: non-empty when ≥1 idea was killed), the **Contested Zone** (high-variance ideas not eliminated by mean ranking), and the **Judgment Override** channel (human decision overriding the aggregate score) are required by BQS Layer 2/3. The Recommendations block records the D5–D8 status per idea, for every idea in the Recommended Set (uncapped).
 >
-> **BQS 輸出新增（v4）：** **Seeds** 區（規則：被殺 ≥1 則非空）、**爭議區**（高方差想法不按 mean 淘汰）、**Judgment Override** 通道（人類裁決凌駕聚合分）為 BQS 第 2/3 層所要求。Top-3 區塊逐項記錄 D5–D8 狀態。
+> **BQS 輸出新增（v4）：** **Seeds** 區（規則：被殺 ≥1 則非空）、**爭議區**（高方差想法不按 mean 淘汰）、**Judgment Override** 通道（人類裁決凌駕聚合分）為 BQS 第 2/3 層所要求。Recommendations 區塊為推薦集（不限筆數）中每個想法逐項記錄 D5–D8 狀態。
 
 ## Diversity-Collapse Guardrail | 多樣性崩塌防護
 
@@ -356,7 +358,7 @@ Using a single LLM for ideation reduces the **diversity of ideas across users**,
 
 - **Never seed** with a competitor or product analogy ("like X but for Y"). | 絕不用競品/產品類比當種子。
 - **Vary the lens**, not just the wording — reword ≠ diversify. | 變的是透鏡而非措辭——換句話不等於多樣化。
-- If the surviving Top 3 all came from one persona/lens, **flag it** and run one more lens before OUTPUT. | 若前三名全來自同一 persona/透鏡，**標示**並在輸出前再跑一個透鏡。
+- If the surviving Recommended Set all came from one persona/lens, **flag it** and run one more lens before OUTPUT. | 若推薦集全來自同一 persona/透鏡，**標示**並在輸出前再跑一個透鏡。
 
 ## Enhanced Tier — Parallel Personas | 強化層——平行 persona
 
