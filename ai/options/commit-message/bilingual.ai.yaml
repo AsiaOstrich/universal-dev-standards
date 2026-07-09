@@ -4,7 +4,7 @@
 id: bilingual
 meta:
   parent: commit-message
-  version: "1.0.0"
+  version: "1.1.0"
   description: Bilingual format for mixed teams
 
 best_for:
@@ -92,6 +92,15 @@ rules:
       Never omit the Chinese body section.
     priority: required
 
+  - id: mid-conversation-language-drift-check
+    trigger: AI assistant switching from heavy non-target-language content (code, logs, English docs) back to user-facing prose in a long conversation
+    instruction: |
+      Before writing the next user-facing paragraph, confirm it will be in
+      the target bilingual language without waiting for the user to point
+      out drift. If the user has already flagged drift, correct immediately
+      in the next response — do not repeat apologies or delay the fix.
+    priority: recommended
+
 anti_patterns:
   - id: mixed-language-body
     description: Mixing English and Chinese in the same paragraph
@@ -118,6 +127,15 @@ anti_patterns:
       實作包含電子郵件和密碼欄位的登入表單。
 
       Closes #123
+
+  - id: language-drift-unnoticed
+    description: AI assistant keeps replying in a non-target language after processing heavy non-target-language content, only correcting after repeated user complaints
+    bad_example: |
+      [long conversation with heavy English code/log excerpts]
+      Assistant: "Let's proceed to the next 단계..." (drifted, no self-check)
+    good_example: |
+      [long conversation with heavy English code/log excerpts]
+      Assistant self-checks before replying, then continues in the target language without being asked: "接下來我們處理下一步驟..."
 
 examples:
   simple: "feat(auth): Add login form. 新增登入表單."

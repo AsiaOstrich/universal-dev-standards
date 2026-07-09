@@ -1,9 +1,9 @@
 ---
 source: ../../../core/self-review-protocol.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-06-10
-source_hash: 68942adc7ab6
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-07-09
+source_hash: 35603d9b6211
 status: current
 ---
 
@@ -11,8 +11,8 @@ status: current
 
 > **语言**: [English](../../../core/self-review-protocol.md) | [繁體中文](../../zh-TW/core/self-review-protocol.md) | 简体中文
 
-**版本**: 1.0.0
-**最后更新**: 2026-05-26
+**版本**: 1.1.0
+**最后更新**: 2026-07-09
 **适用范围**: 所有软件项目（新建、重构、迁移、维护）
 **范围**: partial
 **业界标准**: ISO/IEC 25010（文档可维护性）、IEEE 1063-2001（软件用户文档）
@@ -35,7 +35,7 @@ status: current
 
 多次 Claude 辅助编辑 session（如 `dev-platform/.claude/skills/eval-source/SKILL.md` v1.1.0 → v1.1.1、v1.2.0 → v1.2.1）观察到一致模式：**每次大型 markdown 编辑都引入 3-6 处小型内部不一致**，内部推理看不出来，但完整 re-read 立刻 surface。
 
-这些不一致归纳为 **6 大类**，且固定触发后续 patch commit。在 commit 前加入强制 re-read 步骤后，此模式消失（eval-source v1.3.0 为首次无 patch follow-up 的 SKILL.md 变更）。
+这些不一致归纳为 **6 大类**，且固定触发后续 patch commit。在 commit 前加入强制 re-read 步骤后，此模式消失（eval-source v1.3.0 为首次无 patch follow-up 的 SKILL.md 变更）。第 7 大类（语言与术语一致性）为后续因不同动机（跨对话 AI 输出漂移，非原始 patch 周期模式）新增，详见下方。
 
 ---
 
@@ -57,7 +57,7 @@ status: current
 
 ---
 
-## 6 类常见内部不一致
+## 7 类常见内部不一致
 
 ### 1. Diagram / Flow 与 step list 不同步
 **示例**：工作流程图 7 格但文档实际定义 8 步骤
@@ -83,12 +83,16 @@ status: current
 **示例**：example 写「D1/D2/D3」但 rule 明说 D3 不强制，且当前案例正好把 D3 降为后续追踪
 **检查**：example 中每个具体值是否与当前 rule 一致；example 不应与最新案例经验矛盾
 
+### 7. 语言与术语一致性
+**示例**：双语文档某段落中英文夹杂，或日文假名/韩文谚文混入简体中文段落；或同一份文档内「XSPEC」「gate」「pipeline」等项目惯用术语写法不一致
+**检查**：扫描非目标语言文字是否出现在非预期段落（如日文假名 U+3040–U+30FF、韩文谚文 U+AC00–U+D7A3 混入简体中文段落）、同段落语言混杂、以及同一文件内既有惯用术语拼法是否一致
+
 ---
 
 ## 流程
 
 1. **edit 完成后、commit 前**，用 file-reading 工具重新读过**完整文件**（不只 diff）
-2. 依上方 6 类逐项对照
+2. 依上方 7 类逐项对照
 3. **发现问题** → 直接 Edit 修补后再 commit（同一 commit 包含修正，不要分开 ship）
 4. **若已 commit 才发现** → 新增 patch commit（如 v1.2.1 对 v1.2.0）
 
@@ -105,19 +109,19 @@ status: current
 ### ADR / DEC
 在 `## 后续追踪` 表格新增一行：
 ```
-| Self-review pass | 本 DEC | ✅ YYYY-MM-DD (6 类无 issue) |
+| Self-review pass | 本 DEC | ✅ YYYY-MM-DD (7 类无 issue) |
 ```
 
 ### XSPEC SDD Delta
 在「不改动清单」section（如 §N.6）后追加：
 ```
-> Self-review pass: YYYY-MM-DD (6 类无 issue)
+> Self-review pass: YYYY-MM-DD (7 类无 issue)
 ```
 
 ### Commit message body
 最后一行附：
 ```
-Self-review (protocol v1.0.0): N issues found, M applied in same commit / 0 found.
+Self-review (protocol v1.1.0): N issues found, M applied in same commit / 0 found.
 ```
 
 ---
@@ -165,3 +169,4 @@ Self-review (protocol v1.0.0): N issues found, M applied in same commit / 0 foun
 ## Self-Review Pass
 
 > Self-review pass: 2026-05-26 (6 类无 issue；本标准首稿同步 self-review)
+> Self-review pass: 2026-07-09（7 类无 issue —— 依 XSPEC-324 新增第 7 类「语言与术语一致性」）

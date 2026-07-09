@@ -179,8 +179,13 @@ git config --global commit.template ~/.gitmessage
 module.exports = {
   extends: ['@commitlint/config-conventional'],
   rules: {
-    'header-max-length': [2, 'always', 100], // Longer for bilingual
-    'body-max-line-length': [2, 'always', 100],
+    // @commitlint/config-conventional defaults both to 100, sized for
+    // English-only commits. A bilingual header/body line repeats the same
+    // content in English then Chinese, so 100 is too tight in practice —
+    // this repo's own history (measured over 300 commits) runs header
+    // p50=134/p95=192 and body-line p50=75/p95=110 characters.
+    'header-max-length': [2, 'always', 250],
+    'body-max-line-length': [2, 'always', 200],
     'type-enum': [
       2,
       'always',
@@ -205,6 +210,18 @@ module.exports = {
 - Use machine translation without review / 使用未經審閱的機器翻譯
 - Skip one language for "minor" changes / 「小變更」時跳過一種語言
 - Translate technical terms unnecessarily / 不必要地翻譯技術術語
+
+## AI Assistant Runtime Discipline / AI 助手執行期紀律
+
+This option also governs AI assistants writing user-facing prose in this bilingual mode, not just commit messages. During a long conversation, an assistant that has just processed heavy non-target-language content (code, logs, English documentation) can drift into the wrong language for its next reply.
+
+本選項也適用於以此雙語模式撰寫使用者對話文字的 AI 助手，不只 commit message。在長對話中，助手剛處理完大量非目標語言內容（程式碼、log、英文文件）後，下一段回覆容易漂移到錯誤語言。
+
+- **Self-check before switching back** — Before writing the next user-facing paragraph after heavy non-target-language content, confirm it will be in the target language, without waiting for the user to point out drift.
+  **切換回覆前先自檢** — 處理完大量非目標語言內容後，寫下一段使用者對話文字前，先確認會使用目標語言，不需等使用者指出才發現。
+
+- **Correct immediately, no delay** — If the user has already flagged drift, fix it in the very next response. Don't repeat apologies or keep drifting.
+  **立即修正，不拖延** — 若使用者已指出語言跑掉，下一則回覆就要修正，不要重複道歉或繼續漂移。
 
 ## Technical Terms / 技術術語
 

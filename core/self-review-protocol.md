@@ -2,8 +2,8 @@
 
 > **English** | [繁體中文](../locales/zh-TW/core/self-review-protocol.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-05-26
+**Version**: 1.1.0
+**Last Updated**: 2026-07-09
 **Applicability**: All software projects (new, refactoring, migration, maintenance)
 **Scope**: partial
 **Industry Standards**: ISO/IEC 25010 (Documentation maintainability), IEEE 1063-2001 (Software user documentation)
@@ -26,7 +26,7 @@ This standard mandates a **self-review pass** on large markdown edits before com
 
 Across multiple Claude-assisted editing sessions (e.g., `dev-platform/.claude/skills/eval-source/SKILL.md` v1.1.0 → v1.1.1 and v1.2.0 → v1.2.1), a consistent pattern emerged: **each large markdown edit introduced 3-6 small internal inconsistencies** that were invisible to internal reasoning but surfaced immediately on full re-read.
 
-These inconsistencies fell into **6 recurring categories** and consistently triggered a follow-up patch commit. Adding a mandatory re-read step before commit eliminated this pattern (eval-source v1.3.0 was the first to pass without follow-up patch).
+These inconsistencies fell into **6 recurring categories** and consistently triggered a follow-up patch commit. A 7th category — language/terminology consistency — was added later for a different rationale (cross-conversation AI output drift, not the original patch-cycle pattern); see below. Adding a mandatory re-read step before commit eliminated this pattern (eval-source v1.3.0 was the first to pass without follow-up patch).
 
 ---
 
@@ -48,7 +48,7 @@ Applicable artefact types:
 
 ---
 
-## The 6 Categories of Internal Inconsistency
+## The 7 Categories of Internal Inconsistency
 
 ### 1. Diagram / Flow vs Step List Mismatch
 **Example**: A workflow diagram with 7 boxes but the document defines 8 steps.
@@ -74,12 +74,16 @@ Applicable artefact types:
 **Example**: A template example shows `D1/D2/D3` but the rule explicitly says D3 is not mandatory, and the present case specifically demoted its D3.
 **Check**: Every concrete value in examples must be consistent with current rules; examples should not contradict latest case experience.
 
+### 7. Language / Terminology Consistency
+**Example**: A bilingual document has a paragraph mixing English and Chinese sentences, or a Japanese/Korean character sequence contaminates a Traditional Chinese section; or the same project term (e.g. "XSPEC", "gate", "pipeline") is spelled inconsistently across the same document.
+**Check**: Scan for non-target-language scripts outside their expected sections (e.g. Japanese kana U+3040–U+30FF, Korean hangul U+AC00–U+D7A3 inside a zh-TW paragraph), same-paragraph language mixing, and inconsistent spelling of established project terms within one file.
+
 ---
 
 ## Procedure
 
 1. **After editing, before committing**, use the file-reading tool to re-read the **entire file** (not just the diff).
-2. Walk through the 6 categories above against the file.
+2. Walk through the 7 categories above against the file.
 3. **If issues found**: Edit in place and include fixes in the same commit (don't ship and patch later).
 4. **If already committed** before noticing: Create a patch commit (e.g., v1.2.1 fixing v1.2.0).
 
@@ -98,19 +102,19 @@ Append a changelog line in the format:
 ### For ADRs / DECs
 In the `## Follow-up Tracking` table, add a row:
 ```
-| Self-review pass | This DEC | ✅ YYYY-MM-DD (6 categories, no issues) |
+| Self-review pass | This DEC | ✅ YYYY-MM-DD (7 categories, no issues) |
 ```
 
 ### For XSPEC SDD Deltas
 After the "non-modification list" section (e.g., §N.6), append:
 ```
-> Self-review pass: YYYY-MM-DD (6 categories, no issues)
+> Self-review pass: YYYY-MM-DD (7 categories, no issues)
 ```
 
 ### In Commit Message Body
 Append a single line at the end:
 ```
-Self-review (protocol v1.0.0): N issues found, M applied in same commit / 0 found.
+Self-review (protocol v1.1.0): N issues found, M applied in same commit / 0 found.
 ```
 
 ---
@@ -158,3 +162,4 @@ Adoption of this standard is verified by:
 ## Self-Review Pass
 
 > Self-review pass: 2026-05-26 (6 categories, no issues found on the first draft of this standard itself)
+> Self-review pass: 2026-07-09 (7 categories, no issues found — added category 7 "Language / Terminology Consistency" per XSPEC-324)

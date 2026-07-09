@@ -4,7 +4,7 @@
 id: bilingual
 meta:
   parent: commit-message
-  version: "1.0.0"
+  version: "1.1.0"
   description: 混合團隊的雙語格式
   language: zh-TW
 
@@ -83,6 +83,11 @@ rules:
   - id: bilingual-body
     trigger: 撰寫內文時
     instruction: 以雙語撰寫內文，英文優先
+    priority: recommended
+
+  - id: mid-conversation-language-drift-check
+    trigger: AI 助手在長對話中處理大量非目標語言內容（程式碼、log、英文文件）後切回使用者對話文字時
+    instruction: 下一段使用者對話文字送出前先自我核對是否使用目標語言，不需等使用者指出；使用者已指出語言跑掉時，下一則回覆立即修正，不重複道歉拖延
     priority: recommended
 
 examples:

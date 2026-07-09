@@ -1,8 +1,8 @@
 ---
 source: ../../../core/self-review-protocol.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-05-28
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-07-09
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../core/self-review-protocol.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-05-26
+**版本**: 1.1.0
+**最後更新**: 2026-07-09
 **適用範圍**: 所有軟體專案（新建、重構、遷移、維護）
 **範圍**: partial
 **業界標準**: ISO/IEC 25010（文件可維護性）、IEEE 1063-2001（軟體使用者文件）
@@ -34,7 +34,7 @@ status: current
 
 多次 Claude 輔助編輯 session（如 `dev-platform/.claude/skills/eval-source/SKILL.md` v1.1.0 → v1.1.1、v1.2.0 → v1.2.1）觀察到一致模式：**每次大型 markdown 編輯都引入 3-6 處小型內部不一致**，內部推理看不出來，但完整 re-read 立刻 surface。
 
-這些不一致歸納為 **6 大類**，且固定觸發後續 patch commit。在 commit 前加入強制 re-read 步驟後，此模式消失（eval-source v1.3.0 為首次無 patch follow-up 的 SKILL.md 變更）。
+這些不一致歸納為 **6 大類**，且固定觸發後續 patch commit。在 commit 前加入強制 re-read 步驟後，此模式消失（eval-source v1.3.0 為首次無 patch follow-up 的 SKILL.md 變更）。第 7 大類（語言與術語一致性）為後續因不同動機（跨對話 AI 輸出漂移，非原始 patch 週期模式）新增，詳見下方。
 
 ---
 
@@ -56,7 +56,7 @@ status: current
 
 ---
 
-## 6 類常見內部不一致
+## 7 類常見內部不一致
 
 ### 1. Diagram / Flow 與 step list 不同步
 **範例**：工作流程圖 7 格但文件實際定義 8 步驟
@@ -82,12 +82,16 @@ status: current
 **範例**：example 寫「D1/D2/D3」但 rule 明說 D3 不強制，且當前案例正好把 D3 降為後續追蹤
 **檢查**：example 中每個具體值是否與當前 rule 一致；example 不應與最新案例經驗矛盾
 
+### 7. 語言與術語一致性
+**範例**：雙語文件某段落中英文夾雜，或日文假名/韓文諺文混入繁體中文段落；或同一份文件內「XSPEC」「gate」「pipeline」等專案慣用術語寫法不一致
+**檢查**：掃描非目標語言文字是否出現在非預期段落（如日文假名 U+3040–U+30FF、韓文諺文 U+AC00–U+D7A3 混入 zh-TW 段落）、同段落語言混雜、以及同一檔案內既有慣用術語拼法是否一致
+
 ---
 
 ## 流程
 
 1. **edit 完成後、commit 前**，用 file-reading 工具重新讀過**完整檔案**（不只 diff）
-2. 依上方 6 類逐項對照
+2. 依上方 7 類逐項對照
 3. **發現問題** → 直接 Edit 修補後再 commit（同一 commit 包含修正，不要分開 ship）
 4. **若已 commit 才發現** → 新增 patch commit（如 v1.2.1 對 v1.2.0）
 
@@ -104,19 +108,19 @@ status: current
 ### ADR / DEC
 在 `## 後續追蹤` 表格新增一行：
 ```
-| Self-review pass | 本 DEC | ✅ YYYY-MM-DD (6 類無 issue) |
+| Self-review pass | 本 DEC | ✅ YYYY-MM-DD (7 類無 issue) |
 ```
 
 ### XSPEC SDD Delta
 在「不改動清單」section（如 §N.6）後追加：
 ```
-> Self-review pass: YYYY-MM-DD (6 類無 issue)
+> Self-review pass: YYYY-MM-DD (7 類無 issue)
 ```
 
 ### Commit message body
 最後一行附：
 ```
-Self-review (protocol v1.0.0): N issues found, M applied in same commit / 0 found.
+Self-review (protocol v1.1.0): N issues found, M applied in same commit / 0 found.
 ```
 
 ---
@@ -164,3 +168,4 @@ Self-review (protocol v1.0.0): N issues found, M applied in same commit / 0 foun
 ## Self-Review Pass
 
 > Self-review pass: 2026-05-26 (6 類無 issue；本標準首稿同步 self-review)
+> Self-review pass: 2026-07-09（7 類無 issue —— 依 XSPEC-324 新增第 7 類「語言與術語一致性」）

@@ -1,8 +1,8 @@
 ---
 source: ../../../../options/commit-message/bilingual.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-30
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-07-09
 status: current
 ---
 
@@ -135,6 +135,13 @@ docs: fix typo in README / 修正 README 错字
 - 使用未经审阅的机器翻译
 - 「小变更」时跳过一种语言
 - 不必要地翻译技术术语
+
+## AI 助手执行期纪律
+
+本选项也适用于以此双语模式撰写用户对话文字的 AI 助手，不只 commit message。长对话中，助手刚处理完大量非目标语言内容（代码、log、英文文档）后，下一段回复容易漂移到错误语言。
+
+- **切换回复前先自检** — 处理完大量非目标语言内容后，写下一段用户对话文字前先确认会使用目标语言，不需等用户指出才发现。
+- **立即修正，不拖延** — 若用户已指出语言跑偏，下一则回复就要修正，不要重复道歉或继续漂移。
 
 ## 技术术语
 
