@@ -1,6 +1,6 @@
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-06-20
+> Quick reference for all UDS features | Last updated: 2026-07-09
 
 **Language**: [English](../../../docs/user/CHEATSHEET.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CHEATSHEET.md)
 
@@ -217,6 +217,7 @@
 | `estimation-standards` | Estimation Standards |
 | `execution-history` | Execution History Repository Standards |
 | `failure-source-taxonomy` | Failure Source Taxonomy Standard |
+| `feature-discovery-standards` | Feature Discovery Standards |
 | `feature-flag-standards` | Feature Flag Management Standards |
 | `feature-manifest-standard` | Feature Manifest Standard |
 | `flaky-test-management` | Flaky Test Management Standards |
@@ -239,6 +240,7 @@
 | `mock-boundary` | This document defines rules for what can and canno |
 | `model-provenance` | Model Provenance Policy Standards |
 | `model-selection` | Define a cost-effective strategy for selecting AI  |
+| `multi-environment-e2e-testing` | Multi-Environment E2E Testing Standards |
 | `mutation-testing` | Mutation testing evaluates test suite effectivenes |
 | `no-cicd-deployment` | No-CI/CD Deployment Strategy |
 | `observability-standards` | Observability Standards |
@@ -256,6 +258,7 @@
 | `project-structure` | This standard defines conventions for project dire |
 | `prompt-regression` | Prompt Regression Standards |
 | `property-based-testing` | Property-Based Testing Standards |
+| `push-standards` | Git Push Safety Gates |
 | `recovery-recipe-registry` | Recovery Recipe Registry Standard |
 | `refactoring-standards` | This standard defines comprehensive guidelines for |
 | `release-quality-manifest` | Release Quality Manifest |
@@ -298,6 +301,7 @@
 | `timeout-standards` | Timeout Standards |
 | `token-budget` | Token Budget Zone Standard |
 | `translation-lifecycle-standards` | Translation lifecycle standards: MISSING vs OUTDAT |
+| `user-journey-testing` | User Journey Testing Standard |
 | `user-story-mapping` | User Story Mapping Standards |
 | `verification-evidence` | Establish an "Iron Law" that no task can be claime |
 | `verification-oracle` | Verification Oracle Standards |
@@ -351,6 +355,7 @@
 | `check-version-sync.ps1` | Check Version Sync |
 | `check-version-sync.sh` | Version Sync Checker |
 | `check-workflow-compliance.sh` | DEPRECATED: Use 'npx tsx scripts/check-workflow-co |
+| `commitlint-bilingual-rule.mjs` | commitlint-bilingual-rule.mjs — custom commitlint  |
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |

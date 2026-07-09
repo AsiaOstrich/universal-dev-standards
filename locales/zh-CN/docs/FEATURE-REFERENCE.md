@@ -1,7 +1,7 @@
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档
-> Auto-generated | Last updated: 2026-06-20
+> Auto-generated | Last updated: 2026-07-09
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
@@ -14,10 +14,10 @@
 3. [技能](#skills) (55)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
-6. [核心规范](#core-standards) (145)
-7. [脚本](#scripts) (57)
+6. [核心规范](#core-standards) (149)
+7. [脚本](#scripts) (58)
 
-**Total Features: 327**
+**Total Features: 332**
 
 ---
 
@@ -131,20 +131,6 @@
 ### `uds workflow`
 
 **说明**: Manage UDS workflows (list, install, info, execute, status)
-
-**选项**:
-| Option | 说明 |
-|--------|-------------|
-| `--installed` | Show installation status for all AI tools |
-| `-t, --tool` | Target AI tool (default: claude-code) |
-| `-g, --global` | Install to user level instead of project level |
-| `-y, --yes` | Skip confirmation prompts |
-| `-t, --tool` | Target AI tool (default: claude-code) |
-| `--resume` | Resume from saved state |
-| `--restart` | Restart from beginning (discard saved state) |
-| `-v, --verbose` | Show detailed output |
-| `--dry-run` | Show steps without executing |
-| `-y, --yes` | Skip confirmation prompts |
 
 ### `uds ai-context`
 
@@ -316,7 +302,7 @@
 | `alerting-standards` | 1.0.0 |  |
 | `anti-hallucination` | 1.5.1 | This standard defines strict guidelines for AI assistants to prevent hallucinati |
 | `anti-sycophancy-prompting` | 1.0.0 | This standard defines techniques and rules for designing prompts that elicit gen |
-| `api-design-standards` | 1.0.0 | This standard defines comprehensive guidelines for designing, building, and main |
+| `api-design-standards` | 1.1.0 | This standard defines comprehensive guidelines for designing, building, and main |
 | `audit-trail` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `behavior-driven-development` | 1.1.0 |  |
 | `behavior-snapshot` | - |  |
@@ -344,7 +330,7 @@
 | `data-pipeline` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `database-standards` | 1.0.0 | This standard defines guidelines for database design, querying, migration, and o |
 | `deployment-standards` | 1.1.0 | This standard defines guidelines for safely deploying software to production, co |
-| `deprecation-standards` | 1.0.0 |  |
+| `deprecation-standards` | 1.1.0 |  |
 | `design-document-standards` | 1.0.0 |  |
 | `developer-memory` | 1.1.1 | This standard defines a structured system for capturing, retrieving, and surfaci |
 | `disaster-recovery-drill` | - |  |
@@ -357,6 +343,7 @@
 | `estimation-standards` | 1.0.0 |  |
 | `execution-history` | 1.0.0 |  |
 | `failure-source-taxonomy` | - |  |
+| `feature-discovery-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-05-13 |  |
 | `feature-flag-standards` | 1.0.0 |  |
 | `feature-manifest-standard` | - |  |
 | `flaky-test-management` | - |  |
@@ -376,9 +363,10 @@
 | `license-compliance` | 2.1.0 | **Status**: Active | **Updated**: 2026-05-16 |  |
 | `llm-output-validation` | - |  |
 | `logging-standards` | 1.4.0 |  |
-| `mock-boundary` | 1.0.0 | This document defines rules for what can and cannot be mocked in tests. Its goal |
+| `mock-boundary` | 1.1.0 | This document defines rules for what can and cannot be mocked in tests. Its goal |
 | `model-provenance` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `model-selection` | 1.0.1 | Define a cost-effective strategy for selecting AI model tiers based on task comp |
+| `multi-environment-e2e-testing` | 1.0.0 | **Status**: Active | **Updated**: 2026-05-13 |  |
 | `mutation-testing` | 1.0.0 | Mutation testing evaluates test suite effectiveness by injecting artificial bugs |
 | `no-cicd-deployment` | - |  |
 | `observability-standards` | 1.0.0 |  |
@@ -396,8 +384,9 @@
 | `project-structure` | 1.2.0 | This standard defines conventions for project directory structure beyond documen |
 | `prompt-regression` | - |  |
 | `property-based-testing` | - |  |
+| `push-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-04-23 |  |
 | `recovery-recipe-registry` | - |  |
-| `refactoring-standards` | 2.1.0 | This standard defines comprehensive guidelines for code refactoring, covering ev |
+| `refactoring-standards` | 2.2.0 | This standard defines comprehensive guidelines for code refactoring, covering ev |
 | `release-quality-manifest` | - |  |
 | `release-readiness-gate` | 1.0.0 | This standard defines a **single, aggregated Release Readiness Gate** that unifi |
 | `replay-test` | - |  |
@@ -405,7 +394,7 @@
 | `resource-cost-boundary` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `retrospective-standards` | 1.0.0 | Retrospectives are structured team reflections that identify what worked well, w |
 | `retry-standards` | - |  |
-| `reverse-engineering-standards` | 1.1.0 | This standard defines the principles, workflows, and best practices for reverse  |
+| `reverse-engineering-standards` | 1.2.0 | This standard defines the principles, workflows, and best practices for reverse  |
 | `rollback-standards` | - |  |
 | `runbook-standards` | 1.0.0 |  |
 | `runbook` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
@@ -416,7 +405,7 @@
 | `security-decision` | - |  |
 | `security-standards` | 1.1.0 | This standard defines comprehensive security guidelines for software development |
 | `security-testing` | 1.1.0 | This document defines the security testing methodology for software projects. It |
-| `self-review-protocol` | 1.0.0 | This standard mandates a **self-review pass** on large markdown edits before com |
+| `self-review-protocol` | 1.1.0 | This standard mandates a **self-review pass** on large markdown edits before com |
 | `server-ops-security` | - |  |
 | `skill-standard-alignment-check` | - |  |
 | `slo-sli` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
@@ -438,10 +427,11 @@
 | `timeout-standards` | - |  |
 | `token-budget` | - |  |
 | `translation-lifecycle-standards` | 1.0.0 | Translation lifecycle standards: MISSING vs OUTDATED distinction, semver-aware s |
+| `user-journey-testing` | - |  |
 | `user-story-mapping` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `verification-evidence` | 1.0.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
 | `verification-oracle` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
-| `versioning` | 1.2.0 | This standard defines how to version software releases using Semantic Versioning |
+| `versioning` | 1.5.0 | This standard defines how to version software releases using Semantic Versioning |
 | `virtual-organization-standards` | 1.0.0 | This standard treats the AI ecosystem as a "Virtual Organization." It defines ho |
 | `workflow-enforcement` | - |  |
 | `workflow-state-protocol` | 1.0.0 |  |
@@ -493,6 +483,7 @@
 | `check-version-sync.ps1` | Check Version Sync |
 | `check-version-sync.sh` | Version Sync Checker |
 | `check-workflow-compliance.sh` | DEPRECATED: Use 'npx tsx scripts/check-workflow-compliance.ts' instead (cross-platform). |
+| `commitlint-bilingual-rule.mjs` | commitlint-bilingual-rule.mjs — custom commitlint rules enforcing the |
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
