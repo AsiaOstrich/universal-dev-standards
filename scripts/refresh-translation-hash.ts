@@ -50,9 +50,25 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  readdirSync,
+  statSync,
+  realpathSync
+} from 'node:fs';
 import { dirname, join, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+/** realpathSync but returns the input unchanged if the path doesn't exist. */
+function tryRealpath(p: string): string {
+  try {
+    return realpathSync(p);
+  } catch {
+    return p;
+  }
+}
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 // Test-only escape hatch: --all / --all-missing scan this directory instead of
@@ -458,6 +474,15 @@ function main(): void {
   process.exit(0);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// realpathSync both sides before comparing: import.meta.url is resolved
+// through symlinks by Node's ESM loader, but `file://${process.argv[1]}`
+// is a raw string. A symlinked repo layout (e.g. dev-platform's
+// universal-dev-standards -> ../universal-dev-standards) made this compare
+// unequal for any absolute-path invocation built from the symlinked
+// location, so main() silently never ran.
+if (
+  process.argv[1] &&
+  tryRealpath(fileURLToPath(import.meta.url)) === tryRealpath(resolve(process.argv[1]))
+) {
   main();
 }

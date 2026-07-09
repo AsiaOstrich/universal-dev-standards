@@ -6,12 +6,21 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync, readdirSync, statSync } from 'fs';
-import { join, dirname } from 'path';
+import { readFileSync, readdirSync, statSync, realpathSync } from 'fs';
+import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+/** realpathSync but returns the input unchanged if the path doesn't exist. */
+function tryRealpath(p) {
+  try {
+    return realpathSync(p);
+  } catch {
+    return p;
+  }
+}
 const TESTS_DIR = join(__dirname, '..', 'tests');
 
 class TestDiscovery {
@@ -330,8 +339,15 @@ async function main() {
   }
 }
 
-// 如果直接執行此文件
-if (import.meta.url === `file://${process.argv[1]}`) {
+// 如果直接執行此文件。兩側都先 realpathSync 再比對：Node 的 ESM loader 會把
+// import.meta.url 解析經過 symlink，但 `file://${process.argv[1]}` 是原始字
+// 串不會——symlink 專案佈局（如 dev-platform 的 universal-dev-standards ->
+// ../universal-dev-standards）會讓用該 symlink 路徑組出的絕對路徑呼叫比對
+// 不相等，main() 因此靜默不執行（exit 0、無輸出）。
+if (
+  process.argv[1] &&
+  tryRealpath(fileURLToPath(import.meta.url)) === tryRealpath(resolve(process.argv[1]))
+) {
   main().catch(console.error);
 }
 

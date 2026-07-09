@@ -18,12 +18,21 @@
 
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
-import { readFileSync, writeFileSync, readdirSync, statSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname, relative } from 'path';
+import { readFileSync, writeFileSync, readdirSync, statSync, existsSync, mkdirSync, realpathSync } from 'fs';
+import { join, dirname, relative, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+/** realpathSync but returns the input unchanged if the path doesn't exist. */
+function tryRealpath(p) {
+  try {
+    return realpathSync(p);
+  } catch {
+    return p;
+  }
+}
 const CLI_DIR = join(__dirname, '..');
 const REPORTS_DIR = join(CLI_DIR, 'tests', 'reports');
 
@@ -349,8 +358,15 @@ async function main() {
   process.exit(0);
 }
 
-// Run if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Run if executed directly. realpathSync both sides: import.meta.url is
+// resolved through symlinks by Node's ESM loader, but a raw
+// `file://${process.argv[1]}` string is not — a symlinked repo layout made
+// this compare unequal for any absolute-path invocation built from the
+// symlinked location, silently skipping main() (exit 0, no output).
+if (
+  process.argv[1] &&
+  tryRealpath(fileURLToPath(import.meta.url)) === tryRealpath(resolve(process.argv[1]))
+) {
   main().catch(error => {
     console.error('Error:', error.message);
     process.exit(1);
