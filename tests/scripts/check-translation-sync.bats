@@ -122,6 +122,40 @@ _write_trans() {
   [[ "$doc_line" != *"[DRIFT]"* ]]
 }
 
+@test "(e) example frontmatter in a body code fence is not mistaken for the real one" {
+  # Real bug found 2026-07-09 on locales/zh-TW/core/documentation-writing-standards.md:
+  # a ```yaml fenced example ~640 lines into the body illustrating frontmatter
+  # syntax happened to contain a `source_hash: abc123` line. The old
+  # get_yaml_value() did a plain `grep "^${key}:" "$file"` over the WHOLE file,
+  # so it picked up that example instead of correctly seeing no source_hash
+  # field in the real (leading) frontmatter block — producing a false [DRIFT].
+  {
+    echo "---"
+    echo "source: src.md"
+    echo "source_version: 1.0.0"
+    echo "translation_version: 1.0.0"
+    echo "status: current"
+    echo "---"
+    echo ""
+    echo "# 文件撰寫範例"
+    echo ""
+    echo "以下範例展示 frontmatter 應有的格式："
+    echo ""
+    echo '```yaml'
+    echo "---"
+    echo "source_version: 1.0.0"
+    echo "source_hash: abc123"
+    echo "---"
+    echo '```'
+  } > "$TRANS"
+  run bash "$SCRIPT" zz-test
+  [ "$status" -eq 0 ]
+  doc_line="$(printf '%s\n' "$output" | grep 'doc.md' | head -1)"
+  [[ "$doc_line" == *"[CURRENT]"* ]]
+  [[ "$doc_line" != *"[DRIFT]"* ]]
+  [[ "$output" != *"abc123"* ]]
+}
+
 @test "source-not-found still handled (does not crash new hash layer)" {
   # Point at a nonexistent source; hash layer must not run and script continues.
   {

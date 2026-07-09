@@ -139,11 +139,25 @@ check_locale() {
         return 1
     fi
 
-    # Function to extract YAML front matter value
+    # Function to extract YAML front matter value.
+    #
+    # Bounded to the leading `---`...`---` block only: a plain
+    # `grep "^${key}:" "$file"` (the previous implementation) matches ANY
+    # line in the whole file, including example YAML frontmatter shown
+    # inside a ```yaml fenced code block in the document body (e.g. a
+    # documentation-writing standard illustrating what frontmatter looks
+    # like). That produced a false [DRIFT] on
+    # locales/zh-TW/core/documentation-writing-standards.md, whose real
+    # frontmatter has no source_hash field at all — the match was an
+    # illustrative "source_hash: abc123" line ~640 lines into the body.
     get_yaml_value() {
         local file="$1"
         local key="$2"
-        grep "^${key}:" "$file" 2>/dev/null | head -1 | sed "s/^${key}:[[:space:]]*//" | tr -d '\r'
+        awk '
+            NR==1 && /^---[[:space:]]*$/ { infm=1; next }
+            infm && /^---[[:space:]]*$/ { exit }
+            infm { print }
+        ' "$file" 2>/dev/null | grep "^${key}:" | head -1 | sed "s/^${key}:[[:space:]]*//" | tr -d '\r'
     }
 
     # Function to get source file version from its own YAML front matter or Version line
