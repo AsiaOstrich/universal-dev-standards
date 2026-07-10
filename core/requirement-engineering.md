@@ -1,7 +1,7 @@
 # Requirement Engineering Standards
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-28
+**Version**: 1.1.0
+**Last Updated**: 2026-07-10
 **Applicability**: All software projects
 **Scope**: universal
 **Industry Standards**: IEEE 830-1998, IEEE 29148-2018, SWEBOK v4.0

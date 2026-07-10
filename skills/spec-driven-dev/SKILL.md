@@ -211,6 +211,17 @@ npm run sdd:analyze -- --specs specs --tests tests [--userguide docs] [--json]
 
 **vs `/ac-coverage`**: ac-coverage = per-spec detailed AC↔test matrix；`/sdd analyze` = cross-spec/batch consistency + orphan detection（互補、不取代）。
 
+## Spec-vs-Code Convergence Check | 規格與實作漂移偵測（2026-07-10，spec-kit `/converge` 借鑑）
+
+**vs `/sdd analyze`**：`/sdd analyze` 問「測試有沒有正確引用 AC」（引用完整性，deterministic script）；convergence check 問「程式碼的實際行為是否真的符合 spec 描述」（語意漂移，需要讀碼判斷，走 `sdd.flow.yaml` verify 階段的 `spec-match-check` ai-check step）——兩者互補、檢查的是不同層次的問題，不重疊。
+
+雖然定義在 7-phase 狀態機的 `verify` 階段（一次性 gate），**這個檢查可以在任何時間點對已歸檔的 spec 獨立重跑**——用於偵測 spec 歸檔後、code 持續演進累積出的漂移（例如後續 commit 改了行為但沒回頭更新 spec）。重跑時：
+
+- 落差分類：`missing`（spec 要求但沒做）／`partial`（做一半）／`contradicts`（行為與描述不同）／`unrequested`（做了沒被要求的事）
+- 嚴重度：`CRITICAL`（違反 spec 明確 MUST）／`HIGH`／`MEDIUM`／`LOW`
+- 唯讀比對——只列出發現，不自動修改 spec 或程式碼
+- 適合定期（如季度）對重要 spec 抽查，或懷疑特定 spec 已過時時針對性執行
+
 ## Usage | 使用方式
 
 ```

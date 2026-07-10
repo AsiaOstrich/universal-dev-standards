@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/core/requirement-engineering.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-28
+**Version**: 1.1.0
+**Last Updated**: 2026-07-10
 **Applicability**: All software projects
 **Scope**: universal
 
@@ -305,6 +305,71 @@ A good SRS should be:
 | **Inconsistency** | Contradicting requirements | Negotiate with stakeholders |
 | **Infeasibility** | Technically impossible | Adjust scope or technology |
 | **Untestability** | Cannot verify | Add measurable criteria |
+
+### Requirement Quality Checklist Generation (`CHK###` format)
+
+> Origin: 2026-07-10 re-alignment review of github/spec-kit's `/checklist` command
+> ("unit tests for requirements" — testing the *spec's own quality*, not the
+> code). The static Validation Checklist above is a fixed generic list; this
+> section operationalizes it into a **per-spec, dynamically generated**
+> checklist so quality gaps are found before implementation starts, not during
+> review.
+
+Unlike the generic Validation Checklist (a one-time author self-check), a
+`CHK###` checklist is generated **for a specific spec/requirement document**,
+numbered sequentially, and append-only (never renumber or delete a prior run —
+mark superseded items instead).
+
+**Five quality dimensions** (mirrors the IEEE 830 Quality Characteristics
+above, made checkable per-item rather than read as prose):
+
+| Dimension | Checks for | Maps to IEEE 830 characteristic |
+|-----------|-------------|----------------------------------|
+| **Completeness** | Missing scenarios, unhandled edge cases, undocumented NFRs | Complete |
+| **Clarity** | Ambiguous terms ("appropriate", "fast", "user-friendly"), undefined pronouns | Unambiguous |
+| **Consistency** | Contradicting statements within or across requirements | Consistent |
+| **Measurability** | Non-quantified NFRs, untestable acceptance criteria | Verifiable |
+| **Coverage** | Requirement not traceable to a source (stakeholder need / business goal) | Traceable |
+
+**Item format**:
+
+```
+CHK001 [Completeness] Does the spec define behavior when the input list is empty? [Gap]
+CHK002 [Measurability] Is "fast response time" quantified with a specific threshold? [Ambiguity] [Spec §3.2]
+CHK003 [Consistency] Requirement FR-003 says "reject duplicates" but FR-007 says "merge duplicates" — which applies? [Conflict] [Spec §FR-003, §FR-007]
+```
+
+Each item carries `[dimension]` + a question phrased so it can be answered
+Pass/Fail against the spec text, plus one or more **source-traceability
+tags**:
+
+| Tag | Meaning |
+|-----|---------|
+| `[Spec §X.Y]` | Grounded in — cites the specific spec section the check applies to |
+| `[Gap]` | The spec is silent on this; no section to cite |
+| `[Ambiguity]` | The spec addresses this but the wording allows >1 interpretation |
+| `[Conflict]` | Two or more spec sections disagree; cite both |
+| `[Assumption]` | The check surfaces an unstated assumption the spec relies on |
+
+**Rules**:
+- At least **80%** of generated items must carry a `[Spec §X.Y]` tag (grounded
+  in actual spec text) — a checklist that is mostly `[Gap]`/`[Assumption]`
+  items signals the spec itself is too thin to review, not that the checklist
+  generator did a bad job.
+- Before generating, ask **at most 5** adaptive clarifying questions about
+  domain context the generator cannot infer from the spec alone (e.g., "is
+  this a multi-tenant system?") — more than 5 signals the spec needs a
+  Discuss-phase revisit, not more checklist questions.
+- **Append-only**: re-running checklist generation on a revised spec adds new
+  `CHK###` items continuing the sequence; it does not renumber or silently
+  remove prior items. An item resolved by a spec revision is marked
+  `[Resolved: <spec revision note>]`, not deleted.
+- This is a **spec-quality** check, run before/during the Specification and
+  Validation lifecycle phases above — it does not test code and is unrelated
+  to the acceptance-criteria-traceability standard's AC↔test coverage (that
+  checks whether *tests* cover the spec; this checks whether the *spec itself*
+  is complete/clear/consistent/measurable/traceable enough to write tests
+  against in the first place).
 
 ---
 

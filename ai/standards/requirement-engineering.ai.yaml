@@ -3,10 +3,14 @@
 
 id: requirement-engineering
 meta:
-  version: "1.0.0"
-  updated: "2026-01-13"
+  version: "1.1.0"
+  updated: "2026-07-10"
   source: methodologies/guides/requirement-engineering-guide.md
-  description: Requirements engineering lifecycle, elicitation, specification, and validation standards
+  description: |
+    Requirements engineering lifecycle, elicitation, specification, and validation standards.
+    v1.1.0 adds checklist_generation: dynamic per-spec CHK### quality checklist
+    (5 dimensions, source-traceability tags), operationalizing the existing
+    static Validation Checklist / IEEE 830 quality_characteristics below.
 
 # Reference Standards
 references:
@@ -117,6 +121,41 @@ srs_structure:
     - Verifiable (can be tested)
     - Modifiable (easy to change)
     - Traceable (origin and implementation linkable)
+
+# 需求品質檢核清單生成（spec-kit /checklist 借鑑，2026-07-10 回頭對齊評估新增）
+# 把上方 srs_structure.quality_characteristics（IEEE 830 8 大品質特性）從靜態參考文字
+# 操作化成可對特定 spec 動態產生的逐項檢核清單——不是「作者自我檢查一次」的固定清單，
+# 是「這份 spec 本身夠不夠完整/清楚/一致/可量測/可追溯」的單元測試。
+checklist_generation:
+  format: "CHK### [dimension] <yes/no question about the spec's own quality> [tag(s)]"
+  append_only: true
+  dimensions:
+    - id: completeness
+      maps_to: Complete (IEEE 830)
+      checks_for: "遺漏的情境、未處理的邊界案例、未記載的 NFR"
+    - id: clarity
+      maps_to: Unambiguous (IEEE 830)
+      checks_for: "模糊詞彙（appropriate/fast/user-friendly）、未定義代名詞"
+    - id: consistency
+      maps_to: Consistent (IEEE 830)
+      checks_for: "spec 內部或跨 spec 的矛盾陳述"
+    - id: measurability
+      maps_to: Verifiable (IEEE 830)
+      checks_for: "未量化的 NFR、無法測試的驗收條件"
+    - id: coverage
+      maps_to: Traceable (IEEE 830)
+      checks_for: "無法追溯到來源（利害關係人需求/商業目標）的需求"
+  traceability_tags:
+    "[Spec §X.Y]": "有依據——引用具體 spec 段落"
+    "[Gap]": "spec 沒提到，無段落可引用"
+    "[Ambiguity]": "spec 有提到但用詞允許多種解讀"
+    "[Conflict]": "≥2 個 spec 段落互相矛盾，須都引用"
+    "[Assumption]": "揭露 spec 依賴的未言明假設"
+  rules:
+    - "至少 80% 的產出項目須帶 [Spec §X.Y] 標籤——若多數是 [Gap]/[Assumption]，代表 spec 本身太薄弱，不是產生器的問題"
+    - "產生前最多問 5 個適應性釐清問題（無法從 spec 推斷的領域脈絡）；超過 5 個代表該回 Discuss 階段而非繼續問"
+    - "append-only：對修訂後的 spec 重跑，接續編號新增項目，不重新編號或刪除舊項目；被解決的項目標記 [Resolved: <修訂說明>]，不刪除"
+  boundary: "檢查對象是 spec 本身的品質，非程式碼；不取代/不重疊 acceptance-criteria-traceability 標準的 AC↔測試覆蓋率檢查（那個問「測試有沒有涵蓋 spec」，這個問「spec 本身夠不夠格拿去寫測試」）"
 
 # SMART Requirements
 smart:
