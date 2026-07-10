@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/frontend-design-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-04-13
+**Version**: 1.1.0
+**Last Updated**: 2026-07-10
 **Applicability**: All projects with frontend user interfaces
 **Scope**: universal
 **References**: [DEC-029](https://github.com/VoltAgent/awesome-design-md) (awesome-design-md, MIT), DEC-030 (OpenAI Frontend Guide)
@@ -41,8 +41,9 @@ The goal is to ensure AI agents produce consistent, high-quality UI across diffe
 13. [Spacing Scale](#spacing-scale)
 14. [UI Hard Constraints](#ui-hard-constraints)
 15. [Anti-patterns](#anti-patterns)
-16. [DESIGN.md File Placement](#designmd-file-placement)
-17. [Validation Checklist](#validation-checklist)
+16. [Optional Extension: Token Interpolation & Structured Components](#optional-extension-token-interpolation--structured-components)
+17. [DESIGN.md File Placement](#designmd-file-placement)
+18. [Validation Checklist](#validation-checklist)
 
 ---
 
@@ -417,6 +418,88 @@ Minimum required: at least 5 anti-patterns must be explicitly listed in every DE
 
 ---
 
+## Optional Extension: Token Interpolation & Structured Components
+
+> **Status**: Optional, Trial (added v1.1.0, 2026-07-10). Does **not** replace the mandatory 9-section structure or the governance-collapsed 5-token/4-role/7-step scales above — this is an additive machine-parseable layer for projects that want DESIGN.md itself to carry structured token references, not just prose. A DESIGN.md that omits this extension is still fully compliant.
+>
+> **Origin**: 2026-07-10 re-alignment review of [DEC-029](https://github.com/VoltAgent/awesome-design-md)'s upstream (grown from 4,385★ to 99,219★ and now officially the Google Stitch DESIGN.md format) found the upstream format evolved YAML frontmatter token dictionaries and `{category.token}` interpolation syntax, plus a structured `components:` binding block — capabilities this standard's original prose-only sections did not have. Adopted as an opt-in extension rather than a breaking change, consistent with this standard's deliberate 5-token governance collapse (adding more tokens is *not* the goal; making the 5 tokens *referenceable* is).
+
+### Token Registry (YAML Frontmatter)
+
+A DESIGN.md may optionally begin with a YAML frontmatter block declaring the semantic tokens from Sections 2/3/5 (and Section 4's border-radius scale) in machine-parseable key-value form, so tooling can resolve `{category.token}` references without re-parsing prose.
+
+```yaml
+---
+colors:
+  background: "#0A0A0A"
+  surface: "#1A1A1A"
+  primary-text: "#F5F5F5"
+  muted-text: "#888888"
+  accent: "#6366F1"
+typography:
+  display: { size: "48px", weight: 700, line-height: 1.1 }
+  headline: { size: "24px", weight: 600, line-height: 1.3 }
+  body: { size: "16px", weight: 400, line-height: 1.6 }
+  caption: { size: "13px", weight: 400, line-height: 1.4 }
+rounded:
+  sm: "4px"
+  md: "8px"
+  lg: "12px"
+  pill: "9999px"
+spacing:
+  sm: "8px"
+  md: "24px"
+  lg: "48px"
+---
+```
+
+**Rules**:
+- The frontmatter keys (`colors`, `typography`, `rounded`, `spacing`) map 1:1 to the token vocabularies already defined in Sections 2/3/5 — this block **restates** those tokens in parseable form, it does not introduce new ones. `colors` values must match the 5 mandatory semantic tokens (plus any optional extended tokens already in use).
+- Frontmatter is optional. A DESIGN.md without it is still valid; tooling that wants interpolation support requires it.
+
+### Interpolation Syntax
+
+Within the prose sections (particularly Section 4: Component Styling), `{category.token}` references the frontmatter registry instead of restating raw values:
+
+```markdown
+### Buttons
+- **Primary**: `{colors.accent}` background, `{colors.background}` text, `{rounded.md}` radius, `{spacing.sm}` padding
+```
+
+**Rules**:
+- Syntax is `{category.token}` — category matches a frontmatter top-level key, token matches a key within it.
+- A reference to a category/token not present in frontmatter is a validation error, not a silent fallback.
+- Interpolation is for **documentation/tooling clarity**, not a runtime templating engine — DESIGN.md remains a static specification file.
+
+### Structured Components Block (Optional)
+
+Section 4 (Component Styling) may optionally include a `components:` block that binds a component to its token references explicitly, instead of (or alongside) the prose format already in Section 4's example:
+
+```yaml
+components:
+  button-primary:
+    backgroundColor: "{colors.accent}"
+    textColor: "{colors.background}"
+    rounded: "{rounded.md}"
+    padding: "{spacing.sm}"
+  card:
+    backgroundColor: "{colors.surface}"
+    rounded: "{rounded.lg}"
+    padding: "{spacing.md}"
+```
+
+**Rules**:
+- Every value must be a `{category.token}` reference — raw hex/px values inside `components:` are an anti-pattern (defeats the purpose of centralizing tokens).
+- This block is additive to, not a replacement for, Section 4's prose description — projects using this extension should still fill Section 4's prose fields for human readers.
+
+### Non-goals (explicitly not adopted from upstream)
+
+- **No lint CLI bundled with this standard** — the upstream ecosystem has a separate `@google/design.md` npm package for validation; this standard does not mandate or bundle a specific validator. Projects may adopt one independently.
+- **No framework-specific export formats** (React/Vue/CSS-in-JS generators) — stays framework-agnostic per this standard's Key Principles (semantic token naming, framework-agnostic).
+- **No expansion of the 5/4/7 token counts** — the interpolation syntax makes the existing tokens referenceable; it is not licence to add more tokens. Governance collapse (fewer tokens = more consistent AI output) remains the priority over granularity.
+
+---
+
 ## DESIGN.md File Placement
 
 DESIGN.md must be placed at the **project root directory**, at the same level as README.md.
@@ -472,3 +555,9 @@ Use this checklist to verify a DESIGN.md is compliant with this standard:
 - [ ] Style summary present (1–2 sentences)
 - [ ] Key constraints bullet list present
 - [ ] Tone defined
+
+### Token Interpolation Extension (Optional — v1.1.0)
+- [ ] If frontmatter token registry is used, all `colors` keys match the 5 mandatory semantic tokens
+- [ ] If `{category.token}` interpolation is used, every reference resolves to a frontmatter entry (no dangling references)
+- [ ] If `components:` block is used, every value is a `{category.token}` reference (no raw hex/px values)
+- [ ] Absence of this extension is **not** a compliance failure — it is optional
