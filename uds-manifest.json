@@ -5,7 +5,8 @@
   "stats": {
     "core_standards": 149,
     "skills": 55,
-    "slash_commands": 51
+    "slash_commands": 51,
+    "cli_commands": 21
   },
   "standards": [
     {

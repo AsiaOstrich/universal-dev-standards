@@ -79,7 +79,7 @@ npx universal-dev-standards init
 | **核心标准** | 149 | 通用开发准则 |
 | **AI Skills** | 55 | 互动式技能 |
 | **斜线命令** | 51 | 快速操作 |
-| **CLI 命令** | 6 | list, init, configure, check, update, skills |
+| **CLI 命令** | 21 | 项目设置与维护 |
 <!-- UDS_STATS_TABLE_END -->
 
 > **5.0 新功能？** 请参阅[预发布说明](../../docs/PRE-RELEASE.md)了解新功能详情。
@@ -117,8 +117,8 @@ graph TD
 
 | AI 工具 | 状态 | Skills | 斜线命令 | 配置文件 |
 | :--- | :--- | :---: | :---: | :--- |
-| **Claude Code** | ✅ 完整支持 | **29** | **33** | `CLAUDE.md` |
-| **OpenCode** | ✅ 完整支持 | **29** | **33** | `AGENTS.md` |
+| **Claude Code** | ✅ 完整支持 | **55** | **51** | `CLAUDE.md` |
+| **OpenCode** | ✅ 完整支持 | **55** | **51** | `AGENTS.md` |
 | **Cursor** | ✅ 完整支持 | **核心** | **模拟支持** | `.cursorrules` |
 | **Roo Code** | ✅ 完整支持 | **核心** | **工作流** | `.roo/rules/` |
 | **Gemini CLI** | 🧪 预览版 | **18+** | **20+** | `GEMINI.md` |

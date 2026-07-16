@@ -70,7 +70,7 @@ npx universal-dev-standards init
 | **Core Standards** | 149 | Universal development guidelines |
 | **AI Skills** | 55 | Interactive skills |
 | **Slash Commands** | 51 | Quick actions |
-| **CLI Commands** | 6 | list, init, configure, check, update, skills |
+| **CLI Commands** | 21 | Project setup & maintenance |
 <!-- UDS_STATS_TABLE_END -->
 
 > **What's New in 5.0?** See [Pre-release Notes](docs/PRE-RELEASE.md) for details on new features.
@@ -108,8 +108,8 @@ graph TD
 
 | AI Tool | Status | Skills | Slash Commands | Configuration |
 | :--- | :--- | :---: | :---: | :--- |
-| **Claude Code** | ✅ Complete | **29** | **33** | `CLAUDE.md` |
-| **OpenCode** | ✅ Complete | **29** | **33** | `AGENTS.md` |
+| **Claude Code** | ✅ Complete | **55** | **51** | `CLAUDE.md` |
+| **OpenCode** | ✅ Complete | **55** | **51** | `AGENTS.md` |
 | **Cursor** | ✅ Complete | **Core** | **Simulated** | `.cursorrules` |
 | **Roo Code** | ✅ Complete | **Core** | **Workflow** | `.roo/rules/` |
 | **Gemini CLI** | 🧪 Preview | **18+** | **20+** | `GEMINI.md` |
