@@ -54,6 +54,8 @@ graph TB
 
 ## Coverage Summary
 
+> ⚠️ The per-category breakdown below is a stale, hand-maintained snapshot from an earlier (32-standard) version of this project and has not been recounted against the current 149-standard set — the four category rows would need a fresh manual audit to be trustworthy again. The **Total** line has been re-verified against current source and is accurate as of 2026-07-16.
+
 | Category | Core Standards | AI Standards | Claude Code Skills | Other AI Tools |
 |----------|---------------|--------------|-------------------|----------------|
 | Development | 18 | 18 | 12 | 4 |
@@ -61,7 +63,7 @@ graph TB
 | Documentation | 4 | 4 | 2 | 4 |
 | Process & Quality | 4 | 4 | 8 | 4 |
 
-**Total**: 32 core standards → 32 AI standards → 26 Claude Code skills → 10 AI tool integrations
+**Total**: 149 core standards (`ls core/*.md`) → 141 AI standards (`ls ai/standards/*.ai.yaml`) → 55 Claude Code skills (`uds-manifest.json` stats) → 10 AI tool integrations (`SUPPORTED_AI_TOOLS` in `cli/src/core/constants.js`)
 
 ## ISO Standards Alignment
 
