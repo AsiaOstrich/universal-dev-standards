@@ -2,8 +2,8 @@
 source: ../../../../skills/slo-assistant/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: 3c3397aec3fe
+last_synced: 2026-07-16
+source_hash: 3e7e0131f52b
 status: current
 scope: universal
 description: |

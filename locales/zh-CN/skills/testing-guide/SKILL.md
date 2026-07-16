@@ -2,8 +2,8 @@
 source: ../../../../skills/testing-guide/SKILL.md
 source_version: 1.2.0
 translation_version: 1.2.0
-last_synced: 2026-06-02
-source_hash: 49b6f9e0c6a4
+last_synced: 2026-07-16
+source_hash: 2a5e2a667b04
 status: current
 name: testing
 description: |

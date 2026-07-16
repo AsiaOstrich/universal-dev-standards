@@ -1,9 +1,9 @@
 ---
 source: ../../../../skills/retrospective-assistant/SKILL.md
 source_version: 1.0.0
-source_hash: 9c883f05ad7b
+source_hash: e9de3576878e
 translation_version: 1.0.0
-last_synced: 2026-06-01
+last_synced: 2026-07-16
 status: current
 description: |
   [UDS] 引导 Sprint 与 Release 周期的结构化团队回顾。

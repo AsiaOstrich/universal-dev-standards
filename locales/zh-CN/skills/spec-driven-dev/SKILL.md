@@ -2,8 +2,8 @@
 source: ../../../../skills/spec-driven-dev/SKILL.md
 source_version: 1.2.0
 translation_version: 1.2.0
-last_synced: 2026-06-02
-source_hash: 195f50bcbfb7
+last_synced: 2026-07-16
+source_hash: 488aea3f5120
 status: current
 description: |
   在编写代码前，建立、审查和管理规格文件。
@@ -190,12 +190,50 @@ The system SHALL [behavior description].
 | `## REMOVED Requirements` | Deprecated features | 移除功能 |
 | `## RENAMED Requirements` | Name changes | 重新命名 |
 
+## Cross-Artifact Analysis (`/sdd analyze`) | 跨 artifact 一致性检查
+
+The **executable face** of the acceptance-criteria-traceability standard +
+forward-derivation single-spine principle (XSPEC-262). Validates that every test
+is a faithful projection of the AC spine across specs.
+本命令是 acceptance-criteria-traceability + forward-derivation single-spine 的**可执行面**，验证每个测试是否忠实投影 AC 主干。
+
+| Signal | Meaning | Gate |
+|--------|---------|------|
+| **orphan test** | `@SPEC-NNN @AC-N` references an AC no spec defines / 引用不存在的 AC | 🔴 BLOCKING |
+| **uncovered** | an AC has no `@SPEC-NNN @AC-N` reference / AC 无测试引用 | report only / 仅报告 |
+| **not_implemented** | AC marked so in its `.ac.yaml` / `.ac.yaml` 标记 | 🔴 BLOCKING before UAT |
+| **cross-spec conflict** | same AC id defined in >1 spec / 同 AC id 跨多 spec | 🔴 BLOCKING |
+| **orphan .feature** | Gherkin `@AC-N` tag referencing a non-existent AC / @AC-N 引用不存在 | 🔴 BLOCKING |
+| **AC w/o scenario** | AC has no `.feature` scenario (when BDD in use) / AC 无 BDD scenario | report only / 仅报告 |
+| **user-guide drift** | user-guide `T-N` with no matching journey/E2E test id / 手册 T-N 无对应测试 | 🔴 BLOCKING |
+
+Coverage % uses the acceptance-criteria-traceability formula (not_implemented excluded). `--json` for CI.
+
+```
+npm run sdd:analyze -- --specs specs --tests tests [--userguide docs] [--json]
+```
+`--userguide <dir>` enables user-guide↔E2E drift detection (T-NNN, XSPEC-260/257). / 启用手册↔E2E drift 侦测。
+
+**vs `/ac-coverage`**: ac-coverage = per-spec detailed AC↔test matrix；`/sdd analyze` = cross-spec/batch consistency + orphan detection（互补、不取代）。
+
+## Spec-vs-Code Convergence Check | 规格与实作漂移侦测（2026-07-10，spec-kit `/converge` 借鉴）
+
+**vs `/sdd analyze`**：`/sdd analyze` 问「测试有没有正确引用 AC」（引用完整性，deterministic script）；convergence check 问「代码的实际行为是否真的符合 spec 描述」（语意漂移，需要读码判断，走 `sdd.flow.yaml` verify 阶段的 `spec-match-check` ai-check step）——两者互补、检查的是不同层次的问题，不重叠。
+
+虽然定义在 7-phase 状态机的 `verify` 阶段（一次性 gate），**这个检查可以在任何时间点对已归档的 spec 独立重跑**——用于侦测 spec 归档后、code 持续演进累积出的漂移（例如后续 commit 改了行为但没回头更新 spec）。重跑时：
+
+- 落差分类：`missing`（spec 要求但没做）／`partial`（做一半）／`contradicts`（行为与描述不同）／`unrequested`（做了没被要求的事）
+- 严重度：`CRITICAL`（违反 spec 明确 MUST）／`HIGH`／`MEDIUM`／`LOW`
+- 唯读比对——只列出发现，不自动修改 spec 或代码
+- 适合定期（如季度）对重要 spec 抽查，或怀疑特定 spec 已过时时针对性执行
+
 ## Usage | 使用方式
 
 ```
 /sdd                     - Interactive spec creation wizard | 互动式规格建立向导
 /sdd auth-flow           - Create spec for specific feature | 为特定功能建立规格
 /sdd review              - Review existing specs | 审查现有规格
+/sdd analyze             - Cross-artifact consistency check | 跨 artifact 一致性检查
 /sdd --sync-check        - Check sync status | 检查同步状态
 ```
 

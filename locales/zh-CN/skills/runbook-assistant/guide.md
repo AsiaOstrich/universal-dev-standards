@@ -2,8 +2,8 @@
 source: ../../../../skills/runbook-assistant/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: 79012dab91fb
+last_synced: 2026-07-16
+source_hash: 2b8128b920e5
 status: current
 scope: universal
 description: |
