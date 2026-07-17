@@ -49,7 +49,7 @@ status: current
 
 代理聲稱「已完成」不是證據。驗證必須是可獨立執行且產生可觀察輸出的。
 
-### 禁止的完成聲明
+### 非證據的聲明
 
 以下聲明**不構成**驗證證據：
 
@@ -94,9 +94,11 @@ status: current
 | 類型 | 適用場景 | 範例 |
 |------|----------|------|
 | **測試結果** | 功能開發、bug 修復 | `npm test` 輸出 |
+| **型別檢查** | 靜態型別的程式碼庫 | `pnpm tsc --noEmit` 無錯誤 |
 | **建置成功** | 編譯、打包 | `npm run build` 的 exit code 0 |
 | **Lint 通過** | 程式碼品質 | `npm run lint` 無錯誤 |
 | **RED-GREEN** | bug 修復 | 修復前失敗 → 修復後通過 |
+| **健康探測** | 已部署的服務 | `curl https://<service>/health` —— 須聲明 `environment_layer`；對 `localhost` 的探測驗到的是本機 process，不是那個部署 |
 | **手動驗證** | UI 變更、視覺效果 | 截圖或螢幕錄影 |
 
 ---
@@ -308,6 +310,8 @@ verification_evidence:
 - [反幻覺標準](anti-hallucination.md) —— 互補標準。它防的是*捏造*的主張（斷言從未查證過的事）；證據有效性涵蓋的是反向的失敗 —— **確實**查證過、但查證工具靜默失效的主張。
 - [系統化除錯](systematic-debugging.md) —— 當證據顯示確實有失敗時，如何往下調查
 - [提交規範](checkin-standards.md) —— 完成聲明在此受閘門把關
+- [測試治理](test-governance.md) —— 規定哪些測試必須存在，因而也就規定了哪些證據必須存在
+- [測試標準](testing-standards.md) —— 產生多數證據的那些測試是怎麼寫的
 - [代理派遣與並行協調](agent-dispatch.md) —— 委派出去的工作會回傳主張，那些主張需要套用本標準
 - [部署標準](deployment-standards.md) —— 定義 VE-005 / VE-006 所引用的「環境分層責任矩陣」
 

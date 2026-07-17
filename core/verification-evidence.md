@@ -97,9 +97,11 @@ Every verification must produce a structured evidence record:
 | Type | Applies to | Example |
 |------|-----------|---------|
 | **Test result** | Feature work, bug fixes | `npm test` output |
+| **Type check** | Statically typed codebases | `pnpm tsc --noEmit` reporting no errors |
 | **Build success** | Compilation, packaging | `npm run build` exiting 0 |
 | **Lint clean** | Code quality | `npm run lint` reporting no errors |
 | **RED-GREEN** | Bug fixes | Failing before the fix → passing after |
+| **Health probe** | Deployed services | `curl https://<service>/health` — declare `environment_layer`; a probe against `localhost` verifies the local process, not the deployment |
 | **Manual verification** | UI changes, visual behaviour | Screenshot or screen recording |
 
 ---
@@ -317,6 +319,8 @@ verification_evidence:
 - [Anti-Hallucination](anti-hallucination.md) — the complementary standard. It prevents *fabricated* claims (asserting what was never checked); Evidence Validity covers the opposite failure — claims that **were** checked, by a tool that silently did not work.
 - [Systematic Debugging](systematic-debugging.md) — how to investigate once evidence shows a real failure
 - [Checkin Standards](checkin-standards.md) — where completion claims are gated
+- [Test Governance](test-governance.md) — which tests are required, and therefore which evidence must exist
+- [Testing Standards](testing-standards.md) — how the tests that produce most evidence are written
 - [Agent Dispatch](agent-dispatch.md) — delegated work returns claims that need this standard applied to them
 - [Deployment Standards](deployment-standards.md) — defines the Environment Stratification Responsibility Matrix referenced by VE-005 / VE-006
 

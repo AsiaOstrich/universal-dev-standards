@@ -17,6 +17,15 @@ status: current
 
 ## [Unreleased]
 
+### 变更
+
+- **`verification-evidence` 1.1.0 → 1.2.0 —— 证据有效性**（XSPEC-340）。本标准原本把 `exit_code` 当成事实真相：`trust_rules` 写着"`exit_code ≠ 0` → 验证失败"、`physical_spec.checks` 问的是"`exit_code` 是否为 0（成功）？"、VE-002 只要非零就触发修复循环。**这三处现已全数加上限定条件**，因为一道验证命令可以跑完、可以返回，却什么意义都没有：
+  - **新增 `evidence_validity` 层次与规则 VE-007 – VE-010**：只有在"成功时返回 0"的工具上，`exit_code = 0` 才代表成功（VE-007）；在证明查询工具确实执行过之前，"空／未找到／0"不等于不存在（VE-008）；存在性检查不得丢弃 stderr（VE-009）；pipeline 的退出码不属于其中任何单一阶段（VE-010）。
+  - **新增 `non_evidence_claims`**："已完成"／"应该可以了"／"我改了代码"／"测试应该会通过"／"命令返回 0"。
+  - 有别于 `anti-hallucination`——后者的禁令全都是"不要断言你没查过的事"的变形。这里是相反的失败：**确实查了，而查询工具静默地没有运作**。`core/verification-evidence.md` 收录了十笔真实案例作为证据。
+- **`verification-evidence` 的人类文档补上了 v1.1.0 的落差。** v1.1.0 的 `environment_layer` 工作（XSPEC-204）已落地于全部三份 `.ai.yaml`，却**一份 `.md` 都没有更新**（共四份）——人类文档自 2026-05-13 起就一直在错误地描述这个标准。`core/*.md` 现已载明 `environment_layer`、Environment Layers 章节，以及 VE-005 / VE-006。
+- **`verification-evidence` 新增三个先前只存在于 zh-TW 译文的章节**：非证据的声明（Non-Evidence Claims）、证据类型（Evidence Types）、相关标准（Related Standards）。译文比它的来源更完整；这些章节现已上溯至英文来源，并同时存在于两个语系。
+
 ## [6.0.0] - 2026-07-06
 
 > ⚠️ **重大版本（Major release）。** 包含一项 breaking 更名，并移除 8 个已弃用的机器可读标准与 4 个已弃用的 CLI 命令（皆自 5.4.0 起带有「将于 6.0.0 移除」告示）。**请参阅 [v6 迁移指南](docs/MIGRATION-v6.md)**（[English](../../docs/MIGRATION-v6.md) | [繁体中文](../zh-TW/docs/MIGRATION-v6.md)）。

@@ -94,9 +94,11 @@ status: current
 | 类型 | 适用场景 | 示例 |
 |------|----------|------|
 | **测试结果** | 功能开发、Bug 修复 | `npm test` 输出 |
+| **类型检查** | 静态类型的代码库 | `pnpm tsc --noEmit` 无错误 |
 | **构建成功** | 编译、打包 | `npm run build` 的 exit code 0 |
 | **Lint 通过** | 代码质量 | `npm run lint` 无错误 |
 | **RED-GREEN** | Bug 修复 | 修复前失败 → 修复后通过 |
+| **健康探测** | 已部署的服务 | `curl https://<service>/health` —— 须声明 `environment_layer`；对 `localhost` 的探测验到的是本机 process，不是那个部署 |
 | **手动验证** | UI 变更、视觉效果 | 截图或屏幕录像 |
 
 ---
@@ -308,6 +310,8 @@ verification_evidence:
 - [反幻觉标准](anti-hallucination.md) —— 互补标准。它防的是*捏造*的主张（断言从未查证过的事）；证据有效性覆盖的是反向的失败 —— **确实**查证过、但查证工具静默失效的主张。
 - [系统化调试](systematic-debugging.md) —— 当证据显示确实有失败时，如何往下调查
 - [提交规范](checkin-standards.md) —— 完成声明在此受闸门把关
+- [测试治理](test-governance.md) —— 规定哪些测试必须存在，因而也就规定了哪些证据必须存在
+- [测试标准](testing-standards.md) —— 产生多数证据的那些测试是怎么写的
 - [代理派遣与并行协调](agent-dispatch.md) —— 委派出去的工作会返回主张，那些主张需要套用本标准
 - [部署标准](deployment-standards.md) —— 定义 VE-005 / VE-006 所引用的"环境分层责任矩阵"
 
