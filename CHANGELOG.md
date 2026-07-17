@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **`verification-evidence` 1.1.0 → 1.2.0 — evidence validity** (XSPEC-340). The standard treated `exit_code` as ground truth: `trust_rules` said "`exit_code ≠ 0` → verification failed", `physical_spec.checks` asked "is `exit_code` 0 (success)?", and VE-002 triggered a fix loop on any non-zero. **All three are now qualified**, because a verification command can run, return, and mean nothing:
+  - **New `evidence_validity` layer + rules VE-007 – VE-010**: `exit_code = 0` means success only for tools that return 0 on success (VE-007); "empty / not-found / 0" is not absence until the query tool is shown to have executed (VE-008); existence checks must not discard stderr (VE-009); a pipeline's exit code belongs to no single stage (VE-010).
+  - **New `non_evidence_claims`**: "Done" / "It should work now" / "I changed the code" / "The tests should pass" / "The command returned 0".
+  - Distinct from `anti-hallucination`, whose prohibitions are all forms of "don't assert what you didn't check". This is the opposite failure — **it was checked, and the checking tool silently did not work**. `core/verification-evidence.md` carries ten real instances as evidence.
+- **`verification-evidence` human docs caught up with v1.1.0.** The v1.1.0 `environment_layer` work (XSPEC-204) had landed in all three `.ai.yaml` copies and **none of the four `.md` copies** — the human documentation had been describing the standard incorrectly since 2026-05-13. `core/*.md` now documents `environment_layer`, the Environment Layers section, and VE-005 / VE-006.
+- **`verification-evidence` gains three sections that previously existed only in the zh-TW translation**: Non-Evidence Claims, Evidence Types, Related Standards. The translation was more complete than its source; the sections are now upstream in English and present in both locales.
+
 ## [6.0.0] - 2026-07-06
 
 > ⚠️ **Major release.** Contains one breaking rename and removes 8 deprecated machine-readable standards plus 4 deprecated CLI commands (all carrying a "removed in 6.0.0" notice since 5.4.0). **See the [v6 Migration Guide](docs/MIGRATION-v6.md)** ([繁體中文](locales/zh-TW/docs/MIGRATION-v6.md) | [简体中文](locales/zh-CN/docs/MIGRATION-v6.md)).

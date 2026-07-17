@@ -1742,7 +1742,7 @@
       },
       "category": "skill",
       "skillName": null,
-      "description": "Iron Law: no verification evidence = no completion claim. RED-GREEN cycle for bug fixes"
+      "description": "Iron Law: no verification evidence = no completion claim. RED-GREEN cycle for bug fixes. Evidence validity: a tool can fail silently and its output is indistinguishable from a real result"
     },
     {
       "id": "adr-standards",
