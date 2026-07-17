@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`uds init` no longer overwrites an existing `prepare` script** (XSPEC-341). Since 2026-02-04, `uds init` shelled out to `npx husky init` on any Node project without a `.husky/` directory. That command is a one-time bootstrap for a *new* project: it sets `"prepare": "husky"` unconditionally. If your project already had a `prepare` — and for a published package, `prepare` is commonly the build step — **it was silently replaced**, and the CLI reported success. `uds init` now chains instead of clobbering (`"tsup"` → `"tsup && husky"`), prints every `package.json` field it modifies, and no longer discards husky's stderr.
+
+  > **⚠️ If you ran `uds init` on a project that already had a `prepare` script, check it now.** This fix protects future runs; it cannot restore a `package.json` that was already rewritten. The symptom is `"prepare": "husky"` where you expected your build command — and if your package publishes built output (`files: ["dist"]`, `main` pointing into `dist/`) with no `prepack`/`prepublishOnly`, your next `npm publish` ships an unbuilt or stale directory. Restore it by chaining: `"prepare": "<your original command> && husky"`.
+
+- **`uds init` no longer seeds `.husky/pre-commit` with `npm test`** (XSPEC-341). That line came from husky's init template, not from UDS — it put a full test-suite gate on every commit that adopters never opted into. UDS now only appends its own `npx uds check`, and appends to existing hooks rather than rewriting them.
+
+- **Fresh husky hooks are written in v9 format** (XSPEC-341). The fallback hook template still emitted the v8 `#!/usr/bin/env sh` + `. "$(dirname -- "$0")/_/husky.sh"` preamble, which is deprecated in husky v9 and removed in v10 — while `uds init` installs husky `^9`. This was latent (husky init previously wrote the hook); removing `husky init` promoted the fallback to the primary path, so it was corrected.
+
 ### Changed
 
 - **`verification-evidence` 1.1.0 → 1.2.0 — evidence validity** (XSPEC-340). The standard treated `exit_code` as ground truth: `trust_rules` said "`exit_code ≠ 0` → verification failed", `physical_spec.checks` asked "is `exit_code` 0 (success)?", and VE-002 triggered a fix loop on any non-zero. **All three are now qualified**, because a verification command can run, return, and mean nothing:
