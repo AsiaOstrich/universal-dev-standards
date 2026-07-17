@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "lastUpdated": "2026-05-13",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
@@ -58,14 +58,14 @@
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "6.0.0"
+      "version": "6.1.0"
     },
     "skills": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
       "localPath": "skills",
       "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills",
-      "version": "6.0.0",
+      "version": "6.1.0",
       "note": "Skills are now included in the main repository under skills/"
     }
   },
@@ -2226,7 +2226,7 @@
       "id": "license-compliance",
       "name": "License Compliance Standards",
       "nameZh": "授權合規標準",
-      "version": "6.0.0",
+      "version": "6.1.0",
       "source": {
         "human": "core/license-compliance.md",
         "ai": "ai/standards/license-compliance.ai.yaml"
@@ -2238,7 +2238,7 @@
       "id": "verification-oracle",
       "name": "Verification Oracle Standards",
       "nameZh": "驗證 Oracle 標準",
-      "version": "6.0.0",
+      "version": "6.1.0",
       "source": {
         "human": "core/verification-oracle.md",
         "ai": "ai/standards/verification-oracle.ai.yaml"
@@ -2250,7 +2250,7 @@
       "id": "model-provenance",
       "name": "Model Provenance Policy Standards",
       "nameZh": "模型來源政策標準",
-      "version": "6.0.0",
+      "version": "6.1.0",
       "source": {
         "human": "core/model-provenance.md",
         "ai": "ai/standards/model-provenance.ai.yaml"
@@ -2262,7 +2262,7 @@
       "id": "resource-cost-boundary",
       "name": "Resource / Cost Boundary Declaration Standards",
       "nameZh": "資源／成本邊界宣告標準",
-      "version": "6.0.0",
+      "version": "6.1.0",
       "source": {
         "human": "core/resource-cost-boundary.md",
         "ai": "ai/standards/resource-cost-boundary.ai.yaml"

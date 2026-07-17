@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.0.0
-translation_version: 6.0.0
-last_synced: 2026-07-06
+source_version: 6.1.0
+translation_version: 6.1.0
+last_synced: 2026-07-17
 status: current
 ---
 
@@ -16,6 +16,20 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.1.0] - 2026-07-17
+
+> **同一種形狀的兩個失敗，一個在標準裡、一個在 CLI 裡**：一道檢查跑了、回傳了、回報成功，卻什麼都沒量到。`verification-evidence` 補上了為它命名的那一層；`uds init` 則不再是它的一個實例。
+
+### 修正
+
+- **`uds init` 不再覆蓋既有的 `prepare` script**（XSPEC-341）。自 2026-02-04 起，`uds init` 會對任何沒有 `.husky/` 目錄的 Node 專案執行 `npx husky init`。該指令是為**全新**專案設計的一次性 bootstrap：它會無條件把 `"prepare"` 設成 `"husky"`。若你的專案原本就有 `prepare`——而對一個要發布的套件而言，`prepare` 通常就是 build 步驟——**它會被靜默取代**，而 CLI 回報成功。`uds init` 現在改為串接而非覆寫（`"tsup"` → `"tsup && husky"`），會印出它所修改的每一個 `package.json` 欄位，也不再丟棄 husky 的 stderr。
+
+  > **⚠️ 若你曾在原本就有 `prepare` script 的專案上跑過 `uds init`，請立即檢查。** 這次修正保護的是往後的執行；它無法還原一個已經被改寫的 `package.json`。症狀是：你預期看到自己的 build 指令，實際看到的卻是 `"prepare": "husky"`——而如果你的套件會發布建置產物（`files: ["dist"]`、`main` 指向 `dist/`）且沒有 `prepack`／`prepublishOnly`，那麼你下一次 `npm publish` 送出去的將是一個未建置或過期的目錄。請以串接方式復原：`"prepare": "<你原本的指令> && husky"`。
+
+- **`uds init` 不再把 `npm test` 塞進 `.husky/pre-commit`**（XSPEC-341）。那一行來自 husky 的 init 範本，不是來自 UDS——它等於在每一次 commit 上架了一道採用者從未選擇加入的完整測試套件閘門。UDS 現在只附加自己的 `npx uds check`，而且是附加到既有 hook 之後，而不是改寫它們。
+
+- **新建的 husky hook 改以 v9 格式寫入**（XSPEC-341）。fallback 的 hook 範本仍在輸出 v8 的 `#!/usr/bin/env sh` + `. "$(dirname -- "$0")/_/husky.sh"` 前導段，該寫法在 husky v9 已棄用、v10 已移除——而 `uds init` 安裝的正是 husky `^9`。這原本是潛伏問題（過去 hook 是由 husky init 寫出的）；移除 `husky init` 後，fallback 升為主要路徑，因此一併修正。
 
 ### 變更
 

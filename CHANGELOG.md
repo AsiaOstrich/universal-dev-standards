@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.1.0] - 2026-07-17
+
+> **Two failures of the same shape, one in the standards and one in the CLI**: a check ran, returned, and reported success while measuring nothing. `verification-evidence` gains the layer that names it; `uds init` stops being an instance of it.
+
 ### Fixed
 
 - **`uds init` no longer overwrites an existing `prepare` script** (XSPEC-341). Since 2026-02-04, `uds init` shelled out to `npx husky init` on any Node project without a `.husky/` directory. That command is a one-time bootstrap for a *new* project: it sets `"prepare": "husky"` unconditionally. If your project already had a `prepare` — and for a published package, `prepare` is commonly the build step — **it was silently replaced**, and the CLI reported success. `uds init` now chains instead of clobbering (`"tsup"` → `"tsup && husky"`), prints every `package.json` field it modifies, and no longer discards husky's stderr.
