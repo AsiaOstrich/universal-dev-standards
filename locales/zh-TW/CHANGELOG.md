@@ -36,7 +36,7 @@ status: current
 - **`verification-evidence` 1.1.0 → 1.2.0 —— 證據有效性**（XSPEC-340）。本標準原本把 `exit_code` 當成事實真相：`trust_rules` 寫著「`exit_code ≠ 0` → 驗證失敗」、`physical_spec.checks` 問的是「`exit_code` 是否為 0（成功）？」、VE-002 只要非零就觸發修復迴圈。**這三處現已全數加上限定條件**，因為一道驗證指令可以跑完、可以回傳，卻什麼意義都沒有：
   - **新增 `evidence_validity` 層次與規則 VE-007 – VE-010**：只有在「成功時回傳 0」的工具上，`exit_code = 0` 才代表成功（VE-007）；在證明查詢工具確實執行過之前，「空／查無／0」不等於不存在（VE-008）；存在性檢查不得丟棄 stderr（VE-009）；pipeline 的 exit code 不屬於其中任何單一階段（VE-010）。
   - **新增 `non_evidence_claims`**：「已完成」／「應該可以了」／「我改了程式碼」／「測試應該會通過」／「指令回傳 0」。
-  - 有別於 `anti-hallucination`——後者的禁令全都是「不要斷言你沒查過的事」的變形。這裡是相反的失敗：**確實查了，而查詢工具靜默地沒有運作**。`core/verification-evidence.md` 收錄了十筆真實案例作為證據。
+  - 有別於 `anti-hallucination`——後者的禁令全都是「不要斷言你沒查過的事」的變形。這裡是相反的失敗：**確實查了，而查詢工具靜默地沒有運作**。`core/verification-evidence.md` 收錄了八筆真實案例作為證據。
 - **`verification-evidence` 的人類文件補上了 v1.1.0 的落差。** v1.1.0 的 `environment_layer` 工作（XSPEC-204）已落地於全部三份 `.ai.yaml`，卻**一份 `.md` 都沒有更新**（共四份）——人類文件自 2026-05-13 起就一直在錯誤地描述這個標準。`core/*.md` 現已載明 `environment_layer`、Environment Layers 章節，以及 VE-005 / VE-006。
 - **`verification-evidence` 新增三個先前只存在於 zh-TW 譯文的章節**：非證據的聲明（Non-Evidence Claims）、證據類型（Evidence Types）、相關標準（Related Standards）。譯文比它的來源更完整；這些章節現已上溯至英文來源，並同時存在於兩個語系。
 
