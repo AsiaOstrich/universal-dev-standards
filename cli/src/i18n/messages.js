@@ -742,8 +742,8 @@ export const messages = {
         adoptionStatus: 'Adoption Status:',
         installed: 'Installed',
         // Update info
-        updateAvailable: '⚠ Update available: {current} → {latest}',
-        runUpdate: 'Run `uds update` to update.',
+        updateAvailable: '⚠ Your installed standards are behind the latest release: {current} → {latest}',
+        runUpdate: 'Update in two steps —  (1) npm update -g universal-dev-standards   (2) uds update',
         // File integrity
         fileIntegrity: 'File Integrity:',
         hashNotAvailable: 'ℹ Hash information not available (legacy manifest).',
@@ -1974,8 +1974,8 @@ export const messages = {
         adoptionStatus: '採用狀態：',
         installed: '已安裝',
         // Update info
-        updateAvailable: '⚠ 有可用更新：{current} → {latest}',
-        runUpdate: '執行 `uds update` 進行更新。',
+        updateAvailable: '⚠ 你安裝的標準落後最新版：{current} → {latest}',
+        runUpdate: '兩步驟更新 —（1）npm update -g universal-dev-standards （2）uds update',
         // File integrity
         fileIntegrity: '檔案完整性：',
         hashNotAvailable: 'ℹ 無法取得 hash 資訊（舊版 manifest）。',
@@ -3221,8 +3221,8 @@ export const messages = {
         adoptionStatus: '采用状态：',
         installed: '已安装',
         // Update info
-        updateAvailable: '⚠ 有可用更新：{current} → {latest}',
-        runUpdate: '执行 `uds update` 进行更新。',
+        updateAvailable: '⚠ 你安装的标准落后最新版：{current} → {latest}',
+        runUpdate: '两步更新 —（1）npm update -g universal-dev-standards （2）uds update',
         // File integrity
         fileIntegrity: '文件完整性：',
         hashNotAvailable: 'ℹ 哈希信息不可用（旧版 manifest）。',

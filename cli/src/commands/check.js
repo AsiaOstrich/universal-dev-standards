@@ -44,12 +44,9 @@ import { lintAll as lintI18nAll, partitionFindings as partitionI18nFindings } fr
  * Display the summary of file integrity status
  */
 function displayFileIntegritySummary(fileStatus, msg) {
-  if (fileStatus.unchanged.length > 0) {
-    for (const file of fileStatus.unchanged) {
-      console.log(chalk.green(`  ✓ ${file} (${msg.unchanged})`));
-    }
-  }
-
+  // XSPEC-342 R4（安靜通過）：不再逐檔列印「✓ 未變更」——實測佔 `uds check` 輸出約 70%
+  // （121 行中 85 行），把真正該讀的訊息（如標準落後）淹沒，也讓輸出大到被 agent 截斷。
+  // 未變更數仍保留在下方 summary 一行；此處只列印「需要注意」的檔（modified/missing/noHash）。
   if (fileStatus.modified.length > 0) {
     for (const file of fileStatus.modified) {
       console.log(chalk.yellow(`  ⚠ ${file} (${msg.modified})`));
@@ -221,7 +218,7 @@ function initializeCheckContext(projectPath) {
 /**
  * Display standards adoption status and update information
  */
-function displayAdoptionStatus(manifest, msg, common, repoInfo) {
+function displayAdoptionStatus(manifest, msg, common, repoInfo, standardsUpdate) {
   console.log(chalk.green(msg.standardsInitialized));
   console.log();
   console.log(chalk.cyan(msg.adoptionStatus));
@@ -229,9 +226,15 @@ function displayAdoptionStatus(manifest, msg, common, repoInfo) {
   console.log(chalk.gray(`  ${common.version}: ${manifest.upstream.version}`));
   console.log();
 
-  // Check for updates (bundled registry)
-  if (manifest.upstream.version !== repoInfo.standards.version) {
-    console.log(chalk.yellow(msg.updateAvailable.replace('{current}', manifest.upstream.version).replace('{latest}', repoInfo.standards.version)));
+  // XSPEC-342 R1：判斷「已裝標準」是否落後 **npm 最新版**，而非 CLI 自己 bundled 的副本。
+  //   舊 bug：拿 manifest.upstream.version 比 repoInfo.standards.version（＝跑這支 CLI 帶的
+  //   標準副本）。CLI 一舊，bundled < npm 最新，就會吐出「6.1.0 → 5.12.1」這種倒退訊息，
+  //   且永遠說不出「你的標準過期了」。standardsUpdate = checkForUpdates(已裝標準版本)：
+  //   available ＝ 已裝 < npm 最新。離線時為 null → 靜默略過（不誤用 bundled 版本比對）。
+  if (standardsUpdate && !standardsUpdate.offline && standardsUpdate.available) {
+    console.log(chalk.yellow(msg.updateAvailable
+      .replace('{current}', manifest.upstream.version)
+      .replace('{latest}', standardsUpdate.latestVersion)));
     console.log(chalk.gray(`  ${msg.runUpdate}`));
     console.log();
   }
@@ -308,10 +311,17 @@ export async function checkCommand(options = {}) {
   console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
 
-  // Display adoption info
-  displayAdoptionStatus(manifest, msg, common, repoInfo);
+  // XSPEC-342 R1：先問 npm 最新，判斷「已裝標準」是否落後（離線則跳過，不誤用 CLI bundled 版本）。
+  // fetchLatestVersion 有 60s 模組級快取，故此處與下方 checkCliVersion 共兩次呼叫只打一次網路。
+  let standardsUpdate = null;
+  if (!options.offline) {
+    standardsUpdate = await checkForUpdates(manifest.upstream.version, {
+      checkBeta: manifest.upstream.version.includes('-')
+    });
+  }
 
-  // Check for CLI updates from npm registry (unless --offline)
+  // Display adoption info
+  displayAdoptionStatus(manifest, msg, common, repoInfo, standardsUpdate);
 
   // Check for CLI updates from npm registry (unless --offline)
   if (!options.offline) {
