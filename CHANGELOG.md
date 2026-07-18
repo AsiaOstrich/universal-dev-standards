@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.1.1] - 2026-07-18
+
+> **`uds check` was measuring the wrong thing, quietly.** Its staleness check compared your standards against the CLI's own bundled copy instead of npm — so a stale CLI produced a backwards, meaningless message and could never actually say your standards were behind — and it buried that message under one line per unchanged file.
+
+### Fixed
+
+- **`uds check` now compares your installed standards against the latest release on npm, not the CLI's own bundled copy** (XSPEC-342). `displayAdoptionStatus` checked `manifest.upstream.version` against the standards bundled *inside the running CLI*. When the CLI itself was out of date, that bundled copy was older than npm — so the check printed a backwards `⚠ Update available: 6.1.0 → 5.12.1` (telling you to "update" to an *older* version) and structurally could never report that your standards were behind. It now asks npm for the latest version; when your standards trail it, the message reframes to **"Your installed standards are behind the latest release"** and gives the full two-step fix — `npm update -g universal-dev-standards` **and then** `uds update` — because updating only the CLI leaves your project's `.standards/` untouched. `--offline` silently skips the comparison instead of falling back to the misleading bundled check.
+
+### Changed
+
+- **`uds check` no longer lists every unchanged file** (XSPEC-342). It printed one `✓ … (unchanged)` line per tracked file — about 70% of the command's output (measured 121 → 41 lines) — which buried the messages that actually needed reading and made the output large enough that automated callers (pre-commit agents) truncated it. The per-file "unchanged" listing is gone; the count remains in the one-line integrity summary, and modified / missing / unhashed files are still listed individually.
+
 ## [6.1.0] - 2026-07-17
 
 > **Two failures of the same shape, one in the standards and one in the CLI**: a check ran, returned, and reported success while measuring nothing. `verification-evidence` gains the layer that names it; `uds init` stops being an instance of it.

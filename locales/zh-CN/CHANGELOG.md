@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.1.0
-translation_version: 6.1.0
-last_synced: 2026-07-17
+source_version: 6.1.1
+translation_version: 6.1.1
+last_synced: 2026-07-18
 status: current
 ---
 
@@ -16,6 +16,18 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.1.1] - 2026-07-18
+
+> **`uds check` 悄悄量错了东西。** 它的落后检查拿你的标准去比 CLI 自己 bundled 的副本、而非 npm——CLI 一旧就吐出倒退、无意义的消息，且结构上永远说不出「你的标准过期了」——还把那条消息埋在逐文件一行的「未变更」底下。
+
+### Fixed
+
+- **`uds check` 现在拿你安装的标准比对 npm 上的最新版，而非 CLI 自己 bundled 的副本**（XSPEC-342）。`displayAdoptionStatus` 原本拿 `manifest.upstream.version` 去比**运行这支 CLI 内置的**标准副本。CLI 一旧，那副本就比 npm 旧——于是检查打印出倒退的 `⚠ 有可用更新：6.1.0 → 5.12.1`（叫你「更新」到*更旧*的版本），且结构上永远无法报告你的标准落后。现在改问 npm 最新版；当你的标准落后时，消息改为 **「你安装的标准落后最新版」**，并给出完整两步修复——`npm update -g universal-dev-standards` **然后** `uds update`——因为只更新 CLI 不会动到你项目的 `.standards/`。`--offline` 静默跳过比对，不再退回误导的 bundled 检查。
+
+### Changed
+
+- **`uds check` 不再逐文件列出未变更的文件**（XSPEC-342）。它原本对每个跟踪文件打印一行 `✓ …（未变更）`——约占命令输出的 70%（实测 121 → 41 行）——淹没了真正该读的消息，也让输出大到被自动化调用端（pre-commit agent）截断。逐文件「未变更」打印已移除；计数仍保留在一行的完整性摘要，已修改／缺失／未哈希的文件仍逐一列出。
 
 ## [6.1.0] - 2026-07-17
 
