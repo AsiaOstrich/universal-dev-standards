@@ -9,6 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.1.1] - 2026-07-18
+
+> **`uds check` was measuring the wrong thing, quietly.** Its staleness check compared your standards against the CLI's own bundled copy instead of npm — so a stale CLI produced a backwards, meaningless message and could never actually say your standards were behind — and it buried that message under one line per unchanged file.
+
+### Fixed
+
+- **`uds check` now compares your installed standards against the latest release on npm, not the CLI's own bundled copy** (XSPEC-342). `displayAdoptionStatus` checked `manifest.upstream.version` against the standards bundled *inside the running CLI*. When the CLI itself was out of date, that bundled copy was older than npm — so the check printed a backwards `⚠ Update available: 6.1.0 → 5.12.1` (telling you to "update" to an *older* version) and structurally could never report that your standards were behind. It now asks npm for the latest version; when your standards trail it, the message reframes to **"Your installed standards are behind the latest release"** and gives the full two-step fix — `npm update -g universal-dev-standards` **and then** `uds update` — because updating only the CLI leaves your project's `.standards/` untouched. `--offline` silently skips the comparison instead of falling back to the misleading bundled check.
+
+### Changed
+
+- **`uds check` no longer lists every unchanged file** (XSPEC-342). It printed one `✓ … (unchanged)` line per tracked file — about 70% of the command's output (measured 121 → 41 lines) — which buried the messages that actually needed reading and made the output large enough that automated callers (pre-commit agents) truncated it. The per-file "unchanged" listing is gone; the count remains in the one-line integrity summary, and modified / missing / unhashed files are still listed individually.
+
+## [6.1.0] - 2026-07-17
+
+> **Two failures of the same shape, one in the standards and one in the CLI**: a check ran, returned, and reported success while measuring nothing. `verification-evidence` gains the layer that names it; `uds init` stops being an instance of it.
+
+### Fixed
+
+- **`uds init` no longer overwrites an existing `prepare` script** (XSPEC-341). Since 2026-02-04, `uds init` shelled out to `npx husky init` on any Node project without a `.husky/` directory. That command is a one-time bootstrap for a *new* project: it sets `"prepare": "husky"` unconditionally. If your project already had a `prepare` — and for a published package, `prepare` is commonly the build step — **it was silently replaced**, and the CLI reported success. `uds init` now chains instead of clobbering (`"tsup"` → `"tsup && husky"`), prints every `package.json` field it modifies, and no longer discards husky's stderr.
+
+  > **⚠️ If you ran `uds init` on a project that already had a `prepare` script, check it now.** This fix protects future runs; it cannot restore a `package.json` that was already rewritten. The symptom is `"prepare": "husky"` where you expected your build command — and if your package publishes built output (`files: ["dist"]`, `main` pointing into `dist/`) with no `prepack`/`prepublishOnly`, your next `npm publish` ships an unbuilt or stale directory. Restore it by chaining: `"prepare": "<your original command> && husky"`.
+
+- **`uds init` no longer seeds `.husky/pre-commit` with `npm test`** (XSPEC-341). That line came from husky's init template, not from UDS — it put a full test-suite gate on every commit that adopters never opted into. UDS now only appends its own `npx uds check`, and appends to existing hooks rather than rewriting them.
+
+- **Fresh husky hooks are written in v9 format** (XSPEC-341). The fallback hook template still emitted the v8 `#!/usr/bin/env sh` + `. "$(dirname -- "$0")/_/husky.sh"` preamble, which is deprecated in husky v9 and removed in v10 — while `uds init` installs husky `^9`. This was latent (husky init previously wrote the hook); removing `husky init` promoted the fallback to the primary path, so it was corrected.
+
+### Changed
+
+- **`verification-evidence` 1.1.0 → 1.2.0 — evidence validity** (XSPEC-340). The standard treated `exit_code` as ground truth: `trust_rules` said "`exit_code ≠ 0` → verification failed", `physical_spec.checks` asked "is `exit_code` 0 (success)?", and VE-002 triggered a fix loop on any non-zero. **All three are now qualified**, because a verification command can run, return, and mean nothing:
+  - **New `evidence_validity` layer + rules VE-007 – VE-010**: `exit_code = 0` means success only for tools that return 0 on success (VE-007); "empty / not-found / 0" is not absence until the query tool is shown to have executed (VE-008); existence checks must not discard stderr (VE-009); a pipeline's exit code belongs to no single stage (VE-010).
+  - **New `non_evidence_claims`**: "Done" / "It should work now" / "I changed the code" / "The tests should pass" / "The command returned 0".
+  - Distinct from `anti-hallucination`, whose prohibitions are all forms of "don't assert what you didn't check". This is the opposite failure — **it was checked, and the checking tool silently did not work**. `core/verification-evidence.md` carries eight real instances as evidence.
+- **`verification-evidence` human docs caught up with v1.1.0.** The v1.1.0 `environment_layer` work (XSPEC-204) had landed in all three `.ai.yaml` copies and **none of the four `.md` copies** — the human documentation had been describing the standard incorrectly since 2026-05-13. `core/*.md` now documents `environment_layer`, the Environment Layers section, and VE-005 / VE-006.
+- **`verification-evidence` gains three sections that previously existed only in the zh-TW translation**: Non-Evidence Claims, Evidence Types, Related Standards. The translation was more complete than its source; the sections are now upstream in English and present in both locales.
+
 ## [6.0.0] - 2026-07-06
 
 > ⚠️ **Major release.** Contains one breaking rename and removes 8 deprecated machine-readable standards plus 4 deprecated CLI commands (all carrying a "removed in 6.0.0" notice since 5.4.0). **See the [v6 Migration Guide](docs/MIGRATION-v6.md)** ([繁體中文](locales/zh-TW/docs/MIGRATION-v6.md) | [简体中文](locales/zh-CN/docs/MIGRATION-v6.md)).

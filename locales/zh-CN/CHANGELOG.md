@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.0.0
-translation_version: 6.0.0
-last_synced: 2026-07-06
+source_version: 6.1.1
+translation_version: 6.1.1
+last_synced: 2026-07-18
 status: current
 ---
 
@@ -16,6 +16,41 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.1.1] - 2026-07-18
+
+> **`uds check` 悄悄量错了东西。** 它的落后检查拿你的标准去比 CLI 自己 bundled 的副本、而非 npm——CLI 一旧就吐出倒退、无意义的消息，且结构上永远说不出「你的标准过期了」——还把那条消息埋在逐文件一行的「未变更」底下。
+
+### Fixed
+
+- **`uds check` 现在拿你安装的标准比对 npm 上的最新版，而非 CLI 自己 bundled 的副本**（XSPEC-342）。`displayAdoptionStatus` 原本拿 `manifest.upstream.version` 去比**运行这支 CLI 内置的**标准副本。CLI 一旧，那副本就比 npm 旧——于是检查打印出倒退的 `⚠ 有可用更新：6.1.0 → 5.12.1`（叫你「更新」到*更旧*的版本），且结构上永远无法报告你的标准落后。现在改问 npm 最新版；当你的标准落后时，消息改为 **「你安装的标准落后最新版」**，并给出完整两步修复——`npm update -g universal-dev-standards` **然后** `uds update`——因为只更新 CLI 不会动到你项目的 `.standards/`。`--offline` 静默跳过比对，不再退回误导的 bundled 检查。
+
+### Changed
+
+- **`uds check` 不再逐文件列出未变更的文件**（XSPEC-342）。它原本对每个跟踪文件打印一行 `✓ …（未变更）`——约占命令输出的 70%（实测 121 → 41 行）——淹没了真正该读的消息，也让输出大到被自动化调用端（pre-commit agent）截断。逐文件「未变更」打印已移除；计数仍保留在一行的完整性摘要，已修改／缺失／未哈希的文件仍逐一列出。
+
+## [6.1.0] - 2026-07-17
+
+> **同一种形状的两个失败，一个在标准里、一个在 CLI 里**：一道检查跑了、返回了、报告成功，却什么都没测到。`verification-evidence` 补上了为它命名的那一层；`uds init` 则不再是它的一个实例。
+
+### 修复
+
+- **`uds init` 不再覆盖既有的 `prepare` script**（XSPEC-341）。自 2026-02-04 起，`uds init` 会对任何没有 `.husky/` 目录的 Node 项目执行 `npx husky init`。该命令是为**全新**项目设计的一次性 bootstrap：它会无条件把 `"prepare"` 设成 `"husky"`。若你的项目原本就有 `prepare`——而对一个要发布的包而言，`prepare` 通常就是 build 步骤——**它会被静默取代**，而 CLI 报告成功。`uds init` 现在改为串接而非覆写（`"tsup"` → `"tsup && husky"`），会打印出它所修改的每一个 `package.json` 字段，也不再丢弃 husky 的 stderr。
+
+  > **⚠️ 若你曾在原本就有 `prepare` script 的项目上跑过 `uds init`，请立即检查。** 这次修复保护的是往后的执行；它无法还原一个已经被改写的 `package.json`。症状是：你预期看到自己的 build 命令，实际看到的却是 `"prepare": "husky"`——而如果你的包会发布构建产物（`files: ["dist"]`、`main` 指向 `dist/`）且没有 `prepack`／`prepublishOnly`，那么你下一次 `npm publish` 送出去的将是一个未构建或过期的目录。请以串接方式恢复：`"prepare": "<你原本的命令> && husky"`。
+
+- **`uds init` 不再把 `npm test` 塞进 `.husky/pre-commit`**（XSPEC-341）。那一行来自 husky 的 init 模板，不是来自 UDS——它等于在每一次 commit 上架了一道采用者从未选择加入的完整测试套件闸门。UDS 现在只追加自己的 `npx uds check`，而且是追加到既有 hook 之后，而不是改写它们。
+
+- **新建的 husky hook 改以 v9 格式写入**（XSPEC-341）。fallback 的 hook 模板仍在输出 v8 的 `#!/usr/bin/env sh` + `. "$(dirname -- "$0")/_/husky.sh"` 前导段，该写法在 husky v9 已弃用、v10 已移除——而 `uds init` 安装的正是 husky `^9`。这原本是潜伏问题（过去 hook 是由 husky init 写出的）；移除 `husky init` 后，fallback 升为主要路径，因此一并修复。
+
+### 变更
+
+- **`verification-evidence` 1.1.0 → 1.2.0 —— 证据有效性**（XSPEC-340）。本标准原本把 `exit_code` 当成事实真相：`trust_rules` 写着"`exit_code ≠ 0` → 验证失败"、`physical_spec.checks` 问的是"`exit_code` 是否为 0（成功）？"、VE-002 只要非零就触发修复循环。**这三处现已全数加上限定条件**，因为一道验证命令可以跑完、可以返回，却什么意义都没有：
+  - **新增 `evidence_validity` 层次与规则 VE-007 – VE-010**：只有在"成功时返回 0"的工具上，`exit_code = 0` 才代表成功（VE-007）；在证明查询工具确实执行过之前，"空／未找到／0"不等于不存在（VE-008）；存在性检查不得丢弃 stderr（VE-009）；pipeline 的退出码不属于其中任何单一阶段（VE-010）。
+  - **新增 `non_evidence_claims`**："已完成"／"应该可以了"／"我改了代码"／"测试应该会通过"／"命令返回 0"。
+  - 有别于 `anti-hallucination`——后者的禁令全都是"不要断言你没查过的事"的变形。这里是相反的失败：**确实查了，而查询工具静默地没有运作**。`core/verification-evidence.md` 收录了八笔真实案例作为证据。
+- **`verification-evidence` 的人类文档补上了 v1.1.0 的落差。** v1.1.0 的 `environment_layer` 工作（XSPEC-204）已落地于全部三份 `.ai.yaml`，却**一份 `.md` 都没有更新**（共四份）——人类文档自 2026-05-13 起就一直在错误地描述这个标准。`core/*.md` 现已载明 `environment_layer`、Environment Layers 章节，以及 VE-005 / VE-006。
+- **`verification-evidence` 新增三个先前只存在于 zh-TW 译文的章节**：非证据的声明（Non-Evidence Claims）、证据类型（Evidence Types）、相关标准（Related Standards）。译文比它的来源更完整；这些章节现已上溯至英文来源，并同时存在于两个语系。
 
 ## [6.0.0] - 2026-07-06
 

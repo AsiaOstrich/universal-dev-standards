@@ -8,12 +8,14 @@ standard:
   description: 驗證證據標準，強化 anti-hallucination
 
   meta:
-    version: "1.1.0"
-    updated: "2026-05-13"
+    version: "1.2.0"
+    updated: "2026-07-17"
     source: core/verification-evidence.md
     description: >
       驗證證據標準 — Iron Law: 無驗證證據不可聲稱完成。
       v1.1.0: Evidence must specify which environment layer it was collected from (XSPEC-204).
+      v1.2.0: Evidence itself must be validated — a tool can fail silently and its
+      output is indistinguishable from a real result (XSPEC-340).
     inspired_by: superpowers/verification-before-completion
 
   guidelines:
@@ -23,7 +25,54 @@ standard:
     - "驗收證據必須標明收集自哪個環境層次（local / UAT / PRD）"
     - "回歸測試必須展示 RED → GREEN 循環"
     - "代理報告 success ≠ 實際 success，需獨立驗證"
+    - "**工具回報 success ≠ 實際 success**——驗證指令本身可能沒跑起來，而其輸出與真結果無法區分"
     - "驗證輸出截斷至合理長度（2000 字元）但保留關鍵資訊"
+
+  # 以下不構成驗證證據。原本只存在於 zh-TW 譯文裡（英文來源與本檔皆無）——
+  # v1.2.0 一併升上來源與本檔（XSPEC-340 R4：譯文比來源更完整，且無 gate 會報）。
+  non_evidence_claims:
+    - claim: "「已完成」"
+      why: "無可觀察的輸出"
+    - claim: "「應該可以了」"
+      why: "未執行驗證"
+    - claim: "「我改了程式碼」"
+      why: "修改 ≠ 驗證"
+    - claim: "「測試應該會通過」"
+      why: "預測 ≠ 事實"
+    - claim: "「指令回傳 0」"
+      why: "僅當該指令確實可能量到該主張時才算——見 evidence_validity"
+
+  # ── v1.2.0 證據有效性（XSPEC-340）──
+  # Iron Law 擋的是「沒有證據就宣稱完成」。這一層擋的是相反的失敗：
+  # 證據有、指令跑了、exit_code 是 0，**而那個輸出毫無意義**，因為指令根本沒量到東西。
+  # 這不是幻覺（幻覺是「沒查就編」，anti-hallucination 已涵蓋）——這裡什麼都沒編，
+  # 是**查了，而查詢工具騙了你**。
+  evidence_validity:
+    description: "證據本身是否成立——驗證指令是否真的執行、是否真的量到它宣稱的東西"
+    rules:
+      - name: "exit_code 的語意依工具而定"
+        detail: >
+          exit_code = 0 代表成功，只在「該工具成功時回 0」的前提下成立。
+          當工具在受測狀態下**設計上就會失敗**時，其非 0 不帶有關於受測物的任何資訊——
+          改看輸出內容。反向亦然：非 0 不足以證明受測物壞了。
+      - name: "空輸出 / 查無 / 0 ≠ 不存在"
+        detail: >
+          斷言「不存在」之前，須先確立查詢工具**執行成功**：不是 command not found、
+          不是權限不足、參數沒有被中間的 shell 吃掉。**查無之前，先確認查詢工具有在運作。**
+      - name: "判斷存在與否的指令不得丟棄 stderr"
+        detail: >
+          抑制 stderr（`2>/dev/null` 及等價作法）消掉的正是「這個工具壞了」的那條通道，
+          於是失敗會穿上與真陰性一模一樣的外衣。
+      - name: "管線的 exit code 不屬於其中任何單一階段"
+        detail: >
+          `set -o pipefail` 下 `producer | grep -q pattern` 會繼承 producer 的非 0，
+          grep 中不中都無關。需要依內容決策時：**先接住輸出，再判斷**。
+    provenance: >
+      證據來自 2026-07-17 單一 agent（Claude Opus 4.8）單日的十次實例，
+      記錄於 AsiaOstrich XSPEC-340；其中 exit_code=0 四次為假、exit_code≠0 兩次為真
+      且依 VE-002 行動摧毀了健康的產物。樣本密集但來源單一——然而每個失敗都源自
+      **工具本身的語意**（sudo / gpg / pipefail / POSIX exit code）而非模型的性質，
+      故任何驅動同一批工具的 agent 都暴露在同樣的陷阱下。
 
   evidence_format:
     fields:
@@ -62,7 +111,12 @@ standard:
   trust_rules:
     - "代理聲稱「已完成」→ 檢查 verification_evidence 是否存在"
     - "verification_evidence 為空 → 標記為未驗證"
-    - "exit_code ≠ 0 → 標記為驗證失敗"
+    # v1.2.0 修訂：原文為「exit_code ≠ 0 → 標記為驗證失敗」，無條件成立。
+    # 該規則在 2026-07-17 兩次把**完全正常**的加密備份判為失敗並刪除——
+    # 主機依設計不存私鑰，gpg 對正常檔案必然回非 0。故加上前提。
+    - "exit_code ≠ 0 → 標記為驗證失敗——**除非**該工具在受測狀態下設計上就回非 0（見 VE-007），此時改依輸出內容判斷"
+    - "exit_code = 0 但該指令不可能量到它宣稱的東西 → 標記為未驗證"
+    - "證據斷言「不存在」（0／空／查無）→ 未證明查詢工具執行成功前，標記為未驗證"
     - "多個驗證步驟 → 所有步驟都必須通過"
 
   rules:
@@ -72,7 +126,9 @@ standard:
       priority: critical
     - id: VE-002
       trigger: "exit_code ≠ 0"
-      action: "標記驗證失敗，啟動 fix loop"
+      action: >
+        標記驗證失敗，啟動 fix loop——**前提是已確認該工具在此狀態下成功時回 0**（見 VE-007）。
+        未確認就啟動 fix loop 等於對健康的產物動手。
       priority: high
     - id: VE-003
       trigger: "Bug fix 無 RED-GREEN 循環"
@@ -97,6 +153,28 @@ standard:
         要求補充環境層次聲明，或在 environment-stratification-matrix 中標記為 ⚠️/❌。
       priority: high
 
+  # ── v1.2.0 證據有效性規則（XSPEC-340）──
+  validity_rules:
+    - id: VE-007
+      trigger: "驗證工具在受測狀態下**依設計**回非 0（例：主機刻意不存私鑰時的 gpg --list-packets）"
+      action: >
+        VE-002 不適用。改依輸出內容判斷；**不得對健康的產物啟動 fix loop**。
+      priority: critical
+    - id: VE-008
+      trigger: "證據斷言「不存在」（exit_code 0、輸出為 0／空／查無）"
+      action: >
+        該證據不成立，直到證明查詢工具本身執行成功（非 command not found、非權限失敗、
+        參數未被上游 shell 吃掉）。重跑且不抑制 stderr。
+      priority: high
+    - id: VE-009
+      trigger: "判斷存在與否的驗證指令抑制了 stderr（`2>/dev/null` 或等價作法）"
+      action: "證據不成立。以可見 stderr 重跑。"
+      priority: high
+    - id: VE-010
+      trigger: "證據的 exit_code 來自管線（尤其在 `set -o pipefail` 下）"
+      action: "該 exit code 不歸屬於任何單一階段。先接住輸出，再依內容判斷。"
+      priority: medium
+
 physical_spec:
   type: checklist
   validator:
@@ -105,6 +183,11 @@ physical_spec:
   checks:
     - "完成聲明是否附帶 verification_evidence"
     - "evidence 是否包含所有必填欄位"
-    - "exit_code 是否為 0（成功）"
+    # v1.2.0 修訂：原文為「exit_code 是否為 0（成功）」——它把 0 直接等同於成功，
+    # 正是 XSPEC-340 §A 十個實例中四次誤報的來源。
+    - "exit_code 是否為 0——且**該工具成功時確實回 0**（見 VE-007）"
+    - "證據若斷言「不存在」，是否已證明查詢工具執行成功（VE-008）"
+    - "判斷存在與否的指令是否抑制了 stderr（VE-009）"
+    - "exit_code 是否來自管線而非受測指令本身（VE-010）"
     - "Bug fix 是否有 RED → GREEN 循環證據"
     - "有外部服務依賴的 AC 是否標明 environment_layer"
