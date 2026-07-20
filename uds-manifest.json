@@ -1,11 +1,12 @@
 {
   "project": "Universal Development Standards",
-  "version": "6.0.0",
-  "last_updated": "2026-07-06",
+  "version": "6.1.1",
+  "last_updated": "2026-07-18",
   "stats": {
     "core_standards": 149,
     "skills": 55,
-    "slash_commands": 51
+    "slash_commands": 51,
+    "cli_commands": 21
   },
   "standards": [
     {

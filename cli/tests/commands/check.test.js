@@ -192,6 +192,65 @@ describe('Check Command', () => {
       expect(output).toContain('1 unchanged');
     });
 
+    // XSPEC-342 R1: 標準落後須比對 npm 最新（非 CLI bundled），訊息方向正確 + 兩步驟修復
+    it('XSPEC-342 R1: reports STANDARDS behind vs npm latest, forward direction, two-step fix', async () => {
+      const { checkForUpdates } = await import('../../src/utils/npm-registry.js');
+      vi.mocked(checkForUpdates).mockResolvedValue({
+        available: true, offline: false,
+        currentVersion: '5.0.0', latestVersion: '6.1.0', latestStable: '6.1.0'
+      });
+
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      const manifest = createValidManifest({
+        upstream: { repo: 'AsiaOstrich/universal-dev-standards', version: '5.0.0', installed: '2024-01-01' }
+      });
+      writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), JSON.stringify(manifest));
+
+      await checkCommand({ noInteractive: true });
+
+      const output = consoleLogs.join('\n');
+      // 方向正確：已裝 5.0.0 → npm 最新 6.1.0（舊 bug 會吐倒退的「→ 5.12.1」，比 CLI bundled）
+      expect(output).toContain('5.0.0 → 6.1.0');
+      // 兩步驟修復，不是只講 uds update（只講第一步等於把人送進兩段式發現）
+      expect(output).toContain('npm update -g');
+      expect(output).toContain('uds update');
+    });
+
+    // XSPEC-342 R1: 離線時靜默略過版本比對，不報錯
+    it('XSPEC-342 R1: --offline silently skips the standards version comparison', async () => {
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      const manifest = createValidManifest({
+        upstream: { repo: 'x', version: '5.0.0', installed: '2024-01-01' }
+      });
+      writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), JSON.stringify(manifest));
+
+      await checkCommand({ noInteractive: true, offline: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).not.toContain('5.0.0 → ');
+    });
+
+    // XSPEC-342 R4: 安靜通過——不逐檔列印未變更（實測佔輸出 ~70%），但 summary 計數保留
+    it('XSPEC-342 R4: does not list unchanged files individually, keeps summary count', async () => {
+      const filePath = join(TEST_DIR, '.standards', 'anti-hallucination.md');
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(filePath, '# content');
+      const { computeFileHash } = await import('../../src/utils/hasher.js');
+      const hashInfo = computeFileHash(filePath);
+      const manifest = createValidManifest({
+        level: 1,
+        standards: ['core/anti-hallucination.md'],
+        fileHashes: { '.standards/anti-hallucination.md': hashInfo }
+      });
+      writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), JSON.stringify(manifest));
+
+      await checkCommand({ noInteractive: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).not.toContain('✓ .standards/anti-hallucination.md');  // 逐檔未變更行已移除
+      expect(output).toContain('1 unchanged');                              // summary 計數仍在
+    });
+
     it('should detect modified files with hash-based manifest', async () => {
       const originalContent = '# Original Content';
       const filePath = join(TEST_DIR, '.standards', 'anti-hallucination.md');

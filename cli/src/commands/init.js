@@ -240,7 +240,7 @@ export async function initCommand(options) {
  * - Node.js projects: use husky
  * - Non-Node.js projects: write native .git/hooks/pre-commit
  */
-async function setupHuskyHook(projectPath) {
+export async function setupHuskyHook(projectPath) {
   const hasGit = existsSync(join(projectPath, '.git'));
   if (!hasGit) return;
 
@@ -248,6 +248,11 @@ async function setupHuskyHook(projectPath) {
 
   if (isNodeProject) {
     console.log(chalk.cyan('Configuring Pre-commit Hook (Husky)...'));
+
+    // Every edit we make to the adopter's package.json, reported at the end.
+    // `uds init` writes ~70 files; a one-line change to package.json is invisible
+    // in that diff unless we say it out loud (XSPEC-341 R1).
+    const pkgChanges = [];
 
     // 1. Install husky if needed
     try {
@@ -257,25 +262,54 @@ async function setupHuskyHook(projectPath) {
 
       if (!hasHusky) {
         console.log(chalk.gray('  Installing husky...'));
-        execSync('npm install --save-dev husky', { stdio: 'ignore', cwd: projectPath });
+        // stdio: 'pipe' rather than 'ignore' — the error text belongs in the
+        // message below, not in /dev/null.
+        execSync('npm install --save-dev husky', { stdio: 'pipe', cwd: projectPath });
+        pkgChanges.push('devDependencies.husky — added');
       }
     } catch (e) {
       console.log(chalk.yellow(`  ⚠ Failed to check/install husky: ${e.message}`));
       return;
     }
 
-    // 2. Initialize husky
+    // 2. Wire husky's `prepare` script ourselves.
+    //
+    // We deliberately do NOT run `npx husky init` (XSPEC-341 R1). That command is a
+    // one-time bootstrap for a NEW project, not an idempotent operation: it sets
+    // `"prepare": "husky"` unconditionally, destroying whatever was there. For a
+    // published package whose `prepare` is its build step — `"prepare": "tsup"` with
+    // no prepack/prepublishOnly and `files: ["dist"]` — that silently breaks the next
+    // `npm publish`, and the failure surfaces at release time, far from this command.
+    // (It also seeds .husky/pre-commit with `npm test`, a gate the adopter never asked
+    // for.) Adopting a standards library must never rewrite the adopter's build.
     const huskyDir = join(projectPath, '.husky');
     try {
-      if (!existsSync(huskyDir)) {
-        console.log(chalk.gray('  Initializing husky...'));
-        execSync('npx husky init', { stdio: 'ignore', cwd: projectPath });
+      const pkgPath = join(projectPath, 'package.json');
+      const raw = readFileSync(pkgPath, 'utf-8');
+      const pkg = JSON.parse(raw);
+      pkg.scripts = pkg.scripts || {};
+      const existing = pkg.scripts.prepare;
+
+      if (!existing) {
+        pkg.scripts.prepare = 'husky';
+        pkgChanges.push('scripts.prepare — added: "husky"');
+      } else if (!/\bhusky\b/.test(existing)) {
+        // Chain, never clobber. The adopter's command runs first and keeps its
+        // exit code meaningful.
+        pkg.scripts.prepare = `${existing} && husky`;
+        pkgChanges.push(`scripts.prepare — "${existing}" → "${pkg.scripts.prepare}"`);
       }
-    } catch {
-      // Ignore, might already be init
+
+      if (pkg.scripts.prepare !== existing) {
+        // Preserve the file's trailing newline convention.
+        const indent = raw.match(/^\{\n(\s+)"/)?.[1]?.length ?? 2;
+        writeFileSync(pkgPath, JSON.stringify(pkg, null, indent) + (raw.endsWith('\n') ? '\n' : ''), 'utf-8');
+      }
+    } catch (e) {
+      console.log(chalk.yellow(`  ⚠ Failed to configure the prepare script: ${e.message}`));
     }
 
-    // 3. Ensure .husky directory exists (fallback if husky init failed)
+    // 3. Ensure .husky directory exists
     if (!existsSync(huskyDir)) {
       try {
         mkdirSync(huskyDir, { recursive: true });
@@ -290,16 +324,15 @@ async function setupHuskyHook(projectPath) {
     const udsCmd = 'npx uds check';
 
     try {
-      let content = '';
-      if (existsSync(preCommitPath)) {
-        content = readFileSync(preCommitPath, 'utf-8');
-      } else {
-        // Create if not exists (husky init usually creates it, but just in case)
-        content = '#!/usr/bin/env sh\n. "$(dirname -- "$0")/_/husky.sh"\n';
-      }
+      // husky v9 hooks are plain shell scripts: no shebang, no `_/husky.sh` sourcing
+      // (that is v8 syntax, deprecated in v9 and removed in v10). We install husky
+      // ^9, so a fresh hook must be v9-shaped. Existing files are appended to, never
+      // rewritten — their contents are the adopter's, not ours.
+      const content = existsSync(preCommitPath) ? readFileSync(preCommitPath, 'utf-8') : '';
 
       if (!content.includes('uds check')) {
-        writeFileSync(preCommitPath, content + `\n# UDS Standard Check\n${udsCmd}\n`, 'utf-8');
+        const sep = content && !content.endsWith('\n') ? '\n' : '';
+        writeFileSync(preCommitPath, `${content}${sep}\n# UDS Standard Check\n${udsCmd}\n`, 'utf-8');
         try {
           execSync(`chmod +x ${preCommitPath}`);
         } catch {
@@ -311,6 +344,14 @@ async function setupHuskyHook(projectPath) {
       }
     } catch (e) {
       console.log(chalk.red(`  ✗ Failed to configure pre-commit hook: ${e.message}`));
+    }
+
+    // 5. Say what we changed in their package.json.
+    if (pkgChanges.length > 0) {
+      console.log(chalk.cyan('  package.json modified:'));
+      for (const change of pkgChanges) {
+        console.log(chalk.gray(`    • ${change}`));
+      }
     }
   } else {
     // Non-Node.js: write native .git/hooks/pre-commit

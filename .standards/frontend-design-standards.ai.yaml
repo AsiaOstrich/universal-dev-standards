@@ -1,17 +1,20 @@
 # Frontend Design Standards - AI Optimized
 # Source: core/frontend-design-standards.md
 # Based on: DEC-029 (awesome-design-md, MIT), DEC-030 (OpenAI Frontend Guide)
-# Version: 1.0.0
+# Version: 1.1.0
 
 id: frontend-design-standards
 meta:
-  version: "1.0.0"
-  updated: "2026-04-13"
+  version: "1.1.0"
+  updated: "2026-07-10"
   source: core/frontend-design-standards.md
   description: |
     DESIGN.md 前端設計標準：9 段結構、語義色彩 token、字體角色、
     間距比例、UI 硬性約束與 anti-pattern 清單。
     適用所有含前端介面的專案。
+    v1.1.0 新增選填擴充：YAML frontmatter token 註冊表 +
+    {category.token} 內插語法 + components 結構化綁定
+    （借鑑 DEC-029 上游演化，Trial，不影響既有 5-token 治理收斂）。
 
 # DESIGN.md 必填 9 段結構
 design_md_sections:
@@ -77,6 +80,24 @@ design_md_sections:
     required: true
     description: "AI Agent 快速讀取的設計意圖摘要"
     required_fields: [style_summary, key_constraints, tone]
+
+# 選填擴充：token 內插語法 + 結構化 components 綁定（v1.1.0，Trial）
+# 不影響上方 5-token/4-role/7-step 治理收斂；是既有 token 的機器可解析層，非新增 token 的許可證。
+optional_extensions:
+  token_interpolation:
+    status: optional_trial
+    description: "DESIGN.md 可選填 YAML frontmatter 宣告 colors/typography/rounded/spacing token 字典，正文用 {category.token} 語法引用"
+    frontmatter_keys: [colors, typography, rounded, spacing]
+    syntax: "{category.token}"
+    rule: "frontmatter 的 colors 必須對應 5 個必要語義 token；引用不存在的 category.token 視為驗證錯誤，非靜默 fallback"
+  structured_components:
+    status: optional_trial
+    description: "Section 4（Component Styling）可選填 components: 區塊，把元件綁定到 {category.token} 引用"
+    rule: "components: 區塊內每個值都必須是 {category.token} 引用，禁止直接寫 hex/px 原始值"
+  not_adopted:
+    - "不隨附 lint CLI（上游有獨立 @google/design.md npm 套件，本標準不綁定特定驗證工具）"
+    - "不做框架專屬匯出格式（React/Vue/CSS-in-JS 產生器）"
+    - "不擴增 5/4/7 token 數量（內插語法讓既有 token 可引用，不是加 token 的理由）"
 
 # 語義色彩 5 個必要 token
 semantic_color_tokens:
@@ -264,6 +285,15 @@ rules:
       遵循 Narrative structure：Hero → Support → Detail → CTA。
       禁止將首頁設計成 Dashboard Grid。
     priority: required
+
+  - id: respect-token-interpolation-if-present
+    trigger: "當 DESIGN.md 含 YAML frontmatter token 註冊表時（v1.1.0 選填擴充）"
+    instruction: |
+      解析 {category.token} 引用時一律對照 frontmatter 實際值，
+      不得憑記憶或猜測填入色值/尺寸。
+      引用不存在的 category.token 視為錯誤，向使用者回報而非靜默略過。
+      若 DESIGN.md 沒有 frontmatter，此規則不適用（擴充為選填，非強制）。
+    priority: recommended
 
 # 快速參考表
 quick_reference:

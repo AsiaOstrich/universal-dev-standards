@@ -17,7 +17,6 @@
 | `uds update` | Update standards to latest version |
 | `uds skills` | List installed Claude Code skills |
 | `uds agent` | Manage UDS agents (list, install, info) |
-| `uds workflow` | Manage UDS workflows (list, install, info, execute, status) |
 | `uds ai-context` | Manage AI context configuration (init, validate, graph) |
 
 ## 💬 斜线命令

@@ -21,18 +21,22 @@ const securityFiles = [
 
 function generateStatsTable(manifest, lang = 'en') {
   const t = {
-    en: { cat: 'Category', count: 'Count', desc: 'Description', core: 'Core Standards', guidelines: 'Universal development guidelines', skills: 'AI Skills', interactive: 'Interactive skills', slash: 'Slash Commands', quick: 'Quick actions', cli: 'CLI Commands' },
-    zh: { cat: '類別', count: '數量', desc: '說明', core: '核心標準', guidelines: '通用開發準則', skills: 'AI Skills', interactive: '互動式技能', slash: '斜線命令', quick: '快速操作', cli: 'CLI 指令' },
-    cn: { cat: '类别', count: '数量', desc: '说明', core: '核心标准', guidelines: '通用开发准则', skills: 'AI Skills', interactive: '互动式技能', slash: '斜线命令', quick: '快速操作', cli: 'CLI 命令' }
+    en: { cat: 'Category', count: 'Count', desc: 'Description', core: 'Core Standards', guidelines: 'Universal development guidelines', skills: 'AI Skills', interactive: 'Interactive skills', slash: 'Slash Commands', quick: 'Quick actions', cli: 'CLI Commands', cliDesc: 'Project setup & maintenance' },
+    zh: { cat: '類別', count: '數量', desc: '說明', core: '核心標準', guidelines: '通用開發準則', skills: 'AI Skills', interactive: '互動式技能', slash: '斜線命令', quick: '快速操作', cli: 'CLI 指令', cliDesc: '專案設定與維護' },
+    cn: { cat: '类别', count: '数量', desc: '说明', core: '核心标准', guidelines: '通用开发准则', skills: 'AI Skills', interactive: '互动式技能', slash: '斜线命令', quick: '快速操作', cli: 'CLI 命令', cliDesc: '项目设置与维护' }
   }[lang] || t.en;
 
+  // CLI Commands count is computed by scripts/sync-manifest.mjs from the
+  // actual Commander registrations in cli/bin/uds.js (manifest.stats.cli_commands)
+  // — NOT hardcoded here — so it can't silently drift like the other stats
+  // in this table already don't (core_standards/skills/slash_commands).
   return `
 | ${t.cat} | ${t.count} | ${t.desc} |
 |----------|-------|-------------|
 | **${t.core}** | ${manifest.stats.core_standards} | ${t.guidelines} |
 | **${t.skills}** | ${manifest.stats.skills} | ${t.interactive} |
 | **${t.slash}** | ${manifest.stats.slash_commands} | ${t.quick} |
-| **${t.cli}** | 6 | list, init, configure, check, update, skills |`.trim();
+| **${t.cli}** | ${manifest.stats.cli_commands} | ${t.cliDesc} |`.trim();
 }
 
 function syncReadmeVersions(version) {
@@ -110,6 +114,43 @@ function syncSecurityVersions(version, stableVersion) {
   });
 }
 
+/**
+ * Sync the "AI Tool Support" table's Skills/Slash Commands numeric columns
+ * for Claude Code and OpenCode. Per uds-manifest.json's `agent_support`
+ * block both tools have tier "complete" with skills: true / slash_commands:
+ * "native" — i.e. they ship the FULL skills/ and skills/commands/
+ * directories with no subset curation, so this is the same metric as the
+ * Features stats table above (manifest.stats.skills / .slash_commands), not
+ * a narrower "verified compatible" count. Other rows (Cursor, Cline, ...)
+ * intentionally stay qualitative ("Core", "18+") because those tools only
+ * get a partial/simulated subset — do not templatize those.
+ */
+function syncAiToolSupportCounts(manifest) {
+  console.log('🤖 Syncing AI Tool Support skill/command counts...');
+  const { skills, slash_commands: commands } = manifest.stats;
+
+  readmeFiles.forEach(filePath => {
+    if (!fs.existsSync(filePath)) return;
+    let content = fs.readFileSync(filePath, 'utf8');
+    let changed = false;
+
+    for (const tool of ['Claude Code', 'OpenCode']) {
+      const rowRegex = new RegExp(
+        `(\\| \\*\\*${tool}\\*\\* \\| [^|]+ \\| \\*\\*)\\d+(\\*\\* \\| \\*\\*)\\d+(\\*\\* \\|)`
+      );
+      if (rowRegex.test(content)) {
+        content = content.replace(rowRegex, `$1${skills}$2${commands}$3`);
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      fs.writeFileSync(filePath, content);
+      console.log(`✅ AI Tool Support counts synced in: ${path.relative(ROOT_DIR, filePath)}`);
+    }
+  });
+}
+
 async function injectDocs() {
   console.log('📝 Injecting data into documentation...');
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
@@ -128,6 +169,9 @@ async function injectDocs() {
 
   // Sync SECURITY.md supported versions table
   syncSecurityVersions(packageJson.version, stableVersion);
+
+  // Sync AI Tool Support table's Claude Code / OpenCode skill+command counts
+  syncAiToolSupportCounts(manifest);
 
   readmeFiles.forEach(filePath => {
     if (!fs.existsSync(filePath)) return;

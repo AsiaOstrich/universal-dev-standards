@@ -98,7 +98,7 @@ _See: `/tdd`, `test-driven-development` standard_
 ## U
 
 **UDS (Universal Development Standards)**
-This project. A language-agnostic, framework-agnostic collection of 145 core standards, 55 AI skills, and 51 slash commands for software development quality.
+This project. A language-agnostic, framework-agnostic collection of 149 core standards, 55 AI skills, and 51 slash commands for software development quality.
 
 **UDS Manifest (`uds-manifest.json`)**
 The machine-readable index of all UDS standards and skills. Contains stats, skill-to-command mappings, and category assignments. Used by the UDS CLI and doc generators.

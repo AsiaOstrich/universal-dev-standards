@@ -68,7 +68,18 @@ phases:
         description: "逐條確認每個 AC 已有對應測試"
       - id: spec-match-check
         type: ai-check
-        description: "確認實作行為符合 spec 描述"
+        description: >
+          確認實作行為符合 spec 描述（spec-kit /converge 借鑑，2026-07-10 回頭對齊評估）。
+          非「有沒有測試引用 AC」（那是 sdd:analyze 的工作），而是「讀實際程式碼行為
+          是否真的做到 spec 說的事」。每個發現的落差分類：
+            - missing：spec 要求但程式碼沒做
+            - partial：程式碼只做到一部分
+            - contradicts：程式碼行為與 spec 描述不同
+            - unrequested：程式碼做了 spec/tasks 從未要求的事（範圍蔓延）
+          每個落差再標嚴重度：CRITICAL（違反 spec 明確的 MUST）／HIGH／MEDIUM／LOW。
+          發現寫成清單，不修改 spec 既有內容（唯讀比對，不是自動修正）。
+          可在此 verify 階段之外，於任何時間點對已歸檔的 spec 獨立重跑此檢查
+          （偵測歸檔後累積的漂移，非僅一次性 gate）。
     requires: [implement]
     gate: HUMAN_CONFIRM
     prompt: "所有 AC 驗證通過，歸檔此規格？"

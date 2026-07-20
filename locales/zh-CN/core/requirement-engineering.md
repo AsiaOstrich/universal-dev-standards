@@ -3,7 +3,7 @@ source: ../../../core/requirement-engineering.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-03-24
-status: current
+status: stale
 ---
 
 > **语言**: [English](../../../core/requirement-engineering.md) | 简体中文

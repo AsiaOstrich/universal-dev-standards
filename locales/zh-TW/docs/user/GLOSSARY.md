@@ -105,7 +105,7 @@ _參見：`/tdd`、`test-driven-development` 標準_
 ## U
 
 **UDS（Universal Development Standards，通用開發標準）**
-本專案。一套與語言無關、與框架無關的軟體開發品質彙集，含 145 個核心標準、55 個 AI skill 與 51 個斜線命令。
+本專案。一套與語言無關、與框架無關的軟體開發品質彙集，含 149 個核心標準、55 個 AI skill 與 51 個斜線命令。
 
 **UDS Manifest（`uds-manifest.json`）**
 所有 UDS 標準與 skill 的機器可讀索引。包含統計數據、skill 對命令的對照，以及分類歸屬。供 UDS CLI 與文件產生器使用。

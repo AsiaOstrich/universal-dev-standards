@@ -3,7 +3,7 @@ source: ../../../core/frontend-design-standards.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-04-20
-status: current
+status: stale
 ---
 
 # 前端設計標準

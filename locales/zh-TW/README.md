@@ -15,7 +15,7 @@ status: current
 
 > **語言**: [English](../../README.md) | 繁體中文 | [简体中文](../zh-CN/README.md)
 
-**版本**: 6.0.0 | **發布日期**: 2026-07-06 | **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
+**版本**: 6.1.1 | **發布日期**: 2026-07-18 | **授權**: [雙重授權](../../LICENSE) (CC BY 4.0 + MIT)
 
 語言無關、框架無關的軟體專案文件標準。透過 AI 原生工作流，確保不同技術堆疊之間的一致性、品質和可維護性。
 
@@ -79,7 +79,7 @@ npx universal-dev-standards init
 | **核心標準** | 149 | 通用開發準則 |
 | **AI Skills** | 55 | 互動式技能 |
 | **斜線命令** | 51 | 快速操作 |
-| **CLI 指令** | 6 | list, init, configure, check, update, skills |
+| **CLI 指令** | 21 | 專案設定與維護 |
 <!-- UDS_STATS_TABLE_END -->
 
 > **5.0 新功能？** 請參閱[預發布說明](../../docs/PRE-RELEASE.md)了解新功能詳情。
@@ -117,8 +117,8 @@ graph TD
 
 | AI 工具 | 狀態 | Skills | 斜線命令 | 設定檔 |
 | :--- | :--- | :---: | :---: | :--- |
-| **Claude Code** | ✅ 完整支援 | **29** | **33** | `CLAUDE.md` |
-| **OpenCode** | ✅ 完整支援 | **29** | **33** | `AGENTS.md` |
+| **Claude Code** | ✅ 完整支援 | **55** | **51** | `CLAUDE.md` |
+| **OpenCode** | ✅ 完整支援 | **55** | **51** | `AGENTS.md` |
 | **Cursor** | ✅ 完整支援 | **核心** | **模擬支援** | `.cursorrules` |
 | **Roo Code** | ✅ 完整支援 | **核心** | **工作流** | `.roo/rules/` |
 | **Gemini CLI** | 🧪 預覽版 | **18+** | **20+** | `GEMINI.md` |
