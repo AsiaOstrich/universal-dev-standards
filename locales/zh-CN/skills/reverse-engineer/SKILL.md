@@ -1,9 +1,9 @@
 ---
 source: ../../../../skills/reverse-engineer/SKILL.md
 source_version: 1.2.0
-source_hash: d543b24b2422
+source_hash: 469dcdc76a83
 translation_version: 1.2.0
-last_synced: 2026-06-01
+last_synced: 2026-07-16
 status: current
 description: |
   系统考古——跨逻辑、数据、运行时三维度逆向工程代码。

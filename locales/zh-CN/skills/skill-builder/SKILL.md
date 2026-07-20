@@ -3,8 +3,8 @@ name: skill-builder
 source: ../../../../skills/skill-builder/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: 5d91e5974c44
+last_synced: 2026-07-16
+source_hash: 1c5f079e0851
 status: current
 scope: universal
 description: |

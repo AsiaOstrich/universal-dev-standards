@@ -1,20 +1,21 @@
 ---
 source: ../../../core/browser-compatibility-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: b806494266e8
-status: stale
+source_version: 1.0.2
+translation_version: 1.0.2
+last_synced: 2026-07-16
+source_hash: d4a9c4e89256
+status: current
 ---
 
 # 瀏覽器相容性標準
 
 > **語言**：[English](../../../core/browser-compatibility-standards.md) | 繁體中文
 
-**版本**：1.0.0
-**最後更新**：2026-05-05
+**版本**：1.0.2
+**最後更新**：2026-06-18
 **適用範圍**：前端專案（網頁應用程式、漸進式網頁應用程式 PWA、Web Components）
 **範疇**：universal
+**Owning Spec**：XSPEC-293（與 XSPEC-209 路由覆蓋率為正交關係）
 **業界標準**：Browserslist、W3C WebDriver、WebDriver BiDi
 **參考資料**：[caniuse.com](https://caniuse.com/)、[Playwright 瀏覽器支援矩陣](https://playwright.dev/docs/browsers)
 
@@ -35,6 +36,14 @@ status: stale
 | **Tier-1**（完整支援） | 功能完全對等 + 自動化測試覆蓋 | 100% 通過 —— 任一測試失敗即阻擋發布 |
 | **Tier-2**（部分支援） | 盡力支援；主要流程必須可運作 | ≥ 95% 通過 —— 低於則 WARN，< 90% 則 FAIL |
 | **Tier-3**（盡力而為） | 非正式支援；缺陷會記錄但不阻擋發布 | 僅作為建議參考 |
+
+> **Tier-2「≥95%」／「<90%」門檻 — 依據與可調整性**：這些是 UDS 預設值，可依專案調整。
+> Tier-2 定義為「盡力支援，主要流程必須可運作」，因此閘門容許少量非關鍵失敗的尾端：
+> `≥95%` = 健康（低於此值則 WARN，以提示分流處理）；`<90%` = 實質回歸（FAIL）。
+> 可依你目標市場的瀏覽器覆蓋率調整這些值 —— 例如依 Browserslist 市佔設定
+> （`> 0.5%` 等）推導 Tier-2 瀏覽器清單與通過門檻。**例外**：當失敗的 Tier-2
+> 案例皆為非關鍵流程（以 Tier-3 風格記錄為缺陷）時，發布負責人可在附上記錄
+> 理由的前提下覆寫 WARN/FAIL 判定。
 
 ---
 
@@ -218,6 +227,8 @@ last 2 ChromeAndroid versions
 
 | 版本 | 日期 | 變更內容 |
 |---------|------|---------|
+| 1.0.2 | 2026-06-18 | 新增：Tier-2 95%/90% 門檻的依據、可調整性與例外說明（XSPEC-292 T8 / XSPEC-293 AC-293-2） |
+| 1.0.1 | 2026-06-18 | 新增：Owning Spec 指標 → XSPEC-293（XSPEC-291 §11） |
 | 1.0.0 | 2026-05-05 | 首次發布：Tier-1/2/3 矩陣、Playwright 設定、雲端測試、發布閘門條件 |
 
 ---

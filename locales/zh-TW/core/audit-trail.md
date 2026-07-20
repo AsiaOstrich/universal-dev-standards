@@ -2,8 +2,8 @@
 source: ../../../core/audit-trail.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-17
-source_hash: 7543ded62881
+last_synced: 2026-07-16
+source_hash: cd5490e92df9
 status: current
 ---
 

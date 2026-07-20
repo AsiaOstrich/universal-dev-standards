@@ -3,8 +3,8 @@ name: orchestrate
 source: ../../../../skills/orchestrate/SKILL.md
 source_version: 2.0.0
 translation_version: 2.0.0
-last_synced: 2026-06-02
-source_hash: 40e97479c7da
+last_synced: 2026-07-16
+source_hash: e66c388ce04a
 scope: universal
 description: |
   [UDS] 以 Claude 原生 Agent tool 编排多任务执行计划（DAG-based，无外部引擎）。
