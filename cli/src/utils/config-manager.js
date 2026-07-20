@@ -2,7 +2,7 @@ import { ConfigLoader } from './config-loader.js';
 import { ConfigMerger } from './config-merger.js';
 import fs from 'fs';
 import path from 'path';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 export class ConfigManager {
   constructor(cwd = process.cwd()) {

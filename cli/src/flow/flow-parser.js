@@ -4,7 +4,7 @@
  * 解析 .flow.yaml 內容為 Flow 物件，包含 schema 驗證和預設值填充。
  */
 
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 const DEFAULT_CONFIG = {
   enforcement: 'suggest',

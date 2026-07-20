@@ -27,12 +27,14 @@ vi.mock('child_process', () => ({
 }));
 
 // Mock js-yaml
-vi.mock('js-yaml', () => ({
-  default: {
-    load: vi.fn((str) => JSON.parse(str)),
-    dump: vi.fn((obj) => JSON.stringify(obj)),
-  },
-}));
+// js-yaml 5 起沒有 default export，來源端改用 `import * as yaml`，因此這裡必須
+// 提供具名匯出；只給 default 的話 yaml.load 會是 undefined，所有解析都會落進
+// catch 而回報「release-config.yaml 解析失敗」。default 一併保留以相容舊用法。
+vi.mock('js-yaml', () => {
+  const load = vi.fn((str) => JSON.parse(str));
+  const dump = vi.fn((obj) => JSON.stringify(obj));
+  return { load, dump, default: { load, dump } };
+});
 
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { releaseCommand } from '../../src/commands/release.js';

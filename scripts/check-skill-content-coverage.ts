@@ -40,7 +40,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 // ── Local copies of sync-standard.ts helpers ──────────────────────────────────
 // Imported inline rather than from ./sync-standard.js: that module runs main()

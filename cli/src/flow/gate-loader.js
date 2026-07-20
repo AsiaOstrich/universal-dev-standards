@@ -4,7 +4,7 @@
  * 載入和解析 .gate.yaml 閘門定義。
  */
 
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 /**
  * 從 YAML 字串載入 gate 定義。
