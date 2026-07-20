@@ -26,8 +26,17 @@ jobs:
         id: health
         run: |
           cd cli
-          SCORE=$(node bin/uds.js audit --score --self --ci --threshold 0 2>&1 || echo "0")
-          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          # 分數走 stderr，故必須合併 2>&1。但 `$(cmd || echo 0)` 在 cmd 失敗時是把 0
+          # **附加**在原輸出後面而非取代，SCORE 因而變成多行；多行值寫進 $GITHUB_OUTPUT
+          # 會以 `Invalid format '0'` 失敗——本 job 自 2026-06 起每週失敗的原因。
+          # 分開處理失敗路徑，並強制收斂成單一數字。
+          if ! RAW=$(node bin/uds.js audit --score --self --ci --threshold 0 2>&1); then
+            echo "audit 指令失敗，輸出如下："; echo "$RAW"
+            RAW=""
+          fi
+          SCORE=$(printf '%s\n' "$RAW" | tail -n1 | tr -dc '0-9')
+          [ -n "$SCORE" ] || SCORE=0
+          echo "score=$SCORE" >> "$GITHUB_OUTPUT"
           node bin/uds.js audit --score --self --format json > ../health-report.json
 
       - name: Run dependency audit
