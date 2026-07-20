@@ -2,8 +2,8 @@
 source: ../../../core/behavior-snapshot.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-06-28
-source_hash: 36a3683ae75b
+last_synced: 2026-07-09
+source_hash: bd53c2d8c8c0
 status: current
 ---
 

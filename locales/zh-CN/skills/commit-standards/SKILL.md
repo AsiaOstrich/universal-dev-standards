@@ -1,9 +1,9 @@
 ---
 source: ../../../../skills/commit-standards/SKILL.md
 source_version: 1.0.0
-source_hash: 8535f438ced8
+source_hash: bc13c6166e8d
 translation_version: 1.0.0
-last_synced: 2026-06-01
+last_synced: 2026-07-09
 status: current
 description: |
   [UDS] 根据 Conventional Commits 规范产生格式正确的 commit message。

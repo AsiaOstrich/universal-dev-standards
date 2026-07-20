@@ -3,8 +3,8 @@ name: deploy
 source: ../../../../skills/deploy-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: ff56e7be5b67
+last_synced: 2026-07-09
+source_hash: fc0996a2853c
 status: current
 scope: universal
 description: |

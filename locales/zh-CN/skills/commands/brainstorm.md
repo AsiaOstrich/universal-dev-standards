@@ -1,9 +1,9 @@
 ---
 source: ../../../../skills/commands/brainstorm.md
 source_version: 4.0.0
-source_hash: 3212203924de
+source_hash: b4d32a8b638e
 translation_version: 4.0.0
-last_synced: 2026-06-22
+last_synced: 2026-07-09
 ---
 
 ---

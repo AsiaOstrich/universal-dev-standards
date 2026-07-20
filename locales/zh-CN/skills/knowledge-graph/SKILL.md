@@ -3,8 +3,8 @@ name: knowledge-graph
 source: ../../../../skills/knowledge-graph/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: 68a0b2a9e02f
+last_synced: 2026-07-09
+source_hash: 2a10faf2dd4c
 status: current
 description: |
   [UDS] 通过知识图追踪规格／决策／代码的影响链（引擎或 Markdown 后备）

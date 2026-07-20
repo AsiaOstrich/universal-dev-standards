@@ -1,9 +1,9 @@
 ---
 source: ../../../../skills/adr-assistant/SKILL.md
 source_version: 1.0.0
-source_hash: 7d8bf5944cf4
+source_hash: 900a9a7b5b04
 translation_version: 1.0.0
-last_synced: 2026-06-01
+last_synced: 2026-07-09
 status: current
 description: |
   [UDS] 创建、管理和追踪架构决策记录（ADR）。
