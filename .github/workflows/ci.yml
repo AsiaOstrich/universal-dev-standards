@@ -29,6 +29,36 @@ jobs:
             cli:
               - 'cli/**'
 
+  # XSPEC-355 R3a — the check-*.sh ratchet.
+  #
+  # tests/scripts/check-scripts-passing.bats asserts every listed check exits 0,
+  # and its header already said "if any of these start failing, it indicates a
+  # real regression". It was never run by anything: `npm run test:scripts`
+  # appeared only in package.json and scripts/README.md. Wiring it here is what
+  # makes the ratchet real.
+  #
+  # The companion known-failures file is deliberately NOT run as a gate — it
+  # documents current, re-measured failures, not history.
+  script-ratchet:
+    name: Check Script Ratchet
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run check-*.sh ratchet
+        run: tests/bats/bin/bats tests/scripts/check-scripts-passing.bats
+
   lint:
     name: Lint
     runs-on: ubuntu-latest

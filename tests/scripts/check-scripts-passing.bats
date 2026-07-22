@@ -90,3 +90,90 @@ setup() {
   run bash scripts/check-workflow-compliance.sh
   [ "$status" -eq 0 ]
 }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Promoted from check-scripts-known-failures.bats on 2026-07-23 (XSPEC-355 R3a).
+#
+# That file listed nine "pre-existing failures" measured at git 15c2475, before
+# XSPEC-072. Re-measuring on 2026-07-23 found eight of the nine already exit 0 —
+# the debt had been paid down over months, but nobody promoted the entries. So
+# eight checks that pass were still documented as expected-to-fail, meaning a
+# regression in any of them would have been read as "known".
+#
+# Ratchet rule: once a check is here, it must stay green.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── check-ai-behavior-sync.sh ────────────────────────────────────────────────
+
+@test "check-ai-behavior-sync.sh exits 0 on clean repo" {
+  cd "$REPO_ROOT"
+  run bash scripts/check-ai-behavior-sync.sh
+  [ "$status" -eq 0 ]
+}
+
+# ── check-commands-sync.sh ───────────────────────────────────────────────────
+
+@test "check-commands-sync.sh exits 0 on clean repo" {
+  cd "$REPO_ROOT"
+  run bash scripts/check-commands-sync.sh
+  [ "$status" -eq 0 ]
+}
+
+# ── check-docs-integrity.sh ──────────────────────────────────────────────────
+
+@test "check-docs-integrity.sh exits 0 on clean repo" {
+  cd "$REPO_ROOT"
+  run bash scripts/check-docs-integrity.sh
+  [ "$status" -eq 0 ]
+}
+
+# ── check-integration-commands-sync.sh ───────────────────────────────────────
+
+@test "check-integration-commands-sync.sh exits 0 on clean repo" {
+  cd "$REPO_ROOT"
+  run bash scripts/check-integration-commands-sync.sh
+  [ "$status" -eq 0 ]
+}
+
+# ── check-scope-sync.sh ──────────────────────────────────────────────────────
+
+@test "check-scope-sync.sh exits 0 on clean repo" {
+  cd "$REPO_ROOT"
+  run bash scripts/check-scope-sync.sh
+  [ "$status" -eq 0 ]
+}
+
+# ── check-skill-next-steps-sync.sh ───────────────────────────────────────────
+
+@test "check-skill-next-steps-sync.sh exits 0 on clean repo" {
+  cd "$REPO_ROOT"
+  run bash scripts/check-skill-next-steps-sync.sh
+  [ "$status" -eq 0 ]
+}
+
+# ── check-translation-sync.sh ────────────────────────────────────────────────
+# Version gaps and source_hash drift are advisory (exit 0); only a MISSING
+# source file is a release blocker (exit 1).
+
+@test "check-translation-sync.sh exits 0 on clean repo" {
+  cd "$REPO_ROOT"
+  run bash scripts/check-translation-sync.sh
+  [ "$status" -eq 0 ]
+}
+
+# ── check-usage-docs-sync.sh ─────────────────────────────────────────────────
+
+@test "check-usage-docs-sync.sh exits 0 on clean repo" {
+  cd "$REPO_ROOT"
+  run bash scripts/check-usage-docs-sync.sh
+  [ "$status" -eq 0 ]
+}
+
+# ── fix-manifest-paths.sh ────────────────────────────────────────────────────
+# Not a check script; asserts intended argument-validation behaviour.
+
+@test "fix-manifest-paths.sh exits non-zero when called with no arguments" {
+  cd "$REPO_ROOT"
+  run bash scripts/fix-manifest-paths.sh
+  [ "$status" -ne 0 ]
+}
