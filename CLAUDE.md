@@ -1049,6 +1049,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 - `/derive-tdd`
 - `/derive-atdd`
 - `/derive-all`
+- `/journey-test`
 
 ### quality
 
@@ -1089,6 +1090,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 - `/release`
 - `/audit`
 - `/migrate`
+- `/skill-builder`
 
 ### reference
 

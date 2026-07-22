@@ -248,6 +248,7 @@ This document is released under [CC BY 4.0](https://creativecommons.org/licenses
 - `/derive-tdd`
 - `/derive-atdd`
 - `/derive-all`
+- `/journey-test`
 
 ### quality
 
@@ -288,6 +289,7 @@ This document is released under [CC BY 4.0](https://creativecommons.org/licenses
 - `/release`
 - `/audit`
 - `/migrate`
+- `/skill-builder`
 
 ### reference
 

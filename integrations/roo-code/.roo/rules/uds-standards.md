@@ -179,6 +179,7 @@ Reference: `.standards/ai-response-navigation.ai.yaml` (or `core/ai-response-nav
 - `/derive-tdd`
 - `/derive-atdd`
 - `/derive-all`
+- `/journey-test`
 
 ### quality
 
@@ -219,6 +220,7 @@ Reference: `.standards/ai-response-navigation.ai.yaml` (or `core/ai-response-nav
 - `/release`
 - `/audit`
 - `/migrate`
+- `/skill-builder`
 
 ### reference
 
