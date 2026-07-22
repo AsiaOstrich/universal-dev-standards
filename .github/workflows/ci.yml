@@ -46,6 +46,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # tests/bats is a git submodule (bats-core); checkout skips submodules
+          # by default, which made the first run of this job exit 127.
+          submodules: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
