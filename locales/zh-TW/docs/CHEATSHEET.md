@@ -1,6 +1,6 @@
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-07-09
+> Quick reference for all UDS features | Last updated: 2026-07-22
 
 **Language**: [English](../../../docs/user/CHEATSHEET.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CHEATSHEET.md)
 
@@ -17,6 +17,7 @@
 | `uds update` | Update standards to latest version |
 | `uds skills` | List installed Claude Code skills |
 | `uds agent` | Manage UDS agents (list, install, info) |
+| `uds workflow` | Manage UDS workflows (list, install, info, execute, status) |
 | `uds ai-context` | Manage AI context configuration (init, validate, graph) |
 
 ## 💬 斜線命令
@@ -358,7 +359,7 @@
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
-| `generate-docs.mjs` | Generate Docs |
+| `generate-docs.mjs` | Sync the "AI Tool Support" table's Skills/Slash Co |
 | `generate-locale-coverage.mjs` | Locale Coverage Generator |
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9 |
 | `install-hooks.mjs` | Install Hooks |
@@ -368,9 +369,8 @@
 | `pre-release-check.sh` | Pre-release Check Script |
 | `pre-release.ps1` | Pre-Release Preparation Script for Universal Devel |
 | `pre-release.sh` | Pre-Release Preparation Script |
-| `setup-hooks.sh` | setup-hooks.sh — Install git hooks for UDS repo |
 | `setup-husky.mjs` | Cross-platform Husky Setup Script |
-| `sync-manifest.mjs` | Sync Manifest |
+| `sync-manifest.mjs` | Extract top-level Commander command names register |
 
 ---
 

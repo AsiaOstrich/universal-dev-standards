@@ -1,7 +1,7 @@
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档
-> Auto-generated | Last updated: 2026-07-09
+> Auto-generated | Last updated: 2026-07-22
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
@@ -15,9 +15,9 @@
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
 6. [核心规范](#core-standards) (149)
-7. [脚本](#scripts) (58)
+7. [脚本](#scripts) (57)
 
-**Total Features: 332**
+**Total Features: 331**
 
 ---
 
@@ -314,7 +314,7 @@
 | `changelog-standards` | 1.0.2 | This standard defines how to write and maintain a CHANGELOG.md file to communica |
 | `chaos-engineering-standards` | 1.0.0 |  |
 | `chaos-injection-tests` | - |  |
-| `checkin-standards` | 1.7.0 | This standard defines quality gates that MUST be passed before committing code t |
+| `checkin-standards` | 1.8.0 | This standard defines quality gates that MUST be passed before committing code t |
 | `circuit-breaker` | - |  |
 | `code-review-checklist` | 1.4.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
 | `commit-message-guide` | 1.3.0 | Standardized commit messages improve code review efficiency, facilitate automate |
@@ -349,7 +349,7 @@
 | `flaky-test-management` | - |  |
 | `flow-based-testing` | 1.3.1 | This document defines a systematic methodology for testing multi-step processes. |
 | `forward-derivation-standards` | 1.3.0 | This standard defines the principles and workflows for Forward Derivation—automa |
-| `frontend-design-standards` | 1.0.0 | This standard defines a machine-readable frontend design specification format (D |
+| `frontend-design-standards` | 1.1.0 | This standard defines a machine-readable frontend design specification format (D |
 | `full-coverage-testing` | - |  |
 | `git-workflow` | 1.4.0 | This standard defines Git branching strategies and workflows to ensure consisten |
 | `git-worktree` | 1.1.0 | Define a lifecycle for using Git worktrees to isolate development work, ensuring |
@@ -384,13 +384,13 @@
 | `project-structure` | 1.2.0 | This standard defines conventions for project directory structure beyond documen |
 | `prompt-regression` | - |  |
 | `property-based-testing` | - |  |
-| `push-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-04-23 |  |
+| `push-standards` | 1.1.0 | **Status**: Active | **Updated**: 2026-07-09 |  |
 | `recovery-recipe-registry` | - |  |
 | `refactoring-standards` | 2.2.0 | This standard defines comprehensive guidelines for code refactoring, covering ev |
 | `release-quality-manifest` | - |  |
 | `release-readiness-gate` | 1.0.0 | This standard defines a **single, aggregated Release Readiness Gate** that unifi |
 | `replay-test` | - |  |
-| `requirement-engineering` | 1.0.0 |  |
+| `requirement-engineering` | 1.1.0 |  |
 | `resource-cost-boundary` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `retrospective-standards` | 1.0.0 | Retrospectives are structured team reflections that identify what worked well, w |
 | `retry-standards` | - |  |
@@ -429,7 +429,7 @@
 | `translation-lifecycle-standards` | 1.0.0 | Translation lifecycle standards: MISSING vs OUTDATED distinction, semver-aware s |
 | `user-journey-testing` | - |  |
 | `user-story-mapping` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
-| `verification-evidence` | 1.0.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
+| `verification-evidence` | 1.2.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
 | `verification-oracle` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `versioning` | 1.5.0 | This standard defines how to version software releases using Semantic Versioning |
 | `virtual-organization-standards` | 1.0.0 | This standard treats the AI ecosystem as a "Virtual Organization." It defines ho |
@@ -487,7 +487,7 @@
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
-| `generate-docs.mjs` | Generate Docs |
+| `generate-docs.mjs` | Sync the "AI Tool Support" table's Skills/Slash Commands numeric columns |
 | `generate-locale-coverage.mjs` | Locale Coverage Generator |
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9, AC-14) |
 | `install-hooks.mjs` | Install Hooks |
@@ -497,9 +497,8 @@
 | `pre-release-check.sh` | Pre-release Check Script |
 | `pre-release.ps1` | Pre-Release Preparation Script for Universal Development Standards |
 | `pre-release.sh` | Pre-Release Preparation Script |
-| `setup-hooks.sh` | setup-hooks.sh — Install git hooks for UDS repo |
 | `setup-husky.mjs` | Cross-platform Husky Setup Script |
-| `sync-manifest.mjs` | Sync Manifest |
+| `sync-manifest.mjs` | Extract top-level Commander command names registered directly on the |
 
 ---
 

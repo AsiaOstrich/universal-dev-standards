@@ -1,10 +1,25 @@
 name: Docs Index Check
 
+# XSPEC-355: this workflow was pull_request-only, but the repo commits direct to
+# main (0 merges in 345 commits over three months), so it had never run. Also
+# added skills/commands/*.md — COMMANDS-INDEX.md is generated from those, and the
+# original path list only covered skills/*/SKILL.md.
+# NOTE: paths are duplicated below on purpose — GitHub Actions does not support
+# YAML anchors/aliases in workflow files. Keep the two lists in sync.
 on:
   pull_request:
     paths:
       - 'uds-manifest.json'
       - 'skills/*/SKILL.md'
+      - 'skills/commands/*.md'
+      - 'cli/standards-registry.json'
+      - 'scripts/generate-skill-index.ts'
+  push:
+    branches: [main]
+    paths:
+      - 'uds-manifest.json'
+      - 'skills/*/SKILL.md'
+      - 'skills/commands/*.md'
       - 'cli/standards-registry.json'
       - 'scripts/generate-skill-index.ts'
 

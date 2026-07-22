@@ -5,7 +5,8 @@
  * are up to date. Exits with code 1 if they're stale.
  *
  * Run: npm run docs:check-index
- * Called by: .git/hooks/pre-commit (via setup-hooks.sh)
+ * Called by: cli/.husky/pre-commit (the active hook — core.hooksPath=cli/.husky/_)
+ *            and .github/workflows/docs-check.yml
  */
 
 import fs from 'fs';

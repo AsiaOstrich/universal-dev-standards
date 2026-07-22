@@ -94,6 +94,10 @@
     "gemini-cli": {
       "name": "Gemini CLI",
       "tier": "preview",
+      "deprecated": true,
+      "deprecationNote": "Google sunset Gemini CLI on 2026-06-18 (announced at I/O 2026-05-19, 30-day migration window); succeeded by Antigravity CLI. Kept for reference only. Disposal of the 142-file .gemini/ tree is XSPEC-355 OQ5.",
+      "deprecationNoteZh": "Google 已於 2026-06-18 終止 Gemini CLI（2026-05-19 I/O 宣布，30 天遷移窗），由 Antigravity CLI 接手。此條目僅供參考。`.gemini/` 142 檔的處置見 XSPEC-355 OQ5。",
+      "supersededBy": "antigravity",
       "integrationFiles": [
         "integrations/gemini-cli/GEMINI.md"
       ],
@@ -112,7 +116,7 @@
       ],
       "instructionFile": "integrations/google-antigravity/INSTRUCTIONS.md",
       "rulesLocation": "integrations/google-antigravity/",
-      "supportsSkills": false,
+      "supportsSkills": true,
       "supportsAgents": false,
       "supportsWorkflows": false
     },

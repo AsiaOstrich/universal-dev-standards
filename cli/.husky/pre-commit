@@ -52,6 +52,24 @@ if [ -f "$REPO_ROOT/scripts/check-workflow-compliance.sh" ]; then
     "$REPO_ROOT/scripts/check-workflow-compliance.sh"
 fi
 
+# Generated docs index check (XSPEC-211 intent, XSPEC-355 rewiring)
+# Originally installed by scripts/setup-hooks.sh into .git/hooks/pre-commit — which
+# core.hooksPath (cli/.husky/_) overrides, so it never ran. The CI fallback
+# (docs-check.yml) only triggers on pull_request, and this repo commits direct to
+# main. This is the only path that actually executes.
+STAGED_INDEX_SRC=$(git diff --cached --name-only | grep -E "^(uds-manifest\.json|skills/.*\.md|cli/standards-registry\.json)$" || true)
+
+if [ -n "$STAGED_INDEX_SRC" ]; then
+    echo "[Pre-commit] Checking generated docs index..."
+    if ! npm run docs:check-index --prefix "$REPO_ROOT" --silent; then
+        echo ""
+        echo "docs/user/SKILLS-INDEX.md or COMMANDS-INDEX.md is stale."
+        echo "  Run: npm run docs:generate-index"
+        echo ""
+        exit 1
+    fi
+fi
+
 # Navigate to cli directory for npm commands
 cd "$REPO_ROOT/cli"
 
