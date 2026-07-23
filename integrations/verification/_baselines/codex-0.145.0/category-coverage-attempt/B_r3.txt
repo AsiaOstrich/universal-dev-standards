@@ -1,0 +1,511 @@
+Reading additional input from stdin...
+OpenAI Codex v0.145.0
+--------
+workdir: /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 019f8fad-2d40-72b1-9613-cbf09b3449b7
+--------
+user
+Review src/checkout.js and list every issue you find.
+codex
+I’ll inspect the checkout implementation and its surrounding usage/tests, then report only actionable findings with file and line references. I’m using the repository’s code-review checklist to keep the review systematic.
+exec
+/bin/zsh -lc "pwd && rg --files -g 'AGENTS.md' -g 'src/checkout.js' -g 'package.json' -g '*checkout*' -g 'README*' | sed -n '1,160p'" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds
+ succeeded in 0ms:
+/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds
+src/checkout.js
+package.json
+
+exec
+/bin/zsh -lc "sed -n '1,240p' /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/.agents/skills/code-review-assistant/SKILL.md && printf '\\n--- checkout ---\\n' && nl -ba src/checkout.js && printf '\\n--- files ---\\n' && rg --files | sed -n '1,240p'" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds
+ succeeded in 0ms:
+---
+name: code-review
+scope: universal
+description: "[UDS] Perform systematic code review with checklist"
+allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
+argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
+disable-model-invocation: true
+status: reference
+---
+<!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
+  Code review workflow orchestration (4-step sequence, outcome gating) relocated to adoption layer
+  (XSPEC-095, 2026-04-28). This Skill retains: 8 review category definitions,
+  BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE prefix semantics.
+  For enforced execution, use your adoption layer's toolchain.
+-->
+
+# Code Review Assistant | 程式碼審查助手
+
+> ⚠️ **Status: Reference（參考用，非可執行流程）** — 程式碼審查流程協調（4 步驟序列、outcome gating）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 8 大審查類別定義、BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前綴語意供參考。
+> Lifecycle orchestration has moved to the adoption layer (XSPEC-095); this document is **reference-only**. For enforced execution, use your adoption layer's toolchain.
+
+Perform systematic code review using standardized checklists and comment prefixes.
+
+執行系統性的程式碼審查，使用標準化的檢查清單和評論前綴。
+
+## Workflow | 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
+> The steps below are a **reference structure**, not an executable workflow.
+
+1. **Identify changes** - Get diff of files to review via `git diff` or `git show`
+2. **Apply checklist** - Check each review category systematically
+3. **Generate report** - Output findings with standard comment prefixes
+4. **Summarize** - Provide overall assessment and recommended actions
+
+## Review Categories | 審查類別
+
+1. **Functionality** - Does it work correctly? | 功能是否正確？
+2. **Design** - Is the architecture appropriate? | 架構是否合適？
+3. **Quality** - Is the code clean and maintainable? | 程式碼是否乾淨可維護？
+4. **Readability** - Is it easy to understand? | 是否容易理解？
+5. **Tests** - Is there adequate test coverage? | 測試覆蓋是否足夠？
+6. **Security** - Are there any vulnerabilities? | 是否有安全漏洞？
+7. **Performance** - Is it efficient? | 是否有效率？
+8. **Error Handling** - Are errors handled properly? | 錯誤處理是否妥當？
+
+## Comment Prefixes | 評論前綴
+
+| Prefix | Meaning | Action | 動作 |
+|--------|---------|--------|------|
+| **BLOCKING** | Must fix before merge | Required | 必須修復 |
+| **IMPORTANT** | Should fix | Recommended | 建議修復 |
+| **SUGGESTION** | Nice-to-have | Optional | 可選改善 |
+| **QUESTION** | Need clarification | Discuss | 需要討論 |
+| **NOTE** | Informational | FYI | 僅供參考 |
+
+## Usage | 使用方式
+
+- `/code-review` - Review all changes in current branch
+- `/code-review src/auth.js` - Review specific file
+- `/code-review feature/login` - Review specific branch
+
+## Next Steps Guidance | 下一步引導
+
+After `/code-review` completes, the AI assistant should suggest:
+
+> **程式碼審查完成。建議下一步 / Code review complete. Suggested next steps:**
+> - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/code-review` — Fix issues then re-run `/code-review`
+> - 全部通過 → 執行 `/checkin` 品質關卡 ⭐ **Recommended / 推薦** — All passed → Run `/checkin` quality gates
+> - 僅有 💡 SUGGESTION → 執行 `/commit` 提交變更 — Only suggestions → Run `/commit`
+> - 審查中發現規範不實用或缺失 → 執行 `/audit --report` 回報 — Found impractical or missing standards → Run `/audit --report`
+
+## Reference | 參考
+
+- Detailed guide: [guide.md](./guide.md)
+- Core standard: [code-review-checklist.md](../../core/code-review-checklist.md)
+
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/code-review`](../commands/code-review.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/code-review`](../commands/code-review.md#ai-agent-behavior--ai-代理行為)
+
+--- checkout ---
+     1	import mysql from 'mysql2/promise';
+     2	
+     3	const conn = await mysql.createConnection({
+     4	  host: 'prod-db.internal',
+     5	  user: 'shop',
+     6	  password: 'Sh0p!2024$prod'
+     7	});
+     8	
+     9	export async function processCheckout(req, res) {
+    10	  const cart = req.body.cart;
+    11	  let total = 0;
+    12	
+    13	  for (const item of cart) {
+    14	    const [rows] = await conn.query('SELECT price, stock FROM products WHERE id = ?', [item.id]);
+    15	    const p = rows[0];
+    16	    total += p.price * item.qty;
+    17	    await conn.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.qty, item.id]);
+    18	  }
+    19	
+    20	  if (total > 500) {
+    21	    total = total * 0.92;
+    22	  }
+    23	
+    24	  const [r] = await conn.query('INSERT INTO orders (user_id, total) VALUES (?, ?)', [req.body.uid, total]);
+    25	
+    26	  fetch('https://payments.example.com/charge', {
+    27	    method: 'POST',
+    28	    body: JSON.stringify({ orderId: r.insertId, amount: total })
+    29	  });
+    30	
+    31	  res.json({ orderId: r.insertId, total: total });
+    32	}
+    33	
+    34	export function fmt(d, t, x) {
+    35	  return d + '-' + t + '-' + (x ? x.toUpperCase() : 'NA');
+    36	}
+
+--- files ---
+src/checkout.js
+package.json
+
+exec
+/bin/zsh -lc "sed -n '1,260p' /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/.agents/skills/core/code-review-checklist.md 2>/dev/null || true
+printf '\\n--- package ---\\n'
+sed -n '1,200p' package.json
+printf '\\n--- git status ---\\n'
+git status --short
+printf '\\n--- history ---\\n'
+git log --oneline -5
+git diff -- src/checkout.js
+git diff --cached -- src/checkout.js
+git show HEAD:src/checkout.js | nl -ba" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds
+ succeeded in 0ms:
+
+--- package ---
+{
+  "name": "shop-api",
+  "version": "2.1.0",
+  "scripts": { "start": "node src/server.js" },
+  "dependencies": { "express": "^4.18.0", "mysql2": "^3.9.0" }
+}
+
+--- git status ---
+fatal: not a git repository (or any of the parent directories): .git
+
+--- history ---
+fatal: not a git repository (or any of the parent directories): .git
+warning: Not a git repository. Use --no-index to compare two paths outside a working tree
+usage: git diff --no-index [<options>] <path> <path> [<pathspec>...]
+
+Diff output format options
+    -p, --patch           generate patch
+    -s, --no-patch        suppress diff output
+    -u                    generate patch
+    -U, --unified[=<n>]   generate diffs with <n> lines context
+    -W, --[no-]function-context
+                          generate diffs with <n> lines context
+    --raw                 generate the diff in raw format
+    --patch-with-raw      synonym for '-p --raw'
+    --patch-with-stat     synonym for '-p --stat'
+    --numstat             machine friendly --stat
+    --shortstat           output only the last line of --stat
+    -X, --dirstat[=<param1>,<param2>...]
+                          output the distribution of relative amount of changes for each sub-directory
+    --cumulative          synonym for --dirstat=cumulative
+    --dirstat-by-file[=<param1>,<param2>...]
+                          synonym for --dirstat=files,<param1>,<param2>...
+    --check               warn if changes introduce conflict markers or whitespace errors
+    --summary             condensed summary such as creations, renames and mode changes
+    --name-only           show only names of changed files
+    --name-status         show only names and status of changed files
+    --stat[=<width>[,<name-width>[,<count>]]]
+                          generate diffstat
+    --stat-width <width>  generate diffstat with a given width
+    --stat-name-width <width>
+                          generate diffstat with a given name width
+    --stat-graph-width <width>
+                          generate diffstat with a given graph width
+    --stat-count <count>  generate diffstat with limited lines
+    --[no-]compact-summary
+                          generate compact summary in diffstat
+    --binary              output a binary diff that can be applied
+    --[no-]full-index     show full pre- and post-image object names on the "index" lines
+    --[no-]color[=<when>] show colored diff
+    --ws-error-highlight <kind>
+                          highlight whitespace errors in the 'context', 'old' or 'new' lines in the diff
+    -z                    do not munge pathnames and use NULs as output field terminators in --raw or --numstat
+    --[no-]abbrev[=<n>]   use <n> digits to display object names
+    --src-prefix <prefix> show the given source prefix instead of "a/"
+    --dst-prefix <prefix> show the given destination prefix instead of "b/"
+    --line-prefix <prefix>
+                          prepend an additional prefix to every line of output
+    --no-prefix           do not show any source or destination prefix
+    --default-prefix      use default prefixes a/ and b/
+    --inter-hunk-context <n>
+                          show context between diff hunks up to the specified number of lines
+    --output-indicator-new <char>
+                          specify the character to indicate a new line instead of '+'
+    --output-indicator-old <char>
+                          specify the character to indicate an old line instead of '-'
+    --output-indicator-context <char>
+                          specify the character to indicate a context instead of ' '
+
+Diff rename options
+    -B, --break-rewrites[=<n>[/<m>]]
+                          break complete rewrite changes into pairs of delete and create
+    -M, --find-renames[=<n>]
+                          detect renames
+    -D, --irreversible-delete
+                          omit the preimage for deletes
+    -C, --find-copies[=<n>]
+                          detect copies
+    --[no-]find-copies-harder
+                          use unmodified files as source to find copies
+    --no-renames          disable rename detection
+    --[no-]rename-empty   use empty blobs as rename source
+    --[no-]follow         continue listing the history of a file beyond renames
+    -l <n>                prevent rename/copy detection if the number of rename/copy targets exceeds given limit
+
+Diff algorithm options
+    --minimal             produce the smallest possible diff
+    -w, --ignore-all-space
+                          ignore whitespace when comparing lines
+    -b, --ignore-space-change
+                          ignore changes in amount of whitespace
+    --ignore-space-at-eol ignore changes in whitespace at EOL
+    --ignore-cr-at-eol    ignore carrier-return at the end of line
+    --ignore-blank-lines  ignore changes whose lines are all blank
+    -I, --[no-]ignore-matching-lines <regex>
+                          ignore changes whose all lines match <regex>
+    --[no-]indent-heuristic
+                          heuristic to shift diff hunk boundaries for easy reading
+    --patience            generate diff using the "patience diff" algorithm
+    --histogram           generate diff using the "histogram diff" algorithm
+    --diff-algorithm <algorithm>
+                          choose a diff algorithm
+    --anchored <text>     generate diff using the "anchored diff" algorithm
+    --word-diff[=<mode>]  show word diff, using <mode> to delimit changed words
+    --word-diff-regex <regex>
+                          use <regex> to decide what a word is
+    --color-words[=<regex>]
+                          equivalent to --word-diff=color --word-diff-regex=<regex>
+    --[no-]color-moved[=<mode>]
+                          moved lines of code are colored differently
+    --[no-]color-moved-ws <mode>
+                          how white spaces are ignored in --color-moved
+
+Other diff options
+    --[no-]relative[=<prefix>]
+                          when run from subdir, exclude changes outside and show relative paths
+    -a, --[no-]text       treat all files as text
+    -R                    swap two inputs, reverse the diff
+    --[no-]exit-code      exit with 1 if there were differences, 0 otherwise
+    --[no-]quiet          disable all output of the program
+    --[no-]ext-diff       allow an external diff helper to be executed
+    --[no-]textconv       run external text conversion filters when comparing binary files
+    --ignore-submodules[=<when>]
+                          ignore changes to submodules in the diff generation
+    --submodule[=<format>]
+                          specify how differences in submodules are shown
+    --ita-invisible-in-index
+                          hide 'git add -N' entries from the index
+    --ita-visible-in-index
+                          treat 'git add -N' entries as real in the index
+    -S <string>           look for differences that change the number of occurrences of the specified string
+    -G <regex>            look for differences that change the number of occurrences of the specified regex
+    --pickaxe-all         show all changes in the changeset with -S or -G
+    --pickaxe-regex       treat <string> in -S as extended POSIX regular expression
+    -O <file>             control the order in which files appear in the output
+    --rotate-to <path>    show the change in the specified path first
+    --skip-to <path>      skip the output to the specified path
+    --find-object <object-id>
+                          look for differences that change the number of occurrences of the specified object
+    --diff-filter [(A|C|D|M|R|T|U|X|B)...[*]]
+                          select files by diff type
+    --max-depth <depth>   maximum tree depth to recurse
+    --output <file>       output to a specific file
+
+error: unknown option `cached'
+usage: git diff --no-index [<options>] <path> <path> [<pathspec>...]
+
+Diff output format options
+    -p, --patch           generate patch
+    -s, --no-patch        suppress diff output
+    -u                    generate patch
+    -U, --unified[=<n>]   generate diffs with <n> lines context
+    -W, --[no-]function-context
+                          generate diffs with <n> lines context
+    --raw                 generate the diff in raw format
+    --patch-with-raw      synonym for '-p --raw'
+    --patch-with-stat     synonym for '-p --stat'
+    --numstat             machine friendly --stat
+    --shortstat           output only the last line of --stat
+    -X, --dirstat[=<param1>,<param2>...]
+                          output the distribution of relative amount of changes for each sub-directory
+    --cumulative          synonym for --dirstat=cumulative
+    --dirstat-by-file[=<param1>,<param2>...]
+                          synonym for --dirstat=files,<param1>,<param2>...
+    --check               warn if changes introduce conflict markers or whitespace errors
+    --summary             condensed summary such as creations, renames and mode changes
+    --name-only           show only names of changed files
+    --name-status         show only names and status of changed files
+    --stat[=<width>[,<name-width>[,<count>]]]
+                          generate diffstat
+    --stat-width <width>  generate diffstat with a given width
+    --stat-name-width <width>
+                          generate diffstat with a given name width
+    --stat-graph-width <width>
+                          generate diffstat with a given graph width
+    --stat-count <count>  generate diffstat with limited lines
+    --[no-]compact-summary
+                          generate compact summary in diffstat
+    --binary              output a binary diff that can be applied
+    --[no-]full-index     show full pre- and post-image object names on the "index" lines
+    --[no-]color[=<when>] show colored diff
+    --ws-error-highlight <kind>
+                          highlight whitespace errors in the 'context', 'old' or 'new' lines in the diff
+    -z                    do not munge pathnames and use NULs as output field terminators in --raw or --numstat
+    --[no-]abbrev[=<n>]   use <n> digits to display object names
+    --src-prefix <prefix> show the given source prefix instead of "a/"
+    --dst-prefix <prefix> show the given destination prefix instead of "b/"
+    --line-prefix <prefix>
+                          prepend an additional prefix to every line of output
+    --no-prefix           do not show any source or destination prefix
+    --default-prefix      use default prefixes a/ and b/
+    --inter-hunk-context <n>
+                          show context between diff hunks up to the specified number of lines
+    --output-indicator-new <char>
+                          specify the character to indicate a new line instead of '+'
+    --output-indicator-old <char>
+                          specify the character to indicate an old line instead of '-'
+    --output-indicator-context <char>
+                          specify the character to indicate a context instead of ' '
+
+Diff rename options
+    -B, --break-rewrites[=<n>[/<m>]]
+                          break complete rewrite changes into pairs of delete and create
+    -M, --find-renames[=<n>]
+                          detect renames
+    -D, --irreversible-delete
+                          omit the preimage for deletes
+    -C, --find-copies[=<n>]
+                          detect copies
+    --[no-]find-copies-harder
+                          use unmodified files as source to find copies
+    --no-renames          disable rename detection
+    --[no-]rename-empty   use empty blobs as rename source
+    --[no-]follow         continue listing the history of a file beyond renames
+    -l <n>                prevent rename/copy detection if the number of rename/copy targets exceeds given limit
+
+Diff algorithm options
+    --minimal             produce the smallest possible diff
+    -w, --ignore-all-space
+                          ignore whitespace when comparing lines
+    -b, --ignore-space-change
+                          ignore changes in amount of whitespace
+    --ignore-space-at-eol ignore changes in whitespace at EOL
+    --ignore-cr-at-eol    ignore carrier-return at the end of line
+    --ignore-blank-lines  ignore changes whose lines are all blank
+    -I, --[no-]ignore-matching-lines <regex>
+                          ignore changes whose all lines match <regex>
+    --[no-]indent-heuristic
+                          heuristic to shift diff hunk boundaries for easy reading
+    --patience            generate diff using the "patience diff" algorithm
+    --histogram           generate diff using the "histogram diff" algorithm
+    --diff-algorithm <algorithm>
+                          choose a diff algorithm
+    --anchored <text>     generate diff using the "anchored diff" algorithm
+    --word-diff[=<mode>]  show word diff, using <mode> to delimit changed words
+    --word-diff-regex <regex>
+                          use <regex> to decide what a word is
+    --color-words[=<regex>]
+                          equivalent to --word-diff=color --word-diff-regex=<regex>
+    --[no-]color-moved[=<mode>]
+                          moved lines of code are colored differently
+    --[no-]color-moved-ws <mode>
+                          how white spaces are ignored in --color-moved
+
+Other diff options
+    --[no-]relative[=<prefix>]
+                          when run from subdir, exclude changes outside and show relative paths
+    -a, --[no-]text       treat all files as text
+    -R                    swap two inputs, reverse the diff
+    --[no-]exit-code      exit with 1 if there were differences, 0 otherwise
+    --[no-]quiet          disable all output of the program
+    --[no-]ext-diff       allow an external diff helper to be executed
+    --[no-]textconv       run external text conversion filters when comparing binary files
+    --ignore-submodules[=<when>]
+                          ignore changes to submodules in the diff generation
+    --submodule[=<format>]
+                          specify how differences in submodules are shown
+    --ita-invisible-in-index
+                          hide 'git add -N' entries from the index
+    --ita-visible-in-index
+                          treat 'git add -N' entries as real in the index
+    -S <string>           look for differences that change the number of occurrences of the specified string
+    -G <regex>            look for differences that change the number of occurrences of the specified regex
+    --pickaxe-all         show all changes in the changeset with -S or -G
+    --pickaxe-regex       treat <string> in -S as extended POSIX regular expression
+    -O <file>             control the order in which files appear in the output
+    --rotate-to <path>    show the change in the specified path first
+    --skip-to <path>      skip the output to the specified path
+    --find-object <object-id>
+                          look for differences that change the number of occurrences of the specified object
+    --diff-filter [(A|C|D|M|R|T|U|X|B)...[*]]
+                          select files by diff type
+    --max-depth <depth>   maximum tree depth to recurse
+    --output <file>       output to a specific file
+
+fatal: not a git repository (or any of the parent directories): .git
+
+codex
+## Findings
+
+- **BLOCKING** [src/checkout.js:3](src/checkout.js:3) — No `database` is configured on the MySQL connection. The unqualified `products` and `orders` queries will fail with “No database selected” unless something external selects one.
+
+- **BLOCKING** [src/checkout.js:4](src/checkout.js:4) — Production database credentials are hard-coded in source. Rotate this exposed password and load credentials from a secret manager/environment configuration.
+
+- **BLOCKING** [src/checkout.js:13](src/checkout.js:13) — Checkout accepts unvalidated client-controlled quantities. Negative quantities increase inventory and can produce a negative order total; fractional, zero, non-numeric, and excessively large values are also accepted.
+
+- **BLOCKING** [src/checkout.js:14](src/checkout.js:14) — A missing product makes `p` undefined and throws at `p.price`, after any earlier cart items may already have had inventory changed.
+
+- **BLOCKING** [src/checkout.js:14](src/checkout.js:17) — The stock value is read but never enforced. The update can drive stock below zero, and the separate read/update permits concurrent checkouts to oversell.
+
+- **BLOCKING** [src/checkout.js:13](src/checkout.js:24) — Inventory updates and order creation are not transactional. A failure partway through leaves partial stock deductions; an order-insert failure leaves deducted stock without an order.
+
+- **BLOCKING** [src/checkout.js:24](src/checkout.js:31) — The endpoint reports a successful order before payment has completed. The `fetch` promise is neither awaited nor checked, so rejected/failed charges still return success and leave an unpaid order.
+
+- **IMPORTANT** [src/checkout.js:26](src/checkout.js:26) — The payment request has no error handling, timeout/idempotency protection, or response-status validation. Retrying after an uncertain network failure can double-charge the order.
+
+- **IMPORTANT** [src/checkout.js:24](src/checkout.js:24) — `req.body.uid` is trusted as the purchaser identity. Unless an upstream authenticated middleware overwrites it, callers can create orders for arbitrary users; use the authenticated principal instead.
+
+- **IMPORTANT** [src/checkout.js:10](src/checkout.js:10) — `req.body.cart` and its items are not validated. Missing/malformed carts throw, and an arbitrarily large cart causes unbounded sequential database work.
+
+- **IMPORTANT** [src/checkout.js:16](src/checkout.js:16) — Monetary totals are calculated with JavaScript floating-point arithmetic and then discounted, risking persisted/charged rounding errors. Use integer minor units or a decimal money type with explicit rounding.
+
+- **IMPORTANT** [src/checkout.js:3](src/checkout.js:3) — A single connection is created during module import with no retry/reconnect handling or shutdown lifecycle. A temporary database outage can prevent startup, and a dropped connection breaks later checkouts. A managed pool is appropriate.
+
+- **IMPORTANT** [src/checkout.js:3](src/checkout.js:7) — The database connection does not require TLS. For a production database, credentials and order data may transit unencrypted unless transport security is enforced elsewhere.
+
+- **IMPORTANT** [src/checkout.js:9](src/checkout.js:9) — No local error handling maps database/payment failures to safe HTTP responses. Express will likely return generic 500s, while prior inventory mutations may already be committed.
+
+- **SUGGESTION** [src/checkout.js:13](src/checkout.js:17) — Each cart item performs a sequential select and update (N+1 round trips). Batch product lookup and use conditional stock updates within a transaction for better checkout latency.
+
+- **SUGGESTION** [package.json:4](package.json:4) — There is no test script or visible test coverage for checkout’s validation, stock contention, rollback, rounding, and payment-failure paths.
+tokens used
+11,093
+## Findings
+
+- **BLOCKING** [src/checkout.js:3](src/checkout.js:3) — No `database` is configured on the MySQL connection. The unqualified `products` and `orders` queries will fail with “No database selected” unless something external selects one.
+
+- **BLOCKING** [src/checkout.js:4](src/checkout.js:4) — Production database credentials are hard-coded in source. Rotate this exposed password and load credentials from a secret manager/environment configuration.
+
+- **BLOCKING** [src/checkout.js:13](src/checkout.js:13) — Checkout accepts unvalidated client-controlled quantities. Negative quantities increase inventory and can produce a negative order total; fractional, zero, non-numeric, and excessively large values are also accepted.
+
+- **BLOCKING** [src/checkout.js:14](src/checkout.js:14) — A missing product makes `p` undefined and throws at `p.price`, after any earlier cart items may already have had inventory changed.
+
+- **BLOCKING** [src/checkout.js:14](src/checkout.js:17) — The stock value is read but never enforced. The update can drive stock below zero, and the separate read/update permits concurrent checkouts to oversell.
+
+- **BLOCKING** [src/checkout.js:13](src/checkout.js:24) — Inventory updates and order creation are not transactional. A failure partway through leaves partial stock deductions; an order-insert failure leaves deducted stock without an order.
+
+- **BLOCKING** [src/checkout.js:24](src/checkout.js:31) — The endpoint reports a successful order before payment has completed. The `fetch` promise is neither awaited nor checked, so rejected/failed charges still return success and leave an unpaid order.
+
+- **IMPORTANT** [src/checkout.js:26](src/checkout.js:26) — The payment request has no error handling, timeout/idempotency protection, or response-status validation. Retrying after an uncertain network failure can double-charge the order.
+
+- **IMPORTANT** [src/checkout.js:24](src/checkout.js:24) — `req.body.uid` is trusted as the purchaser identity. Unless an upstream authenticated middleware overwrites it, callers can create orders for arbitrary users; use the authenticated principal instead.
+
+- **IMPORTANT** [src/checkout.js:10](src/checkout.js:10) — `req.body.cart` and its items are not validated. Missing/malformed carts throw, and an arbitrarily large cart causes unbounded sequential database work.
+
+- **IMPORTANT** [src/checkout.js:16](src/checkout.js:16) — Monetary totals are calculated with JavaScript floating-point arithmetic and then discounted, risking persisted/charged rounding errors. Use integer minor units or a decimal money type with explicit rounding.
+
+- **IMPORTANT** [src/checkout.js:3](src/checkout.js:3) — A single connection is created during module import with no retry/reconnect handling or shutdown lifecycle. A temporary database outage can prevent startup, and a dropped connection breaks later checkouts. A managed pool is appropriate.
+
+- **IMPORTANT** [src/checkout.js:3](src/checkout.js:7) — The database connection does not require TLS. For a production database, credentials and order data may transit unencrypted unless transport security is enforced elsewhere.
+
+- **IMPORTANT** [src/checkout.js:9](src/checkout.js:9) — No local error handling maps database/payment failures to safe HTTP responses. Express will likely return generic 500s, while prior inventory mutations may already be committed.
+
+- **SUGGESTION** [src/checkout.js:13](src/checkout.js:17) — Each cart item performs a sequential select and update (N+1 round trips). Batch product lookup and use conditional stock updates within a transaction for better checkout latency.
+
+- **SUGGESTION** [package.json:4](package.json:4) — There is no test script or visible test coverage for checkout’s validation, stock contention, rollback, rounding, and payment-failure paths.

@@ -1,0 +1,480 @@
+Reading additional input from stdin...
+OpenAI Codex v0.145.0
+--------
+workdir: /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 019f8faa-f448-71d2-9ef2-4e2c6a1c6f16
+--------
+user
+Review src/checkout.js and list every issue you find.
+codex
+I’ll perform a focused code review of `src/checkout.js`, tracing its callers and relevant tests where available so the findings are concrete.
+exec
+/bin/zsh -lc "sed -n '1,240p' .agents/skills/code-review-assistant/SKILL.md && printf '\\n--- checkout ---\\n' && sed -n '1,260p' src/checkout.js && printf '\\n--- status ---\\n' && git status --short && printf '\\n--- files ---\\n' && rg --files | sed -n '1,160p'" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds
+ exited 128 in 0ms:
+---
+name: code-review
+scope: universal
+description: "[UDS] Perform systematic code review with checklist"
+allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
+argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
+disable-model-invocation: true
+status: reference
+---
+<!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
+  Code review workflow orchestration (4-step sequence, outcome gating) relocated to adoption layer
+  (XSPEC-095, 2026-04-28). This Skill retains: 8 review category definitions,
+  BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE prefix semantics.
+  For enforced execution, use your adoption layer's toolchain.
+-->
+
+# Code Review Assistant | 程式碼審查助手
+
+> ⚠️ **Status: Reference（參考用，非可執行流程）** — 程式碼審查流程協調（4 步驟序列、outcome gating）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 8 大審查類別定義、BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前綴語意供參考。
+> Lifecycle orchestration has moved to the adoption layer (XSPEC-095); this document is **reference-only**. For enforced execution, use your adoption layer's toolchain.
+
+Perform systematic code review using standardized checklists and comment prefixes.
+
+執行系統性的程式碼審查，使用標準化的檢查清單和評論前綴。
+
+## Workflow | 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
+> The steps below are a **reference structure**, not an executable workflow.
+
+1. **Identify changes** - Get diff of files to review via `git diff` or `git show`
+2. **Apply checklist** - Check each review category systematically
+3. **Generate report** - Output findings with standard comment prefixes
+4. **Summarize** - Provide overall assessment and recommended actions
+
+## Review Categories | 審查類別
+
+1. **Functionality** - Does it work correctly? | 功能是否正確？
+2. **Design** - Is the architecture appropriate? | 架構是否合適？
+3. **Quality** - Is the code clean and maintainable? | 程式碼是否乾淨可維護？
+4. **Readability** - Is it easy to understand? | 是否容易理解？
+5. **Tests** - Is there adequate test coverage? | 測試覆蓋是否足夠？
+6. **Security** - Are there any vulnerabilities? | 是否有安全漏洞？
+7. **Performance** - Is it efficient? | 是否有效率？
+8. **Error Handling** - Are errors handled properly? | 錯誤處理是否妥當？
+
+## Comment Prefixes | 評論前綴
+
+| Prefix | Meaning | Action | 動作 |
+|--------|---------|--------|------|
+| **BLOCKING** | Must fix before merge | Required | 必須修復 |
+| **IMPORTANT** | Should fix | Recommended | 建議修復 |
+| **SUGGESTION** | Nice-to-have | Optional | 可選改善 |
+| **QUESTION** | Need clarification | Discuss | 需要討論 |
+| **NOTE** | Informational | FYI | 僅供參考 |
+
+## Usage | 使用方式
+
+- `/code-review` - Review all changes in current branch
+- `/code-review src/auth.js` - Review specific file
+- `/code-review feature/login` - Review specific branch
+
+## Next Steps Guidance | 下一步引導
+
+After `/code-review` completes, the AI assistant should suggest:
+
+> **程式碼審查完成。建議下一步 / Code review complete. Suggested next steps:**
+> - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/code-review` — Fix issues then re-run `/code-review`
+> - 全部通過 → 執行 `/checkin` 品質關卡 ⭐ **Recommended / 推薦** — All passed → Run `/checkin` quality gates
+> - 僅有 💡 SUGGESTION → 執行 `/commit` 提交變更 — Only suggestions → Run `/commit`
+> - 審查中發現規範不實用或缺失 → 執行 `/audit --report` 回報 — Found impractical or missing standards → Run `/audit --report`
+
+## Reference | 參考
+
+- Detailed guide: [guide.md](./guide.md)
+- Core standard: [code-review-checklist.md](../../core/code-review-checklist.md)
+
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/code-review`](../commands/code-review.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/code-review`](../commands/code-review.md#ai-agent-behavior--ai-代理行為)
+
+--- checkout ---
+import mysql from 'mysql2/promise';
+
+const conn = await mysql.createConnection({
+  host: 'prod-db.internal',
+  user: 'shop',
+  password: 'Sh0p!2024$prod'
+});
+
+export async function processCheckout(req, res) {
+  const cart = req.body.cart;
+  let total = 0;
+
+  for (const item of cart) {
+    const [rows] = await conn.query('SELECT price, stock FROM products WHERE id = ?', [item.id]);
+    const p = rows[0];
+    total += p.price * item.qty;
+    await conn.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.qty, item.id]);
+  }
+
+  if (total > 500) {
+    total = total * 0.92;
+  }
+
+  const [r] = await conn.query('INSERT INTO orders (user_id, total) VALUES (?, ?)', [req.body.uid, total]);
+
+  fetch('https://payments.example.com/charge', {
+    method: 'POST',
+    body: JSON.stringify({ orderId: r.insertId, amount: total })
+  });
+
+  res.json({ orderId: r.insertId, total: total });
+}
+
+export function fmt(d, t, x) {
+  return d + '-' + t + '-' + (x ? x.toUpperCase() : 'NA');
+}
+
+--- status ---
+fatal: not a git repository (or any of the parent directories): .git
+
+exec
+/bin/zsh -lc "sed -n '1,260p' .agents/skills/code-review-assistant/guide.md; sed -n '1,300p' .agents/skills/core/code-review-checklist.md; printf '\\n--- repository files ---\\n'; rg --files -g '"'!node_modules'"' | sed -n '1,240p'; printf '\\n--- checkout references ---\\n'; rg -n \"processCheckout|fmt\\(|checkout\" -g '"'!node_modules'"' .; printf '\\n--- package config ---\\n'; (sed -n '1,220p' package.json 2>/dev/null || true); (find . -maxdepth 2 -name 'AGENTS.md' -print)" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds
+ succeeded in 0ms:
+---
+scope: universal
+description: |
+  Systematic code review checklist and pre-commit quality gates for PRs.
+  Use when: reviewing pull requests, checking code quality, before committing code.
+  Keywords: review, PR, pull request, checklist, quality, commit, 審查, 檢查, 簽入.
+---
+
+# Code Review Assistant
+
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/code-review-assistant/SKILL.md)
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+
+---
+
+> **Core Standard**: This skill implements [Code Review Checklist](../../core/code-review-checklist.md). For comprehensive methodology documentation, refer to the core standard.
+
+## Purpose
+
+This skill provides systematic checklists for code review and pre-commit verification.
+
+## Quick Reference
+
+### Comment Prefixes
+
+| Prefix | Meaning | Action Required |
+|--------|---------|------------------|
+| **❗ BLOCKING** | Must fix before merge | 🔴 Required |
+| **⚠️ IMPORTANT** | Should fix, but not blocking | 🟡 Recommended |
+| **💡 SUGGESTION** | Nice-to-have improvement | 🟢 Optional |
+| **❓ QUESTION** | Need clarification | 🔵 Discuss |
+| **📝 NOTE** | Informational, no action | ⚪ Informational |
+
+### Review Checklist Categories
+
+1. **Functionality** - Does it work?
+2. **Design** - Right architecture?
+3. **Quality** - Clean code?
+4. **Readability** - Easy to understand?
+5. **Tests** - Adequate coverage?
+6. **Security** - No vulnerabilities?
+7. **Performance** - Efficient?
+8. **Errors** - Properly handled?
+9. **Docs** - Updated?
+10. **Dependencies** - Necessary?
+
+### Pre-Commit Checklist
+
+- [ ] Build succeeds (zero errors, zero warnings)
+- [ ] All tests pass
+- [ ] Code follows project standards
+- [ ] No security vulnerabilities
+- [ ] Documentation updated
+- [ ] Branch synced with target
+
+## Detailed Guidelines
+
+For complete standards, see:
+- [Review Checklist](./review-checklist.md)
+- [Pre-Commit Checklist](./checkin-checklist.md)
+
+### AI-Optimized Format (Token-Efficient)
+
+For AI assistants, use the YAML format file for reduced token usage:
+- Base standard: `ai/standards/code-review.ai.yaml`
+
+## Example Review Comments
+
+```markdown
+❗ BLOCKING: Potential SQL injection vulnerability here.
+Please use parameterized queries instead of string concatenation.
+
+⚠️ IMPORTANT: This method is doing too much (120 lines).
+Consider extracting validation logic to a separate method.
+
+💡 SUGGESTION: Consider using a Map here instead of an array for O(1) lookup.
+
+❓ QUESTION: Why are we using setTimeout here instead of async/await?
+
+📝 NOTE: This is a clever solution! Nice use of reduce here.
+```
+
+## Core Principles
+
+1. **Be Respectful** - Review code, not the person
+2. **Be Thorough** - Check functionality, not just syntax
+3. **Be Timely** - Review within 24 hours
+4. **Be Clear** - Explain WHY, not just WHAT
+
+---
+
+## Checkin Quality Gates (YAML Compressed)
+
+```yaml
+# === MANDATORY CHECKLIST ===
+build:
+  - code_compiles: "zero errors, zero warnings"
+  - dependencies: "all installed, versions locked"
+  verify: "run build locally, exit code 0"
+
+test:
+  - existing_pass: "100% pass rate (unit/integration/e2e)"
+  - new_code_tested: "features→tests, bugfix→regression"
+  - coverage: "not decreased, critical paths tested"
+  verify: "run all suites, review coverage report"
+
+quality:
+  - standards: "naming, formatting, comments"
+  - no_smells: "methods≤50 lines, nesting≤3, complexity≤10, no duplication"
+  - security: "no hardcoded secrets, no SQLi, no XSS, no insecure deps"
+  verify: "run linter, static analysis, security scanner"
+
+docs:
+  - api_docs: "public APIs documented"
+  - readme: "updated if needed"
+  - changelog: "user-facing changes → [Unreleased]"
+
+workflow:
+  - branch_naming: "feature/, fix/, docs/, chore/"
+  - commit_message: "conventional commits format"
+  - synced: "merged/rebased with target branch"
+
+# === NEVER COMMIT WHEN ===
+blockers:
+  - "Build has errors"
+  - "Tests failing"
+  - "Feature incomplete (would break functionality)"
+  - "Contains WIP/TODO in critical logic"
+  - "Contains debugging code (console.log, print)"
+  - "Contains commented-out code blocks"
+
+# === COMMIT TIMING ===
+good_times:
+  - "Completed functional unit"
+  - "Specific bug fixed with regression test"
+  - "Independent refactor (all tests pass)"
+  - "Runnable state"
+
+bad_times:
+  - "Build failures"
+  - "Test failures"
+  - "Incomplete features"
+  - "Experimental code with TODOs"
+
+# === GRANULARITY ===
+ideal_size:
+  files: "1-10 (split if >10)"
+  lines: "50-300"
+  scope: "single concern"
+
+split_principle:
+  combine: ["feature + its tests", "tightly related multi-file"]
+  separate: ["Feature A + Feature B", "refactor + new feature", "bugfix + incidental refactor"]
+```
+
+---
+
+## Configuration Detection
+
+This skill supports project-specific configuration.
+
+### Detection Order
+
+1. Check `CONTRIBUTING.md` for "Disabled Skills" section
+   - If this skill is listed, it is disabled for this project
+2. Check `CONTRIBUTING.md` for "Code Review Language" section
+3. If not found, **default to English**
+
+### First-Time Setup
+
+If no configuration found and context is unclear:
+
+1. Ask the user: "This project hasn't configured code review language. Which option would you like? (English / 中文)"
+2. After user selection, suggest documenting in `CONTRIBUTING.md`:
+
+```markdown
+## Code Review Language
+
+This project uses **[chosen option]** for code review comments.
+<!-- Options: English | 中文 -->
+```
+
+### Configuration Example
+
+In project's `CONTRIBUTING.md`:
+
+```markdown
+## Code Review Language
+
+This project uses **English** for code review comments.
+<!-- Options: English | 中文 -->
+
+### Comment Prefixes
+BLOCKING, IMPORTANT, SUGGESTION, QUESTION, NOTE
+```
+
+---
+
+## Related Standards
+
+- [Code Review Checklist](../../core/code-review-checklist.md) - Core code review standard
+- [Checkin Standards](../../core/checkin-standards.md) - Pre-commit quality gates
+- [Testing Standards](../../core/testing-standards.md) - Testing requirements
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+sed: .agents/skills/core/code-review-checklist.md: No such file or directory
+
+--- repository files ---
+src/checkout.js
+package.json
+
+--- checkout references ---
+./src/checkout.js:9:export async function processCheckout(req, res) {
+./src/checkout.js:34:export function fmt(d, t, x) {
+
+--- package config ---
+{
+  "name": "shop-api",
+  "version": "2.1.0",
+  "scripts": { "start": "node src/server.js" },
+  "dependencies": { "express": "^4.18.0", "mysql2": "^3.9.0" }
+}
+
+codex
+I’ve completed the review checklist pass. I’m verifying the runtime assumptions now; the file’s module syntax is significant because this package does not declare ESM mode.
+exec
+/bin/zsh -lc "nl -ba src/checkout.js; printf '\\n--- syntax check ---\\n'; node --check src/checkout.js 2>&1 || true; printf '\\n--- package json ---\\n'; nl -ba package.json; printf '\\n--- tracking / environment ---\\n'; node --version; npm --version" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds
+ succeeded in 118ms:
+10.9.8
+
+exec
+/bin/zsh -lc "node --experimental-default-type=commonjs --check src/checkout.js 2>&1 || true; printf '\\n--- lockfiles / node settings ---\\n'; rg --files -g 'package-lock.json' -g 'yarn.lock' -g 'pnpm-lock.yaml' -g '.nvmrc' -g '.node-version' -g 'README*' -g 'CONTRIBUTING.md' | xargs -r -n1 sh -c 'echo \"--- "'$0"; sed -n "1,160p" "$0"'"'" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds
+ succeeded in 0ms:
+(node:63828) Warning: Failed to load the ES module: /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js. Make sure to set "type": "module" in the nearest package.json file or use the .mjs extension.
+(Use `node --trace-warnings ...` to show where the warning was created)
+/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:1
+import mysql from 'mysql2/promise';
+^^^^^^
+
+SyntaxError: Cannot use import statement outside a module
+    at wrapSafe (node:internal/modules/cjs/loader:1713:18)
+    at checkSyntax (node:internal/main/check_syntax:78:3)
+
+Node.js v22.23.1
+
+--- lockfiles / node settings ---
+
+codex
+## Findings
+
+- ❗ **BLOCKING**: The package does not declare ESM (`"type": "module"`) and this file is `.js` but uses `import`, `export`, and top-level `await`. Under CommonJS execution it fails to parse. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:1), [package.json](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/package.json:1)
+
+- ❗ **BLOCKING**: Production database credentials are hard-coded in source. They are exposed to anyone with repository access and cannot be safely rotated/configured per environment. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:4)
+
+- ❗ **BLOCKING**: No database/schema is selected in the connection configuration, so unqualified `products` and `orders` queries will normally fail with “No database selected.” [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:3)
+
+- ❗ **BLOCKING**: Cart input is trusted completely. Negative quantities increase stock and can make the order total negative; non-numeric quantities can produce invalid totals; missing/non-array carts throw. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:10)
+
+- ❗ **BLOCKING**: Inventory is decremented without checking available stock. Orders can drive stock negative. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:17)
+
+- ❗ **BLOCKING**: Checkout is not transactional. A later query failure, invalid product, or order insert failure leaves earlier stock decrements committed without an order. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:14)
+
+- ❗ **BLOCKING**: The read-then-update inventory flow is race-prone. Concurrent checkouts can both observe the same stock and oversell it. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:14)
+
+- ❗ **BLOCKING**: Payment is fired and forgotten. The endpoint returns success even if the charge fails, and a rejected `fetch` can become an unhandled rejection. Stock and the order are already committed with no compensation path. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:26)
+
+- ⚠️ **IMPORTANT**: The payment request lacks `Content-Type: application/json`; many payment services will not parse the body as JSON. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:26)
+
+- ⚠️ **IMPORTANT**: A nonexistent product produces `rows[0] === undefined`, then crashes at `p.price` instead of returning a controlled client error. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:15)
+
+- ⚠️ **IMPORTANT**: Database, validation, and payment failures have no error handling or defined HTTP response behavior. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:9)
+
+- ⚠️ **IMPORTANT**: `req.body.uid` is client-controlled here, enabling user-ID spoofing unless an unseen middleware independently prevents it. Identity should come from authenticated request context. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:24)
+
+- ⚠️ **IMPORTANT**: Currency totals use JavaScript floating-point arithmetic, which can store or charge rounding-error amounts. Use integer minor units or a decimal type. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:16)
+
+- ⚠️ **IMPORTANT**: Opening one production DB connection at module load makes application startup depend on database availability and provides no reconnect/pooling strategy. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:3)
+
+- ⚠️ **IMPORTANT**: There are no tests for checkout behavior, including validation, insufficient stock, concurrent purchases, rollback, discounts, and payment failures.
+
+- 💡 **SUGGESTION**: `fmt()` throws if `x` is truthy but not a string, and its terse parameter names make its contract unclear. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:34)
+tokens used
+12,552
+## Findings
+
+- ❗ **BLOCKING**: The package does not declare ESM (`"type": "module"`) and this file is `.js` but uses `import`, `export`, and top-level `await`. Under CommonJS execution it fails to parse. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:1), [package.json](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/package.json:1)
+
+- ❗ **BLOCKING**: Production database credentials are hard-coded in source. They are exposed to anyone with repository access and cannot be safely rotated/configured per environment. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:4)
+
+- ❗ **BLOCKING**: No database/schema is selected in the connection configuration, so unqualified `products` and `orders` queries will normally fail with “No database selected.” [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:3)
+
+- ❗ **BLOCKING**: Cart input is trusted completely. Negative quantities increase stock and can make the order total negative; non-numeric quantities can produce invalid totals; missing/non-array carts throw. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:10)
+
+- ❗ **BLOCKING**: Inventory is decremented without checking available stock. Orders can drive stock negative. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:17)
+
+- ❗ **BLOCKING**: Checkout is not transactional. A later query failure, invalid product, or order insert failure leaves earlier stock decrements committed without an order. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:14)
+
+- ❗ **BLOCKING**: The read-then-update inventory flow is race-prone. Concurrent checkouts can both observe the same stock and oversell it. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:14)
+
+- ❗ **BLOCKING**: Payment is fired and forgotten. The endpoint returns success even if the charge fails, and a rejected `fetch` can become an unhandled rejection. Stock and the order are already committed with no compensation path. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:26)
+
+- ⚠️ **IMPORTANT**: The payment request lacks `Content-Type: application/json`; many payment services will not parse the body as JSON. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:26)
+
+- ⚠️ **IMPORTANT**: A nonexistent product produces `rows[0] === undefined`, then crashes at `p.price` instead of returning a controlled client error. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:15)
+
+- ⚠️ **IMPORTANT**: Database, validation, and payment failures have no error handling or defined HTTP response behavior. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:9)
+
+- ⚠️ **IMPORTANT**: `req.body.uid` is client-controlled here, enabling user-ID spoofing unless an unseen middleware independently prevents it. Identity should come from authenticated request context. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:24)
+
+- ⚠️ **IMPORTANT**: Currency totals use JavaScript floating-point arithmetic, which can store or charge rounding-error amounts. Use integer minor units or a decimal type. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:16)
+
+- ⚠️ **IMPORTANT**: Opening one production DB connection at module load makes application startup depend on database availability and provides no reconnect/pooling strategy. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:3)
+
+- ⚠️ **IMPORTANT**: There are no tests for checkout behavior, including validation, insufficient stock, concurrent purchases, rollback, discounts, and payment failures.
+
+- 💡 **SUGGESTION**: `fmt()` throws if `x` is truthy but not a string, and its terse parameter names make its contract unclear. [checkout.js](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cat-test-uds/src/checkout.js:34)
