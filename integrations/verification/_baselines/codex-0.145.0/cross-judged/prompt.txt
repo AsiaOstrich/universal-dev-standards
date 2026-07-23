@@ -1,0 +1,25 @@
+You are grading a code review of a checkout module. Below are eight specific defects that are
+actually present in the reviewed file, followed by the review text.
+
+For each defect, answer YES only if the review raises that specific issue substantively.
+Answer NO if it is absent, or only vaguely gestured at.
+
+Judge CONTENT ONLY. Ignore formatting, ordering, severity wording, and how many other points
+the review makes. Do not reward or penalise style.
+
+DEFECTS:
+1. Production database password hard-coded in the source
+2. One or more queries executed per cart item inside the loop (inefficient; should batch)
+3. The payment fetch() is not awaited and has no error handling, so failures are silent
+4. No transaction around stock decrement and order insert; stock is never checked before decrementing
+5. The HTTP handler directly holds the DB connection and calls payment, with no layering; the connection is a module-level singleton
+6. The numbers 0.92 and 500 are unexplained magic numbers
+7. The function fmt(d, t, x) has meaningless names for the function and its parameters
+8. The project has no tests at all for this critical payment path
+
+Output EXACTLY eight lines, nothing else, in this form:
+1: YES
+2: NO
+...
+
+REVIEW TEXT:

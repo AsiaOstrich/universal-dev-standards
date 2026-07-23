@@ -1,0 +1,17 @@
+Issues found in [src/checkout.js](<path>):
+
+- **Critical:** Production database credentials are hard-coded in source ([lines 3–7](<path>)). They should be revoked/rotated and supplied through secret configuration.
+- **Critical:** The client controls `uid` ([line 24](<path>)); a caller can create orders for another user. Use an authenticated server-side identity.
+- **Critical:** Stock is read then updated without a transaction, row lock, or stock condition ([lines 14–17](<path>)). Concurrent checkouts can oversell and drive stock negative.
+- **Critical:** The checkout is not atomic. A failure after one inventory update, or while inserting the order, leaves partial stock changes ([lines 13–24](<path>)).
+- **Critical:** Payment is fire-and-forget ([lines 26–29](<path>)). The API returns success even if charging fails; failures can become unhandled rejections, and there is no recovery/idempotency strategy.
+- **High:** No request validation. Missing/malformed `cart` crashes iteration; unknown product IDs make `p` undefined; zero, negative, fractional, huge, or non-numeric quantities are accepted ([lines 10–17](<path>)). Negative quantities can increase inventory and create a negative total.
+- **High:** Inventory availability is never checked before decrementing ([line 17](<path>)).
+- **High:** There is no error handling around database or payment operations. In Express 4, rejected async handlers are not automatically forwarded to error middleware, so failures may hang requests or become unhandled ([lines 9–31](<path>)).
+- **High:** Money is calculated with JavaScript floating-point arithmetic and no explicit currency rounding ([lines 11, 16, 21](<path>)), causing inaccurate totals/charges.
+- **Medium:** The payment request lacks a `Content-Type: application/json` header and sends no payment credential/token/customer context ([lines 26–29](<path>)).
+- **Medium:** The order stores only a total, not line items, quantities, or the prices charged ([line 24](<path>)). That prevents reliable fulfillment, refunds, and auditability.
+- **Medium:** Each cart item uses two sequential round trips, causing N+1 query latency and holding the request open unnecessarily for larger carts ([lines 13–18](<path>)).
+- **Medium:** A single database connection is created during module import ([lines 3–7](<path>)). A transient startup failure prevents loading the handler, and one connection is a bottleneck/single point of failure; use a pool with controlled initialization.
+- **Medium:** The project’s `package.json` does not declare `"type": "module"`, so this file’s `import` and top-level `await` will fail under the default Node CommonJS mode.
+- **Low:** `fmt` assumes `x` is a string; truthy non-strings throw on `.toUpperCase()` ([lines 34–36](<path>)).

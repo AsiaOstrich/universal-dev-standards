@@ -1,0 +1,35 @@
+Found these issues in [src/checkout.js](<path>):
+
+1. **Critical — production database password committed in source** ([lines 3–7](<path>)). Rotate it immediately; use a secret manager/environment configuration instead.
+
+2. **Critical — no database/schema is configured** ([lines 3–7](<path>)). Unqualified table queries will normally fail with “No database selected.”
+
+3. **Critical — inventory can go negative / be oversold** ([lines 14–17](<path>)). `stock` is read but never checked, and the update has no `stock >= qty` condition.
+
+4. **Critical — race condition in inventory updates** ([lines 14–17](<path>)). Separate read and write queries allow concurrent requests to both see available stock and oversell it.
+
+5. **Critical — client-controlled quantities permit inventory manipulation** ([lines 13–17](<path>)). Negative quantities increase stock and create negative totals; zero, fractional, non-numeric, and excessively large quantities are also unvalidated.
+
+6. **High — no request validation** ([lines 10–17](<path>)). Missing/non-array `cart`, invalid IDs, an empty cart, absent `uid`, and malformed line items either cause errors or produce invalid orders.
+
+7. **High — missing products cause an unhandled runtime error** ([lines 14–16](<path>)). If the product query returns no row, `p` is `undefined` and `p.price` throws.
+
+8. **High — checkout database work is not transactional** ([lines 13–24](<path>)). A failure mid-cart can leave earlier stock reductions committed without an order; order creation can also be inconsistent with inventory changes.
+
+9. **High — payment is fire-and-forget, but success is returned immediately** ([lines 26–31](<path>)). The request is not awaited, errors/statuses are ignored, and clients receive a successful order even if charging fails.
+
+10. **High — payment request is incomplete and unreliable** ([lines 26–29](<path>)). It omits `Content-Type: application/json`, authentication, a timeout, and an idempotency key. Retried checkout requests can create duplicate orders/charges.
+
+11. **High — user identity is taken from request body** ([line 24](<path>)). Unless an upstream layer forcibly overwrites it, a caller can create orders for another user. Use authenticated server-side identity.
+
+12. **Medium — currency uses JavaScript floating-point arithmetic** ([lines 11, 16, 20–21](<path>)). This can produce incorrect cent values. Store/calculates money as integer minor units or a decimal type, with explicit rounding.
+
+13. **Medium — no error handling for database or payment failures** ([entire handler](<path>)). Rejected async operations are not translated to safe API responses; with Express 4, an uncaught rejected async handler may not reach error middleware.
+
+14. **Medium — a single module-global database connection is brittle** ([line 3](<path>)). One lost/stalled connection affects every request, and there is no pooling, reconnect strategy, shutdown handling, or connection timeout.
+
+15. **Medium — initialization can prevent the application from starting** ([line 3](<path>)). The top-level connection attempt fails module loading if the DB is unavailable.
+
+16. **Medium — module format is incompatible with the supplied package configuration** ([lines 1, 3, 9](<path>)). The file uses ESM and top-level `await`, but `package.json` does not declare `"type": "module"` (nor is this a `.mjs` file), so Node will parse it as CommonJS and fail.
+
+17. **Low — `fmt` has unclear semantics and unsafe coercion** ([lines 34–36](<path>)). Single-letter parameters obscure intent; `x` throws when truthy but non-string, while `d` and `t` silently stringify invalid/missing values.

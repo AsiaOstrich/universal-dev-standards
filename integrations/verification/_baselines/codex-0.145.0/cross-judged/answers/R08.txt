@@ -1,0 +1,18 @@
+Issues found in [src/checkout.js](<path>):
+
+- **Critical — production DB credentials are hard-coded** at [line 4](<path>), including the password at [line 6](<path>). They should be treated as exposed and rotated.
+- **Critical — no database/schema is selected** in the connection config. The queries at [line 14](<path>) will normally fail with “No database selected.”
+- **Critical — inventory can become negative.** Stock is read but never checked, then decremented unconditionally at [line 17](<path>).
+- **Critical — race condition in stock handling.** The separate read and update ([lines 14 and 17](<path>)) are not locked or conditional, so concurrent checkouts can both accept the same stock.
+- **Critical — checkout is not transactional.** A failure after one stock update, or during order insertion, leaves prior inventory changes committed with no order. Payment and database state are also never coordinated.
+- **Critical — payment is fire-and-forget** at [line 26](<path>). The endpoint returns success at [line 31](<path>) before the charge completes; failures/rejections are ignored.
+- **High — payment request lacks required operational safeguards:** no `Content-Type: application/json`, authentication, timeout, response-status check, idempotency key, or persisted payment status ([lines 26–29](<path>)). Retries can double-charge and failed charges can be reported as successful orders.
+- **High — request data is entirely unvalidated.** `cart`, item IDs, quantities, and `uid` are trusted ([lines 10, 14, 16, 24](<path>)). Missing carts crash; negative quantities add inventory and can create negative totals; non-numeric values can produce invalid totals.
+- **High — client-controlled `uid` permits user impersonation** unless authorization is enforced elsewhere. The order is created for whatever `req.body.uid` supplies at [line 24](<path>).
+- **High — missing-product handling is absent.** If no product is returned, `p` is `undefined` and [line 16](<path>) throws, potentially after earlier inventory has already changed.
+- **High — no error handling or rollback path.** Database and payment failures are neither converted into controlled responses nor cleaned up. In Express 4, rejected async handlers are not automatically routed to error middleware.
+- **Medium — money is calculated with JavaScript floating point** at [lines 16 and 21](<path>), risking rounding errors in charges and stored totals.
+- **Medium — orders do not record their purchased line items, quantities, or unit prices.** [Line 24](<path>) stores only a total, preventing reliable fulfilment, refunds, and historical price auditing.
+- **Medium — one query pair per cart item** ([lines 14 and 17](<path>)) makes large carts slow and holds a single global connection longer than necessary.
+- **Medium — a single connection is opened during module import** at [line 3](<path>). An unavailable DB prevents the app from loading, the connection has no recovery strategy, and it limits concurrent request throughput. A pool is appropriate.
+- **Low — `fmt` is unsafe for arbitrary inputs.** A truthy non-string `x` throws on `toUpperCase()` at [line 35](<path>), while `d` and `t` are silently coerced to strings.

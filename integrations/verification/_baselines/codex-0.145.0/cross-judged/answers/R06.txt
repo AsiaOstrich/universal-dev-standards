@@ -1,0 +1,29 @@
+Issues found in [src/checkout.js](<path>):
+
+- **Critical — production database credentials are hard-coded** at [lines 3–7](<path>). They are exposed to source control and no database name is selected, so the unqualified queries will normally fail with “No database selected.”
+
+- **Critical — client-controlled quantities allow inventory manipulation** at [lines 13–17](<path>). Negative, zero, fractional, non-numeric, or arbitrarily large `qty` values are accepted. A negative quantity increases stock and can produce a negative order total.
+
+- **Critical — stock is never checked before decrementing** at [line 17](<path>). Orders can oversell products and drive inventory negative. The update must be conditional (for example, `stock >= qty`) and its affected-row count checked.
+
+- **High — checkout mutations are not transactional** at [lines 13–24](<path>). Any failure after one inventory update leaves earlier stock reductions committed without an order; failures during order creation do likewise. Price reads, inventory changes, and order insertion need one database transaction.
+
+- **High — missing products crash the handler** at [lines 14–16](<path>). If an ID is invalid, `rows[0]` is `undefined`, so accessing `p.price` throws instead of returning a controlled client error.
+
+- **High — the payment request is fire-and-forget** at [lines 26–29](<path>). The API returns a successful checkout before payment completes; rejected requests are unhandled and failed/non-2xx responses are ignored. This creates orders marked effectively successful without a charge.
+
+- **High — payment/order processing is not idempotent or durably tracked** at [lines 24–29](<path>). Retried requests can decrement stock, create duplicate orders, and initiate duplicate charges. There is no payment status, idempotency key, or retry/outbox workflow.
+
+- **High — user identity is trusted from the request body** at [line 24](<path>). A caller can submit another user’s `uid` unless it is compared against authenticated server-side identity.
+
+- **Medium — request input is not validated** at [lines 10–17](<path>). Missing/non-array `cart`, malformed items, absent IDs, and missing user IDs become exceptions or corrupt data rather than 4xx responses.
+
+- **Medium — no error handling exists** throughout `processCheckout`. In Express 4, an exception/rejected async handler is not automatically forwarded to error middleware; requests may hang and database/payment failures are not mapped to safe responses.
+
+- **Medium — money is calculated with JavaScript floating-point arithmetic** at [lines 16, 20–21](<path>). This can store or charge imprecise totals. Use integer minor units or a decimal type, with explicit rounding rules.
+
+- **Medium — one module-global database connection is fragile and limits concurrency** at [line 3](<path>). A dropped connection affects all requests, and a single connection serializes/contends checkout traffic. Use a configured connection pool and acquire a dedicated connection for each transaction.
+
+- **Medium — module initialization depends on a live database** at [line 3](<path>). A transient DB outage prevents the module from loading and therefore can prevent the service from starting.
+
+- **Low — payment request lacks explicit JSON headers and response validation** at [lines 26–29](<path>). Many gateways require `Content-Type: application/json`; even if the request is accepted, its response is discarded.

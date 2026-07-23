@@ -1,0 +1,33 @@
+## Findings
+
+- The package does not declare ESM (`"type": "module"`) and this file is `.js` but uses `import`, `export`, and top-level `await`. Under CommonJS execution it fails to parse. [checkout.js](<path>), [package.json](<path>)
+
+- Production database credentials are hard-coded in source. They are exposed to anyone with repository access and cannot be safely rotated/configured per environment. [checkout.js](<path>)
+
+- No database/schema is selected in the connection configuration, so unqualified `products` and `orders` queries will normally fail with “No database selected.” [checkout.js](<path>)
+
+- Cart input is trusted completely. Negative quantities increase stock and can make the order total negative; non-numeric quantities can produce invalid totals; missing/non-array carts throw. [checkout.js](<path>)
+
+- Inventory is decremented without checking available stock. Orders can drive stock negative. [checkout.js](<path>)
+
+- Checkout is not transactional. A later query failure, invalid product, or order insert failure leaves earlier stock decrements committed without an order. [checkout.js](<path>)
+
+- The read-then-update inventory flow is race-prone. Concurrent checkouts can both observe the same stock and oversell it. [checkout.js](<path>)
+
+- Payment is fired and forgotten. The endpoint returns success even if the charge fails, and a rejected `fetch` can become an unhandled rejection. Stock and the order are already committed with no compensation path. [checkout.js](<path>)
+
+- ⚠The payment request lacks `Content-Type: application/json`; many payment services will not parse the body as JSON. [checkout.js](<path>)
+
+- ⚠A nonexistent product produces `rows[0] === undefined`, then crashes at `p.price` instead of returning a controlled client error. [checkout.js](<path>)
+
+- ⚠Database, validation, and payment failures have no error handling or defined HTTP response behavior. [checkout.js](<path>)
+
+- ⚠`req.body.uid` is client-controlled here, enabling user-ID spoofing unless an unseen middleware independently prevents it. Identity should come from authenticated request context. [checkout.js](<path>)
+
+- ⚠Currency totals use JavaScript floating-point arithmetic, which can store or charge rounding-error amounts. Use integer minor units or a decimal type. [checkout.js](<path>)
+
+- ⚠Opening one production DB connection at module load makes application startup depend on database availability and provides no reconnect/pooling strategy. [checkout.js](<path>)
+
+- ⚠There are no tests for checkout behavior, including validation, insufficient stock, concurrent purchases, rollback, discounts, and payment failures.
+
+- `fmt()` throws if `x` is truthy but not a string, and its terse parameter names make its contract unclear. [checkout.js](<path>)

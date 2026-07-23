@@ -1,0 +1,29 @@
+I found 13 issues in [`src/checkout.js`](<path>).
+
+-Production database credentials are hard-coded in source at [lines 3–7](<path>). This exposes a live secret to anyone with repository or build-log access; rotate it and use a secret manager/environment configuration.
+
+-The connection specifies no `database` at [lines 3–7](<path>). The unqualified `products` and `orders` queries will fail with “No database selected” unless the server has a nonstandard default database configured.
+
+-Client-controlled `uid` permits checkout orders to be created for any user at [line 24](<path>). Use the authenticated server-side identity, not `req.body.uid`.
+
+-`item.qty` is entirely unvalidated at [lines 13–17](<path>). Negative values increase inventory and create negative totals; zero, fractional, non-numeric, excessive, empty-cart, and malformed-cart cases are also accepted or crash.
+
+-Inventory can be oversold. The fetched `stock` value is never checked, and the update at [line 17](<path>) has no `stock >= qty` predicate. Concurrent checkouts can both pass the read and drive stock below zero.
+
+-Stock decrements and order creation are not transactional ([lines 13–24](<path>)). Any later query failure leaves prior inventory changes committed without a corresponding order.
+
+-The payment request is neither awaited nor checked at [lines 26–29](<path>). The API returns a successful order even when charging fails, and failures may become unhandled promise rejections. As written it also targets `payments.example.com`, a documentation-domain endpoint rather than a payment service.
+
+-The payment request omits `Content-Type: application/json` at [lines 26–29](<path>), so a normal JSON API may not parse the payload. There is also no timeout, authentication, idempotency key, or payment/order state handling.
+
+-A nonexistent product causes `p.price` to throw at [lines 14–16](<path>), rather than returning a controlled “product unavailable” response.
+
+-No errors are caught anywhere in the async handler. With the declared Express 4 dependency, rejected async handlers are not automatically routed to Express error middleware; requests can hang and failures can be unhandled.
+
+-Currency is calculated using JavaScript floating point at [lines 16 and 21](<path>). This can persist/charge incorrect fractional-cent totals. Use integer minor units or a decimal type with explicit rounding.
+
+-A single module-global DB connection at [line 3](<path>) is a reliability bottleneck and has no reconnect/failure lifecycle. Use a configured pool and acquire a connection for the transaction.
+
+-The serial read/update per item at [lines 13–17](<path>) creates an N+1 query pattern and accepts duplicate product IDs. Normalize and aggregate the cart, then use set-based/conditional inventory updates.
+
+There are no tests in the repository, so none cover these critical authorization, inventory-race, rollback, payment-failure, or rounding paths.
