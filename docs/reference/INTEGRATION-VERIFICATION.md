@@ -103,6 +103,16 @@ options were configured** (some probes depend on them).
 > **Before trusting any run, make the tool name a file that only exists in your scratch
 > project.** A probe answered against the wrong repository is worse than a probe that errors:
 > it produces evidence-shaped output that will be filed as a result.
+>
+> **`--add-dir` does not scope the view.** On 2026-07-23 a full 6-model × 2-probe sweep was
+> run with `agy --new-project --add-dir <project>` from a different working directory. All
+> eleven completed runs analysed *other repositories on the machine* — every probe scored a
+> clean zero, exactly the expected result, and every one of them was meaningless. The fix is
+> to `cd` into the project first; `--add-dir` only adds a writable directory.
+>
+> **The validity check that caught it should be run every time**: grep each transcript for a
+> string unique to the scratch project, and for names of other repos on the machine. A sweep
+> whose numbers all match the hypothesis is exactly when to run it.
 
 > If `uds init` declines to install part of the integration — as it currently does for
 > Antigravity's skills, whose path is unverified — **note it and probe what did land**.

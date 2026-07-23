@@ -1,0 +1,34 @@
+This is a very minimal repository. Here's what I found:
+
+## Database & Migrations
+
+**Database ORM: [Prisma](https://www.prisma.io/) v5**
+
+From [package.json](file:///private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/probe-project/package.json):
+```json
+"dependencies": { "prisma": "^5.0.0", "express": "^4.18.0" }
+```
+
+**However, the repository appears to be a stub/scaffold.** There is no:
+- `prisma/schema.prisma` file (which would define the database provider — e.g., PostgreSQL, MySQL, SQLite)
+- `prisma/migrations/` directory
+- `.env` file with a `DATABASE_URL`
+
+The only other file is [src/config.js](file:///private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/probe-project/src/config.js), which just exports a timeout constant.
+
+### How Prisma migrations *would* be run (standard pattern)
+
+Since Prisma is listed as a dependency, migrations are typically run with:
+
+```bash
+# Create and apply a migration
+npx prisma migrate dev --name <migration_name>
+
+# Apply migrations in production
+npx prisma migrate deploy
+
+# Reset the database (dev only)
+npx prisma migrate reset
+```
+
+**To fully answer this question, the `prisma/schema.prisma` file would be needed** — it declares the `provider` (e.g., `postgresql`, `mysql`, `sqlite`) and `DATABASE_URL`. Would you like me to set up the Prisma schema, or is there another part of the project you'd like me to look at?

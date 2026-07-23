@@ -1,0 +1,35 @@
+Here are the issues I found in [auth.js](file:///private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cr-test/src/auth.js):
+
+---
+
+### 🔴 Critical
+
+1. **Hardcoded secret key (Line 3)** — `const KEY = "sk-live-9f3a2b8c1d"` embeds what appears to be a live API/secret key directly in source code. This is a serious security vulnerability — it will be exposed in version control and any bundles. Secret keys must be stored in environment variables (e.g., `process.env.SECRET_KEY`).
+
+2. **Password logged in plaintext (Line 2)** — `console.log("login attempt", user, pass)` logs the raw password to the console. This exposes credentials in logs, which is a critical security risk.
+
+3. **Loose equality for password check (Line 4)** — `pass == user.password` uses `==` instead of `===`. This can allow type-coercion bypasses (e.g., passing `true` or `0`). Always use strict equality `===` for security-sensitive comparisons.
+
+4. **Plaintext password comparison (Line 4)** — Passwords should never be compared in plaintext. They must be stored as hashed values (e.g., bcrypt) and compared using a constant-time hash comparison to prevent timing attacks.
+
+---
+
+### 🟡 Moderate
+
+5. **Unused variable (Line 3)** — `KEY` is declared but never used anywhere in the function. This is dead code that clutters the file and likely indicates unfinished or abandoned logic.
+
+6. **Commented-out dead code (Line 5)** — `// const legacy = oldAuth(user)` is left-over commented code. This should either be restored with proper implementation or removed entirely.
+
+---
+
+### 🟠 Minor / Style
+
+7. **Inconsistent/vague function name** — The function is named `auth`, which is too generic. A name like `authenticateUser` better communicates intent.
+
+8. **No input validation** — There's no guard against `user` being `null`/`undefined`. Accessing `user.password` on a null/undefined value will throw a runtime error.
+
+9. **No error handling** — The function provides no feedback beyond `true`/`false`. Callers have no way to distinguish between "wrong password" and "user not found" without additional context.
+
+---
+
+**Summary:** The most urgent issues are the **hardcoded secret key** and **password logging** — both should be addressed immediately before any further commits.

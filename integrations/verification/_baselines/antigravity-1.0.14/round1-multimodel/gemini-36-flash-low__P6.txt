@@ -1,0 +1,13 @@
+Here are the issues identified in [src/auth.js](file:///private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cr-test/src/auth.js):
+
+### 1. **Security & Sensitive Data Leakage**
+- **Hardcoded API Key / Secret**: Line 3 contains a hardcoded live secret key (`const KEY = "sk-live-9f3a2b8c1d";`). Hardcoding API keys exposes secrets in your repository history and source code.
+- **Logging Sensitive Credentials**: Line 2 logs the plaintext password to stdout (`console.log("login attempt", user, pass);`), which poses a significant security risk by leaking plain-text credentials into logs.
+- **Plaintext Password Storage/Comparison**: Line 4 checks passwords directly using `pass == user.password`. Passwords should never be compared or stored in plaintext; salted password hashing algorithms (e.g., `bcrypt`, `argon2`) should be used instead.
+
+### 2. **Code Correctness & Best Practices**
+- **Loose Equality Operator (`==`)**: Line 4 uses loose equality `==` instead of strict equality `===`, which can cause unexpected type coercion.
+- **Dead Code**: Line 3 defines `KEY` which is never used in the function. Line 5 contains a commented-out call `// const legacy = oldAuth(user);`.
+
+### 3. **Error Handling & Type Safety**
+- **Null / Undefined Dereference**: If `user` is `null` or `undefined`, accessing `user.password` on Line 4 will throw a runtime `TypeError` (`Cannot read properties of undefined (reading 'password')`).

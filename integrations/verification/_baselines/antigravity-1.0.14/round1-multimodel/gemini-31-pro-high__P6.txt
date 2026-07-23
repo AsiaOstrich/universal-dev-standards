@@ -1,0 +1,14 @@
+I have reviewed [src/auth.js](file:///private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/cr-test/src/auth.js) and found the following issues:
+
+1. **Logging Sensitive Information**: 
+   Logging `pass` in `console.log("login attempt", user, pass);` writes the user's password in plain text to the console/logs, which is a major security vulnerability.
+2. **Hardcoded Secrets**: 
+   The line `const KEY = "sk-live-9f3a2b8c1d";` contains a hardcoded API or secret key. Secrets should never be committed to source code and should be loaded securely from environment variables or a secret manager.
+3. **Weak Equality Check**: 
+   Using `==` instead of strict equality `===` in `pass == user.password` can lead to unintended type coercion vulnerabilities.
+4. **Plain Text Passwords**: 
+   The check `pass == user.password` suggests that user passwords might be stored and compared in plain text. Best practice requires hashing passwords (using algorithms like bcrypt or Argon2) and comparing hashes rather than raw passwords.
+5. **Dead Code**:
+   `// const legacy = oldAuth(user);` is commented-out code that clutters the codebase and could be removed.
+
+Would you like me to rewrite the function to fix these issues?

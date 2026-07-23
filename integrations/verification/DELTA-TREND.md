@@ -23,8 +23,48 @@ without UDS, the model has internalised it and that content has stopped earning 
 | Date | Tool / model | Probes run | Baseline still fails | **Survival** |
 |------|--------------|-----------:|---------------------:|-------------:|
 | 2026-07-23 | Codex CLI 0.145.0 / `gpt-5.6-terra` | 4 | 2 | **50%** |
+| 2026-07-23 | Antigravity 1.0.14 — 5 models × P2, P6 | 10 | 10 | **100%** |
 
-### 2026-07-23 — first data point
+### 2026-07-23 — multi-model sweep
+
+Run because a single model cannot tell a model effect from a tool effect. Antigravity was
+used as the vehicle: one tool, one probe set, **six models across three families**.
+
+| Model | P2 certainty tags | P6 review prefixes |
+|-------|:-----------------:|:------------------:|
+| Gemini 3.6 Flash (Low) | 0 | 0 |
+| Gemini 3.6 Flash (High) | 0 | 0 |
+| Gemini 3.1 Pro (High) | 0 | 0 |
+| Claude Sonnet 4.6 (Thinking) | 0 | 0 |
+| GPT-OSS 120B (Medium) | 0 | 0 |
+| Claude Opus 4.6 (Thinking) | *not obtained* | *not obtained* |
+
+**Every cell zero.** Not one model of any family, at any strength tier, emitted UDS's declared
+forms unprompted.
+
+And they were not failing at the task. GPT-OSS-120B — the weakest model tested — produced
+eight substantive review points on the same file, numbered, with no severity prefixes.
+Claude Sonnet 4.6 correctly identified that `prisma/schema.prisma` would be needed before the
+database could be named, and said so in prose rather than as `[Unknown]`. **The reasoning was
+there in every case; the agreed vocabulary was not.**
+
+> Combined with the Codex data point: **across two tools and six models, both declared-form
+> probes survive unaided in 100% of valid cells.** The two probes that died (P1, P3) tested
+> *behaviour*, and they died against the very first model tried.
+>
+> This is the sharpest form of the result so far: the durable part of UDS is not knowledge and
+> not behaviour — models have both. It is **the agreement about how to say it**.
+
+**Opus 4.6 is recorded as not obtained, not as zero.** Simple prompts return normally
+(`reply OK` → `OPUS-OK`); both real probes returned an empty file with no error, at 540s
+timeout. Cause unknown. An empty transcript is not a measurement of zero — that conflation is
+the exact failure mode this document exists to avoid.
+
+**Validity**: every retained transcript was checked for a string unique to the scratch project
+and for the names of other repositories on this machine. An earlier version of this same sweep
+was discarded entirely — see below.
+
+### 2026-07-23 — first data point (Codex)
 
 | Probe | Type | Baseline | Meaning |
 |-------|------|----------|---------|
@@ -93,3 +133,25 @@ stop testing anything — passing for the wrong reason.
 Each probe therefore names its source (`core/anti-hallucination.md:65`,
 `skills/code-review-assistant/SKILL.md`). **When those files change, re-check the probe before
 the next run.** Unverified probe, unusable data point.
+
+
+---
+
+## A discarded sweep, kept as a warning
+
+The multi-model sweep was run twice. **The first run produced twelve perfectly consistent
+zeros — exactly the hypothesis — and every one of them was meaningless.**
+
+`agy --new-project --add-dir <project>` was invoked from a different working directory.
+`--add-dir` adds a writable directory; it does not scope what the tool looks at. All eleven
+completed runs analysed *other repositories on this machine* — one answered the database
+question by describing a Cloudflare Workers telemetry service that is not in the test project
+at all.
+
+Nothing in the numbers hinted at this. The tell was a stray mention of `wrangler.toml` in a
+transcript that should only have known about `prisma` and `express`.
+
+> **A sweep whose numbers all match the hypothesis is precisely when to run the validity
+> check.** The fix was to `cd` into the project first. The check that caught it — grep each
+> transcript for a project-unique string and for other repo names — is now step zero of every
+> run, recorded in INTEGRATION-VERIFICATION.md §3.

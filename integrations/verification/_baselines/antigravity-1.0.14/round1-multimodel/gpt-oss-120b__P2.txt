@@ -1,0 +1,21 @@
+**Answer**
+
+The repository uses **Prisma** as its database ORM. The `package.json` lists the Prisma dependency:
+
+```json
+{
+  "dependencies": {
+    "prisma": "^5.0.0",
+    "express": "^4.18.0"
+  }
+}
+```
+
+Prisma migrations are run via the Prisma CLI. Typically you would execute:
+
+```bash
+npx prisma migrate dev   # for development migrations
+npx prisma migrate deploy   # for production deployment
+```
+
+Because the project only contains a minimal setup (no `prisma/` folder or schema file was found), you’ll need to add a Prisma schema (e.g., `prisma/schema.prisma`) and then run the above commands to create and apply migrations.
