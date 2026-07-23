@@ -147,11 +147,22 @@ export const AI_AGENT_PATHS = {
   'codex': {
     name: 'OpenAI Codex',
     tier: 'partial',
+    // Verified against the official docs 2026-07-23 (developers.openai.com/codex/skills):
+    // Codex discovers skills in $CWD/.agents/skills, parent directories, $REPO_ROOT/.agents/skills
+    // and $HOME/.agents/skills. Note the plural `.agents/`.
+    //
+    // These were previously '.codex/skills/' and '~/.codex/skills', which Codex never reads —
+    // a directory UDS invented. Skills installed there were invisible, which is why a
+    // behavioural probe against Codex failed while Codex itself was behaving correctly
+    // (see integrations/verification/codex/2026-07-23.md).
     skills: {
-      project: '.codex/skills/',
-      user: join(homedir(), '.codex', 'skills')
+      project: '.agents/skills/',
+      user: join(homedir(), '.agents', 'skills')
     },
     commands: null, // Uses system commands
+    // NOT verified. The official skills docs describe `agents/openai.yaml` as a file *inside*
+    // a skill directory, not a separate top-level agents location. Left as-is rather than
+    // guessed at: an unverified path fails silently, which is the failure mode being fixed above.
     agents: {
       project: '.codex/agents/',
       user: join(homedir(), '.codex', 'agents')

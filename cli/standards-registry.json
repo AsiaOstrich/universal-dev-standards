@@ -199,8 +199,8 @@
       "skillsPath": "skills",
       "nativePaths": {
         "skills": {
-          "project": ".codex/skills/",
-          "user": "~/.codex/skills/"
+          "project": ".agents/skills/",
+          "user": "~/.agents/skills/"
         },
         "agents": {
           "project": ".codex/agents/",
@@ -212,7 +212,8 @@
       "supportsCommands": false,
       "supportsTask": false,
       "supportsAgents": true,
-      "status": "partial"
+      "status": "partial",
+      "skillsPathNote": "Verified 2026-07-23 against developers.openai.com/codex/skills. Codex reads .agents/skills (plural). The previous '.codex/skills/' was a directory UDS invented and Codex never reads."
     },
     "copilot": {
       "name": "GitHub Copilot",
