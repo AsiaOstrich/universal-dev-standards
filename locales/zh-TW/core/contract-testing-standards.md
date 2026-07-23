@@ -2,8 +2,8 @@
 source: ../../../core/contract-testing-standards.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: 2afa2fe434a6
+last_synced: 2026-07-23
+source_hash: b2b6acbac739
 ---
 
 # 合約測試標準（Contract Testing Standards）

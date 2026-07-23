@@ -2,8 +2,8 @@
 source: ../../../core/model-provenance.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-17
-source_hash: 62e6b25a38dd
+last_synced: 2026-07-23
+source_hash: 59e471405e7e
 status: current
 ---
 
@@ -14,6 +14,8 @@ status: current
 > **版本**: 1.0.0 | **狀態**: Active | **更新日期**: 2026-06-17
 > **AI 最佳化版本**: `ai/standards/model-provenance.ai.yaml`
 > **規格**: XSPEC-255 (cross-project/specs/XSPEC-255-model-provenance-policy.md)
+
+**Scope**: universal
 
 ## 概述
 

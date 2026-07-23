@@ -2,8 +2,8 @@
 source: ../../../core/incident-response.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-17
-source_hash: b1c1a516710b
+last_synced: 2026-07-23
+source_hash: 251b05a9fd51
 status: current
 ---
 

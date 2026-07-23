@@ -2,8 +2,8 @@
 source: ../../../core/data-contract.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-17
-source_hash: ef59d3f2e128
+last_synced: 2026-07-23
+source_hash: 013be9325b53
 status: current
 ---
 
