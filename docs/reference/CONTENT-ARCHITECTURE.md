@@ -126,11 +126,7 @@ assigned after a full read) measured:
 **Rules-tier content is 3.5% of that skill.** The remaining 96.5% is exactly what the Guides
 tier is for, and none of it is marked.
 
-### 5.3 `.ai.yaml` is not a compact tier
-
-`README.md` §Architecture describes a "Dual-Layer Execution Model" in which the
-`.ai.yaml` skills layer is *"Token-Efficient / Minimal"* and core standards are
-*"Detailed (Reference)"*.
+### 5.3 `.ai.yaml` is not a compact tier `[resolved 2026-07-23]`
 
 Measured across the 135 standards that have both forms: **`.ai.yaml` totals 872,380 bytes
 against 1,271,471 bytes of `.md` — 69%.** One pair inverts entirely
@@ -139,11 +135,28 @@ Markdown is a stub).
 
 69% is a reformat, not a compaction tier.
 
-> ⚠️ **Unresolved:** README calls `core/*.md` the *detailed reference* layer; this contract
-> calls it the *concise always-read* layer. Same directory, opposite characterisation. The two
-> documents describe different axes — format (`.ai.yaml` vs `.md`) and depth (Rules vs Guides)
-> — but they use overlapping words for opposite claims. **Reconciling README is not done here**
-> because it is the project's public front page and the wording is a product decision.
+**What this contradicted, and how it was resolved.** `README.md` and `docs/USER-MANUAL.md`
+both described a "Dual-Layer Execution Model" in which the `.ai.yaml` layer was
+*"Token-Efficient / Minimal"* and core standards were *"Detailed (Reference)"* — while this
+contract calls `core/*.md` the *concise, always-read* layer. Same directory, opposite
+characterisation. The two were describing different axes (format vs depth) using overlapping
+words for opposite claims, and the measurement above does not support "Minimal" either.
+
+Resolved in `efe8df23` by a product decision to fix the front-facing docs rather than this
+contract. Both documents, in all three languages, now state the two axes separately:
+
+| Axis | What it says | Carries a depth claim? |
+|------|--------------|------------------------|
+| **Depth** | Rules always-read, Guides on demand (§2) | Yes — this is the contract |
+| **Format** | `.ai.yaml` vs `.md`, same material, different encoding | **No** — explicitly stated |
+
+Six files carried the old framing: `README.md`, `docs/USER-MANUAL.md`, and their zh-TW and
+zh-CN mirrors. The English pair was found first; **the mirrors were only found by grepping for
+the phrasing rather than the file** — fixing the source and leaving the translations is how a
+contradiction survives a fix.
+
+> `docs/archive/USER-MANUAL-2026-03-24.md` still carries the old table. That is correct: an
+> archive records the state at its date and must not be rewritten.
 
 ---
 

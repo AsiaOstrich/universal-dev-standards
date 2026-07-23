@@ -82,29 +82,44 @@ Universal Development Standards is a **language-agnostic, framework-agnostic** d
 
 ## Architecture
 
-UDS uses a **Dual-Layer Execution Model**:
+UDS content is organised along **two independent axes**. They answer different questions, and
+conflating them is the most common way to misread the layout.
+
+### Axis 1 — Depth: how much must always be loaded
+
+A behavioural contract telling an AI agent what to read up front and what to leave until asked.
+This is the axis that determines context cost.
 
 ```
        AI Agent / Developer
               |
-        ┌─────┴─────┐
-        |           |
-   Skills Layer   Standards Layer
-   (.ai.yaml)       (.md)
-        |              |
-   Token-efficient  Comprehensive theory
-   Interactive      Tool configurations
-   Daily use        Deep reference
+              v
+      Rules  (core/*.md)                    <- ALWAYS READ
+      actionable rules, checklists, thresholds
+              |
+              +--- needs an explanation? --> Guides (core/guides/*.md)        read on demand
+              |
+              +--- needs a methodology?  --> Methodologies                    read on demand
+                                             (methodologies/guides/*.md)
 ```
 
-| Aspect | Skills (Execution Layer) | Standards (Knowledge Layer) |
-|--------|------------------------|-----------------------------|
-| Format | YAML-optimized | Full Markdown |
-| Purpose | High-speed interactive lookup | Deep understanding & rationale |
-| Token Usage | Minimal (AI-friendly) | Detailed (reference) |
-| When to use | Daily development tasks | Learning concepts, deep review |
+### Axis 2 — Format: how the same standard is encoded
 
-In practice, AI tools load the Skills layer automatically. You only need to read the Standards layer when you want to understand the "why" behind a rule.
+This axis carries **no depth claim**. A standard's `.ai.yaml` and `.md` forms are two encodings
+of the same material, chosen by who is reading.
+
+| Aspect | `ai/standards/*.ai.yaml` | `core/*.md` |
+|--------|--------------------------|-------------|
+| Encoding | Structured YAML | Prose Markdown |
+| Best for | Deterministic machine lookup | Human reading and review |
+| Relative size | ~69% of the Markdown form — a reformat, not a compaction tier | baseline |
+
+In practice, AI tools load the Rules layer automatically. You only need to reach for Guides when
+you want to understand the "why" behind a rule.
+
+> 📐 The depth contract, where it is enforced across integrations, and the measured gap between
+> the contract and the current tree are documented in
+> [Content Architecture](reference/CONTENT-ARCHITECTURE.md).
 
 ---
 
