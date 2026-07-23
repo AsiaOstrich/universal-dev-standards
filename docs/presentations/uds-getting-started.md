@@ -107,7 +107,9 @@ Version 5.0.0-rc.16 | 2026
 | **Gemini CLI** | ⛔ 已停止服務 | — | — |
 
 > Gemini CLI 已於 2026-06-18 由 Google 終止服務，由 Antigravity CLI 接手。
-> 完整清單與狀態圖例見 [README](../../README.md#-ai-tool-support)。
+>
+> **⚠️ 以上沒有任何一個整合通過行為驗證。**「狀態」欄說的是我們寫的整合有多完整，
+> 不是該工具實測可用。驗證排程與程序見 [README](../../README.md#-ai-tool-support)。
 
 > **一套標準，多工具通用** — 換 AI 工具不需要重學標準
 

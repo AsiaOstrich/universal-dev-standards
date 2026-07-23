@@ -605,8 +605,12 @@ You don't need to learn all commands at once. Adopt in stages:
 | **Gemini CLI** | ⛔ Discontinued | — | — | `GEMINI.md` (frozen) |
 
 > Gemini CLI was sunset by Google on 2026-06-18 and succeeded by Antigravity CLI.
-> The full list, status legend, and footnotes are in the
-> [README](../README.md#-ai-tool-support).
+>
+> **None of these integrations has been behaviourally verified yet** — the Status column
+> describes how complete the integration *we wrote* is, not whether the tool was ever tested
+> against it. The full list, both legends, and the verification queue are in the
+> [README](../README.md#-ai-tool-support); the procedure is in
+> [Integration Verification](reference/INTEGRATION-VERIFICATION.md).
 
 > **One set of standards, multiple tools** — switching AI tools doesn't mean re-learning standards.
 

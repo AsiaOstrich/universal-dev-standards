@@ -346,6 +346,16 @@ for (const [agentId, agent] of Object.entries(regAgents)) {
       continue;
     }
 
+    // `evidence` is a path, not a sentence. Without this the field can be any string that
+    // sounds like proof, which is the failure mode one level up from having no field at all.
+    if (!existsSync(join(ROOT_DIR, v.evidence))) {
+      fail(
+        `${agentId}.verification.evidence points at "${v.evidence}", which does not exist`,
+        'Evidence must be a committed run record — see docs/reference/INTEGRATION-VERIFICATION.md §5.',
+      );
+      continue;
+    }
+
     const age = Math.floor((TODAY.getTime() - new Date(v.date).getTime()) / 86_400_000);
     if (age > VERIFICATION_SHELF_LIFE_DAYS) {
       fail(

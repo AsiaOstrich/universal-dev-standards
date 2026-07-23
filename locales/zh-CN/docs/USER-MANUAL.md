@@ -599,7 +599,11 @@ Refs: SPEC-001
 | **Gemini CLI** | ⛔ 已停止服务 | — | — | `GEMINI.md`（已冻结）|
 
 > Gemini CLI 已于 2026-06-18 由 Google 终止服务，由 Antigravity CLI 接手。
-> 完整清单、状态图例与脚注见 [README](../../README.md#-ai-工具支持)。
+>
+> **以上集成目前没有任何一个通过行为验证**——「状态」栏说的是**我们写的那份集成**有多完整，
+> 不是该工具是否曾被实测。完整清单、两套图例与验证排程见
+> [README](../../README.md#-ai-工具支持)；验证程序见
+> [Integration Verification](../../../docs/reference/INTEGRATION-VERIFICATION.md)。
 
 > **一套标准，多工具通用** — 换 AI 工具不需要重学标准。
 
