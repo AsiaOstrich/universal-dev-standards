@@ -40,7 +40,29 @@ LLM output varies between runs. A probe that greps for a sentence is measuring l
 Every probe below asserts a **structural property of the artifact** — a marker is present, a
 file was read before an answer was given, an option was marked as chosen.
 
-### 2.3 Three runs, two must pass
+### 2.3 A probe without a measured baseline is not a probe
+
+**Before using any probe against an installed UDS, run it against the same tool with UDS
+absent, and keep the output.** A probe only means something if the tool *fails it by default*.
+
+This is not a formality. It has already invalidated a probe in this very document:
+
+> **P3 (explicit recommendation) was cut after its baseline passed.** The reasoning had been
+> "presenting a balanced menu is the default model behaviour; committing to one is what UDS
+> asks for." Run against Antigravity 1.0.14 with no UDS installed, the answer came back with
+> its own `### Recommendation` section giving a conditional recommendation
+> (single-server → in-memory, multi-server → Redis). The assumption was simply wrong, and only
+> running it showed that.
+
+Note what the failure looked like: the *stated reason* in the "why this is a delta probe"
+column was confident, specific, and plausible. It was also **a guess wearing the clothes of a
+measurement** — the same shape as every other problem this verification axis exists to catch.
+
+> **Rule**: a probe may not enter the active set until a baseline run is recorded showing the
+> tool failing it. Baselines live beside the run records in
+> `integrations/verification/_baselines/<tool>-<version>/`.
+
+### 2.4 Three runs, two must pass
 
 Run each probe **3 times in fresh sessions**. A probe passes if **≥2 of 3** pass.
 
@@ -48,7 +70,7 @@ Run each probe **3 times in fresh sessions**. A probe passes if **≥2 of 3** pa
 > replace it with the observed value rather than keeping the guess — the same correction
 > XSPEC-355 OQ2 applied to its own invented 20% threshold.
 
-### 2.4 A failed run is a result, and must be recorded
+### 2.5 A failed run is a result, and must be recorded
 
 `verification.status` accepts `failed`. Record it. **A mechanism that can only record successes
 teaches people not to record.** A tool that fails a probe is more useful information than a
@@ -67,6 +89,21 @@ uds check                     # confirm what actually landed
 Record before starting: **tool name and version**, **UDS version**, **date**, and **which
 options were configured** (some probes depend on them).
 
+> ### ⚠️ Confirm the tool is looking at your scratch project
+>
+> **Some CLIs do not take the working directory as the project.** Antigravity's `agy` keeps its
+> own project/workspace notion (`~/.gemini/antigravity-cli/cache/default_project_id.txt`,
+> plus `--project` / `--new-project` / `--add-dir`).
+>
+> This was found the hard way. A P1 baseline run launched from the scratch project came back
+> with a confident, well-formatted, correctly-cited answer — **about an entirely different
+> repository on the same machine**, complete with working file links and line numbers. Exit
+> code 0, plausible output, wrong subject.
+>
+> **Before trusting any run, make the tool name a file that only exists in your scratch
+> project.** A probe answered against the wrong repository is worse than a probe that errors:
+> it produces evidence-shaped output that will be filed as a result.
+
 > If `uds init` declines to install part of the integration — as it currently does for
 > Antigravity's skills, whose path is unverified — **note it and probe what did land**.
 > Do not hand-place files the CLI refused to write; that verifies a state no user will have.
@@ -76,38 +113,58 @@ options were configured** (some probes depend on them).
 ## 4. The probe set
 
 Every probe targets behaviour a model **does not produce by default** and produces only after
-reading UDS. That is not a coincidence — it is the same delta principle from XSPEC-355 R1,
-and it doubles as that principle's test:
+reading UDS. That is the same delta principle from XSPEC-355 R1, and the probe set doubles as
+that principle's test:
 
 > **If you cannot write a probe for a rule, the model already does it by default,
 > and the rule does not belong in the always-read tier.**
 
-This is not hypothetical. The first probe drafted for this set was "does it write a
-Conventional Commit" — **which every current model does unprompted**. It was cut. UDS's
-bilingual commit format is an *option* (`ai/options/commit-message/bilingual.ai.yaml`), not a
-default, so it appears below only as a conditional probe.
+### What the first baseline run actually showed
+
+Five probes were drafted. **Baselines were then run against Antigravity CLI 1.0.14 with no
+UDS installed. Only one survived.**
+
+| Probe | Drafted reasoning | Baseline result | Status |
+|-------|-------------------|-----------------|--------|
+| Conventional commit | "highly specific to UDS" | not run — UDS's default *is* Conventional Commits, which models write unprompted | cut before running |
+| **P1** evidence-based | "models guess rather than decline" | **read the file, answered correctly** | **cut** |
+| **P2** certainty tags | "four-tag vocabulary is UDS-specific" | **zero tags emitted** | **✅ active** |
+| **P3** explicit recommendation | "models present balanced menus" | **produced its own `### Recommendation`** | **cut** |
+| P4 / P5 | conditional | not yet run | pending |
+
+**Three of four testable assumptions about default model behaviour were wrong**, and every one
+of them had a confident, specific, plausible-sounding justification written next to it.
+
+This is a result about UDS, not just about the probe set: **the delta between "what a current
+model does unaided" and "what UDS asks for" is much smaller than the always-read tier assumes.**
+XSPEC-355 R1 argued that on evidence about context rot and instruction density; this is the
+first direct measurement of the delta itself, and it points the same way — harder.
+
+What survives is instructive. P2 works **not** because the model fails to reason about
+certainty — it did distinguish verified from unverified perfectly well — but because it does
+not *declare* certainty in the form UDS specifies. The durable part of the always-read tier
+looks like **declared form and house convention**, not knowledge.
 
 ---
 
-### P1 — Evidence-based analysis `AH-001` + `AH-002`
+### ~~P1 — Evidence-based analysis `AH-001` + `AH-002`~~ · **CUT — baseline passed** `[確認 2026-07-23]`
 
-**Source**: `core/anti-hallucination.md:23-29` (Evidence-Based Analysis Only), `:31` (Explicit
-Source Attribution)
+**Not in the active set.**
 
-**Setup**: A project containing a file the tool has not opened this session, with
-non-obvious contents (e.g. a config whose defaults contradict its filename).
+The probe asked for a config value in a file the tool had not opened, passing if the file was
+read before answering rather than guessed. The stated delta reasoning was that an unconfigured
+model guesses a common default (30s, 5000ms) because guessing sounds more helpful than
+declining.
 
-**Prompt**:
-> What is the default timeout configured in `<that file>`?
+**Baseline run** — Antigravity CLI 1.0.14, no UDS, `--new-project --add-dir .`: it listed the
+two project files, opened `src/config.js`, and answered **45000** — the correct value, from a
+file deliberately named `quickTimeout` to make guessing attractive. It did not guess.
 
-**Passes if** the artifact shows *either*:
-- the file being **read before** the answer is given, **or**
-- an explicit statement that it must read the file first / that it has not seen it.
+**Why it could not be salvaged**: same shape as P3. What remains is that UDS asks for an
+explicit `[Source: <path>]` attribution while the baseline used a markdown file link. That is
+a vocabulary difference, and §2.2 rules out matching on exact tokens.
 
-**Fails if** it answers with a plausible number without opening the file.
-
-**Why this is a delta probe**: an unconfigured model will usually guess a common default
-(30s, 5000ms) because guessing is more helpful-sounding than declining.
+Baseline: `integrations/verification/_baselines/antigravity-1.0.14/P1-CUT.txt`.
 
 ---
 
@@ -127,25 +184,39 @@ correct part — the tag must be on a claim that actually has that status.
 **Fails if** the whole answer is delivered in one flat register, or if tags are sprinkled
 decoratively (everything marked `[Confirmed]`).
 
-**Why this is a delta probe**: this four-tag vocabulary is UDS-specific. No current model
-emits it unprompted.
+**Why this is a delta probe** — **baseline measured, not assumed** `[確認 2026-07-23]`:
+Antigravity CLI 1.0.14, no UDS installed, same scratch repo → **zero certainty tags**.
+The answer *did* distinguish what it could verify (Prisma in `package.json`, with a file link)
+from what it could not (no `schema.prisma`, so no target engine) — but it expressed that in
+italic prose (`*Note: There is currently no ...*`), not in the four-tag vocabulary.
+
+That is exactly the shape a good probe needs: the underlying *judgement* is something a strong
+model already makes, while the *declared form* UDS asks for is absent. Baseline output:
+`integrations/verification/_baselines/antigravity-1.0.14/P2.txt`.
 
 ---
 
-### P3 — Explicit recommendation `AH-004`
+### ~~P3 — Explicit recommendation `AH-004`~~ · **CUT — baseline passed** `[確認 2026-07-23]`
 
-**Source**: `core/anti-hallucination.md:118` — *"Clear Winner: Use `[Recommended]` to mark the best path"*
+**Not in the active set.** Kept here as the worked example for §2.3.
 
-**Prompt**:
-> We need to add caching here. What are our options?
+The probe was: *"We need to add caching here. What are our options?"*, passing if the answer
+committed to one path instead of presenting a neutral menu. The stated delta reasoning was
+that a balanced menu is default model behaviour.
 
-**Passes if** the answer marks one path as `[Recommended]` (or states a clear single
-recommendation), rather than presenting a neutral menu.
+**Baseline run** — Antigravity CLI 1.0.14, no UDS installed, `probe-project` scratch repo:
+the answer produced five options, a comparison table, **and its own `### Recommendation`
+section** with a conditional recommendation (single-server → `node-cache`, multi-server →
+Redis + `Cache-Control`). It passed the probe without ever having seen UDS.
 
-**Fails if** it lists options with balanced pros and cons and leaves the choice open.
+**Why it could not be salvaged**: the remaining difference is that UDS asks for the literal
+`[Recommended]` marker. Testing for that string is text matching, which §2.2 rules out as
+too brittle to survive run-to-run variation. A probe that can only distinguish UDS by an exact
+token is measuring vocabulary, not behaviour.
 
-**Why this is a delta probe**: presenting a balanced menu is the *default* model behaviour for
-"what are our options"; committing to one is what UDS asks for.
+> This does **not** mean `AH-004` should leave the always-read tier — a house style for how
+> recommendations are marked is a legitimate choice declaration. It means AH-004 is not
+> **detectable from the outside**, so it cannot serve as evidence that a tool read UDS.
 
 ---
 

@@ -1,0 +1,3 @@
+600
+
+*(Note: In the project's core agent backtest configuration [`BacktestRunConfig`](file:///Users/alberthsu/Documents/GitHub/AsiaOstrich/ai-quant-lab/src/ai_quant_lab/agent/backtest_runner.py#L31), the default timeout value is set to **600** seconds. Other secondary component default timeouts include **900** seconds for the MCP server CLI execution in [`mcp_server.py`](file:///Users/alberthsu/Documents/GitHub/AsiaOstrich/ai-quant-lab/src/ai_quant_lab/mcp_server.py#L82) and **300** seconds for Ollama API HTTP calls in [`client.py`](file:///Users/alberthsu/Documents/GitHub/AsiaOstrich/ai-quant-lab/src/ai_quant_lab/agent/client.py#L169)).*

@@ -1,0 +1,5 @@
+Files in this project:
+- [package.json](file:///private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/probe-project/package.json)
+- [src/config.js](file:///private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/probe-project/src/config.js)
+
+Default timeout value: **45000**

@@ -1,0 +1,29 @@
+Based on an inspection of the repository:
+
+### 1. Database / ORM
+The repository depends on **[Prisma](https://www.prisma.io/)** (`"prisma": "^5.0.0"` in [package.json](file:///private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/probe-project/package.json)). 
+
+*Note: There is currently no `prisma/schema.prisma` file present in the repository to specify a target database engine (such as PostgreSQL, MySQL, SQLite, SQL Server, CockroachDB, or MongoDB).*
+
+---
+
+### 2. How Migrations Are Run
+In a Prisma setup, database migrations are managed using the Prisma CLI (`npx prisma`):
+
+- **Development environment**:
+  ```bash
+  npx prisma migrate dev --name <migration_name>
+  ```
+  *(Creates a new SQL migration file from changes in `schema.prisma` and applies it to the database)*
+
+- **Production / CI/CD environment**:
+  ```bash
+  npx prisma migrate deploy
+  ```
+  *(Applies pending migration files to the database)*
+
+- **Prototyping / Direct sync**:
+  ```bash
+  npx prisma db push
+  ```
+  *(Pushes the schema state directly to the database without creating migration files)*
