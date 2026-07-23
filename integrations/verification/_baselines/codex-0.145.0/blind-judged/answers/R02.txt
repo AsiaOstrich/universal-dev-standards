@@ -1,0 +1,25 @@
+I found these issues in [src/checkout.js](<path>):
+
+- **Critical — production database credentials are hard-coded** at [lines 3–7](<path>). This exposes a production password in source control and ties every environment to the production host.
+
+- **Critical — inventory can be oversold / become negative** at [lines 14–17](<path>). The read and decrement are separate operations, and the decrement does not require `stock >= qty`. Concurrent checkouts can both see available stock then both decrement it.
+
+- **Critical — client-controlled quantities permit stock manipulation** at [lines 13–17](<path>). A negative quantity increases stock and reduces the order total; zero, fractional, non-numeric, and unreasonable quantities are also not rejected.
+
+- **High — checkout is not transactional** at [lines 13–24](<path>). A failure after one stock update can leave earlier stock decrements committed without an order. A failure after inserting the order can leave an unpaid order. The stock changes, order write, and payment state need a coordinated transaction/outbox workflow.
+
+- **High — payment failures are ignored** at [lines 26–31](<path>). `fetch` is neither awaited nor checked, so the API reports a successful checkout even when payment fails or is never attempted. A rejected request may also become an unhandled rejection.
+
+- **High — request-supplied `uid` is trusted** at [line 24](<path>). A caller can create orders attributed to another user unless identity is derived from authenticated server-side context.
+
+- **High — no order-line records are created** at [line 24](<path>). The order only stores a total, losing the purchased products, quantities, and purchase-time prices required for fulfillment, refunds, and auditing.
+
+- **Medium — malformed carts and unknown products crash the handler** at [lines 10, 13–16](<path>). Missing/non-array `cart` fails iteration; an unknown ID makes `rows[0]` undefined and `p.price` throws. These should return a controlled client error before any writes occur.
+
+- **Medium — money is calculated with JavaScript floating point** at [lines 16 and 21](<path>). This can produce rounding errors in totals and charges. Use integer minor units or a decimal representation with explicit rounding.
+
+- **Medium — errors have no handling or cleanup path** throughout [processCheckout](<path>). Database and payment errors receive no controlled response, logging, rollback, or compensation. If mounted directly in Express 4, rejected async handlers are not automatically forwarded to error middleware.
+
+- **Medium — a single module-global database connection is fragile** at [lines 3–7](<path>). One dropped connection can break all checkouts; it also lacks pooling and makes startup depend on immediate database availability.
+
+- **Low — `fmt` throws for truthy non-string `x` values** at [line 35](<path>), because it assumes `.toUpperCase()` exists.

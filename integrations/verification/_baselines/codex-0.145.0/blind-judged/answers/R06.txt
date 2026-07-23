@@ -1,0 +1,27 @@
+Found these issues in [src/checkout.js](<path>):
+
+-[lines 3–7] Production database credentials are hard-coded in source. This exposes a live secret to anyone with repository access and makes rotation difficult. Use environment-managed secrets and rotate this password.
+
+-[lines 13–24] The checkout is not transactional. Any failure after one stock update can leave inventory decremented with no order; an order can be inserted even if a later payment fails. Wrap the database work in a transaction, with a deliberate payment/order-state workflow.
+
+-[lines 14–17] Stock is read and decremented in separate statements without a stock predicate or lock. Concurrent requests can both observe available stock and drive it negative. Use an atomic conditional update such as `... WHERE id = ? AND stock >= ?`, and verify affected rows.
+
+-[lines 10, 13–17, 24] Client-controlled `uid`, item IDs, and quantities are trusted without validation or authorization. A caller can create orders for another user and use negative quantities to increase stock / reduce the order total. Derive the user from authenticated server-side context and validate a non-empty cart, valid product IDs, and positive integer quantities.
+
+-[lines 14–16] A nonexistent product produces `p === undefined`, then throws at `p.price`. If earlier items were already updated, their stock remains changed. Handle missing products before mutation, within the transaction.
+
+-[lines 26–31] Payment is fire-and-forget: the response reports a successful order before the charge resolves, and a rejected `fetch` can become an unhandled rejection. Await it, check the HTTP response, and record a pending/failed payment state as appropriate.
+
+-[lines 26–29] The payment request has no authentication, no explicit JSON content type, no timeout, and no idempotency key. Retries or ambiguous network failures can produce duplicate charges, while the provider may reject or misinterpret the payload.
+
+-[lines 9–31] There is no error handling. Database, input, and payment failures escape as generic server errors; coupled with the non-transactional writes, this also leaves inconsistent data. Return controlled errors and roll back safe-to-rollback work.
+
+-[line 16, 20–24] Currency uses JavaScript floating-point arithmetic. Values such as `0.1` can be stored or charged with precision artifacts. Calculate and persist monetary amounts as integer minor units (or use a decimal type consistently).
+
+-[lines 3, 14, 17, 24] A single module-global database connection is used for all requests. It is a throughput bottleneck and has no reconnect/failure handling; one broken connection can take checkout down. Use a configured connection pool.
+
+-[lines 1–3; package.json] The project uses ESM syntax and top-level `await`, but [package.json](<path>) does not declare `"type": "module"` (nor an `.mjs` extension). Under the shown `npm start` command, Node will normally reject this file before the server starts.
+
+-[lines 34–35] `fmt` throws when `x` is truthy but not a string. If it accepts arbitrary request-derived values, validate/coerce before calling `toUpperCase()`.
+
+There are no tests or schema definitions in this workspace, so I could not verify expected discount, payment, or inventory semantics beyond the defects above.

@@ -1,0 +1,33 @@
+## Findings
+
+-[src/checkout.js:3](src/checkout.js:3) — No `database` is configured on the MySQL connection. The unqualified `products` and `orders` queries will fail with “No database selected” unless something external selects one.
+
+-[src/checkout.js:4](src/checkout.js:4) — Production database credentials are hard-coded in source. Rotate this exposed password and load credentials from a secret manager/environment configuration.
+
+-[src/checkout.js:13](src/checkout.js:13) — Checkout accepts unvalidated client-controlled quantities. Negative quantities increase inventory and can produce a negative order total; fractional, zero, non-numeric, and excessively large values are also accepted.
+
+-[src/checkout.js:14](src/checkout.js:14) — A missing product makes `p` undefined and throws at `p.price`, after any earlier cart items may already have had inventory changed.
+
+-[src/checkout.js:14](src/checkout.js:17) — The stock value is read but never enforced. The update can drive stock below zero, and the separate read/update permits concurrent checkouts to oversell.
+
+-[src/checkout.js:13](src/checkout.js:24) — Inventory updates and order creation are not transactional. A failure partway through leaves partial stock deductions; an order-insert failure leaves deducted stock without an order.
+
+-[src/checkout.js:24](src/checkout.js:31) — The endpoint reports a successful order before payment has completed. The `fetch` promise is neither awaited nor checked, so rejected/failed charges still return success and leave an unpaid order.
+
+-[src/checkout.js:26](src/checkout.js:26) — The payment request has no error handling, timeout/idempotency protection, or response-status validation. Retrying after an uncertain network failure can double-charge the order.
+
+-[src/checkout.js:24](src/checkout.js:24) — `req.body.uid` is trusted as the purchaser identity. Unless an upstream authenticated middleware overwrites it, callers can create orders for arbitrary users; use the authenticated principal instead.
+
+-[src/checkout.js:10](src/checkout.js:10) — `req.body.cart` and its items are not validated. Missing/malformed carts throw, and an arbitrarily large cart causes unbounded sequential database work.
+
+-[src/checkout.js:16](src/checkout.js:16) — Monetary totals are calculated with JavaScript floating-point arithmetic and then discounted, risking persisted/charged rounding errors. Use integer minor units or a decimal money type with explicit rounding.
+
+-[src/checkout.js:3](src/checkout.js:3) — A single connection is created during module import with no retry/reconnect handling or shutdown lifecycle. A temporary database outage can prevent startup, and a dropped connection breaks later checkouts. A managed pool is appropriate.
+
+-[src/checkout.js:3](src/checkout.js:7) — The database connection does not require TLS. For a production database, credentials and order data may transit unencrypted unless transport security is enforced elsewhere.
+
+-[src/checkout.js:9](src/checkout.js:9) — No local error handling maps database/payment failures to safe HTTP responses. Express will likely return generic 500s, while prior inventory mutations may already be committed.
+
+-[src/checkout.js:13](src/checkout.js:17) — Each cart item performs a sequential select and update (N+1 round trips). Batch product lookup and use conditional stock updates within a transaction for better checkout latency.
+
+-[package.json:4](package.json:4) — There is no test script or visible test coverage for checkout’s validation, stock contention, rollback, rounding, and payment-failure paths.
