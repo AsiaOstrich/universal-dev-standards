@@ -18,12 +18,35 @@ without UDS, the model has internalised it and that content has stopped earning 
 
 ---
 
-## Trend
+## One table per tool — these numbers do not compare across tools
 
-| Date | Tool / model | Probes run | Baseline still fails | **Survival** |
-|------|--------------|-----------:|---------------------:|-------------:|
-| 2026-07-23 | Codex CLI 0.145.0 / `gpt-5.6-terra` | 4 | 2 | **50%** |
-| 2026-07-23 | Antigravity 1.0.14 — 5 models × P2, P6 | 10 | 10 | **100%** |
+> ⚠️ **A survival rate is only meaningful against the same probe set, on the same tool, at the
+> same model.** An earlier version of this file put Codex's 50% and Antigravity's 100% in one
+> table, which read like a trend. It was not: different probe sets, different tools. The 50%
+> was 4 probes including two that measure *behaviour*; the 100% was 2 declared-form probes
+> across 5 models. Nothing can be inferred by comparing them.
+>
+> Each tool below is a **separate experiment with its own state**. Progress in one says nothing
+> about the other.
+
+### Codex CLI 0.145.0
+
+| Date | Model | Probes | Baseline fails | Survival |
+|------|-------|-------:|---------------:|---------:|
+| 2026-07-23 | `gpt-5.6-terra` | 4 | 2 | **50%** |
+
+Probe set: P1, P2, P3, P6. P1 and P3 test *behaviour* and were internalised; P2 and P6 test
+*declared form* and survived. **Status: paused — account usage limit, resets 2026-08-22.**
+Nine outcome-measurement runs are retained and remain valid; see `_baselines/codex-0.145.0/`.
+
+### Antigravity 1.0.14
+
+| Date | Models | Probes | Baseline fails | Survival |
+|------|--------|-------:|---------------:|---------:|
+| 2026-07-23 | 5 models, 3 families | 10 | 10 | **100%** |
+
+Probe set: P2, P6 only — both declared form. **Not comparable to the Codex row above**: a
+narrower probe set on more models. Status: active, no quota constraint observed.
 
 ### 2026-07-23 — multi-model sweep
 
