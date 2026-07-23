@@ -19,6 +19,7 @@ import {
 } from '../config/ai-agent-paths.js';
 import { computeDirectoryHashes, computeFileHash } from './hasher.js';
 import { isLocalizedLocale } from './locale.js';
+import { getSkillsSourceDir } from './skills-source.js';
 
 // Get the CLI package root directory
 const __filename = fileURLToPath(import.meta.url);
@@ -26,19 +27,8 @@ const __dirname = dirname(__filename);
 const CLI_ROOT = join(__dirname, '..', '..');
 const BUNDLED_DIR = join(CLI_ROOT, 'bundled');
 
-/**
- * Get the Skills source directory.
- * Prioritizes bundled directory (npm install), falls back to development path.
- * @returns {string} Path to skills source directory
- */
-function getSkillsSourceDir() {
-  const bundledPath = join(BUNDLED_DIR, 'skills');
-  if (existsSync(bundledPath)) {
-    return bundledPath;
-  }
-  // Development environment fallback
-  return join(CLI_ROOT, '..', 'skills');
-}
+// getSkillsSourceDir now lives in skills-source.js so github.js resolves the same path.
+// Its previous private copy here was the half that worked; the copy in github.js was not.
 
 /**
  * Get the localized Skills source directory for a given locale.
@@ -108,17 +98,19 @@ export function getAvailableSkillNames() {
     return [];
   }
 
-  const NON_SKILL_ITEMS = [
-    'README.md', 'CONTRIBUTING.template.md',
-    'commands', '.manifest.json', '.DS_Store'
-  ];
-
   try {
     return readdirSync(SKILLS_LOCAL_DIR)
       .filter(item => {
-        if (NON_SKILL_ITEMS.includes(item)) return false;
         const itemPath = join(SKILLS_LOCAL_DIR, item);
-        return statSync(itemPath).isDirectory();
+        if (!statSync(itemPath).isDirectory()) return false;
+        // A skill is a directory containing SKILL.md. Defining it positively rather than
+        // by a deny-list matters: `skills/` also holds agents/, workflows/, ai/, tools/
+        // and _shared/, which belong to other installers. The old deny-list named only
+        // some of them, so the rest were treated as skills whose SKILL.md "failed to
+        // install" — 5 phantom failures that failed the whole install transaction.
+        // A new sibling directory now costs nothing; under a deny-list it would break
+        // installation until someone remembered to add it.
+        return existsSync(join(itemPath, 'SKILL.md'));
       });
   } catch {
     return [];

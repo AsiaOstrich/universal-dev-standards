@@ -232,11 +232,17 @@ describe('GitHub Utils', () => {
   });
 
   describe('getLocalSkillsDir', () => {
-    it('should return local skills directory path', () => {
+    // This test used to assert the path contained 'claude-code'. That directory does not
+    // exist in either layout — a checkout has skills/<name>/ and an npm install has
+    // bundled/skills/<name>/ — so hasLocalSkills() was permanently false, every install
+    // silently took the remote-download path, and that path failed on files most skills
+    // do not ship. The assertion was pinning the bug in place: green meant the code still
+    // agreed with a stale assumption, not that the path resolved to anything real.
+    it('should resolve to a skills directory that exists', () => {
       const result = getLocalSkillsDir();
 
       expect(result).toContain('skills');
-      expect(result).toContain('claude-code');
+      expect(result).not.toContain('claude-code');
     });
   });
 

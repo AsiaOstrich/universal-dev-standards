@@ -4,6 +4,7 @@ import { homedir } from 'os';
 import { fileURLToPath } from 'url';
 import https from 'https';
 import { setTimeout as delay } from 'timers/promises';
+import { getSkillsSourceDir } from './skills-source.js';
 
 // Re-export agent-specific functions from ai-agent-paths for unified API
 export {
@@ -26,7 +27,10 @@ const SKILLS_RAW_BASE = 'https://raw.githubusercontent.com/AsiaOstrich/universal
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const CLI_ROOT = join(__dirname, '..', '..');
-const SKILLS_LOCAL_DIR = join(CLI_ROOT, '..', 'skills', 'claude-code');
+
+// Resolved centrally — this file used to hardcode `<CLI_ROOT>/../skills/claude-code`, a
+// layout that no longer exists in either a checkout or an npm install. See skills-source.js.
+const SKILLS_LOCAL_DIR = getSkillsSourceDir();
 
 /**
  * Status codes that are safe to retry (transient errors)
