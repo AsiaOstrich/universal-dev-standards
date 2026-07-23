@@ -589,12 +589,17 @@ Refs: SPEC-001
 
 | AI 工具 | 状态 | Skills | Slash Commands | 配置文件 |
 |---------|------|--------|----------------|---------|
-| **Claude Code** | 完整支持 | 26 | 30 | `CLAUDE.md` |
-| **OpenCode** | 完整支持 | 26 | 30 | `AGENTS.md` |
-| **Gemini CLI** | Preview | 18+ | 20+ | `GEMINI.md` |
+| **Claude Code** | 完整支持 | 55 | 51 | `CLAUDE.md` |
+| **OpenCode** | 完整支持 | 55 | 51 | `AGENTS.md` |
 | **Cursor** | 完整支持 | Core | Simulated | `.cursorrules` |
-| **Cline / Roo Code** | 部分支持 | Core | Workflow | `.clinerules` |
-| **Windsurf** | 部分支持 | 有 | Rulebook | `.windsurfrules` |
+| **Roo Code** | 完整支持 | Core | Workflow | `.roo/rules/` |
+| **Cline** | 部分支持 | Core | Workflow | `.clinerules` |
+| **Windsurf** | 部分支持 | Core | Rulebook | `.windsurfrules` |
+| **Google Antigravity** | 最低限度 | 🔬 未验证 | — | `.antigravity/rules.md` |
+| **Gemini CLI** | ⛔ 已停止服务 | — | — | `GEMINI.md`（已冻结）|
+
+> Gemini CLI 已于 2026-06-18 由 Google 终止服务，由 Antigravity CLI 接手。
+> 完整清单、状态图例与脚注见 [README](../../README.md#-ai-工具支持)。
 
 > **一套标准，多工具通用** — 换 AI 工具不需要重学标准。
 

@@ -303,9 +303,15 @@ Determines the format of copied standard files.
 
 | Format | File Type | Token Usage | Use Case |
 |--------|-----------|-------------|----------|
-| **Compact** (Recommended) | `.ai.yaml` | ~80% reduction | AI assistants, automation |
+| **Compact** (Recommended) | `.ai.yaml` | ~31% smaller<sup>†</sup> | AI assistants, automation |
 | **Detailed** | `.md` | Standard | Human reading, team training |
 | **Both** | Both formats | Higher | Need both purposes |
+
+<sup>†</sup> Measured 2026-07-23 across the 135 standards that ship in both forms:
+872,380 bytes of `.ai.yaml` against 1,271,471 bytes of `.md`. Reproduce with the commands in
+[Content Architecture §7](reference/CONTENT-ARCHITECTURE.md#7-how-to-re-measure).
+This figure previously read "~80% reduction", which no measurement supports —
+pick this option for structured machine parsing, not for a large token saving.
 
 ### Detailed Explanation
 
@@ -324,9 +330,9 @@ rules:
 ```
 
 **Characteristics**:
-- High token efficiency (~80% reduction)
-- Structured YAML format
+- Structured YAML format — deterministic to parse
 - Suitable for AI parsing
+- ~31% smaller than the Markdown form (measured; see the note above)
 
 #### Detailed
 

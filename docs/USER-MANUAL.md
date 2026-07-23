@@ -595,12 +595,18 @@ You don't need to learn all commands at once. Adopt in stages:
 
 | AI Tool | Status | Skills | Slash Commands | Config File |
 |---------|--------|--------|----------------|-------------|
-| **Claude Code** | Complete | 26 | 30 | `CLAUDE.md` |
-| **OpenCode** | Complete | 26 | 30 | `AGENTS.md` |
-| **Gemini CLI** | Preview | 18+ | 20+ | `GEMINI.md` |
+| **Claude Code** | Complete | 55 | 51 | `CLAUDE.md` |
+| **OpenCode** | Complete | 55 | 51 | `AGENTS.md` |
 | **Cursor** | Complete | Core | Simulated | `.cursorrules` |
-| **Cline / Roo Code** | Partial | Core | Workflow | `.clinerules` |
-| **Windsurf** | Partial | Yes | Rulebook | `.windsurfrules` |
+| **Roo Code** | Complete | Core | Workflow | `.roo/rules/` |
+| **Cline** | Partial | Core | Workflow | `.clinerules` |
+| **Windsurf** | Partial | Core | Rulebook | `.windsurfrules` |
+| **Google Antigravity** | Minimal | 🔬 Unverified | — | `.antigravity/rules.md` |
+| **Gemini CLI** | ⛔ Discontinued | — | — | `GEMINI.md` (frozen) |
+
+> Gemini CLI was sunset by Google on 2026-06-18 and succeeded by Antigravity CLI.
+> The full list, status legend, and footnotes are in the
+> [README](../README.md#-ai-tool-support).
 
 > **One set of standards, multiple tools** — switching AI tools doesn't mean re-learning standards.
 

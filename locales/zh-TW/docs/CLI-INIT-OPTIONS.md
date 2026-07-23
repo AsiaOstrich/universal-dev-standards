@@ -311,9 +311,15 @@ your-project/
 
 | 格式 | 檔案類型 | Token 使用量 | 適用情境 |
 |------|----------|--------------|----------|
-| **Compact** (推薦) | `.ai.yaml` | ~80% 減少 | AI 助手使用、自動化 |
+| **Compact** (推薦) | `.ai.yaml` | 約小 31%<sup>†</sup> | AI 助手使用、自動化 |
 | **Detailed** | `.md` | 標準 | 人工閱讀、團隊訓練 |
 | **Both** | 兩種都有 | 較高 | 需要兩種用途 |
+
+<sup>†</sup> 2026-07-23 實測，涵蓋同時具備兩種形式的 135 份標準：
+`.ai.yaml` 872,380 bytes，`.md` 1,271,471 bytes。重現指令見
+[Content Architecture §7](../../../docs/reference/CONTENT-ARCHITECTURE.md#7-how-to-re-measure)。
+此數字原本寫「約減少 80%」，**沒有任何量測支持**——
+選這個選項的理由應是「結構化、機器好解析」，不是「省很多 token」。
 
 ### 詳細說明
 
@@ -332,9 +338,9 @@ rules:
 ```
 
 **特點**：
-- Token 效率高（約減少 80%）
-- 結構化 YAML 格式
+- 結構化 YAML 格式——解析結果確定
 - 適合 AI 解析
+- 體積約為 Markdown 版的 69%（約小 31%，實測；見上方註）
 
 #### Detailed
 

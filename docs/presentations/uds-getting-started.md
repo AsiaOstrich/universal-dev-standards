@@ -63,26 +63,33 @@ Version 5.0.0-rc.16 | 2026
 
 ---
 
-## 架構總覽：雙層執行模型
+## 架構總覽：兩條獨立的軸
+
+**軸一 — 深度：哪些內容必須常駐載入**（決定 context 成本的是這條）
 
 ```
        AI Agent / 開發者
               |
-        ┌─────┴─────┐
-        |           |
-   Skills Layer   Standards Layer
-   (.ai.yaml)       (.md)
-        |              |
-   省 Token         完整理論
-   互動式精靈       工具配置
-   日常開發用       深度參考用
+              v
+      Rules  (core/*.md)                  <- 必讀
+      可執行規則、檢查清單、門檻值
+              |
+              +--- 需要說明？ --------> Guides (core/guides/*.md)      按需
+              |
+              +--- 需要方法論？ ------> Methodologies                  按需
 ```
 
-| 面向 | Skills（執行層） | Standards（知識層） |
-|------|-----------------|-------------------|
-| 格式 | YAML 最佳化 | 完整 Markdown |
-| 用途 | 高速互動查詢 | 深度理解與根據 |
-| Token 用量 | 最少（AI 友善） | 詳盡（參考用） |
+**軸二 — 格式：同一份標準的兩種編碼**
+
+| 面向 | `ai/standards/*.ai.yaml` | `core/*.md` |
+|------|--------------------------|-------------|
+| 編碼 | 結構化 YAML | 散文式 Markdown |
+| 適用於 | 機器確定性查詢 | 人類閱讀與審查 |
+| 相對體積 | 約為 Markdown 版的 69%——**換一種格式，不是壓縮層** | 基準 |
+
+> **這條軸不帶深度含意。** 決定 context 成本的是另一條軸：
+> Rules（`core/*.md`，必讀）／ Guides（`core/guides/*.md`，按需）。
+> 見 [Content Architecture](../reference/CONTENT-ARCHITECTURE.md)。
 
 ---
 
@@ -90,12 +97,17 @@ Version 5.0.0-rc.16 | 2026
 
 | AI 工具 | 狀態 | Skills | Slash Commands |
 |---------|------|--------|----------------|
-| **Claude Code** | 完整支援 | 26 | 30 |
-| **OpenCode** | 完整支援 | 26 | 30 |
-| **Gemini CLI** | Preview | 18+ | 20+ |
+| **Claude Code** | 完整支援 | 55 | 51 |
+| **OpenCode** | 完整支援 | 55 | 51 |
 | **Cursor** | 完整支援 | Core | Simulated |
-| **Cline / Roo Code** | 部分支援 | Core | Workflow |
-| **Windsurf** | 部分支援 | 有 | Rulebook |
+| **Roo Code** | 完整支援 | Core | Workflow |
+| **Cline** | 部分支援 | Core | Workflow |
+| **Windsurf** | 部分支援 | Core | Rulebook |
+| **Google Antigravity** | 最低限度 | 🔬 未驗證 | — |
+| **Gemini CLI** | ⛔ 已停止服務 | — | — |
+
+> Gemini CLI 已於 2026-06-18 由 Google 終止服務，由 Antigravity CLI 接手。
+> 完整清單與狀態圖例見 [README](../../README.md#-ai-tool-support)。
 
 > **一套標準，多工具通用** — 換 AI 工具不需要重學標準
 
