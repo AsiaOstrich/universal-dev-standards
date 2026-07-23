@@ -1,0 +1,1778 @@
+Reading additional input from stdin...
+OpenAI Codex v0.145.0
+--------
+workdir: /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 019f8f93-84a7-7cf3-8ff5-79692beb725f
+--------
+user
+Here is background material from an unrelated service, for context only. Do not review it.
+
+import { Hono } from "hono";
+import { validateApiKey } from "./middleware/auth";
+import { redactSensitiveFields } from "./middleware/redactor";
+import { healthResponse } from "./handlers/health";
+import { ingestTelemetry, ingestIndexSnapshot, ingestTokenSummary, ingestEvolution, ingestTechRadar, ingestFailurePatterns, ingestEpistemicState, ingestPiuExperience, ingestHealthSignal, ingestTopologyTrace, ingestOrchestrationRun, ingestPipelineRun, ingestEventV2, ingestProductEvent } from "./handlers/ingest";
+import { buildMetricsText } from "./handlers/metrics";
+import { queryTelemetry, queryTokenSummary, queryRunEvents, queryProductEvents, queryV2EventSummary, queryV2CohortComparison, queryAnomalyAlerts } from "./handlers/query";
+import { renderDashboard, renderFactoryOwnerDashboard, renderProductDashboard, renderAlertDashboard } from "./handlers/dashboard";
+import { runCleanup, computeWeeklyAggregations, computeMonthlyAggregations } from "./handlers/scheduled";
+import { eraseSubject } from "./handlers/erasure";
+
+type Bindings = {
+  DB: D1Database;
+  DASHBOARD_READ_KEY: string;
+  PUBLIC_INGEST_KEY: string;
+  ERASURE_KEY: string; // XSPEC-261 R2: admin key for GDPR right-to-erasure
+};
+
+const app = new Hono<{ Bindings: Bindings }>();
+
+// Health endpoint — no auth required (AC-1)
+app.get("/api/v1/health", (c) => {
+  const { status, body } = healthResponse();
+  return c.json(body, status);
+});
+
+// Auth middleware for all ingest routes
+app.use("/api/v1/ingest/*", async (c, next) => {
+  const apiKey = c.req.header("X-API-Key") ?? null;
+  const valid = await validateApiKey(apiKey, c.env.DB, c.env.PUBLIC_INGEST_KEY);
+  if (!valid) {
+    return c.json({ error: apiKey ? "Invalid API key" : "Missing API key" }, 401);
+  }
+  await next();
+});
+
+// POST /api/v1/ingest/telemetry (AC-2, AC-3, AC-4)
+app.post("/api/v1/ingest/telemetry", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestTelemetry(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// POST /api/v1/ingest/index-snapshot
+app.post("/api/v1/ingest/index-snapshot", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestIndexSnapshot(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// POST /api/v1/ingest/token-summary
+app.post("/api/v1/ingest/token-summary", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestTokenSummary(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// POST /api/v1/ingest/evolution (SPEC-002 AC-1, AC-2, AC-10)
+app.post("/api/v1/ingest/evolution", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestEvolution(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// POST /api/v1/ingest/tech-radar (SPEC-002 AC-3, AC-4)
+app.post("/api/v1/ingest/tech-radar", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestTechRadar(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// POST /api/v1/ingest/failure-patterns (SPEC-003 AC-1~4)
+app.post("/api/v1/ingest/failure-patterns", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestFailurePatterns(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// POST /api/v1/ingest/epistemic-state (SPEC-003 AC-5~9)
+app.post("/api/v1/ingest/epistemic-state", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestEpistemicState(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// POST /api/v1/ingest/piu-experience (SPEC-003 AC-10~14)
+app.post("/api/v1/ingest/piu-experience", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestPiuExperience(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// POST /api/v1/ingest/health-signal (XSPEC-023)
+app.post("/api/v1/ingest/health-signal", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestHealthSignal(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// POST /api/v1/ingest/topology-trace (XSPEC-031)
+app.post("/api/v1/ingest/topology-trace", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestTopologyTrace(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// POST /api/v1/ingest/events (XSPEC-051 DevAP OrchestrationRunEvent)
+app.post("/api/v1/ingest/events", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestOrchestrationRun(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// POST /api/v1/ingest/pipeline-run (XSPEC-055 VibeOps PipelineRunEvent)
+app.post("/api/v1/ingest/pipeline-run", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestPipelineRun(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// POST /api/v1/ingest/product-event (XSPEC-241 VibeOps 核心產品事件)
+app.post("/api/v1/ingest/product-event", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestProductEvent(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// POST /api/v1/ingest/v2/event (XSPEC-189 Telemetry Schema v2)
+app.post("/api/v1/ingest/v2/event", async (c) => {
+  const raw = await c.req.json<Record<string, unknown>>();
+  const body = redactSensitiveFields(raw);
+  const { status, body: result } = await ingestEventV2(body, c.env.DB);
+  return c.json(result, status);
+});
+
+// GET /metrics — Prometheus text format, no auth required (SPEC-003 AC-15~20)
+app.get("/metrics", async (c) => {
+  const text = await buildMetricsText(c.env.DB);
+  return new Response(text, {
+    status: 200,
+    headers: { "Content-Type": "text/plain; version=0.0.4; charset=utf-8" },
+  });
+});
+
+// Auth middleware for all query routes.
+// DASHBOARD_READ_KEY is a shared read-only secret (distinct from the hashed,
+// rotatable api_keys table) that the rendered dashboards embed and send as
+// X-API-Key — mirror the PUBLIC_INGEST_KEY pattern so it's accepted here too.
+app.use("/api/v1/query/*", async (c, next) => {
+  const apiKey = c.req.header("X-API-Key") ?? null;
+  const valid = await validateApiKey(apiKey, c.env.DB, c.env.DASHBOARD_READ_KEY);
+  if (!valid) {
+    return c.json({ error: apiKey ? "Invalid API key" : "Missing API key" }, 401);
+  }
+  await next();
+});
+
+// GET /api/v1/query/telemetry (SPEC-002 AC-5, AC-7)
+app.get("/api/v1/query/telemetry", async (c) => {
+  const params = {
+    project:     c.req.query("project")     ?? null,
+    standard_id: c.req.query("standard_id") ?? null,
+    days:        c.req.query("days")        ?? null,
+    limit:       c.req.query("limit")       ?? null,
+  };
+  const { status, body } = await queryTelemetry(params, c.env.DB);
+  return c.json(body, status);
+});
+
+// GET /api/v1/query/token-summary (SPEC-002 AC-6)
+app.get("/api/v1/query/token-summary", async (c) => {
+  const params = { days: c.req.query("days") ?? null };
+  const { status, body } = await queryTokenSummary(params, c.env.DB);
+  return c.json(body, status);
+});
+
+// GET /api/v1/query/run-events (XSPEC-051/055)
+app.get("/api/v1/query/run-events", async (c) => {
+  const params = { days: c.req.query("days") ?? null };
+  const { status, body } = await queryRunEvents(params, c.env.DB);
+  return c.json(body, status);
+});
+
+// GET /api/v1/query/product-events (XSPEC-241)
+app.get("/api/v1/query/product-events", async (c) => {
+  const params = { days: c.req.query("days") ?? null };
+  const { status, body } = await queryProductEvents(params, c.env.DB);
+  return c.json(body, status);
+});
+
+// GET /dashboard — no auth, returns HTML (SPEC-002 AC-8, AC-9)
+app.get("/dashboard", (c) => {
+  const key = c.env.DASHBOARD_READ_KEY ?? "";
+  return c.html(renderDashboard(key));
+});
+
+// GET /dashboard/factory — XSPEC-189 AC-5: 廠長 Dashboard
+app.get("/dashboard/factory", (c) => {
+  const key = c.env.DASHBOARD_READ_KEY ?? "";
+  return c.html(renderFactoryOwnerDashboard(key));
+});
+
+// GET /dashboard/product — XSPEC-189 AC-6: 產品 Dashboard（cohort 對比）
+app.get("/dashboard/product", (c) => {
+  const key = c.env.DASHBOARD_READ_KEY ?? "";
+  return c.html(renderProductDashboard(key));
+});
+
+// GET /dashboard/alerts — XSPEC-189 AC-7: 告警 Dashboard
+app.get("/dashboard/alerts", (c) => {
+  const key = c.env.DASHBOARD_READ_KEY ?? "";
+  return c.html(renderAlertDashboard(key));
+});
+
+// GET /api/v1/query/v2/events — XSPEC-189 AC-5/6: per-stage event summary
+app.get("/api/v1/query/v2/events", async (c) => {
+  const apiKey = c.req.header("X-API-Key") ?? null;
+  const valid = await validateApiKey(apiKey, c.env.DB, c.env.DASHBOARD_READ_KEY);
+  if (!valid) return c.json({ error: "Unauthorized" }, 401);
+
+  const params = {
+    stage: c.req.query("stage") ?? null,
+    event_type: c.req.query("event_type") ?? null,
+    edition: c.req.query("edition") ?? null,
+    days: c.req.query("days") ?? null,
+  };
+  const { status, body } = await queryV2EventSummary(params, c.env.DB);
+  return c.json(body, status);
+});
+
+// GET /api/v1/query/v2/cohort — XSPEC-189 AC-6: cohort comparison
+app.get("/api/v1/query/v2/cohort", async (c) => {
+  const apiKey = c.req.header("X-API-Key") ?? null;
+  const valid = await validateApiKey(apiKey, c.env.DB, c.env.DASHBOARD_READ_KEY);
+  if (!valid) return c.json({ error: "Unauthorized" }, 401);
+
+  const { status, body } = await queryV2CohortComparison(c.env.DB);
+  return c.json(body, status);
+});
+
+// GET /api/v1/query/v2/anomaly-alerts — XSPEC-189 AC-7: alert dashboard data
+app.get("/api/v1/query/v2/anomaly-alerts", async (c) => {
+  const apiKey = c.req.header("X-API-Key") ?? null;
+  const valid = await validateApiKey(apiKey, c.env.DB, c.env.DASHBOARD_READ_KEY);
+  if (!valid) return c.json({ error: "Unauthorized" }, 401);
+
+  const params = {
+    acknowledged: c.req.query("acknowledged") ?? null,
+    severity: c.req.query("severity") ?? null,
+  };
+  const { status, body } = await queryAnomalyAlerts(params, c.env.DB);
+  return c.json(body, status);
+});
+
+// POST /api/v1/erasure — XSPEC-261 R2 (DEC-041 D3.3): GDPR right-to-erasure.
+// Admin-mediated: the data controller verifies the request, then calls this with
+// the dedicated ERASURE_KEY (stronger than a normal ingest/query API key).
+app.post("/api/v1/erasure", async (c) => {
+  const key = c.req.header("X-API-Key") ?? "";
+  const erasureKey = c.env.ERASURE_KEY ?? "";
+  if (!erasureKey || key !== erasureKey) {
+    return c.json({ error: "Unauthorized — erasure requires the admin ERASURE_KEY" }, 401);
+  }
+  const body = await c.req.json<{
+    identifier_type?: string;
+    identifier_value?: string;
+    actor?: string;
+  }>();
+  if (!body.identifier_type || !body.identifier_value) {
+    return c.json({ error: "Missing identifier_type or identifier_value" }, 400);
+  }
+  const { status, body: result } = await eraseSubject(
+    c.env.DB,
+    body.identifier_type,
+    body.identifier_value,
+    body.actor ?? "erasure-key"
+  );
+  return c.json(result, status);
+});
+
+// Scheduled handler: 90-day cleanup (AC-11) + weekly/monthly aggregation (AC-4)
+export default {
+  fetch: app.fetch,
+  async scheduled(event: ScheduledEvent, env: Bindings, _ctx: ExecutionContext) {
+    await runCleanup(env.DB);
+    // cron "0 2 * * MON" → weekly aggregation
+    if (event.cron === "0 2 * * MON") {
+      await computeWeeklyAggregations(env.DB);
+    }
+    // cron "0 3 1 * *" → monthly aggregation
+    if (event.cron === "0 3 1 * *") {
+      await computeMonthlyAggregations(env.DB);
+    }
+  },
+};
+const SENSITIVE_PATTERN = /(api[_-]?key|token|password|secret|bearer)/i;
+
+export function redactSensitiveFields(obj: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (SENSITIVE_PATTERN.test(key)) {
+      result[key] = "[REDACTED]";
+    } else if (Array.isArray(value)) {
+      result[key] = value.map((item) =>
+        item !== null && typeof item === "object"
+          ? redactSensitiveFields(item as Record<string, unknown>)
+          : item
+      );
+    } else if (value !== null && typeof value === "object") {
+      result[key] = redactSensitiveFields(value as Record<string, unknown>);
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+export async function computeKeyHash(key: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(key);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+export async function validateApiKey(
+  key: string | null,
+  db: D1Database,
+  publicKey?: string
+): Promise<boolean> {
+  if (!key) return false;
+  if (publicKey && key === publicKey) return true;
+
+  const hash = await computeKeyHash(key);
+
+  const row = await db
+    .prepare("SELECT id FROM api_keys WHERE key_hash = ? AND is_active = 1")
+    .bind(hash)
+    .first<{ id: string }>();
+
+  if (!row) return false;
+
+  await db
+    .prepare("UPDATE api_keys SET last_used_at = datetime('now') WHERE id = ?")
+    .bind(row.id)
+    .run();
+
+  return true;
+}
+// XSPEC-191 W1 A5: PoC Analytics Queries
+// 對齊 XSPEC-191 §5.4 三條查詢，使用 events_v2 實際 schema（migration 007）
+// events_v2.event_data 為 JSON TEXT blob，以 JSON_EXTRACT 存取
+// PoC cohort 以 client_id LIKE 'PoC-%' 過濾（XSPEC-191 §6.2）
+// cohort.arm 欄位由 tagCohort() 注入 event_data.cohort.arm（XSPEC-191 W1 A2）
+
+/**
+ * Q1：各 Arm 總 token cost（USD）
+ *
+ * 對齊 XSPEC-191 §5.4 Q1。
+ * 使用 event_type='performance' + event_subtype='token_usage'，
+ * 從 event_data JSON 提取 cost_usd 與 cohort.arm。
+ *
+ * 回傳欄位：arm / total_cost_usd / session_count / total_input_tokens / total_output_tokens
+ *
+ * @param arm - 指定 Arm（'a' | 'b' | 'c'），若為 undefined 則查詢所有 Arm
+ */
+export function buildQ1ArmTokenCost(arm?: 'a' | 'b' | 'c'): string {
+  const armFilter = arm
+    ? `AND JSON_EXTRACT(event_data, '$.cohort.arm') = '${arm}'`
+    : '';
+
+  return `
+SELECT
+  JSON_EXTRACT(event_data, '$.cohort.arm')           AS arm,
+  COUNT(DISTINCT session_id)                          AS session_count,
+  SUM(CAST(JSON_EXTRACT(event_data, '$.input_tokens')  AS INTEGER)) AS total_input_tokens,
+  SUM(CAST(JSON_EXTRACT(event_data, '$.output_tokens') AS INTEGER)) AS total_output_tokens,
+  ROUND(SUM(CAST(JSON_EXTRACT(event_data, '$.cost_usd') AS REAL)), 4) AS total_cost_usd,
+  ROUND(AVG(CAST(JSON_EXTRACT(event_data, '$.cost_usd') AS REAL)), 4) AS avg_cost_per_session_usd
+FROM events_v2
+WHERE event_type    = 'performance'
+  AND event_subtype = 'token_usage'
+  AND client_id     LIKE 'PoC-%'
+  AND JSON_EXTRACT(event_data, '$.cohort.arm') IS NOT NULL
+  ${armFilter}
+GROUP BY arm
+ORDER BY arm;
+`.trim();
+}
+
+/**
+ * Q2：各 Arm 各 stage 成本佔比
+ *
+ * 對齊 XSPEC-191 §5.4 Q2。
+ * 每個 stage 的 token_usage cost_usd 加總，計算佔 Arm 總成本的百分比。
+ *
+ * 回傳欄位：arm / stage / stage_cost_usd / cost_pct
+ *
+ * @param arm - 指定 Arm，若為 undefined 則查詢所有 Arm
+ */
+export function buildQ2StageCostBreakdown(arm?: 'a' | 'b' | 'c'): string {
+  const armFilter = arm
+    ? `AND JSON_EXTRACT(event_data, '$.cohort.arm') = '${arm}'`
+    : '';
+
+  return `
+WITH arm_total AS (
+  SELECT
+    JSON_EXTRACT(event_data, '$.cohort.arm') AS arm,
+    SUM(CAST(JSON_EXTRACT(event_data, '$.cost_usd') AS REAL)) AS arm_total_cost
+  FROM events_v2
+  WHERE event_type    = 'performance'
+    AND event_subtype = 'token_usage'
+    AND client_id     LIKE 'PoC-%'
+    AND JSON_EXTRACT(event_data, '$.cohort.arm') IS NOT NULL
+    ${armFilter}
+  GROUP BY arm
+)
+SELECT
+  e.arm,
+  e.stage,
+  ROUND(SUM(e.cost_usd), 4)                                       AS stage_cost_usd,
+  ROUND(SUM(e.cost_usd) * 100.0 / MAX(t.arm_total_cost), 2)      AS cost_pct
+FROM (
+  SELECT
+    JSON_EXTRACT(event_data, '$.cohort.arm') AS arm,
+    stage,
+    CAST(JSON_EXTRACT(event_data, '$.cost_usd') AS REAL)         AS cost_usd
+  FROM events_v2
+  WHERE event_type    = 'performance'
+    AND event_subtype = 'token_usage'
+    AND client_id     LIKE 'PoC-%'
+    AND JSON_EXTRACT(event_data, '$.cohort.arm') IS NOT NULL
+    ${armFilter}
+) e
+JOIN arm_total t ON t.arm = e.arm
+GROUP BY e.arm, e.stage
+ORDER BY e.arm, cost_pct DESC;
+`.trim();
+}
+
+/**
+ * Q3：各 Arm Cache Hit Ratio 對比
+ *
+ * 對齊 XSPEC-191 §5.4 Q3。
+ * 使用 event_type='performance' + event_subtype='cache_metric'，
+ * 從 event_data JSON 提取 cache_read_tokens / prompt_tokens（對應 TokenUsageData.input_tokens）。
+ * cache_hit_ratio 直接取 CacheMetricData.cache_hit_ratio 欄位。
+ *
+ * 回傳欄位：arm / avg_cache_hit_ratio / total_cache_read_tokens / total_prompt_tokens
+ */
+export function buildQ3CacheHitRatio(arm?: 'a' | 'b' | 'c'): string {
+  const armFilter = arm
+    ? `AND JSON_EXTRACT(event_data, '$.cohort.arm') = '${arm}'`
+    : '';
+
+  return `
+SELECT
+  JSON_EXTRACT(event_data, '$.cohort.arm')  AS arm,
+  SUM(CAST(JSON_EXTRACT(event_data, '$.cache_read_tokens') AS INTEGER))
+                                             AS total_cache_read_tokens,
+  SUM(CAST(JSON_EXTRACT(event_data, '$.cache_write_tokens') AS INTEGER))
+                                             AS total_cache_write_tokens,
+  ROUND(
+    AVG(CAST(JSON_EXTRACT(event_data, '$.cache_hit_ratio') AS REAL)),
+    4
+  )                                          AS avg_cache_hit_ratio,
+  ROUND(
+    SUM(CAST(JSON_EXTRACT(event_data, '$.cache_read_tokens') AS REAL)) * 100.0
+    / NULLIF(
+        SUM(CAST(JSON_EXTRACT(event_data, '$.cache_read_tokens') AS REAL))
+        + SUM(CAST(JSON_EXTRACT(event_data, '$.cache_write_tokens') AS REAL)),
+        0
+      ),
+    2
+  )                                          AS cache_hit_ratio_pct
+FROM events_v2
+WHERE event_type    = 'performance'
+  AND event_subtype = 'cache_metric'
+  AND client_id     LIKE 'PoC-%'
+  AND JSON_EXTRACT(event_data, '$.cohort.arm') IS NOT NULL
+  ${armFilter}
+GROUP BY arm
+ORDER BY arm;
+`.trim();
+}
+
+/**
+ * 便利函式：取得所有三條查詢（用於 D1 Binding 或 Worker handler 呼叫）
+ */
+export const POC_QUERIES = {
+  Q1_ARM_TOKEN_COST: buildQ1ArmTokenCost(),
+  Q2_STAGE_BREAKDOWN: buildQ2StageCostBreakdown(),
+  Q3_CACHE_HIT_RATIO: buildQ3CacheHitRatio(),
+} as const;
+// implements XSPEC-261 R2 (DEC-041 D3.3) — GDPR right-to-erasure
+//
+// Admin-mediated: the data controller (factory) receives a right-to-erasure
+// request, verifies it, then calls this with an admin key. NOT anonymous self-serve.
+// Subject identifiers are fragmented across three columns (user_id / installation_id
+// / client_id) whose values are not interchangeable; identity_map (best-effort,
+// populated at ingest) lets one identifier expand to a subject's others. When no
+// link exists, erasure degrades to the tables directly matching the supplied id.
+
+import { computeKeyHash } from "../middleware/auth";
+
+export type IdField = "user_id" | "installation_id" | "client_id";
+
+export const ID_FIELDS: IdField[] = ["user_id", "installation_id", "client_id"];
+
+// Tables carrying each identifier field (per schema.sql + migrations 006/007/009).
+const TABLES_BY_FIELD: Record<IdField, string[]> = {
+  user_id: [
+    "telemetry_events",
+    "index_snapshots",
+    "token_summaries",
+    "evolution_proposals",
+    "failure_patterns",
+    "epistemic_states",
+    "piu_experiences",
+    "health_signals",
+    "tech_radar_snapshots",
+  ],
+  installation_id: [
+    "telemetry_events",
+    "run_events",
+    "topology_run_summaries",
+    "product_events",
+  ],
+  client_id: ["events_v2"],
+};
+
+export interface SubjectIds {
+  user_id?: string;
+  installation_id?: string;
+  client_id?: string;
+}
+
+/**
+ * Best-effort identity linking at ingest. When a single request carries >=2
+ * identifiers, create/merge an identity_map row so they resolve to one subject.
+ * No-op when fewer than 2 identifiers are present (no new linkage information).
+ */
+export async function linkIdentities(db: D1Database, ids: SubjectIds): Promise<void> {
+  const present = ID_FIELDS.filter((f) => ids[f]);
+  if (present.length < 2) return;
+
+  const where = present.map((f) => `${f} = ?`).join(" OR ");
+  const binds = present.map((f) => ids[f] as string);
+  const existing = await db
+    .prepare(
+      `SELECT subject_id, user_id, installation_id, client_id FROM identity_map WHERE ${where} LIMIT 1`
+    )
+    .bind(...binds)
+    .first<{
+      subject_id: string;
+      user_id: string | null;
+      installation_id: string | null;
+      client_id: string | null;
+    }>();
+
+  if (existing) {
+    await db
+      .prepare(
+        `UPDATE identity_map SET user_id = ?, installation_id = ?, client_id = ?, updated_at = datetime('now') WHERE subject_id = ?`
+      )
+      .bind(
+        existing.user_id ?? ids.user_id ?? null,
+        existing.installation_id ?? ids.installation_id ?? null,
+        existing.client_id ?? ids.client_id ?? null,
+        existing.subject_id
+      )
+      .run();
+  } else {
+    await db
+      .prepare(
+        `INSERT INTO identity_map (subject_id, user_id, installation_id, client_id) VALUES (?, ?, ?, ?)`
+      )
+      .bind(
+        crypto.randomUUID(),
+        ids.user_id ?? null,
+        ids.installation_id ?? null,
+        ids.client_id ?? null
+      )
+      .run();
+  }
+}
+
+/** Expand one identifier to all known identifiers of the same subject. */
+export async function expandSubject(
+  db: D1Database,
+  type: IdField,
+  value: string
+): Promise<SubjectIds> {
+  const row = await db
+    .prepare(
+      `SELECT user_id, installation_id, client_id FROM identity_map WHERE ${type} = ? LIMIT 1`
+    )
+    .bind(value)
+    .first<{
+      user_id: string | null;
+      installation_id: string | null;
+      client_id: string | null;
+    }>();
+
+  if (!row) {
+    // Degrade: no linkage — erase only what directly matches this identifier.
+    return { [type]: value } as SubjectIds;
+  }
+  return {
+    user_id: row.user_id ?? undefined,
+    installation_id: row.installation_id ?? undefined,
+    client_id: row.client_id ?? undefined,
+  };
+}
+
+export interface ErasureResult {
+  status: 200 | 400;
+  body: {
+    erased?: boolean;
+    expanded_identifiers?: IdField[];
+    affected_counts?: Record<string, number>;
+    error?: string;
+  };
+}
+
+/**
+ * Execute erasure: expand subject → hard-delete across matching tables →
+ * write audit (hash only, no raw PII) → return per-table counts.
+ * Aggregation tables (aggregations_weekly/monthly) are anonymised and excluded
+ * (GDPR aggregate exemption; declared in Privacy Policy).
+ */
+export async function eraseSubject(
+  db: D1Database,
+  type: string,
+  value: string,
+  actor: string
+): Promise<ErasureResult> {
+  if (!ID_FIELDS.includes(type as IdField)) {
+    return { status: 400, body: { error: `Invalid identifier_type: ${type}` } };
+  }
+  if (!value) {
+    return { status: 400, body: { error: "Missing identifier_value" } };
+  }
+
+  const subject = await expandSubject(db, type as IdField, value);
+  const counts: Record<string, number> = {};
+
+  for (const field of ID_FIELDS) {
+    const v = subject[field];
+    if (!v) continue;
+    for (const table of TABLES_BY_FIELD[field]) {
+      const res = await db
+        .prepare(`DELETE FROM ${table} WHERE ${field} = ?`)
+        .bind(v)
+        .run();
+      counts[table] = (counts[table] ?? 0) + (res.meta?.changes ?? 0);
+    }
+  }
+
+  // Remove the identity_map row(s) for this subject too.
+  for (const field of ID_FIELDS) {
+    const v = subject[field];
+    if (v) {
+      await db.prepare(`DELETE FROM identity_map WHERE ${field} = ?`).bind(v).run();
+    }
+  }
+
+  const resolved = ID_FIELDS.filter((f) => subject[f]);
+  const idHash = await computeKeyHash(value);
+  await db
+    .prepare(
+      `INSERT INTO erasure_audit (id, identifier_type, identifier_hash, expanded_ids, affected_counts, actor)
+       VALUES (?, ?, ?, ?, ?, ?)`
+    )
+    .bind(
+      crypto.randomUUID(),
+      type,
+      idHash,
+      JSON.stringify(resolved),
+      JSON.stringify(counts),
+      actor
+    )
+    .run();
+
+  return {
+    status: 200,
+    body: { erased: true, expanded_identifiers: resolved, affected_counts: counts },
+  };
+}
+// implements XSPEC-189 Phase 2 (AC-4) + Phase 4 (AC-11)
+
+// ── v1 + v2 90-day TTL 清除對象 ───────────────────────────────────────────
+const TTL_90DAY_TABLES = [
+  "telemetry_events",    // v1
+  "index_snapshots",
+  "token_summaries",
+  "events_v2",           // v2（AC-11）
+] as const;
+
+export async function runCleanup(db: D1Database): Promise<void> {
+  for (const table of TTL_90DAY_TABLES) {
+    await db
+      .prepare(`DELETE FROM ${table} WHERE created_at < datetime('now', '-90 days')`)
+      .run();
+  }
+  // anomaly_alerts：已確認 30 天後清除（保留未確認項目）
+  await db
+    .prepare(
+      `DELETE FROM anomaly_alerts
+       WHERE acknowledged = 1
+         AND datetime(acknowledged_at) < datetime('now', '-30 days')`
+    )
+    .run();
+}
+
+// ── AC-4 Aggregation Pipeline ──────────────────────────────────────────────
+
+const COHORT_KEYS = [
+  "edition:community",
+  "edition:commercial",
+  "edition:trial",
+] as const;
+
+type CohortKey = (typeof COHORT_KEYS)[number];
+
+interface WeeklyMetric {
+  metric_name: string;
+  metric_value: number | null;
+  metric_data: string | null;
+  sample_size: number;
+}
+
+async function computeMetricsForCohort(
+  db: D1Database,
+  cohortKey: CohortKey,
+  weekStart: string,
+): Promise<WeeklyMetric[]> {
+  const edition = cohortKey.split(":")[1];
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 7);
+  const weekEndStr = weekEnd.toISOString().slice(0, 10);
+
+  const baseWhere = edition === "all"
+    ? `WHERE timestamp >= ? AND timestamp < ?`
+    : `WHERE edition = ? AND timestamp >= ? AND timestamp < ?`;
+  const baseBinds: unknown[] = edition === "all"
+    ? [weekStart, weekEndStr]
+    : [edition, weekStart, weekEndStr];
+
+  const metrics: WeeklyMetric[] = [];
+
+  // Gate pass rate（quality events）
+  const gateResult = await db
+    .prepare(
+      `SELECT
+         COUNT(*) AS total,
+         SUM(CASE WHEN json_extract(event_data, '$.passed') = 1 THEN 1 ELSE 0 END) AS passed
+       FROM events_v2
+       ${baseWhere}
+         AND event_type = 'quality'
+         AND event_subtype IN ('gate_pass', 'gate_fail')`
+    )
+    .bind(...baseBinds)
+    .first<{ total: number; passed: number }>();
+
+  metrics.push({
+    metric_name: "gate_pass_rate",
+    metric_value: gateResult && gateResult.total > 0
+      ? Math.round((gateResult.passed / gateResult.total) * 10000) / 10000
+      : null,
+    metric_data: null,
+    sample_size: gateResult?.total ?? 0,
+  });
+
+  // License compliance block rate（quality events）
+  const licenseResult = await db
+    .prepare(
+      `SELECT
+         COUNT(*) AS total,
+         SUM(CASE WHEN json_extract(event_data, '$.blocked_count') > 0 THEN 1 ELSE 0 END) AS blocked
+       FROM events_v2
+       ${baseWhere}
+         AND event_type = 'quality'
+         AND event_subtype = 'license_compliance_result'`
+    )
+    .bind(...baseBinds)
+    .first<{ total: number; blocked: number }>();
+
+  metrics.push({
+    metric_name: "license_compliance_block_rate",
+    metric_value: licenseResult && licenseResult.total > 0
+      ? Math.round((licenseResult.blocked / licenseResult.total) * 10000) / 10000
+      : null,
+    metric_data: null,
+    sample_size: licenseResult?.total ?? 0,
+  });
+
+  // Ship decision distribution（outcome events）
+  const shipResult = await db
+    .prepare(
+      `SELECT
+         json_extract(event_data, '$.decision') AS decision,
+         COUNT(*) AS cnt
+       FROM events_v2
+       ${baseWhere}
+         AND event_type = 'outcome'
+         AND event_subtype = 'ship_decision'
+       GROUP BY json_extract(event_data, '$.decision')`
+    )
+    .bind(...baseBinds)
+    .all<{ decision: string; cnt: number }>();
+
+  const shipDist: Record<string, number> = {};
+  let shipTotal = 0;
+  for (const row of shipResult.results ?? []) {
+    shipDist[row.decision] = row.cnt;
+    shipTotal += row.cnt;
+  }
+
+  metrics.push({
+    metric_name: "ship_decision_distribution",
+    metric_value: null,
+    metric_data: JSON.stringify(shipDist),
+    sample_size: shipTotal,
+  });
+
+  // AI proposal acceptance rate（decision events）
+  const proposalResult = await db
+    .prepare(
+      `SELECT
+         COUNT(*) AS total,
+         SUM(CASE WHEN json_extract(event_data, '$.outcome') = 'accepted' THEN 1 ELSE 0 END) AS accepted
+       FROM events_v2
+       ${baseWhere}
+         AND event_type = 'decision'
+         AND event_subtype = 'ai_proposal_outcome'`
+    )
+    .bind(...baseBinds)
+    .first<{ total: number; accepted: number }>();
+
+  metrics.push({
+    metric_name: "ai_proposal_acceptance_rate",
+    metric_value: proposalResult && proposalResult.total > 0
+      ? Math.round((proposalResult.accepted / proposalResult.total) * 10000) / 10000
+      : null,
+    metric_data: null,
+    sample_size: proposalResult?.total ?? 0,
+  });
+
+  return metrics;
+}
+
+export async function computeWeeklyAggregations(db: D1Database): Promise<void> {
+  // 計算上一個完整周（周一為起點）
+  const now = new Date();
+  const dayOfWeek = now.getUTCDay(); // 0=Sun, 1=Mon, ...
+  const daysToLastMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  const lastMonday = new Date(now);
+  lastMonday.setUTCDate(now.getUTCDate() - daysToLastMonday - 7);
+  const weekStart = lastMonday.toISOString().slice(0, 10);
+
+  for (const cohortKey of COHORT_KEYS) {
+    const metrics = await computeMetricsForCohort(db, cohortKey, weekStart);
+    for (const m of metrics) {
+      await db
+        .prepare(
+          `INSERT OR REPLACE INTO aggregations_weekly
+             (week_start, cohort_key, metric_name, metric_value, metric_data, sample_size)
+           VALUES (?, ?, ?, ?, ?, ?)`
+        )
+        .bind(weekStart, cohortKey, m.metric_name, m.metric_value, m.metric_data, m.sample_size)
+        .run();
+    }
+  }
+}
+
+export async function computeMonthlyAggregations(db: D1Database): Promise<void> {
+  // 計算上一個完整月
+  const now = new Date();
+  const firstOfThisMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const firstOfLastMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
+  const monthStart = firstOfLastMonth.toISOString().slice(0, 10);
+  const monthEnd = firstOfThisMonth.toISOString().slice(0, 10);
+
+  // 月聚合：ship decision + abort distribution（全量，不分 cohort）
+  const shipResult = await db
+    .prepare(
+      `SELECT
+         json_extract(event_data, '$.decision') AS decision,
+         COUNT(*) AS cnt
+       FROM events_v2
+       WHERE timestamp >= ? AND timestamp < ?
+         AND event_type = 'outcome'
+         AND event_subtype = 'ship_decision'
+       GROUP BY json_extract(event_data, '$.decision')`
+    )
+    .bind(monthStart, monthEnd)
+    .all<{ decision: string; cnt: number }>();
+
+  const shipDist: Record<string, number> = {};
+  let shipTotal = 0;
+  for (const row of shipResult.results ?? []) {
+    shipDist[row.decision] = row.cnt;
+    shipTotal += row.cnt;
+  }
+
+  await db
+    .prepare(
+      `INSERT OR REPLACE INTO aggregations_monthly
+         (month_start, cohort_key, metric_name, metric_value, metric_data, sample_size)
+       VALUES (?, ?, ?, ?, ?, ?)`
+    )
+    .bind(monthStart, "global", "ship_decision_distribution", null, JSON.stringify(shipDist), shipTotal)
+    .run();
+
+  // Abort trigger distribution
+  const abortResult = await db
+    .prepare(
+      `SELECT
+         json_extract(event_data, '$.trigger') AS trigger,
+         COUNT(*) AS cnt
+       FROM events_v2
+       WHERE timestamp >= ? AND timestamp < ?
+         AND event_type = 'outcome'
+         AND event_subtype = 'abort_triggered'
+       GROUP BY json_extract(event_data, '$.trigger')`
+    )
+    .bind(monthStart, monthEnd)
+    .all<{ trigger: string; cnt: number }>();
+
+  const abortDist: Record<string, number> = {};
+  let abortTotal = 0;
+  for (const row of abortResult.results ?? []) {
+    abortDist[row.trigger] = row.cnt;
+    abortTotal += row.cnt;
+  }
+
+  await db
+    .prepare(
+      `INSERT OR REPLACE INTO aggregations_monthly
+         (month_start, cohort_key, metric_name, metric_value, metric_data, sample_size)
+       VALUES (?, ?, ?, ?, ?, ?)`
+    )
+    .bind(monthStart, "global", "abort_trigger_distribution", null, JSON.stringify(abortDist), abortTotal)
+    .run();
+}
+export function renderDashboard(dashboardReadKey: string): string {
+  return `<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AsiaOstrich Telemetry Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; background: #f5f5f5; color: #333; }
+    h1 { margin-bottom: 0.5rem; }
+    .controls { margin: 1rem 0; }
+    select { padding: 0.4rem 0.8rem; font-size: 1rem; cursor: pointer; }
+    .chart-container {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    h2 { margin-top: 0; font-size: 1.1rem; color: #555; }
+    canvas { max-height: 380px; }
+  </style>
+</head>
+<body>
+  <h1>AsiaOstrich Telemetry Dashboard</h1>
+  <div class="controls">
+    <label for="days">時間範圍：</label>
+    <select id="days" onchange="loadData()">
+      <option value="7">7 天</option>
+      <option value="30">30 天</option>
+      <option value="90">90 天</option>
+    </select>
+  </div>
+  <div class="chart-container">
+    <h2>Hook Pass/Fail 率（按 standard_id）</h2>
+    <canvas id="telemetryChart"></canvas>
+  </div>
+  <div class="chart-container">
+    <h2>Token 趨勢（按 task_type）</h2>
+    <canvas id="tokenChart"></canvas>
+  </div>
+  <div class="chart-container">
+    <h2>執行統計（DevAP / VibeOps）</h2>
+    <canvas id="runEventsChart"></canvas>
+  </div>
+  <script>
+    const DASHBOARD_READ_KEY = '${dashboardReadKey}';
+    let telemetryChart = null;
+    let tokenChart = null;
+    let runEventsChart = null;
+
+    async function loadData() {
+      const days = document.getElementById('days').value;
+      const headers = { 'X-API-Key': DASHBOARD_READ_KEY };
+
+      const [telRes, tokenRes, runRes] = await Promise.all([
+        fetch('/api/v1/query/telemetry?days=' + days, { headers }),
+        fetch('/api/v1/query/token-summary?days=' + days, { headers }),
+        fetch('/api/v1/query/run-events?days=' + days, { headers }),
+      ]);
+
+      const telJson   = await telRes.json();
+      const tokenJson = await tokenRes.json();
+      const runJson   = await runRes.json();
+
+      renderTelemetryChart(telJson.data   || []);
+      renderTokenChart(tokenJson.data || []);
+      renderRunEventsChart(runJson.data || []);
+    }
+
+    function palette(n) {
+      return Array.from({ length: n }, (_, i) => 'hsl(' + Math.round(i * 360 / n) + ',65%,50%)');
+    }
+
+    function renderTelemetryChart(data) {
+      const ctx = document.getElementById('telemetryChart').getContext('2d');
+      const labels    = [...new Set(data.map(d => d.date))].sort();
+      const standards = [...new Set(data.map(d => d.standard_id).filter(Boolean))];
+      const colors    = palette(standards.length || 1);
+
+      const datasets = standards.map((std, i) => ({
+        label: std,
+        data: labels.map(date => {
+          const row = data.find(d => d.date === date && d.standard_id === std);
+          return row != null ? row.pass_rate : null;
+        }),
+        borderColor: colors[i],
+        backgroundColor: colors[i] + '33',
+        tension: 0.1,
+        spanGaps: true,
+      }));
+
+      if (telemetryChart) telemetryChart.destroy();
+      telemetryChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          scales: {
+            y: { min: 0, max: 1, title: { display: true, text: 'Pass Rate' } },
+          },
+        },
+      });
+    }
+
+    function renderTokenChart(data) {
+      const ctx       = document.getElementById('tokenChart').getContext('2d');
+      const labels    = [...new Set(data.map(d => d.date))].sort();
+      const taskTypes = [...new Set(data.map(d => d.task_type).filter(Boolean))];
+      const colors    = palette(taskTypes.length || 1);
+
+      const datasets = taskTypes.map((type, i) => ({
+        label: type,
+        data: labels.map(date => {
+          const row = data.find(d => d.date === date && d.task_type === type);
+          return row != null ? row.avg_tokens : null;
+        }),
+        borderColor: colors[i],
+        backgroundColor: colors[i] + '33',
+        tension: 0.1,
+        spanGaps: true,
+      }));
+
+      if (tokenChart) tokenChart.destroy();
+      tokenChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          scales: {
+            y: { title: { display: true, text: 'Avg Tokens' } },
+          },
+        },
+      });
+    }
+
+    function renderRunEventsChart(data) {
+      const ctx    = document.getElementById('runEventsChart').getContext('2d');
+      const labels = [...new Set(data.map(d => d.date))].sort();
+      // 每個 project+event_type 組合為一條線
+      const series = [...new Set(data.map(d => d.project + '/' + d.event_type))];
+      const colors = palette(series.length || 1);
+
+      const datasets = series.map((key, i) => {
+        const [proj, evType] = key.split('/');
+        return {
+          label: proj + ' · ' + evType,
+          data: labels.map(date => {
+            const row = data.find(d => d.date === date && d.project === proj && d.event_type === evType);
+            return row != null ? row.run_count : null;
+          }),
+          borderColor: colors[i],
+          backgroundColor: colors[i] + '33',
+          tension: 0.1,
+          spanGaps: true,
+        };
+      });
+
+      if (runEventsChart) runEventsChart.destroy();
+      runEventsChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Run Count' } },
+          },
+        },
+      });
+    }
+
+    loadData();
+  </script>
+</body>
+</html>`;
+}
+
+// ── XSPEC-189 Phase 3 (AC-5/6/7) — v2 Dashboard ──────────────────────────
+
+/** AC-5: Factory Owner Dashboard HTML（per-project 6 維度 + 告警）*/
+export function renderFactoryOwnerDashboard(dashboardReadKey: string): string {
+  return `<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VibeOps — 廠長 Dashboard</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; background: #f0f4f8; color: #222; }
+    h1 { font-size
+
+---
+
+Review src/orders.js and list every issue you find.
+codex
+I’ll review only `src/orders.js` and its immediate local context, ignoring the background material as requested. I’m using the repository’s code-review checklist to keep the findings focused and evidence-backed.
+exec
+/bin/zsh -lc "sed -n '1,240p' .agents/skills/code-review-assistant/SKILL.md && printf '\\n---FILES---\\n' && rg --files | rg '("'^|/)src/orders'"\\.js"'$|package'"\\.json"'$|AGENTS'"\\.md"'$'"'" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds
+ succeeded in 0ms:
+---
+name: code-review
+scope: universal
+description: "[UDS] Perform systematic code review with checklist"
+allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
+argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
+disable-model-invocation: true
+status: reference
+---
+<!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
+  Code review workflow orchestration (4-step sequence, outcome gating) relocated to adoption layer
+  (XSPEC-095, 2026-04-28). This Skill retains: 8 review category definitions,
+  BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE prefix semantics.
+  For enforced execution, use your adoption layer's toolchain.
+-->
+
+# Code Review Assistant | 程式碼審查助手
+
+> ⚠️ **Status: Reference（參考用，非可執行流程）** — 程式碼審查流程協調（4 步驟序列、outcome gating）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 8 大審查類別定義、BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前綴語意供參考。
+> Lifecycle orchestration has moved to the adoption layer (XSPEC-095); this document is **reference-only**. For enforced execution, use your adoption layer's toolchain.
+
+Perform systematic code review using standardized checklists and comment prefixes.
+
+執行系統性的程式碼審查，使用標準化的檢查清單和評論前綴。
+
+## Workflow | 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
+> The steps below are a **reference structure**, not an executable workflow.
+
+1. **Identify changes** - Get diff of files to review via `git diff` or `git show`
+2. **Apply checklist** - Check each review category systematically
+3. **Generate report** - Output findings with standard comment prefixes
+4. **Summarize** - Provide overall assessment and recommended actions
+
+## Review Categories | 審查類別
+
+1. **Functionality** - Does it work correctly? | 功能是否正確？
+2. **Design** - Is the architecture appropriate? | 架構是否合適？
+3. **Quality** - Is the code clean and maintainable? | 程式碼是否乾淨可維護？
+4. **Readability** - Is it easy to understand? | 是否容易理解？
+5. **Tests** - Is there adequate test coverage? | 測試覆蓋是否足夠？
+6. **Security** - Are there any vulnerabilities? | 是否有安全漏洞？
+7. **Performance** - Is it efficient? | 是否有效率？
+8. **Error Handling** - Are errors handled properly? | 錯誤處理是否妥當？
+
+## Comment Prefixes | 評論前綴
+
+| Prefix | Meaning | Action | 動作 |
+|--------|---------|--------|------|
+| **BLOCKING** | Must fix before merge | Required | 必須修復 |
+| **IMPORTANT** | Should fix | Recommended | 建議修復 |
+| **SUGGESTION** | Nice-to-have | Optional | 可選改善 |
+| **QUESTION** | Need clarification | Discuss | 需要討論 |
+| **NOTE** | Informational | FYI | 僅供參考 |
+
+## Usage | 使用方式
+
+- `/code-review` - Review all changes in current branch
+- `/code-review src/auth.js` - Review specific file
+- `/code-review feature/login` - Review specific branch
+
+## Next Steps Guidance | 下一步引導
+
+After `/code-review` completes, the AI assistant should suggest:
+
+> **程式碼審查完成。建議下一步 / Code review complete. Suggested next steps:**
+> - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/code-review` — Fix issues then re-run `/code-review`
+> - 全部通過 → 執行 `/checkin` 品質關卡 ⭐ **Recommended / 推薦** — All passed → Run `/checkin` quality gates
+> - 僅有 💡 SUGGESTION → 執行 `/commit` 提交變更 — Only suggestions → Run `/commit`
+> - 審查中發現規範不實用或缺失 → 執行 `/audit --report` 回報 — Found impractical or missing standards → Run `/audit --report`
+
+## Reference | 參考
+
+- Detailed guide: [guide.md](./guide.md)
+- Core standard: [code-review-checklist.md](../../core/code-review-checklist.md)
+
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/code-review`](../commands/code-review.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/code-review`](../commands/code-review.md#ai-agent-behavior--ai-代理行為)
+
+---FILES---
+src/orders.js
+package.json
+
+exec
+/bin/zsh -lc "find .. -name AGENTS.md -print; sed -n '1,260p' .agents/skills/code-review-assistant/guide.md; sed -n '1,320p' .agents/skills/core/code-review-checklist.md; printf '\\n---ORDERS---\\n'; nl -ba src/orders.js; printf '\\n---PACKAGE---\\n'; sed -n '1,240p' package.json; printf '\\n---STATUS---\\n'; git status --short; printf '\\n---DIFF---\\n'; git diff -- src/orders.js; printf '\\n---LOG---\\n'; git log --oneline -6 -- src/orders.js" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds
+ exited 128 in 168ms:
+../full-test/AGENTS.md
+../bugfix-test2/AGENTS.md
+../default-test/AGENTS.md
+../regress-default/AGENTS.md
+---
+scope: universal
+description: |
+  Systematic code review checklist and pre-commit quality gates for PRs.
+  Use when: reviewing pull requests, checking code quality, before committing code.
+  Keywords: review, PR, pull request, checklist, quality, commit, 審查, 檢查, 簽入.
+---
+
+# Code Review Assistant
+
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/code-review-assistant/SKILL.md)
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+
+---
+
+> **Core Standard**: This skill implements [Code Review Checklist](../../core/code-review-checklist.md). For comprehensive methodology documentation, refer to the core standard.
+
+## Purpose
+
+This skill provides systematic checklists for code review and pre-commit verification.
+
+## Quick Reference
+
+### Comment Prefixes
+
+| Prefix | Meaning | Action Required |
+|--------|---------|------------------|
+| **❗ BLOCKING** | Must fix before merge | 🔴 Required |
+| **⚠️ IMPORTANT** | Should fix, but not blocking | 🟡 Recommended |
+| **💡 SUGGESTION** | Nice-to-have improvement | 🟢 Optional |
+| **❓ QUESTION** | Need clarification | 🔵 Discuss |
+| **📝 NOTE** | Informational, no action | ⚪ Informational |
+
+### Review Checklist Categories
+
+1. **Functionality** - Does it work?
+2. **Design** - Right architecture?
+3. **Quality** - Clean code?
+4. **Readability** - Easy to understand?
+5. **Tests** - Adequate coverage?
+6. **Security** - No vulnerabilities?
+7. **Performance** - Efficient?
+8. **Errors** - Properly handled?
+9. **Docs** - Updated?
+10. **Dependencies** - Necessary?
+
+### Pre-Commit Checklist
+
+- [ ] Build succeeds (zero errors, zero warnings)
+- [ ] All tests pass
+- [ ] Code follows project standards
+- [ ] No security vulnerabilities
+- [ ] Documentation updated
+- [ ] Branch synced with target
+
+## Detailed Guidelines
+
+For complete standards, see:
+- [Review Checklist](./review-checklist.md)
+- [Pre-Commit Checklist](./checkin-checklist.md)
+
+### AI-Optimized Format (Token-Efficient)
+
+For AI assistants, use the YAML format file for reduced token usage:
+- Base standard: `ai/standards/code-review.ai.yaml`
+
+## Example Review Comments
+
+```markdown
+❗ BLOCKING: Potential SQL injection vulnerability here.
+Please use parameterized queries instead of string concatenation.
+
+⚠️ IMPORTANT: This method is doing too much (120 lines).
+Consider extracting validation logic to a separate method.
+
+💡 SUGGESTION: Consider using a Map here instead of an array for O(1) lookup.
+
+❓ QUESTION: Why are we using setTimeout here instead of async/await?
+
+📝 NOTE: This is a clever solution! Nice use of reduce here.
+```
+
+## Core Principles
+
+1. **Be Respectful** - Review code, not the person
+2. **Be Thorough** - Check functionality, not just syntax
+3. **Be Timely** - Review within 24 hours
+4. **Be Clear** - Explain WHY, not just WHAT
+
+---
+
+## Checkin Quality Gates (YAML Compressed)
+
+```yaml
+# === MANDATORY CHECKLIST ===
+build:
+  - code_compiles: "zero errors, zero warnings"
+  - dependencies: "all installed, versions locked"
+  verify: "run build locally, exit code 0"
+
+test:
+  - existing_pass: "100% pass rate (unit/integration/e2e)"
+  - new_code_tested: "features→tests, bugfix→regression"
+  - coverage: "not decreased, critical paths tested"
+  verify: "run all suites, review coverage report"
+
+quality:
+  - standards: "naming, formatting, comments"
+  - no_smells: "methods≤50 lines, nesting≤3, complexity≤10, no duplication"
+  - security: "no hardcoded secrets, no SQLi, no XSS, no insecure deps"
+  verify: "run linter, static analysis, security scanner"
+
+docs:
+  - api_docs: "public APIs documented"
+  - readme: "updated if needed"
+  - changelog: "user-facing changes → [Unreleased]"
+
+workflow:
+  - branch_naming: "feature/, fix/, docs/, chore/"
+  - commit_message: "conventional commits format"
+  - synced: "merged/rebased with target branch"
+
+# === NEVER COMMIT WHEN ===
+blockers:
+  - "Build has errors"
+  - "Tests failing"
+  - "Feature incomplete (would break functionality)"
+  - "Contains WIP/TODO in critical logic"
+  - "Contains debugging code (console.log, print)"
+  - "Contains commented-out code blocks"
+
+# === COMMIT TIMING ===
+good_times:
+  - "Completed functional unit"
+  - "Specific bug fixed with regression test"
+  - "Independent refactor (all tests pass)"
+  - "Runnable state"
+
+bad_times:
+  - "Build failures"
+  - "Test failures"
+  - "Incomplete features"
+  - "Experimental code with TODOs"
+
+# === GRANULARITY ===
+ideal_size:
+  files: "1-10 (split if >10)"
+  lines: "50-300"
+  scope: "single concern"
+
+split_principle:
+  combine: ["feature + its tests", "tightly related multi-file"]
+  separate: ["Feature A + Feature B", "refactor + new feature", "bugfix + incidental refactor"]
+```
+
+---
+
+## Configuration Detection
+
+This skill supports project-specific configuration.
+
+### Detection Order
+
+1. Check `CONTRIBUTING.md` for "Disabled Skills" section
+   - If this skill is listed, it is disabled for this project
+2. Check `CONTRIBUTING.md` for "Code Review Language" section
+3. If not found, **default to English**
+
+### First-Time Setup
+
+If no configuration found and context is unclear:
+
+1. Ask the user: "This project hasn't configured code review language. Which option would you like? (English / 中文)"
+2. After user selection, suggest documenting in `CONTRIBUTING.md`:
+
+```markdown
+## Code Review Language
+
+This project uses **[chosen option]** for code review comments.
+<!-- Options: English | 中文 -->
+```
+
+### Configuration Example
+
+In project's `CONTRIBUTING.md`:
+
+```markdown
+## Code Review Language
+
+This project uses **English** for code review comments.
+<!-- Options: English | 中文 -->
+
+### Comment Prefixes
+BLOCKING, IMPORTANT, SUGGESTION, QUESTION, NOTE
+```
+
+---
+
+## Related Standards
+
+- [Code Review Checklist](../../core/code-review-checklist.md) - Core code review standard
+- [Checkin Standards](../../core/checkin-standards.md) - Pre-commit quality gates
+- [Testing Standards](../../core/testing-standards.md) - Testing requirements
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+sed: .agents/skills/core/code-review-checklist.md: No such file or directory
+
+---ORDERS---
+     1	import mysql from 'mysql2/promise';
+     2	
+     3	const API_SECRET = "sk-live-4a91c7f2e8b3d6";
+     4	const RETRY_LIMIT = 3;
+     5	const pool = mysql.createPool({ host: 'db', user: 'app' });
+     6	
+     7	// RETRY_LIMIT is 3 because the upstream gateway drops the 4th attempt in a 10s window.
+     8	
+     9	export async function findOrder(db, orderId) {
+    10	  const sql = "SELECT * FROM orders WHERE id = '" + orderId + "'";
+    11	  const [rows] = await db.query(sql);
+    12	  return rows[0];
+    13	}
+    14	
+    15	export async function login(user, pass) {
+    16	  console.log("auth attempt", user.name, pass);
+    17	  if (pass == user.storedPass) {
+    18	    return { ok: true, token: API_SECRET };
+    19	  }
+    20	  return { ok: false };
+    21	}
+    22	
+    23	export function totalPages(itemCount) {
+    24	  return Math.ceil(itemCount / 20) - 1;
+    25	}
+    26	
+    27	export function firstItemName(order) {
+    28	  return order.items[0].name;
+    29	}
+    30	
+    31	export function applyDiscount(price) {
+    32	  return price * 0.87;
+    33	}
+    34	
+    35	// export async function legacyFindOrder(id) {
+    36	//   return await pool.query('SELECT * FROM orders WHERE id = ?', [id]);
+    37	// }
+    38	
+    39	export async function safeFindOrder(db, orderId) {
+    40	  const [rows] = await db.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+    41	  return rows[0];
+    42	}
+    43	
+    44	export function parseCount(raw) {
+    45	  try {
+    46	    return Number.parseInt(raw, 10);
+    47	  } catch (err) {
+    48	    throw new Error(`unparseable count: ${raw}`, { cause: err });
+    49	  }
+    50	}
+
+---PACKAGE---
+{ "name": "gt-test", "version": "1.0.0", "dependencies": { "express": "^4.18.0", "mysql2": "^3.9.0" } }
+
+---STATUS---
+fatal: not a git repository (or any of the parent directories): .git
+
+---DIFF---
+warning: Not a git repository. Use --no-index to compare two paths outside a working tree
+usage: git diff --no-index [<options>] <path> <path> [<pathspec>...]
+
+Diff output format options
+    -p, --patch           generate patch
+    -s, --no-patch        suppress diff output
+    -u                    generate patch
+    -U, --unified[=<n>]   generate diffs with <n> lines context
+    -W, --[no-]function-context
+                          generate diffs with <n> lines context
+    --raw                 generate the diff in raw format
+    --patch-with-raw      synonym for '-p --raw'
+    --patch-with-stat     synonym for '-p --stat'
+    --numstat             machine friendly --stat
+    --shortstat           output only the last line of --stat
+    -X, --dirstat[=<param1>,<param2>...]
+                          output the distribution of relative amount of changes for each sub-directory
+    --cumulative          synonym for --dirstat=cumulative
+    --dirstat-by-file[=<param1>,<param2>...]
+                          synonym for --dirstat=files,<param1>,<param2>...
+    --check               warn if changes introduce conflict markers or whitespace errors
+    --summary             condensed summary such as creations, renames and mode changes
+    --name-only           show only names of changed files
+    --name-status         show only names and status of changed files
+    --stat[=<width>[,<name-width>[,<count>]]]
+                          generate diffstat
+    --stat-width <width>  generate diffstat with a given width
+    --stat-name-width <width>
+                          generate diffstat with a given name width
+    --stat-graph-width <width>
+                          generate diffstat with a given graph width
+    --stat-count <count>  generate diffstat with limited lines
+    --[no-]compact-summary
+                          generate compact summary in diffstat
+    --binary              output a binary diff that can be applied
+    --[no-]full-index     show full pre- and post-image object names on the "index" lines
+    --[no-]color[=<when>] show colored diff
+    --ws-error-highlight <kind>
+                          highlight whitespace errors in the 'context', 'old' or 'new' lines in the diff
+    -z                    do not munge pathnames and use NULs as output field terminators in --raw or --numstat
+    --[no-]abbrev[=<n>]   use <n> digits to display object names
+    --src-prefix <prefix> show the given source prefix instead of "a/"
+    --dst-prefix <prefix> show the given destination prefix instead of "b/"
+    --line-prefix <prefix>
+                          prepend an additional prefix to every line of output
+    --no-prefix           do not show any source or destination prefix
+    --default-prefix      use default prefixes a/ and b/
+    --inter-hunk-context <n>
+                          show context between diff hunks up to the specified number of lines
+    --output-indicator-new <char>
+                          specify the character to indicate a new line instead of '+'
+    --output-indicator-old <char>
+                          specify the character to indicate an old line instead of '-'
+    --output-indicator-context <char>
+                          specify the character to indicate a context instead of ' '
+
+Diff rename options
+    -B, --break-rewrites[=<n>[/<m>]]
+                          break complete rewrite changes into pairs of delete and create
+    -M, --find-renames[=<n>]
+                          detect renames
+    -D, --irreversible-delete
+                          omit the preimage for deletes
+    -C, --find-copies[=<n>]
+                          detect copies
+    --[no-]find-copies-harder
+                          use unmodified files as source to find copies
+    --no-renames          disable rename detection
+    --[no-]rename-empty   use empty blobs as rename source
+    --[no-]follow         continue listing the history of a file beyond renames
+    -l <n>                prevent rename/copy detection if the number of rename/copy targets exceeds given limit
+
+Diff algorithm options
+    --minimal             produce the smallest possible diff
+    -w, --ignore-all-space
+                          ignore whitespace when comparing lines
+    -b, --ignore-space-change
+                          ignore changes in amount of whitespace
+    --ignore-space-at-eol ignore changes in whitespace at EOL
+    --ignore-cr-at-eol    ignore carrier-return at the end of line
+    --ignore-blank-lines  ignore changes whose lines are all blank
+    -I, --[no-]ignore-matching-lines <regex>
+                          ignore changes whose all lines match <regex>
+    --[no-]indent-heuristic
+                          heuristic to shift diff hunk boundaries for easy reading
+    --patience            generate diff using the "patience diff" algorithm
+    --histogram           generate diff using the "histogram diff" algorithm
+    --diff-algorithm <algorithm>
+                          choose a diff algorithm
+    --anchored <text>     generate diff using the "anchored diff" algorithm
+    --word-diff[=<mode>]  show word diff, using <mode> to delimit changed words
+    --word-diff-regex <regex>
+                          use <regex> to decide what a word is
+    --color-words[=<regex>]
+                          equivalent to --word-diff=color --word-diff-regex=<regex>
+    --[no-]color-moved[=<mode>]
+                          moved lines of code are colored differently
+    --[no-]color-moved-ws <mode>
+                          how white spaces are ignored in --color-moved
+
+Other diff options
+    --[no-]relative[=<prefix>]
+                          when run from subdir, exclude changes outside and show relative paths
+    -a, --[no-]text       treat all files as text
+    -R                    swap two inputs, reverse the diff
+    --[no-]exit-code      exit with 1 if there were differences, 0 otherwise
+    --[no-]quiet          disable all output of the program
+    --[no-]ext-diff       allow an external diff helper to be executed
+    --[no-]textconv       run external text conversion filters when comparing binary files
+    --ignore-submodules[=<when>]
+                          ignore changes to submodules in the diff generation
+    --submodule[=<format>]
+                          specify how differences in submodules are shown
+    --ita-invisible-in-index
+                          hide 'git add -N' entries from the index
+    --ita-visible-in-index
+                          treat 'git add -N' entries as real in the index
+    -S <string>           look for differences that change the number of occurrences of the specified string
+    -G <regex>            look for differences that change the number of occurrences of the specified regex
+    --pickaxe-all         show all changes in the changeset with -S or -G
+    --pickaxe-regex       treat <string> in -S as extended POSIX regular expression
+    -O <file>             control the order in which files appear in the output
+    --rotate-to <path>    show the change in the specified path first
+    --skip-to <path>      skip the output to the specified path
+    --find-object <object-id>
+                          look for differences that change the number of occurrences of the specified object
+    --diff-filter [(A|C|D|M|R|T|U|X|B)...[*]]
+                          select files by diff type
+    --max-depth <depth>   maximum tree depth to recurse
+    --output <file>       output to a specific file
+
+
+---LOG---
+fatal: not a git repository (or any of the parent directories): .git
+
+exec
+/bin/zsh -lc "printf '%s\\n' '---PROJECT FILES---'; rg --files -g '"'!node_modules'"' | sort; printf '%s\\n' '---REFERENCES---'; rg -n \"findOrder|safeFindOrder|login\\(|totalPages|firstItemName|applyDiscount|parseCount|API_SECRET|RETRY_LIMIT\" -g '"'!node_modules'"' .; printf '%s\\n' '---CONFIG---'; find . -maxdepth 2 -type f \\( -name 'README*' -o -name 'CONTRIBUTING.md' -o -name '.eslintrc*' -o -name 'eslint.config.*' \\) -print" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds
+ succeeded in 0ms:
+---PROJECT FILES---
+package.json
+src/orders.js
+---REFERENCES---
+./src/orders.js:3:const API_SECRET = "sk-live-4a91c7f2e8b3d6";
+./src/orders.js:4:const RETRY_LIMIT = 3;
+./src/orders.js:7:// RETRY_LIMIT is 3 because the upstream gateway drops the 4th attempt in a 10s window.
+./src/orders.js:9:export async function findOrder(db, orderId) {
+./src/orders.js:15:export async function login(user, pass) {
+./src/orders.js:18:    return { ok: true, token: API_SECRET };
+./src/orders.js:23:export function totalPages(itemCount) {
+./src/orders.js:27:export function firstItemName(order) {
+./src/orders.js:31:export function applyDiscount(price) {
+./src/orders.js:39:export async function safeFindOrder(db, orderId) {
+./src/orders.js:44:export function parseCount(raw) {
+---CONFIG---
+
+codex
+I found this is a minimal standalone package with no tests or call sites, so I’m validating runtime behavior directly (including the module configuration) before I finalize the findings.
+exec
+/bin/zsh -lc 'node --check src/orders.js' in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds
+ succeeded in 0ms:
+exec
+/bin/zsh -lc 'node src/orders.js' in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds
+ exited 1 in 0ms:
+node:internal/modules/package_json_reader:314
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'mysql2' imported from /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:855:18)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v22.23.1
+
+codex
+## Findings
+
+- ❗ **BLOCKING** — [src/orders.js:10](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:10): `findOrder` concatenates `orderId` into SQL, allowing SQL injection. Use the parameterized query already demonstrated in `safeFindOrder`.
+
+- ❗ **BLOCKING** — [src/orders.js:3](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:3) and [18](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:18): A live secret is committed and returned as the login token. Treat it as compromised: revoke/rotate it, load secrets from environment-backed configuration, and mint user/session-specific tokens instead.
+
+- ❗ **BLOCKING** — [src/orders.js:16](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:16): `login` logs the supplied password. Logs often have broad retention and access; remove the password from logging immediately.
+
+- ❗ **BLOCKING** — [src/orders.js:17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:17): Authentication compares a supplied password with `user.storedPass` directly and uses coercive `==`. Passwords should be stored as salted password hashes and verified with the hash library; strict comparison alone is not sufficient.
+
+- ⚠️ **IMPORTANT** — [src/orders.js:24](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:24): `totalPages(0)` returns `-1`. If this function returns a count, it is also off by one for every non-empty result. Return `Math.ceil(itemCount / 20)` (or rename/document it as a zero-based last-page index and clamp the empty case).
+
+- ⚠️ **IMPORTANT** — [src/orders.js:28](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:28): `firstItemName` throws for an order without items (or missing `items`). Handle an empty/malformed order explicitly.
+
+- ⚠️ **IMPORTANT** — [src/orders.js:44](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:44): `parseCount`’s `catch` is unreachable for normal invalid input: `parseInt` returns `NaN`, not an exception. It also silently accepts malformed values such as `"12items"`. Validate the full input and reject non-finite/invalid counts.
+
+- 💡 **SUGGESTION** — [src/orders.js:31](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:31): Floating-point arithmetic can produce incorrect currency amounts. Use integer minor units or a decimal-money library and define rounding rules.
+
+- 💡 **SUGGESTION** — [src/orders.js:1](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:1), [4](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:4), and [5](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:5): `pool` and `RETRY_LIMIT` are unused; the commented legacy function is dead code. Remove them or implement the intended retry/pool path.
+
+- ⚠️ **IMPORTANT** — The package contains no test suite or scripts. The security-sensitive login and query code, plus boundary cases for pagination/parsing, have no automated coverage.
+tokens used
+23,431
+## Findings
+
+- ❗ **BLOCKING** — [src/orders.js:10](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:10): `findOrder` concatenates `orderId` into SQL, allowing SQL injection. Use the parameterized query already demonstrated in `safeFindOrder`.
+
+- ❗ **BLOCKING** — [src/orders.js:3](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:3) and [18](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:18): A live secret is committed and returned as the login token. Treat it as compromised: revoke/rotate it, load secrets from environment-backed configuration, and mint user/session-specific tokens instead.
+
+- ❗ **BLOCKING** — [src/orders.js:16](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:16): `login` logs the supplied password. Logs often have broad retention and access; remove the password from logging immediately.
+
+- ❗ **BLOCKING** — [src/orders.js:17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:17): Authentication compares a supplied password with `user.storedPass` directly and uses coercive `==`. Passwords should be stored as salted password hashes and verified with the hash library; strict comparison alone is not sufficient.
+
+- ⚠️ **IMPORTANT** — [src/orders.js:24](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:24): `totalPages(0)` returns `-1`. If this function returns a count, it is also off by one for every non-empty result. Return `Math.ceil(itemCount / 20)` (or rename/document it as a zero-based last-page index and clamp the empty case).
+
+- ⚠️ **IMPORTANT** — [src/orders.js:28](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:28): `firstItemName` throws for an order without items (or missing `items`). Handle an empty/malformed order explicitly.
+
+- ⚠️ **IMPORTANT** — [src/orders.js:44](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:44): `parseCount`’s `catch` is unreachable for normal invalid input: `parseInt` returns `NaN`, not an exception. It also silently accepts malformed values such as `"12items"`. Validate the full input and reject non-finite/invalid counts.
+
+- 💡 **SUGGESTION** — [src/orders.js:31](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:31): Floating-point arithmetic can produce incorrect currency amounts. Use integer minor units or a decimal-money library and define rounding rules.
+
+- 💡 **SUGGESTION** — [src/orders.js:1](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:1), [4](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:4), and [5](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test-uds/src/orders.js:5): `pool` and `RETRY_LIMIT` are unused; the commented legacy function is dead code. Remove them or implement the intended retry/pool path.
+
+- ⚠️ **IMPORTANT** — The package contains no test suite or scripts. The security-sensitive login and query code, plus boundary cases for pagination/parsing, have no automated coverage.

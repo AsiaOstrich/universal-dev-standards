@@ -1,0 +1,176 @@
+Reading additional input from stdin...
+OpenAI Codex v0.145.0
+--------
+workdir: /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 019f8f94-94d5-7031-a592-3895db0d4b99
+--------
+user
+Review src/orders.js and list every issue you find.
+codex
+I’ll inspect `src/orders.js` in context and trace its callers/tests so the review covers functional, safety, and maintainability issues.
+exec
+/bin/zsh -lc "sed -n '1,260p' src/orders.js && rg -n \"orders|createOrder|updateOrder|deleteOrder\" . --glob '"'!node_modules'"'" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test
+ succeeded in 0ms:
+import mysql from 'mysql2/promise';
+
+const API_SECRET = "sk-live-4a91c7f2e8b3d6";
+const RETRY_LIMIT = 3;
+const pool = mysql.createPool({ host: 'db', user: 'app' });
+
+// RETRY_LIMIT is 3 because the upstream gateway drops the 4th attempt in a 10s window.
+
+export async function findOrder(db, orderId) {
+  const sql = "SELECT * FROM orders WHERE id = '" + orderId + "'";
+  const [rows] = await db.query(sql);
+  return rows[0];
+}
+
+export async function login(user, pass) {
+  console.log("auth attempt", user.name, pass);
+  if (pass == user.storedPass) {
+    return { ok: true, token: API_SECRET };
+  }
+  return { ok: false };
+}
+
+export function totalPages(itemCount) {
+  return Math.ceil(itemCount / 20) - 1;
+}
+
+export function firstItemName(order) {
+  return order.items[0].name;
+}
+
+export function applyDiscount(price) {
+  return price * 0.87;
+}
+
+// export async function legacyFindOrder(id) {
+//   return await pool.query('SELECT * FROM orders WHERE id = ?', [id]);
+// }
+
+export async function safeFindOrder(db, orderId) {
+  const [rows] = await db.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+  return rows[0];
+}
+
+export function parseCount(raw) {
+  try {
+    return Number.parseInt(raw, 10);
+  } catch (err) {
+    throw new Error(`unparseable count: ${raw}`, { cause: err });
+  }
+}
+./src/orders.js:10:  const sql = "SELECT * FROM orders WHERE id = '" + orderId + "'";
+./src/orders.js:36://   return await pool.query('SELECT * FROM orders WHERE id = ?', [id]);
+./src/orders.js:40:  const [rows] = await db.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+
+exec
+/bin/zsh -lc "rg --files -g '"'!node_modules'"' | sort && git status --short && git log -5 --oneline -- src/orders.js && git blame -L 1,80 -- src/orders.js" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test
+ exited 128 in 0ms:
+package.json
+src/orders.js
+fatal: not a git repository (or any of the parent directories): .git
+
+exec
+/bin/zsh -lc "sed -n '1,200p' package.json && nl -ba src/orders.js" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test
+ succeeded in 0ms:
+{ "name": "gt-test", "version": "1.0.0", "dependencies": { "express": "^4.18.0", "mysql2": "^3.9.0" } }
+     1	import mysql from 'mysql2/promise';
+     2	
+     3	const API_SECRET = "sk-live-4a91c7f2e8b3d6";
+     4	const RETRY_LIMIT = 3;
+     5	const pool = mysql.createPool({ host: 'db', user: 'app' });
+     6	
+     7	// RETRY_LIMIT is 3 because the upstream gateway drops the 4th attempt in a 10s window.
+     8	
+     9	export async function findOrder(db, orderId) {
+    10	  const sql = "SELECT * FROM orders WHERE id = '" + orderId + "'";
+    11	  const [rows] = await db.query(sql);
+    12	  return rows[0];
+    13	}
+    14	
+    15	export async function login(user, pass) {
+    16	  console.log("auth attempt", user.name, pass);
+    17	  if (pass == user.storedPass) {
+    18	    return { ok: true, token: API_SECRET };
+    19	  }
+    20	  return { ok: false };
+    21	}
+    22	
+    23	export function totalPages(itemCount) {
+    24	  return Math.ceil(itemCount / 20) - 1;
+    25	}
+    26	
+    27	export function firstItemName(order) {
+    28	  return order.items[0].name;
+    29	}
+    30	
+    31	export function applyDiscount(price) {
+    32	  return price * 0.87;
+    33	}
+    34	
+    35	// export async function legacyFindOrder(id) {
+    36	//   return await pool.query('SELECT * FROM orders WHERE id = ?', [id]);
+    37	// }
+    38	
+    39	export async function safeFindOrder(db, orderId) {
+    40	  const [rows] = await db.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+    41	  return rows[0];
+    42	}
+    43	
+    44	export function parseCount(raw) {
+    45	  try {
+    46	    return Number.parseInt(raw, 10);
+    47	  } catch (err) {
+    48	    throw new Error(`unparseable count: ${raw}`, { cause: err });
+    49	  }
+    50	}
+
+codex
+Issues found in [`src/orders.js`](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test/src/orders.js):
+
+- **Critical — hard-coded live secret** at line 3. It is exposed in source and used as an auth token; revoke/rotate it immediately and load secrets from a secret manager or environment.
+- **Critical — SQL injection** in `findOrder` (line 10): `orderId` is concatenated into SQL. Use the parameterized query already demonstrated in `safeFindOrder`.
+- **Critical — plaintext password disclosure** in `login` (line 16): every attempted password is written to logs.
+- **Critical — insecure authentication design** (lines 17–18): it uses loose equality, appears to compare a plaintext stored password, and returns one static, globally shared secret as the session token. Tokens cannot identify a user, expire, or be revoked individually.
+- **High — insecure password comparison** (line 17): `==` permits type coercion. Password verification should use a password-hash verifier (for example, Argon2/bcrypt), not direct comparison.
+- **High — `parseCount` does not reject invalid input** (lines 44–49): `Number.parseInt` returns `NaN` for invalid values rather than throwing, so the `catch` does not handle ordinary bad input.
+- **High — `parseCount` silently accepts malformed values**: inputs such as `"12widgets"` become `12`; it also has no finite/range/non-negative validation.
+- **Medium — off-by-one page calculation** (line 24): one item or 20 items returns `0` from a function named `totalPages`. If this means count of pages, it should not subtract one.
+- **Medium — no validation of `itemCount`**: negative, non-numeric, or non-finite values produce nonsensical values or `NaN`.
+- **Medium — `firstItemName` crashes on valid empty/missing data** (line 28): missing `order`, missing/empty `items`, or a missing first item throws a TypeError without a useful domain error/result.
+- **Medium — currency arithmetic is imprecise** (line 32): binary floating-point multiplication can yield values such as `8.699999…`; monetary amounts should use integer minor units or a decimal type and an explicit rounding rule.
+- **Low — unused database pool** (lines 1 and 5): a pool is created at module load but never used or closed. It also has incomplete connection configuration and can create needless connection/resource lifecycle problems.
+- **Low — unused retry constant and misleading comment** (lines 4 and 7): `RETRY_LIMIT` is never applied; no retry behavior exists.
+- **Low — dead commented-out legacy code** (lines 35–37): it adds noise and preserves an unused alternative instead of version-control history.
+- **Low — duplicate lookup APIs**: `safeFindOrder` fixes the injection flaw, but the unsafe `findOrder` remains exported, making accidental insecure use likely.
+- **Low — overly broad `SELECT *`** (lines 10 and 40): this can expose unneeded order fields and couples callers to schema changes; select required columns explicitly.
+- **Project-level runtime issue**: [`package.json`](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test/package.json) does not declare `"type": "module"` (and has no transpiler configuration), so Node’s default execution treats this `.js` file as CommonJS and rejects its `import`/`export` syntax.
+tokens used
+6,697
+Issues found in [`src/orders.js`](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test/src/orders.js):
+
+- **Critical — hard-coded live secret** at line 3. It is exposed in source and used as an auth token; revoke/rotate it immediately and load secrets from a secret manager or environment.
+- **Critical — SQL injection** in `findOrder` (line 10): `orderId` is concatenated into SQL. Use the parameterized query already demonstrated in `safeFindOrder`.
+- **Critical — plaintext password disclosure** in `login` (line 16): every attempted password is written to logs.
+- **Critical — insecure authentication design** (lines 17–18): it uses loose equality, appears to compare a plaintext stored password, and returns one static, globally shared secret as the session token. Tokens cannot identify a user, expire, or be revoked individually.
+- **High — insecure password comparison** (line 17): `==` permits type coercion. Password verification should use a password-hash verifier (for example, Argon2/bcrypt), not direct comparison.
+- **High — `parseCount` does not reject invalid input** (lines 44–49): `Number.parseInt` returns `NaN` for invalid values rather than throwing, so the `catch` does not handle ordinary bad input.
+- **High — `parseCount` silently accepts malformed values**: inputs such as `"12widgets"` become `12`; it also has no finite/range/non-negative validation.
+- **Medium — off-by-one page calculation** (line 24): one item or 20 items returns `0` from a function named `totalPages`. If this means count of pages, it should not subtract one.
+- **Medium — no validation of `itemCount`**: negative, non-numeric, or non-finite values produce nonsensical values or `NaN`.
+- **Medium — `firstItemName` crashes on valid empty/missing data** (line 28): missing `order`, missing/empty `items`, or a missing first item throws a TypeError without a useful domain error/result.
+- **Medium — currency arithmetic is imprecise** (line 32): binary floating-point multiplication can yield values such as `8.699999…`; monetary amounts should use integer minor units or a decimal type and an explicit rounding rule.
+- **Low — unused database pool** (lines 1 and 5): a pool is created at module load but never used or closed. It also has incomplete connection configuration and can create needless connection/resource lifecycle problems.
+- **Low — unused retry constant and misleading comment** (lines 4 and 7): `RETRY_LIMIT` is never applied; no retry behavior exists.
+- **Low — dead commented-out legacy code** (lines 35–37): it adds noise and preserves an unused alternative instead of version-control history.
+- **Low — duplicate lookup APIs**: `safeFindOrder` fixes the injection flaw, but the unsafe `findOrder` remains exported, making accidental insecure use likely.
+- **Low — overly broad `SELECT *`** (lines 10 and 40): this can expose unneeded order fields and couples callers to schema changes; select required columns explicitly.
+- **Project-level runtime issue**: [`package.json`](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/gt-test/package.json) does not declare `"type": "module"` (and has no transpiler configuration), so Node’s default execution treats this `.js` file as CommonJS and rejects its `import`/`export` syntax.

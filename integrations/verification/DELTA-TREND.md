@@ -84,6 +84,38 @@ capability-independent while knowledge injection decays. This is the first measu
 
 ---
 
+## Form is not outcome — a separate axis the probes were not measuring
+
+`_baselines/codex-0.145.0/longcontext-factorial/` · 2026-07-23
+
+Every probe above measures whether the model **emits UDS's declared form**. None measures
+whether the work **got better**. A 2×2 factorial (UDS × long context, 3 reps, 8 planted
+defects) was run to separate them, testing the most favourable-to-UDS hypothesis available:
+that UDS earns its keep under context pressure.
+
+| | defects found /8 | prefixes |
+|---|---:|---:|
+| short, no UDS | 6.0 | 0 |
+| short, UDS | **6.7** | 19.3 |
+| long (+40K), no UDS | 5.7 | 0 |
+| long (+40K), UDS | 5.3 | 19.3 |
+
+**The hypothesis was not supported** — predicted `(C4−C3) > (C2−C1)`, observed `−0.3 < +0.7`.
+
+**And form held while outcome did not.** Under 40K of filler the prefix count was identical to
+the clean condition (19.3), perfectly intact, while defects found fell from 6.7 to 5.3.
+Whatever degraded, it was not compliance with the format.
+
+> **So a probe that passes tells you the vocabulary arrived. It does not tell you the work
+> improved.** Every survival number in the table above is a form measurement, and should be
+> read as one.
+
+**n=3 cannot carry a 0.3–1.3 difference** against per-run spread of 4–7, and the unaided
+baseline already finds 6 of 8, leaving almost no headroom. Nothing here is significant. It is
+recorded because the *separation of the two axes* is the finding, not the numbers.
+
+---
+
 ## What each direction would mean
 
 | If survival… | Reading |
