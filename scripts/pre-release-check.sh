@@ -74,10 +74,10 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=23
+TOTAL=24
 
 if [ "$SKIP_TESTS" = true ]; then
-    TOTAL=19
+    TOTAL=20
 fi
 
 # Function to run a check
@@ -275,6 +275,11 @@ run_check "18.5" "Running skill structural integrity check | Skill 結構完整�
 # Runs without --strict: prints version-skew / mandatory-keyword / size-ratio
 # drift but never blocks. Promote to --strict here once drift stays at zero.
 run_check "18.6" "Running skill↔standard content-coverage audit (advisory) | Skill↔Standard 內容覆蓋稽核（建議性）" "tsx $SCRIPT_DIR/check-skill-content-coverage.ts"
+
+# Step 18.7: Integration liveness + cross-registry consistency (XSPEC-355 OQ5/OQ6)
+# A discontinued tool must not ship still labelled as supported, and the same field
+# must not carry different values in three registries.
+run_check "18.7" "Running integration liveness check | 整合存活性與註冊表一致性檢查" "tsx $SCRIPT_DIR/check-integration-liveness.ts"
 
 # Step 19: Unit Tests
 if [ "$SKIP_TESTS" = true ]; then

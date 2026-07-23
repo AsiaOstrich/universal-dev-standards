@@ -79,28 +79,45 @@ npx universal-dev-standards init
 
 ## 🏗️ Architecture
 
-UDS uses a **Dual-Layer Execution Model** designed for both high-speed interactive development and deep technical compliance.
+UDS content is organised along **two independent axes**. They answer different questions, and
+conflating them is the most common way to misread the layout — so they are stated separately.
+
+### Axis 1 — Depth: how much must always be loaded
+
+This axis is a **behavioural contract**: it tells an AI agent what to read up front and what to
+leave until asked. It is the axis that matters for context cost.
 
 ```mermaid
 graph TD
-    A[AI Agent / Developer] --> B{Action Layer}
-    B -- "Daily Tasks" --> C["Skills Layer (.ai.yaml)"]
-    B -- "Deep Review" --> D["Standards Layer (.md)"]
-    
-    C --> C1[Token-Efficient]
-    C --> C2[Interactive Wizards]
-    
-    D --> D1[Comprehensive Theory]
-    D --> D2[Tool Configurations]
-    
-    C1 -. "Fallback" .-> D1
+    A[AI Agent / Developer] --> R["<b>Rules</b><br/>core/*.md<br/><b>Always Read</b>"]
+    R -- "needs explanation or a worked example" --> G["<b>Guides</b><br/>core/guides/*.md<br/>Read on Demand Only"]
+    R -- "needs a full methodology (TDD, BDD, …)" --> M["<b>Methodologies</b><br/>methodologies/guides/*.md<br/>Read on Demand Only"]
 ```
 
-| Aspect | Skills (Execution) | Core Standards (Knowledge) |
+| Layer | Location | Contains | AI behaviour |
+| :--- | :--- | :--- | :--- |
+| **Rules** | `core/*.md` | Actionable rules, checklists, thresholds | **Always Read** |
+| **Guides** | `core/guides/*.md` | Explanations, tutorials, examples | Read on Demand Only |
+| **Methodologies** | `methodologies/guides/*.md` | Full methodology guides | Read on Demand Only |
+
+### Axis 2 — Format: how the same standard is encoded
+
+This axis carries **no depth claim**. A standard's `.ai.yaml` and `.md` forms are two encodings
+of the same material, chosen by who is reading.
+
+| Aspect | `ai/standards/*.ai.yaml` | `core/*.md` |
 | :--- | :--- | :--- |
-| **Format** | YAML-optimized | Full Markdown |
-| **Goal** | High-speed interactive lookup | Deep understanding & Rationale |
-| **Token Usage** | Minimal (AI-Friendly) | Detailed (Reference) |
+| **Encoding** | Structured YAML | Prose Markdown |
+| **Best for** | Deterministic machine lookup | Human reading and review |
+| **Relative size** | ~69% of the Markdown form — a reformat, not a compaction tier<sup>†</sup> | baseline |
+
+<sup>†</sup> Measured 2026-07-23 across the 135 standards that have both forms: 872,380 bytes of
+YAML against 1,271,471 bytes of Markdown. Reproduce with the commands in
+[Content Architecture §7](docs/reference/CONTENT-ARCHITECTURE.md#7-how-to-re-measure).
+
+> 📐 The depth contract, where it is enforced across integrations, and the measured gap between
+> the contract and the current tree are documented in
+> **[docs/reference/CONTENT-ARCHITECTURE.md](docs/reference/CONTENT-ARCHITECTURE.md)**.
 
 ---
 
@@ -112,16 +129,27 @@ graph TD
 | **OpenCode** | ✅ Complete | **55** | **51** | `AGENTS.md` |
 | **Cursor** | ✅ Complete | **Core** | **Simulated** | `.cursorrules` |
 | **Roo Code** | ✅ Complete | **Core** | **Workflow** | `.roo/rules/` |
-| **Gemini CLI** | 🧪 Preview | **18+** | **20+** | `GEMINI.md` |
 | **Cline** | 🔶 Partial | **Core** | **Workflow** | `.clinerules` |
 | **Windsurf** | 🔶 Partial | **Core** | **Rulebook** | `.windsurfrules` |
 | **GitHub Copilot** | 🔶 Partial | **Core** | **Prompts** | `.github/copilot-instructions.md` |
 | **OpenAI Codex** | 🔶 Partial | **Core** | — | `AGENTS.md` |
 | **Aider** | 🔶 Partial | — | — | `AGENTS.md` |
-| **Continue** | 🔶 Partial | — | — | `.continue/config.json` |
-| **Google Antigravity** | ⚠️ Minimal | — | — | `.antigravity/rules.md` |
+| **Continue.dev** | 🔶 Partial | — | — | `.continue/config.json` |
+| **Google Antigravity** | ⚠️ Minimal | 🔬 Unverified<sup>‡</sup> | — | `.antigravity/rules.md` |
+| **Gemini CLI** | ⛔ Discontinued<sup>†</sup> | — | — | `GEMINI.md` (frozen) |
 
-> **Status Legend**: ✅ Complete | 🧪 Preview | 🔶 Partial | ⚠️ Minimal | ⏳ Planned
+> **Status Legend**: ✅ Complete | 🔶 Partial | ⚠️ Minimal | 🔬 Unverified | ⏳ Planned | ⛔ Discontinued
+
+<sup>†</sup> Google sunset Gemini CLI on **2026-06-18** (announced at I/O 2026-05-19, 30-day
+migration window), succeeded by Antigravity CLI. The `integrations/gemini-cli/` and `.gemini/`
+trees are **frozen** — kept for reference, excluded from sync checks, and no longer maintained.
+See [`.gemini/DEPRECATED.md`](.gemini/DEPRECATED.md).
+
+<sup>‡</sup> Antigravity supports skills, but the correct install path is **not yet verified**
+against a real Antigravity CLI. Two candidates conflict: `~/.gemini/antigravity-cli/plugins/<name>/skills/`
+(official plugin docs) and `.agent/skills/` (UDS's own 2026-02 spec, written in the Gemini CLI era).
+`uds init` therefore does **not** install skills for this target until one is confirmed — an
+unverified path fails silently, which is worse than not installing.
 
 ---
 

@@ -88,28 +88,44 @@ npx universal-dev-standards init
 
 ## 🏗️ 系統架構
 
-UDS 採用 **雙層執行模型 (Dual-Layer Execution Model)**，專為高速互動開發與深度技術合規而設計。
+UDS 的內容沿**兩條彼此獨立的軸**組織。兩者回答的是不同問題，把它們混為一談是誤讀本架構
+最常見的原因，因此分開陳述。
+
+### 軸一 — 深度：哪些內容必須常駐載入
+
+這條軸是一份**行為契約**：它告訴 AI 代理什麼要一開始就讀、什麼留到被問時再讀。
+影響 context 成本的是這條軸。
 
 ```mermaid
 graph TD
-    A[AI 助手 / 開發者] --> B{執行層}
-    B -- "日常任務" --> C["技能層 Skills (.ai.yaml)"]
-    B -- "深度審查" --> D["標準層 Standards (.md)"]
-    
-    C --> C1[Token 最佳化]
-    C --> C2[互動式引導]
-    
-    D --> D1[完整理論與定義]
-    D --> D2[工具自動化配置]
-    
-    C1 -. "回退機制" .-> D1
+    A[AI 助手 / 開發者] --> R["<b>Rules 規則</b><br/>core/*.md<br/><b>必讀 Always Read</b>"]
+    R -- "需要說明或實例" --> G["<b>Guides 指南</b><br/>core/guides/*.md<br/>僅按需讀取"]
+    R -- "需要完整方法論（TDD、BDD…）" --> M["<b>Methodologies 方法論</b><br/>methodologies/guides/*.md<br/>僅按需讀取"]
 ```
 
-| 面向 | 技能層 Skills (執行層) | 核心標準 Standards (知識庫) |
+| 層級 | 位置 | 內容 | AI 行為 |
+| :--- | :--- | :--- | :--- |
+| **Rules 規則** | `core/*.md` | 可執行規則、檢查清單、門檻值 | **必讀 (Always Read)** |
+| **Guides 指南** | `core/guides/*.md` | 說明、教學、範例 | 僅按需讀取 |
+| **Methodologies 方法論** | `methodologies/guides/*.md` | 完整方法論指南 | 僅按需讀取 |
+
+### 軸二 — 格式：同一份標準的兩種編碼
+
+這條軸**不帶任何深度含意**。同一份標準的 `.ai.yaml` 與 `.md` 是同一份材料的兩種編碼，
+依讀者是誰而選用。
+
+| 面向 | `ai/standards/*.ai.yaml` | `core/*.md` |
 | :--- | :--- | :--- |
-| **格式** | YAML 最佳化 | 完整 Markdown |
-| **目標** | 高速互動與快速查詢 | 深度理解與理論依據 |
-| **Token 使用** | 極小（AI 友善） | 詳細（參考文獻） |
+| **編碼** | 結構化 YAML | 散文式 Markdown |
+| **適用於** | 機器確定性查詢 | 人類閱讀與審查 |
+| **相對體積** | 約為 Markdown 版的 69%——是**換一種格式，不是壓縮層**<sup>†</sup> | 基準 |
+
+<sup>†</sup> 2026-07-23 實測，涵蓋同時具備兩種形式的 135 份標準：YAML 872,380 bytes，
+Markdown 1,271,471 bytes。重現指令見
+[Content Architecture §7](../../docs/reference/CONTENT-ARCHITECTURE.md#7-how-to-re-measure)。
+
+> 📐 深度契約的完整定義、它在各整合工具中的落實情形，以及契約與現況之間已量測到的落差，
+> 記於 **[docs/reference/CONTENT-ARCHITECTURE.md](../../docs/reference/CONTENT-ARCHITECTURE.md)**。
 
 ---
 
@@ -121,16 +137,26 @@ graph TD
 | **OpenCode** | ✅ 完整支援 | **55** | **51** | `AGENTS.md` |
 | **Cursor** | ✅ 完整支援 | **核心** | **模擬支援** | `.cursorrules` |
 | **Roo Code** | ✅ 完整支援 | **核心** | **工作流** | `.roo/rules/` |
-| **Gemini CLI** | 🧪 預覽版 | **18+** | **20+** | `GEMINI.md` |
 | **Cline** | 🔶 部分支援 | **核心** | **工作流** | `.clinerules` |
 | **Windsurf** | 🔶 部分支援 | **核心** | **規則書** | `.windsurfrules` |
 | **GitHub Copilot** | 🔶 部分支援 | **核心** | **提示詞** | `.github/copilot-instructions.md` |
 | **OpenAI Codex** | 🔶 部分支援 | **核心** | — | `AGENTS.md` |
 | **Aider** | 🔶 部分支援 | — | — | `AGENTS.md` |
-| **Continue** | 🔶 部分支援 | — | — | `.continue/config.json` |
-| **Google Antigravity** | ⚠️ 最低限度 | — | — | `.antigravity/rules.md` |
+| **Continue.dev** | 🔶 部分支援 | — | — | `.continue/config.json` |
+| **Google Antigravity** | ⚠️ 最低限度 | 🔬 未驗證<sup>‡</sup> | — | `.antigravity/rules.md` |
+| **Gemini CLI** | ⛔ 已停止服務<sup>†</sup> | — | — | `GEMINI.md`（已凍結） |
 
-> **狀態圖例**：✅ 完整支援 | 🧪 預覽版 | 🔶 部分支援 | ⚠️ 最低限度 | ⏳ 計畫中
+> **狀態圖例**：✅ 完整支援 | 🔶 部分支援 | ⚠️ 最低限度 | 🔬 未驗證 | ⏳ 計畫中 | ⛔ 已停止服務
+
+<sup>†</sup> Google 已於 **2026-06-18** 終止 Gemini CLI（2026-05-19 I/O 宣布，30 天遷移窗），
+由 Antigravity CLI 接手。`integrations/gemini-cli/` 與 `.gemini/` 兩棵樹已**凍結**——
+保留供參考、排除於同步檢查之外、不再維護。見 [`.gemini/DEPRECATED.md`](../../.gemini/DEPRECATED.md)。
+
+<sup>‡</sup> Antigravity 支援 skills，但正確的安裝路徑**尚未對實際的 Antigravity CLI 驗證**。
+兩個候選互相衝突：`~/.gemini/antigravity-cli/plugins/<name>/skills/`（官方 plugin 文件）
+與 `.agent/skills/`（UDS 自己 2026-02 的 spec，寫於 Gemini CLI 時代）。
+因此在確認之前，`uds init` **不會**為此目標安裝 skills——
+路徑填錯會是靜默失敗，比不安裝更糟。
 
 ---
 

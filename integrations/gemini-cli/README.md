@@ -1,9 +1,24 @@
 # Gemini CLI Integration
 
+> ## ⛔ DISCONTINUED — this integration is frozen
+>
+> Google sunset Gemini CLI on **2026-06-18** (announced at I/O 2026-05-19, 30-day migration
+> window). It was succeeded by **Antigravity CLI**.
+>
+> This directory is **kept for reference only**: it is excluded from sync checks, is not
+> updated when `skills/` changes, and should not be edited. The same applies to the `.gemini/`
+> tree at the repository root — see [`.gemini/DEPRECATED.md`](../../.gemini/DEPRECATED.md) for
+> the full rationale and for why this went unnoticed for a month.
+>
+> **Migrating?** See the Antigravity entry in the [root README](../../README.md#-ai-tool-support).
+> Note that UDS has not yet verified Antigravity's skill install path, so `uds init` does not
+> install skills for it.
+
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/gemini-cli/README.md) | [简体中文](../../locales/zh-CN/integrations/gemini-cli/README.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2026-01-09
+**Status**: Frozen 2026-07-23
 
 This directory provides resources for integrating Universal Doc Standards with [Gemini CLI](https://geminicli.com/).
 

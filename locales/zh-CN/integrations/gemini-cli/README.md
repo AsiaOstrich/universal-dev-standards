@@ -8,6 +8,18 @@ status: current
 
 # Gemini CLI 集成
 
+> ## ⛔ 已停止服务 —— 本集成已冻结
+>
+> Google 已于 **2026-06-18** 终止 Gemini CLI（2026-05-19 I/O 宣布，30 天迁移窗），
+> 由 **Antigravity CLI** 接手。
+>
+> 本目录**仅保留供参考**：已排除于同步检查之外、`skills/` 变更时不会更新、请勿编辑。
+> repo 根目录的 `.gemini/` 树亦同——完整理由与「为何一个月无人察觉」记于
+> [`.gemini/DEPRECATED.md`](../../../../.gemini/DEPRECATED.md)。
+>
+> **要迁移？** 见[根 README](../../../../README.md#-ai-工具支持) 的 Antigravity 条目。
+> 注意 UDS 尚未验证 Antigravity 的 skill 安装路径，因此 `uds init` 不会为它安装 skills。
+
 本目录提供将通用文档规范与 [Gemini CLI](https://geminicli.com/) 集成的资源。
 
 ## 概述

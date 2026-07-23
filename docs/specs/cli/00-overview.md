@@ -322,6 +322,21 @@ interface OperationResult {
 
 ### AI Agent Support Matrix
 
+> ⚠️ **Stale snapshot — do not treat as authoritative.**
+> This table is a hand-maintained copy of capability data that lives in four other places
+> (`integrations/REGISTRY.json`, `cli/standards-registry.json`,
+> `cli/src/config/ai-agent-paths.js`, and the hardcoded list in
+> `scripts/check-ai-agent-sync.sh`). It has drifted from all of them — Cursor and Copilot
+> are marked ❌ for Skills here while three of the four say they support them, and
+> Antigravity is marked ✅ for Commands and Workflows while the behavioural config sets both
+> to `null`.
+>
+> **The authority is `integrations/REGISTRY.json`** (tier, deprecation) and
+> `cli/src/config/ai-agent-paths.js` (what actually gets installed). The three registries
+> are held together by `scripts/check-integration-liveness.ts`; this table is not, because
+> reconciling it needs a judgement about which values are correct, not a mechanical merge.
+> Tracked as XSPEC-355 OQ9.
+
 | Agent | Skills | Commands | Agents | Workflows | Marketplace |
 |-------|--------|----------|--------|-----------|-------------|
 | Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ |

@@ -70,6 +70,8 @@
     }
   },
   "supportedAITools": {
+    "_note": "INFORMATIONAL MIRROR. No code reads this block -- the CLI's actual install behaviour is driven by cli/src/config/ai-agent-paths.js, and integrations/REGISTRY.json is the SSOT for tier and deprecation. Kept in sync by scripts/check-integration-liveness.ts so the three cannot drift apart silently again (they did, for 5.5 months, on antigravity.supportsSkills).",
+    "_noteZh": "資訊性鏡像。沒有任何程式讀取此區塊——CLI 實際的安裝行為由 cli/src/config/ai-agent-paths.js 驅動，tier 與停用狀態的 SSOT 是 integrations/REGISTRY.json。由 scripts/check-integration-liveness.ts 維持同步，避免三者再次無聲漂移（antigravity.supportsSkills 曾漂移 5.5 個月）。",
     "claude-code": {
       "name": "Claude Code",
       "skillsPath": "skills",
@@ -256,6 +258,10 @@
     },
     "gemini-cli": {
       "name": "Gemini CLI",
+      "deprecated": true,
+      "deprecationNote": "Google sunset Gemini CLI on 2026-06-18; succeeded by Antigravity CLI. The integrations/gemini-cli/ and .gemini/ trees are frozen -- see .gemini/DEPRECATED.md.",
+      "deprecationNoteZh": "Google 已於 2026-06-18 終止 Gemini CLI，由 Antigravity CLI 接手。integrations/gemini-cli/ 與 .gemini/ 兩棵樹已凍結——見 .gemini/DEPRECATED.md。",
+      "supersededBy": "antigravity",
       "skillsPath": "skills",
       "nativePaths": {
         "skills": {
@@ -284,12 +290,15 @@
     "antigravity": {
       "name": "Google Antigravity",
       "skillsPath": null,
+      "skillsPathStatus": "unverified",
+      "skillsPathNote": "Antigravity supports skills, but UDS has not verified where it reads them from. Candidates: '~/.gemini/antigravity-cli/plugins/<name>/skills/' (official plugin docs) and '.agent/skills/' (UDS's own 2026-02 spec, written in the Gemini CLI era). skillsPath stays null until one is confirmed against a real CLI -- an unverified path fails silently. Tracked as XSPEC-355 OQ6.",
+      "skillsPathNoteZh": "Antigravity 支援 skills，但 UDS 尚未驗證它實際從何處讀取。候選路徑：'~/.gemini/antigravity-cli/plugins/<name>/skills/'（官方 plugin 文件）與 '.agent/skills/'（UDS 自己 2026-02 的 spec，寫於 Gemini CLI 時代）。在對實際 CLI 確認之前 skillsPath 維持 null——路徑填錯會是靜默失敗。追蹤於 XSPEC-355 OQ6。",
       "nativePaths": {
         "config": {
           "project": "INSTRUCTIONS.md"
         }
       },
-      "supportsSkills": false,
+      "supportsSkills": true,
       "supportsCommands": false,
       "supportsTask": false,
       "supportsAgents": false,

@@ -241,16 +241,27 @@ export const AI_AGENT_PATHS = {
   'antigravity': {
     name: 'Google Antigravity',
     tier: 'minimal',
-    skills: {
-      project: '.agent/skills/',
-      user: join(homedir(), '.gemini', 'antigravity', 'skills')
-    },
+    // Skills install path is UNVERIFIED against a real Antigravity CLI, so it is null:
+    // `supportsSkills && skills` is the install guard everywhere (init.js, init-flow.js,
+    // update.js, config.js), and a null `skills` makes it decline rather than write to a
+    // path the tool may never read.
+    //
+    // Two candidates conflict, and neither has been tested:
+    //   a) ~/.gemini/antigravity-cli/plugins/<name>/skills/  -- official plugin docs
+    //   b) .agent/skills/ + ~/.gemini/antigravity/skills     -- UDS's own 2026-02 spec,
+    //      written while Gemini CLI was still the product; Antigravity replaced it on
+    //      2026-06-18, so (b) inherits an assumption that may no longer hold.
+    //
+    // Installing to the wrong path fails SILENTLY -- the user sees a successful init and
+    // an assistant that never picks the skills up. Declining is the safer default until
+    // one candidate is confirmed. Tracked as XSPEC-355 OQ6.
+    skills: null,
     commands: null,
     agents: null,
     workflows: null,
     supportsMarketplace: false,
     fallbackSkillsPath: null,
-    supportsSkills: true, // Skills since Nov 2025
+    supportsSkills: true, // The tool does support skills; only our path for it is unverified.
     supportsTask: false,
     supportsAgents: false
   }

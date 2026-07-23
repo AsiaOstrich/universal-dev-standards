@@ -208,6 +208,29 @@ get_tier_rules() {
     esac
 }
 
+# Function to read deprecation status from the registry (the SSOT for it)
+#
+# A deprecated integration target is frozen: its files are kept for reference but are
+# no longer required to satisfy tier rules. Without this, a tool that no longer exists
+# keeps generating maintenance work -- and because dead tools sit in the lowest tiers,
+# whose rule sets are small enough to always pass, no check ever goes red to say so.
+#
+# Deliberately not silenced: if node or the registry is broken we must fail loudly
+# rather than treat "cannot tell" as "not deprecated".
+is_deprecated() {
+    local agent_id="$1"
+    local result
+    if ! result=$(node -e '
+        const registry = require(process.argv[1]);
+        const agent = registry.agents[process.argv[2]];
+        process.stdout.write(agent && agent.deprecated === true ? "true" : "false");
+    ' "$REGISTRY_FILE" "$agent_id"); then
+        echo -e "${RED}ERROR: cannot read deprecation status for '$agent_id' from $REGISTRY_FILE${NC}" >&2
+        exit 1
+    fi
+    [ "$result" = "true" ]
+}
+
 # Function to check a single rule in a file
 check_rule() {
     local file="$1"
@@ -234,6 +257,17 @@ check_agent() {
     file_path="$ROOT_DIR/$relative_path"
     tier=$(get_agent_tier "$agent_id")
     required_rules=$(get_tier_rules "$tier")
+
+    # Frozen targets are reported, not enforced.
+    if is_deprecated "$agent_id"; then
+        if [ "$JSON_OUTPUT" = false ]; then
+            echo -e "${CYAN}Checking ${BOLD}$agent_id${NC}${CYAN} (${tier})${NC}"
+            echo -e "  ${YELLOW}[FROZEN]${NC} Deprecated in REGISTRY.json -- rules not enforced"
+            echo ""
+        fi
+        inc_skipped
+        return 0
+    fi
 
     local agent_errors=0
     local agent_warnings=0

@@ -169,6 +169,15 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+# ── check-integration-liveness.ts ────────────────────────────────────────────
+# Registered divergences (KNOWN_DRIFT) are warnings; anything unregistered fails.
+
+@test "check-integration-liveness.ts exits 0 on clean repo" {
+  cd "$REPO_ROOT"
+  run npx tsx scripts/check-integration-liveness.ts
+  [ "$status" -eq 0 ]
+}
+
 # ── fix-manifest-paths.sh ────────────────────────────────────────────────────
 # Not a check script; asserts intended argument-validation behaviour.
 

@@ -70,6 +70,24 @@ if [ -n "$STAGED_INDEX_SRC" ]; then
     fi
 fi
 
+# Integration liveness + cross-registry consistency (XSPEC-355 OQ5/OQ6)
+# The same field lived in three registries with two values for 5.5 months, and a
+# discontinued tool kept passing every check because its tier required almost nothing.
+# Both are cheap to detect and expensive to notice by hand.
+STAGED_INTEGRATION_SRC=$(git diff --cached --name-only | grep -E "^(integrations/REGISTRY\.json|cli/standards-registry\.json|cli/src/config/ai-agent-paths\.js|scripts/check-ai-agent-sync\.sh|README\.md|locales/zh-(TW|CN)/README\.md)$" || true)
+
+if [ -n "$STAGED_INTEGRATION_SRC" ]; then
+    echo "[Pre-commit] Checking integration liveness and registry consistency..."
+    if ! npm run check:liveness --prefix "$REPO_ROOT" --silent; then
+        echo ""
+        echo "Integration registries disagree, or a tool's status is misprojected."
+        echo "  Resolve the divergence, or register it in KNOWN_DRIFT in"
+        echo "  scripts/check-integration-liveness.ts with a reason and a tracking reference."
+        echo ""
+        exit 1
+    fi
+fi
+
 # Navigate to cli directory for npm commands
 cd "$REPO_ROOT/cli"
 

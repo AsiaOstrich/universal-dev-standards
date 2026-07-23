@@ -38,11 +38,20 @@ describe('AI Agent Paths Configuration', () => {
       }
     });
 
-    it('should have correct paths for Antigravity', () => {
+    // XSPEC-355 OQ6. This test previously asserted skills.project === '.agent/skills/',
+    // which locked in an install path that was never verified against a real Antigravity
+    // CLI — it came from a UDS spec written while Gemini CLI was still the product, and
+    // Antigravity replaced it on 2026-06-18. A green test meant only that the code agreed
+    // with the assumption, not that the path was right.
+    //
+    // The config now declines to install rather than write to an unverified location
+    // (an unverified path fails silently: init succeeds, skills are never picked up).
+    // When one candidate is confirmed, set skills and restore a positive assertion here.
+    it('declines to install skills for Antigravity while the path is unverified', () => {
       const config = AI_AGENT_PATHS['antigravity'];
 
-      expect(config.skills.project).toBe('.agent/skills/');
-      expect(config.skills.user).toBe(join(homedir(), '.gemini', 'antigravity', 'skills'));
+      expect(config.skills).toBeNull();
+      // The tool does support skills; only our path for it is unknown.
       expect(config.supportsSkills).toBe(true);
     });
 
@@ -154,10 +163,15 @@ describe('AI Agent Paths Configuration', () => {
       expect(agents).toContain('cursor');
     });
 
-    it('should include Antigravity (Skills since Nov 2025)', () => {
+    // XSPEC-355 OQ6. getSkillsSupportedAgents() filters on `supportsSkills && skills`,
+    // i.e. "we can install for this agent", not "this agent supports skills". Antigravity
+    // does support skills, but UDS has no verified path to install them to, so it is
+    // correctly absent from the installable set. Restore it here once the path is confirmed.
+    it('excludes Antigravity while its install path is unverified', () => {
       const agents = getSkillsSupportedAgents();
 
-      expect(agents).toContain('antigravity');
+      expect(agents).not.toContain('antigravity');
+      expect(AI_AGENT_PATHS['antigravity'].supportsSkills).toBe(true);
     });
   });
 
