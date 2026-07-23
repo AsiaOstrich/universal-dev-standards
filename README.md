@@ -123,7 +123,7 @@ YAML against 1,271,471 bytes of Markdown. Reproduce with the commands in
 
 ## 🤖 AI Tool Support
 
-UDS ships integrations for **11 live tools. 0 of them are behaviourally verified.**
+UDS ships integrations for **11 live tools. 1 of them is behaviourally verified.**
 
 Those are two different numbers on purpose. **Status** says how complete the integration
 *we wrote* is. **Verified** says whether anyone has confirmed the tool actually reads it and
@@ -141,7 +141,7 @@ verification queue (Antigravity → Codex → Claude Code → the rest).
 | **Cline** | 🔶 Partial | 🔬 — | **Core** | **Workflow** | `.clinerules` |
 | **Windsurf** | 🔶 Partial | 🔬 — | **Core** | **Rulebook** | `.windsurfrules` |
 | **GitHub Copilot** | 🔶 Partial | 🔬 — | **Core** | **Prompts** | `.github/copilot-instructions.md` |
-| **OpenAI Codex** | 🔶 Partial | 🔬 — | **Core** | — | `AGENTS.md` |
+| **OpenAI Codex** | 🔶 Partial | ✅ 2026-07-23 | **Core** | — | `AGENTS.md` |
 | **Aider** | 🔶 Partial | 🔬 — | — | — | `AGENTS.md` |
 | **Continue.dev** | 🔶 Partial | 🔬 — | — | — | `.continue/config.json` |
 | **Google Antigravity** | ⚠️ Minimal | 🔬 — | —<sup>‡</sup> | — | `.antigravity/rules.md` |

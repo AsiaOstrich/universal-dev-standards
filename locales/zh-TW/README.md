@@ -131,7 +131,7 @@ Markdown 1,271,471 bytes。重現指令見
 
 ## 🤖 AI 工具支援
 
-UDS 提供 **11 個現行工具的整合，其中 0 個已通過行為驗證。**
+UDS 提供 **11 個現行工具的整合，其中 1 個已通過行為驗證。**
 
 這是刻意分開的兩個數字。**狀態**說的是**我們寫的那份整合**有多完整；
 **驗證**說的是**有沒有人確認過該工具真的讀得到、且行為確實照做**——
@@ -148,7 +148,7 @@ UDS 提供 **11 個現行工具的整合，其中 0 個已通過行為驗證。*
 | **Cline** | 🔶 部分支援 | 🔬 — | **核心** | **工作流** | `.clinerules` |
 | **Windsurf** | 🔶 部分支援 | 🔬 — | **核心** | **規則書** | `.windsurfrules` |
 | **GitHub Copilot** | 🔶 部分支援 | 🔬 — | **核心** | **提示詞** | `.github/copilot-instructions.md` |
-| **OpenAI Codex** | 🔶 部分支援 | 🔬 — | **核心** | — | `AGENTS.md` |
+| **OpenAI Codex** | 🔶 部分支援 | ✅ 2026-07-23 | **核心** | — | `AGENTS.md` |
 | **Aider** | 🔶 部分支援 | 🔬 — | — | — | `AGENTS.md` |
 | **Continue.dev** | 🔶 部分支援 | 🔬 — | — | — | `.continue/config.json` |
 | **Google Antigravity** | ⚠️ 最低限度 | 🔬 — | —<sup>‡</sup> | — | `.antigravity/rules.md` |

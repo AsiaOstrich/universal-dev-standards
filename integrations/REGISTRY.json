@@ -110,7 +110,7 @@
       "supportsAgents": true,
       "supportsWorkflows": false,
       "verification": {
-        "status": "failed",
+        "status": "verified",
         "date": "2026-07-23",
         "toolVersion": "codex-cli 0.145.0",
         "udsVersion": "6.1.1",
@@ -118,7 +118,7 @@
           "P2"
         ],
         "evidence": "integrations/verification/codex/2026-07-23.md",
-        "note": "Failed on the UDS side, not Codex: the AGENTS.md that `uds init` generates indexes .standards/ by filename and does not contain the certainty-classification rule, while integrations/codex/AGENTS.md (which check-ai-agent-sync.sh greps) does. Codex reasoned correctly, it was never given the declared form."
+        "note": "3 of 3 runs applied the certainty tags correctly. Verified with the skill at .agents/skills/ (the official path, which ai-agent-paths.js was corrected to in this same session). The uds init flow itself is not verified end-to-end for this target: init has no --ai-tool flag."
       }
     },
     "gemini-cli": {
