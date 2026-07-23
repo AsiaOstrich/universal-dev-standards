@@ -1,0 +1,55 @@
+Here is a comprehensive code review of [checkout.js].
+
+---
+
+### 1. Security Vulnerabilities
+
+* **Hardcoded Credentials ([L3–L7])**:
+  Database credentials (`user: 'shop'`, `password: 'Sh0p!2024$prod'`) are stored in plain text in source code. They should be loaded via environment variables (e.g. `process.env.DB_PASSWORD`).
+* **Unvalidated Input & Negative Quantities ([L10], [L13])**:
+  `req.body.cart` and `req.body.uid` are consumed directly. A malicious user could submit a negative `item.qty` (e.g., `-10`), which reduces the checkout total and increases stock in the database (`UPDATE products SET stock = stock - (-10)`).
+
+---
+
+### 2. Concurrency & Data Integrity Issues
+
+* **Lack of Database Transactions ([L13–L25])**:
+  Database updates (`UPDATE stock` and `INSERT order`) are executed without transaction context (`START TRANSACTION` / `COMMIT`). If an error occurs halfway through, inventory updates will be committed without creating an order.
+* **Race Condition & Missing Stock Checks ([L14–L17])**:
+  The code does not verify whether `stock >= item.qty` before deducting stock, leading to negative inventory (overselling). Additionally, concurrent requests can read the same stock level before updating.
+
+---
+
+### 3. Asynchronous & Runtime Bugs
+
+* **Unawaited Payment Call ([L26–L29])**:
+  The `fetch` request to the payment gateway is not awaited. The endpoint returns success to the client before payment is confirmed, and payment errors or network failures will go unhandled.
+* **Missing HTTP Headers ([L26–L29])**:
+  `fetch` sends a stringified JSON payload without specifying `'Content-Type': 'application/json'`, causing payment servers to reject or fail to parse the body.
+* **Missing Error Handling ([L9–L32])**:
+  There is no `try...catch` block around database or network operations. Any exception will cause unhandled promise rejections or Express server errors (500).
+* **Null Reference / Unmatched Product Crash ([L15])**:
+  If a product ID does not exist in the database, `rows[0]` will be `undefined`, throwing `TypeError: Cannot read properties of undefined (reading 'price')`.
+
+---
+
+### 4. Performance & Calculation Issues
+
+* **N+1 Database Query Anti-pattern ([L13–L18])**:
+  Executing `SELECT` and `UPDATE` queries sequentially inside a `for` loop produces $2N$ queries for $N$ items. Products should be queried in a batch (`WHERE id IN (...)`).
+* **Floating-Point Imprecision ([L16], [L21])**:
+  Calculating monetary amounts using floating-point multiplication (`total * 0.92`) introduces floating-point precision errors (e.g. `460.00000000000006`). Store and calculate amounts in integer cents.
+
+---
+
+### 5. Architectural & Code Quality Issues
+
+* **Single Shared DB Connection vs. Connection Pool ([L3])**:
+  Using a single connection (`mysql.createConnection`) created at top-level module load time causes connection timeouts, prevents concurrent request handling, and crashes startup if the DB is temporarily unreachable. Use `mysql.createPool` instead.
+* **Cryptic Helper Function ([L34–L36])**:
+  The exported function `fmt(d, t, x)` uses non-descriptive parameter names, lacks type checking (leading to `"null-undefined-NA"` string outputs), and is unused in the module.
+
+---
+
+### Summary of Work
+I conducted a code review of [checkout.js] and compiled a breakdown of critical security vulnerabilities, concurrency bugs, unhandled async calls, N+1 query performance issues, and floating-point errors.

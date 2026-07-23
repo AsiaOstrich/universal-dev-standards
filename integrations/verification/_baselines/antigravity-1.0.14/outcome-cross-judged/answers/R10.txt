@@ -1,0 +1,59 @@
+Here is a comprehensive code review of [checkout.js].
+
+---
+
+### 1. Security Vulnerabilities
+
+* **Hardcoded Credentials** ([checkout.js:L3-L7])
+  * Database host, username, and password (`Sh0p!2024$prod`) are hardcoded directly in source code.
+  * **Fix**: Load credentials from environment variables using `process.env`.
+
+* **Missing Input Validation & Type Checking** ([checkout.js:L10, L24] & [checkout.js:L24])
+  * `req.body.cart` and `req.body.uid` are accessed directly without verifying their existence, array structure, or data types.
+  * `item.qty` could be negative or non-numeric. A negative `item.qty` would increase product stock during checkout (`stock - (-qty)`) and reduce the total cost unfairly.
+
+---
+
+### 2. Database & Architectural Issues
+
+* **Single Shared Connection instead of Connection Pool** ([checkout.js:L3-L7])
+  * A single connection [conn] created at module level is shared across all concurrent HTTP requests. This creates concurrency bottlenecks and will crash or fail if the connection drops.
+  * Top-level `await` blocks module execution on server startup if the database is initially unreachable.
+  * **Fix**: Use `mysql.createPool()` instead of `createConnection()`.
+
+* **Missing Transactions & Race Conditions** ([checkout.js:L13-L24])
+  * Updating stock and inserting the order are executed as separate queries without a database transaction (`START TRANSACTION`, `COMMIT`, `ROLLBACK`).
+  * If an error occurs halfway through processing items, inventory will be partially updated with no corresponding order created. Concurrent transactions can also cause overselling race conditions.
+
+* **N+1 Query Pattern** ([checkout.js:L13-L18])
+  * Executing two SQL queries (`SELECT` and `UPDATE`) inside a loop for each item in `cart` causes severe performance bottlenecks for larger shopping carts.
+
+---
+
+### 3. Business Logic & Reliability Flaws
+
+* **Fire-and-Forget Asynchronous Payment (`fetch` without `await`)** ([checkout.js:L26-L29])
+  * The payment request `fetch(...)` is triggered without `await`.
+  * `res.json()` returns success to the client (line 31) immediately before the payment gateway responds. If the payment declines or fails, the client is still notified of a successful checkout, and stock remains deducted.
+  * Network errors in `fetch` will result in unhandled promise rejections.
+
+* **Missing `Content-Type` Header in Payment Request** ([checkout.js:L26-L29])
+  * The `fetch` POST body is serialized with `JSON.stringify`, but no `'Content-Type': 'application/json'` header is included, causing potential parsing failures on the payment server.
+
+* **Missing Stock Availability Check & Potential `TypeError`** ([checkout.js:L14-L16])
+  * If an invalid `item.id` is provided, `rows[0]` will be `undefined`, causing `TypeError: Cannot read properties of undefined (reading 'price')`.
+  * If `p.stock < item.qty`, the code does not block the checkout and allows stock to drop into negative numbers.
+
+* **Floating Point Precision Issues** ([checkout.js:L16, L21] & [checkout.js:L21])
+  * JavaScript floating-point calculations (`p.price * item.qty` and `total * 0.92`) can produce floating-point inaccuracies (e.g. `137.97239999999998`).
+  * Currency values should be stored and calculated in integer cents or explicitly rounded before database and payment processing.
+
+* **Missing Error Handling (`try/catch`)** ([checkout.js:L9-L32])
+  * Any thrown error in [processCheckout] will cause Express to hang or crash without sending an HTTP error response (e.g. 400 or 500) back to the client.
+
+---
+
+### 4. Code Quality
+
+* **Unused Utility Function** ([checkout.js:L34-L36])
+  * [fmt] is exported but not used anywhere in this file. Its parameter names (`d`, `t`, `x`) are ambiguous.

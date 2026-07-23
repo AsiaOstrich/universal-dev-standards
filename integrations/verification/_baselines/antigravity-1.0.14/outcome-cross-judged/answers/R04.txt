@@ -1,0 +1,44 @@
+Here is a comprehensive code review of [src/checkout.js].
+
+---
+
+### 1. Security Vulnerabilities
+* **Hardcoded Credentials** ([src/checkout.js:L3-L7]): Database password (`Sh0p!2024$prod`), host, and user are stored in plain text. Use environment variables (e.g., `process.env.DB_PASSWORD`) instead.
+
+---
+
+### 2. Async & Reliability Issues
+* **Unawaited Payment API Call (Fire-and-Forget)** ([src/checkout.js:L26-L29]): `fetch` is missing an `await`. The handler returns success to the client before payment is processed. If the payment is declined or fails, the user is still charged zero and the order succeeds.
+* **Missing HTTP Headers** ([src/checkout.js:L26-L29]): The `fetch` POST request passes a JSON string without setting `'Content-Type': 'application/json'`.
+* **Missing Global Try/Catch Block** ([src/checkout.js:L9-L32]): Any database error or missing property access will trigger an unhandled promise rejection without returning a proper HTTP 500 error response.
+
+---
+
+### 3. Business Logic & Data Integrity Issues
+* **No Database Transaction Control** ([src/checkout.js:L13-L24]): Updating multiple product stocks and inserting an order should be wrapped in `START TRANSACTION` / `COMMIT` / `ROLLBACK`. If one item update fails, previous stock deductions remain committed.
+* **Missing Stock & Quantity Validation** ([src/checkout.js:L14-L17]): `stock` is selected but never verified against `item.qty`. Inventory can go negative. Negative or zero `item.qty` values are also not prevented.
+* **Potential Null Dereference Crash** ([src/checkout.js:L14-L16]): If `item.id` is invalid or not in the database, `rows[0]` returns `undefined`, causing `p.price` to throw a `TypeError`.
+
+---
+
+### 4. Input Validation
+* **Unvalidated Request Payload** ([src/checkout.js:L10], [src/checkout.js:L24]): `req.body`, `req.body.cart`, and `req.body.uid` are consumed directly without schema or type checks (`Array.isArray(cart)`).
+
+---
+
+### 5. Performance & Architecture Issues
+* **Single Connection vs. Connection Pool** ([src/checkout.js:L3-L7]): `mysql.createConnection` opens a single connection at file load. Connection drops will crash subsequent requests, and concurrent operations will queue or fail. Use `mysql.createPool` instead.
+* **Top-Level Await Blocking Module Load** ([src/checkout.js:L3]): Executing top-level `await` on DB creation will prevent application startup if the DB is unreachable.
+* **N+1 Query Pattern** ([src/checkout.js:L13-L18]): Executing `SELECT` and `UPDATE` inside a `for...of` loop creates $2 \times N$ database roundtrips. Fetch products in bulk with `WHERE id IN (...)`.
+* **Floating Point Currency Operations** ([src/checkout.js:L16], [src/checkout.js:L21]): Standard floating-point arithmetic (`total * 0.92`) introduces rounding issues. Store and compute currency using integers (cents) or a fixed-precision library.
+
+---
+
+### 6. Code Quality
+* **Unused & Unclear Export** ([src/checkout.js:L34-L36]): [fmt] uses non-descriptive parameter names (`d`, `t`, `x`) and appears to be dead code unrelated to [processCheckout].
+* **Hardcoded Magic Numbers** ([src/checkout.js:L20-L22]): Discount threshold `500` and multiplier `0.92` should be extracted into named constants.
+
+---
+
+### Summary
+The review identified **12 critical, high, and medium severity issues** across security (hardcoded secrets), database reliability (connection pools, transactions, N+1 queries), async execution (floating fetch promises), and business logic (stock validation and input sanitization).

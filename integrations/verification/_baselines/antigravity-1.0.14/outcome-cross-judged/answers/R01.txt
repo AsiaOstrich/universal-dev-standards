@@ -1,0 +1,45 @@
+A comprehensive code review of [checkout.js] revealed several critical issues ranging from security risks to database performance and logic bugs:
+
+---
+
+### 1. Security Vulnerabilities
+* **Hardcoded Credentials** ([checkout.js:L3-L7]): Database hostname, username, and production password (`Sh0p!2024$prod`) are hardcoded directly in the source code. These should be loaded securely from environment variables (`process.env`).
+
+---
+
+### 2. Database & Connection Management Issues
+* **Single Shared Connection instead of Connection Pool** ([checkout.js:L3]): `mysql.createConnection()` creates a single global database connection. Concurrent API requests will share this single connection, leading to race conditions, dropped connections, and poor scalability. A connection pool (`mysql.createPool()`) should be used instead.
+* **Missing Database Transactions** ([checkout.js:L13-L24]): Product stock is updated and orders are inserted across multiple independent queries without transaction wrappers (`START TRANSACTION`, `COMMIT`, `ROLLBACK`). If a query fails midway, partial updates will persist, corrupting data integrity.
+* **N+1 Query Performance Problem** ([checkout.js:L13-L18]): Database queries are executed inside a `for` loop (`SELECT` and `UPDATE` per item), causing $2N$ queries per checkout. Product queries should be batched (e.g. using `WHERE id IN (...)`).
+
+---
+
+### 3. Inventory & Business Logic Errors
+* **Missing Stock & Product Existence Checks** ([checkout.js:L14-L17]):
+  - If a product ID doesn't exist, `rows[0]` will be `undefined`, throwing an unhandled `TypeError: Cannot read properties of undefined (reading 'price')`.
+  - Inventory availability is never checked (`p.stock < item.qty`), allowing stock to go negative.
+  - Updating stock directly with `stock - ?` without locking or atomic checks creates race conditions leading to overselling.
+* **Floating-Point Currency Precision** ([checkout.js:L16], [L21]): Floating-point operations (`total * 0.92`) introduce IEEE 754 precision rounding errors (e.g., `19.99 * 0.92 = 18.390800000000002`). Monetary calculations should use integer cents or explicit rounding/decimal utilities.
+
+---
+
+### 4. Network & Payment Async Issues
+* **Fire-and-Forget `fetch` Call** ([checkout.js:L26-L29]): `fetch('https://payments.example.com/charge', ...)` is not awaited and lacks error handling. The API responds with success (`res.json`) even if the payment request fails or is rejected.
+* **Missing HTTP Headers in `fetch`** ([checkout.js:L26-L29]): The POST body sends JSON stringified data, but fails to include `'Content-Type': 'application/json'` in the headers.
+
+---
+
+### 5. Input Validation & Error Handling
+* **Missing Request Body Validation** ([checkout.js:L10], [L24]): Neither `req.body.cart` nor `req.body.uid` are validated. If `cart` is missing or not an array, execution crashes on `for (const item of cart)`.
+* **Zero Exception Handling** ([processCheckout]): The handler lacks a `try...catch` block. Any query error, database disconnect, or runtime error will cause the HTTP request to hang or crash without returning a proper error status (e.g. 500).
+
+---
+
+### 6. Code Quality & Maintainability
+* **Cryptic Utility Function** ([fmt]): Function `fmt(d, t, x)` uses non-descriptive parameter names (`d`, `t`, `x`) without documentation or type checks.
+
+---
+
+### Summary of Work
+- Analyzed [checkout.js] line by line.
+- Documented 10 distinct issues covering security, database concurrency/transactions, network calls, floating-point math, input validation, and code structure.

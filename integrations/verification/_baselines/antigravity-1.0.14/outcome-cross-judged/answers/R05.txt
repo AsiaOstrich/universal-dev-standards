@@ -1,0 +1,52 @@
+Here is a comprehensive code review of [src/checkout.js].
+
+---
+
+### 1. Security & Configuration Issues
+
+* **Hardcoded Credentials ([src/checkout.js:L3-L7])**:
+  Database credentials (`host`, `user`, `password: 'Sh0p!2024$prod'`) are hardcoded in the codebase. These should be moved to environment variables (`process.env.DB_HOST`, `process.env.DB_PASSWORD`, etc.).
+
+---
+
+### 2. Database & Concurrency Issues
+
+* **Single Connection vs. Connection Pool ([src/checkout.js:L3-L7])**:
+  The module creates a single shared connection via `mysql.createConnection()`. Concurrent requests will reuse or block this single connection, causing query interleaving or crashes if the connection drops. Use `mysql.createPool()` instead.
+* **Missing Database Transactions ([src/checkout.js:L13-L24])**:
+  Stock updates and order creation are executed without a transaction (`START TRANSACTION`). If any step fails (or if the payment fails), previous stock updates are not rolled back, leading to inconsistent data.
+* **Race Condition / Overselling ([src/checkout.js:L14-L17])**:
+  Stock is read and updated in separate queries without checking if available stock is sufficient (`stock >= item.qty`) or using locks (`FOR UPDATE`). Under concurrent orders, items can be oversold and stock can become negative.
+* **N+1 Query Performance Problem ([src/checkout.js:L13-L18])**:
+  Executing 2 database queries inside a loop for every item in `cart` results in $2N$ queries. Items should be fetched in bulk (e.g., `WHERE id IN (...)`).
+
+---
+
+### 3. Payment Processing & Async Handling
+
+* **Unawaited Payment Request ([src/checkout.js:L26-L29])**:
+  `fetch()` is called as a fire-and-forget promise without `await` or `.catch()`. If the payment fails or times out, the client still receives a successful response (`res.json`), and stock remains deducted.
+* **Missing `Content-Type` Header in Payment Request ([src/checkout.js:L26-L29])**:
+  The `fetch` request sends JSON in `body` but lacks headers (`'Content-Type': 'application/json'`). Most payment endpoints will reject or fail to parse the payload.
+
+---
+
+### 4. Input Validation & Reliability
+
+* **Missing Request Body Validation ([src/checkout.js:L10-L13])**:
+  No checks exist for `req.body`, `req.body.cart` (must be an array), or `req.body.uid`. If `cart` is null/undefined or not iterable, the server throws an uncaught exception.
+* **No Existence Check for Products ([src/checkout.js:L14-L15])**:
+  If a product ID in `cart` does not exist, `rows[0]` is `undefined`, causing `rows[0].price` to throw a `TypeError`.
+* **No Quantity Validation ([src/checkout.js:L16-L17])**:
+  `item.qty` is not checked for negative or zero values. A negative quantity allows users to increase stock and lower their order total (or gain store credit).
+* **Missing Error Handling (No `try/catch`) ([src/checkout.js:L9-L32])**:
+  The controller has no `try/catch` block. Any uncaught rejection will cause request timeouts or unhandled promise rejections without sending an HTTP 500 error response.
+
+---
+
+### 5. Financial Math & Code Quality
+
+* **Floating Point Precision Issues ([src/checkout.js:L16], [L21])**:
+  Using standard IEEE 754 floating point arithmetic (`total * 0.92`) leads to precision errors in currency calculations (e.g., `460.00000000000006`). Currency amounts should be calculated in integer cents or explicitly rounded.
+* **Unused Utility Function (`fmt`) ([src/checkout.js:L34-L36])**:
+  `fmt` has cryptic parameter names (`d`, `t`, `x`), is unused in `checkout.js`, and can throw a `TypeError` if `x` is not a string when calling `.toUpperCase()`.

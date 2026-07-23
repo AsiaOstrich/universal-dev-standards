@@ -1,0 +1,62 @@
+Here is a comprehensive code review of [src/checkout.js].
+
+---
+
+### 1. Security Vulnerabilities
+
+* **Hardcoded Database Credentials** ([L3-L7])  
+  Plaintext database credentials (`password: 'Sh0p!2024$prod'`) are hardcoded. Credentials should be stored in environment variables (e.g., `process.env.DB_PASSWORD`).
+* **Broken Authentication / IDOR** ([L24])  
+  `req.body.uid` is trusted directly from the client without verifying authentication or session identity, allowing users to place orders under arbitrary user IDs.
+
+---
+
+### 2. Database Connection & Transaction Issues
+
+* **Global Single Connection** ([L3-L7])  
+  Using a single connection (`mysql.createConnection`) globally shared across all HTTP requests will fail or corrupt states under concurrent traffic and lacks automatic reconnection if dropped. A connection pool (`mysql.createPool`) should be used.
+* **Top-Level `await` Connection Side Effect** ([L3])  
+  Top-level `await` blocks module loading and will crash application startup if the database is temporarily unreachable.
+* **Lack of Transactions & Race Conditions** ([L13-L24])  
+  Database reads and updates run across multiple independent queries without `BEGIN TRANSACTION` / `COMMIT` or row locks (`FOR UPDATE`). Simultaneous checkout requests can result in overselling inventory or partial database updates if a query fails mid-loop.
+* **N+1 Query Efficiency Issue** ([L13-L18])  
+  Querying and updating items individually inside a `for` loop creates excessive network round-trips. Cart items should be fetched and updated in bulk.
+
+---
+
+### 3. Asynchronous & Execution Flow Errors
+
+* **Unawaited Payment `fetch` (Fire-and-Forget)** ([L26-L29])  
+  `fetch()` is called without `await`. The response confirms success to the client ([L31]) regardless of whether payment succeeded, failed, or threw a network error.
+* **Missing HTTP Headers on `fetch`** ([L26-L29])  
+  The POST request sends JSON in the body without setting `'Content-Type': 'application/json'`, causing endpoint parsing failures.
+
+---
+
+### 4. Input Validation & Error Handling
+
+* **Missing Request Body & Parameter Validation** ([L10], [L13])  
+  If `req.body` or `req.body.cart` is undefined/null or not an array, `for (const item of cart)` throws an unhandled `TypeError`.
+* **Missing Quantity & Stock Validation** ([L13-L17])  
+  * `item.qty` is never checked for negative or fractional numbers. A negative quantity allows users to increase stock and lower total prices.
+  * `item.qty` is not checked against current stock `p.stock`, allowing stock levels to drop below zero.
+* **Unchecked Query Result (Null Reference)** ([L15])  
+  If `item.id` does not exist in the database, `rows[0]` is `undefined`, causing `p.price` to throw a `TypeError`.
+* **No `try/catch` Error Handling** ([L9-L32])  
+  `processCheckout` lacks error handling. Any DB or runtime error leaves the request unhandled/hanging or returns an unhandled rejection.
+
+---
+
+### 5. Financial & Numerical Accuracy
+
+* **Floating-Point Precision Errors** ([L21])  
+  Multiplying currency values directly by `0.92` introduces JavaScript floating-point inaccuracies (e.g. `500.05 * 0.92 = 460.04600000000005`). Currency calculations should use integer cents, fixed decimal rounding (`Math.round()` / `.toFixed(2)`), or a dedicated decimal library.
+
+---
+
+### 6. Utility Function Issues
+
+* **`fmt` Method Type Fragility & Cryptic Parameters** ([L34-L36])  
+  * The parameter names `d`, `t`, `x` are non-descriptive.
+  * If `x` is a non-string truthy value (e.g. number `123`), `x.toUpperCase()` will throw a `TypeError: x.toUpperCase is not a function`.
+  * If `d` or `t` are undefined/null, `fmt` returns string literal representations like `"undefined-undefined-NA"`.

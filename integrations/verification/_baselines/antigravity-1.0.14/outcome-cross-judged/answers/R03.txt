@@ -1,0 +1,39 @@
+Here is a comprehensive code review of [checkout.js].
+
+---
+
+### 1. Security Vulnerabilities
+
+* **Hardcoded Credentials** ([checkout.js:L3-7]): Plaintext database host, username, and password (`Sh0p!2024$prod`) are hardcoded into the source code. Credentials should be stored in environment variables (e.g. `process.env.DB_PASSWORD`).
+* **Unauthenticated User Assignment** ([checkout.js:L24]): `req.body.uid` is taken directly from the unverified request body, allowing clients to submit orders under any user ID. The user ID should be retrieved from an authenticated session or verified JWT middleware (`req.user.id`).
+
+---
+
+### 2. Database & Data Integrity Issues
+
+* **Single Shared Connection / Lack of Connection Pool** ([checkout.js:L3]): The code creates a single MySQL connection (`mysql.createConnection`) at module scope. It will crash on startup if the DB is unreachable, fail on network drops, and block concurrent HTTP requests. Use a connection pool (`mysql.createPool`) instead.
+* **Missing Database Transactions** ([checkout.js:L13-24]): Product stock updates and order insertion run as separate queries without transaction management (`BEGIN`, `COMMIT`, `ROLLBACK`). If any step fails or crashes mid-loop, stock levels will be decremented without an order being created or rolled back.
+* **No Inventory / Stock Check (Overselling Vulnerability)** ([checkout.js:L14-17]): The code does not check if `p.stock >= item.qty` before processing or updating stock, allowing inventory to drop below zero.
+* **N+1 Query Performance Problem** ([checkout.js:L13-18]): A separate `SELECT` and `UPDATE` query are executed inside the loop for every cart item, causing high latency and unnecessary database load.
+
+---
+
+### 3. Logic & Input Validation Errors
+
+* **Lack of Request & Array Guarding** ([checkout.js:L10-13]): If `req.body.cart` is undefined, null, or not an array, `for (const item of cart)` throws an unhandled `TypeError`.
+* **Missing Product Existence Check** ([checkout.js:L15]): If `item.id` does not match a database record, `rows[0]` will be `undefined`, causing `p.price` to throw a `TypeError`.
+* **Unsanitized Quantity Inputs** ([checkout.js:L16-17]): `item.qty` is not checked for non-numeric or negative values. A negative quantity reduces the total price and increases inventory stock (`stock - (-qty)`).
+* **Floating Point Currency Calculation & Unrounded Discounts** ([checkout.js:L16-21]): Floating-point arithmetic (`total * 0.92`) produces imprecise decimals (e.g. `460.00920000000005`) which are sent directly to the database and payment gateway without rounding to 2 decimal places or storing in cents.
+
+---
+
+### 4. Async Control Flow & Express Handler Issues
+
+* **Un-awaited / Fire-and-Forget Payment Request** ([checkout.js:L26-29]): `fetch()` is not `await`ed, has no `.catch()` handler, and lacks a `Content-Type: application/json` header. The server responds to the user before checking if the payment succeeded, and payment failures or errors are ignored.
+* **No `try/catch` Error Handling in Express Handler** ([checkout.js:L9]): [processCheckout] is an async route handler without error handling. In Express 4, unhandled promise rejections will cause the request to hang indefinitely without returning an HTTP 500 response.
+
+---
+
+### 5. Utility Function Issues
+
+* **Fragile Utility Function** ([checkout.js:L34-36]): [fmt] uses single-letter parameter names (`d, t, x`) and assumes `x` is a string. Passing a non-string object or number to `x` will throw `TypeError: x.toUpperCase is not a function`.

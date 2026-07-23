@@ -1,0 +1,66 @@
+Here is a code review of [checkout.js].
+
+---
+
+### 1. Security Vulnerabilities
+
+- **Hardcoded Database Credentials** ([checkout.js:L3-L7])
+  Database host, username, and plaintext password (`Sh0p!2024$prod`) are hardcoded in the codebase. Credentials should be stored in environment variables (e.g. `process.env.DB_PASSWORD`).
+
+---
+
+### 2. Database Architecture & Concurrency
+
+- **Single Global DB Connection Instead of Pool** ([checkout.js:L3-L7])
+  `mysql.createConnection` opens a single database connection at module initialization shared across all concurrent requests. Under load, concurrent queries will queue up or crash the connection. Use `mysql.createPool` instead.
+
+- **Top-Level Await at Module Import** ([checkout.js:L3])
+  Executing `await mysql.createConnection(...)` directly at module evaluation blocks module loading. If the database server is temporarily unavailable during application startup, the application process will fail to load the module.
+
+- **Missing Database Transactions** ([checkout.js:L13-L24])
+  Updating inventory for items and inserting the order run as separate queries without a database transaction (`START TRANSACTION` / `COMMIT` / `ROLLBACK`). If the process fails halfway through, inventory updates will remain committed while the order creation fails.
+
+- **Race Condition / Overselling (TOCTOU Bug)** ([checkout.js:L14-L17])
+  Reading stock (`SELECT`) and updating stock (`UPDATE`) are non-atomic without row locking (`SELECT FOR UPDATE`). Concurrent checkout requests for the same item can result in negative stock values.
+
+---
+
+### 3. Business Logic & Input Validation
+
+- **No Stock Availability Check** ([checkout.js:L15-L17])
+  The code never verifies if `p.stock >= item.qty` before deducting stock.
+
+- **Missing Product Check** ([checkout.js:L14-L15])
+  If `item.id` does not exist in the database, `rows[0]` returns `undefined`, triggering a runtime crash: `TypeError: Cannot read properties of undefined (reading 'price')`.
+
+- **Missing Input Validation** ([checkout.js:L10], [checkout.js:L24])
+  - Assumes `req.body.cart` is defined and is an array. If missing, `for (const item of cart)` will throw a `TypeError`.
+  - `req.body.uid` is used without validating user identity or authorization.
+  - `item.qty` is not checked for positive integers. Passing a negative `qty` would increase stock and reduce the total price (discount exploit).
+
+- **Floating-Point Monetary Calculation Errors** ([checkout.js:L16], [checkout.js:L21])
+  Multiplying prices directly with floating-point numbers (`total * 0.92`) leads to IEEE 754 floating-point inaccuracies (e.g. `$459.99999999999994`). Monetary calculations should use integer cents or explicit rounding functions.
+
+---
+
+### 4. Async & External Integrations
+
+- **Fire-and-Forget Unhandled Payment Request** ([checkout.js:L26-L29])
+  - `fetch(...)` is called without `await`. The function immediately sends a success JSON response (`res.json(...)` at line 31) before payment is processed.
+  - Payment failures or network errors are ignored completely; orders are recorded as successful even if payment fails.
+
+- **Missing HTTP Headers in Payment API Request** ([checkout.js:L26-L29])
+  The `fetch` request passes a JSON string body without setting `'Content-Type': 'application/json'` in the headers.
+
+---
+
+### 5. Error Handling & Performance
+
+- **Complete Lack of `try...catch` Error Handling** ([checkout.js:L9-L32])
+  Any database error or unexpected payload property will cause an unhandled promise rejection or cause Express to hang without sending a proper HTTP 400/500 response.
+
+- **N+1 Database Query Pattern** ([checkout.js:L13-L18])
+  Queries are executed sequentially inside a loop (`SELECT` + `UPDATE` per item). For carts with multiple items, this causes high latency due to multiple database roundtrips. Fetching all items in a single query (e.g., `WHERE id IN (...)`) is significantly more efficient.
+
+- **Unclear Utility Function Naming** ([checkout.js:L34-L36])
+  The exported function `fmt(d, t, x)` uses non-descriptive parameter names and lacks documentation or type/null safety checks.

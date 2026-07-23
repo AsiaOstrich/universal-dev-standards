@@ -1,0 +1,39 @@
+A code review of [checkout.js] identified the following critical security, transactional, logic, performance, and code quality issues:
+
+---
+
+### 1. Security & Connection Management
+* **Hardcoded Plaintext Credentials** ([checkout.js:L3-L7]): Production credentials (`host`, `user`, `password`) are committed directly to source control. Move credentials to environment variables (e.g., `process.env.DB_PASSWORD`).
+* **Single Connection & Top-Level `await`** ([checkout.js:L3-L7]): Using `mysql.createConnection` instantiates a single persistent DB connection that will fail under concurrent requests. Use `mysql.createPool()` instead. Additionally, top-level `await` will crash module loading if the database is temporarily unreachable on startup.
+
+---
+
+### 2. Transaction Integrity & Concurrency
+* **Lack of Database Transactions** ([checkout.js:L13-L25]): The inventory updates ([checkout.js:L17]) and order insertion ([checkout.js:L24]) execute as uncommitted independent queries. If an error occurs mid-loop, stock changes remain committed while the order fails. Wrap the entire checkout inside a transaction (`START TRANSACTION` / `COMMIT` / `ROLLBACK`).
+* **Race Condition / Overselling Risk** ([checkout.js:L14-L17]): Stock is fetched and updated without checking availability (`stock >= item.qty`) or using row locks (`SELECT ... FOR UPDATE`). Concurrent purchases can cause inventory stock levels to drop below zero.
+
+---
+
+### 3. Payment Integration Bugs
+* **Unawaited Payment API Call (Fire-and-Forget)** ([checkout.js:L26-L29]): `fetch()` is executed without `await`. The server sends a success response to the user before payment succeeds. Declined cards or payment gateway timeouts will be completely ignored while inventory remains deducted.
+* **Missing HTTP Headers for `fetch`** ([checkout.js:L26-L29]): `JSON.stringify` is sent without setting `'Content-Type': 'application/json'` in the fetch options, which will break request body parsing on the payment gateway endpoint.
+
+---
+
+### 4. Input Validation & Error Handling
+* **Missing Request Body Validation** ([checkout.js:L10], [checkout.js:L24]): If `req.body` or `req.body.cart` is missing or not an array, `for (const item of cart)` will crash with an uncaught `TypeError`. `req.body.uid` is also used without type or existence verification.
+* **Negative Quantity Exploit** ([checkout.js:L16-L17]): `item.qty` is never checked for positive integer values. Passing a negative `qty` reduces `total` (allowing price manipulation) and increases store stock.
+* **Unchecked Product Query Result** ([checkout.js:L14-L15]): If `item.id` does not exist in the database, `rows[0]` will be `undefined`, throwing `TypeError: Cannot read properties of undefined (reading 'price')`.
+* **Missing Error Handling (`try...catch`)** ([checkout.js:L9-L32]): The handler lacks a `try...catch` block. Database or network errors will result in unhandled promise rejections without returning an HTTP 500 status to the client.
+
+---
+
+### 5. Performance & Calculation Issues
+* **N+1 Query Overhead** ([checkout.js:L13-L18]): Querying and updating products inside a loop makes $2 \times N$ DB roundtrips. Fetch product records in a single bulk query (`WHERE id IN (...)`).
+* **Floating-Point Precision Vulnerability** ([checkout.js:L16], [checkout.js:L21]): Standard floating-point arithmetic (`total += p.price * item.qty`, `total * 0.92`) causes precision errors (e.g. `$19.99 * 0.92 = 18.390800000000002`). Financial totals should be computed in integer cents/minor units or formatted using precise rounding.
+
+---
+
+### 6. Maintainability & Code Quality
+* **Magic Numbers** ([checkout.js:L20-L21]): `500` (discount threshold) and `0.92` (8% discount factor) are hardcoded without named constants or business logic documentation.
+* **Cryptic Helper Function** ([checkout.js:L34-L36]): The exported [fmt] helper uses non-descriptive parameter names (`d`, `t`, `x`), lacks JSDoc/types, and does not handle `null`/`undefined` inputs.

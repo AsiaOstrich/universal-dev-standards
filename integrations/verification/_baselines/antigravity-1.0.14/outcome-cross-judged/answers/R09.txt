@@ -1,0 +1,47 @@
+Here is a detailed review of [checkout.js].
+
+---
+
+### 1. Critical Security Vulnerabilities
+* **Hardcoded Database Credentials** ([checkout.js:L3-L7]): Host (`prod-db.internal`), username (`shop`), and plaintext password (`Sh0p!2024$prod`) are hardcoded into the source code. Credentials should be loaded securely from environment variables.
+* **Unauthenticated External Payment Request** ([checkout.js:L26-L29]): The `fetch` request sending payment charges lacks authorization headers (API keys, bearer tokens, or signatures).
+
+---
+
+### 2. Data Integrity & Concurrency Bugs
+* **Missing Database Transactions (ACID Violation)** ([checkout.js:L13-L24]): The stock updates, order insertion, and checks run as standalone queries without a transaction (`START TRANSACTION`, `COMMIT`, `ROLLBACK`). If any step or network call fails, the database will be left in an inconsistent state.
+* **Race Condition / Overselling Risk (TOCTOU)** ([checkout.js:L14-L17]): Stock is fetched and then updated without row locking (`FOR UPDATE`) or an atomic check (`WHERE stock >= ?`). Concurrent checkouts can lead to negative inventory.
+* **Missing Stock Availability Verification**: Line 14 queries `stock`, but line 17 decrements stock without checking if `p.stock >= item.qty`.
+* **Missing Product Existence Check** ([checkout.js:L15]): If `item.id` does not exist in the database, `rows[0]` will be `undefined`, causing a runtime crash (`TypeError: Cannot read properties of undefined (reading 'price')`).
+
+---
+
+### 3. Async Flow & Payment Bugs
+* **Unhandled / Floating Payment Promise** ([checkout.js:L26-L29]): `fetch()` is called asynchronously without `await` or `.catch()`. The route returns a success response (`res.json`) to the client before payment completes or even if payment fails.
+* **Lack of Exception Handling** ([checkout.js:L9-L32]): [processCheckout] lacks `try/catch` blocks. Any database query failure will crash or hang Express without returning a proper HTTP error response.
+
+---
+
+### 4. Input Validation & Authorization Defects
+* **Missing Request Body Validation** ([checkout.js:L10]): `req.body.cart` is iterated directly without checking if it exists or is an array.
+* **Unvalidated Item Quantities**: `item.qty` is not checked for positive integers. Passing a negative `item.qty` would artificially increase product stock and subtract from the order total.
+* **Insecure User ID Usage** ([checkout.js:L24]): `req.body.uid` is trusted blindly from the request body instead of extracting the user ID from an authenticated session/token (JWT/session cookie).
+
+---
+
+### 5. Connection & Architectural Issues
+* **Single Connection Instance instead of Connection Pool** ([checkout.js:L3-L7]): `mysql.createConnection` creates a single connection at module loading time rather than using `mysql.createPool`. Concurrent incoming requests will block each other or fail when the connection drops due to idle timeouts.
+* **Top-Level `await` Initialization Risk** ([checkout.js:L3]): Executing top-level database connection during module import means if the database server is temporarily unavailable during application startup, the entire server process fails to launch.
+* **N+1 Database Query Anti-pattern** ([checkout.js:L13-L18]): Executes multiple queries sequentially in a loop for each cart item instead of batching queries or performing a single batch lookup.
+
+---
+
+### 6. Financial & Calculation Flaws
+* **Floating-Point Precision Issues** ([checkout.js:L16, L21]): Currency calculations (`total += p.price * item.qty` and `total = total * 0.92`) rely on standard JS floating-point numbers, leading to precision errors (e.g. `$459.99999999999994`). Monetary values should be stored and calculated in integer cents.
+* **Hardcoded Business Rules**: The discount threshold (`500`) and rate (`0.92`) are hardcoded directly into the handler.
+
+---
+
+### 7. Code Quality & Formatting Issues
+* **Cryptic Parameter & Variable Names** ([checkout.js:L15, L24, L34-L36]): Variables like `p`, `r`, and parameters `d, t, x` in [fmt] are vague and obscure.
+* **Unrelated Exported Function**: `fmt` is exported alongside checkout logic without context, documentation, or apparent relationship to the checkout handler.
