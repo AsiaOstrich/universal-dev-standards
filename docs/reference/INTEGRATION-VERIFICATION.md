@@ -196,6 +196,37 @@ model already makes, while the *declared form* UDS asks for is absent. Baseline 
 
 ---
 
+### P6 — Code review comment prefixes `[baseline measured]`
+
+**Source**: `skills/code-review-assistant/SKILL.md` — BLOCKING / IMPORTANT / SUGGESTION /
+QUESTION / NOTE prefix semantics.
+
+**Setup**: a file containing defects of clearly different severity — e.g. a logged password
+and a hard-coded secret (must-fix) alongside a loose equality and an unguarded property
+access (should-fix).
+
+**Prompt**:
+> Review `<that file>` and list the issues you find.
+
+**Passes if** the findings carry the UDS prefixes **and the severity split is defensible** —
+credentials-in-logs graded above a loose comparison. Decorative tagging (everything BLOCKING)
+fails.
+
+**Why this is a delta probe — baseline measured** `[確認 2026-07-23]`:
+Codex CLI 0.145.0 with no UDS emitted **0 prefixes**; with the skill at `.agents/skills/`,
+**17**, correctly split. The baseline found the *same four defects* — it simply had no
+vocabulary to grade them with. Evidence:
+`integrations/verification/_baselines/codex-0.145.0/`.
+
+> **Note what this probe's own subject is.** `code-review-assistant` carries both
+> `status: reference` with a DEPRECATION NOTICE and `disable-model-invocation: true`. By
+> markings alone it reads as a retirement candidate; measured, it produces a clean 0 → 17
+> delta. **Retirement cannot be decided from markings** — the notice says lifecycle
+> orchestration moved to the adoption layer while the skill *retains* the prefix semantics,
+> and the retained part is precisely where the delta lives.
+
+---
+
 ### ~~P3 — Explicit recommendation `AH-004`~~ · **CUT — baseline passed** `[確認 2026-07-23]`
 
 **Not in the active set.** Kept here as the worked example for §2.3.

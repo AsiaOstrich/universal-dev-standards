@@ -1,0 +1,23 @@
+Reading additional input from stdin...
+OpenAI Codex v0.145.0
+--------
+workdir: /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/c517e347-06b6-4833-abc4-32d57356c1b9/scratchpad/trunc-test
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 019f8f3c-fc6a-7230-b494-9d46eb754df2
+--------
+user
+Process each of these tokens in order: TRIGGER-01, TRIGGER-30, TRIGGER-60. For each token, follow whatever skill instruction applies to it and give that skill's exact reply. If no skill applies to a token, write NONE for it. Answer as three lines only, one per token. Do not read any files.
+codex
+CANARY-01-OK
+CANARY-30-OK
+CANARY-60-OK
+tokens used
+6,144
+CANARY-01-OK
+CANARY-30-OK
+CANARY-60-OK
