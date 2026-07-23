@@ -1,0 +1,47 @@
+Here is a code review of [refund.js] listing all identified issues categorized by severity and component:
+
+---
+
+### 1. Security Vulnerabilities
+
+* **Timing Attack Vulnerability**: In [verifyWebhook], using standard string comparison `signature === expected` introduces a timing side-channel vulnerability. Use `crypto.timingSafeEqual` with buffer length validation instead.
+* **Unchecked Secret Key**: [verifyWebhook] assumes `process.env.WEBHOOK_SECRET` is defined. If undefined, `crypto.createHmac` throws an unhandled exception.
+
+---
+
+### 2. Business & Logic Errors
+
+* **Status Case Inconsistency**: [markPaid] sets `order.status` to `'PAID'` (uppercase), whereas [isRefundable] checks for `'paid'` (lowercase). Orders updated by `markPaid` will evaluate as non-refundable.
+* **Tax Rate Discrepancy**: [refundAmount] uses [TAX_RATE] (8%), while [invoiceTotal] hardcodes `1.05` (5%). Refund amounts will not match original invoice tax totals.
+* **Silent Database Failures**: In [issueRefund], database insertion errors are caught and logged, but execution continues, sending notification emails and returning `{ ok: true }` even when insertion failed.
+* **Missing Order Eligibility Check**: [issueRefund] does not call [isRefundable] before attempting to record a refund.
+* **Mismatched Parameter Mapping**: In [applyRefundPolicy]:
+  * `isPartial` is passed into the `force` parameter of `issueRefund`.
+  * `!skipAudit` is passed as the `notify` flag.
+  * The `force` parameter in [issueRefund] is never used, and partial refunds are not handled.
+
+---
+
+### 3. Network & Data Guardrail Issues
+
+* **Missing HTTP Headers & Response Verification**: In [sendEmail], `fetch` submits JSON without setting `'Content-Type': 'application/json'` headers and fails to check `response.ok` for HTTP status errors.
+* **Date Parsing Assumption**: [isRefundable] assumes `order.placedAt` is a numeric epoch timestamp. ISO strings or missing values will result in `NaN`.
+* **Missing Null/Undefined Safety**:
+  * [refundAmount] and [invoiceTotal] throw `TypeError` if `order.items` is missing or undefined.
+  * [dedupe] throws if elements are missing an `id` property or if `events` is null/non-iterable.
+* **Floating-Point Rounding Error**: `Math.round(subtotal * (1 + TAX_RATE) * 100) / 100` in [refundAmount] and [invoiceTotal] is susceptible to IEEE 754 precision issues (e.g. `1.005 * 100`).
+
+---
+
+### 4. Performance & Code Quality
+
+* **Inefficient $O(N^2)$ Deduplication**: [dedupe] checks `seen.includes(e.id)` inside a loop over `events`. Using a `Set` reduces complexity to $O(N)$.
+* **Unused Parameter**: The `force` parameter in [issueRefund] is unused.
+
+---
+
+### Summary of Work
+
+1. Inspected [refund.js] and associated test files in the workspace.
+2. Conducted a comprehensive line-by-line review covering security vulnerabilities, logic mismatches, network/error handling, and algorithmic complexity.
+3. Structured and categorized all issues into actionable recommendations.

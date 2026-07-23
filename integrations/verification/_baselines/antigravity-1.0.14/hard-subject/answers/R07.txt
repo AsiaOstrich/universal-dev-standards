@@ -1,0 +1,70 @@
+Here is a comprehensive code review of [`src/refund.js`], categorizing the issues by severity and functional area:
+
+---
+
+### 🚨 Critical Bugs & Vulnerabilities
+
+#### 1. Insecure Webhook Verification (Timing Attack Vulnerability)
+* **Lines**: [25–29]
+* **Issue**: `verifyWebhook` performs signature comparison using standard string equality (`signature === expected`).
+* **Impact**: Standard string equality returns early on the first non-matching byte, making signature verification vulnerable to **timing attacks**.
+* **Fix**: Use `crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))` after ensuring both buffers have matching byte lengths. Also validate that `process.env.WEBHOOK_SECRET` is defined.
+
+#### 2. Status Casing Mismatch
+* **Lines**: [8], [12]
+* **Issue**: `isRefundable` checks `order.status === 'paid'` (lowercase), whereas `markPaid` writes `'PAID'` (uppercase) to the database.
+* **Impact**: Any order updated via `markPaid` will evaluate to `false` in `isRefundable`.
+* **Fix**: Standardize on lower/uppercase or use `.toLowerCase()` (e.g., `order.status?.toLowerCase() === 'paid'`).
+
+#### 3. Swallowed Database Errors & False Positive Returns
+* **Lines**: [43–52]
+* **Issue**: `issueRefund` catches database query failures in `try/catch` and only logs them to `console.error`. The execution then continues to send a refund notification email and returns `{ ok: true, orderId: order.id }`.
+* **Impact**: Callers receive a successful status indicator even when the DB transaction failed completely.
+* **Fix**: Re-throw the error, return `{ ok: false, error }`, or abort before sending notification emails.
+
+---
+
+### ⚠️ Functional & Business Logic Issues
+
+#### 4. Broken Partial Refund Logic
+* **Lines**: [43–46], [54–56]
+* **Issue**: `applyRefundPolicy` forwards `isPartial` to `issueRefund` as the 4th parameter (`force`). However, `issueRefund` completely ignores the `force` parameter and always inserts `refundAmount(order)` (the full amount).
+* **Impact**: Partial refund requests result in full refunds being issued.
+
+#### 5. Inconsistent Tax Rate Calculations
+* **Lines**: [3], [22]
+* **Issue**: `refundAmount` calculates tax using `TAX_RATE = 0.08` (8%), while `invoiceTotal` hardcodes `1.05` (5% tax rate).
+* **Impact**: Refunds and invoices will compute inconsistent tax totals for identical line items.
+
+#### 6. Missing Refundability Verification in `issueRefund`
+* **Lines**: [43]
+* **Issue**: `issueRefund` never calls `isRefundable(order)` or verifies if the order is within the 30-day window before issuing a refund.
+
+---
+
+### 🌐 HTTP & Async Handling Flaws
+
+#### 7. `sendEmail` Missing Request Headers & HTTP Error Checks
+* **Lines**: [58–63]
+* **Issue**: 
+  1. `fetch` sends a stringified JSON body without setting the `Content-Type: application/json` header.
+  2. `fetch` only rejects on network errors, not on HTTP status codes like `4xx` or `5xx`.
+* **Fix**: Add headers: `{ 'Content-Type': 'application/json' }` and check `if (!res.ok) throw new Error(...)`.
+
+#### 8. Unhandled Async Signature in `applyRefundPolicy`
+* **Lines**: [54–56]
+* **Issue**: `applyRefundPolicy` returns the promise from `issueRefund` but is not declared `async` nor explicitly handled with `await`.
+
+---
+
+### ⚡ Performance & Safety Edge Cases
+
+#### 9. Performance Bottleneck in `dedupe` ($O(N^2)$)
+* **Lines**: [31–41]
+* **Issue**: `seen.includes(e.id)` performs a linear search inside a loop, resulting in $O(N^2)$ time complexity.
+* **Fix**: Use a `Set()` to track seen IDs in $O(1)$ time ($O(N)$ overall).
+
+#### 10. Lack of Null/Undefined Guards
+* **`refundAmount` & `invoiceTotal`** ([L16], [L21]): Throw a `TypeError` if `order.items` is undefined or null.
+* **`isRefundable`** ([L7]): Evaluates to `NaN` if `placedAt` is invalid or missing.
+* **`dedupe`** ([L35]): Collapses all objects missing an `id` property down to a single element (`undefined`).

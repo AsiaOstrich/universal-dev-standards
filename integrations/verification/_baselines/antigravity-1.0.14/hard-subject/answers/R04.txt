@@ -1,0 +1,49 @@
+Here is a comprehensive review of the issues found in [src/refund.js]:
+
+---
+
+### 1. Inconsistent Status Casing ([L8], [L12])
+* **Issue**: `markPaid()` updates order status to uppercase `'PAID'`, but `isRefundable()` checks `order.status === 'paid'` (lowercase).
+* **Impact**: Orders marked paid using `markPaid()` will fail `isRefundable()` checks and be deemed ineligible for refunds.
+
+---
+
+### 2. Tax Rate Discrepancy ([L17], [L22])
+* **Issue**: `refundAmount()` calculates tax using `TAX_RATE` (`0.08` or 8%), whereas `invoiceTotal()` hardcodes `1.05` (5%).
+* **Impact**: Refund calculations will mismatch the original tax charged on invoices.
+
+---
+
+### 3. Timing Attack Vulnerability in Webhook Verification ([L28])
+* **Issue**: `verifyWebhook()` uses standard string equality (`signature === expected`) to compare HMAC digests.
+* **Impact**: Standard equality checks leak timing information, leaving signature validation vulnerable to timing attacks. It should use `crypto.timingSafeEqual()`. Furthermore, if `process.env.WEBHOOK_SECRET` is undefined, `crypto.createHmac()` will fail or use `"undefined"`.
+
+---
+
+### 4. Error Masking & False Success Return ([L44-L51])
+* **Issue**: In `issueRefund()`, database insertion failures are caught and logged, but execution proceeds to send the email notification and return `{ ok: true, orderId: order.id }`.
+* **Impact**: Callers receive `{ ok: true }` and customers receive a refund email even if the refund failed to save to the database.
+
+---
+
+### 5. Unused & Mismapped Parameters ([L43], [L55])
+* **Issue**: `issueRefund()` accepts a `force` parameter, but never uses it. `applyRefundPolicy()` passes `isPartial` into the position of `force`, but partial refund calculation logic is completely missing.
+* **Impact**: `isPartial` and `force` flags are completely ignored. Additionally, `issueRefund()` never checks `isRefundable(order)`.
+
+---
+
+### 6. Missing HTTP Headers & Error Handling in Email Dispatch ([L58-L63])
+* **Issue**: `sendEmail()` sends a JSON string payload in `fetch()` without setting the `'Content-Type': 'application/json'` header, and omits checking `res.ok` for HTTP error status codes (4xx/5xx).
+* **Impact**: Target API may reject or misparse the request body, and failed HTTP requests won't throw or report errors.
+
+---
+
+### 7. Performance Inefficiency ($O(n^2)$ Complexity) ([L35])
+* **Issue**: `dedupe()` checks `seen.includes(e.id)` inside a loop over `events`.
+* **Impact**: Searching an array yields $O(n)$ per iteration, making overall deduplication $O(n^2)$ time complexity instead of $O(n)$ using a `Set`.
+
+---
+
+### 8. Defensive Programming & Validation Issues
+* **`isRefundable` ([L7])**: Assumes `order.placedAt` is a millisecond timestamp. If missing or formatted as a string/Date object, `Date.now() - order.placedAt` results in `NaN`. Also allows future timestamps (negative age).
+* **`refundAmount` & `invoiceTotal` ([L16], [L21])**: No null check on `order.items` (will throw `TypeError` if undefined). Subtotal reduction logic is also duplicated across both functions.

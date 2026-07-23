@@ -1,0 +1,49 @@
+A code review of [src/refund.js] was performed. Below is the list of issues categorized by function and topic:
+
+---
+
+### 1. Status Case Mismatch
+* **Location:** [isRefundable] and [markPaid]
+* **Issue:** [markPaid] updates `orders SET status = 'PAID'` (uppercase), whereas [isRefundable] checks `order.status === 'paid'` (lowercase). Orders updated via `markPaid` will fail `isRefundable`.
+
+### 2. Date Calculation Robustness
+* **Location:** [isRefundable]
+* **Issue:** Direct arithmetic (`Date.now() - order.placedAt`) assumes `order.placedAt` is a numeric timestamp. If `placedAt` is a Date object or ISO string (e.g. `"2026-07-01"`), subtraction evaluates to `NaN`, causing the refund check to fail silently. `new Date(order.placedAt).getTime()` should be used instead.
+
+### 3. Inconsistent Tax Rates
+* **Location:** [refundAmount] and [invoiceTotal]
+* **Issue:** [refundAmount] uses `TAX_RATE = 0.08` (8%), while [invoiceTotal] hardcodes `1.05` (5%).
+
+### 4. Missing Guard Clauses for `order.items`
+* **Location:** [refundAmount] and [invoiceTotal]
+* **Issue:** Both functions call `order.items.reduce(...)` without verifying that `order.items` is defined and is an array. Passing `undefined` or `null` items will throw an unhandled `TypeError`.
+
+### 5. Timing Attack Vulnerability in Webhook Verification
+* **Location:** [verifyWebhook]
+* **Issue:** Direct equality check `signature === expected` is susceptible to timing side-channel attacks. A constant-time comparison like `crypto.timingSafeEqual` should be used instead.
+
+### 6. Unchecked Secret in Webhook Verification
+* **Location:** [verifyWebhook]
+* **Issue:** If `process.env.WEBHOOK_SECRET` is missing or `undefined`, `crypto.createHmac` will throw an error.
+
+### 7. Performance Bottleneck ($O(N^2)$ Complexity)
+* **Location:** [dedupe]
+* **Issue:** Iterating through `events` while using `seen.includes(e.id)` creates an $O(N^2)$ algorithm. Using a `Set` for `seen` provides $O(1)$ lookups and improves performance to $O(N)$.
+
+### 8. Swallowed DB Exception and False Positive Return
+* **Location:** [issueRefund]
+* **Issue:** The `try...catch` block catches database query failures, logs them, and proceeds to send an email notification and return `{ ok: true, orderId: order.id }`. An error state is silently swallowed while reporting success.
+
+### 9. Unused Parameter & Missing Eligibility Check
+* **Location:** [issueRefund]
+* **Issue:** The `force` parameter is declared in `issueRefund(db, order, notify, force)` but never referenced in the body. Furthermore, `isRefundable(order)` is never checked.
+
+### 10. Mismatched Parameter Passing
+* **Location:** [applyRefundPolicy]
+* **Issue:** `applyRefundPolicy(order, isPartial, skipAudit)` invokes `issueRefund(order.db, order, !skipAudit, isPartial)`. The 4th argument of `issueRefund` expects `force`, but `applyRefundPolicy` passes `isPartial`.
+
+### 11. Missing `Content-Type` and HTTP Status Verification in `sendEmail`
+* **Location:** [sendEmail]
+* **Issue:** 
+  1. The `fetch` call posts a JSON payload (`body: JSON.stringify(...)`) without setting `'Content-Type': 'application/json'` in the headers.
+  2. `fetch` does not throw an error on HTTP status errors (e.g. 4xx or 5xx). `response.ok` is not checked.

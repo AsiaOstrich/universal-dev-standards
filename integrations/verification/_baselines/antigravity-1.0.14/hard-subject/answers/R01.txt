@@ -1,0 +1,41 @@
+Here is a thorough code review of [src/refund.js], categorized by severity and impact:
+
+---
+
+### 1. Business Logic & Error Handling Bugs
+
+- **Status Casing Mismatch ([L8], [L12])**
+  `markPaid` updates order status to `'PAID'` (uppercase), but `isRefundable` checks `order.status === 'paid'` (lowercase). Orders updated by `markPaid` will evaluate to `false` in `isRefundable`.
+
+- **Silent Database Failures ([L44-L51])**
+  In `issueRefund`, database insertion failures are caught and logged, but execution continues—sending the notification email and returning `{ ok: true }` even when the database record failed to insert.
+
+- **Bypassed Eligibility Checks ([L43-L52])**
+  `issueRefund` does not verify if an order `isRefundable(order)` or check the `force` parameter before proceeding with insertion.
+
+- **Parameter Mismatches & Dead Code ([L43], [L54-L56])**
+  - In `issueRefund(db, order, notify, force)`, the `force` parameter is accepted but never used.
+  - In `applyRefundPolicy(order, isPartial, skipAudit)`, `isPartial` is passed as the `force` argument to `issueRefund`, ignoring the logic for partial vs full refunds.
+
+- **Tax Rate Inconsistency ([L3], [L17], [L22])**
+  `refundAmount` uses `TAX_RATE` (8%), while `invoiceTotal` hardcodes `1.05` (5% tax rate).
+
+---
+
+### 2. Security Vulnerabilities
+
+- **Timing Attack Vulnerability in Webhook Verification ([L25-L29])**
+  `verifyWebhook` uses standard equality operator `===` to compare signature strings. Because standard string comparison short-circuits on the first mismatched character, it exposes the HMAC verification to timing attacks. Use `crypto.timingSafeEqual` with matching length buffers instead.
+
+---
+
+### 3. Performance & API Usage Issues
+
+- **Inefficient $O(N^2)$ Search in `dedupe` ([L31-L41])**
+  `seen.includes(e.id)` performs a linear search over an array for every item ($O(N^2)$ overall time complexity). Replacing `seen` with a `Set` yields $O(1)$ lookups ($O(N)$ time overall).
+
+- **Missing HTTP Request Header in `sendEmail` ([L58-L63])**
+  The `fetch` request passes a JSON string body without specifying `headers: { 'Content-Type': 'application/json' }`. Most REST APIs will reject or misparse this request.
+
+- **Floating-Point Arithmetic for Monetary Values ([L17], [L22])**
+  Floating-point multiplication (`subtotal * 1.08`) can introduce IEEE 754 precision inaccuracies. Currency should ideally be stored and calculated using integer cents.

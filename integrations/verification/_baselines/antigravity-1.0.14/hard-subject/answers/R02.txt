@@ -1,0 +1,43 @@
+A code review of [refund.js] was completed. Below is the breakdown of issues categorized by function and component.
+
+---
+
+### 1. Inconsistent Order Status Casing
+* **Locations**: [isRefundable] and [markPaid]
+* **Issue**: [isRefundable] checks `order.status === 'paid'` (lowercase), but [markPaid] updates the database status to `'PAID'` (uppercase). If `order.status` comes directly from the DB, [isRefundable] will evaluate to `false`.
+
+### 2. Date Math & Validation Edge Cases
+* **Location**: [isRefundable]
+* **Issue**: `Date.now() - order.placedAt` assumes `placedAt` is a numeric timestamp. If `placedAt` is an ISO string, `Date` instance, missing, or invalid date, arithmetic will produce `NaN`, causing `age <= REFUND_WINDOW_DAYS` to return `false`. Additionally, future timestamps (e.g. clock skew) produce negative ages which pass the policy limit.
+
+### 3. Inconsistent Tax Rate & Calculation Logic
+* **Locations**: [refundAmount] and [invoiceTotal]
+* **Issue**: [refundAmount] multiplies by `(1 + TAX_RATE)` (using `TAX_RATE = 0.08`), whereas [invoiceTotal] uses hardcoded `1.05` (5% tax rate). Refunds will not equal invoice totals.
+* **Missing Safeguards**: Neither function checks if `order` or `order.items` is defined or an array. If `order.items` is missing, `order.items.reduce` throws `TypeError`. Floating-point arithmetic on currency values can also introduce precision inaccuracies before rounding.
+
+### 4. Security Vulnerability: Webhook Signature Comparison
+* **Location**: [verifyWebhook]
+* **Issue**: Standard string comparison `signature === expected` is susceptible to **timing attacks**. It should use `crypto.timingSafeEqual` with matching buffer lengths.
+* **Missing Env Variable Guard**: If `process.env.WEBHOOK_SECRET` is missing/undefined, `crypto.createHmac` throws a runtime `TypeError`.
+
+### 5. Quadratic Time Complexity in Deduplication
+* **Location**: [dedupe]
+* **Issue**: `seen.includes(e.id)` inside a `for` loop results in $O(N^2)$ algorithmic time complexity. Using a `Set` for key lookup improves performance to $O(N)$. Furthermore, if an event element lacks an `id` or `e` is null/undefined, behavior will fail or drop valid items.
+
+### 6. Swallowing DB Error & False Refund Confirmation
+* **Location**: [issueRefund]
+* **Issue**: When `db.query` fails, the exception is caught and logged, but execution continues! The function still dispatches a success email (`sendEmail`) and returns `{ ok: true }`, giving a false indication of success despite failing to write to the database.
+* **Unused Parameter**: The parameter `force` is declared in [issueRefund] but is never used anywhere in the function.
+
+### 7. Incorrect Argument Mapping & Unused Partial Refunds
+* **Location**: [applyRefundPolicy]
+* **Issue**: `applyRefundPolicy(order, isPartial, skipAudit)` invokes `issueRefund(order.db, order, !skipAudit, isPartial)`. Because `force` is unused in [issueRefund], `isPartial` has no effect on refund calculation.
+
+### 8. Email Service API Issues
+* **Location**: [sendEmail]
+* **Issue**: `fetch` passes a JSON string in `body` without setting `'Content-Type': 'application/json'` in headers. HTTP servers expecting JSON will fail to parse it. Additionally, `fetch` response status (`response.ok`) is never validated for 4xx/5xx HTTP errors.
+
+---
+
+### Summary of Work
+Reviewed [refund.js] and provided a detailed line-by-line review covering 8 major categories of issues including logic errors, security vulnerabilities (timing attacks), error swallowing, tax rate discrepancies, and algorithmic inefficiencies.

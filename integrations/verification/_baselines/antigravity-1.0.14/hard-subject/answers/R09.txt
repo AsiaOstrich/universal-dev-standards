@@ -1,0 +1,71 @@
+Here is a detailed code review of [refund.js] outlining all identified bugs, security concerns, performance issues, and structural flaws.
+
+---
+
+### 1. Business Logic & Status Mismatch Bugs
+
+* **Order Status Case Sensitivity Mismatch**:
+  * [isRefundable]: Checks for lowercase status `order.status === 'paid'`.
+  * [markPaid]: Updates status to uppercase `'PAID'`.
+  * **Impact**: Any order updated via `markPaid` will fail the `isRefundable` check and be considered non-refundable.
+
+* **Swallowed Exception & False Positive Return in Refund Flow**:
+  * [issueRefund]: The `try...catch` block catches database query failures, logs them to `console.error`, and swallows the error.
+  * **Impact**: If the DB insertion fails, execution continues, an email notification is still dispatched via [sendEmail], and `{ ok: true }` is returned. Users receive confirmation for refunds that were never recorded.
+
+* **Unused Parameter and Unenforced Policy Logic**:
+  * [issueRefund]: Accepts a `force` parameter that is never referenced in the function body.
+  * [applyRefundPolicy]: Passes `isPartial` into `force`, which is ignored. Neither `isRefundable` nor partial refund amount logic is evaluated before issuing refunds.
+
+* **Confusing Parameter Mapping**:
+  * [applyRefundPolicy]: Maps `!skipAudit` directly to the `notify` parameter of `issueRefund`. Conflating auditing with customer email notifications leads to unmaintainable logic.
+
+---
+
+### 2. Security Vulnerabilities
+
+* **Timing Attack in Webhook Verification**:
+  * [verifyWebhook]: Performs direct string comparison (`signature === expected`).
+  * **Impact**: Vulnerable to timing side-channel attacks. `crypto.timingSafeEqual` should be used to prevent signature forgery.
+
+* **Unchecked Environment Variable**:
+  * [verifyWebhook]: Reads `process.env.WEBHOOK_SECRET` without checking if it is configured. If undefined, HMAC initialization throws an unhandled `TypeError`.
+
+---
+
+### 3. Financial & Calculations Issues
+
+* **Inconsistent Tax Rates**:
+  * [TAX_RATE]: Defined as `0.08` (8%) and used in [refundAmount].
+  * [invoiceTotal]: Hardcodes `1.05` (5%) instead of referencing `TAX_RATE` or a dedicated constant, causing tax discrepancies between invoices and refunds.
+
+* **Floating Point Currency Operations**:
+  * Monetary calculations in [refundAmount] and [invoiceTotal] rely on floating-point arithmetic (`Math.round(...) / 100`), which suffers from precision rounding errors. Working with integer values (cents) is recommended for currency.
+
+---
+
+### 4. Performance Flaws
+
+* **Quadratic $O(N^2)$ Deduplication**:
+  * [dedupe]: Uses `seen.includes(e.id)` inside a `for...of` loop over `events`.
+  * **Impact**: Linear array searches inside the loop degrade performance to $O(N^2)$. Replacing `seen` with a JavaScript `Set` (`const seen = new Set()`) achieves $O(N)$ execution.
+
+---
+
+### 5. Network & API Handling Issues
+
+* **Missing HTTP Headers & Status Verification**:
+  * [sendEmail]: Issues a `fetch` POST request without setting the `'Content-Type': 'application/json'` header.
+  * The response (`res.ok` / HTTP status code) is never checked, allowing failed HTTP requests (4xx/5xx) to resolve silently.
+
+---
+
+### 6. Edge Cases & Missing Input Validation
+
+* **`order.placedAt` Parsing**:
+  * [isRefundable]: Assumes `order.placedAt` is a numeric timestamp. If passed as a `Date` instance, ISO string, or `undefined`, arithmetic yields `NaN`.
+* **Missing Null / Array Checks**:
+  * [refundAmount] & [invoiceTotal]: Calling `.reduce()` directly on `order.items` will throw a runtime `TypeError` if `order.items` is null or undefined.
+  * [dedupe]: Accesses `e.id` without validating whether `e` exists or contains an `id` property.
+* **Tight Architectural Coupling**:
+  * [applyRefundPolicy]: Accesses `order.db` directly, tightly coupling database connection instances to domain data models.

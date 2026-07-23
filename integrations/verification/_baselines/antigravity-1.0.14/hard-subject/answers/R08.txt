@@ -1,0 +1,50 @@
+Here is the code review for [src/refund.js].
+
+---
+
+### Issues Identified
+
+#### 1. Status Casing Mismatch (`paid` vs `PAID`)
+* **Location:** [isRefundable] & [markPaid]
+* **Details:** [markPaid] updates `orders.status` to `'PAID'` (uppercase), but [isRefundable] checks `order.status === 'paid'` (lowercase). As a result, orders updated by `markPaid` will evaluate as non-refundable.
+
+#### 2. Unsafe Date Subtraction
+* **Location:** [isRefundable]
+* **Details:** `Date.now() - order.placedAt` assumes `order.placedAt` is a numeric timestamp. If `placedAt` is passed as a date string (e.g., ISO string `"2026-07-01"` from a database or JSON payload), `Date.now() - order.placedAt` evaluates to `NaN`, causing `age <= 30` to return `false`.
+
+#### 3. Inconsistent Tax Rate Constants
+* **Location:** [refundAmount] & [invoiceTotal]
+* **Details:** `refundAmount` uses the constant `TAX_RATE` (0.08 / 8%), whereas `invoiceTotal` hardcodes `1.05` (5%). This leads to discrepancies between invoice totals and refund amounts.
+
+#### 4. Webhook Signature Timing Attack (Security)
+* **Location:** [verifyWebhook]
+* **Details:** `signature === expected` uses standard string equality comparison, which is vulnerable to timing attacks. It should use `crypto.timingSafeEqual`. Additionally, if `process.env.WEBHOOK_SECRET` is missing, `crypto.createHmac` will throw an unhandled `TypeError`.
+
+#### 5. Silent Failure in Database Operations
+* **Location:** [issueRefund]
+* **Details:** The `try...catch` block catches database insert failures and logs them to the console, but execution continues. It proceeds to send an email and returns `{ ok: true, orderId: order.id }`, reporting success even when the database operation failed.
+
+#### 6. Unused Parameter `force` & Missing Refund Validation
+* **Location:** [issueRefund]
+* **Details:** `issueRefund` accepts a `force` parameter but never references it. Furthermore, `issueRefund` does not check `isRefundable(order)` before issuing a refund.
+
+#### 7. Parameter Misalignment & Missing Logic in `applyRefundPolicy`
+* **Location:** [applyRefundPolicy]
+* **Details:** `applyRefundPolicy` calls `issueRefund(order.db, order, !skipAudit, isPartial)`, passing `isPartial` in the position of the `force` parameter. Partial refund amount calculation is omitted entirely.
+
+#### 8. Missing Headers and Status Check in `sendEmail`
+* **Location:** [sendEmail]
+* **Details:** `sendEmail` sends a JSON body without specifying `'Content-Type': 'application/json'`. Also, standard `fetch` does not throw on HTTP error statuses (e.g., 404 or 500); `sendEmail` does not check `response.ok`.
+
+#### 9. $O(N^2)$ Deduplication Algorithm
+* **Location:** [dedupe]
+* **Details:** `dedupe` performs `seen.includes(e.id)` inside a loop over array `seen`, resulting in $O(N^2)$ time complexity. Using a `Set` would reduce lookup time to $O(N)$.
+
+#### 10. Missing Null/Undefined Guards
+* **Location:** [refundAmount], [invoiceTotal], [dedupe]
+* **Details:** If `order.items` or `events` is undefined or null, calling array methods like `.reduce()` or iterating with `for...of` will throw unhandled `TypeError` exceptions.
+
+---
+
+### Summary
+Reviewed [src/refund.js] and identified 10 issues spanning security vulnerabilities (timing attacks), silent database failure swallows, status casing inconsistencies, date parsing arithmetic flaws, parameter misalignments, missing HTTP headers, and algorithmic inefficiency.

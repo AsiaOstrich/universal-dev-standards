@@ -1,0 +1,25 @@
+You are grading a code review of a refund module. Below are eight defects that are actually
+present in the reviewed file, followed by the review text.
+
+For each defect, answer YES only if the review raises that specific issue substantively.
+Answer NO if it is absent, or only vaguely gestured at.
+
+Judge CONTENT ONLY. Ignore formatting, ordering, severity wording, and how many other points
+the review makes.
+
+DEFECTS:
+1. isRefundable compares status to the lowercase string 'paid', while markPaid writes the uppercase 'PAID', so no order can ever be refundable
+2. refundAmount applies TAX_RATE (0.08) while invoiceTotal hard-codes 1.05, so the two functions use different tax rates for the same order
+3. verifyWebhook compares the HMAC with === instead of a constant-time comparison, allowing a timing attack
+4. dedupe calls seen.includes() inside the loop, making it O(n squared); a Set would be linear
+5. issueRefund catches the insert failure, only logs it, and still returns { ok: true }, so callers see success after a failed write
+6. The test file exists and passes but only asserts types (typeof boolean, Array.isArray), so it cannot catch any real defect
+7. issueRefund and applyRefundPolicy take boolean parameters, so a call like issueRefund(order.db, order, !skipAudit, isPartial) is unreadable at the call site
+8. The force parameter of issueRefund is declared but never used in the body, and applyRefundPolicy passes isPartial into that position
+
+Output EXACTLY eight lines, nothing else, in this form:
+1: YES
+2: NO
+...
+
+REVIEW TEXT:

@@ -1,0 +1,47 @@
+Here is a detailed code review of [src/refund.js]:
+
+---
+
+### 1. Data Inconsistency & Case Mismatch
+* **Order Status Case Mismatch** ([refund.js:L8] vs [refund.js:L12]):
+  - [markPaid] updates status to uppercase `'PAID'`, whereas [isRefundable] checks against lowercase `'paid'`. This causes valid paid orders to evaluate as non-refundable.
+* **Inconsistent Tax Rates** ([refund.js:L3] vs [refund.js:L22]):
+  - `TAX_RATE` constant is defined as `0.08` (8%), but `invoiceTotal` hardcodes `1.05` (5%).
+* **Date Parsing Assumption** ([refund.js:L7]):
+  - Assumes `order.placedAt` is a numeric epoch timestamp. If `order.placedAt` is a `Date` instance or ISO string, `Date.now() - order.placedAt` yields `NaN`.
+
+---
+
+### 2. Security Vulnerabilities
+* **Timing Attack in Webhook Verification** ([refund.js:L28]):
+  - Standard strict equality `signature === expected` is susceptible to timing side-channel attacks. Use `crypto.timingSafeEqual()` after verifying matching lengths.
+* **Missing Secret Key Guard** ([refund.js:L26]):
+  - If `process.env.WEBHOOK_SECRET` is unset/undefined, `crypto.createHmac` will throw an unhandled `TypeError`.
+
+---
+
+### 3. Error Handling & Control Flow Deficiencies
+* **Silent Failure / Swallowed Exception in `issueRefund`** ([refund.js:L47-L51]):
+  - The database insertion error is caught and logged, but execution continues—sending a confirmation email and returning `{ ok: true }` despite failing to record the refund in the database.
+* **Ignored Refundability Check** ([refund.js:L43-L52]):
+  - `issueRefund` never checks `isRefundable(order)` or respects the `force` flag.
+
+---
+
+### 4. API & Parameter Mismatches
+* **Parameter Alignment in `applyRefundPolicy`** ([refund.js:L54-L56]):
+  - [applyRefundPolicy] passes `isPartial` into the `force` parameter slot of [issueRefund] (`issueRefund(db, order, notify, force)`), conflating partial refund intent with forcing a non-refundable order.
+
+---
+
+### 5. Performance & Network Issues
+* **$O(N^2)$ Complexity in `dedupe`** ([refund.js:L35]):
+  - Using `seen.includes(e.id)` inside a loop results in $O(N^2)$ lookups. A `Set` should be used for $O(1)$ lookups ($O(N)$ overall).
+* **HTTP Request Configuration in `sendEmail`** ([refund.js:L59-L62]):
+  - Missing `'Content-Type': 'application/json'` header in request options.
+  - `fetch` response status (`res.ok`) is not checked, so HTTP 4xx/5xx server errors will fail silently without throwing.
+
+---
+
+### Summary of Work
+Completed a thorough line-by-line review of [src/refund.js], identifying 10 key issues across security, error handling, parameter alignment, performance, and data consistency.

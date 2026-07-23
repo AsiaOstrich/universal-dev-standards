@@ -1,0 +1,61 @@
+Here is a comprehensive code review of [src/refund.js], categorizing every logic, security, performance, and error-handling issue found.
+
+---
+
+### 1. Logic & Data Consistency Issues
+
+* **Order Status Case Mismatch**
+  * **Location**: [isRefundable] vs [markPaid]
+  * **Issue**: [markPaid] updates database records to uppercase `'PAID'`, whereas [isRefundable] checks for lowercase `order.status === 'paid'`. Orders updated via `markPaid` will fail eligibility checks.
+
+* **Inconsistent & Hardcoded Tax Rate Calculation**
+  * **Location**: [invoiceTotal] vs [refundAmount]
+  * **Issue**: `TAX_RATE` (0.08 / 8%) is defined at the top of the file, but [invoiceTotal] hardcodes `1.05` (5%), leading to discrepancies between invoice totals and calculated refund amounts.
+
+* **Unsafe Date & Timestamp Processing**
+  * **Location**: [isRefundable]
+  * **Issue**: `Date.now() - order.placedAt` assumes `placedAt` is a numeric epoch timestamp. If `placedAt` is an ISO string date or Date instance, subtraction may produce `NaN` (failing the test) or fail on future dates (where `age` becomes negative and passes the `< 30` check).
+
+* **Unused & Mismatched Function Arguments**
+  * **Location**: [issueRefund] & [applyRefundPolicy]
+  * **Issue**: `issueRefund` accepts a 4th parameter `force`, but never evaluates it. [applyRefundPolicy] passes `isPartial` into `force`, but partial refund calculation logic is completely missing.
+
+---
+
+### 2. Security Vulnerabilities
+
+* **Timing Side-Channel Attack in Webhook Signature Comparison**
+  * **Location**: [verifyWebhook]
+  * **Issue**: Standard string comparison (`signature === expected`) leaks timing information based on matching byte prefixes. HMAC signature comparisons must use constant-time comparison methods like `crypto.timingSafeEqual()`.
+
+* **Unhandled Missing Environment Variable**
+  * **Location**: [verifyWebhook]
+  * **Issue**: If `process.env.WEBHOOK_SECRET` is not set, `crypto.createHmac` throws an uncaught `TypeError`, causing an unhandled service error.
+
+---
+
+### 3. Error Handling & Flow Control Issues
+
+* **Swallowing Errors & Returning False Positive Success**
+  * **Location**: [issueRefund]
+  * **Issue**: If `db.query` throws an exception (e.g. connection lost or table constraint failure), the `catch` block logs the error and allows execution to proceed. It sends an email confirming a refund was issued and returns `{ ok: true }`, corrupting system state and misleading customers.
+
+* **Incomplete HTTP API Call in `sendEmail`**
+  * **Location**: [sendEmail]
+  * **Issue**: `fetch()` is executed with `body: JSON.stringify(...)` without setting `'Content-Type': 'application/json'` in the headers. Furthermore, the response is never checked (`!res.ok`), hiding API failure responses (e.g., HTTP 500 / 400).
+
+---
+
+### 4. Performance & Floating Point Precision
+
+* **$O(N^2)$ Time Complexity in Event Deduplication**
+  * **Location**: [dedupe]
+  * **Issue**: `seen.includes(e.id)` performs a linear search over an array inside a loop. For large event arrays, performance scales quadratically. A `Set` should be used for $O(1)$ lookups ($O(N)$ overall).
+
+* **Floating-Point Precision Issues in Currency Operations**
+  * **Location**: [refundAmount] & [invoiceTotal]
+  * **Issue**: IEEE-754 floating-point arithmetic (e.g., `Math.round(subtotal * (1 + TAX_RATE) * 100) / 100`) introduces potential rounding errors across item sums and taxes. Monetary amounts should be maintained in integer cents.
+
+* **Missing Defensive Checks / Null Pointer Exceptions**
+  * **Location**: Multiple functions
+  * **Issue**: `refundAmount` and `invoiceTotal` assume `order.items` is defined and non-null without checking before calling `.reduce()`. `issueRefund` assumes `order.userEmail` exists.
