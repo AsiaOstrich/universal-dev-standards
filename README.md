@@ -123,22 +123,39 @@ YAML against 1,271,471 bytes of Markdown. Reproduce with the commands in
 
 ## 🤖 AI Tool Support
 
-| AI Tool | Status | Skills | Slash Commands | Configuration |
-| :--- | :--- | :---: | :---: | :--- |
-| **Claude Code** | ✅ Complete | **55** | **51** | `CLAUDE.md` |
-| **OpenCode** | ✅ Complete | **55** | **51** | `AGENTS.md` |
-| **Cursor** | ✅ Complete | **Core** | **Simulated** | `.cursorrules` |
-| **Roo Code** | ✅ Complete | **Core** | **Workflow** | `.roo/rules/` |
-| **Cline** | 🔶 Partial | **Core** | **Workflow** | `.clinerules` |
-| **Windsurf** | 🔶 Partial | **Core** | **Rulebook** | `.windsurfrules` |
-| **GitHub Copilot** | 🔶 Partial | **Core** | **Prompts** | `.github/copilot-instructions.md` |
-| **OpenAI Codex** | 🔶 Partial | **Core** | — | `AGENTS.md` |
-| **Aider** | 🔶 Partial | — | — | `AGENTS.md` |
-| **Continue.dev** | 🔶 Partial | — | — | `.continue/config.json` |
-| **Google Antigravity** | ⚠️ Minimal | 🔬 Unverified<sup>‡</sup> | — | `.antigravity/rules.md` |
-| **Gemini CLI** | ⛔ Discontinued<sup>†</sup> | — | — | `GEMINI.md` (frozen) |
+UDS ships integrations for **11 live tools. 0 of them are behaviourally verified.**
 
-> **Status Legend**: ✅ Complete | 🔶 Partial | ⚠️ Minimal | 🔬 Unverified | ⏳ Planned | ⛔ Discontinued
+Those are two different numbers on purpose. **Status** says how complete the integration
+*we wrote* is. **Verified** says whether anyone has confirmed the tool actually reads it and
+behaves accordingly — by running probes and recording the output. Until today the second
+question had never been asked, so no answer to it can be assumed. See
+[XSPEC-357](https://github.com/AsiaOstrich/dev-platform) for the probe design and the
+verification queue (Antigravity → Codex → Claude Code → the rest).
+
+| AI Tool | Status | Verified | Skills | Slash Commands | Configuration |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| **Claude Code** | ✅ Complete | 🔬 —<sup>◆</sup> | **55** | **51** | `CLAUDE.md` |
+| **OpenCode** | ✅ Complete | 🔬 — | **55** | **51** | `AGENTS.md` |
+| **Cursor** | ✅ Complete | 🔬 — | **Core** | **Simulated** | `.cursorrules` |
+| **Roo Code** | ✅ Complete | 🔬 — | **Core** | **Workflow** | `.roo/rules/` |
+| **Cline** | 🔶 Partial | 🔬 — | **Core** | **Workflow** | `.clinerules` |
+| **Windsurf** | 🔶 Partial | 🔬 — | **Core** | **Rulebook** | `.windsurfrules` |
+| **GitHub Copilot** | 🔶 Partial | 🔬 — | **Core** | **Prompts** | `.github/copilot-instructions.md` |
+| **OpenAI Codex** | 🔶 Partial | 🔬 — | **Core** | — | `AGENTS.md` |
+| **Aider** | 🔶 Partial | 🔬 — | — | — | `AGENTS.md` |
+| **Continue.dev** | 🔶 Partial | 🔬 — | — | — | `.continue/config.json` |
+| **Google Antigravity** | ⚠️ Minimal | 🔬 — | —<sup>‡</sup> | — | `.antigravity/rules.md` |
+| **Gemini CLI** | ⛔ Discontinued<sup>†</sup> | — | — | — | `GEMINI.md` (frozen) |
+
+> **Status Legend** (how complete the integration we wrote is):
+> ✅ Complete | 🔶 Partial | ⚠️ Minimal | ⏳ Planned | ⛔ Discontinued
+>
+> **Verified Legend** (whether a probe run confirmed the tool behaves accordingly):
+> ✅ *date* verified | 🔬 — not yet verified | ⌛ expired | ❌ failed
+
+<sup>◆</sup> Claude Code is in daily production use by the maintainer, which is why the
+integration is the most complete — but **daily use is not a recorded verification**, and a
+tool cannot be the judge of itself. It sits in the queue like everything else.
 
 <sup>†</sup> Google sunset Gemini CLI on **2026-06-18** (announced at I/O 2026-05-19, 30-day
 migration window), succeeded by Antigravity CLI. The `integrations/gemini-cli/` and `.gemini/`

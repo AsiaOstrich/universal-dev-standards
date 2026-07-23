@@ -131,22 +131,38 @@ Markdown 1,271,471 bytes。重現指令見
 
 ## 🤖 AI 工具支援
 
-| AI 工具 | 狀態 | Skills | 斜線命令 | 設定檔 |
-| :--- | :--- | :---: | :---: | :--- |
-| **Claude Code** | ✅ 完整支援 | **55** | **51** | `CLAUDE.md` |
-| **OpenCode** | ✅ 完整支援 | **55** | **51** | `AGENTS.md` |
-| **Cursor** | ✅ 完整支援 | **核心** | **模擬支援** | `.cursorrules` |
-| **Roo Code** | ✅ 完整支援 | **核心** | **工作流** | `.roo/rules/` |
-| **Cline** | 🔶 部分支援 | **核心** | **工作流** | `.clinerules` |
-| **Windsurf** | 🔶 部分支援 | **核心** | **規則書** | `.windsurfrules` |
-| **GitHub Copilot** | 🔶 部分支援 | **核心** | **提示詞** | `.github/copilot-instructions.md` |
-| **OpenAI Codex** | 🔶 部分支援 | **核心** | — | `AGENTS.md` |
-| **Aider** | 🔶 部分支援 | — | — | `AGENTS.md` |
-| **Continue.dev** | 🔶 部分支援 | — | — | `.continue/config.json` |
-| **Google Antigravity** | ⚠️ 最低限度 | 🔬 未驗證<sup>‡</sup> | — | `.antigravity/rules.md` |
-| **Gemini CLI** | ⛔ 已停止服務<sup>†</sup> | — | — | `GEMINI.md`（已凍結） |
+UDS 提供 **11 個現行工具的整合，其中 0 個已通過行為驗證。**
 
-> **狀態圖例**：✅ 完整支援 | 🔶 部分支援 | ⚠️ 最低限度 | 🔬 未驗證 | ⏳ 計畫中 | ⛔ 已停止服務
+這是刻意分開的兩個數字。**狀態**說的是**我們寫的那份整合**有多完整；
+**驗證**說的是**有沒有人確認過該工具真的讀得到、且行為確實照做**——
+靠實際跑探針並留下輸出紀錄。在今天之前，第二個問題從來沒有被問過，
+所以它的答案不能被假設。探針設計與驗證排程（Antigravity → Codex → Claude Code → 其餘）
+見 XSPEC-357。
+
+| AI 工具 | 狀態 | 驗證 | Skills | 斜線命令 | 設定檔 |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| **Claude Code** | ✅ 完整支援 | 🔬 —<sup>◆</sup> | **55** | **51** | `CLAUDE.md` |
+| **OpenCode** | ✅ 完整支援 | 🔬 — | **55** | **51** | `AGENTS.md` |
+| **Cursor** | ✅ 完整支援 | 🔬 — | **核心** | **模擬支援** | `.cursorrules` |
+| **Roo Code** | ✅ 完整支援 | 🔬 — | **核心** | **工作流** | `.roo/rules/` |
+| **Cline** | 🔶 部分支援 | 🔬 — | **核心** | **工作流** | `.clinerules` |
+| **Windsurf** | 🔶 部分支援 | 🔬 — | **核心** | **規則書** | `.windsurfrules` |
+| **GitHub Copilot** | 🔶 部分支援 | 🔬 — | **核心** | **提示詞** | `.github/copilot-instructions.md` |
+| **OpenAI Codex** | 🔶 部分支援 | 🔬 — | **核心** | — | `AGENTS.md` |
+| **Aider** | 🔶 部分支援 | 🔬 — | — | — | `AGENTS.md` |
+| **Continue.dev** | 🔶 部分支援 | 🔬 — | — | — | `.continue/config.json` |
+| **Google Antigravity** | ⚠️ 最低限度 | 🔬 — | —<sup>‡</sup> | — | `.antigravity/rules.md` |
+| **Gemini CLI** | ⛔ 已停止服務<sup>†</sup> | — | — | — | `GEMINI.md`（已凍結） |
+
+> **狀態圖例**（我們寫的整合有多完整）：
+> ✅ 完整支援 | 🔶 部分支援 | ⚠️ 最低限度 | ⏳ 計畫中 | ⛔ 已停止服務
+>
+> **驗證圖例**（是否有探針實跑確認該工具行為確實照做）：
+> ✅ *日期* 已驗證 | 🔬 — 尚未驗證 | ⌛ 已過期 | ❌ 未通過
+
+<sup>◆</sup> Claude Code 是維護者每日實際使用的工具，這也是它的整合最完整的原因——
+但**每日使用不等於一次留下紀錄的驗證**，且工具不能當自己的裁判。
+它跟其他工具一樣排在佇列裡。
 
 <sup>†</sup> Google 已於 **2026-06-18** 終止 Gemini CLI（2026-05-19 I/O 宣布，30 天遷移窗），
 由 Antigravity CLI 接手。`integrations/gemini-cli/` 與 `.gemini/` 兩棵樹已**凍結**——

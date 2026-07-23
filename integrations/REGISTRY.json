@@ -15,7 +15,11 @@
       "rulesLocation": "project-root",
       "supportsSkills": true,
       "supportsAgents": true,
-      "supportsWorkflows": true
+      "supportsWorkflows": true,
+      "verification": {
+        "status": "unverified",
+        "note": "In daily production use by the maintainer, but no formal probe run has been recorded. Per XSPEC-357 AC-3.3 a verification claim without evidence is not a verification. Also cannot be self-judged (§3.3)."
+      }
     },
     "opencode": {
       "name": "OpenCode",
@@ -28,7 +32,10 @@
       "rulesLocation": "integrations/opencode/",
       "supportsSkills": true,
       "supportsAgents": true,
-      "supportsWorkflows": true
+      "supportsWorkflows": true,
+      "verification": {
+        "status": "unverified"
+      }
     },
     "cursor": {
       "name": "Cursor",
@@ -41,7 +48,10 @@
       "supportsSkills": true,
       "supportsAgents": true,
       "supportsWorkflows": false,
-      "note": "SKILL.md support added in v2.3.35 (Jan 2026)"
+      "note": "SKILL.md support added in v2.3.35 (Jan 2026)",
+      "verification": {
+        "status": "unverified"
+      }
     },
     "cline": {
       "name": "Cline",
@@ -53,7 +63,10 @@
       "rulesLocation": "integrations/cline/",
       "supportsSkills": true,
       "supportsAgents": true,
-      "supportsWorkflows": false
+      "supportsWorkflows": false,
+      "verification": {
+        "status": "unverified"
+      }
     },
     "windsurf": {
       "name": "Windsurf",
@@ -65,7 +78,10 @@
       "rulesLocation": "integrations/windsurf/",
       "supportsSkills": false,
       "supportsAgents": true,
-      "supportsWorkflows": false
+      "supportsWorkflows": false,
+      "verification": {
+        "status": "unverified"
+      }
     },
     "copilot": {
       "name": "GitHub Copilot",
@@ -77,7 +93,10 @@
       "rulesLocation": "integrations/github-copilot/",
       "supportsSkills": true,
       "supportsAgents": true,
-      "supportsWorkflows": false
+      "supportsWorkflows": false,
+      "verification": {
+        "status": "unverified"
+      }
     },
     "codex": {
       "name": "OpenAI Codex",
@@ -89,7 +108,11 @@
       "rulesLocation": "integrations/codex/",
       "supportsSkills": true,
       "supportsAgents": true,
-      "supportsWorkflows": false
+      "supportsWorkflows": false,
+      "verification": {
+        "status": "unverified",
+        "note": "Scheduled second."
+      }
     },
     "gemini-cli": {
       "name": "Gemini CLI",
@@ -118,7 +141,11 @@
       "rulesLocation": "integrations/google-antigravity/",
       "supportsSkills": true,
       "supportsAgents": false,
-      "supportsWorkflows": false
+      "supportsWorkflows": false,
+      "verification": {
+        "status": "unverified",
+        "note": "Scheduled first. Overlaps XSPEC-356 R1 (install-path verification) — run both in one session."
+      }
     },
     "aider": {
       "name": "Aider",
@@ -131,7 +158,10 @@
       "supportsSkills": false,
       "supportsAgents": true,
       "supportsWorkflows": false,
-      "note": "AI pair programming in terminal; loads AGENTS.md via --read flag"
+      "note": "AI pair programming in terminal; loads AGENTS.md via --read flag",
+      "verification": {
+        "status": "unverified"
+      }
     },
     "continue-dev": {
       "name": "Continue.dev",
@@ -144,7 +174,10 @@
       "supportsSkills": false,
       "supportsAgents": true,
       "supportsWorkflows": false,
-      "note": "VS Code/JetBrains AI extension; loads via context providers"
+      "note": "VS Code/JetBrains AI extension; loads via context providers",
+      "verification": {
+        "status": "unverified"
+      }
     },
     "roo-code": {
       "name": "Roo Code",
@@ -158,7 +191,10 @@
       "supportsSkills": true,
       "supportsAgents": true,
       "supportsWorkflows": true,
-      "note": "Modern .roo/rules/ + legacy .clinerules backward compat"
+      "note": "Modern .roo/rules/ + legacy .clinerules backward compat",
+      "verification": {
+        "status": "unverified"
+      }
     },
     "spec-kit": {
       "name": "Spec Kit",

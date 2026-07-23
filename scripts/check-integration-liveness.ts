@@ -149,7 +149,7 @@ process.stdout.write('==========================================\n');
 // ───────────────────────────────────────────────────────────────
 // Check 1 — cross-registry field consistency
 // ───────────────────────────────────────────────────────────────
-section('[1/4] Cross-registry field consistency');
+section("[1/5] Cross-registry field consistency");
 
 const COMPARED_FIELDS = ['supportsSkills'] as const;
 
@@ -197,7 +197,7 @@ for (const agentId of Object.keys(regAgents).sort()) {
 // ───────────────────────────────────────────────────────────────
 // Check 2 — deprecation metadata is complete
 // ───────────────────────────────────────────────────────────────
-section('[2/4] Deprecation metadata completeness');
+section("[2/5] Deprecation metadata completeness");
 
 const deprecatedAgents = Object.entries(regAgents).filter(([, a]) => a.deprecated === true);
 
@@ -246,7 +246,7 @@ for (const [agentId, agent] of deprecatedAgents) {
 // ───────────────────────────────────────────────────────────────
 // Check 3 — README status projection
 // ───────────────────────────────────────────────────────────────
-section('[3/4] README status projection');
+section("[3/5] README status projection");
 
 // Language-independent marker, so one rule covers all three READMEs.
 const DISCONTINUED_MARK = '⛔';
@@ -302,9 +302,114 @@ for (const readmePath of READMES) {
 }
 
 // ───────────────────────────────────────────────────────────────
-// Check 4 — the fourth registry: the hardcoded list in check-ai-agent-sync.sh
+// Check 4 — verification claims must carry evidence (XSPEC-357)
 // ───────────────────────────────────────────────────────────────
-section('[4/4] Hardcoded agent list in check-ai-agent-sync.sh');
+section('[4/5] Verification claims');
+
+// A verification is a claim about the outside world: that a tool actually read our
+// integration and behaved accordingly. Unlike everything else here, nothing in this
+// repository can confirm it — so the claim is only worth what its evidence is worth.
+const VERIFICATION_SHELF_LIFE_DAYS = 90; // XSPEC-357 OQ2 — provisional, revisit after two runs
+const TODAY = new Date('2026-07-23'); // fixed: this script must not change result by date drift alone
+
+let verifiedCount = 0;
+let verifiableCount = 0;
+
+for (const [agentId, agent] of Object.entries(regAgents)) {
+  if (agent.tier === 'tool' || agent.deprecated) continue;
+  verifiableCount += 1;
+
+  const v = (agent as any).verification;
+  if (!v) {
+    // AC-1.3: absence is not optimism.
+    fail(
+      `${agentId} has no verification field`,
+      'Every non-deprecated AI assistant needs one, even if the status is "unverified".',
+    );
+    continue;
+  }
+
+  const VALID = ['verified', 'unverified', 'expired', 'failed'];
+  if (!VALID.includes(v.status)) {
+    fail(`${agentId}.verification.status is "${v.status}"`, `Must be one of: ${VALID.join(', ')}`);
+    continue;
+  }
+
+  if (v.status === 'verified') {
+    // AC-3.3 — a verification claim without evidence is what this whole axis exists to prevent.
+    const missing = ['date', 'toolVersion', 'evidence'].filter((k) => !v[k]);
+    if (missing.length) {
+      fail(
+        `${agentId} claims verified but is missing: ${missing.join(', ')}`,
+        'An unevidenced verification claim is exactly the failure this axis was added to catch.',
+      );
+      continue;
+    }
+
+    const age = Math.floor((TODAY.getTime() - new Date(v.date).getTime()) / 86_400_000);
+    if (age > VERIFICATION_SHELF_LIFE_DAYS) {
+      fail(
+        `${agentId} was verified ${age} days ago (shelf life ${VERIFICATION_SHELF_LIFE_DAYS})`,
+        'Set status to "expired" and re-run the probes. Tools change; Gemini CLI stopped existing.',
+      );
+      continue;
+    }
+    verifiedCount += 1;
+    ok(`${agentId} verified ${v.date} (${age}d old, tool ${v.toolVersion})`);
+  } else {
+    ok(`${agentId}: ${v.status}`);
+  }
+}
+
+// The public claim is two numbers; if they drift from the registry the whole point is lost.
+for (const readmePath of READMES) {
+  const full = join(ROOT_DIR, readmePath);
+  if (!existsSync(full)) continue;
+  const text = readFileSync(full, 'utf8');
+
+  // Matches "11 live tools. 0 of them are behaviourally verified." and the zh variants
+  // "11 個現行工具的整合，其中 0 個已通過行為驗證". Allows a modifier between the number and
+  // the noun ("live tools", "個現行工具") — the first version of this regex did not, matched
+  // nothing, and reported a warning that read like a pass. Not finding the sentence is a
+  // FAIL, not a warning: a check that silently compares nothing is worse than no check.
+  const claim = text.match(
+    /(\d+)\s*(?:[\w-]+\s+)?(?:tools|[個个][^，,。\n]{0,4}?工具)[^\n]*?(\d+)\s*(?:of them|[個个]已)/,
+  );
+  if (!claim) {
+    fail(
+      `${readmePath}: the two-number support claim is missing or unparseable`,
+      'Expected e.g. "11 live tools. 0 of them are behaviourally verified." — without it this check compares nothing.',
+    );
+    continue;
+  }
+  const [, claimedTotal, claimedVerified] = claim;
+  // Same population as the verification denominator: live AI assistants only.
+  // Excludes `tier: tool` (SDD tools, not assistants) and deprecated targets — claiming a
+  // discontinued tool as a supported integration is the thing this file already guards against.
+  const actualTotal = verifiableCount;
+
+  if (Number(claimedTotal) !== actualTotal) {
+    fail(
+      `${readmePath}: claims ${claimedTotal} tools, registry has ${actualTotal} live AI assistants`,
+    );
+  } else if (Number(claimedVerified) !== verifiedCount) {
+    fail(
+      `${readmePath}: claims ${claimedVerified} verified, registry has ${verifiedCount}`,
+      'Update the sentence when a verification lands — that number is the point of the axis.',
+    );
+  } else {
+    ok(`${readmePath}: support claim matches registry (${actualTotal} / ${verifiedCount})`);
+  }
+}
+
+process.stdout.write(
+  `\n  ${DIM}${verifiedCount} of ${verifiableCount} integrations behaviourally verified${NC}\n`,
+);
+
+// ───────────────────────────────────────────────────────────────
+// Check 5 — the fourth registry: the hardcoded list in check-ai-agent-sync.sh
+// ───────────────────────────────────────────────────────────────
+section('[5/5] Hardcoded agent list in check-ai-agent-sync.sh');
 
 const syncScriptPath = join(ROOT_DIR, 'scripts/check-ai-agent-sync.sh');
 if (!existsSync(syncScriptPath)) {
