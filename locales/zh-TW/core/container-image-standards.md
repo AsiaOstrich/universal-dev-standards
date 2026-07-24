@@ -2,8 +2,8 @@
 source: ../../../core/container-image-standards.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-17
-source_hash: ac8280a5b7cf
+last_synced: 2026-07-23
+source_hash: 6bf9872a3d26
 status: current
 ---
 
