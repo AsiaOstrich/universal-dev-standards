@@ -1,7 +1,10 @@
 # Delta Trend — is UDS still needed?
 
+**Work item**: 🔭 **Delta Watch (差集守望)** — the standing effort to answer, by measurement,
+how much incremental value UDS still adds over what current models do unaided, and how that
+delta shrinks as models improve. This ledger is one of its artifacts.
 **Purpose**: answer *"do current models still need UDS?"* with data instead of argument.
-**Spec**: XSPEC-357 R6 · **Procedure**: [INTEGRATION-VERIFICATION.md](../../docs/reference/INTEGRATION-VERIFICATION.md)
+**Spec**: XSPEC-357 R6 (dev-platform) · **Procedure**: [INTEGRATION-VERIFICATION.md](../../docs/reference/INTEGRATION-VERIFICATION.md)
 
 ---
 
