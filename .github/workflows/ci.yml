@@ -37,8 +37,29 @@ jobs:
   # appeared only in package.json and scripts/README.md. Wiring it here is what
   # makes the ratchet real.
   #
-  # The companion known-failures file is deliberately NOT run as a gate — it
-  # documents current, re-measured failures, not history.
+  # WIDENED 2026-07-29 (XSPEC-073 G1): 1 of 16 files → all 16, via the documented
+  # command.
+  #
+  # Wiring one file left the other fifteen in exactly the condition the comment
+  # above diagnoses, and the same commit that added this job broke one of them:
+  # efe8df23 bumped TOTAL 23 → 24 in pre-release-check.sh, updated
+  # check-scripts-passing.bats, and missed pre-release-check.bats — the sibling
+  # nothing would have reported. It stayed red six days.
+  #
+  # Measured before widening: all 16 files pass (148 ok / 0 not ok), ~150s, no
+  # network dependency, no absolute paths, no external tools. So this does not
+  # turn CI red on contact.
+  #
+  # The earlier note said the known-failures file must not be gated because it
+  # "documents current, re-measured failures". Its assertions were re-read on
+  # 2026-07-29 and they are crash-only — `[ -x ... ]` and `[ ${#output} -gt 0 ]`.
+  # Nothing asserts that a check FAILS, so fixing the underlying check cannot
+  # break it, and including it is safe. Its maintenance rule (promote an entry
+  # the day it goes green) is unaffected by being run here.
+  #
+  # Uses `npm run test:scripts` rather than naming files, so the gate and the
+  # documented local command stay the same thing — the divergence between those
+  # two is what this whole job exists to close.
   script-ratchet:
     name: Check Script Ratchet
     runs-on: ubuntu-latest
@@ -60,8 +81,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run check-*.sh ratchet
-        run: tests/bats/bin/bats tests/scripts/check-scripts-passing.bats
+      - name: Run all script tests
+        run: npm run test:scripts
 
   lint:
     name: Lint
@@ -152,6 +173,46 @@ jobs:
 
       - name: Run E2E tests
         run: npm run test:e2e
+
+  # XSPEC-073 G2 — the coverage gate was never wired.
+  #
+  # cli/vitest.config.js has carried coverage thresholds since it was written,
+  # but nothing in CI ever ran coverage: `grep -rn coverage .github/workflows/`
+  # returned nothing on 2026-07-29. The thresholds only applied if a human
+  # happened to run `npm run test:coverage` locally, and they were set at
+  # 25/15/25/25 against an actual 63/55/73/64 — so even then they could not fire.
+  #
+  # Runs the full suite (test:coverage = `vitest run --coverage`, include
+  # tests/**/*.test.js), not the unit subset, because that is the set the
+  # thresholds were measured against.
+  #
+  # Single job, not a matrix: coverage is a property of the code, not of the
+  # runner OS, and the matrix exists to catch platform-specific behaviour.
+  coverage:
+    name: Coverage Gate
+    needs: changes
+    if: ${{ needs.changes.outputs.cli == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: cli/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run coverage gate
+        run: npm run test:coverage
 
   translation-sync:
     name: Translation Sync Check

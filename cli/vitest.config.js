@@ -18,12 +18,26 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.js'],
       exclude: ['src/index.js'],
+      // Pinned at measured-minus-3pt so the gate can actually fire.
+      //
+      // Measured 2026-07-29 (`npx vitest run --coverage`, the same set
+      // test:coverage runs): statements 63.00, branches 55.04, functions 73.04,
+      // lines 63.94.
+      //
+      // The previous values were 25/15/25/25, beside the comment "Start with
+      // achievable thresholds, increase as coverage improves". They never were.
+      // A gate 38 points below actual cannot fire — coverage could halve and
+      // still pass — and that is worse than having no gate, because the repo
+      // looks guarded. Found by the XSPEC-073 deep test audit.
+      //
+      // Raise these when coverage rises. A margin of 3pt absorbs the ordinary
+      // drift of adding a file before its tests land; it is not room to regress
+      // into.
       thresholds: {
-        // Start with achievable thresholds, increase as coverage improves
-        lines: 25,
-        branches: 15,
-        functions: 25,
-        statements: 25
+        lines: 60,
+        branches: 52,
+        functions: 70,
+        statements: 60
       }
     },
     testTimeout: 30000,
