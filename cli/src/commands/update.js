@@ -27,6 +27,7 @@ import { config } from '../utils/config-manager.js';
 import {
   installSkillsToMultipleAgents,
   installCommandsToMultipleAgents,
+  deduplicateInstallations,
   getInstalledSkillsInfoForAgent,
   getInstalledCommandsForAgent,
   cleanupDuplicateSkills,
@@ -958,10 +959,15 @@ export async function updateCommand(options) {
           manifest.skills.installed = true;
           manifest.skills.version = repoInfo.skills.version;
           manifest.skills.locale = skillsLocale;
-          manifest.skills.installations = [
+          // Deduplicate: the append form accumulated a duplicate entry every time
+          // an already-installed agent was re-selected. dev-platform's manifest read
+          // `['claude-code', 'claude-code']`. Harmless to the installer, which
+          // dedupes at install time, but every consumer that iterates installations
+          // saw the agent twice. (XSPEC-343 R2)
+          manifest.skills.installations = deduplicateInstallations([
             ...(manifest.skills.installations || []),
             ...installSkills
-          ];
+          ]);
           manifest.skills.names = mergeInstalledNames(manifest.skills.names, skillResult);
 
           // Derive location from installations if not set
@@ -1038,10 +1044,10 @@ export async function updateCommand(options) {
           if (!manifest.commands) manifest.commands = {};
           manifest.commands.installed = true;
           manifest.commands.version = repoInfo.skills.version;  // Track version
-          manifest.commands.installations = [
+          manifest.commands.installations = deduplicateInstallations([
             ...(manifest.commands.installations || []),
             ...installCommands
-          ];
+          ]);
           manifest.commands.names = mergeInstalledNames(manifest.commands.names, cmdResult);
 
           // Update command hashes for integrity tracking
@@ -1143,7 +1149,7 @@ export async function updateCommand(options) {
           manifest.skills.installed = true;
           manifest.skills.version = repoInfo.skills.version;
           manifest.skills.locale = skillsLocale;
-          manifest.skills.installations = [...(manifest.skills.installations || []), ...missingSkills];
+          manifest.skills.installations = deduplicateInstallations([...(manifest.skills.installations || []), ...missingSkills]);
           manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
           if (result.allFileHashes) {
             if (!manifest.skillHashes) manifest.skillHashes = {};
@@ -1187,7 +1193,7 @@ export async function updateCommand(options) {
           if (!manifest.commands) manifest.commands = {};
           manifest.commands.installed = true;
           manifest.commands.version = repoInfo.skills.version;
-          manifest.commands.installations = [...(manifest.commands.installations || []), ...missingCommands];
+          manifest.commands.installations = deduplicateInstallations([...(manifest.commands.installations || []), ...missingCommands]);
           manifest.commands.names = mergeInstalledNames(manifest.commands.names, result);
           if (result.allFileHashes) {
             if (!manifest.commandHashes) manifest.commandHashes = {};

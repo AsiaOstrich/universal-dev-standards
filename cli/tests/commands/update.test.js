@@ -119,6 +119,25 @@ vi.mock('../../src/config/ai-agent-paths.js', () => ({
 }));
 
 vi.mock('../../src/utils/skills-installer.js', () => ({
+  // Mirrors the real implementation: dedupe by agent, preferring project level.
+  // Four manifest writers route appends through this (XSPEC-343 R2).
+  deduplicateInstallations: (list) => {
+    const seen = new Map();
+    const out = [];
+    for (const inst of list || []) {
+      const prev = seen.get(inst.agent);
+      if (prev) {
+        if (inst.level === 'project') {
+          out[out.indexOf(prev)] = inst;
+          seen.set(inst.agent, inst);
+        }
+      } else {
+        seen.set(inst.agent, inst);
+        out.push(inst);
+      }
+    }
+    return out;
+  },
   installSkillsToMultipleAgents: vi.fn(() => Promise.resolve({ totalInstalled: 1, totalErrors: 0 })),
   installCommandsToMultipleAgents: vi.fn(() => Promise.resolve({ totalInstalled: 1, totalErrors: 0 })),
   getInstalledSkillsInfoForAgent: vi.fn(() => ({ installed: false })),
@@ -464,6 +483,32 @@ describe('Update Command', () => {
       await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
 
       expect(installSkillsToMultipleAgents).toHaveBeenCalled();
+    });
+
+    // XSPEC-343 R2 wiring test. The manifest writers appended with
+    // `[...existing, ...new]`, so an agent already recorded gained a second
+    // entry each time. dev-platform's manifest read `['claude-code',
+    // 'claude-code']`. Removing the dedupe call fails this.
+    it('should not duplicate an installation entry for an already-recorded agent', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: [],
+        aiTools: ['opencode'],
+        skills: { installed: false, installations: [{ agent: 'opencode', level: 'project' }] }
+      });
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.0.0' },
+        skills: { version: '1.0.0' }
+      });
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      const written = writeManifest.mock.calls.at(-1)?.[0];
+      const agents = (written?.skills?.installations || []).map(i => i.agent);
+      expect(agents).toEqual(['opencode']);
     });
 
     it('should not show new features prompt when aiTools is empty', async () => {
